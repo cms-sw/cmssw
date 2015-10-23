@@ -45,13 +45,13 @@ outputName = args[0]
 
 if not options.force:
     if os.path.exists(outputName + ".xml"):
-        raise Exception, (outputName + ".xml exists!")
+        raise Exception(outputName + ".xml exists!")
     if os.path.exists(outputName + "_convert_cfg.py"):
-        raise Exception, (outputName + "_convert_cfg.py exists!")
+        raise Exception(outputName + "_convert_cfg.py exists!")
     if os.path.exists(outputName + ".db"):
-        raise Exception, (outputName + ".db exists!")
+        raise Exception(outputName + ".db exists!")
     if os.path.exists(outputName + "_correlations.txt"):
-        raise Exception, (outputName + "_correlations.txt exists!")
+        raise Exception(outputName + "_correlations.txt exists!")
 
 components = "xx", "xy", "xz", "xphix", "xphiy", "xphiz", "yy", "yz", "yphix", "yphiy", "yphiz", "zz", "zphix", "zphiy", "zphiz", "phixphix", "phixphiy", "phixphiz", "phiyphiy", "phiyphiz", "phizphiz"
 for component in components:
@@ -91,7 +91,7 @@ for correlation_coefficient in [abs(xy/sqrt(xx)/sqrt(yy)), abs(xz/sqrt(xx)/sqrt(
                                 abs(phixphiy/sqrt(phixphix)/sqrt(phiyphiy)), abs(phixphiz/sqrt(phixphix)/sqrt(phizphiz)),
                                 abs(phiyphiz/sqrt(phiyphiy)/sqrt(phizphiz))]:
     if correlation_coefficient > 1.:
-        raise Exception, "Correlations must not be larger than one!"
+        raise Exception("Correlations must not be larger than one!")
 
 ### Some useful mathematical transformations (why don't we have access to numpy?)
 

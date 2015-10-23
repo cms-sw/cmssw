@@ -24,12 +24,12 @@ class LeptonAnalyzer( Analyzer ):
         super(LeptonAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
         if self.cfg_ana.doMuScleFitCorrections and self.cfg_ana.doMuScleFitCorrections != "none":
             if self.cfg_ana.doMuScleFitCorrections not in [ "none", "prompt", "prompt-sync", "rereco", "rereco-sync" ]:
-                raise RuntimeError, 'doMuScleFitCorrections must be one of "none", "prompt", "prompt-sync", "rereco", "rereco-sync"'
+                raise RuntimeError('doMuScleFitCorrections must be one of "none", "prompt", "prompt-sync", "rereco", "rereco-sync"')
             rereco = ("prompt" not in self.cfg_ana.doMuScleFitCorrections)
             sync   = ("sync"       in self.cfg_ana.doMuScleFitCorrections)
             self.muscleCorr = MuScleFitCorr(cfg_comp.isMC, rereco, sync)
             if hasattr(self.cfg_ana, "doRochesterCorrections") and self.cfg_ana.doRochesterCorrections:
-                raise RuntimeError, "You can't run both Rochester and MuScleFit corrections!"
+                raise RuntimeError("You can't run both Rochester and MuScleFit corrections!")
         else:
             self.cfg_ana.doMuScleFitCorrections = False
 	#FIXME: only Embedded works
@@ -60,7 +60,7 @@ class LeptonAnalyzer( Analyzer ):
             self.miniIsolationPUCorr = self.cfg_ana.miniIsolationPUCorr
             self.miniIsolationVetoLeptons = self.cfg_ana.miniIsolationVetoLeptons
             if self.miniIsolationVetoLeptons not in [ None, 'any', 'inclusive' ]:
-                raise RuntimeError, "miniIsolationVetoLeptons should be None, or 'any' (all reco leptons), or 'inclusive' (all inclusive leptons)"
+                raise RuntimeError("miniIsolationVetoLeptons should be None, or 'any' (all reco leptons), or 'inclusive' (all inclusive leptons)")
             if self.miniIsolationPUCorr == "weights":
                 self.IsolationComputer = heppy.IsolationComputer(0.4)
             else:
@@ -231,7 +231,7 @@ class LeptonAnalyzer( Analyzer ):
               elif aeta < 2.000: mu.EffectiveArea04 = 0.0913
               elif aeta < 2.200: mu.EffectiveArea04 = 0.1212
               else:              mu.EffectiveArea04 = 0.2085
-          else: raise RuntimeError,  "Unsupported value for mu_effectiveAreas: can only use Data2012 (rho: ?) and Phys14_v1 (rho: fixedGridRhoFastjetAll)"
+          else: raise RuntimeError("Unsupported value for mu_effectiveAreas: can only use Data2012 (rho: ?) and Phys14_v1 (rho: fixedGridRhoFastjetAll)")
         # Attach the vertex to them, for dxy/dz calculation
         for mu in allmuons:
             mu.associatedVertex = event.goodVertices[0] if len(event.goodVertices)>0 else event.vertices[0]
@@ -251,7 +251,7 @@ class LeptonAnalyzer( Analyzer ):
                 mu.absIso03 = (mu.pfIsolationR03().sumChargedHadronPt + max( mu.pfIsolationR03().sumNeutralHadronEt +  mu.pfIsolationR03().sumPhotonEt -  mu.pfIsolationR03().sumPUPt/2,0.0))
                 mu.absIso04 = (mu.pfIsolationR04().sumChargedHadronPt + max( mu.pfIsolationR04().sumNeutralHadronEt +  mu.pfIsolationR04().sumPhotonEt -  mu.pfIsolationR04().sumPUPt/2,0.0))
             else :
-                raise RuntimeError, "Unsupported mu_isoCorr name '" + str(self.cfg_ana.mu_isoCorr) +  "'! For now only 'rhoArea' and 'deltaBeta' are supported."
+                raise RuntimeError("Unsupported mu_isoCorr name '" + str(self.cfg_ana.mu_isoCorr) +  "'! For now only 'rhoArea' and 'deltaBeta' are supported.")
             mu.relIso03 = mu.absIso03/mu.pt()
             mu.relIso04 = mu.absIso04/mu.pt()
         return allmuons
@@ -305,7 +305,7 @@ class LeptonAnalyzer( Analyzer ):
               elif aeta < 2.000: ele.EffectiveArea04 = 0.1077 
               elif aeta < 2.200: ele.EffectiveArea04 = 0.1565 
               else:              ele.EffectiveArea04 = 0.2680 
-          else: raise RuntimeError,  "Unsupported value for ele_effectiveAreas: can only use Data2012 (rho: ?) and Phys14_v1 (rho: fixedGridRhoFastjetAll)"
+          else: raise RuntimeError("Unsupported value for ele_effectiveAreas: can only use Data2012 (rho: ?) and Phys14_v1 (rho: fixedGridRhoFastjetAll)")
 
         # Electron scale calibrations
         if self.cfg_ana.doElectronScaleCorrections:
@@ -325,7 +325,7 @@ class LeptonAnalyzer( Analyzer ):
                  ele.absIso03 = (ele.chargedHadronIsoR(0.3) + max( ele.neutralHadronIsoR(0.3)+ele.photonIsoR(0.3) - ele.puChargedHadronIsoR(0.3)/2, 0.0))
                  ele.absIso04 = (ele.chargedHadronIsoR(0.4) + max( ele.neutralHadronIsoR(0.4)+ele.photonIsoR(0.4) - ele.puChargedHadronIsoR(0.4)/2, 0.0))
             else :
-                 raise RuntimeError, "Unsupported ele_isoCorr name '" + str(self.cfg_ana.ele_isoCorr) +  "'! For now only 'rhoArea' and 'deltaBeta' are supported."
+                 raise RuntimeError("Unsupported ele_isoCorr name '" + str(self.cfg_ana.ele_isoCorr) +  "'! For now only 'rhoArea' and 'deltaBeta' are supported.")
             ele.relIso03 = ele.absIso03/ele.pt()
             ele.relIso04 = ele.absIso04/ele.pt()
 
@@ -339,7 +339,7 @@ class LeptonAnalyzer( Analyzer ):
                  try:
                      ele.tightIdResult = ele.electronID(self.cfg_ana.ele_tightId)
                  except RuntimeError:
-                     raise RuntimeError, "Unsupported ele_tightId name '" + str(self.cfg_ana.ele_tightId) +  "'! For now only 'MVA' and 'Cuts_2012' are supported, in addition to what provided in Electron.py."
+                     raise RuntimeError("Unsupported ele_tightId name '" + str(self.cfg_ana.ele_tightId) +  "'! For now only 'MVA' and 'Cuts_2012' are supported, in addition to what provided in Electron.py.")
 
         
         return allelectrons 
@@ -376,7 +376,7 @@ class LeptonAnalyzer( Analyzer ):
                     mu.miniAbsIsoPU = self.IsolationComputer.puAbsIso(mu.physObj, mu.miniIsoR, 0.015 if what == "eleE" else 0.0, 0.0);
                 mu.miniAbsIsoNeutral = max(0.0, mu.miniAbsIsoNeutral - 0.5*mu.miniAbsIsoPU)
             elif self.miniIsolationPUCorr != 'raw':
-                raise RuntimeError, "Unsupported miniIsolationCorr name '" + str(self.cfg_ana.miniIsolationCorr) +  "'! For now only 'rhoArea', 'deltaBeta', 'raw', 'weights' are supported (and 'weights' is not tested)."
+                raise RuntimeError("Unsupported miniIsolationCorr name '" + str(self.cfg_ana.miniIsolationCorr) +  "'! For now only 'rhoArea', 'deltaBeta', 'raw', 'weights' are supported (and 'weights' is not tested).")
         mu.miniAbsIso = mu.miniAbsIsoCharged + mu.miniAbsIsoNeutral
         mu.miniRelIso = mu.miniAbsIso/mu.pt()
 

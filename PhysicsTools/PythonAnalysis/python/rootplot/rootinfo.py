@@ -123,7 +123,7 @@ def main():
         tfile = TFile(filename, "read")
         try:
             recurse_thru_file(tfile, arguments)
-        except IOError, e:
+        except IOError as e:
             if e.errno != 32:
                 raise
 

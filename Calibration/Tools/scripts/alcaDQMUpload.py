@@ -190,7 +190,7 @@ def startUpload(url, filename):
         print 'Message:     ', headers.get("Dqm-Status-Message", "None")
         print 'Detail:      ', headers.get("Dqm-Status-Detail", "None")
         print data
-    except urllib2.HTTPError, e:
+    except urllib2.HTTPError as e:
         print "ERROR", e
         print 'Status code: ', e.hdrs.get("Dqm-Status-Code", "None")
         print 'Message:     ', e.hdrs.get("Dqm-Status-Message", "None")

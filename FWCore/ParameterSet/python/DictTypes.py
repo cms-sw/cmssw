@@ -52,7 +52,7 @@ class SortedKeysDict(dict):
 class SortedAndFixedKeysDict(SortedKeysDict):
     """a sorted dictionary with fixed/frozen keys"""
     def _blocked_attribute(obj):
-        raise AttributeError, "A SortedAndFixedKeysDict cannot be modified."
+        raise AttributeError("A SortedAndFixedKeysDict cannot be modified.")
     _blocked_attribute = property(_blocked_attribute)
     __delitem__ = __setitem__ = clear = _blocked_attribute
     pop = popitem = setdefault = update = _blocked_attribute
@@ -69,7 +69,7 @@ class SortedAndFixedKeysDict(SortedKeysDict):
 #helper based on code from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/414283
 class FixedKeysDict(dict):
     def _blocked_attribute(obj):
-        raise AttributeError, "A FixedKeysDict cannot be modified."
+        raise AttributeError("A FixedKeysDict cannot be modified.")
     _blocked_attribute = property(_blocked_attribute)
 
     __delitem__ = __setitem__ = clear = _blocked_attribute

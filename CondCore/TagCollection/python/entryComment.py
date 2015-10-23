@@ -23,9 +23,9 @@ class entryComment(object):
             result=schema.existsTable(CommonUtils.commentTableName())
             transaction.commit()
             #print result
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
-            raise Exception, str(er)
+            raise Exception(str(er))
         return result
     
     def createEntryCommentTable(self):
@@ -46,9 +46,9 @@ class entryComment(object):
            tablehandle=schema.createTable(description)
            tablehandle.privilegeManager().grantToPublic(coral.privilege_Select)
            transaction.commit()
-        except Exception, e:
+        except Exception as e:
            transaction.rollback() 
-           raise Exception, str(e)
+           raise Exception(str(e))
     def insertComment( self, tablename, entryid,comment ):
         """insert comment on the given entry of given table
         """
@@ -60,9 +60,9 @@ class entryComment(object):
             dbop=DBImpl.DBImpl(schema)
             dbop.insertOneRow(CommonUtils.commentTableName(),self.__entryCommentTableColumns,tabrowValueDict)
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
     def bulkinsertComments( self, tableName,bulkinput):
         """bulk insert comments for a given table
         bulkinput [{'entryid':unsigned long, 'tablename':string,'comment':string}]
@@ -74,9 +74,9 @@ class entryComment(object):
             dbop=DBImpl.DBImpl(schema)
             dbop.bulkInsert(CommonUtils.commentTableName(),self.__entryCommentTableColumns,bulkinput)
             transaction.commit()  
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
-            raise Exception, str(e)    
+            raise Exception(str(e))    
         
     def getCommentForId( self, tableName, entryid ):
         """get comment for given id in given table
@@ -102,9 +102,9 @@ class entryComment(object):
             transaction.commit()
             del query
             return comment
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
     def getCommentsForTable( self, tableName ):
         """get all comments for given table
         result=[(entryid,comment)]
@@ -132,9 +132,9 @@ class entryComment(object):
             transaction.commit()
             del query
             return result
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
         
     def modifyCommentForId( self, tableName, entryid, newcomment ):
         """replace comment for given entry for given table
@@ -152,9 +152,9 @@ class entryComment(object):
             inputData['tablename'].setData(tableName)
             editor.updateRows( "comment = :newcomment", "entryid = :entryid AND tablename = :tablename", inputData )
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
 
     def replaceId( self, tableName, oldentryid, newentryid ):
         """replace entryid in given table
@@ -172,9 +172,9 @@ class entryComment(object):
             inputData['tablename'].setData(tableName)
             editor.updateRows( "entryid = :newentryid", "entryid = :oldentryid AND tablename = :tablename", inputData )
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
         
     def deleteCommentForId( self, tablename, entryid):
         """delete selected comment entry 
@@ -191,9 +191,9 @@ class entryComment(object):
             conditionbindDict['entryid'].setData(entryid)
             dbop.deleteRows(CommonUtils.commentTableName(),condition,conditionbindDict)
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
         
     def clearAllEntriesForTable( self, tablename ):
         """delete all entries related with given table
@@ -208,9 +208,9 @@ class entryComment(object):
             conditionbindDict['tablename'].setData(tablename)
             dbop.deleteRows(CommonUtils.commentTableName(),condition,conditionbindDict)
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
         
     
 if __name__ == "__main__":
@@ -248,7 +248,7 @@ if __name__ == "__main__":
         entrycomment.clearAllEntriesForTable(CommonUtils.inventoryTableName())
         print entrycomment.getCommentsForTable(CommonUtils.inventoryTableName())
         del session
-    except Exception, e:
+    except Exception as e:
         print "Failed in unit test"
         print str(e)
         del session

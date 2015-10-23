@@ -745,7 +745,7 @@ class Dataset:
         if jsonPath == "" and begin == "" and end == "" and firstRun == "" and lastRun == "":
             try:
                 self.dump_cff(parent = parent)
-            except AllInOneError, e:
+            except AllInOneError as e:
                 print "Can't store the dataset as a cff:"
                 print e
                 print "This may be inconvenient in the future, but will not cause a problem for this validation."

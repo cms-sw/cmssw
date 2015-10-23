@@ -19,7 +19,7 @@ def CmdUsage():
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "CDAELRr:a:p:h", ['create', 'drop', 'add', 'erase', 'list','read','create_res','drop_res','create_ref','drop_ref','help'])
-except getopt.GetoptError, err:
+except getopt.GetoptError as err:
     # print help information and exit:
     print str(err) # will print something like "option -a not recognized"
     CmdUsage()

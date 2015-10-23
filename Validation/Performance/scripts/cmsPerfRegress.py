@@ -946,12 +946,12 @@ def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=T
         
     try:
         (min_val1,max_val1,nbins1,npoints1,last_event1) = getLimits(data1,secsperbin)
-    except IndexError, detail:
+    except IndexError as detail:
         raise TimingParseErr(oldLogfile)
     
     try:
         (min_val2,max_val2,nbins2,npoints2,last_event2) = getLimits(data2,secsperbin)
-    except IndexError, detail:
+    except IndexError as detail:
         raise TimingParseErr(newLogfile)
 
     hsStack  = ROOT.THStack("hsStack","Histogram Comparison")
@@ -1025,7 +1025,7 @@ def rmtree(path):
         #Brute force solution:
         RemoveCmd="rm -Rf %s"%path
         os.system(RemoveCmd)
-    except OSError, detail:
+    except OSError as detail:
         if detail.errno == 39:
             try:
                 gen = os.walk(path)
@@ -1037,9 +1037,9 @@ def rmtree(path):
                     os.remove(os.path.join(path,f))
                 for d in dirs:
                     rmtree(os.path.join(path,d))
-            except OSError, detail:
+            except OSError as detail:
                 print detail
-            except IOError, detail:
+            except IOError as detail:
                 print detail
             os.remove(path)
 
@@ -1047,7 +1047,7 @@ def perfreport(perftype,file1,file2,outdir,IgProfMemopt=""):
     src = ""
     try:
         src = os.environ["CMSSW_SEARCH_PATH"]
-    except KeyError , detail:
+    except KeyError as detail:
         print "ERROR: scramv1 environment could not be located", detail 
 
     vars = src.split(":")
@@ -1066,7 +1066,7 @@ def perfreport(perftype,file1,file2,outdir,IgProfMemopt=""):
     try:
         cmssw_release_base = os.environ['CMSSW_RELEASE_BASE']
         cmssw_data = os.environ['CMSSW_DATA_PATH']
-    except KeyError, detail:
+    except KeyError as detail:
         raise PerfReportErr
 
     xmlfile = os.path.join(cmssw_release_base,"src","Validation","Performance","doc","regress.xml")
@@ -1096,9 +1096,9 @@ def perfreport(perftype,file1,file2,outdir,IgProfMemopt=""):
     try:
         rmtree(tmpdir)        #Brute force solution rm -RF tmpdir done in rmtree()
         #os.rmdir(tmpdir)
-    except IOError, detail:
+    except IOError as detail:
         print "WARNING: Could not remove dir because IO%s" % detail                
-    except OSError, detail:
+    except OSError as detail:
         print "WARNING: Could not remove dir because %s" % detail                
 
     if True:
@@ -1143,13 +1143,13 @@ def cmpIgProfReport(outdir,file1,file2,IgProfMemOpt=""):
 
         os.remove(tfile1)
         os.remove(tfile2)
-    except OSError, detail:
+    except OSError as detail:
         raise PerfReportErr("WARNING: The OS returned the following error when comparing %s and %s\n%s" % (file1,file2,str(detail)))
         if os.path.exists(tfile1):
             os.remove(tfile1)
         if os.path.exists(tfile2):
             os.remove(tfile2)
-    except IOError, detail:
+    except IOError as detail:
         raise PerfReportErr("IOError: When comparing %s and %s using temporary files %s and %s. Error message:\n%s" % (file1,file2,tfile1,tfile2,str(detail)))
         if os.path.exists(tfile1):
             os.remove(tfile1)
@@ -1178,15 +1178,15 @@ def _main():
             cmpCallgrindReport(outdir,file1,file2)
         elif reporttype == "igprof":
             cmpIgProfReport(outdir,file1,file2,IgProfMemOptions)            
-    except TimingParseErr, detail:
+    except TimingParseErr as detail:
         print "WARNING: Could not parse data from Timing report file %s; not performing regression" % detail.message
-    except SimpMemParseErr, detail:
+    except SimpMemParseErr as detail:
         print "WARNING: Could not parse data from Memory report file %s; not performing regression" % detail.message
-    except PerfReportErr     , detail:
+    except PerfReportErr as detail:
         print "WARNING: Could not parse data from Edm file %s; not performing regression" % detail.message
-    except IOError, detail:
+    except IOError as detail:
         print detail
-    except OSError, detail:
+    except OSError as detail:
         print detail
 
 if __name__ == "__main__":
