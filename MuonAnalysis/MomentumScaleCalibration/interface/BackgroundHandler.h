@@ -17,6 +17,9 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+// Unit test for testing BackgroundHandler
+class TestBackgroundHandler;
+
 /**
  * This class is used to handle the different background functions for the
  * different regions. <br>
@@ -28,6 +31,9 @@
  */
 class BackgroundHandler
 {
+  // For tests
+  friend class TestBackgroundHandler;
+
 public:
   BackgroundHandler( const std::vector<int> & identifiers,
                      const std::vector<double> & leftWindowBorders,

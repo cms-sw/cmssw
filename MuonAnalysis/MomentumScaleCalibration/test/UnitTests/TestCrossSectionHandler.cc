@@ -11,11 +11,7 @@
 #include <iterator>
 #include <boost/foreach.hpp>
 
-#define private public
-#define protected public
 #include "MuonAnalysis/MomentumScaleCalibration/interface/CrossSectionHandler.h"
-#undef private
-#undef protected
 
 #ifndef TestCrossSectionHandler_cc
 #define TestCrossSectionHandler_cc
