@@ -179,7 +179,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       auto temp = seltk.trackBaseRef();
       double time = trackTimes[temp];
       double timeReso = trackTimeResos[temp];
-      timeReso = ( timeReso > 1e-6 ? timeReso : 1.0 ); // make the error much larger than the BS time width
+      timeReso = ( timeReso > 1e-6 ? timeReso : 0.170 ); // make the error much larger than the BS time width
       if( edm::isNotFinite(time) ) {
         time = 0.0;
         timeReso = 1.0;
@@ -210,17 +210,21 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     std::vector<TransientVertex> pvs;
     for (std::vector< std::vector<reco::TransientTrack> >::const_iterator iclus
 	   = clusters.begin(); iclus != clusters.end(); iclus++) {
-
-      double avgtime = 0.;
-      double timenorm = 0.;
-      double maxerr = 0.;
+      
+      double meantime = 0.;
+      double expv_x2 = 0.;
+      double normw = 0.;      
       for( const auto& tk : *iclus ) {
-        maxerr = std::max(maxerr,tk.dtErrorExt());
-        avgtime += tk.timeExt();
-        timenorm += 1.;
+        const double time = tk.timeExt();
+        const double inverr = 1.0/tk.dtErrorExt();
+        meantime += time*inverr;
+        expv_x2  += time*time*inverr;
+        normw    += inverr;
       }
-      avgtime = avgtime/timenorm;
-      maxerr = maxerr/std::sqrt(iclus->size());
+      meantime = meantime/normw;
+      expv_x2 = expv_x2/normw;
+      const double time_var = expv_x2 - meantime*meantime; 
+
 
       TransientVertex v; 
       if( algorithm->useBeamConstraint && validBS &&((*iclus).size()>1) ){
@@ -231,8 +235,8 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
           std::cout << "beamspot constrained thingy" << std::endl;
           auto err = v.positionError().matrix4D();
           std::cout << "got the error" << std::endl;
-          err(3,3) = maxerr*maxerr;        
-          v = TransientVertex(v.position(),avgtime,err,v.originalTracks(),v.totalChiSquared());
+          err(3,3) = time_var/(double)iclus->size();        
+          v = TransientVertex(v.position(),meantime,err,v.originalTracks(),v.totalChiSquared());
         }
 	
       }else if( !(algorithm->useBeamConstraint) && ((*iclus).size()>1) ) {
@@ -243,8 +247,8 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
           std::cout << "beamspot constrained thingy" << std::endl;
           auto err = v.positionError().matrix4D();
           std::cout << "got the error" << std::endl;
-          err(3,3) = maxerr*maxerr;          
-          v = TransientVertex(v.position(),avgtime,err,v.originalTracks(),v.totalChiSquared());
+          err(3,3) = time_var/(double)iclus->size();          
+          v = TransientVertex(v.position(),meantime,err,v.originalTracks(),v.totalChiSquared());
         }
 	
       }// else: no fit ==> v.isValid()=False

@@ -45,10 +45,12 @@ DAClusterizerInZT::fill( const vector<reco::TransientTrack> & tracks )const{
       t.pi=1./(1.+exp(pow(IP.value()/IP.error(),2) - std::pow(d0CutOff_ ,2)));  // reduce weight for high ip tracks  
     }else{
       t.pi=1.;
-    }
+    }    
     t.tt=&(*it);
     t.Z=1.;
-    tks.push_back(t);
+    if( t.pi > 1e-3 ) {
+      tks.push_back(t);
+    }
   }
   return tks;
 }
@@ -98,7 +100,7 @@ double DAClusterizerInZT::update( double beta,
       // accumulate weighted z and weights for vertex update
       for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); ++k){
 	k->se  += tks[i].pi* k->ei / Zi;
-	const double w = k->pk * tks[i].pi* k->ei / ( Zi * ( tks[i].dz2 + tks[i].dt2 ) );
+	const double w = k->pk * tks[i].pi* k->ei / ( Zi * ( tks[i].dz2 * tks[i].dt2 ) );
 	k->sw  += w;
 	k->swz += w * tks[i].z;
         k->swt += w * tks[i].t;
@@ -168,7 +170,7 @@ double DAClusterizerInZT::update( double beta,
        // accumulate weighted z and weights for vertex update
       for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
 	k->se += tks[i].pi* k->ei / Zi;
-	double w = k->pk * tks[i].pi * k->ei /( Zi * ( tks[i].dz2 + tks[i].dt2 ) );
+	double w = k->pk * tks[i].pi * k->ei /( Zi * ( tks[i].dz2 * tks[i].dt2 ) );
 	k->sw  += w;
 	k->swz += w * tks[i].z;
         k->swt += w * tks[i].t;
@@ -314,7 +316,7 @@ double DAClusterizerInZT::beta0( double betamax,
     double sumwt=0.;
     double sumw=0.;
     for(unsigned int i=0; i<nt; i++){
-      double w = tks[i].pi/(tks[i].dz2 + tks[i].dt2);
+      double w = tks[i].pi/(tks[i].dz2 * tks[i].dt2);
       sumwz += w*tks[i].z;
       sumwt += w*tks[i].t;
       sumw  += w;
@@ -327,7 +329,7 @@ double DAClusterizerInZT::beta0( double betamax,
     for(unsigned int i=0; i<nt; i++){
       double dx = tks[i].z-(k->z);
       double dt = tks[i].t-(k->t);
-      double w  = tks[i].pi/(tks[i].dz2 + tks[i].dt2);
+      double w  = tks[i].pi/(tks[i].dz2 * tks[i].dt2);
       a += w*(std::pow(dx,2.)/tks[i].dz2 + std::pow(dt,2.)/tks[i].dt2);
       b += w;
     }
@@ -374,7 +376,7 @@ bool DAClusterizerInZT::split( double beta,
       if(tks[i].Z>0){
 	//sumpi+=tks[i].pi;
 	double p=y[ik].pk * exp(-beta*Eik(tks[i],y[ik])) / tks[i].Z*tks[i].pi;
-	double w=p/(tks[i].dz2 + tks[i].dt2);
+	double w=p/(tks[i].dz2 * tks[i].dt2);
 	if(tks[i].z < y[ik].z){
 	  p1+=p; z1+=w*tks[i].z; t1+=w*tks[i].t; w1+=w;
 	}else{
@@ -576,7 +578,7 @@ const
 {
  
   vector<track_t> tks=fill(tracks);
-  unsigned int nt=tracks.size();
+  unsigned int nt=tks.size();
   double rho0=0.0;  // start with no outlier rejection
 
   vector< TransientVertex > clusters;
@@ -684,15 +686,27 @@ const
     GlobalPoint pos(0, 0, k->z);
     double time = k->t;
     vector< reco::TransientTrack > vertexTracks;
-    double max_track_time_err2 = 0;
+    //double max_track_time_err2 = 0;
+    double mean = 0.;
+    double expv_x2 = 0.;
+    double normw = 0.;
     for(unsigned int i=0; i<nt; i++){
+      const double invdt = 1.0/std::sqrt(tks[i].dt2);
       if(tks[i].Z>0){
 	double p = k->pk * exp(-beta*Eik(tks[i],*k)) / tks[i].Z;
-	if( (tks[i].pi>0) && ( p > 0.5 ) ){ vertexTracks.push_back(*(tks[i].tt)); tks[i].Z=0; } // setting Z=0 excludes double assignment 
-        max_track_time_err2 = std::max(max_track_time_err2,tks[i].dt2);
+	if( (tks[i].pi>0) && ( p > 0.5 ) ){ 
+          //std::cout << "pushing back " << i << ' ' << tks[i].tt << std::endl;
+          vertexTracks.push_back(*(tks[i].tt)); tks[i].Z=0; 
+          mean     += tks[i].t*invdt*p;
+          expv_x2  += tks[i].t*tks[i].t*invdt*p;
+          normw    += invdt*p;
+        } // setting Z=0 excludes double assignment        
       }
     }
-    const double crappy_error_guess = std::sqrt(max_track_time_err2/vertexTracks.size());
+    mean = mean/normw;
+    expv_x2 = expv_x2/normw;
+    const double time_var = expv_x2 - mean*mean;    
+    const double crappy_error_guess = std::sqrt(time_var);
     GlobalError dummyErrorWithTime(0,
                                    0,0,
                                    0,0,0,
@@ -730,18 +744,25 @@ DAClusterizerInZT::clusterize(const vector<reco::TransientTrack> & tracks)
   // fill into clusters and merge
   vector< reco::TransientTrack>  aCluster=pv.begin()->originalTracks();
   
+  if( verbose_ ) { 
+      std::cout << '\t' << 0;
+      std::cout << ' ' << pv.begin()->position() << ' ' << pv.begin()->time() << std::endl; 
+    }
+
   for(vector<TransientVertex>::iterator k=pv.begin()+1; k!=pv.end(); k++){
     if( verbose_ ) { 
       std::cout << '\t' << std::distance(pv.begin(),k);
       std::cout << ' ' << k->position() << ' ' << k->time() << std::endl; 
     }
-    if ( std::abs(k->position().z() - (k-1)->position().z()) > (2*vertexSize_) || 
+    if ( std::abs(k->position().z() - (k-1)->position().z()) > (2*vertexSize_) ||
          std::abs(k->time() - (k-1)->time()) > 2*0.010 ) {
       // close a cluster
       clusters.push_back(aCluster);
       aCluster.clear();
     }
-    for(unsigned int i=0; i<k->originalTracks().size(); i++){ aCluster.push_back( k->originalTracks().at(i)); }
+    for(unsigned int i=0; i<k->originalTracks().size(); i++){ 
+      aCluster.push_back( k->originalTracks().at(i)); 
+    }
     
   }
   clusters.push_back(aCluster);
