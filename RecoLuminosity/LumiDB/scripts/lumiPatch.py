@@ -373,7 +373,7 @@ def main():
             #print 'max key: ',max( [ x for x in deadresult.keys()])
             print 'alert: missing Lumi Sections in the middle'
             for x in range(1,max( [ x for x in deadresult.keys()] ) ):
-                if not deadresult.has_key(x):
+                if x not in deadresult:
                     print 'filling up LS deadtime with 0: LS : ',x
                     deadresult[x]=0
         #print deadresult
@@ -400,7 +400,7 @@ def main():
         if len(deadresult)!=max( [ (deadresult[x],x) for x in deadresult])[1]:
             print 'alert: missing Lumi Sections in the middle'
             for x in range(1,max( [ (deadresult[x],x) for x in deadresult])[1]):
-                if not deadresult.has_key(x):
+                if x not in deadresult:
                     print 'filling up LS deadtime with 0: LS : ',x
                     deadresult[x]=0
         print deadresult

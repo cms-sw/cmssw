@@ -146,7 +146,7 @@ def readlog(logfile):
     return astr
 
 def getCPSkeyword(key,dict):
-    if dict.has_key(key):
+    if key in dict:
         return dict[key]
     else:
         return _DEFAULTS[key]
@@ -184,7 +184,7 @@ def request_benchmark(cmds):
             if os.path.exists(logfile):
                 logfile = logfile + str(cmd_num)
             print cmd
-            if cmd.has_key('cpus'):
+            if 'cpus' in cmd:
                 if cmd['cpus'] == "All":
                     print "Running performance suite on all CPUS!\n"
                     cmd['cpus']=""

@@ -89,7 +89,7 @@ def insertLumiDetaildata(dbsession,perlsrawdata,perbunchrawdata,summaryidlsmap):
             bxquality=array.array('h')
             for bxidx in range(1,3565):
                 lumifraction=0.0
-                if perbunchrawdata.has_key(bxidx):
+                if bxidx in perbunchrawdata:
                     lumifraction=perbunchrawdata[bxidx]
                 bxlumivalue=float(instlumi*lumifraction)
                 bxdataocc1.append(bxlumivalue)

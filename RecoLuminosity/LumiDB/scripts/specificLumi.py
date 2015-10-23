@@ -166,7 +166,7 @@ def specificlumiTofile(fillnum,filldata,outdir):
             speclumierror= perlsdata[5]
             if lumi>0:
                 linedata.append([ts,beamstatusfrac,lumi,lumierror,speclumi,speclumierror])
-            if not timedict.has_key(ts):
+            if ts not in timedict:
                 timedict[ts]=[]
             timedict[ts].append([beamstatusfrac,lumi,lumierror,speclumi,speclumierror])
         if len(linedata)>10:#at least 10 good ls

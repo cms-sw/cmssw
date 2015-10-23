@@ -77,7 +77,7 @@ class ElasticReport(object):
 
     def update_doc_recursive(self, old_obj, new_obj):
         for key, value in new_obj.items():
-            if (old_obj.has_key(key) and 
+            if (key in old_obj and 
                 isinstance(value, dict) and 
                 isinstance(old_obj[key], dict)):
 
@@ -277,7 +277,7 @@ class FDJsonHandler(AsyncLineReaderMixin, asyncore.dispatcher):
             doc = json.loads(line)
 
             for k in ["pid", "run", "lumi"]:
-                if doc.has_key(k):
+                if k in doc:
                     doc[k] = int(doc[k])
 
             self.es.update_doc_recursive(self.es.doc, doc)

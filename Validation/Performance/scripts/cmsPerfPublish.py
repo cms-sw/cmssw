@@ -161,7 +161,7 @@ class Table(object):
                 for col in self.colNames:
                     if col == None:
                         pass
-                    elif rowdict.has_key(col) and not col == name:
+                    elif col in rowdict and not col == name:
                         if mode == 1:
                             total1 += rowdict[col]
                         else:
@@ -191,7 +191,7 @@ class Table(object):
                     pass
                 else:
                     row_dict = self.rows[key].getRowDict()
-                    if row_dict.has_key(key):
+                    if key in row_dict:
                         rowobj.addEntry(key,row_dict[col])
         return transp
 
@@ -1335,7 +1335,7 @@ def createHTMLtab(INDEX,table_dict,ordered_keys,header,caption,name,mode=0):
                 INDEX.write("</th>")                            
             else:
                 rowdict = table_dict[key].getRowDict()
-                if rowdict.has_key(col):
+                if col in rowdict:
                     if mode == 2:
                         dat = prettySize(rowdict[col])
                         INDEX.write("<td>")

@@ -1031,7 +1031,7 @@ DQM_SEVERITY = [
 
 def addToTestResults(c,res):
   if len(res)>0:
-    if TEST_RESULTS.has_key(c): TEST_RESULTS[c].extend(res)
+    if c in TEST_RESULTS: TEST_RESULTS[c].extend(res)
     else: TEST_RESULTS[c] = res
 
 
@@ -1150,7 +1150,7 @@ def doTestsForMapPlots(cells):
       print "strange cell ID: ", c
       return None
     
-    if MAP_RESULTS_FITSIN.has_key(c):
+    if c in MAP_RESULTS_FITSIN:
       t = MAP_RESULTS_FITSIN[c]
       t_a = testZeroWithin5Sigma(t['a'])
       t_s = testZeroWithin5Sigma(t['sin'])
@@ -1159,7 +1159,7 @@ def doTestsForMapPlots(cells):
         descr = "map fitsin 5 sigma away from 0; pulls : a=%.2f sin=%.2f, cos=%.2f" % (t_a,t_s,t_c)
         res.append(testEntry("MAP_FITSIN",scope,descr,"SEVERE"))
     
-    if MAP_RESULTS_SAWTOOTH.has_key(c):
+    if c in MAP_RESULTS_SAWTOOTH:
       t = MAP_RESULTS_SAWTOOTH[c]
       
       t_a = testDeltaWithin5Sigma(t['a'],t['da'])
