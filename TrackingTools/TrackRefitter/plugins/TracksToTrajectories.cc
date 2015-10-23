@@ -1,13 +1,13 @@
-#include "TrackingTools/TrackRefitter/plugins/TracksToTrajectories.h"
-
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 #include "TrackingTools/TrackRefitter/interface/TrackTransformerForGlobalCosmicMuons.h"
 #include "TrackingTools/TrackRefitter/interface/TrackTransformerForCosmicMuons.h"
 
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -16,22 +16,70 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+/** \class TracksToTrajectories
+ *  This class, which is a EDProducer, takes a reco::TrackCollection from the Event and refits the rechits 
+ *  strored in the reco::Tracks. The final result is a std::vector of Trajectories (objs of the type "Trajectory"), 
+ *  which is loaded into the Event in a transient way
+ *
+ *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
+ */
+
+// In principle this should be anonymous namespace, but then
+// DEFINE_FWK_MODULE() will yield compilation warnings, so using
+// (hopefully) unique namespace instead.
+// The point of the namespace is to not to pollute the global
+// namespace (and symbol space).
+namespace tracksToTrajectories {
+  struct Count {
+    Count(): theNTracks(0), theNFailures(0) {}
+    //Using mutable since we want to update the value.
+    mutable std::atomic<int> theNTracks;
+    mutable std::atomic<int> theNFailures;
+  };
+}
+using namespace tracksToTrajectories;
+
+class TracksToTrajectories: public edm::stream::EDProducer<edm::GlobalCache<Count>> {
+public:
+
+  /// Constructor
+  TracksToTrajectories(const edm::ParameterSet&, const Count*);
+
+  /// Destructor
+  virtual ~TracksToTrajectories();
+
+  static std::unique_ptr<Count> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::make_unique<Count>();
+  }
+
+  // Operations
+  static void globalEndJob(Count const* iCount);
+
+  /// Convert a reco::TrackCollection into std::vector<Trajectory>
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+
+ private:
+
+  edm::EDGetTokenT<reco::TrackCollection> theTracksToken;
+  std::unique_ptr<TrackTransformerBase> theTrackTransformer;
+};
+
+
 using namespace std;
 using namespace edm;
 
 /// Constructor
-TracksToTrajectories::TracksToTrajectories(const ParameterSet& parameterSet):theTrackTransformer(0),
-									     theNTracks(0),theNFailures(0){
+TracksToTrajectories::TracksToTrajectories(const ParameterSet& parameterSet, const Count*) {
 
-  theTracksLabel = parameterSet.getParameter<InputTag>("Tracks");
+  theTracksToken = consumes<reco::TrackCollection>(parameterSet.getParameter<InputTag>("Tracks"));
 
   ParameterSet trackTransformerParam = parameterSet.getParameter<ParameterSet>("TrackTransformer");
 
   string type = parameterSet.getParameter<string>("Type");
 
-  if(type == "Default") theTrackTransformer = new TrackTransformer(trackTransformerParam);
-  else if(type == "GlobalCosmicMuonsForAlignment") theTrackTransformer = new TrackTransformerForGlobalCosmicMuons(trackTransformerParam);
-  else if(type == "CosmicMuonsForAlignment") theTrackTransformer = new TrackTransformerForCosmicMuons(trackTransformerParam);
+  if(type == "Default") theTrackTransformer = std::make_unique<TrackTransformer>(trackTransformerParam);
+  else if(type == "GlobalCosmicMuonsForAlignment") theTrackTransformer = std::make_unique<TrackTransformerForGlobalCosmicMuons>(trackTransformerParam);
+  else if(type == "CosmicMuonsForAlignment") theTrackTransformer = std::make_unique<TrackTransformerForCosmicMuons>(trackTransformerParam);
   else{
     throw cms::Exception("TracksToTrajectories") 
       <<"The selected algorithm does not exist"
@@ -47,13 +95,14 @@ TracksToTrajectories::TracksToTrajectories(const ParameterSet& parameterSet):the
  
 
 /// Destructor
-TracksToTrajectories::~TracksToTrajectories(){
-  if(theTrackTransformer) delete theTrackTransformer;
-}
+TracksToTrajectories::~TracksToTrajectories() {}
 
-void TracksToTrajectories::endJob(){
-  const string metname = "Reco|TrackingTools|TracksToTrajectories";
-  
+void TracksToTrajectories::globalEndJob(Count const *iCount) {
+  constexpr char metname[] = "Reco|TrackingTools|TracksToTrajectories";
+
+  auto theNFailures = iCount->theNFailures.load();
+  auto theNTracks = iCount->theNTracks.load();
+
   if(theNFailures!=0)
     LogWarning(metname) << "During the refit there were " 
 			<< theNFailures << " out of " << theNTracks << " tracks, i.e. failure rate is: " << double(theNFailures)/theNTracks;
@@ -65,8 +114,9 @@ void TracksToTrajectories::endJob(){
 
 /// Convert Tracks into Trajectories
 void TracksToTrajectories::produce(Event& event, const EventSetup& setup){
-
-  const string metname = "Reco|TrackingTools|TracksToTrajectories";
+#ifdef EDM_ML_DEBUG
+  constexpr char metname[] = "Reco|TrackingTools|TracksToTrajectories";
+#endif
 
   theTrackTransformer->setServices(setup);
   
@@ -82,7 +132,7 @@ void TracksToTrajectories::produce(Event& event, const EventSetup& setup){
  
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> tracks;
-  event.getByLabel(theTracksLabel,tracks);
+  event.getByToken(theTracksToken, tracks);
   
   Ref<vector<Trajectory> >::key_type trajectoryIndex = 0;
   reco::TrackRef::key_type trackIndex = 0;
@@ -91,7 +141,7 @@ void TracksToTrajectories::produce(Event& event, const EventSetup& setup){
   for (reco::TrackCollection::const_iterator newTrack = tracks->begin(); 
        newTrack != tracks->end(); ++newTrack) {
     
-    ++theNTracks;
+    ++(globalCache()->theNTracks);
 
     vector<Trajectory> trajectoriesSM = theTrackTransformer->transform(*newTrack);
     
@@ -105,10 +155,13 @@ void TracksToTrajectories::produce(Event& event, const EventSetup& setup){
     }
     else{
       LogTrace(metname) << "Error in the Track refitting. This should not happen";
-      ++theNFailures;
+      ++(globalCache()->theNFailures);
     }
   }
   LogTrace(metname)<<"Load the Trajectory Collection";
   event.put(trajectoryCollection,"Refitted");
   event.put(trajTrackMap,"Refitted");
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TracksToTrajectories);

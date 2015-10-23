@@ -67,7 +67,9 @@
 
 namespace cms
 {
-  PileupVertexAccumulator::PileupVertexAccumulator(const edm::ParameterSet& iConfig, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC)
+  PileupVertexAccumulator::PileupVertexAccumulator(const edm::ParameterSet& iConfig, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
+    Mtag_(iConfig.getParameter<edm::InputTag>("vtxTag")),
+    fallbackMtag_(iConfig.getParameter<edm::InputTag>("vtxFallbackTag"))
   {
     edm::LogInfo ("PixelDigitizer ") <<"Enter the Pixel Digitizer";
     
@@ -75,8 +77,8 @@ namespace cms
     
     mixMod.produces<PileupVertexContent>().setBranchAlias(alias);
 
-    Mtag_=edm::InputTag("generator");
     iC.consumes<edm::HepMCProduct>(Mtag_);
+    iC.mayConsume<edm::HepMCProduct>(fallbackMtag_);
   }
   
   PileupVertexAccumulator::~PileupVertexAccumulator(){  
@@ -105,6 +107,9 @@ namespace cms
 
     edm::Handle<edm::HepMCProduct> MCevt;
     iEvent.getByLabel(Mtag_, MCevt);
+    if(MCevt.whyFailed()) {
+      iEvent.getByLabel(fallbackMtag_, MCevt);
+    }
 
     const HepMC::GenEvent *myGenEvent = MCevt->GetEvent();
 

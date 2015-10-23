@@ -38,6 +38,7 @@
 #include "DataFormats/Common/interface/OneToManyWithQuality.h"
 
 #include <utility>
+#include "tbb/concurrent_unordered_map.h"
 
 namespace edm {
 
@@ -68,7 +69,7 @@ namespace edm {
     /// type return by operator[]
     typedef typename value_type::value_type result_type;
     /// transient map type
-    typedef typename std::map<index_type, value_type> internal_transient_map_type;
+    typedef typename tbb::concurrent_unordered_map<index_type, value_type> internal_transient_map_type;
 
     /// const iterator
     struct const_iterator {
@@ -169,7 +170,7 @@ namespace edm {
     /// erase the element whose key is k
     size_type erase(const key_type& k) {
       index_type i = k.key();
-      transientMap_.erase(i);
+      transientMap_.unsafe_erase(i);
       return map_.erase(i);
     }
     /// find element with specified reference key
@@ -253,13 +254,13 @@ namespace edm {
     const value_type & get(size_type i) const {
       typename internal_transient_map_type::const_iterator tf = transientMap_.find(i);
       if (tf == transientMap_.end()) {
-	typename map_type::const_iterator f = map_.find(i);
-	if (f == map_.end())
-	  Exception::throwThis(edm::errors::InvalidReference, "can't find reference in AssociationMap at position ", i);
-	value_type v(key_type(ref_.key, i), Tag::val(ref_, f->second));
-	std::pair<typename internal_transient_map_type::const_iterator, bool> ins =
-	  transientMap_.insert(std::make_pair(i, v));
-	return ins.first->second;
+        typename map_type::const_iterator f = map_.find(i);
+        if (f == map_.end())
+          Exception::throwThis(edm::errors::InvalidReference, "can't find reference in AssociationMap at position ", i);
+        value_type v(key_type(ref_.key, i), Tag::val(ref_, f->second));
+        std::pair<typename internal_transient_map_type::const_iterator, bool> ins =
+        transientMap_.insert(std::make_pair(i, v));
+        return ins.first->second;
       } else {
 	return tf->second;
       }

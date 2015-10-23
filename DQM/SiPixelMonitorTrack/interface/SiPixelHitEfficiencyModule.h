@@ -23,6 +23,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 class SiPixelHitEfficiencyModule { 
   public:
@@ -31,7 +32,7 @@ class SiPixelHitEfficiencyModule {
    ~SiPixelHitEfficiencyModule();
 
    void book(const edm::ParameterSet&, edm::EventSetup const &, DQMStore::IBooker &, int type=0, bool isUpgrade=false);
-   void fill(const LocalTrajectoryParameters& ltp, bool isHitValid, bool modon=true, bool ladon=true, bool layon=true, bool phion = true, bool bladeon=true, bool diskon=true, bool ringon=true);
+   void fill(const TrackerTopology * pTT, const LocalTrajectoryParameters& ltp, bool isHitValid, bool modon=true, bool ladon=true, bool layon=true, bool phion = true, bool bladeon=true, bool diskon=true, bool ringon=true);
    void computeEfficiencies(bool modon=true, bool ladon=true, bool layon=true, bool phion = true, bool bladeon=true, bool diskon=true, bool ringon=true);
    std::pair<double,double> eff(double nValid, double nMissing);
    

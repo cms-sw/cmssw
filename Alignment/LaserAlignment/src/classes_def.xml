@@ -1,5 +1,17 @@
 <lcgdict>
   <class name="edm::Wrapper<TsosVectorCollection>" persistent="false"/>
-  <!-- persistent="false" qualifier for non-wrappers is deprecated. Will be removed when no longer needed.-->
-  <class name="TsosVectorCollection" persistent="false"/>
+  <class name="TsosVectorCollection"/>
+<!-- <class name="LASCommissioningData"/> -->
+<!-- <class name="LASGlobalLoop"/> -->
+  <class name="LASGlobalData<int>"/>
+  <class name="LASGlobalData<float>"/>
+  <class name="LASGlobalData<std::vector<float> >"/>
+  <class name="LASGlobalData<LASCoordinateSet>"/>
+  <class name="LASGlobalData<LASModuleProfile>"/>
+  <class name="LASGlobalData<std::pair<float, float> >"/>
+  <class name="LASGlobalData<unsigned int>"/>
+  <class name="LASGlobalData<std::string>"/>
+  <class name="LASGlobalData<TH1D*>"/>
+<!-- <class name="LASGlobalData<TDirectory*>"/> -->
+<!-- <class pattern="LASGlobalData<*>"/> -->
 </lcgdict>

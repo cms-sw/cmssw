@@ -31,7 +31,7 @@ generator = cms.EDFilter("SherpaGeneratorFilter",
 				" SCALES METS{FSF*MU_F2}{RSF*MU_R2}{QSF*MU_Q2};",
 				" NJET:=0; LJET:=2; QCUT:=20.;",
 				" ME_SIGNAL_GENERATOR Comix Amegic LOOPGEN;",
-				" OL_PREFIX=/cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/openloops/1.0.1",
+				" OL_PREFIX={0} ".format(os.environ['CMS_OPENLOOPS_PREFIX']) ,
 				" EVENT_GENERATION_MODE Weighted;",
 				" LOOPGEN:=OpenLoops;",
 				" MASSIVE[15] 1;",
@@ -64,4 +64,3 @@ generator = cms.EDFilter("SherpaGeneratorFilter",
 )
 
 ProductionFilterSequence = cms.Sequence(generator)
-

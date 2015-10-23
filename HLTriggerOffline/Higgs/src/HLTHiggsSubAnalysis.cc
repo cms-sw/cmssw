@@ -23,6 +23,7 @@
 #include "HLTriggerOffline/Higgs/src/MatchStruct.cc"
 
 #include "TPRegexp.h"
+#include "TRegexp.h"
 #include "TString.h"
 
 #include<set>
@@ -746,12 +747,19 @@ const std::vector<unsigned int> HLTHiggsSubAnalysis::getObjectsType(const std::s
         {
             if( (objtriggernames[i] == EVTColContainer::PFJET && TString(hltPath).Contains("WHbbBoost") ) ||   // fix for HLT_Ele27_WPLoose_Gsf_WHbbBoost_v
                 (objtriggernames[i] == EVTColContainer::PFJET && TString(hltPath).Contains("CSV") ) ||   // fix for ZnnHbb PFJET            
-                (objtriggernames[i] == EVTColContainer::PFMET && TString(hltPath).Contains("MHT")) )        // fix for ZnnHbb PFMET
-                objsType.insert(objtriggernames[i]);
-            else if (objtriggernames[i] == EVTColContainer::PHOTON && TString(hltPath).Contains("Diphoton") ) objsType.insert(objtriggernames[i]);    //case of the New Diphoton paths
+                (objtriggernames[i] == EVTColContainer::PFMET && TString(hltPath).Contains("MHT")) ||        // fix for ZnnHbb PFMET
+                (objtriggernames[i] == EVTColContainer::PHOTON && TString(hltPath).Contains("Diphoton")) ) 
+            {
+                    objsType.insert(objtriggernames[i]);    //case of the New Diphoton paths
+            }
            continue;
         }
-        if( objtriggernames[i] == EVTColContainer::CALOMET && (TString(hltPath).Contains("PFMET") || TString(hltPath).Contains("MHT") ) ) continue; // fix for PFMET
+        if( ( objtriggernames[i] == EVTColContainer::CALOMET && (TString(hltPath).Contains("PFMET") || TString(hltPath).Contains("MHT") ) ) || // fix for PFMET
+        (objtriggernames[i] == EVTColContainer::PFJET && TString(hltPath).Contains("JetIdCleaned") && ! TString(hltPath).Contains(TRegexp("Jet[^I]"))) || // fix for Htaunu
+        (objtriggernames[i] == EVTColContainer::MUON && TString(hltPath).Contains("METNoMu")) ) // fix for VBFHToInv
+        {
+            continue;
+        }
 
         objsType.insert(objtriggernames[i]);
     }

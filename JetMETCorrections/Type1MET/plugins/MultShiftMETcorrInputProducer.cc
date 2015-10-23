@@ -44,7 +44,7 @@ MultShiftMETcorrInputProducer::MultShiftMETcorrInputProducer(const edm::Paramete
     TString corrPyFormula = v->getParameter<std::string>("fy");
     std::vector<double> corrPxParams = v->getParameter<std::vector<double> >("px");
     std::vector<double> corrPyParams = v->getParameter<std::vector<double> >("py");
-  
+
     formula_x_.push_back( std::unique_ptr<TF1>(new TF1(std::string(moduleLabel_).append("_").append(v->getParameter<std::string>("name")).append("_corrPx").c_str(), v->getParameter<std::string>("fx").c_str()) ) );
     formula_y_.push_back( std::unique_ptr<TF1>(new TF1(std::string(moduleLabel_).append("_").append(v->getParameter<std::string>("name")).append("_corrPy").c_str(), v->getParameter<std::string>("fy").c_str()) ) );
 
@@ -68,10 +68,9 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
 {
   //get primary vertices
   edm::Handle<edm::View<reco::Vertex> > hpv;
-  try {
-    evt.getByToken( vertices_, hpv );
-  } catch ( cms::Exception & e ) {
-    std::cout <<"[MultShiftMETcorrInputProducer] error: " << e.what() << std::endl;
+  evt.getByToken( vertices_, hpv );
+  if(!hpv.isValid()) {
+    edm::LogError("MultShiftMETcorrInputProducer::produce") << "could not find vertex collection ";
   }
   std::vector<reco::Vertex> goodVertices;
   for (unsigned i = 0; i < hpv->size(); i++) {
@@ -104,6 +103,9 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
   //MM: loop over all constituent types and sum each correction
   std::auto_ptr<CorrMETData> metCorr(new CorrMETData());
   
+  double corx=0.;
+  double cory=0.;
+
   for (std::vector<edm::ParameterSet>::const_iterator v = cfgCorrParameters_.begin(); v!=cfgCorrParameters_.end(); v++) {
     unsigned j=v-cfgCorrParameters_.begin();
  
@@ -117,10 +119,14 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
     if (varType_[j]==2) {
       val = sumPt_[j];
     }
-    metCorr->mex = -formula_x_[j]->Eval(val);
-    metCorr->mey = -formula_y_[j]->Eval(val);  
-  }
 
+    corx -= formula_x_[j]->Eval(val);
+    cory -= formula_y_[j]->Eval(val);  
+
+  } //end loop over corrections
+
+  metCorr->mex = corx;
+  metCorr->mey = cory;
   evt.put(metCorr, "");
   
 }

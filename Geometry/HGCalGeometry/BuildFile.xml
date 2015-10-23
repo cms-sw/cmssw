@@ -1,0 +1,13 @@
+<use   name="DataFormats/EcalDetId"/>
+<use   name="DataFormats/ForwardDetId"/>
+<use   name="DataFormats/Common"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/HGCalCommonData"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="boost"/>
+<export>
+  <lib   name="1"/>
+</export>

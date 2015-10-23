@@ -20,6 +20,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetupKnownRecordsSupplier.h"
 
 // system include files
 #include "boost/shared_ptr.hpp"
@@ -127,6 +128,7 @@ class EventSetupProvider {
       EventSetup eventSetup_;
       typedef std::map<EventSetupRecordKey, boost::shared_ptr<EventSetupRecordProvider> > Providers;
       Providers providers_;
+      std::unique_ptr<EventSetupKnownRecordsSupplier> knownRecordsSupplier_;
       bool mustFinishConfiguration_;
       unsigned subProcessIndex_;
 

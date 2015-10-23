@@ -134,7 +134,7 @@ void NtupleManager::FillChi2()
 
   //----- Calculate the chi2 of measurements
   std::vector< Measurement* >::const_iterator vmcite;
-  for ( vmcite = Model::MeasurementList().begin(); vmcite != Model::MeasurementList().end(); vmcite++) {
+  for ( vmcite = Model::MeasurementList().begin(); vmcite != Model::MeasurementList().end(); ++vmcite) {
     for ( ALIuint ii = 0; ii < ALIuint((*vmcite)->dim()); ii++ ){
       nMeas++;
       double c2 = ( (*vmcite)->value(ii) - (*vmcite)->valueSimulated(ii) ) / (*vmcite)->sigma(ii);
@@ -145,7 +145,7 @@ void NtupleManager::FillChi2()
   //----- Calculate the chi2 of calibrated parameters
   std::vector< Entry* >::iterator veite;
   for ( veite = Model::EntryList().begin();
-	veite != Model::EntryList().end(); veite++ ) {
+	veite != Model::EntryList().end(); ++veite ) {
     if ( (*veite)->quality() == 2 ) nUnk++;
     if ( (*veite)->quality() == 1 ) {
 //       std::cout << " " << (*veite)->valueDisplacementByFitting() << " " 
@@ -171,7 +171,7 @@ void NtupleManager::FillFitParameters(MatrixMeschach* AtWAMatrix)
   int ii = 0;
   std::vector<Entry*>::const_iterator vecite; 
   for ( vecite = Model::EntryList().begin();
-    vecite != Model::EntryList().end(); vecite++ ) {
+    vecite != Model::EntryList().end(); ++vecite ) {
 
     //--- Only for good quality parameters (='unk')
     if ( (*vecite)->quality() >= theMinEntryQuality ) {
@@ -254,7 +254,7 @@ void NtupleManager::FillOptObjects(MatrixMeschach* AtWAMatrix)
   int ii = 0;
   std::vector< OpticalObject* >::const_iterator vecobj;
   for ( vecobj = Model::OptOList().begin();
-	vecobj != Model::OptOList().end(); vecobj++ ) {
+	vecobj != Model::OptOList().end(); ++vecobj ) {
     OptObjectA = new( (*CloneOptObject)[ii] ) OptObject();
 
     OptObjectA->Name =  (*vecobj)->name();
@@ -269,7 +269,7 @@ void NtupleManager::FillOptObjects(MatrixMeschach* AtWAMatrix)
     int pp = 0;
     std::vector< OpticalObject* >::const_iterator vecobj2;
     for ( vecobj2 = Model::OptOList().begin();
-	  vecobj2 != Model::OptOList().end(); vecobj2++ ) {
+	  vecobj2 != Model::OptOList().end(); ++vecobj2 ) {
       if ((*vecobj2)->name()==(*vecobj)->parent()->name()) {
 	OptObjectA->Parent = pp;
 	continue;
@@ -309,7 +309,7 @@ void NtupleManager::FillMeasurements()
   //---------- Loop Measurements
   int ss = 0, dd = 0, d1 = 0, tt = 0, cc = 0;
   std::vector< Measurement* >::const_iterator vmcite;
-  for ( vmcite = Model::MeasurementList().begin(); vmcite != Model::MeasurementList().end(); vmcite++) {
+  for ( vmcite = Model::MeasurementList().begin(); vmcite != Model::MeasurementList().end(); ++vmcite) {
     std::vector<ALIstring> optonamelist = (*vmcite)->OptONameList(); 
     int last = optonamelist.size() - 1; ALIstring LastOptOName = optonamelist[last];
     int optoind = -999;

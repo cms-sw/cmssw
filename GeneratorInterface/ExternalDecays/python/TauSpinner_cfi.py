@@ -15,5 +15,5 @@ TauSpinnerGen = cms.EDProducer( "TauSpinnerCMS",
                                 isLHPDFConfigured = cms.bool(True),
                                 LHAPDFname = cms.untracked.string('MSTW2008nnlo90cl.LHgrid'),
                                 CMSEnergy = cms.double(8000.0),
-                                gensrc = cms.InputTag('generator'),
+                                gensrc = cms.InputTag('generatorSmeared'),
                                 )

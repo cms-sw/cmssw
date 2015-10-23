@@ -29,11 +29,13 @@ public:
 
   /** Open a storage object for the given URL (protocol + path), using the
       @a mode bits.  No temporary files are downloaded.  */
-  virtual Storage *open (const std::string &proto,
+  virtual std::unique_ptr<Storage> open (const std::string &proto,
 			 const std::string &path,
-			 int mode) override
+			 int mode,
+       AuxSettings const& aux) const override
   {
-    StorageFactory *f = StorageFactory::get();
+    setTimeout(aux.timeout);
+    const StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
     StorageFactory::CacheHint cacheHint = f->cacheHint();
 
@@ -43,13 +45,15 @@ public:
     else
       mode |= IOFlags::OpenUnbuffered;
 
-    Storage *file = new DCacheFile(normalise(proto, path), mode);
-    return f->wrapNonLocalFile(file, proto, std::string(), mode);
+    auto file = std::make_unique<DCacheFile>(normalise(proto, path), mode);
+    return f->wrapNonLocalFile(std::move(file), proto, std::string(), mode);
   }
 
   virtual void stagein (const std::string &proto,
-		        const std::string &path) override
+		        const std::string &path,
+            const AuxSettings& aux) const override
   {
+    setTimeout(aux.timeout);
     std::string npath = normalise(proto, path);
     if (dc_stage(npath.c_str(), 0, 0) != 0) {
       cms::Exception ex("FileStageInError");
@@ -63,8 +67,10 @@ public:
 
   virtual bool check (const std::string &proto,
 		      const std::string &path,
-		      IOOffset *size = 0) override
+          const AuxSettings& aux,
+		      IOOffset *size = 0) const override
   {
+    setTimeout(aux.timeout);
     std::string testpath (normalise (proto, path));
     if (dc_access (testpath.c_str (), R_OK) != 0)
       return false;
@@ -80,8 +86,10 @@ public:
 
     return true;
   }
+      
+  private:
 
-  virtual void setTimeout(unsigned int timeout) override {
+  void setTimeout(unsigned int timeout) const {
     if (timeout != 0) dc_setOpenTimeout(timeout);
   }
 };

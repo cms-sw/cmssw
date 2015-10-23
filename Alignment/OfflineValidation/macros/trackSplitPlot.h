@@ -51,9 +51,9 @@ Int_t runNumberBins = 30;
 Int_t binsProfileResolution = 30;    //for everything but runNumber and nHits
                                      //(nHits gets a bin for each integer between the minimum and the maximum)
 
-TString xvariables[xsize]      = {"pt", "eta", "phi", "dz",  "dxy", "theta", "qoverpt", "runNumber","nHits",""};
-TString yvariables[ysize]      = {"pt", "pt",  "eta", "phi", "dz",  "dxy",   "theta",   "qoverpt", ""};
-Bool_t relativearray[ysize]    = {true, false, false, false, false, false,   false,     false,     false};
+TString xvariables[xsize]      = {"",   "pt",  "eta", "phi", "dz",  "dxy", "theta", "qoverpt", "runNumber", "nHits"};
+TString yvariables[ysize]      = {"pt", "pt",  "eta", "phi", "dz",  "dxy", "theta", "qoverpt", ""};
+Bool_t relativearray[ysize]    = {true, false, false, false, false, false, false,   false,     false};
 
 TList *stufftodelete = new TList();
 

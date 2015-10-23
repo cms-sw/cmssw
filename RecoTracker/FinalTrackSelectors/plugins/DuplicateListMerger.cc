@@ -29,6 +29,7 @@
 #include <string>
 #include <iostream>
 #include <map>
+#include<memory>
 
 #include "TMVA/Reader.h"
 
@@ -43,9 +44,12 @@ using namespace reco;
 	 /// destructor
 	 virtual ~DuplicateListMerger();
 
-	 /// typedef container of candidate and input tracks
-	 typedef std::pair<TrackCandidate,std::pair<reco::TrackRef,reco::TrackRef> > DuplicateRecord;
-	 typedef edm::OwnVector<TrackingRecHit> RecHitContainer;
+	 /// alias for container of candidate and input tracks
+	 using DuplicateRecord = std::pair<TrackCandidate,std::pair<reco::TrackRef,reco::TrackRef> >;
+	 using RecHitContainer = edm::OwnVector<TrackingRecHit>;
+
+	 using MVACollection = std::vector<float>;
+ 
        protected:
 	 /// produce one event
 	 void produce( edm::Event &, const edm::EventSetup &) override;
@@ -75,8 +79,8 @@ using namespace reco;
 
          edm::InputTag originalMVAVals_;
          edm::InputTag mergedMVAVals_;
-         edm::EDGetTokenT<edm::ValueMap<float> > originalMVAValsToken_;
-         edm::EDGetTokenT<edm::ValueMap<float> > mergedMVAValsToken_;
+         edm::EDGetTokenT<MVACollection> originalMVAValsToken_;
+         edm::EDGetTokenT<MVACollection> mergedMVAValsToken_;
 
 	 reco::TrackBase::TrackQuality qualityToSet_;
 	 unsigned int diffHitsCut_;
@@ -90,7 +94,6 @@ using namespace reco;
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalRefSetter.h"
-#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
@@ -110,15 +113,15 @@ DuplicateListMerger::DuplicateListMerger(const edm::ParameterSet& iPara)
   if(iPara.exists("mergedMVAVals")){
     mergedMVAVals_ = iPara.getParameter<edm::InputTag>("mergedMVAVals");
   }else{
-    mergedMVAVals_ = edm::InputTag(mergedTrackSource_.tag.label(),"MVAVals");
+    mergedMVAVals_ = edm::InputTag(mergedTrackSource_.tag.label(),"MVAValues");
   }
-  mergedMVAValsToken_ = consumes<edm::ValueMap<float> >(mergedMVAVals_);
+  mergedMVAValsToken_ = consumes<MVACollection>(mergedMVAVals_);
   if(iPara.exists("originalMVAVals")){
     originalMVAVals_ = iPara.getParameter<edm::InputTag>("originalMVAVals");
   }else{
-    originalMVAVals_ = edm::InputTag(originalTrackSource_.tag.label(),"MVAVals");
+    originalMVAVals_ = edm::InputTag(originalTrackSource_.tag.label(),"MVAValues");
   }
-  originalMVAValsToken_ = consumes<edm::ValueMap<float> >(originalMVAVals_);
+  originalMVAValsToken_ = consumes<MVACollection>(originalMVAVals_);
 
   copyExtras_ = iPara.getUntrackedParameter<bool>("copyExtras",true);
   qualityToSet_ = reco::TrackBase::undefQuality;
@@ -133,7 +136,7 @@ DuplicateListMerger::DuplicateListMerger(const edm::ParameterSet& iPara)
   produces< std::vector<Trajectory> >();
   produces< TrajTrackAssociationCollection >();
 
-  produces<edm::ValueMap<float> >("MVAVals");
+  produces<MVACollection>("MVAValues");
 
   makeReKeyedSeeds_ = iPara.getUntrackedParameter<bool>("makeReKeyedSeeds",false);
   if (makeReKeyedSeeds_){
@@ -193,15 +196,13 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::auto_ptr<TrajectorySeedCollection> outputSeeds;
   edm::RefProd< TrajectorySeedCollection > refTrajSeeds;
 
-  edm::Handle<edm::ValueMap<float> > originalMVAStore;
-  edm::Handle<edm::ValueMap<float> > mergedMVAStore;
+  edm::Handle<MVACollection> originalMVAStore;
+  edm::Handle<MVACollection> mergedMVAStore;
 
   iEvent.getByToken(originalMVAValsToken_,originalMVAStore);
   iEvent.getByToken(mergedMVAValsToken_,mergedMVAStore);
 
-  std::auto_ptr<edm::ValueMap<float> > vmMVA(new edm::ValueMap<float>);
-  edm::ValueMap<float>::Filler fillerMVA(*vmMVA);
-  std::vector<float> mvaVec;
+  MVACollection mvaVec;
 
 
   if(copyExtras_){
@@ -280,7 +281,7 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     inputTracks.push_back(inTrk2);
     out_generalTracks->push_back(mergedTracks[matchIter0->first]);
     reco::TrackRef curTrackRef = reco::TrackRef(refTrks, out_generalTracks->size() - 1);
-    float mergedMVA = (*mergedMVAStore)[reco::TrackRef(mergedTrackRefs,matchIter0->first)];
+    float mergedMVA = (*mergedMVAStore)[matchIter0->first];
     mvaVec.push_back(mergedMVA);
     out_generalTracks->back().setAlgorithm(newTrkAlgo);
     out_generalTracks->back().setQualityMask(combinedQualityMask);
@@ -381,8 +382,7 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       reco::TrackRef curTrackRef = reco::TrackRef(refTrks, out_generalTracks->size() - 1);
       edm::RefToBase<TrajectorySeed> origSeedRef;
       reco::TrackRef origTrackRef = reco::TrackRef(originalHandle,i);
-      mvaVec.push_back((*originalMVAStore)[origTrackRef]);
-      //mvaVec.push_back((*originalMVAStore)[reco::TrackRef(originalTrackRefs,i)]);
+      mvaVec.push_back((*originalMVAStore)[i]);
       if(copyExtras_){
 	const reco::Track& track = origTrack;
 	origSeedRef = track.seedRef();
@@ -467,9 +467,7 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   edm::ProductID nPID = refTrks.id();
   edm::TestHandle<TrackCollection> out_gtHandle(out_generalTracks.get(),nPID);
 
-  fillerMVA.insert(out_gtHandle,mvaVec.begin(),mvaVec.end());
-  fillerMVA.fill();
-  iEvent.put(vmMVA,"MVAVals");
+  iEvent.put(std::move(std::make_unique<MVACollection>(std::move(mvaVec))),"MVAValues");
 
   out_generalTracks->shrink_to_fit();  iEvent.put(out_generalTracks);
   if (copyExtras_) {

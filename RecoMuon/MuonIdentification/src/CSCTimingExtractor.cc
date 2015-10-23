@@ -82,7 +82,7 @@ CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig,edm::Con
   
   edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
 
-  theMatcher = new MuonSegmentMatcher(matchParameters, theService,iC);
+  theMatcher = new MuonSegmentMatcher(matchParameters, iC);
 }
 
 

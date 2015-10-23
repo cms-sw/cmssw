@@ -7,7 +7,7 @@ patJetPartonMatch = cms.EDProducer("MCMatcher",      # cut on deltaR, deltaPt/Pt
     src         = cms.InputTag("ak4PFJetsCHS"),      # RECO objects to match
     matched     = cms.InputTag("genParticles"),      # mc-truth particle collection
     mcPdgId     = cms.vint32(1, 2, 3, 4, 5, 21),     # one or more PDG ID (quarks except top; gluons)
-    mcStatus    = cms.vint32(3),                     # PYTHIA status code (3 = hard scattering)
+    mcStatus    = cms.vint32(3,23),                  # PYTHIA6/Herwig++ status code (3 = hard scattering), 23 in Pythia8
     checkCharge = cms.bool(False),                   # False = any value of the charge of MC and RECO is ok
     maxDeltaR   = cms.double(0.4),                   # Minimum deltaR for the match
     maxDPtRel   = cms.double(3.0),                   # Minimum deltaPt/Pt for the match

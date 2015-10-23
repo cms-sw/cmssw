@@ -5,6 +5,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Tracker
 from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
+from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
 from RecoLocalTracker.Configuration.RecoLocalTrackerHeavyIons_cff import *
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
 from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
@@ -33,20 +34,25 @@ from RecoHI.HiEgammaAlgos.HiElectronSequence_cff import *
 from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 #--------------------------------------------------------------------------
 
+from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(
+    src = 'siPixelClustersPreSplitting'
+    )
+
 caloReco = cms.Sequence(ecalLocalRecoSequence*hcalLocalRecoSequence)
 hbhereco = hbheprereco.clone()
 hcalLocalRecoSequence.replace(hbheprereco,hbhereco)
-muonReco = cms.Sequence(trackerlocalreco+MeasurementTrackerEvent+siPixelClusterShapeCache+muonlocalreco)
-localReco = cms.Sequence(offlineBeamSpot*muonReco*caloReco*castorreco)
+muonReco = cms.Sequence(trackerlocalreco+MeasurementTrackerEventPreSplitting+siPixelClusterShapeCachePreSplitting+muonlocalreco)
+localReco = cms.Sequence(bunchSpacingProducer*offlineBeamSpot*muonReco*caloReco*castorreco)
 
 #hbherecoMB = hbheprerecoMB.clone()
 #hcalLocalRecoSequenceNZS.replace(hbheprerecoMB,hbherecoMB)
+
 caloRecoNZS = cms.Sequence(caloReco+hcalLocalRecoSequenceNZS)
-localReco_HcalNZS = cms.Sequence(offlineBeamSpot*muonReco*caloRecoNZS)
+localReco_HcalNZS = cms.Sequence(bunchSpacingProducer*offlineBeamSpot*muonReco*caloRecoNZS)
 
 #--------------------------------------------------------------------------
 # Main Sequence
-
 reconstruct_PbPb = cms.Sequence(localReco*globalRecoPbPb*CastorFullReco)
 reconstructionHeavyIons = cms.Sequence(reconstruct_PbPb)
 

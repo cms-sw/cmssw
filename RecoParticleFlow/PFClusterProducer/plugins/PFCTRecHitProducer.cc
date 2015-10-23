@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
@@ -838,7 +837,7 @@ PFCTRecHitProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi,
   theEcalChStatus = ecalChStatus.product();
 
   edm::ESHandle<CaloTowerConstituentsMap> cttopo;
-  es.get<IdealGeometryRecord>().get(cttopo);
+  es.get<CaloGeometryRecord>().get(cttopo);
   theTowerConstituentsMap = cttopo.product();
 }
 

@@ -5,13 +5,14 @@
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSelector.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
+#include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 //#include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 #include <iostream>
@@ -55,7 +56,8 @@ namespace {
 
 namespace edm {
   StreamerOutputModuleBase::StreamerOutputModuleBase(ParameterSet const& ps) :
-    OutputModule(ps),
+    one::OutputModuleBase::OutputModuleBase(ps),
+    one::OutputModule<one::WatchRuns, one::WatchLuminosityBlocks>(ps),
     selections_(&keptProducts()[InEvent]),
     maxEventSize_(ps.getUntrackedParameter<int>("max_event_size")),
     useCompression_(ps.getUntrackedParameter<bool>("use_compression")),
@@ -109,6 +111,8 @@ namespace edm {
     start();
     std::auto_ptr<InitMsgBuilder>  init_message = serializeRegistry();
     doOutputHeader(*init_message);
+    serializeDataBuffer_.header_buf_.clear();
+    serializeDataBuffer_.header_buf_.shrink_to_fit();
   }
 
   void
@@ -153,7 +157,7 @@ namespace edm {
     uint32 run = 1;
 
     //Get the Process PSet ID
-    ParameterSetID toplevel = pset::getProcessParameterSetID();
+    ParameterSetID toplevel = moduleDescription().mainParameterSetID();
 
     //In case we need to print it
     //  cms::Digest dig(toplevel.compactForm());
@@ -194,12 +198,23 @@ namespace edm {
     return init_message;
   }
 
+  Trig
+  StreamerOutputModuleBase::getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventPrincipal const& ep, ModuleCallingContext const* mcc) const {
+    //This cast is safe since we only call const functions of the EventPrincipal after this point
+    PrincipalGetAdapter adapter(const_cast<EventPrincipal&>(ep), moduleDescription());
+    adapter.setConsumer(this);
+    Trig result;
+    auto bh = adapter.getByToken_(TypeID(typeid(TriggerResults)),PRODUCT_TYPE, token, mcc);
+    convert_handle(std::move(bh), result);
+    return result;
+  }
+
   void
   StreamerOutputModuleBase::setHltMask(EventPrincipal const& e, ModuleCallingContext const* mcc) {
 
     hltbits_.clear();  // If there was something left over from last event
 
-    Handle<TriggerResults> const& prod = getTriggerResults(trToken_,e, mcc);
+    Handle<TriggerResults> const& prod = getTriggerResults(trToken_, e, mcc);
     //Trig const& prod = getTrigMask(e);
     std::vector<unsigned char> vHltState;
 

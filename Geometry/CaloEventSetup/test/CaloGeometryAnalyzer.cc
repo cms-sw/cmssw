@@ -14,7 +14,7 @@
 
 #include <memory>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -52,85 +52,86 @@
 // class decleration
 
 
-class CaloGeometryAnalyzer : public edm::EDAnalyzer 
-{
-      enum CenterOrCorner { kCenter , kCorner } ;
-      enum XorYorZ { kX, kY, kZ } ;
+class CaloGeometryAnalyzer : public edm::one::EDAnalyzer<> {
+  enum CenterOrCorner { kCenter , kCorner } ;
+  enum XorYorZ { kX, kY, kZ } ;
 
-   public:
+public:
 
-      explicit CaloGeometryAnalyzer( const edm::ParameterSet& );
-      ~CaloGeometryAnalyzer();
+  explicit CaloGeometryAnalyzer( const edm::ParameterSet& );
+  ~CaloGeometryAnalyzer();
+  
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
+private:
+  // ----------member data ---------------------------
+  void build( const CaloGeometry& cg , const HcalTopology& ht,
+	      DetId::Detector     det, 
+	      int                 subdetn, 
+	      const char*         name,
+	      unsigned int        histi   );
 
-   private:
-      // ----------member data ---------------------------
-      void build( const CaloGeometry& cg , const HcalTopology& ht,
+  void buildHcal( const CaloGeometry& cg , const HcalTopology& ht,
 		  DetId::Detector     det, 
 		  int                 subdetn, 
 		  const char*         name,
 		  unsigned int        histi   );
 
-      void buildHcal( const CaloGeometry& cg , const HcalTopology& ht,
-		  DetId::Detector     det, 
-		  int                 subdetn, 
-		  const char*         name,
-		  unsigned int        histi   );
+  void ctrcor( const DetId&            did     ,
+	       const CaloCellGeometry& cell ,
+	       std::fstream&           fCtr    ,
+	       std::fstream&           fCor    ,  
+	       std::fstream&           oldCtr    ,
+	       std::fstream&           oldCor   ,
+	       unsigned int            histi        );
 
-      void ctrcor( const DetId&            did     ,
-		   const CaloCellGeometry& cell ,
-		   std::fstream&           fCtr    ,
-		   std::fstream&           fCor    ,  
-		   std::fstream&           oldCtr    ,
-		   std::fstream&           oldCor   ,
-		   unsigned int            histi        );
+  void checkDiff( int            i1,
+		  int            i2,
+		  int            i3,
+		  CenterOrCorner iCtrCor ,
+		  XorYorZ        iXYZ    ,
+		  double         diff      ) ;
+  int pass_;
 
-      void checkDiff( int            i1,
-		      int            i2,
-		      int            i3,
-		      CenterOrCorner iCtrCor ,
-		      XorYorZ        iXYZ    ,
-		      double         diff      ) ;
-      int pass_;
+  EEDetId gid( unsigned int ix, 
+	       unsigned int iy,
+	       unsigned int iz,
+	       const EEDetId& did ) const ;
 
-      EEDetId gid( unsigned int ix, 
-		   unsigned int iy,
-		   unsigned int iz,
-		   const EEDetId& did ) const ;
+  void cmpset( const CaloSubdetectorGeometry* geom ,
+	       const GlobalPoint&             gp   ,
+	       const double                   dR     ) ;
 
-      void cmpset( const CaloSubdetectorGeometry* geom ,
-		   const GlobalPoint&             gp   ,
-		   const double                   dR     ) ;
+  void ovrTst( const CaloGeometry& cg      , 
+	       const CaloSubdetectorGeometry* geom ,
+	       const EEDetId&   id   , 
+	       std::fstream&    fOvr  );
 
-      void ovrTst( const CaloGeometry& cg      , 
-		   const CaloSubdetectorGeometry* geom ,
-		   const EEDetId&   id   , 
-		   std::fstream&    fOvr  );
-
-      void ovrTst( const CaloGeometry& cg      , 
-		   const CaloSubdetectorGeometry* geom ,
-		   const EBDetId&   id   , 
-		   std::fstream&    fOvr  );
+  void ovrTst( const CaloGeometry& cg      , 
+	       const CaloSubdetectorGeometry* geom ,
+	       const EBDetId&   id   , 
+	       std::fstream&    fOvr  );
 
 
-      edm::Service<TFileService> h_fs;
+  edm::Service<TFileService> h_fs;
 
 
-      TProfile* h_dPhi[7] ;
-      TProfile* h_dPhiR[7] ;
+  TProfile* h_dPhi[7] ;
+  TProfile* h_dPhiR[7] ;
 
-      TProfile* h_dEta[7] ;
-      TProfile* h_dEtaR[7] ;
+  TProfile* h_dEta[7] ;
+  TProfile* h_dEtaR[7] ;
 
-      TProfile* h_eta ;
-      TProfile* h_phi;
+  TProfile* h_eta ;
+  TProfile* h_phi;
 
-      TH1D* h_diffs[10][12] ;
+  TH1D* h_diffs[10][12] ;
 
-      TH1D* h_scindex ;
+  TH1D* h_scindex ;
 
-      bool m_allOK ;
+  bool m_allOK ;
 };
 
 CaloGeometryAnalyzer::CaloGeometryAnalyzer( const edm::ParameterSet& /*iConfig*/ )

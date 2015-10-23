@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HIon/V106 (CMSSW_7_4_6_patch3)
+# /dev/CMSSW_7_4_0/HIon/V173 (CMSSW_7_4_15)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V106')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V173')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -469,6 +469,20 @@ fragment.transferSystem = cms.PSet(
     emulator = cms.vstring( 'None' )
   )
 )
+fragment.HLTPSetTrajectoryBuilderForGsfElectrons = cms.PSet( 
+  propagatorAlong = cms.string( "hltESPFwdElectronPropagator" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetTrajectoryFilterForElectrons" ) ),
+  maxCand = cms.int32( 5 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "hltESPBwdElectronPropagator" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator2000" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  intermediateCleaning = cms.bool( False ),
+  lostHitPenalty = cms.double( 90.0 )
+)
 fragment.streams = cms.PSet( 
   DQM = cms.vstring( 'OnlineMonitor' ),
   PhysicsEGammaCommissioning = cms.vstring( 'HLTPhysics',
@@ -505,19 +519,9 @@ fragment.datasets = cms.PSet(
     'HLT_Physics_v2' )
 )
 
-fragment.hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
+fragment.CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),
-    recordName = cms.string( "HcalSeverityLevelComputerRcd" ),
-    firstValid = cms.vuint32( 1 )
-)
-fragment.hltESSEcalSeverityLevel = cms.ESSource( "EmptyESSource",
-    iovIsRunNotTime = cms.bool( True ),
-    recordName = cms.string( "EcalSeverityLevelAlgoRcd" ),
-    firstValid = cms.vuint32( 1 )
-)
-fragment.hltESSBTagRecord = cms.ESSource( "EmptyESSource",
-    iovIsRunNotTime = cms.bool( True ),
-    recordName = cms.string( "JetTagComputerRecord" ),
+    recordName = cms.string( "CSCChannelMapperRecord" ),
     firstValid = cms.vuint32( 1 )
 )
 fragment.CSCINdexerESSource = cms.ESSource( "EmptyESSource",
@@ -525,9 +529,19 @@ fragment.CSCINdexerESSource = cms.ESSource( "EmptyESSource",
     recordName = cms.string( "CSCIndexerRecord" ),
     firstValid = cms.vuint32( 1 )
 )
-fragment.CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
+fragment.hltESSBTagRecord = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),
-    recordName = cms.string( "CSCChannelMapperRecord" ),
+    recordName = cms.string( "JetTagComputerRecord" ),
+    firstValid = cms.vuint32( 1 )
+)
+fragment.hltESSEcalSeverityLevel = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "EcalSeverityLevelAlgoRcd" ),
+    firstValid = cms.vuint32( 1 )
+)
+fragment.hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "HcalSeverityLevelComputerRcd" ),
     firstValid = cms.vuint32( 1 )
 )
 
@@ -542,6 +556,9 @@ fragment.CSCChannelMapperESProducer = cms.ESProducer( "CSCChannelMapperESProduce
 fragment.CSCIndexerESProducer = cms.ESProducer( "CSCIndexerESProducer",
   AlgoName = cms.string( "CSCIndexerPostls1" )
 )
+fragment.CSCObjectMapESProducer = cms.ESProducer( "CSCObjectMapESProducer",
+  appendToDataLabel = cms.string( "" )
+)
 fragment.CaloTopologyBuilder = cms.ESProducer( "CaloTopologyBuilder" )
 fragment.CaloTowerConstituentsMapBuilder = cms.ESProducer( "CaloTowerConstituentsMapBuilder",
   appendToDataLabel = cms.string( "" ),
@@ -554,6 +571,9 @@ fragment.ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilte
   ComponentName = cms.string( "ClusterShapeHitFilter" ),
   clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
   PixelShapeFile = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par" )
+)
+fragment.DTObjectMapESProducer = cms.ESProducer( "DTObjectMapESProducer",
+  appendToDataLabel = cms.string( "" )
 )
 fragment.MaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   SimpleMagneticField = cms.string( "" ),
@@ -743,11 +763,11 @@ fragment.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
     'HcalCellDead' )
 )
 fragment.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  categoryVariableName = cms.string( "vertexCategory" ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  correctVertexMass = cms.bool( True ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   trackSelection = cms.PSet( 
     totalHitsMin = cms.uint32( 0 ),
     jetDeltaRMax = cms.double( 0.3 ),
@@ -769,7 +789,7 @@ fragment.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexES
   calibrationRecords = cms.vstring( 'CombinedSVRecoVertex',
     'CombinedSVPseudoVertex',
     'CombinedSVNoVertex' ),
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  correctVertexMass = cms.bool( True ),
   charmCut = cms.double( 1.5 ),
   vertexFlip = cms.bool( False ),
   minimumTrackWeight = cms.double( 0.5 ),
@@ -797,11 +817,11 @@ fragment.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexES
   trackFlip = cms.bool( False )
 )
 fragment.hltCombinedSecondaryVertexV2 = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  categoryVariableName = cms.string( "vertexCategory" ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  correctVertexMass = cms.bool( True ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   trackSelection = cms.PSet( 
     b_pT = cms.double( 0.3684 ),
     max_pT = cms.double( 500.0 ),
@@ -833,7 +853,7 @@ fragment.hltCombinedSecondaryVertexV2 = cms.ESProducer( "CombinedSecondaryVertex
   calibrationRecords = cms.vstring( 'CombinedSVIVFV2RecoVertex',
     'CombinedSVIVFV2PseudoVertex',
     'CombinedSVIVFV2NoVertex' ),
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  correctVertexMass = cms.bool( True ),
   charmCut = cms.double( 1.5 ),
   vertexFlip = cms.bool( False ),
   minimumTrackWeight = cms.double( 0.5 ),
@@ -925,6 +945,13 @@ fragment.hltESPBwdElectronPropagator = cms.ESProducer( "PropagatorWithMaterialES
 fragment.hltESPChi2ChargeMeasurementEstimator16 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
   MaxChi2 = cms.double( 16.0 ),
   ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator16" ),
+  pTChargeCutThreshold = cms.double( -1.0 ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  nSigma = cms.double( 3.0 )
+)
+fragment.hltESPChi2ChargeMeasurementEstimator2000 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  MaxChi2 = cms.double( 2000.0 ),
+  ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator2000" ),
   pTChargeCutThreshold = cms.double( -1.0 ),
   clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
   nSigma = cms.double( 3.0 )
@@ -1502,21 +1529,26 @@ fragment.hltGtDigis = cms.EDProducer( "L1GlobalTriggerRawToDigi",
 fragment.hltCaloStage1Digis = cms.EDProducer( "L1TRawToDigi",
     lenSlinkTrailer = cms.untracked.int32( 8 ),
     lenAMC13Header = cms.untracked.int32( 8 ),
+    CTP7 = cms.untracked.bool( False ),
     lenAMC13Trailer = cms.untracked.int32( 8 ),
     Setup = cms.string( "stage1::CaloSetup" ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     lenSlinkHeader = cms.untracked.int32( 8 ),
-    FWId = cms.untracked.int32( 2 ),
+    FWId = cms.uint32( 4294967295 ),
+    debug = cms.untracked.bool( False ),
+    FedIds = cms.vint32( 1352 ),
     lenAMCHeader = cms.untracked.int32( 8 ),
     lenAMCTrailer = cms.untracked.int32( 0 ),
-    FedId = cms.int32( 1352 )
+    FWOverride = cms.bool( False )
 )
 fragment.hltCaloStage1LegacyFormatDigis = cms.EDProducer( "L1TCaloUpgradeToGCTConverter",
     InputHFCountsCollection = cms.InputTag( 'hltCaloStage1Digis','HFBitCounts' ),
     InputHFSumsCollection = cms.InputTag( 'hltCaloStage1Digis','HFRingSums' ),
-    InputRlxTauCollection = cms.InputTag( 'hltCaloStage1Digis','rlxTaus' ),
+    bxMin = cms.int32( 0 ),
+    bxMax = cms.int32( 0 ),
+    InputCollection = cms.InputTag( "hltCaloStage1Digis" ),
     InputIsoTauCollection = cms.InputTag( 'hltCaloStage1Digis','isoTaus' ),
-    InputCollection = cms.InputTag( "hltCaloStage1Digis" )
+    InputRlxTauCollection = cms.InputTag( 'hltCaloStage1Digis','rlxTaus' )
 )
 fragment.hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
     TechnicalTriggersUnprescaled = cms.bool( True ),
@@ -3377,7 +3409,7 @@ fragment.HLT_HIL3DoubleMuOpen_SS_v2 = cms.Path( fragment.HLTBeginSequence + frag
 fragment.HLT_HIL3DoubleMuOpen_OS_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1DoubleMuOpenBptxAND + fragment.hltPreHIL3DoubleMuOpenOS + fragment.hltHIDoubleMuLevel1PathL1OpenFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIDimuonL2PreFiltered0 + fragment.HLTHIL3muonrecoSequence + fragment.hltHIDimuonL3FilterOpenOS + fragment.HLTEndSequence )
 fragment.HLT_HIL3DoubleMuOpen_OS_NoCowboy_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1DoubleMuOpenBptxAND + fragment.hltPreHIL3DoubleMuOpenOSNoCowboy + fragment.hltHIDoubleMuLevel1PathL1OpenFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIDimuonL2PreFiltered0 + fragment.HLTHIL3muonrecoSequence + fragment.hltHIDimuonL3FilterOpenOSNoCowboy + fragment.HLTEndSequence )
 fragment.HLTriggerFinalPath = cms.Path( fragment.hltGtDigis + fragment.hltScalersRawToDigi + fragment.hltFEDSelector + fragment.hltTriggerSummaryAOD + fragment.hltTriggerSummaryRAW + fragment.hltBoolFalse )
-fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltPreAnalyzerEndpath + fragment.hltGtDigis + fragment.hltL1GtTrigReport + fragment.hltTrigReport )
+fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltGtDigis + fragment.hltPreAnalyzerEndpath + fragment.hltL1GtTrigReport + fragment.hltTrigReport )
 
 
 fragment.HLTSchedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.HLT_Physics_v2, fragment.HLT_HIL1DoubleMu0_HighQ_v2, fragment.HLT_HIL2Mu3_v2, fragment.HLT_HIL2Mu7_v2, fragment.HLT_HIL2Mu15_v2, fragment.HLT_HIL2Mu3_NHitQ_v2, fragment.HLT_HIL2DoubleMu0_v2, fragment.HLT_HIL2DoubleMu0_NHitQ_v2, fragment.HLT_HIL2DoubleMu3_v2, fragment.HLT_HIL3Mu3_v2, fragment.HLT_HIL3DoubleMuOpen_v2, fragment.HLT_HIL3DoubleMuOpen_SS_v2, fragment.HLT_HIL3DoubleMuOpen_OS_v2, fragment.HLT_HIL3DoubleMuOpen_OS_NoCowboy_v2, fragment.HLTriggerFinalPath, fragment.HLTAnalyzerEndpath ))

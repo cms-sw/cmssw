@@ -146,7 +146,7 @@ RPCSeedGenerator::RPCSeedGenerator(const edm::ParameterSet& iConfig)
 
     // Get RPC recHits by MuonDetLayerMeasurements, while CSC and DT is set to false and with empty InputTag
     edm::ConsumesCollector iC = consumesCollector() ;
-    muonMeasurements = new MuonDetLayerMeasurements (edm::InputTag(), edm::InputTag(), theRPCRecHits,iC, false, false, true);
+    muonMeasurements = new MuonDetLayerMeasurements (edm::InputTag(), edm::InputTag(), theRPCRecHits, edm::InputTag(), iC, false, false, true,                                                       false);
 
     
     cout << endl << "[RPCSeedGenerator] --> Constructor called" << endl;

@@ -167,7 +167,7 @@
      <string>std::vector&lt;reco::PFJet&gt;</string>
    </config>
    <config name="moduleLabel" version="0">
-     <string>ak4PFJets</string>
+     <string>ak4PFJetsCHS</string>
    </config>
    <config name="productInstanceLabel" version="0">
      <string></string>
@@ -239,6 +239,11 @@
      <string>0</string>
    </config>
    <config name="PBConfig" version="1">
+    <config name="Var" version="1">
+     <config name="LineWidth" version="0">
+       <string>1</string>
+     </config>
+    </config>
    </config>
   </config>
   <config name="Muons" version="6">
@@ -273,6 +278,11 @@
      <string>0</string>
    </config>
    <config name="PBConfig" version="1">
+    <config name="Var" version="1">
+     <config name="LineWidth" version="0">
+       <string>1</string>
+     </config>
+    </config>
    </config>
   </config>
   <config name="Electrons" version="6">

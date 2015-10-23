@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    BVertexFilter
-// Class:      BVertexFilter
+// Package:    RecoBTag/SecondaryVertex
+// Class:      BVertexFilterT
 //
-/**\class BVertexFilter BVertexFilter.cc DPGAnalysis/BVertexFilter/src/BVertexFilter.cc
+/**\class BVertexFilterT BVertexFilter.cc RecoBTag/SecondaryVertex/plugins/BVertexFilter.cc
 
  Description: <one line class summary>
 
@@ -29,69 +29,73 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
+#include "RecoBTag/SecondaryVertex/interface/TemplatedSecondaryVertex.h"
+#include "RecoBTag/SecondaryVertex/interface/VertexFilter.h"
 //
 // class declaration
 //
-#include "RecoBTag/SecondaryVertex/interface/VertexFilter.h"
-class BVertexFilter : public edm::stream::EDFilter<> {
+
+template<typename VTX>
+class BVertexFilterT : public edm::stream::EDFilter<> {
    public:
-      explicit BVertexFilter(const edm::ParameterSet&);
-      ~BVertexFilter();
+      explicit BVertexFilterT(const edm::ParameterSet&);
+      ~BVertexFilterT();
 
    private:
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
-      edm::EDGetTokenT<reco::VertexCollection> token_secondaryVertex;
+      edm::EDGetTokenT<edm::View<VTX> >        token_secondaryVertex;
       reco::VertexFilter                      svFilter;
       bool                                    useVertexKinematicAsJetAxis;
       int                                     minVertices;
 };
 
-
-BVertexFilter::BVertexFilter(const edm::ParameterSet& params):
+template<typename VTX>
+BVertexFilterT<VTX>::BVertexFilterT(const edm::ParameterSet& params):
       svFilter(params.getParameter<edm::ParameterSet>("vertexFilter")),
       useVertexKinematicAsJetAxis(params.getParameter<bool>("useVertexKinematicAsJetAxis")),
       minVertices(params.getParameter<int>("minVertices"))
 
 {
       token_primaryVertex = consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("primaryVertices"));
-      token_secondaryVertex = consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("secondaryVertices"));
-      produces<reco::VertexCollection>();
+      token_secondaryVertex = consumes<edm::View<VTX> >(params.getParameter<edm::InputTag>("secondaryVertices"));
+      produces<std::vector<VTX> >();
 
 }
 
-
-BVertexFilter::~BVertexFilter()
+template<typename VTX>
+BVertexFilterT<VTX>::~BVertexFilterT()
 {
 }
 
+template<typename VTX>
 bool
-BVertexFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+BVertexFilterT<VTX>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
  int count = 0;
  edm::Handle<reco::VertexCollection> pvHandle;
  iEvent.getByToken(token_primaryVertex, pvHandle);
- edm::Handle<reco::VertexCollection> svHandle;
+ edm::Handle<edm::View<VTX> > svHandle;
  iEvent.getByToken(token_secondaryVertex, svHandle);
 
- std::auto_ptr<reco::VertexCollection> recoVertices(new reco::VertexCollection);
+ std::auto_ptr<std::vector<VTX> > recoVertices(new std::vector<VTX>);
 
  if(pvHandle->size()!=0) {
    const reco::Vertex & primary = (*pvHandle.product())[0];
-   const reco::VertexCollection & vertices = *svHandle.product();
+   const edm::View<VTX> & vertices = *svHandle.product();
 
 
    if(! primary.isFake())
    {
-     for(reco::VertexCollection::const_iterator it=vertices.begin() ; it!=vertices.end() ; ++it)
+     for(typename edm::View<VTX>::const_iterator it=vertices.begin() ; it!=vertices.end() ; ++it)
       {
             GlobalVector axis(0,0,0);
             if(useVertexKinematicAsJetAxis) axis = GlobalVector(it->p4().X(),it->p4().Y(),it->p4().Z());
-            if(svFilter(primary,reco::TemplatedSecondaryVertex<reco::Vertex>(primary,*it,axis,true),axis))  {
+            if(svFilter(primary,reco::TemplatedSecondaryVertex<VTX>(primary,*it,axis,true),axis))  {
                   count++;
                   recoVertices->push_back(*it);
              }
@@ -104,5 +108,10 @@ BVertexFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
-//define this as a plug-in
+// define specific instances of the templated BVertexFilterT class
+typedef BVertexFilterT<reco::Vertex>                      BVertexFilter;
+typedef BVertexFilterT<reco::VertexCompositePtrCandidate> CandidateBVertexFilter;
+
+// define plugins
 DEFINE_FWK_MODULE(BVertexFilter);
+DEFINE_FWK_MODULE(CandidateBVertexFilter);

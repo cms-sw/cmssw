@@ -24,6 +24,11 @@ CSCHaloData = cms.EDProducer("CSCHaloDataProducer",
                              # RecHit Level
                              CSCRecHitLabel = cms.InputTag("csc2DRecHits"),
                              
+                             # Calo rec hits
+                             HBHErhLabel = cms.InputTag("hbhereco"),
+                             ECALBrhLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+                             ECALErhLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+                             
                              # Higher Level Reco
                              CSCSegmentLabel= cms.InputTag("cscSegments"),
                              CosmicMuonLabel= cms.InputTag("muonsFromCosmics"),
@@ -35,15 +40,10 @@ CSCHaloData = cms.EDProducer("CSCHaloDataProducer",
                                     CSCsegments = cms.InputTag("cscSegments"),
                                     DTradius = cms.double(0.01),
                                     DTsegments = cms.InputTag("dt4DSegments"),
+			            RPChits = cms.InputTag("rpcRecHits"),
                                     TightMatchDT = cms.bool(False),
                                     TightMatchCSC = cms.bool(True)
                                     ),
-                             ServiceParameters = cms.PSet(
-                                     Propagators = cms.untracked.vstring('SteppingHelixPropagatorAny',
-                                                                         'PropagatorWithMaterial',
-                                                                         'PropagatorWithMaterialOpposite'),
-                                     RPCLayers = cms.bool(True)
-                                     ),
                              
                              DetaParam = cms.double(0.1),
                              DphiParam = cms.double(1.00),

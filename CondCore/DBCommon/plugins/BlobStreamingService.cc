@@ -18,9 +18,18 @@
 #include <cstring>
 #include <zlib.h>
 
+// Function for testing BlobStreamingService
+namespace test {
+  namespace BlobStreaming {
+    int test();
+  }
+}
+
 namespace cond {
 
   class BlobStreamingService : virtual public ora::IBlobStreamingService {
+    friend int test::BlobStreaming::test();
+
   public:
     
     

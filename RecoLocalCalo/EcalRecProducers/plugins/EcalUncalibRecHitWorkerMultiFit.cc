@@ -42,7 +42,10 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   useLumiInfoRunHeader_ = ps.getParameter<bool>("useLumiInfoRunHeader");
   
   if (useLumiInfoRunHeader_) {
-    bunchSpacing_ = c.consumes<int>(edm::InputTag("addPileupInfo","bunchSpacing"));
+    bunchSpacing_ = c.consumes<unsigned int>(edm::InputTag("bunchSpacingProducer"));
+    bunchSpacingManual_ = 0;
+  } else {
+    bunchSpacingManual_ = ps.getParameter<int>("bunchSpacing");
   }
 
   doPrefitEB_ = ps.getParameter<bool>("doPrefitEB");
@@ -127,32 +130,19 @@ void
 EcalUncalibRecHitWorkerMultiFit::set(const edm::Event& evt)
 {
 
+  unsigned int bunchspacing = 450;
+
   if (useLumiInfoRunHeader_) {
 
-    int bunchspacing = 450;
-    
-    if (evt.isRealData()) {
-      edm::RunNumber_t run = evt.run();
-      if (run == 178003 ||
-          run == 178004 ||
-          run == 209089 ||
-          run == 209106 ||
-          run == 209109 ||
-          run == 209146 ||
-          run == 209148 ||
-          run == 209151) {
-        bunchspacing = 25;
-      }
-      else {
-        bunchspacing = 50;
-      }
-    }
-    else {
-      edm::Handle<int> bunchSpacingH;
+      edm::Handle<unsigned int> bunchSpacingH;
       evt.getByToken(bunchSpacing_,bunchSpacingH);
       bunchspacing = *bunchSpacingH;
-    }
-    
+  }
+  else {
+    bunchspacing = bunchSpacingManual_;
+  }
+
+  if (useLumiInfoRunHeader_ || bunchSpacingManual_ > 0){
     if (bunchspacing == 25) {
       activeBX.resize(10);
       activeBX << -5,-4,-3,-2,-1,0,1,2,3,4;
@@ -608,6 +598,7 @@ EcalUncalibRecHitWorkerMultiFit::getAlgoDescription() {
  psd.addNode(edm::ParameterDescription<std::vector<int>>("activeBXs", {-5,-4,-3,-2,-1,0,1,2,3,4}, true) and
 	      edm::ParameterDescription<bool>("ampErrorCalculation", true, true) and
 	      edm::ParameterDescription<bool>("useLumiInfoRunHeader", true, true) and
+	      edm::ParameterDescription<int>("bunchSpacing", 0, true) and
 	      edm::ParameterDescription<bool>("doPrefitEB", false, true) and
 	      edm::ParameterDescription<bool>("doPrefitEE", false, true) and
 	      edm::ParameterDescription<double>("prefitMaxChiSqEB", 25., true) and

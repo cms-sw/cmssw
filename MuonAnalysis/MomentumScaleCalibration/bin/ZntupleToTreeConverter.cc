@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
       double muon2[3] = {(*muon2pt)[i], (*muon2eta)[i], (*muon2phi)[i]};
 
       // pairVector.push_back( std::make_pair( fromPtEtaPhiToPxPyPz(muon1), fromPtEtaPhiToPxPyPz(muon2) ) );
-      pairVector.push_back( MuonPair(fromPtEtaPhiToPxPyPz(muon1), fromPtEtaPhiToPxPyPz(muon2), MuScleFitEvent(0,0,0,0,0)) );
+      pairVector.push_back( MuonPair(fromPtEtaPhiToPxPyPz(muon1), fromPtEtaPhiToPxPyPz(muon2), MuScleFitEvent(0,0,0,0,0,0)) );
     }
   }
   size_t namePos = fileName.find_last_of("/");

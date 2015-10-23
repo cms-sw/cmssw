@@ -342,14 +342,16 @@ void ZdcTestAnalysis::update(const EndOfEvent * evt) {
       for (int i = 0 ; i<nvertex; i++) {
 	
 	G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
-	if (avertex == 0)
+	if (avertex == 0) {
 	  std::cout << "ZdcTest End Of Event ERR: pointer to vertex = 0"
 		       << std::endl;
-	std::cout << "Vertex number :" <<i << std::endl;
-	int npart = avertex->GetNumberOfParticle();
-	if (npart ==0)
-	  std::cout << "ZdcTest End Of Event ERR: no primary!" << std::endl;
-	if (thePrim==0) thePrim=avertex->GetPrimary(trackID);
+	} else {
+	  std::cout << "Vertex number :" <<i << std::endl;
+	  int npart = avertex->GetNumberOfParticle();
+	  if (npart ==0)
+	    std::cout << "ZdcTest End Of Event ERR: no primary!" << std::endl;
+	  if (thePrim==0) thePrim=avertex->GetPrimary(trackID);
+	}
       }
       
       double px=0.,py=0.,pz=0.;

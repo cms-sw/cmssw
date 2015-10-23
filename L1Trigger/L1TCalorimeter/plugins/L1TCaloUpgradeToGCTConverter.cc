@@ -19,9 +19,21 @@
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+using namespace std;
+using namespace edm;
 using namespace l1t;
 
-L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterSet& iConfig)
+L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterSet& iConfig):
+    // register what you consume and keep token for later access:
+    EGammaToken_(   consumes<EGammaBxCollection>(iConfig.getParameter<InputTag>("InputCollection")) ),
+    RlxTauToken_(   consumes<TauBxCollection>(iConfig.getParameter<InputTag>("InputRlxTauCollection")) ),
+    IsoTauToken_(   consumes<TauBxCollection>(iConfig.getParameter<InputTag>("InputIsoTauCollection")) ),
+    JetToken_(      consumes<JetBxCollection>(iConfig.getParameter<InputTag>("InputCollection")) ),
+    EtSumToken_(    consumes<EtSumBxCollection>(iConfig.getParameter<InputTag>("InputCollection")) ),
+    HfSumsToken_(   consumes<CaloSpareBxCollection>(iConfig.getParameter<edm::InputTag>("InputHFSumsCollection")) ),
+    HfCountsToken_( consumes<CaloSpareBxCollection>(iConfig.getParameter<edm::InputTag>("InputHFCountsCollection")) ),
+    bxMin_(         iConfig.getParameter<int>("bxMin") ),
+    bxMax_(         iConfig.getParameter<int>("bxMax") )
 {
   produces<L1GctEmCandCollection>("isoEm");
   produces<L1GctEmCandCollection>("nonIsoEm");
@@ -38,28 +50,12 @@ L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterSet& i
   produces<L1GctInternHtMissCollection>();
   produces<L1GctHFBitCountsCollection>();
   produces<L1GctHFRingEtSumsCollection>();
-
-  // register what you consume and keep token for later access:
-  EGammaToken_ = consumes<EGammaBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  RlxTauToken_ = consumes<TauBxCollection>(iConfig.getParameter<InputTag>("InputRlxTauCollection"));
-  IsoTauToken_ = consumes<TauBxCollection>(iConfig.getParameter<InputTag>("InputIsoTauCollection"));
-  JetToken_ = consumes<JetBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  EtSumToken_ = consumes<EtSumBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  HfSumsToken_ = consumes<CaloSpareBxCollection>(iConfig.getParameter<edm::InputTag>("InputHFSumsCollection"));
-  HfCountsToken_ = consumes<CaloSpareBxCollection>(iConfig.getParameter<edm::InputTag>("InputHFCountsCollection"));
 }
-
-
-L1TCaloUpgradeToGCTConverter::~L1TCaloUpgradeToGCTConverter()
-{
-}
-
-
 
 
 // ------------ method called to produce the data ------------
 void
-L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
+L1TCaloUpgradeToGCTConverter::produce(StreamID, Event& e, const EventSetup& es) const
 {
   LogDebug("l1t|stage 1 Converter") << "L1TCaloUpgradeToGCTConverter::produce function called...\n";
 
@@ -111,6 +107,10 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   int bxCounter = 0;
 
   for(int itBX=EGamma->getFirstBX(); itBX<=EGamma->getLastBX(); ++itBX){
+
+    if (itBX<bxMin_) continue;
+    if (itBX>bxMax_) continue;
+
     bxCounter++;
 
     //looping over EGamma elments with a specific BX
@@ -146,6 +146,10 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
   bxCounter = 0;
   for(int itBX=RlxTau->getFirstBX(); itBX<=RlxTau->getLastBX(); ++itBX){
+
+    if (itBX<bxMin_) continue;
+    if (itBX>bxMax_) continue;
+
     bxCounter++;
     //looping over Tau elments with a specific BX
     int tauCount = 0; //max 4
@@ -168,6 +172,10 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
   bxCounter = 0;
   for(int itBX=IsoTau->getFirstBX(); itBX<=IsoTau->getLastBX(); ++itBX){
+
+    if (itBX<bxMin_) continue;
+    if (itBX>bxMax_) continue;
+
     bxCounter++;
     //looping over Iso Tau elments with a specific BX
     int isoTauCount = 0; //max 4
@@ -190,6 +198,10 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
   bxCounter = 0;
   for(int itBX=Jet->getFirstBX(); itBX<=Jet->getLastBX(); ++itBX){
+
+    if (itBX<bxMin_) continue;
+    if (itBX>bxMax_) continue;
+
     bxCounter++;
     //looping over Jet elments with a specific BX
     int forCount = 0; //max 4
@@ -221,6 +233,10 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
   bxCounter = 0;
   for(int itBX=EtSum->getFirstBX(); itBX<=EtSum->getLastBX(); ++itBX){
+
+    if (itBX<bxMin_) continue;
+    if (itBX>bxMax_) continue;
+
     bxCounter++;
     //looping over EtSum elments with a specific BX
     for (EtSumBxCollection::const_iterator itEtSum = EtSum->begin(itBX);
@@ -250,6 +266,10 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
   bxCounter = 0;
   for(int itBX=HfSums->getFirstBX(); itBX<=HfSums->getLastBX(); ++itBX){
+
+    if (itBX<bxMin_) continue;
+    if (itBX>bxMax_) continue;
+
     bxCounter++;
     L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromGctEmulator(itBX,
 							       0,
@@ -279,9 +299,31 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     hfRingEtSumResult->push_back(sum);
 
     hfRingEtSumResult->resize(1*bxCounter);
-    //no hfBitCounts yet
+  }
+
+  bxCounter = 0;
+  for(int itBX=HfCounts->getFirstBX(); itBX<=HfCounts->getLastBX(); ++itBX){
+
+    if (itBX<bxMin_) continue;
+    if (itBX>bxMax_) continue;
+
+    bxCounter++;
+    L1GctHFBitCounts count = L1GctHFBitCounts::fromGctEmulator(itBX,
+							       0,
+							       0,
+							       0,
+							       0);
+    for (CaloSpareBxCollection::const_iterator itCaloSpare = HfCounts->begin(itBX);
+	 itCaloSpare != HfCounts->end(itBX); ++itCaloSpare){
+      for(int i = 0; i < 4; i++)
+      {
+	count.setBitCount(i, itCaloSpare->GetRing(i));
+      }
+    }
+    hfBitCountResult->push_back(count);
     hfBitCountResult->resize(1*bxCounter);
   }
+
 
   e.put(isoEmResult,"isoEm");
   e.put(nonIsoEmResult,"nonIsoEm");
@@ -301,39 +343,18 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   e.put(internalHtMissResult);
 }
 
-// ------------ method called once each job just before starting event loop ------------
-void
-L1TCaloUpgradeToGCTConverter::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop ------------
-void
-L1TCaloUpgradeToGCTConverter::endJob() {
-}
-
-// ------------ method called when starting to processes a run ------------
-
-void
-L1TCaloUpgradeToGCTConverter::beginRun(Run const&iR, EventSetup const&iE){
-
-}
-
-// ------------ method called when ending the processing of a run ------------
-void
-L1TCaloUpgradeToGCTConverter::endRun(Run const& iR, EventSetup const& iE){
-
-}
-
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
 void
 L1TCaloUpgradeToGCTConverter::fillDescriptions(ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<int>("bxMin",0);
+  desc.add<int>("bxMax",0);
+  desc.add<edm::InputTag>("InputCollection",edm::InputTag("caloStage1Digis"));
+  desc.add<edm::InputTag>("InputRlxTauCollection",edm::InputTag("caloStage1Digis:rlxTaus"));
+  desc.add<edm::InputTag>("InputIsoTauCollection",edm::InputTag("caloStage1Digis:isoTaus"));
+  desc.add<edm::InputTag>("InputHFSumsCollection",edm::InputTag("caloStage1Digis:HFRingSums"));
+  desc.add<edm::InputTag>("InputHFCountsCollection",edm::InputTag("caloStage1Digis:HFBitCounts"));
+  descriptions.add("L1TCaloUpgradeToGCTConverter", desc);
 }
 
 //define this as a plug-in

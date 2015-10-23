@@ -53,6 +53,7 @@
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
@@ -60,6 +61,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <sys/stat.h>
 
 #include <TMath.h>
 #include <TMatrixDSymEigen.h>
@@ -77,6 +79,9 @@ typedef TrajectoryFactoryBase::ReferenceTrajectoryCollection RefTrajColl;
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
+
+using namespace gbl;
+
 
 // Constructor ----------------------------------------------------------------
 //____________________________________________________
@@ -134,7 +139,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<IdealGeometryRecord>().get(tTopoHandle);
+  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   theAlignableNavigator = new AlignableNavigator(extras, tracker, muon);
@@ -241,11 +246,26 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
 }
 
 //____________________________________________________
+bool MillePedeAlignmentAlgorithm::supportsCalibrations() {
+  return true;
+}
+
+//____________________________________________________
 bool MillePedeAlignmentAlgorithm::addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals)
 {
   theCalibrations.insert(theCalibrations.end(), iCals.begin(), iCals.end());
   thePedeLabels->addCalibrations(iCals);
   return true;
+}
+
+//_____________________________________________________________________________
+bool MillePedeAlignmentAlgorithm::processesEvents()
+{
+  if (isMode(myMilleBit)) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 //____________________________________________________
@@ -276,6 +296,10 @@ bool MillePedeAlignmentAlgorithm::setParametersForRunRange(const RunRange &runra
 //____________________________________________________
 void MillePedeAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
 {
+  terminate();
+}
+void MillePedeAlignmentAlgorithm::terminate()
+{
   delete theMille;// delete to close binary before running pede below (flush would be enough...)
   theMille = 0;
 
@@ -283,14 +307,16 @@ void MillePedeAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
   if (this->isMode(myMilleBit) || !theConfig.getParameter<std::string>("binaryFile").empty()) {
     files.push_back(theDir + theConfig.getParameter<std::string>("binaryFile"));
   } else {
-    const std::vector<std::string> plainFiles
-      (theConfig.getParameter<std::vector<std::string> >("mergeBinaryFiles"));
-    for (std::vector<std::string>::const_iterator i = plainFiles.begin(), iEnd = plainFiles.end();
-         i != iEnd; ++i) {
-      files.push_back(theDir + *i);
+    const std::vector<std::string> plainFiles(theConfig.getParameter<std::vector<std::string> >("mergeBinaryFiles"));
+    files = getExistingFormattedFiles(plainFiles, theDir);
+    // Do some logging:
+    std::string filesForLogOutput;
+    for (std::vector<std::string>::const_iterator i = files.begin(), iEnd = files.end(); i != iEnd; ++i) {
+      filesForLogOutput += " " + *i;
     }
+    edm::LogInfo("Alignment") << "Based on the config parameter mergeBinaryFiles, using the following files as input:" << filesForLogOutput;
   }
-  
+
   // cache all positions, rotations and deformations
   theAlignmentParameterStore->cacheTransformations();
 
@@ -300,9 +326,41 @@ void MillePedeAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
   }
 
   // parameters from pede are not yet applied,
-  // so we can still write start positions (but with hit statistics in case of mille): 
+  // so we can still write start positions (but with hit statistics in case of mille):
   this->doIO(0);
   theLastWrittenIov = 0;
+}
+
+std::vector<std::string> MillePedeAlignmentAlgorithm::getExistingFormattedFiles(const std::vector<std::string> plainFiles, std::string theDir) {
+  std::vector<std::string> files;
+  for (std::vector<std::string>::const_iterator i = plainFiles.begin(), iEnd = plainFiles.end(); i != iEnd; ++i) {
+    std::string theInputFileName = *i;
+    int theNumber = 0;
+    while (true) {
+      // Create a formatted version of the filename, with growing numbers
+      // If the parameter doesn't contain a formatting directive, it just stays unchanged
+      char theNumberedInputFileName[200];
+      sprintf(theNumberedInputFileName, theInputFileName.c_str(), theNumber);
+      std::string theCompleteInputFileName = theDir + theNumberedInputFileName;
+      // Check if the file exists
+      struct stat buffer;
+      if (stat (theCompleteInputFileName.c_str(), &buffer) == 0) {
+        // If the file exists, add it to the list
+        files.push_back(theCompleteInputFileName);
+        if (theNumberedInputFileName == theInputFileName) {
+          // If the filename didn't contain a formatting directive, no reason to look any further, break out of the loop
+          break;
+        } else {
+          // Otherwise look for the next number
+          theNumber++;
+        }
+      } else {
+        // The file doesn't exist, break out of the loop
+        break;
+      }
+    }
+  }
+  return files;
 }
 
 // Run the algorithm on trajectories and tracks -------------------------------
@@ -342,7 +400,6 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventI
 
   } // end of reference trajectory and track loop
 }
-
 
 //____________________________________________________
 std::pair<unsigned int, unsigned int>
@@ -469,7 +526,14 @@ void MillePedeAlignmentAlgorithm::endRun(const EventInfo &eventInfo, const EndRu
     // LAS beam treatment
     this->addLaserData(eventInfo, *(runInfo.tkLasBeams()), *(runInfo.tkLasBeamTsoses()));
   }
+  if(this->isMode(myMilleBit)) theMille->flushOutputFile();
 }
+
+// Implementation of endRun that DOES get called. (Because we need it.)
+void MillePedeAlignmentAlgorithm::endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup) {
+  if(this->isMode(myMilleBit)) theMille->flushOutputFile();
+}
+
 
 //____________________________________________________
 int MillePedeAlignmentAlgorithm::addMeasurementData(const edm::EventSetup &setup,

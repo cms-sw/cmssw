@@ -109,7 +109,7 @@ void HcalShapes::beginRun(edm::EventSetup const & es)
 // here we are making a _copy_ so we need to add a copy of the topology...
   
   edm::ESHandle<HcalTopology> htopo;
-  es.get<IdealGeometryRecord>().get(htopo);
+  es.get<HcalRecNumberingRecord>().get(htopo);
   theTopology=new HcalTopology(*htopo);
   theMCParams->setTopo(theTopology);
 }

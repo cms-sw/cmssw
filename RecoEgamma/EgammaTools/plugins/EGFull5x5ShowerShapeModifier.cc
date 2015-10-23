@@ -130,10 +130,12 @@ EGFull5x5ShowerShapeModifierFromValueMaps(const edm::ParameterSet& conf) :
   ele_idx = pho_idx = 0;
 }
 
-inline void get_product(const edm::Event& evt,
-                        const edm::EDGetTokenT<edm::ValueMap<float> >& tok,
-                        std::unordered_map<unsigned, edm::Handle<edm::ValueMap<float> > >& map) {
-  if( !tok.isUninitialized() ) evt.getByToken(tok,map[tok.index()]);
+namespace {
+  inline void get_product(const edm::Event& evt,
+                          const edm::EDGetTokenT<edm::ValueMap<float> >& tok,
+                          std::unordered_map<unsigned, edm::Handle<edm::ValueMap<float> > >& map) {
+    if( !tok.isUninitialized() ) evt.getByToken(tok,map[tok.index()]);
+  }
 }
 
 void EGFull5x5ShowerShapeModifierFromValueMaps::
@@ -195,8 +197,10 @@ void EGFull5x5ShowerShapeModifierFromValueMaps::
 setEventContent(const edm::EventSetup& evs) {
 }
 
-template<typename T, typename U, typename V>
-inline void make_consumes(T& tag,U& tok,V& sume) { if( !(empty_tag == tag) ) tok = sume.template consumes<edm::ValueMap<float> >(tag); }
+namespace {
+  template<typename T, typename U, typename V>
+  inline void make_consumes(T& tag,U& tok,V& sume) { if( !(empty_tag == tag) ) tok = sume.template consumes<edm::ValueMap<float> >(tag); }
+}
 
 void EGFull5x5ShowerShapeModifierFromValueMaps::
 setConsumes(edm::ConsumesCollector& sumes) {
@@ -229,9 +233,11 @@ setConsumes(edm::ConsumesCollector& sumes) {
   make_consumes(ph_conf.hcalDepth2OverEcalBc,ph_conf.tok_hcalDepth2OverEcalBc,sumes);   
 }
 
-template<typename T, typename U, typename V>
-inline void assignValue(const T& ptr, const U& tok, const V& map, float& value) {
-  if( !tok.isUninitialized() ) value = map.find(tok.index())->second->get(ptr.id(),ptr.key());
+namespace {
+  template<typename T, typename U, typename V>
+  inline void assignValue(const T& ptr, const U& tok, const V& map, float& value) {
+    if( !tok.isUninitialized() ) value = map.find(tok.index())->second->get(ptr.id(),ptr.key());
+  }
 }
 
 void EGFull5x5ShowerShapeModifierFromValueMaps::

@@ -118,11 +118,11 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
 
   ClusterParamTemplate & theClusterParam = static_cast<ClusterParamTemplate &>(theClusterParamBase);
 
-  bool fpix;  //  barrel(false) or forward(true)
-  if ( theDetParam.thePart == GeomDetEnumerators::PixelBarrel )   
-    fpix = false;    // no, it's not forward -- it's barrel
-  else                                              
-    fpix = true;     // yes, it's forward
+  if(!GeomDetEnumerators::isTrackerPixel(theDetParam.thePart))
+    throw cms::Exception("PixelCPETemplateReco::localPosition :")
+      << "A non-pixel detector type in here?";
+  //  barrel(false) or forward(true)
+  const bool fpix = GeomDetEnumerators::isEndcap(theDetParam.thePart);
   
   int ID = -9999;
   if ( LoadTemplatesFromDB_ ) {
@@ -252,13 +252,10 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
       // In the x case, apply a rough Lorentz drift average correction
       // To do: call PixelCPEGeneric whenever PixelTempReco2D fails
       float lorentz_drift = -999.9;
-      if ( theDetParam.thePart == GeomDetEnumerators::PixelBarrel )
+      if ( !fpix )
 	lorentz_drift = 60.0f; // in microns
-      else if ( theDetParam.thePart == GeomDetEnumerators::PixelEndcap )
+      else
 	lorentz_drift = 10.0f; // in microns
-      else 
-	throw cms::Exception("PixelCPETemplateReco::localPosition :") 
-	  << "A non-pixel detector type in here?" << "\n";
       // ggiurgiu@jhu.edu, 21/09/2010 : trk angles needed to correct for bows/kinks
       if ( theClusterParam.with_track_angle )
 	{
@@ -318,13 +315,10 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
 	  // In the x case, apply a rough Lorentz drift average correction
 	  // To do: call PixelCPEGeneric whenever PixelTempReco2D fails
 	  float lorentz_drift = -999.9f;
-	  if ( theDetParam.thePart == GeomDetEnumerators::PixelBarrel )
+	  if ( !fpix )
 	    lorentz_drift = 60.0f; // in microns
-	  else if ( theDetParam.thePart == GeomDetEnumerators::PixelEndcap )
+	  else
 	    lorentz_drift = 10.0f; // in microns
-	  else 
-	    throw cms::Exception("PixelCPETemplateReco::localPosition :") 
-	      << "A non-pixel detector type in here?" << "\n";
 
 	  // ggiurgiu@jhu.edu, 12/09/2010 : trk angles needed to correct for bows/kinks
 	  if ( theClusterParam.with_track_angle )
@@ -507,20 +501,22 @@ PixelCPETemplateReco::localError(DetParam const & theDetParam,  ClusterParam & t
 	  // corrected in x by average Lorentz drift. Assign huge errors.
 	  //xerr = 10.0 * (float)theClusterParam.theCluster->sizeX() * xerr;
 	  //yerr = 10.0 * (float)theClusterParam.theCluster->sizeX() * yerr;
+
+          if(!GeomDetEnumerators::isTrackerPixel(theDetParam.thePart))
+            throw cms::Exception("PixelCPETemplateReco::localPosition :")
+              << "A non-pixel detector type in here?";
 	  
 	  // Assign better errors based on the residuals for failed template cases
-	  if ( theDetParam.thePart == GeomDetEnumerators::PixelBarrel )
+	  if ( GeomDetEnumerators::isBarrel(theDetParam.thePart) )
 	    {
 	      xerr = 55.0f * micronsToCm;
 	      yerr = 36.0f * micronsToCm;
 	    }
-	  else if ( theDetParam.thePart == GeomDetEnumerators::PixelEndcap )
+	  else
 	    {
 	      xerr = 42.0f * micronsToCm;
 	      yerr = 39.0f * micronsToCm;
 	    }
-	  else 
-	    throw cms::Exception("PixelCPETemplateReco::localError :") << "A non-pixel detector type in here?" ;
 
 	  //cout << "xerr = " << xerr << endl;
 	  //cout << "yerr = " << yerr << endl;

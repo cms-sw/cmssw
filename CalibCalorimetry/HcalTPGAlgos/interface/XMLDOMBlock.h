@@ -36,7 +36,6 @@
 //#include <xercesc/framework/LocalFileInputSource.hpp>
 //#include <xalanc/XPath/XPathEvaluator.hpp>
 
-XERCES_CPP_NAMESPACE_USE 
 
 class XMLProcessor;
 
@@ -49,34 +48,34 @@ class XMLDOMBlock
 
   XMLDOMBlock();
   XMLDOMBlock( std::string xmlFileName ); // create XML from template file
-  XMLDOMBlock( InputSource & _source );
+  XMLDOMBlock( XERCES_CPP_NAMESPACE::InputSource & _source );
   XMLDOMBlock( std::string _root, int rootElementName ); // create XML from scratch, second parameter is a dummy
 
-  DOMDocument * getDocument( void );
-  DOMDocument * getDocumentConst( void ) const;
-  DOMDocument * getNewDocument( std::string xmlFileName );
+  XERCES_CPP_NAMESPACE::DOMDocument * getDocument( void );
+  XERCES_CPP_NAMESPACE::DOMDocument * getDocumentConst( void ) const;
+  XERCES_CPP_NAMESPACE::DOMDocument * getNewDocument( std::string xmlFileName );
   std::string & getString( void );
-  std::string & getString( DOMNode * _node );
+  std::string & getString( XERCES_CPP_NAMESPACE::DOMNode * _node );
   int write( std::string target = "stdout" );
   virtual ~XMLDOMBlock();
   
-  const char * getTagValue( const std::string & tagName, int _item = 0, DOMDocument * _document = NULL );
-  const char * getTagValue( const std::string & tagName, int _item, DOMElement * _document );
+  const char * getTagValue( const std::string & tagName, int _item = 0, XERCES_CPP_NAMESPACE::DOMDocument * _document = NULL );
+  const char * getTagValue( const std::string & tagName, int _item, XERCES_CPP_NAMESPACE::DOMElement * _document );
   const char * getTagAttribute( const std::string & tagName, const std::string & attrName, int _item = 0 );
 
-  DOMElement * add_element(DOMElement * parent, XMLCh * tagname, XMLCh * value);
+  XERCES_CPP_NAMESPACE::DOMElement * add_element(XERCES_CPP_NAMESPACE::DOMElement * parent, XMLCh * tagname, XMLCh * value);
 
-  DOMNode * setTagValue( const std::string & tagName, const std::string & tagValue, int _item = 0, DOMDocument * _document = NULL );
-  DOMNode * setTagValue( DOMElement * _elem, const std::string & tagName, const std::string & tagValue, int _item = 0 );
-  DOMNode * setTagValue( const std::string & tagName, const int & tagValue, int _item = 0, DOMDocument * _document = NULL );
-  DOMNode * setTagValue( DOMElement * _elem, const std::string & tagName, const int & tagValue, int _item = 0 );
-  DOMNode * setTagAttribute( const std::string & tagName, const std::string & attrName, const std::string & attrValue, int _item = 0 );
-  DOMNode * setTagAttribute( DOMElement * _elem, const std::string & tagName, const std::string & attrName, const std::string & attrValue, int _item = 0);
-  DOMNode * setTagAttribute( const std::string & tagName, const std::string & attrName, const int & attrValue, int _item = 0 );
-  DOMNode * setTagAttribute( DOMElement * _elem, const std::string & tagName, const std::string & attrName, const int & attrValue, int _item = 0);
+  XERCES_CPP_NAMESPACE::DOMNode * setTagValue( const std::string & tagName, const std::string & tagValue, int _item = 0, XERCES_CPP_NAMESPACE::DOMDocument * _document = NULL );
+  XERCES_CPP_NAMESPACE::DOMNode * setTagValue( XERCES_CPP_NAMESPACE::DOMElement * _elem, const std::string & tagName, const std::string & tagValue, int _item = 0 );
+  XERCES_CPP_NAMESPACE::DOMNode * setTagValue( const std::string & tagName, const int & tagValue, int _item = 0, XERCES_CPP_NAMESPACE::DOMDocument * _document = NULL );
+  XERCES_CPP_NAMESPACE::DOMNode * setTagValue( XERCES_CPP_NAMESPACE::DOMElement * _elem, const std::string & tagName, const int & tagValue, int _item = 0 );
+  XERCES_CPP_NAMESPACE::DOMNode * setTagAttribute( const std::string & tagName, const std::string & attrName, const std::string & attrValue, int _item = 0 );
+  XERCES_CPP_NAMESPACE::DOMNode * setTagAttribute( XERCES_CPP_NAMESPACE::DOMElement * _elem, const std::string & tagName, const std::string & attrName, const std::string & attrValue, int _item = 0);
+  XERCES_CPP_NAMESPACE::DOMNode * setTagAttribute( const std::string & tagName, const std::string & attrName, const int & attrValue, int _item = 0 );
+  XERCES_CPP_NAMESPACE::DOMNode * setTagAttribute( XERCES_CPP_NAMESPACE::DOMElement * _elem, const std::string & tagName, const std::string & attrName, const int & attrValue, int _item = 0);
   std::string getTimestamp( time_t _time );  
 
-  void parse( InputSource & _source );
+  void parse( XERCES_CPP_NAMESPACE::InputSource & _source );
 
   XMLDOMBlock & operator+=( const XMLDOMBlock & other);
 
@@ -92,9 +91,9 @@ class XMLDOMBlock
   int init( std::string _root );
 
   XMLProcessor * theProcessor;
-  XercesDOMParser * parser;
-  ErrorHandler * errHandler;
-  DOMDocument * document;
+  XERCES_CPP_NAMESPACE::XercesDOMParser * parser;
+  XERCES_CPP_NAMESPACE::ErrorHandler * errHandler;
+  XERCES_CPP_NAMESPACE::DOMDocument * document;
   std::string theFileName;
   std::string * the_string;
 

@@ -1,0 +1,13 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="SimGeneral/MixingModule"/>
+<use   name="SimCalorimetry/HGCalSimProducers"/>
+<use   name="DataFormats/ForwardDetId"/>
+<use   name="DataFormats/HGCDigi"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/HGCalGeometry"/>
+<use   name="hepmc"/>
+<use   name="CLHEP"/>
+<flags   EDM_PLUGIN="1"/>
+<library   file="HGCalDigiTester.cc" name="testSimCalorimetryHCCalDigi"> </library>

@@ -18,7 +18,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -42,35 +42,30 @@
 
 #include <vector>
 
-using namespace std;
-using namespace edm;
 
 
 //
 // class declaration
 //
 
-  class L1TCaloUpgradeToGCTConverter : public EDProducer {
-  public:
-    explicit L1TCaloUpgradeToGCTConverter(const ParameterSet&);
-    ~L1TCaloUpgradeToGCTConverter();
+class L1TCaloUpgradeToGCTConverter : public edm::global::EDProducer<> {
+public:
+  explicit L1TCaloUpgradeToGCTConverter(const edm::ParameterSet&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    static void fillDescriptions(ConfigurationDescriptions& descriptions);
+private:
+  virtual void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
-  private:
-    virtual void produce(Event&, EventSetup const&) override;
-    virtual void beginJob();
-    virtual void endJob();
-    virtual void beginRun(Run const&iR, EventSetup const&iE);
-    virtual void endRun(Run const& iR, EventSetup const& iE);
+  const edm::EDGetToken EGammaToken_;
+  const edm::EDGetToken RlxTauToken_;
+  const edm::EDGetToken IsoTauToken_;
+  const edm::EDGetToken JetToken_;
+  const edm::EDGetToken EtSumToken_;
+  const edm::EDGetToken HfSumsToken_;
+  const edm::EDGetToken HfCountsToken_;
 
-    EDGetToken EGammaToken_;
-    EDGetToken RlxTauToken_;
-    EDGetToken IsoTauToken_;
-    EDGetToken JetToken_;
-    EDGetToken EtSumToken_;
-    EDGetToken HfSumsToken_;
-    EDGetToken HfCountsToken_;
-  };
+  const int bxMin_;
+  const int bxMax_;
+};
 
 #endif

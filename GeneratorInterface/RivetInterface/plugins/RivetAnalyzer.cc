@@ -1,21 +1,13 @@
 #include "GeneratorInterface/RivetInterface/interface/RivetAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Rivet/AnalysisHandler.hh"
 #include "Rivet/Analysis.hh"
-
-#include <string>
-#include <vector>
-#include <iostream>
-#include <cstdlib>
-#include <cstring>
 
 using namespace Rivet;
 using namespace edm;
@@ -32,14 +24,18 @@ _produceDQM(pset.getParameter<bool>("ProduceDQMOutput"))
   //retrive the analysis name from paarmeter set
   std::vector<std::string> analysisNames = pset.getParameter<std::vector<std::string> >("AnalysisNames");
   
-  _hepmcCollection = pset.getParameter<edm::InputTag>("HepMCCollection");
+  _hepmcCollection = consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("HepMCCollection"));
 
   _useExternalWeight = pset.getParameter<bool>("UseExternalWeight");
   if (_useExternalWeight) {
     if (!pset.exists("GenEventInfoCollection")){
       throw cms::Exception("RivetAnalyzer") << "when using an external event weight you have to specify the GenEventInfoProduct collection from which the weight has to be taken " ; 
     }
-    _genEventInfoCollection = pset.getParameter<edm::InputTag>("GenEventInfoCollection");
+    _genEventInfoCollection = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("GenEventInfoCollection"));
+    _LHECollection          = consumes<LHEEventProduct>(pset.getParameter<edm::InputTag>("LHECollection"));
+    _useLHEweights          = pset.getParameter<bool>("useLHEweights");
+    _LHEweightNumber        = pset.getParameter<int>("LHEweightNumber");    
+    
   }
 
   //get the analyses
@@ -55,7 +51,7 @@ _produceDQM(pset.getParameter<bool>("ProduceDQMOutput"))
   xsection = pset.getParameter<double>("CrossSection");
   for (iana = ibeg; iana != iend; ++iana){
     if ((*iana)->needsCrossSection())
-      (*iana)->setCrossSection(xsection);
+    (*iana)->setCrossSection(xsection);
   }
   if (_produceDQM){
     // book stuff needed for DQM
@@ -88,12 +84,14 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
   
   //get the hepmc product from the event
   edm::Handle<HepMCProduct> evt;
-  iEvent.getByLabel(_hepmcCollection, evt);
+  iEvent.getByToken(_hepmcCollection, evt);
 
   // get HepMC GenEvent
   const HepMC::GenEvent *myGenEvent = evt->GetEvent();
-  //if you want to use an external weight we have to clene the GenEvent and change the weight  
+  
+  //if you want to use an external weight we have to clone the GenEvent and change the weight  
   if ( _useExternalWeight ){
+    
     HepMC::GenEvent * tmpGenEvtPtr = new HepMC::GenEvent( *(evt->GetEvent()) );
     if (tmpGenEvtPtr->weights().size() == 0) {
       throw cms::Exception("RivetAnalyzer") << "Original weight container has 0 size ";
@@ -101,12 +99,21 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
     if (tmpGenEvtPtr->weights().size() > 1) {
       edm::LogWarning("RivetAnalyzer") << "Original event weight size is " << tmpGenEvtPtr->weights().size() << ". Will change only the first one ";  
     }
-    edm::Handle<GenEventInfoProduct> genEventInfoProduct;
-    iEvent.getByLabel(_genEventInfoCollection, genEventInfoProduct);
-    tmpGenEvtPtr->weights()[0] = genEventInfoProduct->weight();
-    myGenEvent = tmpGenEvtPtr; 
-  }
     
+    if(!_useLHEweights){
+      edm::Handle<GenEventInfoProduct> genEventInfoProduct;
+      iEvent.getByToken(_genEventInfoCollection, genEventInfoProduct);
+      tmpGenEvtPtr->weights()[0] = genEventInfoProduct->weight();
+    }else{
+      edm::Handle<LHEEventProduct> lheEventHandle;
+      iEvent.getByToken(_LHECollection,lheEventHandle);
+      const LHEEventProduct::WGT& wgt = lheEventHandle->weights().at(_LHEweightNumber);
+      tmpGenEvtPtr->weights()[0] = wgt.wgt;
+    }
+    myGenEvent = tmpGenEvtPtr;
+
+  }
+  
 
   //aaply the beams initialization on the first event
   if (_isFirstEvent){
@@ -119,13 +126,13 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 
   //if we have cloned the GenEvent, we delete it
   if ( _useExternalWeight ) 
-    delete myGenEvent;
+  delete myGenEvent;
 }
 
 
 void RivetAnalyzer::endRun(const edm::Run& iRun,const edm::EventSetup& iSetup){
   if (_doFinalize)
-    _analysisHandler.finalize();
+  _analysisHandler.finalize();
   else {
     //if we don't finalize we just want to do the transformation from histograms to DPS
     ////normalizeTree(_analysisHandler.tree());
@@ -139,11 +146,11 @@ void RivetAnalyzer::endRun(const edm::Run& iRun,const edm::EventSetup& iSetup){
 
 
 
-  //from Rivet 2.X: Analysis.hh (cls 18Feb2014)
-  /// List of registered analysis data objects
-  //const vector<AnalysisObjectPtr>& analysisObjects() const {
-  //return _analysisobjects;
-  //}
+//from Rivet 2.X: Analysis.hh (cls 18Feb2014)
+/// List of registered analysis data objects
+//const vector<AnalysisObjectPtr>& analysisObjects() const {
+//return _analysisobjects;
+//}
 
 
 
@@ -198,7 +205,7 @@ void RivetAnalyzer::normalizeTree()    {
             _analysisHandler.datapointsetFactory().create(path, *tmphisto);
           }
           //now convert to root and then ME
-	  //need aida2flat (from Rivet 1.X) & flat2root here
+    //need aida2flat (from Rivet 1.X) & flat2root here
           TH1F* h = aida2root<IHistogram1D, TH1F>(histo, basename);
           if (_produceDQM)
             _mes.push_back(dbe->book1D(h->GetName(), h));
@@ -212,7 +219,7 @@ void RivetAnalyzer::normalizeTree()    {
             _analysisHandler.datapointsetFactory().create(path, *tmpprof);
           }
           //now convert to root and then ME
-	  //need aida2flat (from Rivet 1.X) & flat2root here
+    //need aida2flat (from Rivet 1.X) & flat2root here
           TProfile* p = aida2root<IProfile1D, TProfile>(prof, basename);
           if (_produceDQM)
             _mes.push_back(dbe->bookProfile(p->GetName(), p));

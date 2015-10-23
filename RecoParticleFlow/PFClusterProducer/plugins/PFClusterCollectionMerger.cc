@@ -3,7 +3,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -13,7 +13,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
-class PFClusterCollectionMerger : public edm::EDProducer {
+class PFClusterCollectionMerger : public edm::global::EDProducer<> {
 public: 
   PFClusterCollectionMerger(const edm::ParameterSet& conf) {
     const std::vector<edm::InputTag>& inputs = 
@@ -24,7 +24,7 @@ public:
     produces<reco::PFClusterCollection>();
   }
 
-  virtual void produce(edm::Event& e, const edm::EventSetup& es) {
+  virtual void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& es) const {
     std::auto_ptr<reco::PFClusterCollection> output;
     output.reset(new reco::PFClusterCollection);
     for( const auto& input : _inputs ) {

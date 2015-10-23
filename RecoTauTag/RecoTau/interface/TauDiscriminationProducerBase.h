@@ -85,6 +85,7 @@ class TauDiscriminationProducerBase : public edm::stream::EDProducer<> {
 	evt.getByToken(disc_token, handle); 
       };
     };
+    
 
   protected:
     //value given to taus that fail prediscriminants

@@ -13,11 +13,8 @@ Test of the EventProcessor class.
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
-//I need to open a 'back door' in order to test the functionality
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#define private public
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#undef private
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Presence.h"
 
@@ -584,7 +581,8 @@ testeventprocessor::serviceConfigSaveTest() {
                              "process.p1 = cms.Path(process.m1)\n");
 
    edm::EventProcessor proc(configuration, true);
-   edm::ParameterSet topPset(edm::getProcessParameterSet());
+   edm::ProcessConfiguration const& processConfiguration = proc.processConfiguration();
+   edm::ParameterSet const& topPset(edm::getParameterSet(processConfiguration.parameterSetID()));
    CPPUNIT_ASSERT(topPset.existsAs<edm::ParameterSet>("DummyStoreConfigService", true));
 }
 

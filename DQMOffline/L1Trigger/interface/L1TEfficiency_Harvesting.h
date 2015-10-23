@@ -37,8 +37,6 @@
 //
 // Efficiency helper class declaration
 //
-using namespace edm;
-using namespace std;
 
 class L1TEfficiencyPlotHandler {
 

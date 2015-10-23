@@ -25,7 +25,7 @@ KinResolutionsLoader::KinResolutionsLoader(const edm::ParameterSet &iConfig)
 }
 
 void
-KinResolutionsLoader::newEvent(const edm::Event &iEvent, const edm::EventSetup &iSetup) const {
+KinResolutionsLoader::newEvent(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     for (size_t i = 0, n = patlabels_.size(); i < n; ++i) {
         iSetup.get<KinematicResolutionRcd>().get(eslabels_[i], handles_[i]);
         handles_[i]->setup(iSetup);

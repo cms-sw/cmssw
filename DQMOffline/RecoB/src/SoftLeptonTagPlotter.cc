@@ -30,13 +30,21 @@ SoftLeptonTagPlotter::SoftLeptonTagPlotter(const std::string & tagName,
 						   s.str() + "pT",
 						   "Lepton transverse moementum",
 						   100, 0.0, 20.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
+    m_sip2dsig[i] = new FlavourHistograms<double> (
+        s.str() + "sip2dsig",
+        "Lepton signed 2D impact parameter significance",
+        100, -20.0, 30.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
+    m_sip3dsig[i] = new FlavourHistograms<double> (
+        s.str() + "sip3dsig",
+        "Lepton signed 3D impact parameter significance",
+        100, -20.0, 30.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
     m_sip2d[i] = new FlavourHistograms<double> (
         s.str() + "sip2d",
-        "Lepton signed 2D impact parameter significance",
+        "Lepton signed 2D impact parameter",
         100, -20.0, 30.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
     m_sip3d[i] = new FlavourHistograms<double> (
         s.str() + "sip3d",
-        "Lepton signed 3D impact parameter significance",
+        "Lepton signed 3D impact parameter",
         100, -20.0, 30.0, false, false, true, "b", softLepDir,mcPlots_, ibook);
     m_ptRel[i] = new FlavourHistograms<double> (
         s.str() +  "pT rel",
@@ -72,6 +80,8 @@ SoftLeptonTagPlotter::~SoftLeptonTagPlotter ()
   for (int i = 0; i != s_leptons; ++i) {
     delete m_leptonId[i];
     delete m_leptonPt[i];
+    delete m_sip2dsig[i];
+    delete m_sip3dsig[i];
     delete m_sip2d[i];
     delete m_sip3d[i];
     delete m_ptRel[i];
@@ -109,6 +119,8 @@ void SoftLeptonTagPlotter::analyzeTag( const reco::BaseTagInfo * baseTagInfo,
     const reco::SoftLeptonProperties& properties = tagInfo->properties(i);
     m_leptonPt[i]->fill( jetFlavour, tagInfo->lepton(i)->pt() ,w);
     m_leptonId[i]->fill( jetFlavour, properties.quality() ,w);
+    m_sip2dsig[i]->fill(    jetFlavour, properties.sip2dsig ,w);
+    m_sip3dsig[i]->fill(    jetFlavour, properties.sip3dsig ,w);
     m_sip2d[i]->fill(    jetFlavour, properties.sip2d ,w);
     m_sip3d[i]->fill(    jetFlavour, properties.sip3d ,w);
     m_ptRel[i]->fill(    jetFlavour, properties.ptRel ,w);
@@ -140,9 +152,9 @@ void SoftLeptonTagPlotter::psPlot(const std::string & name)
     canvas.cd(4)->Clear();
     m_sip3d[i]->plot();
     canvas.cd(5)->Clear();
-    m_ptRel[i]->plot();
+    m_sip2dsig[i]->plot();
     canvas.cd(6)->Clear();
-    m_p0Par[i]->plot();
+    m_sip3dsig[i]->plot();
     canvas.Print((name + cName + ".ps").c_str());
 
     canvas.cd(1)->Clear();
@@ -154,7 +166,9 @@ void SoftLeptonTagPlotter::psPlot(const std::string & name)
     canvas.cd(4)->Clear();
     m_ratioRel[i]->plot();
     canvas.cd(5)->Clear();
+    m_ptRel[i]->plot();
     canvas.cd(6)->Clear();
+    m_p0Par[i]->plot();
     canvas.Print((name + cName + ".ps").c_str());
   }
   canvas.Print((name + cName + ".ps]").c_str());
@@ -170,6 +184,8 @@ void SoftLeptonTagPlotter::epsPlot(const std::string & name)
     m_leptonPt[i]->epsPlot( name );
     m_sip2d[i]->epsPlot( name );
     m_sip3d[i]->epsPlot( name );
+    m_sip2dsig[i]->epsPlot( name );
+    m_sip3dsig[i]->epsPlot( name );
     m_ptRel[i]->epsPlot( name );
     m_p0Par[i]->epsPlot( name );
     m_etaRel[i]->epsPlot( name );

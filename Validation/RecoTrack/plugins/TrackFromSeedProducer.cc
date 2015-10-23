@@ -23,7 +23,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -46,7 +46,7 @@
 // class declaration
 //
 
-class TrackFromSeedProducer : public edm::EDProducer {
+class TrackFromSeedProducer : public edm::global::EDProducer<> {
 public:
   explicit TrackFromSeedProducer(const edm::ParameterSet&);
   ~TrackFromSeedProducer();
@@ -54,14 +54,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void beginJob() override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
-  
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
   // ----------member data ---------------------------
   edm::EDGetTokenT<std::vector<TrajectorySeed> > seedsToken;
@@ -100,22 +93,11 @@ TrackFromSeedProducer::TrackFromSeedProducer(const edm::ParameterSet& iConfig)
 }
 
 
-TrackFromSeedProducer::~TrackFromSeedProducer()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
-
-
-//
-// member functions
-//
+TrackFromSeedProducer::~TrackFromSeedProducer() {}
 
 // ------------ method called to produce the data  ------------
 void
-TrackFromSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
    using namespace edm;
    using namespace reco;
@@ -128,8 +110,8 @@ TrackFromSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    auto_ptr<vector<int> > seedToTrack(new vector<int>());
    
    // product references 
-   TrackExtraRefProd ref_trackextras = const_cast<Event&>( iEvent ).getRefBeforePut<TrackExtraCollection>();
-   TrackingRecHitRefProd ref_rechits = const_cast<Event&>( iEvent ).getRefBeforePut<TrackingRecHitCollection>();
+   TrackExtraRefProd ref_trackextras = iEvent.getRefBeforePut<TrackExtraCollection>();
+   TrackingRecHitRefProd ref_rechits = iEvent.getRefBeforePut<TrackingRecHitCollection>();
 
    // input collection
    Handle<vector<TrajectorySeed> > seeds;
@@ -188,8 +170,8 @@ TrackFromSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
      tracks->back().setExtra( TrackExtraRef( ref_trackextras, trackextras->size() - 1) );
    }
    
-   if (nfailed > 0){
-     std::cout << "WARNING: TrackFromSeedProducer  :failed to create tracks from " << nfailed <<  " out of " << seeds->size() << " seeds " << std::endl;
+   if (nfailed > 0) {
+     edm::LogWarning("SeedValidator") << "failed to create tracks from " << nfailed <<  " out of " << seeds->size() << " seeds ";
    }
    iEvent.put(tracks);
    iEvent.put(seedToTrack);
@@ -197,49 +179,6 @@ TrackFromSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    iEvent.put(trackextras);
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-TrackFromSeedProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-TrackFromSeedProducer::endJob() {
-}
-
-// ------------ method called when starting to processes a run  ------------
-/*
-void
-TrackFromSeedProducer::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
- 
-// ------------ method called when ending the processing of a run  ------------
-/*
-void
-TrackFromSeedProducer::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
- 
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-TrackFromSeedProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
- 
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-TrackFromSeedProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
- 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 TrackFromSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

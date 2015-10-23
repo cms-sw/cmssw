@@ -24,9 +24,6 @@
 #include <map>
 #include <vector>
 
-using namespace edm;
-using namespace std;
-
 class DQMStore;
 class MonitorElement;
 

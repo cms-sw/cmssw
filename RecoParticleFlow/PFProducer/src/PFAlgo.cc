@@ -1475,7 +1475,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  // Skip muons
 	  if ( (*pfCandidates_)[tmpi[ic]].particleId() == reco::PFCandidate::mu ) continue; 
 
-	  double fraction = (*pfCandidates_)[tmpi[ic]].trackRef()->p()/trackMomentum;
+	  double fraction = trackMomentum > 0 ? (*pfCandidates_)[tmpi[ic]].trackRef()->p()/trackMomentum : 0;
 	  double ecalCal = bNeutralProduced ? 
 	    (calibEcal-neutralEnergy*slopeEcal)*fraction : calibEcal*fraction;
 	  double ecalRaw = totalEcal*fraction;
@@ -3229,6 +3229,7 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt, bool allowLo
     pfCandidates_->back().setFlag( reco::PFCandidate::T_TO_DISP, true);
     pfCandidates_->back().setDisplacedVertexRef( eltTrack->displacedVertexRef(reco::PFBlockElement::T_TO_DISP)->displacedVertexRef(), reco::PFCandidate::T_TO_DISP);
   }
+
   // returns index to the newly created PFCandidate
   return pfCandidates_->size()-1;
 }

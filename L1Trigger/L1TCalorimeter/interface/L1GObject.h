@@ -2,11 +2,8 @@
 #define L1GObject_h
 
 #include <iostream>
-using std::iostream;
-using std::ostream;
 
 #include <string>
-using std::string;
 
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -30,10 +27,10 @@ public:
   L1GObject(unsigned int et, unsigned int eta, unsigned int phi)
     : myEt(et), myEta(eta), myPhi(phi), myName("L1GObject") {initialize();}
 
-  L1GObject(unsigned int et, unsigned int eta, unsigned int phi, string name)
+  L1GObject(unsigned int et, unsigned int eta, unsigned int phi, std::string name)
     : myEt(et), myEta(eta), myPhi(phi), myName(name) {initialize();}
 
-  L1GObject(unsigned int packedObject, string name = "L1GObject") {
+  L1GObject(unsigned int packedObject, std::string name = "L1GObject") {
     myEt = (packedObject & 0xFFFF0000) >> 16;
     myEta = (packedObject & 0x0000FF00) >> 8;
     myPhi = (packedObject & 0x000000FF);
@@ -94,7 +91,7 @@ public:
 
   // Access functions
 
-  string name() const {return myName;}
+  std::string name() const {return myName;}
 
   bool empty() const {return false;}
 
@@ -157,7 +154,7 @@ public:
       else return false;
     }
 
-  friend ostream& operator<<(ostream &os, const L1GObject& t)
+  friend std::ostream& operator<<(std::ostream &os, const L1GObject& t)
     {
       os << "L1GObject : Name = " << t.name()
 	 << "(Et, Eta, Phi) = ("
@@ -173,7 +170,7 @@ public:
   void setEt(unsigned int et) {myEt = et;}
   void setEta(unsigned int eta) {myEta = eta;}
   void setPhi(unsigned int phi) {myPhi = phi;}
-  void setName(string name) {myName = name;}
+  void setName(std::string name) {myName = name;}
   void setLSB(double lsb) {myLSB = lsb;}
 
   void initialize()
@@ -231,7 +228,7 @@ private:
   unsigned int myEt;
   unsigned int myEta;
   unsigned int myPhi;
-  string myName;
+  std::string myName;
 
   double myLSB;
   double etaValues[11];

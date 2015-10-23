@@ -8,7 +8,7 @@
 namespace muon {
 SelectionType selectionTypeFromString( const std::string &label )
 {
-   static SelectionTypeStringToEnum selectionTypeStringToEnumMap[] = {
+   static const SelectionTypeStringToEnum selectionTypeStringToEnumMap[] = {
       { "All", All },
       { "AllGlobalMuons", AllGlobalMuons },
       { "AllStandAloneMuons", AllStandAloneMuons },

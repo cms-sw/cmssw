@@ -48,18 +48,9 @@ public:
     if (regionPSet.exists("searchOpt")) m_searchOpt = regionPSet.getParameter<bool>("searchOpt");
     else                                m_searchOpt = false;
 
-    m_whereToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kForSiStrips;
-    if (regionPSet.exists("measurementTrackerName"))
-    {
-      // FIXME: when next time altering the configuration of this
-      // class, please change the types of the following parameters:
-      // - whereToUseMeasurementTracker to at least int32 or to a string
-      //   corresponding to the UseMeasurementTracker enumeration
-      // - measurementTrackerName to InputTag
-      if (regionPSet.exists("whereToUseMeasurementTracker"))
-        m_whereToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::doubleToUseMeasurementTracker(regionPSet.getParameter<double>("whereToUseMeasurementTracker"));
-      if(m_whereToUseMeasurementTracker != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever)
-        token_measurementTracker = iC.consumes<MeasurementTrackerEvent>(regionPSet.getParameter<std::string>("measurementTrackerName"));
+    m_whereToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::stringToUseMeasurementTracker(regionPSet.getParameter<std::string>("whereToUseMeasurementTracker"));
+    if(m_whereToUseMeasurementTracker != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
+      token_measurementTracker = iC.consumes<MeasurementTrackerEvent>(regionPSet.getParameter<edm::InputTag>("measurementTrackerName"));
     }
   }
   

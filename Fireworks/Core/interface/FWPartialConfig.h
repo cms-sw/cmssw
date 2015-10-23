@@ -48,7 +48,7 @@ class FWPartialConfigSaveGUI : public FWPartialConfigGUI
    FWPartialConfigSaveGUI( const char* path_out,const char* path_in, FWConfigurationManager* );
   ~FWPartialConfigSaveGUI() {}
 
-  void Write();
+  void WriteConfig();
 
  private:
   std::string m_outFileName;

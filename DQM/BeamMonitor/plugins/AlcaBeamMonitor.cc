@@ -200,7 +200,7 @@ void AlcaBeamMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
   // create and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"Validation");
   //Book histograms
-  hD0Phi0_ = dbe_->bookProfile("hD0Phi0","d_{0} vs. #phi_{0} (All Tracks)",63,-3.15,3.15,100,-0.1,0.1,"");
+  hD0Phi0_ = dbe_->bookProfile("hD0Phi0","d_{0} vs. #phi_{0} (All Tracks)",63,-3.15,3.15,100,-0.5,0.5,"");
   hD0Phi0_->setAxisTitle("#phi_{0} (rad)",1);
   hD0Phi0_->setAxisTitle("d_{0} (cm)",2);
 

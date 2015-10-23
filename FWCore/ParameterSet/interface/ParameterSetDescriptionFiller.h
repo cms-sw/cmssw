@@ -42,6 +42,7 @@ method of the templated argument.  This allows the ParameterSetDescriptionFiller
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/global/OutputModule.h"
 
 namespace edm {
   template< typename T>
@@ -88,6 +89,8 @@ namespace edm {
         return kExtendedBaseForGlobalEDProducer;
       if (std::is_base_of<edm::global::EDFilterBase, T>::value)
         return kExtendedBaseForGlobalEDFilter;
+      if (std::is_base_of<edm::global::OutputModuleBase, T>::value)
+        return kExtendedBaseForGlobalOutputModule;
 
       return kEmpty;
     }

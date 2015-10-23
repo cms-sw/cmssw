@@ -3,6 +3,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
@@ -25,6 +27,14 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
   paramTS(0),
   theTopology(0)
 {
+  // Intitialize "method 3"
+  reco_.setMeth3Params(
+            conf.getParameter<int>     ("pedestalSubtractionType"),
+            conf.getParameter<double>  ("pedestalUpperLimit"),
+            conf.getParameter<int>     ("timeSlewParsType"),
+            conf.getParameter<std::vector<double> >("timeSlewPars"),
+            conf.getParameter<double>  ("respCorrM3")
+      );
 
   // register for data access
   tok_hbheUp_ = consumes<HBHEUpgradeDigiCollection>(inputLabel_);
@@ -66,6 +76,17 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
   
 }
 
+void HcalSimpleReconstructor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setAllowAnything();
+  desc.add<int>("pedestalSubtractionType", 1); 
+  desc.add<double>("pedestalUpperLimit", 2.7); 
+  desc.add<int>("timeSlewParsType",3);
+  desc.add<std::vector<double>>("timeSlewPars", { 12.2999, -2.19142, 0, 12.2999, -2.19142, 0, 12.2999, -2.19142, 0 });
+  desc.add<double>("respCorrM3", 0.95);
+  descriptions.add("simpleHbhereco",desc);
+}
+
 HcalSimpleReconstructor::~HcalSimpleReconstructor() { 
   delete paramTS;
   delete theTopology;
@@ -78,7 +99,7 @@ void HcalSimpleReconstructor::beginRun(edm::Run const&r, edm::EventSetup const &
     paramTS = new HcalRecoParams(*p.product());
 
     edm::ESHandle<HcalTopology> htopo;
-    es.get<IdealGeometryRecord>().get(htopo);
+    es.get<HcalRecNumberingRecord>().get(htopo);
     theTopology=new HcalTopology(*htopo);
     paramTS->setTopo(theTopology);
 

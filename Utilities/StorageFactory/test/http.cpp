@@ -9,7 +9,7 @@ int main (int, char **/*argv*/) try
 
   IOSize	n;
   char		buf [1024];
-  Storage	*s = StorageFactory::get ()->open
+  auto s = StorageFactory::get ()->open
     ("http://home.web.cern.ch", IOFlags::OpenRead);
 
   assert (s);
@@ -17,9 +17,8 @@ int main (int, char **/*argv*/) try
     std::cout.write (buf, n);
 
   s->close();
-  delete s;
 
-  std::cerr << StorageAccount::summaryXML () << std::endl;
+  std::cerr << StorageAccount::summaryText (true) << std::endl;
   return EXIT_SUCCESS;
 } catch(cms::Exception const& e) {
   std::cerr << e.explainSelf() << std::endl;

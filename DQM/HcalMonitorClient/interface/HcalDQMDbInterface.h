@@ -22,7 +22,6 @@
 #include <iostream.h>
 #endif
 
-XERCES_CPP_NAMESPACE_USE
 #define XML(str) XMLString::transcode(str)
 
 
@@ -31,22 +30,22 @@ public:
   
   HcalDQMDbInterface(){};
 
-  DOMDocument* createDocument();  
-  void writeDocument(DOMDocument* doc, const char* xmlFile);
+  XERCES_CPP_NAMESPACE::DOMDocument* createDocument();  
+  void writeDocument(XERCES_CPP_NAMESPACE::DOMDocument* doc, const char* xmlFile);
 
-  DOMElement* createElement(DOMDocument* doc, DOMElement* parent, const char* name);
-  DOMElement* createElement(DOMDocument* doc, DOMElement* parent, const char* name, const char* value);
-  DOMElement* createIOV(DOMDocument* doc, DOMElement*  parent,
+  XERCES_CPP_NAMESPACE::DOMElement* createElement(XERCES_CPP_NAMESPACE::DOMDocument* doc, XERCES_CPP_NAMESPACE::DOMElement* parent, const char* name);
+  XERCES_CPP_NAMESPACE::DOMElement* createElement(XERCES_CPP_NAMESPACE::DOMDocument* doc, XERCES_CPP_NAMESPACE::DOMElement* parent, const char* name, const char* value);
+  XERCES_CPP_NAMESPACE::DOMElement* createIOV(XERCES_CPP_NAMESPACE::DOMDocument* doc, XERCES_CPP_NAMESPACE::DOMElement*  parent,
 			unsigned long long fIovBegin, unsigned long long fIovEnd);
-  DOMElement* createTag(DOMDocument* doc, DOMElement*  parent,
+  XERCES_CPP_NAMESPACE::DOMElement* createTag(XERCES_CPP_NAMESPACE::DOMDocument* doc, XERCES_CPP_NAMESPACE::DOMElement*  parent,
 			const char* fTagName, const char* fDetectorName, const char* fComment);
-  DOMElement* makeMapTag(DOMDocument* doc, DOMElement* fMap);
-  DOMElement* makeMapIOV(DOMDocument* doc, DOMElement* fTag);
-  DOMElement* makeMapDataset(DOMDocument* doc, DOMElement* fIov);
-  DOMElement* createFooter(DOMDocument* doc,
+  XERCES_CPP_NAMESPACE::DOMElement* makeMapTag(XERCES_CPP_NAMESPACE::DOMDocument* doc, XERCES_CPP_NAMESPACE::DOMElement* fMap);
+  XERCES_CPP_NAMESPACE::DOMElement* makeMapIOV(XERCES_CPP_NAMESPACE::DOMDocument* doc, XERCES_CPP_NAMESPACE::DOMElement* fTag);
+  XERCES_CPP_NAMESPACE::DOMElement* makeMapDataset(XERCES_CPP_NAMESPACE::DOMDocument* doc, XERCES_CPP_NAMESPACE::DOMElement* fIov);
+  XERCES_CPP_NAMESPACE::DOMElement* createFooter(XERCES_CPP_NAMESPACE::DOMDocument* doc,
 			   unsigned long long fIovBegin, unsigned long long fIovEnd,
 			   const char* fTagName, const char* fDetectorName, const char* fComment);
-  DOMElement* createChannel(DOMDocument* doc,DOMElement* parent, HcalDetId id);
+  XERCES_CPP_NAMESPACE::DOMElement* createChannel(XERCES_CPP_NAMESPACE::DOMDocument* doc,XERCES_CPP_NAMESPACE::DOMElement* parent, HcalDetId id);
 
   const char* itoa(int i){
     char temp[256];
@@ -62,9 +61,9 @@ class HcalHotCellDbInterface : public HcalDQMDbInterface {
   
   HcalHotCellDbInterface(){};
   
-  DOMElement* createData(DOMDocument* doc,DOMElement* parent, const HcalDQMChannelQuality::Item& item);
-  void createDataset(DOMDocument* doc, const HcalDQMChannelQuality::Item& item, const char* gmtime, const char* version);
-  void createHeader(DOMDocument* doc, unsigned int runno, const char* startTime);
+  XERCES_CPP_NAMESPACE::DOMElement* createData(XERCES_CPP_NAMESPACE::DOMDocument* doc,XERCES_CPP_NAMESPACE::DOMElement* parent, const HcalDQMChannelQuality::Item& item);
+  void createDataset(XERCES_CPP_NAMESPACE::DOMDocument* doc, const HcalDQMChannelQuality::Item& item, const char* gmtime, const char* version);
+  void createHeader(XERCES_CPP_NAMESPACE::DOMDocument* doc, unsigned int runno, const char* startTime);
 
 };
 
@@ -73,9 +72,9 @@ class HcalHLXMaskDbInterface : public HcalDQMDbInterface {
 
   HcalHLXMaskDbInterface(){};
 
-  void createData(DOMDocument* doc,DOMElement* parent, const HcalHLXMask& mask);
-  DOMElement* createDataset(DOMDocument* doc, const HcalHLXMask& mask, const char* gmtime, const char* version, const char* subversion);
-  void createHeader(DOMDocument* doc);
+  void createData(XERCES_CPP_NAMESPACE::DOMDocument* doc,XERCES_CPP_NAMESPACE::DOMElement* parent, const HcalHLXMask& mask);
+  XERCES_CPP_NAMESPACE::DOMElement* createDataset(XERCES_CPP_NAMESPACE::DOMDocument* doc, const HcalHLXMask& mask, const char* gmtime, const char* version, const char* subversion);
+  void createHeader(XERCES_CPP_NAMESPACE::DOMDocument* doc);
 };
 
 

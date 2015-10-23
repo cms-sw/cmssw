@@ -44,7 +44,7 @@ using namespace edm;
 using namespace std;
 
 HerwigMaxPtPartonFilter::HerwigMaxPtPartonFilter(const edm::ParameterSet& iConfig) :
-  token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
+  token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",edm::InputTag("generator","unsmeared")))),
   minptcut(iConfig.getUntrackedParameter("MinPt", 0.)),
   maxptcut(iConfig.getUntrackedParameter("MaxPt", 10000.)),
   processID(iConfig.getUntrackedParameter("ProcessID", 0)){

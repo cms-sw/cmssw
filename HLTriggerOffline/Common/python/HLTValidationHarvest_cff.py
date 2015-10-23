@@ -17,7 +17,7 @@ from HLTriggerOffline.Common.HLTValidationQT_cff import *
 from HLTriggerOffline.Btag.HltBtagPostValidation_cff import *
 
 hltpostvalidation = cms.Sequence( 
-    postProcessorHLTtracking
+    postProcessorHLTtrackingSequence
     +postProcessorHLTvertexing
      +HLTMuonPostVal
     +HLTTauPostVal
@@ -52,7 +52,7 @@ hltpostvalidation_fastsim = cms.Sequence(
     )
 
 hltpostvalidation_preprod = cms.Sequence( 
-    postProcessorHLTtracking
+    postProcessorHLTtrackingSequence
     +postProcessorHLTvertexing
     +HLTTauPostVal
     +heavyFlavorValidationHarvestingSequence
@@ -61,6 +61,6 @@ hltpostvalidation_preprod = cms.Sequence(
     )
 
 hltpostvalidation_prod = cms.Sequence( 
-    postProcessorHLTtracking
+    postProcessorHLTtrackingSequence
     +postProcessorHLTvertexing
     )

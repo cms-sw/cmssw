@@ -26,7 +26,8 @@ class MuonNavigationSchool;
 
 class MuonNavigationPrinter {
   public:
-  MuonNavigationPrinter(const MuonDetLayerGeometry *, MuonNavigationSchool const &, bool enableRPC = true );
+  MuonNavigationPrinter(const MuonDetLayerGeometry *, MuonNavigationSchool const &, bool enableRPC = true,
+                        bool enableCSC = true, bool enableGEM = false  );
   MuonNavigationPrinter(const MuonDetLayerGeometry *,MuonNavigationSchool const &, const GeometricSearchTracker *);
 
   private:

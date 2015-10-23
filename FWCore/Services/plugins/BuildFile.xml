@@ -1,4 +1,5 @@
 <use   name="FWCore/Services"/>
+<use   name="Utilities/StorageFactory"/>
 <library   file="*.cc" name="FWCoreServicesPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

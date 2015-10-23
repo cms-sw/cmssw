@@ -38,8 +38,9 @@ selectedPatJetsForMetT2Corr = cms.EDFilter("PATJetSelector",
 patPFMetT1T2Corr = cms.EDProducer("PATPFJetMETcorrInputProducer",
     src = cms.InputTag('selectedPatJetsForMetT1T2Corr'),
     offsetCorrLabel = cms.InputTag("L1FastJet"),
-    jetCorrLabel = cms.InputTag("L3Absolute"), # NOTE: use "L3Absolute" for MC / "L2L3Residual" for Data
-    type1JetPtThreshold = cms.double(10.0),
+    jetCorrLabel = cms.InputTag("L3Absolute"), # for MC
+    jetCorrLabelRes = cms.InputTag("L2L3Residual"), # for Data automatic switch
+    type1JetPtThreshold = cms.double(15.0),
     type2ResidualCorrLabel = cms.InputTag(""),
     type2ResidualCorrEtaMax = cms.double(9.9),
     type2ExtraCorrFactor = cms.double(1.),
@@ -74,18 +75,31 @@ from JetMETCorrections.Type1MET.pfMETmultShiftCorrections_cfi import *
 
 patPFMetTxyCorr = pfMEtMultShiftCorr.clone()
 
-patMultPhiCorrParams_Txy         = cms.VPSet( [pset for pset in multPhiCorrParams_Txy])
-#patMultPhiCorrParams_T0rtT1Txy   = cms.VPSet( [pset for pset in multPhiCorrParams_T0rtT1Txy)
-#patMultPhiCorrParams_T0rtT1T2Txy = cms.VPSet( [pset for pset in multPhiCorrParams_T0rtT1T2Txy)
-patMultPhiCorrParams_T0pcTxy     = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcTxy])
-patMultPhiCorrParams_T0pcT1Txy   = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1Txy])
-patMultPhiCorrParams_T0pcT1T2Txy = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1T2Txy])
-patMultPhiCorrParams_T1Txy       = cms.VPSet( [pset for pset in multPhiCorrParams_T1Txy])
-patMultPhiCorrParams_T1T2Txy     = cms.VPSet( [pset for pset in multPhiCorrParams_T1T2Txy])
-patMultPhiCorrParams_T1SmearTxy  = cms.VPSet( [pset for pset in multPhiCorrParams_T1Txy])
-patMultPhiCorrParams_T1T2SmearTxy = cms.VPSet( [pset for pset in multPhiCorrParams_T1T2Txy])
-patMultPhiCorrParams_T0pcT1SmearTxy = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1Txy])
-patMultPhiCorrParams_T0pcT1T2SmearTxy = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1T2Txy])
+patMultPhiCorrParams_Txy_50ns         = cms.VPSet( [pset for pset in multPhiCorrParams_Txy_50ns])
+patMultPhiCorrParams_T0pcTxy_50ns     = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcTxy_50ns])
+patMultPhiCorrParams_T0pcT1Txy_50ns   = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1Txy_50ns])
+patMultPhiCorrParams_T0pcT1T2Txy_50ns = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1T2Txy_50ns])
+patMultPhiCorrParams_T1Txy_50ns       = cms.VPSet( [pset for pset in multPhiCorrParams_T1Txy_50ns])
+patMultPhiCorrParams_T1T2Txy_50ns     = cms.VPSet( [pset for pset in multPhiCorrParams_T1T2Txy_50ns])
+patMultPhiCorrParams_T1SmearTxy_50ns  = cms.VPSet( [pset for pset in multPhiCorrParams_T1Txy_50ns])
+patMultPhiCorrParams_T1T2SmearTxy_50ns = cms.VPSet( [pset for pset in multPhiCorrParams_T1T2Txy_50ns])
+patMultPhiCorrParams_T0pcT1SmearTxy_50ns = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1Txy_50ns])
+patMultPhiCorrParams_T0pcT1T2SmearTxy_50ns = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1T2Txy_50ns])
+
+patMultPhiCorrParams_Txy_25ns         = cms.VPSet( [pset for pset in multPhiCorrParams_Txy_25ns])
+patMultPhiCorrParams_T0pcTxy_25ns     = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcTxy_25ns])
+patMultPhiCorrParams_T0pcT1Txy_25ns   = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1Txy_25ns])
+patMultPhiCorrParams_T0pcT1T2Txy_25ns = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1T2Txy_25ns])
+patMultPhiCorrParams_T1Txy_25ns       = cms.VPSet( [pset for pset in multPhiCorrParams_T1Txy_25ns])
+patMultPhiCorrParams_T1T2Txy_25ns     = cms.VPSet( [pset for pset in multPhiCorrParams_T1T2Txy_25ns])
+patMultPhiCorrParams_T1SmearTxy_25ns  = cms.VPSet( [pset for pset in multPhiCorrParams_T1Txy_25ns])
+patMultPhiCorrParams_T1T2SmearTxy_25ns = cms.VPSet( [pset for pset in multPhiCorrParams_T1T2Txy_25ns])
+patMultPhiCorrParams_T0pcT1SmearTxy_25ns = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1Txy_25ns])
+patMultPhiCorrParams_T0pcT1T2SmearTxy_25ns = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1T2Txy_25ns])
+
+#from Configuration.StandardSequences.Eras import eras
+#eras.run2_50ns_specific.toModify(patPFMetTxyCorr, parameters=patMultPhiCorrParams_Txy_50ns )
+#eras.run2_25ns_specific.toModify(patPFMetTxyCorr, parameters=patMultPhiCorrParams_Txy_25ns )
 
 patPFMetTxyCorrSequence = cms.Sequence(patPFMetTxyCorr)
 
@@ -110,7 +124,7 @@ patSmearedJets = cms.EDProducer("SmearedPATJetProducer",
                    #             even though jet energy got smeared by merely 1 GeV
                    #
                    skipJetSelection = cms.string(
-        'jecSetsAvailable & abs(energy - correctedP4("Uncorrected").energy) > (5.*min(energy, correctedP4("Uncorrected").energy))'
+        'jecSetsAvailable && abs(energy - correctedP4("Uncorrected").energy) > (5.*min(energy, correctedP4("Uncorrected").energy))'
         ),
             skipRawJetPtThreshold = cms.double(10.), # GeV
             skipCorrJetPtThreshold = cms.double(1.e-2),

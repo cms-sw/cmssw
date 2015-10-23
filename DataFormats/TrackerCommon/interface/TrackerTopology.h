@@ -265,59 +265,39 @@ class TrackerTopology {
 
   //these are clones of the old SiStripDetId
   uint32_t tobStereo(const DetId &id) const {
-    if ( ((id.rawId() >>tobVals_.sterStartBit_ ) & tobVals_.sterMask_ ) == 1 ) {
-      return ( (id.rawId()>>tobVals_.sterStartBit_) & tobVals_.sterMask_ );
-    } else { return 0; }
+    return ( ((id.rawId() >>tobVals_.sterStartBit_ ) & tobVals_.sterMask_ ) == 1 ) ? 1 : 0;
   }
 
   uint32_t tibStereo(const DetId &id) const {
-    if ( ((id.rawId() >>tibVals_.sterStartBit_ ) & tibVals_.sterMask_ ) == 1 ) {
-      return ( (id.rawId()>>tibVals_.sterStartBit_) & tibVals_.sterMask_ );
-    } else { return 0; }
+    return ( ((id.rawId() >>tibVals_.sterStartBit_ ) & tibVals_.sterMask_ ) == 1 ) ? 1 : 0;
   }
 
   uint32_t tidStereo(const DetId &id) const {
-    if ( ((id.rawId() >>tidVals_.sterStartBit_ ) & tidVals_.sterMask_ ) == 1 ) {
-      return ( (id.rawId()>>tidVals_.sterStartBit_) & tidVals_.sterMask_ );
-    } else { return 0; }
+    return ( ((id.rawId() >>tidVals_.sterStartBit_ ) & tidVals_.sterMask_ ) == 1 ) ? 1 : 0;
   }
 
   uint32_t tecStereo(const DetId &id) const {
-    if ( ((id.rawId() >>tecVals_.sterStartBit_ ) & tecVals_.sterMask_ ) == 1 ) {
-      return ( (id.rawId()>>tecVals_.sterStartBit_) & tecVals_.sterMask_ );
-    } else { return 0; }
+    return ( ((id.rawId() >>tecVals_.sterStartBit_ ) & tecVals_.sterMask_ ) == 1 ) ? 1 : 0;
   }
 
   uint32_t tibGlued(const DetId &id) const {
-    if ( ((id.rawId()>>tibVals_.sterStartBit_) & tibVals_.sterMask_ ) == 1 ) {
-      return ( id.rawId() - 1 );
-    } else if ( ((id.rawId()>>tibVals_.sterStartBit_) & tibVals_.sterMask_ ) == 2 ) {
-      return ( id.rawId() - 2 );
-    } else { return 0; }
+    uint32_t testId = (id.rawId()>>tibVals_.sterStartBit_) & tibVals_.sterMask_;
+    return ( testId == 0 ) ? 0 : (id.rawId() - testId);
   }
 
   uint32_t tecGlued(const DetId &id) const {
-    if ( ((id.rawId()>>tecVals_.sterStartBit_) & tecVals_.sterMask_ ) == 1 ) {
-      return ( id.rawId() - 1 );
-    } else if ( ((id.rawId()>>tecVals_.sterStartBit_) & tecVals_.sterMask_ ) == 2 ) {
-      return ( id.rawId() - 2 );
-    } else { return 0; }
+    uint32_t testId = (id.rawId()>>tecVals_.sterStartBit_) & tecVals_.sterMask_;
+    return ( testId == 0 ) ? 0 : (id.rawId() - testId);
   }
 
   uint32_t tobGlued(const DetId &id) const {
-    if ( ((id.rawId()>>tobVals_.sterStartBit_) & tobVals_.sterMask_ ) == 1 ) {
-      return ( id.rawId() - 1 );
-    } else if ( ((id.rawId()>>tobVals_.sterStartBit_) & tobVals_.sterMask_ ) == 2 ) {
-      return ( id.rawId() - 2 );
-    } else { return 0; }
+    uint32_t testId = (id.rawId()>>tobVals_.sterStartBit_) & tobVals_.sterMask_;
+    return ( testId == 0 ) ? 0 : (id.rawId() - testId);
   }
 
   uint32_t tidGlued(const DetId &id) const {
-    if ( ((id.rawId()>>tidVals_.sterStartBit_) & tidVals_.sterMask_ ) == 1 ) {
-      return ( id.rawId() - 1 );
-    } else if ( ((id.rawId()>>tidVals_.sterStartBit_) & tidVals_.sterMask_ ) == 2 ) {
-      return ( id.rawId() - 2 );
-    } else { return 0; }
+    uint32_t testId = (id.rawId()>>tidVals_.sterStartBit_) & tidVals_.sterMask_;
+    return ( testId == 0 ) ? 0 : (id.rawId() - testId);
   }
 
   bool tobIsRPhi(const DetId &id) const { return SiStripDetId(id).stereo()==0 && !tobIsDoubleSide(id);}

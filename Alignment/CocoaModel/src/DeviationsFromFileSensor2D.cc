@@ -158,8 +158,8 @@ std::pair< ALIdouble, ALIdouble > DeviationsFromFileSensor2D::getDevis( ALIdoubl
 
   unsigned int ii = 0;
   ALIbool insideMatrix = 0;
-  for( vvdite = theDeviations.begin(); vvdite != (theDeviations.end()-1); vvdite++ ){
-    for( vdite = (*vvdite).begin(); vdite != ((*vvdite).end()-1); vdite++ ){
+  for( vvdite = theDeviations.begin(); vvdite != (theDeviations.end()-1); ++vvdite ){
+    for( vdite = (*vvdite).begin(); vdite != ((*vvdite).end()-1); ++vdite ){
      if( verbose >= 5 ) std::cout << " check posy " << (*(vdite))->posY()  << " " <<  (*(vdite+1))->posY()  << " " <<  (*(vdite)) << std::endl;
       // if posy is between this point and previous one
 

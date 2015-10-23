@@ -199,8 +199,7 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	      
 	 long int detid=i->first->geographicalId().rawId();
 	 
-	 if ((tkLayer->subDetector()!=GeomDetEnumerators::PixelBarrel)&&
-	     (tkLayer->subDetector()!=GeomDetEnumerators::PixelEndcap)){
+	 if (!GeomDetEnumerators::isTrackerPixel(tkLayer->subDetector())){
 	   
 	    
 	   StDetMatch DetMatch = (rphirecHits.product())->find((detid));

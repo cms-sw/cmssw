@@ -68,7 +68,7 @@ class CaloGeometry
       enum { kMaxDet = 5 ,
 	     kMinDet = 3 ,
 	     kNDets  = kMaxDet - kMinDet + 1 ,
-	     kMaxSub = 4 ,
+	     kMaxSub = 6 ,
 	     kLength = kNDets*kMaxSub } ;
 };
 

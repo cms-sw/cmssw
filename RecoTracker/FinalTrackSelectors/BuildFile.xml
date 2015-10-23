@@ -1,0 +1,14 @@
+<flags   CXXFLAGS="-Ofast"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="CondFormats/EgammaObjects"/>
+<use   name="TrackingTools/Records"/>
+<use   name="roottmva"/>
+<export>
+  <lib   name="1"/>
+</export>

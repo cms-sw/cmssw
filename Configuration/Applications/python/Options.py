@@ -206,6 +206,11 @@ expertSettings.add_option("--pileup_input",
                           default=None,
                           dest="pileup_input")
 
+expertSettings.add_option("--pileup_dasoption",
+                          help="Additional option for DAS query of pile up",
+                          default="",
+                          dest="pileup_dasoption")
+
 expertSettings.add_option("--datamix",
                   help="What datamix config to use. Default=DataOnSim.",
                   default=defaultOptions.datamix,
@@ -266,6 +271,11 @@ expertSettings.add_option("--dasquery",
                           help="Allow to define the source.fileNames from the das search command",
                           default='',
                           dest="dasquery")
+
+expertSettings.add_option("--dasoption",
+                          help="Additional option for DAS query",
+                          default='',
+                          dest="dasoption")
 
 expertSettings.add_option("--dbsquery",
                           help="Deprecated. Please use dasquery option. Functions for backward compatibility",

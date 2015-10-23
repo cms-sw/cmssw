@@ -81,7 +81,7 @@ class HiCentralityBiasFilter : public edm::EDFilter {
 HiCentralityBiasFilter::HiCentralityBiasFilter(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
-   hepmcSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("generator"));
+   hepmcSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("generatorSmeared"));
    func_ = iConfig.getParameter<string>("function");
    par_ = iConfig.getParameter<vector<double> >("parameters");
 }

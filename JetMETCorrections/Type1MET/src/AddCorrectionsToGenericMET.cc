@@ -1,7 +1,7 @@
 #include "JetMETCorrections/Type1MET/interface/AddCorrectionsToGenericMET.h"
 
 void
-AddCorrectionsToGenericMET::setCorTokens(std::vector<edm::EDGetTokenT<CorrMETData> > corrTokens){
+AddCorrectionsToGenericMET::setCorTokens(std::vector<edm::EDGetTokenT<CorrMETData> > const& corrTokens){
   corrTokens_=corrTokens;
 }
 

@@ -63,12 +63,9 @@ namespace edm {
     std::string branchesMustMatch = pset.getUntrackedParameter<std::string>("branchesMustMatch", std::string("permissive"));
     if(branchesMustMatch == std::string("strict")) branchesMustMatch_ = BranchDescription::Strict;
 
-    StorageFactory *factory = StorageFactory::get();
-
     // Prestage the files
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
-      factory->activateTimeout(fileName());
-      factory->stagein(fileName());
+      StorageFactory::get()->stagein(fileName());
     }
     // Open the first file.
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {

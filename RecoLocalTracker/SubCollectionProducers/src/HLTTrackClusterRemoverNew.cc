@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,7 +36,7 @@
 // class decleration
 //
 
-class HLTTrackClusterRemoverNew final : public edm::EDProducer {
+class HLTTrackClusterRemoverNew final : public edm::stream::EDProducer<> {
     public:
         HLTTrackClusterRemoverNew(const edm::ParameterSet& iConfig) ;
         ~HLTTrackClusterRemoverNew() ;

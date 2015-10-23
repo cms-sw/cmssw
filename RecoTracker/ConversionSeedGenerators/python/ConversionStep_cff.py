@@ -12,7 +12,7 @@ convClusters = trackClusterRemover.clone(
   pixelClusters         = cms.InputTag("siPixelClusters"),
   stripClusters         = cms.InputTag("siStripClusters"),
   oldClusterRemovalInfo = cms.InputTag("tobTecStepClusters"),
-  overrideTrkQuals      = cms.InputTag('tobTecStepSelector','tobTecStep'),
+  trackClassifier       = cms.InputTag('tobTecStep',"QualityMasks"),
   TrackQuality          = cms.string('highPurity'),
 )
 

@@ -3,6 +3,8 @@ import os
 import shutil
 import sys
 import time
+import glob
+import importlib
 
 # as we need to load the shared lib from here, make sure it's in our path:
 if os.path.join( os.environ['CMSSW_BASE'], 'src') not in sys.path:
@@ -32,7 +34,7 @@ payload2xmlCodeTemplate = """
 
 namespace { // Avoid cluttering the global namespace.
 
-  std::string payload2xml( const std::string &payloadData, const std::string &payloadType ) { 
+  std::string %(plTypeSan)s2xml( const std::string &payloadData, const std::string &payloadType ) { 
 
       // now to convert
       std::unique_ptr< %(plType)s > payload;
@@ -60,7 +62,7 @@ namespace { // Avoid cluttering the global namespace.
 BOOST_PYTHON_MODULE(%(mdName)s)
 {
     using namespace boost::python;
-    def ("payload2xml", payload2xml);
+    def ("%(plTypeSan)s2xml", %(plTypeSan)s2xml);
 }
 
 """ 
@@ -106,6 +108,10 @@ buildFileTemplate = """
 </export>
 """
 
+# helper function
+def sanitize(typeName):
+    return typeName.replace(' ','').replace('<','_').replace('>','')
+
 class CondXmlProcessor(object):
 
     def __init__(self, condDBIn):
@@ -127,6 +133,35 @@ class CondXmlProcessor(object):
            os.unlink( os.path.join( os.environ['CMSSW_BASE'], 'src', './pl2xmlComp.so') )
         return 
 
+    def discover(self, payloadType):
+
+    	# print "discover> checking for plugin of type %s" % payloadType
+
+        # first search in developer area:
+	libDir = os.path.join( os.environ["CMSSW_BASE"], 'lib', os.environ["SCRAM_ARCH"] )
+	pluginList = glob.glob( libDir + '/plugin%s_toXML.so' % sanitize(payloadType) )
+
+        # if nothing found there, check release:
+        if not pluginList:
+	   libDir = os.path.join( os.environ["CMSSW_RELEASE_BASE"], 'lib', os.environ["SCRAM_ARCH"] )
+	   pluginList = glob.glob( libDir + '/plugin%s_toXML.so' % sanitize(payloadType) )
+
+	# if pluginList: 
+	#    print "found plugin for %s (in %s) : %s " % (payloadType, libDir, pluginList)
+	# else:
+	#    print "no plugin found for type %s" % payloadType
+
+	xmlConverter = None
+	if len(pluginList) > 0:
+           dirPath, libName = os.path.split( pluginList[0] )
+	   sys.path.append(dirPath)
+	   # print "going to import %s from %s" % (libName, dirPath)
+	   xmlConverter = importlib.import_module( libName.replace('.so', '') )
+	   # print "found methods: ", dir(xmlConverter)
+	   self.doCleanup = False
+
+	return xmlConverter
+
     def prepPayload2xml(self, session, payload):
 
     	startTime = time.time()
@@ -136,9 +171,13 @@ class CondXmlProcessor(object):
         data, plType = result
     
         info = { "mdName" : "pl2xmlComp",
-        	     'plType' : plType,
+        	 'plType' : plType,
+        	 'plTypeSan' : sanitize(plType),
     	    }
     
+        converter = self.discover(plType)
+	if converter: return converter
+
         code = payload2xmlCodeTemplate % info
     
         tmpDir = self._pl2xml_tmpDir
@@ -169,22 +208,29 @@ class CondXmlProcessor(object):
 	buildTime = time.time()-startTime
 	print >> sys.stderr, "buillding done in ", buildTime, 'sec., return code from build: ', ret
 
-        return (ret == 0)
+	if (ret != 0):
+           return None
+
+        return importlib.import_module( 'pl2xmlComp' )
     
     def payload2xml(self, session, payload):
     
         if not self._pl2xml_isPrepared:
-           if not self.prepPayload2xml(session, payload):
+	   xmlConverter = self.prepPayload2xml(session, payload)
+           if not xmlConverter:
               msg = "Error preparing code for "+payload
               raise Exception(msg)
            self._pl2xml_isPrepared = True
+
     
         # get payload from DB:
         result = session.query(self.conddb.Payload.data, self.conddb.Payload.object_type).filter(self.conddb.Payload.hash == payload).one()
         data, plType = result
     
+        convFuncName = sanitize(plType)+'2xml'
         sys.path.append('.')
-        import pl2xmlComp
-        resultXML = pl2xmlComp.payload2xml( str(data), str(plType) )
+	func = getattr(xmlConverter, convFuncName)
+    	resultXML = func( str(data), str(plType) )
+
         print resultXML    
     

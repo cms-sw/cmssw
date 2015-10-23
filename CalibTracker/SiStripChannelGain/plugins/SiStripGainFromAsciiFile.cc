@@ -29,21 +29,32 @@ SiStripApvGain * SiStripGainFromAsciiFile::getNewObject(){
 
   SiStripApvGain* obj = new SiStripApvGain();
 
-  uint32_t detid;
-  FibersGain FG;
 
   std::stringstream ss;
   ss.str("");
   ss << "[SiStripGainFromAsciiFile::getNewObject]\n Reading Ascii File\n";
-  std::ifstream infile;
-  infile.open (Asciifilename_.c_str());
-  if (infile.is_open()){
-    while (infile.good()){
-      infile >> detid >> FG.fiber[0] >> FG.fiber[1] >> FG.fiber[2];
-      ss << detid << " " <<  FG.fiber[0] << " " <<  FG.fiber[1] << " " <<  FG.fiber[2] << std::endl;
-      GainsMap.insert(std::pair<unsigned int,FibersGain>(detid,FG));
+  FILE* infile = fopen (Asciifilename_.c_str(), "r");
+  char line[4096];
+  if (infile){
+    while(fgets(line, 4096, infile)!=NULL){
+       uint32_t detid;
+       ModuleGain MG;
+       MG.apv[0] = 0.0;  MG.apv[1] = 0.0; MG.apv[2] = 0.0; MG.apv[3] = 0.0; MG.apv[4] = 0.0; MG.apv[5] = 0.0;
+       char* pch=strtok(line," "); int Arg=0;
+       while (pch!=NULL){
+            if(Arg==0){
+               sscanf(pch, "%d", &detid);
+            }else if(Arg<=6){
+               sscanf(pch, "%f", &(MG.apv[Arg-1]));
+            }else{
+               //nothing to do here
+            }       
+            pch=strtok(NULL," ");Arg++;
+      }
+      ss << detid << " " <<  MG.apv[0] << " " <<  MG.apv[1] << " " <<  MG.apv[2] << " " <<  MG.apv[3] << " " <<  MG.apv[4] << " " <<  MG.apv[5] << std::endl;
+      GainsMap.insert(std::pair<unsigned int,ModuleGain>(detid,MG));
     }
-    infile.close();
+    fclose(infile);
     edm::LogInfo("SiStripGainFromAsciiFile") << ss.str();
   } else  {
     edm::LogError("SiStripGainFromAsciiFile")<< " [SiStripGainFromAsciiFile::getNewObject] Error opening file " << Asciifilename_ << std::endl;
@@ -60,39 +71,36 @@ SiStripApvGain * SiStripGainFromAsciiFile::getNewObject(){
   ss << "[SiStripGainFromAsciiFile::getNewObject]\n Filling SiStripApvGain object";
   short nApvPair;
   for(std::vector<uint32_t>::const_iterator it=DetIds.begin(); it!=DetIds.end(); it++){
-
+    ModuleGain MG;
     if (DetId(*it).det()!=DetId::Tracker)
       continue;
 
     nApvPair=reader.getNumberOfApvsAndStripLength(*it).first/2;
     
     ss << "Looking at detid " << *it << " nApvPairs  " << nApvPair << std::endl;
-
-    __gnu_cxx::hash_map< unsigned int,FibersGain>::const_iterator iter=GainsMap.find(*it);
-    
+    __gnu_cxx::hash_map< unsigned int,ModuleGain>::const_iterator iter=GainsMap.find(*it);    
     if (iter!=GainsMap.end()){
-      FG = iter->second;
-      ss << " " <<  FG.fiber[0] << " " <<  FG.fiber[1] << " " <<  FG.fiber[2] << std::endl;
-    }
-    else {
+      MG = iter->second;
+      ss << " " <<  MG.apv[0] << " " <<  MG.apv[1] << " " <<  MG.apv[2] <<  " " <<  MG.apv[3] << " " <<  MG.apv[4] << " " <<  MG.apv[5] << std::endl;
+    }else {
       ss << "Hard reset for detid " << *it << std::endl;
-      FG.hard_reset(referenceValue_);
+      MG.hard_reset(referenceValue_);
     }
     
     std::vector<float> DetGainsVector;
     
     if (nApvPair==2){
-      DetGainsVector.push_back(FG.fiber[0]/referenceValue_);  
-      DetGainsVector.push_back(FG.fiber[0]/referenceValue_);  
-      DetGainsVector.push_back(FG.fiber[2]/referenceValue_);        
-      DetGainsVector.push_back(FG.fiber[2]/referenceValue_);  
+      DetGainsVector.push_back(MG.apv[0]/referenceValue_);  
+      DetGainsVector.push_back(MG.apv[1]/referenceValue_);  
+      DetGainsVector.push_back(MG.apv[2]/referenceValue_);        
+      DetGainsVector.push_back(MG.apv[3]/referenceValue_);  
     } else if (nApvPair==3){   		   		   		  
-      DetGainsVector.push_back(FG.fiber[0]/referenceValue_);  
-      DetGainsVector.push_back(FG.fiber[0]/referenceValue_);  
-      DetGainsVector.push_back(FG.fiber[1]/referenceValue_);  
-      DetGainsVector.push_back(FG.fiber[1]/referenceValue_);  
-      DetGainsVector.push_back(FG.fiber[2]/referenceValue_);  
-      DetGainsVector.push_back(FG.fiber[2]/referenceValue_);  
+      DetGainsVector.push_back(MG.apv[0]/referenceValue_);  
+      DetGainsVector.push_back(MG.apv[1]/referenceValue_);  
+      DetGainsVector.push_back(MG.apv[2]/referenceValue_);  
+      DetGainsVector.push_back(MG.apv[3]/referenceValue_);  
+      DetGainsVector.push_back(MG.apv[4]/referenceValue_);  
+      DetGainsVector.push_back(MG.apv[5]/referenceValue_);  
     } else {
       edm::LogError("SiStripGainFromAsciiFile") << " SiStripGainFromAsciiFile::getNewObject] ERROR for detid " << *it << " not expected number of APV pairs " << nApvPair <<std::endl;
     }

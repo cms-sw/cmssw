@@ -76,17 +76,14 @@ class PrimaryVertexSorter : public edm::stream::EDProducer<> {
 #include "FWCore/Framework/interface/EventSetup.h"
 
 
-using namespace std;
-using namespace edm;
-using namespace reco;
 
 template <class ParticlesCollection>
 PrimaryVertexSorter<ParticlesCollection>::PrimaryVertexSorter(const edm::ParameterSet& iConfig) :
   assignmentAlgo_(iConfig.getParameterSet("assignment")),
   sortingAlgo_(iConfig.getParameterSet("sorting")),
-  tokenCandidates_(consumes<ParticlesCollection>(iConfig.getParameter<InputTag>("particles"))),
-  tokenVertices_(consumes<VertexCollection>(iConfig.getParameter<InputTag>("vertices"))),
-  tokenJets_(consumes<edm::View<reco::Candidate> > (iConfig.getParameter<InputTag>("jets"))),
+  tokenCandidates_(consumes<ParticlesCollection>(iConfig.getParameter<edm::InputTag>("particles"))),
+  tokenVertices_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
+  tokenJets_(consumes<edm::View<reco::Candidate> > (iConfig.getParameter<edm::InputTag>("jets"))),
   produceOriginalMapping_(iConfig.getParameter<bool>("produceAssociationToOriginalVertices")),
   produceSortedVertices_(iConfig.getParameter<bool>("produceSortedVertices")),
   producePFPileUp_(iConfig.getParameter<bool>("producePileUpCollection")),
@@ -95,6 +92,9 @@ PrimaryVertexSorter<ParticlesCollection>::PrimaryVertexSorter(const edm::Paramet
   useMET_(iConfig.getParameter<bool>("usePVMET"))
 {
 
+using namespace std;
+using namespace edm;
+using namespace reco;
 
   if(produceOriginalMapping_){
       produces< CandToVertex> ("original");
@@ -130,8 +130,11 @@ PrimaryVertexSorter<ParticlesCollection>::PrimaryVertexSorter(const edm::Paramet
 
 
 template <class ParticlesCollection>
-void PrimaryVertexSorter<ParticlesCollection>::produce(Event& iEvent,  const EventSetup& iSetup) {
+void PrimaryVertexSorter<ParticlesCollection>::produce(edm::Event& iEvent,  const edm::EventSetup& iSetup) {
 
+using namespace std;
+using namespace edm;
+using namespace reco;
 
   Handle<edm::View<reco::Candidate> > jets;
   iEvent.getByToken( tokenJets_, jets);

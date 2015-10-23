@@ -37,6 +37,8 @@ public:
     PuppiContainer(const edm::ParameterSet &iConfig);
     ~PuppiContainer(); 
     void initialize(const std::vector<RecoObj> &iRecoObjects);
+    void setNPV(int iNPV){ fNPV = iNPV; }
+
     std::vector<fastjet::PseudoJet> const & pfParticles() const { return fPFParticles; }    
     std::vector<fastjet::PseudoJet> const & pvParticles() const { return fChargedPV; }        
     std::vector<double> const & puppiWeights();
@@ -57,6 +59,7 @@ protected:
     int     getPuppiId   ( float iPt, float iEta);
     double  var_within_R (int iId, const std::vector<fastjet::PseudoJet> & particles, const fastjet::PseudoJet& centre, double R);  
     
+    bool      fPuppiDiagnostics;
     std::vector<RecoObj>   fRecoParticles;
     std::vector<fastjet::PseudoJet> fPFParticles;
     std::vector<fastjet::PseudoJet> fChargedPV;
@@ -68,6 +71,7 @@ protected:
     std::vector<double>    fAlphaRMS;
 
     bool   fApplyCHS;
+    bool   fInvert;
     bool   fUseExp;
     double fNeutralMinPt;
     double fNeutralSlope;

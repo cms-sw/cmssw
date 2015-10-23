@@ -5,7 +5,7 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -16,25 +16,24 @@
 #include "PhysicsTools/PatAlgos/interface/ObjectModifier.h"
 
 namespace pat {
-
-  class PATTauSlimmer : public edm::EDProducer {
-    public:
-      explicit PATTauSlimmer(const edm::ParameterSet & iConfig);
-      virtual ~PATTauSlimmer() { }
-
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
-
-    private:
-      edm::EDGetTokenT<edm::View<pat::Tau> > src_;
-      bool linkToPackedPF_;
-      edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
-      bool dropPiZeroRefs_;
-      bool dropTauChargedHadronRefs_;
-      bool dropPFSpecific_;
-      bool modifyTau_;
-      std::unique_ptr<pat::ObjectModifier<pat::Tau> > tauModifier_;
-
+  
+  class PATTauSlimmer : public edm::stream::EDProducer<> {
+  public:
+    explicit PATTauSlimmer(const edm::ParameterSet & iConfig);
+    virtual ~PATTauSlimmer() { }
+    
+    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
+    
+  private:
+    const edm::EDGetTokenT<edm::View<pat::Tau> > src_;
+    const bool linkToPackedPF_;
+    const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > pf2pc_;
+    const bool dropPiZeroRefs_;
+    const bool dropTauChargedHadronRefs_;
+    const bool dropPFSpecific_;
+    const bool modifyTau_;
+    std::unique_ptr<pat::ObjectModifier<pat::Tau> > tauModifier_;    
   };
 
 } // namespace
@@ -42,6 +41,10 @@ namespace pat {
 pat::PATTauSlimmer::PATTauSlimmer(const edm::ParameterSet & iConfig) :
     src_(consumes<edm::View<pat::Tau> >(iConfig.getParameter<edm::InputTag>("src"))),
     linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates")),
+    pf2pc_(mayConsume<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
+    dropPiZeroRefs_(iConfig.exists("dropPiZeroRefs") ? iConfig.getParameter<bool>("dropPiZeroRefs") : true ),
+    dropTauChargedHadronRefs_(iConfig.exists("dropTauChargedHadronRefs") ? iConfig.getParameter<bool>("dropTauChargedHadronRefs") : true),
+    dropPFSpecific_(iConfig.exists("dropPFSpecific") ? iConfig.getParameter<bool>("dropPFSpecific") : true),
     modifyTau_(iConfig.getParameter<bool>("modifyTaus"))
 {
     edm::ConsumesCollector sumes(consumesCollector());
@@ -53,11 +56,6 @@ pat::PATTauSlimmer::PATTauSlimmer(const edm::ParameterSet & iConfig) :
       tauModifier_.reset(nullptr);
     }
     produces<std::vector<pat::Tau> >();
-    if (linkToPackedPF_) pf2pc_ = consumes<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
-    dropPiZeroRefs_ = iConfig.exists("dropPiZeroRefs") ? iConfig.getParameter<bool>("dropPiZeroRefs") : true;
-    dropTauChargedHadronRefs_ = iConfig.exists("dropTauChargedHadronRefs") ? iConfig.getParameter<bool>("dropTauChargedHadronRefs") : true;
-    dropPFSpecific_ = iConfig.exists("dropPFSpecific") ? iConfig.getParameter<bool>("dropPFSpecific"): true;
-
 }
 
 void 

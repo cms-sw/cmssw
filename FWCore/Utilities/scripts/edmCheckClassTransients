@@ -1,0 +1,81 @@
+#!  /usr/bin/env python
+import string
+import re
+import collections 
+
+classtransients = collections.defaultdict(list)
+
+classtransients['edm::AssociationMap'].append('transientMap_')
+classtransients['edm::AssociationVector'].append('transientVector_')
+
+
+
+class RMParser(object):
+    """Parses the rootmap file(s) for a package looking for class declarations of edm template classes
+    which contain member(s) which must be labeled transient="true" in classes_def.xml
+    """
+    
+    def __init__(self,filelist):
+        self._files = filelist
+        self.cnames = collections.defaultdict(list)
+        self._presentClass = None
+        self.readRootMap()
+    def readRootMap(self):
+        for filename in self._files:
+          f = open(filename)
+          for line in f:
+            cname=""
+            if re.search("^class",line): cname = re.sub("class ","",line)
+            if re.search("^struct",line): cname = re.sub("struct ","",line)
+            for key in classtransients.keys():
+               if re.search(r'^%s<' % key, cname):
+                   n_name = string.join(line.split())
+                   self.cnames[key].append(n_name)
+          f.close()
+
+def checkTrans(templname,name):
+    c = ROOT.TClass.GetClass(name)
+    if not c:
+        print "Info: Could no load dictionary for class '"+name+"' because of typedef(s) in the name."
+        return 0
+    nerrs=0
+    for trans in classtransients[templname]:
+      tdm = c.GetDataMember(trans)
+      retval = False
+      if tdm : retval = tdm.IsPersistent()
+      if retval == True : 
+          print "Error: field='"+trans+"' must be labeled transient=\"true\" in classes_def.xml for "+name+" or the equivalent class name with typedefs."
+          nerrs+=1
+    return nerrs
+
+#Setup the options
+from optparse import OptionParser
+oparser = OptionParser()
+oparser.add_option("-l","--lib", dest="library",
+                   help="specify the library to load")
+oparser.add_option("-f","--rootmap", dest="rmfiles", action="append", default=[],
+                   help="specify the rootmap file(s) to read")
+
+(options,args)=oparser.parse_args()
+
+import ROOT
+#Keep ROOT from trying to use X11
+ROOT.gROOT.SetBatch(True)
+ROOT.gROOT.ProcessLine(".autodict")
+if options.library is None:
+    print "Transient member check requires a specific library"
+else:
+    if 0 != ROOT.gSystem.Load(options.library):
+        raise RuntimeError("failed to load library '"+options.library+"'")
+
+p = RMParser(options.rmfiles)
+
+nerrs = 0
+for key in p.cnames.keys():
+    for value in p.cnames[key]:
+        nerrs += checkTrans(key,value)
+
+if nerrs > 0 : 
+    print "Error: edm template class member must be labeled transient=\"true\" in classes_def.xml. Check log for specific template and member name."
+    import sys
+    sys.exit(1)

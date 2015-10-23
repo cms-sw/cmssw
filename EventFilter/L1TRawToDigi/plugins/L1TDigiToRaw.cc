@@ -230,7 +230,7 @@ namespace l1t {
      desc.add<int>("FedId");
      desc.addUntracked<int>("eventType", 1);
      desc.add<std::string>("Setup");
-     desc.addOptional<edm::InputTag>("InputLabel");
+     desc.addOptional<edm::InputTag>("InputLabel",edm::InputTag(""));
      desc.addUntracked<int>("lenSlinkHeader", 8);
      desc.addUntracked<int>("lenSlinkTrailer", 8);
 

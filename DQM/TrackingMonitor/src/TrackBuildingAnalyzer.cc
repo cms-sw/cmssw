@@ -5,6 +5,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -284,8 +285,9 @@ void TrackBuildingAnalyzer::analyze
   TSCBLBuilderNoMaterial tscblBuilder;
   
   //get parameters and errors from the candidate state
-  TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(candidate.recHits().second-1));
-  TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( candidate.startingState(), recHit->surface(), theMF.product());
+  auto const & theG = ((TkTransientTrackingRecHitBuilder const *)(theTTRHBuilder.product()))->geometry();
+  auto const & candSS = candidate.startingState();
+  TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( candSS, &(theG->idToDet(candSS.detId())->surface()), theMF.product());
   TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed = tscblBuilder(*state.freeState(),bs);//as in TrackProducerAlgorithm
   if(!(tsAtClosestApproachSeed.isValid())) {
     edm::LogVerbatim("TrackBuilding") << "TrajectoryStateClosestToBeamLine not valid";
@@ -296,9 +298,9 @@ void TrackBuildingAnalyzer::analyze
   GlobalPoint  v(v0.x()-bs.x0(),v0.y()-bs.y0(),v0.z()-bs.z0());
   
   double pt           = sqrt(state.globalMomentum().perp2());
-  double eta          = state.globalMomentum().eta();
-  double phi          = state.globalMomentum().phi();
-  double theta        = state.globalMomentum().theta();
+  double eta          = state.globalPosition().eta();
+  double phi          = state.globalPosition().phi();
+  double theta        = state.globalPosition().theta();
   //double pm           = sqrt(state.globalMomentum().mag2());
   //double pz           = state.globalMomentum().z();
   //double qoverp       = tsAtClosestApproachSeed.trackStateAtPCA().charge()/p.mag();
@@ -338,8 +340,9 @@ void TrackBuildingAnalyzer::analyze
   TSCBLBuilderNoMaterial tscblBuilder;
   
   //get parameters and errors from the candidate state
-  TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(candidate.recHits().second-1));
-  TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( candidate.trajectoryStateOnDet(), recHit->surface(), theMF.product());
+  auto const & theG = ((TkTransientTrackingRecHitBuilder const *)(theTTRHBuilder.product()))->geometry();
+  auto const & candSS = candidate.trajectoryStateOnDet();
+  TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( candSS, &(theG->idToDet(candSS.detId())->surface()), theMF.product());
   TrajectoryStateClosestToBeamLine tsAtClosestApproachTrackCand = tscblBuilder(*state.freeState(),bs);//as in TrackProducerAlgorithm
   if(!(tsAtClosestApproachTrackCand.isValid())) {
     edm::LogVerbatim("TrackBuilding") << "TrajectoryStateClosestToBeamLine not valid";
@@ -350,9 +353,9 @@ void TrackBuildingAnalyzer::analyze
   GlobalPoint  v(v0.x()-bs.x0(),v0.y()-bs.y0(),v0.z()-bs.z0());
   
   double pt           = sqrt(state.globalMomentum().perp2());
-  double eta          = state.globalMomentum().eta();
-  double phi          = state.globalMomentum().phi();
-  double theta        = state.globalMomentum().theta();
+  double eta          = state.globalPosition().eta();
+  double phi          = state.globalPosition().phi();
+  double theta        = state.globalPosition().theta();
   //double pm           = sqrt(state.globalMomentum().mag2());
   //double pz           = state.globalMomentum().z();
   //double qoverp       = tsAtClosestApproachTrackCand.trackStateAtPCA().charge()/p.mag();

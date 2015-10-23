@@ -48,11 +48,19 @@ This producer makes use of PFAlgo, the particle flow algorithm.
 */
 
 
-class PFEGammaProducer : public edm::stream::EDProducer<> {
+class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<pfEGHelpers::HeavyObjectCache> > {
  public:
-  explicit PFEGammaProducer(const edm::ParameterSet&);
+  explicit PFEGammaProducer(const edm::ParameterSet&, const pfEGHelpers::HeavyObjectCache* );
   ~PFEGammaProducer();
   
+  static std::unique_ptr<pfEGHelpers::HeavyObjectCache> 
+    initializeGlobalCache( const edm::ParameterSet& conf ) {
+       return std::unique_ptr<pfEGHelpers::HeavyObjectCache>(new pfEGHelpers::HeavyObjectCache(conf));
+   }
+  
+  static void globalEndJob(pfEGHelpers::HeavyObjectCache const* ) {
+  }
+
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void beginRun(const edm::Run &, const edm::EventSetup &) override;
 

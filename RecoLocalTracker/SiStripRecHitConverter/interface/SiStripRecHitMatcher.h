@@ -185,7 +185,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
   
   
   
-  StereoInfo cache[std::distance(seconditer,seconditerend)];
+  std::vector<StereoInfo> cache(std::distance(seconditer,seconditerend));
   //iterate on stereo rechits
   // fill cache with relevant info
   int  cacheSize=0;

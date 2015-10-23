@@ -15,20 +15,21 @@
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <lzma.h>
 
+
 class Storage;
 
 namespace lhef {
 
 class StorageWrap {
     public:
-	StorageWrap(Storage *storage);
+	StorageWrap(std::unique_ptr<Storage> storage);
 	~StorageWrap();
 
 	Storage *operator -> () { return storage.get(); }
 	const Storage *operator -> () const { return storage.get(); }
 
     private:
-	std::auto_ptr<Storage>	storage;
+	std::unique_ptr<Storage>	storage;
 };
 
 class XMLDocument {
@@ -183,6 +184,10 @@ class StorageInputStream :
         lzma_stream     lstr;
         bool            compression_;
         unsigned int    lasttotal_;
+
+        unsigned int buffLoc_ = 0,buffTotal_ = 0;
+        std::vector<uint8_t> buffer_;
+        static constexpr unsigned bufferSize_ = 16*1024*1024;
 };
 
 typedef XMLInputSourceWrapper<CBInputStream> CBInputSource;

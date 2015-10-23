@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -18,7 +18,7 @@
 #include "CondFormats/ESObjects/interface/ESMissingEnergyCalibration.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 
-class PreshowerClusterProducer : public edm::EDProducer {
+class PreshowerClusterProducer : public edm::stream::EDProducer<> {
 
  public:
 

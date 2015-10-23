@@ -11,9 +11,6 @@
 //
 // For FAMOS
 //
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"                         
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h"                         
-
 #include "Utilities/General/interface/ClassName.h"
 #include <typeinfo>
 

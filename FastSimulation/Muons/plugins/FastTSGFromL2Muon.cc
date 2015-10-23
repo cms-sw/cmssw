@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h" 
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -123,8 +123,8 @@ FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 	
 	// Find the first hit of the Seed
 	TrajectorySeed::range theSeedingRecHitRange = aSeed->recHits();
-	const SiTrackerGSMatchedRecHit2D * theFirstSeedingRecHit = 
-	  (const SiTrackerGSMatchedRecHit2D*) (&(*(theSeedingRecHitRange.first)));
+	const FastTrackerRecHit * theFirstSeedingRecHit = 
+	  (const FastTrackerRecHit*) (&(*(theSeedingRecHitRange.first)));
 
 	// The SimTrack id associated to that recHit
 	int simTrackId = theFirstSeedingRecHit->simTrackId(0);

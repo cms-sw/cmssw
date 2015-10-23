@@ -1,3 +1,5 @@
+<flags CXX_FLAGS="-Wno-unused-variable"/>
+
 <library   file="SiStripPedestalsPyWrapper.cc" name="SiStripPedestalsPyInterface">
   <use   name="CondCore/Utilities"/>
   <use   name="CondFormats/SiStripObjects"/>
@@ -168,4 +170,11 @@
   <use   name="boost_python"/>
   <use   name="boost_regex"/>
   <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   file="SiStripObjects_toXML.cc" name="SiStripObjects_toXML">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="boost_python"/>
 </library>

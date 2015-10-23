@@ -12,7 +12,7 @@ class GEDGsfElectronProducer : public GsfElectronBaseProducer
 
     //static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
 
-    explicit GEDGsfElectronProducer( const edm::ParameterSet & ) ;
+   explicit GEDGsfElectronProducer( const edm::ParameterSet &, const gsfAlgoHelpers::HeavyObjectCache* ) ;
     virtual ~GEDGsfElectronProducer() ;
     virtual void produce( edm::Event &, const edm::EventSetup & ) ;
 

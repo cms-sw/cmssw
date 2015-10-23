@@ -7,7 +7,7 @@
 #include <fstream>
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -27,14 +27,16 @@
 
 using namespace std;
 
-class RPCSectorAnalyzer : public edm::EDAnalyzer {
+class RPCSectorAnalyzer : public edm::one::EDAnalyzer<> {
 
  public: 
   RPCSectorAnalyzer( const edm::ParameterSet& pset);
 
   ~RPCSectorAnalyzer();
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
  
   const std::string& myName() { return myName_;}
 
@@ -143,9 +145,6 @@ RPCSectorAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup&
 	    std::cout<<" /\\phi="<<deltaphi<<std::endl;
 	  }
       }
-       
-       
-       
     }
   }
     std::cout << dashedLine_ << " end" << std::endl;

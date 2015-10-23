@@ -1,7 +1,7 @@
- 
-import sys
+import sys, os
 
 from Configuration.PyReleaseValidation.WorkFlow import WorkFlow
+from Configuration.PyReleaseValidation.MatrixUtil import InputInfo
 
 # ================================================================================
 
@@ -391,14 +391,29 @@ class MatrixReader(object):
             outFile.close()
             print "wrote ",writtenWF, ' workflow'+('s' if (writtenWF!=1) else ''),' to ', outFile.name
         return 
-                    
 
-    def showWorkFlows(self, selected=None, extended=True):
+    def workFlowsByLocation(self, cafVeto=True):
+        # Check if we are on CAF
+        onCAF = False
+        if 'cms/caf/cms' in os.environ['CMS_PATH']:
+            onCAF = True
+
+        workflows = []
+        for workflow in self.workFlows:
+            if isinstance(workflow.cmds[0], InputInfo):
+                if cafVeto and (workflow.cmds[0].location == 'CAF' and not onCAF):
+                    continue
+            workflows.append(workflow)
+
+        return workflows
+
+    def showWorkFlows(self, selected=None, extended=True, cafVeto=True):
         if selected: selected = map(float,selected)
+        wfs = self.workFlowsByLocation(cafVeto)
         maxLen = 100 # for summary, limit width of output
         fmt1   = "%-6s %-35s [1]: %s ..."
         fmt2   = "       %35s [%d]: %s ..."
-        print "\nfound a total of ", len(self.workFlows), ' workflows:'
+        print "\nfound a total of ", len(wfs), ' workflows:'
         if selected:
             print "      of which the following", len(selected), 'were selected:'
         #-ap for now:
@@ -407,7 +422,7 @@ class MatrixReader(object):
         fmt2   = "       %35s [%d]: %s"
 
         N=[]
-        for wf in self.workFlows:
+        for wf in wfs:
             if selected and float(wf.numId) not in selected: continue
             if extended: print ''
             #pad with zeros
@@ -479,9 +494,9 @@ class MatrixReader(object):
                 raise
             
                 
-    def show(self, selected=None, extended=True):    
+    def show(self, selected=None, extended=True, cafVeto=True):
 
-        self.showWorkFlows(selected,extended)
+        self.showWorkFlows(selected, extended, cafVeto)
         print '\n','-'*80,'\n'
 
 

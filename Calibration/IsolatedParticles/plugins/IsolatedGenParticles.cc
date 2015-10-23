@@ -46,7 +46,7 @@ const int IsolatedGenParticles::EtaBins;
 
 IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet& iConfig) {
 
-  genSrc_    = iConfig.getUntrackedParameter("GenSrc",std::string("generator"));
+  genSrc_    = iConfig.getUntrackedParameter("GenSrc",std::string("generatorSmeared"));
 
   tok_hepmc_        = consumes<edm::HepMCProduct>(edm::InputTag(genSrc_));
   tok_genParticles_ = consumes<reco::GenParticleCollection>(edm::InputTag(genSrc_));
@@ -83,7 +83,7 @@ IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet& iConfig) {
   tok_L1extFwdJet_  = consumes<l1extra::L1JetParticleCollection>(L1extraFwdJetSource_);
 
   if (!strcmp("Dummy", genSrc_.c_str())) {
-    if (useHepMC) genSrc_ = "generator";
+    if (useHepMC) genSrc_ = "generatorSmeared";
     else          genSrc_ = "genParticles";
   }
   std::cout << "Generator Source " << genSrc_ << " Use HepMC " << useHepMC
@@ -129,7 +129,7 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
   const CaloTopology *caloTopology = theCaloTopology.product();
   
   edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<IdealGeometryRecord>().get(htopo);
+  iSetup.get<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* theHBHETopology = htopo.product();
 
   //===================== save L1 Trigger information =======================

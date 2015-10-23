@@ -6,7 +6,7 @@
 #include <ostream>
 #include <iostream>
 #include <string>
-#include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/global/OutputModule.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
@@ -19,7 +19,7 @@ namespace edm {
 
   class ModuleCallingContext;
 
-  class AsciiOutputModule : public OutputModule {
+  class AsciiOutputModule : public global::OutputModule<> {
   public:
     // We do not take ownership of passed stream.
     explicit AsciiOutputModule(ParameterSet const& pset);
@@ -36,7 +36,8 @@ namespace edm {
   };
 
   AsciiOutputModule::AsciiOutputModule(ParameterSet const& pset) :
-    OutputModule(pset),
+    global::OutputModuleBase(pset),
+    global::OutputModule<>(pset),
     prescale_(pset.getUntrackedParameter<unsigned int>("prescale")),
     verbosity_(pset.getUntrackedParameter<unsigned int>("verbosity")),
     counter_(0) {

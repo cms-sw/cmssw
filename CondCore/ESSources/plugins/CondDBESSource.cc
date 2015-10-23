@@ -134,8 +134,10 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
 
   // snapshot
   boost::posix_time::ptime snapshotTime;
-  if( iConfig.exists( "snapshotTime" ) ) 
-    snapshotTime = boost::posix_time::time_from_string( iConfig.getParameter<std::string>("snapshotTime" ) );
+  if( iConfig.exists( "snapshotTime" ) ){
+    std::string snapshotTimeString = iConfig.getParameter<std::string>("snapshotTime" );
+    if( !snapshotTimeString.empty() ) snapshotTime = boost::posix_time::time_from_string( snapshotTimeString );
+  }
 
   // connection configuration
   if( iConfig.exists("DBParameters") ) {
@@ -146,18 +148,27 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
   
   // load specific record/tag info - it will overwrite the global tag ( if any )
   std::map<std::string,cond::GTEntry_t> replacements;
+  std::map<std::string,boost::posix_time::ptime> specialSnapshots;
   if( iConfig.exists( "toGet" ) ) {
     typedef std::vector< edm::ParameterSet > Parameters;
     Parameters toGet = iConfig.getParameter<Parameters>( "toGet" );
     for( Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
       std::string recordname = itToGet->getParameter<std::string>( "record" );
+      if( recordname.empty() ) throw cond::Exception( "ESSource: The record name has not been provided in a \"toGet\" entry." );
       std::string labelname = itToGet->getUntrackedParameter<std::string>( "label", "" );
-      std::string tag = itToGet->getParameter<std::string>( "tag" );
       std::string pfn("");
       if( m_connectionString.empty() || itToGet->exists("connect") ) pfn = itToGet->getParameter<std::string>( "connect" );
+      std::string tag("");
+      std::string fqTag("");
+      if( itToGet->exists("tag") ) {
+	tag = itToGet->getParameter<std::string>( "tag" );
+	fqTag = cond::persistency::fullyQualifiedTag(tag,pfn);
+      }
+      boost::posix_time::ptime tagSnapshotTime = boost::posix_time::time_from_string(std::string(cond::time::MAX_TIMESTAMP) );
+      if( itToGet->exists("snapshotTime") ) tagSnapshotTime = boost::posix_time::time_from_string( itToGet->getParameter<std::string>("snapshotTime" ) );
       std::string recordLabelKey = joinRecordAndLabel( recordname, labelname );
-      std::string fqTag = cond::persistency::fullyQualifiedTag(tag,pfn);
       replacements.insert( std::make_pair( recordLabelKey, cond::GTEntry_t( std::make_tuple(recordname, labelname, fqTag )  ) ) );
+      specialSnapshots.insert( std::make_pair( recordLabelKey, tagSnapshotTime ) );
     }
   }
   
@@ -185,9 +196,6 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
   // if no job specific setting has been found, use the GT timestamp
   if(snapshotTime.is_not_a_date_time()) 
     snapshotTime = gtMetadata.snapshotTime;
-  // finally, if the snapshot is set to infinity, reset the snapshot to null, to take the full iov set...
-  if(snapshotTime == boost::posix_time::time_from_string(std::string(cond::time::MAX_TIMESTAMP) ) )
-    snapshotTime = boost::posix_time::ptime();
   
   TagCollection::iterator it;
   TagCollection::iterator itBeg = m_tagCollection.begin();
@@ -240,7 +248,14 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
    //  instert in the map
     m_proxies.insert(std::make_pair(it->second.recordName(), proxy));
     // initialize
-    proxy->lateInit(nsess, tag, snapshotTime, it->second.recordLabel(), connStr);
+    boost::posix_time::ptime tagSnapshotTime = snapshotTime;
+    auto tagSnapshotIter = specialSnapshots.find( it->first );
+    if( tagSnapshotIter != specialSnapshots.end() ) tagSnapshotTime = tagSnapshotIter->second;
+    // finally, if the snapshot is set to infinity, reset the snapshot to null, to take the full iov set...
+    if(tagSnapshotTime == boost::posix_time::time_from_string(std::string(cond::time::MAX_TIMESTAMP) ) )
+      tagSnapshotTime = boost::posix_time::ptime();
+
+    proxy->lateInit(nsess, tag, tagSnapshotTime, it->second.recordLabel(), connStr);
   }
 
   // one loaded expose all other tags to the Proxy! 
@@ -601,14 +616,18 @@ void CondDBESSource::fillTagCollectionFromDB( const std::vector<std::string> & c
     std::string recordLabelKey = joinRecordAndLabel( tagCollIter->recordName(), tagCollIter->recordLabel() );
     std::map<std::string,cond::GTEntry_t>::iterator fid = replacement.find( recordLabelKey );
     if( fid != replacement.end() ) {
-      cond::GTEntry_t tagMetadata( std::make_tuple( tagCollIter->recordName(), tagCollIter->recordLabel(), fid->second.tagName() ) );  
-      m_tagCollection.insert( std::make_pair( recordLabelKey, tagMetadata ) );
+      if( !fid->second.tagName().empty() ){
+	cond::GTEntry_t tagMetadata( std::make_tuple( tagCollIter->recordName(), tagCollIter->recordLabel(), fid->second.tagName() ) );  
+	m_tagCollection.insert( std::make_pair( recordLabelKey, tagMetadata ) );
+	edm::LogInfo( "CondDBESSource" ) << "Replacing tag \"" << tagCollIter->tagName()
+					 << "\" for record \"" << tagMetadata.recordName()
+					 << "\" and label \"" << tagMetadata.recordLabel()
+					 << "\" with tag " << tagMetadata.tagName()
+					 << "\"; from CondDBESSource::fillTagCollectionFromDB";
+      } else {
+	m_tagCollection.insert( std::make_pair( recordLabelKey, *tagCollIter) );
+      }
       replacement.erase( fid );
-      edm::LogInfo( "CondDBESSource" ) << "Replacing tag \"" << tagCollIter->tagName()
-				       << "\" for record \"" << tagMetadata.recordName()
-				       << "\" and label \"" << tagMetadata.recordLabel()
-				       << "\" with tag " << tagMetadata.tagName()
-				       << "\"; from CondDBESSource::fillTagCollectionFromDB";
     } else {
       m_tagCollection.insert( std::make_pair( recordLabelKey, *tagCollIter) );
     }
@@ -617,6 +636,12 @@ void CondDBESSource::fillTagCollectionFromDB( const std::vector<std::string> & c
   std::map<std::string,cond::GTEntry_t>::iterator replacementBegin = replacement.begin();
   std::map<std::string,cond::GTEntry_t>::iterator replacementEnd = replacement.end();
   for( replacementIter = replacementBegin; replacementIter != replacementEnd; ++replacementIter ){
+    if( replacementIter->second.tagName().empty() ){
+      std::stringstream msg;
+      msg << "ESSource: no tag provided for record " << replacementIter->second.recordName();
+      if( !replacementIter->second.recordLabel().empty() ) msg << " and label "<<replacementIter->second.recordLabel();
+      throw cond::Exception( msg.str() );
+    }
     m_tagCollection.insert( *replacementIter );
   }
 }

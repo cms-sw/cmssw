@@ -43,7 +43,6 @@ namespace DataFormats_HGCalRecHit {
 }
 
 //raw to rechit specific formats
-#include "DataFormats/Common/interface/RefGetter.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -58,12 +57,5 @@ namespace DataFormats_HGCalRecHit {
     edm::Wrapper< std::vector<edm::DetSet<HGCRecHit> > > dummy31;
     edm::Wrapper< edm::DetSetVector<HGCRecHit> > dummy41;
     edm::Wrapper< std::vector< std::vector < edm::DetSet<HGCRecHit> > > > dummy51;
-    edm::Wrapper< edm::RegionIndex<HGCRecHit> > dummy71;
-    edm::Wrapper< std::vector< edm::RegionIndex<HGCRecHit> > > dummy72;
-    edm::Wrapper< edm::LazyGetter<HGCRecHit> > dummy73;
-    edm::Wrapper< edm::Ref<edm::LazyGetter<HGCRecHit>,edm::RegionIndex<HGCRecHit>,edm::FindRegion<HGCRecHit> > > dummy74;
-    edm::Wrapper< std::vector<edm::Ref<edm::LazyGetter<HGCRecHit>,edm::RegionIndex<HGCRecHit>,edm::FindRegion<HGCRecHit> > > > dummy75;
-    edm::Wrapper< edm::RefGetter<HGCRecHit> > dummy76;
-    edm::Wrapper< edm::Ref< edm::LazyGetter<HGCRecHit>, HGCRecHit, edm::FindValue<HGCRecHit> > > dummy77;
   };
 }

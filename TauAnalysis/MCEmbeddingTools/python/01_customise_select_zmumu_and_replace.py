@@ -76,7 +76,7 @@ def customise(process):
     src                = cms.InputTag("muons"),
     beamSpotSrc        = cms.InputTag("dummy"),
     primaryVertexLabel = cms.InputTag("dummy"),
-    hepMcSrc           = cms.InputTag("generator"),
+    hepMcSrc           = cms.InputTag("generatorSmeared"),
 
     algorithm = cms.string("ZTauTau"), # "ParticleGun", "ZTauTau", "CommissioningGun"
     hepMcMode = cms.string("new"),         # "new" for new HepMCProduct with taus and decay products,

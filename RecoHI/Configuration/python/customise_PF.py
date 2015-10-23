@@ -13,7 +13,7 @@ def customise(process):
     process.pfTrack.TrackQuality = cms.string('highPurity')   
     process.pfTrack.TkColList = cms.VInputTag("hiGeneralTracks")  
     process.pfTrack.PrimaryVertexLabel = cms.InputTag("hiSelectedVertex")
-    process.pfTrack.MuColl = cms.InputTag("muons")
+    process.pfTrack.MuColl = cms.InputTag("hiMuons1stStep")
     process.pfTrack.GsfTracksInEvents = cms.bool(False)
     
     # run a trimmed down PF sequence with heavy-ion vertex, no conversions, nucl int, etc.
@@ -26,7 +26,7 @@ def customise(process):
 
     process.particleFlowTmp.vertexCollection = cms.InputTag("hiSelectedVertex")
     process.particleFlowTmp.usePFElectrons = cms.bool(False)
-    process.particleFlowTmp.muons = cms.InputTag("muons")
+    process.particleFlowTmp.muons = cms.InputTag("hiMuons1stStep")
     process.particleFlowTmp.usePFConversions = cms.bool(False)
 
     process.electronsCiCLoose.verticesCollection = cms.InputTag("hiSelectedVertex")

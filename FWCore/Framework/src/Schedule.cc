@@ -17,7 +17,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
@@ -421,7 +420,6 @@ namespace edm {
                        outputModulePathPositions);
     processEDAliases(proc_pset, processConfiguration->processName(), preg);
     proc_pset.registerIt();
-    pset::setProcessParameterSetID(proc_pset.id());
     processConfiguration->setParameterSetID(proc_pset.id());
     processConfiguration->setProcessConfigurationID();
 

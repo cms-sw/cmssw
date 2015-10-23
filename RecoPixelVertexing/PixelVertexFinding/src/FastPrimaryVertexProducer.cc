@@ -22,7 +22,7 @@
 #include <vector>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -71,12 +71,12 @@ using namespace std;
 // class declaration
 //
 
-class FastPrimaryVertexProducer : public edm::EDProducer {
+class FastPrimaryVertexProducer : public edm::global::EDProducer<> {
    public:
       explicit FastPrimaryVertexProducer(const edm::ParameterSet&);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       edm::EDGetTokenT<SiPixelClusterCollectionNew> m_clusters;
       edm::EDGetTokenT<edm::View<reco::Jet> > m_jets;
       edm::EDGetTokenT<reco::BeamSpot> m_beamSpot;
@@ -104,7 +104,7 @@ FastPrimaryVertexProducer::FastPrimaryVertexProducer(const edm::ParameterSet& iC
 
 
 void
-FastPrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+FastPrimaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
    using namespace edm;
    using namespace reco;

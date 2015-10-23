@@ -19,7 +19,7 @@ if( hasattr(sys, "argv") ):
 
 ## enabling unscheduled mode for modules
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True),
+    wantSummary = cms.untracked.bool(False),
     allowUnscheduled = cms.untracked.bool(True),
 )
 
@@ -33,12 +33,13 @@ if options.runOnAOD:
     process.source = cms.Source("PoolSource",
         fileNames = cms.untracked.vstring(    
           ## add your favourite AOD files here (1000+ events in each file defined below)
-#	  '/store/relval/CMSSW_7_2_0_pre7/RelValTTbar_13/GEN-SIM-RECO/PU50ns_PRE_LS172_V12-v1/00000/1267B7ED-2F4E-E411-A0B9-0025905964A6.root',
+	  '/store/mc/RunIISpring15DR74/ttHTobb_M125_13TeV_powheg_pythia8/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/02203C96-2108-E511-B5C1-00266CFCC214.root',
+	  '/store/mc/RunIISpring15DR74/ttHTobb_M125_13TeV_powheg_pythia8/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/02332898-9808-E511-81E8-3417EBE34BFD.root',
+	  '/store/mc/RunIISpring15DR74/ttHTobb_M125_13TeV_powheg_pythia8/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/060177B4-2E08-E511-83AD-3417EBE644DA.root',
 	  ## other AOD samples
-	  '/store/mc/Spring14dr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU_S14_POSTLS170_V6-v1/00000/00120F7A-84F5-E311-9FBE-002618943910.root',
-#	  '/store/mc/Spring14dr/TT_Tune4C_13TeV-pythia8-tauola/AODSIM/Flat20to50_POSTLS170_V5-v1/00000/023E1847-ADDC-E311-91A2-003048FFD754.root',
-#	  '/store/mc/Spring14dr/TTbarH_HToBB_M-125_13TeV_pythia6/AODSIM/PU20bx25_POSTLS170_V5-v1/00000/1CAB7E58-0BD0-E311-B688-00266CFFBC3C.root',
-#	  '/store/mc/Spring14dr/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU20bx25_POSTLS170_V5-v1/00000/0E3D08A9-C610-E411-A862-0025B3E0657E.root',
+#	  '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/AODSIM/Asympt50ns_MCRUN2_74_V9A-v4/10000/00199A75-540F-E511-8277-0002C92DB464.root',
+#	  '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/AODSIM/Asympt50ns_MCRUN2_74_V9A-v4/10000/001B27B8-550F-E511-85CF-0025905A609A.root',
+#	  '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/AODSIM/Asympt50ns_MCRUN2_74_V9A-v4/10000/007E116A-510F-E511-8D40-F04DA275C007.root',
         ),
 	skipEvents = cms.untracked.uint32(0)
     )
@@ -46,7 +47,8 @@ else:
     process.source = cms.Source("PoolSource",
         fileNames = cms.untracked.vstring(    
 	  # add your favourite miniAOD files here (1000+ events in each file defined below)
-	  '/store/cmst3/user/gpetrucc/miniAOD/v1/TTbarH_HToBB_M-125_13TeV_pythia6_PU_S14_PAT.root',
+	  '/store/mc/RunIISpring15DR74/ttHTobb_M125_13TeV_powheg_pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/141B9915-1F08-E511-B9FF-001E675A6AB3.root',
+#	  '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v4/10000/00D2A247-2910-E511-9F3D-0CC47A4DEDD2.root',
 	),
 	skipEvents = cms.untracked.uint32(0)
     )
@@ -56,30 +58,30 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
 
-# Setting input particle collections to be used by the tools
+# Setting input particle/jet collections to be used by the tools
 genParticleCollection = ''
-genJetInputParticleCollection = ''
 genJetCollection = 'ak4GenJetsCustom'
+
 if options.runOnAOD:
     genParticleCollection = 'genParticles'
-    genJetInputParticleCollection = 'genParticlesForJets'
-    ## producing a subset of genParticles to be used for jet clustering in AOD
-    from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJets
-    process.genParticlesForJets = genParticlesForJets.clone()
+    ## producing a subset of genParticles to be used for jet reclustering
+    from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJetsNoNu
+    process.genParticlesForJetsCustom = genParticlesForJetsNoNu.clone(
+        src = genParticleCollection
+    )
+    # Producing own jets for testing purposes
+    from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
+    process.ak4GenJetsCustom = ak4GenJets.clone(
+        src = 'genParticlesForJetsCustom',
+        rParam = cms.double(0.4),
+        jetAlgorithm = cms.string("AntiKt")
+    )
 else:
     genParticleCollection = 'prunedGenParticles'
-    genJetInputParticleCollection = 'packedGenParticles'
+    genJetCollection = 'slimmedGenJets'
 
 # Supplies PDG ID to real name resolution of MC particles
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-
-# Producing own jets for testing purposes
-from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
-process.ak4GenJetsCustom = ak4GenJets.clone(
-    src = genJetInputParticleCollection,
-    rParam = cms.double(0.4),
-    jetAlgorithm = cms.string("AntiKt")
-)
 
 # Ghost particle collection used for Hadron-Jet association 
 # MUST use proper input particle collection
@@ -92,26 +94,25 @@ process.selectedHadronsAndPartons = selectedHadronsAndPartons.clone(
 # MUST use use proper input jet collection: the jets to which hadrons should be associated
 # rParam and jetAlgorithm MUST match those used for jets to be associated with hadrons
 # More details on the tool: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideBTagMCTools#New_jet_flavour_definition
-from PhysicsTools.JetMCAlgos.sequences.GenHFHadronMatching_cff import genJetFlavourPlusLeptonInfos
-process.genJetFlavourPlusLeptonInfos = genJetFlavourPlusLeptonInfos.clone(
+from PhysicsTools.JetMCAlgos.AK4PFJetsMCFlavourInfos_cfi import ak4JetFlavourInfos
+process.genJetFlavourInfos = ak4JetFlavourInfos.clone(
     jets = genJetCollection,
-    rParam = cms.double(0.4),
-    jetAlgorithm = cms.string("AntiKt")
 )
-
 
 # Plugin for analysing B hadrons
 # MUST use the same particle collection as in selectedHadronsAndPartons
-from PhysicsTools.JetMCAlgos.sequences.GenHFHadronMatching_cff import matchGenBHadron
+from PhysicsTools.JetMCAlgos.GenHFHadronMatcher_cff import matchGenBHadron
 process.matchGenBHadron = matchGenBHadron.clone(
-    genParticles = genParticleCollection
+    genParticles = genParticleCollection,
+    jetFlavourInfos = "genJetFlavourInfos"
 )
 
 # Plugin for analysing C hadrons
 # MUST use the same particle collection as in selectedHadronsAndPartons
-from PhysicsTools.JetMCAlgos.sequences.GenHFHadronMatching_cff import matchGenCHadron
+from PhysicsTools.JetMCAlgos.GenHFHadronMatcher_cff import matchGenCHadron
 process.matchGenCHadron = matchGenCHadron.clone(
-    genParticles = genParticleCollection
+    genParticles = genParticleCollection,
+    jetFlavourInfos = "genJetFlavourInfos"
 )
 
 
@@ -134,6 +135,11 @@ process.matchGenHFHadrons = cms.EDAnalyzer("matchGenHFHadrons",
     genCHadFlavour = cms.InputTag("matchGenCHadron", "genCHadFlavour"),
     genCHadFromTopWeakDecay = cms.InputTag("matchGenCHadron", "genCHadFromTopWeakDecay"),
     genCHadBHadronId = cms.InputTag("matchGenCHadron", "genCHadBHadronId"),
+    genCHadPlusMothers = cms.InputTag("matchGenCHadron", "genCHadPlusMothers"),
+    genCHadPlusMothersIndices = cms.InputTag("matchGenCHadron", "genCHadPlusMothersIndices"),
+    genCHadIndex = cms.InputTag("matchGenCHadron", "genCHadIndex"),
+    genCHadLeptonHadronIndex = cms.InputTag("matchGenCHadron", "genCHadLeptonHadronIndex"),
+    genCHadLeptonViaTau = cms.InputTag("matchGenCHadron", "genCHadLeptonViaTau"),
 )
 
 ## setting up output root file

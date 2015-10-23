@@ -11,6 +11,8 @@ Toy EDProducers of Ints for testing purposes only.
 //
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,17 +37,16 @@ namespace edmtest {
   // Announces an IntProduct but does not produce one;
   // every call to FailingProducer::produce throws a cms exception
   //
-  class FailingProducer : public edm::EDProducer {
+  class FailingProducer : public edm::global::EDProducer<> {
   public:
     explicit FailingProducer(edm::ParameterSet const& /*p*/) {
       produces<IntProduct>();
     }
-    virtual ~FailingProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
   };
 
   void
-  FailingProducer::produce(edm::Event&, edm::EventSetup const&) {
+  FailingProducer::produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const {
     // We throw an edm exception with a configurable action.
     throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
   }
@@ -55,17 +56,16 @@ namespace edmtest {
   // Announces an IntProduct but does not produce one;
   // every call to NonProducer::produce does nothing.
   //
-  class NonProducer : public edm::EDProducer {
+  class NonProducer : public edm::global::EDProducer<> {
   public:
     explicit NonProducer(edm::ParameterSet const& /*p*/) {
       produces<IntProduct>();
     }
-    virtual ~NonProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
   };
 
   void
-  NonProducer::produce(edm::Event&, edm::EventSetup const&) {
+  NonProducer::produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const {
   }
 
   //--------------------------------------------------------------------
@@ -82,14 +82,11 @@ namespace edmtest {
     explicit IntProducer(int i) : value_(i) {
       produces<IntProduct>();
     }
-    virtual ~IntProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     int value_;
   };
-
-  //--------------------------------------------------------------------
 
   void
   IntProducer::produce(edm::Event& e, edm::EventSetup const&) {
@@ -97,6 +94,34 @@ namespace edmtest {
     std::unique_ptr<IntProduct> p(new IntProduct(value_));
     e.put(std::move(p));
   }
+
+  //--------------------------------------------------------------------
+  //
+  // Produces an IntProduct instance.
+  //
+  class IntLegacyProducer : public edm::EDProducer {
+  public:
+    explicit IntLegacyProducer(edm::ParameterSet const& p) :
+    value_(p.getParameter<int>("ivalue")) {
+      produces<IntProduct>();
+    }
+    explicit IntLegacyProducer(int i) : value_(i) {
+      produces<IntProduct>();
+    }
+    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
+    
+  private:
+    int value_;
+  };
+  
+  void
+  IntLegacyProducer::produce(edm::Event& e, edm::EventSetup const&) {
+    // EventSetup is not used.
+    std::unique_ptr<IntProduct> p(new IntProduct(value_));
+    e.put(std::move(p));
+  }
+  
+  //--------------------------------------------------------------------
 
   class ConsumingIntProducer : public edm::stream::EDProducer<> {
   public:
@@ -114,7 +139,7 @@ namespace edmtest {
       consumesMany<edm::TriggerResults>();
     }
     virtual ~ConsumingIntProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     int value_;
@@ -131,7 +156,7 @@ namespace edmtest {
   // Produces an IntProduct instance whose value is the event number,
   // rather than the value of a configured parameter.
   //
-  class EventNumberIntProducer : public edm::EDProducer {
+  class EventNumberIntProducer : public edm::global::EDProducer<> {
   public:
     explicit EventNumberIntProducer(edm::ParameterSet const&) {
       produces<UInt64Product>();
@@ -139,14 +164,13 @@ namespace edmtest {
     EventNumberIntProducer() {
       produces<UInt64Product>();
     }
-    virtual ~EventNumberIntProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
   private:
   };
 
   void
-  EventNumberIntProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  EventNumberIntProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     // EventSetup is not used.
     std::unique_ptr<UInt64Product> p(new UInt64Product(e.id().event()));
     e.put(std::move(p));
@@ -157,7 +181,7 @@ namespace edmtest {
   //
   // Produces a TransientIntProduct instance.
   //
-  class TransientIntProducer : public edm::EDProducer {
+  class TransientIntProducer : public edm::global::EDProducer<> {
   public:
     explicit TransientIntProducer(edm::ParameterSet const& p) :
       value_(p.getParameter<int>("ivalue")) {
@@ -166,15 +190,14 @@ namespace edmtest {
     explicit TransientIntProducer(int i) : value_(i) {
       produces<TransientIntProduct>();
     }
-    virtual ~TransientIntProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
   private:
     int value_;
   };
 
   void
-  TransientIntProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  TransientIntProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     // EventSetup is not used.
     std::unique_ptr<TransientIntProduct> p(new TransientIntProduct(value_));
     e.put(std::move(p));
@@ -184,7 +207,7 @@ namespace edmtest {
   //
   // Produces a IntProduct instance from a TransientIntProduct
   //
-  class IntProducerFromTransient : public edm::EDProducer {
+  class IntProducerFromTransient : public edm::global::EDProducer<> {
   public:
     explicit IntProducerFromTransient(edm::ParameterSet const&) {
       produces<IntProduct>();
@@ -194,13 +217,13 @@ namespace edmtest {
       produces<IntProduct>();
     }
     virtual ~IntProducerFromTransient() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
   private:
   };
 
   void
-  IntProducerFromTransient::produce(edm::Event& e, edm::EventSetup const&) {
+  IntProducerFromTransient::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     // EventSetup is not used.
     edm::Handle<TransientIntProduct> result;
     bool ok = e.getByLabel("TransientThing", result);
@@ -213,7 +236,7 @@ namespace edmtest {
   //
   // Produces an Int16_tProduct instance.
   //
-  class Int16_tProducer : public edm::EDProducer {
+  class Int16_tProducer : public edm::global::EDProducer<> {
   public:
     explicit Int16_tProducer(edm::ParameterSet const& p) :
       value_(p.getParameter<int>("ivalue")) {
@@ -222,15 +245,14 @@ namespace edmtest {
     explicit Int16_tProducer(boost::int16_t i, boost::uint16_t) : value_(i) {
       produces<Int16_tProduct>();
     }
-    virtual ~Int16_tProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
   private:
-    boost::int16_t value_;
+    const boost::int16_t value_;
   };
 
   void
-  Int16_tProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  Int16_tProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     // EventSetup is not used.
     std::unique_ptr<Int16_tProduct> p(new Int16_tProduct(value_));
     e.put(std::move(p));
@@ -240,7 +262,7 @@ namespace edmtest {
   // Produces an IntProduct instance, using an IntProduct as input.
   //
 
-  class AddIntsProducer : public edm::EDProducer {
+  class AddIntsProducer : public edm::global::EDProducer<> {
   public:
     explicit AddIntsProducer(edm::ParameterSet const& p) :
         labels_(p.getParameter<std::vector<std::string> >("labels")) {
@@ -249,20 +271,18 @@ namespace edmtest {
         consumes<IntProduct>(edm::InputTag{label});
       }
     }
-    virtual ~AddIntsProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
   private:
     std::vector<std::string> labels_;
   };
 
   void
-  AddIntsProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  AddIntsProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     // EventSetup is not used.
     int value = 0;
-    for(std::vector<std::string>::iterator itLabel = labels_.begin(), itLabelEnd = labels_.end();
-        itLabel != itLabelEnd; ++itLabel) {
+    for(auto const& label: labels_) {
       edm::Handle<IntProduct> anInt;
-      e.getByLabel(*itLabel, anInt);
+      e.getByLabel(label, anInt);
       value += anInt->value;
     }
     std::unique_ptr<IntProduct> p(new IntProduct(value));
@@ -274,6 +294,7 @@ namespace edmtest {
 using edmtest::FailingProducer;
 using edmtest::NonProducer;
 using edmtest::IntProducer;
+using edmtest::IntLegacyProducer;
 using edmtest::ConsumingIntProducer;
 using edmtest::EventNumberIntProducer;
 using edmtest::TransientIntProducer;
@@ -283,6 +304,7 @@ using edmtest::AddIntsProducer;
 DEFINE_FWK_MODULE(FailingProducer);
 DEFINE_FWK_MODULE(NonProducer);
 DEFINE_FWK_MODULE(IntProducer);
+DEFINE_FWK_MODULE(IntLegacyProducer);
 DEFINE_FWK_MODULE(ConsumingIntProducer);
 DEFINE_FWK_MODULE(EventNumberIntProducer);
 DEFINE_FWK_MODULE(TransientIntProducer);

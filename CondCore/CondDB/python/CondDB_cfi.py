@@ -7,7 +7,6 @@ CondDB = cms.PSet(
         messageLevel = cms.untracked.int32(0),
     ),
     connect = cms.string(''), 
-    snapshotTime = cms.string(''),
     dbFormat = cms.untracked.int32(0)
 )
 

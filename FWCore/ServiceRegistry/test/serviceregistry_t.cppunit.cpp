@@ -6,10 +6,7 @@
  *
  */
 
-//need to open a 'back door' to be able to setup the ServiceRegistry
-#define private public
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#undef private
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/test/stubs/DummyService.h"
 

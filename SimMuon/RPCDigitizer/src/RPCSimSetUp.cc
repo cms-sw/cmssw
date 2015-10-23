@@ -223,7 +223,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
   }
 
   sslognoiseitem <<"Start Position ::            current_detId = "<<current_detId<<" aka "<<current_rpcId;
-  sslognoiseitem <<" is a valid roll with pointer "<<current_roll<<" and has "<<((!current_roll)?(current_roll->nstrips()):(0))<<" strips"<<std::endl;
+  sslognoiseitem <<" is a valid roll with pointer "<<current_roll<<" and has "<<(current_roll?current_roll->nstrips():0)<<" strips"<<std::endl;
   sslognoiseitem <<" ------------------------------------------------------------------------------------------------------------------------------------- "<<std::endl;
   for(std::vector<RPCStripNoises::NoiseItem>::const_iterator it = vnoise.begin(); it != vnoise.end(); ++it) {
 

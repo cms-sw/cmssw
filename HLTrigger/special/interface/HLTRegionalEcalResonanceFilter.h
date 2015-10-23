@@ -15,7 +15,7 @@ Description: Producer for EcalRecHits to be used for pi0/eta ECAL calibration.
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -71,7 +71,8 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class HLTRegionalEcalResonanceFilter : public edm::EDFilter {
+class HLTRegionalEcalResonanceFilter : public edm::stream::EDFilter<> 
+{
    public:
       explicit HLTRegionalEcalResonanceFilter(const edm::ParameterSet&);
       ~HLTRegionalEcalResonanceFilter();

@@ -196,20 +196,20 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
       ## when omitted monitor histograms for b-tagging will not be filled                                                                                                   
       jetBTaggers  = cms.PSet(
         trackCountingEff = cms.PSet(
-          label = cms.InputTag("trackCountingHighEffBJetTags" ),
+          label = cms.InputTag("pfTrackCountingHighEffBJetTags" ),
           workingPoint = cms.double(1.25)
         ),
         trackCountingPur = cms.PSet(
-         label = cms.InputTag("trackCountingHighPurBJetTags" ),
+          label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
           workingPoint = cms.double(3.41)
         ),
         secondaryVertex  = cms.PSet(
-          label = cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
+          label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
           workingPoint = cms.double(2.05)
         ),
         combinedSecondaryVertex  = cms.PSet(
-          label = cms.InputTag("combinedSecondaryVertexBJetTags"),
-          workingPoint = cms.double(0.898)
+          label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+          workingPoint = cms.double(0.970)
         )
      )                                                
    )
@@ -357,20 +357,20 @@ singleTopElectronMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
       ## when omitted monitor histograms for b-tagging will not be filled
       jetBTaggers  = cms.PSet(
         trackCountingEff = cms.PSet(
-          label = cms.InputTag("trackCountingHighEffBJetTags" ),
+          label = cms.InputTag("pfTrackCountingHighEffBJetTags" ),
           workingPoint = cms.double(1.25)
         ),
         trackCountingPur = cms.PSet(
-          label = cms.InputTag("trackCountingHighPurBJetTags" ),
+          label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
           workingPoint = cms.double(3.41)
         ),
         secondaryVertex  = cms.PSet(
-          label = cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
+          label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
           workingPoint = cms.double(2.05)
         ),
         combinedSecondaryVertex  = cms.PSet(
-          label = cms.InputTag("combinedSecondaryVertexBJetTags"),
-          workingPoint = cms.double(0.898)
+          label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+          workingPoint = cms.double(0.970)
         )
       )
     ),

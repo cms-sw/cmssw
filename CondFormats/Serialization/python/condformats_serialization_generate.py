@@ -431,7 +431,8 @@ class SerializationCodeGenerator(object):
 	   cpp_flags = self.cleanFlags( scramFlags )
 	   cxx_flags = []
 
-        std_flags = get_default_gcc_search_paths()
+        # We are using libClang, thus we have to follow Clang include paths
+        std_flags = get_default_gcc_search_paths(gcc='clang++')
         log_flags('cpp_flags', cpp_flags)
         log_flags('cxx_flags', cxx_flags)
         log_flags('std_flags', std_flags)
@@ -451,24 +452,27 @@ class SerializationCodeGenerator(object):
         if not translation_unit:
             raise Exception('Unable to load input.')
 
+        severity_names = ('Ignored', 'Note', 'Warning', 'Error', 'Fatal')
+        get_severity_name = lambda severity_num: severity_names[severity_num] if severity_num < len(severity_names) else 'Unknown'
+        max_severity_level = 0 # Ignored
         diagnostics = get_diagnostics(translation_unit)
         for diagnostic in diagnostics:
             logf = logging.error
 
             # Ignore some known warnings
             if diagnostic['spelling'].startswith('argument unused during compilation') \
-                or diagnostic['spelling'].startswith('unknown warning option') \
-                or diagnostic['spelling'] == "invalid argument '-std=c++11' not allowed with 'C/ObjC'" \
-                or diagnostic['spelling'] == "'stdarg.h' file not found" \
-                or diagnostic['spelling'] == "'stddef.h' file not found":
+                or diagnostic['spelling'].startswith('unknown warning option'):
                 logf = logging.debug
 
-            logf('Diagnostic: [%s] %s', diagnostic['severity'], diagnostic['spelling'])
+            logf('Diagnostic: [%s] %s', get_severity_name(diagnostic['severity']), diagnostic['spelling'])
             logf('   at line %s in %s', diagnostic['location'].line, diagnostic['location'].file)
 
+            max_severity_level = max(max_severity_level, diagnostic['severity'])
+
+        if max_severity_level >= 3: # Error
+            raise Exception('Please, resolve all errors before proceeding.')
 
         self.classes = get_serializable_classes_members(translation_unit.cursor, only_from_path=self._join_package_path())
-
 
     def _join_package_path(self, *path):
         return os.path.join(self.cmssw_base, self.split_path[0], self.split_path[1], self.split_path[2], *path)

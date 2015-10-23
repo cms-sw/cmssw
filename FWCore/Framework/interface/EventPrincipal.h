@@ -184,6 +184,7 @@ namespace edm {
     edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID) const;
 
     virtual bool unscheduledFill(std::string const& moduleLabel,
+                                 SharedResourcesAcquirer* sra,
                                  ModuleCallingContext const* mcc) const override;
 
     virtual void readFromSource_(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const override;

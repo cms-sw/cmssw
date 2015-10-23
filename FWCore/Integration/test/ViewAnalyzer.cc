@@ -77,7 +77,7 @@ namespace edmtest
     consumes<OVSimpleProduct>(edm::InputTag{"ovsimple"});
     consumes<edm::View<OVSimpleProduct::value_type>>(edm::InputTag{"ovsimple"});
     consumes<AVSimpleProduct>(edm::InputTag{"avsimple"});
-    consumes<edm::View<AVSimpleProduct>::value_type>(edm::InputTag{"avsimple"});
+    consumes<edm::View<AVSimpleProduct::value_type>>(edm::InputTag{"avsimple"});
     consumes<edmtest::DSVSimpleProduct>(edm::InputTag{"dsvsimple"});
     consumes<edm::View<edmtest::DSVSimpleProduct::value_type>>(edm::InputTag{"dsvsimple"});
 

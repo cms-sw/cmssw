@@ -356,6 +356,13 @@ class HcalRecHitsValidation : public DQMEDAnalyzer {
   MonitorElement* RecHit_StatusWord_HF67;
   MonitorElement* RecHit_StatusWord_HO;
 
+  //Status word correlation
+  MonitorElement* RecHit_StatusWordCorr_HB;
+  MonitorElement* RecHit_StatusWordCorr_HE;
+
+  MonitorElement* RecHit_StatusWordCorrAll_HB;
+  MonitorElement* RecHit_StatusWordCorrAll_HE;
+
   //Aux Status word histos
   MonitorElement* RecHit_Aux_StatusWord_HB;
   MonitorElement* RecHit_Aux_StatusWord_HE;

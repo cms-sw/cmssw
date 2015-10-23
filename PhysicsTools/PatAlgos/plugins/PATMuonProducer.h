@@ -18,7 +18,7 @@
 #include <string>
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -39,7 +39,7 @@ namespace pat {
   class CaloIsolationEnergy;
 
   /// class definition
-  class PATMuonProducer : public edm::EDProducer {
+  class PATMuonProducer : public edm::stream::EDProducer<> {
 
   public:
     /// default constructir
@@ -160,11 +160,10 @@ namespace pat {
 }
 
 
-using namespace pat;
 
 
 template<typename T>
-void PATMuonProducer::readIsolationLabels( const edm::ParameterSet & iConfig, const char* psetName, IsolationLabels& labels, std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens)
+void pat::PATMuonProducer::readIsolationLabels( const edm::ParameterSet & iConfig, const char* psetName, pat::PATMuonProducer::IsolationLabels& labels, std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens)
 {
   labels.clear();
 
@@ -195,13 +194,14 @@ void PATMuonProducer::readIsolationLabels( const edm::ParameterSet & iConfig, co
     if (depconf.exists("user")) {
       std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
       std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
-      int key = UserBaseIso;
+      int key = pat::IsolationKeys::UserBaseIso;
       for ( ; it != ed; ++it, ++key) {
-       labels.push_back(std::make_pair(IsolationKeys(key), *it));
+       labels.push_back(std::make_pair(pat::IsolationKeys(key), *it));
       }
+      tokens = edm::vector_transform(labels, [this](IsolationLabel const & label){return consumes<edm::ValueMap<T> >(label.second);});
     }
   }
-  tokens = edm::vector_transform(labels, [this](IsolationLabel const & label){return consumes<edm::ValueMap<T> >(label.second);});
+  tokens = edm::vector_transform(labels, [this](pat::PATMuonProducer::IsolationLabel const & label){return consumes<edm::ValueMap<T> >(label.second);});
 }
 
 #endif

@@ -77,8 +77,15 @@ private:
 
   getter_ = std::shared_ptr<internal::MultiProductGetter>(new internal::MultiProductGetter(this));
 
-  event1_->setGetter(getter_);
-  event2_->setGetter(getter_);
+  if (event1_->size() == 0) {
+    std::cout << "------------------------------------------------------------------------" << std::endl;
+    std::cout << "WARNING! MultiChainEvent: all primary files have zero events."        << std::endl;
+    std::cout << "Trying to access the events may lead to a crash.  "  << std::endl;
+    std::cout << "------------------------------------------------------------------------" << std::endl;
+  } else {
+    event1_->setGetter(getter_);
+    event2_->setGetter(getter_);
+  }
 
   useSecFileMapSorted_ = useSecFileMapSorted;
 

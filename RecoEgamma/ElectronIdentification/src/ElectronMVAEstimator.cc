@@ -5,6 +5,14 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
+#include "TMVA/Reader.h"
+#include "TMVA/MethodBDT.h"
+#include "TMVA/MethodCategory.h"
+
+namespace {
+  constexpr char ele_mva_name[] = "BDTSimpleCat";
+}
+
 ElectronMVAEstimator::ElectronMVAEstimator():
   cfg_{}
 {}
@@ -12,31 +20,32 @@ ElectronMVAEstimator::ElectronMVAEstimator():
 ElectronMVAEstimator::ElectronMVAEstimator(std::string fileName):
   cfg_{} 
 {
-  tmvaReader_ = new TMVA::Reader("!Color:Silent");
-  tmvaReader_->AddVariable("fbrem",&fbrem);
-  tmvaReader_->AddVariable("detain", &detain);
-  tmvaReader_->AddVariable("dphiin", &dphiin);
-  tmvaReader_->AddVariable("sieie", &sieie);
-  tmvaReader_->AddVariable("hoe", &hoe);
-  tmvaReader_->AddVariable("eop", &eop);
-  tmvaReader_->AddVariable("e1x5e5x5", &e1x5e5x5);
-  tmvaReader_->AddVariable("eleopout", &eleopout);
-  tmvaReader_->AddVariable("detaeleout", &detaeleout);
-  tmvaReader_->AddVariable("kfchi2", &kfchi2);
-  tmvaReader_->AddVariable("kfhits", &mykfhits);
-  tmvaReader_->AddVariable("mishits",&mymishits);
-  tmvaReader_->AddVariable("dist", &absdist);
-  tmvaReader_->AddVariable("dcot", &absdcot);
-  tmvaReader_->AddVariable("nvtx", &myNvtx);
+  TMVA::Reader tmvaReader("!Color:Silent");
+  tmvaReader.AddVariable("fbrem",&fbrem);
+  tmvaReader.AddVariable("detain", &detain);
+  tmvaReader.AddVariable("dphiin", &dphiin);
+  tmvaReader.AddVariable("sieie", &sieie);
+  tmvaReader.AddVariable("hoe", &hoe);
+  tmvaReader.AddVariable("eop", &eop);
+  tmvaReader.AddVariable("e1x5e5x5", &e1x5e5x5);
+  tmvaReader.AddVariable("eleopout", &eleopout);
+  tmvaReader.AddVariable("detaeleout", &detaeleout);
+  tmvaReader.AddVariable("kfchi2", &kfchi2);
+  tmvaReader.AddVariable("kfhits", &mykfhits);
+  tmvaReader.AddVariable("mishits",&mymishits);
+  tmvaReader.AddVariable("dist", &absdist);
+  tmvaReader.AddVariable("dcot", &absdcot);
+  tmvaReader.AddVariable("nvtx", &myNvtx);
 
-  tmvaReader_->AddSpectator("eta",&eta);
-  tmvaReader_->AddSpectator("pt",&pt);
-  tmvaReader_->AddSpectator("ecalseed",&ecalseed);
+  tmvaReader.AddSpectator("eta",&eta);
+  tmvaReader.AddSpectator("pt",&pt);
+  tmvaReader.AddSpectator("ecalseed",&ecalseed);
   
   // Taken from Daniele (his mail from the 30/11)
-  //  tmvaReader_->BookMVA("BDTSimpleCat","../Training/weights_Root527b_3Depth_DanVarConvRej_2PtBins_10Pt_800TPrune5_Min100Events_NoBjets_half/TMVA_BDTSimpleCat.weights.xm");
+  //  tmvaReader.BookMVA("BDTSimpleCat","../Training/weights_Root527b_3Depth_DanVarConvRej_2PtBins_10Pt_800TPrune5_Min100Events_NoBjets_half/TMVA_BDTSimpleCat.weights.xm");
   // training of the 7/12 with Nvtx added
-  tmvaReader_->BookMVA("BDTSimpleCat",fileName.c_str());
+  std::unique_ptr<TMVA::IMethod> temp( tmvaReader.BookMVA(ele_mva_name,fileName.c_str()) );
+  gbr.emplace_back(new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReader.FindMVA(ele_mva_name) ) ) );
 }
 
 ElectronMVAEstimator::ElectronMVAEstimator(const Configuration & cfg):cfg_(cfg){
@@ -46,44 +55,48 @@ ElectronMVAEstimator::ElectronMVAEstimator(const Configuration & cfg):cfg_(cfg){
     path_mvaWeightFileEleID = edm::FileInPath ( cfg_.vweightsfiles[ifile].c_str() ).fullPath();
     weightsfiles.push_back(path_mvaWeightFileEleID);
   }
-  tmvaReader_ = new TMVA::Reader("!Color:Silent");
-  tmvaReader_->AddVariable("fbrem",&fbrem);
-  tmvaReader_->AddVariable("detain", &detain);
-  tmvaReader_->AddVariable("dphiin", &dphiin);
-  tmvaReader_->AddVariable("sieie", &sieie);
-  tmvaReader_->AddVariable("hoe", &hoe);
-  tmvaReader_->AddVariable("eop", &eop);
-  tmvaReader_->AddVariable("e1x5e5x5", &e1x5e5x5);
-  tmvaReader_->AddVariable("eleopout", &eleopout);
-  tmvaReader_->AddVariable("detaeleout", &detaeleout);
-  tmvaReader_->AddVariable("kfchi2", &kfchi2);
-  tmvaReader_->AddVariable("kfhits", &mykfhits);
-  tmvaReader_->AddVariable("mishits",&mymishits);
-  tmvaReader_->AddVariable("dist", &absdist);
-  tmvaReader_->AddVariable("dcot", &absdcot);
-  tmvaReader_->AddVariable("nvtx", &myNvtx);
-
-  tmvaReader_->AddSpectator("eta",&eta);
-  tmvaReader_->AddSpectator("pt",&pt);
-  tmvaReader_->AddSpectator("ecalseed",&ecalseed);
-  
-  // Taken from Daniele (his mail from the 30/11)
-  //  tmvaReader_->BookMVA("BDTSimpleCat","../Training/weights_Root527b_3Depth_DanVarConvRej_2PtBins_10Pt_800TPrune5_Min100Events_NoBjets_half/TMVA_BDTSimpleCat.weights.xm");
-  // training of the 7/12 with Nvtx added
-
-  tmvaReader_->BookMVA("BDTSimpleCat",weightsfiles[0]);
+  for( const auto& wgtfile : weightsfiles ) {
+    TMVA::Reader tmvaReader("!Color:Silent");
+    tmvaReader.AddVariable("fbrem",&fbrem);
+    tmvaReader.AddVariable("detain", &detain);
+    tmvaReader.AddVariable("dphiin", &dphiin);
+    tmvaReader.AddVariable("sieie", &sieie);
+    tmvaReader.AddVariable("hoe", &hoe);
+    tmvaReader.AddVariable("eop", &eop);
+    tmvaReader.AddVariable("e1x5e5x5", &e1x5e5x5);
+    tmvaReader.AddVariable("eleopout", &eleopout);
+    tmvaReader.AddVariable("detaeleout", &detaeleout);
+    tmvaReader.AddVariable("kfchi2", &kfchi2);
+    tmvaReader.AddVariable("kfhits", &mykfhits);
+    tmvaReader.AddVariable("mishits",&mymishits);
+    tmvaReader.AddVariable("dist", &absdist);
+    tmvaReader.AddVariable("dcot", &absdcot);
+    tmvaReader.AddVariable("nvtx", &myNvtx);
+    
+    tmvaReader.AddSpectator("eta",&eta);
+    tmvaReader.AddSpectator("pt",&pt);
+    tmvaReader.AddSpectator("ecalseed",&ecalseed);
+    
+    // Taken from Daniele (his mail from the 30/11)
+    //  tmvaReader.BookMVA("BDTSimpleCat","../Training/weights_Root527b_3Depth_DanVarConvRej_2PtBins_10Pt_800TPrune5_Min100Events_NoBjets_half/TMVA_BDTSimpleCat.weights.xm");
+    // training of the 7/12 with Nvtx added
+    std::unique_ptr<TMVA::IMethod> temp( tmvaReader.BookMVA(ele_mva_name,wgtfile) );
+    gbr.emplace_back(new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReader.FindMVA(ele_mva_name) ) ) );
+  }
 }
 
-double ElectronMVAEstimator::mva(const reco::GsfElectron& myElectron, int nvertices )  {
-  fbrem = myElectron.fbrem();
-  detain = myElectron.deltaEtaSuperClusterTrackAtVtx();
-  dphiin = myElectron.deltaPhiSuperClusterTrackAtVtx();
-  sieie = myElectron.sigmaIetaIeta();
-  hoe = myElectron.hcalOverEcal();
-  eop = myElectron.eSuperClusterOverP();
-  e1x5e5x5 = (myElectron.e5x5()) !=0. ? 1.-(myElectron.e1x5()/myElectron.e5x5()) : -1. ;
-  eleopout = myElectron.eEleClusterOverPout();
-  detaeleout = myElectron.deltaEtaEleClusterTrackAtCalo();
+double ElectronMVAEstimator::mva(const reco::GsfElectron& myElectron, int nvertices ) const {
+  float vars[18];
+
+  vars[0] = myElectron.fbrem();
+  vars[1] = std::abs(myElectron.deltaEtaSuperClusterTrackAtVtx());
+  vars[2] = std::abs(myElectron.deltaPhiSuperClusterTrackAtVtx());
+  vars[3] = myElectron.sigmaIetaIeta();
+  vars[4] = myElectron.hcalOverEcal();
+  vars[5] = myElectron.eSuperClusterOverP();
+  vars[6] = (myElectron.e5x5()) !=0. ? 1.-(myElectron.e1x5()/myElectron.e5x5()) : -1. ;
+  vars[7] = myElectron.eEleClusterOverPout();
+  vars[8] = std::abs(myElectron.deltaEtaEleClusterTrackAtCalo());
   
   bool validKF= false;
 
@@ -91,99 +104,85 @@ double ElectronMVAEstimator::mva(const reco::GsfElectron& myElectron, int nverti
   validKF = (myTrackRef.isAvailable());
   validKF = (myTrackRef.isNonnull());  
 
-  kfchi2 = (validKF) ? myTrackRef->normalizedChi2() : 0 ;
-  kfhits = (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1.; 
-  dist = myElectron.convDist();
-  dcot = myElectron.convDcot();
-  eta = myElectron.eta();
-  pt = myElectron.pt();
+  vars[9] = (validKF) ? myTrackRef->normalizedChi2() : 0 ;
+  vars[10] = (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1.; 
+  vars[11] = myElectron.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+  vars[12] = std::abs(myElectron.convDist());
+  vars[13] = std::abs(myElectron.convDcot());
+  vars[14] = nvertices;
+  vars[15] = myElectron.eta();
+  vars[16] = myElectron.pt();
+  vars[17] = myElectron.ecalDrivenSeed();
   
-  mishits = myElectron.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
-  ecalseed = myElectron.ecalDrivenSeed();
-  
-  Nvtx = nvertices;
+  bindVariables(vars);
 
-  bindVariables();
-  double result =  tmvaReader_->EvaluateMVA("BDTSimpleCat");
+  //0 pt &lt; 10 &amp;&amp; abs(eta)&lt;=1.485
+  //1 pt &gt;= 10 &amp;&amp; abs(eta)&lt;=1.485
+  //2 pt &lt; 10 &amp;&amp; abs(eta)&gt; 1.485
+  //3 pt &gt;= 10 &amp;&amp;  abs(eta)&gt; 1.485
+
+  const unsigned index = (unsigned)(myElectron.pt() >= 10) + 2*(unsigned)(std::abs(myElectron.eta()) > 1.485);
+
+  double result =  gbr[index]->GetAdaBoostClassifier(vars);
 //  
-//  std::cout << "fbrem" <<fbrem << std::endl;
-//  std::cout << "detain"<< detain << std::endl;
-//  std::cout << "dphiin"<< dphiin << std::endl;
-//  std::cout << "sieie"<< sieie << std::endl;
-//  std::cout << "hoe"<< hoe << std::endl;
-//  std::cout << "eop"<< eop << std::endl;
-//  std::cout << "e1x5e5x5"<< e1x5e5x5 << std::endl;
-//  std::cout << "eleopout"<< eleopout << std::endl;
-//  std::cout << "detaeleout"<< detaeleout << std::endl;
-//  std::cout << "kfchi2"<< kfchi2 << std::endl;
-//  std::cout << "kfhits"<< mykfhits << std::endl;
-//  std::cout << "mishits"<<mymishits << std::endl;
-//  std::cout << "dist"<< absdist << std::endl;
-//  std::cout << "dcot"<< absdcot << std::endl;
-//
-//  std::cout << "eta"<<eta << std::endl;
-//  std::cout << "pt"<<pt << std::endl;
-//  std::cout << "ecalseed"<<ecalseed << std::endl;
+//  std::cout << "fbrem" << vars[0] << std::endl;
+//  std::cout << "detain"<< vars[1] << std::endl;
+//  std::cout << "dphiin"<< vars[2] << std::endl;
+//  std::cout << "sieie"<< vars[3] << std::endl;
+//  std::cout << "hoe"<< vars[4] << std::endl;
+//  std::cout << "eop"<< vars[5] << std::endl;
+//  std::cout << "e1x5e5x5"<< vars[6] << std::endl;
+//  std::cout << "eleopout"<< vars[7] << std::endl;
+//  std::cout << "detaeleout"<< vars[8] << std::endl;
+//  std::cout << "kfchi2"<< vars[9] << std::endl;
+//  std::cout << "kfhits"<< vars[10] << std::endl;
+//  std::cout << "mishits"<<vars[11] << std::endl;
+//  std::cout << "dist"<< vars[12] << std::endl;
+//  std::cout << "dcot"<< vars[13] << std::endl;
+//  std::cout << "nvtx"<< vars[14] << std::endl;
+//  std::cout << "eta"<< vars[15] << std::endl;
+//  std::cout << "pt"<< vars[16] << std::endl;
+//  std::cout << "ecalseed"<< vars[17] << std::endl;
 //
 //  std::cout << " MVA " << result << std::endl;
   return result;
 }
 
 
-void ElectronMVAEstimator::bindVariables() {
-  if(fbrem < -1.)
-    fbrem = -1.;  
+void ElectronMVAEstimator::bindVariables(float vars[18]) const {
+  if(vars[0] < -1.)
+    vars[1] = -1.;  
   
-  detain = fabs(detain);
-  if(detain > 0.06)
-    detain = 0.06;
+  if(vars[1] > 0.06)
+    vars[1] = 0.06;
+    
+  if(vars[2] > 0.6)
+    vars[2] = 0.6;
   
+  if(vars[5] > 20.)
+    vars[5] = 20.;
+    
+  if(vars[7] > 20.)
+    vars[7] = 20;
   
-  dphiin = fabs(dphiin);
-  if(dphiin > 0.6)
-    dphiin = 0.6;
+  if(vars[8] > 0.2)
+    vars[8] = 0.2;
+  
+  if(vars[9] < 0.)
+    vars[9] = 0.;
+  
+  if(vars[9] > 15.)
+    vars[9] = 15.;
+    
+  if(vars[6] < -1.)
+    vars[6] = -1;
 
-  
-  if(eop > 20.)
-    eop = 20.;
-  
-  
-  if(eleopout > 20.)
-    eleopout = 20;
-  
-  detaeleout = fabs(detaeleout);
-  if(detaeleout > 0.2)
-    detaeleout = 0.2;
-  
-  mykfhits = float(kfhits);
-  mymishits = float(mishits);
-  
-  if(kfchi2 < 0.)
-    kfchi2 = 0.;
-  
-  if(kfchi2 > 15.)
-    kfchi2 = 15.;
-  
-  
-  if(e1x5e5x5 < -1.)
-    e1x5e5x5 = -1;
-
-  if(e1x5e5x5 > 2.)
-    e1x5e5x5 = 2.; 
-  
-  
-  if(dist > 15.)
-    dist = 15.;
-  if(dist < -15.)
-    dist = -15.;
-  
-  if(dcot > 3.)
-    dcot = 3.;
-  if(dcot < -3.)
-    dcot = -3.;
-  
-  absdist = fabs(dist);
-  absdcot = fabs(dcot);
-  myNvtx = float(Nvtx);
-
+  if(vars[6] > 2.)
+    vars[6] = 2.; 
+    
+  if(vars[12] > 15.)
+    vars[12] = 15.;
+    
+  if(vars[13] > 3.)
+    vars[13] = 3.;
 }

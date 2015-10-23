@@ -43,9 +43,10 @@ particleFlowBlock = cms.EDProducer(
                   muonSrc = cms.InputTag("muons1stStep"),
                   cleanBadConvertedBrems = cms.bool(True),
                   useIterativeTracking = cms.bool(True),
+                  maxDPtOPt      = cms.double(1.),                                 
                   DPtOverPtCuts_byTrackAlgo = cms.vdouble(-1.0,-1.0,-1.0,
-                                                           1.0,1.0),
-                  NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3)
+                                                           1.0,1.0,5.0),
+                  NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3,3)
                   ),        
         # secondary GSF tracks are also turned off
         #cms.PSet( importerName = cms.string("GSFTrackImporter"),

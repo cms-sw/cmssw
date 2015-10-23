@@ -15,7 +15,7 @@
 #include <RVersion.h>
 #include <boost/bind.hpp>
 #include <stdexcept>
-
+#include <string>
 
 // user include files
 
@@ -418,11 +418,9 @@ void
 FWEveView::addToOrthoCamera(TGLOrthoCamera* camera, FWConfiguration& iTo) const
 {
    // zoom
-   std::ostringstream s;
-   s<<(camera->fZoom);
    std::string name("cameraZoom");
-   iTo.addKeyValue(name+typeName(),FWConfiguration(s.str()));
-   
+   iTo.addKeyValue(name+typeName(),FWConfiguration(std::to_string(camera->GetZoom())));
+
    // transformation matrix
    std::string matrixName("cameraMatrix");
    for ( unsigned int i = 0; i < 16; ++i ) {
@@ -444,8 +442,7 @@ FWEveView::setFromOrthoCamera(TGLOrthoCamera* camera,  const FWConfiguration& iF
       {
          throw std::runtime_error("can't restore parameter cameraZoom");
       }
-      std::istringstream s(iFrom.valueForKey(zoomName)->value());
-      s>>(camera->fZoom);
+      camera->SetZoom(std::stod(iFrom.valueForKey(zoomName)->value()));
       
       // transformation matrix
       std::string matrixName("cameraMatrix");
@@ -493,9 +490,7 @@ FWEveView::addToPerspectiveCamera(TGLPerspectiveCamera* cam, const std::string& 
       iTo.addKeyValue(matrixName+osIndex.str()+name,FWConfiguration(osValue.str()));
    }
    {
-      std::ostringstream osValue;
-      osValue << cam->fFOV;
-      iTo.addKeyValue(name+" FOV",FWConfiguration(osValue.str()));
+      iTo.addKeyValue(name+" FOV",FWConfiguration(std::to_string(cam->GetFOV())));
    }
 }
 
