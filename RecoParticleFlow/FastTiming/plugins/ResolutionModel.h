@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 #include <string>
 #include <iostream>
@@ -17,7 +18,8 @@ class ResolutionModel {
   ResolutionModel(const ResolutionModel&) = delete;
   ResolutionModel& operator=(const ResolutionModel&) = delete;
 
-  virtual float getTimeResolution(const reco::Track&) const = 0;
+  virtual float getTimeResolution(const reco::Track&)     const { return -1.f; }
+  virtual float getTimeResolution(const reco::PFCluster&) const { return -1.f; }
 
   const std::string& name() const { return _modelName; }
   
