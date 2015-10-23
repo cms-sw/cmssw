@@ -22,7 +22,7 @@ from sys import exit
 import sys
 argv=sys.argv
 sys.argv=[]
-if os.environ.has_key("RELMON_SA"):
+if "RELMON_SA" in os.environ:
   import definitions as definitions
   from dqm_interfaces import DirWalkerFile,string2blacklist,DirWalkerFile_thread_wrapper
   from dirstructure import Directory

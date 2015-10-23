@@ -100,7 +100,7 @@ def crabStatusFromReport(filename):
     nJobs = 0
     for j in Jobs:
         jobStatus = str(j.attrs.get(statusField,None))
-        if summary.has_key(jobStatus): summary[jobStatus] += 1
+        if jobStatus in summary: summary[jobStatus] += 1
         else: summary[jobStatus] = 1
         nJobs += 1
 

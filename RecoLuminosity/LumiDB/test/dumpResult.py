@@ -68,7 +68,7 @@ if __name__ == '__main__':
         runTime=lute.StrToDatetime(timeStr,customfm='%m/%d/%y %H:%M:%S')
         delivered=cursor.currentRow()['DELIVERED'].data()
         ordinalday=runTime.toordinal()
-        if not result.has_key(ordinalday):
+        if ordinalday not in result:
             result[ordinalday]=0.
         result[ordinalday]+=delivered
     session.transaction().commit()

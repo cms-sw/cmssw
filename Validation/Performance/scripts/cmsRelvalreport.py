@@ -190,7 +190,7 @@ class Candles_file:
             for candle in candles_list:
                 info_dict={}
                 for child in candle.childNodes:# iteration over candle node children
-                    if not child.__dict__.has_key('nodeName'):# if just a text node skip!
+                    if 'nodeName' not in child.__dict__:# if just a text node skip!
                         #print 'CONTINUE!'
                         continue
                     # We pick the info from the node

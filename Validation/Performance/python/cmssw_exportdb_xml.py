@@ -233,7 +233,7 @@ def exportRunInfo(xml_doc, run_info, release = None, print_out = False):
 				#We have JOBS so FAR only for TimeSize which we represent as a list
 				jobs = []
 				#we don't want jobs to be dumped as string
-				if result_item.has_key("jobs"):
+				if "jobs" in result_item:
 					jobs = result_item["jobs"]
 					del result_item["jobs"]
 

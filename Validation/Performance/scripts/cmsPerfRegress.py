@@ -882,9 +882,9 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
         if found:
             logcandle = found.groups()[0]
             
-        if   CandFname.has_key(candle):
+        if   candle in CandFname:
             candFilename = CandFname[candle]
-        elif CandFname.has_key(logcandle):
+        elif logcandle in CandFname:
             candFilename = CandFname[logcandle]
         else:
             print "%s is an unknown candle!"%candle

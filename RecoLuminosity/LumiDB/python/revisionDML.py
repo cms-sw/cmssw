@@ -849,7 +849,7 @@ def dataIdsByTagId(schema,tagid,runlist=None,withcomment=False,lumitype='HF'):
             hltdataid=0
             if not cursor.currentRow()['HLTDATAID'].isNull():
                 hltdataid=cursor.currentRow()['HLTDATAID'].data()
-            if not result.has_key(runnum):
+            if runnum not in result:
                 result[runnum]=[0,0,0]
             if lumidataid>result[runnum][0]:
                 result[runnum][0]=lumidataid
@@ -871,9 +871,9 @@ def dataIdsByTagId(schema,tagid,runlist=None,withcomment=False,lumitype='HF'):
                 lumiid=resultentry[0]
                 trgid=resultentry[1]
                 hltid=resultentry[2]
-                if commentdict.has_key((lumiid,trgid,hltid)):
+                if (lumiid,trgid,hltid) in commentdict:
                     resultentry.append(commentdict[(lumiid,trgid,hltid)])
-                elif commentdict.has_key((lumiid,0,0)):
+                elif (lumiid,0,0) in commentdict:
                     resultentry.append(commentdict[(lumiid,0,0)])
                 elif commentdict.has_ley((0,trgid,0)):
                     resultentry.append(commentdict[(0,trgid,0)])

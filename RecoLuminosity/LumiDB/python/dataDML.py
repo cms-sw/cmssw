@@ -395,7 +395,7 @@ def runList(schema,datatagid,runmin=None,runmax=None,fillmin=None,fillmax=None,s
                 pass
             if not cursor.currentRow()['lumiid'].isNull():
                 lumiid=cursor.currentRow()['lumiid'].data()
-                if result.has_key(runnum):
+                if runnum in result:
                     if lumiid>result[runnum][0]:
                         result[runnum][0]=lumiid
                 else:
@@ -405,12 +405,12 @@ def runList(schema,datatagid,runmin=None,runmax=None,fillmin=None,fillmax=None,s
                     trgid=0
                 else:
                     trgid=cursor.currentRow()['trgid'].data()
-                if result.has_key(runnum):
+                if runnum in result:
                     if trgid>result[runnum][1]:
                         result[runnum][1]=trgid
             if requirehlt and not cursor.currentRow()['hltid'].isNull():
                 hltid=cursor.currentRow()['hltid'].data()
-                if result.has_key(runnum):
+                if runnum in result:
                     if hltid>result[runnum][2]:
                         result[runnum][2]=hltid
     except :
@@ -847,7 +847,7 @@ def trgLSById(schema,dataid,trgbitname=None,trgbitnamepattern=None,withL1Count=F
             bitzerocount=0
             bitzeroprescale=0
             deadfrac=cursor.currentRow()['deadfrac'].data()
-            if not result.has_key(cmslsnum):
+            if cmslsnum not in result:
                 result[cmslsnum]=[]
             result[cmslsnum].append(deadtimecount)
             result[cmslsnum].append(bitzerocount)
@@ -927,7 +927,7 @@ def beamstatusByIds(schema,dataidMap):
         return result
     inputRange=dataidMap.keys()
     for r in inputRange:
-        if not result.has_key(r):
+        if r not in result:
             result[r]={}
         lumidataid=dataidMap[r][0]
         if lumidataid:
@@ -1319,9 +1319,9 @@ def lumiBXByAlgo(schema,dataid,algoname):
             bxlumivalue=cursor.currentRow()['bxlumivalue'].data()
             bxlumierr=cursor.currentRow()['bxlumierr'].data()
             bxlumiqlty=cursor.currentRow()['bxlumiqlty'].data()
-            if not result.has_key(algoname):
+            if algoname not in result:
                 result[algoname]={}
-            if not result[algoname].has_key(lumilsnum):
+            if lumilsnum not in result[algoname]:
                 result[algoname][lumilsnum]=[]
             result[algoname][lumilsnum].extend([cmslsnum,numorbit,startorbit,bxlumivalue,bxlumierr,bxlumiqlty])
     except :
@@ -1422,7 +1422,7 @@ def hlttrgMappingByrun(schema,runnum,hltpathname=None,hltpathpattern=None):
         while cursor.next():
             pname=cursor.currentRow()['pname'].data()
             l1seed=cursor.currentRow()['l1seed'].data()
-            if not result.has_key(hltpathname):
+            if hltpathname not in result:
                 if hltpathpattern:
                     if fnmatch.fnmatch(pname,hltpathpattern):
                         result[pname]=l1seed
@@ -1489,7 +1489,7 @@ def hltLSById(schema,dataid,hltpathname=None,hltpathpattern=None,withL1Pass=Fals
                 hltcountblob=cursor.currentRow()['hltcountblob'].data()
             if withHLTAccept:
                 hltacceptblob=cursor.currentRow()['hltacceptblob'].data()
-            if not result.has_key(cmslsnum):
+            if cmslsnum not in result:
                 result[cmslsnum]=[]
             pathinfo=[]
             prescales=None
@@ -1685,7 +1685,7 @@ def guessDataIdForRange(schema,inputRange,tablename):
         while cursor.next():
             dataid=cursor.currentRow()['DATA_ID'].data()
             runnum=cursor.currentRow()['RUNNUM'].data()
-            if result.has_key(runnum):
+            if runnum in result:
                 if dataid>result[runnum]:
                     result[runnum]=dataid
     except :
@@ -1900,16 +1900,16 @@ def addNormToBranch(schema,normname,amodetag,norm1,egev1,optionalnormdata,branch
     '''
     #print 'branchinfo ',branchinfo
     norm_occ2=1.0
-    if optionalnormdata.has_key('normOcc2'):
+    if 'normOcc2' in optionalnormdata:
         norm_occ2=optionalnormdata['norm_occ2']
     norm_et=1.0
-    if optionalnormdata.has_key('norm_et'):
+    if 'norm_et' in optionalnormdata:
         norm_et=optionalnormdata['norm_et']
     norm_pu=1.0
-    if optionalnormdata.has_key('norm_pu'):
+    if 'norm_pu' in optionalnormdata:
         norm_pu=optionalnormdata['norm_pu']
     constfactor=1.0
-    if optionalnormdata.has_key('constfactor'):
+    if 'constfactor' in optionalnormdata:
         constfactor=optionalnormdata['constfactor']
     try:
         entry_id=revisionDML.entryInBranch(schema,nameDealer.luminormTableName(),normname,branchinfo[1])
@@ -1937,10 +1937,10 @@ def addCorrToBranch(schema,corrname,a1,optionalcorrdata,branchinfo):
        (revision_id,entry_id,data_id)
     '''
     a2=1.0
-    if optionalcorrdata.has_key('a2'):
+    if 'a2' in optionalcorrdata:
         a2=optionalcorrdata['a2']
     drift=1.0
-    if optionalcorrdata.has_key('drift'):
+    if 'drift' in optionalcorrdata:
         drift=optionalcorrdata['drift']
     try:
         entry_id=revisionDML.entryInBranch(schema,nameDealer.lumicorrectionsTableName(),corrname,branchinfo[1])

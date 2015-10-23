@@ -178,7 +178,7 @@ def correctionsForRangeV2(schema,inputRange,correctionTerm):
         while cursor.next():
             runnum=cursor.currentRow()['runnum'].data()
             #print 'runnum ',runnum 
-            if runnum not in runs or result.has_key(runnum):
+            if runnum not in runs or runnum in result:
                 continue
             fillnum=cursor.currentRow()['fillnum'].data()
             afterglow=1.0
@@ -376,7 +376,7 @@ def pixelcorrectionsForRange(schema,inputRange):
         cursor=qHandle.execute()
         while cursor.next():
             runnum=cursor.currentRow()['runnum'].data()
-            if runnum not in runs or result.has_key(runnum):
+            if runnum not in runs or runnum in result:
                 continue
             fillnum=cursor.currentRow()['fillnum'].data()
             afterglow=1.0

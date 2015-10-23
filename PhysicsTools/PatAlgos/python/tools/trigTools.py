@@ -683,7 +683,7 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
         # Maintain configurations
         patTriggerEventContent = []
         for patObjProdType in dictConfig.keys():
-            if dictPatProducers.has_key( patObjProdType ):
+            if patObjProdType in dictPatProducers:
                 for matcher in dictConfig[ patObjProdType ]:
                     trigMchMod = getattr( process, matcher )
                     patObjProd = getattr( process, trigMchMod.src.value() + postfix )
