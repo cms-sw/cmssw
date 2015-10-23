@@ -177,10 +177,10 @@ class MatrixInjector(object):
             wmsplit['TTbar_13_ID']=1
             wmsplit['SingleMuPt10FS_ID']=1
             wmsplit['TTbarFS_ID']=1
-            wmsplit['RECODR250nsreHLT']=1
-            wmsplit['RECODR225nsreHLT']=1
-            wmsplit['HLTDR250ns']=3
-            wmsplit['HLTDR225ns']=3
+            wmsplit['RECODR2_50nsreHLT']=1
+            wmsplit['RECODR2_25nsreHLT']=1
+            wmsplit['HLTDR2_50ns']=3
+            wmsplit['HLTDR2_25ns']=3
             wmsplit['Hadronizer']=1
                                     
             #import pprint
