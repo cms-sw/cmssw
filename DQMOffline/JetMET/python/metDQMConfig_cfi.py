@@ -101,19 +101,19 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
         errorReplyHlt  = cms.bool( False ),
     ) 
     ),
-    
-    HcalNoiseRBXCollection     = cms.InputTag("hcalnoise"), 
-    HBHENoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"),  
-    HBHEIsoNoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHEIsoNoiseFilterResult"), # not yet in miniaod
-    BeamHaloSummaryLabel = cms.InputTag("BeamHaloSummary"),
-    CSCHaloResultLabel = cms.InputTag("CSCTightHaloFilter"), 
-    CSCHalo2015ResultLabel = cms.InputTag("CSCTightHalo2015Filter"), 
-    EcalDeadCellTriggerLabel = cms.InputTag("EcalDeadCellTriggerPrimitiveFilter"), 
-    eeBadScFilterLabel = cms.InputTag("eeBadScFilter"), 
+ 
+    HBHENoiseLabelMiniAOD = cms.string("Flag_HBHENoiseFilter"),
+    HBHEIsoNoiseLabelMiniAOD = cms.string("Flag_HBHEIsoNoiseFilter"),
 
-#    HighPtJetThreshold = cms.double(60.),
-#    LowPtJetThreshold  = cms.double(15.),
-#    HighMETThreshold   = cms.double(110.),
+    HcalNoiseRBXCollection     = cms.InputTag("hcalnoise"), 
+    HBHENoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"),
+    HBHENoiseIsoFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHEIsoNoiseFilterResult"),
+    CSCHaloResultLabel = cms.InputTag("CSCTightHaloFilterDQM"), 
+    CSCHalo2015ResultLabel = cms.InputTag("CSCTightHalo2015FilterDQM"), 
+    EcalDeadCellTriggerPrimitiveFilterLabel = cms.InputTag("EcalDeadCellTriggerPrimitiveFilterDQM"), 
+    EcalDeadCellBoundaryEnergyFilterLabel = cms.InputTag("EcalDeadCellBoundaryEnergyFilterDQM"), 
+    eeBadScFilterLabel = cms.InputTag("eeBadScFilterDQM"), 
+    HcalStripHaloFilterLabel = cms.InputTag("HcalStripHaloFilterDQM"),
 
     #if changed here, change certification module input in same manner and injetDQMconfig
     pVBin       = cms.int32(100),
@@ -142,6 +142,8 @@ pfMetDQMAnalyzer = caloMetDQMAnalyzer.clone(
         ),
     fillMetHighLevel = cms.bool(False),
     fillCandidateMaps = cms.bool(True),
+    # if this flag is changed, the METTypeRECOUncleaned flag in dataCertificationJetMET_cfi.py
+    #has to be updated (by a string not pointing to an existing directory)
     onlyCleaned                = cms.untracked.bool(False),
     DCSFilter = cms.PSet(
         DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
@@ -188,7 +190,7 @@ pfMetDQMAnalyzerMiniAOD = pfMetDQMAnalyzer.clone(
     JetCorrections = cms.InputTag(""),#not called, since corrected by default
 )
 pfPuppiMetDQMAnalyzerMiniAOD = pfMetDQMAnalyzerMiniAOD.clone(
-    fillMetHighLevel = cms.bool(True),#fills only lumisec plots
+    fillMetHighLevel = cms.bool(False),#fills only lumisec plots
     fillCandidateMaps = cms.bool(True),
     METType=cms.untracked.string('miniaod'),
     METCollectionLabel     = cms.InputTag("slimmedMETsPuppi"),

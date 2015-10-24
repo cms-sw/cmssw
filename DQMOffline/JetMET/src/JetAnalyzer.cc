@@ -845,7 +845,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhEn_highPt_EndCap" ,mPhEn_highPt_EndCap));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"ElEn_highPt_EndCap" ,mElEn_highPt_EndCap));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MuEn_highPt_EndCap" ,mMuEn_highPt_EndCap));
-
+    /*
     //now get handle on OOT PU
     mePhFracBarrel_BXm2BXm1Empty          = ibooker.book1D("PhFracBarrel_BXm2BXm1Empty",        "PHFrac prev empty 2 bunches (Barrel)",         50, 0,    1);
     mePhFracBarrel_BXm2BXm1Filled        = ibooker.book1D("PhFracBarrel_BXm2BXm1Filled",      "PHFrac prev filled 2 bunches (Barrel)",         50, 0,    1);
@@ -924,7 +924,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtForwardMinus_BXm2BXm1Filled"  ,mePtForwardMinus_BXm2BXm1Filled));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Eta_BXm2BXm1Empty"  ,meEta_BXm2BXm1Empty));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Eta_BXm2BXm1Filled",meEta_BXm2BXm1Filled));
- 
+    */
     mePhFracBarrel_BXm1Empty          = ibooker.book1D("PhFracBarrel_BXm1Empty",        "PHFrac prev empty 1 bunch (Barrel)",         50, 0,    1);
     mePhFracBarrel_BXm1Filled        = ibooker.book1D("PhFracBarrel_BXm1Filled",      "PHFrac prev filled 1 bunch (Barrel)",         50, 0,    1);
     meNHFracBarrel_BXm1Empty   = ibooker.book1D("NHFracBarrel_BXm1Empty",   "NHFrac prev empty 1 bunch (Barrel)",         50, 0,    1);
@@ -1807,7 +1807,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (verbose_) std::cout << "JetAnalyzer: Could not find GT readout record product" << std::endl;
   }
 
-  bool techTriggerResultBxE = false;
+  //bool techTriggerResultBxE = false;
   bool techTriggerResultBxF = false;
   bool techTriggerResultBx0 = false;
 
@@ -1816,7 +1816,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (verbose_) std::cout << "CaloMETAnalyzer: Could not find GT readout record product" << std::endl;
   }else{
     // trigger results before mask for BxInEvent -2 (E), -1 (F), 0 (L1A), 1, 2 
-    const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBxE = gtReadoutRecord->technicalTriggerWord(-2);
+    //const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBxE = gtReadoutRecord->technicalTriggerWord(-2);
     const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBxF = gtReadoutRecord->technicalTriggerWord(-1);
     const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBx0 = gtReadoutRecord->technicalTriggerWord();
     //const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBxG = gtReadoutRecord->technicalTriggerWord(1);
@@ -1824,7 +1824,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (m_bitAlgTechTrig_ > -1 && technicalTriggerWordBeforeMaskBx0.size() > 0) {
       techTriggerResultBx0 = technicalTriggerWordBeforeMaskBx0.at(m_bitAlgTechTrig_);
       if(techTriggerResultBx0!=0){
-	techTriggerResultBxE = technicalTriggerWordBeforeMaskBxE.at(m_bitAlgTechTrig_);
+	//techTriggerResultBxE = technicalTriggerWordBeforeMaskBxE.at(m_bitAlgTechTrig_);
 	techTriggerResultBxF = technicalTriggerWordBeforeMaskBxF.at(m_bitAlgTechTrig_);
       }	
     }
@@ -2397,6 +2397,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  }
 	}
 	//OOT plots
+	/*
 	if(techTriggerResultBx0 && techTriggerResultBxE && techTriggerResultBxF){
 	  meEta_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"Eta_BXm2BXm1Filled"];     if (  meEta_BXm2BXm1Filled  && meEta_BXm2BXm1Filled ->getRootObject())  meEta_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].eta());
 	  if(fabs(correctedJet.eta()) <= 1.3) {
@@ -2423,7 +2424,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    meHFHFracPlus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"HFHFracPlus_BXm2BXm1Filled"];     if (  meHFHFracPlus_BXm2BXm1Filled  && meHFHFracPlus_BXm2BXm1Filled ->getRootObject())  meHFHFracPlus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
 	    meHFEMFracPlus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"HFEMFracPlus_BXm2BXm1Filled"];     if (  meHFEMFracPlus_BXm2BXm1Filled  && meHFEMFracPlus_BXm2BXm1Filled ->getRootObject())  meHFEMFracPlus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].HFEMEnergyFraction());
 	  }
-	}
+	  }*/
 	if(techTriggerResultBx0 && techTriggerResultBxF){
 	  meEta_BXm1Filled    = map_of_MEs[DirName+"/"+"Eta_BXm1Filled"];     if (  meEta_BXm1Filled  && meEta_BXm1Filled ->getRootObject())  meEta_BXm1Filled  ->Fill((*pfJets)[ijet].eta());
 	  if(fabs(correctedJet.eta()) <= 1.3) {
@@ -2450,7 +2451,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    meHFHFracPlus_BXm1Filled    = map_of_MEs[DirName+"/"+"HFHFracPlus_BXm1Filled"];     if (  meHFHFracPlus_BXm1Filled  && meHFHFracPlus_BXm1Filled ->getRootObject())  meHFHFracPlus_BXm1Filled  ->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
 	    meHFEMFracPlus_BXm1Filled    = map_of_MEs[DirName+"/"+"HFEMFracPlus_BXm1Filled"];     if (  meHFEMFracPlus_BXm1Filled  && meHFEMFracPlus_BXm1Filled ->getRootObject())  meHFEMFracPlus_BXm1Filled  ->Fill((*pfJets)[ijet].HFEMEnergyFraction());
 	  }
-	}
+	}/*
 	if(techTriggerResultBx0 && !techTriggerResultBxE && !techTriggerResultBxF){
 	  meEta_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"Eta_BXm2BXm1Empty"];     if (  meEta_BXm2BXm1Empty  && meEta_BXm2BXm1Empty ->getRootObject())  meEta_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].eta());
 	  if(fabs(correctedJet.eta()) <= 1.3) {
@@ -2477,7 +2478,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    meHFHFracPlus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"HFHFracPlus_BXm2BXm1Empty"];     if (  meHFHFracPlus_BXm2BXm1Empty  && meHFHFracPlus_BXm2BXm1Empty ->getRootObject())  meHFHFracPlus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
 	    meHFEMFracPlus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"HFEMFracPlus_BXm2BXm1Empty"];     if (  meHFEMFracPlus_BXm2BXm1Empty  && meHFEMFracPlus_BXm2BXm1Empty ->getRootObject())  meHFEMFracPlus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].HFEMEnergyFraction());
 	  }
-	}
+	  }*/
 	if(techTriggerResultBx0 && !techTriggerResultBxF){
 	  meEta_BXm1Empty    = map_of_MEs[DirName+"/"+"Eta_BXm1Empty"];     if (  meEta_BXm1Empty  && meEta_BXm1Empty ->getRootObject())  meEta_BXm1Empty  ->Fill((*pfJets)[ijet].eta());
 	  if(fabs(correctedJet.eta()) <= 1.3) {

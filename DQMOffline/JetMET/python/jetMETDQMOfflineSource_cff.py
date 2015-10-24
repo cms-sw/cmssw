@@ -6,8 +6,20 @@ from DQMOffline.JetMET.SUSYDQMAnalyzer_cfi  import *
 from DQMOffline.JetMET.goodOfflinePrimaryVerticesDQM_cfi import *
 from RecoJets.JetProducers.PileupJetID_cfi  import *
 from RecoJets.JetProducers.QGTagger_cfi  import *
-from CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi import*
+from RecoMET.METFilters.metFilters_cff import*
 
+HcalStripHaloFilterDQM=HcalStripHaloFilter.clone(
+    taggingMode = cms.bool(True))
+CSCTightHaloFilterDQM=CSCTightHaloFilter.clone(
+    taggingMode = cms.bool(True))
+CSCTightHalo2015FilterDQM=CSCTightHalo2015Filter.clone(
+    taggingMode = cms.bool(True))
+eeBadScFilterDQM=eeBadScFilter.clone(
+    taggingMode = cms.bool(True))
+EcalDeadCellTriggerPrimitiveFilterDQM=EcalDeadCellTriggerPrimitiveFilter.clone(
+    taggingMode = cms.bool(True))
+EcalDeadCellBoundaryEnergyFilterDQM=EcalDeadCellBoundaryEnergyFilter.clone(
+    taggingMode = cms.bool(True)) 
 
 pileupJetIdCalculatorDQM=pileupJetIdCalculator.clone(
     jets = cms.InputTag("ak4PFJets"),
@@ -92,9 +104,8 @@ jetMETDQMOfflineSource = cms.Sequence(AnalyzeSUSYDQM*QGTagger*
                                       pileupJetIdCalculatorDQM*pileupJetIdEvaluatorDQM*
                                       jetPreDQMSeq*
                                       dqmAk4CaloL2L3ResidualCorrectorChain*dqmAk4PFL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3CorrectorChain*
-                                      goodOfflinePrimaryVerticesDQM*
-                                      jetDQMAnalyzerSequence*
-                                      HBHENoiseFilterResultProducer*
-                                      dqmCorrPfMetType1*pfMETT1*
-                                      METDQMAnalyzerSequence)
+                                      goodOfflinePrimaryVerticesDQM*                                                                            
+                                      dqmCorrPfMetType1*pfMETT1*jetDQMAnalyzerSequence*HBHENoiseFilterResultProducer*HBHENoiseFilterResultProducer*
+                                      CSCTightHaloFilterDQM*CSCTightHalo2015FilterDQM*eeBadScFilterDQM*EcalDeadCellTriggerPrimitiveFilterDQM*EcalDeadCellBoundaryEnergyFilterDQM*HcalStripHaloFilterDQM
+                                      *METDQMAnalyzerSequence)
 jetMETDQMOfflineSourceMiniAOD = cms.Sequence(goodOfflinePrimaryVerticesDQMforMiniAOD*jetDQMAnalyzerSequenceMiniAOD*METDQMAnalyzerSequenceMiniAOD)

@@ -581,7 +581,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
 
   JetMETDQMDCSFilter * DCSFilterForJetMonitoring_;
   JetMETDQMDCSFilter * DCSFilterForDCSMonitoring_;
-
+  /*
   MonitorElement* mePhFracBarrel_BXm2BXm1Empty;
   MonitorElement* meNHFracBarrel_BXm2BXm1Empty;
   MonitorElement* meCHFracBarrel_BXm2BXm1Empty;
@@ -601,7 +601,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meHFEMFracPlus_BXm2BXm1Empty;
   MonitorElement* mePtForwardPlus_BXm2BXm1Empty;
   MonitorElement* meEta_BXm2BXm1Empty;
-
+  */
   MonitorElement* mePhFracBarrel_BXm1Empty;
   MonitorElement* meNHFracBarrel_BXm1Empty;
   MonitorElement* meCHFracBarrel_BXm1Empty;
@@ -621,7 +621,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meHFEMFracPlus_BXm1Empty;
   MonitorElement* mePtForwardPlus_BXm1Empty;
   MonitorElement* meEta_BXm1Empty;
-
+  /*
   MonitorElement* mePhFracBarrel_BXm2BXm1Filled;
   MonitorElement* meNHFracBarrel_BXm2BXm1Filled;
   MonitorElement* meCHFracBarrel_BXm2BXm1Filled;
@@ -641,7 +641,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meHFEMFracPlus_BXm2BXm1Filled;
   MonitorElement* mePtForwardPlus_BXm2BXm1Filled;
   MonitorElement* meEta_BXm2BXm1Filled;
-
+  */
   MonitorElement* mePhFracBarrel_BXm1Filled;
   MonitorElement* meNHFracBarrel_BXm1Filled;
   MonitorElement* meCHFracBarrel_BXm1Filled;
