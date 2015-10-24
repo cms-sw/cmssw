@@ -22,9 +22,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
-#define private public
 #include "Fireworks/Core/interface/FWEventItem.h"
-#undef private
 
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 
