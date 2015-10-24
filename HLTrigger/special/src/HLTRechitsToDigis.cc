@@ -140,14 +140,17 @@ HLTRechitsToDigis::produce(edm::Event& iEvent, edm::EventSetup const& setup)  {
     // loop over the collection of rechits and match to digis
     EcalRecHitCollection::const_iterator ituneEB;
     for (ituneEB = recHitsHandle->begin(); ituneEB != recHitsHandle->end(); ituneEB++) {
-      EcalRecHit hit = (*ituneEB);
-      outputEBDigiCollection->push_back( (*digisEB->find(hit.id())).id(), (*digisEB->find(hit.id())).begin() );
+      EcalRecHit const &    hit = (*ituneEB);
+      EcalDigiCollection::const_iterator digiLookUp = digisEB->find(hit.id());
+      // protect against a digi not existing
+      if( digiLookUp == digisEB->end()) continue;
+      outputEBDigiCollection->push_back( digiLookUp->id(), digiLookUp->begin() );
     }
-    
+
+    // add the built collection to the event 
     iEvent.put( outputEBDigiCollection, digisOut_);     
     break;      
-  }
-    
+  }    
   case endcap: {
     iEvent.getByToken(digisEEInToken_, digisEEHandle);
     const EEDigiCollection* digisEE = digisEEHandle.product();   
@@ -155,17 +158,21 @@ HLTRechitsToDigis::produce(edm::Event& iEvent, edm::EventSetup const& setup)  {
     // loop over the collection of rechits and match to digis
     EcalRecHitCollection::const_iterator ituneEE;
     for (ituneEE = recHitsHandle->begin(); ituneEE != recHitsHandle->end(); ituneEE++) {
-      EcalRecHit hit = (*ituneEE);      
-      outputEEDigiCollection->push_back( (*digisEE->find(hit.id())).id(), (*digisEE->find(hit.id())).begin() );              
-    }
-    
+      EcalRecHit const & hit = (*ituneEE);            
+      EcalDigiCollection::const_iterator digiLookUp = digisEE->find(hit.id());
+      // protect against a digi not existing for the saved rechit
+      if(digiLookUp  == digisEE->end()) continue;
+      outputEEDigiCollection->push_back( digiLookUp->id(), digiLookUp->begin() );              
+    } // end loop over endcap rechits
+
+    // add the built collection to the event     
     iEvent.put(outputEEDigiCollection, digisOut_);     
     break;
   }
   case invalidRegion: {
     break;
   }
-  } 
+  } // end switch statement for the region (barrel, endcap, invalid)
 }
 
 // ------------ method called when starting to processes a run  ------------
