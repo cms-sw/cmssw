@@ -158,7 +158,10 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
 
     process.load("Configuration.StandardSequences.Reconstruction_cff")
     # Offline Beam Spot
-    process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
+    #process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
+    # copy from online
+    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
+    offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
 
     process.dqmBeamMonitor.OnlineMode = True              
     process.dqmBeamMonitor.resetEveryNLumi = 5
@@ -184,7 +187,9 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
         process.InitialStepPreSplitting.remove(process.siPixelRecHits)
         process.InitialStepPreSplitting.remove(process.MeasurementTrackerEvent)
         process.InitialStepPreSplitting.remove(process.siPixelClusterShapeCache)
-
+        # if z is very far due to bad fit
+        process.initialStepSeedsPreSplitting.RegionFactoryPSet.RegionPSet.originRadius = 1.5
+        process.initialStepSeedsPreSplitting.RegionFactoryPSet.RegionPSet.originHalfLength = cms.double(30.0)
         #Increase pT threashold at seeding stage (not so accurate)                                                                                      
         process.initialStepSeedsPreSplitting.RegionFactoryPSet.RegionPSet.ptMin = 0.9
 
@@ -206,11 +211,13 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                                      )
     else: # pixel tracking
         print "[beam_dqm_sourceclient-live_cfg]:: pixelTracking"
-        process.load("RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi")
         #pixel  track/vertices reco
+        from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
+        process.RegionPSetBlock.RegionPSet.originRadius = cms.double(0.4)
+       
         process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+        process.PixelTrackReconstructionBlock.RegionFactoryPSet = cms.PSet(RegionPSetBlock, ComponentName = cms.string("GlobalTrackingRegion"))
         process.pixelVertices.TkFilterParameters.minPt = process.pixelTracks.RegionFactoryPSet.RegionPSet.ptMin
-        process.offlinePrimaryVertices.TrackLabel = cms.InputTag("pixelTracks")
 
         process.dqmBeamMonitor.PVFitter.errorScale = 1.25 #keep checking this with new release expected close to 1.2
      
@@ -288,7 +295,10 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.dqmBeamMonitor.jetTrigger  = cms.untracked.vstring("HLT_HI")
 
     process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
-
+ 
+    # copy from online
+    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
+    offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
 
     ## Load Heavy Ion Sequence
     process.load("Configuration.StandardSequences.ReconstructionHeavyIons_cff") ## HI sequences
