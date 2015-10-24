@@ -5,11 +5,16 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+// EvtGen plugin
+//
+//#include "Pythia8Plugins/EvtGen.h"
+
 using namespace Pythia8;
 
 namespace gen {
 
-Py8InterfaceBase::Py8InterfaceBase( edm::ParameterSet const& ps )
+Py8InterfaceBase::Py8InterfaceBase( edm::ParameterSet const& ps ) :
+useEvtGen(false), evtgenDecays(0)
 {
 
   randomEngine = &getEngineReference();
@@ -28,7 +33,27 @@ Py8InterfaceBase::Py8InterfaceBase( edm::ParameterSet const& ps )
   
   pythiaPylistVerbosity = ps.getUntrackedParameter<int>("pythiaPylistVerbosity", 0);
   pythiaHepMCVerbosity  = ps.getUntrackedParameter<bool>("pythiaHepMCVerbosity", false);
+  pythiaHepMCVerbosityParticles = ps.getUntrackedParameter<bool>("pythiaHepMCVerbosityParticles", false);
   maxEventsToPrint      = ps.getUntrackedParameter<int>("maxEventsToPrint", 0);
+
+  if(pythiaHepMCVerbosityParticles)
+    ascii_io = new HepMC::IO_AsciiParticles("cout", std::ios::out);
+
+  if ( ps.exists("useEvtGenPlugin") ) {
+
+    useEvtGen = true;
+
+    string evtgenpath(getenv("EVTGENDATA"));
+    evtgenDecFile = evtgenpath + string("/DECAY_2010.DEC");
+    evtgenPdlFile = evtgenpath + string("/evt.pdl");
+
+    if ( ps.exists( "evtgenDecFile" ) )
+      evtgenDecFile = ps.getParameter<string>("evtgenDecFile");
+
+    if ( ps.exists( "evtgenPdlFile" ) )
+      evtgenPdlFile = ps.getParameter<string>("evtgenPdlFile");
+
+  }
 
 }
 
@@ -46,6 +71,14 @@ bool Py8InterfaceBase::readSettings( int )
       if (!fMasterGen->readString(*line)) throw cms::Exception("PythiaError")
 			              << "Pythia 8 did not accept \""
 				      << *line << "\"." << std::endl;
+
+      if (line->find("ParticleDecays:") != std::string::npos) {
+
+        if (!fDecayer->readString(*line)) throw cms::Exception("PythiaError")
+                                      << "Pythia 8 Decayer did not accept \""
+                                      << *line << "\"." << std::endl;
+      }
+
    }
 
    return true;
@@ -85,15 +118,19 @@ bool Py8InterfaceBase::declareStableParticles( const std::vector<int>& pdgIds )
 
 }
 
-bool Py8InterfaceBase:: declareSpecialSettings( const std::vector<std::string>& settings )
-{
-
-   for ( unsigned int iss=0; iss<settings.size(); iss++ )
-   {
-      if ( settings[iss].find("QED-brem-off") == std::string::npos ) continue;
-      fMasterGen->readString( "TimeShower:QEDshowerByL=off" );
+bool Py8InterfaceBase:: declareSpecialSettings( const std::vector<std::string>& settings ){
+   for ( unsigned int iss=0; iss<settings.size(); iss++ ){
+     if ( settings[iss].find("QED-brem-off") != std::string::npos ){
+       fMasterGen->readString( "TimeShower:QEDshowerByL=off" );
+     }
+     else{
+       size_t fnd1 = settings[iss].find("Pythia8:");
+       if ( fnd1 != std::string::npos ){
+	 std::string value = settings[iss].substr (fnd1+8);
+	 fDecayer->readString(value);
+       }
+     }
    }
-
    return true;
 }
 

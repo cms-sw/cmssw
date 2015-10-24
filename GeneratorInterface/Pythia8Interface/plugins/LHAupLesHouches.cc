@@ -42,10 +42,13 @@ bool LHAupLesHouches::setInit()
     infoPtr->setHeader("slha",slhaheader);
   }  
   
-  //work around missing initialization inside pythia8
-  infoPtr->eventAttributes = new std::map<std::string, std::string >;
-  
-  
+  //will be used to work around missing initialization inside pythia8
+  if(!fEvAttributes) {
+    fEvAttributes = new std::map<std::string, std::string >;
+  } else {
+    fEvAttributes->clear();
+  }
+
   return true;
 }
 
@@ -91,8 +94,13 @@ bool LHAupLesHouches::setEvent(int inProcId)
                 hepeup.SPINUP[i],scalein);
   }
   
-  infoPtr->eventAttributes->clear();
-  
+  if(!infoPtr->eventAttributes) {
+    fEvAttributes->clear();
+    infoPtr->eventAttributes = fEvAttributes;
+  } else {
+    infoPtr->eventAttributes->clear();
+  }
+
   //fill parton multiplicities if available
   int npLO = event->npLO();
   int npNLO = event->npNLO();

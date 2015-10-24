@@ -1,4 +1,3 @@
-
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
@@ -55,13 +54,9 @@ bool Py8PtGun::generatePartonsAndHadronize()
 
       int particleID = fPartIDs[i]; // this is PDG - need to convert to Py8 ???
 
-      // FIXME !!!
-      // Ouch, it's using bare randomEngine pointer - that's NOT safe.
-      // Need to hold a pointer somewhere properly !!!
-      //
       double phi = (fMaxPhi-fMinPhi) * randomEngine->flat() + fMinPhi;
-      double eta  = (fMaxEta-fMinEta) * randomEngine->flat() + fMinEta;                                                      
-      double the  = 2.*atan(exp(-eta));                                                                          
+      double eta  = (fMaxEta-fMinEta) * randomEngine->flat() + fMinEta;
+      double the  = 2.*atan(exp(-eta));
 
       double pt   = (fMaxPt-fMinPt) * randomEngine->flat() + fMinPt;
       

@@ -5,6 +5,10 @@
 #include "GeneratorInterface/Pythia8Interface/interface/Py8GunBase.h"
 #include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
 
+// EvtGen plugin
+//
+#include "Pythia8Plugins/EvtGen.h"
+
 namespace gen {
 
 class Py8EGun : public Py8GunBase {
@@ -53,7 +57,7 @@ bool Py8EGun::generatePartonsAndHadronize()
    for ( size_t i=0; i<fPartIDs.size(); i++ )
    {
 
-      int particleID = fPartIDs[i]; // this is PDG - need to convert to Py8 ???
+      int particleID = fPartIDs[i];
 
       // FIXME !!!
       // Ouch, it's using bare randomEngine pointer - that's NOT safe.
@@ -61,9 +65,9 @@ bool Py8EGun::generatePartonsAndHadronize()
       //
       double phi = (fMaxPhi-fMinPhi) * randomEngine->flat() + fMinPhi;
       double ee   = (fMaxE-fMinE) * randomEngine->flat() + fMinE;
-      double eta  = (fMaxEta-fMinEta) * randomEngine->flat() + fMinEta;                                                      
-      double the  = 2.*atan(exp(-eta));                                                                          
-      
+      double eta  = (fMaxEta-fMinEta) * randomEngine->flat() + fMinEta;
+      double the  = 2.*atan(exp(-eta));
+
       double mass = (fMasterGen->particleData).m0( particleID );
 
       double pp = sqrt( ee*ee - mass*mass );
@@ -85,11 +89,11 @@ bool Py8EGun::generatePartonsAndHadronize()
       {
          if ( (fMasterGen->particleData).isParticle( -particleID ) )
 	 {
-	    (fMasterGen->event).append( -particleID, 1, 0, 0, px, py, pz, ee, mass );
+	    (fMasterGen->event).append( -particleID, 1, 0, 0, -px, -py, -pz, ee, mass );
 	 }
 	 else
 	 {
-	    (fMasterGen->event).append( particleID, 1, 0, 0, px, py, pz, ee, mass );
+	    (fMasterGen->event).append( particleID, 1, 0, 0, -px, -py, -pz, ee, mass );
 	 }
       }
 
@@ -97,6 +101,8 @@ bool Py8EGun::generatePartonsAndHadronize()
    
    if ( !fMasterGen->next() ) return false;
    
+   if (evtgenDecays) evtgenDecays->decay();
+
    event().reset(new HepMC::GenEvent);
    return toHepMC.fill_next_event( fMasterGen->event, event().get() );
   
