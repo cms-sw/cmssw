@@ -184,7 +184,6 @@ def customiseFor11497(process):
         process.CaloTowerTopologyEP = cms.ESProducer( 'CaloTowerTopologyEP' )
     return process
 
-
 def customiseFor12044(process):
     # add a label to indentify the PFProducer calibrations
     for module in producers_by_type(process, 'PFProducer'):
@@ -192,6 +191,18 @@ def customiseFor12044(process):
         module.calibrationsLabel = cms.string('')
     return process
 
+# Remove hcalTopologyConstants
+def customiseFor11920(process):
+    if hasattr(process,'HcalGeometryFromDBEP'):
+        if hasattr(process.HcalGeometryFromDBEP,'hcalTopologyConstants'):
+            delattr(process.HcalGeometryFromDBEP,'hcalTopologyConstants')
+    if hasattr(process,'HcalTopologyIdealEP'):
+        if hasattr(process.HcalTopologyIdealEP,'hcalTopologyConstants'):
+            delattr(process.HcalTopologyIdealEP,'hcalTopologyConstants')
+    if hasattr(process,'CaloTowerGeometryFromDBEP'):
+        if hasattr(process.CaloTowerGeometryFromDBEP,'hcalTopologyConstants'):
+            delattr(process.CaloTowerGeometryFromDBEP,'hcalTopologyConstants')
+    return process
 
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
@@ -205,6 +216,7 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
         process = customiseFor11183(process)
         process = customiseFor11497(process)
         process = customiseFor12044(process)
+        process = customiseFor11920(process)
     if cmsswVersion >= "CMSSW_7_5":
         process = customiseFor10927(process)
         process = customiseFor9232(process)
