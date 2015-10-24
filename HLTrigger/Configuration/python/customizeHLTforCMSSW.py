@@ -184,13 +184,6 @@ def customiseFor11497(process):
         process.CaloTowerTopologyEP = cms.ESProducer( 'CaloTowerTopologyEP' )
     return process
 
-# use old b-tag training for DIGI-RECO campaign in 76X
-def customiseFor12062(process):
-    if hasattr(process,'hltCombinedSecondaryVertexV2'):
-        if process.hltCombinedSecondaryVertexV2.calibrationRecords == cms.vstring('CombinedSVIVFV2RecoVertex','CombinedSVIVFV2PseudoVertex','CombinedSVIVFV2NoVertex'):
-            setattr(process.hltCombinedSecondaryVertexV2,'calibrationRecords', cms.vstring('hltCombinedSVIVFV2RecoVertex','hltCombinedSVIVFV2PseudoVertex','hltCombinedSVIVFV2NoVertex'))
-    return process
-
 def customiseFor12044(process):
     # add a label to indentify the PFProducer calibrations
     for module in producers_by_type(process, 'PFProducer'):
@@ -210,7 +203,6 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
         process = customiseFor11183(process)
         process = customiseFor11497(process)
         process = customiseFor12044(process)
-        process = customiseFor12062(process)
     if cmsswVersion >= "CMSSW_7_5":
         process = customiseFor10927(process)
         process = customiseFor9232(process)
