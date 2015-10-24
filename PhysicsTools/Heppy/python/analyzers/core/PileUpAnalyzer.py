@@ -104,7 +104,7 @@ class PileUpAnalyzer( Analyzer ):
         if self.cfg_comp.isEmbed :
           return True
 
-        event.vertexWeight = 1
+        event.puWeight = 1
         event.nPU = None
         event.pileUpVertex_z = []
         event.pileUpVertex_ptHat = []
@@ -140,18 +140,18 @@ class PileUpAnalyzer( Analyzer ):
         if self.enable:
             bin = self.datahist.FindBin(event.nPU)
             if bin<1 or bin>self.datahist.GetNbinsX():
-                event.vertexWeight = 0
+                event.puWeight = 0
             else:
                 data = self.datahist.GetBinContent(bin)
                 mc = self.mchist.GetBinContent(bin)
                 #Protect 0 division!!!!
                 if mc !=0.0:
-                    event.vertexWeight = data/mc
+                    event.puWeight = data/mc
                 else:
-                    event.vertexWeight = 1
+                    event.puWeight = 1
                 
-        event.eventWeight *= event.vertexWeight
-        self.averages['vertexWeight'].add( event.vertexWeight )
+        event.eventWeight *= event.puWeight
+        self.averages['puWeight'].add( event.puWeight )
         return True
         
     def write(self, setup):
