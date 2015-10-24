@@ -276,36 +276,7 @@ MuonShowerInformationFiller::hitsFromSegments(const GeomDet* geomDet,
 //
 // Find cluster
 //
-MuonTransientTrackingRecHit::MuonRecHitContainer 
-MuonShowerInformationFiller::findPhiCluster(MuonTransientTrackingRecHit::MuonRecHitContainer& muonRecHits, 
-                              const GlobalPoint& refpoint) const {
 
-  if ( muonRecHits.empty() ) return muonRecHits;
-
-  //clustering step by phi
-  float step = 0.05;
-  MuonTransientTrackingRecHit::MuonRecHitContainer result;
-
-  stable_sort(muonRecHits.begin(), muonRecHits.end(), AbsLessDPhi(refpoint));
-
-  for (MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator ihit = muonRecHits.begin(); ihit != muonRecHits.end() - 1; ++ihit) {
-      if (fabs(deltaPhi((*(ihit+1))->globalPosition().phi(), (*ihit)->globalPosition().phi() )) < step) {
-          result.push_back(*ihit);  
-        } else {
-           break;
-       }
-  } 
-
-  LogTrace(category_) <<  "phi front: " << muonRecHits.front()->globalPosition().phi() << endl;    
-  LogTrace(category_) <<  "phi back: " << muonRecHits.back()->globalPosition().phi() << endl;
-
-  return result;
-
-}
-
-//
-//
-//
 TransientTrackingRecHit::ConstRecHitContainer
 MuonShowerInformationFiller::findThetaCluster(TransientTrackingRecHit::ConstRecHitContainer& muonRecHits,
                               const GlobalPoint& refpoint) const {
@@ -837,29 +808,79 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
        << theAllStationHits.at(2) << " "
        << theAllStationHits.at(3) << endl;
 
-  //station shower sizes
-  MuonTransientTrackingRecHit::MuonRecHitContainer muonRecHitsPhiTemp, muonRecHitsPhiBest;
-  TransientTrackingRecHit::ConstRecHitContainer muonRecHitsThetaTemp, muonRecHitsThetaBest;
-
   // send station hits to the clustering algorithm
   for ( int stat = 0; stat != 4; stat++ ) {
-    if (!muonRecHits[stat].empty()) {
-      stable_sort(muonRecHits[stat].begin(), muonRecHits[stat].end(), LessPhi());
+    const size_t nhit = muonRecHits[stat].size();
+    if (nhit < 2) continue; // Require at least 2 hits
 
-      float dphimax = 0;
-      for (MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator iseed = muonRecHits[stat].begin(); iseed != muonRecHits[stat].end(); ++iseed) {
-          if (!(*iseed)->isValid()) continue;
-          GlobalPoint refpoint = (*iseed)->globalPosition(); //starting from the one with smallest value of phi
-          muonRecHitsPhiTemp.clear();
-          muonRecHitsPhiTemp = findPhiCluster(muonRecHits[stat], refpoint); //get clustered hits for this iseed
-      if (muonRecHitsPhiTemp.size() > 1) {
-         float dphi = fabs(deltaPhi((float)muonRecHitsPhiTemp.back()->globalPosition().phi(), (float)muonRecHitsPhiTemp.front()->globalPosition().phi()));
-         if (dphi > dphimax) {
-            dphimax = dphi;
-            muonRecHitsPhiBest = muonRecHitsPhiTemp;
-          }
-        } //at least two hits
-      }//loop over seeds 
+    // Cluster seeds by global position phi. Best cluster is chosen to give greatest dphi
+    // Sort by phi (complexity : NLogN with enough memory, or NLog^2N for insufficient mem)
+    stable_sort(muonRecHits[stat].begin(), muonRecHits[stat].end(), LessPhi());
+
+    // Search for gaps
+    std::vector<size_t> clusterBoundaries;
+    for ( size_t ihit = 0; ihit < nhit; ++ihit ) {
+      size_t jhit = ihit+1;
+      if ( jhit >= nhit ) jhit = 0;
+      const double phi1 = muonRecHits[stat].at(ihit)->globalPosition().phi();
+      const double phi2 = muonRecHits[stat].at(jhit)->globalPosition().phi();
+
+      const double dphi = std::abs(deltaPhi(phi1, phi2));
+      if ( dphi > 0.05 ) clusterBoundaries.push_back(ihit);
+    }
+
+    //station shower sizes
+    MuonTransientTrackingRecHit::MuonRecHitContainer muonRecHitsPhiBest;
+    double dphimax = 0;
+    if ( clusterBoundaries.empty() ) {
+      // No gaps - there is only one cluster. Take all of them
+      muonRecHitsPhiBest.reserve(muonRecHits[stat].size());
+      const double refPhi = muonRecHits[stat].at(0)->globalPosition().phi();
+      double dphilo = 0, dphihi = 0;
+      for ( auto& hit : muonRecHits[stat] ) {
+        muonRecHitsPhiBest.push_back(hit);
+        const double phi = hit->globalPosition().phi();
+        dphilo = std::min(dphilo, deltaPhi(refPhi, phi));
+        dphihi = std::max(dphihi, deltaPhi(refPhi, phi));
+      }
+      dphimax = std::abs(dphihi+dphilo);
+    } else {
+      // Loop over gaps to find the one with maximum dphi(begin, end)
+      // By construction, number of gap must be greater than 1.
+      size_t bestUpper = 0, bestLower = 0;
+      for ( auto icluster = clusterBoundaries.begin(); icluster != clusterBoundaries.end(); ++icluster ) {
+        const size_t upper = *icluster; // upper bound of this cluster
+        const size_t lower = (*(icluster-1)+1)%nhit; // lower bound is +1 of preceeding upper bound
+
+        // At least two hit for a cluster
+        if ( upper == lower ) continue;
+
+        const double phi1 = muonRecHits[stat].at(upper)->globalPosition().phi();
+        const double phi2 = muonRecHits[stat].at(lower)->globalPosition().phi();
+
+        const double dphi = std::abs(deltaPhi(phi1, phi2));
+        if ( dphimax < dphi ) {
+          dphimax = dphi;
+          bestUpper = upper;
+          bestLower = lower;
+        }
+      }
+
+      if ( bestUpper > bestLower ) {
+        muonRecHitsPhiBest.reserve(bestUpper-bestLower+1);
+        std::copy(muonRecHits[stat].begin()+bestLower,
+                  muonRecHits[stat].begin()+bestUpper+1,
+                  std::back_inserter(muonRecHitsPhiBest));
+      } else if ( bestUpper < bestLower ) {
+        muonRecHitsPhiBest.reserve(bestUpper+(nhit-bestLower)+1);
+        std::copy(muonRecHits[stat].begin(),
+                  muonRecHits[stat].begin()+bestUpper+1,
+                  std::back_inserter(muonRecHitsPhiBest));
+        std::copy(muonRecHits[stat].begin()+bestLower,
+                  muonRecHits[stat].end(),
+                  std::back_inserter(muonRecHitsPhiBest));
+      }
+    }
 
      //fill showerTs
       if (!muonRecHitsPhiBest.empty()) {
@@ -871,15 +892,17 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
       }
 
      //for theta
+     TransientTrackingRecHit::ConstRecHitContainer muonRecHitsThetaBest;
      if (!muonCorrelatedHits.at(stat).empty()) {
 
+       TransientTrackingRecHit::ConstRecHitContainer muonRecHitsThetaTemp;
        float dthetamax = 0;
        for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator iseed = muonCorrelatedHits.at(stat).begin(); iseed != muonCorrelatedHits.at(stat).end(); ++iseed) {
            if (!(*iseed)->isValid()) continue;
            GlobalPoint refpoint = (*iseed)->globalPosition(); //starting from the one with smallest value of phi
            muonRecHitsThetaTemp.clear();
            muonRecHitsThetaTemp = findThetaCluster(muonCorrelatedHits.at(stat), refpoint);
-       }//loop over seeds 
+       }//loop over seeds
        if (muonRecHitsThetaTemp.size() > 1) {
          float dtheta = fabs((float)muonRecHitsThetaTemp.back()->globalPosition().theta() - (float)muonRecHitsThetaTemp.front()->globalPosition().theta());
          if (dtheta > dthetamax) {
@@ -893,7 +916,6 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
      if (muonRecHitsThetaBest.size() > 1 && muonRecHitsPhiBest.size() > 1)
        theStationShowerDeltaR.at(stat) = sqrt(pow(muonRecHitsPhiBest.front()->globalPosition().phi()-muonRecHitsPhiBest.back()->globalPosition().phi(),2)+pow(muonRecHitsThetaBest.front()->globalPosition().theta()-muonRecHitsThetaBest.back()->globalPosition().theta(),2));
 
-        }//not empty container
       }//loop over station
 
        LogTrace(category_) << "deltaR around a track containing all the station hits, by station "
@@ -912,3 +934,4 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
   return;
 
 }
+

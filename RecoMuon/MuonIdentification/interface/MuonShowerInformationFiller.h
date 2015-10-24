@@ -103,7 +103,6 @@ class MuonShowerInformationFiller {
     std::vector<const GeomDet*> dtPositionToDets(const GlobalPoint&) const;
     std::vector<const GeomDet*> cscPositionToDets(const GlobalPoint&) const;
     MuonRecHitContainer findPerpCluster(MuonRecHitContainer& muonRecHits) const;
-    MuonRecHitContainer findPhiCluster(MuonRecHitContainer&, const GlobalPoint&) const;
     TransientTrackingRecHit::ConstRecHitContainer findThetaCluster(TransientTrackingRecHit::ConstRecHitContainer&, const GlobalPoint&) const;
     TransientTrackingRecHit::ConstRecHitContainer hitsFromSegments(const GeomDet*,edm::Handle<DTRecSegment4DCollection>, edm::Handle<CSCSegmentCollection>) const;
     std::vector<const GeomDet*> getCompatibleDets(const reco::Track&) const;
