@@ -44,6 +44,12 @@ private:
   MonitorElement *hSector;
   MonitorElement* hdigisize;
 //  MonitorElement* hBunchOcc;
+
+  int TS_MAX = 10;
+  float RatioThresh1 = 0.;
+  float QIEerrThreshold = 0.0001;
+  double QrmsTS[224][10], QmeanTS[224][10];
+  const int TSped = 0;
 };
 
 #endif
