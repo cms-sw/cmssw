@@ -15,7 +15,7 @@ step1Defaults = {'--relval'      : None, # need to be explicitly set
 step1Up2015Defaults = {'-s' : 'GEN,SIM',
                              '-n'            : 10,
                              '--conditions'  : 'auto:run2_mc',
-                             '--beamspot'    : 'NominalCollision2015',
+                             '--beamspot'    : 'Realistic50ns13TeVCollision',
                              '--datatier'    : 'GEN-SIM',
                              '--eventcontent': 'FEVTDEBUG',
                              '--era'         : 'Run2_25ns'
@@ -534,7 +534,7 @@ step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,L1Reco,R
 step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,L1Reco,RECO,EI,HLT:@relval25ns,VALIDATION',
                            '--fast':'',
                            '--conditions'  :'auto:run2_mc_'+autoHLT['relval25ns'],
-                           '--beamspot'    : 'NominalCollision2015',
+                           '--beamspot'    : 'Realistic50ns13TeVCollision',
                            '--era'         :'Run2_25ns',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
                            '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
