@@ -308,6 +308,7 @@ private:
   double simTrackPtMin_;
   bool fiducialCut_; 
   edm::InputTag trackSrc_;
+  std::string mvaSrc_;
   edm::InputTag particleSrc_;
   edm::InputTag tpFakeSrc_;
   edm::InputTag tpEffSrc_;
@@ -377,6 +378,7 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
   simTrackPtMin_             = iConfig.getUntrackedParameter<double>  ("simTrackPtMin",0.4);
   fiducialCut_ = (iConfig.getUntrackedParameter<bool>("fiducialCut",false));
   trackSrc_ = iConfig.getParameter<edm::InputTag>("trackSrc");
+  mvaSrc_ = iConfig.getParameter<std::string>("mvaSrc");
   particleSrc_ = iConfig.getParameter<edm::InputTag>("particleSrc");
   //   tpFakeSrc_ =  iConfig.getUntrackedParameter<edm::InputTag>("tpFakeSrc",edm::InputTag("cutsTPForFak"));
   //   tpEffSrc_ =  iConfig.getUntrackedParameter<edm::InputTag>("tpEffSrc",edm::InputTag("cutsTPForEff"));
@@ -576,7 +578,8 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
   
   Handle<edm::ValueMap<float> > mvaoutput;
   if(doMVA_){
-   iEvent.getByLabel(trackSrc_.label(), "MVAVals", mvaoutput);
+   // iEvent.getByLabel(trackSrc_.label(), "MVAVals", mvaoutput);
+   iEvent.getByLabel(mvaSrc_, "MVAVals", mvaoutput);
   }
   if(doSimTrack_) {
    iEvent.getByLabel(associatorMap_,recotosimCollectionH);
@@ -771,7 +774,8 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
   Handle<edm::ValueMap<float> > mvaoutput;
   if(doMVA_){
    iEvent.getByLabel(trackSrc_,etracks);
-   iEvent.getByLabel(trackSrc_.label(), "MVAVals", mvaoutput);
+   // iEvent.getByLabel(trackSrc_.label(), "MVAVals", mvaoutput);
+   iEvent.getByLabel(mvaSrc_, "MVAVals", mvaoutput);
   }
   iEvent.getByLabel(associatorMap_,simtorecoCollectionH);
   simRecColl= *(simtorecoCollectionH.product());
