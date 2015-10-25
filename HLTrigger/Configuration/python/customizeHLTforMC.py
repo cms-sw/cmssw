@@ -88,6 +88,8 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLT_DoubleMuNoFiltersNoVtx_SaveObjects_v*",
       "MC_DoubleMuNoFiltersNoVtx_v*",
       "HLT_MET60_IsoTrk*",
+      "HLT_L1MuOpenNotHF2Pixel_SingleTrack*",
+      "HLT_L1TOTEM0_RomanPotsAND_PixelClusters*",
       )
 
     ESModulesToRemove = (
@@ -203,6 +205,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltFastPixelBLifetimeRegionalCtfWithMaterialTracksHbb",
 
       "hltPixelTracksForMinBias",
+      "hltPixelTracksForMinBias01",
       "hltPixelTracksForHighMult",
       "hltRegionalPixelTracks",
       "hltPixelTracksReg",
