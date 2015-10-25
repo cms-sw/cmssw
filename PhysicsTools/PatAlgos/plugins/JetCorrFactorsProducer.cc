@@ -99,7 +99,7 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& cfg):
       }
     }
     else{
-      edm::LogWarning message( "Parameter rho not used" );
+      edm::LogInfo message( "Parameter rho not used" );
       message << "Module is configured to use the parameter rho, but rho is only used     \n"
 	      << "for L1FastJet corrections. The configuration of levels does not contain \n"
 	      << "L1FastJet corrections though, so rho will not be used by this module.   \n";

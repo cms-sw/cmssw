@@ -888,7 +888,7 @@ const int L1GtUtils::l1Results(const edm::Event& iEvent,
 
     } else {
 
-        LogDebug("L1GtUtils") << "\nError: "
+      LogDebug("L1GtUtils") << "\nError: "
                 << "\nNo valid L1GlobalTriggerRecord with \n  "
                 << m_l1GtUtilsHelper->l1GtRecordInputTag() << "\nfound in the event."
                 << "\nNo valid L1GlobalTriggerReadoutRecord with \n  "

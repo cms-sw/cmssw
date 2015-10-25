@@ -15,7 +15,7 @@ step1Defaults = {'--relval'      : None, # need to be explicitly set
 step1Up2015Defaults = {'-s' : 'GEN,SIM',
                              '-n'            : 10,
                              '--conditions'  : 'auto:run2_mc',
-                             '--beamspot'    : 'NominalCollision2015',
+                             '--beamspot'    : 'Realistic50ns13TeVCollision',
                              '--datatier'    : 'GEN-SIM',
                              '--eventcontent': 'FEVTDEBUG',
                              '--era'         : 'Run2_25ns'
@@ -534,7 +534,7 @@ step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,L1Reco,R
 step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,L1Reco,RECO,EI,HLT:@relval25ns,VALIDATION',
                            '--fast':'',
                            '--conditions'  :'auto:run2_mc_'+autoHLT['relval25ns'],
-                           '--beamspot'    : 'NominalCollision2015',
+                           '--beamspot'    : 'Realistic50ns13TeVCollision',
                            '--era'         :'Run2_25ns',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
                            '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
@@ -788,27 +788,27 @@ steps['FS_TTbar_13_PUAVE10_DRMIX_ITO']=merge([PUFSAVE10_DRMIX_ITO,Kby(100,500),s
 steps['FS_TTbar_13_PUAVE35_DRMIX_ITO']=merge([PUFSAVE35_DRMIX_ITO,Kby(100,500),steps['TTbarFS_13']] ) # needs the placeholder
 
 # step2 
-step2Defaults = { '-s'            : 'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco',
+step2Defaults = { '-s'            : 'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake',
                   '--datatier'    : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
                   '--eventcontent': 'FEVTDEBUGHLT',
                   '--conditions'  : 'auto:run1_mc',
                   }
 #for 2015
-step2Upg2015Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval25ns,RAW2DIGI,L1Reco',
+step2Upg2015Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval25ns',
                  '--conditions'  :'auto:run2_mc_'+autoHLT['relval25ns'],
                  '--datatier'    :'GEN-SIM-DIGI-RAW-HLTDEBUG',
                  '--eventcontent':'FEVTDEBUGHLT',
                  '--era'         :'Run2_25ns',
                  '-n'            :'10'
                   }
-step2Upg2015Defaults50ns = merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval50ns,RAW2DIGI,L1Reco','--conditions':'auto:run2_mc_'+autoHLT['relval50ns'],'--era':'Run2_50ns'},step2Upg2015Defaults])
+step2Upg2015Defaults50ns = merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval50ns','--conditions':'auto:run2_mc_'+autoHLT['relval50ns'],'--era':'Run2_50ns'},step2Upg2015Defaults])
 
 steps['DIGIUP15']=merge([step2Upg2015Defaults])
-steps['DIGIUP15PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval25ns,RAW2DIGI,L1Reco','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Upg2015Defaults])
+steps['DIGIUP15PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval25ns','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Upg2015Defaults])
 steps['DIGIUP15_PU25']=merge([PU25,step2Upg2015Defaults])
 steps['DIGIUP15_PU50']=merge([PU50,step2Upg2015Defaults50ns])
 
-steps['DIGIPROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Defaults])
+steps['DIGIPROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@fake','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Defaults])
 steps['DIGI']=merge([step2Defaults])
 #steps['DIGI2']=merge([stCond,step2Defaults])
 steps['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults])
@@ -816,7 +816,7 @@ steps['DIGIHAL']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--
 
 steps['DIGIPU1']=merge([PU,step2Defaults])
 steps['DIGIPU2']=merge([PU2,step2Defaults])
-steps['REDIGIPU']=merge([{'-s':'reGEN,reDIGI,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco'},steps['DIGIPU1']])
+steps['REDIGIPU']=merge([{'-s':'reGEN,reDIGI,L1,DIGI2RAW,HLT:@fake'},steps['DIGIPU1']])
 
 steps['DIGIUP15_ID']=merge([{'--restoreRND':'HLT','--process':'HLT2'},steps['DIGIUP15']])
 
@@ -824,9 +824,9 @@ steps['RESIM']=merge([{'-s':'reGEN,reSIM','-n':10},steps['DIGI']])
 #steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco','-n':10,'--restoreRNDSeeds':'','--process':'HLT'},steps['DIGI']])
 
     
-steps['DIGIHI']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,L1Reco'}, hiDefaults, step2Upg2015Defaults])
-steps['DIGIHI2011']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco'}, hiDefaults2011, step2Defaults])
-steps['DIGIHIMIX']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,L1Reco', '-n':2}, hiDefaults, {'--pileup':'HiMix'}, PUHI, step2Upg2015Defaults])
+steps['DIGIHI']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:HIon'}, hiDefaults, step2Upg2015Defaults])
+steps['DIGIHI2011']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake'}, hiDefaults2011, step2Defaults])
+steps['DIGIHIMIX']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:HIon', '-n':2}, hiDefaults, {'--pileup':'HiMix'}, PUHI, step2Upg2015Defaults])
 
 
 # PRE-MIXING : https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideSimulation#Pre_Mixing_Instructions
@@ -848,24 +848,24 @@ steps['PREMIXUP15_PU50']=merge([PU50,Kby(100,100),premixUp2015Defaults50ns])
 
 digiPremixUp2015Defaults25ns = { 
     '--conditions'   : 'auto:run2_mc_'+autoHLT['relval25ns'],
-    '-s'             : 'DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval25ns,RAW2DIGI,L1Reco',
+    '-s'             : 'DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval25ns',
    '--pileup_input'  :  'das:/RelValPREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[5],
     '--eventcontent' : 'FEVTDEBUGHLT',
     '--datatier'     : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
     '--datamix'      : 'PreMix',
     '--customise'    : 'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1' 
     }
-digiPremixUp2015Defaults50ns=merge([{'-s':'DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval50ns,RAW2DIGI,L1Reco'},
+digiPremixUp2015Defaults50ns=merge([{'-s':'DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval50ns'},
                                     {'--conditions':'auto:run2_mc_'+autoHLT['relval50ns']},
                                     {'--pileup_input' : 'das:/RelValPREMIXUP15_PU50/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[6]},
                                     {'--customise': 'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1_50ns'},
                                     digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXUP15_PU50']=merge([digiPremixUp2015Defaults50ns])
-premixProd25ns = {'-s'             : 'DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@relval25ns,RAW2DIGI,L1Reco',
+premixProd25ns = {'-s'             : 'DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@relval25ns',
                  '--eventcontent' : 'PREMIXRAW',
                  '--datatier'     : 'PREMIXRAW'}
-premixProd50ns = merge([{'-s':'DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@relval50ns,RAW2DIGI,L1Reco'},premixProd25ns])
+premixProd50ns = merge([{'-s':'DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@relval50ns'},premixProd25ns])
 
 steps['DIGIPRMXUP15_PROD_PU25']=merge([premixProd25ns,digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXUP15_PROD_PU50']=merge([premixProd50ns,digiPremixUp2015Defaults50ns])

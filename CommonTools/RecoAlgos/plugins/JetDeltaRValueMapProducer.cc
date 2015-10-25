@@ -113,7 +113,7 @@ private:
       if( matched_index>=0 )
       {
         if ( matched_dR2 > distMax_*distMax_ )
-          edm::LogWarning("MatchedJetsFarApart") << "Matched jets separated by dR greater than distMax=" << distMax_;
+          edm::LogInfo("MatchedJetsFarApart") << "Matched jets separated by dR greater than distMax=" << distMax_;
         else
         {
           jets1_locks.at(matched_index) = true;

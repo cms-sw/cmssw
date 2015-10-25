@@ -317,7 +317,7 @@ namespace {
       // ignore
     }
     else {
-      edm::LogWarning("HLTTauDQMOfflineSource") << "HLTTauDQMPath.cc, inferTauLeptonMultiplicity(): module type '" << moduleType << "' not recognized, filter '" << filterName << "' in path '" << pathName << "' will be ignored for offline matching." << std::endl;
+      edm::LogInfo("HLTTauDQMOfflineSource") << "HLTTauDQMPath.cc, inferTauLeptonMultiplicity(): module type '" << moduleType << "' not recognized, filter '" << filterName << "' in path '" << pathName << "' will be ignored for offline matching." << std::endl;
     }
     return n;
   }
