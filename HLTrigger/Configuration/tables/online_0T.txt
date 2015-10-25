@@ -41,7 +41,7 @@ HLT_JetE50_NoBPTX3BX_NoHalo_v*				# JIRA: CMSHLT-541
 HLT_JetE70_NoBPTX3BX_NoHalo_v*				# JIRA: CMSHLT-541
 HLT_L1Tech_HBHEHO_totalOR_v*				# JIRA: CMSHLT-541
 HLT_L1Tech_HCAL_HF_single_channel_v*			# JIRA: CMSHLT-541
-HLT_MET200_JetIdCleaned_v*				# JIRA: CMSHLT-541
+HLT_MET200_v*						# JIRA: CMSHLT-541, CMSHLT-601
 HLT_MET250_v*						# JIRA: CMSHLT-541
 HLT_MET300_v*						# JIRA: CMSHLT-541
 HLT_Mu28NoFiltersNoVtx_CentralCaloJet40_v*		# JIRA: CMSHLT-541
@@ -59,8 +59,8 @@ HLT_PFMET170_HBHECleaned_v*				# JIRA: CMSHLT-541
 HLT_PFMET170_JetIdCleaned_v*				# JIRA: CMSHLT-541
 HLT_PFMET170_NoiseCleaned_v*				# JIRA: CMSHLT-541
 HLT_PFMET170_v*						# JIRA: CMSHLT-541
-HLT_PFMET300_JetIdCleaned_v*				# JIRA: CMSHLT-541
-HLT_PFMET400_JetIdCleaned_v*				# JIRA: CMSHLT-541
+HLT_PFMET300_v*						# JIRA: CMSHLT-541, CMSHLT-601
+HLT_PFMET400_v*						# JIRA: CMSHLT-541, CMSHLT-601
 HLT_Photon120_v*					# JIRA: CMSHLT-541
 HLT_Photon165_HE10_v*					# JIRA: CMSHLT-541
 HLT_Photon175_v*					# JIRA: CMSHLT-541
@@ -90,7 +90,7 @@ AlCa_EcalEtaEEonly_v*					# JIRA: CMSHLT-541
 AlCa_EcalPhiSym_v*					# JIRA: CMSHLT-541
 AlCa_EcalPi0EBonly_v*					# JIRA: CMSHLT-541
 AlCa_EcalPi0EEonly_v*					# JIRA: CMSHLT-541
-AlCa_Ele27_WPVeryLoose_Gsf_v*				# JIRA: CMSHLT-541
+AlCa_Ele23_WPVeryLoose_Gsf_v*				# JIRA: CMSHLT-541, CMSHLT-566
 AlCa_LumiPixels_Random_v*				# JIRA: CMSHLT-541
 AlCa_LumiPixels_ZeroBias_v*				# JIRA: CMSHLT-541
 AlCa_RPCMuonNoHits_v*					# JIRA: CMSHLT-541
@@ -108,12 +108,12 @@ HLT_DoublePhoton40_v*					# JIRA: CMSHLT-564 (for 0T menu)
 HLT_DoublePhoton50_v*					# JIRA: CMSHLT-564 (for 0T menu)
 HLT_Photon150_v*					# JIRA: CMSHLT-564 (for 0T menu)
 
-#HLT_Photon90_CaloIdL_HT300_v*				# JIRA: CMSHLT-565 (for 0T menu)
-#HLT_HT250_CaloMET70_JetIdCleaned_v*			# JIRA: CMSHLT-565 (for 0T menu)
+HLT_Photon90_CaloIdL_HT300_v*				# JIRA: CMSHLT-565 (for 0T menu)
+HLT_HT250_CaloMET70_v*					# JIRA: CMSHLT-565, CMSHLT-601 (for 0T menu)
 
 HLT_Photon125_v*					# JIRA: CMSHLT-540 (for 0T menu)
-HLT_MET100_JetIdCleaned_v* 				# JIRA: CMSHLT-540 (for 0T menu)
-HLT_MET150_JetIdCleaned_v*				# JIRA: CMSHLT-540 (for 0T menu)
+HLT_MET100_v* 						# JIRA: CMSHLT-540, CMSHLT-601 (for 0T menu)
+HLT_MET150_v*						# JIRA: CMSHLT-540, CMSHLT-601 (for 0T menu)
 
 HLT_Rsq0p25_Calo_v*					# JIRA: CMSHLT-571 (for 0T menu)
 HLT_RsqMR240_Rsq0p09_MR200_Calo_v*			# JIRA: CMSHLT-571 (for 0T menu)
