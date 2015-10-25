@@ -1383,7 +1383,7 @@ EcalSelectiveReadoutValidation::analyzeTP(edm::Event const & event,
     } else {
       // FindFixBin might return an overflow bin (outside tpEtCount range).
       // To prevent a memory overflow / segfault, these values are ignored.
-      std::cout << "EcalSelectiveReadoutValidation: Invalid iE value: " << iE << std::endl;
+      //std::cout << "EcalSelectiveReadoutValidation: Invalid iE value: " << iE << std::endl;
     }
 
     fill(meTpVsEtSum_, etSum, tpEt);
