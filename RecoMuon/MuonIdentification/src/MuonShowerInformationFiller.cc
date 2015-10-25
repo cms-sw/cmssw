@@ -814,25 +814,24 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
     if (nhit < 2) continue; // Require at least 2 hits
 
     // Cluster seeds by global position phi. Best cluster is chosen to give greatest dphi
-    // Sort by phi (complexity : NLogN with enough memory, or NLog^2N for insufficient mem)
+    // Sort by phi (complexity = NLogN with enough memory, or = NLog^2N for insufficient mem)
     stable_sort(muonRecHits[stat].begin(), muonRecHits[stat].end(), LessPhi());
 
-    // Search for gaps
-    std::vector<size_t> clusterBoundaries;
+    // Search for gaps (complexity = N)
+    std::vector<size_t> clUppers;
     for ( size_t ihit = 0; ihit < nhit; ++ihit ) {
-      size_t jhit = ihit+1;
-      if ( jhit >= nhit ) jhit = 0;
+      const size_t jhit = (ihit+1)%nhit;
       const double phi1 = muonRecHits[stat].at(ihit)->globalPosition().phi();
       const double phi2 = muonRecHits[stat].at(jhit)->globalPosition().phi();
 
       const double dphi = std::abs(deltaPhi(phi1, phi2));
-      if ( dphi > 0.05 ) clusterBoundaries.push_back(ihit);
+      if ( dphi >= 0.05 ) clUppers.push_back(ihit);
     }
 
     //station shower sizes
     MuonTransientTrackingRecHit::MuonRecHitContainer muonRecHitsPhiBest;
     double dphimax = 0;
-    if ( clusterBoundaries.empty() ) {
+    if ( clUppers.empty() ) {
       // No gaps - there is only one cluster. Take all of them
       muonRecHitsPhiBest.reserve(muonRecHits[stat].size());
       const double refPhi = muonRecHits[stat].at(0)->globalPosition().phi();
@@ -848,9 +847,12 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
       // Loop over gaps to find the one with maximum dphi(begin, end)
       // By construction, number of gap must be greater than 1.
       size_t bestUpper = 0, bestLower = 0;
-      for ( auto icluster = clusterBoundaries.begin(); icluster != clusterBoundaries.end(); ++icluster ) {
-        const size_t upper = *icluster; // upper bound of this cluster
-        const size_t lower = (*(icluster-1)+1)%nhit; // lower bound is +1 of preceeding upper bound
+      for ( auto icl = clUppers.begin(); icl != clUppers.end(); ++icl ) {
+        // upper bound of this cluster
+        const size_t upper = *icl;
+        // lower bound is +1 of preceeding upper bound
+        const auto prevCl = (icl == clUppers.begin()) ? clUppers.end() : icl;
+        const size_t lower = (*(prevCl-1)+1)%nhit;
 
         // At least two hit for a cluster
         if ( upper == lower ) continue;
