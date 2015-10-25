@@ -533,7 +533,7 @@ Nominal5TeVpp2015VtxSmearingParameters = cms.PSet(
     Alpha = cms.double(0.0),
     SigmaZ = cms.double(5.5),
     TimeOffset = cms.double(0.0),
-    X0 = cms.double(0.0322),
-    Y0 = cms.double(0.),
-    Z0 = cms.double(0.)
+    X0 = cms.double(0.1044),
+    Y0 = cms.double(0.1676),
+    Z0 = cms.double(0.6707)
 )
