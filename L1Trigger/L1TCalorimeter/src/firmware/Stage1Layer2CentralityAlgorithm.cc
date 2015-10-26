@@ -24,6 +24,11 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
 							const std::vector<l1t::CaloEmCand> & EMCands,
 							const std::vector<l1t::Tau> * taus,
 							l1t::CaloSpare * spare) {
+
+  // This is no really two algorithms, the first is the HI centrality algorithm
+  // while the second is an alternative MB trigger.
+
+  // Begin Centrality Trigger //
   int etaMask = params_->centralityRegionMask();
   int sumET = 0;
   int regionET=0;
@@ -31,26 +36,93 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
   for(std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
 
     int etaVal = region->hwEta();
-    if (etaVal > 3 && etaVal < 18) continue;
+    if (etaVal > 3 && etaVal < 18) continue; // never consider central regions, independent of mask
     if((etaMask & (1<<etaVal))>>etaVal) continue;
 
     regionET=region->hwPt();
     sumET +=regionET;
   }
 
-  //std::cout << std::dec << "SumHFEt: " << sumET << std::endl;
-
-  int outputBits = 0;
-  for(int i = 0; i < 8; ++i)
+  // The LUT format is pretty funky. The nominal threshold is the average of every pair of entries.
+  int LUT_under[7];
+  int LUT_nominal[7];
+  int LUT_over[7];
+  for(int i = 0; i < 14; ++i)
   {
-    if(sumET > params_->centralityLUT()->data(i))
-      outputBits = i;
+    if(i%2 == 0){
+      LUT_under[i/2] = params_->centralityLUT()->data(i);
+    } else {
+      LUT_over[i/2] = params_->centralityLUT()->data(i);
+    }
   }
 
-  // ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > dummy(0,0,0,0);
-  // l1t::CaloSpare centrality (*&dummy,CaloSpare::CaloSpareType::Centrality,outputBits,0,0,0);
-  // spares->push_back(centrality);
-  spare->SetRing(0, outputBits);
+  int regularResult = 0;
+  int underlapResult = 0;
+  int overlapResult = 0;
+
+  for(int i = 0; i < 7; ++i)
+  {
+
+    LUT_nominal[i] = (LUT_under[i] + LUT_over[i])/2;
+    if(sumET > LUT_nominal[i])
+      regularResult = i+1;
+    if(sumET > LUT_under[i])
+      underlapResult = i+1;
+    if(sumET > LUT_over[i])
+      overlapResult = i+1;
+  }
+
+  int alternateResult = 0;
+  if(underlapResult < regularResult) {
+    alternateResult = underlapResult;
+  } else if(overlapResult > regularResult) {
+    alternateResult = overlapResult;
+  } else {
+    alternateResult = regularResult;
+  }
+
+  //paranoia
+  if(regularResult > 0x7) regularResult = 0x7;
+  if(alternateResult > 0x7) alternateResult = 0x7;
+
+  spare->SetRing(0, regularResult);
+  spare->SetRing(1, alternateResult);
+  // End Centrality Trigger //
+
+  // Begin MB Trigger //
+  int threshold[2][4] = {{0}}; // 8 thresholds in LUT, only 4 get used. [side][thresh#]
+  threshold[0][0] = 3; // hardcode for now
+  threshold[1][0] = threshold[0][0];
+  threshold[0][1] = 6;
+  threshold[1][1] = threshold[0][1];
+
+  int numOverThresh[2][4] = {{0}};
+  for(std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
+    if(region->hwEta() < 4) {
+      if(region->hwPt() > threshold[0][0])
+	numOverThresh[0][0]++;
+      if(region->hwPt() > threshold[0][1])
+	numOverThresh[0][1]++;
+    }
+    if(region->hwEta() > 17) {
+      if(region->hwPt() > threshold[1][0])
+	numOverThresh[1][0]++;
+      if(region->hwPt() > threshold[1][1])
+	numOverThresh[1][1]++;
+    }
+  }
+
+  int bits[6];
+  bits[0] = ((numOverThresh[0][0] > 0) && (numOverThresh[1][0] > 0));
+  bits[1] = ((numOverThresh[0][0] > 0) || (numOverThresh[1][0] > 0));
+  bits[2] = ((numOverThresh[0][1] > 0) && (numOverThresh[1][1] > 0));
+  bits[3] = ((numOverThresh[0][1] > 0) || (numOverThresh[1][1] > 0));
+  bits[4] = ((numOverThresh[0][0] > 1) && (numOverThresh[1][0] > 1));
+  bits[5] = ((numOverThresh[0][1] > 1) && (numOverThresh[1][1] > 1));
+
+  spare->SetRing(2, (bits[2]<<2) + (bits[1]<<1) + bits[0]);
+  spare->SetRing(3, (bits[5]<<2) + (bits[4]<<1) + bits[3]);
+  // End MB Trigger //
 
   const bool verbose = false;
   const bool hex = true;
