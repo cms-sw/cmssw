@@ -507,7 +507,7 @@ def DBdiff(database1, database2, reports1, reports2,
     hphiz = ROOT.TH1F("%s_phiz" % name, "", bins, -wnd[5], wnd[5])
         
     for r1 in reports1:
-        if selection is None or (selection.func_code.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
+        if selection is None or (selection.__code__.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
             if reports2 is None:
                 r2 = Report(r1.chamberId, r1.postal_address, r1.name)
                 r2.add_parameters(ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), 
@@ -725,7 +725,7 @@ def DBdiffVersus(quantity, versus, database1, database2, reports1, reports2, win
     errors = []
         
     for r1 in reports1:
-        if selection is None or (selection.func_code.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
+        if selection is None or (selection.__code__.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
             if reports2 is None:
                 r2 = Report(r1.chamberId, r1.postal_address, r1.name)
                 r2.add_parameters(ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), 
@@ -1298,7 +1298,7 @@ def plotmedians(reports1, reports2, selection=None, binsx=100, windowx=5., ceili
         raise Exception, which + " not recognized"
 
     for r1 in reports1:
-        if selection is None or (selection.func_code.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
+        if selection is None or (selection.__code__.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
             found = False
             for r2 in reports2:
                 if r1.postal_address == r2.postal_address:
@@ -3603,7 +3603,7 @@ def corrections2D(reportsX=None, reportsY=None, geometry0=None, geometryX=None, 
     for r1 in reportsX:
       # skip ME1/a
       if r1.postal_address[0]=='CSC'  and  r1.postal_address[2]==1 and r1.postal_address[3]==4: continue
-      if selection is None or (selection.func_code.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
+      if selection is None or (selection.__code__.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
         r2 = getReportByPostalAddress(r1.postal_address, reportsY)
         if r2 is None: 
           print "bad r2 in ",r1.postal_address
@@ -3628,7 +3628,7 @@ def corrections2D(reportsX=None, reportsY=None, geometry0=None, geometryX=None, 
   for addr in postal_addresses:
 
     # checks the selection function
-    if not (selection is None or (selection.func_code.co_argcount == len(addr) and selection(*addr)) ): continue
+    if not (selection is None or (selection.__code__.co_argcount == len(addr) and selection(*addr)) ): continue
 
     factors = [10. * signConventions[addr][0], 10. * signConventions[addr][1], 10. * signConventions[addr][2],
                1000., 1000., 1000. ]
