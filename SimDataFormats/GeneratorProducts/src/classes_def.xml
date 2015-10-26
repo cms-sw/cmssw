@@ -202,6 +202,11 @@
 	<class name="edm::Wrapper&lt;LHERunInfoProduct&gt;"/>
 	<class name="edm::Wrapper&lt;LHEEventProduct&gt;"/>
 
+<class name="LHEEventProductLite" ClassVersion="-1">
+    <version ClassVersion="-1" checksum="1637646414"/>
+</class>
+<class name="edm::Wrapper&lt;LHEEventProductLite&gt;"/>
+
 <!--needed for backward compatibility between HepMC 2.06.xx and 2.05.yy-->
 <ioread sourceClass = "HepMC::Polarization" version="[1-10]" targetClass="HepMC::Polarization" source = "" target="m_defined">
    <![CDATA[m_defined=true;
