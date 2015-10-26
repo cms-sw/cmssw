@@ -1,5 +1,7 @@
 # https://cms-conddb.cern.ch/browser/#search
 
+snapshotTime = "9999-12-31 23:59:59.000"
+
 l1Menus= {
     'Fake'         : 'L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc',
     'FULL'         : 'L1Menu_Collisions2015_25nsStage1_v5',
@@ -17,7 +19,7 @@ l1Menus= {
 }
 
 for key,val in l1Menus.iteritems():
-    l1Menus[key] = (val+',L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_CONDITIONS',)
+    l1Menus[key] = (val+',L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_CONDITIONS,,'+snapshotTime,)
 
 hltGTs = {
 
