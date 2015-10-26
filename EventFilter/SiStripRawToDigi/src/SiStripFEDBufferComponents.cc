@@ -730,7 +730,7 @@ namespace sistrip {
         return READOUT_MODE_INVALID;
       }
     }
-  }   
+  }
 
   TrackerSpecialHeader& TrackerSpecialHeader::setBufferFormat(const FEDBufferFormat newBufferFormat)
   {

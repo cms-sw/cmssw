@@ -72,7 +72,7 @@ namespace sistrip {
     zs_work_digis_.reserve(localRA.upper());
     // Reserve space in bad module list
     detids.reserve(100);
- 
+  
     // Check if FEDs found in cabling map and event data
     if ( edm::isDebugEnabled() ) {
       if ( cabling.fedIds().empty() ) {
@@ -104,7 +104,7 @@ namespace sistrip {
 
       // ignore trigger FED
       if ( *ifed == triggerFedId_ ) { continue;  }
-
+    
       // Retrieve FED raw data for given FED 
       const FEDRawData& input = buffers.FEDData( static_cast<int>(*ifed) );
     
@@ -139,7 +139,7 @@ namespace sistrip {
       
       // get the cabling connections for this FED
       auto conns = cabling.fedConnections(*ifed);
-
+    
       // Check on FEDRawData pointer
       if ( !input.data() ) {
 	if ( edm::isDebugEnabled() ) {
@@ -157,7 +157,7 @@ namespace sistrip {
         }
 	continue;
       }	
-
+    
       // Check on FEDRawData size
       if ( !input.size() ) {
 	if ( edm::isDebugEnabled() ) {
@@ -255,7 +255,7 @@ namespace sistrip {
         
         // Check DetId is valid (if to be used as key)
 	if ( !useFedKey_ && ( !iconn->detId() || iconn->detId() == sistrip::invalid32_ ) ) { continue; }
-
+      
 	// Check FED channel
 	if (!buffer->channelGood(iconn->fedCh(),doAPVEmulatorCheck_)) {
           if (!unpackBadChannels_ || !(buffer->fePresent(iconn->fedCh()/FEDCH_PER_FEUNIT) && buffer->feEnabled(iconn->fedCh()/FEDCH_PER_FEUNIT)) ) {
@@ -322,6 +322,7 @@ namespace sistrip {
  	      }
  	    }
  	  }
+
 	}
 
 	else if (!legacy_ &&
@@ -439,18 +440,6 @@ namespace sistrip {
           if ( packet_code == PACKET_CODE_VIRGIN_RAW ) {
             sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()));
 	    while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
-            if ( !samples.empty() ) { 
-              Registry regItem(key, 256*ipair, virgin_work_digis_.size(), samples.size());
-	      uint16_t physical;
-	      uint16_t readout; 
-	      for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
-	        physical = i%128;
-	        readoutOrder( physical, readout );                 // convert index from physical to readout order
-	        (i/128) ? readout=readout*2+1 : readout=readout*2; // un-multiplex data
-	        virgin_work_digis_.push_back(  SiStripRawDigi( samples[readout] ) );
-	      }
-	      virgin_work_registry_.push_back( regItem );
-            }
           }
           else {
             if ( packet_code == PACKET_CODE_VIRGIN_RAW10 ) {
@@ -462,25 +451,18 @@ namespace sistrip {
               sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()), 8);
 	      while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
             }
-            /*if ( !samples.empty() ) {
-              Registry regItem(key, 256*ipair, virgin_work_digis_.size(), samples.size());
-              for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
-                virgin_work_digis_.push_back(  SiStripRawDigi( samples[i] ) );
-              }
-              virgin_work_registry_.push_back( regItem );
-            }*/
-            if ( !samples.empty() ) {
-              Registry regItem(key, 256*ipair, virgin_work_digis_.size(), samples.size());
-              uint16_t physical;
-              uint16_t readout;
-              for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
-                physical = i%128;
-                readoutOrder( physical, readout );                 // convert index from physical to readout order
-                (i/128) ? readout=readout*2+1 : readout=readout*2; // un-multiplex data
-                virgin_work_digis_.push_back(  SiStripRawDigi( samples[readout] ) );
-              }
-              virgin_work_registry_.push_back( regItem );
-            }
+          }
+          if ( !samples.empty() ) { 
+            Registry regItem(key, 256*ipair, virgin_work_digis_.size(), samples.size());
+	    uint16_t physical;
+	    uint16_t readout; 
+	    for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
+	      physical = i%128;
+	      readoutOrder( physical, readout );                 // convert index from physical to readout order
+	      (i/128) ? readout=readout*2+1 : readout=readout*2; // un-multiplex data
+	      virgin_work_digis_.push_back(  SiStripRawDigi( samples[readout] ) );
+	    }
+	    virgin_work_registry_.push_back( regItem );
           }
 	} 
     
@@ -687,27 +669,6 @@ namespace sistrip {
 	it = it2;
       }
 
-/*      std::sort( virgin_work_registry_.begin(), virgin_work_registry_.end() );
-      std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
-      sorted_and_merged.reserve(  std::min(virgin_work_registry_.size(), size_t(17000)) );
-
-      bool errorInData = false;
-      std::vector<Registry>::iterator it = virgin_work_registry_.begin(), it2 = it+1, end = virgin_work_registry_.end();
-      while (it < end) {
-        sorted_and_merged.push_back( edm::DetSet<SiStripRawDigi>(it->detid) );
-        std::vector<SiStripRawDigi> & digis = sorted_and_merged.back().data;
-        // first count how many digis we have
-        size_t len = it->length;
-        for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { len += it2->length; }
-        // reserve memory 
-        digis.reserve(len);
-        // push them in
-        for (it2 = it+0; (it2 != end) && (it2->detid == it->detid); ++it2) {
-          digis.insert( digis.end(), & virgin_work_digis_[it2->index], & virgin_work_digis_[it2->index + it2->length] );
-        }
-        it = it2;
-      }
-*/
       // output error
       if (errorInData) edm::LogWarning("CorruptData") << "Some modules contained corrupted virgin raw data, and have been skipped in unpacking\n"; 
     
