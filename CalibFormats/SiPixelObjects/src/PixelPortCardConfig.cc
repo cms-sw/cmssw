@@ -1161,7 +1161,7 @@ unsigned int PixelPortCardConfig::getdeviceValuesForAddress(unsigned int address
 
 bool PixelPortCardConfig::containsDeviceAddress(unsigned int deviceAddress) const
 {
-	for ( std::vector<std::pair<unsigned int, unsigned int> >::const_iterator device_itr = device_.begin(); device_itr != device_.end(); device_itr++ )
+	for ( std::vector<std::pair<unsigned int, unsigned int> >::const_iterator device_itr = device_.begin(); device_itr != device_.end(); ++device_itr )
 	{
 		if ( device_itr->first == deviceAddress ) return true;
 	}

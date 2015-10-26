@@ -227,7 +227,7 @@ void DTNoiseComputation::endJob(){
   //compute the time constant
   for(map<DTLayerId, vector<TH2F*> >::const_iterator lHisto = theEvtMap.begin();
       lHisto != theEvtMap.end();
-      lHisto++) {
+      ++lHisto) {
     for(int bin=1; bin<(*lHisto).second[0]->GetYaxis()->GetNbins(); bin++){
       int distanceEvt = 1;
       DTWireId wire((*lHisto).first, bin);
@@ -270,7 +270,7 @@ void DTNoiseComputation::endJob(){
     //fill the histo with the time constant as a function of the average noise
     for(map<DTWireId, double>::const_iterator AvNoise = theAverageNoise.begin();
 	AvNoise != theAverageNoise.end();
-	AvNoise++) {
+	++AvNoise) {
       DTWireId wire = (*AvNoise).first;
       theNoiseHisto->Fill((*AvNoise).second, theTimeConstant[wire]);
       cout<<"Layer: "<<getLayerName(wire.layerId())<<"  wire: "<<wire.wire()<<endl;
@@ -287,7 +287,7 @@ void DTNoiseComputation::endJob(){
   double integratedNoise, bin, halfBin, maxBin;
   for(map<DTSuperLayerId, TH1F*>::const_iterator AvNoiseHisto = AvNoisePerSuperLayer.begin();
       AvNoiseHisto != AvNoisePerSuperLayer.end();
-      AvNoiseHisto++) {
+      ++AvNoiseHisto) {
     integratedNoise=0;
     numBin = (*AvNoiseHisto).second->GetXaxis()->GetNbins();
     maxBin = (*AvNoiseHisto).second->GetXaxis()->GetXmax();
@@ -306,7 +306,7 @@ void DTNoiseComputation::endJob(){
   // histos with the integrated noise per chamber
   for(map<DTChamberId, TH1F*>::const_iterator AvNoiseHisto = AvNoisePerChamber.begin();
       AvNoiseHisto != AvNoisePerChamber.end();
-      AvNoiseHisto++) {
+      ++AvNoiseHisto) {
     integratedNoise=0;
     numBin = (*AvNoiseHisto).second->GetXaxis()->GetNbins();
     maxBin = (*AvNoiseHisto).second->GetXaxis()->GetXmax();
@@ -374,13 +374,13 @@ void DTNoiseComputation::endJob(){
   //write on file the noisy plots
   for(map<pair<int,int>, TH1F*>::const_iterator nCell = noisyC.begin();
       nCell != noisyC.end();
-      nCell++) {
+      ++nCell) {
     theNewFile->cd();
     (*nCell).second->Write();
   }
   for(map<pair<int,int>, TH1F*>::const_iterator somehownCell = someHowNoisyC.begin();
       somehownCell != someHowNoisyC.end();
-      somehownCell++) {
+      ++somehownCell) {
     theNewFile->cd();
     (*somehownCell).second->Write();
   }

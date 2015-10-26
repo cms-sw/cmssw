@@ -116,7 +116,7 @@ void DTTPAnalyzer::analyze(const edm::Event & event, const edm::EventSetup& setu
     // Loop over all digis in the given layer
     for (DTDigiCollection::const_iterator digi = digiRange.first;
 	 digi != digiRange.second;
-	 digi++) {
+	 ++digi) {
        const DTWireId wireId( layerId, (*digi).wire() );
 
        double t0 = (*digi).countsTDC();
