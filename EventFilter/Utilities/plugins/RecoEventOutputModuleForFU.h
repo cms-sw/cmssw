@@ -61,6 +61,7 @@ namespace evf {
     StringJ inputFiles_;
     IntJ fileAdler32_; 
     StringJ transferDestination_; 
+    IntJ hltErrorEvents_; 
     boost::shared_ptr<FastMonitor> jsonMonitor_;
     evf::FastMonitoringService *fms_;
     DataPointDefinition outJsonDef_;
@@ -85,6 +86,7 @@ namespace evf {
     inputFiles_(),
     fileAdler32_(1),
     transferDestination_(),
+    hltErrorEvents_(0),
     outBuf_(new unsigned char[1024*1024])
   {
     std::string baseRunDir = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
@@ -122,6 +124,7 @@ namespace evf {
     inputFiles_.setName("InputFiles");
     fileAdler32_.setName("FileAdler32");
     transferDestination_.setName("TransferDestination");
+    hltErrorEvents_.setName("HLTErrorEvents");
 
     outJsonDef_.setDefaultGroup("data");
     outJsonDef_.addLegendItem("Processed","integer",DataPointDefinition::SUM);
@@ -133,6 +136,7 @@ namespace evf {
     outJsonDef_.addLegendItem("InputFiles","string",DataPointDefinition::CAT);
     outJsonDef_.addLegendItem("FileAdler32","integer",DataPointDefinition::ADLER32);
     outJsonDef_.addLegendItem("TransferDestination","string",DataPointDefinition::SAME);
+    outJsonDef_.addLegendItem("HLTErrorEvents","integer",DataPointDefinition::SUM);
     std::stringstream tmpss,ss;
     tmpss << baseRunDir << "/open/" << "output_" << getpid() << ".jsd";
     ss << baseRunDir << "/" << "output_" << getpid() << ".jsd";
@@ -161,6 +165,7 @@ namespace evf {
     jsonMonitor_->registerGlobalMonitorable(&inputFiles_,false);
     jsonMonitor_->registerGlobalMonitorable(&fileAdler32_,false);
     jsonMonitor_->registerGlobalMonitorable(&transferDestination_,false);
+    jsonMonitor_->registerGlobalMonitorable(&hltErrorEvents_,false);
     jsonMonitor_->commit(nullptr);
 
   }
