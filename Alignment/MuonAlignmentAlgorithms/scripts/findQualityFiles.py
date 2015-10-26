@@ -426,9 +426,9 @@ infotofile.append("### %s\n" % str(uniq_list_of_runs))
 
 
 # prevent against duplication due to the fact now a file can have events from several runs
-files_events = zip(list_of_files, list_of_numevents)
+files_events = list(zip(list_of_files, list_of_numevents))
 unique_files_events = list(set(files_events))
-list_of_files, list_of_numevents = map(list, zip(*unique_files_events))
+list_of_files, list_of_numevents = map(list, list(zip(*unique_files_events)))
 total_numevents = sum( map(int, list_of_numevents) )
 
 print "### total number of events in those "+str(len(uniq_list_of_runs))+" runs = "+str(total_numevents)

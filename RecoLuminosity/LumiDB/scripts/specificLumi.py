@@ -27,7 +27,7 @@ def getFillFromDB(schema,fillnum):
     fillrundict=lumiCalcAPI.fillrunMap(schema,fillnum)
     if len(fillrundict)>0:
         runs=fillrundict.values()[0]
-        runlsdict=dict(zip(runs,[None]*len(runs)))
+        runlsdict=dict(list(zip(runs,[None]*len(runs))))
         runresult=lumiCalcAPI.runsummary(schema,runlsdict)    
         for perrundata in runresult:
             runtimesInFill[perrundata[0]]=perrundata[7]
@@ -251,7 +251,7 @@ def getSpecificLumi(schema,fillnum,inputdir,dataidmap,normmap,xingMinLum=0.0,amo
     runtimesInFill=getFillFromDB(schema,fillnum)#{runnum:starttimestr}
     runlist=runtimesInFill.keys()
     if not runlist: return fillbypos
-    irunlsdict=dict(zip(runlist,[None]*len(runlist)))
+    irunlsdict=dict(list(zip(runlist,[None]*len(runlist))))
     #prirunlsdict
     GrunsummaryData=lumiCalcAPI.runsummaryMap(session.nominalSchema(),irunlsdict)
     lumidetails=lumiCalcAPI.deliveredLumiForIds(schema,irunlsdict,dataidmap,GrunsummaryData,beamstatusfilter=None,normmap=normmap,withBXInfo=True,bxAlgo=bxAlgo,xingMinLum=xingMinLum,withBeamIntensity=True,lumitype='HF')

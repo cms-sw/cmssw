@@ -381,7 +381,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
             # boundary
             if boundaries[-1] != len (xVals) - 1:
                 boundaries.append( len (xVals) - 1 )
-            rangeList = zip (boundaries, boundaries[1:])
+            rangeList = list(zip (boundaries, boundaries[1:]))
             for thisRange in rangeList:
                 upper = thisRange[1]
                 lower = thisRange[0]
