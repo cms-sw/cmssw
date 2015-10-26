@@ -3429,8 +3429,8 @@ class CMSHarvester(object):
         input_name = self.input_name["datasets"]["use"]
         dataset_names = self.build_dataset_list(input_method,
                                                 input_name)
-        self.datasets_to_use = dict(zip(dataset_names,
-                                        [None] * len(dataset_names)))
+        self.datasets_to_use = dict(list(zip(dataset_names,
+                                        [None] * len(dataset_names))))
 
         self.logger.info("  found %d dataset(s) to process:" % \
                          len(dataset_names))
@@ -3455,8 +3455,8 @@ class CMSHarvester(object):
         input_name = self.input_name["datasets"]["ignore"]
         dataset_names = self.build_dataset_list(input_method,
                                                 input_name)
-        self.datasets_to_ignore = dict(zip(dataset_names,
-                                           [None] * len(dataset_names)))
+        self.datasets_to_ignore = dict(list(zip(dataset_names,
+                                           [None] * len(dataset_names))))
 
         self.logger.info("  found %d dataset(s) to ignore:" % \
                          len(dataset_names))
@@ -3528,7 +3528,7 @@ class CMSHarvester(object):
         input_method = self.input_method["runs"]["use"]
         input_name = self.input_name["runs"]["use"]
         runs = self.build_runs_list(input_method, input_name)
-        self.runs_to_use = dict(zip(runs, [None] * len(runs)))
+        self.runs_to_use = dict(list(zip(runs, [None] * len(runs))))
 
         self.logger.info("  found %d run(s) to process:" % \
                          len(runs))
@@ -3552,7 +3552,7 @@ class CMSHarvester(object):
         input_method = self.input_method["runs"]["ignore"]
         input_name = self.input_name["runs"]["ignore"]
         runs = self.build_runs_list(input_method, input_name)
-        self.runs_to_ignore = dict(zip(runs, [None] * len(runs)))
+        self.runs_to_ignore = dict(list(zip(runs, [None] * len(runs))))
 
         self.logger.info("  found %d run(s) to ignore:" % \
                          len(runs))
@@ -5456,9 +5456,9 @@ class CMSHarvester(object):
             self.logger.info("    output will go into `%s'" % \
                              castor_path_common)
 
-            castor_paths = dict(zip(runs,
+            castor_paths = dict(list(zip(runs,
                                     [self.create_castor_path_name_special(dataset_name, i, castor_path_common) \
-                                     for i in runs]))
+                                     for i in runs])))
             for path_name in castor_paths.values():
                 self.logger.debug("      %s" % path_name)
             self.datasets_information[dataset_name]["castor_path"] = \

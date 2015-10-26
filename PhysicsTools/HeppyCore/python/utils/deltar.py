@@ -49,7 +49,7 @@ def matchObjectCollection3 ( objects, matchCollection, deltaRMax = 0.3, filter =
     if len(objects)==0:
             return pairs
     if len(matchCollection)==0:
-            return dict( zip(objects, [None]*len(objects)) )
+            return dict( list(zip(objects, [None]*len(objects))) )
     # build all possible combinations
 
     objectCoords = [ (o.eta(),o.phi(),o) for o in objects ]
@@ -154,7 +154,7 @@ def matchObjectCollection( objects, matchCollection, deltaR2Max):
     if len(objects)==0:
         return pairs
     if len(matchCollection)==0:
-        return dict( zip(objects, [None]*len(objects)) )
+        return dict( list(zip(objects, [None]*len(objects))) )
     for object in objects:
         bm, dr2 = bestMatch( object, matchCollection )
         if dr2<deltaR2Max:
@@ -174,7 +174,7 @@ def matchObjectCollection2 ( objects, matchCollection, deltaRMax = 0.3 ):
     if len(objects)==0:
             return pairs
     if len(matchCollection)==0:
-            return dict( zip(objects, [None]*len(objects)) )
+            return dict( list(zip(objects, [None]*len(objects))) )
     # build all possible combinations
     allPairs = [(deltaR2 (object.eta(), object.phi(), match.eta(), match.phi()), (object, match)) for object in objects for match in matchCollection]
     allPairs.sort ()

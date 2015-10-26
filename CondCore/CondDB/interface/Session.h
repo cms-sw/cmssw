@@ -104,11 +104,11 @@ namespace cond {
       template <typename T>
       IOVEditor createIov( const std::string& tag, 
 			   cond::TimeType timeType, 
-			   cond::SynchronizationType synchronizationType=cond::OFFLINE );
+			   cond::SynchronizationType synchronizationType=cond::SYNCH_ANY );
       IOVEditor createIov( const std::string& payloadType, 
 			   const std::string& tag, 
 			   cond::TimeType timeType,
-			   cond::SynchronizationType synchronizationType=cond::OFFLINE );
+			   cond::SynchronizationType synchronizationType=cond::SYNCH_ANY );
 
       IOVEditor createIov( const std::string& payloadType, 
 			   const std::string& tag, 
@@ -118,7 +118,7 @@ namespace cond {
 
       IOVEditor createIovForPayload( const Hash& payloadHash, 
 				     const std::string& tag, cond::TimeType timeType,
-				     cond::SynchronizationType synchronizationType=cond::OFFLINE );
+				     cond::SynchronizationType synchronizationType=cond::SYNCH_ANY );
 
       void clearIov( const std::string& tag );
       
