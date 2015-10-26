@@ -368,7 +368,7 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
     mPFPhi           = ibooker.book1D("PFPhi","PF candidate #phi",70,-3.5,3.5);
     mPFVsPt          = ibooker.book1D("PFVsPt","Vs PF candidate p_{T}",1000,-500,500);
     mPFVsPtInitial   = ibooker.book1D("PFVsPtInitial","Vs background subtracted PF candidate p_{T}",1000,-500,500);
-    mPFVsPtInitial_HF   = ibooker.book2D("PFVsPtInitial_HF","Vs background subtracted PF candidate p_{T} versus HF", 600,0,6000,1000,-100,100);
+    mPFVsPtInitial_HF   = ibooker.book2D("PFVsPtInitial_HF","Vs background subtracted PF candidate p_{T} versus HF", 600,0,6000,1000,-500,500);
 
     mPFVsPtInitial_Barrel_Centrality_100_95   = ibooker.book1D("mPFVsPtInitial_Barrel_Centrality_100_95","Vs background subtracted PF candidate p_{T} versus HF Energy Dist. BTW100And95 Barrel",1000,-100,100);
     mPFVsPtInitial_Barrel_Centrality_95_90   = ibooker.book1D("mPFVsPtInitial_Barrel_Centrality_95_90","Vs background subtracted PF candidate p_{T} versus HF Energy Dist. BTW95And90 Barrel",1000,-100,100);
@@ -532,7 +532,7 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
     mPFCandpT_vs_eta_HadE_inHF = ibooker.book2D("PF_cand_HadEner_inHF",h2D_pfcand_etabins_vs_pt); // pf id - 6
     mPFCandpT_vs_eta_EME_inHF = ibooker.book2D("PF_cand_EMEner_inHF",h2D_pfcand_etabins_vs_pt); // pf id - 7
 
-    mPFCandpT_Barrel_Unknown = ibooker.book1D("mPFCandpT_Barrel_Unknown",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id ibooker.book1D(Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300)
+    mPFCandpT_Barrel_Unknown = ibooker.book1D("mPFCandpT_Barrel_Unknown",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id  - 0
     mPFCandpT_Barrel_ChargedHadron = ibooker.book1D("mPFCandpT_Barrel_ChargedHadron",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 1 
     mPFCandpT_Barrel_electron = ibooker.book1D("mPFCandpT_Barrel_electron",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 2
     mPFCandpT_Barrel_muon = ibooker.book1D("mPFCandpT_Barrel_muon",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 3
@@ -541,7 +541,7 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
     mPFCandpT_Barrel_HadE_inHF = ibooker.book1D("mPFCandpT_Barrel_HadE_inHF",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 6
     mPFCandpT_Barrel_EME_inHF = ibooker.book1D("mPFCandpT_Barrel_EME_inHF",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 7
     
-    mPFCandpT_Endcap_Unknown = ibooker.book1D("mPFCandpT_Endcap_Unknown",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id ibooker.book1D(Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300)
+    mPFCandpT_Endcap_Unknown = ibooker.book1D("mPFCandpT_Endcap_Unknown",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 0
     mPFCandpT_Endcap_ChargedHadron = ibooker.book1D("mPFCandpT_Endcap_ChargedHadron",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 1 
     mPFCandpT_Endcap_electron = ibooker.book1D("mPFCandpT_Endcap_electron",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 2
     mPFCandpT_Endcap_muon = ibooker.book1D("mPFCandpT_Endcap_muon",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 3
@@ -550,7 +550,7 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
     mPFCandpT_Endcap_HadE_inHF = ibooker.book1D("mPFCandpT_Endcap_HadE_inHF",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 6
     mPFCandpT_Endcap_EME_inHF = ibooker.book1D("mPFCandpT_Endcap_EME_inHF",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 7
 
-    mPFCandpT_Forward_Unknown = ibooker.book1D("mPFCandpT_Forward_Unknown",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id ibooker.book1D(Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300)
+    mPFCandpT_Forward_Unknown = ibooker.book1D("mPFCandpT_Forward_Unknown",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id - 0
     mPFCandpT_Forward_ChargedHadron = ibooker.book1D("mPFCandpT_Forward_ChargedHadron",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id - 1 
     mPFCandpT_Forward_electron = ibooker.book1D("mPFCandpT_Forward_electron",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id - 2
     mPFCandpT_Forward_muon = ibooker.book1D("mPFCandpT_Forward_muon",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id - 3
@@ -704,24 +704,12 @@ JetAnalyzer_HeavyIons::~JetAnalyzer_HeavyIons() {}
 //------------------------------------------------------------------------------
 void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 {
+
+  // switch(mEvent.id().event() == 15296770)
+  // case 1:
+  //   break;
+
   // Get the primary vertices
-  //----------------------------------------------------------------------------
-  //cout << "1111111111111111111111111 Begin Event 11111111111111111111111111111 L464 " << endl;
-  //int event = 0;
-  //int run = 0;
-  //int lumi = 0;
-
-  //cout << "Event = " << mEvent.id().event() << endl;
-
-  switch(mEvent.id().event() == 15296770)
-  case 1:
-    break;
-
-
-  //cout << "run = " <<  mEvent.id().run() << endl;
-  //cout << "lumi = " <<  mEvent.id().luminosityBlock() << endl;
-
-
   edm::Handle<vector<reco::Vertex> > pvHandle;
   mEvent.getByToken(pvToken_, pvHandle);
   reco::Vertex::Point vtx(0,0,0);
@@ -755,7 +743,6 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
     }
 
   mNvtx->Fill(nGoodVertices);
-  //cout << "L499 Filling a vertex " << endl;
 
   // Get the Jet collection
   //----------------------------------------------------------------------------
@@ -778,7 +765,6 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
   edm::Handle<std::vector<float>> vn_;
 
   edm::Handle<reco::Centrality> cent;
-  //cout << "L522, isCaloJet = " << isCaloJet << " isJPTJet = " << isJPTJet << " isPFJet = " << isPFJet << " RecoJet.size() = " << recoJets.size() <<  endl;
   if (isCaloJet) mEvent.getByToken(caloJetsToken_, caloJets);
   if (isJPTJet)  mEvent.getByToken(jptJetsToken_, jptJets);
   if (isPFJet) {  
@@ -798,7 +784,6 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
   // get the centrality 
   mEvent.getByToken(centralityToken_, cent);
 
-  //cout << "L542 filling HF" << endl;
   mHF->Fill(cent->EtHFtowerSum());
   Float_t HF_energy = cent->EtHFtowerSum();
 
@@ -826,7 +811,6 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
   vector <float> tempVector;
   numbers.clear();
   tempVector.clear();
-  //cout << "L569 Just Defined vectors (numbers) and (tempVector) " << endl;
 
   if(isCaloJet){
 
@@ -1040,22 +1024,14 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
 
     }
 
-    vector<vector <float> > PF_Space(1,vector<float>(3)); //MZ
-
-
-
-    //cout << "L785--------------Start loop over pfCandidates" << endl;    
-    //cout << "number pfCandidates = " << pfCandidateColl->size() << endl;    
+    vector<vector <float> > PF_Space(1,vector<float>(3)); 
 
     for(unsigned icand=0;icand<pfCandidateColl->size(); icand++)
       {
-        //cout << "L793, looping inside pfCandidate" << endl;
         const reco::PFCandidate pfCandidate = pfCandidateColl->at(icand);
         reco::CandidateViewRef ref(pfcandidates_,icand);
-        ////cout << "test do we have all pfCandidates?" << endl;
         if(pfCandidate.pt() < 5) continue;
 
-        //cout << "test do we have  pfCandidates over 5 GeV?" << endl;
         if(std::string("Vs")==UEAlgo) 
 	  {
 
@@ -1067,13 +1043,9 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
 	  }
 
         NPFpart++;
-        //cout << "L818 partial number of PF Candidates = " << NPFpart << endl;
         pfPt = pfCandidate.pt();
-        //cout << "original pfPt = " << pfPt << endl;
         pfEta = pfCandidate.eta();
-        //cout << "original pfEta = " << pfEta << endl;  
         pfPhi = pfCandidate.phi();
-        //cout << "original pfPhi = " << pfPhi << endl;  
 	pfID = pfCandidate.particleId();
 
 	bool isBarrel = false; 
@@ -1090,67 +1062,53 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
 	  if(isBarrel) mPFCandpT_Barrel_Unknown->Fill(pfPt);
 	  if(isEndcap) mPFCandpT_Endcap_Unknown->Fill(pfPt);
 	  if(isForward) mPFCandpT_Forward_Unknown->Fill(pfPt);
-	  break;
 	case 1 :
 	  mPFCandpT_vs_eta_ChargedHadron->Fill(pfPt, pfEta);
 	  if(isBarrel) mPFCandpT_Barrel_ChargedHadron->Fill(pfPt);
 	  if(isEndcap) mPFCandpT_Endcap_ChargedHadron->Fill(pfPt);
 	  if(isForward) mPFCandpT_Forward_ChargedHadron->Fill(pfPt);
-	  break;
 	case 2 :
 	  mPFCandpT_vs_eta_electron->Fill(pfPt, pfEta);
 	  if(isBarrel) mPFCandpT_Barrel_electron->Fill(pfPt);
 	  if(isEndcap) mPFCandpT_Endcap_electron->Fill(pfPt);
 	  if(isForward) mPFCandpT_Forward_electron->Fill(pfPt);
-	  break;
 	case 3 :
 	  mPFCandpT_vs_eta_muon->Fill(pfPt, pfEta);
 	  if(isBarrel) mPFCandpT_Barrel_muon->Fill(pfPt);
 	  if(isEndcap) mPFCandpT_Endcap_muon->Fill(pfPt);
 	  if(isForward) mPFCandpT_Forward_muon->Fill(pfPt);
-	  break;
 	case 4 :
 	  mPFCandpT_vs_eta_photon->Fill(pfPt, pfEta);
 	  if(isBarrel) mPFCandpT_Barrel_photon->Fill(pfPt);
 	  if(isEndcap) mPFCandpT_Endcap_photon->Fill(pfPt);
 	  if(isForward) mPFCandpT_Forward_photon->Fill(pfPt);
-	  break;
 	case 5 :
 	  mPFCandpT_vs_eta_NeutralHadron->Fill(pfPt, pfEta);
 	  if(isBarrel) mPFCandpT_Barrel_NeutralHadron->Fill(pfPt);
 	  if(isEndcap) mPFCandpT_Endcap_NeutralHadron->Fill(pfPt);
 	  if(isForward) mPFCandpT_Forward_NeutralHadron->Fill(pfPt);
-	  break;
 	case 6 :
 	  mPFCandpT_vs_eta_HadE_inHF->Fill(pfPt, pfEta);
 	  if(isBarrel) mPFCandpT_Barrel_HadE_inHF->Fill(pfPt);
 	  if(isEndcap) mPFCandpT_Endcap_HadE_inHF->Fill(pfPt);
 	  if(isForward) mPFCandpT_Forward_HadE_inHF->Fill(pfPt);
-	  break;
 	case 7 :
 	  mPFCandpT_vs_eta_EME_inHF->Fill(pfPt, pfEta);
 	  if(isBarrel) mPFCandpT_Barrel_EME_inHF->Fill(pfPt);
 	  if(isEndcap) mPFCandpT_Endcap_EME_inHF->Fill(pfPt);
 	  if(isForward) mPFCandpT_Forward_EME_inHF->Fill(pfPt);
-	  break;	 	  
 	}
 	
 	
-        //if(vsPtInitial > 0.0)
-	//cout << "L850 vsPtInitial = " << vsPtInitial << endl;
-        //cout << "L851 vsPt = " << vsPt << endl;
         //Fill 2d vector matrix
-
         tempVector.push_back(pfPt);
         tempVector.push_back(pfEta);
         tempVector.push_back(pfPhi);
         tempVector.push_back(vsPtInitial);
         tempVector.push_back(vsPt);
-        //cout << "tempVector.size() = " << tempVector.size() << endl;
 
 
         numbers.push_back(tempVector);
-        //cout << "numbers.size() = " << numbers.size() << endl;
         tempVector.clear();
 
         for(size_t k = 0;k<nedge_pseudorapidity-1; k++)
@@ -1375,17 +1333,7 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
 
 
 
-        //   mPFDeltaR->Fill(pfDeltaR); //MZ
-        //   //cout << "pfDeltaR = " << pfDeltaR << endl;    
       }// pf candidate loop 
-    //cout << "End pf Candidate Loop " << endl;
-    //cout << "L860 numbers.size() = " << numbers.size() << endl;
-    //cout << "L890 vsPtInitial = " << vsPtInitial << endl;
-
-    //print elements of our 2d vector
-    for(size_t iii = 0 ; iii < numbers.size() ; iii++)
-      //cout << "testing, PF_Pt =  " << numbers[iii][0] <<  "  testing, PF_eta = " << numbers[iii][1] << " testing, PF_phi = " << numbers[iii][2]  <<  " testing, vsPtInitial = " << numbers[iii][3] << " testing, vsPt = " << numbers[iii][4] << endl;    
-    // //cout << "testing, PF_Pt =  " << tempVector[iii] << endl;    
 
     for(int k = 0;k<nedge_pseudorapidity-1;k++){
 
@@ -1486,7 +1434,6 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
     mSumSquaredPFPt->Fill(Evt_SumSquaredPFPt);
 
     mNPFpart->Fill(NPFpart);
-    //cout << "Full number of NPFpart = " << NPFpart << endl;
     mSumpt->Fill(SumPt_value);
 
   }
@@ -1495,7 +1442,6 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
     {
       for (unsigned ijet=0; ijet<caloJets->size(); ijet++) 
 	{
-	  //cout << "one element added to recoJets! " << endl;
 	  recoJets.push_back((*caloJets)[ijet]);
 	} 
     }
@@ -1506,8 +1452,6 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
         recoJets.push_back((*jptJets)[ijet]);
     }
 
-  ////cout << "basicJets.size() = " << basicJets->size() << " pfJets->size() = " << pfJets->size() << endl;
-  ////cout << "basicJets.size() = " << pfJets->size() << endl;
   if (isPFJet) 
     {
       if(std::string("Pu")==UEAlgo)
@@ -1515,28 +1459,23 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
 	  for (unsigned ijet=0; ijet<basicJets->size();ijet++) 
 	    {
 	      recoJets.push_back((*basicJets)[ijet]);
-	      //cout << "L990 after isPFJet is true, filling recoJets with basicJets " << endl;
 	    }
 	}
       if(std::string("Vs")==UEAlgo){
         for (unsigned ijet=0; ijet<pfJets->size(); ijet++) 
 	  {
 	    recoJets.push_back((*pfJets)[ijet]);
-	    //cout << "L999 after isPFJet is true, filling recoJEts with pFJEts " << endl;
 	  }
       }
     }
-  //cout << "L1003 after deciding Pu or Vs we fill recoJets, recoJets.size() = " << recoJets.size() << endl; 
 
 
   if (isCaloJet && !caloJets.isValid()) 
     {
-      //cout << "L995 isCaloJet && !caloJEts.isValid have an issue" << endl;
       return;
     }
   if (isJPTJet  && !jptJets.isValid()) 
     {
-      //cout << "L1000 jptJEts return " << endl; 
       return;
     }
   if (isPFJet){
@@ -1547,26 +1486,14 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
 
   int nJet_40 = 0;
 
-  //    vector<vector <float> > PF_Space(1,vector<float>(3)); //MZ
-
-
-  //cout << "L1039, before filling mNJets, recoJets.size() = " << recoJets.size() << endl;
   mNJets->Fill(recoJets.size());
 
-  //cout << "L1019 Start RecoJets loop, recoJets.size() = " << recoJets.size() << endl;
-  //cout << "mRecoJetPtThreshold = " << mRecoJetPtThreshold << endl;
-
-  // //cout << "Original number of JetReco = " << recoJets.size() << endl; 
-
   for (unsigned ijet=0; ijet<recoJets.size(); ijet++) {
-    //cout << "L1025 22222222222222222222222 inside recoJets loop 222222222222222222222222222222222222" << endl; 
     if (recoJets[ijet].pt() > mRecoJetPtThreshold) {
       //counting forward and barrel jets
-      //cout << "index: "<<  ijet << " recoJets pT = " << recoJets[ijet].pt() << " recoJets phi = " << recoJets[ijet].phi() << " recoJets eta = " << recoJets[ijet].eta()  <<  endl;      
       // get an idea of no of jets with pT>40 GeV 
       if(recoJets[ijet].pt() > 40)
 	nJet_40++;
-      //cout << "Partial number of RecoJEts pT > 40 GeV = " << nJet_40 << endl;
       if (mEta) mEta->Fill(recoJets[ijet].eta());
       if (mjetpileup) mjetpileup->Fill(recoJets[ijet].pileup());
       if (mJetArea)      mJetArea     ->Fill(recoJets[ijet].jetArea());
@@ -1579,10 +1506,7 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
 
       for(size_t iii = 0 ; iii < numbers.size() ; iii++)
         {
-          //cout << "L1048 3333333333333333333333333 inside PF again for each RecoJet " << endl;
-          //    //cout << "testing, PF_Pt =  " << numbers[iii][0] <<  "  testing, PF_eta = " << numbers[iii][1] << " testing, PF_phi = " << numbers[iii][2]  <<  endl;
           pfDeltaR = sqrt((numbers[iii][2]-recoJets[ijet].phi())*(numbers[iii][2]-recoJets[ijet].phi()) + (numbers[iii][1]-recoJets[ijet].eta())*(numbers[iii][1]-recoJets[ijet].eta())); //MZ
-          //cout << "for iii = " << iii << " pfDeltaR = " << pfDeltaR << endl;
 
           mPFVsPtInitialDeltaR_pTCorrected->Fill(pfDeltaR,numbers[iii][3]/recoJets[ijet].pt()); //MZ
 
@@ -1595,10 +1519,8 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
           mPFDeltaR_Scaled_R->Fill(pfDeltaR,1. / pow(pfDeltaR,2)); //MZ
           //mPFDeltaR_pTCorrected->Fill(pfDeltaR,numbers[iii][0]/recoJets[ijet].pt()); //MZ
           mPFDeltaR_pTCorrected->Fill(pfDeltaR,numbers[iii][0]/recoJets[ijet].pt()); //MZ
-          //cout << "L1120, after filling,  numbers[iii][0] = " << numbers[iii][0] << endl;
 
           //mPFVsPtInitialDeltaR_pTCorrected->Fill(pfDeltaR,numbers[iii][3]/recoJets[ijet].pt()); //MZ
-          //cout << "L1123, after filling,  numbers[iii][3] = " << numbers[iii][3] << endl;
 
           if(recoJets[ijet].pt() > 20 && recoJets[ijet].pt() < 30)
 	    {
@@ -1646,22 +1568,14 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
 	    }
 
         }
-      //cout << "L1057  end of iii loops, numbers.size() = " << numbers.size() << endl;
 
     }
-    // //cout << "L1058 end of iii loops, numbers.size() = " << numbers.size() << endl;
-    //cout << "Total number of RecoJets > 40 = " << nJet_40 << endl;
     //cout << "End RecoJets loop" << endl; 
     if (mNJets_40) 
       mNJets_40->Fill(nJet_40); 
 
-    //    numbers.clear();  
   } // end recojet loop 222
 
   numbers.clear();
-  //cout << "L1082 right before end of module, numbers.size() = " << numbers.size() << endl;
-  //cout << "L1085 right before end of module, number pfCandidates = " << pfCandidateColl->size() << endl;
-
-
 
 }
