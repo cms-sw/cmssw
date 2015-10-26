@@ -130,7 +130,7 @@ miscalibExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
   reco::SuperClusterCollection::const_iterator superClusterIt;
-  for(superClusterIt=correctedHybridSuperClusters->begin(); superClusterIt!=correctedHybridSuperClusters->end(); superClusterIt++ )
+  for(superClusterIt=correctedHybridSuperClusters->begin(); superClusterIt!=correctedHybridSuperClusters->end();++superClusterIt )
   {
 
   scEnergy->Fill(superClusterIt->energy());

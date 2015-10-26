@@ -127,19 +127,19 @@ void ElectronStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     unsigned int indx;
     if (verbose>2) {
       edm::PCaloHitContainer::const_iterator ihit;
-      for (ihit=caloHitEB->begin(),indx=0; ihit!=caloHitEB->end(); ihit++,indx++) {
+      for (ihit=caloHitEB->begin(),indx=0; ihit!=caloHitEB->end();++ihit,++indx) {
 	EBDetId id = ihit->id();
 	std::cout << "Hit[" << indx << "] " << id << " E " << ihit->energy() 
 		  << " T " << ihit->time() << std::endl;
       }
-      for (ihit=caloHitEE->begin(),indx=0; ihit!=caloHitEE->end(); ihit++,indx++) {
+      for (ihit=caloHitEE->begin(),indx=0; ihit!=caloHitEE->end();++ihit,++indx) {
 	EEDetId id = ihit->id();
 	std::cout << "Hit[" << indx << "] " << id << " E " << ihit->energy() 
 		  << " T " << ihit->time() << std::endl;
       }
     }
     edm::SimTrackContainer::const_iterator simTrkItr=SimTk->begin();
-    for (indx=0; simTrkItr!= SimTk->end(); simTrkItr++,indx++) {
+    for (indx=0; simTrkItr!= SimTk->end();++simTrkItr,++indx) {
       if (verbose>0) std::cout << "ElectronStudy: Track[" << indx << "] ID "
 			       << simTrkItr->trackId() << " type " 
 			       << simTrkItr->type()    << " charge " 

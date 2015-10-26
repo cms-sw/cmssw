@@ -335,7 +335,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   // get handles to calogeometry and calotopology
   if (!(vtx.isValid()))                  return;
   reco::VertexCollection::const_iterator firstGoodVertex = vtx->end();
-  for (reco::VertexCollection::const_iterator it = vtx->begin(); it != firstGoodVertex; it++) {
+  for (reco::VertexCollection::const_iterator it = vtx->begin(); it != firstGoodVertex;++it) {
     if (isGoodVertex(*it)) {
       firstGoodVertex = it;
       break;

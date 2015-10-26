@@ -53,7 +53,7 @@ void CCAmap::map(int rbx, int rm, int card, int cca, int ccaq,
   std::vector<DataMap>::const_iterator i;
   int sad;
 
-for (i=vm.begin();i!=vm.end();i++){
+for (i=vm.begin();i!=vm.end();++i){
   
     if ((rbx==i->m_rbx)&&(rm==i->m_rm)&&(card==i->m_qie)&&(cca*2+ccaq==i->m_adc)){
       break;

@@ -522,7 +522,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 		    //get map of vectors of feds withing the layer of subdet of region
 		    const SiStripRegionCabling::ElementCabling fedVectorMap = regSubdetLayers[ilayer]; // vector of the fed
 		    SiStripRegionCabling::ElementCabling::const_iterator itFedMap = fedVectorMap.begin();
-		    for( ; itFedMap!=fedVectorMap.end(); itFedMap++){
+		    for( ; itFedMap!=fedVectorMap.end();++itFedMap){
 		      for (uint32_t op=0; op<(itFedMap->second).size(); op++){
 			int hitFED = (itFedMap->second)[op].fedId(); 
 			if(hitFED < FEDNumbering::MINSiStripFEDID || hitFED > FEDNumbering::MAXSiStripFEDID) continue;

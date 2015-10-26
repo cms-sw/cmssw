@@ -90,7 +90,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
   GsfElectronCoreRefProd rEleCore = e.getRefBeforePut<GsfElectronCoreCollection>();
   edm::Ref<GsfElectronCoreCollection>::key_type idxEleCore = 0;
   
-  for(reco::GsfElectronCollection::const_iterator eleIt = eleHandle->begin(); eleIt != eleHandle->end(); eleIt++)
+  for(reco::GsfElectronCollection::const_iterator eleIt = eleHandle->begin(); eleIt != eleHandle->end();++eleIt)
     {
       float DeltaRMineleSCbarrel(0.15); //initial minDeltaR
       float DeltaRMineleSCendcap(0.15); 
@@ -106,7 +106,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
       // first loop is on EB superClusters
       iSC=0;
       for(reco::SuperClusterCollection::const_iterator scIt = superClusterEBHandle->begin();
-	  scIt != superClusterEBHandle->end(); scIt++, iSC++){
+	  scIt != superClusterEBHandle->end();++scIt,++iSC){
 
 	double DeltaReleSC = sqrt(reco::deltaR2(eleIt->eta(), eleIt->phi(),
 						scIt->eta(), scIt->phi()));
@@ -130,7 +130,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
       // second loop is on EE superClusters
       iSC=0;
       for(reco::SuperClusterCollection::const_iterator scIt = superClusterEEHandle->begin();
-	  scIt != superClusterEEHandle->end(); scIt++, iSC++){
+	  scIt != superClusterEEHandle->end();++scIt,++iSC){
 #ifdef DEBUG	
 	std::cout << "EE: " << scIt - superClusterEEHandle->begin() << " " << iSC << " " << iscRef 
 		  << "\t" << std::setprecision(4) << scIt->energy() 

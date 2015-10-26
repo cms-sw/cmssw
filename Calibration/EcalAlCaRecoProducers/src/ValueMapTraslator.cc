@@ -129,7 +129,7 @@ ValueMapTraslator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    for(Map_t::const_iterator valueMap_itr = inputHandle->begin();
        valueMap_itr != inputHandle->end();
-       valueMap_itr++){
+      ++valueMap_itr){
      for(unsigned int i = 0; i < valueMap_itr.size(); i++){
 #ifdef DEBUG
        std::cout << valueMap_itr[i] << std::endl;
@@ -144,11 +144,11 @@ ValueMapTraslator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 #endif
    for(reco::GsfElectronCollection::const_iterator electronNew = referenceHandle->begin();
        electronNew!= referenceHandle->end();
-       electronNew++){
+      ++electronNew){
     
      for(reco::GsfElectronCollection::const_iterator electron = oldreferenceHandle->begin();
 	 electron!= oldreferenceHandle->end();
-	 electron++){
+	++electron){
        //if(electronNew->GsfTrackF
        if(electron->gsfTrack() != electronNew->gsfTrack()) continue; ///< requires that the track is the same, so I'm sure the electron object is the same. This to avoid the case when two electrons have the same eta and phi at the vtx 
        //if(fabs(electronNew->eta() - electron->eta())>0.0001) continue;

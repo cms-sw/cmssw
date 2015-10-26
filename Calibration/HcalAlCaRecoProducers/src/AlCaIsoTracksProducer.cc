@@ -426,7 +426,7 @@ AlCaIsoTracksProducer::select(edm::Handle<edm::TriggerResults>& triggerResults,
   std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
   unsigned int nTracks(0), nselTracks(0);
   for (trkDetItr = trkCaloDirections.begin(),nTracks=0; 
-       trkDetItr != trkCaloDirections.end(); trkDetItr++,nTracks++) {
+       trkDetItr != trkCaloDirections.end();++trkDetItr,++nTracks) {
     const reco::Track* pTrack = &(*(trkDetItr->trkItr));
     math::XYZTLorentzVector v4(pTrack->px(), pTrack->py(), 
 			       pTrack->pz(), pTrack->p());

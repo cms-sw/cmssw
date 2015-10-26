@@ -306,7 +306,7 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event, const edm::EventS
   bool pass=false;
   // select interesting EcalRecHits (barrel)
   EBRecHitCollection::const_iterator itb;
-  for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
+  for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end();++itb) {
     EBDetId hit = EBDetId(itb->id());
     float eta = barrelGeometry->getGeometry(hit)->getPosition().eta();
     float et = itb->energy()/cosh(eta);
@@ -354,7 +354,7 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event, const edm::EventS
 
   // select interesting EcalRecHits (endcaps)
   EERecHitCollection::const_iterator ite;
-  for (ite=endcapRecHitsHandle->begin(); ite!=endcapRecHitsHandle->end(); ite++) {
+  for (ite=endcapRecHitsHandle->begin(); ite!=endcapRecHitsHandle->end();++ite) {
     EEDetId hit = EEDetId(ite->id());
     float eta = abs(endcapGeometry->getGeometry(hit)->getPosition().eta());
     //float phi = endcapGeometry->getGeometry(hit)->getPosition().phi();

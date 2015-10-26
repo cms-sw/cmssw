@@ -126,7 +126,7 @@ void Pi0FixedMassWindowCalibration::endOfJob()
   Pi0CalibXMLwriter barrelWriter(EcalBarrel,99);
 
   std::vector<DetId>::const_iterator barrelIt=barrelCells.begin();
-  for (; barrelIt!=barrelCells.end(); barrelIt++) {
+  for (; barrelIt!=barrelCells.end();++barrelIt) {
     EBDetId eb(*barrelIt);
     int ieta = eb.ieta();
     int iphi = eb.iphi();
@@ -181,7 +181,7 @@ Pi0FixedMassWindowCalibration::endOfLoop(const edm::EventSetup& iSetup, unsigned
   Pi0CalibXMLwriter barrelWriter(EcalBarrel,iLoop+1);
 
   std::vector<DetId>::const_iterator barrelIt=barrelCells.begin();
-  for (; barrelIt!=barrelCells.end(); barrelIt++) {
+  for (; barrelIt!=barrelCells.end();++barrelIt) {
     EBDetId eb(*barrelIt);
     int ieta = eb.ieta();
     int iphi = eb.iphi();
@@ -261,7 +261,7 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
     // loop over all barrel crystals
     barrelCells = geometry.getValidDetIds(DetId::Ecal, EcalBarrel);
     std::vector<DetId>::const_iterator barrelIt;
-    for (barrelIt=barrelCells.begin(); barrelIt!=barrelCells.end(); barrelIt++) {
+    for (barrelIt=barrelCells.begin(); barrelIt!=barrelCells.end();++barrelIt) {
       EBDetId eb(*barrelIt);
       
       // get the initial calibration constants
@@ -302,7 +302,7 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
   event.getByLabel(ecalHitsProducer_, barrelHits_, pEcalRecHitBarrelCollection);
   const EcalRecHitCollection* ecalRecHitBarrelCollection = pEcalRecHitBarrelCollection.product();
   cout << " ECAL Barrel RecHits # "<< ecalRecHitBarrelCollection->size() <<endl;
-  for(EcalRecHitCollection::const_iterator aRecHitEB = ecalRecHitBarrelCollection->begin(); aRecHitEB != ecalRecHitBarrelCollection->end(); aRecHitEB++) {
+  for(EcalRecHitCollection::const_iterator aRecHitEB = ecalRecHitBarrelCollection->begin(); aRecHitEB != ecalRecHitBarrelCollection->end();++aRecHitEB) {
     //cout << " ECAL Barrel RecHit #,E,time,det,subdetid: "<<nRecHitsEB<<" "<<aRecHitEB->energy()<<" "<<aRecHitEB->time()<<" "<<aRecHitEB->detid().det()<<" "<<aRecHitEB->detid().subdetId()<<endl;
 
 
@@ -321,7 +321,7 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
 
   //  cout<<" Recalib size: "<<recalibEcalRecHitCollection->size()<<endl;
   int irecalib=0;
-  for(EcalRecHitCollection::const_iterator aRecHitEB = recalibEcalRecHitCollection->begin(); aRecHitEB != recalibEcalRecHitCollection->end(); aRecHitEB++) {
+  for(EcalRecHitCollection::const_iterator aRecHitEB = recalibEcalRecHitCollection->begin(); aRecHitEB != recalibEcalRecHitCollection->end();++aRecHitEB) {
     //cout << " [recalibrated] ECAL Barrel RecHit #,E,time,det,subdetid: "<<irecalib<<" "<<aRecHitEB->energy()<<" "<<aRecHitEB->time()<<" "<<aRecHitEB->detid().det()<<" "<<aRecHitEB->detid().subdetId()<<endl;
 
     //    EBDetId ebrhdetid = aRecHitEB->detid();
@@ -440,7 +440,7 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
 
 
   int iClus_recalib=0;
-  for(reco::BasicClusterCollection::const_iterator aClus = clusters_recalib.begin(); aClus != clusters_recalib.end(); aClus++) {
+  for(reco::BasicClusterCollection::const_iterator aClus = clusters_recalib.begin(); aClus != clusters_recalib.end();++aClus) {
     cout<<" CLUSTER [recalibration] : #,NHits,e,et,eta,phi,e2x2,e3x3,e5x5: "<<iClus_recalib<<" "<<aClus->size()<<" "<<aClus->energy()<<" "<<aClus->energy()*sin(aClus->position().theta())<<" "<<aClus->position().eta()<<" "<<aClus->position().phi()<<" "<<(*clustersshapes_p_recalib)[iClus_recalib].e2x2()<<" "<<(*clustersshapes_p_recalib)[iClus_recalib].e3x3()<<" "<<(*clustersshapes_p_recalib)[iClus_recalib].e5x5()<<endl; 
 
     eIslandBCEB[nIslandBCEB] = aClus->energy();
@@ -459,7 +459,7 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
     std::map<DetId, EcalRecHit>::iterator aHit;
 
     int irhcount=0;
-    for(hit = hits.begin(); hit != hits.end(); hit++)
+    for(hit = hits.begin(); hit != hits.end();++hit)
       {
         // need to get hit by DetID in order to get energy
         aHit = recHitsEB_map->find((*hit).first);

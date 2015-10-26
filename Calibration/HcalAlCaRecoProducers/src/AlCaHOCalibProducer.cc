@@ -486,7 +486,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   if (m_hotime && m_digiInput) {
     if ((*ho).size()>0) {
-      for (HODigiCollection::const_iterator j=(*ho).begin(); j!=(*ho).end(); j++){
+      for (HODigiCollection::const_iterator j=(*ho).begin(); j!=(*ho).end();++j){
 	HcalDetId id =(*j).id();
   	m_coder = (*conditions_).getHcalCoder(id);
 	m_shape = (*conditions_).getHcalShape(m_coder);
@@ -502,7 +502,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     }
     if ((*hbhe).size()>0) {
-      for (HBHEDigiCollection::const_iterator j=(*hbhe).begin(); j!=(*hbhe).end(); j++){
+      for (HBHEDigiCollection::const_iterator j=(*hbhe).begin(); j!=(*hbhe).end();++j){
 	HcalDetId id =(*j).id();
   	m_coder = (*conditions_).getHcalCoder(id);
 	m_shape = (*conditions_).getHcalShape(m_coder);
@@ -672,7 +672,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	iEvent.getByToken(tok_tower_, calotower);
 
 	for (CaloTowerCollection::const_iterator calt = calotower->begin();
-	     calt !=calotower->end(); calt++) {
+	     calt !=calotower->end();++calt) {
 	  //CMSSW_2_1_x	const math::XYZVector towermom = (*calt).momentum();
 	  double ith = (*calt).momentum().theta();
 	  double iph = (*calt).momentum().phi();
@@ -878,7 +878,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    
 	    if (m_digiInput) {
 	      if ((*hbhe).size() >0) {
-		for (HBHEDigiCollection::const_iterator j=(*hbhe).begin(); j!=(*hbhe).end(); j++){
+		for (HBHEDigiCollection::const_iterator j=(*hbhe).begin(); j!=(*hbhe).end();++j){
 		  //		  const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
 		  //		  HcalDetId id =digi.id();
 		  HcalDetId id =(*j).id();
@@ -926,7 +926,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      if ((*hbheht).size()>0) {
 		if(!(*hbheht).size()) throw (int)(*hbheht).size();
 		
-		for (HBHERecHitCollection::const_iterator j=(*hbheht).begin(); j!=(*hbheht).end(); j++){
+		for (HBHERecHitCollection::const_iterator j=(*hbheht).begin(); j!=(*hbheht).end();++j){
 		  //		  const HBHERecHit hbhehtrec = (const HBHERecHit)(*j);
 		  //		  HcalDetId id =hbhehtrec.id();
 		  HcalDetId id =(*j).id();
@@ -963,7 +963,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      double sumEt = 0;
 	      double sumE  = 0;
 	      
-	      for (HODigiCollection::const_iterator j=(*ho).begin(); j!=(*ho).end(); j++){
+	      for (HODigiCollection::const_iterator j=(*ho).begin(); j!=(*ho).end();++j){
 		//		const HODataFrame digi = (const HODataFrame)(*j);
 		//		HcalDetId id =digi.id();
 
@@ -1160,7 +1160,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    
 	  
 	  if ((*hoht).size()>0) {
-	    for (HORecHitCollection::const_iterator j=(*hoht).begin(); j!=(*hoht).end(); j++){
+	    for (HORecHitCollection::const_iterator j=(*hoht).begin(); j!=(*hoht).end();++j){
 	      //		const HORecHit hohtrec = (const HORecHit)(*j);
 	      //		HcalDetId id =hohtrec.id();
 	      HcalDetId id =(*j).id();
@@ -1231,7 +1231,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		int crphi = tmpphi + 6;
 		if (crphi >72) crphi -=72;
 		
-		for (HORecHitCollection::const_iterator jcr=(*hoht).begin(); jcr!=(*hoht).end(); jcr++){
+		for (HORecHitCollection::const_iterator jcr=(*hoht).begin(); jcr!=(*hoht).end();++jcr){
 		  const HORecHit reccr = (const HORecHit)(*jcr);
 		  HcalDetId idcr =reccr.id();
 		  int etacr= idcr.ieta();

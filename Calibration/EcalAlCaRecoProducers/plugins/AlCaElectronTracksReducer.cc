@@ -49,7 +49,7 @@ void AlCaElectronTracksReducer::produce (edm::Event& iEvent,
 
   reco::GsfElectronCollection::const_iterator eleIt;
 
-  for (eleIt=electronCollection->begin(); eleIt!=electronCollection->end(); eleIt++) {
+  for (eleIt=electronCollection->begin(); eleIt!=electronCollection->end();++eleIt) {
     // barrel
 #ifndef CMSSW42X
     TrackRef track = (eleIt-> closestTrack() ) ;

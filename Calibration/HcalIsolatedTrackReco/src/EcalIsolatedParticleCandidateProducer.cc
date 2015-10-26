@@ -132,7 +132,7 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
 
 //  std::cout<<"loop over l1taus"<<std::endl;
 
-  for (l1extra::L1JetParticleCollection::const_iterator tit=l1Taus->begin(); tit!=l1Taus->end(); tit++)
+  for (l1extra::L1JetParticleCollection::const_iterator tit=l1Taus->begin(); tit!=l1Taus->end();++tit)
 	{
 	double dphi=fabs(tit->phi()-phiTriggered);
 	if (dphi>3.1415926535) dphi=2*3.1415926535-dphi;
@@ -143,7 +143,7 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
 	double OutEnergy=0;
 	double InEnergy=0;
 //	std::cout<<" loops over rechits"<<std::endl;
-	for (EcalRecHitCollection::const_iterator eItr=ecalEB->begin(); eItr!=ecalEB->end(); eItr++)
+	for (EcalRecHitCollection::const_iterator eItr=ecalEB->begin(); eItr!=ecalEB->end();++eItr)
 		{
 		double phiD, R;
                 GlobalPoint pos = geo->getPosition(eItr->detid());
@@ -173,7 +173,7 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
 
                 }
 
-	for (EcalRecHitCollection::const_iterator eItr=ecalEE->begin(); eItr!=ecalEE->end(); eItr++)
+	for (EcalRecHitCollection::const_iterator eItr=ecalEE->begin(); eItr!=ecalEE->end();++eItr)
                 {
                 double phiD, R;
                 GlobalPoint pos = geo->getPosition(eItr->detid());

@@ -60,7 +60,7 @@ HitReCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByToken(tok_hbhe_,hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
-  for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++)
+  for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end();++hbheItr)
         {
            DetId id = hbheItr->detid();
            float recal; 
@@ -80,7 +80,7 @@ HitReCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HORecHitCollection> ho;
   iEvent.getByToken(tok_ho_,ho);
   const HORecHitCollection Hitho = *(ho.product());
-  for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
+  for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end();++hoItr)
         {
            DetId id = hoItr->detid();
            float recal; 
@@ -100,7 +100,7 @@ HitReCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HFRecHitCollection> hf;
   iEvent.getByToken(tok_hf_,hf);
   const HFRecHitCollection Hithf = *(hf.product());
-  for(HFRecHitCollection::const_iterator hfItr=Hithf.begin(); hfItr!=Hithf.end(); hfItr++)
+  for(HFRecHitCollection::const_iterator hfItr=Hithf.begin(); hfItr!=Hithf.end();++hfItr)
       {
            DetId id = hfItr->detid();
            float recal; 

@@ -277,7 +277,7 @@ if(calibAlgo_=="L3"){
  
  int icry=0;
  CalibrationCluster::CalibMap::iterator itmap;
- for (itmap=ReducedMap.begin(); itmap != ReducedMap.end();itmap++){
+ for (itmap=ReducedMap.begin(); itmap != ReducedMap.end();++itmap){
    
    newCalibs[icry] = solution[icry];
    
@@ -321,7 +321,7 @@ if(calibAlgo_=="L3"){
  }
  int icryp=0;
  CalibrationCluster::CalibMap::iterator itmapp;
- for (itmapp=ReducedMap.begin(); itmapp != ReducedMap.end();itmapp++){
+ for (itmapp=ReducedMap.begin(); itmapp != ReducedMap.end();++itmapp){
    
    newCalibs[icryp] = solutionNoCuts[icryp];
    float Compare2 =1.;   
@@ -365,7 +365,7 @@ EBDetId ElectronCalibration::findMaxHit(edm::Handle<EBRecHitCollection> &  phits
      int count=0;
      EBDetId save;
      float en_save=0;
-     for (it = ecrh.begin(); it != ecrh.end(); it++)
+     for (it = ecrh.begin(); it != ecrh.end();++it)
      {
        EBDetId p = EBDetId(it->id().rawId());
         if(it->energy()> en_save){
@@ -445,7 +445,7 @@ void ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   float highestElePt=0.;
   bool found=false;
-  for (eleIt=electronCollection->begin(); eleIt!=electronCollection->end(); eleIt++) {
+  for (eleIt=electronCollection->begin(); eleIt!=electronCollection->end();++eleIt) {
     //Comments
     if(fabs(eleIt->eta())>(maxeta_+3) * 0.0175) continue;
     if(eleIt->eta()<(mineta_-3) * 0.0175) continue;

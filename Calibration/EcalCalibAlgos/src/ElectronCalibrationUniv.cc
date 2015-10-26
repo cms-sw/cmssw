@@ -322,7 +322,7 @@ ElectronCalibrationUniv::endJob() {
  
 // fclose(MisCalibEndCap);
   std::map<DetId,float>::const_iterator itmap;
-  for (itmap = Univsolution.begin(); itmap != Univsolution.end(); itmap++){
+  for (itmap = Univsolution.begin(); itmap != Univsolution.end();++itmap){
     const DetId Id(itmap->first);
      if(Id.subdetId()==1){
       const EBDetId IChannelDetId(itmap->first);
@@ -642,7 +642,7 @@ ElectronCalibrationUniv::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   float highestElePt=0.;
   bool found=false;
-  for (eleIt=electronCollection->begin(); eleIt!=electronCollection->end(); eleIt++) {
+  for (eleIt=electronCollection->begin(); eleIt!=electronCollection->end();++eleIt) {
 
      if(fabs(eleIt->eta())>2.4) continue;
      //     if(eleIt->eta()<0.0) continue;

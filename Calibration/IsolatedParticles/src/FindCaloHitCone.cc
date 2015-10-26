@@ -12,7 +12,7 @@ namespace spr {
     std::vector<EcalRecHitCollection::const_iterator> hit;
   
     for (EcalRecHitCollection::const_iterator j=hits->begin(); 
-	 j!=hits->end(); j++) {
+	 j!=hits->end();++j) {
 
       bool keepHit = false;
     
@@ -45,7 +45,7 @@ namespace spr {
   
     if (doBarrel) {  
       for (EcalRecHitCollection::const_iterator j=barrelhits->begin(); 
-	   j!=barrelhits->end(); j++) {
+	   j!=barrelhits->end();++j) {
 
 	bool keepHit = false;
 	if (j->id().subdetId() == EcalBarrel) {
@@ -63,7 +63,7 @@ namespace spr {
     if (doEndcap) {  
     
       for (EcalRecHitCollection::const_iterator j=endcaphits->begin(); 
-	   j!=endcaphits->end(); j++) {
+	   j!=endcaphits->end();++j) {
       
 	bool keepHit = false;
       
@@ -89,7 +89,7 @@ namespace spr {
     std::vector<HBHERecHitCollection::const_iterator> hit;
     // Loop over Hcal RecHits
     for (HBHERecHitCollection::const_iterator j=hits->begin(); 
-	 j!=hits->end(); j++) {   
+	 j!=hits->end();++j) {   
       DetId detId(j->id());
       const GlobalPoint rechitPoint = geo->getPosition(detId);
       if (spr::getDistInPlaneTrackDir(hpoint1, trackMom, rechitPoint, debug) < dR) hit.push_back(j);
@@ -102,7 +102,7 @@ namespace spr {
 
     std::vector<edm::PCaloHitContainer::const_iterator> hit;  
     edm::PCaloHitContainer::const_iterator ihit;
-    for (ihit=hits->begin(); ihit!=hits->end(); ihit++) {
+    for (ihit=hits->begin(); ihit!=hits->end();++ihit) {
       DetId detId(ihit->id());
       const GlobalPoint rechitPoint = geo->getPosition(detId);
       if (spr::getDistInPlaneTrackDir(hpoint1, trackMom, rechitPoint, debug) < dR) {

@@ -89,7 +89,7 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID, edm::Event&
     edm::LogInfo("HcalIsoTrack") << "Track: eta/phi " << etaPhi.first << "/" << etaPhi.second << " pt:" << isoPixTrackRefs[p]->track()->pt() << " cone " << coneSize_ << "\n" << "rechit size EB/EE : " << ecalEB->size() << "/" << ecalEE->size() << " coneSize_: " << coneSize_;
 #endif
     if (etaAbs<1.7) {
-      for (EcalRecHitCollection::const_iterator eItr=ecalEB->begin(); eItr!=ecalEB->end(); eItr++) {
+      for (EcalRecHitCollection::const_iterator eItr=ecalEB->begin(); eItr!=ecalEB->end();++eItr) {
 	GlobalPoint pos = geo->getPosition(eItr->detid());
 	double      R   = reco::deltaR(pos.eta(),pos.phi(),etaPhi.first,etaPhi.second);
 	if (R < coneSize_) {
@@ -104,7 +104,7 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID, edm::Event&
       }
     }
     if (etaAbs>1.25) {
-      for (EcalRecHitCollection::const_iterator eItr=ecalEE->begin(); eItr!=ecalEE->end(); eItr++) {
+      for (EcalRecHitCollection::const_iterator eItr=ecalEE->begin(); eItr!=ecalEE->end();++eItr) {
 	GlobalPoint pos = geo->getPosition(eItr->detid());
 	double      R   = reco::deltaR(pos.eta(),pos.phi(),etaPhi.first,etaPhi.second);
 	if (R < coneSize_) {

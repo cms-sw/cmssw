@@ -266,7 +266,7 @@ void IsoTrig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     edm::Handle<reco::TrackCollection> iPixCol;
     iEvent.getByToken(tok_pixtks_[iPix],iPixCol); 
     if(iPixCol.isValid()){
-      for (reco::TrackCollection::const_iterator pit=iPixCol->begin(); pit!=iPixCol->end(); pit++) {
+      for (reco::TrackCollection::const_iterator pit=iPixCol->begin(); pit!=iPixCol->end();++pit) {
 	if(iPix==0) 
 	  pixelTrackRefsHB.push_back(reco::TrackRef(iPixCol,pit-iPixCol->begin()));
 	pixelTrackRefsHE.push_back(reco::TrackRef(iPixCol,pit-iPixCol->begin()));
@@ -387,7 +387,7 @@ void IsoTrig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	      if (trkCollection.isValid()) {
 		reco::TrackCollection::const_iterator trkItr;
 		for (trkItr=trkCollection->begin(); 
-		     trkItr!=trkCollection->end(); trkItr++) 
+		     trkItr!=trkCollection->end();++trkItr) 
 		    goodTks.push_back(trkItr);
 	      }
 	    }
@@ -800,7 +800,7 @@ void IsoTrig::endJob() {
   g_PreHLT = fs->make<TH1I>("h_PreHLTvsRN", "HLT PreScale Vs Run Number", n, minRunNo, maxRunNo);
   g_Accepts = fs->make<TH1I>("h_HLTAcceptsvsRN", "HLT Accepts Vs Run Number", n, minRunNo, maxRunNo); 
 
-  for (itr=TrigList.begin(), itrPre=TrigPreList.begin(); itr!=TrigList.end(); itr++, itrPre++) {
+  for (itr=TrigList.begin(), itrPre=TrigPreList.begin(); itr!=TrigList.end();++itr,++itrPre) {
     preL1 = (itrPre->second).first;
     preHLT = (itrPre->second).second;
 #ifdef DebugLog
@@ -851,7 +851,7 @@ void IsoTrig::StudyTrkEbyP(edm::Handle<reco::TrackCollection>& trkCollection) {
     unsigned int nTracks=0;
     int nRH_eMipDR=0, nNearTRKs=0;
     std::vector<bool> selFlags;
-    for (trkDetItr = trkCaloDirections1.begin(); trkDetItr != trkCaloDirections1.end(); trkDetItr++,nTracks++) {
+    for (trkDetItr = trkCaloDirections1.begin(); trkDetItr != trkCaloDirections1.end();++trkDetItr,++nTracks) {
       double conehmaxNearP = 0, hCone=0, eMipDR=0.0;
       const reco::Track* pTrack = &(*(trkDetItr->trkItr));
 #ifdef DebugLog
@@ -1004,7 +1004,7 @@ void IsoTrig::studyTiming(const edm::Event& theEvent) {
       reco::VertexCollection::const_iterator vitSel;
       double minDZ = 100;
       bool vtxMatch;
-      for (reco::VertexCollection::const_iterator vit=pVertHE->begin(); vit!=pVertHE->end(); vit++) {
+      for (reco::VertexCollection::const_iterator vit=pVertHE->begin(); vit!=pVertHE->end();++vit) {
 	if (fabs(pixelTrackRefsHE[iS]->dz(vit->position()))<minDZ) {
 	  minDZ  = fabs(pixelTrackRefsHE[iS]->dz(vit->position()));
 	  vitSel = vit;
@@ -1022,7 +1022,7 @@ void IsoTrig::studyTiming(const edm::Event& theEvent) {
       reco::VertexCollection::const_iterator vitSel;
       double minDZ = 100;
       bool vtxMatch;
-      for (reco::VertexCollection::const_iterator vit=pVertHB->begin(); vit!=pVertHB->end(); vit++) {
+      for (reco::VertexCollection::const_iterator vit=pVertHB->begin(); vit!=pVertHB->end();++vit) {
 	if (fabs(pixelTrackRefsHB[iS]->dz(vit->position()))<minDZ) {
 	  minDZ  = fabs(pixelTrackRefsHB[iS]->dz(vit->position()));
 	  vitSel = vit;
@@ -1093,7 +1093,7 @@ void IsoTrig::studyMipCut(edm::Handle<reco::TrackCollection>& trkCollection,
       std::vector<bool> selFlags;
       unsigned int nTracks=0;
       double conehmaxNearP = 0, hCone=0;
-      for (trkDetItr = trkCaloDirections1.begin(); trkDetItr != trkCaloDirections1.end(); trkDetItr++,nTracks++){
+      for (trkDetItr = trkCaloDirections1.begin(); trkDetItr != trkCaloDirections1.end();++trkDetItr,++nTracks){
 	const reco::Track* pTrack = &(*(trkDetItr->trkItr));
 	math::XYZTLorentzVector v2(pTrack->px(), pTrack->py(),  
 				   pTrack->pz(), pTrack->p());
@@ -1240,7 +1240,7 @@ void IsoTrig::studyTrigger(edm::Handle<reco::TrackCollection>& trkCollection,
       double mindP(9999.9);
       reco::TrackCollection::const_iterator trkItr;
       for (trkItr=trkCollection->begin(); 
-	   trkItr!=trkCollection->end(); trkItr++) {
+	   trkItr!=trkCollection->end();++trkItr) {
 	math::XYZTLorentzVector v4(trkItr->px(), trkItr->py(), 
 				   trkItr->pz(), trkItr->p());
 	double deltaR = dR(v4, vec[2][k]);
@@ -1267,7 +1267,7 @@ void IsoTrig::studyTrigger(edm::Handle<reco::TrackCollection>& trkCollection,
 #endif
       if (mindR < 0.03 && mindP > 0.1) {
 	for (trkItr=trkCollection->begin(); 
-	     trkItr!=trkCollection->end(); trkItr++) {
+	     trkItr!=trkCollection->end();++trkItr) {
 	  math::XYZTLorentzVector v4(trkItr->px(), trkItr->py(), 
 				     trkItr->pz(), trkItr->p());
 	  double deltaR = dR(v4, vec[2][k]);
@@ -1329,7 +1329,7 @@ void IsoTrig::studyIsolation(edm::Handle<reco::TrackCollection>& trkCollection,
 #endif
     unsigned int nTracks=0, ngoodTk=0, nselTk=0;
     int          ieta=999;
-    for (trkDetItr = trkCaloDirections.begin(); trkDetItr != trkCaloDirections.end(); trkDetItr++,nTracks++){
+    for (trkDetItr = trkCaloDirections.begin(); trkDetItr != trkCaloDirections.end();++trkDetItr,++nTracks){
       bool l3Track  = (std::find(goodTks.begin(),goodTks.end(),trkDetItr->trkItr) != goodTks.end());
       const reco::Track* pTrack = &(*(trkDetItr->trkItr));
       math::XYZTLorentzVector v4(pTrack->px(), pTrack->py(), 
@@ -1510,7 +1510,7 @@ void IsoTrig::chgIsolation(double& etaTriggered, double& phiTriggered,
     double conehmaxNearP = -1; bool selectTk=false;
     double mindR=999.9; int nTracks=0;
     math::XYZTLorentzVector mindRvec;
-    for (trkDetItr = trkCaloDirections1.begin(); trkDetItr != trkCaloDirections1.end(); trkDetItr++, nTracks++){
+    for (trkDetItr = trkCaloDirections1.begin(); trkDetItr != trkCaloDirections1.end();++trkDetItr,++nTracks){
       int nNearTRKs=0;
       const reco::Track* pTrack = &(*(trkDetItr->trkItr));
       math::XYZTLorentzVector v2(pTrack->px(), pTrack->py(),  
@@ -1580,7 +1580,7 @@ void IsoTrig::getGoodTracks(const edm::Event& iEvent,
 
     std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
     unsigned int nTracks(0);
-    for (trkDetItr = trkCaloDirections.begin(); trkDetItr != trkCaloDirections.end(); trkDetItr++,nTracks++){
+    for (trkDetItr = trkCaloDirections.begin(); trkDetItr != trkCaloDirections.end();++trkDetItr,++nTracks){
       const reco::Track* pTrack = &(*(trkDetItr->trkItr));
       math::XYZTLorentzVector v4(pTrack->px(), pTrack->py(), 
 				 pTrack->pz(), pTrack->p());

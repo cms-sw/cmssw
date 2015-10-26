@@ -85,7 +85,7 @@ PrescalerFHN::PrescalerFHN(const edm::ParameterSet& iConfig)
   std::vector<edm::ParameterSet> prescales_in(iConfig.getParameter<std::vector<edm::ParameterSet> >("Prescales"));
 
   for (std::vector<edm::ParameterSet>::const_iterator cit = prescales_in.begin();
-       cit != prescales_in.end(); cit++) {
+       cit != prescales_in.end();++cit) {
 
     std::string name(cit->getParameter<std::string>("HLTName"));
     unsigned int factor(cit->getParameter<unsigned int>("PrescaleFactor"));
@@ -118,7 +118,7 @@ void PrescalerFHN::init(const edm::TriggerResults &result,
   trigger_indices.clear();
 
   for (std::map<std::string, unsigned int>::const_iterator cit = prescales.begin();
-       cit != prescales.end(); cit++) {
+       cit != prescales.end();++cit) {
 
     trigger_indices[cit->first] = triggerNames.triggerIndex(cit->first);
     
@@ -166,7 +166,7 @@ PrescalerFHN::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    bool accept_event = false;
    for (std::map<std::string, unsigned int>::const_iterator cit = trigger_indices.begin();
-	cit != trigger_indices.end(); cit++) {
+	cit != trigger_indices.end();++cit) {
      if (trh->accept(cit->second)) {
        prescale_counter[cit->first]++;
        if (prescale_counter[cit->first] >= prescales[cit->first]) {

@@ -38,7 +38,7 @@ private:
   template <class DigiCollection>
   void record(const DigiCollection& digis) {
 
-    for (typename DigiCollection::const_iterator digi=digis.begin(); digi!=digis.end(); digi++) {
+    for (typename DigiCollection::const_iterator digi=digis.begin(); digi!=digis.end();++digi) {
 
       SampleSet q;
       for (int i=0; i<digi->size(); i++)
@@ -71,7 +71,7 @@ void HcalCableMapper::process(const PathSet& ps, const IdMap& im){
   PathSet::const_iterator iii;
   IdMap::const_iterator ij;
   
-  for (iii=ps.begin();iii!=ps.end();iii++){
+  for (iii=ps.begin();iii!=ps.end();++iii){
     
     
     SampleSet ss = iii->second;
@@ -189,14 +189,14 @@ void HcalCableMapper::endJob(){
   
   PathSet consensus;
  
-  for (i=fullHistory_.begin(); i!=fullHistory_.end(); i++) {
+  for (i=fullHistory_.begin(); i!=fullHistory_.end();++i) {
     //i.first --> id
     //i.second --> vector<SampleSet>
     SampleSet s;
     for (k=0; k<10; k++) {
       for (ii=0; ii<128; ii++) c[ii]=0;
 
-      for (j=i->second.begin();j!=i->second.end();j++){//word number
+      for (j=i->second.begin();j!=i->second.end();++j){//word number
 	if (int(j->size())>k) 
 	  c[(*j)[k].adc()]++;
 	

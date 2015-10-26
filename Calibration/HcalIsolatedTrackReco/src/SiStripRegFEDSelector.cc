@@ -76,7 +76,7 @@ SiStripRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 		  //get map of vectors of feds withing the layer of subdet of region
 		  const SiStripRegionCabling::ElementCabling fedVectorMap=regSubdetLayers[ilayer];
 		  SiStripRegionCabling::ElementCabling::const_iterator it=fedVectorMap.begin();
-		  for( ; it!=fedVectorMap.end(); it++)
+		  for( ; it!=fedVectorMap.end();++it)
 		    {
 		      for (uint32_t op=0; op<(it->second).size(); op++)
 			{

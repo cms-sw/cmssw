@@ -124,7 +124,7 @@ AlCaECALRecHitReducer::produce (edm::Event& iEvent,
   
   //Photons:
 #ifdef shervin
-  for (reco::PhotonCollection::const_iterator phoIt=phoHandle->begin(); phoIt!=phoHandle->end(); phoIt++) {
+  for (reco::PhotonCollection::const_iterator phoIt=phoHandle->begin(); phoIt!=phoHandle->end();++phoIt) {
     const reco::SuperCluster& sc = *(phoIt->superCluster()) ;
     
     if (phoIt->isEB()) {
@@ -171,7 +171,7 @@ AlCaECALRecHitReducer::produce (edm::Event& iEvent,
   //saving recHits for highEta SCs for highEta studies
   for(reco::SuperClusterCollection::const_iterator SC_iter = EESCHandle->begin();
       SC_iter!=EESCHandle->end();
-      SC_iter++){
+     ++SC_iter){
     if(fabs(SC_iter->eta()) < minEta_highEtaSC_) continue;
     AddMiniRecHitCollection(*SC_iter, reducedRecHit_EEmap, caloTopology);
 
@@ -187,13 +187,13 @@ AlCaECALRecHitReducer::produce (edm::Event& iEvent,
 
   //------------------------------ fill the alcareco reduced recHit collection
   for(std::set<DetId>::const_iterator itr = reducedRecHit_EBmap.begin();
-      itr != reducedRecHit_EBmap.end(); itr++){
+      itr != reducedRecHit_EBmap.end();++itr){
     if (barrelHitsCollection->find(*itr) != barrelHitsCollection->end())
       miniEBRecHitCollection->push_back(*(barrelHitsCollection->find(*itr)));
   }
 
   for(std::set<DetId>::const_iterator itr = reducedRecHit_EEmap.begin();
-      itr != reducedRecHit_EEmap.end(); itr++){
+      itr != reducedRecHit_EEmap.end();++itr){
     if (endcapHitsCollection->find(*itr) != endcapHitsCollection->end())
       miniEERecHitCollection->push_back(*(endcapHitsCollection->find(*itr)));
   }
@@ -224,7 +224,7 @@ void AlCaECALRecHitReducer::AddMiniRecHitCollection(const reco::SuperCluster& sc
 
   const std::vector< std::pair<DetId, float> > & scHits = sc.hitsAndFractions();
   for(std::vector< std::pair<DetId, float> >::const_iterator scHit_itr = scHits.begin(); 
-      scHit_itr != scHits.end(); scHit_itr++){
+      scHit_itr != scHits.end();++scHit_itr){
     // the map fills just one time (avoiding double insert of recHits)
     reducedRecHitMap.insert(scHit_itr->first);
   }

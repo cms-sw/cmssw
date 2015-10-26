@@ -165,37 +165,37 @@ void AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     //Copy from standard place
     std::auto_ptr<reco::PFJetCollection>  miniPFjetCollection(new reco::PFJetCollection);
     for(reco::PFJetCollection::const_iterator pfjetItr=pfjets.begin();
-        pfjetItr!=pfjets.end(); pfjetItr++) {
+        pfjetItr!=pfjets.end();++pfjetItr) {
       miniPFjetCollection->push_back(*pfjetItr);
     }
 
     std::auto_ptr<reco::PFCandidateCollection> miniPFCandCollection(new reco::PFCandidateCollection);
     for(reco::PFCandidateCollection::const_iterator pfcItr=pfcand.begin();
-        pfcItr!=pfcand.end(); pfcItr++) {
+        pfcItr!=pfcand.end();++pfcItr) {
       miniPFCandCollection->push_back(*pfcItr);
     }
 
     std::auto_ptr<reco::VertexCollection> miniVtxCollection(new reco::VertexCollection);
     for(reco::VertexCollection::const_iterator vtxItr=vtx.begin();
-        vtxItr!=vtx.end(); vtxItr++) {
+        vtxItr!=vtx.end();++vtxItr) {
       miniVtxCollection->push_back(*vtxItr);
     }
 
     std::auto_ptr<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>>  miniHBHECollection(new edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>);
     for(edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >::const_iterator hbheItr=Hithbhe.begin(); 
-	hbheItr!=Hithbhe.end(); hbheItr++) {
+	hbheItr!=Hithbhe.end();++hbheItr) {
       miniHBHECollection->push_back(*hbheItr);
     }
 
     std::auto_ptr<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit>>>  miniHOCollection(new edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit>>);
     for(edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >::const_iterator hoItr=Hitho.begin();
-        hoItr!=Hitho.end(); hoItr++) {
+        hoItr!=Hitho.end();++hoItr) {
       miniHOCollection->push_back(*hoItr);
     }
 
     std::auto_ptr<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>>  miniHFCollection(new edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>);
     for(edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >::const_iterator hfItr=Hithf.begin();
-        hfItr!=Hithf.end(); hfItr++) {
+        hfItr!=Hithf.end();++hfItr) {
       miniHFCollection->push_back(*hfItr);
     }
 

@@ -259,7 +259,7 @@ if (verbosity > 0)
     std::vector<spr::propagatedTrackID> trkCaloDets;
     spr::propagateCALO(trkCollection, geo, bField, theTrackQuality, trkCaloDets, ((verbosity/100)%10 > 0));
     std::vector<spr::propagatedTrackID>::const_iterator trkDetItr;
-    for (trkDetItr = trkCaloDets.begin(),ntrk=0; trkDetItr != trkCaloDets.end(); trkDetItr++,ntrk++) {
+    for (trkDetItr = trkCaloDets.begin(),ntrk=0; trkDetItr != trkCaloDets.end();++trkDetItr,++ntrk) {
       const reco::Track* pTrack = &(*(trkDetItr->trkItr));
       double pt1         = pTrack->pt();
       double p1          = pTrack->p();

@@ -346,7 +346,7 @@ namespace cms{
     iEvent.getAllProvenance(theProvenance);
 
     for( std::vector<Provenance const*>::const_iterator ip = theProvenance.begin();
-	 ip != theProvenance.end(); ip++) {
+	 ip != theProvenance.end();++ip) {
       edm::LogInfo("AnalyzerMB")<<" Print all process/modulelabel/product names "
 	       <<(**ip).processName()<<" , "<<(**ip).moduleLabel()<<" , "
 	       <<(**ip).productInstanceName();
@@ -538,7 +538,7 @@ namespace cms{
 
 
 
-    for(HBHERecHitCollection::const_iterator hbheItr=HithbheNS.begin(); hbheItr!=HithbheNS.end(); hbheItr++)  {
+    for(HBHERecHitCollection::const_iterator hbheItr=HithbheNS.begin(); hbheItr!=HithbheNS.end();++hbheItr)  {
       // Recalibration of energy
       float icalconst=1.;	 
       DetId mydetid = hbheItr->id().rawId();
@@ -596,7 +596,7 @@ namespace cms{
     // Signal part for HB HE
      
 
-    for(HBHERecHitCollection::const_iterator hbheItr=HithbheMB.begin(); hbheItr!=HithbheMB.end(); hbheItr++)  {
+    for(HBHERecHitCollection::const_iterator hbheItr=HithbheMB.begin(); hbheItr!=HithbheMB.end();++hbheItr)  {
       // Recalibration of energy
       float icalconst=1.;	 
       DetId mydetid = hbheItr->id().rawId();
@@ -652,7 +652,7 @@ namespace cms{
 	
     // HF
  
-    for(HFRecHitCollection::const_iterator hbheItr=HithfNS.begin(); hbheItr!=HithfNS.end(); hbheItr++) {
+    for(HFRecHitCollection::const_iterator hbheItr=HithfNS.begin(); hbheItr!=HithfNS.end();++hbheItr) {
       // Recalibration of energy
       float icalconst=1.;	 
       DetId mydetid = hbheItr->id().rawId();
@@ -712,7 +712,7 @@ namespace cms{
 
     // Signal part for HB HE
 
-    for(HFRecHitCollection::const_iterator hbheItr=HithfMB.begin(); hbheItr!=HithfMB.end(); hbheItr++) {
+    for(HFRecHitCollection::const_iterator hbheItr=HithfMB.begin(); hbheItr!=HithfMB.end();++hbheItr) {
       // Recalibration of energy
       float icalconst=1.;	 
       DetId mydetid = hbheItr->id().rawId();

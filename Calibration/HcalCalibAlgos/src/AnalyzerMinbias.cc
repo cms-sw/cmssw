@@ -361,7 +361,7 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
   tmpMap.clear();
   
   for (HBHERecHitCollection::const_iterator hbheItr=HithbheNS.begin(); 
-       hbheItr!=HithbheNS.end(); hbheItr++) {
+       hbheItr!=HithbheNS.end();++hbheItr) {
     
     // Recalibration of energy
     float icalconst=1.;	 
@@ -405,7 +405,7 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
     // Signal part for HB HE
   
   for (HBHERecHitCollection::const_iterator hbheItr=HithbheMB.begin(); 
-       hbheItr!=HithbheMB.end(); hbheItr++) {
+       hbheItr!=HithbheMB.end();++hbheItr) {
     // Recalibration of energy
     float icalconst=1.;	 
     DetId mydetid = hbheItr->id().rawId();
@@ -445,7 +445,7 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
     // HF
   
   for (HFRecHitCollection::const_iterator hbheItr=HithfNS.begin(); 
-       hbheItr!=HithfNS.end(); hbheItr++) {
+       hbheItr!=HithfNS.end();++hbheItr) {
     // Recalibration of energy
     float icalconst=1.;	 
     DetId mydetid = hbheItr->id().rawId();
@@ -492,7 +492,7 @@ void AnalyzerMinbias::analyzeHcal(const HcalRespCorrs* myRecalib,
     // Signal part for HF
 	  
   for (HFRecHitCollection::const_iterator hbheItr=HithfMB.begin(); 
-       hbheItr!=HithfMB.end(); hbheItr++) {
+       hbheItr!=HithfMB.end();++hbheItr) {
     // Recalibration of energy
     float icalconst=1.;	 
     DetId mydetid = hbheItr->id().rawId();

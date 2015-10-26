@@ -243,7 +243,7 @@ void PhiSymmetryCalibration_step2::endJob(){
   TH1D ebhisto("eb","eb",100, 0.,2.);
 
   std::vector<DetId>::const_iterator barrelIt=barrelCells.begin();
-  for (; barrelIt!=barrelCells.end(); barrelIt++) {
+  for (; barrelIt!=barrelCells.end();++barrelIt) {
     EBDetId eb(*barrelIt);
     int ieta = abs(eb.ieta())-1;
     int iphi = eb.iphi()-1;
@@ -268,7 +268,7 @@ void PhiSymmetryCalibration_step2::endJob(){
   TH1D eehisto("ee","ee",100, 0.,2.);
   std::vector<DetId>::const_iterator endcapIt=endcapCells.begin();
 
-  for (; endcapIt!=endcapCells.end(); endcapIt++) {
+  for (; endcapIt!=endcapCells.end();++endcapIt) {
     EEDetId ee(*endcapIt);
     int ix = ee.ix()-1;
     int iy = ee.iy()-1;
