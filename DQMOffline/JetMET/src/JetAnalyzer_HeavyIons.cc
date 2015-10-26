@@ -1,7 +1,7 @@
 //
 // Jet Analyzer class for heavy ion jets. for DQM jet analysis monitoring 
 // For CMSSW_7_4_X, especially reading background subtracted jets 
-// author: Raghav Kunnawalkam Elayavalli, Mohammed Zakaria
+// author: Raghav Kunnawalkam Elayavalli, Mohammed Zakaria (co Author)
 //         Jan 12th 2015 
 //         Rutgers University, email: raghav.k.e at CERN dot CH 
 //         UIC, email: mzakaria @ CERN dot CH
@@ -125,29 +125,29 @@ JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet& iConfig) :
     mPFVsPtInitial_HF_Centrality_5_0 = 0;
 
     mPFArea = 0;
-    mPFDeltaR = 0; //MZ
-    mPFDeltaR_Scaled_R = 0; //MZ
+    mPFDeltaR = 0; 
+    mPFDeltaR_Scaled_R = 0; 
 
-    mPFDeltaR_pTCorrected = 0; //MZ
-    mPFDeltaR_pTCorrected_PFpT_20To30 = 0; //MZ
-    mPFDeltaR_pTCorrected_PFpT_30To50 = 0; //MZ
-    mPFDeltaR_pTCorrected_PFpT_50To80 = 0; //MZ
-    mPFDeltaR_pTCorrected_PFpT_80To120 = 0; //MZ
-    mPFDeltaR_pTCorrected_PFpT_120To180 = 0; //MZ
-    mPFDeltaR_pTCorrected_PFpT_180To300 = 0; //MZ
-    mPFDeltaR_pTCorrected_PFpT_300ToInf = 0; //MZ   
+    mPFDeltaR_pTCorrected = 0; 
+    mPFDeltaR_pTCorrected_PFpT_20To30 = 0; 
+    mPFDeltaR_pTCorrected_PFpT_30To50 = 0; 
+    mPFDeltaR_pTCorrected_PFpT_50To80 = 0; 
+    mPFDeltaR_pTCorrected_PFpT_80To120 = 0; 
+    mPFDeltaR_pTCorrected_PFpT_120To180 = 0; 
+    mPFDeltaR_pTCorrected_PFpT_180To300 = 0; 
+    mPFDeltaR_pTCorrected_PFpT_300ToInf = 0;  
 
-    mPFDeltaR_pTCorrected_PFVsInitialpT_20To30 = 0; //MZ
-    mPFDeltaR_pTCorrected_PFVsInitialpT_30To50 = 0; //MZ
-    mPFDeltaR_pTCorrected_PFVsInitialpT_50To80 = 0; //MZ
-    mPFDeltaR_pTCorrected_PFVsInitialpT_80To120 = 0; //MZ
-    mPFDeltaR_pTCorrected_PFVsInitialpT_120To180 = 0; //MZ
-    mPFDeltaR_pTCorrected_PFVsInitialpT_180To300 = 0; //MZ
-    mPFDeltaR_pTCorrected_PFVsInitialpT_300ToInf = 0; //MZ
+    mPFDeltaR_pTCorrected_PFVsInitialpT_20To30 = 0;  
+    mPFDeltaR_pTCorrected_PFVsInitialpT_30To50 = 0;  
+    mPFDeltaR_pTCorrected_PFVsInitialpT_50To80 = 0;  
+    mPFDeltaR_pTCorrected_PFVsInitialpT_80To120 = 0; 
+    mPFDeltaR_pTCorrected_PFVsInitialpT_120To180 = 0;
+    mPFDeltaR_pTCorrected_PFVsInitialpT_180To300 = 0;
+    mPFDeltaR_pTCorrected_PFVsInitialpT_300ToInf = 0;
 
 
-    mPFVsPtInitialDeltaR_pTCorrected = 0; //MZ
-    mPFVsPtDeltaR_pTCorrected = 0; //MZ
+    mPFVsPtInitialDeltaR_pTCorrected = 0; 
+    mPFVsPtDeltaR_pTCorrected = 0; 
 
     mSumPFVsPt = 0;
     mSumPFVsPtInitial = 0;
@@ -813,7 +813,7 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
   Float_t pfEta = 0;
   Float_t pfPhi = 0;
   Int_t   pfID = 0;
-  Float_t pfDeltaR = 0; //MZ
+  Float_t pfDeltaR = 0; 
   Float_t caloPt = 0;
   Float_t caloEta = 0;
   Float_t caloPhi = 0;
@@ -1042,8 +1042,6 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
 
     vector<vector <float> > PF_Space(1,vector<float>(3)); //MZ
 
-    //vector < vector <float> > numbers;
-    //vector <float> tempVector;
 
 
     //cout << "L785--------------Start loop over pfCandidates" << endl;    
@@ -1141,8 +1139,6 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
         //if(vsPtInitial > 0.0)
 	//cout << "L850 vsPtInitial = " << vsPtInitial << endl;
         //cout << "L851 vsPt = " << vsPt << endl;
-        //pfDeltaR = sqrt((pfPhi-mPhi)*(pfPhi-mPhi) + (pfEta-mEta)*(pfEta-mEta));
-        // pfDeltaR = sqrt((pfPhi)*(pfPhi) + (pfEta)*(pfEta));
         //Fill 2d vector matrix
 
         tempVector.push_back(pfPt);
@@ -1387,12 +1383,6 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
     //cout << "L890 vsPtInitial = " << vsPtInitial << endl;
 
     //print elements of our 2d vector
-    ////cout << "0 0" << numbers[0][0] << endl;
-    ////cout << "1 0" << numbers[1][0] << endl;
-    ////cout << "2 0" << numbers[2][0] << endl;
-    ////cout << "0 1" << numbers[0][1] << endl;
-    ////cout << "1 1" << numbers[1][1] << endl;
-    ////cout << "2 1" << numbers[2][1] << endl;
     for(size_t iii = 0 ; iii < numbers.size() ; iii++)
       //cout << "testing, PF_Pt =  " << numbers[iii][0] <<  "  testing, PF_eta = " << numbers[iii][1] << " testing, PF_phi = " << numbers[iii][2]  <<  " testing, vsPtInitial = " << numbers[iii][3] << " testing, vsPt = " << numbers[iii][4] << endl;    
     // //cout << "testing, PF_Pt =  " << tempVector[iii] << endl;    
@@ -1501,8 +1491,6 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
 
   }
 
-  //cout << "L972 Before is CaloJet number.size = " <<  numbers.size() << endl; //MZ wrong
-  //cout << "L973 Before is CaloJet recoJets.size() = " <<  recoJets.size() << endl; //MZ wrong
   if (isCaloJet)
     {
       for (unsigned ijet=0; ijet<caloJets->size(); ijet++) 
@@ -1588,8 +1576,6 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
       if (mPt)           mPt          ->Fill(recoJets[ijet].pt());
       if (mMass)         mMass        ->Fill(recoJets[ijet].mass());
       if (mConstituents) mConstituents->Fill(recoJets[ijet].nConstituents());
-      //pfDeltaR = sqrt((pfPhi-recoJets[ijet].phi())*(pfPhi-recoJets[ijet].phi()) + (pfEta-recoJets[ijet].eta())*(pfEta-recoJets[ijet].eta())); //MZ
-      //  pfDeltaR = sqrt((pfPhi-recoJets[ijet].phi())*(pfPhi-recoJets[ijet].phi()) + (pfEta-recoJets[ijet].eta())*(pfEta-recoJets[ijet].eta())); //MZ
 
       for(size_t iii = 0 ; iii < numbers.size() ; iii++)
         {
@@ -1614,9 +1600,6 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
           //mPFVsPtInitialDeltaR_pTCorrected->Fill(pfDeltaR,numbers[iii][3]/recoJets[ijet].pt()); //MZ
           //cout << "L1123, after filling,  numbers[iii][3] = " << numbers[iii][3] << endl;
 
-          // if(numbers[iii][0] > 30)
-          // //cout << "AAAAA big pt = " << numbers[iii][0] << endl;
-          //if(numbers[iii][0] > 20 && numbers[iii][0] < 30)
           if(recoJets[ijet].pt() > 20 && recoJets[ijet].pt() < 30)
 	    {
 	      mPFDeltaR_pTCorrected_PFpT_20To30->Fill(pfDeltaR,numbers[iii][0]/recoJets[ijet].pt()); //MZ
