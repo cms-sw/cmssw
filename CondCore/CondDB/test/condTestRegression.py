@@ -35,7 +35,7 @@ def print_timing(func):
         t1 = time.time()
         res = func(*arg)
         t2 = time.time()
-        print '\n%s(%s) took %0.3f ms\n' % (func.func_name, ','.join([str(x) for x in arg[1:]]), (t2-t1)*1000.0)
+        print '\n%s(%s) took %0.3f ms\n' % (func.__name__, ','.join([str(x) for x in arg[1:]]), (t2-t1)*1000.0)
         return res
     return wrapper
 
