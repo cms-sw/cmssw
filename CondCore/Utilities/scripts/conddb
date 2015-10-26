@@ -286,7 +286,7 @@ def connect(args, init=False, read_only=True, schema='cms_conditions'):
         conn2url = conddb.make_url(args.destdb)
         if conn2url.drivername == 'sqlite' and not os.path.exists(args.destdb): 
             init = True
-        conn2 = _connect(conn2url, init, args.verbose, False, args.force)
+        conn2 = _connect(args.destdb, init, args.verbose, False, args.force)
         return conn1, conn2
 
     return _connect( args.db, init, args.verbose, read_only, args.force)
@@ -925,7 +925,7 @@ def _copy_tag(args, session1, session2, first, second, fromIOV=None, toIOV=None,
     if timeMap and not fromIOV and not toIOV:
        fromIOV = timeMap['start'][ tag['time_type'].lower().strip() ]
        toIOV   = timeMap['stop'] [ tag['time_type'].lower().strip() ]
-    
+
     session2.add(conddb.Tag(**tag))
 
     # Get the closest smaller IOV than the given starting point (args.from),

@@ -149,12 +149,15 @@ database_help = '''
       /absolute/path/to/file.db  ===  sqlite:////absolute/path/to/file.db
 '''
 
-
 class Synchronization(Enum):
-    offline = 'Offline'
-    hlt     = 'HLT'
-    prompt  = 'Prompt'
-
+    any        = 'any'
+    validation = 'validation'
+    mc         = 'mc'
+    runmc      = 'runmc'
+    hlt        = 'hlt'
+    express    = 'express'
+    prompt     = 'prompt'
+    pcl        = 'pcl'
 
 class TimeType(Enum):
     run  = 'Run'
