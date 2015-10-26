@@ -37,7 +37,7 @@ int run( const std::string& connectionString ){
 
     IOVEditor editor;
     if( !session.existsIov( "MyNewIOV" ) ){
-      editor = session.createIov<MyTestData>( "MyNewIOV", cond::runnumber ); 
+      editor = session.createIov<MyTestData>( "MyNewIOV", cond::runnumber, cond::SYNCH_OFFLINE ); 
       editor.setDescription("Test with MyTestData class");
       editor.insert( 1, p0 );
       editor.insert( 100, p1 );
@@ -54,8 +54,34 @@ int run( const std::string& connectionString ){
       editor.flush();
     }
 
+    bool isOra = session.isOraSession();
     session.transaction().commit();
     std::cout <<"> iov changes committed!..."<<std::endl;
+
+    if ( !isOra ){
+      session.transaction().start( false );
+      std::cout <<"## now trying to insert in the past..."<<std::endl;
+      try{
+	editor = session.editIov( "MyNewIOV" );
+	editor.insert( 200, p1 );
+	editor.insert( 300, p1 );
+	editor.insert( 50, p1 );
+	editor.flush();
+	std::cout <<"ERROR: forbidden insertion."<<std::endl;
+	session.transaction().commit();
+      } catch ( const cond::persistency::Exception& e ){
+	std::cout <<"Expected error: "<<e.what()<<std::endl;
+	session.transaction().rollback();
+      }
+      session.transaction().start( false );
+      editor = session.editIov( "StringData" );
+      editor.insert( 3000000, p3 );
+      editor.insert( 4000000, p3 );
+      editor.insert( 1500000, p3);
+      editor.flush();
+      std::cout <<"Insertion in the past completed."<<std::endl;
+      session.transaction().commit();
+    }
     ::sleep(2);
     session.transaction().start();
 

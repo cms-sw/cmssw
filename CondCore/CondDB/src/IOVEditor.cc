@@ -13,14 +13,14 @@ namespace cond {
 	tag( "" ),
 	timeType( cond::invalid ),
 	payloadType(""),
-	synchronizationType( cond::OFFLINE ),
+	synchronizationType( cond::SYNCH_ANY ),
 	description(""),
 	iovBuffer(){
       }
       std::string tag;
       cond::TimeType timeType;
       std::string payloadType;
-      cond::SynchronizationType synchronizationType = cond::OFFLINE; 
+      cond::SynchronizationType synchronizationType; 
       std::string description;
       cond::Time_t endOfValidity = cond::time::MAX_VAL;
       cond::Time_t lastValidatedTime = cond::time::MIN_VAL; 
@@ -95,7 +95,7 @@ namespace cond {
     }
     
     cond::SynchronizationType IOVEditor::synchronizationType() const {
-      return m_data.get()? m_data->synchronizationType : cond::SYNCHRONIZATION_UNKNOWN ; 
+      return m_data.get()? m_data->synchronizationType : cond::SYNCH_ANY ; 
     }
     
     cond::Time_t IOVEditor::endOfValidity() const {
@@ -146,6 +146,10 @@ namespace cond {
 	m_data->iovBuffer.push_back( std::tie( since, payloadHash, insertionTime ) );
       }
     }
+
+    bool iovSorter( const std::tuple<cond::Time_t,cond::Hash,boost::posix_time::ptime>& f, const std::tuple<cond::Time_t,cond::Hash,boost::posix_time::ptime>& s ){
+      return std::get<0>(f) < std::get<0>(s);
+    }
     
     bool IOVEditor::flush( const boost::posix_time::ptime& operationTime ){
       bool ret = false;
@@ -167,6 +171,22 @@ namespace cond {
 	m_data->change = false;
       }
       if( m_data->iovBuffer.size() ) {
+
+	std::sort(m_data->iovBuffer.begin(),m_data->iovBuffer.end(),iovSorter);
+ 	cond::Time_t l = std::get<0>(m_data->iovBuffer.front());
+ 	if( m_data->synchronizationType != cond::SYNCH_ANY && m_data->synchronizationType != cond::SYNCH_VALIDATION ){
+ 	  // retrieve the last since
+ 	  cond::Time_t last = 0;
+ 	  cond::Hash h;
+ 	  m_session->iovSchema().iovTable().getLastIov( m_data->tag, last, h );
+ 	  // check if the min iov is greater then the last since
+ 	  if( l <= last ){
+ 	    std::stringstream msg;
+ 	    msg << "Can't insert iov since "<<l<<" on the tag "<< m_data->tag<<": last since is "<<last<<
+ 	      " and synchronization is \""<<cond::synchronizationTypeNames(  m_data->synchronizationType )<<"\"";
+ 	    throwException( msg.str(),"IOVEditor::flush");
+ 	  }
+ 	}
 	
 	// insert the new iovs
 	m_session->iovSchema().iovTable().insertMany( m_data->tag, m_data->iovBuffer );
