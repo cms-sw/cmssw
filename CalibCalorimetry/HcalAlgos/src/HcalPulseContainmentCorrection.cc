@@ -55,7 +55,7 @@ double HcalPulseContainmentCorrection::getCorrection(double fc_ampl) const
 
   fcupper = mCorFactors_.upper_bound(fc_ampl);
   fclower = fcupper;
-  fclower--;
+  --fclower;
 
   if (fcupper == mCorFactors_.end()) {
     correction = fclower->second;

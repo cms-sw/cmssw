@@ -454,7 +454,7 @@ MERunManager::closestKey( ME::Time key )
       if( p==_runs.end() )
 	{
 	  cout << " ----> Closest is last entry " << endl;
-	  p--;
+	  --p;
 	}
       else if( p==_runs.begin() )
 	{
@@ -465,7 +465,7 @@ MERunManager::closestKey( ME::Time key )
 	  MusEcal::RunIterator p0 = p;
 	  p0--;
 	  cout << " ----> Key " << key << " is between " << p0->first << " and " << p->first << endl;
-	  if( key-(p0->first) < (p->first)-key ) p--; 
+	  if( key-(p0->first) < (p->first)-key ) --p; 
 	}
       key = p->first;
       cout << "**** Closest key is " << key << endl;
@@ -483,7 +483,7 @@ MERunManager::closestKeyInFuture( ME::Time key )
       p = _runs.lower_bound( key );
       if( p==_runs.end() )
 	{
-	  p--;
+	  --p;
 	}
       key = p->first;
     }
