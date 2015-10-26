@@ -22,7 +22,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
 def _loadStage1Fragments( processObject ) :
-    processObject.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
+#    processObject.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
     processObject.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
     processObject.load('L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi')
 
