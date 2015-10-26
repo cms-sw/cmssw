@@ -55,7 +55,7 @@ std::auto_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::produ
    const std::vector<uint32_t> DetIds = reader.getAllDetIds();
 
    // Loop over detectors
-   for(std::vector<uint32_t>::const_iterator detit=DetIds.begin(); detit!=DetIds.end(); detit++) {
+   for(std::vector<uint32_t>::const_iterator detit=DetIds.begin(); detit!=DetIds.end(); ++detit) {
      nmodules++;
      std::vector<char> theSiPixelGainCalibration;
      const std::pair<int, int> & detUnitDimensions = reader.getDetUnitDimensions(*detit);

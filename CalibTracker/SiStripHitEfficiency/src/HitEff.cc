@@ -282,7 +282,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 
     for (vector<Trajectory>::const_iterator itraj = TrajectoryCollectionCKF.product()->begin();
 	 itraj != TrajectoryCollectionCKF.product()->end();
-	 itraj++) {
+	 ++itraj) {
 
       // for each track, fill some variables such as number of hits and momentum
       nHits = itraj->foundHits();
@@ -307,7 +307,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
       double angleY = -999.;
       double xglob,yglob,zglob;
       
-      for (itm=TMeas.begin();itm!=TMeas.end();itm++){
+      for (itm=TMeas.begin();itm!=TMeas.end();++itm){
 	auto theInHit = (*itm).recHit();
 	
 	if(DEBUG) cout << "theInHit is valid = " << theInHit->isValid() << endl;
@@ -488,7 +488,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	      if (DEBUG) cout << "Checking clusters with size = " << input.size() << endl;
 	      int nClusters = 0;
 	      std::vector< std::vector<float> > VCluster_info; //fill with X residual, X residual pull, local X, sig(X), local Y, sig(Y), StoN
-	      for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter = input.begin(); DSViter != input.end(); DSViter++) {
+	      for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter = input.begin(); DSViter != input.end(); ++DSViter) {
 		// DSViter is a vector of SiStripClusters located on a single module
 		//if (DEBUG)      cout << "the ID from the DSViter = " << DSViter->id() << endl; 
 		unsigned int ClusterId = DSViter->id();
@@ -557,7 +557,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 		if (nClusters > 1) {
 		  //get the smallest one
 		  vector< vector<float> >::iterator ires;
-		  for (ires=VCluster_info.begin(); ires!=VCluster_info.end(); ires++){
+		  for (ires=VCluster_info.begin(); ires!=VCluster_info.end(); ++ires){
 		    if ( abs((*ires)[1]) < abs(FinalResSig)) {
 		      FinalResSig = (*ires)[1];
 		      for (unsigned int i = 0; i<ires->size(); i++) {

@@ -95,7 +95,7 @@ void SiStripLAProfileBooker::beginRun(const edm::EventSetup& c){
     const TrackerGeometry::DetIdContainer& Id = estracker->detIds();
     TrackerGeometry::DetIdContainer::const_iterator Iditer;    
     activeDets.clear();
-    for(Iditer=Id.begin();Iditer!=Id.end();Iditer++){
+    for(Iditer=Id.begin();Iditer!=Id.end();++Iditer){
       activeDets.push_back(Iditer->rawId());
     }
   }
@@ -177,7 +177,7 @@ void SiStripLAProfileBooker::beginRun(const edm::EventSetup& c){
   
   //get all detids
   
-  for(std::vector<uint32_t>::const_iterator Id = activeDets.begin(); Id!=activeDets.end(); Id++){
+  for(std::vector<uint32_t>::const_iterator Id = activeDets.begin(); Id!=activeDets.end(); ++Id){
     
     //  for(Iditer=Id.begin();Iditer!=Id.end();Iditer++){ //loop on detids
     DetId Iditero=DetId(*Id);
@@ -308,7 +308,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
   
   TrajTrackAssociationCollection::const_iterator TrajTrackIter;
   
-  for(TrajTrackIter = TrajTrackMap->begin(); TrajTrackIter!= TrajTrackMap->end(); TrajTrackIter++){ //loop on trajectories
+  for(TrajTrackIter = TrajTrackMap->begin(); TrajTrackIter!= TrajTrackMap->end(); ++TrajTrackIter){ //loop on trajectories
     
     if(TrajTrackIter->key->foundHits()>=5){
       
@@ -333,7 +333,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
       std::vector<TrajectoryMeasurement> TMeas=TrajTrackIter->key->measurements();
       std::vector<TrajectoryMeasurement>::iterator itm;
       
-      for (itm=TMeas.begin();itm!=TMeas.end();itm++){ //loop on hits
+      for (itm=TMeas.begin();itm!=TMeas.end();++itm){ //loop on hits
 	
 	int i;
 	for(i=0;i<100;i++){Amplitudes[i]=0;}
@@ -670,7 +670,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
   std::map<const SiStripRecHit2D *,std::pair<float,float>,DetIdLess>::iterator hitsiter;
   
   
-  for(hitsiter=hitangleassociation.begin();hitsiter!=hitangleassociation.end();hitsiter++){
+  for(hitsiter=hitangleassociation.begin();hitsiter!=hitangleassociation.end();++hitsiter){
     
     hitcounter_2ndloop++;
     

@@ -30,7 +30,7 @@ SiStripBackPlaneCorrection*  SiStripBackPlaneCorrectionGenerator::createObject(c
   
   SiStripDetInfoFileReader reader(fp_.fullPath());
   const std::vector<uint32_t> DetIds = reader.getAllDetIds();
-  for(std::vector<uint32_t>::const_iterator detit=DetIds.begin(); detit!=DetIds.end(); detit++){
+  for(std::vector<uint32_t>::const_iterator detit=DetIds.begin(); detit!=DetIds.end(); ++detit){
     unsigned int moduleGeometry = (tTopo->moduleGeometry(DetId(*detit))-1);
     if(moduleGeometry>valuePerModuleGeometry.size())edm::LogError("SiStripBackPlaneCorrectionGenerator")<<" BackPlaneCorrection_PerModuleGeometry only contains "<< valuePerModuleGeometry.size() << "elements and module is out of range"<<std::endl;
     float value =     valuePerModuleGeometry[moduleGeometry];

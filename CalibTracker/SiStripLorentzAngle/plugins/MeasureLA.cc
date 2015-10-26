@@ -99,7 +99,7 @@ process_reports() const {
   }
   
   { TFile widthsFile("widths.root","RECREATE"); 
-    for(Book::const_iterator it = book.begin(".*_width"); it!=book.end(); it++) if(it->second) it->second->Write();
+    for(Book::const_iterator it = book.begin(".*_width"); it!=book.end(); ++it) if(it->second) it->second->Write();
     widthsFile.Close();}
 }
 

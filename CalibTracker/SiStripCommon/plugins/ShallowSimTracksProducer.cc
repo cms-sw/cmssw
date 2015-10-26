@@ -58,7 +58,7 @@ produce(edm::Event& event, const edm::EventSetup& setup) {
   reco::RecoToSimCollection associations = associator->associateRecoToSim( tracks, trackingParticles);
   
   for( reco::RecoToSimCollection::const_iterator association = associations.begin(); 
-       association != associations.end(); association++) {
+       association != associations.end(); ++association) {
 
     const reco::Track* track = association->key.get();
     const int matches        = association->val.size();

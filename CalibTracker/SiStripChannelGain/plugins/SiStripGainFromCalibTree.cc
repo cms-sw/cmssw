@@ -688,7 +688,7 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
    printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
    printf("Fitting Charge Distribution  :");
    int TreeStep = APVsColl.size()/50;
-   for(__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++,I++){
+   for(__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();++it,++I){
    if(I%TreeStep==0){printf(".");fflush(stdout);}
       stAPVGain* APV = it->second;
       if(APV->Bin<0) APV->Bin = chvsidx->GetXaxis()->FindBin(APV->Index);
@@ -956,7 +956,7 @@ SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::Event
   edm::Handle<edm::View<reco::Track> > tracks;               iEvent.getByToken(tracksToken, tracks);
   edm::Handle<TrajTrackAssociationCollection> associations;  iEvent.getByToken(associationsToken, associations);
 
-  for( TrajTrackAssociationCollection::const_iterator association = associations->begin(); association != associations->end(); association++) {
+  for( TrajTrackAssociationCollection::const_iterator association = associations->begin(); association != associations->end(); ++association) {
        const Trajectory*  traj  = association->key.get();
        const reco::Track* track = association->val.get();
 
@@ -970,7 +970,7 @@ SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::Event
        NTrack++;
 
        vector<TrajectoryMeasurement> measurements = traj->measurements();
-       for(vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin(); measurement_it!=measurements.end(); measurement_it++){
+       for(vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin(); measurement_it!=measurements.end(); ++measurement_it){
           TrajectoryStateOnSurface trajState = measurement_it->updatedState();
           if( !trajState.isValid() ) continue;     
 

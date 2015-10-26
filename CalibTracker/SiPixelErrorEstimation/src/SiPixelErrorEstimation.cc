@@ -923,7 +923,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
   e.getByToken(tSimTrackContainer, simtracks);
 
   //-----Iterate over detunits
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) 
+  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); ++it) 
     {
       DetId detId = ((*it)->geographicalId());
       
@@ -1200,7 +1200,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  float closest_dist = 99999.9;
 	  std::vector<PSimHit>::const_iterator closest_simhit = matched.begin();
 	  
-	  for (std::vector<PSimHit>::const_iterator m = matched.begin(); m < matched.end(); m++) 
+	  for (std::vector<PSimHit>::const_iterator m = matched.begin(); m < matched.end(); ++m) 
 	    {
 	      if ( checkType_ )
 		{
@@ -1312,7 +1312,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  
 	  const edm::SimTrackContainer& trks = *(simtracks.product());
 	  SimTrackContainer::const_iterator trksiter;
-	  for (trksiter = trks.begin(); trksiter != trks.end(); trksiter++) 
+	  for (trksiter = trks.begin(); trksiter != trks.end(); ++trksiter) 
 	    if ( (int)trksiter->trackId() == all_trkid ) 
 	      {
 		all_simtrketa = trksiter->momentum().eta();

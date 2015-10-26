@@ -55,7 +55,7 @@ std::auto_ptr<SiPixelGainCalibrationOffline> SiPixelFakeGainOfflineESSource::pro
    const std::vector<uint32_t> DetIds = reader.getAllDetIds();
 
    // Loop over detectors
-   for(std::vector<uint32_t>::const_iterator detit=DetIds.begin(); detit!=DetIds.end(); detit++) {
+   for(std::vector<uint32_t>::const_iterator detit=DetIds.begin(); detit!=DetIds.end(); ++detit) {
      nmodules++;
      std::vector<char> theSiPixelGainCalibrationOffline;
      const std::pair<int, int> & detUnitDimensions = reader.getDetUnitDimensions(*detit);

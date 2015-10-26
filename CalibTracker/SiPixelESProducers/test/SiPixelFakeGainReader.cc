@@ -36,7 +36,7 @@ SiPixelFakeGainReader::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   
   std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationService_.getDetIds();
   // Loop over DetId's
-  for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){
+  for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();++detid_iter){
     uint32_t detid = *detid_iter;
 
     DetId detIdObject(detid);
@@ -111,7 +111,7 @@ SiPixelFakeGainReader::beginRun(const edm::Run &run , const edm::EventSetup &iSe
     std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationService_.getDetIds();
     //SiPixelGainCalibration_->getDetIds(vdetId_);
     // Loop over DetId's
-    for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){
+    for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();++detid_iter){
       uint32_t detid = *detid_iter;
       
       const PixelGeomDetUnit* _PixelGeomDetUnit = dynamic_cast<const PixelGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));

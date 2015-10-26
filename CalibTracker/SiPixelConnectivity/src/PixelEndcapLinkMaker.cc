@@ -73,7 +73,7 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(
   // DEBUG
   //
   ostringstream str;
-  for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
+  for (CIU it = linkItems.begin(); it != linkItems.end(); ++it) {
     str << (*it).name->name() <<" r="<< (*it).rocIds << endl;
   }
   LogDebug(" sorted ENDCAP links: ") << str.str();
@@ -84,7 +84,7 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(
   int idRoc = 0;
   PixelFEDLink link(idLink); // dummy object, id=0
 
-  for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
+  for (CIU it = linkItems.begin(); it != linkItems.end(); ++it) {
     PixelFEDLink::ROCs rocs;
     int pannelId = it->name->pannelName();
 

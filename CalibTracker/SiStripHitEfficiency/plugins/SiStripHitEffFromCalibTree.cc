@@ -567,7 +567,7 @@ void SiStripHitEffFromCalibTree::makeHotColdMaps() {
     //Loop through the entirety of each layer
     //Create an array of the histograms
     vector<hit>::const_iterator iter;
-    for(iter = hits[mylayer].begin(); iter != hits[mylayer].end(); iter++) {
+    for(iter = hits[mylayer].begin(); iter != hits[mylayer].end(); ++iter) {
       //Looping over the particular layer
       //Fill by 360-x to get the proper location to compare with TKMaps of phi
       //Also global xy is messed up
@@ -614,7 +614,7 @@ void SiStripHitEffFromCalibTree::makeTKMap() {
     //Loop over every layer, extracting the information from
     //the map of the efficiencies
     map<unsigned int, pair<unsigned int, unsigned int> >::const_iterator ih;
-    for( ih = modCounter[i].begin(); ih != modCounter[i].end(); ih++) {
+    for( ih = modCounter[i].begin(); ih != modCounter[i].end(); ++ih) {
       //We should be in the layer in question, and looping over all of the modules in said layer
       //Generate the list for the TKmap, and the bad module list
       double myeff = (double)(((*ih).second).second)/(((*ih).second).first);
@@ -659,7 +659,7 @@ void SiStripHitEffFromCalibTree::makeSQLite() {
   //Now simply go through the bad hit list and mask out things that
   //are bad!
   map< unsigned int, double >::const_iterator it;
-  for(it = BadModules.begin(); it != BadModules.end(); it++) {
+  for(it = BadModules.begin(); it != BadModules.end(); ++it) {
     //We need to figure out how many strips are in this particular module
     //To Mask correctly!
     NStrips=reader->getNumberOfApvsAndStripLength((*it).first).first*128;

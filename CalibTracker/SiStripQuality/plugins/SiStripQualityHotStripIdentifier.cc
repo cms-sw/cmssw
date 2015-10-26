@@ -159,7 +159,7 @@ void SiStripQualityHotStripIdentifier::algoAnalyze(const edm::Event& e, const ed
    
     const reco::TrackCollection tC = *(trackCollection.product());
     int i=0;
-    for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
+    for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); ++track){
       LogTrace("SiStripQualityHotStripIdentifier")
 	<< "Track number "<< i+1 
 	<< "\n\tmomentum: " << track->momentum()
@@ -201,7 +201,7 @@ void SiStripQualityHotStripIdentifier::algoAnalyze(const edm::Event& e, const ed
   std::stringstream ss;   
   //Loop on Det Clusters
   edm::DetSetVector<SiStripCluster>::const_iterator DSViter=dsv_SiStripCluster->begin();
-  for (; DSViter!=dsv_SiStripCluster->end();DSViter++){
+  for (; DSViter!=dsv_SiStripCluster->end();++DSViter){
     edm::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->data.begin();
     edm::DetSet<SiStripCluster>::const_iterator ClusIterEnd = DSViter->data.end();
     for(; ClusIter!=ClusIterEnd; ++ClusIter) {    

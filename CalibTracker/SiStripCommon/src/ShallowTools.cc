@@ -31,7 +31,7 @@ findTrackIndex(const edm::Handle<edm::View<reco::Track> >& tracks, const reco::T
     it = tracks->begin(),
     end = tracks->end();
   //Compare addresses
-  for(; it!=end; it++) {    if (&(*it)==track) { return it - tracks->begin(); }  }
+  for(; it!=end; ++it) {    if (&(*it)==track) { return it - tracks->begin(); }  }
   return -2;
 }
 

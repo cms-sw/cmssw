@@ -117,7 +117,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   TrajectoryStateCombiner combiner;
 
   for( TrajTrackAssociationCollection::const_iterator association = associations->begin(); 
-       association != associations->end(); association++) {
+       association != associations->end(); ++association) {
     const Trajectory*  traj  = association->key.get();
     const reco::Track* track = association->val.get();
 

@@ -46,10 +46,10 @@ ApvAnalysisFactory::ApvAnalysisFactory(const edm::ParameterSet& pset){
 //----------------------------------
 ApvAnalysisFactory::~ApvAnalysisFactory(){
   ApvAnalysisFactory::ApvAnalysisMap::iterator it = apvMap_.begin();
-  for(;it!=apvMap_.end();it++)
+  for(;it!=apvMap_.end();++it)
     {
       vector<ApvAnalysis*>::iterator myApv = (*it).second.begin();
-      for(;myApv!=(*it).second.end();myApv++)
+      for(;myApv!=(*it).second.end();++myApv)
   deleteApv(*myApv);
     }
   apvMap_.clear();
@@ -161,7 +161,7 @@ void ApvAnalysisFactory::updatePair(uint32_t detId, size_t pairNumber, const edm
     {
       size_t iter=0;
 
-      for(vector<ApvAnalysis*>::const_iterator apvIt = (apvAnalysisIt->second).begin(); apvIt != (apvAnalysisIt->second).end(); apvIt++)
+      for(vector<ApvAnalysis*>::const_iterator apvIt = (apvAnalysisIt->second).begin(); apvIt != (apvAnalysisIt->second).end(); ++apvIt)
   {
 
     if (iter==pairNumber*2 || iter==(2*pairNumber+1)){
@@ -202,7 +202,7 @@ void ApvAnalysisFactory::update(uint32_t detId, const edm::DetSet<SiStripRawDigi
   if(apvAnalysisIt != apvMap_.end())
     {
       size_t i=0;
-       for(vector<ApvAnalysis*>::const_iterator apvIt = (apvAnalysisIt->second).begin(); apvIt != (apvAnalysisIt->second).end(); apvIt++)
+       for(vector<ApvAnalysis*>::const_iterator apvIt = (apvAnalysisIt->second).begin(); apvIt != (apvAnalysisIt->second).end(); ++apvIt)
    {
      edm::DetSet<SiStripRawDigi> tmpRawDigi;
      //it is missing the detId ...
@@ -247,10 +247,10 @@ void ApvAnalysisFactory::getPedestal(uint32_t detId, ApvAnalysis::PedestalType& 
   if(apvAnalysisIt != apvMap_.end())
     {
       vector<ApvAnalysis* > theApvs = apvAnalysisIt->second;
-      for(vector<ApvAnalysis*>::const_iterator it = theApvs.begin(); it != theApvs.end();it++)
+      for(vector<ApvAnalysis*>::const_iterator it = theApvs.begin(); it != theApvs.end();++it)
   {
     ApvAnalysis::PedestalType tmp = (*it)->pedestalCalculator().pedestal();
-    for(ApvAnalysis::PedestalType::const_iterator pit =tmp.begin(); pit!=tmp.end(); pit++) 
+    for(ApvAnalysis::PedestalType::const_iterator pit =tmp.begin(); pit!=tmp.end(); ++pit) 
       peds.push_back(*pit);
   }
     }
@@ -299,10 +299,10 @@ void ApvAnalysisFactory::getNoise(uint32_t detId, ApvAnalysis::PedestalType& ped
   if(theApvs_map != apvMap_.end())
     {
       vector<ApvAnalysis*>::const_iterator theApvs = (theApvs_map->second).begin();
-      for(; theApvs !=  (theApvs_map->second).end();theApvs++)
+      for(; theApvs !=  (theApvs_map->second).end();++theApvs)
   {
     ApvAnalysis::PedestalType tmp = (*theApvs)->noiseCalculator().noise();
-    for(ApvAnalysis::PedestalType::const_iterator pit =tmp.begin(); pit!=tmp.end(); pit++) 
+    for(ApvAnalysis::PedestalType::const_iterator pit =tmp.begin(); pit!=tmp.end(); ++pit) 
       peds.push_back(*pit);
   }
     }
@@ -342,10 +342,10 @@ void ApvAnalysisFactory::getRawNoise(uint32_t detId, ApvAnalysis::PedestalType& 
   if(theApvs_map != apvMap_.end())
     {
       vector<ApvAnalysis*>::const_iterator theApvs = (theApvs_map->second).begin();
-      for(; theApvs !=  (theApvs_map->second).end();theApvs++)
+      for(; theApvs !=  (theApvs_map->second).end();++theApvs)
   {
     ApvAnalysis::PedestalType tmp = (*theApvs)->pedestalCalculator().rawNoise();
-    for(ApvAnalysis::PedestalType::const_iterator pit =tmp.begin(); pit!=tmp.end(); pit++) 
+    for(ApvAnalysis::PedestalType::const_iterator pit =tmp.begin(); pit!=tmp.end(); ++pit) 
       peds.push_back(*pit);
   }
     }
@@ -408,7 +408,7 @@ bool ApvAnalysisFactory::isUpdating(uint32_t detId)
   map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
   if(apvAnalysisIt != apvMap_.end())
     {
-      for(vector<ApvAnalysis*>::const_iterator apvIt = (apvAnalysisIt->second).begin(); apvIt != (apvAnalysisIt->second).end(); apvIt++)  
+      for(vector<ApvAnalysis*>::const_iterator apvIt = (apvAnalysisIt->second).begin(); apvIt != (apvAnalysisIt->second).end(); ++apvIt)  
   { 
     if(!( (*apvIt)->pedestalCalculator().status()->isUpdating() ))
       updating = false;

@@ -770,7 +770,7 @@ SiStripLorentzAngle* SiStripCalibLorentzAngle::getNewObject(){
   SiStripLorentzAngle* LorentzAngle = new SiStripLorentzAngle();
   
   if(!LayerDB){
-  for(std::map<uint32_t, float>::iterator it = detid_la.begin(); it != detid_la.end(); it++){
+  for(std::map<uint32_t, float>::iterator it = detid_la.begin(); it != detid_la.end(); ++it){
     
     float langle=it->second;
     if ( ! LorentzAngle->putLorentzAngle(it->first,langle) )
@@ -783,7 +783,7 @@ SiStripLorentzAngle* SiStripCalibLorentzAngle::getNewObject(){
     const TrackerGeometry::DetIdContainer& Id = estracker->detIds();
     TrackerGeometry::DetIdContainer::const_iterator Iditer; 
        
-    for(Iditer=Id.begin();Iditer!=Id.end();Iditer++){
+    for(Iditer=Id.begin();Iditer!=Id.end();++Iditer){
   
     StripSubdetector subid(Iditer->rawId());
     

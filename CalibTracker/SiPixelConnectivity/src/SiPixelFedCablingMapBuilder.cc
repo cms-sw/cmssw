@@ -65,7 +65,7 @@ SiPixelFedCablingTree * SiPixelFedCablingMapBuilder::produce( const edm::EventSe
   typedef  std::vector<pair<PixelModuleName* , uint32_t> > UNITS;
   UNITS units;
 
-  for (ITG it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+  for (ITG it = pDD->dets().begin(); it != pDD->dets().end(); ++it){
     const PixelGeomDetUnit * pxUnit = dynamic_cast<const PixelGeomDetUnit*>(*it);
     if (pxUnit  ==0 ) continue;
     npxdets++;
@@ -89,7 +89,7 @@ SiPixelFedCablingTree * SiPixelFedCablingMapBuilder::produce( const edm::EventSe
     int idx = id - fedIds.min();
     fedSpecs[idx]= fs;
   }
-  for (UNITS::iterator iu=units.begin(); iu != units.end(); iu++) {
+  for (UNITS::iterator iu=units.begin(); iu != units.end(); ++iu) {
     PixelModuleName* name = (*iu).first;
     uint32_t rawId = (*iu).second;
     int fedId = name2fed( *name);
@@ -104,7 +104,7 @@ SiPixelFedCablingTree * SiPixelFedCablingMapBuilder::produce( const edm::EventSe
   LogDebug("tracker geometry read")<<"There are: "<< npxdets<<" pixel detetors";
   // construct FEDs
   typedef vector<FedSpec>::iterator FI;
-  for ( FI it = fedSpecs.begin(); it != fedSpecs.end(); it++) {
+  for ( FI it = fedSpecs.begin(); it != fedSpecs.end(); ++it) {
     int fedId = it->fedId;
     vector<PixelModuleName* > names = it->names;
     vector<uint32_t> units = it->rawids;
@@ -126,7 +126,7 @@ SiPixelFedCablingTree * SiPixelFedCablingMapBuilder::produce( const edm::EventSe
   } else {
     PixelToFEDAssociate::DetectorRocId detectorRocId;
     cout <<" HERE PixelToLNKAssociateFromAscii"<<endl;
-    for (UNITS::iterator iu=units.begin(); iu != units.end(); iu++) {
+    for (UNITS::iterator iu=units.begin(); iu != units.end(); ++iu) {
       PixelModuleName * name =  (*iu).first; 
       detectorRocId.module = name;
       for (int rocDetId=0; rocDetId<=16; rocDetId++) {
@@ -141,7 +141,7 @@ SiPixelFedCablingTree * SiPixelFedCablingMapBuilder::produce( const edm::EventSe
   }
 
   //clear names:
-  for (UNITS::iterator iu=units.begin(); iu != units.end(); iu++) delete iu->first;
+  for (UNITS::iterator iu=units.begin(); iu != units.end(); ++iu) delete iu->first;
 
 
   return result;

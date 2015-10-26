@@ -380,7 +380,7 @@ SiPixelFedFillerWordEventNumber ::produce(edm::Event& iEvent, const edm::EventSe
       if(value!=0){
 	//====== Verify that the vector is not empty
 	if(vecSaveFillerWords.size()!=0){
-	  for(vecSaveFillerWords_It = vecSaveFillerWords.begin(); vecSaveFillerWords_It != vecSaveFillerWords.end(); vecSaveFillerWords_It++){
+	  for(vecSaveFillerWords_It = vecSaveFillerWords.begin(); vecSaveFillerWords_It != vecSaveFillerWords.end(); ++vecSaveFillerWords_It){
 	    SaveFillerWords->push_back(*vecSaveFillerWords_It);
 	  }
 	}else{
@@ -388,10 +388,10 @@ SiPixelFedFillerWordEventNumber ::produce(edm::Event& iEvent, const edm::EventSe
 	}
       }
       edm::LogInfo("FedFillerWords") << "Found " << value << " filler words in FED " << fedId << std::endl;
-      for (vecFillerWordsEventNumber1_It = vecFillerWordsEventNumber1.begin(); vecFillerWordsEventNumber1_It != vecFillerWordsEventNumber1.end(); vecFillerWordsEventNumber1_It++){
+      for (vecFillerWordsEventNumber1_It = vecFillerWordsEventNumber1.begin(); vecFillerWordsEventNumber1_It != vecFillerWordsEventNumber1.end(); ++vecFillerWordsEventNumber1_It){
 	FillerWordEventNumbers1->push_back(*vecFillerWordsEventNumber1_It);
       }
-      for(vecFillerWordsEventNumber2_It = vecFillerWordsEventNumber2.begin(); vecFillerWordsEventNumber2_It != vecFillerWordsEventNumber2.end(); vecFillerWordsEventNumber2_It++){
+      for(vecFillerWordsEventNumber2_It = vecFillerWordsEventNumber2.begin(); vecFillerWordsEventNumber2_It != vecFillerWordsEventNumber2.end(); ++vecFillerWordsEventNumber2_It){
         FillerWordEventNumbers2->push_back(*vecFillerWordsEventNumber2_It);
       }
     }

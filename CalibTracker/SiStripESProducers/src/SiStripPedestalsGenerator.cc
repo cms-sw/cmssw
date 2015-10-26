@@ -29,7 +29,7 @@ SiStripPedestals* SiStripPedestalsGenerator::createObject(){
 
   const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo > DetInfos  = reader.getAllData();
   
-  for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); it++){    
+  for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); ++it){    
     //Generate Noises for det detid
     SiStripPedestals::InputVector theSiStripVector;
     for(unsigned short j=0; j<128*it->second.nApvs; j++){

@@ -54,7 +54,7 @@ void SiStripDetInfoFileWriter::beginRun(const edm::Run&, const edm::EventSetup& 
     
     edm::LogInfo("SiStripDetInfoFileWriter") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
     
-    for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
+    for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); ++it){
   
       const StripGeomDetUnit* mit = dynamic_cast<StripGeomDetUnit const *>(*it);
 

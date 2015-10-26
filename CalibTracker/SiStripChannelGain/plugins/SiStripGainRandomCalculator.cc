@@ -68,7 +68,7 @@ void SiStripGainRandomCalculator::algoAnalyze(const edm::Event & event, const ed
     
     edm::LogInfo("SiStripGainCalculator") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
     
-    for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
+    for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); ++it){
   
       if( dynamic_cast<const StripGeomDetUnit*>((*it))!=0){
 	uint32_t detid=((*it)->geographicalId()).rawId();            
@@ -95,7 +95,7 @@ SiStripApvGain * SiStripGainRandomCalculator::getNewObject() {
 
   SiStripApvGain * obj = new SiStripApvGain();
 
-  for(std::vector< pair<uint32_t,unsigned short> >::const_iterator it = detid_apvs_.begin(); it != detid_apvs_.end(); it++){
+  for(std::vector< pair<uint32_t,unsigned short> >::const_iterator it = detid_apvs_.begin(); it != detid_apvs_.end(); ++it){
     //Generate Gain for det detid
     std::vector<float> theSiStripVector;
     for(unsigned short j=0; j<it->second; j++){

@@ -111,7 +111,7 @@ match_cluster( const unsigned& id, const float& strip_, const shallow::CLUSTERMA
   if( clustersDetSet != clusters.end() ) {
     edmNew::DetSet<SiStripCluster>::const_iterator left, right=clustersDetSet->begin();
     while( right != clustersDetSet->end() && strip_ > right->barycenter() ) 
-      right++;
+      ++right;
     left = right-1;
     if(right!=clustersDetSet->end() && right!=clustersDetSet->begin()) {
       unsigned firstStrip = (right->barycenter()-strip_) < (strip_-left->barycenter()) ? right->firstStrip() : left->firstStrip();

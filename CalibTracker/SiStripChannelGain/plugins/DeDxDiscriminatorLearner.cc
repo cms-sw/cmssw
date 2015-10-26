@@ -126,7 +126,7 @@ void DeDxDiscriminatorLearner::algoAnalyze(const edm::Event& iEvent, const edm::
       if(track.found()<MinTrackHits                                    ){continue;}
 
       const vector<TrajectoryMeasurement> & measurements = traj.measurements();
-      for(vector<TrajectoryMeasurement>::const_iterator it = measurements.begin(); it!=measurements.end(); it++){
+      for(vector<TrajectoryMeasurement>::const_iterator it = measurements.begin(); it!=measurements.end(); ++it){
          TrajectoryStateOnSurface trajState=it->updatedState();
          if( !trajState.isValid()) continue;
 

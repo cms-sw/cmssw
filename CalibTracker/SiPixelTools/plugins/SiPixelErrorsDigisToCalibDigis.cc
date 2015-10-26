@@ -94,7 +94,7 @@ SiPixelErrorsDigisToCalibDigis::analyze(const edm::Event& iEvent, const edm::Eve
   DetSetVector<SiPixelCalibDigiError>::const_iterator digiIter;
   
   
-  for (digiIter=thePlaquettes->begin(); digiIter!=thePlaquettes->end(); digiIter++)
+  for (digiIter=thePlaquettes->begin(); digiIter!=thePlaquettes->end(); ++digiIter)
     {
       uint32_t detId = digiIter->id;
       
