@@ -8,6 +8,7 @@ import threading #Needed in threading use for Valgrind
 import subprocess #Nicer subprocess management than os.popen
 import datetime #Used to time the running of the performance suite
 import pickle #Used to dump the running timing information
+from functools import reduce
 
 #Redefine _cleanup() function not to poll active processes
 #[This is necessary to avoid issues when threading]
