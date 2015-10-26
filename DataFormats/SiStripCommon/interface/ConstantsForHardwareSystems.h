@@ -127,21 +127,21 @@ namespace sistrip {
   };
   
   enum FedReadoutMode { UNKNOWN_FED_READOUT_MODE = sistrip::unknown_,
-			UNDEFINED_FED_READOUT_MODE = sistrip::invalid_,
-			FED_SCOPE_MODE = 1, 
-			FED_VIRGIN_RAW = 2, 
-			FED_PROC_RAW = 6, 
-			FED_ZERO_SUPPR = 10,
-			//FED_ZERO_SUPPR_CMO = 4,
-			FED_ZERO_SUPPR_LITE = 3,
-			FED_ZERO_SUPPR_LITE_CMO = 4,
+                        UNDEFINED_FED_READOUT_MODE = sistrip::invalid_,
+                        FED_SCOPE_MODE = 1, 
+                        FED_VIRGIN_RAW = 2, 
+                        FED_PROC_RAW = 6, 
+                        FED_ZERO_SUPPR = 10,
+                        //FED_ZERO_SUPPR_CMO = 4,
+                        FED_ZERO_SUPPR_LITE = 3,
+                        FED_ZERO_SUPPR_LITE_CMO = 4,
                         FED_ZERO_SUPPR_LITE8_TT = 12,
                         FED_ZERO_SUPPR_LITE8_TT_CMO = 8,
                         FED_ZERO_SUPPR_LITE8_TB = 5,
                         FED_ZERO_SUPPR_LITE8_TB_CMO = 7,
                         FED_ZERO_SUPPR_LITE8_BB = 9,
                         FED_ZERO_SUPPR_LITE8_BB_CMO = 11,
-			FED_PREMIX_RAW = 15
+                        FED_PREMIX_RAW = 15
   };
 
   enum FedReadoutPath { UNKNOWN_FED_READOUT_PATH = sistrip::unknown_,

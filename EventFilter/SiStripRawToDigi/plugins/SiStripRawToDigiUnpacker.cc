@@ -651,8 +651,6 @@ namespace sistrip {
       zero_suppr.swap( zero_suppr_dsv );
     } 
   
-std::cout << "VR size:" << virgin_work_registry_.size() << std::endl;
-std::cout << "VD size:" << virgin_work_digis_.size() << std::endl;
     // Populate final DetSetVector container with VR data 
     if ( !virgin_work_registry_.empty() ) {
 
@@ -670,20 +668,19 @@ std::cout << "VD size:" << virgin_work_digis_.size() << std::endl;
 	bool isDetOk = true; 
 	// first count how many digis we have
 	int maxFirstStrip = it->first;
-//std::cout << "maxfirststrip: " << maxFirstStrip << std::endl;
 	for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { 
 	  // duplicated APV or data corruption. DO NOT 'break' here!
-	  if (it2->first <= maxFirstStrip) { isDetOk = false;std::cout << "(1) " << it2->first << "/" << maxFirstStrip << std::endl; continue; } 
+	  if (it2->first <= maxFirstStrip) { isDetOk = false; continue; } 
 	  maxFirstStrip = it2->first;                           
 	}
-	if (!isDetOk) { errorInData = true;std::cout << "(2)" << std::endl; it = it2; continue; } // skip whole det
+	if (!isDetOk) { errorInData = true; it = it2; continue; } // skip whole det
       
 	// make room for 256 * (max_apv_pair + 1) Raw Digis
 	digis.resize(maxFirstStrip + 256);
 	// push them in
 	for (it2 = it+0; (it2 != end) && (it2->detid == it->detid); ++it2) {
 	  // data corruption. DO NOT 'break' here
-	  if (it->length != 256)  { isDetOk = false;std::cout << "(3) " << it->length << std::endl; continue; } 
+	  if (it->length != 256)  { isDetOk = false; continue; } 
 	  std::copy( & virgin_work_digis_[it2->index], & virgin_work_digis_[it2->index + it2->length], & digis[it2->first] );
 	}
 	if (!isDetOk) { errorInData = true; digis.clear(); it = it2; continue; } // skip whole det
@@ -711,7 +708,6 @@ std::cout << "VD size:" << virgin_work_digis_.size() << std::endl;
         it = it2;
       }
 */
-std::cout << "after sorting: " << sorted_and_merged.size() << std::endl;
       // output error
       if (errorInData) edm::LogWarning("CorruptData") << "Some modules contained corrupted virgin raw data, and have been skipped in unpacking\n"; 
     

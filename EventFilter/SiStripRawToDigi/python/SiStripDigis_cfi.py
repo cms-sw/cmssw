@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 siStripDigis = cms.EDProducer(
     "SiStripRawToDigiModule",
     ProductLabel      = cms.InputTag('rawDataCollector'),
-    LegacyUnpacker    = cms.bool(False),
+    LegacyUnpacker    = cms.bool(True),
     AppendedBytes     = cms.int32(0),
     UseDaqRegister    = cms.bool(False),
     UseFedKey         = cms.bool(False),

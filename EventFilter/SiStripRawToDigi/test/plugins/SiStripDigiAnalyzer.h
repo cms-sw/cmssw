@@ -2,7 +2,6 @@
 #define EventFilter_SiStripRawToDigi_test_AnalyzeSiStripDigis_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-//#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "boost/cstdint.hpp"
 #include <string>
 #include <sstream>
