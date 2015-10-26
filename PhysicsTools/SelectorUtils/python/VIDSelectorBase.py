@@ -19,15 +19,14 @@ from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 
 ebCutOff = 1.479
 
-%s
+%s = %s
 """
 
-def process_pset( builder, pythonpset ):  
-    """ turn a python cms.PSet into a VID ID """
-    escaped_pset = config_template%(pythonpset)
+def process_pset( builder, pythonpset, suffix ):  
+    """ turn a python cms.PSet into a VID ID """    
+    idname = pythonpset.idName.value().replace('-','_') + suffix
+    escaped_pset = config_template%(idname, pythonpset)
     
-    idname = pythonpset.idName.value().replace('-','_')
-        
     return builder(escaped_pset,idname)
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
@@ -36,7 +35,7 @@ def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
 class VIDSelectorBase:
     def __init__(self, vidSelectorBuilder, ptrMaker, printer, pythonpset = None):        
         self.__initialized = False
-        self.__suffix = id_generator(7)
+        self.__suffix = id_generator(12)
         self.__printer = printer()
         self.__ptrMaker = ptrMaker()
         self.__selectorBuilder = vidSelectorBuilder()
@@ -53,7 +52,7 @@ class VIDSelectorBase:
                 sys.stderr.write('This ID is not POG approved and likely under development!!!!\n')
                 sys.stderr.write('Please make sure to report your progress with this ID'\
                                      ' at the next relevant POG meeting.\n')
-            self.__instance = process_pset( self.__selectorBuilder, pythonpset ) 
+            self.__instance = process_pset( self.__selectorBuilder, pythonpset,  self.__suffix ) 
             expectedmd5 = central_id_registry.getMD5FromName(pythonpset.idName)
             if expectedmd5 != self.md5String():
                 sys.stderr.write("ID: %s\n"%self.name())
@@ -96,7 +95,7 @@ class VIDSelectorBase:
             sys.stderr.write('This ID is not POG approved and likely under development!!!!\n')
             sys.stderr.write('Please make sure to report your progress with this ID'\
                                  ' at the next relevant POG meeting.\n')
-        self.__instance = process_pset( self.__selectorBuilder, pythonpset )         
+        self.__instance = process_pset( self.__selectorBuilder, pythonpset, self.__suffix )         
         expectedmd5 = central_id_registry.getMD5FromName(pythonpset.idName)
         if expectedmd5 != self.md5String():
             sys.stderr.write("ID: %s\n"%self.name())
