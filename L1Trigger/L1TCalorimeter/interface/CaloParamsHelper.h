@@ -254,9 +254,26 @@ namespace l1t {
       else
 	return 0;
     }
+    std::vector<int> minimumBiasThresholds() const {
+      if(pnode_[hiCentrality].version_ == 1 && pnode_[hiCentrality].iparams_.size()>=5) {
+	std::vector<int> newVec;
+	for(int i = 0; i<4; i++) {
+	  newVec.push_back(pnode_[hiCentrality].iparams_.at(i+1));
+	}
+	return newVec;
+      } else {
+	std::vector<int> newVec;
+	return newVec;
+      }
+    }
     l1t::LUT * centralityLUT() { return &pnode_[hiCentrality].LUT_; }
     void setCentralityNodeVersion(int version) { pnode_[hiCentrality].version_ = version; }
     void setCentralityRegionMask(int mask) { pnode_[hiCentrality].iparams_.push_back(mask); }
+    void setMinimumBiasThresholds(std::vector<int> thresholds) {
+      for(int i = 0; i<4; i++) {
+	pnode_[hiCentrality].iparams_.push_back(thresholds.at(i));
+      }
+    }
     void setCentralityLUT(const l1t::LUT & lut) { pnode_[hiCentrality].LUT_ = lut; }
 
     // HI Q2

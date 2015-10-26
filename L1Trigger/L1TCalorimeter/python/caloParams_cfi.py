@@ -98,8 +98,9 @@ caloParams = cms.ESProducer(
     etSumEtThreshold        = cms.vdouble(0.,  0.,   0.,   0.),
 
     # HI
-    centralityNodeVersion = cms.int32(0),
+    centralityNodeVersion = cms.int32(1),
     centralityRegionMask = cms.int32(0),
+    minimumBiasThresholds = cms.vint32(0, 0, 0, 0),
     centralityLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/centralityLUT_stage1.txt"),
     q2LUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/q2LUT_stage1.txt")
 

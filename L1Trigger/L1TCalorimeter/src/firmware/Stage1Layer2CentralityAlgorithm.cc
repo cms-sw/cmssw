@@ -90,35 +90,30 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
   // End Centrality Trigger //
 
   // Begin MB Trigger //
-  int threshold[2][4] = {{0}}; // 8 thresholds in LUT, only 4 get used. [side][thresh#]
-  threshold[0][0] = 3; // hardcode for now
-  threshold[1][0] = threshold[0][0];
-  threshold[0][1] = 6;
-  threshold[1][1] = threshold[0][1];
-
-  int numOverThresh[2][4] = {{0}};
+  std::vector<int> thresholds = params_->minimumBiasThresholds();
+  int numOverThresh[4] = {0};
   for(std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
     if(region->hwEta() < 4) {
-      if(region->hwPt() > threshold[0][0])
-	numOverThresh[0][0]++;
-      if(region->hwPt() > threshold[0][1])
-	numOverThresh[0][1]++;
+      if(region->hwPt() > thresholds.at(0))
+	numOverThresh[0]++;
+      if(region->hwPt() > thresholds.at(2))
+	numOverThresh[2]++;
     }
     if(region->hwEta() > 17) {
-      if(region->hwPt() > threshold[1][0])
-	numOverThresh[1][0]++;
-      if(region->hwPt() > threshold[1][1])
-	numOverThresh[1][1]++;
+      if(region->hwPt() > thresholds.at(1))
+	numOverThresh[1]++;
+      if(region->hwPt() > thresholds.at(3))
+	numOverThresh[3]++;
     }
   }
 
   int bits[6];
-  bits[0] = ((numOverThresh[0][0] > 0) && (numOverThresh[1][0] > 0));
-  bits[1] = ((numOverThresh[0][0] > 0) || (numOverThresh[1][0] > 0));
-  bits[2] = ((numOverThresh[0][1] > 0) && (numOverThresh[1][1] > 0));
-  bits[3] = ((numOverThresh[0][1] > 0) || (numOverThresh[1][1] > 0));
-  bits[4] = ((numOverThresh[0][0] > 1) && (numOverThresh[1][0] > 1));
-  bits[5] = ((numOverThresh[0][1] > 1) && (numOverThresh[1][1] > 1));
+  bits[0] = ((numOverThresh[0] > 0) && (numOverThresh[1] > 0));
+  bits[1] = ((numOverThresh[0] > 0) || (numOverThresh[1] > 0));
+  bits[2] = ((numOverThresh[2] > 0) && (numOverThresh[3] > 0));
+  bits[3] = ((numOverThresh[2] > 0) || (numOverThresh[3] > 0));
+  bits[4] = ((numOverThresh[0] > 1) && (numOverThresh[1] > 1));
+  bits[5] = ((numOverThresh[2] > 1) && (numOverThresh[3] > 1));
 
   spare->SetRing(2, (bits[2]<<2) + (bits[1]<<1) + bits[0]);
   spare->SetRing(3, (bits[5]<<2) + (bits[4]<<1) + bits[3]);

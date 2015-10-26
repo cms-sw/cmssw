@@ -245,6 +245,12 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params_helper.setCentralityLUT(*centralityLUT);
   m_params_helper.setCentralityNodeVersion(conf.getParameter<int>("centralityNodeVersion"));
   m_params_helper.setCentralityRegionMask(conf.getParameter<int>("centralityRegionMask"));
+  std::vector<int> minbiasThresholds = conf.getParameter<std::vector<int> >("minimumBiasThresholds");
+  if(minbiasThresholds.size() == 4) {
+    m_params_helper.setMinimumBiasThresholds(minbiasThresholds);
+  } else {
+    edm::LogError("l1t|calo") << "Incorrect number of minimum bias thresholds set.";
+  }
 
   // HI Q2 trigger
   edm::FileInPath q2LUTFile = conf.getParameter<edm::FileInPath>("q2LUTFile");
