@@ -556,6 +556,8 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
        i<=FEDNumbering::MAXHCALuTCAFEDID; i++) {
     if (i>FEDNumbering::MAXHCALFEDID && i<FEDNumbering::MINHCALuTCAFEDID)
       continue;
+	if (i<1118)
+		continue;
     const FEDRawData& fed = rawraw->FEDData(i);
     if (fed.size()<12) continue;  //At least the size of headers and trailers of a DCC.    
 
