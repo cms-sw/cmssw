@@ -30,6 +30,9 @@ DQMOfflineHeavyIonsDPG = cms.Sequence( DQMOfflineHeavyIonsPreDPG *
                                        DQMMessageLogger )
 
 from DQMOffline.Muon.muonMonitors_cff import *
+diMuonHistos.etaBin = cms.int32(70)
+diMuonHistos.etaBBin = cms.int32(70)
+diMuonHistos.etaEBin = cms.int32(35)
 diMuonHistos.LowMassMin = cms.double(2.0)
 diMuonHistos.LowMassMax = cms.double(14.0)
 diMuonHistos.HighMassMin = cms.double(55.0)
