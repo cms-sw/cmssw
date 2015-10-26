@@ -268,10 +268,10 @@ namespace sistrip {
 	uint32_t fed_key = ( summary.runType() == sistrip::FED_CABLING ) ? ( ( *ifed & sistrip::invalid_ ) << 16 ) | ( chan & sistrip::invalid_ ) : ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
 
 	// Determine whether DetId or FED key should be used to index digi containers
-	uint32_t key = ( useFedKey_ || mode == sistrip::READOUT_MODE_SCOPE || (legacy_ && lmode == sistrip::READOUT_MODE_LEGACY_SCOPE) ) ? fed_key : iconn->detId();
+	uint32_t key = ( useFedKey_ || (!legacy_ && mode == sistrip::READOUT_MODE_SCOPE) || (legacy_ && lmode == sistrip::READOUT_MODE_LEGACY_SCOPE) ) ? fed_key : iconn->detId();
       
 	// Determine APV std::pair number (needed only when using DetId)
-	uint16_t ipair = ( useFedKey_ || mode == sistrip::READOUT_MODE_SCOPE || (legacy_ && lmode == sistrip::READOUT_MODE_LEGACY_SCOPE) ) ? 0 : iconn->apvPairNumber();
+	uint16_t ipair = ( useFedKey_ || (!legacy_ && mode == sistrip::READOUT_MODE_SCOPE) || (legacy_ && lmode == sistrip::READOUT_MODE_LEGACY_SCOPE) ) ? 0 : iconn->apvPairNumber();
 
 	if ((!legacy_ && mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED)
          || (legacy_ && (lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL || lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE))
@@ -322,7 +322,7 @@ namespace sistrip {
  	      }
  	    }
  	  }
-
+	  
 	}
 
 	else if (!legacy_ &&
@@ -463,7 +463,7 @@ namespace sistrip {
 	      virgin_work_digis_.push_back(  SiStripRawDigi( samples[readout] ) );
 	    }
 	    virgin_work_registry_.push_back( regItem );
-          }
+	  }
 	} 
     
 	else if ((!legacy_ && mode == sistrip::READOUT_MODE_PROC_RAW)
@@ -668,7 +668,7 @@ namespace sistrip {
 	if (!isDetOk) { errorInData = true; digis.clear(); it = it2; continue; } // skip whole det
 	it = it2;
       }
-
+    
       // output error
       if (errorInData) edm::LogWarning("CorruptData") << "Some modules contained corrupted virgin raw data, and have been skipped in unpacking\n"; 
     
