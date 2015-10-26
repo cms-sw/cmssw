@@ -12,6 +12,7 @@ import re
 from os import getcwd, listdir
 from os.path import join
 from urllib import quote
+from functools import reduce
 
 
 renaming = {

@@ -13,6 +13,7 @@ import random
 import sys
 import inspect
 import ROOT
+from functools import reduce
 ROOT.gROOT.SetBatch()
 
 # regex for reducing 'warn()' filenames
