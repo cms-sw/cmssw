@@ -291,7 +291,7 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, c
   }
   // The availability test of the FastMonitoringService was done in the ctor.
   bpt::ptree data;
-  bpt::ptree processedEvents, acceptedEvents, errorEvents, bitmask, fileList, fileSize, inputFiles, fileAdler32, transferDestination;
+  bpt::ptree processedEvents, acceptedEvents, errorEvents, bitmask, fileList, fileSize, inputFiles, fileAdler32, transferDestination, hltErrorEvents;
 
   processedEvents.put("", nProcessed); // Processed events
   acceptedEvents.put("", nProcessed); // Accepted events, same as processed for our purposes
@@ -303,6 +303,7 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, c
   inputFiles.put("", ""); // We do not care about input files!
   fileAdler32.put("", -1); // placeholder to match output json definition
   transferDestination.put("", transferDestinationStr); // SM Transfer destination field
+  hltErrorEvents.put("", 0); // Error events
 
   data.push_back(std::make_pair("", processedEvents));
   data.push_back(std::make_pair("", acceptedEvents));
@@ -313,6 +314,7 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, c
   data.push_back(std::make_pair("", inputFiles));
   data.push_back(std::make_pair("", fileAdler32));
   data.push_back(std::make_pair("", transferDestination));
+  data.push_back(std::make_pair("", hltErrorEvents));
 
   pt.add_child("data", data);
 

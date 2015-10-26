@@ -650,6 +650,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     IntJ daqJsnAccepted    = daqJsnProcessed;
     IntJ daqJsnErrorEvents = 0;                  
     IntJ daqJsnRetCodeMask = 0;                 
+    IntJ daqJsnHLTErrorEvents = 0;                  
 
     //write out HLT metadata jsn
     Json::Value hltDaqJsn;
@@ -665,6 +666,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     hltDaqJsn[DataPoint::DATA].append(hltJsnInputFiles.value());
     hltDaqJsn[DataPoint::DATA].append(hltJsnFileAdler32);
     hltDaqJsn[DataPoint::DATA].append(iSummary->streamHLTDestination);
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnHLTErrorEvents.value());
 
     result = writer.write(hltDaqJsn);
 
@@ -690,6 +692,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     l1DaqJsn[DataPoint::DATA].append(l1JsnInputFiles.value());
     l1DaqJsn[DataPoint::DATA].append(l1JsnFileAdler32);
     l1DaqJsn[DataPoint::DATA].append(iSummary->streamL1Destination);
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnHLTErrorEvents.value());
 
     result = writer.write(l1DaqJsn);
 
