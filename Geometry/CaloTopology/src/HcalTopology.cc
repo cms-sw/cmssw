@@ -840,18 +840,20 @@ double HcalTopology::etaMax(HcalSubdetector subdet) const {
   return eta;
 }
 std::pair<double,double> HcalTopology::etaRange(HcalSubdetector subdet, 
-                                                int ieta) const {
-
+                                                int keta) const {
+  int ieta = (keta > 0) ? keta : -keta;
   if (subdet == HcalForward) {
-    unsigned int ii = (unsigned int)(ieta-firstHFRing_);
-    return std::pair<double,double>(etaTableHF[ii],etaTableHF[ii+1]);
-  } else {
-    if (mode_==HcalTopologyMode::LHC && ieta == lastHERing_-1) {
-      return std::pair<double,double>(etaTable[ieta-1],etaTable[ieta+1]);
-    } else {
-      return std::pair<double,double>(etaTable[ieta-1],etaTable[ieta]);
+    if (ieta >= firstHFRing_) {
+      unsigned int ii = (unsigned int)(ieta-firstHFRing_);
+      if (ii+1 < etaTableHF.size()) 
+	return std::pair<double,double>(etaTableHF[ii],etaTableHF[ii+1]);
     }
+  } else {
+    int ietal = (mode_==HcalTopologyMode::LHC && ieta == lastHERing_-1) ? (ieta+1) : ieta;
+    if ((ietal < (int)(etaTable.size())) && (ieta > 0))
+      return std::pair<double,double>(etaTable[ieta-1],etaTable[ietal]);
   }
+  return std::pair<double,double>(0,0);
 }
 
 unsigned int HcalTopology::detId2denseIdPreLS1 (const DetId& id) const {
@@ -972,7 +974,7 @@ unsigned int HcalTopology::detId2denseIdHT(const DetId& id) const {
 
 unsigned int HcalTopology::detId2denseIdCALIB(const DetId& id) const {
   HcalCalibDetId tid(id);
-  int    channel = tid.cboxChannel();
+  int channel = tid.cboxChannel();
   int ieta = tid.ieta();
   int iphi = tid.iphi();
   int zside = tid.zside();
