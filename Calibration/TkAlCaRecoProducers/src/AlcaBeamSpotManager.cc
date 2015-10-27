@@ -24,7 +24,8 @@ AlcaBeamSpotManager::AlcaBeamSpotManager(void){
 AlcaBeamSpotManager::AlcaBeamSpotManager(const ParameterSet& iConfig, edm::ConsumesCollector&& iC) :
   beamSpotOutputBase_(iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotOutputBase")),
   beamSpotModuleName_(iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotModuleName")),
-  beamSpotLabel_     (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotLabel"))
+  beamSpotLabel_     (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotLabel")),
+  sigmaZCut_    (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<double>("SigmaZCut"))
 {
   edm::InputTag beamSpotTag_(beamSpotModuleName_, beamSpotLabel_);
   beamSpotToken_ = iC.consumes<reco::BeamSpot,edm::InLumi>(beamSpotTag_);
@@ -70,7 +71,7 @@ void AlcaBeamSpotManager::readLumi(const LuminosityBlock& iLumi){
 void AlcaBeamSpotManager::createWeightedPayloads(void){
   vector<bsMap_iterator> listToErase;
   for(bsMap_iterator it=beamSpotMap_.begin(); it!=beamSpotMap_.end();it++){
-    if(it->second.type() != BeamSpot::Tracker){
+    if(it->second.type() != BeamSpot::Tracker || it->second.sigmaZ()<sigmaZCut_ ) {
       listToErase.push_back(it);
     }
   }

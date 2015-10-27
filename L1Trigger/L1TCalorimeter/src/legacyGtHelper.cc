@@ -19,6 +19,10 @@ namespace l1t {
       if(pt > ((1<<10) -1) )
 	pt = ((1<<10) -1);
       unsigned int eta = itJet->hwEta();
+      if (eta>10){ // LUT is symmetric in eta. For eta>10 map to corresponding eta<10 bin
+	int offset=2*(eta-10)-1;
+	eta=eta-offset;
+      }
       unsigned int lutAddress = (eta<<10)+pt;
 
       unsigned int rank = params->jetCalibrationLUT()->data(lutAddress);
