@@ -31,6 +31,7 @@ class HcalBaseSignalGenerator;
 class HcalShapes;
 class PCaloHit;
 class PileUpEventPrincipal;
+class HcalTopology;
 
 namespace edm {
   class ConsumesCollector;
@@ -61,7 +62,7 @@ public:
   void setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
 
 private:
-  void accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHits, edm::Handle<std::vector<PCaloHit> > const& zdcHits, int bunchCrossing, CLHEP::HepRandomEngine*);
+  void accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHits, edm::Handle<std::vector<PCaloHit> > const& zdcHits, int bunchCrossing, CLHEP::HepRandomEngine*, const HcalTopology *h);
 
   /// some hits in each subdetector, just for testing purposes
   void fillFakeHits();
