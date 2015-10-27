@@ -1,7 +1,0 @@
-<bin name="TestFireworksCore" file="*.cc">
- <use name="DataFormats/TrackReco"/>
- <use name="Fireworks/Core"/>
- <use name="boost"/>
- <use name="rootcore"/>
- <use name="boost_test"/>
-</bin>

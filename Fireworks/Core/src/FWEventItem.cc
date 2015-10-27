@@ -206,6 +206,7 @@ FWEventItem::setFilterExpression(const std::string& iExpression)
 void
 FWEventItem::runFilter()
 {
+   printf("===========================================runfilter \n");
    if(m_accessor->isCollection() && m_accessor->data()) {
       //std::cout <<"runFilter"<<std::endl;
       FWChangeSentry sentry(*(this->changeManager()));
@@ -217,9 +218,13 @@ FWEventItem::runFilter()
             bool wasVisible = itInfo->m_displayProperties.isVisible();
             if(not m_filter.passesFilter(m_accessor->modelData(index))) {
                itInfo->m_displayProperties.setIsVisible(false);
+               itInfo->m_displayProperties.setFilterPassed(false);
+               printf("filter not passed !");
                changed = wasVisible==true;
+
             } else {
                itInfo->m_displayProperties.setIsVisible(true);
+               itInfo->m_displayProperties.setFilterPassed(true);
                changed = wasVisible==false;
             }
             if(changed) {
@@ -535,12 +540,17 @@ FWEventItem::ModelInfo
 FWEventItem::modelInfo(int iIndex) const
 {
    getPrimaryData();
+   /*
    if(m_displayProperties.isVisible()) {
       return m_itemInfos.at(iIndex);
    }
+   */
+
    FWDisplayProperties dp(m_itemInfos.at(iIndex).displayProperties());
-   dp.setIsVisible(false);
+   //   dp.setIsVisible(false);
+   dp.setFilterPassed(m_itemInfos.at(iIndex).displayProperties().filterPassed());
    ModelInfo t(dp,m_itemInfos.at(iIndex).isSelected());
+   printf("modelInfo filter %d \n", t.displayProperties().filterPassed());
    return t;
 }
 
