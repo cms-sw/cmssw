@@ -73,11 +73,13 @@ class VIDSelectorBase:
             temp = self.__ptrMaker(args[0],args[1])
             newargs = [temp] 
             return self.__instance(*newargs)
-        if( len(args) == 3 ):
+        if( len(args) == 3 and type(args[1]) is int and isinstance(args[2], DataFormats.FWLite.Events) ):
             temp = self.__ptrMaker(args[0],args[1])
             newargs = [temp]
             newargs += [args[2].object().event()]
             return self.__instance(*newargs)
+        raise ValueError('VIDSelectorBase __call__ with args: "%s" is not a valid call pattern'%(','.join([repr(arg) for arg in args])))
+            
         
     def initialize(self,pythonpset):
         if( self.__initialized ): 
