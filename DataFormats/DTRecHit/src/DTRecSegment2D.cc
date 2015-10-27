@@ -90,7 +90,7 @@ std::vector<const TrackingRecHit*> DTRecSegment2D::recHits() const {
   std::vector<const TrackingRecHit*> pointersOfRecHits; 
   
   for(std::vector<DTRecHit1D>::const_iterator rechit = theHits.begin();
-      rechit != theHits.end(); rechit++)
+      rechit != theHits.end(); ++rechit)
     pointersOfRecHits.push_back( &(*rechit) );
   
   return pointersOfRecHits;
@@ -101,7 +101,7 @@ std::vector<TrackingRecHit*> DTRecSegment2D::recHits() {
   std::vector<TrackingRecHit*> pointersOfRecHits; 
     
   for(std::vector<DTRecHit1D>::iterator rechit = theHits.begin();
-      rechit != theHits.end(); rechit++)
+      rechit != theHits.end(); ++rechit)
     pointersOfRecHits.push_back( &(*rechit) );
   
   return pointersOfRecHits;

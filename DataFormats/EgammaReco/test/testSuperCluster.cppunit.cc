@@ -118,7 +118,7 @@ void testSuperCluster::CopyCtorTest(){
 
     CPPUNIT_ASSERT((*bcit)->energy() == (*bcitcopy)->energy());
     
-    bcitcopy++;
+    ++bcitcopy;
   }
   
 }

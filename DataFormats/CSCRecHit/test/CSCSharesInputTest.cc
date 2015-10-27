@@ -163,7 +163,7 @@ void CSCSharesInputTest::analyze(const edm::Event &myEvent, const edm::EventSetu
 void CSCSharesInputTest::endJob()
 {
 	std::cout << std::endl << "End of job statistics" << std::endl;
-	for (std::map<std::string, uint64_t>::iterator iCount = counts_.begin(); iCount != counts_.end(); iCount++) {
+	for (std::map<std::string, uint64_t>::iterator iCount = counts_.begin(); iCount != counts_.end(); ++iCount) {
 		std::cout << iCount->first << ": " << iCount->second << std::endl;
 	}
 	std::cout << std::endl;

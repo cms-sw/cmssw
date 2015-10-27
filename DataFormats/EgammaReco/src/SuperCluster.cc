@@ -84,7 +84,7 @@ void SuperCluster::computeRawEnergy() {
 
   rawEnergy_ = 0.;
   for(CaloClusterPtrVector::const_iterator bcItr = clustersBegin(); 
-      bcItr != clustersEnd(); bcItr++){
+      bcItr != clustersEnd(); ++bcItr){
       rawEnergy_ += (*bcItr)->energy();
   }
 }

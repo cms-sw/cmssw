@@ -60,7 +60,7 @@ void PFDisplacedVertexSeed::mergeWith(const PFDisplacedVertexSeed& displacedVert
 
 
 
-  for (  set<TrackBaseRef, Compare>::const_iterator il = newElements.begin(); il != newElements.end(); il++)
+  for (  set<TrackBaseRef, Compare>::const_iterator il = newElements.begin(); il != newElements.end(); ++il)
     addElement(*il);
 
 

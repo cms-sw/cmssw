@@ -55,12 +55,12 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   try {
     e.getManyByType(hbhe);
     std::vector<edm::Handle<HBHEDigiCollection> >::iterator i;
-    for (i=hbhe.begin(); i!=hbhe.end(); i++) {
+    for (i=hbhe.begin(); i!=hbhe.end(); ++i) {
       const HBHEDigiCollection& c=*(*i);
 
       cout << "HB/HE Digis: " << i->provenance()->branchName() << endl;
       
-      for (HBHEDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+      for (HBHEDigiCollection::const_iterator j=c.begin(); j!=c.end(); ++j)
 	cout << *j << std::endl;
     }
   } catch (...) {
@@ -70,12 +70,12 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   try {
     e.getManyByType(hf);
     std::vector<edm::Handle<HFDigiCollection> >::iterator i;
-    for (i=hf.begin(); i!=hf.end(); i++) {
+    for (i=hf.begin(); i!=hf.end(); ++i) {
       const HFDigiCollection& c=*(*i);
 
       cout << "HF Digis: " << i->provenance()->branchName() << endl;
       
-      for (HFDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+      for (HFDigiCollection::const_iterator j=c.begin(); j!=c.end(); ++j)
 	cout << *j << std::endl;
     }
   } catch (...) {
@@ -85,12 +85,12 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   try {
     e.getManyByType(ho);
     std::vector<edm::Handle<HODigiCollection> >::iterator i;
-    for (i=ho.begin(); i!=ho.end(); i++) {
+    for (i=ho.begin(); i!=ho.end(); ++i) {
       const HODigiCollection& c=*(*i);
 
       cout << "HO Digis: " << i->provenance()->branchName() << endl;
             
-      for (HODigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+      for (HODigiCollection::const_iterator j=c.begin(); j!=c.end(); ++j)
 	cout << *j << std::endl;
 
     }
@@ -101,12 +101,12 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   try {
     e.getManyByType(htp);
     std::vector<edm::Handle<HcalTrigPrimDigiCollection> >::iterator i;
-    for (i=htp.begin(); i!=htp.end(); i++) {
+    for (i=htp.begin(); i!=htp.end(); ++i) {
       const HcalTrigPrimDigiCollection& c=*(*i);
 
       cout << "HcalTrigPrim Digis: " << i->provenance()->branchName() << endl;
             
-      for (HcalTrigPrimDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+      for (HcalTrigPrimDigiCollection::const_iterator j=c.begin(); j!=c.end(); ++j)
 	cout << *j << std::endl;
 
     }
@@ -117,12 +117,12 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   try {
     e.getManyByType(hotp);
     std::vector<edm::Handle<HOTrigPrimDigiCollection> >::iterator i;
-    for (i=hotp.begin(); i!=hotp.end(); i++) {
+    for (i=hotp.begin(); i!=hotp.end(); ++i) {
       const HOTrigPrimDigiCollection& c=*(*i);
 
       cout << "HO TP Digis: " << i->provenance()->branchName() << endl;
             
-      for (HOTrigPrimDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+      for (HOTrigPrimDigiCollection::const_iterator j=c.begin(); j!=c.end(); ++j)
 	cout << *j << std::endl;
 
     }
@@ -133,12 +133,12 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   try {
     e.getManyByType(hc);
     std::vector<edm::Handle<HcalCalibDigiCollection> >::iterator i;
-    for (i=hc.begin(); i!=hc.end(); i++) {
+    for (i=hc.begin(); i!=hc.end(); ++i) {
       const HcalCalibDigiCollection& c=*(*i);
 
       cout << "Calibration Digis: " << i->provenance()->branchName() << endl;
             
-      for (HcalCalibDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+      for (HcalCalibDigiCollection::const_iterator j=c.begin(); j!=c.end(); ++j)
 	cout << *j << std::endl;
     }
   } catch (...) {
@@ -147,12 +147,12 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   try {
     e.getManyByType(zdc);
     std::vector<edm::Handle<ZDCDigiCollection> >::iterator i;
-    for (i=zdc.begin(); i!=zdc.end(); i++) {
+    for (i=zdc.begin(); i!=zdc.end(); ++i) {
       const ZDCDigiCollection& c=*(*i);
 
       cout << "ZDC Digis: " << i->provenance()->branchName() << endl;
             
-      for (ZDCDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+      for (ZDCDigiCollection::const_iterator j=c.begin(); j!=c.end(); ++j)
 	cout << *j << std::endl;
     }
   } catch (...) {
@@ -161,12 +161,12 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   try {
     e.getManyByType(castor);
     std::vector<edm::Handle<CastorDigiCollection> >::iterator i;
-    for (i=castor.begin(); i!=castor.end(); i++) {
+    for (i=castor.begin(); i!=castor.end(); ++i) {
       const CastorDigiCollection& c=*(*i);
 
       cout << "Castor Digis: " << i->provenance()->branchName() << endl;
             
-      for (CastorDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+      for (CastorDigiCollection::const_iterator j=c.begin(); j!=c.end(); ++j)
 	cout << *j << std::endl;
     }
   } catch (...) {
@@ -175,10 +175,10 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   try {
     e.getManyByType(castortp);
     std::vector<edm::Handle<CastorTrigPrimDigiCollection> >::iterator i;
-    for (i=castortp.begin(); i!=castortp.end(); i++) {
+    for (i=castortp.begin(); i!=castortp.end(); ++i) {
       const CastorTrigPrimDigiCollection& c=*(*i);
       
-      for (CastorTrigPrimDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+      for (CastorTrigPrimDigiCollection::const_iterator j=c.begin(); j!=c.end(); ++j)
 	cout << *j << std::endl;
 
     }
@@ -189,10 +189,10 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   try {
     e.getManyByType(ttp);
     std::vector<edm::Handle<HcalTTPDigiCollection> >::iterator i;
-    for (i=ttp.begin(); i!=ttp.end(); i++) {
+    for (i=ttp.begin(); i!=ttp.end(); ++i) {
       const HcalTTPDigiCollection& c=*(*i);
       
-      for (HcalTTPDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+      for (HcalTTPDigiCollection::const_iterator j=c.begin(); j!=c.end(); ++j)
 	cout << *j << std::endl;
     }
   } catch (...) {
@@ -202,10 +202,10 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   try {
     e.getManyByType(hh);
     std::vector<edm::Handle<HcalHistogramDigiCollection> >::iterator i;
-    for (i=hh.begin(); i!=hh.end(); i++) {
+    for (i=hh.begin(); i!=hh.end(); ++i) {
       const HcalHistogramDigiCollection& c=*(*i);
       
-      for (HcalHistogramDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+      for (HcalHistogramDigiCollection::const_iterator j=c.begin(); j!=c.end(); ++j)
 	cout << *j << std::endl;
 
     }
@@ -215,10 +215,10 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   try {
     e.getManyByType(hup);
     std::vector<edm::Handle<HcalUpgradeDigiCollection> >::iterator i;
-    for (i=hup.begin(); i!=hup.end(); i++) {
+    for (i=hup.begin(); i!=hup.end(); ++i) {
       const HcalUpgradeDigiCollection& c=*(*i);
       
-      for (HcalUpgradeDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+      for (HcalUpgradeDigiCollection::const_iterator j=c.begin(); j!=c.end(); ++j)
 	cout << *j << std::endl;
     }
   } catch (...) {
@@ -227,7 +227,7 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   try {
     e.getManyByType(qie10s);
     std::vector<edm::Handle<QIE10DigiCollection> >::iterator i;
-    for (i=qie10s.begin(); i!=qie10s.end(); i++) {
+    for (i=qie10s.begin(); i!=qie10s.end(); ++i) {
       const QIE10DigiCollection& c=*(*i);
       
       for (int j=0; j < c.size(); j++)
@@ -239,7 +239,7 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   try {
     e.getManyByType(qie11s);
     std::vector<edm::Handle<QIE11DigiCollection> >::iterator i;
-    for (i=qie11s.begin(); i!=qie11s.end(); i++) {
+    for (i=qie11s.begin(); i!=qie11s.end(); ++i) {
       const QIE11DigiCollection& c=*(*i);
       
       for (int j=0; j < c.size(); j++)

@@ -98,14 +98,14 @@ void HcalUnpackerReport::setReportInfo(const std::string& name, const std::strin
 bool HcalUnpackerReport::hasReportInfo(const std::string& name) const {
   std::string searchFor=name+ReportSeparator;
   std::vector<std::string>::const_iterator i;
-  for (i=reportInfo_.begin(); i!=reportInfo_.end(); i++)
+  for (i=reportInfo_.begin(); i!=reportInfo_.end(); ++i)
     if (i->find(searchFor)==0) break;
   return (i!=reportInfo_.end());
 }
 std::string HcalUnpackerReport::getReportInfo(const std::string& name) const {
   std::string searchFor=name+ReportSeparator;
   std::vector<std::string>::const_iterator i;
-  for (i=reportInfo_.begin(); i!=reportInfo_.end(); i++)
+  for (i=reportInfo_.begin(); i!=reportInfo_.end(); ++i)
     if (i->find(searchFor)==0) break;
   std::string retval;
   if (i!=reportInfo_.end()) {
@@ -117,7 +117,7 @@ std::string HcalUnpackerReport::getReportInfo(const std::string& name) const {
 std::vector<std::string> HcalUnpackerReport::getReportKeys() const {
   std::vector<std::string> retval;
   std::vector<std::string>::const_iterator i;
-  for (i=reportInfo_.begin(); i!=reportInfo_.end(); i++)
+  for (i=reportInfo_.begin(); i!=reportInfo_.end(); ++i)
     retval.push_back(i->substr(0,i->find(ReportSeparator)));
   return retval;
 }

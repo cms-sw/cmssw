@@ -234,7 +234,7 @@ void DigiCollectionFP420::detIDs( std::vector<unsigned int>& det_ids ) const {
   std::cout <<"DigiCollectionFP420::  detIDs:  digiMap    size= " << digiMap_.size() << std::endl;
 #endif
   HDigiFP420Container::const_iterator iter;
-  for (iter = digiMap_.begin(); iter != digiMap_.end(); iter++ ) {
+  for (iter = digiMap_.begin(); iter != digiMap_.end(); ++iter ) {
     det_ids.push_back( iter->first );
   }
 }

@@ -105,13 +105,13 @@ void testSiStripHistoTitle::beginJob() {
   // Test SiStripHistoTitle class
   
   std::vector<sistrip::HistoType>::const_iterator ihisto = histo_types.begin(); 
-  for ( ; ihisto != histo_types.end(); ihisto++ ) {
+  for ( ; ihisto != histo_types.end(); ++ihisto ) {
     
     std::vector<sistrip::RunType>::const_iterator irun = run_types.begin(); 
-    for ( ; irun != run_types.end(); irun++ ) {
+    for ( ; irun != run_types.end(); ++irun ) {
     
       std::vector<sistrip::KeyType>::const_iterator ikey = key_types.begin(); 
-      for ( ; ikey != key_types.end(); ikey++ ) {
+      for ( ; ikey != key_types.end(); ++ikey ) {
 
 	if ( *ikey != sistrip::FED_KEY ) { continue; }
 
