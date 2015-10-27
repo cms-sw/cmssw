@@ -336,7 +336,7 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
   iEvent.getByToken(tok_hbhe_, hbhe);
   HBHERecHitCollection::const_iterator rhitItr;
 
-  for (rhitItr=hbhe->begin();rhitItr!=hbhe->end();rhitItr++) {
+  for (rhitItr=hbhe->begin();rhitItr!=hbhe->end();++rhitItr) {
     double rec_energy = rhitItr->energy();
     int    rec_ieta   = rhitItr->id().ieta();
     int    rec_depth  = rhitItr->id().depth();
@@ -360,7 +360,7 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 		     trkCaloDirections, ((verbosity/100)%10>2));
   std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
   for (trkDetItr = trkCaloDirections.begin(); 
-       trkDetItr != trkCaloDirections.end(); trkDetItr++) {
+       trkDetItr != trkCaloDirections.end();++trkDetItr) {
     if (trkDetItr->okHCAL) {
       HcalDetId detId = (HcalDetId)(trkDetItr->detIdHCAL);
       int tk_ieta = detId.ieta();
@@ -513,7 +513,7 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 	  std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
 	  unsigned int nTracks(0), nselTracks(0);
 	  for (trkDetItr = trkCaloDirections.begin(),nTracks=0; 
-	       trkDetItr != trkCaloDirections.end(); trkDetItr++,nTracks++) {
+	       trkDetItr != trkCaloDirections.end();++trkDetItr,++nTracks) {
 	    const reco::Track* pTrack = &(*(trkDetItr->trkItr));
             math::XYZTLorentzVector v4(pTrack->px(), pTrack->py(), 
 				       pTrack->pz(), pTrack->p());

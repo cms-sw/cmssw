@@ -57,12 +57,12 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<reco::Track> > tracks;	             iEvent.getByLabel(theTracksLabel, tracks);	  
   edm::Handle<TrajTrackAssociationCollection> associations;  iEvent.getByLabel(theTracksLabel, associations);
 
-  for( TrajTrackAssociationCollection::const_iterator association = associations->begin(); association != associations->end(); association++) {
+  for( TrajTrackAssociationCollection::const_iterator association = associations->begin(); association != associations->end(); ++association) {
        const Trajectory*  traj  = association->key.get();
        const reco::Track* track = association->val.get();
 
        vector<TrajectoryMeasurement> measurements = traj->measurements();
-       for(vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin(); measurement_it!=measurements.end(); measurement_it++){
+       for(vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin(); measurement_it!=measurements.end(); ++measurement_it){
           TrajectoryStateOnSurface trajState = measurement_it->updatedState();
           if( !trajState.isValid() ) continue;     
 

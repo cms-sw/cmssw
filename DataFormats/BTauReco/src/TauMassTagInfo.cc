@@ -59,7 +59,7 @@ bool reco::TauMassTagInfo::calculateTrkP4(double matching_cone,
   double pz_inv = 0.0;
   double e_inv  = 0.0;
   for (RefVector<TrackCollection>::const_iterator itrack = signalTracks.begin(); 
-               itrack != signalTracks.end(); itrack++) {
+               itrack != signalTracks.end(); ++itrack) {
     double p = (*itrack)->p();
     double energy = sqrt(p*p + 0.139*0.139); // use correct value!
     px_inv += (*itrack)->px();
@@ -98,7 +98,7 @@ double reco::TauMassTagInfo::getInvariantMass(double matching_cone,
 
   // Add Clusters away from tracks
   for (ClusterTrackAssociationCollection::const_iterator mapIter = clusterMap.begin(); 
-                                                         mapIter != clusterMap.end(); mapIter++) {
+                                                         mapIter != clusterMap.end(); ++mapIter) {
     const reco::BasicClusterRef & iclus = mapIter->key;
     float dr  = mapIter->val;
     if (dr > track_cone) {

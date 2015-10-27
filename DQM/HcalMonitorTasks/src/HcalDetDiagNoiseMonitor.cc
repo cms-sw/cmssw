@@ -352,7 +352,7 @@ void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::Event
    
    edm::Handle<HBHEDigiCollection> hbhe; 
    iEvent.getByToken(tok_hbhe_,hbhe);
-   for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
+   for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();++digi){
      double max=-100/*,sum*/,energy=0; int n_zero=0;
      for(int i=0;i<digi->size();i++){
        //       sum=adc2fC[digi->sample(i).adc()&0xff]; 
@@ -372,7 +372,7 @@ void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::Event
 
    edm::Handle<HODigiCollection> ho; 
    iEvent.getByToken(tok_ho_,ho);
-   for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
+   for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();++digi){
      double max=-100,energy=0; int Eta=digi->id().ieta(); int Phi=digi->id().iphi(); int n_zero=0;
      for(int i=0;i<digi->size()-1;i++){
        if(max<adc2fC[digi->sample(i).adc()&0xff]) max=adc2fC[digi->sample(i).adc()&0xff];

@@ -358,7 +358,7 @@ void L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     // global counters
     int hasSys[DEnsys] = { 0 };
     for (L1DEDigiCollection::const_iterator it = deColl.begin(); it
-            != deColl.end(); it++)
+            != deColl.end(); ++it)
         if (!it->empty())
             hasSys[it->sid()]++;
     for (int i = 0; i < DEnsys; i++) {
@@ -372,7 +372,7 @@ void L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     if (verbose()) {
         std::cout << "[L1TDEMON] digis: \n";
         for (L1DEDigiCollection::const_iterator it = deColl.begin(); it
-                != deColl.end(); it++)
+                != deColl.end(); ++it)
             std::cout << "\t" << *it << std::endl;
     }
 
@@ -424,7 +424,7 @@ void L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
     // d|e candidate loop
     for (L1DEDigiCollection::const_iterator it = deColl.begin(); it
-            != deColl.end(); it++) {
+            != deColl.end(); ++it) {
 
         int sid = it->sid();
         int cid = it->cid();

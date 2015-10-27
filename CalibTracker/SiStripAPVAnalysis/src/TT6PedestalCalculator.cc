@@ -78,7 +78,7 @@ void TT6PedestalCalculator::initializePedestal(ApvAnalysis::RawSignalType& in) {
   if (numberOfEvents <= eventsRequiredToCalibrate) {
     edm::DetSet<SiStripRawDigi>::const_iterator i = in.data.begin();
     int ii=0;
-    for (;i!=in.data.end() ; i++) {
+    for (;i!=in.data.end() ; ++i) {
       thePedSum[ii]   += (*i).adc();
       thePedSqSum[ii] += ((*i).adc())*((*i).adc());
       theEventPerStrip[ii]++;
@@ -90,7 +90,7 @@ void TT6PedestalCalculator::initializePedestal(ApvAnalysis::RawSignalType& in) {
     theRawNoise.clear();
     edm::DetSet<SiStripRawDigi>::const_iterator i = in.data.begin();
     int ii=0;
-    for (;i!=in.data.end() ; i++) {
+    for (;i!=in.data.end() ; ++i) {
       double avVal   = (theEventPerStrip[ii])	? thePedSum[ii]/theEventPerStrip[ii]:0.0;
       double sqAvVal = (theEventPerStrip[ii])	? thePedSqSum[ii]/theEventPerStrip[ii]:0.0;
       double corr_fac = (theEventPerStrip[ii] > 1) ? (theEventPerStrip[ii]/(theEventPerStrip[ii]-1)) : 1.0;
@@ -122,7 +122,7 @@ void TT6PedestalCalculator::refinePedestal(ApvAnalysis::RawSignalType& in) {
   }
   unsigned int ii=0;
   ApvAnalysis::RawSignalType::const_iterator i= in.data.begin();
-  for (; i < in.data.end(); i++) {
+  for (; i < in.data.end(); ++i) {
     if (fabs((*i).adc()-thePedestal[ii]) < cutToAvoidSignal*theRawNoise[ii]) {
       thePedSum[ii]   += (*i).adc();
       thePedSqSum[ii] += ((*i).adc())*((*i).adc());

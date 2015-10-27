@@ -90,23 +90,23 @@ void SiStripPsuDetIdMap::BuildMap( const std::string & mapFile, const bool debug
   }
   
   //Remove duplicates for all 4 maps
-  for (PsuDetIdMap::iterator psu = LVMap.begin(); psu != LVMap.end(); psu++) {
+  for (PsuDetIdMap::iterator psu = LVMap.begin(); psu != LVMap.end(); ++psu) {
     RemoveDuplicateDetIDs(psu->second);
   }
-  for (PsuDetIdMap::iterator psuchan = HVMap.begin(); psuchan != HVMap.end(); psuchan++) {
+  for (PsuDetIdMap::iterator psuchan = HVMap.begin(); psuchan != HVMap.end(); ++psuchan) {
     RemoveDuplicateDetIDs(psuchan->second);
   }
-  for (PsuDetIdMap::iterator psu = HVUnmapped_Map.begin(); psu != HVUnmapped_Map.end(); psu++) {
+  for (PsuDetIdMap::iterator psu = HVUnmapped_Map.begin(); psu != HVUnmapped_Map.end(); ++psu) {
     RemoveDuplicateDetIDs(psu->second);
   }
-  for (PsuDetIdMap::iterator psu = HVCrosstalking_Map.begin(); psu != HVCrosstalking_Map.end(); psu++) {
+  for (PsuDetIdMap::iterator psu = HVCrosstalking_Map.begin(); psu != HVCrosstalking_Map.end(); ++psu) {
     RemoveDuplicateDetIDs(psu->second);
   }
   if (debug) {
     //Print out all the 4 maps:
     std::cout<<"Dumping the LV map"<<std::endl;
     std::cout<<"PSU->detids"<<std::endl;
-    for (PsuDetIdMap::iterator psu = LVMap.begin(); psu != LVMap.end(); psu++) {
+    for (PsuDetIdMap::iterator psu = LVMap.begin(); psu != LVMap.end(); ++psu) {
       std::cout<<psu->first<<" corresponds to following detids"<<endl;
       for (unsigned int i=0; i<psu->second.size(); i++) {
 	std::cout<<"\t\t"<<psu->second[i]<<std::endl;
@@ -114,7 +114,7 @@ void SiStripPsuDetIdMap::BuildMap( const std::string & mapFile, const bool debug
     }
     std::cout<<"Dumping the HV map for HV mapped channels"<<std::endl;
     std::cout<<"PSUChannel->detids"<<std::endl;
-    for (PsuDetIdMap::iterator psuchan = HVMap.begin(); psuchan != HVMap.end(); psuchan++) {
+    for (PsuDetIdMap::iterator psuchan = HVMap.begin(); psuchan != HVMap.end(); ++psuchan) {
       std::cout<<psuchan->first<<" corresponds to following detids"<<endl;
       for (unsigned int i=0; i<psuchan->second.size(); i++) {
 	std::cout<<"\t\t"<<psuchan->second[i]<<std::endl;
@@ -122,7 +122,7 @@ void SiStripPsuDetIdMap::BuildMap( const std::string & mapFile, const bool debug
     }
     std::cout<<"Dumping the HV map for HV UNmapped channels"<<std::endl;
     std::cout<<"PSU->detids"<<std::endl;
-    for (PsuDetIdMap::iterator psu = HVUnmapped_Map.begin(); psu != HVUnmapped_Map.end(); psu++) {
+    for (PsuDetIdMap::iterator psu = HVUnmapped_Map.begin(); psu != HVUnmapped_Map.end(); ++psu) {
       std::cout<<psu->first<<" corresponds to following detids"<<endl;
       for (unsigned int i=0; i<psu->second.size(); i++) {
 	std::cout<<"\t\t"<<psu->second[i]<<std::endl;
@@ -130,7 +130,7 @@ void SiStripPsuDetIdMap::BuildMap( const std::string & mapFile, const bool debug
     }
     std::cout<<"Dumping the HV map for HV Crosstalking channels"<<std::endl;
     std::cout<<"PSU->detids"<<std::endl;
-    for (PsuDetIdMap::iterator psu = HVCrosstalking_Map.begin(); psu != HVCrosstalking_Map.end(); psu++) {
+    for (PsuDetIdMap::iterator psu = HVCrosstalking_Map.begin(); psu != HVCrosstalking_Map.end(); ++psu) {
       std::cout<<psu->first<<" corresponds to following detids"<<endl;
       for (unsigned int i=0; i<psu->second.size(); i++) {
 	std::cout<<"\t\t"<<psu->second[i]<<std::endl;
@@ -336,7 +336,7 @@ void SiStripPsuDetIdMap::getDetID(std::string PSUChannel,const bool debug,std::v
 // returns PSU channel name for a given DETID
 std::string SiStripPsuDetIdMap::getPSUName(uint32_t detid) {
   std::vector< std::pair<uint32_t, std::string> >::iterator iter;
-  for (iter = pgMap.begin(); iter != pgMap.end(); iter++) {
+  for (iter = pgMap.begin(); iter != pgMap.end(); ++iter) {
     if (iter->first && iter->first == detid) {return iter->second;}
   }
   // if we reach here, then we didn't find the detid in the map
@@ -346,12 +346,12 @@ std::string SiStripPsuDetIdMap::getPSUName(uint32_t detid) {
 std::string SiStripPsuDetIdMap::getPSUName(uint32_t detid, std::string group) {
   std::vector< std::pair<uint32_t, std::string> >::iterator iter;
   if (group == "PG") {
-    for (iter = pgMap.begin(); iter != pgMap.end(); iter++) {
+    for (iter = pgMap.begin(); iter != pgMap.end(); ++iter) {
       if (iter->first && iter->first == detid) {return iter->second;}
     }
   }
   if (group == "CG") {
-    for (iter = cgMap.begin(); iter != cgMap.end(); iter++) {
+    for (iter = cgMap.begin(); iter != cgMap.end(); ++iter) {
       if (iter->first && iter->first == detid) {return iter->second;}
     }
   }
@@ -534,7 +534,7 @@ std::vector< std::pair< std::vector<uint16_t> , std::vector<uint32_t> > > SiStri
   std::vector< std::pair< std::vector<uint16_t> , std::vector<uint32_t> > > testVec;
   std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> >::iterator reorg_iter = resultVec.begin();
 
-  for ( ; reorg_iter != resultVec.end(); reorg_iter++) {
+  for ( ; reorg_iter != resultVec.end(); ++reorg_iter) {
     std::vector<uint16_t> fecInfo(4,0);
     fecInfo[0] = reorg_iter->second.fecCrate_;
     fecInfo[1] = reorg_iter->second.fecSlot_;
@@ -542,7 +542,7 @@ std::vector< std::pair< std::vector<uint16_t> , std::vector<uint32_t> > > SiStri
     fecInfo[3] = reorg_iter->second.ccuAddr_;
     std::vector<uint32_t> dcuids;
     std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> >::iterator jter = reorg_iter;
-    for ( ; jter != resultVec.end(); jter++) {
+    for ( ; jter != resultVec.end(); ++jter) {
       if (reorg_iter->second.fecCrate_ == jter->second.fecCrate_ &&
 	  reorg_iter->second.fecSlot_ == jter->second.fecSlot_ &&
 	  reorg_iter->second.fecRing_ == jter->second.fecRing_ &&
@@ -578,7 +578,7 @@ std::vector<uint32_t> SiStripPsuDetIdMap::findDcuIdFromDeviceAddress(uint32_t dc
   std::vector< std::pair< std::vector<uint16_t> , std::vector<uint32_t> > >::iterator res_iter = dcu_device_addr_vector.end();
   std::vector<uint32_t> pgDcu;
 
-  for ( ; iter != dcu_device_addr_vector.end(); iter++) {
+  for ( ; iter != dcu_device_addr_vector.end(); ++iter) {
     std::vector<uint32_t> dcuids = iter->second;
     std::vector<uint32_t>::iterator dcu_iter = std::find(dcuids.begin(),dcuids.end(),dcuid_);
     bool alreadyFound = false;

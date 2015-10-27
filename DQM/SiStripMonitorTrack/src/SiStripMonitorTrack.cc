@@ -104,7 +104,7 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
 
   // initialise # of clusters
   for (std::map<std::string, SubDetMEs>::iterator iSubDet = SubDetMEsMap.begin();
-       iSubDet != SubDetMEsMap.end(); iSubDet++) {
+       iSubDet != SubDetMEsMap.end(); ++iSubDet) {
     iSubDet->second.totNClustersOnTrack = 0;
     iSubDet->second.totNClustersOffTrack = 0;
   }

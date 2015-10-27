@@ -88,7 +88,7 @@ void DTt0DBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
 
   // Loop over Ref DB entries
   for(DTT0::const_iterator tzero = tZeroRefMap_->begin();
-                           tzero != tZeroRefMap_->end(); tzero++) {
+                           tzero != tZeroRefMap_->end(); ++tzero) {
     // t0s and rms are TDC counts
 // @@@ NEW DTT0 FORMAT
 //    DTWireId wireId((*tzero).first.wheelId,
@@ -114,7 +114,7 @@ void DTt0DBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
 
   // Loop over Ref DB entries
   for(DTT0::const_iterator tzero = tZeroMap_->begin();
-                           tzero != tZeroMap_->end(); tzero++) {
+                           tzero != tZeroMap_->end(); ++tzero) {
     // t0s and rms are TDC counts
 // @@@ NEW DTT0 FORMAT
 //    DTWireId wireId((*tzero).first.wheelId,
@@ -141,7 +141,7 @@ void DTt0DBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
   double difference = 0;
   for(map<DTWireId, vector<float> >::const_iterator theMap = t0RefMap_.begin();
       theMap != t0RefMap_.end();
-      theMap++) {  
+      ++theMap) {  
     if(t0Map_.find((*theMap).first) != t0Map_.end()) {
 
       // Compute the difference
@@ -171,7 +171,7 @@ void DTt0DBValidation::endRun(edm::Run const& run, edm::EventSetup const& setup)
   string testCriterionName = t0TestName_; 
   for(map<DTLayerId, MonitorElement*>::const_iterator hDiff = t0DiffHistos_.begin();
       hDiff != t0DiffHistos_.end();
-      hDiff++) {
+      ++hDiff) {
 
      const QReport * theDiffQReport = (*hDiff).second->getQReport(testCriterionName);
      if(theDiffQReport) {
@@ -187,7 +187,7 @@ void DTt0DBValidation::endRun(edm::Run const& run, edm::EventSetup const& setup)
                               << " ------- " << setprecision(3) << theDiffQReport->getQTresult();
         vector<dqm::me_util::Channel> badChannels = theDiffQReport->getBadChannels();
         for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	                                           channel != badChannels.end(); channel++) {
+	                                           channel != badChannels.end(); ++channel) {
            LogVerbatim(metname_) << "layer: " << (*hDiff).first << " Bad channel: " 
                                              << (*channel).getBin() << "  Contents : "
                                              << (*channel).getContents();

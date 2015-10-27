@@ -95,7 +95,7 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
     float coradd,corerr;
      
     std::vector<HcalDetId> theVector; 
-    for(std::vector<DetId>::iterator i = did.begin(); i != did.end(); i++)
+    for(std::vector<DetId>::iterator i = did.begin(); i != did.end();++i)
     {
       if( (*i).det() == DetId::Hcal ) { 
       HcalDetId hid = HcalDetId(*i);
@@ -139,7 +139,7 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
     
     HcalRespCorrs* mycorrections = new HcalRespCorrs(oldRespCorrs->topo()); 
     
-   for(std::vector<HcalDetId>::iterator it = theVector.begin(); it != theVector.end(); it++)
+   for(std::vector<HcalDetId>::iterator it = theVector.begin(); it != theVector.end();++it)
    {
      float cc1 = (*corrold.find(*it)).second;
  //    float cc2 = (*corrnew.find(*it)).second;

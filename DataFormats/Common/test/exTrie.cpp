@@ -69,7 +69,7 @@ int main(int, char**) try {
   std::cout << "\n ab iteration: string" << std::endl;
   pn = trie.node("ab");
   e = pn->end();
-  for(Node::const_iterator p = pn->begin(); p != e; p++) {
+  for(Node::const_iterator p = pn->begin(); p != e; ++p) {
     std::cout << "ab" << p.label() << " = " << p->value() << std::endl;
   }
   std::cout << "\ntop iteration" << std::endl;

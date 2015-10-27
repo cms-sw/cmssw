@@ -107,7 +107,7 @@ uint32_t CommissioningHistograms::runNumber( DQMStore* const bei,
     // Iterate though MonitorElements from source directory
     std::vector<MonitorElement*> me_list = bei->getContents( source_dir );
     std::vector<MonitorElement*>::iterator ime = me_list.begin(); 
-    for ( ; ime != me_list.end(); ime++ ) {
+    for ( ; ime != me_list.end(); ++ime ) {
       
       if ( !(*ime) ) {
 	edm::LogError(mlDqmClient_)
@@ -146,7 +146,7 @@ uint32_t CommissioningHistograms::runNumber( DQMStore* const bei,
 
     }
 
-    istr++;
+    ++istr;
     
   }
   return 0;
@@ -190,7 +190,7 @@ sistrip::RunType CommissioningHistograms::runType( DQMStore* const bei,
     }
 
     std::vector<MonitorElement*>::iterator ime = me_list.begin(); 
-    for ( ; ime != me_list.end(); ime++ ) {
+    for ( ; ime != me_list.end(); ++ime ) {
 
       if ( !(*ime) ) {
 	edm::LogError(mlDqmClient_)
@@ -225,7 +225,7 @@ sistrip::RunType CommissioningHistograms::runType( DQMStore* const bei,
 
     }
 
-    istr++;
+    ++istr;
     
   }
 
@@ -271,7 +271,7 @@ void CommissioningHistograms::copyCustomInformation( DQMStore* const bei,
     // Iterate though MonitorElements from source directory
     std::vector<MonitorElement*> me_list = bei->getContents( source_dir );
     std::vector<MonitorElement*>::iterator ime = me_list.begin();
-    for ( ; ime != me_list.end(); ime++ ) {
+    for ( ; ime != me_list.end(); ++ime ) {
 
       if ( !(*ime) ) {
 	edm::LogWarning(mlDqmClient_)
@@ -304,7 +304,7 @@ void CommissioningHistograms::copyCustomInformation( DQMStore* const bei,
         }
       }
     }
-    istr++;
+    ++istr;
   }
 }
 
@@ -334,7 +334,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
   
   // Iterate through list of histograms
   std::vector<std::string>::const_iterator idir;
-  for ( idir = contents.begin(); idir != contents.end(); idir++ ) {
+  for ( idir = contents.begin(); idir != contents.end(); ++idir ) {
     
     // Ignore "DQM source" directories if looking in client file
     if ( idir->find(sistrip::collate_) == std::string::npos ) { continue; }
@@ -371,7 +371,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
 
     // Iterate though MonitorElements and create CMEs
     std::vector<MonitorElement*>::iterator ime = me_list.begin(); 
-    for ( ; ime != me_list.end(); ime++ ) {
+    for ( ; ime != me_list.end(); ++ime ) {
 
       // Retrieve histogram title
       SiStripHistoTitle title( (*ime)->getName() );
@@ -438,7 +438,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
 	Histos::iterator ihis = ihistos->second.begin();
 	while ( !histo && ihis < ihistos->second.end() ) {
 	  if ( (*ime)->getName() == (*ihis)->title_ ) { histo = *ihis; }
-	  ihis++;
+	  ++ihis;
 	}
       }
 
@@ -536,13 +536,13 @@ void CommissioningHistograms::printHistosMap() {
     << " Printing histogram map, which has "
     << histos_.size() << " entries...";
   HistosMap::const_iterator ihistos = histos_.begin();
-  for ( ; ihistos != histos_.end(); ihistos++ ) {
+  for ( ; ihistos != histos_.end(); ++ihistos ) {
     std::stringstream ss;
     ss << " Found " << ihistos->second.size()
        << " histogram(s) for key: " << std::endl
        << SiStripFedKey(ihistos->first) << std::endl;
     Histos::const_iterator ihisto = ihistos->second.begin();
-    for ( ; ihisto != ihistos->second.end(); ihisto++ ) {
+    for ( ; ihisto != ihistos->second.end(); ++ihisto ) {
       if ( *ihisto ) { (*ihisto)->print(ss); }
       else { ss << " NULL pointer to Histo object!"; }
     }
@@ -557,9 +557,9 @@ void CommissioningHistograms::clearHistosMap() {
     << "[CommissioningHistograms::" << __func__ << "]"
     << " Clearing histogram map...";
   HistosMap::iterator ihistos = histos_.begin();
-  for ( ; ihistos != histos_.end(); ihistos++ ) {
+  for ( ; ihistos != histos_.end(); ++ihistos ) {
     Histos::iterator ihisto = ihistos->second.begin();
-    for ( ; ihisto != ihistos->second.end(); ihisto++ ) {
+    for ( ; ihisto != ihistos->second.end(); ++ihisto ) {
       if ( *ihisto ) { delete *ihisto; }
     }
     ihistos->second.clear();

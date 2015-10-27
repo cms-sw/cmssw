@@ -32,7 +32,7 @@ namespace test{
       label_ = pset.getUntrackedParameter<std::string>("label","source");
       ids=pset.getUntrackedParameter<std::vector<int> >("feds",std::vector<int>());
       dumpPayload_=pset.getUntrackedParameter<bool>("dumpPayload",false);
-      for (std::vector<int>::iterator i=ids.begin(); i!=ids.end(); i++) 
+      for (std::vector<int>::iterator i=ids.begin(); i!=ids.end(); ++i) 
 	FEDids_.insert(*i);
     }
 

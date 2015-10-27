@@ -171,7 +171,7 @@ void HcalDataIntegrityTask::processEvent(const FEDRawDataCollection& rawraw,
 					 const HcalElectronicsMap& emap){
   
   // Loop over all FEDs reporting the event, unpacking if good.
-  for (std::vector<int>::const_iterator i=fedUnpackList_.begin();i!=fedUnpackList_.end(); i++) 
+  for (std::vector<int>::const_iterator i=fedUnpackList_.begin();i!=fedUnpackList_.end(); ++i) 
     {
       const FEDRawData& fed = rawraw.FEDData(*i);
       if (fed.size()<12) continue; // Was 16. How do such tiny events even get here?

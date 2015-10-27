@@ -495,7 +495,7 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
     
     // Look at clusters now
     edmNew::DetSet<SiPixelCluster>::const_iterator  di;
-    for(di = isearch->begin(); di != isearch->end(); di++) {
+    for(di = isearch->begin(); di != isearch->end(); ++di) {
       numberOfClusters++;
       if(endcap) numberOfFpixClusters++;
       float charge = 0.001*(di->charge()); // total charge of cluster

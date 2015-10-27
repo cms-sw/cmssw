@@ -39,7 +39,7 @@ void FedTimingAlgorithm::extract( const std::vector<TH1*>& histos ) {
   
   // Extract histograms
   std::vector<TH1*>::const_iterator ihis = histos.begin();
-  for ( ; ihis != histos.end(); ihis++ ) {
+  for ( ; ihis != histos.end(); ++ihis ) {
     
     // Check for NULL pointer
     if ( !(*ihis) ) { continue; }
@@ -222,7 +222,7 @@ void FedTimingAlgorithm::analyse() {
       edges.erase(iter);
     }
 
-    iter++;
+    ++iter;
   }
   
   // Set monitorables (but not PLL coarse and fine here)

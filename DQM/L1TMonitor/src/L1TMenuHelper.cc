@@ -332,7 +332,7 @@ map<string,string> L1TMenuHelper::testAlgos(const map<string,string>& _iAlgos){
   // Getting information from the menu
   const AlgorithmMap *theAlgoMap = &m_l1GtMenu->gtAlgorithmAliasMap();
 
-  for(map<string,string>::const_iterator i = iAlgos.begin() ; iAlgos.end() != i ; i++){
+  for(map<string,string>::const_iterator i = iAlgos.begin() ; iAlgos.end() != i ; ++i){
 
     string tCategory = (*i).first;
     string tTrigger  = (*i).second;

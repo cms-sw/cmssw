@@ -142,7 +142,7 @@ void RPCEfficiency::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   
   
-  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){ //Loop on all detector units
+  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();++it){ //Loop on all detector units
 
     if(dynamic_cast< const RPCChamber* >( *it ) != 0 ){ // check if chamber exists
       const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
@@ -293,7 +293,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,dtStation)];
 	      
 	       LogDebug("rpcefficiency")<<"DT  \t \t Loop over all the rolls asociated to this DT";
-	      for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
+	      for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); ++iteraRoll){
 		const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
 		RPCDetId rpcId = rollasociated->id();
 		const BoundPlane & RPCSurface = rollasociated->surface(); 
@@ -355,7 +355,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		    rangeRecHits recHitCollection =  rpcHits->get(rollasociated->id());
 		    RPCRecHitCollection::const_iterator recHit;
 		      
-		    for (recHit = recHitCollection.first; recHit != recHitCollection.second ; recHit++) {
+		    for (recHit = recHitCollection.first; recHit != recHitCollection.second ; ++recHit) {
 		      countRecHits++;
 		      
 		      LocalPoint recHitPos=recHit->localPosition();
@@ -498,7 +498,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			  
 			  assert(rollsForThisDT.size()>=1);
 			  
-			  for (std::set<RPCDetId>::iterator iteraRoll=rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
+			  for (std::set<RPCDetId>::iterator iteraRoll=rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); ++iteraRoll){
 			    const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll); //roll asociado a MB4
 			    const BoundPlane & RPCSurfaceRB4 = rollasociated->surface(); //surface MB4
 			    
@@ -567,7 +567,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 				rangeRecHits recHitCollection =  rpcHits->get(rollasociated->id());
 				RPCRecHitCollection::const_iterator recHit;
 				
-				for (recHit = recHitCollection.first; recHit != recHitCollection.second ; recHit++) {
+				for (recHit = recHitCollection.first; recHit != recHitCollection.second ; ++recHit) {
 				  countRecHits++;
 				  LocalPoint recHitPos=recHit->localPosition();
 				  float res=PointExtrapolatedRPCFrame.x()- recHitPos.x();	    
@@ -689,7 +689,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      if(rpcRing!=1){
 		
 		//Loop over all the rolls
-		for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++){
+		for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); ++iteraRoll){
 		  
 		  const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
 		  RPCDetId rpcId = rollasociated->id();
@@ -758,7 +758,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		      rangeRecHits recHitCollection =  rpcHits->get(rollasociated->id());
 		      RPCRecHitCollection::const_iterator recHit;
 		      
-		      for (recHit = recHitCollection.first; recHit != recHitCollection.second ; recHit++) {
+		      for (recHit = recHitCollection.first; recHit != recHitCollection.second ; ++recHit) {
 			
 			countRecHits++;
 			LocalPoint recHitPos=recHit->localPosition();

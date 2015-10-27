@@ -345,7 +345,7 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, const edm
     
     // Look at digis now
     edm::DetSet<PixelDigi>::const_iterator  di;
-    for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
+    for(di = isearch->data.begin(); di != isearch->data.end(); ++di) {
       int adc = di->adc();    // charge
       int col = di->column(); // column 
       int row = di->row();    // row
@@ -516,7 +516,7 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, const edm
       if(combBarrel) combBarrel->Fill((float)numberOfDigisMod);
       if(chanBarrel){ if(numberOfDigis[0]>0) chanBarrel->Fill((float)numberOfDigis[0]); if(numberOfDigis[1]>0) chanBarrel->Fill((float)numberOfDigis[1]); }
       int j = 2;
-      for (std::vector<MonitorElement*>::iterator i = chanBarrelL.begin(); i != chanBarrelL.end(); i++)
+      for (std::vector<MonitorElement*>::iterator i = chanBarrelL.begin(); i != chanBarrelL.end(); ++i)
       {
          if(numberOfDigis[j]>0) (*i)->Fill((float)numberOfDigis[j]);
          j++;

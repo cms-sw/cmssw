@@ -156,7 +156,7 @@ bool SiStripBadComponentsDQMService::goToDir(DQMStore * dqm_store, std::string n
   }
   std::vector<std::string> subDirVec = dqm_store->getSubdirs();
   for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
-       ic != subDirVec.end(); ic++) {
+       ic != subDirVec.end(); ++ic) {
     dqm_store->cd(*ic);
     if (!goToDir(dqm_store, name))  dqm_store->goUp();
     else return true;

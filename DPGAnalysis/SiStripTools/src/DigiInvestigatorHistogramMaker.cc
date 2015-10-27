@@ -39,7 +39,7 @@ DigiInvestigatorHistogramMaker::DigiInvestigatorHistogramMaker(const edm::Parame
 
 DigiInvestigatorHistogramMaker::~DigiInvestigatorHistogramMaker() {
 
-  for(std::map<unsigned int,std::string>::const_iterator lab=_labels.begin();lab!=_labels.end();lab++) {
+  for(std::map<unsigned int,std::string>::const_iterator lab=_labels.begin();lab!=_labels.end();++lab) {
 
     const unsigned int i = lab->first; const std::string slab = lab->second;
 
@@ -70,7 +70,7 @@ void DigiInvestigatorHistogramMaker::book(const std::string dirname) {
   edm::LogInfo("ScaleFactors") << "x-axis range scale factor: " << _scalefact;
   edm::LogInfo("BinMaxValue") << "Setting bin max values";
 
-  for(std::map<unsigned int,std::string>::const_iterator lab=_labels.begin();lab!=_labels.end();lab++) {
+  for(std::map<unsigned int,std::string>::const_iterator lab=_labels.begin();lab!=_labels.end();++lab) {
 
     const unsigned int i = lab->first; const std::string slab = lab->second;
 
@@ -167,7 +167,7 @@ void DigiInvestigatorHistogramMaker::beginRun(const edm::Run& iRun) {
 
 void DigiInvestigatorHistogramMaker::fill(const edm::Event& iEvent, const std::map<unsigned int,int>& ndigi) {
   
-  for(std::map<unsigned int,int>::const_iterator digi=ndigi.begin();digi!=ndigi.end();digi++) {
+  for(std::map<unsigned int,int>::const_iterator digi=ndigi.begin();digi!=ndigi.end();++digi) {
 
     if(_labels.find(digi->first) != _labels.end()) {
 

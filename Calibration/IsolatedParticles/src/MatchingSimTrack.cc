@@ -51,7 +51,7 @@ namespace spr{
 	if(trkOcc[j] > maxTrkOcc ) { maxTrkOcc = trkOcc[j]; idxMax = j; }
       }
       matchSimTrk = trkId[idxMax];
-      for (simTrkItr = SimTk->begin(); simTrkItr!= SimTk->end(); simTrkItr++) {
+      for (simTrkItr = SimTk->begin(); simTrkItr!= SimTk->end();++simTrkItr) {
 	if ( simTrkItr->trackId() == matchSimTrk ) {
 	  matchedId = simTrkItr->type();
 	  if (debug) std::cout << "matched trackId (maximum occurance) " << matchSimTrk << " type " << matchedId << std::endl;
@@ -79,7 +79,7 @@ namespace spr{
     std::vector<int> matchTkid;
     if( trkInfo->type() != 0) {
       edm::SimTrackContainer::const_iterator simTrkItr;
-      for(simTrkItr = SimTk->begin(); simTrkItr!= SimTk->end(); simTrkItr++){
+      for(simTrkItr = SimTk->begin(); simTrkItr!= SimTk->end();++simTrkItr){
 	if (validSimTrack(matchSimTrk, simTrkItr, SimTk, SimVtx, false))
 	  matchTkid.push_back((int)simTrkItr->trackId());
       }
@@ -90,7 +90,7 @@ namespace spr{
   spr::simTkInfo matchedSimTrackInfo(unsigned int simTkId, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, bool debug) {
     spr::simTkInfo info;
     for (edm::SimTrackContainer::const_iterator simTrkItr=SimTk->begin(); 
-	 simTrkItr!= SimTk->end(); simTrkItr++) {
+	 simTrkItr!= SimTk->end();++simTrkItr) {
       if (simTkId == simTrkItr->trackId()) {
 	if (spr::validSimTrack(simTkId, simTrkItr, SimTk, SimVtx, debug)) {
 	  info.found  = true;
@@ -127,7 +127,7 @@ namespace spr{
     if (vertIndex == -1 || vertIndex >= (int)SimVtx->size()) return false;
     
     edm::SimVertexContainer::const_iterator simVtxItr= SimVtx->begin();
-    for (int iv=0; iv<vertIndex; iv++) simVtxItr++;
+    for (int iv=0; iv<vertIndex;++iv)++simVtxItr;
     int parent = simVtxItr->parentIndex();
     if (debug) std::cout << "validSimTrack:: parent index " << parent <<" ";
     if (parent < 0 && simVtxItr != SimVtx->begin()) {
@@ -144,7 +144,7 @@ namespace spr{
       }
     }
     if (debug) std::cout << "final index " << parent << std::endl;;
-    for(edm::SimTrackContainer::const_iterator simTrkItr= SimTk->begin(); simTrkItr!= SimTk->end(); simTrkItr++){
+    for(edm::SimTrackContainer::const_iterator simTrkItr= SimTk->begin(); simTrkItr!= SimTk->end();++simTrkItr){
       if ((int)simTrkItr->trackId() == parent && simTrkItr != thisTrkItr) return  validSimTrack(simTkId, simTrkItr, SimTk, SimVtx, debug) ; 
     }
   
@@ -165,7 +165,7 @@ namespace spr{
     else if (vertIndex >= (int)SimVtx->size()) return itr; 
 
     edm::SimVertexContainer::const_iterator simVtxItr= SimVtx->begin();
-    for (int iv=0; iv<vertIndex; iv++) simVtxItr++;
+    for (int iv=0; iv<vertIndex;++iv)++simVtxItr;
     int parent = simVtxItr->parentIndex();
 
     if (parent < 0 && simVtxItr != SimVtx->begin()) {
@@ -181,7 +181,7 @@ namespace spr{
 	}
       }
     }
-    for (edm::SimTrackContainer::const_iterator simTrkItr= SimTk->begin(); simTrkItr!= SimTk->end(); simTrkItr++){
+    for (edm::SimTrackContainer::const_iterator simTrkItr= SimTk->begin(); simTrkItr!= SimTk->end();++simTrkItr){
       if ((int)simTrkItr->trackId() == parent && simTrkItr != thisTrkItr) return  parentSimTrack(simTrkItr, SimTk, SimVtx, debug); 
     }
 

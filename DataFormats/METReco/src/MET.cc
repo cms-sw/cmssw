@@ -62,7 +62,7 @@ MET::MET( double sumet_, const std::vector<CorrMETData>& corr_,
   // Fill the vector containing the corrections (corr) with vector of 
   // known corrections (corr_) passed in via the constructor.
   std::vector<CorrMETData>::const_iterator i;
-  for( i = corr_.begin(); i != corr_.end();  i++ ) 
+  for( i = corr_.begin(); i != corr_.end();  ++i ) 
     {
       corr.push_back( *i );
     }
@@ -99,7 +99,7 @@ std::vector<double> MET::dmEx() const
 {
   std::vector<double> deltas;
   std::vector<CorrMETData>::const_iterator i;
-  for( i = corr.begin(); i != corr.end(); i++ )
+  for( i = corr.begin(); i != corr.end(); ++i )
     {
       deltas.push_back( i->mex );
     }
@@ -113,7 +113,7 @@ std::vector<double> MET::dmEy() const
 {
   std::vector<double> deltas;
   std::vector<CorrMETData>::const_iterator i;
-  for( i = corr.begin(); i != corr.end(); i++ )
+  for( i = corr.begin(); i != corr.end(); ++i )
     {
       deltas.push_back( i->mey );
     }
@@ -127,7 +127,7 @@ std::vector<double> MET::dsumEt() const
 {
   std::vector<double> deltas;
   std::vector<CorrMETData>::const_iterator i;
-  for( i = corr.begin(); i != corr.end(); i++ )
+  for( i = corr.begin(); i != corr.end(); ++i )
     {
       deltas.push_back( i->sumet );
     }

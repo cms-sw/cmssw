@@ -62,7 +62,7 @@ void QualityTester::beginRun(const edm::Run& run , const edm::EventSetup& iSetup
     iSetup.get<DQMXMLFileRcd>().get(Label,xmlfile);
     std::unique_ptr<std::vector<unsigned char> > vc( (*xmlfile).getUncompressedBlob() );
     std::string xmlstr="";
-    for(std::vector<unsigned char>::iterator it=vc->begin();it!=vc->end();it++){
+    for(std::vector<unsigned char>::iterator it=vc->begin();it!=vc->end();++it){
       xmlstr += *it;
     }
 

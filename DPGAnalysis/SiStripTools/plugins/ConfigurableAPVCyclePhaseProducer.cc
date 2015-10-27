@@ -95,7 +95,7 @@ ConfigurableAPVCyclePhaseProducer::ConfigurableAPVCyclePhaseProducer(const edm::
 
   std::vector<edm::ParameterSet> vps(iConfig.getParameter<std::vector<edm::ParameterSet> >("runPhases"));
 
-  for(std::vector<edm::ParameterSet>::const_iterator ps = vps.begin();ps!=vps.end();ps++) {
+  for(std::vector<edm::ParameterSet>::const_iterator ps = vps.begin();ps!=vps.end();++ps) {
     _runphases[ps->getParameter<int>("runNumber")] = ps->getUntrackedParameter<std::vector<int> >("phases",_defphases);
     _runpartnames[ps->getParameter<int>("runNumber")] = ps->getUntrackedParameter<std::vector<std::string> >("partitions",_defpartnames);
 
@@ -166,7 +166,7 @@ ConfigurableAPVCyclePhaseProducer::beginRun(const edm::Run& iRun, const edm::Eve
   }
 
   
-  for(std::map<std::string,int>::const_iterator it=_currapvphases.get().begin(); it!=_currapvphases.get().end();it++) {
+  for(std::map<std::string,int>::const_iterator it=_currapvphases.get().begin(); it!=_currapvphases.get().end();++it) {
     
     edm::LogInfo("APVCyclePhaseProducerDebug") << "partition " << it->first << " phase " << it->second;
 

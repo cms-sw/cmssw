@@ -975,7 +975,7 @@ void TreeAnalysisHcalNZS::Loop(int cut) {
   std::cout << "saved runEvtList " << std::endl;
   std::map<unsigned int, unsigned int>::iterator runEvtListItr = runEvtList.begin();
   long total=0;
-  for(runEvtListItr=runEvtList.begin(); runEvtListItr != runEvtList.end(); runEvtListItr++) {
+  for(runEvtListItr=runEvtList.begin(); runEvtListItr != runEvtList.end();++runEvtListItr) {
     std::cout<<runEvtListItr->first << " "<< runEvtListItr->second << std::endl;
     total += runEvtListItr->second;
   }
@@ -984,7 +984,7 @@ void TreeAnalysisHcalNZS::Loop(int cut) {
   total = 0;
   std::cout << "Number of tracks in runs " << std::endl;
   std::map<unsigned int, unsigned int>::iterator runNTrkListItr = runNTrkList.begin();
-  for(runNTrkListItr=runNTrkList.begin(); runNTrkListItr != runNTrkList.end(); runNTrkListItr++) {
+  for(runNTrkListItr=runNTrkList.begin(); runNTrkListItr != runNTrkList.end();++runNTrkListItr) {
     std::cout<<runNTrkListItr->first << " "<< runNTrkListItr->second << std::endl;
     total += runNTrkListItr->second;
   }
@@ -993,7 +993,7 @@ void TreeAnalysisHcalNZS::Loop(int cut) {
   total = 0;
   std::cout << "Number of isolated tracks in runs " << std::endl;
   std::map<unsigned int, unsigned int>::iterator runNIsoTrkListItr = runNIsoTrkList.begin();
-  for(runNIsoTrkListItr=runNIsoTrkList.begin(); runNIsoTrkListItr != runNIsoTrkList.end(); runNIsoTrkListItr++) {
+  for(runNIsoTrkListItr=runNIsoTrkList.begin(); runNIsoTrkListItr != runNIsoTrkList.end();++runNIsoTrkListItr) {
     std::cout<<runNIsoTrkListItr->first << " "<< runNIsoTrkListItr->second << std::endl;
     total += runNIsoTrkListItr->second;
   }

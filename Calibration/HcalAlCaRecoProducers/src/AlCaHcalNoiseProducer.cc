@@ -104,7 +104,7 @@ AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	 if( ((calojetIter->et())*cosh(calojetIter->eta()) > JetMinE_) && (calojetIter->energyFractionHadronic() > JetHCALminEnergyFraction_) ) {
 	   JetContainer.push_back(*calojetIter);
 	   double maxTowerE = 0.0;
-	   for(CaloTowerCollection::const_iterator kal = towerHandle->begin(); kal != towerHandle->end(); kal++) {
+	   for(CaloTowerCollection::const_iterator kal = towerHandle->begin(); kal != towerHandle->end();++kal) {
 	     double dR = deltaR((*calojetIter).eta(),(*calojetIter).phi(),(*kal).eta(),(*kal).phi());
 	     if( (dR < 0.50) && (kal->p() > maxTowerE) ) {
 	       maxTowerE = kal->p();
@@ -156,7 +156,7 @@ AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       std::auto_ptr<EcalRecHitCollection> tmpEcalRecHitCollection(new EcalRecHitCollection);
       
       std::vector<edm::EDGetTokenT<EcalRecHitCollection> >::const_iterator i;
-      for (i=toks_ecal_.begin(); i!=toks_ecal_.end(); i++) 
+      for (i=toks_ecal_.begin(); i!=toks_ecal_.end();++i) 
 	{
 	  edm::Handle<EcalRecHitCollection> ec;
 	  iEvent.getByToken(*i,ec);
@@ -170,25 +170,25 @@ AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
       //////// write HCAL collections:
       const HBHERecHitCollection Hithbhe = *(hbhe.product());
-      for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++)
+      for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end();++hbheItr)
 	{
 	  miniHBHERecHitCollection->push_back(*hbheItr);
 	}
       const HORecHitCollection Hitho = *(ho.product());
-      for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
+      for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end();++hoItr)
 	{
 	  miniHORecHitCollection->push_back(*hoItr);
 	}
       
       const HFRecHitCollection Hithf = *(hf.product());
-      for(HFRecHitCollection::const_iterator hfItr=Hithf.begin(); hfItr!=Hithf.end(); hfItr++)
+      for(HFRecHitCollection::const_iterator hfItr=Hithf.begin(); hfItr!=Hithf.end();++hfItr)
 	{
 	  miniHFRecHitCollection->push_back(*hfItr);
 	}
       /////
 
       ///// write ECAL       
-      for (std::vector<EcalRecHit>::const_iterator ehit=tmpEcalRecHitCollection->begin(); ehit!=tmpEcalRecHitCollection->end(); ehit++) 
+      for (std::vector<EcalRecHit>::const_iterator ehit=tmpEcalRecHitCollection->begin(); ehit!=tmpEcalRecHitCollection->end();++ehit) 
 	{
 	  outputEColl->push_back(*ehit);
 	}
@@ -197,7 +197,7 @@ AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       // write PS
       const EcalRecHitCollection& psrechits = *(pRecHits.product());
       
-      for(EcalRecHitCollection::const_iterator i=psrechits.begin(); i!=psrechits.end(); i++) 
+      for(EcalRecHitCollection::const_iterator i=psrechits.begin(); i!=psrechits.end();++i) 
 	{
 	  outputESColl->push_back( *i );
 	}

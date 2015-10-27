@@ -98,7 +98,7 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
 	  if(tracks->size() == 0) return result;
 	  
 	  reco::TrackCollection::const_iterator itr = tracks->begin();
-	  for(;itr != tracks->end();itr++)
+	  for(;itr != tracks->end();++itr)
 	    {
 	      
 	      GlobalVector ptrVec((itr)->px(),(itr)->py(),(itr)->pz());
@@ -177,7 +177,7 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
 	  GlobalVector globalVector(0,0,1);
 	  if(jets->size() == 0) return result;
 	  
-	  for (l1extra::L1JetParticleCollection::const_iterator iJet = jets->begin(); iJet != jets->end(); iJet++) 
+	  for (l1extra::L1JetParticleCollection::const_iterator iJet = jets->begin(); iJet != jets->end();++iJet) 
 	    {
 	      GlobalVector jetVector(iJet->p4().x(), iJet->p4().y(), iJet->p4().z());
 	      GlobalPoint  vertex(0, 0, originz);

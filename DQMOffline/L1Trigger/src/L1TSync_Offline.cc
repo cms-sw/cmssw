@@ -276,7 +276,7 @@ void L1TSync_Offline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&
   m_ErrorMonitor->setBinLabel(ERROR_LSBLOCK_NOTVALID       ,"ERROR_LSBLOCK_NOTVALID"); 
 
   // Looping over selected triggers
-  for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+  for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; ++i){
 
     string tCategory = (*i).first;
     string tTrigger  = (*i).second;
@@ -378,7 +378,7 @@ void L1TSync_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
       const vector<L1GtFdlWord>& gtFdlVectorData = gtReadoutRecordData->gtFdlVector();
 
       // Running over selected triggers
-      for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+      for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; ++i){
 
         string tTrigger = (*i).second;
 

@@ -168,7 +168,7 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
   }
  
   unsigned int nTracks=0;
-  for (trkDetItr = trkCaloDirections.begin(),nTracks=0; trkDetItr != trkCaloDirections.end(); trkDetItr++,nTracks++){
+  for (trkDetItr = trkCaloDirections.begin(),nTracks=0; trkDetItr != trkCaloDirections.end();++trkDetItr,++nTracks){
     const reco::Track* pTrack = &(*(trkDetItr->trkItr));
     if (spr::goodTrack(pTrack,leadPV,selectionParameters,(myverbose>2)) && trkDetItr->okECAL && trkDetItr->okHCAL) {
       int                nRH_eMipDR=0, nRH_eDR=0, nNearTRKs=0, nRecHitsCone=-99;

@@ -355,38 +355,38 @@ void TreeAnalysisHcalScale::Loop(int cut) {
  
   std::cout << "saved runEvtList " << std::endl;
   std::map<unsigned int, unsigned int>::iterator runEvtListItr = runEvtList.begin();
-  for(runEvtListItr=runEvtList.begin(); runEvtListItr != runEvtList.end(); runEvtListItr++) {
+  for(runEvtListItr=runEvtList.begin(); runEvtListItr != runEvtList.end();++runEvtListItr) {
     std::cout<<runEvtListItr->first << " "<< runEvtListItr->second << std::endl;
   }
 
   std::cout << "Number of tracks in runs " << std::endl;
   std::map<unsigned int, unsigned int>::iterator runNTrkListItr = runNTrkList.begin();
-  for(runNTrkListItr=runNTrkList.begin(); runNTrkListItr != runNTrkList.end(); runNTrkListItr++) {
+  for(runNTrkListItr=runNTrkList.begin(); runNTrkListItr != runNTrkList.end();++runNTrkListItr) {
     std::cout<<runNTrkListItr->first << " "<< runNTrkListItr->second << std::endl;
   }
   
   std::cout << "Number of tracks in eta range in runs " << std::endl;
   std::map<unsigned int, unsigned int>::iterator runNTrkEtaPListItr = runNTrkEtaPList.begin();
-  for(runNTrkEtaPListItr=runNTrkEtaPList.begin(); runNTrkEtaPListItr != runNTrkEtaPList.end(); runNTrkEtaPListItr++) {
+  for(runNTrkEtaPListItr=runNTrkEtaPList.begin(); runNTrkEtaPListItr != runNTrkEtaPList.end();++runNTrkEtaPListItr) {
     std::cout<<runNTrkEtaPListItr->first << " "<< runNTrkEtaPListItr->second << std::endl;
   }
   
   std::cout << "Number of Mip tracks in runs " << std::endl;
   std::map<unsigned int, unsigned int>::iterator runNTrkMipListItr = runNTrkMipList.begin();
-  for(runNTrkMipListItr=runNTrkMipList.begin(); runNTrkMipListItr != runNTrkMipList.end(); runNTrkMipListItr++) {
+  for(runNTrkMipListItr=runNTrkMipList.begin(); runNTrkMipListItr != runNTrkMipList.end();++runNTrkMipListItr) {
     std::cout<<runNTrkMipListItr->first << " "<< runNTrkMipListItr->second << std::endl;
    }
 
 
   std::cout << "Number of Charged isolated Mip tracks in runs " << std::endl;
   std::map<unsigned int, unsigned int>::iterator runNTrkMipCharIsoListItr = runNTrkMipCharIsoList.begin();
-  for(runNTrkMipCharIsoListItr=runNTrkMipCharIsoList.begin(); runNTrkMipCharIsoListItr != runNTrkMipCharIsoList.end(); runNTrkMipCharIsoListItr++) {
+  for(runNTrkMipCharIsoListItr=runNTrkMipCharIsoList.begin(); runNTrkMipCharIsoListItr != runNTrkMipCharIsoList.end();++runNTrkMipCharIsoListItr) {
     std::cout<<runNTrkMipCharIsoListItr->first << " "<< runNTrkMipCharIsoListItr->second << std::endl;
    }
 
   std::cout << "Number of isolated tracks in runs " << std::endl;
   std::map<unsigned int, unsigned int>::iterator runNIsoTrkListItr = runNIsoTrkList.begin();
-  for(runNIsoTrkListItr=runNIsoTrkList.begin(); runNIsoTrkListItr != runNIsoTrkList.end(); runNIsoTrkListItr++) {
+  for(runNIsoTrkListItr=runNIsoTrkList.begin(); runNIsoTrkListItr != runNIsoTrkList.end();++runNIsoTrkListItr) {
     std::cout<<runNIsoTrkListItr->first << " "<< runNIsoTrkListItr->second << std::endl;
   } 
   for(int i=0; i<NEtaBins;i++){

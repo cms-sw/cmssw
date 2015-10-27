@@ -146,7 +146,7 @@ void HcalRawDataMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::Run& r
   // by looping over all precision (non-trigger) items.
   for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin();
        eid != AllElIds.end();
-       eid++) {
+       ++eid) {
 
     //Get the HcalDetId from the HcalElectronicsId
     detid_ = readoutMap_->lookup(*eid);

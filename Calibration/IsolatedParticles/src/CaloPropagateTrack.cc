@@ -679,7 +679,7 @@ namespace spr{
     spr::trackAtOrigin trk;
 
     edm::SimTrackContainer::const_iterator itr = SimTk->end();
-    for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr!= SimTk->end(); simTrkItr++) {
+    for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr!= SimTk->end();++simTrkItr) {
       if ( simTrkItr->trackId() == thisTrk ) {
 	if (debug) std::cout << "matched trackId (maximum occurance) " << thisTrk << " type " << simTrkItr->type() << std::endl;
 	itr = simTrkItr;
@@ -691,7 +691,7 @@ namespace spr{
       int vertIndex = itr->vertIndex();
       if (vertIndex != -1 && vertIndex < (int)SimVtx->size()) {
 	edm::SimVertexContainer::const_iterator simVtxItr= SimVtx->begin();
-	for (int iv=0; iv<vertIndex; iv++) simVtxItr++;
+	for (int iv=0; iv<vertIndex;++iv)++simVtxItr;
 	const math::XYZTLorentzVectorD pos = simVtxItr->position();
 	const math::XYZTLorentzVectorD mom = itr->momentum();
 	trk.ok = true;

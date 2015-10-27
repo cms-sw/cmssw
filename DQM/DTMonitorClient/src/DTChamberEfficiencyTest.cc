@@ -150,12 +150,12 @@ DTChamberEfficiencyTest::~DTChamberEfficiencyTest(){
   string XEfficiencyCriterionName = parameters.getUntrackedParameter<string>("XEfficiencyTestName","ChEfficiencyInRangeX"); 
   for(map<string, MonitorElement*>::const_iterator hXEff = xEfficiencyHistos.begin();
       hXEff != xEfficiencyHistos.end();
-      hXEff++) {
+      ++hXEff) {
     const QReport * theXEfficiencyQReport = (*hXEff).second->getQReport(XEfficiencyCriterionName);
     if(theXEfficiencyQReport) {
       vector<dqm::me_util::Channel> badChannels = theXEfficiencyQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	   channel != badChannels.end(); channel++) {
+	   channel != badChannels.end(); ++channel) {
 	edm::LogError ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "Chamber : " << (*hXEff).first << " Bad XChamberEfficiency channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
       }
     }
@@ -166,12 +166,12 @@ DTChamberEfficiencyTest::~DTChamberEfficiencyTest(){
   string YEfficiencyCriterionName = parameters.getUntrackedParameter<string>("YEfficiencyTestName","ChEfficiencyInRangeY"); 
   for(map<string, MonitorElement*>::const_iterator hYEff = yEfficiencyHistos.begin();
       hYEff != yEfficiencyHistos.end();
-      hYEff++) {
+      ++hYEff) {
     const QReport * theYEfficiencyQReport = (*hYEff).second->getQReport(YEfficiencyCriterionName);
     if(theYEfficiencyQReport) {
       vector<dqm::me_util::Channel> badChannels = theYEfficiencyQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	   channel != badChannels.end(); channel++) {
+	   channel != badChannels.end(); ++channel) {
 	edm::LogError ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "Chamber : " << (*hYEff).first <<" Bad YChamberEfficiency channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
       }
     }

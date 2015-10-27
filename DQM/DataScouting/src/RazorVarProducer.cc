@@ -117,7 +117,7 @@ RazorVarProducer::CalcR(double MR, const TLorentzVector& ja, const TLorentzVecto
   met.SetPtEtaPhi((inputMet->front()).pt(),0.0,(inputMet->front()).phi());
   
   std::vector<math::XYZTLorentzVector>::const_iterator muonIt;
-  for(muonIt = muons.begin(); muonIt!=muons.end(); muonIt++){
+  for(muonIt = muons.begin(); muonIt!=muons.end(); ++muonIt){
     TVector3 tmp;
     tmp.SetPtEtaPhi(muonIt->pt(),0,muonIt->phi());
     met-=tmp;

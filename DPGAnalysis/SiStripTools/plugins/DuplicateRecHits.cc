@@ -139,7 +139,7 @@ DuplicateRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    iEvent.getByToken(m_trkcollToken,tracks);
 
 
-   for(reco::TrackCollection::const_iterator it = tracks->begin();it!=tracks->end();it++) {
+   for(reco::TrackCollection::const_iterator it = tracks->begin();it!=tracks->end();++it) {
 
      std::set<SiPixelRecHit::ClusterRef::key_type> clusters;
      int nduplicate=0;

@@ -296,7 +296,7 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
 
   //  for (CaloTowerCollection::const_iterator calotower = towers->begin(); calotower != towers->end(); calotower++) 
-  for ( ; towerCand != towers->end(); towerCand++)
+  for ( ; towerCand != towers->end(); ++towerCand)
     {
       const Candidate* candidate = &(*towerCand);
       if (candidate) 

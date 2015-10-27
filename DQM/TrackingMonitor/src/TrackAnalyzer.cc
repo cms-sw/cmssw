@@ -1628,7 +1628,7 @@ void TrackAnalyzer::fillHistosForTrackerSpecific(const reco::Track & track)
   double eta   = track.eta();
 
   for ( std::map<std::string,TkRecHitsPerSubDetMEs>::iterator it = TkRecHitsPerSubDetMEMap.begin();
-       it != TkRecHitsPerSubDetMEMap.end(); it++ ) {
+       it != TkRecHitsPerSubDetMEMap.end(); ++it ) {
 
     int nValidLayers  = 0;
     int nValidRecHits = 0;

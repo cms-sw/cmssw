@@ -446,12 +446,12 @@ void DTResolutionAnalysisTest::resetMEs() {
   // Reset the summary histo
   for(map<int, MonitorElement*> ::const_iterator histo = wheelMeanHistos.begin();
       histo != wheelMeanHistos.end();
-      histo++) {
+      ++histo) {
     (*histo).second->Reset();
   }
   for(map<int, MonitorElement*> ::const_iterator histo = wheelSigmaHistos.begin();
       histo != wheelSigmaHistos.end();
-      histo++) {
+      ++histo) {
     (*histo).second->Reset();
   }
 

@@ -35,7 +35,7 @@ SiStripApvGain* SiStripApvGainGenerator::createObject(){
 
   const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo > DetInfos  = reader.getAllData();
   float gainValue;
-  for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); it++){    
+  for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); ++it){    
   
     std::vector<float> theSiStripVector;
     for(unsigned short j=0; j<it->second.nApvs; j++){

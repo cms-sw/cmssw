@@ -384,7 +384,7 @@ bool L1GtLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
 
     // count all operations and check if the result is 1
     int counter = 0;
-    for(RpnVector::iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+    for(RpnVector::iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); ++it) {
         if (it->operation == OP_OPERAND)
             counter++;
         if (it->operation == OP_OR || it->operation == OP_AND)
@@ -444,7 +444,7 @@ void L1GtLogicParser::buildOperandTokenVector()
 
     int opNumber = 0;
 
-    for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+    for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); ++it) {
 
         //LogTrace("L1GtLogicParser")
         //<< "\nit->operation = " << it->operation
@@ -703,7 +703,7 @@ const bool L1GtLogicParser::expressionResult() const
     bool b1, b2;
 
 
-    for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+    for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); ++it) {
 
         //LogTrace("L1GtLogicParser")
         //<< "\nit->operation = " << it->operation
@@ -893,7 +893,7 @@ void L1GtLogicParser::buildOperandTokenVectorNumExp()
 
     int opNumber = 0;
 
-    for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+    for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); ++it) {
 
         //LogTrace("L1GtLogicParser")
         //<< "\nit->operation = " << it->operation
@@ -964,7 +964,7 @@ const bool L1GtLogicParser::expressionResultNumExp() const
     bool b1, b2;
 
 
-    for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+    for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); ++it) {
 
         //LogTrace("L1GtLogicParser")
         //<< "\nit->operation = " << it->operation
@@ -1256,7 +1256,7 @@ std::vector<L1GtLogicParser::OperandToken>
     dummyToken.tokenNumber = -1;
     dummyToken.tokenResult = false;
 
-    for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+    for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); ++it) {
 
         //LogTrace("L1GtLogicParser")
         //<< "\nit->operation = " << it->operation
@@ -1274,7 +1274,7 @@ std::vector<L1GtLogicParser::OperandToken>
                     if ( (!newOperandBlock) ) {
 
                         for (std::vector<OperandToken>::reverse_iterator itOp = tmpVector.rbegin();
-                                itOp != tmpVector.rend(); itOp++) {
+                                itOp != tmpVector.rend(); ++itOp) {
 
                             opVector.push_back(*itOp);
 
@@ -1412,7 +1412,7 @@ std::vector<L1GtLogicParser::OperandToken>
 
         //
         for (std::vector<OperandToken>::reverse_iterator itOp = tmpVector.rbegin();
-                itOp != tmpVector.rend(); itOp++) {
+                itOp != tmpVector.rend(); ++itOp) {
 
             opVector.push_back(*itOp);
 
@@ -1429,7 +1429,7 @@ std::vector<L1GtLogicParser::OperandToken>
         //        << "  More blocks:  push the last block on the seed operand list" << std::endl;
 
         for (std::vector<OperandToken>::reverse_iterator itOp = tmpVector.rbegin();
-                itOp != tmpVector.rend(); itOp++) {
+                itOp != tmpVector.rend(); ++itOp) {
 
             opVector.push_back(*itOp);
 
@@ -1449,12 +1449,12 @@ std::vector<L1GtLogicParser::OperandToken>
     opVectorU.reserve(opVector.size());
 
     for (std::vector<OperandToken>::const_iterator constIt = opVector.begin(); constIt
-            != opVector.end(); constIt++) {
+            != opVector.end(); ++constIt) {
 
         bool tokenIncluded = false;
 
         for (std::vector<OperandToken>::iterator itOpU = opVectorU.begin(); itOpU
-                != opVectorU.end(); itOpU++) {
+                != opVectorU.end(); ++itOpU) {
 
             if ( ( *itOpU ).tokenName == ( *constIt ).tokenName) {
                 tokenIncluded = true;

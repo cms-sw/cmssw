@@ -525,7 +525,7 @@ static int  lastPEDorbit,nChecksPED;
              meEVT_->Fill(ievt_);
              return;	 
 	 }
-         for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
+         for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();++digi){
              eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
              if(nTS>8) nTS=8;
 	     if(nTS<8 && nTS>=4) nTS=4;
@@ -541,7 +541,7 @@ static int  lastPEDorbit,nChecksPED;
    edm::Handle<HODigiCollection> ho; 
    iEvent.getByToken(tok_ho_,ho);
    if(ho.isValid()){
-         for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
+         for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();++digi){
              eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
 	     if(nTS>8) nTS=8;
 	     if(nTS<8 && nTS>=4) nTS=4;
@@ -552,7 +552,7 @@ static int  lastPEDorbit,nChecksPED;
    edm::Handle<HFDigiCollection> hf;
    iEvent.getByToken(tok_hf_,hf);
    if(hf.isValid()){
-         for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
+         for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();++digi){
              eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
 	     if(nTS>8) nTS=8;
 	     if(nTS<8 && nTS>=4) nTS=4;
@@ -694,7 +694,7 @@ void HcalDetDiagPedestalMonitor::CheckStatus(){
    if(emap==0) return;
    
    std::vector <HcalElectronicsId> AllElIds = emap->allElectronicsIdPrecision();
-   for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++) {
+   for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); ++eid) {
      DetId detid=emap->lookup(*eid);
      if (detid.det()!=DetId::Hcal) continue;
      HcalGenericDetId gid(emap->lookup(*eid));
@@ -1108,7 +1108,7 @@ char   Subdet[10],str[500];
       xmlFile<<"     <!-- multiple data block records -->\n\n";
 
       std::vector <HcalElectronicsId> AllElIds = emap->allElectronicsIdPrecision();
-      for(std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++){
+      for(std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); ++eid){
          DetId detid=emap->lookup(*eid);
 	 if (detid.det()!=DetId::Hcal) continue;
          HcalGenericDetId gid(emap->lookup(*eid));

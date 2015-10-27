@@ -158,12 +158,12 @@ void PiZeroAnalyzer::makePizero(const edm::EventSetup& es, const edm::Handle<Eca
   } // Eb rechits
 
   sort(seeds.begin(), seeds.end(), ecalRecHitLess());
-  for (std::vector<EcalRecHit>::iterator itseed=seeds.begin(); itseed!=seeds.end(); itseed++) {
+  for (std::vector<EcalRecHit>::iterator itseed=seeds.begin(); itseed!=seeds.end(); ++itseed) {
     EBDetId seed_id = itseed->id();
     std::vector<EBDetId>::const_iterator usedIds;
 
     bool seedAlreadyUsed=false;
-    for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
+    for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); ++usedIds){
       if(*usedIds==seed_id){
 	seedAlreadyUsed=true;
 	//cout<< " Seed with energy "<<itseed->energy()<<" was used !"<<endl;
@@ -180,11 +180,11 @@ void PiZeroAnalyzer::makePizero(const edm::EventSetup& es, const edm::Handle<Eca
 
     double simple_energy = 0;
 
-    for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); det++) {
+    for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); ++det) {
       // EBDetId EBdet = *det;
       //      cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi "<<EBdet.iphi()<<endl;
       bool  HitAlreadyUsed=false;
-      for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
+      for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); ++usedIds){
 	if(*usedIds==*det){
 	  HitAlreadyUsed=true;
 	  break;

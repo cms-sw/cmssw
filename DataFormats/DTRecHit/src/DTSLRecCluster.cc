@@ -49,7 +49,7 @@ vector<const TrackingRecHit*> DTSLRecCluster::recHits() const {
   std::vector<const TrackingRecHit*> pointersOfRecHits; 
   
   for(std::vector<DTRecHit1DPair>::const_iterator rechit = thePairs.begin();
-      rechit != thePairs.end(); rechit++)
+      rechit != thePairs.end(); ++rechit)
     pointersOfRecHits.push_back( &(*rechit) );
   
   return pointersOfRecHits;
@@ -59,7 +59,7 @@ vector<TrackingRecHit*> DTSLRecCluster::recHits() {
   std::vector<TrackingRecHit*> pointersOfRecHits; 
   
   for(std::vector<DTRecHit1DPair>::iterator rechit = thePairs.begin();
-      rechit != thePairs.end(); rechit++)
+      rechit != thePairs.end(); ++rechit)
     pointersOfRecHits.push_back( &(*rechit) );
   
   return pointersOfRecHits;

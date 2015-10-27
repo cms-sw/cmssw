@@ -313,7 +313,7 @@ void EcalPileUpDepMonitor::analyze(const edm::Event& e, const edm::EventSetup&)
   if(electronCollection_h.isValid()){
     for (reco::GsfElectronCollection::const_iterator recoElectron = electronCollection_h->begin ();
          recoElectron != electronCollection_h->end ();
-         recoElectron++) {
+         ++recoElectron) {
         double IsoEcal =recoElectron->dr03EcalRecHitSumEt();///recoElectron->et()
         emIso_PV->Fill(PVCollection_h->size(),IsoEcal);
         emIso->Fill(IsoEcal);

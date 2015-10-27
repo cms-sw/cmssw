@@ -153,7 +153,7 @@ DQMDcsInfoClient::endRun(const edm::Run& r, const edm::EventSetup& c)
   ite = processedLS_.end();
   unsigned int lastAccessed = 0;
   
-  for (; it!=ite; it++)
+  for (; it!=ite; ++it)
   {
     while (lastAccessed < (*it))
     {

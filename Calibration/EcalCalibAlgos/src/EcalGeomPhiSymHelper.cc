@@ -38,7 +38,7 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry,
   const std::vector<DetId>& barrelCells = geometry->getValidDetIds(DetId::Ecal, EcalBarrel);
   std::vector<DetId>::const_iterator barrelIt;
 
-  for (barrelIt=barrelCells.begin(); barrelIt!=barrelCells.end(); barrelIt++) {
+  for (barrelIt=barrelCells.begin(); barrelIt!=barrelCells.end();++barrelIt) {
     EBDetId eb(*barrelIt);
 
     int sign = eb.zside()>0 ? 1 : 0;
@@ -68,7 +68,7 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry,
 
   const std::vector<DetId>& endcapCells = geometry->getValidDetIds(DetId::Ecal, EcalEndcap);
   std::vector<DetId>::const_iterator endcapIt;
-  for (endcapIt=endcapCells.begin(); endcapIt!=endcapCells.end(); endcapIt++) {
+  for (endcapIt=endcapCells.begin(); endcapIt!=endcapCells.end();++endcapIt) {
 
     const CaloCellGeometry *cellGeometry = endcapGeometry->getGeometry(*endcapIt);
     EEDetId ee(*endcapIt);
@@ -182,7 +182,7 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry,
 
     // Print out detid->ring association 
     std::fstream eeringsf("endcaprings.dat",std::ios::out);
-    for (endcapIt=endcapCells.begin(); endcapIt!=endcapCells.end();endcapIt++){
+    for (endcapIt=endcapCells.begin(); endcapIt!=endcapCells.end();++endcapIt){
       EEDetId eedet(*endcapIt);
       eeringsf<< eedet.hashedIndex()<< " " 
 	      << endcapRing_[eedet.ix()-1][eedet.iy()-1] << " " 

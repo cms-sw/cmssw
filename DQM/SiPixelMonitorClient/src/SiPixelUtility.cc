@@ -15,7 +15,7 @@ int SiPixelUtility::getMEList(string name, vector<string>& values) {
   string temp_str = name.substr(name.find(":")+1);
   split(temp_str, values, ",");
   for (vector<string>::iterator it = values.begin();
-       it != values.end(); it++) (*it).insert(0,prefix_str);
+       it != values.end(); ++it) (*it).insert(0,prefix_str);
   return values.size();
 }
 //
@@ -39,7 +39,7 @@ bool SiPixelUtility::checkME(string name, string me_name, string& full_path) {
   vector<string> values;
   split(temp_str, values, ",");
   for (vector<string>::iterator it = values.begin();
-       it != values.end(); it++) {
+       it != values.end(); ++it) {
     if ((*it).find(me_name) != string::npos) {
       full_path = prefix_str + (*it);
       return true;
@@ -209,7 +209,7 @@ int SiPixelUtility::computeHistoBin(string & module_path){
   SiPixelUtility::split(module_path,subDirVector,"/");
 
   for (vector<string>::const_iterator it = subDirVector.begin();
-       it != subDirVector.end(); it++) {
+       it != subDirVector.end(); ++it) {
     if((*it).find("Collector") != string::npos ||
        //(*it).find("Collated") != string::npos ||
        (*it).find("FU") != string::npos ||
@@ -286,7 +286,7 @@ void SiPixelUtility::fillPaveText(TPaveText                 * pave,
   TText* sourceCodeOnCanvas;
   for(map<string, pair<int,double> >::const_iterator it =  messages.begin();
                                             it != messages.end();
-                                            it++){
+                                            ++it){
     string message = it->first;
     int    color   = (it->second).first;
     double size    = (it->second).second;

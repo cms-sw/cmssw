@@ -97,7 +97,7 @@ namespace cscdqm {
             if (el->hasAttribute(XMLString::transcode(XML_BOOK_DEFINITION_REF))) {
               std::string id(XMLString::transcode(el->getAttribute(XMLString::transcode(XML_BOOK_DEFINITION_REF))));
               CoHistoProps d = definitions[id];
-              for (CoHistoProps::iterator it = d.begin(); it != d.end(); it++) {
+              for (CoHistoProps::iterator it = d.begin(); it != d.end(); ++it) {
                 hp[it->first] = it->second;
               }
             }
@@ -133,7 +133,7 @@ namespace cscdqm {
       throw Exception(message);
     }
 
-    for (CoHistoMap::const_iterator i = collection.begin(); i != collection.end(); i++) {
+    for (CoHistoMap::const_iterator i = collection.begin(); i != collection.end(); ++i) {
       LOG_INFO << i->second.size() << " " << i->first << " histograms defined";
     }
     
@@ -299,7 +299,7 @@ namespace cscdqm {
     CoHistoMap::const_iterator i = collection.find("EMU");
     if (i != collection.end()) {
       const CoHisto hs = i->second;
-      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); j++) {
+      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); ++j) {
         std::string s = "";
         if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
           HistoId hid = 0;
@@ -321,7 +321,7 @@ namespace cscdqm {
     CoHistoMap::const_iterator i = collection.find("FED");
     if (i != collection.end()) {
       const CoHisto hs = i->second;
-      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); j++) {
+      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); ++j) {
         std::string s = "";
         if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
           HistoId hid = 0;
@@ -343,7 +343,7 @@ namespace cscdqm {
     CoHistoMap::const_iterator i = collection.find("DDU");
     if (i != collection.end()) {
       const CoHisto hs = i->second;
-      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); j++) {
+      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); ++j) {
         std::string s = "";
         if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
           HistoId hid = 0;
@@ -366,7 +366,7 @@ namespace cscdqm {
     CoHistoMap::const_iterator i = collection.find("CSC");
     if (i != collection.end()) {
       const CoHisto hs = i->second;
-      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); j++) {
+      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); ++j) {
         std::string s = "";
         HistoId hid = 0;
         if (HistoDef::getHistoIdByName(j->first, hid)) {
@@ -616,11 +616,11 @@ namespace cscdqm {
   void Collection::printCollection() const{
 
     std::ostringstream buffer;
-    for(CoHistoMap::const_iterator hdmi = collection.begin(); hdmi != collection.end(); hdmi++) {
+    for(CoHistoMap::const_iterator hdmi = collection.begin(); hdmi != collection.end(); ++hdmi) {
       buffer << hdmi->first << " [" << std::endl;
-      for(CoHisto::const_iterator hdi = hdmi->second.begin(); hdi != hdmi->second.end(); hdi++) {
+      for(CoHisto::const_iterator hdi = hdmi->second.begin(); hdi != hdmi->second.end(); ++hdi) {
         buffer << "   " << hdi->first << " [" << std::endl;
-        for(CoHistoProps::const_iterator hi = hdi->second.begin(); hi != hdi->second.end(); hi++) {
+        for(CoHistoProps::const_iterator hi = hdi->second.begin(); hi != hdi->second.end(); ++hi) {
           buffer << "     " << hi->first << " = " << hi->second << std::endl;
         }
         buffer << "   ]" << std::endl;

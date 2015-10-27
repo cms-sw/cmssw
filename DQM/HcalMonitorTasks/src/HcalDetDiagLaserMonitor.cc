@@ -664,7 +664,7 @@ static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksH
    if(LocalRun && LaserEvent){
       int N=0; 
       if(hf.isValid()){
-         for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
+         for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();++digi){
              eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth();
              float e=0;
 	     for(int i=0;i<digi->size();i++) e+=adc2fC[digi->sample(i).adc()&0xff]-2.5;
@@ -675,7 +675,7 @@ static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksH
    }
    if(RaddamRun){
       if(hf.isValid()){
-         for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
+         for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();++digi){
              eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
              int N;
 	     for(N=0;N<56;N++)if(eta==RADDAM_CH[N].eta && phi==RADDAM_CH[N].phi && depth==RADDAM_CH[N].depth) break;
@@ -715,7 +715,7 @@ static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksH
    double data[20];
    if(!LaserRaddam){
       if(hbhe.isValid()){
-         for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
+         for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();++digi){
              eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
              double ped=(adc2fC[digi->sample(0).adc()&0xff]+adc2fC[digi->sample(1).adc()&0xff])/2.0;
 	     if(digi->id().subdet()==HcalBarrel){
@@ -729,7 +729,7 @@ static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksH
          }
       }
       if(ho.isValid()){
-         for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
+         for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();++digi){
              eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
              double ped=(adc2fC[digi->sample(0).adc()&0xff]+adc2fC[digi->sample(1).adc()&0xff])/2.0;
 	     if((eta>=11 && eta<=15 && phi>=59 && phi<=70) || (eta>=5 && eta<=10 && phi>=47 && phi<=58)){
@@ -741,14 +741,14 @@ static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksH
          }
       }
       if(hf.isValid()){
-         for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
+         for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();++digi){
              eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
              double ped=adc2fC[digi->sample(0).adc()&0xff];
 	     for(int i=0;i<nTS;i++) data[i]=adc2fC[digi->sample(i).adc()&0xff]-ped;
 	     hf_data[eta+42][phi-1][depth-1].add_statistics(data,nTS);
          }   
       }
-      if(calib.isValid())for(HcalCalibDigiCollection::const_iterator digi=calib->begin();digi!=calib->end();digi++){
+      if(calib.isValid())for(HcalCalibDigiCollection::const_iterator digi=calib->begin();digi!=calib->end();++digi){
          if(digi->id().cboxChannel()!=0 || digi->id().hcalSubdet()==0) continue; 
          nTS=digi->size();
          float e=0;
@@ -757,7 +757,7 @@ static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksH
       }
    }else{ //Raddam
       if(hf.isValid()){
-         for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
+         for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();++digi){
              eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
 	     int N;
 	     for(N=0;N<56;N++)if(eta==RADDAM_CH[N].eta && phi==RADDAM_CH[N].phi && depth==RADDAM_CH[N].depth) break;
@@ -839,7 +839,7 @@ float ave_t,ave_e,ave_t_r,ave_e_r;
    }
 
    std::vector <HcalElectronicsId> AllElIds = emap->allElectronicsIdPrecision();
-   for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++){
+   for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); ++eid){
      DetId detid=emap->lookup(*eid);
      if (detid.det()!=DetId::Hcal) continue;
      HcalGenericDetId gid(emap->lookup(*eid));
@@ -933,7 +933,7 @@ float ave_t,ave_e,ave_t_r,ave_e_r;
         }
      }
    }
-   for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++){
+   for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); ++eid){
      DetId detid=emap->lookup(*eid);
      if (detid.det()!=DetId::Hcal) continue;
      HcalGenericDetId gid(emap->lookup(*eid));
@@ -1613,7 +1613,7 @@ char   Subdet[10],str[500];
       xmlFile<<"     <!-- multiple data block records -->\n\n";
 
       std::vector <HcalElectronicsId> AllElIds = emap->allElectronicsIdPrecision();
-      for(std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++){
+      for(std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); ++eid){
          DetId detid=emap->lookup(*eid);
 	 if (detid.det()!=DetId::Hcal) continue;
          HcalGenericDetId gid(emap->lookup(*eid));

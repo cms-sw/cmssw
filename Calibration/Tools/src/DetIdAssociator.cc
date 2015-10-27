@@ -31,7 +31,7 @@ std::vector<GlobalPoint> HDetIdAssociator::getTrajectory( const FreeTrajectorySt
    FreeTrajectoryState ftsCurrent = ftsStart;
 
    for(std::vector<GlobalPoint>::const_iterator surface_iter = surfaces.begin(); 
-       surface_iter != surfaces.end(); surface_iter++) {
+       surface_iter != surfaces.end();++surface_iter) {
       // this stuff is some weird pointer, which destroy itself
       Cylinder *cylinder = new Cylinder(surface_iter->perp(), 
                                         Surface::PositionType(0,0,0),
@@ -256,7 +256,7 @@ void HDetIdAssociator::buildMap()
    int numberOfDetIdsOutsideEtaRange = 0;
    int numberOfDetIdsActive = 0;
    std::set<DetId> validIds = getASetOfValidDetIds();
-   for (std::set<DetId>::const_iterator id_itr = validIds.begin(); id_itr!=validIds.end(); id_itr++) {	 
+   for (std::set<DetId>::const_iterator id_itr = validIds.begin(); id_itr!=validIds.end();++id_itr) {	 
 //      std::vector<GlobalPoint> points = getDetIdPoints(*id_itr);
       GlobalPoint point = getPosition(*id_itr);
 // reject fake DetIds (eta=0 - what are they anyway???)
@@ -312,8 +312,8 @@ std::set<DetId> HDetIdAssociator::getDetIdsInACone(const std::set<DetId>& inset,
    std::set<DetId> outset;
   
    if(dR>=0) {
-     for(std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end(); id_iter++)
-       for(std::vector<GlobalPoint>::const_iterator point_iter = trajectory.begin(); point_iter != trajectory.end(); point_iter++)
+     for(std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end();++id_iter)
+       for(std::vector<GlobalPoint>::const_iterator point_iter = trajectory.begin(); point_iter != trajectory.end();++point_iter)
          if (nearElement(*point_iter,*id_iter,dR)) outset.insert(*id_iter);
    }
    else {
@@ -353,8 +353,8 @@ std::set<DetId> HDetIdAssociator::getCrossedDetIds(const std::set<DetId>& inset,
 {
    check_setup();
    std::set<DetId> outset;
-   for(std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end(); id_iter++)
-     for(std::vector<GlobalPoint>::const_iterator point_iter = trajectory.begin(); point_iter != trajectory.end(); point_iter++)
+   for(std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end();++id_iter)
+     for(std::vector<GlobalPoint>::const_iterator point_iter = trajectory.begin(); point_iter != trajectory.end();++point_iter)
        if (insideElement(*point_iter, *id_iter))  outset.insert(*id_iter);
    return outset;
 }
@@ -369,7 +369,7 @@ std::set<DetId> HDetIdAssociator::getMaxEDetId(const std::set<DetId>& inset,
    std::set<DetId>::const_iterator id_max = inset.begin();
    double Ehadmax=0;
 
-   for(std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end(); id_iter++) {
+   for(std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end();++id_iter) {
      DetId id(*id_iter);
 //     GlobalPoint point = getPosition(*id_iter);
 //     int ieta = iEta(point);
@@ -404,7 +404,7 @@ std::set<DetId> HDetIdAssociator::getMaxEDetId(const std::set<DetId>& inset,
    std::set<DetId>::const_iterator id_max = inset.begin();
    double Ehadmax=0;
 
-   for(std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end(); id_iter++) {
+   for(std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end();++id_iter) {
      DetId id(*id_iter);
 //     GlobalPoint point = getPosition(*id_iter);
 //     int ieta = iEta(point);

@@ -301,7 +301,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
   }
 
 
-  for(L1CSCTrackCollection::const_iterator trk=tracks.product()->begin(); trk!=tracks.product()->end(); trk++)
+  for(L1CSCTrackCollection::const_iterator trk=tracks.product()->begin(); trk!=tracks.product()->end(); ++trk)
   {
     if (nDataMuons>=8)
       break;
@@ -338,7 +338,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
       return;
   }
 
-  for(L1CSCTrackCollection::const_iterator trk=tracks.product()->begin(); trk!=tracks.product()->end(); trk++)
+  for(L1CSCTrackCollection::const_iterator trk=tracks.product()->begin(); trk!=tracks.product()->end(); ++trk)
   {
      if(nEmulMuons>=8)
        break;
@@ -501,7 +501,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
     stub_list.push_many(*dt_stubs);
     vector<csctf::TrackStub> stuList = stub_list.get();
     vector<csctf::TrackStub>::const_iterator stu= stuList.begin();
-    for(; stu!=stuList.end(); stu++)
+    for(; stu!=stuList.end(); ++stu)
     {
       if(dDtCounter>=15)
         break;
@@ -534,7 +534,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
     CSCTriggerContainer<csctf::TrackStub> emulStub = my_dtrc->process(pCon.product());
     vector<csctf::TrackStub> emuList = emulStub.get();
     vector<csctf::TrackStub>::const_iterator eStu=emuList.begin();
-    for(; eStu!=emuList.end(); eStu++)
+    for(; eStu!=emuList.end(); ++eStu)
     {		
       if (eDtCounter>=15)
         break;

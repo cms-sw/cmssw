@@ -58,7 +58,7 @@ namespace ecaldqm {
       vector<vector<float> > weights(hSr->dccNormalizedWeights_);
       if(weights.size() == 1){
 	vector<double> normWeights;
-	for(vector<float>::iterator it(weights[0].begin()); it != weights[0].end(); it++)
+	for(vector<float>::iterator it(weights[0].begin()); it != weights[0].end(); ++it)
 	  normWeights.push_back(*it);
 
 	setFIRWeights_(normWeights);

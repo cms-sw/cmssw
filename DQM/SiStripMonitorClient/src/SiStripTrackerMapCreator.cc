@@ -378,17 +378,17 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::s
   tkMapMin_ = 0.0;
   std::vector<std::pair<float,uint32_t> >* topNmodVec = new std::vector<std::pair<float,uint32_t> >; 
 
-  for (std::vector<std::string>::const_iterator it = subdet_folder.begin(); it != subdet_folder.end(); it++) {
+  for (std::vector<std::string>::const_iterator it = subdet_folder.begin(); it != subdet_folder.end(); ++it) {
     std::string dname = mechanicalview_dir + "/" + (*it);
     if (!dqm_store->dirExists(dname)) continue;
     dqm_store->cd(dname);  
     std::vector<std::string> layerVec = dqm_store->getSubdirs();
-    for (std::vector<std::string>::const_iterator iLayer = layerVec.begin(); iLayer != layerVec.end(); iLayer++) { 
+    for (std::vector<std::string>::const_iterator iLayer = layerVec.begin(); iLayer != layerVec.end(); ++iLayer) { 
       if ((*iLayer).find("BadModuleList") !=std::string::npos) continue;
       std::vector<MonitorElement*> meVec = dqm_store->getContents((*iLayer));
       MonitorElement* tkhmap_me = 0;
       std::string name;
-      for (std::vector<MonitorElement*>::const_iterator itkh = meVec.begin();  itkh != meVec.end(); itkh++) {
+      for (std::vector<MonitorElement*>::const_iterator itkh = meVec.begin();  itkh != meVec.end(); ++itkh) {
 	name = (*itkh)->getName();
 	if (name.find("TkHMap") == std::string::npos) continue;
 	if (htype == "QTestAlarm" ){
@@ -427,7 +427,7 @@ void SiStripTrackerMapCreator::printTopModules(std::vector<std::pair<float,uint3
    edm::LogVerbatim("TopModules") << topModLabel;
    edm::LogVerbatim("TopModules") << "------------------------------------------------------";
    
-   for (std::vector<std::pair<float, uint32_t> >::const_iterator itNmod = topNmodVec->begin(); itNmod != topNmodVec->end(); itNmod++){
+   for (std::vector<std::pair<float, uint32_t> >::const_iterator itNmod = topNmodVec->begin(); itNmod != topNmodVec->end(); ++itNmod){
        std::pair<float, uint32_t> aPair=(*itNmod);
        uint32_t det_id = aPair.second;
        std::ostringstream comment;
@@ -461,7 +461,7 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
   lname = lname.substr(lname.find("_T")+1);
   std::vector<uint32_t> layer_detids;
   tkDetMap_->getDetsForLayer(tkDetMap_->getLayerNum(lname), layer_detids);
-  for (std::vector<uint32_t>::const_iterator idet = layer_detids.begin(); idet != layer_detids.end(); idet++) {
+  for (std::vector<uint32_t>::const_iterator idet = layer_detids.begin(); idet != layer_detids.end(); ++idet) {
     uint32_t det_id= (*idet);
     if (det_id <= 0) continue;
     nDet++;

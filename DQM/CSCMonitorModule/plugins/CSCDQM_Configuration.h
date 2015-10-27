@@ -390,7 +390,7 @@ namespace cscdqm {
       void load(const edm::ParameterSet& ps) {
         BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_LOADPS_MACRO, _, CONFIG_PARAMETERS_SEQ)
         std::vector<std::string> moFilter = ps.getUntrackedParameter<std::vector<std::string> >("MO_FILTER");
-        for (std::vector<std::string>::iterator it = moFilter.begin(); it != moFilter.end(); it++) {
+        for (std::vector<std::string>::iterator it = moFilter.begin(); it != moFilter.end(); ++it) {
           std::string f = *it;
           if (!Utility::regexMatch("^[-+]/.*/$", f)) {
             LOG_WARN << "MO_FILTER item " << f << " does not recognized to be a valid one. Skipping...";

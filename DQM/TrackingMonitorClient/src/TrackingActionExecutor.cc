@@ -138,7 +138,7 @@ void TrackingActionExecutor::printShiftHistoParameters(DQMStore::IBooker & ibook
 
   //  std::cout << "[TrackingActionExecutor::printShiftHistoParameters]" << std::endl;
   str_val << std::endl;
-  for (std::map<std::string, std::vector< std::string > >::iterator it = layout_map.begin() ; it != layout_map.end(); it++) {
+  for (std::map<std::string, std::vector< std::string > >::iterator it = layout_map.begin() ; it != layout_map.end(); ++it) {
     std::string set_name = it->first;
     if (set_name.find("Summary") != std::string::npos) continue;
     configWriter_->createElement(set_name);
@@ -149,7 +149,7 @@ void TrackingActionExecutor::printShiftHistoParameters(DQMStore::IBooker & ibook
     str_val << std::setprecision(2);
     str_val << setiosflags(std::ios::fixed);
     for (std::vector<std::string>::iterator im = it->second.begin(); 
-	 im != it->second.end(); im++) {  
+	 im != it->second.end(); ++im) {  
       std::string path_name = (*im);
       if (path_name.size() == 0) continue;
       MonitorElement* me = igetter.get(path_name);

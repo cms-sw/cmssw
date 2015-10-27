@@ -282,7 +282,7 @@ void ElectronTagProbeAnalyzer::analyze( const edm::Event& iEvent, const edm::Eve
   for
    ( gsfIter=gsfElectrons->begin() ;
      gsfIter!=gsfElectrons->end();
-     gsfIter++ )
+     ++gsfIter )
    {
     // vertex TIP
     double vertexTIP =
@@ -298,7 +298,7 @@ void ElectronTagProbeAnalyzer::analyze( const edm::Event& iEvent, const edm::Eve
     for
      ( moIter=recoClusters->begin() ;
        moIter!=recoClusters->end() ;
-       moIter++ )
+       ++moIter )
      {
 	    if (moIter->eta()==sclTagRef->eta()) continue ;
 
@@ -344,7 +344,7 @@ void ElectronTagProbeAnalyzer::analyze( const edm::Event& iEvent, const edm::Eve
       for
        ( gsfIter2=gsfElectrons->begin();
          gsfIter2!=gsfElectrons->end() ;
-         gsfIter2++ )
+         ++gsfIter2 )
        {
 	      // matching with ref
 	      sclProbeRef = gsfIter2->superCluster();

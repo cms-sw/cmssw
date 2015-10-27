@@ -109,7 +109,7 @@ void RCTMonitor::FillRCT(const edm::Event& iEvent,
 
   // Isolated and non-isolated EM with cut at >1 GeV
   for (L1CaloEmCollection::const_iterator iem = em->begin(); iem != em->end();
-       iem++) {
+       ++iem) {
     if (iem->rank() > 1.) {   // applies the 1 GeV cut
       if (iem->isolated()) {  // looks for isolated EM candidates only
         m_rctIsoEmRank1->Fill(iem->rank());

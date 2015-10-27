@@ -58,8 +58,8 @@ AlcaBeamMonitorClient::AlcaBeamMonitorClient( const ParameterSet& ps ) :
   histoByCategoryNames_.insert( pair<string,string>("validation", "Lumibased PrimaryVertex-Scalers"));
 
 
-  for(vector<string>::iterator itV=varNamesV_.begin(); itV!=varNamesV_.end(); itV++){
-    for(multimap<string,string>::iterator itM=histoByCategoryNames_.begin(); itM!=histoByCategoryNames_.end(); itM++){
+  for(vector<string>::iterator itV=varNamesV_.begin(); itV!=varNamesV_.end(); ++itV){
+    for(multimap<string,string>::iterator itM=histoByCategoryNames_.begin(); itM!=histoByCategoryNames_.end(); ++itM){
       histosMap_[*itV][itM->first][itM->second] = 0;
       positionsMap_[*itV][itM->first][itM->second] = 3*numberOfValuesToSave_;//value, error, ok 
       ++numberOfValuesToSave_;
@@ -78,10 +78,10 @@ void AlcaBeamMonitorClient::beginJob() {
 
 //----------------------------------------------------------------------------------------------------------------------
 void AlcaBeamMonitorClient::beginRun(const edm::Run& r, const EventSetup& context) {
-  for(HistosContainer::iterator itM=histosMap_.begin(); itM!=histosMap_.end(); itM++){
-    for(map<string,map<string,MonitorElement*> >::iterator itMM=itM->second.begin(); itMM!=itM->second.end(); itMM++){
+  for(HistosContainer::iterator itM=histosMap_.begin(); itM!=histosMap_.end(); ++itM){
+    for(map<string,map<string,MonitorElement*> >::iterator itMM=itM->second.begin(); itMM!=itM->second.end(); ++itMM){
       if(itMM->first != "run"){
-      	for(map<string,MonitorElement*>::iterator itMMM=itMM->second.begin(); itMMM!=itMM->second.end(); itMMM++){
+      	for(map<string,MonitorElement*>::iterator itMMM=itMM->second.begin(); itMMM!=itMM->second.end(); ++itMMM){
       	  if( itMMM->second != 0){
 	    if(itMM->first == "lumi"){
       	      dbe_->removeElement(monitorName_+"Debug",itMMM->second->getName());
@@ -145,10 +145,10 @@ void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context){
   string name;
   string title;
   //x,y,z,sigmaX,sigmaY,sigmaZ
-  for(HistosContainer::iterator itM=histosMap_.begin(); itM!=histosMap_.end(); itM++){
-    for(map<string,map<string,MonitorElement*> >::iterator itMM=itM->second.begin(); itMM!=itM->second.end(); itMM++){
+  for(HistosContainer::iterator itM=histosMap_.begin(); itM!=histosMap_.end(); ++itM){
+    for(map<string,map<string,MonitorElement*> >::iterator itMM=itM->second.begin(); itMM!=itM->second.end(); ++itMM){
       if(itMM->first != "run"){
-      	for(map<string,MonitorElement*>::iterator itMMM=itMM->second.begin(); itMMM!=itMM->second.end(); itMMM++){
+      	for(map<string,MonitorElement*>::iterator itMMM=itMM->second.begin(); itMMM!=itMM->second.end(); ++itMMM){
       	  name = string("h") + itM->first + itMMM->first;
       	  title = itM->first + "_{0} " + itMMM->first;
       	  if(itMM->first == "lumi"){
@@ -203,10 +203,10 @@ void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context){
   }
 
   unsigned int bin=0;
-  for(HistosContainer::iterator itH=histosMap_.begin(); itH!=histosMap_.end(); itH++){
-    for(map<string, map<string,MonitorElement*> >::iterator itHH=itH->second.begin(); itHH!=itH->second.end(); itHH++){
-      for(map<string,MonitorElement*>::iterator itHHH=itHH->second.begin(); itHHH!=itHH->second.end(); itHHH++){
-    	for(map<LuminosityBlockNumber_t,vector<double> >::iterator itVal = valuesMap_.begin(); itVal != valuesMap_.end(); itVal++){
+  for(HistosContainer::iterator itH=histosMap_.begin(); itH!=histosMap_.end(); ++itH){
+    for(map<string, map<string,MonitorElement*> >::iterator itHH=itH->second.begin(); itHH!=itH->second.end(); ++itHH){
+      for(map<string,MonitorElement*>::iterator itHHH=itHH->second.begin(); itHHH!=itHH->second.end(); ++itHHH){
+    	for(map<LuminosityBlockNumber_t,vector<double> >::iterator itVal = valuesMap_.begin(); itVal != valuesMap_.end(); ++itVal){
 	  if(itHHH->second != 0){
 //	    cout << positionsMap_[itH->first][itHH->first][itHHH->first] << endl;
 	    if(itVal->second[positionsMap_[itH->first][itHH->first][itHHH->first]+2] == 1){
@@ -222,8 +222,8 @@ void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context){
 
 /**/
   const double bigNumber = 1000000.;
-  for(HistosContainer::iterator itH=histosMap_.begin(); itH!=histosMap_.end(); itH++){
-    for(map<string, map<string,MonitorElement*> >::iterator itHH=itH->second.begin(); itHH!=itH->second.end(); itHH++){
+  for(HistosContainer::iterator itH=histosMap_.begin(); itH!=histosMap_.end(); ++itH){
+    for(map<string, map<string,MonitorElement*> >::iterator itHH=itH->second.begin(); itHH!=itH->second.end(); ++itHH){
       double min = bigNumber;
       double max = -bigNumber;
       double minDelta = bigNumber;
@@ -231,7 +231,7 @@ void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context){
 //      double minDeltaProf = bigNumber;
 //      double maxDeltaProf = -bigNumber;
       if(itHH->first != "run"){
-      	for(map<string,MonitorElement*>::iterator itHHH=itHH->second.begin(); itHHH!=itHH->second.end(); itHHH++){
+      	for(map<string,MonitorElement*>::iterator itHHH=itHH->second.begin(); itHHH!=itHH->second.end(); ++itHHH){
 	  if(itHHH->second != 0){
 	    for(int bin=1; bin<=itHHH->second->getTH1()->GetNbinsX(); bin++){
 	      if(itHHH->second->getTH1()->GetBinError(bin) != 0 || itHHH->second->getTH1()->GetBinContent(bin) != 0){
@@ -280,7 +280,7 @@ void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context){
 	    }
 	  }
       	}
-      	for(map<string,MonitorElement*>::iterator itHHH=itHH->second.begin(); itHHH!=itHH->second.end(); itHHH++){
+      	for(map<string,MonitorElement*>::iterator itHHH=itHH->second.begin(); itHHH!=itHH->second.end(); ++itHHH){
 //	  LogInfo("AlcaBeamMonitorClient")
 //	    << itH->first << itHHH->first << " max-min=" << max-min << " delta=" << maxDelta-minDelta;
 	  if(itHHH->second != 0){

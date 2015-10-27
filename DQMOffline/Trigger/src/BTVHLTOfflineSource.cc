@@ -58,7 +58,7 @@ BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
   offlinePVToken_         = consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("offlinePVLabel"));
  
   std::vector<edm::ParameterSet> paths =  iConfig.getParameter<std::vector<edm::ParameterSet> >("pathPairs");
-  for(std::vector<edm::ParameterSet>::iterator pathconf = paths.begin() ; pathconf != paths.end();  pathconf++) { 
+  for(std::vector<edm::ParameterSet>::iterator pathconf = paths.begin() ; pathconf != paths.end();  ++pathconf) { 
     custompathnamepairs_.push_back(make_pair(
 					     pathconf->getParameter<std::string>("pathname"),
 					     pathconf->getParameter<std::string>("pathtype")
@@ -159,7 +159,7 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       
       DR  = 9999.;
       if(offlineJetTagHandlerPF.isValid()){
-          for ( reco::JetTagCollection::const_iterator iterO = offlineJetTagHandlerPF->begin(); iterO != offlineJetTagHandlerPF->end(); iterO++ ){ 
+          for ( reco::JetTagCollection::const_iterator iterO = offlineJetTagHandlerPF->begin(); iterO != offlineJetTagHandlerPF->end(); ++iterO ){ 
             float CSV_offline = iterO->second;
             if (CSV_offline<0) CSV_offline = -0.05;
             DR = reco::deltaR(iterO->first->eta(),iterO->first->phi(),iter->first->eta(),iter->first->phi());
@@ -190,7 +190,7 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       
       DR  = 9999.;
       if(offlineJetTagHandlerCalo.isValid()){
-          for ( reco::JetTagCollection::const_iterator iterO = offlineJetTagHandlerCalo->begin(); iterO != offlineJetTagHandlerCalo->end(); iterO++ )
+          for ( reco::JetTagCollection::const_iterator iterO = offlineJetTagHandlerCalo->begin(); iterO != offlineJetTagHandlerCalo->end(); ++iterO )
           {
             float CSV_offline = iterO->second;
             if (CSV_offline<0) CSV_offline = -0.05;

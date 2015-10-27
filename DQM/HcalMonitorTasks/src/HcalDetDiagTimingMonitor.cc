@@ -200,14 +200,14 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
     std::vector<L1MuGMTReadoutRecord>::const_iterator igmtrr;
     N=0;
     int NN=0;
-    for(igmtrr=gmt_records.begin(); igmtrr!=gmt_records.end(); igmtrr++) {
+    for(igmtrr=gmt_records.begin(); igmtrr!=gmt_records.end(); ++igmtrr) {
       if(igmtrr->getBxInEvent()==0) BXinEVENT=NN;
       NN++;
       std::vector<L1MuRegionalCand>::const_iterator iter1;
       std::vector<L1MuRegionalCand> rmc;
       // DTBX Trigger
       rmc = igmtrr->getDTBXCands(); 
-      for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
+      for(iter1=rmc.begin(); iter1!=rmc.end(); ++iter1) {
 	if ( idt < MAXDTBX && !(*iter1).empty() ) {
 	  idt++; 
 	  if(N<5) ndt[N]++; 
@@ -216,7 +216,7 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
       }
       // CSC Trigger
       rmc = igmtrr->getCSCCands(); 
-      for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
+      for(iter1=rmc.begin(); iter1!=rmc.end(); ++iter1) {
 	if ( icsc < MAXCSC && !(*iter1).empty() ) {
 	  icsc++; 
 	  if(N<5) ncsc[N]++; 
@@ -224,7 +224,7 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
       }
       // RPCb Trigger
       rmc = igmtrr->getBrlRPCCands();
-      for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
+      for(iter1=rmc.begin(); iter1!=rmc.end(); ++iter1) {
 	if ( irpcb < MAXRPC && !(*iter1).empty() ) {
 	  irpcb++;
 	  if(N<5) nrpcb[N]++;
@@ -233,7 +233,7 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
       }
       // RPCfwd Trigger
       rmc = igmtrr->getFwdRPCCands();
-      for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
+      for(iter1=rmc.begin(); iter1!=rmc.end(); ++iter1) {
 	if ( irpcf < MAXRPC && !(*iter1).empty() ) {
 	  irpcf++;
 	  if(N<5) nrpcf[N]++;
@@ -255,7 +255,7 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
     edm::Handle<HBHEDigiCollection> hbhe; 
     iEvent.getByToken(tok_hbhe_,hbhe);
     if(hbhe.isValid()){   
-      for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
+      for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();++digi){
 	eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
 	for(int i=0;i<nTS;i++) if(digi->sample(i).adc()<20) set_hbhe(eta,phi,depth,digi->sample(i).capid(),adc2fC[digi->sample(i).adc()]);
       }   
@@ -263,7 +263,7 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
     edm::Handle<HODigiCollection> ho; 
     iEvent.getByToken(tok_ho_,ho);
     if(ho.isValid()){
-      for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
+      for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();++digi){
 	eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
 	for(int i=0;i<nTS;i++) if(digi->sample(i).adc()<20) set_ho(eta,phi,depth,digi->sample(i).capid(),adc2fC[digi->sample(i).adc()]);
       }   
@@ -271,7 +271,7 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
     edm::Handle<HFDigiCollection> hf;
     iEvent.getByToken(tok_hf_,hf);
     if(hf.isValid()){
-      for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
+      for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();++digi){
 	eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
 	for(int i=0;i<nTS;i++) if(digi->sample(i).adc()<20) set_hf(eta,phi,depth,digi->sample(i).capid(),adc2fC[digi->sample(i).adc()]);
       }   
@@ -284,7 +284,7 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
   edm::Handle<HBHEDigiCollection> hbhe; 
   iEvent.getByToken(tok_hbhe_,hbhe);
   if(hbhe.isValid()){ 
-    for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
+    for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();++digi){
       eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
       for(int i=0;i<nTS;i++) data[i]=adc2fC[digi->sample(i).adc()]-get_ped_hbhe(eta,phi,depth,digi->sample(i).capid());
 
@@ -318,7 +318,7 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
   edm::Handle<HODigiCollection> ho; 
   iEvent.getByToken(tok_ho_,ho);
   if(ho.isValid()){ 
-    for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
+    for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();++digi){
       eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
       for(int i=0;i<nTS;i++) data[i]=adc2fC[digi->sample(i).adc()]-get_ped_ho(eta,phi,depth,digi->sample(i).capid());
 
@@ -342,7 +342,7 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
   edm::Handle<HFDigiCollection> hf; 
   iEvent.getByToken(tok_hf_,hf);
   if(hf.isValid()){ 
-    for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
+    for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();++digi){
       eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
       double energy=0;
       for(int i=0;i<nTS;i++){

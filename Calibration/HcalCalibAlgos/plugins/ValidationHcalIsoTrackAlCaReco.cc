@@ -190,7 +190,7 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
 	{
 	  double minRecoL3dist=1000;
 	  reco::IsolatedPixelTrackCandidateCollection::const_iterator mrtr;
-	  for (reco::IsolatedPixelTrackCandidateCollection::const_iterator rtrit=recoIsoTracks->begin(); rtrit!=recoIsoTracks->end(); rtrit++)
+	  for (reco::IsolatedPixelTrackCandidateCollection::const_iterator rtrit=recoIsoTracks->begin(); rtrit!=recoIsoTracks->end();++rtrit)
 	    {
 	      double R=getDist(rtrit->eta(),rtrit->phi(),TObj.eta(),TObj.phi()); 
 	      if (R<minRecoL3dist) 
@@ -210,7 +210,7 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
     }
 
   //general distributions
-  for (reco::IsolatedPixelTrackCandidateCollection::const_iterator itr=recoIsoTracks->begin(); itr!=recoIsoTracks->end(); itr++)
+  for (reco::IsolatedPixelTrackCandidateCollection::const_iterator itr=recoIsoTracks->begin(); itr!=recoIsoTracks->end();++itr)
     {
       bool match=false;
       for (unsigned int l=0; l<trigEta.size(); l++)
@@ -253,7 +253,7 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
    edm::Handle<edm::SimTrackContainer> simTracks;
    iEvent.getByToken<edm::SimTrackContainer>(tok_simTrack_, simTracks);
 
-  for (reco::IsolatedPixelTrackCandidateCollection::const_iterator bll=recoIsoTracks->begin(); bll!=recoIsoTracks->end(); bll++)
+  for (reco::IsolatedPixelTrackCandidateCollection::const_iterator bll=recoIsoTracks->begin(); bll!=recoIsoTracks->end();++bll)
     {         
 
     std::cout<<"ISO Pt " << bll->pt() <<  " P     "  << bll->p() << " Eta "<< bll->eta() << " Phi "<< bll->phi()<< std::endl;   
@@ -269,7 +269,7 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
     int neun = 0;
 
    for(edm::SimTrackContainer::const_iterator tracksCI = simTracks->begin(); 
-       tracksCI != simTracks->end(); tracksCI++){
+       tracksCI != simTracks->end();++tracksCI){
         
 	int partIndex = tracksCI->genpartIndex();
         if (tracksCI->momentum().eta() > (bll->eta()-0.1) 

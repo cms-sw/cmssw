@@ -90,7 +90,7 @@ void SimplePedestalCalculator::initializePedestal(ApvAnalysis::RawSignalType& in
   if (numberOfEvents <= eventsRequiredToCalibrate) {
     edm::DetSet<SiStripRawDigi>::const_iterator i = in.data.begin();
     int ii=0;
-    for (;i!=in.data.end() ; i++) {
+    for (;i!=in.data.end() ; ++i) {
       thePedSum[ii]   += (*i).adc();
       thePedSqSum[ii] += ((*i).adc())*((*i).adc());
       theEventPerStrip[ii]++;
@@ -102,7 +102,7 @@ void SimplePedestalCalculator::initializePedestal(ApvAnalysis::RawSignalType& in
     theRawNoise.clear();
     edm::DetSet<SiStripRawDigi>::const_iterator i = in.data.begin();
     int ii=0;
-    for (;i!=in.data.end() ; i++) {
+    for (;i!=in.data.end() ; ++i) {
 
 
       // the pedestal is calculated as int, as required by FED.
@@ -134,7 +134,7 @@ void SimplePedestalCalculator::refinePedestal(ApvAnalysis::RawSignalType& in) {
 
   unsigned int ii=0;
   ApvAnalysis::RawSignalType::const_iterator i= in.data.begin();
-  for (; i < in.data.end(); i++) {
+  for (; i < in.data.end(); ++i) {
     
     thePedSum[ii]   += (*i).adc();
     thePedSqSum[ii] += ((*i).adc())*((*i).adc());

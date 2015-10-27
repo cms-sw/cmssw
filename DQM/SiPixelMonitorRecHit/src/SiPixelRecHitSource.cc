@@ -77,7 +77,7 @@ SiPixelRecHitSource::~SiPixelRecHitSource()
   // (e.g. close files, deallocate resources etc.)
   LogInfo ("PixelDQM") << "SiPixelRecHitSource::~SiPixelRecHitSource: Destructor"<<endl;
   std::map<uint32_t,SiPixelRecHitModule*>::iterator struct_iter;
-  for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++){
+  for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; ++struct_iter){
     delete struct_iter->second;
     struct_iter->second = 0;
   }
@@ -118,7 +118,7 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
   iEvent.getByToken( src_, recHitColl );
 
   std::map<uint32_t,SiPixelRecHitModule*>::iterator struct_iter;
-  for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
+  for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; ++struct_iter) {
     uint32_t TheID = (*struct_iter).first;
 
     SiPixelRecHitCollection::const_iterator match = recHitColl->find(TheID);
@@ -134,7 +134,7 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
 	SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.end();
 	SiPixelRecHitCollection::DetSet::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
 
-       for ( ; pixeliter != pixelrechitRangeIteratorEnd; pixeliter++) 
+       for ( ; pixeliter != pixelrechitRangeIteratorEnd; ++pixeliter) 
 	 {
 	  
 
@@ -188,7 +188,7 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
   LogVerbatim ("PixelDQM") << " *** I have " << pDD->dets().size() <<" detectors"<<std::endl;
   LogVerbatim ("PixelDQM") << " *** I have " << pDD->detTypes().size() <<" types"<<std::endl;
   
-  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); ++it){
     
     if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=0){
 
@@ -246,7 +246,7 @@ void SiPixelRecHitSource::bookMEs(DQMStore::IBooker & iBooker, const edm::EventS
     
   SiPixelFolderOrganizer theSiPixelFolder(false);
   
-  for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++){
+  for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); ++struct_iter){
     
     /// Create folder tree and book histograms 
     if(modOn){

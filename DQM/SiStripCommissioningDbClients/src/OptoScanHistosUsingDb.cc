@@ -79,7 +79,7 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange dev
   // Iterate through devices and update device descriptions
   uint16_t updated = 0;
   SiStripConfigDb::DeviceDescriptionsV::const_iterator idevice;
-  for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
+  for ( idevice = devices.begin(); idevice != devices.end(); ++idevice ) {
     
     if ( (*idevice)->getDeviceType() != LASERDRIVER ) { continue; }
 

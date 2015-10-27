@@ -352,14 +352,14 @@ RPCNoise::filter(edm::Event& event, const edm::EventSetup& eventSetup){
   // count the number of RPC rechits
   int nRPC = 0;
   RPCRecHitCollection::const_iterator rpcIt;
-  for (rpcIt = rpcRecHits->begin(); rpcIt != rpcRecHits->end(); rpcIt++) {
+  for (rpcIt = rpcRecHits->begin(); rpcIt != rpcRecHits->end(); ++rpcIt) {
     //    RPCDetId id = (RPCDetId)(*rpcIt).rpcId();
     //    LocalPoint rhitlocal = (*rpcIt).localPosition();
     nRPC++;
   }
 
   // loop again, this time fill histograms
-  for (rpcIt = rpcRecHits->begin(); rpcIt != rpcRecHits->end(); rpcIt++) {
+  for (rpcIt = rpcRecHits->begin(); rpcIt != rpcRecHits->end(); ++rpcIt) {
     RPCDetId id = (RPCDetId)(*rpcIt).rpcId();
     int kRegion  = id.region();
     int kStation = id.station();
@@ -459,7 +459,7 @@ RPCNoise::filter(edm::Event& event, const edm::EventSetup& eventSetup){
     const DTDigiCollection::Range& digiRange = (*jDT).second;
     for (DTDigiCollection::const_iterator digi = digiRange.first;
 	 digi != digiRange.second;
-	 digi++) {
+	 ++digi) {
       double t0 = (*digi).countsTDC();
       nDT++;
       if ((t0>3050) && (t0<3700)) {

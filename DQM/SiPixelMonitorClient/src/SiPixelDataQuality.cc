@@ -272,7 +272,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore::IBooker & iBooker,
     if(currDir.find("Barrel")!=string::npos) barrelMods_++;
     if(currDir.find("Endcap")!=string::npos) endcapMods_++;
     vector<string> meVec = iGetter.getMEs();
-    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); ++it) {
       string full_path = currDir + "/" + (*it);
       if(full_path.find("ndigis_")!=string::npos){
         MonitorElement * me = iGetter.get(full_path);
@@ -300,7 +300,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore::IBooker & iBooker,
   }
   vector<string> subDirVec = iGetter.getSubdirs();  
   for (vector<string>::const_iterator ic = subDirVec.begin();
-       ic != subDirVec.end(); ic++) {
+       ic != subDirVec.end(); ++ic) {
     iGetter.cd(*ic);
     iBooker.cd(*ic);
     init=false;
@@ -732,7 +732,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker & iBooker, DQMS
     if(dname.find("Module_")!=string::npos && currDir.find("Reference")==string::npos){
       vector<string> meVec = iGetter.getMEs();
       int detId=-1; int fedId=-1;
-      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++){//loop over all modules and fill ndigis into allmodsMap
+      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); ++it){//loop over all modules and fill ndigis into allmodsMap
         //checking for any digis or FED errors to decide if this module is in DAQ:  
         string full_path = currDir + "/" + (*it);
         if(detId==-1 && full_path.find("SUMOFF")==string::npos &&
@@ -761,7 +761,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker & iBooker, DQMS
     }//end of module dir's
     vector<string> subDirVec = iGetter.getSubdirs();  
     for (vector<string>::const_iterator ic = subDirVec.begin();
-         ic != subDirVec.end(); ic++) {
+         ic != subDirVec.end(); ++ic) {
       iBooker.cd(*ic);
       iGetter.cd(*ic);
       init=false;

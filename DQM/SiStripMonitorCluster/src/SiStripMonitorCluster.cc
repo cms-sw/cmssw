@@ -260,7 +260,7 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es , DQMStore::IBoo
 
     // loop over detectors and book MEs
     edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<"nr. of activeDets:  "<<activeDets.size();
-    for(std::vector<uint32_t>::iterator detid_iterator = activeDets.begin(); detid_iterator!=activeDets.end(); detid_iterator++){
+    for(std::vector<uint32_t>::iterator detid_iterator = activeDets.begin(); detid_iterator!=activeDets.end(); ++detid_iterator){
       uint32_t detid = (*detid_iterator);
       // remove any eventual zero elements - there should be none, but just in case
       if(detid == 0) {
@@ -477,7 +477,7 @@ void SiStripMonitorCluster::bookHistograms(DQMStore::IBooker & ibooker, const ed
   } else if (reset_each_run) {
     edm::LogInfo("SiStripMonitorCluster") <<"SiStripMonitorCluster::bookHistograms: "
 					  << " Resetting MEs ";
-    for (std::map<uint32_t, ModMEs >::const_iterator idet = ModuleMEsMap.begin() ; idet!=ModuleMEsMap.end() ; idet++) {
+    for (std::map<uint32_t, ModMEs >::const_iterator idet = ModuleMEsMap.begin() ; idet!=ModuleMEsMap.end() ; ++idet) {
       ResetModuleMEs(idet->first);
     }
   }
@@ -553,14 +553,14 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   }
   // initialise # of clusters to zero
   for (std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.begin();
-       iSubdet != SubDetMEsMap.end(); iSubdet++) {
+       iSubdet != SubDetMEsMap.end(); ++iSubdet) {
     iSubdet->second.totNClusters = 0;
   }
 
   SiStripFolderOrganizer folder_organizer;
   bool found_layer_me = false;
   for (std::map<std::string, std::vector< uint32_t > >::const_iterator iterLayer = LayerDetMap.begin();
-       iterLayer != LayerDetMap.end(); iterLayer++) {
+       iterLayer != LayerDetMap.end(); ++iterLayer) {
 
     std::string layer_label = iterLayer->first;
 
@@ -579,7 +579,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     std::string subdet_label = "";
     // loop over all modules in the layer
     for (std::vector< uint32_t >::const_iterator iterDets = iterLayer->second.begin() ;
-	 iterDets != iterLayer->second.end() ; iterDets++) {
+	 iterDets != iterLayer->second.end() ; ++iterDets) {
       iDet++;
       // detid and type of ME
       uint32_t detid = (*iterDets);
@@ -631,7 +631,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       SiStripApvGain::Range detGainRange = gainHandle->getRange(detid);
       SiStripQuality::Range qualityRange = qualityHandle->getRange(detid);
 
-      for(edmNew::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.begin(); clusterIter!= cluster_detset.end(); clusterIter++){
+      for(edmNew::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.begin(); clusterIter!= cluster_detset.end(); ++clusterIter){
 
 	const auto & ampls = clusterIter->amplitudes();
 	// cluster position
@@ -749,7 +749,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     bool MultiplicityRegion_Vs_APVcycle_filled=false;
 
     for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin();
-       it != SubDetMEsMap.end(); it++) {
+       it != SubDetMEsMap.end(); ++it) {
       std::string sdet = it->first;
       //std::string sdet = sdet_tag.substr(0,sdet_tag.find_first_of("_"));
       SubDetMEs sdetmes = it->second;

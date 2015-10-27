@@ -210,7 +210,7 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
 
 
    // loop over digis
-   for(HBHEDigiCollection::const_iterator iter = hHBHEDigis->begin(); iter != hHBHEDigis->end(); iter++)
+   for(HBHEDigiCollection::const_iterator iter = hHBHEDigis->begin(); iter != hHBHEDigis->end(); ++iter)
    {
       HcalDetId id = iter->id();
       const HcalCalibrations &Calibrations = hConditions->getHcalCalibrations(id);
@@ -274,7 +274,7 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
    }
 
    // loop over rechits - noise bits (fit-based, isolation)
-   for(HBHERecHitCollection::const_iterator iter = hRecHits->begin(); iter != hRecHits->end(); iter++)
+   for(HBHERecHitCollection::const_iterator iter = hRecHits->begin(); iter != hRecHits->end(); ++iter)
    {
       HcalDetId id = iter->id();
 
@@ -297,7 +297,7 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
 
    // Code analagous to Yifei's
    for(reco::HcalNoiseRBXCollection::const_iterator rbx = hRBXCollection->begin();
-      rbx != hRBXCollection->end(); rbx++)
+      rbx != hRBXCollection->end(); ++rbx)
    {
       const reco::HcalNoiseRBX RBX = *rbx;
 
@@ -314,7 +314,7 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
          hBadZeroRBX->Fill(RBXID);
       if(RBXEnergy > mE2E10MinEnergy && RBXE10 > 1e-5 && (RBXE2 / RBXE10 > mMaxE2E10 || RBXE2 / RBXE10 < mMinE2E10))
          hBadE2E10RBX->Fill(RBXID);
-      for(std::vector<reco::HcalNoiseHPD>::const_iterator hpd = HPDs.begin(); hpd != HPDs.end(); hpd++)
+      for(std::vector<reco::HcalNoiseHPD>::const_iterator hpd = HPDs.begin(); hpd != HPDs.end(); ++hpd)
       {
          reco::HcalNoiseHPD HPD = *hpd;
          int HPDHitCount = HPD.numRecHits(1.5);
@@ -335,7 +335,7 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
       double HighestHPDEnergy = 0;
       int HighestHPDHits = 0;
 
-      for(std::vector<reco::HcalNoiseHPD>::const_iterator hpd = HPDs.begin(); hpd != HPDs.end(); hpd++)
+      for(std::vector<reco::HcalNoiseHPD>::const_iterator hpd = HPDs.begin(); hpd != HPDs.end(); ++hpd)
       {
          reco::HcalNoiseHPD HPD = *hpd;
 

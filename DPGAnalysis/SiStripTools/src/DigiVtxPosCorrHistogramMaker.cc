@@ -39,7 +39,7 @@ DigiVtxPosCorrHistogramMaker::DigiVtxPosCorrHistogramMaker(const edm::ParameterS
 
 DigiVtxPosCorrHistogramMaker::~DigiVtxPosCorrHistogramMaker() {
 
-  for(std::map<unsigned int,std::string>::const_iterator lab=m_labels.begin();lab!=m_labels.end();lab++) {
+  for(std::map<unsigned int,std::string>::const_iterator lab=m_labels.begin();lab!=m_labels.end();++lab) {
 
     const unsigned int i = lab->first; const std::string slab = lab->second;
 
@@ -68,7 +68,7 @@ void DigiVtxPosCorrHistogramMaker::book(const std::string dirname) {
   edm::LogInfo("ScaleFactors") << "y-axis range scale factor: " << m_scalefact;
   edm::LogInfo("BinMaxValue") << "Setting bin max values";
 
-  for(std::map<unsigned int,std::string>::const_iterator lab=m_labels.begin();lab!=m_labels.end();lab++) {
+  for(std::map<unsigned int,std::string>::const_iterator lab=m_labels.begin();lab!=m_labels.end();++lab) {
 
     const unsigned int i = lab->first; const std::string slab = lab->second;
 
@@ -129,7 +129,7 @@ void DigiVtxPosCorrHistogramMaker::fill(const edm::Event& iEvent, const std::map
 
       double vtxz = (*Evt->vertices_begin())->point3d().z()/10.;
 
-      for(std::map<unsigned int,int>::const_iterator digi=ndigi.begin();digi!=ndigi.end();digi++) {
+      for(std::map<unsigned int,int>::const_iterator digi=ndigi.begin();digi!=ndigi.end();++digi) {
 	if(m_labels.find(digi->first) != m_labels.end()) {
 	  const unsigned int i=digi->first;
 	  m_nmultvsvtxpos[i]->Fill(vtxz,digi->second);

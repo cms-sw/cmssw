@@ -15,7 +15,7 @@ int SiStripUtility::getMEList(std::string name, std::vector<std::string>& values
   std::string temp_str = name.substr(name.find(":")+1);
   split(temp_str, values, ",");
   for (std::vector<std::string>::iterator it = values.begin();
-       it != values.end(); it++) (*it).insert(0,prefix_str);
+       it != values.end(); ++it) (*it).insert(0,prefix_str);
   return values.size();
 }
 //
@@ -39,7 +39,7 @@ bool SiStripUtility::checkME(std::string name, std::string me_name, std::string&
   std::vector<std::string> values;
   split(temp_str, values, ",");
   for (std::vector<std::string>::iterator it = values.begin();
-       it != values.end(); it++) {
+       it != values.end(); ++it) {
     if ((*it).find(me_name) != std::string::npos) {
       full_path = prefix_str + (*it);
       return true;
@@ -169,7 +169,7 @@ void SiStripUtility::getModuleFolderList(DQMStore * dqm_store, std::vector<std::
   } else {  
     std::vector<std::string> subdirs = dqm_store->getSubdirs();
     for (std::vector<std::string>::const_iterator it = subdirs.begin();
-	 it != subdirs.end(); it++) {
+	 it != subdirs.end(); ++it) {
       dqm_store->cd(*it);
       getModuleFolderList(dqm_store, mfolders);
       dqm_store->goUp();
@@ -220,7 +220,7 @@ bool SiStripUtility::goToDir(DQMStore * dqm_store, std::string name) {
   }
   std::vector<std::string> subDirVec = dqm_store->getSubdirs();
   for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
-       ic != subDirVec.end(); ic++) {
+       ic != subDirVec.end(); ++ic) {
     std::string fname = (*ic);
     if (
 	(fname.find("Reference") != std::string::npos) ||

@@ -291,7 +291,7 @@ Double_t CalibTree::Loop(int loop) {
   double       sumfactor(0);
   double       dets[150], cfacs[150], wfacs[150], nTrk[150];
   unsigned int ntrkCut = ntrkMax/10;
-  for (; SumWItr != SumW.end(); SumWItr++) {
+  for (; SumWItr != SumW.end();++SumWItr) {
     if (debug) 
       std::cout<< "Detid/SumWi/SumFac : " << SumWItr->first << " / "
 	       << (SumWItr->second).first << " / " << (SumWItr->second).second
@@ -334,7 +334,7 @@ Double_t CalibTree::Loop(int loop) {
   std::cout << "The new factors are :" << std::endl;
   std::map<unsigned int, double>::iterator CprevItr = Cprev.begin();
   unsigned int indx(0);
-  for (CprevItr=Cprev.begin(); CprevItr != Cprev.end(); CprevItr++, indx++){
+  for (CprevItr=Cprev.begin(); CprevItr != Cprev.end();++CprevItr,++indx){
     unsigned int detid = CprevItr->first;
     int ieta = (detid>>7) & 0x3f;
     int zside= (detid&0x2000) ? 1 : -1;

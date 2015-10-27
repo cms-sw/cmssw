@@ -57,7 +57,7 @@ void PedsFullNoiseAlgorithm::extract( const std::vector<TH1*>& histos ) {
   
   // Extract 1D histograms
   std::vector<TH1*>::const_iterator ihis = histos.begin();
-  for ( ; ihis != histos.end(); ihis++ ) {
+  for ( ; ihis != histos.end(); ++ihis ) {
     
     // Check for NULL pointer
     if ( !(*ihis) ) { continue; }

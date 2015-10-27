@@ -169,7 +169,7 @@ void SiStripCommissioningSource::endJob() {
   // ---------- Update histograms ----------
   
   // Cabling task
-  for ( TaskMap::iterator itask = cablingTasks_.begin(); itask != cablingTasks_.end(); itask++ ) { 
+  for ( TaskMap::iterator itask = cablingTasks_.begin(); itask != cablingTasks_.end(); ++itask ) { 
     if ( itask->second ) { itask->second->updateHistograms(); }
   }
   
@@ -473,7 +473,7 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
     // Calculate mean and spread on all (median) signal levels
     Averages average;
     std::map<uint16_t,float>::const_iterator ii = medians.begin();
-    for ( ; ii != medians.end(); ii++ ) { average.add( ii->second ); }
+    for ( ; ii != medians.end(); ++ii ) { average.add( ii->second ); }
     Averages::Params tmp;
     average.calc(tmp);
       
@@ -492,7 +492,7 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
     // Calculate mean and spread on "filtered" data
     Averages truncated;
     std::map<uint16_t,float>::const_iterator jj = medians.begin();
-    for ( ; jj != medians.end(); jj++ ) { 
+    for ( ; jj != medians.end(); ++jj ) { 
       if ( jj->second < tmp.median_+tmp.rms_ ) { 
 	truncated.add( jj->second ); 
       }
@@ -519,7 +519,7 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
     // 	<< " channel/signal: ";
     std::map<uint16_t,float> channels;
     std::map<uint16_t,float>::const_iterator ichan = medians.begin();
-    for ( ; ichan != medians.end(); ichan++ ) { 
+    for ( ; ichan != medians.end(); ++ichan ) { 
       //             cout << " mean: " << params.mean_
       //       	   << " rms: " << params.rms_
       //       	   << " thresh: " << params.mean_ + 5.*params.rms_
@@ -798,11 +798,11 @@ void SiStripCommissioningSource::createCablingTasks() {
   
   // Iterate through FEC cabling and create commissioning task objects
   uint16_t booked = 0;
-  for ( std::vector<SiStripFecCrate>::const_iterator icrate = fecCabling_->crates().begin(); icrate != fecCabling_->crates().end(); icrate++ ) {
-    for ( std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++ ) {
-      for ( std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
-	for ( std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
-	  for ( std::vector<SiStripModule>::const_iterator imodule = iccu->modules().begin(); imodule != iccu->modules().end(); imodule++ ) {
+  for ( std::vector<SiStripFecCrate>::const_iterator icrate = fecCabling_->crates().begin(); icrate != fecCabling_->crates().end(); ++icrate ) {
+    for ( std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ++ifec ) {
+      for ( std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); ++iring ) {
+	for ( std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); ++iccu ) {
+	  for ( std::vector<SiStripModule>::const_iterator imodule = iccu->modules().begin(); imodule != iccu->modules().end(); ++imodule ) {
 	      
 	    // Build FEC key
 	    SiStripFecKey path( icrate->fecCrate(), 
@@ -1105,7 +1105,7 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
 //
 void SiStripCommissioningSource::clearCablingTasks() {
   if ( cablingTasks_.empty() ) { return; }
-  for ( TaskMap::iterator itask = cablingTasks_.begin(); itask != cablingTasks_.end(); itask++ ) { 
+  for ( TaskMap::iterator itask = cablingTasks_.begin(); itask != cablingTasks_.end(); ++itask ) { 
     if ( itask->second ) { delete itask->second; }
   }
   cablingTasks_.clear();
@@ -1116,9 +1116,9 @@ void SiStripCommissioningSource::clearCablingTasks() {
 void SiStripCommissioningSource::clearTasks() {
   if ( tasks_.empty() ) { return; }
   VecOfVecOfTasks::iterator ifed = tasks_.begin();
-  for ( ; ifed !=  tasks_.end(); ifed++ ) { 
+  for ( ; ifed !=  tasks_.end(); ++ifed ) { 
     VecOfTasks::iterator ichan = ifed->begin();
-    for ( ; ichan != ifed->end(); ichan++ ) { 
+    for ( ; ichan != ifed->end(); ++ichan ) { 
       if ( *ichan ) { delete *ichan; *ichan = 0; }
     }
     ifed->resize(96,0);

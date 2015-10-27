@@ -89,7 +89,7 @@ void MuonTrackResidualsTest::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGe
   ////////////////////////////////////////////////////
   for(map<string, vector<string> > ::const_iterator histo = histoNames.begin();
       histo != histoNames.end();
-      histo++) {
+      ++histo) {
    
     for (unsigned int type=0; type< (*histo).second.size(); type++){
 
@@ -112,12 +112,12 @@ void MuonTrackResidualsTest::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGe
   // Mean test 
   for(map<string, MonitorElement*>::const_iterator hMean = MeanHistos.begin();
       hMean != MeanHistos.end();
-      hMean++) {
+      ++hMean) {
     const QReport * theMeanQReport = (*hMean).second->getQReport(MeanCriterionName);
     if(theMeanQReport) {
       vector<dqm::me_util::Channel> badChannels = theMeanQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	   channel != badChannels.end(); channel++) {
+	   channel != badChannels.end(); ++channel) {
       }
     }
   }
@@ -125,12 +125,12 @@ void MuonTrackResidualsTest::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGe
   // Sigma test
   for(map<string, MonitorElement*>::const_iterator hSigma = SigmaHistos.begin();
       hSigma != SigmaHistos.end();
-      hSigma++) {
+      ++hSigma) {
     const QReport * theSigmaQReport = (*hSigma).second->getQReport(SigmaCriterionName);
     if(theSigmaQReport) {
       vector<dqm::me_util::Channel> badChannels = theSigmaQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	   channel != badChannels.end(); channel++) {
+	   channel != badChannels.end(); ++channel) {
       }
     }
   }

@@ -102,7 +102,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
   // Compute the minimum coarse delay
   uint16_t minCoarseDelay = 256;
   SiStripConfigDb::DeviceDescriptionsV::const_iterator idevice;
-  for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
+  for ( idevice = devices.begin(); idevice != devices.end(); ++idevice ) {
     // Check device type
     if ( (*idevice)->getDeviceType() == PLL ) {
       // Cast to retrieve appropriate description object
@@ -159,7 +159,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
   uint16_t updatedAPV = 0;
   uint16_t updatedPLL = 0;
   std::vector<SiStripFecKey> invalid;
-  for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
+  for ( idevice = devices.begin(); idevice != devices.end(); ++idevice ) {
     // Check device type
     if ( (*idevice)->getDeviceType() != APV25 ) { continue; }
     // Cast to retrieve appropriate description object
@@ -187,7 +187,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
   }
 
   // Change also the PLL delay
-  for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
+  for ( idevice = devices.begin(); idevice != devices.end(); ++idevice ) {
     // Check device type
     if ( (*idevice)->getDeviceType() != PLL ) { continue; }
     // Cast to retrieve appropriate description object
@@ -267,7 +267,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
   if(maxDelay+(offset/25)>MAXFEDCOARSE) offset = (MAXFEDCOARSE-maxDelay)*25; // otherwise, take the largest possible
 
   // loop over the FED ids
-  for ( SiStripConfigDb::FedDescriptionsV::const_iterator ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
+  for ( SiStripConfigDb::FedDescriptionsV::const_iterator ifed = feds.begin(); ifed != feds.end(); ++ifed ) {
     // If FED id not found in list (from cabling), then continue
     if ( find( ids.begin(), ids.end(), (*ifed)->getFedId() ) == ids.end() ) { continue; }
     auto conns = cabling()->fedConnections((*ifed)->getFedId());

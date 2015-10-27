@@ -19,7 +19,7 @@ namespace spr {
   void find(edm::Handle<edm::PCaloHitContainer>& hits, DetId thisDet, std::vector<edm::PCaloHitContainer::const_iterator>& hit, bool ) {
 
     edm::PCaloHitContainer::const_iterator ihit;
-    for (ihit=hits->begin(); ihit!=hits->end(); ihit++) {
+    for (ihit=hits->begin(); ihit!=hits->end();++ihit) {
       DetId detId(ihit->id());
       if (detId == thisDet) {
         hit.push_back(ihit);

@@ -68,7 +68,7 @@ void DTChamberEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSe
   if(lumiSeg.id().luminosityBlock()%parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0 && onlineMonitor) {
     for(map<DTChamberId, vector<MonitorElement*> > ::const_iterator histo = histosPerCh.begin();
 	histo != histosPerCh.end();
-	histo++) {
+	++histo) {
       int size = (*histo).second.size();
       for(int i=0; i<size; i++){
 	(*histo).second[i]->Reset();

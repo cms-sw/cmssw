@@ -310,7 +310,7 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 if (isoPixelTracks->size()==0) return;
   
 
-for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=isoProdTracks->end(); trit++)
+for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=isoProdTracks->end();++trit)
     {
       
       reco::IsolatedPixelTrackCandidateCollection::const_iterator isoMatched=isoPixelTracks->begin();
@@ -318,7 +318,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
       bool matched=false;
  
    //for (reco::IsolatedPixelTrackCandidateCollection::const_iterator trit = isoPixelTracks->begin(); trit!=isoPixelTracks->end(); trit++)
-   for (reco::IsolatedPixelTrackCandidateCollection::const_iterator it = isoPixelTracks->begin(); it!=isoPixelTracks->end(); it++)
+   for (reco::IsolatedPixelTrackCandidateCollection::const_iterator it = isoPixelTracks->begin(); it!=isoPixelTracks->end();++it)
    //for (reco::TrackCollection::const_iterator it = isoPixelTracks->begin(); it!=isoPixelTracks->end(); it++)
    { 
 
@@ -415,7 +415,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
       GlobalPoint gPhot;
 
 
-      for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) 
+      for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end();++hhit) 
 	{
 	  
 	  //check that this hit was not considered before and push it into usedHits
@@ -516,7 +516,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
       e5x5Before = 0.0;
 
 		  
-      for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) 
+      for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end();++hhit) 
 	{
 	  
 	  //check that this hit was not considered before and push it into usedHits
@@ -742,7 +742,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
       pixEta[0] = -33;     	  
       
       Int_t gencount=0, isocount=0, pixcount=0;
-      for (reco::TrackCollection::const_iterator gentr=generalTracks->begin(); gentr!=generalTracks->end(); gentr++)
+      for (reco::TrackCollection::const_iterator gentr=generalTracks->begin(); gentr!=generalTracks->end();++gentr)
 	{
 	  genPt[gencount] = gentr->pt();     	  
 	  genPhi[gencount] = gentr->phi();     	  
@@ -750,7 +750,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 	  gencount++;
 	}
       
-      for (reco::TrackCollection::const_iterator isotr=isoProdTracks->begin(); isotr!=isoProdTracks->end(); isotr++)
+      for (reco::TrackCollection::const_iterator isotr=isoProdTracks->begin(); isotr!=isoProdTracks->end();++isotr)
 	{
 	  isoPt[isocount] = isotr->pt();     	  
 	  isoPhi[isocount] = isotr->phi();     	  
@@ -758,7 +758,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 	  isocount++;
 	}
       
-      for (reco::IsolatedPixelTrackCandidateCollection::const_iterator pixtr=isoPixelTracks->begin(); pixtr!=isoPixelTracks->end(); pixtr++)
+      for (reco::IsolatedPixelTrackCandidateCollection::const_iterator pixtr=isoPixelTracks->begin(); pixtr!=isoPixelTracks->end();++pixtr)
 	{
 	  pixPt[pixcount] = pixtr->pt();     	  
 	  pixPhi[pixcount] = pixtr->phi();     	  

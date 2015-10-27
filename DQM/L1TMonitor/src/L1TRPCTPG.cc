@@ -131,7 +131,7 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
 
   for( RRItr = gmt_records.begin() ;
        RRItr != gmt_records.end() ;
-       RRItr++ )
+       ++RRItr )
   {
      // DTs
      vector<L1MuRegionalCand> DTCands = RRItr->getDTBXCands();

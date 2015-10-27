@@ -532,7 +532,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (doGenJets_) {
       tagPho_genDeltaR_=9999.;
       for (std::vector<reco::GenParticle>::const_iterator itmc=genparticles->begin();
-	   itmc!=genparticles->end(); itmc++) {
+	   itmc!=genparticles->end();++itmc) {
 	if (itmc->status() == 1 && itmc->pdgId()==22) {
 	  float dR= deltaR(tagPho_eta_,tagPho_phi_,
 			   itmc->eta(),itmc->phi());
@@ -794,7 +794,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      float gendr = 99999;
 	      float genE = 0;
 	      int genpdgId = 0;
-	      for(std::vector<reco::GenParticle>::const_iterator itmc = genparticles->begin(); itmc != genparticles->end(); itmc++){
+	      for(std::vector<reco::GenParticle>::const_iterator itmc = genparticles->begin(); itmc != genparticles->end();++itmc){
 		if(itmc->status() == 1 && itmc->pdgId() > 100){
 		  double dr = deltaR((*it)->eta(),(*it)->phi(),itmc->eta(),itmc->phi());
 		  if(dr < gendr){
@@ -865,7 +865,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
  	      float gendr = 99999;
 	      float genE = 0;
 	      int genpdgId = 0;
-	      for(std::vector<reco::GenParticle>::const_iterator itmc = genparticles->begin(); itmc != genparticles->end(); itmc++){
+	      for(std::vector<reco::GenParticle>::const_iterator itmc = genparticles->begin(); itmc != genparticles->end();++itmc){
 		if(itmc->status() == 1 && itmc->pdgId() > 100){
 		  double dr = deltaR((*it)->eta(),(*it)->phi(),itmc->eta(),itmc->phi());
 		  if(dr < gendr){
@@ -898,7 +898,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
  	      float gendr = 99999;
 	      float genE = 0;
 	      int genpdgId = 0;
-	      for(std::vector<reco::GenParticle>::const_iterator itmc = genparticles->begin(); itmc != genparticles->end(); itmc++){
+	      for(std::vector<reco::GenParticle>::const_iterator itmc = genparticles->begin(); itmc != genparticles->end();++itmc){
 		if(itmc->status() == 1 && itmc->pdgId() > 100){
 		  double dr = deltaR((*it)->eta(),(*it)->phi(),itmc->eta(),itmc->phi());
 		  if(dr < gendr){
@@ -931,7 +931,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
  	      float gendr = 99999;
 	      float genE = 0;
 	      int genpdgId = 0;
-	      for(std::vector<reco::GenParticle>::const_iterator itmc = genparticles->begin(); itmc != genparticles->end(); itmc++){
+	      for(std::vector<reco::GenParticle>::const_iterator itmc = genparticles->begin(); itmc != genparticles->end();++itmc){
 		if(itmc->status() == 1 && itmc->pdgId() > 100){
 		  double dr = deltaR((*it)->eta(),(*it)->phi(),itmc->eta(),itmc->phi());
 		  if(dr < gendr){

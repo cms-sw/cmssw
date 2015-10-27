@@ -152,7 +152,7 @@ void L1GlobalTriggerObjectMap::print(std::ostream& myCout) const
     std::vector<CombinationsInCond>::const_iterator itVVV;
     int iCond = 0;
     for(itVVV  = m_combinationVector.begin();
-            itVVV != m_combinationVector.end(); itVVV++) {
+            itVVV != m_combinationVector.end(); ++itVVV) {
 
         std::string condName = (m_operandTokenVector[iCond]).tokenName;
         bool condResult = (m_operandTokenVector[iCond]).tokenResult;
@@ -170,7 +170,7 @@ void L1GlobalTriggerObjectMap::print(std::ostream& myCout) const
         } else {
 
             CombinationsInCond::const_iterator itVV;
-            for(itVV  = (*itVVV).begin(); itVV != (*itVVV).end(); itVV++) {
+            for(itVV  = (*itVVV).begin(); itVV != (*itVVV).end(); ++itVV) {
 
                 myCout << "( ";
 

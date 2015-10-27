@@ -40,7 +40,7 @@ ClusterCount::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(clusterToken_, clusters);
    const edm::DetSetVector<SiStripCluster>* clusterSet = clusters.product();
    // loop on the detsetvector<cluster>
-   for (edm::DetSetVector<SiStripCluster>::const_iterator DSViter=clusterSet->begin(); DSViter!=clusterSet->end();DSViter++ ) {
+   for (edm::DetSetVector<SiStripCluster>::const_iterator DSViter=clusterSet->begin(); DSViter!=clusterSet->end();++DSViter ) {
      edm::DetSet<SiStripCluster>::const_iterator begin=DSViter->data.begin();
      edm::DetSet<SiStripCluster>::const_iterator end  =DSViter->data.end();
      for(edm::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter) {

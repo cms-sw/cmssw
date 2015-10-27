@@ -68,13 +68,13 @@ void DTEfficiencyTest::beginRun(edm::Run const & run, edm::EventSetup const & co
 
   for(map<int, MonitorElement*> ::const_iterator histo = wheelHistos.begin();
       histo != wheelHistos.end();
-      histo++) {
+      ++histo) {
     (*histo).second->Reset();
   }
 
   for(map<int, MonitorElement*> ::const_iterator histo = wheelUnassHistos.begin();
       histo != wheelUnassHistos.end();
-      histo++) {
+      ++histo) {
     (*histo).second->Reset();
   }
 
@@ -188,13 +188,13 @@ void DTEfficiencyTest::beginRun(edm::Run const & run, edm::EventSetup const & co
   string EfficiencyCriterionName = parameters.getUntrackedParameter<string>("EfficiencyTestName","EfficiencyInRange"); 
   for(map<DTLayerId, MonitorElement*>::const_iterator hEff = EfficiencyHistos.begin();
       hEff != EfficiencyHistos.end();
-      hEff++) {
+      ++hEff) {
     const QReport * theEfficiencyQReport = (*hEff).second->getQReport(EfficiencyCriterionName);
     double counter=0;
     if(theEfficiencyQReport) {
       vector<dqm::me_util::Channel> badChannels = theEfficiencyQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	   channel != badChannels.end(); channel++) {
+	   channel != badChannels.end(); ++channel) {
 	edm::LogError ("efficiency") <<"LayerID : "<<getMEName("hEffOccupancy",(*hEff).first)<< " Bad efficiency channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
 	counter++;
       }
@@ -212,13 +212,13 @@ void DTEfficiencyTest::beginRun(edm::Run const & run, edm::EventSetup const & co
   string UnassEfficiencyCriterionName = parameters.getUntrackedParameter<string>("UnassEfficiencyTestName","UnassEfficiencyInRange"); 
   for(map<DTLayerId, MonitorElement*>::const_iterator hUnassEff = UnassEfficiencyHistos.begin();
       hUnassEff != UnassEfficiencyHistos.end();
-      hUnassEff++) {
+      ++hUnassEff) {
     const QReport * theUnassEfficiencyQReport = (*hUnassEff).second->getQReport(UnassEfficiencyCriterionName);
     double counter=0;
     if(theUnassEfficiencyQReport) {
       vector<dqm::me_util::Channel> badChannels = theUnassEfficiencyQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	   channel != badChannels.end(); channel++) {
+	   channel != badChannels.end(); ++channel) {
 	edm::LogError ("efficiency") << "Bad unassEfficiency channels: "<<(*channel).getBin()<<" "<<(*channel).getContents();
 	counter++;
       }
@@ -269,7 +269,7 @@ void DTEfficiencyTest::beginRun(edm::Run const & run, edm::EventSetup const & co
 
   for(map<DTSuperLayerId, vector<double> >::const_iterator SLBCells = SuperLayerBadCells.begin();
       SLBCells != SuperLayerBadCells.end();
-      SLBCells++) {
+      ++SLBCells) {
     if((*SLBCells).second[0]/(*SLBCells).second[1] > double(percentual/100)){
       if(wheelHistos.find((*SLBCells).first.wheel()) == wheelHistos.end()) bookHistos(ibooker,(*SLBCells).first.wheel());
       if(!((*SLBCells).first.station() == 4 && (*SLBCells).first.superlayer() == 3))
@@ -294,7 +294,7 @@ void DTEfficiencyTest::beginRun(edm::Run const & run, edm::EventSetup const & co
 
   for(map<DTSuperLayerId, vector<double> >::const_iterator SLUBCells = SuperLayerUnassBadCells.begin();
       SLUBCells != SuperLayerUnassBadCells.end();
-      SLUBCells++) {
+      ++SLUBCells) {
     if((*SLUBCells).second[0]/(*SLUBCells).second[1] > double(percentual/100)){
       if(wheelUnassHistos.find((*SLUBCells).first.wheel()) == wheelUnassHistos.end()) bookHistos(ibooker,(*SLUBCells).first.wheel());
       if(!((*SLUBCells).first.station() == 4 && (*SLUBCells).first.superlayer() == 3))

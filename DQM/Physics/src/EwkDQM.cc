@@ -325,7 +325,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   if (passed_electron_HLT) {
     for (reco::GsfElectronCollection::const_iterator recoElectron =
              electronCollection->begin();
-         recoElectron != electronCollection->end(); recoElectron++) {
+         recoElectron != electronCollection->end(); ++recoElectron) {
       // Require electron to pass some basic cuts
       if (recoElectron->et() < 20 || fabs(recoElectron->eta()) > 2.5) continue;
 
@@ -382,7 +382,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   if (passed_muon_HLT) {
     for (reco::MuonCollection::const_iterator recoMuon =
              muonCollection->begin();
-         recoMuon != muonCollection->end(); recoMuon++) {
+         recoMuon != muonCollection->end(); ++recoMuon) {
       // Require muon to pass some basic cuts
       if (recoMuon->pt() < 20 || !recoMuon->isGlobalMuon()) continue;
       // Some tighter muon cuts

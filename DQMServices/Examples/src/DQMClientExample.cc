@@ -198,7 +198,7 @@ void DQMClientExample::performClient(){
 
    vector<dqm::me_util::Channel> badChannels = theQReport->getBadChannels();
     for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	 channel != badChannels.end(); channel++) {
+	 channel != badChannels.end(); ++channel) {
         if(counterClientOperation<1) 
         edm::LogError ("DQMClientExample") <<" Bad channels: "<<(*channel).getBin()<<" "<<(*channel).getContents();
     }

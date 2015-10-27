@@ -643,7 +643,7 @@ SiStripGainFromData::algoEndJob() {
       TH1D* Proj = NULL;
       double* FitResults = new double[5];
       I=0;
-      for(__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
+      for(__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();++it){
       if( I%3650==0 ) printf("Fitting Histograms \t %6.2f%%\n",(100.0*I)/APVsColl.size());I++;
          stAPVGain* APV = it->second;
 
@@ -765,7 +765,7 @@ SiStripGainFromData::algoEndJob() {
       unsigned int BAD  = 0;
       double MPVmean = MPVs->GetMean();
       MPVmean = 300;
-      for(__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
+      for(__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();++it){
 
          stAPVGain*   APV = it->second;
          if(APV->MPV>0){
@@ -942,14 +942,14 @@ SiStripGainFromData::algoEndJob() {
       fprintf(Gains,"NEvents = %i\n",NEvent);
       fprintf(Gains,"Number of APVs = %lu\n",static_cast<unsigned long>(APVsColl.size()));
       fprintf(Gains,"GoodFits = %i BadFits = %i ratio = %f\n",GOOD,BAD,(100.0*GOOD)/(GOOD+BAD));
-      for(std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin();it!=APVsCollOrdered.end();it++){
+      for(std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin();it!=APVsCollOrdered.end();++it){
          stAPVGain* APV = *it;
          fprintf(Gains,"%i | %i | PreviousGain = %7.5f NewGain = %7.5f\n", APV->DetId,APV->APVId,APV->PreviousGain,APV->Gain);
       }
 
       std::vector<int> DetIdOfBuggedAPV;
       fprintf(Gains,"----------------------------------------------------------------------\n");
-      for(std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin();it!=APVsCollOrdered.end();it++){
+      for(std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin();it!=APVsCollOrdered.end();++it){
          stAPVGain* APV = *it;
          if(APV->MPV>0 && APV->MPV<200){
             bool tmpBug = false;
@@ -979,7 +979,7 @@ void SiStripGainFromData::algoBeginRun(const edm::Run &, const edm::EventSetup &
        if(!gainHandle.isValid()){printf("\n#####################\n\nERROR --> gainHandle is not valid\n\n#####################\n\n");exit(0);}
 
 
-       for(std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin();it!=APVsCollOrdered.end();it++){
+       for(std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin();it!=APVsCollOrdered.end();++it){
           stAPVGain* APV = *it;
 
           if(gainHandle.isValid()){
@@ -1067,7 +1067,7 @@ SiStripGainFromData::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup
       }
 */
 
-      for(vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin(); measurement_it!=measurements.end(); measurement_it++){
+      for(vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin(); measurement_it!=measurements.end(); ++measurement_it){
 
          TrajectoryStateOnSurface trajState = measurement_it->updatedState();
          if( !trajState.isValid() ) continue;     

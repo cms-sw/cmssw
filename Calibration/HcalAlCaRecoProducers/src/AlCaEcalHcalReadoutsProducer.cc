@@ -56,18 +56,18 @@ AlCaEcalHcalReadoutsProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   std::auto_ptr<HFRecHitCollection> miniHFRecHitCollection(new HFRecHitCollection);
 
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
-  for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++)
+  for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end();++hbheItr)
         {
          miniHBHERecHitCollection->push_back(*hbheItr);
         }
   const HORecHitCollection Hitho = *(ho.product());
-  for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
+  for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end();++hoItr)
         {
          miniHORecHitCollection->push_back(*hoItr);
         }
 
   const HFRecHitCollection Hithf = *(hf.product());
-  for(HFRecHitCollection::const_iterator hfItr=Hithf.begin(); hfItr!=Hithf.end(); hfItr++)
+  for(HFRecHitCollection::const_iterator hfItr=Hithf.begin(); hfItr!=Hithf.end();++hfItr)
       {
          miniHFRecHitCollection->push_back(*hfItr);
       }

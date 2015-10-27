@@ -306,7 +306,7 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
     if (passed_electron_HLT) {
       for (reco::GsfElectronCollection::const_iterator recoElectron =
                electronCollection->begin();
-           recoElectron != electronCollection->end(); recoElectron++) {
+           recoElectron != electronCollection->end(); ++recoElectron) {
         //      cout << "Electron with pt= " <<  recoElectron->pt() << " and
         // eta" << recoElectron->eta() << " p=" <<  recoElectron->p() << endl;
         h_ePt->Fill(recoElectron->pt());
@@ -363,7 +363,7 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
     if (passed_muon_HLT) {
       for (reco::MuonCollection::const_iterator recoMuon =
                muonCollection->begin();
-           recoMuon != muonCollection->end(); recoMuon++) {
+           recoMuon != muonCollection->end(); ++recoMuon) {
         // cout << "Muon with pt= " <<  muIter->pt() << " and eta" <<
         // muIter->eta() << " p=" <<  muIter->p() << endl;
         if (recoMuon->isGlobalMuon() && recoMuon->isTrackerMuon()) {
@@ -455,7 +455,7 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
     //    float jet2_phi  = -9.0; // UNUSED
     for (CaloJetCollection::const_iterator i_calojet =
              caloJetCollection->begin();
-         i_calojet != caloJetCollection->end(); i_calojet++) {
+         i_calojet != caloJetCollection->end(); ++i_calojet) {
       float jet_current_et = i_calojet->et();
       // if it overlaps with electron, it is not a jet
       // if ( electron_et>0.0 && fabs(i_calojet->eta()-electron_eta ) < 0.2 &&

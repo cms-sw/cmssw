@@ -40,7 +40,7 @@ DigiVertexCorrHistogramMaker::DigiVertexCorrHistogramMaker(const edm::ParameterS
 
 DigiVertexCorrHistogramMaker::~DigiVertexCorrHistogramMaker() {
 
-  for(std::map<unsigned int,std::string>::const_iterator lab=m_labels.begin();lab!=m_labels.end();lab++) {
+  for(std::map<unsigned int,std::string>::const_iterator lab=m_labels.begin();lab!=m_labels.end();++lab) {
 
     const unsigned int i = lab->first; const std::string slab = lab->second;
 
@@ -71,7 +71,7 @@ void DigiVertexCorrHistogramMaker::book(const std::string dirname, edm::Consumes
   edm::LogInfo("MaxNvtx") << "maximum number of vertices: " << m_maxnvtx;
   edm::LogInfo("BinMaxValue") << "Setting bin max values";
 
-  for(std::map<unsigned int,std::string>::const_iterator lab=m_labels.begin();lab!=m_labels.end();lab++) {
+  for(std::map<unsigned int,std::string>::const_iterator lab=m_labels.begin();lab!=m_labels.end();++lab) {
 
     const unsigned int i = lab->first; const std::string slab = lab->second;
 
@@ -139,7 +139,7 @@ void DigiVertexCorrHistogramMaker::fill(const edm::Event& iEvent, const unsigned
   edm::Service<TFileService> tfserv;
 
 
-  for(std::map<unsigned int,int>::const_iterator digi=ndigi.begin();digi!=ndigi.end();digi++) {
+  for(std::map<unsigned int,int>::const_iterator digi=ndigi.begin();digi!=ndigi.end();++digi) {
 
     if(m_labels.find(digi->first) != m_labels.end()) {
 

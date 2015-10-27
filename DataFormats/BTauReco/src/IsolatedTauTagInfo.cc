@@ -11,7 +11,7 @@ const RefVector<TrackCollection> IsolatedTauTagInfo::tracksInCone( const math::X
   RefVector<TrackCollection> tmp;
  
   RefVector<TrackCollection>::const_iterator myTrack = selectedTracks_.begin();
-  for(;myTrack != selectedTracks_.end(); myTrack++)
+  for(;myTrack != selectedTracks_.end(); ++myTrack)
     {
       const math::XYZVector trackMomentum = (*myTrack)->momentum() ;
       float pt_tk = (*myTrack)->pt();
@@ -28,7 +28,7 @@ const RefVector<TrackCollection> IsolatedTauTagInfo::tracksInCone( const math::X
   RefVector<TrackCollection> tmp;
  
   RefVector<TrackCollection>::const_iterator myTrack = selectedTracks_.begin();
-  for(;myTrack != selectedTracks_.end(); myTrack++)
+  for(;myTrack != selectedTracks_.end(); ++myTrack)
     {
       const math::XYZVector trackMomentum = (*myTrack)->momentum() ;
       float pt_tk = (*myTrack)->pt();
@@ -61,7 +61,7 @@ const TrackRef IsolatedTauTagInfo::leadingSignalTrack(const float rm_cone, const
   if (sTracks.size() >0) 
     {
       RefVector<TrackCollection>::const_iterator myTrack =sTracks.begin();
-      for(;myTrack!=sTracks.end();myTrack++)
+      for(;myTrack!=sTracks.end();++myTrack)
 	{
 	  if((*myTrack)->pt() > pt_cut) {
 	    leadTk = *myTrack;
@@ -80,7 +80,7 @@ const TrackRef  IsolatedTauTagInfo::leadingSignalTrack(const math::XYZVector& my
   if (sTracks.size() >0) 
     {
       RefVector<TrackCollection>::const_iterator myTrack =sTracks.begin();
-      for(;myTrack!=sTracks.end();myTrack++)
+      for(;myTrack!=sTracks.end();++myTrack)
 	{
 	  if((*myTrack)->pt() > pt_cut) {
 	    leadTk = *myTrack;

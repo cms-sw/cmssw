@@ -70,7 +70,7 @@ SiStripApvGain * SiStripGainFromAsciiFile::getNewObject(){
   ss.str("");
   ss << "[SiStripGainFromAsciiFile::getNewObject]\n Filling SiStripApvGain object";
   short nApvPair;
-  for(std::vector<uint32_t>::const_iterator it=DetIds.begin(); it!=DetIds.end(); it++){
+  for(std::vector<uint32_t>::const_iterator it=DetIds.begin(); it!=DetIds.end(); ++it){
     ModuleGain MG;
     if (DetId(*it).det()!=DetId::Tracker)
       continue;

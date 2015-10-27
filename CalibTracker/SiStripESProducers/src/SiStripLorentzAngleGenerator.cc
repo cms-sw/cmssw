@@ -90,7 +90,7 @@ SiStripLorentzAngle* SiStripLorentzAngleGenerator::createObject(const TrackerTop
   double TOBmeanStdDev = (TOBmeanPerCentError/100)*TOBmeanValueMin;
 
   const std::vector<uint32_t> DetIds = reader.getAllDetIds();
-  for(std::vector<uint32_t>::const_iterator detit=DetIds.begin(); detit!=DetIds.end(); detit++){
+  for(std::vector<uint32_t>::const_iterator detit=DetIds.begin(); detit!=DetIds.end(); ++detit){
     const DetId detectorId=DetId(*detit);
     const int subDet = detectorId.subdetId();
     

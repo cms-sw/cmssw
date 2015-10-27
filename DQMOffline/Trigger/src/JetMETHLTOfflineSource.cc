@@ -91,7 +91,7 @@ JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
   pathFilter_          = iConfig.getUntrackedParameter<vector<std::string> >("pathFilter");
   pathRejectKeyword_   = iConfig.getUntrackedParameter<vector<std::string> >("pathRejectKeyword");
   std::vector<edm::ParameterSet> paths =  iConfig.getParameter<std::vector<edm::ParameterSet> >("pathPairs");
-  for(std::vector<edm::ParameterSet>::iterator pathconf = paths.begin() ; pathconf != paths.end();  pathconf++) { 
+  for(std::vector<edm::ParameterSet>::iterator pathconf = paths.begin() ; pathconf != paths.end();  ++pathconf) { 
     custompathnamepairs_.push_back(make_pair(
 					     pathconf->getParameter<std::string>("pathname"),
 					     pathconf->getParameter<std::string>("denompathname")
@@ -358,7 +358,7 @@ JetMETHLTOfflineSource::fillMEforMonTriggerSummary(const Event & iEvent, const e
   edm::Handle<VertexCollection> Vtx;
   iEvent.getByToken (vertexToken,Vtx);
   int vtxcnt=0;
-  for (VertexCollection::const_iterator itv=Vtx->begin(); itv!=Vtx->end(); itv++){
+  for (VertexCollection::const_iterator itv=Vtx->begin(); itv!=Vtx->end(); ++itv){
     //if(vtxcnt>=20) break;
     PVZ->Fill(itv->z());
     //chi2vtx[vtxcnt] = itv->chi2();
@@ -404,7 +404,7 @@ JetMETHLTOfflineSource::fillMEforTriggerNTfired()
 	  v->getMEhisto_JetSize()->Fill(calojet.size());
 	  if (calojet.size()>=2){
 	    CaloJetCollection::const_iterator jet = calojet.begin();
-	    CaloJetCollection::const_iterator jet2= calojet.begin(); jet2++;
+	    CaloJetCollection::const_iterator jet2= calojet.begin(); ++jet2;
 	    double jet3pt = 0.;
 	    if(calojet.size()>2){
 	      CaloJetCollection::const_iterator jet3 = jet2++;

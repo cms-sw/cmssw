@@ -93,7 +93,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   std::vector<Provenance const*> theProvenance;
   iEvent.getAllProvenance(theProvenance);
   for( std::vector<Provenance const*>::const_iterator ip = theProvenance.begin();
-                                                      ip != theProvenance.end(); ip++)
+                                                      ip != theProvenance.end();++ip)
   {
      cout<<" Print all module/label names "<<moduleName(**ip)<<" "<<(**ip).moduleLabel()<<
      " "<<(**ip).productInstanceName()<<endl;
@@ -118,7 +118,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    edm::Handle<MuonCollection> mucand;
    iEvent.getByToken(tok_muons_, mucand);
    std::cout<<" Size of muon collection "<<mucand->size()<<std::endl;
-   for(MuonCollection::const_iterator it =  mucand->begin(); it != mucand->end(); it++)
+   for(MuonCollection::const_iterator it =  mucand->begin(); it != mucand->end();++it)
    {
       TrackRef mu = (*it).combinedMuon();
       std::cout<<" Pt muon "<<mu->innerMomentum()<<std::endl;
@@ -155,7 +155,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    std::cout<<" Tracks size "<<(*tracks).size()<<std::endl;
    reco::TrackCollection::const_iterator track = tracks->begin ();
 
-          for (; track != tracks->end (); track++)
+          for (; track != tracks->end ();++track)
          {
            cout<<" P track "<<(*track).p()<<" eta "<<(*track).eta()<<" phi "<<(*track).phi()<<" Outer "<<(*track).outerMomentum()<<" "<<
 	   (*track).outerPosition()<<endl;
@@ -172,7 +172,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
          double energyECAL = 0.;
          double energyHCAL = 0.;
 
-          for (; hite != (ecal.product())->end (); hite++)
+          for (; hite != (ecal.product())->end ();++hite)
          {
 
 //           cout<<" Energy ECAL "<<(*hite).energy()<<endl;
@@ -195,7 +195,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    std::cout<<" Size of HBHE "<<(Hithbhe).size()<<std::endl;
    HBHERecHitCollection::const_iterator hith = (hbhe.product())->begin ();
 
-          for (; hith != (hbhe.product())->end (); hith++)
+          for (; hith != (hbhe.product())->end ();++hith)
          {
 
 	 GlobalPoint posH = geo->getPosition((*hith).detid());
@@ -215,7 +215,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
    HORecHitCollection::const_iterator hito = (ho.product())->begin ();
 
-          for (; hito != (ho.product())->end (); hito++)
+          for (; hito != (ho.product())->end ();++hito)
          {
 //           cout<<" Energy HO    "<<(*hito).energy()<<endl;
 //	   " eta "<<(*hite).eta()<<" phi "<<(*hite).phi()<<endl;
@@ -235,7 +235,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    iEvent.getByToken(tok_jets_, jets);
    std::cout<<" Jet size "<<(*jets).size()<<std::endl; 
    reco::CaloJetCollection::const_iterator jet = jets->begin ();
-          for (; jet != jets->end (); jet++)
+          for (; jet != jets->end ();++jet)
          {
            cout<<" Et jet "<<(*jet).et()<<" eta "<<(*jet).eta()<<" phi "<<(*jet).phi()<<endl;
          }  
@@ -250,7 +250,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    iEvent.getByToken(tok_gamma_, eclus);
    std::cout<<" GammaClus size "<<(*eclus).size()<<std::endl;
       reco::SuperClusterCollection::const_iterator iclus = eclus->begin ();
-          for (; iclus != eclus->end (); iclus++)
+          for (; iclus != eclus->end ();++iclus)
          {
            cout<<" Et gamma "<<(*iclus).energy()/cosh((*iclus).eta())<<" eta "<<(*iclus).eta()<<" phi "<<(*iclus).phi()<<endl;
          }

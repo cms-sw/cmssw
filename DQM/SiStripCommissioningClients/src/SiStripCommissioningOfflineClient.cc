@@ -85,7 +85,7 @@ void SiStripCommissioningOfflineClient::beginRun( const edm::Run& run, const edm
 
   // Check if .root file can be opened
   std::vector<std::string>::const_iterator ifile = inputFiles_.begin();
-  for ( ; ifile != inputFiles_.end(); ifile++ ) {
+  for ( ; ifile != inputFiles_.end(); ++ifile ) {
     std::ifstream root_file;
     root_file.open( ifile->c_str() );
     if( !root_file.is_open() ) {
@@ -152,7 +152,7 @@ void SiStripCommissioningOfflineClient::beginRun( const edm::Run& run, const edm
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
     << " Opening root files. This may take some time!...";
   std::vector<std::string>::const_iterator jfile = inputFiles_.begin();
-  for ( ; jfile != inputFiles_.end(); jfile++ ) {
+  for ( ; jfile != inputFiles_.end(); ++jfile ) {
     LogTrace(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Opening root file \"" << *jfile
@@ -178,7 +178,7 @@ void SiStripCommissioningOfflineClient::beginRun( const edm::Run& run, const edm
   if ( clientHistos_ ) {
     std::vector<std::string> temp;
     std::vector<std::string>::iterator istr = contents.begin();
-    for ( ; istr != contents.end(); istr++ ) {
+    for ( ; istr != contents.end(); ++istr ) {
       if ( istr->find(sistrip::collate_) != std::string::npos ) { 
 	temp.push_back( *istr );
       }
@@ -254,7 +254,7 @@ void SiStripCommissioningOfflineClient::beginRun( const edm::Run& run, const edm
   if ( inputFiles_.empty() ) { ss << "(none)"; }
   else {
     std::vector<std::string>::const_iterator ifile = inputFiles_.begin();
-    for ( ; ifile != inputFiles_.end(); ifile++ ) {
+    for ( ; ifile != inputFiles_.end(); ++ifile ) {
       if ( ifile != inputFiles_.begin() ) { 
 	ss << std::setw(25) << std::setfill(' ') << ": ";
       }
@@ -312,7 +312,7 @@ void SiStripCommissioningOfflineClient::beginRun( const edm::Run& run, const edm
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Generating summary plots...";
     std::vector<SummaryPlot>::const_iterator iplot =  plots_.begin();
-    for ( ; iplot != plots_.end(); iplot++ ) {
+    for ( ; iplot != plots_.end(); ++iplot ) {
       if ( histos_ ) { 
 	histos_->createSummaryHisto( iplot->monitorable(),
 				     iplot->presentation(),

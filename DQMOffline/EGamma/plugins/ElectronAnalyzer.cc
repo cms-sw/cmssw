@@ -299,7 +299,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
   for
    ( gsfIter=gsfElectrons->begin() ;
      gsfIter!=gsfElectrons->end();
-     gsfIter++ )
+     ++gsfIter )
    {
     // vertex TIP
     double vertexTIP =
@@ -315,7 +315,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
     for
       ( gsfIter2=gsfIter+1;
 	gsfIter2!=gsfElectrons->end() ;
-	gsfIter2++ )
+	++gsfIter2 )
       {
         if (!selected(gsfIter2,vertexTIP)) continue ;
 	float invMass = computeInvMass(*gsfIter,*gsfIter2) ;
@@ -428,7 +428,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
   for
    ( moIter=recoClusters->begin() ;
      moIter!=recoClusters->end() ;
-     moIter++ )
+     ++moIter )
    {
 //    // number of matching objects
      matchingObjectNum++;
@@ -450,7 +450,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
     for
      ( gsfIter=gsfElectrons->begin() ;
        gsfIter!=gsfElectrons->end() ;
-       gsfIter++ )
+       ++gsfIter )
      {
 
       double vertexTIP =

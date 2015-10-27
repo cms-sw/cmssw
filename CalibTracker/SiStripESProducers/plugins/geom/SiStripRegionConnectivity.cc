@@ -44,7 +44,7 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
   
   //Loop det cabling
   std::map< uint32_t, std::vector<const FedChannelConnection *> >::const_iterator idet = detcabling->getDetCabling().begin();
-  for (;idet!=detcabling->getDetCabling().end();idet++) {
+  for (;idet!=detcabling->getDetCabling().end();++idet) {
     if (!idet->first || (idet->first == sistrip::invalid32_)) continue;
 
     // Check if geom det unit exists

@@ -47,7 +47,7 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig)
     iConfig.getParameter<std::vector<edm::ParameterSet> >("filters");
   for(std::vector<edm::ParameterSet>::iterator 
 	filterconf = filters.begin() ; filterconf != filters.end(); 
-      filterconf++) {
+      ++filterconf) {
     std::string me  = filterconf->getParameter<std::string>("name");
     int objectType = filterconf->getParameter<unsigned int>("type");
     float ptMin = filterconf->getUntrackedParameter<double>("ptMin");

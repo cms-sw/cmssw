@@ -26,7 +26,7 @@ const PixelToLNKAssociateFromAscii::CablingRocId * PixelToLNKAssociateFromAscii:
 //  if (deb) cout <<"KUKU"<<endl;
 
   typedef std::vector< std::pair<DetectorRocId,CablingRocId> >::const_iterator IM;
-  for (IM im = theConnection.begin(); im != theConnection.end(); im++) {
+  for (IM im = theConnection.begin(); im != theConnection.end(); ++im) {
     if( ( *(im->first.module) == *roc.module ) && (im->first.rocDetId == roc.rocDetId)) {
       return &(im->second);  
     }
@@ -121,7 +121,7 @@ void PixelToLNKAssociateFromAscii::init(const string & cfg_name)
   std::ostringstream str;
   str <<" **PixelToLNKAssociateFromAscii ** CONNECTIONS: "<< endl;
   typedef vector< pair<DetectorRocId,CablingRocId> >::const_iterator ICON;
-  for (ICON ic = theConnection.begin(); ic != theConnection.end(); ic++) {
+  for (ICON ic = theConnection.begin(); ic != theConnection.end(); ++ic) {
     str<< (*ic).first.module->name()
        <<", rocDetId="<<(*ic).first.rocDetId
        <<", fedId="<<ic->second.fedId

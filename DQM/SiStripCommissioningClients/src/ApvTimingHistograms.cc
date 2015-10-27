@@ -48,7 +48,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
   std::map<std::string,uint16_t> errors;
   
   // Clear map holding analysis objects
-  for ( ianal = data().begin(); ianal != data().end(); ianal++ ) { 
+  for ( ianal = data().begin(); ianal != data().end(); ++ianal ) { 
     if ( ianal->second ) { delete ianal->second; }
   } 
   data().clear();
@@ -61,7 +61,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
   
   // Iterate through map containing histograms
   for ( iter = histos().begin();
-	iter != histos().end(); iter++ ) {
+	iter != histos().end(); ++iter ) {
     
     // Check vector of histos is not empty
     if ( iter->second.empty() ) {
@@ -74,7 +74,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     // Retrieve pointers to histos
     std::vector<TH1*> profs;
     Histos::const_iterator ihis = iter->second.begin(); 
-    for ( ; ihis != iter->second.end(); ihis++ ) {
+    for ( ; ihis != iter->second.end(); ++ihis ) {
       TProfile* prof = ExtractTObject<TProfile>().extract( (*ihis)->me_ );
       if ( prof ) { profs.push_back(prof); }
     } 
@@ -145,7 +145,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
   }
   
   // Set reference time for all analysis objects
-  for ( ianal = data().begin(); ianal != data().end(); ianal++ ) { 
+  for ( ianal = data().begin(); ianal != data().end(); ++ianal ) { 
     ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>(ianal->second);
     if ( !anal ) { continue; }
     anal->refTime( time_max, this->pset().getParameter<int>("TargetDelay") );

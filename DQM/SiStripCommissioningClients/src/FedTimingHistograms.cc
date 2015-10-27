@@ -130,7 +130,7 @@ void FedTimingHistograms::histoAnalysis( bool debug ) {
  
   // Set maximum time for all analysis objects
   std::map<uint32_t,FedTimingAnalysis>::iterator ianal = data_.begin();
-  for ( ; ianal != data_.end(); ianal++ ) { 
+  for ( ; ianal != data_.end(); ++ianal ) { 
     ianal->second.max( time_max ); 
     static uint16_t cntr = 0;
     if ( debug ) {

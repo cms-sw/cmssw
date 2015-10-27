@@ -125,7 +125,7 @@ void Vx3DHLTAnalyzer::analyze (const Event& iEvent, const EventSetup& iSetup)
 	  cout << "[Vx3DHLTAnalyzer]::\tIn this event there are " << Vx3DCollection->size() << " vertex cadidates" << endl;
 	}
 
-      for (vector<Vertex>::const_iterator it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); it3DVx++)
+      for (vector<Vertex>::const_iterator it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); ++it3DVx)
 	{
 	  if (internalDebug == true)
 	    {
@@ -197,8 +197,8 @@ unsigned int Vx3DHLTAnalyzer::HitCounter (const Event& iEvent)
   
   unsigned int counter = 0;
   
-  for (SiPixelRecHitCollection::const_iterator j = rechitspixel->begin(); j != rechitspixel->end(); j++)
-    for (edmNew::DetSet<SiPixelRecHit>::const_iterator h = j->begin(); h != j->end(); h++) counter += h->cluster()->size();	  
+  for (SiPixelRecHitCollection::const_iterator j = rechitspixel->begin(); j != rechitspixel->end(); ++j)
+    for (edmNew::DetSet<SiPixelRecHit>::const_iterator h = j->begin(); h != j->end(); ++h) counter += h->cluster()->size();	  
   
   return counter;
 }

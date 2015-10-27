@@ -472,7 +472,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       e3x3 = 0.;
       e5x5 = 0.;
       
-      for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) 
+      for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end();++hhit) 
 	//for (HcalRecHitCollection::const_iterator hhit=Hithcal.begin(); hhit!=Hithcal.end(); hhit++) 
 	{ 
 	  recal = RecalibFactor(hhit->detid());
@@ -515,7 +515,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	}
 
       
-      for (HFRecHitCollection::const_iterator hhit=Hithf.begin(); hhit!=Hithf.end(); hhit++) 
+      for (HFRecHitCollection::const_iterator hhit=Hithf.begin(); hhit!=Hithf.end();++hhit) 
 	{
 	  
 	  recal = RecalibFactor(hhit->detid());
@@ -558,7 +558,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 
       /*    ----------- Collect Hcal Energy in a Cone (and also 3x3 and 5x5 around the hottest cell)*/
       
-      for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) 
+      for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end();++hhit) 
 	//    for (HcalRecHitCollection::const_iterator hhit=Hithcal.begin(); hhit!=Hithcal.end(); hhit++) 
 	{ 
 	  
@@ -621,7 +621,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	} //end of all HBHE  hits loop
   
       
-      for (HFRecHitCollection::const_iterator hhit=Hithf.begin(); hhit!=Hithf.end(); hhit++) 
+      for (HFRecHitCollection::const_iterator hhit=Hithf.begin(); hhit!=Hithf.end();++hhit) 
 	{
 	  
 	  recal = RecalibFactor(hhit->detid());

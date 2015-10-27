@@ -408,7 +408,7 @@ void testCSCDigis::readCSCCorrLCTDigi(CSCCorrelatedLCTDigiCollection & collectio
       const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
 
       for(CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first;
-	  digiIt != range.second; digiIt++)
+	  digiIt != range.second; ++digiIt)
 	{
 	  ++count;
 	  CPPUNIT_ASSERT(digiIt->isValid() == 1);

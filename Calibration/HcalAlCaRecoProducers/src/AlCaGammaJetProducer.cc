@@ -294,52 +294,52 @@ void AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
     //Copy from standard place
     for(reco::PFJetCollection::const_iterator pfjetItr=pfjets.begin();
-        pfjetItr!=pfjets.end(); pfjetItr++) {
+        pfjetItr!=pfjets.end();++pfjetItr) {
       miniPFjetCollection->push_back(*pfjetItr);
     }
 
     for(reco::PhotonCollection::const_iterator phoItr=photon.begin();
-        phoItr!=photon.end(); phoItr++) {
+        phoItr!=photon.end();++phoItr) {
       miniPhotonCollection->push_back(*phoItr);
     }
 
     for(reco::PFCandidateCollection::const_iterator pfcItr=pfcand.begin();
-        pfcItr!=pfcand.end(); pfcItr++) {
+        pfcItr!=pfcand.end();++pfcItr) {
       miniPFCandCollection->push_back(*pfcItr);
     }
 
     for(reco::VertexCollection::const_iterator vtxItr=vtx.begin();
-        vtxItr!=vtx.end(); vtxItr++) {
+        vtxItr!=vtx.end();++vtxItr) {
       miniVtxCollection->push_back(*vtxItr);
     }
 
     for(reco::PFMETCollection::const_iterator pfmetItr=pfmet.begin();
-        pfmetItr!=pfmet.end(); pfmetItr++) {
+        pfmetItr!=pfmet.end();++pfmetItr) {
       miniPFMETCollection->push_back(*pfmetItr);
     }
 
     for(edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >::const_iterator hbheItr=Hithbhe.begin(); 
-	hbheItr!=Hithbhe.end(); hbheItr++) {
+	hbheItr!=Hithbhe.end();++hbheItr) {
       miniHBHECollection->push_back(*hbheItr);
     }
 
     for(edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >::const_iterator hoItr=Hitho.begin();
-        hoItr!=Hitho.end(); hoItr++) {
+        hoItr!=Hitho.end();++hoItr) {
       miniHOCollection->push_back(*hoItr);
     }
 
     for(edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >::const_iterator hfItr=Hithf.begin();
-        hfItr!=Hithf.end(); hfItr++) {
+        hfItr!=Hithf.end();++hfItr) {
       miniHFCollection->push_back(*hfItr);
     }
 
     for(reco::GsfElectronCollection::const_iterator gsfItr=gsfele.begin();
-        gsfItr!=gsfele.end(); gsfItr++) {
+        gsfItr!=gsfele.end();++gsfItr) {
       miniGSFeleCollection->push_back(*gsfItr);
     }
 
     for(reco::ConversionCollection::const_iterator convItr=conv.begin();
-        convItr!=conv.end(); convItr++) {
+        convItr!=conv.end();++convItr) {
       miniConversionCollection->push_back(*convItr);
     }
 

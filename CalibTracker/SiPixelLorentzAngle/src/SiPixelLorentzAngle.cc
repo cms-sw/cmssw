@@ -205,7 +205,7 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
       std::vector<PSimHit> matched;
       h_tracks_->Fill(0);
       bool pixeltrack = false;
-      for(std::vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj != tmColl.end(); itTraj++) {
+      for(std::vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj != tmColl.end(); ++itTraj) {
 	if(! itTraj->updatedState().isValid()) continue;
 	TransientTrackingRecHit::ConstRecHitPointer recHit = itTraj->recHit();
 	if(! recHit->isValid() || recHit->geographicalId().det() != DetId::Tracker ) continue;
@@ -499,7 +499,7 @@ inline void SiPixelLorentzAngle::fillPix(const SiPixelCluster & LocPix, const Pi
 {
   const std::vector<SiPixelCluster::Pixel>& pixvector = LocPix.pixels();
   pixinfo.npix = 0;
-  for(std::vector<SiPixelCluster::Pixel>::const_iterator itPix = pixvector.begin(); itPix != pixvector.end(); itPix++){
+  for(std::vector<SiPixelCluster::Pixel>::const_iterator itPix = pixvector.begin(); itPix != pixvector.end(); ++itPix){
     // 	for(pixinfo.npix = 0; pixinfo.npix < static_cast<int>(pixvector.size()); ++pixinfo.npix) {
     pixinfo.row[pixinfo.npix] = itPix->x;
     pixinfo.col[pixinfo.npix] = itPix->y;

@@ -199,7 +199,7 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
     // Fill the RCT histograms
 
     for (L1CaloRegionCollection::const_iterator ireg = rgn->begin();
-       ireg != rgn->end(); ireg++) {
+       ireg != rgn->end(); ++ireg) {
 
       if(ireg->et()>0)
       {
@@ -237,7 +237,7 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   if (doEm){
   // Isolated and non-isolated EM
   for (L1CaloEmCollection::const_iterator iem = em->begin();
-       iem != em->end(); iem++) {
+       iem != em->end(); ++iem) {
 
       if(iem->rank()==0) continue;
       rctEmBx_->Fill(iem->bx());

@@ -541,7 +541,7 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
     lumi_factor_per_bx = FREQ_ORBIT * SECONDS_PER_LS * fResetIntervalInLumiSections / rXSEC_PIXEL_CLUSTER  ;
   
   for(std::map<int, PixelClusterCount>::iterator it = fNumPixelClusters.begin();
-      it != fNumPixelClusters.end(); it++) {
+      it != fNumPixelClusters.end(); ++it) {
     
     // Sum all clusters for this BX.
     unsigned int total = (*it).second.numB.at(1)+

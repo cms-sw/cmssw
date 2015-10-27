@@ -76,7 +76,7 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange dev
   
   // Iterate through devices and update device descriptions
   SiStripConfigDb::DeviceDescriptionsV::const_iterator idevice;
-  for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
+  for ( idevice = devices.begin(); idevice != devices.end(); ++idevice ) {
     
     // Check device type
     if ( (*idevice)->getDeviceType() != APV25 ) { continue; }

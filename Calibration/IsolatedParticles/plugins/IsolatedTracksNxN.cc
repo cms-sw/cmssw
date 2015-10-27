@@ -168,7 +168,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	l1AlgoMap.insert( std::pair<std::pair<unsigned int,std::string>,int>( std::pair<unsigned int,std::string>(algBitNumber, algName) , 0) ) ;
       }
       std::map< std::pair<unsigned int,std::string>, int>::iterator itr;
-      for(itr=l1AlgoMap.begin(); itr!=l1AlgoMap.end(); itr++) {
+      for(itr=l1AlgoMap.begin(); itr!=l1AlgoMap.end();++itr) {
 	std::cout << " ********** " << (itr->first).first <<" "<<(itr->first).second <<" "<<itr->second << std::endl;
       }
     }
@@ -474,7 +474,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   std::vector<spr::propagatedTrackID>::const_iterator trkDetItr;
 
   if(myverbose_>2) {
-    for(trkDetItr = trkCaloDets.begin(); trkDetItr != trkCaloDets.end(); trkDetItr++){
+    for(trkDetItr = trkCaloDets.begin(); trkDetItr != trkCaloDets.end();++trkDetItr){
       std::cout<<trkDetItr->trkItr->p()<<" "<<trkDetItr->trkItr->eta()<<" "<<trkDetItr->okECAL<<" ";
       if(trkDetItr->detIdECAL.subdetId() == EcalBarrel) std::cout << (EBDetId)trkDetItr->detIdECAL <<" ";
       else                                              std::cout << (EEDetId)trkDetItr->detIdECAL <<" ";
@@ -485,7 +485,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
   
   int nvtxTracks=0;
-  for(trkDetItr = trkCaloDets.begin(),nTracks=0; trkDetItr != trkCaloDets.end(); trkDetItr++,nTracks++){
+  for(trkDetItr = trkCaloDets.begin(),nTracks=0; trkDetItr != trkCaloDets.end();++trkDetItr,++nTracks){
     
     const reco::Track* pTrack = &(*(trkDetItr->trkItr));
     
@@ -969,7 +969,7 @@ void IsolatedTracksNxN::endJob() {
 
   if(L1TriggerAlgoInfo_) {
     std::map< std::pair<unsigned int,std::string>, int>::iterator itr;
-    for(itr=l1AlgoMap.begin(); itr!=l1AlgoMap.end(); itr++) {
+    for(itr=l1AlgoMap.begin(); itr!=l1AlgoMap.end();++itr) {
       std::cout << " ****endjob**** " << (itr->first).first <<" "
 		<<(itr->first).second <<" "<<itr->second 
 		<< std::endl;

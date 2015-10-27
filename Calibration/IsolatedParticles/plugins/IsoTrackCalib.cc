@@ -330,7 +330,7 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	    }
 	  }
           //leading jet loop
-          for(pfItr=pfJetsHandle->begin();pfItr!=pfJetsHandle->end(); pfItr++){
+          for(pfItr=pfJetsHandle->begin();pfItr!=pfJetsHandle->end();++pfItr){
 	    t_leadingpt->push_back(pfItr->pt());  
 	    t_leadingeta->push_back(pfItr->eta());
 	    t_leadingphi->push_back(pfItr->phi());
@@ -346,7 +346,7 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
 	  unsigned int nTracks=0,nselTracks=0;
 	  for (trkDetItr = trkCaloDirections.begin(),nTracks=0; 
-	       trkDetItr != trkCaloDirections.end(); trkDetItr++,nTracks++) {
+	       trkDetItr != trkCaloDirections.end();++trkDetItr,++nTracks) {
 	    const reco::Track* pTrack = &(*(trkDetItr->trkItr));
             math::XYZTLorentzVector v4(pTrack->px(), pTrack->py(), pTrack->pz(), pTrack->p());
             TLorentzVector trackinfo;
@@ -565,7 +565,7 @@ void IsoTrackCalib::endJob() {
   g_PreHLT = fs->make<TH1I>("h_PreHLTvsRN", "HLT PreScale Vs Run Number", n, minRunNo, maxRunNo);
   g_Accepts = fs->make<TH1I>("h_HLTAcceptsvsRN", "HLT Accepts Vs Run Number", n, minRunNo, maxRunNo); 
 
-  for (itr=TrigList.begin(), itrPre=TrigPreList.begin(); itr!=TrigList.end(); itr++, itrPre++) {
+  for (itr=TrigList.begin(), itrPre=TrigPreList.begin(); itr!=TrigList.end();++itr,++itrPre) {
     preL1 = (itrPre->second).first;
     preHLT = (itrPre->second).second;
     g_Accepts->Fill((itr->first).first, itr->second);

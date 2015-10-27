@@ -67,7 +67,7 @@ uint32_t SummaryHistogramFactory<DaqScopeModeAnalysis>::extract( const std::map<
   // Transfer appropriate monitorables info to generator object
   generator_->clearMap();
   std::map<uint32_t,DaqScopeModeAnalysis>::const_iterator iter = data.begin();
-  for ( ; iter != data.end(); iter++ ) {
+  for ( ; iter != data.end(); ++iter ) {
     if ( mon_ == sistrip::DAQ_SCOPE_MODE_MEAN_SIGNAL ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.mean() ); 
     } else { continue; }

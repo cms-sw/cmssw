@@ -140,7 +140,7 @@ void DTEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Even
   if(lumiSeg.id().luminosityBlock()%parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0) {
     for(map<DTLayerId, vector<MonitorElement*> > ::const_iterator histo = histosPerL.begin();
 	histo != histosPerL.end();
-	histo++) {
+	++histo) {
       int size = (*histo).second.size();
       for(int i=0; i<size; i++){
 	(*histo).second[i]->Reset();
@@ -184,7 +184,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
     map<DTWireId, int> wireAnd1DRecHits;
     for(vector<const DTSuperLayer*>::const_iterator superlayer = SLayers.begin();
 	superlayer != SLayers.end();
-	superlayer++) {
+	++superlayer) {
 	DTRecHitCollection::range  range = dtRecHits->get(DTRangeMapAccessor::layersBySuperLayer((*superlayer)->id()));
 	// Loop over the rechits of this ChamberId
 	for (DTRecHitCollection::const_iterator rechit = range.first;
@@ -257,16 +257,16 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
       vector<DTWireId> wireMap;
       for(vector<DTRecHit1D>::const_iterator recHit1D = recHits1D.begin();
 	  recHit1D != recHits1D.end();
-	  recHit1D++) {
+	  ++recHit1D) {
 	wireMap.push_back((*recHit1D).wireId());
       }
 
       bool hitsOnSameLayer = false;
       for(vector<DTWireId>::const_iterator channelId = wireMap.begin();
-	  channelId != wireMap.end(); channelId++) {
+	  channelId != wireMap.end(); ++channelId) {
 	vector<DTWireId>::const_iterator next = channelId;
-	next++;
-	for(vector<DTWireId>::const_iterator ite = next; ite != wireMap.end(); ite++) {
+	++next;
+	for(vector<DTWireId>::const_iterator ite = next; ite != wireMap.end(); ++ite) {
 	  if((*channelId).layerId() == (*ite).layerId()) {
 	    hitsOnSameLayer = true;
 	  }
@@ -325,11 +325,11 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	// Loop over layers and wires to fill a map
 	for(vector<const DTSuperLayer*>::const_iterator superlayer = SupLayers.begin();
 	    superlayer != SupLayers.end();
-	    superlayer++) {
+	    ++superlayer) {
 	  const vector<const DTLayer*> Layers = (*superlayer)->layers();
 	  for(vector<const DTLayer*>::const_iterator layer = Layers.begin();
 	      layer != Layers.end();
-	      layer++) {
+	      ++layer) {
 	    layerMap.insert(make_pair((*layer)->id(), false));
 	    const int firstWire = dtGeom->layer((*layer)->id())->specificTopology().firstChannel();
 	    const int lastWire = dtGeom->layer((*layer)->id())->specificTopology().lastChannel();
@@ -352,7 +352,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	map<DTLayerId, int> NumWireMap;
 	for(vector<DTRecHit1D>::const_iterator recHit = recHits1D.begin();
 	    recHit != recHits1D.end();
-	    recHit++) {
+	    ++recHit) {
 	  layerMap[(*recHit).wireId().layerId()]= true;
 	  NumWireMap[(*recHit).wireId().layerId()]= (*recHit).wireId().wire();
 	}
@@ -360,7 +360,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	DTLayerId missLayerId;
 	//Loop over the map and find the layer without hits
 	for(map<DTLayerId, bool>::const_iterator iter = layerMap.begin();
-	    iter != layerMap.end(); iter++) {
+	    iter != layerMap.end(); ++iter) {
 	  if(!(*iter).second) missLayerId = (*iter).first;
 	}
 	if(debug)
@@ -380,7 +380,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	// Find the id of the cell without hit ---------------------------------------------------
 	for(map<DTWireId, float>::const_iterator wireAndPos = wireAndPosInChamberAtLayerZ.begin();
 	    wireAndPos != wireAndPosInChamberAtLayerZ.end();
-	    wireAndPos++) {
+	    ++wireAndPos) {
 	  DTWireId wireId = (*wireAndPos).first;
 	  if(wireId.layerId() == missLayerId) {
 	    if(missLayerId.superlayerId().superlayer() == 1 || missLayerId.superlayerId().superlayer() == 3 ) {
@@ -407,7 +407,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 
 
 	for(map<DTLayerId, bool>::const_iterator iter = layerMap.begin();
-	    iter != layerMap.end(); iter++) {
+	    iter != layerMap.end(); ++iter) {
 	  if((*iter).second)
 	    fillHistos((*iter).first, dtGeom->layer((*iter).first)->specificTopology().firstChannel(), dtGeom->layer((*iter).first)->specificTopology().lastChannel(), NumWireMap[(*iter).first]);
 	  else
@@ -421,12 +421,12 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	DTLayerId LayerID;
 	for(vector<DTRecHit1D>::const_iterator recHit = recHits1D.begin();
 	    recHit != recHits1D.end();
-	    recHit++) {
+	    ++recHit) {
 	  LayerID = (*recHit).wireId().layerId();
 	  NumWireMap[LayerID]= (*recHit).wireId().wire();
 	}
 	for(map<DTLayerId, int>::const_iterator iter = NumWireMap.begin();
-	    iter != NumWireMap.end(); iter++) {
+	    iter != NumWireMap.end(); ++iter) {
 	  fillHistos((*iter).first, dtGeom->layer((*iter).first)->specificTopology().firstChannel(), dtGeom->layer((*iter).first)->specificTopology().lastChannel(), NumWireMap[(*iter).first]);
 	}
       }

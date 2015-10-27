@@ -100,7 +100,7 @@ void TaggingVariablePlotter::analyzeTag (const TaggingVariableList &vars,
 		const unsigned int& size = values.size();
 		for(std::vector<VariableConfig::Plot>::const_iterator plot =
 						iter->plots.begin();
-		    plot != iter->plots.end(); plot++) {
+		    plot != iter->plots.end(); ++plot) {
 			if (plot->index == 0) {
 				for(std::vector<TaggingValue>::const_iterator iter = values.begin();
                                     iter != values.end(); ++iter)

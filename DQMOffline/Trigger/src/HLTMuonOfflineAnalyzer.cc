@@ -140,7 +140,7 @@ HLTMuonOfflineAnalyzer::dqmBeginRun(const edm::Run & iRun,
   
   // Initialize the plotters
   set<string>::iterator iPath;
-  for (iPath = hltPaths.begin(); iPath != hltPaths.end(); iPath++) {
+  for (iPath = hltPaths.begin(); iPath != hltPaths.end(); ++iPath) {
     string path = * iPath;
     vector<string> labels = moduleLabels(path);
     if (labels.size() > 0) {

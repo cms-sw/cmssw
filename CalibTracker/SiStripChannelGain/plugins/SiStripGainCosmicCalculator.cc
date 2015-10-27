@@ -51,7 +51,7 @@ SiStripGainCosmicCalculator::SiStripGainCosmicCalculator(const edm::ParameterSet
 
   edm::LogInfo("SiStripApvGainCalculator")<<"Clusters from "<<detModulesToBeExcluded.size()<<" modules will be ignored in the calibration:";
   edm::LogInfo("SiStripApvGainCalculator")<<"The calibration for these DetIds will be set to a default value";
-  for( std::vector<uint32_t>::const_iterator imod = detModulesToBeExcluded.begin(); imod != detModulesToBeExcluded.end(); imod++){
+  for( std::vector<uint32_t>::const_iterator imod = detModulesToBeExcluded.begin(); imod != detModulesToBeExcluded.end(); ++imod){
     edm::LogInfo("SiStripApvGainCalculator")<<"exclude detid = "<< *imod;
   }
 
@@ -104,7 +104,7 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup)
    substructure.getTOBDetectors(activeDets, SelectedDetIds, 0, 0, 0);    // this adds rawDetIds to SelectedDetIds
    // get tracker geometry and find nr. of apv pairs for each active detector 
    edm::ESHandle<TrackerGeometry> tkGeom; iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );     
-   for(TrackerGeometry::DetContainer::const_iterator it = tkGeom->dets().begin(); it != tkGeom->dets().end(); it++){ // loop over detector modules
+   for(TrackerGeometry::DetContainer::const_iterator it = tkGeom->dets().begin(); it != tkGeom->dets().end(); ++it){ // loop over detector modules
      if( dynamic_cast<const StripGeomDetUnit*>((*it))!=0){
        uint32_t detid= ((*it)->geographicalId()).rawId();
        // get thickness for all detector modules, not just for active, this is strange 
@@ -112,7 +112,7 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup)
        thickness_map.insert(std::make_pair(detid,module_thickness));
        //
        bool is_active_detector = false;
-       for(std::vector<uint32_t>::iterator iactive = SelectedDetIds.begin(); iactive != SelectedDetIds.end(); iactive++){
+       for(std::vector<uint32_t>::iterator iactive = SelectedDetIds.begin(); iactive != SelectedDetIds.end(); ++iactive){
          if( *iactive == detid ){
            is_active_detector = true;
            break; // leave for loop if found matching detid
@@ -120,7 +120,7 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup)
        }
        //
        bool exclude_this_detid = false;
-       for( std::vector<uint32_t>::const_iterator imod = detModulesToBeExcluded.begin(); imod != detModulesToBeExcluded.end(); imod++ ){
+       for( std::vector<uint32_t>::const_iterator imod = detModulesToBeExcluded.begin(); imod != detModulesToBeExcluded.end(); ++imod ){
            if(*imod == detid) exclude_this_detid = true; // found in exclusion list
            break;
        }
@@ -162,13 +162,13 @@ void SiStripGainCosmicCalculator::algoAnalyze(const edm::Event & iEvent, const e
 //  es.get<IdealMagneticFieldRecord>().get(esmagfield);
 //  magfield=&(*esmagfield);
   // loop over tracks
-  for(reco::TrackCollection::const_iterator itr = tracks->begin(); itr != tracks->end(); itr++){ // looping over tracks
+  for(reco::TrackCollection::const_iterator itr = tracks->begin(); itr != tracks->end(); ++itr){ // looping over tracks
 
     //TO BE RESTORED
     //    std::vector<std::pair<const TrackingRecHit *,float> >hitangle =anglefinder_->findtrackangle((*(*seedcoll).begin()),*itr);
     std::vector<std::pair<const TrackingRecHit *,float> >hitangle;// =anglefinder_->findtrackangle((*(*seedcoll).begin()),*itr);
 
-    for(std::vector<std::pair<const TrackingRecHit *,float> >::const_iterator hitangle_iter=hitangle.begin();hitangle_iter!=hitangle.end();hitangle_iter++){
+    for(std::vector<std::pair<const TrackingRecHit *,float> >::const_iterator hitangle_iter=hitangle.begin();hitangle_iter!=hitangle.end();++hitangle_iter){
       const TrackingRecHit * trechit = hitangle_iter->first;
       float local_angle=hitangle_iter->second;
       LocalPoint local_position= trechit->localPosition();

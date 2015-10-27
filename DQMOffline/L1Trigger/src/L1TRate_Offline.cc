@@ -99,7 +99,7 @@ void L1TRate_Offline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&
   double maxInstantLuminosity = m_parameters.getParameter<double>("maxInstantLuminosity");
 
   // Initializing DQM Monitor Elements
-  for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+  for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; ++i){
 
     TString tCategory = (*i).first;
     TString tTrigger  = (*i).second;
@@ -240,7 +240,7 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
   map<TString,double>* counts=0;
 
   // Resetting MonitorElements so we can refill them
-  for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+  for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; ++i){
     string tTrigger      = (*i).second;
     //    m_DeadTimeVsLS          [tTrigger]->getTH1()->Reset("ICE");
     m_CountsVsLS            [tTrigger]->getTH1()->Reset("ICE");
@@ -256,7 +256,7 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
   }
 
   //Trying to do the same with Counts....
-  for(map<int,map<TString,double> >::iterator j=m_lsRates.begin() ; j!=m_lsRates.end() ; j++){
+  for(map<int,map<TString,double> >::iterator j=m_lsRates.begin() ; j!=m_lsRates.end() ; ++j){
 
     unsigned int lsOffline =  (*j).first;
     counts   = &(*j).second;
@@ -283,7 +283,7 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
 
       const vector<int>& currentPrescaleFactors = (*m_listsPrescaleFactors).at(prescalesIndex);
 
-      for(map<string,string>::const_iterator j=m_selectedTriggers.begin() ; j!=m_selectedTriggers.end() ; j++){
+      for(map<string,string>::const_iterator j=m_selectedTriggers.begin() ; j!=m_selectedTriggers.end() ; ++j){
 
         string tTrigger      = (*j).second;
         double trigCount     = (*counts)[tTrigger];
@@ -387,7 +387,7 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
       map<TString,double> bufferCount;
 
       // Buffer the rate informations for all selected bits
-      for(map<string,string>::const_iterator i=m_selectedTriggers.begin(); i!=m_selectedTriggers.end() ; i++){
+      for(map<string,string>::const_iterator i=m_selectedTriggers.begin(); i!=m_selectedTriggers.end() ; ++i){
 
         string tTrigger = (*i).second;
 
@@ -498,7 +498,7 @@ bool L1TRate_Offline::getXSexFitsPython(const edm::ParameterSet& ps){
   double maxInstantLuminosity = m_parameters.getParameter<double>("maxInstantLuminosity");
 
   // Getting rate fit parameters for all input triggers
-  for(map<string,string>::const_iterator a=m_selectedTriggers.begin() ; a!=m_selectedTriggers.end() ; a++){
+  for(map<string,string>::const_iterator a=m_selectedTriggers.begin() ; a!=m_selectedTriggers.end() ; ++a){
 
     string tTrigger = (*a).second;
 

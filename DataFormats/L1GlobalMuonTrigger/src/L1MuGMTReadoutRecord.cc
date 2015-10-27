@@ -76,12 +76,12 @@ void L1MuGMTReadoutRecord::reset() {
   m_BCERR = 0;
 
   std::vector<L1MuRegionalCand>::iterator itr;
-  for(itr = m_InputCands.begin(); itr != m_InputCands.end(); itr++) (*itr).reset();
+  for(itr = m_InputCands.begin(); itr != m_InputCands.end(); ++itr) (*itr).reset();
 
   std::vector<L1MuGMTExtendedCand>::iterator itg;
-  for(itg = m_BarrelCands.begin(); itg != m_BarrelCands.end(); itg++) (*itg).reset();
-  for(itg = m_ForwardCands.begin(); itg != m_ForwardCands.end(); itg++) (*itg).reset();
-  for(itg = m_GMTCands.begin(); itg != m_GMTCands.end(); itg++) (*itg).reset();
+  for(itg = m_BarrelCands.begin(); itg != m_BarrelCands.end(); ++itg) (*itg).reset();
+  for(itg = m_ForwardCands.begin(); itg != m_ForwardCands.end(); ++itg) (*itg).reset();
+  for(itg = m_GMTCands.begin(); itg != m_GMTCands.end(); ++itg) (*itg).reset();
   for(int i=0;i<8;i++) {
     m_MIPbits[i]=0;
     m_Quietbits[i]=0;
@@ -94,10 +94,10 @@ vector<L1MuGMTExtendedCand>  L1MuGMTReadoutRecord::getGMTCands() const {
   vector<L1MuGMTExtendedCand> cands;
 
   std::vector<L1MuGMTExtendedCand>::const_iterator it;
-  for(it = m_BarrelCands.begin(); it != m_BarrelCands.end(); it++) {
+  for(it = m_BarrelCands.begin(); it != m_BarrelCands.end(); ++it) {
     if((*it).getDataWord()!=0) cands.push_back(*it);
   }
-  for(it = m_ForwardCands.begin(); it != m_ForwardCands.end(); it++) {
+  for(it = m_ForwardCands.begin(); it != m_ForwardCands.end(); ++it) {
     if((*it).getDataWord()!=0) cands.push_back(*it);
   }
     
@@ -120,7 +120,7 @@ vector<L1MuGMTExtendedCand> L1MuGMTReadoutRecord::getGMTBrlCands() const {
   
   vector<L1MuGMTExtendedCand> cands;
   std::vector<L1MuGMTExtendedCand>::const_iterator it;
-  for(it = m_BarrelCands.begin(); it != m_BarrelCands.end(); it++) {
+  for(it = m_BarrelCands.begin(); it != m_BarrelCands.end(); ++it) {
     if((*it).getDataWord()!=0) cands.push_back(*it);
   }
 
@@ -133,7 +133,7 @@ vector<L1MuGMTExtendedCand> L1MuGMTReadoutRecord::getGMTFwdCands() const {
 
   vector<L1MuGMTExtendedCand> cands;
   std::vector<L1MuGMTExtendedCand>::const_iterator it;
-  for(it = m_ForwardCands.begin(); it != m_ForwardCands.end(); it++) {
+  for(it = m_ForwardCands.begin(); it != m_ForwardCands.end(); ++it) {
     if((*it).getDataWord()!=0) cands.push_back(*it);
   }
 

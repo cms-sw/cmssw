@@ -47,7 +47,7 @@ const GenParticle* GenJet::getGenConstituent (unsigned fIndex) const {
   // no direct access, have to iterate for now
   int index (fIndex);
   Candidate::const_iterator daugh = begin ();
-  for (; --index >= 0 && daugh != end (); daugh++) {}
+  for (; --index >= 0 && daugh != end (); ++daugh) {}
   if (daugh != end ()) { // in range
     const Candidate* constituent = &*daugh; // deref
     return genParticle (constituent);

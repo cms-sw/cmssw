@@ -57,7 +57,7 @@ std::ostream& operator<<(std::ostream& s, const L1DataEmulRecord& cand) {
   s<< std::flush;
   L1DataEmulRecord::L1DEDigiCollection::const_iterator it;
   std::vector<L1DataEmulDigi> dgcoll = cand.getColl();
-  for(it = dgcoll.begin(); it != dgcoll.end(); it++ )
+  for(it = dgcoll.begin(); it != dgcoll.end(); ++it )
     s << "\n\t" << *it;
   s << cand.getGlt();
   return s;

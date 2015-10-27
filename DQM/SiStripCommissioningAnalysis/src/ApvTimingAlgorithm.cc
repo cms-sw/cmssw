@@ -39,7 +39,7 @@ void ApvTimingAlgorithm::extract( const std::vector<TH1*>& histos ) {
   
   // Extract histograms
   std::vector<TH1*>::const_iterator ihis = histos.begin();
-  for ( ; ihis != histos.end(); ihis++ ) {
+  for ( ; ihis != histos.end(); ++ihis ) {
     
     // Check for NULL pointer
     if ( !(*ihis) ) { continue; }
@@ -237,7 +237,7 @@ void ApvTimingAlgorithm::analyse() {
     }
     */
 
-    iter++; // next candidate
+    ++iter; // next candidate
     
   }
 
@@ -331,7 +331,7 @@ void ApvTimingAlgorithm::analyse() {
 	anal->addErrorCode(sistrip::rejectedCandidate_);
       }
       
-      iter_r++; // next candidate
+      ++iter_r; // next candidate
       
     }
   } //End tick mark recovery

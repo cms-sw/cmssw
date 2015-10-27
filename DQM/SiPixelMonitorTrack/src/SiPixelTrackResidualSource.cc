@@ -109,7 +109,7 @@ SiPixelTrackResidualSource::~SiPixelTrackResidualSource() {
   LogInfo("PixelDQM") << "SiPixelTrackResidualSource destructor" << endl;
 
   std::map<uint32_t,SiPixelTrackResidualModule*>::iterator struct_iter;
-  for (struct_iter = theSiPixelStructure.begin() ; struct_iter != theSiPixelStructure.end() ; struct_iter++){
+  for (struct_iter = theSiPixelStructure.begin() ; struct_iter != theSiPixelStructure.end() ; ++struct_iter){
     delete struct_iter->second;
     struct_iter->second = 0;
   }
@@ -128,7 +128,7 @@ void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run& r, edm::EventSetup 
 
   // build theSiPixelStructure with the pixel barrel and endcap dets from TrackerGeometry
   for (TrackerGeometry::DetContainer::const_iterator pxb = TG->detsPXB().begin();  
-       pxb!=TG->detsPXB().end(); pxb++) {
+       pxb!=TG->detsPXB().end(); ++pxb) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*pxb))!=0) {
       SiPixelTrackResidualModule* module = new SiPixelTrackResidualModule((*pxb)->geographicalId().rawId());
       theSiPixelStructure.insert(pair<uint32_t, SiPixelTrackResidualModule*>((*pxb)->geographicalId().rawId(), module));
@@ -138,7 +138,7 @@ void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run& r, edm::EventSetup 
     }
   }
   for (TrackerGeometry::DetContainer::const_iterator pxf = TG->detsPXF().begin(); 
-       pxf!=TG->detsPXF().end(); pxf++) {
+       pxf!=TG->detsPXF().end(); ++pxf) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*pxf))!=0) {
       SiPixelTrackResidualModule* module = new SiPixelTrackResidualModule((*pxf)->geographicalId().rawId());
       theSiPixelStructure.insert(pair<uint32_t, SiPixelTrackResidualModule*>((*pxf)->geographicalId().rawId(), module));
@@ -171,7 +171,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
   }
 
   for (std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.begin(); 
-       pxd!=theSiPixelStructure.end(); pxd++){
+       pxd!=theSiPixelStructure.end(); ++pxd){
    
     if(modOn){
       if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,0,isUpgrade)) (*pxd).second->book(pSet_,iSetup,iBooker,reducedSet,0,isUpgrade);
@@ -914,7 +914,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
     std::vector<TrajectoryMeasurement> tmeasColl =traj_iterator->measurements();
     std::vector<TrajectoryMeasurement>::const_iterator tmeasIt;
     //loop on measurements to find out whether there are bpix and/or fpix hits
-    for(tmeasIt = tmeasColl.begin();tmeasIt!=tmeasColl.end();tmeasIt++){
+    for(tmeasIt = tmeasColl.begin();tmeasIt!=tmeasColl.end();++tmeasIt){
       if(! tmeasIt->updatedState().isValid()) continue; 
       TransientTrackingRecHit::ConstRecHitPointer testhit = tmeasIt->recHit();
       if(! testhit->isValid() || testhit->geographicalId().det() != DetId::Tracker) continue; 
@@ -936,7 +936,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
       if(crossesPixVol) meNofTracksInPixVol_->Fill(0,1);
 
       std::vector<TrajectoryMeasurement> tmeasColl = traj_iterator->measurements();
-      for(std::vector<TrajectoryMeasurement>::const_iterator tmeasIt = tmeasColl.begin(); tmeasIt!=tmeasColl.end(); tmeasIt++){   
+      for(std::vector<TrajectoryMeasurement>::const_iterator tmeasIt = tmeasColl.begin(); tmeasIt!=tmeasColl.end(); ++tmeasIt){   
 	if(! tmeasIt->updatedState().isValid()) continue; 
 	
 	TrajectoryStateOnSurface tsos = tsoscomb( tmeasIt->forwardPredictedState(), tmeasIt->backwardPredictedState() );
@@ -1104,7 +1104,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   //edmNew::DetSet<SiPixelCluster>::const_iterator  di;
   if(debug_) std::cout << "clusters not on track: (size " << clustColl.size() << ") ";
 
-  for(TrackerGeometry::DetContainer::const_iterator it = TG->dets().begin(); it != TG->dets().end(); it++){
+  for(TrackerGeometry::DetContainer::const_iterator it = TG->dets().begin(); it != TG->dets().end(); ++it){
     //if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=0){
     DetId detId = (*it)->geographicalId();
     if(detId>=302055684 && detId<=352477708){ // make sure it's a Pixel module WITHOUT using dynamic_cast!  
@@ -1113,7 +1113,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
       edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch = clustColl.find(detId);
       if( isearch != clustColl.end() ) {  // Not an empty iterator
 	edmNew::DetSet<SiPixelCluster>::const_iterator  di;
-	for(di=isearch->begin(); di!=isearch->end(); di++){
+	for(di=isearch->begin(); di!=isearch->end(); ++di){
 	  unsigned int temp = clusterSet.size();
 	  clusterSet.insert(*di);
 	  //check if cluster is off track

@@ -81,7 +81,7 @@ void SiStripInformationExtractor::printSummaryHistoList(DQMStore * dqm_store, st
   }
   str_val << "<ul>" << std::endl;      
   for (std::vector<MonitorElement *>::const_iterator it = meVec.begin();
-         it != meVec.end(); it++) {
+         it != meVec.end(); ++it) {
     MonitorElement* me = (*it);
     if (!me) continue;
     std::string name = (*it)->getName();
@@ -92,7 +92,7 @@ void SiStripInformationExtractor::printSummaryHistoList(DQMStore * dqm_store, st
 
   std::string mtag ="Modules: ";  
   for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
-       ic != subDirVec.end(); ic++) {
+       ic != subDirVec.end(); ++ic) {
     dqm_store->cd(*ic);
     std::string titl = (*ic);
     if (titl.find("module_") == 0)  {
@@ -133,7 +133,7 @@ void SiStripInformationExtractor::printAlarmList(DQMStore * dqm_store, std::ostr
   if (dname.find("module_") != std::string::npos) {
     if (meVec.size() > 0) {
       for (std::vector<MonitorElement *>::const_iterator it = meVec.begin();
-	   it != meVec.end(); it++) {
+	   it != meVec.end(); ++it) {
         MonitorElement * me = (*it);
 	if (!me) continue;
         std::vector<QReport*> q_reports = me->getQReports();
@@ -150,7 +150,7 @@ void SiStripInformationExtractor::printAlarmList(DQMStore * dqm_store, std::ostr
     }
   }
   for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
-       ic != subDirVec.end(); ic++) {
+       ic != subDirVec.end(); ++ic) {
     dqm_store->cd(*ic);
     printAlarmList(dqm_store, str_val);
     dqm_store->goUp();
@@ -281,7 +281,7 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
 
   std::ofstream image_file;
   
-  for (std::map<std::string, std::vector< std::string > >::iterator it = layoutMap.begin() ; it != layoutMap.end(); it++) {
+  for (std::map<std::string, std::vector< std::string > >::iterator it = layoutMap.begin() ; it != layoutMap.end(); ++it) {
     unsigned int ival = 0;
     std::string image_list = "images/" + it->first +".lis";
     image_file.open(image_list.c_str(), std::ios::out);
@@ -289,7 +289,7 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
 
     image_file << "[";
     for (std::vector<std::string>::iterator im = it->second.begin(); 
-	 im != it->second.end(); im++) {  
+	 im != it->second.end(); ++im) {  
       std::string path_name = (*im);
       if (path_name.size() == 0) continue;
       MonitorElement* me = dqm_store->get(path_name);
@@ -595,7 +595,7 @@ void SiStripInformationExtractor::readAlarmTree(DQMStore* dqm_store,
 void SiStripInformationExtractor::getItemList(const std::multimap<std::string, std::string>& req_map, std::string item_name,std::vector<std::string>& items) {
   items.clear();
   for (std::multimap<std::string, std::string>::const_iterator it = req_map.begin();
-       it != req_map.end(); it++) {
+       it != req_map.end(); ++it) {
     
     if (it->first == item_name) {
       items.push_back(it->second);
@@ -640,7 +640,7 @@ void SiStripInformationExtractor::selectColor(std::string& col, std::vector<QRep
   int istat = 999;
   int status = 0;
   for (std::vector<QReport*>::const_iterator it = reports.begin(); it != reports.end();
-       it++) {
+       ++it) {
     status = (*it)->getStatus();
     if (status > istat) istat = status;
   }
@@ -663,7 +663,7 @@ void SiStripInformationExtractor::selectImage(std::string& name, std::vector<QRe
   int istat = 999;
   int status = 0;
   for (std::vector<QReport*>::const_iterator it = reports.begin(); it != reports.end();
-       it++) {
+       ++it) {
     status = (*it)->getStatus();
     if (status > istat) istat = status;
   }
@@ -879,7 +879,7 @@ void SiStripInformationExtractor::printNonGeomHistoList(DQMStore * dqm_store, st
   }
   str_val << "<ul>" << std::endl;      
   for (std::vector<MonitorElement *>::const_iterator it = meVec.begin();
-         it != meVec.end(); it++) {
+         it != meVec.end(); ++it) {
     MonitorElement* me = (*it);
     if (!me) continue;
     std::string name = (*it)->getName();
@@ -888,7 +888,7 @@ void SiStripInformationExtractor::printNonGeomHistoList(DQMStore * dqm_store, st
 	    << "')\">" << name << "</a></span></li>" << std::endl;
   }
   for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
-       ic != subDirVec.end(); ic++) {
+       ic != subDirVec.end(); ++ic) {
     dqm_store->cd(*ic);
     printNonGeomHistoList(dqm_store, str_val);
     dqm_store->goUp();

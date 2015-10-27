@@ -36,7 +36,7 @@ SiPixelFakeGainOfflineReader::analyze(const edm::Event& iEvent, const edm::Event
   
   std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationOfflineService_.getDetIds();
   // Loop over DetId's
-  for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){
+  for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();++detid_iter){
     uint32_t detid = *detid_iter;
 
     DetId detIdObject(detid);
@@ -111,7 +111,7 @@ SiPixelFakeGainOfflineReader::beginRun(const edm::Run &run , const edm::EventSet
     std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationOfflineService_.getDetIds();
     //SiPixelGainCalibrationOffline_->getDetIds(vdetId_);
     // Loop over DetId's
-    for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){
+    for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();++detid_iter){
       uint32_t detid = *detid_iter;
       
       const PixelGeomDetUnit* _PixelGeomDetUnit = dynamic_cast<const PixelGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));

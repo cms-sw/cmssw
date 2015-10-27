@@ -124,7 +124,7 @@ namespace ecaldqm
     if((psb.aData(5)&0x3f) >= 1) {valid_phi.push_back( (psb.aData(5)>>10)&0x1f ); }
     if((psb.bData(5)&0x3f) >= 1) {valid_phi.push_back( (psb.bData(5)>>10)&0x1f ); }
     std::vector<int>::const_iterator iphi;
-    for(iphi=valid_phi.begin(); iphi!=valid_phi.end(); iphi++) {
+    for(iphi=valid_phi.begin(); iphi!=valid_phi.end(); ++iphi) {
       if(*iphi<9) hcal_top=true;
       if(*iphi>8) hcal_bot=true;
     }

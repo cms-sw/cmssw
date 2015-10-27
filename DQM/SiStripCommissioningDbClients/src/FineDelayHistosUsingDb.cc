@@ -185,7 +185,7 @@ bool FineDelayHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
   uint16_t updated = 0;
   std::vector<SiStripFecKey> invalid;
   SiStripConfigDb::DeviceDescriptionsV::const_iterator idevice;
-  for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
+  for ( idevice = devices.begin(); idevice != devices.end(); ++idevice ) {
     
     // Check device type
     if ( (*idevice)->getDeviceType() != PLL ) { continue; }
@@ -289,7 +289,7 @@ void FineDelayHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
   auto ids = cabling()->fedIds() ;
   
   // loop over the FED ids
-  for ( SiStripConfigDb::FedDescriptionsV::const_iterator ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
+  for ( SiStripConfigDb::FedDescriptionsV::const_iterator ifed = feds.begin(); ifed != feds.end(); ++ifed ) {
     // If FED id not found in list (from cabling), then continue
     if ( find( ids.begin(), ids.end(), (*ifed)->getFedId() ) == ids.end() ) { continue; }
     auto conns = cabling()->fedConnections((*ifed)->getFedId());

@@ -318,7 +318,7 @@ void L1Scalers::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
         std::vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
 
         for (RRItr = gmt_records.begin(); RRItr != gmt_records.end();
-             RRItr++) {  // loop from BX=-2 to BX=2
+             ++RRItr) {  // loop from BX=-2 to BX=2
           std::vector<L1MuRegionalCand> INPCands[4] = {
               RRItr->getDTBXCands(), RRItr->getBrlRPCCands(),
               RRItr->getCSCCands(), RRItr->getFwdRPCCands()};

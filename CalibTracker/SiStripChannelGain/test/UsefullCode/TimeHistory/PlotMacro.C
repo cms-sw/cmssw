@@ -115,7 +115,7 @@ void PlotMacro(){
    printf("%10s --> ", "LumiMin");for(unsigned int i=0;i<runRanges.size();i++){printf("%6.2f ", getLumiFromRun(runRanges[i].first) );}printf("\n");
    printf("%10s --> ", "LumiMax");for(unsigned int i=0;i<runRanges.size();i++){printf("%6.2f ", getLumiFromRun(runRanges[i].second) );}printf("\n");
    printf("%10s     ", "-------");for(unsigned int i=0;i<runRanges.size();i++){printf("%06s-" , "------"           );}printf("\n");
-   for(std::map<unsigned int, string>::iterator it=resultVec[0].LayerName.begin(); it!=resultVec[0].LayerName.end();it++){
+   for(std::map<unsigned int, string>::iterator it=resultVec[0].LayerName.begin(); it!=resultVec[0].LayerName.end();++it){
       TGraphErrors* graph = new TGraphErrors(runRanges.size());
  
       printf("%10s --> ", it->second.c_str());
@@ -163,7 +163,7 @@ void PlotMacro(){
    L=0;
    frame->Draw("AXIS");
    leg->Clear();
-   for(std::map<string, TGraph*>::iterator it=graphMap.begin(); it!=graphMap.end();it++){
+   for(std::map<string, TGraph*>::iterator it=graphMap.begin(); it!=graphMap.end();++it){
       if(it->first.find("lTIB")==string::npos && it->first.find("lTOB")==string::npos)continue;
       it->second->SetLineColor(colorTIBTOB[L]);
       it->second->SetLineWidth(2);
@@ -179,7 +179,7 @@ void PlotMacro(){
    L=0;
    frame->Draw("AXIS");
    leg->Clear();
-   for(std::map<string, TGraph*>::iterator it=graphMap.begin(); it!=graphMap.end();it++){
+   for(std::map<string, TGraph*>::iterator it=graphMap.begin(); it!=graphMap.end();++it){
       if(it->first.find("wTID+")==string::npos && it->first.find("wTEC+")==string::npos)continue;
       it->second->SetLineColor(colorTIDTEC[L]);
       it->second->SetLineWidth(2);
@@ -194,7 +194,7 @@ void PlotMacro(){
    L=0;
    frame->Draw("AXIS");
    leg->Clear();
-   for(std::map<string, TGraph*>::iterator it=graphMap.begin(); it!=graphMap.end();it++){
+   for(std::map<string, TGraph*>::iterator it=graphMap.begin(); it!=graphMap.end();++it){
       if(it->first.find("wTID-")==string::npos && it->first.find("wTEC-")==string::npos)continue;
       it->second->SetLineColor(colorTIDTEC[L]);
       it->second->SetLineWidth(2);
@@ -210,7 +210,7 @@ void PlotMacro(){
    L=0;
    frame->Draw("AXIS");
    leg->Clear();
-   for(std::map<string, TGraph*>::iterator it=graphMap.begin(); it!=graphMap.end();it++){
+   for(std::map<string, TGraph*>::iterator it=graphMap.begin(); it!=graphMap.end();++it){
       if(it->first.find("rTID+")==string::npos && it->first.find("rTEC+")==string::npos)continue;
       it->second->SetLineColor(colorTIDTECr[L]);
       it->second->SetLineWidth(2);
@@ -225,7 +225,7 @@ void PlotMacro(){
    L=0;
    frame->Draw("AXIS"); 
    leg->Clear(); 
-   for(std::map<string, TGraph*>::iterator it=graphMap.begin(); it!=graphMap.end();it++){
+   for(std::map<string, TGraph*>::iterator it=graphMap.begin(); it!=graphMap.end();++it){
       if(it->first.find("rTID-")==string::npos && it->first.find("rTEC-")==string::npos)continue;
       it->second->SetLineColor(colorTIDTECr[L]);
       it->second->SetLineWidth(2);
@@ -473,7 +473,7 @@ void GetAverageGain(string input, string moduleName, stLayerData& layerData )
       }
    }
 
-   for(std::map<unsigned int, double>::iterator it=layerData.LayerGain.begin(); it!=layerData.LayerGain.end();it++){
+   for(std::map<unsigned int, double>::iterator it=layerData.LayerGain.begin(); it!=layerData.LayerGain.end();++it){
       layerData.LayerGainErr[it->first] = sqrt((layerData.LayerGainErr[it->first] - (pow(layerData.LayerGain[it->first],2) / layerData.LayerN[it->first])) / (layerData.LayerN[it->first] - 1) );
       layerData.LayerGain[it->first] /= layerData.LayerN[it->first];
    }

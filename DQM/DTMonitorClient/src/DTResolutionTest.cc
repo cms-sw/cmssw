@@ -110,20 +110,20 @@ DTResolutionTest::~DTResolutionTest(){
 
   for(map<int, MonitorElement*> ::const_iterator histo = wheelMeanHistos.begin();
       histo != wheelMeanHistos.end();
-      histo++) {
+      ++histo) {
     (*histo).second->Reset();
   }
   if(parameters.getUntrackedParameter<bool>("sigmaTest")){
     for(map<int, MonitorElement*> ::const_iterator histo = wheelSigmaHistos.begin();
 	histo != wheelSigmaHistos.end();
-	histo++) {
+	++histo) {
       (*histo).second->Reset();
     }
   }
   if(parameters.getUntrackedParameter<bool>("slopeTest")){
     for(map<int, MonitorElement*> ::const_iterator histo = wheelSlopeHistos.begin();
 	histo != wheelSlopeHistos.end();
-	histo++) {
+	++histo) {
       (*histo).second->Reset();
     }
   }
@@ -269,7 +269,7 @@ DTResolutionTest::~DTResolutionTest(){
   string MeanCriterionName = parameters.getUntrackedParameter<string>("meanTestName","ResidualsMeanInRange"); 
   for(map<pair<int,int>, MonitorElement*>::const_iterator hMean = MeanHistos.begin();
       hMean != MeanHistos.end();
-      hMean++) {
+      ++hMean) {
     const QReport * theMeanQReport = (*hMean).second->getQReport(MeanCriterionName);
     stringstream wheel; wheel << (*hMean).first.first;
     stringstream sector; sector << (*hMean).first.second;
@@ -277,7 +277,7 @@ DTResolutionTest::~DTResolutionTest(){
     if(theMeanQReport) { 
       vector<dqm::me_util::Channel> badChannels = theMeanQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	   channel != badChannels.end(); channel++) {
+	   channel != badChannels.end(); ++channel) {
 	edm::LogError("resolution") << "Bad mean channel: wh: " << wheel.str()
 				     << " st: " << stationFromBin((*channel).getBin())
 				     << " sect: " <<sector.str()
@@ -316,14 +316,14 @@ DTResolutionTest::~DTResolutionTest(){
     string SigmaCriterionName = parameters.getUntrackedParameter<string>("sigmaTestName","ResidualsSigmaInRange"); 
     for(map<pair<int,int>, MonitorElement*>::const_iterator hSigma = SigmaHistos.begin();
 	hSigma != SigmaHistos.end();
-	hSigma++) {
+	++hSigma) {
       const QReport * theSigmaQReport = (*hSigma).second->getQReport(SigmaCriterionName);
       stringstream wheel; wheel << (*hSigma).first.first;
       stringstream sector; sector << (*hSigma).first.second;
       if(theSigmaQReport) {
 	vector<dqm::me_util::Channel> badChannels = theSigmaQReport->getBadChannels();
 	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	     channel != badChannels.end(); channel++) {
+	     channel != badChannels.end(); ++channel) {
 	  edm::LogError("resolution") << "Bad sigma: wh: " << wheel.str()
 				      << " st: " << stationFromBin((*channel).getBin())
 				      << " sect: " <<sector.str()
@@ -356,14 +356,14 @@ DTResolutionTest::~DTResolutionTest(){
     string SlopeCriterionName = parameters.getUntrackedParameter<string>("slopeTestName","ResidualsSlopeInRange"); 
     for(map<pair<int,int>, MonitorElement*>::const_iterator hSlope = SlopeHistos.begin();
 	hSlope != SlopeHistos.end();
-	hSlope++) {
+	++hSlope) {
       const QReport * theSlopeQReport = (*hSlope).second->getQReport(SlopeCriterionName);
       stringstream wheel; wheel << (*hSlope).first.first;
       stringstream sector; sector << (*hSlope).first.second;
       if(theSlopeQReport) {
 	vector<dqm::me_util::Channel> badChannels = theSlopeQReport->getBadChannels();
 	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	     channel != badChannels.end(); channel++) {
+	     channel != badChannels.end(); ++channel) {
 	  edm::LogError("resolution") << "Bad slope: wh: " << wheel.str()
 				      << " st: " << stationFromBin((*channel).getBin())
 				      << " sect: " <<sector.str()

@@ -131,7 +131,7 @@ math::XYZTLorentzVectorD Vertex::p4(float mass,float minWeight) const
  else
  {
  for(std::vector<reco::TrackBaseRef>::const_iterator iter = tracks_begin();
-            iter != tracks_end(); iter++) {
+            iter != tracks_end(); ++iter) {
   if (trackWeight(*iter) >=minWeight) {
    vec.SetPx((*iter)->px());
    vec.SetPy((*iter)->py());
@@ -154,7 +154,7 @@ unsigned int Vertex::nTracks(float minWeight) const
  }
  else
  {
-  for(std::vector<reco::TrackBaseRef>::const_iterator iter = tracks_begin(); iter != tracks_end(); iter++) 
+  for(std::vector<reco::TrackBaseRef>::const_iterator iter = tracks_begin(); iter != tracks_end(); ++iter) 
    if (trackWeight(*iter) >=minWeight) 
     n++;  
  } 

@@ -765,7 +765,7 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdLi
     //Extra check:
     //Should check if there any HVUnmapped channels in the map that are not listed in the local file!
     bool MissingChannels=false;
-    for (std::map<std::string, vector<uint32_t> >::iterator it=UnmappedPSUs.begin(); it!=UnmappedPSUs.end(); it++) {
+    for (std::map<std::string, vector<uint32_t> >::iterator it=UnmappedPSUs.begin(); it!=UnmappedPSUs.end(); ++it) {
       std::string chan002=it->first+"channel002";
       std::string chan003=it->first+"channel003";
       std::map<std::string,bool>::iterator iter=UnmappedState.find(chan002);
@@ -789,7 +789,7 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdLi
   }
   else { //If the file HVUnmappedChannelState.dat does not exist, initialize the map to all OFF. 
     //(see below for creating the file at the end of the execution with the latest state of unmapped channels. 
-    for (std::map<std::string, vector<uint32_t> >::iterator it=UnmappedPSUs.begin(); it!=UnmappedPSUs.end(); it++) {
+    for (std::map<std::string, vector<uint32_t> >::iterator it=UnmappedPSUs.begin(); it!=UnmappedPSUs.end(); ++it) {
       std::string chan002=it->first+"channel002";
       std::string chan003=it->first+"channel003";
       UnmappedState[chan002]=false;
@@ -826,7 +826,7 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdLi
     //Extra check:
     //Should check if there any HVCrosstalking channels in the map that are not listed in the local file!
     bool MissingChannels=false;
-    for (std::map<std::string, vector<uint32_t> >::iterator it=CrosstalkingPSUs.begin(); it!=CrosstalkingPSUs.end(); it++) {
+    for (std::map<std::string, vector<uint32_t> >::iterator it=CrosstalkingPSUs.begin(); it!=CrosstalkingPSUs.end(); ++it) {
       std::string chan002=it->first+"channel002";
       std::string chan003=it->first+"channel003";
       std::map<std::string,bool>::iterator iter=CrosstalkingState.find(chan002);
@@ -850,7 +850,7 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdLi
   }
   else { //If the file HVCrosstalkingChannelState.dat does not exist, initialize the map to all OFF. 
     //(see below for creating the file at the end of the execution with the latest state of unmapped channels. 
-    for (std::map<std::string, vector<uint32_t> >::iterator it=CrosstalkingPSUs.begin(); it!=CrosstalkingPSUs.end(); it++) {
+    for (std::map<std::string, vector<uint32_t> >::iterator it=CrosstalkingPSUs.begin(); it!=CrosstalkingPSUs.end(); ++it) {
       std::string chan002=it->first+"channel002";
       std::string chan003=it->first+"channel003";
       CrosstalkingState[chan002]=false;
@@ -862,13 +862,13 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdLi
     //print out the UnmappedState map:
     std::cout<<"Printing the UnmappedChannelState initial map:"<<std::endl;
     std::cout<<"PSUChannel\t\tHVON?(true or false)"<<std::endl;
-    for (std::map<std::string,bool>::iterator it=UnmappedState.begin(); it!=UnmappedState.end(); it++) {
+    for (std::map<std::string,bool>::iterator it=UnmappedState.begin(); it!=UnmappedState.end(); ++it) {
       std::cout<<it->first<<"\t\t"<<it->second<<std::endl;
     }
     //print out the CrosstalkingState map:
     std::cout<<"Printing the CrosstalkingChannelState initial map:"<<std::endl;
     std::cout<<"PSUChannel\t\tHVON?(true or false)"<<std::endl;
-    for (std::map<std::string,bool>::iterator it=CrosstalkingState.begin(); it!=CrosstalkingState.end(); it++) {
+    for (std::map<std::string,bool>::iterator it=CrosstalkingState.begin(); it!=CrosstalkingState.end(); ++it) {
       std::cout<<it->first<<"\t\t"<<it->second<<std::endl;
     }
   }
@@ -1136,11 +1136,11 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdLi
   }//End of the loop over all PSUChannels reported by the DB query.
   //At this point we need to (over)write the 2 files that will keep the HVUnmapped and HVCrosstalking channels status:
   std::ofstream ofsUnmapped("HVUnmappedChannelState.dat");
-  for (std::map<std::string,bool>::iterator it=UnmappedState.begin(); it!=UnmappedState.end(); it++) {
+  for (std::map<std::string,bool>::iterator it=UnmappedState.begin(); it!=UnmappedState.end(); ++it) {
     ofsUnmapped<<it->first<<"\t"<<it->second<<std::endl;
   }
   std::ofstream ofsCrosstalking("HVCrosstalkingChannelState.dat");
-  for (std::map<std::string,bool>::iterator it=CrosstalkingState.begin(); it!=CrosstalkingState.end(); it++) {
+  for (std::map<std::string,bool>::iterator it=CrosstalkingState.begin(); it!=CrosstalkingState.end(); ++it) {
     ofsCrosstalking<<it->first<<"\t"<<it->second<<std::endl;
   }
 

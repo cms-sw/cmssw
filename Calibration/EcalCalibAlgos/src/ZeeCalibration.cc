@@ -950,7 +950,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
 
 #ifdef DEBUG
   std::cout<<"scCollection->size()"<<scCollection->size()<<std::endl;
-  for(reco::SuperClusterCollection::const_iterator scIt = scCollection->begin();   scIt != scCollection->end(); scIt++)
+  for(reco::SuperClusterCollection::const_iterator scIt = scCollection->begin();   scIt != scCollection->end();++scIt)
     {
       std::cout<<scIt->energy()<<std::endl;
     }
@@ -2179,7 +2179,7 @@ std::pair<DetId, double> ZeeCalibration::getHottestDetId(const std::vector<std::
   std::pair<DetId, double> myPair (DetId(0), -9999.);
 
 
-  for(   std::vector<std::pair<DetId,float> >::const_iterator idIt=mySCRecHits.begin(); idIt != mySCRecHits.end(); idIt++){
+  for(   std::vector<std::pair<DetId,float> >::const_iterator idIt=mySCRecHits.begin(); idIt != mySCRecHits.end();++idIt){
    
     if (idIt->first.subdetId() == EcalBarrel )
       {

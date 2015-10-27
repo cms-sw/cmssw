@@ -258,7 +258,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   for(int i=0; i!=4; i++) nDigisPerDisk[i]=0;  
   int NzeroROCs[2]        = {0,-672};
   int NloEffROCs[2]       = {0,-672};
-  for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
+  for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; ++struct_iter) {
     int numberOfDigisMod = (*struct_iter).second->fill(*input, iSetup,
 						       meNDigisCOMBBarrel_, meNDigisCHANBarrel_,meNDigisCHANBarrelLs_,meNDigisCOMBEndcap_,
 						       modOn, ladOn, layOn, phiOn, 
@@ -596,7 +596,7 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
   LogVerbatim ("PixelDQM") << " *** I have " << pDD->dets().size() <<" detectors"<<std::endl;
   LogVerbatim ("PixelDQM") << " *** I have " << pDD->detTypes().size() <<" types"<<std::endl;
   
-  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); ++it){
     
     if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=0){
 
@@ -709,7 +709,7 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker, const edm::EventSet
  
   SiPixelFolderOrganizer theSiPixelFolder(false);
 
-  for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++){
+  for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); ++struct_iter){
     /// Create folder tree and book histograms 
     if(modOn){
       if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,0,isUpgrade)){

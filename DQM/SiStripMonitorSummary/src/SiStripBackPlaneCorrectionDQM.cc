@@ -30,7 +30,7 @@ void SiStripBackPlaneCorrectionDQM::getActiveDetIds(const edm::EventSetup & eSet
   std::map<uint32_t,float> BPMap_ = bpcorrectionHandle_->getBackPlaneCorrections();
 
   for( BPMapIter_ = BPMap_.begin();
-       BPMapIter_!= BPMap_.end(); BPMapIter_++){
+       BPMapIter_!= BPMap_.end(); ++BPMapIter_){
 
     activeDetIds.push_back((*BPMapIter_).first);
   }
@@ -71,7 +71,7 @@ void SiStripBackPlaneCorrectionDQM::fillSummaryMEs(const std::vector<uint32_t> &
     } 
   }
 
-  for (std::map<uint32_t, ModMEs>::iterator iter=SummaryMEsMap_.begin(); iter!=SummaryMEsMap_.end(); iter++){
+  for (std::map<uint32_t, ModMEs>::iterator iter=SummaryMEsMap_.begin(); iter!=SummaryMEsMap_.end(); ++iter){
 
     ModMEs selME;
     selME = iter->second;

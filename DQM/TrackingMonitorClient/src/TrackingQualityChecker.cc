@@ -108,7 +108,7 @@ void TrackingQualityChecker::bookGlobalStatus(DQMStore::IBooker & ibooker, DQMSt
     ibooker.setCurrentFolder(TopFolderName_+"/EventInfo/reportSummaryContents");  
 
     for (std::map<std::string, TrackingMEs>::iterator it = TrackingMEsMap.begin();
-         it != TrackingMEsMap.end(); it++) {
+         it != TrackingMEsMap.end(); ++it) {
       std::string meQTname = it->first;
       it->second.TrackingFlag = ibooker.bookFloat("Track"+meQTname);
       if (verbose_) std::cout << "[TrackingQualityChecker::bookGlobalStatus] " << it->first << " exists ? " << it->second.TrackingFlag << std::endl;      
@@ -146,7 +146,7 @@ void TrackingQualityChecker::bookLSStatus(DQMStore::IBooker & ibooker, DQMStore:
 
     ibooker.setCurrentFolder(TopFolderName_+"/EventInfo/reportSummaryContents");  
     for (std::map<std::string, TrackingLSMEs>::iterator it = TrackingLSMEsMap.begin();
-         it != TrackingLSMEsMap.end(); it++) {
+         it != TrackingLSMEsMap.end(); ++it) {
       std::string meQTname = it->first;
       it->second.TrackingFlag = ibooker.bookFloat("Track"+meQTname);
       if (verbose_) std::cout << "[TrackingQualityChecker::bookLSStatus] " << it->first << " exists ? " << it->second.TrackingFlag << std::endl;      
@@ -175,7 +175,7 @@ void TrackingQualityChecker::fillDummyGlobalStatus(){
     }
 
     for (std::map<std::string, TrackingMEs>::iterator it = TrackingMEsMap.begin();
-         it != TrackingMEsMap.end(); it++)
+         it != TrackingMEsMap.end(); ++it)
       it->second.TrackingFlag->Fill(-1.0);
     if (verbose_) std::cout << "[TrackingQualityChecker::fillDummyGlobalStatus] DONE w/ TrackingMEsMap" << std::endl;
 
@@ -190,7 +190,7 @@ void TrackingQualityChecker::fillDummyLSStatus(){
 
     TrackLSSummaryReportGlobal->Fill(-1.0);
     for (std::map<std::string, TrackingLSMEs>::iterator it = TrackingLSMEsMap.begin();
-         it != TrackingLSMEsMap.end(); it++)
+         it != TrackingLSMEsMap.end(); ++it)
       it->second.TrackingFlag->Fill(-1.0);
     if (verbose_) std::cout << "[TrackingQualityChecker::fillDummyLSStatus] DONE w/ TrackingLSMEsMap" << std::endl;
 
@@ -209,7 +209,7 @@ void TrackingQualityChecker::resetGlobalStatus() {
     TrackGlobalSummaryReportMap    -> Reset();
 
     for (std::map<std::string, TrackingMEs>::iterator it = TrackingMEsMap.begin();
-         it != TrackingMEsMap.end(); it++) {
+         it != TrackingMEsMap.end(); ++it) {
       MonitorElement* me = it->second.TrackingFlag;
       if (verbose_) std::cout << "[TrackingQualityChecker::resetGlobalStatus] " << it->second.HistoName << " exist ? " << ( it->second.TrackingFlag == NULL ? "nope" : "yes" ) << " ---> " << me << std::endl;      
       me->Reset();
@@ -225,7 +225,7 @@ void TrackingQualityChecker::resetLSStatus() {
 
     TrackLSSummaryReportGlobal -> Reset();
     for (std::map<std::string, TrackingLSMEs>::iterator it = TrackingLSMEsMap.begin();
-         it != TrackingLSMEsMap.end(); it++) {
+         it != TrackingLSMEsMap.end(); ++it) {
       MonitorElement* me = it->second.TrackingFlag;
       if (verbose_) std::cout << "[TrackingQualityChecker::resetLSStatus] " << it->second.HistoLSName << " exist ? " << ( it->second.TrackingFlag == NULL ? "nope" : "yes" ) << " ---> " << me << std::endl;      
       me->Reset();
@@ -273,7 +273,7 @@ void TrackingQualityChecker::fillTrackingStatus(DQMStore::IBooker & ibooker, DQM
     
   int ibin = 0;
   for (std::map<std::string, TrackingMEs>::iterator it = TrackingMEsMap.begin();
-       it != TrackingMEsMap.end(); it++) {
+       it != TrackingMEsMap.end(); ++it) {
 
     if (verbose_) std::cout << "[TrackingQualityChecker::fillTrackingStatus] ME: " << it->first << " [" << it->second.TrackingFlag->getFullname() << "] flag: " << it->second.TrackingFlag->getFloatValue() << std::endl;
 
@@ -409,7 +409,7 @@ void TrackingQualityChecker::fillTrackingStatusAtLumi(DQMStore::IBooker & ibooke
 
   int ibin = 0;
   for (std::map<std::string, TrackingLSMEs>::iterator it = TrackingLSMEsMap.begin();
-       it != TrackingLSMEsMap.end(); it++) {
+       it != TrackingLSMEsMap.end(); ++it) {
     
     if (verbose_) std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] ME: " << it->first << " [" << it->second.TrackingFlag->getFullname() << "] flag: " << it->second.TrackingFlag->getFloatValue() << std::endl;
 

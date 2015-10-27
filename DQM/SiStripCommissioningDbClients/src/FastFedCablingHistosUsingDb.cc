@@ -206,7 +206,7 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange 
   std::map< uint16_t, std::vector<uint16_t> > enabled;
 
   // Iterate through feds and enable connected channels
-  for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
+  for ( ifed = feds.begin(); ifed != feds.end(); ++ifed ) {
     for ( uint16_t ichan = 0; ichan < sistrip::FEDCH_PER_FED; ichan++ ) {
       
       // Retrieve FEC key from FED-FEC map
@@ -268,7 +268,7 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange 
      << " Dump of enabled FED channels:" 
      << std::endl;
   std::map< uint16_t, std::vector<uint16_t> >::const_iterator fed = enabled.begin();
-  for ( ; fed != enabled.end(); fed++ ) {
+  for ( ; fed != enabled.end(); ++fed ) {
     ss << " Enabled " << fed->second.size()
        << " channels for FED id " 
        << std::setw(3) << fed->first << ": ";
@@ -276,7 +276,7 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange 
       uint16_t first = fed->second.front();
       uint16_t last = fed->second.front();
       std::vector<uint16_t>::const_iterator chan = fed->second.begin();
-      for ( ; chan != fed->second.end(); chan++ ) { 
+      for ( ; chan != fed->second.end(); ++chan ) { 
 	if ( chan != fed->second.begin() ) {
 	  if ( *chan != last+1 ) { 
 	    ss << std::setw(2) << first << "->" << std::setw(2) << last << ", ";
@@ -363,7 +363,7 @@ void FastFedCablingHistosUsingDb::addDcuDetIds() {
 	  }
 	}
       }
-      idcu++;
+      ++idcu;
     }
 
   }

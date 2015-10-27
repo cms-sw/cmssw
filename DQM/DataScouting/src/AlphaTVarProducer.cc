@@ -57,7 +57,7 @@ AlphaTVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (calojet_handle.isValid()){
      std::vector<TLorentzVector> myJets;
      reco::CaloJetCollection::const_iterator jetIt;
-     for(jetIt = calojet_handle->begin(); jetIt != calojet_handle->end(); jetIt++){
+     for(jetIt = calojet_handle->begin(); jetIt != calojet_handle->end(); ++jetIt){
        TLorentzVector j; j.SetPtEtaPhiE(jetIt->pt(),jetIt->eta(), jetIt->phi(), jetIt->energy());
        myJets.push_back(j);
      }
@@ -99,7 +99,7 @@ double AlphaTVarProducer::deltaHt(const std::vector<double>& ETs) {
 			diff[i] += ETs[j] * ( 1 - 2 * (int(i>>j)&1) ) ;
 	std::vector<double>::const_iterator it;
 	double min=9999999;
-	for(it = diff.begin(); it !=diff.end(); it++) if(*it<min) min = *it;
+	for(it = diff.begin(); it !=diff.end(); ++it) if(*it<min) min = *it;
 	return min;
 }
 

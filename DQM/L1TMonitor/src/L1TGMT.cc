@@ -69,7 +69,7 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
   // loop over records of individual bx's
   vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
   
-  for( RRItr = gmt_records.begin(); RRItr != gmt_records.end(); RRItr++ ) 
+  for( RRItr = gmt_records.begin(); RRItr != gmt_records.end(); ++RRItr ) 
   {
     
     vector<L1MuRegionalCand> INPCands[4] = {

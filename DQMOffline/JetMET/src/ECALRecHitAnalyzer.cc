@@ -218,7 +218,7 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   const CaloSubdetectorGeometry* EBgeom=cG.getSubdetectorGeometry(DetId::Ecal,1);
   int n=0;
   std::vector<DetId> EBids=EBgeom->getValidDetIds(DetId::Ecal, 1);
-  for (std::vector<DetId>::iterator i=EBids.begin(); i!=EBids.end(); i++) {
+  for (std::vector<DetId>::iterator i=EBids.begin(); i!=EBids.end(); ++i) {
     n++;
     const CaloCellGeometry* cell=EBgeom->getGeometry(*i);
     //GlobalPoint p = cell->getPosition();
@@ -242,7 +242,7 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   const CaloSubdetectorGeometry* EEgeom=cG.getSubdetectorGeometry(DetId::Ecal,2);
   n=0;
   std::vector<DetId> EEids=EEgeom->getValidDetIds(DetId::Ecal, 2);
-  for (std::vector<DetId>::iterator i=EEids.begin(); i!=EEids.end(); i++) {
+  for (std::vector<DetId>::iterator i=EEids.begin(); i!=EEids.end(); ++i) {
     n++;
     const CaloCellGeometry* cell=EEgeom->getGeometry(*i);
     //GlobalPoint p = cell->getPosition();
@@ -359,7 +359,7 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
   EBRecHitCollection::const_iterator ebrechit;
   //int nEBrechit = 0;
 
-  for (ebrechit = EBRecHits->begin(); ebrechit != EBRecHits->end(); ebrechit++) {
+  for (ebrechit = EBRecHits->begin(); ebrechit != EBRecHits->end(); ++ebrechit) {
     
     EBDetId det = ebrechit->id();
     double Energy = ebrechit->energy();
@@ -446,7 +446,7 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
   edm::LogInfo("OutputInfo") << "Looping over EE" << std::endl;
   EERecHitCollection::const_iterator eerechit;
   //int nEErechit = 0;
-  for (eerechit = EERecHits->begin(); eerechit != EERecHits->end(); eerechit++) {
+  for (eerechit = EERecHits->begin(); eerechit != EERecHits->end(); ++eerechit) {
     
     EEDetId det = eerechit->id();
     double Energy = eerechit->energy();

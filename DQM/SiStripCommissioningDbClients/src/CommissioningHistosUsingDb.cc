@@ -160,7 +160,7 @@ void CommissioningHistosUsingDb::uploadAnalyses() {
         tkStateVector::const_iterator jstate = states.end();
         while ( istate != jstate ) {
           if ( *istate && ip->first == (*istate)->getPartitionName() ) { break; }
-          istate++;
+          ++istate;
         }
         // Set versions if state was found
         if ( istate != states.end() ) {

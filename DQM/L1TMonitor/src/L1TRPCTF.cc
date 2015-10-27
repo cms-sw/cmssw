@@ -239,7 +239,7 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
 
   for( RRItr = gmt_records.begin() ;
        RRItr != gmt_records.end() ;
-       RRItr++ ) 
+       ++RRItr ) 
   {
     
    if (verbose_) cout << "Readout Record " << RRItr->getBxInEvent() << endl;

@@ -774,7 +774,7 @@ void QcdUeDQM::fillChargedJetSpectra(
     const edm::Handle<reco::TrackJetCollection> trackJets) {
   fill1D(hChargedJetMulti_, trackJets->size());
   for (reco::TrackJetCollection::const_iterator f = trackJets->begin();
-       f != trackJets->end(); f++) {
+       f != trackJets->end(); ++f) {
     if (f != trackJets->begin()) continue;
     fill1D(hLeadingChargedJet_pTSpectrum_, f->pt());
     fill1D(hLeadingChargedJet_etaSpectrum_, f->eta());

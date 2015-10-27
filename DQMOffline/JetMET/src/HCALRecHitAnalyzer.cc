@@ -287,7 +287,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   int nHBdetid = 0;
   std::vector<DetId> HBids = HBgeom->getValidDetIds(DetId::Hcal,HcalBarrel);
 
-  for (i = HBids.begin(); i != HBids.end(); i++) {
+  for (i = HBids.begin(); i != HBids.end(); ++i) {
 
     nHBdetid++;
 
@@ -321,7 +321,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   int nHEdetid = 0;
   std::vector<DetId> HEids = HEgeom->getValidDetIds(DetId::Hcal,HcalEndcap);
 
-  for (i = HEids.begin(); i != HEids.end(); i++) {
+  for (i = HEids.begin(); i != HEids.end(); ++i) {
 
     nHEdetid++;
 
@@ -354,7 +354,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   int nHFdetid = 0;
   std::vector<DetId> HFids = HFgeom->getValidDetIds(DetId::Hcal,HcalForward);
 
-  for (i = HFids.begin(); i != HFids.end(); i++) {
+  for (i = HFids.begin(); i != HFids.end(); ++i) {
 
     nHFdetid++;
 
@@ -387,7 +387,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   int nHOdetid = 0;
   std::vector<DetId> HOids = HOgeom->getValidDetIds(DetId::Hcal,HcalOuter);
 
-  for (i = HOids.begin(); i != HOids.end(); i++) {
+  for (i = HOids.begin(); i != HOids.end(); ++i) {
 
     nHOdetid++;
 
@@ -515,7 +515,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   HBHERecHitCollection::const_iterator hbherechit;
   int nHBrechit = 0, nHErechit = 0;
   
-  for (hbherechit = HBHERecHits->begin(); hbherechit != HBHERecHits->end(); hbherechit++) {
+  for (hbherechit = HBHERecHits->begin(); hbherechit != HBHERecHits->end(); ++hbherechit) {
     
     HcalDetId det = hbherechit->id();
     double Energy = hbherechit->energy();
@@ -672,7 +672,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   HORecHitCollection::const_iterator horechit;
   int nHOrechit = 0;
 
-  for (horechit = HORecHits->begin(); horechit != HORecHits->end(); horechit++) {
+  for (horechit = HORecHits->begin(); horechit != HORecHits->end(); ++horechit) {
                                                                                                                                                              
     nHOrechit++;
                                                                                                                                                              
@@ -758,7 +758,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   HFRecHitCollection::const_iterator hfrechit;
   int nHFrechit = 0;
 
-  for (hfrechit = HFRecHits->begin(); hfrechit != HFRecHits->end(); hfrechit++) {
+  for (hfrechit = HFRecHits->begin(); hfrechit != HFRecHits->end(); ++hfrechit) {
                                                                                                                                                              
     nHFrechit++;
                                                                                                                                                              

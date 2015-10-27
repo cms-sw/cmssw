@@ -381,7 +381,7 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
 				     int algoBit, bool fill) {
   // Signal part for HB HE
   for (HBHERecHitCollection::const_iterator hbheItr=HithbheMB.begin(); 
-       hbheItr!=HithbheMB.end(); hbheItr++) {
+       hbheItr!=HithbheMB.end();++hbheItr) {
     // Recalibration of energy
     DetId mydetid = hbheItr->id().rawId();
     double icalconst(1.);	 
@@ -426,7 +426,7 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
  
   // Signal part for HF
   for (HFRecHitCollection::const_iterator hfItr=HithfMB.begin(); 
-       hfItr!=HithfMB.end(); hfItr++) {
+       hfItr!=HithfMB.end();++hfItr) {
     // Recalibration of energy
     DetId mydetid = hfItr->id().rawId();
     double icalconst(1.);	 

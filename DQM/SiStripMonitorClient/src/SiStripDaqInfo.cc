@@ -79,7 +79,7 @@ void SiStripDaqInfo::bookStatus() {
     det_type.push_back("TECF");
     det_type.push_back("TECB");
       
-    for ( std::vector<std::string>::iterator it = det_type.begin(); it != det_type.end(); it++) {
+    for ( std::vector<std::string>::iterator it = det_type.begin(); it != det_type.end(); ++it) {
       std::string det = (*it);
       
       SubDetMEs local_mes;	
@@ -99,7 +99,7 @@ void SiStripDaqInfo::bookStatus() {
 void SiStripDaqInfo::fillDummyStatus() {
   if (!bookedStatus_) bookStatus();
   if (bookedStatus_) {
-    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); ++it) {
       it->second.DaqFractionME->Reset();
       it->second.DaqFractionME->Fill(-1.0);
     }
@@ -187,7 +187,7 @@ void SiStripDaqInfo::readFedIds(const edm::ESHandle<SiStripFedCabling>& fedcabli
   auto feds = fedCabling_->fedIds(); 
 
   nFedTotal = feds.size();
-  for(std::vector<unsigned short>::const_iterator ifed = feds.begin(); ifed != feds.end(); ifed++){
+  for(std::vector<unsigned short>::const_iterator ifed = feds.begin(); ifed != feds.end(); ++ifed){
     auto fedChannels = fedCabling_->fedConnections( *ifed );
     for (auto iconn = fedChannels.begin(); iconn < fedChannels.end(); iconn++){
       if (!iconn->isConnected()) continue;
@@ -215,7 +215,7 @@ void SiStripDaqInfo::readSubdetFedFractions(std::vector<int>& fed_ids, edm::Even
 
   // initialiase 
   for (std::map<std::string, std::vector<unsigned short> >::const_iterator it = subDetFedMap.begin();
-       it != subDetFedMap.end(); it++) {
+       it != subDetFedMap.end(); ++it) {
     std::string name = it->first;
     std::map<std::string, SubDetMEs>::iterator iPos = SubDetMEsMap.find(name);
     if (iPos == SubDetMEsMap.end()) continue;
@@ -225,14 +225,14 @@ void SiStripDaqInfo::readSubdetFedFractions(std::vector<int>& fed_ids, edm::Even
 
   
   for (std::map<std::string, std::vector<unsigned short> >::const_iterator it = subDetFedMap.begin();
-	   it != subDetFedMap.end(); it++) {
+	   it != subDetFedMap.end(); ++it) {
     std::string name = it->first;
     std::vector<unsigned short> subdetIds = it->second; 
     std::map<std::string, SubDetMEs>::iterator iPos = SubDetMEsMap.find(name);
     if (iPos == SubDetMEsMap.end()) continue;
     iPos->second.ConnectedFeds = 0;
     for (std::vector<unsigned short>::iterator iv = subdetIds.begin();
-	 iv != subdetIds.end(); iv++) {
+	 iv != subdetIds.end(); ++iv) {
       bool fedid_found = false;
       for(unsigned int it = 0; it < fed_ids.size(); ++it) {
 	unsigned short fedID = fed_ids[it];     
@@ -268,7 +268,7 @@ void SiStripDaqInfo::findExcludedModule(unsigned short fed_id, const TrackerTopo
   std::string tag = "ExcludedFedChannel";
   std::string bad_module_folder;
   for (std::vector<FedChannelConnection>::const_iterator iconn = fedChannels.begin(); 
-                                                         iconn < fedChannels.end(); iconn++){
+                                                         iconn < fedChannels.end(); ++iconn){
     if (!iconn->isConnected()) continue;
     uint32_t detId = iconn->detId();
     if (detId == 0 || detId == 0xFFFFFFFF)  continue;
