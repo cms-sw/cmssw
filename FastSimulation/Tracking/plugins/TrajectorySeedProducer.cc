@@ -1,72 +1,19 @@
 #include "FastSimulation/Tracking/plugins/TrajectorySeedProducer.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/OwnVector.h"
-
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-
-#include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
-#include "FastSimulation/Tracking/interface/HitMaskHelper.h"
-#include "FastSimulation/Tracking/interface/FastTrackingHelper.h"
-
-#include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "DataFormats/DetId/interface/DetId.h"
-
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
-#include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
-
-//Propagator withMaterial
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-
-
-#include <unordered_set>
-
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
-#include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-
 template class SeedingTree<TrackingLayer>;
 template class SeedingNode<TrackingLayer>;
 
-TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
-    magneticField(nullptr),
-    magneticFieldMap(nullptr),
-    trackerGeometry(nullptr),
-    trackerTopology(nullptr),
-    theRegionProducer(nullptr)
+TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
 {
 
+    // produces
     produces<TrajectorySeedCollection>();
 
-    // tokens
+    // consumes
     recHitCombinationsToken = consumes<FastTrackerRecHitCombinationCollection>(conf.getParameter<edm::InputTag>("recHitCombinations"));
-    measurementTrackerEventToken = consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"));
-    hitMasks_exists = conf.exists("hitMasks");
-    if (hitMasks_exists){
-      edm::InputTag hitMasksTag = conf.getParameter<edm::InputTag>("hitMasks");   
-      hitMasksToken = consumes<std::vector<bool> >(hitMasksTag);
+    if (conf.exists("hitMasks")){
+	hitMasksToken = consumes<std::vector<bool> >(conf.getParameter<edm::InputTag>("hitMasks"));
     }
-    
-    // The smallest number of hits for a track candidate
-    minLayersCrossed = conf.getParameter<unsigned int>("minLayersCrossed");
 
     // read Layers
     std::vector<std::string> layerStringList = conf.getParameter<std::vector<std::string>>("layerList");
@@ -88,8 +35,8 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
         seedingLayers.push_back(std::move(trackingLayerList));
     }
 
-    // region producer
     if(conf.exists("RegionFactoryPSet")){
+	/// region producer
 	edm::ParameterSet regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
 	std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
 	theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
@@ -99,24 +46,26 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
 	std::string seedCreatorName = seedCreatorPSet.getParameter<std::string>("ComponentName");
 	seedCreator.reset(SeedCreatorFactory::get()->create( seedCreatorName, seedCreatorPSet));
     }
+
+    // other parameters
+    measurementTrackerLabel = conf.getParameter<std::string>("measurementTracker");
+    
 }
 
 bool
 TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const
 {
 
-    const DetLayer * innerLayer = 
-	measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
-    const DetLayer * outerLayer = 
-	measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
+    const DetLayer * innerLayer = measurementTracker->geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
+    const DetLayer * outerLayer = measurementTracker->geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
   
     typedef PixelRecoRange<float> Range;
 
-    for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
+    for(const auto & region : regions){
 
 	auto const & gs = outerHit.hit()->globalState();
-	auto loc = gs.position-(*ir)->origin().basicVector();
-	const HitRZCompatibility * checkRZ = (*ir)->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer,
+	auto loc = gs.position-region->origin().basicVector();
+	const HitRZCompatibility * checkRZ = region->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer,
 							    loc.perp(),gs.position.z(),gs.errorR,gs.errorZ);
 
 	float u = innerLayer->isBarrel() ? loc.perp() : gs.position.z();
@@ -129,7 +78,7 @@ TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHi
 	Range crossRange = allowed.intersection(hitRZ);
 
 	if( ! crossRange.empty()){
-	    seedCreator->init(**ir,*es_,0);
+	    seedCreator->init(*region,*es_,0);
 	    return true;}
 
     }
@@ -245,39 +194,28 @@ void
 {        
 
     // services
-    edm::ESHandle<MagneticField> magneticFieldHandle;
-    edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
-    edm::ESHandle<MagneticFieldMap> magneticFieldMapHandle;
-    edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-
-    es.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);
-    es.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
-    es.get<MagneticFieldMapRecord>().get(magneticFieldMapHandle);
-    es.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
+    edm::ESHandle<TrackerGeometry> trackerGeometry;
+    edm::ESHandle<TrackerTopology> trackerTopology;
+    edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
     
-    magneticField = &(*magneticFieldHandle);
-    trackerGeometry = &(*trackerGeometryHandle);
-    magneticFieldMap = &(*magneticFieldMapHandle);
-    trackerTopology = &(*trackerTopologyHandle);
-
+    es.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
+    es.get<TrackerTopologyRcd>().get(trackerTopology);
+    es.get<CkfComponentsRecord>().get(measurementTrackerLabel, measurementTrackerHandle);
+    measurementTracker = &(*measurementTrackerHandle);
+    
     es_ = &es;
 
     // hit masks
-    std::unique_ptr<HitMaskHelper> hitMaskHelper;
-    if (hitMasks_exists){  
-	edm::Handle<std::vector<bool> > hitMasks;
-	e.getByToken(hitMasksToken,hitMasks);
-	hitMaskHelper.reset(new HitMaskHelper(hitMasks.product()));
+    const std::vector<bool> * hitMasks = 0;
+    if (!hitMasksToken.isUninitialized()){
+	edm::Handle<std::vector<bool> > hitMasksHandle;
+	e.getByToken(hitMasksToken,hitMasksHandle);
+	hitMasks = &(*hitMasksHandle);
     }
     
     // hit combinations
     edm::Handle<FastTrackerRecHitCombinationCollection> recHitCombinations;
     e.getByToken(recHitCombinationsToken, recHitCombinations);
-
-    // measurement tracker event (only used to access services)
-    edm::Handle<MeasurementTrackerEvent> measurementTrackerEventHandle;
-    e.getByToken(measurementTrackerEventToken,measurementTrackerEventHandle);
-    measurementTrackerEvent = measurementTrackerEventHandle.product();
 
     // output
     std::unique_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
@@ -300,36 +238,25 @@ void
 
 	    TrajectorySeedHitCandidate previousTrackerHit;
 	    TrajectorySeedHitCandidate currentTrackerHit;
-	    unsigned int layersCrossed=0;
-	
 
 	    std::vector<TrajectorySeedHitCandidate> trackerRecHits;
 	    for (const auto & _hit : recHitCombination )
 		{
 		    // skip masked hits
-		    if(hitMaskHelper && hitMaskHelper->mask(_hit.get()))
+		    if(hitMasks && fastTrackingUtilities::hitIsMasked(_hit.get(),hitMasks))
 			continue;
 		
 		    previousTrackerHit=currentTrackerHit;
 	  
-		    currentTrackerHit = TrajectorySeedHitCandidate(_hit.get(),trackerGeometry,trackerTopology);
+		    currentTrackerHit = TrajectorySeedHitCandidate(_hit.get(),trackerGeometry.product(),trackerTopology.product());
 	  
-		    if (!currentTrackerHit.isOnTheSameLayer(previousTrackerHit))
-			{
-			    ++layersCrossed;
-			}
 		    if (_seedingTree.getSingleSet().find(currentTrackerHit.getTrackingLayer())!=_seedingTree.getSingleSet().end())
 			{
 			    //add only the hits which are actually on the requested layers
 			    trackerRecHits.push_back(std::move(currentTrackerHit));
 			}
 		}
-      
-	    if ( layersCrossed < minLayersCrossed)
-		{
-		    continue;
-		}
-
+	    
 	    // set the combination index
       
 	    //A SeedingNode is associated by its index to this list. The list stores the indices of the hits in 'trackerRecHits'
@@ -358,7 +285,7 @@ void
 		for(unsigned iIndex = 0;iIndex < seedHitNumbers.size();++iIndex){
 		    seedHits.push_back(trackerRecHits[seedHitNumbers[iIndex]].hit()->clone());
 		}
-		fastTrackingHelper::setRecHitCombinationIndex(seedHits,icomb);
+		fastTrackingUtilities::setRecHitCombinationIndex(seedHits,icomb);
 
 		// the actual seed creation
 		seedCreator->makeSeed(*output,SeedingHitSet(&seedHits[0],&seedHits[1],
