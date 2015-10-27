@@ -853,7 +853,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    nclusters_ = 0;
    std::vector<double>::const_iterator angleIt = clusterOntrackAngles.begin();
    uint32_t localCounter = 0;
-   for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters->begin(); DSViter!=clusters->end();DSViter++ ) {
+   for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters->begin(); DSViter!=clusters->end();++DSViter ) {
      edmNew::DetSet<SiStripCluster>::const_iterator begin=DSViter->begin();
      edmNew::DetSet<SiStripCluster>::const_iterator end  =DSViter->end();
      uint32_t detid = DSViter->id();
@@ -904,7 +904,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    npixClusters_ = 0;
    std::vector<std::pair<double,double> >::const_iterator pixAngleIt = pixclusterOntrackAngles.begin();
    localCounter = 0;
-   for (edmNew::DetSetVector<SiPixelCluster>::const_iterator DSViter=pixelclusters->begin(); DSViter!=pixelclusters->end();DSViter++ ) {
+   for (edmNew::DetSetVector<SiPixelCluster>::const_iterator DSViter=pixelclusters->begin(); DSViter!=pixelclusters->end();++DSViter ) {
      edmNew::DetSet<SiPixelCluster>::const_iterator begin=DSViter->begin();
      edmNew::DetSet<SiPixelCluster>::const_iterator end  =DSViter->end();
      uint32_t detid = DSViter->id();
@@ -1082,7 +1082,7 @@ std::vector<double> TrackerDpgAnalysis::onTrackAngles(edm::Handle<edmNew::DetSet
   }
   // then loop over the clusters to check
   double angle = 0.;
-  for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters->begin(); DSViter!=clusters->end();DSViter++ ) {
+  for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters->begin(); DSViter!=clusters->end();++DSViter ) {
     edmNew::DetSet<SiStripCluster>::const_iterator begin=DSViter->begin();
     edmNew::DetSet<SiStripCluster>::const_iterator end  =DSViter->end();
     std::pair< std::multimap<uint32_t,std::pair<LocalPoint,double> >::const_iterator,
@@ -1136,7 +1136,7 @@ std::vector<int> TrackerDpgAnalysis::onTrack(edm::Handle<edmNew::DetSetVector<Si
   }
   // then loop over the clusters to check
   int thetrackid = -1;
-  for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters->begin(); DSViter!=clusters->end();DSViter++ ) {
+  for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters->begin(); DSViter!=clusters->end();++DSViter ) {
     edmNew::DetSet<SiStripCluster>::const_iterator begin=DSViter->begin();
     edmNew::DetSet<SiStripCluster>::const_iterator end  =DSViter->end();
     std::pair< std::multimap<uint32_t,std::pair<int,int> >::const_iterator,
@@ -1207,7 +1207,7 @@ std::vector<std::pair<double,double> > TrackerDpgAnalysis::onTrackAngles(edm::Ha
   // then loop over the clusters to check
   double alpha = 0.;
   double beta  = 0.;
-  for (edmNew::DetSetVector<SiPixelCluster>::const_iterator DSViter=clusters->begin(); DSViter!=clusters->end();DSViter++ ) {
+  for (edmNew::DetSetVector<SiPixelCluster>::const_iterator DSViter=clusters->begin(); DSViter!=clusters->end();++DSViter ) {
     edmNew::DetSet<SiPixelCluster>::const_iterator begin=DSViter->begin();
     edmNew::DetSet<SiPixelCluster>::const_iterator end  =DSViter->end();
     for(edmNew::DetSet<SiPixelCluster>::const_iterator iter=begin;iter!=end;++iter) {
@@ -1254,7 +1254,7 @@ std::vector<int> TrackerDpgAnalysis::onTrack(edm::Handle<edmNew::DetSetVector<Si
   }
   // then loop over the clusters to check
   int thetrackid = -1;
-  for (edmNew::DetSetVector<SiPixelCluster>::const_iterator DSViter=clusters->begin(); DSViter!=clusters->end();DSViter++ ) {
+  for (edmNew::DetSetVector<SiPixelCluster>::const_iterator DSViter=clusters->begin(); DSViter!=clusters->end();++DSViter ) {
     edmNew::DetSet<SiPixelCluster>::const_iterator begin=DSViter->begin();
     edmNew::DetSet<SiPixelCluster>::const_iterator end  =DSViter->end();
     for(edmNew::DetSet<SiPixelCluster>::const_iterator iter=begin;iter!=end;++iter) {

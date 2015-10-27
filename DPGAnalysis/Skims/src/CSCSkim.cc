@@ -378,7 +378,7 @@ bool CSCSkim::doCSCSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits, edm::
   // ---------------------
 
   CSCRecHit2DCollection::const_iterator recIt;
-  for (recIt = cscRecHits->begin(); recIt != cscRecHits->end(); recIt++) {
+  for (recIt = cscRecHits->begin(); recIt != cscRecHits->end(); ++recIt) {
 
     // which chamber is it?
     CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
@@ -510,7 +510,7 @@ bool CSCSkim::doOverlapSkimming(edm::Handle<CSCSegmentCollection> cscSegments){
   // -----------------------
   // loop over segments
   // -----------------------
-  for(CSCSegmentCollection::const_iterator it=cscSegments->begin(); it != cscSegments->end(); it++) {
+  for(CSCSegmentCollection::const_iterator it=cscSegments->begin(); it != cscSegments->end(); ++it) {
 
     // which chamber?
     CSCDetId id  = (CSCDetId)(*it).cscDetId();
@@ -588,7 +588,7 @@ bool CSCSkim::doMessyEventSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits
   // ---------------------
 
   CSCRecHit2DCollection::const_iterator recIt;
-  for (recIt = cscRecHits->begin(); recIt != cscRecHits->end(); recIt++) {
+  for (recIt = cscRecHits->begin(); recIt != cscRecHits->end(); ++recIt) {
 
     // which chamber is it?
     CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
@@ -778,7 +778,7 @@ bool CSCSkim::doDTOverlap(Handle<CSCSegmentCollection> cscSegments) {
   int nSegments = cscSegments->size();
   if (nSegments < 2) return DTOverlapCandidate;
 
-  for(CSCSegmentCollection::const_iterator it=cscSegments->begin(); it != cscSegments->end(); it++) {
+  for(CSCSegmentCollection::const_iterator it=cscSegments->begin(); it != cscSegments->end(); ++it) {
     // which chamber?
     CSCDetId id  = (CSCDetId)(*it).cscDetId();
     int kEndcap  = id.endcap();
@@ -893,7 +893,7 @@ bool CSCSkim::doHaloLike(Handle<CSCSegmentCollection> cscSegments) {
   int nSegments = cscSegments->size();
   if (nSegments < 4) return HaloLike;
 
-  for(CSCSegmentCollection::const_iterator it=cscSegments->begin(); it != cscSegments->end(); it++) {
+  for(CSCSegmentCollection::const_iterator it=cscSegments->begin(); it != cscSegments->end(); ++it) {
     // which chamber?
     CSCDetId id  = (CSCDetId)(*it).cscDetId();
     int kEndcap  = id.endcap();

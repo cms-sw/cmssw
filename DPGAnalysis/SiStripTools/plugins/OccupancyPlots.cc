@@ -188,7 +188,7 @@ OccupancyPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     Handle<std::map<unsigned int, int> > mults;
     iEvent.getByToken(*mapToken,mults);
 
-    for(std::map<unsigned int,int>::const_iterator mult=mults->begin();mult!=mults->end();mult++) {
+    for(std::map<unsigned int,int>::const_iterator mult=mults->begin();mult!=mults->end();++mult) {
       if(m_avemultiplicity && *m_avemultiplicity) (*m_avemultiplicity)->Fill(mult->first,mult->second);
     }
   }
@@ -200,7 +200,7 @@ OccupancyPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     Handle<std::map<unsigned int, int> > occus;
     iEvent.getByToken(*mapToken,occus);
 
-    for(std::map<unsigned int,int>::const_iterator occu=occus->begin();occu!=occus->end();occu++) {
+    for(std::map<unsigned int,int>::const_iterator occu=occus->begin();occu!=occus->end();++occu) {
       if(m_aveoccupancy && *m_aveoccupancy) (*m_aveoccupancy)->Fill(occu->first,occu->second);
     }
   }

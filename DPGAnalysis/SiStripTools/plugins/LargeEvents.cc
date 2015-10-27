@@ -130,7 +130,7 @@ LargeEvents<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
    int ndigitot = 0;
-   for(typename T::const_iterator it = digis->begin();it!=digis->end();it++) {
+   for(typename T::const_iterator it = digis->begin();it!=digis->end();++it) {
 
      if(!_useQuality || !_qualityHandle->IsModuleBad(it->detId()) ) {
        if(_modthr < 0 || int(it->size()) < _modthr ) {

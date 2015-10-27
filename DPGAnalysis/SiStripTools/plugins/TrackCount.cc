@@ -295,7 +295,7 @@ TrackCount::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if(m_dump) edm::LogInfo("TrackDump") << " isHP algo pt eta phi chi2N chi2 ndof nlay npxl n3dl nlost ";
 
-   for(reco::TrackCollection::const_iterator it = tracks->begin();it!=tracks->end();it++) {
+   for(reco::TrackCollection::const_iterator it = tracks->begin();it!=tracks->end();++it) {
 
      if(m_dump) {
        edm::LogVerbatim("TrackDump") << it->quality(quality) << " "

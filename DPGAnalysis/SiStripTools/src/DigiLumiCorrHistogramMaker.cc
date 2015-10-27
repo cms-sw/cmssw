@@ -41,7 +41,7 @@ DigiLumiCorrHistogramMaker::DigiLumiCorrHistogramMaker(const edm::ParameterSet& 
 
 DigiLumiCorrHistogramMaker::~DigiLumiCorrHistogramMaker() {
 
-  for(std::map<unsigned int,std::string>::const_iterator lab=m_labels.begin();lab!=m_labels.end();lab++) {
+  for(std::map<unsigned int,std::string>::const_iterator lab=m_labels.begin();lab!=m_labels.end();++lab) {
 
     const unsigned int i = lab->first; const std::string slab = lab->second;
 
@@ -72,7 +72,7 @@ void DigiLumiCorrHistogramMaker::book(const std::string dirname, edm::ConsumesCo
   edm::LogInfo("MaxLumi") << "max lumi value: " << m_maxlumi;
   edm::LogInfo("BinMaxValue") << "Setting bin max values";
 
-  for(std::map<unsigned int,std::string>::const_iterator lab=m_labels.begin();lab!=m_labels.end();lab++) {
+  for(std::map<unsigned int,std::string>::const_iterator lab=m_labels.begin();lab!=m_labels.end();++lab) {
 
     const unsigned int i = lab->first; const std::string slab = lab->second;
 
@@ -144,7 +144,7 @@ void DigiLumiCorrHistogramMaker::fill(const edm::Event& iEvent, const std::map<u
     if(ld->isValid()) {
       float bxlumi = ld->lumiValue(LumiDetails::kOCC1,iEvent.bunchCrossing())*6.37;
 
-      for(std::map<unsigned int,int>::const_iterator digi=ndigi.begin();digi!=ndigi.end();digi++) {
+      for(std::map<unsigned int,int>::const_iterator digi=ndigi.begin();digi!=ndigi.end();++digi) {
 	if(m_labels.find(digi->first) != m_labels.end()) {
 	  const unsigned int i=digi->first;
 	  m_nmultvslumi[i]->Fill(bxlumi,digi->second);

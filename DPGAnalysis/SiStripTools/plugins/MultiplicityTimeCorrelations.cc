@@ -175,7 +175,7 @@ MultiplicityTimeCorrelations::MultiplicityTimeCorrelations(const edm::ParameterS
 
   TFileDirectory subdbxbin = tfserv->mkdir("DBXDebugging");
 
-  for(std::vector<int>::const_iterator bin=_dbxbins.begin();bin!=_dbxbins.end();bin++) {
+  for(std::vector<int>::const_iterator bin=_dbxbins.begin();bin!=_dbxbins.end();++bin) {
     char hname[200]; char htitle[200];
 
     edm::LogInfo("DBXHistosBinMaxValue") << "Setting bin max values";
