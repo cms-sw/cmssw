@@ -36,7 +36,7 @@ class AlcaBeamSpotHarvester : public edm::EDAnalyzer {
   std::string 	      beamSpotOutputBase_;
   std::string 	      outputrecordName_;
   double      	      sigmaZValue_;
-  
+  double              sigmaZCut_;
   // Member Variables
   AlcaBeamSpotManager theAlcaBeamSpotManager_;
 
