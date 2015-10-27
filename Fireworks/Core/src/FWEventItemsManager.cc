@@ -253,7 +253,7 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       if (conf.version() > 3)
          transparency = strtol((*keyValues)[9].second.value().c_str(), 0, 10);
 
-      FWDisplayProperties dp(colorIndex, isVisible, transparency);
+      FWDisplayProperties dp(colorIndex, isVisible, true, transparency);
 
       unsigned int layer = strtol((*keyValues)[7].second.value().c_str(), 0, 10);
 
