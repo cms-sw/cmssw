@@ -242,7 +242,7 @@ void DQMFEDIntegrityClient::fillHistograms(void){
       reportSummaryContent[k]->Fill(-1);
       reportSummaryMap->setBinContent(1, nSubsystems-k, -1);
       k++;
-      ent++;
+      ++ent;
       continue;
     }
 
@@ -293,7 +293,7 @@ void DQMFEDIntegrityClient::fillHistograms(void){
     sum = sum + SummaryContent[k];
 
     k++;
-    ent++;
+    ++ent;
     count++;
 
   }

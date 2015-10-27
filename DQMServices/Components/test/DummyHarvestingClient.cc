@@ -106,7 +106,7 @@ class TH1FCumulator : public CumulatorBase {
                                          (--(entries_per_LS_.end()))->first);
 
     int lastAccessed = 0;
-    for (; it != ite; it++) {
+    for (; it != ite; ++it) {
       while (lastAccessed < (*it).first) {
         tmp->Fill(lastAccessed, -1.);
         lastAccessed++;
@@ -163,7 +163,7 @@ class TH2FCumulator : public CumulatorBase {
                                          (--(entries_per_LS_.end()))->first);
 
     int lastAccessed = 0;
-    for (; it != ite; it++) {
+    for (; it != ite; ++it) {
       while (lastAccessed < (*it).first) {
         tmp->Fill(lastAccessed, -1.);
         lastAccessed++;

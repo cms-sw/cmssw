@@ -214,7 +214,7 @@ bool fastmatch::compare_strings_reverse(std::string const& pattern,
   std::string::const_reverse_iterator rit_pattern = pattern.rbegin();
   std::string::const_reverse_iterator rit_input = input.rbegin();
 
-  for (; rit_pattern < pattern.rend(); rit_pattern++, rit_input++)
+  for (; rit_pattern < pattern.rend(); ++rit_pattern, ++rit_input)
   {
     if (*rit_pattern != *rit_input)
       // found a difference, fail
@@ -235,7 +235,7 @@ bool fastmatch::compare_strings(std::string const& pattern,
   std::string::const_iterator rit_pattern = pattern.begin();
   std::string::const_iterator rit_input = input.begin();
 
-  for (; rit_pattern < pattern.end(); rit_pattern++, rit_input++)
+  for (; rit_pattern < pattern.end(); ++rit_pattern, ++rit_input)
   {
     if (*rit_pattern != *rit_input)
       // found a difference, fail

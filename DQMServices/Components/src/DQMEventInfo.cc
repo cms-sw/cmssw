@@ -103,7 +103,7 @@ void DQMEventInfo::bookHistograms(DQMStore::IBooker & ibooker,
     std::vector<std::string> evSelectionList;
     const edm::ParameterSet &evSelectionPSet = sourcePSet.getUntrackedParameterSet("SelectEvents");
     evSelectionList = evSelectionPSet.getParameter<std::vector<std::string> >("SelectEvents");
-    for ( std::vector<std::string>::iterator it = evSelectionList.begin(); it <  evSelectionList.end(); it++ )
+    for ( std::vector<std::string>::iterator it = evSelectionList.begin(); it <  evSelectionList.end(); ++it )
       evSelection += "'"+ *it + "', ";
 
     evSelection.resize(evSelection.length()-2);

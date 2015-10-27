@@ -104,7 +104,7 @@ std::vector<std::string> QTestStatusChecker::fullPathNames(DQMStore * bei){
   std::vector<std::string> contentVec;
   bei->getContents(contentVec);
   for (std::vector<std::string>::iterator it = contentVec.begin();
-       it != contentVec.end(); it++) {
+       it != contentVec.end(); ++it) {
         
 	std::string::size_type dirCharNumber = it->find( ":", 0 );
 	std::string dirName=it->substr(0 , dirCharNumber);

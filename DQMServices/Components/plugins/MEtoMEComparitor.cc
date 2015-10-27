@@ -70,7 +70,7 @@ MEtoMEComparitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
       edm::ProcessHistory::const_reverse_iterator hi=iHistory.rbegin();
       _process_new=hi->processName();
-      hi++;
+      ++hi;
       _process_ref=hi->processName();
       std::cout<<_process_ref<<" vs "<<_process_new<<std::endl;
     }
