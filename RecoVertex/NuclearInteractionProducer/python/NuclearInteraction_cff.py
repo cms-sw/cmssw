@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi import *
+from TrackingTools.TrackFitters.KFTrajectoryFitter_cfi import *
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 
 from RecoTracker.TkNavigation.NavigationSchoolESProducer_cff import *
