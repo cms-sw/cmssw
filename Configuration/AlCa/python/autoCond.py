@@ -18,9 +18,9 @@ autoCond = {
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
     'run2_mc_hi'        :   '76X_mcRun2_HeavyIon_v10',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '76X_dataRun1_v9',
+    'run1_data'         :   '76X_dataRun1_v10',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '76X_dataRun2_v9',
+    'run2_data'         :   '76X_dataRun2_v10',
     # GlobalTag for Run1 HLT: it points to the online GT
     'run1_hlt'          :   '76X_dataRun1_HLT_frozen_v9',
     # GlobalTag for Run2 HLT: it points to the online GT
