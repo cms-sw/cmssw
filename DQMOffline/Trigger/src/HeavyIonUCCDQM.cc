@@ -3,9 +3,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "DQMOffline/Trigger/interface/HeavyIonUCC.h"
+#include "DQMOffline/Trigger/interface/HeavyIonUCCDQM.h"
 
-HeavyIonUCC::HeavyIonUCC(const edm::ParameterSet& ps)
+HeavyIonUCCDQM::HeavyIonUCCDQM(const edm::ParameterSet& ps)
 {
 	triggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("triggerResults"));
 	theCaloMet = consumes<reco::CaloMETCollection>(ps.getParameter<edm::InputTag>("caloMet"));
@@ -20,13 +20,13 @@ HeavyIonUCC::HeavyIonUCC(const edm::ParameterSet& ps)
 	maxEt = ps.getParameter<double>("maxEt");
 }
 
-HeavyIonUCC::~HeavyIonUCC()
+HeavyIonUCCDQM::~HeavyIonUCCDQM()
 {
 
 }
 
 
-void HeavyIonUCC::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, edm::EventSetup const &)
+void HeavyIonUCCDQM::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, edm::EventSetup const &)
 {
 	ibooker_.cd();;
 	ibooker_.setCurrentFolder("HLT/HI/" + triggerPath_);
@@ -37,14 +37,14 @@ void HeavyIonUCC::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &,
 	ibooker_.cd();
 }
 
-void HeavyIonUCC::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
+void HeavyIonUCCDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 {
 
 	edm::Handle<edm::TriggerResults> hltresults;
 	e.getByToken(triggerResults_,hltresults);
 	if(!hltresults.isValid())
 	{
-		edm::LogError ("HeavyIonUCC") << "invalid collection: TriggerResults" << "\n";
+		edm::LogError ("HeavyIonUCCDQM") << "invalid collection: TriggerResults" << "\n";
 		return;
 	}
 
@@ -65,12 +65,13 @@ void HeavyIonUCC::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 		h_SiPixelClusters->Fill(cluster->dataSize());
 	}
 
-	edm::Handle<reco::CaloMETCollection> calomet;
-	e.getByToken(theCaloMet, calomet);
-	if ( calomet.isValid() ) {
-		h_SumEt->Fill(calomet.sumEt());
+	edm::Handle<reco::CaloMETCollection> calometColl;
+	e.getByToken(theCaloMet, calometColl);
+	if ( calometColl.isValid() ) {
+		std::cout << "!!! " << (*calometColl).front().sumEt() << std::endl;
+		h_SumEt->Fill((*calometColl).front().sumEt());
 	}
 
 }
 
-DEFINE_FWK_MODULE(HeavyIonUCC);
+DEFINE_FWK_MODULE(HeavyIonUCCDQM);

@@ -1,5 +1,5 @@
-#ifndef HeavyIonUCC_H
-#define HeavyIonUCC_H
+#ifndef HeavyIonUCCDQM_H
+#define HeavyIonUCCDQM_H
 //event
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -11,6 +11,7 @@
 
 //CaloMET
 #include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
 //SiPixelClusters
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
@@ -22,10 +23,10 @@
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-class HeavyIonUCC: public DQMEDAnalyzer{
+class HeavyIonUCCDQM: public DQMEDAnalyzer{
 public:
-	HeavyIonUCC(const edm::ParameterSet& ps);
-	virtual ~HeavyIonUCC();
+	HeavyIonUCCDQM(const edm::ParameterSet& ps);
+	virtual ~HeavyIonUCCDQM();
 
 protected:
 	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -34,7 +35,7 @@ protected:
 private:
 	// 
 	edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
-	edm::EDGetTokenT<CaloMETCollection> theCaloMet;
+	edm::EDGetTokenT<reco::CaloMETCollection> theCaloMet;
 	edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > theSiPixelCluster;
 
 	std::string triggerPath_;
