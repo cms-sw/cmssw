@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #
 simplePhotonAnalyzer = cms.EDAnalyzer("SimplePhotonAnalyzer",
     phoProducer = cms.string('photons'),
-    mcProducer = cms.string('generator'),
+    mcProducer = cms.string('generatorSmeared'),
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     pfEgammaCandidates = cms.InputTag("particleFlowEGamma"),                                  
     # 1=pt10,2=pt35,3=Hgg, 4=gamJetHighEnergy

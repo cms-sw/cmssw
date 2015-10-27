@@ -14,6 +14,8 @@ OutALCARECOHcalCalIsoTrkNoHLT_noDrop = cms.PSet(
 	'keep *_offlineBeamSpot_*_*',
         'keep recoTracks_generalTracks_*_*',
         'keep recoTrackExtras_generalTracks_*_*',
+        'keep edmTriggerResults_*_*_*',
+        'keep triggerTriggerEvent_*_*_*',
         )
 )
 

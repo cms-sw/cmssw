@@ -94,7 +94,7 @@ namespace edm {
       
       bool wantAllEvents() const {return wantAllEvents_;}
       
-      BranchIDLists const* branchIDLists() const;
+      BranchIDLists const* branchIDLists();
 
       ThinnedAssociationsHelper const* thinnedAssociationsHelper() const;
       

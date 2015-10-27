@@ -42,8 +42,8 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 
   const int N_Sec = 16;
   const int nySec = 20;
-  static float ySec[nySec+1];
-  static float xSec[N_Sec+1];
+  float ySec[nySec+1];
+  float xSec[N_Sec+1];
   double E0sec = 1./1024.;
   ySec[0] = 0.; ySec[1] = E0sec;
   double lnBsec = log(2.);
@@ -59,7 +59,7 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 
  const int nxCh = 224;
  const int nyE = 18;
- static float xCh[nxCh+1];
+ float xCh[nxCh+1];
  float yErh[nyE+1];
  for(int i=0; i<=nxCh; i++) xCh[i]=i;
  double E0 = 1./1024.;
@@ -106,12 +106,13 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
    hTowerMultipl = ibooker.book1D(s,s,20,0.,20.);
 
  const int NEtow = 20;
-  static float EhadTow[NEtow+1];
-  static float EMTow[NEtow+1];
-  static float ETower[NEtow+2];
+  float EhadTow[NEtow+1];
+  float EMTow[NEtow+1];
+  float ETower[NEtow+2];
   double E0tow = 1./1024.;
   EMTow[0] = 0.; EMTow[1] = E0tow;
   EhadTow[0] = 0.; EhadTow[1] = E0tow;
+  ETower[0] = 0.; ETower[1] = E0tow;
   double lnBtow = log(2.);
   for(int j=1; j<NEtow; j++) EMTow[j+1] = E0tow*exp(j*lnBtow);
   for(int j=1; j<NEtow; j++) EhadTow[j+1] = E0tow*exp(j*lnBtow);

@@ -105,7 +105,7 @@ namespace edm
       usesResource(edm::uniqueSharedResourceName());
     }
 
-    produces<edm::HepMCProduct>();
+    produces<edm::HepMCProduct>("unsmeared");
     produces<GenEventInfoProduct>();
     produces<GenLumiInfoProduct, edm::InLumi>();
     produces<GenRunInfoProduct, edm::InRun>();
@@ -190,7 +190,7 @@ namespace edm
    
     std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
     bare_product->addHepMCData( event.release() );
-    ev.put(bare_product);
+    ev.put(bare_product, "unsmeared");
     nEventsInLumiBlock_ ++;
     return true;
   }

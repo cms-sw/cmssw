@@ -161,6 +161,9 @@ public:
    // ---------- member functions ---------------------------
    void setEvent(const edm::EventBase* iEvent);
 
+   void setData(const edm::ObjectWithDict& ) const;
+
+   void getPrimaryData() const;
    const FWGeometry* getGeom() const;
    FWProxyBuilderConfiguration* getConfig() const { return m_proxyBuilderConfig; }
 
@@ -216,9 +219,7 @@ private:
    //FWEventItem(const FWEventItem&); // stop default
 
    //const FWEventItem& operator=(const FWEventItem&); // stop default
-   void setData(const edm::ObjectWithDict& ) const;
 
-   void getPrimaryData() const;
    void runFilter();
    void handleChange();
    // ---------- member data --------------------------------

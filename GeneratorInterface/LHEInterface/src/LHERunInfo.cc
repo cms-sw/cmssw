@@ -311,19 +311,17 @@ void LHERunInfo::statistics() const
 	unsigned long nTried_neg = 0;
 	int idwtup = heprup.IDWTUP;
 
-	std::cout << std::endl;
-	std::cout << "Process and cross-section statistics" << std::endl;
-	std::cout << "------------------------------------" << std::endl;
-	std::cout << "Process\t\txsec_before [pb]\t\tpassed\tnposw\tnnegw\ttried\tnposw\tnnegw \txsec_match [pb]\t\t\taccepted [%]\t event_eff [%]"
-	          << std::endl;
+	LogDebug("LHERunInfo") << " statistics";
+	LogDebug("LHERunInfo") << "Process and cross-section statistics";
+	LogDebug("LHERunInfo") << "------------------------------------";
+	LogDebug("LHERunInfo") << "Process\t\txsec_before [pb]\t\tpassed\tnposw\tnnegw\ttried\tnposw\tnnegw \txsec_match [pb]\t\t\taccepted [%]\t event_eff [%]";
 
 	for(std::vector<Process>::const_iterator proc = processes.begin();
 	    proc != processes.end(); ++proc) {
 	  unsigned int idx = proc->heprupIndex();
 
 		if (!proc->selected().n()) {
-		  std::cout << proc->process() << "\t0\t0\tn/a\t\t\tn/a"
-			          << std::endl;
+		  LogDebug("LHERunInfo") << proc->process() << "\t0\t0\tn/a\t\t\tn/a";
 			continue;
 		}
 
@@ -405,7 +403,7 @@ void LHERunInfo::statistics() const
 		double event_eff_proc = ntotal_proc>0? (double)(proc->nPassPos()+ proc->nPassNeg())/ntotal_proc: -1;
 		double event_eff_err_proc = ntotal_proc>0? std::sqrt((1-event_eff_proc)*event_eff_proc/ntotal_proc): -1;
 
-		std::cout << proc->process() << "\t\t"
+		LogDebug("LHERunInfo") << proc->process() << "\t\t"
 			  << std::scientific << std::setprecision(3)
 			  << heprup.XSECUP[proc->heprupIndex()] << " +/- " 
 			  << heprup.XERRUP[proc->heprupIndex()] << "\t\t"
@@ -421,8 +419,7 @@ void LHERunInfo::statistics() const
 		          << std::fixed << std::setprecision(1)
 		          << (fracAcc * 100)  << " +/- " << ( std::sqrt(efferr2) * 100) << "\t"
 		          << std::fixed << std::setprecision(1)
-		          << (event_eff_proc * 100) << " +/- " << ( event_eff_err_proc * 100)
-			  << std::endl;
+			  << (event_eff_proc * 100) << " +/- " << ( event_eff_err_proc * 100);
 
 		nAccepted += proc->accepted().n();
 		nTried += proc->tried().n();
@@ -443,7 +440,7 @@ void LHERunInfo::statistics() const
 	double event_eff_all = ntotal_all>0? (double)(nAccepted_pos+nAccepted_neg)/ntotal_all: -1;
 	double event_eff_err_all = ntotal_all>0? std::sqrt((1-event_eff_all)*event_eff_all/ntotal_all): -1;
 
-	std::cout << "Total\t\t"
+	LogDebug("LHERunInfo") << "Total\t\t"
 	          << std::scientific << std::setprecision(3)
 		  << sigSelSum << " +/- " << std::sqrt(errSel2Sum) << "\t\t"
 	          << nAccepted << "\t"
@@ -458,8 +455,7 @@ void LHERunInfo::statistics() const
 	          << std::fixed << std::setprecision(1)
 	          << (sigSum / sigSelSum * 100)  << " +/- " << (std::sqrt(errMatch2Sum)/sigSelSum * 100) << "\t"
 	          << std::fixed << std::setprecision(1) 
-	          << (event_eff_all * 100) << " +/- " << (event_eff_err_all * 100)
-		  << std::endl;
+	          << (event_eff_all * 100) << " +/- " << (event_eff_err_all * 100);
 }
 
 LHERunInfo::Header::Header() :

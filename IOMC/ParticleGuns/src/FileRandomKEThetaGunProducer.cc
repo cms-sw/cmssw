@@ -58,7 +58,7 @@ FileRandomKEThetaGunProducer::FileRandomKEThetaGunProducer(const edm::ParameterS
       <<  file << "\n";
 
   
-  produces<HepMCProduct>();
+  produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
 }
 
@@ -136,7 +136,7 @@ void FileRandomKEThetaGunProducer::produce(edm::Event & e, const edm::EventSetup
 
   std::auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
   BProduct->addHepMCData( fEvt );
-  e.put(BProduct);
+  e.put(BProduct, "unsmeared");
 
   std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
   e.put(genEventInfo);

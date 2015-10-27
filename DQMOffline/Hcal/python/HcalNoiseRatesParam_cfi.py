@@ -6,5 +6,6 @@ hcalNoiseRates = cms.EDAnalyzer('HcalNoiseRates',
     rbxCollName  = cms.untracked.InputTag('hcalnoise'),
     minRBXEnergy = cms.untracked.double(20.0),
     minHitEnergy = cms.untracked.double(1.5),
-    useAllHistos = cms.untracked.bool(False)
+    useAllHistos = cms.untracked.bool(False),
+    noiselabel   = cms.InputTag('hcalnoise')
 )

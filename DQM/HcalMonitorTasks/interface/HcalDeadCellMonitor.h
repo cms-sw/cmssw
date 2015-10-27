@@ -16,6 +16,7 @@
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include <cmath>
 #include <iostream>
@@ -28,7 +29,7 @@
 
 class HcalDeadCellMonitor: public HcalBaseDQMonitor {
 
- public:
+public:
   HcalDeadCellMonitor(const edm::ParameterSet& ps);
 
   ~HcalDeadCellMonitor();
@@ -36,6 +37,7 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   void setup(DQMStore::IBooker &);
   void bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c);
   void analyze(edm::Event const&e, edm::EventSetup const&s);
+
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 			  const edm::EventSetup& c);
   void endRun(const edm::Run& run, const edm::EventSetup& c);
@@ -50,7 +52,7 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
                     const HFDigiCollection& hfdigi
 		    );
 
- private:
+private:
   void zeroCounters(bool resetpresent=false);
 
   void processEvent_HBHEdigi(HBHEDataFrame digi);
@@ -64,9 +66,9 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   bool deadmon_test_digis_;
   bool deadmon_test_rechits_;
 
-  void fillNevents_problemCells(); // problemcells always checks for never-present digis, rechits
-  void fillNevents_recentdigis();
-  void fillNevents_recentrechits();
+  void fillNevents_problemCells(const HcalTopology&); // problemcells always checks for never-present digis, rechits
+  void fillNevents_recentdigis(const HcalTopology&);
+  void fillNevents_recentrechits(const HcalTopology&);
 
   // specify minimum energy threshold for energy test
   double energyThreshold_;

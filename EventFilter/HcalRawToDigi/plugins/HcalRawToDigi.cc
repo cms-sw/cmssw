@@ -9,6 +9,7 @@ using namespace std;
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <unordered_set>
 
 HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   unpacker_(conf.getUntrackedParameter<int>("HcalFirstFED",int(FEDNumbering::MINHCALFEDID)),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
@@ -175,6 +176,14 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 
   stats_.n++;
 
+  // check HF duplication
+  std::unordered_set<uint32_t> cacheForHFdup;
+  unsigned int cntHFdup = 0;
+  for( auto & hf_digi : hf ){
+     if( ! cacheForHFdup.insert(hf_digi.id().rawId()).second ) cntHFdup++;
+  }
+  if( cntHFdup ) edm::LogError("HcalRawToDigi") << "Duplicated HF digis found for "<<cntHFdup<<" times"<<std::endl;
+
   // Step B: encapsulate vectors in actual collections
   std::auto_ptr<HBHEDigiCollection> hbhe_prod(new HBHEDigiCollection()); 
   std::auto_ptr<HFDigiCollection> hf_prod(new HFDigiCollection());
@@ -187,7 +196,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   std::auto_ptr<QIE10DigiCollection> qie10_prod(colls.qie10);
 
   hbhe_prod->swap_contents(hbhe);
-  hf_prod->swap_contents(hf);
+  if( !cntHFdup ) hf_prod->swap_contents(hf);
   ho_prod->swap_contents(ho);
   htp_prod->swap_contents(htp);
   hotp_prod->swap_contents(hotp);

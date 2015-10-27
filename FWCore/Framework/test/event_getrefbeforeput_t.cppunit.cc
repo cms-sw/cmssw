@@ -36,10 +36,7 @@ Test of the EventPrincipal class.
 #include <string>
 #include <typeinfo>
 
-//have to do this evil in order to access commit_ member function
-#define private public
 #include "FWCore/Framework/interface/Event.h"
-#undef private
 
 class testEventGetRefBeforePut: public CppUnit::TestFixture {
 CPPUNIT_TEST_SUITE(testEventGetRefBeforePut);

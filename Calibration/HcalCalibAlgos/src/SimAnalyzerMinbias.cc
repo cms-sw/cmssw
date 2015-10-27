@@ -32,8 +32,6 @@
 #include "TFile.h"
 #include "TTree.h"
 
-//#define debugLog
-
 // class declaration
 class SimAnalyzerMinbias : public edm::EDAnalyzer {
 
@@ -43,16 +41,14 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob() ;
   virtual void endJob() ;
-  virtual void beginRun(const edm::Run& r, const edm::EventSetup& iSetup);
-  virtual void endRun(const edm::Run& r, const edm::EventSetup& iSetup);
     
 private:
     
   // ----------member data ---------------------------
-  std::string fOutputFileName ;
-  double      timeCut;
-  TFile*      hOutputFile ;
-  TTree*      myTree;
+  std::string fOutputFileName_;
+  double      timeCut_;
+  TFile*      hOutputFile_;
+  TTree*      myTree_;
   
   // Root tree members
   int   mydet, mysubd, depth, iphi, ieta, cells;
@@ -63,7 +59,7 @@ private:
       theMB0 = theMB1 = theMB2 = theMB3 = theMB4 = 0;
     }
   };
-  std::map<HcalDetId,myInfo>               myMap;
+  std::map<HcalDetId,myInfo>               myMap_;
   edm::EDGetTokenT<edm::HepMCProduct>      tok_evt_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hcal_;
 };
@@ -72,17 +68,15 @@ private:
 
 SimAnalyzerMinbias::SimAnalyzerMinbias(const edm::ParameterSet& iConfig) {
   // get name of output file with histogramms
-  fOutputFileName = iConfig.getUntrackedParameter<std::string>("HistOutFile", "simOutput.root");
-  timeCut         = iConfig.getUntrackedParameter<double>("TimeCut", 500);
+  fOutputFileName_= iConfig.getUntrackedParameter<std::string>("HistOutFile", "simOutput.root");
+  timeCut_        = iConfig.getUntrackedParameter<double>("TimeCut", 500);
     
   // get token names of modules, producing object collections
-  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
+  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
   tok_hcal_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalHits"));
 
-#ifdef debugLog
-  std::cout << "Use Time cut of " << timeCut << " ns and store o/p in "
-	    << fOutputFileName << std::endl;
-#endif
+  edm::LogInfo("AnalyzerMB") << "Use Time cut of " << timeCut_
+			     << " ns and store o/p in " << fOutputFileName_;
 }
   
 SimAnalyzerMinbias::~SimAnalyzerMinbias() {
@@ -90,30 +84,23 @@ SimAnalyzerMinbias::~SimAnalyzerMinbias() {
   // (e.g. close files, deallocate resources etc.)
 }
   
-void SimAnalyzerMinbias::beginRun( const edm::Run& r, const edm::EventSetup& iSetup) {
-}
-  
-void SimAnalyzerMinbias::endRun( const edm::Run& r, const edm::EventSetup& iSetup) {
-}
-  
 void SimAnalyzerMinbias::beginJob() {
-  hOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ;
+  hOutputFile_ = new TFile( fOutputFileName_.c_str(), "RECREATE" );
 
-  myTree = new TTree("SimJet","SimJet Tree");
-  myTree->Branch("mydet",    &mydet, "mydet/I");
-  myTree->Branch("mysubd",   &mysubd, "mysubd/I");
-  myTree->Branch("cells",    &cells, "cells");
-  myTree->Branch("depth",    &depth, "depth/I");
-  myTree->Branch("ieta",     &ieta, "ieta/I");
-  myTree->Branch("iphi",     &iphi, "iphi/I");
-  myTree->Branch("mom0_MB",  &mom0_MB, "mom0_MB/F");
-  myTree->Branch("mom1_MB",  &mom1_MB, "mom1_MB/F");
-  myTree->Branch("mom2_MB",  &mom2_MB, "mom2_MB/F");
-  myTree->Branch("mom3_MB",  &mom2_MB, "mom3_MB/F");
-  myTree->Branch("mom4_MB",  &mom4_MB, "mom4_MB/F");
+  myTree_ = new TTree("SimJet","SimJet Tree");
+  myTree_->Branch("mydet",    &mydet, "mydet/I");
+  myTree_->Branch("mysubd",   &mysubd, "mysubd/I");
+  myTree_->Branch("cells",    &cells, "cells");
+  myTree_->Branch("depth",    &depth, "depth/I");
+  myTree_->Branch("ieta",     &ieta, "ieta/I");
+  myTree_->Branch("iphi",     &iphi, "iphi/I");
+  myTree_->Branch("mom0_MB",  &mom0_MB, "mom0_MB/F");
+  myTree_->Branch("mom1_MB",  &mom1_MB, "mom1_MB/F");
+  myTree_->Branch("mom2_MB",  &mom2_MB, "mom2_MB/F");
+  myTree_->Branch("mom3_MB",  &mom2_MB, "mom3_MB/F");
+  myTree_->Branch("mom4_MB",  &mom4_MB, "mom4_MB/F");
 
-  myMap.clear();
-  return ;
+  myMap_.clear();
 }
   
 //  EndJob
@@ -121,10 +108,8 @@ void SimAnalyzerMinbias::beginJob() {
 void SimAnalyzerMinbias::endJob() {
    
   cells = 0;
-  // std::cout << " Hello me here" << std::endl;
-  for (std::map<HcalDetId,myInfo>::const_iterator itr=myMap.begin(); 
-       itr != myMap.end(); ++itr) {
-    //  std::cout << " Hello me here" << std::endl;
+  for (std::map<HcalDetId,myInfo>::const_iterator itr=myMap_.begin(); 
+       itr != myMap_.end(); ++itr) {
     mysubd = itr->first.subdet();
     depth  = itr->first.depth();
     iphi   = itr->first.iphi();
@@ -142,24 +127,14 @@ void SimAnalyzerMinbias::endJob() {
 				 << iphi << " mom0  " << mom0_MB << " mom1 " 
 				 << mom1_MB << " mom2 " << mom2_MB << " mom3 "
 				 << mom3_MB << " mom4 " << mom4_MB;
-#ifdef debugLog
-      std::cout                  << " Result=  " << mysubd << " " << ieta << " "
-				 << iphi << " mom0  " << mom0_MB << " mom1 " 
-				 << mom1_MB << " mom2 " << mom2_MB << " mom3 "
-				 << mom3_MB << " mom4 " << mom4_MB << std::endl;
-#endif
-      myTree->Fill();
+      myTree_->Fill();
     }
   }
   edm::LogInfo("AnalyzerMB") << "cells " << cells;    
-#ifdef debugLog
-  std::cout                  << "cells " << cells << std::endl;
-#endif
-  hOutputFile->cd();
-  myTree->Write();
-  hOutputFile->Write();   
-  hOutputFile->Close() ;
-  return ;
+  hOutputFile_->cd();
+  myTree_->Write();
+  hOutputFile_->Write();   
+  hOutputFile_->Close() ;
 }
 
 //
@@ -170,48 +145,35 @@ void SimAnalyzerMinbias::endJob() {
   
 void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, 
 				 const edm::EventSetup&) {
-#ifdef debugLog    
-  std::cout << " Start SimAnalyzerMinbias::analyze " << iEvent.id().run() 
-	    << ":" << iEvent.id().event() << std::endl;
-#endif
+
+  edm::LogInfo("AnalyzerMB") << " Start SimAnalyzerMinbias::analyze " 
+			     << iEvent.id().run() << ":" << iEvent.id().event();
   
   edm::Handle<edm::HepMCProduct> evtMC;
   iEvent.getByToken(tok_evt_, evtMC);  
   if (!evtMC.isValid()) {
     edm::LogInfo("AnalyzerMB") << "no HepMCProduct found";
-#ifdef debugLog
-    std::cout                  << "no HepMCProduct found" << std::endl;
-#endif
   } else {
     const HepMC::GenEvent * myGenEvent = evtMC->GetEvent();
     edm::LogInfo("AnalyzerMB") << "Event with " << myGenEvent->particles_size()
 			       << " particles + " << myGenEvent->vertices_size()
 			       << " vertices";
-#ifdef debugLog
-    std::cout                  << "Event with " << myGenEvent->particles_size()
-			       << " particles + " << myGenEvent->vertices_size()
-			       << " vertices" << std::endl;
-#endif
   }
 
  
   edm::Handle<edm::PCaloHitContainer> hcalHits;
   iEvent.getByToken(tok_hcal_,hcalHits);
   if (!hcalHits.isValid()) {
-    edm::LogInfo("AnalyzerMB") << "Error! can't get HcalHits product!";
-#ifdef debugLog
-    std::cout                  << "Error! can't get HcalHits product!" 
-			       << std::endl;
-#endif
-    return ;
+    edm::LogWarning("AnalyzerMB") << "Error! can't get HcalHits product!";
+    return;
   }
   
   const edm::PCaloHitContainer * HitHcal = hcalHits.product () ;
   std::map<HcalDetId,double>  hitMap;
-  for (std::vector<PCaloHit>::const_iterator hcalItr = HitHcal->begin (); 
+  for (std::vector<PCaloHit>::const_iterator hcalItr = HitHcal->begin(); 
        hcalItr != HitHcal->end(); ++hcalItr) {
     double time      = hcalItr->time();
-    if (time < timeCut) {
+    if (time < timeCut_) {
       double energyhit = hcalItr->energy();
       HcalDetId hid    = HcalDetId(hcalItr->id());
       std::map<HcalDetId,double>::iterator itr1 = hitMap.find(hid);
@@ -222,29 +184,25 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent,
        itr1->second += energyhit;
     }
   }
-#ifdef debugLog
-  std::cout << "extract information of " << hitMap.size() << " towers from "
-	    << HitHcal->size() << " hits" << std::endl;
-#endif
+  edm::LogInfo("AnalyzerMB") << "extract information of " << hitMap.size() 
+			     << " towers from " << HitHcal->size() << " hits";
 
   for (std::map<HcalDetId,double>::const_iterator hcalItr=hitMap.begin(); 
        hcalItr != hitMap.end(); ++hcalItr) {
     HcalDetId hid    = hcalItr->first;
     double energyhit = hcalItr->second;
-    std::map<HcalDetId,myInfo>::iterator itr1 = myMap.find(hid);
-    if (itr1 == myMap.end()) {
+    std::map<HcalDetId,myInfo>::iterator itr1 = myMap_.find(hid);
+    if (itr1 == myMap_.end()) {
       myInfo info;
-      myMap[hid] = info;
-      itr1 = myMap.find(hid);
+      myMap_[hid] = info;
+      itr1 = myMap_.find(hid);
     } 
     itr1->second.theMB0++;
     itr1->second.theMB1 += energyhit;
     itr1->second.theMB2 += (energyhit*energyhit);
     itr1->second.theMB3 += (energyhit*energyhit*energyhit);
     itr1->second.theMB4 += (energyhit*energyhit*energyhit*energyhit);
-#ifdef debugLog
-    std::cout << "ID " << hid << " with energy " << energyhit << std::endl;
-#endif
+    edm::LogInfo("AnalyzerMB") << "ID " << hid << " with energy " << energyhit;
   }
 }
 

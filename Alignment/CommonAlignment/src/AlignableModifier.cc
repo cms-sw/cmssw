@@ -113,7 +113,7 @@ bool AlignableModifier::modify( Alignable* alignable, const edm::ParameterSet& p
   std::ostringstream error;
   std::vector<std::string> parameterNames = pSet.getParameterNames();
   for ( std::vector<std::string>::iterator iParam = parameterNames.begin(); 
-        iParam != parameterNames.end(); iParam++ ) {
+        iParam != parameterNames.end(); ++iParam ) {
     if  ( (*iParam) == "distribution" ) distribution_ = pSet.getParameter<std::string>( *iParam );
     else if ( (*iParam) == "setError" ) setError_ = pSet.getParameter<bool>( *iParam );
     else if ( (*iParam) == "setRotations") setRotations_ = pSet.getParameter<bool>( *iParam );

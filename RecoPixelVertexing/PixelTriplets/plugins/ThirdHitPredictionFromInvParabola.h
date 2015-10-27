@@ -23,8 +23,21 @@
 class TrackingRegion;
 class OrderedHitPair;
 
+// Function for testing ThirdHitPredictionFromInvParabola
+namespace test {
+  namespace PixelTriplets_InvPrbl_prec {
+    int test();
+  }
+  namespace PixelTriplets_InvPrbl_t {
+    int test();
+  }
+}
+
 
 class ThirdHitPredictionFromInvParabola {
+  // For tests
+  friend int test::PixelTriplets_InvPrbl_prec::test();
+  friend int test::PixelTriplets_InvPrbl_t::test();
 
 public:
   using Scalar=double;

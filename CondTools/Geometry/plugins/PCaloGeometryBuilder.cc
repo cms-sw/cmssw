@@ -1,8 +1,7 @@
-#include "CondTools/Geometry/plugins/PCaloGeometryBuilder.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -14,14 +13,16 @@
 #include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
 #include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
 
-PCaloGeometryBuilder::PCaloGeometryBuilder( const edm::ParameterSet& iConfig )
+class PCaloGeometryBuilder : public edm::one::EDAnalyzer<edm::one::WatchRuns>
 {
-}
-
-
-PCaloGeometryBuilder::~PCaloGeometryBuilder()
-{
-}
+public:
+  
+  PCaloGeometryBuilder( const edm::ParameterSet& ) {}
+  
+  void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
+  void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
+};
 
 void
 PCaloGeometryBuilder::beginRun( const edm::Run&, edm::EventSetup const& es )
@@ -63,3 +64,5 @@ PCaloGeometryBuilder::beginRun( const edm::Run&, edm::EventSetup const& es )
    es.get<CastorGeometry::AlignedRecord>().get(
       CastorGeometry::producerTag() + toDB, pGcast ) ;
 }
+
+DEFINE_FWK_MODULE(PCaloGeometryBuilder);

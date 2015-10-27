@@ -1,7 +1,4 @@
-
-#define protected public
 #include "TEveBoxSet.h"
-#undef protected
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
 #include "TEveCompound.h"

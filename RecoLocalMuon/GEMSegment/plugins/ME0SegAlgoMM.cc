@@ -334,7 +334,7 @@ std::vector<ME0Segment> ME0SegAlgoMM::buildSegments(const EnsembleHitContainer& 
   for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
     timeUncrt += pow((*rh)->tof()-averageTime,2);
   }
-  if(rechits.size() != 0) timeUncrt=timeUncrt/(rechits.size());
+  if(rechits.size() > 1) timeUncrt=timeUncrt/(rechits.size()-1);
   timeUncrt = sqrt(timeUncrt);
 
   // save all information inside GEMCSCSegment

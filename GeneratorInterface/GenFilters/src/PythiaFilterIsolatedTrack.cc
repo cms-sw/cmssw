@@ -80,7 +80,7 @@ double PythiaFilterIsolatedTrack::getDistInCM(double eta1, double phi1, double e
 }
 
 PythiaFilterIsolatedTrack::PythiaFilterIsolatedTrack(const edm::ParameterSet& iConfig) :
-  token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("ModuleLabel",std::string("generator")))),
+  token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("ModuleLabel",edm::InputTag("generator","unsmeared")))),
   MaxSeedEta_(iConfig.getUntrackedParameter<double>("MaxSeedEta", 2.3)),
   MinSeedMom_(iConfig.getUntrackedParameter<double>("MinSeedMom", 20.)),
   MinIsolTrackMom_(iConfig.getUntrackedParameter<double>("MinIsolTrackMom",2.0)),

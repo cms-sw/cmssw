@@ -316,7 +316,7 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
       DDsvalues_type::const_iterator sit = (**spit).begin();
       DDsvalues_type::const_iterator endsit = (**spit).end();
       for ( ; sit != endsit; ++sit ) {
-	for( vsite = measNames.begin(); vsite != measNames.end(); vsite++ ){
+	for( vsite = measNames.begin(); vsite != measNames.end(); ++vsite ){
 	  //- std::cout << "looping measObjectNames " << *vsite << std::endl;
 	  if (sit->second.name() == "meas_object_name_"+(*vsite)) {
 	    measObjectNames[*vsite] = sit->second.strings();
@@ -501,11 +501,11 @@ void CocoaAnalyzer::CorrectOptAlignments( std::vector<OpticalAlignInfo>& oaListC
       std::vector<OpticalAlignParam>::iterator itoap1, itoap2;
       std::vector<OpticalAlignParam> extraEntDB = oaInfoDB.extraEntries_;
       std::vector<OpticalAlignParam>* extraEntXML = &(oaInfoXML->extraEntries_);
-      for( itoap1 = extraEntDB.begin(); itoap1 != extraEntDB.end(); itoap1++ ){
+      for( itoap1 = extraEntDB.begin(); itoap1 != extraEntDB.end(); ++itoap1 ){
 	bool pFound = false;
 	//----- Look for the extra parameter in XML oaInfo that has the same name
 	std::string oaName = (*itoap1).name_.substr( 1, (*itoap1).name_.size()-2 );
-	for( itoap2 = extraEntXML->begin(); itoap2 != extraEntXML->end(); itoap2++ ){
+	for( itoap2 = extraEntXML->begin(); itoap2 != extraEntXML->end(); ++itoap2 ){
 	  if( oaName == (*itoap2).name_ ) {
 	    CorrectOaParam( &(*itoap2), *itoap1 ); 
 	    pFound = true;

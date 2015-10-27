@@ -280,7 +280,7 @@ FASTPUEventContent = cms.PSet(
                                            'keep *_generalTracksBeforeMixing_*_*',
                                            'drop *_generalTracksBeforeMixing_MVAValues_*',
                                            'drop *_generalTracksBeforeMixing_QualityMasks_*',
-                                           'keep edmHepMCProduct_generator_*_*',
+                                           'keep edmHepMCProduct_generatorSmeared_*_*'
                                            )
     )
 

@@ -33,7 +33,7 @@ FlatRandomEGunProducer::FlatRandomEGunProducer(const ParameterSet& pset) :
    fMinE = pgun_params.getParameter<double>("MinE");
    fMaxE = pgun_params.getParameter<double>("MaxE"); 
   
-   produces<HepMCProduct>();
+   produces<HepMCProduct>("unsmeared");
    produces<GenEventInfoProduct>();
 
    cout << "Internal FlatRandomEGun is initialzed" << endl ;
@@ -133,7 +133,7 @@ void FlatRandomEGunProducer::produce(Event & e, const EventSetup& es)
 
    auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
    BProduct->addHepMCData( fEvt );
-   e.put(BProduct);
+   e.put(BProduct, "unsmeared");
 
    auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
    e.put(genEventInfo);

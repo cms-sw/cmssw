@@ -290,7 +290,7 @@ void GlobalHitsProducer::fillG4MC(edm::Event& iEvent)
   // should have the information needed
   for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) {
     HepMCEvt = AllHepMCEvt[i];
-    if ((HepMCEvt.provenance()->product()).moduleLabel() == "VtxSmeared")
+    if ((HepMCEvt.provenance()->product()).moduleLabel() == "generatorSmeared")
       break;
   }
 

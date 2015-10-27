@@ -77,7 +77,7 @@ void FittedEntriesSet::FillEntries()
   //----- Iterate over entry list
   std::vector<Entry*>::const_iterator vecite; 
   for ( vecite = Model::EntryList().begin();
-    vecite != Model::EntryList().end(); vecite++ ) {
+    vecite != Model::EntryList().end(); ++vecite ) {
     //--- Only for good quality parameters (='unk')
     if ( (*vecite)->quality() >= theMinEntryQuality ) {
       //      ALIdouble dimv =  (*vecite)->ValueDimensionFactor();
@@ -99,7 +99,7 @@ void FittedEntriesSet::FillCorrelations()
   ALIuint nent = 0;
   std::vector<Entry*>::const_iterator vecite;
   for ( vecite = Model::EntryList().begin();
-	         vecite != Model::EntryList().end(); vecite++ ) {
+	         vecite != Model::EntryList().end(); ++vecite ) {
     if((*vecite)->quality() > theMinEntryQuality ) {
       nent++;
     }
@@ -184,7 +184,7 @@ void FittedEntriesSet::SetOptOEntries()
   if(ALIUtils::debug >= 5) std::cout << "  FittedEntriesSet::SetOptOEntries " << theFittedEntries.size() << std::endl;
 
   std::vector< FittedEntry* >::const_iterator ite;
-  for( ite = theFittedEntries.begin();ite != theFittedEntries.end();ite++){
+  for( ite = theFittedEntries.begin();ite != theFittedEntries.end();++ite){
     FittedEntry* fe = (*ite);
     OpticalObject * opto = Model::getOptOByName( fe->getOptOName() );
     Entry* entry = Model::getEntryByName( fe->getOptOName(), fe->getEntryName() );

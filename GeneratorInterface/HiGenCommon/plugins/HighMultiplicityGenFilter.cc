@@ -93,7 +93,7 @@ HighMultiplicityGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
   bool accepted = false;
   edm::Handle<edm::HepMCProduct> evt;
-  iEvent.getByLabel("generator", evt);
+  iEvent.getByLabel("generatorSmeared", evt);
 
   iSetup.getData(pdt);
 

@@ -17,7 +17,7 @@ patJetFlavourAssociationLegacy = cms.EDProducer("JetFlavourIdentifier",
 )
 
 patJetPartons = cms.EDProducer('HadronAndPartonSelector',
-    src = cms.InputTag("generator"),
+    src = cms.InputTag("generatorSmeared"),
     particles = cms.InputTag("genParticles"),
     partonMode = cms.string("Auto")
 )

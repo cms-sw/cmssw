@@ -6,6 +6,7 @@
 
 #include "XrdCl/XrdClFile.hh"
 #include "XrdCl/XrdClDefaultEnv.hh"
+#include "XrdCl/XrdClFileSystem.hh"
 
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -96,7 +97,8 @@ SendMonitoringInfo(XrdCl::File &file)
     file.GetProperty("LastURL", lastUrl);
     if (jobId && lastUrl.size())
     {
-        XrdCl::FileSystem fs = XrdCl::FileSystem(XrdCl::URL(lastUrl));
+        XrdCl::URL url(lastUrl);
+        XrdCl::FileSystem fs(url);
         fs.SendInfo(jobId, &nullHandler, 30);
         edm::LogInfo("XrdAdaptorInternal") << "Set monitoring ID to " << jobId << ".";
     }
@@ -293,7 +295,8 @@ RequestManager::updateSiteInfo(std::string orig_site)
   }
   else if (!orig_site.size() && (siteList != m_activeSites))
   {
-    edm::LogWarning("XrdAdaptor") << "Data is now served from " << siteList << " instead of previous " << m_activeSites;
+    if (m_activeSites.size() >0 )
+      edm::LogWarning("XrdAdaptor") << "Data is now served from " << siteList << " instead of previous " << m_activeSites;
     m_activeSites = siteList;
   }
 }

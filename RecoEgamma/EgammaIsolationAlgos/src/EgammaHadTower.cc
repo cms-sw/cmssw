@@ -2,13 +2,14 @@
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include <algorithm>
 #include <iostream>
 
 EgammaHadTower::EgammaHadTower(const edm::EventSetup &es,HoeMode mode):mode_(mode) {
   edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
-  es.get<HcalRecNumberingRecord>().get(ctmaph);
+  es.get<CaloGeometryRecord>().get(ctmaph);
   towerMap_ = &(*ctmaph);
   NMaxClusters_ = 4;
 }

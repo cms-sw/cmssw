@@ -16,9 +16,6 @@
 #include <iterator>
 #include <memory>
 
-// If you really want to test the inners of MultiAssociation, recompile after commenting
-// out this define
-//#define private public // so that we can get the inners of MultiAssociation
 #include "DataFormats/Common/interface/MultiAssociation.h"
 
 namespace {

@@ -155,7 +155,7 @@ void HcalRecHitClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 		  // fill 1D plots
 		  if (isHB(eta,mydepth+1)) 
 		    {
-		      if (validDetId(HcalBarrel, CalcIeta(HcalBarrel, eta, mydepth+1), phi+1, mydepth+1))
+		      if (topo_->validDetId(HcalBarrel, CalcIeta(HcalBarrel, eta, mydepth+1), phi+1, mydepth+1))
 			{
 			  meHBEnergy_1D->Fill(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1));
 			  meHBEnergyRMS_1D->Fill(sqrt(pow(SqrtSumEnergy2ByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1)-pow(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)));
@@ -163,7 +163,7 @@ void HcalRecHitClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 		    } 
 		  else if (isHE(eta,mydepth+1)) 
 		    {
-		      if (validDetId(HcalEndcap, CalcIeta(HcalEndcap, eta, mydepth+1), phi+1, mydepth+1)) 
+		      if (topo_->validDetId(HcalEndcap, CalcIeta(HcalEndcap, eta, mydepth+1), phi+1, mydepth+1)) 
 			{
 			  
 			  meHEEnergy_1D->Fill(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1));
@@ -172,7 +172,7 @@ void HcalRecHitClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 		    }
 		  else if (isHO(eta,mydepth+1)) 
 		    {
-		      if (validDetId(HcalOuter, CalcIeta(HcalOuter, eta, mydepth+1), phi+1, mydepth+1)) 
+		      if (topo_->validDetId(HcalOuter, CalcIeta(HcalOuter, eta, mydepth+1), phi+1, mydepth+1)) 
 			{
 			  meHOEnergy_1D->Fill(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1));
 			  meHOEnergyRMS_1D->Fill(sqrt(pow(SqrtSumEnergy2ByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1)-pow(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)));
@@ -180,7 +180,7 @@ void HcalRecHitClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 		    } 
 		  else if (isHF(eta,mydepth+1)) 
 		    {
-		      if (validDetId(HcalForward, CalcIeta(HcalForward, eta, mydepth+1), phi+1, mydepth+1)) 
+		      if (topo_->validDetId(HcalForward, CalcIeta(HcalForward, eta, mydepth+1), phi+1, mydepth+1)) 
 			{
 			  meHFEnergy_1D->Fill(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1));
 			  meHFEnergyRMS_1D->Fill(sqrt(pow(SqrtSumEnergy2ByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1)-pow(SumEnergyByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)));
@@ -198,7 +198,7 @@ void HcalRecHitClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 		  // fill 1D plots
 		  if (isHB(eta,mydepth+1)) 
 		    {
-		      if (validDetId(HcalBarrel, CalcIeta(HcalBarrel, eta, mydepth+1), phi+1, mydepth+1))
+		      if (topo_->validDetId(HcalBarrel, CalcIeta(HcalBarrel, eta, mydepth+1), phi+1, mydepth+1))
 			{
 			  meHBEnergyThresh_1D->Fill(SumEnergyThreshByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyThreshByDepth[mydepth]->GetBinContent(eta+1, phi+1));
 			  double RMS=pow(SqrtSumEnergy2ThreshByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)/OccupancyThreshByDepth[mydepth]->GetBinContent(eta+1,phi+1)-pow(SumEnergyThreshByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyThreshByDepth[mydepth]->GetBinContent(eta+1, phi+1),2);
@@ -208,7 +208,7 @@ void HcalRecHitClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 		    } 
 		  else if (isHE(eta,mydepth+1)) 
 		    {
-		      if (validDetId(HcalEndcap, CalcIeta(HcalEndcap, eta, mydepth+1), phi+1, mydepth+1)) 
+		      if (topo_->validDetId(HcalEndcap, CalcIeta(HcalEndcap, eta, mydepth+1), phi+1, mydepth+1)) 
 			{
 			  
 			  meHEEnergyThresh_1D->Fill(SumEnergyThreshByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyThreshByDepth[mydepth]->GetBinContent(eta+1, phi+1));
@@ -219,7 +219,7 @@ void HcalRecHitClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 		    }
 		  else if (isHO(eta,mydepth+1)) 
 		    {
-		      if (validDetId(HcalOuter, CalcIeta(HcalOuter, eta, mydepth+1), phi+1, mydepth+1)) 
+		      if (topo_->validDetId(HcalOuter, CalcIeta(HcalOuter, eta, mydepth+1), phi+1, mydepth+1)) 
 			{
 			  meHOEnergyThresh_1D->Fill(SumEnergyThreshByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyThreshByDepth[mydepth]->GetBinContent(eta+1, phi+1));
 			  double RMS=pow(SqrtSumEnergy2ThreshByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)/OccupancyThreshByDepth[mydepth]->GetBinContent(eta+1,phi+1)-pow(SumEnergyThreshByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyThreshByDepth[mydepth]->GetBinContent(eta+1, phi+1),2);
@@ -229,7 +229,7 @@ void HcalRecHitClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 		    } 
 		  else if (isHF(eta,mydepth+1)) 
 		    {
-		      if (validDetId(HcalForward, CalcIeta(HcalForward, eta, mydepth+1), phi+1, mydepth+1)) 
+		      if (topo_->validDetId(HcalForward, CalcIeta(HcalForward, eta, mydepth+1), phi+1, mydepth+1)) 
 			{
 			  meHFEnergyThresh_1D->Fill(SumEnergyThreshByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyThreshByDepth[mydepth]->GetBinContent(eta+1, phi+1));
 			  double RMS=pow(SqrtSumEnergy2ThreshByDepth[mydepth]->GetBinContent(eta+1, phi+1),2)/OccupancyThreshByDepth[mydepth]->GetBinContent(eta+1,phi+1)-pow(SumEnergyThreshByDepth[mydepth]->GetBinContent(eta+1, phi+1)/OccupancyThreshByDepth[mydepth]->GetBinContent(eta+1, phi+1),2);

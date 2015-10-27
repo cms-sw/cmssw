@@ -191,7 +191,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 
   // geometry dump
   if("" != m_WriteFile) {
-    G4GDMLParser gdml;
+    G4GDMLParser gdml(new G4GDMLReadStructure(), new CMSGDMLWriteStructure());
     gdml.Write(m_WriteFile, m_world->GetWorldVolume(), true);
   }
 

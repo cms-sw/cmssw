@@ -16,6 +16,7 @@
 #include "TROOT.h"
 #include "TH1F.h"
 #include "TF1.h"
+#include "TMinuitMinimizer.h"
 
 /*****************************************************************************/
 HIPixelMedianVtxProducer::HIPixelMedianVtxProducer(const edm::ParameterSet& ps) : 
@@ -29,6 +30,10 @@ HIPixelMedianVtxProducer::HIPixelMedianVtxProducer(const edm::ParameterSet& ps) 
   theFitBinning(ps.getParameter<int>("FitBinsPerCm"))
 {
   produces<reco::VertexCollection>();
+
+  //In order to make fitting ROOT histograms thread safe
+  // one must call this undocumented function
+  TMinuitMinimizer::UseStaticMinuit(false);
 }
 
 /*****************************************************************************/

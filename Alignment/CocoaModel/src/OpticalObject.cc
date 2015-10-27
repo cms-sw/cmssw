@@ -393,7 +393,7 @@ void OpticalObject::copyData()
 
   //---------- Copy Extra Entries from copied OptO
   std::vector<Entry*>::const_iterator vecite;
-  for( vecite = opto->ExtraEntryList().begin(); vecite != opto->ExtraEntryList().end(); vecite++ ) {
+  for( vecite = opto->ExtraEntryList().begin(); vecite != opto->ExtraEntryList().end(); ++vecite ) {
     std::vector<ALIstring> wordlist;
     wordlist.push_back( (*vecite)->type() );
     buildWordList( (*vecite), wordlist );      
@@ -404,7 +404,7 @@ void OpticalObject::copyData()
   }
 
   //---------- Copy Coordinate Entries from copied OptO
-  for( vecite = opto->CoordinateEntryList().begin(); vecite != opto->CoordinateEntryList().end(); vecite++ ) {
+  for( vecite = opto->CoordinateEntryList().begin(); vecite != opto->CoordinateEntryList().end(); ++vecite ) {
     std::vector<ALIstring> wordlist;
     buildWordList( (*vecite), wordlist );
     //----- first three coordinates centre, second three coordinates angles!!PROTECT AGAINST OTHER POSSIBILITIES!!
@@ -487,7 +487,7 @@ void OpticalObject::createComponentOptOs( ALIFileIn& filein )
   //---------- Loop components (have to follow list in 'vopto_types')
   std::vector<ALIstring>::iterator vsite;
   std::vector<ALIstring> wordlist; 
-  for( vsite=vopto_types.begin(); vsite!=vopto_types.end(); vsite++ ) {
+  for( vsite=vopto_types.begin(); vsite!=vopto_types.end(); ++vsite ) {
     //----- If it is not being copied, read first line describing object 
     //- std::cout << "fcopyy" << fcopyComponents << fcopyData << theName << *vsite << std::endl;
     if( !fcopyData && !fcopyComponents ) filein.getWordsInLine(wordlist);
@@ -672,7 +672,7 @@ void OpticalObject::setGlobalRMOriginalOriginal(const CLHEP::HepRotation& rmorio
     return;
   }
   std::vector<OpticalObject*>::const_iterator vocite;
-  for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
+  for (vocite = vopto.begin(); vocite != vopto.end(); ++vocite) {
     CLHEP::HepRotation rmorioriLocalChild = (*vocite)->buildRmFromEntryValuesOriginalOriginal();
     (*vocite)->setGlobalRMOriginalOriginal( rmorioriLocalChild );
     //    (*vocite)->propagateGlobalRMOriginalOriginalChangeToChildren( rmorioriold, rmGlobOriginalOriginal() );
@@ -698,7 +698,7 @@ void OpticalObject::propagateGlobalRMOriginalOriginalChangeToChildren( const CLH
     return;
   }
   std::vector<OpticalObject*>::const_iterator vocite;
-  for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
+  for (vocite = vopto.begin(); vocite != vopto.end(); ++vocite) {
     //    CLHEP::HepRotation rmoriorid = buildRmFromEntryValues();
     (*vocite)->propagateGlobalRMOriginalOriginalChangeToChildren( rmorioriold, rmoriorinew );
   }  
@@ -867,7 +867,7 @@ void OpticalObject::setOriginalEntryValues()
   //---------- Set extra entry values
   std::vector<ALIdouble>::const_iterator vdcite;
   for (vdcite = ExtraEntryValueList().begin(); 
-       vdcite != ExtraEntryValueList().end(); vdcite++) {
+       vdcite != ExtraEntryValueList().end(); ++vdcite) {
       addExtraEntryValueOriginalToList( *vdcite );
       addExtraEntryValueOriginalOriginalToList( *vdcite );
   }
@@ -1051,7 +1051,7 @@ void OpticalObject::displaceCentreGlob( const XYZcoor coor, const ALIdouble disp
     return;
   }
   std::vector<OpticalObject*>::const_iterator vocite;
-  for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
+  for (vocite = vopto.begin(); vocite != vopto.end(); ++vocite) {
       (*vocite)->displaceCentreGlob( dispVec ); 
   }
 
@@ -1098,7 +1098,7 @@ void OpticalObject::displaceCentreGlob( const CLHEP::Hep3Vector& dispVec)
     return;
   }
   std::vector<OpticalObject*>::const_iterator vocite;
-  for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
+  for (vocite = vopto.begin(); vocite != vopto.end(); ++vocite) {
     (*vocite)->displaceCentreGlob( dispVec ); 
   }
 
@@ -1139,7 +1139,7 @@ void OpticalObject::displaceCentreGlobOriginal( const XYZcoor coor, const ALIdou
   std::vector<OpticalObject*> vopto;
   Model::getComponentOptOs(name(), vopto); 
   std::vector<OpticalObject*>::const_iterator vocite;
-  for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
+  for (vocite = vopto.begin(); vocite != vopto.end(); ++vocite) {
       (*vocite)->displaceCentreGlobOriginal( dispVec ); 
   }
 
@@ -1161,7 +1161,7 @@ void OpticalObject::displaceCentreGlobOriginal( const CLHEP::Hep3Vector& dispVec
   std::vector<OpticalObject*> vopto;
   Model::getComponentOptOs(name(), vopto); 
   std::vector<OpticalObject*>::const_iterator vocite;
-  for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
+  for (vocite = vopto.begin(); vocite != vopto.end(); ++vocite) {
       (*vocite)->displaceCentreGlobOriginal( dispVec ); 
   }
 
@@ -1182,7 +1182,7 @@ void OpticalObject::displaceCentreGlobOriginalOriginal( const XYZcoor coor, cons
   std::vector<OpticalObject*> vopto;
   Model::getComponentOptOs(name(), vopto); 
   std::vector<OpticalObject*>::const_iterator vocite;
-  for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
+  for (vocite = vopto.begin(); vocite != vopto.end(); ++vocite) {
       (*vocite)->displaceCentreGlobOriginalOriginal( dispVec ); 
   }
 
@@ -1204,7 +1204,7 @@ void OpticalObject::displaceCentreGlobOriginalOriginal( const CLHEP::Hep3Vector&
   std::vector<OpticalObject*> vopto;
   Model::getComponentOptOs(name(), vopto); 
   std::vector<OpticalObject*>::const_iterator vocite;
-  for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
+  for (vocite = vopto.begin(); vocite != vopto.end(); ++vocite) {
       (*vocite)->displaceCentreGlobOriginalOriginal( dispVec ); 
   }
 
@@ -1246,7 +1246,7 @@ void OpticalObject::displaceRmGlobAroundGlobal( OpticalObject* opto1stRotated, c
   std::vector<OpticalObject*> vopto;
   Model::getComponentOptOs(name(), vopto); 
   std::vector<OpticalObject*>::const_iterator vocite;
-  for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
+  for (vocite = vopto.begin(); vocite != vopto.end(); ++vocite) {
     (*vocite)->displaceRmGlobAroundGlobal( opto1stRotated, coor, disp);
   }
 
@@ -1335,7 +1335,7 @@ void OpticalObject::displaceRmGlobAroundLocal( OpticalObject* opto1stRotated, co
   std::vector<OpticalObject*> vopto;
   Model::getComponentOptOs(name(), vopto); 
   std::vector<OpticalObject*>::const_iterator vocite;
-  for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
+  for (vocite = vopto.begin(); vocite != vopto.end(); ++vocite) {
     (*vocite)->displaceRmGlobAroundLocal( opto1stRotated, coor, 0.);
     //for aroundglobal all components are explicitly rotated disp, for aroundLocal, they will be rotated automatically if the parent is rotated, as the rmGlob is built from scratch
   }
@@ -1351,7 +1351,7 @@ void OpticalObject::setGlobalCoordinatesOfComponents()
   std::vector<OpticalObject*> vopto;
   Model::getComponentOptOs(name(), vopto); 
   std::vector<OpticalObject*>::const_iterator vocite;
-  for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
+  for (vocite = vopto.begin(); vocite != vopto.end(); ++vocite) {
     (*vocite)->setGlobalCoordinates();
   }
 
@@ -1413,7 +1413,7 @@ void OpticalObject::displaceRmGlobOriginal(const  OpticalObject* opto1stRotated,
     std::vector<OpticalObject*> vopto;
     Model::getComponentOptOs(name(), vopto); 
     std::vector<OpticalObject*>::const_iterator vocite;
-    for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
+    for (vocite = vopto.begin(); vocite != vopto.end(); ++vocite) {
       (*vocite)->displaceRmGlobOriginal( opto1stRotated, coor, disp);
     }
 
@@ -1425,7 +1425,7 @@ void OpticalObject::displaceRmGlobOriginal(const  OpticalObject* opto1stRotated,
     std::vector<OpticalObject*> vopto;
     Model::getComponentOptOs(name(), vopto); 
     std::vector<OpticalObject*>::const_iterator vocite;
-    for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
+    for (vocite = vopto.begin(); vocite != vopto.end(); ++vocite) {
       (*vocite)->displaceRmGlobOriginal( opto1stRotated, coor, disp);
     }
     if( ALIUtils::debug >= 5 ) {
@@ -1491,7 +1491,7 @@ void OpticalObject::displaceRmGlobOriginalOriginal(const  OpticalObject* opto1st
     std::vector<OpticalObject*> vopto;
     Model::getComponentOptOs(name(), vopto); 
     std::vector<OpticalObject*>::const_iterator vocite;
-    for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
+    for (vocite = vopto.begin(); vocite != vopto.end(); ++vocite) {
       (*vocite)->displaceRmGlobOriginalOriginal( opto1stRotated, coor, disp);
     }
 
@@ -1503,7 +1503,7 @@ void OpticalObject::displaceRmGlobOriginalOriginal(const  OpticalObject* opto1st
     std::vector<OpticalObject*> vopto;
     Model::getComponentOptOs(name(), vopto); 
     std::vector<OpticalObject*>::const_iterator vocite;
-    for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
+    for (vocite = vopto.begin(); vocite != vopto.end(); ++vocite) {
       (*vocite)->displaceRmGlobOriginalOriginal( opto1stRotated, coor, disp);
     }
     if( ALIUtils::debug >= 5 ) {
@@ -1543,7 +1543,7 @@ const ALIint OpticalObject::extraEntryNo( const ALIstring& entry_name ) const
   //-  std::cout << ExtraEntryList().size() << "entry name " << entry_name << std::endl;
 
   std::vector<Entry*>::const_iterator vecite;
-  for (vecite = ExtraEntryList().begin(); vecite != ExtraEntryList().end(); vecite++) {
+  for (vecite = ExtraEntryList().begin(); vecite != ExtraEntryList().end(); ++vecite) {
     //-    std::cout <<"in entryno" << (*vecite)->name() << entry_name << std::endl; 
     if ((*vecite)->name() == entry_name ) {
       return (vecite - ExtraEntryList().begin());
@@ -1628,7 +1628,7 @@ void OpticalObject::resetGlobalCoordinates()
   std::vector<ALIdouble>::iterator vdite;
   std::vector<ALIdouble>::const_iterator vdcite_o = ExtraEntryValueOriginalList().begin() ;
   for (vdite = ExtraEntryValueList().begin(); 
-       vdite != ExtraEntryValueList().end(); vdite++,vdcite_o++) {
+       vdite != ExtraEntryValueList().end(); ++vdite,++vdcite_o) {
     (*vdite) = (*vdcite_o);
   }
 
@@ -1636,7 +1636,7 @@ void OpticalObject::resetGlobalCoordinates()
   std::vector<OpticalObject*> vopto;
   Model::getComponentOptOs(name(), vopto); 
   std::vector<OpticalObject*>::const_iterator vocite;
-  for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
+  for (vocite = vopto.begin(); vocite != vopto.end(); ++vocite) {
     (*vocite)->resetGlobalCoordinates();
   }
 
@@ -1664,7 +1664,7 @@ void OpticalObject::resetOriginalOriginalCoordinates()
   std::vector<ALIdouble>::const_iterator vdcite_oo = theExtraEntryValueOriginalOriginalVector.begin() ;
   std::vector<Entry*>::const_iterator vdciteE = ExtraEntryList().begin() ;
   for (vdite = ExtraEntryValueList().begin(); 
-       vdite != ExtraEntryValueList().end(); vdite++,vdite_o++,vdcite_oo++,vdciteE++) {
+       vdite != ExtraEntryValueList().end(); ++vdite,++vdite_o,++vdcite_oo,++vdciteE) {
     (*vdite) = (*vdcite_oo);
     (*vdite_o) = (*vdcite_oo); 
     (*vdciteE)->addFittedDisplacementToValue( - (*vdciteE)->valueDisplacementByFitting() );
@@ -1686,7 +1686,7 @@ void OpticalObject::resetOriginalOriginalCoordinates()
   std::vector<OpticalObject*> vopto;
   Model::getComponentOptOs(name(), vopto); 
   std::vector<OpticalObject*>::const_iterator vocite;
-  for (vocite = vopto.begin(); vocite != vopto.end(); vocite++) {
+  for (vocite = vopto.begin(); vocite != vopto.end(); ++vocite) {
     (*vocite)->resetOriginalOriginalCoordinates();
   }
 
@@ -2113,7 +2113,7 @@ void OpticalObject::constructFromOptAligInfo( const OpticalAlignInfo& oaInfo )
     std::vector<OpticalAlignParam> exEnt = oaInfo.extraEntries_;
     std::vector<OpticalAlignParam>::iterator ite;
     std::vector<ALIstring> wordlist;
-    for( ite = exEnt.begin(); ite != exEnt.end(); ite++ ){
+    for( ite = exEnt.begin(); ite != exEnt.end(); ++ite ){
       wordlist = getCoordinateFromOptAlignParam( *ite );
       wordlist.insert(wordlist.begin(), (*ite).dimType() );
       fillExtraEntry( wordlist );
@@ -2230,7 +2230,7 @@ void OpticalObject::createComponentOptOsFromOptAlignInfo()
   if ( ALIUtils::debug >= 5 ) {
     std::cout << "OpticalObject::createComponentsFromAlignInfo: N components = " << children.size() << std::endl;
   }
-  for( ite = children.begin(); ite != children.end(); ite++ ){
+  for( ite = children.begin(); ite != children.end(); ++ite ){
 
     //---------- Get component type 
     ALIstring optoType = (*ite).type_;

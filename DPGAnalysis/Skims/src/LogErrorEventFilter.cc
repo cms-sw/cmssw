@@ -127,12 +127,12 @@ LogErrorEventFilter::LogErrorEventFilter(const edm::ParameterSet & iConfig) :
             categoriesToIgnore_.insert(categories.begin(), categories.end());
         }
     }
-    std::ostream_iterator<std::string> dump(std::cout, ", ");
-    std::cout << "\nWatch modules:     " ; std::copy(modulesToWatch_.begin(),     modulesToWatch_.end(),     dump);
-    std::cout << "\nIgnore modules:    " ; std::copy(modulesToIgnore_.begin(),    modulesToIgnore_.end(),    dump);
-    std::cout << "\nIgnore categories: " ; std::copy(categoriesToIgnore_.begin(), categoriesToIgnore_.end(), dump);
-    std::cout << "\nWatch categories:  " ; std::copy(categoriesToWatch_.begin(),  categoriesToWatch_.end(),  dump);
-    std::cout << std::endl;
+    //std::ostream_iterator<std::string> dump(std::cout, ", ");
+    //std::cout << "\nWatch modules:     " ; std::copy(modulesToWatch_.begin(),     modulesToWatch_.end(),     dump);
+    //std::cout << "\nIgnore modules:    " ; std::copy(modulesToIgnore_.begin(),    modulesToIgnore_.end(),    dump);
+    //std::cout << "\nIgnore categories: " ; std::copy(categoriesToIgnore_.begin(), categoriesToIgnore_.end(), dump);
+    //std::cout << "\nWatch categories:  " ; std::copy(categoriesToWatch_.begin(),  categoriesToWatch_.end(),  dump);
+    //std::cout << std::endl;
 
 }
 

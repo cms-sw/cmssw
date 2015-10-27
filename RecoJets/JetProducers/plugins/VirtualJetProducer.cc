@@ -345,12 +345,20 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   
   bool isView = iEvent.getByToken(input_candidateview_token_, inputsHandle);
   if ( isView ) {
+    if ( inputsHandle->size() == 0) {
+      output( iEvent, iSetup );
+      return;
+    }
     for (size_t i = 0; i < inputsHandle->size(); ++i) {
       inputs_.push_back(inputsHandle->ptrAt(i));
     }
   } else {
     bool isPF = iEvent.getByToken(input_candidatefwdptr_token_, pfinputsHandleAsFwdPtr);
     if ( isPF ) {
+      if ( pfinputsHandleAsFwdPtr->size() == 0) {
+	output( iEvent, iSetup );
+	return;
+      }
       for (size_t i = 0; i < pfinputsHandleAsFwdPtr->size(); ++i) {
 	if ( (*pfinputsHandleAsFwdPtr)[i].ptr().isAvailable() ) {
 	  inputs_.push_back( (*pfinputsHandleAsFwdPtr)[i].ptr() );
@@ -361,6 +369,10 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
       }
     } else {
       iEvent.getByToken(input_packedcandidatefwdptr_token_, packedinputsHandleAsFwdPtr);
+      if ( packedinputsHandleAsFwdPtr->size() == 0) {
+	output( iEvent, iSetup );
+	return;
+      }
       for (size_t i = 0; i < packedinputsHandleAsFwdPtr->size(); ++i) {
 	if ( (*packedinputsHandleAsFwdPtr)[i].ptr().isAvailable() ) {
 	  inputs_.push_back( (*packedinputsHandleAsFwdPtr)[i].ptr() );

@@ -6,6 +6,7 @@
 // collection info
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include <cmath>
 
@@ -53,26 +54,28 @@ class HcalHotCellMonitor: public HcalBaseDQMonitor {
 
   void processEvent(const HBHERecHitCollection& hbHits,
                     const HORecHitCollection& hoHits,
-                    const HFRecHitCollection& hfHits
-		    );
+                    const HFRecHitCollection& hfHits,
+		    const HcalTopology& topology);
 
   void processEvent_rechitenergy( const HBHERecHitCollection& hbheHits,
                                   const HORecHitCollection& hoHits,
-                                  const HFRecHitCollection& hfHits);
+                                  const HFRecHitCollection& hfHits,
+				  const HcalTopology& topology);
 
   template <class R, class C> void processHit_rechitNeighbors(R& rechititer,
 							      C& collection,
-							      hotNeighborParams& params);
+							      hotNeighborParams& params,
+							      const HcalTopology& topology);
 
   void periodicReset();
 
 
- private:
-  void fillNevents_neighbor();
-  void fillNevents_energy();
-  void fillNevents_persistentenergy();
+private:
+  void fillNevents_neighbor(const HcalTopology&);
+  void fillNevents_energy(const HcalTopology&);
+  void fillNevents_persistentenergy(const HcalTopology&);
   
-  void fillNevents_problemCells();
+  void fillNevents_problemCells(const HcalTopology&);
   void zeroCounters();
 
   int minEvents_; // minimum # of events in a lumi block before persistent test will be checked

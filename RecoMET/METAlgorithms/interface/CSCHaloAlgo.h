@@ -148,16 +148,16 @@ class CSCHaloAlgo {
   float max_segment_phi_diff;
   float max_segment_theta;
   // End MLR
-  float  et_thresh_rh_hbhe, dphi_thresh_segvsrh_hbhe,dr_lowthresh_segvsrh_hbhe, dr_highthresh_segvsrh_hbhe, dt_lowthresh_segvsrh_hbhe;
-  float  et_thresh_rh_eb, dphi_thresh_segvsrh_eb,dr_lowthresh_segvsrh_eb, dr_highthresh_segvsrh_eb, dt_lowthresh_segvsrh_eb;
-  float  et_thresh_rh_ee, dphi_thresh_segvsrh_ee,dr_lowthresh_segvsrh_ee, dr_highthresh_segvsrh_ee, dt_lowthresh_segvsrh_ee;
+  float  et_thresh_rh_hbhe, dphi_thresh_segvsrh_hbhe,dr_lowthresh_segvsrh_hbhe, dr_highthresh_segvsrh_hbhe, dt_lowthresh_segvsrh_hbhe, dt_highthresh_segvsrh_hbhe;
+  float  et_thresh_rh_eb, dphi_thresh_segvsrh_eb,dr_lowthresh_segvsrh_eb, dr_highthresh_segvsrh_eb, dt_lowthresh_segvsrh_eb, dt_highthresh_segvsrh_eb;
+  float  et_thresh_rh_ee, dphi_thresh_segvsrh_ee,dr_lowthresh_segvsrh_ee, dr_highthresh_segvsrh_ee, dt_lowthresh_segvsrh_ee, dt_highthresh_segvsrh_ee;
 
   
   
   const CaloGeometry *geo;
   math::XYZPoint getPosition(const DetId &id, reco::Vertex::Point vtx);
-  bool HCALSegmentMatching(edm::Handle<HBHERecHitCollection>& rechitcoll, float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh , float iZ, float iR, float iT, float iPhi);
-  bool ECALSegmentMatching(edm::Handle<EcalRecHitCollection>& rechitcoll,  float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh, float iZ, float iR, float iT, float iPhi );
+  bool HCALSegmentMatching(edm::Handle<HBHERecHitCollection>& rechitcoll, float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh, float dt_highthresh_segvsrh, float iZ, float iR, float iT, float iPhi);
+  bool ECALSegmentMatching(edm::Handle<EcalRecHitCollection>& rechitcoll,  float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh, float dt_highthresh_segvsrh, float iZ, float iR, float iT, float iPhi );
 
 };
 

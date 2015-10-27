@@ -159,7 +159,7 @@ void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet&
   // Propagate some given parameters
   std::vector<std::string> parameterNames = pSet.getParameterNames();
   for ( std::vector<std::string>::iterator iter = parameterNames.begin();
-        iter != parameterNames.end(); iter++ ) {
+        iter != parameterNames.end(); ++iter ) {
     if ( theModifier.isPropagated( *iter ) ) { // like 'distribution', 'scale', etc.
       LogDebug("PropagateParameters") << indent_ << " - adding parameter " << (*iter) << std::endl;
       subSet.copyFrom(pSet, (*iter)); // If existing, is not replaced.
@@ -170,7 +170,7 @@ void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet&
   std::vector<std::string> pSetNames;
   if ( pSet.getParameterSetNames( pSetNames, true ) > 0 ) {
     for ( std::vector<std::string>::const_iterator it = pSetNames.begin();
-          it != pSetNames.end(); it++ ) {
+          it != pSetNames.end(); ++it ) {
       const std::string rootName = this->rootName_(*it);
       const std::string globalRoot(this->rootName_(globalName));
       if (rootName.compare(0, rootName.length(), globalRoot) == 0) {
@@ -307,7 +307,7 @@ void MisalignmentScenarioBuilder::printParameters_( const edm::ParameterSet& pSe
 
   std::vector<std::string> parameterNames = pSet.getParameterNames();
   for ( std::vector<std::string>::iterator iter = parameterNames.begin();
-        iter != parameterNames.end(); iter++ ) {
+        iter != parameterNames.end(); ++iter ) {
     if (showPsets || !pSet.existsAs<edm::ParameterSet>(*iter)) {
 //       LogTrace("PrintParameters") << indent_ << "   " << (*iter) << " = " 
 // 				  << pSet.retrieve( *iter ).toString() << std::endl;

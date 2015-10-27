@@ -36,7 +36,7 @@ namespace{
 
 
 PythiaFilterEMJet::PythiaFilterEMJet(const edm::ParameterSet& iConfig) :
-token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 etaMin(iConfig.getUntrackedParameter<double>("MinEMEta", 0)),
 eTSumMin(iConfig.getUntrackedParameter<double>("ETSumMin", 50.)),
 pTMin(iConfig.getUntrackedParameter<double>("MinEMpT", 5.)),

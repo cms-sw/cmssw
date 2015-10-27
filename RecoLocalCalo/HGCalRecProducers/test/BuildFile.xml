@@ -1,0 +1,10 @@
+<use   name="DataFormats/ForwardDetId"/>
+<use   name="DataFormats/HGCDigi"/>
+<use   name="DataFormats/HGCRecHit"/>
+<use   name="SimDataFormats/CaloHit"/>
+<use   name="SimDataFormats/CrossingFrame"/>
+<use   name="FWCore/Framework"/>
+<use name="DQMServices/Core"/>
+<use   name="boost"/>
+<use   name="root"/>
+

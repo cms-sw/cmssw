@@ -86,7 +86,7 @@ if(isSignal or isBckg):
    process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
    process.allGenParticles = cms.EDProducer("GenParticleProducer",
         saveBarCodes = cms.untracked.bool(False),
-        src = cms.InputTag("generator"),
+        src = cms.InputTag("VtxSmeared"),
         abortOnUnknownPDGCode = cms.untracked.bool(False)
    )
    process.genParticles = cms.EDFilter("GenParticleSelector",

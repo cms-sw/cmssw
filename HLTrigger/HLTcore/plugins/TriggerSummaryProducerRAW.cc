@@ -104,6 +104,7 @@ TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup&)
        << " D/" << fobs[ifob]->l1hfringsSize()
        << " E/" << fobs[ifob]->pfjetSize()
        << " F/" << fobs[ifob]->pftauSize()
+       << " G/" << fobs[ifob]->pfmetSize()
        << endl;
      product->addFilterObject(tag,*fobs[ifob]);
    }

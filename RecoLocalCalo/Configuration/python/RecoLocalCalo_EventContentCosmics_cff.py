@@ -27,9 +27,13 @@ RecoLocalCaloRECO = cms.PSet(
                                            'keep HBHERecHitsSorted_hbherecoMB_*_*',
                                            'keep HORecHitsSorted_horecoMB_*_*',
                                            'keep HFRecHitsSorted_hfrecoMB_*_*',
-                                           'keep ZDCDataFramesSorted_*Digis_*_*',
+                                           #'keep ZDCDataFramesSorted_*Digis_*_*',
+                                           'keep ZDCDataFramesSorted_hcalDigis_*_*',
+                                           'keep ZDCDataFramesSorted_simHcalUnsuppressedDigis_*_*',
                                            'keep ZDCRecHitsSorted_*_*_*',
-                                           'keep HcalUnpackerReport_*_*_*'
+                                           #'keep HcalUnpackerReport_*_*_*'
+                                           'keep HcalUnpackerReport_castorDigis_*_*',
+                                           'keep HcalUnpackerReport_hcalDigis_*_*'
         )
 )
 #AOD content

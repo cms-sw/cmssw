@@ -34,7 +34,7 @@ payload2xmlCodeTemplate = """
 
 namespace { // Avoid cluttering the global namespace.
 
-  std::string %(plType)s2xml( const std::string &payloadData, const std::string &payloadType ) { 
+  std::string %(plTypeSan)s2xml( const std::string &payloadData, const std::string &payloadType ) { 
 
       // now to convert
       std::unique_ptr< %(plType)s > payload;
@@ -62,7 +62,7 @@ namespace { // Avoid cluttering the global namespace.
 BOOST_PYTHON_MODULE(%(mdName)s)
 {
     using namespace boost::python;
-    def ("%(plType)s2xml", %(plType)s2xml);
+    def ("%(plTypeSan)s2xml", %(plTypeSan)s2xml);
 }
 
 """ 
@@ -108,6 +108,10 @@ buildFileTemplate = """
 </export>
 """
 
+# helper function
+def sanitize(typeName):
+    return typeName.replace(' ','').replace('<','_').replace('>','')
+
 class CondXmlProcessor(object):
 
     def __init__(self, condDBIn):
@@ -131,16 +135,21 @@ class CondXmlProcessor(object):
 
     def discover(self, payloadType):
 
+    	# print "discover> checking for plugin of type %s" % payloadType
+
         # first search in developer area:
 	libDir = os.path.join( os.environ["CMSSW_BASE"], 'lib', os.environ["SCRAM_ARCH"] )
-	pluginList = glob.glob( libDir + '/plugin%s_toXML.so' % payloadType )
+	pluginList = glob.glob( libDir + '/plugin%s_toXML.so' % sanitize(payloadType) )
 
         # if nothing found there, check release:
         if not pluginList:
 	   libDir = os.path.join( os.environ["CMSSW_RELEASE_BASE"], 'lib', os.environ["SCRAM_ARCH"] )
-	   pluginList = glob.glob( libDir + '/plugin%s_toXML.so' % payloadType )
+	   pluginList = glob.glob( libDir + '/plugin%s_toXML.so' % sanitize(payloadType) )
 
-	# print "found plugin for %s (in %s) : %s " % (payloadType, libDir, pluginList)
+	# if pluginList: 
+	#    print "found plugin for %s (in %s) : %s " % (payloadType, libDir, pluginList)
+	# else:
+	#    print "no plugin found for type %s" % payloadType
 
 	xmlConverter = None
 	if len(pluginList) > 0:
@@ -148,7 +157,7 @@ class CondXmlProcessor(object):
 	   sys.path.append(dirPath)
 	   # print "going to import %s from %s" % (libName, dirPath)
 	   xmlConverter = importlib.import_module( libName.replace('.so', '') )
-	   # print "found : ", dir(xmlConverter)
+	   # print "found methods: ", dir(xmlConverter)
 	   self.doCleanup = False
 
 	return xmlConverter
@@ -162,7 +171,8 @@ class CondXmlProcessor(object):
         data, plType = result
     
         info = { "mdName" : "pl2xmlComp",
-        	     'plType' : plType,
+        	 'plType' : plType,
+        	 'plTypeSan' : sanitize(plType),
     	    }
     
         converter = self.discover(plType)
@@ -217,7 +227,7 @@ class CondXmlProcessor(object):
         result = session.query(self.conddb.Payload.data, self.conddb.Payload.object_type).filter(self.conddb.Payload.hash == payload).one()
         data, plType = result
     
-        convFuncName = plType+'2xml'
+        convFuncName = sanitize(plType)+'2xml'
         sys.path.append('.')
 	func = getattr(xmlConverter, convFuncName)
     	resultXML = func( str(data), str(plType) )

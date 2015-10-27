@@ -31,7 +31,7 @@ FlatRandomPtGunProducer::FlatRandomPtGunProducer(const ParameterSet& pset) :
    fMinPt = pgun_params.getParameter<double>("MinPt");
    fMaxPt = pgun_params.getParameter<double>("MaxPt");
   
-  produces<HepMCProduct>();
+  produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
 }
 
@@ -118,7 +118,7 @@ void FlatRandomPtGunProducer::produce(Event &e, const EventSetup& es)
 
    auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
    BProduct->addHepMCData( fEvt );
-   e.put(BProduct);
+   e.put(BProduct, "unsmeared");
 
    auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
    e.put(genEventInfo);

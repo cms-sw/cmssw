@@ -11,6 +11,8 @@
 #include "Pythia8/Pythia.h"
 #include "Pythia8Plugins/HepMC2.h"
 
+using namespace Pythia8;
+
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
 #include "GeneratorInterface/Pythia8Interface/plugins/ReweightUserHooks.h"
@@ -54,7 +56,7 @@ namespace CLHEP {
 }
 
 using namespace gen;
-using namespace Pythia8;
+
 
 class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
 
