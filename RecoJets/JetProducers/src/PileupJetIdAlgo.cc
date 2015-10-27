@@ -537,7 +537,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	  float dphi = reco::deltaPhi(*part, *jet);
 	  float ddeta, ddphi, ddR;
 	  ddeta = deta - ave_deta ;
-	  ddphi = 2*atan(tan((dphi - ave_dphi)/2.)) ;
+	  ddphi = dphi-ave_dphi;
 	  ddR = sqrt(ddeta*ddeta + ddphi*ddphi);
 	  ddetaR_sum += ddR*ddeta*weight;
 	  ddphiR_sum += ddR*ddphi*weight;
