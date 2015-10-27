@@ -109,7 +109,7 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
 
   for (reco::GsfElectronCollection::const_iterator recoElectron =
 	 electronCollection->begin ();
-       recoElectron != electronCollection->end (); recoElectron++)
+       recoElectron != electronCollection->end (); ++recoElectron)
     {
 
       if (recoElectron->et () <= 25)

@@ -133,7 +133,7 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
     int segmFromCsc=0;
 
     for (MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator segment=segments.begin();
-	 segment!=segments.end(); segment++) {
+	 segment!=segments.end(); ++segment) {
    
       DetId id = (*segment)->geographicalId();
     

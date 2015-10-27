@@ -135,7 +135,7 @@ void DTnoiseDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
 
   // Loop over reference DB entries
   for(DTStatusFlag::const_iterator noise = noiseRefMap_->begin();
-      noise != noiseRefMap_->end(); noise++) {
+      noise != noiseRefMap_->end(); ++noise) {
     DTWireId wireId((*noise).first.wheelId,
 		    (*noise).first.stationId,
 		    (*noise).first.sectorId,
@@ -148,7 +148,7 @@ void DTnoiseDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
 
   // Loop over validation DB entries
   for(DTStatusFlag::const_iterator noise = noiseMap_->begin();
-      noise != noiseMap_->end(); noise++) {
+      noise != noiseMap_->end(); ++noise) {
     DTWireId wireId((*noise).first.wheelId,
 		    (*noise).first.stationId,
 		    (*noise).first.sectorId,
@@ -184,22 +184,22 @@ void DTnoiseDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
   scale = 1/double(noisyCellsValid_);
   for(map<int, int >::const_iterator wheel = whMap.begin();
 	wheel != whMap.end();
-	wheel++) {
+	++wheel) {
     wheelHisto_->Fill((*wheel).first, ((*wheel).second)*scale);
   }
   for(map<int, int >::const_iterator station = stMap.begin();
 	station != stMap.end();
-	station++) {
+	++station) {
     stationHisto_->Fill((*station).first, ((*station).second)*scale);
   }
   for(map<int, int >::const_iterator sector = sectMap.begin();
 	sector != sectMap.end();
-	sector++) {
+	++sector) {
     sectorHisto_->Fill((*sector).first, ((*sector).second)*scale);
   }
   for(map<int, int >::const_iterator layer = layerMap.begin();
 	layer != layerMap.end();
-	layer++) {
+	++layer) {
     layerHisto_->Fill((*layer).first, ((*layer).second)*scale);
   }
 
@@ -214,7 +214,7 @@ void DTnoiseDBValidation::endRun(edm::Run const& run, edm::EventSetup const& set
   if(theDiffQReport) {
       vector<dqm::me_util::Channel> badChannels = theDiffQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	   channel != badChannels.end(); channel++) {
+	   channel != badChannels.end(); ++channel) {
 	LogWarning("NoiseDBValidation") << " Bad partial difference of noisy channels! Contents : " << (*channel).getContents();
       }
   }
@@ -223,7 +223,7 @@ void DTnoiseDBValidation::endRun(edm::Run const& run, edm::EventSetup const& set
   if(theDiffQReport2) {
       vector<dqm::me_util::Channel> badChannels = theDiffQReport2->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	   channel != badChannels.end(); channel++) {
+	   channel != badChannels.end(); ++channel) {
 	int wheel = (*channel).getBin()-3;
 	LogWarning("NoiseDBValidation") << " Bad percentual occupancy for wheel : " << wheel << "  Contents : " << (*channel).getContents();
       }
@@ -233,7 +233,7 @@ void DTnoiseDBValidation::endRun(edm::Run const& run, edm::EventSetup const& set
   if(theDiffQReport3) {
       vector<dqm::me_util::Channel> badChannels = theDiffQReport3->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	   channel != badChannels.end(); channel++) {
+	   channel != badChannels.end(); ++channel) {
 	LogWarning("NoiseDBValidation") << " Bad percentual occupancy for station : " << (*channel).getBin() << "  Contents : " << (*channel).getContents();
       }
   }
@@ -242,7 +242,7 @@ void DTnoiseDBValidation::endRun(edm::Run const& run, edm::EventSetup const& set
   if(theDiffQReport4) {
       vector<dqm::me_util::Channel> badChannels = theDiffQReport4->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	   channel != badChannels.end(); channel++) {
+	   channel != badChannels.end(); ++channel) {
 	LogWarning("NoiseDBValidation") << " Bad percentual occupancy for sector : " << (*channel).getBin() << "  Contents : " << (*channel).getContents();
       }
   }
@@ -251,7 +251,7 @@ void DTnoiseDBValidation::endRun(edm::Run const& run, edm::EventSetup const& set
   if(theDiffQReport5) {
       vector<dqm::me_util::Channel> badChannels = theDiffQReport5->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	   channel != badChannels.end(); channel++) {
+	   channel != badChannels.end(); ++channel) {
 	if((*channel).getBin()==1)
 	  LogWarning("NoiseDBValidation") << " Bad percentual occupancy for the first 10 wires! Contents : " << (*channel).getContents();
 	if((*channel).getBin()==2)

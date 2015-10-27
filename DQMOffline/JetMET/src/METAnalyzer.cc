@@ -137,7 +137,7 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   nPVMax_  = parameters.getParameter<double>("pVMax");
 
   triggerSelectedSubFolders_ = parameters.getParameter<edm::VParameterSet>("triggerSelectedSubFolders");
-  for (edm::VParameterSet::const_iterator it = triggerSelectedSubFolders_.begin(); it!= triggerSelectedSubFolders_.end(); it++) {
+  for (edm::VParameterSet::const_iterator it = triggerSelectedSubFolders_.begin(); it!= triggerSelectedSubFolders_.end(); ++it) {
     triggerFolderEventFlag_.push_back(new GenericTriggerEventFlag( *it, consumesCollector(), *this ));
     triggerFolderExpr_.push_back(it->getParameter<std::vector<std::string> >("hltPaths"));
     triggerFolderLabels_.push_back(it->getParameter<std::string>("label"));
@@ -156,7 +156,7 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
 
 // ***********************************************************
 METAnalyzer::~METAnalyzer() {
-  for (std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerFolderEventFlag_.begin(); it!= triggerFolderEventFlag_.end(); it++) {
+  for (std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerFolderEventFlag_.begin(); it!= triggerFolderEventFlag_.end(); ++it) {
     delete *it;
   }
   delete DCSFilter_;
@@ -183,7 +183,7 @@ void METAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     folderNames_.push_back("ZJets");
   }
   for (std::vector<std::string>::const_iterator ic = folderNames_.begin();
-       ic != folderNames_.end(); ic++){
+       ic != folderNames_.end(); ++ic){
     bookMESet(DirName+"/"+*ic, ibooker,map_dijet_MEs);
     }
 }
@@ -756,7 +756,7 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
 	  ptPFCand_name_.clear();
 	  multiplicityPFCand_name_.clear();
 	}
-	for (std::vector<edm::ParameterSet>::const_iterator v = diagnosticsParameters_.begin(); v!=diagnosticsParameters_.end(); v++) {
+	for (std::vector<edm::ParameterSet>::const_iterator v = diagnosticsParameters_.begin(); v!=diagnosticsParameters_.end(); ++v) {
 	  int etaNBinsPFCand = v->getParameter<int>("etaNBins");
 	  double etaMinPFCand = v->getParameter<double>("etaMin");
 	  double etaMaxPFCand = v->getParameter<double>("etaMax");
@@ -946,7 +946,7 @@ void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 //  std::cout<<"Length: "<<allTriggerNames_.size()<<std::endl;
 
   triggerSelectedSubFolders_ = parameters.getParameter<edm::VParameterSet>("triggerSelectedSubFolders");
-  for ( std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerFolderEventFlag_.begin(); it!= triggerFolderEventFlag_.end(); it++) {
+  for ( std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerFolderEventFlag_.begin(); it!= triggerFolderEventFlag_.end(); ++it) {
     int pos = it - triggerFolderEventFlag_.begin();
     if ((*it)->on()) {
       (*it)->initRun( iRun, iSetup );
@@ -1000,11 +1000,11 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
   //below is the original METAnalyzer formulation
   
-  for (std::vector<std::string>::const_iterator ic = folderNames_.begin(); ic != folderNames_.end(); ic++) {
+  for (std::vector<std::string>::const_iterator ic = folderNames_.begin(); ic != folderNames_.end(); ++ic) {
     std::string DirName;
     DirName = dirName+*ic;
     makeRatePlot(DirName,totltime);
-    for ( std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerFolderEventFlag_.begin(); it!= triggerFolderEventFlag_.end(); it++) {
+    for ( std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerFolderEventFlag_.begin(); it!= triggerFolderEventFlag_.end(); ++it) {
       int pos = it - triggerFolderEventFlag_.begin();
       if ((*it)->on()) {
 	makeRatePlot(DirName+"/"+triggerFolderLabels_[pos],totltime);
@@ -1088,7 +1088,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     int ntrigs = (*triggerResults).size();
     if (verbose_) std::cout << "ntrigs=" << ntrigs << std::endl;
     // If index=ntrigs, this HLT trigger doesn't exist in the HLT table for this data.
-    for (std::vector<GenericTriggerEventFlag *>::const_iterator it =  triggerFolderEventFlag_.begin(); it!=triggerFolderEventFlag_.end();it++) {
+    for (std::vector<GenericTriggerEventFlag *>::const_iterator it =  triggerFolderEventFlag_.begin(); it!=triggerFolderEventFlag_.end();++it) {
       unsigned int pos = it - triggerFolderEventFlag_.begin();
       bool fd = (*it)->accept(iEvent, iSetup);
       triggerFolderDecisions_[pos] = fd;
@@ -1468,7 +1468,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // Reconstructed MET Information - fill MonitorElements
   std::string DirName_old=DirName;
   for (std::vector<std::string>::const_iterator ic = folderNames_.begin();
-       ic != folderNames_.end(); ic++){
+       ic != folderNames_.end(); ++ic){
     bool pass_selection = false;
     if ((*ic=="Uncleaned")  &&(isCaloMet_ || bPrimaryVertex)){
       fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet, *pfmet,*calomet,zCand, map_dijet_MEs,trigger_flag);

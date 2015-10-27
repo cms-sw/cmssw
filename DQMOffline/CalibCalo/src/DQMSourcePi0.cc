@@ -454,12 +454,12 @@ void DQMSourcePi0::analyze(const Event& iEvent,
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
       sort(seeds.begin(), seeds.end(), ecalRecHitLess());
 
-      for (std::vector<EcalRecHit>::iterator itseed=seeds.begin(); itseed!=seeds.end(); itseed++) {
+      for (std::vector<EcalRecHit>::iterator itseed=seeds.begin(); itseed!=seeds.end(); ++itseed) {
 	EBDetId seed_id = itseed->id();
 	std::vector<EBDetId>::const_iterator usedIds;
 
 	bool seedAlreadyUsed=false;
-	for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
+	for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); ++usedIds){
 	  if(*usedIds==seed_id){
 	    seedAlreadyUsed=true;
 	    //cout<< " Seed with energy "<<itseed->energy()<<" was used !"<<endl;
@@ -476,11 +476,11 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
 	double simple_energy = 0; 
 
-	for (std::vector<DetId >::iterator det=clus_v.begin(); det!=clus_v.end(); det++) {
+	for (std::vector<DetId >::iterator det=clus_v.begin(); det!=clus_v.end(); ++det) {
 	  EBDetId EBdet = *det;
 	  //      cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi "<<EBdet.iphi()<<endl;
 	  bool  HitAlreadyUsed=false;
-	  for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
+	  for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); ++usedIds){
 	    if(*usedIds==*det){
 	      HitAlreadyUsed=true;
 	      break;
@@ -562,7 +562,7 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
     ///calculate e5x5
     std::vector<DetId> clus_v5x5 = topology_p->getWindow(seed_id,5,5); 
-    for( std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++){
+    for( std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); ++idItr){
       EBDetId det = *idItr;
       
 
@@ -750,12 +750,12 @@ void DQMSourcePi0::analyze(const Event& iEvent,
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
       sort(seeds.begin(), seeds.end(), ecalRecHitLess());
 
-      for (std::vector<EcalRecHit>::iterator itseed=seeds.begin(); itseed!=seeds.end(); itseed++) {
+      for (std::vector<EcalRecHit>::iterator itseed=seeds.begin(); itseed!=seeds.end(); ++itseed) {
 	EBDetId seed_id = itseed->id();
 	std::vector<EBDetId>::const_iterator usedIds;
 
 	bool seedAlreadyUsed=false;
-	for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
+	for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); ++usedIds){
 	  if(*usedIds==seed_id){
 	    seedAlreadyUsed=true;
 	    //cout<< " Seed with energy "<<itseed->energy()<<" was used !"<<endl;
@@ -772,11 +772,11 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
 	double simple_energy = 0; 
 
-	for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); det++) {
+	for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); ++det) {
 	  EBDetId EBdet = *det;
 	  //      cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi "<<EBdet.iphi()<<endl;
 	  bool  HitAlreadyUsed=false;
-	  for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
+	  for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); ++usedIds){
 	    if(*usedIds==*det){
 	      HitAlreadyUsed=true;
 	      break;
@@ -858,7 +858,7 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
     ///calculate e5x5
     std::vector<DetId> clus_v5x5 = topology_p->getWindow(seed_id,5,5); 
-    for( std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++){
+    for( std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); ++idItr){
       EBDetId det = *idItr;
       
 
@@ -1017,7 +1017,7 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
 	  ////make seeds. 
       EERecHitCollection::const_iterator ite;
-      for (ite=rhEEpi0->begin(); ite!=rhEEpi0->end(); ite++) {
+      for (ite=rhEEpi0->begin(); ite!=rhEEpi0->end(); ++ite) {
 	double energy = ite->energy();
 	if( energy < seleXtalMinEnergyEndCap_) continue; 
     
@@ -1061,12 +1061,12 @@ void DQMSourcePi0::analyze(const Event& iEvent,
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
       sort(seedsEndCap.begin(), seedsEndCap.end(), ecalRecHitLess());
   
-      for (std::vector<EcalRecHit>::iterator itseed=seedsEndCap.begin(); itseed!=seedsEndCap.end(); itseed++) {
+      for (std::vector<EcalRecHit>::iterator itseed=seedsEndCap.begin(); itseed!=seedsEndCap.end(); ++itseed) {
 	EEDetId seed_id = itseed->id();
 	std::vector<EEDetId>::const_iterator usedIds;
     
 	bool seedAlreadyUsed=false;
-	for(usedIds=usedXtalsEndCap.begin(); usedIds!=usedXtalsEndCap.end(); usedIds++){
+	for(usedIds=usedXtalsEndCap.begin(); usedIds!=usedXtalsEndCap.end(); ++usedIds){
 	  if(*usedIds==seed_id){
 	    seedAlreadyUsed=true;
 	    break; 
@@ -1083,11 +1083,11 @@ void DQMSourcePi0::analyze(const Event& iEvent,
     
 	float simple_energy = 0; 
 
-	for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); det++) {
+	for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); ++det) {
 	  EEDetId EEdet = *det;
       
 	  bool  HitAlreadyUsed=false;
-	  for(usedIds=usedXtalsEndCap.begin(); usedIds!=usedXtalsEndCap.end(); usedIds++){
+	  for(usedIds=usedXtalsEndCap.begin(); usedIds!=usedXtalsEndCap.end(); ++usedIds){
 	    if(*usedIds==*det){
 	      HitAlreadyUsed=true;
 	      break;
@@ -1271,7 +1271,7 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
 	  ////make seeds. 
       EERecHitCollection::const_iterator ite;
-      for (ite=rhEEeta->begin(); ite!=rhEEeta->end(); ite++) {
+      for (ite=rhEEeta->begin(); ite!=rhEEeta->end(); ++ite) {
 	double energy = ite->energy();
 	if( energy < seleXtalMinEnergyEndCap_) continue; 
     
@@ -1315,12 +1315,12 @@ void DQMSourcePi0::analyze(const Event& iEvent,
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
       sort(seedsEndCap.begin(), seedsEndCap.end(), ecalRecHitLess());
   
-      for (std::vector<EcalRecHit>::iterator itseed=seedsEndCap.begin(); itseed!=seedsEndCap.end(); itseed++) {
+      for (std::vector<EcalRecHit>::iterator itseed=seedsEndCap.begin(); itseed!=seedsEndCap.end(); ++itseed) {
 	EEDetId seed_id = itseed->id();
 	std::vector<EEDetId>::const_iterator usedIds;
     
 	bool seedAlreadyUsed=false;
-	for(usedIds=usedXtalsEndCap.begin(); usedIds!=usedXtalsEndCap.end(); usedIds++){
+	for(usedIds=usedXtalsEndCap.begin(); usedIds!=usedXtalsEndCap.end(); ++usedIds){
 	  if(*usedIds==seed_id){
 	    seedAlreadyUsed=true;
 	    break; 
@@ -1337,11 +1337,11 @@ void DQMSourcePi0::analyze(const Event& iEvent,
     
 	float simple_energy = 0; 
 
-	for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); det++) {
+	for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); ++det) {
 	  EEDetId EEdet = *det;
       
 	  bool  HitAlreadyUsed=false;
-	  for(usedIds=usedXtalsEndCap.begin(); usedIds!=usedXtalsEndCap.end(); usedIds++){
+	  for(usedIds=usedXtalsEndCap.begin(); usedIds!=usedXtalsEndCap.end(); ++usedIds){
 	    if(*usedIds==*det){
 	      HitAlreadyUsed=true;
 	      break;

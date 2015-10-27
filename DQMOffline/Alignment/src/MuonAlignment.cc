@@ -495,7 +495,7 @@ RecHitVector MuonAlignment::doMatching(const reco::Track &staTrack, edm::Handle<
                 bool isNewChamber = true;
 	
                 //Loop over segments already included in the vector of segments in the actual track
-                for(std::vector<int>::iterator positionIt = positionDT.begin(); positionIt != positionDT.end(); positionIt++) {
+                for(std::vector<int>::iterator positionIt = positionDT.begin(); positionIt != positionDT.end(); ++positionIt) {
 	  
                     //If this segment has been used before isNewChamber = false
                     if(NumberOfDTSegment == *positionIt) isNewChamber = false;
@@ -505,7 +505,7 @@ RecHitVector MuonAlignment::doMatching(const reco::Track &staTrack, edm::Handle<
                 for(std::vector<std::vector<int> >::iterator collect = indexCollectionDT->begin(); collect != indexCollectionDT->end(); ++collect) {
 	  
                     //Loop over segments associated to a track
-                    for(std::vector<int>::iterator positionIt = (*collect).begin(); positionIt != (*collect).end(); positionIt++) {
+                    for(std::vector<int>::iterator positionIt = (*collect).begin(); positionIt != (*collect).end(); ++positionIt) {
 	    
                         //If this segment was used in a previos track then isNewChamber = false
                         if(NumberOfDTSegment == *positionIt) isNewChamber = false;
@@ -534,13 +534,13 @@ RecHitVector MuonAlignment::doMatching(const reco::Track &staTrack, edm::Handle<
       
             int NumberOfCSCSegment = 0;
             //Loop over 4Dsegments
-            for(segmentCSC = all4DSegmentsCSC->begin(); segmentCSC != all4DSegmentsCSC->end(); segmentCSC++) {
+            for(segmentCSC = all4DSegmentsCSC->begin(); segmentCSC != all4DSegmentsCSC->end(); ++segmentCSC) {
 	
                 //By default the chamber associated to the segment is new
                 bool isNewChamber = true;
 	
                 //Loop over segments in the current track
-                for(std::vector<int>::iterator positionIt = positionCSC.begin(); positionIt != positionCSC.end(); positionIt++) {
+                for(std::vector<int>::iterator positionIt = positionCSC.begin(); positionIt != positionCSC.end(); ++positionIt) {
 	  
                     //If this segment has been used then newchamber = false
                     if(NumberOfCSCSegment == *positionIt) isNewChamber = false;
@@ -549,7 +549,7 @@ RecHitVector MuonAlignment::doMatching(const reco::Track &staTrack, edm::Handle<
                 for(std::vector<std::vector<int> >::iterator collect = indexCollectionCSC->begin(); collect != indexCollectionCSC->end(); ++collect) {
 	  
                     //Loop over segments in a track
-                    for(std::vector<int>::iterator positionIt = (*collect).begin(); positionIt != (*collect).end(); positionIt++) {
+                    for(std::vector<int>::iterator positionIt = (*collect).begin(); positionIt != (*collect).end(); ++positionIt) {
 	    
                         //If the segment was used in a previous track isNewChamber = false
                         if(NumberOfCSCSegment == *positionIt) isNewChamber = false;

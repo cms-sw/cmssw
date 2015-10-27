@@ -620,7 +620,7 @@ void CSCOfflineMonitor::doOccupancies(edm::Handle<CSCStripDigiCollection> strips
 
   //rechits
   CSCRecHit2DCollection::const_iterator recIt;
-  for (recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
+  for (recIt = recHits->begin(); recIt != recHits->end(); ++recIt) {
 	CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
 	int kEndcap  = idrec.endcap();
 	int kRing    = idrec.ring();
@@ -635,7 +635,7 @@ void CSCOfflineMonitor::doOccupancies(edm::Handle<CSCStripDigiCollection> strips
   }
 
   //segments
-  for(CSCSegmentCollection::const_iterator segIt=cscSegments->begin(); segIt != cscSegments->end(); segIt++) {
+  for(CSCSegmentCollection::const_iterator segIt=cscSegments->begin(); segIt != cscSegments->end(); ++segIt) {
 	CSCDetId id  = (CSCDetId)(*segIt).cscDetId();
 	int kEndcap  = id.endcap();
 	int kRing    = id.ring();
@@ -793,7 +793,7 @@ void CSCOfflineMonitor::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits,
   // ---------------------
   // Build iterator for rechits and loop :
   CSCRecHit2DCollection::const_iterator dRHIter;
-  for (dRHIter = recHits->begin(); dRHIter != recHits->end(); dRHIter++) {
+  for (dRHIter = recHits->begin(); dRHIter != recHits->end(); ++dRHIter) {
 
 	// Find chamber with rechits in CSC 
 	CSCDetId idrec = (CSCDetId)(*dRHIter).cscDetId();
@@ -865,7 +865,7 @@ void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments
   // get CSC segment collection
   int nSegments = cscSegments->size();
 
-  for(CSCSegmentCollection::const_iterator dSiter=cscSegments->begin(); dSiter != cscSegments->end(); dSiter++) {
+  for(CSCSegmentCollection::const_iterator dSiter=cscSegments->begin(); dSiter != cscSegments->end(); ++dSiter) {
 	CSCDetId id  = (CSCDetId)(*dSiter).cscDetId();
 	float chisq    = (*dSiter).chi2();
 	int nhits      = (*dSiter).nRecHits();
@@ -883,7 +883,7 @@ void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments
 	std::vector<float> anodeTimes;
 	// Get the CSC recHits that contribute to this segment.
 	std::vector<CSCRecHit2D> theseRecHits = (*dSiter).specificRecHits();
-	for ( vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
+	for ( vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); ++iRH) {
 	  if ( !((*iRH).isValid()) ) continue;  // only interested in valid hits
 	  cathodeTimes.push_back((*iRH).tpeak());
 	  anodeTimes.push_back((*iRH).wireTime());
@@ -974,7 +974,7 @@ void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments
 void CSCOfflineMonitor::doResolution(edm::Handle<CSCSegmentCollection> cscSegments,
 									 edm::ESHandle<CSCGeometry> cscGeom){
 
-  for(CSCSegmentCollection::const_iterator dSiter=cscSegments->begin(); dSiter != cscSegments->end(); dSiter++) {
+  for(CSCSegmentCollection::const_iterator dSiter=cscSegments->begin(); dSiter != cscSegments->end(); ++dSiter) {
 	CSCDetId id  = (CSCDetId)(*dSiter).cscDetId();
 	//
 	// try to get the CSC recHits that contribute to this segment.
@@ -983,7 +983,7 @@ void CSCOfflineMonitor::doResolution(edm::Handle<CSCSegmentCollection> cscSegmen
 	int jRH = 0;
 	CLHEP::HepMatrix sp(6,1);
 	CLHEP::HepMatrix se(6,1);
-	for ( vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
+	for ( vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); ++iRH) {
 	  jRH++;
 	  CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
 	  //int kEndcap  = idRH.endcap();
@@ -1203,7 +1203,7 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
   }
 
   // Rechits
-  for (CSCRecHit2DCollection::const_iterator recEffIt = recHits->begin(); recEffIt != recHits->end(); recEffIt++) {
+  for (CSCRecHit2DCollection::const_iterator recEffIt = recHits->begin(); recEffIt != recHits->end(); ++recEffIt) {
 	//CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
 	CSCDetId  idrec = (CSCDetId)(*recEffIt).cscDetId();
 	AllRecHits[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber() -1][idrec.layer() -1] = true;
@@ -1214,7 +1214,7 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
   std::vector <uint> seg_ME3(2,0) ;
   std::vector < pair <CSCDetId, CSCSegment> > theSegments(4);
   // Segments
-  for(CSCSegmentCollection::const_iterator segEffIt=cscSegments->begin(); segEffIt != cscSegments->end(); segEffIt++) {
+  for(CSCSegmentCollection::const_iterator segEffIt=cscSegments->begin(); segEffIt != cscSegments->end(); ++segEffIt) {
 	CSCDetId idseg  = (CSCDetId)(*segEffIt).cscDetId();
 	//if(AllSegments[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber()]){
 	//MultiSegments[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber()] = true;

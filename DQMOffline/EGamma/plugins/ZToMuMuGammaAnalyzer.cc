@@ -525,10 +525,10 @@ void ZToMuMuGammaAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
   ////////////// event selection
   if ( muonCollection.size() < 2 ) return;
 
-  for( reco::MuonCollection::const_iterator  iMu = muonCollection.begin(); iMu != muonCollection.end(); iMu++) {
+  for( reco::MuonCollection::const_iterator  iMu = muonCollection.begin(); iMu != muonCollection.end(); ++iMu) {
     if ( !basicMuonSelection (*iMu) ) continue;
  
-    for( reco::MuonCollection::const_iterator  iMu2 = iMu+1; iMu2 != muonCollection.end(); iMu2++) {
+    for( reco::MuonCollection::const_iterator  iMu2 = +iMu1; iMu2 != muonCollection.end(); ++iMu2) {
       if ( !basicMuonSelection (*iMu2) ) continue;
       if ( iMu->charge()*iMu2->charge() > 0) continue;
 

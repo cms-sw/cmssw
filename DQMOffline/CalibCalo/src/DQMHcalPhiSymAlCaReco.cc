@@ -408,7 +408,7 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
   hiDistrHBHEsize1D_->Fill(HithbheNS.size()/ihbhe_size_);
   
      
-  for(HBHERecHitCollection::const_iterator hbheItr=HithbheNS.begin(); hbheItr!=HithbheNS.end(); hbheItr++)
+  for(HBHERecHitCollection::const_iterator hbheItr=HithbheNS.begin(); hbheItr!=HithbheNS.end(); ++hbheItr)
         {
         	 DetId id = (*hbheItr).detid(); 
 	         HcalDetId hid=HcalDetId(id);
@@ -426,7 +426,7 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
 
   const HBHERecHitCollection HithbheMB = *(hbheMB.product());
 
-  for(HBHERecHitCollection::const_iterator hbheItr=HithbheMB.begin(); hbheItr!=HithbheMB.end(); hbheItr++)
+  for(HBHERecHitCollection::const_iterator hbheItr=HithbheMB.begin(); hbheItr!=HithbheMB.end(); ++hbheItr)
         {
         	 DetId id = (*hbheItr).detid(); 
 	         HcalDetId hid=HcalDetId(id);
@@ -447,7 +447,7 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
 
   hiDistrHFsize1D_->Fill(HithfNS.size()/ihf_size_);
   
-  for(HFRecHitCollection::const_iterator hbheItr=HithfNS.begin(); hbheItr!=HithfNS.end(); hbheItr++)
+  for(HFRecHitCollection::const_iterator hbheItr=HithfNS.begin(); hbheItr!=HithfNS.end(); ++hbheItr)
         {
 	
         	 DetId id = (*hbheItr).detid(); 
@@ -467,7 +467,7 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
 
   const HFRecHitCollection HithfMB = *(hfMB.product());
  
-  for(HFRecHitCollection::const_iterator hbheItr=HithfMB.begin(); hbheItr!=HithfMB.end(); hbheItr++)
+  for(HFRecHitCollection::const_iterator hbheItr=HithfMB.begin(); hbheItr!=HithfMB.end(); ++hbheItr)
         {
         	 DetId id = (*hbheItr).detid(); 
 	         HcalDetId hid=HcalDetId(id);

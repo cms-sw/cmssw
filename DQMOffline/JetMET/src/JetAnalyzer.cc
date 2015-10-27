@@ -1116,7 +1116,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     }
     //book for each of these selection default histograms
     for (std::vector<std::string>::const_iterator ic = folderNames_.begin();
-	 ic != folderNames_.end(); ic++){
+	 ic != folderNames_.end(); ++ic){
       bookMESetSelection(DirName+"/"+*ic, ibooker);
     }
   }

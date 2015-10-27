@@ -726,7 +726,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
     double deltaRMin=1000.;
     double deltaRMax=0.05;//sets deltaR threshold for matching photons to trigger objects
 
-    for (vector<int>::const_iterator objectKey=Keys.begin();objectKey!=Keys.end();objectKey++){  //loop over keys to objects that fired photon triggers
+    for (vector<int>::const_iterator objectKey=Keys.begin();objectKey!=Keys.end();++objectKey){  //loop over keys to objects that fired photon triggers
 
       deltaR = reco::deltaR(triggerEvent.getObjects()[(*objectKey)].eta(),triggerEvent.getObjects()[(*objectKey)].phi(),aPho->superCluster()->eta(),aPho->superCluster()->phi());
       if(deltaR < deltaRMin) deltaRMin = deltaR;

@@ -426,7 +426,7 @@ void SiStripFEDErrorsDQM::addErrors()
 
       for (std::map<unsigned short,unsigned short>::iterator lIter = lAPVMap.begin();
 	   lIter != lAPVMap.end(); 
-	   lIter++)
+	   ++lIter)
 	{
 	  lStripVector.push_back(obj_->encode(lIter->first,lConsecutiveBadStrips,lIter->second));
 	}

@@ -122,7 +122,7 @@ void MuonRecoTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & ig
   if(theEtaQReport) {
     vector<dqm::me_util::Channel> badChannels = theEtaQReport->getBadChannels();
     for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	 channel != badChannels.end(); channel++) {
+	 channel != badChannels.end(); ++channel) {
       LogTrace(metname)<<"[etaEfficiency test] bad ranges: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents()<<endl;
     }
     LogTrace(metname)<< "-------- type: [etaEfficiency]  "<<theEtaQReport->getMessage()<<" ------- "<<theEtaQReport->getStatus()<<endl;
@@ -132,7 +132,7 @@ void MuonRecoTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & ig
   if(thePhiQReport) {
     vector<dqm::me_util::Channel> badChannels = thePhiQReport->getBadChannels();
     for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	 channel != badChannels.end(); channel++) {
+	 channel != badChannels.end(); ++channel) {
       LogTrace(metname)<< "[phiEfficiency test] bad ranges: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents()<<endl;
     }
     LogTrace(metname)<<"-------- type: [phiEfficiency]  "<<thePhiQReport->getMessage()<<" ------- "<<thePhiQReport->getStatus()<<endl;

@@ -127,7 +127,7 @@ void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm::Event
 		double minRecoL3dist(1000), pt(1000);
 		reco::HcalIsolatedTrackCandidateCollection::const_iterator mrtr;
 		for (mrtr=recoIsoTracks->begin(); mrtr!=recoIsoTracks->end(); 
-		     mrtr++)  {
+		     ++mrtr)  {
 		  double R = deltaR(mrtr->eta(),mrtr->phi(),TObj.eta(),TObj.phi()); 
 		  if (R<minRecoL3dist) {
 		    minRecoL3dist = R;
@@ -149,7 +149,7 @@ void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm::Event
 
   //general distributions
   if (recoIsoTracks.isValid()) {
-    for (reco::HcalIsolatedTrackCandidateCollection::const_iterator itr=recoIsoTracks->begin(); itr!=recoIsoTracks->end(); itr++) {
+    for (reco::HcalIsolatedTrackCandidateCollection::const_iterator itr=recoIsoTracks->begin(); itr!=recoIsoTracks->end(); ++itr) {
       hMaxP_->Fill(itr->maxP());
       hEnEcal_->Fill(itr->energyEcal());
       std::pair<int,int> etaphi = itr->towerIndex();

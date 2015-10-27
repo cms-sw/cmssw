@@ -1262,7 +1262,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
     edm::Handle<HBHERecHitCollection> hbhecoll;
     ev.getByToken(tok_hbhe_, hbhecoll);
     
-    for (HBHERecHitCollection::const_iterator j=hbhecoll->begin(); j != hbhecoll->end(); j++) {
+    for (HBHERecHitCollection::const_iterator j=hbhecoll->begin(); j != hbhecoll->end(); ++j) {
       HcalDetId cell(j->id());
       const CaloCellGeometry* cellGeometry =
 	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
@@ -1310,7 +1310,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
     edm::Handle<HFRecHitCollection> hfcoll;
     ev.getByToken(tok_hf_, hfcoll);
 
-    for (HFRecHitCollection::const_iterator j = hfcoll->begin(); j != hfcoll->end(); j++) {
+    for (HFRecHitCollection::const_iterator j = hfcoll->begin(); j != hfcoll->end(); ++j) {
       HcalDetId cell(j->id());
       const CaloCellGeometry* cellGeometry =
 	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
@@ -1355,7 +1355,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
     edm::Handle<HORecHitCollection> hocoll;
     ev.getByToken(tok_ho_, hocoll);
     
-    for (HORecHitCollection::const_iterator j = hocoll->begin(); j != hocoll->end(); j++) {
+    for (HORecHitCollection::const_iterator j = hocoll->begin(); j != hocoll->end(); ++j) {
       HcalDetId cell(j->id());
       const CaloCellGeometry* cellGeometry =
 	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;

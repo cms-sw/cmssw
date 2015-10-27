@@ -324,7 +324,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   int imucount=0;
   if( TheCosmics.isValid() )
     {
-      for( reco::MuonCollection::const_iterator iMuon = TheCosmics->begin() ; iMuon != TheCosmics->end() ; iMuon++, imucount++ )
+      for( reco::MuonCollection::const_iterator iMuon = TheCosmics->begin() ; iMuon != TheCosmics->end() ; ++iMuon, ++imucount )
         {
 	  reco::TrackRef Track = iMuon->outerTrack();
           if(!Track) continue;
@@ -456,7 +456,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   bool CSCSegmentMinus=false;
   if( TheCSCSegments.isValid() ) 
     {
-      for(CSCSegmentCollection::const_iterator iSegment = TheCSCSegments->begin(); iSegment != TheCSCSegments->end(); iSegment++) 
+      for(CSCSegmentCollection::const_iterator iSegment = TheCSCSegments->begin(); iSegment != TheCSCSegments->end(); ++iSegment) 
 	{
 	  const std::vector<CSCRecHit2D> vCSCRecHits = iSegment->specificRecHits();
 	  CSCDetId iDetId  = (CSCDetId)(*iSegment).cscDetId();
@@ -477,7 +477,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   bool CSCRecHitMinus = false;
   if( TheCSCRecHits.isValid() )
     {
-      for(CSCRecHit2DCollection::const_iterator iCSCRecHit = TheCSCRecHits->begin();   iCSCRecHit != TheCSCRecHits->end(); iCSCRecHit++ )
+      for(CSCRecHit2DCollection::const_iterator iCSCRecHit = TheCSCRecHits->begin();   iCSCRecHit != TheCSCRecHits->end(); ++iCSCRecHit )
 	{
 	  DetId TheDetUnitId(iCSCRecHit->geographicalId());
 	  const GeomDetUnit *TheUnit = (*TheCSCGeometry).idToDetUnit(TheDetUnitId);
@@ -497,7 +497,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   int EBHits=0;
   if( TheEBRecHits.isValid() )
     {
-      for( EBRecHitCollection::const_iterator iEBRecHit = TheEBRecHits->begin() ; iEBRecHit != TheEBRecHits->end(); iEBRecHit++)
+      for( EBRecHitCollection::const_iterator iEBRecHit = TheEBRecHits->begin() ; iEBRecHit != TheEBRecHits->end(); ++iEBRecHit)
 	{
 	  if( iEBRecHit->energy() < 0.5 ) continue;
 	  DetId id = DetId( iEBRecHit->id() ) ;
@@ -515,7 +515,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken(IT_HBHERecHit, TheHBHERecHits);
   if( TheHBHERecHits.isValid() )
     {
-      for( HBHERecHitCollection::const_iterator iHBHERecHit = TheHBHERecHits->begin(); iHBHERecHit != TheHBHERecHits->end(); iHBHERecHit++)  
+      for( HBHERecHitCollection::const_iterator iHBHERecHit = TheHBHERecHits->begin(); iHBHERecHit != TheHBHERecHits->end(); ++iHBHERecHit)  
 	{
 	  if( iHBHERecHit->energy() < 1.) continue;
 	  HcalDetId id = HcalDetId( iHBHERecHit->id() );
@@ -540,7 +540,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       else if ( CSCData.NumberOfOutOfTimeTriggers(HaloData::minus) && !CSCData.NumberOfOutOfTimeTriggers(HaloData::plus))
 	TheHaloOrigin = -1 ;
 
-      for( std::vector<GlobalPoint>::const_iterator i=CSCData.GetCSCTrackImpactPositions().begin();  i != CSCData.GetCSCTrackImpactPositions().end() ; i++ )   
+      for( std::vector<GlobalPoint>::const_iterator i=CSCData.GetCSCTrackImpactPositions().begin();  i != CSCData.GetCSCTrackImpactPositions().end() ; ++i )   
 	{                          
 	  float r = TMath::Sqrt( i->x()*i->x() + i->y()*i->y() );
 	  if( !StandardDQM )
@@ -687,7 +687,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      hGlobalHaloData_MatchedHcalPhiWedgeZDirectionConfidence ->Fill( iWedge->ZDirectionConfidence() ) ;
 	      if( TheHBHERecHits.isValid() )
 		{
-		  for( HBHERecHitCollection::const_iterator iHBHERecHit = TheHBHERecHits->begin(); iHBHERecHit != TheHBHERecHits->end(); iHBHERecHit++)  
+		  for( HBHERecHitCollection::const_iterator iHBHERecHit = TheHBHERecHits->begin(); iHBHERecHit != TheHBHERecHits->end(); ++iHBHERecHit)  
 		    {
 		      HcalDetId id = HcalDetId( iHBHERecHit->id() ) ;
 		      int iphi = id.iphi() ;
@@ -714,7 +714,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      hGlobalHaloData_MatchedEcalPhiWedgeZDirectionConfidence ->Fill( iWedge->ZDirectionConfidence() ) ;
 	      if( TheEBRecHits.isValid() ) 
 		{
-		  for( EBRecHitCollection::const_iterator iEBRecHit = TheEBRecHits->begin() ; iEBRecHit != TheEBRecHits->end(); iEBRecHit++ )
+		  for( EBRecHitCollection::const_iterator iEBRecHit = TheEBRecHits->begin() ; iEBRecHit != TheEBRecHits->end(); ++iEBRecHit )
 		    {
 		      if( iEBRecHit->energy() < 0.5 ) continue;
 		      DetId id = DetId( iEBRecHit->id() ) ;

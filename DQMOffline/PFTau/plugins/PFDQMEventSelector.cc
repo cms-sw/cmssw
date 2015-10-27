@@ -51,7 +51,7 @@ bool PFDQMEventSelector::filter( edm::Event & iEvent, edm::EventSetup const& iSe
   eventid_str << runNb << "_"<< evtNb << "_" << lumiNb;
   
   for (std::vector<std::string>::const_iterator ifolder = folderNames_.begin();
-                                    ifolder != folderNames_.end(); ifolder++) {
+                                    ifolder != folderNames_.end(); ++ifolder) {
     std::string path  = "ParticleFlow/"+(*ifolder) + "/BadEvents";
     MonitorElement* me = dqmStore_->get(path + "/" + eventid_str.str());
     if (me) {
