@@ -27,7 +27,7 @@ class TMarkov: public TObject
   double getPeakValue(int i) const { return peak[i]; }
   int getBinMax() const { return imax; }
 
-  //  ClassDef(TMarkov,1)
+  ClassDef(TMarkov,0)
 };
 
 #endif
