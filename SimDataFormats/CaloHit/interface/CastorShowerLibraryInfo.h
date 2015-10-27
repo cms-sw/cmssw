@@ -31,7 +31,7 @@ class SLBin: public TObject {
              unsigned int        NBins;
              unsigned int        NEvtPerBin;
              std::vector<double> Bins;
-    ClassDef(SLBin,1);
+    ClassDef(SLBin,2);
 };
 
 class CastorShowerLibraryInfo : public TObject {
@@ -48,7 +48,7 @@ class CastorShowerLibraryInfo : public TObject {
     SLBin Eta;
     SLBin Phi;
 
-    ClassDef(CastorShowerLibraryInfo,1);
+    ClassDef(CastorShowerLibraryInfo,2);
     
   };
 
