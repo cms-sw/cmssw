@@ -58,6 +58,7 @@ MicroEventContent = cms.PSet(
         'keep *_TriggerResults_*_*', # for MET filters (a catch all for the moment, but ideally it should be only the current process)
         'keep patPackedCandidates_lostTracks_*_*',
         'keep HcalNoiseSummary_hcalnoise__*',
+        'keep recoCSCHaloData_CSCHaloData_*_*',
         'keep recoBeamHaloSummary_BeamHaloSummary_*_*',
         'keep *_caTopTagInfosPAT_*_*'
     )
