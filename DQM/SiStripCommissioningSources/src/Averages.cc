@@ -78,7 +78,7 @@ void Averages::calc( Params& params ) {
   if ( !mode_.empty() ) {
     uint32_t max = 0;
     std::map<uint32_t,uint32_t>::const_iterator imap = mode_.begin();
-    for ( ; imap != mode_.end(); imap++ ) {
+    for ( ; imap != mode_.end(); ++imap ) {
       if ( imap->second > max ) { 
 	max = imap->second;
 	params.mode_ = imap->first;

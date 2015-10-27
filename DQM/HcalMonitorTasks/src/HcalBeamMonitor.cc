@@ -987,7 +987,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 
 
     
-    for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
+    for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); ++j){
       const HFDataFrame digi = (const HFDataFrame)(*j);
       //  calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
       //       float en=0;

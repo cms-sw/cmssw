@@ -74,7 +74,7 @@ void CSCCertificationInfo::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
   ibooker.setCurrentFolder("CSC/EventInfo");
   mos.insert(std::make_pair("CertificationSummary", ibooker.bookFloat("CertificationSummary")));
 
-  for (std::map<std::string, MonitorElement*>::iterator it = mos.begin(); it != mos.end(); it++) { 
+  for (std::map<std::string, MonitorElement*>::iterator it = mos.begin(); it != mos.end(); ++it) { 
     it->second->Fill(-1);
   }
 

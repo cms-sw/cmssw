@@ -89,7 +89,7 @@ void PedsFullNoiseHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange f
   // Iterate through feds and update fed descriptions
   uint16_t updated = 0;
   SiStripConfigDb::FedDescriptionsV::const_iterator ifed;
-  for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
+  for ( ifed = feds.begin(); ifed != feds.end(); ++ifed ) {
     
     for ( uint16_t ichan = 0; ichan < sistrip::FEDCH_PER_FED; ichan++ ) {
 

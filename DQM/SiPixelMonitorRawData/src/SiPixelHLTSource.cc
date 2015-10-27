@@ -106,12 +106,12 @@ void SiPixelHLTSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   edm::DetSet<SiPixelRawDataError>::const_iterator  di;
 
-  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); ++it){
     if( GeomDetEnumerators::isTrackerPixel((*it)->subDetector())) {
       uint32_t detId = (*it)->geographicalId();
       edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = errorinput->find(detId);
       if( isearch != errorinput->end() ) {
-    	for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
+    	for(di = isearch->data.begin(); di != isearch->data.end(); ++di) {
       	  fedId = di->getFedId();                  // FED the error came from
           int errorType = di->getType();           // type of error
 	  switch(errorType) {
@@ -129,7 +129,7 @@ void SiPixelHLTSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = errorinput->find(0xffffffff);
 
   if( isearch != errorinput->end() ) {  // Not at empty iterator
-    for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
+    for(di = isearch->data.begin(); di != isearch->data.end(); ++di) {
       fedId = di->getFedId();                  // FED the error came from
       int errorType = di->getType();           // type of error
       switch(errorType) {

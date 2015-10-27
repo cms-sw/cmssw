@@ -56,7 +56,7 @@ void RPCMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const 
 
   //loop on geometry to book all MEs
   edm::LogInfo ("rpcmonitordigi") <<"[RPCMonitorDigi]: Booking histograms per roll. " ;
-  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
+  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();++it){
     if(dynamic_cast< const RPCChamber* >( *it ) != 0 ){
       const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
       std::vector< const RPCRoll*> roles = (ch->rolls());
@@ -194,7 +194,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
     RPCRecHitCollection::const_iterator rpcRecHitIter;
     std::vector<RPCRecHit>::const_iterator muonRecHitIter;
     
-    for (rpcRecHitIter = rpcHits->begin(); rpcRecHitIter != rpcHits->end() ; rpcRecHitIter++) {
+    for (rpcRecHitIter = rpcHits->begin(); rpcRecHitIter != rpcHits->end() ; ++rpcRecHitIter) {
       RPCRecHit rpcRecHit = (*rpcRecHitIter);
       int detId = (int)rpcRecHit.rpcId();
       if(rechitNoise.find(detId) == rechitNoise.end() || rechitNoise[detId].size() == 0){
@@ -247,7 +247,7 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
   std::stringstream os;
 
   //Loop on Rolls
-  for ( std::map<RPCDetId , std::vector<RPCRecHit> >::const_iterator detIdIter = recHitMap.begin(); detIdIter !=  recHitMap.end() ;  detIdIter++){
+  for ( std::map<RPCDetId , std::vector<RPCRecHit> >::const_iterator detIdIter = recHitMap.begin(); detIdIter !=  recHitMap.end() ;  ++detIdIter){
     
     RPCDetId detId = (*detIdIter).first;
     // int id=detId();
@@ -324,7 +324,7 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
     std::map<std::string, MonitorElement*>  meMap = meRollCollection[nameRoll];
 
     //Loop on recHits
-    for(std::vector<RPCRecHit>::const_iterator recHitIter = recHits.begin(); recHitIter != recHits.end(); recHitIter++){
+    for(std::vector<RPCRecHit>::const_iterator recHitIter = recHits.begin(); recHitIter != recHits.end(); ++recHitIter){
       RPCRecHit recHit = (*recHitIter);
 
       int bx = recHit.BunchX();

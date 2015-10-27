@@ -58,7 +58,7 @@ void SiStripHistoPlotter::createPlots(DQMStore* dqm_store) {
   std::string name = "Dummy";
   if (!hasNamedImage(name)) createDummyImage(name);
   for (std::vector<PlotParameter>::iterator it = plotList_.begin(); 
-       it != plotList_.end(); it++) {
+       it != plotList_.end(); ++it) {
     makePlot(dqm_store, (*it));
   }
   plotList_.clear();
@@ -329,7 +329,7 @@ void SiStripHistoPlotter::createCondDBPlots(DQMStore* dqm_store) {
   if (!hasNamedImage(name)) createDummyImage(name);
 
   for (std::vector<PlotParameter>::iterator it = condDBPlotList_.begin(); 
-       it != condDBPlotList_.end(); it++) {
+       it != condDBPlotList_.end(); ++it) {
     makeCondDBPlots(dqm_store, (*it));
   }
   condDBPlotList_.clear();
@@ -348,12 +348,12 @@ void SiStripHistoPlotter::makeCondDBPlots(DQMStore* dqm_store, const PlotParamet
   std::vector<MonitorElement*> all_mes = dqm_store->getContents(par.Path);
 
   for (std::vector<std::string>::const_iterator ih = htypes.begin();
-       ih!= htypes.end(); ih++) {
+       ih!= htypes.end(); ++ih) {
     std::string type = (*ih);
     if (type.size() == 0) continue;
     std::string tag = par.Path + "/";
     for (std::vector<MonitorElement *>::const_iterator it = all_mes.begin();
-	 it!= all_mes.end(); it++) {  
+	 it!= all_mes.end(); ++it) {  
       MonitorElement * me = (*it);
       if (!me) continue;
       std::string hname = me->getName();

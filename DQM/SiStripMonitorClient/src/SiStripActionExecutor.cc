@@ -228,7 +228,7 @@ void SiStripActionExecutor::printReportSummary(MonitorElement* me,
 void SiStripActionExecutor::printShiftHistoParameters(DQMStore * dqm_store, std::map<std::string, std::vector<std::string> >& layout_map, std::ostringstream& str_val) { 
 
   str_val << std::endl;
-  for (std::map<std::string, std::vector< std::string > >::iterator it = layout_map.begin() ; it != layout_map.end(); it++) {
+  for (std::map<std::string, std::vector< std::string > >::iterator it = layout_map.begin() ; it != layout_map.end(); ++it) {
     std::string set_name = it->first;
     if (set_name.find("Summary") != std::string::npos) continue;
     configWriter_->createElement(set_name);
@@ -239,7 +239,7 @@ void SiStripActionExecutor::printShiftHistoParameters(DQMStore * dqm_store, std:
     str_val << std::setprecision(2);
     str_val << setiosflags(std::ios::fixed);
     for (std::vector<std::string>::iterator im = it->second.begin(); 
-	 im != it->second.end(); im++) {  
+	 im != it->second.end(); ++im) {  
       std::string path_name = (*im);
       if (path_name.size() == 0) continue;
       MonitorElement* me = dqm_store->get(path_name);
@@ -283,7 +283,7 @@ void SiStripActionExecutor::printFaultyModuleList(DQMStore * dqm_store, std::ost
   
   int nDetsTotal = 0;
   int nDetsWithErrorTotal = 0;
-  for (std::vector<std::string>::const_iterator im = subdet_folder.begin(); im != subdet_folder.end(); im++) {       
+  for (std::vector<std::string>::const_iterator im = subdet_folder.begin(); im != subdet_folder.end(); ++im) {       
     std::string dname = mechanicalview_dir + "/" + (*im);
     if (!dqm_store->dirExists(dname)) continue;
     str_val << "============"<< std::endl;
@@ -302,7 +302,7 @@ void SiStripActionExecutor::printFaultyModuleList(DQMStore * dqm_store, std::ost
     if (dqm_store->dirExists(bad_module_folder)) {
       std::vector<MonitorElement *> meVec = dqm_store->getContents(bad_module_folder);
       for (std::vector<MonitorElement *>::const_iterator it = meVec.begin();
-	   it != meVec.end(); it++) {
+	   it != meVec.end(); ++it) {
         nDetsWithError++; 
         uint16_t flag = (*it)->getIntValue();
         std::string message;

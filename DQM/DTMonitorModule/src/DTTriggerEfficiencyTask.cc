@@ -275,7 +275,7 @@ bool DTTriggerEfficiencyTask::hasRPCTriggers(const edm::Event& e) {
   std::vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
   std::vector<L1MuGMTReadoutRecord>::const_iterator igmtrr = gmt_records.begin();
   std::vector<L1MuGMTReadoutRecord>::const_iterator egmtrr = gmt_records.end();
-  for(; igmtrr!=egmtrr; igmtrr++) {
+  for(; igmtrr!=egmtrr; ++igmtrr) {
 
     std::vector<L1MuGMTExtendedCand> candsGMT = igmtrr->getGMTCands();
     std::vector<L1MuGMTExtendedCand>::const_iterator candGMTIt   = candsGMT.begin();

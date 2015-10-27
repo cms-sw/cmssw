@@ -637,14 +637,14 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
         DecisionWord::const_iterator GTdbitItr;
         algo_bits->Fill(-1.); // fill underflow to normalize
         for (GTdbitItr = gtDecisionWord.begin(); GTdbitItr
-                != gtDecisionWord.end(); GTdbitItr++) {
+                != gtDecisionWord.end(); ++GTdbitItr) {
             if (*GTdbitItr) {
                 algo_bits->Fill(dbitNumber);
                 algo_bits_lumi->Fill(lsNumber, dbitNumber);
                 int dbitNumber1 = 0;
                 DecisionWord::const_iterator GTdbitItr1;
                 for (GTdbitItr1 = gtDecisionWord.begin(); GTdbitItr1
-                        != gtDecisionWord.end(); GTdbitItr1++) {
+                        != gtDecisionWord.end(); ++GTdbitItr1) {
                     if (*GTdbitItr1)
                         algo_bits_corr->Fill(dbitNumber, dbitNumber1);
                     dbitNumber1++;
@@ -652,7 +652,7 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
                 int tbitNumber1 = 0;
                 TechnicalTriggerWord::const_iterator GTtbitItr1;
                 for (GTtbitItr1 = gtTTWord.begin(); GTtbitItr1
-                        != gtTTWord.end(); GTtbitItr1++) {
+                        != gtTTWord.end(); ++GTtbitItr1) {
                     if (*GTtbitItr1)
                         algo_tt_bits_corr->Fill(dbitNumber, tbitNumber1);
                     tbitNumber1++;
@@ -664,14 +664,14 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
         int tbitNumber = 0;
         TechnicalTriggerWord::const_iterator GTtbitItr;
         tt_bits->Fill(-1.); // fill underflow to normalize
-        for (GTtbitItr = gtTTWord.begin(); GTtbitItr != gtTTWord.end(); GTtbitItr++) {
+        for (GTtbitItr = gtTTWord.begin(); GTtbitItr != gtTTWord.end(); ++GTtbitItr) {
             if (*GTtbitItr) {
                 tt_bits->Fill(tbitNumber);
                 tt_bits_lumi->Fill(lsNumber, tbitNumber);
                 int tbitNumber1 = 0;
                 TechnicalTriggerWord::const_iterator GTtbitItr1;
                 for (GTtbitItr1 = gtTTWord.begin(); GTtbitItr1
-                        != gtTTWord.end(); GTtbitItr1++) {
+                        != gtTTWord.end(); ++GTtbitItr1) {
                     if (*GTtbitItr1)
                         tt_bits_corr->Fill(tbitNumber, tbitNumber1);
                     tbitNumber1++;

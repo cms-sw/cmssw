@@ -130,7 +130,7 @@ void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::Eve
 
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter;
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter2;
-  for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
+  for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; ++struct_iter) {
     
     int numberOfModuleErrors = (*struct_iter).second->fill(*input, &meMapFEDs_, modOn, ladOn, bladeOn);
     if(DetId( (*struct_iter).first ).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) nEventBPIXModuleErrors = nEventBPIXModuleErrors + numberOfModuleErrors;
@@ -139,7 +139,7 @@ void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::Eve
     nErrors = nErrors + numberOfModuleErrors;
     //if(nErrors>0) cout<<"MODULES: nErrors: "<<nErrors<<endl;
   }
-  for (struct_iter2 = theFEDStructure.begin() ; struct_iter2 != theFEDStructure.end() ; struct_iter2++) {
+  for (struct_iter2 = theFEDStructure.begin() ; struct_iter2 != theFEDStructure.end() ; ++struct_iter2) {
     
     int numberOfFEDErrors = (*struct_iter2).second->fillFED(*input, &meMapFEDs_);
     if((*struct_iter2).first <= 31) nEventBPIXFEDErrors = nEventBPIXFEDErrors + numberOfFEDErrors; // (*struct_iter2).first >= 0, since (*struct_iter2).first is unsigned
@@ -185,7 +185,7 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
   LogVerbatim ("PixelDQM") << " *** I have " << pDD->dets().size() <<" detectors"<<std::endl;
   LogVerbatim ("PixelDQM") << " *** I have " << pDD->detTypes().size() <<" types"<<std::endl;
 
-  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); ++it){
 
     if( GeomDetEnumerators::isTrackerPixel((*it)->subDetector())) {
 
@@ -270,7 +270,7 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
   
   SiPixelFolderOrganizer theSiPixelFolder(false);
   
-  for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++){
+  for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); ++struct_iter){
     /// Create folder tree and book histograms 
 
     if(modOn){
@@ -295,7 +295,7 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
     
   }//for loop
 
-  for(struct_iter2 = theFEDStructure.begin(); struct_iter2 != theFEDStructure.end(); struct_iter2++){
+  for(struct_iter2 = theFEDStructure.begin(); struct_iter2 != theFEDStructure.end(); ++struct_iter2){
     /// Create folder tree for errors without detId and book histograms 
     if(!theSiPixelFolder.setFedFolder(iBooker,(*struct_iter2).first)) {
       throw cms::Exception("LogicError")

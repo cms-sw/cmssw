@@ -18,7 +18,7 @@ uint32_t SummaryPlotFactory<CommissioningAnalysis*>::init( const sistrip::Monito
   
   // extract monitorables and populate map
   std::map<uint32_t,CommissioningAnalysis*>::const_iterator iter = data.begin();
-  for ( ; iter != data.end(); iter++ ) { extract( iter ); }
+  for ( ; iter != data.end(); ++iter ) { extract( iter ); }
   
   return SummaryPlotFactoryBase::generator_->nBins();
   

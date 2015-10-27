@@ -95,7 +95,7 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
     
     dqm_store->setCurrentFolder(strip_dir+"/EventInfo/reportSummaryContents");      
     for (std::map<std::string, std::string>::const_iterator it = SubDetFolderMap.begin(); 
-	 it != SubDetFolderMap.end(); it++) {
+	 it != SubDetFolderMap.end(); ++it) {
       ibin++;
       std::string det = it->first;
       DetFractionReportMap->setBinLabel(ibin,it->second);
@@ -132,7 +132,7 @@ void SiStripQualityChecker::fillDummyStatus(){
   resetStatus();
   if (bookedStripStatus_) {
     for (std::map<std::string, SubDetMEs>::const_iterator it = SubDetMEsMap.begin(); 
-	 it != SubDetMEsMap.end(); it++) {
+	 it != SubDetMEsMap.end(); ++it) {
       SubDetMEs local_mes = it->second;
       local_mes.SummaryFlag -> Fill(-1.0);
       local_mes.DetFraction -> Fill(-1.0);
@@ -155,7 +155,7 @@ void SiStripQualityChecker::fillDummyStatus(){
 void SiStripQualityChecker::resetStatus() {
   if (bookedStripStatus_) {
     for (std::map<std::string, SubDetMEs>::const_iterator it = SubDetMEsMap.begin(); 
-	 it != SubDetMEsMap.end(); it++) {
+	 it != SubDetMEsMap.end(); ++it) {
       SubDetMEs local_mes = it->second;
       local_mes.DetFraction -> Reset();
       local_mes.SummaryFlag -> Reset();
@@ -193,7 +193,7 @@ void SiStripQualityChecker::fillDetectorStatus(DQMStore* dqm_store, const edm::E
 
   initialiseBadModuleList();
   for (std::map<std::string, SubDetMEs>::const_iterator it = SubDetMEsMap.begin(); 
-       it != SubDetMEsMap.end(); it++) {
+       it != SubDetMEsMap.end(); ++it) {
     std::string det = it->first;
     std::map<std::string, std::string>::const_iterator cPos = SubDetFolderMap.find(det);
     if (cPos == SubDetFolderMap.end()) continue; 
@@ -228,7 +228,7 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
   float tot_ston_stat = 0;
 
   for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
-       ic != subDirVec.end(); ic++) {
+       ic != subDirVec.end(); ++ic) {
     std::string dname = (*ic);
     if (dname.find("BadModuleList") != std::string::npos) continue;
     if (dname.find("ring") !=std::string::npos) continue;
@@ -248,7 +248,7 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
     getModuleStatus(dqm_store, meVec, errdet);
 
     for (std::vector<MonitorElement*>::const_iterator it = meVec.begin();
-	 it != meVec.end(); it++) {
+	 it != meVec.end(); ++it) {
       MonitorElement * me = (*it);
       if (!me) continue;
       std::vector<QReport *> reports = me->getQReports();
@@ -298,7 +298,7 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
 void SiStripQualityChecker::printStatusReport() {
   std::ostringstream det_summary_str;
   for (std::map<std::string, SubDetMEs>::const_iterator it = SubDetMEsMap.begin(); 
-       it != SubDetMEsMap.end(); it++) {
+       it != SubDetMEsMap.end(); ++it) {
     std::string det = it->first;
     det_summary_str << std::setprecision(4);
     det_summary_str << std::setiosflags(std::ios::fixed);
@@ -331,7 +331,7 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<Mon
   std::string lname;
   std::map<uint32_t,uint16_t> bad_modules;
   for (std::vector<MonitorElement*>::const_iterator it = layer_mes.begin();
-       it != layer_mes.end(); it++) {
+       it != layer_mes.end(); ++it) {
     MonitorElement * me = (*it);
     if (!me) continue;
     std::vector<QReport *> qreports = me->getQReports();
@@ -347,7 +347,7 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<Mon
       lname = lname.substr(lname.find("_T")+1);
 
     }
-    for (std::vector<DQMChannel>::iterator it = bad_channels_me.begin(); it != bad_channels_me.end(); it++){
+    for (std::vector<DQMChannel>::iterator it = bad_channels_me.begin(); it != bad_channels_me.end(); ++it){
       int xval = (*it).getBinX();
       int yval = (*it).getBinY();
       uint32_t detId = tkDetMap_->getDetFromBin(lname, xval, yval);       
@@ -383,7 +383,7 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<Mon
     }
   }
   for(std::map<uint32_t,uint16_t>::const_iterator it = bad_modules.begin();
-      it != bad_modules.end(); it++) {
+      it != bad_modules.end(); ++it) {
     uint32_t detId = it->first;
     uint16_t flag  = it->second;
     std::map<uint32_t,uint16_t>::iterator iPos = badModuleList.find(detId);
@@ -421,7 +421,7 @@ void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store, const ed
   std::string mechanical_dir = dqm_store->pwd();
 
   SiStripFolderOrganizer folder_organizer;
-  for (std::map<uint32_t,uint16_t>::const_iterator it =  badModuleList.begin() ; it != badModuleList.end(); it++) {
+  for (std::map<uint32_t,uint16_t>::const_iterator it =  badModuleList.begin() ; it != badModuleList.end(); ++it) {
     uint32_t detId =  it->first;
     std::string subdet_folder ;
     folder_organizer.getSubDetFolder(detId,tTopo,subdet_folder);
@@ -446,7 +446,7 @@ void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store, const ed
 // -- Initialise Bad Module List
 //
 void SiStripQualityChecker::initialiseBadModuleList() {
-  for (std::map<uint32_t,uint16_t>::iterator it=badModuleList.begin(); it!=badModuleList.end(); it++) {
+  for (std::map<uint32_t,uint16_t>::iterator it=badModuleList.begin(); it!=badModuleList.end(); ++it) {
     it->second = 0;
   }
 }

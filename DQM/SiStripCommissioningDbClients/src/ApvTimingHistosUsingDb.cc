@@ -133,7 +133,7 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
   std::vector<SiStripFecKey> invalid;
   SiStripConfigDb::DeviceDescriptionsV::const_iterator idevice;
 
-  for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
+  for ( idevice = devices.begin(); idevice != devices.end(); ++idevice ) {
 
     // Check device type
     if ( (*idevice)->getDeviceType() != PLL ) { continue; }

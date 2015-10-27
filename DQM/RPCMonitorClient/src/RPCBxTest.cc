@@ -150,7 +150,7 @@ void RPCBxTest::getMonitorElements(std::vector<MonitorElement *> & meVector, std
 
    while (tagItr != tagList.end() && !flag ) {
      if((*tagItr) ==  rpcdqm::BX){ flag= true;}
-     tagItr++;
+     ++tagItr;
    }
    
    if(flag){

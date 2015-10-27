@@ -84,7 +84,7 @@ void L1TCSCTPG::analyze(const Event& e, const EventSetup& c)
      CSCCorrelatedLCTDigiCollection::Range range1 = pCSCTPGcorrlcts->get((*cscItr1).first);
      for (CSCCorrelatedLCTDigiCollection::const_iterator lctItr1 = range1.first;
 	   lctItr1 != range1.second;
-	   lctItr1++) 
+	   ++lctItr1) 
         {
 
 

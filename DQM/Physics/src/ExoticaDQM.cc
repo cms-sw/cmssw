@@ -445,7 +445,7 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   dimuon_countMuon_ = 0;
   monomuon_countMuon_ = 0;
   reco::MuonCollection::const_iterator  muon_  = MuonCollection_->begin();
-  for(; muon_ != MuonCollection_->end(); muon_++){
+  for(; muon_ != MuonCollection_->end(); ++muon_){
     // Muon High Pt ID
     bool HighPt = false;
     if (muon_->isGlobalMuon() && muon_->globalTrack()->hitPattern().numberOfValidMuonHits() >0 && muon_->numberOfMatchedStations() > 1 &&
@@ -478,7 +478,7 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   dielectron_countElectron_ = 0;
   monoelectron_countElectron_ = 0;
   reco::GsfElectronCollection::const_iterator electron_ = ElectronCollection_->begin();
-  for(; electron_ != ElectronCollection_->end(); electron_++){
+  for(; electron_ != ElectronCollection_->end(); ++electron_){
     //HEEP Selection 4.1 (some cuts)
     if (electron_->e5x5()<=0) continue;
     if (electron_->gsfTrack().isNull()) continue;

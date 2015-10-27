@@ -41,7 +41,7 @@ void SiStripPedestalsDQM::fillModMEs(const std::vector<uint32_t> & selectedDetId
   ModMEs CondObj_ME;
   
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
-      detIter_!= selectedDetIds.end();detIter_++){
+      detIter_!= selectedDetIds.end();++detIter_){
       
     fillMEsForDet(CondObj_ME,*detIter_,tTopo);
       
@@ -80,11 +80,11 @@ void SiStripPedestalsDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedD
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
-      detIter_!= selectedDetIds.end();detIter_++){
+      detIter_!= selectedDetIds.end();++detIter_){
     fillMEsForLayer(/*SummaryMEsMap_,*/ *detIter_,tTopo);
   }
 
-  for (std::map<uint32_t, ModMEs>::iterator iter=SummaryMEsMap_.begin(); iter!=SummaryMEsMap_.end(); iter++){
+  for (std::map<uint32_t, ModMEs>::iterator iter=SummaryMEsMap_.begin(); iter!=SummaryMEsMap_.end(); ++iter){
 
     ModMEs selME;
     selME = iter->second;

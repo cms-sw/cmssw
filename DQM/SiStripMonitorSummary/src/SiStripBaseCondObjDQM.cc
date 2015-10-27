@@ -241,7 +241,7 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
     std::sort(detIds_.begin(),detIds_.end());
     if(modulesToBeExcluded.size()>0) {
       for( std::vector<uint32_t>::const_iterator mod = modulesToBeExcluded.begin(); 
-	   mod != modulesToBeExcluded.end(); mod++){
+	   mod != modulesToBeExcluded.end(); ++mod){
 	
 	std::vector<uint32_t>::iterator detid=std::lower_bound(detIds_.begin(),detIds_.end(),*mod);
 	if (detid!=detIds_.end())
@@ -260,7 +260,7 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
       SiStripSubStructure substructure_;
       
       for( std::vector<std::string>::const_iterator modIter_  = SubDetectorsToBeExcluded_.begin(); 
-	   modIter_ != SubDetectorsToBeExcluded_.end(); modIter_++){
+	   modIter_ != SubDetectorsToBeExcluded_.end(); ++modIter_){
 	tmp.clear();
 	
 	if (*modIter_=="TIB")     { substructure_.getTIBDetectors(detIds_, tmp, 0,0,0,0);}
@@ -1271,12 +1271,12 @@ void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> & selecte
   const TrackerTopology* const tTopo = tTopoHandle.product();
   
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
-      detIter_!= selectedDetIds.end();detIter_++){
+      detIter_!= selectedDetIds.end();++detIter_){
     fillMEsForLayer(/*SummaryMEsMap_,*/ *detIter_,tTopo);    
   }
 
   for (std::map<uint32_t, ModMEs>::iterator iter=SummaryMEsMap_.begin();
-       iter!=SummaryMEsMap_.end(); iter++){
+       iter!=SummaryMEsMap_.end(); ++iter){
 
     ModMEs selME;
     selME = iter->second;

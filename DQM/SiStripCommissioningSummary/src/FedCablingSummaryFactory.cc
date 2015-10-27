@@ -24,7 +24,7 @@ uint32_t SummaryPlotFactory<FedCablingAnalysis*>::init( const sistrip::Monitorab
   
   // Extract monitorable
   std::map<uint32_t,FedCablingAnalysis*>::const_iterator iter = data.begin();
-  for ( ; iter != data.end(); iter++ ) {
+  for ( ; iter != data.end(); ++iter ) {
     float value = static_cast<float>(sistrip::invalid_);
     if ( SummaryPlotFactoryBase::mon_ == sistrip::FED_CABLING_FED_ID ) { value = iter->second->fedId(); }
     else if ( SummaryPlotFactoryBase::mon_ == sistrip::FED_CABLING_FED_CH ) { value = iter->second->fedCh(); }

@@ -204,7 +204,7 @@ void SummaryPlotXmlParser::print( std::stringstream& ss ) const {
   using namespace sistrip;
   typedef std::vector<SummaryPlot> Plots;
   std::map<RunType,Plots>::const_iterator irun = plots_.begin();
-  for ( ; irun != plots_.end(); irun++ ) {
+  for ( ; irun != plots_.end(); ++irun ) {
     ss << " RunType=\"" 
        << SiStripEnumsAndStrings::runType( irun->first )
        << "\"" << std::endl;
@@ -212,7 +212,7 @@ void SummaryPlotXmlParser::print( std::stringstream& ss ) const {
       ss << " No summary plots for this RunType!";
     } else {
       Plots::const_iterator iplot = irun->second.begin();
-      for ( ; iplot != irun->second.end(); iplot++ ) {
+      for ( ; iplot != irun->second.end(); ++iplot ) {
 	ss << *iplot << std::endl;
       }
     }

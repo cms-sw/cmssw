@@ -54,7 +54,7 @@ std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > SiStripFineDelayTL
   std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> >hitangleassociation;
   std::vector<TrajectoryMeasurement> TMeas=traj.measurements();
   std::vector<TrajectoryMeasurement>::iterator itm;
-  for (itm=TMeas.begin();itm!=TMeas.end();itm++){
+  for (itm=TMeas.begin();itm!=TMeas.end();++itm){
     TrajectoryStateOnSurface tsos=itm->updatedState();
     auto thit=itm->recHit();
     const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>((*thit).hit());

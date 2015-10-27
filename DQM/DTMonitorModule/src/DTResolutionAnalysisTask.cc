@@ -93,7 +93,7 @@ void DTResolutionAnalysisTask::beginLuminosityBlock(const LuminosityBlock& lumiS
   if(resetCycle != -1 && lumiSeg.id().luminosityBlock() % resetCycle == 0) {
     for(map<DTSuperLayerId, vector<MonitorElement*> > ::const_iterator histo = histosPerSL.begin();
 	histo != histosPerSL.end();
-	histo++) {
+	++histo) {
       int size = (*histo).second.size();
       for(int i=0; i<size; i++){
 	(*histo).second[i]->Reset();
@@ -176,7 +176,7 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
       // Loop over 1D RecHit inside 4D segment
       for(vector<DTRecHit1D>::const_iterator recHit1D = recHits1D_S3.begin();
 	  recHit1D != recHits1D_S3.end();
-	  recHit1D++) {
+	  ++recHit1D) {
 	const DTWireId wireId = (*recHit1D).wireId();
 
 	// Get the layer and the wire position

@@ -62,7 +62,7 @@ unsigned short HcalDQMChannelQuality::flagAlgo (unsigned long fId, bool fWarning
 
 std::vector<unsigned long> HcalDQMChannelQuality::getAllChannels () const {
   std::vector<unsigned long> result;
-  for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++) {
+  for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); ++item) {
     result.push_back (item->mId);
   }
   return result;

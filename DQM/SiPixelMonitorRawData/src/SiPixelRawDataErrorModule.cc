@@ -110,7 +110,7 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
   if( isearch != input.end() ) {  // Not at empty iterator
     // Look at errors now
     edm::DetSet<SiPixelRawDataError>::const_iterator  di;
-    for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
+    for(di = isearch->data.begin(); di != isearch->data.end(); ++di) {
       int FedId = di->getFedId();                  // FED the error came from
       int chanNmbr = 0;
       int errorType = di->getType();               // type of error
@@ -463,7 +463,7 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
   if( isearch != input.end() ) {  // Not an empty iterator
     // Look at FED errors now	
     edm::DetSet<SiPixelRawDataError>::const_iterator  di;
-    for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
+    for(di = isearch->data.begin(); di != isearch->data.end(); ++di) {
       int FedId = di->getFedId();                  // FED the error came from
       int chanNmbr = -1;
       int errorType = 0;               // type of error

@@ -251,13 +251,13 @@ void DTSegmentAnalysisTest::performClientDiagnostic(DQMStore::IGetter & igetter)
     string chi2CriterionName = parameters.getUntrackedParameter<string>("chi2TestName","chi2InRange");
     for(map<pair<int, int>, MonitorElement*> ::const_iterator histo = chi2Histos.begin();
 	histo != chi2Histos.end();
-	histo++) {
+	++histo) {
 
       const QReport * theChi2QReport = (*histo).second->getQReport(chi2CriterionName);
       if(theChi2QReport) {
 	vector<dqm::me_util::Channel> badChannels = theChi2QReport->getBadChannels();
 	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	     channel != badChannels.end(); channel++) {
+	     channel != badChannels.end(); ++channel) {
 
 	  LogError ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "Wheel: "<<(*histo).first.first
 								   << " Sector: "<<(*histo).first.second
@@ -271,13 +271,13 @@ void DTSegmentAnalysisTest::performClientDiagnostic(DQMStore::IGetter & igetter)
     string segmRecHitCriterionName = parameters.getUntrackedParameter<string>("segmRecHitTestName","segmRecHitInRange");
     for(map<pair<int, int>, MonitorElement*> ::const_iterator histo = segmRecHitHistos.begin();
 	histo != segmRecHitHistos.end();
-	histo++) {
+	++histo) {
 
       const QReport * theSegmRecHitQReport = (*histo).second->getQReport(segmRecHitCriterionName);
       if(theSegmRecHitQReport) {
 	vector<dqm::me_util::Channel> badChannels = theSegmRecHitQReport->getBadChannels();
 	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	     channel != badChannels.end(); channel++) {
+	     channel != badChannels.end(); ++channel) {
 
 	  LogError ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "Wheel: "<<(*histo).first.first
 								   << " Sector: "<<(*histo).first.second

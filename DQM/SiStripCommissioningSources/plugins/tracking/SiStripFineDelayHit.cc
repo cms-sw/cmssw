@@ -191,7 +191,7 @@ std::vector< std::pair<uint32_t,std::pair<double, double> > > SiStripFineDelayHi
   LogDebug("DetId") << "number of hits for the track: " << hitangle.size();
   std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> >::iterator iter;
   // select the interesting DetIds, based on the ID and TLA
-  for(iter=hitangle.begin();iter!=hitangle.end();iter++){
+  for(iter=hitangle.begin();iter!=hitangle.end();++iter){
     // check the detId.
     // if substructure was 0xff, then maskDetId and rootDetId == 0 
     // this implies all detids are accepted. (also if maskDetId=rootDetId=0 explicitely).
@@ -305,7 +305,7 @@ std::pair<const SiStripCluster*,double> SiStripFineDelayHit::closestCluster(cons
   if(hitStrip<0) return result;
   if(homeMadeClusters_) {
     // take the list of digis on the module
-    for (edm::DetSetVector<SiStripDigi>::const_iterator DSViter=hits.begin(); DSViter!=hits.end();DSViter++){
+    for (edm::DetSetVector<SiStripDigi>::const_iterator DSViter=hits.begin(); DSViter!=hits.end();++DSViter){
       if(DSViter->id==det_id)  {
         // loop from hitstrip-n to hitstrip+n (explorationWindow_) and select the highest strip
 	int minStrip = int(round(hitStrip))- explorationWindow_;
@@ -331,7 +331,7 @@ std::pair<const SiStripCluster*,double> SiStripFineDelayHit::closestCluster(cons
     }
   } else {
   // loop on the detsetvector<cluster> to find the right one
-   for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters.begin(); DSViter!=clusters.end();DSViter++ ) 
+   for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters.begin(); DSViter!=clusters.end();++DSViter ) 
      if(DSViter->id()==det_id)  {
         LogDebug("closestCluster") << " detset with the right detid. ";
         edmNew::DetSet<SiStripCluster>::const_iterator begin=DSViter->begin();
@@ -402,7 +402,7 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      iEvent.getByToken(trackToken_,TrajectoryCollection);
      trajVec = *(TrajectoryCollection.product());
      // loop on tracks
-     for(reco::TrackCollection::const_iterator itrack = tracks->begin(); itrack<tracks->end(); itrack++) {
+     for(reco::TrackCollection::const_iterator itrack = tracks->begin(); itrack<tracks->end(); ++itrack) {
        // first check the track Pt
        if((itrack->px()*itrack->px()+itrack->py()*itrack->py()+itrack->pz()*itrack->pz())<minTrackP2_) continue;
        // check that we have something in the layer we are interested in
@@ -425,7 +425,7 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          intersections = detId(*tracker,&(*itrack),trajVec);
        }
        LogDebug("produce") << "  Found " << intersections.size() << " interesting intersections." << std::endl;
-       for(std::vector< std::pair<uint32_t,std::pair<double,double> > >::iterator it = intersections.begin();it<intersections.end();it++) {
+       for(std::vector< std::pair<uint32_t,std::pair<double,double> > >::iterator it = intersections.begin();it<intersections.end();++it) {
          std::pair<const SiStripCluster*,double> candidateCluster = closestCluster(*tracker,&(*itrack),it->first,*clusterSet,*hitSet);
          if(candidateCluster.first) {
            LogDebug("produce") << "    Found a cluster."<< std::endl;
@@ -510,7 +510,7 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
    edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
    //   iEvent.getByLabel(clusterLabel_,clusters);
    iEvent.getByToken(clustersToken_,clusters);
-   for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters->begin(); DSViter!=clusters->end();DSViter++ ) {
+   for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters->begin(); DSViter!=clusters->end();++DSViter ) {
      // check that we are in the layer of interest
      if(mode_==1 && ((DSViter->id() & mask.first) != mask.second) ) continue;
      // iterate over clusters

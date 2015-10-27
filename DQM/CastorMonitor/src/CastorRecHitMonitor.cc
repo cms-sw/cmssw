@@ -152,7 +152,7 @@ void CastorRecHitMonitor::processEventTowers(
  int nTowers = 0;
 
  for(reco::CastorTowerCollection::const_iterator iTower= castorTowers.begin();
-  iTower!= castorTowers.end(); iTower++) {
+  iTower!= castorTowers.end(); ++iTower) {
 
    hTowerE->Fill(iTower->energy()*0.001);
    h2TowerEMhad->Fill(iTower->hadEnergy()*0.001,iTower->emEnergy()*0.001);

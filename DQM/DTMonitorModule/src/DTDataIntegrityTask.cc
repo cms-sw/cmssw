@@ -531,7 +531,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 
 
   for (vector<DTROSErrorWord>::const_iterator error_it = data.getROSErrors().begin();
-       error_it != data.getROSErrors().end(); error_it++) { // Loop over ROS error words
+       error_it != data.getROSErrors().end(); ++error_it) { // Loop over ROS error words
 
     LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") << " Error in ROS " << code.getROS()
 								      << " ROB Id " << (*error_it).robID()
@@ -564,7 +564,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   int ROSDebug_BunchNumber = -1;
 
   for (vector<DTROSDebugWord>::const_iterator debug_it = data.getROSDebugs().begin();
-       debug_it != data.getROSDebugs().end(); debug_it++) { // Loop over ROS debug words
+       debug_it != data.getROSDebugs().end(); ++debug_it) { // Loop over ROS debug words
 
     int debugROSSummary = 0;
     int debugROSError   = 0;
@@ -623,7 +623,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   // ROB Group Header
   // Check the BX of the ROB headers against the BX of the ROS
   for (vector<DTROBHeader>::const_iterator rob_it = data.getROBHeaders().begin();
-       rob_it != data.getROBHeaders().end(); rob_it++) { // loop over ROB headers
+       rob_it != data.getROBHeaders().end(); ++rob_it) { // loop over ROB headers
 
     code.setROB((*rob_it).first);
     DTROBHeaderWord robheader = (*rob_it).second;
@@ -644,7 +644,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   if(mode <= 1) { // produce only when not in HLT
     // ROB Trailer
     for (vector<DTROBTrailerWord>::const_iterator robt_it = data.getROBTrailers().begin();
-	 robt_it != data.getROBTrailers().end(); robt_it++) { // loop over ROB trailers
+	 robt_it != data.getROBTrailers().end(); ++robt_it) { // loop over ROB trailers
       float  wCount = (*robt_it).wordCount()<100. ? (*robt_it).wordCount() : 99.9;
       rosHistos["ROB_mean"][code.getROSID()]->Fill((*robt_it).robID(),wCount);
     }
@@ -660,7 +660,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 
   // TDC Data
   for (vector<DTTDCData>::const_iterator tdc_it = data.getTDCData().begin();
-       tdc_it != data.getTDCData().end(); tdc_it++) { // loop over TDC data
+       tdc_it != data.getTDCData().end(); ++tdc_it) { // loop over TDC data
 
     DTTDCMeasurementWord tdcDatum = (*tdc_it).second;
 
@@ -679,7 +679,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 
   // TDC Error
   for (vector<DTTDCError>::const_iterator tdc_it = data.getTDCError().begin();
-       tdc_it != data.getTDCError().end(); tdc_it++) { // loop over TDC errors
+       tdc_it != data.getTDCError().end(); ++tdc_it) { // loop over TDC errors
 
     code.setROB((*tdc_it).first);
 
@@ -910,7 +910,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 
   int channel=0;
   for (vector<DTDDUFirstStatusWord>::const_iterator fsw_it = data.getFirstStatusWord().begin();
-       fsw_it != data.getFirstStatusWord().end(); fsw_it++) {
+       fsw_it != data.getFirstStatusWord().end(); ++fsw_it) {
     // assuming association one-to-one between DDU channel and ROS
     if(mode <= 2) {
       hROSStatus->Fill(0,channel,(*fsw_it).channelEnabled());
@@ -942,7 +942,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     for(vector<DTROS25Data>::const_iterator rosControlData = rosData.begin();
 	rosControlData != rosData.end(); ++rosControlData) { // loop over the ROS data
       for (vector<DTROSDebugWord>::const_iterator debug_it = (*rosControlData).getROSDebugs().begin();
-	   debug_it != (*rosControlData).getROSDebugs().end(); debug_it++) { // Loop over ROS debug words
+	   debug_it != (*rosControlData).getROSDebugs().end(); ++debug_it) { // Loop over ROS debug words
 	if ((*debug_it).debugType() == 0 && (*debug_it).debugMessage() != header.bxID()) { // check the BX
 	  int ros = (*rosControlData).getROSID();
 	  // fill the error bin
@@ -971,7 +971,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   if((rosL1AIds.size() > 1 || rosL1AIds.find(header.lvl1ID()-1) == rosL1AIds.end()) && rosL1AIds.size() != 0) { // in this case look for faulty ROSs
     //If L1A_ID error identify which ROS has wrong L1A
     for (vector<DTROS25Data>::const_iterator rosControlData = rosData.begin();
-	 rosControlData != rosData.end(); rosControlData++) { // loop over the ROS data
+	 rosControlData != rosData.end(); ++rosControlData) { // loop over the ROS data
       int ROSHeader_TTCCount = ((*rosControlData).getROSHeader().TTCEventCounter() + 1) % 0x1000000; // fix comparison in case of last counting bin in ROS /first one in DDU
       if( ROSHeader_TTCCount != header.lvl1ID() ) {
 	int ros = (*rosControlData).getROSID();

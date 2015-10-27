@@ -82,7 +82,7 @@ SiPixelClusterSource::~SiPixelClusterSource()
   LogInfo ("PixelDQM") << "SiPixelClusterSource::~SiPixelClusterSource: Destructor"<<endl;
 
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
-  for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++){
+  for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; ++struct_iter){
     delete struct_iter->second;
     struct_iter->second = 0;
   }
@@ -166,7 +166,7 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
 
 
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
-  for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
+  for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; ++struct_iter) {
     
     int numberOfFpixClusters = (*struct_iter).second->fill(*input, tracker,  
 							   meClPosLayer,
@@ -208,7 +208,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
   LogVerbatim ("PixelDQM") << " *** I have " << pDD->dets().size() <<" detectors"<<std::endl;
   LogVerbatim ("PixelDQM") << " *** I have " << pDD->detTypes().size() <<" types"<<std::endl;
   
-  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); ++it){
     
     if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=0){
 
@@ -273,7 +273,7 @@ void SiPixelClusterSource::bookMEs(DQMStore::IBooker & iBooker, const edm::Event
     
   SiPixelFolderOrganizer theSiPixelFolder(false);
   
-  for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++){
+  for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); ++struct_iter){
     
     /// Create folder tree and book histograms 
     if(modOn){

@@ -62,14 +62,14 @@ void CalibrationHistograms::histoAnalysis( bool debug ) {
 
   // Clear map holding analysis objects
   Analyses::iterator ianal;
-  for ( ianal = data().begin(); ianal != data().end(); ianal++ ) {
+  for ( ianal = data().begin(); ianal != data().end(); ++ianal ) {
     if ( ianal->second ) { delete ianal->second; }
   }
   data().clear();
   
   // Iterate through map containing vectors of profile histograms
   HistosMap::const_iterator iter = histos().begin();
-  for ( ; iter != histos().end(); iter++ ) {
+  for ( ; iter != histos().end(); ++iter ) {
     // Check vector of histos is not empty (should be 1 histo)
     if ( iter->second.empty() ) {
       edm::LogWarning(mlDqmClient_)
@@ -81,7 +81,7 @@ void CalibrationHistograms::histoAnalysis( bool debug ) {
     // Retrieve pointers to 1D histos for this FED channel 
     vector<TH1*> profs;
     Histos::const_iterator ihis = iter->second.begin();
-    for ( ; ihis != iter->second.end(); ihis++ ) {
+    for ( ; ihis != iter->second.end(); ++ihis ) {
       TH1F* prof = ExtractTObject<TH1F>().extract( (*ihis)->me_ );
       if ( prof ) { profs.push_back(prof); }
     } 

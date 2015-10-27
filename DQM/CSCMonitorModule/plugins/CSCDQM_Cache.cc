@@ -258,7 +258,7 @@ namespace cscdqm {
   const bool Cache::nextBookedCSC(unsigned int& n, unsigned int& crateId, unsigned int& dmbId) const {
     if (n < cscData.size()) {
       CSCMapType::const_iterator iter = cscData.begin();
-      for (unsigned int i = n; i > 0; --i) iter++;
+      for (unsigned int i = n; i > 0; --i) ++iter;
       crateId = iter->crateId;
       dmbId   = iter->dmbId;
       n++;
@@ -276,7 +276,7 @@ namespace cscdqm {
   const bool Cache::nextBookedFED(unsigned int& n, unsigned int& fedId) const {
     if (n < fedData.size()) {
       FEDMapType::const_iterator iter = fedData.begin();
-      for (unsigned int i = n; i > 0; --i) iter++;
+      for (unsigned int i = n; i > 0; --i) ++iter;
       fedId = iter->first;
       n++;
       return true;
@@ -294,7 +294,7 @@ namespace cscdqm {
   const bool Cache::nextBookedDDU(unsigned int& n, unsigned int& dduId) const {
     if (n < dduData.size()) {
       DDUMapType::const_iterator iter = dduData.begin();
-      for (unsigned int i = n; i > 0; --i) iter++;
+      for (unsigned int i = n; i > 0; --i) ++iter;
       dduId = iter->first;
       n++;
       return true;

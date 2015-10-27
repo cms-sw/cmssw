@@ -255,7 +255,7 @@ void L1TSync::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const 
   m_ErrorMonitor->setBinLabel(ERROR_LSBLOCK_NOTVALID       ,"ERROR_LSBLOCK_NOTVALID"); 
 
   // Looping over selected triggers
-  for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+  for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; ++i){
 
     string tCategory = (*i).first;
     string tTrigger  = (*i).second;
@@ -299,7 +299,7 @@ void L1TSync::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup 
   m_currentLS = lumiBlock.id().luminosityBlock();
 
   // If this is the fist valid LS update first LS for certification 
-  for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+  for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; ++i){
 
     string theTriggerAlias = (*i).second;
     if(m_certFirstLS[theTriggerAlias]==0){m_certFirstLS[theTriggerAlias] = m_currentLS;}
@@ -325,7 +325,7 @@ void L1TSync::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
     cout << "[L1TSync] m_beamConfig.isValid(): " << m_beamConfig.isValid() << endl;
   }  
 
-  for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+  for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; ++i){
 
     // Update last LS for certification      
     string theTriggerAlias = (*i).second;
@@ -346,7 +346,7 @@ void L1TSync::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
   else{
     
     //-> First we close all blocks from certFirstLS[] to m_currentLS-1
-    for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+    for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; ++i){
 
       string theTriggerAlias = (*i).second;
       
@@ -367,7 +367,7 @@ void L1TSync::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
     doFractionInSync(true,false);
 
     //-> Second we mark this single LS bad for all triggers
-    for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+    for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; ++i){
       string theTriggerAlias = (*i).second;
       m_certFirstLS[theTriggerAlias] = m_currentLS;
       m_certLastLS [theTriggerAlias] = m_currentLS;
@@ -430,7 +430,7 @@ void L1TSync::analyze(const Event & iEvent, const EventSetup & eventSetup){
       const vector<L1GtFdlWord>& gtFdlVectorData = gtReadoutRecordData->gtFdlVector();
 
       // Running over selected triggers
-      for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+      for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; ++i){
 
         string tTrigger = (*i).second;
 
@@ -575,7 +575,7 @@ void L1TSync::getBeamConfOMDS(){
 //_____________________________________________________________________
 void L1TSync::doFractionInSync(bool iForce,bool iBad){
   
-  for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+  for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; ++i){
 
     string theCategory     = (*i).first;
     string theTriggerAlias = (*i).second;

@@ -389,7 +389,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
 
   // find the cell reference value
   for(map<DTLayerId, pair<double, double> >::const_iterator layAndValues = averageCellOccupAndRMS.begin();
-      layAndValues != averageCellOccupAndRMS.end(); layAndValues++) {
+      layAndValues != averageCellOccupAndRMS.end(); ++layAndValues) {
     DTLayerId lid = (*layAndValues).first;
 
     double rms = (*layAndValues).second.second;

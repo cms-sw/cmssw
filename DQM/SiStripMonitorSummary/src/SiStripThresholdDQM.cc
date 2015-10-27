@@ -49,7 +49,7 @@ void SiStripThresholdDQM::fillModMEs(const std::vector<uint32_t> & selectedDetId
   
     
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
-      detIter_!= selectedDetIds.end();detIter_++){
+      detIter_!= selectedDetIds.end();++detIter_){
       
     fillMEsForDet(CondObj_ME,*detIter_,tTopo);
       
@@ -105,7 +105,7 @@ void SiStripThresholdDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedD
    const TrackerTopology* const tTopo = tTopoHandle.product();
 
    for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
-       detIter_!= selectedDetIds.end();detIter_++){
+       detIter_!= selectedDetIds.end();++detIter_){
      fillMEsForLayer(/*SummaryMEsMap_,*/ *detIter_,tTopo);
 
    }

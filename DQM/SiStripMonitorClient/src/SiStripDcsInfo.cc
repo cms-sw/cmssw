@@ -140,7 +140,7 @@ void SiStripDcsInfo::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   if (nFEDConnected_ == 0) return;
 
   // initialise BadModule list 
-  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); ++it) {
     it->second.FaultyDetectors.clear();
   }
   readStatus(eSetup);
@@ -165,7 +165,7 @@ void SiStripDcsInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
 
   if (nFEDConnected_ == 0) return;
 
-  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); ++it) {
     it->second.FaultyDetectors.clear();
   }
   readStatus(eSetup); 
@@ -189,7 +189,7 @@ void SiStripDcsInfo::bookStatus() {
     dqmStore_->cd();
     if (strip_dir.size() > 0)  dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DCSContents");
     else dqmStore_->setCurrentFolder("SiStrip/EventInfo/DCSContents"); 
-    for (std::map<std::string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+    for (std::map<std::string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); ++it) {
       SubDetMEs local_mes;	
       std::string me_name;
       me_name = "SiStrip_" + it->first;
@@ -224,7 +224,7 @@ void SiStripDcsInfo::readCabling(edm::EventSetup const& eSetup) {
     
 
     // initialise total # of detectors first
-    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); ++it) {
       it->second.TotalDetectors = 0;
     }
     
@@ -279,7 +279,7 @@ void SiStripDcsInfo::fillStatus(){
     float total_det = 0.0;
     float faulty_det = 0.0;
     float fraction;
-    for (std::map<std::string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+    for (std::map<std::string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); ++it) {
       int total_subdet  = it->second.TotalDetectors;
       int faulty_subdet = it->second.FaultyDetectors.size(); 
       if  (nFEDConnected_ == 0  || total_subdet == 0) fraction = -1;
@@ -304,7 +304,7 @@ void SiStripDcsInfo::fillStatus(){
 void SiStripDcsInfo::fillDummyStatus() {
   if (!bookedStatus_) bookStatus();
   if (bookedStatus_) {
-    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); ++it) {
       it->second.DcsFractionME->Reset();
       it->second.DcsFractionME->Fill(-1.0);
     }
@@ -325,10 +325,10 @@ void SiStripDcsInfo::addBadModules() {
   std::string mechanical_dir = dqmStore_->pwd();
   std::string tag = "DCSError";
 
-  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); ++it) {
     std::vector<uint32_t> badModules = it->second.FaultyDetectors; 
     for (std::vector<uint32_t>::iterator ibad = badModules.begin(); 
-	 ibad != badModules.end(); ibad++) {
+	 ibad != badModules.end(); ++ibad) {
 
       std::string bad_module_folder = mechanical_dir + "/" +
                                       it->second.folder_name + "/"     

@@ -305,7 +305,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 
   // Central jets
   if (l1CenJets.isValid()) {
-    for (L1GctJetCandCollection::const_iterator cj = l1CenJets->begin();cj != l1CenJets->end(); cj++) {
+    for (L1GctJetCandCollection::const_iterator cj = l1CenJets->begin();cj != l1CenJets->end(); ++cj) {
       // only plot central BX
       if (cj->bx()==0) {
         l1GctCenJetsRank_->Fill(cj->rank());
@@ -325,7 +325,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 
   // Forward jets
   if (l1ForJets.isValid()) {
-    for (L1GctJetCandCollection::const_iterator fj = l1ForJets->begin(); fj != l1ForJets->end(); fj++) {
+    for (L1GctJetCandCollection::const_iterator fj = l1ForJets->begin(); fj != l1ForJets->end(); ++fj) {
       // only plot central BX
       if (fj->bx()==0) {
         l1GctForJetsRank_->Fill(fj->rank());
@@ -345,7 +345,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 
   // Tau jets
   if (l1TauJets.isValid()) {
-    for (L1GctJetCandCollection::const_iterator tj = l1TauJets->begin(); tj != l1TauJets->end(); tj++) {
+    for (L1GctJetCandCollection::const_iterator tj = l1TauJets->begin(); tj != l1TauJets->end(); ++tj) {
       // only plot central BX
       if (tj->bx()==0) {
         l1GctTauJetsRank_->Fill(tj->rank());
@@ -366,7 +366,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
    edm::Handle < L1GctJetCandCollection > l1IsoTauJets;
    e.getByToken(gctIsoTauJetsSourceToken_, l1IsoTauJets);
    if (l1IsoTauJets.isValid()) {
-    for (L1GctJetCandCollection::const_iterator itj = l1IsoTauJets->begin(); itj != l1IsoTauJets->end(); itj++) {
+    for (L1GctJetCandCollection::const_iterator itj = l1IsoTauJets->begin(); itj != l1IsoTauJets->end(); ++itj) {
       // only plot central BX
       if (itj->bx()==0) {
         l1GctIsoTauJetsRank_->Fill(itj->rank());
@@ -386,7 +386,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   
   // Missing ET
   if (l1EtMiss.isValid()) { 
-    for (L1GctEtMissCollection::const_iterator met = l1EtMiss->begin(); met != l1EtMiss->end(); met++) {
+    for (L1GctEtMissCollection::const_iterator met = l1EtMiss->begin(); met != l1EtMiss->end(); ++met) {
       // only plot central BX
       if (met->bx()==0) {
         if (met->overFlow() == 0 && met->et() > 0) {
@@ -404,7 +404,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 
   // Missing HT
   if (l1HtMiss.isValid()) { 
-    for (L1GctHtMissCollection::const_iterator mht = l1HtMiss->begin(); mht != l1HtMiss->end(); mht++) {
+    for (L1GctHtMissCollection::const_iterator mht = l1HtMiss->begin(); mht != l1HtMiss->end(); ++mht) {
       // only plot central BX
       if (mht->bx()==0) {
         if (mht->overFlow() == 0 && mht->et() > 0) {
@@ -440,7 +440,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 
   // HT 
   if (l1EtHad.isValid()) {
-    for (L1GctEtHadCollection::const_iterator ht = l1EtHad->begin(); ht != l1EtHad->end(); ht++) {
+    for (L1GctEtHadCollection::const_iterator ht = l1EtHad->begin(); ht != l1EtHad->end(); ++ht) {
       // only plot central BX
       if (ht->bx()==0) {
         l1GctEtHad_->Fill(ht->et());
@@ -454,7 +454,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 
   // Total ET
   if (l1EtTotal.isValid()) {
-    for (L1GctEtTotalCollection::const_iterator et = l1EtTotal->begin(); et != l1EtTotal->end(); et++) {
+    for (L1GctEtTotalCollection::const_iterator et = l1EtTotal->begin(); et != l1EtTotal->end(); ++et) {
       // only plot central BX
       if (et->bx()==0) {
         l1GctEtTotal_->Fill(et->et());
@@ -483,7 +483,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 
   //HF Ring Et Sums
   if (l1HFSums.isValid()) {
-    for (L1GctHFRingEtSumsCollection::const_iterator hfs=l1HFSums->begin(); hfs!=l1HFSums->end(); hfs++){ 
+    for (L1GctHFRingEtSumsCollection::const_iterator hfs=l1HFSums->begin(); hfs!=l1HFSums->end(); ++hfs){ 
       // only plot central BX
       if (hfs->bx()==0) {
         // Individual ring Et sums
@@ -509,7 +509,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 
   // HF Ring Counts
   if (l1HFCounts.isValid()) {
-    for (L1GctHFBitCountsCollection::const_iterator hfc=l1HFCounts->begin(); hfc!=l1HFCounts->end(); hfc++){ 
+    for (L1GctHFBitCountsCollection::const_iterator hfc=l1HFCounts->begin(); hfc!=l1HFCounts->end(); ++hfc){ 
       // only plot central BX
       if (hfc->bx()==0) {
         // Individual ring counts
@@ -532,7 +532,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   
   // Isolated EM
   if (l1IsoEm.isValid()) {
-    for (L1GctEmCandCollection::const_iterator ie=l1IsoEm->begin(); ie!=l1IsoEm->end(); ie++) {
+    for (L1GctEmCandCollection::const_iterator ie=l1IsoEm->begin(); ie!=l1IsoEm->end(); ++ie) {
       // only plot central BX
       if (ie->bx()==0) {
         l1GctIsoEmRank_->Fill(ie->rank());
@@ -550,7 +550,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 
   // Non-isolated EM
   if (l1NonIsoEm.isValid()) { 
-    for (L1GctEmCandCollection::const_iterator ne=l1NonIsoEm->begin(); ne!=l1NonIsoEm->end(); ne++) {
+    for (L1GctEmCandCollection::const_iterator ne=l1NonIsoEm->begin(); ne!=l1NonIsoEm->end(); ++ne) {
       // only plot central BX
       if (ne->bx()==0) {
         l1GctNonIsoEmRank_->Fill(ne->rank());

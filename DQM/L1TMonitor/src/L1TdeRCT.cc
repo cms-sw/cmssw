@@ -230,7 +230,7 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
   bool triggered = false;
   bool independent_triggered = false;
   DecisionWord::const_iterator algoItr;
-  for (algoItr = dWord.begin(); algoItr != dWord.end(); algoItr++)
+  for (algoItr = dWord.begin(); algoItr != dWord.end(); ++algoItr)
     {
       if (*algoItr)
         {
@@ -281,7 +281,7 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
 
   if(doEcal)
   {
-  for(EcalTrigPrimDigiCollection::const_iterator iEcalTp = ecalTpData->begin(); iEcalTp != ecalTpData->end(); iEcalTp++){
+  for(EcalTrigPrimDigiCollection::const_iterator iEcalTp = ecalTpData->begin(); iEcalTp != ecalTpData->end(); ++iEcalTp){
     if(iEcalTp->compressedEt() > 0)
     {
 
@@ -314,7 +314,7 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
   if(doHcal)
   {
 
-  for(HcalTrigPrimDigiCollection::const_iterator iHcalTp = hcalTpData->begin(); iHcalTp != hcalTpData->end(); iHcalTp++)
+  for(HcalTrigPrimDigiCollection::const_iterator iHcalTp = hcalTpData->begin(); iHcalTp != hcalTpData->end(); ++iHcalTp)
   {
     int highSample=0;
     int highEt=0;
@@ -429,7 +429,7 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
 
   for (L1CaloEmCollection::const_iterator iem = emEmul->begin();
        iem != emEmul->end();
-       iem++)
+       ++iem)
   {
     if(iem->rank() >= 1)
     {
@@ -475,7 +475,7 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
 
   for (L1CaloEmCollection::const_iterator iem = emData->begin();
        iem != emData->end();
-       iem++)
+       ++iem)
   {
 
     if(selectBX_!=-1 && selectBX_!=iem->bx()) continue;
@@ -533,7 +533,7 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
     // fill region/bit arrays for emulator
   for(L1CaloRegionCollection::const_iterator ireg = rgnEmul->begin();
       ireg != rgnEmul->end();
-      ireg++)
+      ++ireg)
   {
 
 //     std::cout << "Emul: " << nRegionEmul << " " << ireg->gctEta() << " " << ireg->gctPhi() << std::endl;
@@ -594,7 +594,7 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
       // fill region/bit arrays for hardware
   for(L1CaloRegionCollection::const_iterator ireg = rgnData->begin();
       ireg != rgnData->end();
-      ireg++)
+      ++ireg)
   {
 
     if(selectBX_!=-1 && selectBX_!=ireg->bx()) continue;

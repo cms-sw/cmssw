@@ -797,7 +797,7 @@ void HLTObjectMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
 double HLTObjectMonitor::dxyFinder(double eta, double phi, edm::Handle<reco::RecoChargedCandidateCollection> recoChargedCands, edm::Handle<reco::BeamSpot> recoBeamSpot)
 {
   double dxy = -99.;
-  for (reco::RecoChargedCandidateCollection::const_iterator l3Muon = recoChargedCands->begin(); l3Muon != recoChargedCands->end(); l3Muon++)
+  for (reco::RecoChargedCandidateCollection::const_iterator l3Muon = recoChargedCands->begin(); l3Muon != recoChargedCands->end(); ++l3Muon)
     {
       if (deltaR(eta,phi,l3Muon->eta(),l3Muon->phi()) < 0.1)
         {

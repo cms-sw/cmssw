@@ -348,12 +348,12 @@ int TRIGGER=0;
    	std::vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
    	std::vector<L1MuGMTReadoutRecord>::const_iterator igmtrr;
         N=0;
-   	for(igmtrr=gmt_records.begin(); igmtrr!=gmt_records.end(); igmtrr++) {
+   	for(igmtrr=gmt_records.begin(); igmtrr!=gmt_records.end(); ++igmtrr) {
      		std::vector<L1MuRegionalCand>::const_iterator iter1;
      		std::vector<L1MuRegionalCand> rmc;
      		// DTBX Trigger
      		rmc = igmtrr->getDTBXCands(); 
-		for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
+		for(iter1=rmc.begin(); iter1!=rmc.end(); ++iter1) {
        			if ( idt < MAXDTBX && !(*iter1).empty() ) {
          			idt++; 
          			if(N<5) ndt[N]++; 
@@ -362,7 +362,7 @@ int TRIGGER=0;
      		}
      		// CSC Trigger
      		rmc = igmtrr->getCSCCands(); 
-     		for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
+     		for(iter1=rmc.begin(); iter1!=rmc.end(); ++iter1) {
        			if ( icsc < MAXCSC && !(*iter1).empty() ) {
          			icsc++; 
 				if(N<5) ncsc[N]++; 
@@ -370,7 +370,7 @@ int TRIGGER=0;
      		}
      		// RPCb Trigger
      		rmc = igmtrr->getBrlRPCCands();
-		for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
+		for(iter1=rmc.begin(); iter1!=rmc.end(); ++iter1) {
        			if ( irpcb < MAXRPC && !(*iter1).empty() ) {
          			irpcb++;
 		 		if(N<5) nrpcb[N]++;
@@ -379,7 +379,7 @@ int TRIGGER=0;
      		}
 		// RPCfwd Trigger
 		rmc = igmtrr->getFwdRPCCands();
-		for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
+		for(iter1=rmc.begin(); iter1!=rmc.end(); ++iter1) {
        			if ( irpcf < MAXRPC && !(*iter1).empty() ) {
          			irpcf++;
 		 		if(N<5) nrpcf[N]++;
@@ -426,7 +426,7 @@ int TRIGGER=0;
      iEvent.getByToken(tok_hbhe_, hbhe);
      if (hbhe.isValid())
        {
-	 for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
+	 for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();++digi){
 	   eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
 	   if(digi->id().subdet()==HcalBarrel) HBcnt++;
 	   if(digi->id().subdet()==HcalEndcap) HEcnt++;
@@ -438,7 +438,7 @@ int TRIGGER=0;
      iEvent.getByToken(tok_ho_, ho);
      if (ho.isValid())
      {
-       for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
+       for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();++digi){
 	 eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
 	 HOcnt++;
 	 for(int i=0;i<nTS;i++)
@@ -450,7 +450,7 @@ int TRIGGER=0;
      iEvent.getByToken(tok_hf_, hf);
      if (hf.isValid())
        {
-         for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
+         for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();++digi){
 	   eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
 	   HFcnt++;
 	   for(int i=0;i<nTS;i++) 
@@ -466,7 +466,7 @@ int TRIGGER=0;
       iEvent.getByToken(tok_hbhe_, hbhe);
       if (hbhe.isValid())
 	{
-	  for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
+	  for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();++digi){
 	    eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
 	    if(nTS>10) nTS=10;
 	    if(digi->id().subdet()==HcalBarrel) HBcnt++;
@@ -506,7 +506,7 @@ int TRIGGER=0;
       iEvent.getByToken(tok_ho_, ho);
       if (ho.isValid())
 	{
-	  for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
+	  for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();++digi){
 	    eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
 	    if(nTS>10) nTS=10;
 	    HOcnt++; 
@@ -536,7 +536,7 @@ int TRIGGER=0;
       iEvent.getByToken(tok_hf_, hf);
       if (hf.isValid())
 	{
-	  for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
+	  for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();++digi){
             eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
 	    if(nTS>10) nTS=10;
             HFcnt++; 

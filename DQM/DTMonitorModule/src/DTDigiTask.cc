@@ -711,7 +711,7 @@ string DTDigiTask::triggerSource() {
   if (isLocalRun)
     return l1ASource;
 
-  for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++){
+  for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ++ltc_it){
     size_t otherTriggerSum=0;
     for (size_t i = 1; i < 6; i++)
       otherTriggerSum += size_t((*ltc_it).HasTriggered(i));

@@ -143,7 +143,7 @@ void L1TRPCTFClient::processHistograms(DQMStore::IGetter &igetter) {
    if (verbose_)
    {
      std::vector<string> meVec = igetter.getMEs();
-     for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+     for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); ++it) {
 
          std::string full_path = input_dir_ + "/" + (*it);
          MonitorElement * me =igetter.get(full_path);

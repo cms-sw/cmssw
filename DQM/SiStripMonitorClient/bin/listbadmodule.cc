@@ -145,7 +145,7 @@ void listbadmodule(std::string filename, std::string pclfilename) {
 	// It requires that the bad modules from QT are sorted as the one of the PCL
 	while(pclbadmod!= pclbadmods.end() && pcldetid > *pclbadmod) {
 	  outfile << "Module " << *pclbadmod << " PCLBadModule " << std::endl;
-	  pclbadmod++;
+	  ++pclbadmod;
 	}
 	std::string message;
 	message = "Module " + detid;
@@ -157,7 +157,7 @@ void listbadmodule(std::string filename, std::string pclfilename) {
 	if (pclbadmods.find(pcldetid) != pclbadmods.end()) {
 	  message += " PCLBadModule ";
 	  pclbadmod = pclbadmods.find(pcldetid);
-	  pclbadmod++;
+	  ++pclbadmod;
 	}
 	outfile << message.c_str() << std::endl;
 	

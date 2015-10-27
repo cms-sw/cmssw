@@ -104,7 +104,7 @@ void findHistoParameters(TDirectory* top_dir,vector<string>& hnames, string& tag
   string dir_name = top_dir->GetTitle();
   cout << " ======================= " << tag <<  " ======================= " << endl;
 
-  for (vector<string>::iterator it = hnames.begin(); it != hnames.end(); it++) { 
+  for (vector<string>::iterator it = hnames.begin(); it != hnames.end(); ++it) { 
     TH1* th1 = dynamic_cast<TH1*>(gDirectory->Get((*it).c_str()));
     if (th1) {
       sprintf(mval,"%.2f",th1->GetMean());

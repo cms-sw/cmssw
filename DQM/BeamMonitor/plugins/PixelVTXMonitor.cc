@@ -67,7 +67,7 @@ void PixelVTXMonitor::bookHistograms() {
 
   PixelMEs local_MEs;
   for (std::vector<std::string> ::iterator it = selectedPaths.begin();
-       it != selectedPaths.end(); it++) {
+       it != selectedPaths.end(); ++it) {
     std::string tag = (*it) ;
     std::map<std::string, PixelMEs>::iterator iPos = histoMap_.find(tag);
     if (iPos == histoMap_.end()) {

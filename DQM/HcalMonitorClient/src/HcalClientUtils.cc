@@ -464,13 +464,13 @@ void htmlErrors(int runNo, std::string htmlDir, std::string client, std::string 
   errorFile << "<br>  " << std::endl;
   errorFile << "<h2>" << client <<" Errors</h2> " << std::endl;
 
-  for (mapIter=mapE.begin(); mapIter!=mapE.end();mapIter++){
+  for (mapIter=mapE.begin(); mapIter!=mapE.end();++mapIter){
     std::string meName = mapIter->first;
     std::vector<QReport*> errors = mapIter->second;
     errorFile << "<br>" << std::endl;     
     errorFile << "<hr>" << std::endl;
     errorFile << "Monitorable '" << meName << "' has the following errors: <br>" << std::endl;
-    for(std::vector<QReport*>::iterator report=errors.begin(); report!=errors.end(); report++){
+    for(std::vector<QReport*>::iterator report=errors.begin(); report!=errors.end(); ++report){
       errorFile << "     "<< (*report)->getQRName() << ": "<< (*report)->getMessage() << std::endl;
     }
     MonitorElement* me = dbe->get(meName);
@@ -507,13 +507,13 @@ void htmlErrors(int runNo, std::string htmlDir, std::string client, std::string 
   errorFile << "<br>  " << std::endl;
   errorFile << "<h2>" << client <<" Warnings</h2> " << std::endl;
 
-  for (mapIter=mapW.begin(); mapIter!=mapW.end();mapIter++){
+  for (mapIter=mapW.begin(); mapIter!=mapW.end();++mapIter){
     std::string meName = mapIter->first;
     std::vector<QReport*> errors = mapIter->second;
     errorFile << "<br>" << std::endl;     
     errorFile << "<hr>" << std::endl;
     errorFile << "Monitorable '" << meName << "' has the following warnings: <BR>" << std::endl;
-    for(std::vector<QReport*>::iterator report=errors.begin(); report!=errors.end(); report++){
+    for(std::vector<QReport*>::iterator report=errors.begin(); report!=errors.end(); ++report){
       errorFile << "     "<< (*report)->getQRName() << ": "<< (*report)->getMessage() << std::endl;
     }
     MonitorElement* me = dbe->get(meName);
@@ -549,13 +549,13 @@ void htmlErrors(int runNo, std::string htmlDir, std::string client, std::string 
   errorFile << "<br>  " << std::endl;
   errorFile << "<h2>" << client <<" Messages</h2> " << std::endl;
 
-  for (mapIter=mapO.begin(); mapIter!=mapO.end();mapIter++){
+  for (mapIter=mapO.begin(); mapIter!=mapO.end();++mapIter){
     std::string meName = mapIter->first;
     std::vector<QReport*> errors = mapIter->second;
     errorFile << "<br>" << std::endl;     
     errorFile << "<hr>" << std::endl;
     errorFile << "Monitorable '" << meName << "' has the following messages: <br>" << std::endl;
-    for(std::vector<QReport*>::iterator report=errors.begin(); report!=errors.end(); report++){
+    for(std::vector<QReport*>::iterator report=errors.begin(); report!=errors.end(); ++report){
       errorFile << "     "<< (*report)->getQRName() << ": "<< (*report)->getMessage() << std::endl;
     }
     errorFile << "<br>" << std::endl;

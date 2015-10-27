@@ -285,7 +285,7 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
 	      double bottomGlobalMuonNorchi2 = 1e10;
 	      
 	      // check if usable split global muons
-	      for (std::vector<reco::Muon>::const_iterator gmI = splitMuons->begin(); gmI != splitMuons->end(); gmI++){
+	      for (std::vector<reco::Muon>::const_iterator gmI = splitMuons->begin(); gmI != splitMuons->end(); ++gmI){
 		if ( gmI->isTrackerMuon() && gmI->isStandAloneMuon() && gmI->isGlobalMuon() ){
 		  
 		  reco::TrackRef trackerTrackRef1( splitTracks, 0 );

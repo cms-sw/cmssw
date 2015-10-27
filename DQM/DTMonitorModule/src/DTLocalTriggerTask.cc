@@ -229,10 +229,10 @@ void DTLocalTriggerTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg, co
   if(lumiSeg.id().luminosityBlock()%parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0) {
     for(map<uint32_t, map<string, MonitorElement*> > ::const_iterator histo = digiHistos.begin();
 	histo != digiHistos.end();
-	histo++) {
+	++histo) {
       for(map<string, MonitorElement*> ::const_iterator ht = (*histo).second.begin();
 	  ht != (*histo).second.end();
-	  ht++) {
+	  ++ht) {
 	(*ht).second->Reset();
       }
     }
@@ -925,7 +925,7 @@ void DTLocalTriggerTask::triggerSource(const edm::Event& e) {
     Handle<LTCDigiCollection> ltcdigis;
     e.getByToken(ltcDigiCollectionToken_, ltcdigis);
 
-    for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++){
+    for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ++ltc_it){
 
       size_t otherTriggerSum=0;
       for (size_t i = 1; i < 6; i++) {

@@ -106,7 +106,7 @@ SiPixelHitEfficiencySource::~SiPixelHitEfficiencySource() {
   LogInfo("PixelDQM") << "SiPixelHitEfficiencySource destructor" << endl;
 
   std::map<uint32_t,SiPixelHitEfficiencyModule*>::iterator struct_iter;
-  for (struct_iter = theSiPixelStructure.begin() ; struct_iter != theSiPixelStructure.end() ; struct_iter++){
+  for (struct_iter = theSiPixelStructure.begin() ; struct_iter != theSiPixelStructure.end() ; ++struct_iter){
     delete struct_iter->second;
     struct_iter->second = 0;
   }
@@ -166,14 +166,14 @@ void SiPixelHitEfficiencySource::dqmBeginRun(const edm::Run& r, edm::EventSetup 
  
   // build theSiPixelStructure with the pixel barrel and endcap dets from TrackerGeometry
   for (TrackerGeometry::DetContainer::const_iterator pxb = TG->detsPXB().begin();  
-       pxb!=TG->detsPXB().end(); pxb++) {
+       pxb!=TG->detsPXB().end(); ++pxb) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*pxb))!=0) {
       SiPixelHitEfficiencyModule* module = new SiPixelHitEfficiencyModule((*pxb)->geographicalId().rawId());
       theSiPixelStructure.insert(pair<uint32_t, SiPixelHitEfficiencyModule*>((*pxb)->geographicalId().rawId(), module));
     }
   }
   for (TrackerGeometry::DetContainer::const_iterator pxf = TG->detsPXF().begin(); 
-       pxf!=TG->detsPXF().end(); pxf++) {
+       pxf!=TG->detsPXF().end(); ++pxf) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*pxf))!=0) {
       SiPixelHitEfficiencyModule* module = new SiPixelHitEfficiencyModule((*pxf)->geographicalId().rawId());
       theSiPixelStructure.insert(pair<uint32_t, SiPixelHitEfficiencyModule*>((*pxf)->geographicalId().rawId(), module));
@@ -188,7 +188,7 @@ void SiPixelHitEfficiencySource::bookHistograms(DQMStore::IBooker & iBooker, edm
   // book residual histograms in theSiPixelFolder - one (x,y) pair of histograms per det
   SiPixelFolderOrganizer theSiPixelFolder(false);
   for (std::map<uint32_t, SiPixelHitEfficiencyModule*>::iterator pxd = theSiPixelStructure.begin(); 
-       pxd!=theSiPixelStructure.end(); pxd++) {
+       pxd!=theSiPixelStructure.end(); ++pxd) {
 
     if(modOn){
       if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,0,isUpgrade)) (*pxd).second->book(pSet_,iSetup,iBooker,0,isUpgrade);
@@ -340,7 +340,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
     std::vector<TrajectoryMeasurement> tmeasColl =traj_iterator->measurements();
     std::vector<TrajectoryMeasurement>::const_iterator tmeasIt;
     //loop on measurements to find out what kind of hits there are
-    for(tmeasIt = tmeasColl.begin();tmeasIt!=tmeasColl.end();tmeasIt++){
+    for(tmeasIt = tmeasColl.begin();tmeasIt!=tmeasColl.end();++tmeasIt){
       //if(! tmeasIt->updatedState().isValid()) continue; NOT NECESSARY (I HOPE)
       TransientTrackingRecHit::ConstRecHitPointer testhit = tmeasIt->recHit();
       if(testhit->geographicalId().det() != DetId::Tracker) continue; 
@@ -384,7 +384,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 	  if (tmeasIt == tmeasColl.end()-1) {
 	    lastValidL2=true;
 	  } else {
-	    tmeasIt++;
+	    ++tmeasIt;
 	    TransientTrackingRecHit::ConstRecHitPointer nextRecHit = tmeasIt->recHit();
 	    uint nextSubDetID = (nextRecHit->geographicalId().subdetId()); 
 	    int nextlayer = PixelBarrelName(nextRecHit->geographicalId()).layerName();
@@ -502,7 +502,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
         std::cout << "isFpixtrack : " << isFpixtrack << std::endl;
       }
       //std::cout<<"This tracks has so many hits: "<<tmeasColl.size()<<std::endl;
-      for(std::vector<TrajectoryMeasurement>::const_iterator tmeasIt = tmeasColl.begin(); tmeasIt!=tmeasColl.end(); tmeasIt++){   
+      for(std::vector<TrajectoryMeasurement>::const_iterator tmeasIt = tmeasColl.begin(); tmeasIt!=tmeasColl.end(); ++tmeasIt){   
 	//if(! tmeasIt->updatedState().isValid()) continue; 
 	TrajectoryStateOnSurface tsos = tmeasIt->updatedState();
 
@@ -670,7 +670,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 		const edmNew::DetSetVector<SiPixelCluster>& clusterCollection=*clusterCollectionHandle;
 		edmNew::DetSetVector<SiPixelCluster>::const_iterator itClusterSet=clusterCollection.begin();
 		float minD[2]; minD[0]=minD[1]=10000.;
-		for( ; itClusterSet!=clusterCollection.end(); itClusterSet++){
+		for( ; itClusterSet!=clusterCollection.end(); ++itClusterSet){
 		  DetId detId(itClusterSet->id());
 		  if(detId.rawId()!=hit->geographicalId().rawId()) continue;
 		  //unsigned int sdId=detId.subdetId();

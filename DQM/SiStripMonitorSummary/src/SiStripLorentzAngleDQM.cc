@@ -30,7 +30,7 @@ void SiStripLorentzAngleDQM::getActiveDetIds(const edm::EventSetup & eSetup){
   std::map<uint32_t,float> LAMap_ = lorentzangleHandle_->getLorentzAngles();
 
   for( LAMapIter_ = LAMap_.begin();
-       LAMapIter_!= LAMap_.end(); LAMapIter_++){
+       LAMapIter_!= LAMap_.end(); ++LAMapIter_){
 
     activeDetIds.push_back((*LAMapIter_).first);
   }
@@ -71,7 +71,7 @@ void SiStripLorentzAngleDQM::fillSummaryMEs(const std::vector<uint32_t> & select
     } 
   }
 
-  for (std::map<uint32_t, ModMEs>::iterator iter=SummaryMEsMap_.begin(); iter!=SummaryMEsMap_.end(); iter++){
+  for (std::map<uint32_t, ModMEs>::iterator iter=SummaryMEsMap_.begin(); iter!=SummaryMEsMap_.end(); ++iter){
 
     ModMEs selME;
     selME = iter->second;

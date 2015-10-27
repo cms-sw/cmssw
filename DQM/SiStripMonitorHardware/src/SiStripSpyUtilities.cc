@@ -216,7 +216,7 @@ namespace sistrip {
     aFirstHeaderBit = 0;
     edm::DetSetVector<SiStripRawDigi>::const_iterator lDigis = aInputDigis->begin();
     
-    for ( ; lDigis != aInputDigis->end(); lDigis++){
+    for ( ; lDigis != aInputDigis->end(); ++lDigis){
       sistrip::SpyUtilities::Frame lFrame = sistrip::SpyUtilities::extractFrameInfo(*lDigis);
       lFirstBitVec.push_back(lFrame.firstHeaderBit);
     }

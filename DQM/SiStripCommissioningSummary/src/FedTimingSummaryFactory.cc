@@ -67,7 +67,7 @@ uint32_t SummaryHistogramFactory<FedTimingAnalysis>::extract( const std::map<uin
   // Transfer appropriate monitorables info to generator object
   generator_->clearMap();
   std::map<uint32_t,FedTimingAnalysis>::const_iterator iter = data.begin();
-  for ( ; iter != data.end(); iter++ ) {
+  for ( ; iter != data.end(); ++iter ) {
     if ( mon_ == sistrip::FED_TIMING_TIME ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.time() ); 
     } else if ( mon_ == sistrip::FED_TIMING_MAX_TIME ) { 
