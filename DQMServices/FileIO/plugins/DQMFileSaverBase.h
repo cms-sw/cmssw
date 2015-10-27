@@ -45,38 +45,34 @@ class DQMFileSaverBase
   };
 
  protected:
-  virtual void beginJob(void);
+  //virtual void beginJob(void) const override final;
+  //virtual void endJob(void) const override final;
+
   virtual std::shared_ptr<NoCache> globalBeginRun(
-      const edm::Run &, const edm::EventSetup &) const;
+      const edm::Run &, const edm::EventSetup &) const override final;
+
   virtual std::shared_ptr<NoCache> globalBeginLuminosityBlock(
-      const edm::LuminosityBlock &, const edm::EventSetup &) const;
+      const edm::LuminosityBlock &, const edm::EventSetup &) const override final;
+
   virtual void analyze(edm::StreamID, const edm::Event &e,
-                       const edm::EventSetup &) const;
+                       const edm::EventSetup &) const override final;
+
   virtual void globalEndLuminosityBlock(const edm::LuminosityBlock &,
-                                        const edm::EventSetup &) const;
-  virtual void globalEndRun(const edm::Run &, const edm::EventSetup &) const;
-  virtual void endJob(void);
+                                        const edm::EventSetup &) const override final ;
+  virtual void globalEndRun(const edm::Run &, const edm::EventSetup &) const override final;
+
   virtual void postForkReacquireResources(unsigned int childIndex,
                                           unsigned int numberOfChildren);
 
-  // these two should be overwritten
-  // in some cases, hsitograms are deleted after saving
+  // these method (and only these) should be overriden
   // so we need to call all file savers
-  virtual void saveLumi(FileParameters fp) const {};
-  virtual void saveRun(FileParameters fp) const {};
+  virtual void initRun(void) const {};
+  virtual void saveLumi(const FileParameters& fp) const {};
+  virtual void saveRun(const FileParameters& fp) const {};
 
-  static const std::string filename(FileParameters fp, bool useLumi = false);
+  static const std::string filename(const FileParameters& fp, bool useLumi = false);
 
-  // also used by the JsonWritingTimedPoolOutputModule,
-  // fms will be nullptr in such case
-  static boost::property_tree::ptree fillJson(
-      int run, int lumi, const std::string &dataFilePathName, const std::string transferDestinationStr,
-      evf::FastMonitoringService *fms);
-
-  static const std::string fillOrigin(const std::string filename,
-                                  const std::string final_filename);
-
-  // utilities
+    // utilities
   void logFileAction(const std::string& msg, const std::string& fileName) const;
   void saveJobReport(const std::string &filename) const;
 
