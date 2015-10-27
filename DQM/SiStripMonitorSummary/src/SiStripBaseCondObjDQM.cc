@@ -246,7 +246,7 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
 	std::vector<uint32_t>::iterator detid=std::lower_bound(detIds_.begin(),detIds_.end(),*mod);
 	if (detid!=detIds_.end())
 	  detIds_.erase(detid);
-	detid--;
+	--detid;
       }
     }
     
@@ -282,7 +282,7 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
 								  *max_element(tmp.begin(), tmp.end()));
 	
 	for(std::vector<uint32_t>::iterator detIter_ = iterEnd_;
-	    detIter_!= iterBegin_-1;detIter_--){
+	    detIter_!= iterBegin_-1;--detIter_){
 	  detIds_.erase(detIter_);
 	} 
 	

@@ -391,7 +391,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 	    if (nextSubDetID == PixelSubdetector::PixelBarrel && nextlayer==extrapolateTo_ ) {
 	      lastValidL2=true; //&& !nextRecHit->isValid()) lastValidL2=true;
 	    }
-	    tmeasIt--;
+	    --tmeasIt;
 	  }
 	}
       }//end check last valid layer
