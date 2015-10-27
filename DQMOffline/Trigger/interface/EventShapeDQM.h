@@ -30,21 +30,16 @@ protected:
 	void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
 
 private:
-	// 
 	edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
-//	edm::EDGetTokenT<trigger::TriggerEvent> theTrigSummary_;
 	edm::EDGetTokenT<reco::EvtPlaneCollection> theEPCollection_;
 
 	std::string triggerPath_;
-//	edm::InputTag triggerFilter_;
 	int order_;
 	int EPidx_;
 	int EPlvl_;
 
-
 	// histo
 	MonitorElement* h_Q;
-
 };
 
 #endif

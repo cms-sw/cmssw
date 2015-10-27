@@ -7,11 +7,9 @@
 
 EventShapeDQM::EventShapeDQM(const edm::ParameterSet& ps)
 {
-//	theTrigSummary_ = consumes<trigger::TriggerEvent>(ps.getParameter<edm::InputTag>("trigSummary"));
 	triggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("triggerResults"));
 	theEPCollection_ = consumes<reco::EvtPlaneCollection>(ps.getParameter<edm::InputTag>("EPlabel"));
 	triggerPath_ = ps.getParameter<std::string>("triggerPath");
-//	triggerFilter_ = ps.getParameter<edm::InputTag>("triggerFilter");
 
 	order_ = ps.getParameter<int>("order");
 	EPidx_ = ps.getParameter<int>("EPidx");
@@ -41,7 +39,6 @@ void EventShapeDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 	e.getByToken(triggerResults_,hltresults);
 	if(!hltresults.isValid())
 	{
-		edm::LogError ("EventShapeDQM") << "invalid collection: TriggerResults" << "\n";
 		return;
 	}
 
@@ -57,7 +54,6 @@ void EventShapeDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 	edm::Handle<reco::EvtPlaneCollection> ep_;
 	e.getByToken(theEPCollection_, ep_);
 	if ( !ep_.isValid() ) {
-		edm::LogError ("EventShapeDQM") << "invalid collection: EvtPlaneCollection" << "\n";
 		return;
 	}
 

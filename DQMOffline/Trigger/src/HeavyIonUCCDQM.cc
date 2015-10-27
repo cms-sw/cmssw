@@ -68,7 +68,6 @@ void HeavyIonUCCDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 	edm::Handle<reco::CaloMETCollection> calometColl;
 	e.getByToken(theCaloMet, calometColl);
 	if ( calometColl.isValid() ) {
-		std::cout << "!!! " << (*calometColl).front().sumEt() << std::endl;
 		h_SumEt->Fill((*calometColl).front().sumEt());
 	}
 

@@ -33,7 +33,6 @@ protected:
 	void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
 
 private:
-	// 
 	edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
 	edm::EDGetTokenT<reco::CaloMETCollection> theCaloMet;
 	edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > theSiPixelCluster;
@@ -47,11 +46,9 @@ private:
 	double minEt;
 	double maxEt;
 
-
 	// histo
 	MonitorElement* h_SumEt;
 	MonitorElement* h_SiPixelClusters;
-
 };
 
 #endif
