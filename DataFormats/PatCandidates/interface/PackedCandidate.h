@@ -566,7 +566,7 @@ namespace pat {
     
     // for teh neutral fraction
     void setHcalFraction(float p);                      /// Set the fraction of Ecal and Hcal needed for HF and neutral hadrons
-    float hcalFraction() const { return hcalFraction_; }    /// Fraction of Ecal and Hcal for HF and neutral hadrons
+    float hcalFraction() const { return (hcalFraction_/100.); }    /// Fraction of Ecal and Hcal for HF and neutral hadrons
 
 
   protected:

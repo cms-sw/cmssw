@@ -315,5 +315,5 @@ float pat::PackedCandidate::puppiWeight() const { return unpack8logClosed(packed
 float pat::PackedCandidate::puppiWeightNoLep() const { return unpack8logClosed(packedPuppiweightNoLepDiff_+packedPuppiweight_,-2,0,64)/2. + 0.5;}
 
 void pat::PackedCandidate::setHcalFraction(float p) {
-  hcalFraction_ = p;
+  hcalFraction_ = 100*p;
 }

@@ -251,8 +251,8 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 
 	// neutrals
 
-	if(abs(cand.pdgId()) == 1 || abs(cand.pdgId()) == 2 || abs(cand.pdgId()) == 130) {
-	  outPtrP->back().setHcalFraction(100*(cand.hcalEnergy()/(cand.ecalEnergy()+cand.hcalEnergy())));
+	if(abs(cand.pdgId()) == 1 || abs(cand.pdgId()) == 130) {
+	  outPtrP->back().setHcalFraction(cand.hcalEnergy()/(cand.ecalEnergy()+cand.hcalEnergy()));
 	} else {
 	  outPtrP->back().setHcalFraction(0);
 	}
