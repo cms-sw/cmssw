@@ -334,14 +334,17 @@ namespace sistrip {
 
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
 
-          uint16_t num_bits = (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE) ? 10 : 8;
+	  uint16_t num_bits = (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE) ? 10 : 8;
+	  size_t bits_shift = 0;
+	  if (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE) bits_shift = 1;
+	  if (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE) bits_shift = 2;
 	  
 	  try {
             /// create unpacker
 	    sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(iconn->fedCh()), num_bits);
 	    
 	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
+	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,(unpacker.adc()<<bits_shift)));unpacker++;}
 	  } catch (const cms::Exception& e) {
             if ( edm::isDebugEnabled() ) {
               edm::LogWarning(sistrip::mlRawToDigi_)
@@ -446,10 +449,13 @@ namespace sistrip {
               sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()), 10);
               while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker.sampleNumber();unpacker++;}
             }
-            else if ( packet_code == PACKET_CODE_VIRGIN_RAW8_BOTBOT
-                   or packet_code == PACKET_CODE_VIRGIN_RAW8_TOPBOT ) {
+            else if ( packet_code == PACKET_CODE_VIRGIN_RAW8_BOTBOT ) {
               sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()), 8);
-	      while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
+	      while (unpacker.hasData()) {samples.push_back(( unpacker.adc()<<2 ));unpacker++;}
+            }
+            else if ( packet_code == PACKET_CODE_VIRGIN_RAW8_TOPBOT ) {
+              sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()), 8);
+	      while (unpacker.hasData()) {samples.push_back(( unpacker.adc()<<1 ));unpacker++;}
             }
           }
           if ( !samples.empty() ) { 
