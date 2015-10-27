@@ -192,6 +192,7 @@ initialize( const edm::ParameterSet& conf ) {
     cend(cutflow.end());
   std::vector<edm::ParameterSet>::const_iterator icut = cbegin;
   std::map<std::string,unsigned> cut_counter;
+  std::vector<std::string> ignored_cuts;
   for( ; icut != cend; ++icut ) {  
     std::stringstream realname;    
     const std::string& name = icut->getParameter<std::string>("cutName");
@@ -212,9 +213,10 @@ initialize( const edm::ParameterSet& conf ) {
     const std::string therealname = realname.str();
     this->push_back(therealname);
     this->set(therealname);
-    if(ignored) this->ignoreCut(therealname);
+    if(ignored) ignored_cuts.push_back(therealname);
     cut_counter[name]++;
   }    
+  this->setIgnoredCuts(ignored_cuts);
 
   //have to loop again to set cut indices after all are filled
   icut = cbegin;
