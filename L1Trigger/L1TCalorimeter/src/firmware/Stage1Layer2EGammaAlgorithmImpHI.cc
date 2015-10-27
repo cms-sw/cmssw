@@ -44,7 +44,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHI::processEvent(const std::vector<l1t::
     int eg_et = egCand->hwPt();
     int eg_eta = egCand->hwEta();
     int eg_phi = egCand->hwPhi();
-    int index = ((1-egCand->hwIso())*4 + egCand->hwQual()) ;
+    int index = (egCand->hwIso()*4 + egCand->hwQual()) ;
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > egLorentz(0,0,0,0);
 
@@ -59,7 +59,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHI::processEvent(const std::vector<l1t::
     preSortEGammas->push_back(theEG);
   }
 
-  EGammaToGtScales(params_, preSortEGammas, dumpEGammas);
+  //EGammaToGtScales(params_, preSortEGammas, dumpEGammas);
   //verboseDumpEGammas(*dumpEGammas);
 
   SortEGammas(preSortEGammas, preGtEGammas);
