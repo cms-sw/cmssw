@@ -41,7 +41,7 @@ class LHEEventProductLite {
           {
             this->setPDF (*lep->pdf ()) ;
           }
-        pdf_.reset(new PDF()) ; 
+//        pdf_.reset(new PDF()) ; 
         this->setScales (lep->scales ()) ; 
         copyWeightsVector (weights_, lep->weights ()) ;
 
