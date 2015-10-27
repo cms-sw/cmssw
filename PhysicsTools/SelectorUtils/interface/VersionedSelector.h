@@ -191,8 +191,12 @@ initialize( const edm::ParameterSet& conf ) {
     cend(cutflow.end());
   std::vector<edm::ParameterSet>::const_iterator icut = cbegin;
   std::map<std::string,unsigned> cut_counter;
-  for( ; icut != cend; ++icut ) {    
-    const std::string& cname = icut->getParameter<std::string>("cutName");
+  std::vector<std::string> ignored_cuts;
+  for( ; icut != cend; ++icut ) {  
+    std::stringstream realname;    
+    const std::string& name = icut->getParameter<std::string>("cutName");
+    if( !cut_counter.count(name) ) cut_counter[name] = 0;      
+    realname << name << "_" << cut_counter[name];
     const bool needsContent = 
       icut->getParameter<bool>("needsAdditionalProducts");     
     const bool ignored = icut->getParameter<bool>("isIgnored");
@@ -205,16 +209,13 @@ initialize( const edm::ParameterSet& conf ) {
 	<< "The requested cut: " << cname << " is not available!";
     }
     needs_event_content_.push_back(needsContent);
-    const std::string& name = plugin->name();
-    std::stringstream realname;    
-    if( !cut_counter.count(name) ) cut_counter[name] = 0;      
-    realname << name << "_" << cut_counter[name];
     const std::string therealname = realname.str();
     this->push_back(therealname);
     this->set(therealname);
-    if(ignored) this->ignoreCut(therealname);
+    if(ignored) ignored_cuts.push_back(therealname);
     cut_counter[name]++;
   }    
+  this->setIgnoredCuts(ignored_cuts);
 
   //have to loop again to set cut indices after all are filled
   icut = cbegin;
