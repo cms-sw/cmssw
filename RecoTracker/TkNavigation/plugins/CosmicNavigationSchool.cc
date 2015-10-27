@@ -103,7 +103,7 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
   // Get barrel layers
   vector<BarrelDetLayer const*> const& blc = theTracker->barrelLayers();
   for ( auto i = blc.begin(); i != blc.end(); i++) {
-    if (conf.noPXB && (*i)->subDetector() == GeomDetEnumerators::PixelBarrel) continue;
+    if (conf.noPXB && GeomDetEnumerators::isTrackerPixel((*i)->subDetector())) continue;
     if (conf.noTOB && (*i)->subDetector() == GeomDetEnumerators::TOB) continue;
     if (conf.noTIB && (*i)->subDetector() == GeomDetEnumerators::TIB) continue;
     theBarrelLayers.push_back( (*i) );
@@ -112,7 +112,7 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
   // get forward layers
   vector<ForwardDetLayer const*> const& flc = theTracker->forwardLayers();
   for ( auto i = flc.begin(); i != flc.end(); i++) {
-    if (conf.noPXF && (*i)->subDetector() == GeomDetEnumerators::PixelEndcap) continue;
+    if (conf.noPXF && GeomDetEnumerators::isTrackerPixel((*i)->subDetector())) continue;
     if (conf.noTEC && (*i)->subDetector() == GeomDetEnumerators::TEC) continue;
     if (conf.noTID && (*i)->subDetector() == GeomDetEnumerators::TID) continue;
     theForwardLayers.push_back( (*i) );

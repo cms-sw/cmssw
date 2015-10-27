@@ -1,0 +1,37 @@
+<lcgdict>
+ <selection>
+  <class name="l1t::MuonTriggerPrimitive::RPCData" ClassVersion="10">
+   <version ClassVersion="10" checksum="3285908274"/>
+  </class>
+  <class name="l1t::MuonTriggerPrimitive::CSCData" ClassVersion="10">
+   <version ClassVersion="10" checksum="1724295156"/>
+  </class>
+  <class name="l1t::MuonTriggerPrimitive::DTData" ClassVersion="10">
+   <version ClassVersion="10" checksum="167262604"/>
+  </class>
+  <class name="l1t::MuonTriggerPrimitive" ClassVersion="10">
+   <version ClassVersion="10" checksum="3167767157"/>
+  </class>
+
+  <class name="edm::Wrapper<l1t::MuonTriggerPrimitive>"/>
+  <class name="l1t::MuonTriggerPrimitiveCollection"/>
+  <class name="edm::Wrapper<l1t::MuonTriggerPrimitiveCollection>"/>
+  <class name="l1t::MuonTriggerPrimitiveRef"/> 
+  <class name="l1t::MuonTriggerPrimitivePtr"/>
+  <class name="l1t::MuonTriggerPrimitiveList"/>
+  <class name="l1t::MuonTriggerPrimitiveStationMap"/>
+
+
+
+  <class name="l1t::RegionalMuonCand"/>
+  <class name="l1t::RegionalMuonCandBxCollection"/>
+  <class name="edm::Wrapper<l1t::RegionalMuonCandBxCollection>"/>
+
+  <class name="l1t::GMTInputCaloSum"/>
+  <class name="l1t::GMTInputCaloSumBxCollection"/>
+  <class name="edm::Wrapper<l1t::GMTInputCaloSumBxCollection>"/>
+
+
+  
+ </selection>
+</lcgdict>

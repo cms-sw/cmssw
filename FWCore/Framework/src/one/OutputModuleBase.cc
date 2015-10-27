@@ -321,7 +321,7 @@ namespace edm {
     }
     
     BranchIDLists const*
-    OutputModuleBase::branchIDLists() const {
+    OutputModuleBase::branchIDLists() {
       if(!droppedBranchIDToKeptBranchID_.empty()) {
         // Make a private copy of the BranchIDLists.
         *branchIDLists_ = *origBranchIDLists_;

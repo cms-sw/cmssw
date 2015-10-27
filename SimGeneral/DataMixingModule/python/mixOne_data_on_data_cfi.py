@@ -133,3 +133,6 @@ mixData = cms.EDProducer("DataMixingModule",
     ZDCDigiCollectionDM  = cms.string('')
 )
 
+mixData.doEB = cms.bool(True)
+mixData.doEE = cms.bool(True)
+mixData.doES = cms.bool(True)

@@ -35,7 +35,7 @@ CSCHaloAlgo::CSCHaloAlgo()
   matching_dwire_threshold = 5.;
 
 
-  et_thresh_rh_hbhe=10; //GeV
+  et_thresh_rh_hbhe=25; //GeV
   et_thresh_rh_ee=10; 
   et_thresh_rh_eb=10; 
 
@@ -43,18 +43,21 @@ CSCHaloAlgo::CSCHaloAlgo()
   dphi_thresh_segvsrh_eb=0.05;
   dphi_thresh_segvsrh_ee=0.05; 
 
-  dr_lowthresh_segvsrh_hbhe=-25; //cm
-  dr_lowthresh_segvsrh_eb=-25; 
-  dr_lowthresh_segvsrh_ee=-25;
+  dr_lowthresh_segvsrh_hbhe=-20; //cm
+  dr_lowthresh_segvsrh_eb=-20; 
+  dr_lowthresh_segvsrh_ee=-20;
 
-  dr_highthresh_segvsrh_hbhe=25; //cm
-  dr_highthresh_segvsrh_eb=25; 
-  dr_highthresh_segvsrh_ee=25;
+  dr_highthresh_segvsrh_hbhe=20; //cm
+  dr_highthresh_segvsrh_eb=20; 
+  dr_highthresh_segvsrh_ee=20;
 
-  dt_lowthresh_segvsrh_hbhe=0;//ns
-  dt_lowthresh_segvsrh_eb=0;
-  dt_lowthresh_segvsrh_ee=0;
+  dt_lowthresh_segvsrh_hbhe=5;//ns
+  dt_lowthresh_segvsrh_eb=5;
+  dt_lowthresh_segvsrh_ee=5;
 
+  dt_highthresh_segvsrh_hbhe=30;//ns
+  dt_highthresh_segvsrh_eb=30;
+  dt_highthresh_segvsrh_ee=30;
 
   geo = 0;
 
@@ -622,12 +625,14 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
        float iR =  TMath::Sqrt(iGlobalPosition.x()*iGlobalPosition.x() + iGlobalPosition.y()*iGlobalPosition.y());
        float iZ = iGlobalPosition.z();
        float iT = iSegment->time();
+       //Timing condition, helps removing random segments from next collisions
+       if(iT>15) continue;
        //       if(abs(iZ)<650&& TheEvent.id().run()< 251737) iT-= 25; 
        //Calo matching:
 
-       bool hbhematched = HCALSegmentMatching(hbhehits,et_thresh_rh_hbhe,dphi_thresh_segvsrh_hbhe,dr_lowthresh_segvsrh_hbhe,dr_highthresh_segvsrh_hbhe,dt_lowthresh_segvsrh_hbhe,iZ,iR,iT,iPhi);
-       bool ebmatched = ECALSegmentMatching(ecalebhits,et_thresh_rh_eb,dphi_thresh_segvsrh_eb,dr_lowthresh_segvsrh_eb,dr_highthresh_segvsrh_eb,dt_lowthresh_segvsrh_eb,iZ,iR,iT,iPhi);
-       bool eematched = ECALSegmentMatching(ecaleehits,et_thresh_rh_ee,dphi_thresh_segvsrh_ee,dr_lowthresh_segvsrh_ee,dr_highthresh_segvsrh_ee,dt_lowthresh_segvsrh_ee,iZ,iR,iT,iPhi); 
+       bool hbhematched = HCALSegmentMatching(hbhehits,et_thresh_rh_hbhe,dphi_thresh_segvsrh_hbhe,dr_lowthresh_segvsrh_hbhe,dr_highthresh_segvsrh_hbhe,dt_lowthresh_segvsrh_hbhe,dt_highthresh_segvsrh_hbhe,iZ,iR,iT,iPhi);
+       bool ebmatched = ECALSegmentMatching(ecalebhits,et_thresh_rh_eb,dphi_thresh_segvsrh_eb,dr_lowthresh_segvsrh_eb,dr_highthresh_segvsrh_eb,dt_lowthresh_segvsrh_eb,dt_highthresh_segvsrh_eb,iZ,iR,iT,iPhi);
+       bool eematched = ECALSegmentMatching(ecaleehits,et_thresh_rh_ee,dphi_thresh_segvsrh_ee,dr_lowthresh_segvsrh_ee,dr_highthresh_segvsrh_ee,dt_lowthresh_segvsrh_ee,dt_highthresh_segvsrh_ee,iZ,iR,iT,iPhi); 
        calomatched = calomatched? true: (hbhematched|| ebmatched|| eematched);
 
 
@@ -650,11 +655,14 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	 float jR =  TMath::Sqrt(jGlobalPosition.x()*jGlobalPosition.x() + jGlobalPosition.y()*jGlobalPosition.y());
 	 float jZ = jGlobalPosition.z() ;
 	 float jT = jSegment->time();
+	 //Timing condition, helps removing random segments from next collisions
+	 if(jT>15) continue;
 	 //	 if(abs(jZ)<650&& TheEvent.id().run() < 251737)jT-= 25;
-	 if ( abs(deltaPhi(jPhi , iPhi)) <= 0.2//max_segment_phi_diff 
-	     //&& abs(jR - iR) <= max_segment_r_diff 
-	     && (abs(jR - iR) <= max_segment_r_diff || (abs(jR - iR)<0.03*abs(jZ - iZ) &&  jZ*iZ<0) )
-	     && (jTheta < max_segment_theta || jTheta > TMath::Pi() - max_segment_theta)) {
+	 if ( abs(deltaPhi(jPhi , iPhi)) <= 0.1//max_segment_phi_diff 
+	      //&& abs(jR - iR) <= max_segment_r_diff 
+	      && (abs(jR - iR)<0.03*abs(jZ - iZ))
+	      && (abs(jR - iR) <= max_segment_r_diff ||  jZ*iZ < 0)
+	      && (jTheta < max_segment_theta || jTheta > TMath::Pi() - max_segment_theta)) {
 	   //// Check if Segment matches to a colision muon
 	   if( TheMuons.isValid() ) {
 	     for(reco::MuonCollection::const_iterator mu = TheMuons->begin(); mu!= TheMuons->end()  && (Segment2IsGood||!trkmuunvetoisdefault) ; mu++ ) {
@@ -688,7 +696,11 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
              nSegs_alt++;
              minus_endcap = iGlobalPosition.z() < 0 || jGlobalPosition.z() < 0;
              plus_endcap = iGlobalPosition.z() > 0 || jGlobalPosition.z() > 0;
-             if( abs(jT-iT)<0.05*sqrt( (jR-iR)*(jR-iR)+(jZ-iZ)*(jZ-iZ) ) && abs(jT-iT)> 0.02*sqrt( (jR-iR)*(jR-iR)+(jZ-iZ)*(jZ-iZ) ) && minus_endcap&&plus_endcap ) both_endcaps_loose_dtcut_alt =true;
+             if( 
+		abs(jT-iT)<0.05*sqrt( (jR-iR)*(jR-iR)+(jZ-iZ)*(jZ-iZ) ) && 
+		abs(jT-iT)> 0.02*sqrt( (jR-iR)*(jR-iR)+(jZ-iZ)*(jZ-iZ) ) && 
+		(iT>-15 || jT>-15)&&
+		minus_endcap&&plus_endcap ) both_endcaps_loose_dtcut_alt =true;
            }
 	   
 	 }
@@ -735,7 +747,7 @@ math::XYZPoint CSCHaloAlgo::getPosition(const DetId &id, reco::Vertex::Point vtx
 }
 
 
-bool CSCHaloAlgo::HCALSegmentMatching(edm::Handle<HBHERecHitCollection>& rechitcoll, float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh , float iZ, float iR, float iT, float iPhi){
+bool CSCHaloAlgo::HCALSegmentMatching(edm::Handle<HBHERecHitCollection>& rechitcoll, float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh, float dt_highthresh_segvsrh, float iZ, float iR, float iT, float iPhi){
   reco::Vertex::Point vtx(0,0,0);
   for(size_t ihit = 0; ihit< rechitcoll->size(); ++ ihit){
     const HBHERecHit & rechit = (*rechitcoll)[ ihit ];
@@ -744,16 +756,19 @@ bool CSCHaloAlgo::HCALSegmentMatching(edm::Handle<HBHERecHitCollection>& rechitc
     double dphi_rhseg = abs(deltaPhi(rhpos.phi(),iPhi));
     double dr_rhseg = sqrt(rhpos.x()*rhpos.x()+rhpos.y()*rhpos.y()) - iR;
     double dtcorr_rhseg = rechit.time()- abs(rhpos.z()-iZ)/30- iT; 
-    if(rhet> et_thresh_rh&&
+    if(
+       (rechit.time()<-3)&&
+       (rhpos.z()*iZ<0|| abs(rhpos.z())<200)&&
+       rhet> et_thresh_rh&&
        dphi_rhseg < dphi_thresh_segvsrh &&
        dr_rhseg < dr_highthresh_segvsrh && dr_rhseg> dr_lowthresh_segvsrh && //careful: asymmetric cut might not be the most appropriate thing 
-       dtcorr_rhseg> dt_lowthresh_segvsrh
+       dtcorr_rhseg> dt_lowthresh_segvsrh && dtcorr_rhseg< dt_highthresh_segvsrh
       ) return true; 
   }
   return false;
 }
 
-bool CSCHaloAlgo::ECALSegmentMatching(edm::Handle<EcalRecHitCollection>& rechitcoll,  float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh, float iZ, float iR, float iT, float iPhi ){
+bool CSCHaloAlgo::ECALSegmentMatching(edm::Handle<EcalRecHitCollection>& rechitcoll,  float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh,float dt_highthresh_segvsrh, float iZ, float iR, float iT, float iPhi ){
   reco::Vertex::Point vtx(0,0,0);
   for(size_t ihit = 0; ihit<rechitcoll->size(); ++ ihit){
     const EcalRecHit & rechit = (*rechitcoll)[ ihit ];
@@ -762,10 +777,13 @@ bool CSCHaloAlgo::ECALSegmentMatching(edm::Handle<EcalRecHitCollection>& rechitc
     double dphi_rhseg = abs(deltaPhi(rhpos.phi(),iPhi));
     double dr_rhseg = sqrt(rhpos.x()*rhpos.x()+rhpos.y()*rhpos.y()) - iR;
     double dtcorr_rhseg = rechit.time()- abs(rhpos.z()-iZ)/30- iT; 
-    if(rhet> et_thresh_rh&&
+    if( 
+       ( rechit.time()<-1)&&
+       (rhpos.z()*iZ<0|| abs(rhpos.z())<200)&&
+       rhet> et_thresh_rh&&
        dphi_rhseg < dphi_thresh_segvsrh &&
        dr_rhseg < dr_highthresh_segvsrh && dr_rhseg> dr_lowthresh_segvsrh && //careful: asymmetric cut might not be the most appropriate thing 
-       dtcorr_rhseg> dt_lowthresh_segvsrh
+       dtcorr_rhseg> dt_lowthresh_segvsrh && dtcorr_rhseg< dr_highthresh_segvsrh
        ) return true; 
   }
   return false;

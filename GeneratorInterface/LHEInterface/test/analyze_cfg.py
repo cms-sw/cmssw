@@ -18,7 +18,7 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.lheAnalyzer = cms.EDAnalyzer("LHEAnalyzer",
-	src = cms.InputTag('generator'),
+	src = cms.InputTag('VtxSmeared'),
 
 	jetInput = cms.PSet(
 		partonicFinalState = cms.bool(True),

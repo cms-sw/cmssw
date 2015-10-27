@@ -62,19 +62,16 @@ std::pair<float,float> SiPixelCPEGenericDBErrorParametrization::getError(const S
 	std::pair<float,float> element;
   std::pair<float,float> errors;
 	
-  switch (GeomDetEnumerators::subDetGeom[pixelPart])  // the _real_ subdetector enumerator is projected into the geometry subdetector enumerator
-        {
-		case GeomDetEnumerators::PixelBarrel:
-			element = std::pair<float,float>(index(1, sizex, alpha, beta, bigInX),  //1 -- Bx
-                          			       index(0, sizey, alpha, beta, bigInY)); //0 -- By
-			break;
-		case GeomDetEnumerators::PixelEndcap:
-			element = std::pair<float,float>(index(3, sizex, alpha, beta, bigInX),  //3 -- Fx
-                          				     index(2, sizey, alpha, beta, bigInY)); //2 -- Fy
-			break;
-		default:
-			throw cms::Exception("PixelCPEGenericDBErrorParametrization::getError")
-				<< "Non-pixel detector type !!!" ;
+	if(!GeomDetEnumerators::isTrackerPixel(pixelPart))
+		throw cms::Exception("PixelCPEGenericDBErrorParametrization::getError")
+			<< "Non-pixel detector type !!!" ;
+	if(GeomDetEnumerators::isBarrel(pixelPart)) {
+		element = std::pair<float,float>(index(1, sizex, alpha, beta, bigInX),  //1 -- Bx
+                          		       index(0, sizey, alpha, beta, bigInY)); //0 -- By
+	}
+	else {
+		element = std::pair<float,float>(index(3, sizex, alpha, beta, bigInX),  //3 -- Fx
+                          			     index(2, sizey, alpha, beta, bigInY)); //2 -- Fy
 	}
 	
 	if (bigInX && sizex == 1) errors.first  = element.first;
@@ -94,19 +91,16 @@ std::pair<float,float> SiPixelCPEGenericDBErrorParametrization::getError(GeomDet
 	std::pair<float,float> element;
   std::pair<float,float> errors;
 	
-  switch (GeomDetEnumerators::subDetGeom[pixelPart])  // the _real_ subdetector enumerator is projected into the geometry subdetector enumerator
-	{
-		case GeomDetEnumerators::PixelBarrel:
-			element = std::pair<float,float>(index(1, sizex, alpha, beta, bigInX),  //1 -- Bx
-                          			       index(0, sizey, alpha, beta, bigInY)); //0 -- By
-			break;
-		case GeomDetEnumerators::PixelEndcap:
-			element = std::pair<float,float>(index(3, sizex, alpha, beta, bigInX),  //3 -- Fx
-                          				     index(2, sizey, alpha, beta, bigInY)); //2 -- Fy
-			break;
-		default:
-			throw cms::Exception("PixelCPEGenericDBErrorParametrization::getError")
-				<< "Non-pixel detector type !!!" ;
+	if(!GeomDetEnumerators::isTrackerPixel(pixelPart))
+		throw cms::Exception("PixelCPEGenericDBErrorParametrization::getError")
+			<< "Non-pixel detector type !!!" ;
+	if(GeomDetEnumerators::isBarrel(pixelPart)) {
+		element = std::pair<float,float>(index(1, sizex, alpha, beta, bigInX),  //1 -- Bx
+                          		       index(0, sizey, alpha, beta, bigInY)); //0 -- By
+	}
+	else {
+		element = std::pair<float,float>(index(3, sizex, alpha, beta, bigInX),  //3 -- Fx
+                          			     index(2, sizey, alpha, beta, bigInY)); //2 -- Fy
 	}
 	
 	if (bigInX && sizex == 1) errors.first  = element.first;

@@ -7,7 +7,7 @@ using namespace edm;
 using namespace std;
 
 ZgMassFilter::ZgMassFilter(const edm::ParameterSet& iConfig) :
-token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
+token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",edm::InputTag("generator","unsmeared")))),
 minDileptonMass(iConfig.getUntrackedParameter("MinDileptonMass", 0.)),
 minZgMass(iConfig.getUntrackedParameter("MinZgMass", 0.))
 {

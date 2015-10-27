@@ -384,7 +384,7 @@ void L1GtfeWord::unpack(const unsigned char* gtfePtr)
     << std::endl;
 
     const cms_uint64_t* payload =
-        reinterpret_cast<cms_uint64_t*>(const_cast<unsigned char*>(gtfePtr));
+        reinterpret_cast<cms_uint64_t const*>(gtfePtr);
 
     setBoardId(payload[BoardIdWord]);
     setRecordLength1(payload[RecordLength1Word]);

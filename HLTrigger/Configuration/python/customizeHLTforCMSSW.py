@@ -1,5 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
+# reusable functions
+def producers_by_type(process, type):
+    return (module for module in process._Process__producers.values() if module._TypedParameterizable__type == type)
+
+
 # Update to replace old jet corrector mechanism
 from HLTrigger.Configuration.customizeHLTforNewJetCorrectors import customizeHLTforNewJetCorrectors
 
@@ -54,9 +59,6 @@ def customiseFor8356(process):
         vertexCollection = cms.InputTag( "pixelVertices" ),
         input = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
     )
-
-    def producers_by_type(process, type):
-    	return (module for module in process._Process__producers.values() if module._TypedParameterizable__type == type)
 
     for l3MPModule in producers_by_type(process, 'L3MuonProducer'):
 	if hasattr(l3MPModule, 'GlbRefitterParameters'):
@@ -175,6 +177,20 @@ def customiseFor11183(process):
 
     return process
 
+
+def customiseFor11497(process):
+    # Take care of CaloTowerTopology
+    if not hasattr(process,'CaloTowerTopologyEP'):
+        process.CaloTowerTopologyEP = cms.ESProducer( 'CaloTowerTopologyEP' )
+    return process
+
+def customiseFor12044(process):
+    # add a label to indentify the PFProducer calibrations
+    for module in producers_by_type(process, 'PFProducer'):
+      if not 'calibrationsLabel' in module.__dict__:
+        module.calibrationsLabel = cms.string('')
+    return process
+
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     import os
@@ -185,6 +201,8 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
         process = customiseFor10353(process)
         process = customiseFor10911(process)
         process = customiseFor11183(process)
+        process = customiseFor11497(process)
+        process = customiseFor12044(process)
     if cmsswVersion >= "CMSSW_7_5":
         process = customiseFor10927(process)
         process = customiseFor9232(process)

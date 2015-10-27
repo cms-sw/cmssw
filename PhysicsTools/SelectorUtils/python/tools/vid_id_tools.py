@@ -23,7 +23,7 @@ def setupVIDSelection(vidproducer,cutflow):
                   isPOGApproved = isPOGApproved,
                   idMD5 = cms.string(cutflow_md5) )
     )    
-    sys.stderr.write('Added ID \'%s\' to %s\n'%(cutflow.idName.value(),vidproducer.label()))
+#    sys.stderr.write('Added ID \'%s\' to %s\n'%(cutflow.idName.value(),vidproducer.label()))
 
 def addVIDSelectionToPATProducer(patProducer,idProducer,idName,addUserData=True):
     patProducerIDs = None
@@ -83,7 +83,7 @@ def switchOnVIDElectronIdProducer(process, dataFormat):
     else:
         raise Exception('InvalidVIDDataFormat', 'The requested data format is different from AOD or MiniAOD')
     #    
-    sys.stderr.write('Added \'egmGsfElectronIDs\' to process definition (%s format)!\n' % dataFormatString)
+#    sys.stderr.write('Added \'egmGsfElectronIDs\' to process definition (%s format)!\n' % dataFormatString)
 
 def setupVIDElectronSelection(process,cutflow,patProducer=None,addUserData=True):
     if not hasattr(process,'egmGsfElectronIDs'):
@@ -119,7 +119,7 @@ def switchOnVIDMuonIdProducer(process, dataFormat):
     else:
         raise Exception('InvalidVIDDataFormat', 'The requested data format is different from AOD or MiniAOD')
     #
-    sys.stderr.write('Added \'muoMuonIDs\' to process definition (%s format)!\n' % dataFormatString)
+#    sys.stderr.write('Added \'muoMuonIDs\' to process definition (%s format)!\n' % dataFormatString)
 
 def setupVIDMuonSelection(process,cutflow,patProducer=None):
     moduleName = "muoMuonIDs"

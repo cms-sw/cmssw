@@ -31,6 +31,7 @@ RecoTrackerRECO = cms.PSet(
         'keep recoTrackExtras_generalTracks_*_*',
         'keep TrackingRecHitsOwned_generalTracks_*_*',
         'keep *_generalTracks_MVAValues_*',
+        'keep *_generalTracks_MVAVals_*',
         'keep TrackingRecHitsOwned_extraFromSeeds_*_*',
         'keep uints_extraFromSeeds_*_*',                                   
         'keep recoTracks_beamhaloTracks_*_*', 
@@ -43,7 +44,7 @@ RecoTrackerRECO = cms.PSet(
         'keep *_dedxTruncated40_*_*',
         'keep *_dedxHitInfo_*_*',
         'keep *_dedxHarmonic2_*_*',
-        'keep *_trackExtrapolator_*_*',
+        'keep *_trackExtrapolator_*_*'
     )
 )
 #AOD content
@@ -57,6 +58,7 @@ RecoTrackerAOD = cms.PSet(
         'keep *_dedxHitInfo_*_*',
         'keep *_trackExtrapolator_*_*',
         'keep *_generalTracks_MVAValues_*',
+        'keep *_generalTracks_MVAVals_*'
     )
 )
 

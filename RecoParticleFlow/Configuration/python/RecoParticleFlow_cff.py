@@ -20,12 +20,16 @@ from CommonTools.ParticleFlow.pfParticleSelection_cff import *
 
 from RecoEgamma.EgammaIsolationAlgos.particleBasedIsoProducer_cff import *
 
+from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import *
+fixedGridRhoFastjetAllTmp = fixedGridRhoFastjetAll.clone(pfCandidatesTag = cms.InputTag("particleFlowTmp"))
+
 particleFlowReco = cms.Sequence( particleFlowTrackWithDisplacedVertex*
 #                                 pfGsfElectronCiCSelectionSequence*
                                  pfGsfElectronMVASelectionSequence*
                                  particleFlowBlock*
                                  particleFlowEGammaFull*
                                  particleFlowTmp*
+                                 fixedGridRhoFastjetAllTmp*
                                  particleFlowTmpPtrs*          
                                  particleFlowEGammaFinal*
                                  pfParticleSelectionSequence )

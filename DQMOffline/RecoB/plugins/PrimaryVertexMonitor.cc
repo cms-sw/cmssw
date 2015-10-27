@@ -81,14 +81,22 @@ PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker,
   auto vposx = conf_.getParameter<double>("Xpos");
   auto vposy = conf_.getParameter<double>("Ypos");
 
-  nbtksinvtx[0] = iBooker.book1D("otherVtxTrksNbr","Reconstructed Tracks in Vertex (other Vtx)",40,-0.5,99.5); 
+  nbtksinvtx[0] = iBooker.book1D("otherVtxTrksNbr","Reconstructed Tracks in Vertex (other Vtx)",40,-0.5,99.5);
+  ntracksVsZ[0]  = iBooker.bookProfile("otherVtxTrksVsZ","Reconstructed Tracks in Vertex (other Vtx) vs Z",80,-20.,20.,50,0,100,"");
+  ntracksVsZ[0]->setAxisTitle("z-bs",1);
+  ntracksVsZ[0]->setAxisTitle("#tracks",2);
+ 
   trksWeight[0] = iBooker.book1D("otherVtxTrksWeight","Total weight of Tracks in Vertex (other Vtx)",40,0,100.); 
   vtxchi2[0]    = iBooker.book1D("otherVtxChi2","#chi^{2} (other Vtx)",100,0.,200.);
   vtxndf[0]     = iBooker.book1D("otherVtxNdf","ndof (other Vtx)",100,0.,200.);
   vtxprob[0]    = iBooker.book1D("otherVtxProb","#chi^{2} probability (other Vtx)",100,0.,1.);
   nans[0]       = iBooker.book1D("otherVtxNans","Illegal values for x,y,z,xx,xy,xz,yy,yz,zz (other Vtx)",9,0.5,9.5);
 
-  nbtksinvtx[1] = iBooker.book1D("tagVtxTrksNbr","Reconstructed Tracks in Vertex (tagged Vtx)",100,-0.5,99.5); 
+  nbtksinvtx[1] = iBooker.book1D("tagVtxTrksNbr","Reconstructed Tracks in Vertex (tagged Vtx)",100,-0.5,99.5);
+  ntracksVsZ[1]  = iBooker.bookProfile("tagVtxTrksVsZ","Reconstructed Tracks in Vertex (tagged Vtx) vs Z",80,-20.,20.,50,0,100,"");
+  ntracksVsZ[1]->setAxisTitle("z-bs",1);
+  ntracksVsZ[1]->setAxisTitle("#tracks",2);
+ 
   trksWeight[1] = iBooker.book1D("tagVtxTrksWeight","Total weight of Tracks in Vertex (tagged Vtx)",100,0,100.); 
   vtxchi2[1]    = iBooker.book1D("tagVtxChi2","#chi^{2} (tagged Vtx)",100,0.,200.);
   vtxndf[1]     = iBooker.book1D("tagVtxNdf","ndof (tagged Vtx)",100,0.,200.);
@@ -355,7 +363,8 @@ void PrimaryVertexMonitor::vertexPlots(const Vertex & v, const BeamSpot& beamSpo
 	  t!=v.tracks_end(); t++) weight+= v.trackWeight(*t);
       trksWeight[i]->Fill(weight);
       nbtksinvtx[i]->Fill(v.tracksSize());
-
+      ntracksVsZ[i]->Fill(v.position().z()- beamSpot.z0(),v.tracksSize());
+  
       vtxchi2[i]->Fill(v.chi2());
       vtxndf[i]->Fill(v.ndof());
       vtxprob[i]->Fill(ChiSquaredProbability(v.chi2() ,v.ndof()));

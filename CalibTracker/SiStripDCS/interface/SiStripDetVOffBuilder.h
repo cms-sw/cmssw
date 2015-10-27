@@ -33,8 +33,13 @@
    \author J.Cole modified by Marco De Mattia
 */
 
+// Unit test class for SiStripDetVOffBuilder
+class TestSiStripDetVOffBuilder;
+
 class SiStripDetVOffBuilder
 {
+  friend class TestSiStripDetVOffBuilder;
+
  public:
   /** Destructor. */
   ~SiStripDetVOffBuilder();

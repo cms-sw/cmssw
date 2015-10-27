@@ -84,7 +84,7 @@ mixSimVertices = cms.PSet(
 )
 mixHepMCProducts = cms.PSet(
     makeCrossingFrame = cms.untracked.bool(False),
-    input = cms.VInputTag(cms.InputTag("generator")),
+    input = cms.VInputTag(cms.InputTag("generatorSmeared"),cms.InputTag("generator")),
     type = cms.string('HepMCProduct')
 )
 

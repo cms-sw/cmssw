@@ -68,7 +68,7 @@ TestMix::TestMix(const edm::ParameterSet& iConfig):
   tag = edm::InputTag("mix",track_containers2_[1]);
   TrackerToken4_ = consumes<CrossingFrame<PSimHit>>(tag);
 
-  tag = edm::InputTag("mix","generator");
+  tag = edm::InputTag("mix","generatorSmeared");
   HepMCToken_ = consumes<CrossingFrame<HepMCProduct>>(tag);
 
 }

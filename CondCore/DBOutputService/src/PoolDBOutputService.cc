@@ -222,7 +222,7 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
 
   try{
     // FIX ME: synchronization type and description have to be passed as the other parameters?
-    cond::persistency::IOVEditor editor = m_session.createIov( payloadType, myrecord.m_tag, myrecord.m_timetype, cond::OFFLINE ); 
+    cond::persistency::IOVEditor editor = m_session.createIov( payloadType, myrecord.m_tag, myrecord.m_timetype, cond::SYNCH_ANY ); 
     editor.setDescription( "New Tag" );
     editor.insert( firstSinceTime, firstPayloadId );
     editor.flush();
@@ -264,7 +264,7 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
   std::string payloadType("");
   try{
     // FIX ME: synchronization type and description have to be passed as the other parameters?
-    cond::persistency::IOVEditor editor = m_session.createIovForPayload( firstPayloadId, myrecord.m_tag, myrecord.m_timetype, cond::OFFLINE ); 
+    cond::persistency::IOVEditor editor = m_session.createIovForPayload( firstPayloadId, myrecord.m_tag, myrecord.m_timetype, cond::SYNCH_ANY ); 
     editor.setDescription( "New Tag" );
     payloadType = editor.payloadType();
     editor.insert( firstSinceTime, firstPayloadId );

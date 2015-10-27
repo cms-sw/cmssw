@@ -5,6 +5,7 @@ from RecoBTag.SoftLepton.softLepton_cff import *
 from RecoBTag.ImpactParameter.impactParameter_cff import *
 from RecoBTag.SecondaryVertex.secondaryVertex_cff import *
 from RecoBTag.Combined.combinedMVA_cff import *
+from RecoBTag.CTagging.RecoCTagging_cff import *
 from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import *
 
 legacyBTagging = cms.Sequence(
@@ -81,17 +82,6 @@ pfBTagging = cms.Sequence(
     )
 )
 
-# new candidate-based ctagging sequence, requires its own IVF vertices (relaxed IVF reconstruction cuts)
-# but IP and soft-lepton taginfos from btagging sequence can be recycled
-pfCTagging = cms.Sequence(
-    ( inclusiveCandidateVertexingCtagL *
-      pfInclusiveSecondaryVertexFinderCtagLTagInfos
-    ) *
-
-    # CSV + soft-lepton variables combined (ctagger optimized for c vs dusg)
-    pfCombinedSecondaryVertexSoftLeptonCtagLJetTags
-)
-
 btagging = cms.Sequence(
-    pfBTagging #* pfCTagging
+    pfBTagging * pfCTagging
 )

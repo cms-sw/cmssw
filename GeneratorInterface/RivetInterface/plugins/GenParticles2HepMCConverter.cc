@@ -63,7 +63,7 @@ GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet
   //genRunInfoToken_ = pset.getParameter<edm::InputTag>("genRunInfo");
   genEventInfoToken_ = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("genEventInfo"));
 
-  produces<edm::HepMCProduct>();
+  produces<edm::HepMCProduct>("unsmeared");
 }
 
 //void GenParticles2HepMCConverter::beginRun(edm::Run& run, const edm::EventSetup& eventSetup)
@@ -200,7 +200,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
 
   std::auto_ptr<edm::HepMCProduct> hepmc_product(new edm::HepMCProduct());
   hepmc_product->addHepMCData(hepmc_event);
-  event.put(hepmc_product);
+  event.put(hepmc_product, "unsmeared");
 
 }
 

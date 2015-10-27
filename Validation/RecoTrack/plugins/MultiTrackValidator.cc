@@ -731,7 +731,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
             if(numAssocRecoTracks>1) {
               h_looper_coll[ww]->Fill(www);
             }
-            else if(!isSigSimMatched) {
+            if(!isSigSimMatched) {
               h_pileup_coll[ww]->Fill(www);
             }
           }

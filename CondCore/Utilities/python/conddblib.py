@@ -149,12 +149,15 @@ database_help = '''
       /absolute/path/to/file.db  ===  sqlite:////absolute/path/to/file.db
 '''
 
-
 class Synchronization(Enum):
-    offline = 'Offline'
-    hlt     = 'HLT'
-    prompt  = 'Prompt'
-
+    any        = 'any'
+    validation = 'validation'
+    mc         = 'mc'
+    runmc      = 'runmc'
+    hlt        = 'hlt'
+    express    = 'express'
+    prompt     = 'prompt'
+    pcl        = 'pcl'
 
 class TimeType(Enum):
     run  = 'Run'
@@ -176,8 +179,8 @@ class Tag(_Base):
     object_type         = sqlalchemy.Column(sqlalchemy.String(name_length),           nullable=False)
     synchronization     = sqlalchemy.Column(sqlalchemy.Enum(*tuple(Synchronization)), nullable=False)
     description         = sqlalchemy.Column(sqlalchemy.String(description_length),    nullable=False)
-    last_validated_time = sqlalchemy.Column(sqlalchemy.Integer,                       nullable=False)
-    end_of_validity     = sqlalchemy.Column(sqlalchemy.Integer,                       nullable=False)
+    last_validated_time = sqlalchemy.Column(sqlalchemy.BIGINT,                       nullable=False)
+    end_of_validity     = sqlalchemy.Column(sqlalchemy.BIGINT,                       nullable=False)
     insertion_time      = sqlalchemy.Column(sqlalchemy.TIMESTAMP,                     nullable=False)
     modification_time   = sqlalchemy.Column(sqlalchemy.TIMESTAMP,                     nullable=False)
 
@@ -188,7 +191,7 @@ class IOV(_Base):
     __tablename__       = 'IOV'
 
     tag_name            = sqlalchemy.Column(sqlalchemy.ForeignKey('TAG.name'),        primary_key=True)
-    since               = sqlalchemy.Column(sqlalchemy.Integer,                       primary_key=True)
+    since               = sqlalchemy.Column(sqlalchemy.BIGINT,                       primary_key=True)
     insertion_time      = sqlalchemy.Column(sqlalchemy.TIMESTAMP,                     primary_key=True)
     payload_hash        = sqlalchemy.Column(sqlalchemy.ForeignKey('PAYLOAD.hash'),    nullable=False)
 
@@ -211,7 +214,7 @@ class GlobalTag(_Base):
     __tablename__       = 'GLOBAL_TAG'
 
     name                = sqlalchemy.Column(sqlalchemy.String(name_length),           primary_key=True)
-    validity            = sqlalchemy.Column(sqlalchemy.Integer,                       nullable=False)
+    validity            = sqlalchemy.Column(sqlalchemy.BIGINT,                       nullable=False)
     description         = sqlalchemy.Column(sqlalchemy.String(description_length),    nullable=False)
     release             = sqlalchemy.Column(sqlalchemy.String(name_length),           nullable=False)
     insertion_time      = sqlalchemy.Column(sqlalchemy.TIMESTAMP,                     nullable=False)
@@ -306,7 +309,6 @@ class Connection(object):
     def is_valid(self):
         '''Tests whether the current DB looks like a valid CMS Conditions one.
         '''
-
         engine_connection = self.engine.connect()
         ret = all([self.engine.dialect.has_table(engine_connection, table.__tablename__) for table in [Tag, IOV, Payload, GlobalTag, GlobalTagMap]])
         engine_connection.close()
@@ -346,7 +348,42 @@ def _getCMSOracleSQLAlchemyConnectionString(database, schema = 'cms_conditions')
 
 
 # Entry point
-def connect(database='pro', init=False, verbose=0):
+
+def make_url(database='pro'):
+
+    schema = 'cms_conditions'  # set the default
+    if ':' in database and '://' not in database: # check if we really got a shortcut like "pro:<schema>" (and not a url like proto://...), if so, disentangle
+       database, schema = database.split(':')
+    logging.debug(' ... using db "%s", schema "%s"' % (database, schema) )
+
+    # Lazy in order to avoid calls to cmsGetFnConnect
+    mapping = {
+        'pro':           lambda: _getCMSFrontierSQLAlchemyConnectionString('PromptProd', schema),
+        'arc':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierArc', schema),
+        'int':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierInt', schema),
+        'dev':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep', schema),
+
+        'orapro':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_adg', schema),
+        'oraarc':        lambda: _getCMSOracleSQLAlchemyConnectionString('cmsarc_lb', schema),
+        'oraint':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_int', schema),
+        'oradev':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep', schema),
+
+        'onlineorapro':  lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_prod', schema),
+        'onlineoraint':  lambda: _getCMSOracleSQLAlchemyConnectionString('cmsintr_lb', schema),
+    }
+
+    if database in mapping:
+        database = mapping[database]()
+
+    logging.debug('connection string set to "%s"' % database)
+
+    try:
+        url = sqlalchemy.engine.url.make_url(database)
+    except sqlalchemy.exc.ArgumentError:
+        url = sqlalchemy.engine.url.make_url('sqlite:///%s' % database)
+    return url
+
+def connect(url, init=False, verbose=0):
     '''Returns a Connection instance to the CMS Condition DB.
 
     See database_help for the description of the database parameter.
@@ -358,36 +395,9 @@ def connect(database='pro', init=False, verbose=0):
         2 = In addition, results of the queries (all rows and the column headers).
     '''
 
-    # Lazy in order to avoid calls to cmsGetFnConnect
-    mapping = {
-        'pro':           lambda: _getCMSFrontierSQLAlchemyConnectionString('PromptProd'),
-        'arc':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierArc'),
-        'int':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierInt'),
-        'dev':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep', 'cms_conditions_002'),
-        'boost':         lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierProd', 'cms_conditions'),
-        'boostprep':     lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep', 'cms_conditions_002'),
-
-        'orapro':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_adg'),
-        'oraarc':        lambda: _getCMSOracleSQLAlchemyConnectionString('cmsarc_lb'),
-        'oraint':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_int'),
-        'oradev':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep', 'cms_conditions_002'),
-        'oraboost':      lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_adg'  , 'cms_conditions'),
-        'oraboostprep':  lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep', 'cms_conditions_002'),
-
-        'onlineorapro':  lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_prod'),
-        'onlineoraint':  lambda: _getCMSOracleSQLAlchemyConnectionString('cmsintr_lb'),
-    }
-
-    if database in mapping:
-        database = mapping[database]()
-
-    try:
-        url = sqlalchemy.engine.url.make_url(database)
-        if url.drivername == 'oracle' and url.password is None:
-            import getpass
-            url.password = getpass.getpass('Password for %s: ' % str(url))
-    except sqlalchemy.exc.ArgumentError:
-        url = sqlalchemy.engine.url.make_url('sqlite:///%s' % database)
+    if url.drivername == 'oracle' and url.password is None:
+        import getpass
+        url.password = getpass.getpass('Password for %s: ' % str(url))
 
     if verbose >= 1:
         logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)

@@ -4,6 +4,9 @@
 <release name=".*_ASAN_.*">
   <flags LDFLAGS="-fsanitize=address -static-libasan"/>
 </release>
+<release name=".*_UBSAN_.*">
+  <flags LDFLAGS="-g -fsanitize=undefined -static-libubsan"/>
+</release>
 <bin   name="cmsRunGlibC" file="cmsRun.cpp">
   <use   name="roothistmatrix"/>
   <use   name="tbb"/>

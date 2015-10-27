@@ -21,7 +21,7 @@ from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring(
     #TIB
-    'TIB1+TIB2+MTIB3',
+    'TIB1+TIB2+MTIB3','TIB1+TIB2+MTIB4',
     #TIB+TID
     'TIB1+TIB2+MTID1_pos','TIB1+TIB2+MTID1_neg',
     #TID
@@ -140,7 +140,7 @@ import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESProducer_cfi
 pixelLessStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
     ComponentName = cms.string('pixelLessStepChi2Est'),
     nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(9.0),
+    MaxChi2 = cms.double(16.0),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 )
 

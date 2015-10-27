@@ -8,7 +8,7 @@ using namespace HepMC;
 
 JetFlavourFilter::JetFlavourFilter(const edm::ParameterSet& iConfig)
 {
-  token_ = consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")));
+  token_ = consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"));
   jetType = iConfig.getParameter< int >("jetType");
   if ((jetType>=1)&&(jetType<=3)) jetType=1;
 

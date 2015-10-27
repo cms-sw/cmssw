@@ -34,7 +34,7 @@
 #include "G4MuonNuclearProcess.hh"
 #include "G4MuonVDNuclearModel.hh"
 
-#include "G4EmParameters.hh"
+//#include "G4EmParameters.hh"
 #include "G4EmProcessOptions.hh"
 #include "G4PhysicsListHelper.hh"
 #include "G4SystemOfUnits.hh"
@@ -50,7 +50,9 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(std::string name,
   theHcalEMShowerModel = nullptr;
   theHcalHadShowerModel = nullptr;
 
+  // will be uncommented for Geant4 10.1
   // bremsstrahlung threshold and EM verbosity
+  /*
   G4EmParameters* param = G4EmParameters::Instance();
   G4int verb = theParSet.getUntrackedParameter<int>("Verbosity",0);
   param->SetVerbose(verb);
@@ -66,7 +68,7 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(std::string name,
     << bremth/GeV << " GeV" 
     << "\n                                         verbosity= " << verb
     << "  fluoFlag: " << fluo; 
-
+  */
 }
 
 ParametrisedEMPhysics::~ParametrisedEMPhysics() {
@@ -176,9 +178,18 @@ void ParametrisedEMPhysics::ConstructProcess() {
       }
     }
   }
+  // bremsstrahlung threshold and EM verbosity
+  G4EmProcessOptions opt;
+  G4int verb = theParSet.getUntrackedParameter<int>("Verbosity",0);
+  opt.SetVerbose(verb - 1);
+
+  G4double bremth = theParSet.getParameter<double>("G4BremsstrahlungThreshold")*GeV; 
+  edm::LogInfo("SimG4CoreApplication") 
+    << "ParametrisedEMPhysics::ConstructProcess: bremsstrahlung threshold Eth= "
+    << bremth/GeV << " GeV"; 
+  opt.SetBremsstrahlungTh(bremth);
 
   // Russian roulette and tracking cut for e+-
-  G4EmProcessOptions opt;
   const G4int NREG = 6; 
   const G4String rname[NREG] = {"EcalRegion", "HcalRegion", "MuonIron",
 				"PreshowerRegion","CastorRegion",
@@ -229,10 +240,11 @@ void ParametrisedEMPhysics::ConstructProcess() {
   if(fluo) {
     G4VAtomDeexcitation* de = new G4UAtomicDeexcitation();
     G4LossTableManager::Instance()->SetAtomDeexcitation(de);
+    de->SetFluo(true);
   }
   // enable muon nuclear (valid option for Geant4 10.0pX only)
-  // bool munuc = theParSet.getParameter<bool>("FlagMuNucl");
-  bool munuc = false;
+  bool munuc = theParSet.getParameter<bool>("FlagMuNucl");
+  //bool munuc = false;
   if(munuc) {
     G4MuonNuclearProcess* muNucProcess = new G4MuonNuclearProcess();
     muNucProcess->RegisterMe(new G4MuonVDNuclearModel());

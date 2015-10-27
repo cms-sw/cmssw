@@ -92,9 +92,9 @@ extractCurrentAlignment( const std::vector< Alignable* > & alignables,
       nAlignables++;
     }
 
-    itAlignable++;
-    itAlignableDet++;
-    itTsos++;
+    ++itAlignable;
+    ++itAlignableDet;
+    ++itTsos;
   }
 
   // construct derivatives and correction term with the right dimension
@@ -133,8 +133,8 @@ extractWithoutMultipleHits( const std::vector< AlgebraicVector > & subCorrection
     iRow += 2;
     iCollumn += ( *itSubDerivatives ).num_col();
 
-    itSubCorrectionTerm++;
-    itSubDerivatives++;
+    ++itSubCorrectionTerm;
+    ++itSubDerivatives;
   }
 
   return;
@@ -166,7 +166,7 @@ extractWithMultipleHits( const std::vector< AlgebraicVector > & subCorrectionTer
 
     itLastPosition = find( alignables.begin(), itAlignables, *itAlignables );
 
-    for ( itPosition = alignables.begin(); itPosition != itLastPosition; itPosition++ )
+    for ( itPosition = alignables.begin(); itPosition != itLastPosition; ++itPosition )
 	  {
 		if ( count( alignables.begin(), itPosition, *itPosition ) == 0 )
 		  iCollumn += subDerivatives[iAlignable].num_col();
@@ -177,9 +177,9 @@ extractWithMultipleHits( const std::vector< AlgebraicVector > & subCorrectionTer
 
     iRow += 2;
 	
-    itAlignables++;
-    itSubCorrectionTerm++;
-    itSubDerivatives++;
+    ++itAlignables;
+    ++itSubCorrectionTerm;
+    ++itSubDerivatives;
   }
 
   return;

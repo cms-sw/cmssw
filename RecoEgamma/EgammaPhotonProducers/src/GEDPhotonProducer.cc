@@ -5,6 +5,7 @@
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
@@ -79,6 +80,8 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
     consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("barrelEcalHits"));
   endcapEcalHits_   = 
     consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("endcapEcalHits"));
+  preshowerHits_   = 
+    consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("preshowerHits"));
   vertexProducer_   = 
     consumes<reco::VertexCollection>(conf_.getParameter<edm::InputTag>("primaryVertexProducer"));
 
@@ -131,10 +134,9 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
 
   thePhotonEnergyCorrector_ = 
     new PhotonEnergyCorrector(conf_, consumesCollector());
-  if( config.existsAs<edm::ParameterSet>("regressionConfig") ) {
-    const edm::ParameterSet regr_conf = 
-      config.getParameterSet("regressionConfig");
-    thePhotonEnergyCorrector_->gedRegression()->varCalc()->setTokens(regr_conf,consumesCollector());
+  if( conf_.existsAs<edm::ParameterSet>("regressionConfig") ) {
+    auto sumes = consumesCollector();
+    thePhotonEnergyCorrector_->gedRegression()->setConsumes(sumes);
   }
 
   //AA
@@ -247,33 +249,28 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     if ( photonHandle.isValid()) {
       validPhotonHandle=true;  
     } else {
-      edm::LogError("GEDPhotonProducer") << "Error! Can't get the product " <<   photonProducer_.label() << "\n";
+      throw cms::Exception("GEDPhotonProducer") << "Error! Can't get the product " <<   photonProducer_.label() << "\n";
     }
-
   } else {
     
     theEvent.getByToken(photonCoreProducerT_,photonCoreHandle);
     if (photonCoreHandle.isValid()) {
       validPhotonCoreHandle=true;
     } else {
-      edm::LogError("GEDPhotonProducer") 
+      throw cms::Exception("GEDPhotonProducer") 
 	<< "Error! Can't get the photonCoreProducer" <<  photonProducer_.label() << "\n";
-    }
-
-   
- 
+    } 
   }
 
-
- // Get EcalRecHits
+  // Get EcalRecHits
   bool validEcalRecHits=true;
   Handle<EcalRecHitCollection> barrelHitHandle;
   EcalRecHitCollection barrelRecHits;
   theEvent.getByToken(barrelEcalHits_, barrelHitHandle);
   if (!barrelHitHandle.isValid()) {
-    edm::LogError("GEDPhotonProducer") 
-      << "Error! Can't get the barrelEcalHits";
     validEcalRecHits=false; 
+    throw cms::Exception("GEDPhotonProducer") 
+      << "Error! Can't get the barrelEcalHits";
   }
   if (  validEcalRecHits)  barrelRecHits = *(barrelHitHandle.product());
 
@@ -282,11 +279,22 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   theEvent.getByToken(endcapEcalHits_, endcapHitHandle);
   EcalRecHitCollection endcapRecHits;
   if (!endcapHitHandle.isValid()) {
-    edm::LogError("GEDPhotonProducer") 
-      << "Error! Can't get the endcapEcalHits";
     validEcalRecHits=false; 
+    throw cms::Exception("GEDPhotonProducer") 
+      << "Error! Can't get the endcapEcalHits";
   }
   if( validEcalRecHits) endcapRecHits = *(endcapHitHandle.product());
+
+  bool validPreshowerRecHits=true;
+  Handle<EcalRecHitCollection> preshowerHitHandle;
+  theEvent.getByToken(preshowerHits_, preshowerHitHandle);
+  EcalRecHitCollection preshowerRecHits;
+  if (!preshowerHitHandle.isValid()) {
+    validPreshowerRecHits=false; 
+    throw cms::Exception("GEDPhotonProducer") 
+      << "Error! Can't get the preshowerEcalHits";
+  }
+  if( validPreshowerRecHits ) preshowerRecHits = *(preshowerHitHandle.product());
 
 
 
@@ -294,7 +302,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   // Get the  PF refined cluster  collection
   theEvent.getByToken(pfEgammaCandidates_,pfEGCandidateHandle);
   if (!pfEGCandidateHandle.isValid()) {
-    edm::LogError("GEDPhotonProducer") 
+    throw cms::Exception("GEDPhotonProducer") 
       << "Error! Can't get the pfEgammaCandidates";
   }
   
@@ -304,14 +312,10 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     // Get the  PF candidates collection
     theEvent.getByToken(pfCandidates_,pfCandidateHandle);
     if (!pfCandidateHandle.isValid()) {
-      edm::LogError("GEDPhotonProducer") 
+      throw cms::Exception("GEDPhotonProducer") 
 	<< "Error! Can't get the pfCandidates";
     }
-
   } 
-
-
-
 
   //AA
   //Get the severity level object
@@ -343,14 +347,21 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   if ( usePrimaryVertex_ ) {
     theEvent.getByToken(vertexProducer_, vertexHandle);
     if (!vertexHandle.isValid()) {
-      edm::LogWarning("GEDPhotonProducer") 
-	<< "Error! Can't get the product primary Vertex Collection";
       validVertex=false;
+      throw cms::Exception("GEDPhotonProducer") 
+	<< "Error! Can't get the product primary Vertex Collection";
     }
     if (validVertex) vertexCollection = *(vertexHandle.product());
   }
   //  math::XYZPoint vtx(0.,0.,0.);
   //if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
+
+  // get the regression calculator ready
+  thePhotonEnergyCorrector_->init(theEventSetup);
+  if( thePhotonEnergyCorrector_->gedRegression() ) {
+    thePhotonEnergyCorrector_->gedRegression()->setEvent(theEvent);
+    thePhotonEnergyCorrector_->gedRegression()->setEventContent(theEventSetup);
+  }
 
 
   int iSC=0; // index in photon collection
@@ -362,6 +373,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 			 topology,
 			 &barrelRecHits,
 			 &endcapRecHits,
+                         &preshowerRecHits,
 			 hcalTowersHandle,
 			 //vtx,
 			 vertexCollection,
@@ -428,6 +440,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 					     const CaloTopology* topology,
 					     const EcalRecHitCollection* ecalBarrelHits,
 					     const EcalRecHitCollection* ecalEndcapHits,
+                                             const EcalRecHitCollection* preshowerHits,
 					     const edm::Handle<CaloTowerCollection> & hcalTowersHandle, 
 					     reco::VertexCollection & vertexCollection,
 					     reco::PhotonCollection & outputPhotonCollection, int& iSC) {
@@ -538,8 +551,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     thePhotonIsolationCalculator_-> calculate ( &newCandidate,evt,es,fiducialFlags,isolVarR04, isolVarR03);
     newCandidate.setFiducialVolumeFlags( fiducialFlags );
     newCandidate.setIsolationVariables(isolVarR04, isolVarR03 );
-
-    
+        
     /// fill shower shape block
     reco::Photon::ShowerShape  showerShape;
     showerShape.e1x5= e1x5;
@@ -554,8 +566,29 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.hcalDepth1OverEcalBc = hcalDepth1OverEcalBc;
     showerShape.hcalDepth2OverEcalBc = hcalDepth2OverEcalBc;
     showerShape.hcalTowersBehindClusters =  TowersBehindClus;
+    /// fill extra shower shapes
+    const float spp = (!edm::isFinite(locCov[2]) ? 0. : sqrt(locCov[2]));
+    const float sep = locCov[1];
+    showerShape.sigmaIetaIphi = sep;
+    showerShape.sigmaIphiIphi = spp;
+    showerShape.e2nd          = EcalClusterTools::e2nd(*(scRef->seed()),&(*hits));
+    showerShape.eTop          = EcalClusterTools::eTop(*(scRef->seed()), &(*hits), &(*topology));
+    showerShape.eLeft         = EcalClusterTools::eLeft(*(scRef->seed()), &(*hits), &(*topology));
+    showerShape.eRight        = EcalClusterTools::eRight(*(scRef->seed()), &(*hits), &(*topology));
+    showerShape.eBottom       = EcalClusterTools::eBottom(*(scRef->seed()), &(*hits), &(*topology));
+    showerShape.e1x3          = EcalClusterTools::e1x3(*(scRef->seed()), &(*hits), &(*topology));
+    showerShape.e2x2          = EcalClusterTools::e2x2(*(scRef->seed()), &(*hits), &(*topology));
+    showerShape.e2x5Max       = EcalClusterTools::e2x5Max(*(scRef->seed()), &(*hits), &(*topology));
+    showerShape.e2x5Left      = EcalClusterTools::e2x5Left(*(scRef->seed()), &(*hits), &(*topology));
+    showerShape.e2x5Right     = EcalClusterTools::e2x5Right(*(scRef->seed()), &(*hits), &(*topology));
+    showerShape.e2x5Top       = EcalClusterTools::e2x5Top(*(scRef->seed()), &(*hits), &(*topology));
+    showerShape.e2x5Bottom    = EcalClusterTools::e2x5Bottom(*(scRef->seed()), &(*hits), &(*topology));
+    // fill preshower shapes
+    EcalClusterLazyTools toolsforES(evt, es, barrelEcalHits_, endcapEcalHits_, preshowerHits_);
+    const float sigmaRR =  toolsforES.eseffsirir( *scRef );
+    showerShape.effSigmaRR = sigmaRR;
     newCandidate.setShowerShapeVariables ( showerShape ); 
-
+    
     /// fill full5x5 shower shape block
     reco::Photon::ShowerShape  full5x5_showerShape;
     full5x5_showerShape.e1x5= full5x5_e1x5;
@@ -565,8 +598,29 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     full5x5_showerShape.maxEnergyXtal =  full5x5_maxXtal;
     full5x5_showerShape.sigmaEtaEta =    full5x5_sigmaEtaEta;
     full5x5_showerShape.sigmaIetaIeta =  full5x5_sigmaIetaIeta;
+    /// fill extra full5x5 shower shapes
+    const float full5x5_spp = (!edm::isFinite(full5x5_locCov[2]) ? 0. : sqrt(full5x5_locCov[2]));
+    const float full5x5_sep = full5x5_locCov[1];
+    full5x5_showerShape.sigmaIetaIphi = full5x5_sep;
+    full5x5_showerShape.sigmaIphiIphi = full5x5_spp;
+    full5x5_showerShape.e2nd          = noZS::EcalClusterTools::e2nd(*(scRef->seed()),&(*hits));
+    full5x5_showerShape.eTop          = noZS::EcalClusterTools::eTop(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_showerShape.eLeft         = noZS::EcalClusterTools::eLeft(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_showerShape.eRight        = noZS::EcalClusterTools::eRight(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_showerShape.eBottom       = noZS::EcalClusterTools::eBottom(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_showerShape.e1x3          = noZS::EcalClusterTools::e1x3(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_showerShape.e2x2          = noZS::EcalClusterTools::e2x2(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_showerShape.e2x5Max       = noZS::EcalClusterTools::e2x5Max(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_showerShape.e2x5Left      = noZS::EcalClusterTools::e2x5Left(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_showerShape.e2x5Right     = noZS::EcalClusterTools::e2x5Right(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_showerShape.e2x5Top       = noZS::EcalClusterTools::e2x5Top(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_showerShape.e2x5Bottom    = noZS::EcalClusterTools::e2x5Bottom(*(scRef->seed()), &(*hits), &(*topology));
+     // fill preshower shapes
+    full5x5_showerShape.effSigmaRR = sigmaRR;
     newCandidate.full5x5_setShowerShapeVariables ( full5x5_showerShape );     
     
+    
+
     /// get ecal photon specific corrected energy 
     /// plus values from regressions     and store them in the Photon
     // Photon candidate takes by default (set in photons_cfi.py) 
@@ -582,8 +636,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       newCandidate.setP4( newCandidate.p4(reco::Photon::regression2) );
       newCandidate.setCandidateP4type(reco::Photon::regression2);
     } else if ( candidateP4type_ == "fromRefinedSCRegression" ) {
-      newCandidate.setP4( newCandidate.p4(reco::Photon::regression1) );
-      newCandidate.setCandidateP4type(reco::Photon::regression1);
+      newCandidate.setP4( newCandidate.p4(reco::Photon::regression2) );
+      newCandidate.setCandidateP4type(reco::Photon::regression2);
     }
 
     //       std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
@@ -672,6 +726,22 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     newCandidate.setPflowIsolationVariables(pfIso);
     newCandidate.setPflowIDVariables(pfID);
 
+    // do the regression
+    thePhotonEnergyCorrector_->calculate(evt, newCandidate, subdet, *vertexHandle, es);
+    if ( candidateP4type_ == "fromEcalEnergy") {
+      newCandidate.setP4( newCandidate.p4(reco::Photon::ecal_photons) );
+      newCandidate.setCandidateP4type(reco::Photon::ecal_photons);
+    } else if ( candidateP4type_ == "fromRegression1") {
+      newCandidate.setP4( newCandidate.p4(reco::Photon::regression1) );
+      newCandidate.setCandidateP4type(reco::Photon::regression1);
+    } else if ( candidateP4type_ == "fromRegression2") {
+      newCandidate.setP4( newCandidate.p4(reco::Photon::regression2) );
+      newCandidate.setCandidateP4type(reco::Photon::regression2);
+    } else if ( candidateP4type_ == "fromRefinedSCRegression" ) {
+      newCandidate.setP4( newCandidate.p4(reco::Photon::regression2) );
+      newCandidate.setCandidateP4type(reco::Photon::regression2);
+    }
+
     //    std::cout << " GEDPhotonProducer  pf based isolation  chargedHadron " << newCandidate.chargedHadronIso() << " neutralHadron " <<  newCandidate.neutralHadronIso() << " Photon " <<  newCandidate.photonIso() << std::endl;
     //std::cout << " GEDPhotonProducer from candidate HoE with towers in a cone " << newCandidate.hadronicOverEm()  << "  " <<  newCandidate.hadronicDepth1OverEm()  << " " <<  newCandidate.hadronicDepth2OverEm()  << std::endl;
     //std::cout << " GEDPhotonProducer from candidate  of HoE with towers behind the BCs " <<  newCandidate.hadTowOverEm()  << "  " << newCandidate.hadTowDepth1OverEm() << " " << newCandidate.hadTowDepth2OverEm() << std::endl;
@@ -679,29 +749,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     //std::cout << " type " <<newCandidate.getCandidateP4type() <<  " standard p4 after " << newCandidate.p4() << " energy " << newCandidate.energy() << std::endl;
     //std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
 
-
-
-    /// Pre-selection loose  isolation cuts
-    bool isLooseEM=true;
-    if ( newCandidate.pt() < highEt_) { 
-      if ( newCandidate.hadronicOverEm()                   >= preselCutValues[1] )                                            isLooseEM=false;
-      if ( newCandidate.ecalRecHitSumEtConeDR04()          > preselCutValues[2]+ preselCutValues[3]*newCandidate.pt() )       isLooseEM=false;
-      if ( newCandidate.hcalTowerSumEtConeDR04()           > preselCutValues[4]+ preselCutValues[5]*newCandidate.pt() )       isLooseEM=false;
-      if ( newCandidate.nTrkSolidConeDR04()                > int(preselCutValues[6]) )                                        isLooseEM=false;
-      if ( newCandidate.nTrkHollowConeDR04()               > int(preselCutValues[7]) )                                        isLooseEM=false;
-      if ( newCandidate.trkSumPtSolidConeDR04()            > preselCutValues[8] )                                             isLooseEM=false;
-      if ( newCandidate.trkSumPtHollowConeDR04()           > preselCutValues[9] )                                             isLooseEM=false;
-      if ( newCandidate.sigmaIetaIeta()                    > preselCutValues[10] )                                            isLooseEM=false;
-    } 
+    outputPhotonCollection.push_back(newCandidate);        
     
-
-        
-    if ( isLooseEM)  
-      outputPhotonCollection.push_back(newCandidate);
-      
-        
   }
-
-
 
 }

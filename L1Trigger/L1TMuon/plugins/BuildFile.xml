@@ -1,0 +1,9 @@
+<library file="*.cc" name="L1TriggerL1TMuonPlugins">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="DataFormats/L1Trigger"/>
+  <use name="L1Trigger/L1TMuon"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+

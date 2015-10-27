@@ -13,7 +13,7 @@
 class CompareBiasZValidation
 {
 public:
-  CompareBiasZValidation(const TString& leg) 
+  CompareBiasZValidation(const int rebinXphi = 4, const int rebinXetadiff = 2, const int rebinXeta = 2, const int rebinXpt = 8)
   {
     
 
@@ -36,7 +36,10 @@ public:
     fitter.sigma2 = 1.;
 
     double Mmin(75), Mmax(105);
-    fitter.fit(inputFileName, outputFileName, "breitWignerTimesCB", "exponentialpol", 91, Mmin, Mmax, 2, 0.1, 10);
+    fitter.fit(
+      inputFileName, outputFileName, "breitWignerTimesCB", "exponential", 91, Mmin, Mmax, 2, 0.1, 10,
+      rebinXphi, rebinXetadiff, rebinXeta, rebinXpt
+      );
 
     FitMass1D fitMass1D;
     //fitMass1D.rebinX = 10;

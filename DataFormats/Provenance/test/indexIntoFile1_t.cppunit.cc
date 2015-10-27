@@ -9,10 +9,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
-// This is very ugly, but I am told OK for white box  unit tests 
-#define private public
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
-#undef private
 
 #include <string>
 #include <iostream>

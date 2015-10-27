@@ -20,7 +20,6 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 
-#define private public
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 class TestPluginFactory : public CppUnit::TestFixture

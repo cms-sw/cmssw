@@ -55,7 +55,7 @@ class L1ConfigOnlineProdBase : public edm::ESProducer {
       L1ConfigOnlineProdBase(const edm::ParameterSet&);
       ~L1ConfigOnlineProdBase();
 
-      boost::shared_ptr< TData > produce(const TRcd& iRecord);
+      virtual boost::shared_ptr< TData > produce(const TRcd& iRecord);
 
       virtual boost::shared_ptr< TData > newObject(
 	const std::string& objectKey ) = 0 ;

@@ -34,6 +34,9 @@
 MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig):
 muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 {
+  
+  LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: Constructor called";
+
    produces<reco::MuonCollection>();
    produces<reco::CaloMuonCollection>();
    produces<reco::MuonTimeExtraMap>("combined");
@@ -261,15 +264,22 @@ reco::Muon MuonIdProducer::makeMuon(edm::Event& iEvent, const edm::EventSetup& i
      " Pt (GeV), eta: " << track.get()->eta();
    reco::Muon aMuon( makeMuon( *(track.get()) ) );
 
+   LogTrace("MuonIdentification") << "Muon created from a track ";
+
    aMuon.setMuonTrack(type,track);
    aMuon.setBestTrack(type);
    aMuon.setTunePBestTrack(type);
+
+   LogTrace("MuonIdentification") << "Muon created from a track and setMuonBestTrack, setBestTrack and setTunePBestTrack called";
 
    return aMuon;
 }
 
 reco::CaloMuon MuonIdProducer::makeCaloMuon( const reco::Muon& muon )
 {
+
+   LogTrace("MuonIdentification") << "Creating a CaloMuon from a Muon";
+
    reco::CaloMuon aMuon;
    aMuon.setInnerTrack( muon.innerTrack() );
 
@@ -768,15 +778,22 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 				reco::Muon& aMuon,
 				TrackDetectorAssociator::Direction direction)
 {
+
+   LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: fillMuonId";
+
    // perform track - detector association
    const reco::Track* track = 0;
    if      ( aMuon.track().isNonnull() ) track = aMuon.track().get();
    else if ( aMuon.standAloneMuon().isNonnull() ) track = aMuon.standAloneMuon().get();
    else throw cms::Exception("FatalError") << "Failed to fill muon id information for a muon with undefined references to tracks";
 
+
    TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *track, parameters_, direction);
 
+   LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: fillMuonId :: fillEnergy = "<<fillEnergy_;
+
    if ( fillEnergy_ ) {
+
       reco::MuonEnergy muonEnergy;
       muonEnergy.em      = info.crossedEnergy(TrackDetMatchInfo::EcalRecHits);
       muonEnergy.had     = info.crossedEnergy(TrackDetMatchInfo::HcalRecHits);
@@ -809,6 +826,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    if ( ! fillMatching_ && ! aMuon.isTrackerMuon() && ! aMuon.isRPCMuon() ) return;
 
    // fill muon match info
+   LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: fillMuonId :: fill muon match info ";
    std::vector<reco::MuonChamberMatch> muonChamberMatches;
    unsigned int nubmerOfMatchesAccordingToTrackAssociator = 0;
    for ( const auto& chamber : info.chambers )
@@ -883,6 +901,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    }
 
    // Fill RPC info
+   LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: fillMuonId :: fill RPC info";
    if ( rpcHitHandle_.isValid() )
    {
      for ( const auto& chamber : info.chambers )

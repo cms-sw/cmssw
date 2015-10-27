@@ -16,6 +16,14 @@
 #include <sys/wait.h>
 #include <sstream>
 #include <string.h>
+#include <poll.h>
+
+// WORKAROUND: At CERN, execv is replaced with a non-async-signal safe
+// version.  This can break our stack trace printer.  Avoid this by
+// invoking the syscall directly.
+#ifdef __linux__
+#include <syscall.h>
+#endif
 
 #include "TROOT.h"
 #include "TError.h"
@@ -205,21 +213,74 @@ namespace {
       return 0;
     }
 
-    static int full_read(int fd, char *inbuf, size_t len)
+    static int full_read(int fd, char *inbuf, size_t len, int timeout_s=-1)
     {
       char *buf = inbuf;
       size_t count = len;
       ssize_t complete = 0;
+      std::chrono::time_point<std::chrono::steady_clock> end_time = std::chrono::steady_clock::now() + std::chrono::seconds(timeout_s);
+      int flags;
+      if (timeout_s < 0)
+      {
+        flags = O_NONBLOCK;  // Prevents us from trying to set / restore flags later.
+      }
+      else if ((-1 == (flags = fcntl(fd, F_GETFL))))
+      {
+        return -errno;
+      }
+      if ((flags & O_NONBLOCK) != O_NONBLOCK)
+      {
+        if (-1 == fcntl(fd, F_SETFL, flags | O_NONBLOCK))
+        {
+          return -errno;
+        }
+      }
       while (count)
       {
+        if (timeout_s >= 0)
+        {
+          struct pollfd poll_info{fd, POLLIN, 0};
+          int ms_remaining = std::chrono::duration_cast<std::chrono::milliseconds>(end_time-std::chrono::steady_clock::now()).count();
+          if (ms_remaining > 0)
+          {
+            if (poll(&poll_info, 1, ms_remaining) == 0)
+            {
+              if ((flags & O_NONBLOCK) != O_NONBLOCK)
+              {
+                fcntl(fd, F_SETFL, flags);
+              }
+              return -ETIMEDOUT;
+            }
+          }
+          else if (ms_remaining < 0)
+          {
+            if ((flags & O_NONBLOCK) != O_NONBLOCK)
+            {
+              fcntl(fd, F_SETFL, flags);
+            }
+            return -ETIMEDOUT;
+          }
+        }
         complete = read(fd, buf, count);
         if (complete == -1)
         {
           if (errno == EINTR) {continue;}
-          else {return -errno;}
+          else if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {continue;}
+          else
+          {
+            int orig_errno = errno;
+            if ((flags & O_NONBLOCK) != O_NONBLOCK)
+            {
+              fcntl(fd, F_SETFL, flags);
+            }
+            return -orig_errno;
+          }
         }
         count -= complete;
         buf += complete;
+      }
+      if ((flags & O_NONBLOCK) != O_NONBLOCK) {
+        fcntl(fd, F_SETFL, flags);
       }
       return 0;
     }
@@ -272,6 +333,13 @@ namespace {
       ::abort();
     }
   }
+
+  void set_default_signals() {
+    signal(SIGILL, SIG_DFL);
+    signal(SIGSEGV, SIG_DFL);
+    signal(SIGBUS, SIG_DFL);
+  }
+
 }  // end of unnamed namespace
 
 namespace edm {
@@ -295,6 +363,10 @@ namespace edm {
         int result = full_read(fromParent, buf, 1);
         if (result < 0)
         {
+          // To avoid a deadlock (this function is NOT re-entrant), reset signals
+          // We never set them back to the CMSSW handler because we assume the parent
+          // thread will abort for us.
+          set_default_signals();
           close(toParent);
           full_cerr_write("\n\nTraceback helper thread failed to read from parent: ");
           full_cerr_write(strerror(-result));
@@ -303,6 +375,7 @@ namespace edm {
         }
         if (buf[0] == '1')
         {
+          set_default_signals();
           cmssw_stacktrace_fork();
           full_write(toParent, buf);
         }
@@ -321,6 +394,7 @@ namespace edm {
         }
         else
         {
+          set_default_signals();
           close(toParent);
           full_cerr_write("\n\nTraceback helper thread got unknown command from parent: ");
           full_cerr_write(buf);
@@ -341,10 +415,17 @@ namespace edm {
         return;
       }
       char buf[2]; buf[1] = '\0';
-      if ((result = full_read(childToParent_[0], buf, 1)) < 0)
+      if ((result = full_read(childToParent_[0], buf, 1, 5*60)) < 0)
       {
         full_cerr_write("\n\nWaiting for stacktrace completion failed: ");
-        full_cerr_write(strerror(-result));
+        if (result == -ETIMEDOUT)
+        {
+          full_cerr_write("timed out waiting for GDB to complete.");
+        }
+        else
+        {
+          full_cerr_write(strerror(-result));
+        }
         full_cerr_write("\n");
         return;
       }
@@ -377,13 +458,24 @@ namespace edm {
         {
           full_cerr_write("(Failed to wait on stack dump output.)\n");
         }
+        if (status)
+        {
+          full_cerr_write("(GDB stack trace failed unexpectedly)\n");
+        }
       }
     }
 
     int cmssw_stacktrace(void * /*arg*/)
     {
       char *const *argv = edm::service::InitRootHandlers::getPstackArgv();
+      // NOTE: this is NOT async-signal-safe at CERN's lxplus service.
+      // CERN uses LD_PRELOAD to replace execv with a function from libsnoopy which
+      // calls dlsym.
+#ifdef __linux__
+      syscall(SYS_execve, "/bin/sh", argv, __environ);
+#else
       execv("/bin/sh", argv);
+#endif
       ::abort();
       return 1;
     }

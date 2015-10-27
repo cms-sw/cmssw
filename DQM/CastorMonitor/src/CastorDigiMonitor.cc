@@ -14,12 +14,6 @@
 //     add rms check     15.04.2015 (Vladimir Popov)
 //==================================================================//
 
- static int TS_MAX = 10;
- static float RatioThresh1 = 0.;
- static float QIEerrThreshold = 0.0001;
- static double QrmsTS[224][10], QmeanTS[224][10];
- const int TSped = 0;
-
 //======================= Constructor ==============================//
 CastorDigiMonitor::CastorDigiMonitor(const edm::ParameterSet& ps)
 {

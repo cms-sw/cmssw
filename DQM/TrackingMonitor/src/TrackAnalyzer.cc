@@ -313,6 +313,12 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
       NumberOfMORecHitsPerTrack->setAxisTitle("Number of missing-outer RecHits for each Track");
       NumberOfMORecHitsPerTrack->setAxisTitle("Number of Tracks", 2);
 
+      histname = "ValidFractionPerTrack_";
+      ValidFractionPerTrack = ibooker.book1D(histname+CategoryName, histname+CategoryName, 101, 0., 1.01);
+      ValidFractionPerTrack->setAxisTitle("ValidFraction of RecHits for each Track");
+      ValidFractionPerTrack->setAxisTitle("Number of Tracks", 2);
+
+
 
       if ( doRecHitVsPhiVsEtaPerTrack_ || doAllPlots_ ){
 	
@@ -340,6 +346,12 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
                                                                     EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 15., "");
         NumberOfMORecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
         NumberOfMORecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #phi ", 2);
+
+        histname = "ValidFractionVsPhiVsEtaPerTrack_";
+        ValidFractionVsPhiVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName,
+                                                                    EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 2., "");
+        ValidFractionVsPhiVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
+        ValidFractionVsPhiVsEtaPerTrack->setAxisTitle("Track #phi ", 2);
 
 
       }
@@ -830,6 +842,8 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     NumberOfLostRecHitsPerTrack -> Fill(nLostRecHits);
     NumberOfMIRecHitsPerTrack -> Fill(nLostIn);
     NumberOfMORecHitsPerTrack -> Fill(nLostOut);
+    ValidFractionPerTrack -> Fill(track.validFraction());
+
 
     // 2D plots    
     if ( doRecHitVsPhiVsEtaPerTrack_ || doAllPlots_ ) {
@@ -837,6 +851,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       NumberOfLostRecHitVsPhiVsEtaPerTrack->Fill(etaIn,phiIn,nLostRecHits);
       NumberOfMIRecHitVsPhiVsEtaPerTrack->Fill(etaIn,phiIn,nLostIn);
       NumberOfMORecHitVsPhiVsEtaPerTrack->Fill(etaOut,phiOut,nLostOut);
+      ValidFractionVsPhiVsEtaPerTrack -> Fill(etaIn,phiIn,track.validFraction());
     }
 
     int nLayers[4]   = { track.hitPattern().trackerLayersWithMeasurement(),
@@ -958,7 +973,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if(doDCAPlots_ || doPVPlots_ || doSIPPlots_ || doAllPlots_) {
     edm::Handle<reco::VertexCollection> recoPrimaryVerticesHandle;
     iEvent.getByToken(pvToken_,recoPrimaryVerticesHandle);
-    if (recoPrimaryVerticesHandle->size() > 0) {
+    if (recoPrimaryVerticesHandle.isValid() && recoPrimaryVerticesHandle->size() > 0) {
       const reco::Vertex& pv = (*recoPrimaryVerticesHandle)[0];
     
 
@@ -1227,6 +1242,23 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker & ib
     tkmes.TrackEta->setAxisTitle("Track #eta", 1);
     tkmes.TrackEta->setAxisTitle("Number of Tracks",2);
 
+    histname = "TrackEtaPhi_" + histTag;
+    tkmes.TrackEtaPhi = ibooker.book2D(histname, histname, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
+    tkmes.TrackEtaPhi->setAxisTitle("Track #eta", 1);
+    tkmes.TrackEtaPhi->setAxisTitle("Track #phi", 2);
+
+    histname = "TrackEtaPhiInner_" + histTag;
+    tkmes.TrackEtaPhiInner = ibooker.book2D(histname, histname, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
+    tkmes.TrackEtaPhiInner->setAxisTitle("Track #eta", 1);
+    tkmes.TrackEtaPhiInner->setAxisTitle("Track #phi", 2);
+
+    histname = "TrackEtaPhiOuter_" + histTag;
+    tkmes.TrackEtaPhiOuter = ibooker.book2D(histname, histname, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
+    tkmes.TrackEtaPhiOuter->setAxisTitle("Track #eta", 1);
+    tkmes.TrackEtaPhiOuter->setAxisTitle("Track #phi", 2);
+
+
+
     if (doThetaPlots_) {  
       histname = "TrackTheta_" + histTag;
       tkmes.TrackTheta = ibooker.book1D(histname, histname, ThetaBin, ThetaMin, ThetaMax);
@@ -1367,6 +1399,12 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
     double p, px, py, pz, pt, theta, phi, eta, q;
     double pxerror, pyerror, pzerror, pterror, perror, phierror, etaerror;
 
+    auto phiIn =  track.innerPosition().phi();
+    auto etaIn =  track.innerPosition().eta();
+    auto phiOut =  track.outerPosition().phi();
+    auto etaOut =  track.outerPosition().eta();
+
+
     if (sname == "default") {
 
       p     = track.p();
@@ -1439,6 +1477,10 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
       // angles
       tkmes.TrackPhi->Fill(phi);
       tkmes.TrackEta->Fill(eta);
+      tkmes.TrackEtaPhi->Fill(eta,phi);
+      tkmes.TrackEtaPhiInner->Fill(etaIn,phiIn);
+      tkmes.TrackEtaPhiOuter->Fill(etaOut,phiOut);
+
       if (doThetaPlots_) {
 	tkmes.TrackTheta->Fill(theta);
       }

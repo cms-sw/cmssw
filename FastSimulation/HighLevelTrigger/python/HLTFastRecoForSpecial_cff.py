@@ -11,6 +11,8 @@ pixelTripletSeedsForMinBias = FastSimulation.Tracking.TrajectorySeedProducer_cfi
 import FastSimulation.Tracking.HLTPixelTracksProducer_cfi
 hltPixelTracksForMinBias = FastSimulation.Tracking.HLTPixelTracksProducer_cfi.hltPixelTracks.clone()
 hltPixelTracksForMinBias.FilterPSet.ptMin = 0.4
+hltPixelTracksForMinBias01 = FastSimulation.Tracking.HLTPixelTracksProducer_cfi.hltPixelTracks.clone()
+hltPixelTracksForMinBias01.FilterPSet.ptMin = 0.1
 hltPixelTracksForHighMult = FastSimulation.Tracking.HLTPixelTracksProducer_cfi.hltPixelTracks.clone()
 hltPixelTracksForHighMult.FilterPSet.ptMin = 0.4
 from FastSimulation.Tracking.PixelTracksProducer_cfi import *

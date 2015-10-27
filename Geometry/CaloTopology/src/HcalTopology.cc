@@ -11,6 +11,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 static const int IPHI_MAX=72;
+//#define DebugLog
 
 HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::TriggerMode tmode) :
   hcons_(hcons),
@@ -57,11 +58,15 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::T
     HBSize_     = nEtaHB_*72*maxDepthHB_*2;
     HESize_     = nEtaHE_*72*maxDepthHE_*2;
     HOSize_     = (lastHORing_-firstHORing_+1)*72*2; // ieta * iphi * 2
-    HFSize_     = (lastHFRing_-firstHFRing_+1)*72*2*2; // ieta * iphi * depth * 2
+    HFSize_     = (lastHFRing_-firstHFRing_+1)*72*maxDepthHF_*2; // ieta * iphi * depth * 2
     HTSize_     = kHTSizePreLS1;  //no clue!
     numberOfShapes_ = 500;
   }
   maxEta_ = (lastHERing_ > lastHFRing_) ? lastHERing_ : lastHFRing_;
+#ifdef DebugLog
+  std::cout << "Topo sizes " << HBSize_ << ":" << HESize_ << ":" << HOSize_
+	    << ":" << HFSize_ << " for mode " << mode_ << std::endl;
+#endif
 
   //The transition between HE/HF in eta
   etaTableHF  = hcons_->getEtaTableHF();
@@ -152,7 +157,7 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxD
     HBSize_= maxDepthHB*16*72*2;
     HESize_= maxDepthHE*(29-16+1)*72*2;
     HOSize_= 15*72*2; // ieta * iphi * 2
-    HFSize_= 72*13*2*2; // phi * eta * depth * pm 
+    HFSize_= 72*13*maxDepthHF_*2; // phi * eta * depth * pm 
     HTSize_= kHTSizePreLS1;  //no clue!
     topoVersion_=10;
   }
@@ -835,18 +840,20 @@ double HcalTopology::etaMax(HcalSubdetector subdet) const {
   return eta;
 }
 std::pair<double,double> HcalTopology::etaRange(HcalSubdetector subdet, 
-                                                int ieta) const {
-
+                                                int keta) const {
+  int ieta = (keta > 0) ? keta : -keta;
   if (subdet == HcalForward) {
-    unsigned int ii = (unsigned int)(ieta-firstHFRing_);
-    return std::pair<double,double>(etaTableHF[ii],etaTableHF[ii+1]);
-  } else {
-    if (mode_==HcalTopologyMode::LHC && ieta == lastHERing_-1) {
-      return std::pair<double,double>(etaTable[ieta-1],etaTable[ieta+1]);
-    } else {
-      return std::pair<double,double>(etaTable[ieta-1],etaTable[ieta]);
+    if (ieta >= firstHFRing_) {
+      unsigned int ii = (unsigned int)(ieta-firstHFRing_);
+      if (ii+1 < etaTableHF.size()) 
+	return std::pair<double,double>(etaTableHF[ii],etaTableHF[ii+1]);
     }
+  } else {
+    int ietal = (mode_==HcalTopologyMode::LHC && ieta == lastHERing_-1) ? (ieta+1) : ieta;
+    if ((ietal < (int)(etaTable.size())) && (ieta > 0))
+      return std::pair<double,double>(etaTable[ieta-1],etaTable[ietal]);
   }
+  return std::pair<double,double>(0,0);
 }
 
 unsigned int HcalTopology::detId2denseIdPreLS1 (const DetId& id) const {
@@ -967,7 +974,7 @@ unsigned int HcalTopology::detId2denseIdHT(const DetId& id) const {
 
 unsigned int HcalTopology::detId2denseIdCALIB(const DetId& id) const {
   HcalCalibDetId tid(id);
-  int    channel = tid.cboxChannel();
+  int channel = tid.cboxChannel();
   int ieta = tid.ieta();
   int iphi = tid.iphi();
   int zside = tid.zside();
@@ -1052,6 +1059,9 @@ unsigned int HcalTopology::detId2denseId(const DetId& id) const {
       return 0xFFFFFFFu;
     }
   }
+#ifdef DebugLog
+  std::cout << "DetId2Dense " << topoVersion_ << " ID " << HcalDetId(id) << " : " << std::hex << retval << std::dec << std::endl;
+#endif
   return retval;
 }
 
@@ -1150,11 +1160,14 @@ DetId HcalTopology::denseId2detId(unsigned int denseid) const {
 	ip  = (in - dp + 1)%(maxDepthHB_*72);
 	ip  = (ip/maxDepthHB_) + 1;
 	ie  = (in - dp + 1 - maxDepthHB_*(ip-1))/(72*maxDepthHB_);
-        if (ie >= nEtaHB_) {ie  = lastHBRing()+nEtaHB_ - ie; iz = -1;}
-        else               {ie = firstHERing() + ie;         iz =  1;}
+        if (ie >= nEtaHB_) {ie = lastHBRing()+nEtaHB_ - ie; iz = -1;}
+        else               {ie = firstHBRing() + ie;        iz =  1;}
       }	
     }
   }
+#ifdef DebugLog
+  std::cout << "Dens2Det " << topoVersion_ << " i/p " << std::hex << denseid << std::dec << " : " << HcalDetId(sd,iz*int(ie),ip,dp) << std::endl;
+#endif
   return HcalDetId( sd, iz*int(ie), ip, dp );
 }
 

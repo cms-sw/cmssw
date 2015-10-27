@@ -62,7 +62,7 @@ bool CocoaDaqReaderText::ReadNextEvent()
 	exit(1);
       }
       std::vector< Measurement* >::const_iterator vmcite;
-      for( vmcite = Model::MeasurementList().begin();  vmcite != Model::MeasurementList().end(); vmcite++ ) {
+      for( vmcite = Model::MeasurementList().begin();  vmcite != Model::MeasurementList().end(); ++vmcite ) {
 	//---- Look for Measurement
 	/*	ALIint last_slash =  (*vmcite)->name().rfind('/');
 	ALIstring oname = (*vmcite)->name();
@@ -111,7 +111,7 @@ bool CocoaDaqReaderText::ReadNextEvent()
 	}
       }
       if( vmcite == Model::MeasurementList().end() ) {
-	for( vmcite = Model::MeasurementList().begin(); vmcite != Model::MeasurementList().end(); vmcite++ ) {
+	for( vmcite = Model::MeasurementList().begin(); vmcite != Model::MeasurementList().end(); ++vmcite ) {
 	  std::cerr << "MEAS: " << (*vmcite)->name() << " " << (*vmcite)->type() << std::endl;
 	}
 	std::cerr << "!!! Reading measurement from file: measurement not found in list: type in file is "  << wordlist[1]  << std::endl;

@@ -21,6 +21,7 @@
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/L1Trigger/interface/L1HFRings.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
@@ -211,6 +212,8 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
   pfjetRefs_.clear();
   pftauIds_.clear();
   pftauRefs_.clear();
+  pfmetIds_.clear();
+  pfmetRefs_.clear();
 
   // Attention: must look only for modules actually run in this path
   // for this event!
@@ -392,6 +395,17 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
 	for (unsigned int i=0; i!=nPFTaus; ++i) {
 	  LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << pftauIds_[i]
 	       << " " << pftauRefs_[i]->pt()
+	       << endl;
+	}
+      }
+
+      triggerEventWithRefsHandle_->getObjects(filterIndex,pfmetIds_,pfmetRefs_);
+      const unsigned int nPfMETs(pfmetIds_.size());
+      if (nPfMETs>0) {
+	LogVerbatim("HLTEventAnalyzerRAW") << "   PfMETs: " << nPfMETs << "  - the objects: # id pt" << endl;
+	for (unsigned int i=0; i!=nPfMETs; ++i) {
+	  LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << pfmetIds_[i]
+	       << " " << pfmetRefs_[i]->pt()
 	       << endl;
 	}
       }

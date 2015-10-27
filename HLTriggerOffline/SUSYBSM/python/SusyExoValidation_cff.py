@@ -59,6 +59,8 @@ HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
                                 SUSY_HLT_MET_HT_MUON +
                                 SUSY_HLT_MET_HT_MUON_ER +
                                 SUSY_HLT_MET_HT_MUON_BTAG +
+                                SUSY_HLT_RazorHbb_Rsq0p02_MR300_2CSV0p7_0p4 +
+                                SUSY_HLT_RazorHbb_Rsq0p02_MR300_2CSV0p7 +
                                 SUSY_HLT_Razor_Main_RsqMR300 + 
                                 SUSY_HLT_Razor_QuadJet_RsqMR300 +
                                 SUSY_HLT_Razor_DM_Rsq0p36 + 
@@ -82,6 +84,9 @@ HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
                                 SUSY_HLT_HT_DoubleMuon +
                                 SUSY_HLT_HT_DoubleEle +
                                 SUSY_HLT_HT_MuEle +
+								SUSY_HLT_HT250_DoubleMuon +
+                                SUSY_HLT_HT250_DoubleEle +
+                                SUSY_HLT_HT250_MuEle +
                                 SUSY_HLT_Muon_BJet +
                                 SUSY_HLT_Electron_BJet +
                                 SUSY_HLT_HT200_alphaT0p51 +
@@ -122,7 +127,9 @@ HLTSusyExoValSeq_FastSim = cms.Sequence(SUSY_HLT_HT_MET_FASTSIM +
                                         SUSY_HLT_MET_MUON_ER_FASTSIM +
                                         SUSY_HLT_MET_HT_MUON_FASTSIM +
                                         SUSY_HLT_MET_HT_MUON_ER_FASTSIM +
-                                        SUSY_HLT_MET_HT_MUON_BTAG_FASTSIM +   
+                                        SUSY_HLT_MET_HT_MUON_BTAG_FASTSIM +
+                                        SUSY_HLT_RazorHbb_Rsq0p02_MR300_2CSV0p7_0p4_FASTSIM +
+                                        SUSY_HLT_RazorHbb_Rsq0p02_MR300_2CSV0p7_FASTSIM +  
                                         SUSY_HLT_Razor_Main_RsqMR300_FASTSIM + 
                                         SUSY_HLT_Razor_QuadJet_RsqMR300_FASTSIM +
                                         SUSY_HLT_Razor_DM_Rsq0p36_FASTSIM + 
@@ -146,6 +153,9 @@ HLTSusyExoValSeq_FastSim = cms.Sequence(SUSY_HLT_HT_MET_FASTSIM +
                                         SUSY_HLT_HT_DoubleMuon_FASTSIM +
                                         SUSY_HLT_HT_DoubleEle_FASTSIM +
                                         SUSY_HLT_HT_MuEle_FASTSIM +
+										SUSY_HLT_HT250_DoubleMuon_FASTSIM +
+                                        SUSY_HLT_HT250_DoubleEle_FASTSIM +
+                                        SUSY_HLT_HT250_MuEle_FASTSIM +
                                         SUSY_HLT_Muon_BJet_FASTSIM +
                                         SUSY_HLT_Electron_BJet_FASTSIM)
 

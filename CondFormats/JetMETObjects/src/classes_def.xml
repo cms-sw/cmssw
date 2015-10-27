@@ -35,6 +35,12 @@
 
   <class name="METCorrectorParameters"/>
 
+  <class name="JME::JetResolutionObject"/>
+  <class name="JME::JetResolutionObject::Definition"/>
+  <class name="JME::JetResolutionObject::Record"/>
+  <class name="JME::JetResolutionObject::Range"/>
+  <class name="std::vector<JME::JetResolutionObject::Record>"/>
+  <class name="std::vector<JME::JetResolutionObject::Range>"/>
 
 </selection>
 </lcgdict>

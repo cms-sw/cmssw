@@ -91,7 +91,7 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     CosMuoGen->setMaxEnu(MaxEn);    
     CosMuoGen->setNuProdAlt(NuPrdAlt);
     CosMuoGen->setAcptAllMu(AllMu);
-    produces<HepMCProduct>();
+    produces<HepMCProduct>("unsmeared");
     produces<GenEventInfoProduct>();
     produces<GenRunInfoProduct, edm::InRun>();
   }
@@ -234,7 +234,7 @@ void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
 
   std::auto_ptr<HepMCProduct> CMProduct(new HepMCProduct());
   CMProduct->addHepMCData( fEvt );
-  e.put(CMProduct);
+  e.put(CMProduct, "unsmeared");
 
   std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct( fEvt ));
   e.put(genEventInfo);

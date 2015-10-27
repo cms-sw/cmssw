@@ -582,6 +582,7 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
                               << "Cannot book globalEffic-ME from the DQM\n";
     return;
   }
+  globalEfficME->setEfficiencyFlag();
   TH1F* hGlobalEffic = globalEfficME->getTH1F();
   if ( !hGlobalEffic ) {
     LogInfo("DQMGenericClient") << "computeEfficiency() : "

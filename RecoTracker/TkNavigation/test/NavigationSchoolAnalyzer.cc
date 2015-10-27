@@ -75,13 +75,12 @@ void NavigationSchoolAnalyzer::print(std::ostream& os,const DetLayer* dl){
   unsigned int LorW=0;
   unsigned int side=0;
 
+  if(GeomDetEnumerators::isTracker(dl->subDetector())) {
+    LorW = tTopo->layer(tag->geographicalId());
+    side = tTopo->side(tag->geographicalId());
+  }
+  else {
   switch (dl->subDetector()){
-  case GeomDetEnumerators::PixelBarrel :
-    LorW = tTopo->pxbLayer(tag->geographicalId()); break;
-  case GeomDetEnumerators::TIB :
-    LorW = tTopo->tibLayer(tag->geographicalId()); break;
-  case GeomDetEnumerators::TOB :
-    LorW = tTopo->tobLayer(tag->geographicalId()); break;
   case GeomDetEnumerators::DT :
     LorW = DTChamberId(tag->geographicalId().rawId()).station(); break;
   case GeomDetEnumerators::RPCEndcap :
@@ -89,22 +88,15 @@ void NavigationSchoolAnalyzer::print(std::ostream& os,const DetLayer* dl){
   case GeomDetEnumerators::RPCBarrel :
     LorW = RPCDetId(tag->geographicalId().rawId()).station(); break;
 
-  case GeomDetEnumerators::PixelEndcap :    
-    LorW = tTopo->pxfDisk(tag->geographicalId());
-    side = tTopo->pxfSide(tag->geographicalId());break;
-  case GeomDetEnumerators::TID :
-    LorW = tTopo->tidWheel(tag->geographicalId());
-    side = tTopo->tidSide(tag->geographicalId());break;
-  case GeomDetEnumerators::TEC :
-    LorW = tTopo->tecWheel(tag->geographicalId());
-    side = tTopo->tecSide(tag->geographicalId()); break;
   case GeomDetEnumerators::CSC :
     LorW = CSCDetId(tag->geographicalId().rawId()).layer();
     side = CSCDetId(tag->geographicalId().rawId()).endcap(); break;
   case GeomDetEnumerators::invalidDet: // make gcc happy
-  default:
     // edm::LogError("InvalidDet") << "At " << __FILE__ << ", line " << __LINE__ << "\n";
     break;
+  default:
+    break;
+  }
   }
   
   switch (dl->location()){

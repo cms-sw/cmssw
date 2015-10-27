@@ -11,7 +11,7 @@ using namespace std;
 
 
 MCZll::MCZll(const edm::ParameterSet& iConfig) :
-  token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
+  token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
   nEvents_(0),
   nAccepted_(0)
 {
@@ -36,7 +36,7 @@ MCZll::MCZll(const edm::ParameterSet& iConfig) :
       << "\n=========================================================" ;
   edm::LogVerbatim("MCZllInfo") <<  str.str() ;
   if (filter_)
-    produces< HepMCProduct >();
+    produces<HepMCProduct>();
 }
 
 

@@ -48,6 +48,7 @@ btagDiscriminators = [
     ,'combinedMVABJetTags'
     ,'positiveCombinedMVABJetTags'
     ,'negativeCombinedMVABJetTags'
+    ,'combinedMVAV2BJetTags'
      # new candidate-based framework (supported with RECO/AOD/MiniAOD)
     ,'pfJetBProbabilityBJetTags'
     ,'pfJetProbabilityBJetTags'
@@ -104,6 +105,10 @@ btagDiscriminators = [
     ,'pfCombinedMVABJetTags'
     ,'pfPositiveCombinedMVABJetTags'
     ,'pfNegativeCombinedMVABJetTags'
+    ,'pfCombinedMVAV2BJetTags'
+    #CTagging
+    ,'pfCombinedCvsLJetTags'
+    ,'pfCombinedCvsBJetTags'
 ]
 
 # uncomment the following lines to add ak4PFJets with new b-tags to your PAT output
@@ -169,4 +174,4 @@ process.maxEvents.input = 10
 #                                         ##
 process.out.fileName = 'patTuple_addBTagging.root'
 #                                         ##
-#   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
+process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)

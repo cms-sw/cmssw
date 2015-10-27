@@ -31,18 +31,6 @@
   <class name="edm::Wrapper<edm::DetSetVector<HGCRecHit> >"/>
   <class name="edm::Wrapper<std::vector<std::vector<edm::DetSet<HGCRecHit> > > >"/>
 
-  <class name="edm::RegionIndex<HGCRecHit>"><field name="getter_" transient="true"/> </class>
-  <class name="std::vector< edm::RegionIndex<HGCRecHit> >"/>
-  <class name="edm::LazyGetter<HGCRecHit>"><field name="unpacker_" transient="true"/> </class>
-  <class name="edm::Ref<edm::LazyGetter<HGCRecHit>,edm::RegionIndex<HGCRecHit>,edm::FindRegion<HGCRecHit> >"/>
-  <class name="std::vector<edm::Ref<edm::LazyGetter<HGCRecHit>,edm::RegionIndex<HGCRecHit>,edm::FindRegion<HGCRecHit> > >"/>
-  <class name="edm::RefGetter<HGCRecHit>"/>
-
-  <class name="edm::Wrapper<edm::LazyGetter<HGCRecHit> >"/>
-  <class name="edm::Wrapper<edm::RefGetter<HGCRecHit> >"/>
- 
-  <class name="edm::Ref< edm::LazyGetter<HGCRecHit>, HGCRecHit, edm::FindValue<HGCRecHit> >"/>
-
   <class name="edm::reftobase::Holder<CaloRecHit, edm::Ref<edm::SortedCollection<HGCRecHit, edm::StrictWeakOrdering<HGCRecHit> >, HGCRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<HGCRecHit, edm::StrictWeakOrdering<HGCRecHit> >, HGCRecHit> > >" />
   <enum name="HGCSeverityLevel::SeverityLevel"/> 
 </lcgdict>

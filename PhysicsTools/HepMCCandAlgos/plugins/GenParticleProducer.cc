@@ -101,7 +101,7 @@ GenParticleProducer::GenParticleProducer( const ParameterSet & cfg ) :
     produces<vector<int> >().setBranchAlias( alias + "BarCodes" );
   }
 
-  if(useCF_) mixToken_ = mayConsume<CrossingFrame<HepMCProduct> >(InputTag(cfg.getParameter<std::string>( "mix" ),"generator"));
+  if(useCF_) mixToken_ = mayConsume<CrossingFrame<HepMCProduct> >(InputTag(cfg.getParameter<std::string>( "mix" ),"generatorunsmeared"));
   else srcToken_ = mayConsume<HepMCProduct>(cfg.getParameter<InputTag>( "src" ));
 }
 

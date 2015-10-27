@@ -86,7 +86,7 @@ VersionedIdProducer(const edm::ParameterSet& iConfig) {
     }
 
     if( idMD5 != calculated_md5 ) {
-      edm::LogError("IdConfigurationNotValidated")
+      edm::LogInfo("IdConfigurationNotValidated")
         << "ID: " << ids_.back()->name() << "\n"
 	<< "The expected md5: " << idMD5 << " does not match the md5\n"
 	<< "calculated by the ID: " << calculated_md5 << " please\n"

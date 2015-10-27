@@ -6,13 +6,13 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 // constructor
-HcalCoarsePedestalMonitor::HcalCoarsePedestalMonitor(const edm::ParameterSet& ps) : HcalBaseDQMonitor(ps)
-{
+HcalCoarsePedestalMonitor::HcalCoarsePedestalMonitor(const edm::ParameterSet& ps) : HcalBaseDQMonitor(ps) {
   Online_                = ps.getUntrackedParameter<bool>("online",false);
   mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns",false);
   enableCleanup_         = ps.getUntrackedParameter<bool>("enableCleanup",false);
@@ -42,7 +42,7 @@ HcalCoarsePedestalMonitor::HcalCoarsePedestalMonitor(const edm::ParameterSet& ps
 
 
 // destructor
-HcalCoarsePedestalMonitor::~HcalCoarsePedestalMonitor() {}
+HcalCoarsePedestalMonitor::~HcalCoarsePedestalMonitor() { }
 
 
 void HcalCoarsePedestalMonitor::endRun(const edm::Run& run, const edm::EventSetup& c)
@@ -101,9 +101,9 @@ void HcalCoarsePedestalMonitor::bookHistograms(DQMStore::IBooker &ib, const edm:
 } // void HcalCoarsePedestalMonitor::bookHistograms()
 
 
-void HcalCoarsePedestalMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
-{
+void HcalCoarsePedestalMonitor::analyze(edm::Event const&e, edm::EventSetup const&s) {
   HcalBaseDQMonitor::analyze(e,s);
+
   if (!IsAllowedCalibType()) return;
   if (LumiInOrder(e.luminosityBlock())==false) return;
 
@@ -262,7 +262,6 @@ void HcalCoarsePedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
   return;
 } // void HcalCoarsePedestalMonitor::processEvent(...)
 
-
 void HcalCoarsePedestalMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 					     const edm::EventSetup& c) 
 {
@@ -271,14 +270,16 @@ void HcalCoarsePedestalMonitor::beginLuminosityBlock(const edm::LuminosityBlock&
 }
 
 void HcalCoarsePedestalMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-					   const edm::EventSetup& c)
-{
+					   const edm::EventSetup& c) {
   if (LumiInOrder(lumiSeg.luminosityBlock())==false) return;
-  fill_Nevents();
+
+  edm::ESHandle<HcalTopology> topo;
+  c.get<HcalRecNumberingRecord>().get(topo);
+  fill_Nevents(*topo);
   return;
 }
-void HcalCoarsePedestalMonitor::fill_Nevents()
-{
+
+void HcalCoarsePedestalMonitor::fill_Nevents(const HcalTopology& topology) {
 
   // require minimum number of events before processing
   if (ievt_<minEvents_)
@@ -295,49 +296,42 @@ void HcalCoarsePedestalMonitor::fill_Nevents()
 
   int iphi=-1, ieta=-99, idepth=0, calcEta=-99;
   // Loop over all depths, eta, phi
-  for (int d=0;d<4;++d)
-    {
-      idepth=d+1;
-      for (int phi=0;phi<72;++phi)
-	{
-	  iphi=phi+1; // actual iphi value
-	  for (int eta=0;eta<83;++eta)
-	    {
-	      ieta=eta-41; // actual ieta value;
-	      if (validDetId(HcalBarrel, ieta, iphi, idepth))
-		{
-		  calcEta = CalcEtaBin(HcalBarrel,ieta,idepth);
-		  CoarsePedestalsSumByDepth.depth[d]->Fill(ieta,iphi,pedestalsum_[calcEta][phi][d]);
-		  CoarsePedestalsOccByDepth.depth[d]->Fill(ieta,iphi,pedestalocc_[calcEta][phi][d]);
-		}
-	      if (validDetId(HcalEndcap, ieta, iphi, idepth))
-		{
-		  calcEta = CalcEtaBin(HcalEndcap,ieta,idepth);
-		  CoarsePedestalsSumByDepth.depth[d]->Fill(ieta,iphi,pedestalsum_[calcEta][phi][d]);
-		  CoarsePedestalsOccByDepth.depth[d]->Fill(ieta,iphi,pedestalocc_[calcEta][phi][d]);
-		}
-	      if (validDetId(HcalOuter, ieta, iphi, idepth))
-		{
-		  calcEta = CalcEtaBin(HcalOuter,ieta,idepth);
-		  CoarsePedestalsSumByDepth.depth[d]->Fill(ieta,iphi,pedestalsum_[calcEta][phi][d]);
-		  CoarsePedestalsOccByDepth.depth[d]->Fill(ieta,iphi,pedestalocc_[calcEta][phi][d]);
-		}
-	      if (validDetId(HcalForward, ieta, iphi, idepth))
-		{
-		  calcEta = CalcEtaBin(HcalBarrel,ieta,idepth);
-		  int zside=ieta/abs(ieta);
-		  CoarsePedestalsSumByDepth.depth[d]->Fill(ieta+zside,iphi,pedestalsum_[calcEta][phi][d]);
-		  CoarsePedestalsOccByDepth.depth[d]->Fill(ieta+zside,iphi,pedestalocc_[calcEta][phi][d]);
-		}
-	    }
+  for (int d=0;d<4;++d) {
+    idepth=d+1;
+    for (int phi=0;phi<72;++phi) {
+      iphi=phi+1; // actual iphi value
+      for (int eta=0;eta<83;++eta) {
+	ieta=eta-41; // actual ieta value;
+	if (topology.validDetId(HcalBarrel, ieta, iphi, idepth)) {
+	  calcEta = CalcEtaBin(HcalBarrel,ieta,idepth);
+	  CoarsePedestalsSumByDepth.depth[d]->Fill(ieta,iphi,pedestalsum_[calcEta][phi][d]);
+	  CoarsePedestalsOccByDepth.depth[d]->Fill(ieta,iphi,pedestalocc_[calcEta][phi][d]);
 	}
+	if (topology.validDetId(HcalEndcap, ieta, iphi, idepth)) {
+	  calcEta = CalcEtaBin(HcalEndcap,ieta,idepth);
+	  CoarsePedestalsSumByDepth.depth[d]->Fill(ieta,iphi,pedestalsum_[calcEta][phi][d]);
+	  CoarsePedestalsOccByDepth.depth[d]->Fill(ieta,iphi,pedestalocc_[calcEta][phi][d]);
+	}
+	if (topology.validDetId(HcalOuter, ieta, iphi, idepth)) {
+	  calcEta = CalcEtaBin(HcalOuter,ieta,idepth);
+	  CoarsePedestalsSumByDepth.depth[d]->Fill(ieta,iphi,pedestalsum_[calcEta][phi][d]);
+	  CoarsePedestalsOccByDepth.depth[d]->Fill(ieta,iphi,pedestalocc_[calcEta][phi][d]);
+	}
+	if (topology.validDetId(HcalForward, ieta, iphi, idepth))	{
+	  calcEta = CalcEtaBin(HcalBarrel,ieta,idepth);
+	  int zside=ieta/abs(ieta);
+	  CoarsePedestalsSumByDepth.depth[d]->Fill(ieta+zside,iphi,pedestalsum_[calcEta][phi][d]);
+	  CoarsePedestalsOccByDepth.depth[d]->Fill(ieta+zside,iphi,pedestalocc_[calcEta][phi][d]);
+	}
+      }
     }
+  }
   // Fill unphysical bins
   FillUnphysicalHEHFBins(CoarsePedestalsSumByDepth);
   FillUnphysicalHEHFBins(CoarsePedestalsOccByDepth);
 
   return;
-} // void HcalCoarsePedestalMonitor::fill_Nevents()
+} // void HcalCoarsePedestalMonitor::fill_Nevents(const HcalTopology&)
 
 
 void HcalCoarsePedestalMonitor::reset()
