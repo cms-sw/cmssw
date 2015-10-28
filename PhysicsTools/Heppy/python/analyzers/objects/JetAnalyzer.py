@@ -435,15 +435,11 @@ class JetAnalyzer( Analyzer ):
             jet.mcMatchId   = (gen.sourceId     if gen != None else 0)
             jet.mcMatchFlav = (abs(gen.pdgId()) if gen != None else 0)
 
-        #match = matchObjectCollection2(jets,
-        #                               self.genJets,
-        #                               deltaRMax = 0.3)
-
         # use the genJet matching stored in miniAOD
-        for jet in jets:
-            jet.mcJet = jet.genJet()
-            # this is with the heppy matching: 
-            #jet.mcJet = match[jet]
+        for jet in jets:            
+            mcJet = jet.genJet() 
+            jet.mcJet = mcJet
+            jet.mcJet.index = self.genJets.index(mcJet) if mcJet!=None else -1
 
  
     def smearJets(self, event, jets):
