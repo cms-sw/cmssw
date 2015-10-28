@@ -67,6 +67,7 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
    m_event(0),
    m_interestingValueGetter(edm::TypeWithDict(*(m_accessor->modelType()->GetTypeInfo())), m_purpose),
    m_filter(iDesc.filterExpression(),""),
+   m_showFilteredEntries(true),
    m_printedErrorThisEvent(false),
    m_isSelected(false),
    m_proxyBuilderConfig(0)
@@ -204,9 +205,19 @@ FWEventItem::setFilterExpression(const std::string& iExpression)
 }
 
 void
+FWEventItem::setShowFilteredEntries(bool on)
+{
+   
+   //FWChangeSentry sentry(*(this->changeManager()));
+
+   m_showFilteredEntries = on;
+   handleChange();
+//   defaultDisplayPropertiesChanged_(this);
+}
+
+void
 FWEventItem::runFilter()
 {
-   printf("===========================================runfilter \n");
    if(m_accessor->isCollection() && m_accessor->data()) {
       //std::cout <<"runFilter"<<std::endl;
       FWChangeSentry sentry(*(this->changeManager()));
@@ -219,7 +230,7 @@ FWEventItem::runFilter()
             if(not m_filter.passesFilter(m_accessor->modelData(index))) {
                itInfo->m_displayProperties.setIsVisible(false);
                itInfo->m_displayProperties.setFilterPassed(false);
-               printf("filter not passed !");
+               // printf("filter not passed [%d]  !!!!!!!!!!!!!!!!!!!! displayp = %d, %d \n", index, itInfo->displayProperties().filterPassed(), itInfo->m_displayProperties.filterPassed());
                changed = wasVisible==true;
 
             } else {
@@ -540,17 +551,15 @@ FWEventItem::ModelInfo
 FWEventItem::modelInfo(int iIndex) const
 {
    getPrimaryData();
-   /*
    if(m_displayProperties.isVisible()) {
       return m_itemInfos.at(iIndex);
    }
-   */
 
    FWDisplayProperties dp(m_itemInfos.at(iIndex).displayProperties());
-   //   dp.setIsVisible(false);
-   dp.setFilterPassed(m_itemInfos.at(iIndex).displayProperties().filterPassed());
+   dp.setIsVisible(false);
+   //dp.setFilterPassed(m_itemInfos.at(iIndex).displayProperties().filterPassed());
    ModelInfo t(dp,m_itemInfos.at(iIndex).isSelected());
-   printf("modelInfo filter %d \n", t.displayProperties().filterPassed());
+   // printf("amt modelInfo filter [%d ] orig = %d copy = %d \n", iIndex,m_itemInfos.at(iIndex).displayProperties().filterPassed(), t.displayProperties().filterPassed());
    return t;
 }
 
