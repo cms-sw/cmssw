@@ -37,7 +37,7 @@ class TrajectorySeedProducer:
     public edm::stream::EDProducer<>
 {
     private:
-        SeedingTree<TrackingLayer> _seedingTree;
+
 
         const MagneticField* magneticField;
         const MagneticFieldMap* magneticFieldMap;
@@ -51,9 +51,6 @@ class TrajectorySeedProducer:
         double simTrack_maxZ0;
 	std::unique_ptr<SeedCreator> seedCreator;
         unsigned int minLayersCrossed;
-
-        std::vector<std::vector<TrackingLayer>> seedingLayers;
-	//std::vector<edm::EDGetTokenT<std::vector<unsigned int> > > skipSimTrackIdTokens;
         double originRadius;
         double ptMin;
         double originHalfLength;
@@ -202,7 +199,8 @@ class TrajectorySeedProducer:
     edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerEventToken;
     const MeasurementTrackerEvent * measurementTrackerEvent;
     const edm::EventSetup * es_;
-
+    
+    SeedingTree<TrackingLayer> _seedingTree;
 
 };
 

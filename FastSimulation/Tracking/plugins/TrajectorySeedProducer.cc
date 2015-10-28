@@ -43,6 +43,8 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
+#include "FastSimulation/Tracking/interface/SeedFinder.h"
+
 template class SeedingTree<TrackingLayer>;
 template class SeedingNode<TrackingLayer>;
 
@@ -85,7 +87,6 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
             line=line.substr(pos+1,std::string::npos); 
         }
         _seedingTree.insert(trackingLayerList);
-        seedingLayers.push_back(std::move(trackingLayerList));
     }
 
     // region producer
@@ -264,10 +265,11 @@ void
 
     // hit masks
     std::unique_ptr<HitMaskHelper> hitMaskHelper;
-    if (hitMasks_exists){  
-	edm::Handle<std::vector<bool> > hitMasks;
-	e.getByToken(hitMasksToken,hitMasks);
-	hitMaskHelper.reset(new HitMaskHelper(hitMasks.product()));
+    if (hitMasks_exists)
+    {  
+        edm::Handle<std::vector<bool> > hitMasks;
+        e.getByToken(hitMasksToken,hitMasks);
+        hitMaskHelper.reset(new HitMaskHelper(hitMasks.product()));
     }
     
     // hit combinations
@@ -291,11 +293,54 @@ void
     
     regions = theRegionProducer->regions(e,es);
     
+    SeedFinder seedFinder(_seedingTree);
+    
+    //lambda function
+    SeedFinder::Selector selectorFunction = [&](const std::vector<const TrajectorySeedHitCandidate*>& hits) -> bool
+    {
+        if (hits.size()==2)
+        {
+            const TrajectorySeedHitCandidate& innerHit = *hits[0];
+            const TrajectorySeedHitCandidate& outerHit = *hits[1];
+            
+            const DetLayer * innerLayer = 
+	        measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
+            const DetLayer * outerLayer = 
+	        measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
+          
+            typedef PixelRecoRange<float> Range;
+
+            for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
+
+	        auto const & gs = outerHit.hit()->globalState();
+	        auto loc = gs.position-(*ir)->origin().basicVector();
+	        const HitRZCompatibility * checkRZ = (*ir)->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer,
+							            loc.perp(),gs.position.z(),gs.errorR,gs.errorZ);
+
+	        float u = innerLayer->isBarrel() ? loc.perp() : gs.position.z();
+	        float v = innerLayer->isBarrel() ? gs.position.z() : loc.perp();
+	        float dv = innerLayer->isBarrel() ? gs.errorZ : gs.errorR;
+	        constexpr float nSigmaRZ = 3.46410161514f;
+	        Range allowed = checkRZ->range(u);
+	        float vErr = nSigmaRZ * dv;
+	        Range hitRZ(v-vErr, v+vErr);
+	        Range crossRange = allowed.intersection(hitRZ);
+
+	        if( ! crossRange.empty())
+	        {
+	            seedCreator->init(**ir,*es_,0);
+	            return true;}
+            }
+            return false;
+        }
+        return true;
+    };
+    
+    seedFinder.setHitSelector(selectorFunction);
+    
     
     for ( unsigned icomb=0; icomb<recHitCombinations->size(); ++icomb)
 	{
-	  
-
 	    FastTrackerRecHitCombination recHitCombination = (*recHitCombinations)[icomb];
 
 	    TrajectorySeedHitCandidate previousTrackerHit;
@@ -308,8 +353,10 @@ void
 		{
 		    // skip masked hits
 		    if(hitMaskHelper && hitMaskHelper->mask(_hit.get()))
-			continue;
-		
+		    {
+			    continue;
+		    }
+		    
 		    previousTrackerHit=currentTrackerHit;
 	  
 		    currentTrackerHit = TrajectorySeedHitCandidate(_hit.get(),trackerGeometry,trackerTopology);
@@ -329,41 +376,35 @@ void
 		{
 		    continue;
 		}
-
-	    // set the combination index
-      
-	    //A SeedingNode is associated by its index to this list. The list stores the indices of the hits in 'trackerRecHits'
-	    /* example
-	       SeedingNode                     | hit index                 | hit
-	       -------------------------------------------------------------------------------
-	       index=  0:  [BPix1]             | hitIndicesInTree[0] (=1)  | trackerRecHits[1]
-	       index=  1:   -- [BPix2]         | hitIndicesInTree[1] (=3)  | trackerRecHits[3]
-	       index=  2:   --  -- [BPix3]     | hitIndicesInTree[2] (=4)  | trackerRecHits[4]
-	       index=  3:   --  -- [FPix1_pos] | hitIndicesInTree[3] (=6)  | trackerRecHits[6]
-	       index=  4:   --  -- [FPix1_neg] | hitIndicesInTree[4] (=7)  | trackerRecHits[7]
-	 
-	       The implementation has been chosen such that the tree only needs to be build once upon construction.
-	    */
-
+  
 	    // find the first combination of hits,
 	    // compatible with the seedinglayer,
 	    // and with one of the tracking regions
-	    std::vector<int> hitIndicesInTree(_seedingTree.numberOfNodes(),-1);
-	    std::vector<unsigned int> seedHitNumbers = iterateHits(0,trackerRecHits,hitIndicesInTree,true);
 
+        std::vector<unsigned int> seedHitNumbers = seedFinder.getSeed(trackerRecHits);
+        
 	    // create a seed from those hits
-	    if (seedHitNumbers.size()>1){
-		// temporary hit copies to allow setting the recHitCombinationIndex
-		edm::OwnVector<FastTrackerRecHit> seedHits;
-		for(unsigned iIndex = 0;iIndex < seedHitNumbers.size();++iIndex){
-		    seedHits.push_back(trackerRecHits[seedHitNumbers[iIndex]].hit()->clone());
-		}
-		fastTrackingHelper::setRecHitCombinationIndex(seedHits,icomb);
+	    if (seedHitNumbers.size()>1)
+	    {
+		    // temporary hit copies to allow setting the recHitCombinationIndex
+		
+		    edm::OwnVector<FastTrackerRecHit> seedHits;
+		    for(unsigned iIndex = 0;iIndex < seedHitNumbers.size();++iIndex)
+		    {
+		        seedHits.push_back(trackerRecHits[seedHitNumbers[iIndex]].hit()->clone());
+		    }
+		    fastTrackingHelper::setRecHitCombinationIndex(seedHits,icomb);
 
-		// the actual seed creation
-		seedCreator->makeSeed(*output,SeedingHitSet(&seedHits[0],&seedHits[1],
-							    seedHits.size() >=3 ? &seedHits[2] : nullptr,
-							    seedHits.size() >=4 ? &seedHits[3] : nullptr));
+		    // the actual seed creation
+		    seedCreator->makeSeed(
+		        *output,
+		        SeedingHitSet(
+		            &seedHits[0],
+		            &seedHits[1],
+		            seedHits.size() >=3 ? &seedHits[2] : nullptr,
+	                seedHits.size() >=4 ? &seedHits[3] : nullptr
+                )
+            );
 	    }
 	}
     e.put(std::move(output));
