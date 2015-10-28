@@ -65,8 +65,6 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     es.get<CkfComponentsRecord>().get(measurementTrackerLabel, measurementTrackerHandle);
     measurementTracker = &(*measurementTrackerHandle);
     
-    es_ = &es;
-
     // hit masks
     const std::vector<bool> * hitMasks = 0;
     if (!hitMasksToken.isUninitialized())
@@ -84,94 +82,88 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     std::unique_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
 
     // produce the regions;
-    if(!theRegionProducer)
-    {
-	    edm::LogWarning("TrajectorySeedProducer") << " RegionFactory is not initialised properly, please check your configuration. Producing empty seed collection" << std::endl;
-	    e.put(std::move(output));
-	    return;
-    }
-    
     regions = theRegionProducer->regions(e,es);
+
+    for(const region : regions){
+
+	// initialise the seed creator
+    	seedCreator->init(*region,*es_,0);
     
-    SeedFinder seedFinder(_seedingTree);
-    
-    //lambda function
-    SeedFinder::Selector selectorFunction = [&](const std::vector<const TrajectorySeedHitCandidate*>& hits) -> bool
-    {
-        if (hits.size()==2)
-        {
-            const TrajectorySeedHitCandidate& innerHit = *hits[0];
-            const TrajectorySeedHitCandidate& outerHit = *hits[1];
+    	// define a lambda function
+    	// to select hit pairs, triplets, ... compatible with the region
+    	SeedFinder::Selector selectorFunction = [&es,region](const std::vector<const TrajectorySeedHitCandidate*>& hits) -> bool
+    	{
+    		// criteria for hit pairs
+    		// based on HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& region, const edm::Event & iEvent, const edm::EventSetup& iSetup, Layers layers)
+        	if (hits.size()==2)
+        	{
+            		const TrajectorySeedHitCandidate& innerHit = *hits[0];
+            		const TrajectorySeedHitCandidate& outerHit = *hits[1];
             
-            const DetLayer * innerLayer = measurementTracker->geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
-            const DetLayer * outerLayer = measurementTracker->geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
+            		const DetLayer * innerLayer = measurementTracker->geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
+            		const DetLayer * outerLayer = measurementTracker->geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
           
-            typedef PixelRecoRange<float> Range;
+            		typedef PixelRecoRange<float> Range;
 
-            for(const auto & region : regions){
-
-	        auto const & gs = outerHit.hit()->globalState();
-	        auto loc = gs.position-region->origin().basicVector();
-	        const HitRZCompatibility * checkRZ = region->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer,
+		        auto const & gs = outerHit.hit()->globalState();
+	        	auto loc = gs.position-region->origin().basicVector();
+	        	const HitRZCompatibility * checkRZ = region->checkRZ(innerLayer, outerHit.hit(), *es, outerLayer,
 							            loc.perp(),gs.position.z(),gs.errorR,gs.errorZ);
 
-	        float u = innerLayer->isBarrel() ? loc.perp() : gs.position.z();
-	        float v = innerLayer->isBarrel() ? gs.position.z() : loc.perp();
-	        float dv = innerLayer->isBarrel() ? gs.errorZ : gs.errorR;
-	        constexpr float nSigmaRZ = 3.46410161514f;
-	        Range allowed = checkRZ->range(u);
-	        float vErr = nSigmaRZ * dv;
-	        Range hitRZ(v-vErr, v+vErr);
-	        Range crossRange = allowed.intersection(hitRZ);
+	        	float u = innerLayer->isBarrel() ? loc.perp() : gs.position.z();
+	        	float v = innerLayer->isBarrel() ? gs.position.z() : loc.perp();
+			float dv = innerLayer->isBarrel() ? gs.errorZ : gs.errorR;
+	        	constexpr float nSigmaRZ = 3.46410161514f;
+	        	Range allowed = checkRZ->range(u);
+	        	float vErr = nSigmaRZ * dv;
+			Range hitRZ(v-vErr, v+vErr);
+	        	Range crossRange = allowed.intersection(hitRZ);
 
-	        if( ! crossRange.empty()){
-	            seedCreator->init(*region,*es_,0);
-	            return true;}
+	        	if( ! crossRange.empty()){
+	            		return true;}
 
-            }
-            return false;
-        }
-        return true;
-    };
+            		}
+            		return false;
+        	}
+        	return true;
+    	};
     
-    seedFinder.setHitSelector(selectorFunction);
-    
-    
-    for ( unsigned icomb=0; icomb<recHitCombinations->size(); ++icomb)
+    	// loop over the combinations
+    	for ( unsigned icomb=0; icomb<recHitCombinations->size(); ++icomb)
 	{
-	    FastTrackerRecHitCombination recHitCombination = (*recHitCombinations)[icomb];
-
-	    TrajectorySeedHitCandidate previousTrackerHit;
-	    TrajectorySeedHitCandidate currentTrackerHit;
-
-	    std::vector<TrajectorySeedHitCandidate> trackerRecHits;
-	    for (const auto & _hit : recHitCombination )
+		FastTrackerRecHitCombination recHitCombination = (*recHitCombinations)[icomb];
+		
+		// create a list of hits w/o masked hits
+	    	std::vector<TrackingRecHit * > seedHitCandidates;
+	    	for (const auto & _hit : recHitCombination )
 		{
-		    // skip masked hits
 		    if(hitMasks && fastTrackingUtilities::hitIsMasked(_hit.get(),hitMasks))
 		    {
 			    continue;
 		    }
-		
-		    previousTrackerHit=currentTrackerHit;
+		}
+			/** move me to the seedfinder
+		    TrajectorySeedHitCandidate trajectorySeedHitCandidate(_hit.get(),trackerGeometry.product(),trackerTopology.product());
 	  
-		    currentTrackerHit = TrajectorySeedHitCandidate(_hit.get(),trackerGeometry.product(),trackerTopology.product());
-	  
-		    if (_seedingTree.getSingleSet().find(currentTrackerHit.getTrackingLayer())!=_seedingTree.getSingleSet().end())
+		    if (_seedingTree.getSingleSet().find(trajectorySeedHitCandidate.getTrackingLayer())!=_seedingTree.getSingleSet().end())
 			{
 			    //add only the hits which are actually on the requested layers
-			    trackerRecHits.push_back(std::move(currentTrackerHit));
+			    trackerRecHits.push_back(std::move(trajectorySeedHitCandidate));
 			}
-		}
-
-	    // find the first combination of hits
-        std::vector<unsigned int> seedHitNumbers = seedFinder.getSeed(trackerRecHits);
-        
-	    // create a seed from those hits
-	    if (seedHitNumbers.size()>1)
-	    {
-		    // temporary hit copies to allow setting the recHitCombinationIndex
+			*/
 		
+
+
+    		// find the hits on the seeds
+    		SeedFinder seedFinder(_seedingTree);
+    		seedFinder.setHitSelector(selectorFunction);
+    		std::vector<unsigned int> seedHitNumbers = seedFinder.getSeed(seedHitCandidates);
+        
+
+	    	// create a seed from those hits
+	    	if (seedHitNumbers.size()>1)
+	    	{
+		    // copy the hits and make them aware of the combination they originate from
 		    edm::OwnVector<FastTrackerRecHit> seedHits;
 		    for(unsigned iIndex = 0;iIndex < seedHitNumbers.size();++iIndex)
 		    {
@@ -187,9 +179,9 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 		            &seedHits[1],
 		            seedHits.size() >=3 ? &seedHits[2] : nullptr,
 	                seedHits.size() >=4 ? &seedHits[3] : nullptr
-                )
-            );
-	    }
+                    	)
+                    );
+	    	}	
 	}
     e.put(std::move(output));
 
