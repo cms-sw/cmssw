@@ -129,7 +129,7 @@ namespace edm {
 
   std::auto_ptr<Schedule>
   ScheduleItems::initSchedule(ParameterSet& parameterSet,
-                              ParameterSet const* subProcessPSet,
+                              bool hasSubprocesses,
                               PreallocationConfiguration const& config,
                               ProcessContext const* processContext) {
     std::auto_ptr<Schedule> schedule(
@@ -141,7 +141,7 @@ namespace edm {
                      *act_table_,
                      actReg_,
                      processConfiguration_,
-                     subProcessPSet,
+                     hasSubprocesses,
                      config,
                      processContext));
     return schedule;

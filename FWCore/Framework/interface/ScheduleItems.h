@@ -46,7 +46,7 @@ namespace edm {
 
     std::auto_ptr<Schedule>
     initSchedule(ParameterSet& parameterSet,
-                 ParameterSet const* subProcessPSet,
+                 bool hasSubprocesses,
                  PreallocationConfiguration const& iAllocConfig,
                  ProcessContext const*);
 
