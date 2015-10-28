@@ -1,8 +1,16 @@
 /*!
 
-This module performs the fast simulation of the reconstruction of TrajectorySeeds.
-It takes as input a vector of tracking rechit combinations (FastTrackingRecHitCombination).
-Seed reconstruction is only allowed within each rechit combination.
+This module performs the reconstruction of TrajectorySeeds in FastSim.
+
+The main input data of this modules is a vector of tracking rechit combinations.
+Each rechit combination is itself a vector of tracking rechits.
+The combinations are considered separately, one by one,
+and for each combination, TrajectorySeedProducer attempts to reconstruct a seed from the hits inside that combination. 
+Inside a combination, hits are considered in the given order.
+
+Optionally, TrajectorySeedProducer can be configured to mask a given list of hits from the seed reconstruction.
+
+
 
 */
 
@@ -69,20 +77,13 @@ class TrajectorySeedProducer:
         edm::EDGetTokenT<FastTrackerRecHitCombinationCollection> recHitCombinationsToken;
         edm::EDGetTokenT<std::vector<bool> > hitMasksToken;       
         
-        std::vector<std::unique_ptr<TrackingRegion> > regions;
         std::unique_ptr<TrackingRegionProducer> theRegionProducer;
-        const edm::EventSetup * es_;
-        
         SeedingTree<TrackingLayer> _seedingTree; 
 
     public:
 
         TrajectorySeedProducer(const edm::ParameterSet& conf);
     
-        virtual ~TrajectorySeedProducer()
-        {
-        }
-
         virtual void produce(edm::Event& e, const edm::EventSetup& es);
 
     
