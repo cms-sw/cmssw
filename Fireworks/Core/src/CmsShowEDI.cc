@@ -106,6 +106,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
       .addValidatingTextEntry(0, &m_filterExpressionEntry).floatLeft()
       .addTextButton("Filter", &m_filterButton).expand(false)
       .addTextView("", &m_filterError)
+      .addCheckbox("ShowFilteredEntiresInTable blabla", &m_showFilteredCheckButton)
       .vSpacer()
       .endTab()
       .beginTab("Select")
@@ -150,6 +151,8 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
 
    m_filterExpressionEntry->setValidator(m_validator);
    m_selectExpressionEntry->setValidator(m_validator);
+
+   m_showFilteredCheckButton->Connect("Toggled(Bool_t)", "CmsShowEDI", this, "toggleShowFiltered()");
 
    m_colorSelectWidget->Connect("ColorChosen(Color_t)", "CmsShowEDI", this, "changeItemColor(Color_t)");
    m_cw->Connect("ColorChosen(Color_t)", "CmsShowEDI", this, "changeSelectionColor(Color_t)");
@@ -196,6 +199,7 @@ CmsShowEDI::~CmsShowEDI()
    m_filterExpressionEntry->Disconnect("ReturnPressed()", this, "runFilter()");
    m_selectExpressionEntry->Disconnect("ReturnPressed()", this, "runSelection()");
    m_filterButton->Disconnect("Clicked()", this, "runFilter()");
+   m_showFilteredCheckButton->Disconnect("Toggled(Bool_t)", this,  "toggleShowFiltered(Bool_t)");
    m_selectButton->Disconnect("Clicked()", this, "runSelection()");
    m_selectAllButton->Disconnect("Clicked()", this, "selectAll()");
    m_deselectAllButton->Disconnect("Clicked()", this, "deselectAll()");
@@ -262,6 +266,7 @@ CmsShowEDI::fillEDIFrame() {
          m_validator->setType(edm::TypeWithDict(*(iItem->modelType()->GetTypeInfo())));
          m_filterExpressionEntry->SetText(iItem->filterExpression().c_str());
          m_filterError->Clear();
+         m_showFilteredCheckButton->SetDisabledAndSelected(iItem->showFilteredEntries());
          m_selectError->Clear();
          m_nameEntry->SetText(iItem->name().c_str());
          m_typeEntry->SetText(iItem->type()->GetName());
@@ -274,11 +279,12 @@ CmsShowEDI::fillEDIFrame() {
          m_isVisibleButton->SetEnabled(kTRUE);
          m_filterExpressionEntry->SetEnabled(kTRUE);
          m_selectExpressionEntry->SetEnabled(kTRUE);
+         m_showFilteredCheckButton->SetEnabled(kTRUE);
          m_filterButton->SetEnabled(kTRUE);
          m_selectButton->SetEnabled(kTRUE);
          m_selectAllButton->SetEnabled(kTRUE);
          m_deselectAllButton->SetEnabled(kTRUE);
-	 m_cw->SetColorByIndex(p.color(),kFALSE);
+	      m_cw->SetColorByIndex(p.color(),kFALSE);
          m_cw->SetEnabled(kTRUE);
          m_removeButton->SetEnabled(kTRUE);
          updateLayerControls();
@@ -458,6 +464,12 @@ CmsShowEDI::runFilter() {
       }
    }
 }
+
+void
+CmsShowEDI::toggleShowFiltered(Bool_t on) {
+   m_item->setShowFilteredEntries(on);
+}
+
 
 void
 CmsShowEDI::runSelection() {

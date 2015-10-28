@@ -151,10 +151,8 @@ FWSummaryManager::selectionChanged(const FWSelectionManager& iSM)
 void
 FWSummaryManager::changesDone()
 {
-   printf("FWSummaryManager::changesDone  !!!!!\n");
    if(m_itemChanged) {
       m_pack->Layout();
-      printf("FWSummaryManager::changesDone LAYOUT  !!!!!\n");
       m_itemChanged=false;
    }
 }

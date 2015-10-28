@@ -62,8 +62,8 @@ public:
       ModelInfo(const FWDisplayProperties& iProps, bool iIsSelected) :
          m_displayProperties(iProps),
          m_isSelected(iIsSelected) {
-         if (m_displayProperties.filterPassed() == false)
-            printf("test pass \n");
+         //if (m_displayProperties.filterPassed() == false)
+         //  printf("test pass \n");
       }
 
       const FWDisplayProperties& displayProperties() const {
@@ -98,6 +98,9 @@ public:
    bool isInBack() const;
 
    const std::string& filterExpression() const;
+   
+   bool showFilteredEntries() { return m_showFilteredEntries;}
+   
    /**Unique ID for the item. This number starts at 0 and increments by one for each
       new item.*/
    unsigned int id() const;
@@ -173,6 +176,8 @@ public:
    void setDefaultDisplayProperties(const FWDisplayProperties&);
    /**Throws an FWExpresionException if there is a problem with the expression */
    void setFilterExpression(const std::string& );
+   
+   void setShowFilteredEntries(bool x);
 
    /**Select the item (i.e. container) itself*/
    void selectItem();
@@ -243,6 +248,7 @@ private:
    FWItemValueGetter m_interestingValueGetter;
 
    FWModelFilter m_filter;
+   bool m_showFilteredEntries;
    mutable bool m_printedErrorThisEvent;
    mutable std::string m_errorMessage;
    

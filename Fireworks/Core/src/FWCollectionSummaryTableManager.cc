@@ -40,7 +40,7 @@ FWCollectionSummaryTableManager::FWCollectionSummaryTableManager(FWEventItem* iI
    m_widget(iWidget)
 {
    //   m_collection->changed_.connect(boost::bind(&FWTableManagerBase::dataChanged,this));
-   m_collection->changed_.connect(boost::bind(&FWCollectionSummaryTableManager::xxx,this));
+   m_collection->changed_.connect(boost::bind(&FWCollectionSummaryTableManager::modelIdChanges,this));
    m_collection->itemChanged_.connect(boost::bind(&FWCollectionSummaryTableManager::dataChanged,this));
    
    //try to find the default columns
@@ -51,11 +51,13 @@ FWCollectionSummaryTableManager::FWCollectionSummaryTableManager(FWEventItem* iI
    dataChanged();
 }
 
-void FWCollectionSummaryTableManager::xxx()
+void FWCollectionSummaryTableManager::modelIdChanges()
 {
    printf("FWCollectionSummaryTableManager::xxx\n");
-   // FWTableManagerBase::dataChanged();
-   dataChanged();
+   if (m_collection->showFilteredEntries() || m_collection->filterExpression().empty())
+       dataChanged();
+   else
+      FWTableManagerBase::dataChanged();
 }
 
 
@@ -143,14 +145,20 @@ FWCollectionSummaryTableManager::buttonReleasedInRowHeader(Int_t row, Event_t* e
 int 
 FWCollectionSummaryTableManager::numberOfRows() const
 {
-   int n = 0;
    int cs= m_collection->size();
-   for(int index = 0; index < cs; ++index) {
-      if (m_collection->modelInfo(index).displayProperties().filterPassed()) { ++n;}
+   if (m_collection->showFilteredEntries() || m_collection->filterExpression().empty())
+   {
+      return cs;
    }
-
-   printf("%s number of rows %d \n", m_collection->name().c_str(), n);
-   return n;
+   else
+   {
+      
+      int n = 0;
+      for(int index = 0; index < cs; ++index) {
+         if (m_collection->modelInfo(index).displayProperties().filterPassed()) { ++n;}
+      }
+      return n;
+   }
 }
 
 int 
@@ -214,13 +222,13 @@ FWCollectionSummaryTableManager::rowHeader(int iSortedRowNumber) const
 void
 FWCollectionSummaryTableManager::dataChanged() 
 {
-   printf("FWCollectionSummaryTableManager::dataChnaged ???\n");
    m_sortedToUnsortedIndicies.clear();
    size_t n = numberOfRows();
    m_sortedToUnsortedIndicies.reserve(n);
+   printf("FWCollectionSummaryTableManager::dataChanged() ,rebuild indices \n");
    for(int i=0; i< static_cast<int>(m_collection->size());++i) {
-      if (m_collection->modelInfo(i).displayProperties().filterPassed()) {
-      m_sortedToUnsortedIndicies.push_back(i);
+      if (m_collection->filterExpression().empty() || m_collection->showFilteredEntries() || m_collection->modelInfo(i).displayProperties().filterPassed()) {
+          m_sortedToUnsortedIndicies.push_back(i);
       }
    }
    FWTableManagerBase::dataChanged();
