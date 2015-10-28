@@ -6,8 +6,12 @@
 
 #include "GeneratorInterface/Core/interface/ParameterCollector.h"
 
+#include "HepMC/IO_AsciiParticles.h"
+
 #include <Pythia8/Pythia.h>
 #include <Pythia8Plugins/HepMC2.h>
+
+class EvtGenDecays;
 
 namespace gen {
 
@@ -37,8 +41,16 @@ namespace gen {
 	 
 	 unsigned int                   pythiaPylistVerbosity;
          bool                           pythiaHepMCVerbosity;
+         bool                           pythiaHepMCVerbosityParticles;
 	 unsigned int                   maxEventsToPrint;
+         HepMC::IO_AsciiParticles*	ascii_io;
 
+         // EvtGen plugin
+         //
+         bool useEvtGen;
+         EvtGenDecays* evtgenDecays;
+         std::string evtgenDecFile;
+         std::string evtgenPdlFile;
    };
 
 }

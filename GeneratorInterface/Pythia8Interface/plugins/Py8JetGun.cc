@@ -1,4 +1,3 @@
-
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
@@ -64,10 +63,6 @@ bool Py8JetGun::generatePartonsAndHadronize()
 
       int particleID = fPartIDs[i]; // this is PDG - need to convert to Py8 ???
 
-      // FIXME !!!
-      // Ouch, it's using bare randomEngine pointer - that's NOT safe.
-      // Need to hold a pointer somewhere properly !!!
-      //
       phi = 2. * M_PI * randomEngine->flat() ;
       the = acos( -1. + 2.*randomEngine->flat() );
 
@@ -102,14 +97,14 @@ bool Py8JetGun::generatePartonsAndHadronize()
 
    //now the boost (from input params)
    //
-   pp = (fMaxP-fMinP)*randomEngine->flat() + fMinP; 
+   pp = (fMaxP-fMinP)*randomEngine->flat() + fMinP;
    ee = sqrt( totM*totM + pp*pp );	 
 
    //the boost direction (from input params)
    //
    phi = (fMaxPhi-fMinPhi)*randomEngine->flat() + fMinPhi;
-   eta  = (fMaxEta-fMinEta)*randomEngine->flat() + fMinEta;                                                      
-   the  = 2.*atan(exp(-eta));  
+   eta  = (fMaxEta-fMinEta)*randomEngine->flat() + fMinEta;
+   the  = 2.*atan(exp(-eta));
 
    double betaX = pp/ee * std::sin(the) * std::cos(phi);
    double betaY = pp/ee * std::sin(the) * std::sin(phi);
