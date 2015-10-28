@@ -36,7 +36,7 @@ April 2015
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //#include "DataFormats/HOCalibHit/interface/HOCalibVariables.h"
 #include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -61,9 +61,6 @@ April 2015
 #include <fstream>
 #include <iomanip>
 //#include <sstream>
-
-//using namespace std;
-//using namespace edm;
 
 
   //
@@ -101,8 +98,8 @@ static const int npixriup[21]={0, 5, 6, 7, 9, 0,11,12,13,14, 0,16, 0,17,18,19, 0
 
 static const int netamx=30;
 static const int nphimx =72;
-  const int nbgpr = 3;
-  const int nsgpr = 7;
+static const int nbgpr = 3;
+static const int nsgpr = 7;
 
 int ietafit;
 int iphifit;
@@ -179,8 +176,8 @@ void fcnbg(Int_t &npar, Double_t* gin, Double_t &f, Double_t* par, Int_t flag) {
   double fval = -par[0];
   for (unsigned ij=0; ij<cro_ssg[ietafit][iphifit].size(); ij++) {
     double xval = (double)cro_ssg[ietafit][iphifit][ij];
-    fval +=log(std::max(1.e-30,par[0]*TMath::Gaus(xval, par[1], par[2], 1)));
-    //    fval +=log(par[0]*TMath::Gaus(xval, par[1], par[2], 1));
+    fval +=std::log(std::max(1.e-30,par[0]*TMath::Gaus(xval, par[1], par[2], 1)));
+    //    fval +=std::log(par[0]*TMath::Gaus(xval, par[1], par[2], 1));
   }
   f = -fval;
 }
@@ -191,7 +188,7 @@ void fcnsg(Int_t &npar, Double_t* gin, Double_t &f, Double_t* par, Int_t flag) {
   double fval = -(par[0]+par[5]);
   for (unsigned ij=0; ij<sig_reg[ietafit][iphifit].size(); ij++) {
     xval[0] = (double)sig_reg[ietafit][iphifit][ij];
-    fval +=log(totalfunc(xval, par));
+    fval +=std::log(totalfunc(xval, par));
   }
   f = -fval;
 }
@@ -219,40 +216,40 @@ void set_sigma(double& x, bool mdigi) {
 
 
 class HOCalibAnalyzer : public edm::EDAnalyzer {
-public:
-  explicit HOCalibAnalyzer(const edm::ParameterSet&);
-  ~HOCalibAnalyzer();
+   public:
+      explicit HOCalibAnalyzer(const edm::ParameterSet&);
+      ~HOCalibAnalyzer();
 
 
-private:
+   private:
 
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+      virtual void beginJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
-  int  getHOieta(int ij) { return  (ij<netamx/2) ? -netamx/2 + ij : -netamx/2 + ij + 1;}
-  int  invert_HOieta(int ieta) {return (ieta<0) ? netamx/2 + ieta : netamx/2 + ieta - 1;}
+      int  getHOieta(int ij) { return  (ij<netamx/2) ? -netamx/2 + ij : -netamx/2 + ij + 1;}
+      int  invert_HOieta(int ieta) {return (ieta<0) ? netamx/2 + ieta : netamx/2 + ieta - 1;}
 
 
 
-  TFile* theFile;
-  std::string theRootFileName;
-  std::string theoutputtxtFile;
-  std::string theoutputpsFile;
+      TFile* theFile;
+      std::string theRootFileName;
+      std::string theoutputtxtFile;
+      std::string theoutputpsFile;
 
-  bool m_allHOsignal;
-  bool m_hotime;
-  bool m_hbtime;
-  bool m_correl;
-  bool m_checkmap;
-  bool m_hbinfo;
-  bool m_combined;
-  bool m_constant;
-  bool m_figure;
-  bool m_cosmic; 
-  bool m_histfit;
-  bool m_pedsuppr;
-  double m_sigma;
+      bool m_allHOsignal;
+      bool m_hotime;
+      bool m_hbtime;
+      bool m_correl;
+      bool m_checkmap;
+      bool m_hbinfo;
+      bool m_combined;
+      bool m_constant;
+      bool m_figure;
+      bool m_cosmic; 
+      bool m_histfit;
+      bool m_pedsuppr;
+      double m_sigma;
 
   static const int ncut = 13;
   static const int mypow_2_ncut = 8192; // 2^13, should be changed to match ncut
@@ -586,7 +583,7 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
   if (nbn>nbin) nbn = nbin;
 
 
-  std::cout <<"nbin "<< nbin<<" "<<alow<<" "<<ahigh<<" "<<tmpwid<<" "<<nbn<<std::endl;
+  edm::LogInfo("HOCalib") <<"nbin "<< nbin<<" "<<alow<<" "<<ahigh<<" "<<tmpwid<<" "<<nbn;
 
   for (int ij=0; ij<15; ij++) {
     
@@ -932,7 +929,7 @@ HOCalibAnalyzer::~HOCalibAnalyzer()
   theFile->cd();
   theFile->Write();
   theFile->Close();
-  std::cout <<" Ttoal events = "<< Nevents<<" Selected events # is "<<ipass<<std::endl;
+  edm::LogInfo("HOCalib") <<" Ttoal events = "<< Nevents<<" Selected events # is "<<ipass;
 }
 
 
@@ -992,7 +989,7 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   //swapped phi map for R0+/R0- (15/03/07)  
   for (int ij=0; ij<4; ij++) {
     for (int jk=0; jk<21; jk++) {
-      std::cout <<"ieta "<<ij<<" "<<jk<<" "<<etamap[ij][jk]<<std::endl;
+      edm::LogInfo("HOCalib") <<"ieta "<<ij<<" "<<jk<<" "<<etamap[ij][jk];
     }
   }
 
@@ -1045,13 +1042,17 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
 
+
+
+
+
   edm::Handle<HOCalibVariableCollection>HOCalib;
   bool isCosMu = true;
   try {
     iEvent.getByToken(tok_ho_, HOCalib);
 
   } catch ( cms::Exception &iEvent ) { isCosMu = false; } 
-  if (Nevents%5000==1) std::cout <<"nmuon event # "<<Nevents<<" Run # "<<iEvent.id().run()<<" Evt # "<<iEvent.id().event()<<" "<<ipass<<std::endl;
+  if (Nevents%5000==1) edm::LogInfo("HOCalib") <<"nmuon event # "<<Nevents<<" Run # "<<iEvent.id().run()<<" Evt # "<<iEvent.id().event()<<" "<<ipass;
 
   if (isCosMu && (*HOCalib).size() >0 ) { 
     nmuon = (*HOCalib).size();
@@ -1093,12 +1094,12 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       hoang = (*hoC).hoang;
       htime = (*hoC).htime;
       hoflag = (*hoC).hoflag;
-      for (int ij=0; ij<9; ij++) { hosig[ij] = (*hoC).hosig[ij];} //std::cout<<"hosig "<<i<<" "<<hosig[ij]<<std::endl;}
-      for (int ij=0; ij<18; ij++) { hocorsig[ij] = (*hoC).hocorsig[ij];} // std::cout<<"hocorsig "<<i<<" "<<hocorsig[ij]<<std::endl;}    
+      for (int ij=0; ij<9; ij++) { hosig[ij] = (*hoC).hosig[ij];} //edm::LogInfo("HOCalib")<<"hosig "<<i<<" "<<hosig[ij];}
+      for (int ij=0; ij<18; ij++) { hocorsig[ij] = (*hoC).hocorsig[ij];} // edm::LogInfo("HOCalib")<<"hocorsig "<<i<<" "<<hocorsig[ij];}    
       hocro = (*hoC).hocro;
       for (int ij=0; ij<3; ij++) { caloen[ij] = (*hoC).caloen[ij];}
 
-      if (m_hbinfo) { for (int ij=0; ij<9; ij++) { hbhesig[ij] = (*hoC).hbhesig[ij];}} // std::cout<<"hbhesig "<<ij<<" "<<hbhesig[ij]<<std::endl;}}
+      if (m_hbinfo) { for (int ij=0; ij<9; ij++) { hbhesig[ij] = (*hoC).hbhesig[ij];}} // edm::LogInfo("HOCalib")<<"hbhesig "<<ij<<" "<<hbhesig[ij];}}
       
       T1->Fill();      
 
@@ -1343,7 +1344,7 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	}  
       }
 
-      //      std::cout <<"cosmic "<<hosig[4]<<" "<<caloen[3]<<" "<<int(iselect2)<<" "<<int(m_cosmic)<<std::endl;
+      //      edm::LogInfo("HOCalib") <<"cosmic "<<hosig[4]<<" "<<caloen[3]<<" "<<int(iselect2)<<" "<<int(m_cosmic);
 
 
       if (iselect2==1) {
@@ -1418,10 +1419,10 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	    if (iflip !=0) tmpphi = abs(tmpphi-2);
 	    if (int((hocorsig[fact*tmpeta+tmpphi]-hosig[4])*10000)/10000.!=0) {
 	      iaxxx++;
-	      std::cout<<"iring2xxx "<<irun<<" "<<ievt<<" "<<isect<<" "<<iring<<" "<<tmpsect<<" "<<ieta<<" "<<iphi<<" "<<npixel<<" "<<tmpeta<<" "<<tmpphi<<" "<<tmpeta1<<" "<<tmpphi1<<" itag "<<itag<<" "<<iflip<<" "<<fact<<" "<<hocorsig[fact*tmpeta+tmpphi]<<" "<<fact*tmpeta+tmpphi<<" "<<hosig[4]<<" "<<hodx<<" "<<hody<<std::endl;
+	      edm::LogInfo("HOCalib")<<"iring2xxx "<<irun<<" "<<ievt<<" "<<isect<<" "<<iring<<" "<<tmpsect<<" "<<ieta<<" "<<iphi<<" "<<npixel<<" "<<tmpeta<<" "<<tmpphi<<" "<<tmpeta1<<" "<<tmpphi1<<" itag "<<itag<<" "<<iflip<<" "<<fact<<" "<<hocorsig[fact*tmpeta+tmpphi]<<" "<<fact*tmpeta+tmpphi<<" "<<hosig[4]<<" "<<hodx<<" "<<hody;
 	      
-	      for (int ij=0; ij<18; ij++) {std::cout <<" "<<ij<<" "<<hocorsig[ij];}
-	      std::cout<<" ix "<<iaxxx<<" "<<ibxxx<<std::endl;
+	      for (int ij=0; ij<18; ij++) {edm::LogInfo("HOCalib") <<" "<<ij<<" "<<hocorsig[ij];}
+	      edm::LogInfo("HOCalib")<<" ix "<<iaxxx<<" "<<ibxxx;
 	    } else { ibxxx++; }
 	    
 	    corrsgc[tmpeta1][tmpphi1]->Fill(hocorsig[fact*tmpeta+tmpphi]);
@@ -1518,7 +1519,7 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	    }	  
 	  if (m_hbinfo) { // #ifdef HBINFO
 	    hbhe_sig[k]->Fill(hbhesig[k]);
-	    //	    std::cout <<"hbhe "<<k<<" "<<hbhesig[k]<<std::endl;
+	    //	    edm::LogInfo("HOCalib") <<"hbhe "<<k<<" "<<hbhesig[k];
 	  } //m_hbinfo #endif
 	}
       } //if (iselect==1)
@@ -2040,7 +2041,7 @@ HOCalibAnalyzer::endJob() {
 		  if (step[k] >-10) {
 		    gMinuit->mnpout(k, chnam, parv, err, xlo, xup, iuit);
 		    gMinuit->mnerrs(k, plerr, mierr, eparab, gcc);
-		    //		    std::cout <<"k "<< k<<" "<<chnam<<" "<<parv<<" "<<err<<" "<<xlo<<" "<<xup<<" "<<plerr<<" "<<mierr<<" "<<eparab<<std::endl;
+		    //		    edm::LogInfo("HOCalib") <<"k "<< k<<" "<<chnam<<" "<<parv<<" "<<err<<" "<<xlo<<" "<<xup<<" "<<plerr<<" "<<mierr<<" "<<eparab;
 		    if (k==0) {
 		      gaupr[k] = parv*binwid;
 		      parer[k] = err*binwid;
@@ -2217,17 +2218,17 @@ HOCalibAnalyzer::endJob() {
 	    
 	    int kl = (jk<15) ? jk+1 : 14-jk;
 
-	    std::cout<<"histinfo"<<iijj<<" fit "
-		     <<std::setw(3)<< kl<<" "
-		     <<std::setw(3)<< ij+1<<" "
-		     <<std::setw(5)<<pedstll[izone]->GetEntries()<<" "
-		     <<std::setw(6)<<pedstll[izone]->GetMean()<<" "
-		     <<std::setw(6)<<pedstll[izone]->GetRMS()<<" "
-		     <<std::setw(5)<<signall[izone]->GetEntries()<<" "
-		     <<std::setw(6)<<signall[izone]->GetMean()<<" "
-		     <<std::setw(6)<<signall[izone]->GetRMS()<<" "
-		     <<std::setw(6)<< signal[izone]->GetChisquare()<<" "
-		     <<std::setw(3)<< signal[izone]->GetNDF()<<std::endl;
+	    edm::LogInfo("HOCalib")<<"histinfo"<<iijj<<" fit "
+		<<std::setw(3)<< kl<<" "
+		<<std::setw(3)<< ij+1<<" "
+		<<std::setw(5)<<pedstll[izone]->GetEntries()<<" "
+		<<std::setw(6)<<pedstll[izone]->GetMean()<<" "
+		<<std::setw(6)<<pedstll[izone]->GetRMS()<<" "
+		<<std::setw(5)<<signall[izone]->GetEntries()<<" "
+		<<std::setw(6)<<signall[izone]->GetMean()<<" "
+		<<std::setw(6)<<signall[izone]->GetRMS()<<" "
+		<<std::setw(6)<< signal[izone]->GetChisquare()<<" "
+		<<std::setw(3)<< signal[izone]->GetNDF();
 	    
 	    file_out<<"histinfo"<<iijj<<" fit "
 		    <<std::setw(3)<< kl<<" "

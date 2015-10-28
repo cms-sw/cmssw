@@ -17,8 +17,6 @@ process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
-process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
-#process.load("Configuration.StandardSequences.ReconstructionCosmics_cff") 
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
@@ -45,7 +43,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-'/store/data/Run2012D/SingleMu/RECO/PromptReco-v1/000/203/853/F814E722-C70B-E211-8C51-BCAEC5329727.root'
+'/store/data/Run2015D/SingleMuon/RECO/PromptReco-v3/000/256/676/00000/2844234C-425F-E511-90F2-02163E014719.root'
 ),                                
     secondaryFileNames = cms.untracked.vstring()
 )
@@ -65,8 +63,8 @@ process.configurationMetadata = cms.untracked.PSet(
 
 # Other statements
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, 'GR_P_V54', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'GR_P_V54', '')
 # Path and EndPath definitions
 #process.raw2digi_step = cms.Path(process.RawToDigi)
 #process.L1Reco_step = cms.Path(process.L1Reco)

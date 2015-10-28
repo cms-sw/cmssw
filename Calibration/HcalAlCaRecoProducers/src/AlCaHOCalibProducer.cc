@@ -77,6 +77,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -139,9 +140,6 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 //
 // class decleration
 //
-//using namespace std;
-using namespace edm;
-using namespace reco;
 
 const int netabin= 16;  
 const int nphimx = 72;
@@ -160,21 +158,21 @@ const int netahb3mx = 32;
 //#define COSMIC
 
 class AlCaHOCalibProducer : public edm::EDProducer {
-   public:
-      explicit AlCaHOCalibProducer(const edm::ParameterSet&);
-      ~AlCaHOCalibProducer();
+public:
+  explicit AlCaHOCalibProducer(const edm::ParameterSet&);
+  ~AlCaHOCalibProducer();
 
-    typedef Basic3DVector<float>   PositionType;
-    typedef Basic3DVector<float>   DirectionType;
-    typedef Basic3DVector<float>   RotationType;
+  typedef Basic3DVector<float>   PositionType;
+  typedef Basic3DVector<float>   DirectionType;
+  typedef Basic3DVector<float>   RotationType;
 
 
-   private:
-      void findHOEtaPhi(int iphsect, int& ietaho, int& iphiho);
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
-      virtual void beginRun(edm::Run const &, edm::EventSetup const &) override;
+private:
+  void findHOEtaPhi(int iphsect, int& ietaho, int& iphiho);
+  virtual void beginJob() override ;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override ;
+  virtual void beginRun(edm::Run const &, edm::EventSetup const &) override;
   //  virtual void endRun(edm::Run const &, edm::EventSetup const &) override;
       // ----------member data ---------------------------
 
@@ -206,7 +204,7 @@ class AlCaHOCalibProducer : public edm::EDProducer {
   edm::EDGetTokenT<reco::TrackCollection> tok_muons_;
 #else
   edm::EDGetTokenT<edm::View<reco::Muon> > tok_muons_;
-  edm::EDGetTokenT<VertexCollection> tok_vertex_;
+  edm::EDGetTokenT<reco::VertexCollection> tok_vertex_;
   edm::EDGetTokenT<LumiDetails> tok_lumi_;
 #endif
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
@@ -324,14 +322,14 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   Nevents++;
 
-  if (Nevents%5000==1)  std::cout <<"AlCaHOCalibProducer Processing event # "<<Nevents<<" "<<Noccu<<" "<<irun<<" "<<iEvent.id().event()<<std::endl;
+  if (Nevents%5000==1)  edm::LogInfo("HOCalib") <<"AlCaHOCalibProducer Processing event # "<<Nevents<<" "<<Noccu<<" "<<irun<<" "<<iEvent.id().event();
 
   std::auto_ptr<HOCalibVariableCollection> hostore (new HOCalibVariableCollection);
 
   double pival = acos(-1.);
   
 #ifdef COSMIC  
-  Handle<reco::TrackCollection> cosmicmuon;
+  edm::Handle<reco::TrackCollection> cosmicmuon;
   iEvent.getByToken(tok_muons_, cosmicmuon);
 #else
   edm::Handle<edm::View<reco::Muon> > cosmicmuon;
@@ -345,15 +343,15 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 #ifdef COSMIC
     for(reco::TrackCollection::const_iterator ncosm = cosmicmuon->begin();
 	ncosm != cosmicmuon->end();  ++ncosm) {
+      if ((*ncosm).ndof() < 5) continue;
+      if ((*ncosm).normalizedChi2() >30.0) continue;
 
 #else
     edm::View<reco::Muon>::const_iterator muon1;
     for( muon1 = cosmicmuon->begin(); muon1 < cosmicmuon->end(); muon1++ ) {
       if ((!muon1->isGlobalMuon()) || (!muon1->isTrackerMuon())) continue;
-      TrackRef ncosm =  muon1->innerTrack();
+      reco::TrackRef ncosm =  muon1->innerTrack();
 #endif
-      if ((*ncosm).ndof() < 15) continue;
-      if ((*ncosm).normalizedChi2() >30.0) continue;
 
       HOCalibVariables tmpHOCalib;
       tmpHOCalib.nprim = -1;
@@ -361,18 +359,20 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 #ifndef COSMIC
       if (iEvent.isRealData()) {
-	Handle<VertexCollection> primaryVertices;
+	edm::Handle<reco::VertexCollection> primaryVertices;
 	iEvent.getByToken(tok_vertex_, primaryVertices);
 	if (primaryVertices.isValid()) { tmpHOCalib.nprim = primaryVertices->size();}
-	
+
 	tmpHOCalib.inslumi=0.;
 	edm::Handle<LumiDetails> lumid;
 	iEvent.getLuminosityBlock().getByToken(tok_lumi_,lumid);
 	//	Check that there is something
-	if (lumid.isValid()) {tmpHOCalib.inslumi=lumid->lumiValue(LumiDetails::kOCC1,iEvent.bunchCrossing())*6.37;}
+//        edm::LogInfo("HOCalib") <<"lumid.isValid()" <<lumid.isValid()<<" "<<iEvent.bunchCrossing()<<" "<<tmpHOCalib.inslumi;
+
+//	if (lumid.isValid()) {tmpHOCalib.inslumi=lumid->lumiValue(LumiDetails::kOCC1,iEvent.bunchCrossing());} //{*6.37;}
 	//Branch crossing argument out of range in call to a function in LumiDetails
 
-	//        std::cout <<"lumid.isValid()" <<lumid.isValid()<<" "<<tmpHOCalib.inslumi<<std::endl;
+	//        edm::LogInfo("HOCalib") <<"lumid.isValid()" <<lumid.isValid()<<" "<<tmpHOCalib.inslumi;
       }
 #endif      
 
@@ -441,7 +441,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	double angle = tmpmuon3v.angle(tmpmuon3vcor);
 	if (angle < 7.5*pival/180.) {inearbymuon=1;} //  break;}
 	
-	//	if (muonTags_.label() =="cosmicMuons") {
+	//	if (muonTagsi_.label() =="cosmicMuons") {
 	if (angle <7.5*pival/180.) { tmpHOCalib.caloen[0] +=1.;}
 	if (angle <15.0*pival/180.) { tmpHOCalib.caloen[1] +=1.;}
 	if (angle <35.0*pival/180.) { tmpHOCalib.caloen[2] +=1.;}
@@ -451,7 +451,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       localxhor0 = localyhor0 = 20000;  //GM for 22OCT07 data
 #ifndef COSMIC      
       //            if (muonTags_.label() =="muons") {
-      Handle<CaloTowerCollection> calotower;
+      edm::Handle<CaloTowerCollection> calotower;
       iEvent.getByToken(tok_tower_, calotower);
       
       for (CaloTowerCollection::const_iterator calt = calotower->begin();
@@ -500,10 +500,10 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       tmpHOCalib.momatho = -2;
 
       tmpHOCalib.ndof  = (inearbymuon ==0) ? (int)(*ncosm).ndof() : -(int)(*ncosm).ndof();
-      tmpHOCalib.chisq = (*ncosm).normalizedChi2(); // std::max(1.,tmpHOCalib.ndof);
+      tmpHOCalib.chisq = (*ncosm).normalizedChi2(); // max(1.,tmpHOCalib.ndof);
 #ifndef COSMIC      
-      MuonEnergy muonenr = muon1->calEnergy();
-      MuonIsolation iso03 = muon1->isolationR03();    
+      reco::MuonEnergy muonenr = muon1->calEnergy();
+      reco::MuonIsolation iso03 = muon1->isolationR03();    
       
       tmpHOCalib.tkpt03 = iso03.sumPt;
       tmpHOCalib.ecal03 = iso03.emEt+muonenr.em;
@@ -686,13 +686,20 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		int tmpphi= id.iphi();
 		
 		int deta = tmpeta-ietaho;
-		if (tmpeta==-1 && ietaho== 1) deta = -1;
-		if (tmpeta== 1 && ietaho==-1) deta =  1;
+		if (tmpeta<0 && ietaho>0) deta += 1;
+		if (tmpeta>0 && ietaho<0) deta -= 1;
+
+		//		if (tmpeta==-1 && ietaho== 1) deta = -1;
+		//		if (tmpeta== 1 && ietaho==-1) deta =  1;
+
 		int dphi = tmpphi-iphiho;
-		if (phimn >phimx) {
-		  if (dphi==71) dphi=-1;
-		  if (dphi==-71) dphi=1;
-		}
+		if (dphi>nphimx/2) { dphi -=nphimx;}
+		if (dphi<-nphimx/2) { dphi +=nphimx;}
+
+		//		if (phimn >phimx) {
+		//		  if (dphi==71) dphi=-1;
+		//		  if (dphi==-71) dphi=1;
+		//		}
 		
 		int ipass2 = (std::abs(deta) <=1 && std::abs(dphi)<=1) ? 1 : 0; //NEED correction in full CMS detector
 		if ( ipass2 ==0 ) continue;
@@ -723,15 +730,20 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      }
 	      
 	      int deta = tmpeta-ietaho;
-	      if (tmpeta==-1 && ietaho== 1) deta = -1;
-	      if (tmpeta== 1 && ietaho==-1) deta =  1;
-	      
 	      int dphi = tmpphi -iphiho;
-	      if (phimn>phimx) {
-		if (dphi==71) dphi=-1;
-		if (dphi==-71) dphi=1;
-	      }
+
+	      if (tmpeta<0 && ietaho>0) deta += 1;
+	      if (tmpeta>0 && ietaho<0) deta -= 1;
+	      //	      if (tmpeta==-1 && ietaho== 1) deta = -1;
+	      //	      if (tmpeta== 1 && ietaho==-1) deta =  1;
 	      
+	      if (dphi>nphimx/2) { dphi -=nphimx;}
+	      if (dphi<-nphimx/2) { dphi +=nphimx;}
+	      //	      if (phimn>phimx) {
+	      //		if (dphi==71) dphi=-1;
+	      //		if (dphi==-71) dphi=1;
+	      //	      }
+
 	      float signal = (*jk).energy();
 	      if (m_occupancy) {
 		//		int tmpeta1 = (tmpeta>0) ? tmpeta -1 : -tmpeta +14; 
@@ -828,7 +840,7 @@ AlCaHOCalibProducer::endJob() {
       ho_occupency[ij]->Scale(1./std::max(1,Noccu));
     }
   }
-  std::cout <<" AlCaHOCalibProducer processed event "<< Nevents<<std::endl;
+  edm::LogInfo("HOCalib") <<" AlCaHOCalibProducer processed event "<< Nevents;
 
 
 }
@@ -839,7 +851,7 @@ AlCaHOCalibProducer::endJob() {
 // ------------ method called once each job just before starting event loop  ------------
 void 
 AlCaHOCalibProducer::beginRun(edm::Run const & run,
-			   const EventSetup & es) {
+			      const edm::EventSetup & es) {
   
   // HCAL channel status map ****************************************
   edm::ESHandle<HcalChannelQuality> hcalChStatus;    
