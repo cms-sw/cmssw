@@ -37,10 +37,13 @@ MicroEventContent = cms.PSet(
         'keep *_offlineSlimmedPrimaryVertices_*_*',
         'keep patPackedCandidates_packedPFCandidates_*_*',
 
+        'keep *_bunchSpacingProducer_*_*',
+
         #'keep double_fixedGridRho*__*',
         'keep double_fixedGridRhoAll__*',
         'keep double_fixedGridRhoFastjetAll__*',
         'keep double_fixedGridRhoFastjetAllCalo__*',
+        'keep double_fixedGridRhoFastjetCentral_*_*',
         'keep double_fixedGridRhoFastjetCentralCalo__*',
         'keep double_fixedGridRhoFastjetCentralChargedPileUp__*',
         'keep double_fixedGridRhoFastjetCentralNeutral__*',
@@ -55,6 +58,8 @@ MicroEventContent = cms.PSet(
         'keep *_TriggerResults_*_*', # for MET filters (a catch all for the moment, but ideally it should be only the current process)
         'keep patPackedCandidates_lostTracks_*_*',
         'keep HcalNoiseSummary_hcalnoise__*',
+        'keep recoCSCHaloData_CSCHaloData_*_*',
+        'keep recoBeamHaloSummary_BeamHaloSummary_*_*',
         'keep *_caTopTagInfosPAT_*_*'
     )
 )
