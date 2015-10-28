@@ -58,7 +58,7 @@ class TAPDPulse: public TObject
   double getPedestal();
   double* getAdcWithoutPedestal();
   void setPresamples(int);
-  //ClassDef(TAPDPulse,1)
+  ClassDef(TAPDPulse,0)
 };
 
 #endif

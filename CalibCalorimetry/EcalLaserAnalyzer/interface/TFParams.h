@@ -93,6 +93,6 @@ double fitpj(double **, double *,double ** , double noise_val, int debug) ;
  double mixShape( Double_t *, Double_t * ) ;
  double computePulseWidth( int, double, double) ;
 
- //  ClassDef( TFParams, 1 ) 
+ ClassDef( TFParams, 0 )
 };
 #endif
