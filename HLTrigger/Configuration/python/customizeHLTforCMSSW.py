@@ -1,8 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 # reusable functions
-def producers_by_type(process, type):
-    return (module for module in process._Process__producers.values() if module._TypedParameterizable__type == type)
+def producers_by_type(process, *types):
+    return (module for module in process._Process__producers.values() if module._TypedParameterizable__type in types)
+
+def esproducers_by_type(process, *types):
+    return (module for module in process._Process__esproducers.values() if module._TypedParameterizable__type in types)
 
 
 # Update to replace old jet corrector mechanism
@@ -184,12 +187,22 @@ def customiseFor11497(process):
         process.CaloTowerTopologyEP = cms.ESProducer( 'CaloTowerTopologyEP' )
     return process
 
+
 def customiseFor12044(process):
     # add a label to indentify the PFProducer calibrations
     for module in producers_by_type(process, 'PFProducer'):
       if not 'calibrationsLabel' in module.__dict__:
-        module.calibrationsLabel = cms.string('')
+        module.calibrationsLabel = cms.string('HLT')
     return process
+
+
+def customiseFor12062(process):
+    # add a label to indentify the b-tagging calibrations
+    for module in esproducers_by_type(process, 'CombinedSecondaryVertexESProducer'):
+      if not 'recordLabel' in module.__dict__:
+        module.recordLabel = cms.string('HLT')
+    return process
+
 
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
@@ -203,6 +216,7 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
         process = customiseFor11183(process)
         process = customiseFor11497(process)
         process = customiseFor12044(process)
+        process = customiseFor12062(process)
     if cmsswVersion >= "CMSSW_7_5":
         process = customiseFor10927(process)
         process = customiseFor9232(process)
