@@ -98,12 +98,13 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
    iEvent.getByToken(token_beamSpot, theBeamSpotHandle);
    const reco::BeamSpot* theBeamSpot = theBeamSpotHandle.product();
    math::XYZPoint referencePos(theBeamSpot->position());
-   
+  
+   reco::Vertex referenceVtx;
    if (useVertex_) {
       edm::Handle<std::vector<reco::Vertex>> vertices;
       iEvent.getByToken(token_vertices, vertices);
-      const reco::Vertex & vertex = (*vertices)[0];
-      referencePos = vertex.position();
+      referenceVtx = vertices->at(0);
+      referencePos = referenceVtx.position();
    }
 
    edm::ESHandle<MagneticField> theMagneticFieldHandle;
@@ -116,12 +117,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
    // fill vectors of TransientTracks and TrackRefs after applying preselection cuts
    for (reco::TrackCollection::const_iterator iTk = theTrackCollection->begin(); iTk != theTrackCollection->end(); ++iTk) {
       const reco::Track* tmpTrack = &(*iTk);
-      double ipsigXY;
-      if (useVertex_) {
-         ipsigXY = std::abs(tmpTrack->dxy(referencePos)/tmpTrack->dxyError());
-      } else {
-         ipsigXY = std::abs(tmpTrack->dxy(*theBeamSpot)/tmpTrack->dxyError()); 
-      }
+      double ipsigXY = std::abs(tmpTrack->dxy(*theBeamSpot)/tmpTrack->dxyError());
+      if (useVertex_) ipsigXY = std::abs(tmpTrack->dxy(referencePos)/tmpTrack->dxyError());
       double ipsigZ = std::abs(tmpTrack->dz(referencePos)/tmpTrack->dzError());
       if (tmpTrack->normalizedChi2() < tkChi2Cut_ && tmpTrack->numberOfValidHits() >= tkNHitsCut_ &&
           tmpTrack->pt() > tkPtCut_ && ipsigXY > tkIPSigXYCut_ && ipsigZ > tkIPSigZCut_) {
@@ -206,7 +203,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       GlobalPoint vtxPos(theVtx.x(), theVtx.y(), theVtx.z());
 
       // 2D decay significance
-      const SMatrixSym3D totalCov = theBeamSpot->rotatedCovariance3D() + theVtx.covariance();
+      SMatrixSym3D totalCov = theBeamSpot->rotatedCovariance3D() + theVtx.covariance();
+      if (useVertex_) totalCov = referenceVtx.covariance() + theVtx.covariance();
       SVector3 distVecXY(vtxPos.x()-referencePos.x(), vtxPos.y()-referencePos.y(), 0.);
       double distMagXY = ROOT::Math::Mag(distVecXY);
       double sigmaDistMagXY = sqrt(ROOT::Math::Similarity(totalCov, distVecXY)) / distMagXY;
