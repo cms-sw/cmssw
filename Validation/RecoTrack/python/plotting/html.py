@@ -38,8 +38,8 @@ _fromPVAllTPName = "Tracks from PV (all TPs)"
 _trackQualityNameOrder = collections.OrderedDict([
     ("", "All tracks"),
     ("highPurity", "High purity tracks"),
-    ("Pt", "Tracks pT > 0.9 GeV"),
-    ("highPurityPt", "High purity tracks pT > 0.9 GeV"),
+    ("Pt", "Tracks pT &gt; 0.9 GeV"),
+    ("highPurityPt", "High purity tracks pT &gt; 0.9 GeV"),
     ("btvLike", "BTV-like"),
     ("ak4PFJets", "AK4 PF jets"),
     ("allTPEffic_", _allTPEfficName),
@@ -48,6 +48,12 @@ _trackQualityNameOrder = collections.OrderedDict([
     ("fromPV_highPurity", "High purity "+_lowerFirst(_fromPVName)),
     ("fromPVAllTP_", _fromPVAllTPName),
     ("fromPVAllTP_highPurity", "High purity "+_lowerFirst(_fromPVAllTPName)),
+    ("fromPVAllTP_Pt", _fromPVAllTPName.replace("Tracks", "Tracks pT &gt; 0.9 GeV")),
+    ("fromPVAllTP_highPurityPt", "High purity "+_lowerFirst(_fromPVAllTPName).replace("tracks", "tracks pT &gt; 0.9 GeV")),
+    ("fromPVAllTP2_", _fromPVAllTPName.replace("PV", "PV v2")),
+    ("fromPVAllTP2_highPurity", "High purity "+_lowerFirst(_fromPVAllTPName).replace("PV", "PV v2")),
+    ("fromPVAllTP2_Pt", _fromPVAllTPName.replace("Tracks", "Tracks pT &gt; 0.9 GeV").replace("PV", "PV v2")),
+    ("fromPVAllTP2_highPurityPt", "High purity "+_lowerFirst(_fromPVAllTPName).replace("tracks", "tracks pT &gt; 0.9 GeV").replace("PV", "PV v2")),
 ])
 
 _trackAlgoName = {
@@ -110,19 +116,30 @@ _sectionNameMapOrder = collections.OrderedDict([
 _allTPEfficLegend = "All tracks, efficiency denominator contains all TrackingParticles"
 _fromPVLegend = "Tracks from reco PV vs. TrackingParticles from gen PV (fake rate includes pileup tracks)"
 _fromPVAllTPLegend = "Tracks from reco PV, fake rate numerator contains all TrackingParticles (separates fake tracks from pileup tracks)"
-_sectionNameLegend = {
-    "btvLike": "BTV-like selected tracks",
-    "ak4PFJets": "Tracks from AK4 PF jets (jet corrected pT &gt; 10 GeV)",
-    "allTPEffic": _allTPEfficLegend,
-    "allTPEffic_": _allTPEfficLegend,
-    "allTPEffic_highPurity": _allTPEfficLegend.replace("All", "High purity"),
-    "fromPV": _fromPVLegend,
-    "fromPV_": _fromPVLegend,
-    "fromPV_highPurity": "High purity "+_lowerFirst(_fromPVLegend),
-    "fromPVAllTP": _fromPVAllTPLegend,
-    "fromPVAllTP_": _fromPVAllTPLegend,
-    "fromPVAllTP_highPurity": "High purity "+_lowerFirst(_fromPVAllTPLegend),
-}
+_fromPVAllTPPtLegend = "Tracks (pT &gt 0.9 GeV) from reco PV, fake rate numerator contains all TrackingParticles (separates fake tracks from pileup tracks)"
+_fromPVAllTP2Legend = "Tracks from reco PV (another method), fake rate numerator contains all TrackingParticles (separates fake tracks from pileup tracks)"
+_fromPVAllTPPt2Legend = "Tracks (pT &gt 0.9 GeV) from reco PV (another method), fake rate numerator contains all TrackingParticles (separates fake tracks from pileup tracks)"
+
+def _sectionNameLegend():
+    return {
+        "btvLike": "BTV-like selected tracks",
+        "ak4PFJets": "Tracks from AK4 PF jets (jet corrected pT &gt; 10 GeV)",
+        "allTPEffic": _allTPEfficLegend,
+        "allTPEffic_": _allTPEfficLegend,
+        "allTPEffic_highPurity": _allTPEfficLegend.replace("All", "High purity"),
+        "fromPV": _fromPVLegend,
+        "fromPV_": _fromPVLegend,
+        "fromPV_highPurity": "High purity "+_lowerFirst(_fromPVLegend),
+        "fromPVAllTP": _fromPVAllTPLegend,
+        "fromPVAllTP_": _fromPVAllTPLegend,
+        "fromPVAllTP_highPurity": "High purity "+_lowerFirst(_fromPVAllTPLegend),
+        "fromPVAllTP_Pt": _fromPVAllTPPtLegend,
+        "fromPVAllTP_highPurityPt": "High purity "+_lowerFirst(_fromPVAllTPPtLegend),
+        "fromPVAllTP2_": _fromPVAllTP2Legend,
+        "fromPVAllTP2_highPurity": "High purity "+_lowerFirst(_fromPVAllTP2Legend),
+        "fromPVAllTP2_Pt": _fromPVAllTPPt2Legend,
+        "fromPVAllTP2_highPurityPt": "High purity "+_lowerFirst(_fromPVAllTPPt2Legend),
+    }
 
 class Table:
     # table [column][row]
@@ -236,14 +253,15 @@ class Page(object):
 
     def _appendLegend(self, section):
         leg = ""
-        if section in _sectionNameLegend:
+        legends = _sectionNameLegend()
+        if section in legends:
             if section in self._sectionLegendIndex:
                 leg = self._sectionLegendIndex[section]
             else:
                 legnum = len(self._legends)+1
                 leg = "<sup>%d</sup>" % legnum
                 leg2 = "<sup>%d)</sup>" % legnum
-                self._legends.append("%s %s" % (leg2, _sectionNameLegend[section]))
+                self._legends.append("%s %s" % (leg2, legends[section]))
                 self._sectionLegendIndex[section] = leg
         return leg
 

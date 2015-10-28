@@ -303,10 +303,10 @@ def _mapCollectionToAlgoQuality(collName):
     if hasPtCut:
         quality += "Pt"
         collNameNoQuality = collNameNoQuality.replace("Pt", "")
-    collNameLow = collNameNoQuality.lower().replace("frompv", "").replace("frompvalltp", "").replace("alltp", "")
+    collNameLow = collNameNoQuality.lower().replace("frompv2", "").replace("frompv", "").replace("frompvalltp", "").replace("alltp", "")
 
     algo = None
-    if collNameLow in ["general", "cutsreco", "cutsrecofrompv", "cutsrecofrompvalltp",
+    if collNameLow in ["general", "cutsreco", "cutsrecofrompv", "cutsrecofrompv2", "cutsrecofrompvalltp",
                        "cutsrecotracks", "cutsrecotracksfrompv", "cutsrecotracksfrompvalltp"]:
         algo = "ootb"
     else:
@@ -609,7 +609,8 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False):
 _appendTrackingPlots("Track", "", _simBasedPlots+_recoBasedPlots)
 _appendTrackingPlots("TrackAllTPEffic", "allTPEffic", _simBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPV", "fromPV", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
-_appendTrackingPlots("TrackFromPVAllTP", "fromPVAllTP", _recoBasedPlots, onlyForPileup=True)
+_appendTrackingPlots("TrackFromPVAllTP", "fromPVAllTP", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
+_appendTrackingPlots("TrackFromPVAllTP2", "fromPVAllTP2", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
 
 # MiniAOD
 plotter.append("packedCandidate", _trackingFolders("PackedCandidate"),
