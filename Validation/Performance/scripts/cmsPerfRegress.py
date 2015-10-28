@@ -9,6 +9,7 @@ import ROOT
 from array import array
 #Substitute popen with subprocess.Popen! popen obsolete...
 import subprocess
+from functools import reduce
 
 _cmsver = os.environ['CMSSW_VERSION']
 values_set=('vsize','delta_vsize','rss','delta_rss')
@@ -882,9 +883,9 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
         if found:
             logcandle = found.groups()[0]
             
-        if   CandFname.has_key(candle):
+        if   candle in CandFname:
             candFilename = CandFname[candle]
-        elif CandFname.has_key(logcandle):
+        elif logcandle in CandFname:
             candFilename = CandFname[logcandle]
         else:
             print "%s is an unknown candle!"%candle
@@ -1029,7 +1030,7 @@ def rmtree(path):
         if detail.errno == 39:
             try:
                 gen = os.walk(path)
-                nodes    = gen.next()
+                nodes    = next(gen)
                 nodes[0] = par
                 nodes[1] = dirs
                 nodes[2] = files

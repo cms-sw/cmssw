@@ -697,7 +697,7 @@ def rootplot(*args, **kwargs):
                 del reduced_kwargs[key]
             elif type(value) is str:
                 reduced_kwargs[key] = "'%s'" % value
-        if kwargs.has_key('numbering'):
+        if 'numbering' in kwargs:
             reduced_kwargs['numbering'] = i + 1
         optstring = ', '.join(['%s=%s' % (key, value)
                                for key, value in reduced_kwargs.items()])
@@ -950,7 +950,7 @@ def plot_hists_root(hists, options):
         if (type(hist) is Hist and not isTGraph and 
             'stack' in options.draw_commands[i]):
             objects['stack'].Add(roothist)
-    if objects.has_key('stack') and objects['stack'].GetHists():
+    if 'stack' in objects and objects['stack'].GetHists():
         histmax = objects['stack'].GetMaximum()
     for roothist in roothists:
         histmax = max(histmax, roothist.GetMaximum())
@@ -1820,20 +1820,20 @@ def parse_arguments(argv, scope='global'):
     def opt(**kwargs):
         return kwargs
     def addopt(group, *args, **kwargs):
-        if use_mpl and kwargs.has_key('mpl'):
+        if use_mpl and 'mpl' in kwargs:
             opts = kwargs['mpl']
             kwargs = dict(kwargs, **opts)
-        if not use_mpl and kwargs.has_key('root'):
+        if not use_mpl and 'root' in kwargs:
             opts = kwargs['root']
             kwargs = dict(kwargs, **opts)
-        if locals().has_key('opts'):
+        if 'opts' in locals():
             del kwargs['mpl']
             del kwargs['root']
-        if kwargs.has_key('metadefault'):
+        if 'metadefault' in kwargs:
             val = kwargs.pop('metadefault')
             kwargs['default'] = val
             kwargs['metavar'] = val
-        if kwargs.has_key('metavar') and ' ' in str(kwargs['metavar']):
+        if 'metavar' in kwargs and ' ' in str(kwargs['metavar']):
             kwargs['metavar']="'%s'" % kwargs['metavar']
         group.add_option(*args, **kwargs)
 

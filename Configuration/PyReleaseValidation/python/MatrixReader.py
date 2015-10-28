@@ -165,7 +165,7 @@ class MatrixReader(object):
                     return
                 self.relvalModule.changeRefRelease(
                     self.relvalModule.steps,
-                    zip(self.relvalModule.baseDataSetRelease,refRels)
+                    list(zip(self.relvalModule.baseDataSetRelease,refRels))
                     )
             else:
                 self.relvalModule.changeRefRelease(

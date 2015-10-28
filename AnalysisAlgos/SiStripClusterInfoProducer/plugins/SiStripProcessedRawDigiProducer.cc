@@ -68,9 +68,9 @@ findInput(edm::Handle<T>& handle, const std::vector<edm::EDGetTokenT<T> >& token
 void SiStripProcessedRawDigiProducer::
 zs_process(const edm::DetSetVector<SiStripDigi> & input, edm::DetSetVector<SiStripProcessedRawDigi>& output) {
   std::vector<float> digis;
-  for(edm::DetSetVector<SiStripDigi>::const_iterator detset = input.begin(); detset != input.end(); detset++ )  {
+  for(edm::DetSetVector<SiStripDigi>::const_iterator detset = input.begin(); detset != input.end(); ++detset )  {
     digis.clear();
-    for(edm::DetSet<SiStripDigi>::const_iterator digi = detset->begin();  digi != detset->end();  digi++) {
+    for(edm::DetSet<SiStripDigi>::const_iterator digi = detset->begin();  digi != detset->end();  ++digi) {
       digis.resize( digi->strip(), 0);
       digis.push_back( digi->adc() );
     }
@@ -80,7 +80,7 @@ zs_process(const edm::DetSetVector<SiStripDigi> & input, edm::DetSetVector<SiStr
 
 void SiStripProcessedRawDigiProducer::
 pr_process(const edm::DetSetVector<SiStripRawDigi> & input, edm::DetSetVector<SiStripProcessedRawDigi>& output) {
-  for(edm::DetSetVector<SiStripRawDigi>::const_iterator detset=input.begin(); detset!=input.end(); detset++) {
+  for(edm::DetSetVector<SiStripRawDigi>::const_iterator detset=input.begin(); detset!=input.end(); ++detset) {
     std::vector<float> digis;
     transform(detset->begin(), detset->end(), back_inserter(digis), boost::bind(&SiStripRawDigi::adc , _1));
     subtractorCMN->subtract(detset->id, 0, digis);
@@ -90,7 +90,7 @@ pr_process(const edm::DetSetVector<SiStripRawDigi> & input, edm::DetSetVector<Si
 
 void SiStripProcessedRawDigiProducer::
 vr_process(const edm::DetSetVector<SiStripRawDigi> & input, edm::DetSetVector<SiStripProcessedRawDigi>& output) {
-  for(edm::DetSetVector<SiStripRawDigi>::const_iterator detset=input.begin(); detset!=input.end(); detset++) {
+  for(edm::DetSetVector<SiStripRawDigi>::const_iterator detset=input.begin(); detset!=input.end(); ++detset) {
     std::vector<int16_t> int_digis(detset->size());
     subtractorPed->subtract(*detset,int_digis);
     std::vector<float> digis(int_digis.begin(), int_digis.end());
@@ -104,7 +104,7 @@ common_process(const uint32_t detId, std::vector<float> & digis, edm::DetSetVect
 
   //Apply Gains
   SiStripApvGain::Range detGainRange =  gainHandle->getRange(detId);
-  for(std::vector<float>::iterator it=digis.begin(); it<digis.end(); it++)
+  for(std::vector<float>::iterator it=digis.begin(); it<digis.end(); ++it)
     (*it)/= (gainHandle->getStripGain(it-digis.begin(), detGainRange));
 
   //Insert as DetSet

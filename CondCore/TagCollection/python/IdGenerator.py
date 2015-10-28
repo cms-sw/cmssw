@@ -18,7 +18,7 @@ class IdGenerator(object):
             query.setForUpdate() #lock it
             cursor = query.execute()
             result = 0
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 result = cursor.currentRow()[self.__idTableColumnName].data()
             del query
             return result
@@ -35,7 +35,7 @@ class IdGenerator(object):
             query.setForUpdate() #lock it
             cursor = query.execute()
             result = 0
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 result = cursor.currentRow()[0].data()
             del query
             dataEditor = tableHandle.dataEditor()

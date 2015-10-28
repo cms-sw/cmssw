@@ -122,7 +122,7 @@ def make_file_pairs(files1, files2):
         for file in files:
             version = get_cmssw_version(file)
             if version:
-                if versions.has_key(version):
+                if version in versions:
                     versions[version].append(file)
                 else:
                     versions[version] = [file]

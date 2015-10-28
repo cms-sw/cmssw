@@ -170,7 +170,7 @@ class EventBranch(object):
         return self._buffer
 
 
-class cmserror(exceptions.StandardError):
+class cmserror(exceptions.Exception):
     def __init__(self, message):
           length = len(message)+7   #7=len("ERROR: ")
           print "="*length

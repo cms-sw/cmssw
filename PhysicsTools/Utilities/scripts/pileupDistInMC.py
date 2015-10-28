@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
         num = pileup.getPU_NumInteractions()
         total += 1
-        if not countDict.has_key (num):
+        if num not in countDict:
             countDict[num] = 1
         else:
             countDict[num] += 1

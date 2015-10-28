@@ -283,7 +283,7 @@ HcalLuttoDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   for (int crate=0; crate<20; crate++) {
     edm::LogInfo("Hcal") << "Beginning crate " << crate;
-    for(itreid  = allEID.begin(); itreid != allEID.end(); itreid++)
+    for(itreid  = allEID.begin(); itreid != allEID.end(); ++itreid)
       {
 	if (itreid->readoutVMECrateId()!=crate) continue;
 	if (itreid->isTriggerChainId()) { // lut2

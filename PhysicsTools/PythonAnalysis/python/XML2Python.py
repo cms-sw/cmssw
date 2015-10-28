@@ -24,7 +24,7 @@ class DataNode (object):
             return [self][key]
 
     def __contains__ (self, name):
-        return self._attrs.has_key(name)
+        return name in self._attrs
 
     def __nonzero__ (self):
         return bool (self._attrs or self._data)

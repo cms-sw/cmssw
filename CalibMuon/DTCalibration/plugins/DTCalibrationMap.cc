@@ -213,7 +213,7 @@ void DTCalibrationMap::addCell(Key theKey, const CalibConsts& calibConst) {
 void DTCalibrationMap::writeConsts(const string& outputFileName) const {
   ofstream out(outputFileName.c_str());
   for(map<Key,CalibConsts>::const_iterator iter = theMap.begin();
-      iter != theMap.end() ; iter++) {
+      iter != theMap.end() ; ++iter) {
     
     out << (*iter).first.wheel() << ' '
       << (*iter).first.station() << ' '

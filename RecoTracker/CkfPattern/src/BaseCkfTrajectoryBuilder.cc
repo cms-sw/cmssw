@@ -111,7 +111,7 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTraj
 TempTrajectory BaseCkfTrajectoryBuilder::
 createStartingTrajectory( const TrajectorySeed& seed) const
 {
-  TempTrajectory result(seed.direction());
+  TempTrajectory result(seed.direction(),seed.nHits());
   seedMeasurements(seed, result);
 
   LogDebug("CkfPattern")

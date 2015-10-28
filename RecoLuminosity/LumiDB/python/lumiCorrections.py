@@ -66,7 +66,7 @@ def driftcorrectionsForRange(schema,inputRange,correctionTerm,startrun=160403):
             qHandle.setCondition(qConditionStr,qCondition)
             qHandle.defineOutput(qResult)
             cursor=qHandle.execute()
-            while cursor.next():
+            while next(cursor):
                 intglumi=cursor.currentRow()['INTGLUMI'].data()
             lint=intglumi*6.37*1.0e-9 #(convert to /fb)
             #print lint
@@ -146,7 +146,7 @@ def correctionsForRangeV2(schema,inputRange,correctionTerm):
         qHandle.addToOutputList('FILLSCHEMEPATTERN')
         qHandle.addToOutputList('CORRECTIONFACTOR')
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             fillschemePattern=cursor.currentRow()['FILLSCHEMEPATTERN'].data()
             afterglowfac=cursor.currentRow()['CORRECTIONFACTOR'].data()
             afterglows.append((fillschemePattern,afterglowfac))
@@ -175,10 +175,10 @@ def correctionsForRangeV2(schema,inputRange,correctionTerm):
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             runnum=cursor.currentRow()['runnum'].data()
             #print 'runnum ',runnum 
-            if runnum not in runs or result.has_key(runnum):
+            if runnum not in runs or runnum in result:
                 continue
             fillnum=cursor.currentRow()['fillnum'].data()
             afterglow=1.0
@@ -349,7 +349,7 @@ def pixelcorrectionsForRange(schema,inputRange):
         qHandle.addToOutputList('FILLSCHEMEPATTERN')
         qHandle.addToOutputList('PIXELCORRECTIONFACTOR')
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             fillschemePattern=cursor.currentRow()['FILLSCHEMEPATTERN'].data()
             afterglowfac=cursor.currentRow()['PIXELCORRECTIONFACTOR'].data()
             afterglows.append((fillschemePattern,afterglowfac))
@@ -374,9 +374,9 @@ def pixelcorrectionsForRange(schema,inputRange):
         qHandle.setCondition(qConditionStr,qCondition)
         qHandle.defineOutput(qResult)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             runnum=cursor.currentRow()['runnum'].data()
-            if runnum not in runs or result.has_key(runnum):
+            if runnum not in runs or runnum in result:
                 continue
             fillnum=cursor.currentRow()['fillnum'].data()
             afterglow=1.0

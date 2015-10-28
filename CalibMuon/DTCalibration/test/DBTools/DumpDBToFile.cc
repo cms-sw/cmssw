@@ -127,7 +127,7 @@ void DumpDBToFile::endJob() {
 	int nfields=1;
 	cout << "[DumpDBToFile] MTime version: " << mTimeMap->version() << endl;
 	for(DTMtime::const_iterator mtime = mTimeMap->begin();
-	    mtime != mTimeMap->end(); mtime++) {
+	    mtime != mTimeMap->end(); ++mtime) {
 	  DTWireId wireId((*mtime).first.wheelId,
 			  (*mtime).first.stationId,
 			  (*mtime).first.sectorId,
@@ -176,7 +176,7 @@ void DumpDBToFile::endJob() {
 	int nfields =1;
 	cout << "[DumpDBToFile] TTrig version: " << tTrigMap->version() << endl;
 	for(DTTtrig::const_iterator ttrig = tTrigMap->begin();
-	    ttrig != tTrigMap->end(); ttrig++) {
+	    ttrig != tTrigMap->end(); ++ttrig) {
 	  DTWireId wireId((*ttrig).first.wheelId,
 			  (*ttrig).first.stationId,
 			  (*ttrig).first.sectorId,
@@ -230,7 +230,7 @@ void DumpDBToFile::endJob() {
     } else if(dbToDump == "TZeroDB") {
       cout << "[DumpDBToFile] T0 version: " << tZeroMap->version() << endl;
       for(DTT0::const_iterator tzero = tZeroMap->begin();
-	  tzero != tZeroMap->end(); tzero++) {
+	  tzero != tZeroMap->end(); ++tzero) {
 // @@@ NEW DTT0 FORMAT
 //	DTWireId wireId((*tzero).first.wheelId,
 //			(*tzero).first.stationId,
@@ -262,7 +262,7 @@ void DumpDBToFile::endJob() {
       }
     } else if(dbToDump == "NoiseDB") {
       for(DTStatusFlag::const_iterator statusFlag = statusMap->begin();
-	  statusFlag != statusMap->end(); statusFlag++) {
+	  statusFlag != statusMap->end(); ++statusFlag) {
 	DTWireId wireId((*statusFlag).first.wheelId,
 			(*statusFlag).first.stationId,
 			(*statusFlag).first.sectorId,
@@ -285,7 +285,7 @@ void DumpDBToFile::endJob() {
       }
     }  else if(dbToDump == "DeadDB") {
       for(DTDeadFlag::const_iterator deadFlag = deadMap->begin();
-	  deadFlag != deadMap->end(); deadFlag++) {
+	  deadFlag != deadMap->end(); ++deadFlag) {
 	DTWireId wireId((*deadFlag).first.wheelId,
 			(*deadFlag).first.stationId,
 			(*deadFlag).first.sectorId,
@@ -314,7 +314,7 @@ void DumpDBToFile::endJob() {
 	int type =2; // par[step]
 	cout << "RecoUncertDB version: " << uncertMap->version() << endl;
 	for(DTRecoUncertainties::const_iterator wireAndUncerts = uncertMap->begin();
-	    wireAndUncerts != uncertMap->end(); wireAndUncerts++) {
+	    wireAndUncerts != uncertMap->end(); ++wireAndUncerts) {
 	  DTWireId wireId((*wireAndUncerts).first);
 	  vector<float> values = (*wireAndUncerts).second;	
 // 	  cout << wireId;
@@ -352,7 +352,7 @@ void DumpDBToFile::endJob() {
   else if (dbToDump == "ChannelsDB"){
     ofstream out(theOutputFileName.c_str());
     for(DTReadOutMapping::const_iterator roLink = channelsMap->begin();
-	roLink != channelsMap->end(); roLink++) {
+	roLink != channelsMap->end(); ++roLink) {
       out << roLink->dduId << ' ' 
 	  << roLink->rosId << ' ' 
 	  << roLink->robId << ' ' 
