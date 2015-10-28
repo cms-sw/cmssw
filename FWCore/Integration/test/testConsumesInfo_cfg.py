@@ -107,12 +107,12 @@ process.e = cms.EndPath(process.out)
 process.p1ep2 = cms.EndPath()
 
 copyProcess = cms.Process("COPY")
-process.subProcess = cms.SubProcess(copyProcess,
+process.addSubProcess(cms.SubProcess(copyProcess,
     outputCommands = cms.untracked.vstring(
         "keep *",
         "drop *_intProducerA_*_*"
     )
-)
+))
 
 copyProcess.intVectorProducer = cms.EDProducer("IntVectorProducer",
   count = cms.int32(9),

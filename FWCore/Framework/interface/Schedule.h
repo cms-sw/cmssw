@@ -127,7 +127,7 @@ namespace edm {
              ExceptionToActionTable const& actions,
              std::shared_ptr<ActivityRegistry> areg,
              std::shared_ptr<ProcessConfiguration> processConfiguration,
-             const ParameterSet* subProcPSet,
+             bool hasSubprocesses,
              PreallocationConfiguration const& config,
              ProcessContext const* processContext);
 

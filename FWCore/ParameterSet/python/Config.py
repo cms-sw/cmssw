@@ -102,7 +102,7 @@ class Process(object):
     def __init__(self,name,*Mods):
         """The argument 'name' will be the name applied to this Process
             Can optionally pass as additional arguments cms.Modifier instances
-            which will be used ot modify the Process as it is built
+            that will be used to modify the Process as it is built
             """
         self.__dict__['_Process__name'] = name
         if not name.isalnum():
@@ -111,7 +111,7 @@ class Process(object):
         self.__dict__['_Process__producers'] = {}
         self.__dict__['_Process__source'] = None
         self.__dict__['_Process__looper'] = None
-        self.__dict__['_Process__subProcess'] = None
+        self.__dict__['_Process__subProcesses'] = []
         self.__dict__['_Process__schedule'] = None
         self.__dict__['_Process__analyzers'] = {}
         self.__dict__['_Process__outputmodules'] = {}
@@ -170,7 +170,7 @@ class Process(object):
 
 
     def filters_(self):
-        """returns a dict of the filters which have been added to the Process"""
+        """returns a dict of the filters that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__filters)
     filters = property(filters_, doc="dictionary containing the filters for the process")
     def name_(self):
@@ -181,49 +181,47 @@ class Process(object):
         self.__dict__['_Process__name'] = name
     process = property(name_,setName_, doc="name of the process")
     def producers_(self):
-        """returns a dict of the producers which have been added to the Process"""
+        """returns a dict of the producers that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__producers)
     producers = property(producers_,doc="dictionary containing the producers for the process")
     def source_(self):
-        """returns the source which has been added to the Process or None if none have been added"""
+        """returns the source that has been added to the Process or None if none have been added"""
         return self.__source
     def setSource_(self,src):
         self._placeSource('source',src)
     source = property(source_,setSource_,doc='the main source or None if not set')
     def looper_(self):
-        """returns the looper which has been added to the Process or None if none have been added"""
+        """returns the looper that has been added to the Process or None if none have been added"""
         return self.__looper
     def setLooper_(self,lpr):
         self._placeLooper('looper',lpr)
     looper = property(looper_,setLooper_,doc='the main looper or None if not set')
-    def subProcess_(self):
-        """returns the sub-process which has been added to the Process or None if none have been added"""
-        return self.__subProcess
-    def setSubProcess_(self,lpr):
-        self._placeSubProcess('subProcess',lpr)
-    subProcess = property(subProcess_,setSubProcess_,doc='the SubProcess or None if not set')
+    def subProcesses_(self):
+        """returns a list of the subProcesses that have been added to the Process"""
+        return self.__subProcesses
+    subProcesses = property(subProcesses_,doc='the SubProcesses that have been added to the Process')
     def analyzers_(self):
-        """returns a dict of the analyzers which have been added to the Process"""
+        """returns a dict of the analyzers that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__analyzers)
     analyzers = property(analyzers_,doc="dictionary containing the analyzers for the process")
     def outputModules_(self):
-        """returns a dict of the output modules which have been added to the Process"""
+        """returns a dict of the output modules that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__outputmodules)
     outputModules = property(outputModules_,doc="dictionary containing the output_modules for the process")
     def paths_(self):
-        """returns a dict of the paths which have been added to the Process"""
+        """returns a dict of the paths that have been added to the Process"""
         return DictTypes.SortedAndFixedKeysDict(self.__paths)
     paths = property(paths_,doc="dictionary containing the paths for the process")
     def endpaths_(self):
-        """returns a dict of the endpaths which have been added to the Process"""
+        """returns a dict of the endpaths that have been added to the Process"""
         return DictTypes.SortedAndFixedKeysDict(self.__endpaths)
     endpaths = property(endpaths_,doc="dictionary containing the endpaths for the process")
     def sequences_(self):
-        """returns a dict of the sequences which have been added to the Process"""
+        """returns a dict of the sequences that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__sequences)
     sequences = property(sequences_,doc="dictionary containing the sequences for the process")
     def schedule_(self):
-        """returns the schedule which has been added to the Process or None if none have been added"""
+        """returns the schedule that has been added to the Process or None if none have been added"""
         return self.__schedule
     def setPartialSchedule_(self,sch,label):
         if label == "schedule":
@@ -243,19 +241,19 @@ class Process(object):
         self.__dict__['_Process__schedule'] = sch
     schedule = property(schedule_,setSchedule_,doc='the schedule or None if not set')
     def services_(self):
-        """returns a dict of the services which have been added to the Process"""
+        """returns a dict of the services that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__services)
     services = property(services_,doc="dictionary containing the services for the process")
     def es_producers_(self):
-        """returns a dict of the esproducers which have been added to the Process"""
+        """returns a dict of the esproducers that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__esproducers)
     es_producers = property(es_producers_,doc="dictionary containing the es_producers for the process")
     def es_sources_(self):
-        """returns a the es_sources which have been added to the Process"""
+        """returns a the es_sources that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__essources)
     es_sources = property(es_sources_,doc="dictionary containing the es_sources for the process")
     def es_prefers_(self):
-        """returns a dict of the es_prefers which have been added to the Process"""
+        """returns a dict of the es_prefers that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__esprefers)
     es_prefers = property(es_prefers_,doc="dictionary containing the es_prefers for the process")
     def aliases_(self):
@@ -263,11 +261,11 @@ class Process(object):
         return DictTypes.FixedKeysDict(self.__aliases)
     aliases = property(aliases_,doc="dictionary containing the aliases for the process")
     def psets_(self):
-        """returns a dict of the PSets which have been added to the Process"""
+        """returns a dict of the PSets that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__psets)
     psets = property(psets_,doc="dictionary containing the PSets for the process")
     def vpsets_(self):
-        """returns a dict of the VPSets which have been added to the Process"""
+        """returns a dict of the VPSets that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__vpsets)
     vpsets = property(vpsets_,doc="dictionary containing the PSets for the process")
 
@@ -308,7 +306,7 @@ class Process(object):
             self.__dict__[name]=value
             return
         if not isinstance(value,_ConfigureComponent):
-            raise TypeError("can only assign labels to an object which inherits from '_ConfigureComponent'\n"
+            raise TypeError("can only assign labels to an object that inherits from '_ConfigureComponent'\n"
                             +"an instance of "+str(type(value))+" will not work - requested label is "+name)
         if not isinstance(value,_Labelable) and not isinstance(value,Source) and not isinstance(value,Looper) and not isinstance(value,Schedule):
             if name == value.type_():
@@ -408,7 +406,7 @@ class Process(object):
                 pass
 
     def add_(self,value):
-        """Allows addition of components which do not have to have a label, e.g. Services"""
+        """Allows addition of components that do not have to have a label, e.g. Services"""
         if not isinstance(value,_ConfigureComponent):
             raise TypeError
         if not isinstance(value,_Unlabelable):
@@ -502,10 +500,10 @@ class Process(object):
         self.__dict__['_Process__looper'] = mod
         self.__dict__[mod.type_()] = mod
     def _placeSubProcess(self,name,mod):
-        if name != 'subProcess':
-            raise ValueError("The label '"+name+"' can not be used for a SubProcess.  Only 'subProcess' is allowed.")
         self.__dict__['_Process__subProcess'] = mod
         self.__dict__[mod.type_()] = mod
+    def addSubProcess(self,mod):
+        self.__subProcesses.append(mod)
     def _placeService(self,typeName,mod):
         self._place(typeName, mod, self.__services)
         self.__dict__[typeName]=mod
@@ -514,7 +512,7 @@ class Process(object):
         module = __import__(moduleName)
         self.extend(sys.modules[moduleName])
     def extend(self,other,items=()):
-        """Look in other and find types which we can use"""
+        """Look in other and find types that we can use"""
         # enable explicit check to avoid overwriting of existing objects
         self.__dict__['_Process__InExtendCall'] = True
 
@@ -524,7 +522,7 @@ class Process(object):
             if name.startswith('_'):
                 continue
             item = getattr(other,name)
-            if name == "source" or name == "looper" or name == "subProcess":
+            if name == "source" or name == "looper":
                 # In these cases 'item' could be None if the specific object was not defined
                 if item is not None:
                     self.__setattr__(name,item)
@@ -543,7 +541,7 @@ class Process(object):
             elif isinstance(item,ProcessFragment):
                 self.extend(item)
 
-        #now create a sequence which uses the newly made items
+        #now create a sequence that uses the newly made items
         for name in seqs.iterkeys():
             seq = seqs[name]
             #newSeq = seq.copy()
@@ -583,9 +581,10 @@ class Process(object):
             config += options.indentation()+"source = "+self.source_().dumpConfig(options)
         if self.looper_():
             config += options.indentation()+"looper = "+self.looper_().dumpConfig(options)
-        if self.subProcess_():
-            config += options.indentation()+"subProcess = "+self.subProcess_().dumpConfig(options)
 
+        config+=self._dumpConfigNamedList(self.subProcesses_(),
+                                  'subProcess',
+                                  options)
         config+=self._dumpConfigNamedList(self.producers_().iteritems(),
                                   'module',
                                   options)
@@ -641,6 +640,11 @@ class Process(object):
         for item in self.es_prefers_().itervalues():
             result +=options.indentation()+'es_prefer '+item.targetLabel_()+' = '+item.dumpConfig(options)
         return result
+    def _dumpPythonSubProcesses(self, l, options):
+        returnValue = ''
+        for item in l:
+            returnValue += item.dumpPython(options)+'\n\n'
+        return returnValue
     def _dumpPythonList(self, d, options):
         returnValue = ''
         if isinstance(d, DictTypes.SortedKeysDict):
@@ -703,8 +707,7 @@ class Process(object):
             result += "process.source = "+self.source_().dumpPython(options)
         if self.looper_():
             result += "process.looper = "+self.looper_().dumpPython()
-        if self.subProcess_():
-            result += self.subProcess_().dumpPython(options)
+        result+=self._dumpPythonSubProcesses(self.subProcesses_(), options)
         result+=self._dumpPythonList(self.producers_(), options)
         result+=self._dumpPythonList(self.filters_() , options)
         result+=self._dumpPythonList(self.analyzers_(), options)
@@ -758,6 +761,19 @@ class Process(object):
         # alphabetical order is easier to compare with old language
         l.sort()
         parameterSet.addVString(tracked, label, l)
+    def _insertSubProcessesInto(self, parameterSet, label, itemList, tracked):
+        l = []
+        subprocs = []
+        for value in itemList:
+          name = value.getProcessName()
+          newLabel = value.nameInProcessDesc_(name)
+          l.append(newLabel)
+          pset = value.getSubProcessPSet(parameterSet)
+          subprocs.append(pset)
+        # alphabetical order is easier to compare with old language
+        l.sort()
+        parameterSet.addVString(tracked, label, l)
+        parameterSet.addVPSet(False,"subProcesses",subprocs)
     def _insertPaths(self, processPSet):
         scheduledPaths = []
         triggerPaths = []
@@ -800,7 +816,7 @@ class Process(object):
         processPSet.addVString(False, "@filters_on_endpaths", endpathValidator.filtersOnEndpaths)
 
     def prune(self,verbose=False,keepUnresolvedSequencePlaceholders=False):
-        """ Remove clutter from the process which we think is unnecessary:
+        """ Remove clutter from the process that we think is unnecessary:
         tracked PSets, VPSets and unused modules and sequences. If a Schedule has been set, then Paths and EndPaths
         not in the schedule will also be removed, along with an modules and sequences used only by
         those removed Paths and EndPaths."""
@@ -905,7 +921,7 @@ class Process(object):
         self._insertManyInto(adaptor, "@all_modules", all_modules, True)
         self._insertOneInto(adaptor,  "@all_sources", self.source_(), True)
         self._insertOneInto(adaptor,  "@all_loopers", self.looper_(), True)
-        self._insertOneInto(adaptor,  "@all_subprocesses", self.subProcess_(), False)
+        self._insertSubProcessesInto(adaptor, "@all_subprocesses", self.subProcesses_(), False)
         self._insertManyInto(adaptor, "@all_esmodules", self.es_producers_(), True)
         self._insertManyInto(adaptor, "@all_essources", self.es_sources_(), True)
         self._insertManyInto(adaptor, "@all_esprefers", self.es_prefers_(), True)
@@ -935,7 +951,7 @@ class Process(object):
              process.prefer("JuicerProducer")
            In addition, you can pass as a labelled arguments the name of the Record you wish to
            prefer where the type passed is a cms.vstring and that vstring can contain the
-           name of the C++ types in the Record which are being preferred, e.g.,
+           name of the C++ types in the Record that are being preferred, e.g.,
               #prefer all data in record 'OrangeRecord' from 'juicer'
               process.prefer("juicer", OrangeRecord=cms.vstring())
            or
@@ -1034,10 +1050,10 @@ class FilteredStream(dict):
     def __getattr__(self,attr):
         return self[attr]
 
-class SubProcess(_ConfigureComponent,_Unlabelable):
+class SubProcess(_Unlabelable):
    """Allows embedding another process within a parent process. This allows one to 
    chain processes together directly in one cmsRun job rather than having to run
-   separate jobs which are connected via a temporary file.
+   separate jobs that are connected via a temporary file.
    """
    def __init__(self,process, SelectEvents = untracked.PSet(), outputCommands = untracked.vstring()):
       """
@@ -1056,8 +1072,10 @@ class SubProcess(_ConfigureComponent,_Unlabelable):
       out += self.__process.dumpPython()
       out += "childProcess = process\n"
       out += "process = parentProcess"+str(hash(self))+"\n"
-      out += "process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = "+self.__SelectEvents.dumpPython(options) +", outputCommands = "+self.__outputCommands.dumpPython(options) +")\n"
+      out += "process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = "+self.__SelectEvents.dumpPython(options) +", outputCommands = "+self.__outputCommands.dumpPython(options) +"))"
       return out
+   def getProcessName(self):
+      return self.__process.name_()
    def process(self):
       return self.__process
    def SelectEvents(self):
@@ -1067,20 +1085,20 @@ class SubProcess(_ConfigureComponent,_Unlabelable):
    def type_(self):
       return 'subProcess'
    def nameInProcessDesc_(self,label):
-      return '@sub_process'
+      return label
    def _place(self,label,process):
       process._placeSubProcess('subProcess',self)
-   def insertInto(self,parameterSet, newlabel):
+   def getSubProcessPSet(self,parameterSet):
       topPSet = parameterSet.newPSet()
       self.__process.fillProcessDesc(topPSet)
       subProcessPSet = parameterSet.newPSet()
       self.__SelectEvents.insertInto(subProcessPSet,"SelectEvents")
       self.__outputCommands.insertInto(subProcessPSet,"outputCommands")
       subProcessPSet.addPSet(False,"process",topPSet)
-      parameterSet.addPSet(False,self.nameInProcessDesc_("subProcess"), subProcessPSet)
+      return subProcessPSet
 
 class _ParameterModifier(object):
-  """Helper class for Modifier which takes key/value pairs and uses them to reset parameters of the object"""
+  """Helper class for Modifier that takes key/value pairs and uses them to reset parameters of the object"""
   def __init__(self,args):
     self.__args = args
   def __call__(self,obj):
@@ -1091,7 +1109,7 @@ class Modifier(object):
   """This class is used to define standard modifications to a Process.
   An instance of this class is declared to denote a specific modification,e.g. era2017 could
   reconfigure items in a process to match our expectation of running in 2017. Once declared,
-  these Modifier instances are imported into a configuration and items which need to be modified
+  these Modifier instances are imported into a configuration and items that need to be modified
   are then associated with the Modifier and with the action to do the modification.
   The registered modifications will only occur if the Modifier was passed to 
   the cms.Process' constructor.
@@ -1100,15 +1118,15 @@ class Modifier(object):
     self.__processModifiers = []
     self.__chosen = False
   def makeProcessModifier(self,func):
-    """This is used to create a ProcessModifer which can perform actions on the process as a whole.
-       This takes as argument a callable object (e.g. function) which takes as its sole argument an instance of Process.
+    """This is used to create a ProcessModifer that can perform actions on the process as a whole.
+       This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
        In order to work, the value returned from this function must be assigned to a uniquely named variable.
     """
     return ProcessModifier(self,func)
   def toModify(self,obj, func=None,**kw):
     """This is used to register an action to be performed on the specific object. Two different forms are allowed
     Form 1: A callable object (e.g. function) can be passed as the second. This callable object is expected to take one argument
-    which will be the object passed in as the first argument.
+    that will be the object passed in as the first argument.
     Form 2: A list of parameter name, value pairs can be passed
        mod.toModify(foo, fred=cms.int32(7), barney = cms.double(3.14))
     """
@@ -1167,7 +1185,7 @@ if __name__=="__main__":
     import copy
     
     class TestMakePSet(object):
-        """Has same interface as the C++ object which creates PSets
+        """Has same interface as the C++ object that creates PSets
         """
         def __init__(self):
             self.values = dict()
@@ -1747,7 +1765,7 @@ process.prefer("juicer",
             subProcess.a = EDProducer("A")
             subProcess.p = Path(subProcess.a)
             subProcess.add_(Service("Foo"))
-            process.add_( SubProcess(subProcess) )
+            process.addSubProcess(SubProcess(subProcess))
             d = process.dumpPython()
             equalD ="""import FWCore.ParameterSet.Config as cms
 
@@ -1769,17 +1787,18 @@ process.Foo = cms.Service("Foo")
 
 childProcess = process
 process = parentProcess
-process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = cms.untracked.PSet(
+process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.untracked.PSet(
 
-), outputCommands = cms.untracked.vstring())
+), outputCommands = cms.untracked.vstring()))
+
 """
-            equalD = equalD.replace("parentProcess","parentProcess"+str(hash(process.subProcess)))
+            equalD = equalD.replace("parentProcess","parentProcess"+str(hash(process.subProcesses_()[0])))
             self.assertEqual(d,equalD)
             p = TestMakePSet()
-            process.subProcess.insertInto(p,"dummy")
-            self.assertEqual((True,['a']),p.values["@sub_process"][1].values["process"][1].values['@all_modules'])
-            self.assertEqual((True,['p']),p.values["@sub_process"][1].values["process"][1].values['@paths'])
-            self.assertEqual({'@service_type':(True,'Foo')}, p.values["@sub_process"][1].values["process"][1].values["services"][1][0].values)
+            process.fillProcessDesc(p)
+            self.assertEqual((True,['a']),p.values["subProcesses"][1][0].values["process"][1].values['@all_modules'])
+            self.assertEqual((True,['p']),p.values["subProcesses"][1][0].values["process"][1].values['@paths'])
+            self.assertEqual({'@service_type':(True,'Foo')}, p.values["subProcesses"][1][0].values["process"][1].values["services"][1][0].values)
         def testRefToPSet(self):
             proc = Process("test")
             proc.top = PSet(a = int32(1))
