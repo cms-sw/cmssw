@@ -375,12 +375,12 @@ std::vector<std::pair<std::string,std::string> > SimHitsValidationHcal::getHisto
 
   std::vector<std::pair<std::string,std::string> > divisions;
   std::pair<std::string,std::string> names;
-  char                               name1[20], name2[20];
+  char                               name1[40], name2[40];
   SimHitsValidationHcal::idType      type;
   //first overall Hcal
   for (int depth=0; depth<maxDepth; ++depth) {
-    sprintf (name1, "HC%d", depth);
-    sprintf (name2, "HCAL depth%d", depth+1);
+    snprintf (name1, 40, "HC%d", depth);
+    snprintf (name2, 40, "HCAL depth%d", depth+1);
     names = std::pair<std::string,std::string>(std::string(name1),std::string(name2));
     type  = SimHitsValidationHcal::idType(HcalEmpty,0,depth+1,depth+1);
     divisions.push_back(names);
@@ -388,8 +388,8 @@ std::vector<std::pair<std::string,std::string> > SimHitsValidationHcal::getHisto
   }
   //HB
   for (int depth=0; depth<maxDepthHB_; ++depth) {
-    sprintf (name1, "HB%d", depth);
-    sprintf (name2, "HB depth%d", depth+1);
+    snprintf (name1, 40, "HB%d", depth);
+    snprintf (name2, 40, "HB depth%d", depth+1);
     names = std::pair<std::string,std::string>(std::string(name1),std::string(name2));
     type  = SimHitsValidationHcal::idType(HcalBarrel,0,depth+1,depth+1);
     divisions.push_back(names);
@@ -397,14 +397,14 @@ std::vector<std::pair<std::string,std::string> > SimHitsValidationHcal::getHisto
   }
   //HE
   for (int depth=0; depth<maxDepthHE_; ++depth) {
-    sprintf (name1, "HE%d+z", depth);
-    sprintf (name2, "HE +z depth%d", depth+1);
+    snprintf (name1, 40, "HE%d+z", depth);
+    snprintf (name2, 40, "HE +z depth%d", depth+1);
     names = std::pair<std::string,std::string>(std::string(name1),std::string(name2));
     type  = SimHitsValidationHcal::idType(HcalEndcap,1,depth+1,depth+1);
     divisions.push_back(names);
     types.push_back(type);
-    sprintf (name1, "HE%d-z", depth);
-    sprintf (name2, "HE -z depth%d", depth+1);
+    snprintf (name1, 40, "HE%d-z", depth);
+    snprintf (name2, 40, "HE -z depth%d", depth+1);
     names = std::pair<std::string,std::string>(std::string(name1),std::string(name2));
     type  = SimHitsValidationHcal::idType(HcalEndcap,-1,depth+1,depth+1);
     divisions.push_back(names);
@@ -413,8 +413,8 @@ std::vector<std::pair<std::string,std::string> > SimHitsValidationHcal::getHisto
   //HO
   {
     int depth = maxDepthHO_;
-    sprintf (name1, "HO%d", depth);
-    sprintf (name2, "HO depth%d", depth);
+    snprintf (name1, 40, "HO%d", depth);
+    snprintf (name2, 40, "HO depth%d", depth);
     names = std::pair<std::string,std::string>(std::string(name1),std::string(name2));
     type  = SimHitsValidationHcal::idType(HcalOuter,0,depth,depth);
     divisions.push_back(names);
@@ -426,14 +426,14 @@ std::vector<std::pair<std::string,std::string> > SimHitsValidationHcal::getHisto
   int         dept0[4] = {0, 1, 2, 3};
   for (int k=0; k<4; ++k) {
     for (int depth=0; depth<maxDepthHF_; ++depth) {
-      sprintf (name1, "HF%s%d+z", hfty1[k].c_str(), depth);
-      sprintf (name2, "HF (%s) +z depth%d", hfty2[k].c_str(), depth+1);
+      snprintf (name1, 40, "HF%s%d+z", hfty1[k].c_str(), depth);
+      snprintf (name2, 40, "HF (%s) +z depth%d", hfty2[k].c_str(), depth+1);
       names = std::pair<std::string,std::string>(std::string(name1),std::string(name2));
       type  = SimHitsValidationHcal::idType(HcalForward,1,depth+1,dept0[k]);
       divisions.push_back(names);
       types.push_back(type);
-      sprintf (name1, "HF%s%d-z", hfty1[k].c_str(), depth);
-      sprintf (name2, "HF (%s) -z depth%d", hfty2[k].c_str(), depth+1);
+      snprintf (name1, 40, "HF%s%d-z", hfty1[k].c_str(), depth);
+      snprintf (name2, 40, "HF (%s) -z depth%d", hfty2[k].c_str(), depth+1);
       names = std::pair<std::string,std::string>(std::string(name1),std::string(name2));
       type  = SimHitsValidationHcal::idType(HcalForward,-1,depth+1,dept0[k]);
       divisions.push_back(names);
