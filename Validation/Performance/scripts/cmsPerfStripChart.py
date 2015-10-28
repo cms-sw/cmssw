@@ -11,7 +11,7 @@ def get_yaxis_range(list):
     about an IB, this function returns a tuple (low, high) with the lowest
     and the highest value of y-axis, respectively. 
     """
-    low, high = sys.maxint, -1
+    low, high = sys.maxsize, -1
     for node in list:
         low = min((node['average'] - node['error']), low)
         high = max((node['average'] + node['error']), high)

@@ -463,7 +463,7 @@ class parserPerfsuiteMetadata:
 			thread_id, thread_number = reAddThread.match(job_lines[thread_id_index]).groups()
 			info["thread_id"] = thread_id
 			
-			if not test.has_key(testName):
+			if testName not in test:
 				test[testName] = []
 			test[testName].append(info)
 		
@@ -686,7 +686,7 @@ class parserPerfsuiteMetadata:
 				print "Extracted castor tarball full path by re-parsing cmsPerfSuite.log: %s"%url
 				
 			except:
-				if os.environ.has_key("PERFDB_CASTOR_FILE_URL"):
+				if "PERFDB_CASTOR_FILE_URL" in os.environ:
 					url = os.environ["PERFDB_CASTOR_FILE_URL"]
 					
 				else: #FIXME: add the possibility to get it directly from the cmsPerfSuite.log file (make sure it is dumped there before doing the tarball itself...)

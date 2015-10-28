@@ -45,7 +45,7 @@ def fillnumForRun(dbsession,c,runnum):
         query.defineOutput(fillOutput)
         
         cursor=query.execute()
-        while cursor.next():
+        while next(cursor):
             result=cursor.currentRow()['fillnum'].data()
         del query
         dbsession.transaction().commit()
@@ -88,7 +88,7 @@ def hltkeyForRun(dbsession,c,runnum):
         query.defineOutput(hltkeyOutput)
         
         cursor=query.execute()
-        while cursor.next():
+        while next(cursor):
             runnum=cursor.currentRow()['runnum'].data()
             hltkey=cursor.currentRow()['hltkey'].data()
             result[runnum]=hltkey
@@ -133,7 +133,7 @@ def l1keyForRun(dbsession,c,runnum):
         query.defineOutput(l1keyOutput)
         
         cursor=query.execute()
-        while cursor.next():
+        while next(cursor):
             runnum=cursor.currentRow()['runnum'].data()
             l1key=cursor.currentRow()['l1key'].data()
             result[runnum]=l1key

@@ -45,7 +45,7 @@ def bitzeroForRun(dbsession,c,runnum):
         
         query.defineOutput(bitzeroOutput)
         cursor=query.execute()
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['lsnr'].data()
             bitcount=cursor.currentRow()['bitcount'].data()
             result[cmslsnum]=bitcount
@@ -87,7 +87,7 @@ def deadcountForRun(dbsession,c,runnum):
         query.defineOutput(deadOutput)
         
         cursor=query.execute()
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['lsnr'].data()
             deadcount=cursor.currentRow()['deadcount'].data()
             result[cmslsnum]=deadcount

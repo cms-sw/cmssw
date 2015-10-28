@@ -226,14 +226,14 @@ def exportRunInfo(xml_doc, run_info, release = None, print_out = False):
 	#create nodes for TestResults:
 	for (testName, result) in run_info["TestResults"].items():
 		#either we have one node or multiple ones (if list)
-		if type(result) == types.ListType:
+		if type(result) == list:
 			for result_item in result:
 				result_item.update({"testname": testName})
 
 				#We have JOBS so FAR only for TimeSize which we represent as a list
 				jobs = []
 				#we don't want jobs to be dumped as string
-				if result_item.has_key("jobs"):
+				if "jobs" in result_item:
 					jobs = result_item["jobs"]
 					del result_item["jobs"]
 

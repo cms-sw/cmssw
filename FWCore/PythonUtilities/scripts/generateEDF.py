@@ -255,7 +255,7 @@ def loadEvents (filename, cont, options):
         except:
             continue
         key = (run, lumi)
-        if not cont.has_key (key):
+        if key not in cont:
             if options.ignore:
                 print "Warning, %s is not found in the lumi information" \
                       % key.__str__()

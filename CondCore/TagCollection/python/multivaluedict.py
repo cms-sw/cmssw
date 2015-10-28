@@ -51,7 +51,7 @@ class mseqdict(seqdict):    #Sequential Multiple Value Dictionary
           else:
             self.__setitem__(key,value)     
   def __setitem__(self,key,value):
-    if not self.dict.has_key(key):
+    if key not in self.dict:
       self.list.append(key)
       if isinstance(value,MyUserList):
         self.dict[key] = value
@@ -76,7 +76,7 @@ class mseqdict(seqdict):    #Sequential Multiple Value Dictionary
     start = max(start,0); stop = max(stop,0)
     delindexes = []
     for key in newdict.keys():
-      if self.dict.has_key(key):
+      if key in self.dict:
         index = self.list.index(key)
         delindexes.append(index)
         if index < start:

@@ -440,7 +440,7 @@ def pythonFragment(step,cmsdriverOptions):
     
     if "--pileup" in cmsdriverOptions and not (step == "HLT" or step.startswith("RAW2DIGI")):
         return CustomiseFragment['DIGI-PILEUP']
-    elif CustomiseFragment.has_key(step):
+    elif step in CustomiseFragment:
         return CustomiseFragment[step] 
     else:
         #This is a safe default in any case,

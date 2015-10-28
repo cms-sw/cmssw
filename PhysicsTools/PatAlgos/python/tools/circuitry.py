@@ -68,21 +68,21 @@ def plotModuleInputs(seq,filename,printOuter=True,printLinkNames=True):
         tags = greptags(m)
         #stderr.write("Tags for %s: %s\n" % (m.label(), tags))
         deps[m.label()] = tags;
-        if not alls.has_key(m.label()): alls[m.label()]=True
+        if m.label() not in alls: alls[m.label()]=True
         for (tn,tv) in tags:
             tve = escapeParValue(tv)
-            if not alls.has_key(tve): alls[tve]=True
+            if tve not in alls: alls[tve]=True
     names = deps.keys();
     if printOuter: names = alls.keys()
     done = {}
     for n in names:
         ne = escapeParValue(n)
-        if not deps.has_key(ne):
+        if ne not in deps:
             dot.write( "%s [  shape=rect style=filled fillcolor=%s label=\"%s\" ]" % (ne,'yellow',ne) + "\n")
         else:
             for tn,tv in deps[ne]:
                 tve = escapeParValue(tv)
-                if printOuter or deps.has_key(tve):
+                if printOuter or tve in deps:
                     style = ""
                     if printLinkNames: style = " [label=\"%s\" ]" %(tn,)
                     dot.write(  "%s -> %s%s\n"%(tve,ne,style))

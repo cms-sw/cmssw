@@ -211,7 +211,7 @@ for run in runs:
    # insert a line with the menu's name
    #
    # check whether we actually could determine the menu
-   if not hlt_path_names_table.has_key(hlt_key):
+   if hlt_key not in hlt_path_names_table:
        # could previously not retrieve the python
        # configuration for this key 
        #

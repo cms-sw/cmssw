@@ -396,7 +396,7 @@ class Process(object):
             # we have to remove it from all dictionaries/registries
             dicts = [item for item in self.__dict__.values() if (type(item)==dict or type(item)==DictTypes.SortedKeysDict)]
             for reg in dicts:
-                if reg.has_key(name): del reg[name]
+                if name in reg: del reg[name]
             # if it was a labelable object, the label needs to be removed
             obj = getattr(self,name)
             if isinstance(obj,_Labelable):
@@ -774,7 +774,7 @@ class Process(object):
             for path in self.schedule_():
                pathname = path.label_()
                scheduledPaths.append(pathname)
-               if self.endpaths_().has_key(pathname):
+               if pathname in self.endpaths_():
                    endpaths.append(pathname)
                else:
                    triggerPaths.append(pathname)

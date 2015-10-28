@@ -61,7 +61,7 @@ def getSummaryValues(file_name, translate, filters = None):
   for sub in run.GetListOfKeys():
 
     sub_name = sub.ReadObj().GetName()
-    if not SUBSYSTEMS.has_key(sub_name): continue
+    if sub_name not in SUBSYSTEMS: continue
 
     sub_key = sub_name
     if translate:
@@ -71,7 +71,7 @@ def getSummaryValues(file_name, translate, filters = None):
       if not re.match(filters[0], sub_key):
         continue
     
-    if not result.has_key(sub_key):
+    if sub_key not in result:
       result[sub_key] = {}
 
     evInfo = sub.ReadObj().GetDirectory("Run summary/EventInfo")
@@ -90,7 +90,7 @@ def getSummaryValues(file_name, translate, filters = None):
         if not re.match(filters[1], folder_id):
           continue
     
-      if not result[sub_key].has_key(folder_id):
+      if folder_id not in result[sub_key]:
         result[sub_key][folder_id] = {}
 
       value_filter = None
@@ -111,12 +111,12 @@ def writeValues(folder, map, keymap = None, filter = None):
     if not value.IsFolder() and re.match("^<.+>f=-{,1}[0-9\.]+</.+>$", full_name):
       value_name = re.sub("<(?P<n>[^>]+)>.+", "\g<n>", full_name)
       value_numb = float(re.sub("<.+>f=(?P<n>-{,1}[0-9\.]+)</.+>", "\g<n>", full_name))
-      if keymap == None or keymap.has_key(value_name):
+      if keymap == None or value_name in keymap:
         if not keymap == None:
           if not keymap[value_name] == None:
             value_name = keymap[value_name]
         if filter == None or re.match(filter, value_name):
-          if not map.has_key(value_name):
+          if value_name not in map:
             map[value_name] = value_numb
 
 def checkFilter(raw_filter):

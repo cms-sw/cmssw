@@ -246,7 +246,7 @@ class DBSXMLHandler(xml.sax.handler.ContentHandler):
 
         if self.current_element() in self.tag_names:
             contents = "".join(self.current_value)
-            if self.results.has_key(self.current_element()):
+            if self.current_element() in self.results:
                 self.results[self.current_element()].append(contents)
             else:
                 self.results[self.current_element()] = [contents]
@@ -1795,8 +1795,8 @@ class CMSHarvester(object):
 
             # But check that it hosts the CMSSW version we want.
 
-            if self.sites_and_versions_cache.has_key(se_name) and \
-                   self.sites_and_versions_cache[se_name].has_key(cmssw_version):
+            if se_name in self.sites_and_versions_cache and \
+                   cmssw_version in self.sites_and_versions_cache[se_name]:
                 if self.sites_and_versions_cache[se_name][cmssw_version]:
                     site_name = se_name
                     break
@@ -3176,12 +3176,12 @@ class CMSHarvester(object):
             nevents = int(handler.results["file.numevents"][index])
 
             # I know, this is a bit of a kludge.
-            if not files_info.has_key(run_number):
+            if run_number not in files_info:
                 # New run.
                 files_info[run_number] = {}
                 files_info[run_number][file_name] = (nevents,
                                                      [site_name])
-            elif not files_info[run_number].has_key(file_name):
+            elif file_name not in files_info[run_number]:
                 # New file for a known run.
                 files_info[run_number][file_name] = (nevents,
                                                      [site_name])
@@ -5256,7 +5256,7 @@ class CMSHarvester(object):
                     # We don't want people to accidentally specify
                     # multiple mappings for the same dataset. Just
                     # don't accept those cases.
-                    if self.ref_hist_mappings.has_key(dataset_name):
+                    if dataset_name in self.ref_hist_mappings:
                         msg = "ERROR: The reference histogram mapping " \
                               "file contains multiple mappings for " \
                               "dataset `%s'."
@@ -5674,8 +5674,7 @@ class CMSHarvester(object):
                             for run_number in self.datasets_to_use[dataset_name]:
                                 tmp[run_number] = self.datasets_information \
                                                   [dataset_name]["num_events"][run_number]
-                            if self.book_keeping_information. \
-                                   has_key(dataset_name):
+                            if dataset_name in self.book_keeping_information:
                                 self.book_keeping_information[dataset_name].update(tmp)
                             else:
                                 self.book_keeping_information[dataset_name] = tmp

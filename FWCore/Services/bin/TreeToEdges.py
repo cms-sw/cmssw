@@ -21,7 +21,7 @@ def runme(infile,outfile,cutoff):
     tree = {}
     count = 0
     
-    for line in fin.xreadlines():
+    for line in fin:
 
         a = line.split()
         id = int(a.pop(0))
