@@ -60,12 +60,17 @@ e.g.: %prog -u wreece -p -w 'PFAOD_*.root' /MultiJet/Run2011A-05Aug2011-v1/AOD/V
         print 'Checking thread done: ',str(result)
     
     #submit the main work in a multi-threaded way
-    import multiprocessing
-    if opts.max_threads is not None and opts.max_threads:
-        opts.max_threads = int(opts.max_threads)
-    pool = multiprocessing.Pool(processes=opts.max_threads)
 
-    for d in datasets:
-        pool.apply_async(work, args=(d,copy.deepcopy(opts)),callback=callback)
-    pool.close()
-    pool.join()
+    if len(datasets) == 1:
+        d = datasets[0]
+        work(d, copy.deepcopy(opts))
+    else:
+        import multiprocessing
+        if opts.max_threads is not None and opts.max_threads:
+            opts.max_threads = int(opts.max_threads)
+        pool = multiprocessing.Pool(processes=opts.max_threads)
+
+        for d in datasets:
+            pool.apply_async(work, args=(d,copy.deepcopy(opts)),callback=callback)
+        pool.close()
+        pool.join()
