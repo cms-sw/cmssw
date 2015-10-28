@@ -28,6 +28,7 @@
 <use   name="CalibTracker/Records"/>
 <use   name="CommonTools/TriggerUtils"/>
 <use   name="Validation/RecoTrack"/>
+<use   name="RecoPixelVertexing/PixelTrackFitting"/>
 <lib   name="MathMore"/>
 <library   file="*.cc" name="ValidationRecoTrackPlugins">
   <flags   EDM_PLUGIN="1"/>
