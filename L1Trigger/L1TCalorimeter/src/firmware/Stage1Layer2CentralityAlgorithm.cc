@@ -43,16 +43,23 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
     sumET +=regionET;
   }
 
-  // The LUT format is pretty funky. The nominal threshold is the average of every pair of entries.
-  int LUT_under[7];
-  int LUT_nominal[7];
-  int LUT_over[7];
-  for(int i = 0; i < 14; ++i)
+  // The LUT format is pretty funky.
+  int LUT_under[8];
+  int LUT_nominal[8];
+  int LUT_over[8];
+  for(int i = 0; i < 8; ++i)
   {
-    if(i%2 == 0){
-      LUT_under[i/2] = params_->centralityLUT()->data(i);
+    LUT_nominal[i] = params_->centralityLUT()->data(i);
+  }
+  LUT_under[0] = LUT_nominal[0];
+  LUT_over[0] = LUT_nominal[0];
+  for(int i = 8; i < 22; ++i)
+  {
+    int j=i-8;
+    if(j%2 == 0){
+      LUT_under[j/2+1] = params_->centralityLUT()->data(i);
     } else {
-      LUT_over[i/2] = params_->centralityLUT()->data(i);
+      LUT_over[j/2+1] = params_->centralityLUT()->data(i);
     }
   }
 
@@ -60,22 +67,20 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
   int underlapResult = 0;
   int overlapResult = 0;
 
-  for(int i = 0; i < 7; ++i)
+  for(int i = 0; i < 8; ++i)
   {
-
-    LUT_nominal[i] = (LUT_under[i] + LUT_over[i])/2;
     if(sumET > LUT_nominal[i])
-      regularResult = i+1;
+      regularResult = i;
     if(sumET > LUT_under[i])
-      underlapResult = i+1;
+      underlapResult = i;
     if(sumET > LUT_over[i])
-      overlapResult = i+1;
+      overlapResult = i;
   }
 
   int alternateResult = 0;
-  if(underlapResult < regularResult) {
+  if(underlapResult > regularResult) {
     alternateResult = underlapResult;
-  } else if(overlapResult > regularResult) {
+  } else if(overlapResult < regularResult) {
     alternateResult = overlapResult;
   } else {
     alternateResult = regularResult;
@@ -128,8 +133,13 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
       std::cout << "HF Ring Sums (Centrality)" << std::endl;
       std::cout << bitset<12>(spare->hwPt()).to_string() << std::endl;
     } else {
-      std::cout << "Centrality" << std::endl;
-      std::cout << std::hex << spare->hwPt() << std::endl;
+      //std::cout << "Centrality" << std::endl;
+      //std::cout << std::hex << spare->hwPt() << std::endl;
+      std::cout << std::hex << spare->GetRing(0) << " "
+		<< spare->GetRing(1) << " "
+		<< bits[0] << " " << bits[1] << " "
+		<< bits[2] << " " << bits[3] << " "
+		<< bits[4] << " " << bits[5] << std::endl;
     }
   }
 
