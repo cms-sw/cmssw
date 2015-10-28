@@ -1,3 +1,11 @@
+/*!
+
+This module performs the fast simulation of the reconstruction of TrajectorySeeds.
+It takes as input a vector of tracking rechit combinations (FastTrackingRecHitCombination).
+Seed reconstruction is only allowed within each rechit combination.
+
+*/
+
 #ifndef FastSimulation_Tracking_TrajectorySeedProducer_h
 #define FastSimulation_Tracking_TrajectorySeedProducer_h
 
