@@ -405,7 +405,7 @@ class JetAnalyzer( Analyzer ):
         self.partons   = [ p for p in event.genParticles if ((p.status() == 23 or p.status() == 3) and abs(p.pdgId())>0 and (abs(p.pdgId()) in [1,2,3,4,5,21]) ) ]
         match = matchObjectCollection2(self.cleanJetsAll,
                                        self.partons,
-                                       deltaRMax = 0.3)
+                                       deltaRMax = 0.4)
 
         for jet in self.cleanJetsAll:
             parton = match[jet]
@@ -428,19 +428,22 @@ class JetAnalyzer( Analyzer ):
     def matchJets(self, event, jets):
         match = matchObjectCollection2(jets,
                                        event.genbquarks + event.genwzquarks,
-                                       deltaRMax = 0.3)
+                                       deltaRMax = 0.4)
         for jet in jets:
             gen = match[jet]
             jet.mcParton    = gen
             jet.mcMatchId   = (gen.sourceId     if gen != None else 0)
             jet.mcMatchFlav = (abs(gen.pdgId()) if gen != None else 0)
 
-        match = matchObjectCollection2(jets,
-                                       self.genJets,
-                                       deltaRMax = 0.3)
-        for jet in jets:
-            jet.mcJet = match[jet]
+        #match = matchObjectCollection2(jets,
+        #                               self.genJets,
+        #                               deltaRMax = 0.3)
 
+        # use the genJet matching stored in miniAOD
+        for jet in jets:
+            jet.mcJet = jet.genJet()
+            # this is with the heppy matching: 
+            #jet.mcJet = match[jet]
 
  
     def smearJets(self, event, jets):
