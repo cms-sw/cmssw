@@ -29,10 +29,10 @@ DQMScalInfo::DQMScalInfo(const edm::ParameterSet& ps)
   parameters_ = ps;
 
   scalfolder_          = parameters_.getUntrackedParameter<std::string>("dqmScalFolder", "Scal") ;
-  gtCollection_        = consumes<L1GlobalTriggerReadoutRecord>(parameters_.getUntrackedParameter<edm::InputTag>("gtCollection",std::string("gtDigis")));
-  dcsStatusCollection_ = consumes<DcsStatusCollection>(parameters_.getUntrackedParameter<edm::InputTag>("dcsStatusCollection",std::string("scalersRawToDigi")));
-  l1tscollectionToken_ = consumes<Level1TriggerScalersCollection>(parameters_.getUntrackedParameter<edm::InputTag>("l1TSCollection", std::string("scalersRawToDigi")));
-  lumicollectionToken_ = consumes<LumiScalersCollection>(parameters_.getUntrackedParameter<edm::InputTag>("lumiCollection", std::string("scalersRawToDigi")));
+  gtCollection_        = consumes<L1GlobalTriggerReadoutRecord>(parameters_.getUntrackedParameter<edm::InputTag>("gtCollection", edm::InputTag("gtDigis")));
+  dcsStatusCollection_ = consumes<DcsStatusCollection>(parameters_.getUntrackedParameter<edm::InputTag>("dcsStatusCollection", edm::InputTag("scalersRawToDigi")));
+  l1tscollectionToken_ = consumes<Level1TriggerScalersCollection>(parameters_.getUntrackedParameter<edm::InputTag>("l1TSCollection", edm::InputTag("scalersRawToDigi")));
+  lumicollectionToken_ = consumes<LumiScalersCollection>(parameters_.getUntrackedParameter<edm::InputTag>("lumiCollection", edm::InputTag("scalersRawToDigi")));
 }
 
 DQMScalInfo::~DQMScalInfo(){
