@@ -165,7 +165,6 @@ class SeedFinder
             }
 
             return std::vector<unsigned int>();
-          
         }
 };
 
