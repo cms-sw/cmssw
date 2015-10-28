@@ -81,6 +81,4 @@ class HGCFEElectronics
   uint32_t toaMode_;
 };
 
-#include "HGCFEElectronics.icc"
-
 #endif

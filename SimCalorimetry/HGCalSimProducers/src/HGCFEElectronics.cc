@@ -1,8 +1,6 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCFEElectronics.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
-
-
 using namespace std;
 
 //
@@ -321,4 +319,9 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
     edm::LogVerbatim("HGCFE") << msg << endl; 
   }
 }
+
+// cause the compiler to generate the appropriate code
+#include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
+template class HGCFEElectronics<HGCEEDataFrame>;
+template class HGCFEElectronics<HGCHEDataFrame>;
 

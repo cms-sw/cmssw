@@ -123,9 +123,9 @@ for path in process.paths:
 # customisation of the process.
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023HGCalMuon
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023HGCal
 
 #call to customisation function cust_2023HGCalMuon imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023HGCalMuon(process)
+process = cust_2023HGCal(process)
 
 # End of customisation functions

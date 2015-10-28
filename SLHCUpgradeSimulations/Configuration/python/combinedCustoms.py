@@ -39,7 +39,9 @@ def noCrossing(process):
     process=customise_NoCrossing(process)
     return process
 
-def cust_2023HGCal_common(process):
+def cust_2023HGCal_common(process):   
+    process = customise_rpc(process)
+    process = fixRPCConditions(process)
     process = customise_HcalPhase1(process)
     process = customisePhase1Tk(process)    
     if hasattr(process,'L1simulation_step'):
@@ -62,14 +64,12 @@ def cust_2023HGCal_common(process):
         process.mix.mixObjects.mixCH.subdets.append( process.hgchefrontDigitizer.hitCollection.value() )    
     return process
 
-def cust_2023HGCal(process):
+def cust_2023HGCal(process):    
     process = cust_2023HGCal_common(process)
     return process
 
-def cust_2023HGCalMuon(process):
+def cust_2023HGCalMuon(process):    
     process = customise_me0(process)
-    process = customise_rpc(process)
-    process = fixRPCConditions(process)
     process = cust_2023HGCal_common(process)    
     return process
 
