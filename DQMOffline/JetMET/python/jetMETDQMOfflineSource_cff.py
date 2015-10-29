@@ -105,7 +105,7 @@ jetMETDQMOfflineSource = cms.Sequence(AnalyzeSUSYDQM*QGTagger*
                                       jetPreDQMSeq*
                                       dqmAk4CaloL2L3ResidualCorrectorChain*dqmAk4PFL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3CorrectorChain*
                                       goodOfflinePrimaryVerticesDQM*                                                                            
-                                      dqmCorrPfMetType1*pfMETT1*jetDQMAnalyzerSequence*HBHENoiseFilterResultProducer*HBHENoiseFilterResultProducer*
+                                      dqmCorrPfMetType1*pfMETT1*jetDQMAnalyzerSequence*HBHENoiseFilterResultProducer*
                                       CSCTightHaloFilterDQM*CSCTightHalo2015FilterDQM*eeBadScFilterDQM*EcalDeadCellTriggerPrimitiveFilterDQM*EcalDeadCellBoundaryEnergyFilterDQM*HcalStripHaloFilterDQM
                                       *METDQMAnalyzerSequence)
 jetMETDQMOfflineSourceMiniAOD = cms.Sequence(goodOfflinePrimaryVerticesDQMforMiniAOD*jetDQMAnalyzerSequenceMiniAOD*METDQMAnalyzerSequenceMiniAOD)

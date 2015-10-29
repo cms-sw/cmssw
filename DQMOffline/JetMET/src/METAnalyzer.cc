@@ -1678,7 +1678,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     trigger_flag[3]=true;
   }
   std::vector<bool>filter_decisions(8,false);//include all recommended filters, old filters in MiniAOD, and 2 new filters in testing phase
-  if(!isMiniAODMet_){//not checked for MiniAOD -> for miniaod decision filled as "triggerResults" bool
+  if(!isMiniAODMet_ && !runcosmics_){//not checked for MiniAOD -> for miniaod decision filled as "triggerResults" bool
     edm::Handle<bool> HBHENoiseFilterResultHandle;
     iEvent.getByToken(hbheNoiseFilterResultToken_, HBHENoiseFilterResultHandle);
     if (!HBHENoiseFilterResultHandle.isValid()) {
