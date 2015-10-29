@@ -2,13 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 ## select events with at least one good PV
-pvFilterHighMETSkim = cms.EDFilter(
-    "VertexSelector",
-    src = cms.InputTag("offlinePrimaryVertices"),
-    cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
-    filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
-    )
-
+from RecoMET.METFilters.primaryVertexFilter_cfi import *
 
 ## apply HBHE Noise filter
 ## import CommonTools.RecoAlgos.HBHENoiseFilter_cfi
@@ -29,7 +23,7 @@ pfMETCounterHighMETSkim = cms.EDFilter(
     )
 
 pfMETSelSeq = cms.Sequence(
-			   pvFilterHighMETSkim*
+			   primaryVertexFilter*
                            ##HBHENoiseFilter*
                            pfMETSelectorHighMETSkim*
                            pfMETCounterHighMETSkim
@@ -51,7 +45,7 @@ caloMETCounterHighMETSkim = cms.EDFilter(
     )
 
 caloMETSelSeq = cms.Sequence(
-			   pvFilterHighMETSkim*
+			   primaryVertexFilter*
                            ##HBHENoiseFilter*
                            caloMETSelectorHighMETSkim*
                            caloMETCounterHighMETSkim
@@ -72,7 +66,7 @@ CondMETCounterHighMETSkim = cms.EDFilter(
     )
 
 CondMETSelSeq = cms.Sequence(
-                           pvFilterHighMETSkim*
+                           primaryVertexFilter*
                            ##HBHENoiseFilter*
                            CondMETSelectorHighMETSkim*
                            CondMETCounterHighMETSkim

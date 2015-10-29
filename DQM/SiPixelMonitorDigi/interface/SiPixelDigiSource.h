@@ -80,9 +80,6 @@
        bool ladOn, layOn, phiOn;
        //forward:
        bool ringOn, bladeOn, diskOn; 
-       int eventNo;
-       int lumSec;
-       int nLumiSecs;
        std::map<uint32_t,SiPixelDigiModule*> thePixelStructure;
 
        int nDP1P1M1;
