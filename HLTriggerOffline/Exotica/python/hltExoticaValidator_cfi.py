@@ -40,6 +40,8 @@ from HLTriggerOffline.Exotica.analyses.hltExoticaEleMu_cff             import El
 from HLTriggerOffline.Exotica.analyses.hltExoticaHTDisplacedJets_cff   import HTDisplacedJetsPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaPhotonMET_cff         import PhotonMETPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaSingleMuon_cff        import SingleMuonPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaDSTJets_cff           import DSTJetsPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaDSTMuons_cff          import DSTMuonsPSet
 
 hltExoticaValidator = cms.EDAnalyzer(
 
@@ -76,7 +78,9 @@ hltExoticaValidator = cms.EDAnalyzer(
         #"DisplacedDimuonDijet",
         "EleMu",
         "PhotonMET",
-        "HTDisplacedJets"
+        "HTDisplacedJets",
+        "DSTJets",
+        "DSTMuons"
         ),
     
     # -- The instance name of the reco::GenParticles collection
@@ -229,5 +233,7 @@ hltExoticaValidator = cms.EDAnalyzer(
     #DisplacedDimuonDijet = DisplacedDimuonDijetPSet,
     EleMu            = EleMuPSet,
     PhotonMET        = PhotonMETPSet,
-    HTDisplacedJets  = HTDisplacedJetsPSet 
+    HTDisplacedJets  = HTDisplacedJetsPSet, 
+    DSTJets          = DSTJetsPSet, 
+    DSTMuons         = DSTMuonsPSet
 )
