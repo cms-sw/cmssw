@@ -44,7 +44,24 @@ def customisePostLS1_Common(process):
 
 
 def customisePostLS1(process):
-
+    print """
+    #
+    # -- Warning! You are using a deprecated customisation function. --
+    #
+    # It will probably run fine, but the customisations you are getting may be out of date.
+    # You should update your configuration file by
+    #   If using cmsDriver:
+    #       1) remove the "--customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1" option
+    #       2) add the option "--era Run2_25ns"
+    #   If using a pre-made configuration file:
+    #       1) remove or comment out the "process = customisePostLS1(process)" line.
+    #       2) add "from Configuration.StandardSequences.Eras import eras" to the TOP of the config file (above
+    #          the process declaration).
+    #       3) add "eras.Run2_25ns" as a parameter to the process object, e.g. "process = cms.Process('HLT',eras.Run2_25ns)"
+    #
+    # There is more information at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCmsDriverEras
+    #
+    """
     # common customisation
     process = customisePostLS1_Common(process)
 
@@ -70,6 +87,24 @@ def customisePostLS1_lowPU(process):
 
 
 def customisePostLS1_50ns(process):
+    print """
+    #
+    # -- Warning! You are using a deprecated customisation function. --
+    #
+    # It will probably run fine, but the customisations you are getting may be out of date.
+    # You should update your configuration file by
+    #   If using cmsDriver:
+    #       1) remove the "--customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns" option
+    #       2) add the option "--era Run2_50ns"
+    #   If using a pre-made configuration file:
+    #       1) remove or comment out the "process = customisePostLS1_50ns(process)" line.
+    #       2) add "from Configuration.StandardSequences.Eras import eras" to the TOP of the config file (above
+    #          the process declaration).
+    #       3) add "eras.Run2_50ns" as a parameter to the process object, e.g. "process = cms.Process('HLT',eras.Run2_50ns)"
+    #
+    # There is more information at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCmsDriverEras
+    #
+    """
 
     # common customisations
     process = customisePostLS1_Common(process)
@@ -82,6 +117,24 @@ def customisePostLS1_50ns(process):
 
 
 def customisePostLS1_HI(process):
+    print """
+    #
+    # -- Warning! You are using a deprecated customisation function. --
+    #
+    # It will probably run fine, but the customisations you are getting may be out of date.
+    # You should update your configuration file by
+    #   If using cmsDriver:
+    #       1) remove the "--customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_HI" option
+    #       2) add the option "--era Run2_HI"
+    #   If using a pre-made configuration file:
+    #       1) remove or comment out the "process = customisePostLS1_HI(process)" line.
+    #       2) add "from Configuration.StandardSequences.Eras import eras" to the TOP of the config file (above
+    #          the process declaration).
+    #       3) add "eras.Run2_HI" as a parameter to the process object, e.g. "process = cms.Process('HLT',eras.Run2_HI)"
+    #
+    # There is more information at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCmsDriverEras
+    #
+    """
 
     # common customisation
     process = customisePostLS1_Common(process)
@@ -138,9 +191,7 @@ def customise_DQM(process):
 
 
 def customise_DQM_25ns(process):
-    # Switch the default decision of the HCAL noise filter
-    if hasattr(process,'HBHENoiseFilterResultProducer'):
-        process.HBHENoiseFilterResultProducer.defaultDecision = cms.string("HBHENoiseFilterResultRun2Loose")
+    #Empty place-holder
     return process
 
 
@@ -156,7 +207,6 @@ def customise_Sim(process):
     # enable 2015 HF shower library
     process.g4SimHits.HFShowerLibrary.FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v3.root'
     return process
-
 
 def customise_Digi_Common(process):
     process = digiEventContent(process)
@@ -735,6 +785,10 @@ def customise_Reco(process):
 
         process.particleFlowClusterHO.pfClusterBuilder.positionCalc.logWeightDenominator = cms.double(0.05)
         process.particleFlowClusterHO.pfClusterBuilder.allCellsPositionCalc.logWeightDenominator = cms.double(0.05)
+
+    # Muon reconstruction do not exclude bad chambers
+    if hasattr(process, 'muonDetIdAssociator'):
+        process.muonDetIdAssociator.includeBadChambers = cms.bool(True)
 
     return process
 

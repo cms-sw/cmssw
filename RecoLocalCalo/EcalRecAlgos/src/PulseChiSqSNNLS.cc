@@ -300,8 +300,9 @@ bool PulseChiSqSNNLS::NNLS() {
   aTbvec = invcovp.transpose()*_covdecomp.matrixL().solve(_sampvec);  
   
   int iter = 0;
-  Index idxwmax;
+  Index idxwmax = 0;
   double wmax = 0.0;
+  double threshold = 1e-11;
   //work = PulseVector::zeros();
   while (true) {    
     //can only perform this step if solution is guaranteed viable
@@ -311,10 +312,18 @@ bool PulseChiSqSNNLS::NNLS() {
       const unsigned int nActive = npulse - _nP;
       
       updatework = aTbvec - aTamat*_ampvec;      
+      Index idxwmaxprev = idxwmax;
+      double wmaxprev = wmax;
       wmax = updatework.tail(nActive).maxCoeff(&idxwmax);
       
       //convergence
-      if (wmax<1e-11) break;
+      if (wmax<threshold || (idxwmax==idxwmaxprev && wmax==wmaxprev)) break;
+      
+      //worst case protection
+      if (iter>=500) {
+        edm::LogWarning("PulseChiSqSNNLS::NNLS()") << "Max Iterations reached at iter " << iter <<  std::endl;
+        break;
+      }
       
       //unconstrain parameter
       Index idxp = _nP + idxwmax;
@@ -382,6 +391,12 @@ bool PulseChiSqSNNLS::NNLS() {
       --_nP;      
     }
     ++iter;
+    
+    //adaptive convergence threshold to avoid infinite loops but still
+    //ensure best value is used
+    if (iter%50==0) {
+      threshold *= 10.;
+    }
   }
   
   return true;

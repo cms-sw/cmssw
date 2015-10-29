@@ -24,24 +24,25 @@ inclusiveCandidateVertexing = cms.Sequence(inclusiveCandidateVertexFinder*candid
 
 
 #relaxed IVF reconstruction cuts for candidate-based ctagging
-inclusiveCandidateVertexFinderCtagL = inclusiveCandidateVertexFinder.clone()
-inclusiveCandidateVertexFinderCtagL.vertexMinDLen2DSig = 1.25 
-inclusiveCandidateVertexFinderCtagL.vertexMinDLenSig = 0.25
-inclusiveCandidateVertexFinderCtagL.clusterizer.seedMin3DIPSignificance = 1.0
-#inclusiveCandidateVertexFinderCtagL.clusterizer.seedMin3DIPValue = 0.005
-inclusiveCandidateVertexFinderCtagL.clusterizer.distanceRatio = 10
+inclusiveCandidateVertexFinderCvsL = inclusiveCandidateVertexFinder.clone(
+   vertexMinDLen2DSig = cms.double(1.25),
+   vertexMinDLenSig = cms.double(0.25)
+)
 
-candidateVertexMergerCtagL = candidateVertexMerger.clone()
-candidateVertexMergerCtagL.secondaryVertices = cms.InputTag("inclusiveCandidateVertexFinderCtagL")
+candidateVertexMergerCvsL = candidateVertexMerger.clone(
+   secondaryVertices = cms.InputTag("inclusiveCandidateVertexFinderCvsL")
+)
 
-candidateVertexArbitratorCtagL = candidateVertexArbitrator.clone()
-candidateVertexArbitratorCtagL.secondaryVertices = cms.InputTag("candidateVertexMergerCtagL")
+candidateVertexArbitratorCvsL = candidateVertexArbitrator.clone(
+   secondaryVertices = cms.InputTag("candidateVertexMergerCvsL")
+)
 
-inclusiveCandidateSecondaryVerticesCtagL = candidateVertexMerger.clone()
-inclusiveCandidateSecondaryVerticesCtagL.secondaryVertices = cms.InputTag("candidateVertexArbitratorCtagL")
-inclusiveCandidateSecondaryVerticesCtagL.maxFraction = 0.2
-inclusiveCandidateSecondaryVerticesCtagL.minSignificance = 10.
+inclusiveCandidateSecondaryVerticesCvsL = candidateVertexMerger.clone(
+   secondaryVertices = cms.InputTag("candidateVertexArbitratorCvsL"),
+   maxFraction = cms.double(0.2),
+   minSignificance = cms.double(10.)
+)
 
-inclusiveCandidateVertexingCtagL = cms.Sequence(inclusiveCandidateVertexFinderCtagL*candidateVertexMergerCtagL*candidateVertexArbitratorCtagL*inclusiveCandidateSecondaryVerticesCtagL)
+inclusiveCandidateVertexingCvsL = cms.Sequence(inclusiveCandidateVertexFinderCvsL*candidateVertexMergerCvsL*candidateVertexArbitratorCvsL*inclusiveCandidateSecondaryVerticesCvsL)
 
 

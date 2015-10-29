@@ -15,7 +15,15 @@
  *     the z-coordinates on the 2 tracks are the closest is chosen. 
  */
 
+// Function for testing ClosestApproachInRPhi
+namespace test {
+  namespace ClosestApproachInRPhi_t {
+    int test();
+  }
+}
+
 class ClosestApproachInRPhi GCC11_FINAL : public ClosestApproachOnHelices {
+  friend int test::ClosestApproachInRPhi_t::test();
 
 public:
 

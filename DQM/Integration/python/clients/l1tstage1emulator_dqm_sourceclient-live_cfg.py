@@ -52,7 +52,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 # L1 data - emulator sequences 
 process.load("DQM.L1TMonitor.L1TEmulatorMonitor_cff")    
 process.load("DQM.L1TMonitorClient.L1TEMUMonitorClient_cff")    
-process.load("L1Trigger.L1TCalorimeter.caloStage1Params_cfi")
+#process.load("L1Trigger.L1TCalorimeter.caloStage1Params_cfi")
 
 #-------------------------------------
 # paths & schedule for L1 emulator DQM
@@ -132,7 +132,7 @@ process.l1demonstage1.COMPARE_COLLS = [
 
 process.l1ExpertDataVsEmulatorStage1.remove(process.l1TdeCSCTF)
 
-process.l1ExpertDataVsEmulatorStage1.remove(process.l1TdeRCT)
+#process.l1ExpertDataVsEmulatorStage1.remove(process.l1TdeRCT)
 
 process.l1demonstage1.HistFolder = cms.untracked.string('L1TEMUStage1')
 

@@ -57,6 +57,7 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
                             const CaloTopology *topology,
 			    const EcalRecHitCollection* ecalBarrelHits,
 			    const EcalRecHitCollection* ecalEndcapHits,
+                            const EcalRecHitCollection* preshowerHits,
 			    const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
 			    reco::VertexCollection& pvVertices,
 			    reco::PhotonCollection & outputCollection,
@@ -82,17 +83,15 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
  edm::EDGetTokenT<reco::PhotonCollection> photonProducerT_;
  edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
  edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
+ edm::EDGetTokenT<EcalRecHitCollection> preshowerHits_;
  edm::EDGetTokenT<reco::PFCandidateCollection> pfEgammaCandidates_;
  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
  edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
  edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
  
-
   std::string conversionProducer_;
   std::string conversionCollection_;
   std::string valueMapPFCandPhoton_;
-
-
 
   PFPhotonIsolationCalculator* thePFBasedIsolationCalculator_;
   PhotonIsolationCalculator* thePhotonIsolationCalculator_;

@@ -18,6 +18,17 @@ def customizeHLTforMC(process,_fastSim=False):
     process.hltParticleFlowRecHitHCAL.ApplyPulseDPG      = cms.bool(False)
     process.hltParticleFlowRecHitHCAL.LongShortFibre_Cut = cms.double(1000000000.0)
 
+  # customise hltHbhereco to use the Method 3 time slew parametrization and response correction for Monte Carlo (PR #11091)
+  if 'hltHbhereco' in process.__dict__:
+    process.hltHbhereco.pedestalSubtractionType = cms.int32( 1 )
+    process.hltHbhereco.pedestalUpperLimit      = cms.double( 2.7 ) 
+    process.hltHbhereco.timeSlewParsType        = cms.int32( 3 )
+    # new time slew parametrisation
+    process.hltHbhereco.timeSlewPars            = cms.vdouble( 12.2999, -2.19142, 0, 12.2999, -2.19142, 0, 12.2999, -2.19142, 0 )
+    # old response correction, matching the 2015D 25ns data
+    process.hltHbhereco.respCorrM3              = cms.double( 1.0 )
+
+
   if _fastSim:
 
     fastsim = cms.ProcessFragment( process.name_() )
@@ -88,6 +99,8 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLT_DoubleMuNoFiltersNoVtx_SaveObjects_v*",
       "MC_DoubleMuNoFiltersNoVtx_v*",
       "HLT_MET60_IsoTrk*",
+      "HLT_L1MuOpenNotHF2Pixel_SingleTrack*",
+      "HLT_L1TOTEM0_RomanPotsAND_PixelClusters*",
       )
 
     ESModulesToRemove = (
@@ -203,6 +216,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltFastPixelBLifetimeRegionalCtfWithMaterialTracksHbb",
 
       "hltPixelTracksForMinBias",
+      "hltPixelTracksForMinBias01",
       "hltPixelTracksForHighMult",
       "hltRegionalPixelTracks",
       "hltPixelTracksReg",

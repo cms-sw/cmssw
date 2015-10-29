@@ -5,7 +5,7 @@
 // by Thomas Hauth [ Thomas.Hauth@cern.ch ]
 //
 //===----------------------------------------------------------------------===//
-
+#include <clang/AST/ExprCXX.h>
 #include <clang/AST/Attr.h>
 #include "ConstCastAwayChecker.h"
 #include "CmsSupport.h" 
@@ -21,7 +21,8 @@ namespace clangcms
 void ConstCastAwayChecker::checkPreStmt(const clang::ExplicitCastExpr *CE,
 		clang::ento::CheckerContext &C) const 
 {
-	const Expr * SE = CE->getSubExprAsWritten();	
+     if (! ( clang::CStyleCastExpr::classof(CE) || clang::CXXConstCastExpr::classof(CE) )) return;
+	const Expr * SE = CE->getSubExpr();	
 	const CXXRecordDecl * CRD = 0;
 	if (SE->getType()->isPointerType()) CRD = SE->getType()->getPointeeCXXRecordDecl();
 	else CRD = SE->getType()->getAsCXXRecordDecl();

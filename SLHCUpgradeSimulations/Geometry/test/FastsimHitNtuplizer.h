@@ -6,7 +6,8 @@
  *
  ************************************************************/
 
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHitCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -40,9 +41,9 @@ class FastsimHitNtuplizer : public edm::EDAnalyzer
  protected:
 
   void fillEvt(const edm::Event& );
-  void fillSRecHit(const int subid, SiTrackerGSRecHit2DCollection::const_iterator pixeliter,
+  void fillSRecHit(const int subid, const FastTrackerRecHit & recHit,
                    const GeomDet* theGeom);
-  void fillPRecHit(const int subid, SiTrackerGSRecHit2DCollection::const_iterator pixeliter,
+  void fillPRecHit(const int subid, const FastTrackerRecHit & recHit,
                    const GeomDet* PixGeom);
 
  private:

@@ -96,75 +96,79 @@ PATHemisphereProducer::~PATHemisphereProducer()
 
 // ------------ method called to produce the data  ------------
 void
-PATHemisphereProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-   using namespace std;
+PATHemisphereProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+  using namespace edm;
+  using namespace std;
+  
+  std::vector<float> vPx, vPy, vPz, vE;
+  std::vector<float> vA1, vA2;
+  std::vector<int> vgroups;
+  std::vector<reco::CandidatePtr> componentPtrs;
 
-   //Jets
-   Handle<reco::CandidateView> pJets;
-   iEvent.getByToken(_patJetsToken,pJets);
+  //Jets
+  Handle<reco::CandidateView> pJets;
+  iEvent.getByToken(_patJetsToken,pJets);
 
-   //Muons
-   Handle<reco::CandidateView> pMuons;
-   iEvent.getByToken(_patMuonsToken,pMuons);
-
-   //Electrons
-   Handle<reco::CandidateView> pElectrons;
-   iEvent.getByToken(_patElectronsToken,pElectrons);
-
-   //Photons
-   Handle<reco::CandidateView> pPhotons;
-   iEvent.getByToken(_patPhotonsToken,pPhotons);
-
-   //Taus
-   Handle<reco::CandidateView> pTaus;
-   iEvent.getByToken(_patTausToken,pTaus);
-
-
-   //fill e,p vector with information from all objects (hopefully cleaned before)
-   for(int i = 0; i < (int) (*pJets).size() ; i++){
-     if((*pJets)[i].pt() <  _minJetEt || fabs((*pJets)[i].eta()) >  _maxJetEta) continue;
-
-     componentPtrs_.push_back(pJets->ptrAt(i));
-   }
-
-   for(int i = 0; i < (int) (*pMuons).size() ; i++){
-     if((*pMuons)[i].pt() <  _minMuonEt || fabs((*pMuons)[i].eta()) >  _maxMuonEta) continue;
-
-     componentPtrs_.push_back(pMuons->ptrAt(i));
-   }
-
-   for(int i = 0; i < (int) (*pElectrons).size() ; i++){
-     if((*pElectrons)[i].pt() <  _minElectronEt || fabs((*pElectrons)[i].eta()) >  _maxElectronEta) continue;
-
-     componentPtrs_.push_back(pElectrons->ptrAt(i));
-   }
-
-   for(int i = 0; i < (int) (*pPhotons).size() ; i++){
-     if((*pPhotons)[i].pt() <  _minPhotonEt || fabs((*pPhotons)[i].eta()) >  _maxPhotonEta) continue;
-
-     componentPtrs_.push_back(pPhotons->ptrAt(i));
-   }
-
-   //aren't taus included in jets?
-   for(int i = 0; i < (int) (*pTaus).size() ; i++){
-     if((*pTaus)[i].pt() <  _minTauEt || fabs((*pTaus)[i].eta()) >  _maxTauEta) continue;
-
-     componentPtrs_.push_back(pTaus->ptrAt(i));
-   }
-
-   // create product
-   std::auto_ptr< std::vector<Hemisphere> > hemispheres(new std::vector<Hemisphere>);;
-   hemispheres->reserve(2);
-
+  //Muons
+  Handle<reco::CandidateView> pMuons;
+  iEvent.getByToken(_patMuonsToken,pMuons);
+  
+  //Electrons
+  Handle<reco::CandidateView> pElectrons;
+  iEvent.getByToken(_patElectronsToken,pElectrons);
+  
+  //Photons
+  Handle<reco::CandidateView> pPhotons;
+  iEvent.getByToken(_patPhotonsToken,pPhotons);
+  
+  //Taus
+  Handle<reco::CandidateView> pTaus;
+  iEvent.getByToken(_patTausToken,pTaus);
+  
+  
+  //fill e,p vector with information from all objects (hopefully cleaned before)
+  for(int i = 0; i < (int) (*pJets).size() ; i++){
+    if((*pJets)[i].pt() <  _minJetEt || fabs((*pJets)[i].eta()) >  _maxJetEta) continue;
+    
+    componentPtrs.push_back(pJets->ptrAt(i));
+  }
+  
+  for(int i = 0; i < (int) (*pMuons).size() ; i++){
+    if((*pMuons)[i].pt() <  _minMuonEt || fabs((*pMuons)[i].eta()) >  _maxMuonEta) continue;
+    
+    componentPtrs.push_back(pMuons->ptrAt(i));
+  }
+  
+  for(int i = 0; i < (int) (*pElectrons).size() ; i++){
+    if((*pElectrons)[i].pt() <  _minElectronEt || fabs((*pElectrons)[i].eta()) >  _maxElectronEta) continue;
+    
+    componentPtrs.push_back(pElectrons->ptrAt(i));
+  }
+  
+  for(int i = 0; i < (int) (*pPhotons).size() ; i++){
+    if((*pPhotons)[i].pt() <  _minPhotonEt || fabs((*pPhotons)[i].eta()) >  _maxPhotonEta) continue;
+    
+    componentPtrs.push_back(pPhotons->ptrAt(i));
+  }
+  
+  //aren't taus included in jets?
+  for(int i = 0; i < (int) (*pTaus).size() ; i++){
+    if((*pTaus)[i].pt() <  _minTauEt || fabs((*pTaus)[i].eta()) >  _maxTauEta) continue;
+    
+    componentPtrs.push_back(pTaus->ptrAt(i));
+  }
+  
+  // create product
+  std::auto_ptr< std::vector<Hemisphere> > hemispheres(new std::vector<Hemisphere>);;
+  hemispheres->reserve(2);
+  
   //calls HemiAlgorithm for seed method 3 (transv. inv. Mass) and association method 3 (Lund algo)
-  HemisphereAlgo myHemi(componentPtrs_,_seedMethod,_combinationMethod);
-
+  HemisphereAlgo myHemi(componentPtrs,_seedMethod,_combinationMethod);
+  
   //get Hemisphere Axis
   vA1 = myHemi.getAxis1();
   vA2 = myHemi.getAxis2();
-
+  
   reco::Particle::LorentzVector p1(vA1[0]*vA1[3],vA1[1]*vA1[3],vA1[2]*vA1[3],vA1[4]);
   hemispheres->push_back(Hemisphere(p1));
 
@@ -176,32 +180,15 @@ PATHemisphereProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   for ( unsigned int i=0; i<vgroups.size(); ++i ) {
     if ( vgroups[i]==1 ) {
-      (*hemispheres)[0].addDaughter(componentPtrs_[i]);
+      (*hemispheres)[0].addDaughter(componentPtrs[i]);
     }
     else {
-      (*hemispheres)[1].addDaughter(componentPtrs_[i]);
+      (*hemispheres)[1].addDaughter(componentPtrs[i]);
     }
   }
-
-
-  iEvent.put(hemispheres);
-
-  //clean up
-
-    vPx.clear();
-    vPy.clear();
-    vPz.clear();
-    vE.clear();
-    vgroups.clear();
-    componentPtrs_.clear();
-}
-
-
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-PATHemisphereProducer::endJob() {
-
+  
+  
+  iEvent.put(hemispheres);  
 }
 
 //define this as a plug-in

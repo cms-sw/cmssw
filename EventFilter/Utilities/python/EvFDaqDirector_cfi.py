@@ -7,6 +7,7 @@ EvFDaqDirector = cms.Service( "EvFDaqDirector",
     outputAdler32Recheck=cms.untracked.bool(False),
     requireTransfersPSet=cms.untracked.bool(False),
     selectedTransferMode=cms.untracked.string(""),
-    fuLockPollInterval = cms.untracked.uint32(2000)
+    fuLockPollInterval = cms.untracked.uint32(2000),
+    emptyLumisectionMode = cms.untracked.bool(True)
     )
 

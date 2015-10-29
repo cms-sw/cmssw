@@ -187,9 +187,6 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
 
   if(iBranchType == InEvent) {
     itemsToGet(iBranchType, itemsToGetFromEvent_);
-    //Temporary: until we release resources on Event::getBy* calls
-    // we need to prefetch mayConsumes as well
-    itemsMayGet(iBranchType, itemsToGetFromEvent_);
   }
 }
 

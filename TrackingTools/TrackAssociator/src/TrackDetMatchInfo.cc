@@ -102,7 +102,7 @@ bool TrackDetMatchInfo::insideCone(const DetId& id, const double dR) {
    
    math::XYZVector idPositionRoot( idPosition.x(), idPosition.y(), idPosition.z() );
    math::XYZVector trackP3( stateAtIP.momentum().x(), stateAtIP.momentum().y(), stateAtIP.momentum().z() );
-   return ROOT::Math::VectorUtil::DeltaR(trackP3, idPositionRoot) < 0.5;
+   return ROOT::Math::VectorUtil::DeltaR(trackP3, idPositionRoot) < dR;
 }
 
 double TrackDetMatchInfo::coneEnergy( double dR, EnergyType type )

@@ -8,7 +8,7 @@ spclusmultvtxposcorr = cms.EDAnalyzer('MultiplicityInvestigator',
                                       wantPileupCorrHist = cms.bool(False),
                                       wantVtxPosCorrHist = cms.bool(True),
                                       digiVtxPosCorrConfig = cms.PSet(
-    mcVtxCollection=cms.InputTag("generator"),
+    mcVtxCollection=cms.InputTag("generatorSmeared"),
     wantedSubDets = cms.untracked.VPSet(    
     cms.PSet(detSelection = cms.uint32(0),detLabel = cms.string("Pixel"), binMax = cms.int32(200000))
     ),

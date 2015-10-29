@@ -10,7 +10,7 @@ import FWCore.ParameterSet.Config as cms
 
 # common parameters
 VtxSmearedCommon = cms.PSet(
-    src = cms.InputTag("generator"),
+    src = cms.InputTag("generator", "unsmeared"),
     readDB = cms.bool(False)
 )
 # Gaussian smearing
@@ -509,4 +509,31 @@ NominalHICollision2015VtxSmearingParameters = cms.PSet(
     X0 = cms.double(0.0322),
     Y0 = cms.double(0.),
     Z0 = cms.double(0.)
+)
+
+# Update based on latest beta* presented at the WGM
+# Beamspot centroid updated to according to the current pp conditions (Realistic50ns13TeVCollisionZeroTesla)
+UpdatedHICollision2015VtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(80.0),
+    Emittance = cms.double(1.70e-07),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(7.06),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.08533),
+    Y0 = cms.double(0.16973),
+    Z0 = cms.double(-1.2230)
+)
+
+# Estimate for 2015 pp collisions at 5.02 TeV, based on feedback from accelerator:  beta* ~ 400cm, normalized emittance = 2.5 um, SigmaZ similar to RunIIWinter15GS
+Nominal5TeVpp2015VtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(400.0),
+    Emittance = cms.double(1.0e-07),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(5.5),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.1044),
+    Y0 = cms.double(0.1676),
+    Z0 = cms.double(0.6707)
 )

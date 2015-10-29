@@ -228,7 +228,7 @@ void CFWriter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (flagHepMCProduct_){
     bool gotHepMCProduct;
     edm::Handle<CrossingFrame<edm::HepMCProduct> > cf_hepmc;
-    gotHepMCProduct=iEvent.getByLabel("mix","generator",cf_hepmc);
+    gotHepMCProduct=iEvent.getByLabel("mix","generatorSmeared",cf_hepmc);
     if (gotHepMCProduct){ 
        PCrossingFrame<edm::HepMCProduct> * PCFHepMC = new PCrossingFrame<edm::HepMCProduct>(*cf_hepmc.product());
        std::auto_ptr<PCrossingFrame<edm::HepMCProduct> > pOuthepmcpr(PCFHepMC);

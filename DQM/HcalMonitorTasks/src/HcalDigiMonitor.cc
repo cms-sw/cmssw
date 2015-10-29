@@ -5,12 +5,11 @@
 #include "FWCore/Common/interface/TriggerNames.h" 
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 
 // constructor
-HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(ps)
-{
+HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(ps) {
   Online_                = ps.getUntrackedParameter<bool>("online",false);
   mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns",false);
   enableCleanup_         = ps.getUntrackedParameter<bool>("enableCleanup",false);
@@ -100,7 +99,7 @@ HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(
 }
 
 // destructor
-HcalDigiMonitor::~HcalDigiMonitor() {}
+HcalDigiMonitor::~HcalDigiMonitor() { }
 
 // Checks capid rotation; returns false if no problems with rotation
 static bool bitUpset(int last, int now){
@@ -461,137 +460,122 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   edm::Handle<DcsStatusCollection> dcsStatus;
   e.getByToken(dcsStatusToken_, dcsStatus);
   
-  if (dcsStatus.isValid() && dcsStatus->size() != 0) 
-    {      
-      if ((*dcsStatus)[0].ready(DcsStatus::HBHEa) &&
-	  (*dcsStatus)[0].ready(DcsStatus::HBHEb) &&   
-	  (*dcsStatus)[0].ready(DcsStatus::HBHEc))
-	{	
-	  hbhedcsON = true;
-	  if (debug_) std::cout << "hbhe on" << std::endl;
-	} 
-      else hbhedcsON = false;
+  if (dcsStatus.isValid() && dcsStatus->size() != 0) {      
+    if ((*dcsStatus)[0].ready(DcsStatus::HBHEa) &&
+	(*dcsStatus)[0].ready(DcsStatus::HBHEb) &&   
+	(*dcsStatus)[0].ready(DcsStatus::HBHEc)) {	
+      hbhedcsON = true;
+      if (debug_) std::cout << "hbhe on" << std::endl;
+    } 
+    else hbhedcsON = false;
 
-      if ((*dcsStatus)[0].ready(DcsStatus::HF))
-	{
-	  hfdcsON = true;
-	  if (debug_) std::cout << "hf on" << std::endl;
-	} 
-      else hfdcsON = false;
-    }
+    if ((*dcsStatus)[0].ready(DcsStatus::HF)) {
+      hfdcsON = true;
+      if (debug_) std::cout << "hf on" << std::endl;
+    } 
+    else hfdcsON = false;
+  }
   ///////////////////////////////////////////////////////////////
 
   edm::Handle<edm::TriggerResults> hltRes;
-  if (!(e.getByToken(tok_trigger_,hltRes)))
-    {
-      if (debug_>0) edm::LogWarning("HcalDigiMonitor")<<" Could not get HLT results with tag "<<hltresultsLabel_<<std::endl;
-    }
-  else
-    {
-      const edm::TriggerNames & triggerNames = e.triggerNames(*hltRes);
-      const unsigned int nTrig(triggerNames.size());
-      for (unsigned int i=0;i<nTrig;++i){
-	  // repeat for minbias triggers
-	  for (unsigned int k=0;k<MinBiasHLTBits_.size();++k)
-	    {
-	      // if (triggerNames.triggerName(i)==MinBiasHLTBits_[k] && hltRes->accept(i))
-	      if (triggerNames.triggerName(i).find(MinBiasHLTBits_[k])!=std::string::npos && hltRes->accept(i))
-		{ 
-		  passedMinBiasHLT_=true;
-		  break;
-		}
-	    }
+  if (!(e.getByToken(tok_trigger_,hltRes))) {
+    if (debug_>0) edm::LogWarning("HcalDigiMonitor")<<" Could not get HLT results with tag "<<hltresultsLabel_<<std::endl;
+  } else {
+    const edm::TriggerNames & triggerNames = e.triggerNames(*hltRes);
+    const unsigned int nTrig(triggerNames.size());
+    for (unsigned int i=0;i<nTrig;++i){
+      // repeat for minbias triggers
+      for (unsigned int k=0;k<MinBiasHLTBits_.size();++k) {
+	// if (triggerNames.triggerName(i)==MinBiasHLTBits_[k] && hltRes->accept(i))
+	if (triggerNames.triggerName(i).find(MinBiasHLTBits_[k])!=std::string::npos && hltRes->accept(i)) { 
+	  passedMinBiasHLT_=true;
+	  break;
 	}
-    } //else
+      }
+    }
+  } //else
+
+  edm::ESHandle<HcalTopology> topo;
+  s.get<HcalRecNumberingRecord>().get(topo);
   
   // Now get collections we need
   HT_HFP_=0;
   HT_HFM_=0;
   //  bool rechitsFound=false;
   edm::Handle<HFRecHitCollection> hf_rechit;
-  if (e.getByToken(tok_hfrec_,hf_rechit))
-    {
-      //      rechitsFound=true;
-      for (HFRecHitCollection::const_iterator HF=hf_rechit->begin();HF!=hf_rechit->end();++HF)
-	{
-	  float en=HF->energy();
-	  int ieta=HF->id().ieta();
-	  // ieta for HF starts at 29, so subtract away 29 when computing fEta
-	  double fEta=fabs(0.5*(theHFEtaBounds[abs(ieta)-28]+theHFEtaBounds[abs(ieta)-29]));
-	  ieta>0 ?  HT_HFP_+=en/cosh(fEta) : HT_HFM_+=en/cosh(fEta);
-	}
+  if (e.getByToken(tok_hfrec_,hf_rechit)) {
+    //      rechitsFound=true;
+    for (HFRecHitCollection::const_iterator HF=hf_rechit->begin();HF!=hf_rechit->end();++HF) {
+      float en=HF->energy();
+      int ieta=HF->id().ieta();
+      // ieta for HF starts at 29, so subtract away 29 when computing fEta
+      std::pair<double,double> etas = topo->etaRange(HF->id().subdet(),abs(ieta));
+      double fEta=fabs(0.5*(etas.first+etas.second));
+      ieta>0 ?  HT_HFP_+=en/cosh(fEta) : HT_HFM_+=en/cosh(fEta);
     }
-  else
-    {
-      // if no rechits found, form above-threshold plots based only on digi comparison to ADC threshold 
-      HT_HFP_=999;
-      HT_HFM_=999;
-    }
-
+  } else {
+    // if no rechits found, form above-threshold plots based only on digi comparison to ADC threshold 
+    HT_HFP_=999;
+    HT_HFM_=999;
+  }
+  
   // try to get digis
   edm::Handle<HBHEDigiCollection> hbhe_digi;
   edm::Handle<HODigiCollection> ho_digi;
   edm::Handle<HFDigiCollection> hf_digi;
 
-  if (!(e.getByToken(tok_hbhe_,hbhe_digi)))
-    {
-      edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" hbhe_digi not available";
-      return;
-    }
+  if (!(e.getByToken(tok_hbhe_,hbhe_digi))) {
+    edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" hbhe_digi not available";
+    return;
+  }
   
-  if (!(e.getByToken(tok_hf_,hf_digi)))
-    {
-      edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" hf_digi not available";
-      return;
-    }
-  if (!(e.getByToken(tok_ho_,ho_digi)))
-    {
-      edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" ho_digi not available";
-      return;
-    }
+  if (!(e.getByToken(tok_hf_,hf_digi))) {
+    edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" hf_digi not available";
+    return;
+  }
+  if (!(e.getByToken(tok_ho_,ho_digi))) {
+    edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" ho_digi not available";
+    return;
+  }
   edm::Handle<HcalUnpackerReport> report;  
-  if (!(e.getByToken(tok_unpack_,report)))
-    {
-      edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" unpacker report not available";
-      return;
-    }
+  if (!(e.getByToken(tok_unpack_,report))) {
+    edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" unpacker report not available";
+    return;
+  }
   // try to get Raw Data
   edm::Handle<FEDRawDataCollection> rawraw;
-  if ( !(e.getByToken(FEDRawDataCollectionToken_, rawraw)))
-    {
-      edm::LogWarning("HcalRawDataMonitor")<<" raw data with label "<<FEDRawDataCollection_<<" not available";
-      return;
-    }
+  if ( !(e.getByToken(FEDRawDataCollectionToken_, rawraw))) {
+    edm::LogWarning("HcalRawDataMonitor")<<" raw data with label "<<FEDRawDataCollection_<<" not available";
+    return;
+  }
 
   // get the DCC header & trailer (or bail out)
   // this needs to be done better, for now basically getting only one number per HBHE/HO/HF
   // will create a map (dccid, spigot) -> DetID to be used in process_Digi later
   for (int i=FEDNumbering::MINHCALFEDID; 
-		  i<=FEDNumbering::MAXHCALuTCAFEDID; i++) {
-	  if (i>FEDNumbering::MAXHCALFEDID && i<FEDNumbering::MINHCALuTCAFEDID)
-		  continue;
+       i<=FEDNumbering::MAXHCALuTCAFEDID; i++) {
+    if (i>FEDNumbering::MAXHCALFEDID && i<FEDNumbering::MINHCALuTCAFEDID)
+      continue;
     const FEDRawData& fed = rawraw->FEDData(i);
     if (fed.size()<12) continue;  //At least the size of headers and trailers of a DCC.    
 
     const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fed.data());
     if(!dccHeader) return;
-	if (debug_>0)
-		std::cout << "### Processing FED: " << i << std::endl;
+    if (debug_>0) std::cout << "### Processing FED: " << i << std::endl;
 
-	//	For uTCA spigos are useless => by default we have digisize = 4
-	//	As of 20.05.2015
-	//	HF = 2
-	if ((i>=1118 && i<=1122) ||
-			(i>=718 && i<=723))
-	{
-		mindigisizeHF_ = 4;
-		maxdigisizeHF_ = 4;
-		DigiExpectedSize->Fill(2, 4);
-		continue;
-	}
+    //	For uTCA spigos are useless => by default we have digisize = 4
+    //	As of 20.05.2015
+    //	HF = 2
+    if ((i>=1118 && i<=1122) ||
+	(i>=718 && i<=723)) {
+      mindigisizeHF_ = 4;
+      maxdigisizeHF_ = 4;
+      DigiExpectedSize->Fill(2, 4);
+      continue;
+    }
 
-	//	VME readout contains Number of Time Samples per Digi
-	//	uTCA doesn't!
+    //	VME readout contains Number of Time Samples per Digi
+    //	uTCA doesn't!
     HcalHTRData htr;  
     for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {    
       if (!dccHeader->getSpigotPresent(spigot)) continue;
@@ -601,8 +585,8 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
       dccHeader->getSpigotData(spigot, htr, fed.size()); 
       
       int NTS = htr.getNDD(); //number time slices, in precision channels
-	  if (debug_>0)
-		  std::cout << "### Number of TS=" << NTS << std::endl;
+      if (debug_>0)
+	std::cout << "### Number of TS=" << NTS << std::endl;
       if (NTS==0) continue; // no DAQ data in this HTR (fully zero-suppressed)
       int dccid=dccHeader->getSourceId();
       
@@ -613,8 +597,8 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
       
       if(dccid >= 700 && dccid<=717)  { subdet = 0; mindigisizeHBHE_ = NTS; maxdigisizeHBHE_ = NTS; } // HBHE
       if((dccid >= 1118 && dccid<=1122) || 
-			  (dccid>=718 && dccid<=723))  
-	  { subdet = 2; mindigisizeHF_ = NTS; maxdigisizeHF_ = NTS; }     // HF
+	 (dccid>=718 && dccid<=723))  
+	{ subdet = 2; mindigisizeHF_ = NTS; maxdigisizeHF_ = NTS; }     // HF
       if(dccid >= 724 && dccid<=731)  { subdet = 1; mindigisizeHO_ = NTS; maxdigisizeHO_ = NTS; }     // HO
       
       DigiExpectedSize->Fill(subdet,int(NTS),1);
@@ -624,7 +608,7 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   // all objects grabbed; event is good
   if (debug_>1) std::cout <<"\t<HcalDigiMonitor::analyze>  Processing good event! event # = "<<ievt_<<std::endl;
 
-//  HcalBaseDQMonitor::analyze(e,s); // base class increments ievt_, etc. counters
+  //  HcalBaseDQMonitor::analyze(e,s); // base class increments ievt_, etc. counters
 
   // Digi collection was grabbed successfully; process the Event
   processEvent(*hbhe_digi, *ho_digi, *hf_digi, *conditions_,
@@ -1175,8 +1159,7 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
 } // template <class DIGI> int HcalDigiMonitor::process_Digi
 
 void HcalDigiMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-					     const edm::EventSetup& c) 
-{
+					     const edm::EventSetup& c) {
   HcalBaseDQMonitor::beginLuminosityBlock(lumiSeg,c);
   ProblemsCurrentLB->Reset();
 }
@@ -1198,15 +1181,17 @@ void HcalDigiMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   else 
     alarmer_counter_ = 0;
 
-  fill_Nevents();
+  edm::ESHandle<HcalTopology> topo;
+  c.get<HcalRecNumberingRecord>().get(topo);
+
+  fill_Nevents(*topo);
 
   zeroCounters(); // reset counters of good/bad digis
  
   return;
 }
 
-void HcalDigiMonitor::fill_Nevents()
-{
+void HcalDigiMonitor::fill_Nevents(const HcalTopology& topology) {
   if (debug_>0)
     std::cout <<"<HcalDigiMonitor> Calling fill_Nevents for event  "<<tevt_<< " (processed events = "<<ievt_<<")"<<std::endl;
   int iPhi, iEta, iDepth;
@@ -1382,144 +1367,129 @@ void HcalDigiMonitor::fill_Nevents()
     } // for (int sub=0;sub<4;++sub)
 
   // Loop over eta, phi, depth
-  for (int d=0;d<4;++d)
-    {
-      iDepth=d+1;
-      DigiErrorsByDepth.depth[d]->setBinContent(0,0,ievt_); // underflow bin contains event counter
-      DigiOccupancyByDepth.depth[d]->setBinContent(0,0,ievt_);
-      DigiErrorsBadDigiSize.depth[d]->setBinContent(0,0,ievt_);
-      DigiErrorsUnpacker.depth[d]->setBinContent(0,0,ievt_);
-      DigiErrorsBadFibBCNOff.depth[d]->setBinContent(0,0,ievt_);
+  for (int d=0;d<4;++d) {
+    iDepth=d+1;
+    DigiErrorsByDepth.depth[d]->setBinContent(0,0,ievt_); // underflow bin contains event counter
+    DigiOccupancyByDepth.depth[d]->setBinContent(0,0,ievt_);
+    DigiErrorsBadDigiSize.depth[d]->setBinContent(0,0,ievt_);
+    DigiErrorsUnpacker.depth[d]->setBinContent(0,0,ievt_);
+    DigiErrorsBadFibBCNOff.depth[d]->setBinContent(0,0,ievt_);
 
-      for (int phi=0;phi<72;++phi)
-	{
-	  iPhi=phi+1;
-	  DigiOccupancyPhi->Fill(iPhi,occupancyPhi[phi]);
-	  for (int eta=0;eta<83;++eta)
-	    {
-	      // DigiOccupanyEta uses 'true' ieta (included the overlap at +/- 29)
-	      iEta=eta-41;
-	      if (phi==0)
-		DigiOccupancyEta->Fill(iEta,occupancyEta[eta]);
-	      //	      valid=false;
+    for (int phi=0;phi<72;++phi) {
+      iPhi=phi+1;
+      DigiOccupancyPhi->Fill(iPhi,occupancyPhi[phi]);
+      for (int eta=0;eta<83;++eta) {
+	// DigiOccupanyEta uses 'true' ieta (included the overlap at +/- 29)
+	iEta=eta-41;
+	if (phi==0)
+	  DigiOccupancyEta->Fill(iEta,occupancyEta[eta]);
+	//	      valid=false;
 	
-	      // HB
-	      if (validDetId(HcalBarrel, iEta, iPhi, iDepth))
-		{
-		  //		  valid=true;
-		  if (HBpresent_)
-		    {
-                      int calcEta = CalcEtaBin(HcalBarrel,iEta,iDepth);
+	// HB
+	if (topology.validDetId(HcalBarrel, iEta, iPhi, iDepth)) {
+	  //		  valid=true;
+	  if (HBpresent_) {
+	    int calcEta = CalcEtaBin(HcalBarrel,iEta,iDepth);
 
-		      DigiOccupancyByDepth.depth[d]->Fill(iEta, iPhi,
-						    occupancyEtaPhi[calcEta][phi][d]);
+	    DigiOccupancyByDepth.depth[d]->Fill(iEta, iPhi,
+						occupancyEtaPhi[calcEta][phi][d]);
 		      
-		      if (makeDiagnostics_)
-			{
-			  DigiErrorsBadCapID.depth[d]->Fill(iEta, iPhi,
-							    badcapID[calcEta][phi][d]);
-			  DigiErrorsDVErr.depth[d]->Fill(iEta, iPhi,
-							 digierrorsdverr[calcEta][phi][d]);
-			}
-		      DigiErrorsBadDigiSize.depth[d]->Fill(iEta, iPhi,
-							   baddigisize[calcEta][phi][d]);
-		      DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta, iPhi,
-							    badFibBCNOff[calcEta][phi][d]);
-		      DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
-							badunpackerreport[calcEta][phi][d]);
-		      DigiErrorsByDepth.depth[d]->Fill(iEta, iPhi,
-						       baddigis[calcEta][phi][d]);
-		      // Use this for testing purposes only
-		      //DigiErrorsByDepth[d]->Fill(iEta, iPhi, ievt_);
-		    } // if (HBpresent_)
-		} // validDetId(HB)
-	      // HE
-	      if (validDetId(HcalEndcap, iEta, iPhi, iDepth))
-		{
-		  //		  valid=true;
-		  if (HEpresent_)
-		    {
-                      int calcEta = CalcEtaBin(HcalEndcap,iEta,iDepth);
+	    if (makeDiagnostics_) {
+	      DigiErrorsBadCapID.depth[d]->Fill(iEta, iPhi,
+						badcapID[calcEta][phi][d]);
+	      DigiErrorsDVErr.depth[d]->Fill(iEta, iPhi,
+					     digierrorsdverr[calcEta][phi][d]);
+	    }
+	    DigiErrorsBadDigiSize.depth[d]->Fill(iEta, iPhi,
+						 baddigisize[calcEta][phi][d]);
+	    DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta, iPhi,
+						  badFibBCNOff[calcEta][phi][d]);
+	    DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
+					      badunpackerreport[calcEta][phi][d]);
+	    DigiErrorsByDepth.depth[d]->Fill(iEta, iPhi,
+					     baddigis[calcEta][phi][d]);
+	    // Use this for testing purposes only
+	    //DigiErrorsByDepth[d]->Fill(iEta, iPhi, ievt_);
+	  } // if (HBpresent_)
+	} // validDetId(HB)
+	// HE
+	if (topology.validDetId(HcalEndcap, iEta, iPhi, iDepth)) {
+	  //		  valid=true;
+	  if (HEpresent_) {
+	    int calcEta = CalcEtaBin(HcalEndcap,iEta,iDepth);
 
-		      DigiOccupancyByDepth.depth[d]->Fill(iEta, iPhi,
-						    occupancyEtaPhi[calcEta][phi][d]);
+	    DigiOccupancyByDepth.depth[d]->Fill(iEta, iPhi,
+						occupancyEtaPhi[calcEta][phi][d]);
+	    
+	    if (makeDiagnostics_) {
+	      DigiErrorsBadCapID.depth[d]->Fill(iEta, iPhi,
+						badcapID[calcEta][phi][d]);
+	      DigiErrorsDVErr.depth[d]->Fill(iEta, iPhi,
+					     digierrorsdverr[calcEta][phi][d]);
+	    }
+	    DigiErrorsBadDigiSize.depth[d]->Fill(iEta, iPhi,
+						 baddigisize[calcEta][phi][d]);
+	    DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta, iPhi,
+						  badFibBCNOff[calcEta][phi][d]);
+	    DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
+					      badunpackerreport[calcEta][phi][d]);
+	    DigiErrorsByDepth.depth[d]->Fill(iEta, iPhi,
+					     baddigis[calcEta][phi][d]);
+	  } // if (HEpresent_)
+	} // valid HE found
+	// HO
+	if (topology.validDetId(HcalOuter,iEta,iPhi,iDepth)) {
+	  //		  valid=true;
+	  if (HOpresent_) {
+	    int calcEta = CalcEtaBin(HcalOuter,iEta,iDepth);
+	    DigiOccupancyByDepth.depth[d]->Fill(iEta, iPhi,
+						occupancyEtaPhi[calcEta][phi][d]);
+	    if (makeDiagnostics_) {
+	      DigiErrorsBadCapID.depth[d]->Fill(iEta, iPhi,
+						badcapID[calcEta][phi][d]);
+	      DigiErrorsDVErr.depth[d]->Fill(iEta, iPhi,
+					     digierrorsdverr[calcEta][phi][d]);
+	    }
+	    DigiErrorsBadDigiSize.depth[d]->Fill(iEta, iPhi,
+						 baddigisize[calcEta][phi][d]);
+	    DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta, iPhi,
+						  badFibBCNOff[calcEta][phi][d]);
+	    DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
+					      badunpackerreport[calcEta][phi][d]);
 		      
-		      if (makeDiagnostics_)
-			{
-			  DigiErrorsBadCapID.depth[d]->Fill(iEta, iPhi,
-							    badcapID[calcEta][phi][d]);
-			  DigiErrorsDVErr.depth[d]->Fill(iEta, iPhi,
-							 digierrorsdverr[calcEta][phi][d]);
-			}
-		      DigiErrorsBadDigiSize.depth[d]->Fill(iEta, iPhi,
-							   baddigisize[calcEta][phi][d]);
-		      DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta, iPhi,
-							    badFibBCNOff[calcEta][phi][d]);
-		      DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
-							badunpackerreport[calcEta][phi][d]);
-		      DigiErrorsByDepth.depth[d]->Fill(iEta, iPhi,
-						       baddigis[calcEta][phi][d]);
-		    } // if (HEpresent_)
-		} // valid HE found
-	      // HO
-	      if (validDetId(HcalOuter,iEta,iPhi,iDepth))
-		{
-		  //		  valid=true;
-		  if (HOpresent_)
-		    {
-                      int calcEta = CalcEtaBin(HcalOuter,iEta,iDepth);
-		      DigiOccupancyByDepth.depth[d]->Fill(iEta, iPhi,
-							  occupancyEtaPhi[calcEta][phi][d]);
-		      if (makeDiagnostics_)
-			{
-			  DigiErrorsBadCapID.depth[d]->Fill(iEta, iPhi,
-							    badcapID[calcEta][phi][d]);
-			  DigiErrorsDVErr.depth[d]->Fill(iEta, iPhi,
-							 digierrorsdverr[calcEta][phi][d]);
-			}
-		      DigiErrorsBadDigiSize.depth[d]->Fill(iEta, iPhi,
-							   baddigisize[calcEta][phi][d]);
-		      DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta, iPhi,
-							    badFibBCNOff[calcEta][phi][d]);
-		      DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
-							badunpackerreport[calcEta][phi][d]);
-		      
-		      DigiErrorsByDepth.depth[d]->Fill(iEta,iPhi,
-						       baddigis[calcEta][phi][d]);
-		    } // if (HOpresent_)
-		}//validDetId(HO)
-	      // HF
-	      if (validDetId(HcalForward,iEta,iPhi,iDepth))
-		{
-		  //		  valid=true;
-		  if (HFpresent_)
-		    {
-                      int calcEta = CalcEtaBin(HcalForward,iEta,iDepth);
-                      int zside = iEta/abs(iEta);
-		      DigiOccupancyByDepth.depth[d]->Fill(iEta+zside, iPhi,
-						    occupancyEtaPhi[calcEta][phi][d]);
-		      
-		      if (makeDiagnostics_)
-			{
-			  DigiErrorsBadCapID.depth[d]->Fill(iEta+zside, iPhi,
-							    badcapID[calcEta][phi][d]);
-			  DigiErrorsDVErr.depth[d]->Fill(iEta+zside, iPhi,
-							 digierrorsdverr[calcEta][phi][d]);
-			}
-		      DigiErrorsBadDigiSize.depth[d]->Fill(iEta+zside, iPhi,
-						     baddigisize[calcEta][phi][d]);
-		      DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta+zside, iPhi,
-							 badFibBCNOff[calcEta][phi][d]);
-		      DigiErrorsUnpacker.depth[d]->Fill(iEta+zside, iPhi,
-							badunpackerreport[calcEta][phi][d]);
-		      DigiErrorsByDepth.depth[d]->Fill(iEta+zside, iPhi,
-						       baddigis[calcEta][phi][d]);
-		      
-		    } // if (HFpresent_)
-		}
-	    } // for (int eta=0;...)
-	} // for (int phi=0;...)
-    } // for (int d=0;...)
+	    DigiErrorsByDepth.depth[d]->Fill(iEta,iPhi,
+					     baddigis[calcEta][phi][d]);
+	  } // if (HOpresent_)
+	}//validDetId(HO)
+	// HF
+	if (topology.validDetId(HcalForward,iEta,iPhi,iDepth)) {
+	  //		  valid=true;
+	  if (HFpresent_) {
+	    int calcEta = CalcEtaBin(HcalForward,iEta,iDepth);
+	    int zside = iEta/abs(iEta);
+	    DigiOccupancyByDepth.depth[d]->Fill(iEta+zside, iPhi,
+						occupancyEtaPhi[calcEta][phi][d]);
+	    
+	    if (makeDiagnostics_) {
+	      DigiErrorsBadCapID.depth[d]->Fill(iEta+zside, iPhi,
+						badcapID[calcEta][phi][d]);
+	      DigiErrorsDVErr.depth[d]->Fill(iEta+zside, iPhi,
+					     digierrorsdverr[calcEta][phi][d]);
+	    }
+	    DigiErrorsBadDigiSize.depth[d]->Fill(iEta+zside, iPhi,
+						 baddigisize[calcEta][phi][d]);
+	    DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta+zside, iPhi,
+						  badFibBCNOff[calcEta][phi][d]);
+	    DigiErrorsUnpacker.depth[d]->Fill(iEta+zside, iPhi,
+					      badunpackerreport[calcEta][phi][d]);
+	    DigiErrorsByDepth.depth[d]->Fill(iEta+zside, iPhi,
+					     baddigis[calcEta][phi][d]);
+	    
+	  } // if (HFpresent_)
+	}
+      } // for (int eta=0;...)
+    } // for (int phi=0;...)
+  } // for (int d=0;...)
 
   // Now fill all the unphysical cell values
   FillUnphysicalHEHFBins(DigiErrorsByDepth);
@@ -1536,7 +1506,7 @@ void HcalDigiMonitor::fill_Nevents()
   //  zeroCounters(); // reset counters of good/bad digis
  
   return;
-} // void HcalDigiMonitor::fill_Nevents()
+} // void HcalDigiMonitor::fill_Nevents(const HcalTopology&)
 
 
 void HcalDigiMonitor::zeroCounters()

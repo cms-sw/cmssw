@@ -37,6 +37,7 @@ namespace edm {
 
   ProductData const*
   InputProductHolder::resolveProduct_(ResolveStatus& resolveStatus, bool,
+                                      SharedResourcesAcquirer* ,
                                       ModuleCallingContext const* mcc) const {
     if(productWasDeleted()) {
       throwProductDeletedException();
@@ -55,7 +56,9 @@ namespace edm {
   }
 
   ProductData const*
-  ScheduledProductHolder::resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
+  ScheduledProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
+                                          bool skipCurrentProcess,
+                                          SharedResourcesAcquirer*,
                                           ModuleCallingContext const*) const {
     if (!skipCurrentProcess) {
       if(productWasDeleted()) {
@@ -71,7 +74,9 @@ namespace edm {
   }
 
   ProductData const*
-  SourceProductHolder::resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
+  SourceProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
+                                       bool skipCurrentProcess,
+                                       SharedResourcesAcquirer*,
                                        ModuleCallingContext const*) const {
     if (!skipCurrentProcess) {
       if(productWasDeleted()) {
@@ -89,6 +94,7 @@ namespace edm {
   ProductData const*
   UnscheduledProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
                                             bool skipCurrentProcess,
+                                            SharedResourcesAcquirer* sra,
                                             ModuleCallingContext const* mcc) const {
     if (!skipCurrentProcess) {
       if(productWasDeleted()) {
@@ -98,7 +104,7 @@ namespace edm {
         resolveStatus = ProductFound;
         return &productData_;
       }
-      principal_->unscheduledFill(moduleLabel(), mcc);
+      principal_->unscheduledFill(moduleLabel(), sra, mcc);
       if(product() && product()->isPresent()) {
         resolveStatus = ProductFound;
         return &productData_;
@@ -402,6 +408,7 @@ namespace edm {
 
   ProductData const* NoProcessProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
                                                              bool skipCurrentProcess,
+                                                             SharedResourcesAcquirer* sra,
                                                              ModuleCallingContext const* mcc) const {
     std::vector<unsigned int> const& lookupProcessOrder = principal_->lookupProcessOrder();
     for(unsigned int k : lookupProcessOrder) {
@@ -413,7 +420,7 @@ namespace edm {
       }
       if (matchingHolders_[k] != ProductHolderIndexInvalid) {
         ProductHolderBase const* productHolder = principal_->getProductHolderByIndex(matchingHolders_[k]);
-        ProductData const* pd =  productHolder->resolveProduct(resolveStatus, skipCurrentProcess, mcc);
+        ProductData const* pd =  productHolder->resolveProduct(resolveStatus, skipCurrentProcess, sra, mcc);
         if(pd != nullptr) return pd;
       }
     }

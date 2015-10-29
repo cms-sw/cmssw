@@ -1,0 +1,9 @@
+<lcgdict>
+  <class name="FitParam"/>  
+  <class name="OptObject"/>
+  <class name="Sensor2DMeas"/>   
+  <class name="DistancemeterMeas"/>  
+  <class name="Distancemeter1DimMeas"/>
+  <class name="TiltmeterMeas"/> 
+  <class name="CopsMeas"/>   
+</lcgdict>

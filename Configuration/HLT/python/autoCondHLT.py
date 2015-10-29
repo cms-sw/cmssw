@@ -2,18 +2,18 @@
 
 l1Menus= {
     'Fake'         : 'L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc',
-    'FULL'         : 'L1Menu_Collisions2015_25nsStage1_v4',
-    'GRun'         : 'L1Menu_Collisions2015_25nsStage1_v4',
+    'FULL'         : 'L1Menu_Collisions2015_25nsStage1_v5',
+    'GRun'         : 'L1Menu_Collisions2015_25nsStage1_v5',
     '25ns14e33_v1' : 'L1Menu_Collisions2015_25ns_v2_L1T_Scales_20141121_Imp0_0x1030',
     '25ns14e33_v3' : 'L1Menu_Collisions2015_25nsStage1_v4',
     '25ns14e33_v4' : 'L1Menu_Collisions2015_25nsStage1_v5',
     'HIon'         : 'L1Menu_CollisionsHeavyIons2011_v0_nobsc_notau_centrality_q2_singletrack.v1',
-    'PIon'         : 'L1Menu_Collisions2015_25nsStage1_v4',
+    'PIon'         : 'L1Menu_Collisions2015_25nsStage1_v5',
     '50nsGRun'     : 'L1Menu_Collisions2015_50nsGct_v4',
     '50ns_5e33_v1' : 'L1Menu_Collisions2015_50nsGct_v1_L1T_Scales_20141121_Imp0_0x1030',
     '50ns_5e33_v3' : 'L1Menu_Collisions2015_50nsGct_v4',
     'LowPU'        : 'L1Menu_Collisions2015_lowPU_v4',
-    '25nsLowPU'    : 'L1Menu_Collisions2015_lowPU_25nsStage1_v5',
+    '25nsLowPU'    : 'L1Menu_Collisions2015_lowPU_25nsStage1_v6',
 }
 
 for key,val in l1Menus.iteritems():

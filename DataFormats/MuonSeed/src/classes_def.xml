@@ -19,7 +19,10 @@
       <class name="edm::reftobase::Holder<L2MuonTrajectorySeed,edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > >"/>
 
       <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<L2MuonTrajectorySeed> >, edm::RefProd<std::vector<L2MuonTrajectorySeed> > >"/>
-      <class name="edm::AssociationMap<edm::OneToMany<std::vector<L2MuonTrajectorySeed>,std::vector<L2MuonTrajectorySeed>, unsigned int > >"/>
+      <class name="edm::AssociationMap<edm::OneToMany<std::vector<L2MuonTrajectorySeed>,std::vector<L2MuonTrajectorySeed>, unsigned int > >">
+        <field name="transientMap_" transient="true"/>
+      </class>
+
       <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<L2MuonTrajectorySeed>,std::vector<L2MuonTrajectorySeed>, unsigned int > > >"/>
       <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >,edm::RefVector<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > > >"/>
       <class name="edm::helpers::KeyVal<edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >,edm::RefVector<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > >"/>

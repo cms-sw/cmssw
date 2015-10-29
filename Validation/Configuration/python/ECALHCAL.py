@@ -24,7 +24,7 @@ def customise(process):
 
     # use directly the generator output, no Hector
 
-    process.g4SimHits.Generator.HepMCProductLabel = cms.string('generator')
+    process.g4SimHits.Generator.HepMCProductLabel = cms.string('generatorSmeared')
 
     # modify the content
 
@@ -66,7 +66,7 @@ def customise(process):
             cms.InputTag("interestingEcalDetIdEE"),
             )            
 
-    process.local_digireco = cms.Path(process.mix * process.addPileupInfo * process.calDigi * process.ecalPacker * process.esDigiToRaw * process.hcalRawData * process.rawDataCollector * process.ecalDigis * process.ecalPreshowerDigis * process.hcalDigis * process.calolocalreco *(process.ecalClustersNoPFBox+process.caloTowersRec) * process.reducedEcalRecHitsSequenceEcalOnly )
+    process.local_digireco = cms.Path(process.mix * process.addPileupInfo * process.bunchSpacingProducer * process.calDigi * process.ecalPacker * process.esDigiToRaw * process.hcalRawData * process.rawDataCollector * process.ecalDigis * process.ecalPreshowerDigis * process.hcalDigis * process.calolocalreco *(process.ecalClustersNoPFBox+process.caloTowersRec) * process.reducedEcalRecHitsSequenceEcalOnly )
 
     process.schedule.append(process.local_digireco)
 

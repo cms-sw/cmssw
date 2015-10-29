@@ -41,7 +41,7 @@ class SoftPFMuonTagInfoProducer : public edm::stream::EDProducer<> {
     edm::EDGetTokenT<edm::View<reco::Jet> > jetToken;
     edm::EDGetTokenT<edm::View<reco::Muon> > muonToken;
     edm::EDGetTokenT<reco::VertexCollection> vertexToken;
-    float pTcut, SIPcut, IPcut, ratio1cut, ratio2cut;
+    float pTcut, SIPsigcut, IPsigcut, ratio1cut, ratio2cut;
     bool useFilter;
 };
 

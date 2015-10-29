@@ -7,5 +7,6 @@
 <use   name="DQMServices/ClientConfig"/>
 <use   name="CalibCalorimetry/HcalAlgos"/>
 <use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/CaloTopology"/>
 <use   name="CondFormats/RunInfo"/>
 <use   name="xerces-c"/>

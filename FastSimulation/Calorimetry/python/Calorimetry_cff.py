@@ -268,9 +268,9 @@ FamosCalorimetryBlock = cms.PSet(
             OnlyLong          = cms.bool(True)
             ),
         HFShowerLibrary    = cms.PSet(
-            useShowerLibrary = cms.untracked.bool(False),
+            useShowerLibrary = cms.untracked.bool(True),
             useCorrectionSL  = cms.untracked.bool(True),
-            FileName = cms.FileInPath('SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v3.root'),
+            FileName = cms.FileInPath('SimG4CMS/Calo/data/HFShowerLibrary_oldpmt_noatt_eta4_16en_v3.root'),
             BackProbability  = cms.double(0.2),
             TreeEMID         = cms.string('emParticles'),
             TreeHadID        = cms.string('hadParticles'),
@@ -299,7 +299,4 @@ FamosCalorimetryBlock = cms.PSet(
 FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = True
 FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
 
-#
-# Modify for running in Run 2
-#
-eras.run2_common.toModify( FamosCalorimetryBlock.Calorimetry.HFShowerLibrary, useShowerLibrary=True )
+eras.run2_common.toModify(FamosCalorimetryBlock.Calorimetry.HFShowerLibrary, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v3.root' )

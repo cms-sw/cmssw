@@ -10,7 +10,6 @@
 #include "Calibration/HcalIsolatedTrackReco/interface/SubdetFEDSelector.h"
 #include "HITRegionalPixelSeedGenerator.h"
 #include "Calibration/HcalIsolatedTrackReco/interface/IPTCorrector.h"
-#include "Calibration/HcalIsolatedTrackReco/interface/HITSiStripRawToClustersRoI.h" 	 
 
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, HITRegionalPixelSeedGenerator, "HITRegionalPixelSeedGenerator"); 
 //
@@ -21,4 +20,3 @@ DEFINE_FWK_MODULE(SiStripRegFEDSelector);
 DEFINE_FWK_MODULE(ECALRegFEDSelector);
 DEFINE_FWK_MODULE(SubdetFEDSelector);
 DEFINE_FWK_MODULE(IPTCorrector);
-DEFINE_FWK_MODULE(HITSiStripRawToClustersRoI);

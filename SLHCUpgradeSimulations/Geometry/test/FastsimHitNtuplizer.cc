@@ -110,30 +110,27 @@ void FastsimHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es
   //const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
-  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
+  edm::Handle<FastTrackerRecHitCombinationCollection> recHitCombinations;
   //std::string hitProducer = conf_.getParameter<std::string>("HitProducer");
   //e.getByLabel(hitProducer, theGSRecHits);
   //e.getByLabel("siTrackerGaussianSmearingRecHits", "TrackerGSRecHits", theGSRecHits);
   edm::InputTag hitProducer;
   hitProducer = conf_.getParameter<edm::InputTag>("HitProducer");
-  e.getByLabel(hitProducer, theGSRecHits);
+  e.getByLabel(hitProducer, recHitCombinations);
 
   
   //std::cout << " Step A: Full GS RecHits found " << theGSRecHits->size() << std::endl;
-  if(theGSRecHits->size() == 0) return;
+  if(recHitCombinations->size() == 0) return;
 
 //For each SiTrackerGSRecHit2D*
   
-  SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theGSRecHits->begin();
-  SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theGSRecHits->end();
-  SiTrackerGSRecHit2DCollection::const_iterator iterRecHit;
-
   std::string detname ;
 
-  for ( iterRecHit = theRecHitRangeIteratorBegin; 
-        iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
+  for ( size_t c_index = 0;c_index < recHitCombinations->size();c_index++){
+      for( size_t h_index = 0;h_index < recHitCombinations->at(h_index).size();h_index++){
 
-       const DetId& detId =  iterRecHit->geographicalId();
+       const auto & recHit = *(*recHitCombinations)[c_index][h_index].get();
+       const DetId& detId =  recHit.geographicalId();
        const GeomDet* geomDet( theGeometry->idToDet(detId) );
        /*
        unsigned int subdetId = detId.subdetId();
@@ -189,27 +186,27 @@ void FastsimHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es
     unsigned int subid = detId.subdetId();
     if ( (subid==1)||(subid==2) ) {
       // 1 = PXB, 2 = PXF
-      fillPRecHit(subid, iterRecHit, geomDet);
+      fillPRecHit(subid, recHit, geomDet);
       fillEvt(e);
       pixeltree_->Fill();
       init();
     } else { //end of Pixel and start of Strip
       //TIB=3,TID=4,TOB=5,TEC=6
       fillEvt(e);
-      fillSRecHit(subid, iterRecHit, geomDet);
+      fillSRecHit(subid, recHit, geomDet);
       striptree_->Fill();
       init();
     }
   } // end of rechit loop
- 
+  }
 } // end analyze function
 
 void FastsimHitNtuplizer::fillSRecHit(const int subid, 
-                                   SiTrackerGSRecHit2DCollection::const_iterator pixeliter,
-                                   const GeomDet* theGeom)
+				      const FastTrackerRecHit & recHit,
+				      const GeomDet* theGeom)
 {
-  LocalPoint lp = pixeliter->localPosition();
-  LocalError le = pixeliter->localPositionError();
+  LocalPoint lp = recHit.localPosition();
+  LocalError le = recHit.localPositionError();
 
   striprecHit_.x = lp.x();
   striprecHit_.y = lp.y();
@@ -219,18 +216,18 @@ void FastsimHitNtuplizer::fillSRecHit(const int subid,
   //MeasurementPoint mp = topol->measurementPosition(LocalPoint(striprecHit_.x, striprecHit_.y));
   //striprecHit_.row = mp.x();
   //striprecHit_.col = mp.y();
-  GlobalPoint GP = theGeom->surface().toGlobal(pixeliter->localPosition());
+  GlobalPoint GP = theGeom->surface().toGlobal(recHit.localPosition());
   striprecHit_.gx = GP.x();
   striprecHit_.gy = GP.y();
   striprecHit_.gz = GP.z();
   striprecHit_.subid = subid;
 }
 void FastsimHitNtuplizer::fillPRecHit(const int subid, 
-                                   SiTrackerGSRecHit2DCollection::const_iterator pixeliter,
+                                   const FastTrackerRecHit & recHit,
                                    const GeomDet* PixGeom)
 {
-  LocalPoint lp = pixeliter->localPosition();
-  LocalError le = pixeliter->localPositionError();
+  LocalPoint lp = recHit.localPosition();
+  LocalError le = recHit.localPositionError();
 
   recHit_.x = lp.x();
   recHit_.y = lp.y();
@@ -240,7 +237,7 @@ void FastsimHitNtuplizer::fillPRecHit(const int subid,
   //MeasurementPoint mp = topol->measurementPosition(LocalPoint(recHit_.x, recHit_.y));
   //recHit_.row = mp.x();
   //recHit_.col = mp.y();
-  GlobalPoint GP = PixGeom->surface().toGlobal(pixeliter->localPosition());
+  GlobalPoint GP = PixGeom->surface().toGlobal(recHit.localPosition());
   recHit_.gx = GP.x();
   recHit_.gy = GP.y();
   recHit_.gz = GP.z();

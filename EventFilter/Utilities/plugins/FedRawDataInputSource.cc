@@ -55,13 +55,13 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
                                              edm::InputSourceDescription const& desc) :
   edm::RawInputSource(pset, desc),
   defPath_(pset.getUntrackedParameter<std::string> ("buDefPath", std::string(getenv("CMSSW_BASE"))+"/src/EventFilter/Utilities/plugins/budef.jsd")),
-  eventChunkSize_(pset.getUntrackedParameter<unsigned int> ("eventChunkSize",16)*1048576),
+  eventChunkSize_(pset.getUntrackedParameter<unsigned int> ("eventChunkSize",32)*1048576),
   eventChunkBlock_(pset.getUntrackedParameter<unsigned int> ("eventChunkBlock",eventChunkSize_/1048576)*1048576),
-  numBuffers_(pset.getUntrackedParameter<unsigned int> ("numBuffers",1)),
+  numBuffers_(pset.getUntrackedParameter<unsigned int> ("numBuffers",2)),
   maxBufferedFiles_(pset.getUntrackedParameter<unsigned int> ("maxBufferedFiles",2)),
   getLSFromFilename_(pset.getUntrackedParameter<bool> ("getLSFromFilename", true)),
   verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
-  verifyChecksum_(pset.getUntrackedParameter<bool> ("verifyChecksum", true)),
+  verifyChecksum_(pset.getUntrackedParameter<bool> ("verifyChecksum", verifyAdler32_)),
   useL1EventID_(pset.getUntrackedParameter<bool> ("useL1EventID", false)),
   runNumber_(edm::Service<evf::EvFDaqDirector>()->getRunNumber()),
   fuOutputDir_(edm::Service<evf::EvFDaqDirector>()->baseRunDir()),
@@ -876,7 +876,7 @@ void FedRawDataInputSource::readSupervisor()
 
     //look for a new file
     std::string nextFile;
-    uint32_t ls;
+    uint32_t ls=0;
     uint32_t fileSize;
 
     uint32_t monLS=1;
@@ -895,6 +895,7 @@ void FedRawDataInputSource::readSupervisor()
      
       uint64_t thisLockWaitTimeUs=0.;
       status = daqDirector_->updateFuLock(ls,nextFile,fileSize,thisLockWaitTimeUs);
+      if (currentLumiSection!=ls && status==evf::EvFDaqDirector::runEnded) status=evf::EvFDaqDirector::noFile;
 
       //monitoring of lock wait time
       if (thisLockWaitTimeUs>0.)
@@ -913,6 +914,7 @@ void FedRawDataInputSource::readSupervisor()
         usleep(100000);
         //now all files should have appeared in ramdisk, check again if any raw files were left behind
         status = daqDirector_->updateFuLock(ls,nextFile,fileSize,thisLockWaitTimeUs);
+        if (currentLumiSection!=ls && status==evf::EvFDaqDirector::runEnded) status=evf::EvFDaqDirector::noFile;
       }
 
       if ( status == evf::EvFDaqDirector::runEnded) {

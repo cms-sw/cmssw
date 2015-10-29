@@ -47,6 +47,8 @@ public:
 
   void SampleAnalysis();
 
+  void setTopology(const HcalTopology* htopo) {fTopology = htopo;}
+
   int done(const HcalPedestals* fInputPedestals, 
 	    const HcalPedestalWidths* fInputWidths,
 	    HcalPedestals* fOutputPedestals, 
@@ -133,7 +135,7 @@ private:
   int evt_curr;
   float m_stat[4];
   std::vector<bool> state;
-  HcalTopology* fTopology;
+  const HcalTopology* fTopology;
 // flag to make gaussian fits to charge dists
   static const int fitflag=0;
 };

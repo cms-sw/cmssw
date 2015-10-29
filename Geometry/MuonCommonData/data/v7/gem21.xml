@@ -2,18 +2,18 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="gem21.xml" eval="true">
-  <Constant name="dzS01L"       value="10.8475*cm"/>
-  <Constant name="dzS02L"       value="10.8470*cm"/>
-  <Constant name="dzS03L"       value="9.2365*cm"/>
-  <Constant name="dzS04L"       value="9.2365*cm"/>
-  <Constant name="dzS05L"       value="7.9145*cm"/>
-  <Constant name="dzS06L"       value="7.9145*cm"/>
-  <Constant name="dzS07L"       value="6.8115*cm"/>
-  <Constant name="dzS08L"       value="6.8115*cm"/>
-  <Constant name="dzS09L"       value="5.8810*cm"/>
-  <Constant name="dzS10L"       value="5.8810*cm"/>
-  <Constant name="dzS11L"       value="5.0970*cm"/>
-  <Constant name="dzS12L"       value="5.0965*cm"/>
+  <Constant name="dzS01L"       value="10.8770*cm"/>
+  <Constant name="dzS02L"       value="10.8770*cm"/>
+  <Constant name="dzS03L"       value="9.2490*cm"/>
+  <Constant name="dzS04L"       value="9.2490*cm"/>
+  <Constant name="dzS05L"       value="7.9150*cm"/>
+  <Constant name="dzS06L"       value="7.9150*cm"/>
+  <Constant name="dzS07L"       value="6.8030*cm"/>
+  <Constant name="dzS08L"       value="6.8030*cm"/>
+  <Constant name="dzS09L"       value="5.8665*cm"/>
+  <Constant name="dzS10L"       value="5.8665*cm"/>
+  <Constant name="dzS11L"       value="5.0770*cm"/>
+  <Constant name="dzS12L"       value="5.0770*cm"/>
   <Constant name="dzGap"        value="0.2500*mm"/>
   <Constant name="dzInL"        value="([dzS01L]+[dzS02L]+[dzS03L]+[dzS04L]+[dzS05L]+[dzS06L]+[dzS07L]+[dzS08L]+[dzS09L]+[dzS10L]+[dzS11L]+[dzS12L]+11*[dzGap])"/>
   <Constant name="z010L"        value="([dzInL]-[dzS01L])"/> 
@@ -28,10 +28,10 @@
   <Constant name="z100L"        value="([z090L]-[dzS09L]-2*[dzGap]-[dzS10L])"/> 
   <Constant name="z110L"        value="([z100L]-[dzS10L]-2*[dzGap]-[dzS11L])"/> 
   <Constant name="z120L"        value="([z110L]-[dzS11L]-2*[dzGap]-[dzS12L])"/>
-  <Constant name="rMinL"	value="135.00*cm"/>
+  <Constant name="rMinL"	value="133.00*cm"/>
   <Constant name="rMax"	        value="330.15*cm"/>
-  <Constant name="dxTop"        value="58.930*cm"/>
-  <Constant name="Angle"	value="10.4345*deg"/>
+  <Constant name="dxTop"        value="58.945*cm"/>
+  <Constant name="Angle"	value="10.4375*deg"/>
   <Constant name="slope"	value="tan([Angle])"/>
   <Constant name="dx011L"       value="([dxTop]-[slope]*([dzInL]-[z010L]+[dzS01L]))"/>
   <Constant name="dx012L"       value="([dxTop]-[slope]*([dzInL]-[z010L]-[dzS01L]))"/>
@@ -58,13 +58,13 @@
   <Constant name="dx121L"       value="([dxTop]-[slope]*([dzInL]-[z120L]+[dzS12L]))"/>
   <Constant name="dx122L"       value="([dxTop]-[slope]*([dzInL]-[z120L]-[dzS12L]))"/>
   <Constant name="zFront"       value="7928*mm"/>
-  <Constant name="thickness"    value="73.8*mm"/>
+  <Constant name="thickness"    value="72.8*mm"/>
   <Constant name="hthick"	value="[thickness]/2."/>
   <Constant name="Angle0"	value="10.0*deg"/>
   <Constant name="slope0"	value="tan([Angle0])"/>
-  <Constant name="dzGB21L"	value="94.55*cm"/>
+  <Constant name="dzGB21L"	value="95.55*cm"/>
   <Constant name="dyGB21"	value="8.100*mm"/>
-  <Constant name="dxTopGB21L"   value="62.535*cm"/>
+  <Constant name="dxTopGB21L"   value="62.55*cm"/>
   <Constant name="dxBotGB21L"   value="([dxTopGB21L]-2*[slope0]*[dzGB21L])"/>
   <Constant name="dyGA21"       value="9.250*mm"/>
   <Constant name="dzGA21L"      value="([dzGB21L]-0.40*cm)"/>
@@ -74,6 +74,7 @@
   <Constant name="dxFrame"      value="10.0*mm"/>
   <Constant name="dyBase"       value="3.2*mm"/>
   <Constant name="dyTop"        value="1.0*mm"/>
+  <Constant name="zOff"         value="(-28.3*mm-[dyGB21]+[dyBase]+[hthick])"/>
   <Constant name="dzGBI21L"     value="([dzGB21L]-[dxFrame])"/>
   <Constant name="dyGBI21"      value="([dyGB21]-0.5*([dyBase]+[dyTop]))"/>
   <Constant name="dxTopGBI21L"  value="([dxTopGB21L]-[slope0]*[dxFrame])"/>
@@ -99,12 +100,13 @@
   <Constant name="yGap4"        value="([yFoil3]+[dyGap4]+[dyFoil])"/>
   <Constant name="dyReadOut"    value="1.5*mm"/>
   <Constant name="yReadOut"     value="(-[dyGBI21]+7.0*mm+[dyReadOut])"/>
-  <Constant name="zCardL"       value="(33.0*mm-[dzGB21L]+[dzInL])"/>
-  <Constant name="dzCardL"      value="[dzInL]"/>
-  <Constant name="dxTopCardL"   value="[dxTop]"/>
+  <Constant name="dzCardL"      value="935.5*mm"/>
+  <Constant name="zCardL"       value="(16.0*mm-[dzGB21L]+[dzCardL])"/>
+  <Constant name="dxTopCardL"   value="609.72*mm"/>
   <Constant name="dxBotCardL"   value="([dxTopCardL]-2*[slope]*[dzCardL])"/>
   <Constant name="dzFoilL"      value="[dzInL]"/>
-  <Constant name="dxTopFoilL"   value="55.994*cm"/>
+  <Constant name="zFoilL"       value="(33.0*mm-[dzGB21L]+[dzFoilL])"/>
+  <Constant name="dxTopFoilL"   value="[dxTop]"/>
   <Constant name="dxBotFoilL"   value="([dxTopFoilL]-2*[slope]*[dzFoilL])"/>
   <Constant name="Tilt"         value="2.5*deg"/>
   <Constant name="TubeBotL"     value="60.0*mm"/>
@@ -203,11 +205,11 @@
     <rSolid name="GAI21L"/>
     <Translation x="0.0*fm" y="([dyGBI21]+[dyTop]+[dyGAI21])" z="([dzGBI21L]-[dzGAI21L])"/>
   </UnionSolid>
-  <Trd1 name="GSAX21L" dz="[dzCardL]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dxBotCardL]" dx2="[dxTopCardL]" />
-  <Trd1 name="GJAX21L" dz="[dzCardL]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dxBotCardL]" dx2="[dxTopCardL]" />
-  <Trd1 name="GIAX21L" dz="[dzCardL]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dxBotCardL]" dx2="[dxTopCardL]" />
+  <Trd1 name="GSAX21L" dz="[dzFoilL]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dxBotFoilL]" dx2="[dxTopFoilL]" />
+  <Trd1 name="GJAX21L" dz="[dzFoilL]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dxBotFoilL]" dx2="[dxTopFoilL]" />
+  <Trd1 name="GIAX21L" dz="[dzFoilL]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dxBotFoilL]" dx2="[dxTopFoilL]" />
   <Trd1 name="GKAX21L" dz="[dzFoilL]" dy1="[dyFoil]" dy2="[dyFoil]" dx1="[dxBotFoilL]" dx2="[dxTopFoilL]" />
-  <Trd1 name="GDAX21L" dz="[dzCardL]" dy1="[dyGap4]" dy2="[dyGap4]" dx1="[dxBotCardL]" dx2="[dxTopCardL]" />
+  <Trd1 name="GDAX21L" dz="[dzFoilL]" dy1="[dyGap4]" dy2="[dyGap4]" dx1="[dxBotFoilL]" dx2="[dxTopFoilL]" />
   <Trd1 name="GRAX21L" dz="[dzCardL]" dy1="[dyReadOut]" dy2="[dyReadOut]" dx1="[dxBotCardL]" dx2="[dxTopCardL]" />
 
   <Trd1 name="GHA201" dz="[dzS01L]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx011L]" dx2="[dx012L]" />
@@ -559,37 +561,37 @@
   <PosPart copyNumber="1">
     <rParent name="GMAX21L"/>
     <rChild name="GSAX21L"/>
-    <Translation x="0*fm" y="[yGap1]" z="[zCardL]" />
+    <Translation x="0*fm" y="[yGap1]" z="[zFoilL]" />
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="GMAX21L"/>
     <rChild name="GKAX21L"/>
-    <Translation x="0*fm" y="[yFoil1]" z="[zCardL]" />
+    <Translation x="0*fm" y="[yFoil1]" z="[zFoilL]" />
   </PosPart>
   <PosPart copyNumber="2">
     <rParent name="GMAX21L"/>
     <rChild name="GKAX21L"/>
-    <Translation x="0*fm" y="[yFoil2]" z="[zCardL]" />
+    <Translation x="0*fm" y="[yFoil2]" z="[zFoilL]" />
   </PosPart>
   <PosPart copyNumber="3">
     <rParent name="GMAX21L"/>
     <rChild name="GKAX21L"/>
-    <Translation x="0*fm" y="[yFoil3]" z="[zCardL]" />
+    <Translation x="0*fm" y="[yFoil3]" z="[zFoilL]" />
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="GMAX21L"/>
     <rChild name="GJAX21L"/>
-    <Translation x="0*fm" y="[yGap2]" z="[zCardL]" />
+    <Translation x="0*fm" y="[yGap2]" z="[zFoilL]" />
   </PosPart>
   <PosPart copyNumber="2">
     <rParent name="GMAX21L"/>
     <rChild name="GIAX21L"/>
-    <Translation x="0*fm" y="[yGap3]" z="[zCardL]" />
+    <Translation x="0*fm" y="[yGap3]" z="[zFoilL]" />
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="GMAX21L"/>
     <rChild name="GDAX21L"/>
-    <Translation x="0*fm" y="[yGap4]" z="[zCardL]" />
+    <Translation x="0*fm" y="[yGap4]" z="[zFoilL]" />
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="GMAX21L"/>
@@ -1211,7 +1213,7 @@
     <Numeric name="stepAngle"   value="40*deg"/>
     <Numeric name="startAngle"  value="5*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
-    <Numeric name="zoffset"     value="+28.70*mm"/>
+    <Numeric name="zoffset"     value="+28.30*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
     <rParent name="GEMDisk21LP"/>
@@ -1224,7 +1226,7 @@
     <Numeric name="stepAngle"   value="40*deg"/>
     <Numeric name="startAngle"  value="5*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
-    <Numeric name="zoffset"     value=" -9.70*mm"/>
+    <Numeric name="zoffset"     value=" -9.10*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
     <rParent name="GEMDisk21LP"/>
@@ -1237,7 +1239,7 @@
     <Numeric name="stepAngle"   value="40*deg"/>
     <Numeric name="startAngle"  value="25*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
-    <Numeric name="zoffset"     value=" +9.50*mm"/>
+    <Numeric name="zoffset"     value=" +9.10*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
     <rParent name="GEMDisk21LP"/>
@@ -1250,7 +1252,7 @@
     <Numeric name="stepAngle"   value="40*deg"/>
     <Numeric name="startAngle"  value="25*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
-    <Numeric name="zoffset"     value="-27.90*mm"/>
+    <Numeric name="zoffset"     value="-28.30*mm"/>
   </Algorithm>
 
   <Algorithm name="muon:DDGEMAngular">
@@ -1264,7 +1266,7 @@
     <Numeric name="stepAngle"   value="-40*deg"/>
     <Numeric name="startAngle"  value="175*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
-    <Numeric name="zoffset"     value="+28.70*mm"/>
+    <Numeric name="zoffset"     value="+28.30*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
     <rParent name="GEMDisk21LN"/>
@@ -1277,7 +1279,7 @@
     <Numeric name="stepAngle"   value="-40*deg"/>
     <Numeric name="startAngle"  value="175*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
-    <Numeric name="zoffset"     value=" -9.70*mm"/>
+    <Numeric name="zoffset"     value=" -9.10*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
     <rParent name="GEMDisk21LN"/>
@@ -1290,7 +1292,7 @@
     <Numeric name="stepAngle"   value="-40*deg"/>
     <Numeric name="startAngle"  value="155*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
-    <Numeric name="zoffset"     value=" +9.50*mm"/>
+    <Numeric name="zoffset"     value=" +9.10*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
     <rParent name="GEMDisk21LN"/>
@@ -1303,7 +1305,7 @@
     <Numeric name="stepAngle"   value="-40*deg"/>
     <Numeric name="startAngle"  value="155*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
-    <Numeric name="zoffset"     value="-27.90*mm"/>
+    <Numeric name="zoffset"     value="-28.30*mm"/>
   </Algorithm>
       
 </DDDefinition>

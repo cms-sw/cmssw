@@ -19,23 +19,37 @@ public:
   CastorDigiMonitor(const edm::ParameterSet& ps); 
   ~CastorDigiMonitor(); 
 
-  void setup(const edm::ParameterSet& ps);
+ void setup(const edm::ParameterSet& ps);
  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
-  void processEvent(const CastorDigiCollection& cast,const CastorDbService& cond, int bunch);
-
+ void processEvent(const CastorDigiCollection& cast,const CastorDbService& cond);
+ int ModSecToIndex(int module, int sector);
 private:
   std::string subsystemname_;
   int fVerbosity;
   int ievt_;
+  float Qrms_DEAD;
 
+  MonitorElement* h2QrmsTSvsCh;
+  MonitorElement* hQIErms[10];
+  MonitorElement* hTSratio;
+  MonitorElement* h2TSratio;
+  MonitorElement* h2status;
   MonitorElement* h2digierr;
+  MonitorElement* h2reportMap;
+  MonitorElement* hReport;
   MonitorElement* h2QtsvsCh;
   MonitorElement *h2QmeantsvsCh;
   MonitorElement *h2QmeanMap;
   MonitorElement *hModule;
   MonitorElement *hSector;
   MonitorElement* hdigisize;
-  MonitorElement* hBunchOcc;
+//  MonitorElement* hBunchOcc;
+
+  int TS_MAX = 10;
+  float RatioThresh1 = 0.;
+  float QIEerrThreshold = 0.0001;
+  double QrmsTS[224][10], QmeanTS[224][10];
+  const int TSped = 0;
 };
 
 #endif

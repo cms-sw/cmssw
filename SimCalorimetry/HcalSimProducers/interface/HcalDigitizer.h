@@ -10,6 +10,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCHitFilter.h"
 #include "SimCalorimetry/HcalSimProducers/interface/HcalHitRelabeller.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -30,6 +31,7 @@ class HcalBaseSignalGenerator;
 class HcalShapes;
 class PCaloHit;
 class PileUpEventPrincipal;
+class HcalTopology;
 
 namespace edm {
   class ConsumesCollector;
@@ -60,7 +62,7 @@ public:
   void setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
 
 private:
-  void accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHits, edm::Handle<std::vector<PCaloHit> > const& zdcHits, int bunchCrossing, CLHEP::HepRandomEngine*);
+  void accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHits, edm::Handle<std::vector<PCaloHit> > const& zdcHits, int bunchCrossing, CLHEP::HepRandomEngine*, const HcalTopology *h);
 
   /// some hits in each subdetector, just for testing purposes
   void fillFakeHits();
@@ -68,6 +70,7 @@ private:
   /// exist in the geometry
   void checkGeometry(const edm::EventSetup& eventSetup);
   const CaloGeometry * theGeometry;
+  const HcalDDDRecConstants * theRecNumber;
   void updateGeometry(const edm::EventSetup& eventSetup);
 
   void buildHOSiPMCells(const std::vector<DetId>& allCells, const edm::EventSetup& eventSetup);

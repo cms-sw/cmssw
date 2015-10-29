@@ -14,19 +14,13 @@
 using namespace edm;
 using namespace std;
 
-HepMCProduct::HepMCProduct( HepMC::GenEvent * evt ) {
-    evt_ = evt;
-    cout << "Contructing HepMCProduct" << endl;
-    
-    //note: this is not quite safe, because GenEvent does NOT
-    //      know if vertex smearing applied or nor - only the
-    //      HepMCProduct itself knows !
-    // isVtxGenApplied_ = 0 ;  // ???
+HepMCProduct::HepMCProduct(HepMC::GenEvent* evt) :
+    evt_(evt), isVtxGenApplied_(false), isVtxBoostApplied_(false), isPBoostApplied_(false) {
 }
 
 HepMCProduct::~HepMCProduct(){
 
-	delete evt_; evt_ = 0; isVtxGenApplied_ = false;
+	delete evt_; evt_ = nullptr; isVtxGenApplied_ = false;
 	isVtxBoostApplied_ = false;
 	isPBoostApplied_ = false;
 }
@@ -42,7 +36,7 @@ void HepMCProduct::addHepMCData( HepMC::GenEvent  *evt){
   
 }
 
-void HepMCProduct::applyVtxGen( HepMC::FourVector* vtxShift ) const
+void HepMCProduct::applyVtxGen( HepMC::FourVector* vtxShift )
 {
 	//std::cout<< " applyVtxGen called " << isVtxGenApplied_ << endl;
 	//fTimeOffset = 0;
@@ -67,7 +61,7 @@ void HepMCProduct::applyVtxGen( HepMC::FourVector* vtxShift ) const
 
 } 
 
-void HepMCProduct::boostToLab( TMatrixD* lorentz, std::string type ) const {
+void HepMCProduct::boostToLab( TMatrixD* lorentz, std::string type ) {
 
 	//std::cout << "from boostToLab:" << std::endl;
 	
@@ -151,7 +145,7 @@ HepMCProduct::getHepMCData()const   {
 
 // copy constructor
 HepMCProduct::HepMCProduct(HepMCProduct const& other) :
-  evt_(0) {
+  evt_(nullptr) {
   
    if (other.evt_) evt_=new HepMC::GenEvent(*other.evt_);
    isVtxGenApplied_ = other.isVtxGenApplied_ ;

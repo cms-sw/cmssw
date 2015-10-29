@@ -3,7 +3,6 @@
    <class name="std::vector<HGCSample>"/>
 
    <!-- EE specific -->
-   <!-- HGCEEDetId is provided by DataFormats/ForwardDetId -->
    <class name="HGCDataFrame<HGCEEDetId,HGCSample>"/>
    <class name="std::vector<HGCDataFrame<HGCEEDetId,HGCSample> >"/>
    <class name="edm::SortedCollection<HGCDataFrame<HGCEEDetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<HGCEEDetId,HGCSample> > >"/>
@@ -11,7 +10,6 @@
    <class name="edm::Wrapper<HGCEEDigiCollection>"/>
 
    <!-- HE specific -->
-   <!-- HGCHEDetId is provided by DataFormats/ForwardDetId -->
    <class name="HGCDataFrame<HGCHEDetId,HGCSample>"/>
    <class name="std::vector<HGCDataFrame<HGCHEDetId,HGCSample> >"/>
    <class name="edm::SortedCollection<HGCDataFrame<HGCHEDetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<HGCHEDetId,HGCSample> > >"/>

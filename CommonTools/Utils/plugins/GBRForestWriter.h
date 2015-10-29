@@ -39,9 +39,6 @@ class GBRForestWriter : public edm::EDAnalyzer
     {
       if ( cfg.existsAs<edm::FileInPath>("inputFileName") ) {
 	edm::FileInPath inputFileName_fip = cfg.getParameter<edm::FileInPath>("inputFileName");
-	if ( inputFileName_fip.location()!=edm::FileInPath::Local)
-	  throw cms::Exception("GBRForestWriter") 
-	    << " Failed to find File = " << inputFileName_fip << " !!\n";
 	inputFileName_ = inputFileName_fip.fullPath();
       } else if ( cfg.existsAs<std::string>("inputFileName") ) {
 	inputFileName_ = cfg.getParameter<std::string>("inputFileName");

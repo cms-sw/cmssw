@@ -3,6 +3,7 @@ from Geometry.HcalEventSetup.HcalRelabel_cfi import HcalReLabel
 
 HcalHardcodeGeometryEP = cms.ESProducer("HcalHardcodeGeometryEP" ,
                                         appendToDataLabel = cms.string("_master"),
+                                        UseOldLoader = cms.bool(False),
                                         HcalReLabel = HcalReLabel
                                         )
 

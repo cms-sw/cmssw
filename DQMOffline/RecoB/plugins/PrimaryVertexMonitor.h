@@ -49,16 +49,17 @@ class PrimaryVertexMonitor : public DQMEDAnalyzer {
   std::string AlignmentLabel_;
 
   // the histos
-  MonitorElement *nbvtx, *nbtksinvtx[2], *trksWeight[2];
+  MonitorElement *nbvtx, *nbgvtx, *nbtksinvtx[2], *trksWeight[2];
   MonitorElement *tt[2];
   MonitorElement *xrec[2] , *yrec[2], *zrec[2], *xDiff[2] , *yDiff[2], *xerr[2] , *yerr[2], *zerr[2] ;
   MonitorElement *xerrVsTrks[2] , *yerrVsTrks[2], *zerrVsTrks[2] ;
+  MonitorElement * ntracksVsZ[2];
   MonitorElement *vtxchi2[2] , *vtxndf[2], *vtxprob[2] , *nans[2];
   MonitorElement *type[2];
   MonitorElement *bsX, *bsY, *bsZ, *bsSigmaZ, *bsDxdz, *bsDydz, *bsBeamWidthX, *bsBeamWidthY, *bsType;
 
   MonitorElement *sumpt, *ntracks, *weight, *chi2ndf, *chi2prob;
-  MonitorElement *dxy, *dz, *dxyErr, *dzErr;
+  MonitorElement *dxy, *dxy2, *dz, *dxyErr, *dzErr;
   MonitorElement *dxyVsPhi_pt1, *dzVsPhi_pt1;
   MonitorElement *dxyVsEta_pt1, *dzVsEta_pt1;
   MonitorElement *dxyVsPhi_pt10, *dzVsPhi_pt10;

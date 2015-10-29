@@ -14,7 +14,7 @@
 
 
 DigiVtxPosCorrHistogramMaker::DigiVtxPosCorrHistogramMaker(edm::ConsumesCollector&& iC):
-  m_mcvtxcollectionToken(iC.consumes<edm::HepMCProduct>(edm::InputTag("generator"))), m_hitname(), m_nbins(500), m_scalefact(), m_binmax(), m_labels(),
+  m_mcvtxcollectionToken(iC.consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"))), m_hitname(), m_nbins(500), m_scalefact(), m_binmax(), m_labels(),
   m_nmultvsvtxpos(), m_nmultvsvtxposprof(), m_subdirs() { }
 
 DigiVtxPosCorrHistogramMaker::DigiVtxPosCorrHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):

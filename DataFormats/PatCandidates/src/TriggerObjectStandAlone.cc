@@ -275,8 +275,8 @@ void TriggerObjectStandAlone::packPathNames(const edm::TriggerNames &names) {
     for (unsigned int i = 0; i < n; ++i) {
         uint16_t id = names.triggerIndex(pathNames_[i]);
         if (id >= end) {
-            static int _warn = 0;
-            if (++_warn < 5) std::cerr << "Warning: can't resolve '" << pathNames_[i] << "' to a path index" << std::endl;
+            static std::atomic<int> _warn(0);
+            if (++_warn < 5) edm::LogWarning("TriggerObjectStandAlone::packPathNames()") << "Warning: can't resolve '" << pathNames_[i] << "' to a path index" << std::endl;
             ok = false; break;
         } else {
             indices[i] = id;

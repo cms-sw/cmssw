@@ -68,7 +68,9 @@ from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
 from JetMETCorrections.Type1MET.correctionTermsPfMetType0PFCandidate_cff import *
 from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
 
-dqmCorrPfMetType1=corrPfMetType1.clone(jetCorrLabel = cms.InputTag('dqmAk4PFL1FastL2L3Corrector'))
+dqmCorrPfMetType1=corrPfMetType1.clone(jetCorrLabel = cms.InputTag('dqmAk4PFCHSL1FastL2L3Corrector'),
+                                       jetCorrLabelRes = cms.InputTag('dqmAk4PFCHSL1FastL2L3Corrector')
+                                       )
 pfMETT1=pfMetT1.clone(srcCorrections = cms.VInputTag(
         cms.InputTag('dqmCorrPfMetType1', 'type1')
     ))

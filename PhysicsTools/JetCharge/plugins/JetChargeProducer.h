@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -10,15 +10,15 @@
 
 #include "PhysicsTools/JetCharge/interface/JetCharge.h"
 
-class JetChargeProducer : public edm::EDProducer {
+class JetChargeProducer : public edm::global::EDProducer<> {
     public:
         typedef reco::JetFloatAssociation::Container JetChargeCollection;
 
         explicit JetChargeProducer(const edm::ParameterSet &cfg) ;
-        virtual void produce(edm::Event&, const edm::EventSetup&);
+        virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const;
     private:
-        edm::EDGetTokenT<reco::JetTracksAssociationCollection> srcToken_;
-        JetCharge     algo_;
+        const edm::EDGetTokenT<reco::JetTracksAssociationCollection> srcToken_;
+        const JetCharge     algo_;
 };
 
 

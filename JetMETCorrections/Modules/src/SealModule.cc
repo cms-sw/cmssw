@@ -4,13 +4,13 @@
 #include "CondCore/PluginSystem/interface/registration_macros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "JetMETCorrections/Modules/interface/JetCorrectionESProducer.h"
 #include "JetMETCorrections/Modules/interface/JetCorrectionESSource.h"
 #include "JetMETCorrections/Modules/interface/JetCorrectionESChain.h"
 #include "JetMETCorrections/Modules/interface/JetCorrectionProducer.h"
 #include "JetMETCorrections/Modules/interface/QGLikelihoodESProducer.h"
 #include "JetMETCorrections/Modules/interface/QGLikelihoodSystematicsESProducer.h"
+#include "JetMETCorrections/Modules/interface/JetResolutionESProducer.h"
 #include "JetMETCorrections/Algorithms/interface/LXXXCorrector.h"
 #include "JetMETCorrections/Algorithms/interface/L1OffsetCorrector.h"
 #include "JetMETCorrections/Algorithms/interface/L1JPTOffsetCorrector.h"
@@ -22,14 +22,7 @@
 #include "DataFormats/JetReco/interface/TrackJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
-#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
-#include "JetMETCorrections/Objects/interface/METCorrectionsRecord.h"
-#include "CondFormats/JetMETObjects/interface/METCorrectorParameters.h"
-
-
-REGISTER_PLUGIN(JetCorrectionsRecord,JetCorrectorParametersCollection);
-REGISTER_PLUGIN(METCorrectionsRecord,METCorrectorParametersCollection);
 
 using namespace cms;
 using namespace reco;
@@ -57,6 +50,9 @@ DEFINE_FWK_EVENTSETUP_MODULE(JetCorrectionESChain);
 
 DEFINE_FWK_EVENTSETUP_MODULE(QGLikelihoodESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(QGLikelihoodSystematicsESProducer);
+
+DEFINE_FWK_EVENTSETUP_MODULE(JetResolutionESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(JetResolutionScaleFactorESProducer);
 
 
 //--------------- Generic LX corrections --------------------

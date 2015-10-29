@@ -1,7 +1,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalBeamMonitor.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -432,23 +432,21 @@ void HcalBeamMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run,
       
       if (id.subdet()!=HcalForward) continue;
       if ((id.depth()==1 && (abs(id.ieta())==33 || abs(id.ieta())==34)) ||
-	  (id.depth()==2 && (abs(id.ieta())==35 || abs(id.ieta())==36)))
-	{
-	  const HcalChannelStatus* origstatus=chanquality->getValues(id);
-	  HcalChannelStatus mystatus(origstatus->rawId(),origstatus->getValue());
-	  if (mystatus.isBitSet(HcalChannelStatus::HcalCellHot)) 
-	    BadCells_[id]=HcalChannelStatus::HcalCellHot;
+	  (id.depth()==2 && (abs(id.ieta())==35 || abs(id.ieta())==36))) {
+	const HcalChannelStatus* origstatus=chanquality->getValues(id);
+	HcalChannelStatus mystatus(origstatus->rawId(),origstatus->getValue());
+	if (mystatus.isBitSet(HcalChannelStatus::HcalCellHot)) 
+	  BadCells_[id]=HcalChannelStatus::HcalCellHot;
 	  
-	  else if (mystatus.isBitSet(HcalChannelStatus::HcalCellDead))
-	    BadCells_[id]=HcalChannelStatus::HcalCellDead;
+	else if (mystatus.isBitSet(HcalChannelStatus::HcalCellDead))
+	  BadCells_[id]=HcalChannelStatus::HcalCellDead;
 	  
-	  if (mystatus.isBitSet(HcalChannelStatus::HcalCellHot) || 
-	      mystatus.isBitSet(HcalChannelStatus::HcalCellDead))
-	    {
-	      if (id.depth()==1) --ring1totalchannels_;
-	      else if (id.depth()==2) --ring2totalchannels_;
-	    }
-	} // if ((id.depth()==1) ...
+	if (mystatus.isBitSet(HcalChannelStatus::HcalCellHot) || 
+	    mystatus.isBitSet(HcalChannelStatus::HcalCellDead)) {
+	  if (id.depth()==1) --ring1totalchannels_;
+	  else if (id.depth()==2) --ring2totalchannels_;
+	}
+      } // if ((id.depth()==1) ...
     } // for (unsigned int i=0;...)
     
   if (tevt_==0) this->setup(ib); // create all histograms; not necessary if merging runs together
@@ -496,8 +494,10 @@ void HcalBeamMonitor::analyze(const edm::Event& e, const edm::EventSetup& c)
     }
 
   //good event; increment counters and process
-//  HcalBaseDQMonitor::analyze(e,c);
-  processEvent(*hbhe_rechit, *ho_rechit, *hf_rechit, *hf_digi, e.bunchCrossing());
+  edm::ESHandle<HcalTopology> topo;
+  c.get<HcalRecNumberingRecord>().get(topo);
+  //  HcalBaseDQMonitor::analyze(e,c);
+  processEvent(*hbhe_rechit, *ho_rechit, *hf_rechit, *hf_digi, e.bunchCrossing(),*topo);
 
 } //void HcalBeamMonitor::analyze(const edm::Event& e, const edm::EventSetup& c)
 
@@ -506,10 +506,8 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 				   const HORecHitCollection& hoHits,
 				   const HFRecHitCollection& hfHits,
                                    const HFDigiCollection& hf,
-				   int   bunchCrossing
-				   )
-  
-{ 
+				   int   bunchCrossing,
+				   const HcalTopology& topology) { 
   //processEvent loop
   HBHERecHitCollection::const_iterator HBHEiter;
   HORecHitCollection::const_iterator HOiter;
@@ -745,7 +743,9 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 
 	    if (HFiter->energy()<0) continue;  // don't include negative-energy cells?
 
-	    eta=theHFEtaBounds[abs(ieta)-29];
+	    std::pair<double,double> etas = topology.etaRange(HcalForward,abs(ieta));
+	    eta=fabs(0.5*(etas.first+etas.second));
+//	    eta=theHFEtaBounds[abs(ieta)-29];
 	    et=HFiter->energy()/cosh(eta)/area[abs(ieta)-29];
 	    if (abs(ieta)>=33 && abs(ieta)<=36) // Luminosity ring check
 	      {

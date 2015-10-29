@@ -26,7 +26,7 @@ FlatRandomOneOverPtGunProducer::FlatRandomOneOverPtGunProducer(const edm::Parame
   fMinOneOverPt = pgun_params.getParameter<double>("MinOneOverPt");
   fMaxOneOverPt = pgun_params.getParameter<double>("MaxOneOverPt");
   
-  produces<HepMCProduct>();
+  produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
 
   edm::LogInfo("ParticleGun") << "FlatRandomOneOverPtGunProducer: initialized with minimum and maximum 1/pt " << fMinOneOverPt << ":" << fMaxOneOverPt;
@@ -111,7 +111,7 @@ void FlatRandomOneOverPtGunProducer::produce(Event &e, const EventSetup& es) {
 
   std::auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
   BProduct->addHepMCData( fEvt );
-  e.put(BProduct);
+  e.put(BProduct, "unsmeared");
 
   std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
   e.put(genEventInfo);

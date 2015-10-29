@@ -1,37 +1,19 @@
 #ifndef FastSimulation_Tracking_TrackCandidateProducer_h
 #define FastSimulation_Tracking_TrackCandidateProducer_h
 
+// framework stuff
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+// data formats
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHitCollection.h"
 
+// specific to this module
 #include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
-
-class TrackerGeometry;
-class TrajectoryStateOnSurface;
-class PropagatorWithMaterial;
-
-namespace edm { 
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-}
-
-namespace reco { 
-  class Track;
-}
-
-
-class TrackingRecHit;
-
-#include <vector>
+#include "FastSimulation/Tracking/interface/FastTrackerRecHitSplitter.h"
 
 class TrackCandidateProducer : public edm::stream::EDProducer <>
 {
@@ -52,11 +34,11 @@ class TrackCandidateProducer : public edm::stream::EDProducer <>
   bool splitHits;
   bool hitMasks_exists;
  
-  edm::InputTag simTracks_;
+  FastTrackerRecHitSplitter hitSplitter;
 
   // tokens & labels
   edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken;
-  edm::EDGetTokenT<FastTMRecHitCombinations> recHitToken;
+  edm::EDGetTokenT<FastTrackerRecHitCombinationCollection> recHitCombinationsToken;
   edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
   edm::EDGetTokenT<std::vector<bool> > hitMasksToken;

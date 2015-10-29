@@ -13,7 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "DQM/HcalMonitorClient/interface/HcalBaseDQClient.h"
 #include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
 
@@ -112,6 +112,7 @@ private:
 
   std::vector<HcalBaseDQClient*> clients_;  
 
+  const HcalTopology* hctopo_;
   const HcalChannelQuality* chanquality_;
 
   HcalSummaryClient* summaryClient_;

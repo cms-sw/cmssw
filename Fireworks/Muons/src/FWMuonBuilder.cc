@@ -179,6 +179,31 @@ buggyMuon( const reco::Muon* muon,
    return false;
 }
 
+TEveTrack* prepareMuonTrackWithExtraPoints(const reco::Track& track,
+              TEveTrackPropagator* propagator,
+              const std::vector<TEveVector>& extraPoints )
+{
+   TEveRecTrack t;
+   t.fBeta = 1.;
+   t.fSign = track.charge();
+   t.fV.Set(track.vx(), track.vy(), track.vz());
+   t.fP.Set(track.px(), track.py(), track.pz());
+   //  t.fSign = muon->charge();
+   //  t.fV.Set(muon->vx(), muon->vy(), muon->vz());
+   //  t.fP.Set(muon->px(), muon->py(), muon->pz());
+   TEveTrack* trk = new TEveTrack( &t, propagator );
+   size_t n = extraPoints.size();
+
+   if (n > 1) {
+      int lastDaughter = n-2;
+      for (int i = 0; i <= lastDaughter; ++i)
+         trk->AddPathMark( TEvePathMark( TEvePathMark::kDaughter, extraPoints[i] ) );
+   }
+   trk->AddPathMark( TEvePathMark( TEvePathMark::kDecay, extraPoints.back() ) );
+   return trk;
+}
+
+
 }
 
 //
@@ -279,9 +304,12 @@ FWMuonBuilder::buildMuon( FWProxyBuilderBase* pb,
 					    muon->outerTrack()->outerPosition().y(),
 					    muon->outerTrack()->outerPosition().z()));
       }
-      TEveTrack* trk = fireworks::prepareTrack( *( muon->globalTrack()),
-						pb->context().getMuonTrackPropagator(),
-						extraPoints );
+      TEveTrack* trk = 0;
+      if (extraPoints.empty())
+         trk = fireworks::prepareTrack( *( muon->globalTrack()),pb->context().getMuonTrackPropagator());
+      else
+         trk = prepareMuonTrackWithExtraPoints(*( muon->globalTrack()),pb->context().getMuonTrackPropagator(), extraPoints); 
+
       trk->MakeTrack();
       trk->SetLineWidth(m_lineWidth);
       pb->setupAddElement( trk, tList );

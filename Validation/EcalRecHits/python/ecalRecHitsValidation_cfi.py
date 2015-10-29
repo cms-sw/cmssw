@@ -9,7 +9,7 @@ ecalRecHitsValidation = cms.EDAnalyzer("EcalRecHitsValidation",
     ESrechitCollection = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
     EBuncalibrechitCollection = cms.InputTag("ecalMultiFitUncalibRecHit","EcalUncalibRecHitsEB"),
     EBrechitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-    moduleLabelMC = cms.string('generator')
+    moduleLabelMC = cms.string('generatorSmeared')
 )
 
 

@@ -7,7 +7,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf)
 {
 
   tok_calo_ = consumes<CaloTowerCollection>(conf.getUntrackedParameter<edm::InputTag>("CaloTowerCollectionLabel"));
-    tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
+    tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
 
   // DQM ROOT output
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");

@@ -9,5 +9,6 @@ candidateCombinedSecondaryVertexComputer = cms.ESProducer("CandidateCombinedSeco
                 'CombinedSVRecoVertex',
                 'CombinedSVPseudoVertex',
                 'CombinedSVNoVertex'),
+        recordLabel = cms.string(''),
         categoryVariableName = cms.string('vertexCategory')
 )

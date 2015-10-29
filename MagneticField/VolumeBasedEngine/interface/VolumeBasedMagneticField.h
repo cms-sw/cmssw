@@ -11,7 +11,15 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/VolumeBasedEngine/interface/MagGeometry.h"
 
+// Class for testing VolumeBasedMagneticField
+class testMagneticField;
+class testMagGeometryAnalyzer;
+
 class VolumeBasedMagneticField : public MagneticField {
+  // For tests
+  friend class testMagneticField;
+  friend class testMagGeometryAnalyzer;
+
  public:
   //  VolumeBasedMagneticField(const DDCompactView & cpv);
   VolumeBasedMagneticField( int geomVersion,

@@ -177,11 +177,15 @@ void HcalMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c)
 
   // Let's get the channel status quality
   edm::ESHandle<HcalTopology> topo;
-  c.get<IdealGeometryRecord>().get(topo);
+  c.get<HcalRecNumberingRecord>().get(topo);
 
   edm::ESHandle<HcalChannelQuality> p;
   c.get<HcalChannelQualityRcd>().get("withTopo",p);
   chanquality_= p.product();
+//  if (!chanquality_->topo()) chanquality_->setTopo(topo.product());
+  hctopo_ = topo.product();
+  for ( unsigned int i=0; i<clients_.size();++i ) 
+    clients_[i]->setTopo(hctopo_);
  
   // Find only channels with non-zero quality, and add them to badchannelmap
   std::vector<DetId> mydetids = chanquality_->getAllChannels();
@@ -537,7 +541,7 @@ void HcalMonitorClient::PlotPedestalValues(const HcalDbService& cond)
 	      for (int phi=0;phi<phibins;++phi)
 		{
 		  iphi=phi+1;
-		  if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, depth+1)) continue;
+		  if (!(hctopo_->validDetId((HcalSubdetector)(subdet), ieta, iphi, depth+1))) continue;
 		  HcalDetId detid((HcalSubdetector)(subdet), ieta, iphi, depth+1);
 		  ADC_ped=0;
 		  ADC_width=0;
@@ -546,7 +550,7 @@ void HcalMonitorClient::PlotPedestalValues(const HcalDbService& cond)
 		  calibs_= cond.getHcalCalibrations(detid);  
 		  const HcalPedestalWidth* pedw = cond.getPedestalWidth(detid);
 		  const HcalQIECoder* channelCoder_ = cond.getHcalCoder(detid);
-		  const HcalQIEShape* shape_ = cond.getHcalShape(channelCoder_); 
+		  const HcalQIEShape* shape_ = cond.getHcalShape(channelCoder_);
 
 		  // Loop over capIDs
 		  for (unsigned int capid=0;capid<4;++capid)

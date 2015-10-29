@@ -30,6 +30,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 
 #include "DataFormats/TauReco/interface/HLTTau.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
@@ -101,6 +102,7 @@ public:
                  const edm::Handle<CaloTowerCollection>          & caloTowersCleanerUpperR45,
                  const edm::Handle<CaloTowerCollection>          & caloTowersCleanerLowerR45,
                  const edm::Handle<CaloTowerCollection>          & caloTowersCleanerNoR45,
+         const CaloTowerTopology * cttopo,
 		 const edm::Handle<reco::PFMETCollection>        & pfmets,  
                  double thresholdForSavingTowers,
                  double                minPtCH,

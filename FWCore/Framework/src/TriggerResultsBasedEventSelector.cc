@@ -166,6 +166,7 @@ namespace edm
                                           s_TrigResultsType,
                                           selector.inputTag(),
                                           nullptr,
+                                          nullptr,
                                           mcc);
         handle_t product;
         convert_handle(std::move(h), product);

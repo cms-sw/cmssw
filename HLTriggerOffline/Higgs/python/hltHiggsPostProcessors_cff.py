@@ -322,7 +322,7 @@ hltHiggsPostWHToENuBB.efficiencyProfile = efficiency_strings_WHToENuBB
 
 #Specific plots for MSSMHbb
 #Jet plots
-NMinOneCuts = _config.MSSMHbb.NminOneCuts
+NminOneCuts = _config.MSSMHbb.NminOneCuts
 if NminOneCuts:
     for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
@@ -335,12 +335,32 @@ for type in plot_types:
             efficiency_strings.append(efficiency_string(obj,type,trig))
 
 efficiency_strings = get_reco_strings(efficiency_strings)
+efficiency_strings.extend(get_reco_strings(efficiency_summary_strings))
 
 hltHiggsPostMSSMHbb = hltHiggsPostProcessor.clone()
 hltHiggsPostMSSMHbb.subDirs = ['HLT/Higgs/MSSMHbb']
 hltHiggsPostMSSMHbb.efficiencyProfile = efficiency_strings
 
+#Specific plots for VBFHToInv
+#Jet plots
+NminOneCuts = _config.VBFHToInv.NminOneCuts
+if NminOneCuts:
+    for iCut in range(0,len(NminOneCuts)):
+        if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
+            plot_types.append(NminOneCutNames[iCut])
 
+efficiency_strings = []
+for type in plot_types:
+    for obj in obj_types:
+        for trig in triggers:
+            efficiency_strings.append(efficiency_string(obj,type,trig))
+
+efficiency_strings = get_reco_strings(efficiency_strings)
+efficiency_strings.extend(get_reco_strings(efficiency_summary_strings))
+
+hltHiggsPostVBFHToInv = hltHiggsPostProcessor.clone()
+hltHiggsPostVBFHToInv.subDirs = ['HLT/Higgs/VBFHToInv']
+hltHiggsPostVBFHToInv.efficiencyProfile = efficiency_strings
 
 
 hltHiggsPostProcessors = cms.Sequence(
@@ -360,8 +380,8 @@ hltHiggsPostProcessors = cms.Sequence(
         hltHiggsPostHiggsDalitz+
         hltHiggsPostX4b+
         hltHiggsPostWHToENuBB+
-        hltHiggsPostMSSMHbb
-
+        hltHiggsPostMSSMHbb+
+        hltHiggsPostVBFHToInv
 )
 
 

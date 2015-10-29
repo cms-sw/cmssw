@@ -1,5 +1,6 @@
 #include "cppunit/extensions/HelperMacros.h"
 #include <algorithm>
+#include <cstring>
 #include <iterator>
 #include <iostream>
 #include "DataFormats/Common/interface/OwnVector.h"

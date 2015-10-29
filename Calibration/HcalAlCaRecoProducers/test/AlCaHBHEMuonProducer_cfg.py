@@ -11,7 +11,7 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag=autoCond['run2_data']
 
 process.load("Calibration.HcalAlCaRecoProducers.alcahbhemuon_cfi")
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
                             # replace 'myfile.root' with the source file you want to use
                             fileNames = cms.untracked.vstring(

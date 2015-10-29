@@ -19,7 +19,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseException.hh"
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
-
+XERCES_CPP_NAMESPACE_USE 
 using namespace std;
 using namespace oracle::occi;
 

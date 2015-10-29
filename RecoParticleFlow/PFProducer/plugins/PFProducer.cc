@@ -263,7 +263,10 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   // fToRead =  iConfig.getUntrackedParameter<vector<string> >("toRead");
 
   useCalibrationsFromDB_
-    = iConfig.getParameter<bool>("useCalibrationsFromDB");    
+    = iConfig.getParameter<bool>("useCalibrationsFromDB");
+
+  if (useCalibrationsFromDB_)
+    calibrationsLabel_ = iConfig.getParameter<std::string>("calibrationsLabel");
 
   boost::shared_ptr<PFEnergyCalibration> 
     calibration( new PFEnergyCalibration() ); 
@@ -352,7 +355,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   pfAlgo_->setPFMuonAndFakeParameters(iConfig);
   
   //Post cleaning of the HF
-  bool postHFCleaning
+  postHFCleaning_
     = iConfig.getParameter<bool>("postHFCleaning");
   double minHFCleaningPt 
     = iConfig.getParameter<double>("minHFCleaningPt");
@@ -368,7 +371,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
     = iConfig.getParameter<double>("minDeltaMet");
 
   // Set post HF cleaning muon parameters
-  pfAlgo_->setPostHFCleaningParameters(postHFCleaning,
+  pfAlgo_->setPostHFCleaningParameters(postHFCleaning_,
 				       minHFCleaningPt,
 				       minSignificance,
 				       maxSignificance,
@@ -424,11 +427,11 @@ PFProducer::beginRun(const edm::Run & run,
   */
 
   if ( useCalibrationsFromDB_ ) { 
-  // Read the PFCalibration functions from the global tags.
+    // read the PFCalibration functions from the global tags
     edm::ESHandle<PerformancePayload> perfH;
-    es.get<PFCalibrationRcd>().get(perfH);
-    
-    const PerformancePayloadFromTFormula *pfCalibrations = static_cast< const PerformancePayloadFromTFormula *>(perfH.product());
+    es.get<PFCalibrationRcd>().get(calibrationsLabel_, perfH);
+
+    PerformancePayloadFromTFormula const * pfCalibrations = static_cast< const PerformancePayloadFromTFormula *>(perfH.product());
     
     pfAlgo_->thePFEnergyCalibration()->setCalibrationFunctions(pfCalibrations);
   }
@@ -617,7 +620,9 @@ PFProducer::produce(Event& iEvent,
       hfCopy.push_back( (*hfCleaned)[jhf] );
     }
   }
-  pfAlgo_->checkCleaning( hfCopy );
+
+  if (postHFCleaning_)
+    pfAlgo_->checkCleaning( hfCopy );
 
   // Save recovered HF candidates
   auto_ptr< reco::PFCandidateCollection > 

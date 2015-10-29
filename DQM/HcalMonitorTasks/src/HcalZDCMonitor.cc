@@ -1,6 +1,9 @@
 #include "DQM/HcalMonitorTasks/interface/HcalZDCMonitor.h"
 
-HcalZDCMonitor::HcalZDCMonitor() {
+HcalZDCMonitor::HcalZDCMonitor() : TotalChannelErrors{}, DeadChannelCounter{}, ColdChannelCounter{},
+				   DeadChannelError{}, HotChannelError{}, DigiErrorCAPID{}, DigiErrorDVER{},
+				   ChannelHasDigiError{}
+{
 }
 HcalZDCMonitor::~HcalZDCMonitor() {
 }
@@ -12,7 +15,7 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 
 	baseFolder_ = rootFolder_ + "ZDCMonitor_Hcal";
 
-	const edm::ParameterSet psZDC(ps.getParameter<edm::ParameterSet>("zdcMonitorTask"));
+	const edm::ParameterSet& psZDC(ps.getParameter<edm::ParameterSet>("zdcMonitorTask"));
 	NLumiBlocks_           = psZDC.getUntrackedParameter<int>("NLumiBlocks",4000);
 	ChannelWeighting_      = psZDC.getUntrackedParameter<std::vector<double>> ("ZDC_ChannelWeighting");
 	MaxErrorRates_         = psZDC.getUntrackedParameter<std::vector<double>> ("ZDC_AcceptableChannelErrorRates");

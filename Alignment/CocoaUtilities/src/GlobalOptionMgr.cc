@@ -152,7 +152,7 @@ void GlobalOptionMgr::setGlobalOption( const ALIstring gopt, const ALIdouble val
       std::cout << "ALLOWED GLOBAL OPTIONS:" << std::endl;
       std::map< ALIstring, ALIdouble, std::less<ALIstring> >::iterator msdite;
       for ( msdite = theGlobalOptions.begin(); 
-	    msdite != theGlobalOptions.end(); msdite++) {
+	    msdite != theGlobalOptions.end(); ++msdite) {
 	std::cout << (*msdite).first.c_str() << std::endl;
       }
     }

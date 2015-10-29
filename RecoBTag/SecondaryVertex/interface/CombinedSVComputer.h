@@ -270,7 +270,7 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
                 vars.insert(btau::vertexMass, vertexMass, true);
 
                 double varPi = (vertexMass/5.2794) * (vtx_track_ESum /jet_track_ESum); // 5.2794 should be the average B meson mass of PDG! CHECK!!!
-                vars.insert(btau::massVertexEnergyFraction, varPi, true);
+                vars.insert(btau::massVertexEnergyFraction, varPi / (varPi + 0.04), true);
                 double varB  = (std::sqrt(5.2794) * vtx_track_ptSum) / ( vertexMass * std::sqrt(jet->pt()));
                 vars.insert(btau::vertexBoostOverSqrtJetPt,varB*varB/(varB*varB + 10.), true);
 

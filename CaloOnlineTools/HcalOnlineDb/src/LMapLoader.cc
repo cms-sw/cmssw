@@ -15,7 +15,7 @@
 // user include files
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMapLoader.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
-
+XERCES_CPP_NAMESPACE_USE
 //
 // constants, enums and typedefs
 //

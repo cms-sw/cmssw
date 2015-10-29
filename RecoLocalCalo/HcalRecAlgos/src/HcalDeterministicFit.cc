@@ -4,8 +4,9 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalDeterministicFit.h"
 
 constexpr float HcalDeterministicFit::invGpar[3];
-constexpr float HcalDeterministicFit::negthre[2];
+constexpr float HcalDeterministicFit::negThresh[2];
 constexpr int HcalDeterministicFit::HcalRegion[2];
+constexpr float HcalDeterministicFit::rCorr[2];
 
 using namespace std;
 
@@ -15,8 +16,8 @@ HcalDeterministicFit::HcalDeterministicFit() {
 HcalDeterministicFit::~HcalDeterministicFit() { 
 }
 
-void HcalDeterministicFit::init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, NegStrategy nStrat, PedestalSub pedSubFxn_, std::vector<double> pars) {
-  for(int fi=0; fi<6; fi++){
+void HcalDeterministicFit::init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, NegStrategy nStrat, PedestalSub pedSubFxn_, std::vector<double> pars, double respCorr) {
+  for(int fi=0; fi<9; fi++){
 	fpars[fi] = pars.at(fi);
   }
 
@@ -24,6 +25,7 @@ void HcalDeterministicFit::init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::
   fTimeSlewBias=bias;
   fNegStrat=nStrat;
   fPedestalSubFxn_=pedSubFxn_;
+  frespCorr=respCorr;
 }
 
 constexpr float HcalDeterministicFit::landauFrac[];
@@ -33,10 +35,10 @@ constexpr float HcalDeterministicFit::landauFrac[];
 // normalized to 1 on [0,10000]
 void HcalDeterministicFit::getLandauFrac(float tStart, float tEnd, float &sum) const{
 
-  if (std::abs(tStart-tEnd-tswidth)<0.1) {
+  if (std::abs(tStart-tEnd-tsWidth)<0.1) {
     sum=0;
     return;
   }
-  sum= landauFrac[int(ceil(tStart+tswidth))];
+  sum= landauFrac[int(ceil(tStart+tsWidth))];
   return;
 }

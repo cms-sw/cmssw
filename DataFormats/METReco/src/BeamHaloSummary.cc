@@ -11,7 +11,7 @@ using namespace reco;
 
 BeamHaloSummary::BeamHaloSummary()
 {
-  for( unsigned int i = 0 ; i < 4 ; i++ )
+  for( unsigned int i = 0 ; i < 6 ; i++ )
     {
       CSCHaloReport.push_back(0);
       if( i < 2 )

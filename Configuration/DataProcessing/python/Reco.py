@@ -49,7 +49,11 @@ class Reco(Scenario):
             for a in args['outputs']:
                 if a['dataTier'] == 'MINIAOD':
                     miniAODStep=',PAT' 
-                    options.runUnscheduled=True
+
+        """
+        Unscheduled for all
+        """
+        options.runUnscheduled=True
                     
 
         if 'customs' in args:

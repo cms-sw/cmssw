@@ -115,6 +115,7 @@ public:
    void addTo(FWConfiguration&) const;
    void setFrom(const FWConfiguration&);
    void setWindowInfoFrom(const FWConfiguration& iFrom, TGMainFrame* iFrame);
+   void initEmpty();
 
    TGVerticalFrame* createList(TGCompositeFrame *p);
    void createViews(TEveWindowSlot *slot);
@@ -281,7 +282,7 @@ private:
    sigc::connection   m_modelChangeConn;
 
    std::auto_ptr<CmsShowTaskExecutor> m_tasks;
-
+    std::vector<FWViewBase*> m_regionViews;
    int m_WMOffsetX, m_WMOffsetY, m_WMDecorH;
 };
 

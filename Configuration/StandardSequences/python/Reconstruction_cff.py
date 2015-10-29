@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoLuminosity.LumiProducer.lumiProducer_cff import *
+from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 from RecoLocalCalo.Configuration.RecoLocalCalo_cff import *
 from RecoTracker.Configuration.RecoTracker_cff import *
@@ -91,7 +92,7 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
 from FWCore.Modules.logErrorHarvester_cfi import *
 
 # "Export" Section
-reconstruction         = cms.Sequence(localreco*globalreco*highlevelreco*logErrorHarvester)
+reconstruction         = cms.Sequence(bunchSpacingProducer*localreco*globalreco*highlevelreco*logErrorHarvester)
 
 #need a fully expanded sequence copy
 modulesToRemove = list() # copy does not work well

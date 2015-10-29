@@ -110,49 +110,6 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 			   << probMax << "  Back propagation of light prob. "
                            << backProb ;
   
-  G4String attribute = "ReadOutName";
-  G4String value     = name;
-  DDSpecificsFilter filter;
-  DDValue           ddv(attribute,value,0);
-  filter.setCriteria(ddv,DDCompOp::equals);
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
-  bool dodet = fv.firstChild();
-  if (dodet) {
-    DDsvalues_type sv(fv.mergedSpecifics());
-
-    //Radius (minimum and maximum)
-    int nR     = -1;
-    std::vector<double> rTable = getDDDArray("rTable",sv,nR);
-    rMin = rTable[0];
-    rMax = rTable[nR-1];
-    edm::LogInfo("HFShower") << "HFShowerLibrary: rMIN " << rMin/cm 
-			     << " cm and rMax " << rMax/cm;
-
-    //Delta phi
-    int nEta   = -1;
-    std::vector<double> etaTable = getDDDArray("etaTable",sv,nEta);
-    int nPhi   = nEta + nR - 2;
-    std::vector<double> phibin   = getDDDArray("phibin",sv,nPhi);
-    dphi       = phibin[nEta-1];
-    edm::LogInfo("HFShower") << "HFShowerLibrary: (Half) Phi Width of wedge " 
-			     << dphi/deg;
-
-    //Special Geometry parameters
-    int ngpar = 7;
-    gpar      = getDDDArray("gparHF",sv,ngpar);
-    edm::LogInfo("HFShower") << "HFShowerLibrary: " << ngpar << " gpar (cm)";
-    for (int ig=0; ig<ngpar; ig++)
-      edm::LogInfo("HFShower") << "HFShowerLibrary: gpar[" << ig << "] = "
-			       << gpar[ig]/cm << " cm";
-  } else {
-    edm::LogError("HFShower") << "HFShowerLibrary: cannot get filtered "
-			      << " view for " << attribute << " matching "
-			      << name;
-    throw cms::Exception("Unknown", "HFShowerLibrary")
-      << "cannot match " << attribute << " to " << name <<"\n";
-  }
-  
   fibre = new HFFibre(name, cpv, p);
   photo = new HFShowerPhotonCollection;
   emPDG = epPDG = gammaPDG = 0;
@@ -166,7 +123,10 @@ HFShowerLibrary::~HFShowerLibrary() {
   if (photo)  delete photo;
 }
 
-void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable) {
+void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable,
+			      HcalDDDSimConstants* hcons) {
+
+  if (fibre) fibre->initRun(hcons);
 
   G4String parName;
   emPDG = theParticleTable->FindParticle(parName="e-")->GetPDGEncoding();
@@ -191,6 +151,26 @@ void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable) {
 			   << ", anti_nu_e = " << anuePDG << ", anti_nu_mu = " 
 			   << anumuPDG << ", anti_nu_tau = " << anutauPDG;
 #endif
+  
+  //Radius (minimum and maximum)
+  std::vector<double> rTable = hcons->getRTableHF();
+  rMin = rTable[0];
+  rMax = rTable[rTable.size()-1];
+  edm::LogInfo("HFShower") << "HFShowerLibrary: rMIN " << rMin/cm 
+                           << " cm and rMax " << rMax/cm;
+
+  //Delta phi
+  std::vector<double> phibin   = hcons->getPhiTableHF();
+  dphi       = phibin[0];
+  edm::LogInfo("HFShower") << "HFShowerLibrary: (Half) Phi Width of wedge " 
+                           << dphi/deg;
+
+  //Special Geometry parameters
+  gpar      = hcons->getGparHF();
+  edm::LogInfo("HFShower") << "HFShowerLibrary: " <<gpar.size() <<" gpar (cm)";
+  for (unsigned int ig=0; ig<gpar.size(); ig++)
+    edm::LogInfo("HFShower") << "HFShowerLibrary: gpar[" << ig << "] = "
+                             << gpar[ig]/cm << " cm";
 }
 
 

@@ -39,8 +39,8 @@ class HcalTriggerKey : public XMLDOMBlock
   
  protected:
 
-  MemBufInputSource * _root; // a container for the XML template;
-  MemBufInputSource * _data; // a container for the XML template;
+  XERCES_CPP_NAMESPACE::MemBufInputSource * _root; // a container for the XML template;
+  XERCES_CPP_NAMESPACE::MemBufInputSource * _data; // a container for the XML template;
 
  private:
   HcalTriggerKey(const HcalTriggerKey&); // stop default

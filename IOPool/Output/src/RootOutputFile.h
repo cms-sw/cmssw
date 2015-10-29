@@ -101,7 +101,7 @@ namespace edm {
     std::string file_;
     std::string logicalFile_;
     JobReport::Token reportToken_;
-    PoolOutputModule const* om_;
+    PoolOutputModule* om_;
     int whyNotFastClonable_;
     bool canFastCloneAux_;
     std::shared_ptr<TFile> filePtr_;

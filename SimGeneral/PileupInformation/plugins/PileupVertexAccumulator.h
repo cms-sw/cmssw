@@ -55,6 +55,7 @@ namespace cms {
     std::vector<float> pT_Hats_;
     std::vector<float> z_posns_;
     edm::InputTag Mtag_;
+    edm::InputTag fallbackMtag_;
 
   };
 }

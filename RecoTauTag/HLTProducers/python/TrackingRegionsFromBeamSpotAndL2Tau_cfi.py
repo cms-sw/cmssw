@@ -12,7 +12,8 @@ TrackingRegionsFromBeamSpotAndL2TauBlock = cms.PSet(
         JetMaxEta = cms.double( 2.1 ),
         JetMaxN = cms.int32( 10 ),
         beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-        precise = cms.bool( True )
+        precise = cms.bool( True ),
+        whereToUseMeasurementTracker = cms.string("Never"),
     )
 )
 

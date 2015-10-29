@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("HcalParametersTest")
 
-process.load('Configuration.Geometry.GeometryExtended2015_cff')
+process.load('Geometry.HcalCommonData.testPhase0GeometryXML_cfi')
 process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cfi')
 process.load('Geometry.HcalCommonData.hcalParameters_cfi')
 

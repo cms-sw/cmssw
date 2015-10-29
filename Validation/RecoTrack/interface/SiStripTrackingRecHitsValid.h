@@ -232,7 +232,7 @@ class SiStripTrackingRecHitsValid : public DQMEDAnalyzer
     float resolxy; 
     float resolyy; 
     float resolxxMF; // in Measurement Frame
-    float phi;
+//    float phi;
     float resx;
     float resy;
     float resxMF;// in Measurement Frame
@@ -241,7 +241,7 @@ class SiStripTrackingRecHitsValid : public DQMEDAnalyzer
     float pullxMF;// in Measurement Frame
     float trackangle;
     float trackanglebeta;
-    float trackangle2;
+//    float trackangle2;
     float trackwidth;
     int   expectedwidth;
     int   category;
@@ -426,9 +426,9 @@ class SiStripTrackingRecHitsValid : public DQMEDAnalyzer
   edm::ParameterSet Parameters;
 
   //const StripTopology* topol;
-  std::vector<RecHitProperties> rechitrphi;
-  std::vector<RecHitProperties> rechitstereo;
-  std::vector<RecHitProperties> rechitmatched;
+//  std::vector<RecHitProperties> rechitrphi;
+//  std::vector<RecHitProperties> rechitstereo;
+//  std::vector<RecHitProperties> rechitmatched;
   RecHitProperties rechitpro;
 
   void rechitanalysis(TrajectoryStateOnSurface tsos, const TransientTrackingRecHit::ConstRecHitPointer thit, const StripGeomDetUnit *stripdet, edm::ESHandle < StripClusterParameterEstimator > stripcpe, TrackerHitAssociator& associate,  bool simplehit1or2D);

@@ -1,5 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
+# reusable functions
+def producers_by_type(process, *types):
+    return (module for module in process._Process__producers.values() if module._TypedParameterizable__type in types)
+
+def esproducers_by_type(process, *types):
+    return (module for module in process._Process__esproducers.values() if module._TypedParameterizable__type in types)
+
+
 # Update to replace old jet corrector mechanism
 from HLTrigger.Configuration.customizeHLTforNewJetCorrectors import customizeHLTforNewJetCorrectors
 
@@ -55,9 +63,6 @@ def customiseFor8356(process):
         input = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
     )
 
-    def producers_by_type(process, type):
-    	return (module for module in process._Process__producers.values() if module._TypedParameterizable__type == type)
-
     for l3MPModule in producers_by_type(process, 'L3MuonProducer'):
 	if hasattr(l3MPModule, 'GlbRefitterParameters'):
             l3MPModule.GlbRefitterParameters.RefitFlag = cms.bool(True)
@@ -112,6 +117,14 @@ def customiseFor10234(process):
             delattr(process.hltCaloStage1Digis, 'FedId')
     return process
 
+def customiseFor10353(process):
+    # Take care of geometry changes in HCAL
+    if not hasattr(process,'hcalDDDSimConstants'):
+        process.hcalDDDSimConstants = cms.ESProducer( 'HcalDDDSimConstantsESModule' )
+    if not hasattr(process,'hcalDDDRecConstants'):
+        process.hcalDDDRecConstants = cms.ESProducer( 'HcalDDDRecConstantsESModule' )
+    return process
+
 # upgrade RecoTrackSelector to allow selection on originalAlgo (PR #10418)
 def customiseFor10418(process):
     if hasattr(process,'hltBSoftMuonMu5L3') :
@@ -135,6 +148,62 @@ def customiseFor10911(process):
         process.hltBSoftMuonMu5L3 = cms.EDProducer("RecoTrackRefSelector", **process.hltBSoftMuonMu5L3.parameters_())
     return process
 
+# Fix MeasurementTrackerEvent configuration in several TrackingRegionProducers (PR 11183)
+def customiseFor11183(process):
+    def useMTEName(componentName):
+        if componentName in ["CandidateSeededTrackingRegionsProducer", "TrackingRegionsFromBeamSpotAndL2Tau"]:
+            return "whereToUseMeasurementTracker"
+        return "howToUseMeasurementTracker"
+
+    def replaceInPSet(pset, moduleLabel):
+        for paramName in pset.parameterNames_():
+            param = getattr(pset, paramName)
+            if isinstance(param, cms.PSet):
+                if hasattr(param, "ComponentName") and param.ComponentName.value() in ["CandidateSeededTrackingRegionsProducer", "TauRegionalPixelSeedGenerator"]:
+                    useMTE = useMTEName(param.ComponentName.value())
+
+                    if hasattr(param.RegionPSet, "measurementTrackerName"):
+                        param.RegionPSet.measurementTrackerName = cms.InputTag(param.RegionPSet.measurementTrackerName.value())
+                        if hasattr(param.RegionPSet, useMTE):
+                            raise Exception("Assumption of CandidateSeededTrackingRegionsProducer not having '%s' parameter failed" % useMTE)
+                        setattr(param.RegionPSet, useMTE, cms.string("ForSiStrips"))
+                    else:
+                        setattr(param.RegionPSet, useMTE, cms.string("Never"))
+                else:
+                    replaceInPSet(param, moduleLabel)
+            elif isinstance(param, cms.VPSet):
+                for element in param:
+                    replaceInPSet(element, moduleLabel)
+
+    for label, module in process.producers_().iteritems():
+        replaceInPSet(module, label)
+
+    return process
+
+
+def customiseFor11497(process):
+    # Take care of CaloTowerTopology
+    if not hasattr(process,'CaloTowerTopologyEP'):
+        process.CaloTowerTopologyEP = cms.ESProducer( 'CaloTowerTopologyEP' )
+    return process
+
+
+def customiseFor12044(process):
+    # add a label to indentify the PFProducer calibrations
+    for module in producers_by_type(process, 'PFProducer'):
+      if not 'calibrationsLabel' in module.__dict__:
+        module.calibrationsLabel = cms.string('HLT')
+    return process
+
+
+def customiseFor12062(process):
+    # add a label to indentify the b-tagging calibrations
+    for module in esproducers_by_type(process, 'CombinedSecondaryVertexESProducer'):
+      if not 'recordLabel' in module.__dict__:
+        module.recordLabel = cms.string('HLT')
+    return process
+
+
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     import os
@@ -142,7 +211,12 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
 
     if cmsswVersion >= "CMSSW_7_6":
         process = customiseFor10418(process)
+        process = customiseFor10353(process)
         process = customiseFor10911(process)
+        process = customiseFor11183(process)
+        process = customiseFor11497(process)
+        process = customiseFor12044(process)
+        process = customiseFor12062(process)
     if cmsswVersion >= "CMSSW_7_5":
         process = customiseFor10927(process)
         process = customiseFor9232(process)

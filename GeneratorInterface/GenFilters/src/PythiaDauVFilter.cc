@@ -12,7 +12,7 @@ using namespace std;
 
 PythiaDauVFilter::PythiaDauVFilter(const edm::ParameterSet& iConfig) :
   fVerbose(iConfig.getUntrackedParameter("verbose",0)),
-  token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
+  token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
   particleID(iConfig.getUntrackedParameter("ParticleID", 0)),
   motherID(iConfig.getUntrackedParameter("MotherID", 0)),
   chargeconju(iConfig.getUntrackedParameter("ChargeConjugation", true)),

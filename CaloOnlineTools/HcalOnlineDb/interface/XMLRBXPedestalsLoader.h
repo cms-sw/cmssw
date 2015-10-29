@@ -73,9 +73,9 @@ class XMLRBXPedestalsLoader : public XMLDOMBlock
   int init( void );
   int fixRbxName( std::string & );
 
-  MemBufInputSource * _data_ped_delay; // a container for the XML template for a single pedestal or zero delay
-  MemBufInputSource * _data_gol; // a container for the XML template for a single gol current
-  MemBufInputSource * _data_led; // a container for the XML template for a single led data unit
+  XERCES_CPP_NAMESPACE::MemBufInputSource * _data_ped_delay; // a container for the XML template for a single pedestal or zero delay
+  XERCES_CPP_NAMESPACE::MemBufInputSource * _data_gol; // a container for the XML template for a single gol current
+  XERCES_CPP_NAMESPACE::MemBufInputSource * _data_led; // a container for the XML template for a single led data unit
 
  private:
   XMLRBXPedestalsLoader(const XMLRBXPedestalsLoader&); // stop default

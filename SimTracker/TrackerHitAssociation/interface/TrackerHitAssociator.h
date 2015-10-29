@@ -42,9 +42,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerMultiRecHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
 
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
@@ -94,7 +93,7 @@ class TrackerHitAssociator {
   std::vector<SimHitIdpr> associateMatchedRecHit(const SiStripMatchedRecHit2D * matchedrechit, std::vector<simhitAddr>* simhitCFPos=0) const;
   std::vector<SimHitIdpr> associateProjectedRecHit(const ProjectedSiStripRecHit2D * projectedrechit, std::vector<simhitAddr>* simhitCFPos=0) const;
   void associatePixelRecHit(const SiPixelRecHit * pixelrechit, std::vector<SimHitIdpr> & simhitid, std::vector<simhitAddr>* simhitCFPos=0) const;
-  std::vector<SimHitIdpr> associateGSRecHit(const GSSiTrackerRecHit2DLocalPos * gsrechit) const;
+  std::vector<SimHitIdpr> associateFastRecHit(const FastTrackerRecHit * rechit) const;
   std::vector<SimHitIdpr> associateMultiRecHitId(const SiTrackerMultiRecHit * multirechit, std::vector<simhitAddr>* simhitCFPos=0) const;
   std::vector<PSimHit>    associateMultiRecHit(const SiTrackerMultiRecHit * multirechit) const;
   

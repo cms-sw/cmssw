@@ -59,6 +59,14 @@ decayMode_3Prong0Pi0 = cms.PSet(
     minMass = cms.double(0.8),
     maxMass = cms.string("1.5")
 )
+decayMode_3Prong1Pi0 = cms.PSet( #suggestions made by CV
+    nCharged = cms.uint32(3),
+    nPiZeros = cms.uint32(1),
+    nTracksMin = cms.uint32(2),
+    nChargedPFCandsMin = cms.uint32(1),
+    minMass = cms.double(0.9),
+    maxMass = cms.string("1.6")
+)
 
 hpsSelectionDiscriminator = cms.EDProducer(
     "PFRecoTauDiscriminationByHPSSelection",
@@ -72,7 +80,8 @@ hpsSelectionDiscriminator = cms.EDProducer(
         decayMode_1Prong2Pi0,
         decayMode_2Prong0Pi0,
         decayMode_2Prong1Pi0,
-        decayMode_3Prong0Pi0
+        decayMode_3Prong0Pi0,
+	decayMode_3Prong1Pi0
     ),
     requireTauChargedHadronsToBeChargedPFCands = cms.bool(False),
     # CV: require at least one pixel hit for the sum of all tracks

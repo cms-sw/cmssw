@@ -1,3 +1,4 @@
+#include <cxxabi.h>
 #include "DataFormats/PatCandidates/interface/UserData.h"
 // Note: these two below are allowed in FWLite even if they come from FWCore
 #include "FWCore/Utilities/interface/TypeWithDict.h"
@@ -22,4 +23,10 @@ void pat::UserData::checkDictionaries(const std::type_info &type) {
             << "   Also, if this class has any transient members,\n"
             << "   you need to specify them in classes_def.xml.\n";
     } // check for dictionary
+}
+
+std::string pat::UserData::typeNameFor(std::type_info const& iType) {
+    int status = 0;
+    const char * demangled = abi::__cxa_demangle(iType.name(),  0, 0, &status);
+    return std::string(status == 0 ? demangled : "[UNKNOWN]");
 }

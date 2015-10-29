@@ -83,7 +83,7 @@ BeamHaloProducer::BeamHaloProducer( const ParameterSet & pset) :
    cparam     = pset.getUntrackedParameter<std::string>("G3FNAME","input.txt");
    call_bh_set_parameters(iparam,fparam,cparam);
 
-  produces<HepMCProduct>();
+  produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
   produces<GenRunInfoProduct, InRun>();
 
@@ -157,7 +157,7 @@ void BeamHaloProducer::produce(Event & e, const EventSetup & es) {
 	//	evt->print();
   std::auto_ptr<HepMCProduct> CMProduct(new HepMCProduct());
   if (evt) CMProduct->addHepMCData(evt);
-  e.put(CMProduct);
+  e.put(CMProduct, "unsmeared");
 
   auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(evt));
   e.put(genEventInfo);

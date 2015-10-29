@@ -165,7 +165,7 @@ namespace edm {
   template<typename T>
   inline
   void RefToBaseProd<T>::swap(RefToBaseProd<T>& other) {
-    std::swap(product_, other.product_);
+    edm::swap(product_, other.product_);
   }
 
   template<typename T>

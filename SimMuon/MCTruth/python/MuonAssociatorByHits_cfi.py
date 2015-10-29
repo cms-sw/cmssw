@@ -64,6 +64,8 @@ muonAssociatorByHitsCommonParameters = cms.PSet(
     #
     associatePixel = cms.bool(True),
     associateStrip = cms.bool(True),
+    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
+    stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
     associateRecoTracks = cms.bool(True),
     #                                
     ROUList = cms.vstring('TrackerHitsTIBLowTof', 
@@ -115,3 +117,14 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     ignoreMissingTrackCollection = cms.untracked.bool(False),
 )
  
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    muonAssociatorByHits.simtracksTag = "famosSimHits"
+    muonAssociatorByHits.DTsimhitsTag  = "MuonSimHits:MuonDTHits"
+    muonAssociatorByHits.CSCsimHitsTag = "MuonSimHits:MuonCSCHits"
+    muonAssociatorByHits.RPCsimhitsTag = "MuonSimHits:MuonRPCHits"
+    muonAssociatorByHits.simtracksXFTag = "mix:famosSimHits"
+    muonAssociatorByHits.DTsimhitsXFTag  = "mix:MuonSimHitsMuonDTHits"
+    muonAssociatorByHits.CSCsimHitsXFTag = "mix:MuonSimHitsMuonCSCHits"
+    muonAssociatorByHits.RPCsimhitsXFTag = "mix:MuonSimHitsMuonRPCHits"
+    muonAssociatorByHits.ROUList = ['famosSimHitsTrackerHits']

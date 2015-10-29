@@ -82,18 +82,9 @@ public:
     m_deltaEta         = regPSet.getParameter<double>("deltaEta");
     m_deltaPhi         = regPSet.getParameter<double>("deltaPhi");
     m_precise          = regPSet.getParameter<bool>("precise");
-    m_whereToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kForSiStrips;
-    if (regPSet.exists("measurementTrackerName"))
-    {
-      // FIXME: when next time altering the configuration of this
-      // class, please change the types of the following parameters:
-      // - whereToUseMeasurementTracker to at least int32 or to a string
-      //   corresponding to the UseMeasurementTracker enumeration
-      // - measurementTrackerName to InputTag
-      if (regPSet.exists("whereToUseMeasurementTracker"))
-        m_whereToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::doubleToUseMeasurementTracker(regPSet.getParameter<double>("whereToUseMeasurementTracker"));
-      if(m_whereToUseMeasurementTracker != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever)
-        token_measurementTracker = iC.consumes<MeasurementTrackerEvent>(regPSet.getParameter<std::string>("measurementTrackerName"));
+    m_whereToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::stringToUseMeasurementTracker(regPSet.getParameter<std::string>("whereToUseMeasurementTracker"));
+    if(m_whereToUseMeasurementTracker != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
+      token_measurementTracker = iC.consumes<MeasurementTrackerEvent>(regPSet.getParameter<edm::InputTag>("measurementTrackerName"));
     }
     m_searchOpt = false;
     if (regPSet.exists("searchOpt")) m_searchOpt = regPSet.getParameter<bool>("searchOpt");

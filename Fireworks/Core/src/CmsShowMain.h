@@ -93,6 +93,7 @@ private:
    void setupDataHandling();
    void setupSocket(unsigned int);
    void connectSocket();
+   void setLoadedAnyInputFileAfterStartup();
 
    virtual void autoLoadNewEvent();
    virtual void checkPosition();

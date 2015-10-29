@@ -15,6 +15,7 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #define DIGI_BQ_FRAC_NBINS 101
 #define DIGI_NUM 9072
@@ -101,7 +102,7 @@ private:  ///Methods, variables accessible only within class code
   bool excludeHO1P02_;
   bool excludeBadQPLLs_;
  
-  void fill_Nevents();
+  void fill_Nevents(const HcalTopology&);
   void zeroCounters();
   void setupSubdetHists(DQMStore::IBooker &ib, DigiHists& hist,  std::string subdet); // enable this feature at some point
 
