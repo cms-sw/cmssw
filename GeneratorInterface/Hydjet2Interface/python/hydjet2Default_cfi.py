@@ -1,26 +1,28 @@
 import FWCore.ParameterSet.Config as cms
+
 source = cms.Source("EmptySource")
+
 from GeneratorInterface.Hydjet2Interface.hydjet2DefaultParameters_cff import *
 
 generator = cms.EDFilter("Hydjet2GeneratorFilter",
-	collisionParameters5100GeV,
+	collisionParameters5020GeV,
 	qgpParameters,
 	hydjet2Parameters,
 	fNhsel 	= cms.int32(2), 	# Flag to include jet (J)/jet quenching (JQ) and hydro (H) state production, fNhsel (0 H on & J off, 1 H/J on & JQ off, 2 H/J/HQ on, 3 J on & H/JQ off, 4 H off & J/JQ on)
 	PythiaParameters = cms.PSet(PythiaDefaultBlock,
 		parameterSets = cms.vstring(
 			#'pythiaUESettings',
-			'hydjet2PythiaDefault',
 			'ProQ2Otune',
-			#'pythiaJets',
-			#'pythiaPromptPhotons'
-
-			#'myParameters',
-			#'pythiaZjets',
-			#'pythiaBottomoniumNRQCD',
-			#'pythiaCharmoniumNRQCD',
-			#'pythiaQuarkoniaSettings',
-			#'pythiaWeakBosons'
+			'hydjet2PythiaDefault',
+			'pythiaJets',
+			'pythiaPromptPhotons',
+			'myParameters',
+			'pythiaZjets',
+			'pythiaBottomoniumNRQCD',
+			'pythiaCharmoniumNRQCD',
+			'pythiaQuarkoniaSettings',
+			'pythiaWeakBosons',
+			'TDB'
 		)
 	),
 	
@@ -29,7 +31,7 @@ generator = cms.EDFilter("Hydjet2GeneratorFilter",
 
 	fIfb 	= cms.int32(1), 	# Flag of type of centrality generation, fBfix (=0 is fixed by fBfix, >0 distributed [fBfmin, fBmax])
 	fBmin 	= cms.double(0.),	# Minimum impact parameter, fBmin
-	fBmax	= cms.double(3.47500770746), 	# Maximum impact parameter, fBmax
+	fBmax	= cms.double(30.), 	# Maximum impact parameter, fBmax
 	fBfix 	= cms.double(0.), 	# Fixed impact parameter, fBfix
 
 )

@@ -287,7 +287,7 @@ Hydjet2Analyzer::Hydjet2Analyzer(const edm::ParameterSet& iConfig)
   }
   etaMax_ = iConfig.getUntrackedParameter<double>("etaMax", 2.);
   ptMin_ = iConfig.getUntrackedParameter<double>("ptMin", 0);
-  src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("VtxSmeared"));
+  src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generator"));
   genParticleSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("hiGenParticles"));
   genHIsrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("heavyIon"));
   doParticles_ = iConfig.getUntrackedParameter<bool>("doParticles", false);
@@ -301,6 +301,7 @@ userHistos_ = iConfig.getUntrackedParameter<bool>("userHistos", false);
     uPDG_1 = iConfig.getUntrackedParameter<int>("uPDG_1");
     uPDG_2 = iConfig.getUntrackedParameter<int>("uPDG_2",uPDG_1);
     uPDG_3 = iConfig.getUntrackedParameter<int>("uPDG_3",uPDG_1);
+    //uIfBins_ = iConfig.getUntrackedParameter<bool>("userHistos", false);
     upTetaCut_ = iConfig.getUntrackedParameter<double>("uPTetaCut", 0.8);
     downTetaCut_ = iConfig.getUntrackedParameter<double>("dPTetaCut", -1.);
       uPtBins_ = iConfig.getUntrackedParameter<vector<double> >("PtBins");
@@ -425,18 +426,18 @@ Hydjet2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     hev_.ptav[ieta] = 0;
   }
   hev_.mult = 0;
-  double phi0 = 0.;
-  double phi3 = 0.;
-  double b = -1.;
+  double phi0 = 0;
+  double phi3 = 0;
+  double b = -1;
   double v2,v3,v4,v5,v6;
-  double scale = -1.;
+  double scale = -1;
   int npart = -1;
   int ncoll = -1;
   int nhard = -1;
-  double vx = -99.;
-  double vy = -99.;
-  double vz = -99.;
-  double vr = -99.;
+  double vx = -99;
+  double vy = -99;
+  double vz = -99;
+  double vr = -99;
   const GenEvent* evt;
   int nmix = -1;
   int np = 0;
@@ -497,7 +498,7 @@ Hydjet2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         ncoll = hi->Ncoll();
         nhard = hi->Ncoll_hard();
         phi0 = hi->event_plane_angle();
-        phi3 = 0.;// No HepMC entry for Psi3 exist, but in private code it's possible to use hi->eccentricity();
+        phi3 = hi->eccentricity();
         if(printLists_){
           out_b<<b<<endl;
           out_n<<npart<<endl;
