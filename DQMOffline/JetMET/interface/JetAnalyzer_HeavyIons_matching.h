@@ -125,6 +125,12 @@ class JetAnalyzer_HeavyIons_matching : public DQMEDAnalyzer {
   MonitorElement * mNeutralEmEnergy_Jet1_unmatched;
   MonitorElement * mChargedMuEnergy_Jet1_unmatched;
 
+  MonitorElement * mChargedHadEnergyFraction_Jet1_unmatched;
+  MonitorElement * mNeutralHadEnergyFraction_Jet1_unmatched;
+  MonitorElement * mPhotonEnergyFraction_Jet1_unmatched;
+  MonitorElement * mElectronEnergyFraction_Jet1_unmatched;
+  MonitorElement * mMuonEnergyFraction_Jet1_unmatched;
+  
   MonitorElement * mHadEnergy_Jet2_unmatched;
   MonitorElement * mEmEnergy_Jet2_unmatched;
   MonitorElement * mChargedHadronEnergy_Jet2_unmatched;
@@ -133,6 +139,13 @@ class JetAnalyzer_HeavyIons_matching : public DQMEDAnalyzer {
   MonitorElement * mNeutralEmEnergy_Jet2_unmatched;
   MonitorElement * mChargedMuEnergy_Jet2_unmatched;
 
+  MonitorElement * mChargedHadEnergyFraction_Jet2_unmatched;
+  MonitorElement * mNeutralHadEnergyFraction_Jet2_unmatched;
+  MonitorElement * mPhotonEnergyFraction_Jet2_unmatched;
+  MonitorElement * mElectronEnergyFraction_Jet2_unmatched;
+  MonitorElement * mMuonEnergyFraction_Jet2_unmatched;
+
+  
   struct MyJet{
     int   id;
     float pt;
