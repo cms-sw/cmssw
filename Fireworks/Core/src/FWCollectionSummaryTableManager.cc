@@ -53,7 +53,6 @@ FWCollectionSummaryTableManager::FWCollectionSummaryTableManager(FWEventItem* iI
 
 void FWCollectionSummaryTableManager::modelIdChanges()
 {
-   printf("FWCollectionSummaryTableManager::xxx\n");
    if (m_collection->showFilteredEntries() || m_collection->filterExpression().empty())
        dataChanged();
    else
@@ -225,7 +224,6 @@ FWCollectionSummaryTableManager::dataChanged()
    m_sortedToUnsortedIndicies.clear();
    size_t n = numberOfRows();
    m_sortedToUnsortedIndicies.reserve(n);
-   printf("FWCollectionSummaryTableManager::dataChanged() ,rebuild indices \n");
    for(int i=0; i< static_cast<int>(m_collection->size());++i) {
       if (m_collection->filterExpression().empty() || m_collection->showFilteredEntries() || m_collection->modelInfo(i).displayProperties().filterPassed()) {
           m_sortedToUnsortedIndicies.push_back(i);
