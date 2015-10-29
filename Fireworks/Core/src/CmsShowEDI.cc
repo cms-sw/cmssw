@@ -75,7 +75,6 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    TGVerticalFrame* vf = new TGVerticalFrame(this);
    AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 0, 0, 0, 0));
    FWDialogBuilder builder(vf);
-
    builder.indent(0)
       .addLabel(" ", 14, 2, &m_objectLabel)
       .vSpacer()
@@ -105,9 +104,9 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
       .addLabel("Expression", 8)
       .addValidatingTextEntry(0, &m_filterExpressionEntry).floatLeft()
       .addTextButton("Filter", &m_filterButton).expand(false)
-      .addTextView("", &m_filterError)
-      .addCheckbox("ShowFilteredEntiresInTable blabla", &m_showFilteredCheckButton)
-      .vSpacer()
+      .addCheckbox("Show filtered entries in table", &m_showFilteredCheckButton).expand(false)
+      .addTextView("", &m_filterError).expand(true, true)
+      //.vSpacer()
       .endTab()
       .beginTab("Select")
       .indent(3)
@@ -119,7 +118,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
       .indent(3)
       .addLabel("Color Selection", 8)
       .addColorPicker(colorMgr, &m_cw).expand(false)
-      .addTextView("", &m_selectError)
+      .addTextView("", &m_selectError).expand(true, true)
       .vSpacer()
       .endTab()
       .beginTab("Data")
@@ -180,7 +179,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    MapSubwindows();
    Resize(GetDefaultSize());
    Layout();
-
+   m_filterExpressionEntry->SetForegroundColor(kOrange);
    fillEDIFrame();
 }
 
