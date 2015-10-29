@@ -18,6 +18,7 @@ inclusiveJetAnalyzer = cms.EDAnalyzer("HiInclusiveJetAnalyzer",
 
                                       doHiJetID = cms.untracked.bool(True),
                                       doStandardJetID = cms.untracked.bool(False),
+                                      doSubEvent = cms.untracked.bool(False),
                                       
                                       hltTrgResults = cms.untracked.string("TriggerResults::HLT"),
                                       hltTrgNames  = cms.untracked.vstring('HLT_HIMinBiasHfOrBSC_Core',
