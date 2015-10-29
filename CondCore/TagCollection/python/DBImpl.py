@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import coral
-import IdGenerator
+from . import IdGenerator
         
 class DBImpl(object):
     """Class wrap up all the database operations.\n

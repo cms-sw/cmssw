@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 import os
 import coral
-import IdGenerator, Node, DBImpl
+from . import IdGenerator, Node, DBImpl
 class tagTree(object):
     """Class manages tag tree. Note: tree name is not case sensitive.
     Tree name is always converted to upper case

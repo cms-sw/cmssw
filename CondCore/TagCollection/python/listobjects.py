@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 import os
 import coral
-from multivaluedict import mseqdict
+from .multivaluedict import mseqdict
 
 '''
 dumpobjectlist(schema) 

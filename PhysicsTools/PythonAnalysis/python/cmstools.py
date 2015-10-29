@@ -3,6 +3,7 @@
 benedikt.hegner@cern.ch
 
 """
+from __future__ import absolute_import
 import re
 import ROOT
 import exceptions
@@ -16,7 +17,7 @@ except:
 
 
 # for adding iterators at runtime
-import iterators
+from . import iterators
 
 
 ### workaround iterator generators for ROOT classes
