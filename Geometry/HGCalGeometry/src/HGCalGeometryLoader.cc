@@ -114,6 +114,8 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
       }
     }
   }
+  // FIXME: Sort valid DetIds if neded
+  // geom->sortDetIds();
   
   if (counter != numberOfCells) {
     std::cerr << "inconsistent # of cells: expected " << numberOfCells << " , inited " << counter << std::endl;
