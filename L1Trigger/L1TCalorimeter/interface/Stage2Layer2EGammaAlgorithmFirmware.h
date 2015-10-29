@@ -14,16 +14,16 @@
 #define Stage2Layer2EGammaAlgorithmFirmware_H
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2EGammaAlgorithm.h"
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
-namespace l1t 
+namespace l1t
 {
 
   // Imp1 is for v1 and v2
-  class Stage2Layer2EGammaAlgorithmFirmwareImp1 : public Stage2Layer2EGammaAlgorithm 
+  class Stage2Layer2EGammaAlgorithmFirmwareImp1 : public Stage2Layer2EGammaAlgorithm
   {
     public:
-      Stage2Layer2EGammaAlgorithmFirmwareImp1(CaloParams* params); //const CaloMainProcessorParams & dbPars);
+      Stage2Layer2EGammaAlgorithmFirmwareImp1(CaloParamsHelper* params); //const CaloMainProcessorParams & dbPars);
       virtual ~Stage2Layer2EGammaAlgorithmFirmwareImp1();
       virtual void processEvent(const std::vector<CaloCluster>& clusters, const std::vector<CaloTower>& towers, std::vector<EGamma>& egammas);
 
@@ -40,11 +40,11 @@ namespace l1t
       int isoCalEgHwFootPrint(const l1t::CaloCluster&,const std::vector<l1t::CaloTower>&);
       unsigned isoLutIndex(int iEta,unsigned int nrTowers);
       // calibration
-      int calibratedPt(const l1t::CaloCluster& clus, int hwPt); 
+      int calibratedPt(const l1t::CaloCluster& clus, int hwPt);
       unsigned int calibrationLutIndex(int iEta, int E, int shape);
 
     private:
-      CaloParams* params_;
+      CaloParamsHelper* params_;
 
   };
 
