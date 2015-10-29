@@ -20,8 +20,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
-#include "FastSimulation/Tracking/interface/HitMaskHelper.h"
-#include "FastSimulation/Tracking/interface/FastTrackingHelper.h"
+#include "FastSimulation/Tracking/interface/FastTrackingUtilities.h"
 
 #include <vector>
 #include <map>
@@ -52,11 +51,10 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf)
   splitHits = conf.getParameter<bool>("SplitHits");
 
   // input tags, labels, tokens
-  hitMasks_exists = conf.exists("hitMasks");
-  if (hitMasks_exists){
+  if (conf.exists("hitMasks")){
       hitMasksToken = consumes<std::vector<bool> >(conf.getParameter<edm::InputTag>("hitMasks"));
   }
-
+  
   edm::InputTag simTrackLabel = conf.getParameter<edm::InputTag>("simTracks");
   simVertexToken = consumes<edm::SimVertexContainer>(simTrackLabel);
   simTrackToken = consumes<edm::SimTrackContainer>(simTrackLabel);
@@ -101,11 +99,11 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   e.getByToken(simTrackToken,simTracks);
 
   // the hits to be skipped
-  std::unique_ptr<HitMaskHelper> hitMaskHelper;
-  if (hitMasks_exists == true){
-      edm::Handle<std::vector<bool> > hitMasks;
-      e.getByToken(hitMasksToken,hitMasks);
-      hitMaskHelper.reset(new HitMaskHelper(hitMasks.product()));
+  const std::vector<bool> * hitMasks = 0;
+  if (!hitMasksToken.isUninitialized()){
+      edm::Handle<std::vector<bool> > hitMasksHandle;
+      e.getByToken(hitMasksToken,hitMasksHandle);
+      hitMasks = &(*hitMasksHandle);
   }
   
   // output collection
@@ -122,7 +120,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     }
 
     // Get the combination of hits that produced the seed
-    int32_t icomb = fastTrackingHelper::getRecHitCombinationIndex(seed);
+    int32_t icomb = fastTrackingUtilities::getRecHitCombinationIndex(seed);
     if(icomb < 0 || unsigned(icomb) >= recHitCombinations->size()){
 	throw cms::Exception("TrackCandidateProducer") << " found seed with recHitCombination out or range: " << icomb << std::endl;
     }
@@ -136,10 +134,8 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	
 	
 	// apply hit masking
-	if(hitMaskHelper 
-	   && hitMaskHelper->mask(_hit.get())){
+	if(hitMasks && fastTrackingUtilities::hitIsMasked(_hit.get(),hitMasks))
 	    continue;
-	}
 
       recHitCandidate = TrajectorySeedHitCandidate(_hit.get(),trackerGeometry.product(),trackerTopology.product());
       if ( recHitCandidates.size() == 0 || !recHitCandidate.isOnTheSameLayer(recHitCandidates.back()) ) {
@@ -192,7 +188,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     }
 
     // set the recHitCombinationIndex
-    fastTrackingHelper::setRecHitCombinationIndex(trackRecHits,icomb);
+    fastTrackingUtilities::setRecHitCombinationIndex(trackRecHits,icomb);
 
     // create track candidate state
     //   - get seed state

@@ -4,7 +4,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
 
-namespace fastTrackingHelper {
+namespace fastTrackingUtilities {
     
     template<class T> inline void setRecHitCombinationIndex(edm::OwnVector<T> & recHits,int32_t icomb){
 	for(auto & recHit : recHits){
@@ -29,6 +29,16 @@ namespace fastTrackingHelper {
 	// cast and return combination index
 	return static_cast<const FastTrackerRecHit &>(recHit).recHitCombinationIndex();
 	// return combination index of first hit
+    }
+    
+    
+    inline bool hitIsMasked(const FastTrackerRecHit * hit,const std::vector<bool> * hitMasks){
+	for(unsigned int i = 0;i<hit->nIds();i++){
+	    if(!(*hitMasks)[hit->id(i)]){
+		return false;
+	    }
+	}
+	return true;
     }
     
 }
