@@ -123,7 +123,10 @@ namespace l1t {
     l1t::LUT* egCalibrationLUT() { return &pnode_[egCalibration].LUT_; }
 
     void setEgNodeVersion(int version) { pnode_[egPUS].version_ = version; }
-    void setEgEtaCut(int mask) { pnode_[egPUS].iparams_.push_back(mask); }
+    void setEgEtaCut(int mask) {
+      pnode_[egPUS].iparams_.resize(1);
+      pnode_[egPUS].iparams_[0] = mask;
+    }
     void setEgLsb(double lsb) { egp_.lsb_ = lsb; }
     void setEgSeedThreshold(double thresh) { egp_.seedThreshold_ = thresh; }
     void setEgNeighbourThreshold(double thresh) { egp_.neighbourThreshold_ = thresh; }
@@ -183,7 +186,10 @@ namespace l1t {
     unsigned tauIsoVetoNrTowersPhi()const{return taup_.isoVetoNrTowersPhi_;}
 
     void setTauPUSVersion(int version) { pnode_[tauPUS].version_ = version; }
-    void setTauRegionMask(int mask) { pnode_[tauPUS].iparams_.push_back(mask); }
+    void setTauRegionMask(int mask) {
+      pnode_[tauPUS].iparams_.resize(1);
+      pnode_[tauPUS].iparams_[0] = mask;
+    }
     void setTauLsb(double lsb) { taup_.lsb_ = lsb; }
     void setTauSeedThreshold(double thresh) { taup_.seedThreshold_ = thresh; }
     void setTauNeighbourThreshold(double thresh) { taup_.neighbourThreshold_ = thresh; }
@@ -228,7 +234,10 @@ namespace l1t {
     void setJetSeedThreshold(double thresh) { jetp_.seedThreshold_ = thresh; }
     void setJetNeighbourThreshold(double thresh) { jetp_.neighbourThreshold_ = thresh; }
     void setJetPUSVersion(int version) { pnode_[jetPUS].version_ = version; }
-    void setJetRegionMask(int mask) { pnode_[jetPUS].iparams_.push_back(mask); }
+    void setJetRegionMask(int mask) {
+      pnode_[jetPUS].iparams_.resize(1);
+      pnode_[jetPUS].iparams_[0] = mask;
+    }
     void setJetPUSType(std::string type) { pnode_[jetPUS].type_ = type; }
     void setJetPUSParams(std::vector<double> params) { pnode_[jetPUS].dparams_ = params; }
     void setJetCalibrationType(std::string type) { pnode_[jetCalibration].type_ = type; }
@@ -255,7 +264,7 @@ namespace l1t {
 	return 0;
     }
     std::vector<int> minimumBiasThresholds() const {
-      if(pnode_[hiCentrality].version_ == 1 && pnode_[hiCentrality].iparams_.size()>=5) {
+      if(pnode_[hiCentrality].version_ == 1 && pnode_[hiCentrality].iparams_.size()==5) {
 	std::vector<int> newVec;
 	for(int i = 0; i<4; i++) {
 	  newVec.push_back(pnode_[hiCentrality].iparams_.at(i+1));
@@ -268,10 +277,14 @@ namespace l1t {
     }
     l1t::LUT * centralityLUT() { return &pnode_[hiCentrality].LUT_; }
     void setCentralityNodeVersion(int version) { pnode_[hiCentrality].version_ = version; }
-    void setCentralityRegionMask(int mask) { pnode_[hiCentrality].iparams_.push_back(mask); }
+    void setCentralityRegionMask(int mask) {
+      pnode_[hiCentrality].iparams_.resize(5);
+      pnode_[hiCentrality].iparams_[0] = mask;
+    }
     void setMinimumBiasThresholds(std::vector<int> thresholds) {
+      pnode_[hiCentrality].iparams_.resize(5);
       for(int i = 0; i<4; i++) {
-	pnode_[hiCentrality].iparams_.push_back(thresholds.at(i));
+	pnode_[hiCentrality].iparams_[i+1] = thresholds.at(i);
       }
     }
     void setCentralityLUT(const l1t::LUT & lut) { pnode_[hiCentrality].LUT_ = lut; }
