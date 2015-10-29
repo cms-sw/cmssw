@@ -207,12 +207,8 @@ FWEventItem::setFilterExpression(const std::string& iExpression)
 void
 FWEventItem::setShowFilteredEntries(bool on)
 {
-   
-   //FWChangeSentry sentry(*(this->changeManager()));
-
    m_showFilteredEntries = on;
-   handleChange();
-//   defaultDisplayPropertiesChanged_(this);
+   handleChange(false);
 }
 
 void
@@ -342,7 +338,7 @@ FWEventItem::moveToFront()
 
    m_itemInfos.clear();
    m_accessor->reset();
-   handleChange();
+   handleChange(false);
 }
 
 void
@@ -365,7 +361,7 @@ FWEventItem::moveToBack()
 
    m_itemInfos.clear();
    m_accessor->reset();
-   handleChange();
+   handleChange(false);
 }
 
 void
@@ -377,7 +373,7 @@ FWEventItem::moveToLayer(int layer)
 
    m_itemInfos.clear();
    m_accessor->reset();
-   handleChange();
+   handleChange(false);
 }
 
 void
@@ -391,14 +387,16 @@ FWEventItem::proxyConfigChanged()
 }
 
 void 
-FWEventItem::handleChange()
+FWEventItem::handleChange(bool filterUpdate)
 {
    preItemChanged_(this);
    FWChangeSentry sentry(*(this->changeManager()));
    //want filter to rerun after all changes have been made
    changeManager()->changed(this);
-   getPrimaryData();
-   runFilter();
+   if (filterUpdate) {
+      getPrimaryData();
+      runFilter();
+   }
 }
 
 //

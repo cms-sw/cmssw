@@ -99,7 +99,7 @@ public:
 
    const std::string& filterExpression() const;
    
-   bool showFilteredEntries() { return m_showFilteredEntries;}
+   bool showFilteredEntries() const { return m_showFilteredEntries;}
    
    /**Unique ID for the item. This number starts at 0 and increments by one for each
       new item.*/
@@ -227,7 +227,7 @@ private:
 
    void getPrimaryData() const;
    void runFilter();
-   void handleChange();
+   void handleChange(bool filterUpdate = true);
    // ---------- member data --------------------------------
    const fireworks::Context* m_context;
    unsigned int m_id;
