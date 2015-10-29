@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import coral
-import DBImpl
+from . import DBImpl
 class IdGenerator(object):
     """Manages the autoincremental ID values.\n
     Input: coral.schema object

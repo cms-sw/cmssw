@@ -5,6 +5,7 @@ Please read license in your lcg external python version
 benedikt.hegner@cern.ch
 
 """
+from __future__ import absolute_import
 # TODO: sometimes results are doubled. clean global_matches list!
 
 import readline
@@ -30,7 +31,7 @@ class CMSCompleter(rlcompleter.Completer):
             self.namespace = namespace		
         try:
             # loading cms namespace
-            import namespaceDict
+            from . import namespaceDict
             self.cmsnamespace = namespaceDict.getNamespaceDict()
         except:
             print 'Could not load CMS namespace'
