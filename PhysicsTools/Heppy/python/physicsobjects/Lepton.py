@@ -45,3 +45,8 @@ class Lepton( PhysicsObject):
 	else :	
 		return self.innerTrack().hitPattern().numberOfHits(ROOT.reco.HitPattern.MISSING_INNER_HITS)	
 
+    def p4WithFSR(self):
+        ret = self.p4()
+        for p in getattr(self, 'ownFsrPhotons', getattr(self, 'fsrPhotons', [])):
+            ret += p.p4()
+        return ret
