@@ -325,26 +325,16 @@ namespace sistrip {
 	  
 	}
 
-	else if (!legacy_ &&
-                (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE ||
-                 mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8  || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE ||
-                 mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE ||
-                 mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE)
-                ) { 
+	else if (!legacy_ && (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE)) { 
 
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
 
-	  uint16_t num_bits = (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE) ? 10 : 8;
-	  size_t bits_shift = 0;
-	  if (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE) bits_shift = 1;
-	  if (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE) bits_shift = 2;
-	  
 	  try {
             /// create unpacker
-	    sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(iconn->fedCh()), num_bits);
+	    sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(iconn->fedCh()), 10);
 	    
 	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,(unpacker.adc()<<bits_shift)));unpacker++;}
+	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
 	  } catch (const cms::Exception& e) {
             if ( edm::isDebugEnabled() ) {
               edm::LogWarning(sistrip::mlRawToDigi_)
@@ -366,16 +356,24 @@ namespace sistrip {
 
 	} 
 
-        else if (legacy_ && (lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL || lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE)) {
+        else if ((!legacy_ &&
+                 (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8  || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE ||
+                  mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE ||
+                  mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE))
+             || (legacy_ && (lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL || lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE))) {
 
       	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
 	
+	  size_t bits_shift = 0;
+	  if (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE) bits_shift = 1;
+	  if (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE) bits_shift = 2;
+	  
 	  try {
             /// create unpacker
             sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(iconn->fedCh()));
 	    	    
     	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-   	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
+   	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()<<bits_shift));unpacker++;}
  	  } catch (const cms::Exception& e) {
             if ( edm::isDebugEnabled() ) {
               edm::LogWarning(sistrip::mlRawToDigi_)
@@ -1166,9 +1164,9 @@ namespace sistrip {
        << " Buffer contains " << buffer.size()
        << " bytes (NB: payload is byte-swapped)" << std::endl;
     uint32_t* buffer_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( buffer.data() ) );
-    unsigned int empty = 0;
 
     if ( 0 ) { 
+      unsigned int empty = 0;
 
       ss << "Byte->   4 5 6 7 0 1 2 3\n";
       for ( uint32_t i = 0; i < buffer.size()/8; i++ ) {

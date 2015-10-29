@@ -103,7 +103,6 @@ void SiStripDigiAnalyzer::endJob() {
   zs_r.print(ss);
   ss << "\n";
   LogDebug("SiStripDigiAnalyzer") << ss.str();
-  std::cout << ss.str();
 
 }
 

@@ -140,6 +140,7 @@ namespace sistrip {
     public:
       static FEDBSChannelUnpacker virginRawModeUnpacker(const FEDChannel& channel, size_t num_bits);
       static FEDBSChannelUnpacker zeroSuppressedModeUnpacker(const FEDChannel& channel, size_t num_bits);
+      static FEDBSChannelUnpacker zeroSuppressedLiteModeUnpacker(const FEDChannel& channel, size_t num_bits);
       FEDBSChannelUnpacker();
       uint8_t sampleNumber() const;
       uint16_t adc() const;
@@ -209,6 +210,17 @@ namespace sistrip {
       channelPayloadOffset_(0), channelPayloadLength_(0)
     { }
 
+  inline FEDBSChannelUnpacker::FEDBSChannelUnpacker(const uint8_t* payload, const size_t channelPayloadOffset, const int16_t channelPayloadLength, const size_t offsetIncrement)
+    : data_(payload),
+      oldWordOffset_(0), currentWordOffset_(channelPayloadOffset),
+      currentBitOffset_(0), currentLocalBitOffset_(0),
+      bitOffsetIncrement_(offsetIncrement),
+      channelPayloadOffset_(channelPayloadOffset),
+      channelPayloadLength_(channelPayloadLength)
+    {
+      if (bitOffsetIncrement_>16) throwBadWordLength(bitOffsetIncrement_); // more than 2 words... still to be implemented
+    }
+
   inline FEDBSChannelUnpacker FEDBSChannelUnpacker::virginRawModeUnpacker(const FEDChannel& channel, size_t num_bits)
     {
       uint16_t length = channel.length();
@@ -226,15 +238,12 @@ namespace sistrip {
       return result;
     }
 
-  inline FEDBSChannelUnpacker::FEDBSChannelUnpacker(const uint8_t* payload, const size_t channelPayloadOffset, const int16_t channelPayloadLength, const size_t offsetIncrement)
-    : data_(payload),
-      oldWordOffset_(0), currentWordOffset_(channelPayloadOffset),
-      currentBitOffset_(0), currentLocalBitOffset_(0),
-      bitOffsetIncrement_(offsetIncrement),
-      channelPayloadOffset_(channelPayloadOffset),
-      channelPayloadLength_(channelPayloadLength)
+  inline FEDBSChannelUnpacker FEDBSChannelUnpacker::zeroSuppressedLiteModeUnpacker(const FEDChannel& channel, size_t num_bits)
     {
-      if (bitOffsetIncrement_>16) {} // more than 2 words... still to be implemented
+      uint16_t length = channel.length();
+      if (length & 0xF000) throwBadChannelLength(length);
+      FEDBSChannelUnpacker result(channel.data(), channel.offset()+2, length-2, num_bits);
+      return result;
     }
 
   inline uint8_t FEDBSChannelUnpacker::sampleNumber() const
