@@ -31,6 +31,13 @@ namespace ecaldqm {
     void runOnPnDigis(EcalPnDiodeDigiCollection const&);
     void runOnUncalibRecHits(EcalUncalibratedRecHitCollection const&);
 
+    enum Wavelength{
+      kGreen,
+      kBlue,
+      kIRed,
+      nWavelength
+    };
+
   private:
     void setParams(edm::ParameterSet const&) override;
 
