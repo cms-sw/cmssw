@@ -3,7 +3,7 @@
 
 // EvtGen plugin
 //
-#include "Pythia8Plugins/EvtGen.h"
+//#include "Pythia8Plugins/EvtGen.h"
 
 using namespace Pythia8;
 
@@ -55,10 +55,10 @@ bool Py8GunBase::initializeForInternalPartons()
   fDecayer->init();
   
   if (useEvtGen) {
-    edm::LogInfo("Pythia8Interface") << "Creating and initializing pythia8 EvtGen plugin";
+    //edm::LogInfo("Pythia8Interface") << "Creating and initializing pythia8 EvtGen plugin";
 
-    evtgenDecays = new EvtGenDecays(fMasterGen.get(), evtgenDecFile.c_str(), evtgenPdlFile.c_str());
-    evtgenDecays->readDecayFile("evtgen_userfile.dec");
+    //evtgenDecays = new EvtGenDecays(fMasterGen.get(), evtgenDecFile.c_str(), evtgenPdlFile.c_str());
+    //evtgenDecays->readDecayFile("evtgen_userfile.dec");
   }
 
   return true;

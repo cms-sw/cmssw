@@ -11,7 +11,7 @@
 #include <Pythia8/Pythia.h>
 #include <Pythia8Plugins/HepMC2.h>
 
-class EvtGenDecays;
+//class EvtGenDecays;
 
 namespace gen {
 
@@ -48,7 +48,7 @@ namespace gen {
          // EvtGen plugin
          //
          bool useEvtGen;
-         EvtGenDecays* evtgenDecays;
+         //EvtGenDecays* evtgenDecays;
          std::string evtgenDecFile;
          std::string evtgenPdlFile;
    };
