@@ -48,10 +48,29 @@ FWTableViewTableManager::~FWTableViewTableManager ()
      delete m_rowRenderer;
 }
 
+const FWEventItem*
+ FWTableViewTableManager::collection() const
+{
+   return m_view->item();
+}
+
 int FWTableViewTableManager::numberOfRows() const
 {
-     if (m_view->item() != 0)
-	  return m_view->item()->size();
+   if (collection () != 0) {
+      if (collection()->showFilteredEntries() || collection()->filterExpression().empty())
+      {
+         return collection()->size();
+      }
+      else
+      {
+         int cs = collection()->size();
+         int n = 0;
+         for(int index = 0; index < cs; ++index) {
+            if (collection()->modelInfo(index).displayProperties().filterPassed()) { ++n;}
+         }
+         return n;
+      }
+   }
      else return 0;
 }
 
@@ -180,6 +199,8 @@ namespace {
      {
 	  int size = iItem.size();
 	  for(int index = 0; index < size; ++index) {
+        if (iItem.showFilteredEntries() || iItem.modelInfo(index).displayProperties().filterPassed())
+        {
 	       double ret;
 	       try {
 // 	       printf("iCol %d, size %d\n", iCol, m_evaluators.size());
@@ -191,6 +212,7 @@ namespace {
 				std::make_pair(
 				     iItem.modelInfo(index).displayProperties().isVisible(), ret), 
 				index));
+        }
 	  }
 	  std::vector<int>::iterator itVec = oNewSort.begin();
 	  for(typename std::multimap<std::pair<bool, double>,int,S>::iterator 
@@ -232,15 +254,21 @@ FWTableViewTableManager::dataChanged()
       m_sortedToUnsortedIndices.clear();
       m_sortedToUnsortedIndices.reserve(m_view->item()->size());
       for(int i=0; i< static_cast<int>(m_view->item()->size()); ++i) {
-         if (m_view->item()->modelInfo(i).displayProperties().isVisible()) 
+           if (collection()->showFilteredEntries() || collection()->modelInfo(i).displayProperties().filterPassed())
+           {
+         if (m_view->item()->modelInfo(i).displayProperties().isVisible())
             visible.push_back(i);
          else invisible.push_back(i);
+           }
       }
       m_sortedToUnsortedIndices.insert(m_sortedToUnsortedIndices.end(),
                                        visible.begin(), visible.end());
       m_sortedToUnsortedIndices.insert(m_sortedToUnsortedIndices.end(),
                                        invisible.begin(), invisible.end());
-      assert(m_sortedToUnsortedIndices.size() == m_view->item()->size());
+      
+      if (collection()->showFilteredEntries() || collection()->filterExpression().empty())
+          assert(m_sortedToUnsortedIndices.size() == m_view->item()->size());
+      
    } else {
       m_sortedToUnsortedIndices.clear();
    }
