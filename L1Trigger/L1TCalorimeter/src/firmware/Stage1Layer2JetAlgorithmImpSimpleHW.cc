@@ -19,7 +19,7 @@
 using namespace std;
 using namespace l1t;
 
-Stage1Layer2JetAlgorithmImpSimpleHW::Stage1Layer2JetAlgorithmImpSimpleHW(CaloParamsStage1* params) : params_(params)
+Stage1Layer2JetAlgorithmImpSimpleHW::Stage1Layer2JetAlgorithmImpSimpleHW(CaloParamsHelper* params) : params_(params)
 {
 }
 
@@ -38,9 +38,7 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
   double towerLsb = params_->towerLsbSum();
   int jetSeedThreshold = floor( params_->jetSeedThreshold()/towerLsb + 0.5);
 
-  std::string regionPUSType = "PUM0"; //params_->regionPUSType();
-  std::vector<double> regionPUSParams = params_->regionPUSParams();
-  RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
+  RegionCorrection(regions, subRegions, params_);
 
   slidingWindowJetFinder(jetSeedThreshold, subRegions, preGtEtaJets);
 

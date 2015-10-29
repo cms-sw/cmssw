@@ -9,9 +9,9 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage2TowerCompressAlgorithmFirmware.h"
 //#include "DataFormats/Math/interface/LorentzVector.h "
 
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
-l1t::Stage2TowerCompressAlgorithmFirmwareImp1::Stage2TowerCompressAlgorithmFirmwareImp1(CaloParams* params) :
+l1t::Stage2TowerCompressAlgorithmFirmwareImp1::Stage2TowerCompressAlgorithmFirmwareImp1(CaloParamsHelper* params) :
   params_(params)
 {
 
@@ -41,22 +41,22 @@ void l1t::Stage2TowerCompressAlgorithmFirmwareImp1::processEvent(const std::vect
 
       int etEm  = tow->hwEtEm();
       int etHad = tow->hwEtHad();
-      
+
       int ratio = 0;
       if (etEm>0 && etHad>0) {
 	if (etEm>=etHad) ratio = (int) std::round(log(float(etEm) / float(etHad))/log(2.));
 	else ratio = (int) std::round(log(float(etHad) / float(etEm))/log(2.));
       }
       ratio &= params_->towerMaskRatio() ;
-      
+
       int sum  = etEm + etHad;
       sum &= params_->towerMaskSum() ;
-      
+
       int qual = 0;
       qual |= (etEm==0 || etHad==0 ? 0x1 : 0x0 );  // denominator ==0 flag
       qual |= ((etHad==0 && etEm>0) || etEm>=etHad ? 0x2 : 0x0 );  // E/H flag
       qual |= (tow->hwQual() & 0xc); // get feature bits from existing tower
-      
+
       l1t::CaloTower newTow;
       newTow.setHwEtEm(etEm);
       newTow.setHwEtHad(etHad);
@@ -65,9 +65,9 @@ void l1t::Stage2TowerCompressAlgorithmFirmwareImp1::processEvent(const std::vect
       newTow.setHwPt( sum );
       newTow.setHwEtRatio( ratio );
       newTow.setHwQual( qual );
-      
+
       outTowers.push_back(newTow);
-      
+
     }
 
   }

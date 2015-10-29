@@ -524,3 +524,16 @@ UpdatedHICollision2015VtxSmearingParameters = cms.PSet(
     Y0 = cms.double(0.16973),
     Z0 = cms.double(-1.2230)
 )
+
+# Estimate for 2015 pp collisions at 5.02 TeV, based on feedback from accelerator:  beta* ~ 400cm, normalized emittance = 2.5 um, SigmaZ similar to RunIIWinter15GS
+Nominal5TeVpp2015VtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(400.0),
+    Emittance = cms.double(1.0e-07),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(5.5),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.1044),
+    Y0 = cms.double(0.1676),
+    Z0 = cms.double(0.6707)
+)
