@@ -223,36 +223,36 @@ void SiPixelHitEfficiencySource::bookHistograms(DQMStore::IBooker & iBooker, edm
   //book cluster probability histos for Barrel and Endcap
   iBooker.setCurrentFolder("Pixel/Barrel");
 
-  meClusterProbabilityL1_Plus_  = iBooker.book1D("ClusterProbabilityXY_Layer1_Plus","ClusterProbabilityXY_Layer1_Plus",250,-5,0.1);
+  meClusterProbabilityL1_Plus_  = iBooker.book1D("ClusterProbabilityXY_Layer1_Plus","ClusterProbabilityXY_Layer1_Plus",500,-14,0.1);
   meClusterProbabilityL1_Plus_->setAxisTitle("Log(ClusterProbability)",1);
 
-  meClusterProbabilityL1_Minus_ = iBooker.book1D("ClusterProbabilityXY_Layer1_Minus","ClusterProbabilityXY_Layer1_Minus",250,-5,0.1);
+  meClusterProbabilityL1_Minus_ = iBooker.book1D("ClusterProbabilityXY_Layer1_Minus","ClusterProbabilityXY_Layer1_Minus",500,-14,0.1);
   meClusterProbabilityL1_Minus_->setAxisTitle("Log(ClusterProbability)",1);
 
-  meClusterProbabilityL2_Plus_  = iBooker.book1D("ClusterProbabilityXY_Layer2_Plus","ClusterProbabilityXY_Layer2_Plus",250,-5,0.1);
+  meClusterProbabilityL2_Plus_  = iBooker.book1D("ClusterProbabilityXY_Layer2_Plus","ClusterProbabilityXY_Layer2_Plus",500,-14,0.1);
   meClusterProbabilityL2_Plus_ ->setAxisTitle("Log(ClusterProbability)",1);
 
-  meClusterProbabilityL2_Minus_ = iBooker.book1D("ClusterProbabilityXY_Layer2_Minus","ClusterProbabilityXY_Layer2_Minus",250,-5,0.1);
+  meClusterProbabilityL2_Minus_ = iBooker.book1D("ClusterProbabilityXY_Layer2_Minus","ClusterProbabilityXY_Layer2_Minus",500,-14,0.1);
   meClusterProbabilityL2_Minus_ ->setAxisTitle("Log(ClusterProbability)",1);
 
-  meClusterProbabilityL3_Plus_  = iBooker.book1D("ClusterProbabilityXY_Layer3_Plus","ClusterProbabilityXY_Layer3_Plus",250,-5,0.1);
+  meClusterProbabilityL3_Plus_  = iBooker.book1D("ClusterProbabilityXY_Layer3_Plus","ClusterProbabilityXY_Layer3_Plus",500,-14,0.1);
   meClusterProbabilityL3_Plus_->setAxisTitle("Log(ClusterProbability)",1);
  
-  meClusterProbabilityL3_Minus_ = iBooker.book1D("ClusterProbabilityXY_Layer3_Minus","ClusterProbabilityXY_Layer3_Minus",250,-5,0.1);
+  meClusterProbabilityL3_Minus_ = iBooker.book1D("ClusterProbabilityXY_Layer3_Minus","ClusterProbabilityXY_Layer3_Minus",500,-14,0.1);
   meClusterProbabilityL3_Minus_->setAxisTitle("Log(ClusterProbability)",1);
 
   iBooker.setCurrentFolder("Pixel/Endcap");
 
-  meClusterProbabilityD1_Plus_  = iBooker.book1D("ClusterProbabilityXY_Disk1_Plus","ClusterProbabilityXY_Disk1_Plus",250,-5,0.1);
+  meClusterProbabilityD1_Plus_  = iBooker.book1D("ClusterProbabilityXY_Disk1_Plus","ClusterProbabilityXY_Disk1_Plus",500,-14,0.1);
   meClusterProbabilityD1_Plus_ ->setAxisTitle("Log(ClusterProbability)",1);
 
-  meClusterProbabilityD1_Minus_ = iBooker.book1D("ClusterProbabilityXY_Disk1_Minus","ClusterProbabilityXY_Disk1_Minus",250,-5,0.1);
+  meClusterProbabilityD1_Minus_ = iBooker.book1D("ClusterProbabilityXY_Disk1_Minus","ClusterProbabilityXY_Disk1_Minus",500,-14,0.1);
   meClusterProbabilityD1_Minus_->setAxisTitle("Log(ClusterProbability)",1);
 
-  meClusterProbabilityD2_Plus_  = iBooker.book1D("ClusterProbabilityXY_Disk2_Plus","ClusterProbabilityXY_Disk2_Plus",250,-5,0.1);
+  meClusterProbabilityD2_Plus_  = iBooker.book1D("ClusterProbabilityXY_Disk2_Plus","ClusterProbabilityXY_Disk2_Plus",500,-14,0.1);
   meClusterProbabilityD2_Plus_ ->setAxisTitle("Log(ClusterProbability)",1);
 
-  meClusterProbabilityD2_Minus_ = iBooker.book1D("ClusterProbabilityXY_Disk2_Minus","ClusterProbabilityXY_Disk2_Minus",250,-5,0.1);
+  meClusterProbabilityD2_Minus_ = iBooker.book1D("ClusterProbabilityXY_Disk2_Minus","ClusterProbabilityXY_Disk2_Minus",500,-14,0.1);
   meClusterProbabilityD2_Minus_->setAxisTitle("Log(ClusterProbability)",1);
 
 }
