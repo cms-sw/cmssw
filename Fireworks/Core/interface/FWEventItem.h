@@ -77,7 +77,7 @@ public:
    FWEventItem(fireworks::Context* iContext,
                unsigned int iItemId,
                boost::shared_ptr<FWItemAccessorBase> iAccessor,
-               const FWPhysicsObjectDesc& iDesc,  const FWConfiguration* pbConf = 0);
+               const FWPhysicsObjectDesc& iDesc,  bool showFiltered = true, const FWConfiguration* pbConf = 0);
    virtual ~FWEventItem();
 
    // ---------- const member functions ---------------------
