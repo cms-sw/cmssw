@@ -144,6 +144,19 @@ namespace l1t {
 	if(forward)
 	  jetQual |= 0x2;
 
+	// check for input overflow regions
+	if(forward && regionET == 255) {
+	  jetET = 1023; // 10 bit max
+	} else if(!forward && regionET == 1023) {
+	  jetET = 1023; // 10 bit max
+	} else if(region->hwEta() == 17) {
+	  if(neighborNE_et == 255 || neighborE_et == 255 || neighborSE_et == 255)
+	    jetET = 1023; // 10 bit max
+	} else if(region->hwEta() == 4) {
+	  if(neighborNW_et == 255 || neighborW_et == 255 || neighborSW_et == 255)
+	    jetET = 1023; // 10 bit max
+	}
+
 	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > jetLorentz(0,0,0,0);
 	l1t::Jet theJet(*&jetLorentz, jetET, jetEta, jetPhi, jetQual);
 	//l1t::Jet theJet(0, jetET, jetEta, jetPhi);
@@ -253,11 +266,16 @@ namespace l1t {
     }
   }
 
-  void TwoByTwoFinder(const std::vector<l1t::CaloRegion> * regions,
+  void TwoByTwoFinder(const int jetSeedThreshold,
+		      const int etaMask,
+		      const std::vector<l1t::CaloRegion> * regions,
 		      std::vector<l1t::Jet> * uncalibjets)
   {
     for(std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
       int regionET = region->hwPt();
+      if (regionET  <= jetSeedThreshold) continue;
+      int subEta = region->hwEta();
+      if((etaMask & (1<<subEta))>>subEta) regionET = 0;
       int neighborN_et = 0;
       int neighborS_et = 0;
       int neighborE_et = 0;
@@ -269,6 +287,9 @@ namespace l1t {
       unsigned int nNeighbors = 0;
       for(std::vector<CaloRegion>::const_iterator neighbor = regions->begin(); neighbor != regions->end(); neighbor++) {
 	int neighborET = neighbor->hwPt();
+	int subEta2 = neighbor->hwEta();
+	if((etaMask & (1<<subEta2))>>subEta2) neighborET = 0;
+
 	if(deltaGctPhi(*region, *neighbor) == 1 &&
 	   (region->hwEta()    ) == neighbor->hwEta()) {
 	  neighborN_et = neighborET;

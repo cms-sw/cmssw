@@ -13,8 +13,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-//#include "CondFormats/L1TObjects/interface/CaloParams.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloParamsStage1.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -26,8 +25,8 @@ namespace l1t {
   public:
     typedef boost::shared_ptr<Stage1Layer2MainProcessor> ReturnType;
 
-    // ReturnType create(const FirmwareVersion & fwv /*,const CaloParamsStage1 & dbPars*/);
-    ReturnType create(const int fwv ,CaloParamsStage1* dbPars);
+    // ReturnType create(const FirmwareVersion & fwv /*,const CaloParamsHelper & dbPars*/);
+    ReturnType create(const int fwv ,CaloParamsHelper* dbPars);
 
     // (Why not make "create" a static member function? You could...
     // But this way allows you to add additional customizations to the
