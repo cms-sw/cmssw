@@ -95,8 +95,13 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
   //--- getSimHits() returns a reference to a vector of pointers to
   //    PSimHits.  Since we need to keep track of various locations in
   //    this array, we need to use either indices or iterators.
-  std::vector<const PSimHit*> & simHits = product->getSimHits();  
-
+  std::vector<std::pair<unsigned int,const PSimHit*>> & simHitIdPairs = product->getSimHitIdPairs();
+  //this needs to be changed - the pair should be propagated to the 'addRecHit' method  instead 
+  std::vector<const PSimHit*> simHits(simHitIdPairs.size());
+  for (unsigned int ihit = 0; ihit<simHitIdPairs.size();++ihit)
+  {
+    simHits[ihit]=simHitIdPairs[ihit].second;
+  }
 
   //--- Random engine
   //

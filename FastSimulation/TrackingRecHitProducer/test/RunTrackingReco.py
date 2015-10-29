@@ -30,23 +30,14 @@ process.recHitProducerSimple=cms.EDProducer("TrackingRecHitProducer",
     simHits = cms.InputTag("famosSimHits","TrackerHits"),
     plugins=cms.VPSet(
         cms.PSet(
-            name = cms.string("noSmearing"),
+            name = cms.string("smearing"),
             type=cms.string("TrackingRecHitNoSmearingPlugin"),
             select=cms.string("subdetId==BPX")
-        ),
-        
-        cms.PSet(
-            name = cms.string("BPXmonitor"),
-            type=cms.string("TrackingRecHitMonitorPlugin"),
-            xmax=cms.double(5.0),
-            ymax=cms.double(5.0),
-            select=cms.string("subdetId==BPX"),
-
         )
     )
 )
 
-
+'''
 process.recHitProducerTemplates=cms.EDProducer("TrackingRecHitProducer",
     simHits = cms.InputTag("famosSimHits","TrackerHits"),
     plugins=cms.VPSet(
@@ -76,7 +67,7 @@ process.recHitProducerTemplates=cms.EDProducer("TrackingRecHitProducer",
         )
     )
 )
-
+'''
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     recHitProducerSimple = cms.PSet(
         initialSeed = cms.untracked.uint32(12345),
@@ -89,8 +80,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.tracking_step=cms.Path(
-#    process.recHitProducerSimple
-    process.recHitProducerTemplates
+    process.recHitProducerSimple
 )
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string("histo.root") )

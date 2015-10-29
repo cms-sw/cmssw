@@ -40,7 +40,7 @@ class TrackingRecHitMonitorPlugin:
         virtual TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const
         {
             //std::cout<<getTrackerTopology()->print(product->getDetId())<<std::endl;
-
+            /*
             for (unsigned int irechit = 0; irechit<product->numberOfRecHits(); ++irechit)
             {
                 
@@ -57,9 +57,13 @@ class TrackingRecHitMonitorPlugin:
                 }
                 simHitXmean/=product->getSimHitsFromRecHit(irechit).size();
                 simHitYmean/=product->getSimHitsFromRecHit(irechit).size();
-
+                
+                std::cout<<irechit<<":\t"<<simHitXmean<<" - "<<recHitPosition.x()<<" / "<<sqrt(recHitError.xx())<< " = "<<(simHitXmean-recHitPosition.x())/sqrt(recHitError.xx())<<std::endl;
+                std::cout<<"\t"<<simHitYmean<<" - "<<recHitPosition.y()<<" / "<<sqrt(recHitError.yy())<< " = "<<(simHitYmean-recHitPosition.y())/sqrt(recHitError.yy())<<std::endl;
                 _hist->Fill((simHitXmean-recHitPosition.x())/sqrt(recHitError.xx()),(simHitYmean-recHitPosition.y())/sqrt(recHitError.yy()));
             }
+            std::cout<<std::endl;
+            */
             return product;
         }
 };

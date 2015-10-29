@@ -36,8 +36,9 @@ class TrackingRecHitNoSmearingPlugin:
         {
             //std::cout<<getTrackerTopology()->print(product->getDetId())<<std::endl;
 
-            for (const PSimHit* simHit: product->getSimHits())
+            for (const std::pair<unsigned int,const PSimHit*>& simHitIdPair: product->getSimHitIdPairs())
             {
+                const PSimHit* simHit = simHitIdPair.second;
                 const Local3DPoint& position = simHit->localPosition();
                 LocalError error(_error2,_error2,_error2);
                 const GeomDet* geomDet = getTrackerGeometry().idToDetUnit(product->getDetId());
@@ -47,10 +48,11 @@ class TrackingRecHitNoSmearingPlugin:
                     position,   //const LocalPoint &
                     error,      //const LocalError &
                     *geomDet,    //GeomDet const &idet
-		    fastTrackerRecHitType::siPixel // since this is a dummy class anyway: pretend all hits are pixel hits (only effect: hits are defined in 2D (?))
-		);
-                product->addRecHit(recHit,{simHit});
+		            fastTrackerRecHitType::siPixel // since this is a dummy class anyway: pretend all hits are pixel hits (only effect: hits are defined in 2D (?))
+		        );
+                product->addRecHit(recHit,{simHitIdPair});
             }
+            
             return product;
         }
 };

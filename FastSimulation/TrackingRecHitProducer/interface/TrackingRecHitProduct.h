@@ -8,21 +8,24 @@
 
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 class TrackingRecHitProduct
 {
+    public:
+        typedef std::pair<unsigned int,const PSimHit*> SimHitIdPair;
+        typedef std::pair<FastSingleTrackerRecHit,std::vector<SimHitIdPair>> RecHitToSimHitIdPairs;
     protected:
         const DetId& _detId;
         
-        std::vector<const PSimHit*> _simHits;
+        std::vector<SimHitIdPair> _simHitsIdPairList;
         
-        std::vector<FastSingleTrackerRecHit> _recHits;
-        std::unordered_map<unsigned int,std::vector<const PSimHit*>> _mapRecHitToSimHits;
+        std::vector<RecHitToSimHitIdPairs> _recHits;
         
     public:
-        TrackingRecHitProduct(const DetId& detId, std::vector<const PSimHit*> simHits):
+        TrackingRecHitProduct(const DetId& detId, std::vector<SimHitIdPair>& simHitsIdPairList):
             _detId(detId),
-            _simHits(simHits)
+            _simHitsIdPairList(simHitsIdPairList)
         {
         }
         
@@ -31,32 +34,45 @@ class TrackingRecHitProduct
             return _detId;
         }
         
-        virtual std::vector<const PSimHit*>& getSimHits()
+        virtual std::vector<SimHitIdPair>& getSimHitIdPairs()
         {
-            return _simHits;
+            return _simHitsIdPairList;
         }
         
-        virtual void addRecHit(FastSingleTrackerRecHit & recHit, std::vector<const PSimHit*> simHits={})
+        virtual void addRecHit(const FastSingleTrackerRecHit& recHit, std::vector<SimHitIdPair> simHitIdPairs={})
         {
-            _mapRecHitToSimHits[_recHits.size()]=simHits;
-            _recHits.push_back(recHit);
+            _recHits.push_back(std::make_pair(recHit,simHitIdPairs));
         }
 
+        virtual void addRecHit(FastSingleTrackerRecHit & recHit, std::vector<const PSimHit*> simHits={})
+        {
+            //TODO: this function is bad and deprecated!!!
+            //
+            std::vector<SimHitIdPair> simHitIdPairs;
+            for (unsigned int isimhit = 0; isimhit < simHits.size(); ++isimhit)
+            {
+                for (unsigned int jsimhit = 0; jsimhit < _simHitsIdPairList.size(); ++jsimhit)
+                {
+                    if (((size_t)_simHitsIdPairList[jsimhit].second)==((size_t)simHits[isimhit]))
+                    {
+                        simHitIdPairs.push_back(_simHitsIdPairList[jsimhit]);
+                        break;
+                    }
+                }
+            }
+            _recHits.push_back(std::make_pair(recHit,simHitIdPairs));
+        }
+        
+        virtual const std::vector<RecHitToSimHitIdPairs>& getRecHitToSimHitIdPairs() const
+        {
+            return _recHits;
+        }
+        
         virtual unsigned int numberOfRecHits() const
         {
             return _recHits.size();
         }
-
-        virtual const FastSingleTrackerRecHit & getRecHit(unsigned int recHitIndex) const
-        {
-            return _recHits[recHitIndex];
-        }
-        
-        virtual const std::vector<const PSimHit*>& getSimHitsFromRecHit(unsigned int recHitIndex)
-        {
-            return _mapRecHitToSimHits[recHitIndex];
-        }
-        
+ 
         virtual ~TrackingRecHitProduct()
         {
         }

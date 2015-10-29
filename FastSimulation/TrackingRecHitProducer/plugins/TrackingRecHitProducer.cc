@@ -70,7 +70,6 @@ void TrackingRecHitProducer::setupDetIdPipes(const edm::EventSetup& eventSetup)
 
         _detIdPipes.clear();
 
-        std::cout<<"TrackingRecHitProducer: setting up pipes"<<std::endl;
         //build pipes for all detIds
         const std::vector<DetId>& detIds = trackerGeometry->detIds();
         std::vector<unsigned int> numberOfDetIdsPerAlgorithm(_recHitAlgorithms.size(),0);
@@ -90,10 +89,6 @@ void TrackingRecHitProducer::setupDetIdPipes(const edm::EventSetup& eventSetup)
                 }
             }
             _detIdPipes[detId.rawId()]=pipe;
-        }
-        for (unsigned int ialgo = 0; ialgo < _recHitAlgorithms.size(); ++ialgo)
-        {
-            std::cout<<"TrackingRecHitProducer: "<<_recHitAlgorithms[ialgo]->getName()<<": "<<numberOfDetIdsPerAlgorithm[ialgo]<<" dets"<<std::endl;
         }
     }
 }
@@ -133,39 +128,55 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
     // (*output_recHitRefs)[j] = FastTrackerRecHitRef(output_recHits_refProd,output_recHits->size()-1)
     // if you want a SimHit not to point to any RecHit, just leave the respective entry as it is, a null reference
 
-    std::cout<<"TrackingRecHitProducer: N(SimHits input)="<<simHits->size()<<std::endl;
     
-    std::map<unsigned int,std::vector<const PSimHit*>> hitsPerDetId;
+    std::map<unsigned int,std::vector<std::pair<unsigned int,const PSimHit*>>> simHitsIdPairPerDetId;
     for (unsigned int ihit = 0; ihit < simHits->size(); ++ihit)
     {
         const PSimHit* simHit = &(*simHits)[ihit];
-        hitsPerDetId[simHit->detUnitId()].push_back(simHit);
+        simHitsIdPairPerDetId[simHit->detUnitId()].push_back(std::make_pair(ihit,simHit));
     }
 
     
     unsigned int nRecHits = 0;
     
-    for (std::map<unsigned int,std::vector<const PSimHit*>>::iterator simHitsIt = hitsPerDetId.begin(); simHitsIt != hitsPerDetId.end(); ++simHitsIt)
+    for (auto simHitsIdPairIt = simHitsIdPairPerDetId.begin(); simHitsIdPairIt != simHitsIdPairPerDetId.end(); ++simHitsIdPairIt)
     {
-        const DetId& detId = simHitsIt->first;
+        const DetId& detId = simHitsIdPairIt->first;
         std::map<unsigned int, TrackingRecHitPipe>::const_iterator pipeIt = _detIdPipes.find(detId);
         if (pipeIt!=_detIdPipes.cend())
         {
-            std::vector<const PSimHit*>& simHits = simHitsIt->second;
+            auto& simHitIdPairList = simHitsIdPairIt->second;
+            
             const TrackingRecHitPipe& pipe = pipeIt->second;
 
-            TrackingRecHitProductPtr product = std::make_shared<TrackingRecHitProduct>(detId,simHits);
+            TrackingRecHitProductPtr product = std::make_shared<TrackingRecHitProduct>(detId,simHitIdPairList);
 
             product = pipe.produce(product);
             nRecHits+=product->numberOfRecHits();
+            
+            const std::vector<TrackingRecHitProduct::RecHitToSimHitIdPairs>& recHitToSimHitIdPairsList = product->getRecHitToSimHitIdPairs();
+            for (unsigned int irecHit = 0; irecHit < recHitToSimHitIdPairsList.size(); ++irecHit)
+            {
+                output_recHits->push_back(recHitToSimHitIdPairsList[irecHit].first);
+                const std::vector<TrackingRecHitProduct::SimHitIdPair>& simHitIdPairList = recHitToSimHitIdPairsList[irecHit].second;
+                for (unsigned int isimHit = 0; isimHit < simHitIdPairList.size(); ++isimHit)
+                {
+                    unsigned int simHitId = simHitIdPairList[isimHit].first;
+                    if (not (*output_recHitRefs)[simHitId].isNull())
+                    {
+                        throw cms::Exception("FastSimulation/TrackingRecHitProducer","A PSimHit cannot lead to multiple FastTrackerRecHits");
+                    }
+                    std::cout<<"make map for isimHit="<<simHitId<<" -> "<<output_recHits->size()-1<<std::endl;
+                    (*output_recHitRefs)[simHitId] = FastTrackerRecHitRef(output_recHits_refProd,output_recHits->size()-1);
+                }
+            }
         }
         else
         {
             //there should be at least an empty pipe for each DetId
-            throw cms::Exception("FastSimulation/TrackingRecHitProducer","A PSimHit carries a DetId which does not belong to the TrackerGeometry: "+std::to_string(simHitsIt->first));
+            throw cms::Exception("FastSimulation/TrackingRecHitProducer","A PSimHit carries a DetId which does not belong to the TrackerGeometry: "+std::to_string(detId));
         }
     }
-    std::cout<<"TrackingRecHitProducer: N(RecHits produced)="<<nRecHits<<std::endl;
     
     //end event
     for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
@@ -175,8 +186,9 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
 
     // note from lukas:
     // all rechits need a unique id numbers
-    for(unsigned recHitIndex = 0,nRecHits = output_recHits->size();recHitIndex < nRecHits;nRecHits++){
-	((FastSingleTrackerRecHit*)&(*output_recHits)[recHitIndex])->setId(recHitIndex);
+    for(unsigned recHitIndex = 0,nRecHits = output_recHits->size();recHitIndex < nRecHits;nRecHits++)
+    {
+	    ((FastSingleTrackerRecHit*)&(*output_recHits)[recHitIndex])->setId(recHitIndex);
     }
 
     event.put(std::move(output_recHits));
