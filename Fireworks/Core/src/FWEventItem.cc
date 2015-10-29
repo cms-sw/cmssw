@@ -52,7 +52,7 @@ int FWEventItem::maxLayerValue()
 FWEventItem::FWEventItem(fireworks::Context* iContext,
                          unsigned int iId,
                          boost::shared_ptr<FWItemAccessorBase> iAccessor,
-                         const FWPhysicsObjectDesc& iDesc,  const FWConfiguration* pbc) :
+                         const FWPhysicsObjectDesc& iDesc,  bool showFiltered, const FWConfiguration* pbc) :
    m_context(iContext),
    m_id(iId),
    m_name(iDesc.name()),
@@ -67,7 +67,7 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
    m_event(0),
    m_interestingValueGetter(edm::TypeWithDict(*(m_accessor->modelType()->GetTypeInfo())), m_purpose),
    m_filter(iDesc.filterExpression(),""),
-   m_showFilteredEntries(true),
+   m_showFilteredEntries(showFiltered),
    m_printedErrorThisEvent(false),
    m_isSelected(false),
    m_proxyBuilderConfig(0)
