@@ -12,7 +12,7 @@
 //#include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFRingEtSums.h"
 
-l1t::Stage1Layer2DiTauAlgorithm::Stage1Layer2DiTauAlgorithm(CaloParamsStage1* params) : params_(params)
+l1t::Stage1Layer2DiTauAlgorithm::Stage1Layer2DiTauAlgorithm(CaloParamsHelper* params) : params_(params)
 {
 }
 

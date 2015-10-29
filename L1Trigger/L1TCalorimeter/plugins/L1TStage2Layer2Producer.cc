@@ -2,7 +2,7 @@
 //
 // Package:    L1Trigger/skeleton
 // Class:      skeleton
-// 
+//
 /**\class skeleton skeleton.cc L1Trigger/skeleton/plugins/skeleton.cc
 
  Description: [one line class summary]
@@ -36,7 +36,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2FirmwareFactory.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2MainProcessor.h"
 
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
@@ -50,25 +50,25 @@
 //
 
 using namespace l1t;
-  
-  class L1TStage2Layer2Producer : public edm::EDProducer { 
+
+  class L1TStage2Layer2Producer : public edm::EDProducer {
   public:
     explicit L1TStage2Layer2Producer(const edm::ParameterSet& ps);
     ~L1TStage2Layer2Producer();
-    
+
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions)
       ;
-    
+
   private:
     virtual void beginJob() override;
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() override;
-    
+
     virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
     virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
     //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-    
+
     // ----------member data ---------------------------
 
     // input token
@@ -77,14 +77,14 @@ using namespace l1t;
     // parameters
     unsigned long long m_paramsCacheId;
     unsigned m_fwv;
-    CaloParams* m_params;
+    CaloParamsHelper* m_params;
 
     // the processor
     Stage2Layer2FirmwareFactory m_factory;
     boost::shared_ptr<Stage2MainProcessor> m_processor;
-     
-  }; 
-  
+
+  };
+
 
 
 L1TStage2Layer2Producer::L1TStage2Layer2Producer(const edm::ParameterSet& ps) {
@@ -100,20 +100,20 @@ L1TStage2Layer2Producer::L1TStage2Layer2Producer(const edm::ParameterSet& ps) {
   produces<TauBxCollection> ();
   produces<JetBxCollection> ();
   produces<EtSumBxCollection> ();
-  
+
   // register what you consume and keep token for later access:
   m_towerToken = consumes<CaloTowerBxCollection>(ps.getParameter<edm::InputTag>("towerToken"));
-  
+
   // placeholder for the parameters
-  m_params = new CaloParams;
+  m_params = new CaloParamsHelper;
 
   // set firmware version from python config for now
   m_fwv = ps.getParameter<int>("firmware");
- 
+
 }
 
 L1TStage2Layer2Producer::~L1TStage2Layer2Producer() {
-  
+
   delete m_params;
 
 }
@@ -123,19 +123,19 @@ void
 L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  
+
   LogDebug("l1t|stage 2") << "L1TStage2Layer2Producer::produce function called..." << std::endl;
-  
-  
+
+
   //inputs
   Handle< BXVector<CaloTower> > towers;
   iEvent.getByToken(m_towerToken,towers);
-  
+
   int bxFirst = towers->getFirstBX();
   int bxLast = towers->getLastBX();
 
   LogDebug("L1TDebug") << "First BX=" << bxFirst << ", last BX=" << bxLast << std::endl;
-  
+
   //outputs
   std::auto_ptr<CaloTowerBxCollection> outTowers (new CaloTowerBxCollection(0, bxFirst, bxLast));
   std::auto_ptr<CaloClusterBxCollection> clusters (new CaloClusterBxCollection(0, bxFirst, bxLast));
@@ -147,7 +147,7 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   std::auto_ptr<TauBxCollection> taus (new TauBxCollection(0, bxFirst, bxLast));
   std::auto_ptr<JetBxCollection> jets (new JetBxCollection(0, bxFirst, bxLast));
   std::auto_ptr<EtSumBxCollection> etsums (new EtSumBxCollection(0, bxFirst, bxLast));
-  
+
   // loop over BX
   for(int ibx = bxFirst; ibx < bxLast+1; ++ibx) {
     std::auto_ptr< std::vector<CaloTower> > localTowers (new std::vector<CaloTower>);
@@ -161,7 +161,7 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     std::auto_ptr< std::vector<Tau> > localTaus (new std::vector<Tau>);
     std::auto_ptr< std::vector<Jet> > localJets (new std::vector<Jet>);
     std::auto_ptr< std::vector<EtSum> > localEtSums (new std::vector<EtSum>);
-    
+
     LogDebug("L1TDebug") << "BX=" << ibx << ", N(Towers)=" << towers->size(ibx) << std::endl;
 
     for(std::vector<CaloTower>::const_iterator tower = towers->begin(ibx);
@@ -170,20 +170,20 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       localTowers->push_back(*tower);
     }
 
-    LogDebug("L1TDebug") << "BX=" << ibx << ", N(Towers)=" << localTowers->size() << std::endl;    
+    LogDebug("L1TDebug") << "BX=" << ibx << ", N(Towers)=" << localTowers->size() << std::endl;
 
     m_processor->processEvent(*localTowers,
-			      *localOutTowers, 
-			      *localClusters, 
-			      *localMPEGammas, 
+			      *localOutTowers,
+			      *localClusters,
+			      *localMPEGammas,
 			      *localMPTaus,
 			      *localMPJets,
 			      *localMPEtSums,
-			      *localEGammas, 
+			      *localEGammas,
 			      *localTaus,
 			      *localJets,
 			      *localEtSums);
-    
+
     for(std::vector<CaloTower>::const_iterator tow = localOutTowers->begin(); tow != localOutTowers->end(); ++tow) outTowers->push_back(ibx, *tow);
     for(std::vector<CaloCluster>::const_iterator clus = localClusters->begin(); clus != localClusters->end(); ++clus) clusters->push_back(ibx, *clus);
     for(std::vector<EGamma>::const_iterator eg = localMPEGammas->begin(); eg != localMPEGammas->end(); ++eg) mpegammas->push_back(ibx, *eg);
@@ -196,10 +196,10 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     for(std::vector<EtSum>::const_iterator etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum) etsums->push_back(ibx, *etsum);
 
 
-    LogDebug("L1TDebug") << "BX=" << ibx << ", N(Cluster)=" << localClusters->size() << ", N(EG)=" << localEGammas->size() << ", N(Tau)=" << localTaus->size() << ", N(Jet)=" << localJets->size() << ", N(Sums)=" << localEtSums->size() << std::endl;    
+    LogDebug("L1TDebug") << "BX=" << ibx << ", N(Cluster)=" << localClusters->size() << ", N(EG)=" << localEGammas->size() << ", N(Tau)=" << localTaus->size() << ", N(Jet)=" << localJets->size() << ", N(Sums)=" << localEtSums->size() << std::endl;
 
   }
-  
+
   iEvent.put(outTowers, "MP");
   iEvent.put(clusters, "MP");
   iEvent.put(mpegammas, "MP");
@@ -210,17 +210,17 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   iEvent.put(taus);
   iEvent.put(jets);
   iEvent.put(etsums);
-  
+
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 L1TStage2Layer2Producer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 L1TStage2Layer2Producer::endJob() {
 }
 
@@ -234,8 +234,8 @@ L1TStage2Layer2Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
 
   // parameters
 
-  unsigned long long id = iSetup.get<L1TCaloParamsRcd>().cacheIdentifier();  
-  
+  unsigned long long id = iSetup.get<L1TCaloParamsRcd>().cacheIdentifier();
+
   if (id != m_paramsCacheId) {
 
     m_paramsCacheId = id;
@@ -244,13 +244,13 @@ L1TStage2Layer2Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
     iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
 
     // replace our local copy of the parameters with a new one using placement new
-    m_params->~CaloParams();
-    m_params = new (m_params) CaloParams(*paramsHandle.product());
-    
+    m_params->~CaloParamsHelper();
+    m_params = new (m_params) CaloParamsHelper(*paramsHandle.product());
+
     LogDebug("L1TDebug") << *m_params << std::endl;
 
     if (! m_params){
-      edm::LogError("l1t|caloStage2") << "Could not retrieve params from Event Setup" << std::endl;            
+      edm::LogError("l1t|caloStage2") << "Could not retrieve params from Event Setup" << std::endl;
     }
 
   }
@@ -258,21 +258,21 @@ L1TStage2Layer2Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
   // firmware
 
   if ( !m_processor ) { // in future, also check if the firmware cache ID has changed !
-    
+
     //     m_fwv = ; // get new firmware version in future
-    
+
     // Set the current algorithm version based on DB pars from database:
     m_processor = m_factory.create(m_fwv, m_params);
-    
+
     if (! m_processor) {
       // we complain here once per run
       edm::LogError("l1t|caloStage2") << "Firmware could not be configured.\n";
     }
-    
+
     LogDebug("L1TDebug") << "Processor object : " << (m_processor?1:0) << std::endl;
-    
+
   }
-  
+
 
 }
 
@@ -291,7 +291,7 @@ t&)
 {
 }
 */
- 
+
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void
@@ -300,7 +300,7 @@ L1TStage2Layer2Producer::endLuminosityBlock(edm::LuminosityBlock const&, edm::Ev
 {
 }
 */
- 
+
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 L1TStage2Layer2Producer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
