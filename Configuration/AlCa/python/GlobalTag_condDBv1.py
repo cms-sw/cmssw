@@ -79,7 +79,8 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
                   label      = len(entry) > 3 and entry[3] or None
                   tag        = entry[0]
                   connection = len(entry) > 2 and entry[2] or None
-                  map[ (record, label) ] = (tag, connection)
+                  snapshotTime = len(entry) > 4 and entry[4] or None
+                  map[ (record, label) ] = (tag, connection, snapshotTime)
                 custom_conditions.update( map )
             else:
                 globaltag = autoKey
@@ -109,7 +110,8 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
                 label      = len(entry) > 3 and entry[3] or None
                 tag        = entry[0]
                 connection = len(entry) > 2 and entry[2] or None
-                map[ (record, label) ] = (tag, connection)
+                snapshotTime = len(entry) > 4 and entry[4] or None
+                map[ (record, label) ] = (tag, connection, snapshotTime)
             custom_conditions.update( map )
         elif isinstance(conditions, dict):
           custom_conditions.update( conditions )
@@ -118,7 +120,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
 
     # explicit payloads toGet from DB
     if custom_conditions:
-        for ( (record, label), (tag, connection) ) in sorted(custom_conditions.iteritems()):
+        for ( (record, label), (tag, connection, snapshotTime) ) in sorted(custom_conditions.iteritems()):
             payload = cms.PSet()
             payload.record = cms.string( record )
             if label:
@@ -126,6 +128,8 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
             payload.tag = cms.string( tag )
             if connection:
                 payload.connect = cms.string( connection )
+            if snapshotTime:
+                payload.snapshotTime = cms.string (snapshotTime )
             essource.toGet.append( payload )
 
     return essource
