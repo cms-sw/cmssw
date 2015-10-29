@@ -808,10 +808,15 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
        << theAllStationHits.at(2) << " "
        << theAllStationHits.at(3) << endl;
 
+  //station shower sizes
+  MuonTransientTrackingRecHit::MuonRecHitContainer muonRecHitsPhiBest;
+  TransientTrackingRecHit::ConstRecHitContainer muonRecHitsThetaTemp, muonRecHitsThetaBest;
   // send station hits to the clustering algorithm
   for ( int stat = 0; stat != 4; stat++ ) {
     const size_t nhit = muonRecHits[stat].size();
     if (nhit < 2) continue; // Require at least 2 hits
+    muonRecHitsPhiBest.clear();
+    muonRecHitsPhiBest.reserve(nhit);
 
     // Cluster seeds by global position phi. Best cluster is chosen to give greatest dphi
     // Sort by phi (complexity = NLogN with enough memory, or = NLog^2N for insufficient mem)
@@ -829,11 +834,9 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
     }
 
     //station shower sizes
-    MuonTransientTrackingRecHit::MuonRecHitContainer muonRecHitsPhiBest;
     double dphimax = 0;
     if ( clUppers.empty() ) {
       // No gaps - there is only one cluster. Take all of them
-      muonRecHitsPhiBest.reserve(muonRecHits[stat].size());
       const double refPhi = muonRecHits[stat].at(0)->globalPosition().phi();
       double dphilo = 0, dphihi = 0;
       for ( auto& hit : muonRecHits[stat] ) {
@@ -894,10 +897,8 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
       }
 
      //for theta
-     TransientTrackingRecHit::ConstRecHitContainer muonRecHitsThetaBest;
      if (!muonCorrelatedHits.at(stat).empty()) {
 
-       TransientTrackingRecHit::ConstRecHitContainer muonRecHitsThetaTemp;
        float dthetamax = 0;
        for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator iseed = muonCorrelatedHits.at(stat).begin(); iseed != muonCorrelatedHits.at(stat).end(); ++iseed) {
            if (!(*iseed)->isValid()) continue;
