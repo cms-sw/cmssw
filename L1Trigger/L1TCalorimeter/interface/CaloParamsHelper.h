@@ -62,33 +62,18 @@ namespace l1t {
     std::vector<double> regionPUSParams() { return pnode_[regionPUS].dparams_; }
     l1t::LUT* regionPUSLUT() {return &pnode_[regionPUS].LUT_; }
 
-    // Specialty function to handle two different versions of the regionPUS info
-    // version==0 means it's a vector of doubles
-    // version==1 means it's a LUT
     int regionPUSValue(int PUM0, int eta)
     {
-      if(pnode_[regionPUS].version_ == 0)
-      {
-	int puSub = ceil(regionPUSParams()[18*eta+PUM0]*2);
-	return puSub;
-      }
-      else if (pnode_[regionPUS].version_ == 1)
-      {
-	int puSub = regionPUSLUT()->data(18*eta+PUM0);
-	return puSub;
-      }
-      else
-	return 0;
+      int puSub = ceil(regionPUSParams()[18*eta+PUM0]*2);
+      return puSub;
     }
 
     void setRegionLsb(double lsb) { regionLsb_ = lsb; }
     void setRegionPUSType(std::string type) { pnode_[regionPUS].type_ = type; }
     void setRegionPUSParams(const std::vector<double> & params) { pnode_[regionPUS].dparams_ = params; }
     void setRegionPUSLUT(const l1t::LUT & lut) { pnode_[regionPUS].LUT_ = lut; }
-    void setRegionPUSVersion(const int version) { pnode_[regionPUS].version_ = version; }
 
     // EG
-    int egNodeVersion() const { return pnode_[egPUS].version_; }
     int egEtaCut() const {
       if (pnode_[egPUS].version_ ==1)
 	return pnode_[egPUS].iparams_[0];
@@ -122,7 +107,6 @@ namespace l1t {
     std::vector<double> egCalibrationParams() { return pnode_[egCalibration].dparams_; }
     l1t::LUT* egCalibrationLUT() { return &pnode_[egCalibration].LUT_; }
 
-    void setEgNodeVersion(int version) { pnode_[egPUS].version_ = version; }
     void setEgEtaCut(int mask) {
       pnode_[egPUS].iparams_.resize(1);
       pnode_[egPUS].iparams_[0] = mask;
@@ -153,7 +137,6 @@ namespace l1t {
     void setEgCalibrationLUT(const l1t::LUT & lut) { pnode_[egCalibration].LUT_ = lut; }
 
     // tau
-    int tauPUSVersion() const { return pnode_[tauPUS].version_; }
     int tauRegionMask() const {
       if (pnode_[tauPUS].version_ ==1)
 	return pnode_[tauPUS].iparams_[0];
@@ -185,7 +168,6 @@ namespace l1t {
     unsigned tauIsoAreaNrTowersPhi()const{return taup_.isoAreaNrTowersPhi_;}
     unsigned tauIsoVetoNrTowersPhi()const{return taup_.isoVetoNrTowersPhi_;}
 
-    void setTauPUSVersion(int version) { pnode_[tauPUS].version_ = version; }
     void setTauRegionMask(int mask) {
       pnode_[tauPUS].iparams_.resize(1);
       pnode_[tauPUS].iparams_[0] = mask;
@@ -217,7 +199,6 @@ namespace l1t {
     double jetLsb() const { return jetp_.lsb_; }
     double jetSeedThreshold() const { return jetp_.seedThreshold_; }
     double jetNeighbourThreshold() const { return jetp_.neighbourThreshold_; }
-    int jetPUSVersion() const { return pnode_[jetPUS].version_; }
     int jetRegionMask() const {
       if (pnode_[jetPUS].version_ ==1)
 	return pnode_[jetPUS].iparams_[0];
@@ -233,7 +214,6 @@ namespace l1t {
     void setJetLsb(double lsb) { jetp_.lsb_ = lsb; }
     void setJetSeedThreshold(double thresh) { jetp_.seedThreshold_ = thresh; }
     void setJetNeighbourThreshold(double thresh) { jetp_.neighbourThreshold_ = thresh; }
-    void setJetPUSVersion(int version) { pnode_[jetPUS].version_ = version; }
     void setJetRegionMask(int mask) {
       pnode_[jetPUS].iparams_.resize(1);
       pnode_[jetPUS].iparams_[0] = mask;
@@ -256,7 +236,6 @@ namespace l1t {
     void setEtSumEtThreshold(unsigned isum, double thresh);
 
     // HI centrality
-    int centralityNodeVersion() const { return pnode_[hiCentrality].version_; }
     int centralityRegionMask() const {
       if(pnode_[hiCentrality].version_ == 1)
 	return pnode_[hiCentrality].iparams_[0] ;
@@ -276,7 +255,6 @@ namespace l1t {
       }
     }
     l1t::LUT * centralityLUT() { return &pnode_[hiCentrality].LUT_; }
-    void setCentralityNodeVersion(int version) { pnode_[hiCentrality].version_ = version; }
     void setCentralityRegionMask(int mask) {
       pnode_[hiCentrality].iparams_.resize(5);
       pnode_[hiCentrality].iparams_[0] = mask;

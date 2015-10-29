@@ -38,7 +38,7 @@ namespace l1t {
       std::vector<unsigned> uparams_;
       std::vector<int> iparams_;
       std::vector<std::string> sparams_;
-      Node(){ type_="unspecified"; version_=0; }
+      Node(){ type_="unspecified"; version_=1; }
       COND_SERIALIZABLE;
     };
 

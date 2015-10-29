@@ -90,21 +90,9 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   // regions
   m_params_helper.setRegionLsb(conf.getParameter<double>("regionLsb"));
   m_params_helper.setRegionPUSType(conf.getParameter<std::string>("regionPUSType"));
-  int regionVersion = conf.getParameter<int>("regionPUSVersion");
-  m_params_helper.setRegionPUSVersion(regionVersion);
-  if(regionVersion == 0) {
-    m_params_helper.setRegionPUSParams(conf.getParameter<std::vector<double> >("regionPUSParams"));
-  } else if (regionVersion == 1) {
-    edm::FileInPath regionPUSLUTFile = conf.getParameter<edm::FileInPath>("regionPUSLUTFile");
-    std::ifstream regionPUSLUTStream(regionPUSLUTFile.fullPath());
-    std::shared_ptr<LUT> regionPUSLUT( new LUT(regionPUSLUTStream) );
-    m_params_helper.setRegionPUSLUT(*regionPUSLUT);
-  } else {
-    edm::LogError("l1t|calo") << "Invalid regionPUSVersion value." << std::endl;
-  }
+  m_params_helper.setRegionPUSParams(conf.getParameter<std::vector<double> >("regionPUSParams"));
 
   // EG
-  m_params_helper.setEgNodeVersion(conf.getParameter<int>("egNodeVersion"));
   m_params_helper.setEgEtaCut(conf.getParameter<int>("egEtaCut"));
 
   m_params_helper.setEgLsb(conf.getParameter<double>("egLsb"));
@@ -172,7 +160,6 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params_helper.setEgCalibrationLUT(*egCalibrationLUT);
 
   // tau
-  m_params_helper.setTauPUSVersion(conf.getParameter<int>("tauPUSVersion"));
   m_params_helper.setTauRegionMask(conf.getParameter<int>("tauRegionMask"));
   m_params_helper.setTauLsb(conf.getParameter<double>("tauLsb"));
   m_params_helper.setTauSeedThreshold(conf.getParameter<double>("tauSeedThreshold"));
@@ -210,7 +197,6 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params_helper.setJetLsb(conf.getParameter<double>("jetLsb"));
   m_params_helper.setJetSeedThreshold(conf.getParameter<double>("jetSeedThreshold"));
   m_params_helper.setJetNeighbourThreshold(conf.getParameter<double>("jetNeighbourThreshold"));
-  m_params_helper.setJetPUSVersion(conf.getParameter<int>("jetPUSVersion"));
   m_params_helper.setJetRegionMask(conf.getParameter<int>("jetRegionMask"));
   m_params_helper.setJetPUSType(conf.getParameter<std::string>("jetPUSType"));
   m_params_helper.setJetCalibrationType(conf.getParameter<std::string>("jetCalibrationType"));
@@ -243,7 +229,6 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   std::ifstream centralityLUTStream(centralityLUTFile.fullPath());
   std::shared_ptr<LUT> centralityLUT( new LUT(centralityLUTStream) );
   m_params_helper.setCentralityLUT(*centralityLUT);
-  m_params_helper.setCentralityNodeVersion(conf.getParameter<int>("centralityNodeVersion"));
   m_params_helper.setCentralityRegionMask(conf.getParameter<int>("centralityRegionMask"));
   std::vector<int> minbiasThresholds = conf.getParameter<std::vector<int> >("minimumBiasThresholds");
   if(minbiasThresholds.size() == 4) {
