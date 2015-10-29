@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 combinedMVAComputer = cms.ESProducer("CombinedMVAJetTagESProducer",
 	useCategories = cms.bool(False),
 	calibrationRecord = cms.string('CombinedMVA'),
+        recordLabel = cms.string(''),
 	jetTagComputers = cms.VPSet(
 		cms.PSet(
 			discriminator = cms.bool(True),

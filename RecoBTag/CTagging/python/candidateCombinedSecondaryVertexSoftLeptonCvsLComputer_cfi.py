@@ -16,6 +16,7 @@ candidateCombinedSecondaryVertexSoftLeptonCvsLComputer = cms.ESProducer(
       'CombinedSVRecoVertexSoftElectronCvsL', 
       'CombinedSVPseudoVertexSoftElectronCvsL', 
       'CombinedSVNoVertexSoftElectronCvsL'),
+   recordLabel = cms.string(''),
    categoryVariableName = cms.string('vertexLeptonCategory')
 )
 
