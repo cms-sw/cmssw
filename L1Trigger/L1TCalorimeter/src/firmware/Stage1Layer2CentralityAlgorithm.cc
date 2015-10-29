@@ -73,7 +73,7 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
       regularResult = i;
     if(sumET > LUT_under[i])
       underlapResult = i;
-    if(sumET > LUT_over[i])
+    if(sumET >= LUT_over[i]) // logical expression in firmware is constructed slightly differently, but this is equivalent
       overlapResult = i;
   }
 
@@ -99,15 +99,15 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
   int numOverThresh[4] = {0};
   for(std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
     if(region->hwEta() < 4) {
-      if(region->hwPt() > thresholds.at(0))
+      if(region->hwPt() >= thresholds.at(0))
 	numOverThresh[0]++;
-      if(region->hwPt() > thresholds.at(2))
+      if(region->hwPt() >= thresholds.at(2))
 	numOverThresh[2]++;
     }
     if(region->hwEta() > 17) {
-      if(region->hwPt() > thresholds.at(1))
+      if(region->hwPt() >= thresholds.at(1))
 	numOverThresh[1]++;
-      if(region->hwPt() > thresholds.at(3))
+      if(region->hwPt() >= thresholds.at(3))
 	numOverThresh[3]++;
     }
   }
@@ -133,13 +133,13 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
       std::cout << "HF Ring Sums (Centrality)" << std::endl;
       std::cout << bitset<12>(spare->hwPt()).to_string() << std::endl;
     } else {
-      //std::cout << "Centrality" << std::endl;
-      //std::cout << std::hex << spare->hwPt() << std::endl;
-      std::cout << std::hex << spare->GetRing(0) << " "
-		<< spare->GetRing(1) << " "
-		<< bits[0] << " " << bits[1] << " "
-		<< bits[2] << " " << bits[3] << " "
-		<< bits[4] << " " << bits[5] << std::endl;
+      std::cout << "Centrality" << std::endl;
+      std::cout << std::hex << spare->hwPt() << std::endl;
+      // std::cout << std::hex << spare->GetRing(0) << " "
+      // 		<< spare->GetRing(1) << " "
+      // 		<< bits[0] << " " << bits[1] << " "
+      // 		<< bits[2] << " " << bits[3] << " "
+      // 		<< bits[4] << " " << bits[5] << std::endl;
     }
   }
 
