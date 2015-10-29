@@ -109,24 +109,11 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
     edm::Handle<std::vector<PSimHit>> simHits;
     event.getByToken(_simHitToken,simHits);
 
-    // note from lukas:
-    // a simple vector to store all tracker rechits
     std::unique_ptr<FastTrackerRecHitCollection> output_recHits(new FastTrackerRecHitCollection);
     output_recHits->reserve(simHits->size());
     
-    // note from lukas
-    // a vector or references to tracker rechits
-    // one entry per simhit
-    // each enty is to contain the reference to the rechit to the associated simhit
-    // (=> several simhits can point to the same rechit)
     edm::RefProd<FastTrackerRecHitCollection> output_recHits_refProd = event.getRefBeforePut<FastTrackerRecHitCollection>();
     std::unique_ptr<FastTrackerRecHitRefCollection> output_recHitRefs(new FastTrackerRecHitRefCollection(simHits->size(),FastTrackerRecHitRef()));
-
-    // note from lukas
-    // output_recHitRefs is partially initialised
-    // to make simHit i point to rechit j do
-    // (*output_recHitRefs)[j] = FastTrackerRecHitRef(output_recHits_refProd,output_recHits->size()-1)
-    // if you want a SimHit not to point to any RecHit, just leave the respective entry as it is, a null reference
 
     
     std::map<unsigned int,std::vector<std::pair<unsigned int,const PSimHit*>>> simHitsIdPairPerDetId;
@@ -135,10 +122,7 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
         const PSimHit* simHit = &(*simHits)[ihit];
         simHitsIdPairPerDetId[simHit->detUnitId()].push_back(std::make_pair(ihit,simHit));
     }
-
-    
-    unsigned int nRecHits = 0;
-    
+   
     for (auto simHitsIdPairIt = simHitsIdPairPerDetId.begin(); simHitsIdPairIt != simHitsIdPairPerDetId.end(); ++simHitsIdPairIt)
     {
         const DetId& detId = simHitsIdPairIt->first;
@@ -152,7 +136,6 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
             TrackingRecHitProductPtr product = std::make_shared<TrackingRecHitProduct>(detId,simHitIdPairList);
 
             product = pipe.produce(product);
-            nRecHits+=product->numberOfRecHits();
             
             const std::vector<TrackingRecHitProduct::RecHitToSimHitIdPairs>& recHitToSimHitIdPairsList = product->getRecHitToSimHitIdPairs();
             for (unsigned int irecHit = 0; irecHit < recHitToSimHitIdPairsList.size(); ++irecHit)
@@ -166,7 +149,7 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
                     {
                         throw cms::Exception("FastSimulation/TrackingRecHitProducer","A PSimHit cannot lead to multiple FastTrackerRecHits");
                     }
-                    std::cout<<"make map for isimHit="<<simHitId<<" -> "<<output_recHits->size()-1<<std::endl;
+                    //std::cout<<"make map for isimHit="<<simHitId<<" -> "<<output_recHits->size()-1<<std::endl;
                     (*output_recHitRefs)[simHitId] = FastTrackerRecHitRef(output_recHits_refProd,output_recHits->size()-1);
                 }
             }
