@@ -21,6 +21,8 @@ else :
                                 #useCSA08Kludge = cms.untracked.bool(True),
                                 fileNames = cms.untracked.vstring(<FILE>)      
                                 )
+    import FWCore.PythonUtilities.LumiList as LumiList
+    process.source.lumisToProcess = LumiList.LumiList(filename ='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/DCSOnly/json_DCSONLY.txt').getVLuminosityBlockRange()
     
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 

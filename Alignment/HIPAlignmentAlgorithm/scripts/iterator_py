@@ -26,5 +26,5 @@ scripts/submitJobs_py $1 $2 $4
 #scripts/submitJobs_py2bis $1 $2
 
 # create DB objects
-cp $odir/main/IOAlignedPositions*.root $odir/main/IOIteration.root $odir/
+cp $odir/main/IOAlignedPositions*.root $odir/main/IOIteration*.root $odir/
 #cmsRun $odir/upload_cfg.py >& $odir/upload.out

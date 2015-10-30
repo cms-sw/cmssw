@@ -30,7 +30,7 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 
-process.GlobalTag.globaltag='74X_dataRun2_Prompt_v1'
+process.GlobalTag.globaltag='74X_dataRun2_Prompt_v4'
 #if 'COSMICS'=='<FLAG>':
 #   process.GlobalTag.globaltag='74X_dataRun2_Prompt_v1'
 #else :
@@ -38,7 +38,7 @@ process.GlobalTag.globaltag='74X_dataRun2_Prompt_v1'
 
  
 process.load("FWCore.MessageService.MessageLogger_cfi")
-#process.MessageLogger.cerr.FwkReport.reportEvery = 10000
+process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 #process.MessageLogger = cms.Service("MessageLogger",
 #                                    debugModules = cms.untracked.vstring('*'),
 #                                    #cout = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
@@ -65,9 +65,14 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 
 process.GlobalTag.toGet = cms.VPSet(
    cms.PSet(record = cms.string('TrackerAlignmentRcd'),
-            tag = cms.string('TrackerAlignment_2009_v1_express'),
-#            tag = cms.string('Alignments'),
-            connect = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS')
+#            tag = cms.string('TrackerAlignment_2009_v1_express'),
+#            tag = cms.string('testTag'),
+            tag = cms.string('Alignments'),
+#            connect = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS')
+#            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/user/j/jcastle/public/pp3.8T_PCL_Alignment/Results258159/MinBias_2015/TkAlignment.db')
+#            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/develop/CMSSW_7_4_12_patch4/src/Alignment/HIPAlignmentAlgorithm/cosmic_v4/alignments_iter20.db')
+#            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/develop/CMSSW_7_4_12_patch4/src/Alignment/HIPAlignmentAlgorithm/cosmic_v3before/alignments_iter20.db')
+            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/develop/CMSSW_7_4_12_patch4/src/Alignment/HIPAlignmentAlgorithm/multiIOV.db')
             ),
 
    cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
@@ -82,14 +87,6 @@ process.GlobalTag.toGet = cms.VPSet(
 #            tag = cms.string('GlobalAlignment'),
 #            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/CMSSW_7_4_0_pre6/src/Alignment/HIPAlignmentAlgorithm/GR_P_V49_GP.db')
 #            ),
-#	 cms.PSet(record = cms.string("SiPixelTemplateDBObjectRcd"),
-#          tag = cms.string("SiPixelTemplateDBObject_0T_2015_v1_hltvalidation"),
-#          connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS"),
-#          label = cms.untracked.string("0T")
-#   cms.PSet(record = cms.string('SiPixelTemplateDBObjectRcd'),
-#            tag = cms.string('SiPixelTemplateDBObject38Tv3'),
-#            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/Inflate/CMSSW_7_4_0_pre6/src/Alignment/HIPAlignmentAlgorithm/siPixel1DTemplatesNM38T.db')
-#         )
 #   cms.PSet(record = cms.string('SiPixelTemplateDBObjectRcd'),
 #            tag = cms.string('SiPixelTemplateDBObject_38T_2015_v1'),
 #            connect = cms.untracked.string('frontier://FrontierPrep/CMS_CONDITIONS')
@@ -97,11 +94,17 @@ process.GlobalTag.toGet = cms.VPSet(
        cms.PSet(record = cms.string("SiPixelTemplateDBObjectRcd"),
                 tag = cms.string("SiPixelTemplateDBObject38Tv10"),
                connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/cayou/CMSSW_7_4_6_patch5/src/Alignment/HIPAlignmentAlgorithm/siPixel1DTemplatesNM38T.db')
-        )
-#   cms.PSet(record = cms.string('SiPixelLorentzAngleRcd'),
-#            tag = cms.string('SiPixelLorentzAngle_2015_v2'),
-#            connect = cms.untracked.string('frontier://FrontierPrep/CMS_CONDITIONS')
-#            ) 
+        ),
+   cms.PSet(record = cms.string('SiStripBackPlaneCorrectionRcd'),
+            tag = cms.string('SiStripBackPlaneCorrection_deco_GR10_v4_offline'),
+            label = cms.untracked.string('deconvolution'),
+            connect = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS')
+            ), 
+   cms.PSet(record = cms.string('SiPixelLorentzAngleRcd'),
+            tag = cms.string('SiStripLorentzAngleDeco_v3_offline'),
+            label = cms.untracked.string('deconvolution'),
+            connect = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS')
+            ) 
    )
 
 process.AlignmentProducer.applyDbAlignment = True
@@ -110,20 +113,42 @@ process.AlignmentProducer.checkDbAlignmentValidity=False
 
 ### Set parameters to align (all modules in this example)
 process.AlignmentProducer.algoConfig.multiIOV= True 
-process.AlignmentProducer.algoConfig.IOVrange=cms.vuint32(250985,251521) 
+process.AlignmentProducer.algoConfig.IOVrange=cms.vuint32(256580,257376,257968) 
+#v4
+#process.AlignmentProducer.algoConfig.IOVrange=cms.vuint32(258159) 
+#v3 after
+#process.AlignmentProducer.algoConfig.IOVrange=cms.vuint32(257376) 
+#v3 before 
+#process.AlignmentProducer.algoConfig.IOVrange=cms.vuint32(256580) 
+#runb1
+#process.AlignmentProducer.algoConfig.IOVrange=cms.vuint32(250985) 
+#runb2
+#process.AlignmentProducer.algoConfig.IOVrange=cms.vuint32(251510) 
+#runc1
+#process.AlignmentProducer.algoConfig.IOVrange=cms.vuint32(253986) 
+#runc2
+#process.AlignmentProducer.algoConfig.IOVrange=cms.vuint32(254656) 
 
 process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
                                                     alignParams = cms.vstring(
 
-      'TrackerTPBModule,111111',
-      'TrackerTPEModule,111111'
-#      'TrackerTIBModuleUnit,101111',
-#      'TrackerTOBModuleUnit,101111',
-#      'TrackerTIDModuleUnit,111111',
-#      'TrackerTECModuleUnit,111111'
+      'TrackerTPBModule,101111',
+      'TrackerTPEModule,111111',
+      'TrackerTIBModule,101111',
+      'TrackerTOBModule,101111',
+      'TrackerTIDModule,110111',
+      'TrackerTECModule,100111'
+
+#      'TrackerTPBModule,111111',
+#      'TrackerTPEModule,111111',
+#      'TrackerTIBModule,111111',
+#      'TrackerTOBModule,111111',
+#      'TrackerTIDModule,111111',
+#      'TrackerTECModule,111111'
+
+#      'TrackerTPEEndcap,111111',
 
 #      'TrackerTPBHalfBarrel,111111',
-#      'TrackerTPEEndcap,111111',
 #      'TrackerTPEHalfCylinder,111111',
 #      'TrackerTIBHalfBarrel,111111',
 #      'TrackerTOBHalfBarrel,111111',

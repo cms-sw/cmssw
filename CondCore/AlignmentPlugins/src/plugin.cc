@@ -45,6 +45,7 @@
 #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentErrorRcd.h"
 
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EBAlignmentErrorExtendedRcd.h"
@@ -88,6 +89,7 @@ REGISTER_PLUGIN(ZDCAlignmentRcd,Alignments);
 REGISTER_PLUGIN(ZDCAlignmentErrorRcd,AlignmentErrors);
 REGISTER_PLUGIN(TrackerAlignmentErrorRcd,AlignmentErrors);
 REGISTER_PLUGIN(TrackerAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
+REGISTER_PLUGIN(TrackerSurveyErrorExtendedRcd,SurveyErrors);
 REGISTER_PLUGIN(DTAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(CSCAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(EBAlignmentErrorExtendedRcd,AlignmentErrorsExtended);

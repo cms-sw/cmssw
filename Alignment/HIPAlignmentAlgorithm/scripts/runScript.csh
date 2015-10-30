@@ -6,7 +6,7 @@ set workdir = $1
 # The batch job directory (will vanish after job end):
 set curdir = `pwd`
 
-cp <ODIR>/../main/IOIteration.root $curdir/.
+cp <ODIR>/../main/IOIteration*.root $curdir/.
 cp <ODIR>/../main/IOAlignedPositions*.root $curdir/. 
 
 # printing

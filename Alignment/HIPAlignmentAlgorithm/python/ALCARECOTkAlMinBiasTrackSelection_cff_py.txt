@@ -1,5 +1,7 @@
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    #input = cms.untracked.int32(200000)
+    input = cms.untracked.int32(120000)
+    #input = cms.untracked.int32(10000)
 )
 
 import RecoTracker.TrackProducer.TrackRefitters_cff
@@ -89,7 +91,24 @@ process.AlignmentTrackSelector.applyIsolationCut = False
 process.AlignmentTrackSelector.minHitIsolation = 0.8
 process.AlignmentTrackSelector.applyChargeCheck = False 
 process.AlignmentTrackSelector.minHitChargeStrip = 30.
-
+process.AlignmentTrackSelector.minHitsPerSubDet   = cms.PSet(
+         inTEC = cms.int32(0),
+         inTOB = cms.int32(0),
+         inFPIX = cms.int32(0),
+         inTID = cms.int32(0),
+         inBPIX = cms.int32(0),
+         inTIB = cms.int32(0),
+         inPIXEL = cms.int32(1),
+         inTIDplus = cms.int32(0),
+         inTIDminus = cms.int32(0),
+         inTECplus = cms.int32(0),
+         inTECminus = cms.int32(0),
+         inFPIXplus = cms.int32(0),
+         inFPIXminus = cms.int32(0),
+         inENDCAP = cms.int32(0),
+         inENDCAPplus = cms.int32(0),
+         inENDCAPminus = cms.int32(0),
+     )
 process.oneGoodVertexFilter = cms.EDFilter("VertexSelector",
                                            src = cms.InputTag("offlinePrimaryVertices"),
                                            cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"), # tracksSize() > 3 for the older cut

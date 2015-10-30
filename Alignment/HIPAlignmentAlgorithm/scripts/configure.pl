@@ -112,31 +112,31 @@ foreach $iov ( @iovInput1) {
 	chomp($iov);
 	$k++;
 	system( "
-	cp python/initial_tpl_py.txt $odir/main/initial_cfg_$iov.py;
-	cp python/collect_tpl_py.txt $odir/main/collect_cfg_$iov.py;
-	cp scripts/runScript.csh $odir/main/runScript_$iov.csh;
-	cp python/upload_tpl_py.txt $odir/upload_cfg_$iov.py;
+	cp python/initial_tpl_py.txt $odir/main/initial_cfg_$k.py;
+	cp python/collect_tpl_py.txt $odir/main/collect_cfg_$k.py;
+	cp scripts/runScript.csh $odir/main/runScript_$k.csh;
+	cp python/upload_tpl_py.txt $odir/upload_cfg_$k.py;
 	" );
 	# run script
   ## setting up initial job
-   replace( "$odir/main/initial_cfg_$iov.py", "<PATH>", "$odir" );
-   insertBlock( "$odir/main/initial_cfg_$iov.py", "<COMMON>", @commonFileInput );
-   replace( "$odir/main/initial_cfg_$iov.py", "<FLAG>", "" );	
-   replace( "$odir/main/initial_cfg_$iov.py", "<iovrun>", "$iov" );	
+   replace( "$odir/main/initial_cfg_$k.py", "<PATH>", "$odir" );
+   insertBlock( "$odir/main/initial_cfg_$k.py", "<COMMON>", @commonFileInput );
+   replace( "$odir/main/initial_cfg_$k.py", "<FLAG>", "" );	
+   replace( "$odir/main/initial_cfg_$k.py", "<iovrun>", "$iov" );	
    ## setting up collector job
-   replace( "$odir/main/collect_cfg_$iov.py", "<PATH>", "$odir" );
-   replace( "$odir/main/collect_cfg_$iov.py", "<JOBS>", "$j" );
-   insertBlock( "$odir/main/collect_cfg_$iov.py", "<COMMON>", @commonFileInput );
-   replace( "$odir/main/collect_cfg_$iov.py", "<FLAG>", "" );	
-   replace( "$odir/main/collect_cfg_$iov.py", "<iovrun>", "$iov" );	
-	 replace( "$odir/main/runScript_$iov.csh", "<ODIR>", "$odir/main" );
-	 replace( "$odir/main/runScript_$iov.csh", "<JOBTYPE>", "collect_cfg_$iov.py" );
+   replace( "$odir/main/collect_cfg_$k.py", "<PATH>", "$odir" );
+   replace( "$odir/main/collect_cfg_$k.py", "<JOBS>", "$j" );
+   insertBlock( "$odir/main/collect_cfg_$k.py", "<COMMON>", @commonFileInput );
+   replace( "$odir/main/collect_cfg_$k.py", "<FLAG>", "" );	
+   replace( "$odir/main/collect_cfg_$k.py", "<iovrun>", "$iov" );	
+	 replace( "$odir/main/runScript_$k.csh", "<ODIR>", "$odir/main" );
+	 replace( "$odir/main/runScript_$k.csh", "<JOBTYPE>", "collect_cfg_$k.py" );
    ## setting up upload job
-   replace( "$odir/upload_cfg_$iov.py", "<PATH>", "$odir" );
-   replace( "$odir/upload_cfg_$iov.py", "<iovrun>", "$iov" );
-   insertBlock( "$odir/upload_cfg_$iov.py", "<COMMON>", @commonFileInput );
+   replace( "$odir/upload_cfg_$k.py", "<PATH>", "$odir" );
+   replace( "$odir/upload_cfg_$k.py", "<iovrun>", "$iov" );
+   insertBlock( "$odir/upload_cfg_$k.py", "<COMMON>", @commonFileInput );
 #	close OUTFILE;
-  system "chmod a+x $odir/main/runScript_$iov.csh";
+  system "chmod a+x $odir/main/runScript_$k.csh";
 }
 
 
