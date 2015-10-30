@@ -112,8 +112,8 @@ namespace evf{
       FastMonitoringService(const edm::ParameterSet&,edm::ActivityRegistry&);
       ~FastMonitoringService();
      
-      std::string makePathLegenda();
-      std::string makeModuleLegenda();
+      std::string makePathLegendaJson();
+      std::string makeModuleLegendaJson();
 
       void preallocate(edm::service::SystemBounds const&);
       void jobFailure();
@@ -258,8 +258,11 @@ namespace evf{
       std::atomic<unsigned long> totalEventsProcessed_;
 
       std::string moduleLegendFile_;
+      std::string moduleLegendFileJson_;
       std::string pathLegendFile_;
+      std::string pathLegendFileJson_;
       bool pathLegendWritten_ = false;
+      unsigned int nOutputModules_ =0;
 
       std::atomic<bool> monInit_;
       bool exception_detected_ = false;
