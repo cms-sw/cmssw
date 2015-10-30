@@ -158,7 +158,7 @@ class seqdict:
         splitdict[skey][key] = self.dict[key]
     return splitdict
   def swap(self):
-    tmp = self.__class__(map(lambda (x,y):(y,x),self.items()))
+    tmp = self.__class__(map(lambda x_y:(x_y[1],x_y[0]),self.items()))
     self.list,self.dict = tmp.list,tmp.dict
   def update(self,newdict):
     for key,value in newdict.items():

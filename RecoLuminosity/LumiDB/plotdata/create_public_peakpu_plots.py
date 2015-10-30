@@ -126,10 +126,11 @@ def GetXLocator(ax):
 
 ######################################################################
 
-def TweakPlot(fig, ax, (time_begin, time_end),
+def TweakPlot(fig, ax, time_range,
               add_extra_head_room=False):
 
     # Fiddle with axes ranges etc.
+    (time_begin, time_end) = time_range
     ax.relim()
     ax.autoscale_view(False, True, True)
     for label in ax.get_xticklabels():
