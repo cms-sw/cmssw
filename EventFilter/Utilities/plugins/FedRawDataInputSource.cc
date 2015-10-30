@@ -84,6 +84,16 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   setRunAuxiliary(new edm::RunAuxiliary(runNumber_, edm::Timestamp::beginOfTime(),
 					edm::Timestamp::invalidTimestamp()));
 
+  std::string defPathSuffix = "src/EventFilter/Utilities/plugins/budef.jsd";
+  defPath_ = std::string(getenv("CMSSW_BASE")) + "/" + defPathSuffix;
+  struct stat statbuf;
+  if (stat(defPath_.c_str(), &statbuf)) {
+    defPath_ = std::string(getenv("CMSSW_RELEASE_BASE")) + "/" + defPathSuffix;
+    if (stat(defPath_.c_str(), &statbuf)) {
+      defPath_ = defPathSuffix;
+    }
+  }
+
   dpd_ = new DataPointDefinition();
   std::string defLabel = "data";
   DataPointDefinition::getDataPointDefinitionFor(defPath_, dpd_,&defLabel);
