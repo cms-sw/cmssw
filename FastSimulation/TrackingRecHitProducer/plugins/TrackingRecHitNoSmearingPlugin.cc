@@ -15,7 +15,9 @@ class TrackingRecHitNoSmearingPlugin:
     public TrackingRecHitAlgorithm
 {
     private:
-        double _error2;
+        double _errorXX;
+        double _errorXY;
+        double _errorYY;
     public:
         TrackingRecHitNoSmearingPlugin(
             const std::string& name,
@@ -23,12 +25,23 @@ class TrackingRecHitNoSmearingPlugin:
             edm::ConsumesCollector& consumesCollector
         ):
             TrackingRecHitAlgorithm(name,config,consumesCollector),
-            _error2(0.001*0.001)
+            _errorXX(0.001*0.001),
+            _errorXY(0.0),
+            _errorYY(0.001*0.001)
         {
-            if (config.exists("error"))
+            if (config.exists("errorXX"))
             {
-                _error2 = config.getParameter<double>("error");
-                _error2*=_error2;
+                _errorXX = config.getParameter<double>("errorXX");
+            }
+            
+            if (config.exists("errorXY"))
+            {
+                _errorXY = config.getParameter<double>("errorXY");
+            }
+            
+            if (config.exists("errorYY"))
+            {
+                _errorYY = config.getParameter<double>("errorYY");
             }
         }
 
@@ -40,7 +53,7 @@ class TrackingRecHitNoSmearingPlugin:
             {
                 const PSimHit* simHit = simHitIdPair.second;
                 const Local3DPoint& position = simHit->localPosition();
-                LocalError error(_error2,_error2,_error2);
+                LocalError error(_errorXX,_errorXY,_errorYY);
                 const GeomDet* geomDet = getTrackerGeometry().idToDetUnit(product->getDetId());
 
                 //TODO: this is only a minimal example

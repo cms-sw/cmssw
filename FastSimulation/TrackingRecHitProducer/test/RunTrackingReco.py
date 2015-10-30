@@ -32,7 +32,10 @@ process.recHitProducerSimple=cms.EDProducer("TrackingRecHitProducer",
         cms.PSet(
             name = cms.string("smearing"),
             type=cms.string("TrackingRecHitNoSmearingPlugin"),
-            select=cms.string("subdetId==BPX")
+            select=cms.string("subdetId==BPX"),
+            errorXX = cms.double(0.0005*0.0005),
+            errorYY = cms.double(0.0005*0.0005),
+            errorXY = cms.double(0.0),
         )
     )
 )

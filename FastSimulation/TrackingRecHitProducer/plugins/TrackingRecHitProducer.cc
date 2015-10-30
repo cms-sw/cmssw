@@ -169,7 +169,7 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
 
     // note from lukas:
     // all rechits need a unique id numbers
-    for(unsigned recHitIndex = 0,nRecHits = output_recHits->size();recHitIndex < nRecHits;nRecHits++)
+    for(unsigned recHitIndex = 0; recHitIndex < output_recHits->size(); ++recHitIndex)
     {
 	    ((FastSingleTrackerRecHit*)&(*output_recHits)[recHitIndex])->setId(recHitIndex);
     }
