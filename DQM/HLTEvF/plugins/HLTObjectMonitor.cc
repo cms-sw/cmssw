@@ -566,7 +566,7 @@ HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	     }
 
 	   //b-tagging CSV information
-	   if (pathName == bJetCSVPF_.pathNameOR)
+	   if (pathName == bJetCSVPF_.pathName)
 	     {
 	       edm::Handle<reco::JetTagCollection> csvPfTags;
 	       iEvent.getByToken(csvPfTagsToken_, csvPfTags);
