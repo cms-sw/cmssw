@@ -67,7 +67,7 @@ class SiStripTrackerMapCreator {
   int16_t cached_layer;
   TkLayerMap::XYbin cached_XYbin;
   bool topModules;
-  int32_t numTopModules;
+  uint32_t numTopModules;
   std::string topModLabel;
 };
 #endif
