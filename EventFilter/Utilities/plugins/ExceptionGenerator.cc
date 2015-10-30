@@ -145,7 +145,7 @@ namespace evf{
     gettimeofday(&tv_start_,0);
   }
 
-  void ExceptionGenerator::analyze(const edm::Event & e, const edm::EventSetup& c)
+  void __attribute__((optimize("O0"))) ExceptionGenerator::analyze(const edm::Event & e, const edm::EventSetup& c)
     {
       float dummy = 0.;
       unsigned int iterations = 0;
