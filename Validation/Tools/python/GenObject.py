@@ -67,7 +67,7 @@ class GenObject (object):
                                types.string] )
     _defaultValue      = dict ( {types.float  : 0.,
                                  types.int    : 0,
-                                 types.long   : 0L,
+                                 types.long   : 0,
                                  types.string : '""' } )
     _objsDict          = {} # info about GenObjects
     _equivDict         = {} # hold info about 'equivalent' muons
