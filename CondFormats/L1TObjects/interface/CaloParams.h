@@ -212,10 +212,6 @@ namespace l1t {
     CaloParams() { version_=Version; pnode_.resize(NUM_CALOPARAMNODES); }
     ~CaloParams() {}
 
-    // print parameters to stream:
-    void print(std::ostream&) const;
-    friend std::ostream& operator<<(std::ostream& o, const CaloParams & p) { p.print(o); return o; }
-
   protected:
     unsigned version_;
 
