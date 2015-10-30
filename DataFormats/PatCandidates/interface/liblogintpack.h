@@ -13,9 +13,9 @@ namespace logintpack
         int8_t pack8logCeil(double x,double lmin, double lmax, uint8_t base=128)
         {
                 if(base>128) base=128;
-                float l =log(fabs(x));
-                float centered = (l-lmin)/(lmax-lmin)*base;
-                int8_t  r=ceil(centered);
+                const double l = std::log(std::abs(x));
+                const double centered = (l-lmin)/(lmax-lmin)*base;
+                int8_t  r=std::ceil(centered);
                 if(centered >= base-1) r=base-1;
                 if(centered < 0) r=0;
                 if(x<0) r = r==0 ? -1 : -r;
@@ -25,8 +25,8 @@ namespace logintpack
 	int8_t pack8log(double x,double lmin, double lmax, uint8_t base=128)
 	{
 	        if(base>128) base=128;
-		float l =log(fabs(x));
-		float centered = (l-lmin)/(lmax-lmin)*base;
+		const double l = std::log(std::abs(x));
+		const double centered = (l-lmin)/(lmax-lmin)*base;
 		int8_t  r=centered;
 		if(centered >= base-1) r=base-1;
 		if(centered < 0) r=0;
@@ -39,8 +39,8 @@ namespace logintpack
 	int8_t pack8logClosed(double x,double lmin, double lmax, uint8_t base=128)
 	{
 	        if(base>128) base=128;
-		float l =log(fabs(x));
-		float centered = (l-lmin)/(lmax-lmin)*(base-1);
+		const double l = std::log(std::abs(x));
+		const double centered = (l-lmin)/(lmax-lmin)*(base-1);
 		int8_t  r=round(centered);
 		if(centered >= base-1) r=base-1;
 		if(centered < 0) r=0;
@@ -52,9 +52,9 @@ namespace logintpack
 	double unpack8log(int8_t i,double lmin, double lmax, uint8_t base=128)
 	{
 	        if(base>128) base=128;
-	        float basef=base;
-		float l=lmin+abs(i)/basef*(lmax-lmin);
-		float val=exp(l);
+	        const double basef=base;
+		const double l=lmin+std::abs(i)/basef*(lmax-lmin);
+		const double val=std::exp(l);
 		if(i<0) return -val; else return val;
 	}
 
@@ -62,10 +62,10 @@ namespace logintpack
 	double unpack8logClosed(int8_t i,double lmin, double lmax, uint8_t base=128)
 	{
 	        if(base>128) base=128;
-	        float basef=base-1;
-		float l=lmin+abs(i)/basef*(lmax-lmin);
-                if (abs(i) == base-1) l = lmax;
-		float val=exp(l);
+	        const double basef=base-1;
+		double l=lmin+std::abs(i)/basef*(lmax-lmin);
+		if (std::abs(i) == base-1) l = lmax;
+		const double val=std::exp(l);
 		if(i<0) return -val; else return val;
 	}
 
