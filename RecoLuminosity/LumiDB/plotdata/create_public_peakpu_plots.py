@@ -369,7 +369,7 @@ if __name__ == "__main__":
             print "Cache file path does not exist: creating it"
         try:
             os.makedirs(path_name)
-        except Exception, err:
+        except Exception as err:
             print >> sys.stderr, \
                   "ERROR Could not create cache dir: %s" % path_name
             sys.exit(1)

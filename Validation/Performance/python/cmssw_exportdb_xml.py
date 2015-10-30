@@ -316,7 +316,7 @@ def write_xml(xml_doc, remotedir,xmlFileName):
 		print copy_cmd
 		os.system(copy_cmd)
 		print "Successfully copied XML report %s to stage directory %s"%(xmlFileName,remotedir)
-	except Exception,e :
+	except Exception as e :
 		print "Issues with copying XML report %s to stage directory %s!\n%s"%(xmlFileName,remotedir,str(e))
 	#os.system("cd -") #just in case...
 		

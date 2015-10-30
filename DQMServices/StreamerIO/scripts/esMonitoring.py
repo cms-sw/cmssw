@@ -417,7 +417,7 @@ def launch_monitoring(args):
 
             log("Open gzip log file: %s" % args.zlog)
             zlog = zlog_
-        except Exception, e:
+        except Exception as e:
             log("Failed to setup zlog file: " + str(e))
 
     es.update_doc({ "pid": p.pid })
@@ -432,7 +432,7 @@ def launch_monitoring(args):
     try:
         #manager.event_loop(timeout=5, exit_fd=p.stdout.fileno())
         asyncore.loop(timeout=5)
-    except select.error, e:
+    except select.error as e:
         # we have this on ctrl+c
         # just terminate the child
         log("Select error (we will terminate): " + str(e))

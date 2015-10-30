@@ -77,10 +77,10 @@ class DBCopy(object):
             
             source_transaction.commit()
             dest_transaction.commit()
-        except Exception, e:
+        except Exception as e:
             source_transaction.rollback()
             dest_transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
 
     def copyTrees( self, treenames ):
         """copy tree from an external source.
@@ -176,10 +176,10 @@ class DBCopy(object):
 	      dest_transaction.commit()
 	      #fix leaf node links
 	      desttree.replaceLeafLinks(tagiddict)
-        except Exception, e:
+        except Exception as e:
             source_transaction.rollback()
             dest_transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
           		
 	
     def copyDB( self ):
@@ -195,9 +195,9 @@ class DBCopy(object):
            source_transaction.start(True)
 	   tablelist=list(self.__sourcesession.nominalSchema().listTables())
 	   source_transaction.commit()
-	except Exception, e:
+	except Exception as e:
 	   source_transaction.rollback()
-	   raise Exception, str(e)
+	   raise Exception(str(e))
 	try:
 	   i = tablelist.index(CommonUtils.inventoryTableName())
 	   alltablelist.append(CommonUtils.inventoryTableName())
@@ -256,10 +256,10 @@ class DBCopy(object):
 	    del source_query
 	    source_transaction.commit()
 	    dest_transaction.commit()
-        except Exception, e:
+        except Exception as e:
             source_transaction.rollback()
             dest_transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
 
 if __name__ == "__main__":
     #context = coral.Context()
@@ -279,7 +279,7 @@ if __name__ == "__main__":
         dbcp.copyTrees(treenames)
         del sourcesession
         del destsession
-    except Exception, e:
+    except Exception as e:
         print "Failed in unit test"
         print str(e)
         del sourcesession
@@ -295,7 +295,7 @@ if __name__ == "__main__":
         dbcp.copyDB()
         del sourcesession
         del destsession
-    except Exception, e:
+    except Exception as e:
         print "Failed in unit test"
         print str(e)
         del sourcesession

@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
     options, args = parser.parse_args()
     if not 1 <= len (args) <= 2:
-        raise RuntimeError, "Must give directory and log file prefix"
+        raise RuntimeError("Must give directory and log file prefix")
     logfilePrefix = percentRE.sub ('*', args[0])
     if logfilePrefix[-1] != '*':
         logfilePrefix += '*'

@@ -3,7 +3,7 @@ import os
 import string
 try:
     import cx_Oracle
-except ImportError, e:
+except ImportError as e:
     print "Cannot import cx_Oracle:", e
 	
 #global varables

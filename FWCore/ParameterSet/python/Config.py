@@ -461,14 +461,14 @@ class Process(object):
         self._validateSequence(mod, name)
         try:
             self._place(name, mod, self.__paths)
-        except ModuleCloneError, msg:
+        except ModuleCloneError as msg:
             context = format_outerframe(4)
             raise Exception("%sThe module %s in path %s is unknown to the process %s." %(context, msg, name, self._Process__name))
     def _placeEndPath(self,name,mod):
         self._validateSequence(mod, name)
         try:
             self._place(name, mod, self.__endpaths)
-        except ModuleCloneError, msg:
+        except ModuleCloneError as msg:
             context = format_outerframe(4)
             raise Exception("%sThe module %s in endpath %s is unknown to the process %s." %(context, msg, name, self._Process__name))
     def _placeSequence(self,name,mod):
@@ -1021,7 +1021,7 @@ class ProcessFragment(object):
 class FilteredStream(dict):
     """a dictionary with fixed keys"""
     def _blocked_attribute(obj):
-        raise AttributeError, "An FilteredStream defintion cannot be modified after creation."
+        raise AttributeError("An FilteredStream defintion cannot be modified after creation.")
     _blocked_attribute = property(_blocked_attribute)
     __setattr__ = __delitem__ = __setitem__ = clear = _blocked_attribute
     pop = popitem = setdefault = update = _blocked_attribute

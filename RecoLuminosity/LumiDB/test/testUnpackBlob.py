@@ -67,7 +67,7 @@ def beamintensityForRun(dbsession,c,runnum):
                         print '%4d,%4d,%4d,%.3e,%.3e'%(cmslsnum,pos,bxidx,beam1intensityarray[pos],beam2intensityarray[pos])
         del query
         dbsession.transaction().commit()
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession    
@@ -133,7 +133,7 @@ def detailForRun(dbsession,c,runnum,algos=['OCC1']):
         del query
         dbsession.transaction().commit()
         
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -174,7 +174,7 @@ def detailForRunLumisummaryV2(dbsession,c,runnum):
         del query
         dbsession.transaction().commit()
         
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession

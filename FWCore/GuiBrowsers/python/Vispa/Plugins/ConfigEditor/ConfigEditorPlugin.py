@@ -10,7 +10,7 @@ from Vispa.Main.Exceptions import PluginIgnoredException
 
 try:
     from Vispa.Plugins.ConfigEditor.ConfigDataAccessor import ConfigDataAccessor
-except Exception,e:
+except Exception as e:
     raise PluginIgnoredException("cannot import CMSSW: " + str(e))
 
 from Vispa.Plugins.ConfigEditor.ConfigEditorTab import ConfigEditorTab
