@@ -144,7 +144,7 @@ def createLogFiles(rulesResult, logsDir, ib):
             ruleResult = rulesResult[ruleName]
             for package, packageResult in ruleResult:
                 logsDir = join(logDir, package)
-                if not os.path.exists(logsDir): os.makedirs(logsDir, 0755)
+                if not os.path.exists(logsDir): os.makedirs(logsDir, 0o755)
                 file = open(join(logsDir, "log.html"), 'a')
                 file.write('Rule %s'%ruleName)
                 file.write("<br/>")

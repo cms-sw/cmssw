@@ -114,7 +114,7 @@ class Sample:
       scriptFile = open( scriptPath, "w" )
       scriptFile.write( scriptTemplate%repMap )
       scriptFile.close()
-      os.chmod(scriptPath, 0755)
+      os.chmod(scriptPath, 0o755)
       return scriptPath
    
    def createDQMExtract(self, path):

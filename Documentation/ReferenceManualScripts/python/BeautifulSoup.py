@@ -555,10 +555,10 @@ class Tag(PageElement):
         self.escapeUnrecognizedEntities = parser.escapeUnrecognizedEntities
 
         # Convert any HTML, XML, or numeric entities in the attribute values.
-        convert = lambda(k, val): (k,
+        convert = lambda k_val: (k_val[0],
                                    re.sub("&(#\d+|#x[0-9a-fA-F]+|\w+);",
                                           self._convertEntities,
-                                          val))
+                                          k_val[1]))
         self.attrs = map(convert, self.attrs)
 
     def getString(self):
@@ -656,7 +656,7 @@ class Tag(PageElement):
         """Calling a tag like a function is the same as calling its
         findAll() method. Eg. tag('a') returns a list of all the A tags
         found within this tag."""
-        return apply(self.findAll, args, kwargs)
+        return self.findAll(*args, **kwargs)
 
     def __getattr__(self, tag):
         #print "Getattr %s.%s" % (self.__class__, tag)
@@ -1824,7 +1824,7 @@ class UnicodeDammit:
                                                       "iso-8859-1",
                                                       "iso-8859-2"):
             markup = re.compile("([\x80-\x9f])").sub \
-                     (lambda(x): self._subMSChar(x.group(1)),
+                     (lambda x: self._subMSChar(x.group(1)),
                       markup)
 
         try:

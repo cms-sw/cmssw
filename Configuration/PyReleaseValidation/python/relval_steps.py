@@ -268,9 +268,9 @@ baseDataSetRelease=[
     'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1',              # 2 for fastsim id test
 #    'CMSSW_7_1_0_pre5-START71_V1-v2',                      # 3 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                                             # THIS ABOVE IS NOT USED, AT THE MOMENT
-    'CMSSW_7_6_0_pre6-76X_mcRun2_asymptotic_v4-v1',         # 3 - 13 TeV samples with GEN-SIM from 750_p4; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
+    'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',         # 3 - 13 TeV samples with GEN-SIM from 750_p4; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',                   # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    'CMSSW_7_6_0_pre7-PU25ns_76X_mcRun2_asymptotic_v5-v1',         # 5 - fullSim PU 25ns premix
+    'CMSSW_7_6_0_pre7-PU25ns_76X_mcRun2_asymptotic_v9_realBS-v1',         # 5 - fullSim PU 25ns premix
     'CMSSW_7_6_0_pre7-PU50ns_76X_mcRun2_startup_v5-v1',            # 6 - fullSim PU 50ns premix
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v6_FastSim-v1',        # 7 - fastSim MinBias for mixing
     'CMSSW_7_6_0_pre5-PU25ns_76X_mcRun2_asymptotic_v1_FastSim-v1', # 8 - fastSim premixed MinBias
