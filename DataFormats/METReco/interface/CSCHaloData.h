@@ -56,6 +56,9 @@ namespace reco {
     short int NFlatHaloSegments() const{ return nFlatHaloSegments; }
     bool GetSegmentsInBothEndcaps() const{ return segments_in_both_endcaps; }
     bool GetSegmentIsCaloMatched() const{ return segmentiscalomatched; }
+    bool GetSegmentIsHCaloMatched() const{ return segmentisHcalomatched; }
+    bool GetSegmentIsEBCaloMatched() const{ return segmentisEBcalomatched; }
+    bool GetSegmentIsEECaloMatched() const{ return segmentisEEcalomatched; }
     // End MLR
     short int NFlatHaloSegments_TrkMuUnVeto() const{ return nFlatHaloSegments_TrkMuUnVeto; }
     bool GetSegmentsInBothEndcaps_Loose_TrkMuUnVeto() const{ return segments_in_both_endcaps_loose_TrkMuUnVeto;}
@@ -96,6 +99,9 @@ namespace reco {
     void SetSegmentsBothEndcaps_Loose_TrkMuUnVeto(bool b) { segments_in_both_endcaps_loose_TrkMuUnVeto = b; }
     void SetSegmentsBothEndcaps_Loose_dTcut_TrkMuUnVeto(bool b) { segments_in_both_endcaps_loose_dtcut_TrkMuUnVeto = b; }
     void SetSegmentIsCaloMatched(bool b) { segmentiscalomatched = b; }
+    void SetSegmentIsHCaloMatched(bool b) { segmentisHcalomatched = b; }
+    void SetSegmentIsEBCaloMatched(bool b) { segmentisEBcalomatched = b;} 
+    void SetSegmentIsEECaloMatched(bool b) { segmentisEEcalomatched = b; }
 
   private:
     edm::RefVector<reco::TrackCollection> TheTrackRefs;
@@ -134,6 +140,10 @@ namespace reco {
     bool segments_in_both_endcaps_loose_TrkMuUnVeto;
     bool segments_in_both_endcaps_loose_dtcut_TrkMuUnVeto;
     bool segmentiscalomatched ;
+    bool segmentisHcalomatched;
+    bool segmentisEBcalomatched;
+    bool segmentisEEcalomatched;
+
   };
 
 
