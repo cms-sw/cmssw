@@ -21,9 +21,9 @@ using namespace jsoncollector;
 
 constexpr double throughputFactor() {return (1000000)/double(1024*1024);}
 
-#define NRESERVEDMODULES 33
-#define NSPECIALMODULES 7
-#define NRESERVEDPATHS 1
+static const int nReservedModules = 64;
+static const int nSpecialModules = 7;
+static const int nReservedPaths = 1;
 
 namespace evf{
 
@@ -37,7 +37,7 @@ namespace evf{
   FastMonitoringService::FastMonitoringService(const edm::ParameterSet& iPS, 
 				       edm::ActivityRegistry& reg) : 
     MicroStateService(iPS,reg)
-    ,encModule_(NRESERVEDMODULES)
+    ,encModule_(nReservedModules)
     ,nStreams_(0)//until initialized
     ,sleepTime_(iPS.getUntrackedParameter<int>("sleepTime", 1))
     ,fastMonIntervals_(iPS.getUntrackedParameter<unsigned int>("fastMonIntervals", 1))
@@ -88,8 +88,8 @@ namespace evf{
   std::string FastMonitoringService::makePathLegendaJson() {
     Json::Value legendaVector(Json::arrayValue);
     for(int i = 0; i < encPath_[0].current_; i++)
-      legendaVector.append(Json::Value(*((std::string *)(encPath_[0].decode(i)))));
-    Json::Value valReserved(NRESERVEDPATHS);
+      legendaVector.append(Json::Value(*((const std::string *)(encPath_[0].decode(i)))));
+    Json::Value valReserved(nReservedPaths);
     Json::Value pathLegend;
     pathLegend["names"]=legendaVector;
     pathLegend["reserved"]=valReserved;
@@ -101,8 +101,8 @@ namespace evf{
     Json::Value legendaVector(Json::arrayValue);
     for(int i = 0; i < encModule_.current_; i++)
        legendaVector.append(Json::Value(((const edm::ModuleDescription *)(encModule_.decode(i)))->moduleLabel()));
-    Json::Value valReserved(NRESERVEDMODULES);
-    Json::Value valSpecial(NSPECIALMODULES);
+    Json::Value valReserved(nReservedModules);
+    Json::Value valSpecial(nSpecialModules);
     Json::Value valOutputModules(nOutputModules_);
     Json::Value moduleLegend;
     moduleLegend["names"]=legendaVector;
