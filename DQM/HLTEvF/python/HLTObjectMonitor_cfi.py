@@ -214,8 +214,8 @@ hltObjectMonitor = cms.EDAnalyzer('HLTObjectMonitor',
         plotLabel = cms.string("JetAK8_Pt"),
         mainWorkspace = cms.bool(True),
         NbinsX = cms.int32(75),
-        Xmin = cms.double(150),
-        Xmax = cms.double(550)
+        Xmin = cms.double(300),
+        Xmax = cms.double(750)
         ),
     jetAK8Mass = cms.PSet(
         pathName = cms.string(jetAk8_pathName),
@@ -255,7 +255,7 @@ hltObjectMonitor = cms.EDAnalyzer('HLTObjectMonitor',
         mainWorkspace = cms.bool(True),
         NbinsX = cms.int32(60),
         Xmin = cms.double(50),
-        Xmax = cms.double(550)
+        Xmax = cms.double(250)
         ),
     caloMetPhi = cms.PSet(
         pathName = cms.string(caloMet_pathName),
@@ -390,7 +390,7 @@ hltObjectMonitor = cms.EDAnalyzer('HLTObjectMonitor',
         axisLabel = cms.string("di-electron mass [GeV]"),
         mainWorkspace = cms.bool(True),
         NbinsX = cms.int32(50),
-        Xmin = cms.double(60),
+        Xmin = cms.double(0),
         Xmax = cms.double(160)
         ),
     muonDxy = cms.PSet(
