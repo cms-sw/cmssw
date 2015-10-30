@@ -203,8 +203,8 @@
 	<class name="edm::Wrapper&lt;LHERunInfoProduct&gt;"/>
 	<class name="edm::Wrapper&lt;LHEEventProduct&gt;"/>
 
-<class name="LHEEventProductLite" ClassVersion="-1">
-    <version ClassVersion="-1" checksum="1637646414"/>
+<class name="LHEEventProductLite" ClassVersion="2">
+    <version ClassVersion="2" checksum="1637646414"/>
 </class>
 <class name="edm::Wrapper&lt;LHEEventProductLite&gt;"/>
 
