@@ -1,4 +1,4 @@
-#include "Calibration/HcalCalibAlgos/src/HitReCalibrator.h"
+#include "Calibration/HcalCalibAlgos/plugins/HitReCalibrator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
@@ -126,3 +126,8 @@ HitReCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+using cms::HitReCalibrator;
+DEFINE_FWK_MODULE(HitReCalibrator);
