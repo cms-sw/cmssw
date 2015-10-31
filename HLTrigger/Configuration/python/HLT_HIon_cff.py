@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HIon/V173 (CMSSW_7_4_15)
+# /dev/CMSSW_7_5_0/HIon/V1 (CMSSW_7_5_3_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V173')
+  tableName = cms.string('/dev/CMSSW_7_5_0/HIon/V1')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -3205,6 +3205,7 @@ fragment.hltHISingleMu3L3Filtered = cms.EDFilter( "HLTMuonL3PreFilter",
     MinDXYBeamSpot = cms.double( -1.0 ),
     MinDr = cms.double( -1.0 ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    InputLinks = cms.InputTag( "" ),
     MinPt = cms.double( 3.0 )
 )
 fragment.hltPreHIL3DoubleMuOpen = cms.EDFilter( "HLTPrescaler",
