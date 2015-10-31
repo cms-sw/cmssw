@@ -64,7 +64,7 @@ class BeamMonitorBx : public edm::EDAnalyzer {
 		       reco::BeamSpot&, const TString&);
   void weight(BeamSpotMapBx&, const BeamSpotMapBx&);
   void weight(double& mean,double& meanError,const double& val,const double& valError);
-  const char * formatFitTime( const std::time_t&);
+  void formatFitTime(char *, const std::time_t&);
 
   edm::ParameterSet parameters_;
   std::string monitorName_;
