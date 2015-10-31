@@ -146,6 +146,10 @@ HITrackClusterRemover::HITrackClusterRemover(const ParameterSet& iConfig):
     stripRecHits_(doStripChargeCheck_ ? iConfig.getParameter<std::string>("stripRecHits") : std::string("siStripMatchedRecHits")),
     pixelRecHits_(doPixelChargeCheck_ ? iConfig.getParameter<std::string>("pixelRecHits") : std::string("siPixelRecHits"))
 {
+  if (mergeOld_){
+    string label = iConfig.getParameter<InputTag>("oldClusterRemovalInfo").label();
+    if (label=="") mergeOld_ = false;
+  }
   if (iConfig.exists("overrideTrkQuals"))
     overrideTrkQuals_.push_back(consumes<edm::ValueMap<int> >(iConfig.getParameter<InputTag>("overrideTrkQuals")));
   if (iConfig.exists("clusterLessSolution"))
