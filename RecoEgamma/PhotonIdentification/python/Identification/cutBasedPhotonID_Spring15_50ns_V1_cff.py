@@ -43,7 +43,7 @@ WP_Loose_EE = WorkingPoint_V2(
     0.00      ,  # absPFChaHadIsoWithEACut_C2
     4.00      ,  # absPFNeuHadIsoWithEACut_C1
     0.0040    ,  # absPFNeuHadIsoWithEACut_C2
-    0.9402    ,  # absPFNeuHadIsoWithEACut_C2
+    0.9402    ,  # absPFNeuHadIsoWithEACut_C3
     2.15      ,  # absPFPhoIsoWithEACut_C1
     0.0041       # absPFPhoIsoWithEACut_C2
     )
@@ -129,9 +129,9 @@ isoInputs = IsolationCutInputs(
 #
 # Finally, set up VID configuration for all cuts
 #
-cutBasedPhotonID_Spring15_50ns_V1_standalone_loose  = configureVIDCutBasedPhoID_V3 ( WP_Loose_EB, WP_Loose_EE, isoInputs)
-cutBasedPhotonID_Spring15_50ns_V1_standalone_medium = configureVIDCutBasedPhoID_V3 ( WP_Medium_EB, WP_Medium_EE, isoInputs)
-cutBasedPhotonID_Spring15_50ns_V1_standalone_tight  = configureVIDCutBasedPhoID_V3 ( WP_Tight_EB, WP_Tight_EE, isoInputs)
+cutBasedPhotonID_Spring15_50ns_V1_standalone_loose  = configureVIDCutBasedPhoID_V4 ( WP_Loose_EB, WP_Loose_EE, isoInputs)
+cutBasedPhotonID_Spring15_50ns_V1_standalone_medium = configureVIDCutBasedPhoID_V4 ( WP_Medium_EB, WP_Medium_EE, isoInputs)
+cutBasedPhotonID_Spring15_50ns_V1_standalone_tight  = configureVIDCutBasedPhoID_V4 ( WP_Tight_EB, WP_Tight_EE, isoInputs)
 
 ## The MD5 sum numbers below reflect the exact set of cut variables
 # and values above. If anything changes, one has to 
@@ -141,11 +141,11 @@ cutBasedPhotonID_Spring15_50ns_V1_standalone_tight  = configureVIDCutBasedPhoID_
 #
 
 central_id_registry.register(cutBasedPhotonID_Spring15_50ns_V1_standalone_loose.idName,
-                             '3d50a36a9fe1a807fefffe0e6712210a')
+                             '0ecdbf2d9e48f89051f6dd7f9e6547e8')
 central_id_registry.register(cutBasedPhotonID_Spring15_50ns_V1_standalone_medium.idName,
-                             '63a4ab695fabdae62764db5c55f57b10')
+                             '9efd6037fab2ff3bb65b7592fac5efde')
 central_id_registry.register(cutBasedPhotonID_Spring15_50ns_V1_standalone_tight.idName,
-                             'cb046b1400392c9f5db251b5316a87cb')
+                             'e6a9a77984738862cda3a2fd966fc05e')
 
 cutBasedPhotonID_Spring15_50ns_V1_standalone_loose.isPOGApproved = cms.untracked.bool(True)
 cutBasedPhotonID_Spring15_50ns_V1_standalone_medium.isPOGApproved = cms.untracked.bool(True)
