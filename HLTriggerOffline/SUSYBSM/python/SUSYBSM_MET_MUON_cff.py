@@ -10,7 +10,7 @@ SUSY_HLT_MET_MUON = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
   #TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
-  TriggerPath = cms.string('HLT_PFMET120_NoiseCleaned_Mu5_v'),
+  TriggerPath = cms.string('HLT_PFMET120_Mu5_v'),
   TriggerPathAuxiliaryForMuon = cms.string('HLT_PFHT900_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
   TriggerFilter = cms.InputTag('hltPFMET120Mu5L3PreFiltered', '', 'HLT'), #the last filter in the path
@@ -33,7 +33,7 @@ SUSY_HLT_MET_MUON_FASTSIM = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
   #TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
-  TriggerPath = cms.string('HLT_PFMET120_NoiseCleaned_Mu5_v'),
+  TriggerPath = cms.string('HLT_PFMET120_Mu5_v'),
   TriggerPathAuxiliaryForMuon = cms.string('HLT_PFHT900_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
   TriggerFilter = cms.InputTag('hltPFMET120Mu5L3PreFiltered', '', 'HLT'), #the last filter in the path
@@ -47,7 +47,7 @@ SUSY_HLT_MET_MUON_FASTSIM = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
 
 
 SUSY_HLT_MET_MUON_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET120_NoiseCleaned_Mu5"),
+    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET120_Mu5"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(
@@ -59,7 +59,7 @@ SUSY_HLT_MET_MUON_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
 
 
 SUSY_HLT_MET_MUON_FASTSIM_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET120_NoiseCleaned_Mu5"),
+    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET120_Mu5"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(
