@@ -34,6 +34,7 @@ class ME0RecHitStandardAlgo : public ME0RecHitBaseAlgo {
                        const GlobalPoint& globPos, 
                        LocalPoint& point,
                        LocalError& error) const;
+
 };
 #endif
 
