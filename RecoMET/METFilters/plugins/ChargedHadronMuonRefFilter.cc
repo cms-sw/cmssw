@@ -79,26 +79,23 @@ ChargedHadronMuonRefFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByToken(tokenPFCandidates_,pfCandidates);
 
   bool foundBadTrack = false;
-  // if ( debug_ ) cout << "starting loop over pfCandidates" << endl;
+  if ( debug_ ) cout << "starting loop over pfCandidates" << endl;
 
   for ( unsigned i=0; i<pfCandidates->size(); ++i ) {
 
     const reco::PFCandidate & cand = (*pfCandidates)[i];
-
-    if ( fabs(cand.pdgId()) != 211 ) continue;
+    
+    // if ( fabs(cand.pdgId()) != 211 ) continue;
     // if ( debug_ ) cout << "Found charged hadron" << std::endl;
     
     if (cand.muonRef().isNull()) continue;
-    if ( debug_ ) cout << "Found valid MuonRef" << std::endl;
+    // if ( debug_ ) cout << "Found valid MuonRef" << std::endl;
         
     const reco::TrackRef trackref = cand.trackRef();
     const double Pt = trackref->pt();
     if (Pt < ptMin_) continue;
-    if ( debug_ ) cout << "track pT > " << ptMin_ << " GeV - "  << trackref->algo() << " - reco::TrackBase::muonSeededStepInOut: " << reco::TrackBase::muonSeededStepInOut << " - reco::TrackBase::muonSeededStepOutIn: " << reco::TrackBase::muonSeededStepOutIn << std::endl;
+    // if ( debug_ ) cout << "track pT > " << ptMin_ << " GeV - algorithm: "  << trackref->algo() << std::endl;
           
-    if (trackref->algo() == reco::TrackBase::muonSeededStepInOut || trackref->algo() == reco::TrackBase::muonSeededStepOutIn) {
-            
-      if ( debug_ ) cout << "Muon-seeded track" << std::endl;
       const double P = trackref->p();
       const double DPt = trackref->ptError();
       const unsigned int LostHits = trackref->numberOfLostHits();
@@ -113,7 +110,6 @@ ChargedHadronMuonRefFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
           cout << endl;
         }
       }
-    }
     
   } // end loop over PF candidates
 
