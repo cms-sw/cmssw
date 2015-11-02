@@ -5,13 +5,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussQ.h"
 
 /**
    @class HGCFEElectronics
    @short models the behavior of the front-end electronics
  */
 
-template <class D>
+template <class DFr>
 class HGCFEElectronics
 {
  public:
@@ -27,7 +28,7 @@ class HGCFEElectronics
   /**
      @short switches according to the firmware version
    */
-  inline void runShaper(D &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toa, CLHEP::HepRandomEngine* engine)
+  inline void runShaper(DFr &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toa, CLHEP::HepRandomEngine* engine)
   {    
     switch(fwVersion_)
       {
@@ -49,36 +50,41 @@ class HGCFEElectronics
   /**
      @short converts charge to digis without pulse shape
    */
-  void runTrivialShaper(D &dataFrame,std::vector<float> &chargeColl);
+  void runTrivialShaper(DFr &dataFrame,std::vector<float> &chargeColl);
 
   /**
      @short applies a shape to each time sample and propagates the tails to the subsequent time samples
    */
-  void runSimpleShaper(D &dataFrame,std::vector<float> &chargeColl);
+  void runSimpleShaper(DFr &dataFrame,std::vector<float> &chargeColl);
 
   /**
      @short implements pulse shape and switch to time over threshold including deadtime
    */
-  void runShaperWithToT(D &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toa, CLHEP::HepRandomEngine* engine);
+  void runShaperWithToT(DFr &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toa, CLHEP::HepRandomEngine* engine);
 
   /**
      @short returns how ToT will be computed
    */
-  uint32_t toaMode() { return toaMode_; }
+  uint32_t toaMode() const { return toaMode_; }
   
+  void resetCaches();
+
   /**
      @short DTOR
    */
   ~HGCFEElectronics() {}
 
  private:
-
+  
   //private members
   uint32_t fwVersion_;
   std::vector<double> adcPulse_,pulseAvgT_, tdcChargeDrainParameterisation_;
   float adcSaturation_fC_, adcLSB_fC_, tdcLSB_fC_, tdcSaturation_fC_,
     adcThreshold_fC_, tdcOnset_fC_, toaLSB_ns_, tdcResolutionInNs_; 
   uint32_t toaMode_;
+  //caches
+  std::vector<bool>  busyFlags, totFlags;
+  std::vector<float> newCharge, toaFromToT;
 };
 
 #endif

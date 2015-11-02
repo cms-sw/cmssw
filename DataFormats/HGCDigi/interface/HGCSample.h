@@ -14,6 +14,9 @@ class HGCSample {
 
 public:
 
+  enum HGCSampleMasks { kThreshMask = 0x1, kModeMask = 0x1, kToAMask = 0x3ff, kDataMask = 0xfff};
+  enum HGCSampleShifts{ kThreshShift = 31, kModeShift = 30, kToAShift = 16,   kDataShift = 0};
+
   /**
      @short CTOR
    */
@@ -23,10 +26,10 @@ public:
   /**
      @short setters
    */
-  void setThreshold(bool thr)           { setWord(thr,  0x1,    31); }
-  void setMode(bool mode)               { setWord(mode, 0x1,    30); }
-  void setToA(uint16_t toa)             { setWord(toa,  0x3ff,  16); }
-  void setData(uint16_t data)           { setWord(data, 0xfff,  0);  }
+  void setThreshold(bool thr)           { setWord(thr,  kThreshMask, kThreshShift); }
+  void setMode(bool mode)               { setWord(mode, kModeMask,   kModeShift);   }
+  void setToA(uint16_t toa)             { setWord(toa,  kToAMask,    kToAShift);    }
+  void setData(uint16_t data)           { setWord(data, kDataMask,   kDataShift);   }
   void set(bool thr, bool mode,uint16_t toa, uint16_t data) 
   { 
     setThreshold(thr);

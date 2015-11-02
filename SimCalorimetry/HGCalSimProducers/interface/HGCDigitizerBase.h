@@ -22,11 +22,11 @@ typedef std::array<HGCSimData_t,15> HGCSimHitData;
 //1st array=energy, 2nd array=energy weighted time-of-flight
 typedef std::unordered_map<uint32_t, std::array<HGCSimHitData,2> > HGCSimHitDataAccumulator; 
 
-template <class D>
+template <class DFr>
 class HGCDigitizerBase {
  public:
  
-  typedef edm::SortedCollection<D> DColl;
+  typedef edm::SortedCollection<DFr> DColl;
 
   /**
      @short CTOR
@@ -40,88 +40,30 @@ class HGCDigitizerBase {
     if(myCfg_.exists("noise_fC")) noise_fC_ = myCfg_.getParameter<double>("noise_fC");
     else                          noise_fC_ = 1.0;
     edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
-    myFEelectronics_        = std::unique_ptr<HGCFEElectronics<D> >( new HGCFEElectronics<D>(feCfg) );
+    myFEelectronics_        = std::unique_ptr<HGCFEElectronics<DFr> >( new HGCFEElectronics<DFr>(feCfg) );
   }
       
   /**
      @short steer digitization mode
    */
-  void run(std::auto_ptr<DColl> &digiColl,HGCSimHitDataAccumulator &simData,uint32_t digitizationType,CLHEP::HepRandomEngine* engine)
-  {
-    if(digitizationType==0) runSimple(digiColl,simData,engine);
-    else                    runDigitizer(digiColl,simData,digitizationType,engine);
-  }
+  void run(std::auto_ptr<DColl> &digiColl,HGCSimHitDataAccumulator &simData,uint32_t digitizationType,CLHEP::HepRandomEngine* engine);
 
   /**
      @short getters
    */
-  float keV2fC() { return keV2fC_; }
-  bool toaModeByEnergy() { return (myFEelectronics_->toaMode()==HGCFEElectronics<D>::WEIGHTEDBYE); }
-  float tdcOnset() { return myFEelectronics_->getTDCOnset(); }
+  float keV2fC() const { return keV2fC_; }
+  bool toaModeByEnergy() const { return (myFEelectronics_->toaMode()==HGCFEElectronics<DFr>::WEIGHTEDBYE); }
+  float tdcOnset() const { return myFEelectronics_->getTDCOnset(); }
 
   /**
      @short a trivial digitization: sum energies and digitize without noise
    */
-  void runSimple(std::auto_ptr<DColl> &coll,HGCSimHitDataAccumulator &simData, CLHEP::HepRandomEngine* engine)
-  {
-    for(HGCSimHitDataAccumulator::iterator it=simData.begin();
-	it!=simData.end();
-	it++)
-      {
-	std::vector<float> chargeColl( it->second[0].size(), 0 ),toa( it->second[0].size(), 0 );
-	for(size_t i=0; i<it->second[0].size(); i++) 
-	  {
-	    double rawCharge((it->second)[0][i]);
-
-	    //time of arrival
-	    toa[i]=(it->second)[1][i];
-	    if(myFEelectronics_->toaMode()==HGCFEElectronics<D>::WEIGHTEDBYE && rawCharge>0) 
-	      toa[i]=(it->second)[1][i]/rawCharge;
-	    
-	    //convert total energy in GeV to charge (fC)
-	    //double totalEn=rawEn*1e6*keV2fC_;
-	    double totalCharge=rawCharge;
-
-	    //add noise (in fC)
-	    //we assume it's randomly distributed and won't impact ToA measurement
-	    totalCharge += std::max( CLHEP::RandGauss::shoot(engine,0,noise_fC_) , 0. );
-	    if(totalCharge<0) totalCharge=0;
-
-	    chargeColl[i]= totalCharge;
-	  }
-	
-	//run the shaper to create a new data frame
-	D rawDataFrame( it->first );
-	myFEelectronics_->runShaper(rawDataFrame,chargeColl,toa,engine);
-	
-	//update the output according to the final shape
-	updateOutput(coll,rawDataFrame);
-      }
-  }
+  void runSimple(std::auto_ptr<DColl> &coll,HGCSimHitDataAccumulator &simData, CLHEP::HepRandomEngine* engine);
 
   /**
      @short prepares the output according to the number of time samples to produce
    */
-  void updateOutput(std::auto_ptr<DColl> &coll,D rawDataFrame)
-  {
-    int itIdx(9);
-    if(rawDataFrame.size()<=itIdx+2) return;
-    
-    D dataFrame( rawDataFrame.id() );
-    dataFrame.resize(5);
-    bool putInEvent(false);
-    for(int it=0;it<5; it++) 
-      {
-	HGCSample singleSample;
-	singleSample.set(rawDataFrame[itIdx-2+it].threshold(),
-			 rawDataFrame[itIdx-2+it].mode(),
-			 rawDataFrame[itIdx-2+it].toa(),
-			 rawDataFrame[itIdx-2+it].data());
-	dataFrame.setSample(it, singleSample);
-	if(it==2) { putInEvent=rawDataFrame[itIdx-2+it].threshold(); }
-      }
-    if(putInEvent) coll->push_back(dataFrame);
-  }
+  void updateOutput(std::auto_ptr<DColl> &coll,const DFr& rawDataFrame);
 
   /**
      @short to be specialized by top class
@@ -137,6 +79,10 @@ class HGCDigitizerBase {
   ~HGCDigitizerBase() 
     { };
   
+  
+
+ protected:
+  
   //baseline configuration
   edm::ParameterSet myCfg_;
   
@@ -147,16 +93,13 @@ class HGCDigitizerBase {
   float noise_fC_;
   
   //front-end electronics model
-  std::unique_ptr<HGCFEElectronics<D> > myFEelectronics_;
+  std::unique_ptr<HGCFEElectronics<DFr> > myFEelectronics_;
 
   //bunch time
   double bxTime_;
   
   //if true will put both in time and out-of-time samples in the event
   bool doTimeSamples_;
-
- 
- private:
 
 };
 

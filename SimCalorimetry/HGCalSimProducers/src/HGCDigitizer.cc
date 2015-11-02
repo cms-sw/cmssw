@@ -223,11 +223,9 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
             
       //check if already existing (perhaps could remove this in the future - 2nd event should have all defined)
       HGCSimHitDataAccumulator::iterator simHitIt=simHitAccumulator_->find(id);
-      if(simHitIt==simHitAccumulator_->end())
-	{
-	  simHitAccumulator_->insert( std::make_pair(id,baseData) );
-	  simHitIt=simHitAccumulator_->find(id);
-	}
+      if(simHitIt == simHitAccumulator_->end()) {
+        simHitIt = simHitAccumulator_->insert( std::make_pair(id,baseData) ).first;
+      }
       
       //check if time index is ok and store energy
       if(itime >= (int)simHitIt->second[0].size() ) continue;
@@ -272,8 +270,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   if (useAllChannels_) {
     for(std::vector<DetId>::const_iterator it=validIds.begin(); it!=validIds.end(); it++) {
       uint32_t id(it->rawId());
-      if(simHitAccumulator_->find(id)!=simHitAccumulator_->end()) continue;
-      simHitAccumulator_->insert( std::make_pair(id,baseData) );
+      simHitAccumulator_->emplace(id, baseData);
       nadded++;
     }
   }

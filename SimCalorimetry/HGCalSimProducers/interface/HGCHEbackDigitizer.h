@@ -4,7 +4,6 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerBase.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
-#include "CLHEP/Random/RandPoisson.h"
 
 class HGCHEbackDigitizer : public HGCDigitizerBase<HGCHEDataFrame>
 {

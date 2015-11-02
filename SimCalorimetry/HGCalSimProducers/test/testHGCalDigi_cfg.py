@@ -110,12 +110,12 @@ process = cust_2023HGCal(process)
 
 # End of customisation functions
 
-process.g4SimHits.HGCSD.Verbosity                         = 1
-process.mix.digitizers.hgceeDigitizer.useAllChannels      = False
-process.mix.digitizers.hgceeDigitizer.verbosity           = 1
-process.mix.digitizers.hgchefrontDigitizer.useAllChannels = False
-process.mix.digitizers.hgchefrontDigitizer.verbosity      = 1
-process.mix.digitizers.hgchebackDigitizer.useAllChannels  = False
-process.mix.digitizers.hgchebackDigitizer.verbosity       = 1
+#process.g4SimHits.HGCSD.Verbosity                         = 1
+#process.mix.digitizers.hgceeDigitizer.useAllChannels      = False
+#process.mix.digitizers.hgceeDigitizer.verbosity           = 1
+#process.mix.digitizers.hgchefrontDigitizer.useAllChannels = False
+#process.mix.digitizers.hgchefrontDigitizer.verbosity      = 1
+#process.mix.digitizers.hgchebackDigitizer.useAllChannels  = False
+#process.mix.digitizers.hgchebackDigitizer.verbosity       = 1
 
 

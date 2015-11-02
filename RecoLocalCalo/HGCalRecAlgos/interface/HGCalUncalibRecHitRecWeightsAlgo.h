@@ -74,7 +74,7 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
    }
   
  private:
-   bool   isSiFESim_;
    double adcLSB_, tdcLSB_, fCToMIP_, toaLSBToNS_, tdcOnsetfC_;
+   bool   isSiFESim_;
 };
 #endif

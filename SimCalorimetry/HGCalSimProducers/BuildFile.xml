@@ -7,6 +7,7 @@
 <use   name="Geometry/HGCalGeometry"/>
 <use   name="hepmc"/>
 <use   name="CLHEP"/>
+<use   name="vdt_headers"/>
 <export>
   <lib   name="1"/>
 </export>

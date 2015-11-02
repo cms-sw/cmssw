@@ -54,9 +54,9 @@ void configureIt(const edm::ParameterSet& conf,
 HGCalUncalibRecHitWorkerWeights::HGCalUncalibRecHitWorkerWeights(const edm::ParameterSet&ps) :
   HGCalUncalibRecHitWorkerBaseClass(ps)
 {
-  const edm::ParameterSet ee_cfg = ps.getParameterSet("HGCEEConfig");
-  const edm::ParameterSet hef_cfg = ps.getParameterSet("HGCHEFConfig");
-  const edm::ParameterSet heb_cfg = ps.getParameterSet("HGCHEBConfig");
+  const edm::ParameterSet& ee_cfg = ps.getParameterSet("HGCEEConfig");
+  const edm::ParameterSet& hef_cfg = ps.getParameterSet("HGCHEFConfig");
+  const edm::ParameterSet& heb_cfg = ps.getParameterSet("HGCHEBConfig");
   configureIt(ee_cfg,uncalibMaker_ee_);
   configureIt(hef_cfg,uncalibMaker_hef_);
   configureIt(heb_cfg,uncalibMaker_heb_);
