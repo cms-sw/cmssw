@@ -30,13 +30,12 @@ public:
   ~ChargedHadronMuonRefFilter();
 
 private:
-  virtual void beginJob() override ;
   virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
 
       // ----------member data ---------------------------
 
   edm::EDGetTokenT<reco::PFCandidateCollection>   tokenPFCandidates_;
+  const bool taggingMode_;
   const double          ptMin_;
   const bool debug_;
 
@@ -55,6 +54,7 @@ private:
 //
 ChargedHadronMuonRefFilter::ChargedHadronMuonRefFilter(const edm::ParameterSet& iConfig)
   : tokenPFCandidates_ ( consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag> ("PFCandidates")  ))
+  , taggingMode_          ( iConfig.getParameter<bool>    ("taggingMode")         )
   , ptMin_                ( iConfig.getParameter<double>        ("ptMin")         )
   , debug_                ( iConfig.getParameter<bool>          ("debug")         )
 {
@@ -117,18 +117,7 @@ ChargedHadronMuonRefFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 
   iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
 
-  return pass;
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void
-ChargedHadronMuonRefFilter::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-ChargedHadronMuonRefFilter::endJob() {
+  return taggingMode_ || pass;
 }
 
 //define this as a plug-in
