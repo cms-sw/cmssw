@@ -16,7 +16,31 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include <vector>
+#include <cmath>
 
+//rounds to first few nonzero sig figs
+float rndSF(float value, int nSignificantDigits) 
+{
+  if(value==0) return 0; 
+  
+  float dSign = (value > 0.0) ? 1 : -1; 
+  value *= dSign; 
+
+  int nOffset = static_cast<int>(log10(value)); 
+  if(nOffset>=0) ++nOffset;  
+
+  float dScale = pow(10.0,nSignificantDigits-nOffset); 
+
+  return dSign * static_cast<float>(round(value*dScale))/dScale;    
+}
+
+//keeps first n digits after the decimal place
+inline float rndDP(float value, int nPlaces)
+{
+  return float(int(value*pow(10,nPlaces))/pow(10,nPlaces));
+}
+
+//----------------------------------------------------------------
 const Int_t MAXPARTICLE = 10000;
 //
 // DiJet ana Event Data Tree definition

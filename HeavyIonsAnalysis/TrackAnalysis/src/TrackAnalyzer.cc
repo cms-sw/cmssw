@@ -156,13 +156,13 @@ struct TrackEvent{
   float trkPhi[MAXTRACKS];
   float trkPt[MAXTRACKS];
   float trkPtError[MAXTRACKS];
-  int trkNHit[MAXTRACKS];
-  int trkNlayer[MAXTRACKS];
+  unsigned char trkNHit[MAXTRACKS];
+  unsigned char trkNlayer[MAXTRACKS];
   int trkNlayer3D[MAXTRACKS];
   bool trkQual[MAXQUAL][MAXTRACKS];
   float trkChi2[MAXTRACKS];
   float trkChi2hit1D[MAXTRACKS];
-  float trkNdof[MAXTRACKS];
+  unsigned char trkNdof[MAXTRACKS];
   float trkDz[MAXTRACKS];
   float trkDz1[MAXTRACKS];               // dZ to the first vertex
   float trkDz2[MAXTRACKS];               // dZ to the second vertex
@@ -181,12 +181,12 @@ struct TrackEvent{
   float trkVy[MAXTRACKS];
   float trkVz[MAXTRACKS];
   bool  trkFake[MAXTRACKS];
-  int trkAlgo[MAXTRACKS];
-  int trkOriginalAlgo[MAXTRACKS];
+  unsigned char trkAlgo[MAXTRACKS];
+  unsigned char trkOriginalAlgo[MAXTRACKS];
   float trkMVA[MAXTRACKS];
   float dedx[MAXTRACKS];
   int trkCharge[MAXTRACKS];
-  int trkNVtx[MAXTRACKS];
+  unsigned char trkNVtx[MAXTRACKS];
   unsigned int trkVtxIndex[MAXTRACKS];
   bool trkAssocVtx[MAXTRACKS*MAXVTX];
   int nTrkTimesnVtx;
@@ -228,7 +228,7 @@ struct TrackEvent{
   int   mtrkNlayer3D[MAXTRACKS];
   bool   mtrkQual[MAXQUAL][MAXTRACKS];
   float mtrkChi2[MAXTRACKS];
-  float mtrkNdof[MAXTRACKS];
+  int mtrkNdof[MAXTRACKS];
   float mtrkDz1[MAXTRACKS];
   float mtrkDzError1[MAXTRACKS];
   float mtrkDxy1[MAXTRACKS];
@@ -1115,13 +1115,13 @@ TrackAnalyzer::beginJob()
   // Tracks
   trackTree_->Branch("trkPt",&pev_.trkPt,"trkPt[nTrk]/F");
   trackTree_->Branch("trkPtError",&pev_.trkPtError,"trkPtError[nTrk]/F");
-  trackTree_->Branch("trkNHit",&pev_.trkNHit,"trkNHit[nTrk]/I");
-  trackTree_->Branch("trkNlayer",&pev_.trkNlayer,"trkNlayer[nTrk]/I");
+  trackTree_->Branch("trkNHit",&pev_.trkNHit,"trkNHit[nTrk]/b");
+  trackTree_->Branch("trkNlayer",&pev_.trkNlayer,"trkNlayer[nTrk]/b");
   trackTree_->Branch("trkEta",&pev_.trkEta,"trkEta[nTrk]/F");
   trackTree_->Branch("trkPhi",&pev_.trkPhi,"trkPhi[nTrk]/F");
   trackTree_->Branch("trkCharge",&pev_.trkCharge,"trkCharge[nTrk]/I");
   if(doTrackVtxWImpPar_){
-    trackTree_->Branch("trkNVtx",&pev_.trkNVtx,"trkNVtx[nTrk]/I");
+    trackTree_->Branch("trkNVtx",&pev_.trkNVtx,"trkNVtx[nTrk]/b");
     trackTree_->Branch("nTrkTimesnVtx",&pev_.nTrkTimesnVtx,"nTrkTimesnVtx/I");
     trackTree_->Branch("trkAssocVtx",&pev_.trkAssocVtx,"trkAssocVtx[nTrkTimesnVtx]/O");
   }
@@ -1141,7 +1141,7 @@ TrackAnalyzer::beginJob()
 
 
   trackTree_->Branch("trkChi2",&pev_.trkChi2,"trkChi2[nTrk]/F");
-  trackTree_->Branch("trkNdof",&pev_.trkNdof,"trkNdof[nTrk]/F");
+  trackTree_->Branch("trkNdof",&pev_.trkNdof,"trkNdof[nTrk]/b");
   trackTree_->Branch("trkDxy1",&pev_.trkDxy1,"trkDxy1[nTrk]/F");
   trackTree_->Branch("trkDxyError1",&pev_.trkDxyError1,"trkDxyError1[nTrk]/F");
   trackTree_->Branch("trkDz1",&pev_.trkDz1,"trkDz1[nTrk]/F");
@@ -1151,8 +1151,8 @@ TrackAnalyzer::beginJob()
   //trackTree_->Branch("trkDz2",&pev_.trkDz2,"trkDz2[nTrk]/F");
   //trackTree_->Branch("trkDxyError2",&pev_.trkDxyError2,"trkDxyError2[nTrk]/F");
   trackTree_->Branch("trkFake",&pev_.trkFake,"trkFake[nTrk]/O");
-  trackTree_->Branch("trkAlgo",&pev_.trkAlgo,"trkAlgo[nTrk]/I");
-  trackTree_->Branch("trkOriginalAlgo",&pev_.trkOriginalAlgo,"trkOriginalAlgo[nTrk]/I");
+  trackTree_->Branch("trkAlgo",&pev_.trkAlgo,"trkAlgo[nTrk]/b");
+  trackTree_->Branch("trkOriginalAlgo",&pev_.trkOriginalAlgo,"trkOriginalAlgo[nTrk]/b");
   if(doMVA_) trackTree_->Branch("trkMVA",&pev_.trkMVA,"trkMVA[nTrk]/F");
 
   if (doDebug_) {
@@ -1213,7 +1213,7 @@ TrackAnalyzer::beginJob()
         trackTree_->Branch(("m"+qualityStrings_[i]).data(),&pev_.mtrkQual[i],("m"+qualityStrings_[i]+"[nParticle]/O").data());
       }
       trackTree_->Branch("mtrkChi2",&pev_.mtrkChi2,"mtrkChi2[nParticle]/F");
-      trackTree_->Branch("mtrkNdof",&pev_.mtrkNdof,"mtrkNdof[nParticle]/F");
+      trackTree_->Branch("mtrkNdof",&pev_.mtrkNdof,"mtrkNdof[nParticle]/I");
       trackTree_->Branch("mtrkDz1",&pev_.mtrkDz1,"mtrkDz1[nParticle]/F");
       trackTree_->Branch("mtrkDzError1",&pev_.mtrkDzError1,"mtrkDzError1[nParticle]/F");
       trackTree_->Branch("mtrkDxy1",&pev_.mtrkDxy1,"mtrkDxy1[nParticle]/F");

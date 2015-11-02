@@ -144,12 +144,12 @@ HiPFCandAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(skipCharged_ && (abs(id) == 1 || abs(id) == 3)) continue;
 
     pfEvt_.pfId_[pfEvt_.nPFpart_] = id;
-    pfEvt_.pfPt_[pfEvt_.nPFpart_] = pt;
-    pfEvt_.pfVsPt_[pfEvt_.nPFpart_] = vsPt;
-    pfEvt_.pfVsPtInitial_[pfEvt_.nPFpart_] = vsPtInitial;
-    pfEvt_.pfArea_[pfEvt_.nPFpart_] = vsArea;
-    pfEvt_.pfEta_[pfEvt_.nPFpart_] = pfCandidate.eta();
-    pfEvt_.pfPhi_[pfEvt_.nPFpart_] = pfCandidate.phi();
+    pfEvt_.pfPt_[pfEvt_.nPFpart_] = rndSF(pt,4);
+    pfEvt_.pfVsPt_[pfEvt_.nPFpart_] = rndSF(vsPt,4);
+    pfEvt_.pfVsPtInitial_[pfEvt_.nPFpart_] = rndSF(vsPtInitial,4);
+    pfEvt_.pfArea_[pfEvt_.nPFpart_] = rndSF(vsArea,4);
+    pfEvt_.pfEta_[pfEvt_.nPFpart_] = rndDP(pfCandidate.eta(),3);
+    pfEvt_.pfPhi_[pfEvt_.nPFpart_] = rndDP(pfCandidate.phi(),3);
     pfEvt_.nPFpart_++;
 
   }
@@ -169,9 +169,9 @@ HiPFCandAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
       if(gen.status()==1 && fabs(eta)<3.0 && pt> genPtMin_){
 	pfEvt_.genPDGId_[pfEvt_.nGENpart_] = gen.pdgId();
-	pfEvt_.genPt_[pfEvt_.nGENpart_] = pt;
-	pfEvt_.genEta_[pfEvt_.nGENpart_] = eta;
-	pfEvt_.genPhi_[pfEvt_.nGENpart_] = gen.phi();
+	pfEvt_.genPt_[pfEvt_.nGENpart_] = rndSF(pt,4);
+	pfEvt_.genEta_[pfEvt_.nGENpart_] = rndDP(eta,3);
+	pfEvt_.genPhi_[pfEvt_.nGENpart_] = rndDP(gen.phi(),3);
 	pfEvt_.nGENpart_++;
       }
     }
