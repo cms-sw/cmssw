@@ -97,59 +97,59 @@ process.hiCentrality.srcVertex = cms.InputTag("offlinePrimaryVerticesWithBS")
 
 process.load('RecoHI.HiJetAlgos.HiGenJets_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak1PFJetSequence_pp_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak1CaloJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak1PFJetSequence_pp_jec_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak1CaloJetSequence_pp_jec_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak2PFJetSequence_pp_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak2CaloJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak2PFJetSequence_pp_jec_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak2CaloJetSequence_pp_jec_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak3PFJetSequence_pp_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak3CaloJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak3PFJetSequence_pp_jec_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak3CaloJetSequence_pp_jec_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak4PFJetSequence_pp_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak4CaloJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak4PFJetSequence_pp_jec_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak4CaloJetSequence_pp_jec_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak5PFJetSequence_pp_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak5CaloJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak5PFJetSequence_pp_jec_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak5CaloJetSequence_pp_jec_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak6PFJetSequence_pp_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak6CaloJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak6PFJetSequence_pp_jec_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak6CaloJetSequence_pp_jec_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu1PFJetSequence_pp_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu1CaloJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu1PFJetSequence_pp_jec_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu1CaloJetSequence_pp_jec_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu2PFJetSequence_pp_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu2CaloJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu2PFJetSequence_pp_jec_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu2CaloJetSequence_pp_jec_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu3PFJetSequence_pp_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu3CaloJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu3PFJetSequence_pp_jec_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu3CaloJetSequence_pp_jec_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu4PFJetSequence_pp_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu4CaloJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu4PFJetSequence_pp_jec_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu4CaloJetSequence_pp_jec_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu5PFJetSequence_pp_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu5CaloJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu5PFJetSequence_pp_jec_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu5CaloJetSequence_pp_jec_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu6PFJetSequence_pp_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu6CaloJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu6PFJetSequence_pp_jec_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu6CaloJetSequence_pp_jec_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs1PFJetSequence_pp_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs1CaloJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs1PFJetSequence_pp_jec_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs1CaloJetSequence_pp_jec_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs2PFJetSequence_pp_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs2CaloJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs2PFJetSequence_pp_jec_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs2CaloJetSequence_pp_jec_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs3PFJetSequence_pp_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs3CaloJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs3PFJetSequence_pp_jec_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs3CaloJetSequence_pp_jec_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs4PFJetSequence_pp_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs4CaloJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs4PFJetSequence_pp_jec_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs4CaloJetSequence_pp_jec_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs5PFJetSequence_pp_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs5CaloJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs5PFJetSequence_pp_jec_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs5CaloJetSequence_pp_jec_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs6PFJetSequence_pp_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs6CaloJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs6PFJetSequence_pp_jec_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs6CaloJetSequence_pp_jec_cff')
 
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.HiReRecoJets_pp_cff')
 
