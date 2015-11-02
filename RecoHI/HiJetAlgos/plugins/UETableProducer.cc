@@ -204,10 +204,10 @@ UETableProducer::endJob() {
 
     jme_payload->push_back(JetCorrectorParametersCollection::L1Offset, parameter);
 
-    if( pool->isNewTagRequest( "HeavyIonUERcd" ) ){
-      pool->createNewIOV<JetCorrectorParametersCollection>( jme_payload, pool->beginOfTime(), pool->endOfTime(), "HeavyIonUERcd" );
+    if( pool->isNewTagRequest( "JetCorrectionsRecord" ) ){
+      pool->createNewIOV<JetCorrectorParametersCollection>( jme_payload, pool->beginOfTime(), pool->endOfTime(), "JetCorrectionsRecord" );
     }else{
-      pool->appendSinceTime<JetCorrectorParametersCollection>( jme_payload, pool->currentTime(), "HeavyIonUERcd" );
+      pool->appendSinceTime<JetCorrectorParametersCollection>( jme_payload, pool->currentTime(), "JetCorrectionsRecord" );
     }
   }
   else {
