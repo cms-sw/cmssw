@@ -20,7 +20,7 @@ akPu1Calocorr = patJetCorrFactors.clone(
 #    primaryVertices = cms.InputTag("hiSelectedVertex"),
     levels   = cms.vstring('L2Relative','L3Absolute'),
     src = cms.InputTag("akPu1CaloJets"),
-    payload = "AKPu1Calo_HI"
+    payload = "AK1Calo_offline"
     )
 
 akPu1CaloJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('akPu1CaloJets'))
@@ -229,3 +229,4 @@ akPu1CaloJetSequence_mix = cms.Sequence(akPu1CaloJetSequence_mc)
 
 akPu1CaloJetSequence = cms.Sequence(akPu1CaloJetSequence_jec)
 akPu1CaloJetAnalyzer.genPtMin = cms.untracked.double(1)
+akPu1CaloJetAnalyzer.jtPtMin = cms.untracked.double(1)
