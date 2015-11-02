@@ -43,7 +43,7 @@ def simGeoLoad(score):
        process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
   
     elif score == "PhaseIPixel":
-       process.load('Geometry.CMSCommonData.GeometryExtendedPhaseIPixel_cfi')
+       process.load('Geometry.CMSCommonData.cmsExtendedGeometry2017XML_cfi')
 
     elif score == "Phase1_R34F16":
         process.load('Geometry.CMSCommonData.Phase1_R34F16_cmsSimIdealGeometryXML_cff')
