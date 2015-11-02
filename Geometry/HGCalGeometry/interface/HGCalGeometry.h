@@ -77,7 +77,8 @@ public:
   std::string cellElement() const;
   
   const HGCalTopology& topology () const {return mTopology;}
-  
+  void sortDetIds();
+     
 protected:
 
   virtual unsigned int indexFor(const DetId& id) const override;

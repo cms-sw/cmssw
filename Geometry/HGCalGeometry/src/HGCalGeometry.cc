@@ -15,10 +15,14 @@
 
 //#define DebugLog
 
-HGCalGeometry::HGCalGeometry(const HGCalTopology& topology_)
-  : mTopology (topology_) {
-  m_halfType = topology().detectorType();
-  m_subdet   = topology().subDetector();
+HGCalGeometry::HGCalGeometry( const HGCalTopology& topology_ )
+  : mTopology( topology_ ),
+    m_cellVec( topology_.totalGeomModules()),
+    m_validGeomIds( topology_.totalGeomModules()),
+    m_halfType( topology_.detectorType()),
+    m_subdet( topology_.subDetector())
+{
+  m_validIds.reserve( topology().totalModules());
 #ifdef DebugLog
   std::cout << "Expected total # of Geometry Modules " 
 	    << topology().totalGeomModules() << std::endl;
@@ -41,25 +45,21 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
   DetId geomId = (detId.subdetId() == HGCEE ? 
 		  (DetId)(HGCEEDetId(detId).geometryCell()) :
 		  (DetId)(HGCHEDetId(detId).geometryCell()));
-  if (cellIndex >= m_cellVec.size())      m_cellVec.resize (cellIndex+1);
-  if (cellIndex >= m_validGeomIds.size()) m_validGeomIds.resize (cellIndex+1);
-  m_cellVec     [cellIndex] = FlatTrd( cornersMgr(), f1, f2, f3, parm ) ;
-  m_validGeomIds[cellIndex] = geomId ;
+  m_cellVec.at( cellIndex ) = FlatTrd( cornersMgr(), f1, f2, f3, parm ) ;
+  m_validGeomIds.at( cellIndex ) = geomId ;
 
   HGCalTopology::DecodedDetId id = topology().decode(detId);
   int cells = topology().dddConstants().maxCells(id.iLay,true);
-  unsigned int nOld = m_validIds.size();
-  unsigned int nNew = nOld + (unsigned int)(m_halfType ? cells : 2*cells);
-  m_validIds.resize(nNew);
   for (int cell = 0; cell < cells; ++cell) {
     id.iCell = cell;
-    m_validIds[nOld+cell] = topology().encode(id);
+    m_validIds.push_back( topology().encode(id));
     if (!m_halfType) {
       id.iSubSec = -id.iSubSec;
-      m_validIds[nOld+cells+cell] = topology().encode(id);
+      m_validIds.push_back( topology().encode(id));
       id.iSubSec = -id.iSubSec;
     }
   }
+
 #ifdef DebugLog
   std::cout << "HGCalGeometry::newCell-> [" << cellIndex << "]"
 	    << " front:" << f1.x() << '/' << f1.y() << '/' << f1.z() 
@@ -241,6 +241,25 @@ unsigned int HGCalGeometry::getClosestCellIndex (const GlobalPoint& r) const {
 
 #endif
   return cellIndex;
+}
+
+// FIXME: Change sorting algorithm if needed
+namespace
+{
+  struct rawIdSort
+  {
+    bool operator()( const DetId& a, const DetId& b )
+    {
+      return( a.rawId() < b.rawId());
+    }
+  };
+}
+
+void
+HGCalGeometry::sortDetIds( void )
+{
+  m_validIds.shrink_to_fit();
+  std::sort( m_validIds.begin(), m_validIds.end(), rawIdSort());
 }
 
 #include "FWCore/Utilities/interface/typelookup.h"
