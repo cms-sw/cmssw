@@ -272,9 +272,9 @@ void TreePFCandEventData::SetBranches(int etaBins, int fourierOrder, bool doUEra
   tree_->Branch("nPFpart",&(this->nPFpart_),"nPFpart/I");
   tree_->Branch("pfId",this->pfId_,"pfId[nPFpart]/I");
   tree_->Branch("pfPt",this->pfPt_,"pfPt[nPFpart]/F");
-  tree_->Branch("pfVsPt",this->pfVsPt_,"pfVsPt[nPFpart]/F");
+  //tree_->Branch("pfVsPt",this->pfVsPt_,"pfVsPt[nPFpart]/F");
   tree_->Branch("pfVsPtInitial",this->pfVsPtInitial_,"pfVsPtInitial[nPFpart]/F");
-  tree_->Branch("pfArea",this->pfArea_,"pfArea[nPFpart]/F");
+  //tree_->Branch("pfArea",this->pfArea_,"pfArea[nPFpart]/F");
 
   tree_->Branch("pfEta",this->pfEta_,"pfEta[nPFpart]/F");
   tree_->Branch("pfPhi",this->pfPhi_,"pfPhi[nPFpart]/F");
