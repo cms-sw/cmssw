@@ -44,7 +44,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.Geometry.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
@@ -55,10 +55,9 @@ process.load('RecoHI.HiCentralityAlgos.CentralityBin_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # pp 75X MC
-
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-# process.GlobalTag = GlobalTag(process.GlobalTag, 'MCRUN2_74_V8B', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run1_data', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '74X_mcRun2_asymptotic_v3', '')
+
 
 # process.GlobalTag.toGet = cms.VPSet(
 # cms.PSet(record = cms.string('PTrackerParametersRcd'),
@@ -67,9 +66,9 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run1_data', '')
               # ),
 # )
 
-from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import *
-overrideGT_pp2760(process)
-overrideJEC_pp2760(process)
+from HeavyIonsAnalysis.Configuration.CommonFunctionsLocalDB2015_cff import *
+# overrideGT_pp2760(process)
+overrideJEC_pp5020(process)
 
 process.HeavyIonGlobalParameters = cms.PSet(
     centralityVariable = cms.string("HFtowersTrunc"),
@@ -116,10 +115,68 @@ process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak5CaloJetSequence_pp_mc_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak6PFJetSequence_pp_mc_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak6CaloJetSequence_pp_mc_cff')
 
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu1PFJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu1CaloJetSequence_pp_mc_cff')
+
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu2PFJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu2CaloJetSequence_pp_mc_cff')
+
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu3PFJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu3CaloJetSequence_pp_mc_cff')
+
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu4PFJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu4CaloJetSequence_pp_mc_cff')
+
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu5PFJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu5CaloJetSequence_pp_mc_cff')
+
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu6PFJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu6CaloJetSequence_pp_mc_cff')
+
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs1PFJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs1CaloJetSequence_pp_mc_cff')
+
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs2PFJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs2CaloJetSequence_pp_mc_cff')
+
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs3PFJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs3CaloJetSequence_pp_mc_cff')
+
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs4PFJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs4CaloJetSequence_pp_mc_cff')
+
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs5PFJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs5CaloJetSequence_pp_mc_cff')
+
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs6PFJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs6CaloJetSequence_pp_mc_cff')
+
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.HiReRecoJets_pp_cff')
 
 
-process.jetSequences = cms.Sequence(process.ak1PFJetSequence +
+process.voronoiBackgroundPF.src = cms.InputTag("particleFlow")
+process.PFTowers.src = cms.InputTag("particleFlow")
+
+
+process.jetSequences = cms.Sequence(process.akPu1PFJetSequence +
+                                    process.akPu1CaloJetSequence +
+									
+                                    process.akPu2PFJetSequence +
+                                    process.akPu2CaloJetSequence +
+									
+                                    process.akPu3PFJetSequence +
+                                    process.akPu3CaloJetSequence +
+									
+                                    process.akPu4PFJetSequence +
+                                    process.akPu4CaloJetSequence +
+									
+                                    process.akPu5PFJetSequence +
+                                    process.akPu5CaloJetSequence +
+									
+                                    process.akPu6PFJetSequence +
+                                    process.akPu6CaloJetSequence +
+                                    
+                                    process.ak1PFJetSequence +
                                     process.ak1CaloJetSequence +
 									
                                     process.ak2PFJetSequence +
@@ -139,10 +196,39 @@ process.jetSequences = cms.Sequence(process.ak1PFJetSequence +
                                     )
 									
 
+process.akPu1PFJetAnalyzer.doSubEvent = True 
+process.akPu2PFJetAnalyzer.doSubEvent = True
+process.akPu3PFJetAnalyzer.doSubEvent = True
+process.akPu4PFJetAnalyzer.doSubEvent = True
+process.akPu5PFJetAnalyzer.doSubEvent = True
+process.akPu6PFJetAnalyzer.doSubEvent = True
+
+process.ak1PFJetAnalyzer.doSubEvent = True 
+process.ak2PFJetAnalyzer.doSubEvent = True
+process.ak3PFJetAnalyzer.doSubEvent = True
+process.ak4PFJetAnalyzer.doSubEvent = True
+process.ak5PFJetAnalyzer.doSubEvent = True
+process.ak6PFJetAnalyzer.doSubEvent = True
+
+process.akPu1CaloJetAnalyzer.doSubEvent = True  
+process.akPu2CaloJetAnalyzer.doSubEvent = True
+process.akPu3CaloJetAnalyzer.doSubEvent = True
+process.akPu4CaloJetAnalyzer.doSubEvent = True
+process.akPu5CaloJetAnalyzer.doSubEvent = True
+process.akPu6CaloJetAnalyzer.doSubEvent = True
+
+process.ak1CaloJetAnalyzer.doSubEvent = True 
+process.ak2CaloJetAnalyzer.doSubEvent = True
+process.ak3CaloJetAnalyzer.doSubEvent = True
+process.ak4CaloJetAnalyzer.doSubEvent = True
+process.ak5CaloJetAnalyzer.doSubEvent = True
+process.ak6CaloJetAnalyzer.doSubEvent = True
+
 process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_mc_cfi')
 process.load('HeavyIonsAnalysis.JetAnalysis.HiGenAnalyzer_cfi')
 
 process.hiEvtAnalyzer.Vertex = cms.InputTag("offlinePrimaryVerticesWithBS")
+
 
 #####################################################################################
 # To be cleaned
@@ -176,10 +262,10 @@ process.hiTracks.cut = cms.string('quality("highPurity")')
 
 # set track collection to iterative tracking
 process.ppTrack.trackSrc = cms.InputTag("generalTracks")
+process.ppTrack.mvaSrc = cms.string("generalTracks")
  
 process.ppTrack.doSimVertex = True
 process.ppTrack.doSimTrack = True
-process.ppTrack.pfCandSrc = cms.InputTag("particleFlow")
 
 process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cff")
 process.tpRecoAssocGeneralTracks = process.trackingParticleRecoTrackAsssociation.clone()
@@ -214,15 +300,16 @@ process.akHiGenJets = cms.Sequence(
 process.load('HeavyIonsAnalysis.EventAnalysis.hltanalysis_cff')
 
 process.ana_step = cms.Path(process.hltanalysis *
+                            process.PFTowers +
                             process.hiReRecoPFJets+
                             process.hiReRecoCaloJets+
-							process.akHiGenJets  +
+						               	process.akHiGenJets  +
                             process.jetSequences +
                             process.ggHiNtuplizer +
                             process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
-   						    process.quickTrackAssociatorByHits +
-							process.tpRecoAssocGeneralTracks +
+   						              process.quickTrackAssociatorByHits +
+							              process.tpRecoAssocGeneralTracks +
                             process.HiForest +
                             process.ppTrack
 							)
