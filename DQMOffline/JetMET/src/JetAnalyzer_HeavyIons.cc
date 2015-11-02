@@ -1590,11 +1590,11 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
         }
 
     }
-    //cout << "End RecoJets loop" << endl; 
-    if (mNJets_40) 
-      mNJets_40->Fill(nJet_40); 
+    //cout << "Reco jet pT threshold" << endl; 
 
   } // end recojet loop 222
+  if (mNJets_40) 
+    mNJets_40->Fill(nJet_40); 
 
   numbers.clear();
 
