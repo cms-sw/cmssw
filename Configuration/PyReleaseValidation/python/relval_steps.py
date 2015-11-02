@@ -393,10 +393,10 @@ steps['QCD_FlatPt_15_3000HS_13INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Fla
 steps['MinBiasHS_13INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBiasHS_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['Higgs200ChargedTaus_13INPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['Upsilon1SToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValUpsilon1SToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
-steps['BuToKstarMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBuToKstarMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
+steps['EtaBToJpsiJpsi_13INPUT']={'INPUT':InputInfo(dataSet='/RelValEtaBToJpsiJpsi_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['BsToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBsToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['JpsiMuMu_Pt-15INPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMuMu_Pt-15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
-steps['BuToKstarPsi2S_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBuToKstarPsi2S_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
+steps['BuMixing_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBuMixing_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['JpsiMM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMM_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['WE_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWE_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['WM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWM_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
@@ -469,10 +469,10 @@ steps['ZMM']=genS('ZMM_8TeV_TuneCUETP8M1_cfi',Kby(18,300))
 steps['ZpMM']=genS('ZpMM_8TeV_TuneCUETP8M1_cfi',Kby(9,200))
 steps['Higgs200ChargedTaus_13']=gen2015('H200ChargedTaus_Tauola_13TeV_cfi',Kby(9,100))
 steps['Upsilon1SToMuMu_13']=gen2015('Upsilon1SToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',Kby(17,190))
-steps['BuToKstarMuMu_13']=gen2015('BuToKstarMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',Kby(2250,25000))
+steps['EtaBToJpsiJpsi_13']=gen2015('EtaBToJpsiJpsi_forSTEAM_TuneCUEP8M1_13TeV_cfi',Kby(9,100))
 steps['BsToMuMu_13']=gen2015('BsToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',Kby(30000,333333))
 steps['JpsiMuMu_Pt-15']=gen2015('JpsiMuMu_Pt-15_forSTEAM_13TeV_cfi',Kby(11000,122000))
-steps['BuToKstarPsi2S_13']=gen2015('BuToKstarPsi2S_forSTEAM_13TeV_TuneCUETP8M1_cfi',Kby(16000,176000))
+steps['BuMixing_13']=gen2015('BuMixing_BMuonFilter_forSTEAM_13TeV_TuneCUETP8M1_cfi',Kby(900,10000))
 steps['JpsiMM_13']=gen2015('JpsiMM_13TeV_TuneCUETP8M1_cfi',Kby(66,1000))
 steps['WE_13']=gen2015('WE_13TeV_TuneCUETP8M1_cfi',Kby(9,100))
 steps['WM_13']=gen2015('WM_13TeV_TuneCUETP8M1_cfi',Kby(9,200))
@@ -493,9 +493,9 @@ steps['ZmumuJets_Pt_20_300_13']=gen2015('ZmumuJets_Pt_20_300_GEN_13TeV_TuneCUETP
 steps['ADDMonoJet_d3MD3']=genS('ADDMonoJet_8TeV_d3MD3_TuneCUETP8M1_cfi',Kby(9,100))
 steps['ADDMonoJet_d3MD3_13']=gen2015('ADDMonoJet_13TeV_d3MD3_TuneCUETP8M1_cfi',Kby(9,100))
 steps['RSKKGluon_m3000GeV_13']=gen2015('RSKKGluon_m3000GeV_13TeV_TuneCUETP8M1_cff',Kby(9,100))
-steps['BuJpsiK_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBuJpsiK_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
+steps['PhiToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValPhiToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['Pythia6_BuJpsiK_TuneZ2star_13']=gen2015('Pythia8_BuJpsiK_13TeV_TuneCUETP8M1_cfi',Kby(36000,400000))  # check recycling a the next GEN-SIM refresh
-steps['BuJpsiK_13']=gen2015('Pythia8_BuJpsiK_13TeV_TuneCUETP8M1_cfi',Kby(36000,400000))
+steps['PhiToMuMu_13']=gen2015('PYTHIA8_PhiToMuMu_TuneCUETP8M1_13TeV_cff',Kby(100,1100))
 
 steps['MinBias2INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['Higgs200ChargedTausINPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
