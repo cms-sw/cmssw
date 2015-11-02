@@ -22,6 +22,7 @@ HGCalGeometry::HGCalGeometry( const HGCalTopology& topology_ )
     m_halfType( topology_.detectorType()),
     m_subdet( topology_.subDetector())
 {
+  m_validIds.reserve( topology().totalModules());
 #ifdef DebugLog
   std::cout << "Expected total # of Geometry Modules " 
 	    << topology().totalGeomModules() << std::endl;
@@ -257,6 +258,7 @@ namespace
 void
 HGCalGeometry::sortDetIds( void )
 {
+  m_validIds.shrink_to_fit();
   std::sort( m_validIds.begin(), m_validIds.end(), rawIdSort());
 }
 
