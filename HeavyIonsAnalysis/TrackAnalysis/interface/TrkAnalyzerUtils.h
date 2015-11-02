@@ -2,6 +2,7 @@
 #define TrkAnalyzerUtils_h_
 
 #include <vector>
+#include <cmath>
  
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -22,6 +23,29 @@ using namespace std;
 using namespace reco;
 using namespace edm;
 
+//rounds to first few nonzero sig figs
+float rndSF(float value, int nSignificantDigits) 
+{
+  if(value==0) return 0; 
+  
+  float dSign = (value > 0.0) ? 1 : -1; 
+  value *= dSign; 
+
+  int nOffset = static_cast<int>(log10(value)); 
+  if(nOffset>=0) ++nOffset;  
+
+  float dScale = pow(10.0,nSignificantDigits-nOffset); 
+
+  return dSign * static_cast<float>(round(value*dScale))/dScale;    
+}
+
+//keeps first n digits after the decimal place
+inline float rndDP(float value, int nPlaces)
+{
+  return float(int(value*pow(10,nPlaces))/pow(10,nPlaces));
+}
+
+//----------------------------------------------------------------------------------------------------
 const TrackingParticle* doRecoToTpMatch(reco::RecoToSimCollection recSimColl, const reco::TrackRef &in){
 
     //if(in.status()!=1) return NULL;

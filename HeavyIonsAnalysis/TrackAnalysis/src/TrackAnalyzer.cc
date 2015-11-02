@@ -15,9 +15,6 @@
 // Updated: Frank Ma, Matt Nguyen
 //         Created:  Tue Sep 30 15:14:28 CEST 2008
 // $Id: TrackAnalyzer.cc,v 1.55 2013/06/11 20:58:09 yjlee Exp $
-//
-//
-
 
 // system include files
 #include <memory>
@@ -99,7 +96,7 @@ using namespace reco;
 
 #define PI 3.14159265358979
 
-#define MAXTRACKS 50000
+#define MAXTRACKS 60000
 #define MAXVTX 100
 #define MAXQUAL 5
 #define MAXMATCH 5
@@ -368,14 +365,14 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
   doTrackVtxWImpPar_             = iConfig.getUntrackedParameter<bool>  ("doTrackVtxWImpPar",true);
   useQuality_ = iConfig.getUntrackedParameter<bool>("useQuality",false);
 
-  trackPtMin_             = iConfig.getUntrackedParameter<double>  ("trackPtMin",0.4);
+  trackPtMin_             = iConfig.getUntrackedParameter<double>  ("trackPtMin",0.40);
   trackVtxMaxDistance_             = iConfig.getUntrackedParameter<double>  ("trackVtxMaxDistance",3.0);
   qualityString_ = iConfig.getUntrackedParameter<std::string>("qualityString","highPurity");
 
   qualityStrings_ = iConfig.getUntrackedParameter<std::vector<std::string> >("qualityStrings",std::vector<std::string>(0));
   if(qualityStrings_.size() == 0) qualityStrings_.push_back(qualityString_);
 
-  simTrackPtMin_             = iConfig.getUntrackedParameter<double>  ("simTrackPtMin",0.4);
+  simTrackPtMin_             = iConfig.getUntrackedParameter<double>  ("simTrackPtMin",0.40);
   fiducialCut_ = (iConfig.getUntrackedParameter<bool>("fiducialCut",false));
   trackSrc_ = iConfig.getParameter<edm::InputTag>("trackSrc");
   mvaSrc_ = iConfig.getParameter<std::string>("mvaSrc");
@@ -608,7 +605,11 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
     }
     if(doMVA_){
-     pev_.trkMVA[pev_.nTrk] = (*mvaoutput)[trackRef];
+     if(etrk.algo() == 11){ //sets jet-core iteration tracks to MVA of +/-1 based on their highPurity bit (even though no MVA is used) 
+       if(etrk.quality(reco::TrackBase::qualityByName(qualityStrings_[0].data()))) pev_.trkMVA[pev_.nTrk] = 1;
+       else pev_.trkMVA[pev_.nTrk] = -1;
+     }
+     else pev_.trkMVA[pev_.nTrk] = rndDP((*mvaoutput)[trackRef],3);//non algo=11 behavior
     }
 	
     if(doDebug_){
@@ -624,33 +625,33 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 pev_.trkChi2hit1D[pev_.nTrk]=(etrk.chi2()+count1dhits)/double(etrk.ndof()+count1dhits);
 
 	}
-    pev_.trkEta[pev_.nTrk]=etrk.eta();
-    pev_.trkPhi[pev_.nTrk]=etrk.phi();
-    pev_.trkPt[pev_.nTrk]=etrk.pt();
-    pev_.trkPtError[pev_.nTrk]=etrk.ptError();
+    pev_.trkEta[pev_.nTrk]=rndDP(etrk.eta(),3);
+    pev_.trkPhi[pev_.nTrk]=rndDP(etrk.phi(),3);
+    pev_.trkPt[pev_.nTrk]=rndSF(etrk.pt(),4);
+    pev_.trkPtError[pev_.nTrk]=rndSF(etrk.ptError(),4);
     pev_.trkCharge[pev_.nTrk]=etrk.charge();
     pev_.trkNHit[pev_.nTrk]=etrk.numberOfValidHits();
     pev_.trkDxy[pev_.nTrk]=etrk.dxy();
     pev_.trkDxyError[pev_.nTrk]=etrk.dxyError();
     pev_.trkDz[pev_.nTrk]=etrk.dz();
     pev_.trkDzError[pev_.nTrk]=etrk.dzError();
-    pev_.trkChi2[pev_.nTrk]=etrk.chi2();
+    pev_.trkChi2[pev_.nTrk]=rndSF(etrk.chi2(),4);
     pev_.trkNdof[pev_.nTrk]=etrk.ndof();
     pev_.trkVx[pev_.nTrk]=etrk.vx();
     pev_.trkVy[pev_.nTrk]=etrk.vy();
     pev_.trkVz[pev_.nTrk]=etrk.vz();
 
     math::XYZPoint v1(pev_.xVtx[pev_.maxPtVtx],pev_.yVtx[pev_.maxPtVtx], pev_.zVtx[pev_.maxPtVtx]);
-    pev_.trkDz1[pev_.nTrk]=etrk.dz(v1);
-    pev_.trkDzError1[pev_.nTrk]=sqrt(etrk.dzError()*etrk.dzError()+pev_.zVtxErr[pev_.maxPtVtx]*pev_.zVtxErr[pev_.maxPtVtx]);
-    pev_.trkDxy1[pev_.nTrk]=etrk.dxy(v1);
-    pev_.trkDxyError1[pev_.nTrk]=sqrt(etrk.dxyError()*etrk.dxyError()+pev_.xVtxErr[pev_.maxPtVtx]*pev_.yVtxErr[pev_.maxPtVtx]);
+    pev_.trkDz1[pev_.nTrk]=rndSF(etrk.dz(v1),4);
+    pev_.trkDzError1[pev_.nTrk]=rndSF(sqrt(etrk.dzError()*etrk.dzError()+pev_.zVtxErr[pev_.maxPtVtx]*pev_.zVtxErr[pev_.maxPtVtx]),4);
+    pev_.trkDxy1[pev_.nTrk]=rndSF(etrk.dxy(v1),4);
+    pev_.trkDxyError1[pev_.nTrk]=rndSF(sqrt(etrk.dxyError()*etrk.dxyError()+pev_.xVtxErr[pev_.maxPtVtx]*pev_.yVtxErr[pev_.maxPtVtx]),4);
 
     math::XYZPoint v2(pev_.xVtx[pev_.maxMultVtx],pev_.yVtx[pev_.maxMultVtx], pev_.zVtx[pev_.maxMultVtx]);
-    pev_.trkDz2[pev_.nTrk]=etrk.dz(v2);
-    pev_.trkDzError2[pev_.nTrk]=sqrt(etrk.dzError()*etrk.dzError()+pev_.zVtxErr[pev_.maxMultVtx]*pev_.zVtxErr[pev_.maxMultVtx]);
-    pev_.trkDxy2[pev_.nTrk]=etrk.dxy(v2);
-    pev_.trkDxyError2[pev_.nTrk]=sqrt(etrk.dxyError()*etrk.dxyError()+pev_.xVtxErr[pev_.maxMultVtx]*pev_.yVtxErr[pev_.maxMultVtx]);
+    pev_.trkDz2[pev_.nTrk]=rndSF(etrk.dz(v2),4);
+    pev_.trkDzError2[pev_.nTrk]=rndSF(sqrt(etrk.dzError()*etrk.dzError()+pev_.zVtxErr[pev_.maxMultVtx]*pev_.zVtxErr[pev_.maxMultVtx]),4);
+    pev_.trkDxy2[pev_.nTrk]=rndSF(etrk.dxy(v2),4);
+    pev_.trkDxyError2[pev_.nTrk]=rndSF(sqrt(etrk.dxyError()*etrk.dxyError()+pev_.xVtxErr[pev_.maxMultVtx]*pev_.yVtxErr[pev_.maxMultVtx]),4);
 
     pev_.trkDxyBS[pev_.nTrk]=etrk.dxy(beamSpot.position());
     pev_.trkDxyErrorBS[pev_.nTrk]=sqrt(etrk.dxyError()*etrk.dxyError()+beamSpot.BeamWidthX()*beamSpot.BeamWidthY());
@@ -859,11 +860,16 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
       pev_.mtrkAlgo[pev_.nParticle] = mtrk->algo();
       pev_.mtrkOriginalAlgo[pev_.nParticle] = mtrk->originalAlgo();
       if(doMVA_){
-       pev_.mtrkMVA[pev_.nParticle] = -99;
+        pev_.mtrkMVA[pev_.nParticle] = -99;
 	     if (pev_.mtrkPt[pev_.nParticle]>0) {
         unsigned ind = mtrk - &((*etracks)[0]);                                                                   
-        reco::TrackRef trackRef=reco::TrackRef(etracks,ind);                                                                                    
-        pev_.mtrkMVA[pev_.nParticle] = (*mvaoutput)[trackRef];
+        reco::TrackRef trackRef=reco::TrackRef(etracks,ind);
+                                                                                    
+        if(mtrk->algo() == 11){ //sets jet-core iteration tracks to MVA of +/-1 based on their highPurity bit (even though no MVA is used) 
+          if(mtrk->quality(reco::TrackBase::qualityByName(qualityStrings_[0].data()))) pev_.mtrkMVA[pev_.nParticle] = 1;
+          else pev_.mtrkMVA[pev_.nParticle] = -1;
+        }
+        else pev_.mtrkMVA[pev_.nParticle] = rndDP((*mvaoutput)[trackRef],3);//non algo=11 behavior
        }
       }
       // calo matching info for the matched track
@@ -1140,10 +1146,10 @@ TrackAnalyzer::beginJob()
   trackTree_->Branch("trkDxyError1",&pev_.trkDxyError1,"trkDxyError1[nTrk]/F");
   trackTree_->Branch("trkDz1",&pev_.trkDz1,"trkDz1[nTrk]/F");
   trackTree_->Branch("trkDzError1",&pev_.trkDzError1,"trkDzError1[nTrk]/F");
-  trackTree_->Branch("trkDzError2",&pev_.trkDzError2,"trkDzError2[nTrk]/F");
-  trackTree_->Branch("trkDxy2",&pev_.trkDxy2,"trkDxy2[nTrk]/F");
-  trackTree_->Branch("trkDz2",&pev_.trkDz2,"trkDz2[nTrk]/F");
-  trackTree_->Branch("trkDxyError2",&pev_.trkDxyError2,"trkDxyError2[nTrk]/F");
+  //trackTree_->Branch("trkDzError2",&pev_.trkDzError2,"trkDzError2[nTrk]/F");
+  //trackTree_->Branch("trkDxy2",&pev_.trkDxy2,"trkDxy2[nTrk]/F");
+  //trackTree_->Branch("trkDz2",&pev_.trkDz2,"trkDz2[nTrk]/F");
+  //trackTree_->Branch("trkDxyError2",&pev_.trkDxyError2,"trkDxyError2[nTrk]/F");
   trackTree_->Branch("trkFake",&pev_.trkFake,"trkFake[nTrk]/O");
   trackTree_->Branch("trkAlgo",&pev_.trkAlgo,"trkAlgo[nTrk]/I");
   trackTree_->Branch("trkOriginalAlgo",&pev_.trkOriginalAlgo,"trkOriginalAlgo[nTrk]/I");
@@ -1212,10 +1218,10 @@ TrackAnalyzer::beginJob()
       trackTree_->Branch("mtrkDzError1",&pev_.mtrkDzError1,"mtrkDzError1[nParticle]/F");
       trackTree_->Branch("mtrkDxy1",&pev_.mtrkDxy1,"mtrkDxy1[nParticle]/F");
       trackTree_->Branch("mtrkDxyError1",&pev_.mtrkDxyError1,"mtrkDxyError1[nParticle]/F");
-      trackTree_->Branch("mtrkDz2",&pev_.mtrkDz2,"mtrkDz2[nParticle]/F");
-      trackTree_->Branch("mtrkDzError2",&pev_.mtrkDzError2,"mtrkDzError2[nParticle]/F");
-      trackTree_->Branch("mtrkDxy2",&pev_.mtrkDxy2,"mtrkDxy2[nParticle]/F");
-      trackTree_->Branch("mtrkDxyError2",&pev_.mtrkDxyError2,"mtrkDxyError2[nParticle]/F");
+      //trackTree_->Branch("mtrkDz2",&pev_.mtrkDz2,"mtrkDz2[nParticle]/F");
+      //trackTree_->Branch("mtrkDzError2",&pev_.mtrkDzError2,"mtrkDzError2[nParticle]/F");
+      //trackTree_->Branch("mtrkDxy2",&pev_.mtrkDxy2,"mtrkDxy2[nParticle]/F");
+      //trackTree_->Branch("mtrkDxyError2",&pev_.mtrkDxyError2,"mtrkDxyError2[nParticle]/F");
       trackTree_->Branch("mtrkAlgo",&pev_.mtrkAlgo,"mtrkAlgo[nParticle]/I");
       trackTree_->Branch("mtrkOriginalAlgo",&pev_.mtrkOriginalAlgo,"mtrkOriginalAlgo[nParticle]/I");
       if(doMVA_) trackTree_->Branch("mtrkMVA",&pev_.mtrkMVA,"mtrkMVA[nParticle]/F");
@@ -1231,6 +1237,7 @@ TrackAnalyzer::beginJob()
 
 
 }
+
 
 //--------------------------------------------------------------------------------------------------
 template <typename TYPE>

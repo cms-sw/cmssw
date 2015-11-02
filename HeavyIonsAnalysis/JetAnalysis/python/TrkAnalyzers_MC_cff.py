@@ -8,7 +8,7 @@ from HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_cff import *
 anaTrack.doSimVertex = True
 #anaTrack.doSimTrack = True
 anaTrack.fillSimTrack = cms.untracked.bool(True)
-anaTrack.simTrackPtMin = 0.4
+anaTrack.simTrackPtMin = 0.49
 
 pixelTrack.doSimVertex = True
 #pixelTrack.doSimTrack = True
@@ -16,7 +16,7 @@ pixelTrack.simTrackPtMin = 0.4
 pixelTrack.fillSimTrack = cms.untracked.bool(True)
 
 mergedTrack.doSimTrack = True
-mergedTrack.simTrackPtMin = 0.4
+mergedTrack.simTrackPtMin = 0.49
 mergedTrack.fillSimTrack = cms.untracked.bool(True)
 
 # anaTrack.tpFakeSrc = cms.untracked.InputTag("cutsTPForFak")
@@ -34,7 +34,7 @@ mergedTrack.fillSimTrack = cms.untracked.bool(True)
 ppTrack.doSimVertex = True
 ppTrack.doSimTrack = True
 ppTrack.fillSimTrack = cms.untracked.bool(True)
-ppTrack.simTrackPtMin = 0.4
+ppTrack.simTrackPtMin = 0.49
 # ppTrack.tpFakeSrc = cms.untracked.InputTag("cutsTPForFak")
 # ppTrack.tpEffSrc = cms.untracked.InputTag("cutsTPForEff")
 # ppTrack.tpFakeSrc = cms.untracked.InputTag("cutsTPForFak")
