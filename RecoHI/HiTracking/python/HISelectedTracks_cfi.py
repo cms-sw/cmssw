@@ -18,7 +18,7 @@ hiInitialStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackS
     name = 'hiInitialStepTight',
     preFilterName = 'hiInitialStepLoose',
     useMVA = cms.bool(True),
-    minMVA = cms.double(-0.38)
+    minMVA = cms.double(-0.77)
     ),
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
     name = 'hiInitialStep',
