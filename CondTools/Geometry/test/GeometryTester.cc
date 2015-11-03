@@ -29,7 +29,6 @@
 #include "Geometry/Records/interface/PEcalEndcapRcd.h"
 #include "Geometry/Records/interface/PEcalPreshowerRcd.h"
 #include "Geometry/Records/interface/PHcalRcd.h"
-#include "Geometry/Records/interface/PHGCalRcd.h"
 #include "Geometry/Records/interface/PCaloTowerRcd.h"
 #include "Geometry/Records/interface/PCastorRcd.h"
 #include "Geometry/Records/interface/PZdcRcd.h"
@@ -45,7 +44,6 @@ GeometryTester::GeometryTester(const edm::ParameterSet& iConfig)
   tktest=iConfig.getUntrackedParameter<bool>("TrackerTest", true);
   ecaltest=iConfig.getUntrackedParameter<bool>("EcalTest", true);
   hcaltest=iConfig.getUntrackedParameter<bool>("HcalTest", true);
-  hgcaltest=iConfig.getUntrackedParameter<bool>("HGCalTest", true);
   calotowertest=iConfig.getUntrackedParameter<bool>("CaloTowerTest", true);
   castortest=iConfig.getUntrackedParameter<bool>("CastorTest", true);
   zdctest=iConfig.getUntrackedParameter<bool>("ZDCTest", true);
@@ -182,40 +180,6 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     std::vector<float> dimh = hgeo->getDimension();
     std::vector<uint32_t> indh = hgeo->getIndexes();
     std::vector<uint32_t> dindh = hgeo->getDenseIndices();
-    std::cout << "Translations " << tsh.size() << "\n";
-    std::cout << "Dimensions " << dimh.size() << "\n";
-    std::cout << "Indices " << indh.size() << "\n";
-    std::cout << "Dense Indices " << dindh.size() << "\n";
-    for( std::vector<float>::const_iterator it = tsh.begin(), end = tsh.end(); it != end; ++it )
-    {
-      std::cout << (*it);
-    } 
-    std::cout << "\n";
-    for( std::vector<float>::const_iterator it = dimh.begin(), end = dimh.end(); it != end; ++it )
-    {
-      std::cout << (*it);
-    } 
-    std::cout << "\n";
-    for( std::vector<uint32_t>::const_iterator it = indh.begin(), end = indh.end(); it != end; ++it )
-    {
-      std::cout << (*it);
-    } 
-    for( std::vector<uint32_t>::const_iterator it = dindh.begin(), end = dindh.end(); it != end; ++it )
-    {
-	std::cout << (*it);
-    } 
-    std::cout << "\n";
-  }
-  
-  if( hgcaltest )
-  {
-    edm::ESHandle<PCaloGeometry> hgcgeo;
-    iSetup.get<PHGCalRcd>().get(hgcgeo);
-    std::cout << "HGCAL\n";
-    std::vector<float> tsh = hgcgeo->getTranslation();
-    std::vector<float> dimh = hgcgeo->getDimension();
-    std::vector<uint32_t> indh = hgcgeo->getIndexes();
-    std::vector<uint32_t> dindh = hgcgeo->getDenseIndices();
     std::cout << "Translations " << tsh.size() << "\n";
     std::cout << "Dimensions " << dimh.size() << "\n";
     std::cout << "Indices " << indh.size() << "\n";
