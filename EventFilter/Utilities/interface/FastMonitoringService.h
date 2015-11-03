@@ -69,7 +69,7 @@ namespace evf{
 	  return (it!=quickReference_.end()) ? (*it).second : 0;
 	}
 	const void* decode(unsigned int index){return decoder_[index];}
-	void fillReserved(void* add, unsigned int i){
+	void fillReserved(const void* add, unsigned int i){
 	  //	  translation_[*name]=current_; 
 	  quickReference_[add]=i; 
 	  if(decoder_.size()<=i)
@@ -77,7 +77,7 @@ namespace evf{
 	  else
 	    decoder_[currentReserved_] = add;
 	}
-	void updateReserved(void* add){
+	void updateReserved(const void* add){
 	  fillReserved(add,currentReserved_);
 	  currentReserved_++;
 	}
@@ -86,7 +86,7 @@ namespace evf{
 	  for(unsigned int i = currentReserved_; i<reserved_; i++)
 	    fillReserved(dummiesForReserved_+i,i);
 	}
-	void update(void* add){
+	void update(const void* add){
 	  //	  translation_[*name]=current_; 
 	  quickReference_[add]=current_; 
 	  decoder_.push_back(add); 
