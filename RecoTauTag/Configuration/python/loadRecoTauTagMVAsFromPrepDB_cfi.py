@@ -7,25 +7,16 @@ loadRecoTauTagMVAsFromPrepDB = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(),                                             
     #  connect = cms.string("frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS") # prep database
     connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000') # prod database
-    #'sqlite_file:/afs/cern.ch/user/j/jez/public/tauID/RecoTauTag_MVAs_2014Oct22.db')
-)
-
-loadRecoTauTagMVAsFromPrepDB2 = cms.ESSource("PoolDBESSource",
-    CondDBSetup,
-    DumpStat = cms.untracked.bool(False),
-    toGet = cms.VPSet(),
-    #  connect = cms.string("frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS") # prep database
-    connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000') # prod database
-    #connect = cms.string('sqlite_file:RecoTauTag/Configuration/data/RecoTauTag_MVAs_2015Oct21.db') 
+    #connect = cms.string('sqlite_file:RecoTauTag/Configuration/data/RecoTauTag_MVAs_2015Oct21.db')
 )
 
 # register tau ID (= isolation) discriminator MVA
-tauIdDiscrMVA_trainings = {
-    'tauIdMVAoldDMwoLT' : "tauIdMVAoldDMwoLT",
-    'tauIdMVAoldDMwLT'  : "tauIdMVAoldDMwLT",
-    'tauIdMVAnewDMwoLT' : "tauIdMVAnewDMwoLT",
-    'tauIdMVAnewDMwLT'  : "tauIdMVAnewDMwLT"
-}
+#tauIdDiscrMVA_trainings = {
+#    'tauIdMVAoldDMwoLT' : "tauIdMVAoldDMwoLT",
+#    'tauIdMVAoldDMwLT'  : "tauIdMVAoldDMwLT",
+#    'tauIdMVAnewDMwoLT' : "tauIdMVAnewDMwoLT",
+#    'tauIdMVAnewDMwLT'  : "tauIdMVAnewDMwLT"
+#}
 tauIdDiscrMVA_trainings_run2 = {
     'tauIdMVADBoldDMwLT' : "tauIdMVADBoldDMwLT",
     'tauIdMVADBnewDMwLT' : "tauIdMVADBnewDMwLT",
@@ -34,40 +25,40 @@ tauIdDiscrMVA_trainings_run2 = {
     'tauIdMVADBdR03oldDMwLT' : "tauIdMVADBdR03oldDMwLT",
     'tauIdMVAPWdR03oldDMwLT' : "tauIdMVAPWdR03oldDMwLT"
 }
-tauIdDiscrMVA_WPs = {
-    'tauIdMVAoldDMwoLT' : {
-        'Eff90' : "oldDMwoLTEff90",
-        'Eff80' : "oldDMwoLTEff80",
-        'Eff70' : "oldDMwoLTEff70",
-        'Eff60' : "oldDMwoLTEff60",
-        'Eff50' : "oldDMwoLTEff50",
-        'Eff40' : "oldDMwoLTEff40"
-    },
-    'tauIdMVAoldDMwLT'  : {
-        'Eff90' : "oldDMwLTEff90",
-        'Eff80' : "oldDMwLTEff80",
-        'Eff70' : "oldDMwLTEff70",
-        'Eff60' : "oldDMwLTEff60",
-        'Eff50' : "oldDMwLTEff50",
-        'Eff40' : "oldDMwLTEff40"
-    },
-    'tauIdMVAnewDMwoLT' : {
-        'Eff90' : "newDMwoLTEff90",
-        'Eff80' : "newDMwoLTEff80",
-        'Eff70' : "newDMwoLTEff70",
-        'Eff60' : "newDMwoLTEff60",
-        'Eff50' : "newDMwoLTEff50",
-        'Eff40' : "newDMwoLTEff40"
-    },
-    'tauIdMVAnewDMwLT'  : {
-        'Eff90' : "newDMwLTEff90",
-        'Eff80' : "newDMwLTEff80",
-        'Eff70' : "newDMwLTEff70",
-        'Eff60' : "newDMwLTEff60",
-        'Eff50' : "newDMwLTEff50",
-        'Eff40' : "newDMwLTEff40"
-    }
-}
+#tauIdDiscrMVA_WPs = {
+#    'tauIdMVAoldDMwoLT' : {
+#        'Eff90' : "oldDMwoLTEff90",
+#        'Eff80' : "oldDMwoLTEff80",
+#        'Eff70' : "oldDMwoLTEff70",
+#        'Eff60' : "oldDMwoLTEff60",
+#        'Eff50' : "oldDMwoLTEff50",
+#        'Eff40' : "oldDMwoLTEff40"
+#    },
+#    'tauIdMVAoldDMwLT'  : {
+#        'Eff90' : "oldDMwLTEff90",
+#        'Eff80' : "oldDMwLTEff80",
+#        'Eff70' : "oldDMwLTEff70",
+#        'Eff60' : "oldDMwLTEff60",
+#        'Eff50' : "oldDMwLTEff50",
+#        'Eff40' : "oldDMwLTEff40"
+#    },
+#    'tauIdMVAnewDMwoLT' : {
+#        'Eff90' : "newDMwoLTEff90",
+#        'Eff80' : "newDMwoLTEff80",
+#        'Eff70' : "newDMwoLTEff70",
+#        'Eff60' : "newDMwoLTEff60",
+#        'Eff50' : "newDMwoLTEff50",
+#        'Eff40' : "newDMwoLTEff40"
+#    },
+#    'tauIdMVAnewDMwLT'  : {
+#        'Eff90' : "newDMwLTEff90",
+#        'Eff80' : "newDMwLTEff80",
+#        'Eff70' : "newDMwLTEff70",
+#        'Eff60' : "newDMwLTEff60",
+#        'Eff50' : "newDMwLTEff50",
+#        'Eff40' : "newDMwLTEff40"
+#    }
+#}
 tauIdDiscrMVA_WPs_run2 = {
     'tauIdMVADBoldDMwLT' : {
         'Eff90' : "DBoldDMwLTEff90",
@@ -118,12 +109,12 @@ tauIdDiscrMVA_WPs_run2 = {
         'Eff40' : "PWdR03oldDMwLTEff40"
     }
 }
-tauIdDiscrMVA_mvaOutput_normalizations = {
-    'tauIdMVAoldDMwoLT' : "mvaOutput_normalization_oldDMwoLT",
-    'tauIdMVAoldDMwLT'  : "mvaOutput_normalization_oldDMwLT",
-    'tauIdMVAnewDMwoLT' : "mvaOutput_normalization_newDMwoLT",
-    'tauIdMVAnewDMwLT'  : "mvaOutput_normalization_newDMwLT"
-}
+#tauIdDiscrMVA_mvaOutput_normalizations = {
+#    'tauIdMVAoldDMwoLT' : "mvaOutput_normalization_oldDMwoLT",
+#    'tauIdMVAoldDMwLT'  : "mvaOutput_normalization_oldDMwLT",
+#    'tauIdMVAnewDMwoLT' : "mvaOutput_normalization_newDMwoLT",
+#    'tauIdMVAnewDMwLT'  : "mvaOutput_normalization_newDMwLT"
+#}
 tauIdDiscrMVA_mvaOutput_normalizations_run2 = {
     'tauIdMVADBoldDMwLT' : "mvaOutput_normalization_DBoldDMwLT",
     'tauIdMVADBnewDMwLT' : "mvaOutput_normalization_DBnewDMwLT",
@@ -157,7 +148,7 @@ tauIdDiscrMVA_version = "v1"
 #        )
 #    )
 for training, gbrForestName in tauIdDiscrMVA_trainings_run2.items():
-    loadRecoTauTagMVAsFromPrepDB2.toGet.append(
+    loadRecoTauTagMVAsFromPrepDB.toGet.append(
         cms.PSet(
             record = cms.string('GBRWrapperRcd'),
             tag = cms.string("RecoTauTag_%s%s" % (gbrForestName, tauIdDiscrMVA_version)),
@@ -165,14 +156,14 @@ for training, gbrForestName in tauIdDiscrMVA_trainings_run2.items():
         )
     )
     for WP in tauIdDiscrMVA_WPs_run2[training].keys():
-        loadRecoTauTagMVAsFromPrepDB2.toGet.append(
+        loadRecoTauTagMVAsFromPrepDB.toGet.append(
             cms.PSet(
                 record = cms.string('PhysicsTGraphPayloadRcd'),
                 tag = cms.string("RecoTauTag_%s%s_WP%s" % (gbrForestName, tauIdDiscrMVA_version, WP)),
                 label = cms.untracked.string("RecoTauTag_%s%s_WP%s" % (gbrForestName, tauIdDiscrMVA_version, WP))
             )
         )
-    loadRecoTauTagMVAsFromPrepDB2.toGet.append(
+    loadRecoTauTagMVAsFromPrepDB.toGet.append(
         cms.PSet(
             record = cms.string('PhysicsTFormulaPayloadRcd'),
             tag = cms.string("RecoTauTag_%s%s_mvaOutput_normalization" % (gbrForestName, tauIdDiscrMVA_version)),
