@@ -568,7 +568,8 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   // will create a map (dccid, spigot) -> DetID to be used in process_Digi later
   for (int i=FEDNumbering::MINHCALFEDID; 
 		  i<=FEDNumbering::MAXHCALuTCAFEDID; i++) {
-	  if (i>FEDNumbering::MAXHCALFEDID && i<FEDNumbering::MINHCALuTCAFEDID)
+	  //	Skipping uHBHE FEDs
+	  if (i>FEDNumbering::MAXHCALFEDID && i<1118)
 		  continue;
     const FEDRawData& fed = rawraw->FEDData(i);
     if (fed.size()<12) continue;  //At least the size of headers and trailers of a DCC.    
