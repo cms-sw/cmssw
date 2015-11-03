@@ -1,8 +1,8 @@
 // -*- C++ -*-
 //
-// Class:      HLTHcalTowerNoiseCleaner
+// Class:      HLTHcalTowerNoiseCleanerWithrechit
 // 
-/**\class HLTHcalTowerNoiseCleaner
+/**\class HLTHcalTowerNoiseCleanerWithrechit
 
  Description: HLT filter module for cleaning HCal Noise from MET or MHT
 
@@ -29,9 +29,6 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
@@ -46,11 +43,11 @@
 #include <TLorentzVector.h>
 #include <set>
 
-#include "HLTrigger/JetMET/interface/HLTHcalTowerNoiseCleaner.h"
+#include "HLTrigger/JetMET/interface/HLTHcalTowerNoiseCleanerWithrechit.h"
 
 //#include <Point.h>
 
-HLTHcalTowerNoiseCleaner::HLTHcalTowerNoiseCleaner(const edm::ParameterSet& iConfig)
+HLTHcalTowerNoiseCleanerWithrechit::HLTHcalTowerNoiseCleanerWithrechit(const edm::ParameterSet& iConfig)
   : HcalNoiseRBXCollectionTag_(iConfig.getParameter<edm::InputTag>("HcalNoiseRBXCollection")),
     TowerCollectionTag_(iConfig.getParameter<edm::InputTag>("CaloTowerCollection")),
     severity_(iConfig.getParameter<int> ("severity")),
@@ -98,10 +95,10 @@ HLTHcalTowerNoiseCleaner::HLTHcalTowerNoiseCleaner(const edm::ParameterSet& iCon
 }
 
 
-HLTHcalTowerNoiseCleaner::~HLTHcalTowerNoiseCleaner(){}
+HLTHcalTowerNoiseCleanerWithrechit::~HLTHcalTowerNoiseCleanerWithrechit(){}
 
 void
-HLTHcalTowerNoiseCleaner::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+HLTHcalTowerNoiseCleanerWithrechit::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("HcalNoiseRBXCollection",edm::InputTag("hltHcalNoiseInfoProducer"));
   desc.add<edm::InputTag>("CaloTowerCollection",edm::InputTag("hltTowerMakerForAll"));
@@ -142,14 +139,14 @@ HLTHcalTowerNoiseCleaner::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<std::vector<double> >("TS4TS5LowerThreshold", TS4TS5LowerThreshold);
   desc.add<std::vector<double> >("TS4TS5LowerCut", TS4TS5LowerCut);
   desc.add<std::vector<double> >("hltRBXRecHitR45Cuts", hltRBXRecHitR45Cuts);
-  descriptions.add("hltHcalTowerNoiseCleaner",desc);
+  descriptions.add("hltHcalTowerNoiseCleanerWithrechit",desc);
 }
 
 //
 // member functions
 //
 
-void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void HLTHcalTowerNoiseCleanerWithrechit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace reco;
 
@@ -160,19 +157,16 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
   std::set<unsigned int> noisyTowers;
 
   if(not tower_h.isValid()){ //No towers MET, don't do anything and accept the event
-    edm::LogError("HLTHcalTowerNoiseCleaner") << "Input Tower Collection is not Valid";
+    edm::LogError("HLTHcalTowerNoiseCleanerWithrechit") << "Input Tower Collection is not Valid";
     return;
   }
 
-  //get the calotower topology
-  edm::ESHandle<CaloTowerTopology> caloTowerTopology;
-  iSetup.get<HcalRecNumberingRecord>().get(caloTowerTopology);
   
   // get the RBXs produced by RecoMET/METProducers/HcalNoiseInfoProducer
   edm::Handle<HcalNoiseRBXCollection> rbxs_h;
   iEvent.getByToken(m_theHcalNoiseToken,rbxs_h);
   if(!rbxs_h.isValid()) {
-    edm::LogWarning("HLTHcalTowerNoiseCleaner") << "Could not find HcalNoiseRBXCollection product named "
+    edm::LogWarning("HLTHcalTowerNoiseCleanerWithrechit") << "Could not find HcalNoiseRBXCollection product named "
 					      << HcalNoiseRBXCollectionTag_ << "." << std::endl;
     severity_=0;
   }
@@ -202,8 +196,7 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
 	double Value = r45Count * hltMinRBXRechitR45Cuts_[i] + r45Fraction * hltMinRBXRechitR45Cuts_[i+1] + r45EnergyFraction * hltMinRBXRechitR45Cuts_[i+2] + hltMinRBXRechitR45Cuts_[i+3];
 	if (Value > 0) passRechitr45=false;
       }
-      //if(passRechitr45==false)
-       //std::cout<<"r45EnergyFraction:"<<it->r45EnergyFraction()<<"|r45Fraction:"<<it->r45Fraction()<<std::endl;
+
       bool passFilter=true;
       bool passEMF=true;
       if(it->energy()>minRBXEnergy_) {
@@ -215,7 +208,6 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
 	else if(it->numZeros()>=minZeros_)                   passFilter=false;
 	else if(it->minHighEHitTime()<minHighEHitTime_)      passFilter=false;
 	else if(it->maxHighEHitTime()>maxHighEHitTime_)      passFilter=false;
-	//else if(!it->PassTS4TS5())                           passFilter=false;
 	else if (passRechitr45==false)                       passFilter=false;
 	if(it->RBXEMF()<maxRBXEMF_){
 	  passEMF=false;
@@ -224,7 +216,7 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
       
       if((needEMFCoincidence_ && !passEMF && !passFilter) ||
 	 (!needEMFCoincidence_ && !passFilter)) { // check for noise
-	LogDebug("") << "HLTHcalTowerNoiseCleaner debug: Found a noisy RBX: "
+	LogDebug("") << "HLTHcalTowerNoiseCleanerWithrechit debug: Found a noisy RBX: "
 		     << "energy=" << it->energy() << "; "
 		     << "ratio=" << it->ratio() << "; "
 		     << "# RBX hits=" << it->numRBXHits() << "; "
@@ -232,7 +224,6 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
 		     << "# Zeros=" << it->numZeros() << "; "
 		     << "min time=" << it->minHighEHitTime() << "; "
 		     << "max time=" << it->maxHighEHitTime() << "; "
-		     //<< "passTS4TS5=" << it->PassTS4TS5() << "; "
 		     << "RBX EMF=" << it->RBXEMF()
 		     << std::endl;
 	// add calotowers associated with this RBX to the noise list
@@ -242,7 +233,7 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
 	for( noiseTowersIt = noiseTowers.begin(); noiseTowersIt != noiseTowers.end(); noiseTowersIt++){
 	  edm::Ref<edm::SortedCollection<CaloTower> > tower_ref = *noiseTowersIt;
 	  CaloTowerDetId id = tower_ref->id();
-	  noisyTowers.insert( caloTowerTopology->denseIndex(id) );
+	  noisyTowers.insert( id.denseIndex() );
 	}}
     } // done with noise loop
   }//if(severity_>0)
@@ -255,7 +246,7 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
   for(inTowersIt = tower_h->begin(); inTowersIt != tower_h->end(); inTowersIt++){
     const CaloTower & tower = (*inTowersIt);
     CaloTowerDetId id = tower.id();
-    if(noisyTowers.find( caloTowerTopology->denseIndex(id) ) == noisyTowers.end()){ // the tower is not noisy
+    if(noisyTowers.find( id.denseIndex() ) == noisyTowers.end()){ // the tower is not noisy
       OutputTowers->push_back(*inTowersIt);
     }
   }
