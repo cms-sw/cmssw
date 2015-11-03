@@ -124,7 +124,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   daqDirector_ = edm::Service<evf::EvFDaqDirector>().operator->();
   if (!daqDirector_)
     cms::Exception("FedRawDataInputSource") << "EvFDaqDirector not found";
-  }
+
   //set DaqDirector to delete files in preGlobalEndLumi callback
   daqDirector_->setDeleteTracking(&fileDeleteLock_,&filesToDelete_);
   if (fms_) daqDirector_->setFMS(fms_);

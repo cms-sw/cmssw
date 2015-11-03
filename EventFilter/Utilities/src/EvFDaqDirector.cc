@@ -109,7 +109,7 @@ namespace evf {
         edm::LogInfo("Setting fu lock poll interval by environment string: ") << fuLockPollInterval_ << " us";
       }
       catch( boost::bad_lexical_cast const& ) {
-        {edm::LogWarning("Bad lexical cast in parsing: ") << std::string(fuLockPollIntervalPtr); 
+        edm::LogWarning("Bad lexical cast in parsing: ") << std::string(fuLockPollIntervalPtr); 
       }
     }
 
