@@ -154,7 +154,7 @@ The phase 2 detector DetId schema is identical to the one of the phase 1 detecto
 | Layer | 20 | 0xF | 4 | tobLayer(id) or layer(id) | increasing r |
 | Ladder | 12 | 0xFF | 8 | tobRod(id) | increasing phi |
 | Module | 2 | 0x3FF | 10 | tobModule(id) | increasing z |
-| Module type | 0 | 0x3 | 2 | | 1=lower (P sensor into PS), 2=upper (S sensor into PS), 0=pair |
+| Module type | 0 | 0x3 | 2 | | 1=lower in local s.o.r. (P sensor into PS), 2=upper in local s.o.r. (S sensor into PS), 0=pair |
 
 * Subdetector 4  (`DetId::subDetId() == StripSubdetector::TID`): Phase2 Outer Tracker Endcap
 
@@ -166,7 +166,7 @@ The phase 2 detector DetId schema is identical to the one of the phase 1 detecto
 | _Ring_ | 12 | 0x3F | 6 | tidRing(id) | increasing r |
 | Panel | 10 | 0x3 | 2 | _tidOrder(id)_ | always = 1 |
 | Module | 2 | 0xFF | 8 | tidModule(id) | increasing phi |
-| Module type | 0 | 0x3 | 2 | | 1=lower (P sensor into PS), 2=upper (S sensor into PS), 0=pair |
+| Module type | 0 | 0x3 | 2 | | 1=lower in local s.o.r. (P sensor into PS), 2=upper in local s.o.r. (S sensor into PS), 0=pair |
 
 The configuration names for this detid schema are `trackerNumbering2023Geometry_cfi` for `TrackerGeometricDetESModule` and `trackerTopology2023Constants_cfi` for `TrackerTopology`
 
