@@ -759,6 +759,9 @@ def customise_Reco(process):
         process.particleFlowClusterHO.pfClusterBuilder.positionCalc.logWeightDenominator = cms.double(0.05)
         process.particleFlowClusterHO.pfClusterBuilder.allCellsPositionCalc.logWeightDenominator = cms.double(0.05)
 
+        from RecoHI.Configuration.customise_PPwithHI import addHIIsolationProducer
+        process = addHIIsolationProducer(process)
+
     return process
 
 
