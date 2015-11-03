@@ -157,7 +157,7 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
   bool tkMapFED = tkmapPset.getUntrackedParameter<bool>("fedMap",false);
   std::string namesuffix = tkmapPset.getUntrackedParameter<std::string>("mapSuffix",""); 
  
-  unsigned long long runNumber_ = tkmapPset.getUntrackedParameter<unsigned long long>("RunNumber",0);
+  unsigned int runNumber_ = tkmapPset.getUntrackedParameter<unsigned int>("RunNumber",1);
 
   std::stringstream ss;
   ss << runNumber_;

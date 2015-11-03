@@ -19,7 +19,7 @@ options.register ('dqmFile',
                                     VarParsing.VarParsing.varType.string,          # string, int, or float
                                     "DQM root file")
 options.register ('runNumber',
-                                    0,
+                                    1,
                                     VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                                     VarParsing.VarParsing.varType.int,          # string, int, or float
                                     "run number")
@@ -111,17 +111,17 @@ process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
           meanToMaxFact     = cms.untracked.double(2.5)
        ),
        TkMapOptions             = cms.untracked.VPSet(
-    cms.PSet(mapName=cms.untracked.string('QTestAlarm'),fedMap=cms.untracked.bool(True),useSSQuality=cms.untracked.bool(True),ssqLabel=cms.untracked.string(""),psuMap=cms.untracked.bool(True),loadLVCabling=cms.untracked.bool(True),mapMax=cms.untracked.double(1.),RunNumber=cms.untracked.uint64(options.runNumber)),
-    cms.PSet(mapName=cms.untracked.string('FractionOfBadChannels'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True),RunNumber=cms.untracked.uint64(options.runNumber)),
-    cms.PSet(mapName=cms.untracked.string('NumberOfCluster'),TopModules=cms.untracked.bool(True),numberTopModules=cms.untracked.int32(20),RunNumber=cms.untracked.uint64(options.runNumber)),
-    cms.PSet(mapName=cms.untracked.string('NumberOfDigi'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint64(options.runNumber)),
-    cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint64(options.runNumber)),
-    cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster'),mapSuffix=cms.untracked.string("_autoscale"),mapMax=cms.untracked.double(-1.),RunNumber=cms.untracked.uint64(options.runNumber)),
-    cms.PSet(mapName=cms.untracked.string('NumberOfOnTrackCluster'),RunNumber=cms.untracked.uint64(options.runNumber)),
-    cms.PSet(mapName=cms.untracked.string('StoNCorrOnTrack'),RunNumber=cms.untracked.uint64(options.runNumber)),
-    cms.PSet(mapName=cms.untracked.string('NApvShots'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True),RunNumber=cms.untracked.uint64(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('QTestAlarm'),fedMap=cms.untracked.bool(True),useSSQuality=cms.untracked.bool(True),ssqLabel=cms.untracked.string(""),psuMap=cms.untracked.bool(True),loadLVCabling=cms.untracked.bool(True),mapMax=cms.untracked.double(1.),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('FractionOfBadChannels'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('NumberOfCluster'),TopModules=cms.untracked.bool(True),numberTopModules=cms.untracked.int32(20),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('NumberOfDigi'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster'),mapSuffix=cms.untracked.string("_autoscale"),mapMax=cms.untracked.double(-1.),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('NumberOfOnTrackCluster'),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('StoNCorrOnTrack'),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('NApvShots'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber)),
 #    cms.PSet(mapName=cms.untracked.string('NApvShots'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True),psuMap=cms.untracked.bool(True),loadLVCabling=cms.untracked.bool(True)),
-    cms.PSet(mapName=cms.untracked.string('MedianChargeApvShots'),mapMax=cms.untracked.double(-1.),RunNumber=cms.untracked.uint64(options.runNumber))
+    cms.PSet(mapName=cms.untracked.string('MedianChargeApvShots'),mapMax=cms.untracked.double(-1.),RunNumber=cms.untracked.uint32(options.runNumber))
     )
 )
 
@@ -148,7 +148,7 @@ process.ssqualitystat = cms.EDAnalyzer("SiStripQualityStatistics",
                                        dataLabel = cms.untracked.string(""),
                                        TkMapFileName = cms.untracked.string("PCLBadComponents.png"),  #available filetypes: .pdf .png .jpg .svg
                                        SaveTkHistoMap = cms.untracked.bool(False),
-                                       RunNumber=cms.untracked.uint64(options.runNumber)
+                                       RunNumber=cms.untracked.uint32(options.runNumber)
                               )
 
 

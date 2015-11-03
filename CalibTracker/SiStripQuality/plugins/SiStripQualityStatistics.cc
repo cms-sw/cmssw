@@ -34,7 +34,7 @@ SiStripQualityStatistics::SiStripQualityStatistics( const edm::ParameterSet& iCo
   TkMapFileName_(iConfig.getUntrackedParameter<std::string>("TkMapFileName","")),
   fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
   saveTkHistoMap_(iConfig.getUntrackedParameter<bool>("SaveTkHistoMap",true)),
-  runNumberA_(iConfig.getUntrackedParameter<unsigned long long>("RunNumber",0)),
+  runNumberA_(iConfig.getUntrackedParameter<unsigned int>("RunNumber",1)),
   tkMap(0),tkMapFullIOVs(0)
 {  
   reader = new SiStripDetInfoFileReader(fp_.fullPath());
