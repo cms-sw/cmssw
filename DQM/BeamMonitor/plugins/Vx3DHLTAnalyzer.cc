@@ -215,7 +215,7 @@ string Vx3DHLTAnalyzer::formatTime (const time_t& t)
 }
 
 
-double Gauss3DFunc (const double* par)
+double Vx3DHLTAnalyzer::Gauss3DFunc (const double* par)
 {
   double K[DIM][DIM]; // Covariance Matrix
   double M[DIM][DIM]; // K^-1
@@ -326,7 +326,7 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
       if (internalDebug == true) Gauss3D->SetPrintLevel(3);
       else                       Gauss3D->SetPrintLevel(0);
 
-      ROOT::Math::Functor _Gauss3DFunc(&Gauss3DFunc,nParams);
+      ROOT::Math::Functor _Gauss3DFunc(this, &Vx3DHLTAnalyzer::Gauss3DFunc, nParams);
       Gauss3D->SetFunction(_Gauss3DFunc);
 
       if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\t@@@ START FITTING @@@" << endl;
