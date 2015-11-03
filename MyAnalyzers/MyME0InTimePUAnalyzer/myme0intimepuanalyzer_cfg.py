@@ -23,7 +23,7 @@ secFiles = cms.untracked.vstring()
 process.source = cms.Source("PoolSource",
                             fileNames = readFiles, 
                             secondaryFileNames = secFiles,
-                            eventsToProcess = cms.untracked.VEventRange('1:1157:115618'), # Run 1, Event 115618, LumiSection 1157
+                            # eventsToProcess = cms.untracked.VEventRange('1:1157:115618'), # Run 1, Event 115618, LumiSection 1157
                             # eventsToProcess = cms.untracked.VEventRange('1:2010:200906'), # Run 1, Event 200906, LumiSection 2010
                             # eventsToProcess = cms.untracked.VEventRange('1:22779:540983'), # Run 1 LS 22779 Evt 540983
                             # eventsToProcess = cms.untracked.VEventRange('1:26043:618522'), # Run 1 LS 26043 Evt 618522
@@ -56,7 +56,7 @@ readFiles.extend([
         # '/store/group/upgrade/muon/ME0GlobalReco/ME0MuonReRun_DY_SLHC23patch1_SegmentReRunFullRun_ForPublish/M-20_TuneZ2star_14TeV_6_2_0_SLHC23patch1_2023/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_2023SHCalNoTaper_PU140_Selectors_RECO/b52ce42d5986c94dc336f39e015d825e/output_117_1_AHh.root',
         # '/store/group/upgrade/muon/ME0GlobalReco/ME0MuonReRun_DY_SLHC23patch1_SegmentReRunFullRun_ForPublish/M-20_TuneZ2star_14TeV_6_2_0_SLHC23patch1_2023/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_2023SHCalNoTaper_PU140_Selectors_RECO/b52ce42d5986c94dc336f39e015d825e/output_118_1_htl.root',
         ########################################################################
-        '/store/group/upgrade/muon/ME0GlobalReco/ME0MuonReRun_DY_SLHC23patch1_SegmentReRunFullRun_ForPublish/M-20_TuneZ2star_14TeV_6_2_0_SLHC23patch1_2023/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_2023SHCalNoTaper_PU140_Selectors_RECO/b52ce42d5986c94dc336f39e015d825e/output_896_2_3B7.root'
+        # '/store/group/upgrade/muon/ME0GlobalReco/ME0MuonReRun_DY_SLHC23patch1_SegmentReRunFullRun_ForPublish/M-20_TuneZ2star_14TeV_6_2_0_SLHC23patch1_2023/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_2023SHCalNoTaper_PU140_Selectors_RECO/b52ce42d5986c94dc336f39e015d825e/output_896_2_3B7.root'
         ########################################################################
         #################### Samples Amandeep ##################################
         # '/store/user/amkalsi/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_MinBias_ME0_RECO_TimingResolution_100ps/234f53f4ed8c29359bbc4ab1d08753f2/out_reco_78_1_ccv.root',
@@ -82,6 +82,30 @@ readFiles.extend([
         # '/store/user/piet/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_RECO/a6c1ab73bd1959e4a7fbbca874362562/out_reco_30_1_2Xy.root',
         # '/store/user/piet/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_RECO/a6c1ab73bd1959e4a7fbbca874362562/out_reco_3_1_6rT.root',
         ########################################################################
+        #################### Samples Piet V2 ###################################
+        'store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_v2_RECO/151021_081029/0000/out_reco_1.root',
+        # 'store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_v2_RECO/151021_081029/0000/out_reco_10.root',
+        # 'store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_v2_RECO/151021_081029/0000/out_reco_101.root',
+        # 'store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_v2_RECO/151021_081029/0000/out_reco_102.root',
+        # 'store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_v2_RECO/151021_081029/0000/out_reco_103.root',
+        # 'store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_v2_RECO/151021_081029/0000/out_reco_104.root',
+        # 'store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_v2_RECO/151021_081029/0000/out_reco_105.root',
+        # 'store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_v2_RECO/151021_081029/0000/out_reco_107.root',
+        # 'store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_v2_RECO/151021_081029/0000/out_reco_108.root',
+        # 'store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_v2_RECO/151021_081029/0000/out_reco_11.root',
+        ########################################################################
+        #################### Samples Piet Neutron Background ###################
+        '/store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_NeutrBkg_5E34_RECO/151102_231805/0000/out_reco_1.root',
+        # '/store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_NeutrBkg_5E34_RECO/151102_231805/0000/out_reco_10.root',
+        # '/store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_NeutrBkg_5E34_RECO/151102_231805/0000/out_reco_102.root',
+        # '/store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_NeutrBkg_5E34_RECO/151102_231805/0000/out_reco_103.root',
+        # '/store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_NeutrBkg_5E34_RECO/151102_231805/0000/out_reco_105.root',
+        # '/store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_NeutrBkg_5E34_RECO/151102_231805/0000/out_reco_106.root',
+        # '/store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_NeutrBkg_5E34_RECO/151102_231805/0000/out_reco_107.root',
+        # '/store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_NeutrBkg_5E34_RECO/151102_231805/0000/out_reco_108.root',
+        # '/store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_NeutrBkg_5E34_RECO/151102_231805/0000/out_reco_110.root',
+        # '/store/user/piet/ME0Segment_Time/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1p5ns_NeutrBkg_5E34_RECO/151102_231805/0000/out_reco_111.root',
+        ########################################################################
        ]);
 secFiles.extend([
 # only for first 3 files of Cesare's sample (4 step2 root files per step 3 root file)
@@ -100,36 +124,38 @@ secFiles.extend([
 # '/store/group/upgrade/muon/RecoFolder/DYToMuMu_2023_2Step_2/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/calabria_DYToMuMu_GEN-SIM-DIGI-RAW_CMSSW_6_2_0_SLHC23patch1_2023Scenario_2Step_GEMSH2/75266629395cd3363487f66c667220a2/step2_1304_3_kzy.root',
 #####################################################################################
 #### parent files for Davids Nash Special Event #####################################
-'/store/group/upgrade/muon/RecoFolder/DYToMuMu_2023_2Step_2/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/calabria_DYToMuMu_GEN-SIM-DIGI-RAW_CMSSW_6_2_0_SLHC23patch1_2023Scenario_2Step_GEMSH2/75266629395cd3363487f66c667220a2/step2_2001_1_2d6.root',
-'/store/group/upgrade/muon/RecoFolder/DYToMuMu_2023_2Step_2/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/calabria_DYToMuMu_GEN-SIM-DIGI-RAW_CMSSW_6_2_0_SLHC23patch1_2023Scenario_2Step_GEMSH2/75266629395cd3363487f66c667220a2/step2_2002_1_kiy.root',
-'/store/group/upgrade/muon/RecoFolder/DYToMuMu_2023_2Step_2/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/calabria_DYToMuMu_GEN-SIM-DIGI-RAW_CMSSW_6_2_0_SLHC23patch1_2023Scenario_2Step_GEMSH2/75266629395cd3363487f66c667220a2/step2_2003_1_C7r.root',
-'/store/group/upgrade/muon/RecoFolder/DYToMuMu_2023_2Step_2/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/calabria_DYToMuMu_GEN-SIM-DIGI-RAW_CMSSW_6_2_0_SLHC23patch1_2023Scenario_2Step_GEMSH2/75266629395cd3363487f66c667220a2/step2_2004_1_lV2.root',
-'/store/group/upgrade/muon/RecoFolder/DYToMuMu_2023_3Step/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/calabria_DYToMuMu_GEN-SIM-RECO_CMSSW_6_2_0_SLHC23patch1_2023_3Step_OKFS3/2dad437730bcb898314ced9a1ae33ee0/step3_745_1_m7z.root',
+# '/store/group/upgrade/muon/RecoFolder/DYToMuMu_2023_2Step_2/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/calabria_DYToMuMu_GEN-SIM-DIGI-RAW_CMSSW_6_2_0_SLHC23patch1_2023Scenario_2Step_GEMSH2/75266629395cd3363487f66c667220a2/step2_2001_1_2d6.root',
+# '/store/group/upgrade/muon/RecoFolder/DYToMuMu_2023_2Step_2/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/calabria_DYToMuMu_GEN-SIM-DIGI-RAW_CMSSW_6_2_0_SLHC23patch1_2023Scenario_2Step_GEMSH2/75266629395cd3363487f66c667220a2/step2_2002_1_kiy.root',
+# '/store/group/upgrade/muon/RecoFolder/DYToMuMu_2023_2Step_2/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/calabria_DYToMuMu_GEN-SIM-DIGI-RAW_CMSSW_6_2_0_SLHC23patch1_2023Scenario_2Step_GEMSH2/75266629395cd3363487f66c667220a2/step2_2003_1_C7r.root',
+# '/store/group/upgrade/muon/RecoFolder/DYToMuMu_2023_2Step_2/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/calabria_DYToMuMu_GEN-SIM-DIGI-RAW_CMSSW_6_2_0_SLHC23patch1_2023Scenario_2Step_GEMSH2/75266629395cd3363487f66c667220a2/step2_2004_1_lV2.root',
+# '/store/group/upgrade/muon/RecoFolder/DYToMuMu_2023_3Step/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/calabria_DYToMuMu_GEN-SIM-RECO_CMSSW_6_2_0_SLHC23patch1_2023_3Step_OKFS3/2dad437730bcb898314ced9a1ae33ee0/step3_745_1_m7z.root',
 #####################################################################################
         ]);
 
 process.me0timeanalyzer = cms.EDAnalyzer('MyME0InTimePUAnalyzer',
                               # ----------------------------------------------------------------------
                               RootFileName       = cms.untracked.string("ME0InTimeOutOfTimePUtHistograms.root"),
+                              InvestigateOnlyME0 = cms.untracked.bool(True),
                               # ----------------------------------------------------------------------
                               preDigiSmearX      = cms.untracked.double(0.0500), # [in cm] (single layer resolution)
                               preDigiSmearY      = cms.untracked.double(1.0),    # [in cm] (single layer resolution)
                               cscDetResX         = cms.untracked.double(0.0150), # [in cm] (chamber resolution :: 75-150um, take here 150um)
                               cscDetResY         = cms.untracked.double(5.0),    # [in cm]
-                              dtDetResX          = cms.untracked.double(0.0125), # [in cm] (chamber resolution ::  75-125um in r-phi, take here 125um)
-                              dtDetResY          = cms.untracked.double(0.0400), # [in cm] (chamber resolution :: 150-400um in r-z  , take here 400um)
+                              dtDetResX          = cms.untracked.double(0.0400), # [in cm] (chamber resolution ::  75-125um in r-phi, take here 125um) ==> seems to fail to often ... take 0.4 mm now
+                              dtDetResY          = cms.untracked.double(0.5000), # [in cm] (chamber resolution :: 150-400um in r-z  , take here 400um) ==> seems to fail to often ... take 5.0 mm now
                               nMatchedHitsME0Seg = cms.untracked.int32(3),
                               nMatchedHitsCSCSeg = cms.untracked.int32(3),
                               nMatchedHitsDTSeg  = cms.untracked.int32(6),
                               matchQualityME0    = cms.untracked.double(0.75),   # Percentage of matched hits (matched hits / total hits) >= 75% ==> 3/3 or 3/4, 4/5, 5/6
                               matchQualityReco   = cms.untracked.double(0.75),   # not using this for now ... problem with DTs 2B solved first
                               # ----------------------------------------------------------------------
-                              printInfoHepMC     = cms.untracked.bool(False),
-                              printInfoSignal    = cms.untracked.bool(True),
-                              printInfoPU        = cms.untracked.bool(False),
-                              printInfoAll       = cms.untracked.bool(False),
-                              printInfoME0Match  = cms.untracked.bool(False),
-                              printInfoMuonMatch = cms.untracked.bool(False),
+                              printInfoHepMC           = cms.untracked.bool(False),
+                              printInfoSignal          = cms.untracked.bool(True),
+                              printInfoPU              = cms.untracked.bool(False),
+                              printInfoAll             = cms.untracked.bool(False),
+                              printInfoME0Match        = cms.untracked.bool(False),
+                              printInfoMuonMatch       = cms.untracked.bool(False),
+                              printInfoMuonMatchDetail = cms.untracked.bool(False),
                               # ----------------------------------------------------------------------
 
 )
