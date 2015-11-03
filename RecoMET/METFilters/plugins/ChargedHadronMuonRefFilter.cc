@@ -85,12 +85,14 @@ ChargedHadronMuonRefFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 
     const reco::PFCandidate & cand = (*pfCandidates)[i];
     
-    // if ( fabs(cand.pdgId()) != 211 ) continue;
+    if ( fabs(cand.pdgId()) != 211 ) continue;
     // if ( debug_ ) cout << "Found charged hadron" << std::endl;
     
     if (cand.muonRef().isNull()) continue;
     // if ( debug_ ) cout << "Found valid MuonRef" << std::endl;
-        
+    
+    if (cand.trackRef().isNull()) continue;
+    // if ( debug_ ) cout << "Found valid TrackRef" << std::endl;
     const reco::TrackRef trackref = cand.trackRef();
     const double Pt = trackref->pt();
     if (Pt < ptMin_) continue;
