@@ -88,7 +88,7 @@ ChargedHadronMuonRefFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
     if ( fabs(cand.pdgId()) != 211 ) continue;
     // if ( debug_ ) cout << "Found charged hadron" << std::endl;
     
-    if (cand.muonRef().isNull()) continue;
+    // if (cand.muonRef().isNull()) continue;
     // if ( debug_ ) cout << "Found valid MuonRef" << std::endl;
     
     if (cand.trackRef().isNull()) continue;
