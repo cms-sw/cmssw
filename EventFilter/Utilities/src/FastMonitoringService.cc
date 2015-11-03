@@ -374,15 +374,14 @@ namespace evf{
 
           }
 
-	  auto itr = sourceEventsReport_.find(lumi);
-	  if (itr!=sourceEventsReport_.end()) {
+          auto sourceReport inputSource_->getEventReport(unsigned int lumi, true);
+	  if (sourceReport.first) {
 	    if (itr->second!=processedEventsPerLumi_[lumi].first) {
 	      throw cms::Exception("FastMonitoringService") << "MISMATCH with SOURCE update. LUMI -: "
                                                             << lumi
                                                             << ", events(processed):" << processedEventsPerLumi_[lumi].first
                                                             << " events(source):" << itr->second;
 	    }
-	    sourceEventsReport_.erase(itr);
 	  }
 	  edm::LogInfo("FastMonitoringService")	<< "Statistics for lumisection -: lumi = " << lumi << " events = "
 			                        << lumiProcessedJptr->value() << " time = " << usecondsForLumi/1000000
@@ -674,16 +673,5 @@ namespace evf{
       fmt_.jsonMonitor_->snap(ls);
   }
 
-  void FastMonitoringService::reportEventsThisLumiInSource(unsigned int lumi,unsigned int events)
-  {
-
-    std::lock_guard<std::mutex> lock(fmt_.monlock_);
-    auto itr = sourceEventsReport_.find(lumi);
-    if (itr!=sourceEventsReport_.end())
-      itr->second+=events;
-    else 
-      sourceEventsReport_[lumi]=events;
-
-  }
 } //end namespace evf
 

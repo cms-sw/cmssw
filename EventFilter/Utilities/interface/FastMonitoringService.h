@@ -45,6 +45,7 @@
   which should continue to use the concrete class interface) will be defined 
 
 */
+class FedRawDataInputSource;
 
 namespace evf{
 
@@ -146,7 +147,6 @@ namespace evf{
       void setMicroState(MicroStateService::Microstate);
       void setMicroState(edm::StreamID, MicroStateService::Microstate);
 
-      void reportEventsThisLumiInSource(unsigned int lumi,unsigned int events);
       void accumulateFileSize(unsigned int lumi, unsigned long fileSize);
       void startedLookingForFile();
       void stoppedLookingForFile(unsigned int lumi);
@@ -160,6 +160,7 @@ namespace evf{
         return !getAbortFlagForLumi(lumi) && (processed || emptyLumisectionMode_);
       }
       std::string getRunDirName() const { return runDirectory_.stem().string(); }
+      void setInputSource(FedRawDataInputSource *inputSource) {inputSource_=inputSource;}
 
     private:
 
@@ -201,6 +202,7 @@ namespace evf{
       FastMonitoringThread fmt_;
       Encoding encModule_;
       std::vector<Encoding> encPath_;
+      FedRawDataInputSource * inputSource_ = nullptr;
 
       unsigned int nStreams_;
       unsigned int nThreads_;
@@ -250,8 +252,6 @@ namespace evf{
       std::vector<bool> pathNamesReady_;
 
       boost::filesystem::path workingDirectory_, runDirectory_;
-
-      std::map<unsigned int,unsigned int> sourceEventsReport_;
 
       bool threadIDAvailable_ = false;
 

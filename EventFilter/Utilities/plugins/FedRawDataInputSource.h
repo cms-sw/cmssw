@@ -52,6 +52,8 @@ public:
 protected:
   virtual bool checkNextEvent() override;
   virtual void read(edm::EventPrincipal& eventPrincipal) override;
+  //monitoring
+  std::pair<bool,unsigned int> FedRawDataInputSource::getEventReport(unsigned int lumi, bool erase);
 
 private:
   virtual void preForkReleaseResources() override;
@@ -73,6 +75,9 @@ private:
 
   //functions for single buffered reader
   void readNextChunkIntoBuffer(InputFile *file);
+
+  //monitoring
+  void reportEventsThisLumiInSource(unsigned int lumi,unsigned int events);
 
   //variables
   evf::FastMonitoringService* fms_=nullptr;
@@ -165,6 +170,8 @@ private:
 
   std::atomic<bool> threadInit_;
 
+  std::map<unsigned int,unsigned int> sourceEventsReport_;
+  std::mutex monlock_;
 };
 
 
