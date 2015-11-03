@@ -476,18 +476,6 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
     // make the ME reusable for the next LS
     const_cast<MonitorElement*>(&*i)->Reset();
     ++i;
-    
-    // check and remove the global lumi based histo belonging to the previous LSs
-    // if properly flagged as DQMNet::DQM_PROP_MARKTODELETE
-    global_me.setLumi(1);
-    std::set<MonitorElement>::const_iterator i_lumi = data_.lower_bound(global_me);
-    while (i_lumi->data_.lumi != lumi) {
-      auto temp = i_lumi++;
-      if (i_lumi->getName() == i->getName() && i_lumi->getPathname() == i->getPathname() &&  i_lumi->markedToDelete())
-	{
-	  data_.erase(temp);
-	}
-    }
   }
 }
 
@@ -2098,11 +2086,14 @@ DQMStore::forceReset(void)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
-/** Mark a set of histograms for deletion based on run, lumi and path*/
+/** Delete *global* histograms which are no longer in used.
+ * Such histograms are created at the end of each lumi and should be
+ * deleted after last globalEndLuminosityBlock.
+ */
 void
-DQMStore::markForDeletion(uint32_t run,
-			  uint32_t lumi)
+DQMStore::deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi)
 {
+  std::lock_guard<std::mutex> guard(book_mutex_);
 
   std::string null_str("");
   MonitorElement proto(&null_str, null_str, run, 0, 0);
@@ -2114,24 +2105,25 @@ DQMStore::markForDeletion(uint32_t run,
   
   while (i != e) {
     if (i->data_.streamId != 0 ||
-	i->data_.moduleId != 0)
+        i->data_.moduleId != 0)
       break;
     if ((i->data_.lumi != lumi) && enableMultiThread_)
       break;
     if (i->data_.run != run)
       break;
     
-    const_cast<MonitorElement*>(&*i)->markToDelete();  
-    
-    if (verbose_ > 1)
-      std::cout << "DQMStore::markForDeletion: marked monitor element '"
-		<< *i->data_.dirname << "/" << i->data_.objname << "'"
-		<< "flags " << i->data_.flags << "\n";
-
+    auto temp = i;
     ++i;
+
+    if (verbose_ > 1) {
+      std::cout << "DQMStore::deleteUnusedLumiHistograms: deleted monitor element '"
+                << *i->data_.dirname << "/" << i->data_.objname << "'"
+                << "flags " << i->data_.flags << "\n";
+    } 
+
+    data_.erase(temp);
   }
 }
-
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -2487,6 +2479,8 @@ void DQMStore::savePB(const std::string &filename,
   using google::protobuf::io::GzipOutputStream;
   using google::protobuf::io::StringOutputStream;
 
+  std::lock_guard<std::mutex> guard(book_mutex_);
+
   std::set<std::string>::iterator di, de;
   MEMap::iterator mi, me = data_.end();
   dqmstorepb::ROOTFilePB dqmstore_message;
@@ -2616,6 +2610,8 @@ DQMStore::save(const std::string &filename,
                const std::string &fileupdate /* = RECREATE */,
 	       const bool resetMEsAfterWriting /* = false */)
 {
+  std::lock_guard<std::mutex> guard(book_mutex_);
+
   std::set<std::string>::iterator di, de;
   MEMap::iterator mi, me = data_.end();
   DQMNet::QReports::const_iterator qi, qe;

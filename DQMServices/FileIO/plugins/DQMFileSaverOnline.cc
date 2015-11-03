@@ -22,6 +22,10 @@
 #include <TString.h>
 #include <TSystem.h>
 
+#include <openssl/md5.h>
+#include <boost/iostreams/device/mapped_file.hpp>
+#include <boost/filesystem.hpp>
+
 using namespace dqm;
 
 DQMFileSaverOnline::DQMFileSaverOnline(const edm::ParameterSet &ps)
@@ -32,7 +36,7 @@ DQMFileSaverOnline::DQMFileSaverOnline(const edm::ParameterSet &ps)
 
 DQMFileSaverOnline::~DQMFileSaverOnline() {}
 
-void DQMFileSaverOnline::saveLumi(FileParameters fp) const {
+void DQMFileSaverOnline::saveLumi(const FileParameters& fp) const {
   if (backupLumiCount_ > 0) {
     if (fp.lumi_ % backupLumiCount_ == 0) {
   
@@ -42,7 +46,7 @@ void DQMFileSaverOnline::saveLumi(FileParameters fp) const {
   }
 }
 
-void DQMFileSaverOnline::saveRun(FileParameters fp) const {
+void DQMFileSaverOnline::saveRun(const FileParameters& fp) const {
   makeSnapshot(fp, true);
 }
 
@@ -91,7 +95,7 @@ void DQMFileSaverOnline::makeSnapshot(const FileParameters& fp, bool final) cons
   // write metadata
   // format.origin: md5:d566a34b27f48d507150a332b189398b 294835 /home/dqmprolocal/output/DQM_V0001_FED_R000194224.root
   std::ofstream meta_fd(tmp_meta_fp);
-  meta_fd << this->fillOrigin(tmp_root_fp, root_fp);
+  meta_fd << fillOrigin(tmp_root_fp, root_fp);
   meta_fd.close();
 
   checkError("Rename failed: ", root_fp, ::rename(tmp_root_fp.c_str(), root_fp.c_str()));
@@ -135,6 +139,30 @@ void DQMFileSaverOnline::checkError(const char *msg, const std::string file, int
     logFileAction(actual_msg, file);
   }
 }
+
+const std::string DQMFileSaverOnline::fillOrigin(const std::string filename,
+                                  const std::string final_filename) {
+
+    // format.origin (one line):
+    //   md5:d566a34b27f48d507150a332b189398b 294835 final_filename.root
+
+    unsigned char md5[MD5_DIGEST_LENGTH];
+
+    boost::iostreams::mapped_file_source fp(filename);
+
+    MD5((unsigned char *)fp.data(), fp.size(), md5);
+
+    std::ostringstream hash;
+    for (int i = 0; i < MD5_DIGEST_LENGTH; ++i) {
+      hash << std::hex << std::setfill('0') << std::setw(2) << (int)(md5[i]);
+    }
+
+    std::ostringstream out;
+    out << "md5:" << hash.str() << " " << fp.size() << " " << final_filename;
+    return out.str();
+}
+
+
 
 void DQMFileSaverOnline::fillDescriptions(
     edm::ConfigurationDescriptions& descriptions) {
