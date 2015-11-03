@@ -8,6 +8,7 @@
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/CaloTowerGeometry.h"
 #include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
@@ -17,11 +18,21 @@ class PCaloGeometryBuilder : public edm::one::EDAnalyzer<edm::one::WatchRuns>
 {
 public:
   
-  PCaloGeometryBuilder( const edm::ParameterSet& ) {}
+  PCaloGeometryBuilder( const edm::ParameterSet& pset )
+    : m_ecalE( pset.getUntrackedParameter<bool>( "EcalE", true )),
+      m_ecalP( pset.getUntrackedParameter<bool>( "EcalP", true )),
+      m_hgcal( pset.getUntrackedParameter<bool>( "HGCal", false ))
+  {}
   
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
   void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
+
+private:
+
+  bool m_ecalE;
+  bool m_ecalP;
+  bool m_hgcal;
 };
 
 void
@@ -34,16 +45,27 @@ PCaloGeometryBuilder::beginRun( const edm::Run&, edm::EventSetup const& es )
    es.get<EcalBarrelGeometry::AlignedRecord>().get(
       EcalBarrelGeometry::producerTag() + toDB, pGeb ) ;
 
-   std::cout<<"Writing out "<<EcalEndcapGeometry::producerTag()<<std::endl ;
-   edm::ESHandle<CaloSubdetectorGeometry>       pGee   ;
-   es.get<EcalEndcapGeometry::AlignedRecord>().get(
-      EcalEndcapGeometry::producerTag() + toDB, pGee ) ;
+   if( m_ecalE )
+   {
+     std::cout<<"Writing out "<<EcalEndcapGeometry::producerTag()<<std::endl;
+     edm::ESHandle<CaloSubdetectorGeometry> pGee;
+     es.get<EcalEndcapGeometry::AlignedRecord>().get( EcalEndcapGeometry::producerTag() + toDB, pGee );
+   }
 
-   std::cout<<"Writing out "<<EcalPreshowerGeometry::producerTag()<<std::endl ;
-   edm::ESHandle<CaloSubdetectorGeometry>          pGes   ;
-   es.get<EcalPreshowerGeometry::AlignedRecord>().get(
-      EcalPreshowerGeometry::producerTag() + toDB, pGes ) ; 
+   if( m_ecalP )
+   {
+     std::cout<<"Writing out "<<EcalPreshowerGeometry::producerTag()<<std::endl ;
+     edm::ESHandle<CaloSubdetectorGeometry>          pGes   ;
+     es.get<EcalPreshowerGeometry::AlignedRecord>().get( EcalPreshowerGeometry::producerTag() + toDB, pGes ) ; 
+   }
 
+   if( m_hgcal )
+   {
+     std::cout<<"Writing out "<<HGCalGeometry::producerTag()<<std::endl;
+     edm::ESHandle<CaloSubdetectorGeometry> pGee;
+     es.get<HGCalGeometry::AlignedRecord>().get( HGCalGeometry::producerTag() + toDB, pGee );
+   }
+   
    std::cout<<"Writing out "<<HcalGeometry::producerTag()<<std::endl ;
    edm::ESHandle<CaloSubdetectorGeometry> pGhcal   ;
    es.get<HcalGeometry::AlignedRecord>().get(
