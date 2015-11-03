@@ -109,8 +109,8 @@ namespace edm {
     virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) override;
     virtual std::string workerType() const override;
 
-    virtual void modulesDependentUpon(std::vector<const char*>& oModuleLabels) const override {
-      module_->modulesDependentUpon(module_->moduleDescription().processName(),oModuleLabels);
+    virtual void modulesDependentUpon(std::vector<const char*>& oModuleLabels, bool iPrint) const override {
+      module_->modulesDependentUpon(module_->moduleDescription().processName(),module_->moduleDescription().moduleLabel(), iPrint, oModuleLabels);
     }
 
     virtual void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
