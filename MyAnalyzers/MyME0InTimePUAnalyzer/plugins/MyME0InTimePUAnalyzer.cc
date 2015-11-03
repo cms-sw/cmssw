@@ -19,6 +19,7 @@
 
 
 // ToDo ::
+//         - implement RPC Matching ... some muons in the Barrel need it
 //         - Investigate matching ... seems i am matching out of time ME0Segments with in time ME0SimHits ???
 //         - Plot SimHit Time Resolution ... this is an inherent resolution, a smearing on top of the detector time resolution smearing
 //         - Plot Quantities for all ME0Segments reconstructed ... for instance the SegTimeCreation
@@ -131,8 +132,8 @@ class MyME0InTimePUAnalyzer : public edm::EDAnalyzer {
   std::unique_ptr<TFile> outputfile;
 
   // Info Bool
-  bool printInfoHepMC, printInfoSignal, printInfoPU, printInfoAll, printInfoME0Match, printInfoMuonMatch, me0genpartfound;
-
+  bool printInfoHepMC, printInfoSignal, printInfoPU, printInfoAll, printInfoME0Match, printInfoMuonMatch, printInfoMuonMatchDetail, me0genpartfound;
+  bool InvestigateOnlyME0;
   // For later use in 7XY releases:
   /*
   edm::EDGetTokenT<reco::GenParticleCollection> GENParticle_Token;
@@ -166,7 +167,6 @@ class MyME0InTimePUAnalyzer : public edm::EDAnalyzer {
   // ----------member data for fundamental vectors in the analysis / matching -----
   // this way easy access can be granted to different functions (sorting functions)
   // sortME0muonsStruct mySortingStruct;
-
   std::vector<int> indmu, trkmu, vtxmu;
   std::vector< std::vector<const PSimHit*> > simhitme0mu; 
   std::vector< std::vector<const PSimHit*> > simhitrecomu; 
@@ -263,6 +263,7 @@ MyME0InTimePUAnalyzer::MyME0InTimePUAnalyzer(const edm::ParameterSet& iConfig)
   // make plots with finer binning
 
   rootFileName  = iConfig.getUntrackedParameter<std::string>("RootFileName");
+  InvestigateOnlyME0 = iConfig.getUntrackedParameter<bool>("InvestigateOnlyME0");
   outputfile.reset(TFile::Open(rootFileName.c_str(), "RECREATE"));
 
   preDigiSmearX      = iConfig.getUntrackedParameter<double>("preDigiSmearX");
@@ -284,6 +285,7 @@ MyME0InTimePUAnalyzer::MyME0InTimePUAnalyzer(const edm::ParameterSet& iConfig)
   printInfoAll    = iConfig.getUntrackedParameter<bool>("printInfoAll");
   printInfoME0Match   = iConfig.getUntrackedParameter<bool>("printInfoME0Match");
   printInfoMuonMatch  = iConfig.getUntrackedParameter<bool>("printInfoMuonMatch");
+  printInfoMuonMatchDetail  = iConfig.getUntrackedParameter<bool>("printInfoMuonMatchDetail");
   // For later use in 7XY releases:
   /*
   GENParticle_Token   = consumes<reco::GenParticleCollection>(edm::InputTag("genParticles"));
@@ -595,6 +597,10 @@ MyME0InTimePUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   iSetup.get<MuonGeometryRecord>().get(dtGeom);
   // ----------------------
 
+  // Reset Vectors
+  theME0Muons.clear();
+  theMuons.clear();
+
   // Access GenParticles
   // ----------------------
   // edm::Handle<reco::GenParticleCollection> genParticles;
@@ -659,6 +665,7 @@ MyME0InTimePUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   edm::Handle <std::vector<reco::ME0Muon> > me0muons;
   iEvent.getByLabel("me0SegmentMatching", me0muons);
   // iEvent.getByToken(ME0Muon_Token, me0muons);
+
   theME0Muons.insert(theME0Muons.end(),me0muons->begin(),me0muons->end()); // probably not necessary
   // -----------------------
 
@@ -714,6 +721,22 @@ MyME0InTimePUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   // 8) loop over Muon-->(DT/CSC)Segment-->(DT/CSC)RecHits and match these rechits to the simhits above
   // 9) you obtained a Muon matched to the genParticle of the Z-decay!
   // --------------------------------------------------------------------
+  /*
+  // now made in constructor
+  std::vector<int> indmu, trkmu, vtxmu;
+  std::vector< std::vector<const PSimHit*> > simhitme0mu; 
+  std::vector< std::vector<const PSimHit*> > simhitrecomu; 
+  std::vector<ME0DetId> me0mudetid;   // std::vector<CSCDetId> cscmudetid;  std::vector<DTDetId> dtmudetid;  
+  std::vector< std::vector< std::pair<int,int> > > me0mu;         // old style :: pair of < [int] index to me0muon position in collection, [int] number of matched hits > 
+  std::vector< std::vector< std::pair<int,int> > > recomu;        // old style :: pair of < [int] index to recomuon position in collection, [int] number of matched segments >
+  std::vector< std::vector< std::pair<int,int> > > looseme0mu;    // old style :: pair of < [int] index to me0muon position in collection, [int] number of matched hits > 
+  std::vector< std::vector< std::pair<int,int> > > tightme0mu;    // old style :: pair of < [int] index to me0muon position in collection, [int] number of matched hits > 
+  // std::vector< std::vector< std::pair<int,double> > > me0mu;   // new style :: pair of < [int] index to me0muon position in collection, [double] match quality >
+  // std::vector< std::vector< std::pair<int,double> > > recomu;  // new style :: pair of < [int] index to recomuon position in collection, [double] match quality >
+  std::vector< std::map<uint32_t, std::vector<const PSimHit*> > > me0simhitmap;
+  std::vector< std::map<uint32_t, std::vector<const PSimHit*> > > cscsimhitmap;
+  std::vector< std::map<uint32_t, std::vector<const PSimHit*> > > dtsimhitmap;
+  */
   indmu.clear(); trkmu.clear(); vtxmu.clear();
   simhitme0mu.clear(); simhitrecomu.clear();  me0mudetid.clear();   
   me0mu.clear(); recomu.clear(); looseme0mu.clear(); tightme0mu.clear();
@@ -787,6 +810,8 @@ MyME0InTimePUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   else if(MuInME0==1) Categories_EventInfo->Fill(3); 
   else if(MuInME0==2) Categories_EventInfo->Fill(4); 
   else {}
+
+  if(InvestigateOnlyME0 && (MuInME0==0)) return;
 
   if(printInfoAll) {
     for(unsigned int i=0; i<indmu.size(); ++i) {
@@ -1173,12 +1198,30 @@ MyME0InTimePUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   for(std::vector<reco::Muon>::const_iterator it=muons->begin(); it!=muons->end(); ++it) {
 
     ++recomuonpos;
+    if(printInfoMuonMatch) {
+      std::cout<<"recoMuon :: ch = "<<std::setw(2)<<it->charge()<<" | eta = "<<std::setw(9)<<it->eta(); 
+      std::cout<<" | phi = "<<std::setw(9)<<it->phi()<<" | pt = "<<std::setw(9)<<it->pt();     
+      std::cout<<" | RECOMuonId  = "<<std::setw(3)<<recomuonpos;
+      std::cout<<" | OuterTrack?  = "<<it->outerTrack().isNonnull();
+      std::cout<<" | InnerTrack?  = "<<it->innerTrack().isNonnull();
+      std::cout<<" | globalTrack?  = "<<it->globalTrack().isNonnull();
+      std::cout<<" | isGlobalMuon?  = "<<it->isGlobalMuon();
+      if(it->outerTrack().isNonnull()!=0) {
+	std::cout<<" | Nhits = "<<it->outerTrack().get()->recHitsSize();
+	std::cout<<" | Chi2/ndof = "<<it->outerTrack().get()->chi2()<<"/"<<it->outerTrack().get()->ndof();
+      }
+      if(it->innerTrack().isNonnull()!=0) {
+	std::cout<<" | dxy = "<<it->innerTrack().get()->dxy()<<" [cm] | dz = "<<it->innerTrack().get()->dz()<<" [cm]";
+      }
+      std::cout<<std::endl;  
+    }
 
     // 0) Neglect Muons if they are not reconstructed as global muon or not identified as tight muon
     //    I know ... introduces a bias ... but I want to perform a decent matching in the muon system
     //    Anyway Global Muon / Tight Muon efficiency on signal (from Drell Yan) is pretty high
     if (!it->isGlobalMuon()) continue;
     if(!it->outerTrack()) continue;
+    if(!it->innerTrack()) continue;
     // if(!muon::isTightMuon(*it, *(theRecoVertices.begin()))) continue;
 
     // 1) Print Out
@@ -1202,10 +1245,10 @@ MyME0InTimePUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	if(detid.det()==DetId::Muon && detid.subdetId()== MuonSubdetId::CSC) {
 	  ++nSegmentsTotal;
 	  CSCDetId chamberId(detid);
-	  if(printInfoMuonMatch) std::cout<<"Tracking RecHit in DetId "<<detid.rawId()<<" = CSCDetId "<<chamberId<<std::endl;
+	  if(printInfoMuonMatchDetail) std::cout<<"Tracking RecHit in DetId "<<detid.rawId()<<" = CSCDetId "<<chamberId<<std::endl;
 	  std::map<uint32_t, std::vector<const PSimHit*> > map = cscsimhitmap[i];
 	  std::map<uint32_t, std::vector<const PSimHit*> >::iterator it;
-	  if(printInfoMuonMatch) {for(it=map.begin();it!=map.end();++it){std::cout<<"CSC SimHit map ["<<i<<"] ==> element < detid = "<<it->first<<" = "<<CSCDetId(it->first)<<" has "<<it->second.size()<<" simhits"<<std::endl;}}
+	  if(printInfoMuonMatchDetail) {for(it=map.begin();it!=map.end();++it){std::cout<<"CSC SimHit map ["<<i<<"] ==> element < detid = "<<it->first<<" = "<<CSCDetId(it->first)<<" has "<<it->second.size()<<" simhits"<<std::endl;}}
           it = map.find(chamberId.rawId());
           if (it != map.end()) { // detid found in the map           
 	    // 2b) perform now detailed matching
@@ -1219,7 +1262,7 @@ MyME0InTimePUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      CSCDetId rhCSCid((*rh)->geographicalId());
 	      LocalPoint rechitLP = (*rh)->localPosition();
 	      LocalError rechitLPE = (*rh)->localPositionError();
-	      if(printInfoMuonMatch) {
+	      if(printInfoMuonMatchDetail) {
 		std::cout<<"     === CSC RecHit in "<<std::setw(12)<<rhCSCid.rawId()<<" = "<<rhCSCid<<" from muon with index = ";
 		std::cout<<std::setw(9)<<recomuonpos<</*" | wire t = "<<std::setw(12)<<(*rh)->wireTime()*/" | no time info TrackingRecHit";
 		std::cout<<" | X = "<<std::setw(12)<<(*rh)->localPosition().x();
@@ -1232,19 +1275,19 @@ MyME0InTimePUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		LocalPoint simhitLP = (*sh)->localPosition();
 		double dXLoc = rechitLP.x()-simhitLP.x();
 		double dYLoc = rechitLP.y()-simhitLP.y();
-		if(printInfoMuonMatch) {
+		if(printInfoMuonMatchDetail) {
 		  std::cout<<"          === CSC SimHit in "<<std::setw(12)<<shCSCid.rawId()<<" = "<<shCSCid<<" from simtrack with trackId = ";
 		  std::cout<<std::setw(9)<<(*sh)->trackId()<<" | time t = "<<std::setw(12)<<(*sh)->timeOfFlight();
 		  std::cout<<" | X = "<<std::setw(12)<<(*sh)->localPosition().x();
 		  std::cout<<" | Y = "<<std::setw(12)<<(*sh)->localPosition().y()<<std::endl;
 		}
-		if(printInfoMuonMatch){
+		if(printInfoMuonMatchDetail){
 		  std::cout<<"          === Comparison :: dXLoc = "<<std::setw(9)<<dXLoc<<" +/- "<<sqrt(rechitLPE.xx())
 		  	   <<" [cm] dYLoc = "<<std::setw(9)<<dYLoc<<" +/- "<<sqrt(rechitLPE.yy())<<" [cm]"<<std::endl;
 		}
 		// allow matching within 3 sigma for both local X and local Y:: look at detector resolution of CSC (75-150um = 0.015cm for X and 5cm for Y)
 		if(fabs(dXLoc) < 3*cscDetResX && fabs(dYLoc) < 3*cscDetResY) {
-		  if(printInfoMuonMatch) {
+		  if(printInfoMuonMatchDetail) {
 		    std::cout<<"          === Matched :: |dXLoc| = "<<fabs(dXLoc)<<" < 3*sigX = "<<3*cscDetResX<<" && |dYLoc| = "<<fabs(dYLoc)<<" < 3*sigY = "<<3*cscDetResY<<std::endl;
 		  }
 		  ++nCSCHitsMatched;
@@ -1255,10 +1298,10 @@ MyME0InTimePUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      ++nCSCChambersMatched;
 	      NewMatch_CSCHitsMatched->Fill(nCSCHitsMatched); 
 	      NewMatch_CSCHitsTotal->Fill(CSCRecHits.size()); 
-	      if(printInfoMuonMatch) {std::cout<<"NewMatch_CSCHitsMatched->Fill("<<nCSCHitsMatched<<") wrt NewMatch_CSCHitsTotal->Fill("<<CSCRecHits.size()<<")"<<std::endl;}
+	      if(printInfoMuonMatchDetail) {std::cout<<"NewMatch_CSCHitsMatched->Fill("<<nCSCHitsMatched<<") wrt NewMatch_CSCHitsTotal->Fill("<<CSCRecHits.size()<<")"<<std::endl;}
 	    }
 	    matchedGENMu = i; // need to implement this somehow .. do printout for now
-	    if(printInfoMuonMatch) std::cout<<"matchedGENMu = "<<matchedGENMu<<std::endl;
+	    if(printInfoMuonMatchDetail) std::cout<<"matchedGENMu = "<<matchedGENMu<<std::endl;
 	  } // end of IF(detId in simhit map)
 	} // end DetId = CSC DetId
 	// 2c) if the segment is a DT segment
@@ -1266,10 +1309,10 @@ MyME0InTimePUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	else if(detid.det()==DetId::Muon && detid.subdetId()== MuonSubdetId::DT) {
 	  ++nSegmentsTotal;
 	  DTChamberId chamberId(detid);
-	  if(printInfoMuonMatch) std::cout<<"Tracking RecHit in DetId "<<detid.rawId()<<" = DTChamberId "<<chamberId<<std::endl;
+	  if(printInfoMuonMatchDetail) std::cout<<"Tracking RecHit in DetId "<<detid.rawId()<<" = DTChamberId "<<chamberId<<std::endl;
 	  std::map<uint32_t, std::vector<const PSimHit*> > map = dtsimhitmap[i];
 	  std::map<uint32_t, std::vector<const PSimHit*> >::iterator it;
-	  if(printInfoMuonMatch) {for(it=map.begin();it!=map.end();++it){std::cout<<"DT SimHit map ["<<i<<"] ==> element < detid = "<<it->first<<" = "<<DTChamberId(it->first)<<" has "<<it->second.size()<<" simhits"<<std::endl;}}
+	  if(printInfoMuonMatchDetail) {for(it=map.begin();it!=map.end();++it){std::cout<<"DT SimHit map ["<<i<<"] ==> element < detid = "<<it->first<<" = "<<DTChamberId(it->first)<<" has "<<it->second.size()<<" simhits"<<std::endl;}}
           it = map.find(chamberId.rawId());
           if (it != map.end()) { // detid found in the map           
 	    // 2d) perform now detailed matching
@@ -1285,42 +1328,48 @@ MyME0InTimePUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      std::vector< const TrackingRecHit * > DTRecHitsL2 = (*rhL1)->recHits();
 	      for(std::vector< const TrackingRecHit * >::const_iterator rhL2 = DTRecHitsL2.begin(); rhL2 != DTRecHitsL2.end(); ++rhL2) {
 		DTChamberId rhDTid((*rhL2)->geographicalId());
+	        DTLayerId   rhDTLayerid((*rhL2)->geographicalId());
+		// DTWireId rhDTWireid((*rhL2)->geographicalId());
 		LocalPoint rechitLP = (*rhL2)->localPosition();
 		LocalError rechitLPE = (*rhL2)->localPositionError();
 		++nDTHitsTotal;
-		if(printInfoMuonMatch) {
-		  std::cout<<"     === DT RecHit in "<<std::setw(12)<<rhDTid.rawId()<<" = "<<rhDTid<<" from muon with index = ";
+		if(printInfoMuonMatchDetail) {
+		  std::cout<<"     === DT RecHit in chamber "<<rhDTid<<" :: layer "<<std::setw(12)<<rhDTLayerid.rawId()<<" = "<<rhDTLayerid<<" from muon with index = ";
 		  std::cout<<std::setw(9)<<recomuonpos<</*" | wire t = "<<std::setw(12)<<(*rhL2)->wireTime()*/" | no time info TrackingRecHit";
 		  std::cout<<" | X = "<<std::setw(12)<<(*rhL2)->localPosition().x();
 		  std::cout<<" | Y = "<<std::setw(12)<<(*rhL2)->localPosition().y()<<std::endl;
 		}
 		for(std::vector<const PSimHit*>::const_iterator sh = DTSimHits.begin(); sh != DTSimHits.end(); ++sh) {
 		  DTChamberId shDTid((*sh)->detUnitId());
+		  DTLayerId   shDTLayerid((*sh)->detUnitId());
+		  // DTWireId shDTWireid((*sh)->detUnitId());
 		  // if SimHit DetId not exactly the same as RecHit DetId => skip
-		  if(shDTid != rhDTid) continue; 
+		  // if(shDTid != rhDTid) continue; 
+		  if(shDTLayerid != rhDTLayerid) continue; 
+		  // if(shDTWireid != rhDTWireid) continue; 
 		  LocalPoint simhitLP = (*sh)->localPosition();
 		  double dXLoc = rechitLP.x()-simhitLP.x();
 		  double dYLoc = rechitLP.y()-simhitLP.y();
-		  if(printInfoMuonMatch) {
-		    std::cout<<"          === DT SimHit in "<<std::setw(12)<<shDTid.rawId()<<" = "<<shDTid<<" from simtrack with trackId = ";
+		  if(printInfoMuonMatchDetail) {
+		    std::cout<<"          === DT SimHit in chamber "<<" = "<<shDTid<<" :: layer"<<std::setw(12)<<shDTLayerid.rawId()<<" = "<<shDTLayerid<<" from simtrack with trackId = ";
 		    std::cout<<std::setw(9)<<(*sh)->trackId()<<" | time t = "<<std::setw(12)<<(*sh)->timeOfFlight();
 		    std::cout<<" | X = "<<std::setw(12)<<(*sh)->localPosition().x();
 		    std::cout<<" | Y = "<<std::setw(12)<<(*sh)->localPosition().y()<<std::endl;
 		  }
-		  if(printInfoMuonMatch){
+		  if(printInfoMuonMatchDetail){
 		    std::cout<<"          === Comparison :: dXLoc = "<<std::setw(9)<<dXLoc<<" +/- "<<sqrt(rechitLPE.xx())
 			     <<" [cm] dYLoc = "<<std::setw(9)<<dYLoc<<" +/- "<<sqrt(rechitLPE.yy())<<" [cm]"<<std::endl;
 		  }
 		  // allow matching within 3 sigma for both local X and local Y:: look at detector resolution of DT (75-125um = 0.0125cm for X and 0.0400um for Y)
 		  // DT station 4 is special station because has no measurement of Y-coordinate, therefore match only the X coordinate
 		  if((rhDTid.station() != 4) && (fabs(dXLoc) < 3*dtDetResX && fabs(dYLoc) < 3*dtDetResY)) {
-		    if(printInfoMuonMatch) {
+		    if(printInfoMuonMatchDetail) {
 		      std::cout<<"          === Matched :: |dXLoc| = "<<fabs(dXLoc)<<" < 3*sigX = "<<3*dtDetResX<<" && |dYLoc| = "<<fabs(dYLoc)<<" < 3*sigY = "<<3*dtDetResY<<std::endl;
 		    }
 		    ++nDTHitsMatched;
 		  }
 		  else if((rhDTid.station() == 4) && (fabs(dXLoc) < 3*dtDetResX)) {
-		    if(printInfoMuonMatch) {
+		    if(printInfoMuonMatchDetail) {
 		      std::cout<<"          === Matched :: |dXLoc| = "<<fabs(dXLoc)<<" < 3*sigX = "<<3*dtDetResX<<std::endl;
 		    }
 		    ++nDTHitsMatched;
@@ -1329,21 +1378,21 @@ MyME0InTimePUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		} // end of SimHit Loop
 	      } // end of RecHitL2 Loop
 	    }// end of RecHitL1 Loop
-	    if(printInfoMuonMatch) std::cout<<"=== Number of matched hits in this chamber :: "<<nDTHitsMatched<<std::endl; 
+	    if(printInfoMuonMatchDetail) std::cout<<"=== Number of matched hits in this chamber :: "<<nDTHitsMatched<<std::endl; 
 	    if(nDTHitsMatched > nMatchedHitsDTSeg) { // consider a segment as matched if at least 6 hits are matched to simhits
 	      ++nDTChambersMatched;
 	      NewMatch_DTHitsMatched->Fill(nDTHitsMatched); 
 	      NewMatch_DTHitsTotal->Fill(nDTHitsTotal);     
-	      if(printInfoMuonMatch) {std::cout<<"NewMatch_DTHitsMatched->Fill("<<nDTHitsMatched<<") wrt NewMatch_DTHitsTotal->Fill("<<nDTHitsTotal<<")" <<std::endl;}
+	      if(printInfoMuonMatchDetail) {std::cout<<"NewMatch_DTHitsMatched->Fill("<<nDTHitsMatched<<") wrt NewMatch_DTHitsTotal->Fill("<<nDTHitsTotal<<")" <<std::endl;}
 	    }
 	    matchedGENMu = i; // need to implement this somehow .. do printout for now
-	    if(printInfoMuonMatch) std::cout<<"matchedGENMu = "<<matchedGENMu<<std::endl;
+	    if(printInfoMuonMatchDetail) std::cout<<"matchedGENMu = "<<matchedGENMu<<std::endl;
 	  } // end of IF(detId in simhit map)
 	} // end DetId = DT DetId
 	else {}
       }// end loop over rechits
       if(nCSCChambersMatched+nDTChambersMatched>1) {
-	if(printInfoMuonMatch) { std::cout<<"=== Matched :: Number of CSC segments matched = "<<nCSCChambersMatched<<" Number of DT segments matched = "<<nDTChambersMatched<<" ==> recoMuon is Matched to genMuon"<<std::endl; }
+	if(printInfoMuonMatch) { std::cout<<"=== Matched :: Number of CSC segments matched = "<<nCSCChambersMatched<<" Number of DT segments matched = "<<nDTChambersMatched<<" ==> recoMuon ["<<recomuonpos<<"] is Matched to genMuon"<<std::endl; }
 	std::vector< std::pair<int,int> > tmp = recomu[matchedGENMu];
 	tmp.push_back(std::make_pair(recomuonpos,nCSCChambersMatched+nDTChambersMatched));
 	recomu[matchedGENMu] = tmp;
@@ -1401,7 +1450,7 @@ MyME0InTimePUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	std::cout<<theSimVertices.at(vtxmu[i]).position().x()<<","<<theSimVertices.at(vtxmu[i]).position().y()<<","<<theSimVertices.at(vtxmu[i]).position().z()<<"] or [r,z] = [";
 	std::cout<<sqrt(pow(theSimVertices.at(vtxmu[i]).position().x(),2)+pow(theSimVertices.at(vtxmu[i]).position().y(),2))<<","<<theSimVertices.at(vtxmu[i]).position().z()<<"] (units in cm)"<<std::endl;
       }
-      if(simhitme0mu.size()>i-1) {
+      // if(simhitme0mu.size()>i-1) {
 	std::cout<<"=== SIM Hits in ME0 :: "<<std::setw(2)<<simhitme0mu[i].size()<<std::endl;
 	std::cout<<"--------------------------"<<std::endl;
 	for(unsigned int j=0; j<simhitme0mu[i].size(); ++j) {
@@ -1410,7 +1459,7 @@ MyME0InTimePUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  std::cout<<std::setw(9)<<simhitme0mu[i][j]->trackId()<<" | time t = "<<std::setw(12)<<simhitme0mu[i][j]->timeOfFlight();
 	  std::cout<<" | phi = "<<std::setw(12)<<((me0Geom->etaPartition(me0id))->toGlobal(simhitme0mu[i][j]->localPosition())).phi();
 	  std::cout<<" | eta = "<<std::setw(12)<<((me0Geom->etaPartition(me0id))->toGlobal(simhitme0mu[i][j]->localPosition())).eta()<<std::endl;
-	}
+       //}
       }
       std::cout<<"--------------------------"<<std::endl;
       for(unsigned int j=0; j<me0mu[i].size(); ++j) {
