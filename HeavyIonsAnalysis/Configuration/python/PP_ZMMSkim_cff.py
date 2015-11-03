@@ -2,14 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 # HLT dimuon trigger
 import HLTrigger.HLTfilters.hltHighLevel_cfi
-hltZMMHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-hltZMMHI.HLTPaths = ["HLT_HIL2DoubleMu3_v*"]
-hltZMMHI.throw = False
-hltZMMHI.andOr = True
+hltZMM = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+hltZMM.HLTPaths = ["HLT_HIL2DoubleMu3_v*"]
+hltZMM.throw = False
+hltZMM.andOr = True
 
 # selection of valid vertex
 primaryVertexFilterForZMM = cms.EDFilter("VertexSelector",
-    src = cms.InputTag("hiSelectedVertex"),
+    src = cms.InputTag("offlinePrimaryVerticesWithBS"),
     cut = cms.string("!isFake && abs(z) <= 25 && position.Rho <= 2"), 
     filter = cms.bool(True),   # otherwise it won't filter the events
     )
@@ -39,11 +39,10 @@ dimuonMassCutFilterForZMM = cms.EDFilter("CandViewCountFilter",
 
 # Z->mumu skim sequence
 zMMSkimSequence = cms.Sequence(
-    hltZMMHI *
+    hltZMM *
     primaryVertexFilterForZMM *
     muonSelectorForZMM *
     muonFilterForZMM *
     dimuonMassCutForZMM *
     dimuonMassCutFilterForZMM
     )
-
