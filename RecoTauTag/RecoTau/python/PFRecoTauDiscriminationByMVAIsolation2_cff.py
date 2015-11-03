@@ -61,7 +61,9 @@ discriminationByIsolationMVA2raw = cms.EDProducer("PFRecoTauDiscriminationByIsol
     
     srcChargedIsoPtSum = cms.InputTag('chargedIsoPtSum'),
     srcNeutralIsoPtSum = cms.InputTag('neutralIsoPtSum'),
-    srcPUcorrPtSum = cms.InputTag('puCorrPtSum')
+    srcPUcorrPtSum = cms.InputTag('puCorrPtSum'),
+    srcPhotonPtSumOutsideSignalCone = cms.InputTag('photonPtSumOutsideSignalCone'),
+    srcFootprintCorrection = cms.InputTag('footprintCorrection')                                                  
 )
 
 discriminationByIsolationMVA2VLoose = recoTauDiscriminantCutMultiplexer.clone(
