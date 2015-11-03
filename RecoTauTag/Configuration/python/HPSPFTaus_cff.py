@@ -639,7 +639,7 @@ hpsPFTauTransverseImpactParameters = PFTauTransverseImpactParameters.clone(
     PFTauTag = cms.InputTag("hpsPFTauProducer"),
     PFTauPVATag = cms.InputTag("hpsPFTauPrimaryVertexProducer"),
     PFTauSVATag = cms.InputTag("hpsPFTauSecondaryVertexProducer"),
-    useFullCalculation = cms.bool(False)
+    useFullCalculation = cms.bool(True)
 )
 hpsPFTauVertexAndImpactParametersSeq = cms.Sequence(
     hpsPFTauPrimaryVertexProducer*
@@ -703,6 +703,8 @@ hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw = discriminationByIsolationMVA
     srcChargedIsoPtSum = cms.InputTag('hpsPFTauChargedIsoPtSum'),
     srcNeutralIsoPtSum = cms.InputTag('hpsPFTauNeutralIsoPtSum'),
     srcPUcorrPtSum = cms.InputTag('hpsPFTauPUcorrPtSum'),
+    srcPhotonPtSumOutsideSignalCone = cms.InputTag('hpsPFTauPhotonPtSumOutsideSignalCone'),
+    srcPFTauFootprintCorrection = cms.InputTag('hpsPFTauFootprintCorrection'),
     verbosity = cms.int32(0)
 )
 hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwoLT = discriminationByIsolationMVA2VLoose.clone(
@@ -814,6 +816,241 @@ hpsPFTauDiscriminationByVTightIsolationMVA3newDMwLT.mapping[0].cut = cms.string(
 hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwLT.clone()
 hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAnewDMwLTv1_WPEff40")
 
+#Define new Run2 MVA isolations
+hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw = hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw.clone(
+    mvaName = cms.string("RecoTauTag_tauIdMVADBoldDMwLTv1"),
+    mvaOpt = cms.string("DBoldDMwLT"),
+    verbosity = cms.int32(0)
+)
+
+hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT = discriminationByIsolationMVA2VLoose.clone(
+    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    Prediscriminants = requireDecayMode.clone(),
+    toMultiplex = cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw'),
+    key = cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw:category'),
+    loadMVAfromDB = cms.bool(True),
+    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVADBoldDMwLTv1_mvaOutput_normalization"),
+    mapping = cms.VPSet(
+        cms.PSet(
+            category = cms.uint32(0),
+            cut = cms.string("RecoTauTag_tauIdMVADBoldDMwLTv1_WPEff90"),
+            variable = cms.string("pt")
+        )
+    )
+)
+hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT.clone()
+hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVADBoldDMwLTv1_WPEff80")
+hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT.clone()
+hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVADBoldDMwLTv1_WPEff70")
+hpsPFTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT.clone()
+hpsPFTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVADBoldDMwLTv1_WPEff60")
+hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT.clone()
+hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVADBoldDMwLTv1_WPEff50")
+hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT.clone()
+hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVADBoldDMwLTv1_WPEff40")
+
+hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw = hpsPFTauDiscriminationByIsolationMVA3newDMwoLTraw.clone(
+    mvaName = cms.string("RecoTauTag_tauIdMVADBnewDMwLTv1"),
+    mvaOpt = cms.string("DBnewDMwLT"),
+    verbosity = cms.int32(0)
+)
+
+hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT.clone(
+    toMultiplex = cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw'),
+    key = cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw:category'),
+    loadMVAfromDB = cms.bool(True),
+    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVADBnewDMwLTv1_mvaOutput_normalization"),
+    mapping = cms.VPSet(
+        cms.PSet(
+            category = cms.uint32(0),
+            cut = cms.string("RecoTauTag_tauIdMVADBnewDMwLTv1_WPEff90"),
+            variable = cms.string("pt")
+        )
+    )
+)
+hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBnewDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT.clone()
+hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVADBnewDMwLTv1_WPEff80")
+hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT.clone()
+hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVADBnewDMwLTv1_WPEff70")
+hpsPFTauDiscriminationByTightIsolationMVArun2v1DBnewDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT.clone()
+hpsPFTauDiscriminationByTightIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVADBnewDMwLTv1_WPEff60")
+hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBnewDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT.clone()
+hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVADBnewDMwLTv1_WPEff50")
+hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBnewDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT.clone()
+hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVADBnewDMwLTv1_WPEff40")
+
+hpsPFTauDiscriminationByIsolationMVArun2v1PWoldDMwLTraw = hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw.clone(
+    mvaName = cms.string("RecoTauTag_tauIdMVAPWoldDMwLTv1"),
+    mvaOpt = cms.string("PWoldDMwLT"),
+    srcPUcorrPtSum = cms.InputTag('hpsPFTauNeutralIsoPtSumWeight'),
+    verbosity = cms.int32(0)
+)
+
+hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWoldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT.clone(
+    toMultiplex = cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1PWoldDMwLTraw'),
+    key = cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1PWoldDMwLTraw:category'),
+    loadMVAfromDB = cms.bool(True),
+    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAPWoldDMwLTv1_mvaOutput_normalization"),
+    mapping = cms.VPSet(
+        cms.PSet(
+            category = cms.uint32(0),
+            cut = cms.string("RecoTauTag_tauIdMVAPWoldDMwLTv1_WPEff90"),
+            variable = cms.string("pt")
+        )
+    )
+)
+hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWoldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWoldDMwLT.clone()
+hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAPWoldDMwLTv1_WPEff80")
+hpsPFTauDiscriminationByMediumIsolationMVArun2v1PWoldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWoldDMwLT.clone()
+hpsPFTauDiscriminationByMediumIsolationMVArun2v1PWoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAPWoldDMwLTv1_WPEff70")
+hpsPFTauDiscriminationByTightIsolationMVArun2v1PWoldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWoldDMwLT.clone()
+hpsPFTauDiscriminationByTightIsolationMVArun2v1PWoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAPWoldDMwLTv1_WPEff60")
+hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWoldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWoldDMwLT.clone()
+hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAPWoldDMwLTv1_WPEff50")
+hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWoldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWoldDMwLT.clone()
+hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAPWoldDMwLTv1_WPEff40")
+
+hpsPFTauDiscriminationByIsolationMVArun2v1PWnewDMwLTraw = hpsPFTauDiscriminationByIsolationMVArun2v1PWoldDMwLTraw.clone(
+    mvaName = cms.string("RecoTauTag_tauIdMVAPWnewDMwLTv1"),
+    mvaOpt = cms.string("PWnewDMwLT"),
+    verbosity = cms.int32(0)
+)
+
+hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWnewDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWoldDMwLT.clone(
+    toMultiplex = cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1PWnewDMwLTraw'),
+    key = cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1PWnewDMwLTraw:category'),
+    loadMVAfromDB = cms.bool(True),
+    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAPWnewDMwLTv1_mvaOutput_normalization"),
+    mapping = cms.VPSet(
+        cms.PSet(
+            category = cms.uint32(0),
+            cut = cms.string("RecoTauTag_tauIdMVAPWnewDMwLTv1_WPEff90"),
+            variable = cms.string("pt")
+        )
+    )
+)
+hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWnewDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWnewDMwLT.clone()
+hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAPWnewDMwLTv1_WPEff80")
+hpsPFTauDiscriminationByMediumIsolationMVArun2v1PWnewDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWnewDMwLT.clone()
+hpsPFTauDiscriminationByMediumIsolationMVArun2v1PWnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAPWnewDMwLTv1_WPEff70")
+hpsPFTauDiscriminationByTightIsolationMVArun2v1PWnewDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWnewDMwLT.clone()
+hpsPFTauDiscriminationByTightIsolationMVArun2v1PWnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAPWnewDMwLTv1_WPEff60")
+hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWnewDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWnewDMwLT.clone()
+hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAPWnewDMwLTv1_WPEff50")
+hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWnewDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWnewDMwLT.clone()
+hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAPWnewDMwLTv1_WPEff40")
+
+hpsPFTauChargedIsoPtSumdR03 = hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits.clone(
+    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    Prediscriminants = requireDecayMode.clone(),
+    ApplyDiscriminationByECALIsolation = cms.bool(False),
+    ApplyDiscriminationByTrackerIsolation = cms.bool(True),
+    applySumPtCut = cms.bool(False),
+    applyDeltaBetaCorrection = cms.bool(False),
+    storeRawSumPt = cms.bool(True),
+    storeRawPUsumPt = cms.bool(False),
+    customOuterCone = cms.double(0.3),
+    isoConeSizeForDeltaBeta = cms.double(0.8),
+    verbosity = cms.int32(0)
+)
+hpsPFTauNeutralIsoPtSumdR03 = hpsPFTauChargedIsoPtSumdR03.clone(
+    ApplyDiscriminationByECALIsolation = cms.bool(True),
+    ApplyDiscriminationByTrackerIsolation = cms.bool(False),
+    verbosity = cms.int32(0)
+)
+hpsPFTauPUcorrPtSumdR03 = hpsPFTauChargedIsoPtSumdR03.clone(
+    ApplyDiscriminationByECALIsolation = cms.bool(False),
+    ApplyDiscriminationByTrackerIsolation = cms.bool(False),
+    applyDeltaBetaCorrection = cms.bool(True),
+    storeRawSumPt = cms.bool(False),
+    storeRawPUsumPt = cms.bool(True),
+    verbosity = cms.int32(0)
+)
+hpsPFTauNeutralIsoPtSumWeightdR03 = hpsPFTauChargedIsoPtSumdR03.clone(
+    ApplyDiscriminationByWeightedECALIsolation = cms.bool(True),
+    ApplyDiscriminationByTrackerIsolation = cms.bool(False),
+    UseAllPFCandsForWeights = cms.bool(True),
+    verbosity = cms.int32(0)
+)
+hpsPFTauFootprintCorrectiondR03 = hpsPFTauChargedIsoPtSumdR03.clone(
+    ApplyDiscriminationByTrackerIsolation = cms.bool(False),
+    storeRawSumPt = cms.bool(False),
+    storeRawFootprintCorrection = cms.bool(True),
+    verbosity = cms.int32(0)
+)
+hpsPFTauPhotonPtSumOutsideSignalConedR03 = hpsPFTauChargedIsoPtSumdR03.clone(
+    ApplyDiscriminationByTrackerIsolation = cms.bool(False),
+    storeRawSumPt = cms.bool(False),
+    storeRawPhotonSumPt_outsideSignalCone = cms.bool(True),
+    verbosity = cms.int32(0)
+)
+
+hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw = hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw.clone(
+    mvaName = cms.string("RecoTauTag_tauIdMVADBdR03oldDMwLTv1"),
+    mvaOpt = cms.string("DBoldDMwLT"),
+    srcChargedIsoPtSum = cms.InputTag('hpsPFTauChargedIsoPtSumdR03'),
+    srcNeutralIsoPtSum = cms.InputTag('hpsPFTauNeutralIsoPtSumdR03'),
+    srcPUcorrPtSum = cms.InputTag('hpsPFTauPUcorrPtSumdR03'),
+    srcPhotonPtSumOutsideSignalCone = cms.InputTag('hpsPFTauPhotonPtSumOutsideSignalConedR03'),
+    srcPFTauFootprintCorrection = cms.InputTag('hpsPFTauFootprintCorrectiondR03'),
+    verbosity = cms.int32(0)
+)
+hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT = discriminationByIsolationMVA2VLoose.clone(
+    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    Prediscriminants = requireDecayMode.clone(),
+    toMultiplex = cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw'),
+    key = cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw:category'),
+    loadMVAfromDB = cms.bool(True),
+    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVADBdR03oldDMwLTv1_mvaOutput_normalization"),
+    mapping = cms.VPSet(
+        cms.PSet(
+            category = cms.uint32(0),
+            cut = cms.string("RecoTauTag_tauIdMVADBdR03oldDMwLTv1_WPEff90"),
+            variable = cms.string("pt")
+        )
+    )
+)
+hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT.clone()
+hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBdR03oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVADBdR03oldDMwLTv1_WPEff80")
+hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT.clone()
+hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBdR03oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVADBdR03oldDMwLTv1_WPEff70")
+hpsPFTauDiscriminationByTightIsolationMVArun2v1DBdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT.clone()
+hpsPFTauDiscriminationByTightIsolationMVArun2v1DBdR03oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVADBdR03oldDMwLTv1_WPEff60")
+hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT.clone()
+hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBdR03oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVADBdR03oldDMwLTv1_WPEff50")
+hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT.clone()
+hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBdR03oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVADBdR03oldDMwLTv1_WPEff40")
+
+hpsPFTauDiscriminationByIsolationMVArun2v1PWdR03oldDMwLTraw = hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw.clone(
+    mvaName = cms.string("RecoTauTag_tauIdMVAPWdR03oldDMwLTv1"),
+    mvaOpt = cms.string("PWoldDMwLT"),
+    srcPUcorrPtSum = cms.InputTag('hpsPFTauNeutralIsoPtSumWeightdR03'),
+    verbosity = cms.int32(0)
+)
+hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT.clone(
+    toMultiplex = cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1PWdR03oldDMwLTraw'),
+    key = cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1PWdR03oldDMwLTraw:category'),
+    loadMVAfromDB = cms.bool(True),
+    mvaOutput_normalization = cms.string("RecoTauTag_tauIdMVAPWdR03oldDMwLTv1_mvaOutput_normalization"),
+    mapping = cms.VPSet(
+        cms.PSet(
+            category = cms.uint32(0),
+            cut = cms.string("RecoTauTag_tauIdMVAPWdR03oldDMwLTv1_WPEff90"),
+            variable = cms.string("pt")
+        )
+    )
+)
+hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWdR03oldDMwLT.clone()
+hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWdR03oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAPWdR03oldDMwLTv1_WPEff80")
+hpsPFTauDiscriminationByMediumIsolationMVArun2v1PWdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWdR03oldDMwLT.clone()
+hpsPFTauDiscriminationByMediumIsolationMVArun2v1PWdR03oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAPWdR03oldDMwLTv1_WPEff70")
+hpsPFTauDiscriminationByTightIsolationMVArun2v1PWdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWdR03oldDMwLT.clone()
+hpsPFTauDiscriminationByTightIsolationMVArun2v1PWdR03oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAPWdR03oldDMwLTv1_WPEff60")
+hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWdR03oldDMwLT.clone()
+hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWdR03oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAPWdR03oldDMwLTv1_WPEff50")
+hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWdR03oldDMwLT.clone()
+hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWdR03oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAPWdR03oldDMwLTv1_WPEff40")
+
 hpsPFTauMVAIsolation2Seq = cms.Sequence(
     hpsPFTauChargedIsoPtSum
    + hpsPFTauNeutralIsoPtSum
@@ -821,34 +1058,83 @@ hpsPFTauMVAIsolation2Seq = cms.Sequence(
    + hpsPFTauNeutralIsoPtSumWeight
    + hpsPFTauFootprintCorrection
    + hpsPFTauPhotonPtSumOutsideSignalCone
-   + hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw
-   + hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwoLT
-   + hpsPFTauDiscriminationByLooseIsolationMVA3oldDMwoLT
-   + hpsPFTauDiscriminationByMediumIsolationMVA3oldDMwoLT
-   + hpsPFTauDiscriminationByTightIsolationMVA3oldDMwoLT
-   + hpsPFTauDiscriminationByVTightIsolationMVA3oldDMwoLT
-   + hpsPFTauDiscriminationByVVTightIsolationMVA3oldDMwoLT    
-   + hpsPFTauDiscriminationByIsolationMVA3oldDMwLTraw
-   + hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwLT
-   + hpsPFTauDiscriminationByLooseIsolationMVA3oldDMwLT
-   + hpsPFTauDiscriminationByMediumIsolationMVA3oldDMwLT
-   + hpsPFTauDiscriminationByTightIsolationMVA3oldDMwLT
-   + hpsPFTauDiscriminationByVTightIsolationMVA3oldDMwLT
-   + hpsPFTauDiscriminationByVVTightIsolationMVA3oldDMwLT
-   + hpsPFTauDiscriminationByIsolationMVA3newDMwoLTraw
-   + hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwoLT
-   + hpsPFTauDiscriminationByLooseIsolationMVA3newDMwoLT
-   + hpsPFTauDiscriminationByMediumIsolationMVA3newDMwoLT
-   + hpsPFTauDiscriminationByTightIsolationMVA3newDMwoLT
-   + hpsPFTauDiscriminationByVTightIsolationMVA3newDMwoLT
-   + hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwoLT 
-   + hpsPFTauDiscriminationByIsolationMVA3newDMwLTraw
-   + hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwLT
-   + hpsPFTauDiscriminationByLooseIsolationMVA3newDMwLT
-   + hpsPFTauDiscriminationByMediumIsolationMVA3newDMwLT
-   + hpsPFTauDiscriminationByTightIsolationMVA3newDMwLT
-   + hpsPFTauDiscriminationByVTightIsolationMVA3newDMwLT
-   + hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwLT    
+   #+ hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw
+   #+ hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwoLT
+   #+ hpsPFTauDiscriminationByLooseIsolationMVA3oldDMwoLT
+   #+ hpsPFTauDiscriminationByMediumIsolationMVA3oldDMwoLT
+   #+ hpsPFTauDiscriminationByTightIsolationMVA3oldDMwoLT
+   #+ hpsPFTauDiscriminationByVTightIsolationMVA3oldDMwoLT
+   #+ hpsPFTauDiscriminationByVVTightIsolationMVA3oldDMwoLT    
+   #+ hpsPFTauDiscriminationByIsolationMVA3oldDMwLTraw
+   #+ hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwLT
+   #+ hpsPFTauDiscriminationByLooseIsolationMVA3oldDMwLT
+   #+ hpsPFTauDiscriminationByMediumIsolationMVA3oldDMwLT
+   #+ hpsPFTauDiscriminationByTightIsolationMVA3oldDMwLT
+   #+ hpsPFTauDiscriminationByVTightIsolationMVA3oldDMwLT
+   #+ hpsPFTauDiscriminationByVVTightIsolationMVA3oldDMwLT
+   #+ hpsPFTauDiscriminationByIsolationMVA3newDMwoLTraw
+   #+ hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwoLT
+   #+ hpsPFTauDiscriminationByLooseIsolationMVA3newDMwoLT
+   #+ hpsPFTauDiscriminationByMediumIsolationMVA3newDMwoLT
+   #+ hpsPFTauDiscriminationByTightIsolationMVA3newDMwoLT
+   #+ hpsPFTauDiscriminationByVTightIsolationMVA3newDMwoLT
+   #+ hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwoLT 
+   #+ hpsPFTauDiscriminationByIsolationMVA3newDMwLTraw
+   #+ hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwLT
+   #+ hpsPFTauDiscriminationByLooseIsolationMVA3newDMwLT
+   #+ hpsPFTauDiscriminationByMediumIsolationMVA3newDMwLT
+   #+ hpsPFTauDiscriminationByTightIsolationMVA3newDMwLT
+   #+ hpsPFTauDiscriminationByVTightIsolationMVA3newDMwLT
+   #+ hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwLT    
+   # new MVA isolations for Run2
+   + hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw
+   + hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT
+   + hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLT
+   + hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT
+   + hpsPFTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLT
+   + hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLT
+   + hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT
+   + hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw 
+   + hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT
+   + hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBnewDMwLT
+   + hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT
+   + hpsPFTauDiscriminationByTightIsolationMVArun2v1DBnewDMwLT
+   + hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBnewDMwLT
+   + hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBnewDMwLT 
+   + hpsPFTauDiscriminationByIsolationMVArun2v1PWoldDMwLTraw
+   + hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWoldDMwLT
+   + hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWoldDMwLT
+   + hpsPFTauDiscriminationByMediumIsolationMVArun2v1PWoldDMwLT
+   + hpsPFTauDiscriminationByTightIsolationMVArun2v1PWoldDMwLT
+   + hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWoldDMwLT
+   + hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWoldDMwLT
+   + hpsPFTauDiscriminationByIsolationMVArun2v1PWnewDMwLTraw
+   + hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWnewDMwLT
+   + hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWnewDMwLT
+   + hpsPFTauDiscriminationByMediumIsolationMVArun2v1PWnewDMwLT
+   + hpsPFTauDiscriminationByTightIsolationMVArun2v1PWnewDMwLT
+   + hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWnewDMwLT
+   + hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWnewDMwLT
+   + hpsPFTauChargedIsoPtSumdR03
+   + hpsPFTauNeutralIsoPtSumdR03
+   + hpsPFTauPUcorrPtSumdR03
+   + hpsPFTauNeutralIsoPtSumWeightdR03
+   + hpsPFTauFootprintCorrectiondR03
+   + hpsPFTauPhotonPtSumOutsideSignalConedR03
+   + hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw
+   + hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT
+   + hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBdR03oldDMwLT
+   + hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBdR03oldDMwLT
+   + hpsPFTauDiscriminationByTightIsolationMVArun2v1DBdR03oldDMwLT
+   + hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBdR03oldDMwLT
+   + hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBdR03oldDMwLT
+   + hpsPFTauDiscriminationByIsolationMVArun2v1PWdR03oldDMwLTraw
+   + hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWdR03oldDMwLT
+   + hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWdR03oldDMwLT
+   + hpsPFTauDiscriminationByMediumIsolationMVArun2v1PWdR03oldDMwLT
+   + hpsPFTauDiscriminationByTightIsolationMVArun2v1PWdR03oldDMwLT
+   + hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWdR03oldDMwLT
+   + hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWdR03oldDMwLT
 )    
 
 produceHPSPFTaus = cms.Sequence(
