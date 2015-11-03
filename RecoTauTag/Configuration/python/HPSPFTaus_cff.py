@@ -1275,12 +1275,12 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByLooseElectronRejection*
     hpsPFTauDiscriminationByMediumElectronRejection*
     hpsPFTauDiscriminationByTightElectronRejection*
-    hpsPFTauDiscriminationByMVA5rawElectronRejection*
-    hpsPFTauDiscriminationByMVA5VLooseElectronRejection*
-    hpsPFTauDiscriminationByMVA5LooseElectronRejection*
-    hpsPFTauDiscriminationByMVA5MediumElectronRejection*
-    hpsPFTauDiscriminationByMVA5TightElectronRejection*
-    hpsPFTauDiscriminationByMVA5VTightElectronRejection*
+    #hpsPFTauDiscriminationByMVA5rawElectronRejection*
+    #hpsPFTauDiscriminationByMVA5VLooseElectronRejection*
+    #hpsPFTauDiscriminationByMVA5LooseElectronRejection*
+    #hpsPFTauDiscriminationByMVA5MediumElectronRejection*
+    #hpsPFTauDiscriminationByMVA5TightElectronRejection*
+    #hpsPFTauDiscriminationByMVA5VTightElectronRejection*
     hpsPFTauDiscriminationByMVA6rawElectronRejection*
     hpsPFTauDiscriminationByMVA6VLooseElectronRejection*
     hpsPFTauDiscriminationByMVA6LooseElectronRejection*
