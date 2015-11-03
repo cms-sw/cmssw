@@ -36,7 +36,12 @@ CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf, uint16_t format_
 	theSliceStarts.push_back(std::pair<int, bool>(pos, true));
 	// it will just be an array of CSCCFEBTimeSlices, so we'll
 	// grab the number of time slices from the first good one
-	maxSamples =   goodSlice->sixteenSamples() ? 16 : 8;
+	// !!! VB - Limit maximum number of CFEB samples to 8. 
+	// !!!      In Run2 rare CFEB data corruptions were causing RECO problems with mistakenly setting 16 samples flags
+	// !!!      Will need another fix in case of CSC switch to 16 samples readout
+	// maxSamples =   goodSlice->sixteenSamples() ? 16 : 8;
+	if (goodSlice->sixteenSamples()) LogTrace ("CSCCFEBData|CSCRawToDigi")
+          << "CFEB DATA slice " << theNumberOfSamples << " 16 samples flag is detected";
 	pos += goodSlice->sizeInWords();
       } 
       else {
