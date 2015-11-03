@@ -1,5 +1,5 @@
-#ifndef HLTHcalTowerNoiseCleaner_h
-#define HLTHcalTowerNoiseCleaner_h
+#ifndef HLTHcalTowerNoiseCleanerWithrechit_h
+#define HLTHcalTowerNoiseCleanerWithrechit_h
 
 /** \class HLTHcalNoiseCleaner
  *
@@ -20,11 +20,11 @@ namespace edm {
    class ConfigurationDescriptions;
 }
 
-class HLTHcalTowerNoiseCleaner : public edm::stream::EDProducer<> {
+class HLTHcalTowerNoiseCleanerWithrechit : public edm::stream::EDProducer<> {
   
  public:
-  explicit HLTHcalTowerNoiseCleaner(const edm::ParameterSet&);
-  ~HLTHcalTowerNoiseCleaner();
+  explicit HLTHcalTowerNoiseCleanerWithrechit(const edm::ParameterSet&);
+  ~HLTHcalTowerNoiseCleanerWithrechit();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
@@ -68,4 +68,4 @@ class HLTHcalTowerNoiseCleaner : public edm::stream::EDProducer<> {
   typedef std::set<CommonHcalNoiseRBXData, noisedatacomp> noisedataset_t;
 };
 
-#endif //HLTHcalTowerNoiseCleaner_h
+#endif //HLTHcalTowerNoiseCleanerWithrechit_h
