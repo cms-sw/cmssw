@@ -108,7 +108,9 @@ namespace evf {
         fuLockPollInterval_=boost::lexical_cast<unsigned int>(std::string(fuLockPollIntervalPtr));
         edm::LogInfo("Setting fu lock poll interval by environment string: ") << fuLockPollInterval_ << " us";
       }
-      catch (...) {edm::LogWarning("Unable to parse environment string: ") << std::string(fuLockPollIntervalPtr);}
+      catch( boost::bad_lexical_cast const& ) {
+        {edm::LogWarning("Bad lexical cast in parsing: ") << std::string(fuLockPollIntervalPtr); 
+      }
     }
 
     char * emptyLumiModePtr = getenv("FFF_EMPTYLSMODE");
@@ -201,12 +203,12 @@ namespace evf {
 	    std::string hltdir=bu_run_dir_+"/hlt";
 	    std::string tmphltdir=bu_run_open_dir_+"/hlt";
 	    retval = mkdir(tmphltdir.c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	    if (retval != 0 && errno != EEXIST)
+	      throw cms::Exception("DaqDirector")
+	        << " Error creating bu run dir -: " << hltdir
+	        << " mkdir error:" << strerror(errno) << "\n";
 
             boost::filesystem::copy_file(hltSourceDirectory_+"/HltConfig.py",tmphltdir+"/HltConfig.py");
-            try {
-              boost::filesystem::copy_file(hltSourceDirectory_+"/CMSSW_VERSION",tmphltdir+"/CMSSW_VERSION");
-              boost::filesystem::copy_file(hltSourceDirectory_+"/SCRAM_ARCH",tmphltdir+"/SCRAM_ARCH");
-            } catch (...) {}
 
             boost::filesystem::copy_file(hltSourceDirectory_+"/fffParameters.jsn",tmphltdir+"/fffParameters.jsn");
 
@@ -328,7 +330,7 @@ namespace evf {
           try {
             boost::filesystem::remove(filePath);
           }
-            catch (...) {/*file gets deleted first time but exception is still thrown*/}
+            catch (const boost::filesystem::filesystem_error&) {/*file gets deleted first time but exception is still thrown*/}
         }
         catch (std::exception& ex)
         {
@@ -336,7 +338,7 @@ namespace evf {
           usleep(10000);
           try {
 	    boost::filesystem::remove(filePath);
-          } catch (...) {/*file gets deleted first time but exception is still thrown*/}
+          } catch (std::exception&) {/*file gets deleted first time but exception is still thrown*/}
         }
         
         delete it->second;
@@ -685,11 +687,7 @@ namespace evf {
 
     if (previousFileSize_ != 0) {
       if (!fms_) {
-        try {
           fms_ = (FastMonitoringService *) (edm::Service<evf::MicroStateService>().operator->());
-        } catch (...) {
-	        edm::LogError("EvFDaqDirector") <<" FastMonitoringService not found";
-        }
       }
       if (fms_) fms_->accumulateFileSize(ls, previousFileSize_);
       previousFileSize_ = 0;

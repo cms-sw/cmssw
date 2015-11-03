@@ -105,7 +105,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
     eventChunkSize_=readBlocks_*eventChunkBlock_;
 
   if (!numBuffers_)
-   throw cms::Exception("FedRawDataInputSource::FedRawDataInputSource") <<
+    throw cms::Exception("FedRawDataInputSource::FedRawDataInputSource") <<
 	           "no reading enabled with numBuffers parameter 0";
 
   numConcurrentReads_=numBuffers_-1;
@@ -115,24 +115,19 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   if (!crc32c_hw_test())
     edm::LogError("FedRawDataInputSource::FedRawDataInputSource") << "Intel crc32c checksum computation unavailable";
 
-  //het handles to DaqDirector and FastMonitoringService because it isn't acessible in readSupervisor thread
-
-  try {
-    fms_ = (evf::FastMonitoringService *) (edm::Service<evf::MicroStateService>().operator->());
-  } catch (...){
-    edm::LogWarning("FedRawDataInputSource") << "FastMonitoringService not found";
-    assert(0);//test
+  //get handles to DaqDirector and FastMonitoringService because getting them isn't possible in readSupervisor thread
+  fms_ = static_cast<evf::FastMonitoringService *> (edm::Service<evf::MicroStateService>().operator->());
+  if (!fms_) {
+    throw cms::Exception("FedRawDataInputSource") << "FastMonitoringService not found";
   }
 
-  try {
-    daqDirector_ = (evf::EvFDaqDirector *) (edm::Service<evf::EvFDaqDirector>().operator->());
-    //set DaqDirector to delete files in preGlobalEndLumi callback
-    daqDirector_->setDeleteTracking(&fileDeleteLock_,&filesToDelete_);
-    if (fms_) daqDirector_->setFMS(fms_);
-  } catch (...){
-    edm::LogWarning("FedRawDataInputSource") << "EvFDaqDirector not found";
-    assert(0);//test
+  daqDirector_ = edm::Service<evf::EvFDaqDirector>().operator->();
+  if (!daqDirector_)
+    cms::Exception("FedRawDataInputSource") << "EvFDaqDirector not found";
   }
+  //set DaqDirector to delete files in preGlobalEndLumi callback
+  daqDirector_->setDeleteTracking(&fileDeleteLock_,&filesToDelete_);
+  if (fms_) daqDirector_->setFMS(fms_);
 
   //should delete chunks when run stops
   for (unsigned int i=0;i<numBuffers_;i++) {
@@ -615,7 +610,7 @@ void FedRawDataInputSource::deleteFile(std::string const& fileName)
     try {
       boost::filesystem::remove(filePath);
     }
-    catch (...) {/*file gets deleted first time but exception is still thrown*/}
+    catch (const boost::filesystem::filesystem_error&) {/*file gets deleted first time but exception is still thrown*/}
   }
   catch (std::exception& ex)
   {
@@ -624,7 +619,7 @@ void FedRawDataInputSource::deleteFile(std::string const& fileName)
     usleep(100000);
     try {
       boost::filesystem::remove(filePath);
-    } catch (...) {/*file gets deleted first time but exception is still thrown*/}
+    } catch (std::exception&) {/*file gets deleted first time but exception is still thrown*/}
   }
 }
 
@@ -1247,7 +1242,6 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile *file)
     if (leftsize) {
       const ssize_t last = ::read(fileDescriptor_,( void*)( file->chunks_[0]->buf_ + existingSize ), leftsize);
       bufferInputRead_+=last;
-      existingSize+=last;
     }
     file->chunkPosition_=0;//data was moved to beginning of the chunk
   }
