@@ -17,9 +17,12 @@ class DQMFileSaverOnline : public DQMFileSaverBase {
   DQMFileSaverOnline(const edm::ParameterSet &ps);
   ~DQMFileSaverOnline();
 
+  static const std::string fillOrigin(const std::string filename,
+                                  const std::string final_filename);
+
  protected:
-  virtual void saveLumi(FileParameters fp) const;
-  virtual void saveRun(FileParameters fp) const;
+  virtual void saveLumi(const FileParameters& fp) const override;
+  virtual void saveRun(const FileParameters& fp) const override;
 
  protected:
   int backupLumiCount_;
