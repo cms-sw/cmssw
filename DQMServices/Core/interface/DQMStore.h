@@ -629,7 +629,7 @@ class DQMStore
 					      uint32_t streamId,
 					      uint32_t moduleId);
 
-  void markForDeletion(uint32_t run, uint32_t lumi);
+  void deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi);
  private:
 
   // ---------------- Miscellaneous -----------------------------
