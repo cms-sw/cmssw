@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-## 2015 + new phase 1 pixel detector
-
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/PhaseII/materials.xml',
         'Geometry/CMSCommonData/data/rotations.xml',
@@ -286,5 +284,4 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/FieldParameters.xml'),
     rootNodeName = cms.string('cms:OCMS')
 )
-
 
