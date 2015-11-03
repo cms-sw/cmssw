@@ -28,6 +28,9 @@ class DQMIO:
         self._filename = input_filename
         self._canvas = None
         self.f = R.TFile(output_filename, "RECREATE")
+        self.already_defined = {"TProfiles" : False, "TProfile2Ds" : False,
+                "TH2Fs" : False, "TH2Ds" : False}
+
         if os.path.exists(self._filename): #we try to open input file if fail
             self._root_file = R.TFile.Open(self._filename) #-> close script
             if args.debug:
@@ -74,28 +77,35 @@ class DQMIO:
         __run_dir = "Run %s" % (run)
         ###we set Branch for the needed type
         if hist_type == "TProfiles":
-            R.gROOT.ProcessLine("TProfile* _tprof;")
+            if not self.already_defined["TProfiles"]:
+                R.gROOT.ProcessLine("TProfile* _tprof;")
+                self.already_defined["TProfiles"] = True
             t_tree.SetBranchAddress("Value", R._tprof)
-            t_tree.GetEntry(0)
+            t_tree.GetEntry(index_range[0])
         elif hist_type == "TProfile2Ds":
-            R.gROOT.ProcessLine("TProfile2D* _tprof2d;")
+            if not self.already_defined["TProfile2Ds"]:
+                R.gROOT.ProcessLine("TProfile2D* _tprof2d;")
+                self.already_defined["TProfile2Ds"] = True
             t_tree.SetBranchAddress("Value", R._tprof2d)
-            t_tree.GetEntry(0)
+            t_tree.GetEntry(index_range[0])
         elif hist_type == "TH2Fs":
-            R.gROOT.ProcessLine("TH2F* _th2f;")
+            if not self.already_defined["TH2Fs"]:
+                R.gROOT.ProcessLine("TH2F* _th2f;")
+                self.already_defined["TH2Fs"] = True
             t_tree.SetBranchAddress("Value", R._th2f)
-            t_tree.GetEntry(0)
+            t_tree.GetEntry(index_range[0])
         elif hist_type == "TH2Ds":
-            R.gROOT.ProcessLine("TH2D* _th2d;")
+            if not self.already_defined["TH2Ds"]:
+                R.gROOT.ProcessLine("TH2D* _th2d;")
+                self.already_defined["TH2Ds"] = True
             t_tree.SetBranchAddress("Value", R._th2d)
-            t_tree.GetEntry(0)
+            t_tree.GetEntry(index_range[0])
 
         for i in range(0,t_tree.GetEntries()+1): ##iterate on entries for specified type
-            t_tree.GetEntry(i)
-            name = str(t_tree.FullName)
-            #if args.debug:
-            #    print "    %s" % (name)
             if i >= index_range[0] and i <= index_range[1]: ##if entries as in range:
+                t_tree.GetEntry(i)
+                name = str(t_tree.FullName)
+               # print "  %s:  %s" % (i, name)
                 file_path = name.split("/")[:-1]            ##  same run/lumi histograms
                 __directory = "%s/%s" % (os.path.join("DQMData", __run_dir),
                     "/".join(file_path))
@@ -128,9 +138,9 @@ class DQMIO:
                             R._th2f.Write()
                         elif hist_type == "TH2Ds":
                             R._th2d.Write()
-                    else: #else we wirte ne Leafs Value which is a histogram
+                    else: #else we wirte Leafs Value which is a histogram
                         t_tree.Value.Write()
-      
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-in", "--input", help = "Input DQMIO ROOT file")
