@@ -31,7 +31,8 @@ print "Datafile: $datafile \n";
 open (datafile) or die "Can't open the file!";
 @dataFileInput = <datafile>;
 
-$dataskim = basename( $datafile, ".dat" );
+#$dataskim = basename( $datafile, ".dat" );
+($dataskim,$path,$suffix) = fileparse($datafile,,qr"\..[^.]*$");
 
 system( "
 cp python/common_cff_py.txt $odir/.;

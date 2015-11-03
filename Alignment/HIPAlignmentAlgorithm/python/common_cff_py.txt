@@ -1,8 +1,25 @@
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
 # loading magnetic field and geometry
-process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.Geometry.GeometryRecoDB_cff")
+#process.load("Configuration.Geometry.GeometryRecoDB_cff")
+
+#process.load('Configuration.Geometry.GeometryExtended_cff')
+#process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
+process.load('Configuration/Geometry/GeometryRecoDB_cff')
+
+#Tracker
+from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
+
+#Muon
+from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
+from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
+
+#  Alignment
+from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
+from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *
+from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
+#process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")  
 
 # loading the alignment producer
 process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
@@ -10,18 +27,23 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 # loading DB constants 
 # *WARNING* - the standard file doesn't work (gives too many "SiStripPedestalsFakeSource" rcds) 
 # comment out that line in standard file ... an example is given in release of HIPAlignmentAlgorithm ("FrontierConditions_GlobalTag_cff.py")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 
-if 'COSMICS'=='<FLAG>':
-   process.GlobalTag.globaltag='MCRUN2_71_V0::All'
-else :
-   process.GlobalTag.globaltag='MCRUN2_71_V0::All'
+#process.GlobalTag.globaltag='GR_P_V54'
+#if 'COSMICS'=='<FLAG>':
+#   process.GlobalTag.globaltag='GR_P_V56'
+#else :
+#   process.GlobalTag.globaltag='GR_E_V48'
+
+#process.GlobalTag.globaltag='GR_E_V49'
+process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v4'
  
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 # configure magnetic field
-# process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 # configure the database file - use survey one for default
 from CondCore.DBCommon.CondDBSetup_cfi import *
@@ -39,36 +61,65 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 
 # process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
 
-# ########## Zero APE
-# from CondCore.DBCommon.CondDBSetup_cfi import *
-# process.ZeroAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
-#                                connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
-#                                timetype = cms.string("runnumber"),
-#                                toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
-#                                                           tag = cms.string('TrackerIdealGeometryErrors210_mc')
-#                                                           )
-#                                                  )
-#                                )
-
-# process.es_prefer_ZeroAPE = cms.ESPrefer("PoolDBESSource", "ZeroAPE")
-
-# For global tag geometry 
-# !!!! Pass only  "unlimited Interval Of Validity (IOV)" DB objects for
-# conditions as described in https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHIPAlgorithm#Run_HIP
-
 process.GlobalTag.toGet = cms.VPSet(
    cms.PSet(record = cms.string('TrackerAlignmentRcd'),
-            tag = cms.string('TrackerAlignment_2015StartupPessimisticScenario_mc'),
-            connect = cms.untracked.string('frontier://FrontierProd/CMS_COND_31X_ALIGNMENT')
+#            tag = cms.string('Alignments'),
+#             tag = cms.string('Alignments_mp'),
+             tag = cms.string('testTag'),
+#            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/CMSSW_7_4_4/src/Alignment/HIPAlignmentAlgorithm/hp1216/alignments_iter20.db')
+#           connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/cayou/CMSSW_7_4_6_patch5/src/Alignment/HIPAlignmentAlgorithm/hp1401/alignments_iter30.db')
+            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/user/j/jcastle/public/pp3.8T_PCL_Alignment/Results259891/MinBias_2015/TkAlignment.db')
             ),
+
    cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
-            tag = cms.string('TrackerSurfaceDeformations_2011Realistic_v2_mc'),
-            connect = cms.untracked.string('frontier://FrontierProd/CMS_COND_310X_ALIGN')
+            tag = cms.string('Deformations_mp'),
+            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/Inflate/CMSSW_7_4_0_pre6/src/Alignment/HIPAlignmentAlgorithm/MP1700_sd.db')
             ),
-   cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
-            tag = cms.string('TrackerAlignmentErrors_2015StartupPessimisticScenario_mc'),
-            connect = cms.untracked.string('frontier://FrontierProd/CMS_COND_31X_ALIGNMENT')
-            ),
+#   cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
+#            tag = cms.string('TrackerAlignmentExtendedErr_2009_v2_express_IOVs'),
+#            connect = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS')
+#            ),
+   cms.PSet(record = cms.string('GlobalPositionRcd'),
+            tag = cms.string('GlobalAlignment'),
+            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/CMSSW_7_4_0_pre6/src/Alignment/HIPAlignmentAlgorithm/GR_P_V49_GP.db')
+            ),	 
+
+#  cms.PSet(record = cms.string('SiPixelTemplateDBObjectRcd'),
+#            tag = cms.string('SiPixelTemplateDBObject_38T_2015_v1'),
+#            connect = cms.untracked.string('frontier://FrontierPrep/CMS_CONDITIONS')
+#            ) ,
+
+#   cms.PSet(record = cms.string('SiPixelLorentzAngleRcd'),
+#            tag = cms.string('SiPixelLorentzAngle_2015_v2'),
+#            connect = cms.untracked.string('frontier://FrontierPrep/CMS_CONDITIONS')
+#            )
+
+        cms.PSet(record = cms.string("SiPixelLorentzAngleRcd"),
+                 tag = cms.string("SiPixelLorentzAngle_2015_v2_hltvalidation"),
+                 connect = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS')
+             ),
+
+#        cms.PSet(record = cms.string("SiPixelTemplateDBObjectRcd"),
+#                 tag = cms.string("SiPixelTemplateDBObject_38T_2015_v1_hltvalidation"),
+#                 connect = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS')             
+#             ),   
+
+        cms.PSet(record = cms.string("SiPixelTemplateDBObjectRcd"),
+                 tag = cms.string("SiPixelTemplateDBObject38Tv10"),
+                 connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/cayou/CMSSW_7_4_6_patch5/src/Alignment/HIPAlignmentAlgorithm/siPixel1DTemplatesNM38T.db')
+             ),
+
+        cms.PSet(record = cms.string("SiStripBackPlaneCorrectionRcd"),
+                tag = cms.string("SiStripBackPlaneCorrection_deco_GR10_v4_offline"),
+                connect = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS'),
+                label = cms.untracked.string("deconvolution")
+             ),
+
+        cms.PSet(record = cms.string("SiStripLorentzAngleRcd"),
+                tag = cms.string("SiStripLorentzAngleDeco_v3_offline"),
+                connect = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS'),
+                label = cms.untracked.string("deconvolution")
+             )
    )
 
 process.AlignmentProducer.applyDbAlignment = True
@@ -78,12 +129,150 @@ process.AlignmentProducer.applyDbAlignment = True
 
 process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
                                                     alignParams = cms.vstring(
-                                                                 'PixelHalfBarrelDets,111111',
-                                                                 'PXECDets,111111',
-                                                                 'TrackerTIBModuleUnit,101001',
-                                                                 'TrackerTOBModuleUnit,101001',
-                                                                 'TrackerTIDModuleUnit,101001',
-                                                                 'TrackerTECModuleUnit,101001',
-                                                                 ),
+
+#      'TrackerTPBModule,101101',
+#      'TrackerTPEModule,111111',
+#      'TrackerTIBModuleUnit,101111',
+#      'TrackerTOBModuleUnit,101111',
+#      'TrackerTIDModuleUnit,111111',
+#      'TrackerTECModuleUnit,111111'
+
+#      'TrackerTPBModule,101101',
+#      'TrackerTPEModule,111111',
+#      'TrackerTIBModule,101111',
+#      'TrackerTOBModule,101111',
+
+#      'TrackerTOBModule,001000,TOBscan',
+
+#      'TrackerTIDModule,110111',
+#      'TrackerTECModule,110111'
+
+#      'TrackerTOBModule,101111',
+      'TrackerTECModule,001000'
+
+#      'TrackerTPBLadder,111111',
+#      'TrackerTPEPanel,111111',
+#      'TrackerTIBString,111111',
+#      'TrackerTOBRod,111111',
+#      'TrackerTIDRing,111111',
+#      'TrackerTECPetal,111111'
+
+#      'TrackerTPBLayer,111111',
+#      'TrackerTPEHalfDisk,111111',
+#      'TrackerTIBLayer,111111',
+#      'TrackerTOBLayer,111111',
+#      'TrackerTIDDisk,111111',
+#      'TrackerTECDisk,001000'
+
+#      'TrackerTPBHalfBarrel,111111',
+##      'TrackerTPEEndcap,111111',
+#      'TrackerTPEHalfCylinder,111111',
+#      'TrackerTIBHalfBarrel,ffffff',
+#      'TrackerTOBHalfBarrel,ffffff',
+#      'TrackerTIDEndcap,ffffff',
+#      'TrackerTECEndcap,ffffff'
+
+#      'TrackerTPBHalfBarrel,111111',
+#      'TrackerTPEHalfDisk,111111',
+#      'TrackerTIBHalfBarrel,111111',
+#      'TrackerTOBHalfBarrel,111111',
+#      'TrackerTIDEndcap,111111',
+#      'TrackerTECEndcap,111111'
+
+#      'TrackerTECRing,111111',
+
+#        'TECDets,111111,endCapDS', 
+#        'TIDDets,001000,endCapDS', 
+#        'TECDets,111111,endCapSS', 
+#        'TIDDets,001000,endCapSS', 
+#        'TECDets,111111,TECRing1',
+#        'TECDets,111111,TECRing2',
+#        'TECDets,111111,TECRing3',
+#        'TECDets,111111,TECRing4',
+#        'TECDets,111111,TECRing5',
+#        'TECDets,111111,TECRing6',
+#        'TECDets,111111,TECRing7',
+                                                                 
+   ),
+    endCapSS = cms.PSet(
+        phiRanges = cms.vdouble(),
+        rRanges = cms.vdouble(40.0, 60.0, 75.0, 999.0),
+        etaRanges = cms.vdouble(),
+        yRanges = cms.vdouble(),
+        xRanges = cms.vdouble(),
+        zRanges = cms.vdouble()
+    ),
+    endCapDS = cms.PSet(
+        phiRanges = cms.vdouble(),
+        rRanges = cms.vdouble(0.0, 40.0, 60.0, 75.0),
+        etaRanges = cms.vdouble(),
+        yRanges = cms.vdouble(),
+        xRanges = cms.vdouble(),
+        zRanges = cms.vdouble()
+    ),
+    TECRing1 = cms.PSet(
+        phiRanges = cms.vdouble(),
+        rRanges = cms.vdouble(20,30),
+        etaRanges = cms.vdouble(),
+        yRanges = cms.vdouble(),
+        xRanges = cms.vdouble(),
+        zRanges = cms.vdouble()
+    ),
+    TECRing2 = cms.PSet(
+        phiRanges = cms.vdouble(),
+        rRanges = cms.vdouble(30,40),
+        etaRanges = cms.vdouble(),
+        yRanges = cms.vdouble(),
+        xRanges = cms.vdouble(),
+        zRanges = cms.vdouble()
+    ),
+    TECRing3 = cms.PSet(
+        phiRanges = cms.vdouble(),
+        rRanges = cms.vdouble(40,50),
+        etaRanges = cms.vdouble(),
+        yRanges = cms.vdouble(),
+        xRanges = cms.vdouble(),
+        zRanges = cms.vdouble()
+    ),
+    TECRing4 = cms.PSet(
+        phiRanges = cms.vdouble(),
+        rRanges = cms.vdouble(50,60),
+        etaRanges = cms.vdouble(),
+        yRanges = cms.vdouble(),
+        xRanges = cms.vdouble(),
+        zRanges = cms.vdouble()
+    ),
+    TECRing5 = cms.PSet(
+        phiRanges = cms.vdouble(),
+        rRanges = cms.vdouble(65,75),
+        etaRanges = cms.vdouble(),
+        yRanges = cms.vdouble(),
+        xRanges = cms.vdouble(),
+        zRanges = cms.vdouble()
+    ),
+    TECRing6 = cms.PSet(
+        phiRanges = cms.vdouble(),
+        rRanges = cms.vdouble(80,90),
+        etaRanges = cms.vdouble(),
+        yRanges = cms.vdouble(),
+        xRanges = cms.vdouble(),
+        zRanges = cms.vdouble()
+    ),
+    TECRing7 = cms.PSet(
+        phiRanges = cms.vdouble(),
+        rRanges = cms.vdouble(95,105),
+        etaRanges = cms.vdouble(),
+        yRanges = cms.vdouble(),
+        xRanges = cms.vdouble(),
+        zRanges = cms.vdouble()
+    ),
+    TOBscan = cms.PSet(
+        phiRanges = cms.vdouble(),
+        rRanges = cms.vdouble(82,90),
+        etaRanges = cms.vdouble(),
+        yRanges = cms.vdouble(),
+        xRanges = cms.vdouble(),
+        zRanges = cms.vdouble(90,110)
+    ),
 )
 

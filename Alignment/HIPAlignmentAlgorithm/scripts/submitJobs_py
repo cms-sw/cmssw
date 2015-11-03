@@ -8,7 +8,7 @@ set iter = $1                          # final iteration number
 set odir = `cd $2; pwd`                # get full output path
 set name = `basename $odir`            # for job name
 set jobs = `ls -d $odir/job*/ | wc -l` # number of jobs
-set queue = cmscaf1nh                   # pick queue to run on
+set queue = cmscaf1nd                   # pick queue to run on
 set startdir = `pwd`
 ## Submit jobs and iterate
 
@@ -68,7 +68,7 @@ while ($i <= $iter)
     ./checkError.sh $USER
     @ errstatus = $?
     if ($errstatus == 0) then
-    @ mod =  $i % 5 
+    @ mod =  $i % 1 
    # echo "Modulus is $mod"
 	if ( $mod == 0 && $COLLECT_ERROR == 0 )	then
 	cd ${CMSSW_BASE}/src/

@@ -13,14 +13,17 @@ process.maxEvents = cms.untracked.PSet(
 process.AlignmentProducer.algoConfig.collectorActive = True
 process.AlignmentProducer.algoConfig.collectorNJobs  = <JOBS>
 process.AlignmentProducer.algoConfig.collectorPath   = '<PATH>'
+#process.AlignmentProducer.algoConfig.minimumNumberOfHits = 0
 process.AlignmentProducer.algoConfig.minimumNumberOfHits = 30
-# process.AlignmentProducer.algoConfig.minimumNumberOfHits = 0
+#process.AlignmentProducer.algoConfig.minimumNumberOfHits = 100
 process.AlignmentProducer.algoConfig.maxRelParameterError = 100000000.
 process.AlignmentProducer.algoConfig.outpath = '<PATH>/main/'
 ##
-process.AlignmentProducer.algoConfig.eventPrescale= 1
+# TEC disk 1-9 in +z half : 470311204,470327588,470343972,470360388,470376772,470393156,470409572,470425956,470442372
+
+#process.AlignmentProducer.algoConfig.ScanDet=470442372
 #process.AlignmentProducer.algoConfig.fillTrackMonitoring=True
-process.AlignmentProducer.algoConfig.fillTrackMonitoring=False
+#process.AlignmentProducer.algoConfig.fillTrackMonitoring=False
 process.AlignmentProducer.algoConfig.outfile =  '/HIPAlignmentEvents.root'
 process.AlignmentProducer.algoConfig.outfile2 = '/HIPAlignmentAlignables.root'
 
