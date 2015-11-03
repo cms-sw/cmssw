@@ -11,7 +11,6 @@
 #include "Geometry/Records/interface/PEcalEndcapRcd.h"
 #include "Geometry/Records/interface/PEcalPreshowerRcd.h"
 #include "Geometry/Records/interface/PHcalRcd.h"
-#include "Geometry/Records/interface/PHGCalRcd.h"
 #include "Geometry/Records/interface/PCaloTowerRcd.h"
 #include "Geometry/Records/interface/PZdcRcd.h"
 #include "Geometry/Records/interface/PCastorRcd.h"
@@ -46,7 +45,6 @@ REGISTER_PLUGIN(PEcalBarrelRcd,PCaloGeometry);
 REGISTER_PLUGIN(PEcalEndcapRcd,PCaloGeometry);
 REGISTER_PLUGIN(PEcalPreshowerRcd,PCaloGeometry);
 REGISTER_PLUGIN(PHcalRcd,PCaloGeometry);
-REGISTER_PLUGIN(PHGCalRcd,PCaloGeometry);
 REGISTER_PLUGIN(PHcalParametersRcd,PHcalParameters);
 REGISTER_PLUGIN(HcalParametersRcd,HcalParameters);
 REGISTER_PLUGIN(PCaloTowerRcd,PCaloGeometry);

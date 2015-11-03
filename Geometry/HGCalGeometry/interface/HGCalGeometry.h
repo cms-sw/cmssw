@@ -18,7 +18,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
-#include "Geometry/Records/interface/HGCalGeometryRecord.h"
 #include <vector>
 
 class FlatTrd;
@@ -36,22 +35,12 @@ public:
   typedef std::set<DetId>            DetIdSet;
   typedef std::vector<GlobalPoint>   CornersVec ;
 
-  typedef HGCalGeometryRecord        AlignedRecord   ; // NOTE: not aligned yet
-  typedef PHGCalRcd                  PGeometryRecord ;
-
   enum { k_NumberOfParametersPerShape = 12 } ; // FlatTrd
   enum { k_NumberOfShapes = 50 } ; 
-
-  static std::string dbString() { return "PHGCalRcd" ; }
  
   HGCalGeometry(const HGCalTopology& topology) ;
   
   virtual ~HGCalGeometry();
-
-  void localCorners( Pt3DVec&        lc  ,
-		     const CCGFloat* pv  , 
-		     unsigned int    i   ,
-		     Pt3D&           ref   ) ;
 
   virtual void newCell( const GlobalPoint& f1 ,
 			const GlobalPoint& f2 ,
@@ -61,11 +50,6 @@ public:
   
   /// Get the cell geometry of a given detector id.  Should return false if not found.
   virtual const CaloCellGeometry* getGeometry( const DetId& id ) const override;
-
-  virtual void getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
-			   CaloSubdetectorGeometry::IVec&   iVector,
-			   CaloSubdetectorGeometry::DimVec& dimVector,
-			   CaloSubdetectorGeometry::IVec& dinsVector ) const ;
   
   GlobalPoint getPosition( const DetId& id ) const;
       
@@ -73,7 +57,7 @@ public:
   CornersVec getCorners( const DetId& id ) const; 
 
   // avoid sorting set in base class  
-  virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det = DetId::Detector(0), int subdet = 0) const override {return m_validIds;}
+  virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det = DetId::Detector(0), int subdet = 0) const override { return m_validIds; }
   
   // Get closest cell, etc...
   virtual DetId getClosestCell( const GlobalPoint& r ) const override;
@@ -87,26 +71,26 @@ public:
   virtual DetIdSet getCells( const GlobalPoint& r, double dR ) const override;
   
   virtual void fillNamedParams (DDFilteredView fv);
-  virtual void initializeParms() ;
+  virtual void initializeParms() override;
   
   static std::string producerTag() { return "HGCal" ; }
   std::string cellElement() const;
   
-  const HGCalTopology& topology () const {return m_topology;}
-  void sortDetIds();
-     
+  const HGCalTopology& topology () const {return mTopology;}
+  
 protected:
 
-  virtual unsigned int indexFor(const DetId& id) const ;
-  virtual unsigned int sizeForDenseIndex() const;
+  virtual unsigned int indexFor(const DetId& id) const override;
+  unsigned int sizeForDenseIndex() const;
+  virtual unsigned int sizeForDenseIndex(const DetId& id) const override;
   
-  virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
+  virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override;
   
   void addValidID(const DetId& id);
   unsigned int getClosestCellIndex ( const GlobalPoint& r ) const;
   
 private:
-  const HGCalTopology&    m_topology;
+  const HGCalTopology&    mTopology;
   
   CellVec                 m_cellVec ; 
   std::vector<DetId>      m_validGeomIds;
