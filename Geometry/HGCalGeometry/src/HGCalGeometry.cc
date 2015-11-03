@@ -21,7 +21,7 @@ typedef CaloCellGeometry::Tr3D     Tr3D     ;
 //#define DebugLog
 
 HGCalGeometry::HGCalGeometry( const HGCalTopology& topology_ )
-  : mTopology( topology_ ),
+  : m_topology( topology_ ),
     m_cellVec( topology_.totalGeomModules()),
     m_validGeomIds( topology_.totalGeomModules()),
     m_halfType( topology_.detectorType()),
