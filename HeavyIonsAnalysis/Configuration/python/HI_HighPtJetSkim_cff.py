@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # HLT jet trigger
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 hltHIJet150 = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-hltHIJet150.HLTPaths = ["HLT_PuAK4CaloJet150_v*"]
+hltHIJet150.HLTPaths = ["HLT_PuAK4CaloJet150_Eta2p1_v*"]
 hltHIJet150.throw = False
 hltHIJet150.andOr = True
 
@@ -15,8 +15,8 @@ primaryVertexFilterForHighPtJets = cms.EDFilter("VertexSelector",
     )
 
 highPtJetSkimSequence = cms.Sequence(
-        primaryVertexFilterForHighPtJets *
-        hltHIJet150
+        hltHIJet150*
+        primaryVertexFilterForHighPtJets 
 )
 
 

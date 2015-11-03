@@ -88,9 +88,9 @@ SKIMStreamHighPtJet = cms.FilteredStream(
     responsible = 'HI PAG',
     name = 'HighPtJet',
     paths = (highPtJetSkimPath),
-    content = skimRECOContent.outputCommands,
+    content = skimFEVTContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RECO')
+    dataTier = cms.untracked.string('RAW-RECO')
     )
 
 #####################
