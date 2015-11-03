@@ -1,6 +1,5 @@
 process.maxEvents = cms.untracked.PSet(
-#    input = cms.untracked.int32(-1)
-    input = cms.untracked.int32(50000)
+    input = cms.untracked.int32(120000)
 )
 
 import RecoTracker.TrackProducer.TrackRefitters_cff
@@ -17,7 +16,7 @@ process.TrackRefitter1.TrajectoryInEvent = True
 ##process.initialAlignmentTrackSelector.filter = True
 ##process.initialAlignmentTrackSelector.applyBasicCuts = True
 ##process.initialAlignmentTrackSelector.pMin    = 4.0
-##process.initialAlignmentTrackSelector.ptMin   = 0.0
+##process.initialAlignmentTrackSelector.ptMin   = 2.0
 ##process.initialAlignmentTrackSelector.etaMin  = -999.
 ##process.initialAlignmentTrackSelector.etaMax  = 999.
 ##process.initialAlignmentTrackSelector.nHitMin = 0
@@ -67,7 +66,7 @@ process.AlignmentTrackSelector.src = 'ctfProducerCustomised'
 process.AlignmentTrackSelector.filter = True
 process.AlignmentTrackSelector.applyBasicCuts = True
 process.AlignmentTrackSelector.pMin    = 8.0
-process.AlignmentTrackSelector.ptMin   = 1.0
+process.AlignmentTrackSelector.ptMin   = 2.0
 #process.AlignmentTrackSelector.dzMin   = -20.
 #process.AlignmentTrackSelector.dzMax   = 20.
 process.AlignmentTrackSelector.d0Min   = -50.
@@ -78,12 +77,8 @@ process.AlignmentTrackSelector.etaMax  = 999.
 #process.AlignmentTrackSelector.etaMax  = 2.5
 process.AlignmentTrackSelector.nHitMin = 8
 process.AlignmentTrackSelector.nHitMin2D = 2
-process.AlignmentTrackSelector.minHitsPerSubDet.inPIXEL = 2 
 #process.AlignmentTrackSelector.minHitsPerSubDet.inBPIX = 1
 #process.AlignmentTrackSelector.minHitsPerSubDet.inFPIX = 2
-#process.AlignmentTrackSelector.minHitsPerSubDet.inTID = 3
-#process.AlignmentTrackSelector.minHitsPerSubDet.inTEC = 2
-#process.AlignmentTrackSelector.minHitsPerSubDet.inTOB = 6
 process.AlignmentTrackSelector.chi2nMax = 999.
 process.AlignmentTrackSelector.applyMultiplicityFilter = False 
 process.AlignmentTrackSelector.maxMultiplicity = 30
@@ -95,6 +90,24 @@ process.AlignmentTrackSelector.minHitIsolation = 0.8
 process.AlignmentTrackSelector.applyChargeCheck = False 
 process.AlignmentTrackSelector.minHitChargeStrip = 30.
 
+process.AlignmentTrackSelector.minHitsPerSubDet   = cms.PSet(
+         inTEC = cms.int32(0),
+         inTOB = cms.int32(0),
+         inFPIX = cms.int32(0),
+         inTID = cms.int32(0),
+         inBPIX = cms.int32(0),
+         inTIB = cms.int32(0),
+         inPIXEL = cms.int32(1),
+         inTIDplus = cms.int32(0),
+         inTIDminus = cms.int32(0),
+         inTECplus = cms.int32(0),
+         inTECminus = cms.int32(0),
+         inFPIXplus = cms.int32(0),
+         inFPIXminus = cms.int32(0),
+         inENDCAP = cms.int32(0),
+         inENDCAPplus = cms.int32(0),
+         inENDCAPminus = cms.int32(0),
+     )
 process.oneGoodVertexFilter = cms.EDFilter("VertexSelector",
                                            src = cms.InputTag("offlinePrimaryVertices"),
                                            cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"), # tracksSize() > 3 for the older cut

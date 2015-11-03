@@ -188,7 +188,8 @@ void CreateSurveyRcds::setSurveyErrors( Alignable* ali ){
 	// tob
 	if ((level <= 2)&&(subdetlevel == 5)){
 		//error0 = 0.015; error1 = 0.015; error2 = 0.05; error3 = 0.001; error4 = 0.001; error5 = 0.001;
-		error0 = 0.015; error1 = 0.003; error2 = 0.003; error3 = 0.0002; error4 = 0.0002; error5 = 0.001;
+		error0 = 0.015; error1 = 0.015; error2 = 0.001; error3 = 0.0002; error4 = 0.0002; error5 = 0.001;
+		//error0 = 0.015; error1 = 0.003; error2 = 0.003; error3 = 0.0002; error4 = 0.0002; error5 = 0.001;
 		if ((level == 2)&&(nComp == 2)){
 			error1 = 0.015;
 		}
