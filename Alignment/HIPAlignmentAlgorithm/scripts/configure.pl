@@ -26,6 +26,17 @@ $j = 0;
 
 $k = 0;
 
+foreach $iovv ( @iovInput1) {
+	chomp($iovv);
+	$iovstr .= "$iovv,";
+}
+chop($iovstr);
+print "$iovstr";
+system( "
+cp python/common_cff_py.txt $odir/.;
+");
+replace( "$odir/common_cff_py.txt", "<iovs>", "$iovstr" );
+
 foreach $data1 ( @dataFileInput1 ) {
 
 $data1 =~ m/\,/;
@@ -46,7 +57,7 @@ open (datafile) or die "Can't open the file!";
 ($dataskim,$path,$suffix) = fileparse($datafile,,qr"\..[^.]*$");
 
 system( "
-cp python/common_cff_py.txt $odir/.;
+#cp python/common_cff_py.txt $odir/.;
 cp python/$dataskim\TrackSelection_cff_py.txt $odir/.;
 cp python/align_tpl_py.txt $odir/.;
 cp python/collect_tpl_py.txt $odir/.;
