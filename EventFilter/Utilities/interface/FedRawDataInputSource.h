@@ -50,11 +50,10 @@ public:
   virtual ~FedRawDataInputSource();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
+  std::pair<bool,unsigned int> getEventReport(unsigned int lumi, bool erase);
 protected:
   virtual bool checkNextEvent() override;
   virtual void read(edm::EventPrincipal& eventPrincipal) override;
-  //monitoring
-  std::pair<bool,unsigned int> FedRawDataInputSource::getEventReport(unsigned int lumi, bool erase);
 
 private:
   virtual void preForkReleaseResources() override;

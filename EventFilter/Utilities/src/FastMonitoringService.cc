@@ -11,6 +11,7 @@
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
+#include "EventFilter/Utilities/interface/FedRawDataInputSource.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
@@ -417,13 +418,13 @@ namespace evf{
 
           }
 
-          auto sourceReport inputSource_->getEventReport(unsigned int lumi, true);
+          auto sourceReport  = inputSource_->getEventReport(lumi, true);
 	  if (sourceReport.first) {
-	    if (itr->second!=processedEventsPerLumi_[lumi].first) {
+	    if (sourceReport.second!=processedEventsPerLumi_[lumi].first) {
 	      throw cms::Exception("FastMonitoringService") << "MISMATCH with SOURCE update. LUMI -: "
                                                             << lumi
                                                             << ", events(processed):" << processedEventsPerLumi_[lumi].first
-                                                            << " events(source):" << itr->second;
+                                                            << " events(source):" << sourceReport.second;
 	    }
 	  }
 	  edm::LogInfo("FastMonitoringService")	<< "Statistics for lumisection -: lumi = " << lumi << " events = "
