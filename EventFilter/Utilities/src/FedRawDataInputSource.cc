@@ -31,7 +31,7 @@
 #include "EventFilter/FEDInterface/interface/fed_header.h"
 #include "EventFilter/FEDInterface/interface/fed_trailer.h"
 
-#include "EventFilter/Utilities/plugins/FedRawDataInputSource.h"
+#include "EventFilter/Utilities/interface/FedRawDataInputSource.h"
 
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include "EventFilter/Utilities/interface/DataPointDefinition.h"
@@ -397,7 +397,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     assert(currentFile_->nChunks_==0);
     if (getLSFromFilename_)
       if (currentFile_->lumi_ > currentLumiSection_) {
-        if (fms_) fms_->reportEventsThisLumiInSource(currentLumiSection_,eventsThisLumi_);
+        reportEventsThisLumiInSource(currentLumiSection_,eventsThisLumi_);
 	eventsThisLumi_=0;
         maybeOpenNewLumiSection(currentFile_->lumi_);
       }
