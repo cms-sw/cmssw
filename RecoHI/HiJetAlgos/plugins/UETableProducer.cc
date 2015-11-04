@@ -42,8 +42,8 @@ namespace {
     
   private:
     virtual void beginJob() override {}
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    virtual void endJob();
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override;
 
     // ----------member data ---------------------------
 
@@ -128,10 +128,10 @@ UETableProducer::endJob() {
   std::ifstream textTable_(qpDataName.c_str());
 
   std::vector<float> ue_vec;
-  UETable *ue_predictor_pf = NULL;
-
+  std::unique_ptr<UETable> ue_predictor_pf;
+  
   if (!jetCorrectorFormat_) {
-    ue_predictor_pf = new UETable();
+    ue_predictor_pf = std::make_unique<UETable>();
   }
   //  unsigned int Nnp_full = np[0] * np[1] * np[2] * np[3] * np[4];
   unsigned int Nnp = np[0] * np[1] * (1 + (np[2] - 1) * np[3]) * np[4];
@@ -197,23 +197,23 @@ UETableProducer::endJob() {
       std::vector<JetCorrectorParameters::Record> record(1, JetCorrectorParameters::Record(ue_vec.size(), std::vector<float>(ue_vec.size(), 0), std::vector<float>(ue_vec.size(), 0), ue_vec));
       JetCorrectorParameters parameter(definition, record);
 
-      JetCorrectorParametersCollection *jme_payload = new JetCorrectorParametersCollection();
-
+      std::unique_ptr<JetCorrectorParametersCollection> jme_payload = std::make_unique<JetCorrectorParametersCollection>();
+      
       jme_payload->push_back(JetCorrectorParametersCollection::L1Offset, parameter);
 
       if( pool->isNewTagRequest( "JetCorrectionsRecord" ) ){
-        pool->createNewIOV<JetCorrectorParametersCollection>( jme_payload, pool->beginOfTime(), pool->endOfTime(), "JetCorrectionsRecord" );
+        pool->createNewIOV<JetCorrectorParametersCollection>( jme_payload.get(), pool->beginOfTime(), pool->endOfTime(), "JetCorrectionsRecord" );
       }else{
-        pool->appendSinceTime<JetCorrectorParametersCollection>( jme_payload, pool->currentTime(), "JetCorrectionsRecord" );
+        pool->appendSinceTime<JetCorrectorParametersCollection>( jme_payload.get(), pool->currentTime(), "JetCorrectionsRecord" );
       }
     }
     else {
       ue_predictor_pf->values = ue_vec;
 
       if( pool->isNewTagRequest( "HeavyIonUERcd" ) ){
-        pool->createNewIOV<UETable>( ue_predictor_pf, pool->beginOfTime(), pool->endOfTime(), "HeavyIonUERcd" );
+        pool->createNewIOV<UETable>( ue_predictor_pf.get(), pool->beginOfTime(), pool->endOfTime(), "HeavyIonUERcd" );
       }else{
-        pool->appendSinceTime<UETable>( ue_predictor_pf, pool->currentTime(), "HeavyIonUERcd" );
+        pool->appendSinceTime<UETable>( ue_predictor_pf.get(), pool->currentTime(), "HeavyIonUERcd" );
       }
     }
   }
