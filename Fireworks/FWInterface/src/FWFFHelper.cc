@@ -2,7 +2,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
-#define private public
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TColor.h"
@@ -29,7 +28,7 @@ public:
             return;
             
          SetPrompt("");
-         fInputHandler->Remove();
+         GetInputHandler()->Remove();
       }
 
    Bool_t HandleTermInput() override
@@ -65,16 +64,9 @@ FWFFHelper::FWFFHelper(const edm::ParameterSet &ps, const edm::ActivityRegistry 
       throw;
    }
 
-// AMT workaround for an agressive clenup in 5.43.18
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,34,18)
-   if (!gStyle) {
-      TColor::fgInitDone=false;
-      TColor::InitializeColors();
-      TStyle::BuildStyles();
-      gROOT->SetStyle(gEnv->GetValue("Canvas.Style", "Modern"));
-      gStyle = gROOT->GetStyle("Classic");
-   }
-#endif
-
-    TEveManager::Create(kFALSE, "FI");
+   printf("Yow, gStyle ...\n");
+   printf("  %p\n", gStyle);
+   printf("... still standing? Well ...\n");
+   
+   TEveManager::Create(kFALSE, "FI");
 }
