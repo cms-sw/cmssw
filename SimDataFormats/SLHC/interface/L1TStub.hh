@@ -19,8 +19,7 @@ public:
   }
 
   L1TStub(int simtrackid, int iphi, int iz, int layer, int ladder, int module, int strip,
-	  double x, double y, double z, double sigmax, double sigmaz, double pt, double bend, 
-	  int simtrk){
+	  double x, double y, double z, double sigmax, double sigmaz, double pt, double bend){
     simtrackid_=simtrackid;
     iphi_=iphi;
     iz_=iz;
@@ -35,15 +34,17 @@ public:
     sigmaz_=sigmaz;
     pt_=pt;
     bend_ = bend;
-    simtrk_=simtrk;
 
     allstubindex_=999;
 
+    /*
+    // the sign shouldn't be flipped here!!
     if (layer_>999&&z_<0.0) {
       //cout <<"Flipping pt sign"<<endl;
       pt_=-pt_;
       bend_ = -bend_;
     }
+    */
 
   }
 
@@ -232,9 +233,6 @@ public:
 
   int simtrackid() const { return simtrackid_;}
 
-
-  int simtrk() const { return simtrk_; }
-
   void setAllStubIndex(unsigned int index) { allstubindex_=index; }
 
   unsigned int allStubIndex() const { return allstubindex_; }
@@ -262,7 +260,6 @@ public:
 private:
 
   int simtrackid_;
-  int simtrk_;
   unsigned int iphi_;
   unsigned int iz_;
   unsigned int layer_;

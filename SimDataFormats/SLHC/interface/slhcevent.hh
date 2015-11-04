@@ -276,7 +276,7 @@ public:
     y-=y_offset;
 
     L1TStub stub(-1,-1,-1,layer, ladder, module, strip, 
-		 x, y, z, -1.0, -1.0, pt, bend, -999);
+		 x, y, z, -1.0, -1.0, pt, bend);
 
     for(unsigned int i=0;i<innerStack.size();i++){
       if (innerStack[i]) {
@@ -290,10 +290,10 @@ public:
     bool foundclose=false;
 
     for (unsigned int i=0;i<stubs_.size();i++) {
-      if (fabs(stubs_[i].x()-stub.x())<0.2&&
-	  fabs(stubs_[i].y()-stub.y())<0.2&&
-	  fabs(stubs_[i].z()-stub.z())<2.0) {
-	foundclose=false;  // do not remove stubs
+      if (fabs(stubs_[i].x()-stub.x())<0.02&&
+	  fabs(stubs_[i].y()-stub.y())<0.02&&
+	  fabs(stubs_[i].z()-stub.z())<0.2) {
+	foundclose=true;
       }
     }
 
@@ -456,7 +456,7 @@ public:
 
       if (layer < 10) nlayer[layer]++;
 
-      L1TStub stub(-1,-1,-1,layer, ladder, module, strip, x, y, z, -1.0, -1.0, pt, bend, simtrk);
+      L1TStub stub(-1,-1,-1,layer, ladder, module, strip, x, y, z, -1.0, -1.0, pt, bend);
 
       in >> tmp;
 
@@ -484,12 +484,15 @@ public:
 	}
       }
 
+      /*
       double t=fabs(stub.z())/stub.r();
       static double piovertwo=2.0*atan(1);
       double theta=piovertwo-atan(t);
       double eta=-log(tan(0.5*theta));
+      */
 
-      if (!foundclose&&(fabs(eta)<2.6)) {
+      //if (!foundclose&&(fabs(eta)<2.6)) {
+      if (!foundclose) {
 	stubs_.push_back(stub);
       }
     }

@@ -25,21 +25,22 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'PH2_1K_FB_V3::All', '')
 
 ## pixel additions
-process.load('Configuration.StandardSequences.RawToDigi_cff')
-process.load('Configuration.StandardSequences.Reconstruction_cff')
-process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+#process.load('Configuration.StandardSequences.RawToDigi_cff')
+#process.load('Configuration.StandardSequences.Reconstruction_cff')
+#process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 
 
 ############################################################
 # input and output
 ############################################################
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 Source_Files = cms.untracked.vstring(
     ## single muons PU=0
     '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/NoPU/SingleMuon_E2023TTI_NoPU.root',
     '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/NoPU/SingleMuPlus_E2023TTI_NoPU.root'
-    )
+	#'/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/TTbar/NoPU/TTbar_E2023TTI_NoPU.root'
+	)
 process.source = cms.Source("PoolSource", fileNames = Source_Files)
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string('SingleMuon_noPU_TrkPerf.root'), closeFileFast = cms.untracked.bool(True))
