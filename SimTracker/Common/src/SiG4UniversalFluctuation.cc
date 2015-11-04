@@ -1,27 +1,4 @@
 //
-// ********************************************************************
-// * DISCLAIMER                                                       *
-// *                                                                  *
-// * The following disclaimer summarizes all the specific disclaimers *
-// * of contributors to this software. The specific disclaimers,which *
-// * govern, are listed with their locations in:                      *
-// *   http://cern.ch/geant4/license                                  *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.                                                             *
-// *                                                                  *
-// * This  code  implementation is the  intellectual property  of the *
-// * GEANT4 collaboration.                                            *
-// * By copying,  distributing  or modifying the Program (or any work *
-// * based  on  the Program)  you indicate  your  acceptance of  this *
-// * statement, and all its terms.                                    *
-// ********************************************************************
-//
-// GEANT4 tag $Name:  $
-//
 // -------------------------------------------------------------------
 //
 // GEANT4 Class file
@@ -35,16 +12,6 @@
 //
 // Modifications: 
 //
-// 28-12-02 add method Dispersion (V.Ivanchenko)
-// 07-02-03 change signature (V.Ivanchenko)
-// 13-02-03 Add name (V.Ivanchenko)
-// 16-10-03 Changed interface to Initialisation (V.Ivanchenko)
-// 07-11-03 Fix problem of rounding of double in G4UniversalFluctuations
-// 06-02-04 Add control on big sigma > 2*meanLoss (V.Ivanchenko)
-// 26-04-04 Comment out the case of very small step (V.Ivanchenko)
-// 07-02-05 define problim = 5.e-3 (mma)
-// 03-05-05 conditions of Gaussian fluctuation changed (bugfix)
-//          + smearing for very small loss (L.Urban)
 //  
 // Modified for standalone use in CMSSW. danek k. 2/06        
 // 25-04-13 Used vdt::log, added check a3>0 (V.Ivanchenko & D. Nikolopoulos)         
