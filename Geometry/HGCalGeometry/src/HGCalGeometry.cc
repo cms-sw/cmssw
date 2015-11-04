@@ -45,7 +45,7 @@ void HGCalGeometry::localCorners(Pt3DVec&        lc,
 				 const CCGFloat* pv,
 				 unsigned int    i,
 				 Pt3D&           ref) {
-  TruncatedPyramid::localCorners( lc, pv, ref ) ;
+  FlatTrd::localCorners( lc, pv, ref ) ;
 }
 
 void HGCalGeometry::newCell( const GlobalPoint& f1 ,
