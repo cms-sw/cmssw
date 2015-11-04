@@ -347,6 +347,12 @@ namespace edm {
       proc_pset.addParameter<vstring>(std::string("@end_paths"), scheduledEndPaths);
       
     }
+
+    bool printDependencies(ParameterSet const& pset) {
+      ParameterSet defopts;
+      ParameterSet const& opts = pset.getUntrackedParameterSet("options", defopts);
+      return opts.getUntrackedParameter("printDependencies", false);
+    }
   }
   // -----------------------------
 
@@ -371,6 +377,7 @@ namespace edm {
     all_output_communicators_(),
     preallocConfig_(prealloc),
     wantSummary_(tns.wantSummary()),
+    printDependencies_(printDependencies(proc_pset)),
     endpathsAreActive_(true)
   {
     assert(0<prealloc.numberOfStreams());
@@ -400,7 +407,7 @@ namespace edm {
       std::copy(modulesToUse.begin(),itBeginUnscheduled,std::back_inserter(temp));
       temp.swap(modulesToUse);
     }
-    globalSchedule_.reset( new GlobalSchedule{ resultsInserter_,
+    globalSchedule_.reset(new GlobalSchedule{ resultsInserter_,
       moduleRegistry_,
       modulesToUse,
       proc_pset, preg, prealloc,
@@ -409,7 +416,7 @@ namespace edm {
     //TriggerResults is not in the top level ParameterSet so the call to
     // reduceParameterSet would fail to find it. Just remove it up front.
     std::set<std::string> usedModuleLabels;
-    for( auto const worker: allWorkers()) {
+    for(auto const worker: allWorkers()) {
       if(worker->description().moduleLabel() != kTriggerResults) {
         usedModuleLabels.insert(worker->description().moduleLabel());
       }
@@ -1279,8 +1286,8 @@ namespace edm {
   {
     //Need to lookup names to ids quickly
     std::map<std::string,unsigned int> moduleNamesToIndex;
-    for(auto worker: allWorkers()) {
-      moduleNamesToIndex.insert( std::make_pair(worker->description().moduleLabel(),
+    for(auto const& worker: allWorkers()) {
+      moduleNamesToIndex.insert(std::make_pair(worker->description().moduleLabel(),
                                          worker->description().id()));
     }
     
@@ -1307,8 +1314,8 @@ namespace edm {
           auto found = alreadySeenNames.insert(name);
           if(found.second) {
             //first time for this path
-            unsigned int moduleIndex = moduleNamesToIndex[name];
-            if(not lastModuleName.empty() ) {
+            unsigned int const moduleIndex = moduleNamesToIndex[name];
+            if(not lastModuleName.empty()) {
               edgeToPathMap[std::make_pair(moduleIndex,lastModuleIndex)].push_back(pathIndex);
             }
             lastModuleName = name;
@@ -1324,14 +1331,14 @@ namespace edm {
       for(auto const& worker: allWorkers()) {
         dependentModules.clear();
         //NOTE: what about aliases?
-        worker->modulesDependentUpon(dependentModules);
+        worker->modulesDependentUpon(dependentModules, printDependencies_);
         auto found = moduleNamesToIndex.find(worker->description().moduleLabel());
         if (found == moduleNamesToIndex.end()) {
           //The module was from a previous process
           continue;
         }
-        unsigned int moduleIndex = found->second;
-        for(auto name: dependentModules) {
+        unsigned int const moduleIndex = found->second;
+        for(auto const& name: dependentModules) {
           edgeToPathMap[std::make_pair(moduleIndex, moduleNamesToIndex[name])].push_back(std::numeric_limits<unsigned int>::max());
         }
       }
