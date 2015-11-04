@@ -96,6 +96,7 @@ _trackAlgoOrder = [
 _pageNameMap = {
     "summary": "Summary",
     "vertex": "Vertex",
+    "v0": "V0",
     "miniaod": "MiniAOD",
 }
 
@@ -112,6 +113,9 @@ _sectionNameMapOrder = collections.OrderedDict([
     # These are for vertices
     ("offlinePrimaryVertices", "All vertices (offlinePrimaryVertices)"),
     ("selectedOfflinePrimaryVertices", "Selected vertices (selectedOfflinePrimaryVertices)"),
+    # These are for V0
+    ("k0", "K0"),
+    ("lambda", "Lambda"),
 ])
 _allTPEfficLegend = "All tracks, efficiency denominator contains all TrackingParticles"
 _fromPVLegend = "Tracks from reco PV vs. TrackingParticles from gen PV (fake rate includes pileup tracks)"

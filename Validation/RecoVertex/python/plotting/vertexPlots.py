@@ -90,6 +90,59 @@ _genpos = PlotGroup("genpos", [
     Plot("GenPV_Z", xtitle="Gen PV pos z", ytitle="N", **_common),
 ])
 
+_k0_effandfake = PlotGroup("effandfake", [
+    Plot("K0sEffVsPt", xtitle="p_{T} (GeV)", ytitle="Efficiency vs. p_{T}"),
+    Plot("K0sFakeVsPt", xtitle="p_{T} (GeV)", ytitle="Fake rate vs. p_{T}"),
+    Plot("K0sEffVsEta", xtitle="#eta", ytitle="Efficiency vs. #eta"),
+    Plot("K0sFakeVsEta", xtitle="#eta", ytitle="Fake rate vs. #eta"),
+    Plot("K0sEffVsR", xtitle="R (cm)", ytitle="Efficiency vs. R"),
+    Plot("K0sFakeVsR", xtitle="R (cm)", ytitle="Fake rate vs. R"),
+])
+_k0_effandfakeTk = PlotGroup("effandfakeTk", [
+#    Plot("K0sTkEffVsPt"),
+    Plot("K0sTkFakeVsPt", xtitle="p_{T} (GeV)", ytitle="Fake rate vs. p_{T}"),
+#    Plot("K0sTkEffVsEta"),
+    Plot("K0sTkFakeVsEta", xtitle="#eta", ytitle="Fake rate vs. #eta"),
+#    Plot("K0sTkEffVsR"),
+    Plot("K0sTkFakeVsR", xtitle="R (cm)", ytitle="Fake rate vs. R"),
+],
+                             legendDy=-0.025
+)
+_common = {"normalizeToUnitArea": True, "drawStyle": "HIST"}
+_k0_mass = PlotGroup("mass", [
+    Plot("ksMassAll", xtitle="mass of all (GeV)", **_common),
+    Plot("ksMassGood", xtitle="mass of good (GeV)", **_common),
+    Plot("ksMassFake", xtitle="mass of fake (GeV)", **_common),
+],
+                     legendDy=-0.025
+)
+_lambda_effandfake = PlotGroup("effandfake", [
+    Plot("LamEffVsPt", xtitle="p_{T} (GeV)", ytitle="Efficiency vs. p_{T}"),
+    Plot("LamFakeVsPt", xtitle="p_{T} (GeV)", ytitle="Fake rate vs. p_{T}"),
+    Plot("LamEffVsEta", xtitle="#eta", ytitle="Efficiency vs. #eta"),
+    Plot("LamFakeVsEta", xtitle="#eta", ytitle="Fake rate vs. #eta"),
+    Plot("LamEffVsR", xtitle="R (cm)", ytitle="Efficiency vs. R"),
+    Plot("LamFakeVsR", xtitle="R (cm)", ytitle="Fake rate vs. R"),
+])
+_lambda_effandfakeTk = PlotGroup("effandfakeTk", [
+#    Plot("LamTkEffVsPt"),
+    Plot("LamTkFakeVsPt", xtitle="p_{T} (GeV)", ytitle="Fake rate vs. p_{T}"),
+#    Plot("LamTkEffVsEta"),
+    Plot("LamTkFakeVsEta", xtitle="#eta", ytitle="Fake rate vs. #eta"),
+#    Plot("LamTkEffVsR"),
+    Plot("LamTkFakeVsR", xtitle="R (cm)", ytitle="Fake rate vs. R"),
+],
+                                 legendDy=-0.025
+)
+_lambda_mass = PlotGroup("mass", [
+    Plot("lamMassAll", xtitle="mass of all (GeV)", **_common),
+    Plot("lamMassGood", xtitle="mass of good (GeV)", **_common),
+    Plot("lamMassFake", xtitle="mass of fake (GeV)", **_common),
+],
+                         legendDy=-0.025
+)
+
+
 class VertexSummaryTable:
     def __init__(self, page="vertex"):
         self._purpose = PlotPurpose.Vertexing
@@ -154,6 +207,12 @@ _vertexFolders = [
     "DQMData/Run 1/Vertexing/Run summary/PrimaryVertexV",
     "DQMData/Vertexing/PrimaryVertexV",
 ]
+_v0Folders = [
+    "DQMData/Run 1/Vertexing/Run summary/V0",
+    "DQMData/Vertexing/V0",
+    "DQMData/Run 1/Vertexing/Run summary/V0V",
+    "DQMData/Vertexing/V0V",
+]
 plotter = Plotter()
 plotter.append("", _vertexFolders, PlotFolder(
     _recovsgen,
@@ -165,9 +224,26 @@ plotter.append("", _vertexFolders, PlotFolder(
     _puritymissing,
     _sumpt2,
     purpose=PlotPurpose.Vertexing,
-    page="vertex"
+    page="vertex",
+    onlyForPileup=True
 ))
 plotter.appendTable("", _vertexFolders, VertexSummaryTable())
+plotter.append("K0", [x+"/K0" for x in _v0Folders], PlotFolder(
+    _k0_effandfake,
+    _k0_effandfakeTk,
+    _k0_mass,
+    loopSubFolders=False,
+    purpose=PlotPurpose.Vertexing,
+    page="v0", section="k0"
+))
+plotter.append("Lambda", [x+"/Lambda" for x in _v0Folders], PlotFolder(
+    _lambda_effandfake,
+    _lambda_effandfakeTk,
+    _lambda_mass,
+    loopSubFolders=False,
+    purpose=PlotPurpose.Vertexing,
+    page="v0", section="lambda"
+))
 #plotter.append("gen", _vertexFolders, PlotFolder(_genpos, loopSubFolders=False, purpose=PlotPurpose.Vertexing, page="vertex", section="Gen vertex"))
 
 class VertexValidation(validation.Validation):
