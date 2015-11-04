@@ -174,6 +174,14 @@ void Vx3DHLTAnalyzer::analyze (const Event& iEvent, const EventSetup& iSetup)
 		  Vx_ZX->Fill(it3DVx->z(), it3DVx->x());
 		  Vx_ZY->Fill(it3DVx->z(), it3DVx->y());
 		  Vx_XY->Fill(it3DVx->x(), it3DVx->y());
+
+		  Vx_X_Cum->Fill(it3DVx->x());
+		  Vx_Y_Cum->Fill(it3DVx->y());
+		  Vx_Z_Cum->Fill(it3DVx->z());
+		  
+		  Vx_ZX_Cum->Fill(it3DVx->z(), it3DVx->x());
+		  Vx_ZY_Cum->Fill(it3DVx->z(), it3DVx->y());
+		  Vx_XY_Cum->Fill(it3DVx->x(), it3DVx->y());
 		}
 	      else if (internalDebug == true)
 		{
@@ -651,7 +659,15 @@ void Vx3DHLTAnalyzer::reset (string ResetType)
       Vx_ZX->Reset();
       Vx_ZY->Reset();
       Vx_XY->Reset();
+
+      Vx_X_Cum->Reset();
+      Vx_Y_Cum->Reset();
+      Vx_Z_Cum->Reset();
       
+      Vx_ZX_Cum->Reset();
+      Vx_ZY_Cum->Reset();
+      Vx_XY_Cum->Reset();
+
       mXlumi->Reset();
       mYlumi->Reset();
       mZlumi->Reset();
@@ -843,7 +859,7 @@ void Vx3DHLTAnalyzer::writeToFile (vector<double>* vals,
       outputDebugFile << "EmittanceY 0.0" << endl;
       outputDebugFile << "BetaStar 0.0" << endl;
 
-      outputDebugFile << "Used vertices: " << counterVx << "\n" << endl;
+      outputDebugFile << "\n" << "Used vertices: " << counterVx << "\n" << endl;
     }
 }
 
@@ -1007,7 +1023,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
 
       numberFits++;
       writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, 3);
-      if (internalDebug == true)  cout << "[Vx3DHLTAnalyzer]::\tUsed vertices: " << counterVx << endl;
+      if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tUsed vertices: " << counterVx << endl;
 
       statusCounter->getTH1()->SetBinContent(lastLumiOfFit, (double)goodData);
       statusCounter->getTH1()->SetBinError(lastLumiOfFit, 1e-3);
@@ -1142,7 +1158,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
       fitResults->setAxisTitle(histTitle.str().c_str(), 1);
       if ((debugMode == true) && (outputDebugFile.is_open() == true))
 	{
-	  outputDebugFile << "Runnumber " << runNumber << endl;
+	  outputDebugFile << "\n" << "Runnumber " << runNumber << endl;
 	  outputDebugFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
 	  outputDebugFile << "BeginLumiRange " << beginLumiOfFit << endl;
 	  outputDebugFile << histTitle.str().c_str() << "\n" << endl;
@@ -1170,15 +1186,25 @@ void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, Run const & iR
 {
   ibooker.setCurrentFolder("BeamPixel");
 
-  Vx_X = ibooker.book1D("F - vertex x", "Primary Vertex X Coordinate Distribution", int(rint(xRange/xStep)), -xRange/2., xRange/2.);
-  Vx_Y = ibooker.book1D("F - vertex y", "Primary Vertex Y Coordinate Distribution", int(rint(yRange/yStep)), -yRange/2., yRange/2.);
-  Vx_Z = ibooker.book1D("F - vertex z", "Primary Vertex Z Coordinate Distribution", int(rint(zRange/zStep)), -zRange/2., zRange/2.);
+  Vx_X = ibooker.book1D("F - vertex x", "Primary Vertex X Distribution", int(rint(xRange/xStep)), -xRange/2., xRange/2.);
+  Vx_Y = ibooker.book1D("F - vertex y", "Primary Vertex Y Distribution", int(rint(yRange/yStep)), -yRange/2., yRange/2.);
+  Vx_Z = ibooker.book1D("F - vertex z", "Primary Vertex Z Distribution", int(rint(zRange/zStep)), -zRange/2., zRange/2.);
   Vx_X->setAxisTitle("Primary Vertices X [cm]",1);
   Vx_X->setAxisTitle("Entries [#]",2);
   Vx_Y->setAxisTitle("Primary Vertices Y [cm]",1);
   Vx_Y->setAxisTitle("Entries [#]",2);
   Vx_Z->setAxisTitle("Primary Vertices Z [cm]",1);
   Vx_Z->setAxisTitle("Entries [#]",2);
+
+  Vx_X_Cum = ibooker.book1D("H - vertex x cum", "Primary Vertex X Distribution (Cumulative)", int(rint(xRange/xStep)), -xRange/2., xRange/2.);
+  Vx_Y_Cum = ibooker.book1D("H - vertex y cum", "Primary Vertex Y Distribution (Cumulative)", int(rint(yRange/yStep)), -yRange/2., yRange/2.);
+  Vx_Z_Cum = ibooker.book1D("H - vertex z cum", "Primary Vertex Z Distribution (Cumulative)", int(rint(zRange/zStep)), -zRange/2., zRange/2.);
+  Vx_X_Cum->setAxisTitle("Primary Vertices X [cm]",1);
+  Vx_X_Cum->setAxisTitle("Entries [#]",2);
+  Vx_Y_Cum->setAxisTitle("Primary Vertices Y [cm]",1);
+  Vx_Y_Cum->setAxisTitle("Entries [#]",2);
+  Vx_Z_Cum->setAxisTitle("Primary Vertices Z [cm]",1);
+  Vx_Z_Cum->setAxisTitle("Entries [#]",2);
 
   mXlumi = ibooker.book1D("B - muX vs lumi", "#mu_{x} vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   mYlumi = ibooker.book1D("B - muY vs lumi", "#mu_{y} vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
@@ -1215,9 +1241,9 @@ void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, Run const & iR
   dydzlumi->setAxisTitle("dY/dZ [rad]",2);
   dydzlumi->getTH1()->SetOption("E1");
 
-  Vx_ZX = ibooker.book2D("E - vertex zx", "Primary Vertex ZX Coordinate Distribution", int(rint(zRange/zStep)), -zRange/2., zRange/2., int(rint(xRange/xStep)), -xRange/2., xRange/2.);
-  Vx_ZY = ibooker.book2D("E - vertex zy", "Primary Vertex ZY Coordinate Distribution", int(rint(zRange/zStep)), -zRange/2., zRange/2., int(rint(yRange/yStep)), -yRange/2., yRange/2.);
-  Vx_XY = ibooker.book2D("E - vertex xy", "Primary Vertex XY Coordinate Distribution", int(rint(xRange/xStep)), -xRange/2., xRange/2., int(rint(yRange/yStep)), -yRange/2., yRange/2.);
+  Vx_ZX = ibooker.book2D("E - vertex zx", "Primary Vertex ZX Distribution", int(rint(zRange/zStep)), -zRange/2., zRange/2., int(rint(xRange/xStep)), -xRange/2., xRange/2.);
+  Vx_ZY = ibooker.book2D("E - vertex zy", "Primary Vertex ZY Distribution", int(rint(zRange/zStep)), -zRange/2., zRange/2., int(rint(yRange/yStep)), -yRange/2., yRange/2.);
+  Vx_XY = ibooker.book2D("E - vertex xy", "Primary Vertex XY Distribution", int(rint(xRange/xStep)), -xRange/2., xRange/2., int(rint(yRange/yStep)), -yRange/2., yRange/2.);
   Vx_ZX->setAxisTitle("Primary Vertices Z [cm]",1);
   Vx_ZX->setAxisTitle("Primary Vertices X [cm]",2);
   Vx_ZX->setAxisTitle("Entries [#]",3);
@@ -1228,17 +1254,30 @@ void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, Run const & iR
   Vx_XY->setAxisTitle("Primary Vertices Y [cm]",2);
   Vx_XY->setAxisTitle("Entries [#]",3);
 
-  hitCounter = ibooker.book1D("H - pixelHits vs lumi", "# Pixel-Hits vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
+  Vx_ZX_Cum = ibooker.book2D("G - vertex zx cum", "Primary Vertex ZX Distribution (Cumulative)", int(rint(zRange/zStep)), -zRange/2., zRange/2., int(rint(xRange/xStep)), -xRange/2., xRange/2.);
+  Vx_ZY_Cum = ibooker.book2D("G - vertex zy cum", "Primary Vertex ZY Distribution (Cumulative)", int(rint(zRange/zStep)), -zRange/2., zRange/2., int(rint(yRange/yStep)), -yRange/2., yRange/2.);
+  Vx_XY_Cum = ibooker.book2D("G - vertex xy cum", "Primary Vertex XY Distribution (Cumulative)", int(rint(xRange/xStep)), -xRange/2., xRange/2., int(rint(yRange/yStep)), -yRange/2., yRange/2.);
+  Vx_ZX_Cum->setAxisTitle("Primary Vertices Z [cm]",1);
+  Vx_ZX_Cum->setAxisTitle("Primary Vertices X [cm]",2);
+  Vx_ZX_Cum->setAxisTitle("Entries [#]",3);
+  Vx_ZY_Cum->setAxisTitle("Primary Vertices Z [cm]",1);
+  Vx_ZY_Cum->setAxisTitle("Primary Vertices Y [cm]",2);
+  Vx_ZY_Cum->setAxisTitle("Entries [#]",3);
+  Vx_XY_Cum->setAxisTitle("Primary Vertices X [cm]",1);
+  Vx_XY_Cum->setAxisTitle("Primary Vertices Y [cm]",2);
+  Vx_XY_Cum->setAxisTitle("Entries [#]",3);
+
+  hitCounter = ibooker.book1D("J - pixelHits vs lumi", "# Pixel-Hits vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   hitCounter->setAxisTitle("Lumisection [#]",1);
   hitCounter->setAxisTitle("Pixel-Hits [#]",2);
   hitCounter->getTH1()->SetOption("E1");
 
-  goodVxCounter = ibooker.book1D("G - good vertices vs lumi", "# Good vertices vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
+  goodVxCounter = ibooker.book1D("I - good vertices vs lumi", "# Good vertices vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   goodVxCounter->setAxisTitle("Lumisection [#]",1);
   goodVxCounter->setAxisTitle("Good vertices [#]",2);
   goodVxCounter->getTH1()->SetOption("E1");
       
-  statusCounter = ibooker.book1D("I - app status vs lumi", "Status vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
+  statusCounter = ibooker.book1D("K - app status vs lumi", "Status vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   statusCounter->setAxisTitle("Lumisection [#]",1);
   statusCounter->setAxisTitle("App. status [0 = OK]",2);
   statusCounter->getTH1()->SetOption("E1");
