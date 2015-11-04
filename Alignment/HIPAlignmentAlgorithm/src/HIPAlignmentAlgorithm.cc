@@ -971,7 +971,8 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 
         double ihitwt = 1;
         double trkwt = 1;
-        TFormula *my_formula = new TFormula("formula","5.264/(5.264+11.796*x-66.707*pow(x,2)+164.21*pow(x,3)-173.957*pow(x,4)+82.574*pow(x,5)-13.422*pow(x,6))"); 
+        //TFormula *my_formula = new TFormula("formula","5.264/(5.264+11.796*x-66.707*pow(x,2)+164.21*pow(x,3)-173.957*pow(x,4)+82.574*pow(x,5)-13.422*pow(x,6))"); 
+				TFormula *my_formula = new TFormula("formula","2.51469/(2.51469+4.11684*x-16.7847*pow(x,2)+46.1574*pow(x,3)-55.22*pow(x,4)+29.5591*pow(x,5)-5.39816*pow(x,6))");
 //        trkwt = my_formula->Eval(fabs(eta)); 
 //        double x = fabs(eta);
         if(uniEta){ 
@@ -1327,12 +1328,6 @@ void HIPAlignmentAlgorithm::bookRoot(void)
 	
   // book event-wise ROOT Tree
 	
-  TString tname="T1";
-  char iterString[5];
-  snprintf(iterString, sizeof(iterString), "%i",theIteration);
-  tname.Append("_");
-  tname.Append(iterString);
-
   TString tname_hit="T1_hit";
   tname_hit.Append("_");
   tname_hit.Append(iterString);

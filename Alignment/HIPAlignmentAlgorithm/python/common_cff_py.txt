@@ -74,7 +74,8 @@ process.GlobalTag.toGet = cms.VPSet(
 #            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/develop/CMSSW_7_4_12_patch4/src/Alignment/HIPAlignmentAlgorithm/cosmic_v3before/alignments_iter20.db')
 #            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/develop/CMSSW_7_4_12_patch4/src/Alignment/HIPAlignmentAlgorithm/multiIOV.db')
 #            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/develop/CMSSW_7_4_12_patch4/src/Alignment/HIPAlignmentAlgorithm/BC_cos.db')
-            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/develop/CMSSW_7_4_12_patch4/src/Alignment/HIPAlignmentAlgorithm/BC_min.db')
+#            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/develop/CMSSW_7_4_12_patch4/src/Alignment/HIPAlignmentAlgorithm/BC_min.db')
+            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/develop/CMSSW_7_4_12_patch4/src/Alignment/HIPAlignmentAlgorithm/BCD.db')
 #            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/develop/CMSSW_7_4_12_patch4/src/Alignment/HIPAlignmentAlgorithm/hp1511_min/alignments_iter20.db')
 #            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/develop/CMSSW_7_4_12_patch4/src/Alignment/HIPAlignmentAlgorithm/runD2/alignments_iter6.db')
 #            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/develop/CMSSW_7_4_12_patch4/src/Alignment/HIPAlignmentAlgorithm/runD5/alignments_iter7.db')
@@ -158,12 +159,12 @@ process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
 #      'TrackerTIBModule,111111',
 #      'TrackerTOBModule,111111',
 #      'TrackerTIDModule,111111',
-#      'TrackerTECModule,111111'
+      'TrackerTECModule,001000'
 
 #      'TrackerTPEEndcap,111111',
 
-      'TrackerTPBHalfBarrel,111111',
-      'TrackerTPEHalfCylinder,111111',
+#      'TrackerTPBHalfBarrel,111111',
+#      'TrackerTPEHalfCylinder,111111',
 #      'TrackerTIBHalfBarrel,111111',
 #      'TrackerTOBHalfBarrel,111111',
 #      'TrackerTIDEndcap,111111',

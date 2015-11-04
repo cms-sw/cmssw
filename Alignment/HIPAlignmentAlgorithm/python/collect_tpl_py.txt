@@ -24,7 +24,7 @@ process.AlignmentProducer.algoConfig.outpath = '<PATH>/main/'
 
 #process.AlignmentProducer.algoConfig.ScanDet=470442372
 #process.AlignmentProducer.algoConfig.fillTrackMonitoring=True
-#process.AlignmentProducer.algoConfig.fillTrackMonitoring=False
+process.AlignmentProducer.algoConfig.fillTrackMonitoring=False
 process.AlignmentProducer.algoConfig.outfile =  '/HIPAlignmentEvents.root'
 process.AlignmentProducer.algoConfig.outfile2 = '/HIPAlignmentAlignables.root'
 process.AlignmentProducer.checkDbAlignmentValidity= False 

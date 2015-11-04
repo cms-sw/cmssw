@@ -51,9 +51,9 @@ if 'COSMICS' =='<FLAG>':
 else :
     process.AlignmentProducer.algoConfig.isCollision=True
     process.AlignmentProducer.algoConfig.UseReweighting=True
-#    process.AlignmentProducer.algoConfig.Weight=0.0001
+    process.AlignmentProducer.algoConfig.Weight=0.001
     process.AlignmentProducer.algoConfig.UniformEta=True
-#    process.AlignmentProducer.algoConfig.CLAngleCut=1.309
+    process.AlignmentProducer.algoConfig.CLAngleCut=1.37
 
 #process.AlignmentProducer.algoConfig.ScanDet=1
 #process.AlignmentProducer.algoConfig.ScanDet=470442372
