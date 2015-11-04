@@ -69,3 +69,8 @@ workflows[132]=['',['LM9p','DIGI','RECO']]
 workflows[133]=['',['RSGrav','DIGI','RECO']]
 
 workflows[134]=['MinimumBiasBS',['RunMinBias2011B','RECOD','ALCAPROMPT','ALCAHARVD']]
+
+## 13 TeV Run2
+workflows[139901] = ['', ['ZMM_13_HS','DIGIUP15','RECOUP15','HARVESTUP15']]
+
+
