@@ -107,7 +107,8 @@ val.doPlots(plotter=trackingPlots.plotter, plotterDrawArgs={"ratio": True},
 )
 
 valv = Validation(
-    fullsimSamples = pileupstartupsamples, fastsimSamples=[],
+    fullsimSamples = startupsamples + pileupstartupsamples + upgradesamples,
+    fastsimSamples=[],
     refRelease=RefRelease, refRepository=RefRepository,
     newRelease=NewRelease, newRepository=NewRepository)
 valv.download()
