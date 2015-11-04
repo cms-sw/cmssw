@@ -167,6 +167,7 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
 // vector<float>  phoSigmaIPhiIPhi_;   // TODO: not available in reco::
    vector<float>  phoE1x3_;
    vector<float>  phoE2x2_;
+   vector<float>  phoE3x3_;
    vector<float>  phoE2x5Max_;
    vector<float>  phoE5x5_;
    vector<float>  phoESEffSigmaRR_;
@@ -175,6 +176,7 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    vector<float>  phoSigmaIPhiIPhi_2012_;
    vector<float>  phoE1x3_2012_;
    vector<float>  phoE2x2_2012_;
+   vector<float>  phoE3x3_2012_;
    vector<float>  phoE2x5Max_2012_;
    vector<float>  phoE5x5_2012_;
    vector<float>  phoBC1E_;

@@ -149,6 +149,7 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps)
 // tree_->Branch("phoSigmaIPhiIPhi",      &phoSigmaIPhiIPhi_);  // TODO: not available in reco::
   tree_->Branch("phoE1x3",               &phoE1x3_);
   tree_->Branch("phoE2x2",               &phoE2x2_);
+  tree_->Branch("phoE3x3",               &phoE3x3_);
   tree_->Branch("phoE2x5Max",            &phoE2x5Max_);
   tree_->Branch("phoE5x5",               &phoE5x5_);
   tree_->Branch("phoESEffSigmaRR",       &phoESEffSigmaRR_);
@@ -157,6 +158,7 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps)
   tree_->Branch("phoSigmaIPhiIPhi_2012", &phoSigmaIPhiIPhi_2012_);
   tree_->Branch("phoE1x3_2012",          &phoE1x3_2012_);
   tree_->Branch("phoE2x2_2012",          &phoE2x2_2012_);
+  tree_->Branch("phoE3x3_2012",          &phoE3x3_2012_);
   tree_->Branch("phoE2x5Max_2012",       &phoE2x5Max_2012_);
   tree_->Branch("phoE5x5_2012",          &phoE5x5_2012_);
   tree_->Branch("phoBC1E",               &phoBC1E_);
@@ -428,6 +430,7 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 // phoSigmaIPhiIPhi_     .clear();  // TODO: not available in reco::
   phoE1x3_              .clear();
   phoE2x2_              .clear();
+  phoE3x3_              .clear();
   phoE2x5Max_           .clear();
   phoE5x5_              .clear();
   phoESEffSigmaRR_      .clear();
@@ -436,6 +439,7 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   phoSigmaIPhiIPhi_2012_.clear();
   phoE1x3_2012_         .clear();
   phoE2x2_2012_         .clear();
+  phoE3x3_2012_         .clear();
   phoE2x5Max_2012_      .clear();
   phoE5x5_2012_         .clear();
   phoBC1E_              .clear();
@@ -906,6 +910,7 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
     //phoSigmaIEtaIPhi_ .push_back(pho->sep());   // TODO: not available in reco::
     //phoSigmaIPhiIPhi_ .push_back(pho->spp());   // TODO: not available in reco::
 
+    phoE3x3_.push_back(pho->e3x3());
     // phoE1x3_          .push_back(lazyTool.e1x3(      *(pho->superCluster()->seed())));
     // phoE2x2_          .push_back(lazyTool.e2x2(      *(pho->superCluster()->seed())));
     // phoE2x5Max_       .push_back(lazyTool.e2x5Max(   *(pho->superCluster()->seed())));
@@ -919,6 +924,7 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
     // phoSigmaIPhiIPhi_2012_ .push_back(isnan(vCov[2]) ? 0. : sqrt(vCov[2]));
     phoSigmaIEtaIEta_2012_.push_back(pho->full5x5_sigmaIetaIeta() );
 
+    phoE3x3_2012_.push_back(pho->full5x5_e3x3());
     // phoE1x3_2012_          .push_back(lazyTool_noZS.e1x3(   *(pho->superCluster()->seed())));
     // phoE2x2_2012_          .push_back(lazyTool_noZS.e2x2(   *(pho->superCluster()->seed())));
     // phoE2x5Max_2012_       .push_back(lazyTool_noZS.e2x5Max(*(pho->superCluster()->seed())));
