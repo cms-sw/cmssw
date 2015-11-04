@@ -344,6 +344,9 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.InitialStepPreSplitting.remove(process.MeasurementTrackerEvent)
     process.InitialStepPreSplitting.remove(process.siPixelClusterShapeCache)
 
+    # Redefinition of siPixelClusters: has to be after RecoTracker.IterativeTracking.InitialStepPreSplitting_cff
+    process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
+
     from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
     process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
     process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
@@ -359,6 +362,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
         process.hltTriggerTypeFilter*
         process.siStripFEDCheck *
         process.RecoForDQM_LocalReco*
+        process.siPixelClusters*
         process.DQMCommon*
         process.SiStripClients*
         process.SiStripSources_LocalReco*
