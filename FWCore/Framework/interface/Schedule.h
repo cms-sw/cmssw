@@ -282,6 +282,7 @@ namespace edm {
     std::unique_ptr<SystemTimeKeeper> summaryTimeKeeper_;
 
     bool                           wantSummary_;
+    bool                           printDependencies_;
 
     volatile bool           endpathsAreActive_;
   };
