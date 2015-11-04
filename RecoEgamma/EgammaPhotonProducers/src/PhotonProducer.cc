@@ -320,7 +320,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     } else {
       edm::LogWarning("")<<"PhotonProducer: do not know if it is a barrel or endcap SuperCluster";
     }
-    if(!hits) continue;
+    if(hits == 0) continue;
 
     // SC energy preselection
     if (scRef->energy()/cosh(scRef->eta()) <= preselCutValues[0] ) continue;
