@@ -90,6 +90,8 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/StubPtConsistency.h"
+
 //////////////
 // STD HEADERS
 #include <memory>
@@ -163,6 +165,9 @@ private:
   string geometry_;
   double phiWindowSF_;
 
+  string asciiEventOutName_;
+  std::ofstream asciiEventOut_;
+
   /// ///////////////// ///
   /// MANDATORY METHODS ///
   virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
@@ -180,6 +185,14 @@ L1TrackProducer::L1TrackProducer(edm::ParameterSet const& iConfig) // :   config
 
   geometry_ = iConfig.getUntrackedParameter<string>("geometry","");
   phiWindowSF_ = iConfig.getUntrackedParameter<double>("phiWindowSF",1.0);
+
+  asciiEventOutName_ = iConfig.getUntrackedParameter<string>("asciiFileName","");
+
+  eventnum=0;
+  if (asciiEventOutName_!="") {
+    asciiEventOut_.open(asciiEventOutName_.c_str());
+  }
+
 }
 
 /////////////
@@ -188,12 +201,17 @@ L1TrackProducer::~L1TrackProducer()
 {
   /// Insert here what you need to delete
   /// when you close the class instance
+  if (asciiEventOutName_!="") {
+    asciiEventOut_.close();
+  }
+
 }  
 
 //////////
 // END JOB
 void L1TrackProducer::endRun(const edm::Run& run, const edm::EventSetup& iSetup)
 {
+
   /// Things to be done at the exit of the event Loop 
 
 }
@@ -202,7 +220,6 @@ void L1TrackProducer::endRun(const edm::Run& run, const edm::EventSetup& iSetup)
 // BEGIN JOB
 void L1TrackProducer::beginRun(const edm::Run& run, const edm::EventSetup& iSetup )
 {
-  eventnum=0;
 }
 
 //////////
@@ -327,9 +344,8 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const TTStub<Ref_PixelDigi_>* stub=iterTTStub;
 
       double stubPt = theStackedGeometry->findRoughPt(mMagneticFieldStrength,stub);
-
+      
       if (stubPt>10000.0) stubPt=9999.99;
-      GlobalPoint stubPosition = theStackedGeometry->findGlobalPosition(stub);
 
       StackedTrackerDetId stubDetId = stub->getDetId();
       unsigned int iStack = stubDetId.iLayer();
@@ -337,6 +353,12 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       unsigned int iPhi = stubDetId.iPhi();
       unsigned int iZ = stubDetId.iZ();
 
+
+      GlobalPoint stubPosition = theStackedGeometry->findGlobalPosition(stub);
+
+      if (stub->getTriggerBend()<0.0) stubPt=-stubPt;
+      if (iStack==999999 && stubPosition.z()>0) stubPt=-stubPt;
+	
       std::vector<bool> innerStack;
       std::vector<int> irphi;
       std::vector<int> iz;
@@ -450,33 +472,58 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   assert(mode==1||mode==2||mode==3||mode==4);
 
+  if (asciiEventOutName_!="") {
+    ev.write(asciiEventOut_);
+  }
+
 #include "L1Tracking.icc"  
 
-
+  
   
   for (unsigned itrack=0; itrack<purgedTracks.size(); itrack++) {
     L1TTrack track=purgedTracks.get(itrack);
 
     TTTrack<Ref_PixelDigi_> aTrack;
 
-    GlobalPoint bsPosition(0.0,
-			   0.0,
-			   track.z0()
-			   ); //store the L1 track vertex position 
-
-    aTrack.setMomentum( GlobalVector ( GlobalVector::Cylindrical(fabs(track.pt(mMagneticFieldStrength)), 
-								  track.phi0(), 
-								 fabs(track.pt(mMagneticFieldStrength))*sinh(track.eta())) ) ,4);
-    
-    aTrack.setRInv(track.rinv(),4);
-
     aTrack.setSector(999); //this is currently not retrained by the algorithm
     aTrack.setWedge(999); //not used by the tracklet implementations
 
-    aTrack.setChi2(track.chisq(),4);
+    //First do the 4 parameter fit
 
-    aTrack.setPOCA(bsPosition,4);
+    GlobalPoint bsPosition4par(0.0,0.0,track.z04par());
 
+    aTrack.setPOCA(bsPosition4par,4);
+ 
+    double pt4par=fabs(track.pt4par(mMagneticFieldStrength));
+
+    GlobalVector p34par(GlobalVector::Cylindrical(pt4par, 
+						  track.phi04par(), 
+						  pt4par*sinh(track.eta4par())));
+
+    aTrack.setMomentum(p34par,4);
+    
+    aTrack.setRInv(track.rinv4par(),4);
+
+    aTrack.setChi2(track.chisq4par(),4);
+
+    
+    //Now do the 5 parameter fit
+
+    GlobalPoint bsPosition5par(-track.d0()*sin(track.phi0()),track.d0()*cos(track.phi0()),track.z0());
+
+    aTrack.setPOCA(bsPosition5par,5);
+ 
+    double pt5par=fabs(track.pt(mMagneticFieldStrength));
+
+    GlobalVector p35par(GlobalVector::Cylindrical(pt5par, 
+						  track.phi0(), 
+						  pt5par*sinh(track.eta())));
+
+    aTrack.setMomentum(p35par,5);
+    
+    aTrack.setRInv(track.rinv(),5);
+
+    aTrack.setChi2(track.chisq(),5);
     
     
     vector<L1TStub> stubs = track.getStubs();
@@ -505,6 +552,15 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       }
     }
+
+
+    // pt consistency
+    float consistency4par = StubPtConsistency::getConsistency(aTrack, theStackedGeometry, mMagneticFieldStrength, 4); 
+    aTrack.setStubPtConsistency(consistency4par, 4);
+
+    float consistency5par = StubPtConsistency::getConsistency(aTrack, theStackedGeometry, mMagneticFieldStrength, 5); 
+    aTrack.setStubPtConsistency(consistency5par,5);
+
 
     L1TkTracksForOutput->push_back(aTrack);
 

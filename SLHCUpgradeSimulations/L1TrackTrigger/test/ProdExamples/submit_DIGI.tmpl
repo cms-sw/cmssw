@@ -1,0 +1,25 @@
+#!/bin/sh
+curr_dir=`pwd`
+
+# change ANAL_DIR below :
+
+ANAL_DIR=/afs/cern.ch/user/e/eperez/work/L1TrackTrigger/SLC6_620_SLHC12/CMSSW_6_2_0_SLHC12_patch1/src/SLHCUpgradeSimulations/L1TrackTrigger/test/PROD/PROD/Nadir
+
+cd $ANAL_DIR
+eval `scram runtime -sh`
+cd $curr_dir
+
+# create a log subdirectory :
+LOG_DIR=$ANAL_DIR/log
+
+cp $ANAL_DIR/Digi_TYPE_INDX_cfg.py go.py
+
+cmsRun go.py > llog
+
+ROOT_FILE=DIGI.root
+
+# change the cmsStageOut command below :
+# cmsStageOut  $ROOT_FILE /store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/EOSDIR/Digi_TYPE_PUPILEUP_INDX.root
+
+cp llog $LOG_DIR/Digi_TYPE_INDX.log
+
