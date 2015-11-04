@@ -1,25 +1,4 @@
 //
-// ********************************************************************
-// * DISCLAIMER                                                       *
-// *                                                                  *
-// * The following disclaimer summarizes all the specific disclaimers *
-// * of contributors to this software. The specific disclaimers,which *
-// * govern, are listed with their locations in:                      *
-// *   http://cern.ch/geant4/license                                  *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.                                                             *
-// *                                                                  *
-// * This  code  implementation is the  intellectual property  of the *
-// * GEANT4 collaboration.                                            *
-// * By copying,  distributing  or modifying the Program (or any work *
-// * based  on  the Program)  you indicate  your  acceptance of  this *
-// * statement, and all its terms.                                    *
-// ********************************************************************
-//
 // -------------------------------------------------------------------
 //
 // GEANT4 Class file
@@ -31,11 +10,6 @@
 // 
 // Creation date: 03.01.2002
 //
-// Modifications: 
-//
-// 28-12-02 add method Dispersion (V.Ivanchenko)
-// 07-02-03 change signature (V.Ivanchenko)
-// 13-02-03 Add name (V.Ivanchenko)
 // Modified for standalone use in ORCA. d.k. 6/04
 //
 // -------------------------------------------------------------------
@@ -52,12 +26,6 @@
 #include <cmath>
 #include<vector>
 
-//#include "Randomize.hh"
-//#include "G4Poisson.hh"
-//#include "G4Step.hh"
-//#include "G4Material.hh"
-//#include "G4DynamicParticle.hh"
-//#include "G4ParticleDefinition.hh"
 using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -109,14 +77,8 @@ double LandauFP420::SampleFluctuations(const double momentum,
   // shortcut for very very small loss 
   if(meanLoss < minLoss) return meanLoss;
 
-  //if(dp->GetDefinition() != particle) {
   particleMass   = mass; // dp->GetMass();
-  //G4double q     = dp->GetCharge(); 
-  //chargeSquare   = q*q;
-  //}
 
-  //double gam   = (dp->GetKineticEnergy())/particleMass + 1.0;
-  //double gam2  = gam*gam; 
   double gam2   = (momentum*momentum)/(particleMass*particleMass) + 1.0;
   double beta2 = 1.0 - 1.0/gam2;
  

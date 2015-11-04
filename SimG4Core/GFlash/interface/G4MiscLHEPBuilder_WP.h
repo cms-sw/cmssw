@@ -1,30 +1,4 @@
 //
-// ********************************************************************
-// * License and Disclaimer                                           *
-// *                                                                  *
-// * The  Geant4 software  is  copyright of the Copyright Holders  of *
-// * the Geant4 Collaboration.  It is provided  under  the terms  and *
-// * conditions of the Geant4 Software License,  included in the file *
-// * LICENSE and available at  http://cern.ch/geant4/license .  These *
-// * include a list of copyright holders.                             *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.  Please see the license in the file  LICENSE  and URL above *
-// * for the full disclaimer and the limitation of liability.         *
-// *                                                                  *
-// * This  code  implementation is the result of  the  scientific and *
-// * technical work of the GEANT4 collaboration.                      *
-// * By using,  copying,  modifying or  distributing the software (or *
-// * any work based  on the software)  you  agree  to acknowledge its *
-// * use  in  resulting  scientific  publications,  and indicate your *
-// * acceptance of all terms of the Geant4 Software license.          *
-// ********************************************************************
-//
-// GEANT4 tag $Name: V04-05-01 $
-//
 //---------------------------------------------------------------------------
 //
 // ClassName:   G4MiscLHEPBuilder_WP
@@ -56,39 +30,7 @@
 #include "G4AntiXiMinusInelasticProcess.hh"
 #include "G4OmegaMinusInelasticProcess.hh"
 #include "G4AntiOmegaMinusInelasticProcess.hh"
-/*
-#include "G4LEAntiProtonInelastic.hh"
-#include "G4LEAntiNeutronInelastic.hh"
-#include "G4LELambdaInelastic.hh"
-#include "G4LEAntiLambdaInelastic.hh"
-#include "G4LESigmaPlusInelastic.hh"
-#include "G4LESigmaMinusInelastic.hh"
-#include "G4LEAntiSigmaPlusInelastic.hh"
-#include "G4LEAntiSigmaMinusInelastic.hh"
-#include "G4LEXiZeroInelastic.hh"
-#include "G4LEXiMinusInelastic.hh"
-#include "G4LEAntiXiZeroInelastic.hh"
-#include "G4LEAntiXiMinusInelastic.hh"
-#include "G4LEOmegaMinusInelastic.hh"
-#include "G4LEAntiOmegaMinusInelastic.hh"
 
-// High-energy Models
-
-#include "G4HEAntiProtonInelastic.hh"
-#include "G4HEAntiNeutronInelastic.hh"
-#include "G4HELambdaInelastic.hh"
-#include "G4HEAntiLambdaInelastic.hh"
-#include "G4HESigmaPlusInelastic.hh"
-#include "G4HESigmaMinusInelastic.hh"
-#include "G4HEAntiSigmaPlusInelastic.hh"
-#include "G4HEAntiSigmaMinusInelastic.hh"
-#include "G4HEXiZeroInelastic.hh"
-#include "G4HEXiMinusInelastic.hh"
-#include "G4HEAntiXiZeroInelastic.hh"
-#include "G4HEAntiXiMinusInelastic.hh"
-#include "G4HEOmegaMinusInelastic.hh"
-#include "G4HEAntiOmegaMinusInelastic.hh"
-*/
 class GflashHadronWrapperProcess;
 
 class G4MiscLHEPBuilder_WP 
