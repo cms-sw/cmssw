@@ -9,7 +9,7 @@
 
 namespace sistrip {
 
-  FEDBuffer::FEDBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowBadBuffer)
+  FEDBuffer::FEDBuffer(const uint8_t* fedBuffer, const uint16_t fedBufferSize, const bool allowBadBuffer)
     : FEDBufferBase(fedBuffer,fedBufferSize,allowBadBuffer,false)
   {
     channels_.reserve(FEDCH_PER_FED);
@@ -59,7 +59,7 @@ namespace sistrip {
       //if there was a problem either rethrow the exception or just mark channel pointers NULL
       if (!allowBadBuffer) throw;
       else {
-        channels_.insert(channels_.end(),size_t(FEDCH_PER_FED-validChannels_),FEDChannel(payloadPointer_,0,0));
+        channels_.insert(channels_.end(),uint16_t(FEDCH_PER_FED-validChannels_),FEDChannel(payloadPointer_,0,0));
       }
     }
   }
@@ -96,11 +96,11 @@ namespace sistrip {
       minLength = 3;
       break;
     }
-    size_t offsetBeginningOfChannel = 0;
-    for (size_t i = 0; i < FEDCH_PER_FED; i++) {
+    uint16_t offsetBeginningOfChannel = 0;
+    for (uint16_t i = 0; i < FEDCH_PER_FED; i++) {
       //if FE unit is not enabled then skip rest of FE unit adding NULL pointers
       if unlikely( !(fePresent(i/FEDCH_PER_FEUNIT) && feEnabled(i/FEDCH_PER_FEUNIT)) ) {
-	channels_.insert(channels_.end(),size_t(FEDCH_PER_FEUNIT),FEDChannel(payloadPointer_,0,0));
+	channels_.insert(channels_.end(),uint16_t(FEDCH_PER_FEUNIT),FEDChannel(payloadPointer_,0,0));
 	i += FEDCH_PER_FEUNIT-1;
 	validChannels_ += FEDCH_PER_FEUNIT;
 	continue;
@@ -143,7 +143,7 @@ namespace sistrip {
       }
 
       validChannels_++;
-      const size_t offsetEndOfChannel = offsetBeginningOfChannel+channelLength;
+      const uint16_t offsetEndOfChannel = offsetBeginningOfChannel+channelLength;
       //add padding if necessary and calculate offset for begining of next channel
       if (!( (i+1) % FEDCH_PER_FEUNIT )) {
 	uint8_t numPaddingBytes = 8 - (offsetEndOfChannel % 8);
@@ -211,7 +211,7 @@ namespace sistrip {
     if (!checkChannelLengths()) return false;
   
     //payload length from length of data buffer
-    const size_t payloadLengthInWords = payloadLength_/8;
+    const uint16_t payloadLengthInWords = payloadLength_/8;
   
     //find channel length
     //find last enabled FE unit
@@ -219,11 +219,11 @@ namespace sistrip {
     while ( !(fePresent(lastEnabledFeUnit) && feEnabled(lastEnabledFeUnit)) && lastEnabledFeUnit!=0 ) lastEnabledFeUnit--;
     //last channel is last channel on last enabled FE unit
     const FEDChannel& lastChannel = channels_[internalFEDChannelNum(lastEnabledFeUnit,FEDCH_PER_FEUNIT-1)];
-    const size_t offsetLastChannel = lastChannel.offset();
-    const size_t offsetEndOfChannelData = offsetLastChannel+lastChannel.length();
-    const size_t channelDataLength = offsetEndOfChannelData;
+    const uint16_t offsetLastChannel = lastChannel.offset();
+    const uint16_t offsetEndOfChannelData = offsetLastChannel+lastChannel.length();
+    const uint16_t channelDataLength = offsetEndOfChannelData;
     //channel length in words is length in bytes rounded up to nearest word
-    size_t channelDataLengthInWords = channelDataLength/8;
+    uint16_t channelDataLengthInWords = channelDataLength/8;
     if (channelDataLength % 8) channelDataLengthInWords++;
   
     //check lengths match
@@ -432,7 +432,7 @@ namespace sistrip {
     throw cms::Exception("FEDBuffer") << ss.str();
   }
 
-  void FEDBSChannelUnpacker::throwBadWordLength(const size_t word_length)
+  void FEDBSChannelUnpacker::throwBadWordLength(const uint16_t word_length)
   {
     std::ostringstream ss;
     ss << "Word length is invalid. "

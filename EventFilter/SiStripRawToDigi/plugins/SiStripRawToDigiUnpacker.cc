@@ -1163,9 +1163,9 @@ namespace sistrip {
        << " Dump of buffer for FED id " <<  fed_id << std::endl
        << " Buffer contains " << buffer.size()
        << " bytes (NB: payload is byte-swapped)" << std::endl;
-    uint32_t* buffer_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( buffer.data() ) );
 
     if ( 0 ) { 
+      uint32_t* buffer_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( buffer.data() ) );
       unsigned int empty = 0;
 
       ss << "Byte->   4 5 6 7 0 1 2 3\n";

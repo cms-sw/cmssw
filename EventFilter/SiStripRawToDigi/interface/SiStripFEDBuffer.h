@@ -25,7 +25,7 @@ namespace sistrip {
     public:
       //construct from buffer
       //if allowBadBuffer is set to true then exceptions will not be thrown if the channel lengths do not make sense or the event format is not recognized
-      FEDBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowBadBuffer = false);
+      FEDBuffer(const uint8_t* fedBuffer, const uint16_t fedBufferSize, const bool allowBadBuffer = false);
       virtual ~FEDBuffer();
       virtual void print(std::ostream& os) const;
       const FEDFEHeader* feHeader() const;
@@ -99,14 +99,14 @@ namespace sistrip {
       FEDZSChannelUnpacker& operator ++ (int);
     private:
       //pointer to beginning of FED or FE data, offset of start of channel payload in data and length of channel payload
-      FEDZSChannelUnpacker(const uint8_t* payload, const size_t channelPayloadOffset, const int16_t channelPayloadLength, const size_t offsetIncrement=1);
+      FEDZSChannelUnpacker(const uint8_t* payload, const uint16_t channelPayloadOffset, const int16_t channelPayloadLength, const uint16_t offsetIncrement=1);
       void readNewClusterInfo();
       static void throwBadChannelLength(const uint16_t length);
       void throwBadClusterLength();
       static void throwUnorderedData(const uint8_t currentStrip, const uint8_t firstStripOfNewCluster);
       const uint8_t* data_;
-      size_t currentOffset_;
-      size_t offsetIncrement_;
+      uint16_t currentOffset_;
+      uint16_t offsetIncrement_;
       uint8_t currentStrip_;
       uint8_t valuesLeftInCluster_;
       uint16_t channelPayloadOffset_;
@@ -129,7 +129,7 @@ namespace sistrip {
     private:
       static void throwBadChannelLength(const uint16_t length);
       const uint8_t* data_;
-      size_t currentOffset_;
+      uint16_t currentOffset_;
       uint8_t currentStrip_;
       uint16_t valuesLeft_;
     };
@@ -138,9 +138,9 @@ namespace sistrip {
   class FEDBSChannelUnpacker
     {
     public:
-      static FEDBSChannelUnpacker virginRawModeUnpacker(const FEDChannel& channel, size_t num_bits);
-      static FEDBSChannelUnpacker zeroSuppressedModeUnpacker(const FEDChannel& channel, size_t num_bits);
-      static FEDBSChannelUnpacker zeroSuppressedLiteModeUnpacker(const FEDChannel& channel, size_t num_bits);
+      static FEDBSChannelUnpacker virginRawModeUnpacker(const FEDChannel& channel, uint16_t num_bits);
+      static FEDBSChannelUnpacker zeroSuppressedModeUnpacker(const FEDChannel& channel, uint16_t num_bits);
+      static FEDBSChannelUnpacker zeroSuppressedLiteModeUnpacker(const FEDChannel& channel, uint16_t num_bits);
       FEDBSChannelUnpacker();
       uint8_t sampleNumber() const;
       uint16_t adc() const;
@@ -149,15 +149,15 @@ namespace sistrip {
       FEDBSChannelUnpacker& operator ++ (int);
     private:
       //pointer to beginning of FED or FE data, offset of start of channel payload in data and length of channel payload
-      FEDBSChannelUnpacker(const uint8_t* payload, const size_t channelPayloadOffset, const int16_t channelPayloadLength, const size_t offsetIncrement=10);
+      FEDBSChannelUnpacker(const uint8_t* payload, const uint16_t channelPayloadOffset, const int16_t channelPayloadLength, const uint16_t offsetIncrement=10);
       static void throwBadChannelLength(const uint16_t length);
-      static void throwBadWordLength(const size_t word_length);
+      static void throwBadWordLength(const uint16_t word_length);
       const uint8_t* data_;
-      size_t oldWordOffset_;
-      size_t currentWordOffset_;
-      size_t currentBitOffset_;
-      size_t currentLocalBitOffset_;
-      size_t bitOffsetIncrement_;
+      uint16_t oldWordOffset_;
+      uint16_t currentWordOffset_;
+      uint16_t currentBitOffset_;
+      uint16_t currentLocalBitOffset_;
+      uint16_t bitOffsetIncrement_;
       uint8_t currentStrip_;
       uint16_t channelPayloadOffset_;
       uint16_t channelPayloadLength_;
@@ -210,7 +210,7 @@ namespace sistrip {
       channelPayloadOffset_(0), channelPayloadLength_(0)
     { }
 
-  inline FEDBSChannelUnpacker::FEDBSChannelUnpacker(const uint8_t* payload, const size_t channelPayloadOffset, const int16_t channelPayloadLength, const size_t offsetIncrement)
+  inline FEDBSChannelUnpacker::FEDBSChannelUnpacker(const uint8_t* payload, const uint16_t channelPayloadOffset, const int16_t channelPayloadLength, const uint16_t offsetIncrement)
     : data_(payload),
       oldWordOffset_(0), currentWordOffset_(channelPayloadOffset),
       currentBitOffset_(0), currentLocalBitOffset_(0),
@@ -221,7 +221,7 @@ namespace sistrip {
       if (bitOffsetIncrement_>16) throwBadWordLength(bitOffsetIncrement_); // more than 2 words... still to be implemented
     }
 
-  inline FEDBSChannelUnpacker FEDBSChannelUnpacker::virginRawModeUnpacker(const FEDChannel& channel, size_t num_bits)
+  inline FEDBSChannelUnpacker FEDBSChannelUnpacker::virginRawModeUnpacker(const FEDChannel& channel, uint16_t num_bits)
     {
       uint16_t length = channel.length();
       if (length & 0xF000) throwBadChannelLength(length);
@@ -230,7 +230,7 @@ namespace sistrip {
       return result;
     }
 
-  inline FEDBSChannelUnpacker FEDBSChannelUnpacker::zeroSuppressedModeUnpacker(const FEDChannel& channel, size_t num_bits)
+  inline FEDBSChannelUnpacker FEDBSChannelUnpacker::zeroSuppressedModeUnpacker(const FEDChannel& channel, uint16_t num_bits)
     {
       uint16_t length = channel.length();
       if (length & 0xF000) throwBadChannelLength(length);
@@ -238,7 +238,7 @@ namespace sistrip {
       return result;
     }
 
-  inline FEDBSChannelUnpacker FEDBSChannelUnpacker::zeroSuppressedLiteModeUnpacker(const FEDChannel& channel, size_t num_bits)
+  inline FEDBSChannelUnpacker FEDBSChannelUnpacker::zeroSuppressedLiteModeUnpacker(const FEDChannel& channel, uint16_t num_bits)
     {
       uint16_t length = channel.length();
       if (length & 0xF000) throwBadChannelLength(length);
@@ -253,7 +253,7 @@ namespace sistrip {
 
   inline uint16_t FEDBSChannelUnpacker::adc() const
     {
-      size_t bits_missing = (bitOffsetIncrement_-8)+currentLocalBitOffset_;
+      uint16_t bits_missing = (bitOffsetIncrement_-8)+currentLocalBitOffset_;
       uint16_t adc = (data_[currentWordOffset_^7]<<bits_missing);
       if (currentWordOffset_>oldWordOffset_) {
         adc += ( (data_[(currentWordOffset_+1)^7]>>(8-bits_missing)) );
@@ -334,7 +334,7 @@ namespace sistrip {
       channelPayloadLength_(0)
     { }
 
-  inline FEDZSChannelUnpacker::FEDZSChannelUnpacker(const uint8_t* payload, const size_t channelPayloadOffset, const int16_t channelPayloadLength, const size_t offsetIncrement)
+  inline FEDZSChannelUnpacker::FEDZSChannelUnpacker(const uint8_t* payload, const uint16_t channelPayloadOffset, const int16_t channelPayloadLength, const uint16_t offsetIncrement)
     : data_(payload),
       currentOffset_(channelPayloadOffset),
       offsetIncrement_(offsetIncrement),
