@@ -946,13 +946,13 @@ steps['TIER0EXP']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCAPRODUCER:@allForExpr
                           },steps['TIER0']])
 
 steps['TIER0EXPHI']={      '--conditions':'auto:run1_data',
-          '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCAPRODUCER:@allForExpressHI,DQM,ENDJOB',
+          '-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForExpressHI,DQM,ENDJOB',
           '--datatier':'ALCARECO,DQMIO',
           '--eventcontent':'ALCARECO,DQM',
           '--data':'',
           '--process':'RECO',
           '--scenario':'HeavyIons',
-          '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
+          '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpressHI',
           '--repacked':''
                           }
     
