@@ -12,27 +12,10 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-#include "CondFormats/PhysicsToolsObjects/interface/PhysicsTGraphPayload.h"
-#include "CondFormats/DataRecord/interface/PhysicsTGraphPayloadRcd.h"
-#include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"
-#include "CondFormats/DataRecord/interface/PhysicsTFormulaPayloadRcd.h"
-
-#include "TMath.h"
-#include "TGraph.h"
-#include "TFormula.h"
-#include "TFile.h"
-
 
 
 #include <functional>
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
-#include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
-#include "RecoTauTag/RecoTau/interface/ConeTools.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 
 
 
