@@ -14,5 +14,5 @@
 
 <bin   file="runtestSimCalorimetryHGCalSimProducers.cpp">
   <flags   TEST_RUNNER_ARGS=" /bin/bash SimCalorimetry/HGCalSimProducers/test runtests.sh"/>
-  <use   name="FWCore/Utilities"/>
+  
 </bin>
