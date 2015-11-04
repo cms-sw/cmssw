@@ -221,12 +221,11 @@ UETableProducer::endJob() {
 
 void UETableProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
    edm::ParameterSetDescription desc;
-   desc.add<int>("algorithm", 1);
-   desc.add<double>("ptCut", 20.0);
-   desc.addUntracked<unsigned int>("debugLevel", 1U);
+   desc.add<std::string>("txtFile", "example");
+   desc.addUntracked<bool>("debug", false);
+   desc.addUntracked<bool>("jetCorrectorFormat", false);
    descriptions.add("produceUETable", desc);
 }
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(UETableProducer);
