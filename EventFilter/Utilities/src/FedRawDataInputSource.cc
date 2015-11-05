@@ -31,7 +31,7 @@
 #include "EventFilter/FEDInterface/interface/fed_header.h"
 #include "EventFilter/FEDInterface/interface/fed_trailer.h"
 
-#include "EventFilter/Utilities/plugins/FedRawDataInputSource.h"
+#include "EventFilter/Utilities/interface/FedRawDataInputSource.h"
 
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include "EventFilter/Utilities/interface/DataPointDefinition.h"
@@ -129,6 +129,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   daqDirector_->setDeleteTracking(&fileDeleteLock_,&filesToDelete_);
   if (fms_) daqDirector_->setFMS(fms_);
 
+  fms_->setInputSource(this);
   //should delete chunks when run stops
   for (unsigned int i=0;i<numBuffers_;i++) {
     freeChunks_.push(new InputChunk(i,eventChunkSize_));
@@ -238,7 +239,7 @@ bool FedRawDataInputSource::checkNextEvent()
         int eor_fd = open(daqDirector_->getEoRFilePathOnFU().c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
         close(eor_fd);
       }
-      if (fms_) fms_->reportEventsThisLumiInSource(currentLumiSection_,eventsThisLumi_);
+      reportEventsThisLumiInSource(currentLumiSection_,eventsThisLumi_);
       eventsThisLumi_=0;
       resetLuminosityBlockAuxiliary();
        edm::LogInfo("FedRawDataInputSource") << "----------------RUN ENDED----------------";
@@ -256,7 +257,7 @@ bool FedRawDataInputSource::checkNextEvent()
       if (!getLSFromFilename_) {
         //get new lumi from file header
 	if (event_->lumi() > currentLumiSection_) {
-          if (fms_) fms_->reportEventsThisLumiInSource(currentLumiSection_,eventsThisLumi_);
+          reportEventsThisLumiInSource(currentLumiSection_,eventsThisLumi_);
 	  eventsThisLumi_=0;
           maybeOpenNewLumiSection( event_->lumi() );
 	}
@@ -368,7 +369,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     {
       if (getLSFromFilename_) {
 	if (currentFile_->lumi_ > currentLumiSection_) {
-          if (fms_) fms_->reportEventsThisLumiInSource(currentLumiSection_,eventsThisLumi_);
+          reportEventsThisLumiInSource(currentLumiSection_,eventsThisLumi_);
 	  eventsThisLumi_=0;
       	  maybeOpenNewLumiSection(currentFile_->lumi_);
 	}
@@ -396,7 +397,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     assert(currentFile_->nChunks_==0);
     if (getLSFromFilename_)
       if (currentFile_->lumi_ > currentLumiSection_) {
-        if (fms_) fms_->reportEventsThisLumiInSource(currentLumiSection_,eventsThisLumi_);
+        reportEventsThisLumiInSource(currentLumiSection_,eventsThisLumi_);
 	eventsThisLumi_=0;
         maybeOpenNewLumiSection(currentFile_->lumi_);
       }
@@ -1254,6 +1255,33 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile *file)
     }
   }
 }
+
+
+void FedRawDataInputSource::reportEventsThisLumiInSource(unsigned int lumi,unsigned int events)
+{
+
+  std::lock_guard<std::mutex> lock(monlock_);
+  auto itr = sourceEventsReport_.find(lumi);
+  if (itr!=sourceEventsReport_.end())
+    itr->second+=events;
+  else 
+    sourceEventsReport_[lumi]=events;
+}
+
+std::pair<bool,unsigned int> FedRawDataInputSource::getEventReport(unsigned int lumi, bool erase)
+{
+  std::lock_guard<std::mutex> lock(monlock_);
+  auto itr = sourceEventsReport_.find(lumi);
+  if (itr!=sourceEventsReport_.end()) {
+    auto && ret = std::pair<bool,unsigned int>(true,itr->second);
+    if (erase) 
+      sourceEventsReport_.erase(itr);
+    return ret;
+  }
+  else 
+    return std::pair<bool,unsigned int>(false,0);
+}
+
 
 // define this class as an input source
 DEFINE_FWK_INPUT_SOURCE( FedRawDataInputSource);
