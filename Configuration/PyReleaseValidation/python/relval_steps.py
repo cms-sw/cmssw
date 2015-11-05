@@ -888,7 +888,8 @@ steps['TIER0EXPHI']={      '--conditions':'auto:run1_data',
           '--process':'RECO',
           '--scenario':'HeavyIons',
           '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpressHI',
-          '--repacked':''
+          '--repacked':'',
+          '-n':'10'
                           }
     
 
@@ -1044,7 +1045,7 @@ steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibP
                   '--conditions':'auto:run1_data',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO'}
-steps['ALCAEXPHI']=merge([{'-s':'ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiPixelAli',
+steps['ALCAEXPHI']=merge([{'-s':'ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains',
                   '--scenario':'HeavyIons'},steps['ALCAEXP']])
 
 # step4
