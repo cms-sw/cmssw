@@ -55,9 +55,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         self.addParameter(self._defaultParameters, 'jetCorLabelUpToL3', cms.InputTag('ak4PFCHSL1FastL2L3Corrector'), "Use ak4PFL1FastL2L3Corrector (ak4PFCHSL1FastL2L3Corrector) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3Corrector for CaloJets", Type=cms.InputTag)
         self.addParameter(self._defaultParameters, 'jetCorLabelL3Res', cms.InputTag('ak4PFCHSL1FastL2L3ResidualCorrector'), "Use ak4PFL1FastL2L3ResidualCorrector (ak4PFCHSL1FastL2L3ResidualCorrector) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3ResidualCorrector for CaloJets", Type=cms.InputTag)
+
+# the file is used only for local running
         self.addParameter(self._defaultParameters, 'jecUncertaintyFile', 'CondFormats/JetMETObjects/data/Summer15_50nsV5_DATA_UncertaintySources_AK4PFchs.txt',
                           "Extra JES uncertainty file", Type=str)
-        self.addParameter(self._defaultParameters, 'jecUncertaintyTag', 'SubTotalMC',
+        self.addParameter(self._defaultParameters, 'jecUncertaintyTag', 'Uncertainty',
                           "JES uncertainty Tag", Type=str)
         
         self.addParameter(self._defaultParameters, 'mvaMetLeptons',["Electrons","Muons"],
@@ -706,7 +708,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 
             shiftedModuleUp = cms.EDProducer(moduleType,
                                              src = objectCollection,
-                                             jetCorrInputFileName = cms.FileInPath(jetUncInfos["jecUncFile"] ), #jecUncertaintyFile),
+##                                             jetCorrInputFileName = cms.FileInPath(jetUncInfos["jecUncFile"] ), #jecUncertaintyFile),
                                              jetCorrUncertaintyTag = cms.string(jetUncInfos["jecUncTag"] ), #jecUncertaintyTag),
                                              addResidualJES = cms.bool(True),
                                              jetCorrLabelUpToL3 = cms.InputTag(jetUncInfos["jCorLabelUpToL3"].value() ), #jetCorrLabelUpToL3.value()),
