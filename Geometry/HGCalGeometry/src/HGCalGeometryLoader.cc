@@ -120,6 +120,6 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
     std::cerr << "inconsistent # of cells: expected " << numberOfCells << " , inited " << counter << std::endl;
     assert( counter == numberOfCells ) ;
   }
-  std::cout << "HGCalGeometryBuilder-> " << counter << " cells are produced\n";
+
   return geom;
 }

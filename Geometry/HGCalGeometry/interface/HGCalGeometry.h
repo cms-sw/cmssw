@@ -52,7 +52,7 @@ public:
 		     const CCGFloat* pv  , 
 		     unsigned int    i   ,
 		     Pt3D&           ref   ) ;
-
+  
   virtual void newCell( const GlobalPoint& f1 ,
 			const GlobalPoint& f2 ,
 			const GlobalPoint& f3 ,
@@ -73,7 +73,7 @@ public:
   CornersVec getCorners( const DetId& id ) const; 
 
   // avoid sorting set in base class  
-  virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det = DetId::Detector(0), int subdet = 0) const override {return m_validIds;}
+  virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det = DetId::Detector(0), int subdet = 0) const override { return m_validIds; }
   
   // Get closest cell, etc...
   virtual DetId getClosestCell( const GlobalPoint& r ) const override;
@@ -87,7 +87,7 @@ public:
   virtual DetIdSet getCells( const GlobalPoint& r, double dR ) const override;
   
   virtual void fillNamedParams (DDFilteredView fv);
-  virtual void initializeParms() ;
+  virtual void initializeParms() override;
   
   static std::string producerTag() { return "HGCal" ; }
   std::string cellElement() const;
@@ -97,10 +97,10 @@ public:
      
 protected:
 
-  virtual unsigned int indexFor(const DetId& id) const ;
-  virtual unsigned int sizeForDenseIndex() const;
+  virtual unsigned int indexFor(const DetId& id) const override;
+  unsigned int sizeForDenseIndex() const;
   
-  virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
+  virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override;
   
   void addValidID(const DetId& id);
   unsigned int getClosestCellIndex ( const GlobalPoint& r ) const;
