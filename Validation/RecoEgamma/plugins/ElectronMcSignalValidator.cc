@@ -1117,29 +1117,15 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
   //===============================================
 
   reco::GsfElectronCollection::const_iterator gsfIter ;
+  // mee only
   for ( gsfIter=gsfElectrons->begin() ; gsfIter!=gsfElectrons->end() ; gsfIter++ )
    {
     // preselect electrons
-    if (gsfIter->pt()>maxPt_ || std::abs(gsfIter->eta())>maxAbsEta_) continue ;
+//    if (gsfIter->pt()>maxPt_ || std::abs(gsfIter->eta())>maxAbsEta_) continue ;
 
     //
-    h1_ele_EoverP_all->Fill(gsfIter->eSuperClusterOverP()) ;
-    h1_ele_EseedOP_all->Fill(gsfIter->eSeedClusterOverP()) ;
-    h1_ele_EoPout_all->Fill(gsfIter->eSeedClusterOverPout()) ;
-    h1_ele_EeleOPout_all->Fill( gsfIter->eEleClusterOverPout()) ;
-    h1_ele_dEtaSc_propVtx_all->Fill(gsfIter->deltaEtaSuperClusterTrackAtVtx()) ;
-    h1_ele_dPhiSc_propVtx_all->Fill(gsfIter->deltaPhiSuperClusterTrackAtVtx()) ;
-    h1_ele_dEtaCl_propOut_all->Fill(gsfIter->deltaEtaSeedClusterTrackAtCalo()) ;
-    h1_ele_dPhiCl_propOut_all->Fill(gsfIter->deltaPhiSeedClusterTrackAtCalo()) ;
-    h1_ele_HoE_all->Fill(gsfIter->hcalOverEcal()) ;
-    h1_ele_HoE_bc_all->Fill(gsfIter->hcalOverEcalBc()) ;
-    h1_ele_TIP_all->Fill( EleRelPoint(gsfIter->vertex(),theBeamSpot->position()).perp() );
-    h1_ele_vertexEta_all->Fill( gsfIter->eta() );
-    h1_ele_vertexPt_all->Fill( gsfIter->pt() );
-    h1_ele_Et_all->Fill( gsfIter->ecalEnergy()/cosh(gsfIter->superCluster()->eta()));
     float enrj1=gsfIter->ecalEnergy();
 
-    // mee
     reco::GsfElectronCollection::const_iterator gsfIter2 ;
     for ( gsfIter2=gsfIter+1 ; gsfIter2!=gsfElectrons->end() ; gsfIter2++ )
      {
@@ -1172,6 +1158,29 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
          { h1_ele_mee_os_gb->Fill(sqrt(mee2)) ; }
        }
      }
+
+   }
+
+     for ( gsfIter=gsfElectrons->begin() ; gsfIter!=gsfElectrons->end() ; gsfIter++ )
+   {
+    // preselect electrons
+    if (gsfIter->pt()>maxPt_ || std::abs(gsfIter->eta())>maxAbsEta_) continue ;
+
+    //
+    h1_ele_EoverP_all->Fill(gsfIter->eSuperClusterOverP()) ;
+    h1_ele_EseedOP_all->Fill(gsfIter->eSeedClusterOverP()) ;
+    h1_ele_EoPout_all->Fill(gsfIter->eSeedClusterOverPout()) ;
+    h1_ele_EeleOPout_all->Fill( gsfIter->eEleClusterOverPout()) ;
+    h1_ele_dEtaSc_propVtx_all->Fill(gsfIter->deltaEtaSuperClusterTrackAtVtx()) ;
+    h1_ele_dPhiSc_propVtx_all->Fill(gsfIter->deltaPhiSuperClusterTrackAtVtx()) ;
+    h1_ele_dEtaCl_propOut_all->Fill(gsfIter->deltaEtaSeedClusterTrackAtCalo()) ;
+    h1_ele_dPhiCl_propOut_all->Fill(gsfIter->deltaPhiSeedClusterTrackAtCalo()) ;
+    h1_ele_HoE_all->Fill(gsfIter->hcalOverEcal()) ;
+    h1_ele_HoE_bc_all->Fill(gsfIter->hcalOverEcalBc()) ;
+    h1_ele_TIP_all->Fill( EleRelPoint(gsfIter->vertex(),theBeamSpot->position()).perp() );
+    h1_ele_vertexEta_all->Fill( gsfIter->eta() );
+    h1_ele_vertexPt_all->Fill( gsfIter->pt() );
+    h1_ele_Et_all->Fill( gsfIter->ecalEnergy()/cosh(gsfIter->superCluster()->eta()));
 
     // conversion rejection
     int flags = gsfIter->convFlags() ;
@@ -1334,7 +1343,6 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     for ( gsfIter=gsfElectrons->begin(), iElectron=0 ; gsfIter!=gsfElectrons->end() ; gsfIter++, iElectron++ )
      {
 		// temporary cut for pt < 5.
-//        passMiniAODSelection = gsfIter->pt() >= 5;
       double dphi = gsfIter->phi()-mcIter->phi() ;
       if (std::abs(dphi)>CLHEP::pi)
        { dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi ; }
