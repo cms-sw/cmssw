@@ -9,6 +9,7 @@ HiGenParticleAna = cms.EDAnalyzer('HiGenAnalyzer',
 				  src = cms.untracked.InputTag("generator"),
 				  genParticleSrc = cms.untracked.InputTag("hiGenParticles"),
 				  genHIsrc = cms.untracked.InputTag("heavyIon"),
+				  doParticles = cms.untracked.bool(True),
 				  doParticles = cms.untracked.bool(True)
 
                           )
