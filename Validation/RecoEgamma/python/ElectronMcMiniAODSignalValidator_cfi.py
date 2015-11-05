@@ -10,6 +10,7 @@ electronMcSignalHistosCfg = cms.PSet(
   Nbinphi = cms.int32(64), Nbinphi2D = cms.int32(32), Phimin = cms.double(-3.2), Phimax = cms.double(3.2),
   Nbindphi = cms.int32(100), Dphimin = cms.double(-0.01), Dphimax = cms.double(0.01),
   Nbindphimatch = cms.int32(100), Nbindphimatch2D = cms.int32(50), Dphimatchmin = cms.double(-0.2), Dphimatchmax = cms.double(0.2),
+  Nbinmee = cms.int32(100), Meemin = cms.double(0.0), Meemax = cms.double(150.),
   Nbinhoe = cms.int32(100), Hoemin = cms.double(0.0), Hoemax = cms.double(0.5),
   Nbinpoptrue = cms.int32(75), Poptruemin = cms.double(0.0), Poptruemax = cms.double(1.5),
   EfficiencyFlag = cms.bool(True), StatOverflowFlag = cms.bool(False)
