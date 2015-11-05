@@ -35,6 +35,10 @@ namespace Json{
   class Value;
 }
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 namespace evf{
 
   class FastMonitoringService;
@@ -47,6 +51,7 @@ namespace evf{
 
       explicit EvFDaqDirector( const edm::ParameterSet &pset, edm::ActivityRegistry& reg );
       ~EvFDaqDirector();
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
       void preallocate(edm::service::SystemBounds const& bounds);
       void preBeginRun(edm::GlobalContext const& globalContext);
       void postEndRun(edm::GlobalContext const& globalContext);
