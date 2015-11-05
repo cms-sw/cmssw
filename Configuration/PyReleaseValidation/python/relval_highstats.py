@@ -72,4 +72,6 @@ workflows[134]=['MinimumBiasBS',['RunMinBias2011B','RECOD','ALCAPROMPT','ALCAHAR
 
 
 ### HighStats HLT Physics 2015D ###
-workflows[134.99901] = ['',['RunHLTPhy2015DHS','HLTDR225ns','RECODR225nsreHLT','HARVESTDR225nsreHLT']]
+workflows[134.99901] = ['',['RunHLTPhy2015DHS','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
+
+
