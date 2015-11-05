@@ -48,6 +48,11 @@ class CentralityDQM : public DQMEDAnalyzer {
 
   edm::InputTag  eventplaneTag_;
   edm::EDGetTokenT<reco::EvtPlaneCollection> eventplaneToken;
+  
+  edm::InputTag centralityBinTag_;
+  edm::EDGetTokenT<int> centralityBinToken;
+  edm::Handle<int>centralityBin_;
+
 
   ///////////////////////////
   // Histograms
@@ -80,6 +85,8 @@ class CentralityDQM : public DQMEDAnalyzer {
   MonitorElement* h_vertex_x;
   MonitorElement* h_vertex_y;
   MonitorElement* h_vertex_z;
+
+  MonitorElement* h_cent_bin;
 
   MonitorElement* h_ep_HFm1;
   MonitorElement* h_ep_HFp1;
