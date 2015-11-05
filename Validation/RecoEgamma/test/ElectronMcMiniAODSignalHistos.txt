@@ -29,7 +29,7 @@ ElectronMcMiniAODSignalValidator/h_ele_HoE_mAOD                         1 1 0 0
 ElectronMcMiniAODSignalValidator/h_ele_HoE_mAOD_barrel                  1 1 0 0
 ElectronMcMiniAODSignalValidator/h_ele_HoE_mAOD_endcaps                 1 1 1 0
 ElectronMcMiniAODSignalValidator/h_ele_sigmaIetaIetaVsPt_pfx            1 1 1 0
-ElectronMcMiniAODSignalValidator/h_scl_sigietaieta_mAOD                 1 1 0 0
+ElectronMcMiniAODSignalValidator/h_scl_SigIEtaIEta_mAOD                 1 1 0 0
 ElectronMcMiniAODSignalValidator/h_scl_SigIEtaIEta_mAOD_barrel          1 1 0 0
 ElectronMcMiniAODSignalValidator/h_scl_SigIEtaIEta_mAOD_endcaps         1 1 1 1
 
@@ -43,6 +43,11 @@ Brem fraction and related distributions
 ElectronMcMiniAODSignalValidator/h_ele_fbrem_mAOD                       1 1 0 0
 ElectronMcMiniAODSignalValidator/h_ele_fbrem_mAOD_barrel                1 1 0 0
 ElectronMcMiniAODSignalValidator/h_ele_fbrem_mAOD_endcaps               1 1 1 1
+
+Distributions for all reconstructed electrons (i.e. not requiring a match with mc truth)
+
+ElectronMcMiniAODSignalValidator/h_ele_mee_all             1 1 1 0
+ElectronMcMiniAODSignalValidator/h_ele_mee_os              1 1 1 1
 
 pflow variables
 
