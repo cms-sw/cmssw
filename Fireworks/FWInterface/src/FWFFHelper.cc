@@ -63,10 +63,6 @@ FWFFHelper::FWFFHelper(const edm::ParameterSet &ps, const edm::ActivityRegistry 
       std::cerr <<"Insufficient GL support. " << iException.what() << std::endl;
       throw;
    }
-
-   printf("Yow, gStyle ...\n");
-   printf("  %p\n", gStyle);
-   printf("... still standing? Well ...\n");
    
    TEveManager::Create(kFALSE, "FI");
 }
