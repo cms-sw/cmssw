@@ -65,6 +65,7 @@ class ElectronMcMiniAODSignalValidator : public ElectronDqmAnalyzerBase {
       int phi_nbin ; int phi2D_nbin ; double phi_min ; double phi_max ;
       int dphi_nbin ; double dphi_min ; double dphi_max ;
       int dphimatch_nbin ; int    dphimatch2D_nbin ; double dphimatch_min ; double dphimatch_max ;
+      int mee_nbin ; double mee_min ; double mee_max ;
       int hoe_nbin ; double hoe_min ; double hoe_max ;
       int poptrue_nbin ; double poptrue_min ; double poptrue_max ;
       bool set_EfficiencyFlag ; bool set_StatOverflowFlag ;
@@ -90,6 +91,8 @@ class ElectronMcMiniAODSignalValidator : public ElectronDqmAnalyzerBase {
     MonitorElement *h1_ele_HoE_mAOD;
     MonitorElement *h1_ele_HoE_mAOD_barrel;
     MonitorElement *h1_ele_HoE_mAOD_endcaps;
+    MonitorElement *h1_ele_mee_all;
+    MonitorElement *h1_ele_mee_os;
 
     MonitorElement *h1_ele_dEtaSc_propVtx_mAOD;
     MonitorElement *h1_ele_dEtaSc_propVtx_mAOD_barrel;
