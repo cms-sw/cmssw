@@ -283,10 +283,6 @@
       ]]>
  </ioread>
 
-  <class name="reco::TrackResiduals" ClassVersion="10">
-   <version ClassVersion="10" checksum="2022291691"/>
-  </class>
-
   <class name="reco::TrackExtraBase" ClassVersion="11">
    <version ClassVersion="10" checksum="3548207838"/>
    <version ClassVersion="11" checksum="3450798337"/>

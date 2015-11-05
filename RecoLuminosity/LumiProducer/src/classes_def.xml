@@ -30,8 +30,6 @@
   <class name="HCAL_HLX::LHC_BEAM_CONFIG"/>
   <class name="HCAL_HLX::LHC_FILL_DATA"/>
   <class name="HCAL_HLX::DIP_STRUCT_BASE"/>
-  <class name="HCAL_HLX::LHC_BEAM_MODE_DATA"/>
-  <class name="HCAL_HLX::LHC_BEAM_ENERGY_DATA"/>
   <class name="HCAL_HLX::LHC_BEAM_INTENSITY_DATA"/>
   <class name="HCAL_HLX::LHC_BEAM_FBCT_INTENSITY_DATA"/>
   <class name="HCAL_HLX::BEAM_INFO"/>
