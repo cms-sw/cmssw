@@ -24,9 +24,9 @@ using namespace jsoncollector;
 
 constexpr double throughputFactor() {return (1000000)/double(1024*1024);}
 
-#define NRESERVEDMODULES 33
-#define NSPECIALMODULES 7
-#define NRESERVEDPATHS 1
+static const int nReservedModules = 64;
+static const int nSpecialModules = 7;
+static const int nReservedPaths = 1;
 
 namespace evf{
 
@@ -40,7 +40,7 @@ namespace evf{
   FastMonitoringService::FastMonitoringService(const edm::ParameterSet& iPS, 
 				       edm::ActivityRegistry& reg) : 
     MicroStateService(iPS,reg)
-    ,encModule_(NRESERVEDMODULES)
+    ,encModule_(nReservedModules)
     ,nStreams_(0)//until initialized
     ,sleepTime_(iPS.getUntrackedParameter<int>("sleepTime", 1))
     ,fastMonIntervals_(iPS.getUntrackedParameter<unsigned int>("fastMonIntervals", 2))
@@ -113,8 +113,8 @@ namespace evf{
   std::string FastMonitoringService::makePathLegendaJson() {
     Json::Value legendaVector(Json::arrayValue);
     for(int i = 0; i < encPath_[0].current_; i++)
-      legendaVector.append(Json::Value(*((std::string *)(encPath_[0].decode(i)))));
-    Json::Value valReserved(NRESERVEDPATHS);
+      legendaVector.append(Json::Value(*(static_cast<const std::string *>(encPath_[0].decode(i)))));
+    Json::Value valReserved(nReservedPaths);
     Json::Value pathLegend;
     pathLegend["names"]=legendaVector;
     pathLegend["reserved"]=valReserved;
@@ -125,9 +125,9 @@ namespace evf{
   std::string FastMonitoringService::makeModuleLegendaJson(){
     Json::Value legendaVector(Json::arrayValue);
     for(int i = 0; i < encModule_.current_; i++)
-       legendaVector.append(Json::Value(((const edm::ModuleDescription *)(encModule_.decode(i)))->moduleLabel()));
-    Json::Value valReserved(NRESERVEDMODULES);
-    Json::Value valSpecial(NSPECIALMODULES);
+       legendaVector.append(Json::Value((static_cast<const edm::ModuleDescription *>(encModule_.decode(i)))->moduleLabel()));
+    Json::Value valReserved(nReservedModules);
+    Json::Value valSpecial(nSpecialModules);
     Json::Value valOutputModules(nOutputModules_);
     Json::Value moduleLegend;
     moduleLegend["names"]=legendaVector;
@@ -204,7 +204,7 @@ namespace evf{
     macrostate_=FastMonitoringThread::sInit;
 
     for(unsigned int i = 0; i < (mCOUNT); i++)
-      encModule_.updateReserved((void*)(reservedMicroStateNames+i));
+      encModule_.updateReserved(static_cast<const void*>(reservedMicroStateNames+i));
     encModule_.completeReservedWithDummies();
 
     for (unsigned int i=0;i<nStreams_;i++) {
@@ -216,7 +216,7 @@ namespace evf{
 
        //path (mini) state
        encPath_.emplace_back(0);
-       encPath_[i].update((void*)&nopath_);
+       encPath_[i].update(static_cast<const void*>(&nopath_));
        eventCountForPathInit_.push_back(0);
        firstEventId_.push_back(0);
        collectedPathList_.push_back(new std::atomic<bool>(0));
@@ -264,7 +264,6 @@ namespace evf{
                                           << " LS:" << sc.eventID().luminosityBlock() << " " << context;
     std::lock_guard<std::mutex> lock(fmt_.monlock_);
     exceptionInLS_.push_back(sc.eventID().luminosityBlock());
-    //exception_detected_=true; 
   }
 
   void FastMonitoringService::preGlobalEarlyTermination(edm::GlobalContext const& gc, edm::TerminationOrigin to)
@@ -277,7 +276,6 @@ namespace evf{
                                           << gc.luminosityBlockID().luminosityBlock() << " " << context;
     std::lock_guard<std::mutex> lock(fmt_.monlock_);
     exceptionInLS_.push_back(gc.luminosityBlockID().luminosityBlock());
-    //exception_detected_=true; 
   }
 
   void FastMonitoringService::preSourceEarlyTermination(edm::TerminationOrigin to)
