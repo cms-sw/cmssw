@@ -87,6 +87,10 @@ ElectronMcMiniAODSignalValidator::ElectronMcMiniAODSignalValidator(const edm::Pa
    hoe_min=histosSet.getParameter<double>("Hoemin");
    hoe_max=histosSet.getParameter<double>("Hoemax");
 
+   mee_nbin= histosSet.getParameter<int>("Nbinmee");
+   mee_min=histosSet.getParameter<double>("Meemin");
+   mee_max=histosSet.getParameter<double>("Meemax");
+
    poptrue_nbin= histosSet.getParameter<int>("Nbinpoptrue");
    poptrue_min=histosSet.getParameter<double>("Poptruemin");
    poptrue_max=histosSet.getParameter<double>("Poptruemax");
@@ -115,6 +119,8 @@ ElectronMcMiniAODSignalValidator::ElectronMcMiniAODSignalValidator(const edm::Pa
    h1_ele_HoE_mAOD = 0 ;
    h1_ele_HoE_mAOD_barrel = 0 ;
    h1_ele_HoE_mAOD_endcaps = 0 ;
+   h1_ele_mee_all = 0 ;
+   h1_ele_mee_os = 0 ;
 
    h1_ele_fbrem_mAOD = 0 ;
    h1_ele_fbrem_mAOD_barrel = 0 ;
@@ -165,6 +171,11 @@ void ElectronMcMiniAODSignalValidator::bookHistograms( DQMStore::IBooker & iBook
 //  h2_ele_sigmaIetaIetaVsPt = bookH2(iBooker,"sigmaIetaIetaVsPt","SigmaIetaIeta vs pt",pt_nbin,0.,pt_max,100,0.,0.05);
   h2_ele_sigmaIetaIetaVsPt = bookH2(iBooker,"sigmaIetaIetaVsPt","SigmaIetaIeta vs pt",100,0.,pt_max,100,0.,0.05);
 
+  // all electrons
+  setBookPrefix("h_ele") ;
+  h1_ele_mee_all = bookH1withSumw2(iBooker, "mee_all","ele pairs invariant mass, all reco electrons",mee_nbin, mee_min, mee_max,"m_{ee} (GeV/c^{2})","Events","ELE_LOGY E1 P");
+  h1_ele_mee_os = bookH1withSumw2(iBooker, "mee_os","ele pairs invariant mass, opp. sign",mee_nbin, mee_min, mee_max,"m_{e^{+}e^{-}} (GeV/c^{2})","Events","ELE_LOGY E1 P");
+
   // matched electron, superclusters
   setBookPrefix("h_scl") ;
   h1_scl_SigIEtaIEta_mAOD = bookH1withSumw2(iBooker, "SigIEtaIEta_mAOD","ele supercluster sigma ieta ieta",100,0.,0.05,"#sigma_{i#eta i#eta}","Events","ELE_LOGY E1 P");
@@ -212,21 +223,12 @@ void ElectronMcMiniAODSignalValidator::analyze(const edm::Event& iEvent, const e
     edm::Handle<reco::VertexCollection> vertices;
     iEvent.getByToken(vtxToken_, vertices);
     if (vertices->empty()) return; // skip the event if no PV found
-/*    const reco::Vertex &PV = vertices->front();*/
 
     edm::Handle<pat::ElectronCollection> electrons;
     iEvent.getByToken(electronToken_, electrons);
     
     edm::Handle<edm::View<reco::GenParticle> > genParticles ;
     iEvent.getByToken(mcTruthCollection_, genParticles) ;  
-
-    for (const pat::Electron &el : *electrons) {
-        if (el.pt() < 5.) continue;
-//        printf("elec with pt %4.1f, supercluster eta %+5.3f, sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), lost hits %d, pass conv veto %d\n",
-//                    el.pt(), el.superCluster()->eta(), el.sigmaIetaIeta(), el.full5x5_sigmaIetaIeta(), el.gsfTrack()->trackerExpectedHitsInner().numberOfLostHits(), el.passConversionVeto());
-/*        printf("elec with pt %4.1f, supercluster eta %+5.3f, sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), pass conv veto %d\n",
-                    el.pt(), el.superCluster()->eta(), el.sigmaIetaIeta(), el.full5x5_sigmaIetaIeta(), el.passConversionVeto());*/
-    }
 
     edm::LogInfo("ElectronMcMiniAODSignalValidator::analyze")
       <<"Treating event "<<iEvent.id()
@@ -237,6 +239,26 @@ void ElectronMcMiniAODSignalValidator::analyze(const edm::Event& iEvent, const e
     // all rec electrons
     //===============================================
 
+    pat::Electron gsfElectron ;
+
+    for(std::vector<pat::Electron>::const_iterator el1=electrons->begin(); el1!=electrons->end(); el1++) {
+        // preselect electrons
+        if (el1->pt()>maxPt_ || std::abs(el1->eta())>maxAbsEta_) continue ;
+        
+        // mee
+//        std::cout << "boucle 2 : " <<  el1->pt() << std::endl ;
+        for (std::vector<pat::Electron>::const_iterator el2=el1+1 ; el2!=electrons->end() ; el2++ )
+        {
+//            std::cout << "-- boucle 2 : " <<  el2->pt() << std::endl ;
+            math::XYZTLorentzVector p12 = el1->p4()+el2->p4();
+            float mee2 = p12.Dot(p12);
+            h1_ele_mee_all->Fill(sqrt(mee2));
+            if ( el1->charge() * el2->charge() < 0. )
+            {
+                h1_ele_mee_os->Fill(sqrt(mee2));
+            }
+        }
+    }
 
     //===============================================
     // charge mis-ID
@@ -258,18 +280,6 @@ void ElectronMcMiniAODSignalValidator::analyze(const edm::Event& iEvent, const e
         if ( (*genParticles)[i].pdgId() == 22 )
             { gamNum++ ; }
 
-        // select requested matching gen particle
-/*    matchingID = false ;
-    for ( unsigned int i=0 ; i<matchingIDs_.size() ; i++ )
-     {
-      if ( (*genParticles)[i].pdgId() == matchingIDs_[i] )
-       { 
-         matchingID=true ; 
-         std::cout << "matchingID = TRUE" << " " << matchingIDs_[i] << std::endl; 
-       }
-     }
-    if (!matchingID) continue ;
-*/
         // select requested mother matching gen particle
         // always include single particle with no mother
         const Candidate * mother = (*genParticles)[i].mother(0) ;
@@ -293,11 +303,9 @@ void ElectronMcMiniAODSignalValidator::analyze(const edm::Event& iEvent, const e
         double gsfOkRatio = 999999. ;
         pat::Electron bestGsfElectron ;
         for (const pat::Electron &el : *electrons ) {
-//            passMiniAODSelection = el.pt() >= 5.;
             double dphi = el.phi()-(*genParticles)[i].phi() ;
             if (std::abs(dphi)>CLHEP::pi)
                 { dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi ; }
-//            double deltaR = sqrt(pow((el.eta()-(*genParticles)[i].eta()),2) + pow(dphi,2));
             double deltaR2 = (el.eta()-(*genParticles)[i].eta()) * (el.eta()-(*genParticles)[i].eta()) + dphi * dphi;
             if ( deltaR2 < deltaR2_ )
             {
