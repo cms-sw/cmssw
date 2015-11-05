@@ -1,0 +1,3 @@
+cmsRun SingleMuPt100_cfi_GEM-SIM_Extended2015MuonGEMDev_RPCGEMME0Customs_cfg.py
+cmsRun SingleMuPt100_cfi_DIGI_Extended2015MuonGEMDev_RPCGEMME0Customs_cfg.py
+cmsRun runTestUpgradeGEMME0Reco_cfg.py

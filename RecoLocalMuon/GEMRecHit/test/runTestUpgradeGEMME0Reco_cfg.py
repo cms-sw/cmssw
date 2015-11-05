@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MyMuonRECO")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
 
 # Process options :: 
 # - wantSummary helps to understand which module crashes
@@ -273,35 +273,36 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 
 
-# process.MessageLogger = cms.Service("MessageLogger",
-#                     destinations       =  cms.untracked.vstring('debugmessages'),
-#                     #categories         = cms.untracked.vstring("TrackFitters"),
-#                     #categories         = cms.untracked.vstring('MuonDetLayerGeometryESProducer'),
-#                     #categories         = cms.untracked.vstring('MuonDetLayerMeasurements'),
-#                     #categories         = cms.untracked.vstring('RecoMuon','TrackFitters','ME0','ME0GeometryBuilderFromDDD','CSCGeometryBuilder'),
-#                     categories         = cms.untracked.vstring('RecoMuon','TrackFitters','ME0','CSCSegment','TrackProducer','MuonME0DetLayerGeometryBuilder'),
-#                                     debugModules  = cms.untracked.vstring('*'),
+
+process.MessageLogger = cms.Service("MessageLogger",
+                    destinations       =  cms.untracked.vstring('debugmessages'),
+                    #categories         = cms.untracked.vstring("TrackFitters"),
+                    #categories         = cms.untracked.vstring('MuonDetLayerGeometryESProducer'),
+                    #categories         = cms.untracked.vstring('MuonDetLayerMeasurements'),
+                    #categories         = cms.untracked.vstring('RecoMuon','TrackFitters','ME0','ME0GeometryBuilderFromDDD','CSCGeometryBuilder'),
+                    categories         = cms.untracked.vstring('RecoMuon','TrackFitters','ME0','CSCSegment','TrackProducer','MuonME0DetLayerGeometryBuilder'),
+                                    debugModules  = cms.untracked.vstring('*'),
                                     
-#                                     debugmessages          = cms.untracked.PSet(
-#                                                threshold =  cms.untracked.string('DEBUG'),
-#                                                INFO       =  cms.untracked.PSet(limit = cms.untracked.int32(0)),
-#                                                DEBUG   = cms.untracked.PSet(limit = cms.untracked.int32(0)),
-#                                                WARNING   = cms.untracked.PSet(limit = cms.untracked.int32(0)),
-#                                                ERROR  = cms.untracked.PSet(limit = cms.untracked.int32(0)),
-#                                                #WARNING = cms.untracked.PSet(limit = cms.untracked.int32(0)),
-#                                                #TrackFitters = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
-#                                                MuonME0DetLayerGeometryBuilder = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
-#                                                #MuonDetLayerGeometryESProducer = cms.untracked.PSet(limit = cms.untracked.int32(10000000))
-#                                                #MuonDetLayerMeasurements = cms.untracked.PSet(limit = cms.untracked.int32(10000000))
-#                                                TrackFitters = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
-#                                                RecoMuon = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
-#                                                ME0 = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
-#                                                CSCSegment = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
-#                                                TrackProducer = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
-#                                                #ME0GeometryBuilderFromDDD = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
-#                                                #CSCGeometryBuilder = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
-#                                                    )
-# )
+                                    debugmessages          = cms.untracked.PSet(
+                                               threshold =  cms.untracked.string('DEBUG'),
+                                               INFO       =  cms.untracked.PSet(limit = cms.untracked.int32(0)),
+                                               DEBUG   = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+                                               WARNING   = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+                                               ERROR  = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+                                               #WARNING = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+                                               #TrackFitters = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+                                               MuonME0DetLayerGeometryBuilder = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+                                               #MuonDetLayerGeometryESProducer = cms.untracked.PSet(limit = cms.untracked.int32(10000000))
+                                               #MuonDetLayerMeasurements = cms.untracked.PSet(limit = cms.untracked.int32(10000000))
+                                               TrackFitters = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+                                               RecoMuon = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+                                               ME0 = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+                                               CSCSegment = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+                                               TrackProducer = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+                                               #ME0GeometryBuilderFromDDD = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+                                               #CSCGeometryBuilder = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+                                                   )
+)
 
 
 

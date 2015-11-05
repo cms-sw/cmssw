@@ -67,7 +67,6 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('')
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(1048576),
-    #fileName = cms.untracked.string('/tmp/dnash/out_digi_experiment.root'),
     fileName = cms.untracked.string('/tmp/dnash/out_digi.root'),
     outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
