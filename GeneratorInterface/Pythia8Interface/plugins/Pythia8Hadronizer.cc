@@ -30,7 +30,7 @@ using namespace Pythia8;
 
 // EvtGen plugin
 //
-#include "Pythia8Plugins/EvtGen.h"
+//#include "Pythia8Plugins/EvtGen.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -370,10 +370,10 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   status1 = fDecayer->init();
 
   if (useEvtGen) {
-    edm::LogInfo("Pythia8Interface") << "Creating and initializing pythia8 EvtGen plugin";
+    //edm::LogInfo("Pythia8Interface") << "Creating and initializing pythia8 EvtGen plugin";
 
-    evtgenDecays = new EvtGenDecays(fMasterGen.get(), evtgenDecFile.c_str(), evtgenPdlFile.c_str());
-    evtgenDecays->readDecayFile("evtgen_userfile.dec");
+    //evtgenDecays = new EvtGenDecays(fMasterGen.get(), evtgenDecFile.c_str(), evtgenPdlFile.c_str());
+    //evtgenDecays->readDecayFile("evtgen_userfile.dec");
   }
 
   return (status&&status1);
@@ -470,11 +470,11 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   status1 = fDecayer->init();
 
   if (useEvtGen) {
-    edm::LogInfo("Pythia8Interface") << "Creating and initializing pythia8 EvtGen plugin";
+    //edm::LogInfo("Pythia8Interface") << "Creating and initializing pythia8 EvtGen plugin";
 
-    std::string evtgenpath(getenv("EVTGENDATA"));
-    evtgenDecays = new EvtGenDecays(fMasterGen.get(), evtgenDecFile.c_str(), evtgenPdlFile.c_str());
-    evtgenDecays->readDecayFile("evtgen_userfile.dec");
+    //std::string evtgenpath(getenv("EVTGENDATA"));
+    //evtgenDecays = new EvtGenDecays(fMasterGen.get(), evtgenDecFile.c_str(), evtgenPdlFile.c_str());
+    //evtgenDecays->readDecayFile("evtgen_userfile.dec");
   }
 
   return (status&&status1);
@@ -505,7 +505,7 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
 
   if (!fMasterGen->next()) return false;
 
-  if (evtgenDecays) evtgenDecays->decay();
+  //if (evtgenDecays) evtgenDecays->decay();
 
   event().reset(new HepMC::GenEvent);
   return toHepMC.fill_next_event( *(fMasterGen.get()), event().get());
@@ -558,7 +558,7 @@ bool Pythia8Hadronizer::hadronize()
   //
   lheEvent()->count( lhef::LHERunInfo::kAccepted, 1.0, mergeweight );
 
-  if (evtgenDecays) evtgenDecays->decay();
+  //if (evtgenDecays) evtgenDecays->decay();
 
   event().reset(new HepMC::GenEvent);
   bool py8hepmc =  toHepMC.fill_next_event( *(fMasterGen.get()), event().get());

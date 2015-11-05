@@ -7,7 +7,7 @@
 
 // EvtGen plugin
 //
-#include "Pythia8Plugins/EvtGen.h"
+//#include "Pythia8Plugins/EvtGen.h"
 
 namespace gen {
 
@@ -101,7 +101,7 @@ bool Py8EGun::generatePartonsAndHadronize()
    
    if ( !fMasterGen->next() ) return false;
    
-   if (evtgenDecays) evtgenDecays->decay();
+   //if (evtgenDecays) evtgenDecays->decay();
 
    event().reset(new HepMC::GenEvent);
    return toHepMC.fill_next_event( fMasterGen->event, event().get() );

@@ -14,7 +14,8 @@ using namespace Pythia8;
 namespace gen {
 
 Py8InterfaceBase::Py8InterfaceBase( edm::ParameterSet const& ps ) :
-useEvtGen(false), evtgenDecays(0)
+useEvtGen(false)
+//, evtgenDecays(0)
 {
 
   randomEngine = &getEngineReference();
@@ -40,6 +41,9 @@ useEvtGen(false), evtgenDecays(0)
     ascii_io = new HepMC::IO_AsciiParticles("cout", std::ios::out);
 
   if ( ps.exists("useEvtGenPlugin") ) {
+
+    throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
+      <<" useEvtGenPlugin is not implemented in 53X\n";
 
     useEvtGen = true;
 
