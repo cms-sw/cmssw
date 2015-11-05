@@ -56,7 +56,85 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # pp 75X MC
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '74X_mcRun2_asymptotic_v3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_HIon', '')
+
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+from CondCore.DBCommon.CondDBSetup_cfi import *
+process.jec = cms.ESSource("PoolDBESSource",
+      DBParameters = cms.PSet(
+        messageLevel = cms.untracked.int32(0)
+        ),
+      timetype = cms.string('runnumber'),
+      toGet = cms.VPSet(
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK1Calo_offline'),
+            label  = cms.untracked.string('AK1Calo_offline')
+            ),
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK2Calo_offline'),
+            label  = cms.untracked.string('AK2Calo_offline')
+            ),
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK3Calo_offline'),
+            label  = cms.untracked.string('AK3Calo_offline')
+            ),
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK4Calo_offline'),
+            label  = cms.untracked.string('AK4Calo_offline')
+            ),
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK5Calo_offline'),
+            label  = cms.untracked.string('AK5Calo_offline')
+            ),
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK6Calo_offline'),
+            label  = cms.untracked.string('AK6Calo_offline')
+            ),
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK1PF_offline'),
+            label  = cms.untracked.string('AK1PF_offline')
+            ),
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK2PF_offline'),
+            label  = cms.untracked.string('AK2PF_offline')
+            ),
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK3PF_offline'),
+            label  = cms.untracked.string('AK3PF_offline')
+            ),
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK4PF_offline'),
+            label  = cms.untracked.string('AK4PF_offline')
+            ),
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK5PF_offline'),
+            label  = cms.untracked.string('AK5PF_offline')
+            ),
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK6PF_offline'),
+            label  = cms.untracked.string('AK6PF_offline')
+            ),
+      ## here you add as many jet types as you need
+      ## note that the tag name is specific for the particular sqlite file 
+      ), 
+      connect = cms.string('sqlite:HI_PythiaCUETP8M1_5020GeV_753p1_v3.db')
+     # uncomment above tag lines and this comment to use MC JEC
+     # connect = cms.string('sqlite:Summer12_V7_MC.db')
+)
+## add an es_prefer statement to resolve a possible conflict from simultaneous connection to a global tag
+process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
 
 
 # process.GlobalTag.toGet = cms.VPSet(
@@ -66,9 +144,9 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '74X_mcRun2_asymptotic_v3', '')
               # ),
 # )
 
-from HeavyIonsAnalysis.Configuration.CommonFunctionsLocalDB2015_cff import *
+# from HeavyIonsAnalysis.Configuration.CommonFunctionsLocalDB2015_cff import *
 # overrideGT_pp2760(process)
-overrideJEC_pp5020(process)
+# overrideJEC_pp5020(process)
 
 process.HeavyIonGlobalParameters = cms.PSet(
     centralityVariable = cms.string("HFtowersTrunc"),
@@ -158,7 +236,8 @@ process.voronoiBackgroundPF.src = cms.InputTag("particleFlow")
 process.PFTowers.src = cms.InputTag("particleFlow")
 
 
-process.jetSequences = cms.Sequence(process.akPu1PFJetSequence +
+process.jetSequences = cms.Sequence(
+                                    process.akPu1PFJetSequence +
                                     process.akPu1CaloJetSequence +
 									
                                     process.akPu2PFJetSequence +
@@ -299,7 +378,11 @@ process.akHiGenJets = cms.Sequence(
 						
 process.load('HeavyIonsAnalysis.EventAnalysis.hltanalysis_cff')
 
+process.HiGenParticleAna.genParticleSrc = cms.untracked.InputTag("genParticles")
+process.HiGenParticleAna.doHI = False
+
 process.ana_step = cms.Path(process.hltanalysis *
+                            process.HiGenParticleAna*
                             process.PFTowers +
                             process.hiReRecoPFJets+
                             process.hiReRecoCaloJets+
@@ -307,7 +390,7 @@ process.ana_step = cms.Path(process.hltanalysis *
                             process.jetSequences +
                             process.ggHiNtuplizer +
                             process.ggHiNtuplizerGED +
-                            process.pfcandAnalyzer +
+                            # process.pfcandAnalyzer +
    						              process.quickTrackAssociatorByHits +
 							              process.tpRecoAssocGeneralTracks +
                             process.HiForest +
