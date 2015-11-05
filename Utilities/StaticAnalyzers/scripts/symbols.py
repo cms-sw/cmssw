@@ -50,16 +50,12 @@ for p in paths:
 	            get_symbols(fpth)
                     get_libraries(fpth)
 
-def pick(symbols,libraries):
-    # If several files provide a symbol, choose the one with the shortest name.
-    best = None
-    for s in symbols:
-        if best is None or s in libraries :
-            best = s
-    return best
-
 for fname, symbols in requires.items():
-    dependencies[fname] = set(pick(provides[s],libraries[fname]) for s in symbols if s in provides)
+    dependencies[fname] = set()
+    for s in symbols:
+	for p in provides[s]:
+		for f in libraries[fname]:
+			if f==p : dependencies[fname].add(f)
     print fname + ' : primary dependencies : ' + ',  '.join(sorted(dependencies[fname]))+'\n'
     unmet = set()
     demangled = set()
@@ -84,4 +80,15 @@ for node in nx.nodes_iter(G):
 			if key != node : deps.add(key)
 			for v in vals :
 				deps.add(v)
-	print node + ': primary and secondary dependencies' + ', '.join(sorted(deps))
+	print node + ': primary and secondary dependencies :' + ', '.join(sorted(deps))
+
+import pydot
+
+H=nx.DiGraph()
+for key,values in dependencies.items():
+	H.add_node(os.path.basename(key))
+	for val in values: H.add_edge(os.path.basename(key),os.path.basename(val))
+for node in nx.nodes_iter(H):
+	T = nx.dfs_tree(H,node)
+	name = node + ".dot"
+	nx.write_dot(T,name)
