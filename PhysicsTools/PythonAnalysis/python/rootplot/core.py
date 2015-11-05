@@ -548,7 +548,7 @@ def cli_rootplot():
     else:
         try:
             rootplot(*options.arguments(), **optdiff)
-        except Exception, e:
+        except Exception as e:
             print "Error:", e
             print "For usage details, call '%s --help'" % prog
             sys.exit(1)

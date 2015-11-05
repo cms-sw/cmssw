@@ -54,7 +54,7 @@ def bitzeroForRun(dbsession,c,runnum):
         dbsession.transaction().commit()
         #print result
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -98,7 +98,7 @@ def deadcountForRun(dbsession,c,runnum):
         del query
         dbsession.transaction().commit()
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession

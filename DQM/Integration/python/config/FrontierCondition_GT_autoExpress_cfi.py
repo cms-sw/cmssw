@@ -53,7 +53,7 @@ class Tier0DasInterface:
             req.add_header("Accept","application/json")
             jsonCall = urllib2.urlopen(req, timeout = tout)
             url = jsonCall.geturl()
-        except urllib2.HTTPError,  error:
+        except urllib2.HTTPError as  error:
             #print error.url
             errStr = "Cannot retrieve Tier-0 DAS data from URL \"" + error.url + "\""
             if self._proxy:
@@ -61,7 +61,7 @@ class Tier0DasInterface:
             print errStr
             print error
             raise urllib2.HTTPError("FIXME: handle exceptions")
-        except urllib2.URLError,  error:
+        except urllib2.URLError as  error:
             if self._retry < self._maxretry:
                 print 'Try # ' + str(self._retry) + " connection to Tier-0 DAS timed-out"
                 self._retry += 1

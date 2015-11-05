@@ -116,7 +116,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
         elif isinstance(conditions, dict):
           custom_conditions.update( conditions )
         else:
-          raise TypeError, "the 'conditions' argument should be either a string or a dictionary"
+          raise TypeError("the 'conditions' argument should be either a string or a dictionary")
 
     # explicit payloads toGet from DB
     if custom_conditions:

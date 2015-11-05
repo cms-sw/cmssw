@@ -229,7 +229,7 @@ OBEFMIX,DIGI:pdigi_valid,L1,L1Reco,RECO,EI,HLT:@relval25ns,VALIDATION --datatier
             ret = os.system(cmd)
             if ret != 0:
                 print "ERROR uploading logs:", ret, cmd
-        except Exception, e:
+        except Exception as e:
             print "EXCEPTION while uploading addOnTest-logs : ", str(e)
             
     	return
@@ -241,7 +241,7 @@ def main(argv) :
     
     try:
         opts, args = getopt.getopt(argv, "dj:t:", ["nproc=", 'uploadDir=', 'tests=','noRun','dump'])
-    except getopt.GetoptError, e:
+    except getopt.GetoptError as e:
         print "unknown option", str(e)
         sys.exit(2)
         

@@ -9,7 +9,7 @@ def loadListFromFile (filename):
     filename = os.path.expanduser (filename)
     if not os.path.exists (filename):
         print "Error: '%s' file does not exist."
-        raise RuntimeError, "Bad filename"
+        raise RuntimeError("Bad filename")
     source = open (filename, 'r')        
     for line in source.readlines():
         line = re.sub (r'#.+$', '', line) # remove comment characters

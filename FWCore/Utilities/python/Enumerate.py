@@ -17,8 +17,7 @@ class Enumerate (object):
         for count, name in enumerate (names.split()) :
             # make sure we don't already have this key
             if self.isValidKey (name):
-                raise RuntimeError, \
-                      "You can not duplicate Enum Names '%s'" % name
+                raise RuntimeError("You can not duplicate Enum Names '%s'" % name)
             # set the value using the base class
             key = "%s_%s" % (prefix, name)
             if asInt:
@@ -55,7 +54,7 @@ class Enumerate (object):
         the enum values are changed"""
         if not name.startswith ("_"):
             # Once it's set, you can't change the values
-            raise RuntimeError, "You can not modify Enum values."
+            raise RuntimeError("You can not modify Enum values.")
         else:
             object.__setattr__ (self, name, value)
 
