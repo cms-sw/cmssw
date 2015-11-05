@@ -21,7 +21,7 @@ from Vispa.Views.WidgetView import WidgetView
 try:
     from pxl.algorithms import *
     import_autolayout_error=None
-except Exception,e:
+except Exception as e:
     import_autolayout_error=(str(e),exception_traceback())
 
 class LineDecayView(WidgetView):

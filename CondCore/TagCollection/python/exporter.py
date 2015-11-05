@@ -30,7 +30,7 @@ class exporter:
    self.m_sourceSession.transaction().start()
    self.m_destSession.transaction().start()
 
-  except Exception, e:
+  except Exception as e:
    raise Exception("Error in Initializer: " + str(e)) 
 
 #Copies the schema objects from source to destination, without copying data. 
@@ -52,7 +52,7 @@ class exporter:
 
    return True
 
-  except Exception, e:
+  except Exception as e:
    self.m_destSession.transaction().rollback()
    self.m_sourceSession.transaction().commit()
    raise Exception ("Error in copyschema method: " + str(e))
@@ -83,7 +83,7 @@ class exporter:
    print "copydata SUCCESS"
    return True
 
-  except Exception, e:
+  except Exception as e:
    self.m_destSession.transaction().rollback()
    self.m_sourceSession.transaction().commit()
    raise Exception ("Error in copydata method: " + str(e))
@@ -108,7 +108,7 @@ class exporter:
    print "copytableschema SUCCESS"
    return True
 
-  except Exception, e:
+  except Exception as e:
    self.m_destSession.transaction().rollback()
    self.m_sourceSession.transaction().commit()
    raise Exception ("Error in copytableschema method: " + str(e)+" : "+iTable)
@@ -138,7 +138,7 @@ class exporter:
    print "copytabledata SUCCESS"
    return True
 
-  except Exception, e:
+  except Exception as e:
    self.m_destSession.transaction().rollback()
    self.m_sourceSession.transaction().commit()
    raise Exception  ("Error in copytabledata method: " + str(e)+" : " + iTable)
@@ -163,7 +163,7 @@ class exporter:
    print "copytablelistschema SUCCESS"
    return True
 
-  except Exception, e:
+  except Exception as e:
    self.m_destSession.transaction().rollback()
    self.m_sourceSession.transaction().commit()
    raise Exception ("Error in copytablelistschema method: " + str(e)+" : "+iTable)
@@ -214,7 +214,7 @@ class exporter:
    print "copytablelistdata SUCCESS"
    return True
 
-  except Exception, e:
+  except Exception as e:
    self.m_destSession.transaction().rollback()
    self.m_sourceSession.transaction().commit()
    raise Exception ("Error in copytablelistdata method: " + str(e) + " : "+ iTable)
@@ -229,7 +229,7 @@ class exporter:
 
     return True
 
-  except Exception, e:
+  except Exception as e:
    raise Exception (" " + str(e))
    return False
 
@@ -264,7 +264,7 @@ class exporter:
 
     return True
 
-  except Exception, e:
+  except Exception as e:
    raise Exception (" " + str(e))
    return False
 
@@ -280,7 +280,7 @@ class exporter:
 
    return True
 
-  except Exception, e:
+  except Exception as e:
    raise Exception (" " + str(e) + table)
    return False
 
@@ -305,7 +305,7 @@ class exporter:
 
    return foundtable
 
-  except Exception, e:
+  except Exception as e:
    raise Exception (" " + str(e) + iTable)
    return False
 

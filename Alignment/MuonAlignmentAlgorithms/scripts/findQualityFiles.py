@@ -258,7 +258,7 @@ def getGoodBRuns():
             if x[2][4] >= minI and x[2][3] <= maxI:
                 runs_b_on.append(int(x[0]))
 
-    except Exception, er :
+    except Exception as er :
         print er
 
     print "### runs with good B field ###"

@@ -46,7 +46,7 @@ class TagCollector(object):
 		  	return ws_sso_content_reader.getContent(url, '~/.globus/usercert.pem', '~/.globus/userkey.pem', data)
 		try:
 			return self._opener.open(url, data).read()
-		except urllib2.HTTPError, e:
+		except urllib2.HTTPError as e:
 			raise Exception(e.read().strip())
 
 	def _openjson(self, page, params = None, data = None):

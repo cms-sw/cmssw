@@ -62,7 +62,7 @@ def get_params(argv):
     xml_dir="PerfSuiteDBData"
     try:                              
         opts, args = getopt.getopt(argv[1:], "v:", ["version=", "outdir="])
-    except getopt.GetoptError, e:  
+    except getopt.GetoptError as e:  
         print e
     for opt, arg in opts:
         if opt in ("-v", "--version"):
@@ -256,7 +256,7 @@ def process_timesize_dir(path, runinfo):
 				edm_report  = map(assign_event_content_for_product, edm_report)
 				# for testing / imformation
 				_eventContent_DEBUG(edm_report)
-			except Exception, e:
+			except Exception as e:
 				print e
 
 		timeSizeReport = {
@@ -552,12 +552,12 @@ if __name__ == "__main__":
 	 try:
 		 import Validation.Performance.ModuleToSequenceAssign as ModuleToSequenceAssign
 		 Sequences_OK = True
-	 except Exception, e:
+	 except Exception as e:
 		print e
 	 try:
     	 	import Validation.Performance.parseEventContent as parseEventContent
 		EventContents_OK = True
-	 except Exception, e:
+	 except Exception as e:
 		print e	
 
     print "Parsing TimeSize report"

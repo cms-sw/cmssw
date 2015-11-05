@@ -338,7 +338,7 @@ class DotExport(FileExportPlugin):
     
     nodes = re_nodedef.findall(dotdata)
     if not node in nodes:
-      raise Exception, "Selected node (%s) not found" % (node)
+      raise Exception("Selected node (%s) not found" % (node))
     links_l = re_link.findall(dotdata)
     links = {}
     for link in links_l:

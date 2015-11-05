@@ -153,7 +153,7 @@ parser.add_option("--json",
                   dest="json")
 
 if len(sys.argv) < 5:
-    raise SystemError, "Too few arguments.\n\n"+parser.format_help()
+    raise SystemError("Too few arguments.\n\n"+parser.format_help())
 
 DIRNAME = sys.argv[1]
 PATTERN = re.split("\s+", sys.argv[2])

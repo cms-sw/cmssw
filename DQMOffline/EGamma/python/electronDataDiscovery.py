@@ -175,7 +175,7 @@ def common_search(dd_tier):
     try:
       response = urllib2.urlopen(req)
       data = response.read()
-    except urllib2.HTTPError, e:
+    except urllib2.HTTPError as e:
       if e.code==201:
         print e.headers       
         print e.msg

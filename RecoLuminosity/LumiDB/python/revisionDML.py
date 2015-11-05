@@ -304,7 +304,7 @@ def branchInfoByName(schema,branchName):
              branch_id=cursor.currentRow()['branch_id'].data()
          del qHandle
          return (revision_id,branch_id)
-    except Exception,e :
+    except Exception as e :
         raise RuntimeError(' revisionDML.branchInfoByName: '+str(e))
     
 
