@@ -10,6 +10,9 @@
 #include <sstream>
 #include <stdio.h>
 #include <time.h>
+#include <cstdlib>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -18,6 +21,8 @@ HcalLogicalMap::HcalLogicalMap(const HcalTopology* topo,std::vector<HBHEHFLogica
 			       std::vector<CALIBLogicalMapEntry>& CALIBEntries,
 			       std::vector<ZDCLogicalMapEntry>& ZDCEntries,
 			       std::vector<HTLogicalMapEntry>& HTEntries,
+                               std::vector<OfflineDB>& OfflineDatabase,
+                               std::vector<QIEMap>& QIEMaps,
 			       std::vector<uint32_t>& LinearIndex2Entry,
 			       std::vector<uint32_t>& HbHash2Entry,
 			       std::vector<uint32_t>& HeHash2Entry,
@@ -33,6 +38,8 @@ HcalLogicalMap::HcalLogicalMap(const HcalTopology* topo,std::vector<HBHEHFLogica
   CALIBEntries_.resize(CALIBEntries.size());
   ZDCEntries_.resize(ZDCEntries.size());
   HTEntries_.resize(HTEntries.size());
+  OfflineDatabase_.resize(OfflineDatabase.size());
+  QIEMaps_.resize(QIEMaps.size());
 
   LinearIndex2Entry_.resize(LinearIndex2Entry.size());
   HbHash2Entry_.resize(HbHash2Entry.size());
@@ -48,6 +55,9 @@ HcalLogicalMap::HcalLogicalMap(const HcalTopology* topo,std::vector<HBHEHFLogica
   copy(CALIBEntries.begin(),CALIBEntries.end(),CALIBEntries_.begin());
   copy(ZDCEntries.begin(),ZDCEntries.end(),ZDCEntries_.begin());
   copy(HTEntries.begin(),HTEntries.end(),HTEntries_.begin());
+  copy(OfflineDatabase.begin(),OfflineDatabase.end(),OfflineDatabase_.begin());
+  copy(QIEMaps.begin(),QIEMaps.end(),QIEMaps_.begin());
+
   copy(LinearIndex2Entry.begin(),LinearIndex2Entry.end(),LinearIndex2Entry_.begin());
   copy(HbHash2Entry.begin(),HbHash2Entry.end(),HbHash2Entry_.begin());
   copy(HeHash2Entry.begin(),HeHash2Entry.end(),HeHash2Entry_.begin());
@@ -71,7 +81,8 @@ uint32_t HcalLogicalMap::makeEntryNumber(bool isvalid, int vectorid, int entry)
   return answer;
 }
 
-void HcalLogicalMap::printMap( unsigned int mapIOV ){  
+void HcalLogicalMap::printHTRLMap( unsigned int mapIOV )
+{  
   using namespace std;
 
   static FILE* HBEFmap; 
@@ -79,11 +90,111 @@ void HcalLogicalMap::printMap( unsigned int mapIOV ){
   static FILE* CALIBmap; 
   static FILE* ZDCmap; 
   static FILE* HTmap;  
+  static FILE* Xmap;  
+
+  char tempbuff[30];
+
+  stringstream mystream;
+  string HBEFmapstr, HOXmapstr, CALIBmapstr, ZDCmapstr, HTmapstr, Xmapstr;
+  string date;
+  string IOVlabel;
+  
+  time_t myTime;
+  time(&myTime);
+  
+  strftime(tempbuff,128,"%d.%b.%Y",localtime(&myTime) );
+  mystream << tempbuff;
+  date = mystream.str();
+
+  mystream.str("");
+  if      (mapIOV==1) IOVlabel = "A";
+  else if (mapIOV==2) IOVlabel = "B";
+  else if (mapIOV==3) IOVlabel = "C";
+  else if (mapIOV==4) IOVlabel = "D";
+  else if (mapIOV==5) IOVlabel = "E";
+  else if (mapIOV==6) IOVlabel = "F";
+  else                IOVlabel = "G";
+
+  HBEFmapstr  = "./HCALmapHBEF_" + IOVlabel + ".txt";
+  HOXmapstr   = "./HCALmapHO_" + IOVlabel + ".txt";
+  CALIBmapstr = "./HCALmapCALIB_" + IOVlabel + ".txt";
+  ZDCmapstr   = "./ZDCmap_"+ IOVlabel + ".txt";
+  HTmapstr    = "./HCALmapHT_" + IOVlabel + ".txt";
+  Xmapstr     = "./HCALmapX_" + IOVlabel + ".txt";
+
+//  HBEFmapstr  = "./HCALmapHBEF_"+date+".txt";
+//  HOXmapstr   = "./HCALmapHO_"+date+"_"+IOVlabel+".txt";
+//  CALIBmapstr = "./HCALmapCALIB_"+date+".txt";
+//  ZDCmapstr   = "./ZDCmap_"+date+".txt";
+//  HTmapstr    = "./HCALmapHT_"+date+".txt";
+  
+  HBEFmap     = fopen(HBEFmapstr.c_str(),"w");
+  HOXmap      = fopen(HOXmapstr.c_str(),"w");
+  CALIBmap    = fopen(CALIBmapstr.c_str(),"w");
+  ZDCmap      = fopen(ZDCmapstr.c_str(),"w");
+  HTmap       = fopen(HTmapstr.c_str(),"w");
+  Xmap        = fopen(Xmapstr.c_str(),"w");
+
+  if(HBEFmap) 
+  {
+    fprintf(HBEFmap,"## file created %s ##\n",date.c_str());
+    printHBEFMap(HBEFmap);
+  }
+  else 
+    cout <<HBEFmapstr<<" not found!"<<endl;
+
+  if(HOXmap) 
+  {
+    fprintf(HOXmap,"## file created %s ##\n",date.c_str());
+    printHOXMap(HOXmap);
+  }
+  else 
+    cout <<HOXmapstr<<" not found!"<<endl;
+
+  if(CALIBmap) 
+  {
+    fprintf(CALIBmap,"## file created %s ##\n",date.c_str());
+    printCalibMap(CALIBmap);
+  }
+  else 
+    cout <<CALIBmapstr<<" not found!"<<endl;
+
+  if(ZDCmap) 
+  {
+    fprintf(ZDCmap,"## file created %s ##\n",date.c_str());
+    printZDCMap(ZDCmap);
+  }
+  else 
+    cout <<ZDCmapstr<<" not found!"<<endl;
+
+  if(HTmap) 
+  {
+    fprintf(HTmap,"## file created %s ##\n",date.c_str());
+    printHTMap(HTmap);
+  }
+  else 
+    cout <<HTmapstr<<" not found!"<<endl;
+
+  if(Xmap)
+  {
+    fprintf(Xmap,"## file created %s ##\n",date.c_str());
+    printXMap(Xmap);
+  }
+  else
+    cout <<Xmapstr<<" not found!"<<endl;
+}
+
+
+void HcalLogicalMap::printuHTRLMap( unsigned int mapIOV )
+{  
+  using namespace std;
+
+  static FILE* HBEFmap_uhtr; 
   
   char tempbuff[30];
 
   stringstream mystream;
-  string HBEFmapstr, HOXmapstr, CALIBmapstr, ZDCmapstr, HTmapstr;
+  string HBEFmapstr_uhtr;
   string date;
   string IOVlabel;
   
@@ -99,116 +210,610 @@ void HcalLogicalMap::printMap( unsigned int mapIOV ){
   else if (mapIOV==2) IOVlabel = "B";
   else if (mapIOV==3) IOVlabel = "C";
   else if (mapIOV==4) IOVlabel = "D";
-  else                IOVlabel = "E";
-
-  HBEFmapstr  = "./HCALmapHBEF_"+IOVlabel+".txt";
-  HOXmapstr   = "./HCALmapHO_"+IOVlabel+".txt";
-  CALIBmapstr = "./HCALmapCALIB_"+IOVlabel+".txt";
-  ZDCmapstr   = "./ZDCmap_"+IOVlabel+".txt";
-  HTmapstr    = "./HCALmapHT_"+IOVlabel+".txt";
-
-//  HBEFmapstr  = "./HCALmapHBEF_"+date+".txt";
-//  HOXmapstr   = "./HCALmapHO_"+date+"_"+IOVlabel+".txt";
-//  CALIBmapstr = "./HCALmapCALIB_"+date+".txt";
-//  ZDCmapstr   = "./ZDCmap_"+date+".txt";
-//  HTmapstr    = "./HCALmapHT_"+date+".txt";
-  
-  HBEFmap     = fopen(HBEFmapstr.c_str(),"w");
-  HOXmap      = fopen(HOXmapstr.c_str(),"w");
-  CALIBmap    = fopen(CALIBmapstr.c_str(),"w");
-  ZDCmap      = fopen(ZDCmapstr.c_str(),"w");
-  HTmap       = fopen(HTmapstr.c_str(),"w");
+  else if (mapIOV==5) IOVlabel = "E";
+  else if (mapIOV==6) IOVlabel = "F";
+  else                IOVlabel = "G";
+  HBEFmapstr_uhtr  = "./HCALmapHBEF_" + IOVlabel + "_uHTR.txt";
+  HBEFmap_uhtr     = fopen(HBEFmapstr_uhtr.c_str(),"w");
   /**********************/
 
-  if(HBEFmap) {
-    fprintf(HBEFmap,"## file created %s ##\n",date.c_str());
-    printHBEFMap(HBEFmap);
+  if(HBEFmap_uhtr) 
+  {
+    fprintf(HBEFmap_uhtr,"## file created %s ##\n",date.c_str());
+    printuHTRHBEFMap(HBEFmap_uhtr);
   }
-  else cout <<HBEFmapstr<<" not found!"<<endl;
-
-  if(HOXmap) {
-    fprintf(HOXmap,"## file created %s ##\n",date.c_str());
-    printHOXMap(HOXmap);
-  }
-  else cout <<HOXmapstr<<" not found!"<<endl;
-
-  if(CALIBmap) {
-    fprintf(CALIBmap,"## file created %s ##\n",date.c_str());
-    printCalibMap(CALIBmap);
-  }
-  else cout <<CALIBmapstr<<" not found!"<<endl;
-
-  if(ZDCmap) {
-    fprintf(ZDCmap,"## file created %s ##\n",date.c_str());
-    printZDCMap(ZDCmap);
-  }
-  else cout <<ZDCmapstr<<" not found!"<<endl;
-
-  if(HTmap) {
-    fprintf(HTmap,"## file created %s ##\n",date.c_str());
-    printHTMap(HTmap);
-  }
-  else cout <<HTmapstr<<" not found!"<<endl;
-
+  else 
+    cout <<HBEFmapstr_uhtr<<" not found!"<<endl;
 }
 
-/**************/
+void HcalLogicalMap::printOfflineDB( unsigned int mapIOV )
+{  
+  using namespace std;
+
+  static FILE* OfflineDB; 
+    
+  char tempbuff[30];
+
+  stringstream mystream;
+  string OfflineDBstr;
+  string date;
+  string IOVlabel;
+  
+  time_t myTime;
+  time(&myTime);
+  
+  strftime(tempbuff,128,"%d.%b.%Y",localtime(&myTime) );
+  mystream<<tempbuff;
+  date = mystream.str();
+
+  mystream.str("");
+  if      (mapIOV==1) IOVlabel = "A";
+  else if (mapIOV==2) IOVlabel = "B";
+  else if (mapIOV==3) IOVlabel = "C";
+  else if (mapIOV==4) IOVlabel = "D";
+  else if (mapIOV==5) IOVlabel = "E";
+  else if (mapIOV==6) IOVlabel = "F";
+  else                IOVlabel = "G";
+
+  //OfflineDBstr  = "./OfflineDB_" + IOVlabel + ".txt";
+  OfflineDBstr  = "./QIE_normalmode_OfflineDB_without_HOX_G.txt";
+  OfflineDB = fopen(OfflineDBstr.c_str(),"w");
+  /**********************/
+
+  if(OfflineDB) 
+  {
+    fprintf(OfflineDB,"## file created %s ##\n",date.c_str());
+    printHCALOfflineDB(OfflineDB);
+  }
+  else 
+    cout <<OfflineDBstr<<" not found!"<<endl;
+}
+
+void HcalLogicalMap::printQIEMap( unsigned int mapIOV )
+{  
+  using namespace std;
+
+  static FILE* QIEMap; 
+    
+  char tempbuff[30];
+
+  stringstream mystream;
+  string QIEMapstr;
+  string date;
+  string IOVlabel;
+  
+  time_t myTime;
+  time(&myTime);
+  
+  strftime(tempbuff,128,"%d.%b.%Y",localtime(&myTime) );
+  mystream<<tempbuff;
+  date = mystream.str();
+
+  mystream.str("");
+  if      (mapIOV==1) IOVlabel = "A";
+  else if (mapIOV==2) IOVlabel = "B";
+  else if (mapIOV==3) IOVlabel = "C";
+  else if (mapIOV==4) IOVlabel = "D";
+  else if (mapIOV==5) IOVlabel = "E";
+  else if (mapIOV==6) IOVlabel = "F";
+  else                IOVlabel = "G";
+
+  QIEMapstr  = "./QIEMap_" + IOVlabel + ".txt";
+  
+  QIEMap = fopen(QIEMapstr.c_str(),"w");
+
+  if(QIEMap) 
+  {
+    fprintf(QIEMap,"## file created %s ##\n",date.c_str());
+    printHCALQIEMap(QIEMap);
+  }
+  else 
+    std::cout << QIEMapstr << " not found!" << std::endl;
+}
+
+//############################//
 HcalElectronicsMap HcalLogicalMap::generateHcalElectronicsMap()
 {
   HcalElectronicsMap* theemap = new HcalElectronicsMap();
   
-  for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it) {
-    theemap->mapEId2chId( it->getHcalElectronicsId(), it->getDetId() );}
-  for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it!=HOHXEntries_.end(); ++it) {
-    theemap->mapEId2chId( it->getHcalElectronicsId(), it->getDetId() );}
-  for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it) {
-    theemap->mapEId2chId( it->getHcalElectronicsId(), it->getDetId() );}
-  for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) {
-    theemap->mapEId2chId( it->getHcalElectronicsId(), it->getDetId() );}
-  for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it) {
-    theemap->mapEId2tId( it->getHcalTrigElectronicsId(), it->getDetId() );}
+  for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it) 
+  {
+    theemap->mapEId2chId( it->getHcalElectronicsId(), it->getDetId() );
+  }
+  for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it!=HOHXEntries_.end(); ++it) 
+  {
+    theemap->mapEId2chId( it->getHcalElectronicsId(), it->getDetId() );
+  }
+  for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it) 
+  {
+    theemap->mapEId2chId( it->getHcalElectronicsId(), it->getDetId() );
+  }
+  for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) 
+  {
+    theemap->mapEId2chId( it->getHcalElectronicsId(), it->getDetId() );
+  }
+  for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it) 
+  {
+    theemap->mapEId2tId( it->getHcalTrigElectronicsId(), it->getDetId() );
+  }
+
   theemap->sort();
   return *theemap;
 }
-/**************/
 
-void HcalLogicalMap::printHBEFMap(FILE* hbefmapfile){
+//generate uHTR emap directly from lmap, for HBHE and HF
+
+void HcalLogicalMap::printEmapHBHEVME(std::ostream& hcalemap)
+{
+  char buf [1024];
+
+  for (std::vector<HBHEHFLogicalMapEntry>::const_iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it)
+  {
+    if( it->mydet_ == "HB" || it->mydet_ == "HE" )
+    {
+      sprintf (buf, " %7X %3d %3d %3s %4d %7d %10d %14d %7s %5d %5d %6d",
+               it->hcalDetID_uhtr_,
+               it->mycrate_, it->myhtr_, (it->mytb_).c_str(), it->mydcc_, it->myspigot_, it->my_htr_fi_, it->myfi_ch_,
+               (it->mydet_).c_str(), (it->mysid_)*(it->myet_), it->myph_, it->mydep_
+              );
+
+      hcalemap << buf << std::endl;
+    }
+  }
+
+  return ;
+}
+
+void HcalLogicalMap::printEmapHBHEuTCA(std::ostream& hcalemap)
+{
+  char buf [1024];
+
+  for (std::vector<HBHEHFLogicalMapEntry>::const_iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it)
+  {
+    if( it->mydet_ == "HB" || it->mydet_ == "HE" )
+    {
+      sprintf (buf, " %7X %3d %3d %3s %4d %7d %10d %14d %7s %5d %5d %6d",
+               it->hcalDetID_uhtr_,
+               it->myuhtr_crate_, it->myuhtr_, "u", it->myuhtr_dcc_, it->myuhtr_spigot_, it->myuhtr_htr_fi_, it->myfi_ch_,
+               (it->mydet_).c_str(), (it->mysid_)*(it->myet_), it->myph_, it->mydep_
+              );
+      hcalemap << buf << std::endl;
+    }
+  }
+
+  return ;
+}
+
+void HcalLogicalMap::printEmapHFVME(std::ostream& hcalemap)
+{
+  char buf [1024];
+
+  for (std::vector<HBHEHFLogicalMapEntry>::const_iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it)
+  {
+    if( it->mydet_ == "HF" )
+    {
+      sprintf (buf, " %7X %3d %3d %3s %4d %7d %10d %14d %7s %5d %5d %6d",
+               it->hcalDetID_uhtr_,
+               it->mycrate_, it->myhtr_, (it->mytb_).c_str(), it->mydcc_, it->myspigot_, it->my_htr_fi_, it->myfi_ch_,
+               (it->mydet_).c_str(), (it->mysid_)*(it->myet_), it->myph_, it->mydep_
+              );
+
+      hcalemap << buf << std::endl;
+    }
+  }
+
+  return ;
+}
+
+void HcalLogicalMap::printEmapHFuTCA(std::ostream& hcalemap)
+{
+  char buf [1024];
+
+  for (std::vector<HBHEHFLogicalMapEntry>::const_iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it)
+  {
+    if( it->mydet_ == "HF" )
+    {
+      sprintf (buf, " %7X %3d %3d %3s %4d %7d %10d %14d %7s %5d %5d %6d",
+               it->hcalDetID_uhtr_,
+               it->myuhtr_crate_, it->myuhtr_, "u", it->myuhtr_dcc_, it->myuhtr_spigot_, it->myuhtr_htr_fi_, it->myfi_ch_,
+               (it->mydet_).c_str(), (it->mysid_)*(it->myet_), it->myph_, it->mydep_
+              );
+      hcalemap << buf << std::endl;
+    }
+  }
+
+  return ;
+}
+
+void HcalLogicalMap::printEmapHOHXVME(std::ostream& hcalemap)
+{
+  char buf [1024];
+
+  for ( std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it!=HOHXEntries_.end(); ++it )
+  {
+    sprintf (buf, " %7X %3d %3d %3s %4d %7d %10d %14d %7s %5d %5d %6d",
+             it->hcalDetID_,
+             it->mycrate_, it->myhtr_, (it->mytb_).c_str(), it->mydcc_, it->myspigot_, it->my_htr_fi_, it->myfi_ch_,
+             (it->mydet_).c_str(), (it->mysid_)*(it->myet_), it->myph_, it->mydep_
+            );
+    hcalemap << buf << std::endl;
+  }
+
+  return ;
+}
+
+void HcalLogicalMap::printEmapHTHBHEVME(std::ostream& hcalemap)
+{
+  char buf [1024];
+
+  for ( std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it )
+  {
+    if( it->mydet_origin_ == "HB" || it->mydet_origin_ == "HE" )
+    {
+      sprintf (buf, " %7X %3d %3d %3s %4d %7d %10d %14d %7s %5d %5d %6d",
+               it->hcalTrigDetID_,
+               it->mycrate_, it->myhtr_, (it->mytb_).c_str(), it->mydcc_, it->myspigot_, it->myslb_, it->myslbch_,
+               (it->mydet_).c_str(), (it->myeta_), it->myphi_, it->mydepth_
+              );
+      hcalemap << buf << std::endl;
+    }
+  }
+
+  return ;
+}
+
+void HcalLogicalMap::printEmapHTHBHEuTCA(std::ostream& hcalemap)
+{
+  char buf [1024];
+
+  for ( std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it )
+  {
+    if( it->mydet_origin_ == "HB" || it->mydet_origin_ == "HE" )
+    {
+      sprintf (buf, " %7X %3d %3d %3s %4d %7d %10d %14d %7s %5d %5d %6d",
+               it->hcalTrigDetID_,
+               it->myuhtr_crate_, it->myuhtr_, "u", it->myuhtr_dcc_, it->myuhtr_spigot_, it->myuhtr_trgf_, it->myuhtr_trgfc_,
+               (it->mydet_).c_str(), (it->myeta_), it->myphi_, it->mydepth_
+              );
+
+      hcalemap << buf << std::endl;
+    }
+  }
+
+  return ;
+}
+
+void HcalLogicalMap::printEmapHTHFVME(std::ostream& hcalemap)
+{
+  char buf [1024];
+
+  for ( std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it )
+  {
+    if( it->mydet_origin_ == "HF" )
+    {
+      sprintf (buf, " %7X %3d %3d %3s %4d %7d %10d %14d %7s %5d %5d %6d",
+               it->hcalTrigDetID_,
+               it->mycrate_, it->myhtr_, (it->mytb_).c_str(), it->mydcc_, it->myspigot_, it->myslb_, it->myslbch_,
+               (it->mydet_).c_str(), (it->myeta_), it->myphi_, it->mydepth_
+              );
+      hcalemap << buf << std::endl;
+    }
+  }
+
+  return ;
+}
+
+void HcalLogicalMap::printEmapHTHFuTCA(std::ostream& hcalemap)
+{
+  char buf [1024];
+
+  for ( std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it )
+  {
+    if( it->mydet_origin_ == "HF" )
+    {
+      sprintf (buf, " %7X %3d %3d %3s %4d %7d %10d %14d %7s %5d %5d %6d",
+               it->hcalTrigDetID_,
+               it->myuhtr_crate_, it->myuhtr_, "u", it->myuhtr_dcc_, it->myuhtr_spigot_, it->myuhtr_trgf_, it->myuhtr_trgfc_,
+               (it->mydet_).c_str(), (it->myeta_), it->myphi_, it->mydepth_
+              );
+
+      hcalemap << buf << std::endl;
+    }
+  }
+
+  return ;
+}
+
+void HcalLogicalMap::printEmapHTHOVME(std::ostream& hcalemap)
+{
+  char buf [1024];
+
+  for ( std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it )
+  {
+    if( it->mydet_origin_ == "HO" || it->mydet_origin_ == "HOX" )
+    {
+      sprintf (buf, " %7X %3d %3d %3s %4d %7d %10d %14d %7s %5d %5d %6d",
+               it->hcalTrigDetID_,
+               it->mycrate_, it->myhtr_, (it->mytb_).c_str(), it->mydcc_, it->myspigot_, it->myslb_, it->myslbch_,
+               (it->mydet_).c_str(), (it->myeta_), it->myphi_, it->mydepth_
+              );
+      hcalemap << buf << std::endl;
+    }
+  }
+
+  return ;
+}
+
+void HcalLogicalMap::printEmapCALIBHBHEVME(std::ostream& hcalemap)
+{
+  char buf [1024];
+
+  for ( std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it )
+  {
+    if( it->mycalibsubdet_ == "CALIB_HB" || it->mycalibsubdet_ == "CALIB_HE" )
+    {
+      sprintf (buf, " %7X %3d %3d %3s %4d %7d %10d %14d %7s %5d %5d %6d",
+               it->hcalCalibDetID_,
+               it->mycrate_, it->myhtr_, (it->mytb_).c_str(), it->mydcc_, it->myspigot_, it->my_htr_fi_, it->myfi_ch_,
+               (it->mycalibsubdet_).c_str(), (it->myet_), it->myph_, it->mychty_
+              );
+      hcalemap << buf << std::endl;
+    }
+  }
+
+  return ;
+}
+
+void HcalLogicalMap::printEmapCALIBHBHEuTCA(std::ostream& hcalemap)
+{
+  char buf [1024];
+
+  for ( std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it )
+  {
+    if( it->mycalibsubdet_ == "CALIB_HB" || it->mycalibsubdet_ == "CALIB_HE" )
+    {
+      sprintf (buf, " %7X %3d %3d %3s %4d %7d %10d %14d %7s %5d %5d %6d",
+               it->hcalCalibDetID_,
+               it->myuhtr_crate_, it->myuhtr_, "u", it->myuhtr_dcc_, it->myuhtr_spigot_, it->myuhtr_htr_fi_, it->myfi_ch_,
+               (it->mycalibsubdet_).c_str(), (it->myet_), it->myph_, it->mychty_
+              );
+      hcalemap << buf << std::endl;
+    }
+  }
+  return ;
+}
+
+void HcalLogicalMap::printEmapCALIBHFVME(std::ostream& hcalemap)
+{
+  char buf [1024];
+
+  for ( std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it )
+  {
+    if( it->mycalibsubdet_ == "CALIB_HF" )
+    {
+      sprintf (buf, " %7X %3d %3d %3s %4d %7d %10d %14d %7s %5d %5d %6d",
+               it->hcalCalibDetID_,
+               it->mycrate_, it->myhtr_, (it->mytb_).c_str(), it->mydcc_, it->myspigot_, it->my_htr_fi_, it->myfi_ch_,
+               (it->mycalibsubdet_).c_str(), (it->myet_), it->myph_, it->mychty_
+              );
+      hcalemap << buf << std::endl;
+    }
+  }
+
+  return ;
+}
+
+void HcalLogicalMap::printEmapCALIBHFuTCA(std::ostream& hcalemap)
+{
+  char buf [1024];
+
+  for ( std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it )
+  {
+    if( it->mycalibsubdet_ == "CALIB_HF" )
+    {
+      sprintf (buf, " %7X %3d %3d %3s %4d %7d %10d %14d %7s %5d %5d %6d",
+               it->hcalCalibDetID_,
+               it->myuhtr_crate_, it->myuhtr_, "u", it->myuhtr_dcc_, it->myuhtr_spigot_, it->myuhtr_htr_fi_, it->myfi_ch_,
+               (it->mycalibsubdet_).c_str(), (it->myet_), it->myph_, it->mychty_
+              );
+      hcalemap << buf << std::endl;
+    }
+  }
+  return ;
+}
+
+void HcalLogicalMap::printEmapCALIBHOVME(std::ostream& hcalemap)
+{
+  char buf [1024];
+
+  for ( std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it )
+  {
+    if( it->mycalibsubdet_ == "CALIB_HO" )
+    {
+      sprintf (buf, " %7X %3d %3d %3s %4d %7d %10d %14d %7s %5d %5d %6d",
+               it->hcalCalibDetID_,
+               it->mycrate_, it->myhtr_, (it->mytb_).c_str(), it->mydcc_, it->myspigot_, it->my_htr_fi_, it->myfi_ch_,
+               (it->mycalibsubdet_).c_str(), (it->myet_), it->myph_, it->mychty_
+              );
+      hcalemap << buf << std::endl;
+    }
+  }
+
+  return ;
+}
+
+void HcalLogicalMap::printEmapZDC(std::ostream& hcalemap)
+{
+  char buf [1024];
+
+  for ( std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it )
+  {
+    sprintf (
+             buf, " %7X %3d %3d %3s %4d %7d %10d %14d %7s %5d %5d %6d",
+             it->hcalZDCDetID_,
+             it->mycrate_, it->myhtr_, (it->mytb_).c_str(), it->mydcc_, it->myspigot_, it->my_htr_fi_, it->myfi_ch_,
+             (it->mydet_).c_str(), (it->mysid_)*(it->myx_), it->myy_, it->mydep_
+            );
+    hcalemap << buf << std::endl;
+  }
+
+  return ;
+}
+
+void HcalLogicalMap::printAllEMap(
+                                  std::ostream& fOutputAll,
+                                  std::ostream& fOutputHBHEuTCA,
+                                  std::ostream& fOutputHBHEVME
+                                 )
+{
+  char tempbuff[30];
+
+  stringstream mystream;
+  string date;
+
+  time_t myTime;
+  time(&myTime);
+
+  strftime(tempbuff,128,"%d.%b.%Y",localtime(&myTime) );
+  mystream<<tempbuff;
+  date = mystream.str();
+
+  fOutputAll << "## file created " << date.c_str() << " #\n" << "#       i  cr  sl  tb  dcc  spigot  fiber/slb  fibcha/slbcha  subdet  ieta  iphi  depth" << std::endl;
+  fOutputHBHEuTCA << "## file created " << date.c_str() << " #\n" << "#       i  cr  sl  tb  dcc  spigot  fiber/slb  fibcha/slbcha  subdet  ieta  iphi  depth" << std::endl;
+  fOutputHBHEVME << "## file created " << date.c_str() << " #\n" << "#       i  cr  sl  tb  dcc  spigot  fiber/slb  fibcha/slbcha  subdet  ieta  iphi  depth" << std::endl;
+
+  printEmapHBHEVME(fOutputAll);
+  printEmapHBHEuTCA(fOutputAll);
+  printEmapHFuTCA(fOutputAll);
+  printEmapHOHXVME(fOutputAll);
+
+  printEmapHTHBHEVME(fOutputAll);
+  printEmapHTHBHEuTCA(fOutputAll);
+  printEmapHTHFuTCA(fOutputAll);
+  printEmapHTHOVME(fOutputAll);
+
+  printEmapCALIBHBHEVME(fOutputAll);
+  printEmapCALIBHBHEuTCA(fOutputAll);
+  printEmapCALIBHFVME(fOutputAll);
+  printEmapCALIBHFuTCA(fOutputAll);
+  printEmapCALIBHOVME(fOutputAll);
+
+  // start to fill HBHEuTCA entries
+  printEmapHBHEuTCA(fOutputHBHEuTCA);
+  printEmapHFuTCA(fOutputHBHEuTCA);
+  printEmapHOHXVME(fOutputHBHEuTCA);
+
+  printEmapHTHBHEuTCA(fOutputHBHEuTCA);
+  printEmapHTHFuTCA(fOutputHBHEuTCA);
+  printEmapHTHOVME(fOutputHBHEuTCA);
+
+  printEmapCALIBHBHEVME(fOutputHBHEuTCA);
+  printEmapCALIBHFVME(fOutputHBHEuTCA);
+  printEmapCALIBHOVME(fOutputHBHEuTCA);
+
+  //start to fill HBHE VME entries
+  printEmapHBHEVME(fOutputHBHEVME);
+  printEmapHFuTCA(fOutputHBHEVME);
+  printEmapHOHXVME(fOutputHBHEVME);
+
+  printEmapHTHBHEVME(fOutputHBHEVME);
+  printEmapHTHFuTCA(fOutputHBHEVME);
+  printEmapHTHOVME(fOutputHBHEVME);
+
+  printEmapCALIBHBHEVME(fOutputHBHEVME);
+  printEmapCALIBHFVME(fOutputHBHEVME);
+  printEmapCALIBHOVME(fOutputHBHEVME);
+  //one thing need to comment is we still use VME calibration channels for HBHEHF(20151105), we will fix that once we get fw and sw done for the online operation
+  return ;
+}
+
+//######################//
+
+void HcalLogicalMap::printHCALOfflineDB(FILE* hcalofflinedb)
+{
+  for(std::vector<OfflineDB>::iterator it = OfflineDatabase_.begin(); it!=OfflineDatabase_.end(); ++it) 
+  {
+    //fprintf(hcalofflinedb,"%6d %6d ",(*it).qieid,(*it).qie_ch);
+    fprintf(hcalofflinedb,"%6d %6d %6d %6s ",(*it).eta,(*it).phi,(*it).depth,(*it).det);
+    fprintf(hcalofflinedb,"%6d %6d ",(*it).qieid,(*it).qie_ch);
+    fprintf(hcalofflinedb,"%.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f ",(*it).offsets[0],(*it).offsets[1],(*it).offsets[2],(*it).offsets[3],(*it).offsets[4],(*it).offsets[5],(*it).offsets[6],(*it).offsets[7],(*it).offsets[8],(*it).offsets[9],(*it).offsets[10],(*it).offsets[11],(*it).offsets[12],(*it).offsets[13],(*it).offsets[14],(*it).offsets[15]);   
+    fprintf(hcalofflinedb,"%.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f\n",(*it).slopes[0],(*it).slopes[1],(*it).slopes[2],(*it).slopes[3],(*it).slopes[4],(*it).slopes[5],(*it).slopes[6],(*it).slopes[7],(*it).slopes[8],(*it).slopes[9],(*it).slopes[10],(*it).slopes[11],(*it).slopes[12],(*it).slopes[13],(*it).slopes[14],(*it).slopes[15]); 
+    //fprintf(hcalofflinedb,"%6d %6d\n",(*it).qieid,(*it).qie_ch);
+  }
+}
+
+
+void HcalLogicalMap::printHCALQIEMap(FILE* hcalqiemap)
+{
+  for(std::vector<QIEMap>::iterator it = QIEMaps_.begin(); it != QIEMaps_.end(); ++it) 
+  {
+    fprintf(hcalqiemap,"%6s %6d %6d %6d %6d %6d\n",(*it).det,(*it).eta,(*it).phi,(*it).depth,(*it).qieid,(*it).qie_ch);
+  }
+}
+
+
+void HcalLogicalMap::printHBEFMap(FILE* hbefmapfile)
+{
   int titlecounter = 0;
 
-  for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it) {
+  for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it) 
+  {
     titlecounter = titlecounter % 21;
-    if (titlecounter == 0){
+    if (titlecounter == 0)
+    {
       fprintf(hbefmapfile,"#   side    eta    phi   dphi  depth    det     rbx  wedge     rm  pixel   qie    adc");
       fprintf(hbefmapfile,"  rm_fi  fi_ch  crate    htr   fpga  htr_fi  dcc_sl  spigo    dcc    slb  slbin  slbin2");
-      fprintf(hbefmapfile,"           slnam    rctcra rctcar rctcon               rctnam     fedid\n");
+      fprintf(hbefmapfile,"           slnam    rctcra rctcar rctcon               rctnam     fedid  QIEId\n");
     }
     titlecounter++;
     fprintf(hbefmapfile,"%s",it->printLMapLine());
   }
 }
 
-void HcalLogicalMap::printHOXMap(FILE* hoxmapfile){
-
+void HcalLogicalMap::printuHTRHBEFMap(FILE* hbefuhtrmapfile)
+{
   int titlecounter = 0;
 
-  for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it!=HOHXEntries_.end(); ++it) {
+  for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it) 
+  {
     titlecounter = titlecounter % 21;
-    if (titlecounter == 0){
+    if (titlecounter == 0)
+    {
+      fprintf(hbefuhtrmapfile,"#   side    eta    phi   dphi  depth    det     rbx  wedge     rm  pixel   qie    adc");
+      fprintf(hbefuhtrmapfile,"  rm_fi  fi_ch  crate    uhtr   fpga  uhtr_fi  dcc_sl  spigo    dcc    slb  slbin  slbin2");
+      fprintf(hbefuhtrmapfile,"           slnam    rctcra rctcar rctcon               rctnam     fedid  QIEId\n");
+    }
+    titlecounter++;
+    fprintf(hbefuhtrmapfile,"%s",it->printLMapLine_uhtr());
+  }
+}
+
+void HcalLogicalMap::printHOXMap(FILE* hoxmapfile)
+{
+  int titlecounter = 0;
+
+  for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it!=HOHXEntries_.end(); ++it) 
+  {
+    titlecounter = titlecounter % 21;
+    if (titlecounter == 0)
+    {
       fprintf(hoxmapfile,"#   side    eta    phi   dphi  depth    det     rbx  sector    rm  pixel   qie    adc");
-      fprintf(hoxmapfile,"  rm_fi  fi_ch let_code  crate    htr   fpga  htr_fi  dcc_sl  spigo    dcc  fedid\n");
+      fprintf(hoxmapfile,"  rm_fi  fi_ch let_code  crate  block_coupler  htr   fpga  htr_fi  dcc_sl  spigo    dcc  fedid  QIEId\n");
     }
     titlecounter++;
     fprintf(hoxmapfile,"%s",it->printLMapLine());
   }    
 }
 
-void HcalLogicalMap::printCalibMap(FILE* calibmapfile){
-
+void HcalLogicalMap::printCalibMap(FILE* calibmapfile)
+{
   int titlecounter = 0;
 
-  for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it) {
+  for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it) 
+  {
     titlecounter = titlecounter % 21;
-    if (titlecounter == 0){	  
+    if (titlecounter == 0)
+    {	  
       fprintf(calibmapfile,"#   side    eta    phi   dphi    det     rbx  sector  rm  rm_fi ");
       fprintf(calibmapfile," fi_ch  crate  htr  fpga  htr_fi  dcc_sl  spigo  dcc  fedid  ch_type      name\n");
     }
@@ -217,13 +822,15 @@ void HcalLogicalMap::printCalibMap(FILE* calibmapfile){
   }
 }
 
-void HcalLogicalMap::printZDCMap(FILE* zdcmapfile){
-
+void HcalLogicalMap::printZDCMap(FILE* zdcmapfile)
+{
   int titlecounter = 0;
 
-  for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) {
+  for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) 
+  {
     titlecounter = titlecounter % 21;
-    if (titlecounter == 0){
+    if (titlecounter == 0)
+    {
       fprintf(zdcmapfile,"#  side  x  y  dx  depth     det  det_ch  cable  rm  qie ");
       fprintf(zdcmapfile," adc  rm_fi  fi_ch  crate  htr  fpga  htr_fi  dcc_sl  spigo  dcc  fedid\n");
     }
@@ -232,22 +839,41 @@ void HcalLogicalMap::printZDCMap(FILE* zdcmapfile){
   }
 }
 
-void HcalLogicalMap::printHTMap(FILE* htmapfile){
-
+void HcalLogicalMap::printHTMap(FILE* htmapfile)
+{
   int titlecounter = 0;
 
-  for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it) {
+  for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it) 
+  {
     titlecounter = titlecounter % 21;
-      if (titlecounter == 0){
-	fprintf(htmapfile,"#  side  eta  phi  dphi  depth  det   wedge  crate");
-        fprintf(htmapfile,"  htr  fpga  dcc_sl  spigo  dcc  slb  slbin  slbin2  nDat    ");
-        fprintf(htmapfile,"     slnam  rctcra  rctcar  rctcon            rctnam  fedid\n");
-      }
+    if (titlecounter == 0)
+    {
+      fprintf(htmapfile,"#  side  eta  phi  dphi  depth  det   wedge  crate");
+      fprintf(htmapfile,"  htr  fpga  dcc_sl  spigo  dcc  slb  slbin  slbin2  nDat    ");
+      fprintf(htmapfile,"     slnam  rctcra  rctcar  rctcon            rctnam  fedid\n");
+    }
     titlecounter++;
     fprintf(htmapfile,"%s",it->printLMapLine());
   }
 }
 
+void HcalLogicalMap::printXMap(FILE* xmapfile)
+{
+  char buf [1024];
+
+  fprintf(xmapfile,"#  rbx  rm  rm_fi  fi_ch  htr  fpga  htr_fiber\n");
+  for (std::vector<HBHEHFLogicalMapEntry>::const_iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it)
+  {
+    if( it->myrbx_ == "HBM18" || it->myrbx_ == "HEM18" )
+    {
+      sprintf (buf, " %7s %5d %5d %5d %5d %s %5d %s",
+               (it->myrbx_).c_str(), it->myrm_, it->myrm_fi_, it->myfi_ch_, it->myhtr_, (it->mytb_).c_str(), it->my_htr_fi_, "\n"
+              );
+      fprintf(xmapfile,"%s",buf);
+    }
+  }
+  return ;
+}
 
 const DetId HcalLogicalMap::getDetId(const HcalElectronicsId& eid)
 {
@@ -265,34 +891,41 @@ const HcalFrontEndId HcalLogicalMap::getHcalFrontEndId(const DetId& did)
   const HcalGenericDetId hgdi(did);
   
   const HcalGenericDetId::HcalGenericSubdetector hgsd=hgdi.genericSubdet();
-  if (hgsd==HcalGenericDetId::HcalGenBarrel) {
+  if (hgsd==HcalGenericDetId::HcalGenBarrel) 
+  {
     const int hashedId=topo_->detId2denseIdHB(did);
     const uint32_t entry=HbHash2Entry_.at(hashedId)-1;
     return HBHEHFEntries_.at(entry).getHcalFrontEndId();
   }
-  else if (hgsd==HcalGenericDetId::HcalGenEndcap) {
+  else if (hgsd==HcalGenericDetId::HcalGenEndcap) 
+  {
     const int hashedId=topo_->detId2denseIdHE(did);
     const uint32_t entry=HeHash2Entry_.at(hashedId)-1;
     return HBHEHFEntries_.at(entry).getHcalFrontEndId();
   }
-  else if (hgsd==HcalGenericDetId::HcalGenForward) {
+  else if (hgsd==HcalGenericDetId::HcalGenForward) 
+  {
     const int hashedId=topo_->detId2denseIdHF(did);
     const uint32_t entry=HfHash2Entry_.at(hashedId)-1;
     return HBHEHFEntries_.at(entry).getHcalFrontEndId();
   }
-  else if (hgsd==HcalGenericDetId::HcalGenOuter) {
+  else if (hgsd==HcalGenericDetId::HcalGenOuter) 
+  {
     const int hashedId=topo_->detId2denseIdHO(did);
     const uint32_t entry=HoHash2Entry_.at(hashedId)-1;
     return HOHXEntries_.at(entry).getHcalFrontEndId();
   }
-  else if (hgsd==HcalGenericDetId::HcalGenCalibration) {
+  else if (hgsd==HcalGenericDetId::HcalGenCalibration) 
+  {
     HcalCalibDetId hcid(did);
-    if (hcid.calibFlavor()==HcalCalibDetId::HOCrosstalk) {
+    if (hcid.calibFlavor()==HcalCalibDetId::HOCrosstalk) 
+    {
       const int hashedId=topo_->detId2denseIdCALIB(did);
       const uint32_t entry=HxCalibHash2Entry_.at(hashedId)-1;
       return HOHXEntries_.at(entry).getHcalFrontEndId();
     }
-    else if (hcid.calibFlavor()==HcalCalibDetId::CalibrationBox) {
+    else if (hcid.calibFlavor()==HcalCalibDetId::CalibrationBox) 
+    {
       const int hashedId=topo_->detId2denseIdCALIB(did);
       const uint32_t entry=HxCalibHash2Entry_.at(hashedId)-1;
       return CALIBEntries_.at(entry).getHcalFrontEndId();
@@ -301,7 +934,8 @@ const HcalFrontEndId HcalLogicalMap::getHcalFrontEndId(const DetId& did)
   return HcalFrontEndId(0);
 }
 
-void HcalLogicalMap::checkIdFunctions() {
+void HcalLogicalMap::checkIdFunctions() 
+{
   int HBHEHF_EID_pass=0;
   int HBHEHF_EID_fail=0;
   int HOHX_EID_pass=0;
@@ -320,7 +954,8 @@ void HcalLogicalMap::checkIdFunctions() {
 
   cout << "\nRunning the id function checker..." << endl;
 
-  for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it) {
+  for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it) 
+  {
     const HcalElectronicsId heid=it->getHcalElectronicsId();
     const DetId did0=it->getDetId();
     const DetId did1=getDetId(heid);
@@ -332,7 +967,8 @@ void HcalLogicalMap::checkIdFunctions() {
     if (hfeid0==hfeid1) HBHEHF_FEID_pass++;
     else HBHEHF_FEID_fail++;
   }
-  for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it!=HOHXEntries_.end(); ++it) {
+  for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it!=HOHXEntries_.end(); ++it) 
+  {
     const HcalElectronicsId heid=it->getHcalElectronicsId();
     const DetId did0=it->getDetId();
     const DetId did1=getDetId(heid);
@@ -344,7 +980,8 @@ void HcalLogicalMap::checkIdFunctions() {
     if (hfeid0==hfeid1) HOHX_FEID_pass++;
     else HOHX_FEID_fail++;
   }
-  for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it) {
+  for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it) 
+  {
     const HcalElectronicsId heid=it->getHcalElectronicsId();
     const DetId did0=it->getDetId();
     const DetId did1=getDetId(heid);
@@ -356,7 +993,8 @@ void HcalLogicalMap::checkIdFunctions() {
     if (hfeid0==hfeid1) CALIB_FEID_pass++;
     else CALIB_FEID_fail++;
   }
-  for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) {
+  for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) 
+  {
     const HcalElectronicsId heid=it->getHcalElectronicsId();
     const DetId did0=it->getDetId();
     const DetId did1=getDetId(heid);
@@ -376,8 +1014,8 @@ void HcalLogicalMap::checkIdFunctions() {
   cout << "CALIB FEID (pass,fail) = (" << CALIB_FEID_pass << "," << CALIB_FEID_fail << ")" << endl;
 }
 
-
-void HcalLogicalMap::checkHashIds() {
+void HcalLogicalMap::checkHashIds() 
+{
   std::vector<int> HB_Hashes_;     // index 0
   std::vector<int> HE_Hashes_;     // index 1
   std::vector<int> HF_Hashes_;     // index 2
@@ -391,32 +1029,47 @@ void HcalLogicalMap::checkHashIds() {
   int numnotdense[7] = {0,0,0,0,0,0,0};
 
   cout << "\nRunning the hash checker for detIds..." << endl;
-  for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it) {
-    if (it->getDetId().subdetId()==HcalBarrel) {
+ 
+  for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it) 
+  {
+    if (it->getDetId().subdetId()==HcalBarrel) 
+    {
       HB_Hashes_.push_back(topo_->detId2denseIdHB(it->getDetId()));
     }
-    else if (it->getDetId().subdetId()==HcalEndcap) {
+    else if (it->getDetId().subdetId()==HcalEndcap) 
+    {
       HE_Hashes_.push_back(topo_->detId2denseIdHE(it->getDetId()));
     }
-    else if (it->getDetId().subdetId()==HcalForward) {
+    else if (it->getDetId().subdetId()==HcalForward) 
+    {
       HF_Hashes_.push_back(topo_->detId2denseIdHF(it->getDetId()));
     }
   }
-  for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it!=HOHXEntries_.end(); ++it) {
-    if (HcalGenericDetId(it->getDetId().rawId()).isHcalCalibDetId() ) {
+
+  for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it!=HOHXEntries_.end(); ++it) 
+  {
+    if (HcalGenericDetId(it->getDetId().rawId()).isHcalCalibDetId() ) 
+    {
       CALIBHX_Hashes_.push_back(topo_->detId2denseIdCALIB(it->getDetId()));
     }
-    else {
+    else 
+    {
       HO_Hashes_.push_back(topo_->detId2denseIdHO(it->getDetId()));
     }
   }
-  for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it) {
+
+  for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it) 
+  {
     CALIBHX_Hashes_.push_back(topo_->detId2denseIdCALIB(it->getDetId()));
   }
-  for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) {
+
+  for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) 
+  {
     ZDC_Hashes_.push_back(HcalZDCDetId(it->getDetId()).denseIndex());
   }
-  for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it) {
+
+  for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it) 
+  {
     HT_Hashes_.push_back(topo_->detId2denseIdHT(it->getDetId()));
   }
 
@@ -428,43 +1081,50 @@ void HcalLogicalMap::checkHashIds() {
   sort(ZDC_Hashes_.begin()    , ZDC_Hashes_.end());
   sort(HT_Hashes_.begin()     , HT_Hashes_.end());
 
-  for(unsigned int i = 0; i<HB_Hashes_.size()-1; i++) {
+  for(unsigned int i = 0; i<HB_Hashes_.size()-1; i++) 
+  {
     int diff = HB_Hashes_.at(i+1)-HB_Hashes_.at(i);
     if (diff==0) numfails[0]++;
     else if (diff>1) numnotdense[0]++;
     else numpass[0]++;
   }
-  for(unsigned int i = 0; i<HE_Hashes_.size()-1; i++) {
+  for(unsigned int i = 0; i<HE_Hashes_.size()-1; i++) 
+  {
     int diff = HE_Hashes_.at(i+1)-HE_Hashes_.at(i);
     if (diff==0) numfails[1]++;
     else if (diff>1) numnotdense[1]++;
     else numpass[1]++;
   }
-  for(unsigned int i = 0; i<HF_Hashes_.size()-1; i++) {
+  for(unsigned int i = 0; i<HF_Hashes_.size()-1; i++) 
+  {
     int diff = HF_Hashes_.at(i+1)-HF_Hashes_.at(i);
     if (diff==0) numfails[2]++;
     else if (diff>1) numnotdense[2]++;
     else numpass[2]++;
   }
-  for(unsigned int i = 0; i<HO_Hashes_.size()-1; i++) {
+  for(unsigned int i = 0; i<HO_Hashes_.size()-1; i++) 
+  {
     int diff = HO_Hashes_.at(i+1)-HO_Hashes_.at(i);
     if (diff==0) numfails[3]++;
     else if (diff>1) numnotdense[3]++;
     else numpass[3]++;
   }
-  for(unsigned int i = 0; i<CALIBHX_Hashes_.size()-1; i++) {
+  for(unsigned int i = 0; i<CALIBHX_Hashes_.size()-1; i++) 
+  {
     int diff = CALIBHX_Hashes_.at(i+1)-CALIBHX_Hashes_.at(i);
     if (diff==0) numfails[4]++;
     else if (diff>1) numnotdense[4]++;
     else numpass[4]++;
   }
-  for(unsigned int i = 0; i<ZDC_Hashes_.size()-1; i++) {
+  for(unsigned int i = 0; i<ZDC_Hashes_.size()-1; i++) 
+  {
     int diff = ZDC_Hashes_.at(i+1)-ZDC_Hashes_.at(i);
     if (diff==0) numfails[5]++;
     else if (diff>1) numnotdense[5]++;
     else numpass[5]++;
   }
-  for(unsigned int i = 0; i<HT_Hashes_.size()-1; i++) {
+  for(unsigned int i = 0; i<HT_Hashes_.size()-1; i++) 
+  {
     int diff = HT_Hashes_.at(i+1)-HT_Hashes_.at(i);
     if (diff==0) numfails[6]++;
     else if (diff>1) numnotdense[6]++;
@@ -479,7 +1139,8 @@ void HcalLogicalMap::checkHashIds() {
   cout << "HT HashIds (pass, collisions, non-dense) = (" << numpass[6] << "," << numfails[6] << "," << numnotdense[6] << ")" << endl;
 }
 
-void HcalLogicalMap::checkElectronicsHashIds() {
+void HcalLogicalMap::checkElectronicsHashIds() 
+{
   std::vector<int> Electronics_Hashes_;
 
   int numfails = 0;
@@ -487,25 +1148,32 @@ void HcalLogicalMap::checkElectronicsHashIds() {
   int numnotdense = 0;
 
   cout << "\nRunning the hash checker for electronics Ids..." << endl;
-  for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it) {
+ 
+  for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it) 
+  {
     Electronics_Hashes_.push_back((it->getHcalElectronicsId()).linearIndex());
   }
-  for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) {
+  for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) 
+  {
     Electronics_Hashes_.push_back((it->getHcalElectronicsId()).linearIndex());
   }
-  for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it) {
+  for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it) 
+  {
     Electronics_Hashes_.push_back((it->getHcalElectronicsId()).linearIndex());
   }
-  for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it!=HOHXEntries_.end(); ++it) {
+  for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it!=HOHXEntries_.end(); ++it) 
+  {
     Electronics_Hashes_.push_back((it->getHcalElectronicsId()).linearIndex());
   }
-  for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it) {
+  for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it) 
+  {
     Electronics_Hashes_.push_back((it->getHcalTrigElectronicsId()).linearIndex());
   }
 
   sort(Electronics_Hashes_.begin() , Electronics_Hashes_.end());
 
-  for(unsigned int i = 0; i<Electronics_Hashes_.size()-1; i++) {
+  for(unsigned int i = 0; i<Electronics_Hashes_.size()-1; i++) 
+  {
     int diff = Electronics_Hashes_.at(i+1)-Electronics_Hashes_.at(i);
     if (diff==0) numfails++;
     else if (diff>1) numnotdense++;
@@ -514,3 +1182,115 @@ void HcalLogicalMap::checkElectronicsHashIds() {
   cout << "Electronics Id linearIndex (pass, collisions, nondense) = (" << numpass << "," << numfails << "," << numnotdense << ")" << endl;
 }
 
+//////XML Generation
+//void HcalLogicalMap::printXMLTables(unsigned int mapIOV){  
+//  using namespace std;
+//
+//  printHBEFXML(  mapIOV );
+//  printHOXXML(   mapIOV );
+//  printCalibXML( mapIOV );
+//  printHTXML(    mapIOV );
+//  printZDCXML(   mapIOV );
+//
+//}
+//
+//
+//void HcalLogicalMap::printHBEFXML( unsigned int mapIOV ) {
+//  HCALLMAPXMLProcessor * theProcessor = HCALLMAPXMLProcessor::getInstance();
+//  HCALLMAPXMLDOMBlock * doc = theProcessor->createLMapHBEFXMLBase( "./data/HBEFLmapBase.xml" );
+//  HCALLMAPXMLProcessor::LMapRowHBEF hbefRow;
+//  
+//  std::string iovString = "A";
+//  for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it) {
+//    hbefRow = it->generateXMLRow();
+//    hbefRow . chanFileName_    = "./data/HcalHBHEHFChanSet.xml";
+//    hbefRow . dataFileName_    = "./data/HcalHBHEHFDataSet.xml";
+//    hbefRow . dataSetFileName_ = "./data/HcalHBHEHFDataset.xml";
+//    theProcessor -> addLMapHBEFDataset( doc, &hbefRow );
+//  }
+//  theProcessor -> write( doc, "/tmp/sturdy/HBHEHFTable_"+iovString+".xml");
+//}
+//
+//void HcalLogicalMap::printHOXXML( unsigned int mapIOV ) {
+//  HCALLMAPXMLProcessor * theProcessor = HCALLMAPXMLProcessor::getInstance();
+//  HCALLMAPXMLDOMBlock * doc = theProcessor->createLMapHOXMLBase( "./data/HOXLmapBase.xml" );
+//  HCALLMAPXMLProcessor::LMapRowHO hoxRow;
+//  
+//  std::string iovString = "A";
+//  if (mapIOV == 2)
+//    iovString = "B";
+//  else if (mapIOV == 3)
+//    iovString = "C";
+//  //else if (mapIOV == 4)
+//  //  iovString = "D";
+//  else if (mapIOV == 5)
+//    iovString = "E";
+//
+//  for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it!=HOHXEntries_.end(); ++it) {
+//    hoxRow = it->generateXMLRow();
+//    hoxRow . mapIOV_ = mapIOV;
+//    hoxRow . chanFileNameO_    = "./data/HcalHOHXChanSet.xml";
+//    hoxRow . dataFileNameO_    = "./data/HcalHOHXDataSet.xml";
+//    hoxRow . dataSetFileNameO_ = "./data/HcalHOHXDataset.xml";
+//    theProcessor -> addLMapHODataset( doc, &hoxRow );
+//  }
+//  theProcessor -> write( doc, "/tmp/sturdy/HOHXTable_"+iovString+".xml");
+//
+//}
+//
+//void HcalLogicalMap::printCalibXML( unsigned int mapIOV ) {
+//  HCALLMAPXMLProcessor * theProcessor = HCALLMAPXMLProcessor::getInstance();
+//  HCALLMAPXMLDOMBlock * doc = theProcessor->createLMapCALIBXMLBase( "./data/CALIBLmapBase.xml" );
+//  HCALLMAPXMLProcessor::LMapRowCALIB calibRow;
+//  
+//  std::string iovString = "A";
+//  for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it) {
+//    calibRow = it->generateXMLRow();
+//    calibRow . chanFileNameC_    = "./data/HcalCALIBChanSet.xml";
+//    calibRow . dataFileNameC_    = "./data/HcalCALIBDataSet.xml";
+//    calibRow . dataSetFileNameC_ = "./data/HcalCALIBDataset.xml";
+//    theProcessor -> addLMapCALIBDataset( doc, &calibRow );
+//  }
+//  theProcessor -> write( doc, "/tmp/sturdy/CALIBTable_"+iovString+".xml");
+//
+//}
+//
+//void HcalLogicalMap::printHTXML( unsigned int mapIOV ) {
+//  HCALLMAPXMLProcessor * theProcessor = HCALLMAPXMLProcessor::getInstance();
+//  HCALLMAPXMLDOMBlock * doc = theProcessor->createLMapHTXMLBase( "./data/HTLmapBase.xml" );
+//  HCALLMAPXMLProcessor::LMapRowHT htRow;
+//  
+//  std::string iovString = "A";
+//  for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it) {
+//    htRow = it->generateXMLRow();
+//    htRow . chanFileNameT_    = "./data/HcalHTChanSet.xml";
+//    htRow . dataFileNameT_    = "./data/HcalHTDataSet.xml";
+//    htRow . dataSetFileNameT_ = "./data/HcalHTDataset.xml";
+//    theProcessor -> addLMapHTDataset( doc, &htRow );
+//  }
+//  theProcessor -> write( doc, "/tmp/sturdy/HTTable_"+iovString+".xml");
+//
+//}
+//
+//void HcalLogicalMap::printZDCXML( unsigned int mapIOV ) {
+//  HCALLMAPXMLProcessor * theProcessor = HCALLMAPXMLProcessor::getInstance();
+//  HCALLMAPXMLDOMBlock * doc = theProcessor->createLMapZDCXMLBase( "./data/ZDCLmapBase.xml" );
+//  HCALLMAPXMLProcessor::LMapRowZDC zdcRow;
+//  
+//  std::string iovString = "A";
+//  if (mapIOV == 4)
+//    iovString = "D";
+//  //else if (mapIOV == 5)
+//  //  iovString = "E";
+//
+//  for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) {
+//    zdcRow = it->generateXMLRow();
+//    zdcRow . mapIOV_ = mapIOV;
+//    zdcRow . chanFileNameZ_    = "./data/ZDCChanSet.xml";
+//    zdcRow . dataFileNameZ_    = "./data/ZDCDataSet.xml";
+//    zdcRow . dataSetFileNameZ_ = "./data/ZDCDataset.xml";
+//    theProcessor -> addLMapZDCDataset( doc, &zdcRow );
+//  }
+//  theProcessor -> write( doc, "/tmp/sturdy/ZDCTable_"+iovString+".xml");
+//
+//}
