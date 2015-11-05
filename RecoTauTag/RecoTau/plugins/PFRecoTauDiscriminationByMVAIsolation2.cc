@@ -104,7 +104,7 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
     NeutralIsoPtSum_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcNeutralIsoPtSum"));
     PUcorrPtSum_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcPUcorrPtSum"));
     PhotonPtSumOutsideSignalCone_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcPhotonPtSumOutsideSignalCone"));
-    FootprintCorrection_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcPFTauFootprintCorrection"));
+    FootprintCorrection_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcFootprintCorrection"));
   
     verbosity_ = ( cfg.exists("verbosity") ) ?
       cfg.getParameter<int>("verbosity") : 0;
@@ -212,7 +212,7 @@ double PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau)
     double decayDistZ = tauLifetimeInfo.flightLength().z();
     double decayDistMag = TMath::Sqrt(decayDistX*decayDistX + decayDistY*decayDistY + decayDistZ*decayDistZ);
 
-    float nPhoton = tau_n_photons_total(*tau);
+    double nPhoton = double(tau_n_photons_total(*tau));
     double ptWeightedDetaStrip = tau_pt_weighted_deta_strip(*tau, tauDecayMode);
     double ptWeightedDphiStrip = tau_pt_weighted_dphi_strip(*tau, tauDecayMode);
     double ptWeightedDrSignal = tau_pt_weighted_dr_signal(*tau, tauDecayMode);

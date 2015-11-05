@@ -810,7 +810,7 @@ hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw = discriminationByIsolationMVA
     srcNeutralIsoPtSum = cms.InputTag('hpsPFTauNeutralIsoPtSum'),
     srcPUcorrPtSum = cms.InputTag('hpsPFTauPUcorrPtSum'),
     srcPhotonPtSumOutsideSignalCone = cms.InputTag('hpsPFTauPhotonPtSumOutsideSignalCone'),
-    srcPFTauFootprintCorrection = cms.InputTag('hpsPFTauFootprintCorrection'),
+    srcFootprintCorrection = cms.InputTag('hpsPFTauFootprintCorrection'),
     verbosity = cms.int32(0)
 )
 hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwoLT = discriminationByIsolationMVA2VLoose.clone(
@@ -1098,7 +1098,7 @@ hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw = hpsPFTauDiscrimina
     srcNeutralIsoPtSum = cms.InputTag('hpsPFTauNeutralIsoPtSumdR03'),
     srcPUcorrPtSum = cms.InputTag('hpsPFTauPUcorrPtSumdR03'),
     srcPhotonPtSumOutsideSignalCone = cms.InputTag('hpsPFTauPhotonPtSumOutsideSignalConedR03'),
-    srcPFTauFootprintCorrection = cms.InputTag('hpsPFTauFootprintCorrectiondR03'),
+    srcFootprintCorrection = cms.InputTag('hpsPFTauFootprintCorrectiondR03'),
     verbosity = cms.int32(0)
 )
 hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT = discriminationByIsolationMVA2VLoose.clone(
