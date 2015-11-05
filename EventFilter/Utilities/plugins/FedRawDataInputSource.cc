@@ -56,12 +56,12 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   edm::RawInputSource(pset, desc),
   defPath_(pset.getUntrackedParameter<std::string> ("buDefPath", std::string(getenv("CMSSW_BASE"))+"/src/EventFilter/Utilities/plugins/budef.jsd")),
   eventChunkSize_(pset.getUntrackedParameter<unsigned int> ("eventChunkSize",32)*1048576),
-  eventChunkBlock_(pset.getUntrackedParameter<unsigned int> ("eventChunkBlock",eventChunkSize_/1048576)*1048576),
+  eventChunkBlock_(pset.getUntrackedParameter<unsigned int> ("eventChunkBlock",32)*1048576),
   numBuffers_(pset.getUntrackedParameter<unsigned int> ("numBuffers",2)),
   maxBufferedFiles_(pset.getUntrackedParameter<unsigned int> ("maxBufferedFiles",2)),
   getLSFromFilename_(pset.getUntrackedParameter<bool> ("getLSFromFilename", true)),
   verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
-  verifyChecksum_(pset.getUntrackedParameter<bool> ("verifyChecksum", verifyAdler32_)),
+  verifyChecksum_(pset.getUntrackedParameter<bool> ("verifyChecksum", true)),
   useL1EventID_(pset.getUntrackedParameter<bool> ("useL1EventID", false)),
   runNumber_(edm::Service<evf::EvFDaqDirector>()->getRunNumber()),
   fuOutputDir_(edm::Service<evf::EvFDaqDirector>()->baseRunDir()),
@@ -84,6 +84,16 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   setRunAuxiliary(new edm::RunAuxiliary(runNumber_, edm::Timestamp::beginOfTime(),
 					edm::Timestamp::invalidTimestamp()));
 
+  std::string defPathSuffix = "src/EventFilter/Utilities/plugins/budef.jsd";
+  defPath_ = std::string(getenv("CMSSW_BASE")) + "/" + defPathSuffix;
+  struct stat statbuf;
+  if (stat(defPath_.c_str(), &statbuf)) {
+    defPath_ = std::string(getenv("CMSSW_RELEASE_BASE")) + "/" + defPathSuffix;
+    if (stat(defPath_.c_str(), &statbuf)) {
+      defPath_ = defPathSuffix;
+    }
+  }
+
   dpd_ = new DataPointDefinition();
   std::string defLabel = "data";
   DataPointDefinition::getDataPointDefinitionFor(defPath_, dpd_,&defLabel);
@@ -95,7 +105,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
     eventChunkSize_=readBlocks_*eventChunkBlock_;
 
   if (!numBuffers_)
-   throw cms::Exception("FedRawDataInputSource::FedRawDataInputSource") <<
+    throw cms::Exception("FedRawDataInputSource::FedRawDataInputSource") <<
 	           "no reading enabled with numBuffers parameter 0";
 
   numConcurrentReads_=numBuffers_-1;
@@ -105,24 +115,19 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   if (!crc32c_hw_test())
     edm::LogError("FedRawDataInputSource::FedRawDataInputSource") << "Intel crc32c checksum computation unavailable";
 
-  //het handles to DaqDirector and FastMonitoringService because it isn't acessible in readSupervisor thread
-
-  try {
-    fms_ = (evf::FastMonitoringService *) (edm::Service<evf::MicroStateService>().operator->());
-  } catch (...){
-    edm::LogWarning("FedRawDataInputSource") << "FastMonitoringService not found";
-    assert(0);//test
+  //get handles to DaqDirector and FastMonitoringService because getting them isn't possible in readSupervisor thread
+  fms_ = static_cast<evf::FastMonitoringService *> (edm::Service<evf::MicroStateService>().operator->());
+  if (!fms_) {
+    throw cms::Exception("FedRawDataInputSource") << "FastMonitoringService not found";
   }
 
-  try {
-    daqDirector_ = (evf::EvFDaqDirector *) (edm::Service<evf::EvFDaqDirector>().operator->());
-    //set DaqDirector to delete files in preGlobalEndLumi callback
-    daqDirector_->setDeleteTracking(&fileDeleteLock_,&filesToDelete_);
-    if (fms_) daqDirector_->setFMS(fms_);
-  } catch (...){
-    edm::LogWarning("FedRawDataInputSource") << "EvFDaqDirector not found";
-    assert(0);//test
-  }
+  daqDirector_ = edm::Service<evf::EvFDaqDirector>().operator->();
+  if (!daqDirector_)
+    cms::Exception("FedRawDataInputSource") << "EvFDaqDirector not found";
+
+  //set DaqDirector to delete files in preGlobalEndLumi callback
+  daqDirector_->setDeleteTracking(&fileDeleteLock_,&filesToDelete_);
+  if (fms_) daqDirector_->setFMS(fms_);
 
   //should delete chunks when run stops
   for (unsigned int i=0;i<numBuffers_;i++) {
@@ -177,6 +182,21 @@ FedRawDataInputSource::~FedRawDataInputSource()
     delete ch;
   }
   */
+}
+
+void FedRawDataInputSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+{
+  edm::ParameterSetDescription desc;
+  desc.setComment("File-based Filter Farm input source for reading raw data from BU ramdisk");
+  desc.addUntracked<unsigned int> ("eventChunkSize",32)->setComment("Input buffer (chunk) size");
+  desc.addUntracked<unsigned int> ("eventChunkBlock",32)->setComment("Block size used in a single file read call (must be smaller or equal to buffer size)");
+  desc.addUntracked<unsigned int> ("numBuffers",2)->setComment("Number of buffers used for reading input");
+  desc.addUntracked<unsigned int> ("maxBufferedFiles",2)->setComment("Maximum number of simultaneously buffered raw files");
+  desc.addUntracked<bool> ("verifyAdler32", true)->setComment("Verify event Adler32 checksum with FRDv3 or v4");
+  desc.addUntracked<bool> ("verifyChecksum", true)->setComment("Verify event CRC-32C checksum of FRDv5 or higher");
+  desc.addUntracked<bool> ("useL1EventID", false)->setComment("Use L1 event ID from FED header if true or from TCDS FED if false");
+  desc.setAllowAnything();
+  descriptions.add("source", desc);
 }
 
 bool FedRawDataInputSource::checkNextEvent()
@@ -590,7 +610,7 @@ void FedRawDataInputSource::deleteFile(std::string const& fileName)
     try {
       boost::filesystem::remove(filePath);
     }
-    catch (...) {/*file gets deleted first time but exception is still thrown*/}
+    catch (const boost::filesystem::filesystem_error&) {/*file gets deleted first time but exception is still thrown*/}
   }
   catch (std::exception& ex)
   {
@@ -599,7 +619,7 @@ void FedRawDataInputSource::deleteFile(std::string const& fileName)
     usleep(100000);
     try {
       boost::filesystem::remove(filePath);
-    } catch (...) {/*file gets deleted first time but exception is still thrown*/}
+    } catch (std::exception&) {/*file gets deleted first time but exception is still thrown*/}
   }
 }
 
@@ -1222,7 +1242,6 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile *file)
     if (leftsize) {
       const ssize_t last = ::read(fileDescriptor_,( void*)( file->chunks_[0]->buf_ + existingSize ), leftsize);
       bufferInputRead_+=last;
-      existingSize+=last;
     }
     file->chunkPosition_=0;//data was moved to beginning of the chunk
   }

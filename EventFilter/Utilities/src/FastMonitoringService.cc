@@ -19,6 +19,9 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 using namespace jsoncollector;
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 constexpr double throughputFactor() {return (1000000)/double(1024*1024);}
 
 #define NRESERVEDMODULES 33
@@ -40,11 +43,9 @@ namespace evf{
     ,encModule_(NRESERVEDMODULES)
     ,nStreams_(0)//until initialized
     ,sleepTime_(iPS.getUntrackedParameter<int>("sleepTime", 1))
-    ,fastMonIntervals_(iPS.getUntrackedParameter<unsigned int>("fastMonIntervals", 1))
-    ,microstateDefPath_(iPS.getUntrackedParameter<std::string> ("microstateDefPath", std::string(getenv("CMSSW_BASE"))+"/src/EventFilter/Utilities/plugins/microstatedef.jsd"))
-    ,fastMicrostateDefPath_(iPS.getUntrackedParameter<std::string>("fastMicrostateDefPath", microstateDefPath_))
-    ,fastName_(iPS.getUntrackedParameter<std::string>("fastName", "fastmoni"))
-    ,slowName_(iPS.getUntrackedParameter<std::string>("slowName", "slowmoni"))
+    ,fastMonIntervals_(iPS.getUntrackedParameter<unsigned int>("fastMonIntervals", 2))
+    ,fastName_("fastmoni")
+    ,slowName_("slowmoni")
     ,totalEventsProcessed_(0)
   {
     reg.watchPreallocate(this, &FastMonitoringService::preallocate);//receiving information on number of threads
@@ -77,11 +78,35 @@ namespace evf{
     reg.watchPreStreamEarlyTermination(this,&FastMonitoringService::preStreamEarlyTermination);
     reg.watchPreGlobalEarlyTermination(this,&FastMonitoringService::preGlobalEarlyTermination);
     reg.watchPreSourceEarlyTermination(this,&FastMonitoringService::preSourceEarlyTermination);
+
+    //find microstate definition path (required by the module)
+    struct stat statbuf;
+    std::string microstateBaseSuffix = "src/EventFilter/Utilities/plugins/microstatedef.jsd";
+    std::string microstatePath = std::string(getenv("CMSSW_BASE")) + "/" + microstateBaseSuffix;
+    if (stat(microstatePath.c_str(), &statbuf)) {
+      microstatePath = std::string(getenv("CMSSW_RELEASE_BASE")) + "/" + microstateBaseSuffix;
+      if (stat(microstatePath.c_str(), &statbuf)) {
+        microstatePath = microstateBaseSuffix;
+        if (stat(microstatePath.c_str(), &statbuf))
+          throw cms::Exception("FastMonitoringService") << "microstate definition file not found";
+      }
+    }
+    fastMicrostateDefPath_ = microstateDefPath_ = microstatePath;
   }
 
 
   FastMonitoringService::~FastMonitoringService()
   {
+  }
+
+  void FastMonitoringService::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+  {
+    edm::ParameterSetDescription desc;
+    desc.setComment("Service for File-based DAQ monitoring and event accounting");
+    desc.addUntracked<int> ("sleepTime",1)->setComment("Sleep time of the monitoring thread");
+    desc.addUntracked<unsigned int> ("fastMonIntervals",2)->setComment("Modulo of sleepTime intervals on which fastmon file is written out");
+    desc.setAllowAnything();
+    descriptions.add("FastMonitoringService", desc);
   }
 
 
