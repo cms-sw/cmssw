@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # Database output service
 # Required if AlignmentProducer.saveToDB = true
-from CondCore.DBCommon.CondDBSetup_cfi import *
+from CondCore.CondDB.CondDB_cfi import *
 PoolDBESSource = cms.ESSource("PoolDBESSource",
     CondDBSetup,
     #string connect = "frontier://FrontierProd/CMS_COND_20X_ALIGNMENT"
