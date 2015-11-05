@@ -21,6 +21,12 @@ def _addLumiProducer(process):
 
     return process
 
+def _overridesFor50ns(process):
+    process.bunchSpacingProducer.bunchSpacingOverride = cms.uint32(50)
+    process.bunchSpacingProducer.overrideBunchSpacing = cms.bool(True)
+
+    return process
+
 #gone with the fact that there is no difference between production and development sequence
 #def customiseCommon(process):
 #    return (process)
@@ -93,13 +99,7 @@ def customiseDataRun2Common_25ns(process):
 def customiseDataRun2Common_50nsRunsAfter253000(process):
     process = customiseDataRun2Common_withStage1(process)
 
-    if hasattr(process,'particleFlowClusterECAL'):
-        process.particleFlowClusterECAL.energyCorrector.autoDetectBunchSpacing = False
-        process.particleFlowClusterECAL.energyCorrector.bunchSpacing = cms.int32(50)
-    if hasattr(process,'ecalMultiFitUncalibRecHit'):
-        process.ecalMultiFitUncalibRecHit.algoPSet.useLumiInfoRunHeader = False
-        process.ecalMultiFitUncalibRecHit.algoPSet.bunchSpacing = cms.int32(50)
-
+    process = _overridesFor50ns(process)
     return process
 
 ##############################################################################
@@ -197,6 +197,7 @@ def customisePromptHI(process):
 def customiseRun2CommonHI(process):
     process = customiseDataRun2Common_withStage1(process)
     
+    process = _overridesFor50ns(process)
     # HI Specific additional customizations:
     # from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_Additional_HI
     # process = customiseSimL1EmulatorForPostLS1_Additional_HI(process)
