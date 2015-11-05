@@ -1065,7 +1065,7 @@ void HcalLogicalMapGenerator::averageQIEFNAL(const std::vector <HBHEHFQIEInfo>& 
       }
     }
   }
-
+  /*
   std::cout << "The average offsets and slopes base on subdetector and QIE channel: " << std::endl;
 
   for(i=0;i<6;i++)
@@ -1210,7 +1210,7 @@ void HcalLogicalMapGenerator::averageQIEFNAL(const std::vector <HBHEHFQIEInfo>& 
       }
     }
   } 
-
+  */
   return ;
 }
 
