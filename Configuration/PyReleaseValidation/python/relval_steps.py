@@ -258,7 +258,7 @@ steps['DisplacedSUSY_stopToBottom_M_300_1000mm_13']=gen2015('DisplacedSUSY_stopT
 
 # 13TeV High Stats samples
 steps['ZMM_13_HS']=gen2015('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(209,100))
-
+steps['TTbar_13_HS']=gen2015('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(100,50))
 
 def identitySim(wf):
     return merge([{'--restoreRND':'SIM','--process':'SIM2', '--inputCommands':'"keep *","drop *TagInfo*_*_*_*"' },wf])
@@ -384,6 +384,7 @@ steps['NuGun_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValNuGun_UP15/%s/GEN-SI
 
 #input for 13 TeV High Stats samples
 #steps['ZMM_13_HSINPUT']={'INPUT':InputInfo(dataSet='/RelValZMM_13_HS/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')} 
+#steps['TTbar_13_HSINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13_HS/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 
 ## high stat step1
 ecalHcal={
