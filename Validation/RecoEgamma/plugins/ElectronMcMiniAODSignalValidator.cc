@@ -243,7 +243,7 @@ void ElectronMcMiniAODSignalValidator::analyze(const edm::Event& iEvent, const e
 
     for(std::vector<pat::Electron>::const_iterator el1=electrons->begin(); el1!=electrons->end(); el1++) {
         // preselect electrons
-        if (el1->pt()>maxPt_ || std::abs(el1->eta())>maxAbsEta_) continue ;
+//        if (el1->pt()>maxPt_ || std::abs(el1->eta())>maxAbsEta_) continue ;
         
         // mee
 //        std::cout << "boucle 2 : " <<  el1->pt() << std::endl ;
