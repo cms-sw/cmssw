@@ -19,7 +19,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
-#define private public
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TColor.h"
@@ -146,16 +145,6 @@ EveService::EveService(const edm::ParameterSet&, edm::ActivityRegistry& ar) :
    std::cout<<"calling NeedGraphicsLibs()"<<std::endl;
    TApplication::NeedGraphicsLibs();
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,34,18)
-   // AMT workaround for an agressive clenup in 5.43.18
-   if (!gStyle) {
-      TColor::fgInitDone=false;
-      TColor::InitializeColors();
-      TStyle::BuildStyles();
-      gROOT->SetStyle(gEnv->GetValue("Canvas.Style", "Modern"));
-      gStyle = gROOT->GetStyle("Classic");
-   }
-#endif
    m_EveManager = TEveManager::Create();
 
    m_EveManager->AddEvent(new TEveEventManager("Event", "Event Data"));
