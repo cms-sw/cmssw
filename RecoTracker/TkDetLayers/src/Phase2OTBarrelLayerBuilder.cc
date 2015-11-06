@@ -11,8 +11,7 @@ Phase2OTBarrelLayer* Phase2OTBarrelLayerBuilder::build(const GeometricDet* aPhas
   // common place.
 
   vector<const GeometricDet*>  theGeometricDetRods = aPhase2OTBarrelLayer->components();
-  //edm::LogInfo(TkDetLayers) << "theGeometricDetRods has size: " << theGeometricDetRods.size() ;  
-  
+  LogDebug("TkDetLayers") << "Phase2OTBarrelLayerBuilder with #Rods: " << theGeometricDetRods.size() << std::endl;
 
   Phase2OTBarrelRodBuilder myPhase2OTBarrelRodBuilder;
 
@@ -22,10 +21,12 @@ Phase2OTBarrelLayer* Phase2OTBarrelLayerBuilder::build(const GeometricDet* aPhas
   // properly calculate the meanR value to separate rod in inner/outer.
 
   double meanR = 0;
-  for (unsigned int index=0; index!=theGeometricDetRods.size(); index++)   meanR+=theGeometricDetRods[index]->positionBounds().perp();
-  if (theGeometricDetRods.size()!=0)
-    meanR/=(double) theGeometricDetRods.size();
-  
+  for(vector<const GeometricDet*>::const_iterator it=theGeometricDetRods.begin();
+      it!=theGeometricDetRods.end();it++){
+    meanR = meanR + (*it)->positionBounds().perp();
+  }
+  meanR = meanR/theGeometricDetRods.size();
+
   for(unsigned int index=0; index!=theGeometricDetRods.size(); index++){    
     if(theGeometricDetRods[index]->positionBounds().perp() < meanR)
       theInnerRods.push_back(myPhase2OTBarrelRodBuilder.build(theGeometricDetRods[index],

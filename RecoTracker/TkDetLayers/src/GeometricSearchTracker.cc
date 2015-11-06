@@ -69,9 +69,10 @@ GeometricSearchTracker::GeometricSearchTracker(const vector<BarrelDetLayer*>& px
     << "\nn Total :     "     << theAllLayers.size() << " " << sq
     << std::endl;
 
-    for (auto l : theAllLayers)
-      edm::LogInfo("TkDetLayers") << (*l).seqNum()<< ": " << (*l).subDetector() << ", ";
-    edm::LogInfo("TkDetLayers") << std::endl;
+    for (auto l : theAllLayers) {
+      LogTrace("TkDetLayers") << (*l).seqNum()<< ": " << (*l).subDetector() << ", ";
+    }
+    LogTrace("TkDetLayers") << std::endl;
 
 }
 
@@ -90,6 +91,7 @@ GeometricSearchTracker::~GeometricSearchTracker(){
 const DetLayer*          
 GeometricSearchTracker::idToLayer(const DetId& id) const
 {
+  std::cout << "GeometricSearchTracker::idToLayer id.subdetId" << id.subdetId() << std::endl;
   switch(id.subdetId()) {
   case StripSubdetector::TIB:
     return theTibLayers[theTrkTopo->tibLayer(id)-1];
