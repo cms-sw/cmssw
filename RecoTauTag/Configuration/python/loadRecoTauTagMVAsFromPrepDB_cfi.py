@@ -10,6 +10,11 @@ loadRecoTauTagMVAsFromPrepDB = cms.ESSource("PoolDBESSource",
     #connect = cms.string('sqlite_file:RecoTauTag/Configuration/data/RecoTauTag_MVAs_2015Oct21.db')
 )
 
+
+if socket.getfqdn().find('.cms') != -1:
+    loadRecoTauTagMVAsFromPrepDB.connect = cms.string('frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_CONDITIONS')
+
+
 # register tau ID (= isolation) discriminator MVA
 #tauIdDiscrMVA_trainings = {
 #    'tauIdMVAoldDMwoLT' : "tauIdMVAoldDMwoLT",
