@@ -13,8 +13,8 @@ autoCond = {
     # then it should point to the GR_H tag and override the connection string and pfnPrefix for use offline
     'hltonline'         :   'GR_H_V37::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
     # GlobalTag for POSTLS1 upgrade studies:
-    'upgradePLS1'       :   'MCRUN2_71_V1::All',
-    'upgradePLS150ns'   :   'MCRUN2_71_V0::All',
+    'upgradePLS1'       :   'MCRUN2_71_V3::All',
+    'upgradePLS150ns'   :   'MCRUN2_71_V2::All',
     'upgrade2017'       :   'DES17_70_V2::All', # placeholder (GT not meant for standard RelVal)
     'upgrade2019'       :   'DES19_70_V2::All', # placeholder (GT not meant for standard RelVal)
     'upgradePLS3'       :   'POSTLS262_V1::All', # placeholder (GT not meant for standard RelVal)
@@ -29,11 +29,11 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
     'run1_mc_pPb'       :   'STARTHI71_V16::All',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   'DESRUN2_71_V0::All',
+    'run2_design'       :   'DESRUN2_71_V1::All',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   'MCRUN2_71_V0::All',
+    'run2_mc_50ns'      :   'MCRUN2_71_V2::All',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   'MCRUN2_71_V1::All',
+    'run2_mc'           :   'MCRUN2_71_V3::All',
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   'GR_R_71_V7::All',
     # GlobalTag for Run2 data reprocessing
