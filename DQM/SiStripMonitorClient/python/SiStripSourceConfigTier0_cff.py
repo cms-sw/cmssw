@@ -36,7 +36,7 @@ SiStripMonitorDigi.TProfGlobalNShots.globalswitchon = True
 # SiStripMonitorCluster ####
 from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
 SiStripMonitorClusterBPTX = SiStripMonitorCluster.clone()
-SiStripMonitorClusterBPTX.Mod_On = True #False
+SiStripMonitorClusterBPTX.Mod_On = False
 SiStripMonitorClusterBPTX.TH1TotalNumberOfClusters.subdetswitchon   = True
 SiStripMonitorClusterBPTX.TProfClustersApvCycle.subdetswitchon      = True
 SiStripMonitorClusterBPTX.TProfTotalNumberOfClusters.subdetswitchon = True 

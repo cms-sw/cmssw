@@ -51,13 +51,12 @@ SiStripMonitorCluster.TH1MainDiagonalPosition.globalswitchon=False
 SiStripMonitorCluster.TH1StripNoise2ApvCycle.globalswitchon=True
 SiStripMonitorCluster.TH1StripNoise3ApvCycle.globalswitchon=True
 SiStripMonitorCluster.TH1TotalNumberOfClusters.subdetswitchon = True
+SiStripMonitorCluster.TH1TotalNumberOfClusters.xmax = cms.double(1999.5)
 SiStripMonitorCluster.ClusterHisto = True
-SiStripMonitorCluster.TH1NClusStrip.Nbinsx = cms.int32(200)
-SiStripMonitorCluster.TH1NClusStrip.xmax = cms.double(3999.5)
+SiStripMonitorCluster.TH1NClusStrip.Nbinsx = cms.int32(100)
+SiStripMonitorCluster.TH1NClusStrip.xmax = cms.double(1999.5)
 SiStripMonitorCluster.TH1NClusPx.Nbinsx = cms.int32(100)
 SiStripMonitorCluster.TH1NClusPx.xmax = cms.double(999.5)
-SiStripMonitorCluster.TH1TotalNumberOfClusters.Nbinx = cms.int32(100)
-SiStripMonitorCluster.TH1TotalNumberOfClusters.xmax = cms.double(1999.5)
 
 # SiStripMonitorTrack ####
 # Clone for Cosmic Tracks
@@ -67,10 +66,10 @@ SiStripMonitorTrack_cosmicTk.TrackProducer = 'cosmictrackfinderP5'
 SiStripMonitorTrack_cosmicTk.Mod_On        = False
 
 # Clone for CKF Tracks
-import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_ckf = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrack_ckf.TrackProducer      = 'ctfWithMaterialTracksP5'
 SiStripMonitorTrack_ckf.Mod_On             = False
+SiStripMonitorTrack_ckf.TH1nClustersOff.xmax = cms.double(1999.5)
 
 # Clone for Road Search  Tracks
 #import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
@@ -85,7 +84,6 @@ MonitorTrackResiduals_cosmicTk = DQM.TrackerMonitorTrack.MonitorTrackResiduals_c
 MonitorTrackResiduals_cosmicTk.trajectoryInput     = 'cosmictrackfinderP5'
 MonitorTrackResiduals_cosmicTk.Mod_On              = False
 # Clone for CKF Tracks
-import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
 MonitorTrackResiduals_ckf = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 MonitorTrackResiduals_ckf.trajectoryInput          = 'ctfWithMaterialTracksP5'
 MonitorTrackResiduals_ckf.Mod_On                   = False
@@ -105,7 +103,6 @@ TrackMon_cosmicTk.FolderName                       = 'Tracking/TrackParameters'
 TrackMon_cosmicTk.doSeedParameterHistos            = True
 
 # Clone for CKF Tracks
-import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
 TrackMon_ckf = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmicTrackMon.clone()
 TrackMon_ckf.TrackProducer                         = 'ctfWithMaterialTracksP5'
 TrackMon_ckf.AlgoName                              = 'CKFTk'
@@ -121,7 +118,6 @@ TrackMon_ckf.doSeedParameterHistos                 = True
 #TrackMon_rs.doSeedParameterHistos                  = True
 
 # Clone for Beam Halo Muon Tracks
-import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
 TrackMon_bhmuon = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmicTrackMon.clone()
 TrackMon_bhmuon.TrackProducer                      = 'ctfWithMaterialTracksBeamHaloMuon'
 TrackMon_bhmuon.AlgoName                           = 'BHMuonTk'
@@ -151,7 +147,6 @@ TrackEffMon_ckf.FolderName                         = 'Tracking/TrackParameters/T
 #TrackEffMon_rs.FolderName                          = 'Tracking/TrackParameters/TrackEfficiency'
 
 # Clone for Beam Halo  Tracks
-import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
 TrackEffMon_bhmuon = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
 TrackEffMon_bhmuon.TKTrackCollection               = 'ctfWithMaterialTracksBeamHaloMuon'
 TrackEffMon_bhmuon.AlgoName                        = 'BHMuonTk'
