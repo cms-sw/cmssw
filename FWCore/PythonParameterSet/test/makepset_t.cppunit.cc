@@ -220,7 +220,6 @@ void testmakepset::fileinpathAux() {
   std::string tmpout = fullpath.substr(0, fullpath.find("FWCore/ParameterSet/python/Config.py")) + "tmp.py";
 
   edm::FileInPath topo = innerps.getParameter<edm::FileInPath>("topo");
-  CPPUNIT_ASSERT(topo.location() != edm::FileInPath::Local);
   CPPUNIT_ASSERT(topo.relativePath() == "Geometry/TrackerSimData/data/trackersens.xml");
   fullpath = topo.fullPath();
   CPPUNIT_ASSERT(!fullpath.empty());
