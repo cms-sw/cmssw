@@ -11,3 +11,8 @@
 <use   name="CLHEP"/>
 <flags   EDM_PLUGIN="1"/>
 <library   file="HGCalDigiTester.cc" name="testSimCalorimetryHCCalDigi"> </library>
+
+<bin   file="runtestSimCalorimetryHGCalSimProducers.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash SimCalorimetry/HGCalSimProducers/test runtests.sh"/>
+  
+</bin>
