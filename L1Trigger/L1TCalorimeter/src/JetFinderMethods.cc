@@ -48,7 +48,6 @@ namespace l1t {
 			      const std::vector<l1t::CaloRegion> * regions,
 			      std::vector<l1t::Jet> * uncalibjets)
   {
-    // std::cout << "Jet Seed: " << jetSeedThreshold << std::endl;
     for(std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
       int regionET = region->hwPt(); //regionPhysicalEt(*region);
       if (regionET  <= jetSeedThreshold) continue;
@@ -170,7 +169,6 @@ namespace l1t {
 			      const std::vector<l1t::CaloRegion> * regions,
 			      std::vector<l1t::Jet> * uncalibjets)
   {
-    // std::cout << "Jet Seed: " << jetSeedThreshold << std::endl;
     for(std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
       int regionET = region->hwPt(); //regionPhysicalEt(*region);
       if (regionET  < jetSeedThreshold) continue;

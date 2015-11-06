@@ -20,7 +20,6 @@ namespace l1t {
 			     std::vector<l1t::CaloRegion> *subRegions,
 			     CaloParamsHelper *params)
   {
-    const bool verbose = false;
     int puLevelHI[L1CaloRegionDetId::N_ETA];
 
     for(unsigned i = 0; i < L1CaloRegionDetId::N_ETA; ++i)
@@ -33,18 +32,12 @@ namespace l1t {
       puLevelHI[region->hwEta()] += region->hwPt();
     }
 
-    if(verbose)
-      std::cout << "hwEta avgValue" << std::endl;
     for(unsigned i = 0; i < L1CaloRegionDetId::N_ETA; ++i)
     {
       //puLevelHI[i] = floor(((double)puLevelHI[i] / (double)L1CaloRegionDetId::N_PHI)+0.5);
       puLevelHI[i] = (puLevelHI[i] + 9) * 455 / (1 << 13); // approx equals X/18 +0.5
-      if(verbose)
-	std::cout << i << " " << puLevelHI[i] << std::endl;
     }
 
-    if(verbose)
-      std::cout << "hwPt hwEta hwPhi subtractedValue hwPt_afterSub" << std::endl;
     for(std::vector<CaloRegion>::const_iterator region = regions.begin(); region!= regions.end(); region++){
       int subPt = std::max(0, region->hwPt() - puLevelHI[region->hwEta()]);
       int subEta = region->hwEta();
@@ -53,9 +46,6 @@ namespace l1t {
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
-      if(verbose)
-	std::cout << region->hwPt() << " " << subEta << " " << subPhi << " "
-		  << puLevelHI[region->hwEta()] << " " << subPt << std::endl;
       CaloRegion newSubRegion(*&ldummy, 0, 0, subPt, subEta, subPhi, region->hwQual(), region->hwEtEm(), region->hwEtHad());
       subRegions->push_back(newSubRegion);
     }
@@ -70,12 +60,10 @@ namespace l1t {
       int subPhi = region->hwPhi();
       int subPt = region->hwPt();
 
-      //std::cout << "pre sub: " << subPt;
       if(subPt != (2<<10)-1)
 	subPt = subPt - (10+subEta); // arbitrary value chosen in meeting
       if(subPt < 0)
 	subPt = 0;
-      //std::cout << " post sub: " << subPt << std::endl;
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
       CaloRegion newSubRegion(*&ldummy, 0, 0, subPt, subEta, subPhi, region->hwQual(), region->hwEtEm(), region->hwEtHad());
@@ -112,7 +100,6 @@ namespace l1t {
       for(std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();
 	  notCorrectedRegion != regions.end(); notCorrectedRegion++){
 	int regionET = notCorrectedRegion->hwPt();
-	// cout << "regionET: " << regionET <<endl;
 	if (regionET > 0) {puMult++;}
       }
       int pumbin = (int) puMult/22;
@@ -131,9 +118,6 @@ namespace l1t {
 	// RegionLSB=.5 (physicalRegionEt), so to get back unmultiplied
 	// regionSubtraction we want to multiply the number by 2
 	// (aka divide by LSB).
-
-	//if(puSub > 0)
-	//std::cout << "eta: " << regionEta << " pusub: " << puSub << std::endl;
 
 	int regionEtCorr = std::max(0, regionET - puSub);
 	if(regionET == 1023)
