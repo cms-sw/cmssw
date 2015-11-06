@@ -6,7 +6,7 @@ loadRecoTauTagMVAsFromPrepDB = cms.ESSource("PoolDBESSource",
     DumpStat = cms.untracked.bool(False),
     toGet = cms.VPSet(),                                             
     #  connect = cms.string("frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS") # prep database
-    connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000') # prod database
+    connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') # prod database
     #connect = cms.string('sqlite_file:RecoTauTag/Configuration/data/RecoTauTag_MVAs_2015Oct21.db')
 )
 
