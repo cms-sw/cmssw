@@ -96,7 +96,7 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   edm::ESHandle<GeometricDet> gD;
   iRecord.getRecord<IdealGeometryRecord>().get( gD );
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
-  theTracker  = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*gD), thePSet));
+  theTracker  = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*gD), thePSet, tTopo));
  
   // Create the alignable hierarchy
   std::auto_ptr<AlignableTracker> theAlignableTracker(new AlignableTracker( &(*theTracker), tTopo ) );

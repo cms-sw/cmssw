@@ -8,7 +8,7 @@
 class GluedGeomDet : public GeomDet{
 public:
 
-  GluedGeomDet( BoundPlane* sp, const GeomDetUnit* monoDet,  const GeomDetUnit* stereoDet);
+  GluedGeomDet( BoundPlane* sp, const GeomDetUnit* monoDet,  const GeomDetUnit* stereoDet, const DetId gluedDetId);
   
   virtual ~GluedGeomDet();
 

@@ -203,7 +203,7 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   // Create the geometries from the ideal geometries (first time only)
-  this->createGeometries_( iSetup );
+  this->createGeometries_( iSetup, tTopo );
   
   // Retrieve and apply alignments, if requested (requires DB setup)
   if ( applyDbAlignment_ ) {
@@ -638,7 +638,7 @@ void AlignmentProducer::simpleMisalignment_(const Alignables &alivec, const std:
 
 
 //__________________________________________________________________________________________________
-void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
+void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup, const TrackerTopology* tTopo)
 {
    edm::ESTransientHandle<DDCompactView> cpv;
    iSetup.get<IdealGeometryRecord>().get( cpv );
@@ -647,7 +647,7 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
      edm::ESHandle<GeometricDet> geometricDet;
      iSetup.get<IdealGeometryRecord>().get( geometricDet );
      TrackerGeomBuilderFromGeometricDet trackerBuilder;
-     theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet), theParameterSet ));
+     theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet), theParameterSet, tTopo ));
    }
 
    if (doMuon_) {
