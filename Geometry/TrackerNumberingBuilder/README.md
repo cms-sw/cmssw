@@ -122,7 +122,7 @@ Subdetectors 3 to 6 are as for the Run 1 detector since the SiStrip Tracker is t
 The configuration names for this detid schema are `trackerNumbering2017Geometry_cfi` for `TrackerGeometricDetESModule` and `trackerTopology2017Constants_cfi` for `TrackerTopology`
 
 ### Phase 2 Upgrade Detector DetId schema
-The phase 2 detector DetId schema is identical to the one of the phase 1 detector for the inner pixel detector while for the outer tracker subdetector 5, for the barrel, and subdetector 4, for the endcap, are used. In some cases the name of the `TrackerTopology` methods is not so meaningful.
+The phase 2 detector DetId schema is identical to the one of the phase 1 detector for the inner pixel detector while for the outer tracker subdetector 5, for the barrel, and subdetector 4, for the endcap, are used. In some cases the name of the `TrackerTopology` methods is not so meaningful. In particular, for the Outer Tracker, the methods DoubleSided is not implemented, firstly because there is no need, secondly because it is not possible, just looking at the DetId and without something hardcoded, to understand if the module is single or double. This is also valid for Run I and Phase 1.
  
 * Subdetector 1: (`DetId::subDetId() == PixelSubdetector::PixelBarrel`): Phase1 Pixel Barrel
 
@@ -154,7 +154,7 @@ The phase 2 detector DetId schema is identical to the one of the phase 1 detecto
 | Layer | 20 | 0xF | 4 | tobLayer(id) or layer(id) | increasing r |
 | Ladder | 12 | 0xFF | 8 | tobRod(id) | increasing phi |
 | Module | 2 | 0x3FF | 10 | tobModule(id) | increasing z |
-| Module type | 0 | 0x3 | 2 | | 1=lower in local s.o.r. (P sensor into PS), 2=upper in local s.o.r. (S sensor into PS), 0=pair |
+| Module type | 0 | 0x3 | 2 | lower(id) or upper(id) | 1=lower in local s.o.r.(P sensor into PS), 2=upper in local s.o.r.(S sensor into PS), 0=pair |
 
 * Subdetector 4  (`DetId::subDetId() == StripSubdetector::TID`): Phase2 Outer Tracker Endcap
 
@@ -166,7 +166,7 @@ The phase 2 detector DetId schema is identical to the one of the phase 1 detecto
 | _Ring_ | 12 | 0x3F | 6 | tidRing(id) | increasing r |
 | Panel | 10 | 0x3 | 2 | _tidOrder(id)_ | always = 1 |
 | Module | 2 | 0xFF | 8 | tidModule(id) | increasing phi |
-| Module type | 0 | 0x3 | 2 | | 1=lower in local s.o.r. (P sensor into PS), 2=upper in local s.o.r. (S sensor into PS), 0=pair |
+| Module type | 0 | 0x3 | 2 | lower(id) or upper(id) | 1=lower in local s.o.r.(P sensor into PS), 2=upper in local s.o.r.(S sensor into PS), 0=pair |
 
 The configuration names for this detid schema are `trackerNumbering2023Geometry_cfi` for `TrackerGeometricDetESModule` and `trackerTopology2023Constants_cfi` for `TrackerTopology`
 
