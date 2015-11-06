@@ -74,17 +74,17 @@ class LHEEventProductLite {
 
     class const_iterator {
         public:
-        typedef std::forward_iterator_tag    iterator_category;
-        typedef std::string            value_type;
-        typedef std::ptrdiff_t            difference_type;
-        typedef std::string            *pointer;
-        typedef std::string            &reference;
+        typedef std::forward_iterator_tag  iterator_category;
+        typedef std::string                value_type;
+        typedef std::ptrdiff_t             difference_type;
+        typedef std::string                *pointer;
+        typedef std::string                &reference;
 
-        const_iterator() : line(npos) {}
+        const_iterator() : line_(npos_) {}
         ~const_iterator() {}
 
         inline bool operator == (const const_iterator &other) const
-        { return line == other.line; }
+        { return line_ == other.line_ ; }
         inline bool operator != (const const_iterator &other) const
         { return !operator == (other); }
 
@@ -93,19 +93,18 @@ class LHEEventProductLite {
         inline const_iterator operator ++ (int dummy)
         { const_iterator orig = *this; next(); return orig; }
 
-        const std::string &operator * () const { return tmp; }
-        const std::string *operator -> () const { return &tmp; }
+        const std::string &operator * () const { return tmp_ ; }
+        const std::string *operator -> () const { return &tmp_ ; }
 
         private:
-        friend class LHEEventProductLite;
+        friend class LHEEventProductLite ;
 
         void next();
 
-        const LHEEventProductLite    *event;
-        unsigned int        line;
-        std::string        tmp;
-
-        static const unsigned int npos = 99999;
+        const LHEEventProductLite  *event_ ;
+        unsigned int               line_ ;
+        std::string                tmp_ ;
+        static const unsigned int  npos_ = 99999;
     };
 
     const_iterator begin() const;
