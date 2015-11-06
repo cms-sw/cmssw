@@ -20,7 +20,7 @@ SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
 # APV shots monitoring
 SiStripMonitorDigi.TkHistoMapNApvShots_On = True 
 SiStripMonitorDigi.TkHistoMapNStripApvShots_On= True
-SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= True
+SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= False
 SiStripMonitorDigi.TH1NApvShots.subdetswitchon = True
 SiStripMonitorDigi.TH1NApvShots.globalswitchon = True
 SiStripMonitorDigi.TH1ChargeMedianApvShots.subdetswitchon = True
@@ -36,7 +36,7 @@ SiStripMonitorDigi.TProfGlobalNShots.globalswitchon = True
 # SiStripMonitorCluster ####
 from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
 SiStripMonitorClusterBPTX = SiStripMonitorCluster.clone()
-SiStripMonitorClusterBPTX.Mod_On = False
+SiStripMonitorClusterBPTX.Mod_On = True #False
 SiStripMonitorClusterBPTX.TH1TotalNumberOfClusters.subdetswitchon   = True
 SiStripMonitorClusterBPTX.TProfClustersApvCycle.subdetswitchon      = True
 SiStripMonitorClusterBPTX.TProfTotalNumberOfClusters.subdetswitchon = True 

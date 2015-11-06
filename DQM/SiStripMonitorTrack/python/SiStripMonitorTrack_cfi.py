@@ -22,7 +22,8 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     OffHisto_On   = cms.bool(True),
     Trend_On      = cms.bool(False),
     HistoFlag_On  = cms.bool(False),
-    TkHistoMap_On = cms.bool(True),   
+    TkHistoMap_On = cms.bool(True),
+    clchCMoriginTkHmap_On = cms.bool(False),    
     
     ClusterConditions = cms.PSet( On       = cms.bool(False),
                                   minStoN  = cms.double(0.0),
@@ -36,9 +37,9 @@ SiStripMonitorTrack = cms.EDAnalyzer(
                              xmax  = cms.double(1999.5)
                              ),   
 
-    TH1nClustersOff = cms.PSet( Nbinx = cms.int32(100),
+    TH1nClustersOff = cms.PSet( Nbinx = cms.int32(200),
                              xmin  = cms.double(-0.5),
-                             xmax  = cms.double(14999.5)
+                             xmax  = cms.double(3999.5)
                              ),
     
     TH1ClusterCharge = cms.PSet(
