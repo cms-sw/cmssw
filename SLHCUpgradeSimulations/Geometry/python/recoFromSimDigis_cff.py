@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import *
-siPixelClusters.src = 'simSiPixelDigis'
+siPixelClusters.src = cms.InputTag('simSiPixelDigis', "Pixel")
 siPixelClusters.MissCalibrate = False
 
 from RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi import *
