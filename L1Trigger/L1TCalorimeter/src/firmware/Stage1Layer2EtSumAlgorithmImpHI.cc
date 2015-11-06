@@ -134,8 +134,6 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHI::processEvent(const std::vector<l1t::C
   MHT &= 127; // limit MHT to 7 bits as the firmware does, but only after checking for overflow.
   //MHT is replaced with MHT/HT
   uint16_t MHToHT=MHToverHT(MHT,sumHT);
-  // std::cout << "MHT HT MHT/HT" << std::endl;
-  // std::cout << MHT << " " << sumHT << " " << MHToHT << std::endl;
   //iPhiHt is replaced by the dPhi between two most energetic jets
   iPhiHT = DiJetPhi(jets);
 
@@ -157,35 +155,6 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHI::processEvent(const std::vector<l1t::C
 
   delete subRegions;
   delete preGtEtSums;
-
-  // Emulator - HDL simulation comparison printout
-  const bool verbose = false;
-  if(verbose)
-  {
-    for(std::vector<l1t::EtSum>::const_iterator itetsum = etsums->begin();
-	itetsum != etsums->end(); ++itetsum){
-      if(EtSum::EtSumType::kMissingEt == itetsum->getType())
-      {
-      	cout << "Missing Et" << endl;
-      	cout << bitset<7>(itetsum->hwPhi()).to_string() << bitset<1>(itetsum->hwQual()).to_string() << bitset<12>(itetsum->hwPt()).to_string() << endl;
-      }
-      if(EtSum::EtSumType::kMissingHt == itetsum->getType())
-      {
-      	cout << "Missing Ht" << endl;
-      	cout << bitset<1>(itetsum->hwQual()).to_string() << bitset<7>(itetsum->hwPt()).to_string() << bitset<5>(itetsum->hwPhi()).to_string() << endl;
-      }
-      if(EtSum::EtSumType::kTotalEt == itetsum->getType())
-      {
-	cout << "Total Et" << endl;
-	cout << bitset<1>(itetsum->hwQual()).to_string() << bitset<12>(itetsum->hwPt()).to_string() << endl;
-      }
-      if(EtSum::EtSumType::kTotalHt == itetsum->getType())
-      {
-	cout << "Total Ht" << endl;
-	cout << bitset<1>(itetsum->hwQual()).to_string() << bitset<12>(itetsum->hwPt()).to_string() << endl;
-      }
-    }
-  }
 }
 
 std::tuple<int, int, int>
@@ -285,7 +254,6 @@ l1t::Stage1Layer2EtSumAlgorithmImpHI::cordicToMETPhi(int phase)
 
 int l1t::Stage1Layer2EtSumAlgorithmImpHI::DiJetPhi(const std::vector<l1t::Jet> * jets)  const {
 
-  // cout << "Number of jets: " << jets->size() << endl;
 
   int dphi = 10; // initialize to negative physical dphi value
   if (jets->size()<2) return dphi; // size() not really reliable as we pad the size to 8 (4cen+4for) in the sorter
@@ -315,7 +283,6 @@ uint16_t l1t::Stage1Layer2EtSumAlgorithmImpHI::MHToverHT(uint16_t num,uint16_t d
       result = numerator/denominator;
       result = result & 0x7f;
     }
-  // cout << "Result: " << result << endl;
 
   return result;
 }

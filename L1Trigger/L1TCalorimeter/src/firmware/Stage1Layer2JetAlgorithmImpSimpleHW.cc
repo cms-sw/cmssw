@@ -50,48 +50,6 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
   JetToGtEtaScales(params_, preGtEtaJets, debugJets);
   //JetToGtPtScales(params_, preGtJets, jets);
 
-  const bool verbose = false;
-  const bool hex = false;
-  if(verbose)
-  {
-    int cJets = 0;
-    int fJets = 0;
-    printf("Jets Central\n");
-    //printf("pt\teta\tphi\n");
-    for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
-	itJet != jets->end(); ++itJet){
-      if((itJet->hwQual() & 2) == 2) continue;
-      cJets++;
-      if(!hex)
-      {
-	unsigned int packed = pack15bits(itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
-	cout << bitset<15>(packed).to_string() << endl;
-      } else {
-	uint32_t output = itJet->hwPt() + (itJet->hwEta() << 6) + (itJet->hwPhi() << 10);
-	std::cout << std::hex << std::setw(4) << std::setfill('0') << output << std::endl;
-      }
-      if(cJets == 4) break;
-    }
-
-    printf("Jets Forward\n");
-    //printf("pt\teta\tphi\n");
-    for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
-	itJet != jets->end(); ++itJet){
-      if((itJet->hwQual() & 2) != 2) continue;
-      fJets++;
-      if(!hex)
-      {
-	unsigned int packed = pack15bits(itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
-	cout << bitset<15>(packed).to_string() << endl;
-      } else {
-	uint32_t output = itJet->hwPt() + (itJet->hwEta() << 6) + (itJet->hwPhi() << 10);
-	std::cout << std::hex << std::setw(4) << std::setfill('0') << output << std::endl;
-      }
-
-      if(fJets == 4) break;
-    }
-  }
-
   delete subRegions;
   delete preGtEtaJets;
   delete calibratedRankedJets;

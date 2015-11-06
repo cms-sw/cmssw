@@ -124,23 +124,4 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
   spare->SetRing(3, (bits[5]<<2) + (bits[4]<<1) + bits[3]);
   // End MB Trigger //
 
-  const bool verbose = false;
-  const bool hex = true;
-  if(verbose)
-  {
-    if(!hex)
-    {
-      std::cout << "HF Ring Sums (Centrality)" << std::endl;
-      std::cout << bitset<12>(spare->hwPt()).to_string() << std::endl;
-    } else {
-      std::cout << "Centrality" << std::endl;
-      std::cout << std::hex << spare->hwPt() << std::endl;
-      // std::cout << std::hex << spare->GetRing(0) << " "
-      // 		<< spare->GetRing(1) << " "
-      // 		<< bits[0] << " " << bits[1] << " "
-      // 		<< bits[2] << " " << bits[3] << " "
-      // 		<< bits[4] << " " << bits[5] << std::endl;
-    }
-  }
-
 }
