@@ -48,8 +48,9 @@ namespace sistrip {
                         READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE=0x8,
                         READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT=0x9,
                         READOUT_MODE_ZERO_SUPPRESSED=0xA,
-                        READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE=0xB,
+                        READOUT_MODE_ZERO_SUPPRESSED_FAKE=0xB,
                         READOUT_MODE_ZERO_SUPPRESSED_LITE8=0xC,
+                        READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE=0xD,
                         READOUT_MODE_SPY=0xE,
                         READOUT_MODE_PREMIX_RAW=0xF
                       };

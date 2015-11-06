@@ -35,6 +35,7 @@ namespace sistrip {
     
     switch(mode_) {
     case READOUT_MODE_ZERO_SUPPRESSED:                         rawdigi_ = false; break;
+    case READOUT_MODE_ZERO_SUPPRESSED_FAKE:                    rawdigi_ = false; break;
   //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:              rawdigi_ = false; break;
     case READOUT_MODE_ZERO_SUPPRESSED_LITE10:                  rawdigi_ = false; break;
     case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:       rawdigi_ = false; break;
