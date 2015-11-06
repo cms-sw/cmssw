@@ -192,10 +192,6 @@
   <version ClassVersion="10" checksum="2903606143"/>
  </class>
 
- <class name="ROOT::TSchemaHelper" ClassVersion="10">
-  <version ClassVersion="10" checksum="3064700282"/>
- </class>
- <class name="std::vector<ROOT::TSchemaHelper>"/>
  <class name="std::vector<TFormula*>"/>
 
  <class name="edm::ThinnedAssociationBranches"/>
