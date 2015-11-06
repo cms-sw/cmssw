@@ -32,6 +32,7 @@
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavourInfo.h"
 
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
@@ -95,8 +96,12 @@ namespace pat {
       const reco::GenParticle * genParton() const { return genParticle(); }
       /// return the matched generated jet
       const reco::GenJet * genJet() const;
-      /// return the flavour of the parton underlying the jet
+      /// return the parton-based flavour of the jet
       int partonFlavour() const;
+      /// return the hadron-based flavour of the jet
+      int hadronFlavour() const;
+      /// return the JetFlavourInfo of the jet
+      const reco::JetFlavourInfo & jetFlavourInfo() const;
 
   public:
       /// ---- methods for jet corrections ----
@@ -209,8 +214,12 @@ namespace pat {
       void setGenParton(const reco::GenParticleRef & gp, bool embed=false) { setGenParticleRef(gp, embed); }
       /// method to set the matched generated jet reference, embedding if requested
       void setGenJetRef(const edm::FwdRef<reco::GenJetCollection> & gj);
-      /// method to set the flavour of the parton underlying the jet
+      /// method to set the parton-based flavour of the jet
       void setPartonFlavour(int partonFl);
+      /// method to set the hadron-based flavour of the jet
+      void setHadronFlavour(int hadronFl);
+      /// method to set the JetFlavourInfo of the jet
+      void setJetFlavourInfo(const reco::JetFlavourInfo & jetFlavourInfo);
 
 
       /// methods for jet ID
@@ -510,7 +519,7 @@ namespace pat {
       std::vector<reco::GenJet> genJet_;
       reco::GenJetRefVector genJetRef_;
       edm::FwdRef<reco::GenJetCollection>  genJetFwdRef_;
-      int partonFlavour_;
+      reco::JetFlavourInfo jetFlavourInfo_;
 
       // ---- energy scale correction factors ----
 

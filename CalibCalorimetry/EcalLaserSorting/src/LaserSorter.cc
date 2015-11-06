@@ -492,7 +492,7 @@ bool LaserSorter::writeEvent(OutStreamRecord& outRcd, const edm::Event& event,
   if(rc){
     //update index table for this file:
     vector<IndexRecord>& indices = *outRcd.indices();
-    IndexRecord indexRcd = {event.orbitNumber(), evtStart};
+    IndexRecord indexRcd = {static_cast<unsigned int>(event.orbitNumber()), evtStart};
     indices.push_back(indexRcd);
   }
   return rc;

@@ -175,6 +175,7 @@ sub checkDependency()
     }
     elsif ($isTool){push @allowed,$dep;}
   }
+  if ($msg){print ">> Done Checking dependency for $fprod\n";}
 }
 
 sub searchDeps()

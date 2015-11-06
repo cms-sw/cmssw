@@ -29,19 +29,19 @@ SiPixelFedCablingMap::SiPixelFedCablingMap(const SiPixelFedCablingTree *cab)
   std::vector<const PixelFEDCabling *> fedList = cab->fedList();
   for (std::vector<const PixelFEDCabling *>::const_iterator ifed=fedList.begin();
    ifed != fedList.end(); ifed++) {
-    int fed = (**ifed).id();
-    int numLink = (**ifed).numberOfLinks();
-    for (int link=1; link <= numLink; link++) {
+    unsigned int fed = (**ifed).id();
+    unsigned int numLink = (**ifed).numberOfLinks();
+    for (unsigned int link=1; link <= numLink; link++) {
       const PixelFEDLink * pLink = (**ifed).link(link); 
       if (pLink==0) continue;
-      int linkId = static_cast<int>(pLink->id());
+      unsigned int linkId = pLink->id();
       if (linkId != 0 && linkId!= link) 
           std::cout << "PROBLEM WITH LINK NUMBER!!!!" << std::endl;
-      int numberROC = pLink->numberOfROCs(); 
-      for (int roc=1; roc <= numberROC; roc++) {
+      unsigned int numberROC = pLink->numberOfROCs(); 
+      for (unsigned int roc=1; roc <= numberROC; roc++) {
         const PixelROC * pROC = pLink->roc(roc);
         if (pROC==0) continue;
-        if (static_cast<int>(pROC->idInLink()) != roc) 
+        if (pROC->idInLink() != roc) 
             std::cout << "PROBLEM WITH ROC NUMBER!!!!" << std::endl;
         Key key = {fed, link, roc}; 
         theMap[key] = (*pROC);

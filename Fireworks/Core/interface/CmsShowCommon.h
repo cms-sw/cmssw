@@ -23,6 +23,7 @@
 #include <sigc++/sigc++.h>
 
 #include "Rtypes.h"
+#include "TGLUtil.h"
 
 #include "Fireworks/Core/interface/FWConfigurableParameterizable.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
@@ -66,6 +67,9 @@ public:
 
    FWViewEnergyScale* getEnergyScale() const { return m_energyScale.get(); }
 
+   const TGLColorSet& getLightColorSet() const { return m_lightColorSet; }
+   const TGLColorSet& getDarkColorSet()  const { return m_darkColorSet;  }
+
    
    UChar_t getProjTrackBreaking() const { return m_trackBreak.value(); }
    bool    getRnrPTBMarkers() const { return m_drawBreakPoints.value(); }
@@ -90,6 +94,8 @@ protected:
    FWLongParameter     m_geomTransparency3D;
    FWLongParameter*    m_geomColors[kFWGeomColorSize];
 
+   TGLColorSet         m_lightColorSet;
+   TGLColorSet         m_darkColorSet;
  
    std::auto_ptr<FWViewEnergyScale>  m_energyScale;
 

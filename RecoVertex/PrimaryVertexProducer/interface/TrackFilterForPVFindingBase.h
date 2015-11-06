@@ -18,7 +18,7 @@ public:
   TrackFilterForPVFindingBase(){};
   TrackFilterForPVFindingBase(const edm::ParameterSet& conf){};
   virtual std::vector<reco::TransientTrack> select (const std::vector<reco::TransientTrack>& tracks)const=0;
-  //  ~TrackFilterForPVFindingBase(){};
+  virtual ~TrackFilterForPVFindingBase(){};
 };
 
 #endif

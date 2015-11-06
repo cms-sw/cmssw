@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:42:32 EST 2008
-// $Id: FWConfigurationManager.cc,v 1.16 2011/02/22 18:37:31 amraktad Exp $
 //
 
 // system include files
@@ -107,10 +106,9 @@ FWConfigurationManager::writeToFile(const std::string& iName) const
 {
    try
    {
-      ofstream file(iName.c_str());
+      std::ofstream file(iName.c_str());
       if(not file) {
-         std::string message("unable to open file %s ", iName.c_str());
-         fflush(stdout);
+         std::string message = "unable to open file " + iName;
          message += iName;
          throw std::runtime_error(message.c_str());
       }
@@ -121,7 +119,10 @@ FWConfigurationManager::writeToFile(const std::string& iName) const
 
       streamTo(file, top, "top");
    }
-   catch (std::runtime_error &e) { std::cout << e.what() << std::endl; }
+   catch (std::runtime_error &e)
+   { 
+      fwLog(fwlog::kError) << "FWConfigurationManager::writeToFile() " << e.what() << std::endl;
+   }
 }
 
 void
@@ -241,7 +242,7 @@ public:
    /** Executes any transaction in the state machine which happens when the 
        xml parser finds an new element.
      */
-   virtual void startElement(const std::string &tag, Attributes &attributes)
+   virtual void startElement(const std::string &tag, Attributes &attributes) override
    {
       debug_config_state_machine("start", tag, m_state);
       if (m_state == IN_BEGIN_DOCUMENT)
@@ -280,7 +281,7 @@ public:
        policy of addKeyValue addition which would add empty
        FWConfiguration objects if done on startElement.
      */
-   virtual void endElement(const std::string &tag)
+   virtual void endElement(const std::string &tag) override
    {
       debug_config_state_machine("end", tag, m_state);
       if (m_state == IN_PUSHED_CONFIG || m_state == IN_POPPED_CONFIG)
@@ -311,7 +312,7 @@ public:
        This is mainly used to handle <string> element contents
        but also whitespace between tags.
      */
-   virtual void data(const std::string &data)
+   virtual void data(const std::string &data) override
    {
       debug_config_state_machine("data", data, m_state);
       // We ignore whitespace but complain about any text which is not 

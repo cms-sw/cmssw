@@ -17,6 +17,7 @@ namespace RooStats { class ModelConfig; }
 class LimitAlgo {
 public:
   LimitAlgo() { }
+  virtual ~LimitAlgo() { }
   LimitAlgo(const char * desc) : options_(desc) { }
   virtual void applyOptions(const boost::program_options::variables_map &vm) { }
   virtual void applyDefaultOptions() { }

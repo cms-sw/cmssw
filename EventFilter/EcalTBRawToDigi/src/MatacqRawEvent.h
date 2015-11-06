@@ -92,7 +92,7 @@ private:
    */
   struct field32spec_t{
     int offset;
-    int mask;
+    unsigned int mask;
   };
   
   /** DAQ header field specifications.

@@ -27,6 +27,7 @@
 //#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 namespace edm
@@ -58,6 +59,7 @@ namespace edm
     Hadronizer            hadronizer_;
     //gen::ExternalDecayDriver* decayer_;
     Decayer*              decayer_;
+    unsigned int          nEventsInLumiBlock_;
   };
 
   //------------------------------------------------------------------------
@@ -68,7 +70,8 @@ namespace edm
   GeneratorFilter<HAD,DEC>::GeneratorFilter(ParameterSet const& ps) :
     EDFilter(),
     hadronizer_(ps),
-    decayer_(0)
+    decayer_(0),
+    nEventsInLumiBlock_(0)
   {
     // TODO:
     // Put the list of types produced by the filters here.
@@ -88,6 +91,7 @@ namespace edm
     
     produces<edm::HepMCProduct>();
     produces<GenEventInfoProduct>();
+    produces<GenLumiInfoProduct, edm::InLumi>();
     produces<GenRunInfoProduct, edm::InRun>();
  
   }
@@ -168,7 +172,7 @@ namespace edm
     std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
     bare_product->addHepMCData( event.release() );
     ev.put(bare_product);
-    
+    nEventsInLumiBlock_ ++;
     return true;
   }
 
@@ -209,7 +213,8 @@ namespace edm
   bool
   GeneratorFilter<HAD, DEC>::beginLuminosityBlock( LuminosityBlock &, EventSetup const& es )
   {
-
+    nEventsInLumiBlock_ = 0;
+    
     if ( !hadronizer_.readSettings(0) )
        throw edm::Exception(errors::Configuration) 
 	 << "Failed to read settings for the hadronizer "
@@ -242,12 +247,36 @@ namespace edm
 
   template <class HAD, class DEC>
   bool
-  GeneratorFilter<HAD, DEC>::endLuminosityBlock(LuminosityBlock &, EventSetup const&)
+  GeneratorFilter<HAD, DEC>::endLuminosityBlock(LuminosityBlock &lumi, EventSetup const&)
   {
-    // If relevant, record the integration luminosity of this
-    // luminosity block here.  To do so, we would need a standard
-    // function to invoke on the contained hadronizer that would
-    // report the integrated luminosity.
+    
+    hadronizer_.statistics();    
+    if ( decayer_ ) decayer_->statistics();
+
+    GenRunInfoProduct genRunInfo = GenRunInfoProduct(hadronizer_.getGenRunInfo());
+    std::vector<GenLumiInfoProduct::ProcessInfo> GenLumiProcess;
+    GenRunInfoProduct::XSec xsec = genRunInfo.internalXSec();
+    GenLumiInfoProduct::ProcessInfo temp;      
+    temp.setProcess(0);
+    temp.setLheXSec(xsec.value(), xsec.error()); // Pythia gives error of -1
+    temp.setNPassPos(nEventsInLumiBlock_);
+    temp.setNPassNeg(0);
+    temp.setNTotalPos(nEventsInLumiBlock_);
+    temp.setNTotalNeg(0);
+    temp.setTried(nEventsInLumiBlock_, nEventsInLumiBlock_, nEventsInLumiBlock_);
+    temp.setSelected(nEventsInLumiBlock_, nEventsInLumiBlock_, nEventsInLumiBlock_);
+    temp.setKilled(nEventsInLumiBlock_, nEventsInLumiBlock_, nEventsInLumiBlock_);
+    temp.setAccepted(0,-1,-1);
+    temp.setAcceptedBr(0,-1,-1);
+    GenLumiProcess.push_back(temp);
+
+    std::auto_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());
+    genLumiInfo->setHEPIDWTUP(-1);
+    genLumiInfo->setProcessInfo( GenLumiProcess );
+    lumi.put(genLumiInfo);
+
+    nEventsInLumiBlock_ = 0;
+    
     return true;
   }
 

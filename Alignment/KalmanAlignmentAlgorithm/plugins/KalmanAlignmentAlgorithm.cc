@@ -160,8 +160,8 @@ void KalmanAlignmentAlgorithm::run( const edm::EventSetup & setup, const EventIn
   try
   {
     // Run the refitter algorithm
-    const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs_;
-    const reco::BeamSpot &beamSpot = eventInfo.beamSpot_;
+    const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs();
+    const reco::BeamSpot &beamSpot = eventInfo.beamSpot();
     TrackletCollection refittedTracklets = theRefitter->refitTracks( setup, theAlignmentSetups, tracks, &beamSpot );
 
     // Associate tracklets to alignment setups
@@ -186,7 +186,7 @@ void KalmanAlignmentAlgorithm::run( const edm::EventSetup & setup, const EventIn
 
       // Construct reference trajectories
       ReferenceTrajectoryCollection trajectories =
-	itMap->first->trajectoryFactory()->trajectories( setup, tracklets, external, eventInfo.beamSpot_ );
+	itMap->first->trajectoryFactory()->trajectories( setup, tracklets, external, eventInfo.beamSpot() );
 
       ReferenceTrajectoryCollection::iterator itTrajectories;
 

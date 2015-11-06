@@ -73,7 +73,7 @@ class RunOnData(ConfigToolBase):
                  outputModules   = None) :
         ## stop processing if 'outputInProcess' exists and show the new alternative
         if  not outputInProcess is None:
-            depricatedOptionOutputInProcess(self)
+            deprecatedOptionOutputInProcess(self)
         if  names is None:
             names=self._defaultParameters['names'].value
         if  postfix  is None:
@@ -135,7 +135,7 @@ class RemoveMCMatching(ConfigToolBase):
                  outputModules   = None) :
         ## stop processing if 'outputInProcess' exists and show the new alternative
         if  not outputInProcess is None:
-            depricatedOptionOutputInProcess(self)
+            deprecatedOptionOutputInProcess(self)
         else:
             outputInProcess=self._parameters['outputInProcess'].value
         if  names is None:
@@ -192,7 +192,7 @@ class RemoveMCMatching(ConfigToolBase):
                         jetPostfixes.append(getattr(process, mod).label_().replace("patJets",""))
                 for pfix in jetPostfixes:
                     ## remove mc extra modules for jets
-                    for mod in ['patJetPartonMatch','patJetGenJetMatch','patJetFlavourId','patJetPartons','patJetPartonAssociation','patJetFlavourAssociation']:
+                    for mod in ['patJetPartonMatch','patJetGenJetMatch','patJetFlavourIdLegacy','patJetPartonsLegacy','patJetPartonAssociationLegacy','patJetFlavourAssociationLegacy','patJetFlavourId','patJetPartons','patJetFlavourAssociation']:
                         if hasattr(process,mod+pfix):
                             getattr(process,'patDefaultSequence'+postfix).remove(getattr(process,mod+pfix))
                     ## remove mc extra configs for jets
@@ -203,7 +203,10 @@ class RemoveMCMatching(ConfigToolBase):
                     jetProducer.addGenJetMatch      = False
                     jetProducer.genJetMatch         = ''
                     jetProducer.getJetMCFlavour     = False
+                    jetProducer.useLegacyJetMCFlavour = False
+                    jetProducer.addJetFlavourInfo   = False
                     jetProducer.JetPartonMapSource  = ''
+                    jetProducer.JetFlavourInfoSource = ''
                 ## adjust output
                 for outMod in outputModules:
                     if hasattr(process,outMod):
@@ -257,7 +260,7 @@ class RemoveAllPATObjectsBut(ConfigToolBase):
                  outputModules   = None) :
         ## stop processing if 'outputInProcess' exists and show the new alternative
         if  not outputInProcess is None:
-            depricatedOptionOutputInProcess(self)
+            deprecatedOptionOutputInProcess(self)
         if  names is None:
             names=self._defaultParameters['names'].value
         if  outputModules is None:
@@ -302,7 +305,7 @@ class RemoveSpecificPATObjects(ConfigToolBase):
                  outputModules   = None) :
         ## stop processing if 'outputInProcess' exists and show the new alternative
         if  not outputInProcess is None:
-            depricatedOptionOutputInProcess(self)
+            deprecatedOptionOutputInProcess(self)
         if  names is None:
             names=self._defaultParameters['names'].value
         if  outputModules is None:
@@ -346,6 +349,7 @@ class RemoveSpecificPATObjects(ConfigToolBase):
                 removeIfInSequence(process, 'patJetCorrections', "patDefaultSequence", postfix)
                 removeIfInSequence(process, 'patJetPartonMatch', "patDefaultSequence", postfix)
                 removeIfInSequence(process, 'patJetGenJetMatch', "patDefaultSequence", postfix)
+                removeIfInSequence(process, 'patJetFlavourIdLegacy', "patDefaultSequence", postfix)
                 removeIfInSequence(process, 'patJetFlavourId', "patDefaultSequence", postfix)
             if( names[obj] == 'METs' ):
                 removeIfInSequence(process, 'patMETCorrections', "patDefaultSequence", postfix)
@@ -438,7 +442,7 @@ class RemoveCleaning(ConfigToolBase):
                  outputModules   = None) :
         ## stop processing if 'outputInProcess' exists and show the new alternative
         if  not outputInProcess is None:
-            depricatedOptionOutputInProcess(self)
+            deprecatedOptionOutputInProcess(self)
         if  outputModules is None:
             outputModules=self._defaultParameters['outputModules'].value
         if postfix  is None:
@@ -501,7 +505,7 @@ class AddCleaning(ConfigToolBase):
                  outputModules   = None):
         ## stop processing if 'outputInProcess' exists and show the new alternative
         if  not outputInProcess is None:
-            depricatedOptionOutputInProcess(self)
+            deprecatedOptionOutputInProcess(self)
         if  outputModules is None:
             outputModules=self._defaultParameters['outputModules'].value
 
@@ -534,7 +538,7 @@ class AddCleaning(ConfigToolBase):
 
 addCleaning=AddCleaning()
 
-def depricatedOptionOutputInProcess(obj):
+def deprecatedOptionOutputInProcess(obj):
     print "-------------------------------------------------------"
     print " INFO: the option 'outputInProcess' will be deprecated "
     print "       soon:", obj._label
@@ -542,4 +546,4 @@ def depricatedOptionOutputInProcess(obj):
     print "       specify the names of all needed OutModules in   "
     print "       there (default: ['out'])"
     print "-------------------------------------------------------"
-    #raise KeyError, "unsupported option 'outputInProcess' used in '"+obj._label+"'"
+    #raise KeyError, "Unsupported option 'outputInProcess' used in '"+obj._label+"'"

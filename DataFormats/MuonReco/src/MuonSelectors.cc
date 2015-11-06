@@ -728,16 +728,19 @@ bool muon::isLooseMuon(const reco::Muon& muon){
 
 bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx){
 
-  bool muID = muon::isGoodMuon(muon, TMOneStationTight);
-  if(!muID) return false;
+     bool muID = muon::isGoodMuon(muon, TMOneStationTight);
 
-  bool layers = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 && muon.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 1;
+     if(!muID) return false;
+  
+     bool layers = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+	  muon.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 0;
 
-  bool chi2 = muon.innerTrack()->normalizedChi2() < 1.8;  
+     bool ishighq = muon.innerTrack()->quality(reco::Track::highPurity); 
+  
+     bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.3 && fabs(muon.innerTrack()->dz(vtx.position())) < 20.;
+  
+     return layers && ip && ishighq;
 
-  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 3. && fabs(muon.innerTrack()->dz(vtx.position())) < 30.;
-
-  return muID && layers && ip && chi2;
 }
 
 bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx, reco::TunePType tunePType){

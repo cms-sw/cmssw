@@ -60,7 +60,10 @@ namespace pat {
       bool                     embedCaloTowers_;
       bool                     embedPFCandidates_;
       bool                     getJetMCFlavour_;
+      bool                     useLegacyJetMCFlavour_;
+      bool                     addJetFlavourInfo_;
       edm::InputTag            jetPartonMapSource_;
+      edm::InputTag            jetFlavourInfoSource_;
       bool                     addGenPartonMatch_;
       bool                     embedGenPartonMatch_;
       edm::InputTag            genPartonSrc_;

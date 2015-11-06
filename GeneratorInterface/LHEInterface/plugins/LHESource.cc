@@ -120,6 +120,9 @@ bool LHESource::produce(edm::Event &event)
 		      partonLevel->weights().end(),
 		      boost::bind(&LHEEventProduct::addWeight,
 				  product.get(), _1));
+        product->setScales(partonLevel->scales());
+        product->setNpLO(partonLevel->npLO());
+        product->setNpNLO(partonLevel->npNLO());
 	std::for_each(partonLevel->getComments().begin(),
 	              partonLevel->getComments().end(),
 	              boost::bind(&LHEEventProduct::addComment,

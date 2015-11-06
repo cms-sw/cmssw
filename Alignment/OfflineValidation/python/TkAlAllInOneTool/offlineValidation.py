@@ -219,7 +219,7 @@ class OfflineValidationParallel(OfflineValidation):
                 
         mergedoutputfile = ("AlignmentValidation_" + self.name + "_"
                             + '%(name)s'%repMap + ".root")
-        validationsSoFar += ('root -x -b -q "TkAlOfflineJobsMerge.C(\\\"'
+        validationsSoFar += ('root -x -b -q -l "TkAlOfflineJobsMerge.C(\\\"'
                              +parameters+'\\\",\\\"'+mergedoutputfile+'\\\")"'
                              +"\n")
         return validationsSoFar

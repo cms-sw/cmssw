@@ -1,4 +1,5 @@
 <bin   file="RunUtilitiesRFIOAdaptor.cpp" name="testUtilitiesRFIOAdaptor">
+  <flags NO_TESTRUN="1"/>
   <flags   TEST_RUNNER_ARGS=" /bin/bash Utilities/RFIOAdaptor/test run_RFIOAdaptorTests.sh"/>
   <use   name="FWCore/Utilities"/>
 </bin>

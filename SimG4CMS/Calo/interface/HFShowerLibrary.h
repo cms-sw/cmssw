@@ -44,7 +44,9 @@ public:
   };
 
   void                initRun(G4ParticleTable * theParticleTable);
-  std::vector<Hit>    getHits(G4Step * aStep, bool & ok, bool onlyLong=false);
+//  std::vector<Hit>    getHits(G4Step * aStep, bool &ok, double weight, 
+  std::vector<Hit>    getHits(G4Step * aStep, bool &ok, 
+			      bool onlyLong=false);
 
 protected:
 
@@ -63,7 +65,7 @@ private:
   TFile *             hf;
   TBranch             *emBranch, *hadBranch;
 
-  bool                verbose;
+  bool                verbose, applyFidCut, newForm;
   int                 nMomBin, totEvents, evtPerBin;
   float               libVers, listVersion; 
   std::vector<double> pmom;
@@ -77,8 +79,9 @@ private:
   int                 anuePDG, anumuPDG, anutauPDG, geantinoPDG;
 
   int                 npe;
-  std::vector<HFShowerPhoton> pe;
-  std::vector<HFShowerPhoton> photon;
+  HFShowerPhotonCollection pe;
+  HFShowerPhotonCollection* photo;
+  HFShowerPhotonCollection photon;
 
 };
 #endif

@@ -627,7 +627,7 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
 
   if (m_muonCollectionTag.label().empty()) // use trajectories
   {
-    const ConstTrajTrackPairCollection &trajtracks = eventInfo.trajTrackPairs_;
+    const ConstTrajTrackPairCollection &trajtracks = eventInfo.trajTrackPairs();
     for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin();  trajtrack != trajtracks.end();  ++trajtrack)
     {
       m_counter_tracks++;
@@ -639,7 +639,7 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
       {
         m_counter_trackmomentum++;
 
-        if ( fabs(track->dxy(eventInfo.beamSpot_.position())) < m_maxDxy )
+        if ( fabs(track->dxy(eventInfo.beamSpot().position())) < m_maxDxy )
         {
           m_counter_trackdxy++;
 
