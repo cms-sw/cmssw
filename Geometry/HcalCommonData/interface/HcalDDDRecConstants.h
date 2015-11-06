@@ -72,6 +72,7 @@ public:
   double                    getRZ(int subdet, int ieta, int depth) const;
   std::vector<HcalActiveLength>    getThickActive(const int type) const;
   int                       getTopoMode() const {return hpar->topologyMode;}
+  int                       getTriggerMode() const {return hpar->triggerMode;}
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;
   unsigned int              numberOfCells(HcalSubdetector) const;
   unsigned int              nCells(HcalSubdetector) const;
