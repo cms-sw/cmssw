@@ -57,8 +57,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.addParameter(self._defaultParameters, 'jetCorLabelL3Res', cms.InputTag('ak4PFCHSL1FastL2L3ResidualCorrector'), "Use ak4PFL1FastL2L3ResidualCorrector (ak4PFCHSL1FastL2L3ResidualCorrector) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3ResidualCorrector for CaloJets", Type=cms.InputTag)
 
 # the file is used only for local running
-        self.addParameter(self._defaultParameters, 'jecUncertaintyFile', 'CondFormats/JetMETObjects/data/Summer15_50nsV5_DATA_UncertaintySources_AK4PFchs.txt',
+##        self.addParameter(self._defaultParameters, 'jecUncertaintyFile', 'CondFormats/JetMETObjects/data/Summer15_50nsV5_DATA_UncertaintySources_AK4PFchs.txt',
+        self.addParameter(self._defaultParameters, 'jecUncertaintyFile', '',
                           "Extra JES uncertainty file", Type=str)
+##        self.addParameter(self._defaultParameters, 'jecUncertaintyTag', 'SubTotalMC',
         self.addParameter(self._defaultParameters, 'jecUncertaintyTag', 'Uncertainty',
                           "JES uncertainty Tag", Type=str)
         
@@ -705,20 +707,35 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #MM: FIXME MVA
             #if self._parameters["metType"].value == "MVA":
             #    moduleType="ShiftedPFJetProducer"
-                
-            shiftedModuleUp = cms.EDProducer(moduleType,
-                                             src = objectCollection,
-##                                             jetCorrInputFileName = cms.FileInPath(jetUncInfos["jecUncFile"] ), #jecUncertaintyFile),
-                                             jetCorrUncertaintyTag = cms.string(jetUncInfos["jecUncTag"] ), #jecUncertaintyTag),
-                                             addResidualJES = cms.bool(True),
-                                             jetCorrLabelUpToL3 = cms.InputTag(jetUncInfos["jCorLabelUpToL3"].value() ), #jetCorrLabelUpToL3.value()),
-                                             jetCorrLabelUpToL3Res = cms.InputTag(jetUncInfos["jCorLabelL3Res"].value() ), #jetCorrLabelUpToL3Res.value()),
-                                      
-                                             jetCorrPayloadName =  cms.string(jetUncInfos["jCorrPayload"] ),
 
-                                             shiftBy = cms.double(+1.*varyByNsigmas),
-                                             )
-        
+            if jetUncInfos["jecUncFile"] == "":
+
+                shiftedModuleUp = cms.EDProducer(moduleType,
+                                                 src = objectCollection,
+                                                 jetCorrUncertaintyTag = cms.string(jetUncInfos["jecUncTag"] ), #jecUncertaintyTag),
+                                                 addResidualJES = cms.bool(True),
+                                                 jetCorrLabelUpToL3 = cms.InputTag(jetUncInfos["jCorLabelUpToL3"].value() ), #jetCorrLabelUpToL3.value()),
+                                                 jetCorrLabelUpToL3Res = cms.InputTag(jetUncInfos["jCorLabelL3Res"].value() ), #jetCorrLabelUpToL3Res.value()),
+                                                 jetCorrPayloadName =  cms.string(jetUncInfos["jCorrPayload"] ),
+                                                 verbosity = cms.int32(1),
+                                                 shiftBy = cms.double(+1.*varyByNsigmas),
+                                                 )
+            else:
+
+
+                shiftedModuleUp = cms.EDProducer(moduleType,
+                                                 src = objectCollection,
+                                                 jetCorrInputFileName = cms.FileInPath(jetUncInfos["jecUncFile"] ), #jecUncertaintyFile),
+                                                 jetCorrUncertaintyTag = cms.string(jetUncInfos["jecUncTag"] ), #jecUncertaintyTag),
+                                                 addResidualJES = cms.bool(True),
+                                                 jetCorrLabelUpToL3 = cms.InputTag(jetUncInfos["jCorLabelUpToL3"].value() ), #jetCorrLabelUpToL3.value()),
+                                                 jetCorrLabelUpToL3Res = cms.InputTag(jetUncInfos["jCorLabelL3Res"].value() ), #jetCorrLabelUpToL3Res.value()),
+                                                 jetCorrPayloadName =  cms.string(jetUncInfos["jCorrPayload"] ),
+                                                 verbosity = cms.int32(1),
+                                                 shiftBy = cms.double(+1.*varyByNsigmas),
+                                                 )
+
+
         return shiftedModuleUp
 
 
@@ -1424,14 +1441,15 @@ runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()
 # miniAOD production ===========================
 def runMetCorAndUncForMiniAODProduction(process, metType="PF",
                                         jetCollUnskimmed="patJets",
-                                        jetColl="selectedPatJets",
+                                        jetColl="selectedPatJetsForMETUnc",
                                         photonColl="selectedPatPhotons",
                                         electronColl="selectedPatElectrons",
                                         muonColl="selectedPatMuons",
                                         tauColl="selectedPatTaus",
                                         pfCandColl = "particleFlow",
                                         jetCleaning="LepClean",
-                                        jecUnFile="CondFormats/JetMETObjects/data/Summer15_50nsV5_DATA_UncertaintySources_AK4PFchs.txt",
+##                                        jecUnFile="CondFormats/JetMETObjects/data/Summer15_50nsV5_DATA_UncertaintySources_AK4PFchs.txt",
+                                        jecUnFile="",
                                         recoMetFromPFCs=False,
                                         postfix=""):
 
@@ -1514,7 +1532,8 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                recoMetFromPFCs=False,
                                jetCorLabelL3=cms.InputTag('ak4PFCHSL1FastL2L3Corrector'),
                                jetCorLabelRes=cms.InputTag('ak4PFCHSL1FastL2L3ResidualCorrector'),
-                               jecUncFile="CondFormats/JetMETObjects/data/Summer15_50nsV5_DATA_UncertaintySources_AK4PFchs.txt",
+##                               jecUncFile="CondFormats/JetMETObjects/data/Summer15_50nsV5_DATA_UncertaintySources_AK4PFchs.txt",
+                               jecUncFile="",
                                postfix=""):
 
     runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()
