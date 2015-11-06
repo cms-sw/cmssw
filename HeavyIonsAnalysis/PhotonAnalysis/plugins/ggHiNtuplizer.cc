@@ -144,14 +144,20 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps)
 // tree_->Branch("phoEleVeto",            &phoEleVeto_);        // TODO: not available in reco::
   tree_->Branch("phoR9",                 &phoR9_);
   tree_->Branch("phoHoverE",             &phoHoverE_);
-  tree_->Branch("phoSigmaIEtaIEta",      &phoSigmaIEtaIEta_);  // TODO: not available in reco::
+  tree_->Branch("phoSigmaIEtaIEta",      &phoSigmaIEtaIEta_); 
 // tree_->Branch("phoSigmaIEtaIPhi",      &phoSigmaIEtaIPhi_);  // TODO: not available in reco::
 // tree_->Branch("phoSigmaIPhiIPhi",      &phoSigmaIPhiIPhi_);  // TODO: not available in reco::
   tree_->Branch("phoE1x3",               &phoE1x3_);
   tree_->Branch("phoE2x2",               &phoE2x2_);
   tree_->Branch("phoE3x3",               &phoE3x3_);
   tree_->Branch("phoE2x5Max",            &phoE2x5Max_);
+  tree_->Branch("phoE1x5",               &phoE1x5_);
+  tree_->Branch("phoE2x5",               &phoE2x5_);
   tree_->Branch("phoE5x5",               &phoE5x5_);
+  tree_->Branch("phoMaxEnergyXtal_",     &phoMaxEnergyXtal_);
+  tree_->Branch("phoSigmaEtaEta",        &phoSigmaEtaEta_); 
+  tree_->Branch("phoR1x5",               &phoR1x5_);
+  tree_->Branch("phoR2x5",               &phoR2x5_);
   tree_->Branch("phoESEffSigmaRR",       &phoESEffSigmaRR_);
   tree_->Branch("phoSigmaIEtaIEta_2012", &phoSigmaIEtaIEta_2012_);
   tree_->Branch("phoSigmaIEtaIPhi_2012", &phoSigmaIEtaIPhi_2012_);
@@ -425,14 +431,20 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 // phoEleVeto_           .clear();  // TODO: not available in reco::
   phoR9_                .clear();
   phoHoverE_            .clear();
-  phoSigmaIEtaIEta_     .clear();  // TODO: not available in reco::
+  phoSigmaIEtaIEta_     .clear();
 // phoSigmaIEtaIPhi_     .clear();  // TODO: not available in reco::
 // phoSigmaIPhiIPhi_     .clear();  // TODO: not available in reco::
   phoE1x3_              .clear();
   phoE2x2_              .clear();
   phoE3x3_              .clear();
   phoE2x5Max_           .clear();
+  phoE1x5_              .clear();
+  phoE2x5_              .clear();
   phoE5x5_              .clear();
+  phoMaxEnergyXtal_     .clear();
+  phoSigmaEtaEta_       .clear();
+  phoR1x5_              .clear();
+  phoR2x5_              .clear();
   phoESEffSigmaRR_      .clear();
   phoSigmaIEtaIEta_2012_.clear();
   phoSigmaIEtaIPhi_2012_.clear();
@@ -910,11 +922,19 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
     //phoSigmaIEtaIPhi_ .push_back(pho->sep());   // TODO: not available in reco::
     //phoSigmaIPhiIPhi_ .push_back(pho->spp());   // TODO: not available in reco::
 
-    phoE3x3_.push_back(pho->e3x3());
+    // additional shower shape variables
+    phoE3x3_   .push_back(pho->e3x3());
+    phoE1x5_   .push_back(pho->e1x5());
+    phoE2x5_   .push_back(pho->e2x5());
+    phoE5x5_   .push_back(pho->e5x5());
+    phoMaxEnergyXtal_.push_back(pho->maxEnergyXtal());
+    phoSigmaEtaEta_.push_back(pho->sigmaEtaEta());
+    phoR1x5_.push_back(pho->r1x5());
+    phoR2x5_.push_back(pho->r2x5());
+
     // phoE1x3_          .push_back(lazyTool.e1x3(      *(pho->superCluster()->seed())));
     // phoE2x2_          .push_back(lazyTool.e2x2(      *(pho->superCluster()->seed())));
     // phoE2x5Max_       .push_back(lazyTool.e2x5Max(   *(pho->superCluster()->seed())));
-    // phoE5x5_          .push_back(lazyTool.e5x5(      *(pho->superCluster()->seed())));
     // phoESEffSigmaRR_  .push_back(lazyTool.eseffsirir(*(pho->superCluster())));
 
     // full 5x5
