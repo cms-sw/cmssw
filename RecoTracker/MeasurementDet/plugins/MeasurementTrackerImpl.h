@@ -36,9 +36,11 @@ class StrictWeakOrdering{
 class TkStripMeasurementDet;
 class TkPixelMeasurementDet;
 class TkGluedMeasurementDet;
+class TkStackMeasurementDet;
 class GeometricSearchTracker;
 class SiStripRecHitMatcher;
 class GluedGeomDet;
+class StackGeomDet;
 class SiPixelFedCabling;
 
 class MeasurementTrackerImpl : public MeasurementTracker {
@@ -101,6 +103,7 @@ public:
   const std::vector<TkStripMeasurementDet>& stripDets() const {return theStripDets;}
   const std::vector<TkPixelMeasurementDet*>& pixelDets() const {return thePixelDets;}
   const std::vector<TkGluedMeasurementDet>& gluedDets() const {return theGluedDets;}
+  const std::vector<TkStackMeasurementDet>& stackDets() const {return theStackDets;}
 
   void setClusterToSkip(const edm::InputTag & cluster, const edm::Event& event) const;
   void unsetClusterToSkip() const;
@@ -115,9 +118,9 @@ public:
 
 
   mutable std::vector<TkPixelMeasurementDet*> thePixelDets;
-
   mutable std::vector<TkStripMeasurementDet> theStripDets;
   mutable std::vector<TkGluedMeasurementDet> theGluedDets;
+  mutable std::vector<TkStackMeasurementDet> theStackDets;
   
   mutable std::vector<bool> thePixelsToSkip;
 
@@ -132,15 +135,17 @@ public:
   void initialize();
 
   void addStripDet( const GeomDet* gd);
-  void addPixelDet( const GeomDet* gd,
-		    const PixelClusterParameterEstimator* cpe);
+  void addPixelDet( const GeomDet* gd);
 
   void addGluedDet( const GluedGeomDet* gd);
+  void addStackDet( const StackGeomDet* gd);
+
   void initGluedDet( TkGluedMeasurementDet & det);
+  void initStackDet( TkStackMeasurementDet & det);
 
-  void addPixelDets( const TrackingGeometry::DetContainer& dets);
+  void addDets( const TrackingGeometry::DetContainer& dets, bool subIsPixel);
 
-  void addStripDets( const TrackingGeometry::DetContainer& dets);
+  bool checkDets();
 
   void initializeStripStatus (const SiStripQuality *stripQuality, int qualityFlags, int qualityDebugFlags);
 
