@@ -1,8 +1,6 @@
 #include "Fireworks/Vertices/interface/TEveEllipsoidGL.h"
 
-#define protected public  
 #include "TEveProjections.h" // AMT missing getter for projection center / beam-spot
-#undef protected
 
 #include "Fireworks/Vertices/interface/TEveEllipsoidGL.h"
 #include "Fireworks/Vertices/interface/TEveEllipsoid.h"
@@ -166,8 +164,7 @@ void TEveEllipsoidProjectedGL::DirectDraw(TGLRnrCtx& rnrCtx) const
    glPopAttrib();  
 }
 
-//-------------------------------------------------------------------------------
-
+//______________________________________________________________________________
 void TEveEllipsoidProjectedGL::drawArch(float phiStart, float phiEnd, float phiStep, TEveVector& v0,  TEveVector& v1, TEveVector& v2) const
 {
    TEveProjection *proj = fM->GetManager()->GetProjection();
@@ -284,7 +281,7 @@ void TEveEllipsoidProjectedGL::DrawRhoZ() const
    // projection center can be moved in beam-spot 
    float bs = 0;
    if (proj->GetDisplaceOrigin())
-      bs = proj->fCenter[1];
+      bs = proj->RefCenter()[1];
 
    float da = v2[1]*v2[1] + v1[1]*v1[1];
    float db = 2 * v1[1] * (v0[1]-bs);
@@ -360,6 +357,7 @@ void TEveEllipsoidProjectedGL::DrawRhoZ() const
    drawRhoZAxis(v0, v2);
    drawRhoZAxis(v0, v1);
 }
+
 //______________________________________________________________________________
 void TEveEllipsoidProjectedGL::drawRhoZAxis(TEveVector& v0, TEveVector& v2) const
 {
@@ -368,7 +366,7 @@ void TEveEllipsoidProjectedGL::drawRhoZAxis(TEveVector& v0, TEveVector& v2) cons
    
    float bs = 0;
    if (proj->GetDisplaceOrigin())
-      bs = proj->fCenter[1];
+      bs = proj->RefCenter()[1];
    
    float off = (v2[1] > v0[1] ) ? 0.01 : -0.01;
    TEveVector alu = v0 + v2;
@@ -391,6 +389,6 @@ void TEveEllipsoidProjectedGL::drawRhoZAxis(TEveVector& v0, TEveVector& v2) cons
    alu = v0 - v2;
    proj->ProjectVector(alu, fM->fDepth);
    glVertex3fv(alu.Arr());   
-   
+
    glEnd();
 }
