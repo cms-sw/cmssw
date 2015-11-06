@@ -26,7 +26,8 @@ JetAnalyzerICPU5Calo = cms.EDAnalyzer("JetTester_HeavyIons",
                                       PFcands = cms.InputTag("particleFlowTmp"),
                                       Background = cms.InputTag("voronoiBackgroundCalo"),
                                       #srcRho = cms.InputTag("iterativeConePu5CaloJets","rho"),
-                                      centrality = cms.InputTag("hiCentrality"),
+                                      centralitycollection = cms.InputTag("hiCentrality"),
+                                      centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
                                       JetCorrections = cms.string(""),
                                       recoJetPtThreshold = cms.double(10),
                                       genEnergyFractionThreshold = cms.double(0.05),
@@ -61,7 +62,8 @@ JetAnalyzerAkPU3Calo = cms.EDAnalyzer("JetTester_HeavyIons",
                                       PFcands = cms.InputTag("particleFlowTmp"),
                                       Background = cms.InputTag("voronoiBackgroundCalo"),
                                       #srcRho = cms.InputTag("iterativeConePu5CaloJets","rho"),
-                                      centrality = cms.InputTag("hiCentrality"),
+                                      centralitycollection = cms.InputTag("hiCentrality"),
+                                      centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
                                       JetCorrections = cms.string(""),
                                       recoJetPtThreshold = cms.double(10),        
                                       genEnergyFractionThreshold = cms.double(0.05),
@@ -80,7 +82,8 @@ JetAnalyzerAkPU4Calo = cms.EDAnalyzer("JetTester_HeavyIons",
                                       PFcands = cms.InputTag("particleFlowTmp"),
                                       Background = cms.InputTag("voronoiBackgroundCalo"),
                                       #srcRho = cms.InputTag("iterativeConePu5CaloJets","rho"),
-                                      centrality = cms.InputTag("hiCentrality"),
+                                      centralitycollection = cms.InputTag("hiCentrality"),
+                                      centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
                                       JetCorrections = cms.string(""),
                                       recoJetPtThreshold = cms.double(10),        
                                       genEnergyFractionThreshold = cms.double(0.05),
@@ -99,7 +102,8 @@ JetAnalyzerAkPU5Calo = cms.EDAnalyzer("JetTester_HeavyIons",
                                       PFcands = cms.InputTag("particleFlowTmp"),
                                       Background = cms.InputTag("voronoiBackgroundCalo"),
                                       #srcRho = cms.InputTag("iterativeConePu5CaloJets","rho"),
-                                      centrality = cms.InputTag("hiCentrality"),
+                                      centralitycollection = cms.InputTag("hiCentrality"),
+                                      centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
                                       JetCorrections = cms.string(""),
                                       recoJetPtThreshold = cms.double(10),        
                                       genEnergyFractionThreshold = cms.double(0.05),
@@ -118,7 +122,8 @@ JetAnalyzerAkPU3PF = cms.EDAnalyzer("JetTester_HeavyIons",
                                     PFcands = cms.InputTag("particleFlowTmp"),
                                     Background = cms.InputTag("voronoiBackgroundPF"),
                                     #srcRho = cms.InputTag("iterativeConePu5CaloJets","rho"),
-                                    centrality = cms.InputTag("hiCentrality"),
+                                    centralitycollection = cms.InputTag("hiCentrality"),
+                                    centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
                                     JetCorrections = cms.string(""),
                                     recoJetPtThreshold = cms.double(10),        
                                     genEnergyFractionThreshold = cms.double(0.05),
@@ -137,7 +142,8 @@ JetAnalyzerAkPU4PF = cms.EDAnalyzer("JetTester_HeavyIons",
                                     PFcands = cms.InputTag("particleFlowTmp"),
                                     Background = cms.InputTag("voronoiBackgroundPF"),
                                     #srcRho = cms.InputTag("iterativeConePu5CaloJets","rho"),
-                                    centrality = cms.InputTag("hiCentrality"),
+                                    centralitycollection = cms.InputTag("hiCentrality"),
+                                    centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
                                     JetCorrections = cms.string(""),
                                     recoJetPtThreshold = cms.double(10),        
                                     genEnergyFractionThreshold = cms.double(0.05),
@@ -156,7 +162,8 @@ JetAnalyzerAkPU5PF = cms.EDAnalyzer("JetTester_HeavyIons",
                                     PFcands = cms.InputTag("particleFlowTmp"),
                                     Background = cms.InputTag("voronoiBackgroundPF"),
                                     #srcRho = cms.InputTag("iterativeConePu5CaloJets","rho"),
-                                    centrality = cms.InputTag("hiCentrality"),
+                                    centralitycollection = cms.InputTag("hiCentrality"),
+                                    centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
                                     JetCorrections = cms.string(""),
                                     recoJetPtThreshold = cms.double(10),        
                                     genEnergyFractionThreshold = cms.double(0.05),
@@ -176,7 +183,8 @@ JetAnalyzerAkVs2Calo = cms.EDAnalyzer("JetTester_HeavyIons",
                                       #Cands = cms.InputTag("caloTowers"),
                                       Background = cms.InputTag("voronoiBackgroundCalo"),
                                       #srcRho = cms.InputTag("iterativeConePu5CaloJets","rho"),
-                                      centrality = cms.InputTag("hiCentrality"),
+                                      centralitycollection = cms.InputTag("hiCentrality"),
+                                      centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
                                       JetCorrections = cms.string(""),
                                       recoJetPtThreshold = cms.double(10),        
                                       genEnergyFractionThreshold = cms.double(0.05),
@@ -195,7 +203,8 @@ JetAnalyzerAkVs3Calo = cms.EDAnalyzer("JetTester_HeavyIons",
                                       PFcands = cms.InputTag("particleFlowTmp"),
                                       Background = cms.InputTag("voronoiBackgroundCalo"),
                                       #srcRho = cms.InputTag("iterativeConePu5CaloJets","rho"),
-                                      centrality = cms.InputTag("hiCentrality"),
+                                      centralitycollection = cms.InputTag("hiCentrality"),
+                                      centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
                                       JetCorrections = cms.string(""),
                                       recoJetPtThreshold = cms.double(10),        
                                       genEnergyFractionThreshold = cms.double(0.05),
@@ -214,7 +223,8 @@ JetAnalyzerAkVs4Calo = cms.EDAnalyzer("JetTester_HeavyIons",
                                       PFcands = cms.InputTag("particleFlowTmp"),
                                       Background = cms.InputTag("voronoiBackgroundCalo"),
                                       #srcRho = cms.InputTag("iterativeConePu5CaloJets","rho"),
-                                      centrality = cms.InputTag("hiCentrality"),
+                                      centralitycollection = cms.InputTag("hiCentrality"),
+                                      centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
                                       JetCorrections = cms.string(""),
                                       recoJetPtThreshold = cms.double(10),        
                                       genEnergyFractionThreshold = cms.double(0.05),
@@ -233,7 +243,8 @@ JetAnalyzerAkVs5Calo = cms.EDAnalyzer("JetTester_HeavyIons",
                                       PFcands = cms.InputTag("particleFlowTmp"),
                                       Background = cms.InputTag("voronoiBackgroundCalo"),
                                       #srcRho = cms.InputTag("iterativeConePu5CaloJets","rho"),
-                                      centrality = cms.InputTag("hiCentrality"),
+                                      centralitycollection = cms.InputTag("hiCentrality"),
+                                      centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
                                       JetCorrections = cms.string(""),
                                       recoJetPtThreshold = cms.double(10),        
                                       genEnergyFractionThreshold = cms.double(0.05),
@@ -310,7 +321,8 @@ JetAnalyzerAkVs3PF = cms.EDAnalyzer("JetTester_HeavyIons",
                                     PFcands = cms.InputTag("particleFlowTmp"),
                                     Background = cms.InputTag("voronoiBackgroundPF"),
                                     #srcRho = cms.InputTag("akVs3PFJets","rho"),
-                                    centrality = cms.InputTag("hiCentrality"),
+                                    centralitycollection = cms.InputTag("hiCentrality"),
+                                    centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
                                     JetCorrections = cms.string(""),
                                     recoJetPtThreshold = cms.double(10),        
                                     genEnergyFractionThreshold = cms.double(0.05),
@@ -330,7 +342,8 @@ JetAnalyzerAkVs4PF = cms.EDAnalyzer("JetTester_HeavyIons",
                                     PFcands = cms.InputTag("particleFlowTmp"),
                                     Background = cms.InputTag("voronoiBackgroundPF"),
                                     #srcRho = cms.InputTag("iterativeConePu5CaloJets","rho"),
-                                    centrality = cms.InputTag("hiCentrality"),
+                                    centralitycollection = cms.InputTag("hiCentrality"),
+                                    centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
                                     JetCorrections = cms.string(""),
                                     recoJetPtThreshold = cms.double(10),        
                                     genEnergyFractionThreshold = cms.double(0.05),
@@ -348,8 +361,9 @@ JetAnalyzerAkVs5PF = cms.EDAnalyzer("JetTester_HeavyIons",
                                     srcGen = cms.InputTag("ak5HiCleanedGenJets"),
                                     PFcands = cms.InputTag("particleFlowTmp"),
                                     Background = cms.InputTag("voronoiBackgroundPF"),
-                                      #srcRho = cms.InputTag("iterativeConePu5CaloJets","rho"),
-                                    centrality = cms.InputTag("hiCentrality"),
+                                    #srcRho = cms.InputTag("iterativeConePu5CaloJets","rho"),
+                                    centralitycollection = cms.InputTag("hiCentrality"),
+                                    centralitybincollection = cms.InputTag("centralityBin","HFtowers"),
                                     JetCorrections = cms.string(""),
                                     recoJetPtThreshold = cms.double(10),        
                                     genEnergyFractionThreshold = cms.double(0.05),
@@ -483,8 +497,8 @@ JetAnalyzerAk5PF = cms.EDAnalyzer("JetTester",
 hiJetValidation = cms.Sequence(
     #ak2HiCleanedGenJets
     ak3HiCleanedGenJets
-    #* ak4HiCleanedGenJets 
-    #* ak5HiCleanedGenJets
+    * ak4HiCleanedGenJets 
+    * ak5HiCleanedGenJets
 
     #* iterativeCone7HiCleanedGenJets
     #* iterativeCone5HiCleanedGenJets
@@ -492,24 +506,24 @@ hiJetValidation = cms.Sequence(
     #* JetAnalyzerICPU5Calo
 
     * JetAnalyzerAkPU3Calo
-    #* JetAnalyzerAkPU4Calo
-    #* JetAnalyzerAkPU5Calo
+    * JetAnalyzerAkPU4Calo
+    * JetAnalyzerAkPU5Calo
 
     * JetAnalyzerAkPU3PF
-    #* JetAnalyzerAkPU4PF
-    #* JetAnalyzerAkPU5PF
+    * JetAnalyzerAkPU4PF
+    * JetAnalyzerAkPU5PF
     
-    #* JetAnalyzerAkVs2Calo
+    * JetAnalyzerAkVs2Calo
     * JetAnalyzerAkVs3Calo	   
-    #* JetAnalyzerAkVs4Calo	   
+    * JetAnalyzerAkVs4Calo	   
     #* JetAnalyzerAkVs5Calo	   
     #* JetAnalyzerAkVs6Calo
     #* JetAnalyzerAkVs7Calo
     
     #* JetAnalyzerAkVs2PF
     * JetAnalyzerAkVs3PF
-    #* JetAnalyzerAkVs4PF	   
-    #* JetAnalyzerAkVs5PF
+    * JetAnalyzerAkVs4PF	   
+    * JetAnalyzerAkVs5PF
     #* JetAnalyzerAkVs6PF	   
     #* JetAnalyzerAkVs7PF
 
