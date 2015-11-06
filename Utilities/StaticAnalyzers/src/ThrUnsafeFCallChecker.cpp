@@ -50,10 +50,10 @@ void TUFWalker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 		os << "Known thread unsafe function " << mname << " is called in function " << pname;
 		PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
  		BugType * BT = new BugType(Checker, "known thread unsafe function called","ThreadSafety");
-		BugReport * R = new BugReport(*BT,os.str(),CELoc);
+		std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT,os.str(),CELoc);
 		R->setDeclWithIssue(AC->getDecl());
 		R->addRange(CE->getSourceRange());
-		BR.emitReport(R);
+		BR.emitReport(std::move(R));
 		std::string tname = "function-checker.txt.unsorted";
 		std::string ostring =  "function '"+ pname + "' known thread unsafe function '" + mname + "'.\n";
 		support::writeLog(ostring,tname);
