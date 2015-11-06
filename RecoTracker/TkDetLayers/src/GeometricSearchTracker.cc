@@ -91,7 +91,6 @@ GeometricSearchTracker::~GeometricSearchTracker(){
 const DetLayer*          
 GeometricSearchTracker::idToLayer(const DetId& id) const
 {
-  std::cout << "GeometricSearchTracker::idToLayer id.subdetId" << id.subdetId() << std::endl;
   switch(id.subdetId()) {
   case StripSubdetector::TIB:
     return theTibLayers[theTrkTopo->tibLayer(id)-1];

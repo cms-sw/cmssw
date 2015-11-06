@@ -92,7 +92,6 @@ Phase2OTBarrelRod::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
 			       std::vector<DetGroup> & result) const{
-  std::cout << "Phase2OTBarrelRod::groupedCompatibleDetsV " << std::endl;
   
   SubLayerCrossings  crossings; 
   crossings = computeCrossings( tsos, prop.propagationDirection());
@@ -127,16 +126,6 @@ Phase2OTBarrelRod::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     
   }
 
-  std::cout << "Phase2OTBarrelRod::groupedCompatibleDetsV - result size=" << result.size() << std::endl;
-
-  for (auto gr : result) {
-    std::cout << "new group" << std::endl;
-    for (auto dge : gr) {
-      //PixelBarrelNameUpgrade name(dge.det()->geographicalId());
-      std::cout << "new det with geom det at r:"<<dge.det()->position().perp()<<" id:"<<dge.det()->geographicalId().rawId()
-      <<" tsos at:" <<dge.trajectoryState().globalPosition()<< std::endl;
-      }
-  }
 }
 
 
@@ -145,7 +134,6 @@ Phase2OTBarrelRod::computeCrossings( const TrajectoryStateOnSurface& startingSta
 			  PropagationDirection propDir) const
 {
   GlobalPoint startPos( startingState.globalPosition());
-  std::cout << "Phase2OTBarrelRod::computeCrossings, startPoint" << startPos << std::endl;
   GlobalVector startDir( startingState.globalMomentum());
   double rho( startingState.transverseCurvature());
 
@@ -168,11 +156,9 @@ Phase2OTBarrelRod::computeCrossings( const TrajectoryStateOnSurface& startingSta
   SubLayerCrossing outerSLC( 1, outerIndex, gOuterPoint);
 
   if (innerDist < outerDist) {
-  std::cout << "Phase2OTBarrelRod::inner is the closest " << innerIndex << std::endl;
     return SubLayerCrossings( innerSLC, outerSLC, 0);
   }
   else {
-  std::cout << "Phase2OTBarrelRod::outer is the closest " << outerIndex << std::endl;
     return SubLayerCrossings( outerSLC, innerSLC, 1);
   } 
 }
@@ -188,8 +174,6 @@ Phase2OTBarrelRod::addClosest( const TrajectoryStateOnSurface& tsos,
 				   vector<DetGroup>& result) const
 {
 
-  std::cout << "Phase2OTBarrelRod::addClosest" << std::endl;
-  std::cout << "closestIndex" << crossing.closestDetIndex() << std::endl;
   const vector<const GeomDet*>& sRod( subRod( crossing.subLayerIndex()));
   return CompatibleDetToGroupAdder::add( *sRod[crossing.closestDetIndex()], 
 					 tsos, prop, est, result);
@@ -215,17 +199,13 @@ void Phase2OTBarrelRod::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			      vector<DetGroup>& result,
 			      bool checkClosest) const
 {
-  std::cout << "Phase2OTBarrelRod::searchNeighbors" << std::endl;
   GlobalPoint gCrossingPos = crossing.position();
 
   const vector<const GeomDet*>& sRod( subRod( crossing.subLayerIndex()));
  
   int closestIndex = crossing.closestDetIndex();
-  std::cout << "closestIndex" << closestIndex << std::endl;
   int negStartIndex = closestIndex-1;
-  std::cout << "negStartIndex" << negStartIndex << std::endl;
   int posStartIndex = closestIndex+1;
-  std::cout << "posStartIndex" << posStartIndex << std::endl;
 
   if (checkClosest) { // must decide if the closest is on the neg or pos side
     if (gCrossingPos.z() < sRod[closestIndex]->surface().position().z()) {
@@ -251,7 +231,6 @@ void Phase2OTBarrelRod::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 
 bool Phase2OTBarrelRod::overlap( const GlobalPoint& crossPoint, const GeomDet& det, float window) const
 {
-  std::cout << "Phase2OTBarrelRod::overlap >>";
   // check if the z window around TSOS overlaps with the detector theDet (with a 1% margin added)
   
   //   const float tolerance = 0.1;
@@ -270,10 +249,8 @@ bool Phase2OTBarrelRod::overlap( const GlobalPoint& crossPoint, const GeomDet& d
   //        << " Window " << window << " halflength "  << detHalfLength ;
   
   if ( ( fabs(localY)-window) < relativeMargin*detHalfLength ) { // FIXME: margin hard-wired!
-    std::cout << "overlap!"<< std::endl;
     return true;
   } else {
-    std::cout << "no overlap!"<< std::endl;
     return false;
   }
 }

@@ -90,8 +90,6 @@ Phase2OTEndcapRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos
 				 const MeasurementEstimator& est,
 				 std::vector<DetGroup>& result) const
 {
-  std::cout << "Phase2OTEndcapRing:groupedCompatibleDetsV " << std::endl;
-
   SubLayerCrossings  crossings; 
   crossings = computeCrossings( tsos, prop.propagationDirection());
   if(! crossings.isValid()) return;
