@@ -50,7 +50,7 @@ public:
 
   /// adds the actual RecHits
   void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
-  void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, float rctlsb);
+  void analyzeHF(const HFDigiCollection& hfDigis, IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, float rctlsb);
 
    // Member initialized by constructor
   const HcaluLUTTPGCoder* incoder_;
