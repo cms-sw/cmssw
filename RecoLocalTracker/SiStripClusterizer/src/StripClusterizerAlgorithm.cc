@@ -57,9 +57,7 @@ initialize(const edm::EventSetup& es) {
     indices.resize(detIds.size());
     COUT << "good detIds " << detIds.size() << std::endl;
 
-    if (0==detIds.size()) {
-       ind=0; detId=0; return;
-    }
+    if (0==detIds.size()) return;
 
     {
       connections.clear();
@@ -124,72 +122,49 @@ initialize(const edm::EventSetup& es) {
       COUT << "gain " << dum.size() << " " <<nn<< std::endl;
     }
   }
-
-  if (0==detIds.size()) {
-       ind=0; detId=0; return;
-  }
-
-  // initalize first det
-  ind = 0;
-  detId = detIds[ind];
-  
-  noiseRange = noiseHandle->getRangeByPos(indices[ind].ni);
-  gainRange = gainHandle->getRangeByPos(indices[ind].gi);
-  qualityRange = qualityHandle->getRangeByPos(indices[ind].qi);
   
 }
   
-
-bool StripClusterizerAlgorithm::
-setDetId(const uint32_t id) {
-  if (id==detId) return true; // rare....
-  /*
-  // priority to sequential scan
-  if (id==detIds[ind+1]) {
-    ++ind;
-  } else if unlikely( (id>detId) &  (id<detIds[ind+1]) ) {
-//      edm::LogWarning("StripClusterizerAlgorithm") 
-//	<<"id " << id << " not connected. this is impossible on data "
-//	<< "old id " << detId << std::endl;
-      return false; 
-    }   else{
-  */
-    auto b = detIds.begin();
-    auto e = detIds.end();
-    // if (id>detId) b+=ind;
-    // else e=b+ind;
-    auto p = std::lower_bound(b,e,id);
-    if (p==e || id!=(*p)) {
+StripClusterizerAlgorithm::Det
+StripClusterizerAlgorithm::
+setDetId(const uint32_t id) const {
+  auto b = detIds.begin();
+  auto e = detIds.end();
+  auto p = std::lower_bound(b,e,id);
+  if (p==e || id!=(*p)) {
 #ifdef NOT_ON_MONTECARLO
-      edm::LogWarning("StripClusterizerAlgorithm") 
-	<<"id " << id << " not connected. this is impossible on data "
-	<< "old id " << detId << std::endl;
+    edm::LogWarning("StripClusterizerAlgorithm") 
+      <<"id " << id << " not connected. this is impossible on data "
+      << "old id " << detId << std::endl;
 #endif
-      return false;
-    }
-    ind = p-detIds.begin();
-//  }
+    return Det();
+  }
+  Det det;
+  det.ind = p-detIds.begin();
 
-  detId = id;
-  noiseRange = noiseHandle->getRangeByPos(indices[ind].ni);
-  gainRange = gainHandle->getRangeByPos(indices[ind].gi);
-  qualityRange = qualityHandle->getRangeByPos(indices[ind].qi);
+  det.detId = id;
+  det.noiseRange = noiseHandle->getRangeByPos(indices[det.ind].ni);
+  det.gainRange = gainHandle->getRangeByPos(indices[det.ind].gi);
+  det.qualityRange = qualityHandle->getRangeByPos(indices[det.ind].qi);
+  det.quality =   qualityHandle.product();
 
 #ifdef EDM_ML_DEBUG
-  assert(detIds[ind]==detId); 
+  assert(detIds[ind]==det.detId); 
   auto oldg =  gainHandle->getRange(id);
-  assert(oldg==gainRange);
+  assert(oldg==det.gainRange);
   auto oldn = noiseHandle->getRange(id);
-  assert(oldn==noiseRange);
+  assert(oldn==det.noiseRange);
   auto oldq = qualityHandle->getRange(id);
-  assert(oldq==qualityRange);
+  assert(oldq==det.qualityRange);
 #endif
-
-  return true;
+#ifdef EDM_ML_DEBUG
+  assert(isModuleUsable( id ));
+#endif
+  return det;
 }
 
-void StripClusterizerAlgorithm::clusterize(const   edm::DetSetVector<SiStripDigi>& input,  output_t& output) {clusterize_(input, output);}
-void StripClusterizerAlgorithm::clusterize(const edmNew::DetSetVector<SiStripDigi>& input, output_t& output) {clusterize_(input, output);}
+void StripClusterizerAlgorithm::clusterize(const   edm::DetSetVector<SiStripDigi>& input,  output_t& output) const {clusterize_(input, output);}
+void StripClusterizerAlgorithm::clusterize(const edmNew::DetSetVector<SiStripDigi>& input, output_t& output) const {clusterize_(input, output);}
 
 StripClusterizerAlgorithm::
 InvalidChargeException::InvalidChargeException(const SiStripDigi& digi)
