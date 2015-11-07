@@ -31,6 +31,7 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
   Mod_On_        = conf.getParameter<bool>("Mod_On");
   Trend_On_      = conf.getParameter<bool>("Trend_On");
   TkHistoMap_On_ = conf.getParameter<bool>("TkHistoMap_On");
+  clchCMoriginTkHmap_On_ = conf.getParameter<bool>("clchCMoriginTkHmap_On");
 
   TrackProducer_ = conf_.getParameter<std::string>("TrackProducer");
   TrackLabel_    = conf_.getParameter<std::string>("TrackLabel");
@@ -144,7 +145,13 @@ void SiStripMonitorTrack::book(DQMStore::IBooker & ibooker , const TrackerTopolo
     tkhisto_StoNCorrOnTrack = new TkHistoMap(ibooker , topFolderName_ ,"TkHMap_StoNCorrOnTrack",         0.0,true);
     tkhisto_NumOnTrack      = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberOfOnTrackCluster",  0.0,true);
     tkhisto_NumOffTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberOfOfffTrackCluster",0.0,true);
+    tkhisto_ClChPerCMfromTrack  = new TkHistoMap(ibooker , topFolderName_, "TkHMap_ChargePerCMfromTrack",0.0,true);
+    tkhisto_NumMissingHits      = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberMissingHits",0.0,true);
+    tkhisto_NumberInactiveHits  = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberInactiveHits",0.0,true);
+    tkhisto_NumberValidHits     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberValidHits",0.0,true);
   }
+  if (clchCMoriginTkHmap_On_)
+    tkhisto_ClChPerCMfromOrigin = new TkHistoMap(ibooker , topFolderName_, "TkHMap_ChargePerCMfromOrigin",0.0,true);
   //******** TkHistoMaps
 
   std::vector<uint32_t> vdetId_;
@@ -601,6 +608,18 @@ void SiStripMonitorTrack::trajectoryStudy(const edm::Ref<std::vector<Trajectory>
     TrajectoryStateOnSurface  updatedtsos=traj_mes_iterator->updatedState();
     ConstRecHitPointer ttrh=traj_mes_iterator->recHit();
 
+    if (TkHistoMap_On_ && (numTracks > 0)) {
+      uint32_t thedetid=ttrh->rawId();
+      if ( thedetid > 369120277-1 ) {
+        if ( (ttrh->getType()==1) )
+          tkhisto_NumMissingHits->add(thedetid,static_cast<float>(1./numTracks));
+        if ( (ttrh->getType()==2) )
+          tkhisto_NumberInactiveHits->add(thedetid,static_cast<float>(1./numTracks));
+        if ( (ttrh->getType()==0) )
+          tkhisto_NumberValidHits->add(thedetid,static_cast<float>(1./numTracks));
+      }
+    }
+
     if (!ttrh->isValid()) continue;
 
     const ProjectedSiStripRecHit2D* projhit  = dynamic_cast<const ProjectedSiStripRecHit2D*>( ttrh->hit() );
@@ -766,7 +785,7 @@ void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection 
   //  edm::ESHandle<TransientTrackBuilder> builder;
   //  es.get<TransientTrackRecord>().get("TransientTrackBuilder",builder);
   //  const TransientTrackBuilder* transientTrackBuilder = builder.product();
-      
+  numTracks = trackCollectionHandle->size();    
   reco::TrackCollection trackCollection = *trackCollectionHandle;
   for (reco::TrackCollection::const_iterator track = trackCollection.begin(), etrack = trackCollection.end(); 
        track!=etrack; ++track) {
@@ -776,6 +795,19 @@ void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection 
      
     for (trackingRecHit_iterator hit = track->recHitsBegin(), ehit = track->recHitsEnd();
 	 hit!=ehit; ++hit) {
+
+      if (TkHistoMap_On_ && (numTracks > 0)) {
+        uint32_t thedetid=(*hit)->rawId();
+        if ( thedetid > 369120277-1 ) {
+          if ( ((*hit)->getType()==1) )
+            tkhisto_NumMissingHits->add(thedetid,static_cast<float>(1./numTracks));
+          if ( ((*hit)->getType()==2) )
+            tkhisto_NumberInactiveHits->add(thedetid,static_cast<float>(1./numTracks));
+          if ( ((*hit)->getType()==0) )
+            tkhisto_NumberValidHits->add(thedetid,static_cast<float>(1./numTracks));
+        }
+      }
+
       if (!(*hit)->isValid()) continue;
       DetId detID = (*hit)->geographicalId();
       if (detID.det() != DetId::Tracker) continue;
@@ -830,6 +862,7 @@ void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection 
 //------------------------------------------------------------------------
 void SiStripMonitorTrack::trackStudyFromTrajectory(edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection, const edm::EventSetup& es) {
   //Perform track study
+  numTracks = TItkAssociatorCollection->size();
   int i=0;
   for(TrajTrackAssociationCollection::const_iterator it =  TItkAssociatorCollection->begin();it !=  TItkAssociatorCollection->end(); ++it){
     const edm::Ref<std::vector<Trajectory> > traj_iterator = it->key;
@@ -1088,7 +1121,16 @@ void SiStripMonitorTrack::fillMEs(SiStripClusterInfo* cluster, const uint32_t de
   LocalPoint locVtx = DetUnit->toLocal(GlobalPoint(0.0, 0.0, 0.0));
   LocalVector locDir(locVtx.x(), locVtx.y(), locVtx.z());
   float dQdx_fromOrigin = siStripClusterTools::chargePerCM(detid, *cluster, locDir);
-  
+
+  if (TkHistoMap_On_ && (flag == OnTrack)) {
+      uint32_t adet=cluster->detId();
+      tkhisto_ClChPerCMfromTrack->fill(adet,dQdx_fromTrack);
+  }
+  if (clchCMoriginTkHmap_On_ && (flag == OffTrack)){
+    uint32_t adet=cluster->detId();
+    tkhisto_ClChPerCMfromOrigin->fill(adet,dQdx_fromOrigin);
+  } 
+ 
   // layerMEs
   if (MEs.iLayer != nullptr) {
     if(flag==OnTrack){
