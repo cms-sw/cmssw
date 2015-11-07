@@ -25,6 +25,7 @@ from RecoHI.Configuration.Reconstruction_hiPF_cff import *
 
 # Heavy Ion Event Characterization
 from RecoHI.HiCentralityAlgos.HiCentrality_cfi import *
+from RecoHI.HiCentralityAlgos.CentralityBin_cfi import *
 from RecoHI.HiCentralityAlgos.HiClusterCompatibility_cfi import *
 from RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi import *
 
@@ -42,6 +43,7 @@ globalRecoPbPb = cms.Sequence(hiTracking_wSplitting
                               * hiEgammaSequence
                               * hiParticleFlowReco
                               * hiCentrality
+                              * centralityBin
                               * hiClusterCompatibility
                               * hiEvtPlane
                               * hcalnoise
@@ -57,6 +59,7 @@ globalRecoPbPb_wConformalPixel = cms.Sequence(hiTracking_wConformalPixel
                                               * hiEgammaSequence
                                               * hiParticleFlowReco
                                               * hiCentrality
+                                              * centralityBin
                                               * hiClusterCompatibility
                                               * hiEvtPlane
                                               * hcalnoise
@@ -70,4 +73,3 @@ globalRecoPbPb_wConformalPixel = cms.Sequence(hiTracking_wConformalPixel
 # Modify zero-suppression sequence here
 from RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi import *
 siStripZeroSuppression.storeCM = cms.bool(True)
-
