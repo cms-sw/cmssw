@@ -2,7 +2,7 @@
 #include <TTree.h>
 #include "IORawData/HcalTBInputService/src/CDFChunk.h"
 #include "IORawData/HcalTBInputService/src/CDFEventInfo.h"
-#include "IORawData/HcalTBInputService/src/HcalTBWriter.h"
+#include "IORawData/HcalTBInputService/plugins/HcalTBWriter.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include <unistd.h>
@@ -153,3 +153,7 @@ void HcalTBWriter::extractEventInfo(const FEDRawDataCollection& raw, const edm::
   
   eventInfo_->Set(runno,seqid,eventNo,l1aNo,orbitNo,bunchNo); 
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(HcalTBWriter);
