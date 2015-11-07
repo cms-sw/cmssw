@@ -1,10 +1,9 @@
 #include "TFile.h"
 #include "TTree.h"
-#include "IORawData/HcalTBInputService/interface/HcalTBSource.h"
-#include "CDFChunk.h"
-#include "CDFEventInfo.h"
+#include "IORawData/HcalTBInputService/plugins/HcalTBSource.h"
+#include "IORawData/HcalTBInputService/src/CDFChunk.h"
+#include "IORawData/HcalTBInputService/src/CDFEventInfo.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
@@ -171,4 +170,7 @@ void HcalTBSource::produce(edm::Event& e) {
   e.put(bare_product);
 }
 
+#include "FWCore/Framework/interface/InputSourceMacros.h"
+
+DEFINE_FWK_INPUT_SOURCE(HcalTBSource);
 
