@@ -154,7 +154,7 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps)
   tree_->Branch("phoE1x5",               &phoE1x5_);
   tree_->Branch("phoE2x5",               &phoE2x5_);
   tree_->Branch("phoE5x5",               &phoE5x5_);
-  tree_->Branch("phoMaxEnergyXtal_",     &phoMaxEnergyXtal_);
+  tree_->Branch("phoMaxEnergyXtal",      &phoMaxEnergyXtal_);
   tree_->Branch("phoSigmaEtaEta",        &phoSigmaEtaEta_); 
   tree_->Branch("phoR1x5",               &phoR1x5_);
   tree_->Branch("phoR2x5",               &phoR2x5_);
