@@ -717,7 +717,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                                  jetCorrLabelUpToL3 = cms.InputTag(jetUncInfos["jCorLabelUpToL3"].value() ), #jetCorrLabelUpToL3.value()),
                                                  jetCorrLabelUpToL3Res = cms.InputTag(jetUncInfos["jCorLabelL3Res"].value() ), #jetCorrLabelUpToL3Res.value()),
                                                  jetCorrPayloadName =  cms.string(jetUncInfos["jCorrPayload"] ),
-                                                 verbosity = cms.int32(1),
                                                  shiftBy = cms.double(+1.*varyByNsigmas),
                                                  )
             else:
@@ -731,7 +730,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                                  jetCorrLabelUpToL3 = cms.InputTag(jetUncInfos["jCorLabelUpToL3"].value() ), #jetCorrLabelUpToL3.value()),
                                                  jetCorrLabelUpToL3Res = cms.InputTag(jetUncInfos["jCorLabelL3Res"].value() ), #jetCorrLabelUpToL3Res.value()),
                                                  jetCorrPayloadName =  cms.string(jetUncInfos["jCorrPayload"] ),
-                                                 verbosity = cms.int32(1),
                                                  shiftBy = cms.double(+1.*varyByNsigmas),
                                                  )
 
