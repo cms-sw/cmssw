@@ -96,7 +96,8 @@
    <field name="filling" transient="true"/>
    <field name="getter" transient="true"/>
 </class>
-<class name="edmNew::dstvdetails::DetSetVectorTrans::Item" ClassVersion="10">
+<class name="edmNew::dstvdetails::DetSetVectorTrans::Item" ClassVersion="11">
+ <version ClassVersion="11" checksum="3545691837"/>
  <version ClassVersion="10" checksum="1062438024"/>
 </class>
 <class name="std::vector<edmNew::dstvdetails::DetSetVectorTrans::Item>"/>
