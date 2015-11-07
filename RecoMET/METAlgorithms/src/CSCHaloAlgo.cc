@@ -87,11 +87,12 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
   int imucount=0;
   
   bool calomatched =false;
-  if(!geo){
-    edm::ESHandle<CaloGeometry> pGeo;
-    TheSetup.get<CaloGeometryRecord>().get(pGeo);
-    geo = pGeo.product();
-  }
+  //  if(!geo){
+  geo =0;
+  edm::ESHandle<CaloGeometry> pGeo;
+  TheSetup.get<CaloGeometryRecord>().get(pGeo);
+  geo = pGeo.product();
+  //}
   bool trkmuunvetoisdefault = false; //Pb with low pt tracker muons that veto good csc segments/halo triggers. 
   //Test to "unveto" low pt trk muons. 
   //For now, we just recalculate everything without the veto and add an extra set of variables to the class CSCHaloData. 
