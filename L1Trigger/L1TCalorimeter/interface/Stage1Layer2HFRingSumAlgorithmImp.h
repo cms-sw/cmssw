@@ -19,15 +19,14 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2HFRingSumAlgorithm.h"
-//#include "CondFormats/L1TObjects/interface/CaloParams.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloParamsStage1.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
 
 namespace l1t {
 
   class Stage1Layer2FlowAlgorithm : public Stage1Layer2HFRingSumAlgorithm {
   public:
-    Stage1Layer2FlowAlgorithm(CaloParamsStage1* params);
+    Stage1Layer2FlowAlgorithm(CaloParamsHelper* params);
     virtual ~Stage1Layer2FlowAlgorithm();
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
@@ -35,14 +34,14 @@ namespace l1t {
 			      l1t::CaloSpare * spare);
 
   private:
-    CaloParamsStage1* params_;
+    CaloParamsHelper* params_;
     std::vector<double> cosPhi;
     std::vector<double> sinPhi;
   };
 
   class Stage1Layer2CentralityAlgorithm : public Stage1Layer2HFRingSumAlgorithm {
   public:
-    Stage1Layer2CentralityAlgorithm(CaloParamsStage1* params);
+    Stage1Layer2CentralityAlgorithm(CaloParamsHelper* params);
     virtual ~Stage1Layer2CentralityAlgorithm();
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
@@ -50,20 +49,20 @@ namespace l1t {
 			      l1t::CaloSpare * spare);
 
   private:
-    CaloParamsStage1 *params_;
+    CaloParamsHelper *params_;
   };
 
 
   class Stage1Layer2DiTauAlgorithm : public Stage1Layer2HFRingSumAlgorithm {
   public:
-    Stage1Layer2DiTauAlgorithm(CaloParamsStage1* params);
+    Stage1Layer2DiTauAlgorithm(CaloParamsHelper* params);
     virtual ~Stage1Layer2DiTauAlgorithm();
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::Tau> * taus,
 			      l1t::CaloSpare * spare);
   private:
-    CaloParamsStage1* params_;
+    CaloParamsHelper* params_;
   };
 }
 

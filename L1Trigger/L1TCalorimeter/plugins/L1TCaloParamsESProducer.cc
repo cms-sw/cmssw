@@ -31,6 +31,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
 
 using namespace std;
@@ -74,133 +75,139 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   setWhatProduced(this);
   //setWhatProduced(this, conf.getParameter<std::string>("label"));
 
+  CaloParamsHelper m_params_helper;
+
   // towers
-  m_params.setTowerLsbH(conf.getParameter<double>("towerLsbH"));
-  m_params.setTowerLsbE(conf.getParameter<double>("towerLsbE"));
-  m_params.setTowerLsbSum(conf.getParameter<double>("towerLsbSum"));
-  m_params.setTowerNBitsH(conf.getParameter<int>("towerNBitsH"));
-  m_params.setTowerNBitsE(conf.getParameter<int>("towerNBitsE"));
-  m_params.setTowerNBitsSum(conf.getParameter<int>("towerNBitsSum"));
-  m_params.setTowerNBitsRatio(conf.getParameter<int>("towerNBitsRatio"));
-  m_params.setTowerEncoding(conf.getParameter<bool>("towerEncoding"));
+  m_params_helper.setTowerLsbH(conf.getParameter<double>("towerLsbH"));
+  m_params_helper.setTowerLsbE(conf.getParameter<double>("towerLsbE"));
+  m_params_helper.setTowerLsbSum(conf.getParameter<double>("towerLsbSum"));
+  m_params_helper.setTowerNBitsH(conf.getParameter<int>("towerNBitsH"));
+  m_params_helper.setTowerNBitsE(conf.getParameter<int>("towerNBitsE"));
+  m_params_helper.setTowerNBitsSum(conf.getParameter<int>("towerNBitsSum"));
+  m_params_helper.setTowerNBitsRatio(conf.getParameter<int>("towerNBitsRatio"));
+  m_params_helper.setTowerEncoding(conf.getParameter<bool>("towerEncoding"));
 
   // regions
-  m_params.setRegionLsb(conf.getParameter<double>("regionLsb"));
-  m_params.setRegionPUSType(conf.getParameter<std::string>("regionPUSType"));
-  m_params.setRegionPUSParams(conf.getParameter<std::vector<double> >("regionPUSParams"));
+  m_params_helper.setRegionLsb(conf.getParameter<double>("regionLsb"));
+  m_params_helper.setRegionPUSType(conf.getParameter<std::string>("regionPUSType"));
+  m_params_helper.setRegionPUSParams(conf.getParameter<std::vector<double> >("regionPUSParams"));
 
   // EG
-  m_params.setEgLsb(conf.getParameter<double>("egLsb"));
-  m_params.setEgSeedThreshold(conf.getParameter<double>("egSeedThreshold"));
-  m_params.setEgNeighbourThreshold(conf.getParameter<double>("egNeighbourThreshold"));
-  m_params.setEgHcalThreshold(conf.getParameter<double>("egHcalThreshold"));
+  m_params_helper.setEgEtaCut(conf.getParameter<int>("egEtaCut"));
+
+  m_params_helper.setEgLsb(conf.getParameter<double>("egLsb"));
+  m_params_helper.setEgSeedThreshold(conf.getParameter<double>("egSeedThreshold"));
+  m_params_helper.setEgNeighbourThreshold(conf.getParameter<double>("egNeighbourThreshold"));
+  m_params_helper.setEgHcalThreshold(conf.getParameter<double>("egHcalThreshold"));
 
   edm::FileInPath egTrimmingLUTFile = conf.getParameter<edm::FileInPath>("egTrimmingLUTFile");
   std::ifstream egTrimmingLUTStream(egTrimmingLUTFile.fullPath());
   std::shared_ptr<LUT> egTrimmingLUT( new LUT(egTrimmingLUTStream) );
-  m_params.setEgTrimmingLUT(*egTrimmingLUT);
+  m_params_helper.setEgTrimmingLUT(*egTrimmingLUT);
 
-  m_params.setEgMaxHcalEt(conf.getParameter<double>("egMaxHcalEt"));
-  m_params.setEgMaxPtHOverE(conf.getParameter<double>("egMaxPtHOverE"));
-  m_params.setEgMinPtJetIsolation(conf.getParameter<int>("egMinPtJetIsolation"));
-  m_params.setEgMaxPtJetIsolation(conf.getParameter<int>("egMaxPtJetIsolation"));
-  m_params.setEgMinPtHOverEIsolation(conf.getParameter<int>("egMinPtHOverEIsolation"));
-  m_params.setEgMaxPtHOverEIsolation(conf.getParameter<int>("egMaxPtHOverEIsolation"));
+  m_params_helper.setEgMaxHcalEt(conf.getParameter<double>("egMaxHcalEt"));
+  m_params_helper.setEgMaxPtHOverE(conf.getParameter<double>("egMaxPtHOverE"));
+  m_params_helper.setEgMinPtJetIsolation(conf.getParameter<int>("egMinPtJetIsolation"));
+  m_params_helper.setEgMaxPtJetIsolation(conf.getParameter<int>("egMaxPtJetIsolation"));
+  m_params_helper.setEgMinPtHOverEIsolation(conf.getParameter<int>("egMinPtHOverEIsolation"));
+  m_params_helper.setEgMaxPtHOverEIsolation(conf.getParameter<int>("egMaxPtHOverEIsolation"));
 
 
   edm::FileInPath egMaxHOverELUTFile = conf.getParameter<edm::FileInPath>("egMaxHOverELUTFile");
   std::ifstream egMaxHOverELUTStream(egMaxHOverELUTFile.fullPath());
   std::shared_ptr<LUT> egMaxHOverELUT( new LUT(egMaxHOverELUTStream) );
-  m_params.setEgMaxHOverELUT(*egMaxHOverELUT);
+  m_params_helper.setEgMaxHOverELUT(*egMaxHOverELUT);
 
   edm::FileInPath egCompressShapesLUTFile = conf.getParameter<edm::FileInPath>("egCompressShapesLUTFile");
   std::ifstream egCompressShapesLUTStream(egCompressShapesLUTFile.fullPath());
   std::shared_ptr<LUT> egCompressShapesLUT( new LUT(egCompressShapesLUTStream) );
-  m_params.setEgCompressShapesLUT(*egCompressShapesLUT);
+  m_params_helper.setEgCompressShapesLUT(*egCompressShapesLUT);
 
   edm::FileInPath egShapeIdLUTFile = conf.getParameter<edm::FileInPath>("egShapeIdLUTFile");
   std::ifstream egShapeIdLUTStream(egShapeIdLUTFile.fullPath());
   std::shared_ptr<LUT> egShapeIdLUT( new LUT(egShapeIdLUTStream) );
-  m_params.setEgShapeIdLUT(*egShapeIdLUT);
+  m_params_helper.setEgShapeIdLUT(*egShapeIdLUT);
 
-  m_params.setEgPUSType(conf.getParameter<std::string>("egPUSType"));
+  m_params_helper.setEgPUSType(conf.getParameter<std::string>("egPUSType"));
 
   edm::FileInPath egIsoLUTFile = conf.getParameter<edm::FileInPath>("egIsoLUTFile");
   std::ifstream egIsoLUTStream(egIsoLUTFile.fullPath());
   std::shared_ptr<LUT> egIsoLUT( new LUT(egIsoLUTStream) );
-  m_params.setEgIsolationLUT(*egIsoLUT);
+  m_params_helper.setEgIsolationLUT(*egIsoLUT);
 
   //edm::FileInPath egIsoLUTFileBarrel = conf.getParameter<edm::FileInPath>("egIsoLUTFileBarrel");
   //std::ifstream egIsoLUTBarrelStream(egIsoLUTFileBarrel.fullPath());
   //std::shared_ptr<LUT> egIsoLUTBarrel( new LUT(egIsoLUTBarrelStream) );
-  //m_params.setEgIsolationLUTBarrel(egIsoLUTBarrel);
+  //m_params_helper.setEgIsolationLUTBarrel(egIsoLUTBarrel);
 
   //edm::FileInPath egIsoLUTFileEndcaps = conf.getParameter<edm::FileInPath>("egIsoLUTFileEndcaps");
   //std::ifstream egIsoLUTEndcapsStream(egIsoLUTFileEndcaps.fullPath());
   //std::shared_ptr<LUT> egIsoLUTEndcaps( new LUT(egIsoLUTEndcapsStream) );
-  //m_params.setEgIsolationLUTEndcaps(egIsoLUTEndcaps);
+  //m_params_helper.setEgIsolationLUTEndcaps(egIsoLUTEndcaps);
 
 
-  m_params.setEgIsoAreaNrTowersEta(conf.getParameter<unsigned int>("egIsoAreaNrTowersEta"));
-  m_params.setEgIsoAreaNrTowersPhi(conf.getParameter<unsigned int>("egIsoAreaNrTowersPhi"));
-  m_params.setEgIsoVetoNrTowersPhi(conf.getParameter<unsigned int>("egIsoVetoNrTowersPhi"));
-  //m_params.setEgIsoPUEstTowerGranularity(conf.getParameter<unsigned int>("egIsoPUEstTowerGranularity"));
-  //m_params.setEgIsoMaxEtaAbsForTowerSum(conf.getParameter<unsigned int>("egIsoMaxEtaAbsForTowerSum"));
-  //m_params.setEgIsoMaxEtaAbsForIsoSum(conf.getParameter<unsigned int>("egIsoMaxEtaAbsForIsoSum"));
-  m_params.setEgPUSParams(conf.getParameter<std::vector<double>>("egPUSParams"));
+  m_params_helper.setEgIsoAreaNrTowersEta(conf.getParameter<unsigned int>("egIsoAreaNrTowersEta"));
+  m_params_helper.setEgIsoAreaNrTowersPhi(conf.getParameter<unsigned int>("egIsoAreaNrTowersPhi"));
+  m_params_helper.setEgIsoVetoNrTowersPhi(conf.getParameter<unsigned int>("egIsoVetoNrTowersPhi"));
+  //m_params_helper.setEgIsoPUEstTowerGranularity(conf.getParameter<unsigned int>("egIsoPUEstTowerGranularity"));
+  //m_params_helper.setEgIsoMaxEtaAbsForTowerSum(conf.getParameter<unsigned int>("egIsoMaxEtaAbsForTowerSum"));
+  //m_params_helper.setEgIsoMaxEtaAbsForIsoSum(conf.getParameter<unsigned int>("egIsoMaxEtaAbsForIsoSum"));
+  m_params_helper.setEgPUSParams(conf.getParameter<std::vector<double>>("egPUSParams"));
 
   edm::FileInPath egCalibrationLUTFile = conf.getParameter<edm::FileInPath>("egCalibrationLUTFile");
   std::ifstream egCalibrationLUTStream(egCalibrationLUTFile.fullPath());
   std::shared_ptr<LUT> egCalibrationLUT( new LUT(egCalibrationLUTStream) );
-  m_params.setEgCalibrationLUT(*egCalibrationLUT);
+  m_params_helper.setEgCalibrationLUT(*egCalibrationLUT);
 
   // tau
-  m_params.setTauLsb(conf.getParameter<double>("tauLsb"));
-  m_params.setTauSeedThreshold(conf.getParameter<double>("tauSeedThreshold"));
-  m_params.setTauNeighbourThreshold(conf.getParameter<double>("tauNeighbourThreshold"));
-  m_params.setTauMaxPtTauVeto(conf.getParameter<double>("tauMaxPtTauVeto"));
-  m_params.setTauMinPtJetIsolationB(conf.getParameter<double>("tauMinPtJetIsolationB"));
-  m_params.setTauPUSType(conf.getParameter<std::string>("tauPUSType"));
-  m_params.setTauMaxJetIsolationB(conf.getParameter<double>("tauMaxJetIsolationB"));
-  m_params.setTauMaxJetIsolationA(conf.getParameter<double>("tauMaxJetIsolationA"));
-  m_params.setTauIsoAreaNrTowersEta(conf.getParameter<unsigned int>("tauIsoAreaNrTowersEta"));
-  m_params.setTauIsoAreaNrTowersPhi(conf.getParameter<unsigned int>("tauIsoAreaNrTowersPhi"));
-  m_params.setTauIsoVetoNrTowersPhi(conf.getParameter<unsigned int>("tauIsoVetoNrTowersPhi"));
+  m_params_helper.setTauRegionMask(conf.getParameter<int>("tauRegionMask"));
+  m_params_helper.setTauLsb(conf.getParameter<double>("tauLsb"));
+  m_params_helper.setTauSeedThreshold(conf.getParameter<double>("tauSeedThreshold"));
+  m_params_helper.setTauNeighbourThreshold(conf.getParameter<double>("tauNeighbourThreshold"));
+  m_params_helper.setTauMaxPtTauVeto(conf.getParameter<double>("tauMaxPtTauVeto"));
+  m_params_helper.setTauMinPtJetIsolationB(conf.getParameter<double>("tauMinPtJetIsolationB"));
+  m_params_helper.setTauPUSType(conf.getParameter<std::string>("tauPUSType"));
+  m_params_helper.setTauMaxJetIsolationB(conf.getParameter<double>("tauMaxJetIsolationB"));
+  m_params_helper.setTauMaxJetIsolationA(conf.getParameter<double>("tauMaxJetIsolationA"));
+  m_params_helper.setTauIsoAreaNrTowersEta(conf.getParameter<unsigned int>("tauIsoAreaNrTowersEta"));
+  m_params_helper.setTauIsoAreaNrTowersPhi(conf.getParameter<unsigned int>("tauIsoAreaNrTowersPhi"));
+  m_params_helper.setTauIsoVetoNrTowersPhi(conf.getParameter<unsigned int>("tauIsoVetoNrTowersPhi"));
 
   edm::FileInPath tauIsoLUTFile = conf.getParameter<edm::FileInPath>("tauIsoLUTFile");
   std::ifstream tauIsoLUTStream(tauIsoLUTFile.fullPath());
   std::shared_ptr<LUT> tauIsoLUT( new LUT(tauIsoLUTStream) );
-  m_params.setTauIsolationLUT(*tauIsoLUT);
+  m_params_helper.setTauIsolationLUT(*tauIsoLUT);
 
   edm::FileInPath tauCalibrationLUTFile = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFile");
   std::ifstream tauCalibrationLUTStream(tauCalibrationLUTFile.fullPath());
   std::shared_ptr<LUT> tauCalibrationLUT( new LUT(tauCalibrationLUTStream) );
-  m_params.setTauCalibrationLUT(*tauCalibrationLUT);
+  m_params_helper.setTauCalibrationLUT(*tauCalibrationLUT);
 
   edm::FileInPath tauEtToHFRingEtLUTFile = conf.getParameter<edm::FileInPath>("tauEtToHFRingEtLUTFile");
   std::ifstream tauEtToHFRingEtLUTStream(tauEtToHFRingEtLUTFile.fullPath());
   std::shared_ptr<LUT> tauEtToHFRingEtLUT( new LUT(tauEtToHFRingEtLUTStream) );
-  m_params.setTauEtToHFRingEtLUT(*tauEtToHFRingEtLUT);
+  m_params_helper.setTauEtToHFRingEtLUT(*tauEtToHFRingEtLUT);
 
-  m_params.setIsoTauEtaMin(conf.getParameter<int> ("isoTauEtaMin"));
-  m_params.setIsoTauEtaMax(conf.getParameter<int> ("isoTauEtaMax"));
+  m_params_helper.setIsoTauEtaMin(conf.getParameter<int> ("isoTauEtaMin"));
+  m_params_helper.setIsoTauEtaMax(conf.getParameter<int> ("isoTauEtaMax"));
 
-  m_params.setTauPUSParams(conf.getParameter<std::vector<double>>("tauPUSParams"));
+  m_params_helper.setTauPUSParams(conf.getParameter<std::vector<double>>("tauPUSParams"));
 
   // jets
-  m_params.setJetLsb(conf.getParameter<double>("jetLsb"));
-  m_params.setJetSeedThreshold(conf.getParameter<double>("jetSeedThreshold"));
-  m_params.setJetNeighbourThreshold(conf.getParameter<double>("jetNeighbourThreshold"));
-  m_params.setJetPUSType(conf.getParameter<std::string>("jetPUSType"));
-  m_params.setJetCalibrationType(conf.getParameter<std::string>("jetCalibrationType"));
-  m_params.setJetCalibrationParams(conf.getParameter<std::vector<double> >("jetCalibrationParams"));
+  m_params_helper.setJetLsb(conf.getParameter<double>("jetLsb"));
+  m_params_helper.setJetSeedThreshold(conf.getParameter<double>("jetSeedThreshold"));
+  m_params_helper.setJetNeighbourThreshold(conf.getParameter<double>("jetNeighbourThreshold"));
+  m_params_helper.setJetRegionMask(conf.getParameter<int>("jetRegionMask"));
+  m_params_helper.setJetPUSType(conf.getParameter<std::string>("jetPUSType"));
+  m_params_helper.setJetCalibrationType(conf.getParameter<std::string>("jetCalibrationType"));
+  m_params_helper.setJetCalibrationParams(conf.getParameter<std::vector<double> >("jetCalibrationParams"));
   edm::FileInPath jetCalibrationLUTFile = conf.getParameter<edm::FileInPath>("jetCalibrationLUTFile");
   std::ifstream jetCalibrationLUTStream(jetCalibrationLUTFile.fullPath());
   std::shared_ptr<LUT> jetCalibrationLUT( new LUT(jetCalibrationLUTStream) );
-  m_params.setJetCalibrationLUT(*jetCalibrationLUT);
+  m_params_helper.setJetCalibrationLUT(*jetCalibrationLUT);
 
   // sums
-  m_params.setEtSumLsb(conf.getParameter<double>("etSumLsb"));
+  m_params_helper.setEtSumLsb(conf.getParameter<double>("etSumLsb"));
 
   std::vector<int> etSumEtaMin = conf.getParameter<std::vector<int> >("etSumEtaMin");
   std::vector<int> etSumEtaMax = conf.getParameter<std::vector<int> >("etSumEtaMax");
@@ -208,9 +215,9 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
 
   if ((etSumEtaMin.size() == etSumEtaMax.size()) &&  (etSumEtaMin.size() == etSumEtThreshold.size())) {
     for (unsigned i=0; i<etSumEtaMin.size(); ++i) {
-      m_params.setEtSumEtaMin(i, etSumEtaMin.at(i));
-      m_params.setEtSumEtaMax(i, etSumEtaMax.at(i));
-      m_params.setEtSumEtThreshold(i, etSumEtThreshold.at(i));
+      m_params_helper.setEtSumEtaMin(i, etSumEtaMin.at(i));
+      m_params_helper.setEtSumEtaMax(i, etSumEtaMax.at(i));
+      m_params_helper.setEtSumEtThreshold(i, etSumEtThreshold.at(i));
     }
   }
   else {
@@ -221,15 +228,22 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   edm::FileInPath centralityLUTFile = conf.getParameter<edm::FileInPath>("centralityLUTFile");
   std::ifstream centralityLUTStream(centralityLUTFile.fullPath());
   std::shared_ptr<LUT> centralityLUT( new LUT(centralityLUTStream) );
-  m_params.setCentralityLUT(*centralityLUT);
+  m_params_helper.setCentralityLUT(*centralityLUT);
+  m_params_helper.setCentralityRegionMask(conf.getParameter<int>("centralityRegionMask"));
+  std::vector<int> minbiasThresholds = conf.getParameter<std::vector<int> >("minimumBiasThresholds");
+  if(minbiasThresholds.size() == 4) {
+    m_params_helper.setMinimumBiasThresholds(minbiasThresholds);
+  } else {
+    edm::LogError("l1t|calo") << "Incorrect number of minimum bias thresholds set.";
+  }
 
   // HI Q2 trigger
   edm::FileInPath q2LUTFile = conf.getParameter<edm::FileInPath>("q2LUTFile");
   std::ifstream q2LUTStream(q2LUTFile.fullPath());
   std::shared_ptr<LUT> q2LUT( new LUT(q2LUTStream) );
-  m_params.setQ2LUT(*q2LUT);
+  m_params_helper.setQ2LUT(*q2LUT);
 
-
+  m_params = (CaloParams)m_params_helper;
 }
 
 
