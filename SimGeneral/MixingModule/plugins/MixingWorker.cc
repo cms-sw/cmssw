@@ -28,7 +28,7 @@ namespace edm {
     bool got = false;
     Handle<HepMCProduct>  result_t;
     for(InputTag const& tag : allTags_) {
-      bool got = e.getByLabel(tag, result_t);
+      got = e.getByLabel(tag, result_t);
       if (got) {
         LogDebug("MixingModule") << "adding HepMCProduct from signal event  with " << tag;
         crFrame_->addSignals(result_t.product(), e.id());  
