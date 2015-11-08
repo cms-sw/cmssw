@@ -5043,7 +5043,8 @@ C...Purpose: to perform rotations and boosts.
       SAVE /LUJETS/ 
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       SAVE /LUDAT1/ 
-      DIMENSION ROT(3,3),PR(3),VR(3),DP(4),DV(4)    
+      DIMENSION ROT(3,3),PR(3),DP(4)
+cms      VR(3),DV(4)    
     
 C...Find range of rotation/boost. Convert boost to double precision.    
       IMIN=1    
