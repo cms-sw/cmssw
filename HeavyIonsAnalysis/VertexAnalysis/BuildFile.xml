@@ -29,5 +29,6 @@
 <use name="SimTracker/TrackAssociation"/>
 <use name="SimTracker/TrackHistory"/>
 <use name="SimDataFormats/GeneratorProducts"/>
+<use name="SimDataFormats/PileupSummaryInfo"/>
 <use name="SimGeneral/HepPDTRecord"/>
 <flags EDM_PLUGIN="1"/>
