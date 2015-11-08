@@ -32,8 +32,8 @@ class OldThreeThresholdAlgorithm final : public StripClusterizerAlgorithm {
  public:
   
   //  void setSiStripNoiseService( SiStripNoiseService* in ){ SiStripNoiseService_=in;}
-  void clusterizeDetUnit(const edm::DetSet<SiStripDigi>    & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output);
-  void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output);
+  void clusterizeDetUnit(const edm::DetSet<SiStripDigi>    & digis, edmNew::DetSetVector<SiStripCluster>::TSFastFiller & output);
+  void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> & digis, edmNew::DetSetVector<SiStripCluster>::TSFastFiller & output);
 
   void initialize(const edm::EventSetup&);
 
@@ -55,7 +55,7 @@ class OldThreeThresholdAlgorithm final : public StripClusterizerAlgorithm {
 
   //  SiStripNoiseService* SiStripNoiseService_; 
   template<typename InputDetSet>
-    void clusterizeDetUnit_(const InputDetSet & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output);
+    void clusterizeDetUnit_(const InputDetSet & digis, edmNew::DetSetVector<SiStripCluster>::TSFastFiller & output);
 
   float theChannelThreshold;
   float theSeedThreshold;

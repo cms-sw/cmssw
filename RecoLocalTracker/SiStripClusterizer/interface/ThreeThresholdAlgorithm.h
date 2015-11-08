@@ -9,8 +9,8 @@ class ThreeThresholdAlgorithm final : public StripClusterizerAlgorithm {
 
  public:
 
-  void clusterizeDetUnit(const    edm::DetSet<SiStripDigi> &, output_t::FastFiller &);
-  void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> &, output_t::FastFiller &);
+  void clusterizeDetUnit(const    edm::DetSet<SiStripDigi> &, output_t::TSFastFiller &);
+  void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> &, output_t::TSFastFiller &);
 
   bool stripByStripBegin(uint32_t id);
 
@@ -25,26 +25,26 @@ class ThreeThresholdAlgorithm final : public StripClusterizerAlgorithm {
   }
 
   // detset interface
-  void addFed(sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::FastFiller & out) override {
+  void addFed(sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::TSFastFiller & out) override {
     while (unpacker.hasData()) {
       stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),out);
       unpacker++;
     }
   }
 
-  void stripByStripAdd(uint16_t strip, uint8_t adc, output_t::FastFiller & out) override {
+  void stripByStripAdd(uint16_t strip, uint8_t adc, output_t::TSFastFiller & out) override {
     if(candidateEnded(strip)) endCandidate(out);
     addToCandidate(strip,adc);
   }
 
-  void stripByStripEnd(output_t::FastFiller & out) override { endCandidate(out);}
+  void stripByStripEnd(output_t::TSFastFiller & out) override { endCandidate(out);}
 
   void cleanState() override {clearCandidate();}
 
 
  private:
 
-  template<class T> void clusterizeDetUnit_(const T&, output_t::FastFiller&);
+  template<class T> void clusterizeDetUnit_(const T&, output_t::TSFastFiller&);
   ThreeThresholdAlgorithm(float, float, float, unsigned, unsigned, unsigned, std::string qualityLabel,
 			  bool setDetId, bool removeApvShots, float minGoodCharge);
 

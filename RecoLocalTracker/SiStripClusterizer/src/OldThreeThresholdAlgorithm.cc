@@ -11,16 +11,16 @@ void OldThreeThresholdAlgorithm::initialize(const edm::EventSetup& es) {
   es.get<SiStripQualityRcd>().get(qualityLabel_,qualityHandle_);
 }
 
-void OldThreeThresholdAlgorithm::clusterizeDetUnit(const edm::DetSet<SiStripDigi>    & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output) {
+void OldThreeThresholdAlgorithm::clusterizeDetUnit(const edm::DetSet<SiStripDigi>    & digis, edmNew::DetSetVector<SiStripCluster>::TSFastFiller & output) {
   clusterizeDetUnit_(digis,output);
 }
-void OldThreeThresholdAlgorithm::clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output) {
+void OldThreeThresholdAlgorithm::clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> & digis, edmNew::DetSetVector<SiStripCluster>::TSFastFiller & output) {
   clusterizeDetUnit_(digis,output);
 }
 
 template<typename InputDetSet>
 void OldThreeThresholdAlgorithm::clusterizeDetUnit_(const InputDetSet& input,
-							edmNew::DetSetVector<SiStripCluster>::FastFiller& output) {
+							edmNew::DetSetVector<SiStripCluster>::TSFastFiller& output) {
   
 #ifdef PATCH_FOR_DIGIS_DUPLICATION
   bool printPatchError=false;

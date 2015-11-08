@@ -48,7 +48,7 @@ produce(edm::Event& event, const edm::EventSetup& es) {
     }
 
     if(!clusters.empty()) {
-      output_t::FastFiller filler(*output, inputDetSet->detId());
+      output_t::TSFastFiller filler(*output, inputDetSet->detId());
       for( unsigned i=0; i<clusters.size(); i++) filler.push_back(clusters[i]);
     }
   }

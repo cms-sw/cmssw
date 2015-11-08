@@ -24,7 +24,7 @@ ThreeThresholdAlgorithm(float chan, float seed, float cluster, unsigned holes, u
 template<class digiDetSet>
 inline
 void ThreeThresholdAlgorithm::
-clusterizeDetUnit_(const digiDetSet& digis, output_t::FastFiller& output) {
+clusterizeDetUnit_(const digiDetSet& digis, output_t::TSFastFiller& output) {
   if(isModuleBad(digis.detId())) return;
   if (!setDetId( digis.detId() )) return;
 
@@ -125,8 +125,8 @@ appendBadNeighbors() {
 }
 
 
-void ThreeThresholdAlgorithm::clusterizeDetUnit(const    edm::DetSet<SiStripDigi>& digis, output_t::FastFiller& output) {clusterizeDetUnit_(digis,output);}
-void ThreeThresholdAlgorithm::clusterizeDetUnit(const edmNew::DetSet<SiStripDigi>& digis, output_t::FastFiller& output) {clusterizeDetUnit_(digis,output);}
+void ThreeThresholdAlgorithm::clusterizeDetUnit(const    edm::DetSet<SiStripDigi>& digis, output_t::TSFastFiller& output) {clusterizeDetUnit_(digis,output);}
+void ThreeThresholdAlgorithm::clusterizeDetUnit(const edmNew::DetSet<SiStripDigi>& digis, output_t::TSFastFiller& output) {clusterizeDetUnit_(digis,output);}
 
 inline
 bool ThreeThresholdAlgorithm::

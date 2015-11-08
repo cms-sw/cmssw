@@ -28,8 +28,8 @@ class StripClusterizerAlgorithm {
   typedef edmNew::DetSetVector<SiStripCluster> output_t;
   void clusterize(const    edm::DetSetVector<SiStripDigi> &, output_t &);
   void clusterize(const edmNew::DetSetVector<SiStripDigi> &, output_t &);
-  virtual void clusterizeDetUnit(const    edm::DetSet<SiStripDigi> &, output_t::FastFiller &) = 0;
-  virtual void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> &, output_t::FastFiller &) = 0;
+  virtual void clusterizeDetUnit(const    edm::DetSet<SiStripDigi> &, output_t::TSFastFiller &) = 0;
+  virtual void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> &, output_t::TSFastFiller &) = 0;
 
   //HLT stripByStrip interface
   virtual bool stripByStripBegin(uint32_t id) = 0;
@@ -38,9 +38,9 @@ class StripClusterizerAlgorithm {
   virtual void stripByStripAdd(uint16_t strip, uint8_t adc, std::vector<SiStripCluster>& out) {}
   virtual void stripByStripEnd(std::vector<SiStripCluster>& out) {}
 
-  virtual void addFed(sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::FastFiller & out) {}
-  virtual void stripByStripAdd(uint16_t strip, uint8_t adc, output_t::FastFiller & out) {}
-  virtual void stripByStripEnd(output_t::FastFiller & out) {}
+  virtual void addFed(sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::TSFastFiller & out) {}
+  virtual void stripByStripAdd(uint16_t strip, uint8_t adc, output_t::TSFastFiller & out) {}
+  virtual void stripByStripEnd(output_t::TSFastFiller & out) {}
   
   virtual void cleanState(){}
 
@@ -71,7 +71,7 @@ class StripClusterizerAlgorithm {
 
   template<class T> void clusterize_(const T& input, output_t& output) {
     for(typename T::const_iterator it = input.begin(); it!=input.end(); it++) {
-      output_t::FastFiller ff(output, it->detId());	
+      output_t::TSFastFiller ff(output, it->detId());	
       clusterizeDetUnit(*it, ff);	
       if(ff.empty()) ff.abort();	
     }	
