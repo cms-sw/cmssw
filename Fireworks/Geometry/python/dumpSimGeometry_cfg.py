@@ -43,23 +43,15 @@ def simGeoLoad(score):
        process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
   
     elif score == "PhaseIPixel":
-       process.load('Geometry.CMSCommonData.GeometryExtendedPhaseIPixel_cfi')
+       process.load('Geometry.CMSCommonData.cmsExtendedGeometry2017XML_cfi')
 
-    elif score == "Phase1_R34F16":
-        process.load('Geometry.CMSCommonData.Phase1_R34F16_cmsSimIdealGeometryXML_cff')
  
-    elif score == "Phase2Tk":
-       process.load('Geometry.CMSCommonData.cmsExtendedGeometryPhase2TkBEXML_cfi')
-
     elif score == "2023Muon":
        process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
 
     elif score == "2023":
        process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
-        
-    elif score == "SLHC":
-        process.load('SLHCUpgradeSimulations.Geometry.Phase1_R30F12_HCal_cmsSimIdealGeometryXML_cff')
-        
+                
     elif score == "DB":
         process.load("Configuration.StandardSequences.GeometryDB_cff")
         process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
