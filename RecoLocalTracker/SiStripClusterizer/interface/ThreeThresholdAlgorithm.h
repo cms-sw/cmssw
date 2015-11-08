@@ -21,23 +21,19 @@ class ThreeThresholdAlgorithm final : public StripClusterizerAlgorithm {
   void stripByStripAdd(State & state, uint16_t strip, uint8_t adc, std::vector<SiStripCluster>& out) const;
   void stripByStripEnd(State & state, std::vector<SiStripCluster>& out) const;
 
-  void addFed(Det const & det, sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, std::vector<SiStripCluster>& out) const {
-    State state(det);
+  void addFed(State & state, sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, std::vector<SiStripCluster>& out) const {
     while (unpacker.hasData()) {
       stripByStripAdd(state,unpacker.sampleNumber()+ipair*256,unpacker.adc(),out);
       unpacker++;
     }
-    stripByStripEnd(state,out);
   }
 
   // detset interface
-  void addFed(Det const & det, sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::FastFiller & out) const override {
-    State state(det);
+  void addFed(State & state, sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::FastFiller & out) const override {
     while (unpacker.hasData()) {
       stripByStripAdd(state, unpacker.sampleNumber()+ipair*256,unpacker.adc(),out);
       unpacker++;
     }
-    stripByStripEnd(state,out);
   }
 
   void stripByStripAdd(State & state, uint16_t strip, uint8_t adc, output_t::FastFiller & out) const override {

@@ -141,22 +141,25 @@ namespace {
     
 #ifdef VIDEBUG
     struct Stat {
-      std::atomic<int> totDet=0; // all dets
-      std::atomic<int> detReady=0; // dets "updated"
-      std::atomic<int> detSet=0;  // det actually set not empty
-      std::atomic<int> detAct=0;  // det actually set with content
-      std::atomic<int> detNoZ=0;  // det actually set with content
+      Stat() : totDet(0), detReady(0),detSet(0),detAct(0),detNoZ(0),totClus(0){}
+      std::atomic<int> totDet; // all dets
+      std::atomic<int> detReady; // dets "updated"
+      std::atomic<int> detSet;  // det actually set not empty
+      std::atomic<int> detAct;  // det actually set with content
+      std::atomic<int> detNoZ;  // det actually set with content
+      std::atomic<int> totClus; // total number of clusters
     };
     
     mutable Stat stat;
-    void zeroStat() const { stat = Stat(); }
+    // void zeroStat() const { stat = std::move(Stat()); }
     void incTot(int n) const { stat.totDet=n;}
     void incReady() const { stat.detReady++;}
     void incSet() const { stat.detSet++;}
     void incAct() const { stat.detAct++;}
     void incNoZ() const { stat.detNoZ++;}
+    void incClus(int n) const { stat.totClus+=n;}
     void printStat() const {
-      COUT << "VI clusters " << stat.totDet <<','<< stat.detReady <<','<< stat.detSet <<','<< stat.detAct<<','<< stat.detNoZ  << std::endl;
+      COUT << "VI clusters " << stat.totDet <<','<< stat.detReady <<','<< stat.detSet <<','<< stat.detAct<<','<< stat.detNoZ <<','<< stat.totClus << std::endl;
     }
     
 #else
@@ -166,6 +169,7 @@ namespace {
     static void incSet() {}
     static void incAct() {}
     static void incNoZ() {}
+    static void incClus(int){}
     static void printStat(){}
 #endif
     
@@ -294,11 +298,12 @@ try { // edmNew::CapacityExaustedException
 
   auto idet= record.id();
 
-  // COUT << "filling " << idet << std::endl;
+  COUT << "filling " << idet << std::endl;
 
   auto const & det = clusterizer.stripByStripBegin(idet);
   if (!det.valid()) return; 
- 
+  StripClusterizerAlgorithm::State state(det);
+
   incSet();
 
   // Loop over apv-pairs of det
@@ -348,7 +353,7 @@ try { // edmNew::CapacityExaustedException
 	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(fedCh));
 	  
 	  // unpack
-	  clusterizer.addFed(det,unpacker,ipair,record);
+	  clusterizer.addFed(state,unpacker,ipair,record);
 	  /*
             while (unpacker.hasData()) {
 	    clusterizer.stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),record);
@@ -373,7 +378,7 @@ try { // edmNew::CapacityExaustedException
 	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(fedCh));
 	  
 	  // unpack
-	  clusterizer.addFed(det,unpacker,ipair,record);
+	  clusterizer.addFed(state,unpacker,ipair,record);
 	  /*
 	    while (unpacker.hasData()) {
 	    clusterizer.stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),record);
@@ -410,11 +415,9 @@ try { // edmNew::CapacityExaustedException
 	//rawAlgos_->suppressor->suppress( digis, zsdigis);
 	uint16_t firstAPV = ipair*2;
 	rawAlgos.SuppressVirginRawData(id, firstAPV,digis, zsdigis);
-	StripClusterizerAlgorithm::State state(det);
  	for( edm::DetSet<SiStripDigi>::const_iterator it = zsdigis.begin(); it!=zsdigis.end(); it++) {
 	  clusterizer.stripByStripAdd(state, it->strip(), it->adc(), record);
 	}
-	clusterizer.stripByStripEnd(state,record);
       }
       
       else if (mode == sistrip::READOUT_MODE_PROC_RAW ) {
@@ -436,11 +439,9 @@ try { // edmNew::CapacityExaustedException
 	//rawAlgos_->suppressor->suppress( digis, zsdigis);
 	uint16_t firstAPV = ipair*2;
 	rawAlgos.SuppressProcessedRawData(id, firstAPV,digis, zsdigis);
-	StripClusterizerAlgorithm::State state(det);
 	for( edm::DetSet<SiStripDigi>::const_iterator it = zsdigis.begin(); it!=zsdigis.end(); it++) {
 	  clusterizer.stripByStripAdd(state, it->strip(), it->adc(), record);
 	}
-	clusterizer.stripByStripEnd(state,record);
       } else {
 	edm::LogWarning(sistrip::mlRawToCluster_)
 	  << "[ClustersFromRawProducer::" 
@@ -455,11 +456,14 @@ try { // edmNew::CapacityExaustedException
     }
     
   } // end loop over conn
+  clusterizer.stripByStripEnd(state,record);
   
   incAct();
   if(!record.empty()) incNoZ();
 
-  // COUT << "filled " << record.size() << std::endl;
+  COUT << "filled " << record.size() << std::endl;
+  for ( auto const & cl : record ) COUT << cl.firstStrip() << ','<<  cl.amplitudes().size() << std::endl;
+  incClus(record.size());
 } catch (edmNew::CapacityExaustedException) {
   edm::LogError(sistrip::mlRawToCluster_) << "too many Sistrip Clusters to fit space allocated for OnDemand";
 }  

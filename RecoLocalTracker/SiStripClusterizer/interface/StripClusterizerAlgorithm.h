@@ -67,7 +67,7 @@ class StripClusterizerAlgorithm {
   virtual void stripByStripAdd(State & state, uint16_t strip, uint8_t adc, std::vector<SiStripCluster>& out)  const{}
   virtual void stripByStripEnd(State & state, std::vector<SiStripCluster>& out)  const {}
 
-  virtual void addFed(Det const & det, sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::FastFiller & out)  const {}
+  virtual void addFed(State & state, sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::FastFiller & out)  const {}
   virtual void stripByStripAdd(State & state, uint16_t strip, uint8_t adc, output_t::FastFiller & out)  const {}
   virtual void stripByStripEnd(State & state, output_t::FastFiller & out)  const {}
 

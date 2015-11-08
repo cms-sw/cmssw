@@ -149,7 +149,7 @@ setDetId(const uint32_t id) const {
   det.quality =   qualityHandle.product();
 
 #ifdef EDM_ML_DEBUG
-  assert(detIds[ind]==det.detId); 
+  assert(detIds[det.ind]==det.detId); 
   auto oldg =  gainHandle->getRange(id);
   assert(oldg==det.gainRange);
   auto oldn = noiseHandle->getRange(id);

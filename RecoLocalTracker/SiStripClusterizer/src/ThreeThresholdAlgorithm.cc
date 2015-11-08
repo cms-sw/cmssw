@@ -27,7 +27,7 @@ clusterizeDetUnit_(const digiDetSet& digis, output_t::FastFiller& output) const 
 
 #ifdef EDM_ML_DEBUG
   if(!isModuleUsable(digis.detId() )) 
-    LogWarning("ThreeThresholdAlgorithm") << " id " << digis.detId() << " not usable???" << std::endl;
+    edm::LogWarning("ThreeThresholdAlgorithm") << " id " << digis.detId() << " not usable???" << std::endl;
 #endif
 
   
@@ -103,7 +103,7 @@ applyGains(State & state) const {
   uint16_t strip = firstStrip(state);
   for( auto &  adc :  state.ADCs) {
 #ifdef EDM_ML_DEBUG
-    if(adc > 255) throw InvalidChargeException( SiStripDigi(strip,adc) );
+    // if(adc > 255) throw InvalidChargeException( SiStripDigi(strip,adc) );
 #endif
     // if(adc > 253) continue; //saturated, do not scale
     auto charge = int( float(adc)/state.det().gain(strip++) + 0.5f ); //adding 0.5 turns truncation into rounding
