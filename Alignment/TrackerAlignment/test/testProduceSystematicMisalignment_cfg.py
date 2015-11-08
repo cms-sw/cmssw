@@ -9,11 +9,11 @@ outputfilename = 'outputfile.db'
 
 
 #misalignment amplitudes, -999 means no misalignment
-#the commented numbers are the default magnitudes
+#the commented numbers are the default magnitudes, which produce a maximum movement of around 600 microns
 #see Alignment/TrackerAlignment/plugins/TrackerSystematicMisalignments.cc for definitions
 #see also https://twiki.cern.ch/twiki/bin/viewauth/CMS/SystematicMisalignmentsofTracker
-radialEpsilon     = -999. # default 5e-4 ~ 600 um
-telescopeEpsilon  = -999. # default 5e-4 ~ 600 um
+radialEpsilon     = -999. # 5e-4
+telescopeEpsilon  = -999. # 5e-4
 layerRotEpsilon   = -999. # 9.43e-6               #cm^-1
 bowingEpsilon     = -999. # 6.77e-9               #cm^-2
 zExpEpsilon       = -999. # 2.02e-4
