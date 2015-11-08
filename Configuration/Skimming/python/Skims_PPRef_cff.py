@@ -12,7 +12,7 @@ skimFEVTContent.outputCommands.append("drop *_*_*_SKIM")
 
 #####################
 
-from HeavyIonsAnalysis.Configuration.PP_HighPtJetSkim_cff import *
+from Configuration.Skimming.PP_HighPtJetSkim_cff import *
 highPtJetSkimPath = cms.Path( highPtJetSkimSequence )
 SKIMStreamHighPtJet = cms.FilteredStream(
     responsible = 'HI PAG',
@@ -25,7 +25,7 @@ SKIMStreamHighPtJet = cms.FilteredStream(
 
 #####################
 
-from HeavyIonsAnalysis.Configuration.PP_ZMMSkim_cff import *
+from Configuration.Skimming.PP_ZMMSkim_cff import *
 zMMSkimPath = cms.Path( zMMSkimSequence )
 SKIMStreamZMM = cms.FilteredStream(
     responsible = 'HI PAG',
@@ -38,7 +38,7 @@ SKIMStreamZMM = cms.FilteredStream(
 
 #####################
 
-from HeavyIonsAnalysis.Configuration.PP_OniaSkim_cff import *
+from Configuration.Skimming.PP_OniaSkim_cff import *
 oniaSkimPath = cms.Path( oniaSkimSequence )
 SKIMStreamOnia = cms.FilteredStream(
     responsible = 'HI PAG',
@@ -51,7 +51,7 @@ SKIMStreamOnia = cms.FilteredStream(
 
 #####################
 
-from HeavyIonsAnalysis.Configuration.PP_D0MesonSkim_cff import *
+from Configuration.Skimming.PP_D0MesonSkim_cff import *
 d0MesonSkimPath = cms.Path( d0MesonSkimSequence )
 SKIMStreamD0Meson = cms.FilteredStream(
     responsible = 'HI PAG',

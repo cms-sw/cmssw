@@ -16,7 +16,7 @@ skimAODContent.outputCommands.append("drop *_*_*_SKIM")
 
 #####################
 
-from HeavyIonsAnalysis.Configuration.HI_PhotonSkim_cff import *
+from Configuration.Skimming.HI_PhotonSkim_cff import *
 photonSkimPath = cms.Path( photonSkimSequence )
 SKIMStreamPhoton = cms.FilteredStream(
     responsible = 'HI PAG',
@@ -30,7 +30,7 @@ SKIMStreamPhoton = cms.FilteredStream(
 
 #####################
 
-from HeavyIonsAnalysis.Configuration.HI_ZEESkim_cff import *
+from Configuration.Skimming.HI_ZEESkim_cff import *
 zEESkimPath = cms.Path( zEESkimSequence )
 SKIMStreamZEE = cms.FilteredStream(
     responsible = 'HI PAG',
@@ -43,7 +43,7 @@ SKIMStreamZEE = cms.FilteredStream(
 
 #####################
 
-from HeavyIonsAnalysis.Configuration.HI_ZMMSkim_cff import *
+from Configuration.Skimming.HI_ZMMSkim_cff import *
 zMMSkimPath = cms.Path( zMMSkimSequence )
 SKIMStreamZMM = cms.FilteredStream(
     responsible = 'HI PAG',
@@ -56,7 +56,7 @@ SKIMStreamZMM = cms.FilteredStream(
 
 #####################
 
-from HeavyIonsAnalysis.Configuration.HI_BJetSkim_cff import *
+from Configuration.Skimming.HI_BJetSkim_cff import *
 bJetSkimPath = cms.Path( bJetSkimSequence )
 SKIMStreamBJet = cms.FilteredStream(
     responsible = 'HI PAG',
@@ -69,7 +69,7 @@ SKIMStreamBJet = cms.FilteredStream(
 
 #####################
 
-from HeavyIonsAnalysis.Configuration.HI_D0MesonSkim_cff import *
+from Configuration.Skimming.HI_D0MesonSkim_cff import *
 d0MesonSkimPath = cms.Path( d0MesonSkimSequence )
 SKIMStreamD0Meson = cms.FilteredStream(
     responsible = 'HI PAG',
@@ -82,7 +82,7 @@ SKIMStreamD0Meson = cms.FilteredStream(
 
 #####################
 
-from HeavyIonsAnalysis.Configuration.HI_HighPtJetSkim_cff import *
+from Configuration.Skimming.HI_HighPtJetSkim_cff import *
 highPtJetSkimPath = cms.Path( highPtJetSkimSequence )
 SKIMStreamHighPtJet = cms.FilteredStream(
     responsible = 'HI PAG',
@@ -95,33 +95,33 @@ SKIMStreamHighPtJet = cms.FilteredStream(
 
 #####################
 
-from HeavyIonsAnalysis.Configuration.HI_OniaCentralSkim_cff import *
+from Configuration.Skimming.HI_OniaCentralSkim_cff import *
 oniaCentralSkimPath = cms.Path( oniaCentralSkimSequence )
 SKIMStreamOniaCentral = cms.FilteredStream(
     responsible = 'HI PAG',
     name = 'OniaCentral',
     paths = (oniaCentralSkimPath),
-    content = skimAODContent.outputCommands,
+    content = skimRECOContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('AOD')
+    dataTier = cms.untracked.string('RECO')
     )
 
 #####################     
 
-from HeavyIonsAnalysis.Configuration.HI_OniaPeripheralSkim_cff import *
+from Configuration.Skimming.HI_OniaPeripheralSkim_cff import *
 oniaPeripheralSkimPath = cms.Path( oniaPeripheralSkimSequence )
 SKIMStreamOniaPeripheral = cms.FilteredStream(
     responsible = 'HI PAG',
     name = 'OniaPeripheral',
     paths = (oniaPeripheralSkimPath),
-    content = skimAODContent.outputCommands,
+    content = skimRECOContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('AOD')
+    dataTier = cms.untracked.string('RECO')
     )
 
 #####################     
 
-from HeavyIonsAnalysis.Configuration.HI_SingleTrackSkim_cff import *
+from Configuration.Skimming.HI_SingleTrackSkim_cff import *
 singleTrackSkimPath = cms.Path( singleTrackSkimSequence )
 SKIMStreamSingleTrack = cms.FilteredStream(
     responsible = 'HI PAG',
@@ -134,7 +134,7 @@ SKIMStreamSingleTrack = cms.FilteredStream(
 
 #####################     
 
-from HeavyIonsAnalysis.Configuration.HI_MinBiasSkim_cff import *
+from Configuration.Skimming.HI_MinBiasSkim_cff import *
 minBiasSkimPath = cms.Path( minBiasSkimSequence )
 SKIMStreamMinBias = cms.FilteredStream(
     responsible = 'HI PAG',
@@ -148,7 +148,7 @@ SKIMStreamMinBias = cms.FilteredStream(
 #####################      
 
 
-from HeavyIonsAnalysis.Configuration.HI_OniaUPCSkim_cff import *
+from Configuration.Skimming.HI_OniaUPCSkim_cff import *
 oniaUPCSkimPath = cms.Path( oniaUPCSkimSequence )
 SKIMStreamOniaUPC = cms.FilteredStream(
     responsible = 'HI PAG',
