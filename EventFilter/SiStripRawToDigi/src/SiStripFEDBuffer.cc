@@ -441,6 +441,16 @@ namespace sistrip {
     throw cms::Exception("FEDBuffer") << ss.str();
   }
 
+  void FEDBSChannelUnpacker::throwUnorderedData(const uint8_t currentStrip, const uint8_t firstStripOfNewCluster)
+  {
+    std::ostringstream ss;
+    ss << "First strip of new cluster is not greater than last strip of previous cluster. "
+       << "Last strip of previous cluster is " << uint16_t(currentStrip) << ". "
+       << "First strip of new cluster is " << uint16_t(firstStripOfNewCluster) << "."
+       << std::endl;
+    throw cms::Exception("FEDBuffer") << ss.str();
+  }
+
   void FEDZSChannelUnpacker::throwBadChannelLength(const uint16_t length)
   {
     std::ostringstream ss;
