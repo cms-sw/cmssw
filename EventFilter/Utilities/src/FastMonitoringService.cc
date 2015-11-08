@@ -418,15 +418,17 @@ namespace evf{
 
           }
 
-          auto sourceReport  = inputSource_->getEventReport(lumi, true);
-	  if (sourceReport.first) {
-	    if (sourceReport.second!=processedEventsPerLumi_[lumi].first) {
-	      throw cms::Exception("FastMonitoringService") << "MISMATCH with SOURCE update. LUMI -: "
-                                                            << lumi
-                                                            << ", events(processed):" << processedEventsPerLumi_[lumi].first
-                                                            << " events(source):" << sourceReport.second;
+          if (inputSource_) {
+            auto sourceReport  = inputSource_->getEventReport(lumi, true);
+	    if (sourceReport.first) {
+	      if (sourceReport.second!=processedEventsPerLumi_[lumi].first) {
+	        throw cms::Exception("FastMonitoringService") << "MISMATCH with SOURCE update. LUMI -: "
+                                                              << lumi
+                                                              << ", events(processed):" << processedEventsPerLumi_[lumi].first
+                                                              << " events(source):" << sourceReport.second;
+	      }
 	    }
-	  }
+          }
 	  edm::LogInfo("FastMonitoringService")	<< "Statistics for lumisection -: lumi = " << lumi << " events = "
 			                        << lumiProcessedJptr->value() << " time = " << usecondsForLumi/1000000
 			                        << " size = " << accuSize << " thr = " << throughput;
