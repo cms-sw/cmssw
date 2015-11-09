@@ -206,7 +206,8 @@ def customiseFor12062(process):
 def customiseFor12318(process);
 
     if hasattr(process, 'hltMetCleanUsingJetID'):
-        delattr(process.hltMetCleanUsingJetID, 'usePt')
+       if hasattr(process.hltMetCleanUsingJetID, 'usePt'):
+          delattr(process.hltMetCleanUsingJetID, 'usePt')
     return process
     
 # CMSSW version specific customizations
