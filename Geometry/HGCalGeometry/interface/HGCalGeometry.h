@@ -74,7 +74,8 @@ public:
 
   // avoid sorting set in base class  
   virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det = DetId::Detector(0), int subdet = 0) const override { return m_validIds; }
-  
+  const std::vector<DetId>& getValidGeomDetIds( void ) const { return m_validGeomIds; }
+					       
   // Get closest cell, etc...
   virtual DetId getClosestCell( const GlobalPoint& r ) const override;
   
