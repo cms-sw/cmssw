@@ -33,6 +33,11 @@ class HeavyIonsRun2(Reco):
                 if a['dataTier'] == 'MINIAOD':
                     raise RuntimeError("MINIAOD is not supported in HeavyIonsRun2")
 
+
+    def _setRepackedFlag(self,args):
+        if not 'repacked' in args:
+            args['repacked']= True
+
     def promptReco(self, globalTag, **args):
         """
         _promptReco_
@@ -41,6 +46,7 @@ class HeavyIonsRun2(Reco):
 
         """
         self._checkMINIAOD(**args)
+        self._setRepackedFlag(args)
 
         if not 'skims' in args:
             args['skims']=['@allForPrompt']
@@ -64,6 +70,7 @@ class HeavyIonsRun2(Reco):
 
         """
         self._checkMINIAOD(**args)
+        self._setRepackedFlag(**args)
 
         if not 'skims' in args:
             args['skims']=['@allForExpress']
