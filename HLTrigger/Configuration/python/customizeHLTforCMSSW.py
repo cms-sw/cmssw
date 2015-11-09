@@ -201,7 +201,7 @@ def customiseFor12062(process):
         module.recordLabel = cms.string('HLT')
     return process
 
-def customiseFor12318(process);
+def customiseFor12318(process):
 
     if hasattr(process, 'hltMetCleanUsingJetID'):
        if hasattr(process.hltMetCleanUsingJetID, 'usePt'):
