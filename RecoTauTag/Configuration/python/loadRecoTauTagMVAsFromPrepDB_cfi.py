@@ -1,3 +1,4 @@
+import socket
 '''Helper procedure that loads mva inputs from database'''
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
