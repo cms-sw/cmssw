@@ -1,5 +1,3 @@
-import FWCore.ParameterSet.Config as cms
-
 # reusable functions
 def producers_by_type(process, *types):
     return (module for module in process._Process__producers.values() if module._TypedParameterizable__type in types)
@@ -209,12 +207,31 @@ def customiseFor12318(process);
        if hasattr(process.hltMetCleanUsingJetID, 'usePt'):
           delattr(process.hltMetCleanUsingJetID, 'usePt')
     return process
-    
+
+
+import FWCore.ParameterSet.Config as cms
+
+# Remove hcalTopologyConstants
+def customiseFor11920(process):
+    if hasattr(process,'HcalGeometryFromDBEP'):
+        if hasattr(process.HcalGeometryFromDBEP,'hcalTopologyConstants'):
+            delattr(process.HcalGeometryFromDBEP,'hcalTopologyConstants')
+    if hasattr(process,'HcalTopologyIdealEP'):
+        if hasattr(process.HcalTopologyIdealEP,'hcalTopologyConstants'):
+            delattr(process.HcalTopologyIdealEP,'hcalTopologyConstants')
+    if hasattr(process,'CaloTowerGeometryFromDBEP'):
+        if hasattr(process.CaloTowerGeometryFromDBEP,'hcalTopologyConstants'):
+            delattr(process.CaloTowerGeometryFromDBEP,'hcalTopologyConstants')
+    return process
+
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     import os
     cmsswVersion = os.environ['CMSSW_VERSION']
 
+    if cmsswVersion >= "CMSSW_8_0":
+        process = customiseFor11920(process)
+        process = customiseFor12318(process)
     if cmsswVersion >= "CMSSW_7_6":
         process = customiseFor10418(process)
         process = customiseFor10353(process)
@@ -223,7 +240,6 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
         process = customiseFor11497(process)
         process = customiseFor12044(process)
         process = customiseFor12062(process)
-        process = customiseFor12318(process)
     if cmsswVersion >= "CMSSW_7_5":
         process = customiseFor10927(process)
         process = customiseFor9232(process)
