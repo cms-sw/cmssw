@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
 
@@ -35,12 +36,12 @@ class TriggerObjectFilterByCollection : public edm::EDProducer {
         virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
     private:
-        edm::InputTag src_;
+        edm::EDGetTokenT<std::vector<pat::TriggerObjectStandAlone>> src_;
         std::vector<std::string> collections_;
 };
 
 TriggerObjectFilterByCollection::TriggerObjectFilterByCollection(const edm::ParameterSet & iConfig) :
-    src_(iConfig.getParameter<edm::InputTag>("src")), 
+    src_(consumes<std::vector<pat::TriggerObjectStandAlone>>(iConfig.getParameter<edm::InputTag>("src"))), 
     collections_(iConfig.getParameter<std::vector<std::string> >("collections")) 
 {
     produces<std::vector<pat::TriggerObjectStandAlone> >();
@@ -57,7 +58,7 @@ TriggerObjectFilterByCollection::produce(edm::Event & iEvent, const edm::EventSe
     using namespace edm;
 
     Handle<std::vector<pat::TriggerObjectStandAlone> > src;
-    iEvent.getByLabel(src_, src);
+    iEvent.getByToken(src_, src);
 
     std::auto_ptr<std::vector<pat::TriggerObjectStandAlone> > out(new std::vector<pat::TriggerObjectStandAlone>());
     out->reserve(src->size());
