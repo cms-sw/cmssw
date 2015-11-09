@@ -577,7 +577,9 @@ C...Find lowest-mass colour singlet jet system, OK if above thresh.
       NS=N  
   140 NSIN=N-NS 
       PDM=1.+PARJ(32)   
-      IC=0  
+      IC=0
+      IC1=0
+      IC2=0
       DO 190 I=MAX(1,IP),NS 
       IF(K(I,1).NE.1.AND.K(I,1).NE.2) THEN  
       ELSEIF(K(I,1).EQ.2.AND.IC.EQ.0) THEN  
@@ -876,7 +878,10 @@ C...Reset counters. Identify parton system.
         CALL LUERRM(11,'(LUSTRF:) no more memory left in LUJETS')   
         IF(MSTU(21).GE.1) RETURN    
       ENDIF 
-    
+
+cms.. pre-initialize to avoid compiler warning
+      JR=0
+
 C...Take copy of partons to be considered. Check flavour sum.   
       NP=NP+1   
       DO 120 J=1,5  
@@ -914,6 +919,7 @@ C...Search for very nearby partons that may be recombined.
       NR=NP 
   130 IF(NR.GE.3) THEN  
         PDRMIN=2.*PARU12    
+        IR=0
         DO 140 I=N+1,N+NR   
         IF(I.EQ.N+NR.AND.IABS(K(N+1,2)).NE.21) GOTO 140 
         I1=I+1  
@@ -2120,6 +2126,8 @@ C...Compensate for missing momentum in global scheme (3 options).
         IF(MOD(MSTJ(3),5).EQ.2) PWS=PWS+SQRT(P(I,5)**2+(PSI(1)*P(I,1)+  
      &  PSI(2)*P(I,2)+PSI(3)*P(I,3))**2/PSI(4)) 
   340   IF(MOD(MSTJ(3),5).EQ.3) PWS=PWS+1.  
+cms..preinitialize
+        PW=0.
         DO 360 I=NSAV+NJET+1,N  
         IF(MOD(MSTJ(3),5).EQ.1) PW=P(I,4)   
         IF(MOD(MSTJ(3),5).EQ.2) PW=SQRT(P(I,5)**2+(PSI(1)*P(I,1)+   
@@ -2334,6 +2342,8 @@ clin  110 NOPE=0
 C...Select decay channel among allowed ones.    
   130 RBR=BRSU*RLU(0)   
       IDL=MDCY(KCA,2)-1 
+cms.. preinitialize..
+      IDC=0.
   140 IDL=IDL+1 
       IF(MDME(IDL,1).NE.1.AND.KFSP*MDME(IDL,1).NE.2.AND.    
      &KFSN*MDME(IDL,1).NE.3) THEN   
@@ -2435,6 +2445,9 @@ C...Add decay product to event record or to quark flavour list.
   170 CONTINUE  
     
 C...Choose decay multiplicity in phase space model. 
+cms.. preinitialize
+      PQT=0.
+
   180 IF(MMAT.GE.11.AND.MMAT.LE.30) THEN    
         PSP=PS  
         CNDE=PARJ(61)*LOG(MAX((PV(1,5)-PS-PSQ)/PARJ(62),1.1))   
@@ -2558,6 +2571,9 @@ C...Ditto, including W propagator. Divide mass range into three regions.
         HWT1=(HATM-HATL)/HG 
         HWT2=HMV*(MIN(1.,HUW)-HM)   
         HWT3=0. 
+cms.. preinitialize..
+        HMP1=0.
+        HATU=0.
         IF(HUW.GT.1.) THEN  
           HATU=ATAN((HUW-1.)/HG)    
           HMP1=HMEPS(1./HQW)    
@@ -2583,6 +2599,8 @@ C...Select mass region and W mass there. Accept according to weight.
 C...Determine position of grandmother, number of sisters, Q -> W sign.  
       NM=0  
       MSGN=0    
+cms..preinitialize
+      IM=0
       IF(MMAT.EQ.3.OR.MMAT.EQ.46) THEN  
         IM=K(IP,3)  
         IF(IM.LT.0.OR.IM.GE.IP) IM=0    
@@ -2608,6 +2626,8 @@ C...Kinematics of one-particle decays.
     
 C...Calculate maximum weight ND-particle decay. 
       PV(ND,5)=P(N+ND,5)    
+cms .. preinitialize...
+      WTMAX=1.
       IF(ND.GE.3) THEN  
         WTMAX=1./WTCOR(ND-2)    
         PMAX=PV(1,5)-PS+P(N+ND,5)   
@@ -2619,6 +2639,9 @@ C...Calculate maximum weight ND-particle decay.
       ENDIF 
     
 C...Find virtual gamma mass in Dalitz decay.    
+cms.. preinitialize..
+      PMST=0.
+      PMES=0.
   310 IF(ND.EQ.2) THEN  
       ELSEIF(MMAT.EQ.2) THEN    
         PMES=4.*PMAS(11,1)**2   
@@ -2824,7 +2847,9 @@ C...Check invariant mass of W jets. May give one particle or start over.
         GOTO 370    
       ENDIF 
     
-C...Phase space decay of partons from W decay.  
+C...Phase space decay of partons from W decay. 
+cms.. preinitialize - should never get called - for compiler only
+      PMR=0.
   490 IF(MMAT.EQ.42.AND.IABS(K(N+1,2)).LT.10) THEN  
         KFLO(1)=K(N+1,2)    
         KFLO(2)=K(N+2,2)    
@@ -2978,6 +3003,14 @@ C...Parameters and breaking diquark parameter combinations.
   100 PAR2=PARJ(2)  
       PAR3=PARJ(3)  
       PAR4=3.*PARJ(4)   
+cms.. preinitialize to avoid compiler warning
+      PARSM=0.
+      PARS2=0.
+      PARDM=0.
+      PAR4M=0.
+      PAR3M=0.
+      PARS0=0.
+      PARS1=0.
       IF(MSTJ(12).GE.2) THEN    
         PAR3M=SQRT(PARJ(3)) 
         PAR4M=1./(3.*SQRT(PARJ(4))) 
@@ -3050,6 +3083,7 @@ C...Splitting of diquark into meson plus new diquark.
         ENDIF   
     
 C...Form meson, with spin and flavour mixing for diagonal states.   
+        KMUL=0
         IF(KFLA.LE.2) KMUL=INT(PARJ(11)+RLU(0)) 
         IF(KFLA.EQ.3) KMUL=INT(PARJ(12)+RLU(0)) 
         IF(KFLA.GE.4) KMUL=INT(PARJ(13)+RLU(0)) 
@@ -3156,6 +3190,8 @@ C...Use tabulated probabilities to select new flavour and hadron.
       DO 150 KT3=KT3L,KT3U  
       RFL=RFL+PARF(120+80*KTAB1+25*KTS+KT3) 
   150 CONTINUE  
+cms.. preinitialize to avoid compiler warning
+      KTAB3=0.
       RFL=RLU(0)*RFL    
       DO 160 KTS=0,2    
       KTABS=KTS 
@@ -3312,7 +3348,11 @@ C...Determine position of maximum. Special cases for a = 0 or a = c.
         ENDIF   
     
 C...Subdivide z range if distribution very peaked near endpoint.    
-        MMAX=2  
+        MMAX=2
+cms .. redefine variables to avoid compiler warning
+        ZDIV=0.
+        ZDIVC=0.
+        FINT=0.
         IF(ZMAX.LT.0.1) THEN    
           MMAX=1    
           ZDIV=2.75*ZMAX    
@@ -3421,6 +3461,10 @@ C...Initialization of cutoff masses etc.
     
 C...Store positions of shower initiating partons.   
       M3JC=0    
+cms..pre-initialization
+      NPA=0
+cms..pre-initialization
+      ZM=0.
       IF(IP1.GT.0.AND.IP1.LE.MIN(N,MSTU(4)-MSTU(32)).AND.IP2.EQ.0) THEN 
         NPA=1   
         IPA(1)=IP1  
@@ -3546,6 +3590,8 @@ C...Reset flags on daughers and tries made.
       ISLM=0    
     
 C...Maximum virtuality of daughters.    
+cms..pre-initialization
+      PEM=0.
       IF(IGM.LE.0) THEN 
         DO 180 I=1,NPA  
         IF(NPA.GE.3) P(N+I,4)=(PS(4)*P(IPA(I),4)-PS(1)*P(IPA(I),1)- 
@@ -3608,6 +3654,8 @@ C...Store information on choice of evolving daughter.
       IF(P(IEP(1),5).LT.PMTH(2,KFL(1))) GOTO 300    
     
 C...Calculate allowed z range.  
+cms.. pre-initialization for compiler
+      PMED=0.
       IF(NEP.EQ.1) THEN 
         PMED=PS(4)  
       ELSEIF(IGM.EQ.0.OR.MSTJ(43).LE.2) THEN    
@@ -3655,10 +3703,13 @@ C...Integral of Altarelli-Parisi z kernel for Abelian vector gluon.
       ENDIF 
     
 C...Integral of Altarelli-Parisi kernel for photon emission.    
+      FBRE=0.
       IF(MSTJ(41).EQ.2.AND.KFL(1).GE.1.AND.KFL(1).LE.8) 
      &FBRE=(KCHG(KFL(1),1)/3.)**2*2.*LOG((1.-ZCE)/ZCE)  
     
 C...Inner veto algorithm starts. Find maximum mass for evolution.   
+cms.. pre-initialization
+      PM2=0.
   260 PMS=V(IEP(1),5)   
       IF(IGM.GE.0) THEN 
         PM2=0.  
@@ -3759,6 +3810,7 @@ C...Check if z consistent with chosen m.
         KFLGD1=KFL(1)   
         KFLGD2=IABS(K(IEP(1),5))    
       ENDIF 
+      PED=0.
       IF(NEP.EQ.1) THEN 
         PED=PS(4)   
       ELSEIF(NEP.GE.3) THEN 
@@ -3857,6 +3909,11 @@ C...End of inner veto algorithm. Check if only one leg evolved so far.
   310 CONTINUE  
     
 C...Check if chosen multiplet m1,m2,z1,z2 is physical.  
+cms.. pre-initialization
+      PTS=0.
+      PA1S=0.
+      PA2S=0.
+      PA3S=0.
       IF(NEP.EQ.3) THEN 
         PA1S=(P(N+1,4)+P(N+1,5))*(P(N+1,4)-P(N+1,5))    
         PA2S=(P(N+2,4)+P(N+2,5))*(P(N+2,4)-P(N+2,5))    
@@ -3880,7 +3937,9 @@ C...Check if chosen multiplet m1,m2,z1,z2 is physical.
         IF(IGM.EQ.0.OR.MSTJ(43).LE.2) THEN  
           PED=0.5*(V(IM,5)+V(I1,5)-V(I2,5))/P(IM,5) 
         ELSE    
-          IF(I1.EQ.N+1) ZM=V(IM,1)  
+cms.. modified to avoid comp. warning
+cc..          IF(I1.EQ.N+1) ZM=V(IM,1)  
+          ZM=V(IM,1)
           IF(I1.EQ.N+2) ZM=1.-V(IM,1)   
           PML=SQRT((V(IM,5)-V(N+1,5)-V(N+2,5))**2-  
      &    4.*V(N+1,5)*V(N+2,5)) 
@@ -3932,7 +3991,11 @@ C...Check if chosen multiplet m1,m2,z1,z2 is physical.
     
 C...Accepted branch. Construct four-momentum for initial partons.   
   330 MAZIP=0   
-      MAZIC=0   
+      MAZIC=0
+cms.. pre-initialization for compiler
+      PZM=0.
+      PMLS=0.
+      PT=0.
       IF(NEP.EQ.1) THEN 
         P(N+1,1)=0. 
         P(N+1,2)=0. 
@@ -4265,6 +4328,11 @@ C...Reserve copy of particles by species at end of record.
   160 CONTINUE  
     
 C...Tabulate integral for subsequent momentum shift.    
+cms.. preinitialize for compiler
+      NBIN=0
+      BEEX=0.
+      PMHQ=0.
+      QDEL=0.
       DO 210 IBE=1,MIN(9,MSTJ(51))  
       IF(IBE.NE.1.AND.IBE.NE.4.AND.IBE.LE.7) GOTO 180   
       IF(IBE.EQ.1.AND.MAX(NBE(1)-NBE(0),NBE(2)-NBE(1),NBE(3)-NBE(2)).   
@@ -4399,6 +4467,8 @@ C...Find constituent partons and their masses.
     
 C...Construct masses for various meson, diquark and baryon cases.   
         IF(KFLA.EQ.0.AND.KFLR.EQ.0.AND.KFLS.LE.3) THEN  
+cms...... initialize to something at first to avoid compiler warning
+          PMSPL=-3./(PMA*PMB)
           IF(KFLS.EQ.1) PMSPL=-3./(PMB*PMC) 
           IF(KFLS.GE.3) PMSPL=1./(PMB*PMC)  
           ULMASS=PARF(111)+PMB+PMC+PARF(113)*PARF(101)**2*PMSPL 
@@ -4408,7 +4478,9 @@ C...Construct masses for various meson, diquark and baryon cases.
           IF(KFLR.EQ.2) KMUL=4  
           IF(KFLS.EQ.5) KMUL=5  
           ULMASS=PARF(113+KMUL)+PMB+PMC 
-        ELSEIF(KFLC.EQ.0) THEN  
+        ELSEIF(KFLC.EQ.0) THEN
+cms...... initialize to something at first to avoid compiler warning
+          PMSPL=-3./(PMA*PMB)
           IF(KFLS.EQ.1) PMSPL=-3./(PMA*PMB) 
           IF(KFLS.EQ.3) PMSPL=1./(PMA*PMB)  
           ULMASS=2.*PARF(112)/3.+PMA+PMB+PARF(114)*PARF(101)**2*PMSPL   
@@ -6777,8 +6849,8 @@ C...production generation.
       SAVE /PYINT1/ 
       COMMON/PYINT2/ISET(200),KFPR(200,2),COEF(200,20),ICOL(40,4,2) 
       SAVE /PYINT2/ 
-      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
-      SAVE /PYINT4/ 
+      COMMON/AMPTPYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      SAVE /AMPTPYINT4/ 
       COMMON/PYINT6/PROC(0:200) 
       CHARACTER PROC*28 
       SAVE /PYINT6/ 
@@ -7049,8 +7121,8 @@ C...in the event weighting.
       SAVE /PYINT2/ 
       COMMON/PYINT3/XSFX(2,-40:40),ISIG(1000,3),SIGH(1000)  
       SAVE /PYINT3/ 
-      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
-      SAVE /PYINT4/ 
+      COMMON/AMPTPYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      SAVE /AMPTPYINT4/ 
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       SAVE /PYINT5/ 
       COMMON/PYINT6/PROC(0:200) 
@@ -7088,6 +7160,9 @@ C...Select subprocess to study: skip cases not applicable.
 C...Find resonances (explicit or implicit in cross-section).    
       MINT(72)=0    
       KFR1=0    
+cms.. reinitializing to avoid compiler warning
+      TAUR2=PMAS(KFR2,1)**2/VINT(2)
+      GAMR2=PMAS(KFR2,1)*PMAS(KFR2,2)/VINT(2)
       IF(ISTSB.EQ.1.OR.ISTSB.EQ.3) THEN 
         KFR1=KFPR(ISUB,1)   
       ELSEIF(ISUB.GE.71.AND.ISUB.LE.77) THEN    
@@ -7205,7 +7280,12 @@ C...Calculate integrals in tau and y* over maximal phase space limits.
       TAUMIN=VINT(11)   
       TAUMAX=VINT(31)   
       ATAU1=LOG(TAUMAX/TAUMIN)  
-      ATAU2=(TAUMAX-TAUMIN)/(TAUMAX*TAUMIN) 
+      ATAU2=(TAUMAX-TAUMIN)/(TAUMAX*TAUMIN)
+cms.. declare ataus outside to avoid compiler warning
+      ATAU3=0.
+      ATAU4=0.
+      ATAU5=0.
+      ATAU6=0.
       IF(NPTS(1).GE.3) THEN 
         ATAU3=LOG(TAUMAX/TAUMIN*(TAUMIN+TAUR1)/(TAUMAX+TAUR1))/TAUR1    
         ATAU4=(ATAN((TAUMAX-TAUR1)/GAMR1)-ATAN((TAUMIN-TAUR1)/GAMR1))/  
@@ -7614,8 +7694,8 @@ C...subprocesses.
       SAVE /PYINT2/ 
       COMMON/PYINT3/XSFX(2,-40:40),ISIG(1000,3),SIGH(1000)  
       SAVE /PYINT3/ 
-      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
-      SAVE /PYINT4/ 
+      COMMON/AMPTPYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      SAVE /AMPTPYINT4/ 
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       SAVE /PYINT5/ 
     
@@ -7997,8 +8077,8 @@ C...and colour flow of the hard scattering.
       SAVE /PYINT2/ 
       COMMON/PYINT3/XSFX(2,-40:40),ISIG(1000,3),SIGH(1000)  
       SAVE /PYINT3/ 
-      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
-      SAVE /PYINT4/ 
+      COMMON/AMPTPYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      SAVE /AMPTPYINT4/ 
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       SAVE /PYINT5/ 
       DIMENSION WDTP(0:40),WDTE(0:40,0:5),PMQ(2),Z(2),CTHE(2),PHI(2)    
@@ -8069,6 +8149,7 @@ C...Copy incoming partons to documentation lines.
   130 P(I1,J)=P(I2,J)   
     
 C...Choose new quark flavour for relevant annihilation graphs.  
+      KFLQ=0
       IF(ISUB.EQ.12.OR.ISUB.EQ.53) THEN 
         CALL PYWIDT(21,SHR,WDTP,WDTE)   
         RKFL=(WDTE(0,1)+WDTE(0,2)+WDTE(0,4))*RLU(0) 
@@ -9068,7 +9149,12 @@ C...Common constants and initial values. Save normal Lambda value.
   110 XFS(JT,KFL)=XSFX(JT,KFL)  
       DSH=dble(VINT(44))
       IF(ISET(ISUB).EQ.3.OR.ISET(ISUB).EQ.4) DSH=dble(VINT(26)*VINT(2))
-    
+cms.. pre-initialize for compiler
+      KFLA=0
+      Z=0.
+      TEVB=0.
+      THE2T=0.
+
 C...Pick up leg with highest virtuality.    
   120 N=N+1 
       JT=1  
@@ -9502,12 +9588,14 @@ C...Start iteration to find k factor.
           XK=XI+(YKE-YI)*(XF-XI)/(YF-YI)    
         ENDIF   
     
-C...Evaluate overlap integrals. 
+C...Evaluate overlap integrals.
         IF(MSTP(82).EQ.2) THEN  
           SP=0.5*PARU(1)*(1.-EXP(-XK))  
           SOP=SP/PARU(1)    
         ELSE    
-          IF(MSTP(82).EQ.3) DELTAB=0.02 
+cms.. removing to avoid comp warning
+cc .. IF(MSTP(82).EQ.3) DELTAB=0.02 
+          DELTAB=0.02
           IF(MSTP(82).EQ.4) DELTAB=MIN(0.01,0.05*PARP(84))  
           SP=0. 
           SOP=0.    
@@ -9901,6 +9989,8 @@ C...Special case for lepton-lepton interaction.
       ENDIF 
     
 C...Find event type, set pointers.  
+cms.. pre-initialize
+      IQ=0
       IF(IPU1.EQ.0.AND.IPU2.EQ.0) RETURN    
       ISUB=MINT(1)  
       ILEP=0    
@@ -9914,6 +10004,8 @@ C...Find event type, set pointers.
       NS=N  
     
 C...Define initial partons, including primordial kT.    
+cms.. pre-initialize
+      SHS=0.
   110 DO 130 JT=1,2 
       I=MINT(83)+JT+2   
       IF(JT.EQ.1) IPU=IPU1  
@@ -10039,6 +10131,11 @@ C...Transform partons to overall CM-frame (not for leptoproduction).
     
 C...Check invariant mass of remnant system: 
 C...hadronic events or leptoproduction. 
+cms.. pre-initialize to avoid compiler warning
+      PEH=0.
+      PZH=0.
+      PEI=0.
+      PZI=0.
       IF(ILEP.LE.0) THEN    
         IF(MSTP(81).LE.0.OR.MSTP(82).LE.0.OR.ISUB.EQ.95) THEN   
           VINT(151)=0.  
@@ -10224,8 +10321,8 @@ C...channels).
       SAVE /PYINT1/ 
       COMMON/PYINT2/ISET(200),KFPR(200,2),COEF(200,20),ICOL(40,4,2) 
       SAVE /PYINT2/ 
-      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
-      SAVE /PYINT4/ 
+      COMMON/AMPTPYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      SAVE /AMPTPYINT4/ 
       DIMENSION IREF(10,6),KDCY(2),KFL1(2),KFL2(2),NSD(2),ILIN(6),  
      &COUP(6,4),PK(6,4),PKK(6,6),CTHE(2),PHI(2),WDTP(0:40), 
      &WDTE(0:40,0:5)    
@@ -10265,6 +10362,8 @@ C...Define initial two objects, initialize loop.
     
 C...Loop over one/two resonances; reset decay rates.    
       JTMAX=2   
+cms.. pre-intialize
+      I12=0
       IF(IP.EQ.1.AND.(ISET(ISUB).EQ.1.OR.ISET(ISUB).EQ.3)) JTMAX=1  
       DO 140 JT=1,JTMAX 
       KDCY(JT)=0    
@@ -10449,7 +10548,9 @@ C...Calculate internal products.
       PKK(I1,I2)=2.*(PK(I1,4)*PK(I2,4)-PK(I1,1)*PK(I2,1)-   
      &PK(I1,2)*PK(I2,2)-PK(I1,3)*PK(I2,3))  
   490 PKK(I2,I1)=PKK(I1,I2) 
-    
+   
+cms.. pre-initialize
+      WT=0.
       IF(IREF(IP,5).EQ.25) THEN 
 C...Angular weight for H0 -> Z0 + Z0 or W+ + W- -> 4 quarks/leptons 
         WT=16.*PKK(3,5)*PKK(4,6)    
@@ -10905,8 +11006,8 @@ C...Calculates full and partial widths of resonances.
       SAVE /PYPARS/ 
       COMMON/PYINT1/MINT(400),VINT(400) 
       SAVE /PYINT1/ 
-      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
-      SAVE /PYINT4/ 
+      COMMON/AMPTPYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      SAVE /AMPTPYINT4/ 
       DIMENSION WDTP(0:40),WDTE(0:40,0:5)   
     
 C...Some common constants.  
@@ -10922,7 +11023,15 @@ C...Reset width information.
       WDTP(I)=0.    
       DO 100 J=0,5  
   100 WDTE(I,J)=0.  
-    
+   
+cms... Do a whole bunch of intialization...
+      GGF=0.
+      GZF=0.
+      GZPF=0.
+      ZZF=0.
+      ZZPF=0.
+      ZPZPF=0.
+
       IF(KFLA.EQ.21) THEN   
 C...QCD:    
         DO 110 I=1,MDCY(21,3)   
@@ -10946,17 +11055,17 @@ C...QCD -> q + qb
     
       ELSEIF(KFLA.EQ.23) THEN   
 C...Z0: 
-        IF(MINT(61).EQ.1) THEN  
-          EI=KCHG(IABS(MINT(15)),1)/3.  
-          AI=SIGN(1.,EI)    
-          VI=AI-4.*EI*XW    
-          SQMZ=PMAS(23,1)**2    
-          GZMZ=PMAS(23,2)*PMAS(23,1)    
-          GGI=EI**2 
-          GZI=EI*VI/(8.*XW*(1.-XW))*SQM*(SQM-SQMZ)/ 
-     &    ((SQM-SQMZ)**2+GZMZ**2)   
-          ZZI=(VI**2+AI**2)/(16.*XW*(1.-XW))**2*SQM**2/ 
-     &    ((SQM-SQMZ)**2+GZMZ**2)   
+        EI=KCHG(IABS(MINT(15)),1)/3.  
+        AI=SIGN(1.,EI)    
+        VI=AI-4.*EI*XW    
+        SQMZ=PMAS(23,1)**2    
+        GZMZ=PMAS(23,2)*PMAS(23,1)    
+        GGI=EI**2 
+        GZI=EI*VI/(8.*XW*(1.-XW))*SQM*(SQM-SQMZ)/ 
+     &  ((SQM-SQMZ)**2+GZMZ**2)   
+        ZZI=(VI**2+AI**2)/(16.*XW*(1.-XW))**2*SQM**2/ 
+     &  ((SQM-SQMZ)**2+GZMZ**2)   
+        IF(MINT(61).EQ.1) THEN
           IF(MSTP(43).EQ.1) THEN    
 C...Only gamma* production included 
             GZI=0.  
@@ -11184,7 +11293,7 @@ C...H0 -> gamma + Z0; quark, charged lepton and W loop contributions
             JL=2*(J-2*MSTP(1))-1    
             EJ=KCHG(10+JL,1)/3. 
             AJ=SIGN(1.,EJ+0.1)  
-            VJ=AI-4.*EJ*XW  
+            VJ=AJ-4.*EJ*XW  
             EPS=(2.*PMAS(10+JL,1)/RMAS)**2  
             EPSP=(2.*PMAS(10+JL,1)/PMAS(23,1))**2   
           ELSE  
@@ -11264,28 +11373,28 @@ C...H0 -> Z0 + Z0, W+ + W-
     
       ELSEIF(KFLA.EQ.32) THEN   
 C...Z'0:    
-        IF(MINT(61).EQ.1) THEN  
-          EI=KCHG(IABS(MINT(15)),1)/3.  
-          AI=SIGN(1.,EI)    
-          VI=AI-4.*EI*XW    
-          SQMZ=PMAS(23,1)**2    
-          GZMZ=PMAS(23,2)*PMAS(23,1)    
-          API=SIGN(1.,EI)   
-          VPI=API-4.*EI*XW  
-          SQMZP=PMAS(32,1)**2   
-          GZPMZP=PMAS(32,2)*PMAS(32,1)  
-          GGI=EI**2 
-          GZI=EI*VI/(8.*XW*(1.-XW))*SQM*(SQM-SQMZ)/ 
-     &    ((SQM-SQMZ)**2+GZMZ**2)   
-          GZPI=EI*VPI/(8.*XW*(1.-XW))*SQM*(SQM-SQMZP)/  
-     &    ((SQM-SQMZP)**2+GZPMZP**2)    
-          ZZI=(VI**2+AI**2)/(16.*XW*(1.-XW))**2*SQM**2/ 
-     &    ((SQM-SQMZ)**2+GZMZ**2)   
-          ZZPI=2.*(VI*VPI+AI*API)/(16.*XW*(1.-XW))**2*  
-     &    SQM**2*((SQM-SQMZ)*(SQM-SQMZP)+GZMZ*GZPMZP)/  
-     &    (((SQM-SQMZ)**2+GZMZ**2)*((SQM-SQMZP)**2+GZPMZP**2))  
-          ZPZPI=(VPI**2+API**2)/(16.*XW*(1.-XW))**2*SQM**2/ 
-     &    ((SQM-SQMZP)**2+GZPMZP**2)    
+        EI=KCHG(IABS(MINT(15)),1)/3.  
+        AI=SIGN(1.,EI)    
+        VI=AI-4.*EI*XW    
+        SQMZ=PMAS(23,1)**2    
+        GZMZ=PMAS(23,2)*PMAS(23,1)    
+        API=SIGN(1.,EI)   
+        VPI=API-4.*EI*XW  
+        SQMZP=PMAS(32,1)**2   
+        GZPMZP=PMAS(32,2)*PMAS(32,1)  
+        GGI=EI**2 
+        GZI=EI*VI/(8.*XW*(1.-XW))*SQM*(SQM-SQMZ)/ 
+     &  ((SQM-SQMZ)**2+GZMZ**2)   
+        GZPI=EI*VPI/(8.*XW*(1.-XW))*SQM*(SQM-SQMZP)/  
+     &  ((SQM-SQMZP)**2+GZPMZP**2)    
+        ZZI=(VI**2+AI**2)/(16.*XW*(1.-XW))**2*SQM**2/ 
+     &  ((SQM-SQMZ)**2+GZMZ**2)   
+        ZZPI=2.*(VI*VPI+AI*API)/(16.*XW*(1.-XW))**2*  
+     &  SQM**2*((SQM-SQMZ)*(SQM-SQMZP)+GZMZ*GZPMZP)/  
+     &  (((SQM-SQMZ)**2+GZMZ**2)*((SQM-SQMZP)**2+GZPMZP**2))  
+        ZPZPI=(VPI**2+API**2)/(16.*XW*(1.-XW))**2*SQM**2/ 
+     &  ((SQM-SQMZP)**2+GZPMZP**2)    
+        IF(MINT(61).EQ.1) THEN
           IF(MSTP(44).EQ.1) THEN    
 C...Only gamma* production included 
             GZI=0.  
@@ -11302,7 +11411,7 @@ C...Only Z0 production included
             ZPZPI=0.    
           ELSEIF(MSTP(44).EQ.3) THEN    
 C...Only Z'0 production included    
-            GGI=0.  
+            GGI=0. 
             GZI=0.  
             GZPI=0. 
             ZZI=0.  
@@ -11361,7 +11470,7 @@ C...Z'0 -> q + qb
      &      SQRT(MAX(0.,1.-4.*RM1))*RADC    
             ZPZPF=3.*(VPF**2*(1.+2.*RM1)+APF**2*(1.-4.*RM1))*   
      &      SQRT(MAX(0.,1.-4.*RM1))*RADC    
-          ENDIF 
+          ENDIF
           WID2=1.   
         ELSE    
 C...Z'0 -> l+ + l-, nu + nub    
@@ -11399,7 +11508,7 @@ clin-4/2008-end
             ZZPF=(VF*VPF*(1.+2.*RM1)+AF*APF*(1.-4.*RM1))*   
      &      SQRT(MAX(0.,1.-4.*RM1)) 
             ZPZPF=(VPF**2*(1.+2.*RM1)+APF**2*(1.-4.*RM1))*  
-     &      SQRT(MAX(0.,1.-4.*RM1)) 
+     &      SQRT(MAX(0.,1.-4.*RM1))
           ENDIF 
           WID2=1.   
         ENDIF   
@@ -11754,6 +11863,8 @@ C...3) due to limits on y-large and y-small
       ELSEIF(ILIM.EQ.4) THEN    
 C...Calculate limits on tau'    
 C...0) due to kinematics    
+cms.. reinitializing tau due to compiler warning        
+        TAU=VINT(21)
         TAPMN0=TAU  
         TAPMX0=1.   
 C...1) due to explicit limits   
@@ -11818,6 +11929,10 @@ C...Convert VVAR to tau variable.
         ELSEIF(MVAR.EQ.5.OR.MVAR.EQ.6) THEN 
           TAURE=VINT(75)    
           GAMRE=VINT(76)    
+        ELSE
+cms..   needed re-initialization to avoid compiler warning
+          TAURE=VINT(75)
+          GAMRE=VINT(76)
         ENDIF   
         IF(MINT(43).EQ.1.AND.(ISET(ISUB).EQ.1.OR.ISET(ISUB).EQ.2)) THEN 
           TAU=1.    
@@ -11933,7 +12048,10 @@ C...Convert VVAR to cos(theta-hat) variable.
           ELSE  
             VCTP=(VVAR*(ANEG+APOS)-ANEG)/APOS   
             CTH=1./(1./RMPMIN-APOS*VCTP)-RSQM   
-          ENDIF 
+          ENDIF
+        ELSE
+cms ...  needed to avoid compiler warning - should do nothing
+          CTH=CTNMIN
         ENDIF   
         IF(CTH.LT.0.) CTH=MIN(CTNMAX,MAX(CTNMIN,CTH))   
         IF(CTH.GT.0.) CTH=MIN(CTPMAX,MAX(CTPMIN,CTH))   
@@ -11988,8 +12106,8 @@ C...pi/s and the conversion factor from GeV^-2 to mb.
       SAVE /PYINT2/ 
       COMMON/PYINT3/XSFX(2,-40:40),ISIG(1000,3),SIGH(1000)  
       SAVE /PYINT3/ 
-      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
-      SAVE /PYINT4/ 
+      COMMON/AMPTPYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      SAVE /AMPTPYINT4/ 
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       SAVE /PYINT5/ 
       DIMENSION X(2),XPQ(-6:6),KFAC(2,-40:40),WDTP(0:40),WDTE(0:40,0:5) 
@@ -12017,7 +12135,33 @@ C...Read kinematical variables and limits.
       CTPMAX=VINT(34)   
       XT2MAX=VINT(35)   
       TAUPMX=VINT(36)   
-    
+
+C...Common conversion factors (including Jacobian) for subprocesses.    
+cms.. rearranged to avoid compiler warnings
+      SQMZ=PMAS(23,1)**2    
+      GMMZ=PMAS(23,1)*PMAS(23,2)    
+      SQMW=PMAS(24,1)**2    
+      GMMW=PMAS(24,1)*PMAS(24,2)    
+      SQMH=PMAS(25,1)**2    
+      GMMH=PMAS(25,1)*PMAS(25,2)    
+      SQMZP=PMAS(32,1)**2   
+      GMMZP=PMAS(32,1)*PMAS(32,2)   
+      SQMHC=PMAS(37,1)**2   
+      GMMHC=PMAS(37,1)*PMAS(37,2)   
+      SQMR=PMAS(40,1)**2    
+      GMMR=PMAS(40,1)*PMAS(40,2)    
+      AEM=PARU(101) 
+      XW=PARU(102)   
+      MIN1=0    
+      MAX1=0    
+      MIN2=0    
+      MAX2=0 
+      MINA=MIN(MIN1,MIN2)   
+      MAXA=MAX(MAX1,MAX2) 
+      FACA=1.
+      COMFAC=PARU(1)*PARU(5)/VINT(2)
+      AS=ULALPS(Q2)
+
 C...Derive kinematical quantities.  
       IF(ISET(ISUB).LE.2.OR.ISET(ISUB).EQ.5) THEN   
         X(1)=SQRT(TAU)*EXP(YST) 
@@ -12129,10 +12273,6 @@ C...Set flags for allowed reacting partons/leptons.
   130 CONTINUE  
     
 C...Lower and upper limit for flavour loops.    
-      MIN1=0    
-      MAX1=0    
-      MIN2=0    
-      MAX2=0    
       DO 140 J=-20,20   
       IF(KFAC(1,-J).EQ.1) MIN1=-J   
       IF(KFAC(1,J).EQ.1) MAX1=J 
@@ -12141,22 +12281,6 @@ C...Lower and upper limit for flavour loops.
   140 CONTINUE  
       MINA=MIN(MIN1,MIN2)   
       MAXA=MAX(MAX1,MAX2)   
-    
-C...Common conversion factors (including Jacobian) for subprocesses.    
-      SQMZ=PMAS(23,1)**2    
-      GMMZ=PMAS(23,1)*PMAS(23,2)    
-      SQMW=PMAS(24,1)**2    
-      GMMW=PMAS(24,1)*PMAS(24,2)    
-      SQMH=PMAS(25,1)**2    
-      GMMH=PMAS(25,1)*PMAS(25,2)    
-      SQMZP=PMAS(32,1)**2   
-      GMMZP=PMAS(32,1)*PMAS(32,2)   
-      SQMHC=PMAS(37,1)**2   
-      GMMHC=PMAS(37,1)*PMAS(37,2)   
-      SQMR=PMAS(40,1)**2    
-      GMMR=PMAS(40,1)*PMAS(40,2)    
-      AEM=PARU(101) 
-      XW=PARU(102)  
     
 C...Phase space integral in tau and y*. 
       COMFAC=PARU(1)*PARU(5)/VINT(2)    
@@ -14681,6 +14805,7 @@ c      ASINH(X)=LOG(X+SQRT(X**2+1.))
         W1IM=0. 
       ENDIF 
     
+      PYW1AU = 0.
       IF(IREIM.EQ.1) PYW1AU=W1RE    
       IF(IREIM.EQ.2) PYW1AU=W1IM    
     
@@ -14712,9 +14837,14 @@ c      ASINH(X)=LOG(X+SQRT(X**2+1.))
         W2IM=0. 
       ENDIF 
     
-      IF(IREIM.EQ.1) PYW2AU=W2RE    
-      IF(IREIM.EQ.2) PYW2AU=W2IM    
-    
+cms ... else needed to avoid compiler warning
+      PYW2AU = 0.
+      IF(IREIM.EQ.1) THEN
+        PYW2AU=W2RE    
+      ELSEIF(IREIM.EQ.2) THEN
+        PYW2AU=W2IM    
+      ENDIF
+
       RETURN    
       END   
     
@@ -14727,9 +14857,11 @@ C...see R. K. Ellis, I. Hinchliffe, M. Soldate and J. J. van der Bij,
 C...FERMILAB-Pub-87/100-T, LBL-23504, June, 1987    
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       SAVE /LUDAT1/ 
-    
+
+cms ... needed to avoid compiler warning
+      GA=0.5
       IF(EPS.LT.1.) GA=0.5*(1.+SQRT(1.-EPS))    
-    
+
       IF(EPS.LT.0.) THEN    
         F3RE=PYSPEN((GA-1.)/(GA+BE-1.),0.,1)-PYSPEN(GA/(GA+BE-1.),0.,1)+    
      &  PYSPEN((BE-GA)/BE,0.,1)-PYSPEN((BE-GA)/(BE-1.),0.,1)+   
@@ -14756,10 +14888,15 @@ C...FERMILAB-Pub-87/100-T, LBL-23504, June, 1987
         F3IM=PYSPEN(RCTHE,RSTHE,2)+PYSPEN(RCTHE,-RSTHE,2)-  
      &  PYSPEN(RCPHI,RSPHI,2)-PYSPEN(RCPHI,-RSPHI,2)    
       ENDIF 
-    
-      IF(IREIM.EQ.1) PYI3AU=2./(2.*BE-1.)*F3RE  
-      IF(IREIM.EQ.2) PYI3AU=2./(2.*BE-1.)*F3IM  
-    
+
+cms ... needed to avoid compiler warning
+      PYI3AU = 0.
+      IF(IREIM.EQ.1) THEN
+        PYI3AU=2./(2.*BE-1.)*F3RE  
+      ELSEIF(IREIM.EQ.2) THEN
+        PYI3AU=2./(2.*BE-1.)*F3IM  
+      ENDIF
+
       RETURN    
       END   
     
@@ -14781,7 +14918,8 @@ C...G. 't Hooft and M. Veltman, Nucl. Phys. B153 (1979) 365.
      &-2.531135E-01,         0.000000E+00,         1.166667E+00/    
     
       XRE=XREIN 
-      XIM=XIMIN 
+      XIM=XIMIN
+      PYSPEN=0.
       IF(ABS(1.-XRE).LT.1.E-6.AND.ABS(XIM).LT.1.E-6) THEN   
         IF(IREIM.EQ.1) PYSPEN=PARU(1)**2/6. 
         IF(IREIM.EQ.2) PYSPEN=0.    
@@ -14843,9 +14981,13 @@ C...G. 't Hooft and M. Veltman, Nucl. Phys. B153 (1979) 365.
       SPRE=SPRE+B(I)*TERMRE 
   100 SPIM=SPIM+B(I)*TERMIM 
     
-      IF(IREIM.EQ.1) PYSPEN=SP0RE+SGN*SPRE  
-      IF(IREIM.EQ.2) PYSPEN=SP0IM+SGN*SPIM  
-    
+cms ... needed to avoid compiler warning
+      IF(IREIM.EQ.1) THEN
+        PYSPEN=SP0RE+SGN*SPRE  
+      ELSEIF(IREIM.EQ.2) THEN
+        PYSPEN=SP0IM+SGN*SPIM  
+      ENDIF
+
       RETURN    
       END   
     
@@ -14864,8 +15006,8 @@ C...Give sensible default values to all status codes and parameters.
       SAVE /PYINT2/ 
       COMMON/PYINT3/XSFX(2,-40:40),ISIG(1000,3),SIGH(1000)  
       SAVE /PYINT3/ 
-      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
-      SAVE /PYINT4/ 
+      COMMON/AMPTPYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      SAVE /AMPTPYINT4/ 
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       SAVE /PYINT5/ 
       COMMON/PYINT6/PROC(0:200) 
