@@ -207,7 +207,7 @@ def customiseFor12318(process):
 
     if hasattr(process, 'hltMetCleanUsingJetID'):
        if hasattr(process.hltMetCleanUsingJetID, 'usePt'):
-          delattr(process.hltMetCleanUsingJetID, 'usePt')
+           delattr(process.hltMetCleanUsingJetID, 'usePt')
     return process
 
 
