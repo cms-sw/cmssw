@@ -1,3 +1,5 @@
+import FWCore.ParameterSet.Config as cms
+
 # reusable functions
 def producers_by_type(process, *types):
     return (module for module in process._Process__producers.values() if module._TypedParameterizable__type in types)
@@ -209,7 +211,6 @@ def customiseFor12318(process):
     return process
 
 
-import FWCore.ParameterSet.Config as cms
 
 # Remove hcalTopologyConstants
 def customiseFor11920(process):
