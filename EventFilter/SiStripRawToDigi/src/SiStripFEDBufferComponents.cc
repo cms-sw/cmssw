@@ -170,6 +170,9 @@ namespace sistrip {
     case READOUT_MODE_ZERO_SUPPRESSED:
       os << "Zero suppressed";
       break;
+    case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
+      os << "Zero suppressed (fake)";
+      break;
     case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
       os << "Zero suppressed lite";
       break;
@@ -715,6 +718,7 @@ namespace sistrip {
       case READOUT_MODE_VIRGIN_RAW:
       case READOUT_MODE_PROC_RAW:
       case READOUT_MODE_ZERO_SUPPRESSED:
+      case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
       case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
       //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
       case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
@@ -788,6 +792,7 @@ namespace sistrip {
     case READOUT_MODE_PROC_RAW:
     case READOUT_MODE_SPY:
     case READOUT_MODE_ZERO_SUPPRESSED:
+    case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
     case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
     case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
     case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
