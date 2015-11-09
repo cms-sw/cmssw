@@ -139,4 +139,7 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
  
 )
 
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    photonValidation.fastSim = True
 
