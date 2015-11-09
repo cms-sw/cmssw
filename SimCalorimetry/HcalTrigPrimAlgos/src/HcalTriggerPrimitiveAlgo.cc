@@ -156,9 +156,10 @@ int converttoGCTphiFromTPG(int& phiTPG)
 {
 	int newphi = 0;
  
-	newphi = (phiTPG-1)/4;
-        return newphi;
+        newphi = (phiTPG-1)/4;
+	return newphi;
 }
+
 void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
                                    const HcalTPGCompressor* outcoder,
                                    const HBHEDigiCollection& hbheDigis,
@@ -192,6 +193,9 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
    int phiBin = 18;
    int etaBin = 22;
    int thresholds = 2;
+
+//   int thresh1 = 12;
+//   int thresh2 = 17;
 
    int fiberQIEThresh[phiBin][etaBin][thresholds];
    int FGBit[18][22];
