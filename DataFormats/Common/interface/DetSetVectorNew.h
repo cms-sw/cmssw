@@ -2,7 +2,6 @@
 #define DataFormats_Common_DetSetVectorNew_h
 
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
-// #include "DataFormats/Common/interface/DetSet.h"  // to get det_id_type
 #include "DataFormats/Common/interface/DetSetNew.h"
 #include "DataFormats/Common/interface/traits.h"
 
@@ -15,7 +14,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__) && !defined(__ROOTCLING__)
 #define USE_ATOMIC
 // #warning using atomic
 #endif
@@ -763,4 +762,4 @@ namespace edm {
 #endif
 
 #endif
-  
+
