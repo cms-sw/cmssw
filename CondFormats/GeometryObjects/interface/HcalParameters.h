@@ -64,7 +64,6 @@ public:
   std::vector<int>    phigroup;
   std::vector<LayerItem> layerGroupEtaSim, layerGroupEtaRec;
   int                 topologyMode;
-  int                 triggerMode;
 
   COND_SERIALIZABLE;
 };

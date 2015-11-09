@@ -119,8 +119,9 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
   ok = fv2.firstChild();
   if (ok) {
     DDsvalues_type sv(fv2.mergedSpecifics());
-    php.topologyMode = getTopologyMode("TopologyMode", sv, true);
-    php.triggerMode  = getTopologyMode("TriggerMode", sv, false);
+    int topoMode = getTopologyMode("TopologyMode", sv, true);
+    int trigMode = getTopologyMode("TriggerMode", sv, false);
+    php.topologyMode = ((trigMode&0xFF)<<8) | (topoMode&0xFF);
     php.etagroup = dbl_to_int( DDVectorGetter::get( "etagroup" ));
     php.phigroup = dbl_to_int( DDVectorGetter::get( "phigroup" ));
     for (unsigned int i = 1; i<=nEtaMax; ++i) {
@@ -230,8 +231,8 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
       std::cout << " " << ++i << ":" << (*kt);
     std::cout << std::endl;
   }
-  std::cout << "HcalParametersFromDD: topologyMode " << php.topologyMode 
-	    << " triggerMode " << php.triggerMode << std::endl;
+  std::cout << "HcalParametersFromDD: (topology|trigger)Mode " << std::hex
+	    << php.topologyMode << std::dec << std::endl;
 #endif
 
   return true;
