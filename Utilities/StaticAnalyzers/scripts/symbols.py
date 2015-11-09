@@ -36,7 +36,7 @@ def get_libraries(fname):
 		m = ldd_line_re.match(l)
 		if not m: continue
 		library = m.group(2)
-		libraries[fname].add(library)
+		libraries[fname].add(library.rstrip('\r\n'))
 
 
 paths=os.environ['LD_LIBRARY_PATH'].split(':')
@@ -50,12 +50,15 @@ for p in paths:
 	            get_symbols(fpth)
                     get_libraries(fpth)
 
-for fname, symbols in requires.items():
-    dependencies[fname] = set()
+def pick(symbols,libraries):
+    best = None
     for s in symbols:
-	for p in provides[s]:
-		for f in libraries[fname]:
-			if f==p : dependencies[fname].add(f)
+        if best is None or s in libraries :
+            best = s
+    return best
+
+for fname, symbols in requires.items():
+    dependencies[fname] = set(pick(provides[s],libraries[fname]) for s in symbols if s in provides)
     print fname + ' : primary dependencies : ' + ',  '.join(sorted(dependencies[fname]))+'\n'
     unmet = set()
     demangled = set()
