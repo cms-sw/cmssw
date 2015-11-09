@@ -129,4 +129,4 @@ process = addMonitoring(process)
 
 # from RecoLocalMuon.GEMRecHit.me0Segments import me0Segments
 process.load('RecoLocalMuon.GEMRecHit.me0Segments_cfi')
-process.me0Segments.algo_pset.dTimeChainBoxMax = cms.double(1.0)
+process.me0Segments.algo_pset.dTimeChainBoxMax = cms.double(32.0)
