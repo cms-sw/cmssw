@@ -70,7 +70,7 @@ class HeavyIonsRun2(Reco):
 
         """
         self._checkMINIAOD(**args)
-        self._setRepackedFlag(**args)
+        self._setRepackedFlag(args)
 
         if not 'skims' in args:
             args['skims']=['@allForExpress']
