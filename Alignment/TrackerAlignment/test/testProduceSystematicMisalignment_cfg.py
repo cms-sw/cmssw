@@ -1,7 +1,7 @@
 #=================================
 #inputs
-globaltag = '74X_dataRun2_Prompt_v4'    #don't think this matters but it's needed to get IdealGeometryRcd
-inputsqlitefile = None                  #if None, uses the GT
+globaltag = '74X_dataRun2_Prompt_v4'    #APEs are copied from this GT (and IdealGeometry and TrackerTopology are used)
+inputsqlitefile = None                  #if None, uses the GT alignment
 alignmenttag = 'Alignments'             #tag name for TrackerAlignmentRcd in the input file, also used for the output file
 runnumberalignmentIOV = 1               #any run number in the iov that you want to start from
 
@@ -89,6 +89,10 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                                             cms.PSet(
                                                                      record = cms.string('TrackerAlignmentRcd'),
                                                                      tag = cms.string(alignmenttag),
+                                                            ),
+                                                            cms.PSet(
+                                                                     record = cms.string('TrackerAlignmentErrorExtendedRcd'),
+                                                                     tag = cms.string('AlignmentErrorsExtended'),
                                                             ),
                                           ),
                                           connect = cms.string('sqlite_file:'+outputfilename),
