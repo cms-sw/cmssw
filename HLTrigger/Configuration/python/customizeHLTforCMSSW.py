@@ -203,7 +203,12 @@ def customiseFor12062(process):
         module.recordLabel = cms.string('HLT')
     return process
 
+def customiseFor12318(process);
 
+    if hasattr(process, 'hltMetCleanUsingJetID'):
+        delattr(process.hltMetCleanUsingJetID, 'usePt')
+    return process
+    
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     import os
@@ -217,6 +222,7 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
         process = customiseFor11497(process)
         process = customiseFor12044(process)
         process = customiseFor12062(process)
+        process = customiseFor12318(process)
     if cmsswVersion >= "CMSSW_7_5":
         process = customiseFor10927(process)
         process = customiseFor9232(process)
