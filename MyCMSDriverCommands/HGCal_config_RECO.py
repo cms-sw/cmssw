@@ -32,24 +32,24 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 ### Code/Configuration with thanks to Tim Cox                   
 ### -----------------------------------------------------------
 ###############################################################
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
+# process.load("FWCore.MessageLogger.MessageLogger_cfi")
 ### process.MessageLogger.categories.append("ME0Segment")
 ### process.MessageLogger.categories.append("ME0SegmentBuilder")
-process.MessageLogger.categories.append("ME0SegAlgoMM")   
+# process.MessageLogger.categories.append("ME0SegAlgoMM")   
 ### process.MessageLogger.categories.append("ME0SegFit")      
 ### process.MessageLogger.categories.append("ME0SegFitMatrixDetails")      
-process.MessageLogger.debugModules = cms.untracked.vstring("*")
-process.MessageLogger.destinations = cms.untracked.vstring("cout","junk")
-process.MessageLogger.cout = cms.untracked.PSet(
-    threshold = cms.untracked.string("DEBUG"),
-    default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
-    FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-    # ME0Segment             = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-    # ME0SegmentBuilder      = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-    ME0SegAlgoMM             = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-    # ME0SegFit              = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-    # ME0SegFitMatrixDetails = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-)
+# process.MessageLogger.debugModules = cms.untracked.vstring("*")
+# process.MessageLogger.destinations = cms.untracked.vstring("cout","junk")
+# process.MessageLogger.cout = cms.untracked.PSet(
+#     threshold = cms.untracked.string("DEBUG"),
+#     default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+#     FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+#     # ME0Segment             = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+#     # ME0SegmentBuilder      = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+#     ME0SegAlgoMM             = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+#     # ME0SegFit              = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+#     # ME0SegFitMatrixDetails = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+# )
 ###############################################################
 
 process.maxEvents = cms.untracked.PSet(
@@ -83,12 +83,12 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.FEVTDEBUGEventContent.outputCommands,
-    # fileName = cms.untracked.string('out_reco.root'),
+    fileName = cms.untracked.string('out_reco.root'),
     # fileName = cms.untracked.string('step2_RAW2DIGI_L1Reco_RECO.root'),
     # fileName = cms.untracked.string('DYToMuMu_M-20_HGCALGS_PU140_ME0_RECO_100ps_amandeep_100_v2.root'),
     # fileName = cms.untracked.string('DYToMuMu_M-20_HGCALGS_PU140_ME0_RECO_100ps_amandeep_116_v2.root'),
     # fileName = cms.untracked.string('DYToMuMu_M-20_HGCALGS_PU140_ME0_RECO_500ps_amandeep_Random.root'),
-    fileName = cms.untracked.string('DYToMuMu_M-20_HGCALGS_PU140_ME0_RECO_5ns_amandeep_Random.root'),
+    # fileName = cms.untracked.string('DYToMuMu_M-20_HGCALGS_PU140_ME0_RECO_5ns_amandeep_Random.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('RECO')
