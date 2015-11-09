@@ -53,7 +53,8 @@ class GenHIEventProducer : public edm::EDProducer {
 
     private:
         virtual void produce(edm::Event&, const edm::EventSetup&) override;
-        edm::InputTag hepmcSrc_;
+
+        edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct> > hepmcSrc_;
         edm::ESHandle < ParticleDataTable > pdt;
 
         double ptCut_;
@@ -75,7 +76,9 @@ class GenHIEventProducer : public edm::EDProducer {
 GenHIEventProducer::GenHIEventProducer(const edm::ParameterSet& iConfig)
 {
     produces<edm::GenHIEvent>();
-    hepmcSrc_ = iConfig.getParameter<edm::InputTag>("src");
+
+    hepmcSrc_ = consumes<CrossingFrame<edm::HepMCProduct> >(iConfig.getParameter<edm::InputTag>("src"));
+
     doParticleInfo_ = iConfig.getUntrackedParameter<bool>("doParticleInfo",false);
     if(doParticleInfo_){
       ptCut_ = iConfig.getParameter<double> ("ptCut");
@@ -123,7 +126,7 @@ GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     Handle<CrossingFrame<edm::HepMCProduct> > hepmc;
 
-    iEvent.getByLabel(hepmcSrc_,hepmc);
+    iEvent.getByToken(hepmcSrc_,hepmc);
     MixCollection<HepMCProduct> mix(hepmc.product());
 
 	if(mix.size() < 1){

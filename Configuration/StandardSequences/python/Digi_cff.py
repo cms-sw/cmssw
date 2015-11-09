@@ -37,4 +37,4 @@ pdigi_valid_nogen=cms.Sequence(pdigi_nogen)
 
 # 75X update for Heavy Ions
 from GeneratorInterface.HiGenCommon.HeavyIon_cff import *
-pdigi_hi=cms.Sequence(heavyIon+pdigi_nogen)
+pdigi_hi=cms.Sequence(pdigi_valid_nogen+heavyIon)
