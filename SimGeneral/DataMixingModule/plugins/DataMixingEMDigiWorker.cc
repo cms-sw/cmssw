@@ -468,8 +468,8 @@ namespace edm
           }
 	     
 
-	  // add values
-	  adc_sum = adc_new + adc_old;
+         // add values, but don't count pedestals twice
+         adc_sum = adc_new + adc_old - (int) round (pedeStals[gain_consensus-1]);
 	  
 	  // if the sum saturates this gain, switch
 	  if (adc_sum> 4096) {
