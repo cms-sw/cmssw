@@ -60,7 +60,11 @@ private:
 
   edm::EDGetTokenT<std::vector<PileupSummaryInfo>> puInfoToken_;
   edm::EDGetTokenT<GenEventInfoProduct> genInfoToken_;
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> extract MC info from GenEventInfoProduct instead of HepMCProduct
   bool doEvtPlane_;
   bool doEvtPlaneFlat_;
   bool doCentrality_;
@@ -109,8 +113,12 @@ private:
   int   nMEPartonsFiltered;
   std::pair<int, int> pdfID;
   std::pair<float, float> pdfX;
+<<<<<<< HEAD
   std::pair<float, float> pdfXpdf;
     
+=======
+  
+>>>>>>> extract MC info from GenEventInfoProduct instead of HepMCProduct
   std::vector<int> npus;    //number of pileup interactions
   std::vector<float> tnpus; //true number of interactions
 
@@ -200,6 +208,7 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(useHepMC_) {
       edm::Handle<edm::HepMCProduct> hepmcevt;
       iEvent.getByLabel("generator", hepmcevt);
+<<<<<<< HEAD
       proc_id  = hepmcevt->GetEvent()->signal_process_id();
       weight   = hepmcevt->GetEvent()->weights()[0];
       alphaQCD = hepmcevt->GetEvent()->alphaQCD();
@@ -211,6 +220,9 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         pdfX = std::make_pair(hepPDF->x1(), hepPDF->x2());
         pdfXpdf = std::make_pair(hepPDF->pdf1(), hepPDF->pdf2());   
       }
+=======
+      proc_id =  hepmcevt->GetEvent()->signal_process_id();
+>>>>>>> extract MC info from GenEventInfoProduct instead of HepMCProduct
     }
     else {
       edm::Handle<GenEventInfoProduct> genInfo;
@@ -229,11 +241,16 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           pdfID = genInfo->pdf()->id;
           pdfX.first = genInfo->pdf()->x.first;
           pdfX.second = genInfo->pdf()->x.second;
+<<<<<<< HEAD
           pdfXpdf.first = genInfo->pdf()->xPDF.first;
           pdfXpdf.second = genInfo->pdf()->xPDF.second;
         }
       }
 
+=======
+        }
+      }
+>>>>>>> extract MC info from GenEventInfoProduct instead of HepMCProduct
     }
 
     // MC PILEUP INFORMATION
@@ -396,7 +413,10 @@ HiEvtAnalyzer::beginJob()
     thi_->Branch("nMEPartonsFiltered",&nMEPartonsFiltered,"nMEPartonsFiltered/I");
     thi_->Branch("pdfID",&pdfID);
     thi_->Branch("pdfX",&pdfX);
+<<<<<<< HEAD
     thi_->Branch("pdfXpdf",&pdfXpdf);
+=======
+>>>>>>> extract MC info from GenEventInfoProduct instead of HepMCProduct
     thi_->Branch("npus",&npus);
     thi_->Branch("tnpus",&tnpus);
   }
