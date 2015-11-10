@@ -36,7 +36,7 @@ process.maxEvents = cms.untracked.PSet(
 
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:///somewhere/simevent.root') ##/somewhere/simevent.root" }
+    fileNames = cms.untracked.vstring('file:/store/group/upgrade/muon/ME0GlobalReco/ME0MuonReRun_DY_SLHC23patch1/M-20_TuneZ2star_14TeV_6_2_0_SLHC23patch1_2023/output_9_1_hVY.root')
 
 
 )
