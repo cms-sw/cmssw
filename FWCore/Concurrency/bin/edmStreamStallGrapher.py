@@ -189,6 +189,8 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
   streamColors = [[] for x in xrange(numStreams+1)]
   
   for n,trans,s,time,delayed in processingSteps:
+    if n == "FINISH INIT":
+      continue
     if trans == kStarted:
       streamStartDepth[s] +=1
       streamTime[s] = time
