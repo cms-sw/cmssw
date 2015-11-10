@@ -16,19 +16,19 @@ primaryVertexFilterForBJets = cms.EDFilter("VertexSelector",
 
 # jet energy correction (L2+L3)
 from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
-akPu4PFJetsL2L3 = cms.EDProducer('PFJetCorrectionProducer',
-    src = cms.InputTag('akPu4PFJets'),
+akVs4PFJetsL2L3 = cms.EDProducer('PFJetCorrectionProducer',
+    src = cms.InputTag('akVs4PFJets'),
     correctors = cms.vstring('ak4PFL2L3')
     )
 
 hiPtBJet = cms.EDFilter("PFJetSelector",
-    src = cms.InputTag("akPu4PFJetsL2L3"),
+    src = cms.InputTag("akVs4PFJetsL2L3"),
     cut = cms.string("pt > 110")
     )
 
 # dijet skim sequence
 bJetSkimSequence = cms.Sequence(hltJetHI
                                  * primaryVertexFilterForBJets
-                                 * akPu4PFJetsL2L3
+                                 * akVs4PFJetsL2L3
                                  * hiPtBJet
                                  )
