@@ -51,6 +51,7 @@ postDMDigi = cms.Sequence(ecalDigiSequenceDM+hcalDigiSequenceDM)
 
 # disable adding noise to HCAL cells with no MC signal
 # mixData.doEmpty = False
+from SimGeneral.PileupInformation.AddPileupSummaryPreMixed_cfi import *
 
-pdatamix = cms.Sequence(mixData+postDMDigi)
+pdatamix = cms.Sequence(mixData+postDMDigi+addPileupInfo)
 
