@@ -49,8 +49,6 @@ void writeLog(std::string ostring) {
      return;
 }
 
-
-
 class WalkAST : public clang::StmtVisitor<WalkAST> {
   const CheckerBase *Checker;
   clang::ento::BugReporter &BR;
@@ -82,35 +80,21 @@ class WalkAST : public clang::StmtVisitor<WalkAST> {
   /// generating bug reports.  This is null while visiting the body of a
   /// constructor or destructor.
   const clang::CXXMemberCallExpr *visitingCallExpr;
-
+  const char *sfile;
 public:
-  WalkAST(const CheckerBase *checker, clang::ento::BugReporter &br, clang::AnalysisDeclContext *ac, const CXXMethodDecl * fd)
+  WalkAST(const CheckerBase *checker, clang::ento::BugReporter &br, clang::AnalysisDeclContext *ac, const CXXMethodDecl * fd, const char* file)
     : Checker(checker),
       BR(br),
       AC(ac),
       AD(fd),
-      visitingCallExpr(0) {}
-
-  void fixAnonNS(std::string & name) {
-      const std::string anon_ns = "(anonymous namespace)";
-      if (name.substr(0, anon_ns.size()) == anon_ns ) {
-          const char* fname = BR.getSourceManager().getPresumedLoc(AD->getLocation()).getFilename();
-          const char* sname = "/src/";
-          const char* filename = std::strstr(fname, sname);
-          if (filename != NULL) name = name.substr(0, anon_ns.size() - 1)+" in "+filename+")"+name.substr(anon_ns.size());
-          }
-      return;
-  }
-
+      visitingCallExpr(0),sfile(file) {}
 
   bool hasWork() const { return !WList.empty(); }
 
   /// This method adds a CallExpr to the worklist 
   void Enqueue(WorkListUnit WLUnit) {
      Kind &K = VisitedFunctions[WLUnit];
-     if (K = Visiting) {
-          return;
-     }
+     if ((K = Visiting)) return;
     K = Visiting;
     WList.push_back(WLUnit);
   }
@@ -253,7 +237,6 @@ void WalkAST::CheckCXXOperatorCallExpr(const clang::CXXOperatorCallExpr *OCE,con
 
 
 void WalkAST::CheckExplicitCastExpr(const clang::ExplicitCastExpr * CE,const clang::MemberExpr *ME){
-
      if (! ( clang::CStyleCastExpr::classof(CE) || clang::CXXConstCastExpr::classof(CE) )) return;
      const clang::Expr *E = CE->getSubExpr();
      clang::ASTContext &Ctx = AC->getASTContext();
@@ -296,9 +279,9 @@ void WalkAST::CheckReturnStmt(const clang::ReturnStmt * RS, const clang::MemberE
                               std::string buf;
                               llvm::raw_string_ostream os(buf);
                               std::string mname = support::getQualifiedName(*MD);
-                              fixAnonNS(mname);
+                              support::fixAnonNS(mname,sfile);
                               std::string pname = support::getQualifiedName(*(MD->getParent()));
-                              fixAnonNS(pname);
+                              support::fixAnonNS(pname,sfile);
                               os << mname << " is a const member function that returns a const std::vector<*> or const std::vector<*>& "<<rtname<<"\n";
                               std::string tolog = "data class '"+pname+"' const function '" + mname + "' Warning: "+os.str();
                               writeLog(tolog);
@@ -318,9 +301,9 @@ void WalkAST::VisitCXXConstCastExpr(clang::CXXConstCastExpr *CCE) {
      llvm::raw_string_ostream os(buf);
      os <<"const_cast used\n";
      std::string pname = support::getQualifiedName(*(AD->getParent()));
-     fixAnonNS(pname);
+     support::fixAnonNS(pname,sfile);
      std::string mname = support::getQualifiedName(*AD);
-     fixAnonNS(mname);
+     support::fixAnonNS(mname,sfile);
      std::string tolog = "data class '"+pname+"' const function '" + mname + "' Warning: "+os.str()+".";
      writeLog(tolog);
      BugType * BT = new BugType(Checker,"const_cast used in const function ","Data Class Const Correctness");
@@ -330,12 +313,11 @@ void WalkAST::VisitCXXConstCastExpr(clang::CXXConstCastExpr *CCE) {
 }
 
 void WalkAST::VisitDeclRefExpr( clang::DeclRefExpr * DRE) {
-  if (clang::VarDecl * D = llvm::dyn_cast_or_null<clang::VarDecl>(DRE->getDecl()) ) { 
+  if (clang::VarDecl * D = llvm::dyn_cast_or_null<clang::VarDecl>(DRE->getDecl()) ) {
      clang::SourceLocation SL = DRE->getLocStart();
      if (BR.getSourceManager().isInSystemHeader(SL) || BR.getSourceManager().isInExternCSystemHeader(SL)) return;
      if ( support::isSafeClassName( D->getCanonicalDecl()->getQualifiedNameAsString() ) ) return;
      ReportDeclRef( DRE );
-
   }
 }
 
@@ -360,9 +342,9 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
           PS->printPretty(os,0,Policy);
           os << "'.\n";
           std::string pname = support::getQualifiedName(*(AD->getParent()));
-          fixAnonNS(pname);
+          support::fixAnonNS(pname,sfile);
           std::string mname = support::getQualifiedName(*AD);
-          fixAnonNS(mname);
+          support::fixAnonNS(mname,sfile);
           std::string tolog = "data class '"+pname+"' const function '" + mname + "' Warning: "+os.str();
           writeLog(tolog);
           BugType * BT = new BugType(Checker,"ClassChecker : non-const static local variable accessed","Data Class Const Correctness");
@@ -379,9 +361,9 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
           PS->printPretty(os,0,Policy);
           os << "'.\n";
           std::string pname = support::getQualifiedName(*(AD->getParent()));
-          fixAnonNS(pname);
+          support::fixAnonNS(pname,sfile);
           std::string mname = support::getQualifiedName(*AD);
-          fixAnonNS(mname);
+          support::fixAnonNS(mname,sfile);
           std::string tolog = "data class '"+pname+"' const function '" + mname + "' Warning: "+os.str();
           writeLog(tolog);
           BugType * BT = new BugType(Checker,"Non-const static member variable accessed","Data Class Const Correctness");
@@ -403,9 +385,9 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
           PS->printPretty(os,0,Policy);
           os << "'.\n";
           std::string pname = support::getQualifiedName(*(AD->getParent()));
-          fixAnonNS(pname);
+          support::fixAnonNS(pname,sfile);
           std::string mname = support::getQualifiedName(*AD);
-          fixAnonNS(mname);
+          support::fixAnonNS(mname,sfile);
           std::string tolog = "data class '"+pname+"' const function '" + mname + "' Warning: "+os.str();
           writeLog(tolog);
           BugType * BT = new BugType(Checker,"Non-const global static variable accessed","Data Class Const Correctness");
@@ -423,7 +405,6 @@ void WalkAST::VisitMemberExpr( clang::MemberExpr *ME) {
 
   clang::SourceLocation SL = ME->getExprLoc();
   if (BR.getSourceManager().isInSystemHeader(SL) || BR.getSourceManager().isInExternCSystemHeader(SL)) return;
-
   const ValueDecl * D = ME->getMemberDecl();
   if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
   if (!(ME->isImplicitAccess())) return;
@@ -502,9 +483,9 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
   ME->printPretty(os,0,Policy);
   os << "' is directly or indirectly modified in const function\n";
   std::string pname = support::getQualifiedName(*(AD->getParent()));
-  fixAnonNS(pname);
+  support::fixAnonNS(pname,sfile);
   std::string mname = support::getQualifiedName(*AD);
-  fixAnonNS(mname);
+  support::fixAnonNS(mname,sfile);
   std::string tolog = "data class '"+pname+"' const function '" + mname + "' Warning: " + os.str();
   writeLog(tolog);
   BR.EmitBasicReport(AD,Checker,"Member data modified in const function","Data Class Const Correctness",os.str(),CELoc);
@@ -521,7 +502,6 @@ void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
   clang::LangOptions LangOpts;
   LangOpts.CPlusPlus = true;
   clang::PrintingPolicy Policy(LangOpts);
- 
   os << "call expr '";
   CE->printPretty(os,0,Policy);
   os << "' with implicit object argument '";
@@ -530,9 +510,9 @@ void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
   os<<"' is a non-const member function '"<<support::getQualifiedName(*MD);
   os<<"' that could modify member data object of type '"<<support::getQualifiedName(*RD)<<"'\n";
   std::string pname = support::getQualifiedName(*(AD->getParent()));
-  fixAnonNS(pname);
+  support::fixAnonNS(pname,sfile);
   std::string mname = support::getQualifiedName(*AD);
-  fixAnonNS(mname);
+  support::fixAnonNS(mname,sfile);
   std::string tolog = "data class '"+ pname +"' const function '" + mname + "' Warning: "+os.str();
   if ( support::isSafeClassName(support::getQualifiedName(*MD)) ) return;
   writeLog(tolog);
@@ -556,9 +536,9 @@ void WalkAST::ReportCast(const clang::ExplicitCastExpr *CE) {
   os << "Const qualifier of member data object";
   os <<" was removed via cast expression '";
   std::string pname = support::getQualifiedName(*(AD->getParent()));
-  fixAnonNS(pname);
+  support::fixAnonNS(pname,sfile);
   std::string mname = support::getQualifiedName(*AD);
-  fixAnonNS(mname);
+  support::fixAnonNS(mname,sfile);
   std::string tolog = "data class '"+pname+"' const function '" + mname + "' Warning: "+os.str();
   clang::ento::PathDiagnosticLocation CELoc =
     clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
@@ -588,9 +568,9 @@ void WalkAST::ReportCallArg(const clang::CXXMemberCallExpr *CE,const int i) {
   os << "\n";
 
   std::string pname = support::getQualifiedName(*(AD->getParent()));
-  fixAnonNS(pname);
+  support::fixAnonNS(pname,sfile);
   std::string mname = support::getQualifiedName(*AD);
-  fixAnonNS(mname);
+  support::fixAnonNS(mname,sfile);
 
   std::string tolog = "data class '"+pname+"' const function '" + mname + "' Warning: "+os.str();
 
@@ -619,9 +599,9 @@ void WalkAST::ReportCallReturn(const clang::ReturnStmt * RS) {
   clang::ento::PathDiagnosticLocation CELoc =
     clang::ento::PathDiagnosticLocation::createBegin(RS, BR.getSourceManager(),AC);
   std::string pname = support::getQualifiedName(*(AD->getParent()));
-  fixAnonNS(pname);
+  support::fixAnonNS(pname,sfile);
   std::string mname = support::getQualifiedName(*AD);
-  fixAnonNS(mname);
+  support::fixAnonNS(mname,sfile);
   std::string tolog = "data class '"+pname+"' const function '" + mname + "' Warning: "+os.str();
   writeLog(tolog);
   clang::ASTContext &Ctx = AC->getASTContext();
@@ -650,35 +630,32 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
                     clang::ento::BugReporter &BR) const {
 
      const clang::SourceManager &SM = BR.getSourceManager();
-     const char *sfile=SM.getPresumedLoc(RD->getLocation()).getFilename();
+     const char *sfile=SM.getPresumedLoc(RD->getLocation()).getFilename();     
      if (!support::isCmsLocalFile(sfile)) return;
-     
      std::string buf;
      llvm::raw_string_ostream os(buf);
      std::string name = RD->getQualifiedNameAsString();
      if ( ! support::isDataClass(name) ) return;
-
      for ( auto I = RD->field_begin(), E = RD->field_end(); I != E; ++I)
           {
           const FieldDecl * D = (*I) ;
-          if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
-          if ( D->isMutable() )
+	   if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
+           if ( D->isMutable() )
                 {
                     clang::QualType t =  D->getType();
                     clang::ento::PathDiagnosticLocation DLoc =
                     clang::ento::PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
                     if ( support::isSafeClassName( t.getCanonicalType().getAsString() ) ) return;
-                    if ( ! support::isDataClass( support::getQualifiedName(*RD) ) ) return;
-                    WalkAST walker(this,BR, mgr.getAnalysisDeclContext(RD), (*(RD->ctor_begin()))->getMostRecentDecl() ) ;
+                    if ( ! support::isDataClass( support::getQualifiedName(*RD) ) ) return; 
                     std::string buf;
                     llvm::raw_string_ostream os(buf);
                     os << "Mutable member '" <<t.getCanonicalType().getAsString()<<" "<<*D << "' in data class '"<<support::getQualifiedName(*RD)<<"', might be thread-unsafe when accessing via a const handle.";
                     BR.EmitBasicReport(D, this, "Mutable member in data class",
                         "Data Class Const Correctness", os.str(), DLoc);
                     std::string pname = support::getQualifiedName(*(RD));
-                    walker.fixAnonNS(pname);
+                    support::fixAnonNS(pname,sfile);
                     std::string mname = support::getQualifiedName(*D);
-                    walker.fixAnonNS(mname);
+                    support::fixAnonNS(mname,sfile);
                     std::string tolog = "data class '"+pname+"' mutable member '" + mname + "' Warning: "+os.str();
                     writeLog(tolog);
  
@@ -695,7 +672,7 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
           if ( MD->hasAttr<CMSThreadGuardAttr>() || MD->hasAttr<CMSThreadSafeAttr>()) continue;
                     if ( MD->hasBody() ) {
                          clang::Stmt *Body = MD->getBody();
-                         WalkAST walker(this,BR, mgr.getAnalysisDeclContext(MD),MD);
+                         WalkAST walker(this,BR, mgr.getAnalysisDeclContext(MD),MD,sfile);
                          walker.Visit(Body);
                          clang::QualType RQT = MD->getCallResultType();
                          clang::ASTContext &Ctx = BR.getContext();
@@ -707,9 +684,9 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
                               llvm::raw_string_ostream os(buf);
                               os << MD->getQualifiedNameAsString() << " is a const member function that returns a pointer or reference to a non-const object \n";
                               std::string pname = support::getQualifiedName(*(MD->getParent()));
-                              walker.fixAnonNS(pname);
+                              support::fixAnonNS(pname,sfile);
                               std::string mname = support::getQualifiedName(*MD);
-                              walker.fixAnonNS(mname);
+                              support::fixAnonNS(mname,sfile);
                               std::string tolog = "data class '"+pname+"' const function '" + mname + "' Warning: "+os.str();
                               writeLog(tolog);
                               BR.EmitBasicReport(MD,this, "Const function returns pointer or reference to non-const object.","Data Class Const Correctness",os.str(),ELoc);
@@ -728,9 +705,9 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
                                              std::string buf;
                                              llvm::raw_string_ostream os(buf);
                                              std::string pname = support::getQualifiedName(*(MD->getParent()));
-                                             walker.fixAnonNS(pname);
+					     support::fixAnonNS(pname,sfile);
                                              std::string mname = support::getQualifiedName(*MD);
-                                             walker.fixAnonNS(mname);
+                                             support::fixAnonNS(mname,sfile);
                                              os << mname << " is a const member function that returns an object of type const std::vector<*> or const std::vector<*>& "<<rtname<<"\n";
                                              std::string tolog = "data class '"+pname+"' const function '" + mname + "' Warning: "+os.str();
                                              writeLog(tolog);
