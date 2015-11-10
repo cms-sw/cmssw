@@ -130,6 +130,18 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
 
   hbheNoiseFilterResultTag_    = parameters.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel");
   hbheNoiseFilterResultToken_=consumes<bool>(hbheNoiseFilterResultTag_);
+  CSCHaloResultTag_= parameters.getParameter<edm::InputTag>("CSCHaloResultLabel");
+  CSCHaloResultToken_=consumes<bool>(CSCHaloResultTag_);
+  EcalDeadCellTriggerTag_= parameters.getParameter<edm::InputTag>("EcalDeadCellTriggerLabel");
+  EcalDeadCellTriggerToken_=consumes<bool>(EcalDeadCellTriggerTag_);
+  eeBadScFilterTag_= parameters.getParameter<edm::InputTag>("eeBadScFilterLabel");
+  eeBadScFilterToken_=consumes<bool>(eeBadScFilterTag_);
+
+  METFilterMiniAODLabel_=parameters.getParameter<edm::InputTag>("FilterResultsLabelMiniAOD");
+  METFilterMiniAODToken_=consumes<edm::TriggerResults>(METFilterMiniAODLabel_);
+
+  METFilterMiniAODLabel2_=parameters.getParameter<edm::InputTag>("FilterResultsLabelMiniAOD2");
+  METFilterMiniAODToken2_=consumes<edm::TriggerResults>(METFilterMiniAODLabel2_);
 
   // 
   nbinsPV_ = parameters.getParameter<int>("pVBin");
@@ -200,12 +212,12 @@ void METAnalyzer::bookMESet(std::string DirName, DQMStore::IBooker & ibooker, st
   if (DirName.find("Cleaned")!=std::string::npos) {
     fillPFCandidatePlots=true;
     bookMonitorElement(DirName,ibooker,map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,fillZPlots);
-    for (unsigned int i = 0; i<triggerFolderEventFlag_.size(); i++) {
-      fillPFCandidatePlots=false;
-      if (triggerFolderEventFlag_[i]->on()) {
-        bookMonitorElement(DirName+"/"+triggerFolderLabels_[i],ibooker,map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,fillZPlots);
-      }
-    }
+    //for (unsigned int i = 0; i<triggerFolderEventFlag_.size(); i++) {
+    //fillPFCandidatePlots=false;
+      //if (triggerFolderEventFlag_[i]->on()) {
+      //bookMonitorElement(DirName+"/"+triggerFolderLabels_[i],ibooker,map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,fillZPlots);
+      //}
+    //}
   }else if (DirName.find("ZJets")!=std::string::npos) {
     fillPFCandidatePlots=false;
     fillZPlots=true;
@@ -287,15 +299,17 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
     hMEx        = ibooker.book1D("MEx",        "MEx",        200, -500,  500);
     hMEy        = ibooker.book1D("MEy",        "MEy",        200, -500,  500);
     hMET        = ibooker.book1D("MET",        "MET",        200,    0, 1000);
+    hMET_2      = ibooker.book1D("MET_2",      "MET Range 2",200,    0, 2000);
     hSumET      = ibooker.book1D("SumET",      "SumET",      400,    0, 4000);
     hMETSig     = ibooker.book1D("METSig",     "METSig",      51,    0,   51);
     hMETPhi     = ibooker.book1D("METPhi",     "METPhi",      60, -M_PI,  M_PI);
-    hMET_logx   = ibooker.book1D("MET_logx",   "MET_logx",    40,   -1,    7);
-    hSumET_logx = ibooker.book1D("SumET_logx", "SumET_logx",  40,   -1,    7);
+    hMET_logx   = ibooker.book1D("MET_logx",   "MET_logx",    40,   -1,    9);
+    hSumET_logx = ibooker.book1D("SumET_logx", "SumET_logx",  40,   -1,    9);
     
     hMEx       ->setAxisTitle("MEx [GeV]",        1);
     hMEy       ->setAxisTitle("MEy [GeV]",        1);
     hMET       ->setAxisTitle("MET [GeV]",        1);
+    hMET_2     ->setAxisTitle("MET [GeV]",        1);
     hSumET     ->setAxisTitle("SumET [GeV]",      1);
     hMETSig    ->setAxisTitle("METSig",       1);
     hMETPhi    ->setAxisTitle("METPhi [rad]",     1);
@@ -306,11 +320,30 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MEx",hMEx));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MEy",hMEy));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET",hMET));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_2",hMET_2));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SumET",hSumET));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METSig",hMETSig));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhi",hMETPhi));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_logx",hMET_logx));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SumET_logx",hSumET_logx));
+
+    hMET_HBHENoiseFilter        = ibooker.book1D("MET_HBHENoiseFilter",        "MET_HBHENoiseFiltered",        200,    0, 1000);
+    hMET_2_HBHENoiseFilter      = ibooker.book1D("MET_2_HBHENoiseFilter",      "MET_HBHENoiseFiltered Range 2",200,    0, 2000);
+    hMET_CSCTightHaloFilter    = ibooker.book1D("MET_CSCTightHaloFilter",        "MET_CSCTightHaloFiltered",        200,    0, 1000);
+    hMET_2_CSCTightHaloFilter     = ibooker.book1D("MET_2_CSCTightHaloFilter",      "MET_CSCTightHaloFiltered Range 2",200,    0, 2000);
+    hMET_eeBadScFilter    = ibooker.book1D("MET_eeBadScFilter",        "MET_eeBadScFiltered",        200,    0, 1000);
+    hMET_2_eeBadScFilter     = ibooker.book1D("MET_2_eeBadScFilter",      "MET_eeBadScFiltered Range 2",200,    0, 2000);
+    hMET_EcalDeadCellTriggerFilter    = ibooker.book1D("MET_EcalDeadCellTriggerFilter",        "MET_EcalDeadCellTriggerFiltered",        200,    0, 1000);
+    hMET_2_EcalDeadCellTriggerFilter     = ibooker.book1D("MET_2_EcalDeadCellTriggerFilter",      "MET_EcalDeadCellTriggerFiltered Range 2",200,    0, 2000);
+
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_HBHENoiseFilter",hMET_HBHENoiseFilter));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_2_HBHENoiseFilter",hMET_2_HBHENoiseFilter));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_CSCTightHaloFilter",hMET_CSCTightHaloFilter));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_2_CSCTightHaloFilter",hMET_2_CSCTightHaloFilter));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_eeBadScFilter",hMET_eeBadScFilter));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_2_eeBadScFilter",hMET_2_eeBadScFilter));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_EcalDeadCellTriggerFilter",hMET_EcalDeadCellTriggerFilter));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_2_EcalDeadCellTriggerFilter",hMET_2_EcalDeadCellTriggerFilter));
     
     // Book NPV profiles --> would some of these profiles be interesting for other MET types too
     //----------------------------------------------------------------------------
@@ -701,41 +734,8 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
 	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFHadronsMinus"               ,meMETPhiHFHadronsMinus));
 	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFEGammasPlus"                ,meMETPhiHFEGammasPlus));
 	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFEGammasMinus"               ,meMETPhiHFEGammasMinus));
-      }
-      mePhotonEt                = ibooker.book1D("PfPhotonEt",                "photonEt()",                50, 0, 1000);
-      meNeutralHadronEt         = ibooker.book1D("PfNeutralHadronEt",         "neutralHadronEt()",         50, 0, 1000);
-      meElectronEt              = ibooker.book1D("PfElectronEt",              "electronEt()",              50, 0, 100);
-      meChargedHadronEt         = ibooker.book1D("PfChargedHadronEt",         "chargedHadronEt()",         50, 0, 1000);
-      meMuonEt                  = ibooker.book1D("PfMuonEt",                  "muonEt()",                  50, 0, 100);
-      meHFHadronEt              = ibooker.book1D("PfHFHadronEt",              "HFHadronEt()",              50, 0, 1000);
-      meHFEMEt                  = ibooker.book1D("PfHFEMEt",                  "HFEMEt()",                  50, 0, 1000);
-
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfPhotonEt"               ,mePhotonEt));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfNeutralHadronEt"        ,meNeutralHadronEt));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfElectronEt"             ,meElectronEt));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfChargedHadronEt"        ,meChargedHadronEt));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfMuonEt"                 ,meMuonEt));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFHadronEt"             ,meHFHadronEt));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFEMEt"                 ,meHFEMEt));
-      
-      mePhotonEt_profile                = ibooker.bookProfile("PfPhotonEt_profile",                "photonEt()",                nbinsPV_, nPVMin_, nPVMax_, 50, 0, 1000);
-      meNeutralHadronEt_profile         = ibooker.bookProfile("PfNeutralHadronEt_profile",         "neutralHadronEt()",         nbinsPV_, nPVMin_, nPVMax_, 50, 0, 1000);
-      meChargedHadronEt_profile         = ibooker.bookProfile("PfChargedHadronEt_profile",         "chargedHadronEt()",         nbinsPV_, nPVMin_, nPVMax_, 50, 0, 1000);
-      meHFHadronEt_profile              = ibooker.bookProfile("PfHFHadronEt_profile",              "HFHadronEt()",              nbinsPV_, nPVMin_, nPVMax_, 50, 0, 1000);
-      meHFEMEt_profile                  = ibooker.bookProfile("PfHFEMEt_profile",                  "HFEMEt()",                  nbinsPV_, nPVMin_, nPVMax_, 50, 0, 1000);
-      
-      mePhotonEt_profile               ->setAxisTitle("nvtx", 1);
-      meNeutralHadronEt_profile        ->setAxisTitle("nvtx", 1);
-      meChargedHadronEt_profile        ->setAxisTitle("nvtx", 1);
-      meHFHadronEt_profile             ->setAxisTitle("nvtx", 1);
-      meHFEMEt_profile                 ->setAxisTitle("nvtx", 1);
-      
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfPhotonEt_profile"                ,mePhotonEt_profile));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfNeutralHadronEt_profile"         ,meNeutralHadronEt_profile));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfChargedHadronEt_profile"         ,meChargedHadronEt_profile));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFHadronEt_profile"              ,meHFHadronEt_profile));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFEMEt_profile"                  ,meHFEMEt_profile));
-      
+      } 
+     
       if(fillPFCandPlots && fillCandidateMap_histos){
 	if(!etaMinPFCand_.empty()){
 	  etaMinPFCand_.clear();
@@ -880,6 +880,40 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
       map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfChargedHadronEtFraction_profile" ,meChargedHadronEtFraction_profile));
       map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFHadronEtFraction_profile"      ,meHFHadronEtFraction_profile));
       map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFEMEtFraction_profile"          ,meHFEMEtFraction_profile));
+
+      mePhotonEt                = ibooker.book1D("PfPhotonEt",                "photonEt()",                50, 0, 1000);
+      meNeutralHadronEt         = ibooker.book1D("PfNeutralHadronEt",         "neutralHadronEt()",         50, 0, 1000);
+      meElectronEt              = ibooker.book1D("PfElectronEt",              "electronEt()",              50, 0, 100);
+      meChargedHadronEt         = ibooker.book1D("PfChargedHadronEt",         "chargedHadronEt()",         50, 0, 2000);
+      meMuonEt                  = ibooker.book1D("PfMuonEt",                  "muonEt()",                  50, 0, 100);
+      meHFHadronEt              = ibooker.book1D("PfHFHadronEt",              "HFHadronEt()",              50, 0, 2000);
+      meHFEMEt                  = ibooker.book1D("PfHFEMEt",                  "HFEMEt()",                  50, 0, 1000);
+
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfPhotonEt"               ,mePhotonEt));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfNeutralHadronEt"        ,meNeutralHadronEt));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfElectronEt"             ,meElectronEt));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfChargedHadronEt"        ,meChargedHadronEt));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfMuonEt"                 ,meMuonEt));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFHadronEt"             ,meHFHadronEt));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFEMEt"                 ,meHFEMEt));
+      
+      mePhotonEt_profile                = ibooker.bookProfile("PfPhotonEt_profile",                "photonEt()",                nbinsPV_, nPVMin_, nPVMax_, 50, 0, 1000);
+      meNeutralHadronEt_profile         = ibooker.bookProfile("PfNeutralHadronEt_profile",         "neutralHadronEt()",         nbinsPV_, nPVMin_, nPVMax_, 50, 0, 1000);
+      meChargedHadronEt_profile         = ibooker.bookProfile("PfChargedHadronEt_profile",         "chargedHadronEt()",         nbinsPV_, nPVMin_, nPVMax_, 50, 0, 1000);
+      meHFHadronEt_profile              = ibooker.bookProfile("PfHFHadronEt_profile",              "HFHadronEt()",              nbinsPV_, nPVMin_, nPVMax_, 50, 0, 1000);
+      meHFEMEt_profile                  = ibooker.bookProfile("PfHFEMEt_profile",                  "HFEMEt()",                  nbinsPV_, nPVMin_, nPVMax_, 50, 0, 1000);
+      
+      mePhotonEt_profile               ->setAxisTitle("nvtx", 1);
+      meNeutralHadronEt_profile        ->setAxisTitle("nvtx", 1);
+      meChargedHadronEt_profile        ->setAxisTitle("nvtx", 1);
+      meHFHadronEt_profile             ->setAxisTitle("nvtx", 1);
+      meHFEMEt_profile                 ->setAxisTitle("nvtx", 1);
+      
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfPhotonEt_profile"                ,mePhotonEt_profile));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfNeutralHadronEt_profile"         ,meNeutralHadronEt_profile));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfChargedHadronEt_profile"         ,meChargedHadronEt_profile));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFHadronEt_profile"              ,meHFHadronEt_profile));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFEMEt_profile"                  ,meHFEMEt_profile));
     }
     
     if (isCaloMet_){
@@ -956,6 +990,57 @@ void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
       }
     }
   }
+  if(isMiniAODMet_){
+    bool changed_filter=true;
+    if (FilterhltConfig_.init(iRun,iSetup,METFilterMiniAODLabel_.process(),changed_filter)){	
+      std::vector<int>initializeFilter(4,-1);
+      miniaodFilterIndex_=initializeFilter; 
+      for(unsigned int i=0;i<FilterhltConfig_.size();i++){
+	std::string search=FilterhltConfig_.triggerName(i).substr(5);//actual label of filter, the first 5 items are Flag_
+	std::size_t found=hbheNoiseFilterResultTag_.label().find(search);
+	if(found!=std::string::npos){
+	  miniaodFilterIndex_[0]=i;
+	}
+	found=CSCHaloResultTag_.label().find(search);
+	if(found!=std::string::npos){
+	  miniaodFilterIndex_[1]=i;
+	}
+	found=eeBadScFilterTag_.label().find(search);
+	if(found!=std::string::npos){
+	  miniaodFilterIndex_[2]=i;
+	}
+	found=EcalDeadCellTriggerTag_.label().find(search);
+	if(found!=std::string::npos){
+	  miniaodFilterIndex_[3]=i;
+	}
+      }
+    }else if(FilterhltConfig_.init(iRun,iSetup,METFilterMiniAODLabel2_.process(),changed_filter)){
+      std::vector<int>initializeFilter(4,-1);
+      miniaodFilterIndex_=initializeFilter; 
+      for(unsigned int i=0;i<FilterhltConfig_.size();i++){
+	std::string search=FilterhltConfig_.triggerName(i).substr(5);//actual label of filter, the first 5 items are Flag_
+	std::size_t found=hbheNoiseFilterResultTag_.label().find(search);
+	if(found!=std::string::npos){
+	  miniaodFilterIndex_[0]=i;
+	}
+	found=CSCHaloResultTag_.label().find(search);
+	if(found!=std::string::npos){
+	  miniaodFilterIndex_[1]=i;
+	}
+	found=eeBadScFilterTag_.label().find(search);
+	if(found!=std::string::npos){
+	  miniaodFilterIndex_[2]=i;
+	}
+	found=EcalDeadCellTriggerTag_.label().find(search);
+	if(found!=std::string::npos){
+	  miniaodFilterIndex_[3]=i;
+	}
+      }
+    }else{
+      std::cout<<"nothing found with both RECO and reRECO label"<<std::endl;
+    }
+  }
+
 }
 
 // ***********************************************************
@@ -1168,19 +1253,6 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //}
 
   // ==========================================================
-  //
-
-  edm::Handle<bool> HBHENoiseFilterResultHandle;
-  bool HBHENoiseFilterResult=true;
-  if(!isMiniAODMet_){//not checked for MiniAOD
-    iEvent.getByToken(hbheNoiseFilterResultToken_, HBHENoiseFilterResultHandle);
-    if (!HBHENoiseFilterResultHandle.isValid()) {
-      LogDebug("") << "METAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
-      if (verbose_) std::cout << "METAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
-    }
-    HBHENoiseFilterResult = *HBHENoiseFilterResultHandle;
-  }
-  // ==========================================================
   bool bJetID = false;
   bool bDiJetID = false;
   // Jet ID -------------------------------------------------------
@@ -1345,9 +1417,6 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
   }
   // ==========================================================
-  // HCAL Noise filter
-
-  bool bHBHENoiseFilter = HBHENoiseFilterResult;
   // ==========================================================
   //Vertex information
   Handle<VertexCollection> vertexHandle;
@@ -1462,6 +1531,77 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     trigger_flag[3]=true;
   }
 
+  std::vector<bool>filter_decisions(4,false);
+  if(!isMiniAODMet_){//not checked for MiniAOD -> for miniaod decision filled as "triggerResults" bool
+    edm::Handle<bool> HBHENoiseFilterResultHandle;
+    iEvent.getByToken(hbheNoiseFilterResultToken_, HBHENoiseFilterResultHandle);
+    if (!HBHENoiseFilterResultHandle.isValid()) {
+      LogDebug("") << "METAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
+      if (verbose_) std::cout << "METAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
+    }
+    filter_decisions[0]= *HBHENoiseFilterResultHandle;
+    edm::Handle<bool> CSCTightHaloFilterResultHandle;
+    iEvent.getByToken(CSCHaloResultToken_, CSCTightHaloFilterResultHandle);
+    if (!CSCTightHaloFilterResultHandle.isValid()) {
+      LogDebug("") << "METAnalyzer: Could not find CSCTightHaloFilterResultHandle" << std::endl;
+      if (verbose_) std::cout << "METAnalyzer: CSCTightHaloFilterResultHandle" << std::endl;
+    }
+    filter_decisions[1]= *CSCTightHaloFilterResultHandle;
+    edm::Handle<bool> eeBadScFilterResultHandle;
+    iEvent.getByToken(eeBadScFilterToken_, eeBadScFilterResultHandle);
+    if (!eeBadScFilterResultHandle.isValid()) {
+      LogDebug("") << "METAnalyzer: Could not find eeBadScFilterResultHandle" << std::endl;
+      if (verbose_) std::cout << "METAnalyzer: eeBadScFilterResultHandle" << std::endl;
+    }
+    filter_decisions[2]= *eeBadScFilterResultHandle;
+    edm::Handle<bool> EcalDeadCellTriggerFilterResultHandle;
+    iEvent.getByToken(EcalDeadCellTriggerToken_, EcalDeadCellTriggerFilterResultHandle);
+    if (!EcalDeadCellTriggerFilterResultHandle.isValid()) {
+      LogDebug("") << "METAnalyzer: Could not find EcalDeadCellTriggerFilterResultHandle" << std::endl;
+      if (verbose_) std::cout << "METAnalyzer: EcalDeadCellTriggerFilterResultHandle" << std::endl;
+    }
+    filter_decisions[3]= *EcalDeadCellTriggerFilterResultHandle;
+  }else{
+    edm::Handle<edm::TriggerResults> metFilterResults;
+    iEvent.getByToken(METFilterMiniAODToken_, metFilterResults);
+
+    if(metFilterResults.isValid()){
+      if(miniaodFilterIndex_[0]!=-1){
+	filter_decisions[0] = metFilterResults->accept(miniaodFilterIndex_[0]);
+      }
+      if(miniaodFilterIndex_[1]!=-1){
+	filter_decisions[1] = metFilterResults->accept(miniaodFilterIndex_[1]);
+      }
+      if(miniaodFilterIndex_[2]!=-1){
+	filter_decisions[2] = metFilterResults->accept(miniaodFilterIndex_[2]);
+      }
+      if(miniaodFilterIndex_[3]!=-1){
+	filter_decisions[3] = metFilterResults->accept(miniaodFilterIndex_[3]);
+      }
+    }else{
+      iEvent.getByToken(METFilterMiniAODToken2_, metFilterResults);
+      if(metFilterResults.isValid()){
+	if(miniaodFilterIndex_[0]!=-1){
+	  filter_decisions[0] = metFilterResults->accept(miniaodFilterIndex_[0]);
+	}
+	if(miniaodFilterIndex_[1]!=-1){
+	  filter_decisions[1] = metFilterResults->accept(miniaodFilterIndex_[1]);
+	}
+	if(miniaodFilterIndex_[2]!=-1){
+	  filter_decisions[2] = metFilterResults->accept(miniaodFilterIndex_[2]);
+	}
+	if(miniaodFilterIndex_[3]!=-1){
+	  filter_decisions[3] = metFilterResults->accept(miniaodFilterIndex_[3]);
+	}
+      }
+    }
+  }
+
+  bool HBHENoiseFilterResultFlag=filter_decisions[0];//setup for RECO and MINIAOD
+  // ==========================================================
+  // HCAL Noise filter
+  bool bHBHENoiseFilter = HBHENoiseFilterResultFlag;
+
   // DCS Filter
   bool bDCSFilter = (bypassAllDCSChecks_ || DCSFilter_->filter(iEvent, iSetup));
   // ==========================================================
@@ -1471,20 +1611,20 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        ic != folderNames_.end(); ic++){
     bool pass_selection = false;
     if ((*ic=="Uncleaned")  &&(isCaloMet_ || bPrimaryVertex)){
-      fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet, *pfmet,*calomet,zCand, map_dijet_MEs,trigger_flag);
+      fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet, *pfmet,*calomet,zCand, map_dijet_MEs,trigger_flag,filter_decisions);
       pass_selection =true;
     }
     //take two lines out for first check
     if ((*ic=="Cleaned")    &&bDCSFilter&&bHBHENoiseFilter&&bPrimaryVertex&&bJetID){
-      fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet,*pfmet,*calomet,zCand,map_dijet_MEs,trigger_flag);
+      fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet,*pfmet,*calomet,zCand,map_dijet_MEs,trigger_flag,filter_decisions);
       pass_selection=true;
     }
     if ((*ic=="DiJet" )     &&bDCSFilter&&bHBHENoiseFilter&& bPrimaryVertex&& bDiJetID){
-      fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet,*pfmet,*calomet,zCand,map_dijet_MEs,trigger_flag);
+      fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet,*pfmet,*calomet,zCand,map_dijet_MEs,trigger_flag,filter_decisions);
       pass_selection=true;
     }
     if ((*ic=="ZJets" )     &&bDCSFilter&&bHBHENoiseFilter&& bPrimaryVertex&& bZJets){
-      fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet,*pfmet,*calomet,zCand,map_dijet_MEs,trigger_flag);
+      fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet,*pfmet,*calomet,zCand,map_dijet_MEs,trigger_flag,filter_decisions);
       pass_selection=true;
     }
     if(pass_selection && isPFMet_){
@@ -1497,28 +1637,28 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 // ***********************************************************
 void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
-			    const reco::MET& met, const pat::MET& patmet, const reco::PFMET& pfmet, const reco::CaloMET& calomet,const reco::Candidate::PolarLorentzVector& zCand,std::map<std::string,MonitorElement*>&  map_of_MEs, std::vector<bool>techTriggerCase)
+			    const reco::MET& met, const pat::MET& patmet, const reco::PFMET& pfmet, const reco::CaloMET& calomet,const reco::Candidate::PolarLorentzVector& zCand,std::map<std::string,MonitorElement*>&  map_of_MEs, std::vector<bool>techTriggerCase, std::vector<bool>METFilterDecision)
 {
   bool bLumiSecPlot=fill_met_high_level_histo;
   bool fillPFCandidatePlots=false;
   if (DirName.find("Cleaned")!=std::string::npos) {
     fillPFCandidatePlots=true;
-    fillMonitorElement(iEvent, DirName, std::string(""), met, patmet, pfmet, calomet, zCand, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase);
+    fillMonitorElement(iEvent, DirName, std::string(""), met, patmet, pfmet, calomet, zCand, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase,METFilterDecision);
     for (unsigned int i = 0; i<triggerFolderLabels_.size(); i++) {
       fillPFCandidatePlots=false;
       if (triggerFolderDecisions_[i]){  
-	fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, patmet, pfmet, calomet, zCand, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase);
+	fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, patmet, pfmet, calomet, zCand, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase,METFilterDecision);
       }
     }
   }else if (DirName.find("DiJet")!=std::string::npos) {
-    fillMonitorElement(iEvent, DirName, std::string(""), met, patmet, pfmet, calomet, zCand, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase);
+    fillMonitorElement(iEvent, DirName, std::string(""), met, patmet, pfmet, calomet, zCand, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase,METFilterDecision);
     for (unsigned int i = 0; i<triggerFolderLabels_.size(); i++) {
-      if (triggerFolderDecisions_[i])  fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, patmet, pfmet, calomet, zCand, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase);
+      if (triggerFolderDecisions_[i])  fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, patmet, pfmet, calomet, zCand, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase,METFilterDecision);
     }
   }else if (DirName.find("ZJets")!=std::string::npos) {
-    fillMonitorElement(iEvent, DirName, std::string(""), met, patmet, pfmet, calomet, zCand, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase);
+    fillMonitorElement(iEvent, DirName, std::string(""), met, patmet, pfmet, calomet, zCand, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase,METFilterDecision);
   }else{
-    fillMonitorElement(iEvent, DirName, std::string(""), met, patmet, pfmet, calomet, zCand, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase);
+    fillMonitorElement(iEvent, DirName, std::string(""), met, patmet, pfmet, calomet, zCand, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase,METFilterDecision);
   }
   
 
@@ -1527,7 +1667,7 @@ void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
 // ***********************************************************
 void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirName,
 					 std::string subFolderName,
-				     const reco::MET& met,const pat::MET & patmet, const reco::PFMET & pfmet, const reco::CaloMET &calomet, const reco::Candidate::PolarLorentzVector& zCand,std::map<std::string,MonitorElement*>&  map_of_MEs,bool bLumiSecPlot, bool fillPFCandidatePlots,std::vector<bool> techTriggerCase)
+				     const reco::MET& met,const pat::MET & patmet, const reco::PFMET & pfmet, const reco::CaloMET &calomet, const reco::Candidate::PolarLorentzVector& zCand,std::map<std::string,MonitorElement*>&  map_of_MEs,bool bLumiSecPlot, bool fillPFCandidatePlots,std::vector<bool> techTriggerCase,std::vector<bool> METFilterDecision)
 {
   bool do_only_Z_histograms=false;
   if(DirName.find("ZJets")!=std::string::npos) {//do Z plots only
@@ -1616,6 +1756,34 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
     hMEx    = map_of_MEs[DirName+"/"+"MEx"];     if (hMEx           && hMEx->getRootObject())    hMEx          ->Fill(MEx);
     hMEy    = map_of_MEs[DirName+"/"+"MEy"];     if (hMEy           && hMEy->getRootObject())     hMEy          ->Fill(MEy);
     hMET    = map_of_MEs[DirName+"/"+"MET"];     if (hMET           && hMET->getRootObject())     hMET          ->Fill(MET);
+    hMET_2  = map_of_MEs[DirName+"/"+"MET_2"];   if (hMET_2         && hMET_2->getRootObject())   hMET_2        ->Fill(MET);
+
+    bool HBHENoiseFilterResult=true;
+    bool CSCTightHaloFilterResult=true;
+    bool eeBadScFilterResult=true;
+    bool EcalDeadCellTriggerFilterResult=true;
+    HBHENoiseFilterResult = METFilterDecision[0];
+    if(HBHENoiseFilterResult){
+      hMET_HBHENoiseFilter    = map_of_MEs[DirName+"/"+"MET_HBHENoiseFilter"];     if (hMET_HBHENoiseFilter           && hMET_HBHENoiseFilter->getRootObject())     hMET_HBHENoiseFilter          ->Fill(MET);
+      hMET_2_HBHENoiseFilter  = map_of_MEs[DirName+"/"+"MET_2_HBHENoiseFilter"];   if (hMET_2_HBHENoiseFilter         && hMET_2_HBHENoiseFilter->getRootObject())   hMET_2_HBHENoiseFilter        ->Fill(MET);
+    }
+    CSCTightHaloFilterResult =  METFilterDecision[1];
+    if(CSCTightHaloFilterResult){
+      hMET_CSCTightHaloFilter    = map_of_MEs[DirName+"/"+"MET_CSCTightHaloFilter"];     if (hMET_CSCTightHaloFilter           && hMET_CSCTightHaloFilter->getRootObject())     hMET_CSCTightHaloFilter          ->Fill(MET);
+      hMET_2_CSCTightHaloFilter  = map_of_MEs[DirName+"/"+"MET_2_CSCTightHaloFilter"];   if (hMET_2_CSCTightHaloFilter         && hMET_2_CSCTightHaloFilter->getRootObject())   hMET_2_CSCTightHaloFilter        ->Fill(MET);
+    }
+    eeBadScFilterResult =  METFilterDecision[2];
+    if(eeBadScFilterResult){
+      hMET_eeBadScFilter    = map_of_MEs[DirName+"/"+"MET_eeBadScFilter"];     if (hMET_eeBadScFilter           && hMET_eeBadScFilter->getRootObject())     hMET_eeBadScFilter          ->Fill(MET);
+      hMET_2_eeBadScFilter  = map_of_MEs[DirName+"/"+"MET_2_eeBadScFilter"];   if (hMET_2_eeBadScFilter         && hMET_2_eeBadScFilter->getRootObject())   hMET_2_eeBadScFilter        ->Fill(MET);
+    }
+    EcalDeadCellTriggerFilterResult =  METFilterDecision[3];
+    if(EcalDeadCellTriggerFilterResult){
+      hMET_EcalDeadCellTriggerFilter    = map_of_MEs[DirName+"/"+"MET_EcalDeadCellTriggerFilter"];     if (hMET_EcalDeadCellTriggerFilter           && hMET_EcalDeadCellTriggerFilter->getRootObject())     hMET_EcalDeadCellTriggerFilter          ->Fill(MET);
+      hMET_2_EcalDeadCellTriggerFilter  = map_of_MEs[DirName+"/"+"MET_2_EcalDeadCellTriggerFilter"];   if (hMET_2_EcalDeadCellTriggerFilter         && hMET_2_EcalDeadCellTriggerFilter->getRootObject())   hMET_2_EcalDeadCellTriggerFilter        ->Fill(MET);
+    }
+
+
     hMETPhi = map_of_MEs[DirName+"/"+"METPhi"];  if (hMETPhi        && hMETPhi->getRootObject())  hMETPhi       ->Fill(METPhi);
     hSumET  = map_of_MEs[DirName+"/"+"SumET"];   if (hSumET         && hSumET->getRootObject())   hSumET        ->Fill(SumET);
     hMETSig = map_of_MEs[DirName+"/"+"METSig"];  if (hMETSig        && hMETSig->getRootObject())  hMETSig       ->Fill(METSig);
@@ -2300,6 +2468,35 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
       if (meChargedHadronEtFraction_profile && meChargedHadronEtFraction_profile->getRootObject()) meChargedHadronEtFraction_profile->Fill(numPV_, patmet.ChargedHadEtFraction());
       if (meHFHadronEtFraction_profile      && meHFHadronEtFraction_profile     ->getRootObject()) meHFHadronEtFraction_profile     ->Fill(numPV_, patmet.Type6EtFraction());
       if (meHFEMEtFraction_profile          && meHFEMEtFraction_profile         ->getRootObject()) meHFEMEtFraction_profile         ->Fill(numPV_, patmet.Type7EtFraction());
+
+      mePhotonEt        = map_of_MEs[DirName + "/PfPhotonEt"];
+      meNeutralHadronEt = map_of_MEs[DirName + "/PfNeutralHadronEt"];
+      meChargedHadronEt = map_of_MEs[DirName + "/PfChargedHadronEt"];
+      meHFHadronEt      = map_of_MEs[DirName + "/PfHFHadronEt"];
+      meHFEMEt          = map_of_MEs[DirName + "/PfHFEMEt"];
+      meMuonEt          = map_of_MEs[DirName + "/PfMuonEt"];
+      meElectronEt      = map_of_MEs[DirName + "/PfElectronEt"];
+
+      if (mePhotonEt        && mePhotonEt       ->getRootObject()) mePhotonEt       ->Fill(patmet.NeutralEMFraction()*patmet.sumEt());
+      if (meNeutralHadronEt && meNeutralHadronEt->getRootObject()) meNeutralHadronEt->Fill(patmet.NeutralHadEtFraction()*patmet.sumEt());
+      if (meChargedHadronEt && meChargedHadronEt->getRootObject()) meChargedHadronEt->Fill(patmet.ChargedHadEtFraction()*patmet.sumEt());
+      if (meHFHadronEt      && meHFHadronEt     ->getRootObject()) meHFHadronEt     ->Fill(patmet.Type6EtFraction()*patmet.sumEt());//HFHadrons
+      if (meHFEMEt          && meHFEMEt         ->getRootObject()) meHFEMEt         ->Fill(patmet.Type7EtFraction()*patmet.sumEt());
+      if (meMuonEt          && meMuonEt         ->getRootObject()) meMuonEt         ->Fill(patmet.MuonEtFraction()*patmet.sumEt());
+      if (meElectronEt      && meElectronEt     ->getRootObject()) meElectronEt     ->Fill(patmet.ChargedEMEtFraction()*patmet.sumEt());
+
+      //NPV profiles     
+      mePhotonEt_profile        = map_of_MEs[DirName + "/PfPhotonEt_profile"];
+      meNeutralHadronEt_profile = map_of_MEs[DirName + "/PfNeutralHadronEt_profile"];
+      meChargedHadronEt_profile = map_of_MEs[DirName + "/PfChargedHadronEt_profile"];
+      meHFHadronEt_profile      = map_of_MEs[DirName + "/PfHFHadronEt_profile"];
+      meHFEMEt_profile          = map_of_MEs[DirName + "/PfHFEMEt_profile"];
+      
+      if (mePhotonEt_profile        && mePhotonEt_profile       ->getRootObject()) mePhotonEt_profile       ->Fill(numPV_, patmet.NeutralEMFraction()*patmet.sumEt());
+      if (meNeutralHadronEt_profile && meNeutralHadronEt_profile->getRootObject()) meNeutralHadronEt_profile->Fill(numPV_, patmet.NeutralHadEtFraction()*patmet.sumEt());
+      if (meChargedHadronEt_profile && meChargedHadronEt_profile->getRootObject()) meChargedHadronEt_profile->Fill(numPV_, patmet.ChargedHadEtFraction()*patmet.sumEt());
+      if (meHFHadronEt_profile      && meHFHadronEt_profile     ->getRootObject()) meHFHadronEt_profile     ->Fill(numPV_, patmet.Type6EtFraction()*patmet.sumEt());
+      if (meHFEMEt_profile          && meHFEMEt_profile         ->getRootObject()) meHFEMEt_profile         ->Fill(numPV_, patmet.Type7EtFraction()*patmet.sumEt());
     }
 
     if (isCaloMet_){
