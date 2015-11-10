@@ -23,12 +23,11 @@
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-
 #include <HepMC/PdfInfo.h>
+
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 #include "TTree.h"
 
