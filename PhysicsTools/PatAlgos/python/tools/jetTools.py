@@ -400,7 +400,7 @@ class AddJetCollection(ConfigToolBase):
                 process.load("RecoBTag.SecondaryVertex.secondaryVertex_cff")
                 process.load("RecoBTag.SoftLepton.softLepton_cff")
                 process.load("RecoBTag.Combined.combinedMVA_cff")
-                process.load("RecoBTag.CTagging.cTagging_cff")
+                process.load("RecoBTag.CTagging.RecoCTagging_cff")
             #addESProducers(process,'RecoBTag.Configuration.RecoBTag_cff')
             import RecoBTag.Configuration.RecoBTag_cff as btag
             import RecoJets.JetProducers.caTopTaggers_cff as toptag
