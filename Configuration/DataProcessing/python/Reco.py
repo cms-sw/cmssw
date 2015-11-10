@@ -26,6 +26,16 @@ class Reco(Scenario):
 
     """
 
+
+    def _checkRepackedFlag(self, options, **args):
+        if 'repacked' in args:
+            if args['repacked'] == True:
+                options.isRepacked = True
+            else:
+                options.isRepacked = False
+        
+
+
     def promptReco(self, globalTag, **args):
         """
         _promptReco_
@@ -55,6 +65,7 @@ class Reco(Scenario):
         """
         options.runUnscheduled=True
                     
+        self._checkRepackedFlag(options, **args)
 
         if 'customs' in args:
             options.customisation_file=args['customs']
@@ -115,6 +126,8 @@ class Reco(Scenario):
 
         if 'customs' in args:
             options.customisation_file=args['customs']
+
+        self._checkRepackedFlag(options,**args)
 
         cb = ConfigBuilder(options, process = process, with_output = True, with_input = True)
 
