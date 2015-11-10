@@ -22,6 +22,8 @@
 
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 #include "TTree.h"
 
@@ -52,11 +54,15 @@ private:
   edm::InputTag HiMCTag_;
   edm::InputTag VertexTag_;
 
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo>> puInfoToken_;
+  edm::EDGetTokenT<GenEventInfoProduct> genInfoToken_;
+
   bool doEvtPlane_;
   bool doEvtPlaneFlat_;
   bool doCentrality_;
 
   bool doMC_;
+  bool useHepMC_;
   bool doVertex_;
 
   int evtPlaneLevel_;
@@ -87,6 +93,18 @@ private:
   int fNchargedPtCutMR;
 
   int proc_id;
+  float pthat;
+  float weight;
+  float alphaQCD;
+  float alphaQED;
+  float qScale;
+  int   nMEPartons;
+  int   nMEPartonsFiltered;
+  std::pair<int, int> pdfID;
+  std::pair<float, float> pdfX;
+  
+  std::vector<int> npus;    //number of pileup interactions
+  std::vector<float> tnpus; //true number of interactions
 
   float vx,vy,vz;
 
@@ -114,10 +132,13 @@ HiEvtAnalyzer::HiEvtAnalyzer(const edm::ParameterSet& iConfig) :
   EvtPlaneFlatTag_(iConfig.getParameter<edm::InputTag> ("EvtPlaneFlat")),
   HiMCTag_(iConfig.getParameter<edm::InputTag> ("HiMC")),
   VertexTag_(iConfig.getParameter<edm::InputTag> ("Vertex")),
+  puInfoToken_     (consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("addPileupInfo"))),
+  genInfoToken_    (consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
   doEvtPlane_(iConfig.getParameter<bool> ("doEvtPlane")),
   doEvtPlaneFlat_(iConfig.getParameter<bool> ("doEvtPlaneFlat")),
   doCentrality_(iConfig.getParameter<bool> ("doCentrality")),
   doMC_(iConfig.getParameter<bool> ("doMC")),
+  useHepMC_(iConfig.getParameter<bool> ("useHepMC")),
   doVertex_(iConfig.getParameter<bool>("doVertex")),
   evtPlaneLevel_(iConfig.getParameter<int>("evtPlaneLevel"))
 {
@@ -166,9 +187,41 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     fNchargedPtCut = mchievt->NchargedPtCut();
     fNchargedPtCutMR = mchievt->NchargedPtCutMR();
 
-    edm::Handle<edm::HepMCProduct> hepmcevt;
-    iEvent.getByLabel("generator", hepmcevt);
-    proc_id =  hepmcevt->GetEvent()->signal_process_id();
+    if(useHepMC_) {
+      edm::Handle<edm::HepMCProduct> hepmcevt;
+      iEvent.getByLabel("generator", hepmcevt);
+      proc_id =  hepmcevt->GetEvent()->signal_process_id();
+    }
+    else {
+      edm::Handle<GenEventInfoProduct> genInfo;
+      if(iEvent.getByToken(genInfoToken_, genInfo)) {
+        proc_id = genInfo->signalProcessID();
+        if (genInfo->hasBinningValues())
+          pthat = genInfo->binningValues()[0];
+        weight = genInfo->weight();
+        nMEPartons = genInfo->nMEPartons();
+        nMEPartonsFiltered = genInfo->nMEPartonsFiltered();
+        alphaQCD = genInfo->alphaQCD();
+        alphaQED = genInfo->alphaQED();
+        qScale = genInfo->qScale();
+        
+        if (genInfo->hasPDF()) {
+          pdfID = genInfo->pdf()->id;
+          pdfX.first = genInfo->pdf()->x.first;
+          pdfX.second = genInfo->pdf()->x.second;
+        }
+      }
+    }
+
+    // MC PILEUP INFORMATION
+    edm::Handle<std::vector<PileupSummaryInfo>>    puInfos; 
+    if (iEvent.getByToken(puInfoToken_, puInfos)) {
+      for (const auto& pu: *puInfos) {
+        npus.push_back(pu.getPU_NumInteractions());
+        tnpus.push_back(pu.getTrueNumInteractions());
+      }
+    }
+    
   }
 
   if (doCentrality_) {
@@ -266,6 +319,14 @@ HiEvtAnalyzer::beginJob()
   fNchargedPtCut = -1;
   fNchargedPtCutMR = -1;
 
+  proc_id =   -1;
+  pthat   =   -1.;
+  weight  =   -1.;
+  alphaQCD =  -1.;
+  alphaQED =  -1.;
+  qScale   =  -1.;
+  //  npu      =   1;
+  
   nEvtPlanes = 0;
   hiBin = -1;
   hiEvtPlane = new float[kMaxEvtPlanes];
@@ -284,7 +345,7 @@ HiEvtAnalyzer::beginJob()
   thi_->Branch("vy",&vy,"vy/F");
   thi_->Branch("vz",&vz,"vz/F");
 
-  // Centrality
+  //Event observables
   if (doMC_) {
     thi_->Branch("Npart",&fNpart,"Npart/F");
     thi_->Branch("Ncoll",&fNcoll,"Ncoll/F");
@@ -300,8 +361,20 @@ HiEvtAnalyzer::beginJob()
     thi_->Branch("NchargedPtCutMR",&fNchargedPtCutMR,"NchargedPtCutMR/I");
 
     thi_->Branch("ProcessID",&proc_id,"ProcessID/I");
+    thi_->Branch("pthat",&pthat,"pthat/F");
+    thi_->Branch("weight",&weight,"weight/F");
+    thi_->Branch("alphaQCD",&alphaQCD,"alphaQCD/F");
+    thi_->Branch("alphaQED",&alphaQED,"alphaQED/F");
+    thi_->Branch("qScale",&qScale,"qScale/F");
+    thi_->Branch("nMEPartons",&nMEPartons,"nMEPartons/I");
+    thi_->Branch("nMEPartonsFiltered",&nMEPartonsFiltered,"nMEPartonsFiltered/I");
+    thi_->Branch("pdfID",&pdfID);
+    thi_->Branch("pdfX",&pdfX);
+    thi_->Branch("npus",&npus);
+    thi_->Branch("tnpus",&tnpus);
   }
 
+  // Centrality
   thi_->Branch("hiBin",&hiBin,"hiBin/I");
   thi_->Branch("hiHF",&hiHF,"hiHF/F");
   thi_->Branch("hiHFplus",&hiHFplus,"hiHFplus/F");
