@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # HLT dimuon trigger
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 hltZMMHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-hltZMMHI.HLTPaths = ["HLT_HIL2DoubleMu3"]
+hltZMMHI.HLTPaths = ["HLT_HIL1DoubleMu10_v*","HLT_HIL3Mu20_2HF_v*","HLT_HIL3Mu20_2HF0_v*"]
 hltZMMHI.throw = False
 hltZMMHI.andOr = True
 
@@ -15,25 +15,25 @@ primaryVertexFilterForZMM = cms.EDFilter("VertexSelector",
     )
 
 # selection of dimuons (at least STA+STA) with mass in Z range
-muonSelector = cms.EDFilter("MuonSelector",
+muonSelectorForZMM = cms.EDFilter("MuonSelector",
     src = cms.InputTag("muons"),
-    cut = cms.string("(isStandAloneMuon || isGlobalMuon) && pt > 1."),
+    cut = cms.string("(isTrackerMuon && isGlobalMuon) && pt > 10."),
     filter = cms.bool(True)
     )
 
-muonFilter = cms.EDFilter("MuonCountFilter",
-    src = cms.InputTag("muonSelector"),
-    minNumber = cms.uint32(1)
+muonFilterForZMM = cms.EDFilter("MuonCountFilter",
+    src = cms.InputTag("muonSelectorForZMM"),
+    minNumber = cms.uint32(2)
     )
 
-dimuonMassCut = cms.EDProducer("CandViewShallowCloneCombiner",
+dimuonMassCutForZMM = cms.EDProducer("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(True),
-    cut = cms.string(' 60 < mass < 120'),
-    decay = cms.string("muonSelector@+ muonSelector@-")
+    cut = cms.string(' 80 < mass < 110'),
+    decay = cms.string("muonSelectorForZMM@+ muonSelectorForZMM@-")
     )
 
-dimuonMassCutFilter = cms.EDFilter("CandViewCountFilter",
-    src = cms.InputTag("dimuonMassCut"),
+dimuonMassCutFilterForZMM = cms.EDFilter("CandViewCountFilter",
+    src = cms.InputTag("dimuonMassCutForZMM"),
     minNumber = cms.uint32(1)
     )
 
@@ -41,8 +41,9 @@ dimuonMassCutFilter = cms.EDFilter("CandViewCountFilter",
 zMMSkimSequence = cms.Sequence(
     hltZMMHI *
     primaryVertexFilterForZMM *
-    muonSelector *
-    muonFilter *
-    dimuonMassCut *
-    dimuonMassCutFilter
+    muonSelectorForZMM *
+    muonFilterForZMM *
+    dimuonMassCutForZMM *
+    dimuonMassCutFilterForZMM
     )
+
