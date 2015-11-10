@@ -110,4 +110,4 @@ eventshapeDQM_Q2_bottom10_cent5070 = cms.EDAnalyzer('EventShapeDQM',
 
 
 
-eventshapeDQMSequence = cms.Sequence(eventshapeDQM_Q2_top05_cent1030 * eventshapeDQM_Q2_bottom05_cent1030 * eventshapeDQM_Q2_top05_cent3050 * eventshapeDQM_Q2_bottom05_cent3050 * eventshapeDQM_Q2_top05_cent5070 * eventshapeDQM_Q2_bottom05_cent5070 * ventshapeDQM_Q2_top10_cent1030 * eventshapeDQM_Q2_bottom10_cent1030 * eventshapeDQM_Q2_top10_cent3050 * eventshapeDQM_Q2_bottom10_cent3050 * eventshapeDQM_Q2_top10_cent5070 * eventshapeDQM_Q2_bottom10_cent5070)
+eventshapeDQMSequence = cms.Sequence(eventshapeDQM_Q2_top05_cent1030 * eventshapeDQM_Q2_bottom05_cent1030 * eventshapeDQM_Q2_top05_cent3050 * eventshapeDQM_Q2_bottom05_cent3050 * eventshapeDQM_Q2_top05_cent5070 * eventshapeDQM_Q2_bottom05_cent5070 * eventshapeDQM_Q2_top10_cent1030 * eventshapeDQM_Q2_bottom10_cent1030 * eventshapeDQM_Q2_top10_cent3050 * eventshapeDQM_Q2_bottom10_cent3050 * eventshapeDQM_Q2_top10_cent5070 * eventshapeDQM_Q2_bottom10_cent5070)
