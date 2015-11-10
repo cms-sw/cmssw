@@ -33,10 +33,10 @@ def import_hook(name, globals=None, locals=None, fromlist=None, level=-1):
     return m
 
 def determine_parent(globals):
-    if not globals or not globals.has_key("__name__"):
+    if not globals or "__name__" not in globals:
         return None
     pname = globals['__name__']
-    if globals.has_key("__path__"):
+    if "__path__" in globals:
         parent = sys.modules[pname]
         assert globals is parent.__dict__
         return parent

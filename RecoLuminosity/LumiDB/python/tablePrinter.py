@@ -4,6 +4,7 @@
 # http://code.activestate.com/recipes/267662
 #
 import cStringIO,operator
+from functools import reduce
 def indent(rows,hasHeader=False,headerChar='-',delim=' | ',justify='center',
            separateRows=False,prefix='',postfix='',wrapfunc=lambda x:x):
     """

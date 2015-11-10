@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import re
 class connectstrParser(object):
     def __init__(self,connectstr):
@@ -66,7 +67,7 @@ class connectstrParser(object):
         result+='/'+schemaname
         return result
 if __name__ == '__main__':
-    import cacheconfigParser
+    from . import cacheconfigParser
     o='oracle://cms_orcoff_prep/CMS_LUMI_DEV_OFFLINE'
     parser=connectstrParser(o)
     parser.parse()

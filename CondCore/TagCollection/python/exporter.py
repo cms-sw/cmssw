@@ -5,13 +5,14 @@ Input parameter destSession : session proxy for destination schema providing log
 Input parameter rowCachesize :  the number of rows to be cached at the client side, default value =100
 Output paramter : the exporter object
 '''
+from __future__ import absolute_import
 
 import os
 import coral
 import time
 import math
-from multivaluedict import mseqdict
-from listobjects import listobjects,listschema,listtables,listtableset
+from .multivaluedict import mseqdict
+from .listobjects import listobjects,listschema,listtables,listtableset
 
 class exporter:
  "exporter class for CoralTools"

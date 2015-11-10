@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import coral
-import DBImpl
+from . import DBImpl
 class IdGenerator(object):
     """Manages the autoincremental ID values.\n
     Input: coral.schema object
@@ -18,7 +19,7 @@ class IdGenerator(object):
             query.setForUpdate() #lock it
             cursor = query.execute()
             result = 0
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 result = cursor.currentRow()[self.__idTableColumnName].data()
             del query
             return result
@@ -35,7 +36,7 @@ class IdGenerator(object):
             query.setForUpdate() #lock it
             cursor = query.execute()
             result = 0
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 result = cursor.currentRow()[0].data()
             del query
             dataEditor = tableHandle.dataEditor()

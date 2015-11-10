@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import coral
-import CommonUtils, TagTree, tagInventory
+from . import CommonUtils, TagTree, tagInventory
 
 class DBCopy(object):
     
@@ -32,7 +33,7 @@ class DBCopy(object):
             source_query.defineOutput(data)
             bulkOperation=my_editor.bulkInsert(data,self.__rowcachesize)
             cursor=source_query.execute()
-            while (cursor.next() ):
+            while (next(cursor) ):
                 bulkOperation.processNextIteration()
             bulkOperation.flush()
             del bulkOperation
@@ -48,7 +49,7 @@ class DBCopy(object):
             source_query.defineOutput(iddata)
             bulkOperation=my_ideditor.bulkInsert(iddata,self.__rowcachesize)
             cursor=source_query.execute()
-            while cursor.next():
+            while next(cursor):
                 bulkOperation.processNextIteration()
             bulkOperation.flush()
             del bulkOperation
@@ -68,7 +69,7 @@ class DBCopy(object):
                 source_query.defineOutput(commentdata)
                 bulkOperation=my_commenteditor.bulkInsert(commentdata,self.__rowcachesize)
                 cursor=source_query.execute()
-                while cursor.next():
+                while next(cursor):
                     bulkOperation.processNextIteration()
                 bulkOperation.flush()
                 del bulkOperation
@@ -130,7 +131,7 @@ class DBCopy(object):
 	      source_query.defineOutput(data)
 	      bulkOperation=dest_editor.bulkInsert(data,self.__rowcachesize)
 	      cursor=source_query.execute()
-              while cursor.next():
+              while next(cursor):
 	          bulkOperation.processNextIteration()
 	      bulkOperation.flush()
 	      del bulkOperation
@@ -146,7 +147,7 @@ class DBCopy(object):
 	      source_query.defineOutput(iddata)
 	      bulkOperation=dest_editor.bulkInsert(iddata,self.__rowcachesize)
 	      cursor=source_query.execute()
-              while cursor.next():
+              while next(cursor):
 	          bulkOperation.processNextIteration()
 	      bulkOperation.flush()
 	      del bulkOperation
@@ -165,7 +166,7 @@ class DBCopy(object):
                   source_query.defineOutput(data)
                   bulkOperation=dest_editor.bulkInsert(data,self.__rowcachesize)
                   cursor=source_query.execute()
-                  while cursor.next():
+                  while next(cursor):
                       bulkOperation.processNextIteration()
                   bulkOperation.flush()
                   del bulkOperation
@@ -248,7 +249,7 @@ class DBCopy(object):
 	    source_query.defineOutput(data)
 	    bulkOperation=my_editor.bulkInsert(data,self.__rowcachesize)
 	    cursor=source_query.execute()
-            while cursor.next():
+            while next(cursor):
 	       bulkOperation.processNextIteration()
 	    bulkOperation.flush()
 	    del bulkOperation

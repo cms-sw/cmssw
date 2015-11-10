@@ -87,9 +87,9 @@ process.p = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3)
 process.e = cms.EndPath(process.out)
 
 copyProcess = cms.Process("COPY")
-process.subProcess = cms.SubProcess(copyProcess,
+process.addSubProcess(cms.SubProcess(copyProcess,
     outputCommands = cms.untracked.vstring(
         "keep *", 
         "drop *_intProducerA_*_*"
     )
-)
+))

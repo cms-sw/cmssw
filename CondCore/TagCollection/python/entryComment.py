@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 import coral
-import DBImpl
-import CommonUtils
+from . import DBImpl
+from . import CommonUtils
 
 class entryComment(object):
     """Class add optional comment on given entry in a given table\n
@@ -96,7 +97,7 @@ class entryComment(object):
             query.addToOutputList('comment')
             query.setCondition(condition,conditionbindDict)
             cursor=query.execute()
-            if cursor.next():
+            if next(cursor):
                 comment=cursor.currentRow()['comment'].data()
                 cursor.close()
             transaction.commit()
@@ -124,7 +125,7 @@ class entryComment(object):
             query.addToOutputList('comment')
             query.setCondition(condition,conditionbindDict)
             cursor=query.execute()
-            while cursor.next():
+            while next(cursor):
                 comment=cursor.currentRow()['comment'].data()
                 entryid=cursor.currentRow()['entryid'].data()
                 result.append((entryid,comment))  

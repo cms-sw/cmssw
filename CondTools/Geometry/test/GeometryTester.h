@@ -21,7 +21,7 @@ class GeometryTester : public edm::EDAnalyzer {
 
  private:
 
-  bool xmltest, tktest, ecaltest, hcaltest, calotowertest, castortest, zdctest, csctest, dttest, rpctest;
+  bool xmltest, tktest, ecaltest, hcaltest, hgcaltest, calotowertest, castortest, zdctest, csctest, dttest, rpctest;
   std::string geomLabel_;
 };
 

@@ -1,12 +1,13 @@
 """
 Print information about objects in a ROOT file.
 """
+from __future__ import absolute_import
 
-from version import __version__
+from .version import __version__
 
 from ROOT import Double
 import copy
-import argparse
+from . import argparse
 import sys
 import os
 

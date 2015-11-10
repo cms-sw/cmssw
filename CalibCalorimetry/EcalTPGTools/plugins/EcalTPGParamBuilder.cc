@@ -479,7 +479,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       EcalLogicID ecid_xt;
       FEConfigPedDat  rd_ped;
       int icells=0;
-      for (CIfeped p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); p++) 
+      for (CIfeped p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); ++p) 
 	{
 	  ecid_xt = p->first;
 	  rd_ped  = p->second;
@@ -565,7 +565,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  EcalLogicID ecid_xt;
 	  FEConfigPedDat  rd_ped;
 	  int icells=0;
-	  for (CIfeped p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); p++) 
+	  for (CIfeped p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); ++p) 
 	    {
 	      ecid_xt = p->first;
 	      rd_ped  = p->second;
@@ -1366,7 +1366,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   evgueni<<"{"<<endl;
   evgueni<<"  mult12 = 0 ; shift12 = 0 ; base12 = 0 ; mult6 = 0 ; shift6 = 0 ; base6 = 0 ; mult1 = 0 ; shift1 = 0 ; base1 = 0 ;"<<endl ;
   map< vector<int>, linStruc>::const_iterator itLinMap ;
-  for (itLinMap = linMap.begin() ; itLinMap != linMap.end() ; itLinMap++) {
+  for (itLinMap = linMap.begin() ; itLinMap != linMap.end() ; ++itLinMap) {
     vector<int> xtalInCCU = itLinMap->first ;
     evgueni<<"  if (fed=="<<xtalInCCU[0]<<" && ccu=="<<xtalInCCU[1]<<" && xtal=="<<xtalInCCU[2]<<") {" ;
     evgueni<<"  mult12 = "<<itLinMap->second.mult_[0]<<" ; shift12 = "<<itLinMap->second.shift_[0]<<" ; base12 = "<<itLinMap->second.pedestal_[0]<<" ; " ;
@@ -1863,7 +1863,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   cout<<"Number of EB strips="<<dec<<stripListEB.size()<<endl ;
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
-    for (itList = stripListEB.begin(); itList != stripListEB.end(); itList++ ) {
+    for (itList = stripListEB.begin(); itList != stripListEB.end(); ++itList ) {
       (*out_file_) <<"STRIP_EB "<<dec<<(*itList)<<endl ;
       (*out_file_) << hex << "0x" <<sliding_<<std::endl ;
       (*out_file_) <<"0" <<std::endl ;
@@ -1877,7 +1877,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   cout<<"Number of EE strips="<<dec<<stripListEE.size()<<endl ;
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
-    for (itList = stripListEE.begin(); itList != stripListEE.end(); itList++ ) {
+    for (itList = stripListEE.begin(); itList != stripListEE.end(); ++itList ) {
       (*out_file_) <<"STRIP_EE "<<dec<<(*itList)<<endl ;
       (*out_file_) << hex << "0x" <<sliding_<<std::endl ;
       (*out_file_) <<" 0" << std::endl ;
@@ -1896,7 +1896,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   cout<<"Number of EB towers="<<dec<<towerListEB.size()<<endl ;
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
-    for (itList = towerListEB.begin(); itList != towerListEB.end(); itList++ ) {
+    for (itList = towerListEB.begin(); itList != towerListEB.end(); ++itList ) {
       (*out_file_) <<"TOWER_EB "<<dec<<(*itList)<<endl ;
       (*out_file_) <<" 0\n 0\n" ;
       (*out_file_) <<" " <<  SFGVB_SpikeKillingThreshold_ << std::endl; //modif-alex
@@ -1909,7 +1909,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   cout<<"Number of EE towers="<<dec<<towerListEE.size()<<endl ;
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
-    for (itList = towerListEE.begin(); itList != towerListEE.end(); itList++ ) {
+    for (itList = towerListEE.begin(); itList != towerListEE.end(); ++itList ) {
       (*out_file_) <<"TOWER_EE "<<dec<<(*itList)<<endl ;
       if (newLUT) (*out_file_) <<" 1\n" ;
       else  (*out_file_) <<" 0\n" ;

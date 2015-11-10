@@ -48,7 +48,7 @@ try:
     query.setCondition("RUNNUM=:runnum",queryBind)
     query.defineOutput(queryresult)
     cursor=query.execute()
-    while cursor.next():
+    while next(cursor):
         startT=cursor.currentRow()['starttime']
         print 'startT ',startT.data()
         s=datetime.strptime(startT.data(),'%m/%d/%y %H:%M:%S.%f')

@@ -13,6 +13,7 @@ import random
 import sys
 import inspect
 import ROOT
+from functools import reduce
 ROOT.gROOT.SetBatch()
 
 # regex for reducing 'warn()' filenames
@@ -66,7 +67,7 @@ class GenObject (object):
                                types.string] )
     _defaultValue      = dict ( {types.float  : 0.,
                                  types.int    : 0,
-                                 types.long   : 0L,
+                                 types.long   : 0,
                                  types.string : '""' } )
     _objsDict          = {} # info about GenObjects
     _equivDict         = {} # hold info about 'equivalent' muons
@@ -135,14 +136,14 @@ class GenObject (object):
     @staticmethod
     def addObjectVariable (obj, var, **optionsDict):
         """ User passes in in object and variable names."""
-        if not optionsDict.has_key ('varType'):
+        if 'varType' not in optionsDict:
             optionsDict['varType'] = GenObject.types.float
         varType = optionsDict['varType']
         if not GenObject.types.isValidValue (varType):
             print "Type '%s' not valid.  Skipping (%s, %s, %s)." % \
                   (varType, obj, var, varType)
             return
-        if not optionsDict.has_key ('default'):
+        if 'default' not in optionsDict:
             optionsDict['default'] = GenObject._defaultValue[varType]
         if obj.startswith ("_") or var.startswith ("_"):
             print "Skipping (%s, %s, %s) because of leading underscore." % \
@@ -241,7 +242,7 @@ class GenObject (object):
     def _createCppClass (objName):
         """Returns a string containing the '.C' file necessary to
         generate a shared object library with dictionary."""
-        if not GenObject._objsDict.has_key (objName):
+        if objName not in GenObject._objsDict:
             # not good
             print "Error: GenObject does not know about object '%s'." % objName
             raise RuntimeError, "Failed to create C++ class."
@@ -986,7 +987,7 @@ class GenObject (object):
     def changeAlias (tupleName, name, alias):
         """Updates an alias for an object for a given tuple"""
         aliasDict = GenObject._ntupleDict[tupleName]['_alias']
-        if not aliasDict.has_key (name):
+        if name not in aliasDict:
             raise RuntimeError, "unknown name '%s' in tuple '%s'" % \
                   (name, tupleName)
         aliasDict[name] = alias
@@ -996,7 +997,7 @@ class GenObject (object):
     def changeLabel (tupleName, objectName, label):
         """Updates an label for an object for a given tuple"""
         labelDict = GenObject._ntupleDict[tupleName]['_label']
-        if not labelDict.has_key (objectName):
+        if objectName not in labelDict:
             raise RuntimeError, "unknown name '%s' in tuple '%s'" % \
                   (objectName, tupleName)
         label = tuple( GenObject._commaRE.split( label ) )
@@ -1094,14 +1095,14 @@ class GenObject (object):
         secondOnly = set()
         # loop over the keys of the first dict and compare to second dict
         for key in firstDict.keys():
-            if secondDict.has_key (key):
+            if key in secondDict:
                 overlap.add (key)
             else:
                 firstOnly.add (key)
         # now loop over keys of second dict and only check for missing
         # entries in first dict
         for key in secondDict.keys():
-            if not firstDict.has_key (key):
+            if key not in firstDict:
                 secondOnly.add (key)
         # All done
         return overlap, firstOnly, secondOnly
@@ -1403,7 +1404,7 @@ class GenObject (object):
                     countDict = resultsDict.\
                                 setdefault (objName, {}).\
                                 setdefault ('_missing', {})
-                    if countDict.has_key (key):
+                    if key in countDict:
                         countDict[key] += 1
                     else:
                         countDict[key] = 1
@@ -1438,12 +1439,12 @@ class GenObject (object):
                             countDict = resultsDict.\
                                         setdefault (objName, {}).\
                                         setdefault ('_var', {})
-                            if countDict.has_key (varName):
+                            if varName in countDict:
                                 countDict[varName] += 1
                             else:
                                 countDict[varName] = 1
                 key = 'count_%s' % objName
-                if not resultsDict.has_key (key):
+                if key not in resultsDict:
                     resultsDict[key] = 0
                 resultsDict[key] += len (matchedSet)
                 # try cleaning up
@@ -1549,7 +1550,7 @@ class GenObject (object):
 
     def __init__ (self, objName):
         """Class initializer"""
-        if not GenObject._objsDict.has_key (objName):# or \
+        if objName not in GenObject._objsDict:# or \
             #not GenObject._equivDict.has_key (objName) :
             # not good
             print "Error: GenObject does not know about object '%s'." % objName
@@ -1586,7 +1587,7 @@ class GenObject (object):
             # user version - Make sure this variable has already been
 
             # defined for this type:
-            if not self._localObjsDict.has_key (name):
+            if name not in self._localObjsDict:
                 # this variable has not been defined
                 print "Warning: '%s' for class '%s' not setup. Skipping." % \
                       (name, self._objName)

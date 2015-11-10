@@ -370,7 +370,7 @@ def createMergeScript( path, validations ):
     theFile = open( filePath, "w" )
     theFile.write( replaceByMap( configTemplates.mergeTemplate, repMap ) )
     theFile.close()
-    os.chmod(filePath,0755)
+    os.chmod(filePath,0o755)
     
     return filePath
     

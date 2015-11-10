@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import logging
 import os
 import math
@@ -6,7 +7,7 @@ from PyQt4.QtCore import Qt, SIGNAL, QEvent, QPoint, QSize
 from PyQt4.QtGui import QMainWindow, QTabWidget, QSizePolicy, QIcon
 
 from Vispa.Main.StartupScreen import StartupScreen
-import Resources
+from . import Resources
 
 class MainWindow(QMainWindow):
     

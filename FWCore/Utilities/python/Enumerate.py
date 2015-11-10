@@ -30,12 +30,12 @@ class Enumerate (object):
 
     def isValidValue (self, value):
         """ Returns true if this value is a valid enum value"""
-        return self._valueDict.has_key (value)
+        return value in self._valueDict
 
 
     def isValidKey (self, key):
         """ Returns true if this value is a valid enum key"""
-        return self.__dict__.has_key (key)
+        return key in self.__dict__
 
 
     def valueToKey (self, value):

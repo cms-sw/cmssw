@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import coral
-import IdGenerator
+from . import IdGenerator
         
 class DBImpl(object):
     """Class wrap up all the database operations.\n
@@ -17,7 +18,7 @@ class DBImpl(object):
             query.setCondition(condition,conditionbindDict)
             cursor = query.execute()
             result=False
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 result=True
                 cursor.close()
             del query

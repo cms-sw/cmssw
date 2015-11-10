@@ -34,7 +34,8 @@ ecalLaserClient = cms.untracked.PSet(
     sources = cms.untracked.PSet(
         Timing = ecalLaserTask.MEs.Timing,
         PNAmplitude = ecalLaserTask.MEs.PNAmplitude,
-        Amplitude = ecalLaserTask.MEs.Amplitude
+        Amplitude = ecalLaserTask.MEs.Amplitude,
+        CalibStatus = ecalLaserTask.MEs.CalibStatus
     ),
     MEs = cms.untracked.PSet(
         TimingRMS = cms.untracked.PSet(

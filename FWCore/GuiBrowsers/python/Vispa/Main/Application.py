@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import os
 import sys
 import string
@@ -23,7 +24,7 @@ from Vispa.Main.RotatingIcon import RotatingIcon
 #from PreferencesEditor import PreferencesEditor
 import Vispa.__init__
 
-import Resources
+from . import Resources
 
 class Application(QApplication):
 
