@@ -12,10 +12,12 @@ symbol_demunged_re = r"(?P<symbol>[a-zA-Z0-9_.$@:&()<>{}\[\]|^!%,~*+-=# ]+)"
 symbols_re_skip = re.compile("(@@)")
 nm_line_re = re.compile(r"\s+".join([addr_re, code_re, symbol_re]) + "\s*$",
                         re.I)
+ldd_line_re = re.compile(r"\s+(.*) => (.*) \(0x")
 
 requires = collections.defaultdict(set)
 provides = collections.defaultdict(set)
 dependencies = collections.defaultdict(set)
+libraries = collections.defaultdict(set)
 
 def get_symbols(fname):
     lines = subprocess.check_output(["nm", "-g", fname])
@@ -28,6 +30,15 @@ def get_symbols(fname):
         else:
             provides[symbol].add(fname)
 
+def get_libraries(fname):
+	lines = subprocess.check_output(["ldd",fname])
+	for l in lines.splitlines():
+		m = ldd_line_re.match(l)
+		if not m: continue
+		library = m.group(2)
+		libraries[fname].add(library.rstrip('\r\n'))
+
+
 paths=os.environ['LD_LIBRARY_PATH'].split(':')
 
 for p in paths:
@@ -37,20 +48,18 @@ for p in paths:
     		filetype = subprocess.check_output(["file", fpth])
     		if filetype.find("dynamically linked") >= 0 :
 	            get_symbols(fpth)
+                    get_libraries(fpth)
 
-def pick(symbols):
-    # If several files provide a symbol, choose the one with the shortest name.
+def pick(symbols,libraries):
     best = None
     for s in symbols:
-        if best is None or len(s) < len(best):
+        if best is None or s in libraries :
             best = s
-#    if len(symbols) > 1:
-#        best = "*" + best
     return best
 
 for fname, symbols in requires.items():
-    dependencies[fname] = set(pick(provides[s]) for s in symbols if s in provides)
-#    print fname + ': ' + ' '.join(sorted(dependencies[fname]))
+    dependencies[fname] = set(pick(provides[s],libraries[fname]) for s in symbols if s in provides)
+    print fname + ' : primary dependencies : ' + ',  '.join(sorted(dependencies[fname]))+'\n'
     unmet = set()
     demangled = set()
     for s in symbols: 
@@ -58,7 +67,7 @@ for fname, symbols in requires.items():
     for u in sorted(unmet):
 	dm = subprocess.check_output(["c++filt",u])
 	demangled.add(dm.rstrip('\r\n'))
-#    if demangled :  print fname + ': undefined : ' + ' '.join(sorted(demangled))
+    if demangled :  print fname + ': undefined : ' + ',  '.join(sorted(demangled))
 
 import networkx as nx
 G=nx.DiGraph()
@@ -74,4 +83,15 @@ for node in nx.nodes_iter(G):
 			if key != node : deps.add(key)
 			for v in vals :
 				deps.add(v)
-	print node + ': ' + ','.join(sorted(deps))
+	print node + ': primary and secondary dependencies :' + ', '.join(sorted(deps))
+
+import pydot
+
+H=nx.DiGraph()
+for key,values in dependencies.items():
+	H.add_node(os.path.basename(key))
+	for val in values: H.add_edge(os.path.basename(key),os.path.basename(val))
+for node in nx.nodes_iter(H):
+	T = nx.dfs_tree(H,node)
+	name = node + ".dot"
+	nx.write_dot(T,name)
