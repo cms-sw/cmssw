@@ -48,6 +48,11 @@ hltvalidation = cms.Sequence(
     +hltbtagValidationSequence
     )
 
+# The higgs validation is not compatible with the Phase 1 pixel, so
+# take it out if that is active.
+from Configuration.StandardSequences.Eras import eras
+if eras.phase1Pixel.isChosen():
+    hltvalidation.remove(HiggsValidationSequence)
 
 # additional producer sequence prior to hltvalidation_fastsim
 # to evacuate producers from the EndPath
