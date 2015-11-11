@@ -54,16 +54,6 @@ process.load("DQM.L1TMonitor.L1TEmulatorMonitor_cff")
 process.load("DQM.L1TMonitorClient.L1TEMUMonitorClient_cff")    
 #process.load("L1Trigger.L1TCalorimeter.caloStage1Params_cfi")
 
-process.GlobalTag.toGet = cms.VPSet(
-  cms.PSet(
-           record  = cms.string("L1TCaloParamsRcd"),
-           tag     = cms.string("L1TCaloParams_CRAFT09_hlt"),
-           connect = cms.untracked.string("frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_CONDITIONS")
-          )
-)
-
-
-
 #-------------------------------------
 # paths & schedule for L1 emulator DQM
 #
