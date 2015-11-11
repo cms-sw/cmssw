@@ -48,6 +48,7 @@ class ME0RecHitBaseAlgo {
                              LocalPoint& Point,
                              LocalError& error) const = 0;
 
+  bool recOnlyMuons;
 };
 #endif
 
