@@ -71,7 +71,8 @@ public:
   const std::vector<double> &      getPhiTableHF() const {return hpar->phitable;}
   double                    getRZ(int subdet, int ieta, int depth) const;
   std::vector<HcalActiveLength>    getThickActive(const int type) const;
-  int                       getTopoMode() const {return hpar->topologyMode;}
+  int                       getTopoMode() const {return ((hpar->topologyMode)&0xFF);}
+  int                       getTriggerMode() const {return (((hpar->topologyMode)>>8)&0xFF);}
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;
   unsigned int              numberOfCells(HcalSubdetector) const;
   unsigned int              nCells(HcalSubdetector) const;

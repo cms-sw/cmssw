@@ -13,10 +13,9 @@
 static const int IPHI_MAX=72;
 //#define DebugLog
 
-HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::TriggerMode tmode) :
+HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons) :
   hcons_(hcons),
   excludeHB_(false), excludeHE_(false), excludeHO_(false), excludeHF_(false),
-  triggerMode_(tmode),
   firstHBRing_(1),
   firstHERing_(999), lastHERing_(0),
   firstHFRing_(29),  lastHFRing_(41),
@@ -25,7 +24,8 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::T
   firstHFQuadPhiRing_(40), firstHETripleDepthRing_(999),
   singlePhiBins_(72), doublePhiBins_(36) {
 
-  mode_ = (HcalTopologyMode::Mode)(hcons_->getTopoMode());
+  mode_       = (HcalTopologyMode::Mode)(hcons_->getTopoMode());
+  triggerMode_= (HcalTopologyMode::TriggerMode)(hcons_->getTriggerMode());
   maxDepthHB_ = hcons_->getMaxDepth(0);
   maxDepthHE_ = hcons_->getMaxDepth(1);
   maxDepthHF_ = hcons_->getMaxDepth(2);
@@ -51,7 +51,6 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::T
     HESize_     = kHESizePreLS1; // qie-per-fiber * fiber/rm * rm/rbx * rbx/endcap * endcap/hcal
     HOSize_     = kHOSizePreLS1; // ieta * iphi * 2
     HFSize_     = kHFSizePreLS1; // phi * eta * depth * pm 
-    HTSize_     = kHTSizePreLS1; 
     numberOfShapes_ = 87;
   } else if (mode_==HcalTopologyMode::SLHC) { // need to know more eventually
     topoVersion_=10;
@@ -59,13 +58,21 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::T
     HESize_     = nEtaHE_*72*maxDepthHE_*2;
     HOSize_     = (lastHORing_-firstHORing_+1)*72*2; // ieta * iphi * 2
     HFSize_     = (lastHFRing_-firstHFRing_+1)*72*maxDepthHF_*2; // ieta * iphi * depth * 2
-    HTSize_     = kHTSizePreLS1;  //no clue!
     numberOfShapes_ = 500;
   }
   maxEta_ = (lastHERing_ > lastHFRing_) ? lastHERing_ : lastHFRing_;
+  if (triggerMode_ == HcalTopologyMode::tm_LHC_RCT) {
+    HTSize_ = kHTSizePreLS1;
+  } else if (triggerMode_ == HcalTopologyMode::tm_LHC_RCT_and_1x1) {
+    HTSize_ = kHTSizePhase1;
+  } else {
+    HTSize_ = kHTSizePhase1-kHTSizePreLS1;
+  }
+
 #ifdef DebugLog
   std::cout << "Topo sizes " << HBSize_ << ":" << HESize_ << ":" << HOSize_
-	    << ":" << HFSize_ << " for mode " << mode_ << std::endl;
+	    << ":" << HFSize_ << ":" << HTSize_ << " for mode " << mode_ 
+	    << ":" << triggerMode_ << std::endl;
 #endif
 
   //The transition between HE/HF in eta
@@ -152,20 +159,24 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxD
     HESize_= kHESizePreLS1; // qie-per-fiber * fiber/rm * rm/rbx * rbx/endcap * endcap/hcal
     HOSize_= kHOSizePreLS1; // ieta * iphi * 2
     HFSize_= kHFSizePreLS1; // phi * eta * depth * pm
-    HTSize_= kHTSizePreLS1;
   } else if (mode_==HcalTopologyMode::SLHC) { // need to know more eventually
     HBSize_= maxDepthHB*16*72*2;
     HESize_= maxDepthHE*(29-16+1)*72*2;
     HOSize_= 15*72*2; // ieta * iphi * 2
     HFSize_= 72*13*maxDepthHF_*2; // phi * eta * depth * pm 
-    HTSize_= kHTSizePreLS1;  //no clue!
     topoVersion_=10;
   }
   nEtaHB_ = (lastHBRing_-firstHBRing_+1);
   nEtaHE_ = (lastHERing_-firstHERing_+1);
+  if (triggerMode_ == HcalTopologyMode::tm_LHC_RCT) {
+    HTSize_ = kHTSizePreLS1;
+  } else if (triggerMode_ == HcalTopologyMode::tm_LHC_RCT_and_1x1) {
+    HTSize_ = kHTSizePhase1;
+  } else {
+    HTSize_ = kHTSizePhase1-kHTSizePreLS1;
+  }
 
   edm::LogWarning("CaloTopology") << "This is an incomplete constructor of HcalTopology - be warned that many functionalities will not be there - revert from this - get from EventSetup";
-   
 }
 
 bool HcalTopology::valid(const DetId& id) const {
@@ -186,6 +197,28 @@ bool HcalTopology::validDetId(HcalSubdetector subdet, int ieta, int iphi,
                               int depth) const {
   HcalDetId id(subdet,ieta,iphi,depth);
   return validHcal(id);
+}
+
+bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
+
+  if (id.iphi()<1 || id.iphi()>72 || id.ieta()==0) return false;
+  if (id.version()==0) {
+    if (triggerMode_==HcalTopologyMode::tm_LHC_1x1) return false;
+    if ((id.ietaAbs()>32) || 
+	(triggerMode_==HcalTopologyMode::tm_LHC_1x1 && id.ietaAbs()>27)) return false;
+    if (id.ietaAbs()>28) {
+      int iphi=id.iphi();
+      if ((iphi/4)*4 + 1 != iphi) return false;
+      iphi = iphi/4 + 1;	  
+      if (iphi > 18) return false;
+    }
+  } else {
+    if (triggerMode_==HcalTopologyMode::tm_LHC_RCT) return false;
+    if (id.ietaAbs()<28 || id.ietaAbs()>41) return false;
+    if (id.ietaAbs()>29 && ((id.iphi()%2)==0)) return false;
+    if (id.ietaAbs()>39 && ((id.iphi()%4)!=3)) return false;
+  }
+  return true;
 }
 
 bool HcalTopology::isExcluded(const HcalDetId& id) const {
@@ -961,13 +994,19 @@ unsigned int HcalTopology::detId2denseIdHT(const DetId& id) const {
   HcalTrigTowerDetId tid(id); 
   int zside = tid.zside();
   unsigned int ietaAbs = tid.ietaAbs();
-  unsigned int iphi = tid.iphi();
+  unsigned int iphi  = tid.iphi();
+  unsigned int ivers = tid.version();
 
   unsigned int index;
-  if ((iphi-1)%4==0) index = (iphi-1)*32 + (ietaAbs-1) - (12*((iphi-1)/4));
-  else               index = (iphi-1)*28 + (ietaAbs-1) + (4*(((iphi-1)/4)+1));
-  
-  if (zside == -1) index += kHThalf;
+  if (ivers  == 0) {
+    if ((iphi-1)%4==0) index = (iphi-1)*32 + (ietaAbs-1) - (12*((iphi-1)/4));
+    else               index = (iphi-1)*28 + (ietaAbs-1) + (4*(((iphi-1)/4)+1));
+    if (zside == -1) index += kHThalf;
+  } else {
+    index = kHTSizePreLS1;
+    if (zside == -1) index += ((kHTSizePhase1-kHTSizePreLS1)/2);
+    index += (36 * (ietaAbs - 30) + ((iphi - 1)/2));
+  }
 
   return index;
 }

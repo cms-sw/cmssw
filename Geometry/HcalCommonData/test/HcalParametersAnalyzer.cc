@@ -198,7 +198,8 @@ void HcalParametersAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::E
     }
   }
   std::cout << "\ndzVcal: " << pars->dzVcal
-	    << "\nTopologyMode: " << pars->topologyMode << std::endl;
+	    << "\n(Topology|Trigger)Mode: " << std::hex << pars->topologyMode 
+	    << std::dec << std::endl;
 }
 
 DEFINE_FWK_MODULE(HcalParametersAnalyzer);
