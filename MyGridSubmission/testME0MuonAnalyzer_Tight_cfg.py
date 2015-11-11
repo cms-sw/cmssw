@@ -92,7 +92,7 @@ process.Test = cms.EDAnalyzer("ME0MuonAnalyzer",
                               statusGP = cms.int32(1),
                               pdgIdGP = cms.vint32(13, -13),
                               #parametersDefiner = cms.string('LhcParametersDefinerForTP'),
-                              ME0MuonSelectionType = cms.string('Loose'),
+                              ME0MuonSelectionType = cms.string('Tight'),
 )
 
 process.p = cms.Path(process.recoMuonValidation*process.Test)

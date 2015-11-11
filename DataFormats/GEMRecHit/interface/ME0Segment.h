@@ -26,7 +26,7 @@ public:
 	
     /// Constructor
     ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, LocalPoint origin, 
-        	LocalVector direction, AlgebraicSymMatrix errors, double chi2);
+	       LocalVector direction, AlgebraicSymMatrix errors, double chi2, double averageTime, double timeUncrt);
   
     /// Destructor
     virtual ~ME0Segment();
@@ -67,17 +67,20 @@ public:
 
     ME0DetId me0DetId() const { return  geographicalId(); }
 
-    float time() const;
+    float time() const    { return theTimeValue; }
+    float timeErr() const { return theTimeUncrt; }
     
     void print() const;		
     
  private:
     
     std::vector<ME0RecHit> theME0RecHits;
-    LocalPoint theOrigin;   // in chamber frame - the GeomDet local coordinate system
-    LocalVector theLocalDirection; // in chamber frame - the GeomDet local coordinate system
+    LocalPoint theOrigin;            // in chamber frame - the GeomDet local coordinate system
+    LocalVector theLocalDirection;   // in chamber frame - the GeomDet local coordinate system
     AlgebraicSymMatrix theCovMatrix; // the covariance matrix
     double theChi2;
+    double theTimeValue;             // the best time estimate of the segment
+    double theTimeUncrt;             // the uncertainty on the time estimation
 };
 
 std::ostream& operator<<(std::ostream& os, const ME0Segment& seg);
