@@ -74,14 +74,12 @@ namespace sistrip {
     uint16_t minLength;
     switch (readoutMode()) {
     case READOUT_MODE_ZERO_SUPPRESSED:
+    case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
       minLength = 7;
       break;
     case READOUT_MODE_PREMIX_RAW:
       minLength = 2;
       break;
-    /*case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
-      minLength = 7;
-      break;*/
     case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
     case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
     case READOUT_MODE_ZERO_SUPPRESSED_LITE8:

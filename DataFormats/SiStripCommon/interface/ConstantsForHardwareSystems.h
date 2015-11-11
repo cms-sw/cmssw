@@ -132,7 +132,6 @@ namespace sistrip {
                         FED_VIRGIN_RAW = 2, 
                         FED_PROC_RAW = 6, 
                         FED_ZERO_SUPPR = 10,
-                        //FED_ZERO_SUPPR_CMO = 4,
                         FED_ZERO_SUPPR_LITE = 3,
                         FED_ZERO_SUPPR_LITE_CMO = 4,
                         FED_ZERO_SUPPR_LITE8_TT = 12,

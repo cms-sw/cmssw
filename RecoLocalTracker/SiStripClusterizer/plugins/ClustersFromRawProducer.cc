@@ -359,8 +359,6 @@ try {
 
       try {
         // create unpacker
-        //sistrip::FEDZSChannelUnpacker unpacker = static_cast<sistrip::FEDZSChannelUnpacker>(
-        //  sistrip::FEDBSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(fedCh), 8));
         sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(fedCh));
 
         // unpack
