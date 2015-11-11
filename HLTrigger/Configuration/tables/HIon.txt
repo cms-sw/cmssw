@@ -225,6 +225,10 @@ HLT_HcalCalibration_v*					# CMSHLT-640
 
 AlCa_EcalPhiSym_v*					# CMSHLT-645
 
+AlCa_RPCMuonNoTriggers_v*				# CMSHLT-642
+AlCa_RPCMuonNoHits_v*					# CMSHLT-642
+AlCa_RPCMuonNormalisation_v*				# CMSHLT-642
+
 #HLT_Physics_v*
 
 HLTriggerFirstPath
@@ -238,3 +242,4 @@ CalibrationOutput
 ALCAPHISYMOutput
 DQMOutput
 DQMCalibrationOutput
+RPCMONOutput
