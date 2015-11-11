@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/HcalCommonData/interface/HcalTopologyMode.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
@@ -20,14 +21,12 @@
    cells which would normally exist in the full CMS HCAL, but are not
    present for the specified topology.
     
-   $Revision: 1.17 $
-   \author J. Mans - Minnesota
 */
 class HcalTopology : public CaloSubdetectorTopology {
 public:
 
-  HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::TriggerMode tmode=HcalTopologyMode::tm_LHC_PreLS1);
-  HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE, HcalTopologyMode::TriggerMode tmode=HcalTopologyMode::tm_LHC_PreLS1);
+  HcalTopology(const HcalDDDRecConstants* hcons);
+  HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE, HcalTopologyMode::TriggerMode tmode=HcalTopologyMode::tm_LHC_RCT);
 	
   HcalTopologyMode::Mode mode() const {return mode_;}
   HcalTopologyMode::TriggerMode triggerMode() const { return triggerMode_; }
@@ -54,6 +53,7 @@ public:
   /** Is this a valid cell id? */
   bool validHcal(const HcalDetId& id) const;
   bool validDetId(HcalSubdetector subdet, int ieta, int iphi, int depth) const;
+  bool validHT(const HcalTrigTowerDetId& id) const;
   /** Get the neighbors of the given cell in east direction*/
   virtual std::vector<DetId> east(const DetId& id) const;
   /** Get the neighbors of the given cell in west direction*/
@@ -212,7 +212,8 @@ private:
   enum { kHESizePreLS1 = 2*kHEhalf } ;
   enum { kHOSizePreLS1 = 2*kHOhalf } ;
   enum { kHFSizePreLS1 = 2*kHFhalf } ;
-  enum { kHTSizePreLS1 = 2*kHThalf };
+  enum { kHTSizePreLS1 = 2*kHThalf } ;
+  enum { kHTSizePhase1 = (kHTSizePreLS1+(2*12*36)) } ;
   enum { kCALIBSizePreLS1 = 2*kCALIBhalf };
 };
 
