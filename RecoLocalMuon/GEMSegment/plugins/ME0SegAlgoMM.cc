@@ -32,7 +32,13 @@ ME0SegAlgoMM::ME0SegAlgoMM(const edm::ParameterSet& ps) : ME0SegmentAlgorithm(ps
   preClustering_useChaining = ps.getParameter<bool>("preClusteringUseChaining");
   dPhiChainBoxMax           = ps.getParameter<double>("dPhiChainBoxMax");
   dEtaChainBoxMax           = ps.getParameter<double>("dEtaChainBoxMax");
+  dTimeChainBoxMax          = ps.getParameter<double>("dTimeChainBoxMax");
   maxRecHitsInCluster       = ps.getParameter<int>("maxRecHitsInCluster");
+
+  edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegAlgoMM::ctor] Parameters to build segments :: "
+				   << "preClustering = "<<preClustering<<" preClustering_useChaining = "<<preClustering_useChaining
+				   <<" dPhiChainBoxMax = "<<dPhiChainBoxMax<<" dEtaChainBoxMax = "<<dEtaChainBoxMax<<" dTimeChainBoxMax = "<<dTimeChainBoxMax
+				   <<" minHitsPerSegment = "<<minHitsPerSegment<<" maxRecHitsInCluster = "<<maxRecHitsInCluster;
 }
 
 /* Destructor
@@ -45,10 +51,18 @@ ME0SegAlgoMM::~ME0SegAlgoMM() {
 std::vector<ME0Segment> ME0SegAlgoMM::run(const ME0Ensemble& ensemble, const EnsembleHitContainer& rechits) {
 
   theEnsemble = ensemble;
-  
-  ME0DetId enId((theEnsemble.first)->id());
-  edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegAlgoMM::run] build segments in chamber " << enId;
-  
+
+  #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
+  ME0DetId chId((theEnsamble.first)->id());  
+  edm::LogVerbatim("GEMSegAlgoMM") << "[ME0SegAlgoMM::run] build segments in chamber " << chId << " which contains "<<rechits.size()<<" rechits";
+  for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
+    auto me0id = (*rh)->me0Id();
+    auto rhLP = (*rh)->localPosition();
+    edm::LogVerbatim("ME0SegAlgoMM") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()
+                                     <<" Time = "<<std::showpos<<(*rh)->tof()<<" -- "<<me0id.rawId()<<" = "<<me0id<<" ]";
+  }
+  #endif
+
   // pre-cluster rechits and loop over all sub clusters separately
   std::vector<ME0Segment>          segments_temp;
   std::vector<ME0Segment>          segments;
@@ -256,7 +270,7 @@ ME0SegAlgoMM::chainHits(const EnsembleHitContainer& rechits) {
 
 bool ME0SegAlgoMM::isGoodToMerge(const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain) {
 
-  std::vector<float> phi_new, eta_new, phi_old, eta_old;
+  std::vector<float> phi_new, eta_new, time_new, phi_old, eta_old, time_old;
   std::vector<int> layer_new, layer_old;
 
   for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
@@ -264,12 +278,14 @@ bool ME0SegAlgoMM::isGoodToMerge(const EnsembleHitContainer& newChain, const Ens
     layer_new.push_back(newChain[iRH_new]->me0Id().layer());
     phi_new.push_back(pos_new.phi());
     eta_new.push_back(pos_new.eta());
+    time_new.push_back(newChain[iRH_new]->tof());
   }  
   for(size_t iRH_old = 0;iRH_old<oldChain.size();++iRH_old){
     GlobalPoint pos_old = theEnsemble.first->toGlobal(oldChain[iRH_old]->localPosition());
     layer_old.push_back(oldChain[iRH_old]->me0Id().layer());
     phi_old.push_back(pos_old.phi());
     eta_old.push_back(pos_old.eta());
+    time_old.push_back(oldChain[iRH_old]->tof());
   }
 
   for(size_t jRH_new = 0; jRH_new<phi_new.size(); ++jRH_new){
@@ -288,8 +304,11 @@ bool ME0SegAlgoMM::isGoodToMerge(const EnsembleHitContainer& newChain, const Ens
       bool etaRequirementOK = fabs(eta_new[jRH_new]-eta_old[jRH_old]) < dEtaChainBoxMax;
       // and the difference in layer index should be < (nlayers-1)
       bool layerRequirementOK = abs(layer_new[jRH_new]-layer_old[jRH_old]) < (theEnsemble.first->id().nlayers()-1);
+      // and they should have a time difference compatible with the hypothesis 
+      // that the rechits originate from the same particle, but were detected in different layers
+      bool timeRequirementOK = fabs(time_new[jRH_new] - time_old[jRH_old]) < dTimeChainBoxMax;
 
-      if(layerRequirementOK && phiRequirementOK && etaRequirementOK){
+      if(layerRequirementOK && phiRequirementOK && etaRequirementOK && timeRequirementOK){
         return true;
       }
     }
@@ -303,6 +322,16 @@ bool ME0SegAlgoMM::isGoodToMerge(const EnsembleHitContainer& newChain, const Ens
 
 std::vector<ME0Segment> ME0SegAlgoMM::buildSegments(const EnsembleHitContainer& rechits) {
   std::vector<ME0Segment> me0segs;
+
+  edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegAlgoMM::buildSegments] will now try to fit a ME0Segment from collection of "<<rechits.size()<<" ME0 RecHits";
+  #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode 
+    for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
+      auto me0id = (*rh)->me0Id();
+      auto rhLP = (*rh)->localPosition();
+      edm::LogVerbatim("ME0SegAlgoMM") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()
+				       <<" Time = "<<std::showpos<<(*rh)->tof()<<" -- "<<me0id.rawId()<<" = "<<me0id<<" ]";
+      }
+  #endif
 
   proto_segment.clear();
   // select hits from the ensemble and sort it 
