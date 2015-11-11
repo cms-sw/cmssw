@@ -102,6 +102,7 @@ from random import choice
 from DBSAPI.dbsApi import DbsApi
 import DBSAPI.dbsException
 import DBSAPI.dbsApiException
+from functools import reduce
 # and these we need to parse the DBS output.
 global xml
 global SAXParseException
@@ -246,7 +247,7 @@ class DBSXMLHandler(xml.sax.handler.ContentHandler):
 
         if self.current_element() in self.tag_names:
             contents = "".join(self.current_value)
-            if self.results.has_key(self.current_element()):
+            if self.current_element() in self.results:
                 self.results[self.current_element()].append(contents)
             else:
                 self.results[self.current_element()] = [contents]
@@ -1795,8 +1796,8 @@ class CMSHarvester(object):
 
             # But check that it hosts the CMSSW version we want.
 
-            if self.sites_and_versions_cache.has_key(se_name) and \
-                   self.sites_and_versions_cache[se_name].has_key(cmssw_version):
+            if se_name in self.sites_and_versions_cache and \
+                   cmssw_version in self.sites_and_versions_cache[se_name]:
                 if self.sites_and_versions_cache[se_name][cmssw_version]:
                     site_name = se_name
                     break
@@ -2404,7 +2405,7 @@ class CMSHarvester(object):
             api = DbsApi(args)
             self.dbs_api = api
 
-        except DBSAPI.dbsApiException.DbsApiException, ex:
+        except DBSAPI.dbsApiException.DbsApiException as ex:
             self.logger.fatal("Caught DBS API exception %s: %s "  % \
                               (ex.getClassName(), ex.getErrorMessage()))
             if ex.getErrorCode() not in (None, ""):
@@ -3176,12 +3177,12 @@ class CMSHarvester(object):
             nevents = int(handler.results["file.numevents"][index])
 
             # I know, this is a bit of a kludge.
-            if not files_info.has_key(run_number):
+            if run_number not in files_info:
                 # New run.
                 files_info[run_number] = {}
                 files_info[run_number][file_name] = (nevents,
                                                      [site_name])
-            elif not files_info[run_number].has_key(file_name):
+            elif file_name not in files_info[run_number]:
                 # New file for a known run.
                 files_info[run_number][file_name] = (nevents,
                                                      [site_name])
@@ -3429,8 +3430,8 @@ class CMSHarvester(object):
         input_name = self.input_name["datasets"]["use"]
         dataset_names = self.build_dataset_list(input_method,
                                                 input_name)
-        self.datasets_to_use = dict(zip(dataset_names,
-                                        [None] * len(dataset_names)))
+        self.datasets_to_use = dict(list(zip(dataset_names,
+                                        [None] * len(dataset_names))))
 
         self.logger.info("  found %d dataset(s) to process:" % \
                          len(dataset_names))
@@ -3455,8 +3456,8 @@ class CMSHarvester(object):
         input_name = self.input_name["datasets"]["ignore"]
         dataset_names = self.build_dataset_list(input_method,
                                                 input_name)
-        self.datasets_to_ignore = dict(zip(dataset_names,
-                                           [None] * len(dataset_names)))
+        self.datasets_to_ignore = dict(list(zip(dataset_names,
+                                           [None] * len(dataset_names))))
 
         self.logger.info("  found %d dataset(s) to ignore:" % \
                          len(dataset_names))
@@ -3528,7 +3529,7 @@ class CMSHarvester(object):
         input_method = self.input_method["runs"]["use"]
         input_name = self.input_name["runs"]["use"]
         runs = self.build_runs_list(input_method, input_name)
-        self.runs_to_use = dict(zip(runs, [None] * len(runs)))
+        self.runs_to_use = dict(list(zip(runs, [None] * len(runs))))
 
         self.logger.info("  found %d run(s) to process:" % \
                          len(runs))
@@ -3552,7 +3553,7 @@ class CMSHarvester(object):
         input_method = self.input_method["runs"]["ignore"]
         input_name = self.input_name["runs"]["ignore"]
         runs = self.build_runs_list(input_method, input_name)
-        self.runs_to_ignore = dict(zip(runs, [None] * len(runs)))
+        self.runs_to_ignore = dict(list(zip(runs, [None] * len(runs))))
 
         self.logger.info("  found %d run(s) to ignore:" % \
                          len(runs))
@@ -5256,7 +5257,7 @@ class CMSHarvester(object):
                     # We don't want people to accidentally specify
                     # multiple mappings for the same dataset. Just
                     # don't accept those cases.
-                    if self.ref_hist_mappings.has_key(dataset_name):
+                    if dataset_name in self.ref_hist_mappings:
                         msg = "ERROR: The reference histogram mapping " \
                               "file contains multiple mappings for " \
                               "dataset `%s'."
@@ -5456,9 +5457,9 @@ class CMSHarvester(object):
             self.logger.info("    output will go into `%s'" % \
                              castor_path_common)
 
-            castor_paths = dict(zip(runs,
+            castor_paths = dict(list(zip(runs,
                                     [self.create_castor_path_name_special(dataset_name, i, castor_path_common) \
-                                     for i in runs]))
+                                     for i in runs])))
             for path_name in castor_paths.values():
                 self.logger.debug("      %s" % path_name)
             self.datasets_information[dataset_name]["castor_path"] = \
@@ -5674,8 +5675,7 @@ class CMSHarvester(object):
                             for run_number in self.datasets_to_use[dataset_name]:
                                 tmp[run_number] = self.datasets_information \
                                                   [dataset_name]["num_events"][run_number]
-                            if self.book_keeping_information. \
-                                   has_key(dataset_name):
+                            if dataset_name in self.book_keeping_information:
                                 self.book_keeping_information[dataset_name].update(tmp)
                             else:
                                 self.book_keeping_information[dataset_name] = tmp
@@ -5683,16 +5683,16 @@ class CMSHarvester(object):
                     # Explain the user what to do now.
                     self.show_exit_message()
 
-            except Usage, err:
+            except Usage as err:
                 # self.logger.fatal(err.msg)
                 # self.option_parser.print_help()
                 pass
 
-            except Error, err:
+            except Error as err:
                 # self.logger.fatal(err.msg)
                 exit_code = 1
 
-            except Exception, err:
+            except Exception as err:
                 # Hmmm, ignore keyboard interrupts from the
                 # user. These are not a `serious problem'. We also
                 # skip SystemExit, which is the exception thrown when

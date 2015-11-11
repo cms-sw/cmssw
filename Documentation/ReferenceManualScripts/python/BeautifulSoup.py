@@ -370,7 +370,7 @@ class PageElement(object):
         g = generator()
         while True:
             try:
-                i = g.next()
+                i = next(g)
             except StopIteration:
                 break
             if i:
@@ -470,7 +470,7 @@ class NavigableString(unicode, PageElement):
         if attr == 'string':
             return self
         else:
-            raise AttributeError, "'%s' object has no attribute '%s'" % (self.__class__.__name__, attr)
+            raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, attr))
 
     def __unicode__(self):
         return str(self).decode(DEFAULT_OUTPUT_ENCODING)
@@ -555,10 +555,10 @@ class Tag(PageElement):
         self.escapeUnrecognizedEntities = parser.escapeUnrecognizedEntities
 
         # Convert any HTML, XML, or numeric entities in the attribute values.
-        convert = lambda(k, val): (k,
+        convert = lambda k_val: (k_val[0],
                                    re.sub("&(#\d+|#x[0-9a-fA-F]+|\w+);",
                                           self._convertEntities,
-                                          val))
+                                          k_val[1]))
         self.attrs = map(convert, self.attrs)
 
     def getString(self):
@@ -605,7 +605,7 @@ class Tag(PageElement):
         raise ValueError("Tag.index: element not in tag")
 
     def has_key(self, key):
-        return self._getAttrMap().has_key(key)
+        return key in self._getAttrMap()
 
     def __getitem__(self, key):
         """tag[key] returns the value of the 'key' attribute for the tag,
@@ -649,14 +649,14 @@ class Tag(PageElement):
                 #We don't break because bad HTML can define the same
                 #attribute multiple times.
             self._getAttrMap()
-            if self.attrMap.has_key(key):
+            if key in self.attrMap:
                 del self.attrMap[key]
 
     def __call__(self, *args, **kwargs):
         """Calling a tag like a function is the same as calling its
         findAll() method. Eg. tag('a') returns a list of all the A tags
         found within this tag."""
-        return apply(self.findAll, args, kwargs)
+        return self.findAll(*args, **kwargs)
 
     def __getattr__(self, tag):
         #print "Getattr %s.%s" % (self.__class__, tag)
@@ -664,7 +664,7 @@ class Tag(PageElement):
             return self.find(tag[:-3])
         elif tag.find('__') != 0:
             return self.find(tag)
-        raise AttributeError, "'%s' object has no attribute '%s'" % (self.__class__, tag)
+        raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__, tag))
 
     def __eq__(self, other):
         """Returns true iff this tag has the same name, the same attributes,
@@ -970,8 +970,8 @@ class SoupStrainer:
             if self._matches(markup, self.text):
                 found = markup
         else:
-            raise Exception, "I don't know how to match against a %s" \
-                  % markup.__class__
+            raise Exception("I don't know how to match against a %s" \
+                  % markup.__class__)
         return found
 
     def _matches(self, markup, matchAgainst):
@@ -995,7 +995,7 @@ class SoupStrainer:
             elif hasattr(matchAgainst, '__iter__'): # list-like
                 result = markup in matchAgainst
             elif hasattr(matchAgainst, 'items'):
-                result = markup.has_key(matchAgainst)
+                result = matchAgainst in markup
             elif matchAgainst and isinstance(markup, basestring):
                 if isinstance(markup, unicode):
                     matchAgainst = unicode(matchAgainst)
@@ -1208,8 +1208,8 @@ class BeautifulStoneSoup(Tag, SGMLParser):
     def isSelfClosingTag(self, name):
         """Returns true iff the given string is the name of a
         self-closing tag according to this parser."""
-        return self.SELF_CLOSING_TAGS.has_key(name) \
-               or self.instanceSelfClosingTags.has_key(name)
+        return name in self.SELF_CLOSING_TAGS \
+               or name in self.instanceSelfClosingTags
 
     def reset(self):
         Tag.__init__(self, self, self.ROOT_TAG_NAME)
@@ -1301,7 +1301,7 @@ class BeautifulStoneSoup(Tag, SGMLParser):
 
         nestingResetTriggers = self.NESTABLE_TAGS.get(name)
         isNestable = nestingResetTriggers != None
-        isResetNesting = self.RESET_NESTING_TAGS.has_key(name)
+        isResetNesting = name in self.RESET_NESTING_TAGS
         popTo = None
         inclusive = True
         for i in range(len(self.tagStack)-1, 0, -1):
@@ -1314,7 +1314,7 @@ class BeautifulStoneSoup(Tag, SGMLParser):
             if (nestingResetTriggers is not None
                 and p.name in nestingResetTriggers) \
                 or (nestingResetTriggers is None and isResetNesting
-                    and self.RESET_NESTING_TAGS.has_key(p.name)):
+                    and p.name in self.RESET_NESTING_TAGS):
 
                 #If we encounter one of the nesting reset triggers
                 #peculiar to this tag, or we encounter another tag
@@ -1516,7 +1516,7 @@ class BeautifulSoup(BeautifulStoneSoup):
     BeautifulStoneSoup before writing your own subclass."""
 
     def __init__(self, *args, **kwargs):
-        if not kwargs.has_key('smartQuotesTo'):
+        if 'smartQuotesTo' not in kwargs:
             kwargs['smartQuotesTo'] = self.HTML_ENTITIES
         kwargs['isHTML'] = True
         BeautifulStoneSoup.__init__(self, *args, **kwargs)
@@ -1699,7 +1699,7 @@ class BeautifulSOAP(BeautifulStoneSoup):
             parent._getAttrMap()
             if (isinstance(tag, Tag) and len(tag.contents) == 1 and
                 isinstance(tag.contents[0], NavigableString) and
-                not parent.attrMap.has_key(tag.name)):
+                tag.name not in parent.attrMap):
                 parent[tag.name] = tag.contents[0]
         BeautifulStoneSoup.popTag(self)
 
@@ -1824,7 +1824,7 @@ class UnicodeDammit:
                                                       "iso-8859-1",
                                                       "iso-8859-2"):
             markup = re.compile("([\x80-\x9f])").sub \
-                     (lambda(x): self._subMSChar(x.group(1)),
+                     (lambda x: self._subMSChar(x.group(1)),
                       markup)
 
         try:
@@ -1832,7 +1832,7 @@ class UnicodeDammit:
             u = self._toUnicode(markup, proposed)
             self.markup = u
             self.originalEncoding = proposed
-        except Exception, e:
+        except Exception as e:
             # print "That didn't work!"
             # print e
             return None

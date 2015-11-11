@@ -7,11 +7,12 @@ Warrning!: did not finish the implementation, see TODO comment.
 Author:  Albertas Gimbutas,  Vilnius University (LT)
 e-mail:  albertasgim@gmail.com
 '''
+from __future__ import absolute_import
 import sqlite3
 import re
 from os import listdir, makedirs, getcwd
 from os.path import isfile, join, exists, dirname, basename
-from app_utils import *
+from .app_utils import *
 from optparse import OptionParser
 
 from jinja2 import Environment, FileSystemLoader, escape

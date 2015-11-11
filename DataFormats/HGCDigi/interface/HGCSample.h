@@ -1,6 +1,7 @@
 #ifndef DIGIHGCAL_HGCSAMPLE_H
 #define DIGIHGCAL_HGCSAMPLE_H
 
+#include <iostream>
 #include <ostream>
 #include <boost/cstdint.hpp>
 
@@ -13,36 +14,54 @@ class HGCSample {
 
 public:
 
-  enum HGCSampleMasks {ADC_MASK=0x7fff, GAIN_MASK=0x1 };
-  enum HGCSamplePos   {ADC_POS=0      , GAIN_POS=15 };
+  enum HGCSampleMasks { kThreshMask = 0x1, kModeMask = 0x1, kToAMask = 0x3ff, kDataMask = 0xfff};
+  enum HGCSampleShifts{ kThreshShift = 31, kModeShift = 30, kToAShift = 16,   kDataShift = 0};
 
   /**
      @short CTOR
    */
-  HGCSample() : value_(0) { }
-  HGCSample(uint16_t value) : value_(value) { }
+ HGCSample() : value_(0) { }
+ HGCSample(uint32_t value) : value_(value) { }
 
   /**
      @short setters
    */
-  void setGain(uint16_t gain)           { setWord(gain,GAIN_MASK,GAIN_POS);               }
-  void setADC(uint16_t adc)             { setWord(adc,ADC_MASK,ADC_POS);                  }
-  void set(uint16_t gain, uint16_t adc) { setGain(gain);                     setADC(adc); }  
+  void setThreshold(bool thr)           { setWord(thr,  kThreshMask, kThreshShift); }
+  void setMode(bool mode)               { setWord(mode, kModeMask,   kModeShift);   }
+  void setToA(uint16_t toa)             { setWord(toa,  kToAMask,    kToAShift);    }
+  void setData(uint16_t data)           { setWord(data, kDataMask,   kDataShift);   }
+  void set(bool thr, bool mode,uint16_t toa, uint16_t data) 
+  { 
+    setThreshold(thr);
+    setMode(mode);
+    setToA(toa);
+    setData(data);
+  }  
+  void print(std::ostream &out=std::cout)
+  {
+    out << "THR: " << threshold() 
+	<< " Mode: " << mode() 
+	<< " ToA: " << toa() 
+	<< " Data: " << data() 
+	<< " Raw=0x" << std::hex << raw() << std::dec << std::endl;  
+  }
 
   /**
      @short getters
   */
-  uint16_t raw()  const { return value_; }
-  uint16_t gain() const { return ((value_ >> GAIN_POS) & GAIN_MASK); }
-  uint16_t adc()  const { return ((value_ >> ADC_POS) & ADC_MASK); }
-  uint16_t operator()() { return value_; }
+  uint32_t raw()  const      { return value_;                   }
+  bool threshold() const     { return ((value_ >> 31) & 0x1 );  }
+  bool mode() const          { return ((value_ >> 30) & 0x1 );  }
+  uint32_t toa()  const      { return ((value_ >> 16) & 0x3ff); }
+  uint32_t data()  const     { return ((value_ >> 0)  & 0xfff); }
+  uint32_t operator()()      { return value_;                   }
   
 private:
 
   /**
      @short wrapper to reset words at a given position
    */
-  void setWord(uint16_t word, uint16_t mask, uint16_t pos)
+  void setWord(uint32_t word, uint32_t mask, uint32_t pos)
   {
     //clear required bits
     value_ &= ~((word & mask) << pos); 
@@ -50,9 +69,8 @@ private:
     value_ |= ((word & mask) << pos);
   }
 
-  // the word
-  uint16_t value_;
-
+  // a 32-bit word
+  uint32_t value_;
 };
 
   

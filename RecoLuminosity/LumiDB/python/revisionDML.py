@@ -29,7 +29,7 @@ def revisionsInTag(schema,tagrevisionid,branchid):
         qHandle.defineOutput(qResult)
         qHandle.setCondition('BRANCH_ID>:branchid',qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             nextbranches.append(cursor.currentRow()['branch_id'].data())
         del qHandle
         candidates=[]
@@ -47,7 +47,7 @@ def revisionsInTag(schema,tagrevisionid,branchid):
         qHandle.defineOutput(qResult)
         qHandle.setCondition(conditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             candidates.append(cursor.currentRow()['revision_id'].data())
         del qHandle
         for c in candidates:
@@ -81,7 +81,7 @@ def revisionsInBranch(schema,branchid):
         qHandle.defineOutput(qResult)
         qHandle.setCondition('BRANCH_ID>:branchid',qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             nextbranches.append(cursor.currentRow()['branch_id'].data())
         del qHandle
         candidates=[]
@@ -97,7 +97,7 @@ def revisionsInBranch(schema,branchid):
         qHandle.defineOutput(qResult)
         qHandle.setCondition(conditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             candidates.append(cursor.currentRow()['revision_id'].data())
         del qHandle
         for c in candidates:
@@ -131,7 +131,7 @@ def branchType(schema,name):
         conditionStr='BRANCH_NAME=:branch_name'
         qHandle.setCondition(conditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             if cursor.currentRow()['nchildren'].data()>0:
                 result='branch'                
         del qHandle
@@ -220,7 +220,7 @@ def entryInBranch(schema,datatableName,entryname,branch):
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             entry_id=cursor.currentRow()['entry_id'].data()
             result=entry_id
         del qHandle
@@ -261,7 +261,7 @@ def dataRevisionsOfEntry(schema,datatableName,entry,revrange):
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             data_id=cursor.currentRow()['data_id'].data()
             revision_id=cursor.currentRow()['revision_id'].data()
             if revision_id in revrange:
@@ -299,12 +299,12 @@ def branchInfoByName(schema,branchName):
          cursor=qHandle.execute()
          revision_id=None
          branch_id=None
-         while cursor.next():
+         while next(cursor):
              revision_id=cursor.currentRow()['revision_id'].data()
              branch_id=cursor.currentRow()['branch_id'].data()
          del qHandle
          return (revision_id,branch_id)
-    except Exception,e :
+    except Exception as e :
         raise RuntimeError(' revisionDML.branchInfoByName: '+str(e))
     
 
@@ -450,7 +450,7 @@ def createBranch(schema,name,parentname,comment=''):
             qHandle.defineOutput(qResult)
             qHandle.setCondition('NAME=:parentname',qCondition)
             cursor=qHandle.execute()
-            while cursor.next():
+            while next(cursor):
                 parentid=cursor.currentRow()['revision_id'].data()
             del qHandle
         else:
@@ -533,7 +533,7 @@ def currentDataTag(schema,lumitype='HF'):
         qHandle.defineOutput(qResult)
         cursor=qHandle.execute()
         currenttagid=0
-        while cursor.next():
+        while next(cursor):
             tagid=cursor.currentRow()['TAGID'].data()
             tagname=cursor.currentRow()['TAGNAME'].data()
             tagmap[tagid]=tagname
@@ -618,7 +618,7 @@ def alldataTags(schema,lumitype='HF'):
         qResult.extend('creationtime','string')
         qHandle.defineOutput(qResult)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             tagname=cursor.currentRow()['TAGNAME'].data()
             tagid=cursor.currentRow()['TAGID'].data()
             creationtime=cursor.currentRow()['creationtime'].data()
@@ -640,7 +640,7 @@ def alldataTags(schema,lumitype='HF'):
             qHandle.setCondition(qConditionStr,qCondition)
             qHandle.addToOutputList('RUNNUM')
             cursor=qHandle.execute()
-            while cursor.next():
+            while next(cursor):
                 rnum=cursor.currentRow()['RUNNUM'].data()
                 allruns.add(rnum)
             minrun=0
@@ -679,7 +679,7 @@ def getDataTagId(schema,tagname,lumitype='HF'):
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             if not cursor.currentRow()['TAGID'].isNull():
                 tagid=cursor.currentRow()['TAGID'].data()
         del qHandle
@@ -714,7 +714,7 @@ def dataIdsByTagName(schema,tagname,runlist=None,withcomment=False,lumitype='HF'
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             if not cursor.currentRow()['TAGID'].isNull():
                 tagid=cursor.currentRow()['TAGID'].data()
         del qHandle
@@ -756,7 +756,7 @@ def dataTagInfo(schema,tagname,runlist=None,lumitype='HF'):
         qResult.extend('creationtime','string')
         qHandle.defineOutput(qResult)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             tagname=cursor.currentRow()['TAGNAME'].data()
             tagid=cursor.currentRow()['TAGID'].data()
             creationtime=cursor.currentRow()['creationtime'].data()
@@ -778,7 +778,7 @@ def dataTagInfo(schema,tagname,runlist=None,lumitype='HF'):
             qHandle.setCondition(qConditionStr,qCondition)
             qHandle.addToOutputList('RUNNUM')
             cursor=qHandle.execute()
-            while cursor.next():
+            while next(cursor):
                 rnum=cursor.currentRow()['RUNNUM'].data()
                 if runlist is not None and rnum not in runlist:
                     continue
@@ -836,7 +836,7 @@ def dataIdsByTagId(schema,tagid,runlist=None,withcomment=False,lumitype='HF'):
             qHandle.addToOutputList('COMMENT')
             qHandle.addToOutputList("TO_CHAR(CREATIONTIME,\'MM/DD/YY HH24:MI:SS\')",'creationtime')
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             runnum=cursor.currentRow()['RUNNUM'].data()
             if runlist is not None and runnum not in runlist:
                 continue
@@ -849,7 +849,7 @@ def dataIdsByTagId(schema,tagid,runlist=None,withcomment=False,lumitype='HF'):
             hltdataid=0
             if not cursor.currentRow()['HLTDATAID'].isNull():
                 hltdataid=cursor.currentRow()['HLTDATAID'].data()
-            if not result.has_key(runnum):
+            if runnum not in result:
                 result[runnum]=[0,0,0]
             if lumidataid>result[runnum][0]:
                 result[runnum][0]=lumidataid
@@ -871,9 +871,9 @@ def dataIdsByTagId(schema,tagid,runlist=None,withcomment=False,lumitype='HF'):
                 lumiid=resultentry[0]
                 trgid=resultentry[1]
                 hltid=resultentry[2]
-                if commentdict.has_key((lumiid,trgid,hltid)):
+                if (lumiid,trgid,hltid) in commentdict:
                     resultentry.append(commentdict[(lumiid,trgid,hltid)])
-                elif commentdict.has_key((lumiid,0,0)):
+                elif (lumiid,0,0) in commentdict:
                     resultentry.append(commentdict[(lumiid,0,0)])
                 elif commentdict.has_ley((0,trgid,0)):
                     resultentry.append(commentdict[(0,trgid,0)])

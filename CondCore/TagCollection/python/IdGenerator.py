@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import coral
-import DBImpl
+from . import DBImpl
 class IdGenerator(object):
     """Manages the autoincremental ID values.\n
     Input: coral.schema object
@@ -18,12 +19,12 @@ class IdGenerator(object):
             query.setForUpdate() #lock it
             cursor = query.execute()
             result = 0
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 result = cursor.currentRow()[self.__idTableColumnName].data()
             del query
             return result
-        except Exception, e:
-            raise Exception, str(e)
+        except Exception as e:
+            raise Exception(str(e))
     def incrementNextID( self, IDtableName ):
         """Set the nextID in the IDTableName to current id value + 1 .\n
         Input: ID table name.
@@ -35,7 +36,7 @@ class IdGenerator(object):
             query.setForUpdate() #lock it
             cursor = query.execute()
             result = 0
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 result = cursor.currentRow()[0].data()
             del query
             dataEditor = tableHandle.dataEditor()
@@ -43,8 +44,8 @@ class IdGenerator(object):
             inputData.extend( 'newid', self.__idTableColumnType )
             inputData['newid'].setData(result+1)
             dataEditor.updateRows('nextID = :newid','',inputData)
-        except Exception, e:
-            raise Exception, str(e)
+        except Exception as e:
+            raise Exception(str(e))
     #def getIDTableName( self, tableName ):
     #    """Returns the ID table name associated with given table.\n
     #    No check on the existence of the table.\n
@@ -74,8 +75,8 @@ class IdGenerator(object):
             editor.rowBuffer( inputData )
             inputData[self.__idTableColumnName].setData(1)
             editor.insertRow( inputData )
-        except Exception, e:
-            raise Exception, str(e)
+        except Exception as e:
+            raise Exception(str(e))
 if __name__ == "__main__":
     idtableName = 'TagTreeTable_IDS'
     svc = coral.ConnectionService()
@@ -96,11 +97,11 @@ if __name__ == "__main__":
         print 'new id ',generator.getNewID(idtableName)
         transaction.commit()
         del session
-    except coral.Exception, e:
+    except coral.Exception as e:
         transaction.rollback()
         print str(e)
         del session
-    except Exception, e:
+    except Exception as e:
         print "Failed in unit test"
         print str(e)
         del session

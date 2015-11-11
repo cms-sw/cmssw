@@ -25,9 +25,9 @@ if __name__ == '__main__':
     parser.add_option_group (cmdGroup)
     (options, args) = parser.parse_args()
     if len (args) < 2 or len (args) > 3:
-        raise RuntimeError, "Two input filenames with one optional output filename must be provided."
+        raise RuntimeError("Two input filenames with one optional output filename must be provided.")
     if not options.command:
-        raise RuntimeError, "Exactly one command option must be specified"
+        raise RuntimeError("Exactly one command option must be specified")
 
     alphaList = LumiList (filename = args[0])  # Read in first  JSON file
     betaList  = LumiList (filename = args[1])  # Read in second JSON file
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     ##################
     if options.command == 'diff':
         if len (args) >= 3:
-            raise RuntimeError, "Can not output to file with '--diff' option.  The output is not standard JSON."
+            raise RuntimeError("Can not output to file with '--diff' option.  The output is not standard JSON.")
         firstOnly  = alphaList - betaList
         secondOnly = betaList  - alphaList
         if not firstOnly and not secondOnly:

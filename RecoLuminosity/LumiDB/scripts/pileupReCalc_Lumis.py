@@ -58,7 +58,7 @@ if __name__ == '__main__':
     # parse arguments
     try:
         (options, args) = parser.parse_args()
-    except Exception , e:
+    except Exception as e:
         print e
 #    if not args:
 #        parser.print_usage()
@@ -172,8 +172,7 @@ if __name__ == '__main__':
 
     outputfile = open(options.outputfile,'w')
     if not outputfile:
-        raise RuntimeError, \
-              "Could not open '%s' as an output JSON file" % output
+        raise RuntimeError("Could not open '%s' as an output JSON file" % output)
                     
     outputfile.write(OUTPUTLINE)
     outputfile.close()

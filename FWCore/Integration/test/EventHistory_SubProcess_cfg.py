@@ -36,7 +36,7 @@ process.ep1 = cms.EndPath(process.out)
 
 process2 = cms.Process("SECOND")
 
-process.subProcess = cms.SubProcess(process2)
+process.addSubProcess(cms.SubProcess(process2))
 
 process2.intdeque = cms.EDProducer("IntDequeProducer",
     count = cms.int32(12),
@@ -82,11 +82,11 @@ process2.sched = cms.Schedule(process2.f55, process2.f75, process2.ep2)
 
 process3 = cms.Process("THIRD")
 
-process2.subProcess = cms.SubProcess(process3,
+process2.addSubProcess(cms.SubProcess(process3,
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('f55')
     )
-)
+))
 
 process3.intdeque = cms.EDProducer("IntDequeProducer",
     count = cms.int32(12),
@@ -123,7 +123,7 @@ process3.epother = cms.EndPath(process3.outother)
 
 process4 = cms.Process("FOURTH")
 
-process3.subProcess = cms.SubProcess(process4)
+process3.addSubProcess(cms.SubProcess(process4))
 
 process4.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testEventHistory_4.root')
@@ -133,7 +133,7 @@ process4.ep4 = cms.EndPath(process4.out)
 
 process5 = cms.Process("FIFTH")
 
-process4.subProcess = cms.SubProcess(process5)
+process4.addSubProcess(cms.SubProcess(process5))
 
 process5.out = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
@@ -146,11 +146,11 @@ process5.ep4 = cms.EndPath(process5.out)
 
 process6 = cms.Process("SIXTH")
 
-process5.subProcess = cms.SubProcess(process6,
+process5.addSubProcess(cms.SubProcess(process6,
     SelectEvents = cms.untracked.PSet(
        SelectEvents = cms.vstring('f55:SECOND','f75:SECOND')
     )
-)
+))
 
 process6.historytest = cms.EDAnalyzer("HistoryAnalyzer",
     # Why does the filter module (from step 3) pass 56 events, when I
@@ -263,7 +263,7 @@ process6.ep63 = cms.EndPath(process6.analyzerOnEndPath*process6.out2*process6.ou
 
 process7 = cms.Process("SEVENTH")
 
-process6.subProcess = cms.SubProcess(process7)
+process6.addSubProcess(cms.SubProcess(process7))
 
 process7.dummyproducerxxx = cms.EDProducer("IntProducer",
     ivalue = cms.int32(2)

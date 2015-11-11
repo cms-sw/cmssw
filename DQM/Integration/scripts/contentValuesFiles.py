@@ -39,7 +39,7 @@ if __name__ == "__main__":
   if opts['from'] != None:
     query['number'] = '>= ' + str(opts['from'])
   if opts['to'] != None:
-    if query.has_key('number'):
+    if 'number' in query:
       query['number'] += ' and <= ' + str(opts['to'])
     else:
       query['number'] = '<= ' + str(opts['to'])

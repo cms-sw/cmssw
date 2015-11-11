@@ -74,12 +74,12 @@ def validateProcess(process):
         if not hasattr(outputMod, 'dataset'):
             msg = "Process contains output module without dataset PSET: %s \n" % outputModName
             msg += " You need to add this PSET to this module to set dataTier and filterName\n"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         ds=getattr(outputMod,'dataset')
         if not hasattr(ds, "dataTier"):
             msg = "Process contains output module without dataTier parameter: %s \n" % outputModName
             msg += " You need to add an untracked parameter to the dataset PSET of this module to set dataTier\n"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         # check module in path or whatever (not sure of exact syntax for endpath)
         omRun=False
@@ -97,7 +97,7 @@ def validateProcess(process):
                     omRun=True
         if omRun==False:
             msg = "Output Module %s not in endPath" % outputModName
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         
 def dqmIOSource(args):
@@ -117,11 +117,11 @@ def harvestingMode(process, datasetName, args,rANDl=True):
         process.source.processingMode = cms.untracked.string('RunsAndLumis')
     process.dqmSaver.workflow = datasetName
     process.dqmSaver.saveByLumiSection = 1
-    if args.has_key('referenceFile') and args.get('referenceFile', ''):
+    if 'referenceFile' in args and args.get('referenceFile', ''):
         process.DQMStore.referenceFileName = cms.untracked.string(args['referenceFile'])
 
 def dictIO(options,args):
-    if args.has_key('outputs'):
+    if 'outputs' in args:
         options.outputDefinition = args['outputs'].__str__()
     else:
         writeTiers = args.get('writeTiers', [])
@@ -135,7 +135,7 @@ def dqmSeq(args,default):
         return default
             
 def gtNameAndConnect(globalTag, args):
-    if args.has_key('globalTagConnect') and args['globalTagConnect'] != '':
+    if 'globalTagConnect' in args and args['globalTagConnect'] != '':
         return globalTag + ','+args['globalTagConnect']        
     # we override here the default in the release which uses the FrontierProd servlet not suited for Tier0 activity
     return globalTag +',frontier://PromptProd/CMS_CONDITIONS'

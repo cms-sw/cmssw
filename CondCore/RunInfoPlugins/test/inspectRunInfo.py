@@ -37,8 +37,8 @@ try :
     print "###(start_current,stop_current,avg_current,max_current,min_current,run_interval_micros) vs runnumber###"
     print iov.trend(what)
     print "########(start_current,stop_current,avg_current,max_current,min_current,run_interval_micros) vs runnumber in a given range########"
-    print iov.trendinrange(what,109441L,109503L)
-except Exception, er :
+    print iov.trendinrange(what,109441,109503)
+except Exception as er :
     print er
 
 

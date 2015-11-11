@@ -34,14 +34,14 @@ void CaloSamples::setPresamples( int pre ) {
 
 CaloSamples& CaloSamples::scale( double value ) {
    for (int i=0; i<MAXSAMPLES; i++) data_[i]*=value;
-   for (std::vector<float>::iterator j=preciseData_.begin() ; j!=preciseData_.end(); j++)
+   for (std::vector<float>::iterator j=preciseData_.begin() ; j!=preciseData_.end(); ++j)
      (*j)*=value;
    return (*this);
 }
 
 CaloSamples& CaloSamples::operator+=(double value) {  
    for (int i=0; i<MAXSAMPLES; i++) data_[i]+=value;
-   for (std::vector<float>::iterator j=preciseData_.begin() ; j!=preciseData_.end(); j++)
+   for (std::vector<float>::iterator j=preciseData_.begin() ; j!=preciseData_.end(); ++j)
      (*j)+=value*deltaTprecise_/25.0; // note that the scale is conserved!
   return (*this);
 }

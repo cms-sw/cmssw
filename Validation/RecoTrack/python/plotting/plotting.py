@@ -996,7 +996,7 @@ class Plot:
             ROOT.gPad.Update()
             st = h.GetListOfFunctions().FindObject("stats")
             if self._fit:
-                st.SetOptFit(0010)
+                st.SetOptFit(0o010)
                 st.SetOptStat(1001)
             st.SetX1NDC(startingX)
             st.SetX2NDC(startingX+0.3)
@@ -1819,7 +1819,7 @@ class PlotterFolder:
             yield self._plotFolder.getSelectionName(name, dqmSubFolder.translated if dqmSubFolder is not None else None)
 
     def getSelectionName(self, dqmSubFolder):
-        return self.getSelectionNameIterator(dqmSubFolder).next()
+        return next(self.getSelectionNameIterator(dqmSubFolder))
 
     def create(self, files, labels, dqmSubFolder, isPileupSample=True, requireAllHistograms=False):
         """Create histograms from a list of TFiles.

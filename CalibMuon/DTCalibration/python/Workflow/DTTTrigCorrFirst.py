@@ -66,7 +66,7 @@ if __name__ == '__main__':
         if opt[:4] == 'run=':
             run = opt[4:] 
  
-    if not run: raise ValueError,'Need to set run number' 
+    if not run: raise ValueError('Need to set run number') 
  
     result_dir = 'Run%s'%run
     result_dir += '/Ttrig/Results'

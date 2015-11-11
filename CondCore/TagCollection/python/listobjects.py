@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 import os
 import coral
-from multivaluedict import mseqdict
+from .multivaluedict import mseqdict
 
 '''
 dumpobjectlist(schema) 
@@ -25,7 +26,7 @@ def dumpobjectlist( schema ):
   for viewName in schema.listViews():
     _printViewInfo(schema,viewName)
 
- except Exception, e:
+ except Exception as e:
   raise Exception ("Error in dumpobjectlist method: " + str(e))
   return False
 
@@ -91,7 +92,7 @@ def listobjects( schema ):
 
   return dCopyTable
 
- except Exception, e:
+ except Exception as e:
   raise Exception (" " + str(e))
   return False
 
@@ -160,7 +161,7 @@ def _printTableInfo( schema,tableName ):
 
    print "--------------------------------------"
 
- except Exception, e:
+ except Exception as e:
   raise Exception (" " + str(e))
   return False
 
@@ -184,7 +185,7 @@ def _printViewInfo( schema,viewName ):
 
    print "--------------------------------------"
 
- except Exception, e:
+ except Exception as e:
   raise Exception (" " + str(e))
   return False
 
@@ -271,7 +272,7 @@ def listschema( schema ):
 
   return dCopyTable
 
- except Exception, e:
+ except Exception as e:
   raise Exception (" " + str(e))
   return False
 
@@ -303,7 +304,7 @@ def listtables( schema,tablename ):
 
   return dCopyTable
 
- except Exception, e:
+ except Exception as e:
   raise Exception (" " + str(e))
   return False
 
@@ -390,7 +391,7 @@ def listtableset( schema,tableset ):
 
   return dCopyTable
 
- except Exception, e:
+ except Exception as e:
   raise Exception (" " + str(e))
   return False
 

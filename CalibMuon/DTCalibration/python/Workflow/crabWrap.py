@@ -27,7 +27,7 @@ def computeSummaryCRAB260(up_task):
         if job.runningJob['state'] == 'SubRequested' : jobStatus = 'Submitting'
         if job.runningJob['state'] == 'Terminated': jobStatus = 'Done'
         
-        if summary.has_key(jobStatus): summary[jobStatus] += 1
+        if jobStatus in summary: summary[jobStatus] += 1
         else: summary[jobStatus] = 1 
         nJobs += 1
 
@@ -57,7 +57,7 @@ def computeSummaryCRAB251(up_task):
         if job_exit_code == 'None' :  job_exit_code = ''
         #printline+="%-6s %-18s %-36s %-13s %-16s %-4s" % (id,jobStatus,dest,exe_exit_code,job_exit_code,ended)
         #print printline
-        if summary.has_key(jobStatus): summary[jobStatus] += 1
+        if jobStatus in summary: summary[jobStatus] += 1
         else: summary[jobStatus] = 1 
         nJobs += 1
 
@@ -104,7 +104,7 @@ def crabAction(options, action = None):
         if action: result = action(crab)
         del crab
         print 'Log file is %s%s.log'%(common.work_space.logDir(),common.prog_name) 
-    except CrabException, e:
+    except CrabException as e:
         del crab
         #print '\n' + common.prog_name + ': ' + str(e) + '\n' 
         raise
@@ -126,7 +126,7 @@ def crabActionCRAB251(options, action = None):
         del crab
         #print 'Log file is %s%s.log'%(common.work_space.logDir(),common.prog_name)  
         #print '\n##############################  E N D  ####################################\n'
-    except CrabException, e:
+    except CrabException as e:
         print '\n' + common.prog_name + ': ' + str(e) + '\n'
         pass
     pass
@@ -255,17 +255,17 @@ def initCrabEnvironment():
     pythonpathend = pythonpathenv.split(':')[-1].rstrip('/')
 
     indexBegin = sys.path.index(pythonpathbegin)
-    if os.environ.has_key('CRABPSETPYTHON'): sys.path.insert( indexBegin, os.environ['CRABPSETPYTHON'] )
-    if os.environ.has_key('CRABDLSAPIPYTHON'): sys.path.insert( indexBegin, os.environ['CRABDLSAPIPYTHON'] )
-    if os.environ.has_key('CRABDBSAPIPYTHON'): sys.path.insert( indexBegin, os.environ['CRABDBSAPIPYTHON'] )
+    if 'CRABPSETPYTHON' in os.environ: sys.path.insert( indexBegin, os.environ['CRABPSETPYTHON'] )
+    if 'CRABDLSAPIPYTHON' in os.environ: sys.path.insert( indexBegin, os.environ['CRABDLSAPIPYTHON'] )
+    if 'CRABDBSAPIPYTHON' in os.environ: sys.path.insert( indexBegin, os.environ['CRABDBSAPIPYTHON'] )
 
-    if os.environ['SCRAM_ARCH'].find('32') != -1 and os.environ.has_key('CRABPYSQLITE'):
+    if os.environ['SCRAM_ARCH'].find('32') != -1 and 'CRABPYSQLITE' in os.environ:
         sys.path.insert( indexBegin, os.environ['CRABPYSQLITE'] )
-    elif os.environ['SCRAM_ARCH'].find('64') != -1 and os.environ.has_key('CRABPYSQLITE64'):
+    elif os.environ['SCRAM_ARCH'].find('64') != -1 and 'CRABPYSQLITE64' in os.environ:
         sys.path.insert( indexBegin, os.environ['CRABPYSQLITE64'] )
 
     indexEnd = sys.path.index(pythonpathend) + 1
-    if os.environ.has_key('CRABPYTHON'):
+    if 'CRABPYTHON' in os.environ:
         if indexEnd >= len(sys.path): sys.path.append( os.environ['CRABPYTHON'] )
         else: sys.path.insert( indexEnd, os.environ['CRABPYTHON'] )
 
@@ -292,9 +292,9 @@ def initCrabEnvironment():
 
     # Remove libraries which over-ride CRAB libs and DBS_CONFIG setting
     badPaths = []
-    if os.environ.has_key('DBSCMD_HOME'): # CMSSW's DBS, remove last bit of path
+    if 'DBSCMD_HOME' in os.environ: # CMSSW's DBS, remove last bit of path
         badPaths.append('/'.join(os.environ['DBSCMD_HOME'].split('/')[:-1]))
-    if os.environ.has_key('DBS_CLIENT_CONFIG'):
+    if 'DBS_CLIENT_CONFIG' in os.environ:
         del os.environ['DBS_CLIENT_CONFIG']
 
     def pathIsGood(checkPath):

@@ -89,7 +89,7 @@ class MatrixRunner(object):
                 count(totfailed,pingle.nfail)
                 report+=pingle.report
                 self.runDirs[pingle.wf.numId]=pingle.wfDir
-            except Exception, e:
+            except Exception as e:
                 msg = "ERROR retrieving info from thread: " + str(e)
                 report += msg
                 

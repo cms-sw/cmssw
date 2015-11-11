@@ -27,28 +27,28 @@ class RunDQMHarvesting:
     def __call__(self):
         if self.scenario == None:
             msg = "No --scenario specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         if self.inputLFN == None:
             msg = "No --lfn specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         
         if self.run == None:
             msg = "No --run specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         
         if self.dataset == None:
             msg = "No --dataset specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         
 
         
         try:
             scenario = getScenario(self.scenario)
-        except Exception, ex:
+        except Exception as ex:
             msg = "Error getting Scenario implementation for %s\n" % (
                 self.scenario,)
             msg += str(ex)
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         print "Retrieved Scenario: %s" % self.scenario
         print "Using Global Tag: %s" % self.globalTag
@@ -64,10 +64,10 @@ class RunDQMHarvesting:
             process = scenario.dqmHarvesting(self.dataset, self.run,
                                              self.globalTag, **kwds)
             
-        except Exception, ex:
+        except Exception as ex:
             msg = "Error creating Harvesting config:\n"
             msg += str(ex)
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         process.source.fileNames.append(self.inputLFN)
 
@@ -87,7 +87,7 @@ if __name__ == '__main__':
     usage = """RunDQMHarvesting.py <options>"""
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
-    except getopt.GetoptError, ex:
+    except getopt.GetoptError as ex:
         print usage
         print str(ex)
         sys.exit(1)

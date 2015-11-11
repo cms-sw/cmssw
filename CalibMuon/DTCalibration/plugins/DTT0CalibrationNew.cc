@@ -68,7 +68,7 @@ DTT0CalibrationNew::DTT0CalibrationNew(const edm::ParameterSet& pset) {
   vector<string> defaultCell;
   defaultCell.push_back("None");
   cellsWithHistos = pset.getUntrackedParameter<vector<string> >("cellsWithHisto", defaultCell);
-  for(vector<string>::const_iterator cell = cellsWithHistos.begin(); cell != cellsWithHistos.end(); cell++){
+  for(vector<string>::const_iterator cell = cellsWithHistos.begin(); cell != cellsWithHistos.end(); ++cell){
     if((*cell) != "None"){
       stringstream linestr;
       int wheel,sector,station,sl,layer,wire;
@@ -150,7 +150,7 @@ void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup
     // Loop over all digis in the given layer
     for (DTDigiCollection::const_iterator digi = digiRange.first;
 	 digi != digiRange.second;
-	 digi++) {
+	 ++digi) {
       double t0 = (*digi).countsTDC();
 
       //Use first bunch of events to fill t0 per layer
@@ -268,7 +268,7 @@ void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup
     bool increaseEvtsForLayerT0 = false;	
     for(map<DTLayerId, TH1I*>::const_iterator lHisto = theHistoLayerMap.begin();
 	lHisto != theHistoLayerMap.end();
-	lHisto++){
+	++lHisto){
       if(debug)
 	cout<<"Reading histogram "<<(*lHisto).second->GetName()<<" with mean "<<(*lHisto).second->GetMean()<<" and RMS "<<(*lHisto).second->GetRMS() << endl;
 
@@ -408,12 +408,12 @@ void DTT0CalibrationNew::endJob() {
   //hT0SectorHisto->Write();
   for(map<DTWireId, TH1I*>::const_iterator wHisto = theHistoWireMap.begin();
       wHisto != theHistoWireMap.end();
-      wHisto++) {
+      ++wHisto) {
     (*wHisto).second->Write(); 
   }
   for(map<DTLayerId, TH1I*>::const_iterator lHisto = theHistoLayerMap.begin();
       lHisto != theHistoLayerMap.end();
-      lHisto++) {
+      ++lHisto) {
     (*lHisto).second->Write(); 
   }  
 
@@ -426,7 +426,7 @@ void DTT0CalibrationNew::endJob() {
   
   for(map<DTWireId, double>::const_iterator wiret0 = theAbsoluteT0PerWire.begin();
       wiret0 != theAbsoluteT0PerWire.end();
-      wiret0++){
+      ++wiret0){
     if(nDigiPerWire[(*wiret0).first]){
       double t0 = (*wiret0).second/nDigiPerWire[(*wiret0).first];
       DTChamberId chamberId = ((*wiret0).first).chamberId();
@@ -459,7 +459,7 @@ void DTT0CalibrationNew::endJob() {
     double evenLayersDen=0;
     for(map<DTWireId, double>::const_iterator wiret0 = theRelativeT0PerWire.begin();
 	wiret0 != theRelativeT0PerWire.end();
-	wiret0++){
+	++wiret0){
       if((*wiret0).first.layerId().superlayerId() == (*sl)->id()){
 	if(debug)
 	  cout<<"[DTT0CalibrationNew] Superlayer "<<(*sl)->id()
@@ -484,7 +484,7 @@ void DTT0CalibrationNew::endJob() {
     double evenLayersSigma=0;
     for(map<DTWireId, double>::const_iterator wiret0 = theRelativeT0PerWire.begin();
 	wiret0 != theRelativeT0PerWire.end();
-	wiret0++){
+	++wiret0){
       if((*wiret0).first.layerId().superlayerId() == (*sl)->id()){
 	if(((*wiret0).first.layerId().layer()) % 2){
 	  oddLayersSigma = oddLayersSigma + ((*wiret0).second - oddLayersMean) * ((*wiret0).second - oddLayersMean);
@@ -507,7 +507,7 @@ void DTT0CalibrationNew::endJob() {
     double evenLayersFinalMean=0;
     for(map<DTWireId, double>::const_iterator wiret0 = theRelativeT0PerWire.begin();
 	wiret0 != theRelativeT0PerWire.end();
-	wiret0++){
+	++wiret0){
       if((*wiret0).first.layerId().superlayerId() == (*sl)->id()){
 	if(((*wiret0).first.layerId().layer()) % 2){
 	  if(abs((*wiret0).second - oddLayersMean) < (2*oddLayersSigma))
@@ -526,7 +526,7 @@ void DTT0CalibrationNew::endJob() {
 
     for(map<DTWireId, double>::const_iterator wiret0 = theRelativeT0PerWire.begin();
 	wiret0 != theRelativeT0PerWire.end();
-	wiret0++){
+	++wiret0){
       if((*wiret0).first.layerId().superlayerId() == (*sl)->id()){
 	double t0=-999;
 	if(((*wiret0).first.layerId().layer()) % 2)
@@ -549,7 +549,7 @@ void DTT0CalibrationNew::endJob() {
   map<DTChamberId,double> sumT0ByChamber;
   map<DTChamberId,int> countT0ByChamber;
   for(DTT0::const_iterator tzero = t0s->begin();
-      tzero != t0s->end(); tzero++) {
+      tzero != t0s->end(); ++tzero) {
 // @@@ NEW DTT0 FORMAT
 //    DTChamberId chamberId((*tzero).first.wheelId,
 //			  (*tzero).first.stationId,
@@ -571,7 +571,7 @@ void DTT0CalibrationNew::endJob() {
 
   //Change reference for each wire and store the new t0s in the new map
   for(DTT0::const_iterator tzero = t0s->begin();
-      tzero != t0s->end(); tzero++) {
+      tzero != t0s->end(); ++tzero) {
 // @@@ NEW DTT0 FORMAT
 //    DTChamberId chamberId((*tzero).first.wheelId,
 //			  (*tzero).first.stationId,

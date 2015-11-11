@@ -79,7 +79,7 @@ class ValidationJob:
             self.__valType = "offline"            
         section = self.__valType + ":" + self.__valName
         if not self.__config.has_section( section ):
-            raise AllInOneError, ("Validation '%s' of type '%s' is requested in"
+            raise AllInOneError("Validation '%s' of type '%s' is requested in"
                                   " '[validation]' section, but is not defined."
                                   "\nYou have to add a '[%s]' section."
                                   %( self.__valName, self.__valType, section ))
@@ -93,7 +93,7 @@ class ValidationJob:
             firstAlignList = alignmentsList[0].split()
             firstAlignName = firstAlignList[0].strip()
             if firstAlignName == "IDEAL":
-                raise AllInOneError, ("'IDEAL' has to be the second (reference)"
+                raise AllInOneError("'IDEAL' has to be the second (reference)"
                                       " alignment in 'compare <val_name>: "
                                       "<alignment> <reference>'.")
             if len( firstAlignList ) > 1:
@@ -140,7 +140,7 @@ class ValidationJob:
             validation = ZMuMuValidation( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
         else:
-            raise AllInOneError, "Unknown validation mode '%s'"%valType
+            raise AllInOneError("Unknown validation mode '%s'"%valType)
         return validation
 
     def __createJob( self, jobMode, outpath ):
@@ -205,13 +205,13 @@ class ValidationJob:
                             "-submit": "" }
                 try:
                     theCrab.run( options )
-                except AllInOneError, e:
+                except AllInOneError as e:
                     print "crab:", str(e).split("\n")[0]
                     exit(1)
                 ValidationJob.crabCount += 1
 
             else:
-                raise AllInOneError, ("Unknown 'jobmode'!\n"
+                raise AllInOneError("Unknown 'jobmode'!\n"
                                       "Please change this parameter either in "
                                       "the [general] or in the ["
                                       + self.__valType + ":" + self.__valName
@@ -370,7 +370,7 @@ def createMergeScript( path, validations ):
     theFile = open( filePath, "w" )
     theFile.write( replaceByMap( configTemplates.mergeTemplate, repMap ) )
     theFile.close()
-    os.chmod(filePath,0755)
+    os.chmod(filePath,0o755)
     
     return filePath
     
@@ -430,20 +430,20 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
     if options.config == [ os.path.abspath( defaultConfig ) ]:
         if ( not options.crabStatus ) and \
                ( not os.path.exists( defaultConfig ) ):
-                raise AllInOneError, ( "Default 'ini' file '%s' not found!\n"
+                raise AllInOneError( "Default 'ini' file '%s' not found!\n"
                                        "You can specify another name with the "
                                        "command line option '-c'/'--config'."
                                        %( defaultConfig ))
     else:
         for iniFile in failedIniFiles:
             if not os.path.exists( iniFile ):
-                raise AllInOneError, ( "'%s' does not exist. Please check for "
+                raise AllInOneError( "'%s' does not exist. Please check for "
                                        "typos in the filename passed to the "
                                        "'-c'/'--config' option!"
-                                       %( iniFile ) )
+                                       %( iniFile ))
             else:
-                raise AllInOneError, ( "'%s' does exist, but parsing of the "
-                                       "content failed!" ) % iniFile
+                raise AllInOneError(( "'%s' does exist, but parsing of the "
+                                       "content failed!" ) % iniFile)
 
     # get the job name
     if options.Name == None:
@@ -485,7 +485,7 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
                             "-c": crabLogDir }
             try:
                 theCrab.run( crabOptions )
-            except AllInOneError, e:
+            except AllInOneError as e:
                 print "crab:  No output retrieved for this task."
             crabOptions = { "-status": "",
                             "-c": crabLogDir }
@@ -501,7 +501,7 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
     if not os.path.exists( outPath ):
         os.makedirs( outPath )
     elif not os.path.isdir( outPath ):
-        raise AllInOneError,"the file %s is in the way rename the Job or move it away"%outPath
+        raise AllInOneError("the file %s is in the way rename the Job or move it away"%outPath)
 
     # replace default templates by the ones specified in the "alternateTemplates" section
     loadTemplates( config )
@@ -552,6 +552,6 @@ if __name__ == "__main__":
     else:
         try:
             main()
-        except AllInOneError, e:
+        except AllInOneError as e:
             print "\nAll-In-One Tool:", str(e)
             exit(1)

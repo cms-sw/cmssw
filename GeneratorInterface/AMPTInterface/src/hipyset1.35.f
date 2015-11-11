@@ -15,9 +15,6 @@ C machines' compiler
 C
 C*********************************************************************  
     
-cms
-cms   gsfs 8/2009 Renamed common block PYINT4 due to conflict with something in CMSSW
-cms 
       SUBROUTINE LU2ENT(IP,KF1,KF2,PECM)    
     
 C...Purpose: to store two partons/particles in their CM frame,  
@@ -500,9 +497,6 @@ C...to collapse into one or two particles and to check flavours.
       SAVE /LUDAT3/ 
       DIMENSION DPS(5),DPC(5),UE(3) 
     
-      ic1=0
-      ic2=0
-      kci=0
 C...Rearrange parton shower product listing along strings: begin loop.  
       I1=N  
       DO 130 MQGST=1,2  
@@ -668,7 +662,9 @@ C...Form two particles from flavours of lowest-mass system, if feasible.
       IF(P(N+2,5)+P(N+3,5)+PARJ(64).GE.PECM) GOTO 260   
     
 C...Perform two-particle decay of jet system, if possible.  
-      IF(PECM.GE.0.02d0*DPC(4)) THEN  
+clin-5/2012:
+c      IF(PECM.GE.0.02d0*DPC(4)) THEN  
+      IF(dble(PECM).GE.0.02d0*DPC(4)) THEN  
         PA=SQRT((PECM**2-(P(N+2,5)+P(N+3,5))**2)*(PECM**2-  
      &  (P(N+2,5)-P(N+3,5))**2))/(2.*PECM)  
         UE(3)=2.*RLU(0)-1.  
@@ -855,11 +851,6 @@ C...Function: four-product of two vectors.
       FOUR(I,J)=P(I,4)*P(J,4)-P(I,1)*P(J,1)-P(I,2)*P(J,2)-P(I,3)*P(J,3) 
       DFOUR(I,J)=DP(I,4)*DP(J,4)-DP(I,1)*DP(J,1)-DP(I,2)*DP(J,2)-   
      &DP(I,3)*DP(J,3)   
-
-      ir=0
-      in3=0
-      jr=0
-      prev=0
     
 C...Reset counters. Identify parton system. 
       MSTJ(91)=0    
@@ -1190,7 +1181,9 @@ C...Junction strings: find new transverse directions.
         DP(1,4)=SQRT(DP(1,1)**2+DP(1,2)**2+DP(1,3)**2)  
         DP(2,4)=SQRT(DP(2,1)**2+DP(2,2)**2+DP(2,3)**2)  
         DHC12=DFOUR(1,2)    
-        IF(DHC12.LE.1E-2) THEN  
+clin-5/2012:
+c        IF(DHC12.LE.1E-2) THEN  
+        IF(DHC12.LE.1D-2) THEN  
           P(IN(1)+2,4)=P(IN(1)+2,3) 
           P(IN(1)+2,1)=0.   
           IN(1)=IN(1)+4 
@@ -1250,7 +1243,9 @@ C...Junction strings: find coefficients for Gamma expression.
     
 C...Junction strings: solve (m2, Gamma) equation system for energies.   
       DHS1=DHM(3)*DHG(4)-DHM(4)*DHG(3)  
-      IF(ABS(DHS1).LT.1E-4) GOTO 270    
+clin-5/2012:
+c      IF(ABS(DHS1).LT.1E-4) GOTO 270    
+      IF(DABS(DHS1).LT.1D-4) GOTO 270    
       DHS2=DHM(4)*(dble(GAM(3))-DHG(1))-DHM(2)*DHG(3)-DHG(4)* 
      &(dble(P(I,5))**2-DHM(1))+DHG(2)*DHM(3)  
       DHS3=DHM(2)*(dble(GAM(3))-DHG(1))
@@ -1593,7 +1588,9 @@ C...Find new transverse directions (i.e. spacelike string vectors).
         DP(1,4)=DSQRT(DP(1,1)**2+DP(1,2)**2+DP(1,3)**2)  
         DP(2,4)=DSQRT(DP(2,1)**2+DP(2,2)**2+DP(2,3)**2)  
         DHC12=DFOUR(1,2)    
-        IF(DHC12.LE.1E-2) THEN  
+clin-5/2012:
+c        IF(DHC12.LE.1E-2) THEN  
+        IF(DHC12.LE.1D-2) THEN  
           P(IN(JT)+2,4)=P(IN(JT)+2,3)   
           P(IN(JT)+2,JT)=0. 
           IN(JT)=IN(JT)+4*JS    
@@ -1655,7 +1652,9 @@ C...Find coefficients for Gamma expression.
     
 C...Solve (m2, Gamma) equation system for energies taken.   
       DHS1=DHM(JR+1)*DHG(4)-DHM(4)*DHG(JR+1)    
-      IF(ABS(DHS1).LT.1E-4) GOTO 550    
+clin-5/2012:
+c      IF(ABS(DHS1).LT.1E-4) GOTO 550    
+      IF(DABS(DHS1).LT.1D-4) GOTO 550    
       DHS2=DHM(4)*(dble(GAM(3))-DHG(1))-DHM(JT+1)*DHG(JR+1)-DHG(4)*   
      &(dble(P(I,5))**2-DHM(1))+DHG(JT+1)*DHM(JR+1)    
       DHS3=DHM(JT+1)*(dble(GAM(3))-DHG(1))-DHG(JT+1)
@@ -1836,7 +1835,6 @@ C...jet) according to independent fragmentation models.
       DIMENSION DPS(5),PSI(4),NFI(3),NFL(3),IFET(3),KFLF(3),    
      &KFLO(2),PXO(2),PYO(2),WO(2)   
 
-      pw=0.
 C...Reset counters. Identify parton system and take copy. Check flavour.    
       NSAV=N    
       NJET=0    
@@ -2110,8 +2108,7 @@ C...Store hadron at random among free positions.
       IF(NREM.GT.0) GOTO 280    
     
 C...Compensate for missing momentum in global scheme (3 options).   
-  320 MTMP = MOD(MSTJ(3),5)
-      IF(MTMP.NE.0.AND.MTMP.NE.4) THEN
+  320 IF(MOD(MSTJ(3),5).NE.0.AND.MOD(MSTJ(3),5).NE.4) THEN  
         DO 330 J=1,3    
         PSI(J)=0.   
         DO 330 I=NSAV+NJET+1,N  
@@ -2264,19 +2261,6 @@ C...matrix element times phase space in weak decays.
      &SQRT((1.-HRQ-HA)**2-4.*HRQ*HA)    
     
 C...Initial values. 
-
-      idc=0
-      pqt=0.
-      hatu=0.
-      hmp1=0.
-      im=0
-      kfam=0
-      wtmax=0.
-      pmes=0.
-      pmst=0.
-      wt=0.
-      pmr=0.
-
       NTRY=0    
       NSAV=N    
       KFA=IABS(K(IP,2)) 
@@ -2953,16 +2937,6 @@ C...Purpose: to generate a new flavour pair and combine off a hadron.
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
       SAVE /LUDAT2/ 
     
-      par3m=0.
-      par4m=0.
-      pardm=0.
-      pars0=0.
-      pars1=0.
-      pars2=0.
-      parsm=0.
-      kmul=0
-      ktab3=0
-
 C...Default flavour values. Input consistency checks.   
       KF1A=IABS(KFL1)   
       KF2A=IABS(KFL2)   
@@ -3304,10 +3278,6 @@ C...Purpose: to generate the longitudinal splitting variable z.
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       SAVE /LUDAT1/ 
     
-      zdiv=0.
-      fint=0.
-      zdivc=0.
-
 C...Check if heavy flavour fragmentation.   
       KFLA=IABS(KFL1)   
       KFLB=IABS(KFL2)   
@@ -3421,24 +3391,6 @@ C...Purpose: to generate timelike parton showers from given partons.
       SAVE /LUDAT2/ 
       DIMENSION PMTH(5,40),PS(5),PMA(4),PMSD(4),IEP(4),IPA(4),  
      &KFLA(4),KFLD(4),KFL(4),ITRY(4),ISI(4),ISL(4),DP(4),DPT(5,4)   
-
-      npa=0
-      kflm=0
-      pem=0.
-      pmed=0.
-      fbre=0.
-      pm2=0.
-      ped=0.
-      zm=0.
-      pa1s=0.
-      pa2s=0.
-      pa3s=0.
-      pts=0.
-      pzm=0.
-      pmls=0.
-      pt=0.
-      hazip=0.
-      hazic=0.
     
 C...Initialization of cutoff masses etc.    
       IF(MSTJ(41).LE.0.OR.(MSTJ(41).EQ.1.AND.QMAX.LE.PARJ(82)).OR.  
@@ -4143,7 +4095,9 @@ C...Weight with azimuthal distribution, if required.
   370   DPT(5,J)=DPT(3,J)-DPMD*DPT(1,J)/DPMM    
         DPT(4,4)=DSQRT(DPT(4,1)**2+DPT(4,2)**2+DPT(4,3)**2)  
         DPT(5,4)=DSQRT(DPT(5,1)**2+DPT(5,2)**2+DPT(5,3)**2)  
-        IF(MIN(DPT(4,4),DPT(5,4)).GT.0.1*PARJ(82)) THEN 
+clin-5/2012:
+c        IF(MIN(DPT(4,4),DPT(5,4)).GT.0.1*PARJ(82)) THEN 
+        IF(sngl(MIN(DPT(4,4),DPT(5,4))).GT.(0.1*PARJ(82))) THEN 
            CAD=sngl((DPT(4,1)*DPT(5,1)+DPT(4,2)*DPT(5,2)+ 
      &    DPT(4,3)*DPT(5,3))/(DPT(4,4)*DPT(5,4)))
           IF(MAZIP.NE.0) THEN   
@@ -4277,12 +4231,6 @@ C...parametrization.
       DIMENSION DPS(4),KFBE(9),NBE(0:9),BEI(100)    
       DATA KFBE/211,-211,111,321,-321,130,310,221,331/  
     
-      pmhq=0.
-      qdel=0.
-      nbin=0
-      beex=0.
-      bert=0.
-
 C...Boost event to overall CM frame. Calculate CM energy.   
       IF((MSTJ(51).NE.1.AND.MSTJ(51).NE.2).OR.N-NSAV.LE.1) RETURN   
       DO 100 J=1,4  
@@ -4419,8 +4367,6 @@ C...Purpose: to give the mass of a particle/parton.
       SAVE /LUDAT1/ 
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
       SAVE /LUDAT2/ 
-
-      pmspl=0.
     
 C...Reset variables. Compressed code.   
       ULMASS=0. 
@@ -4929,7 +4875,6 @@ C...0 and 1, excluding the endpoints.
      &(RRLU98,RRLU(98)),(RRLU99,RRLU(99)),(RRLU00,RRLU(100))    
     
 C...Initialize generation from given seed.  
-      IDUM=IDUM
       IF(MRLU2.EQ.0) THEN   
         IJ=MOD(MRLU1/30082,31329)   
         KL=MOD(MRLU1,30082) 
@@ -5025,7 +4970,9 @@ C...Check range of rotation/boost.
       ENDIF 
     
 C...Rotate, typically from z axis to direction (theta,phi). 
-      IF(THE**2+PHI**2.GT.1E-20) THEN   
+clin-5/2012:
+c      IF(THE**2+PHI**2.GT.1E-20) THEN   
+      IF((THE**2+PHI**2).GT.1E-20) THEN   
         ROT(1,1)=COS(THE)*COS(PHI)  
         ROT(1,2)=-SIN(PHI)  
         ROT(1,3)=SIN(THE)*COS(PHI)  
@@ -5047,7 +4994,9 @@ C...Rotate, typically from z axis to direction (theta,phi).
       ENDIF 
     
 C...Boost, typically from rest to momentum/energy=beta. 
-      IF(DBX**2+DBY**2+DBZ**2.GT.1E-20) THEN    
+clin-5/2012:
+c      IF(DBX**2+DBY**2+DBZ**2.GT.1E-20) THEN    
+      IF((DBX**2+DBY**2+DBZ**2).GT.1D-20) THEN    
         DB=SQRT(DBX**2+DBY**2+DBZ**2)   
         IF(DB.GT.0.99999999D0) THEN 
 C...Rescale boost vector if too close to unity. 
@@ -5094,7 +5043,7 @@ C...Purpose: to perform rotations and boosts.
       SAVE /LUJETS/ 
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       SAVE /LUDAT1/ 
-      DIMENSION ROT(3,3),PR(3),DP(4)    
+      DIMENSION ROT(3,3),PR(3),VR(3),DP(4),DV(4)    
     
 C...Find range of rotation/boost. Convert boost to double precision.    
       IMIN=1    
@@ -5112,7 +5061,9 @@ C...Check range of rotation/boost.
       ENDIF 
     
 C...Rotate, typically from z axis to direction (theta,phi). 
-      IF(THE**2+PHI**2.GT.1E-20) THEN   
+clin-5/2012:
+c      IF(THE**2+PHI**2.GT.1E-20) THEN   
+      IF((THE**2+PHI**2).GT.1E-20) THEN   
         ROT(1,1)=COS(THE)*COS(PHI)  
         ROT(1,2)=-SIN(PHI)  
         ROT(1,3)=SIN(THE)*COS(PHI)  
@@ -5132,7 +5083,9 @@ C...Rotate, typically from z axis to direction (theta,phi).
       ENDIF 
     
 C...Boost, typically from rest to momentum/energy=beta. 
-      IF(DBX**2+DBY**2+DBZ**2.GT.1E-20) THEN    
+clin-5/2012:
+c      IF(DBX**2+DBY**2+DBZ**2.GT.1E-20) THEN    
+      IF((DBX**2+DBY**2+DBZ**2).GT.1D-20) THEN    
         DB=SQRT(DBX**2+DBY**2+DBZ**2)   
         IF(DB.GT.0.99999999D0) THEN 
 C...Rescale boost vector if too close to unity. 
@@ -5382,7 +5335,6 @@ C...data, or current parameter values.
       DATA CHMO/'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep',  
      &'Oct','Nov','Dec'/,CHDL/'(())',' ','()','!!','<>','==','(==)'/    
     
-      CHMO(1)=CHMO(1)
 C...Initialization printout: version number and date of last change.    
 C      IF(MLIST.EQ.0.OR.MSTU(12).EQ.1) THEN  
 C        WRITE(MSTU(11),1000) MSTU(181),MSTU(182),MSTU(185), 
@@ -6117,8 +6069,10 @@ C...differential cross-sections to be used for weighting.
       CHARACTER CHFRAM*8,CHBEAM*8,CHTARG*8,CHMO(12)*3,CHLH(2)*6 
       DATA CHMO/'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep',  
      &'Oct','Nov','Dec'/, CHLH/'lepton','hadron'/   
+    
+clin-12/2012 correct NN differential cross section in HIJING:
+      WRITE(MSTU(11),*) 'In PYINIT: BEAM,TARGET= ',BEAM,TARGET
 
-      CHMO(1)=CHMO(1)
 C...Write headers.  
 C      IF(MSTP(122).GE.1) WRITE(MSTU(11),1000) MSTP(181),MSTP(182),  
 C     &MSTP(185),CHMO(MSTP(184)),MSTP(183)   
@@ -6822,15 +6776,13 @@ C...production generation.
       SAVE /PYINT1/ 
       COMMON/PYINT2/ISET(200),KFPR(200,2),COEF(200,20),ICOL(40,4,2) 
       SAVE /PYINT2/ 
-      COMMON/PYINT4A/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
-      SAVE /PYINT4A/ 
+      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      SAVE /PYINT4/ 
       COMMON/PYINT6/PROC(0:200) 
       CHARACTER PROC*28 
       SAVE /PYINT6/ 
       DIMENSION WDTP(0:40),WDTE(0:40,0:5)   
     
-      kc=0
-
 C...Calculate full and effective widths of gauge bosons.    
       AEM=PARU(101) 
       XW=PARU(102)  
@@ -7096,8 +7048,8 @@ C...in the event weighting.
       SAVE /PYINT2/ 
       COMMON/PYINT3/XSFX(2,-40:40),ISIG(1000,3),SIGH(1000)  
       SAVE /PYINT3/ 
-      COMMON/PYINT4A/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
-      SAVE /PYINT4A/ 
+      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      SAVE /PYINT4/ 
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       SAVE /PYINT5/ 
       COMMON/PYINT6/PROC(0:200) 
@@ -7108,20 +7060,7 @@ C...in the event weighting.
      &NAREL(6),WTREL(6),WTMAT(6,6),COEFU(6),IACCMX(4),SIGSMX(4),    
      &SIGSSM(3) 
       DATA CVAR/'tau ','tau''','y*  ','cth '/   
-
-      taur1=0.
-      gamr1=0.
-      taur2=0.
-      gamr2=0.
-      atau3=0.
-      atau4=0.
-      atau5=0.
-      atau6=0.
-      ioff=0
-      vvar=0.
-      vdel=0.
-      vmar=0.
-
+    
 C...Select subprocess to study: skip cases not applicable.  
       VINT(143)=1.  
       VINT(144)=1.  
@@ -7674,8 +7613,8 @@ C...subprocesses.
       SAVE /PYINT2/ 
       COMMON/PYINT3/XSFX(2,-40:40),ISIG(1000,3),SIGH(1000)  
       SAVE /PYINT3/ 
-      COMMON/PYINT4A/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
-      SAVE /PYINT4A/ 
+      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      SAVE /PYINT4/ 
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       SAVE /PYINT5/ 
     
@@ -8057,14 +7996,11 @@ C...and colour flow of the hard scattering.
       SAVE /PYINT2/ 
       COMMON/PYINT3/XSFX(2,-40:40),ISIG(1000,3),SIGH(1000)  
       SAVE /PYINT3/ 
-      COMMON/PYINT4A/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
-      SAVE /PYINT4A/ 
+      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      SAVE /PYINT4/ 
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       SAVE /PYINT5/ 
       DIMENSION WDTP(0:40),WDTE(0:40,0:5),PMQ(2),Z(2),CTHE(2),PHI(2)    
-
-      kflq=0
-      phir=0.
     
 C...Choice of subprocess, number of documentation lines.    
       ISUB=MINT(1)  
@@ -9097,14 +9033,6 @@ C...Generates spacelike parton showers.
      &XFS(2,-6:6),XFA(-6:6),XFB(-6:6),XFN(-6:6),WTAP(-6:6),WTSF(-6:6),  
      &THE2(2),ALAM(2),DQ2(3),DPC(3),DPD(4),DPB(4)   
     
-      tevb=0.
-      kfla=0
-      z=0.
-      the2t=0.
-      ipo=0
-      dmsma=0.
-      dpt2=0.
-
 C...Calculate maximum virtuality and check that evolution possible. 
       IPUS1=IPU1    
       IPUS2=IPU2    
@@ -9505,13 +9433,6 @@ C...generates all non-hardest interactions.
       DIMENSION NMUL(20),SIGM(20),KSTR(500,2)   
       SAVE XT2,XT2FAC,XC2,XTS,IRBIN,RBIN,NMUL,SIGM  
     
-      xf=0.
-      yf=0.
-      deltab=0.
-      ist1=0
-      ist2=0
-      istm=0
-
 C...Initialization of multiple interaction treatment.   
       IF(MMUL.EQ.1) THEN    
         IF(MSTP(122).GE.1) WRITE(MSTU(11),1000) MSTP(82)    
@@ -9967,16 +9888,6 @@ C...COMMON BLOCK FROM HIJING
       SAVE /PYINT1/ 
       DIMENSION KFLCH(2),KFLSP(2),CHI(2),PMS(6),IS(2),ROBO(5)   
     
-      iq=0
-      ipu=0
-      shs=0.
-      jpt=0
-      peh=0.
-      pzh=0.
-      pei=0.
-      pzi=0.
-      pz=0.
-      
 C...Special case for lepton-lepton interaction. 
       IF(MINT(43).EQ.1) THEN    
         DO 100 JT=1,2   
@@ -10312,8 +10223,8 @@ C...channels).
       SAVE /PYINT1/ 
       COMMON/PYINT2/ISET(200),KFPR(200,2),COEF(200,20),ICOL(40,4,2) 
       SAVE /PYINT2/ 
-      COMMON/PYINT4A/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
-      SAVE /PYINT4A/ 
+      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      SAVE /PYINT4/ 
       DIMENSION IREF(10,6),KDCY(2),KFL1(2),KFL2(2),NSD(2),ILIN(6),  
      &COUP(6,4),PK(6,4),PKK(6,6),CTHE(2),PHI(2),WDTP(0:40), 
      &WDTE(0:40,0:5)    
@@ -10330,10 +10241,6 @@ C...(Phys. Rev. D33, 665, plus errata from the authors).
      &2.d0*DT*DU*(DT*DU/(D34*D56)-2.d0*(1.d0/D34+1.d0/D56)*(DT+DU)+ 
      &2.d0*(D34/D56+D56/D34)) 
     
-      i12=0
-      wt=0.
-      wtmax=0.
-
 C...Define initial two objects, initialize loop.    
       ISUB=MINT(1)  
       SH=VINT(44)   
@@ -10815,8 +10722,6 @@ C...Handles diffractive and elastic scattering.
       COMMON/PYINT1/MINT(400),VINT(400) 
       SAVE /PYINT1/ 
     
-      chi=0.
-
 C...Reset K, P and V vectors. Store incoming particles. 
       DO 100 JT=1,MSTP(126)+10  
       I=MINT(83)+JT 
@@ -10999,26 +10904,9 @@ C...Calculates full and partial widths of resonances.
       SAVE /PYPARS/ 
       COMMON/PYINT1/MINT(400),VINT(400) 
       SAVE /PYINT1/ 
-      COMMON/PYINT4A/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
-      SAVE /PYINT4A/ 
+      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      SAVE /PYINT4/ 
       DIMENSION WDTP(0:40),WDTE(0:40,0:5)   
-
-      wid2=0.
-      ai=0.
-      ggi=0.
-      gzi=0.
-      zzi=0.
-      ggf=0.
-      gzf=0.
-      zzf=0.
-      ej=0.
-      vj=0.
-      gzpi=0.
-      zzpi=0.
-      zpzpi=0.
-      gzpf=0.
-      zzpf=0.
-      zpzpf=0.
     
 C...Some common constants.  
       KFLA=IABS(KFLR)   
@@ -11656,12 +11544,6 @@ C...also calculates limits on variables used in generation.
       SAVE /PYINT1/ 
       COMMON/PYINT2/ISET(200),KFPR(200,2),COEF(200,20),ICOL(40,4,2) 
       SAVE /PYINT2/ 
-
-      tau=0.
-      rm3=0.
-      rm4=0.
-      be34=0.
-      st2eff=0.
     
 C...Common kinematical expressions. 
       ISUB=MINT(1)  
@@ -11716,9 +11598,8 @@ C...pre-set kinematical limits.
           ETA4=LOG(MIN(1.E10,MAX(1.E-10,EXPET4)))   
           ETALAR=MAX(ETA3,ETA4) 
           ETASMA=MIN(ETA3,ETA4) 
-  100     TMP1=(1.+RM3-RM4)*COSH(YST)
-          CTS3=((1.+RM3-RM4)*SINH(YST)+BE34*COSH(YST)*CTH)/ 
-     &    SQRT((TMP1+BE34*SINH(YST)*CTH)**2-4.*RM3)   
+  100     CTS3=((1.+RM3-RM4)*SINH(YST)+BE34*COSH(YST)*CTH)/ 
+     &    SQRT(((1.+RM3-RM4)*COSH(YST)+BE34*SINH(YST)*CTH)**2-4.*RM3)   
           CTS4=((1.-RM3+RM4)*SINH(YST)-BE34*COSH(YST)*CTH)/ 
      &    SQRT(((1.-RM3+RM4)*COSH(YST)-BE34*SINH(YST)*CTH)**2-4.*RM4)   
           CTSLAR=MAX(CTS3,CTS4) 
@@ -11925,10 +11806,6 @@ C...assumed that kinematical limits have been set by a PYKLIM call.
       COMMON/PYINT2/ISET(200),KFPR(200,2),COEF(200,20),ICOL(40,4,2) 
       SAVE /PYINT2/ 
     
-      taure=0.
-      gamre=0.
-      cth=0.
-
 C...Convert VVAR to tau variable.   
       ISUB=MINT(1)  
       IF(IVAR.EQ.1) THEN    
@@ -12110,36 +11987,12 @@ C...pi/s and the conversion factor from GeV^-2 to mb.
       SAVE /PYINT2/ 
       COMMON/PYINT3/XSFX(2,-40:40),ISIG(1000,3),SIGH(1000)  
       SAVE /PYINT3/ 
-      COMMON/PYINT4A/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
-      SAVE /PYINT4A/ 
+      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      SAVE /PYINT4/ 
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       SAVE /PYINT5/ 
       DIMENSION X(2),XPQ(-6:6),KFAC(2,-40:40),WDTP(0:40),WDTE(0:40,0:5) 
     
-      as=0.
-      faca=0.
-      min1=0.
-      max1=0.
-      min2=0.
-      max2=0.
-      mina=0.
-      maxa=0.
-      sqmz=0.
-      gmmz=0.
-      sqmw=0.
-      gmmw=0.
-      sqmh=0.
-      gmmh=0.
-      sqmzp=0.
-      gmmzp=0.
-      sqmhc=0.
-      gmmhc=0.
-      sqmr=0.
-      gmmr=0.
-      aem=0.
-      xw=0.
-      comfac=0.
-
 C...Reset number of channels and cross-section. 
       NCHN=0    
       SIGS=0.   
@@ -14401,9 +14254,6 @@ C...Euler's beta function, requires ordinary Gamma function
 clin-10/25/02 get rid of argument usage mismatch in PYGAMM():
 c      EULBT(X,Y)=PYGAMM(X)*PYGAMM(Y)/PYGAMM(X+Y)
     
-      vx=0.
-      bbr2=0.
-
 C...Reset structure functions, check x and hadron flavour.  
       ALAM=0.   
       DO 100 KFL=-6,6   
@@ -14815,11 +14665,10 @@ C...FERMILAB-Pub-87/100-T, LBL-23504, June, 1987
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       SAVE /LUDAT1/ 
     
-      ASINH(X)=LOG(X+SQRT(X**2+1.)) 
+clin-8/2014:
+c      ASINH(X)=LOG(X+SQRT(X**2+1.)) 
       ACOSH(X)=LOG(X+SQRT(X**2-1.)) 
     
-      pyw1au=0.
-
       IF(EPS.LT.0.) THEN    
         W1RE=2.*SQRT(1.-EPS)*ASINH(SQRT(-1./EPS))   
         W1IM=0. 
@@ -14847,11 +14696,10 @@ C...FERMILAB-Pub-87/100-T, LBL-23504, June, 1987
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       SAVE /LUDAT1/ 
     
-      ASINH(X)=LOG(X+SQRT(X**2+1.)) 
+clin-8/2014:
+c      ASINH(X)=LOG(X+SQRT(X**2+1.)) 
       ACOSH(X)=LOG(X+SQRT(X**2-1.)) 
     
-      pyw2au=0.
-
       IF(EPS.LT.0.) THEN    
         W2RE=4.*(ASINH(SQRT(-1./EPS)))**2   
         W2IM=0. 
@@ -14879,9 +14727,6 @@ C...FERMILAB-Pub-87/100-T, LBL-23504, June, 1987
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       SAVE /LUDAT1/ 
     
-      pyi3au=0.
-      ga=0.
-
       IF(EPS.LT.1.) GA=0.5*(1.+SQRT(1.-EPS))    
     
       IF(EPS.LT.0.) THEN    
@@ -14934,8 +14779,6 @@ C...G. 't Hooft and M. Veltman, Nucl. Phys. B153 (1979) 365.
      & 0.000000E+00,         7.575757E-02,         0.000000E+00,    
      &-2.531135E-01,         0.000000E+00,         1.166667E+00/    
     
-      pyspen=0.
-
       XRE=XREIN 
       XIM=XIMIN 
       IF(ABS(1.-XRE).LT.1.E-6.AND.ABS(XIM).LT.1.E-6) THEN   
@@ -15020,8 +14863,8 @@ C...Give sensible default values to all status codes and parameters.
       SAVE /PYINT2/ 
       COMMON/PYINT3/XSFX(2,-40:40),ISIG(1000,3),SIGH(1000)  
       SAVE /PYINT3/ 
-      COMMON/PYINT4A/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
-      SAVE /PYINT4A/ 
+      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      SAVE /PYINT4/ 
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       SAVE /PYINT5/ 
       COMMON/PYINT6/PROC(0:200) 
@@ -15336,9 +15179,6 @@ C...by removing C* at the beginning of some of the lines below.
       DATA HEADER/'Tung evolution package has been invoked'/    
       DATA INIT/0/  
     
-      KF=KF
-      HEADER=HEADER
-      CHDFLM(1)=CHDFLM(1)
 C...Proton structure functions from Diemoz, Ferroni, Longo, Martinelli. 
 C...Allowed variable range 10 GeV2 < Q2 < 1E8 GeV2, 5E-5 < x < .95. 
       IF(MSTP(51).GE.11.AND.MSTP(51).LE.13.AND.MSTP(52).LE.1) THEN  

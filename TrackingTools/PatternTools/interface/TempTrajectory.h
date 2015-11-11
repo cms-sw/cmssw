@@ -53,8 +53,8 @@ public:
   TempTrajectory() : 
     theChiSquared(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(anyDirection), theDirectionValidity(false), 
-    theValid(false),theNLoops(0),theDPhiCache(0)
+    theDirection(anyDirection), 
+    theValid(false),theNHseed(0),theNLoops(0),theDPhiCache(0)
   {}
   
   
@@ -63,49 +63,26 @@ public:
    *  No check is made in the push method that measurements are
    *  added in the correct direction.
    */
-  explicit TempTrajectory(PropagationDirection dir) : 
+  TempTrajectory(PropagationDirection dir, unsigned char nhseed) : 
   theChiSquared(0), 
   theNumberOfFoundHits(0), theNumberOfLostHits(0),
-  theDirection(dir), theDirectionValidity(true),
-  theValid(true),theNLoops(0),theDPhiCache(0)
+  theDirection(dir),
+  theValid(true),theNHseed(nhseed),theNLoops(0),theDPhiCache(0)
   {}
 
   
   
-  TempTrajectory(TempTrajectory const & rh) : 
-    theData(rh.theData),
-    theChiSquared(rh.theChiSquared), 
-    theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
-    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity),theValid(rh.theValid)
-    ,theNLoops(rh.theNLoops)
-    ,theDPhiCache(rh.theDPhiCache)
-  {}
-  
-  
-  TempTrajectory & operator=(TempTrajectory const & rh) {
-    DataContainer aData(rh.theData);
-    using std::swap;
-    swap(theData,aData);
-    theChiSquared=rh.theChiSquared;
-    theNumberOfFoundHits=rh.theNumberOfFoundHits;
-    theNumberOfLostHits=rh.theNumberOfLostHits;
-    theDirection=rh.theDirection; 
-    theDirectionValidity=rh.theDirectionValidity;
-    theValid=rh.theValid;
-    theNLoops=rh.theNLoops;
-    theDPhiCache=rh.theDPhiCache;
- 
-    return *this;
-
-  }
+  TempTrajectory(TempTrajectory const & rh)  = default; 
+  TempTrajectory & operator=(TempTrajectory const & rh) = default;
   
 
   TempTrajectory(TempTrajectory && rh) noexcept :
     theData(std::move(rh.theData)),
     theChiSquared(rh.theChiSquared), 
     theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
-    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity),
+    theDirection(rh.theDirection),
     theValid(rh.theValid),
+    theNHseed(rh.theNHseed),
     theNLoops(rh.theNLoops),
     theDPhiCache(rh.theDPhiCache){}
 
@@ -116,8 +93,8 @@ public:
     theNumberOfFoundHits=rh.theNumberOfFoundHits;
     theNumberOfLostHits=rh.theNumberOfLostHits;
     theDirection=rh.theDirection;
-    theDirectionValidity=rh.theDirectionValidity;
-    theValid=rh.theValid;
+    theValid=rh.theValid;    
+    theNHseed=rh.theNHseed;
     theNLoops=rh.theNLoops;
     theDPhiCache=rh.theDPhiCache;
     return *this;
@@ -228,6 +205,10 @@ public:
    *  during trajectory building.
    */
   int lostHits() const { return theNumberOfLostHits;}
+
+
+  //number of hits in seed
+  unsigned int seedNHits() const { return theNHseed;}
   
   /// True if trajectory has no measurements.
   bool empty() const { return theData.empty();}
@@ -303,8 +284,9 @@ private:
 
   // PropagationDirection 
   signed char theDirection;
-  bool        theDirectionValidity;
   bool theValid;
+ 
+  unsigned char theNHseed;
 
   signed char theNLoops;
   float theDPhiCache;
