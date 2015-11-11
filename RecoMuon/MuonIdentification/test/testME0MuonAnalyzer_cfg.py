@@ -36,7 +36,10 @@ process.maxEvents = cms.untracked.PSet(
 
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:///somewhere/simevent.root') ##/somewhere/simevent.root" }
+    fileNames = cms.untracked.vstring(
+        # 'file:/store/group/upgrade/muon/ME0GlobalReco/ME0MuonReRun_DY_SLHC23patch1/M-20_TuneZ2star_14TeV_6_2_0_SLHC23patch1_2023/output_9_1_hVY.root'
+        'file:/cmshome/piet/SLC6/ME0_Studies/SLHC26_InTimeOutOfTimePU/CMSSW_6_2_0_SLHC26_patch3/src/MyAnalyzers/MyME0InTimePUAnalyzer/DYToMuMu_M-20_HGCALGS_PU140_ME0_RECO_100ps_amandeep_100_v2.root'
+        )
 
 
 )
@@ -88,14 +91,14 @@ process.Test = cms.EDAnalyzer("ME0MuonAnalyzer",
                               chargedOnlyGP = cms.bool(True),
                               statusGP = cms.int32(1),
                               pdgIdGP = cms.vint32(13, -13),
-                              #parametersDefiner = cms.string('LhcParametersDefinerForTP')
-                              
+                              #parametersDefiner = cms.string('LhcParametersDefinerForTP'),
+                              ME0MuonSelectionType = cms.string('Loose'),
 )
 
 process.p = cms.Path(process.recoMuonValidation*process.Test)
 
 
 
-process.PoolSource.fileNames = [
-'file:out_me0_test.root'
-]
+# process.PoolSource.fileNames = [
+# 'file:out_me0_test.root'
+# ]

@@ -30,7 +30,13 @@ ME0SegAlgoMM::ME0SegAlgoMM(const edm::ParameterSet& ps) : ME0SegmentAlgorithm(ps
   preClustering_useChaining = ps.getParameter<bool>("preClusteringUseChaining");
   dPhiChainBoxMax           = ps.getParameter<double>("dPhiChainBoxMax");
   dEtaChainBoxMax           = ps.getParameter<double>("dEtaChainBoxMax");
+  dTimeChainBoxMax          = ps.getParameter<double>("dTimeChainBoxMax");
   maxRecHitsInCluster       = ps.getParameter<int>("maxRecHitsInCluster");
+
+  edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegAlgoMM::ctor] Parameters to build segments :: "
+				   << "preClustering = "<<preClustering<<" preClustering_useChaining = "<<preClustering_useChaining
+				   <<" dPhiChainBoxMax = "<<dPhiChainBoxMax<<" dEtaChainBoxMax = "<<dEtaChainBoxMax<<" dTimeChainBoxMax = "<<dTimeChainBoxMax
+				   <<" minHitsPerSegment = "<<minHitsPerSegment<<" maxRecHitsInCluster = "<<maxRecHitsInCluster;
 }
 
 /* Destructor
@@ -43,9 +49,18 @@ ME0SegAlgoMM::~ME0SegAlgoMM() {
 std::vector<ME0Segment> ME0SegAlgoMM::run(ME0Ensamble ensamble, const EnsambleHitContainer& rechits) {
 
   theEnsamble = ensamble;
-  //  ME0DetId enId(ensambleId);
-  // LogTrace("ME0SegAlgoMM") << "[ME0SegAlgoMM::run] build segments in chamber " << enId;
-  
+  #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
+  ME0DetId chId((theEnsamble.first)->id());  
+  edm::LogVerbatim("GEMSegAlgoMM") << "[ME0SegAlgoMM::run] build segments in chamber " << chId << " which contains "<<rechits.size()<<" rechits";
+  for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
+    auto me0id = (*rh)->me0Id();
+    auto rhLP = (*rh)->localPosition();
+    edm::LogVerbatim("ME0SegAlgoMM") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()
+                                     <<" Time = "<<std::showpos<<(*rh)->tof()<<" -- "<<me0id.rawId()<<" = "<<me0id<<" ]";
+  }
+  #endif
+
+
   // pre-cluster rechits and loop over all sub clusters seperately
   std::vector<ME0Segment>          segments_temp;
   std::vector<ME0Segment>          segments;
@@ -256,14 +271,39 @@ ME0SegAlgoMM::chainHits(const EnsambleHitContainer & rechits) {
 }
 
 bool ME0SegAlgoMM::isGoodToMerge(EnsambleHitContainer & newChain, EnsambleHitContainer & oldChain) {
+
    for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
     int layer_new = newChain[iRH_new]->me0Id().layer();     
     float phi_new = theEnsamble.first->toGlobal(newChain[iRH_new]->localPosition()).phi();
     float eta_new = theEnsamble.first->toGlobal(newChain[iRH_new]->localPosition()).eta();
+    float time_new = newChain[iRH_new]->tof();
+
+    // To Do :: print out here the max time ... or print it out somewhere else just to be sure
+
+    // Log Message
+    // edm::LogVerbatim("ME0SegAlgoMMMerge") << "[GoodToMerge::New Chain][RecHit in "<<newChain[iRH_new]->rawId()
+    //				     <<" which is Det = "<<DetId(newChain[iRH_new]->rawId()).det()<<" SubDet = "<<DetId(newChain[iRH_new]->rawId()).subdetId();
+    edm::LogVerbatim("ME0SegAlgoMMMerge") << "[GoodToMerge::New Chain][RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<(newChain[iRH_new]->localPosition()).x()
+				     <<" Loc y = "<<std::showpos<<std::setw(9)<<(newChain[iRH_new]->localPosition()).y()
+				     << " -- Glob eta = "<<std::showpos<<std::setw(9)<<theEnsamble.first->toGlobal(newChain[iRH_new]->localPosition()).eta()
+				     <<" Glob phi = "<<std::showpos<<std::setw(9)<<theEnsamble.first->toGlobal(newChain[iRH_new]->localPosition()).phi()
+                                     << " -- Time = "<<newChain[iRH_new]->tof()
+				     << " -- "<<newChain[iRH_new]->rawId()<<" = "<<ME0DetId(newChain[iRH_new]->rawId())<<" ]";
     for(size_t iRH_old = 0;iRH_old<oldChain.size();++iRH_old){      
       int layer_old = oldChain[iRH_old]->me0Id().layer();
       float phi_old = theEnsamble.first->toGlobal(oldChain[iRH_old]->localPosition()).phi();
       float eta_old = theEnsamble.first->toGlobal(oldChain[iRH_old]->localPosition()).eta();
+      float time_old = oldChain[iRH_old]->tof();
+
+      // Log Message
+      // edm::LogVerbatim("ME0SegAlgoMMMerge") << "[GoodToMerge::Old Chain][RecHit in "<<oldChain[iRH_old]->rawId()
+      //			       <<" which is Det = "<<DetId(oldChain[iRH_old]->rawId()).det()<<" SubDet = "<<DetId(oldChain[iRH_old]->rawId()).subdetId();
+      edm::LogVerbatim("ME0SegAlgoMMMerge") << "[GoodToMerge::Old Chain][RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<(oldChain[iRH_old]->localPosition()).x()
+				       <<" Loc y = "<<std::showpos<<std::setw(9)<<(oldChain[iRH_old]->localPosition()).y()
+				       << " -- Glob eta = "<<std::showpos<<std::setw(9)<<theEnsamble.first->toGlobal(oldChain[iRH_old]->localPosition()).eta()
+				       <<" Glob phi = "<<std::showpos<<std::setw(9)<<theEnsamble.first->toGlobal(oldChain[iRH_old]->localPosition()).phi()
+				       << " -- Time = "<<oldChain[iRH_old]->tof()
+				       << " -- "<<oldChain[iRH_old]->rawId()<<" = "<<ME0DetId(oldChain[iRH_old]->rawId())<<" ]";
       // to be chained, two hits need to be in neighbouring layers...
       // or better allow few missing layers (upto 3 to avoid inefficiencies);
       // however we'll not make an angle correction because it
@@ -275,12 +315,15 @@ bool ME0SegAlgoMM::isGoodToMerge(EnsambleHitContainer & newChain, EnsambleHitCon
       bool layerRequirementOK = abs(layer_new-layer_old)<5;
       bool phiRequirementOK = fabs(phi_old-phi_new) < dPhiChainBoxMax;
       bool etaRequirementOK = fabs(eta_old-eta_new) < dEtaChainBoxMax;
+      bool timeRequirementOK = fabs(time_old-time_new) < dTimeChainBoxMax;
       
-      if(layerRequirementOK && phiRequirementOK && etaRequirementOK){
+      if(layerRequirementOK && phiRequirementOK && etaRequirementOK && timeRequirementOK){
+	edm::LogVerbatim("ME0SegAlgoMMMerge") << "[GoodToMerge:: true]";
         return true;
       }
     }
   }
+  edm::LogVerbatim("ME0SegAlgoMMMerge") << "[GoodToMerge:: false]";
   return false;
 }
 
@@ -299,12 +342,41 @@ std::vector<ME0Segment> ME0SegAlgoMM::buildSegments(const EnsambleHitContainer& 
   if (proto_segment.size() < minHitsPerSegment){
     return me0segs;
   }
+
+  edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegAlgoMM::buildSegments] will now try to fit a ME0Segment from collection of "<<rechits.size()<<" ME0 RecHits";
+  #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode 
+  for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
+    auto me0id = (*rh)->me0Id();
+    auto rhLP = (*rh)->localPosition();
+    edm::LogVerbatim("ME0SegAlgoMM") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()
+				     <<" Time = "<<std::showpos<<(*rh)->tof()<<" -- "<<me0id.rawId()<<" = "<<me0id<<" ]";
+  }
+  #endif
+
   // The actual fit on all hit of the protosegments;
   this->doSlopesAndChi2();
   this->fillLocalDirection();
   AlgebraicSymMatrix protoErrors = this->calculateError();
-  this->flipErrors( protoErrors ); 
-  ME0Segment tmp(proto_segment,protoIntercept, protoDirection, protoErrors,protoChi2);
+  this->flipErrors( protoErrors );
+
+  // Calculate the central value and uncertainty of the segment time
+  float averageTime=0.;
+  for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
+    averageTime += (*rh)->tof();                                          
+  }
+  if(rechits.size() != 0) averageTime=averageTime/(rechits.size());
+  float timeUncrt=0.;
+  for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
+    timeUncrt += pow((*rh)->tof()-averageTime,2);
+  }
+  if(rechits.size() > 1) timeUncrt=timeUncrt/(rechits.size()-1);
+  timeUncrt = sqrt(timeUncrt);
+
+  edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegAlgoMM::buildSegments] will now try to make ME0Segment from collection of "<<rechits.size()<<" ME0 RecHits";
+  ME0Segment tmp(proto_segment,protoIntercept, protoDirection, protoErrors,protoChi2,averageTime,timeUncrt);
+  edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegAlgoMM::buildSegments] ME0Segment made";
+  edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegAlgoMM::buildSegments] "<<tmp;
+
   me0segs.push_back(tmp);
   return me0segs;
 }
