@@ -81,11 +81,21 @@ class JetReCalibrator:
                     for i in [self.L2JetPar,self.L3JetPar,self.ResJetPar]: self.vParL3Res.push_back(i)
                     self.separateJetCorrectors["L2L3Res"] = ROOT.FactorizedJetCorrector(self.vParL3Res)
 
-    def getCorrection(self,jet,rho,delta=0,corrector=None):
+
+
+    def getCorrection(self,jet,rho,delta=0,metShift=[0,0],corrector=None,isHttSubjet=False):
+        """Calculates the correction factor of a jet without modifying it
+        """
         if not corrector: corrector = self.JetCorrector
         if corrector != self.JetCorrector and delta!=0: raise RuntimeError('Configuration not supported')
         corrector.setJetEta(jet.eta())
-        corrector.setJetPt(jet.pt()*jet.rawFactor())
+
+        # HTT Subjets are uncalibrated and have no rawFactor attacted
+        if isHttSubjet:
+            corrector.setJetPt(jet.pt())
+        else:
+            corrector.setJetPt(jet.pt() * jet.rawFactor())
+
         corrector.setJetA(jet.jetArea())
         corrector.setRho(rho)
         corr = corrector.getCorrection()
@@ -99,6 +109,14 @@ class JetReCalibrator:
             except RuntimeError as r:
                 print "Caught %s when getting uncertainty for jet of pt %.1f, eta %.2f\n" % (r,corr * jet.pt() * jet.rawFactor(),jet.eta())
                 jet.jetEnergyCorrUncertainty = 0.5
+
+        # Do not calculate metShift for HTT subjets
+        if not isHttSubjet:
+            if jet.photonEnergyFraction() < 0.9 and jet.pt()*corr*jet.rawFactor() > 10:
+                metShift[0] -= jet.px()*(corr*jet.rawFactor() - 1)*(1-jet.muonEnergyFraction())
+                metShift[1] -= jet.py()*(corr*jet.rawFactor() - 1)*(1-jet.muonEnergyFraction()) 
+        if delta != 0:
+
             #print "   jet with corr pt %6.2f has an uncertainty %.2f " % (jet.pt()*jet.rawFactor()*corr, jet.jetEnergyCorrUncertainty)
             corr *= max(0, 1+delta*jet.jetEnergyCorrUncertainty)
         return corr
@@ -161,22 +179,6 @@ class JetReCalibrator:
                     type1METCorr[2] += rawP4forT1.Et() * (corr - l1corr) 
         jet.setCorrP4(jet.p4() * (corr * raw))
         return True
-
-    def correctAll(self,jets,rho,delta=0,metShift=[0,0], addCorr=False, addShifts=False):
-        """Applies 'correct' to all the jets, discard the ones that have bad corrections (corrected pt <= 0).
-           If addCorr is True, save the correction in jet.corr; 
-           if addShifts, save also jet.corrJEC{Up,Down}"""
-        badJets = []
-        for j in jets:
-            ok = self.correct(j,rho,delta,metShift,addCorr=addCorr,addShifts=addShifts)
-            if not ok: badJets.append(j)
-        if len(badJets) > 0:
-            print "Warning: %d out of %d jets flagged bad by JEC." % (len(badJets), len(jets))
-        for bj in badJets:
-            jets.remove(bj)
-        for j in jets:
-            for sepcorr in self.separateJetCorrectors.keys():
-                setattr(j,"CorrFactor_"+sepcorr,self.getCorrection(j,rho,0,[0,0],corrector=self.separateJetCorrectors[sepcorr]))
 
     def correctAll(self,jets,rho,delta=0, addCorr=False, addShifts=False, metShift=[0.,0.], type1METCorr=[0.,0.,0.]):
         """Applies 'correct' to all the jets, discard the ones that have bad corrections (corrected pt <= 0)"""
