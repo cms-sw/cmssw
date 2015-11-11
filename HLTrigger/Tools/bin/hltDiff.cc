@@ -18,6 +18,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 
+#include <TFile.h>
+
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
@@ -473,22 +475,8 @@ std::ostream & operator<<(std::ostream & out, TriggerDiff diff) {
 
 
 bool check_file(std::string const & file) {
-  boost::filesystem::path p(file);
-
-  // check if the file exists
-  if (not boost::filesystem::exists(p))
-    return false;
-
-  // resolve the file name to canonical form
-  p = boost::filesystem::canonical(p);
-  if (not boost::filesystem::exists(p))
-    return false;
-
-  // check for a regular file
-  if (not boost::filesystem::is_regular_file(p))
-    return false;
-
-  return true;
+  std::unique_ptr<TFile> f(TFile::Open(file.c_str()));
+  return (f and not f->IsZombie());
 }
 
 
