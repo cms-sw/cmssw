@@ -107,6 +107,7 @@ private:
   bool useJEC_;
   bool usePat_;
   bool isMC_;
+  bool useHepMC_;
   bool fillGenJets_;
   bool doTrigger_;
   bool useQuality_;

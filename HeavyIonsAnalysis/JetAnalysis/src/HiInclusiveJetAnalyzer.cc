@@ -63,6 +63,7 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
   trackQuality_ = iConfig.getUntrackedParameter<string>("trackQuality","highPurity");
 
   isMC_ = iConfig.getUntrackedParameter<bool>("isMC",false);
+  useHepMC_ = iConfig.getUntrackedParameter<bool> ("useHepMC",true);
   fillGenJets_ = iConfig.getUntrackedParameter<bool>("fillGenJets",false);
 
   doTrigger_ = iConfig.getUntrackedParameter<bool>("doTrigger",false);
@@ -75,7 +76,7 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
 
   if(isMC_){
     genjetTag_ = consumes<vector<reco::GenJet> > (iConfig.getParameter<InputTag>("genjetTag"));
-    eventInfoTag_ = consumes<HepMCProduct> (iConfig.getParameter<InputTag>("eventInfoTag"));
+    if(useHepMC_) eventInfoTag_ = consumes<HepMCProduct> (iConfig.getParameter<InputTag>("eventInfoTag"));
     eventGenInfoTag_ = consumes<GenEventInfoProduct> (iConfig.getParameter<InputTag>("eventInfoTag"));
   }
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose",false);
@@ -1082,14 +1083,16 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 
   if(isMC_){
 
-    edm::Handle<HepMCProduct> hepMCProduct;
-    iEvent.getByToken(eventInfoTag_,hepMCProduct);
-    const HepMC::GenEvent* MCEvt = hepMCProduct->GetEvent();
+    if(useHepMC_) {
+      edm::Handle<HepMCProduct> hepMCProduct;
+      iEvent.getByToken(eventInfoTag_,hepMCProduct);
+      const HepMC::GenEvent* MCEvt = hepMCProduct->GetEvent();
 
-    std::pair<HepMC::GenParticle*,HepMC::GenParticle*> beamParticles = MCEvt->beam_particles();
-    if(beamParticles.first != 0)jets_.beamId1 = beamParticles.first->pdg_id();
-    if(beamParticles.second != 0)jets_.beamId2 = beamParticles.second->pdg_id();
-
+      std::pair<HepMC::GenParticle*,HepMC::GenParticle*> beamParticles = MCEvt->beam_particles();
+      if(beamParticles.first != 0)jets_.beamId1 = beamParticles.first->pdg_id();
+      if(beamParticles.second != 0)jets_.beamId2 = beamParticles.second->pdg_id();
+    }
+    
     edm::Handle<GenEventInfoProduct> hEventInfo;
     iEvent.getByToken(eventGenInfoTag_,hEventInfo);
     //jets_.pthat = hEventInfo->binningValues()[0];
