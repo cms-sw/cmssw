@@ -55,7 +55,7 @@ class MCVerticesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources
     
     edm::InputTag   fPrimaryVertexCollectionLabel;
     edm::InputTag   fPileUpInfoLabel;
-  
+
     static const int MAX_VERTICES=200;
 
     int eventCounter=0;

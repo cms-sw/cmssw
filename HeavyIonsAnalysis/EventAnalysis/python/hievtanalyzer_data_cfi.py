@@ -14,5 +14,6 @@ hiEvtAnalyzer = cms.EDAnalyzer('HiEvtAnalyzer',
    doVertex         = cms.bool(True),
    doPixel          = cms.bool(False),
    doMC             = cms.bool(False),
+   useHepMC         = cms.bool(False),
    evtPlaneLevel    = cms.int32(0)
 )

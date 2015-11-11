@@ -105,50 +105,52 @@ void MCVerticesAnalyzer::analyze(const edm::Event& iEvent,
   eventCounter++;
 
   int bunchCrossing   = iEvent.bunchCrossing();
-  
+
   edm::Handle<std::vector< PileupSummaryInfo> > pileUpInfo;
-  iEvent.getByToken(pileUpToken, pileUpInfo);
-  std::vector<PileupSummaryInfo>::const_iterator PVI;
-  for(PVI = pileUpInfo->begin(); PVI != pileUpInfo->end(); ++PVI) {
-    int pu_bunchcrossing = PVI->getBunchCrossing();
-    if(pu_bunchcrossing == 0) {
-      nPU=PVI->getPU_NumInteractions();
-      pileup->Fill(nPU);
+  if(iEvent.getByToken(pileUpToken, pileUpInfo)) {
+    std::vector<PileupSummaryInfo>::const_iterator PVI;
+    for(PVI = pileUpInfo->begin(); PVI != pileUpInfo->end(); ++PVI) {
+      int pu_bunchcrossing = PVI->getBunchCrossing();
+      if(pu_bunchcrossing == 0) {
+        nPU=PVI->getPU_NumInteractions();
+        pileup->Fill(nPU);
+      }
     }
   }
   
   edm::Handle<reco::VertexCollection> recVtxs;
-  iEvent.getByToken(recoVtxToken,recVtxs);
+  if(iEvent.getByToken(recoVtxToken,recVtxs)) {
         
-  if(recVtxs.isValid()){
-    int ivtx=0;
-    for(reco::VertexCollection::const_iterator v=recVtxs->begin(); v!=recVtxs->end(); ++v){
-      if(v->isFake()) continue;
-      vtx_isGood[ivtx] = false;
-      vtx_nTrk[ivtx] = v->tracksSize();
-      vtx_ndof[ivtx] = (int)v->ndof();
-      vtx_x[ivtx] = v->x();
-      vtx_y[ivtx] = v->y();
-      vtx_z[ivtx] = v->z();
-      vtx_xError[ivtx] = v->xError();
-      vtx_yError[ivtx] = v->yError();
-      vtx_zError[ivtx] = v->zError();
-      vtx_chi2[ivtx] = v->chi2();
-      vtx_normchi2[ivtx] = v->normalizedChi2();
-      vtx_isValid[ivtx] = v->isValid();
-      vtx_isFake[ivtx] = v->isFake();
-      if(vtx_isValid[ivtx] && (vtx_isFake[ivtx] == 0)){
-        nValidVtx[bunchCrossing]=nValidVtx[bunchCrossing]+1;
-      }
-      if(vtx_ndof[ivtx] > 4 && vtx_isValid[ivtx] && (vtx_isFake[ivtx] == 0)){
-        if(vtx_nTrk[ivtx] > 0){
-          nGoodVtx[bunchCrossing]=nGoodVtx[bunchCrossing]+1;
-          vtx_isGood[ivtx] = true;
+    if(recVtxs.isValid()){
+      int ivtx=0;
+      for(reco::VertexCollection::const_iterator v=recVtxs->begin(); v!=recVtxs->end(); ++v){
+        if(v->isFake()) continue;
+        vtx_isGood[ivtx] = false;
+        vtx_nTrk[ivtx] = v->tracksSize();
+        vtx_ndof[ivtx] = (int)v->ndof();
+        vtx_x[ivtx] = v->x();
+        vtx_y[ivtx] = v->y();
+        vtx_z[ivtx] = v->z();
+        vtx_xError[ivtx] = v->xError();
+        vtx_yError[ivtx] = v->yError();
+        vtx_zError[ivtx] = v->zError();
+        vtx_chi2[ivtx] = v->chi2();
+        vtx_normchi2[ivtx] = v->normalizedChi2();
+        vtx_isValid[ivtx] = v->isValid();
+        vtx_isFake[ivtx] = v->isFake();
+        if(vtx_isValid[ivtx] && (vtx_isFake[ivtx] == 0)){
+          nValidVtx[bunchCrossing]=nValidVtx[bunchCrossing]+1;
         }
+        if(vtx_ndof[ivtx] > 4 && vtx_isValid[ivtx] && (vtx_isFake[ivtx] == 0)){
+          if(vtx_nTrk[ivtx] > 0){
+            nGoodVtx[bunchCrossing]=nGoodVtx[bunchCrossing]+1;
+            vtx_isGood[ivtx] = true;
+          }
+        }
+        ivtx++;
       }
-      ivtx++;
+      nVtx=ivtx;
     }
-    nVtx=ivtx;
   }
   tree->Fill();
   Reset();
