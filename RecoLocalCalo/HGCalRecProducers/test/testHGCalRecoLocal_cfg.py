@@ -28,8 +28,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 # get uncalibrechits with weights method
 process.load("RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi")
 process.HGCalUncalibRecHit.HGCEEdigiCollection  = 'mix:HGCDigisEE'
-process.HGCalUncalibRecHit.HGCHEFdigiCollection = 'mix:HGCDigisHEback'
-process.HGCalUncalibRecHit.HGCHEBdigiCollection = 'mix:HGCDigisHEfront'
+process.HGCalUncalibRecHit.HGCHEFdigiCollection = 'mix:HGCDigisHEfront'
+process.HGCalUncalibRecHit.HGCHEBdigiCollection = 'mix:HGCDigisHEback'
 
 # get rechits e.g. from the weights
 process.load("RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi")
@@ -39,7 +39,6 @@ process.HGCalRecHit.HGCHEBuncalibRecHitCollection = 'HGCalUncalibRecHit:HGCHEBUn
 
 process.HGCalRecoLocal = cms.Sequence(process.HGCalUncalibRecHit +
                                       process.HGCalRecHit)
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
