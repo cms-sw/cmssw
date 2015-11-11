@@ -331,7 +331,7 @@ try {
     const sistrip::FEDReadoutMode mode = buffer->readoutMode();
     
     
-    if likely(mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE ) { 
+    if likely(mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 ) { 
 	
 	try {
 	  // create unpacker
@@ -355,9 +355,28 @@ try {
 	  }                                               
 	  continue;
 	}
-      } else {
+    } else if likely(mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8 ) {
+
+      try {
+        // create unpacker
+        sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(fedCh));
+
+        // unpack
+        clusterizer.addFed(unpacker,ipair,record);
+      } catch (edmNew::CapacityExaustedException) {
+        throw;
+      } catch (const cms::Exception& e) {
+          if (edm::isDebugEnabled()) {
+            std::ostringstream ss;
+            ss << "Unordered clusters for channel " << fedCh << " on FED " << fedId << ": " << e.what();
+            edm::LogWarning(sistrip::mlRawToCluster_) << ss.str();
+          }
+          continue;
+        }
+
+    } else {
       
-      if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED ) { 
+      if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED or mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_FAKE ) { 
 	try {
 	  // create unpacker
 	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(fedCh));
