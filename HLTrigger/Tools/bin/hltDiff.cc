@@ -36,7 +36,7 @@ void usage(std::ostream & out) {
   out << "\
 usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABEL[:INSTANCE[:PROCESS]]]\n\
                -n|--new-files FILE1.ROOT [FILE2.ROOT ...] [-N|--new-process LABEL[:INSTANCE[:PROCESS]]]\n\
-               [-m|--max-events MAXEVENTS] [-p|--prescales] [-v|--verbose] [-h|--help]\n\
+               [-m|--max-events MAXEVENTS] [-p|--prescales] [-q|--quiet] [-v|--verbose] [-h|--help]\n\
 \n\
   -o|--old-files FILE1.ROOT [FILE2.ROOT ...]\n\
       input file(s) with the old (reference) trigger results.\n\
@@ -60,6 +60,9 @@ usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABE
 \n\
   -p|--prescales\n\
       do not ignore differences caused by HLTPrescaler modules.\n\
+\n\
+  -q|--quiet\n\
+      suppress messages about missing events and collectiions.\n\
 \n\
   -v|--verbose\n\
       be (more) verbose:\n\
@@ -493,7 +496,7 @@ bool check_files(std::vector<std::string> const & files) {
 
 void compare(std::vector<std::string> const & old_files, std::string const & old_process,
              std::vector<std::string> const & new_files, std::string const & new_process,
-             unsigned int max_events, bool ignore_prescales, int verbose) {
+             unsigned int max_events, bool ignore_prescales, int verbose, int quiet) {
 
   std::shared_ptr<fwlite::ChainEvent> old_events;
   std::shared_ptr<fwlite::ChainEvent> new_events;
@@ -517,6 +520,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
   HLTConfigInterface const * new_config = nullptr;
 
   unsigned int counter = 0;
+  unsigned int skipped = 0;
   unsigned int affected = 0;
   bool new_run = true;
   std::vector<TriggerDiff> differences;
@@ -527,26 +531,46 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
     // seek the same event in the "new" files
     edm::EventID const& id = old_events->id();
     if (new_events != old_events and not new_events->to(id)) {
-      std::cerr << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": not found in the 'new' files, skipping." << std::endl;
+      if (not quiet)
+        std::cerr << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": not found in the 'new' files, skipping." << std::endl;
+      ++skipped;
       continue;
     }
 
     // read the TriggerResults and TriggerEvent
     fwlite::Handle<edm::TriggerResults> old_results_h;
+    edm::TriggerResults const * old_results = nullptr;
     old_results_h.getByLabel<fwlite::Event>(* old_events->event(), "TriggerResults", "", old_process.c_str());
-    auto const & old_results = * old_results_h;
+    if (old_results_h.isValid())
+      old_results = old_results_h.product();
+    else {
+      if (not quiet)
+        std::cerr << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": 'old' TriggerResults not found, skipping." << std::endl;
+      continue;
+    }
 
     fwlite::Handle<trigger::TriggerEvent> old_summary_h;
+    trigger::TriggerEvent const * old_summary = nullptr;
     old_summary_h.getByLabel<fwlite::Event>(* old_events->event(), "hltTriggerSummaryAOD", "", old_process.c_str());
-    auto const & old_summary = * old_summary_h;
+    if (old_summary_h.isValid())
+      old_summary = old_summary_h.product();
 
-    fwlite::Handle<edm::TriggerResults> new_handle;
-    new_handle.getByLabel<fwlite::Event>(* new_events->event(), "TriggerResults", "", new_process.c_str());
-    auto const & new_results = * new_handle;
+    fwlite::Handle<edm::TriggerResults> new_results_h;
+    edm::TriggerResults const * new_results = nullptr;
+    new_results_h.getByLabel<fwlite::Event>(* new_events->event(), "TriggerResults", "", new_process.c_str());
+    if (new_results_h.isValid())
+      new_results = new_results_h.product();
+    else {
+      if (not quiet)
+        std::cerr << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": 'new' TriggerResults not found, skipping." << std::endl;
+      continue;
+    }
 
     fwlite::Handle<trigger::TriggerEvent> new_summary_h;
+    trigger::TriggerEvent const * new_summary = nullptr;
     new_summary_h.getByLabel<fwlite::Event>(* new_events->event(), "hltTriggerSummaryAOD", "", new_process.c_str());
-    auto const & new_summary = * new_summary_h;
+    if (new_summary_h.isValid())
+      new_summary = new_summary_h.product();
 
     // initialise the trigger configuration
     if (new_run) {
@@ -580,8 +604,8 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
       // FIXME explicitly converting the indices is a hack, it should be properly encapsulated instead
       unsigned int old_index = old_config->triggerIndex(p);
       unsigned int new_index = new_config->triggerIndex(p);
-      State old_state = prescaled_state(old_results.state(old_index), p, old_results.index(old_index), * old_config);
-      State new_state = prescaled_state(new_results.state(new_index), p, new_results.index(new_index), * new_config);
+      State old_state = prescaled_state(old_results->state(old_index), p, old_results->index(old_index), * old_config);
+      State new_state = prescaled_state(new_results->state(new_index), p, new_results->index(new_index), * new_config);
 
       if (old_state == Pass)
         ++differences[p].count;
@@ -594,7 +618,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
         } else if (old_state != Pass and new_state == Pass) {
           ++differences[p].gained;
           flag = true;
-        } else if (old_results.index(old_index) != new_results.index(new_index)) {
+        } else if (old_results->index(old_index) != new_results->index(new_index)) {
           ++differences[p].internal;
           flag = true;
         }
@@ -607,27 +631,27 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
           if (needs_header) {
             needs_header = false;
             std::cout << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": "
-                      << "old result is '" << event_state(old_results.accept()) << "', "
-                      << "new result is '" << event_state(new_results.accept()) << "'"
+                      << "old result is '" << event_state(old_results->accept()) << "', "
+                      << "new result is '" << event_state(new_results->accept()) << "'"
                       << std::endl;
           }
           // print the Trigger path and filter responsible for the discrepancy
           std::cout << "    Path " << old_config->triggerName(p) << ":\n"
                     << "        old state is ";
-          print_detailed_path_state(std::cout, old_state, p, old_results.index(old_index), * old_config);
+          print_detailed_path_state(std::cout, old_state, p, old_results->index(old_index), * old_config);
           std::cout << ",\n"
                     << "        new state is ";
-          print_detailed_path_state(std::cout, new_state, p, new_results.index(new_index), * new_config);
+          print_detailed_path_state(std::cout, new_state, p, new_results->index(new_index), * new_config);
           std::cout << std::endl;
         }
-        if (verbose > 1) {
+        if (verbose > 1 and old_summary and new_summary) {
           // print TriggerObjects for the filter responsible for the discrepancy
-          unsigned int module = std::min(old_results.index(old_index), new_results.index(new_index));
+          unsigned int module = std::min(old_results->index(old_index), new_results->index(new_index));
           std::cout << "    Filter " << old_config->moduleLabel(p, module) << ":\n";
           std::cout << "        old trigger candidates:\n";
-          print_trigger_candidates(std::cout, old_summary, edm::InputTag(old_config->moduleLabel(p, module), "", old_config->processName()));
+          print_trigger_candidates(std::cout, * old_summary, edm::InputTag(old_config->moduleLabel(p, module), "", old_config->processName()));
           std::cout << "        new trigger candidates:\n";
-          print_trigger_candidates(std::cout, new_summary, edm::InputTag(new_config->moduleLabel(p, module), "", new_config->processName()));
+          print_trigger_candidates(std::cout, * new_summary, edm::InputTag(new_config->moduleLabel(p, module), "", new_config->processName()));
         }
         if (verbose > 0)
           std::cout << std::endl;
@@ -637,16 +661,16 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
       ++affected;
 
     // compare the TriggerEvent
-    if (affected_event and verbose > 2) {
+    if (affected_event and verbose > 2 and old_summary and new_summary) {
       std::set<std::string> names;
-      names.insert(old_summary.collectionTags().begin(), old_summary.collectionTags().end());
-      names.insert(new_summary.collectionTags().begin(), new_summary.collectionTags().end());
+      names.insert(old_summary->collectionTags().begin(), old_summary->collectionTags().end());
+      names.insert(new_summary->collectionTags().begin(), new_summary->collectionTags().end());
       for (auto const & collection: names) {
         std::cout << "    Collection " << collection << ":\n";
         std::cout << "        old trigger candidates:\n";
-        print_trigger_collection(std::cout, old_summary, collection);
+        print_trigger_collection(std::cout, * old_summary, collection);
         std::cout << "        new trigger candidates:\n";
-        print_trigger_collection(std::cout, new_summary, collection);
+        print_trigger_collection(std::cout, * new_summary, collection);
         std::cout << std::endl;
       }
     }
@@ -657,9 +681,15 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
   }
 
   if (not counter) {
-    std::cout << "There are no common events between the old and new files." << std::endl;
+    std::cout << "There are no common events between the old and new files";
+    if (skipped)
+      std::cout << ", " << skipped << " events were skipped";
+    std::cout <<  "." << std::endl;
   } else {
-    std::cout << "Found " << affected << " events out of " << counter << " with differences:\n" << std::endl;
+    std::cout << "Found " << affected << " events out of " << counter << " with differences";
+    if (skipped)
+      std::cout << ", " << skipped << " events were skipped";
+    std::cout << ":\n" << std::endl;
     std::cout << std::setw(12) << "Events" << std::setw(12) << "Accepted" << std::setw(12) << "Gained" << std::setw(12) << "Lost" << std::setw(12) << "Other" << "  " << "Trigger" << std::endl;
     for (unsigned int p = 0; p < old_config->size(); ++p)
       std::cout << std::setw(12) << counter << differences[p] << "  " << old_config->triggerName(p) << std::endl;
@@ -669,7 +699,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
 
 int main(int argc, char ** argv) {
   // options
-  const char optstring[] = "o:O:n:N:m:pvh";
+  const char optstring[] = "o:O:n:N:m:pqvh";
   const option longopts[] = {
     option{ "old-files",    required_argument,  nullptr, 'o' },
     option{ "old-process",  required_argument,  nullptr, 'O' },
@@ -677,6 +707,7 @@ int main(int argc, char ** argv) {
     option{ "new-process",  required_argument,  nullptr, 'N' },
     option{ "max-events",   required_argument,  nullptr, 'm' },
     option{ "prescales",    no_argument,        nullptr, 'p' },
+    option{ "quet",         no_argument,        nullptr, 'q' },
     option{ "verbose",      no_argument,        nullptr, 'v' },
     option{ "help",         no_argument,        nullptr, 'h' },
   };
@@ -688,6 +719,7 @@ int main(int argc, char ** argv) {
   std::string               new_process("");
   unsigned int              max_events = 0;
   bool                      ignore_prescales = true;
+  bool                      quiet = false;
   unsigned int              verbose = 0;
 
   // parse the command line options
@@ -730,6 +762,10 @@ int main(int argc, char ** argv) {
         ignore_prescales = false;
         break;
 
+      case 'q':
+        quiet = true;
+        break;
+
       case 'v':
         ++verbose;
         break;
@@ -755,7 +791,7 @@ int main(int argc, char ** argv) {
     exit(1);
   }
 
-  compare(old_files, old_process, new_files, new_process, max_events, ignore_prescales, verbose);
+  compare(old_files, old_process, new_files, new_process, max_events, ignore_prescales, verbose, quiet);
 
   return 0;
 }
