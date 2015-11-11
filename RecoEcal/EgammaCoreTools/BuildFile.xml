@@ -1,4 +1,3 @@
-#Test Comment
 <use   name="DataFormats/EcalRecHit"/>
 <use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/Math"/>
