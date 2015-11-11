@@ -72,8 +72,10 @@ process.mix.input.nbPileupEvents.averageNumber = cms.double(140.000000)
 process.mix.bunchspace = cms.int32(25)
 process.mix.minBunch = cms.int32(-12)
 process.mix.maxBunch = cms.int32(3)
-process.mix.input.fileNames = cms.untracked.vstring([
-        'file:/lustre/cms/store/user/rosma/MinBias/MinBias14TeV2023HGCalMuonME0/150705_103519/MinBias.root',
+# process.mix.input.fileNames = cms.untracked.vstring([
+        ### Rosma ######
+        # 'file:/lustre/cms/store/user/rosma/MinBias/MinBias14TeV2023HGCalMuonME0/150705_103519/MinBias.root',
+        ### Amandeep ###
         # '/store/mc/TP2023HGCALGS/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/DES23_62_V1-v3/00000/0010AE1F-6676-E411-8F16-002618943860.root', 
         # '/store/mc/TP2023HGCALGS/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/DES23_62_V1-v3/00000/0035CDEE-5C76-E411-8214-0023AEFDEEEC.root', 
         # '/store/mc/TP2023HGCALGS/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/DES23_62_V1-v3/00000/004B2C7D-6876-E411-ABFA-002618943949.root', 
@@ -84,7 +86,11 @@ process.mix.input.fileNames = cms.untracked.vstring([
         # '/store/mc/TP2023HGCALGS/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/DES23_62_V1-v3/00000/02758CA9-5F76-E411-A1D8-0015172C07E1.root', 
         # '/store/mc/TP2023HGCALGS/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/DES23_62_V1-v3/00000/02C7F040-7176-E411-B19E-0023AEFDEE68.root', 
         # '/store/mc/TP2023HGCALGS/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/DES23_62_V1-v3/00000/02DE880D-5576-E411-AE26-002590200A00.root',
-])
+# ])
+puFiles = cms.untracked.vstring()
+process.mix.input.fileNames = puFiles
+puFiles.extend(['file:/lustre/cms/store/user/rosma/MinBias/MinBias14TeV2023HGCalMuonME0/150705_103519/MinBias.root']) ### File Rosma ... just to test
+
 process.mix.digitizers = cms.PSet(process.theDigitizersValid)
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'PH2_1K_FB_V6::All', '')
