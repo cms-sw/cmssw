@@ -33,10 +33,15 @@ ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config
     maxBunch_(config.getParameter<int>("maxBunch"))
 {
   // polynomial parametrisation of neutral (n+g) and electron background
-  neuBkg.push_back(899644.0);     neuBkg.push_back(-30841.0);     neuBkg.push_back(441.28); 
-  neuBkg.push_back(-3.3405);      neuBkg.push_back(0.0140588);    neuBkg.push_back(-3.11473e-05); neuBkg.push_back(2.83736e-08);
-  eleBkg.push_back(4.68590e+05);  eleBkg.push_back(-1.63834e+04); eleBkg.push_back(2.35700e+02);
-  eleBkg.push_back(-1.77706e+00); eleBkg.push_back(7.39960e-03);  eleBkg.push_back(-1.61448e-05); eleBkg.push_back(1.44368e-08);
+  // neuBkg.push_back(899644.0);     neuBkg.push_back(-30841.0);     neuBkg.push_back(441.28); 
+  // neuBkg.push_back(-3.3405);      neuBkg.push_back(0.0140588);    neuBkg.push_back(-3.11473e-05); neuBkg.push_back(2.83736e-08);
+  // eleBkg.push_back(4.68590e+05);  eleBkg.push_back(-1.63834e+04); eleBkg.push_back(2.35700e+02);
+  // eleBkg.push_back(-1.77706e+00); eleBkg.push_back(7.39960e-03);  eleBkg.push_back(-1.61448e-05); eleBkg.push_back(1.44368e-08);
+  neuBkg.push_back(5.69e+06);     neuBkg.push_back(-293334);     neuBkg.push_back(6279.6);
+  neuBkg.push_back(-71.2928);     neuBkg.push_back(0.452244);    neuBkg.push_back(-0.0015191);  neuBkg.push_back(2.1106e-06);
+  eleBkg.push_back(3.77712e+06);  eleBkg.push_back(-199280);     eleBkg.push_back(4340.69);
+  eleBkg.push_back(-49.922);      eleBkg.push_back(0.319699);    eleBkg.push_back(-0.00108113); eleBkg.push_back(1.50889e-06);
+
 }
 ME0PreRecoGaussianModel::~ME0PreRecoGaussianModel()
 {
