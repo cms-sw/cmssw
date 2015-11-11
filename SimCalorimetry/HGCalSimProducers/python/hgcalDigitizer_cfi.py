@@ -120,7 +120,7 @@ hgchebackDigitizer = cms.PSet(
         noise_MIP         = cms.double(0.20),
         doTimeSamples = cms.bool(False),
         nPEperMIP = cms.double(11.0),
-        nTotalPE  = cms.double(11560), #1156 pixels => saturation ~600MIP
+        nTotalPE  = cms.double(1156), #1156 pixels => saturation ~600MIP
         xTalk     = cms.double(0.25),
         sdPixels  = cms.double(3.0),
         feCfg   = cms.PSet( 
@@ -129,7 +129,7 @@ hgchebackDigitizer = cms.PSet(
             # n bits for the ADC 
             adcNbits        = cms.uint32(12),
             # ADC saturation : in this case we use the same variable but fC=MIP
-            adcSaturation_fC = cms.double(2048),
+            adcSaturation_fC = cms.double(1024),
             # threshold for digi production : in this case we use the same variable but fC=MIP
             adcThreshold_fC = cms.double(1.0)
             )

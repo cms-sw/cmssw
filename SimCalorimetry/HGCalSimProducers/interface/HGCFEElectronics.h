@@ -7,16 +7,20 @@
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
+#include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerTypes.h"
+
 /**
    @class HGCFEElectronics
    @short models the behavior of the front-end electronics
  */
 
+namespace hgc = hgc_digi;
+
 template <class DFr>
 class HGCFEElectronics
 {
  public:
-
+  
   enum HGCFEElectronicsFirmwareVersion { TRIVIAL, SIMPLE, WITHTOT };
   enum HGCFEElectronicsTOTMode { WEIGHTEDBYE, SIMPLETHRESHOLD };
 
@@ -28,7 +32,8 @@ class HGCFEElectronics
   /**
      @short switches according to the firmware version
    */
-  inline void runShaper(DFr &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toa, CLHEP::HepRandomEngine* engine)
+  inline void runShaper(DFr &dataFrame, hgc::HGCSimHitData& chargeColl, 
+                        hgc::HGCSimHitData& toa, CLHEP::HepRandomEngine* engine)
   {    
     switch(fwVersion_)
       {
@@ -50,25 +55,24 @@ class HGCFEElectronics
   /**
      @short converts charge to digis without pulse shape
    */
-  void runTrivialShaper(DFr &dataFrame,std::vector<float> &chargeColl);
+  void runTrivialShaper(DFr &dataFrame, hgc::HGCSimHitData& chargeColl);
 
   /**
      @short applies a shape to each time sample and propagates the tails to the subsequent time samples
    */
-  void runSimpleShaper(DFr &dataFrame,std::vector<float> &chargeColl);
+  void runSimpleShaper(DFr &dataFrame, hgc::HGCSimHitData& chargeColl);
 
   /**
      @short implements pulse shape and switch to time over threshold including deadtime
    */
-  void runShaperWithToT(DFr &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toa, CLHEP::HepRandomEngine* engine);
+  void runShaperWithToT(DFr &dataFrame, hgc::HGCSimHitData& chargeColl, 
+                        hgc::HGCSimHitData& toa, CLHEP::HepRandomEngine* engine);
 
   /**
      @short returns how ToT will be computed
    */
   uint32_t toaMode() const { return toaMode_; }
   
-  void resetCaches();
-
   /**
      @short DTOR
    */
@@ -83,8 +87,8 @@ class HGCFEElectronics
     adcThreshold_fC_, tdcOnset_fC_, toaLSB_ns_, tdcResolutionInNs_; 
   uint32_t toaMode_;
   //caches
-  std::vector<bool>  busyFlags, totFlags;
-  std::vector<float> newCharge, toaFromToT;
+  std::array<bool,hgc::nSamples>  busyFlags, totFlags;
+  hgc::HGCSimHitData newCharge, toaFromToT;
 };
 
 #endif

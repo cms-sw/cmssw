@@ -16,6 +16,8 @@
 #include <algorithm>
 #include <boost/foreach.hpp>
 
+using namespace hgc_digi;
+
 //
 HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps,
                            edm::ConsumesCollector& iC) :
@@ -155,6 +157,11 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
     tdcOnset          = theHGCHEfrontDigitizer_->tdcOnset();
     keV2fC            = theHGCHEfrontDigitizer_->keV2fC();
     break;
+  case ForwardSubdetector::HGCHEB:
+    weightToAbyEnergy = theHGCHEbackDigitizer_->toaModeByEnergy();
+    tdcOnset          = std::numeric_limits<float>::max();//theHGCHEbackDigitizer_->tdcOnset();
+    keV2fC            = theHGCHEbackDigitizer_->keV2fC();     
+    break;
   default:
     break;
   }
@@ -196,34 +203,33 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   std::sort(hitRefs.begin(),hitRefs.end(),this->orderByDetIdThenTime);
   
   //loop over sorted hits
-  for(int i=0; i<nchits; i++)
+  for(int i=0; i<nchits; ++i)
     {
-      int hitidx   = std::get<0>(hitRefs[i]);
-      uint32_t id  = std::get<1>(hitRefs[i]);
+      const int hitidx   = std::get<0>(hitRefs[i]);
+      const uint32_t id  = std::get<1>(hitRefs[i]);
       if(id==0) continue; // to be ignored at RECO level
 
-      float toa    = std::get<2>(hitRefs[i]);
+      const float toa    = std::get<2>(hitRefs[i]);
       const PCaloHit &hit=hits->at( hitidx );     
-      float charge = hit.energy()*1e6*keV2fC;
-
-
+      const float charge = hit.energy()*1e6*keV2fC;
+      
       //distance to the center of the detector
-      float dist2center( geom->getPosition(id).mag() );
+      const float dist2center( geom->getPosition(id).mag() );
       
       //hit time: [time()]=ns  [centerDist]=cm [refSpeed_]=cm/ns + delay by 1ns
       //accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
-      float tof(toa-dist2center/refSpeed_+tofDelay_);
-      int itime=floor( tof/bxTime_ ) ;
+      const float tof = toa-dist2center/refSpeed_+tofDelay_ ;
+      const int itime= std::floor( tof/bxTime_ ) + 9;
       
       //no need to add bx crossing - tof comes already corrected from the mixing module
       //itime += bxCrossing;
-      itime += 9;
+      //itime += 9;
       
       if(itime<0 || itime>14) continue; 
             
       //check if already existing (perhaps could remove this in the future - 2nd event should have all defined)
-      HGCSimHitDataAccumulator::iterator simHitIt=simHitAccumulator_->find(id);
-      if(simHitIt == simHitAccumulator_->end()) {
+      HGCSimHitDataAccumulator::iterator simHitIt = simHitAccumulator_->find(id);
+      if( simHitIt == simHitAccumulator_->end() ) {
         simHitIt = simHitAccumulator_->insert( std::make_pair(id,baseData) ).first;
       }
       

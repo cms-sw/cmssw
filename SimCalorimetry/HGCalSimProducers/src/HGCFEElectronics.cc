@@ -1,7 +1,7 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCFEElectronics.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
-using namespace std;
+using namespace hgc_digi;
 
 //
 template<class DFr>
@@ -26,7 +26,7 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet &ps) :
       edm::LogVerbatim("HGCFE") 
          << "[HGCFEElectronics] " << adcNbits << " bit ADC defined"
 	 << " with LSB=" << adcLSB_fC_ 
-	 << " saturation to occur @ " << adcSaturation_fC_ << endl;
+	 << " saturation to occur @ " << adcSaturation_fC_ << std::endl;
     }
 
   tdcSaturation_fC_=-1.0;
@@ -37,7 +37,7 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet &ps) :
       tdcLSB_fC_=tdcSaturation_fC_/pow(2.,tdcNbits);
       edm::LogVerbatim("HGCFE") 
          << "[HGCFEElectronics] " << tdcNbits << " bit TDC defined with LSB=" 
-         << tdcLSB_fC_ << " saturation to occur @ " << tdcSaturation_fC_ << endl;
+         << tdcLSB_fC_ << " saturation to occur @ " << tdcSaturation_fC_ << std::endl;
     }
   if( ps.exists("adcThreshold_fC") )                adcThreshold_fC_                = ps.getParameter<double>("adcThreshold_fC");
   if( ps.exists("tdcOnset_fC") )                    tdcOnset_fC_                    = ps.getParameter<double>("tdcOnset_fC");
@@ -50,7 +50,7 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet &ps) :
 
 //
 template<class DFr>
-void HGCFEElectronics<DFr>::runTrivialShaper(DFr &dataFrame,std::vector<float> &chargeColl)
+void HGCFEElectronics<DFr>::runTrivialShaper(DFr &dataFrame, HGCSimHitData& chargeColl)
 {
   bool debug(false);
   
@@ -58,14 +58,15 @@ void HGCFEElectronics<DFr>::runTrivialShaper(DFr &dataFrame,std::vector<float> &
   for(int it=0; it<(int)(chargeColl.size()); it++) debug |= (chargeColl[it]>adcThreshold_fC_);
 #endif
     
-  if(debug) edm::LogVerbatim("HGCFE") << "[runTrivialShaper]" << endl;
+  if(debug) edm::LogVerbatim("HGCFE") << "[runTrivialShaper]" << std::endl;
   
   //set new ADCs
-  HGCSample newSample;
+ 
   for(int it=0; it<(int)(chargeColl.size()); it++)
-    {
+    {      
       //brute force saturation, maybe could to better with an exponential like saturation      
       const uint32_t adc=std::floor( std::min(chargeColl[it],adcSaturation_fC_) / adcLSB_fC_ );
+      HGCSample newSample;
       newSample.set(chargeColl[it]>adcThreshold_fC_,false,0,adc);
       dataFrame.setSample(it,newSample);
 
@@ -75,16 +76,16 @@ void HGCFEElectronics<DFr>::runTrivialShaper(DFr &dataFrame,std::vector<float> &
   if(debug) { 
     std::stringstream msg;
     dataFrame.print(msg);
-    edm::LogVerbatim("HGCFE") << msg << endl; 
+    edm::LogVerbatim("HGCFE") << msg << std::endl; 
   } 
 }
 
 //
 template<class DFr>
-void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame,std::vector<float> &chargeColl)
+void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame, HGCSimHitData& chargeColl)
 {
   //convolute with pulse shape to compute new ADCs
-  newCharge.resize(chargeColl.size(),0);
+  newCharge.fill(0.f);
   bool debug(false);
   for(int it=0; it<(int)(chargeColl.size()); it++)
     {
@@ -111,11 +112,11 @@ void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame,std::vector<float> &c
     }
 
   //set new ADCs
-  HGCSample newSample;
-  for(int it=0; it<(int)(newCharge.size()); it++)
+    for(int it=0; it<(int)(newCharge.size()); it++)
     {
       //brute force saturation, maybe could to better with an exponential like saturation
-      const float saturatedCharge(min(newCharge[it],adcSaturation_fC_));
+      const float saturatedCharge(std::min(newCharge[it],adcSaturation_fC_));
+      HGCSample newSample;
       newSample.set(newCharge[it]>adcThreshold_fC_,false,0,floor(saturatedCharge/adcLSB_fC_));
       dataFrame.setSample(it,newSample);      
 
@@ -125,24 +126,18 @@ void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame,std::vector<float> &c
   if(debug) { 
     std::stringstream msg;
     dataFrame.print(msg);
-    edm::LogVerbatim("HGCFE") << msg << endl; 
+    edm::LogVerbatim("HGCFE") << msg << std::endl; 
   }
-  newCharge.clear();
 }
 
 //
 template<class DFr>
-void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toaColl, CLHEP::HepRandomEngine* engine)
+void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& chargeColl, HGCSimHitData& toaColl, CLHEP::HepRandomEngine* engine)
 {
-  busyFlags.resize(chargeColl.size());
-  totFlags.resize(chargeColl.size());
-  newCharge.resize(chargeColl.size());
-  toaFromToT.resize(chargeColl.size());
-  
-  busyFlags.assign( busyFlags.size(), false );
-  totFlags.assign( totFlags.size(), false );
-  newCharge.assign( newCharge.size(), 0.f );
-  toaFromToT.assign( toaFromToT.size(), 0.f );
+  busyFlags.fill(false);
+  totFlags.fill(false);
+  newCharge.fill( 0.f );
+  toaFromToT.fill( 0.f );
 
 #ifdef EDM_ML_DEBUG
   constexpr bool debug(true);
@@ -151,7 +146,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame,std::vector<float> &
 #endif
 
   //first identify bunches which will trigger ToT
-  if(debug) edm::LogVerbatim("HGCFE") << "[runShaperWithToT]" << endl;  
+  if(debug) edm::LogVerbatim("HGCFE") << "[runShaperWithToT]" << std::endl;  
   for(int it=0; it<(int)(chargeColl.size()); ++it)
     {
       //if already flagged as busy it can't be re-used to trigger the ToT
@@ -325,7 +320,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame,std::vector<float> &
       else
 	{
 	   //brute force saturation, maybe could to better with an exponential like saturation
-	      float saturatedCharge(min(newCharge[it],adcSaturation_fC_));
+          float saturatedCharge(std::min(newCharge[it],adcSaturation_fC_));
 	  newSample.set(newCharge[it]>adcThreshold_fC_,false,0,saturatedCharge/adcLSB_fC_);
 	}
       dataFrame.setSample(it,newSample);
@@ -334,16 +329,8 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame,std::vector<float> &
   if(debug) { 
     std::stringstream msg;
     dataFrame.print(msg);
-    edm::LogVerbatim("HGCFE") << msg << endl; 
+    edm::LogVerbatim("HGCFE") << msg << std::endl; 
   }  
-}
-
-template<class DFr>
-void HGCFEElectronics<DFr>::resetCaches() {
-  std::vector<bool>().swap(busyFlags);
-  std::vector<bool>().swap(totFlags);
-  std::vector<float>().swap(newCharge);
-  std::vector<float>().swap(toaFromToT);
 }
 
 // cause the compiler to generate the appropriate code

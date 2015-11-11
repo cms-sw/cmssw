@@ -1,5 +1,7 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerBase.h"
 
+using namespace hgc_digi;
+
 template<class DFr>
 void HGCDigitizerBase<DFr>::run( std::auto_ptr<HGCDigitizerBase::DColl> &digiColl,
                                   HGCSimHitDataAccumulator &simData,
@@ -13,12 +15,12 @@ template<class DFr>
 void HGCDigitizerBase<DFr>::runSimple(std::auto_ptr<HGCDigitizerBase::DColl> &coll,
                                        HGCSimHitDataAccumulator &simData, 
                                        CLHEP::HepRandomEngine* engine) {
-  std::vector<float> chargeColl,toa;
+  HGCSimHitData chargeColl,toa;
   for(HGCSimHitDataAccumulator::iterator it=simData.begin();
       it!=simData.end();
       it++) {
-    chargeColl.resize(it->second[0].size()); 
-    toa.resize(it->second[0].size());
+    chargeColl.fill(0.f); 
+    toa.fill(0.f);
     for(size_t i=0; i<it->second[0].size(); i++) {
       double rawCharge((it->second)[0][i]);
       
@@ -45,9 +47,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::auto_ptr<HGCDigitizerBase::DColl> &co
     
     //update the output according to the final shape
     updateOutput(coll,rawDataFrame);
-  }
-
-  myFEelectronics_->resetCaches();
+  }  
 }
 
 template<class DFr>
