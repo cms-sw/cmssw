@@ -30,17 +30,38 @@
 
 # crab submit -c myCrab3crabConfig.py Data.inputDataset='/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/amkalsi-DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_MinBias_ME0_RAW_TimingResolution_1ns-a78e67d4dfe6ec91a4b2ef7c9deeaea8/USER' General.requestName='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_1ns_7ns_NeutrBkg_5E34_v2_RECO' Data.publishDataName='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_1ns_7ns_NeutrBkg_5E34_v2_RECO'
 
-crab submit -c myCrab3crabConfig.py Data.inputDataset='/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/amkalsi-DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_MinBias_ME0_RAW_TimingResolution_5ns-d3908b1662dce7c3d94d8e9843b3ae74/USER' General.requestName='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_5ns_32ns_NeutrBkg_5E34_v2_RECO' Data.publishDataName='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_5ns_32ns_NeutrBkg_5E34_v2_RECO'
+# crab submit -c myCrab3crabConfig.py Data.inputDataset='/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/amkalsi-DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_MinBias_ME0_RAW_TimingResolution_5ns-d3908b1662dce7c3d94d8e9843b3ae74/USER' General.requestName='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_5ns_32ns_NeutrBkg_5E34_v2_RECO' Data.publishDataName='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_5ns_32ns_NeutrBkg_5E34_v2_RECO'
 
 
-
-
-
-
-
-
-
-
+### Neutron Background recalculated ... new DIGI step  ###########################
+### Datasets to be used: 
+### signal: /DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/TP2023HGCALGS-newsplit_DES23_62_V1-v1/GEN-SIM [ 1M,  253 files, T2_US_Vanderbilt]
+### pileup: /MinBias_TuneZ2star_14TeV-pythia6/TP2023HGCALGS-DES23_62_V1-v3/GEN-SIM                       [10M, 1094 files, T2_CH_CERN, T2_FR_GRIF_LLR, T2_US_Vanderbilt]
+##################################################################################
+### Submit samples with different time resolution                        
+#
+crab submit -c myCrab3crabConfig_DIGI.py Data.inputDataset='/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/TP2023HGCALGS-newsplit_DES23_62_V1-v1/GEN-SIM' General.requestName='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_500um_1cm_v2_DIGI' Data.outputDatasetTag='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_500um_1cm_v2_DIGI'
+#
+# crab submit -c myCrab3crabConfig_DIGI.py Data.inputDataset='/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/TP2023HGCALGS-newsplit_DES23_62_V1-v1/GEN-SIM' General.requestName='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_300ps_500um_1cm_v2_DIGI' Data.outputDatasetTag='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_300ps_500um_1cm_v2_DIGI'
+#
+# crab submit -c myCrab3crabConfig_DIGI.py Data.inputDataset='/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/TP2023HGCALGS-newsplit_DES23_62_V1-v1/GEN-SIM' General.requestName='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_500ps_500um_1cm_v2_DIGI' Data.outputDatasetTag='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_500ps_500um_1cm_v2_DIGI'
+#
+# crab submit -c myCrab3crabConfig_DIGI.py Data.inputDataset='/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/TP2023HGCALGS-newsplit_DES23_62_V1-v1/GEN-SIM' General.requestName='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_1ns_500um_1cm_v2_DIGI' Data.outputDatasetTag='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_1ns_500um_1cm_v2_DIGI'
+#
+# crab submit -c myCrab3crabConfig_DIGI.py Data.inputDataset='/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/TP2023HGCALGS-newsplit_DES23_62_V1-v1/GEN-SIM' General.requestName='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_5ns_500um_1cm_v2_DIGI' Data.outputDatasetTag='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_5ns_500um_1cm_v2_DIGI'
+# 
+### Submit samples with different spatial resolution
+#
+# crab submit -c myCrab3crabConfig_DIGI.py Data.inputDataset='/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/TP2023HGCALGS-newsplit_DES23_62_V1-v1/GEN-SIM' General.requestName='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_100um_1cm_v2_DIGI' Data.outputDatasetTag='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_100um_1cm_v2_DIGI'
+# 
+# crab submit -c myCrab3crabConfig_DIGI.py Data.inputDataset='/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/TP2023HGCALGS-newsplit_DES23_62_V1-v1/GEN-SIM' General.requestName='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_250um_1cm_v2_DIGI' Data.outputDatasetTag='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_250um_1cm_v2_DIGI'
+# 
+# crab submit -c myCrab3crabConfig_DIGI.py Data.inputDataset='/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/TP2023HGCALGS-newsplit_DES23_62_V1-v1/GEN-SIM' General.requestName='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1mm_1cm_v2_DIGI' Data.outputDatasetTag='DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_HGCALGS_PU140_100ps_1mm_1cm_v2_DIGI'
+#
+###  signal: /ZprimeSSMToMuMu_M2500_TuneZ2star_14TeV_pythia6_cfg_ME0_gensim/rosma-ZprimeSSMToMuMu_M2500_TuneZ2star_14TeV_pythia6_cfg_ME0_gensim-a7e94321ca0f14f2d615fb718b2cab17/USER [100K, 10K files, T2_IT_Bari]
+###  pileup: /MinBias_TuneZ2star_14TeV-pythia6/TP2023HGCALGS-DES23_62_V1-v3/GEN-SIM                                                                                                   [10M, 1094 files, T2_CH_CERN, T2_FR_GRIF_LLR, T2_US_Vanderbilt]
+# 
+# crab submit -c myCrab3crabConfig_DIGI.py Data.inputDataset='/ZprimeSSMToMuMu_M2500_TuneZ2star_14TeV_pythia6_cfg_ME0_gensim/rosma-ZprimeSSMToMuMu_M2500_TuneZ2star_14TeV_pythia6_cfg_ME0_gensim-a7e94321ca0f14f2d615fb718b2cab17/USER' General.requestName='ZprimeSSMToMuMu_M2500_TuneZ2star_14TeV_pythia6_HGCALS_PU140_1ns_100um_1cm_v2_DIGI' Data.outputDatasetTag='ZprimeSSMToMuMu_M2500_TuneZ2star_14TeV_pythia6_HGCALGS_PU140_1ns_100um_1cm_v2_DIGI'
 
 
 
