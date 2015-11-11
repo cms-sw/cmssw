@@ -81,8 +81,6 @@ class JetReCalibrator:
                     for i in [self.L2JetPar,self.L3JetPar,self.ResJetPar]: self.vParL3Res.push_back(i)
                     self.separateJetCorrectors["L2L3Res"] = ROOT.FactorizedJetCorrector(self.vParL3Res)
 
-
-
     def getCorrection(self,jet,rho,delta=0,metShift=[0,0],corrector=None,isHttSubjet=False):
         """Calculates the correction factor of a jet without modifying it
         """
