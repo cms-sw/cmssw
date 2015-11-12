@@ -37,14 +37,8 @@ simSiStripDigis = cms.EDAlias(
 
 # no castor,pixel,strip digis in fastsim
 from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen:
+if eras.fastSim.isChosen():
     del simCastorDigis
     del simSiPixelDigis
     del simSiStripDigis
 
-#mergedtruth = cms.EDAlias(
-#    mix = cms.VPSet(
-#      cms.PSet(type = cms.string('TrackingParticles')),
-#      cms.PSet(type = cms.string('TrackingVertexs'))
-#    )
-#)
