@@ -25,8 +25,6 @@ electronMcMiniAODSignalValidator = cms.EDAnalyzer("ElectronMcMiniAODSignalValida
   InputFolderName = cms.string("EgammaV/ElectronMcMiniAODSignalValidator"), # 
   OutputFolderName = cms.string("EgammaV/ElectronMcMiniAODSignalValidator"), # 
 
-    vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
-#    muons = cms.InputTag("slimmedMuons"),
     mcTruthCollection = cms.InputTag("prunedGenParticles"),
     electrons = cms.InputTag("slimmedElectrons"),
 
