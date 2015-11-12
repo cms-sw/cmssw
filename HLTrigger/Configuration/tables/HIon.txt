@@ -229,17 +229,31 @@ AlCa_RPCMuonNoTriggers_v*				# CMSHLT-642
 AlCa_RPCMuonNoHits_v*					# CMSHLT-642
 AlCa_RPCMuonNormalisation_v*				# CMSHLT-642
 
-#HLT_Physics_v*
+AlCa_LumiPixels_Random_v*				# S.B. (private communication)
+AlCa_LumiPixels_ZeroBias_v*				# S.B. (private communication)
+
+DST_Physics_v*
+
+#RatesMonitoring                                # only in 'online'
 
 HLTriggerFirstPath
 HLTriggerFinalPath
 HLTAnalyzerEndpath
 
-PhysicsEGammaCommissioningOutput
-PhysicsHadronsTausOutput
-PhysicsMuonsOutput
+HIPhysicsMuonsOutput
+HIPhysicsHardProbesOutput
+HIPhysicsMinBiasUPCOutput
+HIPhysicsVirginRawOutput
+
+NanoDSTOutput
+HIExpressOutput
+
 CalibrationOutput
+EcalCalibrationOutput
 ALCAPHISYMOutput
+ALCALUMIPIXELSOutput
+
 DQMOutput
+DQMEventDisplayOutput
 DQMCalibrationOutput
 RPCMONOutput
