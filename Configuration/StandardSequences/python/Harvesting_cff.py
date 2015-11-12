@@ -33,4 +33,4 @@ genHarvesting = cms.Path(postValidation_gen)
 
 alcaHarvesting = cms.Path()
 
-validationHarvestingMiniAOD = cms.Path(JetPostProcessor*METPostProcessorHarvesting)
+validationHarvestingMiniAOD = cms.Path(JetPostProcessor*METPostProcessorHarvesting*electronPostValidationSequenceMiniAOD)
