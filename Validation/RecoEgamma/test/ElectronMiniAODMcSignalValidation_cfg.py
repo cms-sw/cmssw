@@ -6,12 +6,18 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ElectronValidation")
 
+process.options = cms.untracked.PSet( 
+    SkipEvent = cms.untracked.vstring('ProductNotFound') 
+    Rethrow = cms.untracked.vstring('ProductNotFound')
+)
+
 process.DQMStore = cms.Service("DQMStore")
 process.load("DQMServices.Components.DQMStoreStats_cfi")
 from DQMServices.Components.DQMStoreStats_cfi import *
 dqmStoreStats.runOnEndJob = cms.untracked.bool(True)
 
 # OLD WAY
+
 print "reading files ..."
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
