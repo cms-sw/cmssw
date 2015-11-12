@@ -5,6 +5,11 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("electronPostValidation")
 
+process.options = cms.untracked.PSet( 
+    SkipEvent = cms.untracked.vstring('ProductNotFound') 
+    Rethrow = cms.untracked.vstring('ProductNotFound')
+)
+
 process.DQMStore = cms.Service("DQMStore")
 process.load("Validation.RecoEgamma.ElectronMcMiniAODSignalPostValidator_cfi")
 process.load("DQMServices.Components.DQMStoreStats_cfi")
