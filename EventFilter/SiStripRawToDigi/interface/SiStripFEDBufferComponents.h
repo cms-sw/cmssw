@@ -40,22 +40,49 @@ namespace sistrip {
   enum FEDReadoutMode { READOUT_MODE_INVALID=INVALID,
                         READOUT_MODE_SCOPE=0x1,
                         READOUT_MODE_VIRGIN_RAW=0x2,
+                        READOUT_MODE_ZERO_SUPPRESSED_LITE10=0x3,
+                        READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE=0x4,
+                        READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT=0x5,
                         READOUT_MODE_PROC_RAW=0x6,
+                        READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE=0x7,
+                        READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE=0x8,
+                        READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT=0x9,
                         READOUT_MODE_ZERO_SUPPRESSED=0xA,
-                        READOUT_MODE_ZERO_SUPPRESSED_LITE=0xC,
+                        READOUT_MODE_ZERO_SUPPRESSED_FAKE=0xB,
+                        READOUT_MODE_ZERO_SUPPRESSED_LITE8=0xC,
+                        READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE=0xD,
                         READOUT_MODE_SPY=0xE,
-			READOUT_MODE_PREMIX_RAW=0xF //0x8?
+                        READOUT_MODE_PREMIX_RAW=0xF
                       };
 
-  static const uint8_t PACKET_CODE_SCOPE = 0xE5;
-  static const uint8_t PACKET_CODE_VIRGIN_RAW = 0xE6;
-  static const uint8_t PACKET_CODE_PROC_RAW = 0xF2;
-  static const uint8_t PACKET_CODE_ZERO_SUPPRESSED = 0xEA;
+  enum FEDLegacyReadoutMode { READOUT_MODE_LEGACY_INVALID=INVALID,
+                              READOUT_MODE_LEGACY_SCOPE=0x1,
+                              READOUT_MODE_LEGACY_VIRGIN_RAW_REAL=0x2,
+                              READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE=0x3,
+                              READOUT_MODE_LEGACY_PROC_RAW_REAL=0x6,
+                              READOUT_MODE_LEGACY_PROC_RAW_FAKE=0x7,
+                              READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL=0xA,
+                              READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE=0xB,
+                              READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL=0xC,
+                              READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE=0xD,
+                              READOUT_MODE_LEGACY_SPY=0xE,
+                              READOUT_MODE_LEGACY_PREMIX_RAW=0xF
+                            };
 
-  //enum values are values which appear in buffer. DO NOT CHANGE!
-  enum FEDDataType { DATA_TYPE_REAL=0,
-                     DATA_TYPE_FAKE=1
-                   };
+  static const uint8_t PACKET_CODE_SCOPE = 0xE1;
+  static const uint8_t PACKET_CODE_VIRGIN_RAW = 0xE6;
+  static const uint8_t PACKET_CODE_VIRGIN_RAW10 = 0x86; 
+  static const uint8_t PACKET_CODE_VIRGIN_RAW8_BOTBOT = 0xC6; //FIXME need to implement this!
+  static const uint8_t PACKET_CODE_VIRGIN_RAW8_TOPBOT = 0xA6;
+  static const uint8_t PACKET_CODE_PROC_RAW = 0xF2;
+  static const uint8_t PACKET_CODE_PROC_RAW10 = 0x92; //FIXME need to implement this!
+  static const uint8_t PACKET_CODE_PROC_RAW8_BOTBOT = 0xCA;
+  static const uint8_t PACKET_CODE_PROC_RAW8_TOPBOT = 0xB2;
+  static const uint8_t PACKET_CODE_ZERO_SUPPRESSED = 0xEA;
+  static const uint8_t PACKET_CODE_ZERO_SUPPRESSED_LITE10 = 0x8A;
+  static const uint8_t PACKET_CODE_ZERO_SUPPRESSED_LITE8 = 0xEA;
+  static const uint8_t PACKET_CODE_ZERO_SUPPRESSED_LITE8_BOTBOT = 0xCA;
+  static const uint8_t PACKET_CODE_ZERO_SUPPRESSED_LITE8_TOPBOT = 0xAA;
 
   //enum values are values which appear in buffer. DO NOT CHANGE!
   //see http://cmsdoc.cern.ch/cms/TRIDAS/horizontal/RUWG/DAQ_IF_guide/DAQ_IF_guide.html
@@ -114,8 +141,8 @@ namespace sistrip {
   //to make enums printable
   std::ostream& operator<<(std::ostream& os, const FEDBufferFormat& value);
   std::ostream& operator<<(std::ostream& os, const FEDHeaderType& value);
+  std::ostream& operator<<(std::ostream& os, const FEDLegacyReadoutMode& value);
   std::ostream& operator<<(std::ostream& os, const FEDReadoutMode& value);
-  std::ostream& operator<<(std::ostream& os, const FEDDataType& value);
   std::ostream& operator<<(std::ostream& os, const FEDDAQEventType& value);
   std::ostream& operator<<(std::ostream& os, const FEDTTSBits& value);
   std::ostream& operator<<(std::ostream& os, const FEDBufferState& value);
@@ -124,7 +151,6 @@ namespace sistrip {
   FEDBufferFormat fedBufferFormatFromString(const std::string& bufferFormatString);
   FEDHeaderType fedHeaderTypeFromString(const std::string& headerTypeString);
   FEDReadoutMode fedReadoutModeFromString(const std::string& readoutModeString);
-  FEDDataType fedDataTypeFromString(const std::string& dataTypeString);
   FEDDAQEventType fedDAQEventTypeFromString(const std::string& daqEventTypeString);
 
   //
@@ -267,7 +293,7 @@ namespace sistrip {
       FEDHeaderType headerType() const;
       uint8_t trackerEventTypeNibble() const;
       FEDReadoutMode readoutMode() const;
-      FEDDataType dataType() const;
+      FEDLegacyReadoutMode legacyReadoutMode() const;
       uint8_t apveAddress() const;
       uint8_t apvAddressErrorRegister() const;
       bool majorityAddressErrorForFEUnit(const uint8_t internalFEUnitNum) const;
@@ -285,7 +311,6 @@ namespace sistrip {
       TrackerSpecialHeader& setBufferFormat(const FEDBufferFormat newBufferFormat);
       TrackerSpecialHeader& setHeaderType(const FEDHeaderType headerType);
       TrackerSpecialHeader& setReadoutMode(const FEDReadoutMode readoutMode);
-      TrackerSpecialHeader& setDataType(const FEDDataType dataType);
       TrackerSpecialHeader& setAPVEAddress(const uint8_t address);
       TrackerSpecialHeader& setAPVEAddressErrorRegister(const uint8_t addressErrorRegister);
       TrackerSpecialHeader& setAPVAddressErrorForFEUnit(const uint8_t internalFEUnitNum, const bool error);
@@ -294,8 +319,7 @@ namespace sistrip {
       TrackerSpecialHeader& setFEOverflowRegister(const uint8_t feOverflowRegister);
       TrackerSpecialHeader& setFEOverflowForFEUnit(const uint8_t internalFEUnitNum, const bool overflow);
       TrackerSpecialHeader& setFEDStatusRegister(const FEDStatusRegister fedStatusRegister);
-      TrackerSpecialHeader(const FEDBufferFormat bufferFormat, const FEDReadoutMode readoutMode,
-                           const FEDHeaderType headerType, const FEDDataType dataType,
+      TrackerSpecialHeader(const FEDBufferFormat bufferFormat, const FEDReadoutMode readoutMode, const FEDHeaderType headerType,
                            const uint8_t address = 0x00, const uint8_t addressErrorRegister = 0x00,
                            const uint8_t feEnableRegister = 0xFF, const uint8_t feOverflowRegister = 0x00,
                            const FEDStatusRegister fedStatusRegister = FEDStatusRegister());
@@ -303,7 +327,6 @@ namespace sistrip {
       void setBufferFormatByte(const FEDBufferFormat newBufferFormat);
       void setHeaderTypeNibble(const uint8_t value);
       void setReadoutModeBits(const uint8_t value);
-      void setDataTypeBit(const bool value);
       enum byteIndicies { FEDSTATUS=0, FEOVERFLOW=2, FEENABLE=3, ADDRESSERROR=4, APVEADDRESS=5, BUFFERTYPE=6, BUFFERFORMAT=7 };
       //copy of header, 32 bit word swapped if needed
       uint8_t specialHeader_[8];
@@ -523,10 +546,10 @@ namespace sistrip {
       const uint8_t* data() const;
       size_t offset() const;
       uint16_t cmMedian(const uint8_t apvIndex) const;
-    private:
-      friend class FEDBuffer;
       //third byte of channel data for normal FED channels
       uint8_t packetCode() const;
+    private:
+      friend class FEDBuffer;
       const uint8_t* data_;
       size_t offset_;
       uint16_t length_;
@@ -565,8 +588,9 @@ namespace sistrip {
       //methods to get info from the tracker special header
       FEDBufferFormat bufferFormat() const;
       FEDHeaderType headerType() const;
+      FEDLegacyReadoutMode legacyReadoutMode() const;
       FEDReadoutMode readoutMode() const;
-      FEDDataType dataType() const;
+      uint8_t packetCode(bool legacy=false, const uint8_t internalFEDChannelNum=0) const;
       uint8_t apveAddress() const;
       bool majorityAddressErrorForFEUnit(const uint8_t internalFEUnitNum) const;
       bool feEnabled(const uint8_t internalFEUnitNum) const;
@@ -740,14 +764,9 @@ namespace sistrip {
   
   inline void TrackerSpecialHeader::setReadoutModeBits(const uint8_t value)
     {
-      specialHeader_[BUFFERTYPE] = ( (specialHeader_[BUFFERTYPE] & (~0x0E)) | (value & 0x0E) );
+      specialHeader_[BUFFERTYPE] = ( (specialHeader_[BUFFERTYPE] & (~0x0F)) | (value & 0x0F) );
     }
       
-  inline void TrackerSpecialHeader::setDataTypeBit(const bool value)
-    {
-      specialHeader_[BUFFERTYPE] = ( (specialHeader_[BUFFERTYPE] & (~0x01)) | (value ? 0x01 : 0x00) );
-    }
-  
   inline TrackerSpecialHeader& TrackerSpecialHeader::setAPVEAddress(const uint8_t address)
     {
       specialHeader_[APVEADDRESS] = address;
@@ -1422,14 +1441,69 @@ namespace sistrip {
       return specialHeader_.headerType();
     }
   
+  inline FEDLegacyReadoutMode FEDBufferBase::legacyReadoutMode() const
+    {
+      return specialHeader_.legacyReadoutMode();
+    }
+
   inline FEDReadoutMode FEDBufferBase::readoutMode() const
     {
       return specialHeader_.readoutMode();
     }
-  
-  inline FEDDataType FEDBufferBase::dataType() const
+
+  inline uint8_t FEDBufferBase::packetCode(bool legacy, const uint8_t internalFEDChannelNum) const
     {
-      return specialHeader_.dataType();
+      if (legacy) {
+        FEDLegacyReadoutMode mode = legacyReadoutMode();
+        switch(mode) {
+        case READOUT_MODE_LEGACY_SCOPE:
+          return PACKET_CODE_SCOPE;
+        case READOUT_MODE_LEGACY_VIRGIN_RAW_REAL:
+        case READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE:
+          return PACKET_CODE_VIRGIN_RAW;
+        case READOUT_MODE_LEGACY_PROC_RAW_REAL:
+        case READOUT_MODE_LEGACY_PROC_RAW_FAKE:
+          return PACKET_CODE_PROC_RAW;
+        case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL:
+        case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE:
+          return PACKET_CODE_ZERO_SUPPRESSED;
+        case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL:
+        case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE:
+        case READOUT_MODE_LEGACY_PREMIX_RAW:
+        case READOUT_MODE_LEGACY_SPY:
+        case READOUT_MODE_LEGACY_INVALID:
+        default:
+          return 0;
+        }
+      } else {
+        FEDReadoutMode mode = readoutMode();
+        switch(mode) {
+        case READOUT_MODE_SCOPE:
+          return PACKET_CODE_SCOPE;
+        case READOUT_MODE_VIRGIN_RAW:
+          return channel(internalFEDChannelNum).packetCode();
+        case READOUT_MODE_PROC_RAW:
+          return PACKET_CODE_PROC_RAW;
+        case READOUT_MODE_ZERO_SUPPRESSED:
+          return PACKET_CODE_ZERO_SUPPRESSED;
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+          return PACKET_CODE_ZERO_SUPPRESSED_LITE10;
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+          return PACKET_CODE_ZERO_SUPPRESSED_LITE8_BOTBOT;
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+          return PACKET_CODE_ZERO_SUPPRESSED_LITE8_TOPBOT;
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+        case READOUT_MODE_PREMIX_RAW:
+        case READOUT_MODE_SPY:
+        case READOUT_MODE_INVALID:
+        default:
+          return 0;
+        }
+      }
     }
   
   inline uint8_t FEDBufferBase::apveAddress() const
