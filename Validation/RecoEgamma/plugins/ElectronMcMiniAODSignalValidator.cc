@@ -38,7 +38,6 @@ using namespace pat;
 
 ElectronMcMiniAODSignalValidator::ElectronMcMiniAODSignalValidator(const edm::ParameterSet& iConfig) : ElectronDqmAnalyzerBase(iConfig)
 {
-    vtxToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"));
     mcTruthCollection_ = consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("mcTruthCollection"));
     electronToken_ = consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"));
 
@@ -220,10 +219,6 @@ void ElectronMcMiniAODSignalValidator::bookHistograms( DQMStore::IBooker & iBook
 void ElectronMcMiniAODSignalValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     // get collections
-    edm::Handle<reco::VertexCollection> vertices;
-    iEvent.getByToken(vtxToken_, vertices);
-    if (vertices->empty()) return; // skip the event if no PV found
-
     edm::Handle<pat::ElectronCollection> electrons;
     iEvent.getByToken(electronToken_, electrons);
     
@@ -241,15 +236,13 @@ void ElectronMcMiniAODSignalValidator::analyze(const edm::Event& iEvent, const e
 
     pat::Electron gsfElectron ;
 
-    for(std::vector<pat::Electron>::const_iterator el1=electrons->begin(); el1!=electrons->end(); el1++) {
-        // preselect electrons
-//        if (el1->pt()>maxPt_ || std::abs(el1->eta())>maxAbsEta_) continue ;
-        
-        // mee
-//        std::cout << "boucle 2 : " <<  el1->pt() << std::endl ;
-        for (std::vector<pat::Electron>::const_iterator el2=el1+1 ; el2!=electrons->end() ; el2++ )
+//    for(std::vector<pat::Electron>::const_iterator el1=electrons->begin(); el1!=electrons->end(); el1++) {
+    pat::ElectronCollection::const_iterator el1 ;
+    pat::ElectronCollection::const_iterator el2 ;
+    for(el1=electrons->begin(); el1!=electrons->end(); el1++) {
+//        for (std::vector<pat::Electron>::const_iterator el2=el1+1 ; el2!=electrons->end() ; el2++ )
+        for (el2=el1+1 ; el2!=electrons->end() ; el2++ )
         {
-//            std::cout << "-- boucle 2 : " <<  el2->pt() << std::endl ;
             math::XYZTLorentzVector p12 = el1->p4()+el2->p4();
             float mee2 = p12.Dot(p12);
             h1_ele_mee_all->Fill(sqrt(mee2));
