@@ -827,70 +827,70 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
        || diffHitPatternHasValidHitInFirstPixelBarrel != 0
        ) {
 
-      edm::LogWarning("PackedCandidateTrackValidator") << "Track " << i << " pt " << track.pt() << " eta " << track.eta() << " phi " << track.phi() << " chi2 " << track.chi2() << " ndof " << track.ndof()
-                                                       << "\n"
-                                                       << "  ptError " << track.ptError() << " etaError " << track.etaError() << " phiError " << track.phiError() << " dxyError " << track.dxyError() << " dzError " << track.dzError()
-                                                       << "\n"
-                                                       << "  refpoint " << track.referencePoint() << " momentum " << track.momentum()
-                                                       << "\n"
-                                                       << "  dxy " << track.dxy() << " dz " << track.dz()
-                                                       << "\n"
-                                                       << "  " << TrackAlgoPrinter(track)
-                                                       << " lost inner hits " << trackLostInnerHits
-                                                       << " lost outer hits " << track.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS)
-                                                       << " hitpattern " << HitPatternPrinter(track)
-                                                       << " \n"
-                                                       << " PC " << pcRef.id() << ":" << pcRef.key() << " track pt " << trackPc.pt() << " eta " << trackPc.eta() << " phi " << trackPc.phi() << " (PC " << pcRef->phi() << ") chi2 " << trackPc.chi2() << " ndof " << trackPc.ndof() << " pdgId " << pcRef->pdgId() << " mass " << pcRef->mass()
-                                                       << "\n"
-                                                       << "  ptError " << trackPc.ptError() << " etaError " << trackPc.etaError() << " phiError " << trackPc.phiError()
-                                                       << "\n"
-                                                       << "  pc.vertex " << pcRef->vertex() << " momentum " << pcRef->momentum() << " track " << trackPc.momentum()
-                                                       << "\n"
-                                                       << "  dxy " << trackPc.dxy() << " dz " << trackPc.dz() << " pc.dz " << pcRef->dz()
-                                                       << " dxyError " << trackPc.dxyError() << " dzError " << trackPc.dzError()
-                                                       << "\n"
-                                                       << "  dxy(PV) " << trackPc.dxy(pv.position()) << " dz(PV) " << trackPc.dz(pv.position())
-                                                       << " dxy(assocPV) " << trackPc.dxy(pcVertex.position()) << " dz(assocPV) " << trackPc.dz(pcVertex.position())
-                                                       << "\n"
-                                                       << " (diff PackedCandidate track)"
-                                                       << " highPurity " << diffHP << " " << trackPc.quality(reco::TrackBase::highPurity) << " " << track.quality(reco::TrackBase::highPurity)
-                                                       << " charge " << diffCharge << " " << trackPc.charge() << " " << track.charge()
-                                                       << " normalizedChi2 " << diffNormalizedChi2 << " " << trackPc.normalizedChi2() << " " << track.normalizedChi2()
-                                                       << "\n "
-                                                       << " numberOfHits " << diffNumberOfHits << " " << pcNumberOfHits << " " << trackNumberOfHits
-                                                       << " numberOfPixelHits " << diffNumberOfPixelHits << " " << pcNumberOfPixelHits << " " << trackNumberOfPixelHits
-                                                       << " numberOfStripHits # " << pcNumberOfStripHits << " " << trackNumberOfStripHits
-                                                       << "\n "
-                                                       << " hitPattern.numberOfValidPixelHits " << diffHitPatternNumberOfValidPixelHits << " " << trackPc.hitPattern().numberOfValidPixelHits() << " " << track.hitPattern().numberOfValidPixelHits()
-                                                       << " hitPattern.numberOfValidHits " << diffHitPatternNumberOfValidHits << " " << trackPc.hitPattern().numberOfValidHits() << " " << track.hitPattern().numberOfValidHits()
-                                                       << " hitPattern.hasValidHitInFirstPixelBarrel " << diffHitPatternHasValidHitInFirstPixelBarrel << " " << trackPc.hitPattern().hasValidHitInFirstPixelBarrel() << " " << track.hitPattern().hasValidHitInFirstPixelBarrel()
-                                                       << "\n "
-                                                       << " lostInnerHits  " << diffLostInnerHits << " " << pcRef->lostInnerHits() << " #"
-                                                       << " phi (5e-4) " << diffPhi << " " << trackPc.phi() << " " << track.phi()
-                                                       << "\n "
-                                                       << " dxy(assocPV) " << diffDxyAssocPV
-                                                       << "\n "
-                                                       << " dz(assocPV) " << diffDzAssocPV
-                                                       << "\n "
-                                                       << " dxy(PV) (0.05) " << diffDxyPV << " " << pcRef->dxy(pv.position()) << " " << track.dxy(pv.position())
-                                                       << "\n "
-                                                       << " dz(PV) (0.05) " << diffDzPV << " " << pcRef->dz(pv.position()) << " " << track.dz(pv.position())
-                                                       << "\n "
-                                                       << " cov(qoverp, qoverp)  " << diffCovQoverpQoverp
-                                                       << "\n "
-                                                       << " cov(lambda, lambda) " << diffCovLambdaLambda
-                                                       << "\n "
-                                                       << " cov(lambda, dsz) " << diffCovLambdaDsz
-                                                       << "\n "
-                                                       << " cov(phi, phi) " << diffCovPhiPhi
-                                                       << "\n "
-                                                       << " cov(phi, dxy) " << diffCovPhiDxy
-                                                       << "\n "
-                                                       << " cov(dxy, dxy) " << diffCovDxyDxy
-                                                       << "\n "
-                                                       << " cov(dxy, dsz) " << diffCovDxyDsz
-                                                       << "\n "
-                                                       << " cov(dsz, dsz) " << diffCovDszDsz;
+      edm::LogInfo("PackedCandidateTrackValidator") << "Track " << i << " pt " << track.pt() << " eta " << track.eta() << " phi " << track.phi() << " chi2 " << track.chi2() << " ndof " << track.ndof()
+                                                    << "\n"
+                                                    << "  ptError " << track.ptError() << " etaError " << track.etaError() << " phiError " << track.phiError() << " dxyError " << track.dxyError() << " dzError " << track.dzError()
+                                                    << "\n"
+                                                    << "  refpoint " << track.referencePoint() << " momentum " << track.momentum()
+                                                    << "\n"
+                                                    << "  dxy " << track.dxy() << " dz " << track.dz()
+                                                    << "\n"
+                                                    << "  " << TrackAlgoPrinter(track)
+                                                    << " lost inner hits " << trackLostInnerHits
+                                                    << " lost outer hits " << track.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS)
+                                                    << " hitpattern " << HitPatternPrinter(track)
+                                                    << " \n"
+                                                    << " PC " << pcRef.id() << ":" << pcRef.key() << " track pt " << trackPc.pt() << " eta " << trackPc.eta() << " phi " << trackPc.phi() << " (PC " << pcRef->phi() << ") chi2 " << trackPc.chi2() << " ndof " << trackPc.ndof() << " pdgId " << pcRef->pdgId() << " mass " << pcRef->mass()
+                                                    << "\n"
+                                                    << "  ptError " << trackPc.ptError() << " etaError " << trackPc.etaError() << " phiError " << trackPc.phiError()
+                                                    << "\n"
+                                                    << "  pc.vertex " << pcRef->vertex() << " momentum " << pcRef->momentum() << " track " << trackPc.momentum()
+                                                    << "\n"
+                                                    << "  dxy " << trackPc.dxy() << " dz " << trackPc.dz() << " pc.dz " << pcRef->dz()
+                                                    << " dxyError " << trackPc.dxyError() << " dzError " << trackPc.dzError()
+                                                    << "\n"
+                                                    << "  dxy(PV) " << trackPc.dxy(pv.position()) << " dz(PV) " << trackPc.dz(pv.position())
+                                                    << " dxy(assocPV) " << trackPc.dxy(pcVertex.position()) << " dz(assocPV) " << trackPc.dz(pcVertex.position())
+                                                    << "\n"
+                                                    << " (diff PackedCandidate track)"
+                                                    << " highPurity " << diffHP << " " << trackPc.quality(reco::TrackBase::highPurity) << " " << track.quality(reco::TrackBase::highPurity)
+                                                    << " charge " << diffCharge << " " << trackPc.charge() << " " << track.charge()
+                                                    << " normalizedChi2 " << diffNormalizedChi2 << " " << trackPc.normalizedChi2() << " " << track.normalizedChi2()
+                                                    << "\n "
+                                                    << " numberOfHits " << diffNumberOfHits << " " << pcNumberOfHits << " " << trackNumberOfHits
+                                                    << " numberOfPixelHits " << diffNumberOfPixelHits << " " << pcNumberOfPixelHits << " " << trackNumberOfPixelHits
+                                                    << " numberOfStripHits # " << pcNumberOfStripHits << " " << trackNumberOfStripHits
+                                                    << "\n "
+                                                    << " hitPattern.numberOfValidPixelHits " << diffHitPatternNumberOfValidPixelHits << " " << trackPc.hitPattern().numberOfValidPixelHits() << " " << track.hitPattern().numberOfValidPixelHits()
+                                                    << " hitPattern.numberOfValidHits " << diffHitPatternNumberOfValidHits << " " << trackPc.hitPattern().numberOfValidHits() << " " << track.hitPattern().numberOfValidHits()
+                                                    << " hitPattern.hasValidHitInFirstPixelBarrel " << diffHitPatternHasValidHitInFirstPixelBarrel << " " << trackPc.hitPattern().hasValidHitInFirstPixelBarrel() << " " << track.hitPattern().hasValidHitInFirstPixelBarrel()
+                                                    << "\n "
+                                                    << " lostInnerHits  " << diffLostInnerHits << " " << pcRef->lostInnerHits() << " #"
+                                                    << " phi (5e-4) " << diffPhi << " " << trackPc.phi() << " " << track.phi()
+                                                    << "\n "
+                                                    << " dxy(assocPV) " << diffDxyAssocPV
+                                                    << "\n "
+                                                    << " dz(assocPV) " << diffDzAssocPV
+                                                    << "\n "
+                                                    << " dxy(PV) (0.05) " << diffDxyPV << " " << pcRef->dxy(pv.position()) << " " << track.dxy(pv.position())
+                                                    << "\n "
+                                                    << " dz(PV) (0.05) " << diffDzPV << " " << pcRef->dz(pv.position()) << " " << track.dz(pv.position())
+                                                    << "\n "
+                                                    << " cov(qoverp, qoverp)  " << diffCovQoverpQoverp
+                                                    << "\n "
+                                                    << " cov(lambda, lambda) " << diffCovLambdaLambda
+                                                    << "\n "
+                                                    << " cov(lambda, dsz) " << diffCovLambdaDsz
+                                                    << "\n "
+                                                    << " cov(phi, phi) " << diffCovPhiPhi
+                                                    << "\n "
+                                                    << " cov(phi, dxy) " << diffCovPhiDxy
+                                                    << "\n "
+                                                    << " cov(dxy, dxy) " << diffCovDxyDxy
+                                                    << "\n "
+                                                    << " cov(dxy, dsz) " << diffCovDxyDsz
+                                                    << "\n "
+                                                    << " cov(dsz, dsz) " << diffCovDszDsz;
     }
   }
 }
