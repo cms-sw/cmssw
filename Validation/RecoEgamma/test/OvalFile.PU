@@ -111,6 +111,51 @@ FullSim
     <var name="TEST_GLOBAL_AUTOCOND" value="startup">
     <var name="DD_COND" value="PU50ns_${TEST_GLOBAL_TAG}-${DATA_VERSION}">
 
+      <environment name="ValPileUpTTbarStartup">
+        
+        <var name="DD_SAMPLE" value="RelValTTbar_13">
+        <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
+        <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
+
+	    <var name="BLUE_FILE" value="electronHistos.ValPileUpTTbarStartup_pu40bx50.root">
+        <var name="RED_FILE" value="electronHistos.PU50ns_ValPileUpTTbarStartup.root">
+
+        <target name="dqm" cmd="electronDataDiscovery.py castor">
+        <target name="wget" cmd="electronWget.py castor">
+      
+        <target name="dd" cmd="electronDataDiscovery.py">
+        <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
+        <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
+      
+        <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
+        <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
+      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/PileUp50ns_${DD_SAMPLE}_Startup'>
+  
+      </environment>
+
+    <environment name="ValPileUpZEEStartup">
+    
+      <var name="DD_SAMPLE" value="RelValZEE_13">
+      <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
+      <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
+      
+	    <var name="BLUE_FILE" value="electronHistos.ValPileUpZEEStartup_pu40bx50.root">
+        <var name="RED_FILE" value="electronHistos.PU50ns_ValPileUpZEEStartup.root">
+
+		<target name="dqm" cmd="electronDataDiscovery.py castor">
+      <target name="wget" cmd="electronWget.py castor">
+      
+      <target name="dd" cmd="electronDataDiscovery.py">
+      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
+      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
+      
+      <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
+      <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
+      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/PileUp50ns_${DD_SAMPLE}_Startup'>
+	  <!--target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/PileUp50ns_${DD_SAMPLE}_gedGsfE_Startup'-->
+  
+    </environment>
+
       <environment name="ValPileUpTTbarStartup_gedGsfE">
         
         <var name="DD_SAMPLE" value="RelValTTbar_13">
@@ -129,7 +174,7 @@ FullSim
       
         <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION_gedGsfE}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
         <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION_gedGsfE}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-	    <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedvsGed_${TEST_REF}/PileUp50ns_${DD_SAMPLE}_gedGsfE_Startup'>
+	    <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "gedGsfElectrons ${DD_SAMPLE}<br><b><font color='red'>${TEST_NEW}</font></b> : ${DD_COND}<br><b><font color='blue'>${TEST_REF}</font></b> : ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedvsGed_${TEST_REF}/PileUp50ns_${DD_SAMPLE}_gedGsfE_Startup'>
 
       </environment>
 
@@ -151,7 +196,7 @@ FullSim
       
       <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION_gedGsfE}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
       <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION_gedGsfE}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedvsGed_${TEST_REF}/PileUp50ns_${DD_SAMPLE}_gedGsfE_Startup'>
+      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "gedGsfElectrons ${DD_SAMPLE}<br><b><font color='red'>${TEST_NEW}</font></b> : ${DD_COND}<br><b><font color='blue'>${TEST_REF}</font></b> : ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedvsGed_${TEST_REF}/PileUp50ns_${DD_SAMPLE}_gedGsfE_Startup'>
 
     </environment>
   
