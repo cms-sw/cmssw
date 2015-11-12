@@ -10,6 +10,7 @@ simMuonME0Digis = cms.EDProducer("ME0DigiPreRecoProducer",
     useCorrelation = cms.bool(False),
     useEtaProjectiveGEO = cms.bool(False),
     averageEfficiency = cms.double(0.98),
+    gaussianSmearing = cms.bool(True),          # False --> Uniform smearing
     digitizeOnlyMuons = cms.bool(False),
     # simulateIntrinsicNoise = cms.bool(False), # intrinsic noise --> not implemented
     # averageNoiseRate = cms.double(0.001),     # intrinsic noise --> not implemented
