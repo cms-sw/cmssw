@@ -47,13 +47,13 @@ cutsRecoTracksBtvLike = btvTracks_cfi.btvTrackRefs.clone()
 
 # Select tracks associated to AK4 jets
 import RecoJets.JetAssociationProducers.ak4JTA_cff as ak4JTA_cff
-ak4JetTracksAssociatorAtVertexPFAll = ak4JTA_cff.ak4JetTracksAssociatorAtVertexPF.clone(
+ak4JetTracksAssociatorExplicitAll = ak4JTA_cff.ak4JetTracksAssociatorExplicit.clone(
     jets = "ak4PFJets"
 )
 from JetMETCorrections.Configuration.JetCorrectors_cff import *
 import CommonTools.RecoAlgos.jetTracksAssociationToTrackRefs_cfi as jetTracksAssociationToTrackRefs_cfi
 cutsRecoTracksAK4PFJets = jetTracksAssociationToTrackRefs_cfi.jetTracksAssociationToTrackRefs.clone(
-    association = "ak4JetTracksAssociatorAtVertexPFAll",
+    association = "ak4JetTracksAssociatorExplicitAll",
     jets = "ak4PFJets",
     correctedPtMin = 10,
 )
@@ -257,7 +257,7 @@ tracksValidationSelectors = cms.Sequence(
     cutsRecoTracksMuonSeededStepOutIn*
     cutsRecoTracksMuonSeededStepOutInHp*
     cutsRecoTracksBtvLike*
-    ak4JetTracksAssociatorAtVertexPFAll*
+    ak4JetTracksAssociatorExplicitAll*
     cutsRecoTracksAK4PFJets
 )
 tracksValidationSelectorsFromPV = cms.Sequence(
@@ -334,7 +334,7 @@ tracksValidationStandalone = cms.Sequence(
 )
 
 # 'slim' sequences that only depend on track and tracking particle collections
-tracksValidationSelectorsSlim = tracksValidationSelectors.copyAndExclude([cutsRecoTracksBtvLike,ak4JetTracksAssociatorAtVertexPFAll,cutsRecoTracksAK4PFJets])
+tracksValidationSelectorsSlim = tracksValidationSelectors.copyAndExclude([cutsRecoTracksBtvLike,ak4JetTracksAssociatorExplicitAll,cutsRecoTracksAK4PFJets])
 
 tracksPreValidationSlim = cms.Sequence(
     tracksValidationSelectorsSlim +
