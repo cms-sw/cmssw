@@ -22,6 +22,7 @@ ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config
   corr(config.getParameter<bool>("useCorrelation")), 
   etaproj(config.getParameter<bool>("useEtaProjectiveGEO")), 
   digitizeOnlyMuons_(config.getParameter<bool>("digitizeOnlyMuons")), 
+  gaussianSmearing_(config.getParameter<bool>("gaussianSmearing")),
   averageEfficiency_(config.getParameter<double>("averageEfficiency")), 
   // simulateIntrinsicNoise_(config.getParameter<bool>("simulateIntrinsicNoise")),
   // averageNoiseRate_(config.getParameter<double>("averageNoiseRate")), 
@@ -31,10 +32,10 @@ ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config
   maxBunch_(config.getParameter<int>("maxBunch"))
 {
   // polynomial parametrisation of neutral (n+g) and electron background
-  neuBkg.push_back(5.69e+06);     neuBkg.push_back(-293334);     neuBkg.push_back(6279.6); 
-  neuBkg.push_back(-71.2928);     neuBkg.push_back(0.452244);    neuBkg.push_back(-0.0015191);  neuBkg.push_back(2.1106e-06);
-  eleBkg.push_back(3.77712e+06);  eleBkg.push_back(-199280);     eleBkg.push_back(4340.69);
-  eleBkg.push_back(-49.922);      eleBkg.push_back(0.319699);    eleBkg.push_back(-0.00108113); eleBkg.push_back(1.50889e-06);
+  neuBkg.push_back(899644.0);     neuBkg.push_back(-30841.0);     neuBkg.push_back(441.28);
+  neuBkg.push_back(-3.3405);      neuBkg.push_back(0.0140588);    neuBkg.push_back(-3.11473e-05); neuBkg.push_back(2.83736e-08);
+  eleBkg.push_back(4.68590e+05);  eleBkg.push_back(-1.63834e+04); eleBkg.push_back(2.35700e+02);
+  eleBkg.push_back(-1.77706e+00); eleBkg.push_back(7.39960e-03);  eleBkg.push_back(-1.61448e-05); eleBkg.push_back(1.44368e-08);
 }
 
 ME0PreRecoGaussianModel::~ME0PreRecoGaussianModel()
@@ -51,8 +52,15 @@ for (const auto & hit: simHits)
   if (CLHEP::RandFlat::shoot(engine) > averageEfficiency_) continue;
   // create digi
   auto entry = hit.entryPoint();
-  float x=CLHEP::RandGaussQ::shoot(engine, entry.x(), sigma_u);
-  float y=CLHEP::RandGaussQ::shoot(engine, entry.y(), sigma_v);
+  float x=0.0, y=0.0;
+  if(gaussianSmearing_) { // Gaussian Smearing
+    x=CLHEP::RandGaussQ::shoot(engine, entry.x(), sigma_u);
+    y=CLHEP::RandGaussQ::shoot(engine, entry.y(), sigma_v);
+  }
+  else { // Uniform Smearing ... use the sigmas as boundaries
+    x=entry.x()+(CLHEP::RandFlat::shoot(engine)-0.5)*sigma_u;
+    y=entry.y()+(CLHEP::RandFlat::shoot(engine)-0.5)*sigma_v;
+  }
   float ex=sigma_u;
   float ey=sigma_v;
   float corr=0.;
