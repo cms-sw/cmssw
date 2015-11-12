@@ -150,7 +150,6 @@ namespace sistrip {
   //convert name of an element of enum to enum value (useful for getting values from config)
   FEDBufferFormat fedBufferFormatFromString(const std::string& bufferFormatString);
   FEDHeaderType fedHeaderTypeFromString(const std::string& headerTypeString);
-  //FEDLegacyReadoutMode fedLegacyReadoutModeFromString(const std::string& readoutModeString); //FIXME to be introduced
   FEDReadoutMode fedReadoutModeFromString(const std::string& readoutModeString);
   FEDDAQEventType fedDAQEventTypeFromString(const std::string& daqEventTypeString);
 
@@ -1486,20 +1485,18 @@ namespace sistrip {
         case READOUT_MODE_PROC_RAW:
           return PACKET_CODE_PROC_RAW;
         case READOUT_MODE_ZERO_SUPPRESSED:
-        //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
           return PACKET_CODE_ZERO_SUPPRESSED;
         case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
         case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
           return PACKET_CODE_ZERO_SUPPRESSED_LITE10;
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
-          return PACKET_CODE_ZERO_SUPPRESSED_LITE8;
         case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
         case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
           return PACKET_CODE_ZERO_SUPPRESSED_LITE8_BOTBOT;
         case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
         case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
           return PACKET_CODE_ZERO_SUPPRESSED_LITE8_TOPBOT;
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
         case READOUT_MODE_PREMIX_RAW:
         case READOUT_MODE_SPY:
         case READOUT_MODE_INVALID:

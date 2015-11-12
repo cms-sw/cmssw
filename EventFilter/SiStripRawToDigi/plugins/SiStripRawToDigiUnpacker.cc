@@ -274,8 +274,7 @@ namespace sistrip {
 	uint16_t ipair = ( useFedKey_ || (!legacy_ && mode == sistrip::READOUT_MODE_SCOPE) || (legacy_ && lmode == sistrip::READOUT_MODE_LEGACY_SCOPE) ) ? 0 : iconn->apvPairNumber();
 
 	if ((!legacy_ && (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_FAKE))
-         || (legacy_ && (lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL || lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE))
-       /*|| mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE*/) { 
+         || (legacy_ && (lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL || lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE)) ) {
 	
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
 	

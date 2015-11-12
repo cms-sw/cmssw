@@ -79,7 +79,7 @@ namespace sistrip {
       uint16_t payloadLength_;
       uint8_t validChannels_;
       bool fePresent_[FEUNITS_PER_FED];
-      bool legacyUnpacker_;
+      bool legacyUnpacker_=false;
     };
 
   //class for unpacking data from ZS FED channels
