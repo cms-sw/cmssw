@@ -18,15 +18,6 @@
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondCore/DBCommon/interface/DbConnection.h" 	 
-#include "CondCore/DBCommon/interface/DbSession.h" 	 
-#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
-
-#include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/MetaDataService/interface/MetaData.h"
-
-#include "CondCore/IOVService/interface/IOVProxy.h"
-
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConnectionManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseException.hh"
 #include "OnlineDB/Oracle/interface/Oracle.h"
@@ -53,32 +44,34 @@ HcalO2OManager::~HcalO2OManager()
 
 
 // inspired by cmscond_list_iov
-//
+// changed by Giacomo Govi November 3, 2015: This should not be done with the V2 database, since it would list the entire set of existing tags (a single DB for all the subsystems ) 
 std::vector<std::string> HcalO2OManager::getListOfPoolTags(std::string connect, std::string auth_path){
   //edmplugin::PluginManager::configure(edmplugin::standard::config()); // in the constructor for now
   //
   // FIXME: how to add auth_path authentication to this? See v1.25 for the functionality using old API
+  // FIXME: the implementation has to be moved from conddb v1 to conddb v2 intereface - no tag list specific for Hcal is available in V2
   std::cout << "===> WARNING! auth_path is specified as " << auth_path;
   std::cout << " but is not used explicitely. Is it being used at all?"  << std::endl;
-  cond::DbConnection conn;
+  std::cout << "===> ERROR! Tag list is not available for V2 database."<<std::endl;
+  //cond::DbConnection conn;
   //conn.configure( cond::CmsDefaults );
-  conn.configuration().setAuthenticationPath(auth_path);
+  //conn.configuration().setAuthenticationPath(auth_path);
   //conn.configuration().setMessageLevel( coral::Debug );
-  conn.configure();
-  cond::DbSession session = conn.createSession();
-  session.open(connect);
+  //conn.configure();
+  //cond::DbSession session = conn.createSession();
+  //session.open(connect);
   std::vector<std::string> alltags;
-  try{
-    cond::MetaData metadata_svc(session);
-    cond::DbScopedTransaction tr(session);
-    tr.start(true);
-    metadata_svc.listAllTags(alltags);
-    tr.commit();
-  }catch(cond::Exception& er){
-    std::cout<<er.what()<<std::endl;
-  }catch(std::exception& er){
-    std::cout<<er.what()<<std::endl;
-  }
+  //try{
+  //  cond::MetaData metadata_svc(session);
+  //  cond::DbScopedTransaction tr(session);
+  //  tr.start(true);
+  //  metadata_svc.listAllTags(alltags);
+  //  tr.commit();
+  //}catch(cond::Exception& er){
+  //  std::cout<<er.what()<<std::endl;
+  //}catch(std::exception& er){
+  //  std::cout<<er.what()<<std::endl;
+  //}
   return alltags;
 }
 
@@ -94,38 +87,38 @@ int HcalO2OManager::getListOfPoolIovs(std::vector<uint32_t> & out,
   // FIXME: how to add auth_path authentication to this? See v1.25 for the functionality using old API  
   std::cout << "===> WARNING! auth_path is specified as " << auth_path;
   std::cout << " but is not used explicitely. Is it being used at all?"  << std::endl;
-  cond::DbConnection conn;
+  //cond::DbConnection conn;
   //conn.configure( cond::CmsDefaults );
-  conn.configuration().setAuthenticationPath(auth_path);
+  //conn.configuration().setAuthenticationPath(auth_path);
   //conn.configuration().setMessageLevel( coral::Debug );
-  conn.configure();
-  cond::DbSession session = conn.createSession();
-  session.open(connect);
+  //conn.configure();
+  //cond::DbSession session = conn.createSession();
+  //session.open(connect);
   out.clear();
-  try{
-    cond::MetaData metadata_svc(session);
-    cond::DbScopedTransaction tr(session);
-     tr.start(true);
-     std::string token;
-     if(!metadata_svc.hasTag(tag)){
-       //std::cout << "no such tag in the Pool database!" << std::endl;
-       return -1;
-     }
-     token=metadata_svc.getToken(tag);
-     cond::IOVProxy iov(session, token);
-     unsigned int counter=0;
-     
-     for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
-       out.push_back(ioviterator->since());
-       ++counter;
-     }
-     tr.commit();
-  }
-  catch(cond::Exception& er){
-    std::cout<<er.what()<<std::endl;
-  }catch(std::exception& er){
-    std::cout<<er.what()<<std::endl;
-  }
+  //try{
+  //  cond::MetaData metadata_svc(session);
+  //  cond::DbScopedTransaction tr(session);
+  //   tr.start(true);
+  //   std::string token;
+  //   if(!metadata_svc.hasTag(tag)){
+  //     //std::cout << "no such tag in the Pool database!" << std::endl;
+  //     return -1;
+  //   }
+  //   token=metadata_svc.getToken(tag);
+  //   cond::IOVProxy iov(session, token);
+  //unsigned int counter=0;
+  //   
+  //   for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
+  //  out.push_back(ioviterator->since());
+  //  ++counter;
+  //}
+  //tr.commit();
+  //}
+  //catch(cond::Exception& er){
+  //std::cout<<er.what()<<std::endl;
+  //}catch(std::exception& er){
+  //std::cout<<er.what()<<std::endl;
+  //}
   return out.size();
 }
 

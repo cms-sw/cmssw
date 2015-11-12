@@ -26,9 +26,9 @@ def get_symbols(fname):
 	if not m : continue
         symbol = m.group('symbol')
         if m.group('code') == 'U':
-            requires[fname].add(symbol)
+            requires[os.path.basename(fname)].add(symbol)
         else:
-            provides[symbol].add(fname)
+            provides[symbol].add(os.path.basename(fname))
 
 def get_libraries(fname):
 	lines = subprocess.check_output(["ldd",fname])
@@ -36,7 +36,7 @@ def get_libraries(fname):
 		m = ldd_line_re.match(l)
 		if not m: continue
 		library = m.group(2)
-		libraries[fname].add(library.rstrip('\r\n'))
+		libraries[os.path.basename(fname)].add(os.path.basename(library.rstrip('\r\n')))
 
 
 paths=os.environ['LD_LIBRARY_PATH'].split(':')
@@ -50,15 +50,12 @@ for p in paths:
 	            get_symbols(fpth)
                     get_libraries(fpth)
 
-def pick(symbols,libraries):
-    best = None
-    for s in symbols:
-        if best is None or s in libraries :
-            best = s
-    return best
-
 for fname, symbols in requires.items():
-    dependencies[fname] = set(pick(provides[s],libraries[fname]) for s in symbols if s in provides)
+    deps=set()
+    for library in libraries[fname]:
+        for s in symbols : 
+            if library in provides[s] : deps.add(library)
+    dependencies[fname]=deps 
     print fname + ' : primary dependencies : ' + ',  '.join(sorted(dependencies[fname]))+'\n'
     unmet = set()
     demangled = set()

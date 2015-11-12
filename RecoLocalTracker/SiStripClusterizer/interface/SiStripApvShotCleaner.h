@@ -6,7 +6,7 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include <vector>
-
+#include <memory>
 
 class SiStripApvShotCleaner{
   
@@ -23,16 +23,11 @@ class SiStripApvShotCleaner{
   bool loop(const edmNew::DetSet<SiStripDigi>& in){return false;} //FIXME
   bool loop(const edm::DetSet<SiStripDigi>& in);
   
-  void refresh();
-
   void reset(edm::DetSet<SiStripDigi>::const_iterator& a, edm::DetSet<SiStripDigi>::const_iterator& b);
   // void reset(edmNew::DetSet<SiStripDigi>::const_iterator& a, edmNew::DetSet<SiStripDigi>::const_iterator& b){;} //FIXME
 
  private:
 
-  struct orderingByCharge {
-    bool operator ()(SiStripDigi const& a, SiStripDigi const& b) {return a.adc() > b.adc();}
-  };
   
   void subtractCM();
 
@@ -44,7 +39,7 @@ class SiStripApvShotCleaner{
   edm::DetSet<SiStripDigi>::const_iterator pFirstDigiOfApv[7];
 
   std::vector<SiStripDigi> vdigis,apvDigis;  //caches of digis, in case an apvshot is found
-  edm::DetSet<SiStripDigi> * pDetSet;
+  std::unique_ptr<edm::DetSet<SiStripDigi>> pDetSet;
   unsigned short maxNumOfApvs   ;  
   unsigned short stripsPerApv   ; 
   unsigned short stripsForMedian; 

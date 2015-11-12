@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DUMP")
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
 ## specify which conditions you would like to dump to a text file in the "dump" vstring
 process.prod = cms.EDAnalyzer("HcalDumpConditions",
@@ -31,7 +31,7 @@ process.source = cms.Source("EmptySource",
 
 
 process.es_pool = cms.ESSource("PoolDBESSource",
-     process.CondDBSetup,
+     process.CondDB,
      timetype = cms.string('runnumber'),
      #connect = cms.string('sqlite_file:testExample.db'),
      #connect = cms.string('sqlite_file:test_o2o.db'),
@@ -51,7 +51,7 @@ process.es_pool = cms.ESSource("PoolDBESSource",
 # you can mix different es_sources as long as it's unique for each object
 #process.es_pool = cms.ESSource(
 #     "PoolDBESSource",
-#     process.CondDBSetup,
+#     process.CondDB,
 #     timetype = cms.string('runnumber'),
 #     connect = cms.string('frontier://cmsfrontier.cern.ch:8000/FrontierProd/CMS_COND_31X_HCAL'),
 #     authenticationMethod = cms.untracked.uint32(0),

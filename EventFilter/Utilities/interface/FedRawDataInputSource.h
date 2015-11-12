@@ -50,6 +50,7 @@ public:
   virtual ~FedRawDataInputSource();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
+  std::pair<bool,unsigned int> getEventReport(unsigned int lumi, bool erase);
 protected:
   virtual bool checkNextEvent() override;
   virtual void read(edm::EventPrincipal& eventPrincipal) override;
@@ -74,6 +75,9 @@ private:
 
   //functions for single buffered reader
   void readNextChunkIntoBuffer(InputFile *file);
+
+  //monitoring
+  void reportEventsThisLumiInSource(unsigned int lumi,unsigned int events);
 
   //variables
   evf::FastMonitoringService* fms_=nullptr;
@@ -166,6 +170,8 @@ private:
 
   std::atomic<bool> threadInit_;
 
+  std::map<unsigned int,unsigned int> sourceEventsReport_;
+  std::mutex monlock_;
 };
 
 

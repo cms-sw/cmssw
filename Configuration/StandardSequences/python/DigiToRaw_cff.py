@@ -59,3 +59,6 @@ def _modifyDigiToRawForStage1L1Trigger( theProcess ) :
 
 # A unique name is required for this object, so I'll call it "modify<python filename>ForRun2_"
 modifyConfigurationStandardSequencesDigiToRawForRun2_ = eras.stage1L1Trigger.makeProcessModifier( _modifyDigiToRawForStage1L1Trigger )
+if eras.phase1Pixel.isChosen() :
+    DigiToRaw.remove(siPixelRawData)
+    DigiToRaw.remove(castorRawData)
