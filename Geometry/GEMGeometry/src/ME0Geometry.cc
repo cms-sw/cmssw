@@ -47,21 +47,47 @@ const GeomDet* ME0Geometry::idToDet(DetId id) const{
     i->second : 0 ;
 }
 
-/*
-const std::vector<ME0Chamber*>& ME0Geometry::chambers() const {
+const std::vector<ME0Chamber const*>& ME0Geometry::chambers() const {
   return allChambers;
 }
-*/
 
+const std::vector<ME0Layer const*>& ME0Geometry::layers() const {
+  return allLayers;
+}
 
 const std::vector<ME0EtaPartition const*>& ME0Geometry::etaPartitions() const{
   return allEtaPartitions;
+}
+
+const ME0Chamber* ME0Geometry::chamber(ME0DetId id) const{
+  return dynamic_cast<const ME0Chamber*>(idToDet(id.chamberId()));
+}
+
+const ME0Layer* ME0Geometry::layer(ME0DetId id) const{
+  return dynamic_cast<const ME0Layer*>(idToDet(id.layerId()));
 }
 
 const ME0EtaPartition* ME0Geometry::etaPartition(ME0DetId id) const{
   return dynamic_cast<const ME0EtaPartition*>(idToDetUnit(id));
 }
 
+void
+ME0Geometry::add(ME0Chamber* chamber){
+  allChambers.push_back(chamber);
+  theDets.push_back(chamber);
+  theDetIds.push_back(chamber->geographicalId());
+  theMap.insert(std::pair<DetId,GeomDet*>
+                (chamber->geographicalId(),chamber));
+}
+
+void
+ME0Geometry::add(ME0Layer* layer){
+  allLayers.push_back(layer);
+  theDets.push_back(layer);
+  theDetIds.push_back(layer->geographicalId());
+  theMap.insert(std::pair<DetId,GeomDet*>
+                (layer->geographicalId(),layer));
+}
 
 void
 ME0Geometry::add(ME0EtaPartition* etaPartition){

@@ -90,6 +90,11 @@ ME0Geometry* ME0GeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
     ReferenceCountingPointer<BoundPlane> surf(bp);
     ME0EtaPartition* mep=new ME0EtaPartition(me0id, surf, e_p_specs);
     geometry->add(mep);
+
+    // probably will have to add here also the me0 layers and me0 chambers to the geometry
+    // although for the GEMs it is commented out ...
+    // so far we have not been using the geometry from the condition database, but only from xml
+    // before starting to use the geometry from cond db, we have to fix this, both for ME0 and GEM
   }
   return geometry;
 }

@@ -1,10 +1,11 @@
 /** Implementation of the ME0 Geometry Builder from DDD
  *
- *  \author Port of: MuDDDME0Builder (ORCA)
  *  \author M. Maggi - INFN Bari
  */
+
 #include "Geometry/GEMGeometryBuilder/src/ME0GeometryBuilderFromDDD.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
+#include "Geometry/GEMGeometry/interface/ME0Layer.h"
 #include "Geometry/GEMGeometry/interface/ME0EtaPartitionSpecs.h"
 
 #include <DetectorDescription/Core/interface/DDFilter.h>
@@ -29,7 +30,7 @@
 
 ME0GeometryBuilderFromDDD::ME0GeometryBuilderFromDDD()
 { 
-  LogDebug("ME0GeometryBuilderfromDDD") <<"[ME0GeometryBuilderFromDDD::constructor]";
+  edm::LogVerbatim("ME0GeometryBuilderfromDDD") <<"[ME0GeometryBuilderFromDDD::constructor]";
 }
 
 ME0GeometryBuilderFromDDD::~ME0GeometryBuilderFromDDD() 
@@ -57,31 +58,31 @@ ME0Geometry* ME0GeometryBuilderFromDDD::build(const DDCompactView* cview, const 
 
 ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants)
 {
-  LogDebug("ME0GeometryBuilderFromDDD") <<"Building the geometry service";
+  edm::LogVerbatim("ME0GeometryBuilderFromDDD") <<"Building the geometry service";
   ME0Geometry* geometry = new ME0Geometry();
 
-  LogDebug("ME0GeometryBuilderFromDDD") << "About to run through the ME0 structure\n" 
+  edm::LogVerbatim("ME0GeometryBuilderFromDDD") << "About to run through the ME0 structure\n" 
 					<<" First logical part "
 					<<fview.logicalPart().name().name();
 
 
   bool doSubDets = fview.firstChild();
  
-  LogDebug("ME0GeometryBuilderFromDDD") << "doSubDets = " << doSubDets;
+  edm::LogVerbatim("ME0GeometryBuilderFromDDD") << "doSubDets = " << doSubDets;
 
-   LogDebug("ME0GeometryBuilderFromDDD") <<"start the loop"; 
+  edm::LogVerbatim("ME0GeometryBuilderFromDDD") <<"start the loop"; 
   while (doSubDets)
   {
     // Get the Base Muon Number
     MuonDDDNumbering mdddnum(muonConstants);
-    LogDebug("ME0GeometryBuilderFromDDD") <<"Getting the Muon base Number";
+    edm::LogVerbatim("ME0GeometryBuilderFromDDD") <<"Getting the Muon base Number";
     MuonBaseNumber mbn = mdddnum.geoHistoryToBaseNumber(fview.geoHistory());
 
-    LogDebug("ME0GeometryBuilderFromDDD") <<"Start the ME0 Numbering Schema";
+    edm::LogVerbatim("ME0GeometryBuilderFromDDD") <<"Start the ME0 Numbering Schema";
     ME0NumberingScheme me0num(muonConstants);
 
     ME0DetId rollDetId(me0num.baseNumberToUnitNumber(mbn));
-    LogDebug("ME0GeometryBuilderFromDDD") << "ME0 eta partition rawId: " << rollDetId.rawId() << ", detId: " << rollDetId;
+    edm::LogVerbatim("ME0GeometryBuilderFromDDD") << "ME0 eta partition rawId: " << rollDetId.rawId() << ", detId: " << rollDetId;
 
     std::vector<double> dpar=fview.logicalPart().solid().parameters();
     std::string name = fview.logicalPart().name().name();
@@ -116,7 +117,7 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     //    pars.push_back(nStrips);
     // pars.push_back(nPads);
 
-    LogDebug("ME0GeometryBuilderFromDDD") 
+    edm::LogVerbatim("ME0GeometryBuilderFromDDD") 
       << "ME0 " << name << " par " << be << " " << te << " " << ap << " " << dpar[0];
     
     ME0EtaPartitionSpecs* e_p_specs = new ME0EtaPartitionSpecs(GeomDetEnumerators::ME0, name, pars);
@@ -135,8 +136,164 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 
     // Add the eta partition to the geometry
     geometry->add(mep);
+    // edm::LogVerbatim("ME0GeometryBuilderFromDDD") << " Eta Partition added, size of the etaPartitions vector = "<<(geometry->etaPartitions()).size();
     // go to next layer
     doSubDets = fview.nextSibling(); 
   }
+
+  // build the layers and add them to the geometry
+  // -------------------------------------------------------------------
+  // note that this is done slightly differently 
+  // w.r.t. GEMGeometryBuilder because the logic
+  // fails on layers consisting of 1 etapartition
+  // logic: 
+  // in loop for element i, the eta partition (i-1) gets treated
+  // and eta partition i gets pushed back for treatment in loop at i+1
+  // caveat: if i is at ultimate element of loop, treat both (i-1) and i
+  // -------------------------------------------------------------------
+  auto& partitions(geometry->etaPartitions());
+  std::vector<ME0DetId> vDetId;
+  vDetId.clear();
+  int oldRollNumber = 1;
+  for (unsigned i=1; i<=partitions.size(); ++i) {
+    ME0DetId detId(partitions.at(i-1)->id());
+    const int rollNumber(detId.roll());
+
+    // new batch of eta partitions --> new layer
+    // - - - - - - - - - - - - - - - - - - - - -
+    if (rollNumber < oldRollNumber) {
+      ME0DetId fId(vDetId.front());
+      ME0DetId layerId(fId.layerId());
+      // compute the overall boundplane using the first eta partition
+      const ME0EtaPartition* p(geometry->etaPartition(fId));
+      const BoundPlane& bps = p->surface();
+      BoundPlane* bp = const_cast<BoundPlane*>(&bps);
+      ReferenceCountingPointer<BoundPlane> surf(bp);
+      
+      ME0Layer* la = new ME0Layer(layerId, surf);
+      edm::LogVerbatim("ME0GeometryBuilderFromDDD")  << "Creating ME0 Layer " << layerId << " with " << vDetId.size() << " eta partitions" << std::endl;
+      
+      for(auto id : vDetId){
+        edm::LogVerbatim("ME0GeometryBuilderFromDDD") << "Adding eta partition " << id << " to ME0 Layer " << std::endl;
+        la->add(const_cast<ME0EtaPartition*>(geometry->etaPartition(id)));
+      }
+      
+      edm::LogVerbatim("ME0GeometryBuilderFromDDD") << "Adding the layer to the geometry" << std::endl;
+      geometry->add(la);
+      vDetId.clear();
+      oldRollNumber = 1;
+    }
+
+    // don't forget the last eta partition
+    // --> repeat operation above 
+    // - - - - - - - - - - - - - - - - - - 
+    if(i == partitions.size()) {
+      vDetId.push_back(detId);
+      ME0DetId fId(vDetId.front());
+      ME0DetId layerId(fId.layerId());
+      // compute the overall boundplane using the first eta partition
+      const ME0EtaPartition* p(geometry->etaPartition(fId));
+      const BoundPlane& bps = p->surface();
+      BoundPlane* bp = const_cast<BoundPlane*>(&bps);
+      ReferenceCountingPointer<BoundPlane> surf(bp);
+      
+      ME0Layer * la = new ME0Layer(layerId, surf);
+      edm::LogVerbatim("ME0GeometryBuilderFromDDD")  << "Creating ME0 Layer " << layerId << " with " << vDetId.size() << " eta partitions" << std::endl;
+      
+      for(auto id : vDetId){
+	edm::LogVerbatim("ME0GeometryBuilderFromDDD") << "Adding eta partition " << id << " to ME0 Layer " << std::endl;
+	la->add(const_cast<ME0EtaPartition*>(geometry->etaPartition(id)));
+      }
+      
+      edm::LogVerbatim("ME0GeometryBuilderFromDDD") << "Adding the layer to the geometry" << std::endl;
+      geometry->add(la);
+      vDetId.clear();
+    }
+
+    // if not last eta partition 
+    // then push back the current eta partition
+    // for processing during next loop 
+    // - - - - - - - - - - - - - - - - - - - - -
+    else {
+      vDetId.push_back(detId);
+      ++oldRollNumber;
+    }
+  }
+
+  // build the layers and add them to the geometry                                                                                                                                                         
+  // -------------------------------------------------------------------
+  // logic: 
+  // in loop for element i, the eta partition (i-1) gets treated
+  // and eta partition i gets pushed back for treatment in loop at i+1
+  // caveat: if i is at ultimate element of loop, treat both (i-1) and i
+  // -------------------------------------------------------------------
+  auto& layers(geometry->layers());
+  vDetId.clear();
+  int oldLayerNumber = 1;
+  for (unsigned i=1; i<=layers.size(); ++i) {
+    ME0DetId detId(layers.at(i-1)->id());
+    const int layerNumber(detId.layer());
+
+    // new batch of layers --> new chamber
+    // - - - - - - - - - - - - - - - - - -
+    if (layerNumber < oldLayerNumber) {
+      ME0DetId fId(vDetId.front());
+      ME0DetId chamberId(fId.chamberId());
+      // compute the overall boundplane using the first layer
+      const ME0Layer * p = geometry->layer(fId);
+      const BoundPlane& bps = p->surface();
+      BoundPlane* bp = const_cast<BoundPlane*>(&bps);
+      ReferenceCountingPointer<BoundPlane> surf(bp);
+      ME0Chamber* ch = new ME0Chamber(chamberId, surf);
+      edm::LogVerbatim("ME0GeometryBuilderFromDDD")  << "Creating ME0 Chamber " << chamberId << " with " << vDetId.size() << " layers" << std::endl;
+      
+      for(auto id : vDetId){
+        edm::LogVerbatim("ME0GeometryBuilderFromDDD") << "Adding layer " << id << " to ME0 Chamber " << std::endl;
+        ch->add(const_cast<ME0Layer*>(geometry->layer(id)));
+      }
+      
+      edm::LogVerbatim("ME0GeometryBuilderFromDDD") << "Adding the chamber to the geometry" << std::endl;
+      geometry->add(ch);
+      vDetId.clear();
+      oldLayerNumber = 1;
+    }
+
+    // don't forget the last layer
+    // --> repeat operation above
+    // - - - - - - - - - - - - - -
+    if (i == layers.size()) {
+      vDetId.push_back(detId);
+      ME0DetId fId(vDetId.front());
+      ME0DetId chamberId(fId.chamberId());
+      // compute the overall boundplane using the first layer
+      const ME0Layer * p = geometry->layer(fId);
+      const BoundPlane& bps = p->surface();
+      BoundPlane* bp = const_cast<BoundPlane*>(&bps);
+      ReferenceCountingPointer<BoundPlane> surf(bp);
+
+      ME0Chamber* ch = new ME0Chamber(chamberId, surf);
+      edm::LogVerbatim("ME0GeometryBuilderFromDDD")  << "Creating ME0 Chamber " << chamberId << " with " << vDetId.size() << " layers" << std::endl;
+      
+      for(auto id : vDetId){
+	edm::LogVerbatim("ME0GeometryBuilderFromDDD") << "Adding layer " << id << " to ME0 Chamber " << std::endl;
+	  ch->add(const_cast<ME0Layer*>(geometry->layer(id)));
+      }
+      
+      edm::LogVerbatim("ME0GeometryBuilderFromDDD") << "Adding the chamber to the geometry" << std::endl;
+      geometry->add(ch);
+      vDetId.clear();
+      
+    }
+
+    // if not last layer
+    // then push back the current layer 
+    // for processing during next loop
+    // - - - - - - - - - - - - - - - - 
+    else {
+      vDetId.push_back(detId);
+      ++oldLayerNumber;
+    }
+  }
+
   return geometry;
 }

@@ -111,6 +111,9 @@ process.gemRecHits = cms.EDProducer("GEMRecHitProducer",
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         'file:out_digi.root'
+        # 'file:out_digi_noise.root'
+        # 'file:out_digi_alldigitized.root'
+        # 'file:out_digi_5000evt.root',
         # 'file:out_digi_100GeV_1000evts.root'
         # 'file:out_digi_1To100GeV_1000evts.root'
     )
@@ -119,6 +122,9 @@ process.source = cms.Source("PoolSource",
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string( 
         'file:out_local_reco.root'
+        # 'file:out_local_reco_noise.root'
+        # 'file:out_local_reco_alldigitized.root'
+        # 'file:out_local_reco_5000evt.root'
         # 'file:out_local_reco_100GeV_1000evts.root'
         # 'file:out_local_reco_1To100GeV_1000evts.root'
     ),

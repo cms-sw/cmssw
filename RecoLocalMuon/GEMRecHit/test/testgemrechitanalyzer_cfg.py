@@ -10,7 +10,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
 process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDev_cff')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5) )
 
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use

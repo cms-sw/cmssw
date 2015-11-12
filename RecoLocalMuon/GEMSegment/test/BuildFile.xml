@@ -50,7 +50,9 @@
 
 <flags   EDM_PLUGIN="1"/>
 
-<library   file="TestME0SegmentAnalyzer.cc" name="testME0SegmenttestME0SegmentAnalyzer">
+<library   file="TestME0SegmentAnalyzer.cc" name="testME0SegmentAnalyzer">
+</library>
+<library   file="TestGEMSegmentAnalyzer.cc" name="testGEMSegmentAnalyzer">
 </library>
 
 <export>
