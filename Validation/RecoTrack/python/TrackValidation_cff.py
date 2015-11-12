@@ -81,23 +81,18 @@ trackingParticleRecoTrackAsssociationSignal = trackingParticleRecoTrackAsssociat
 )
 
 # select tracks from the PV
-# first convert to RecoChargedRefCandidates
-trackRefsForValidation = cms.EDProducer("ChargedRefCandidateProducer",
-    particleType = cms.string('pi+'),
-    src = cms.InputTag("generalTracks")
-)
-# then use the "PV sorting" module to select the candidates associated to PV
-trackRefsFromPV = _sortedPrimaryVertices.clone(
-    particles = "trackRefsForValidation",
-    produceAssociationToOriginalVertices = True,
-    produceNoPileUpCollection = True,
-    produceSortedVertices = False,
-    jets = "ak4CaloJets",
-    vertices = "offlinePrimaryVertices"
-)
-# and finally extract tracks from there
-generalTracksFromPV = _recoChargedRefCandidateToTrackRefProducer.clone(
-    src = cms.InputTag("trackRefsFromPV", "originalNoPileUp")
+from CommonTools.RecoAlgos.TrackWithVertexRefSelector_cfi import trackWithVertexRefSelector as _trackWithVertexRefSelector
+generalTracksFromPV = _trackWithVertexRefSelector.clone(
+    src = "generalTracks",
+    ptMin = 0,
+    ptMax = 1e10,
+    ptErrorCut = 1e10,
+    quality = "loose",
+    vertexTag = "offlinePrimaryVertices",
+    nVertices = 1,
+    vtxFallback = False,
+    zetaVtx = 0.1, # 1 mm
+    rhoVtx = 1e10, # intentionally no dxy cut
 )
 # and then the selectors
 cutsRecoTracksFromPVInitialStep         = cutsRecoTracksInitialStep.clone(src="generalTracksFromPV")
@@ -266,8 +261,6 @@ tracksValidationSelectors = cms.Sequence(
     cutsRecoTracksAK4PFJets
 )
 tracksValidationSelectorsFromPV = cms.Sequence(
-    trackRefsForValidation*
-    trackRefsFromPV*
     generalTracksFromPV*
     cutsRecoTracksFromPVHp
 )
