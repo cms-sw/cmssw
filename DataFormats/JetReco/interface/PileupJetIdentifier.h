@@ -65,6 +65,7 @@ public:
 	DECLARE_VARIABLE(nTrueInt   ,float);
 
 	DECLARE_VARIABLE(nvtx   ,float);  
+        DECLARE_VARIABLE(pull,float);
 };
 
 // ----------------------------------------------------------------------------------------------------
