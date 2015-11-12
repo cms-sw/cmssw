@@ -16,7 +16,8 @@
 #include <Math/Transform3D.h>
 #include <Math/EulerAngles.h>
 
-typedef CaloCellGeometry::Tr3D     Tr3D     ;
+typedef CaloCellGeometry::Tr3D Tr3D;
+typedef std::vector<float> ParmVec;
 
 //#define DebugLog
 
@@ -276,92 +277,67 @@ HGCalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
 			   CaloSubdetectorGeometry::DimVec& dimVector,
 			   CaloSubdetectorGeometry::IVec& dinsVector ) const 
 {
-  const std::vector<DetId>& ids = getValidDetIds();
-  std::cout << ids.size() << " valid ids for " << cellElement() 
-	    << std::endl;
-
-  unsigned int numberOfCells = m_topology.totalGeomModules();
+  unsigned int numberOfCells = m_topology.totalGeomModules(); // total Geom Modules both sides
   unsigned int numberOfShapes = HGCalGeometry::k_NumberOfShapes;
   unsigned int numberOfParametersPerShape = HGCalGeometry::k_NumberOfParametersPerShape;
-  //unsigned int numberOfTransformParms = 0;
-  for( auto trItr = m_topology.dddConstants().getFirstTrForm(); 
-       trItr != m_topology.dddConstants().getLastTrForm(); ++trItr)
+
+  trVector.reserve( numberOfCells * numberOfTransformParms());
+  iVector.reserve( numberOfCells );
+  dimVector.reserve( numberOfShapes * numberOfParametersPerShape );
+  dinsVector.reserve( numberOfCells );
+  
+  for( auto volItr = m_topology.dddConstants().getFirstModule( true );
+       volItr != m_topology.dddConstants().getLastModule( true ); ++volItr )
   {
-    //++numberOfTransformParms;
-  }
-  std::cout << "numberOfCells " << numberOfCells << "\nnumberOfTransformParms() " << numberOfTransformParms()
-	    << "\nnumberOfShapes " << numberOfShapes << "\nnumberOfParametersPerShape " << HGCalGeometry::k_NumberOfParametersPerShape
-	    << "\nparVecVec().size() " << parVecVec().size()
-	    << "\nm_cellVec.size() " << m_cellVec.size()
-	    << "\nsizeForDenseIndex() " << sizeForDenseIndex() << "\n";
+    ParmVec params( HGCalGeometry::k_NumberOfParametersPerShape, 0 );
+    params[0] = volItr->dz;
+    params[1] = params[2] = 0;
+    params[3] = params[7] = volItr->h;
+    params[4] = params[8] = volItr->bl;
+    params[5] = params[9] = volItr->tl;
+    params[6] = params[10]= volItr->alpha;
+    params[11]= volItr->cellSize;
 
-  for( auto it : m_cellVec )
-  {
-    std::cout << "Center: " <<  it.getPosition()
-	      << ", eta " << it.etaPos()
-	      << ", phi " << it.phiPos()
-	      << std::endl;
-  }
-
-  trVector.reserve( numberOfCells*numberOfTransformParms() ) ;
-  iVector.reserve( numberOfShapes ==1 ? 1 : numberOfCells ) ;
-  dimVector.reserve( numberOfShapes*numberOfParametersPerShape ) ;
-
-  for (ParVecVec::const_iterator ivv (parVecVec().begin()) ; 
-       ivv != parVecVec().end() ; ++ivv) {
-    const ParVec& pv ( *ivv ) ;
-    for (ParVec::const_iterator iv ( pv.begin() ) ; iv != pv.end() ; ++iv) {
-      dimVector.push_back( *iv ) ;
-    }
+    dimVector.insert( dimVector.end(), params.begin(), params.end());
   }
   
-  for (unsigned int i ( 0 ) ; i < numberOfCells; ++i) {
-    Tr3D tr ;
-    const CaloCellGeometry* ptr ( cellGeomPtr( i ) ) ;
+  for( unsigned int i( 0 ); i < numberOfCells; ++i )
+  {
+    DetId detId = m_validGeomIds[i];
+    int layer = ((detId.subdetId() ==  ForwardSubdetector::HGCEE) ?
+		 (HGCEEDetId(detId).layer()) :
+		 (HGCHEDetId(detId).layer()));
+    dinsVector.push_back( m_topology.detId2denseGeomId( detId ));
+    iVector.push_back( layer );
     
-    if (0 != ptr) {
+    Tr3D tr;
+    const CaloCellGeometry* ptr( cellGeomPtr( i ));
+    if( 0 != ptr )
+    {
+      ptr->getTransform( tr, ( Pt3DVec* ) 0 );
 
-      ptr->getTransform( tr, ( Pt3DVec* ) 0 ) ;
-
-      if( Tr3D() == tr ) { // for preshower there is no rotation
-	const GlobalPoint& gp ( ptr->getPosition() ) ; 
-	tr = HepGeom::Translate3D( gp.x(), gp.y(), gp.z() ) ;
+      if( Tr3D() == tr ) // there is no rotation
+      {
+	const GlobalPoint& gp( ptr->getPosition()); 
+	tr = HepGeom::Translate3D( gp.x(), gp.y(), gp.z());
       }
 
-      const CLHEP::Hep3Vector  tt ( tr.getTranslation() ) ;
-      trVector.push_back( tt.x() ) ;
-      trVector.push_back( tt.y() ) ;
-      trVector.push_back( tt.z() ) ;
-      if (6 == numberOfTransformParms()) {
-	const CLHEP::HepRotation rr ( tr.getRotation() ) ;
-	const ROOT::Math::Transform3D rtr (rr.xx(), rr.xy(), rr.xz(), tt.x(),
+      const CLHEP::Hep3Vector tt( tr.getTranslation());
+      trVector.push_back( tt.x());
+      trVector.push_back( tt.y());
+      trVector.push_back( tt.z());
+      if( 6 == numberOfTransformParms())
+      {
+	const CLHEP::HepRotation rr( tr.getRotation());
+	const ROOT::Math::Transform3D rtr( rr.xx(), rr.xy(), rr.xz(), tt.x(),
 					   rr.yx(), rr.yy(), rr.yz(), tt.y(),
 					   rr.zx(), rr.zy(), rr.zz(), tt.z());
-	ROOT::Math::EulerAngles ea ;
-	rtr.GetRotation( ea ) ;
-	trVector.push_back( ea.Phi() ) ;
-	trVector.push_back( ea.Theta() ) ;
-	trVector.push_back( ea.Psi() ) ;
+	ROOT::Math::EulerAngles ea;
+	rtr.GetRotation( ea );
+	trVector.push_back( ea.Phi());
+	trVector.push_back( ea.Theta());
+	trVector.push_back( ea.Psi());
       }
-
-      const CCGFloat* par ( ptr->param() ) ;
-
-      unsigned int ishape ( 9999 ) ;
-      for( unsigned int ivv ( 0 ) ; ivv != parVecVec().size() ; ++ivv ) {
-	bool ok ( true ) ;
-	const CCGFloat* pv ( &(*parVecVec()[ivv].begin() ) ) ;
-	for( unsigned int k ( 0 ) ; k != numberOfParametersPerShape ; ++k ) {
-	  ok = ok && ( fabs( par[k] - pv[k] ) < 1.e-6 ) ;
-	}
-	if( ok ) {
-	  ishape = ivv ;
-	  break ;
-	}
-      }
-      assert( 9999 != ishape ) ;
-      
-      const unsigned int nn (( numberOfShapes==1) ? (unsigned int)1 : 0 ) ; 
-      if( iVector.size() < nn ) iVector.push_back( ishape ) ;
     }
   }
 }
