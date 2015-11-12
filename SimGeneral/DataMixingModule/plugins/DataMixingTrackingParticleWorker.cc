@@ -133,8 +133,8 @@ namespace edm
     edm::Handle<std::vector<TrackingVertex>> vtxs;
     e.getByToken(VtxSigToken_, vtxs);
 
-    int StartingIndexV = int(TempVertexList_.size());  // should be zero here, but keep for consistency
-    int StartingIndexT = int(NewTrackList_->size());  // should be zero here, but keep for consistency
+    const size_t StartingIndexV = TempVertexList_.size();  // should be zero here, but keep for consistency
+    const size_t StartingIndexT = NewTrackList_->size();  // should be zero here, but keep for consistency
 
     if (vtxs.isValid()) {
 
@@ -169,22 +169,32 @@ namespace edm
     }
 
     // Now that tracks are handled, go back and put correct Refs in vertices
-
+    std::vector<decltype(TrackingParticleRef().index())> sourceTrackIndices;
+    std::vector<decltype(TrackingParticleRef().index())> daughterTrackIndices;
     for (auto & vertex : TempVertexList_ ) {
+
+      // Need to copy the indices before clearing the vectors
+      sourceTrackIndices.reserve(vertex.sourceTracks().size());
+      daughterTrackIndices.reserve(vertex.daughterTracks().size());
+      for(auto const& ref: vertex.sourceTracks()) sourceTrackIndices.push_back(ref.index());
+      for(auto const& ref: vertex.daughterTracks()) daughterTrackIndices.push_back(ref.index());
 
       vertex.clearParentTracks();
       vertex.clearDaughterTracks();
 
-      for( auto const& trackRef : vertex.sourceTracks() ) {
-        auto newRef=TrackingParticleRef( TrackListRef_, trackRef.index()+StartingIndexT );
+      for( auto index : sourceTrackIndices ) {
+        auto newRef=TrackingParticleRef( TrackListRef_, index+StartingIndexT );
         vertex.addParentTrack(newRef);
       }
 
       // next, loop over daughter tracks, same strategy                                                                 
-      for( auto const& trackRef : vertex.daughterTracks() ) {
-        auto newRef=TrackingParticleRef( TrackListRef_, trackRef.index()+StartingIndexT );
+      for( auto index : daughterTrackIndices ) {
+        auto newRef=TrackingParticleRef( TrackListRef_, index+StartingIndexT );
         vertex.addDaughterTrack(newRef);
       }
+
+      sourceTrackIndices.clear();
+      daughterTrackIndices.clear();
     }
 
     // Accumulate DigiSimLinks
@@ -237,8 +247,8 @@ namespace edm
 
     LogDebug("DataMixingTrackingParticleWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
-    int StartingIndexV = int(TempVertexList_.size());  // keep track of offsets
-    int StartingIndexT = int(NewTrackList_->size());  // keep track of offsets
+    const size_t StartingIndexV = TempVertexList_.size();  // keep track of offsets
+    const size_t StartingIndexT = NewTrackList_->size();  // keep track of offsets
 
     std::shared_ptr<Wrapper<std::vector<TrackingVertex> >  const> inputVPTR =
       getProductByTag<std::vector<TrackingVertex> >(*ep, TrackingParticlePileInputTag_, mcc);
@@ -283,9 +293,11 @@ namespace edm
     }
 
     // Now that tracks are handled, go back and put correct Refs in vertices
+    // Operate only on the added pileup vertices, and leave the already-existing vertices untouched
     std::vector<decltype(TrackingParticleRef().index())> sourceTrackIndices;
     std::vector<decltype(TrackingParticleRef().index())> daughterTrackIndices;
-    for (auto & vertex : TempVertexList_ ) {
+    for(size_t iVertex = StartingIndexV; iVertex != TempVertexList_.size(); ++iVertex) {
+      auto& vertex = TempVertexList_[iVertex];
 
       // Need to copy the indices before clearing the vectors
       sourceTrackIndices.reserve(vertex.sourceTracks().size());
