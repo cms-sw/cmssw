@@ -1,6 +1,5 @@
 #include "Validation/MuonME0Hits/interface/ME0HitsValidation.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <TMath.h>
 
 ME0HitsValidation::ME0HitsValidation(const edm::ParameterSet& cfg):  ME0BaseValidation(cfg)

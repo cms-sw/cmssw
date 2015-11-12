@@ -1,6 +1,4 @@
 #include "Validation/MuonME0RecHits/interface/ME0RecHitsValidation.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <TMath.h>
 
 ME0RecHitsValidation::ME0RecHitsValidation(const edm::ParameterSet& cfg):  ME0BaseValidation(cfg)

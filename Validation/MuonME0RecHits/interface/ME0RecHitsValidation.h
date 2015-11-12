@@ -8,7 +8,6 @@
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
 

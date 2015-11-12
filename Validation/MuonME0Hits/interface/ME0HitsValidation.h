@@ -2,7 +2,6 @@
 #define ME0HitsValidation_H
 
 #include "Validation/MuonME0Hits/interface/ME0BaseValidation.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
 

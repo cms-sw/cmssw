@@ -1,7 +1,5 @@
 #include "Validation/MuonME0RecHits/interface/ME0SegmentsValidation.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <TMath.h>
 
 ME0SegmentsValidation::ME0SegmentsValidation(const edm::ParameterSet& cfg):  ME0BaseValidation(cfg)

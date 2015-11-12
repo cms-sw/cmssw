@@ -1,7 +1,5 @@
 #include "Validation/MuonME0Hits/interface/ME0BaseValidation.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace std;
 ME0BaseValidation::ME0BaseValidation( const edm::ParameterSet& ps)

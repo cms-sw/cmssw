@@ -2,7 +2,6 @@
   <use name="FWCore/Framework"/>
   <use name="Validation/MuonME0RecHits"/>
   <use name="Validation/MuonME0Hits"/>
-  <use name="DQMServices/Core"/>
   <use name="HepMC"/>
   <flags EDM_PLUGIN="1"/>
 </library>
