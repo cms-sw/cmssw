@@ -98,13 +98,49 @@ FastSim
       <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
       <var name="TEST_GLOBAL_AUTOCOND" value="startup">
       <var name="DD_COND" value="/${TEST_GLOBAL_TAG}_FastSim-${DATA_VERSION}">
-          
+      
+      <environment name="ValFastTTbarStartup">
+      
+        <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
+        <var name="DD_SAMPLE" value="RelValTTbar">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
+	
+        <target name="dqm" cmd="electronDataDiscovery.py castor">
+        <target name="wget" cmd="electronWget.py castor">
+        
+        <target name="dd" cmd="electronDataDiscovery.py">
+        <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
+        <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
+        
+        <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
+        <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
+        
+      </environment>
+    
+      <environment name="ValFastZEEStartup">
+      
+        <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
+        <var name="DD_SAMPLE" value="RelValZEE">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
+	
+        <target name="dqm" cmd="electronDataDiscovery.py castor">
+        <target name="wget" cmd="electronWget.py castor">
+        
+        <target name="dd" cmd="electronDataDiscovery.py">
+        <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
+        <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
+        
+        <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
+        <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
+        
+      </environment>
+    
       <environment name="ValFastTTbarStartup_gedGsfE">
       
         <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
         <!--var name="DD_SAMPLE" value="RelValTTbar"-->
         <var name="DD_SAMPLE" value="RelValTTbar_13">
-	    <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
 	
         <target name="dqm" cmd="electronDataDiscovery.py castor">
         <target name="wget" cmd="electronWget.py castor">
@@ -123,7 +159,7 @@ FastSim
         <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
         <!--var name="DD_SAMPLE" value="RelValZEE"-->
         <var name="DD_SAMPLE" value="RelValZEE_13">
-	    <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
 	
         <target name="dqm" cmd="electronDataDiscovery.py castor">
         <target name="wget" cmd="electronWget.py castor">
@@ -148,21 +184,37 @@ FastSim
       <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
       <var name="TEST_GLOBAL_AUTOCOND" value="startup">
       <var name="DD_COND" value="-${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
+
+      <environment name="ValFastVsFastTTbarStartup">
+        <var name="DD_SAMPLE" value="RelValTTbar">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
+        <!--var name="TEST_HISTOS_FILE" value="electronHistos.ValFastTTbarStartup.root"-->
+        <var name="TEST_HISTOS_FILE" value="electronHistos.ValFastTTbarStartup_gedGsfE.root">
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/Fast_${DD_SAMPLE}_Startup'>
+      </environment>
+      
+      <environment name="ValFastVsFastZEEStartup">
+        <var name="DD_SAMPLE" value="RelValZEE">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
+        <!--var name="TEST_HISTOS_FILE" value="electronHistos.ValFastZEEStartup.root"-->
+        <var name="TEST_HISTOS_FILE" value="electronHistos.ValFastZEEStartup_gedGsfE.root">
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/Fast_${DD_SAMPLE}_Startup'>
+      </environment>
         
       <environment name="ValFastVsFastTTbarStartup_gedGsfE">
         <var name="DD_SAMPLE" value="RelValTTbar_13">
-	    <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
         <!--var name="TEST_HISTOS_FILE" value="electronHistos.ValFastTTbarStartup.root"-->
         <var name="TEST_HISTOS_FILE" value="electronHistos.ValFastTTbarStartup_gedGsfE.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFast_${TEST_REF}/Fast_${DD_SAMPLE}_Startup'>
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "gedGsfElectrons ${DD_SAMPLE}<br><b><font color='red'>${TEST_NEW}</font></b> : ${DD_COND}<br><b><font color='blue'>${TEST_REF}</font></b> : ${DD_COND_REF}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFast_${TEST_REF}/Fast_${DD_SAMPLE}_Startup'>
       </environment>
       
       <environment name="ValFastVsFastZEEStartup_gedGsfE">
         <var name="DD_SAMPLE" value="RelValZEE_13">
-	    <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
         <!--var name="TEST_HISTOS_FILE" value="electronHistos.ValFastZEEStartup.root"-->
         <var name="TEST_HISTOS_FILE" value="electronHistos.ValFastZEEStartup_gedGsfE.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFast_${TEST_REF}/Fast_${DD_SAMPLE}_Startup'>
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "gedGsfElectrons ${DD_SAMPLE}<br><b><font color='red'>${TEST_NEW}</font></b> : ${DD_COND}<br><b><font color='blue'>${TEST_REF}</font></b> : ${DD_COND_REF}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFast_${TEST_REF}/Fast_${DD_SAMPLE}_Startup'>
       </environment>
         
     </environment>
@@ -179,7 +231,7 @@ FastSim
 
       <environment name="ValFastVsFullTTbarStartup_gedGsfE">
         <var name="DD_SAMPLE" value="RelValTTbar_13">
-        <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
+ 	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
        <var name="BLUE_FILE" value="electronHistos.ValFullTTbarStartup_13_gedGsfE.root">
         <var name="RED_FILE" value="electronHistos.ValFastTTbarStartup_gedGsfE.root">
         <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_NEW} -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_DIR}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFull/${DD_SAMPLE}_Startup'>
@@ -187,7 +239,7 @@ FastSim
       
       <environment name="ValFastVsFullZEEStartup_gedGsfE">
         <var name="DD_SAMPLE" value="RelValZEE_13">
-        <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
         <var name="BLUE_FILE" value="electronHistos.ValFullZEEStartup_13_gedGsfE.root">
         <var name="RED_FILE" value="electronHistos.ValFastZEEStartup_gedGsfE.root">
         <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_NEW} -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_DIR}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFull/${DD_SAMPLE}_Startup'>
