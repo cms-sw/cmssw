@@ -20,10 +20,10 @@ electronMcMiniAODSignalValidator = cms.EDAnalyzer("ElectronMcMiniAODSignalValida
 
     Verbosity = cms.untracked.int32(0),
     FinalStep = cms.string("AtJobEnd"),
-  InputFile = cms.string(""),
-  OutputFile = cms.string(""),
-  InputFolderName = cms.string("EgammaV/ElectronMcMiniAODSignalValidator"), # 
-  OutputFolderName = cms.string("EgammaV/ElectronMcMiniAODSignalValidator"), # 
+    InputFile = cms.string(""),
+    OutputFile = cms.string(""),
+    InputFolderName = cms.string("EgammaV/ElectronMcMiniAODSignalValidator"), # 
+    OutputFolderName = cms.string("EgammaV/ElectronMcMiniAODSignalValidator"), # 
 
     mcTruthCollection = cms.InputTag("prunedGenParticles"),
     electrons = cms.InputTag("slimmedElectrons"),
