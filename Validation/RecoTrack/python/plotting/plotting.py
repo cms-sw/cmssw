@@ -8,10 +8,13 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 import html
 
+verbose=False
+
 def _getObject(tdirectory, name):
     obj = tdirectory.Get(name)
     if not obj:
-        print "Did not find {obj} from {dir}".format(obj=name, dir=tdirectory.GetPath())
+        if verbose:
+            print "Did not find {obj} from {dir}".format(obj=name, dir=tdirectory.GetPath())
         return None
     return obj
 
@@ -33,12 +36,24 @@ def _getDirectory(tfile, possibleDirs, subDir=None):
                 if d:
                     return d
                 else:
-                    print "Did not find subdirectory '%s' from directory '%s' in file %s" % (subDir, pdf, tfile.GetName())
+                    if verbose:
+                        print "Did not find subdirectory '%s' from directory '%s' in file %s" % (subDir, pdf, tfile.GetName())
                     return None
             else:
                 return d
-    print "Did not find any of directories '%s' from file %s" % (",".join(possibleDirs), tfile.GetName())
+    if verbose:
+        print "Did not find any of directories '%s' from file %s" % (",".join(possibleDirs), tfile.GetName())
     return None
+
+def _createCanvas(name, width, height):
+    # silence warning of deleting canvas with the same name
+    if not verbose:
+        backup = ROOT.gErrorIgnoreLevel
+        ROOT.gErrorIgnoreLevel = ROOT.kError
+    canvas = ROOT.TCanvas(name, name, width, height)
+    if not verbose:
+        ROOT.gErrorIgnoreLevel = backup
+    return canvas
 
 
 def _getXmin(obj, limitToNonZeroContent=False):
@@ -150,7 +165,8 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
             if len(xmins_below) == 0:
                 xmin = min(xmin)
                 if xm < xmin:
-                    print "Histogram minimum x %f is below all given xmin values %s, using the smallest one" % (xm, str(xmin))
+                    if verbose:
+                        print "Histogram minimum x %f is below all given xmin values %s, using the smallest one" % (xm, str(xmin))
             else:
                 xmin = max(xmins_below)
 
@@ -162,7 +178,8 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
             if len(xmaxs_above) == 0:
                 xmax = max(xmax)
                 if xm > xmax:
-                    print "Histogram maximum x %f is above all given xmax values %s, using the maximum one" % (xm, str(xmax))
+                    if verbose:
+                        print "Histogram maximum x %f is above all given xmax values %s, using the maximum one" % (xm, str(xmax))
             else:
                 xmax = min(xmaxs_above)
 
@@ -175,7 +192,8 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
             if len(ymins_below) == 0:
                 ymin = min(ymin)
                 if ym_unscaled < ymin:
-                    print "Histogram minimum y %f is below all given ymin values %s, using the smallest one" % (ym, str(ymin))
+                    if verbose:
+                        print "Histogram minimum y %f is below all given ymin values %s, using the smallest one" % (ym, str(ymin))
             else:
                 ymin = max(ymins_below)
 
@@ -188,7 +206,8 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
             if len(ymaxs_above) == 0:
                 ymax = max(ymax)
                 if ym_unscaled > ymax:
-                    print "Histogram maximum y %f is above all given ymax values %s, using the maximum one" % (ym_unscaled, str(ymax))
+                    if verbose:
+                        print "Histogram maximum y %f is above all given ymax values %s, using the maximum one" % (ym_unscaled, str(ymax))
             else:
                 ymax = min(ymaxs_above)
 
@@ -1056,7 +1075,7 @@ class Plot:
                 return
             h.SetStats(True)
 
-            if self._fit:
+            if self._fit and h.GetEntries() > 0.5:
                 h.Fit("gaus", "Q")
                 f = h.GetListOfFunctions().FindObject("gaus")
                 if f == None:
@@ -1144,7 +1163,8 @@ class Plot:
             style(h, _plotStylesMarker[i], _plotStylesColor[i])
             histos.append(h)
         if len(histos) == 0:
-            print "No histograms for plot {name}".format(name=self.getName())
+            if verbose:
+                print "No histograms for plot {name}".format(name=self.getName())
             return
 
         bounds = _findBounds(histos, self._ylog,
@@ -1527,7 +1547,7 @@ class PlotGroup:
         if ratio:
             cheight = int(cheight*self._ratioFactor)
 
-        canvas = ROOT.TCanvas(self._name, self._name, cwidth, cheight)
+        canvas = _createCanvas(self._name, cwidth, cheight)
 
         canvas.Divide(self._ncols, nrows)
         if ratio:
@@ -1577,7 +1597,7 @@ class PlotGroup:
         if ratio:
             height = int(height*self._ratioFactor)
 
-        canvas = ROOT.TCanvas(self._name+"Single", self._name, width, height)
+        canvas = _createCanvas(self._name+"Single", width, height)
         # from TDRStyle
         canvas.SetTopMargin(0.05)
         canvas.SetBottomMargin(0.13)
@@ -1678,7 +1698,14 @@ class PlotGroup:
             name = prefix+name
         if postfix is not None:
             name = name+postfix
+
+        if not verbose: # silence saved file printout
+            backup = ROOT.gErrorIgnoreLevel
+            ROOT.gErrorIgnoreLevel = ROOT.kWarning
         canvas.SaveAs(name+saveFormat)
+        if not verbose:
+            ROOT.gErrorIgnoreLevel = backup
+
         if single:
             canvas.Clear()
             canvas.SetLogx(False)
