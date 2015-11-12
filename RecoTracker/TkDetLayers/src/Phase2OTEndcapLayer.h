@@ -1,22 +1,22 @@
-#ifndef TkDetLayers_Phase2OTECRingedLayer_h
-#define TkDetLayers_Phase2OTECRingedLayer_h
+#ifndef TkDetLayers_Phase2OTEndcapLayer_h
+#define TkDetLayers_Phase2OTEndcapLayer_h
 
 #define NOTECRINGS 15
 
 #include "TrackingTools/DetLayers/interface/RingedForwardLayer.h"
-#include "Phase2OTECRing.h"
+#include "Phase2OTEndcapRing.h"
 #include<array>
 
 
 /** A concrete implementation for Phase 2 OT EC layer 
- *  built out of Phase2OTECRings
+ *  built out of Phase2OTEndcapRings
  */
 
 #pragma GCC visibility push(hidden)
-class Phase2OTECRingedLayer GCC11_FINAL : public RingedForwardLayer, public GeometricSearchDetWithGroups {
+class Phase2OTEndcapLayer GCC11_FINAL : public RingedForwardLayer, public GeometricSearchDetWithGroups {
  public:
-  Phase2OTECRingedLayer(std::vector<const Phase2OTECRing*>& rings);
-  ~Phase2OTECRingedLayer();
+  Phase2OTEndcapLayer(std::vector<const Phase2OTEndcapRing*>& rings);
+  ~Phase2OTEndcapLayer();
   
   // GeometricSearchDet interface
   
@@ -35,7 +35,7 @@ class Phase2OTECRingedLayer GCC11_FINAL : public RingedForwardLayer, public Geom
 
  private:
   // private methods for the implementation of groupedCompatibleDets()
-  BoundDisk* computeDisk( const std::vector<const Phase2OTECRing*>& rings) const;
+  BoundDisk* computeDisk( const std::vector<const Phase2OTEndcapRing*>& rings) const;
 
   std::array<int,3> ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
 						   const Propagator& prop ) const;
@@ -56,7 +56,7 @@ class Phase2OTECRingedLayer GCC11_FINAL : public RingedForwardLayer, public Geom
 
  private:
   std::vector<GeomDet const*> theBasicComps;
-  const Phase2OTECRing* theComps[NOTECRINGS];
+  const Phase2OTEndcapRing* theComps[NOTECRINGS];
   struct RingPar { float theRingR, thetaRingMin, thetaRingMax;};
   RingPar ringPars[NOTECRINGS];
 

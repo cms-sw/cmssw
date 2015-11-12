@@ -43,7 +43,7 @@ void CreateSurveyRcds::analyze(const edm::Event& event, const edm::EventSetup& s
 	
 	edm::ESHandle<GeometricDet>  geom;
 	setup.get<IdealGeometryRecord>().get(geom);	 
-	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, theParameterSet);
+	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, theParameterSet, tTopo);
 	
 	//take geometry from DB or randomly generate geometry
 	if (m_inputGeom == "sqlite"){

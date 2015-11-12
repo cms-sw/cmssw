@@ -18,9 +18,7 @@ class Phase2OTBarrelRod GCC11_FINAL : public DetRod, public GeometricSearchDetWi
   typedef GenericBinFinderInZ<float,GeomDet>   BinFinderType;
 
   Phase2OTBarrelRod(std::vector<const GeomDet*>& innerDets,
-			std::vector<const GeomDet*>& outerDets,
-			std::vector<const GeomDet*>& innerDetBrothers,
-			std::vector<const GeomDet*>& outerDetBrothers);
+		    std::vector<const GeomDet*>& outerDets);
   ~Phase2OTBarrelRod();
   
   // GeometricSearchDet interface
@@ -50,8 +48,7 @@ class Phase2OTBarrelRod GCC11_FINAL : public DetRod, public GeometricSearchDetWi
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
-		   std::vector<DetGroup>& result,
-		   std::vector<DetGroup>& brotherresult) const;
+		   std::vector<DetGroup>& result) const;
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
@@ -64,7 +61,6 @@ class Phase2OTBarrelRod GCC11_FINAL : public DetRod, public GeometricSearchDetWi
 			const SubLayerCrossing& crossing,
 			float window, 
 			std::vector<DetGroup>& result,
-			std::vector<DetGroup>& brotherresult,
 			bool checkClosest) const;
 
   bool overlap( const GlobalPoint& gpos, const GeomDet& rod, float phiWin) const;
@@ -73,17 +69,11 @@ class Phase2OTBarrelRod GCC11_FINAL : public DetRod, public GeometricSearchDetWi
     return (ind==0 ? theInnerDets : theOuterDets);
   }
 
-  const std::vector<const GeomDet*>& subRodBrothers( int ind) const {
-    return (ind==0 ? theInnerDetBrothers : theOuterDetBrothers);
-  }
-
 
  private:
   std::vector<const GeomDet*> theDets;
   std::vector<const GeomDet*> theInnerDets;
   std::vector<const GeomDet*> theOuterDets;
-  std::vector<const GeomDet*> theInnerDetBrothers;
-  std::vector<const GeomDet*> theOuterDetBrothers;
 
   ReferenceCountingPointer<Plane> theInnerPlane;
   ReferenceCountingPointer<Plane> theOuterPlane;

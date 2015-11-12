@@ -4,6 +4,7 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 // Alignments
 #include "CondFormats/Alignment/interface/Alignments.h"
@@ -108,9 +109,13 @@ TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord)
   //
   edm::ESHandle<GeometricDet> gD;
   iRecord.getRecord<IdealGeometryRecord>().get( gD );
+
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  iRecord.getRecord<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
   
   TrackerGeomBuilderFromGeometricDet builder;
-  _tracker  = boost::shared_ptr<TrackerGeometry>(builder.build(&(*gD), m_pSet ));
+  _tracker  = boost::shared_ptr<TrackerGeometry>(builder.build(&(*gD), m_pSet, tTopo));
 
   if (applyAlignment_) {
     // Since fake is fully working when checking for 'empty', we should get rid of applyAlignment_!

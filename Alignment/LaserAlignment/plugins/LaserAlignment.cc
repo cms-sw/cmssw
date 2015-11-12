@@ -291,7 +291,7 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
       edm::ESHandle<GeometricDet> theGeometricDet;
       theSetup.get<IdealGeometryRecord>().get(theGeometricDet);
       TrackerGeomBuilderFromGeometricDet trackerBuilder;
-      TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, theParameterSet);
+      TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, theParameterSet, tTopo);
       
       theAlignableTracker = new AlignableTracker(&(*theRefTracker), tTopo);
     }

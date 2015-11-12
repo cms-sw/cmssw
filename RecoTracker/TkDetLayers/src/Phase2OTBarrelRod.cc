@@ -26,38 +26,26 @@ public:
 
 
 Phase2OTBarrelRod::Phase2OTBarrelRod(vector<const GeomDet*>& innerDets,
-					     vector<const GeomDet*>& outerDets,
-					     vector<const GeomDet*>& innerDetBrothers,
-					     vector<const GeomDet*>& outerDetBrothers):
-  theInnerDets(innerDets),theOuterDets(outerDets),theInnerDetBrothers(innerDetBrothers),theOuterDetBrothers(outerDetBrothers)
+					     vector<const GeomDet*>& outerDets):
+  theInnerDets(innerDets),theOuterDets(outerDets)
 {
   theDets.assign(theInnerDets.begin(),theInnerDets.end());
   theDets.insert(theDets.end(),theOuterDets.begin(),theOuterDets.end());
-  theDets.insert(theDets.end(),theInnerDetBrothers.begin(),theInnerDetBrothers.end());
-  theDets.insert(theDets.end(),theOuterDetBrothers.begin(),theOuterDetBrothers.end());
-
 
   RodPlaneBuilderFromDet planeBuilder;
   setPlane( planeBuilder( theDets));
   theInnerPlane = planeBuilder( theInnerDets);
   theOuterPlane = planeBuilder( theOuterDets);
 
+  // the dets are already abs(z)-ordered
 
-  sort(theDets.begin(),theDets.end(),DetZLess());  // this can be dangerous because of the pt modules. On the other hand theDets is never used
-  // shouldn't the modules be already sorted in Z? 
-  sort(theInnerDets.begin(),theInnerDets.end(),DetZLess());
-  sort(theOuterDets.begin(),theOuterDets.end(),DetZLess());
-  sort(theInnerDetBrothers.begin(),theInnerDetBrothers.end(),DetZLess());
-  sort(theOuterDetBrothers.begin(),theOuterDetBrothers.end(),DetZLess());
   theInnerBinFinder = BinFinderType(theInnerDets.begin(), theInnerDets.end());
   theOuterBinFinder = BinFinderType(theOuterDets.begin(), theOuterDets.end());
 
-
- 
   LogDebug("TkDetLayers") << "==== DEBUG Phase2OTBarrelRod =====" ; 
   for (vector<const GeomDet*>::const_iterator i=theInnerDets.begin();
        i != theInnerDets.end(); i++){
-    LogDebug("TkDetLayers") << "inner Phase2OTBarrelRod's Det pos z,perp,eta,phi: " 
+    LogTrace("TkDetLayers") << "inner Phase2OTBarrelRod's Det pos z,perp,eta,phi: " 
 			    << (**i).position().z() << " , " 
 			    << (**i).position().perp() << " , " 
 			    << (**i).position().eta() << " , " 
@@ -66,13 +54,13 @@ Phase2OTBarrelRod::Phase2OTBarrelRod(vector<const GeomDet*>& innerDets,
   
   for (vector<const GeomDet*>::const_iterator i=theOuterDets.begin();
        i != theOuterDets.end(); i++){
-    LogDebug("TkDetLayers") << "outer Phase2OTBarrelRod's Det pos z,perp,eta,phi: " 
+    LogTrace("TkDetLayers") << "outer Phase2OTBarrelRod's Det pos z,perp,eta,phi: " 
 			    << (**i).position().z() << " , " 
 			    << (**i).position().perp() << " , " 
 			    << (**i).position().eta() << " , " 
 			    << (**i).position().phi() ;
   }
-  LogDebug("TkDetLayers") << "==== end DEBUG Phase2OTBarrelRod =====" ; 
+  LogTrace("TkDetLayers") << "==== end DEBUG Phase2OTBarrelRod =====" ; 
   
 
 
@@ -110,50 +98,34 @@ Phase2OTBarrelRod::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   if(! crossings.isValid()) return;
 
   vector<DetGroup> closestResult;
-  vector<DetGroup> closestBrotherResult;
-  addClosest( tsos, prop, est, crossings.closest(), closestResult, closestBrotherResult);
+  addClosest( tsos, prop, est, crossings.closest(), closestResult);
   if (closestResult.empty()){
     vector<DetGroup> nextResult;
-    vector<DetGroup> nextBrotherResult;
-    addClosest( tsos, prop, est, crossings.other(), nextResult, nextBrotherResult);
+    addClosest( tsos, prop, est, crossings.other(), nextResult);
     if(nextResult.empty())    return;
 
     DetGroupElement nextGel( nextResult.front().front());  
     int crossingSide = LayerCrossingSide().barrelSide( nextGel.trajectoryState(), prop);
-    vector<DetGroup> closestCompleteResult;
-    DetGroupMerger::orderAndMergeTwoLevels(std::move(closestResult),std::move(closestBrotherResult),closestCompleteResult,
-					   0, crossingSide);
-    vector<DetGroup> nextCompleteResult;
-    DetGroupMerger::orderAndMergeTwoLevels(std::move(nextResult),std::move(nextBrotherResult),nextCompleteResult,
-					   0, crossingSide);
-
-    DetGroupMerger::orderAndMergeTwoLevels( std::move(closestCompleteResult), std::move(nextCompleteResult), result, 
+    DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result, 
 					   crossings.closestIndex(), crossingSide);   
   } else {
   
     DetGroupElement closestGel( closestResult.front().front());
-    int crossingSide = LayerCrossingSide().barrelSide( closestGel.trajectoryState(), prop);
     float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
 
     searchNeighbors( tsos, prop, est, crossings.closest(), window,
-     		     closestResult, closestBrotherResult, false);
-
-    vector<DetGroup> closestCompleteResult;
-    DetGroupMerger::orderAndMergeTwoLevels(std::move(closestResult),std::move(closestBrotherResult),closestCompleteResult,
-					   0, crossingSide);
+     		     closestResult, false);
 
     vector<DetGroup> nextResult;
-    vector<DetGroup> nextBrotherResult;
     searchNeighbors( tsos, prop, est, crossings.other(), window,
-		     nextResult, nextBrotherResult, true);
+		     nextResult, true);
 
-    vector<DetGroup> nextCompleteResult;
-    DetGroupMerger::orderAndMergeTwoLevels(std::move(nextResult),std::move(nextBrotherResult),nextCompleteResult,
-					   0, crossingSide);
-
-    DetGroupMerger::orderAndMergeTwoLevels( std::move(closestCompleteResult), std::move(nextCompleteResult), result, 
+    int crossingSide = LayerCrossingSide().barrelSide( closestGel.trajectoryState(), prop);
+    DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result, 
 					    crossings.closestIndex(), crossingSide);
+    
   }
+
 }
 
 
@@ -199,19 +171,12 @@ Phase2OTBarrelRod::addClosest( const TrajectoryStateOnSurface& tsos,
 				   const Propagator& prop,
 				   const MeasurementEstimator& est,
 				   const SubLayerCrossing& crossing,
-				   vector<DetGroup>& result,
-				   vector<DetGroup>& brotherresult) const
+				   vector<DetGroup>& result) const
 {
 
   const vector<const GeomDet*>& sRod( subRod( crossing.subLayerIndex()));
-  bool firstgroup = CompatibleDetToGroupAdder::add( *sRod[crossing.closestDetIndex()], 
-						    tsos, prop, est, result);
-  // it assumes that the closestDetIndex is ok also for the brother detectors: the crossing is NOT recomputed
-  const vector<const GeomDet*>& sRodBrothers( subRodBrothers( crossing.subLayerIndex()));
-  bool brothergroup = CompatibleDetToGroupAdder::add( *sRodBrothers[crossing.closestDetIndex()], 
-						      tsos, prop, est, brotherresult);
-
-  return firstgroup || brothergroup;
+  return CompatibleDetToGroupAdder::add( *sRod[crossing.closestDetIndex()], 
+					 tsos, prop, est, result);
 }
 
 
@@ -232,13 +197,11 @@ void Phase2OTBarrelRod::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			      const SubLayerCrossing& crossing,
 			      float window, 
 			      vector<DetGroup>& result,
-			      vector<DetGroup>& brotherresult,
 			      bool checkClosest) const
 {
   GlobalPoint gCrossingPos = crossing.position();
 
   const vector<const GeomDet*>& sRod( subRod( crossing.subLayerIndex()));
-  const vector<const GeomDet*>& sBrotherRod( subRodBrothers( crossing.subLayerIndex()));
  
   int closestIndex = crossing.closestDetIndex();
   int negStartIndex = closestIndex-1;
@@ -257,14 +220,10 @@ void Phase2OTBarrelRod::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   for (int idet=negStartIndex; idet >= 0; idet--) {
     if (!overlap( gCrossingPos, *sRod[idet], window)) break;
     if (!Adder::add( *sRod[idet], tsos, prop, est, result)) break;
-    // If the two above checks are passed also the brother module will be added with no further checks
-    Adder::add( *sBrotherRod[idet], tsos, prop, est, brotherresult);
   }
   for (int idet=posStartIndex; idet < static_cast<int>(sRod.size()); idet++) {
     if (!overlap( gCrossingPos, *sRod[idet], window)) break;
     if (!Adder::add( *sRod[idet], tsos, prop, est, result)) break;
-    // If the two above checks are passed also the brother module will be added with no further checks
-    Adder::add( *sBrotherRod[idet], tsos, prop, est, brotherresult);
   }
 }
 

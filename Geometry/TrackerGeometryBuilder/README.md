@@ -103,3 +103,10 @@ Following types are used
 | TrackerGeometry::Ph2PSP | Phase 2 MacroPixel,PS|
 | TrackerGeometry::Ph2PSS | Phase 2 Strip, PS    |
 | TrackerGeometry::Ph2SS  | Phase2 2S            |
+
+
+### `TrackerGeomBuilderFromGeometricDet` 
+
+The class `TrackerGeomBuilderFromGeometricDet` is used in order to fill the different vectors in the `TrackerGeometry` class. This is done using three main methods: `buildPixel`, `buildSilicon` and `buildGeomDet`.
+The first two methods take care to add `DetUnits` (with the respectively `Id`) and the `GeomType`.
+The third takes care to add `Dets` (with the respectively `Id`). In order to take into account also modules composed by different sub-modules, such as glued or stack, it does a check on the name of the `GeomDetUnit`. In the case of "Ster" (for glued) and "Lower" (for stack), it searches for the sub-module partner and builds the corrispondent `GeomDet`.
