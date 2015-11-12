@@ -555,9 +555,11 @@ class Validation:
                 triedRefValFiles.append(refValFilePath)
         if refValFile is None:
             if len(triedRefValFiles) == 1:
-                print "Reference file %s not found" % triedRefValFiles[0]
+                if plotting.verbose:
+                    print "Reference file %s not found" % triedRefValFiles[0]
             else:
-                print "None of the possible reference files %s not found" % ",".join(triedRefValFiles)
+                if plotting.verbose:
+                    print "None of the possible reference files %s not found" % ",".join(triedRefValFiles)
 
         # Construct new directory name
         tmp = []
@@ -573,7 +575,8 @@ class Validation:
         fileList = []
 
         # Do the plots
-        print "Comparing ref and new {sim} {sample} {translatedFolder}".format(
+        if plotting.verbose:
+            print "Comparing ref and new {sim} {sample} {translatedFolder}".format(
             sim="FullSim" if not sample.fastsim() else "FastSim",
             sample=sample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else "")
         rootFiles = [refValFile, newValFile]
@@ -624,17 +627,18 @@ class Validation:
         # Open input root files
         valname = "val.{sample}.root".format(sample=fastSample.name())
         fastValFilePath = os.path.join(fastdir, valname)
-        if not os.path.exists(fastValFilePath):
+        if not os.path.exists(fastValFilePath) and plotting.verbose:
             print "FastSim file %s not found" % fastValFilePath
         fullValFilePath = os.path.join(fulldir, valname)
-        if not os.path.exists(fullValFilePath):
+        if not os.path.exists(fullValFilePath) and plotting.verbose:
             print "FullSim file %s not found" % fullValFilePath
 
         fastValFile = ROOT.TFile.Open(fastValFilePath)
         fullValFile = ROOT.TFile.Open(fullValFilePath)
 
         # Do plots
-        print "Comparing FullSim and FastSim {sample} {translatedFolder}".format(
+        if plotting.verbose:
+            print "Comparing FullSim and FastSim {sample} {translatedFolder}".format(
             sample=fastSample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else "")
         rootFiles = [fullValFile, fastValFile]
         legendLabels = [
@@ -679,17 +683,18 @@ class Validation:
         # Open input root files
         valname = "val.{sample}.root".format(sample=sample.name())
         refValFilePath = os.path.join(refdir, valname)
-        if not os.path.exists(refValFilePath):
+        if not os.path.exists(refValFilePath) and plotting.verbose:
             print "Ref pileup file %s not found" % refValFilePath
         newValFilePath = os.path.join(newdir, valname)
-        if not os.path.exists(newValFilePath):
+        if not os.path.exists(newValFilePath) and plotting.verbose:
             print "New pileup file %s not found" % newValFilePath
 
         refValFile = ROOT.TFile.Open(refValFilePath)
         newValFile = ROOT.TFile.Open(newValFilePath)
 
         # Do plots
-        print "Comparing Old and New pileup {sample} {algo} {quality}".format(
+        if plotting.verbose:
+            print "Comparing Old and New pileup {sample} {algo} {quality}".format(
             sample=sample.name(), algo=algo, quality=quality)
         self._plotter.create([refValFile, newValFile], [
             "%d BX %s, %s %s" % ({"25ns": 10, "50ns": 20}[sample.pileupType(self._newRelease)], sample.name(), _stripRelease(self._newRelease), refSelection),
