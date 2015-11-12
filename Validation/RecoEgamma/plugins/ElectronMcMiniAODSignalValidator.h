@@ -42,9 +42,7 @@ class ElectronMcMiniAODSignalValidator : public ElectronDqmAnalyzerBase {
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
-      edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
       edm::EDGetTokenT<edm::View<reco::GenParticle> > mcTruthCollection_;
-      
       edm::EDGetTokenT<pat::ElectronCollection> electronToken_;
  
       double maxPt_;
