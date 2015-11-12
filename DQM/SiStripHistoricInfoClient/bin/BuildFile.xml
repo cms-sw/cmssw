@@ -5,7 +5,4 @@
 <use name="root"/>
 <use name="boost"/>
 <environment>
-  <bin file="WebTrackingHDQMInspector.cc"></bin>
-  <bin file="TrackingHDQMInspector.cc"></bin>
-  <bin file="SiStripHDQMInspector.cc"></bin>
 </environment>
