@@ -8,13 +8,26 @@
 using namespace reco;
 
 TrackTransientTrack::TrackTransientTrack() : 
-  Track(), tkr_(), theField(0), initialTSOSAvailable(false),
+  Track(), tkr_(), hasTime(false), timeExt_(0.), dtErrorExt_(0.), 
+  theField(0), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false)
 {
 }
 
 TrackTransientTrack::TrackTransientTrack( const Track & tk , const MagneticField* field) : 
-  Track(tk), tkr_(), theField(field), initialTSOSAvailable(false),
+  Track(tk), tkr_(), hasTime(false), timeExt_(0.), dtErrorExt_(0.), 
+  theField(field), initialTSOSAvailable(false),
+  initialTSCPAvailable(false), blStateAvailable(false)
+{
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(tk, field);
+}
+
+TrackTransientTrack::TrackTransientTrack( const Track & tk , const double time,
+                                          const double dtime,
+                                          const MagneticField* field) : 
+  Track(tk), tkr_(), hasTime(true), timeExt_(time), dtErrorExt_(dtime), 
+  theField(field), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false)
 {
   
@@ -23,7 +36,19 @@ TrackTransientTrack::TrackTransientTrack( const Track & tk , const MagneticField
 
 
 TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const MagneticField* field) : 
-  Track(*tk), tkr_(tk), theField(field), initialTSOSAvailable(false),
+  Track(*tk), tkr_(tk), hasTime(false), timeExt_(0.), dtErrorExt_(0.),
+  theField(field), initialTSOSAvailable(false),
+  initialTSCPAvailable(false), blStateAvailable(false)
+{
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(*tk, field);
+}
+
+TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const double time,
+                                          const double dtime,
+                                          const MagneticField* field) : 
+  Track(*tk), tkr_(tk), hasTime(true), timeExt_(time), dtErrorExt_(dtime), 
+  theField(field), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false)
 {
   
@@ -31,15 +56,42 @@ TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const MagneticFi
 }
 
 TrackTransientTrack::TrackTransientTrack( const Track & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
-  Track(tk), tkr_(), theField(field), initialTSOSAvailable(false),
+  Track(tk), tkr_(), hasTime(false), timeExt_(0.), dtErrorExt_(0.), theField(field), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg)
 {
   
   initialFTS = trajectoryStateTransform::initialFreeState(tk, field);
 }
 
-TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
-  Track(*tk), tkr_(tk), theField(field), initialTSOSAvailable(false),
+TrackTransientTrack::TrackTransientTrack( const Track & tk , const double time,
+                                          const double dtime,
+                                          const MagneticField* field, 
+                                          const edm::ESHandle<GlobalTrackingGeometry>& tg) :
+  Track(tk), tkr_(), hasTime(true), timeExt_(time), dtErrorExt_(dtime), 
+  theField(field), initialTSOSAvailable(false),
+  initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg)
+{
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(tk, field);
+}
+
+TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , 
+                                          const MagneticField* field, 
+                                          const edm::ESHandle<GlobalTrackingGeometry>& tg) :
+  Track(*tk), tkr_(tk), hasTime(false), timeExt_(0.), dtErrorExt_(0.0),
+  theField(field), initialTSOSAvailable(false),
+  initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg)
+{
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(*tk, field);
+}
+
+TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const double time, 
+                                          const double dtime,
+                                          const MagneticField* field, 
+                                          const edm::ESHandle<GlobalTrackingGeometry>& tg) :
+  Track(*tk), tkr_(tk), hasTime(true), timeExt_(time), dtErrorExt_(dtime), 
+  theField(field), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg)
 {
   
@@ -48,7 +100,9 @@ TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const MagneticFi
 
 
 TrackTransientTrack::TrackTransientTrack( const TrackTransientTrack & tt ) :
-  Track(tt), tkr_(tt.persistentTrackRef()), theField(tt.field()), 
+  Track(tt), tkr_(tt.persistentTrackRef()), 
+  hasTime(tt.hasTime), timeExt_(tt.timeExt_), dtErrorExt_(tt.dtErrorExt_),
+  theField(tt.field()), 
   initialFTS(tt.initialFreeState()), initialTSOSAvailable(false),
   initialTSCPAvailable(false)
 {

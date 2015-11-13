@@ -31,7 +31,10 @@ public:
    *  2*nb of tracks - 3.
    */
   TransientVertex(const GlobalPoint & pos, const GlobalError & posError,
-	    const std::vector<reco::TransientTrack> & tracks, float chi2);
+                  const std::vector<reco::TransientTrack> & tracks, float chi2);
+  TransientVertex(const GlobalPoint & pos, const double time, 
+                  const GlobalError & posError,
+                  const std::vector<reco::TransientTrack> & tracks, float chi2);
 
   /** Constructor defining the RecVertex by its 3D position
    *  and position uncertainty, its associated tracks, its chi-squared
@@ -39,7 +42,9 @@ public:
    *  The ndf can be a float.
    */
   TransientVertex(const GlobalPoint & pos, const GlobalError & posError,
-	    const std::vector<reco::TransientTrack> & tracks, float chi2, float ndf);
+                  const std::vector<reco::TransientTrack> & tracks, float chi2, float ndf);
+  TransientVertex(const GlobalPoint & pos, const double time, const GlobalError & posError,
+                  const std::vector<reco::TransientTrack> & tracks, float chi2, float ndf);
 
   /** Constructor defining the RecVertex by the prior,
    *  the vertex 3D position and uncertainty, the associated tracks
@@ -48,8 +53,11 @@ public:
    *  2*nb of tracks.
    */
   TransientVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
-  	    const GlobalPoint & pos, const GlobalError & posError,
-	    const std::vector<reco::TransientTrack> & tracks, float chi2);
+                  const GlobalPoint & pos, const GlobalError & posError,
+                  const std::vector<reco::TransientTrack> & tracks, float chi2);
+  TransientVertex(const GlobalPoint & priorPos, const double priorTime, const GlobalError & priorErr,
+                  const GlobalPoint & pos, const double time, const GlobalError & posError,
+                  const std::vector<reco::TransientTrack> & tracks, float chi2);
 
   /** Constructor defining the RecVertex by the prior,
    *  the vertex 3D position and uncertainty, the associated tracks,
@@ -57,8 +65,22 @@ public:
    *  The ndf can be a float.
    */
   TransientVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
-  	    const GlobalPoint & pos, const GlobalError & posError,
-	    const std::vector<reco::TransientTrack> & tracks, float chi2, float ndf);
+                  const GlobalPoint & pos, const GlobalError & posError,
+                  const std::vector<reco::TransientTrack> & tracks, float chi2, float ndf);
+  TransientVertex(const GlobalPoint & priorPos, const double priorTime, const GlobalError & priorErr,
+                  const GlobalPoint & pos, const double time, const GlobalError & posError,
+                  const std::vector<reco::TransientTrack> & tracks, float chi2, float ndf);
+
+  /** Constructor defining the RecVertex by the prior,
+   *  the vertex 3D position and uncertainty, time and uncertainty, the associated tracks,
+   *  the chi-squared and the number of degrees of freedom.
+   *  The ndf can be a float.
+   */
+  TransientVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
+                  const double priorTime, const double priorTimeErr,
+                  const GlobalPoint & pos, const GlobalError & posError,
+                  const double time, const double timeErr,
+                  const std::vector<reco::TransientTrack> & tracks, float chi2, float ndf);
 
   /** Constructor defining the RecVertex by its 3D position 
    *  and position uncertainty, its associated tracks 
@@ -67,7 +89,7 @@ public:
    *  2*nb of tracks - 3.
    */
   TransientVertex(const VertexState & state, 
-		    const std::vector<reco::TransientTrack> & tracks, float chi2);
+                  const std::vector<reco::TransientTrack> & tracks, float chi2);
 
   /** Constructor defining the RecVertex by its 3D position
    *  and position uncertainty, its associated tracks, its chi-squared
@@ -75,7 +97,7 @@ public:
    *  The ndf can be a float.
    */
   TransientVertex(const VertexState & state, 
-		    const std::vector<reco::TransientTrack> & tracks, float chi2, float ndf);
+                  const std::vector<reco::TransientTrack> & tracks, float chi2, float ndf);
 
   /** Constructor defining the RecVertex by the prior,
    *  the vertex 3D position and uncertainty, the associated tracks
@@ -84,8 +106,8 @@ public:
    *  2*nb of tracks.
    */
   TransientVertex(const VertexState & prior,
-		    const VertexState & state,
-		    const std::vector<reco::TransientTrack> & tracks, float chi2);
+                  const VertexState & state,
+                  const std::vector<reco::TransientTrack> & tracks, float chi2);
 
   /** Constructor defining the RecVertex by the prior,
    *  the vertex 3D position and uncertainty, the associated tracks,
@@ -93,8 +115,8 @@ public:
    *  The ndf can be a float.
    */
   TransientVertex(const VertexState & prior,
-		    const VertexState & state,
-		    const std::vector<reco::TransientTrack> & tracks, float chi2, float ndf);
+                  const VertexState & state,
+                  const std::vector<reco::TransientTrack> & tracks, float chi2, float ndf);
 
 
 //   /** Constructor defining the RecVertex by its 3D position
@@ -114,6 +136,10 @@ public:
   GlobalError positionError() const { return theVertexState.error(); }
   GlobalPoint priorPosition() const { return thePriorVertexState.position(); }
   GlobalError priorError() const { return thePriorVertexState.error(); }
+  double time() const { return theVertexState.time(); } 
+  double timeError() const { return theVertexState.timeError(); }
+  double priorTime() const { return thePriorVertexState.time(); }
+  double priorTimeError() const { return thePriorVertexState.timeError(); }
   bool hasPrior() const { return withPrior; }
 
 //   /** Implements method of abstract Vertex.

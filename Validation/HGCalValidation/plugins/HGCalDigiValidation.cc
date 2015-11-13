@@ -95,9 +95,9 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 	HGCEEDetId detId     = (it->id());
 	int        layer     = detId.layer();
 	HGCSample  hgcSample = it->sample(SampleIndx_);
-	uint16_t   gain      = hgcSample.gain();
-	uint16_t   adc       = hgcSample.adc();
-	double     charge    = adc*gain;
+	//uint16_t   gain      = hgcSample.mode();
+	uint16_t   adc       = hgcSample.data();
+	double     charge    = hgcSample.data();
 	digiValidation(detId, geom0, layer, adc, charge);
       }
       fillDigiInfo();
@@ -121,9 +121,9 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 	HGCHEDetId detId     = (it->id());
 	int        layer     = detId.layer();
 	HGCSample  hgcSample = it->sample(SampleIndx_);
-	uint16_t   gain      = hgcSample.gain();
-	uint16_t   adc       = hgcSample.adc();
-	double     charge    = adc*gain;
+	//uint16_t   gain      = hgcSample.mode();
+	uint16_t   adc       = hgcSample.data();
+	double     charge    = hgcSample.data();
 	digiValidation(detId, geom0, layer, adc, charge);
       }
       fillDigiInfo();
