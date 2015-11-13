@@ -15,6 +15,7 @@ from PhysicsTools.RecoAlgos.trackingParticleSelector_cfi import trackingParticle
 from CommonTools.RecoAlgos.sortedPrimaryVertices_cfi import sortedPrimaryVertices as _sortedPrimaryVertices
 from CommonTools.RecoAlgos.recoChargedRefCandidateToTrackRefProducer_cfi import recoChargedRefCandidateToTrackRefProducer as _recoChargedRefCandidateToTrackRefProducer
 
+### First define the stuff for the standard validation sequence
 ## Track selectors
 _algos = [
     "generalTracks",
@@ -112,10 +113,6 @@ cutsRecoTracksAK4PFJets = jetTracksAssociationToTrackRefs_cfi.jetTracksAssociati
     correctedPtMin = 10,
 )
 
-# Select by originalAlgo and algoMask (for standalone mode)
-(_selectorsByOriginalAlgo, tracksValidationSelectorsByOriginalAlgoStandalone) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgo+_selectorsByAlgoHp, "ByOriginalAlgo", "originalAlgorithm")
-(_selectorsByAlgoMask, tracksValidationSelectorsByAlgoMaskStandalone) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgo+_selectorsByAlgoHp, "ByAlgoMask", "algorithmMaskContains")
-
 
 ## Select signal TrackingParticles, and do the corresponding associations
 trackingParticlesSignal = _trackingParticleSelector.clone(
@@ -154,7 +151,6 @@ generalTracksFromPV = _trackWithVertexRefSelector.clone(
 )
 # and then the selectors
 (_selectorsFromPV, tracksValidationSelectorsFromPV) = _addSelectorsBySrc([_generalTracksHp], "FromPV", "generalTracksFromPV")
-(_selectorsFromPVStandalone, tracksValidationSelectorsFromPVStandalone) = _addSelectorsBySrc(_selectorsByAlgo+_selectorsByAlgoHp, "FromPV", "generalTracksFromPV")
 tracksValidationSelectorsFromPV.insert(0, generalTracksFromPV)
 
 
@@ -175,8 +171,6 @@ from Configuration.StandardSequences.Eras import eras
 if eras.fastSim.isChosen():
     trackValidator.dodEdxPlots = False
 
-trackValidatorStandalone = trackValidator.clone()
-trackValidatorStandalone.label.extend(_selectorsByOriginalAlgo + _selectorsByAlgoMask)
 
 # For efficiency of signal TPs vs. signal tracks, and fake rate of
 # signal tracks vs. signal TPs
@@ -190,8 +184,6 @@ trackValidatorFromPV = trackValidator.clone(
     doPlotsOnlyForTruePV = True,
     doPVAssociationPlots = False,
 )
-trackValidatorFromPVStandalone = trackValidatorFromPV.clone()
-trackValidatorFromPVStandalone.label.extend(_selectorsFromPVStandalone)
 
 # For fake rate of signal tracks vs. all TPs, and pileup rate of
 # signal tracks vs. non-signal TPs
@@ -202,9 +194,6 @@ trackValidatorFromPVAllTP = trackValidatorFromPV.clone(
     associators = trackValidator.associators.value(),
     doSimPlots = False,
     doSimTrackPlots = False,
-)
-trackValidatorFromPVAllTPStandalone = trackValidatorFromPVAllTP.clone(
-    label = trackValidatorFromPVStandalone.label.value()
 )
 
 # For efficiency of all TPs vs. all tracks
@@ -224,11 +213,6 @@ trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsPhi.sig
 trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsPt.signalOnly = False
 trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsVTXR.signalOnly = False
 trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsVTXZ.signalOnly = False
-trackValidatorAllTPEfficStandalone = trackValidatorAllTPEffic.clone(
-    label = trackValidator.label.value()
-)
-for _label in ["cutsRecoTracksBtvLike", "cutsRecoTracksAK4PFJets"]:
-    trackValidatorAllTPEfficStandalone.label.remove(_label)
 
 
 # the track selectors
@@ -264,12 +248,6 @@ tracksPreValidation = cms.Sequence(
     tracksValidationTruth +
     tracksValidationTruthSignal
 )
-tracksPreValidationStandalone = cms.Sequence(
-    tracksPreValidation +
-    tracksValidationSelectorsByOriginalAlgoStandalone +
-    tracksValidationSelectorsByAlgoMaskStandalone +
-    tracksValidationSelectorsFromPVStandalone
-)
 
 # selectors go into separate "prevalidation" sequence
 tracksValidation = cms.Sequence(
@@ -279,6 +257,37 @@ tracksValidation = cms.Sequence(
     trackValidatorAllTPEffic
 )
 
+
+### Then define stuff for standalone mode (i.e. MTV with RECO+DIGI input)
+
+# Select by originalAlgo and algoMask
+(_selectorsByOriginalAlgo, tracksValidationSelectorsByOriginalAlgoStandalone) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgo+_selectorsByAlgoHp, "ByOriginalAlgo", "originalAlgorithm")
+(_selectorsByAlgoMask, tracksValidationSelectorsByAlgoMaskStandalone) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgo+_selectorsByAlgoHp, "ByAlgoMask", "algorithmMaskContains")
+
+# Select fromPV by iteration
+(_selectorsFromPVStandalone, tracksValidationSelectorsFromPVStandalone) = _addSelectorsBySrc(_selectorsByAlgo+_selectorsByAlgoHp, "FromPV", "generalTracksFromPV")
+
+# MTV instances
+trackValidatorStandalone = trackValidator.clone()
+trackValidatorStandalone.label.extend(_selectorsByOriginalAlgo + _selectorsByAlgoMask)
+trackValidatorFromPVStandalone = trackValidatorFromPV.clone()
+trackValidatorFromPVStandalone.label.extend(_selectorsFromPVStandalone)
+trackValidatorFromPVAllTPStandalone = trackValidatorFromPVAllTP.clone(
+    label = trackValidatorFromPVStandalone.label.value()
+)
+trackValidatorAllTPEfficStandalone = trackValidatorAllTPEffic.clone(
+    label = trackValidator.label.value()
+)
+for _label in ["cutsRecoTracksBtvLike", "cutsRecoTracksAK4PFJets"]:
+    trackValidatorAllTPEfficStandalone.label.remove(_label)
+
+# sequences
+tracksPreValidationStandalone = cms.Sequence(
+    tracksPreValidation +
+    tracksValidationSelectorsByOriginalAlgoStandalone +
+    tracksValidationSelectorsByAlgoMaskStandalone +
+    tracksValidationSelectorsFromPVStandalone
+)
 tracksValidationStandalone = cms.Sequence(
     ak4PFL1FastL2L3CorrectorChain+
     tracksPreValidationStandalone+
@@ -288,7 +297,8 @@ tracksValidationStandalone = cms.Sequence(
     trackValidatorAllTPEfficStandalone
 )
 
-# 'slim' sequences that only depend on track and tracking particle collections
+
+### 'slim' sequences that only depend on track and tracking particle collections
 tracksValidationSelectorsSlim = tracksValidationSelectors.copyAndExclude([cutsRecoTracksBtvLike,ak4JetTracksAssociatorExplicitAll,cutsRecoTracksAK4PFJets])
 
 tracksPreValidationSlim = cms.Sequence(
