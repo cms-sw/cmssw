@@ -98,6 +98,7 @@ public:
   void fillPar();
 
 public:
+  int nth=1;
   std::vector<DSTV::data_type> sv;
 
 };
@@ -107,6 +108,12 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestDetSet);
 TestDetSet::TestDetSet() : sv(10){
   DSTV::data_type v[10] = {0,1,2,3,4,5,6,7,8,9};
   std::copy(v,v+10,sv.begin());
+  std::atomic<int> nt(1);
+  #pragma omp parallel
+  {
+    nt = omp_get_num_threads();
+  }
+  nth = nt;
 }
 
 void read(DSTV const & detsets, bool all=false) {
@@ -142,7 +149,7 @@ void TestDetSet::infrastructure() {
       b.fetch_add(1,std::memory_order_acq_rel);;
     }
     
-    if (i==5) std::cout << lock << " " << a << ' ' << b << std::endl;
+    if (i==5) std::cout << "threads "<< lock << " " << a << ' ' << b << std::endl;
     CPPUNIT_ASSERT(b==nt);
     a=0; b=0;
     
@@ -151,10 +158,10 @@ void TestDetSet::infrastructure() {
       a++;
       b.fetch_add(1,std::memory_order_acq_rel);
     }
-    if (i==5) std::cout << lock << " " << a << ' ' << b << std::endl;
+    if (i==5) std::cout << "threads "<< lock << " " << a << ' ' << b << std::endl;
+  
+    nth = nt;
   }
-
-
 
 
 }
@@ -168,7 +175,7 @@ void TestDetSet::fillSeq() {
   std::atomic<int> lock(0);
   std::atomic<int> idet(0);
   std::atomic<int> trial(0);
-  int maxDet=100;
+  int maxDet=100*nth;
 #pragma omp parallel 
   {
     sync(lock);
@@ -230,7 +237,7 @@ void TestDetSet::fillPar() {
   std::cout << std::endl;
   std::shared_ptr<Getter> pg(new Getter(this));
   Getter & g = *pg;
-  int maxDet=100;
+  int maxDet=100*nth;
   std::vector<unsigned int> v(maxDet); int k=20;for (auto &i:v) i=k++;
   DSTV detsets(pg,v,2);
   CPPUNIT_ASSERT(g.ntot==0);
