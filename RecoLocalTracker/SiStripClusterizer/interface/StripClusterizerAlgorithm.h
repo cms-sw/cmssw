@@ -55,10 +55,10 @@ class StripClusterizerAlgorithm {
 
   //Offline DetSet interface
   typedef edmNew::DetSetVector<SiStripCluster> output_t;
-  void clusterize(const    edm::DetSetVector<SiStripDigi> &, output_t &);
-  void clusterize(const edmNew::DetSetVector<SiStripDigi> &, output_t &);
-  virtual void clusterizeDetUnit(const    edm::DetSet<SiStripDigi> &, output_t::TSFastFiller &) = 0;
-  virtual void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> &, output_t::TSFastFiller &) = 0;
+  void clusterize(const    edm::DetSetVector<SiStripDigi> &, output_t &) const;
+  void clusterize(const edmNew::DetSetVector<SiStripDigi> &, output_t &) const;
+  virtual void clusterizeDetUnit(const    edm::DetSet<SiStripDigi> &, output_t::TSFastFiller &) const = 0;
+  virtual void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> &, output_t::TSFastFiller &) const = 0;
 
   //HLT stripByStrip interface
   virtual Det stripByStripBegin(uint32_t id)const  = 0;
@@ -69,7 +69,7 @@ class StripClusterizerAlgorithm {
 
   virtual void addFed(State & state, sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::TSFastFiller & out)  const {}
   virtual void stripByStripAdd(State & state, uint16_t strip, uint8_t adc, output_t::TSFastFiller & out)  const {}
-  virtual void stripByStripEnd(State & state, output_t::FastFiller & out)  const {}
+  virtual void stripByStripEnd(State & state, output_t::TSFastFiller & out)  const {}
 
 
   struct InvalidChargeException : public cms::Exception { public: InvalidChargeException(const SiStripDigi&); };
@@ -84,13 +84,11 @@ class StripClusterizerAlgorithm {
 
   StripClusterizerAlgorithm() : qualityLabel(""), noise_cache_id(0), gain_cache_id(0), quality_cache_id(0) {}
 
-  // uint32_t currentId() const {return detId;}
-  Det setDetId(const uint32_t) const;
+  Det findDetId(const uint32_t) const;
   bool isModuleBad(const uint32_t& id)  const { return qualityHandle->IsModuleBad( id ); }
   bool isModuleUsable(const uint32_t& id)  const { return qualityHandle->IsModuleUsable( id ); }
 
   std::string qualityLabel;
-  bool _setDetId;
 
  private:
 
