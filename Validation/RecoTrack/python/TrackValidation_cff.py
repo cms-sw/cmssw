@@ -227,6 +227,8 @@ trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsVTXZ.si
 trackValidatorAllTPEfficStandalone = trackValidatorAllTPEffic.clone(
     label = trackValidator.label.value()
 )
+for _label in ["cutsRecoTracksBtvLike", "cutsRecoTracksAK4PFJets"]:
+    trackValidatorAllTPEfficStandalone.label.remove(_label)
 
 
 # the track selectors
