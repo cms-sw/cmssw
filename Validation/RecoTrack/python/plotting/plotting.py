@@ -518,6 +518,10 @@ class ROC:
 
             z.append(xhisto.GetXaxis().GetBinUpEdge(i))
 
+        # If either axis has only zeroes, no graph makes no point
+        if x.count(0.0) == len(x) or y.count(0.0) == len(y):
+            return None
+
         arr = lambda v: array.array("d", v)
         gr = None
         if self._zaxis:
