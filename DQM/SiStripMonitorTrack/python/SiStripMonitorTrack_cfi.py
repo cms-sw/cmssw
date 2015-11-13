@@ -68,9 +68,9 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     TH1ClusterStoNCorr = cms.PSet( 
         layerView = cms.bool(True),
         ringView  = cms.bool(False),
-        Nbinx = cms.int32(200),
+        Nbinx = cms.int32(100),
         xmin  = cms.double(-0.5),
-        xmax  = cms.double(199.5)
+        xmax  = cms.double(99.5)
      ),
 
     TH1ClusterStoNCorrMod = cms.PSet(
