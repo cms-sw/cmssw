@@ -278,15 +278,15 @@ _possibleTrackingColls = _possibleTrackingIterations+[
     'btvLike',
 ]
 _possibleTrackingCollsOld = {
-    "cutsRecoZero"  : "iter0",
-    "cutsRecoFirst" : "iter1",
-    "cutsRecoSecond": "iter2",
-    "cutsRecoThird" : "iter3",
-    "cutsRecoFourth": "iter4",
-    "cutsRecoFifth" : "iter5",
-    "cutsRecoSixth" : "iter6",
-    "cutsRecoNinth" : "iter9",
-    "cutsRecoTenth" : "iter10",
+    "Zero"  : "iter0",
+    "First" : "iter1",
+    "Second": "iter2",
+    "Third" : "iter3",
+    "Fourth": "iter4",
+    "Fifth" : "iter5",
+    "Sixth" : "iter6",
+    "Ninth" : "iter9",
+    "Tenth" : "iter10",
 }
 def _mapCollectionToAlgoQuality(collName):
     if "Hp" in collName:
@@ -306,18 +306,26 @@ def _mapCollectionToAlgoQuality(collName):
     collNameLow = collNameNoQuality.lower().replace("frompv2", "").replace("frompv", "").replace("frompvalltp", "").replace("alltp", "")
 
     algo = None
-    if collNameLow in ["general", "cutsreco", "cutsrecofrompv", "cutsrecofrompv2", "cutsrecofrompvalltp",
-                       "cutsrecotracks", "cutsrecotracksfrompv", "cutsrecotracksfrompvalltp"]:
+    prefixes = ["cutsreco", "cutsrecofrompv", "cutsrecofrompv2", "cutsrecofrompvalltp",
+                "cutsrecotracks", "cutsrecotracksfrompv", "cutsrecotracksfrompvalltp"]
+    if collNameLow in ["general", "generalfrompv",
+                       "generaltracks", "generaltracksfrompv"]+prefixes:
         algo = "ootb"
     else:
+        def testColl(coll):
+            for pfx in prefixes:
+                if coll == collNameLow.replace(pfx, ""):
+                    return True
+            return False
+
         for coll in _possibleTrackingColls:
-            if coll.lower() in collNameLow:
+            if testColl(coll.lower()):
                 algo = coll
                 break
         # next try "old style"
         if algo is None:
             for coll, name in _possibleTrackingCollsOld.iteritems():
-                if coll.lower() == collNameLow:
+                if testColl(coll.lower()):
                     algo = name
                     break
 
