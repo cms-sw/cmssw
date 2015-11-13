@@ -62,8 +62,6 @@ public:
       ModelInfo(const FWDisplayProperties& iProps, bool iIsSelected) :
          m_displayProperties(iProps),
          m_isSelected(iIsSelected) {
-         //if (m_displayProperties.filterPassed() == false)
-         //  printf("test pass \n");
       }
 
       const FWDisplayProperties& displayProperties() const {

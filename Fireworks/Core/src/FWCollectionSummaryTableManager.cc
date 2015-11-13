@@ -39,7 +39,6 @@ FWCollectionSummaryTableManager::FWCollectionSummaryTableManager(FWEventItem* iI
    m_bodyRenderer(iContext, iHighlightContext, FWTextTableCellRenderer::kJustifyRight),
    m_widget(iWidget)
 {
-   //   m_collection->changed_.connect(boost::bind(&FWTableManagerBase::dataChanged,this));
    m_collection->changed_.connect(boost::bind(&FWCollectionSummaryTableManager::modelIdChanges,this));
    m_collection->itemChanged_.connect(boost::bind(&FWCollectionSummaryTableManager::dataChanged,this));
    

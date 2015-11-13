@@ -68,7 +68,6 @@ public:
    void setFilterPassed(bool x)
    {
       m_filterPassed = x;
-//      if (!x) printf("filter PASSED false   ...  ...\n");
    }
 
    bool operator==(const FWDisplayProperties& iRHS) const {
