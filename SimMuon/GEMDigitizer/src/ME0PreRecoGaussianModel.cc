@@ -11,7 +11,6 @@
 #include <utility>
 #include <map>
 
-const double cspeed = 29.9792458; // [cm/ns]
 const int bxwidth   = 25;         // [ns]
 
 ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config) :
