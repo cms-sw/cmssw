@@ -43,12 +43,10 @@ namespace edm {
       return other.dynamicTypeInfo() == dynamicTypeInfo();
     }
 
-#ifndef __GCCXML__
     bool isMergeable() const {return isMergeable_();}
     bool mergeProduct(WrapperBase const* newProduct) {return mergeProduct_(newProduct);}
     bool hasIsProductEqual() const {return hasIsProductEqual_();}
     bool isProductEqual(WrapperBase const* newProduct) const {return isProductEqual_(newProduct);}
-#endif
 
   private:
     virtual std::type_info const& dynamicTypeInfo_() const = 0;
@@ -60,12 +58,10 @@ namespace edm {
     // declare it = 0.
     virtual bool isPresent_() const {return true;}
 
-#ifndef __GCCXML__
     virtual bool isMergeable_() const = 0;
     virtual bool mergeProduct_(WrapperBase const* newProduct ) = 0;
     virtual bool hasIsProductEqual_() const = 0;
     virtual bool isProductEqual_(WrapperBase const* newProduct) const = 0;
-#endif
 
     virtual void do_fillView(ProductID const& id,
                              std::vector<void const*>& pointers,

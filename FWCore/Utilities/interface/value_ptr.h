@@ -35,10 +35,6 @@
 #include <algorithm> // for std::swap()
 #include <memory>
 
-#ifdef __GCCXML__
-#define nullptr 0
-#endif
-
 namespace edm {
 
   // --------------------------------------------------------------------
@@ -89,7 +85,6 @@ namespace edm {
       return *this;
     }
 
-#ifndef __GCCXML__
     // --------------------------------------------------
     // Move constructor/move assignment:
     // --------------------------------------------------
@@ -105,7 +100,6 @@ namespace edm {
       } 
       return *this;
     }
-#endif
 
     // --------------------------------------------------
     // Access mechanisms:
@@ -150,7 +144,6 @@ namespace edm {
       return *this;
     }
 
-#ifndef __GCCXML__
     // --------------------------------------------------
     // Move-like construct/assign from unique_ptr<>:
     // --------------------------------------------------
@@ -163,7 +156,6 @@ namespace edm {
       swap(temp);
       return *this;
     }
-#endif
 
   // The following typedef, function, and operator definition
   // support the following syntax:

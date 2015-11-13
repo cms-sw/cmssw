@@ -44,9 +44,7 @@ reference type.
 #include "DataFormats/Common/interface/RefHolder.h"
 
 #include <memory>
-#ifndef __GCCXML__
 #include <type_traits>
-#endif
 
 namespace edm {
   //--------------------------------------------------------------------
@@ -77,11 +75,9 @@ namespace edm {
     explicit RefToBase(RefProd<C> const& r);
     RefToBase(RefToBaseProd<T> const& r, size_t i);
     RefToBase(Handle<View<T> > const& handle, size_t i);
-#ifndef __GCCXML__
     template <typename T1>
     explicit RefToBase(RefToBase<T1> const & r );
     RefToBase(std::unique_ptr<reftobase::BaseHolder<value_type>>);
-#endif
     RefToBase(std::shared_ptr<reftobase::RefHolderBase> p);
 
     ~RefToBase();
@@ -156,7 +152,6 @@ namespace edm {
     holder_(new reftobase::Holder<T,RefProd<C> >(iRef))
   { }
 
-#ifndef __GCCXML__
   template <class T>
   template <typename T1>
   inline
@@ -178,7 +173,6 @@ namespace edm {
   RefToBase<T>::RefToBase(std::unique_ptr<reftobase::BaseHolder<value_type>> p):
     holder_(p.release())
   {}
-#endif
 
   template <class T>
   inline
@@ -247,7 +241,6 @@ namespace edm {
     return  holder_->key();
   }
 
-#ifndef __GCCXML__
   namespace {
     // If the template parameters are classes or structs they should be
     // related by inheritance, otherwise they should be the same type.
@@ -312,7 +305,6 @@ namespace edm {
                          );
     return REF();
   }
-#endif
 
   /// Checks for null
   template <class T>
