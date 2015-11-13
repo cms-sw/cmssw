@@ -246,6 +246,6 @@ extractTrackVertexTime( const std::vector<std::pair<TrackingParticleRef, double>
       }
     }    
   }
-  if( tp_list.size() > 1 ) std::cout << "track matched to " << tp_list.size() << " tracking particles!" << std::endl;
+  if( tp_list.size() > 1 ) LogDebug("TooManyTracks") << "track matched to " << tp_list.size() << " tracking particles!" << std::endl;
   return result;
 }
