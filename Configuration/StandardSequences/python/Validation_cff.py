@@ -29,6 +29,7 @@ from Validation.RecoMuon.muonValidationHLT_cff import *
 from Validation.EventGenerator.BasicGenValidation_cff import *
 # miniAOD
 from Validation.RecoParticleFlow.miniAODValidation_cff import *
+from Validation.RecoEgamma.egammaValidation_cff import *
 
 prevalidation = cms.Sequence( globalPrevalidation * hltassociation * metPreValidSeq * jetPreValidSeq )
 prevalidationLiteTracking = cms.Sequence( prevalidation )
