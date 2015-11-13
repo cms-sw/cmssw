@@ -283,7 +283,7 @@ CmsShowEDI::fillEDIFrame() {
          m_selectButton->SetEnabled(kTRUE);
          m_selectAllButton->SetEnabled(kTRUE);
          m_deselectAllButton->SetEnabled(kTRUE);
-	      m_cw->SetColorByIndex(p.color(),kFALSE);
+	 m_cw->SetColorByIndex(p.color(),kFALSE);
          m_cw->SetEnabled(kTRUE);
          m_removeButton->SetEnabled(kTRUE);
          updateLayerControls();

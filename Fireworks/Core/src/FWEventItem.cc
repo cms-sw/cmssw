@@ -226,7 +226,6 @@ FWEventItem::runFilter()
             if(not m_filter.passesFilter(m_accessor->modelData(index))) {
                itInfo->m_displayProperties.setIsVisible(false);
                itInfo->m_displayProperties.setFilterPassed(false);
-               // printf("filter not passed [%d]  !!!!!!!!!!!!!!!!!!!! displayp = %d, %d \n", index, itInfo->displayProperties().filterPassed(), itInfo->m_displayProperties.filterPassed());
                changed = wasVisible==true;
 
             } else {
@@ -555,9 +554,7 @@ FWEventItem::modelInfo(int iIndex) const
 
    FWDisplayProperties dp(m_itemInfos.at(iIndex).displayProperties());
    dp.setIsVisible(false);
-   //dp.setFilterPassed(m_itemInfos.at(iIndex).displayProperties().filterPassed());
    ModelInfo t(dp,m_itemInfos.at(iIndex).isSelected());
-   // printf("amt modelInfo filter [%d ] orig = %d copy = %d \n", iIndex,m_itemInfos.at(iIndex).displayProperties().filterPassed(), t.displayProperties().filterPassed());
    return t;
 }
 
