@@ -55,10 +55,10 @@ class StripClusterizerAlgorithm {
 
   //Offline DetSet interface
   typedef edmNew::DetSetVector<SiStripCluster> output_t;
-  void clusterize(const    edm::DetSetVector<SiStripDigi> &, output_t &) const;
-  void clusterize(const edmNew::DetSetVector<SiStripDigi> &, output_t &) const;
-  virtual void clusterizeDetUnit(const    edm::DetSet<SiStripDigi> &, output_t::FastFiller &) const = 0;
-  virtual void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> &, output_t::FastFiller &) const = 0;
+  void clusterize(const    edm::DetSetVector<SiStripDigi> &, output_t &);
+  void clusterize(const edmNew::DetSetVector<SiStripDigi> &, output_t &);
+  virtual void clusterizeDetUnit(const    edm::DetSet<SiStripDigi> &, output_t::TSFastFiller &) = 0;
+  virtual void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> &, output_t::TSFastFiller &) = 0;
 
   //HLT stripByStrip interface
   virtual Det stripByStripBegin(uint32_t id)const  = 0;
@@ -67,8 +67,8 @@ class StripClusterizerAlgorithm {
   virtual void stripByStripAdd(State & state, uint16_t strip, uint8_t adc, std::vector<SiStripCluster>& out)  const{}
   virtual void stripByStripEnd(State & state, std::vector<SiStripCluster>& out)  const {}
 
-  virtual void addFed(State & state, sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::FastFiller & out)  const {}
-  virtual void stripByStripAdd(State & state, uint16_t strip, uint8_t adc, output_t::FastFiller & out)  const {}
+  virtual void addFed(State & state, sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::TSFastFiller & out)  const {}
+  virtual void stripByStripAdd(State & state, uint16_t strip, uint8_t adc, output_t::TSFastFiller & out)  const {}
   virtual void stripByStripEnd(State & state, output_t::FastFiller & out)  const {}
 
 
@@ -96,7 +96,7 @@ class StripClusterizerAlgorithm {
 
   template<class T> void clusterize_(const T& input, output_t& output) const {
     for(typename T::const_iterator it = input.begin(); it!=input.end(); it++) {
-      output_t::FastFiller ff(output, it->detId());	
+      output_t::TSFastFiller ff(output, it->detId());	
       clusterizeDetUnit(*it, ff);	
       if(ff.empty()) ff.abort();	
     }	

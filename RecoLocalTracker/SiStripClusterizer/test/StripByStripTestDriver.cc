@@ -29,10 +29,26 @@ produce(edm::Event& event, const edm::EventSetup& es) {
   edm::Handle< edm::DetSetVector<SiStripDigi> >  input;  
   event.getByLabel(inputTag, input);
 
-  algorithm->initialize(es);
+  if(hlt);// hltFactory->eventSetup(es);  
+  else    algorithm->initialize(es);
 
-  for( auto const & inputDetSet : *input) {
-    output_t::FastFiller filler(*output, inputDetSet.detId());
+  for(auto const & inputDetSet : *input) {
+
+    std::vector<SiStripCluster> clusters;
+    if( hlt || algorithm->stripByStripBegin( inputDetSet.detId() ) ) {
+      for(auto const & digi : inputDetSet ) {
+	if(hlt);// hltFactory->algorithm()->add(clusters, inputDetSet->detId(), digi.strip(), digi.adc());
+	else    algorithm->stripByStripAdd(digi.strip(), digi.adc(), clusters);
+      }
+      if(hlt);// hltFactory->algorithm()->endDet(clusters, inputDetSet.detId());
+      else    algorithm->stripByStripEnd(clusters);
+    }
+
+    if(!clusters.empty()) {
+      output_t::TSFastFiller filler(*output, inputDetSet.detId());
+      for( unsigned i=0; i<clusters.size(); i++) filler.push_back(clusters[i]);
+    }
+  }
 
     auto const & det = algorithm->stripByStripBegin( inputDetSet.detId());
     if( !det.valid() ) continue;

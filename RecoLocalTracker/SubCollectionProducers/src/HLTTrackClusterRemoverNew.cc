@@ -419,7 +419,7 @@ HLTTrackClusterRemoverNew::produce(Event& iEvent, const EventSetup& iSetup)
 	
 	//	std::cout << " i: " << i << " --> detid: " << detid << " --> subdet: " << subdet << std::endl;
 	
-	for (auto i = item.offset; i<item.offset+int(item.size); ++i) {
+	for (int i = item.offset; i<item.offset+int(item.size); ++i) {
 	  int clusCharge=0;
 	  for ( auto cAmp : clusters[i].amplitudes() ) clusCharge+=cAmp;
 	  
