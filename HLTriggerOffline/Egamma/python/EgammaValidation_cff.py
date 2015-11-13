@@ -172,7 +172,6 @@ if not use_new_method:
 
     # selectors go into separate "prevalidation" sequence
     egammaValidationSequence   = cms.Sequence( egammaValidators )
-    egammaValidationSequenceFS = cms.Sequence( egammaValidators )
 
 else:
     #----------------------------------------------------------------------
