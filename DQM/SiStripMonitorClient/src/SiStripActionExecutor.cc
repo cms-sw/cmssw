@@ -3,6 +3,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -30,6 +31,7 @@ SiStripActionExecutor::SiStripActionExecutor(edm::ParameterSet const& ps):pSet_(
   tkMapCreator_   = 0;
   qualityChecker_ = 0; 
   configWriter_   = 0;
+  detInfoFileReader_ = 0;
 }
 //
 // --  Destructor
@@ -40,6 +42,7 @@ SiStripActionExecutor::~SiStripActionExecutor() {
   if (summaryCreator_) delete summaryCreator_;
   if (tkMapCreator_)   delete tkMapCreator_;
   if (qualityChecker_)  delete qualityChecker_;
+  if (detInfoFileReader_)   delete detInfoFileReader_;
 }
 //
 // -- Read Configurationn File
@@ -114,7 +117,16 @@ void SiStripActionExecutor::createOfflineTkMap(const edm::ParameterSet & tkmapPs
                                         const edm::EventSetup& eSetup) {
   if (tkMapCreator_) tkMapCreator_->createForOffline(tkmapPset, dqm_store, map_type, eSetup);
 }
-
+//
+// -- create root file with detId info from tracker maps
+//
+void SiStripActionExecutor::createTkInfoFile(std::vector<std::string> map_names, TTree* tkinfo_tree, DQMStore* dqm_store) {
+  if (tkMapCreator_) {
+    detInfoFileReader_ = edm::Service<SiStripDetInfoFileReader>().operator->();
+    std::vector<uint32_t> detidList = detInfoFileReader_->getAllDetIds();
+    tkMapCreator_->createInfoFile(map_names, tkinfo_tree, dqm_store, detidList);
+  }
+}
 //
 // -- Create Status Monitor Elements
 //
