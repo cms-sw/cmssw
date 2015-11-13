@@ -314,7 +314,7 @@ class FakeDuplicate:
 
 class AggregateBins:
     """Class to create a histogram by aggregating bins of another histogram to a bin of the resulting histogram."""
-    def __init__(self, name, histoName, mapping, normalizeTo=None, scale=None, renameBin=None):
+    def __init__(self, name, histoName, mapping, normalizeTo=None, scale=None, renameBin=None, ignoreMissingBins=False, minExistingBins=None):
         """Constructor.
 
         Arguments:
@@ -343,6 +343,8 @@ class AggregateBins:
         self._normalizeTo = normalizeTo
         self._scale = scale
         self._renameBin = renameBin
+        self._ignoreMissingBins = ignoreMissingBins
+        self._minExistingBins = minExistingBins
 
     def __str__(self):
         """String representation, returns the name"""
@@ -354,7 +356,8 @@ class AggregateBins:
         if th1 is None:
             return None
 
-        result = ROOT.TH1F(self._name, self._name, len(self._mapping), 0, len(self._mapping))
+        binLabels = [""]*len(self._mapping)
+        binValues = [None]*len(self._mapping)
 
         # TH1 can't really be used as a map/dict, so convert it here:
         values = {}
@@ -367,24 +370,45 @@ class AggregateBins:
         if isinstance(self._mapping, list):
             for i, label in enumerate(self._mapping):
                 try:
-                    result.SetBinContent(i+1, values[label][0])
-                    result.SetBinError(i+1, values[label][1])
+                    binValues[i] = values[label]
                 except KeyError:
                     pass
-                result.GetXaxis().SetBinLabel(i+1, label)
+                binLabels[i] = label
         else:
             for i, (key, labels) in enumerate(self._mapping.iteritems()):
-                sumTime = 0
-                sumErrorSq = 0
+                sumTime = 0.
+                sumErrorSq = 0.
+                nsum = 0
                 for l in labels:
                     try:
                         sumTime += values[l][0]
                         sumErrorSq += values[l][1]**2
+                        nsum += 1
                     except KeyError:
                         pass
-                result.SetBinContent(i+1, sumTime)
-                result.SetBinError(i+1, math.sqrt(sumErrorSq))
-                result.GetXaxis().SetBinLabel(i+1, key)
+
+                if nsum > 0:
+                    binValues[i] = (sumTime, math.sqrt(sumErrorSq))
+                binLabels[i] = key
+
+        if self._minExistingBins is not None and (len(binValues)-binValues.count(None)) < self._minExistingBins:
+            return None
+
+        if self._ignoreMissingBins:
+            for i, val in enumerate(binValues):
+                if val is None:
+                    binLabels[i] = None
+            binValues = filter(lambda v: v is not None, binValues)
+            binLabels = filter(lambda v: v is not None, binLabels)
+            if len(binValues) == 0:
+                return None
+
+        result = ROOT.TH1F(self._name, self._name, len(binValues), 0, len(binValues))
+        for i, (value, label) in enumerate(zip(binValues, binLabels)):
+            if value is not None:
+                result.SetBinContent(i+1, value[0])
+                result.SetBinError(i+1, value[1])
+            result.GetXaxis().SetBinLabel(i+1, label)
 
         if self._normalizeTo is not None:
             bin = th1.GetXaxis().FindBin(self._normalizeTo)
