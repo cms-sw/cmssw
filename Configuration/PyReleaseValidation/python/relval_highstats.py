@@ -70,8 +70,12 @@ workflows[133]=['',['RSGrav','DIGI','RECO']]
 
 workflows[134]=['MinimumBiasBS',['RunMinBias2011B','RECOD','ALCAPROMPT','ALCAHARVD']]
 
-## 13 TeV Run2
+## 13 TeV Run2 fullSim noPU
 workflows[139901] = ['', ['ZMM_13_HS','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[139902] = ['', ['TTbar_13_HS','DIGIUP15','RECOUP15','HARVESTUP15']]
+
+## 13 TeV Run2 fullSim PU 25ns
+workflows[13992501]=['',['ZMM_13_HS','DIGIUP15_PU25HS','RECOUP15_PU25HS','HARVESTUP15_PU25']]
+workflows[13992502]=['',['TTbar_13_HS','DIGIUP15_PU25HS','RECOUP15_PU25HS','HARVESTUP15_PU25']]
 
 
