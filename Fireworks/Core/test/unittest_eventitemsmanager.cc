@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( eventitemmanager )
    FWPhysicsObjectDesc tracks("Tracks",
                               cls,
                               "Tracks",
-                              FWDisplayProperties(color1, true, 100),
+                              FWDisplayProperties(color1, true, true, 100),
                               "label",
                               "instance",
                               "proc");
