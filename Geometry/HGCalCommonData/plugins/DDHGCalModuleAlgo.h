@@ -49,6 +49,7 @@ private:
   std::vector<double>      rMaxFront;     //Corresponding rMax's
   std::string              idName;        //Name of the "parent" volume.  
   std::string              idNameSpace;   //Namespace of this and ALL sub-parts
+  std::vector<int>         copies;        //List of copy #'s
 };
 
 #endif

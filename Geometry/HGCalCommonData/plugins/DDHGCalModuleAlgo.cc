@@ -112,7 +112,10 @@ void DDHGCalModuleAlgo::execute(DDCompactView& cpv) {
 #ifdef DebugLog
   edm::LogInfo("HGCalGeom") << "==>> Constructing DDHGCalModuleAlgo...";
 #endif
+  copies.clear();
   constructLayers (parent(), cpv);
+  edm::LogInfo("HGCalGeom") << copies.size() << " different wafer copy numbers";
+  copies.clear();
 #ifdef DebugLog
   edm::LogInfo("HGCalGeom") << "<<== End of DDHGCalModuleAlgo construction ...";
 #endif
@@ -126,6 +129,7 @@ void DDHGCalModuleAlgo::constructLayers(DDLogicalPart module,
 #endif
   double       zi(zMinBlock);
   int          laymin(0);
+  const double tol(0.01);
   for (unsigned int i=0; i<layers.size(); i++) {
     double  zo     = zi + layerThick[i];
     double  routF  = rMax(zi);
@@ -150,7 +154,7 @@ void DDHGCalModuleAlgo::constructLayers(DDLogicalPart module,
       DDLogicalPart glog;
       if (layerSense[ly] == 0) {
 	double alpha = CLHEP::pi/sectors;
-	double rmax  = routF*cos(alpha);
+	double rmax  = routF*cos(alpha) - tol;
 	std::vector<double> pgonZ, pgonRin, pgonRout;
 	pgonZ.push_back(-0.5*thick[ii]);    pgonZ.push_back(0.5*thick[ii]);
 	pgonRin.push_back(rinB);            pgonRin.push_back(rinB);   
@@ -225,7 +229,7 @@ void DDHGCalModuleAlgo::positionSensitive(DDLogicalPart& glog, double rin,
   double rr   = 2.0*dx*tan(30.0*CLHEP::deg);
   int    ncol = (int)(2.0*rout/waferW) + 1;
   int    nrow = (int)(rout/(waferW*tan(30.0*CLHEP::deg))) + 1;
-  int    incm(0), inrm(0);
+  int    incm(0), inrm(0), kount(0);
 #ifdef DebugLog
   edm::LogInfo("HGCalGeom") << glog.ddname() << " rout " << rout << " Row "
 			    << nrow << " Column " << ncol; 
@@ -250,6 +254,9 @@ void DDHGCalModuleAlgo::positionSensitive(DDLogicalPart& glog, double rin,
 	  cpv.position(name, glog.ddname(), copy, tran, rotation);
 	  if (inc > incm) incm = inc;
 	  if (inr > inrm) inrm = inr;
+	  kount++;
+	  if (std::find(copies.begin(),copies.end(),copy) == copies.end())
+	    copies.push_back(copy);
 #ifdef DebugLog
 	  edm::LogInfo("HGCalGeom") << "DDHGCalModuleAlgo: " 
 				    << name << " number " << copy
@@ -261,5 +268,6 @@ void DDHGCalModuleAlgo::positionSensitive(DDLogicalPart& glog, double rin,
     }
   }
   edm::LogInfo("HGCalGeom") << "DDHGCalModuleAlgo: # of columns " << incm
-			    << " # of rows " << inrm << " for " <<glog.ddname();
+			    << " # of rows " << inrm << " and " << kount
+			    << " wafers for " <<glog.ddname();
 }
