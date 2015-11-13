@@ -28,7 +28,7 @@ postValidation = cms.Sequence(
     + hcalSimHitsPostProcessor
     + hcaldigisPostProcessor
     + hcalrechitsPostProcessor
-    + electronPostValidationSequence + photonPostProcessor
+    + electronPostValidationSequence + electronPostValidationSequenceMiniAOD + photonPostProcessor
     + pfJetClient + pfMETClient + pfJetResClient + pfElectronClient
     + rpcRecHitPostValidation_step
     + runTauEff + makeBetterPlots
@@ -59,4 +59,8 @@ postValidation_gen = cms.Sequence(
 
 postValidationCosmics = cms.Sequence(
       postProcessorMuonMultiTrack
+)
+
+postValidationMiniAOD = cms.Sequence(
+      electronPostValidationSequenceMiniAOD
 )
