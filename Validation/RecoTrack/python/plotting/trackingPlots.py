@@ -303,6 +303,12 @@ def _mapCollectionToAlgoQuality(collName):
     if hasPtCut:
         quality += "Pt"
         collNameNoQuality = collNameNoQuality.replace("Pt", "")
+    if "ByOriginalAlgo" in collName:
+        quality += "ByOriginalAlgo"
+        collNameNoQuality = collNameNoQuality.replace("ByOriginalAlgo", "")
+    if "ByAlgoMask" in collName:
+        quality += "ByAlgoMask"
+        collNameNoQuality = collNameNoQuality.replace("ByAlgoMask", "")
     collNameLow = collNameNoQuality.lower().replace("frompv2", "").replace("frompv", "").replace("frompvalltp", "").replace("alltp", "")
 
     algo = None
@@ -339,59 +345,67 @@ def _collhelper(name):
     return (name, [name])
 _collLabelMap = collections.OrderedDict(map(_collhelper, ["generalTracks"]+_possibleTrackingColls))
 _collLabelMapHp = collections.OrderedDict(map(_collhelper, ["generalTracks"]+filter(lambda n: "Step" in n, _possibleTrackingColls)))
-def _summaryBinRename(binLabel, highPurity):
+def _summaryBinRename(binLabel, highPurity, byOriginalAlgo, byAlgoMask):
     (algo, quality) = _mapCollectionToAlgoQuality(binLabel)
+    if algo == "ootb":
+        algo = "generalTracks"
     ret = None
+
+    if byOriginalAlgo:
+        if algo != "generalTracks" and "ByOriginalAlgo" not in quality:
+            return None
+        quality = quality.replace("ByOriginalAlgo", "")
+    if byAlgoMask:
+        if algo != "generalTracks" and "ByAlgoMask" not in quality:
+            return None
+        quality = quality.replace("ByAlgoMask", "")
+
     if highPurity:
         if quality == "highPurity":
             ret = algo
     else:
         if quality == "":
             ret = algo
-    if ret == "ootb":
-        ret = "generalTracks"
+
     return ret
 
-_common = {"drawStyle": "EP", "xbinlabelsize": 10, "xbinlabeloption": "d"}
-_commonAB = {"mapping": _collLabelMap,
-             "renameBin": lambda bl: _summaryBinRename(bl, False)}
-_commonN = {"ylog": True, "ymin": _minMaxN, "ymax": _minMaxN}
-_commonN.update(_common)
-_summary = PlotGroup("summary", [
-    Plot(AggregateBins("efficiency", "effic_vs_coll", **_commonAB),
-         title="Efficiency vs collection", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
-    Plot(AggregateBins("efficiencyAllPt", "effic_vs_coll_allPt", **_commonAB),
-         title="Efficiency vs collection (no pT cut in denominator)", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
+def _constructSummary(mapping, highPurity=False, byOriginalAlgo=False, byAlgoMask=False, midfix=""):
+    _common = {"drawStyle": "EP", "xbinlabelsize": 10, "xbinlabeloption": "d"}
+    _commonN = {"ylog": True, "ymin": _minMaxN, "ymax": _minMaxN}
+    _commonN.update(_common)
+    _commonAB = {"mapping": mapping,
+                 "renameBin": lambda bl: _summaryBinRename(bl, highPurity, byOriginalAlgo, byAlgoMask),
+                 "ignoreMissingBins": True,
+    }
+    if byOriginalAlgo or byAlgoMask:
+        _commonAB["minExistingBins"] = 2
+    prefix = "summary"+midfix
+    summary = PlotGroup(prefix, [
+        Plot(AggregateBins("efficiency", "effic_vs_coll", **_commonAB),
+             title="Efficiency vs collection", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
+        Plot(AggregateBins("efficiencyAllPt", "effic_vs_coll_allPt", **_commonAB),
+             title="Efficiency vs collection (no pT cut in denominator)", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
 
-    Plot(AggregateBins("fakerate", "fakerate_vs_coll", **_commonAB), title="Fakerate vs collection", ytitle="Fake rate", ymax=_maxFake, **_common),
-    Plot(AggregateBins("duplicatesRate", "duplicatesRate_coll", **_commonAB), title="Duplicates rate vs collection", ytitle="Duplicates rate", ymax=_maxFake, **_common),
-    Plot(AggregateBins("pileuprate", "pileuprate_coll", **_commonAB), title="Pileup rate vs collection", ytitle="Pileup rate", ymax=_maxFake, **_common),
-])
-_summaryN = PlotGroup("summary_ntracks", [
-    Plot(AggregateBins("num_reco_coll", "num_reco_coll", **_commonAB), ytitle="Tracks", title="Number of tracks vs collection", **_commonN),
-    Plot(AggregateBins("num_true_coll", "num_assoc(recoToSim)_coll", **_commonAB), ytitle="True tracks", title="Number of true tracks vs collection", **_commonN),
-    Plot(AggregateBins("num_fake_coll", Subtract("num_fake_coll_orig", "num_reco_coll", "num_assoc(recoToSim)_coll"), **_commonAB), ytitle="Fake tracks", title="Number of fake tracks vs collection", **_commonN),
-    Plot(AggregateBins("num_duplicate_coll", "num_duplicate_coll", **_commonAB), ytitle="Duplicate tracks", title="Number of duplicate tracks vs collection", **_commonN),
-    Plot(AggregateBins("num_pileup_coll", "num_pileup_coll", **_commonAB), ytitle="Pileup tracks", title="Number of pileup tracks vs collection", **_commonN),
-])
-_commonAB = {"mapping": _collLabelMapHp,
-             "renameBin": lambda bl: _summaryBinRename(bl, True)}
-_summaryHp = PlotGroup("summary", [
-    Plot(AggregateBins("efficiency", "effic_vs_coll", **_commonAB),
-         title="Efficiency vs collection", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
-    Plot(AggregateBins("efficiencyefficiencyAllPt", "effic_vs_coll", **_commonAB),
-         title="Efficiency vs collection (no pT cut in denominator)", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
-    Plot(AggregateBins("fakerate", "fakerate_vs_coll", **_commonAB), title="Fakerate vs collection", ytitle="Fake rate", ymax=_maxFake, **_common),
-    Plot(AggregateBins("duplicatesRate", "duplicatesRate_coll", **_commonAB), title="Duplicates rate vs collection", ytitle="Duplicates rate", ymax=_maxFake, **_common),
-    Plot(AggregateBins("pileuprate", "pileuprate_coll", **_commonAB), title="Pileup rate vs collection", ytitle="Pileup rate", ymax=_maxFake, **_common),
-])
-_summaryNHp = PlotGroup("summary_ntracks", [
-    Plot(AggregateBins("num_reco_coll", "num_reco_coll", **_commonAB), ytitle="Tracks", title="Number of tracks vs collection", **_commonN),
-    Plot(AggregateBins("num_true_coll", "num_assoc(recoToSim)_coll", **_commonAB), ytitle="True tracks", title="Number of true tracks vs collection", **_commonN),
-    Plot(AggregateBins("num_fake_coll", Subtract("num_fake_coll_orig", "num_reco_coll", "num_assoc(recoToSim)_coll"), **_commonAB), ytitle="Fake tracks", title="Number of fake tracks vs collection", **_commonN),
-    Plot(AggregateBins("num_duplicate_coll", "num_duplicate_coll", **_commonAB), ytitle="Duplicate tracks", title="Number of duplicate tracks vs collection", **_commonN),
-    Plot(AggregateBins("num_pileup_coll", "num_pileup_coll", **_commonAB), ytitle="Pileup tracks", title="Number of pileup tracks vs collection", **_commonN),
-])
+        Plot(AggregateBins("fakerate", "fakerate_vs_coll", **_commonAB), title="Fakerate vs collection", ytitle="Fake rate", ymax=_maxFake, **_common),
+        Plot(AggregateBins("duplicatesRate", "duplicatesRate_coll", **_commonAB), title="Duplicates rate vs collection", ytitle="Duplicates rate", ymax=_maxFake, **_common),
+        Plot(AggregateBins("pileuprate", "pileuprate_coll", **_commonAB), title="Pileup rate vs collection", ytitle="Pileup rate", ymax=_maxFake, **_common),
+    ])
+    summaryN = PlotGroup(prefix+"_ntracks", [
+        Plot(AggregateBins("num_reco_coll", "num_reco_coll", **_commonAB), ytitle="Tracks", title="Number of tracks vs collection", **_commonN),
+        Plot(AggregateBins("num_true_coll", "num_assoc(recoToSim)_coll", **_commonAB), ytitle="True tracks", title="Number of true tracks vs collection", **_commonN),
+        Plot(AggregateBins("num_fake_coll", Subtract("num_fake_coll_orig", "num_reco_coll", "num_assoc(recoToSim)_coll"), **_commonAB), ytitle="Fake tracks", title="Number of fake tracks vs collection", **_commonN),
+        Plot(AggregateBins("num_duplicate_coll", "num_duplicate_coll", **_commonAB), ytitle="Duplicate tracks", title="Number of duplicate tracks vs collection", **_commonN),
+        Plot(AggregateBins("num_pileup_coll", "num_pileup_coll", **_commonAB), ytitle="Pileup tracks", title="Number of pileup tracks vs collection", **_commonN),
+    ])
+
+    return (summary, summaryN)
+
+(_summary,                 _summaryN)                 = _constructSummary(_collLabelMap)
+(_summaryHp,               _summaryNHp)               = _constructSummary(_collLabelMapHp, highPurity=True)
+(_summaryByOriginalAlgo,   _summaryByOriginalAlgoN)   = _constructSummary(_collLabelMapHp, byOriginalAlgo=True, midfix="ByOriginalAlgo")
+(_summaryByOriginalAlgoHp, _summaryByOriginalAlgoNHp) = _constructSummary(_collLabelMapHp, byOriginalAlgo=True, midfix="ByOriginalAlgo", highPurity=True)
+(_summaryByAlgoMask,       _summaryByAlgoMaskN)       = _constructSummary(_collLabelMapHp, byAlgoMask=True, midfix="ByAlgoMask")
+(_summaryByAlgoMaskHp,     _summaryByAlgoMaskNHp)     = _constructSummary(_collLabelMapHp, byAlgoMask=True, midfix="ByAlgoMask", highPurity=True)
 
 ########################################
 #
@@ -584,10 +598,18 @@ _recoBasedPlots = [
 _summaryPlots = [
     _summary,
     _summaryN,
+    _summaryByOriginalAlgo,
+    _summaryByOriginalAlgoN,
+    _summaryByAlgoMask,
+    _summaryByAlgoMaskN,
 ]
 _summaryPlotsHp = [
     _summaryHp,
     _summaryNHp,
+    _summaryByOriginalAlgoHp,
+    _summaryByOriginalAlgoNHp,
+    _summaryByAlgoMaskHp,
+    _summaryByAlgoMaskNHp,
 ]
 _packedCandidatePlots = [
     _packedCandidateFlow,
