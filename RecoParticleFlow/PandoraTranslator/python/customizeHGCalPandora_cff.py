@@ -391,7 +391,7 @@ def cust_2023HGCalPandoraMuonFastTime(process):
         process.mix.digitizers.mergedtruth.createInitialVertexCollection = True
     if hasattr(process,'reconstruction_step'):
         process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
-        process.load("RecoFTL.FastTimingKludge.trackTimeValueMapProducer_cfi")
+        process.load("RecoParticleFlow.FastTiming.trackTimeValueMapProducer_cfi")
         process.particleFlowReco = cms.Sequence(process.trackTimeValueMapProducer+process.particleFlowReco)
         process.RandomNumberGeneratorService.trackTimeValueMapProducer = cms.PSet(
             initialSeed = cms.untracked.uint32(1234), engineName = cms.untracked.string('TRandom3')
@@ -429,7 +429,7 @@ def cust_2023HGCalPandoraMuonPerfectFastTime(process):
         process.mix.digitizers.mergedtruth.createInitialVertexCollection = True
     if hasattr(process,'reconstruction_step'):
         process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
-        process.load("RecoFTL.FastTimingKludge.trackTimeValueMapProducer_cfi")
+        process.load("RecoParticleFlow.FastTiming.trackTimeValueMapProducer_cfi")
         process.particleFlowReco = cms.Sequence(process.trackTimeValueMapProducer+process.particleFlowReco)        
         process.RandomNumberGeneratorService.trackTimeValueMapProducer = cms.PSet(
             initialSeed = cms.untracked.uint32(1234), engineName = cms.untracked.string('TRandom3')
