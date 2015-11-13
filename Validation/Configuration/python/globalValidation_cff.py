@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import *
-from Validation.TrackerHits.trackerHitsValidation_cff import *
-from Validation.TrackerDigis.trackerDigisValidation_cff import *
-from Validation.TrackerRecHits.trackerRecHitsValidation_cff import *
-from Validation.TrackingMCTruth.trackingTruthValidation_cfi import *
-from Validation.RecoTrack.SiTrackingRecHitsValid_cff import *
+from Validation.TrackerHits.trackerHitsValidation_cff import *   # not in fs
+from Validation.TrackerDigis.trackerDigisValidation_cff import * # not in fs
+from Validation.TrackerRecHits.trackerRecHitsValidation_cff import * # not in fs
+from Validation.TrackingMCTruth.trackingTruthValidation_cfi import * 
+from Validation.RecoTrack.SiTrackingRecHitsValid_cff import *   # not in fs
 from Validation.RecoTrack.TrackValidation_cff import *
 from Validation.EcalHits.ecalSimHitsValidationSequence_cff import *
 from Validation.EcalDigis.ecalDigisValidationSequence_cff import *
@@ -91,6 +91,14 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + L1Validator
 )
 
+
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    globalValidation.remove(trackerDigisValidation)
+    globalValidation.remove(trackerRecHitsValidation)
+    globalValidation.remove(trackingRecHitsValid)
+    globalValidation.remove(mixCollectionValidation) # can be put back, once mixing is migrated to fastsim era
+    
 #lite tracking validator to be used in the Validation matrix
 liteTrackValidator=trackValidator.clone()
 liteTrackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),

@@ -10,4 +10,8 @@ ecalDigisValidation = cms.EDAnalyzer("EcalDigisValidation",
     moduleLabelG4 = cms.string('g4SimHits')
 )
 
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    ecalDigisValidation.moduleLabelG4 = cms.string('famosSimHits')
+
 

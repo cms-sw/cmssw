@@ -7,5 +7,9 @@ simHitsValidationHcal = cms.EDAnalyzer("SimHitsValidationHcal",
     TestNumber    = cms.untracked.bool(False),
 )
 
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    simHitsValidationHcal.ModuleLabel = cms.untracked.string("famosSimHits")
+    
 
 
