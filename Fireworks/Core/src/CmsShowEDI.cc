@@ -104,7 +104,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
       .addLabel("Expression", 8)
       .addValidatingTextEntry(0, &m_filterExpressionEntry).floatLeft()
       .addTextButton("Filter", &m_filterButton).expand(false)
-      .addCheckbox("Show filtered entries in table", &m_showFilteredCheckButton).expand(false)
+      .addCheckbox("Hide filtered items in table", &m_showFilteredCheckButton).expand(false)
       .addTextView("", &m_filterError).expand(true, true)
       //.vSpacer()
       .endTab()
@@ -265,7 +265,7 @@ CmsShowEDI::fillEDIFrame() {
          m_validator->setType(edm::TypeWithDict(*(iItem->modelType()->GetTypeInfo())));
          m_filterExpressionEntry->SetText(iItem->filterExpression().c_str());
          m_filterError->Clear();
-         m_showFilteredCheckButton->SetDisabledAndSelected(iItem->showFilteredEntries());
+         m_showFilteredCheckButton->SetDisabledAndSelected(!iItem->showFilteredEntries());
          m_selectError->Clear();
          m_nameEntry->SetText(iItem->name().c_str());
          m_typeEntry->SetText(iItem->type()->GetName());
@@ -466,7 +466,7 @@ CmsShowEDI::runFilter() {
 
 void
 CmsShowEDI::toggleShowFiltered(Bool_t on) {
-   m_item->setShowFilteredEntries(on);
+   m_item->setShowFilteredEntries(!on);
 }
 
 
