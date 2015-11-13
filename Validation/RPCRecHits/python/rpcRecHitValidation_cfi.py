@@ -10,3 +10,8 @@ rpcRecHitV = cms.EDAnalyzer("RPCRecHitValid",
 )
 
 rpcRecHitValidation_step = cms.Sequence(rpcRecHitV)
+
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    rpcRecHitV.simHit = cms.InputTag("MuonSimHits","MuonRPCHits")
+

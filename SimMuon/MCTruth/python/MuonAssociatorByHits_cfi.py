@@ -86,6 +86,22 @@ muonAssociatorByHitsCommonParameters = cms.PSet(
     inputCSCSegmentCollection = cms.InputTag("cscSegments"),
 )
 
+
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+#if True:
+    obj = muonAssociatorByHitsCommonParameters
+    obj.simtracksTag = "famosSimHits"
+    obj.DTsimhitsTag  = "MuonSimHits:MuonDTHits"
+    obj.CSCsimHitsTag = "MuonSimHits:MuonCSCHits"
+    obj.RPCsimhitsTag = "MuonSimHits:MuonRPCHits"
+    obj.simtracksXFTag = "mix:famosSimHits"
+    obj.DTsimhitsXFTag  = "mix:MuonSimHitsMuonDTHits"
+    obj.CSCsimHitsXFTag = "mix:MuonSimHitsMuonCSCHits"
+    obj.RPCsimhitsXFTag = "mix:MuonSimHitsMuonRPCHits"
+    obj.ROUList = ['famosSimHitsTrackerHits']
+
+  
 muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     # COMMON CONFIGURATION
     muonAssociatorByHitsCommonParameters,
@@ -117,14 +133,4 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     ignoreMissingTrackCollection = cms.untracked.bool(False),
 )
  
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
-    muonAssociatorByHits.simtracksTag = "famosSimHits"
-    muonAssociatorByHits.DTsimhitsTag  = "MuonSimHits:MuonDTHits"
-    muonAssociatorByHits.CSCsimHitsTag = "MuonSimHits:MuonCSCHits"
-    muonAssociatorByHits.RPCsimhitsTag = "MuonSimHits:MuonRPCHits"
-    muonAssociatorByHits.simtracksXFTag = "mix:famosSimHits"
-    muonAssociatorByHits.DTsimhitsXFTag  = "mix:MuonSimHitsMuonDTHits"
-    muonAssociatorByHits.CSCsimHitsXFTag = "mix:MuonSimHitsMuonCSCHits"
-    muonAssociatorByHits.RPCsimhitsXFTag = "mix:MuonSimHitsMuonRPCHits"
-    muonAssociatorByHits.ROUList = ['famosSimHitsTrackerHits']
+  

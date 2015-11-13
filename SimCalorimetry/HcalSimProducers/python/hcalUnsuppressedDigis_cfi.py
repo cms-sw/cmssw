@@ -47,6 +47,10 @@ hcalSimBlock = cms.PSet(
     minFCToDelay=cms.double(5.) # old TC model! set to 5 for the new one
 )
 
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    hcalSimBlock.hitsProducer = cms.string('famosSimHits')
+    
 #es_cholesky = cms.ESSource("PoolDBESSource",
 #    CondDBSetup,
 #    timetype = cms.string('runnumber'),

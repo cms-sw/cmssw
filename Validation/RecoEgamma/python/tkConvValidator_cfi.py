@@ -132,7 +132,11 @@ tkConversionValidation = cms.EDAnalyzer("TkConvValidator",
     zBin2ForXray = cms.int32(560),
     zMinForXray = cms.double(0.),
     zMaxForXray = cms.double(280.),                               
-                                  
+
+    simTracks = cms.InputTag("g4SimHits")
 )
 
 
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    tkConversionValidation.simTracks = cms.InputTag("famosSimHits")

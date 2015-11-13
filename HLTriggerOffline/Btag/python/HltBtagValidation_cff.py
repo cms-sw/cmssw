@@ -75,3 +75,23 @@ hltbtagValidationSequence = cms.Sequence(
 	hltbTagValidation
 )
 
+# fastsim customs
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    HltVertexValidationVertices.SimVertexCollection = cms.InputTag("famosSimHits")
+    # are these customs actually needed?
+    #HltVertexValidationVertices.HLTPathNames =cms.vstring(
+    #'HLT_PFMET120_NoiseCleaned_BTagCSV07_v',
+    #'HLT_PFMET120_NoiseCleaned_BTagCSV07_v',
+    #	'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_',
+    #	'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_',
+    #	'HLT_QuadPFJet_VBF',
+    #	'HLT_QuadPFJet_VBF',
+    #	'HLT_Ele32_eta2p1_',
+    #	'HLT_IsoMu24_eta2p1_')
+    #HltVertexValidationVertices.Vertex = cms.VInputTag(
+    #    cms.InputTag("hltVerticesL3"), 
+    #    cms.InputTag("hltFastPVPixelVertices"),
+    #    cms.InputTag("hltVerticesPF"), 
+    #)
+
