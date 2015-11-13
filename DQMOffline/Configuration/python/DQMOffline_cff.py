@@ -106,6 +106,9 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  produceDenoms *
                                  pfTauRunDQMValidation 
                                  )
+DQMOfflineTracking = cms.Sequence( TrackingDQMSourceTier0Common *
+                                   pvMonitor
+                                 )
 DQMOfflineMuon = cms.Sequence( dtSources *
                                rpcTier0Source *
                                cscSources *
