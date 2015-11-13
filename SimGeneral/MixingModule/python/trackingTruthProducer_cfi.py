@@ -36,3 +36,17 @@ trackingParticles = cms.PSet(
 	allowDifferentSimHitProcesses = cms.bool(False), # should be True for FastSim, False for FullSim
 	HepMCProductLabel = cms.InputTag('generatorSmeared')
 )
+
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    # for unknown reasons, fastsim needs this flag on
+    trackingParticles.allowDifferentSimHitProcesses = True
+    # fastsim labels for simhits, simtracks, simvertices
+    trackingParticles.simHitCollections = cms.PSet(
+        muon = cms.VInputTag( cms.InputTag('MuonSimHits','MuonDTHits'),
+                              cms.InputTag('MuonSimHits','MuonCSCHits'),
+                              cms.InputTag('MuonSimHits','MuonRPCHits') ),
+        trackerAndPixel = cms.VInputTag( cms.InputTag('famosSimHits','TrackerHits') )
+        )
+    trackingParticles.simTrackCollection = cms.InputTag('famosSimHits')
+    trackingParticles.simVertexCollection = cms.InputTag('famosSimHits')
