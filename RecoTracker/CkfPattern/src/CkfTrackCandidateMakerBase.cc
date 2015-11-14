@@ -264,9 +264,11 @@ namespace cms{
       // std::cout << spt(indeces[0]) << ' ' << spt(indeces[collseed_size-1]) << std::endl;
 #endif      
       
-
+      std::atomic<unsigned int> ntseed(0);
       auto theLoop = [&](size_t ii) {    
         auto j = indeces[ii];
+
+        ntseed++; 
 
         // to be moved inside a par section (how with tbb??)
         std::vector<Trajectory> theTmpTrajectories;
@@ -361,12 +363,18 @@ namespace cms{
        theLoop(j);
       }
 #endif
-     
+      assert(ntseed==collseed_size); 
       if (theSeedCleaner) theSeedCleaner->done();
    
-      // std::cout << "VICkfPattern " << "rawResult trajectories found = " << rawResult.size() << std::endl;
+      // std::cout << "VICkfPattern " << "rawResult trajectories found = " << rawResult.size() << " in " << ntseed << " seeds " << collseed_size << std::endl;
 
-   
+#ifdef VI_REPRODUCIBLE
+      // sort trajectory	
+     std::sort(rawResult.begin(), rawResult.end(),[](const Trajectory & a, const Trajectory & b)
+               { return a.seedRef().key() < b.seedRef().key();});
+             //{ return a.chiSquared()*b.ndof() < b.chiSquared()*a.ndof();});
+#endif
+
       // Step E: Clean the results to avoid duplicate tracks
       // Rejected ones just flagged as invalid.
       theTrajectoryCleaner->clean(rawResult);
