@@ -79,6 +79,11 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 runType			= process.runType.getRunType()
 cmssw			= os.getenv("CMSSW_VERSION").split("_")
 rawTag			= cms.InputTag("hltHcalCalibrationRaw")
+rawuntrackedTag = cms.untracked.InputTag("hltHcalCalibrationRaw")
+isHeavyIon		= runType==4
+if isHeavyIon:
+	rawtag = cms.InputTag("rawDataRepacker")
+	rawuntrackedTag = cms.untracked.InputTag("rawDataRepacker")
 process.essourceSev = cms.ESSource(
 		"EmptyESSource",
 		recordName		= cms.string("HcalSeverityLevelComputerRcd"),
@@ -141,19 +146,16 @@ process.hcalDigis.InputLabel = rawTag
 process.hcalLEDTask.moduleParameters.subsystem = cms.untracked.string(subsystem)
 process.hcalLEDTask.moduleParameters.calibTypes = cms.untracked.vint32(
 		1,2,3,4,5)
-process.hcalLEDTask.moduleParameters.Labels.RAW = cms.untracked.InputTag(
-		"hltHcalCalibrationRaw")
+process.hcalLEDTask.moduleParameters.Labels.RAW = rawuntrackedTag
 process.hcalLaserTask.moduleParameters.subsystem = cms.untracked.string(subsystem)
 process.hcalLaserTask.moduleParameters.calibTypes = cms.untracked.vint32(
 		1,2,3,4,5)
-process.hcalLaserTask.moduleParameters.Labels.RAW = cms.untracked.InputTag(
-		"hltHcalCalibrationRaw")
+process.hcalLaserTask.moduleParameters.Labels.RAW = rawuntrackedTag
 process.hcalPedestalTask.moduleParameters.subsystem = cms.untracked.string(
 		subsystem)
 process.hcalPedestalTask.moduleParameters.calibTypes = cms.untracked.vint32(
 		1,2,3,4,5)
-process.hcalPedestalTask.moduleParameters.Labels.RAW = cms.untracked.InputTag(
-		"hltHcalCalibrationRaw")
+process.hcalPedestalTask.moduleParameters.Labels.RAW = rawuntrackedTag
 
 #-------------------------------------
 #	Hcal DQM Tasks Sequence Definition

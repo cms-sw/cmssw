@@ -77,10 +77,15 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 runType			= process.runType.getRunType()
 runTypeName		= process.runType.getRunTypeName()
 isCosmicRun		= runType==2 or runType==3
+isHeavyIon		= runType==4
 print debugstr, "Running with run type=%d name=%s notified=%s" % (
 	runType, runTypeName, isCosmicRun)
 cmssw			= os.getenv("CMSSW_VERSION").split("_")
 rawTag			= cms.InputTag("rawDataCollector")
+rawuntrackedTag = cms.untracked.InputTag("rawDataCollector")
+if isHeavyIon:
+	rawTag = cms.InputTag("rawDataRepacker")
+	rawuntrackedTag = cms.untracked.InputTag("rawDataRepacker")
 process.essourceSev = cms.ESSource(
 		"EmptyESSource",
 		recordName		= cms.string("HcalSeverityLevelComputerRcd"),
@@ -99,6 +104,7 @@ process.emulTPDigis.FG_threshold = cms.uint32(2)
 process.emulTPDigis.InputTagFEDRaw = rawTag
 process.l1GtUnpack.DaqGtInputTag = rawTag
 process.hbhereco = process.hbheprereco.clone()
+process.hcalDigis.InputLabel = rawTag
 
 #-------------------------------------
 #	Hcal DQM Tasks and Clients import
@@ -195,18 +201,25 @@ process.hcalDeadCellMonitor.excludeHORing2 = False
 process.hcalCoarsePedestalMonitor.ADCDiffThresh = 2
 process.hcalClient.CoarsePedestal_BadChannelStatusMask = cms.untracked.int32(
 	(1<<5) | (1<<6))
-process.hcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
-process.hcalDetDiagNoiseMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
-process.hcalDetDiagTimingMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataCollector")
-process.hcalMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataCollector")
-process.hcalNZSMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
-process.hcalNoiseMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
-process.hcalRawDataMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataCollector")
+process.hcalDataIntegrityMonitor.RawDataLabel = rawuntrackedTag
+process.hcalDetDiagNoiseMonitor.RawDataLabel = rawuntrackedTag
+process.hcalDetDiagTimingMonitor.FEDRawDataCollection = rawuntrackedTag
+process.hcalMonitor.FEDRawDataCollection = rawuntrackedTag
+process.hcalNZSMonitor.RawDataLabel = rawuntrackedTag
+process.hcalNoiseMonitor.RawDataLabel = rawuntrackedTag
+process.hcalRawDataMonitor.FEDRawDataCollection = rawuntrackedTag
+process.hcalDigiMonitor.FEDRawDataCollection = rawuntrackedTag
 
 #-------------------------------------
 #	Some Settings before Finishing up
 #	New Style Modules
 #-------------------------------------
+process.hcalDigiTask.moduleParameters.Labels.RAW = rawuntrackedTag
+process.hcalRawTask.moduleParameters.Labels.RAW = rawuntrackedTag
+process.hcalRecHitTask.moduleParameters.Labels.RAW = rawuntrackedTag
+process.hcalTPTask.moduleParameters.Labels.RAW = rawuntrackedTag
+process.hcalTimingTask.moduleParameters.Labels.RAW = rawuntrackedTag
+
 #-------------------------------------
 #	Hcal DQM Tasks/Clients Sequences Definition
 #-------------------------------------
