@@ -73,7 +73,8 @@ public:
   void setup(DQMStore::IBooker &);
   void bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c);
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze_(edm::Event const&, edm::EventSetup const&);
 
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
