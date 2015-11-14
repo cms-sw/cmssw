@@ -82,7 +82,7 @@ rawTag			= cms.InputTag("hltHcalCalibrationRaw")
 rawuntrackedTag = cms.untracked.InputTag("hltHcalCalibrationRaw")
 isHeavyIon		= runType==4
 if isHeavyIon:
-	rawtag = cms.InputTag("rawDataRepacker")
+	rawTag = cms.InputTag("rawDataRepacker")
 	rawuntrackedTag = cms.untracked.InputTag("rawDataRepacker")
 process.essourceSev = cms.ESSource(
 		"EmptyESSource",
