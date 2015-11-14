@@ -392,7 +392,7 @@ EDConsumerBase::modulesDependentUpon(std::string const& iProcessName,
       unsigned int const start = labels.m_startOfModuleLabel;
       char const* processName = &(m_tokenLabels[start+labels.m_deltaToProcessName]);
       if(iPrint) {
-        LogAbsolute("ModuleDependency") << "<ModuleDependency> '" << iModuleLabel << 
+        LogAbsolute("ModuleDependency") << "ModuleDependency '" << iModuleLabel <<
         "' may consume product of type '" << info.m_type.className() << 
         "' with input tag '" << &(m_tokenLabels[start]) <<
         ':' << &(m_tokenLabels[start+labels.m_deltaToProductInstance]) <<
