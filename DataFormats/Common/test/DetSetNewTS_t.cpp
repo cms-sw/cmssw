@@ -11,7 +11,14 @@
 #include<vector>
 #include<algorithm>
 
+#ifndef __clang__
+// CLANG does not support OpenMP
 #include<omp.h>
+#else
+inline
+int omp_get_thread_num() {return 1;}
+int omp_get_num_threads(){return 1;}
+#endif
 #include <mutex>
 typedef std::mutex Mutex;
 // typedef std::lock_guard<std::mutex> Lock;

@@ -41,6 +41,10 @@
 #include<algorithm>
 #include<functional>
 
+// #define VI_SORTSEED
+// #define VI_REPRODUCIBLE
+// #define VI_TBB
+
 #include <thread>
 #ifdef VI_TBB
 #include "tbb/parallel_for.h"
@@ -84,15 +88,16 @@ namespace cms{
     //      theSeedLabel = InputTag(conf_.getParameter<std::string>("SeedProducer"),conf_.getParameter<std::string>("SeedLabel"));
     //    else
       theSeedLabel= iC.consumes<edm::View<TrajectorySeed> >(conf.getParameter<edm::InputTag>("src"));
+#ifndef	VI_REPRODUCIBLE
       if ( conf.exists("maxSeedsBeforeCleaning") ) 
 	   maxSeedsBeforeCleaning_=conf.getParameter<unsigned int>("maxSeedsBeforeCleaning");
-
+#endif
       if (conf.existsAs<edm::InputTag>("clustersToSkip")) {
         skipClusters_ = true;
         maskPixels_ = iC.consumes<PixelClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
         maskStrips_ = iC.consumes<StripClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
       }
-
+#ifndef VI_REPRODUCIBLE
     std::string cleaner = conf.getParameter<std::string>("RedundantSeedCleaner");
     if (cleaner == "SeedCleanerByHitPosition") {
         theSeedCleaner = new SeedCleanerByHitPosition();
@@ -111,7 +116,13 @@ namespace cms{
     } else {
         throw cms::Exception("RedundantSeedCleaner not found", cleaner);
     }
+#endif
 
+#ifdef VI_REPRODUCIBLE
+   std::cout << "CkfTrackCandidateMaker in reproducible setting" << std::endl;
+   assert(nullptr==theSeedCleaner);
+   assert(0>=maxSeedsBeforeCleaning_);
+#endif
 
   }
 
@@ -217,11 +228,14 @@ namespace cms{
       size_t collseed_size = collseed->size();
 
       unsigned int indeces[collseed_size]; for (auto i=0U; i< collseed_size; ++i) indeces[i]=i;
+
+
+
+
+#ifdef VI_SORTSEED
       // std::random_shuffle(indeces,indeces+collseed_size);
-
-
-      /* 
-       * here only for reference: does not seems to help
+       
+       // here only for reference: does not seems to help
      
       auto const & seeds = *collseed;
       
@@ -231,7 +245,7 @@ namespace cms{
         {  val[i] =  seeds[i].startingState().pt();};
       //  { val[i] =  std::abs((*seeds[i].recHits().first).surface()->eta());}
       
-
+      /*
       unsigned long long val[collseed_size];
       for (auto i=0U; i< collseed_size; ++i) {
         if (seeds[i].nHits()<2) { val[i]=0; continue;}
@@ -243,13 +257,13 @@ namespace cms{
     	  val[i] |= (unsigned long long)(hit.firstClusterRef().key())<<32; 
         }
       }
-
+      */
       std::sort(indeces,indeces+collseed_size, [&](unsigned int i, unsigned int j){return val[i]<val[j];});
              
 
       // std::cout << spt(indeces[0]) << ' ' << spt(indeces[collseed_size-1]) << std::endl;
+#endif      
       
-      */
 
       auto theLoop = [&](size_t ii) {    
         auto j = indeces[ii];
