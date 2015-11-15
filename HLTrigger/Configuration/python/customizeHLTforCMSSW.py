@@ -121,15 +121,15 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     import os
     cmsswVersion = os.environ['CMSSW_VERSION']
 
-    if cmsswVersion >= "CMSSW_7_5":
-        process = customiseFor10927(process)
-        process = customiseFor9232(process)
-        process = customiseFor8679(process)
-        process = customiseFor8356(process)
-        process = customiseFor7966(process)
-        process = customiseFor7794(process)
-        process = customizeHLTforNewJetCorrectors(process)
-    if cmsswVersion >= "CMSSW_7_4":
-        process = customiseFor10234(process)
+#    if cmsswVersion >= "CMSSW_7_5":
+#        process = customiseFor10927(process)
+#        process = customiseFor9232(process)
+#        process = customiseFor8679(process)
+#        process = customiseFor8356(process)
+#        process = customiseFor7966(process)
+#        process = customiseFor7794(process)
+#        process = customizeHLTforNewJetCorrectors(process)
+#    if cmsswVersion >= "CMSSW_7_4":
+#        process = customiseFor10234(process)
 
     return process
