@@ -33,3 +33,8 @@ pdigi = cms.Sequence(fixGenInfo*cms.SequencePlaceholder("randomEngineStateProduc
 pdigi_valid = cms.Sequence(pdigi)
 pdigi_nogen=cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*addPileupInfo)
 pdigi_valid_nogen=cms.Sequence(pdigi_nogen)
+
+
+# 75X update for Heavy Ions
+from GeneratorInterface.HiGenCommon.HeavyIon_cff import *
+pdigi_hi=cms.Sequence(pdigi_valid_nogen+heavyIon)
