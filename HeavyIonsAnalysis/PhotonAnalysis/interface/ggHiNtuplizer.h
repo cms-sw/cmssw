@@ -113,6 +113,8 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    vector<float>  eleTrkChi2_;
    vector<float>  eleTrkNdof_;
    vector<float>  eleTrkNormalizedChi2_;
+   vector<int>    eleTrkValidHits_;
+   vector<int>    eleTrkLayers_;
    vector<float>  elePt_;
    vector<float>  eleEta_;
    vector<float>  elePhi_;
@@ -139,6 +141,12 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    vector<float>  elePFPhoIso_;
    vector<float>  elePFNeuIso_;
    vector<float>  elePFPUIso_;
+   vector<float>  elePFChIso03_;
+   vector<float>  elePFPhoIso03_;
+   vector<float>  elePFNeuIso03_;
+   vector<float>  elePFChIso04_;
+   vector<float>  elePFPhoIso04_;
+   vector<float>  elePFNeuIso04_;
    vector<float>  eleBC1E_;
    vector<float>  eleBC1Eta_;
    vector<float>  eleBC2E_;
