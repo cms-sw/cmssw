@@ -20,7 +20,7 @@ ak1Calocorr = patJetCorrFactors.clone(
 #    primaryVertices = cms.InputTag("hiSelectedVertex"),
     levels   = cms.vstring('L2Relative','L3Absolute'),
     src = cms.InputTag("ak1CaloJets"),
-    payload = "AK1Calo_HI"
+    payload = "AK1Calo_offline"
     )
 
 ak1CaloJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ak1CaloJets'))

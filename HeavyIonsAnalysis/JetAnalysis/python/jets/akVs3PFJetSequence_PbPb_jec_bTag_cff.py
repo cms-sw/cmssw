@@ -20,7 +20,7 @@ akVs3PFcorr = patJetCorrFactors.clone(
 #    primaryVertices = cms.InputTag("hiSelectedVertex"),
     levels   = cms.vstring('L2Relative','L3Absolute'),
     src = cms.InputTag("akVs3PFJets"),
-    payload = "AKVs3PF_hiIterativeTracks"
+    payload = "AK3PF_offline"
     )
 
 akVs3PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('akVs3CaloJets'))
@@ -229,3 +229,4 @@ akVs3PFJetSequence_mix = cms.Sequence(akVs3PFJetSequence_mc)
 
 akVs3PFJetSequence = cms.Sequence(akVs3PFJetSequence_jec)
 akVs3PFJetAnalyzer.genPtMin = cms.untracked.double(1)
+akVs3PFJetAnalyzer.jtPtMin = cms.untracked.double(1)

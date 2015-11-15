@@ -41,7 +41,7 @@ do
                             fi
 
                             ismc="False"
-                            corrlabel="_hiIterativeTracks"
+                            corrlabel="_offline"
                             domatch="True"
                             genparticles="genParticles"
                             tracks="hiGeneralTracks"
@@ -52,14 +52,14 @@ do
                             echo "" > $algo$subt$radius${object}JetSequence_${system}_${sample}_${btag}cff.py
 
                             if [ $system == "pPb" ]; then
-                                corrlabel="_generalTracks"
+                                #corrlabel="_generalTracks"
                                 tracks="generalTracks"
                                 genparticles="hiGenParticles"
                                 pflow="particleFlow"
                             fi
 
                             if [ $system == "pp" ]; then
-                                corrlabel="_generalTracks"
+                                #corrlabel="_generalTracks"
                                 tracks="generalTracks"
                                 genparticles="genParticles"
                                 pflow="particleFlow"
@@ -77,11 +77,11 @@ do
                             #    eventinfotag="hiSignal"
                             #fi
 
-                            if [ $object == "Calo" ]; then
-                                corrlabel="_HI"
-                            fi
+                            #if [ $object == "Calo" ]; then
+                            #    corrlabel="_HI"
+                            #fi
 
-                            corrname=`echo ${algo} | sed 's/\(.*\)/\U\1/'`${subt}${radius}${object}${corrlabel}
+                            corrname=`echo ${algo} | sed 's/\(.*\)/\U\1/'`${radius}${object}${corrlabel}
 
                             if [ $system == "PbPb" ] && [ $sample == "mc" ] && [ $object == "PF" ] && [ $sub == "Vs" ] && [ $btaggers == "NONE" ] ; then
 
@@ -147,6 +147,7 @@ do
 			    fi
 			    if [ $sample == "jec" ]; then
                                 echo "${algo}${subt}${radius}${object}JetAnalyzer.genPtMin = cms.untracked.double(1)" >> $algo$subt$radius${object}JetSequence_${system}_${sample}_${btag}cff.py
+				echo "${algo}${subt}${radius}${object}JetAnalyzer.jtPtMin = cms.untracked.double(1)" >> $algo$subt$radius${object}JetSequence_${system}_${sample}_${btag}cff.py
                             fi
                         done
                     done

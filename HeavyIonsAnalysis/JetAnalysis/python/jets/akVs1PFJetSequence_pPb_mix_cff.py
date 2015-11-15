@@ -19,7 +19,7 @@ akVs1PFcorr = patJetCorrFactors.clone(
 #    primaryVertices = cms.InputTag("hiSelectedVertex"),
     levels   = cms.vstring('L2Relative','L3Absolute'),
     src = cms.InputTag("akVs1PFJets"),
-    payload = "AKVs1PF_generalTracks"
+    payload = "AK1PF_offline"
     )
 
 akVs1PFpatJets = patJets.clone(jetSource = cms.InputTag("akVs1PFJets"),

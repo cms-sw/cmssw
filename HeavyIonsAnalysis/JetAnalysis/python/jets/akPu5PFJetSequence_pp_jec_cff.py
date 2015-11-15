@@ -79,4 +79,4 @@ akPu5PFJetSequence_mix = cms.Sequence(akPu5PFJetSequence_mc)
 
 akPu5PFJetSequence = cms.Sequence(akPu5PFJetSequence_jec)
 akPu5PFJetAnalyzer.genPtMin = cms.untracked.double(1)
-akPu5PFJetAnalyzer.jetPtMin = cms.untracked.double(1)
+akPu5PFJetAnalyzer.jtPtMin = cms.untracked.double(1)
