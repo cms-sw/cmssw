@@ -221,12 +221,12 @@ rfmkdir -p .oO[datadir]Oo./ExtendedOfflineValidation_Images
 
 if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
 then
-    image_files=$(ls --color=never | find .oO[workdir]Oo./ExtendedOfflineValidation_Images/ -name \*ps -o -name \*root)
+    image_files=$(ls --color=never | find .oO[workdir]Oo./ExtendedOfflineValidation_Images/ -name \*ps -o -name \*root -o -name \*png -o -name \*pdf)
     echo -e "\n\nProduced plot files:"
     #echo ${image_files}
     ls .oO[workdir]Oo./ExtendedOfflineValidation_Images
 else
-    image_files=$(ls --color=never | find ExtendedOfflineValidation_Images/ -name \*ps -o -name \*root)
+    image_files=$(ls --color=never | find ExtendedOfflineValidation_Images/ -name \*ps -o -name \*root -o -name \*png -o -name \*pdf)
     echo -e "\n\nProduced plot files:"
     #echo ${image_files}
     ls ExtendedOfflineValidation_Images
