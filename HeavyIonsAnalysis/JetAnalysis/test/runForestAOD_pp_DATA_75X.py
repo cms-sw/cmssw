@@ -67,8 +67,8 @@ process.GlobalTag.toGet.extend([
  ),
 ])
 
-from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_PbPb2760
-overrideJEC_PbPb2760(process)
+from HeavyIonsAnalysis.Configuration.CommonFunctionsLocalDB_cff import overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db
+process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db(process)
 
 process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
 process.centralityBin.Centrality = cms.InputTag("hiCentrality")

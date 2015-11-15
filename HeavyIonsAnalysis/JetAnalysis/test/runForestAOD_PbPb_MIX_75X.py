@@ -24,7 +24,7 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-        "file:140.2_PhotonJets_Pt_10_13_HI+PhotonJets_Pt_10_13_HI+DIGIHI+RECOHI+HARVESTHI/step3_AOD.root"
+        "file:/mnt/hadoop/cms/store/user/richard/GlobalEcalRECO/ZEE_5TeV-GlobalEcalReco/ZEE_5TeV_GEN_SIM_PU/ZEE_5TeV-GlobalEcalReco/151115_000658/0000/step3_RAW2DIGI_L1Reco_RECO_42.root"
 
     ))
 
@@ -51,7 +51,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 # PbPb 53X MC
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'MCHI2_75_V2', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_HIon', '')
 
 process.GlobalTag.toGet.extend([
  cms.PSet(record = cms.string("HeavyIonRcd"),
@@ -61,8 +61,8 @@ label = cms.untracked.string("HFtowersHydjetDrum5")
  ),
 ])
 
-from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import *
-overrideGT_PbPb2760(process)
+from HeavyIonsAnalysis.Configuration.CommonFunctionsLocalDB_cff import overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v4_db
+process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v4_db(process)
 
 process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
 process.centralityBin.Centrality = cms.InputTag("hiCentrality")
@@ -168,25 +168,6 @@ process.ggHiNtuplizer.genParticleSrc = cms.InputTag("genParticles")
 #####################
 # muons
 ######################
-process.load("HeavyIonsAnalysis.MuonAnalysis.hltMuTree_cfi")
-process.hltMuTree.doGen = cms.untracked.bool(True)
-process.load("RecoHI.HiMuonAlgos.HiRecoMuon_cff")
-process.muons.JetExtractorPSet.JetCollectionLabel = cms.InputTag("akVs3PFJets")
-process.globalMuons.TrackerCollectionLabel = "hiGeneralTracks"
-process.muons.TrackExtractorPSet.inputTrackCollection = "hiGeneralTracks"
-process.muons.inputCollectionLabels = ["hiGeneralTracks", "globalMuons", "standAloneMuons:UpdatedAtVtx", "tevMuons:firstHit", "tevMuons:picky", "tevMuons:dyt"]
-
-# HYDJET RECO file didn't have ak2GenJets and ak6GenJets as input, so removed them
-# and ran our own hiGenJets sequence
-from RecoHI.HiJetAlgos.HiGenJets_cff import ak3HiGenJets, ak4HiGenJets
-from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJets
-genParticlesForJets.ignoreParticleIDs += cms.vuint32( 12,14,16)
-
-process.hiSelectGenJets = cms.Sequence(
-    genParticlesForJets +
-    ak3HiGenJets +
-    ak4HiGenJets
-)
 
 process.anaTrack.doSimTrack = cms.untracked.bool(False)
 
@@ -201,7 +182,6 @@ process.ana_step = cms.Path(process.heavyIon*
                             #process.hiGenJetsCleaned*
                             process.quickTrackAssociatorByHits*
                             #process.tpRecoAssocGeneralTracks + #used in HiPFJetAnalyzer
-                            process.hiSelectGenJets +
                             process.jetSequences +
                             process.ggHiNtuplizer +
                             process.pfcandAnalyzer +
@@ -216,15 +196,13 @@ process.ana_step = cms.Path(process.heavyIon*
 process.load('HeavyIonsAnalysis.JetAnalysis.EventSelection_cff')
 process.phltJetHI = cms.Path( process.hltJetHI )
 process.pcollisionEventSelection = cms.Path(process.collisionEventSelectionAOD)
-#process.pcollisionEventSelection = cms.Path(process.collisionEventSelection)
-# process.pHBHENoiseFilter = cms.Path( process.HBHENoiseFilter ) #should be put back in later
-process.load('RecoMET.METFilters.metFilters_cff')
+process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
 process.pHBHENoiseFilterResultProducer = cms.Path( process.HBHENoiseFilterResultProducer )
-#process.phfCoincFilter = cms.Path(process.hfCoincFilter )
-#process.phfCoincFilter3 = cms.Path(process.hfCoincFilter3 )
-#process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter )
-#process.phltPixelClusterShapeFilter = cms.Path(process.siPixelRecHits*process.hltPixelClusterShapeFilter )
-#process.phiEcalRecHitSpikeFilter = cms.Path(process.hiEcalRecHitSpikeFilter )
+# process.phfCoincFilter = cms.Path(process.hfCoincFilter )
+# process.phfCoincFilter3 = cms.Path(process.hfCoincFilter3 )
+process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter )
+# process.phltPixelClusterShapeFilter = cms.Path(process.siPixelRecHits*process.hltPixelClusterShapeFilter )
+# process.phiEcalRecHitSpikeFilter = cms.Path(process.hiEcalRecHitSpikeFilter )
 
 process.pAna = cms.EndPath(process.skimanalysis)
 

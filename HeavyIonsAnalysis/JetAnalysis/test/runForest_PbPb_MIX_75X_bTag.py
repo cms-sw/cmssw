@@ -85,10 +85,10 @@ process.GlobalTag.toGet.extend([
 ])
 
 
-from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import *
-overrideGT_PbPb2760(process)
+from HeavyIonsAnalysis.Configuration.CommonFunctionsLocalDB_cff import overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v4_db
+process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v4_db(process)
 
-process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi") 
+process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
 
 process.centralityBin.Centrality = cms.InputTag("hiCentrality")
 process.centralityBin.centralityVariable = cms.string("HFtowers")
@@ -134,7 +134,7 @@ process.load("RecoHI.HiJetAlgos.ParticleTowerProducer_cfi")
 process.jetSequences = cms.Sequence(
     process.offlinePrimaryVertices +
     process.akPu3CaloJetSequence +
-    process.akPu3PFJetSequence 
+    process.akPu3PFJetSequence
     )
 
 process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_mc_cfi')
@@ -229,7 +229,7 @@ process.ana_step = cms.Path(process.heavyIon*
                             #process.pfcandAnalyzer +
 #temp                            process.hltMuTree +
                             process.anaTrack +
-                            process.HiForest 
+                            process.HiForest
                             )
 
 process.load('HeavyIonsAnalysis.JetAnalysis.EventSelection_cff')
@@ -245,9 +245,9 @@ process.phiEcalRecHitSpikeFilter = cms.Path(process.hiEcalRecHitSpikeFilter )
 process.pAna = cms.EndPath(process.skimanalysis)
 #process.output_step = cms.EndPath(process.allOutput)
 
-# Customization                                                                                                                                                  
+# Customization
 process.HiGenParticleAna.ptMin = 2.
-process.HiGenParticleAna.genParticleSrc = cms.untracked.InputTag("genParticles") 
+process.HiGenParticleAna.genParticleSrc = cms.untracked.InputTag("genParticles")
 process.HiGenParticleAna.stableOnly = cms.untracked.bool(False)
 
 oldGenParticleTag=cms.InputTag("hiGenParticles")
@@ -260,4 +260,3 @@ for s in process.paths_().keys():
     massSearchReplaceAnyInputTag(getattr(process,s),oldGenParticleTag,newGenParticleTag)
     #massSearchReplaceAnyInputTag(getattr(process,s),newGenParticleTag,oldGenParticleTag)  // go back to hiGenParticles
     massSearchReplaceAnyInputTag(getattr(process,s),oldProcLabelTag,newProcLabelTag)
-

@@ -24,7 +24,7 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-"/store/user/dgulhan/Pyquen_Unquenched_AllQCDPhoton30_PhotonFilter20GeV_eta24_TuneZ2_PbPb_5020GeV_GEN_SIM_PU/Pyquen_Unquenched_AllQCDPhoton30_PhotonFilter20GeV_eta24_TuneZ2_PbPb_5020GeV_RECODEBUG/151021_150752/0000/step3_1.root"
+"file:/mnt/hadoop/cms/store/user/richard/GlobalEcalRECO/ZEE_5TeV-GlobalEcalReco/ZEE_5TeV_GEN_SIM_PU/ZEE_5TeV-GlobalEcalReco/151115_000658/0000/step3_RAW2DIGI_L1Reco_RECO_42.root"
     ))
 
 # Number of events we want to process, -1 = all events
@@ -60,8 +60,8 @@ label = cms.untracked.string("HFtowersHydjetDrum5")
  ),
 ])
 
-from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_PbPb2760
-overrideJEC_PbPb2760(process)
+from HeavyIonsAnalysis.Configuration.CommonFunctionsLocalDB_cff import overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v4_db
+process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v4_db(process)
 
 process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
 process.centralityBin.Centrality = cms.InputTag("hiCentrality")
@@ -167,18 +167,6 @@ process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.Input
                                                        )
 
 #####################
-
-# HYDJET RECO file didn't have ak2GenJets and ak6GenJets as input, so removed them
-# and ran our own hiGenJets sequence
-# from RecoHI.HiJetAlgos.HiGenJets_cff import ak3HiGenJets, ak4HiGenJets
-# from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJets
-# genParticlesForJets.ignoreParticleIDs += cms.vuint32( 12,14,16)
-
-# process.hiSelectGenJets = cms.Sequence(
-#     genParticlesForJets +
-#     ak3HiGenJets +
-#     ak4HiGenJets
-# )
 
 process.anaTrack.doSimTrack = cms.untracked.bool(False)
 

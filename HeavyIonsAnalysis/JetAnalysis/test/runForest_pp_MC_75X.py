@@ -56,97 +56,10 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # pp 75X MC
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_HIon', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-from CondCore.DBCommon.CondDBSetup_cfi import *
-process.jec = cms.ESSource("PoolDBESSource",
-      DBParameters = cms.PSet(
-        messageLevel = cms.untracked.int32(0)
-        ),
-      timetype = cms.string('runnumber'),
-      toGet = cms.VPSet(
-      cms.PSet(
-            record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK1Calo_offline'),
-            label  = cms.untracked.string('AK1Calo_offline')
-            ),
-      cms.PSet(
-            record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK2Calo_offline'),
-            label  = cms.untracked.string('AK2Calo_offline')
-            ),
-      cms.PSet(
-            record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK3Calo_offline'),
-            label  = cms.untracked.string('AK3Calo_offline')
-            ),
-      cms.PSet(
-            record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK4Calo_offline'),
-            label  = cms.untracked.string('AK4Calo_offline')
-            ),
-      cms.PSet(
-            record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK5Calo_offline'),
-            label  = cms.untracked.string('AK5Calo_offline')
-            ),
-      cms.PSet(
-            record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK6Calo_offline'),
-            label  = cms.untracked.string('AK6Calo_offline')
-            ),
-      cms.PSet(
-            record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK1PF_offline'),
-            label  = cms.untracked.string('AK1PF_offline')
-            ),
-      cms.PSet(
-            record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK2PF_offline'),
-            label  = cms.untracked.string('AK2PF_offline')
-            ),
-      cms.PSet(
-            record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK3PF_offline'),
-            label  = cms.untracked.string('AK3PF_offline')
-            ),
-      cms.PSet(
-            record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK4PF_offline'),
-            label  = cms.untracked.string('AK4PF_offline')
-            ),
-      cms.PSet(
-            record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK5PF_offline'),
-            label  = cms.untracked.string('AK5PF_offline')
-            ),
-      cms.PSet(
-            record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v3_AK6PF_offline'),
-            label  = cms.untracked.string('AK6PF_offline')
-            ),
-      ## here you add as many jet types as you need
-      ## note that the tag name is specific for the particular sqlite file 
-      ), 
-      connect = cms.string('sqlite:HI_PythiaCUETP8M1_5020GeV_753p1_v3.db')
-     # uncomment above tag lines and this comment to use MC JEC
-     # connect = cms.string('sqlite:Summer12_V7_MC.db')
-)
-## add an es_prefer statement to resolve a possible conflict from simultaneous connection to a global tag
-process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
-
-
-# process.GlobalTag.toGet = cms.VPSet(
-# cms.PSet(record = cms.string('PTrackerParametersRcd'),
-              # tag = cms.string('TKParameters_Geometry_Run2_Test02'),
-              # connect = cms.string("sqlite_file:TrackerGeometryExtended2015.db")
-              # ),
-# )
-
-# from HeavyIonsAnalysis.Configuration.CommonFunctionsLocalDB2015_cff import *
-# overrideGT_pp2760(process)
-# overrideJEC_pp5020(process)
+from HeavyIonsAnalysis.Configuration.CommonFunctionsLocalDB_cff import overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db
+process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db(process)
 
 process.HeavyIonGlobalParameters = cms.PSet(
     centralityVariable = cms.string("HFtowersTrunc"),
@@ -239,64 +152,64 @@ process.PFTowers.src = cms.InputTag("particleFlow")
 process.jetSequences = cms.Sequence(
                                     process.akPu1PFJetSequence +
                                     process.akPu1CaloJetSequence +
-									
+
                                     process.akPu2PFJetSequence +
                                     process.akPu2CaloJetSequence +
-									
+
                                     process.akPu3PFJetSequence +
                                     process.akPu3CaloJetSequence +
-									
+
                                     process.akPu4PFJetSequence +
                                     process.akPu4CaloJetSequence +
-									
+
                                     process.akPu5PFJetSequence +
                                     process.akPu5CaloJetSequence +
-									
+
                                     process.akPu6PFJetSequence +
                                     process.akPu6CaloJetSequence +
-                                    
+
                                     process.ak1PFJetSequence +
                                     process.ak1CaloJetSequence +
-									
+
                                     process.ak2PFJetSequence +
                                     process.ak2CaloJetSequence +
-									
+
                                     process.ak3PFJetSequence +
                                     process.ak3CaloJetSequence +
-									
+
                                     process.ak4PFJetSequence +
                                     process.ak4CaloJetSequence +
-									
+
                                     process.ak5PFJetSequence +
                                     process.ak5CaloJetSequence +
-									
-                                    process.ak6PFJetSequence +
-                                    process.ak6CaloJetSequence 
-                                    )
-									
 
-process.akPu1PFJetAnalyzer.doSubEvent = True 
+                                    process.ak6PFJetSequence +
+                                    process.ak6CaloJetSequence
+                                    )
+
+
+process.akPu1PFJetAnalyzer.doSubEvent = True
 process.akPu2PFJetAnalyzer.doSubEvent = True
 process.akPu3PFJetAnalyzer.doSubEvent = True
 process.akPu4PFJetAnalyzer.doSubEvent = True
 process.akPu5PFJetAnalyzer.doSubEvent = True
 process.akPu6PFJetAnalyzer.doSubEvent = True
 
-process.ak1PFJetAnalyzer.doSubEvent = True 
+process.ak1PFJetAnalyzer.doSubEvent = True
 process.ak2PFJetAnalyzer.doSubEvent = True
 process.ak3PFJetAnalyzer.doSubEvent = True
 process.ak4PFJetAnalyzer.doSubEvent = True
 process.ak5PFJetAnalyzer.doSubEvent = True
 process.ak6PFJetAnalyzer.doSubEvent = True
 
-process.akPu1CaloJetAnalyzer.doSubEvent = True  
+process.akPu1CaloJetAnalyzer.doSubEvent = True
 process.akPu2CaloJetAnalyzer.doSubEvent = True
 process.akPu3CaloJetAnalyzer.doSubEvent = True
 process.akPu4CaloJetAnalyzer.doSubEvent = True
 process.akPu5CaloJetAnalyzer.doSubEvent = True
 process.akPu6CaloJetAnalyzer.doSubEvent = True
 
-process.ak1CaloJetAnalyzer.doSubEvent = True 
+process.ak1CaloJetAnalyzer.doSubEvent = True
 process.ak2CaloJetAnalyzer.doSubEvent = True
 process.ak3CaloJetAnalyzer.doSubEvent = True
 process.ak4CaloJetAnalyzer.doSubEvent = True
@@ -342,7 +255,7 @@ process.hiTracks.cut = cms.string('quality("highPurity")')
 # set track collection to iterative tracking
 process.ppTrack.trackSrc = cms.InputTag("generalTracks")
 process.ppTrack.mvaSrc = cms.string("generalTracks")
- 
+
 process.ppTrack.doSimVertex = True
 process.ppTrack.doSimTrack = True
 
@@ -353,7 +266,7 @@ process.quickTrackAssociatorByHits.ComponentName = cms.string('quickTrackAssocia
 
 
 #####################
-# photons 
+# photons
 ######################
 process.load('RecoJets.Configuration.GenJetParticles_cff')
 process.genParticlesForJets.ignoreParticleIDs += cms.vuint32( 12,14,16)
@@ -375,7 +288,7 @@ process.akHiGenJets = cms.Sequence(
                              process.ak4HiGenJets +
                              process.ak5HiGenJets +
                              process.ak6HiGenJets)
-						
+
 process.load('HeavyIonsAnalysis.EventAnalysis.hltanalysis_cff')
 
 process.HiGenParticleAna.genParticleSrc = cms.untracked.InputTag("genParticles")
