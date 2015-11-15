@@ -81,7 +81,7 @@ FWEventItemsManager::~FWEventItemsManager()
 // member functions
 //
 const FWEventItem*
-FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem, const FWConfiguration* pbc)
+FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem, bool showFilteredInTable, const FWConfiguration* pbc)
 {
    FWPhysicsObjectDesc temp(iItem);
    
@@ -93,7 +93,7 @@ FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem, const FWConfiguration
    }
    
    m_items.push_back(new FWEventItem(m_context,m_items.size(),m_accessorFactory->accessorFor(temp.type()),
-                                     temp, pbc));
+                                     temp, showFilteredInTable, pbc));
    newItem_(m_items.back());
    m_items.back()->goingToBeDestroyed_.connect(boost::bind(&FWEventItemsManager::removeItem,this,_1));
    if(m_event) {
@@ -145,6 +145,7 @@ static const std::string kModuleLabel("moduleLabel");
 static const std::string kProductInstanceLabel("productInstanceLabel");
 static const std::string kProcessName("processName");
 static const std::string kFilterExpression("filterExpression");
+static const std::string kShowFilteredEntriesInTable("showFilteredEntriesInTable");
 static const std::string kColor("color");
 static const std::string kIsVisible("isVisible");
 static const std::string kTrue("t");
@@ -163,7 +164,7 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
        ++it)
    {
       if(!*it) continue;
-      FWConfiguration conf(6);
+      FWConfiguration conf(7);
       edm::TypeWithDict dataType((*((*it)->type()->GetTypeInfo())));
       assert(dataType != edm::TypeWithDict() );
 
@@ -189,6 +190,8 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
          os << static_cast<int>((*it)->defaultDisplayProperties().transparency());
          conf.addKeyValue(kTransparency, FWConfiguration(os.str()));
       }
+      
+      conf.addKeyValue(kShowFilteredEntriesInTable, FWConfiguration((*it)->showFilteredEntries() ? kTrue : kFalse));
 
       FWConfiguration pbTmp;
       (*it)->getConfig()->addTo(pbTmp);
@@ -253,7 +256,7 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       if (conf.version() > 3)
          transparency = strtol((*keyValues)[9].second.value().c_str(), 0, 10);
 
-      FWDisplayProperties dp(colorIndex, isVisible, transparency);
+      FWDisplayProperties dp(colorIndex, isVisible, true, transparency);
 
       unsigned int layer = strtol((*keyValues)[7].second.value().c_str(), 0, 10);
 
@@ -276,6 +279,11 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
             proxyConfig->addKeyValue("Var", vTmp,true);
          }
       }
+      
+      bool showFilteredInTable = true;
+      if (conf.version() > 6) {
+         showFilteredInTable = (*keyValues)[10].second.value() == kTrue;
+      }
 
       FWPhysicsObjectDesc desc(name,
                                TClass::GetClass(type.c_str()),
@@ -287,7 +295,7 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
                                filterExpression,
                                layer);
       
-      add(desc, proxyConfig );
+      add(desc, showFilteredInTable, proxyConfig );
    }
 }
 

@@ -39,7 +39,7 @@ FWCollectionSummaryTableManager::FWCollectionSummaryTableManager(FWEventItem* iI
    m_bodyRenderer(iContext, iHighlightContext, FWTextTableCellRenderer::kJustifyRight),
    m_widget(iWidget)
 {
-   m_collection->changed_.connect(boost::bind(&FWTableManagerBase::dataChanged,this));
+   m_collection->changed_.connect(boost::bind(&FWCollectionSummaryTableManager::modelIdChanges,this));
    m_collection->itemChanged_.connect(boost::bind(&FWCollectionSummaryTableManager::dataChanged,this));
    
    //try to find the default columns
@@ -49,6 +49,15 @@ FWCollectionSummaryTableManager::FWCollectionSummaryTableManager(FWEventItem* iI
    
    dataChanged();
 }
+
+void FWCollectionSummaryTableManager::modelIdChanges()
+{
+   if (m_collection->showFilteredEntries() || m_collection->filterExpression().empty())
+       dataChanged();
+   else
+      FWTableManagerBase::dataChanged();
+}
+
 
 // FWCollectionSummaryTableManager::FWCollectionSummaryTableManager(const FWCollectionSummaryTableManager& rhs)
 // {
@@ -82,8 +91,10 @@ namespace {
                std::vector<int>& oNewSort) {
       int size = iItem.size();
       for(int index = 0; index < size; ++index) {
+         if (iItem.modelInfo(index).displayProperties().filterPassed()) {
          iMap.insert(std::make_pair(iGetter.valueFor(iItem.modelData(index), iCol),
                                        index));
+         }
       }
       std::vector<int>::iterator itVec = oNewSort.begin();
       for(typename std::map<double,int,S>::iterator it = iMap.begin(), itEnd = iMap.end();
@@ -132,7 +143,20 @@ FWCollectionSummaryTableManager::buttonReleasedInRowHeader(Int_t row, Event_t* e
 int 
 FWCollectionSummaryTableManager::numberOfRows() const
 {
-   return m_collection->size();
+   int cs= m_collection->size();
+   if (m_collection->showFilteredEntries() || m_collection->filterExpression().empty())
+   {
+      return cs;
+   }
+   else
+   {
+      
+      int n = 0;
+      for(int index = 0; index < cs; ++index) {
+         if (m_collection->modelInfo(index).displayProperties().filterPassed()) { ++n;}
+      }
+      return n;
+   }
 }
 
 int 
@@ -184,7 +208,7 @@ FWCollectionSummaryTableManager::hasRowHeaders() const
 FWTableCellRendererBase* 
 FWCollectionSummaryTableManager::rowHeader(int iSortedRowNumber) const
 {
-   if(iSortedRowNumber >= static_cast<int>(m_collection->size())) {
+   if(iSortedRowNumber >= static_cast<int>(numberOfRows())) {
       return 0;
    }
    int index = m_sortedToUnsortedIndicies[iSortedRowNumber];
@@ -197,9 +221,12 @@ void
 FWCollectionSummaryTableManager::dataChanged() 
 {
    m_sortedToUnsortedIndicies.clear();
-   m_sortedToUnsortedIndicies.reserve(m_collection->size());
+   size_t n = numberOfRows();
+   m_sortedToUnsortedIndicies.reserve(n);
    for(int i=0; i< static_cast<int>(m_collection->size());++i) {
-      m_sortedToUnsortedIndicies.push_back(i);
+      if (m_collection->filterExpression().empty() || m_collection->showFilteredEntries() || m_collection->modelInfo(i).displayProperties().filterPassed()) {
+          m_sortedToUnsortedIndicies.push_back(i);
+      }
    }
    FWTableManagerBase::dataChanged();
 }
