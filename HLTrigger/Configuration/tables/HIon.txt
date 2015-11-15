@@ -14,22 +14,22 @@
 #HLT_HIL3DoubleMuOpen_OS_v*                      # CMSHLT-198
 #HLT_HIL3DoubleMuOpen_OS_NoCowboy_v*             # CMSHLT-198
 
-HLT_PuAK4CaloJet40_Eta5p1_v* 			# CMSHLT-623
-HLT_PuAK4CaloJet60_Eta5p1_v* 			# CMSHLT-623
-HLT_PuAK4CaloJet80_Eta5p1_v* 			# CMSHLT-623
-HLT_PuAK4CaloJet100_Eta5p1_v* 			# CMSHLT-623
-HLT_PuAK4CaloJet110_Eta5p1_v* 			# CMSHLT-623
-HLT_PuAK4CaloJet120_Eta5p1_v* 			# CMSHLT-623
-HLT_PuAK4CaloJet150_Eta5p1_v*			# CMSHLT-623
+HLT_HIPuAK4CaloJet40_Eta5p1_v* 			# CMSHLT-623
+HLT_HIPuAK4CaloJet60_Eta5p1_v* 			# CMSHLT-623
+HLT_HIPuAK4CaloJet80_Eta5p1_v* 			# CMSHLT-623
+HLT_HIPuAK4CaloJet100_Eta5p1_v* 		# CMSHLT-623
+HLT_HIPuAK4CaloJet110_Eta5p1_v* 		# CMSHLT-623
+HLT_HIPuAK4CaloJet120_Eta5p1_v* 		# CMSHLT-623
+HLT_HIPuAK4CaloJet150_Eta5p1_v*			# CMSHLT-623
 
-HLT_PuAK4CaloJet40_Eta5p1_Cent30_50_v* 		# CMSHLT-623
-HLT_PuAK4CaloJet60_Eta5p1_Cent30_50_v* 		# CMSHLT-623
-HLT_PuAK4CaloJet80_Eta5p1_Cent30_50_v* 		# CMSHLT-623
-HLT_PuAK4CaloJet100_Eta5p1_Cent30_50_v* 	# CMSHLT-623
-HLT_PuAK4CaloJet40_Eta5p1_Cent50_100_v* 	# CMSHLT-623
-HLT_PuAK4CaloJet60_Eta5p1_Cent50_100_v* 	# CMSHLT-623
-HLT_PuAK4CaloJet80_Eta5p1_Cent50_100_v* 	# CMSHLT-623
-HLT_PuAK4CaloJet100_Eta5p1_Cent50_100_v* 	# CMSHLT-623
+HLT_HIPuAK4CaloJet40_Eta5p1_Cent30_50_v* 	# CMSHLT-623
+HLT_HIPuAK4CaloJet60_Eta5p1_Cent30_50_v* 	# CMSHLT-623
+HLT_HIPuAK4CaloJet80_Eta5p1_Cent30_50_v* 	# CMSHLT-623
+HLT_HIPuAK4CaloJet100_Eta5p1_Cent30_50_v* 	# CMSHLT-623
+HLT_HIPuAK4CaloJet40_Eta5p1_Cent50_100_v* 	# CMSHLT-623
+HLT_HIPuAK4CaloJet60_Eta5p1_Cent50_100_v* 	# CMSHLT-623
+HLT_HIPuAK4CaloJet80_Eta5p1_Cent50_100_v* 	# CMSHLT-623
+HLT_HIPuAK4CaloJet100_Eta5p1_Cent50_100_v* 	# CMSHLT-623
 
 HLT_PuAK4CaloJet80_Jet35_Eta1p1_v* 		# CMSHLT-623
 HLT_PuAK4CaloJet80_Jet35_Eta0p7_v* 		# CMSHLT-623
@@ -108,13 +108,12 @@ HLT_HIFullTrack45_L1Centrality30100_v* 		# CMSHLT-630
 
 HLT_HIUCC100_v* 				# CMSHLT-630
 HLT_HIUCC020_v* 				# CMSHLT-630
-
-HLT_Q2Bottom010_L1Centrality1030_v* 		# CMSHLT-630
-HLT_Q2Top010_L1Centrality1030_v* 		# CMSHLT-630
-HLT_Q2Bottom010_L1Centrality3050_v* 		# CMSHLT-630
-HLT_Q2Top010_L1Centrality3050_v* 		# CMSHLT-630
-HLT_Q2Bottom010_L1Centrality5070_v* 		# CMSHLT-630
-HLT_Q2Top010_L1Centrality5070_v* 		# CMSHLT-630
+HLT_HIQ2Bottom005_Centrality1030_v* 		# CMSHLT-630
+HLT_HIQ2Top005_Centrality1030_v* 		# CMSHLT-630
+HLT_HIQ2Bottom005_Centrality3050_v* 		# CMSHLT-630
+HLT_HIQ2Top005_Centrality3050_v* 		# CMSHLT-630
+HLT_HIQ2Bottom005_Centrality5070_v* 		# CMSHLT-630
+HLT_HIQ2Top005_Centrality5070_v* 		# CMSHLT-630
 
 HLT_HIFullTrack12_v*				# CMSHLT-630
 HLT_HIFullTrack12_L1MinimumBiasHF1_AND_v*	# CMSHLT-630
@@ -207,9 +206,46 @@ HLT_HIUPCL1ZdcXOR_BptxAND_v*				# CMSHLT-621
 HLT_HIUPCL1ZdcXOR_BptxANDPixel_SingleTrack_v*		# CMSHLT-621
 HLT_HIUPCL1NotZdcOR_BptxAND_v*				# CMSHLT-621
 HLT_HIUPCL1NotZdcOR_BptxANDPixel_SingleTrack_v*		# CMSHLT-621
+HLT_HIUPCL1NotHFplusANDminusTH0BptxAND_v*				# CMSHLT-621
+HLT_HIUPCL1NotHFplusANDminusTH0BptxANDPixel_SingleTrack_v*		# CMSHLT-621
+HLT_HIUPCL1DoubleMu0HFplusANDminusTH0BptxAND_v*				# CMSHLT-621
+HLT_HIUPCL1DoubleMu0HFplusANDminusTH0BptxANDPixel_SingleTrack_v*	# CMSHLT-621
 HLT_HIL1CastorMediumJet_v*				# CMSHLT-621
 HLT_HIL1CastorMediumJetAK4CaloJet20_v*			# CMSHLT-621
 HLT_HICastorMediumJetPixel_SingleTrack_v*		# CMSHLT-621
+
+#HLT_HIPuAK4CaloDJet60_Eta2p1_v*				# CMSHLT-636
+#HLT_HIPuAK4CaloDJet80_Eta2p1_v*				# CMSHLT-636
+#HLT_HIPuAK4CaloBJetCSV60_Eta2p1_v*			# CMSHLT-636
+#HLT_HIPuAK4CaloBJetCSV80_Eta2p1_v*			# CMSHLT-636
+#HLT_HIPuAK4CaloBJetSSV60_Eta2p1_v*			# CMSHLT-636
+#HLT_HIPuAK4CaloBJetSSV80_Eta2p1_v*			# CMSHLT-636
+#HLT_HIDmesonHITrackingGlobal_Dpt20_v*			# CMSHLT-636
+#HLT_HIDmesonHITrackingGlobal_Dpt20_Cent30_100_v*	# CMSHLT-636
+#HLT_HIDmesonHITrackingGlobal_Dpt20_Cent50_100_v*	# CMSHLT-636
+#HLT_HIDmesonHITrackingGlobal_Dpt30_v*			# CMSHLT-636
+#HLT_HIDmesonHITrackingGlobal_Dpt30_Cent30_100_v*	# CMSHLT-636
+#HLT_HIDmesonHITrackingGlobal_Dpt30_Cent50_100_v*	# CMSHLT-636
+#HLT_HIDmesonHITrackingGlobal_Dpt40_v*			# CMSHLT-636
+#HLT_HIDmesonHITrackingGlobal_Dpt40_Cent30_100_v*	# CMSHLT-636
+#HLT_HIDmesonHITrackingGlobal_Dpt40_Cent50_100_v*	# CMSHLT-636
+#HLT_HIDmesonHITrackingGlobal_Dpt50_v*			# CMSHLT-636
+#HLT_HIDmesonHITrackingGlobal_Dpt50_Cent30_100_v*	# CMSHLT-636
+#HLT_HIDmesonHITrackingGlobal_Dpt50_Cent50_100_v*	# CMSHLT-636
+#HLT_HIDmesonHITrackingGlobal_Dpt60_v*			# CMSHLT-636
+#HLT_HIDmesonHITrackingGlobal_Dpt70_v*			# CMSHLT-636
+#HLT_HIDmesonHITrackingGlobal_Dpt60_Cent30_100_v*	# CMSHLT-636
+#HLT_HIDmesonHITrackingGlobal_Dpt60_Cent50_100_v*	# CMSHLT-636
+
+HLT_HIL1MinimumBiasHF1OR_v*				# CMSHLT-654
+HLT_HIL1MinimumBiasHF2OR_v*				# CMSHLT-654
+HLT_HIL1MinimumBiasHF1AND_v*				# CMSHLT-654
+HLT_HIL1MinimumBiasHF2AND_v*				# CMSHLT-654
+HLT_HIZeroBiasPixel_SingleTrack_v*			# CMSHLT-654
+HLT_HIL1MinimumBiasHF1ANDPixel_SingleTrack_v*		# CMSHLT-654
+HLT_HIL1Centralityext30100HFplusANDminusTH0_v*		# CMSHLT-654
+HLT_HIL1Centralityext50100HFplusANDminusTH0_v*		# CMSHLT-654
+HLT_HIL1Centralityext70100HFplusANDminusTH0_v*		# CMSHLT-654
 
 HLT_HIZeroBias_v*					# CMSHLT-641
 HLT_HICentralityVeto_v*					# CMSHLT-641
@@ -234,26 +270,28 @@ AlCa_LumiPixels_ZeroBias_v*				# S.B. (private communication)
 
 DST_Physics_v*
 
-#RatesMonitoring                                # only in 'online'
-
 HLTriggerFirstPath
 HLTriggerFinalPath
-HLTAnalyzerEndpath
+HLTAnalyzerEndpath				# only in 'GRun', not in 'online
+
+#RatesMonitoring				# only in 'online'
 
 HIPhysicsMuonsOutput
 HIPhysicsHardProbesOutput
 HIPhysicsMinBiasUPCOutput
 HIPhysicsVirginRawOutput
 
-NanoDSTOutput
 HIExpressOutput
 
 CalibrationOutput
 EcalCalibrationOutput
 ALCAPHISYMOutput
 ALCALUMIPIXELSOutput
+RPCMONOutput
+
+LookAreaOutput
+NanoDSTOutput
 
 DQMOutput
 DQMEventDisplayOutput
 DQMCalibrationOutput
-RPCMONOutput
