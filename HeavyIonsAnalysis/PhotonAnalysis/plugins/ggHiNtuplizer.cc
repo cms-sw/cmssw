@@ -95,6 +95,8 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps)
   tree_->Branch("eleTrkChi2",            &eleTrkChi2_);
   tree_->Branch("eleTrkNdof",            &eleTrkNdof_);
   tree_->Branch("eleTrkNormalizedChi2",  &eleTrkNormalizedChi2_);
+  tree_->Branch("eleTrkValidHits",       &eleTrkValidHits_);
+  tree_->Branch("eleTrkLayers",          &eleTrkLayers_);
 
   tree_->Branch("elePt",                 &elePt_);
   tree_->Branch("eleEta",                &eleEta_);
@@ -122,6 +124,12 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps)
   tree_->Branch("elePFPhoIso",           &elePFPhoIso_);
   tree_->Branch("elePFNeuIso",           &elePFNeuIso_);
   tree_->Branch("elePFPUIso",            &elePFPUIso_);
+  tree_->Branch("elePFChIso03",          &elePFChIso03_);
+  tree_->Branch("elePFPhoIso03",         &elePFPhoIso03_);
+  tree_->Branch("elePFNeuIso03",         &elePFNeuIso03_);
+  tree_->Branch("elePFChIso04",          &elePFChIso04_);
+  tree_->Branch("elePFPhoIso04",         &elePFPhoIso04_);
+  tree_->Branch("elePFNeuIso04",         &elePFNeuIso04_);
   tree_->Branch("eleBC1E",               &eleBC1E_);
   tree_->Branch("eleBC1Eta",             &eleBC1Eta_);
   tree_->Branch("eleBC2E",               &eleBC2E_);
@@ -384,6 +392,8 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   eleTrkChi2_           .clear();
   eleTrkNdof_           .clear();
   eleTrkNormalizedChi2_ .clear();
+  eleTrkValidHits_      .clear();
+  eleTrkLayers_         .clear();
   elePt_                .clear();
   eleEta_               .clear();
   elePhi_               .clear();
@@ -410,6 +420,12 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   elePFPhoIso_          .clear();
   elePFNeuIso_          .clear();
   elePFPUIso_           .clear();
+  elePFChIso03_         .clear();
+  elePFPhoIso03_        .clear();
+  elePFNeuIso03_        .clear();
+  elePFChIso04_         .clear();
+  elePFPhoIso04_        .clear();
+  elePFNeuIso04_        .clear();
   eleBC1E_              .clear();
   eleBC1Eta_            .clear();
   eleBC2E_              .clear();
@@ -827,6 +843,8 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
     eleTrkChi2_          .push_back(ele->gsfTrack()->chi2());
     eleTrkNdof_          .push_back(ele->gsfTrack()->ndof());
     eleTrkNormalizedChi2_.push_back(ele->gsfTrack()->normalizedChi2());
+    eleTrkValidHits_     .push_back(ele->gsfTrack()->numberOfValidHits());
+    eleTrkLayers_        .push_back(ele->gsfTrack()->hitPattern().trackerLayersWithMeasurement());
     elePt_               .push_back(ele->pt());
     eleEta_              .push_back(ele->eta());
     elePhi_              .push_back(ele->phi());
@@ -860,6 +878,25 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
     elePFPhoIso_         .push_back(pfIso.sumPhotonEt);
     elePFNeuIso_         .push_back(pfIso.sumNeutralHadronEt);
     elePFPUIso_          .push_back(pfIso.sumPUPt);
+
+    //calculation on-fly
+    pfIsoCalculator pfIsoCal(e,es, pfCollection_, voronoiBkgPF_, pv);
+    if (fabs(ele->superCluster()->eta()) > 1.566) {
+      elePFChIso03_          .push_back(pfIsoCal.getPfIso(*ele, 1, 0.3, 0.015, 0.));
+      elePFChIso04_          .push_back(pfIsoCal.getPfIso(*ele, 1, 0.4, 0.015, 0.));
+
+      elePFPhoIso03_         .push_back(pfIsoCal.getPfIso(*ele, 4, 0.3, 0.08, 0.));
+      elePFPhoIso04_         .push_back(pfIsoCal.getPfIso(*ele, 4, 0.4, 0.08, 0.));
+    }
+    else {
+      elePFChIso03_          .push_back(pfIsoCal.getPfIso(*ele, 1, 0.3, 0.0, 0.));
+      elePFChIso04_          .push_back(pfIsoCal.getPfIso(*ele, 1, 0.4, 0.0, 0.));
+      elePFPhoIso03_         .push_back(pfIsoCal.getPfIso(*ele, 4, 0.3, 0.0, 0.));
+      elePFPhoIso04_         .push_back(pfIsoCal.getPfIso(*ele, 4, 0.4, 0.0, 0.));
+    }
+
+    elePFNeuIso03_         .push_back(pfIsoCal.getPfIso(*ele, 5, 0.3, 0., 0.));
+    elePFNeuIso04_         .push_back(pfIsoCal.getPfIso(*ele, 5, 0.4, 0., 0.));
 
     // seed
     // eleBC1E_             .push_back(ele->superCluster()->seed()->energy());
