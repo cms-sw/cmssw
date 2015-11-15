@@ -260,7 +260,7 @@ HLT_HIRandom_v*						# CMSHLT-641
 HLT_EcalCalibration_v*					# CMSHLT-640
 HLT_HcalCalibration_v*					# CMSHLT-640
 
-AlCa_EcalPhiSym_v*					# CMSHLT-645
+AlCa_EcalPhiSymForHI_v*					# CMSHLT-645
 
 AlCa_RPCMuonNoTriggers_v*				# CMSHLT-642
 AlCa_RPCMuonNoHits_v*					# CMSHLT-642
