@@ -1,6 +1,5 @@
 #####################################
 # a bunch of handy customisation functions
-# main functions: prepareGenMixing and prepareDigiRecoMixing
 # author: Lukas Vanelderen
 # date:   Jan 21 2015
 #####################################
