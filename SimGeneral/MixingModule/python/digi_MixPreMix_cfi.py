@@ -4,8 +4,6 @@ import FWCore.ParameterSet.Config as cms
 from SimGeneral.MixingModule.aliases_PreMix_cfi import *
 from SimGeneral.MixingModule.pixelDigitizer_cfi import *
 from SimGeneral.MixingModule.stripDigitizer_cfi import *
-#from SimGeneral.MixingModule.ecalDigitizer_cfi import *
-#from SimGeneral.MixingModule.hcalDigitizer_cfi import *
 from SimGeneral.MixingModule.pileupVtxDigitizer_cfi import *
 from SimGeneral.MixingModule.castorDigitizer_cfi import *
 from SimGeneral.MixingModule.trackingTruthProducer_cfi import *
@@ -25,32 +23,23 @@ theDigitizersMixPreMix = cms.PSet(
   )
 )
 
-theDigitizersMixPreMixValid = cms.PSet(
-  pixel = cms.PSet(
-    pixelDigitizer
-  ),
-  strip = cms.PSet(
-    stripDigitizer
-  ),
-  castor  = cms.PSet(
-    castorDigitizer
-  ),
-  puVtx = cms.PSet(
-    pileupVtxDigitizer
-  ),
-  mergedtruth = cms.PSet(
-    trackingParticles
-  )
-)
-        
-
-#theDigitizersNoNoise.pixel.AddNoise = cms.bool(True)
-#theDigitizersNoNoise.pixel.addNoisyPixels = cms.bool(False)
 theDigitizersMixPreMix.strip.Noise = cms.bool(False) # will be added in DataMixer
-theDigitizersMixPreMixValid.strip.Noise = cms.bool(False) # will be added in DataMixer
 theDigitizersMixPreMix.strip.PreMixingMode = cms.bool(True) #Special mode to save all hit strips
-theDigitizersMixPreMixValid.strip.PreMixingMode = cms.bool(True) #Special mode to save all hit strips 
 theDigitizersMixPreMix.strip.FedAlgorithm = cms.int32(5) # special ZS mode: accept adc>0
-theDigitizersMixPreMixValid.strip.FedAlgorithm = cms.int32(5) # special ZS mode: accept adc>0
 theDigitizersMixPreMix.pixel.AddPixelInefficiency = cms.bool(False) # will be added in DataMixer    
-theDigitizersMixPreMixValid.pixel.AddPixelInefficiency = cms.bool(False) # will be added in DataMixer
+
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    # fastsim does not model castor
+    delattr(theDigitizersMixPreMix,"castor")
+    # fastsim does not digitize pixel and strip hits
+    delattr(theDigitizersMixPreMix,"pixel")
+    delattr(theDigitizersMixPreMix,"strip")
+    
+theDigitizersMixPreMixValid = cms.PSet(
+    theDigitizersMixPreMix,
+    mergedtruth = cms.PSet(
+        trackingParticles
+        )
+    )
+
