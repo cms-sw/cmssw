@@ -55,6 +55,7 @@ valGctDigis.inputLabel = 'gctDigis'
 valGctDigis.preSamples = cms.uint32(0)
 valGctDigis.postSamples = cms.uint32(0)
 
+from L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi import *
 # Stage1Layer2 emulator
 from L1Trigger.L1TCalorimeter.simRctUpgradeFormatDigis_cfi import *
 simRctUpgradeFormatDigis.regionTag = cms.InputTag("gctDigis")
@@ -68,8 +69,7 @@ valCaloStage1LegacyFormatDigis.InputIsoTauCollection = cms.InputTag("simCaloStag
 valCaloStage1LegacyFormatDigis.InputHFSumsCollection = cms.InputTag("simCaloStage1Digis:HFRingSums")
 valCaloStage1LegacyFormatDigis.InputHFCountsCollection = cms.InputTag("simCaloStage1Digis:HFBitCounts")
 
-from L1Trigger.L1TCalorimeter.caloStage1Params_cfi import *
-from L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi import *
+#from L1Trigger.L1TCalorimeter.caloStage1Params_cfi import *
 
 # DT TP emulator
 from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import *
