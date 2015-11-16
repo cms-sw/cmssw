@@ -188,7 +188,8 @@ elif (runTypeName == 'cosmic_run' or runTypeName == 'cosmic_run_stage1'):
     process.ecalMonitorClient.workerParameters.SummaryClient.params.activeSources = ['Integrity', 'RawData', 'Presample', 'TriggerPrimitives', 'Timing', 'HotCell']
 elif runTypeName == 'hi_run':
     process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_hi.root')
-    ecalDigis.InputLabel = cms.InputTag('rawDataCollector')
+    process.ecalMonitorTask.collectionTags.Source = "rawDataRepacker"
+    process.ecalDigis.InputLabel = cms.InputTag('rawDataRepacker')
 elif runTypeName == 'hpu_run':
     process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_hpu.root')
     process.source.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('*'))
