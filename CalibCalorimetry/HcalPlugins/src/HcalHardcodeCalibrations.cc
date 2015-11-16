@@ -86,18 +86,13 @@ namespace {
       // - As no valid(cell) check found for HcalTrigTowerDetId 
       // to create HT cells (ieta=1-28, iphi=1-72)&(ieta=29-32, iphi=1,5,... 69)
 
-      for (int eta = -32; eta <= 32; eta++) {
-	if(abs(eta) <= 28 && (eta != 0)) {
-	  for (int phi = 1; phi <= 72; phi++) {
-	    HcalTrigTowerDetId cell(eta, phi);       
-	    result.push_back (cell);
-	  }
-	}
-	else if (abs(eta) > 28) {
-	  for (int phi = 1; phi <= 69;) {
-	    HcalTrigTowerDetId cell(eta, phi);       
-	    result.push_back (cell);
-	    phi += 4;
+      for (int vers=0; vers<3; ++vers) {
+	for (int depth=0; depth<1; ++depth) {
+	  for (int eta = -41; eta <= 41; eta++) {
+	    for (int phi = 1; phi <= 72; phi++) {
+	      HcalTrigTowerDetId cell(eta, phi,depth,vers); 
+	      if (hcaltopology.validHT(cell)) result.push_back (cell);
+	    }
 	  }
 	}
       }
