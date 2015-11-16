@@ -586,7 +586,9 @@ class Validation:
         ]
         plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=sample.hasPileup())
         fileList.extend(plotterFolder.draw(**self._plotterDrawArgs))
-        fileList.append(valname)
+        # Copy val file only if there were plots
+        if len(fileList) > 0:
+            fileList.append(valname)
 
         # For tables we just try them all, and see which ones succeed
         for tableCreator in plotterFolder.getTableCreators():
@@ -595,6 +597,9 @@ class Validation:
         newValFile.Close()
         if refValFile is not None:
             refValFile.Close()
+
+        if len(fileList) == 0:
+            return []
 
         # Move plots to new directory
         print "Moving plots and %s to %s" % (valname, newdir)
@@ -806,7 +811,8 @@ class SimpleValidation:
         plotterInstance = plotter.readDirs(*self._openFiles)
         for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
             plotFiles = self._doPlots(plotterFolder, dqmSubFolder, htmlReport)
-            htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
+            if len(plotFiles) > 0:
+                htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
 
         for tf in self._openFiles:
             tf.Close()
@@ -821,6 +827,9 @@ class SimpleValidation:
 
         newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
         newdir = os.path.join(self._newdir, newsubdir)
+
+        if len(fileList) == 0:
+            return fileList
 
         print "Moving plots to %s" % newdir
         if not os.path.exists(newdir):
