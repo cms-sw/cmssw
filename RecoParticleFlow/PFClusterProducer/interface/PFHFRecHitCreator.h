@@ -148,15 +148,15 @@ class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
 	if (detid.depth()==1) {
 	  lONG=hit.energy();
 	  //find the short hit
-	  HcalDetId shortID (HcalForward, detid.ieta(), detid.iphi(), 2);
+	  HcalDetId shortID (HcalForward, detid.ieta(), detid.iphi(), 2, detid.oldFormat());
 	  const reco::PFRecHit temp(shortID,PFLayer::NONE,0.0,math::XYZPoint(0,0,0),math::XYZVector(0,0,0),std::vector<math::XYZPoint>());
 	  auto found_hit = std::lower_bound(tmpOut.begin(),tmpOut.end(),
 					    temp,
 					    [](const reco::PFRecHit& a, 
 					       const reco::PFRecHit& b){
-					      return a.detId() < b.detId();
+					      return (HcalDetId)(a.detId()) < (HcalDetId)(b.detId());
 					    });
-	  if( found_hit != tmpOut.end() && found_hit->detId() == shortID.rawId() ) {
+	  if( found_hit != tmpOut.end() && (HcalDetId)(found_hit->detId()) == (HcalDetId)(shortID.rawId()) ) {
 	    sHORT = found_hit->energy();
 	    //Ask for fraction
 	    double energy = lONG-sHORT;
@@ -185,16 +185,16 @@ class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
 	}
 	else {
 	  sHORT=hit.energy();
-	  HcalDetId longID (HcalForward, detid.ieta(), detid.iphi(), 1);
+	  HcalDetId longID (HcalForward, detid.ieta(), detid.iphi(), 1, detid.oldFormat());
 	  const reco::PFRecHit temp(longID,PFLayer::NONE,0.0,math::XYZPoint(0,0,0),math::XYZVector(0,0,0),std::vector<math::XYZPoint>());
 	  auto found_hit = std::lower_bound(tmpOut.begin(),tmpOut.end(),
 					    temp,
 					    [](const reco::PFRecHit& a, 
 					       const reco::PFRecHit& b){
-					      return a.detId() < b.detId();
+					      return (HcalDetId)(a.detId()) < (HcalDetId)(b.detId());
 					    });
 	  double energy = 2*sHORT;
-	  if( found_hit != tmpOut.end() && found_hit->detId() == longID.rawId() ) {
+	  if( found_hit != tmpOut.end() && (HcalDetId)(found_hit->detId()) == (HcalDetId)(longID.rawId()) ) {
 	    lONG = found_hit->energy();
 	    //Ask for fraction
 
@@ -250,8 +250,9 @@ class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
 
       bool operator()(const reco::PFRecHit& a,
 		     const reco::PFRecHit& b) {
-      return a.detId() < b.detId();
-    }
+	if (DetId(a.detId()).det() == DetId::Hcal || DetId(b.detId()).det() == DetId::Hcal) return (HcalDetId)(a.detId()) < (HcalDetId)(b.detId());
+	else return a.detId() < b.detId();
+      }
 
     };
 
