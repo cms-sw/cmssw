@@ -183,27 +183,6 @@ void FastTimerService::preGlobalBeginRun(edm::GlobalContext const & gc)
 
   edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
 
-  // cache the names of the first and last path and endpath
-  if (m_process.size() <= pid)
-    m_process.resize(pid+1);
-  m_process[pid].name = gc.processContext()->processName();
-  if (m_skip_first_path and pid == 0) {
-    // skip the first path
-    if (tns.getTrigPaths().size() > 1) {
-      m_process[pid].first_path = tns.getTrigPaths().at(1);
-      m_process[pid].last_path  = tns.getTrigPaths().back();
-    }
-  } else {
-    if (not tns.getTrigPaths().empty()) {
-      m_process[pid].first_path = tns.getTrigPaths().front();
-      m_process[pid].last_path  = tns.getTrigPaths().back();
-    }
-  }
-  if (not tns.getEndPaths().empty()) {
-    m_process[pid].first_endpath = tns.getEndPaths().front();
-    m_process[pid].last_endpath  = tns.getEndPaths().back();
-  }
-
   uint32_t size_p = tns.getTrigPaths().size();
   uint32_t size_e = tns.getEndPaths().size();
   uint32_t size = size_p + size_e;
@@ -253,6 +232,13 @@ void FastTimerService::preGlobalBeginRun(edm::GlobalContext const & gc)
     fillPathMap( pid, tns.getTrigPath(i), tns.getTrigPathModules(i) );
   for (uint32_t i = 0; i < tns.getEndPaths().size(); ++i)
     fillPathMap( pid, tns.getEndPath(i), tns.getEndPathModules(i) );
+
+  // cache the names of the process, and of first and last non-empty path and endpath
+  if (m_process.size() <= pid)
+    m_process.resize(pid+1);
+  m_process[pid].name = gc.processContext()->processName();
+  std::tie(m_process[pid].first_path, m_process[pid].last_path) = findFirstLast(pid, tns.getTrigPaths(), m_skip_first_path and pid == 0);
+  std::tie(m_process[pid].first_endpath, m_process[pid].last_endpath) = findFirstLast(pid, tns.getEndPaths());
 }
 
 void FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
@@ -1285,6 +1271,29 @@ void FastTimerService::fillPathMap(unsigned int pid, std::string const & name, s
   }
 }
 
+// find the first and last non-empty paths, optionally skipping the first one
+std::pair<std::string,std::string> FastTimerService::findFirstLast(unsigned int pid, std::vector<std::string> const & paths, bool skip) {
+  std::vector<std::string const *> p(paths.size(), nullptr);
+
+  // mark the empty paths
+  auto address_if_non_empty = [&](std::string const & name){
+    return m_stream.front().paths[pid][name].modules.empty() ? nullptr : & name;
+  };
+  std::transform(paths.begin(), paths.end(), p.begin(), address_if_non_empty);
+
+  // optionally, skip the first path
+  if (skip and not p.empty())
+    p.erase(p.begin());
+
+  // remove the empty paths
+  p.erase(std::remove(p.begin(), p.end(), nullptr), p.end());
+
+  // return the first and last non-empty paths, if there are any
+  if (not p.empty())
+    return std::make_pair(* p.front(), * p.back());
+  else
+    return std::make_pair(std::string(), std::string());
+}
 
 // query the current module/path/event
 // Note: these functions incur in a "per-call timer overhead" (see above), currently of the order of 340ns

@@ -135,15 +135,15 @@ namespace edm {
             branchesActivate(TypeID(typeid(HepMCProduct)).friendlyClassName(),std::string(""),tag,label);
             bool makeCrossingFrame = pset.getUntrackedParameter<bool>("makeCrossingFrame", false);
             if(makeCrossingFrame) {
-              workersObjects_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF));
+              workersObjects_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,tags));
               produces<CrossingFrame<HepMCProduct> >(label);
             }
 	    consumes<HepMCProduct>(tag);
 
             LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
             //            std::cout <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<std::endl;
-            if(tags.size()>1) {
-              InputTag fallbackTag = tags[1];
+            for(size_t i = 1; i < tags.size(); ++i) { 
+              InputTag fallbackTag = tags[i];
               std::string fallbackLabel;
               branchesActivate(TypeID(typeid(HepMCProduct)).friendlyClassName(),std::string(""),fallbackTag,fallbackLabel);
               mayConsume<HepMCProduct>(fallbackTag);

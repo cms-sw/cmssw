@@ -40,7 +40,7 @@ TrackerSystematicMisalignments::TrackerSystematicMisalignments(const edm::Parame
 {
 	// use existing geometry
 	m_fromDBGeom = cfg.getUntrackedParameter< bool > ("fromDBGeom");
-	
+
 	// constants
 	m_radialEpsilon = cfg.getUntrackedParameter< double > ("radialEpsilon");
 	m_telescopeEpsilon = cfg.getUntrackedParameter< double > ("telescopeEpsilon");
@@ -54,34 +54,34 @@ TrackerSystematicMisalignments::TrackerSystematicMisalignments(const edm::Parame
 
 	m_ellipticalDelta = cfg.getUntrackedParameter< double > ("ellipticalDelta");
 	m_skewDelta = cfg.getUntrackedParameter< double > ("skewDelta");
-	m_sagittaDelta = cfg.getUntrackedParameter< double > ("sagittaDelta");        
-	
+	m_sagittaDelta = cfg.getUntrackedParameter< double > ("sagittaDelta");
+
 	if (m_radialEpsilon > -990.0){
-		edm::LogWarning("MisalignedTracker") << "Applying radial ...";		
+		edm::LogWarning("MisalignedTracker") << "Applying radial ...";
 	}
 	if (m_telescopeEpsilon > -990.0){
-		edm::LogWarning("MisalignedTracker") << "Applying telescope ...";		
+		edm::LogWarning("MisalignedTracker") << "Applying telescope ...";
 	}
 	if (m_layerRotEpsilon > -990.0){
-		edm::LogWarning("MisalignedTracker") << "Applying layer rotation ...";		
+		edm::LogWarning("MisalignedTracker") << "Applying layer rotation ...";
 	}
 	if (m_bowingEpsilon > -990.0){
-		edm::LogWarning("MisalignedTracker") << "Applying bowing ...";		
+		edm::LogWarning("MisalignedTracker") << "Applying bowing ...";
 	}
 	if (m_zExpEpsilon > -990.0){
-		edm::LogWarning("MisalignedTracker") << "Applying z-expansion ...";		
+		edm::LogWarning("MisalignedTracker") << "Applying z-expansion ...";
 	}
 	if (m_twistEpsilon > -990.0){
-		edm::LogWarning("MisalignedTracker") << "Applying twist ...";		
+		edm::LogWarning("MisalignedTracker") << "Applying twist ...";
 	}
 	if (m_ellipticalEpsilon > -990.0){
-		edm::LogWarning("MisalignedTracker") << "Applying elliptical ...";		
+		edm::LogWarning("MisalignedTracker") << "Applying elliptical ...";
 	}
 	if (m_skewEpsilon > -990.0){
-		edm::LogWarning("MisalignedTracker") << "Applying skew ...";		
+		edm::LogWarning("MisalignedTracker") << "Applying skew ...";
 	}
 	if (m_sagittaEpsilon > -990.0){
-		edm::LogWarning("MisalignedTracker") << "Applying sagitta ...";		
+		edm::LogWarning("MisalignedTracker") << "Applying sagitta ...";
 	}
 
 	// get flag for suppression of blind movements
@@ -90,7 +90,7 @@ TrackerSystematicMisalignments::TrackerSystematicMisalignments(const edm::Parame
 	{
 		edm::LogWarning("MisalignedTracker") << "Blind movements suppressed (TIB/TOB in z, TID/TEC in r)";
 	}
-	
+
 	// compatibility with old (weird) z convention
 	oldMinusZconvention = cfg.getUntrackedParameter< bool > ("oldMinusZconvention");
 	if (oldMinusZconvention)
@@ -106,62 +106,62 @@ TrackerSystematicMisalignments::TrackerSystematicMisalignments(const edm::Parame
 
 void TrackerSystematicMisalignments::beginJob()
 {
-		
+
 }
 
 
 void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm::EventSetup& setup){
-	
+
 	//Retrieve tracker topology from geometry
 	edm::ESHandle<TrackerTopology> tTopoHandle;
 	setup.get<TrackerTopologyRcd>().get(tTopoHandle);
 	const TrackerTopology* const tTopo = tTopoHandle.product();
-	
+
 	edm::ESHandle<GeometricDet>  geom;
-	setup.get<IdealGeometryRecord>().get(geom);	 
+	setup.get<IdealGeometryRecord>().get(geom);
 	edm::ESHandle<PTrackerParameters> ptp;
 	setup.get<PTrackerParametersRcd>().get( ptp );
 	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, *ptp );
-	
+
 	//take geometry from DB or randomly generate geometry
 	if (m_fromDBGeom){
 		//build the tracker
 		edm::ESHandle<Alignments> alignments;
 		edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-		
+
 		setup.get<TrackerAlignmentRcd>().get(alignments);
 		setup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
-		
+
 		//apply the latest alignments
 		GeometryAligner aligner;
 		aligner.applyAlignments<TrackerGeometry>( &(*tracker), &(*alignments), &(*alignmentErrors), AlignTransform() );
-		
+
 	}
-	
+
 	theAlignableTracker = new AlignableTracker(&(*tracker), tTopo);
-	
+
 	applySystematicMisalignment( &(*theAlignableTracker) );
-	
+
 	// -------------- writing out to alignment record --------------
 	Alignments* myAlignments = theAlignableTracker->alignments() ;
 	AlignmentErrorsExtended* myAlignmentErrorsExtended = theAlignableTracker->alignmentErrors() ;
-	
+
 	// Store alignment[Error]s to DB
 	edm::Service<cond::service::PoolDBOutputService> poolDbService;
 	std::string theAlignRecordName = "TrackerAlignmentRcd";
 	std::string theErrorRecordName = "TrackerAlignmentErrorExtendedRcd";
-	
+
 	// Call service
 	if( !poolDbService.isAvailable() ) // Die if not available
 		throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
-	
+
 	poolDbService->writeOne<Alignments>(&(*myAlignments), poolDbService->beginOfTime(), theAlignRecordName);
 	poolDbService->writeOne<AlignmentErrorsExtended>(&(*myAlignmentErrorsExtended), poolDbService->beginOfTime(), theErrorRecordName);
 }
 
 void TrackerSystematicMisalignments::applySystematicMisalignment(Alignable* ali)
 {
-	
+
 	const align::Alignables& comp = ali->components();
 	unsigned int nComp = comp.size();
 	//move then do for lower level object
@@ -180,32 +180,32 @@ void TrackerSystematicMisalignments::applySystematicMisalignment(Alignable* ali)
 		switch(subdetid)
 		{
 			// TIB/TON blind to z
-			case SiStripDetId::TIB: 
-			case SiStripDetId::TOB: 
-				blindToZ = true; 
+			case SiStripDetId::TIB:
+			case SiStripDetId::TOB:
+				blindToZ = true;
 				break;
 			// TID/TEC blind to R
-			case SiStripDetId::TID: 
-			case SiStripDetId::TEC: 
-				blindToR = true; 
+			case SiStripDetId::TID:
+			case SiStripDetId::TEC:
+				blindToR = true;
 				break;
-			default: 
+			default:
 				break;
 		}
 	}
 
-	const int level = ali->alignableObjectId();	
-	if ((level == 1)||(level == 2)){		
+	const int level = ali->alignableObjectId();
+	if ((level == 1)||(level == 2)){
 		const align::PositionType gP = ali->globalPosition();
 		const align::GlobalVector gVec = findSystematicMis( gP, blindToZ, blindToR);
 		ali->move( gVec );
 	}
-}	 
+}
 
 align::GlobalVector TrackerSystematicMisalignments::findSystematicMis( const align::PositionType& globalPos, const bool blindToZ, const bool blindToR ){
 //align::GlobalVector TrackerSystematicMisalignments::findSystematicMis( align::PositionType globalPos ){
 	// calculates shift for the current alignable
-	// all corrections are calculated w.r.t. the original geometry	
+	// all corrections are calculated w.r.t. the original geometry
 	double deltaX = 0.0;
 	double deltaY = 0.0;
 	double deltaZ = 0.0;
@@ -223,7 +223,7 @@ align::GlobalVector TrackerSystematicMisalignments::findSystematicMis( const ali
 		deltaZ += m_telescopeEpsilon*oldR;
 	}
 	if (m_layerRotEpsilon > -990.0){
-		// The following number was chosen such that the Layer Rotation systematic 
+		// The following number was chosen such that the Layer Rotation systematic
 		// misalignment would not cause an overall rotation of the tracker.
 		const double Roffset = 57.0;
 		const double xP = oldR*cos(oldPhi+m_layerRotEpsilon*(oldR-Roffset));
@@ -261,7 +261,7 @@ align::GlobalVector TrackerSystematicMisalignments::findSystematicMis( const ali
 
 	// Compatibility with old version <= 1.5
 	if (oldMinusZconvention) deltaZ = -deltaZ;
-	
+
 	align::GlobalVector gV( deltaX, deltaY, deltaZ );
 	return gV;
 }
