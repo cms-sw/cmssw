@@ -184,3 +184,49 @@ double pfIsoCalculator::getVsPfIso(const reco::Photon& photon, int pfId, double 
 
   return TotalEt;
 }
+
+double pfIsoCalculator::getPfIso(const reco::GsfElectron& ele, int pfId, double r1, double r2, double threshold)
+{
+
+  using namespace edm;
+  using namespace reco;
+
+  double eleEta = ele.eta();
+  double elePhi = ele.phi();
+  double TotalEt = 0.;
+
+  for (edm::View<reco::PFCandidate>::const_iterator pf = candidatesView->begin(); pf != candidatesView->end(); ++pf) {
+    if ( pf->particleId() != pfId )   continue;
+    double pfEta = pf->eta();
+    double pfPhi = pf->phi();
+
+    double dEta = fabs( eleEta - pfEta);
+    double dPhi = pfPhi - elePhi;
+    while ( fabs(dPhi) > PI) {
+      if ( dPhi > PI )  dPhi = dPhi - 2.*PI;
+      if ( dPhi < PI*(-1.) )  dPhi = dPhi + 2.*PI;
+    }
+    double dR = sqrt(dEta*dEta+dPhi*dPhi);
+    double thePt = pf->pt();
+
+    // remove electron itself
+    if (pf->particleId() == reco::PFCandidate::e) continue;
+
+    if (pf->particleId() == reco::PFCandidate::h) {
+      float dz = fabs(pf->vz() - vtx_.z());
+      if (dz > 0.2) continue;
+      double dxy = ( -(pf->vx() - vtx_.x())*pf->py() + (pf->vy() - vtx_.y())*pf->px()) / pf->pt();
+      if ( fabs(dxy) > 0.1) continue;
+    }
+
+    //inside the cone size
+    if (dR > r1) continue;
+    if (dR < r2) continue;
+    if (thePt < threshold) continue;
+    TotalEt += thePt;
+
+  }
+
+  return TotalEt;
+
+}

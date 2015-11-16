@@ -35,6 +35,7 @@ class pfIsoCalculator
   pfIsoCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::EDGetTokenT<edm::View<reco::PFCandidate> > pfCandidates, const edm::EDGetTokenT<edm::ValueMap<reco::VoronoiBackground> > pfVoronoiBkg, const math::XYZPoint& pv) ;
   double getPfIso (const reco::Photon& photon,  int pfId, double r1=0.4, double r2=0.00, double jWidth=0.00, double threshold=0);
   double getVsPfIso(const reco::Photon& photon,  int pfId, double r1=0.4, double r2=0.00, double jWidth=0.00, double threshold=0, bool isVsCorrected=true);
+  double getPfIso (const reco::GsfElectron& ele, int pfId, double r = 0.4, double r2=0.00, double threshold = 0);
 
  private:
   //const reco::PFCandidateCollection *pfCandidateColl;
