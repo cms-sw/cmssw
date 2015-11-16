@@ -391,6 +391,7 @@ namespace cms{
             Trajectory trajectory(seed, direction);
 	    trajectory.setNLoops(it->nLoops());
             trajectory.setSeedRef(it->seedRef());
+            trajectory.setStopReason(it->stopReason());
             // 4) push states in reversed order
             Trajectory::DataContainer &meas = it->measurements();
             trajectory.reserve(meas.size());
@@ -460,7 +461,7 @@ namespace cms{
 	 else state = trajectoryStateTransform::persistentState( initState.first,
 							         initState.second->geographicalId().rawId());
 	 LogDebug("CkfPattern") << "pushing a TrackCandidate.";
-	 output->emplace_back(recHits,it->seed(),state,it->seedRef(),it->nLoops());
+	 output->emplace_back(recHits,it->seed(),state,it->seedRef(),it->nLoops(), (unsigned char)it->stopReason());
        }
       }//output trackcandidates
 

@@ -26,24 +26,26 @@ public:
   typedef RecHitContainer::const_iterator const_iterator;
   typedef std::pair<const_iterator,const_iterator> range;
   
- TrackCandidate(): rh_(),  seed_(), state_(), seedRef_(), nLoops_(0) {}
+TrackCandidate(): rh_(),  seed_(), state_(), seedRef_(), nLoops_(0), stopReason_(0) {}
 
   explicit TrackCandidate(RecHitContainer & rh) :
-  rh_(),  seed_(), state_(), seedRef_(), nLoops_(0) {rh_.swap(rh);}
+  rh_(),  seed_(), state_(), seedRef_(), nLoops_(0), stopReason_(0) {rh_.swap(rh);}
   
   TrackCandidate(RecHitContainer & rh,
 		 TrajectorySeed const & s,
 		 PTrajectoryStateOnDet const & st,
-		 signed char nLoops=0):
-    rh_(), seed_(s), state_(st), seedRef_(),nLoops_(nLoops) {rh_.swap(rh);}
+		 signed char nLoops=0,
+                 signed char stopReason=0):
+  rh_(), seed_(s), state_(st), seedRef_(),nLoops_(nLoops), stopReason_(stopReason) {rh_.swap(rh);}
 
   
   TrackCandidate(RecHitContainer & rh,
 		 TrajectorySeed const & s,
 		 PTrajectoryStateOnDet const & st,
 		 const edm::RefToBase<TrajectorySeed> & seedRef,
-		 signed char nLoops=0) :
-    rh_(), seed_(s), state_(st), seedRef_(seedRef),nLoops_(nLoops) {rh_.swap(rh);}
+		 signed char nLoops=0,
+                 signed char stopReason=0) :
+  rh_(), seed_(s), state_(st), seedRef_(seedRef),nLoops_(nLoops), stopReason_(stopReason) {rh_.swap(rh);}
 
 
   PTrajectoryStateOnDet const & trajectoryStateOnDet() const { return state_;}
@@ -55,8 +57,11 @@ public:
 
   bool isLooper() const {return (nLoops_>0);}
   signed char nLoops() const {return nLoops_;}
+  signed char stopReason() const {return stopReason_;}
+
 
   void setNLoops(signed char value) {nLoops_=value;}
+  void setStopReason(unsigned char value) {stopReason_ = value;}
 
   /**  return the edm::reference to the trajectory seed in the original
    *   seeds collection. If the collection has been dropped from the
@@ -73,5 +78,6 @@ private:
   PTrajectoryStateOnDet state_;
   edm::RefToBase<TrajectorySeed> seedRef_;
   signed char nLoops_;
+  unsigned char stopReason_;
 };
 #endif
