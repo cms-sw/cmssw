@@ -19,6 +19,8 @@ SiStripCalZeroBiasMonitorCluster.ClusterLabel = cms.string('')
 
 SiStripCalZeroBiasMonitorCluster.TkHistoMap_On = cms.bool(False)
 
+SiStripCalZeroBiasMonitorCluster.ClusterChTkHistoMap_On = cms.bool(False)
+
 SiStripCalZeroBiasMonitorCluster.TopFolderName = cms.string('AlcaReco/SiStrip')
 
 SiStripCalZeroBiasMonitorCluster.BPTXfilter     = cms.PSet()
