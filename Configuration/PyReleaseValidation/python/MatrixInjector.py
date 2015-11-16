@@ -184,6 +184,10 @@ class MatrixInjector(object):
             wmsplit['HLTDR2_50ns']=3
             wmsplit['HLTDR2_25ns']=3
             wmsplit['Hadronizer']=1
+            wmsplit['DIGIUP15']=5
+            wmsplit['RECOUP15']=5
+            wmsplit['RECOAODUP15']=5
+            wmsplit['DBLMINIAODMCUP15NODQM']=5
                                     
             #import pprint
             #pprint.pprint(wmsplit)            
@@ -209,6 +213,10 @@ class MatrixInjector(object):
                     if len( [step for step in s[3] if "HARVESTGEN" in step] )>0:
                         chainDict['TimePerEvent']=0.01
                         thisLabel=thisLabel+"_gen"
+                    # for double miniAOD test
+                    if len( [step for step in s[3] if "DBLMINIAODMCUP15NODQM" in step] )>0:
+                        thisLabel=thisLabel+"_dblMiniAOD"
+                    
                     processStrPrefix=''
                     setPrimaryDs=None
                     for step in s[3]:
@@ -314,6 +322,10 @@ class MatrixInjector(object):
                                 #chainDict['nowmTasklist'][-1]['AcquisitionEra']=(chainDict['CMSSWVersion']+'-PU_'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
                                 chainDict['nowmTasklist'][-1]['AcquisitionEra']=chainDict['CMSSWVersion']
                                 chainDict['nowmTasklist'][-1]['ProcessingString']=processStrPrefix+chainDict['nowmTasklist'][-1]['GlobalTag'].replace('::All','')+thisLabel
+
+                            # specify different ProcessingString for double miniAOD dataset
+                            if ('DBLMINIAODMCUP15NODQM' in step): 
+                                chainDict['nowmTasklist'][-1]['ProcessingString']=chainDict['nowmTasklist'][-1]['ProcessingString']+'_miniAOD' 
 
                         index+=1
                     #end of loop through steps
