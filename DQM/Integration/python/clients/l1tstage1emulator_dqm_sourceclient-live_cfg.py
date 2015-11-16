@@ -204,6 +204,8 @@ process.muonRPCDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
 process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
+process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker")
+process.l1ExpertDataVsEmulatorStage1.remove (process.l1tHIonImp)
 
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
@@ -226,7 +228,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
     process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
-
+    process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.caloConfig.fwVersionLayer2 = cms.uint32(1)
 
 
 ### process customizations included here
