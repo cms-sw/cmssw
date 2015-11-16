@@ -11,7 +11,7 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-			    fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/user/tuos/HIAOD2015/round3/June01/HydjetMBRECO/Hydjet_Quenched_MinBias_5020GeV/HydjetMB_RECO_750pre5_round3v01/150618_204846/0000/step2_RAW2DIGI_L1Reco_MB_RECOSIM_1.root'),
+			    fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/user/twang/Hydjet_Quenched_MinBias_5020GeV_750/Hydjet_Quenched_MinBias_5020GeV_750_HiFall15_step3_20151110/8279ae7c7b9873cb2e7129d3c6d86a22/step3_RAW2DIGI_L1Reco_RECO_1000_1_Qj2.root'),
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -20,26 +20,14 @@ process.maxEvents = cms.untracked.PSet(
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_hi', '')
-process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
-process.GlobalTag.toGet.extend([
-   cms.PSet(record = cms.string("HeavyIonRcd"),
-      tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5_v750x02_mc"),
-      connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
-      label = cms.untracked.string("HFtowersHydjetDrum5")
-   ),
-])
+process.GlobalTag = GlobalTag(process.GlobalTag, '75X_mcRun2_HeavyIon_v8', '')
 
-process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi") 
-process.centralityBin.Centrality = cms.InputTag("hiCentrality")
-process.centralityBin.centralityVariable = cms.string("HFtowers")
-process.centralityBin.nonDefaultGlauberModel = cms.string("HydjetDrum5")
+process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
 
 process.TFileService = cms.Service("TFileService",
                                   fileName=cms.string("eventtree_mc.root"))
 
-process.load('GeneratorInterface.HiGenCommon.HeavyIon_cff') #because of this it only runs on RECO now
-
 process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_mc_cfi')
+process.hiEvtAnalyzer.doMC          = cms.bool(False) # because heavyIon gen event is not yet in AOD
 
-process.p = cms.Path(process.heavyIon * process.centralityBin * process.hiEvtAnalyzer)
+process.p = cms.Path(process.centralityBin * process.hiEvtAnalyzer)
