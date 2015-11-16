@@ -36,6 +36,12 @@ _allTPEfficName = "All tracks (all TPs)"
 _fromPVName = "Tracks from PV"
 _fromPVAllTPName = "Tracks from PV (all TPs)"
 _trackQualityNameOrder = collections.OrderedDict([
+    ("seeding_seeds", "Seeds"),
+    ("seeding_seedsa", "Seeds A"),
+    ("seeding_seedsb", "Seeds B"),
+    ("seeding_seedstripl", "Seeds triplets"),
+    ("seeding_seedspair", "Seeds pairs"),
+    ("building_", "Built tracks"),
     ("", "All tracks"),
     ("highPurity", "High purity tracks"),
     ("Pt", "Tracks pT &gt; 0.9 GeV"),
@@ -75,6 +81,7 @@ _trackAlgoName = {
 
 _trackAlgoOrder = [
     'ootb',
+    'initialStepPreSplitting',
     'initialStep',
     'lowPtTripletStep',
     'pixelPairStep',
@@ -106,6 +113,8 @@ _pageNameMap = {
 
 _sectionNameMapOrder = collections.OrderedDict([
     # These are for the summary page
+    ("seeding_seeds", "Seeds"),
+    ("building", "Built tracks"),
     ("", "All tracks"),
     ("highPurity", "High purity tracks"),
     ("allTPEffic", _allTPEfficName),

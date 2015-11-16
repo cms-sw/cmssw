@@ -261,12 +261,17 @@ _resolutionsPt = PlotGroup("resolutionsPt", [
 ########################################
 
 _possibleTrackingIterations = [
+    'initialStepPreSplitting',
     'initialStep',
     'lowPtTripletStep',
     'pixelPairStep',
     'detachedTripletStep',
+    'mixedTripletStepA', # seeds
+    'mixedTripletStepB', # seeds
     'mixedTripletStep',
     'pixelLessStep',
+    'tobTecStepPair',  # seeds
+    'tobTecStepTripl', # seeds
     'tobTecStep',
     'jetCoreRegionalStep',
     'muonSeededStepInOut',
@@ -309,13 +314,28 @@ def _mapCollectionToAlgoQuality(collName):
     if "ByAlgoMask" in collName:
         quality += "ByAlgoMask"
         collNameNoQuality = collNameNoQuality.replace("ByAlgoMask", "")
+    collNameNoQuality = collNameNoQuality.replace("Tracks", "", 1) # make summary naming consistent with iteration folders
     collNameLow = collNameNoQuality.lower().replace("frompv2", "").replace("frompv", "").replace("frompvalltp", "").replace("alltp", "")
 
+    if collNameLow.find("seed") == 0:
+        if quality != "":
+            raise Exception("Assumption of empty quality for seeds failed, got quality '%s'" % quality)
+        collNameLow = collNameLow[4:]
+        if collNameLow == "initialstepseedspresplitting":
+            collNameLow = "initialsteppresplittingseeds"
+        elif collNameLow == "muonseededseedsinout":
+            collNameLow = "muonseededstepinoutseeds"
+        elif collNameLow == "muonseededseedsoutin":
+            collNameLow = "muonseededstepoutinseeds"
+
+        i_seeds = collNameLow.index("seeds")
+        quality = collNameLow[i_seeds:]
+
+        collNameLow = collNameLow[:i_seeds]
+
     algo = None
-    prefixes = ["cutsreco", "cutsrecofrompv", "cutsrecofrompv2", "cutsrecofrompvalltp",
-                "cutsrecotracks", "cutsrecotracksfrompv", "cutsrecotracksfrompvalltp"]
-    if collNameLow in ["general", "generalfrompv",
-                       "generaltracks", "generaltracksfrompv"]+prefixes:
+    prefixes = ["cutsreco", "cutsrecofrompv", "cutsrecofrompv2", "cutsrecofrompvalltp"]
+    if collNameLow in ["general", "generalfrompv"]+prefixes:
         algo = "ootb"
     else:
         def testColl(coll):
@@ -339,13 +359,19 @@ def _mapCollectionToAlgoQuality(collName):
         if algo is None:
             algo = collNameNoQuality
 
+    # fix for track collection naming convention
+    if algo == "muonSeededInOut":
+        algo = "muonSeededStepInOut"
+    if algo == "muonSeededOutIn":
+        algo = "muonSeededStepOutIn"
+
     return (algo, quality)
 
 def _collhelper(name):
     return (name, [name])
 _collLabelMap = collections.OrderedDict(map(_collhelper, ["generalTracks"]+_possibleTrackingColls))
 _collLabelMapHp = collections.OrderedDict(map(_collhelper, ["generalTracks"]+filter(lambda n: "Step" in n, _possibleTrackingColls)))
-def _summaryBinRename(binLabel, highPurity, byOriginalAlgo, byAlgoMask):
+def _summaryBinRename(binLabel, highPurity, byOriginalAlgo, byAlgoMask, seeds):
     (algo, quality) = _mapCollectionToAlgoQuality(binLabel)
     if algo == "ootb":
         algo = "generalTracks"
@@ -363,18 +389,25 @@ def _summaryBinRename(binLabel, highPurity, byOriginalAlgo, byAlgoMask):
     if highPurity:
         if quality == "highPurity":
             ret = algo
+    elif seeds:
+        i_seeds = quality.find("seeds")
+        if i_seeds == 0:
+            ret = algo
+            seedSubColl = quality[i_seeds+5:]
+            if seedSubColl != "":
+                ret += seedSubColl[0].upper() + seedSubColl[1:]
     else:
         if quality == "":
             ret = algo
 
     return ret
 
-def _constructSummary(mapping, highPurity=False, byOriginalAlgo=False, byAlgoMask=False, midfix=""):
+def _constructSummary(mapping, highPurity=False, byOriginalAlgo=False, byAlgoMask=False, seeds=False, midfix=""):
     _common = {"drawStyle": "EP", "xbinlabelsize": 10, "xbinlabeloption": "d"}
     _commonN = {"ylog": True, "ymin": _minMaxN, "ymax": _minMaxN}
     _commonN.update(_common)
     _commonAB = {"mapping": mapping,
-                 "renameBin": lambda bl: _summaryBinRename(bl, highPurity, byOriginalAlgo, byAlgoMask),
+                 "renameBin": lambda bl: _summaryBinRename(bl, highPurity, byOriginalAlgo, byAlgoMask, seeds),
                  "ignoreMissingBins": True,
     }
     if byOriginalAlgo or byAlgoMask:
@@ -406,6 +439,7 @@ def _constructSummary(mapping, highPurity=False, byOriginalAlgo=False, byAlgoMas
 (_summaryByOriginalAlgoHp, _summaryByOriginalAlgoNHp) = _constructSummary(_collLabelMapHp, byOriginalAlgo=True, midfix="ByOriginalAlgo", highPurity=True)
 (_summaryByAlgoMask,       _summaryByAlgoMaskN)       = _constructSummary(_collLabelMapHp, byAlgoMask=True, midfix="ByAlgoMask")
 (_summaryByAlgoMaskHp,     _summaryByAlgoMaskNHp)     = _constructSummary(_collLabelMapHp, byAlgoMask=True, midfix="ByAlgoMask", highPurity=True)
+(_summarySeeds,            _summarySeedsN)            = _constructSummary(_collLabelMapHp, seeds=True)
 
 ########################################
 #
@@ -595,6 +629,13 @@ _recoBasedPlots = [
     _resolutionsPt,
     _tuning,
 ]
+_seedingBuildingPlots = _simBasedPlots + [
+    _dupandfake1,
+    _dupandfake2,
+    _dupandfake3,
+    _dupandfake4,
+    _hitsAndPt,
+]
 _summaryPlots = [
     _summary,
     _summaryN,
@@ -611,6 +652,10 @@ _summaryPlotsHp = [
     _summaryByAlgoMaskHp,
     _summaryByAlgoMaskNHp,
 ]
+_summaryPlotsSeeds = [
+    _summarySeeds,
+    _summarySeedsN,
+]
 _packedCandidatePlots = [
     _packedCandidateFlow,
     _packedCandidateParam1,
@@ -619,7 +664,7 @@ _packedCandidatePlots = [
     _packedCandidateHits,
 ]
 plotter = Plotter()
-def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False):
+def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, seeding=False):
     # to keep backward compatibility, this set of plots has empty name
     plotter.append(name, _trackingFolders(lastDirName), TrackingPlotFolder(*algoPlots, onlyForPileup=onlyForPileup, purpose=PlotPurpose.TrackingIteration))
     summaryName = ""
@@ -634,6 +679,12 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False):
                               purpose=PlotPurpose.TrackingSummary, page="summary",
                               section=name+"_highPurity" if name != "" else "highPurity"),
                    fallbackNames=[summaryName]) # backward compatibility for release validation, the HP plots used to be in the same directory with all-track plots
+    if seeding:
+        plotter.append(summaryName+"_seeds", _trackingFolders(lastDirName),
+                       PlotFolder(*_summaryPlotsSeeds, loopSubFolders=False, onlyForPileup=onlyForPileup,
+                                  purpose=PlotPurpose.TrackingSummary, page="summary",
+                                  section=name+"_seeds"))
+
     plotter.appendTable(summaryName, _trackingFolders(lastDirName), TrackingSummaryTable(section=name))
     plotter.appendTable(summaryName+"_highPurity", _trackingFolders(lastDirName), TrackingSummaryTable(section=name+"_highPurity" if name != "" else "highPurity", highPurity=True))
 _appendTrackingPlots("Track", "", _simBasedPlots+_recoBasedPlots)
@@ -641,6 +692,8 @@ _appendTrackingPlots("TrackAllTPEffic", "allTPEffic", _simBasedPlots, onlyForPil
 _appendTrackingPlots("TrackFromPV", "fromPV", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPVAllTP", "fromPVAllTP", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPVAllTP2", "fromPVAllTP2", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
+_appendTrackingPlots("TrackSeeding", "seeding", _seedingBuildingPlots, seeding=True)
+_appendTrackingPlots("TrackBuilding", "building", _seedingBuildingPlots)
 
 # MiniAOD
 plotter.append("packedCandidate", _trackingFolders("PackedCandidate"),
