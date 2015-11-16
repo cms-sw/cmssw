@@ -27,8 +27,10 @@ public:
 
 protected:
 
-  template<class T> bool TBC(const T& traj) const {
-    return traj.lostHits() <= theConstantValue + theMaxLostHitsFraction*traj.foundHits();
+  template<class T> bool TBC(T& traj) const {
+    bool ret = traj.lostHits() <= theConstantValue + theMaxLostHitsFraction*traj.foundHits();
+    if (!ret) traj.setStopReason(StopReason::LOST_HIT_FRACTION);
+    return ret;
   }
 
   float theMaxLostHitsFraction;

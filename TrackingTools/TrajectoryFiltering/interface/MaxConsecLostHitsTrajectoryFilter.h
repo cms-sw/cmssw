@@ -21,7 +21,7 @@ public:
 
 protected:
 
-  template <class T> bool TBC(const T& traj) const{
+  template <class T> bool TBC(T& traj) const{
     int consecLostHit = 0;
     const  typename T::DataContainer & tms = traj.measurements();
     typename T::DataContainer::size_type itm;
@@ -31,8 +31,9 @@ protected:
 	       Trajectory::lost(*tms[itm-1].recHit())) consecLostHit++;
     }
   
-    return  consecLostHit <= theMaxConsecLostHits; 
-
+    bool ret = consecLostHit <= theMaxConsecLostHits;
+    if (!ret) traj.setStopReason(StopReason::MAX_CONSECUTIVE_LOST_HITS);
+    return ret;
     }
 
   int theMaxConsecLostHits;

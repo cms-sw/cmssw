@@ -2,6 +2,7 @@
 #define CkfPattern_TempTrajectory_H
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryStopReasons.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/Common/interface/OwnVector.h"
@@ -54,7 +55,7 @@ public:
     theChiSquared(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(anyDirection), 
-    theValid(false),theNHseed(0),theNLoops(0),theDPhiCache(0)
+    theValid(false),theNHseed(0),theNLoops(0),theDPhiCache(0),stopReason_(StopReason::UNKNOWN)
   {}
   
   
@@ -67,7 +68,7 @@ public:
   theChiSquared(0), 
   theNumberOfFoundHits(0), theNumberOfLostHits(0),
   theDirection(dir),
-  theValid(true),theNHseed(nhseed),theNLoops(0),theDPhiCache(0)
+  theValid(true),theNHseed(nhseed),theNLoops(0),theDPhiCache(0),stopReason_(StopReason::UNKNOWN)
   {}
 
   
@@ -84,7 +85,8 @@ public:
     theValid(rh.theValid),
     theNHseed(rh.theNHseed),
     theNLoops(rh.theNLoops),
-    theDPhiCache(rh.theDPhiCache){}
+    theDPhiCache(rh.theDPhiCache),
+    stopReason_(rh.stopReason_){}
 
   TempTrajectory & operator=(TempTrajectory && rh) noexcept {
     using std::swap;
@@ -97,6 +99,7 @@ public:
     theNHseed=rh.theNHseed;
     theNLoops=rh.theNLoops;
     theDPhiCache=rh.theDPhiCache;
+    stopReason_=rh.stopReason_;
     return *this;
 
   }
@@ -263,6 +266,8 @@ public:
    void setNLoops(signed char value) { theNLoops=value;}
    void incrementLoops() {theNLoops++;}
 
+   StopReason stopReason() const {return stopReason_;}
+   void setStopReason(StopReason s) { stopReason_ = s; }
 
 private:
   /** Definition of what it means for a hit to be "lost".
@@ -291,6 +296,7 @@ private:
   signed char theNLoops;
   float theDPhiCache;
 
+  StopReason stopReason_;
 
   void check() const;
 };

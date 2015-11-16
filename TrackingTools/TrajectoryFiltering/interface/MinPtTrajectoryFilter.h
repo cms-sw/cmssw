@@ -32,8 +32,16 @@ public:
   virtual bool qualityFilter( const Trajectory& traj)const { return test(traj.lastMeasurement(),traj.foundHits()); }
   virtual bool qualityFilter( const TempTrajectory& traj) const { return test(traj.lastMeasurement(),traj.foundHits()); }
     
-  virtual bool toBeContinued( Trajectory& traj) const {return test(traj.lastMeasurement(),traj.foundHits()); }
-  virtual bool toBeContinued( TempTrajectory& traj) const { return test(traj.lastMeasurement(),traj.foundHits()); }
+  virtual bool toBeContinued( Trajectory& traj) const {
+    bool ret = test(traj.lastMeasurement(),traj.foundHits());
+    if (!ret) traj.setStopReason(StopReason::MIN_PT);
+    return  ret;
+  }
+  virtual bool toBeContinued( TempTrajectory& traj) const {
+    bool ret = test(traj.lastMeasurement(),traj.foundHits());
+    if (!ret) traj.setStopReason(StopReason::MIN_PT);
+    return ret;
+  }
   
   virtual std::string name() const {return "MinPtTrajectoryFilter";}
 

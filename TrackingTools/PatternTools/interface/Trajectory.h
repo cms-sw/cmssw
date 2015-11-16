@@ -3,6 +3,7 @@
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryStopReasons.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -57,7 +58,8 @@ public:
     theSeed(), seedRef_(),
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(anyDirection), theDirectionValidity(false), theValid(false),theDPhiCache(0),theNLoops(0)
+    theDirection(anyDirection), theDirectionValidity(false),
+    theValid(false),theDPhiCache(0),theNLoops(0), stopReason_(StopReason::UNKNOWN)
     {}
 
 
@@ -71,7 +73,8 @@ public:
     theSeed( new TrajectorySeed(seed) ), seedRef_(),
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(anyDirection), theDirectionValidity(false), theValid(true),theDPhiCache(0),theNLoops(0)
+    theDirection(anyDirection), theDirectionValidity(false),
+    theValid(true),theDPhiCache(0),theNLoops(0),stopReason_(StopReason::UNKNOWN)
   {}
 
   /** Constructor of an empty trajectory with defined direction.
@@ -82,7 +85,8 @@ public:
     theSeed( new TrajectorySeed(seed) ), seedRef_(),
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(dir), theDirectionValidity(true), theValid(true),theDPhiCache(0),theNLoops(0)
+    theDirection(dir), theDirectionValidity(true),
+    theValid(true),theDPhiCache(0),theNLoops(0),stopReason_(StopReason::UNKNOWN)
    
   {}
 
@@ -94,7 +98,8 @@ public:
     theSeed( seed ), seedRef_(),
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(dir), theDirectionValidity(true), theValid(true),theDPhiCache(0),theNLoops(0)
+    theDirection(dir), theDirectionValidity(true),
+    theValid(true),theDPhiCache(0),theNLoops(0),stopReason_(StopReason::UNKNOWN)
   {}
 
   /** Constructor of an empty trajectory with defined direction.
@@ -105,8 +110,8 @@ public:
     theSeed(), seedRef_(),
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(dir), theDirectionValidity(true), theValid(true),theDPhiCache(0),theNLoops(0)
-   
+    theDirection(dir), theDirectionValidity(true),
+    theValid(true),theDPhiCache(0),theNLoops(0),stopReason_(StopReason::UNKNOWN)
   {}
 
 
@@ -121,7 +126,7 @@ public:
     theChiSquared(rh.theChiSquared), theChiSquaredBad(rh.theChiSquaredBad),
     theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
     theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity), theValid(rh.theValid),
-    theDPhiCache(rh.theDPhiCache),theNLoops(rh.theNLoops)  
+    theDPhiCache(rh.theDPhiCache),theNLoops(rh.theNLoops),stopReason_(rh.stopReason_)
   {}
 
   Trajectory & operator=(Trajectory && rh) {
@@ -136,6 +141,7 @@ public:
     theNumberOfLostHits=rh.theNumberOfLostHits;
     theDirection=rh.theDirection; 
     theDirectionValidity=rh.theDirectionValidity;
+    stopReason_ = rh.stopReason_;
     swap(theSeed,rh.theSeed);
     swap(seedRef_,rh.seedRef_);
 
@@ -336,6 +342,10 @@ public:
    void setNLoops(signed char value) { theNLoops=value;}
    void incrementLoops() {theNLoops++;}
 
+   void setStopReason(StopReason s) { stopReason_ = s; }
+   StopReason stopReason() const {return stopReason_;}
+
+
 private:
 
   void pushAux(double chi2Increment);
@@ -357,6 +367,8 @@ private:
 
   float theDPhiCache;
   signed char theNLoops;
+
+  StopReason stopReason_;
 
   void check() const;
 };
