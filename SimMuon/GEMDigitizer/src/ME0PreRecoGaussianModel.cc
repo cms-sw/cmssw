@@ -51,7 +51,7 @@ for (const auto & hit: simHits)
   if (CLHEP::RandFlat::shoot(engine) > averageEfficiency_) continue;
   // create digi
   auto entry = hit.entryPoint();
-  float x=0.0, y=0.0;
+  double x=0.0, y=0.0;
   if(gaussianSmearing_) { // Gaussian Smearing
     x=CLHEP::RandGaussQ::shoot(engine, entry.x(), sigma_u);
     y=CLHEP::RandGaussQ::shoot(engine, entry.y(), sigma_v);
@@ -60,10 +60,10 @@ for (const auto & hit: simHits)
     x=entry.x()+(CLHEP::RandFlat::shoot(engine)-0.5)*sigma_u;
     y=entry.y()+(CLHEP::RandFlat::shoot(engine)-0.5)*sigma_v;
   }
-  float ex=sigma_u;
-  float ey=sigma_v;
-  float corr=0.;
-  float tof=CLHEP::RandGaussQ::shoot(engine, hit.timeOfFlight(), sigma_t);
+  double ex=sigma_u;
+  double ey=sigma_v;
+  double corr=0.;
+  double tof=CLHEP::RandGaussQ::shoot(engine, hit.timeOfFlight(), sigma_t);
   int pdgid = hit.particleType();
   ME0DigiPreReco digi(x,y,ex,ey,corr,tof,pdgid);
   digi_.insert(digi);
@@ -82,11 +82,11 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
   const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
 
   auto& parameters(roll->specs()->parameters());
-  float bottomLength(parameters[0]); bottomLength = 2*bottomLength;
-  float topLength(parameters[1]);    topLength    = 2*topLength;
-  float height(parameters[2]);       height       = 2*height;
-  float myTanPhi    = (topLength - bottomLength) / (height * 2);
-  double rollRadius = top_->radius();
+  double bottomLength(parameters[0]); bottomLength = 2*bottomLength;
+  double topLength(parameters[1]);    topLength    = 2*topLength;
+  double height(parameters[2]);       height       = 2*height;
+  double myTanPhi    = (topLength - bottomLength) / (height * 2);
+  double rollRadius  = top_->radius();
   trArea = height * (topLength + bottomLength) / 2.0;
 
   // simulate intrinsic noise and background hits in all BX that are being read out
@@ -104,8 +104,8 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
     // -----------------------     
     if (simulateElectronBkg_) {
 
-      float myRandY = CLHEP::RandFlat::shoot(engine);
-      float yy_rand = height * (myRandY - 0.5); // random Y coord in Local Coords
+      double myRandY = CLHEP::RandFlat::shoot(engine);
+      double yy_rand = height * (myRandY - 0.5); // random Y coord in Local Coords
       double yy_glob = rollRadius + yy_rand;    // random Y coord in Global Coords
 
       // Extract / Calculate the Average Electron Rate
@@ -123,16 +123,16 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
       // loop over amount of electron hits in this roll
       for (int i = 0; i < n_elechits; ++i) {
         //calculate xx_rand at a given yy_rand
-        float myRandX = CLHEP::RandFlat::shoot(engine);
-        float xx_rand = 2 * xMax * (myRandX - 0.5);
-        float ex = sigma_u;
-        float ey = sigma_v;
-        float corr = 0.;
+        double myRandX = CLHEP::RandFlat::shoot(engine);
+        double xx_rand = 2 * xMax * (myRandX - 0.5);
+        double ex = sigma_u;
+        double ey = sigma_v;
+        double corr = 0.;
         // extract random time in this BX
-        float myrandT = CLHEP::RandFlat::shoot(engine);
-	float minBXtime = (bx-0.5)*bxwidth;      // float maxBXtime = (bx+0.5)*bxwidth;
-        float time = myrandT*bxwidth+minBXtime;
-        float myrandP = CLHEP::RandFlat::shoot(engine);
+        double myrandT = CLHEP::RandFlat::shoot(engine);
+	double minBXtime = (bx-0.5)*bxwidth;      // double maxBXtime = (bx+0.5)*bxwidth;
+        double time = myrandT*bxwidth+minBXtime;
+        double myrandP = CLHEP::RandFlat::shoot(engine);
         int pdgid = 0;
         if (myrandP <= 0.5) pdgid = -11; // electron                                   
         else                pdgid = 11;  // positron                                   
@@ -145,8 +145,8 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
     // ----------------------------                                                    
     if (simulateNeutralBkg_) {
 
-      float myRandY = CLHEP::RandFlat::shoot(engine);
-      float yy_rand = height * (myRandY - 0.5); // random Y coord in Local Coords
+      double myRandY = CLHEP::RandFlat::shoot(engine);
+      double yy_rand = height * (myRandY - 0.5); // random Y coord in Local Coords
       double yy_glob = rollRadius + yy_rand;    // random Y coord in Global Coords
       // Extract / Calculate the Average Electron Rate                            
       // for the given global Y coord from Parametrization                        
@@ -162,17 +162,17 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
       // loop over amount of neutral hits in this roll                            
       for (int i = 0; i < n_hits; ++i) {
         //calculate xx_rand at a given yy_rand                                    
-        float myRandX = CLHEP::RandFlat::shoot(engine);
-        float xx_rand = 2 * xMax * (myRandX - 0.5);
-        float ex = sigma_u;
-        float ey = sigma_v;
-        float corr = 0.;
+        double myRandX = CLHEP::RandFlat::shoot(engine);
+        double xx_rand = 2 * xMax * (myRandX - 0.5);
+        double ex = sigma_u;
+        double ey = sigma_v;
+        double corr = 0.;
         // extract random time in this BX                                         
-        float myrandT = CLHEP::RandFlat::shoot(engine);
-        float minBXtime = (bx-0.5)*bxwidth;
-        float time = myrandT*bxwidth+minBXtime;
+        double myrandT = CLHEP::RandFlat::shoot(engine);
+        double minBXtime = (bx-0.5)*bxwidth;
+        double time = myrandT*bxwidth+minBXtime;
         int pdgid = 0;
-        float myrandP = CLHEP::RandFlat::shoot(engine);
+        double myrandP = CLHEP::RandFlat::shoot(engine);
         if (myrandP <= 0.08) pdgid = 2112; // neutrons: GEM sensitivity for neutrons: 0.08%
         else                 pdgid = 22;   // photons:  GEM sensitivity for photons:  1.04% ==> neutron fraction = (0.08 / 1.04) = 0.077 = 0.08
         ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid);
