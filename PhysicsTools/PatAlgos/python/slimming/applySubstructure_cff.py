@@ -21,7 +21,7 @@ def applySubstructure( process ) :
                      jetSource = cms.InputTag('ak8PFJetsCHS'),
                      algo= 'AK', rParam = 0.8,
                      jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-                     btagDiscriminators = [x.getModuleLabel() for x in patJetsDefault.discriminatorSources],
+                     btagDiscriminators = ([x.getModuleLabel() for x in patJetsDefault.discriminatorSources] + ['pfBoostedDoubleSecondaryVertexAK8BJetTags']),
                      genJetCollection = cms.InputTag('slimmedGenJetsAK8')
                      )
     process.patJetsAK8.userData.userFloats.src = [] # start with empty list of user floats
