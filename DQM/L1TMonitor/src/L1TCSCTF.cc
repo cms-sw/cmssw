@@ -140,6 +140,23 @@ void L1TCSCTF::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::
   csctferrors->setBinLabel(5,"Time misalign.",1);
   csctferrors->setBinLabel(6,"FMM != Ready",1);
 
+    // Error with detailed MCPID
+    csctferrors_mpc = ibooker.book2D("CSCTF_errors_mpc","CSCTF Errors",6,0,6,60,1,61);
+    csctferrors_mpc->setAxisTitle("Error type",1);
+    csctferrors_mpc->setAxisTitle("MPC ID",2);
+    csctferrors_mpc->setBinLabel(1,"Corruptions",1);
+    csctferrors_mpc->setBinLabel(2,"Synch. Err.",1);
+    csctferrors_mpc->setBinLabel(3,"Synch. Mod.",1);
+    csctferrors_mpc->setBinLabel(4,"BX mismatch",1);
+    csctferrors_mpc->setBinLabel(5,"Time misalign.",1);
+    csctferrors_mpc->setBinLabel(6,"FMM != Ready",1);
+    for(int ybin=1; ybin<=60; ybin++){
+                if(ybin%5) continue;
+                char ytitle[50];
+                snprintf(ytitle,50,"%d",ybin);
+                csctferrors_mpc->setBinLabel(ybin,ytitle,2);
+    }
+
       //  Occupancy histogram Eta x Y, where Y:
       //  1) Phi_packed of input LCTs from 1st, 2nd, 3rd, and 4th stations
       //  2) Phi_packed of output tracks
@@ -411,6 +428,7 @@ void L1TCSCTF::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::
 
   }
 
+  cscWireStripOverflow = ibooker.book2D("CSC_WireStripOverflow", "CSC WireStrip Overflow", 36,1,37, 18,0,18);
 
   // NEW: CSC EVENT LCT PLOTS
   csctflcts = ibooker.book2D("CSCTF_LCT", "CSCTF LCTs", 12,1,13, 18,0,18);
@@ -440,8 +458,12 @@ void L1TCSCTF::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::
         snprintf(lcttitle,200,"ME%s%d/%d", signEndcap.Data(), iStation, iRing);
         if(ihist<=8){
                 csctflcts -> setBinLabel(9-ihist,lcttitle,2);
+		cscWireStripOverflow -> setBinLabel(9-ihist,lcttitle,2);
         }
-        else    csctflcts -> setBinLabel(ihist+1,lcttitle,2);
+        else {
+	    	csctflcts -> setBinLabel(ihist+1,lcttitle,2);
+		cscWireStripOverflow -> setBinLabel(ihist+1,lcttitle,2);
+	}
 
         ihist++;
       }
@@ -595,6 +617,7 @@ void L1TCSCTF::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::
         char bxtitle[100];
         sprintf(bxtitle,"%d", cscid);
 
+	cscWireStripOverflow ->setBinLabel(cscid,bxtitle,1);
         csc_strip_MEplus11 ->setBinLabel(cscid,bxtitle,1);
         csc_strip_MEplus12 ->setBinLabel(cscid,bxtitle,1);
         csc_strip_MEplus13 ->setBinLabel(cscid,bxtitle,1);
@@ -743,6 +766,124 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
           bx |= stat->BXs()&0xFFF;
           af |= stat->AFs()&0xFFF;
           fmm|= stat->FMM()!=8;
+
+
+            int ise = stat->SEs()&0xFFF;
+            int ism = stat->SMs()&0xFFF;
+            int ibx = stat->BXs()&0xFFF;
+            int iaf = stat->AFs()&0xFFF;
+            int ifmm= stat->FMM();
+            int slot= stat->slot();
+
+
+            for(int j=0; j<15; j++) {
+
+		int link = j+1;
+		int mpc_id=0;
+		int sp_num=0;
+		if(slot>=6 && slot<=11) sp_num = slot-5;
+		if(slot>=16 && slot<=21) sp_num = slot-9;
+
+		if(sp_num==1){
+			if     (link>=1 && link<=3)   mpc_id=2;
+			else if(link>=4 && link<=6)   mpc_id=3;
+			else if(link>=7 && link<=9)   mpc_id=13;
+			else if(link>=10 && link<=12) mpc_id=19;
+			else if(link>=13 && link<=15) mpc_id=25;
+		}
+	        else if(sp_num==2){
+                        if     (link>=1 && link<=3)   mpc_id=4;
+                        else if(link>=4 && link<=6)   mpc_id=5;
+                        else if(link>=7 && link<=9)   mpc_id=14;
+                        else if(link>=10 && link<=12) mpc_id=20;
+                        else if(link>=13 && link<=15) mpc_id=26;
+		}
+	        else if(sp_num==3){
+                        if     (link>=1 && link<=3)   mpc_id=6;
+                        else if(link>=4 && link<=6)   mpc_id=7;
+                        else if(link>=7 && link<=9)   mpc_id=15;
+                        else if(link>=10 && link<=12) mpc_id=21;
+                        else if(link>=13 && link<=15) mpc_id=27;
+		}
+	        else if(sp_num==4){
+                        if     (link>=1 && link<=3)   mpc_id=8;
+                        else if(link>=4 && link<=6)   mpc_id=9;
+                        else if(link>=7 && link<=9)   mpc_id=16;
+                        else if(link>=10 && link<=12) mpc_id=22;
+                        else if(link>=13 && link<=15) mpc_id=28;
+		}
+	        else if(sp_num==5){
+                        if     (link>=1 && link<=3)   mpc_id=10;
+                        else if(link>=4 && link<=6)   mpc_id=11;
+                        else if(link>=7 && link<=9)   mpc_id=17;
+                        else if(link>=10 && link<=12) mpc_id=23;
+                        else if(link>=13 && link<=15) mpc_id=29;
+		}
+	        else if(sp_num==6){
+                        if     (link>=1 && link<=3)   mpc_id=12;
+                        else if(link>=4 && link<=6)   mpc_id=1;
+                        else if(link>=7 && link<=9)   mpc_id=18;
+                        else if(link>=10 && link<=12) mpc_id=24;
+                        else if(link>=13 && link<=15) mpc_id=30;
+		}
+	        else if(sp_num==7){
+                        if     (link>=1 && link<=3)   mpc_id=32;
+                        else if(link>=4 && link<=6)   mpc_id=33;
+                        else if(link>=7 && link<=9)   mpc_id=43;
+                        else if(link>=10 && link<=12) mpc_id=49;
+                        else if(link>=13 && link<=15) mpc_id=55;
+		}
+	        else if(sp_num==8){
+                        if     (link>=1 && link<=3)   mpc_id=34;
+                        else if(link>=4 && link<=6)   mpc_id=35;
+                        else if(link>=7 && link<=9)   mpc_id=44;
+                        else if(link>=10 && link<=12) mpc_id=50;
+                        else if(link>=13 && link<=15) mpc_id=56;
+		}
+	        else if(sp_num==9){
+                        if     (link>=1 && link<=3)   mpc_id=36;
+                        else if(link>=4 && link<=6)   mpc_id=37;
+                        else if(link>=7 && link<=9)   mpc_id=45;
+                        else if(link>=10 && link<=12) mpc_id=51;
+                        else if(link>=13 && link<=15) mpc_id=57;
+		}
+	        else if(sp_num==10){
+                        if     (link>=1 && link<=3)   mpc_id=38;
+                        else if(link>=4 && link<=6)   mpc_id=39;
+                        else if(link>=7 && link<=9)   mpc_id=46;
+                        else if(link>=10 && link<=12) mpc_id=52;
+                        else if(link>=13 && link<=15) mpc_id=58;
+		}
+	        else if(sp_num==11){
+                        if     (link>=1 && link<=3)   mpc_id=40;
+                        else if(link>=4 && link<=6)   mpc_id=41;
+                        else if(link>=7 && link<=9)   mpc_id=47;
+                        else if(link>=10 && link<=12) mpc_id=53;
+                        else if(link>=13 && link<=15) mpc_id=59;
+		}
+	        else if(sp_num==12){
+                        if     (link>=1 && link<=3)   mpc_id=42;
+                        else if(link>=4 && link<=6)   mpc_id=31;
+                        else if(link>=7 && link<=9)   mpc_id=48;
+                        else if(link>=10 && link<=12) mpc_id=54;
+                        else if(link>=13 && link<=15) mpc_id=60;
+		}
+
+
+		if(integrity)     csctferrors_mpc->Fill(0.5,mpc_id);
+                if((ise >>j)&0x1) csctferrors_mpc->Fill(1.5,mpc_id);
+                if((ism >>j)&0x1) csctferrors_mpc->Fill(2.5,mpc_id);
+                if((ibx >>j)&0x1) csctferrors_mpc->Fill(3.5,mpc_id);
+                if((iaf >>j)&0x1) csctferrors_mpc->Fill(4.5,mpc_id);
+		if(ifmm!=8)       csctferrors_mpc->Fill(5.5,mpc_id);
+            }
+
+
+
+
+
+
+
 
           if(stat->VPs() != 0)
             {
@@ -928,66 +1069,66 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
               if (station == 0 && ring == 1){
                 int realID = cscId+6*sector+3*subSector;
                 if(realID>36) realID -= 36;
-                if(endcap == 0) { csc_strip_MEplus11  -> Fill(realID,strip); csc_wire_MEplus11  -> Fill(realID,keyWire); }
-                if(endcap == 1) { csc_strip_MEminus11 -> Fill(realID,strip); csc_wire_MEminus11 -> Fill(realID,keyWire); }
+                if(endcap == 0) { csc_strip_MEplus11  -> Fill(realID,strip); csc_wire_MEplus11  -> Fill(realID,keyWire); if(keyWire>48||strip>224) cscWireStripOverflow->Fill(realID,9.5,1);}
+                if(endcap == 1) { csc_strip_MEminus11 -> Fill(realID,strip); csc_wire_MEminus11 -> Fill(realID,keyWire); if(keyWire>48||strip>224) cscWireStripOverflow->Fill(realID,8.5,1);}
               }
                 //ME1/2
               if (station == 0 && ring == 2){
                 int realID = (cscId-3)+6*sector+3*subSector;
                 if(realID>36) realID -= 36;
-                if(endcap == 0) { csc_strip_MEplus12  -> Fill(realID,strip); csc_wire_MEplus12  -> Fill(realID,keyWire); }
-                if(endcap == 1) { csc_strip_MEminus12 -> Fill(realID,strip); csc_wire_MEminus12 -> Fill(realID,keyWire); }
+                if(endcap == 0) { csc_strip_MEplus12  -> Fill(realID,strip); csc_wire_MEplus12  -> Fill(realID,keyWire); if(keyWire>64||strip>160) cscWireStripOverflow->Fill(realID,10.5,1);}
+                if(endcap == 1) { csc_strip_MEminus12 -> Fill(realID,strip); csc_wire_MEminus12 -> Fill(realID,keyWire); if(keyWire>64||strip>160) cscWireStripOverflow->Fill(realID,7.5,1);}
               }
                 //ME1/3
               if (station == 0 && ring == 3){
                 int realID = (cscId-6)+6*sector+3*subSector;
                 if(realID>36) realID -= 36;
-                if(endcap == 0) { csc_strip_MEplus13  -> Fill(realID,strip); csc_wire_MEplus13  -> Fill(realID,keyWire); }
-                if(endcap == 1) { csc_strip_MEminus13 -> Fill(realID,strip); csc_wire_MEminus13 -> Fill(realID,keyWire); }
+                if(endcap == 0) { csc_strip_MEplus13  -> Fill(realID,strip); csc_wire_MEplus13  -> Fill(realID,keyWire); if(keyWire>32||strip>128) cscWireStripOverflow->Fill(realID,11.5,1);}
+                if(endcap == 1) { csc_strip_MEminus13 -> Fill(realID,strip); csc_wire_MEminus13 -> Fill(realID,keyWire); if(keyWire>32||strip>128) cscWireStripOverflow->Fill(realID,6.5,1);}
               }
                 //ME2/1
               if (station == 1 && ring == 1){
                 int realID = cscId+3*sector+2;
                 if(realID>18) realID -= 18;
-                if(endcap == 0) { csc_strip_MEplus21  -> Fill(realID,strip); csc_wire_MEplus21  -> Fill(realID,keyWire); }
-                if(endcap == 1) { csc_strip_MEminus21 -> Fill(realID,strip); csc_wire_MEminus21 -> Fill(realID,keyWire); }
+                if(endcap == 0) { csc_strip_MEplus21  -> Fill(realID,strip); csc_wire_MEplus21  -> Fill(realID,keyWire); if(keyWire>112||strip>160) cscWireStripOverflow->Fill(realID,12.5,1);}
+                if(endcap == 1) { csc_strip_MEminus21 -> Fill(realID,strip); csc_wire_MEminus21 -> Fill(realID,keyWire); if(keyWire>112||strip>160) cscWireStripOverflow->Fill(realID,5.5,1);}
               }
                 //ME2/2
               if (station == 1 && ring == 2){
                 int realID = (cscId-3)+6*sector+3;
                 if(realID>36) realID -= 36;
-                if(endcap == 0) { csc_strip_MEplus22  -> Fill(realID,strip); csc_wire_MEplus22  -> Fill(realID,keyWire); }
-                if(endcap == 1) { csc_strip_MEminus22 -> Fill(realID,strip); csc_wire_MEminus22 -> Fill(realID,keyWire); }
+                if(endcap == 0) { csc_strip_MEplus22  -> Fill(realID,strip); csc_wire_MEplus22  -> Fill(realID,keyWire); if(keyWire>64||strip>160) cscWireStripOverflow->Fill(realID,13.5,1);}
+                if(endcap == 1) { csc_strip_MEminus22 -> Fill(realID,strip); csc_wire_MEminus22 -> Fill(realID,keyWire); if(keyWire>64||strip>160) cscWireStripOverflow->Fill(realID,4.5,1);}
               }
 
                 //ME3/1
               if (station == 2 && ring == 1){
                 int realID = cscId+3*sector+2;
                 if(realID>18) realID -= 18;
-                if(endcap == 0) { csc_strip_MEplus31  -> Fill(realID,strip); csc_wire_MEplus31  -> Fill(realID,keyWire); }
-                if(endcap == 1) { csc_strip_MEminus31 -> Fill(realID,strip); csc_wire_MEminus31 -> Fill(realID,keyWire); }
+                if(endcap == 0) { csc_strip_MEplus31  -> Fill(realID,strip); csc_wire_MEplus31  -> Fill(realID,keyWire); if(keyWire>96||strip>160) cscWireStripOverflow->Fill(realID,14.5,1);}
+                if(endcap == 1) { csc_strip_MEminus31 -> Fill(realID,strip); csc_wire_MEminus31 -> Fill(realID,keyWire); if(keyWire>96||strip>160) cscWireStripOverflow->Fill(realID,3.5,1); }
               }
 
                 //ME3/2
               if (station == 2 && ring == 2){
                 int realID = (cscId-3)+6*sector+3;
                 if(realID>36) realID -= 36;
-                if(endcap == 0) { csc_strip_MEplus32  -> Fill(realID,strip); csc_wire_MEplus32  -> Fill(realID,keyWire); }
-                if(endcap == 1) { csc_strip_MEminus32 -> Fill(realID,strip); csc_wire_MEminus32 -> Fill(realID,keyWire); }
+                if(endcap == 0) { csc_strip_MEplus32  -> Fill(realID,strip); csc_wire_MEplus32  -> Fill(realID,keyWire); if(keyWire>64||strip>160) cscWireStripOverflow->Fill(realID,15.5,1);}
+                if(endcap == 1) { csc_strip_MEminus32 -> Fill(realID,strip); csc_wire_MEminus32 -> Fill(realID,keyWire); if(keyWire>64||strip>160) cscWireStripOverflow->Fill(realID,2.5,1); }
               }
                 //ME4/1
               if (station == 3 && ring == 1){
                 int realID = cscId+3*sector+2;
                 if(realID>18) realID -= 18;
-                if(endcap == 0) { csc_strip_MEplus41  -> Fill(realID,strip); csc_wire_MEplus41  -> Fill(realID,keyWire);}
-                if(endcap == 1) { csc_strip_MEminus41 -> Fill(realID,strip); csc_wire_MEminus41 -> Fill(realID,keyWire);}
+                if(endcap == 0) { csc_strip_MEplus41  -> Fill(realID,strip); csc_wire_MEplus41  -> Fill(realID,keyWire); if(keyWire>96||strip>160) cscWireStripOverflow->Fill(realID,16.5,1);}
+                if(endcap == 1) { csc_strip_MEminus41 -> Fill(realID,strip); csc_wire_MEminus41 -> Fill(realID,keyWire); if(keyWire>96||strip>160) cscWireStripOverflow->Fill(realID,1.5,1); }
               }
                 //ME4/2
               if (station == 3 && ring == 2){
                 int realID = (cscId-3)+6*sector+3;
                 if(realID>36) realID -= 36;
-                if(endcap == 0) { csc_strip_MEplus42  -> Fill(realID,strip); csc_wire_MEplus42  -> Fill(realID,keyWire); }
-                if(endcap == 1) { csc_strip_MEminus42 -> Fill(realID,strip); csc_wire_MEminus42 -> Fill(realID,keyWire); }
+                if(endcap == 0) { csc_strip_MEplus42  -> Fill(realID,strip); csc_wire_MEplus42  -> Fill(realID,keyWire); if(keyWire>64||strip>160) cscWireStripOverflow->Fill(realID,17.5,1); }
+                if(endcap == 1) { csc_strip_MEminus42 -> Fill(realID,strip); csc_wire_MEminus42 -> Fill(realID,keyWire); if(keyWire>64||strip>160) cscWireStripOverflow->Fill(realID,0.5,1); }
               }
 
 
