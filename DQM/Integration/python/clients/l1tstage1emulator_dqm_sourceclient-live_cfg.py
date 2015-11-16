@@ -229,8 +229,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
     process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.caloConfig.fwVersionLayer2 = cms.uint32(1)
-
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
