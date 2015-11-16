@@ -164,11 +164,14 @@
   </class>
   <class name="edm::Wrapper<reco::EcalHaloData>"/>
 
-  <class name="reco::HcalHaloData" ClassVersion="11">
+  <class name="reco::HcalHaloData" ClassVersion="10">
    <version ClassVersion="10" checksum="3928363167"/>
-   <version ClassVersion="11" checksum="3305429659"/>
   </class>
   <class name="edm::Wrapper<reco::HcalHaloData>"/>
+
+  <class name="HaloTowerStrip" ClassVersion="2">
+   <version ClassVersion="2" checksum="665188928"/>
+  </class>
 
   <class name="std::vector<HaloTowerStrip>"/>
   <class name="edm::Wrapper<std::vector<HaloTowerStrip> >"/>
