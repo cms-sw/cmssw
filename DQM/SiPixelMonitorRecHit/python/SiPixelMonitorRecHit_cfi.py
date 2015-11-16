@@ -1,5 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
+#
+# This object is used to make changes for different running scenarios
+#
+from Configuration.StandardSequences.Eras import eras
+
 SiPixelRecHitSource = cms.EDAnalyzer("SiPixelRecHitSource",
     TopFolderName = cms.string('Pixel'),
     src = cms.InputTag("siPixelRecHits"),
@@ -17,3 +22,6 @@ SiPixelRecHitSource = cms.EDAnalyzer("SiPixelRecHitSource",
     bladeOn = cms.untracked.bool(False),
     diskOn = cms.untracked.bool(False)
 )
+
+# Modify for if the phase 1 pixel detector is active
+eras.phase1Pixel.toModify( SiPixelRecHitSource, isUpgrade=cms.untracked.bool(True) )
