@@ -58,6 +58,8 @@
 
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
 
+#include "DataFormats/BTauReco/interface/CATopJetTagInfo.h"
+
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
@@ -355,6 +357,8 @@ class JetAnalyzer : public DQMEDAnalyzer {
   std::vector<std::string> lowPtJetExpr_;
 
   bool jetCleaningFlag_;
+  bool filljetsubstruc_;
+  double pt_min_boosted_;
 
   bool runcosmics_;
 
@@ -577,7 +581,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
 
   JetMETDQMDCSFilter * DCSFilterForJetMonitoring_;
   JetMETDQMDCSFilter * DCSFilterForDCSMonitoring_;
-
+  /*
   MonitorElement* mePhFracBarrel_BXm2BXm1Empty;
   MonitorElement* meNHFracBarrel_BXm2BXm1Empty;
   MonitorElement* meCHFracBarrel_BXm2BXm1Empty;
@@ -597,7 +601,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meHFEMFracPlus_BXm2BXm1Empty;
   MonitorElement* mePtForwardPlus_BXm2BXm1Empty;
   MonitorElement* meEta_BXm2BXm1Empty;
-
+  */
   MonitorElement* mePhFracBarrel_BXm1Empty;
   MonitorElement* meNHFracBarrel_BXm1Empty;
   MonitorElement* meCHFracBarrel_BXm1Empty;
@@ -617,7 +621,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meHFEMFracPlus_BXm1Empty;
   MonitorElement* mePtForwardPlus_BXm1Empty;
   MonitorElement* meEta_BXm1Empty;
-
+  /*
   MonitorElement* mePhFracBarrel_BXm2BXm1Filled;
   MonitorElement* meNHFracBarrel_BXm2BXm1Filled;
   MonitorElement* meCHFracBarrel_BXm2BXm1Filled;
@@ -637,7 +641,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meHFEMFracPlus_BXm2BXm1Filled;
   MonitorElement* mePtForwardPlus_BXm2BXm1Filled;
   MonitorElement* meEta_BXm2BXm1Filled;
-
+  */
   MonitorElement* mePhFracBarrel_BXm1Filled;
   MonitorElement* meNHFracBarrel_BXm1Filled;
   MonitorElement* meCHFracBarrel_BXm1Filled;
@@ -657,6 +661,91 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meHFEMFracPlus_BXm1Filled;
   MonitorElement* mePtForwardPlus_BXm1Filled;
   MonitorElement* meEta_BXm1Filled;
+
+  //miniaod specific variables, especially for substructure
+  MonitorElement* mSoftDropMass; 
+  MonitorElement* mPrunedMass; 
+  MonitorElement* mTrimmedMass; 
+  MonitorElement* mFilteredMass; 
+  MonitorElement* mtau2_over_tau1; 
+  MonitorElement* mtau3_over_tau2; 
+  MonitorElement* mCATopTag_topMass;
+  MonitorElement* mCATopTag_minMass; 
+  MonitorElement* mCATopTag_nSubJets; 
+
+  MonitorElement* mnSubJetsCMSTopTag; 
+  MonitorElement* mSubJet1_CMSTopTag_pt; 
+  MonitorElement* mSubJet1_CMSTopTag_eta; 
+  MonitorElement* mSubJet1_CMSTopTag_phi; 
+  MonitorElement* mSubJet1_CMSTopTag_mass; 
+  MonitorElement* mSubJet2_CMSTopTag_pt; 
+  MonitorElement* mSubJet2_CMSTopTag_eta; 
+  MonitorElement* mSubJet2_CMSTopTag_phi; 
+  MonitorElement* mSubJet2_CMSTopTag_mass; 
+  MonitorElement* mSubJet3_CMSTopTag_pt; 
+  MonitorElement* mSubJet3_CMSTopTag_eta; 
+  MonitorElement* mSubJet3_CMSTopTag_phi; 
+  MonitorElement* mSubJet3_CMSTopTag_mass; 
+  MonitorElement* mSubJet4_CMSTopTag_pt; 
+  MonitorElement* mSubJet4_CMSTopTag_eta; 
+  MonitorElement* mSubJet4_CMSTopTag_phi; 
+  MonitorElement* mSubJet4_CMSTopTag_mass; 
+
+  MonitorElement* mnSubJetsSoftDrop; 
+  MonitorElement* mSubJet1_SoftDrop_pt; 
+  MonitorElement* mSubJet1_SoftDrop_eta; 
+  MonitorElement* mSubJet1_SoftDrop_phi; 
+  MonitorElement* mSubJet1_SoftDrop_mass; 
+  MonitorElement* mSubJet2_SoftDrop_pt; 
+  MonitorElement* mSubJet2_SoftDrop_eta; 
+  MonitorElement* mSubJet2_SoftDrop_phi; 
+  MonitorElement* mSubJet2_SoftDrop_mass; 
+
+  //miniaod specific variables, especially for substructure for a boosted regime
+  MonitorElement* mSoftDropMass_boosted; 
+  MonitorElement* mPrunedMass_boosted; 
+  MonitorElement* mTrimmedMass_boosted; 
+  MonitorElement* mFilteredMass_boosted; 
+  MonitorElement* mtau2_over_tau1_boosted; 
+  MonitorElement* mtau3_over_tau2_boosted; 
+  MonitorElement* mCATopTag_topMass_boosted;
+  MonitorElement* mCATopTag_minMass_boosted; 
+  MonitorElement* mCATopTag_nSubJets_boosted; 
+
+  MonitorElement* mnSubJetsCMSTopTag_boosted; 
+  MonitorElement* mSubJet1_CMSTopTag_pt_boosted; 
+  MonitorElement* mSubJet1_CMSTopTag_eta_boosted; 
+  MonitorElement* mSubJet1_CMSTopTag_phi_boosted; 
+  MonitorElement* mSubJet1_CMSTopTag_mass_boosted; 
+  MonitorElement* mSubJet2_CMSTopTag_pt_boosted; 
+  MonitorElement* mSubJet2_CMSTopTag_eta_boosted; 
+  MonitorElement* mSubJet2_CMSTopTag_phi_boosted; 
+  MonitorElement* mSubJet2_CMSTopTag_mass_boosted; 
+  MonitorElement* mSubJet3_CMSTopTag_pt_boosted; 
+  MonitorElement* mSubJet3_CMSTopTag_eta_boosted; 
+  MonitorElement* mSubJet3_CMSTopTag_phi_boosted; 
+  MonitorElement* mSubJet3_CMSTopTag_mass_boosted; 
+  MonitorElement* mSubJet4_CMSTopTag_pt_boosted; 
+  MonitorElement* mSubJet4_CMSTopTag_eta_boosted; 
+  MonitorElement* mSubJet4_CMSTopTag_phi_boosted; 
+  MonitorElement* mSubJet4_CMSTopTag_mass_boosted; 
+
+  MonitorElement* mnSubJetsSoftDrop_boosted; 
+  MonitorElement* mSubJet1_SoftDrop_pt_boosted; 
+  MonitorElement* mSubJet1_SoftDrop_eta_boosted; 
+  MonitorElement* mSubJet1_SoftDrop_phi_boosted; 
+  MonitorElement* mSubJet1_SoftDrop_mass_boosted; 
+  MonitorElement* mSubJet2_SoftDrop_pt_boosted; 
+  MonitorElement* mSubJet2_SoftDrop_eta_boosted; 
+  MonitorElement* mSubJet2_SoftDrop_phi_boosted; 
+  MonitorElement* mSubJet2_SoftDrop_mass_boosted; 
+
+  //miniaod only variables
+  MonitorElement* mPt_CaloJet;
+  MonitorElement* mEMF_CaloJet;
+  MonitorElement* mMass_Barrel;
+  MonitorElement* mMass_EndCap;
+  MonitorElement* mMass_Forward;
 
   //now ZJets plots
   MonitorElement*  mDPhiZJet;

@@ -346,7 +346,7 @@ try { // edmNew::CapacityExaustedException
     const sistrip::FEDReadoutMode mode = buffer->readoutMode();
     
     
-    if likely(mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE ) { 
+    if likely(mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8) { 
 	
 	try {
 	  // create unpacker
@@ -370,9 +370,9 @@ try { // edmNew::CapacityExaustedException
 	  }                                               
 	  continue;
 	}
-      } else {
+    } else {
       
-      if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED ) { 
+      if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_FAKE ) { 
 	try {
 	  // create unpacker
 	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(fedCh));

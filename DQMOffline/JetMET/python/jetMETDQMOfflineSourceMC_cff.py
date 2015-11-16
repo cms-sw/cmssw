@@ -1,14 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi import *
-
 from DQMOffline.JetMET.metDQMConfig_cff     import *
 from DQMOffline.JetMET.jetAnalyzer_cff   import *
 from DQMOffline.JetMET.SUSYDQMAnalyzer_cfi  import *
 from DQMOffline.JetMET.goodOfflinePrimaryVerticesDQM_cfi import *
-
 from RecoJets.JetProducers.PileupJetID_cfi  import *
 from RecoJets.JetProducers.QGTagger_cfi  import *
+from RecoMET.METFilters.metFilters_cff  import *
 
 pileupJetIdCalculatorDQM=pileupJetIdCalculator.clone(
     jets = cms.InputTag("ak4PFJets"),
@@ -85,12 +83,13 @@ caloMetDQMAnalyzerMC=caloMetDQMAnalyzer.clone(JetCorrections    = cms.InputTag("
 pfMetDQMAnalyzerMC=pfMetDQMAnalyzer.clone(JetCorrections      = cms.InputTag("dqmAk4PFL1FastL2L3Corrector"))
 pfMetT1DQMAnalyzerMC=pfMetT1DQMAnalyzer.clone(JetCorrections    = cms.InputTag("dqmAk4PFCHSL1FastL2L3Corrector"))
 
-jetMETDQMOfflineSource = cms.Sequence(HBHENoiseFilterResultProducer*goodOfflinePrimaryVerticesDQM*AnalyzeSUSYDQM*QGTagger*
+jetMETDQMOfflineSource = cms.Sequence(goodOfflinePrimaryVerticesDQM*AnalyzeSUSYDQM*QGTagger*
                                       pileupJetIdCalculatorCHSDQM*pileupJetIdEvaluatorCHSDQM*
                                       pileupJetIdCalculatorDQM*pileupJetIdEvaluatorDQM*
                                       jetPreDQMSeq*
                                       dqmAk4CaloL2L3CorrectorChain*dqmAk4PFL1FastL2L3CorrectorChain*dqmAk4PFCHSL1FastL2L3CorrectorChain*
                                       dqmCorrPfMetType1*pfMETT1*
-                                      jetDQMAnalyzerSequence*METDQMAnalyzerSequence)
+                                      jetDQMAnalyzerAk4CaloCleanedMC*jetDQMAnalyzerAk4PFUncleanedMC*jetDQMAnalyzerAk4PFCleanedMC*jetDQMAnalyzerAk4PFCHSCleanedMC*
+                                      HBHENoiseFilterResultProducer*caloMetDQMAnalyzerMC*pfMetDQMAnalyzerMC*pfMetT1DQMAnalyzerMC)
 
 jetMETDQMOfflineSourceMiniAOD = cms.Sequence(goodOfflinePrimaryVerticesDQMforMiniAOD*jetDQMAnalyzerSequenceMiniAOD*METDQMAnalyzerSequenceMiniAOD)

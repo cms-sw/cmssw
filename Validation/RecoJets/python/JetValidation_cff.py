@@ -60,4 +60,5 @@ JetValidation = cms.Sequence(
 #    *JetAnalyzerCA8PFCHS
     )
 
-JetValidationMiniAOD=cms.Sequence(JetAnalyzerAk4PFCHSMiniAOD)
+
+JetValidationMiniAOD=cms.Sequence(JetAnalyzerAk4PFCHSMiniAOD*JetAnalyzerAk4PFPUPPIMiniAOD*JetAnalyzerAk8PFCHSMiniAOD)
