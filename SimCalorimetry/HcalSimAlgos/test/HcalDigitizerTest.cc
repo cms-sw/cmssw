@@ -33,106 +33,111 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+
 #include "CLHEP/Random/JamesRandom.h"
 #include <vector>
 #include<iostream>
 #include<iterator>
-using namespace std;
-using namespace cms;
 
-void testHitCorrection(HcalHitCorrection * correction, MixCollection<PCaloHit> & hits, CLHEP::HepRandomEngine* engine)
-{
-  correction->fillChargeSums(hits);
-  for(MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
-      hitItr != hits.end(); ++hitItr)
-    {
-      DetId detId((*hitItr).id());
-      if (detId.det()==DetId::Calo && detId.subdetId()==HcalZDCDetId::SubdetectorId){
-	std::cout<<"ZDC -- ";
-    } 
-      std::cout << "HIT charge " << correction->charge(*hitItr) << " delay " << correction->delay(*hitItr, engine)
-		<< " Timebin " << correction->timeBin(*hitItr) <<std::endl;
-    }
-}
+class HcalDigitizerTest : public edm::EDAnalyzer {
 
+public:
+  explicit HcalDigitizerTest(const edm::ParameterSet&);
+  ~HcalDigitizerTest();
 
-int main() {
+private:
+  virtual void beginJob() ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void testHitCorrection(HcalHitCorrection*, MixCollection<PCaloHit>& , 
+			 CLHEP::HepRandomEngine*);
+
+  std::vector<PCaloHit>  hits;
+  std::vector<DetId>     hcalDetIds, hoDetIds, hfDetIds, hzdcDetIds, allDetIds;
+  std::vector<HcalDetId> outerHcalDetIds;
+};
+
+HcalDigitizerTest::HcalDigitizerTest(const edm::ParameterSet&) { }
+
+HcalDigitizerTest::~HcalDigitizerTest() { } 
+
+void HcalDigitizerTest::beginJob() {
+
   // make a silly little hit in each subdetector, which should
   // correspond to a 100 GeV particle
 
-  HcalDetId barrelDetId(HcalBarrel, 1, 1, 1);
-  //PCaloHit barrelHit(barrelDetId.rawId(),  0.855, 0.);
-
-  HcalDetId endcapDetId(HcalEndcap, 17, 1, 1);
-  PCaloHit endcapHit(endcapDetId.rawId(), 0.9, 0.);
-
-  HcalDetId outerDetId(HcalOuter, 1, 1, 4);
-  PCaloHit outerHit(outerDetId.rawId(), 0.45, 0.);
-
-  HcalDetId forwardDetId1(HcalForward, 30, 1, 1);
-  PCaloHit forwardHit1(forwardDetId1.rawId(), 35.2, 0.);
-
-  HcalDetId forwardDetId2(HcalForward, 30, 1, 2);
-  PCaloHit forwardHit2(forwardDetId2.rawId(), 47.8, 0.);
-
-  HcalZDCDetId zdcDetId(HcalZDCDetId::Section(1),true,1);
-  PCaloHit zdcHit(zdcDetId.rawId(), 50.0, 0.123);
- 
-  std::cout<<zdcDetId<<std::endl;
-  std::cout<<zdcHit<<std::endl;
-
-  vector<PCaloHit> hits;
-  //hits.push_back(barrelHit);
-  //hits.push_back(endcapHit);
-  hits.push_back(outerHit);
-  hits.push_back(forwardHit1);
-  hits.push_back(forwardHit2);
-  hits.push_back(zdcHit);
-
-  vector<DetId> hcalDetIds, hoDetIds, hfDetIds, hzdcDetIds;
-  vector<HcalDetId> outerHcalDetIds;
-  //hcalDetIds.push_back(barrelDetId);
-  //hcalDetIds.push_back(endcapDetId);
-  for(int phi = 1; phi < 50 ; ++phi)
-  {
+  for (int phi = 1; phi < 50 ; ++phi) {
     HcalDetId detId(HcalBarrel, 1 , phi, 1);
     PCaloHit barrelHit(detId.rawId(),  0.085*phi, 0.);
     hcalDetIds.push_back(detId);
     hits.push_back(barrelHit);
   }
 
+  HcalDetId endcapDetId(HcalEndcap, 17, 1, 1);
+  PCaloHit endcapHit(endcapDetId.rawId(), 0.9, 0.);
+  hcalDetIds.push_back(endcapDetId);
+  hits.push_back(endcapHit);
 
-  HcalTopology topology(HcalTopologyMode::LHC,2,3);
-
+  HcalDetId outerDetId(HcalOuter, 1, 1, 4);
+  PCaloHit outerHit(outerDetId.rawId(), 0.45, 0.);
   hoDetIds.push_back(outerDetId);
-  vector<HcalDetId> outerhcalDetIds;
   outerHcalDetIds.push_back(outerDetId);
-  hfDetIds.push_back(forwardDetId1);
-  hfDetIds.push_back(forwardDetId2);
-  hzdcDetIds.push_back(zdcDetId);
+  hits.push_back(outerHit);
 
-  vector<DetId> allDetIds;
+  HcalDetId forwardDetId1(HcalForward, 30, 1, 1);
+  PCaloHit forwardHit1(forwardDetId1.rawId(), 35.2, 0.);
+  hfDetIds.push_back(forwardDetId1);
+  hits.push_back(forwardHit1);
+
+  HcalDetId forwardDetId2(HcalForward, 30, 1, 2);
+  PCaloHit forwardHit2(forwardDetId2.rawId(), 47.8, 0.);
+  hfDetIds.push_back(forwardDetId2);
+  hits.push_back(forwardHit2);
+
+  HcalZDCDetId zdcDetId(HcalZDCDetId::Section(1),true,1);
+  PCaloHit zdcHit(zdcDetId.rawId(), 50.0, 0.123);
+  hzdcDetIds.push_back(zdcDetId);
+  hits.push_back(zdcHit);
+ 
+  std::cout << zdcDetId << std::endl;
+  std::cout << zdcHit   << std::endl;
+
   allDetIds.insert(allDetIds.end(), hcalDetIds.begin(), hcalDetIds.end());
   allDetIds.insert(allDetIds.end(), hoDetIds.begin(), hoDetIds.end());
   allDetIds.insert(allDetIds.end(), hfDetIds.begin(), hfDetIds.end());
   allDetIds.insert(allDetIds.end(), hzdcDetIds.begin(), hzdcDetIds.end());
+}
+
+void HcalDigitizerTest::analyze(const edm::Event& iEvent, 
+				const edm::EventSetup& iSetup) {
+
+  edm::ESHandle<HcalTopology> htopo;
+  iSetup.get<HcalRecNumberingRecord>().get(htopo);
+  HcalTopology topology = (*htopo);
 
 
-  string hitsName = "HcalHits";
-  vector<string> caloDets;
-
+  std::string hitsName = "HcalHits";
+  std::vector<std::string> caloDets;
   CrossingFrame<PCaloHit> crossingFrame(-5, 5, 25,  hitsName, 0);
-  edm::EventID eventId;
-  crossingFrame.addSignals(&hits, eventId);
+  crossingFrame.addSignals(&hits, iEvent.id());
 
   // make 1 GeV pileup hit
+  HcalDetId barrelDetId(HcalBarrel, 1, 1, 1);
   PCaloHit barrelPileup(barrelDetId.rawId(), 0.00855, 0.);
   // 10 GeV pileup hit
-  PCaloHit forwardPileup(forwardDetId1.rawId(), 3.52, 0.);
-  PCaloHit zdcPileup(zdcDetId.rawId(), 3.52, 0.);
+  HcalDetId forwardDetId1(HcalForward, 30, 1, 1);
+  PCaloHit  forwardPileup(forwardDetId1.rawId(), 3.52, 0.);
+  HcalZDCDetId zdcDetId(HcalZDCDetId::Section(1),true,1);
+  PCaloHit     zdcPileup(zdcDetId.rawId(), 3.52, 0.);
 
-  vector<PCaloHit> pileups;
-  //pileups.push_back(barrelPileup);
+  std::vector<PCaloHit> pileups;
+  pileups.push_back(barrelPileup);
   pileups.push_back(forwardPileup);
   pileups.push_back(zdcPileup);
   ///TODO fix once the new crossingframe is released
@@ -152,8 +157,7 @@ int main() {
   CaloShapeIntegrator hfShapeIntegrator(new HFShape());
   CaloShapeIntegrator zdcShapeIntegrator(new ZDCShape());
   CaloShapes sipmShapes(&sipmShapeIntegrator);
-//for(float t = -25; t < 200; t += 5)
-//{
+//for(float t = -25; t < 200; t += 5) {
 //  std::cout <<  t << " " << hcalShape(t) << "  " << sipmShape(t) << "  " << hcalShapeIntegrator(t) << "  "<< sipmShapeIntegrator(t) << std::endl;
 //}
 
@@ -187,7 +191,8 @@ int main() {
   HcalGains gains(&topology);
   HcalGainWidths gainWidths(&topology);
   // make a calibration service by hand
-  for(vector<DetId>::const_iterator detItr = allDetIds.begin(); detItr != allDetIds.end(); ++detItr) {
+  for(std::vector<DetId>::const_iterator detItr = allDetIds.begin(); 
+      detItr != allDetIds.end(); ++detItr) {
     pedestals.addValues(HcalDbHardcode::makePedestal(*detItr, false,0));
     pedestalWidths.addValues(HcalDbHardcode::makePedestalWidth(*detItr));
     gains.addValues(HcalDbHardcode::makeGain(*detItr));
@@ -212,7 +217,6 @@ int main() {
   calibratorHandle.setData(&gains);
   calibratorHandle.setData(&gainWidths);
 
-
   bool addNoise = false;
   bool PM1 = false;
   bool PM2 = false;
@@ -222,7 +226,6 @@ int main() {
   amplifier.setDbService(&calibratorHandle);
   parameterMap.setDbService(&calibratorHandle);
   siPMParameterMap.setDbService(&calibratorHandle);
-
 
   CaloTDigitizer<HBHEDigitizerTraits> hbheDigitizer(&hbheResponse, &electronicsSim, addNoise);
   CaloTDigitizer<HODigitizerTraits> hoDigitizer(&hoResponse, &electronicsSim, addNoise);
@@ -234,10 +237,10 @@ int main() {
   hoDigitizer.setDetIds(hoDetIds);
   zdcDigitizer.setDetIds(hzdcDetIds);
 
-  auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection);
-  auto_ptr<HODigiCollection> hoResult(new HODigiCollection);
-  auto_ptr<HFDigiCollection> hfResult(new HFDigiCollection);
-  auto_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection);
+  std::auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection);
+  std::auto_ptr<HODigiCollection> hoResult(new HODigiCollection);
+  std::auto_ptr<HFDigiCollection> hfResult(new HFDigiCollection);
+  std::auto_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection);
 
   MixCollection<PCaloHit> hitCollection(&crossingFrame);
 
@@ -252,17 +255,32 @@ int main() {
   //zdcDigitizer.run(hitCollection, *zdcResult);
 
   // print out all the digis
-  cout << "HBHE Frames" << endl;
-  copy(hbheResult->begin(), hbheResult->end(), std::ostream_iterator<HBHEDataFrame>(std::cout, "\n"));
+  std::cout << "HBHE Frames" << std::endl;
+  std::copy(hbheResult->begin(), hbheResult->end(), std::ostream_iterator<HBHEDataFrame>(std::cout, "\n"));
 
-  cout << "HF Frames" << endl;
-  copy(hfResult->begin(), hfResult->end(), std::ostream_iterator<HFDataFrame>(std::cout, "\n"));
+  std::cout << "HF Frames" << std::endl;
+  std::copy(hfResult->begin(), hfResult->end(), std::ostream_iterator<HFDataFrame>(std::cout, "\n"));
 
-  cout << "ZDC Frames" << endl;
-  copy(zdcResult->begin(), zdcResult->end(), std::ostream_iterator<ZDCDataFrame>(std::cout, "\n"));
-  
-  return 0;
+  std::cout << "ZDC Frames" << std::endl;
+  std::copy(zdcResult->begin(), zdcResult->end(), std::ostream_iterator<ZDCDataFrame>(std::cout, "\n"));
 }
 
+void HcalDigitizerTest::testHitCorrection(HcalHitCorrection* correction, 
+					  MixCollection<PCaloHit>& hits, 
+					  CLHEP::HepRandomEngine* engine) {
+  correction->fillChargeSums(hits);
+  for (MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
+       hitItr != hits.end(); ++hitItr) {
+    DetId detId((*hitItr).id());
+    if (detId.det()==DetId::Calo && 
+	detId.subdetId()==HcalZDCDetId::SubdetectorId) {
+      std::cout<<"ZDC -- ";
+    } 
+    std::cout << "HIT charge " << correction->charge(*hitItr) << " delay " 
+	      << correction->delay(*hitItr, engine)
+	      << " Timebin " << correction->timeBin(*hitItr) <<std::endl;
+  }
+}
 
- 
+//define this as a plug-in
+DEFINE_FWK_MODULE(HcalDigitizerTest);
