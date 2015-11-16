@@ -119,7 +119,7 @@ upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
                  'BE5D' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5D',
                  'BE5DPixel10D' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5DPixel10D',
                  '2017dev' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017dev',
-                 'Extended2023Muondev' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023Muondev',
+                 'Extended2023Muondev' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023Muondev,SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_removeTTI',
                  'BE5DPixel10DLHCCCooling' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5DPixel10DLHCCCooling',
                  'Extended2023' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023',
                  'Extended2023HGCalMuon' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalMuon',
