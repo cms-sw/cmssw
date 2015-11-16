@@ -51,14 +51,14 @@ private:
   virtual void endJob() override ;
 
   // ----------member data ---------------------------
-  edm::InputTag CentralityTag_;
-  edm::InputTag CentralityBinTag_;
+  edm::EDGetTokenT<reco::Centrality> CentralityTag_;
+  edm::EDGetTokenT<int> CentralityBinTag_;
 
-  edm::InputTag EvtPlaneTag_;
-  edm::InputTag EvtPlaneFlatTag_;
+  edm::EDGetTokenT<reco::EvtPlaneCollection> EvtPlaneTag_;
+  edm::EDGetTokenT<reco::EvtPlaneCollection> EvtPlaneFlatTag_;
 
-  edm::InputTag HiMCTag_;
-  edm::InputTag VertexTag_;
+  edm::EDGetTokenT<edm::GenHIEvent> HiMCTag_;
+  edm::EDGetTokenT<std::vector<reco::Vertex>> VertexTag_;
 
   edm::EDGetTokenT<std::vector<PileupSummaryInfo>> puInfoToken_;
   edm::EDGetTokenT<GenEventInfoProduct> genInfoToken_;
@@ -132,14 +132,14 @@ private:
 // constructors and destructor
 //
 HiEvtAnalyzer::HiEvtAnalyzer(const edm::ParameterSet& iConfig) :
-  CentralityTag_(iConfig.getParameter<edm::InputTag> ("CentralitySrc")),
-  CentralityBinTag_(iConfig.getParameter<edm::InputTag> ("CentralityBinSrc")),
-  EvtPlaneTag_(iConfig.getParameter<edm::InputTag> ("EvtPlane")),
-  EvtPlaneFlatTag_(iConfig.getParameter<edm::InputTag> ("EvtPlaneFlat")),
-  HiMCTag_(iConfig.getParameter<edm::InputTag> ("HiMC")),
-  VertexTag_(iConfig.getParameter<edm::InputTag> ("Vertex")),
-  puInfoToken_     (consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("addPileupInfo"))),
-  genInfoToken_    (consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
+  CentralityTag_(consumes<reco::Centrality>(iConfig.getParameter<edm::InputTag>("CentralitySrc"))),
+  CentralityBinTag_(consumes<int>(iConfig.getParameter<edm::InputTag>("CentralityBinSrc"))),
+  EvtPlaneTag_(consumes<reco::EvtPlaneCollection>(iConfig.getParameter<edm::InputTag>("EvtPlane"))),
+  EvtPlaneFlatTag_(consumes<reco::EvtPlaneCollection>(iConfig.getParameter<edm::InputTag>("EvtPlaneFlat"))),
+  HiMCTag_(consumes<edm::GenHIEvent>(iConfig.getParameter<edm::InputTag>("HiMC"))),
+  VertexTag_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("Vertex"))),
+  puInfoToken_(consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("addPileupInfo"))),
+  genInfoToken_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
   doEvtPlane_(iConfig.getParameter<bool> ("doEvtPlane")),
   doEvtPlaneFlat_(iConfig.getParameter<bool> ("doEvtPlaneFlat")),
   doCentrality_(iConfig.getParameter<bool> ("doCentrality")),
@@ -175,11 +175,9 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   run = iEvent.id().run();
   lumi = iEvent.id().luminosityBlock();
 
-  edm::Handle<reco::EvtPlaneCollection> evtPlanes;
-
   if(doMC_){
     edm::Handle<edm::GenHIEvent> mchievt;
-    iEvent.getByLabel(edm::InputTag(HiMCTag_),mchievt);
+    iEvent.getByToken(HiMCTag_, mchievt);
     fb = mchievt->b();
     fNpart = mchievt->Npart();
     fNcoll = mchievt->Ncoll();
@@ -245,11 +243,11 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (doCentrality_) {
 
     edm::Handle<int> cbin_;
-    iEvent.getByLabel(CentralityBinTag_,cbin_);
+    iEvent.getByToken(CentralityBinTag_,cbin_);
     hiBin = *cbin_;
 
     edm::Handle<reco::Centrality> centrality;
-    iEvent.getByLabel(CentralityTag_, centrality);
+    iEvent.getByToken(CentralityTag_, centrality);
 
     hiNpix = centrality->multiplicityPixel();
     hiNpixelTracks = centrality->NpixelTracks();
@@ -279,8 +277,10 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   nEvtPlanes = 0;
+  edm::Handle<reco::EvtPlaneCollection> evtPlanes;
+
   if (doEvtPlane_) {
-    iEvent.getByLabel(EvtPlaneTag_,evtPlanes);
+    iEvent.getByToken(EvtPlaneTag_,evtPlanes);
     if(evtPlanes.isValid()){
       nEvtPlanes += evtPlanes->size();
       for(unsigned int i = 0; i < evtPlanes->size(); ++i){
@@ -290,7 +290,7 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   if (doEvtPlaneFlat_) {
-    iEvent.getByLabel(EvtPlaneFlatTag_,evtPlanes);
+    iEvent.getByToken(EvtPlaneFlatTag_,evtPlanes);
     if(evtPlanes.isValid()){
       for(unsigned int i = 0; i < evtPlanes->size(); ++i){
 	hiEvtPlane[nEvtPlanes+i] = (*evtPlanes)[i].angle();
@@ -301,8 +301,8 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   if (doVertex_) {
-    edm::Handle<std::vector<reco::Vertex> > vertex;
-    iEvent.getByLabel(VertexTag_, vertex);
+    edm::Handle<std::vector<reco::Vertex>> vertex;
+    iEvent.getByToken(VertexTag_, vertex);
     vx=vertex->begin()->x();
     vy=vertex->begin()->y();
     vz=vertex->begin()->z();
