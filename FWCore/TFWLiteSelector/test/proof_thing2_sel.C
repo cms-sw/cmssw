@@ -4,19 +4,7 @@
 
 using namespace std;
 
-#if defined(__CINT__) && !defined(__MAKECINT__)
-class loadFWLite {
-   public:
-      loadFWLite() {
-         gSystem->Load("libFWCoreFWLite");
-         FWLiteEnabler::enable();
-      }
-};
-
-static loadFWLite lfw;
-#else
 #include "FWCore/FWLite/interface/FWLiteEnabler.h"
-#endif
 
 void proof_thing2_sel()
 {

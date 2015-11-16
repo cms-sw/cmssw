@@ -21,11 +21,9 @@
 //
 
 // system include files
-#ifndef __GCCXML__
 #include <limits>
 #include <cstdint>
 #include <atomic>
-#endif
 
 // user include files
 
@@ -34,7 +32,6 @@ namespace edm {
   namespace refcoreimpl {
     const unsigned short kTransientBit = 0x8000;
     const unsigned short kProcessIndexMask = 0x3FFF;
-#ifndef __GCCXML__
     const std::uintptr_t kCacheIsProductPtrBit = 0x1;
     const std::uintptr_t kCacheIsProductPtrMask = std::numeric_limits<std::uintptr_t>::max() ^ kCacheIsProductPtrBit;
 
@@ -77,14 +74,6 @@ namespace edm {
       auto tmp = iCache.load(); 
       return (!refcoreimpl::cacheIsProductPtr(tmp))? reinterpret_cast<EDProductGetter const*>(reinterpret_cast<std::uintptr_t>(tmp)&refcoreimpl::kCacheIsProductPtrMask):static_cast<EDProductGetter const*>(nullptr);
     }
-#else
-    bool cacheIsProductPtr( void const* iPtr) ;
-    void setCacheIsItem(void const*&, void const*);
-    void setCacheIsProductGetter(void const*&, EDProductGetter const*);
-    void const* productPtr(void const*);
-    EDProductGetter const* productGetter(void const*);
-    bool tryToSetCacheItemForFirstTime(void const*& iCache, void const* iNewValue);
-#endif
 
   }
 }

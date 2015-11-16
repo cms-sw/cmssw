@@ -1,7 +1,6 @@
 #ifndef DataFormats_Common_ConvertHandle_h
 #define DataFormats_Common_ConvertHandle_h
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -37,15 +36,5 @@ namespace edm {
     h.swap(result);
   }
 }
-#else
-namespace edm {
-  class BasicHandle;
-  template<typename T> class Handle;
-  
-  template<typename T>
-  void convert_handle(BasicHandle & bh,
-                      Handle<T>& result);
-}
-#endif
 
 #endif

@@ -39,6 +39,15 @@ cmsRun geometryrun2devwriter.py
 sed -i '{s/Extended/Ideal/g}' geometryrun2devxmlwriter.py
 sed -i '{s/\/ge/\/gi/g}' geometryrun2devxmlwriter.py
 cmsRun geometryrun2devxmlwriter.py
+sed -i '{s/Ideal/ExtendedCastorMeasured/g}' geometryrun2devxmlwriter.py
+sed -i '{s/\/gi/\/gcm/g}' geometryrun2devxmlwriter.py
+cmsRun geometryrun2devxmlwriter.py
+sed -i '{s/ExtendedCastorMeasured/ExtendedCastorSystMinus/g}' geometryrun2devxmlwriter.py
+sed -i '{s/\/gcm/\/gcsm/g}' geometryrun2devxmlwriter.py
+cmsRun geometryrun2devxmlwriter.py
+sed -i '{s/ExtendedCastorSystMinus/ExtendedCastorSystPlus/g}' geometryrun2devxmlwriter.py
+sed -i '{s/\/gcsm/\/gcsp/g}' geometryrun2devxmlwriter.py
+cmsRun geometryrun2devxmlwriter.py
 
 # Read the one big XML file and output a record to the
 # database with the an identifying tag
@@ -52,6 +61,15 @@ cmsRun geometryrun2devxmlwriter.py
 #
 sed -i '{s/Extended/Ideal/g}' xmlgeometryrun2devwriter.py
 sed -i '{s/\/ge/\/gi/g}' xmlgeometryrun2devwriter.py
+cmsRun xmlgeometryrun2devwriter.py
+sed -i '{s/Ideal/ExtendedCastorMeasured/g}' xmlgeometryrun2devwriter.py
+sed -i '{s/\/gi/\/gcm/g}' xmlgeometryrun2devwriter.py
+cmsRun xmlgeometryrun2devwriter.py
+sed -i '{s/ExtendedCastorMeasured/ExtendedCastorSystMinus/g}' xmlgeometryrun2devwriter.py
+sed -i '{s/\/gcm/\/gcsm/g}' xmlgeometryrun2devwriter.py
+cmsRun xmlgeometryrun2devwriter.py
+sed -i '{s/ExtendedCastorSystMinus/ExtendedCastorSystPlus/g}' xmlgeometryrun2devwriter.py
+sed -i '{s/\/gcsm/\/gcsp/g}' xmlgeometryrun2devwriter.py
 cmsRun xmlgeometryrun2devwriter.py
 
 # All the database objects were written into one database

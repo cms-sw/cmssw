@@ -18,7 +18,6 @@
 //         Created:  Fri Jan 29 12:45:17 CST 2010
 //
 
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 
 // user include files
 #include "DataFormats/Common/interface/EDProductGetter.h"
@@ -117,7 +116,5 @@ namespace fwlite {
     };
 
 }
-
-#endif /*__CINT__ */
 
 #endif

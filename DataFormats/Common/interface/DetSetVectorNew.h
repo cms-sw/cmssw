@@ -12,8 +12,6 @@
 #include <boost/any.hpp>
 #include <memory>
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 
 #include<vector>
 #include <cassert>
@@ -194,13 +192,11 @@ namespace edmNew {
 	v.m_data.push_back(d);
 	item.size++;
       }
-#ifndef CMS_NOCXX11
       void push_back(data_type && d) {
         checkCapacityExausted();
         v.m_data.push_back(std::move(d));
         item.size++;
       }
-#endif
 
       data_type & back() { return v.m_data.back();}
       
@@ -255,10 +251,8 @@ namespace edmNew {
     }
     
     void shrink_to_fit() {
-#ifndef CMS_NOCXX11
       m_ids.shrink_to_fit();
       m_data.shrink_to_fit();
-#endif
     }
 
     void resize(size_t isize, size_t dsize) {
