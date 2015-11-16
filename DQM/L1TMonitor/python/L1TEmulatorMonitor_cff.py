@@ -32,6 +32,8 @@ from DQM.L1TMonitor.L1TDEMON_cfi import *
 
 from DQM.L1TMonitor.L1TDEMONStage1_cfi import *
 
+from DQM.L1TMonitor.L1THIonImp_cfi import *
+
 from DQM.L1TMonitor.L1TdeGCT_cfi import *
 
 from DQM.L1TMonitor.L1TdeStage1Layer2_cfi import *
