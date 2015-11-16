@@ -32,6 +32,7 @@ private:
   bool corr;
   bool etaproj;
   bool digitizeOnlyMuons_;
+  double gaussianSmearing_;
   double averageEfficiency_;
   // bool simulateIntrinsicNoise_; // not implemented
   // double averageNoiseRate_;     // not implemented
