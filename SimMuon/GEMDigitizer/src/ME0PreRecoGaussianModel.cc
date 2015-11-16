@@ -106,12 +106,13 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
 
       double myRandY = CLHEP::RandFlat::shoot(engine);
       double yy_rand = height * (myRandY - 0.5); // random Y coord in Local Coords
-      double yy_glob = rollRadius + yy_rand;    // random Y coord in Global Coords
+      double yy_glob = rollRadius + yy_rand;     // random Y coord in Global Coords
 
       // Extract / Calculate the Average Electron Rate
       // for the given global Y coord from Parametrization
       double averageElectronRatePerRoll = 0.0;
-      for(int j=0; j<7; ++j) { averageElectronRatePerRoll += eleBkg[j]*pow(yy_glob,j); }
+      double yy_helper = 1.0;
+      for(int j=0; j<7; ++j) { averageElectronRatePerRoll += eleBkg[j]*yy_helper; yy_helper *= yy_glob; }
 
       // Rate [Hz/cm^2] * 25*10^-9 [s] * Area [cm] = # hits in this roll
       const double averageElecRate(averageElectronRatePerRoll * (bxwidth*1.0e-9) * trArea);
@@ -151,7 +152,8 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
       // Extract / Calculate the Average Electron Rate                            
       // for the given global Y coord from Parametrization                        
       double averageNeutralRatePerRoll = 0.0;
-      for(int j=0; j<7; ++j) { averageNeutralRatePerRoll += neuBkg[j]*pow(yy_glob,j); }
+      double yy_helper = 1.0;
+      for(int j=0; j<7; ++j) { averageNeutralRatePerRoll += neuBkg[j]*yy_helper; yy_helper *= yy_glob; }
       // Rate [Hz/cm^2] * 25*10^-9 [s] * Area [cm] = # hits in this roll          
       const double averageNeutrRate(averageNeutralRatePerRoll * (bxwidth*1.0e-9) * trArea);
       int n_hits(CLHEP::RandPoissonQ::shoot(engine, averageNeutrRate));
