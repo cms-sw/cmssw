@@ -40,9 +40,7 @@ namespace edm {
 
     std::string friendlyClassName() const;
 
-#ifndef __GCCXML__
     explicit operator bool() const;
-#endif
     
     using TypeIDBase::name;
 

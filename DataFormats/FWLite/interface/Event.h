@@ -21,7 +21,7 @@
     foos.getByLabel(ev, "myFoos");
  }
  \endcode
- The above example will work for both CINT and compiled code. However, it is possible to exactly
+ The above example will work for both ROOT and compiled code. However, it is possible to exactly
  match the full framework if you only intend to compile your code.  In that case the access
  would look like
 
@@ -41,7 +41,6 @@
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
 #include <typeinfo>
 #include <map>
@@ -203,5 +202,4 @@ namespace fwlite {
    };
 
 }
-#endif /*__CINT__ */
 #endif

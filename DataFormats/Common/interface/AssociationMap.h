@@ -97,20 +97,17 @@ namespace edm {
     /// default constructor
     AssociationMap() { }
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     // You will see better performance if you use other constructors.
     // Use this when the arguments the other constructors require are
     // not easily available.
     explicit
     AssociationMap(EDProductGetter const* getter) :
       ref_(getter) { }
-#endif
 
     // It is rare for this to be useful
     explicit
     AssociationMap(const ref_type & ref) : ref_(ref) { }
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     // In most cases this is the best constructor to use.
     // This constructor should be passed 2 arguments, except in the
     // case where the template parameter is OneToValue where it should
@@ -143,7 +140,6 @@ namespace edm {
 
     template<typename... Args>
     AssociationMap(Args... args) : ref_(std::forward<Args>(args)...) {}
-#endif
 
     /// clear map
     void clear() { map_.clear(); transientMap_.clear(); }

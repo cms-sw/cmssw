@@ -13,9 +13,7 @@ RefCore: The component of edm::Ref containing the product ID and product getter.
 
 #include <algorithm>
 #include <typeinfo>
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>
-#endif
 
 namespace edm {
   class RefCoreWithIndex;
@@ -33,11 +31,9 @@ namespace edm {
     
     RefCore& operator=(RefCore const&);
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     RefCore( RefCore&& iOther) : cachePtr_(iOther.cachePtr_.load()), processIndex_(iOther.processIndex_),
     productIndex_(iOther.productIndex_) {}
     RefCore& operator=(RefCore&&) = default;
-#endif
     
     ProductID id() const {ID_IMPL;}
 
@@ -111,18 +107,12 @@ namespace edm {
     void setTransient() {SETTRANSIENT_IMPL;}
     void setCacheIsProductPtr(const void* iItem) const {SETCACHEISPRODUCTPTR_IMPL(iItem);}
     void setCacheIsProductGetter(EDProductGetter const * iGetter) const {SETCACHEISPRODUCTGETTER_IMPL(iGetter);}
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     bool cachePtrIsInvalid() const { return 0 == (reinterpret_cast<std::uintptr_t>(cachePtr_.load()) & refcoreimpl::kCacheIsProductPtrMask); }
-#endif
 
     //The low bit of the address is used to determine  if the cachePtr_
     // is storing the productPtr or the EDProductGetter. The bit is set if
     // the address refers to the EDProductGetter.
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     mutable std::atomic<void const*> cachePtr_; // transient
-#else
-    mutable void const* cachePtr_;               // transient
-#endif
     //The following is what is stored in a ProductID
     // the high bit of processIndex is used to store info on
     // if this is transient.
@@ -151,7 +141,6 @@ namespace edm {
     return lhs.isTransient() ? (rhs.isTransient() ? lhs.productPtr() < rhs.productPtr() : false) : (rhs.isTransient() ? true : lhs.id() < rhs.id());
   }
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   inline 
   void
   RefCore::swap(RefCore & other) {
@@ -163,7 +152,6 @@ namespace edm {
   inline void swap(edm::RefCore & lhs, edm::RefCore & rhs) {
     lhs.swap(rhs);
   }
-#endif
 }
 
 #endif

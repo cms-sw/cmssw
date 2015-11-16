@@ -17,7 +17,6 @@
 #include <functional>
 #include <typeinfo>
 #include <vector>
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace edm {
   class ProductID;
@@ -125,9 +124,7 @@ namespace edm {
 #endif
 
     void shrink_to_fit() {
-#ifndef CMS_NOCXX11
       data_.shrink_to_fit();
-#endif
     }
 
 
