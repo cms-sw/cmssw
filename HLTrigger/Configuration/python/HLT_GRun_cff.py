@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_5_0/GRun/V11 (CMSSW_7_5_5)
+# /dev/CMSSW_7_5_0/GRun/V13 (CMSSW_7_5_5)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_5_0/GRun/V11')
+  tableName = cms.string('/dev/CMSSW_7_5_0/GRun/V13')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -680,7 +680,6 @@ fragment.streams = cms.PSet(
     'HLTPhysics',
     'HcalHPDNoise',
     'HcalNZS',
-    'InitialPDForHI',
     'MonteCarlo',
     'NoBPTX',
     'SingleElectron',
@@ -928,15 +927,6 @@ fragment.datasets = cms.PSet(
     'HLT_PixelTracks_Multiplicity160ForEndOfFill_v1',
     'HLT_PixelTracks_Multiplicity60ForEndOfFill_v1' ),
   HighMultiplicity85 = cms.vstring( 'HLT_PixelTracks_Multiplicity85ForEndOfFill_v1' ),
-  InitialPDForHI = cms.vstring( 'HLT_HIL1DoubleMu0BPTX_v1',
-    'HLT_HIL2DoubleMu0BPTX_v1',
-    'HLT_HIL2Mu3BPTX_v1',
-    'HLT_HIL3Mu3BPTX_v1',
-    'HLT_HISinglePhoton10ForEndOfFill_v1',
-    'HLT_HISinglePhoton15ForEndOfFill_v1',
-    'HLT_HISinglePhoton20ForEndOfFill_v1',
-    'HLT_HISinglePhoton40_v2',
-    'HLT_HISinglePhoton60_v2' ),
   JetHT = cms.vstring( 'HLT_AK8DiPFJet250_200_TrimMass30_BTagCSV0p45_v2',
     'HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV0p45_v3',
     'HLT_AK8PFHT600_TrimR0p1PT0p03Mass50_BTagCSV0p45_v2',
@@ -53091,7 +53081,7 @@ fragment.hltPreZeroBiasIsolatedBunches = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sAlCaRPC = cms.EDFilter( "HLTLevel1GTSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMuOpen OR L1_SingleMuOpen_BptxAND" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu5 OR L1_SingleMu14er OR L1_SingleMu16er OR L1_SingleMu20er" ),
     saveTags = cms.bool( True ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),

@@ -74,20 +74,6 @@ streamA_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_v2'
     'HLT_HcalPhiSym_v2', 
     'HLT_HcalUTCA_v2')
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetInitialPDForHI_selector
-streamA_datasetInitialPDForHI_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetInitialPDForHI_selector.l1tResults = cms.InputTag('')
-streamA_datasetInitialPDForHI_selector.throw      = cms.bool(False)
-streamA_datasetInitialPDForHI_selector.triggerConditions = cms.vstring('HLT_HIL1DoubleMu0BPTX_v1', 
-    'HLT_HIL2DoubleMu0BPTX_v1', 
-    'HLT_HIL2Mu3BPTX_v1', 
-    'HLT_HIL3Mu3BPTX_v1', 
-    'HLT_HISinglePhoton10ForEndOfFill_v1', 
-    'HLT_HISinglePhoton15ForEndOfFill_v1', 
-    'HLT_HISinglePhoton20ForEndOfFill_v1', 
-    'HLT_HISinglePhoton40_v2', 
-    'HLT_HISinglePhoton60_v2')
-
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMonteCarlo_selector
 streamA_datasetMonteCarlo_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMonteCarlo_selector.l1tResults = cms.InputTag('')
