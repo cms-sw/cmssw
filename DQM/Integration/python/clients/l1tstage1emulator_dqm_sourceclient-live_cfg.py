@@ -204,7 +204,7 @@ process.muonRPCDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
 process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
-process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker")
+process.caloStage1Digis.InputLabel = cms.InputTag("rawDataCollector")
 process.l1ExpertDataVsEmulatorStage1.remove (process.l1tHIonImp)
 
 #--------------------------------------------------
