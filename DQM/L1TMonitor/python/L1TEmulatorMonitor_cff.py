@@ -45,8 +45,6 @@ l1TdeRCTfromRCT = l1TdeRCT.clone()
 l1TdeRCTfromRCT.rctSourceData = 'rctDigis'
 l1TdeRCTfromRCT.HistFolder = cms.untracked.string('L1TEMU/L1TdeRCT_FromRCT')
 
-from DQM.L1TMonitor.L1THIonImp_cfi import *
-
 from DQM.L1TMonitor.L1TdeCSCTF_cfi import *
 
 from DQM.L1TMonitor.L1GtHwValidation_cff import *
