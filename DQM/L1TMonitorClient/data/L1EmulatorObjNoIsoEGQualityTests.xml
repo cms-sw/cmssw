@@ -14,7 +14,7 @@
     </QTEST>
 
 
-    <LINK name="*GCTexpert/NoisoEM/NoisoEMErrorFlag">
+    <LINK name="*Stage1Layer2expert/NoisoEM/NoisoEMErrorFlag">
         <TestName activate="true">L1EmulatorNoIsoEGGctErrorFlagQT</TestName>
     </LINK>
 
