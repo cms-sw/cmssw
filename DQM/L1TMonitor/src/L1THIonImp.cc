@@ -14,10 +14,6 @@ const unsigned int METPHIBINS = 72;
 const float METPHIMIN = -0.5;
 const float METPHIMAX = 71.5;
 
-const unsigned int MHTPHIBINS = 18;
-const float MHTPHIMIN = -0.5;
-const float MHTPHIMAX = 17.5;
-
 const unsigned int PHIBINS = 18;
 const float PHIMIN = -0.5;
 const float PHIMAX = 17.5;
@@ -34,15 +30,9 @@ const float BXMAX = 2.5;
 const unsigned int R3BINS = 8;
 const float R3MIN = -0.5;
 const float R3MAX = 7.5;
-const unsigned int R5BINS = 32;
-const float R5MIN = -0.5;
-const float R5MAX = 31.5;
 const unsigned int R6BINS = 64;
 const float R6MIN = -0.5;
 const float R6MAX = 63.5;
-const unsigned int R7BINS = 128;
-const float R7MIN = -0.5;
-const float R7MAX = 127.5;
 const unsigned int R12BINS = 4096;
 const float R12MIN = -0.5;
 const float R12MAX = 4095.5;
