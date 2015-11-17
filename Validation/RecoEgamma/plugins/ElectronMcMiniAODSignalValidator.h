@@ -36,7 +36,7 @@ class ElectronMcMiniAODSignalValidator : public ElectronDqmAnalyzerBase {
       explicit ElectronMcMiniAODSignalValidator(const edm::ParameterSet&);
       virtual ~ElectronMcMiniAODSignalValidator();
       bool isAncestor(const reco::Candidate * ancestor, const reco::Candidate * particle);
-      
+       
    private:
       virtual void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
