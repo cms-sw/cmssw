@@ -40,7 +40,7 @@ ElectronMcMiniAODSignalValidator::ElectronMcMiniAODSignalValidator(const edm::Pa
 {
     mcTruthCollection_ = consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("mcTruthCollection"));
     electronToken_ = consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"));
-
+ 
   maxPt_ = iConfig.getParameter<double>("MaxPt");
   maxAbsEta_ = iConfig.getParameter<double>("MaxAbsEta");
   deltaR_ = iConfig.getParameter<double>("DeltaR");
@@ -280,7 +280,6 @@ void ElectronMcMiniAODSignalValidator::analyze(const edm::Event& iEvent, const e
         for ( unsigned int ii=0 ; ii<matchingMotherIDs_.size() ; ii++ ) {
             if ( (mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[ii]) )
                 { matchingMotherID = true ; 
-//			std::cout << "matchingMotherID :" << matchingMotherIDs_[ii] << std::endl ;
             }
         }
         if (!matchingMotherID) continue ;
@@ -387,6 +386,5 @@ void ElectronMcMiniAODSignalValidator::analyze(const edm::Event& iEvent, const e
 
     } // fin boucle size_t i
 
-//    std::cout << ("fin analyze\n");
 }
 
