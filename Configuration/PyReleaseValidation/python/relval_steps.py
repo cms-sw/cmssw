@@ -1239,7 +1239,7 @@ steps['HARVESTHAL']={'-s'          :'HARVESTING:dqmHarvesting',
                      '--filetype':'DQM',
                      '--era' : 'Run2_25ns',
                      }
-steps['HARVESTFS']={'-s':'HARVESTING:validationHarvestingFS',
+steps['HARVESTFS']={'-s':'HARVESTING:validationHarvesting',
                    '--conditions':'auto:run1_mc',
                    '--mc':'',
                     '--filetype':'DQM',
@@ -1269,7 +1269,7 @@ steps['HARVESTUP15_PU50']=merge([{'--era' : 'Run2_50ns'},steps['HARVESTUP15']])
 # unSchHarvestOverrides={'-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM'}
 # steps['HARVESTmAODUP15']=merge([unSchHarvestOverrides,steps['HARVESTUP15']])
 
-steps['HARVESTUP15FS']={'-s':'HARVESTING:validationHarvestingFS',
+steps['HARVESTUP15FS']={'-s':'HARVESTING:validationHarvesting',
                         '--conditions':'auto:run2_mc',
                         '--mc':'',
                         '--era':'Run2_25ns',
@@ -1511,7 +1511,7 @@ for k in upgradeKeys:
                                    '--relval':'27000,3000'}
     if cust!=None : upgradeStepDict['FastSim'][k]['--customise']=cust
 
-    upgradeStepDict['HARVESTFast'][k]={'-s':'HARVESTING:validationHarvestingFS',
+    upgradeStepDict['HARVESTFast'][k]={'-s':'HARVESTING:validationHarvesting',
                                     '--conditions':gt,
                                     '--mc':'',
                                     '--geometry' : geom,
