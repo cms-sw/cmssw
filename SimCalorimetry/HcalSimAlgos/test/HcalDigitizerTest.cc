@@ -35,26 +35,27 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
-
 #include "CLHEP/Random/JamesRandom.h"
 #include <vector>
 #include<iostream>
 #include<iterator>
 
-class HcalDigitizerTest : public edm::EDAnalyzer {
+class HcalDigitizerTest : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 
 public:
   explicit HcalDigitizerTest(const edm::ParameterSet&);
   ~HcalDigitizerTest();
 
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void beginJob() override;
+  void beginRun(edm::Run const&,  edm::EventSetup const&) override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&,  edm::EventSetup const&) override {}
   void testHitCorrection(HcalHitCorrection*, MixCollection<PCaloHit>& , 
 			 CLHEP::HepRandomEngine*);
 
@@ -191,8 +192,7 @@ void HcalDigitizerTest::analyze(const edm::Event& iEvent,
   HcalGains gains(&topology);
   HcalGainWidths gainWidths(&topology);
   // make a calibration service by hand
-  for(std::vector<DetId>::const_iterator detItr = allDetIds.begin(); 
-      detItr != allDetIds.end(); ++detItr) {
+  for (auto detItr = allDetIds.begin(); detItr != allDetIds.end(); ++detItr) {
     pedestals.addValues(HcalDbHardcode::makePedestal(*detItr, false,0));
     pedestalWidths.addValues(HcalDbHardcode::makePedestalWidth(*detItr));
     gains.addValues(HcalDbHardcode::makeGain(*detItr));
@@ -269,8 +269,7 @@ void HcalDigitizerTest::testHitCorrection(HcalHitCorrection* correction,
 					  MixCollection<PCaloHit>& hits, 
 					  CLHEP::HepRandomEngine* engine) {
   correction->fillChargeSums(hits);
-  for (MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
-       hitItr != hits.end(); ++hitItr) {
+  for (auto hitItr = hits.begin(); hitItr != hits.end(); ++hitItr) {
     DetId detId((*hitItr).id());
     if (detId.det()==DetId::Calo && 
 	detId.subdetId()==HcalZDCDetId::SubdetectorId) {
