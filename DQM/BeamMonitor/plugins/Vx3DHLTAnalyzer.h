@@ -97,11 +97,12 @@ class Vx3DHLTAnalyzer : public DQMEDAnalyzer
   double yStep;
   double zRange;
   double zStep;
+  double VxErrCorr; // Coefficient to compensate the under-estimation of the vertex errors
   double minVxDoF;
   double minVxWgt;
   std::string fileName;
-  
-  
+
+
   // ##############
   // # Histograms #
   // ##############
@@ -160,7 +161,6 @@ class Vx3DHLTAnalyzer : public DQMEDAnalyzer
   unsigned int nParams;
   bool internalDebug;
 
-  // previously: static/global variables
   std::vector<VertexType> Vertices;
   bool considerVxCovariance;
   unsigned int counterVx; // Counts the number of vertices taken into account for the fit
@@ -168,10 +168,6 @@ class Vx3DHLTAnalyzer : public DQMEDAnalyzer
   double maxLongLength;   // Max longitudinal length in which the vertices must be [cm]
   double xPos,yPos,zPos;  // x,y,z approximate positions of the beam spot
   double pi;
-  // ######################
-  // # cfg file parameter #
-  // ######################
-  double VxErrCorr;       // Coefficient to compensate the under-estimation of the vertex errors
 };
 
 #endif
