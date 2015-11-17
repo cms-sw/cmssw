@@ -32,7 +32,8 @@ int main()
   bc1.readCSV(csv1Stream);
 
   // test pt-dependent function
-  BTagCalibrationReader bcr1(&bc1, BTagEntry::OP_LOOSE);
+  BTagCalibrationReader bcr1(BTagEntry::OP_LOOSE);
+  bcr1.load(bc1, BTagEntry::FLAV_B, "comb");
   assert (eq(bcr1.eval(BTagEntry::FLAV_B, 3.0, 1.5), 0.));  // out of range
   assert (eq(bcr1.eval(BTagEntry::FLAV_B, 1.5, 3.0), 0.));  // out of range
   assert (eq(bcr1.eval(BTagEntry::FLAV_B, 0.5, 0.5), 1.));
@@ -42,7 +43,8 @@ int main()
   assert (eq(bcr1.eval(BTagEntry::FLAV_B, -1.5, 1.5), -3.));  // abseta
 
   // test discr-dependent function
-  BTagCalibrationReader bcr2(&bc1, BTagEntry::OP_RESHAPING);
+  BTagCalibrationReader bcr2(BTagEntry::OP_RESHAPING);
+  bcr2.load(bc1, BTagEntry::FLAV_B, "comb");
   assert (eq(bcr2.eval(BTagEntry::FLAV_B, 0.5, 0.5, 1.0), 0.));
   assert (eq(bcr2.eval(BTagEntry::FLAV_B, 0.5, 0.5, 4.0), 0.));
   assert (eq(bcr2.eval(BTagEntry::FLAV_B, 0.5, 0.5, 2.5), 5.));
