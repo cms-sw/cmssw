@@ -29,13 +29,13 @@ from Validation.RecoMuon.muonValidationHLT_cff import *
 from Validation.EventGenerator.BasicGenValidation_cff import *
 # miniAOD
 from Validation.RecoParticleFlow.miniAODValidation_cff import *
-from Validation.RecoEgamma.egammaMiniAODValidation_cff import *
-#from Validation.RecoEgamma.electronMiniAODValidationSequence_cff import *
+from Validation.RecoEgamma.egammaValidationMiniAOD_cff import *
+#from Validation.RecoEgamma.electronValidationSequenceMiniAOD_cff import *
 
 prevalidation = cms.Sequence( globalPrevalidation * hltassociation * metPreValidSeq * jetPreValidSeq )
 prevalidationLiteTracking = cms.Sequence( prevalidation )
 prevalidationLiteTracking.replace(globalPrevalidation,globalPrevalidationLiteTracking)
-prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence * JetValidationMiniAOD * type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD * METValidationMiniAOD * egammaValidationMiniAOD )
+prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence * egammaValidationMiniAOD * JetValidationMiniAOD * type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD * METValidationMiniAOD )
 #prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence * electronValidationSequenceMiniAOD * JetValidationMiniAOD * type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD * METValidationMiniAOD )
 
 
