@@ -10,6 +10,7 @@ from Validation.HcalRecHits.hcalRecHitsPostProcessor_cff import *
 from Validation.EventGenerator.PostProcessor_cff import *
 from Validation.RecoEgamma.photonPostProcessor_cff import *
 from Validation.RecoEgamma.electronPostValidationSequence_cff import *
+from Validation.RecoEgamma.electronPostValidationSequenceMiniAOD_cff import *
 from Validation.RecoParticleFlow.PFValidationClient_cff import *
 from Validation.RPCRecHits.postValidation_cfi import *
 from Validation.RecoTau.DQMMCValidation_cfi import *
@@ -28,7 +29,7 @@ postValidation = cms.Sequence(
     + hcalSimHitsPostProcessor
     + hcaldigisPostProcessor
     + hcalrechitsPostProcessor
-    + electronPostValidationSequence + electronPostValidationSequenceMiniAOD + photonPostProcessor
+    + electronPostValidationSequence + photonPostProcessor
     + pfJetClient + pfMETClient + pfJetResClient + pfElectronClient
     + rpcRecHitPostValidation_step
     + runTauEff + makeBetterPlots
