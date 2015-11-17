@@ -1,14 +1,14 @@
 
-#ifndef Validation_RecoEgamma_ElectronMcMiniAODSignalPostValidator_h
-#define Validation_RecoEgamma_ElectronMcMiniAODSignalPostValidator_h
+#ifndef Validation_RecoEgamma_ElectronMcSignalPostValidatorMiniAOD_h
+#define Validation_RecoEgamma_ElectronMcSignalPostValidatorMiniAOD_h
 
 #include "DQMOffline/EGamma/interface/ElectronDqmHarvesterBase.h" 
 
-class ElectronMcMiniAODSignalPostValidator : public ElectronDqmHarvesterBase
+class ElectronMcSignalPostValidatorMiniAOD : public ElectronDqmHarvesterBase
  {
   public:
-    explicit ElectronMcMiniAODSignalPostValidator( const edm::ParameterSet & conf ) ;
-    virtual ~ElectronMcMiniAODSignalPostValidator() ;
+    explicit ElectronMcSignalPostValidatorMiniAOD( const edm::ParameterSet & conf ) ;
+    virtual ~ElectronMcSignalPostValidatorMiniAOD() ;
     virtual void finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter ) ; 
 
   private:
