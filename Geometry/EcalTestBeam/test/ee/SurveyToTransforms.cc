@@ -1,29 +1,7 @@
-// -*- C++ -*-
-//
-// Package:    CaloGeometryAnalyzer
-// Class:      CaloGeometryAnalyzer
-// 
-/**\class CaloGeometryAnalyzer CaloGeometryAnalyzer.cc test/CaloGeometryAnalyzer/src/CaloGeometryAnalyzer.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-
-
-
-// system include files
-#include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -32,16 +10,7 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-/*
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDetId/interface/ESDetId.h"
-*/
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
-
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
@@ -52,44 +21,29 @@
 #include "TH1.h"
 #include "TH1D.h"
 #include "TProfile.h"
-//
-// class decleration
-//
+
 using namespace CLHEP;
 
-class SurveyToTransforms : public edm::EDAnalyzer {
-  public:
-      SurveyToTransforms( const edm::ParameterSet& );
-      ~SurveyToTransforms();
+class SurveyToTransforms : public edm::one::EDAnalyzer<> {
+public:
+  SurveyToTransforms( const edm::ParameterSet& );
+  ~SurveyToTransforms();
 
+  void beginJob() override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endJob() override {}
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
-   private:
-      // ----------member data ---------------------------
+private:
   int pass_;
-  //  bool fullEcalDump_;
 
+  edm::Service<TFileService> h_fs;
 
-      edm::Service<TFileService> h_fs;
+  TProfile* h_eta;
+  TProfile* h_phi;
 
-
-      TProfile* h_eta ;
-      TProfile* h_phi;
-
-      TH1D* h_diffs[10][12] ;
-
+  TH1D* h_diffs[10][12];
 };
-//
-// constants, enums and typedefs
-//
 
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 SurveyToTransforms::SurveyToTransforms( const edm::ParameterSet& iConfig )
 {
    //now do what ever initialization is needed
