@@ -1,5 +1,6 @@
 #include "VoronoiAlgorithm.h"
 #include "DataFormats/Math/interface/normalizedPhi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 extern "C" {
 
@@ -334,8 +335,9 @@ namespace {
 				push_back_row(rhs, cplex_sense);
 			}
 			else {
-				fprintf(stderr, "%s:%d: illegal sense (`%s')\n",
-						__FILE__, __LINE__, constraint_sense.c_str());
+				edm::LogError("BPMPDInterface")
+					<< "illegal sense (`" << constraint_sense << "')"
+					<< std::endl;
 			}
 		}
 		void push_back_column(const double objective,
@@ -500,12 +502,11 @@ namespace {
 				// Dual infeasible
 			case  4:	return 503;
 			default:
-				fprintf(stderr, "%s:%d: error: unknown termination code "
-						"%d\n", __FILE__, __LINE__, termination_code);
+				edm::LogError("BPMPDInterface")
+					<< "unknown termination code "
+					<< termination_code << std::endl;
 				return 500;
 			}
-			fprintf(stderr, "%s:%d: %d\n", __FILE__, __LINE__,
-					termination_code);
 		}
 		void set_bpmpd_parameter(void)
 		{
@@ -1053,18 +1054,25 @@ namespace {
 			for (std::vector<particle_t>::const_iterator iterator =
 					 _event.begin();
 				 iterator != _event.end(); iterator++) {
-				// Make two additional replicas with azimuth +/- 2 pi
-				// (and use only the middle) to mimick the azimuthal
-				// cyclicity
-				for (int k = -1; k <= 1; k++) {
-					const point_2d_t p(
-						iterator->momentum.Eta(),
-						iterator->momentum.Phi() +
-						k * (2 * M_PI));
-					const voronoi_diagram_t::Face_handle handle =
-						diagram.insert(p);
+				// Make eight additional replicas with azimuth +/- 2
+				// pi (and use only the middle) to mimick the
+				// azimuthal cyclicity, and reflected at the outmost
+				// HCAL tower edges
+				for (int j = -1; j <= 1; j++) {
+					const double parity = j == 0 ? 1 : -1;
+					const double origin = j == 0 ? 0 :
+						j == -1 ? 2 * _cms_hcal_edge_pseudorapidity.front() :
+						2 * _cms_hcal_edge_pseudorapidity.back();
 
-					face_index[handle] = iterator - _event.begin();
+					for (int k = -1; k <= 1; k++) {
+						const point_2d_t p(
+							origin + parity * iterator->momentum.Eta(),
+							k * (2 * M_PI) + iterator->momentum.Phi());
+						const voronoi_diagram_t::Face_handle handle =
+							diagram.insert(p);
+
+						face_index[handle] = iterator - _event.begin();
+					}
 				}
 			}
 
@@ -1759,7 +1767,6 @@ namespace {
 				p->push_back_column(
 					0, 0, bpmpd_problem_t::infinity);
 			}
-			//fprintf(stderr, "%s:%d: %lu %lu\n", __FILE__, __LINE__, index_column_max, recombine_tie.size());
 			// Energy transfer coefficients t_kl (objective
 			// coefficient 0 + epsilon)
 			for (size_t i = _ncost; i <= index_column_max; i++) {
