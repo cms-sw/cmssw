@@ -15,13 +15,9 @@
 <use   name="Geometry/CaloTopology"/>
 <use   name="CondTools/Hcal"/>
 <use   name="DataFormats/HcalDetId"/>
-<bin   file="HcalRawIdToReadable.cpp">
-</bin>
-<bin   file="scaleGains.cc">
-</bin>
-<bin   file="corrGains.cc">
-</bin>
-<bin   file="corrResps.cc">
-</bin>
-<bin   file="modGains.cc">
-</bin>
+<bin   file="HcalRawIdToReadable.cpp"> </bin>
+<flags EDM_PLUGIN="1"/>
+<library file="scaleGains.cc" name="CondToolsHcalScaleGains"> </library>
+<library file="corrGains.cc"  name="CondToolsHcalCorrGains">  </library>
+<library file="corrResps.cc"  name="CondToolsHcalCorrResps">  </library>
+<library file="modGains.cc"   name="CondToolsHcalModGains">   </library>
