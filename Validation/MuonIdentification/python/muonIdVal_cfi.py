@@ -19,3 +19,8 @@ muonIdVal = cms.EDAnalyzer("MuonIdVal",
     makeShowerInformationPlots    = cms.untracked.bool(True),
     baseFolder                    = cms.untracked.string("Muons/MuonIdentificationV")
 )
+
+# fastsim has no cosmic muon veto in place
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    muonIdVal.makeCosmicCompatibilityPlots = False

@@ -31,7 +31,10 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
     dirName_ = iConfig.getUntrackedParameter<std::string > ("dirName", "HcalDigisV/HcalDigiTask");
 
     // register for data access
-    tok_mc_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"));
+    if (iConfig.exists("simHits"))
+    {
+	tok_mc_ = consumes<edm::PCaloHitContainer>(iConfig.getUntrackedParameter<edm::InputTag>("simHits"));
+    }
     tok_hbhe_ = consumes<edm::SortedCollection<HBHEDataFrame> >(inputTag_);
     tok_ho_ = consumes<edm::SortedCollection<HODataFrame> >(inputTag_);
     tok_hf_ = consumes<edm::SortedCollection<HFDataFrame> >(inputTag_);

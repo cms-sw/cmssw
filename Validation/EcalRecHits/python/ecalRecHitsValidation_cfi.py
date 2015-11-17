@@ -12,4 +12,6 @@ ecalRecHitsValidation = cms.EDAnalyzer("EcalRecHitsValidation",
     moduleLabelMC = cms.string('generatorSmeared')
 )
 
-
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    ecalRecHitsValidation.hitsProducer = "famosSimHits"
