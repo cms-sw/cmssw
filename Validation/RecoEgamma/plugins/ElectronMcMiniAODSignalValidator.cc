@@ -36,7 +36,7 @@
 using namespace reco;
 using namespace pat;
 
-ElectronMcMiniAODSignalValidator::ElectronMcMiniAODSignalValidator(const edm::ParameterSet& iConfig) : ElectronDqmAnalyzerBase(iConfig)
+ElectronMcSignalValidatorMiniAOD::ElectronMcSignalValidatorMiniAOD(const edm::ParameterSet& iConfig) : ElectronDqmAnalyzerBase(iConfig)
 {
     mcTruthCollection_ = consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("mcTruthCollection"));
     electronToken_ = consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"));
@@ -145,11 +145,11 @@ ElectronMcMiniAODSignalValidator::ElectronMcMiniAODSignalValidator(const edm::Pa
 
 }
 
-ElectronMcMiniAODSignalValidator::~ElectronMcMiniAODSignalValidator()
+ElectronMcSignalValidatorMiniAOD::~ElectronMcSignalValidatorMiniAOD()
 {
 }
 
-void ElectronMcMiniAODSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const & )
+void ElectronMcSignalValidatorMiniAOD::bookHistograms( DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const & )
  {
   iBooker.setCurrentFolder(outputInternalPath_) ;
 
@@ -216,7 +216,7 @@ void ElectronMcMiniAODSignalValidator::bookHistograms( DQMStore::IBooker & iBook
 
  }
  
-void ElectronMcMiniAODSignalValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     // get collections
     edm::Handle<pat::ElectronCollection> electrons;
@@ -225,7 +225,7 @@ void ElectronMcMiniAODSignalValidator::analyze(const edm::Event& iEvent, const e
     edm::Handle<edm::View<reco::GenParticle> > genParticles ;
     iEvent.getByToken(mcTruthCollection_, genParticles) ;  
 
-    edm::LogInfo("ElectronMcMiniAODSignalValidator::analyze")
+    edm::LogInfo("ElectronSignalValidatorMcMiniAOD::analyze")
       <<"Treating event "<<iEvent.id()
       <<" with "<<electrons.product()->size()<<" electrons" ;
     h1_recEleNum->Fill((*electrons).size()) ;
