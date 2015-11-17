@@ -11,3 +11,7 @@
 <library   file="process/src/validateBTagDB.cc" name="validateRecoBTagPerformanceDBPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
+
+<bin file="testBTagCalibrationReader.cpp">
+    <use name="CondFormats/BTauObjects"/>
+</bin>

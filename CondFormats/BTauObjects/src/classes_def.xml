@@ -28,5 +28,4 @@
         <field name="tagger_" mapping="string"/>
         <field name="data_" mapping="blob"/>
     </class>
-    <class name="BTagCalibrationReader" class_version="0"/>
 </lcgdict>   

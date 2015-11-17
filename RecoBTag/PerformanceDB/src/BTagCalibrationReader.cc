@@ -1,4 +1,4 @@
-#include "CondFormats/BTauObjects/interface/BTagCalibrationReader.h"
+#include "RecoBTag/PerformanceDB/interface/BTagCalibrationReader.h"
 
 BTagCalibrationReader::BTagCalibrationReader(const BTagCalibration* c,
                                              BTagEntry::OperatingPoint op,

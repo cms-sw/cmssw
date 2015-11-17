@@ -3,7 +3,10 @@
 #include <sstream>
 #include <string>
 
-#include "../src/headers.h"
+#include "CondFormats/BTauObjects/interface/BTagEntry.h"
+#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
+#include "RecoBTag/PerformanceDB/interface/BTagCalibrationReader.h"
+
 
 static bool eq(float a, float b)
 {

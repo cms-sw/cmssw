@@ -1,7 +1,9 @@
+<flags   GENREFLEX_ARGS="--"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/MessageLogger"/>
+<use   name="CondFormats/BTauObjects"/>
 <use   name="boost_serialization"/>
 <export>
   <lib   name="1"/>
