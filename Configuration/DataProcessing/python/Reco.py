@@ -166,6 +166,8 @@ class Reco(Scenario):
         if 'customs' in args:
             options.customisation_file=args['customs']
 
+        self._checkRepackedFlag(options, **args)
+
         cb = ConfigBuilder(options, process = process, with_output = True, with_input = True)
 
         cb.prepare()

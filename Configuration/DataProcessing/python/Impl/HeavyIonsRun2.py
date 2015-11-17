@@ -86,6 +86,7 @@ class HeavyIonsRun2(Reco):
 
         """
         self._checkMINIAOD(**args)
+        self._setRepackedFlag(args)
 
         customsFunction = self.visCustoms
         if not 'customs' in args:
