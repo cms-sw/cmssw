@@ -41,7 +41,7 @@
 #include <iostream>
 #include <typeinfo>
 
-using namespace reco;
+using namespace reco; 
 
 ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & conf )
  : ElectronDqmAnalyzerBase(conf)
