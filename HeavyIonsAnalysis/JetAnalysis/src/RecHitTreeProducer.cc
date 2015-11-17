@@ -96,7 +96,9 @@ struct MyRecHit{
   float perp[MAXHITS];
   float emEt[MAXHITS];
   float hadEt[MAXHITS];
-
+  float chi2[MAXHITS];
+  float eError[MAXHITS];
+  
   bool isjet[MAXHITS];
   float etVtx[MAXHITS];
   float etaVtx[MAXHITS];
@@ -519,9 +521,8 @@ RecHitTreeProducer::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 	  hbheRecHit.etaVtx[hbheRecHit.n] = pos.eta();
 	  hbheRecHit.phiVtx[hbheRecHit.n] = pos.phi();
 	  hbheRecHit.perpVtx[hbheRecHit.n] = pos.rho();
-
 	}
-
+        
 	hbheRecHit.isjet[hbheRecHit.n] = false;
 	hbheRecHit.depth[hbheRecHit.n] = hit.id().depth();
 
@@ -558,9 +559,10 @@ RecHitTreeProducer::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 	ebRecHit.etaVtx[ebRecHit.n] = pos.eta();
 	ebRecHit.phiVtx[ebRecHit.n] = pos.phi();
 	ebRecHit.perpVtx[ebRecHit.n] = pos.rho();
-
       }
-
+      ebRecHit.chi2[ebRecHit.n] = hit.chi2();
+      ebRecHit.eError[ebRecHit.n] = hit.energyError();
+      
       ebRecHit.isjet[ebRecHit.n] = false;
       if(useJets_){
 	for(unsigned int j = 0 ; j < jets->size(); ++j){
@@ -593,9 +595,10 @@ RecHitTreeProducer::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 	eeRecHit.etaVtx[eeRecHit.n] = pos.eta();
 	eeRecHit.phiVtx[eeRecHit.n] = pos.phi();
 	eeRecHit.perpVtx[eeRecHit.n] = pos.rho();
-
       }
-
+      eeRecHit.chi2[ebRecHit.n] = hit.chi2();
+      eeRecHit.eError[ebRecHit.n] = hit.energyError();
+      
       eeRecHit.isjet[eeRecHit.n] = false;
 
       if(useJets_){
@@ -865,6 +868,9 @@ RecHitTreeProducer::beginJob()
     eeTree->Branch("eta",eeRecHit.eta,"eta[n]/F");
     eeTree->Branch("phi",eeRecHit.phi,"phi[n]/F");
     eeTree->Branch("perp",eeRecHit.perp,"perp[n]/F");
+    eeTree->Branch("e",ebRecHit.e,"e[n]/F");
+    eeTree->Branch("chi2",ebRecHit.chi2,"chi2[n]/F");
+    eeTree->Branch("eError",ebRecHit.eError,"eError[n]/F");
 
     eeTree->Branch("isjet",eeRecHit.isjet,"isjet[n]/O");
 
@@ -875,7 +881,10 @@ RecHitTreeProducer::beginJob()
     ebTree->Branch("eta",ebRecHit.eta,"eta[n]/F");
     ebTree->Branch("phi",ebRecHit.phi,"phi[n]/F");
     ebTree->Branch("perp",ebRecHit.perp,"perp[n]/F");
-
+    ebTree->Branch("e",ebRecHit.e,"e[n]/F");
+    eeTree->Branch("chi2",ebRecHit.chi2,"chi2[n]/F");
+    ebTree->Branch("eError",ebRecHit.eError,"eError[n]/F");
+    
     ebTree->Branch("isjet",ebRecHit.isjet,"isjet[n]/O");
   }
 
