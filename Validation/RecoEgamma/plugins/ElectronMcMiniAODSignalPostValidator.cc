@@ -3,7 +3,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-ElectronMcMiniAODSignalPostValidator::ElectronMcMiniAODSignalPostValidator( const edm::ParameterSet & conf )
+ElectronMcSignalPostValidatorMiniAOD::ElectronMcSignalPostValidatorMiniAOD( const edm::ParameterSet & conf )
  : ElectronDqmHarvesterBase(conf)
  {
   // histos bining and limits
@@ -14,10 +14,10 @@ ElectronMcMiniAODSignalPostValidator::ElectronMcMiniAODSignalPostValidator( cons
   set_StatOverflowFlag=histosSet.getParameter<bool>("StatOverflowFlag");
  }
 
-ElectronMcMiniAODSignalPostValidator::~ElectronMcMiniAODSignalPostValidator()
+ElectronMcSignalPostValidatorMiniAOD::~ElectronMcSignalPostValidatorMiniAOD()
  {}
 
-void ElectronMcMiniAODSignalPostValidator::finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter )
+void ElectronMcSignalPostValidatorMiniAOD::finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter )
  {
 
   setBookIndex(-1) ;
