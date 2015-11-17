@@ -24,6 +24,9 @@ namespace CondFormats_HcalObjects {
  
     HcalCalibrationQIEData mycalqie();
     std::vector<HcalCalibrationQIECoder> mycalqieVec;
+
+    HcalQIEType myqietype();
+    std::vector<HcalQIETypes> myqietypevec;
  
     HcalElectronicsMap mymap;
     std::vector<HcalElectronicsMap::PrecisionItem> mymap2;
