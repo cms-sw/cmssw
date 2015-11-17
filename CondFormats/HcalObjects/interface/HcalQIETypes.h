@@ -1,27 +1,30 @@
 #ifndef HcalQIETypes_h
 #define HcalQIETypes_h
 
+/*
+ * \class HcalQIETypes
+ * \author Walter Alda
+ * POOL object to store Hcal QIEType
+ * */
+
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-/*
-\class HcalQIETypes
-\author Walter Alda 
-contains the QIE Typese + corresponding DetId
-*/
+#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
+#include "CondFormats/HcalObjects/interface/HcalQIEType.h"
 
-class HcalQIETypes
+//typedef HcalCondObjectContainer<HcalQIEType> HcalQIETypes;
+
+class HcalQIETypes: public HcalCondObjectContainer<HcalQIEType>
 {
  public:
-  HcalQIETypes(): mId(0), mValue(0) {}
-  HcalQIETypes(unsigned long fid, int value): mId(fid), mValue(value) {}
+#ifndef HCAL_COND_SUPPRESS_DEFAULT
+  HcalQIETypes():HcalCondObjectContainer<HcalQIEType>(0) {}
+#endif
+  HcalQIETypes(const HcalTopology* topo):HcalCondObjectContainer<HcalQIEType>(topo) {}
 
-  uint32_t rawId() const {return mId;}
-
-  int getValue() const {return mValue;}
+  std::string myname() const {return (std::string)"HcalQIETypes";}
 
  private:
-  uint32_t mId;
-  int mValue;
 
  COND_SERIALIZABLE;
 };
