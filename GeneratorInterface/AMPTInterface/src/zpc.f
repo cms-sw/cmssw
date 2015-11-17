@@ -161,7 +161,7 @@ c
 
 cc        external ran1
 
-        character*50 str
+cms        character*50 str
 
         common /para2/ xmp, xmu, alpha, rscut2, cutof2
 cc      SAVE /para2/
