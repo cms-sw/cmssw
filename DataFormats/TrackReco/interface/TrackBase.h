@@ -112,7 +112,9 @@ public:
         outInEcalSeededConv = 15, inOutEcalSeededConv = 16,
         nuclInter = 17,
         standAloneMuon = 18, globalMuon = 19, cosmicStandAloneMuon = 20, cosmicGlobalMuon = 21,
-        iter1LargeD0 = 22, iter2LargeD0 = 23, iter3LargeD0 = 24, iter4LargeD0 = 25, iter5LargeD0 = 26,
+        // Phase1
+        highPtTripletStep = 22, lowPtQuadStep = 23, detachedQuadStep = 24,
+        reservedForUpgrades1 = 25, reservedForUpgrades2 = 26,
         bTagGhostTracks = 27,
         beamhalo = 28,
         gsf = 29,
