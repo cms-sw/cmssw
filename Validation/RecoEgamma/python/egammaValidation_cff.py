@@ -8,4 +8,4 @@ pfPhotonValidation.isRunCentrally = True
 #oldpfPhotonValidation.isRunCentrally = True
 tkConversionValidation.isRunCentrally = True
 
-egammaValidation = cms.Sequence(electronValidationSequence+photonValidationSequence)
+egammaValidation = cms.Sequence(electronValidationSequence+photonValidationSequence )
