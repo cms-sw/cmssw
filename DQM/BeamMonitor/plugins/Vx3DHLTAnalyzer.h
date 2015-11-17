@@ -41,7 +41,6 @@
 // # Fit variables #
 // #################
 #define DIM 3
-double Gauss3DFunc(const double* par);
 typedef struct
 {
   double x;
@@ -49,17 +48,6 @@ typedef struct
   double z;
   double Covariance[DIM][DIM];
 } VertexType;
-std::vector<VertexType> Vertices;
-bool considerVxCovariance;
-unsigned int counterVx; // Counts the number of vertices taken into account for the fit
-double maxTransRadius;  // Max transverse radius in which the vertices must be [cm]
-double maxLongLength;   // Max longitudinal length in which the vertices must be [cm]
-double xPos,yPos,zPos;  // x,y,z approximate positions of the beam spot
-double pi;
-// ######################
-// # cfg file parameter #
-// ######################
-double VxErrCorr;       // Coefficient to compensate the under-estimation of the vertex errors
 
 
 class Vx3DHLTAnalyzer : public DQMEDAnalyzer
@@ -70,6 +58,8 @@ class Vx3DHLTAnalyzer : public DQMEDAnalyzer
   Vx3DHLTAnalyzer  (const edm::ParameterSet&);
   ~Vx3DHLTAnalyzer ();
 
+ protected:
+  double Gauss3DFunc(const double* par);
 
  private:
   void analyze              (const edm::Event& iEvent, const edm::EventSetup& iSetup);
@@ -107,11 +97,12 @@ class Vx3DHLTAnalyzer : public DQMEDAnalyzer
   double yStep;
   double zRange;
   double zStep;
+  double VxErrCorr; // Coefficient to compensate the under-estimation of the vertex errors
   double minVxDoF;
   double minVxWgt;
   std::string fileName;
-  
-  
+
+
   // ##############
   // # Histograms #
   // ##############
@@ -133,7 +124,15 @@ class Vx3DHLTAnalyzer : public DQMEDAnalyzer
   MonitorElement* Vx_ZX;
   MonitorElement* Vx_ZY;
   MonitorElement* Vx_XY;
-  
+
+  MonitorElement* Vx_X_Cum;
+  MonitorElement* Vx_Y_Cum;
+  MonitorElement* Vx_Z_Cum;
+
+  MonitorElement* Vx_ZX_Cum;
+  MonitorElement* Vx_ZY_Cum;
+  MonitorElement* Vx_XY_Cum;
+
   MonitorElement* goodVxCounter;
   MonitorElement* hitCounter;
   MonitorElement* statusCounter;
@@ -161,6 +160,14 @@ class Vx3DHLTAnalyzer : public DQMEDAnalyzer
   unsigned int lastLumiOfFit;
   unsigned int nParams;
   bool internalDebug;
+
+  std::vector<VertexType> Vertices;
+  bool considerVxCovariance;
+  unsigned int counterVx; // Counts the number of vertices taken into account for the fit
+  double maxTransRadius;  // Max transverse radius in which the vertices must be [cm]
+  double maxLongLength;   // Max longitudinal length in which the vertices must be [cm]
+  double xPos,yPos,zPos;  // x,y,z approximate positions of the beam spot
+  double pi;
 };
 
 #endif
