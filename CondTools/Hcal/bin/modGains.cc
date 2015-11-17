@@ -11,21 +11,23 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-class modGains : public edm::EDAnalyzer {
+class modGains : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 
 public:
   explicit modGains(const edm::ParameterSet&);
   ~modGains();
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
   std::string s_operation;
   std::string fileIn, fileOut, fileCorr;
   double      val;
@@ -57,7 +59,7 @@ modGains::modGains(const edm::ParameterSet& iConfig) : vectorop(false) {
 
 modGains::~modGains() { }
 
-void modGains::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
+void modGains::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
 
   edm::ESHandle<HcalTopology> htopo;
   iSetup.get<HcalRecNumberingRecord>().get(htopo);

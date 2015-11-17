@@ -8,20 +8,22 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-class corrResps : public edm::EDAnalyzer {
+class corrResps : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 
 public:
   explicit corrResps(const edm::ParameterSet&);
   ~corrResps();
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
   std::string fileIn, fileOut, fileCorr;
 };
 
@@ -33,7 +35,7 @@ corrResps::corrResps(const edm::ParameterSet& iConfig) {
 
 corrResps::~corrResps() { }
 
-void corrResps::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
+void corrResps::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
 
   edm::ESHandle<HcalTopology> htopo;
   iSetup.get<HcalRecNumberingRecord>().get(htopo);
