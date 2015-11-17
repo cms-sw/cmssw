@@ -742,6 +742,12 @@ def cust_2023TTI_forHLT(process):
     process=l1EventContent_TTI_forHLT(process)
     return process
 
+def cust_removeTTI(process):
+    """ Removes L1TrackTrigger_step from the schedule for geometries that
+    don't yet work with it. """
+    if hasattr(process,'L1TrackTrigger_step'):
+        process.schedule.remove( process.L1TrackTrigger_step )
+    return process
 
 def noCrossing(process):
     process=customise_NoCrossing(process)
