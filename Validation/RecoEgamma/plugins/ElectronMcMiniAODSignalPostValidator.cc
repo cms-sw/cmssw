@@ -24,7 +24,7 @@ void ElectronMcMiniAODSignalPostValidator::finalize( DQMStore::IBooker & iBooker
   setBookPrefix("h_ele") ;
   setBookEfficiencyFlag(set_EfficiencyFlag);
   setBookStatOverflowFlag( set_StatOverflowFlag ) ;
-  
+   
   // profiles from 2D histos
   profileX(iBooker, iGetter, "PoPtrueVsEta","mean ele momentum / gen momentum vs eta","#eta","<P/P_{gen}>");
   profileX(iBooker, iGetter, "sigmaIetaIetaVsPt","SigmaIetaIeta vs pt","p_{T} (GeV/c)","SigmaIetaIeta");
