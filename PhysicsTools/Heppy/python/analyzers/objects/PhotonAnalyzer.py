@@ -113,15 +113,15 @@ class PhotonAnalyzer( Analyzer ):
                     gamma.idCutBased = 0
             elif "NoIso" in self.cfg_ana.gammaID:
                 idName = re.split('_NoIso',self.cfg_ana.gammaID)
-                keepThisPhoton = gamma.passPhotonID(idName[0])
+                keepThisPhoton = gamma.passPhotonID(idName[0],self.cfg_ana.conversionSafe_eleVeto)
                 basenameID = re.split('_looseSieie',idName[0])
-                gamma.idCutBased = gamma.passPhotonID(basenameID[0])
+                gamma.idCutBased = gamma.passPhotonID(basenameID[0],self.cfg_ana.conversionSafe_eleVeto)
             else:
                 # Reading from miniAOD directly
                 #keepThisPhoton = gamma.photonID(self.cfg_ana.gammaID)
 
                 # implement cut based ID with CMGTools
-                keepThisPhoton = gamma.passPhotonID(self.cfg_ana.gammaID) and gamma.passPhotonIso(self.cfg_ana.gammaID,self.cfg_ana.gamma_isoCorr)
+                keepThisPhoton = gamma.passPhotonID(self.cfg_ana.gammaID,self.cfg_ana.conversionSafe_eleVeto) and gamma.passPhotonIso(self.cfg_ana.gammaID,self.cfg_ana.gamma_isoCorr)
 
             if keepThisPhoton:
                 event.selectedPhotons.append(gamma)
@@ -342,6 +342,7 @@ setattr(PhotonAnalyzer,"defaultConfig",cfg.Analyzer(
     doFootprintRemovedIsolation = False, # off by default since it requires access to all PFCandidates
     packedCandidates = 'packedPFCandidates',
     footprintRemovedIsolationPUCorr = 'rhoArea', # Allowed options: 'rhoArea', 'raw' (uncorrected)
+    conversionSafe_eleVeto = False,
     do_mc_match = True,
     do_randomCone = False,
   )

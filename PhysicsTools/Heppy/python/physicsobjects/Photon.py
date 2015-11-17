@@ -133,13 +133,14 @@ class Photon(PhysicsObject ):
         return offset + exp(slope_exp*self.pt()+offset_exp)
 
 
-    def passPhotonID(self,name):
+    def passPhotonID(self,name,conversionSafe_eleVeto=False):
         
         idForBarrel = self.etaRegionID()
         passPhotonID = True
 
-        if self.CutBasedIDWP(name)["conversionVeto"][idForBarrel] and self.physObj.hasPixelSeed():
-            passPhotonID = False
+        if self.CutBasedIDWP(name)["conversionVeto"][idForBarrel]:
+            if (conversionSafe_eleVeto==False and self.physObj.hasPixelSeed()) or (conversionSafe_eleVeto==True and self.physObj.passElectronVeto()):
+                passPhotonID = False
 
         if self.CutBasedIDWP(name)["H/E"][idForBarrel] < self.hOVERe():
             passPhotonID = False
