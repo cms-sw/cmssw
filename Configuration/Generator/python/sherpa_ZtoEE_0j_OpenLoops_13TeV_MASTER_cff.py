@@ -8,8 +8,8 @@ generator = cms.EDFilter("SherpaGeneratorFilter",
   filterEfficiency = cms.untracked.double(1.0),
   crossSection = cms.untracked.double(-1),
   SherpaProcess = cms.string('ZtoEE_0j_OpenLoops_13TeV'),
-  SherpackLocation = cms.string('/cvmfs/cms.cern.ch/phys_generator/gridpacks/slc6_amd64_gcc491/13TeV/sherpa/2.1.1'),
-  SherpackChecksum = cms.string('100ee88a091480befb360aef2e7f637d'),
+  SherpackLocation = cms.string('/cvmfs/cms.cern.ch/phys_generator/gridpacks/slc6_amd64_gcc493/13TeV/sherpa/2.2.0'),
+  SherpackChecksum = cms.string('777066bf69695c51557027c85bf80025'),
   FetchSherpack = cms.bool(True),
   SherpaPath = cms.string('./'),
   SherpaPathPiece = cms.string('./'),
@@ -20,8 +20,8 @@ generator = cms.EDFilter("SherpaGeneratorFilter",
                              "Run"),
                               MPI_Cross_Sections = cms.vstring(
 				" MPIs in Sherpa, Model = Amisic:",
-				" semihard xsec = 74.0613 mb,",
-				" non-diffractive xsec = 18.1593 mb with nd factor = 0.335."
+				" semihard xsec = 43.6681 mb,",
+				" non-diffractive xsec = 17.0318 mb with nd factor = 0.3142."
                                                   ),
                               Run = cms.vstring(
 				"(run){",
@@ -40,7 +40,7 @@ generator = cms.EDFilter("SherpaGeneratorFilter",
 				"}(run)",
 				"(processes){",
 				" Process 93 93 -> 11 -11 93{NJET};",
-				" Order_EW 2; CKKW sqr(QCUT/E_CMS);",
+				" Order(*,2); CKKW sqr(QCUT/E_CMS);",
 				" NLO_QCD_Mode MC@NLO {LJET};",
 				" ME_Generator Amegic {LJET};",
 				" RS_ME_Generator Comix {LJET};",
@@ -58,9 +58,13 @@ generator = cms.EDFilter("SherpaGeneratorFilter",
 				"(selector){",
 				" Mass 11 -11 66 E_CMS",
 				" Mass 13 -13 66 E_CMS",
-				"}(selector)"
+				"}(selector)",
+				"(mi){",
+				" MI_HANDLER = Amisic  # None or Amisic",
+				"}(mi)"
                                                   ),
                              )
 )
 
 ProductionFilterSequence = cms.Sequence(generator)
+
