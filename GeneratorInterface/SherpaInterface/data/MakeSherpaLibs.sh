@@ -5,9 +5,9 @@
 #               library production and cross section calculation
 #  uses:        the required SHERPA data cards (+ libraries) [see below]
 #
-#  author:      Markus Merschmeyer, Sebastian Thueer, RWTH Aachen
-#  date:        5th July 2013
-#  version:     4.3
+#  author:      Markus Merschmeyer, Philipp Millet, Sebastian Thueer, RWTH Aachen
+#  date:        5th Nov 2015
+#  version:     4.4
 #
 
 set +o posix
@@ -19,7 +19,7 @@ set +o posix
 
 print_help() {
     echo "" && \
-    echo "MakeSherpaLibs version 4.3" && echo && \
+    echo "MakeSherpaLibs version 4.4" && echo && \
     echo "options: -d  path       (optional) path to your SHERPA installation (otherwise the SHERPA" && \
     echo "                         package belonging to the release under '\$CMSSW_BASE' is used)" && \
     echo "                         -> ( "${shr}" )" && \
@@ -69,23 +69,25 @@ check_occurence() {
 
 clean_libs() {
   DIRS=`find Process -name P?_?`" "`find Process -name P?_??`
+  BASEDIR=`pwd`
   for J in $DIRS ; do
     echo "."
     echo "======================"
     echo "$J";
     echo "======================"
     cd $J
-    make clean
+#   make clean
     rm config* Makefile*
 #    rm *.tex
-    rm aclocal.m4 ChangeLog depcomp install-sh libtool ltmain.sh missing
+#   rm aclocal.m4 ChangeLog depcomp install-sh libtool ltmain.sh missing
+    rm aclocal.m4 ChangeLog depcomp install-sh ltmain.sh missing
     rm AUTHORS COPYING INSTALL NEWS README 
     rm -rf autom4te.cache
     find ./ -type f -name 'Makefile*' -exec rm -rf {} \;
     find ./ -type d -name '.deps'     -exec rm -rf {} \;
     find ./ -type f -name '*.C'       -exec rm -rf {} \;
     find ./ -type f -name '*.H'       -exec rm -rf {} \;
-    cd ../..
+    cd $BASEDIR
   done
 }
 
@@ -489,7 +491,7 @@ if [ "${lbo}" == "LIBS" ] || [ "${lbo}" == "LBCR" ]; then
 
   echo " <I> creating library code..."
   echo "     ...Logs stored in ${shrun}/${outflbs}_pass${lbo}.out and ${shrun}/${outflbs}_pass${lbo}.err."
-  exec_log2 -a ${shrun}/${outflbs}_pass${lbo}.out ${shrun}/${outflbs}_pass${lbo}.err ${sherpaexe} ${multithread_opt} -p ${pth} -r ${dir2} ${SHERPAOPTS}
+  exec_log2 -a ${shrun}/${outflbs}_pass${lbo}.out ${shrun}/${outflbs}_pass${lbo}.err ${sherpaexe} -p ${pth} -r ${dir2} ${SHERPAOPTS}
 
   if [ "${FLGAMEGIC}" == "TRUE" ]; then
 
@@ -501,7 +503,7 @@ if [ "${lbo}" == "LIBS" ] || [ "${lbo}" == "LBCR" ]; then
 # compile created library code
       echo " <I> compiling libraries..."
       echo "     ...Logs stored in ${shrun}/${outflbs}_mklib.out and ${shrun}/${outflbs}_mklib.err."
-      exec_log2 -a ${shrun}/${outflbs}_mklib.out ${shrun}/${outflbs}_mklib.err ./makelibs ${POPTS} 
+      exec_log2 -a ${shrun}/${outflbs}_mklib.out ${shrun}/${outflbs}_mklib.err ./makelibs ${POPTS} -i $SHERPA_INCLUDE_PATH
 # get gross size of created libraries
       nf=`du -sh | grep -o "\." | grep -c "\."`
       lsize=`du -sh  | cut -f 1-${nf} -d "."`
@@ -517,7 +519,7 @@ if [ "${lbo}" == "LIBS" ] || [ "${lbo}" == "LBCR" ]; then
 # reinvoke Sherpa
       echo " <I> re-invoking Sherpa for futher library/cross section calculation..."
       echo "     ...Logs stored in ${shrun}/${outflbs}_pass${lbo}.out and ${shrun}/${outflbs}_pass${lbo}.err."
-      exec_log2 -a ${shrun}/${outflbs}_pass${lbo}.out ${shrun}/${outflbs}_pass${lbo}.err ${sherpaexe} ${multithread_opt} -p ${pth} -r ${dir2} ${SHERPAOPTS}
+      exec_log2 -a ${shrun}/${outflbs}_pass${lbo}.out ${shrun}/${outflbs}_pass${lbo}.err ${sherpaexe} -p ${pth} -r ${dir2} ${SHERPAOPTS}
 
 # newly created process code by AMEGIC?
       cd ${dir1}
@@ -556,10 +558,10 @@ if [ "${lbo}" == "LBCR" ] || [ "${lbo}" == "CRSS" ]; then
   SHERPAOPTS="-e 101"
   echo " <I> calculating cross sections... Logs stored in ${shrun}/${outflbs}_pass${lbo}.out and ${shrun}/${outflbs}_pass${lbo}.err."
   if [ "$ML_MPICMD" == "" ]; then
-    exec_log2 ${shrun}/${outflbs}_pass${lbo}.out ${shrun}/${outflbs}_pass${lbo}.err ${sherpaexe} ${multithread_opt} -p ${pth} -r ${dir2} ${SHERPAOPTS}
+    exec_log2 ${shrun}/${outflbs}_pass${lbo}.out ${shrun}/${outflbs}_pass${lbo}.err ${sherpaexe} -p ${pth} -r ${dir2} ${SHERPAOPTS}
   else
     echo " <I> ...using MPI"
-    exec_log2 ${shrun}/${outflbs}_pass${lbo}.out ${shrun}/${outflbs}_pass${lbo}.err ${ML_MPICMD} ${ML_MPIOPT} ${sherpaexe} ${multithread_opt} -p ${pth} -r ${dir2} ${SHERPAOPTS}
+    exec_log2 ${shrun}/${outflbs}_pass${lbo}.out ${shrun}/${outflbs}_pass${lbo}.err ${ML_MPICMD} ${ML_MPIOPT} ${sherpaexe} -p ${pth} -r ${dir2} ${SHERPAOPTS}
   fi
 fi
 
@@ -574,10 +576,10 @@ if [ "${lbo}" == "EVTS" ]; then
   fi
   echo " <I> generating events (${NEVTS})... Logs stored in ${shrun}/${outflbs}_pass${lbo}.out and ${shrun}/${outflbs}_pass${lbo}.err."
   if [ "$ML_MPICMD" == "" ]; then
-    exec_log2 ${shrun}/${outflbs}_pass${lbo}.out ${shrun}/${outflbs}_pass${lbo}.err ${sherpaexe} ${multithread_opt} -p ${pth} -r ${dir2} ${SHEVTOPT}
+    exec_log2 ${shrun}/${outflbs}_pass${lbo}.out ${shrun}/${outflbs}_pass${lbo}.err ${sherpaexe} -p ${pth} -r ${dir2} ${SHEVTOPT}
   else
     echo " <I> ...using MPI"
-    exec_log2 ${shrun}/${outflbs}_pass${lbo}.out ${shrun}/${outflbs}_pass${lbo}.err ${ML_MPICMD} ${ML_MPIOPT} ${sherpaexe} ${multithread_opt} -p ${pth} -r ${dir2} ${SHEVTOPT}
+    exec_log2 ${shrun}/${outflbs}_pass${lbo}.out ${shrun}/${outflbs}_pass${lbo}.err ${ML_MPICMD} ${ML_MPIOPT} ${sherpaexe} -p ${pth} -r ${dir2} ${SHEVTOPT}
   fi
 fi
 
