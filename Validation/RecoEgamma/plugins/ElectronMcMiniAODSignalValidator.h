@@ -1,5 +1,5 @@
-#ifndef Validation_RecoEgamma_ElectronMcMiniAODSignalValidator_h 
-#define Validation_RecoEgamma_ElectronMcMiniAODSignalValidator_h
+#ifndef Validation_RecoEgamma_ElectronMcSignalValidatorMiniAOD_h 
+#define Validation_RecoEgamma_ElectronMcSignalValidatorMiniAOD_h
 
 #include "DQMOffline/EGamma/interface/ElectronDqmAnalyzerBase.h"
 
@@ -31,10 +31,10 @@
 //
 // class declaration
 //
-class ElectronMcMiniAODSignalValidator : public ElectronDqmAnalyzerBase {
+class ElectronMcSignalValidatorMiniAOD : public ElectronDqmAnalyzerBase {
    public:
-      explicit ElectronMcMiniAODSignalValidator(const edm::ParameterSet&);
-      virtual ~ElectronMcMiniAODSignalValidator();
+      explicit ElectronMcSignalValidatorMiniAOD(const edm::ParameterSet&);
+      virtual ~ElectronMcSignalValidatorMiniAOD();
       bool isAncestor(const reco::Candidate * ancestor, const reco::Candidate * particle);
        
    private:
