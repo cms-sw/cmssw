@@ -166,7 +166,15 @@ TestRandomNumberServiceGlobal::TestRandomNumberServiceGlobal(edm::ParameterSet c
 
   if(dump_) {
     edm::Service<edm::RandomNumberGenerator> rng;
-    std::cout << "*** TestRandomNumberServiceGlobal constructor " << rng->mySeed() << "\n";
+    bool exceptionThrown = true;
+    try {
+       std::cout << "*** TestRandomNumberServiceGlobal constructor " << rng->mySeed() << "\n";
+       exceptionThrown = false;
+    } catch( cms::Exception const&) {
+    }
+    if(not exceptionThrown) {
+       throw cms::Exception("FailedToThrow")<<"RandomNunberGenerator::mySeed did not throw";
+    }
   }
 }
 
@@ -284,15 +292,29 @@ TestRandomNumberServiceGlobal::analyze(edm::StreamID streamID, edm::Event const&
 
 void TestRandomNumberServiceGlobal::beginJob() {
   if(dump_) {
-    edm::Service<edm::RandomNumberGenerator> rng;
-    std::cout << "*** TestRandomNumberServiceGlobal beginJob " << rng->mySeed() << "\n";
+    bool exceptionThrown = true;
+    try {
+       edm::Service<edm::RandomNumberGenerator> rng;
+       std::cout << "*** TestRandomNumberServiceGlobal beginJob " << rng->mySeed() << "\n";
+    } catch( cms::Exception const&) {
+    }
+    if(not exceptionThrown) {
+       throw cms::Exception("FailedToThrow")<<"RandomNunberGenerator::mySeed did not throw";
+    }
   }
 }
 
 void TestRandomNumberServiceGlobal::endJob() {
   if(dump_) {
-    edm::Service<edm::RandomNumberGenerator> rng;
-    std::cout << "*** TestRandomNumberServiceGlobal endJob " << rng->mySeed() << "\n";
+    bool exceptionThrown = true;
+    try {
+       edm::Service<edm::RandomNumberGenerator> rng;
+       std::cout << "*** TestRandomNumberServiceGlobal endJob " << rng->mySeed() << "\n";
+    } catch( cms::Exception const&) {
+    }
+    if(not exceptionThrown) {
+       throw cms::Exception("FailedToThrow")<<"RandomNunberGenerator::mySeed did not throw";
+    }
   }
 }
 
