@@ -127,6 +127,11 @@ process.pfcandAnalyzer.pfPtMin = 0
 
 #####################################################################################
 
+process.load('HeavyIonsAnalysis.JetAnalysis.rechitanalyzer_pp_cfi')
+process.rechitAna = cms.Sequence(process.rechitanalyzer+process.pfTowers)
+
+
+
 #########################
 # Track Analyzer
 #########################
@@ -230,6 +235,7 @@ process.ana_step = cms.Path(
                             process.L1Sequence +
                             process.L1EmulatorUnpacker +
                             process.finderSequence +
+                            process.rechitAna +
                             process.HiForest +
                             process.ppTrack
                             )
