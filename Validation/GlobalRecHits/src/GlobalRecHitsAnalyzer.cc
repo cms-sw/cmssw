@@ -629,10 +629,10 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
     validhcalHits = false;
   }  
 
-  MapType fHBEnergySimHits;
-  MapType fHEEnergySimHits;
-  MapType fHOEnergySimHits;
-  MapType fHFEnergySimHits;
+  std::map<HcalDetId,float> fHBEnergySimHits;
+  std::map<HcalDetId,float> fHEEnergySimHits;
+  std::map<HcalDetId,float> fHOEnergySimHits;
+  std::map<HcalDetId,float> fHFEnergySimHits;
   if (validhcalHits) {
     const edm::PCaloHitContainer *simhitResult = hcalHits.product();
   
@@ -641,19 +641,18 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	 ++simhits) {
       
       HcalDetId detId(simhits->id());
-      uint32_t cellid = detId.rawId();
       
       if (detId.subdet() == sdHcalBrl){  
-	fHBEnergySimHits[cellid] += simhits->energy(); 
+	fHBEnergySimHits[detId] += simhits->energy(); 
       }
       if (detId.subdet() == sdHcalEC){  
-	fHEEnergySimHits[cellid] += simhits->energy(); 
+	fHEEnergySimHits[detId] += simhits->energy(); 
       }    
       if (detId.subdet() == sdHcalOut){  
-	fHOEnergySimHits[cellid] += simhits->energy(); 
+	fHOEnergySimHits[detId] += simhits->energy(); 
       }    
       if (detId.subdet() == sdHcalFwd){  
-	fHFEnergySimHits[cellid] += simhits->energy(); 
+	fHFEnergySimHits[detId] += simhits->energy(); 
       }    
     }
   }
@@ -738,7 +737,7 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  if (deltaphi > PI) { deltaphi = 2.0 * PI - deltaphi;}
 	  
 	  mehHcalRes[0]->Fill(jhbhe->energy() - 
-			      fHBEnergySimHits[cell.rawId()]);
+			      fHBEnergySimHits[cell]);
 	}
 	
 	if (cell.subdet() == sdHcalEC) {
@@ -753,7 +752,7 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  if (fPhi > maxHEPhi) { deltaphi = fPhi - maxHEPhi;}
 	  if (deltaphi > PI) { deltaphi = 2.0 * PI - deltaphi;}
 	  mehHcalRes[1]->Fill(jhbhe->energy() - 
-			      fHEEnergySimHits[cell.rawId()]);
+			      fHEEnergySimHits[cell]);
 	}
       }
     } // end loop through collection
@@ -824,7 +823,7 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  if (fPhi > maxHFPhi) { deltaphi = fPhi - maxHFPhi;}
 	  if (deltaphi > PI) { deltaphi = 2.0 * PI - deltaphi;}
 	  
-	  mehHcalRes[2]->Fill(jhf->energy()-fHFEnergySimHits[cell.rawId()]);
+	  mehHcalRes[2]->Fill(jhf->energy()-fHFEnergySimHits[cell]);
 	}
       }
     } // end loop through collection
@@ -870,7 +869,7 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  float deltaphi = maxHOPhi - fPhi;
 	  if (fPhi > maxHOPhi) { deltaphi = fPhi - maxHOPhi;}
 	  if (deltaphi > PI) { deltaphi = 2.0 * PI - deltaphi;}
-	  mehHcalRes[3]->Fill(jho->energy()-fHOEnergySimHits[cell.rawId()]);
+	  mehHcalRes[3]->Fill(jho->energy()-fHOEnergySimHits[cell]);
 	}
       }
     } // end loop through collection
