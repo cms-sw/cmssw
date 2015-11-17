@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_5_0/HLT/V74 (CMSSW_7_5_5)
+# /dev/CMSSW_7_5_0/HLT/V76 (CMSSW_7_5_5)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_5_0/HLT/V74')
+  tableName = cms.string('/dev/CMSSW_7_5_0/HLT/V76')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -966,6 +966,8 @@ fragment.datasets = cms.PSet(
     'HLT_L1Tech7_NoBPTX_v1' ),
   EventDisplay = cms.vstring( 'HLT_AK4PFJet100_v3',
     'HLT_AK8PFJet360_TrimMass30_v3',
+    'HLT_HIPuAK4CaloJet150_Eta5p1_v1',
+    'HLT_HISinglePhoton60_Eta3p1_v1',
     'HLT_HISinglePhoton60_v2',
     'HLT_L1DoubleJet32_v1',
     'HLT_Photon175_v3' ),
@@ -1352,7 +1354,6 @@ fragment.datasets = cms.PSet(
     'DST_L1DoubleMu_PFScouting_v1',
     'DST_L1HTT_BTagScouting_v1',
     'DST_L1HTT_CaloScouting_PFScouting_v1',
-    'DST_Physics_v1',
     'DST_ZeroBias_BTagScouting_v1',
     'DST_ZeroBias_PFScouting_v1',
     'HLT_AK4CaloJet100_v2',
@@ -1595,8 +1596,8 @@ fragment.datasets = cms.PSet(
     'HLT_HIL2Mu3Eta2p5_HIPhoton15Eta1p5_v1',
     'HLT_HIL2Mu3Eta2p5_HIPhoton20Eta1p5_v1',
     'HLT_HIL2Mu3Eta2p5_HIPhoton30Eta1p5_v1',
-    'HLT_HIL2Mu3Eta2p5_HIPhoton40Eta1p5_v1')+cms.vstring( 'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet100Eta2p1_v1',
-    'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet40Eta2p1_v1',
+    'HLT_HIL2Mu3Eta2p5_HIPhoton40Eta1p5_v1',
+    'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet100Eta2p1_v1')+cms.vstring( 'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet40Eta2p1_v1',
     'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet60Eta2p1_v1',
     'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet80Eta2p1_v1',
     'HLT_HIL2Mu3_NHitQ10_2HF0_v1',
@@ -1849,8 +1850,8 @@ fragment.datasets = cms.PSet(
     'HLT_MonoCentralPFJet80_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight_v2',
     'HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v1',
     'HLT_MonoCentralPFJet80_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight_v3',
-    'HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight_v1')+cms.vstring( 'HLT_Mu10_CentralPFJet30_BTagCSV0p54PF_v3',
-    'HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_v1',
+    'HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight_v1',
+    'HLT_Mu10_CentralPFJet30_BTagCSV0p54PF_v3')+cms.vstring( 'HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_v1',
     'HLT_Mu12_Photon25_CaloIdL_L1ISO_v3',
     'HLT_Mu12_Photon25_CaloIdL_L1OR_v3',
     'HLT_Mu12_Photon25_CaloIdL_v3',
@@ -2192,7 +2193,6 @@ fragment.datasets = cms.PSet(
     'DST_L1DoubleMu_PFScouting_v1',
     'DST_L1HTT_BTagScouting_v1',
     'DST_L1HTT_CaloScouting_PFScouting_v1',
-    'DST_Physics_v1',
     'DST_ZeroBias_BTagScouting_v1',
     'DST_ZeroBias_PFScouting_v1',
     'HLT_AK4CaloJet100_v2',
@@ -2435,8 +2435,8 @@ fragment.datasets = cms.PSet(
     'HLT_HIL2Mu3Eta2p5_HIPhoton15Eta1p5_v1',
     'HLT_HIL2Mu3Eta2p5_HIPhoton20Eta1p5_v1',
     'HLT_HIL2Mu3Eta2p5_HIPhoton30Eta1p5_v1',
-    'HLT_HIL2Mu3Eta2p5_HIPhoton40Eta1p5_v1')+cms.vstring( 'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet100Eta2p1_v1',
-    'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet40Eta2p1_v1',
+    'HLT_HIL2Mu3Eta2p5_HIPhoton40Eta1p5_v1',
+    'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet100Eta2p1_v1')+cms.vstring( 'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet40Eta2p1_v1',
     'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet60Eta2p1_v1',
     'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet80Eta2p1_v1',
     'HLT_HIL2Mu3_NHitQ10_2HF0_v1',
@@ -2689,8 +2689,8 @@ fragment.datasets = cms.PSet(
     'HLT_MonoCentralPFJet80_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight_v2',
     'HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v1',
     'HLT_MonoCentralPFJet80_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight_v3',
-    'HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight_v1')+cms.vstring( 'HLT_Mu10_CentralPFJet30_BTagCSV0p54PF_v3',
-    'HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_v1',
+    'HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight_v1',
+    'HLT_Mu10_CentralPFJet30_BTagCSV0p54PF_v3')+cms.vstring( 'HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_v1',
     'HLT_Mu12_Photon25_CaloIdL_L1ISO_v3',
     'HLT_Mu12_Photon25_CaloIdL_L1OR_v3',
     'HLT_Mu12_Photon25_CaloIdL_v3',

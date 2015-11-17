@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_5_0/GRun/V15 (CMSSW_7_5_5)
+# /dev/CMSSW_7_5_0/GRun/V16 (CMSSW_7_5_5)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_5_0/GRun/V15')
+  tableName = cms.string('/dev/CMSSW_7_5_0/GRun/V16')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -1069,7 +1069,6 @@ fragment.datasets = cms.PSet(
     'DST_L1DoubleMu_PFScouting_v1',
     'DST_L1HTT_BTagScouting_v1',
     'DST_L1HTT_CaloScouting_PFScouting_v1',
-    'DST_Physics_v1',
     'DST_ZeroBias_BTagScouting_v1',
     'DST_ZeroBias_PFScouting_v1',
     'HLT_AK4CaloJet100_v2',
@@ -1312,8 +1311,8 @@ fragment.datasets = cms.PSet(
     'HLT_Mu17_Mu8_DZ_v2',
     'HLT_Mu17_Mu8_SameSign_DZ_v1',
     'HLT_Mu17_Mu8_v1',
-    'HLT_Mu17_Photon22_CaloIdL_L1ISO_v1')+cms.vstring( 'HLT_Mu17_Photon30_CaloIdL_L1ISO_v3',
-    'HLT_Mu17_Photon35_CaloIdL_L1ISO_v3',
+    'HLT_Mu17_Photon22_CaloIdL_L1ISO_v1',
+    'HLT_Mu17_Photon30_CaloIdL_L1ISO_v3')+cms.vstring( 'HLT_Mu17_Photon35_CaloIdL_L1ISO_v3',
     'HLT_Mu17_TkMu8_DZ_v2',
     'HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v3',
     'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v2',
@@ -1616,7 +1615,6 @@ fragment.datasets = cms.PSet(
     'DST_L1DoubleMu_PFScouting_v1',
     'DST_L1HTT_BTagScouting_v1',
     'DST_L1HTT_CaloScouting_PFScouting_v1',
-    'DST_Physics_v1',
     'DST_ZeroBias_BTagScouting_v1',
     'DST_ZeroBias_PFScouting_v1',
     'HLT_AK4CaloJet100_v2',
@@ -1859,8 +1857,8 @@ fragment.datasets = cms.PSet(
     'HLT_Mu17_Mu8_DZ_v2',
     'HLT_Mu17_Mu8_SameSign_DZ_v1',
     'HLT_Mu17_Mu8_v1',
-    'HLT_Mu17_Photon22_CaloIdL_L1ISO_v1')+cms.vstring( 'HLT_Mu17_Photon30_CaloIdL_L1ISO_v3',
-    'HLT_Mu17_Photon35_CaloIdL_L1ISO_v3',
+    'HLT_Mu17_Photon22_CaloIdL_L1ISO_v1',
+    'HLT_Mu17_Photon30_CaloIdL_L1ISO_v3')+cms.vstring( 'HLT_Mu17_Photon35_CaloIdL_L1ISO_v3',
     'HLT_Mu17_TkMu8_DZ_v2',
     'HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v3',
     'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v2',

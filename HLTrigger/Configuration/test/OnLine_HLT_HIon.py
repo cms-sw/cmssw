@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_5_0/HIon/V15 (CMSSW_7_5_5)
+# /dev/CMSSW_7_5_0/HIon/V16 (CMSSW_7_5_5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_5_0/HIon/V15')
+  tableName = cms.string('/dev/CMSSW_7_5_0/HIon/V16')
 )
 
 process.transferSystem = cms.PSet( 
@@ -732,6 +732,7 @@ process.streams = cms.PSet(
   Calibration = cms.vstring( 'TestEnablesEcalHcal' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
   DQMCalibration = cms.vstring( 'TestEnablesEcalHcalDQM' ),
+  DQMEventDisplay = cms.vstring( 'EventDisplay' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   HIExpress = cms.vstring( 'HIExpressPhysics' ),
   HIPhysicsHardProbes = cms.vstring( 'HIFlowCorr',
@@ -746,7 +747,6 @@ process.streams = cms.PSet(
   HIPhysicsVirginRaw = cms.vstring( 'HITrackerVirginRaw' ),
   LookArea = cms.vstring( 'LookAreaPD' ),
   NanoDST = cms.vstring( 'L1Accept' ),
-  PhysicsEGammaCommissioning = cms.vstring(  ),
   RPCMON = cms.vstring( 'RPCMonitor' )
 )
 process.datasets = cms.PSet( 
@@ -754,6 +754,8 @@ process.datasets = cms.PSet(
     'AlCa_LumiPixels_ZeroBias_v2' ),
   AlCaPhiSym = cms.vstring( 'AlCa_EcalPhiSymForHI_v1' ),
   EcalLaser = cms.vstring( 'HLT_EcalCalibration_v1' ),
+  EventDisplay = cms.vstring( 'HLT_HIPuAK4CaloJet150_Eta5p1_v1',
+    'HLT_HISinglePhoton60_Eta3p1_v1' ),
   HIEWQExo = cms.vstring( 'HLT_HIL1DoubleMu10_v1',
     'HLT_HIL2Mu15_2HF0_v1',
     'HLT_HIL2Mu15_2HF_v1',
@@ -962,8 +964,7 @@ process.datasets = cms.PSet(
     'HLT_HISinglePhoton60_Eta3p1_v1' ),
   HITrackerVirginRaw = cms.vstring( 'HLT_HIPhysicsNoZS_v1' ),
   L1Accept = cms.vstring( 'DST_Physics_v1' ),
-  LookAreaPD = cms.vstring( 'DST_Physics_v1',
-    'HLT_HICastorMediumJetPixel_SingleTrack_v1',
+  LookAreaPD = cms.vstring( 'HLT_HICastorMediumJetPixel_SingleTrack_v1',
     'HLT_HICentralityVeto_v1',
     'HLT_HIDmesonHITrackingGlobal_Dpt20_Cent30_100_v1',
     'HLT_HIDmesonHITrackingGlobal_Dpt20_Cent50_100_v1',
@@ -1168,8 +1169,7 @@ process.datasets = cms.PSet(
     'HLT_HIUPCSingleMuNotHF2Pixel_SingleTrack_v1',
     'HLT_HIZeroBiasPixel_SingleTrack_v1',
     'HLT_HIZeroBias_v1' ),
-  OnlineMonitor = cms.vstring( 'DST_Physics_v1',
-    'HLT_HICastorMediumJetPixel_SingleTrack_v1',
+  OnlineMonitor = cms.vstring( 'HLT_HICastorMediumJetPixel_SingleTrack_v1',
     'HLT_HICentralityVeto_v1',
     'HLT_HIDmesonHITrackingGlobal_Dpt20_Cent30_100_v1',
     'HLT_HIDmesonHITrackingGlobal_Dpt20_Cent50_100_v1',
@@ -12118,8 +12118,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
         filterName = cms.untracked.string( "" ),
         dataTier = cms.untracked.string( "RAW" )
     ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'DST_Physics_v1',
-  'HLT_HICastorMediumJetPixel_SingleTrack_v1',
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HICastorMediumJetPixel_SingleTrack_v1',
   'HLT_HICentralityVeto_v1',
   'HLT_HIDmesonHITrackingGlobal_Dpt20_Cent30_100_v1',
   'HLT_HIDmesonHITrackingGlobal_Dpt20_Cent50_100_v1',
@@ -12356,6 +12355,21 @@ process.hltOutputDQMCalibration = cms.OutputModule( "PoolOutputModule",
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
+process.hltOutputDQMEventDisplay = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputDQMEventDisplay.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIPuAK4CaloJet150_Eta5p1_v1',
+  'HLT_HISinglePhoton60_Eta3p1_v1' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep FEDRawDataCollection_source_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
 process.hltOutputRPCMON = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputRPCMON.root" ),
     fastCloning = cms.untracked.bool( False ),
@@ -12460,8 +12474,7 @@ process.hltOutputLookArea = cms.OutputModule( "PoolOutputModule",
         filterName = cms.untracked.string( "" ),
         dataTier = cms.untracked.string( "RAW" )
     ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'DST_Physics_v1',
-  'HLT_HICastorMediumJetPixel_SingleTrack_v1',
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HICastorMediumJetPixel_SingleTrack_v1',
   'HLT_HICentralityVeto_v1',
   'HLT_HIDmesonHITrackingGlobal_Dpt20_Cent30_100_v1',
   'HLT_HIDmesonHITrackingGlobal_Dpt20_Cent50_100_v1',
@@ -12980,7 +12993,7 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
 )
 process.DQMOutput = cms.EndPath( process.dqmOutput + process.hltGtDigis + process.hltPreDQMOutput + process.hltPreDQMOutputSmart + process.hltOutputDQM )
 process.DQMCalibrationOutput = cms.EndPath( process.hltGtDigis + process.hltPreDQMCalibrationOutput + process.hltOutputDQMCalibration )
-process.DQMEventDisplayOutput = cms.EndPath( process.hltGtDigis + process.hltPreDQMEventDisplayOutput + process.hltPreDQMEventDisplayOutputSmart )
+process.DQMEventDisplayOutput = cms.EndPath( process.hltGtDigis + process.hltPreDQMEventDisplayOutput + process.hltPreDQMEventDisplayOutputSmart + process.hltOutputDQMEventDisplay )
 process.RPCMONOutput = cms.EndPath( process.hltGtDigis + process.hltPreRPCMONOutput + process.hltOutputRPCMON )
 process.CalibrationOutput = cms.EndPath( process.hltGtDigis + process.hltPreCalibrationOutput + process.hltOutputCalibration )
 process.EcalCalibrationOutput = cms.EndPath( process.hltGtDigis + process.hltPreEcalCalibrationOutput + process.hltOutputEcalCalibration )
