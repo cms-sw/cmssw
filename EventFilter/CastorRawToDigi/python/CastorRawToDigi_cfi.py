@@ -8,9 +8,10 @@ castorDigis = cms.EDProducer("CastorRawToDigi",
     # Number of the first CASTOR FED.  If this is not specified, the
     # default from FEDNumbering is used.
     CastorFirstFED = cms.int32(690),
+    ZDCFirstFED = cms.int32(722),                         
     # FED numbers to unpack.  If this is not specified, all FEDs from
     # FEDNumbering will be unpacked.
-    FEDs = cms.untracked.vint32( 690, 691, 692 ),
+    FEDs = cms.untracked.vint32( 690, 691, 692, 722),
     # Do not complain about missing FEDs
     ExceptionEmptyData = cms.untracked.bool(False),
     # Do not complain about missing FEDs
@@ -28,5 +29,13 @@ castorDigis = cms.EDProducer("CastorRawToDigi",
     InputLabel = cms.InputTag("rawDataCollector"),
     CastorCtdc = cms.bool(False),
     UseNominalOrbitMessageTime = cms.bool(True),
-    ExpectedOrbitMessageTime = cms.int32(-1)
-)
+    ExpectedOrbitMessageTime = cms.int32(-1),
+    UnpackZDC = cms.bool(True),
+    #myMap = cms.VPSet(
+     #  cms.PSet(
+      ##     object = cms.string('ElectronicsMap'),
+        #   file = cms.FileInPath('/afs/cern.ch/user/j/jgomez2/ZDCTest/QuickFix/CMSSW_7_5_0/src/EventFilter/CastorRawToDigi/data/old_ZDC_emap.txt')
+
+     #  ))
+
+   )
