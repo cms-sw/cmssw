@@ -5,6 +5,16 @@ process.options = cms.untracked.PSet(
     #SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
 
+#parse command line arguments
+from FWCore.ParameterSet.VarParsing import VarParsing
+options = VarParsing('analysis')
+options.register ('isPP',
+                  False,
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.bool,
+                  "Flag if this is a pp simulation")
+options.parseArguments()
+
 #####################################################################################
 # HiForest labelling info
 #####################################################################################
@@ -23,13 +33,15 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-                            # fileNames = cms.untracked.vstring("file:/mnt/hadoop/cms/store/user/dgulhan/HIHighPt/HIHighPt_photon20and30_HIRun2011-v1_RECO_753_patch1/fd44351629dd155a25de2b4c109c824c/RECO_100_1_Uk0.root")                        )
-                            fileNames = cms.untracked.vstring("/store/express/Run2015E/ExpressPhysics/FEVT/Express-v1/000/261/544/00000//22D08F8A-2E8D-E511-BF87-02163E011965.root")                        )
+                            fileNames = cms.untracked.vstring(options.inputFiles[0])                            
+# fileNames = cms.untracked.vstring("file:/mnt/hadoop/cms/store/user/dgulhan/HIHighPt/HIHighPt_photon20and30_HIRun2011-v1_RECO_753_patch1/fd44351629dd155a25de2b4c109c824c/RECO_100_1_Uk0.root")                        )
+                            #fileNames = cms.untracked.vstring("/store/express/Run2015E/ExpressPhysics/FEVT/Express-v1/000/261/544/00000//22D08F8A-2E8D-E511-BF87-02163E011965.root")                        
+)
 
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10))
+    input = cms.untracked.int32(options.maxEvents))
 
 
 
@@ -83,7 +95,8 @@ process.centralityBin.nonDefaultGlauberModel = cms.string("")
 #####################################################################################
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName=cms.string("HiForestAOD.root"))
+                                   fileName=cms.string(options.outputFile))                                   
+#fileName=cms.string("HiForestAOD.root"))
 
 #####################################################################################
 # Additional Reconstruction and Analysis: Main Body
@@ -126,11 +139,6 @@ process.pfcandAnalyzer.skipCharged = False
 process.pfcandAnalyzer.pfPtMin = 0
 
 #####################################################################################
-
-process.load('HeavyIonsAnalysis.JetAnalysis.rechitanalyzer_pp_cfi')
-process.rechitanalyzer.doVS = cms.untracked.bool(False)
-process.rechitanalyzer.useJets = cms.untracked.bool(False)
-
 
 #########################
 # Track Analyzer
@@ -205,6 +213,11 @@ VtxLabel = "offlinePrimaryVerticesWithBS"
 TrkLabel = "generalTracks"
 from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
 finderMaker_75X(process, AddCaloMuon, runOnMC, HIFormat, UseGenPlusSim, VtxLabel, TrkLabel)
+
+
+process.load('HeavyIonsAnalysis.JetAnalysis.rechitanalyzer_pp_cfi')
+process.rechitanalyzer.doVS = cms.untracked.bool(False)
+process.rechitanalyzer.useJets = cms.untracked.bool(False)
 
 
 #####################
