@@ -626,9 +626,9 @@ void HcalRawDataMonitor::processEvent(const FEDRawDataCollection& rawraw,
 void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 
   // get the DCC header & trailer (or bail out)
-  const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
+  const HcalDCCHeader* dccHeader= reinterpret_cast<const HcalDCCHeader*>(raw.data());
   if(!dccHeader) return;
-  unsigned char* trailer_ptr = (unsigned char*) (raw.data()+raw.size()-sizeof(uint64_t));
+  const unsigned char* trailer_ptr = reinterpret_cast<const unsigned char*> (raw.data()+raw.size()-sizeof(uint64_t));
   FEDTrailer trailer = FEDTrailer(trailer_ptr);
 
   // FED id declared in the header
@@ -637,13 +637,13 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
   int dcc_=std::max(0,dccid-700);  
   dcc_ = std::min(dcc_,31);       
   if(debug_>1) std::cout << "DCC " << dccid << std::endl;
-  uint64_t* dccfw= (uint64_t*) (raw.data()+(sizeof(uint64_t)*2)); //64-bit DAQ word number 2 (from 0)
+  const uint64_t* dccfw= reinterpret_cast<const uint64_t*> (raw.data()+(sizeof(uint64_t)*2)); //64-bit DAQ word number 2 (from 0)
   int dcc_fw =  ( ((*dccfw)>>(6*8))&0x00000000000000FF );         //Shift right 6 bytes, get that low byte.
   meDCCVersion_ -> Fill(dccid,dcc_fw);
 
   //Before all else, how much data are we dealing with here?
-  uint64_t* lastDataWord = (uint64_t*) ( raw.data()+(raw.size())-(1*sizeof(uint64_t)) );
-  int EvFragLength = (int) (*lastDataWord>>(4*8)) & 0x0000000000FFFFFF ; //Shift right 4 bytes, get low 3 bytes.
+  const uint64_t* lastDataWord = reinterpret_cast<const uint64_t*> ( raw.data()+(raw.size())-(1*sizeof(uint64_t)) );
+  int EvFragLength = static_cast<int> (*lastDataWord>>(4*8)) & 0x0000000000FFFFFF ; //Shift right 4 bytes, get low 3 bytes.
   meFEDRawDataSizes_->Fill(EvFragLength*8);      //# 64-bit DAQ words *8 = # bytes. 
   meEvFragSize_ ->Fill(dccid, EvFragLength*8);   //# 64-bit DAQ words *8 = # bytes. 
   meEvFragSize2_ ->Fill(dccid, EvFragLength*8);  //# 64-bit DAQ words *8 = # bytes. 

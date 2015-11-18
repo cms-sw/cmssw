@@ -311,11 +311,11 @@ void HcalEEUSMonitor::unpack(const FEDRawData& raw,
 
 
   // get the DCC header
-  const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
+  const HcalDCCHeader* dccHeader=reinterpret_cast<const HcalDCCHeader*>(raw.data());
   if(!dccHeader) return;
 
   // get the DCC trailer 
-  unsigned char* trailer_ptr = (unsigned char*) (raw.data()+raw.size()-sizeof(uint64_t));
+  const unsigned char* trailer_ptr = reinterpret_cast<const unsigned char*> (raw.data()+raw.size()-sizeof(uint64_t));
   FEDTrailer trailer = FEDTrailer(trailer_ptr);
 
   //DCC Event Fragment sizes distribution, in bytes.
