@@ -43,7 +43,7 @@ hltGTs = {
     'run2_hlt_25ns14e33_v1'  : ('run2_hlt'     ,l1Menus['25ns14e33_v1']),
     'run2_hlt_25ns14e33_v3'  : ('run2_hlt'     ,l1Menus['25ns14e33_v3']),
     'run2_hlt_25ns14e33_v4'  : ('run2_hlt'     ,l1Menus['25ns14e33_v4']),
-    'run2_hlt_HIon'          : ('run2_hlt'     ,l1Menus['HIon']),
+    'run2_hlt_HIon'          : ('run2_hlt_hi'  ,l1Menus['HIon']),
     'run2_hlt_PIon'          : ('run2_hlt'     ,l1Menus['PIon']),
     'run2_hlt_50nsGRun'      : ('run2_hlt'     ,l1Menus['50nsGRun']),
     'run2_hlt_50ns_5e33_v1'  : ('run2_hlt'     ,l1Menus['50ns_5e33_v1']),
