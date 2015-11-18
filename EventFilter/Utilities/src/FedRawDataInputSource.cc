@@ -1281,7 +1281,3 @@ std::pair<bool,unsigned int> FedRawDataInputSource::getEventReport(unsigned int 
   else 
     return std::pair<bool,unsigned int>(false,0);
 }
-
-
-// define this class as an input source
-DEFINE_FWK_INPUT_SOURCE( FedRawDataInputSource);
