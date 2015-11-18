@@ -1,5 +1,5 @@
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="7_6_0_pre7_miniAOD_dev">
+<var name="TEST_NEW" value="7_6_0_pre7_miniAOD_std">
 <var name="TEST_REF" value="7_6_0_pre7_dev">
 
 <var name="TAG_STARTUP" value="76X_mcRun2_asymptotic_v5">
@@ -13,7 +13,7 @@ TAG for the REFERENCE DATA, USED ONLY FOR INFORMATION ON WEB PAGE
 <var name="STORE_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_NEW}">
 <var name="STORE_REF" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_REF}">
 
-<var name="WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Dev">
+<var name="WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Releases">
 
 <!--var name="WEB_DIR" value="/afs/cern.ch/user/c/chamont/www/validation"-->
 <!--var name="WEB_URL" value="https://chamont.web.cern.ch/chamont/validation"-->
@@ -95,12 +95,12 @@ FullSim
   <!--var name="DD_TIER" value="GEN-SIM-RECO"-->
   <var name="DD_TIER" value="MINIAODSIM">
   
-  <var name="VAL_HISTOS" value="ElectronMcMiniAODSignalHistos.txt">
-  <var name="VAL_ANALYZER" value="ElectronMcMiniAODSignalValidator">
-  <var name="VAL_POST_ANALYZER" value="ElectronMcMiniAODSignalPostValidator">
-  <var name="VAL_CONFIGURATION" value="ElectronMiniAODMcSignalValidation_cfg">
-  <var name="VAL_CONFIGURATION_gedGsfE" value="ElectronMiniAODMcSignalValidation_cfg">
-  <var name="VAL_POST_CONFIGURATION" value="ElectronMiniAODMcSignalPostValidation_cfg">
+  <var name="VAL_HISTOS" value="ElectronMcSignalHistosMiniAOD.txt">
+  <var name="VAL_ANALYZER" value="ElectronMcSignalValidatorMiniAOD">
+  <var name="VAL_POST_ANALYZER" value="ElectronMcSignalPostValidatorMiniAOD">
+  <var name="VAL_CONFIGURATION" value="ElectronMcSignalValidationMiniAOD_cfg">
+  <var name="VAL_CONFIGURATION_gedGsfE" value="ElectronMcSignalValidationMiniAOD_cfg">
+  <var name="VAL_POST_CONFIGURATION" value="ElectronMcSignalPostValidationMiniAOD_cfg">
       
   <environment name="ValFullStdStatsStartup">
   
