@@ -50,6 +50,10 @@ class CandidateBoostedDoubleSecondaryVertexComputer : public JetTagComputer {
 
     edm::ESHandle<TransientTrackBuilder> trackBuilder;
     std::unique_ptr<TMVAEvaluator> mvaID;
+
+    // static variables
+    static constexpr float charmThreshold  = 1.5f;
+    static constexpr float bottomThreshold = 5.2f;
 };
 
 #endif // RecoBTag_SecondaryVertex_CandidateBoostedDoubleSecondaryVertexComputer_h
