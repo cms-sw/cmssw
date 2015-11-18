@@ -40,9 +40,10 @@ protected:
 
 
   template<class T> bool TBC(T& traj) const {
-    bool ret = traj.isLooper() &&
-        ( (traj.nLoops()*theMinNumberOfHitsPerLoop + theExtraNumberOfHitsBeforeTheFirstLoop)>traj.foundHits());
-    if (!ret) traj.setStopReason(StopReason::LOOPER);
+    bool ret = !(traj.isLooper() &&
+                 ( (traj.nLoops()*theMinNumberOfHitsPerLoop + theExtraNumberOfHitsBeforeTheFirstLoop)>traj.foundHits()));
+    if (!ret)
+      traj.setStopReason(StopReason::LOOPER);
     return ret;
   }
 
