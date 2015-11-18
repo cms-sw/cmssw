@@ -70,6 +70,8 @@ int main()
     testSerialization<HcalPedestals>();
     testSerialization<HcalQIECoder>();
     testSerialization<HcalQIEData>();
+    testSerialization<HcalQIEType>();
+    testSerialization<HcalQIETypes>();
     testSerialization<HcalRecoParam>();
     testSerialization<HcalRecoParams>();
     testSerialization<HcalRespCorr>();
@@ -96,6 +98,7 @@ int main()
     testSerialization<std::pair<std::string, std::vector<HcalPedestal>>>();
     testSerialization<std::pair<std::string, std::vector<HcalPedestalWidth>>>();
     testSerialization<std::pair<std::string, std::vector<HcalQIECoder>>>();
+    testSerialization<std::pair<std::string, std::vector<HcalQIEType>>>();
     testSerialization<std::pair<std::string, std::vector<HcalRecoParam>>>();
     testSerialization<std::pair<std::string, std::vector<HcalRespCorr>>>();
     testSerialization<std::pair<std::string, std::vector<HcalTimeCorr>>>();
@@ -123,6 +126,7 @@ int main()
     testSerialization<std::vector<HcalPedestal>>();
     testSerialization<std::vector<HcalPedestalWidth>>();
     testSerialization<std::vector<HcalQIECoder>>();
+    testSerialization<std::vector<HcalQIEType>>();
     testSerialization<std::vector<HcalRecoParam>>();
     testSerialization<std::vector<HcalRespCorr>>();
     testSerialization<std::vector<HcalTimeCorr>>();
@@ -144,6 +148,7 @@ int main()
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalPedestal>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalPedestalWidth>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalQIECoder>>>>();
+    testSerialization<std::vector<std::pair<std::string, std::vector<HcalQIEType>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalRecoParam>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalRespCorr>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalTimeCorr>>>>();

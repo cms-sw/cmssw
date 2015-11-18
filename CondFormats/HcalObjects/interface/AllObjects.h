@@ -8,6 +8,7 @@
 #include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
+#include "CondFormats/HcalObjects/interface/HcalQIETypes.h"
 #include "CondFormats/HcalObjects/interface/HcalCalibrationQIEData.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
