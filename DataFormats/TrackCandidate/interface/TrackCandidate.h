@@ -35,7 +35,7 @@ TrackCandidate(): rh_(),  seed_(), state_(), seedRef_(), nLoops_(0), stopReason_
 		 TrajectorySeed const & s,
 		 PTrajectoryStateOnDet const & st,
 		 signed char nLoops=0,
-                 signed char stopReason=0):
+                 uint8_t stopReason=0):
   rh_(), seed_(s), state_(st), seedRef_(),nLoops_(nLoops), stopReason_(stopReason) {rh_.swap(rh);}
 
   
@@ -44,7 +44,7 @@ TrackCandidate(): rh_(),  seed_(), state_(), seedRef_(), nLoops_(0), stopReason_
 		 PTrajectoryStateOnDet const & st,
 		 const edm::RefToBase<TrajectorySeed> & seedRef,
 		 signed char nLoops=0,
-                 signed char stopReason=0) :
+                 uint8_t stopReason=0) :
   rh_(), seed_(s), state_(st), seedRef_(seedRef),nLoops_(nLoops), stopReason_(stopReason) {rh_.swap(rh);}
 
 
@@ -57,11 +57,11 @@ TrackCandidate(): rh_(),  seed_(), state_(), seedRef_(), nLoops_(0), stopReason_
 
   bool isLooper() const {return (nLoops_>0);}
   signed char nLoops() const {return nLoops_;}
-  signed char stopReason() const {return stopReason_;}
+  uint8_t stopReason() const {return stopReason_;}
 
 
   void setNLoops(signed char value) {nLoops_=value;}
-  void setStopReason(unsigned char value) {stopReason_ = value;}
+  void setStopReason(uint8_t value) {stopReason_ = value;}
 
   /**  return the edm::reference to the trajectory seed in the original
    *   seeds collection. If the collection has been dropped from the
@@ -78,6 +78,6 @@ private:
   PTrajectoryStateOnDet state_;
   edm::RefToBase<TrajectorySeed> seedRef_;
   signed char nLoops_;
-  unsigned char stopReason_;
+  uint8_t stopReason_;
 };
 #endif

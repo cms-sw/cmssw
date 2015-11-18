@@ -141,7 +141,6 @@ public:
 
     /// algo mask
     typedef std::bitset<algoSize> AlgoMask;
- 
 
     static const std::string algoNames[];
 
@@ -168,7 +167,7 @@ public:
     TrackBase(double chi2, double ndof, const Point &vertex,
               const Vector &momentum, int charge, const CovarianceMatrix &cov,
               TrackAlgorithm = undefAlgorithm, TrackQuality quality = undefQuality,
-              signed char nloops = 0);
+              signed char nloops = 0, uint8_t stopReason = 0);
 
     /// virtual destructor
     virtual ~TrackBase();
@@ -394,6 +393,11 @@ public:
 
     signed char nLoops() const;
 
+    void setStopReason(uint8_t value) { stopReason_ = value; }
+
+    uint8_t stopReason() const { return stopReason_; }
+
+
 private:
     /// hit pattern
     HitPattern hitPattern_;
@@ -431,6 +435,9 @@ private:
 
     /// number of loops made during the building of the trajectory of a looper particle
     signed char nLoops_; // I use signed char because I don't expect more than 128 loops and I could use a negative value for a special purpose.
+
+    /// Stop Reason
+    uint8_t stopReason_;
 };
 
 //  Access the hit pattern, indicating in which Tracker layers the track has hits.
@@ -487,7 +494,7 @@ inline TrackBase::TrackAlgorithm TrackBase::algo() const
 }
 inline TrackBase::TrackAlgorithm TrackBase::originalAlgo() const
 {
-    return (TrackAlgorithm) (originalAlgorithm_);
+  return (TrackAlgorithm) (originalAlgorithm_);
 }
 
 
