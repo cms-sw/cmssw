@@ -139,7 +139,7 @@ class Photon(PhysicsObject ):
         passPhotonID = True
 
         if self.CutBasedIDWP(name)["conversionVeto"][idForBarrel]:
-            if (conversionSafe_eleVeto==False and self.physObj.hasPixelSeed()) or (conversionSafe_eleVeto==True and self.physObj.passElectronVeto()):
+            if (conversionSafe_eleVeto==False and self.physObj.hasPixelSeed()) or (conversionSafe_eleVeto==True and self.physObj.passElectronVeto()==False):
                 passPhotonID = False
 
         if self.CutBasedIDWP(name)["H/E"][idForBarrel] < self.hOVERe():
