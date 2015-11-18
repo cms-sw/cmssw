@@ -243,7 +243,6 @@ void L1THIonImp::analyze(const edm::Event & e, const edm::EventSetup & c) {
     // only plot central BX
     if (cj->bx()==0) {
       l1GctCenJetsRank_->Fill(cj->rank());
-      std::cout<<"Data: "<<std::to_string(cj->rank())<<std::endl;;
       // only plot eta and phi maps for non-zero candidates
       if (cj->rank()) {
 	l1GctCenJetsEtEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi(),cj->rank());
@@ -261,7 +260,6 @@ void L1THIonImp::analyze(const edm::Event & e, const edm::EventSetup & c) {
     }
   }
   for (L1GctJetCandCollection::const_iterator j = l1CenJetsEmul->begin();j != l1CenJetsEmul->end(); j++) {
-    std::cout<<"Emul: "<<std::to_string(j->rank())<<std::endl;;
   }
 
   // Forward jets
