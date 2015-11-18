@@ -169,6 +169,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( HcalPedestalWidths )
       IMPORT_PAYLOAD_CASE( HcalPedestals )
       IMPORT_PAYLOAD_CASE( HcalQIEData )
+      IMPORT_PAYLOAD_CASE( HcalQIETypes ) 
       IMPORT_PAYLOAD_CASE( HcalRecoParams )
       IMPORT_PAYLOAD_CASE( HcalRespCorrs )
       IMPORT_PAYLOAD_CASE( HcalTimeCorrs )
