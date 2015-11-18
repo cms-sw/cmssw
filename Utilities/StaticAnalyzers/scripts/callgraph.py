@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 import re
-topfunc = re.compile("::(produce|analyze|filter|beginLuminosityBlock|beginRun)\(")
+topfunc = re.compile("::(produce|analyze|filter|beginLuminosityBlock|beginRun|beginStream)\(")
 baseclass = re.compile("edm::(one::|stream::|global::)?ED(Producer|Filter|Analyzer)(Base)?")
 farg = re.compile("\(.*\)")
 toplevelfuncs = set()
