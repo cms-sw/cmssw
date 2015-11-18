@@ -1,25 +1,10 @@
 #ifndef L1THIonImp_H
 #define L1THIonImp_H
 
-#include <memory>
-#include <unistd.h>
-
-
-#include <iostream>
-#include <fstream>
-#include <vector>
-
-
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 // DQM
 #include "DQMServices/Core/interface/DQMStore.h"
