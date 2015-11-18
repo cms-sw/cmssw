@@ -56,6 +56,8 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(
   std::cout << "PixelTemplateSmearerBase"<< std::endl;
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
   useCMSSWPixelParameterization = pset_.getParameter<bool>("UseCMSSWPixelParametrization");
+  //--- Check whether we're merging hits or not
+  mergeHitsOn = pset_.getParameter<bool>("MergeHitsOn");
 }
 
 
@@ -139,9 +141,11 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
     listOfUnmergedHits.push_back( simHits[0] );
   }
   else {
+    if ( mergeHitsOn ) {
     //--- The usual case.  More than one hit on this DetUnit.
     //    Iterate over hits.
     //
+    std::cout << "Merge Hits On!" << std::endl;
     for (int i = 0; i < nHits; ++i ) {
       mergeGroupByHit[i] = 0; //initialize this cell to a NULL pointer here      
     }
@@ -229,8 +233,16 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
 	//--- Keep track of it.
 	listOfUnmergedHits.push_back( simHits[i] );
       }
-    } //--- end of loop over i
-    
+     } //--- end of loop over i
+    }// --- end of if (mergeHitsOn)
+    else{
+      std::cout << "Merged Hits Off!" << std::endl;
+      //Now we've turned off hit merging, so all hits should be pushed
+      //back to listOfUnmergedHits
+      for (int i = 0; i < nHits; ++i ) {
+	listOfUnmergedHits.push_back( simHits[i] );
+      }
+    }
   } // --- end of if (nHits == 1) else {...}
 
 
