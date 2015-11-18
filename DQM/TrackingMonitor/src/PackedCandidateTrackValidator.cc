@@ -27,10 +27,6 @@
 #include <iomanip>
 
 namespace {
-  float packUnpack(float value) {
-    return MiniFloatConverter::float16to32(MiniFloatConverter::float32to16(value));
-  }
-
   template<typename T> void fillNoFlow(MonitorElement* h, T val){
     h->Fill(std::min(std::max(val,((T) h->getTH1()->GetXaxis()->GetXmin())),((T) h->getTH1()->GetXaxis()->GetXmax())));
   }
