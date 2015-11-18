@@ -44,7 +44,8 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHI::processEvent(const std::vector<l1t::C
 
   //Region Correction will return uncorrected subregions if
   //regionPUSType is set to None in the config
-  double jetLsb=params_->jetLsb();
+  //double jetLsb=params_->jetLsb();
+  double jetLsb = 0.5; // HI O2O does not set this, and it will never change.
 
   int etSumEtaMinEt = params_->etSumEtaMin(0);
   int etSumEtaMaxEt = params_->etSumEtaMax(0);
