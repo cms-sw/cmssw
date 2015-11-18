@@ -117,6 +117,8 @@ private:
 
 CaloGeometryAnalyzer::CaloGeometryAnalyzer( const edm::ParameterSet& /*iConfig*/ )
 {
+  usesResource("TFileService");
+  
   pass_=0;
 
   h_dPhi[0] = h_fs->make<TProfile>("dPhi:EB:index", "EB: dPhi vs index", 61200, -0.5, 61199.5, " " ) ;

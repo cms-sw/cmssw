@@ -27,15 +27,13 @@ using namespace CLHEP;
 class SurveyToTransforms : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   SurveyToTransforms( const edm::ParameterSet& );
-  ~SurveyToTransforms();
+  ~SurveyToTransforms() {}
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override {}
 
 private:
-  int pass_;
-
   edm::Service<TFileService> h_fs;
 
   TProfile* h_eta;
@@ -46,9 +44,8 @@ private:
 
 SurveyToTransforms::SurveyToTransforms( const edm::ParameterSet& iConfig )
 {
-   //now do what ever initialization is needed
-  pass_=0;
-  //  fullEcalDump_=iConfig.getUntrackedParameter<bool>("fullEcalDump",false);
+  usesResource("TFileService");
+
   h_eta = h_fs->make<TProfile>("iEta", "Eta vs iEta", 86*2*4, -86, 86, " " ) ;
   h_phi = h_fs->make<TProfile>("iPhi", "Phi vs iPhi", 360*4, 1, 361, " " ) ;
 
@@ -72,32 +69,13 @@ SurveyToTransforms::SurveyToTransforms( const edm::ParameterSet& iConfig )
   }
 }
 
-
-SurveyToTransforms::~SurveyToTransforms()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-}
-
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void
 SurveyToTransforms::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   using namespace edm;
-   //
-
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<CaloGeometryRecord>().get(pG);     
 
    pG->getSubdetectorGeometry( DetId::Ecal, EcalEndcap ) ;
 }
-
-//define this as a plug-in
 
 DEFINE_FWK_MODULE(SurveyToTransforms);

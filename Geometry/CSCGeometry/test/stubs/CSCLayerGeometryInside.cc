@@ -68,6 +68,8 @@ CSCLayerGeometryInside::CSCLayerGeometryInside( const edm::ParameterSet& ps )
    xlo( ps.getUntrackedParameter<double>("xlo") ), xhi( ps.getUntrackedParameter<double>("xhi") ),
    ylo( ps.getUntrackedParameter<double>("ylo") ), yhi( ps.getUntrackedParameter<double>("yhi") )
 {
+  usesResource("TFileService");
+  
   std::cout << myName_ << " constructor:" << std::endl;
   std::cout << "x range is " << nbx << " bins from " << xlo << " to " << xhi << std::endl;
   std::cout << "y range is " << nby << " bins from " << ylo << " to " << yhi << std::endl;
