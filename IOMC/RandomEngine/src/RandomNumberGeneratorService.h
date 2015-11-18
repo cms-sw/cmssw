@@ -105,14 +105,6 @@ namespace edm {
       void preModuleStreamEndLumi(StreamContext const& sc, ModuleCallingContext const& mcc);
       void postModuleStreamEndLumi(StreamContext const& sc, ModuleCallingContext const& mcc);
 
-      // The next 5 functions support the mySeed function
-      // DELETE THEM when/if that function is deleted.
-      void postModuleConstruction(ModuleDescription const& description);
-      void preModuleBeginJob(ModuleDescription const& description);
-      void postModuleBeginJob(ModuleDescription const& description);
-      void preModuleEndJob(ModuleDescription const& description);
-      void postModuleEndJob(ModuleDescription const& description);
-
       /// These two are used by the RandomEngineStateProducer
       virtual std::vector<RandomEngineState> const& getLumiCache(LuminosityBlockIndex const&) const override;
       virtual std::vector<RandomEngineState> const& getEventCache(StreamID const&) const override;
@@ -275,10 +267,6 @@ namespace edm {
       std::uint32_t eventSeedOffset_;
 
       bool verbose_;
-
-      // The next data member supports the mySeed function
-      // DELETE IT when/if that function is deleted.
-      static thread_local std::string moduleLabel_;
 
       static const std::vector<std::uint32_t>::size_type maxSeeds;
       static const std::vector<std::uint32_t>::size_type maxStates;
