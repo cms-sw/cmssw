@@ -58,7 +58,10 @@ bool HLTPixelActivityHFSumEnergyFilter::hltFilter(edm::Event& event, const edm::
   // this HLT filter, and place it in the Event.
 
   // The filter object
-  if (saveTags()) filterproduct.addCollectionTag(inputTag_);
+  if (saveTags()) {
+	filterproduct.addCollectionTag(inputTag_);
+        filterproduct.addCollectionTag(HFHits_);
+  }
 
   // get hold of products from Event
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > clusterColl;
