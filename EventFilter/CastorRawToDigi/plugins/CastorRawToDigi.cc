@@ -145,10 +145,8 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 	  }
 	else
 	  {
-	    std::cout<<"I made it to the unpack step just fine"<<std::endl;
 	    //ADD ZDC UNPACKER HERE
 	    zdcunpacker_.unpack(fed,*readoutMap,colls,*report);
-	    //std::cout<<"I made it out of the unpack step just fin"<<std::endl;
 	    report->addUnpacked(*i);
 	    
 	  }
