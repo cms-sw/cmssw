@@ -139,6 +139,11 @@ process.pfcandAnalyzer.skipCharged = False
 process.pfcandAnalyzer.pfPtMin = 0
 
 #####################################################################################
+#########################
+# HLTMuTree Analyzer
+#########################
+process.load('HeavyIonsAnalysis.MuonAnalysis.hltMuTree_cfi')
+process.hltMuTree.vertices = cms.InputTag("offlinePrimaryVertices")
 
 #########################
 # Track Analyzer
@@ -249,6 +254,7 @@ process.ana_step = cms.Path(
                             process.L1EmulatorUnpacker +
                             process.finderSequence +
                             process.rechitanalyzer +
+                            process.hltMuTree + 
                             process.HiForest +
                             process.ppTrack
                             )
