@@ -250,9 +250,9 @@ ECALMultifitAnalyzer_HI::bookHistograms(DQMStore::IBooker& iBooker, edm::Run con
   ee_chi2_jet30 = 0;
   ee_errors_jet30 = 0;
 
-  const int nBins = 100;
+  const int nBins = 500;
   const float maxChi2 = 70;
-  const float maxError = 0.2;
+  const float maxError = 0.5;
 
   TH2F * hProfile_Chi2 = new TH2F("hProfile_Chi2","",nBins, -5, 5, nBins, 0, maxChi2);
   TH2F * hProfile_Err = new TH2F("hProfile_Err","",nBins, -5, 5, nBins, 0, maxError);
