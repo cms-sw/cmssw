@@ -10,7 +10,8 @@ TempTrajectory::TempTrajectory(Trajectory && traj):
   theValid(traj.isValid()),
   theNHseed(traj.seedNHits()),
   theNLoops(traj.nLoops()),
-  theDPhiCache(traj.dPhiCacheForLoopersReconstruction()) {
+  theDPhiCache(traj.dPhiCacheForLoopersReconstruction()),
+  stopReason_(traj.stopReason()) {
 
   Trajectory::DataContainer::const_iterator begin=traj.measurements().begin();
   Trajectory::DataContainer::const_iterator end=traj.measurements().end();
@@ -102,6 +103,7 @@ Trajectory TempTrajectory::toTrajectory() const {
   PropagationDirection p=PropagationDirection(theDirection);
   Trajectory traj(p);
   traj.setNLoops(theNLoops);
+  traj.setStopReason(stopReason_);
 
   traj.reserve(theData.size());
   const TrajectoryMeasurement* tmp[theData.size()];

@@ -158,7 +158,9 @@ TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &o
 
     }
      TrajectorySeed seed(state, TrackCandidate::RecHitContainer(), pdir);
-    return TrackCandidate(ownHits, seed, state, (useInnermostState_ ? inner : outer).seedRef());
+     TrackCandidate ret(ownHits, seed, state, (useInnermostState_ ? inner : outer).seedRef());
+     ret.setStopReason((uint8_t)(useInnermostState_ ? inner : outer).stopReason());
+     return ret;
 }
 
 

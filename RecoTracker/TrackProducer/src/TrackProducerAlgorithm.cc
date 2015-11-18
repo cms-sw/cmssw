@@ -87,7 +87,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
 						 float ndof,
 						 const reco::BeamSpot& bs,
 						 SeedRef seedRef,
-						 int qualityMask,signed char nLoops)						 
+						 int qualityMask,signed char nLoops)
 {
   //variable declarations
 
@@ -215,7 +215,8 @@ std::cout << algo_ << ": " <<  hits.size() <<'|' <<theTraj->measurements().size(
   if(algoMask_.any())                                  theTrack->setAlgoMask(algoMask_);
   theTrack->setQualityMask(qualityMask);
   theTrack->setNLoops(nLoops);
-  
+  theTrack->setStopReason(stopReason_);
+
   LogDebug("TrackProducer") << "theTrack->pt()=" << theTrack->pt();
   
   LogDebug("TrackProducer") <<"track done\n";
@@ -344,7 +345,9 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
   theTrack->setAlgorithm(algo_);
   if(originalAlgo_ != reco::TrackBase::undefAlgorithm) theTrack->setOriginalAlgorithm(originalAlgo_);
   if(algoMask_.any())                                  theTrack->setAlgoMask(algoMask_);
-  
+
+  theTrack->setStopReason(stopReason_);
+
   LogDebug("GsfTrackProducer") <<"track done\n";
   
   AlgoProduct aProduct{theTraj,theTrack,seedDir,0};

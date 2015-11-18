@@ -270,8 +270,6 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
   groupedLimitedCandidates(seed, startingTraj, regionalCondition, forwardPropagator(seed), inOut, work_);
   if ( work_.empty() )  return startingTraj;
 
-
-
   /*  rebuilding is de-coupled from standard building
   //
   // try to additional hits in the seeding region
@@ -650,7 +648,6 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
 	// Have finished building this track. Check if it passes cuts.
 
 	LogDebug("CkfPattern")<< "GCTB: adding completed trajectory to results if passes cuts: inOut="<<inOut<<" hits="<<newTraj.foundHits();
-
 	moveToResult(std::move(newTraj), result, inOut);
       }
     } // loop over segs
@@ -877,11 +874,16 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed&seed,
     //
     int nRebuilt =
       rebuildSeedingRegion (seed, seedHits,reFitted,rebuiltTrajectories);
+    // Loop over the last nRebuilt trajectories and propagate back the
+    // real cause that stopped the original in-out trajectory, since
+    // that's the one we want to monitor
+    for (size_t i = rebuiltTrajectories.size() - 1; i < rebuiltTrajectories.size() - nRebuilt - 1; --i) {
+      rebuiltTrajectories[i].setStopReason(it->stopReason());
+    }
 
     if ( nRebuilt==0 && !theKeepOriginalIfRebuildFails ) it->invalidate();  // won't use original in-out track
 
     if ( nRebuilt<0 ) rebuiltTrajectories.push_back(std::move(*it));
-
   }
   //
   // Replace input trajectories with new ones

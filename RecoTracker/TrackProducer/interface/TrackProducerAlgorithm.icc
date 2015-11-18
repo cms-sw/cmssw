@@ -69,7 +69,8 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
       for (auto  i = recHitVec.first; i!=recHitVec.second; ++i){
 	hits.push_back((*i).cloneSH());  // major waste, will be soon fitted and recloned...
       }      
-      
+
+      stopReason_ = theTC.stopReason();
       //build Track
       LogDebug("TrackProducer") << "going to buildTrack"<< "\n";
       FitterCloner fc(theFitter,builder);   
@@ -171,6 +172,8 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 	algo_=theT->algo();	
 	originalAlgo_ = theT->originalAlgo();
 	algoMask_ = theT->algoMask();
+
+        stopReason_ = theT->stopReason();
 
 	//=====  the hits are in the same order as they were in the track::extra.
         FitterCloner fc(theFitter,builder);        
