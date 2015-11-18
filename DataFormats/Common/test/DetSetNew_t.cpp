@@ -253,6 +253,7 @@ void TestDetSet::filling() {
 void TestDetSet::fillingTS() {
 
   DSTV detsets(2);
+  detsets.reserve(5,100);
   unsigned int ntot=0;
   for (unsigned int n=1;n<5;++n) {
     unsigned int id=20+n;

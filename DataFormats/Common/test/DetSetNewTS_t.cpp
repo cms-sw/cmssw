@@ -187,9 +187,9 @@ void TestDetSet::fillSeq() {
   {
     sync(lock);
     while(true) {
-      int ldet = idet.load(std::memory_order_acquire);
+      int ldet = idet;
       if (!(ldet<maxDet)) break;
-      while(!idet.compare_exchange_weak(ldet,ldet+1,std::memory_order_acq_rel));
+      while(!idet.compare_exchange_weak(ldet,ldet+1));
       if (ldet>=maxDet) break;
       unsigned int id=20+ldet;
       bool done=false;
@@ -205,7 +205,7 @@ void TestDetSet::fillSeq() {
 	  // read(detsets);  // cannot read in parallel while filling in this case
 	  done=true;
 	} catch (edm::Exception const&) {
-	  trial.fetch_add(1,std::memory_order_acq_rel);
+	  trial++;;
 	  //read(detsets);
 	}
       }
@@ -247,6 +247,7 @@ void TestDetSet::fillPar() {
   int maxDet=100*nth;
   std::vector<unsigned int> v(maxDet); int k=20;for (auto &i:v) i=k++;
   DSTV detsets(pg,v,2);
+  detsets.reserve(maxDet,100*maxDet);
   CPPUNIT_ASSERT(g.ntot==0);
   CPPUNIT_ASSERT(detsets.onDemand());
   CPPUNIT_ASSERT(maxDet==int(detsets.size()));
