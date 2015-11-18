@@ -149,7 +149,6 @@ def customiseSimL1EmulatorForPostLS1_25ns(process):
 def customiseSimL1EmulatorForPostLS1_Additional_HI(process):
     # set the Stage 1 heavy ions-specific parameters
     # all of these should eventually end up in a GT
-    process.load('L1Trigger.L1TCalorimeter.caloStage1Params_HI_cfi')
     if hasattr(process,'caloConfig'):
         process.caloConfig.fwVersionLayer2 = cms.uint32(1)
     return process
