@@ -11,5 +11,8 @@ cscDigiValidation = cms.EDAnalyzer("CSCDigiValidation",
     doSim = cms.bool(False)
 )
 
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    cscDigiValidation.simHitsTag = cms.InputTag("mix", "MuonSimHitsMuonCSCHits")
 
 

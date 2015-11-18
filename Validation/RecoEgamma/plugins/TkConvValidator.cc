@@ -139,8 +139,8 @@ TkConvValidator::TkConvValidator( const edm::ParameterSet& pset )
     beamspotToken_ = consumes<reco::BeamSpot>(
         pset.getUntrackedParameter<edm::InputTag> ("beamspot",
                                                    edm::InputTag("offlineBeamSpot")));
-    g4_simTk_Token_  = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
-    g4_simVtx_Token_ = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
+    g4_simTk_Token_  = consumes<edm::SimTrackContainer>(pset.getParameter<edm::InputTag>("simTracks"));
+    g4_simVtx_Token_ = consumes<edm::SimVertexContainer>(pset.getParameter<edm::InputTag>("simTracks"));
 
     tpSelForEff_Token_ = consumes<TrackingParticleCollection> (
         edm::InputTag("tpSelecForEfficiency"));
