@@ -442,7 +442,6 @@ void L1THIonImp::analyze(const edm::Event & e, const edm::EventSetup & c) {
     if (it -> bx()==0){
       int totm = 0;
       int totp = 0;
-      int tot = 0;
       if (it->gctEta() < 4){
 	totm += it->et();
       }
