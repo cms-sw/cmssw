@@ -449,9 +449,6 @@ void L1THIonImp::analyze(const edm::Event & e, const edm::EventSetup & c) {
       if (it->gctEta() > 17){
 	totp += it->et();
       }
-      if (it->gctEta() < 4 && it->gctEta() > 17){
-	tot += it->et();
-      }
       HFNegEnergy_->Fill(totm);
       HFPosEnergy_->Fill(totp);
       HFEnergy_->Fill(totm+totp);
