@@ -17,6 +17,7 @@ import fileinput
 for line in fileinput.input(files =('function-statics-db.txt','function-calls-db.txt')):
 	if fre.search(line):
 		fields = line.split("'")
+		if topfunc.search(fields[1]) and not baseclass.search(fields[1]): toplevelfuncs.add(fields[1])
 		if fields[2] == ' calls function ':
 			if skipfunc.search(line) : skipfuncs.add(line)
 			else : G.add_edge(fields[1],fields[3],kind=fields[2])
@@ -28,7 +29,7 @@ for line in fileinput.input(files =('function-statics-db.txt','function-calls-db
 				if skipfunc.search(line) : skipfuncs.add(line)
 				else : G.add_edge(fields[3],fields[1],kind=' calls function ')
 		if fields[2] == ' static variable ' :
-			G.add_edge(fields[1],fields[3],kind=' static variable ')
+			G.add_edge(fields[1],fields[3],kind=fields[2])
 			statics.add(fields[3])
 		if fields[2] == ' known thread unsafe function ' :
 			G.add_edge(fields[1],fields[3],kind=' known thread unsafe function ')
@@ -37,14 +38,6 @@ fileinput.close()
 
 for tfunc in sorted(toplevelfuncs):
 	for static in sorted(statics):
-		if tfunc == static :
-			print "Non-const static variable \'"+re.sub(farg,"()",static)+"' is accessed in call stack '",tfunc
-			print
-			print "In call stack ' ", tfunc, " non-const static variable \'"+re.sub(farg,"()",static)+"' is accessed",
-                        for key in  G[tfunc].keys() :
-                                if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function '  :
-                                        print "'"+re.sub(farg,"()",tfunc)+"' overrides '"+re.sub(farg,"()",key)+"'",
-			print
 		if nx.has_path(G,tfunc,static): 
 			path = nx.shortest_path(G,tfunc,static)
 
