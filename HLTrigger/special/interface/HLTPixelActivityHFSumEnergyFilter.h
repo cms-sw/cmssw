@@ -38,8 +38,7 @@ public:
 private:
   virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
-  edm::InputTag inputTag_;          // input tag identifying product containing pixel digis
-  //edm::EDGetTokenT<edmNew::DetSetVector<PixelDigi> > inputToken_;
+  edm::InputTag inputTag_;          // input tag identifying product containing pixel clusters
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > inputToken_;
   edm::EDGetTokenT<HFRecHitCollection> HFHitsToken_;
   edm::InputTag HFHits_;

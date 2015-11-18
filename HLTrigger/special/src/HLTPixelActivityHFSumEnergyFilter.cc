@@ -25,10 +25,10 @@ public:
 
 private:
   virtual void beginStream(edm::StreamID) override;
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override; //, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override; 
   virtual void endStream() override;
   
-  edm::InputTag inputTag_;          // input tag identifying product containing pixel digis
+  edm::InputTag inputTag_;          // input tag identifying product containing pixel clusters
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > inputToken_;
   edm::EDGetTokenT<HFRecHitCollection> HFHitsToken_;
   edm::InputTag HFHits_;
