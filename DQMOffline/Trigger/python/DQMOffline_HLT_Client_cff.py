@@ -13,7 +13,7 @@ from DQMOffline.Trigger.DQMOffline_HLT_Cert_cff import *
 from DQMOffline.Trigger.HLTInclusiveVBFClient_cfi import *
 from DQMOffline.Trigger.FSQHLTOfflineClient_cfi import  *
 from DQMOffline.Trigger.HILowLumiHLTOfflineClient_cfi import  *
-
+from DQMOffline.Trigger.TrackingMonitoring_Client_cff import *
 
 hltOfflineDQMClient = cms.Sequence(
 #    hltGeneralSeqClient *
@@ -25,6 +25,7 @@ hltOfflineDQMClient = cms.Sequence(
     #tagAndProbeEfficiencyPostProcessor *
     HLTTauPostSeq *
     dqmOfflineHLTCert *
-    hltInclusiveVBFClient
+    hltInclusiveVBFClient *
+    trackingMonitorClientHLT
     )
 
