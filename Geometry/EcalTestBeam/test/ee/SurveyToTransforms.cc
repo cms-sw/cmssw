@@ -24,7 +24,7 @@
 
 using namespace CLHEP;
 
-class SurveyToTransforms : public edm::one::EDAnalyzer<> {
+class SurveyToTransforms : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   SurveyToTransforms( const edm::ParameterSet& );
   ~SurveyToTransforms();

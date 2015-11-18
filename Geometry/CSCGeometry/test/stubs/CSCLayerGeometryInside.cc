@@ -20,7 +20,7 @@
 
 #include <string>
 
-class CSCLayerGeometryInside : public edm::one::EDAnalyzer<> {
+class CSCLayerGeometryInside : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 
 public:
  
