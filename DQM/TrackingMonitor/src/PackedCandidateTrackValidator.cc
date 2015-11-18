@@ -331,7 +331,7 @@ namespace {
               int flow_nbins,double flow_min,double flow_max) {
       hInrange = iBooker.book1D(name, title, nbins, min, max);
       hUnderOverflowSign = iBooker.book1D(name+"UnderOverFlowSign", title+" with over- and underflow, and sign flip", flow_nbins, flow_min, flow_max);
-      hStatus = iBooker.book1D(name+"Status", title+" status", 8, -0.5, 7.5);
+      hStatus = iBooker.book1D(name+"Status", title+" status", 7, -0.5, 6.5);
       hStatus->setBinLabel(1, "In range");
       hStatus->setBinLabel(2, "In range, sign flip");
       hStatus->setBinLabel(3, "Denormal");
