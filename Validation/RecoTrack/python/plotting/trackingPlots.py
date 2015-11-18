@@ -21,6 +21,11 @@ _maxLayers = 25
 _maxPixelLayers = 8
 _max3DLayers = 20
 
+_legendDy_4rows = 0.09
+_legendDy_2rows = -0.025
+_legendDy_2rows_3cols = -0.17
+
+
 _effandfake1 = PlotGroup("effandfake1", [
     Plot("efficPt", title="Efficiency vs p_{T}", xtitle="TP p_{T} (GeV)", ytitle="efficiency vs p_{T}", xlog=True, ymax=_maxEff),
     Plot(FakeDuplicate("fakeduprate_vs_pT", assoc="num_assoc(recoToSim)_pT", dup="num_duplicate_pT", reco="num_reco_pT", title="fake+duplicates vs p_{T}"),
@@ -47,7 +52,7 @@ _effandfake2 = PlotGroup("effandfake2", [
     Plot(FakeDuplicate("fakeduprate_vs_dz(PV)", assoc="num_assoc(recoToSim)_dzpv", dup="num_duplicate_dzpv", reco="num_reco_dzpv", title=""),
          xtitle="track dz(PV) (cm)", ytitle="fake+duplicates rate vs dz(PV)", ymax=_maxFake),
 ],
-                         legendDy=0.09
+                         legendDy=_legendDy_4rows
 )
 _effandfake3 = PlotGroup("effandfake3", [
     Plot("effic_vs_hit", xtitle="TP hits", ytitle="efficiency vs hits", ymax=_maxEff),
@@ -63,7 +68,7 @@ _effandfake3 = PlotGroup("effandfake3", [
     Plot(FakeDuplicate("fakeduprate_vs_3Dlayer", assoc="num_assoc(recoToSim)_3Dlayer", dup="num_duplicate_3Dlayer", reco="num_reco_3Dlayer", title="fake+duplicates vs 3D layer"),
          xtitle="track 3D layers", ytitle="fake+duplicates rate vs 3D layers", xmax=_max3DLayers, ymax=_maxFake),
 ],
-                         legendDy=0.09
+                         legendDy=_legendDy_4rows
 )
 _common = {"ymin": 0, "ymax": _maxEff}
 _effvspos = PlotGroup("effvspos", [
@@ -72,7 +77,7 @@ _effvspos = PlotGroup("effvspos", [
     Plot("effic_vs_dr", xlog=True, xtitle="min #DeltaR", ytitle="efficiency vs #DeltaR", **_common),
     Plot("fakerate_vs_dr", xlog=True, title="", xtitle="min #DeltaR", ytitle="Fake rate vs #DeltaR", ymin=0, ymax=_maxFake)
 ],
-                         legendDy=-0.025
+                         legendDy=_legendDy_2rows
 )
 
 _dupandfake1 = PlotGroup("dupandfake1", [
@@ -102,8 +107,8 @@ _dupandfake2 = PlotGroup("dupandfake2", [
     Plot("fakerate_vs_dzpv", xtitle="track dz(PV) (cm)", ytitle="fakerate vs dz(PV)", title="", ymax=_maxFake),
     Plot("duplicatesRate_dzpv", xtitle="track dz(PV) (cm)", ytitle="duplicates rate vs dz(PV)", title="", ymax=_maxFake),
     Plot("pileuprate_dzpv", xtitle="track dz(PV) (cm)", ytitle="pileup rate vs dz(PV)", title="", ymax=_maxFake),
-], ncols=3,
-                         legendDy=0.09
+],
+                         ncols=3, legendDy=_legendDy_4rows
 )
 _dupandfake3 = PlotGroup("dupandfake3", [
     Plot("fakerate_vs_hit", xtitle="track hits", ytitle="fakerate vs hits", ymax=_maxFake),
@@ -121,15 +126,15 @@ _dupandfake3 = PlotGroup("dupandfake3", [
     Plot("fakerate_vs_3Dlayer", xtitle="track 3D layers", ytitle="fakerate vs 3D layers", ymax=_maxFake, xmax=_max3DLayers),
     Plot("duplicatesRate_3Dlayer", xtitle="track 3D layers", ytitle="duplicates rate vs 3D layers", ymax=_maxFake, xmax=_max3DLayers),
     Plot("pileuprate_3Dlayer", xtitle="track 3D layers", ytitle="pileup rate vs 3D layers", ymax=_maxFake, xmax=_max3DLayers)
-], ncols=3,
-                         legendDy=0.09
+],
+                         ncols=3, legendDy=_legendDy_4rows
 )
 _dupandfake4 = PlotGroup("dupandfake4", [
     Plot("fakerate_vs_chi2", xtitle="track #chi^{2}", ytitle="fakerate vs #chi^{2}", ymax=_maxFake),
     Plot("duplicatesRate_chi2", xtitle="track #chi^{2}", ytitle="duplicates rate vs #chi^{2}", ymax=_maxFake),
     Plot("pileuprate_chi2", xtitle="track #chi^{2}", ytitle="pileup rate vs #chi^{2}", ymax=_maxFake)
 ],
-                         legendDy=-0.025
+                         legendDy=_legendDy_2rows
 )
 _common = {
     "ytitle": "Fake+pileup rate",
@@ -164,7 +169,7 @@ _pvassociation1 = PlotGroup("pvassociation1", [
     Plot(ROC("effic_vs_fakepileup2_dzpvsigcut_pt",  "effic_vs_dzpvsigcut_pt", FakeDuplicate("fakepileup_vs_dzpvsigcut_pt", assoc="num_assoc(recoToSim)_dzpvsigcut_pt", reco="num_reco_dzpvsigcut_pt", dup="num_pileup_dzpvsigcut_pt"), zaxis=True),
              xtitle="Efficiency (p_{T} weighted)", ztitle="Cut on dz(PV)/dzError", **_common2),
 ], onlyForPileup=True,
-                         legendDy=0.09
+                         legendDy=_legendDy_4rows
 )
 _pvassociation2 = PlotGroup("pvassociation2", [
     Plot("effic_vs_dzpvcut", xtitle="Cut on dz(PV) (cm)", ytitle="Efficiency vs. cut on dz(PV)", ymax=_maxEff),
@@ -177,7 +182,7 @@ _pvassociation2 = PlotGroup("pvassociation2", [
     Plot("fakerate_vs_dzpvsigcut", xtitle="Cut on dz(PV)/dzError", ytitle="Fake rate vs. cut on dz(PV)/dzError", ymax=_maxFake),
     Plot("pileuprate_dzpvsigcut", xtitle="Cut on dz(PV)/dzError", ytitle="Pileup rate vs. cut on dz(PV)/dzError", ymax=_maxFake),
 ], onlyForPileup=True,
-                         legendDy=0.09
+                         legendDy=_legendDy_4rows
 )
 _pvassociation3 = PlotGroup("pvassociation3", [
     Plot("effic_vs_dzpvcut_pt", xtitle="Cut on dz(PV) (cm)", ytitle="Efficiency (p_{T} weighted)", ymax=_maxEff),
@@ -190,7 +195,7 @@ _pvassociation3 = PlotGroup("pvassociation3", [
     Plot("fakerate_vs_dzpvsigcut_pt", xtitle="Cut on dz(PV)/dzError", ytitle="Fake rate (p_{T} weighted)", ymax=_maxFake),
     Plot("pileuprate_dzpvsigcut_pt", xtitle="Cut on dz(PV)/dzError", ytitle="Pileup rate (p_{T} weighted)", ymax=_maxFake),
 ], onlyForPileup=True,
-                         legendDy=0.09
+                         legendDy=_legendDy_4rows
 )
 
 
@@ -202,7 +207,7 @@ _dedx = PlotGroup("dedx", [
     Plot("h_dedx_nom1", xtitle="dE/dx number of measurements", title="", **_common),
     Plot("h_dedx_sat1", xtitle="dE/dx number of measurements with saturation", title="", **_common),
     ],
-                  legendDy=-0.025
+                  legendDy=_legendDy_2rows
 )
 
 _chargemisid = PlotGroup("chargemisid", [
@@ -478,56 +483,112 @@ def _constructSummary(mapping, highPurity=False, byOriginalAlgo=False, byAlgoMas
 ########################################
 
 _common = {"normalizeToUnitArea": True, "ylog": True, "ymin": [1e-6, 1e-5, 1e-4, 1e-3, 1e-2], "ymax": [1e-2, 1e-1, 1.1]}
+_commonStatus = {}
+_commonStatus.update(_common)
+_commonStatus.update({"xbinlabelsize": 10, "drawStyle": "hist", "adjustMarginRight": 0.08})
+
 _packedCandidateFlow = PlotGroup("flow", [
-    Plot("selectionFlow", xbinlabelsize=10, xbinlabeloption="d", drawStyle="hist", ylog=True, ymin=[0.9, 9, 9e1, 9e2, 9e3, 9e4, 9e5, 9e6, 9e7]),
+    Plot("selectionFlow", xbinlabelsize=10, xbinlabeloption="d", adjustMarginRight=0.1, drawStyle="hist", ylog=True, ymin=[0.9, 9, 9e1, 9e2, 9e3, 9e4, 9e5, 9e6, 9e7]),
     Plot("diffCharge", xtitle="Charge", **_common),
     Plot("diffIsHighPurity", xtitle="High purity status", **_common),
     Plot("diffNdof", xtitle="ndof", **_common),
     Plot("diffNormalizedChi2", xtitle="#chi^{2}/ndof", **_common),
 ])
-_packedCandidateHits = PlotGroup("hits", [
+
+_packedCandidateHitsHitPattern = PlotGroup("hitsHitPattern", [
     Plot("diffHitPatternNumberOfValidHits", xtitle="Valid hits (via HitPattern)", **_common),
     Plot("diffHitPatternNumberOfValidPixelHits", xtitle="Valid pixel hits (via HitPattern)", **_common),
     Plot("diffHitPatternHasValidHitInFirstPixelBarrel", xtitle="Has valid hit in BPix1 layer (via HitPattern)", **_common),
     Plot("diffHitPatternNumberOfLostPixelHits", xtitle="Lost pixel hits (via HitPattern)", **_common),
+],
+                                           legendDy=_legendDy_2rows
+)
+_packedCandidateHits = PlotGroup("hits", [
     Plot("diffNumberOfHits", xtitle="Hits",  **_common),
     Plot("diffNumberOfPixelHits", xtitle="Pixel hits", **_common),
     Plot("diffLostInnerHits", xtitle="Lost inner hits", **_common),
+    Plot("numberHitsOverMax", xtitle="Number of overflown hits", **_common),
+    Plot("numberPixelHitsOverMax", xtitle="Number of overflown pixel hits", **_common),
+    Plot("numberStripHitsOverMax", xtitle="Number of overflown strip hits", **_common),
 ],
-                                 legendDy=0.09
+                                 ncols=3, legendDy=_legendDy_2rows_3cols
+)
+
+_packedCandidateImpactParameter1 = PlotGroup("impactParameter1", [
+    Plot("diffDxyAssocPV", xtitle="dxy(assocPV)", **_common),
+    Plot("diffDxyAssocPVStatus", **_commonStatus),
+    Plot("diffDxyAssocPVUnderOverFlowSign", xtitle="dxy(assocPV)", **_common),
+    Plot("diffDzAssocPV", xtitle="dz(assocPV)", **_common),
+    Plot("diffDzAssocPVStatus", **_commonStatus),
+    Plot("diffDzAssocPVUnderOverFlowSign", xtitle="dz(assocPV)", **_common),
+    Plot("diffDxyError", xtitle="dxyError()", **_common),
+    Plot("diffDszError", xtitle="dszError()", **_common),
+    Plot("diffDzError", xtitle="dzError()", **_common),
+
+],
+                                             ncols=3
+)
+
+_packedCandidateImpactParameter2 = PlotGroup("impactParameter2", [
+    Plot("diffDxyPV", xtitle="dxy(PV) via PC", **_common),
+    Plot("diffDzPV", xtitle="dz(PV) via PC", **_common),
+    Plot("diffTrackDxyAssocPV", xtitle="dxy(PV) via PC::bestTrack()", **_common),
+    Plot("diffTrackDzAssocPV", xtitle="dz(PV) via PC::bestTrack()", **_common),
+    Plot("diffTrackDxyError", xtitle="dxyError() via PC::bestTrack()", **_common),
+    Plot("diffTrackDzError", xtitle="dzError() via PC::besTTrack()", **_common),
+])
+
+_packedCandidateCovarianceMatrix1 = PlotGroup("covarianceMatrix1", [
+    Plot("diffCovQoverpQoverp", xtitle="cov(qoverp, qoverp)", **_common),
+    Plot("diffCovQoverpQoverpStatus", **_commonStatus),
+    Plot("diffCovQoverpQoverpUnderOverFlowSign", xtitle="cov(qoverp, qoverp)", **_common),
+    Plot("diffCovLambdaLambda", xtitle="cov(lambda, lambda)", **_common),
+    Plot("diffCovLambdaLambdaStatus", **_commonStatus),
+    Plot("diffCovLambdaLambdaUnderOverFlowSign", xtitle="cov(lambda, lambda)", **_common),
+    Plot("diffCovLambdaDsz", xtitle="cov(lambda, dsz)", **_common),
+    Plot("diffCovLambdaDszStatus", **_commonStatus),
+    Plot("diffCovLambdaDszUnderOverFlowSign", xtitle="cov(lambda, dsz)", **_common),
+    Plot("diffCovPhiPhi", xtitle="cov(phi, phi)", **_common),
+    Plot("diffCovPhiPhiStatus", **_commonStatus),
+    Plot("diffCovPhiPhiUnderOverFlowSign", xtitle="cov(phi, phi)", **_common),
+],
+                                              ncols=3, legendDy=_legendDy_4rows
+)
+_packedCandidateCovarianceMatrix2 = PlotGroup("covarianceMatrix2", [
+    Plot("diffCovPhiDxy", xtitle="cov(phi, dxy)", **_common),
+    Plot("diffCovPhiDxyStatus", **_commonStatus),
+    Plot("diffCovPhiDxyUnderOverFlowSign", xtitle="cov(phi, dxy)", **_common),
+    Plot("diffCovDxyDxy", xtitle="cov(dxy, dxy)", **_common),
+    Plot("diffCovDxyDxyStatus", **_commonStatus),
+    Plot("diffCovDxyDxyUnderOverFlowSign", xtitle="cov(dxy, dxy)", **_common),
+    Plot("diffCovDxyDsz", xtitle="cov(dxy, dsz)", **_common),
+    Plot("diffCovDxyDszStatus", **_commonStatus),
+    Plot("diffCovDxyDszUnderOverFlowSign", xtitle="cov(dxy, dsz)", **_common),
+    Plot("diffCovDszDsz", xtitle="cov(dsz, dsz)", **_common),
+    Plot("diffCovDszDszStatus", **_commonStatus),
+    Plot("diffCovDszDszUnderOverFlowSign", xtitle="cov(dsz, dsz)", **_common),
+],
+                                              ncols=3, legendDy=_legendDy_4rows
 )
 
 _common["xlabelsize"] = 16
-_packedCandidateMomVert = PlotGroup("momentumVertex", [
-    Plot("diffPx", xtitle="p_{x}", **_common),
+_packedCandidateVertex = PlotGroup("vertex", [
     Plot("diffVx", xtitle="Reference point x", **_common),
-    Plot("diffPy", xtitle="p_{y}", **_common),
     Plot("diffVy", xtitle="Reference point y", **_common),
-    Plot("diffPz", xtitle="p_{z}", **_common),
     Plot("diffVz", xtitle="Reference point z", **_common),
-])
+],
+                                   legendDy=_legendDy_2rows
+)
 
 _common["adjustMarginRight"] = 0.05
-_packedCandidateParam1 = PlotGroup("param1", [
+_packedCandidateKinematics = PlotGroup("kinematics", [
     Plot("diffPt", xtitle="p_{T}", **_common),
     Plot("diffPtError", xtitle="p_{T} error", **_common),
     Plot("diffEta", xtitle="#eta", **_common),
     Plot("diffEtaError", xtitle="#eta error", **_common),
     Plot("diffPhi", xtitle="#phi", **_common),
-    Plot("diffPhiError", xtitle="#phi error", **_common),
+    Plot("diffPhiError", xtitle="#phi error", **_common), # currently missing?
 ])
-_packedCandidateParam2 = PlotGroup("param2", [
-    Plot("diffDxy", xtitle="d_{xy}", **_common),
-    Plot("diffDxyError", xtitle="d_{xy} error", **_common),
-    Plot("diffDz", xtitle="d_{z}", **_common),
-    Plot("diffDzError", xtitle="d_{z} error", **_common),
-    Plot("diffQoverp", xtitle="Q/p", **_common),
-    Plot("diffQoverpError", xtitle="Q/p error", **_common),
-    Plot("diffTheta", xtitle="#theta", **_common),
-    Plot("diffThetaError", xtitle="#theta error", **_common),
-],
-                                   legendDy=0.09
-)
 
 class TrackingPlotFolder(PlotFolder):
     def __init__(self, *args, **kwargs):
@@ -691,10 +752,14 @@ _summaryPlotsSeeds = [
 ]
 _packedCandidatePlots = [
     _packedCandidateFlow,
-    _packedCandidateParam1,
-    _packedCandidateParam2,
-    _packedCandidateMomVert,
+    _packedCandidateKinematics,
+    _packedCandidateVertex,
+    _packedCandidateImpactParameter1,
+    _packedCandidateImpactParameter2,
+    _packedCandidateCovarianceMatrix1,
+    _packedCandidateCovarianceMatrix2,
     _packedCandidateHits,
+    _packedCandidateHitsHitPattern,
 ]
 plotter = Plotter()
 def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, seeding=False):
@@ -973,7 +1038,7 @@ _timing_summary = PlotGroup("summary", [
 #    Plot(AggregateBins("iterative_norm", "reconstruction_step_module_average", _iterModuleMap, normalizeTo="ak7CaloJets"), ytitle="Average processing time / ak7CaloJets", title="Average processing time / event (normalized to ak7CaloJets)", drawStyle="HIST", xbinlabelsize=0.03)
 
     ],
-                    legendDy=-0.025
+                    legendDy=_legendDy_2rows
 )
 _timing_iterations = PlotGroup("iterations", [
     Plot(AggregateBins(i.name(), "reconstruction_step_module_average", collections.OrderedDict(i.modules()), ignoreMissingBins=True),
