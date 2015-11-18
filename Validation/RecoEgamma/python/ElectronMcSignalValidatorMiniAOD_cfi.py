@@ -16,14 +16,14 @@ electronMcSignalHistosCfg = cms.PSet(
   EfficiencyFlag = cms.bool(True), StatOverflowFlag = cms.bool(False)
 )
 
-electronMcMiniAODSignalValidator = cms.EDAnalyzer("ElectronMcMiniAODSignalValidator",
+electronMcSignalValidatorMiniAOD = cms.EDAnalyzer("ElectronMcSignalValidatorMiniAOD",
 
     Verbosity = cms.untracked.int32(0),
     FinalStep = cms.string("AtJobEnd"),
     InputFile = cms.string(""),
     OutputFile = cms.string(""),
-    InputFolderName = cms.string("EgammaV/ElectronMcMiniAODSignalValidator"), # 
-    OutputFolderName = cms.string("EgammaV/ElectronMcMiniAODSignalValidator"), # 
+    InputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorMiniAOD"), # 
+    OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorMiniAOD"), # 
 
     mcTruthCollection = cms.InputTag("prunedGenParticles"),
     electrons = cms.InputTag("slimmedElectrons"),
