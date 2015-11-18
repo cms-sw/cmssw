@@ -596,8 +596,8 @@ RecHitTreeProducer::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 	eeRecHit.phiVtx[eeRecHit.n] = pos.phi();
 	eeRecHit.perpVtx[eeRecHit.n] = pos.rho();
       }
-      eeRecHit.chi2[ebRecHit.n] = hit.chi2();
-      eeRecHit.eError[ebRecHit.n] = hit.energyError();
+      eeRecHit.chi2[eeRecHit.n] = hit.chi2();
+      eeRecHit.eError[eeRecHit.n] = hit.energyError();
       
       eeRecHit.isjet[eeRecHit.n] = false;
 
@@ -868,9 +868,8 @@ RecHitTreeProducer::beginJob()
     eeTree->Branch("eta",eeRecHit.eta,"eta[n]/F");
     eeTree->Branch("phi",eeRecHit.phi,"phi[n]/F");
     eeTree->Branch("perp",eeRecHit.perp,"perp[n]/F");
-    eeTree->Branch("e",ebRecHit.e,"e[n]/F");
-    eeTree->Branch("chi2",ebRecHit.chi2,"chi2[n]/F");
-    eeTree->Branch("eError",ebRecHit.eError,"eError[n]/F");
+    eeTree->Branch("chi2",eeRecHit.chi2,"chi2[n]/F");
+    eeTree->Branch("eError",eeRecHit.eError,"eError[n]/F");
 
     eeTree->Branch("isjet",eeRecHit.isjet,"isjet[n]/O");
 
@@ -881,8 +880,7 @@ RecHitTreeProducer::beginJob()
     ebTree->Branch("eta",ebRecHit.eta,"eta[n]/F");
     ebTree->Branch("phi",ebRecHit.phi,"phi[n]/F");
     ebTree->Branch("perp",ebRecHit.perp,"perp[n]/F");
-    ebTree->Branch("e",ebRecHit.e,"e[n]/F");
-    eeTree->Branch("chi2",ebRecHit.chi2,"chi2[n]/F");
+    ebTree->Branch("chi2",ebRecHit.chi2,"chi2[n]/F");
     ebTree->Branch("eError",ebRecHit.eError,"eError[n]/F");
     
     ebTree->Branch("isjet",ebRecHit.isjet,"isjet[n]/O");
