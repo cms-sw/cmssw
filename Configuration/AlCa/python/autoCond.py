@@ -10,23 +10,25 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
     'run1_mc_pa'        :   '75X_mcRun1_pA_v7',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   '75X_mcRun2_design_v10',
+    'run2_design'       :   '75X_mcRun2_design_v11',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
     'run2_mc_50ns'      :   '75X_mcRun2_startup_v9',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   '75X_mcRun2_asymptotic_v10',
+    'run2_mc'           :   '75X_mcRun2_asymptotic_v11',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
-    'run2_mc_hi'        :   '75X_mcRun2_HeavyIon_v7',
+    'run2_mc_hi'        :   '75X_mcRun2_HeavyIon_v9',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '75X_dataRun1_v9',
+    'run1_data'         :   '75X_dataRun1_v10',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '75X_dataRun2_v9',
+    'run2_data'         :   '75X_dataRun2_v10',
     # GlobalTag for Run1 HLT: it points to the online GT
     'run1_hlt'          :   '75X_dataRun1_HLT_frozen_v4',
     # GlobalTag for Run2 HLT: it points to the online GT
-    'run2_hlt'          :   '75X_dataRun2_HLT_frozen_v4',
+    'run2_hlt'          :   '75X_dataRun2_HLT_frozen_v6',
+    # GlobalTag for Run2 HLT: it points to the online GT
+    'run2_hlt_hi'       :   '75X_dataRun2_HLTHI_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
-    'phase1_2017_design' :  '75X_upgrade2017_design_v5',
+    'phase1_2017_design' :  '75X_upgrade2017_design_v6',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
     'phase1_2019_design' :  'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase2
