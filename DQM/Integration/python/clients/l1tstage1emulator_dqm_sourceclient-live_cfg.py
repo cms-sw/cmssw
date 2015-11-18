@@ -205,7 +205,6 @@ process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
 process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
 process.caloStage1Digis.InputLabel = cms.InputTag("rawDataCollector")
-process.l1ExpertDataVsEmulatorStage1.remove (process.l1tHIonImp)
 
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
@@ -229,6 +228,25 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
     process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.load("L1Trigger.L1TCalorimeter.caloConfigStage1HI_cfi")
+    process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_condDBv2_cff')
+    process.GlobalTag.toGet = cms.VPSet(
+        cms.PSet(
+            record  = cms.string("L1TCaloParamsRcd"),
+            tag     = cms.string("L1TCaloParamsStage1HI_CRAFT09_hlt"),
+            connect = cms.string("frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_CONDITIONS")
+            )
+        )
+else:
+    process.l1ExpertDataVsEmulatorStage1.remove (process.l1tHIonImp)
+    process.load("L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi")
+    process.GlobalTag.toGet = cms.VPSet(
+        cms.PSet(
+            record  = cms.string("L1TCaloParamsRcd"),
+            tag     = cms.string("L1TCaloParams_CRAFT09_hlt"),
+            connect = cms.string("frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_CONDITIONS")
+            )
+        )
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
