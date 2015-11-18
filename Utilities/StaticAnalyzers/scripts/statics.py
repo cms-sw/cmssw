@@ -36,7 +36,15 @@ for line in fileinput.input(files =('function-statics-db.txt','function-calls-db
 fileinput.close()
 
 for tfunc in sorted(toplevelfuncs):
-	for static in sorted(statics): 
+	for static in sorted(statics):
+		if tfunc == static :
+			print "Non-const static variable \'"+re.sub(farg,"()",static)+"' is accessed in call stack '",tfunc
+			print
+			print "In call stack ' ", tfunc, " non-const static variable \'"+re.sub(farg,"()",static)+"' is accessed",
+                        for key in  G[tfunc].keys() :
+                                if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function '  :
+                                        print "'"+re.sub(farg,"()",tfunc)+"' overrides '"+re.sub(farg,"()",key)+"'",
+			print
 		if nx.has_path(G,tfunc,static): 
 			path = nx.shortest_path(G,tfunc,static)
 
