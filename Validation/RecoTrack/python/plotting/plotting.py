@@ -1569,7 +1569,7 @@ class PlotGroup:
             return self._drawSeparate(legendLabels, prefix, saveFormat, ratio)
 
         cwidth = 500*self._ncols
-        nrows = int((len(self._plots)+1)/self._ncols) # this should work also for odd n
+        nrows = int((len(self._plots)+self._ncols-1)/self._ncols) # this should work also for odd n
         cheight = 500 * nrows
 
         if ratio:
