@@ -214,7 +214,6 @@ def customiseRun2ExpressHI(process):
 ##############################################################################
 def customiseRun2PromptHI(process):
     process = customiseRun2CommonHI(process)
-    process = _swapOfflineBSwithOnline(process)
 
     process = _addLumiProducer(process)
 
