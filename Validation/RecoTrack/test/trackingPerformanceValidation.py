@@ -76,6 +76,20 @@ if "_pmx" in NewRelease:
     doFastVsFull = False
     if not NewRelease in validation._globalTags:
         validation._globalTags[NewRelease] = validation._globalTags[NewRelease.replace("_pmx", "")]
+if "_extended" in NewRelease:
+    startupsamples = [
+        Sample('RelValTTbar', midfix="13_HS"),
+        Sample('RelValZMM', midfix="13_HS"),
+    ]
+    pileupstartupsamples = [
+        Sample('RelValTTbar', putype=putype("25ns"), midfix="13_HS"),
+        Sample('RelValZMM', putype=putype("25ns"), midfix="13_HS"),
+    ]
+    fastsimstartupsamples = []
+    pileupfastsimstartupsamples = []
+    doFastVsFull = False
+    if not NewRelease in validation._globalTags:
+        validation._globalTags[NewRelease] = validation._globalTags[NewRelease.replace("_extended", "")]
 
 ### Track algorithm name and quality. Can be a list.
 Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripletStep','mixedTripletStep','pixelLessStep','tobTecStep','jetCoreRegionalStep','muonSeededStepInOut','muonSeededStepOutIn',
