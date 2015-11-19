@@ -30,10 +30,11 @@ ALGO_SUB_RADIUS_OBJECT_bTagger = bTaggers("ALGO_SUB_RADIUS_OBJECT_",0.RADIUS_)
 
 #create objects locally since they dont load properly otherwise
 #ALGO_SUB_RADIUS_OBJECT_match = ALGO_SUB_RADIUS_OBJECT_bTagger.match
-ALGO_SUB_RADIUS_OBJECT_parton = ALGO_SUB_RADIUS_OBJECT_bTagger.parton
+ALGO_SUB_RADIUS_OBJECT_parton = patJetPartonMatch.clone(src = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_Jets"), matched = cms.InputTag("GENPARTICLES"))
 ALGO_SUB_RADIUS_OBJECT_PatJetFlavourAssociationLegacy = ALGO_SUB_RADIUS_OBJECT_bTagger.PatJetFlavourAssociationLegacy
 ALGO_SUB_RADIUS_OBJECT_PatJetPartons = ALGO_SUB_RADIUS_OBJECT_bTagger.PatJetPartons
 ALGO_SUB_RADIUS_OBJECT_JetTracksAssociatorAtVertex = ALGO_SUB_RADIUS_OBJECT_bTagger.JetTracksAssociatorAtVertex
+ALGO_SUB_RADIUS_OBJECT_JetTracksAssociatorAtVertex.tracks = cms.InputTag("TRACKS")
 ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexHighEffBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.SimpleSecondaryVertexHighEffBJetTags
 ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexHighPurBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.SimpleSecondaryVertexHighPurBJetTags
 ALGO_SUB_RADIUS_OBJECT_CombinedSecondaryVertexBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.CombinedSecondaryVertexBJetTags
@@ -213,6 +214,8 @@ ALGO_SUB_RADIUS_OBJECT_JetSequence_mc = cms.Sequence(
                                                   )
 
 ALGO_SUB_RADIUS_OBJECT_JetSequence_data = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_corr
+                                                    *
+                                                    ALGO_SUB_RADIUS_OBJECT_JetID
                                                     *
                                                     ALGO_SUB_RADIUS_OBJECT_JetTracksAssociatorAtVertex
                                                     *
