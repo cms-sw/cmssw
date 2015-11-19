@@ -758,7 +758,7 @@ int HcalTopology::nPhiBins(int etaRing) const {
 
 int HcalTopology::nPhiBins(HcalSubdetector bc, int etaRing) const {
   static const double twopi = M_PI+M_PI;
-  int lastPhiBin=singlePhiBins_;
+  int lastPhiBin;
   if (bc == HcalForward) {
     lastPhiBin = (int)((twopi+0.001)/dPhiTableHF[etaRing-firstHFRing_]);
   } else {

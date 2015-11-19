@@ -1006,8 +1006,8 @@ void EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion& region, std::
 	}
 	if (debug) std::cout << " FED_LB FED_LT " << FED_LB << " " << FED_LT << std::endl;
 
-
-	int iL=FED_LB;
+	// FIXME: Value stored to 'iL' during its initialization is never read
+	int iL; //=FED_LB;
 	bool dummy = true;
 	int idx = 0;
 	while (  dummy ) {
@@ -1034,8 +1034,8 @@ void EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion& region, std::
                 FED_RT = DCC_BoundaryR + deltaR-1;
         }
 	if (debug) std::cout << " FED_RB FED_RT " << FED_RB << " " << FED_RT << std::endl;
-
-	int iR=FED_RB;
+	// FIXME: Value stored to 'iR' during its initialization is never read
+	int iR; //=FED_RB;
 	idx = 0;
 	while ( dummy ) {
 		iR = (FED_RB - DCC_BoundaryR + idx) % deltaR + DCC_BoundaryR;
@@ -1050,7 +1050,8 @@ void EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion& region, std::
             FED_RB >= MIN_DCCID_EEP && FED_RB <= MAX_DCCID_EEP) {
 		int minR = FED_LB + 18;
 		int maxR = FED_LT + 18;
-		int iR = minR;
+		// FIXME: Value stored to 'iR' during its initialization is never read
+		int iR;// = minR;
 		int idx = 0;
 		while ( dummy ) {
 			iR = (minR - MIN_DCCID_EBP + idx) % 18 + MIN_DCCID_EBP;
@@ -1066,7 +1067,8 @@ void EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion& region, std::
 	    FED_RB >= MIN_DCCID_EBP && FED_RB <= MAX_DCCID_EBP) {
 		int minL = FED_RB - 18;
 		int maxL = FED_RT - 18;
-		int iL = minL;
+		// FIXME: Value stored to 'iL' during its initialization is never read
+		int iL; // = minL;
 		int idx = 0;
                 while ( dummy ) {
 			iL = (minL - MIN_DCCID_EBM + idx) % 18 + MIN_DCCID_EBM;
@@ -1084,7 +1086,8 @@ void EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion& region, std::
 		if (minL == MIN_DCCID_EBM) minL=MAX_DCCID_EBM;
 		else minL = minL -1;
 		int maxL = (FED_LT-1)*2 + MIN_DCCID_EBM;
-		int iL = minL;
+		// FIXME: Value stored to 'iL' during its initialization is never read
+		int iL; // = minL;
 		int idx = 0;
 		while (dummy) {
 			iL = (minL - MIN_DCCID_EBM + idx) % 18 + MIN_DCCID_EBM;
@@ -1095,7 +1098,8 @@ void EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion& region, std::
 		}
 		int minR = minL + 18;
 		int maxR = maxL + 18;
-		int iR = minR;
+		// FIXME: Value stored to 'iR' during its initialization is never read
+		int iR; // = minR;
 		idx = 0;
 		while (dummy) {
 			iR = (minR - MIN_DCCID_EBP + idx) % 18 + MIN_DCCID_EBP;

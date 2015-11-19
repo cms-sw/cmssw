@@ -86,7 +86,7 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
   DDMaterial matter(matname);
   DDLogicalPart layer(solid.ddname(), matter, solid);
 
-  double dr = coolRadius+0.5*ladderThick;
+  double dr;// = coolRadius+0.5*ladderThick;
   std::string name = idName + "CoolTube";
   solid = DDSolidFactory::tubs(DDName(name,idNameSpace), 0.5*coolDz,
 			       0, coolRadius, 0, CLHEP::twopi);

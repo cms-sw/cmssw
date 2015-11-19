@@ -81,7 +81,8 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
   php.rhoxHB.clear(); php.zxHB.clear(); php.dyHB.clear(); php.dxHB.clear();
   php.layHB.clear(); php.layHE.clear();
   php.zxHE.clear(); php.rhoxHE.clear(); php.dyHE.clear(); php.dx1HE.clear(); php.dx2HE.clear();
-  double zf = 0;
+  // FIXME: variable 'zf' set but not used
+  //double zf = 0;
   dzVcal    = -1.;
 
   while (dodet) {
@@ -237,7 +238,7 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
 	for (unsigned j=0; j<paras.size(); j++)
 	  std::cout << "HF Parameter[" << j << "] = " << paras[j] << std::endl;
 #endif
-	zf  = fabs(t.z());
+	// zf  = fabs(t.z());
 	if (sol.shape() == ddpolycone_rrz) {
 	  int nz  = (int)(paras.size())-3;
 	  // FIXME: Value stored to 'zf' is never read
