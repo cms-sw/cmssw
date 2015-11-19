@@ -76,12 +76,13 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_HIon', '')
 
+process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
 process.GlobalTag.toGet.extend([
-   cms.PSet(record = cms.string("HeavyIonRcd"),
-      tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5_v740x01_mc"),
-      connect = cms.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
-      label = cms.untracked.string("HFtowersHydjetDrum5")
-   ),
+    cms.PSet(record = cms.string("HeavyIonRcd"),
+             tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5_v755x01_mc"),
+             connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
+             label = cms.untracked.string("HFtowers")
+    ),
 ])
 
 
@@ -92,7 +93,7 @@ process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
 
 process.centralityBin.Centrality = cms.InputTag("hiCentrality")
 process.centralityBin.centralityVariable = cms.string("HFtowers")
-process.centralityBin.nonDefaultGlauberModel = cms.string("HydjetDrum5")
+#process.centralityBin.nonDefaultGlauberModel = cms.string("HydjetDrum5")
 
 #process.HeavyIonGlobalParameters = cms.PSet(
 #    centralityVariable = cms.string("HFtowers"),

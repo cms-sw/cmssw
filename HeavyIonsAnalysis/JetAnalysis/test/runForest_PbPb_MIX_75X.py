@@ -52,12 +52,13 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_HIon', '')
 
+process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
 process.GlobalTag.toGet.extend([
- cms.PSet(record = cms.string("HeavyIonRcd"),
-tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5_v750x02_mc"),
-connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
-label = cms.untracked.string("HFtowersHydjetDrum5")
- ),
+    cms.PSet(record = cms.string("HeavyIonRcd"),
+             tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5_v755x01_mc"),
+             connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
+             label = cms.untracked.string("HFtowers")
+    ),
 ])
 
 from HeavyIonsAnalysis.Configuration.CommonFunctionsLocalDB_cff import overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v4_db
@@ -66,7 +67,7 @@ process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v4_db(process)
 process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
 process.centralityBin.Centrality = cms.InputTag("hiCentrality")
 process.centralityBin.centralityVariable = cms.string("HFtowers")
-process.centralityBin.nonDefaultGlauberModel = cms.string("HydjetDrum5")
+#process.centralityBin.nonDefaultGlauberModel = cms.string("HydjetDrum5")
 
 #####################################################################################
 # Define tree output
