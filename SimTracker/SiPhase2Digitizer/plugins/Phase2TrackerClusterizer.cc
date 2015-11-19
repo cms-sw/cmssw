@@ -45,8 +45,8 @@ namespace cms {
 
         // Get the Digis
         edm::Handle< edm::DetSetVector< Phase2TrackerDigi > > digis;
-        //event.getByLabel(src_, digis);
-        event.getByLabel("mix", "Tracker", digis); 
+        event.getByLabel(src_, digis);
+        //event.getByLabel("mix", "Tracker", digis); 
         
         // Get the geometry
         edm::ESHandle< TrackerGeometry > geomHandle;
