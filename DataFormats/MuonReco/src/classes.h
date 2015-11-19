@@ -33,7 +33,7 @@
 #include <vector>
 #include <map>
 
-namespace DataFormats_MuonReco {
+namespace {
   struct dictionary {
     std::vector<reco::Muon> v1;
     edm::Wrapper<std::vector<reco::Muon> > c1;

@@ -212,6 +212,7 @@ void L3MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
       psd1.add<std::string>("RefitDirection", "insideOut");
       psd1.add<edm::InputTag>("CSCRecSegmentLabel", edm::InputTag("hltCscSegments"));
       psd1.add<edm::InputTag>("GEMRecHitLabel", edm::InputTag("gemRecHits"));
+      psd1.add<edm::InputTag>("ME0RecHitLabel", edm::InputTag("me0Segments"));
       psd1.add<std::vector<int>>("DYTthrs", {
         30,
         15,
@@ -219,6 +220,7 @@ void L3MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
       psd1.add<double>("Chi2CutCSC", 150.0);
       psd1.add<double>("Chi2CutDT", 10.0);
       psd1.add<double>("Chi2CutGEM", 1.0);
+      psd1.add<double>("Chi2CutME0", 1.0);
       psd1.add<bool>("RefitRPCHits", true);
       psd1.add<edm::InputTag>("DTRecSegmentLabel", edm::InputTag("hltDt4DSegments"));
       psd1.add<std::string>("Propagator", "hltESPSmartPropagatorAny");

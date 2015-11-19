@@ -16,4 +16,3 @@ DEFINE_FWK_MODULE(ME0RecHitProducer);
 
 #include "RecoLocalMuon/GEMRecHit/src/ME0RecHitStandardAlgo.h"
 DEFINE_EDM_PLUGIN (ME0RecHitAlgoFactory, ME0RecHitStandardAlgo, "ME0RecHitStandardAlgo");
-

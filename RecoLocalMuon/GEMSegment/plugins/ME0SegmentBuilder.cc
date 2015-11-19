@@ -68,10 +68,18 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
     // given the chamber select the appropriate algo... and run it
     std::vector<ME0Segment> segv = algo->run(ensemble, me0RecHits);
     ME0DetId mid(enIt->first);
+    
+    //FIXME
+    //HACK to make it a chamberID
+    ME0DetId midchamber(mid.region(),1,mid.chamber(),0);
+
     LogDebug("ME0SegmentBuilder") << "found " << segv.size() << " segments in chamber " << mid;
     
     // Add the segments to master collection
-    oc.put(mid, segv.begin(), segv.end());
+    //FIXME
+    //HACK to make it a chamberID (taken from midchamber, not mid
+    //oc.put(mid, segv.begin(), segv.end());
+    oc.put(midchamber, segv.begin(), segv.end());
   }
 }
 

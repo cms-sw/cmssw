@@ -5,6 +5,41 @@
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="CLHEP"/>
 <use   name="root"/>
+<use   name="DataFormats/GEMRecHit"/>
+
+<use   name="DataFormats/DetId"/>
+<use   name="DataFormats/GeometrySurface"/>
+<use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/MuonDetId"/>
+
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/GEMGeometry"/>
+<use   name="Geometry/Records"/>
+<use   name="MagneticField/Records"/>
+<use   name="MagneticField/Engine"/>
+<use   name="SimDataFormats/GeneratorProducts "/>
+<use   name="SimDataFormats/Track"/>
+<use   name="SimDataFormats/TrackingHit"/>
+<use   name="SimDataFormats/Vertex"/>
+<use   name="SimGeneral/HepPDTRecord"/>
+<use   name="SimDataFormats/TrackingAnalysis" />
+<use   name="RecoMuon/DetLayers"/>
+<use   name="RecoMuon/Records"/>
+<use   name="rootcore"/>
+<use   name="rootgraphics"/>
+
+<use   name="boost"/>
+
+<use   name="RecoMuon/StandAloneTrackFinder"/>
+<use   name="TrackingTools/DetLayers"/>
+<use   name="TrackingTools/PatternTools"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/TrajectorySeed"/>
+
+<use   name="PhysicsTools/UtilAlgos"/>
+<use   name="FWCore/ServiceRegistry"/>
+
 <library   file="STAMuonAnalyzer.cc" name="STAMuonAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>

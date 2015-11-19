@@ -10,6 +10,7 @@
 
 class DetLayer;
 class MuRingForwardDoubleLayer;
+//class MuRodBarrelLayer;
 class MuDetRing;
 
 

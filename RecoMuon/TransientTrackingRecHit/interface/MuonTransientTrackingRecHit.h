@@ -8,12 +8,15 @@
  *
  *   \author   C. Liu            Purdue University
  *
- *   \modified by C. Calabria    INFN & Universita  Bari
+ *   \modified by C. Calabria    INFN & Universita  Bari
  */
 
 
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/RecSegment.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+//#include "FWCore/ServiceRegistry/interface/Service.h"
 
 
 class MuonTransientTrackingRecHit final : public GenericTransientTrackingRecHit{
@@ -62,7 +65,10 @@ public:
 
   /// if this rec hit is a GEM rec hit 
   bool isGEM() const; 
- 
+
+  /// if this rec hit is a ME0 rec hit 
+  bool isME0() const; 
+
   /// if this rec hit is a RPC rec hit
   bool isRPC() const;
 
@@ -76,6 +82,7 @@ public:
   }
 
   static MuonRecHitPointer specificBuild(const GeomDet * geom, const TrackingRecHit* rh) {
+    LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Getting specificBuild"<<std::endl;
     return MuonRecHitPointer(new MuonTransientTrackingRecHit(geom, rh));
   }
 

@@ -37,8 +37,10 @@ MuonServiceProxy = cms.PSet(
                                             'SmartPropagatorAnyRK',
                                             'StraightLinePropagator'),
         RPCLayers = cms.bool(True),
-        CSCLayers = cms.bool(True),
-        GEMLayers = cms.bool(False),
+        CSCLayers = cms.untracked.bool(True),
+        GEMLayers = cms.untracked.bool(True),
+        ME0Layers = cms.bool(True),
+
         UseMuonNavigation = cms.untracked.bool(True)
     )
 )

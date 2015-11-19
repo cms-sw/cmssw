@@ -18,6 +18,9 @@
  *
  * Cesare Calabria:
  * GEMs implementation.
+ *
+ * David Nash:
+ * ME0s implementation.
  */
 
 
@@ -37,7 +40,7 @@ class MuonNavigationSchool : public NavigationSchool {
 
   public:
     ///Constructor
-    MuonNavigationSchool(const MuonDetLayerGeometry *, bool enableRPC = true, bool enableCSC = true, bool enableGEM = false);
+    MuonNavigationSchool(const MuonDetLayerGeometry *, bool enableRPC = true, bool enableCSC = true, bool enableGEM = false, bool enableME0 = false);
     /// Destructor
     ~MuonNavigationSchool();
     /// return navigable layers, from base class
