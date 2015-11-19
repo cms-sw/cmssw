@@ -228,8 +228,6 @@ JetTester_HeavyIons::JetTester_HeavyIons(const edm::ParameterSet& iConfig) :
   
   }
   mSumpt = 0;
-  mvn = 0;
-  mpsin = 0;
   
 
 
@@ -623,8 +621,6 @@ void JetTester_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
 
   // particle flow variables histograms 
   mSumpt           = ibooker.book1D("SumpT","Sum p_{T} of all the PF candidates per event",1000,0,10000);
-  mvn              = ibooker.book1D("vn","vn",100,0,10);
-  mpsin            = ibooker.book1D("mpsin","psin",100,0,10);
 
   // Event variables
   mNvtx            = ibooker.book1D("Nvtx",           "number of vertices", 60, 0, 60);
@@ -647,6 +643,10 @@ void JetTester_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
   mNJets_40        = ibooker.book1D("NJets_pt_greater_40", "NJets pT > 40 GeV",  50,    0,   100);
   mNJets        = ibooker.book1D("NJets", "NJets",  50,    0,   100);
 
+  mGenEta      = ibooker.book1D("Gen Eta",";gen jet #eta;counts",120,-6,6);
+  mGenPhi      = ibooker.book1D("Gen Phi",";gen jet #phi;counts",70,-3.5,3.5);
+  mGenPt       = ibooker.book1D("Gen pT","gen jet p_{T}",250,0,1000);
+  mPtHat       = ibooker.book1D("pThat","#hat{p_{T}}",250,0,1000);
 
   mPtRecoOverGen_B_20_30_Cent_0_10    = ibooker.book1D("PtRecoOverGen_B_20_30_Cent_0_10",    "20<genpt<30; recopt/genpt (0-10%) (Barrel);counts",    90, 0, 2);
   mPtRecoOverGen_E_20_30_Cent_0_10    = ibooker.book1D("PtRecoOverGen_E_20_30_Cent_0_10",    "20<genpt<30; recopt/genpt (0-10%) (EndCap);counts",    90, 0, 2);
