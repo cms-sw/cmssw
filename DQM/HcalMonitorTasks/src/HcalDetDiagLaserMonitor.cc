@@ -108,8 +108,6 @@ class HcalRaddamData{
    int s2_adc[128];
 };
 
-HcalRaddamData Raddam_data[56];
-
 class HcalDetDiagLaserData{
 public: 
    HcalDetDiagLaserData(){ 
@@ -376,6 +374,8 @@ class HcalDetDiagLaserMonitor : public HcalBaseDQMonitor {
       HcalDetDiagLaserData calib_data[5][5][72];
 
       std::map<unsigned int, int> KnownBadCells_;
+
+      HcalRaddamData Raddam_data[56];
 };
 
 HcalDetDiagLaserMonitor::HcalDetDiagLaserMonitor(const edm::ParameterSet& iConfig):
@@ -582,8 +582,8 @@ void HcalDetDiagLaserMonitor::analyze(const edm::Event& iEvent, const edm::Event
   HcalBaseDQMonitor::analyze(iEvent,iSetup); // base class increments ievt_, etc. counters
  
 int  eta,phi,depth,nTS;
-static bool HBHEseq,HOseq,HFseq;
-static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksHF,ievt_hbhe,ievt_ho,ievt_hf;
+bool HBHEseq,HOseq,HFseq;
+int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksHF,ievt_hbhe,ievt_ho,ievt_hf;
    if(ievt_==-1){ 
        ievt_=0;HBHEseq=HOseq=HFseq=false; lastHBHEorbit=lastHOorbit=lastHForbit=-1;nChecksHBHE=nChecksHO=nChecksHF=0; 
        ievt_hbhe=0,ievt_ho=0,ievt_hf=0;
