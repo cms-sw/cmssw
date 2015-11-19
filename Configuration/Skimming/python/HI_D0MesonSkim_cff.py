@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 hltDmeson60 = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-hltDmeson60.HLTPaths = ["HLT_DmesonHITrackingGlobal_Dpt60_v*"]
+hltDmeson60.HLTPaths = ["HLT_HIDmesonHITrackingGlobal_Dpt60_v*"]
 hltDmeson60.throw = False
 hltDmeson60.andOr = True
 
