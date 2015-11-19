@@ -1,4 +1,4 @@
-#include "CMSSW_VBFHToInv/GenFilters/interface/VBFGenJetFilter.h"
+#include "GeneratorInterface/GenFilters/interface/VBFGenJetFilter.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
