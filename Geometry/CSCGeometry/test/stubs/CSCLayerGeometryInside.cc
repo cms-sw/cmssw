@@ -2,21 +2,17 @@
 /// Test CSCLayerGeometry::inside fiducial function
 /// Tim Cox - 06.05.2009
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
-
-#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
-#include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
-#include <Geometry/CSCGeometry/interface/CSCLayer.h>
-#include <DataFormats/GeometryVector/interface/LocalPoint.h>
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCLayer.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 #include "TH2F.h"
 #include "TFile.h"
@@ -24,44 +20,45 @@
 
 #include <string>
 
-class CSCLayerGeometryInside : public edm::EDAnalyzer {
+class CSCLayerGeometryInside : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 
-   public:
+public:
  
-     explicit CSCLayerGeometryInside( const edm::ParameterSet& );
-      ~CSCLayerGeometryInside();
+  explicit CSCLayerGeometryInside( const edm::ParameterSet& );
+  ~CSCLayerGeometryInside();
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endJob() override {}
  
-      const std::string& myName() { return myName_;}
+  const std::string& myName() { return myName_;}
 
-   private: 
+private: 
 
-      const int dashedLineWidth_;
-      const std::string dashedLine_;
-      const std::string myName_;
+  const int dashedLineWidth_;
+  const std::string dashedLine_;
+  const std::string myName_;
      
-      int ntries; // no. of points to generate (set in config)
+  int ntries; // no. of points to generate (set in config)
 
-      // No,. of bins and range of x and y generation (set in config)
-      int nbx;
-      int nby;
-      double xlo;
-      double xhi;
-      double ylo;
-      double yhi;
+  // No,. of bins and range of x and y generation (set in config)
+  int nbx;
+  int nby;
+  double xlo;
+  double xhi;
+  double ylo;
+  double yhi;
 
   //      TH1F* h1as;
   //      TH1F* h1bs;
 
-      TH2F* h1ai;
-      TH2F* h1ao;
-      TH2F* h1bi;
-      TH2F* h1bo;
-      TH2F* hall;
+  TH2F* h1ai;
+  TH2F* h1ao;
+  TH2F* h1bi;
+  TH2F* h1bo;
+  TH2F* hall;
 
-      TRandom3* tro;
-    
+  TRandom3* tro;  
 };
 
 CSCLayerGeometryInside::CSCLayerGeometryInside( const edm::ParameterSet& ps )
@@ -71,6 +68,8 @@ CSCLayerGeometryInside::CSCLayerGeometryInside( const edm::ParameterSet& ps )
    xlo( ps.getUntrackedParameter<double>("xlo") ), xhi( ps.getUntrackedParameter<double>("xhi") ),
    ylo( ps.getUntrackedParameter<double>("ylo") ), yhi( ps.getUntrackedParameter<double>("yhi") )
 {
+  usesResource("TFileService");
+  
   std::cout << myName_ << " constructor:" << std::endl;
   std::cout << "x range is " << nbx << " bins from " << xlo << " to " << xhi << std::endl;
   std::cout << "y range is " << nby << " bins from " << ylo << " to " << yhi << std::endl;
