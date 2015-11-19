@@ -40,30 +40,28 @@ class TrackingRecHitMonitorPlugin:
         virtual TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const
         {
             //std::cout<<getTrackerTopology()->print(product->getDetId())<<std::endl;
-            /*
-            for (unsigned int irechit = 0; irechit<product->numberOfRecHits(); ++irechit)
+            
+            for (const TrackingRecHitProduct::RecHitToSimHitIdPairs& recHitToSimHitIdPair: product->getRecHitToSimHitIdPairs())
             {
                 
-                const FastSingleTrackerRecHit & recHit = product->getRecHit(irechit);
+                const FastSingleTrackerRecHit& recHit = recHitToSimHitIdPair.first;
                 const Local3DPoint& recHitPosition = recHit.localPosition();
                 const LocalError& recHitError = recHit.localPositionError();
                 double simHitXmean = 0;
                 double simHitYmean = 0;
-                for (const PSimHit* simHit: product->getSimHitsFromRecHit(irechit))
+                for (const TrackingRecHitProduct::SimHitIdPair& simHitIdPair: recHitToSimHitIdPair.second)
                 {
+                    const PSimHit* simHit = simHitIdPair.second;
                     const Local3DPoint& simHitPosition = simHit->localPosition();
                     simHitXmean+=simHitPosition.x();
                     simHitYmean+=simHitPosition.y();
                 }
-                simHitXmean/=product->getSimHitsFromRecHit(irechit).size();
-                simHitYmean/=product->getSimHitsFromRecHit(irechit).size();
+                simHitXmean/= recHitToSimHitIdPair.second.size();
+                simHitYmean/= recHitToSimHitIdPair.second.size();
                 
-                std::cout<<irechit<<":\t"<<simHitXmean<<" - "<<recHitPosition.x()<<" / "<<sqrt(recHitError.xx())<< " = "<<(simHitXmean-recHitPosition.x())/sqrt(recHitError.xx())<<std::endl;
-                std::cout<<"\t"<<simHitYmean<<" - "<<recHitPosition.y()<<" / "<<sqrt(recHitError.yy())<< " = "<<(simHitYmean-recHitPosition.y())/sqrt(recHitError.yy())<<std::endl;
                 _hist->Fill((simHitXmean-recHitPosition.x())/sqrt(recHitError.xx()),(simHitYmean-recHitPosition.y())/sqrt(recHitError.yy()));
             }
-            std::cout<<std::endl;
-            */
+            
             return product;
         }
 };

@@ -19,7 +19,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1)
 )
 
 process.source = cms.Source ("PoolSource",
@@ -30,17 +30,23 @@ process.recHitProducerSimple=cms.EDProducer("TrackingRecHitProducer",
     simHits = cms.InputTag("famosSimHits","TrackerHits"),
     plugins=cms.VPSet(
         cms.PSet(
-            name = cms.string("smearing"),
+            name = cms.string("noSmearing"),
             type=cms.string("TrackingRecHitNoSmearingPlugin"),
+            select=cms.string("subdetId==BPX")
+        ),
+        
+        cms.PSet(
+            name = cms.string("BPXmonitor"),
+            type=cms.string("TrackingRecHitMonitorPlugin"),
+            xmax=cms.double(5.0),
+            ymax=cms.double(5.0),
             select=cms.string("subdetId==BPX"),
-            errorXX = cms.double(0.0005*0.0005),
-            errorYY = cms.double(0.0005*0.0005),
-            errorXY = cms.double(0.0),
+
         )
     )
 )
 
-'''
+
 process.recHitProducerTemplates=cms.EDProducer("TrackingRecHitProducer",
     simHits = cms.InputTag("famosSimHits","TrackerHits"),
     plugins=cms.VPSet(
@@ -53,8 +59,13 @@ process.recHitProducerTemplates=cms.EDProducer("TrackingRecHitProducer",
             NewPixelForwardResolutionFile = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionForward38T.root'),
             NewPixelForwardResolutionFile2 = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelForwardResolution2014.root'),
             UseCMSSWPixelParametrization = cms.bool(True),
+            MergeHitsOn = cms.bool(False),
             probfilebarrel = cms.string('FastSimulation/TrackingRecHitProducer/data/bmergeprob.root'),
             probfileforward = cms.string('FastSimulation/TrackingRecHitProducer/data/fmergeprob.root'),
+            pixelresxmergedbarrel = cms.string('FastSimulation/TrackingRecHitProducer/data/bxsmear.root'),
+            pixelresxmergedforward = cms.string('FastSimulation/TrackingRecHitProducer/data/fxsmear.root'),
+            pixelresymergedbarrel = cms.string('FastSimulation/TrackingRecHitProducer/data/bysmear.root'),
+            pixelresymergedforward = cms.string('FastSimulation/TrackingRecHitProducer/data/fysmear.root'),
             templateIdBarrel = cms.int32( 40 ),
             templateIdForward  = cms.int32( 41 ),
             select=cms.string("subdetId==BPX"),
@@ -70,7 +81,7 @@ process.recHitProducerTemplates=cms.EDProducer("TrackingRecHitProducer",
         )
     )
 )
-'''
+
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     recHitProducerSimple = cms.PSet(
         initialSeed = cms.untracked.uint32(12345),
@@ -83,7 +94,8 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.tracking_step=cms.Path(
-    process.recHitProducerSimple
+#    process.recHitProducerSimple
+    process.recHitProducerTemplates
 )
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string("histo.root") )
@@ -106,3 +118,4 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 process.output_step = cms.EndPath(process.output)
+
