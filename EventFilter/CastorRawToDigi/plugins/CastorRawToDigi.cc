@@ -99,16 +99,12 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
     const FEDRawData& fed = rawraw->FEDData(*i);
     //std::cout<<"Fed number "<<*i<<"is being worked on"<<std::endl;
-<<<<<<< HEAD
     if (*i == 693 && fed693size == 0 && fed722size != 0)
       continue;
     if (*i == 722 && fed722size == 0 && fed693size != 0)
       continue;      
       
     if (*i!=693 && *i!=722)
-=======
-    if (*i!=693)
->>>>>>> 4e8af02611ac29bc1f616fa2ea121036378a4931
       {
 	if (fed.size()==0) 
 	  {
@@ -151,16 +147,11 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 
     if (*i==693 && unpackZDC_)
       {
-<<<<<<< HEAD
 	if (fed.size()==0)
-=======
-	if (fed.size()==0) 
->>>>>>> 4e8af02611ac29bc1f616fa2ea121036378a4931
 	  {
 	    edm::LogWarning("EmptyData") << "No data for FED "<< *i;
 	    report->addError(*i);
 	  }
-<<<<<<< HEAD
 	if (fed.size()!=0)
 	  {
 	    zdcunpacker_.unpack(fed,*readoutMap,colls,*report);
@@ -181,16 +172,6 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 	    report->addUnpacked(*i);
 	  }
       }      
-=======
-	else
-	  {
-	    //ADD ZDC UNPACKER HERE
-	    zdcunpacker_.unpack(fed,*readoutMap,colls,*report);
-	    report->addUnpacked(*i);
-	    
-	  }
-      }
->>>>>>> 4e8af02611ac29bc1f616fa2ea121036378a4931
 
   }//end of loop over feds
 

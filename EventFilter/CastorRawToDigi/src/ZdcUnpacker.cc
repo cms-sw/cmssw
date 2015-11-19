@@ -41,7 +41,6 @@ namespace ZdcUnpacker_impl {
   }
 }
 
-<<<<<<< HEAD
 namespace ZdcUnpacker_implOldData {
   template <class DigiClass>
   const HcalQIESample* unpackOld(const HcalQIESample* startPoint, const HcalQIESample* limit, DigiClass& digi, int presamples, const HcalElectronicsId& eid, int startSample, int endSample, int expectedTime, const HcalHTRData& hhd) {
@@ -71,8 +70,6 @@ namespace ZdcUnpacker_implOldData {
   }
 }
 
-=======
->>>>>>> 4e8af02611ac29bc1f616fa2ea121036378a4931
 namespace { inline bool isTPGSOI(const HcalTriggerPrimitiveSample& s) {
   return (s.raw()&0x200)!=0;
 }
@@ -110,14 +107,10 @@ void ZdcUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& emap
   const unsigned short* daq_first, *daq_last, *tp_first, *tp_last;
   const HcalQIESample* qie_begin, *qie_end, *qie_work;
   std::map<CastorElectronicsId,uint32_t> myEMap;
-<<<<<<< HEAD
   std::map<HcalElectronicsId,uint32_t> myEMapOldData;
 
 
 //////ZDC MAP for NEW data (2015 PbPb are newer)
-=======
-
->>>>>>> 4e8af02611ac29bc1f616fa2ea121036378a4931
   //PZDC
   myEMap[CastorElectronicsId(0,1,0,3,18,8,1)]=0x54000051;//PZDC EM1
   myEMap[CastorElectronicsId(1,1,0,3,18,8,1)]=0x54000052;//PZDC EM2
@@ -140,7 +133,6 @@ void ZdcUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& emap
   myEMap[CastorElectronicsId(1,3,1,3,18,8,0)]=0x54000023;//NZDC HAD3
   myEMap[CastorElectronicsId(2,3,1,3,18,8,0)]=0x54000024;//NZDC HAD4
 
-<<<<<<< HEAD
 /////ZDC MAP for OLD data (2013 pPb run and earlier)
   //PZDC
   myEMapOldData[HcalElectronicsId(0,1,12,22,12,8,1)]=0x54000051;//PZDC EM1
@@ -163,8 +155,6 @@ void ZdcUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& emap
   myEMapOldData[HcalElectronicsId(0,3,13,22,12,8,0)]=0x54000022;//NZDC HAD2
   myEMapOldData[HcalElectronicsId(1,3,13,22,12,8,0)]=0x54000023;//NZDC HAD3
   myEMapOldData[HcalElectronicsId(2,3,13,22,12,8,0)]=0x54000024;//NZDC HAD4
-=======
->>>>>>> 4e8af02611ac29bc1f616fa2ea121036378a4931
   //slot is 17
 
   for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {
@@ -222,11 +212,7 @@ void ZdcUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& emap
     int htr_cr=(smid>>6)&0x1F;
 
     //////////////////////////////////////////////
-<<<<<<< HEAD
     qie_begin=(const HcalQIESample*)daq_first;
-=======
-    qie_begin=(HcalQIESample*)daq_first;
->>>>>>> 4e8af02611ac29bc1f616fa2ea121036378a4931
     qie_end=(HcalQIESample*)(daq_last+1); // one beyond last..
 
     for (qie_work=qie_begin; qie_work!=qie_end;) {    
@@ -235,7 +221,6 @@ void ZdcUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& emap
         continue; // filler word
       }
       // lookup the right channel
-<<<<<<< HEAD
       HcalElectronicsId eidOld(qie_work->fiberChan(),qie_work->fiber(),spigot,dccid);
       CastorElectronicsId eid(qie_work->fiberChan(),qie_work->fiber(),spigot,dccid);
       eid.setHTR(htr_cr,htr_slot,htr_tb);
@@ -249,167 +234,12 @@ void ZdcUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& emap
 	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMapOldData.find(HcalElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,22,htr_cr,htr_slot,htr_tb))->second)));
 	  qie_work=ZdcUnpacker_implOldData::unpackOld<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,HcalElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,22,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
 	  }
-=======
-   CastorElectronicsId eid(qie_work->fiberChan(),qie_work->fiber(),spigot,dccid);
-      eid.setHTR(htr_cr,htr_slot,htr_tb);
-
-      eid.setHTR(htr_cr,htr_slot,htr_tb);
-
-      if (qie_work->fiberChan()==0 && qie_work->fiber()==1 && spigot==0 && htr_tb==1)
-	  {
-	  //PEM 1
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMap.find(CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb))->second)));
-	  qie_work=ZdcUnpacker_impl::unpack<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
-	  
-	  }
-
-      else if (qie_work->fiberChan()==1 && qie_work->fiber()==1 && spigot==0 && htr_tb==1)
-	  {
-	  //PEM 2
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMap.find(CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb))->second)));
-	  qie_work=ZdcUnpacker_impl::unpack<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
-	  
-	  }
-	  
-	  else if (qie_work->fiberChan()==2 && qie_work->fiber()==1 && spigot==0 && htr_tb==1)
-	  {
-	  //PEM 3
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMap.find(CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb))->second)));
-	  qie_work=ZdcUnpacker_impl::unpack<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
-	  
-	  }
-	  
-	  else if (qie_work->fiberChan()==0 && qie_work->fiber()==2 && spigot==0 && htr_tb==1)
-	  {
-	  //PEM 4
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMap.find(CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb))->second)));
-	  qie_work=ZdcUnpacker_impl::unpack<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
-	  
-	  }
-	  
-	  else if (qie_work->fiberChan()==1 && qie_work->fiber()==2 && spigot==0 && htr_tb==1)
-	  {
-	  //PEM 5
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMap.find(CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb))->second)));
-	  qie_work=ZdcUnpacker_impl::unpack<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
-	  
-	  }
-	  
-	  else if (qie_work->fiberChan()==2 && qie_work->fiber()==2 && spigot==0 && htr_tb==1)
-	  {
-	  //PHAD 1
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMap.find(CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb))->second)));
-	  qie_work=ZdcUnpacker_impl::unpack<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
-	  
-	  }
-	  
-	  else if (qie_work->fiberChan()==0 && qie_work->fiber()==3 && spigot==0 && htr_tb==1)
-	  {
-	  //PHAD 2
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMap.find(CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb))->second)));
-	  qie_work=ZdcUnpacker_impl::unpack<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
-	  
-	  }
-	  
-	  else if (qie_work->fiberChan()==1 && qie_work->fiber()==3 && spigot==0 && htr_tb==1)
-	  {
-	  //PHAD 3
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMap.find(CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb))->second)));
-	  qie_work=ZdcUnpacker_impl::unpack<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
-	  
-	  }
-	  
-	  else if (qie_work->fiberChan()==2 && qie_work->fiber()==3 && spigot==0 && htr_tb==1)
-	  {
-	  //PHAD 4
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMap.find(CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb))->second)));
-	  qie_work=ZdcUnpacker_impl::unpack<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
-	  
-	  }
-	  
-	  else if (qie_work->fiberChan()==0 && qie_work->fiber()==1 && spigot==1 && htr_tb==0)
-	  {
-	  //NEM 1
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMap.find(CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb))->second)));
-	  qie_work=ZdcUnpacker_impl::unpack<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
-	  
-	  }
-
-      else if (qie_work->fiberChan()==1 && qie_work->fiber()==1 && spigot==1 && htr_tb==0)
-	  {
-	  //NEM 2
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMap.find(CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb))->second)));
-	  qie_work=ZdcUnpacker_impl::unpack<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
-	  
-	  }
-	  
-	  else if (qie_work->fiberChan()==2 && qie_work->fiber()==1 && spigot==1 && htr_tb==0)
-	  {
-	  //NEM 3
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMap.find(CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb))->second)));
-	  qie_work=ZdcUnpacker_impl::unpack<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
-	  
-	  }
-	  
-	  else if (qie_work->fiberChan()==0 && qie_work->fiber()==2 && spigot==1 && htr_tb==0)
-	  {
-	  //NEM 4
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMap.find(CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb))->second)));
-	  qie_work=ZdcUnpacker_impl::unpack<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
-	  
-	  }
-	  
-	  else if (qie_work->fiberChan()==1 && qie_work->fiber()==2 && spigot==1 && htr_tb==0)
-	  {
-	  //NEM 5
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMap.find(CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb))->second)));
-	  qie_work=ZdcUnpacker_impl::unpack<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
-	  
-	  }
-	  
-	  else if (qie_work->fiberChan()==2 && qie_work->fiber()==2 && spigot==1 && htr_tb==0)
-	  {
-	  //NHAD 1
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMap.find(CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb))->second)));
-	  qie_work=ZdcUnpacker_impl::unpack<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
-	  
-	  }
-	  
-	  else if (qie_work->fiberChan()==0 && qie_work->fiber()==3 && spigot==1 && htr_tb==0)
-	  {
-	  //NHAD 2
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMap.find(CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb))->second)));
-	  qie_work=ZdcUnpacker_impl::unpack<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
-	  
-	  }
-	  
-	  else if (qie_work->fiberChan()==1 && qie_work->fiber()==3 && spigot==1 && htr_tb==0)
-	  {
-	  //PHAD 3
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMap.find(CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb))->second)));
-	  qie_work=ZdcUnpacker_impl::unpack<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
-	  
-	  }
-	  
-	  else if (qie_work->fiberChan()==2 && qie_work->fiber()==3 && spigot==1 && htr_tb==0)
-	  {
-	  //PHAD 4
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(myEMap.find(CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb))->second)));
-	  qie_work=ZdcUnpacker_impl::unpack<ZDCDataFrame>(qie_work,qie_end,colls.zdcCont->back(),0,CastorElectronicsId(qie_work->fiberChan(),qie_work->fiber(),spigot,3,htr_cr,htr_slot,htr_tb),startSample_,endSample_,expectedOrbitMessageTime_,htr);
-	  
-	  }
-		
->>>>>>> 4e8af02611ac29bc1f616fa2ea121036378a4931
 	  else for (int fiberC=qie_work->fiberAndChan();
 	  qie_work!=qie_end && qie_work->fiberAndChan()==fiberC;
 	  qie_work++);
 
 
     }//end of loop over qies
-<<<<<<< HEAD
-=======
-    //std::cout<<myiter<<std::endl;
->>>>>>> 4e8af02611ac29bc1f616fa2ea121036378a4931
   }//end of loop over spigots
 }
 
