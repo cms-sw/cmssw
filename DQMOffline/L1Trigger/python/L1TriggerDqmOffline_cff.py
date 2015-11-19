@@ -122,6 +122,7 @@ l1TriggerDqmOfflineClient = cms.Sequence(
 #l1TriggerOnline.remove(l1tMonitorOnline)
 #
 l1tMonitorStage1Online.remove(bxTiming)
+l1Stage1HwValEmulatorMonitor.remove(l1tHIonImp)
 #l1tMonitorOnline.remove(l1tDttf)
 #l1tMonitorOnline.remove(l1tCsctf) 
 #l1tMonitorOnline.remove(l1tRpctf)
