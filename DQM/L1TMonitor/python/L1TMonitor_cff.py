@@ -176,6 +176,7 @@ l1tMonitorStage1Online = cms.Sequence(
                           #l1tBPTX +
                           #l1tRate +
                           l1tStage1Layer2Seq +
+                          l1tRctRun1 +
                           l1tRctSeq 
                           )
 
