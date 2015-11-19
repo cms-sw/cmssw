@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -14,13 +14,15 @@
 #include <iostream>
 #include <string>
 
-class HcalGeometryTester : public edm::EDAnalyzer {
+class HcalGeometryTester : public edm::one::EDAnalyzer<> {
 
 public:
   explicit HcalGeometryTester( const edm::ParameterSet& );
-  ~HcalGeometryTester( void );
+  ~HcalGeometryTester( void ) {}
     
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endJob() override {}
 
 private:
   void testValidDetIds(CaloSubdetectorGeometry* geom, const HcalTopology& topo, 
@@ -44,8 +46,6 @@ HcalGeometryTester::HcalGeometryTester( const edm::ParameterSet& iConfig ) :
   m_label = iConfig.getParameter<std::string>( "HCALGeometryLabel" );
   useOld_ = iConfig.getParameter<bool>( "UseOldLoader" );
 }
-
-HcalGeometryTester::~HcalGeometryTester() { }
 
 void HcalGeometryTester::analyze(const edm::Event& /*iEvent*/, 
 				 const edm::EventSetup& iSetup) {
