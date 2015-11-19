@@ -19,44 +19,41 @@ double HFRecalibration::getCorr(int ieta, int depth, double lumi) {
    if (depth == 1)
    {
       switch (ieta) {
-         case 29:
-            return (1 + 0.00311431*sqrt(lumi) - 1.2533e-05*lumi);
-            break;
          case 30:
-            return (1 + 0.00465755*sqrt(lumi) - 2.13133e-05*lumi);
+            return (1 + 0.004123*sqrt(lumi) + -0.000004*lumi);
             break;
          case 31:
-            return (1 + 0.000977613*sqrt(lumi) - 4.07977e-06*lumi);
+            return (1 + 0.006020*sqrt(lumi) + -0.000002*lumi);
             break;
          case 32:
-            return (1 + 0.000524346*sqrt(lumi) + 4.9271e-06*lumi);
+            return (1 + 0.008201*sqrt(lumi) + 0.000000*lumi);
             break;
          case 33:
-            return (1 + 0.00173415*sqrt(lumi) - 2.24236e-06*lumi);
+            return (1 + 0.010489*sqrt(lumi) + 0.000004*lumi);
             break;
          case 34:
-            return (1 + 0.00232593*sqrt(lumi) - 4.52383e-06*lumi);
+            return (1 + 0.013379*sqrt(lumi) + 0.000015*lumi);
             break;
          case 35:
-            return (1 + 0.00320855*sqrt(lumi) - 2.99755e-06*lumi);
+            return (1 + 0.016997*sqrt(lumi) + 0.000026*lumi);
             break;
          case 36:
-            return (1 + 0.0041762*sqrt(lumi) - 7.45472e-06*lumi);
+            return (1 + 0.021464*sqrt(lumi) + 0.000063*lumi);
             break;
          case 37:
-            return (1 + 0.00470535*sqrt(lumi) - 8.54648e-06*lumi);
+            return (1 + 0.027371*sqrt(lumi) + 0.000084*lumi);
             break;
          case 38:
-            return (1 + 0.0128799*sqrt(lumi) - 2.08496e-05*lumi);
+            return (1 + 0.034195*sqrt(lumi) + 0.000160*lumi);
             break;
          case 39:
-            return (1 + 0.0132013*sqrt(lumi) - 2.20553e-06*lumi);
+            return (1 + 0.044807*sqrt(lumi) + 0.000107*lumi);
             break;
          case 40:
-            return (1 + 0.0175412*sqrt(lumi) + 9.27508e-06*lumi);
+            return (1 + 0.058939*sqrt(lumi) + 0.000425*lumi);
             break;
          case 41:
-            return (1 + 0.0225411*sqrt(lumi) + 6.27762e-06*lumi);
+            return (1 + 0.125497*sqrt(lumi) + 0.000209*lumi);
             break;
          default:
             return 1.0;
@@ -66,44 +63,41 @@ double HFRecalibration::getCorr(int ieta, int depth, double lumi) {
    else if (depth == 2)
    {
       switch (ieta) {
-         case 29:
-            return (1 + 0.00761858*sqrt(lumi) - 5.27388e-05*lumi);
-            break;
          case 30:
-            return (1 + 0.00504187*sqrt(lumi) - 2.37517e-05*lumi);
+            return (1 + 0.002861*sqrt(lumi) + -0.000002*lumi);
             break;
          case 31:
-            return (1 + 0.000662802*sqrt(lumi) - 1.59053e-06*lumi);
+            return (1 + 0.004168*sqrt(lumi) + -0.000000*lumi);
             break;
          case 32:
-            return (1 + 0.000309601*sqrt(lumi) + 5.12078e-06*lumi);
+            return (1 + 0.006400*sqrt(lumi) + -0.000007*lumi);
             break;
          case 33:
-            return (1 + 0.00136072*sqrt(lumi) - 1.00731e-06*lumi);
+            return (1 + 0.008388*sqrt(lumi) + -0.000006*lumi);
             break;
          case 34:
-            return (1 + 0.00162751*sqrt(lumi) - 9.75138e-07*lumi);
+            return (1 + 0.011601*sqrt(lumi) + -0.000002*lumi);
             break;
          case 35:
-            return (1 + 0.00276588*sqrt(lumi) - 2.7936e-06*lumi);
+            return (1 + 0.014425*sqrt(lumi) + 0.000001*lumi);
             break;
          case 36:
-            return (1 + 0.00350136*sqrt(lumi) - 5.80201e-06*lumi);
+            return (1 + 0.018633*sqrt(lumi) + 0.000019*lumi);
             break;
          case 37:
-            return (1 + 0.00373748*sqrt(lumi) - 4.18957e-06*lumi);
+            return (1 + 0.023232*sqrt(lumi) + 0.000031*lumi);
             break;
          case 38:
-            return (1 + 0.0114058*sqrt(lumi) - 2.09587e-05*lumi);
+            return (1 + 0.028274*sqrt(lumi) + 0.000067*lumi);
             break;
          case 39:
-            return (1 + 0.0114551*sqrt(lumi) - 5.59902e-06*lumi);
+            return (1 + 0.035447*sqrt(lumi) + 0.000012*lumi);
             break;
          case 40:
-            return (1 + 0.0168812*sqrt(lumi) - 1.00741e-05*lumi);
+            return (1 + 0.051579*sqrt(lumi) + 0.000157*lumi);
             break;
          case 41:
-            return (1 + 0.018887*sqrt(lumi) - 6.77675e-06*lumi);
+            return (1 + 0.086593*sqrt(lumi) + -0.000003*lumi);
             break;
          default:
             return 1.0;
