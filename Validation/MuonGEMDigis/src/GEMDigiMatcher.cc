@@ -155,6 +155,20 @@ GEMDigiMatcher::detIds() const
   for (auto& p: detid_to_digis_) result.insert(p.first);
   return result;
 }
+std::set<unsigned int>
+GEMDigiMatcher::detIdsForPad() const
+{
+  std::set<unsigned int> result;
+  for (auto& p: detid_to_pads_) result.insert(p.first);
+  return result;
+}
+std::set<unsigned int>
+GEMDigiMatcher::detIdsForCoPad() const
+{
+  std::set<unsigned int> result;
+  for (auto& p: detid_to_copads_) result.insert(p.first);
+  return result;
+}
 
 
 std::set<unsigned int>
