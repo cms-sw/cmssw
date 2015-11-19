@@ -14,8 +14,7 @@ HLTPixelActivityHFSumEnergyFilter::HLTPixelActivityHFSumEnergyFilter(const edm::
   eCut_HF_      (config.getParameter<double>("eCut_HF")),
   eMin_HF_      (config.getParameter<double>("eMin_HF")),
   offset_       (config.getParameter<double>("offset")),
-  slope_        (config.getParameter<double>("slope")),
-  maxDiff_      (config.getParameter<double>("maxDiff"))
+  slope_        (config.getParameter<double>("slope"))
 {
   inputToken_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(inputTag_);
   HFHitsToken_ = consumes<HFRecHitCollection>(HFHits_); 
@@ -33,10 +32,9 @@ HLTPixelActivityHFSumEnergyFilter::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltSiPixelClusters"));
   desc.add<edm::InputTag>("HFHitCollection",edm::InputTag("hltHfreco"));
   desc.add<double>("eCut_HF",0);
-  desc.add<double>("eMin_HF",0);
-  desc.add<double>("offset",0);
-  desc.add<double>("slope",0);
-  desc.add<double>("maxDiff",1e-5);
+  desc.add<double>("eMin_HF",10000.);
+  desc.add<double>("offset",-1000.);
+  desc.add<double>("slope",0.5);
   descriptions.add("hltPixelActivityHFSumEnergyFilter",desc);
 }
 
@@ -66,11 +64,11 @@ bool HLTPixelActivityHFSumEnergyFilter::filter(edm::Event& iEvent, const edm::Ev
     }
   }
 
-  bool accept = kFALSE;
+  bool accept = false;
 
   double thres = offset_ + slope_ * sumE;
-  double diff = clusterSize - thres;
-  if(sumE>eMin_HF_ && diff < maxDiff_) accept = kTRUE;
+  double diff = clusterSize - thres;    //diff = clustersize - (correlation line + offset)
+  if(sumE>eMin_HF_ && diff < 0.) accept = true;
   
   // return with final filter decision
   return accept;

@@ -44,7 +44,6 @@ private:
   double eMin_HF_;
   double offset_;
   double slope_;
-  double maxDiff_;
 };
 
 #endif
