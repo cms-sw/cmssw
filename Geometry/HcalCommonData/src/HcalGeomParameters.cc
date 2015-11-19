@@ -240,12 +240,14 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
 	zf  = fabs(t.z());
 	if (sol.shape() == ddpolycone_rrz) {
 	  int nz  = (int)(paras.size())-3;
-	  zf     += paras[3];
+	  // FIXME: Value stored to 'zf' is never read
+	  // zf     += paras[3];
 	  dzVcal  = 0.5*(paras[nz]-paras[3]);
 	  hf      = true;
 	} else if (sol.shape() == ddtubs || sol.shape() == ddcons) {
 	  dzVcal  = paras[0];
-	  zf     -= paras[0];
+	  // FIXME: Value stored to 'zf' is never read
+	  // zf     -= paras[0];
 	  hf      = true;
 	}
       }
