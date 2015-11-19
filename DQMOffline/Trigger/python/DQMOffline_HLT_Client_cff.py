@@ -25,7 +25,6 @@ hltOfflineDQMClient = cms.Sequence(
     #tagAndProbeEfficiencyPostProcessor *
     HLTTauPostSeq *
     dqmOfflineHLTCert *
-    hltInclusiveVBFClient *
-    trackingMonitorClientHLT
+    hltInclusiveVBFClient
     )
 

@@ -13,7 +13,7 @@ from Validation.RecoJets.JetPostProcessor_cff import *
 from Validation.RecoMET.METPostProcessor_cff import *
 
 
-dqmHarvesting = cms.Path(DQMOffline_SecondStep*DQMOffline_Certification*HLTMonitoringClient)
+dqmHarvesting = cms.Path(DQMOffline_SecondStep*DQMOffline_Certification)
 dqmHarvestingPOG = cms.Path(DQMOffline_SecondStep_PrePOG)
 
 dqmHarvestingPOGMC = cms.Path( DQMOffline_SecondStep_PrePOGMC )
