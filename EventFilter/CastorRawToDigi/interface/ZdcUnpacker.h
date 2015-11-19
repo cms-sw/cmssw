@@ -23,7 +23,10 @@ public:
   /// For histograms, no begin and end
   // void unpack(const FEDRawData& raw, const ZdcElectronicsMap& emap, std::vector<HcalHistogramDigi>& histoDigis);
   void unpack(const FEDRawData& raw, const CastorElectronicsMap& emap, CastorRawCollections& conts, HcalUnpackerReport& report, bool silent=false);
+<<<<<<< HEAD
   void unpackOld(const FEDRawData& raw, const HcalElectronicsMap& emap, CastorRawCollections& conts, HcalUnpackerReport& report, bool silent=false);
+=======
+>>>>>>> 4e8af02611ac29bc1f616fa2ea121036378a4931
 private:
   int sourceIdOffset_; ///< number to subtract from the source id to get the dcc id
   int startSample_; ///< first sample from fed raw data to copy 
