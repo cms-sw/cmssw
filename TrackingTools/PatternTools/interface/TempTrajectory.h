@@ -2,7 +2,7 @@
 #define CkfPattern_TempTrajectory_H
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStopReasons.h"
+#include "DataFormats/TrackReco/interface/TrajectoryStopReasons.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/Common/interface/OwnVector.h"
@@ -55,7 +55,7 @@ public:
     theChiSquared(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(anyDirection), 
-    theValid(false),theNHseed(0),theNLoops(0),theDPhiCache(0),stopReason_(StopReason::UNKNOWN)
+    theValid(false),theNHseed(0),theNLoops(0),theDPhiCache(0),stopReason_(StopReason::UNINITIALIZED)
   {}
   
   
@@ -68,7 +68,7 @@ public:
   theChiSquared(0), 
   theNumberOfFoundHits(0), theNumberOfLostHits(0),
   theDirection(dir),
-  theValid(true),theNHseed(nhseed),theNLoops(0),theDPhiCache(0),stopReason_(StopReason::UNKNOWN)
+  theValid(true),theNHseed(nhseed),theNLoops(0),theDPhiCache(0),stopReason_(StopReason::UNINITIALIZED)
   {}
 
   

@@ -641,6 +641,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
 	
 	LogDebug("CkfPattern")<<"GCTB: adding updated trajectory to candidates: inOut="<<inOut<<" hits="<<newTraj.foundHits();
 
+        newTraj.setStopReason(StopReason::NOT_STOPPED);
 	newCand.push_back(std::move(newTraj));
 	foundNewCandidates = true;
       }

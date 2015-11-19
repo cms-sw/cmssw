@@ -3,6 +3,7 @@
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/TrackReco/interface/TrajectoryStopReasons.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
@@ -26,16 +27,16 @@ public:
   typedef RecHitContainer::const_iterator const_iterator;
   typedef std::pair<const_iterator,const_iterator> range;
   
-TrackCandidate(): rh_(),  seed_(), state_(), seedRef_(), nLoops_(0), stopReason_(0) {}
+TrackCandidate(): rh_(),  seed_(), state_(), seedRef_(), nLoops_(0), stopReason_((uint8_t)StopReason::UNINITIALIZED) {}
 
   explicit TrackCandidate(RecHitContainer & rh) :
-  rh_(),  seed_(), state_(), seedRef_(), nLoops_(0), stopReason_(0) {rh_.swap(rh);}
+  rh_(),  seed_(), state_(), seedRef_(), nLoops_(0), stopReason_((uint8_t)StopReason::UNINITIALIZED) {rh_.swap(rh);}
   
   TrackCandidate(RecHitContainer & rh,
 		 TrajectorySeed const & s,
 		 PTrajectoryStateOnDet const & st,
 		 signed char nLoops=0,
-                 uint8_t stopReason=0):
+                 uint8_t stopReason=(uint8_t)StopReason::UNINITIALIZED):
   rh_(), seed_(s), state_(st), seedRef_(),nLoops_(nLoops), stopReason_(stopReason) {rh_.swap(rh);}
 
   
@@ -44,7 +45,7 @@ TrackCandidate(): rh_(),  seed_(), state_(), seedRef_(), nLoops_(0), stopReason_
 		 PTrajectoryStateOnDet const & st,
 		 const edm::RefToBase<TrajectorySeed> & seedRef,
 		 signed char nLoops=0,
-                 uint8_t stopReason=0) :
+                 uint8_t stopReason=(uint8_t)StopReason::UNINITIALIZED) :
   rh_(), seed_(s), state_(st), seedRef_(seedRef),nLoops_(nLoops), stopReason_(stopReason) {rh_.swap(rh);}
 
 

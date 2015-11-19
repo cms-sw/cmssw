@@ -3,7 +3,7 @@
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStopReasons.h"
+#include "DataFormats/TrackReco/interface/TrajectoryStopReasons.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -59,7 +59,7 @@ public:
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(anyDirection), theDirectionValidity(false),
-    theValid(false),theDPhiCache(0),theNLoops(0), stopReason_(StopReason::UNKNOWN)
+    theValid(false),theDPhiCache(0),theNLoops(0), stopReason_(StopReason::UNINITIALIZED)
     {}
 
 
@@ -74,7 +74,7 @@ public:
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(anyDirection), theDirectionValidity(false),
-    theValid(true),theDPhiCache(0),theNLoops(0),stopReason_(StopReason::UNKNOWN)
+    theValid(true),theDPhiCache(0),theNLoops(0),stopReason_(StopReason::UNINITIALIZED)
   {}
 
   /** Constructor of an empty trajectory with defined direction.
@@ -86,7 +86,7 @@ public:
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
-    theValid(true),theDPhiCache(0),theNLoops(0),stopReason_(StopReason::UNKNOWN)
+    theValid(true),theDPhiCache(0),theNLoops(0),stopReason_(StopReason::UNINITIALIZED)
    
   {}
 
@@ -99,7 +99,7 @@ public:
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
-    theValid(true),theDPhiCache(0),theNLoops(0),stopReason_(StopReason::UNKNOWN)
+    theValid(true),theDPhiCache(0),theNLoops(0),stopReason_(StopReason::UNINITIALIZED)
   {}
 
   /** Constructor of an empty trajectory with defined direction.
@@ -111,7 +111,7 @@ public:
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
-    theValid(true),theDPhiCache(0),theNLoops(0),stopReason_(StopReason::UNKNOWN)
+    theValid(true),theDPhiCache(0),theNLoops(0),stopReason_(StopReason::UNINITIALIZED)
   {}
 
 
