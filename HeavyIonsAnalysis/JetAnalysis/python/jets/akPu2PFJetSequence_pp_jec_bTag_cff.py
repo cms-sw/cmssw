@@ -31,10 +31,11 @@ akPu2PFbTagger = bTaggers("akPu2PF",0.2)
 
 #create objects locally since they dont load properly otherwise
 #akPu2PFmatch = akPu2PFbTagger.match
-akPu2PFparton = akPu2PFbTagger.parton
+akPu2PFparton = patJetPartonMatch.clone(src = cms.InputTag("akPu2PFJets"), matched = cms.InputTag("genParticles"))
 akPu2PFPatJetFlavourAssociationLegacy = akPu2PFbTagger.PatJetFlavourAssociationLegacy
 akPu2PFPatJetPartons = akPu2PFbTagger.PatJetPartons
 akPu2PFJetTracksAssociatorAtVertex = akPu2PFbTagger.JetTracksAssociatorAtVertex
+akPu2PFJetTracksAssociatorAtVertex.tracks = cms.InputTag("generalTracks")
 akPu2PFSimpleSecondaryVertexHighEffBJetTags = akPu2PFbTagger.SimpleSecondaryVertexHighEffBJetTags
 akPu2PFSimpleSecondaryVertexHighPurBJetTags = akPu2PFbTagger.SimpleSecondaryVertexHighPurBJetTags
 akPu2PFCombinedSecondaryVertexBJetTags = akPu2PFbTagger.CombinedSecondaryVertexBJetTags
@@ -214,6 +215,8 @@ akPu2PFJetSequence_mc = cms.Sequence(
                                                   )
 
 akPu2PFJetSequence_data = cms.Sequence(akPu2PFcorr
+                                                    *
+                                                    akPu2PFJetID
                                                     *
                                                     akPu2PFJetTracksAssociatorAtVertex
                                                     *

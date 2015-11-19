@@ -31,10 +31,11 @@ akVs6PFbTagger = bTaggers("akVs6PF",0.6)
 
 #create objects locally since they dont load properly otherwise
 #akVs6PFmatch = akVs6PFbTagger.match
-akVs6PFparton = akVs6PFbTagger.parton
+akVs6PFparton = patJetPartonMatch.clone(src = cms.InputTag("akVs6PFJets"), matched = cms.InputTag("hiGenParticles"))
 akVs6PFPatJetFlavourAssociationLegacy = akVs6PFbTagger.PatJetFlavourAssociationLegacy
 akVs6PFPatJetPartons = akVs6PFbTagger.PatJetPartons
 akVs6PFJetTracksAssociatorAtVertex = akVs6PFbTagger.JetTracksAssociatorAtVertex
+akVs6PFJetTracksAssociatorAtVertex.tracks = cms.InputTag("generalTracks")
 akVs6PFSimpleSecondaryVertexHighEffBJetTags = akVs6PFbTagger.SimpleSecondaryVertexHighEffBJetTags
 akVs6PFSimpleSecondaryVertexHighPurBJetTags = akVs6PFbTagger.SimpleSecondaryVertexHighPurBJetTags
 akVs6PFCombinedSecondaryVertexBJetTags = akVs6PFbTagger.CombinedSecondaryVertexBJetTags
@@ -214,6 +215,8 @@ akVs6PFJetSequence_mc = cms.Sequence(
                                                   )
 
 akVs6PFJetSequence_data = cms.Sequence(akVs6PFcorr
+                                                    *
+                                                    akVs6PFJetID
                                                     *
                                                     akVs6PFJetTracksAssociatorAtVertex
                                                     *

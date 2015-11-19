@@ -31,10 +31,11 @@ ak4PFbTagger = bTaggers("ak4PF",0.4)
 
 #create objects locally since they dont load properly otherwise
 #ak4PFmatch = ak4PFbTagger.match
-ak4PFparton = ak4PFbTagger.parton
+ak4PFparton = patJetPartonMatch.clone(src = cms.InputTag("ak4PFJets"), matched = cms.InputTag("genParticles"))
 ak4PFPatJetFlavourAssociationLegacy = ak4PFbTagger.PatJetFlavourAssociationLegacy
 ak4PFPatJetPartons = ak4PFbTagger.PatJetPartons
 ak4PFJetTracksAssociatorAtVertex = ak4PFbTagger.JetTracksAssociatorAtVertex
+ak4PFJetTracksAssociatorAtVertex.tracks = cms.InputTag("hiGeneralTracks")
 ak4PFSimpleSecondaryVertexHighEffBJetTags = ak4PFbTagger.SimpleSecondaryVertexHighEffBJetTags
 ak4PFSimpleSecondaryVertexHighPurBJetTags = ak4PFbTagger.SimpleSecondaryVertexHighPurBJetTags
 ak4PFCombinedSecondaryVertexBJetTags = ak4PFbTagger.CombinedSecondaryVertexBJetTags
@@ -214,6 +215,8 @@ ak4PFJetSequence_mc = cms.Sequence(
                                                   )
 
 ak4PFJetSequence_data = cms.Sequence(ak4PFcorr
+                                                    *
+                                                    ak4PFJetID
                                                     *
                                                     ak4PFJetTracksAssociatorAtVertex
                                                     *
