@@ -3,18 +3,13 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "FWCore/Utilities/interface/StreamID.h"
 
 //
 // constructors and destructor
 //
 
-HLTPixelActivityHFSumEnergyFilter::HLTPixelActivityHFSumEnergyFilter(const edm::ParameterSet& config) : HLTFilter(config),                                                                            inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
+HLTPixelActivityHFSumEnergyFilter::HLTPixelActivityHFSumEnergyFilter(const edm::ParameterSet& config) :
+  inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
   HFHits_       (config.getParameter<edm::InputTag>("HFHitCollection")),  
   eCut_HF_      (config.getParameter<double>("eCut_HF")),
   eMin_HF_      (config.getParameter<double>("eMin_HF")),
@@ -35,7 +30,6 @@ HLTPixelActivityHFSumEnergyFilter::~HLTPixelActivityHFSumEnergyFilter()
 void
 HLTPixelActivityHFSumEnergyFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltSiPixelClusters"));
   desc.add<edm::InputTag>("HFHitCollection",edm::InputTag("hltHfreco"));
   desc.add<double>("eCut_HF",0);
@@ -51,27 +45,18 @@ HLTPixelActivityHFSumEnergyFilter::fillDescriptions(edm::ConfigurationDescriptio
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTPixelActivityHFSumEnergyFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+bool HLTPixelActivityHFSumEnergyFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  // All HLT filters must create and fill an HLT filter object,
-  // recording any reconstructed physics objects satisfying (or not)
-  // this HLT filter, and place it in the Event.
-
-  // The filter object
-  if (saveTags()) {
-	filterproduct.addCollectionTag(inputTag_);
-        filterproduct.addCollectionTag(HFHits_);
-  }
 
   // get hold of products from Event
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > clusterColl;
-  event.getByToken(inputToken_, clusterColl);
+  iEvent.getByToken(inputToken_, clusterColl);
 
   unsigned int clusterSize = clusterColl->dataSize();
   LogDebug("") << "Number of clusters: " << clusterSize;
 
   edm::Handle<HFRecHitCollection> HFRecHitsH;
-  event.getByToken(HFHitsToken_,HFRecHitsH);
+  iEvent.getByToken(HFHitsToken_,HFRecHitsH);
 
   double sumE = 0.;
 
