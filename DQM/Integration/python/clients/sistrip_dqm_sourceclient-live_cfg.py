@@ -562,9 +562,18 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.TrackingClient = cms.Sequence( process.TrackingAnalyserHI )
 
     # Reco for HI collisions
-    process.load("Configuration.StandardSequences.ReconstructionHeavyIons_cff")
+    process.load("RecoHI.HiTracking.LowPtTracking_PbPb_cff")
+    process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
+    process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
+    process.hiPixel3ProtoTracks.FilterPSet.siPixelRecHits = cms.InputTag("siPixelRecHitsPreSplitting")
+    process.hiPixel3ProtoTracks.RegionFactoryPSet.RegionPSet.siPixelRecHits = cms.InputTag("siPixelRecHitsPreSplitting")
+    process.hiPixel3PrimTracks.FilterPSet.clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCachePreSplitting")
+    process.hiPrimTrackCandidates.MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEventPreSplitting")
+    process.hiGlobalPrimTracks.MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEventPreSplitting")
+    process.multFilter.inputTag = cms.InputTag("siPixelClustersPreSplitting")
+    process.SiStripMonitorTrack_hi.TrackProducer = cms.string('hiSelectedTracks')
     process.RecoForDQM_LocalReco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.siStripVRDigis*process.gtDigis*process.trackerlocalreco)
-    process.RecoForDQM_TrkReco = cms.Sequence(process.offlineBeamSpot*process.heavyIonTracking)
+    process.RecoForDQM_TrkReco = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEventPreSplitting*process.siPixelClusterShapeCachePreSplitting*process.hiBasicTracking*process.hiSelectedTracks)
     
     process.p = cms.Path(process.scalersRawToDigi*
                          process.APVPhases*
