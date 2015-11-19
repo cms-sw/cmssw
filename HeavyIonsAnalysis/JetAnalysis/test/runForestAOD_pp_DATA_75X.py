@@ -51,21 +51,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 # PbPb 53X MC
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run1_data', '')
-# set snapshot to future to allow centrality table payload.
-process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
-
-process.GlobalTag.toGet.extend([
- cms.PSet(record = cms.string("HeavyIonRcd"),
- connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
- ## 5.02 TeV Centrality Tables
- #tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5_v740x01_mc"),
- #label = cms.untracked.string("HFtowersHydjetDrum5")
- ## 2.76 TeV Centrality Tables for data
- tag = cms.string("CentralityTable_HFtowers200_Glauber2010A_eff99_run1v750x01_offline"),
- label = cms.untracked.string("HFtowers")
- ),
-])
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 from HeavyIonsAnalysis.Configuration.CommonFunctionsLocalDB_cff import overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db
 process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db(process)
@@ -73,10 +59,6 @@ process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db(process)
 process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
 process.centralityBin.Centrality = cms.InputTag("hiCentrality")
 process.centralityBin.centralityVariable = cms.string("HFtowers")
-# 5.02 table
-#process.centralityBin.nonDefaultGlauberModel = cms.string("HydjetDrum5")
-# 2.76 table
-process.centralityBin.nonDefaultGlauberModel = cms.string("")
 
 #####################################################################################
 # Define tree output
