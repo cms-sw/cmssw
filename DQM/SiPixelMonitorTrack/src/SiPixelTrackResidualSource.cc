@@ -874,26 +874,26 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
   //iEvent.getByLabel(tracksrc_,trajCollectionHandle);
   iEvent.getByToken ( tracksrcToken_, trajCollectionHandle );
-  const std::vector<Trajectory> trajColl = *(trajCollectionHandle.product());
+  auto const & trajColl = *(trajCollectionHandle.product());
    
   //get tracks
   edm::Handle<std::vector<reco::Track> > trackCollectionHandle;
   //iEvent.getByLabel(tracksrc_,trackCollectionHandle);
   iEvent.getByToken( trackToken_, trackCollectionHandle );
 
-  const std::vector<reco::Track> trackColl = *(trackCollectionHandle.product());
+  auto const & trackColl = *(trackCollectionHandle.product());
 
   //get the map
   edm::Handle<TrajTrackAssociationCollection> match;
   //iEvent.getByLabel(tracksrc_,match);
   iEvent.getByToken( trackAssociationToken_, match);
-  const TrajTrackAssociationCollection ttac = *(match.product());
+  auto const &  ttac = *(match.product());
 
   // get clusters
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> >  clusterColl;
   //iEvent.getByLabel( clustersrc_, clusterColl );
   iEvent.getByToken( clustersrcToken_, clusterColl );
-  const edmNew::DetSetVector<SiPixelCluster> clustColl = *(clusterColl.product());
+  auto const & clustColl = *(clusterColl.product());
 
   if(debug_){
     std::cout << "Trajectories\t : " << trajColl.size() << std::endl;

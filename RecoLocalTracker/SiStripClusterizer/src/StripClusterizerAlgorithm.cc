@@ -127,7 +127,7 @@ initialize(const edm::EventSetup& es) {
   
 StripClusterizerAlgorithm::Det
 StripClusterizerAlgorithm::
-setDetId(const uint32_t id) const {
+findDetId(const uint32_t id) const {
   auto b = detIds.begin();
   auto e = detIds.end();
   auto p = std::lower_bound(b,e,id);

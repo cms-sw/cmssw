@@ -284,6 +284,7 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
   }
 
   */
+
   boost::shared_ptr<const TrajectorySeed> pseed(new TrajectorySeed(seed));
   result.reserve(work_.size());
   for (TempTrajectoryContainer::const_iterator it = work_.begin(), ed = work_.end(); it != ed; ++it) {
