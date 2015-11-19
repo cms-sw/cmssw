@@ -3,9 +3,12 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Mu2")
 
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryExtendedReco_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run1_mc', '')
+
 process.source = cms.Source("PoolSource",
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(10),
@@ -19,7 +22,6 @@ process.maxEvents = cms.untracked.PSet(
 
 process.eventContent = cms.EDAnalyzer("EventContentAnalyzer")
 process.DQMStore = cms.Service("DQMStore")
-process.GlobalTag.globaltag = "IDEAL_30X::All"
 process.dump = cms.EDAnalyzer("HcalDigiDump")
 process.load("Configuration.StandardSequences.Digi_cff")
 process.load("Configuration.StandardSequences.Services_cff")

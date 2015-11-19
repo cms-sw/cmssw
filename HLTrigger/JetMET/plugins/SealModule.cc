@@ -16,6 +16,7 @@
 #include "HLTrigger/JetMET/interface/HLTHcalMETNoiseFilter.h"
 #include "HLTrigger/JetMET/interface/HLTHcalLaserFilter.h"
 #include "HLTrigger/JetMET/interface/HLTHcalTowerNoiseCleaner.h"
+#include "HLTrigger/JetMET/interface/HLTHcalTowerNoiseCleanerWithrechit.h"
 #include "HLTrigger/JetMET/interface/PFJetsMatchedToFilteredCaloJetsProducer.h"
 #include "HLTrigger/JetMET/interface/HLTNVFilter.h"
 #include "HLTrigger/JetMET/interface/HLTCaloJetIDProducer.h"
@@ -169,6 +170,7 @@ DEFINE_FWK_MODULE(HLTHcalMETNoiseFilter);
 DEFINE_FWK_MODULE(HLTHcalMETNoiseCleaner);
 DEFINE_FWK_MODULE(HLTHcalLaserFilter);
 DEFINE_FWK_MODULE(HLTHcalTowerNoiseCleaner);
+DEFINE_FWK_MODULE(HLTHcalTowerNoiseCleanerWithrechit);
 DEFINE_FWK_MODULE(HLTNVFilter);
 DEFINE_FWK_MODULE(PFJetsMatchedToFilteredCaloJetsProducer);
 DEFINE_FWK_MODULE(HLTMETCleanerUsingJetID);
