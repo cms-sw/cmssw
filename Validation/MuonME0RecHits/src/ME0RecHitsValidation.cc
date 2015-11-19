@@ -87,11 +87,8 @@ void ME0RecHitsValidation::analyze(const edm::Event& e,
      std::cout<<"simHit did not matched with GEMGeometry."<<std::endl;
      continue;
    }
-   const LocalPoint p0(0., 0., 0.);
-   const GlobalPoint Gp0(ME0Geometry_->idToDet(hits->detUnitId())->surface().toGlobal(p0));
+   
    const LocalPoint hitLP(hits->localPosition());
-
-
 
    for (ME0RecHitCollection::const_iterator recHit = ME0RecHits->begin(); recHit != ME0RecHits->end(); ++recHit)
    {

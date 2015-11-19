@@ -83,8 +83,7 @@ void ME0HitsValidation::analyze(const edm::Event& e,
       std::cout<<"simHit did not matched with GEMGeometry."<<std::endl;
       continue;
     }
-    const LocalPoint p0(0., 0., 0.);
-    const GlobalPoint Gp0(ME0Geometry_->idToDet(hits->detUnitId())->surface().toGlobal(p0));
+    
     const LocalPoint hitLP(hits->localPosition());
     
     const GlobalPoint hitGP(ME0Geometry_->idToDet(hits->detUnitId())->surface().toGlobal(hitLP));
@@ -92,17 +91,14 @@ void ME0HitsValidation::analyze(const edm::Event& e,
     Float_t g_x = hitGP.x();
     Float_t g_y = hitGP.y();
     Float_t g_z = hitGP.z();
-
-    const LocalPoint hitEP(hits->entryPoint());
-
-//move these here in order to use a GEMDetId - layers, station...
     Float_t energyLoss = hits->energyLoss();
     Float_t timeOfFlight = hits->timeOfFlight();
+
     if (abs(hits-> particleType()) == 13)
     {
       timeOfFlightMuon = hits->timeOfFlight();
       energyLossMuon = hits->energyLoss();
-//fill histos for Muons only
+      //fill histos for Muons only
       me0_sh_tofMu[(int)(region/2.+0.5)][layer-1]->Fill(timeOfFlightMuon);
       me0_sh_elossMu[(int)(region/2.+0.5)][layer-1]->Fill(energyLossMuon*1.e9);
  	
