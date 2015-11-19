@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # HLT dimuon trigger
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 hltMinBiasHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-hltMinBiasHI.HLTPaths = ["HLT_L1MinimumBiasHF2AND_v*"]
+hltMinBiasHI.HLTPaths = ["HLT_HIL1MinimumBiasHF2AND_v*"]
 hltMinBiasHI.throw = False
 hltMinBiasHI.andOr = True
 
