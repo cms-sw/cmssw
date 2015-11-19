@@ -170,12 +170,12 @@ process.ecalLaserLedMonitorTask.commonParameters.onlineMode = True
 process.GlobalTag.toGet = cms.VPSet(cms.PSet(
     record = cms.string('EcalDQMChannelStatusRcd'),
     tag = cms.string('EcalDQMChannelStatus_v1_hlt'),
-    connect = cms.untracked.string('frontier://(proxyurl=http://frontier.cms:3128)(serverurl=http://frontier.cms:8000/FrontierOnProd)(serverurl=http://frontier.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_34X_ECAL')
+    connect = cms.string('frontier://(proxyurl=http://frontier.cms:3128)(serverurl=http://frontier.cms:8000/FrontierOnProd)(serverurl=http://frontier.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_34X_ECAL')
 ), 
     cms.PSet(
         record = cms.string('EcalDQMTowerStatusRcd'),
         tag = cms.string('EcalDQMTowerStatus_v1_hlt'),
-        connect = cms.untracked.string('frontier://(proxyurl=http://frontier.cms:3128)(serverurl=http://frontier.cms:8000/FrontierOnProd)(serverurl=http://frontier.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_34X_ECAL')
+        connect = cms.string('frontier://(proxyurl=http://frontier.cms:3128)(serverurl=http://frontier.cms:8000/FrontierOnProd)(serverurl=http://frontier.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_34X_ECAL')
     ))
 
 process.ecalTestPulseMonitorTask.verbosity = 0
