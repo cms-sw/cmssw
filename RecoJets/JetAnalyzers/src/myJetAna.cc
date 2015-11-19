@@ -1048,11 +1048,11 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   // ********************************
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> > hClusterColl;
   evt.getByLabel("siPixelClusters", hClusterColl);
-  const edmNew::DetSetVector<SiPixelCluster> clustColl = *(hClusterColl.product());
+  auto const & clustColl = *(hClusterColl.product());
 
   edm::Handle<reco::TrackCollection> trackCollection;
   evt.getByLabel("generalTracks", trackCollection);
-  const reco::TrackCollection tC = *(trackCollection.product());
+  auto const &  tC = *(trackCollection.product());
 
 
   // **************************

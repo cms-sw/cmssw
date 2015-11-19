@@ -9,20 +9,19 @@
 
 ThreeThresholdAlgorithm::
 ThreeThresholdAlgorithm(float chan, float seed, float cluster, unsigned holes, unsigned bad, unsigned adj, std::string qL, 
-			bool setDetId, bool removeApvShots, float minGoodCharge) 
+			bool removeApvShots, float minGoodCharge) 
   : ChannelThreshold( chan ), SeedThreshold( seed ), ClusterThresholdSquared( cluster*cluster ),
     MaxSequentialHoles( holes ), MaxSequentialBad( bad ), MaxAdjacentBad( adj ), RemoveApvShots(removeApvShots), minGoodCharge(minGoodCharge) {
-  _setDetId=setDetId;
   qualityLabel = (qL);
 }
 
 template<class digiDetSet>
 inline
 void ThreeThresholdAlgorithm::
-clusterizeDetUnit_(const digiDetSet& digis, output_t::FastFiller& output) const {
+clusterizeDetUnit_(const digiDetSet& digis, output_t::TSFastFiller& output) const {
   if(isModuleBad(digis.detId())) return;
 
-  auto const & det = setDetId( digis.detId());
+  auto const & det = findDetId( digis.detId());
   if (!det.valid()) return;
 
 #ifdef EDM_ML_DEBUG
@@ -123,13 +122,13 @@ appendBadNeighbors(State & state) const {
 }
 
 
-void ThreeThresholdAlgorithm::clusterizeDetUnit(const    edm::DetSet<SiStripDigi>& digis, output_t::FastFiller& output) const {clusterizeDetUnit_(digis,output);}
-void ThreeThresholdAlgorithm::clusterizeDetUnit(const edmNew::DetSet<SiStripDigi>& digis, output_t::FastFiller& output) const {clusterizeDetUnit_(digis,output);}
+void ThreeThresholdAlgorithm::clusterizeDetUnit(const    edm::DetSet<SiStripDigi>& digis, output_t::TSFastFiller& output) const {clusterizeDetUnit_(digis,output);}
+void ThreeThresholdAlgorithm::clusterizeDetUnit(const edmNew::DetSet<SiStripDigi>& digis, output_t::TSFastFiller& output) const {clusterizeDetUnit_(digis,output);}
 
 StripClusterizerAlgorithm::Det
 ThreeThresholdAlgorithm::
 stripByStripBegin(uint32_t id) const {
-  return setDetId( id );
+  return findDetId( id );
 }
 
 

@@ -32,7 +32,7 @@ produce(edm::Event& event, const edm::EventSetup& es) {
   algorithm->initialize(es);
 
   for( auto const & inputDetSet : *input) {
-    output_t::FastFiller filler(*output, inputDetSet.detId());
+    output_t::TSFastFiller filler(*output, inputDetSet.detId());
 
     auto const & det = algorithm->stripByStripBegin( inputDetSet.detId());
     if( !det.valid() ) continue;

@@ -36,7 +36,7 @@ refineCluster(const edm::Handle< edmNew::DetSetVector<SiStripCluster> >& input,
 
   for (edmNew::DetSetVector<SiStripCluster>::const_iterator det=input->begin(); det!=input->end(); det++) {
     // DetSetVector filler to receive the clusters we produce
-    edmNew::DetSetVector<SiStripCluster>::FastFiller outFill(*output, det->id());
+    edmNew::DetSetVector<SiStripCluster>::TSFastFiller outFill(*output, det->id());
     uint32_t detId = det->id();
     int ntk = 0;
     int NtkAll = 0;
