@@ -460,10 +460,10 @@ namespace edmNew {
       const_IdIter p = findItem(iid);
       if (p==m_ids.end()) return; //bha!
       // sanity checks...  (shall we throw or assert?)
-      if ( (*p).size>0 && (*p).isValid() && 
+      if ( (*p).isValid() && (*p).size>0 && 
 	  m_data.size()==(*p).offset+(*p).size)
 	m_data.resize((*p).offset);
-      m_ids.erase( m_ids.begin()+(p-m_ids.begin()));
+      m_ids.erase(m_ids.begin()+(p-m_ids.begin()));
     }
 
   private:
@@ -661,14 +661,8 @@ namespace edmNew {
     // if an item is being updated we wait
     if (update) icont.update(item);
     while(item.initializing()) nanosleep(0,0);
-    
-    bool expected=false;
-    while (!icont.filling.compare_exchange_weak(expected,true))  { expected=false; nanosleep(0,0);}
 #endif
     m_data=&icont.data();
-#ifdef USE_ATOMIC
-    icont.filling=false;
-#endif
     m_id=item.id; 
     m_offset = item.offset; 
     m_size=item.size;
