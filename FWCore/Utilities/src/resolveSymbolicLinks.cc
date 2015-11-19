@@ -1,4 +1,4 @@
-#include "FWCore/Utilities/interface/ResolveSymbolicLinks.h"
+#include "FWCore/Utilities/interface/resolveSymbolicLinks.h"
 #include "FWCore/Utilities/interface/Parse.h"
 
 #include "boost/filesystem/path.hpp"

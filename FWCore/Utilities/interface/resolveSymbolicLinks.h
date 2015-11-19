@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_ResolveSymbolicLinks_h
-#define FWCore_Utilities_ResolveSymbolicLinks_h
+#ifndef FWCore_Utilities_resolveSymbolicLinks_h
+#define FWCore_Utilities_resolveSymbolicLinks_h
 
 #include <string>
 namespace edm {
