@@ -18,7 +18,6 @@ process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.Validation_cff')
 process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Geometry.TrackerNumberingBuilder.trackerTopologyConstants_cfi')
 
 # Number of events (-1 = all)
 process.maxEvents = cms.untracked.PSet(

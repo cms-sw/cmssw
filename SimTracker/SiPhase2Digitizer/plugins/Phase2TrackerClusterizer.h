@@ -17,15 +17,11 @@ namespace cms {
     class Phase2TrackerClusterizer : public edm::EDProducer {
 
         public:
-
             explicit Phase2TrackerClusterizer(const edm::ParameterSet& conf);
             virtual ~Phase2TrackerClusterizer();
             virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup);
 
         private:
-
-            bool isOuterTracker(const DetId& detid, const TrackerTopology* topo);
-            
             edm::ParameterSet conf_;
             Phase2TrackerClusterizerAlgorithm* clusterizer_;
             edm::InputTag src_;
