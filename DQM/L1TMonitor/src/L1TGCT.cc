@@ -114,11 +114,6 @@ void L1TGCT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::Ev
   nev_ = 0;
 
   ibooker.setCurrentFolder(monitorDir_);
-
-  runId_     = ibooker.bookInt("iRun");
-  runId_->Fill(-1);
-  lumisecId_ = ibooker.bookInt("iLumiSection");
-  lumisecId_->Fill(-1);
   
   triggerType_ =ibooker.book1D("TriggerType", "TriggerType", 17, -0.5, 16.5);
 

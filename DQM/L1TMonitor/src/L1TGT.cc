@@ -39,13 +39,6 @@ L1TGT::~L1TGT() {
 
 void L1TGT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const& evSetup) {
 
-    runId_=ibooker.bookInt("iRun");
-    runId_->Fill(-1);
-    runStartTimeStamp_=ibooker.bookFloat("eventTimeStamp");
-
-    lumisecId_ = ibooker.bookInt("iLumiSection");
-    lumisecId_->Fill(-1);
-
     ibooker.setCurrentFolder(m_histFolder);
 
     // book histograms
