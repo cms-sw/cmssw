@@ -45,6 +45,7 @@ dqmEnvL1TEMU.subSystemFolder = 'L1TEMU'
 from DQMOffline.L1Trigger.L1TRate_Offline_cfi import *
 from DQMOffline.L1Trigger.L1TSync_Offline_cfi import *
 from DQMOffline.L1Trigger.L1TEmulatorMonitorOffline_cff import *  
+l1TdeRCT.rctSourceData = 'gctDigis'
 
 # DQM Offline Step 2 cfi/cff imports
 from DQMOffline.L1Trigger.L1TEmulatorMonitorClientOffline_cff import *
