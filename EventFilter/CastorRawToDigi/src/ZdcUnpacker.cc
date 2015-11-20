@@ -213,7 +213,7 @@ void ZdcUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& emap
 
     //////////////////////////////////////////////
     qie_begin=(const HcalQIESample*)daq_first;
-    qie_end=(HcalQIESample*)(daq_last+1); // one beyond last..
+    qie_end=(const HcalQIESample*)(daq_last+1); // one beyond last..
 
     for (qie_work=qie_begin; qie_work!=qie_end;) {    
       if (qie_work->raw()==0xFFFF) {
