@@ -55,6 +55,9 @@ from RecoMET.METFilters.trackingPOGFilters_cff import *
 ## The charged hadron muonref filter _________________________________________||
 from RecoMET.METFilters.chargedHadronMuonRefFilter_cfi import *
 
+## The muon bad track filter _________________________________________||
+from RecoMET.METFilters.muonBadTrackFilter_cfi import *
+
 
 metFilters = cms.Sequence(
    HBHENoiseFilterResultProducer *
@@ -68,5 +71,6 @@ metFilters = cms.Sequence(
    eeBadScFilter*
 #   ecalLaserCorrFilter *
 #   trkPOGFilters
-   chargedHadronMuonRefFilter
+   chargedHadronMuonRefFilter *
+   muonBadTrackFilter
 )

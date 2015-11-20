@@ -19,15 +19,17 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 //
 // class declaration
 //
 
-class ChargedHadronMuonRefFilter : public edm::EDFilter {
+class MuonBadTrackFilter : public edm::EDFilter {
 public:
-  explicit ChargedHadronMuonRefFilter(const edm::ParameterSet&);
-  ~ChargedHadronMuonRefFilter();
+  explicit MuonBadTrackFilter(const edm::ParameterSet&);
+  ~MuonBadTrackFilter();
 
 private:
   virtual bool filter(edm::Event&, const edm::EventSetup&) override;
@@ -37,6 +39,7 @@ private:
   edm::EDGetTokenT<reco::PFCandidateCollection>   tokenPFCandidates_;
   const bool taggingMode_;
   const double          ptMin_;
+	const double          chi2Min_;
   const bool debug_;
 
 };
@@ -52,16 +55,17 @@ private:
 //
 // constructors and destructor
 //
-ChargedHadronMuonRefFilter::ChargedHadronMuonRefFilter(const edm::ParameterSet& iConfig)
+MuonBadTrackFilter::MuonBadTrackFilter(const edm::ParameterSet& iConfig)
   : tokenPFCandidates_ ( consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag> ("PFCandidates")  ))
   , taggingMode_          ( iConfig.getParameter<bool>    ("taggingMode")         )
   , ptMin_                ( iConfig.getParameter<double>        ("ptMin")         )
+	, chi2Min_              ( iConfig.getParameter<double>      ("chi2Min")         )
   , debug_                ( iConfig.getParameter<bool>          ("debug")         )
 {
   produces<bool>();
 }
 
-ChargedHadronMuonRefFilter::~ChargedHadronMuonRefFilter() { }
+MuonBadTrackFilter::~MuonBadTrackFilter() { }
 
 
 //
@@ -70,7 +74,7 @@ ChargedHadronMuonRefFilter::~ChargedHadronMuonRefFilter() { }
 
 // ------------ method called on each new Event  ------------
 bool
-ChargedHadronMuonRefFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+MuonBadTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace std;
   using namespace edm;
@@ -85,32 +89,32 @@ ChargedHadronMuonRefFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 
     const reco::PFCandidate & cand = (*pfCandidates)[i];
 	
-		if (!(( fabs(cand.pdgId()) == 211 ) || ( fabs(cand.pdgId()) == 13 ))) continue;
-    // if ( debug_ ) cout << "Found charged hadron or muon candidate" << std::endl;
+		if ( fabs(cand.pdgId()) != 13 ) continue;
+    // if ( debug_ ) cout << "Found muon" << std::endl;
 
-    if (cand.trackRef().isNull()) continue;
-    // if ( debug_ ) cout << "Found valid TrackRef" << std::endl;
-    const reco::TrackRef trackref = cand.trackRef();
-    const double Pt = trackref->pt();
-    if (Pt < ptMin_) continue;
-    // if ( debug_ ) cout << "track pT > " << ptMin_ << " GeV - algorithm: "  << trackref->algo() << std::endl;
+    if (cand.pt() < ptMin_) continue;
 
-      const double P = trackref->p();
-      const double DPt = trackref->ptError();
-      const unsigned int LostHits = trackref->numberOfLostHits();
-
-      if ((DPt/Pt) > (5 * sqrt(1.20*1.20/P+0.06*0.06) / (1.+LostHits))) {
-
-        foundBadTrack = true;
-
-        if ( debug_ ) {
-          cout << cand << endl;
-          cout << "\t" << "track pT = " << Pt << " +/- " << DPt;
-          cout << endl;
-        }
-      }
+    if (cand.muonRef().isNull()) continue;
+    // if ( debug_ ) cout << "Found valid MuonRef" << std::endl;
+		
+	  const reco::MuonRef       muon  = cand.muonRef();
+		
+		if (muon->muonBestTrack()->hitPattern().numberOfValidMuonHits() != 0) continue;
+		
+		if (muon->globalTrack()->normalizedChi2() > chi2Min_) {
+			foundBadTrack = true;
+			if ( debug_ ) cout << "globalTrack numberOfValidMuonHits: " << muon->globalTrack()->hitPattern().numberOfValidMuonHits() << 
+				" numberOfValidMuonCSCHits: " << muon->globalTrack()->hitPattern().numberOfValidMuonCSCHits() << 
+				" numberOfValidMuonDTHits: " << muon->globalTrack()->hitPattern().numberOfValidMuonDTHits() <<
+				" normalizedChi2: " << muon->globalTrack()->normalizedChi2() <<	endl;
+			if ( debug_ ) cout << "muonBestTrack numberOfValidMuonHits: " << muon->muonBestTrack()->hitPattern().numberOfValidMuonHits() << 
+				" numberOfValidMuonCSCHits: " << muon->muonBestTrack()->hitPattern().numberOfValidMuonCSCHits() << 
+				" numberOfValidMuonDTHits: " << muon->muonBestTrack()->hitPattern().numberOfValidMuonDTHits() <<
+				" normalizedChi2: " << muon->muonBestTrack()->normalizedChi2() <<	endl;
+		}
     
   } // end loop over PF candidates
+
 
   bool pass = !foundBadTrack;
 
@@ -120,4 +124,4 @@ ChargedHadronMuonRefFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(ChargedHadronMuonRefFilter);
+DEFINE_FWK_MODULE(MuonBadTrackFilter);
