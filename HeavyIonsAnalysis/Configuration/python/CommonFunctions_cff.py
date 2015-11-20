@@ -749,6 +749,25 @@ def overrideJEC_MC_Pbp5020(process):
     return process
 
 
+def overrideJEC_pp5020(process):
+    process.GlobalTag.toGet.extend([
+
+        cms.PSet(record = cms.string("JetCorrectionsRecord"),
+                 tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK4Calo_offline"),
+#                 connect = cms.string("frontier://FrontierProd/CMS_COND_75X_PHYSICSTOOLS"),
+                 label = cms.untracked.string("AK4Calo_offline")
+        ),
+
+        cms.PSet(record = cms.string("JetCorrectionsRecord"),
+                 tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v7_AK4PF_offline"),
+#                 connect = cms.string("frontier://FrontierProd/CMS_COND_75X_PHYSICSTOOLS"),
+                 label = cms.untracked.string("AK4PF_offline")
+        )
+
+        ])
+    return process
+
+
 def overrideJEC_pp2760(process):
     process.GlobalTag.toGet.extend([
 
@@ -1135,6 +1154,9 @@ def overrideJEC_NULL(process):
                  )
         ])
     return process
+
+
+
 
 #======  Final default common functions including centrality
 
