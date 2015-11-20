@@ -49,6 +49,7 @@ do
                             domatch="False"
                             match=""
                             eventinfotag="generator"
+			    jetcorrectionlevels="\'L2Relative\',\'L3Absolute\'"
                             echo "" > $algo$subt$radius${object}JetSequence_${system}_${sample}_${btag}cff.py
 
                             if [ $system == "pPb" ]; then
@@ -63,6 +64,9 @@ do
                                 tracks="generalTracks"
                                 genparticles="genParticles"
                                 pflow="particleFlow"
+				if [ $sample == "data" ] && [ $sub == "NONE" ] && [ $radius == 4 ] && [ $object == "PF" ]; then
+				    jetcorrectionlevels="\'L2Relative\',\'L3Absolute\',\'L2L3Residual\'"
+				fi
                             fi
 
                             if [ $sample == "mc" ] || [ $sample == "jec" ] || [ $sample == "mix" ]; then
@@ -118,6 +122,7 @@ do
                                 | sed "s/PARTICLEFLOW/$pflow/g" \
                                 | sed "s/DOMATCH/$domatch/g" \
                                 | sed "s/EVENTINFOTAG/$eventinfotag/g" \
+				| sed "s/JETCORRECTIONLEVELS/$jetcorrectionlevels/g" \
                                 >> $algo$subt$radius${object}JetSequence_${system}_${sample}_${btag}cff.py
                             fi
                             if [ $btaggers == "NONE" ]; then
@@ -136,6 +141,7 @@ do
                                 | sed "s/PARTICLEFLOW/$pflow/g" \
                                 | sed "s/DOMATCH/$domatch/g" \
                                 | sed "s/EVENTINFOTAG/$eventinfotag/g" \
+				| sed "s/JETCORRECTIONLEVELS/$jetcorrectionlevels/g" \
                                 >> $algo$subt$radius${object}JetSequence_${system}_${sample}_cff.py
                             fi
 
