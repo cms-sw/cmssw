@@ -23,7 +23,7 @@ void Phase2TrackerClusterizerAlgorithm::setup(const PixelGeomDetUnit* pixDet) {
  * Go over the Digis and create clusters
  */
 
-void Phase2TrackerClusterizerAlgorithm::clusterizeDetUnit(const edm::DetSet< PixelDigi >& digis, edmNew::DetSetVector< Phase2TrackerCluster1D >::FastFiller& clusters) {
+void Phase2TrackerClusterizerAlgorithm::clusterizeDetUnit(const edm::DetSet< Phase2TrackerDigi >& digis, edmNew::DetSetVector< Phase2TrackerCluster1D >::FastFiller& clusters) {
 
     // Fill the 2D matrix with the ADC values
     fillMatrix(digis.begin(), digis.end());
@@ -82,15 +82,15 @@ void Phase2TrackerClusterizerAlgorithm::clusterizeDetUnit(const edm::DetSet< Pix
  * Copy the value of the Digis' ADC to the 2D matrix. An ADC of 255 means the cell is hit (binary read-out)
  */
 
-void Phase2TrackerClusterizerAlgorithm::fillMatrix(edm::DetSet< PixelDigi >::const_iterator begin, edm::DetSet< PixelDigi >::const_iterator end) {
-    for (edm::DetSet< PixelDigi >::const_iterator di(begin); di != end; ++di) matrix_.set(di->row(), di->column(), (di->adc() != 0));
+void Phase2TrackerClusterizerAlgorithm::fillMatrix(edm::DetSet< Phase2TrackerDigi >::const_iterator begin, edm::DetSet< Phase2TrackerDigi >::const_iterator end) {
+    for (edm::DetSet< Phase2TrackerDigi >::const_iterator di(begin); di != end; ++di) matrix_.set(di->row(), di->column(), true);
 }
 
 /*
  * Clear the array of hits
  */
 
-void Phase2TrackerClusterizerAlgorithm::clearMatrix(edm::DetSet< PixelDigi >::const_iterator begin, edm::DetSet< PixelDigi >::const_iterator end) {
-    for (edm::DetSet< PixelDigi >::const_iterator di(begin); di != end; ++di) matrix_.set(di->row(), di->column(), false);
+void Phase2TrackerClusterizerAlgorithm::clearMatrix(edm::DetSet< Phase2TrackerDigi >::const_iterator begin, edm::DetSet< Phase2TrackerDigi >::const_iterator end) {
+    for (edm::DetSet< Phase2TrackerDigi >::const_iterator di(begin); di != end; ++di) matrix_.set(di->row(), di->column(), false);
 }
 

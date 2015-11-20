@@ -125,7 +125,9 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
 
     // Get the PixelDigiSimLinks
     edm::Handle< edm::DetSetVector< PixelDigiSimLink > > pixelSimLinks;
-    event.getByLabel(links_, pixelSimLinks);
+    event.getByLabel("simSiPixelDigis", "Tracker", pixelSimLinks);
+    
+//event.getByLabel(links_, pixelSimLinks);
 
     // Get the SimHits
     edm::Handle< edm::PSimHitContainer > simHitsRaw;

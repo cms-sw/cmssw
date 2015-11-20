@@ -6,7 +6,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include <vector>
+#include <iostream>
 
 namespace cms {
 
@@ -43,26 +44,22 @@ namespace cms {
     void Phase2TrackerClusterizer::produce(edm::Event& event, const edm::EventSetup& eventSetup) {
 
         // Get the Digis
-        edm::Handle< edm::DetSetVector< PixelDigi > > digis;
+        edm::Handle< edm::DetSetVector< Phase2TrackerDigi > > digis;
         event.getByLabel(src_, digis);
-
+        //event.getByLabel("mix", "Tracker", digis); 
+        
         // Get the geometry
         edm::ESHandle< TrackerGeometry > geomHandle;
         eventSetup.get< TrackerDigiGeometryRecord >().get(geomHandle);
         const TrackerGeometry* tkGeom(&(*geomHandle)); 
 
-        edm::ESHandle< TrackerTopology > tTopoHandle;
-        eventSetup.get< IdealGeometryRecord >().get(tTopoHandle);
-        const TrackerTopology* tTopo(tTopoHandle.product());
-
         // Global container for the clusters of each modules
         std::auto_ptr< Phase2TrackerCluster1DCollectionNew > outputClusters(new Phase2TrackerCluster1DCollectionNew());
 
         // Go over all the modules
-        for (edm::DetSetVector< PixelDigi >::const_iterator DSViter = digis->begin(); DSViter != digis->end(); ++DSViter) {
+        for (edm::DetSetVector< Phase2TrackerDigi >::const_iterator DSViter = digis->begin(); DSViter != digis->end(); ++DSViter) {
 
             DetId detId(DSViter->detId());
-            if (!isOuterTracker(detId, tTopo)) continue;
 
             // Geometry
             const GeomDetUnit* geomDetUnit(tkGeom->idToDetUnit(detId));
@@ -84,15 +81,6 @@ namespace cms {
 
         // Add the data to the output
         event.put(outputClusters);
-    }
-
-    bool Phase2TrackerClusterizer::isOuterTracker(const DetId& detid, const TrackerTopology* topo) {
-        if (detid.det() == DetId::Tracker) {
-            if (detid.subdetId() == PixelSubdetector::PixelBarrel) return (topo->pxbLayer(detid) >= 5);
-            else if (detid.subdetId() == PixelSubdetector::PixelEndcap) return (topo->pxfDisk(detid) >= 11);
-            else return false;
-        }
-        return false;
     }
 }
 
