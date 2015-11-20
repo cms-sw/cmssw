@@ -1,15 +1,15 @@
-#ifndef SeedExtentionTrajectoryFilter_H
-#define SeedExtentionTrajectoryFilter_H
+#ifndef SeedExtensionTrajectoryFilter_H
+#define SeedExtensionTrajectoryFilter_H
 
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
-class SeedExtentionTrajectoryFilter final : public TrajectoryFilter {
+class SeedExtensionTrajectoryFilter final : public TrajectoryFilter {
 public:
 
-  explicit SeedExtentionTrajectoryFilter() {} 
+  explicit SeedExtensionTrajectoryFilter() {} 
   
-  explicit SeedExtentionTrajectoryFilter(edm::ParameterSet const & pset, edm::ConsumesCollector&) :
-     theStrict(pset.existsAs<bool>("strictSeedExtention") ? pset.getParameter<bool>("strictSeedExtention"):false),
+  explicit SeedExtensionTrajectoryFilter(edm::ParameterSet const & pset, edm::ConsumesCollector&) :
+     theStrict(pset.existsAs<bool>("strictSeedExtension") ? pset.getParameter<bool>("strictSeedExtension"):false),
      theExtention(pset.existsAs<int>("seedExtention") ? pset.getParameter<int>("seedExtention"):0) {}
 
   virtual bool qualityFilter( const Trajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
@@ -35,13 +35,13 @@ private:
 
 };
 
-template<class T> bool SeedExtentionTrajectoryFilter::looseTBC(const T& traj) const {
+template<class T> bool SeedExtensionTrajectoryFilter::looseTBC(const T& traj) const {
     return (int(traj.measurements().size())>int(traj.seedNHits())+theExtention) | (0==traj.lostHits());
 }
 
 
 // strict case as a real seeding: do not allow even inactive
-template<class T> bool SeedExtentionTrajectoryFilter::strictTBC(const T& traj) const {
+template<class T> bool SeedExtensionTrajectoryFilter::strictTBC(const T& traj) const {
     return traj.foundHits()>=int(traj.seedNHits())+theExtention;
 }
 
