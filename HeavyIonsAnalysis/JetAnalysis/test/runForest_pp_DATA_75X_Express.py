@@ -33,9 +33,9 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
- #                           fileNames = cms.untracked.vstring(options.inputFiles[0])                            
+                           fileNames = cms.untracked.vstring(options.inputFiles[0])                            
 # fileNames = cms.untracked.vstring("file:/mnt/hadoop/cms/store/user/dgulhan/HIHighPt/HIHighPt_photon20and30_HIRun2011-v1_RECO_753_patch1/fd44351629dd155a25de2b4c109c824c/RECO_100_1_Uk0.root")                        )
-                            fileNames = cms.untracked.vstring("/store/express/Run2015E/ExpressPhysics/FEVT/Express-v1/000/261/544/00000//22D08F8A-2E8D-E511-BF87-02163E011965.root")                        
+                            # fileNames = cms.untracked.vstring("/store/express/Run2015E/ExpressPhysics/FEVT/Express-v1/000/261/544/00000//22D08F8A-2E8D-E511-BF87-02163E011965.root")                        
 )
 
 
@@ -62,9 +62,23 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+# set snapshot to future to allow centrality table payload.
+process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
 
-from HeavyIonsAnalysis.Configuration.CommonFunctionsLocalDB_cff import overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db
-process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db(process)
+process.GlobalTag.toGet.extend([
+ cms.PSet(record = cms.string("HeavyIonRcd"),
+ connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
+ ## 5.02 TeV Centrality Tables
+ #tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5_v740x01_mc"),
+ #label = cms.untracked.string("HFtowersHydjetDrum5")
+ ## 2.76 TeV Centrality Tables for data
+ tag = cms.string("CentralityTable_HFtowers200_Glauber2010A_eff99_run1v750x01_offline"),
+ label = cms.untracked.string("HFtowers")
+ ),
+])
+
+from HeavyIonsAnalysis.Configuration.CommonFunctionsLocalDB_cff import overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v6_db
+process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v6_db(process)
 
 #for pp data create centrality object and bin
 process.load("RecoHI.HiCentralityAlgos.pACentrality_cfi")
@@ -78,24 +92,22 @@ process.centralityBin.centralityVariable = cms.string("HFtowers")
 #####################################################################################
 
 process.TFileService = cms.Service("TFileService",
-#                                   fileName=cms.string(options.outputFile))                                   
-fileName=cms.string("HiForest_test_pp_Express.root"))
+                                  fileName=cms.string(options.outputFile))                                   
+# fileName=cms.string("HiForest_test_pp_Express.root"))
 
 #####################################################################################
 # Additional Reconstruction and Analysis: Main Body
 #####################################################################################
 
 
-# process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak3CaloJetSequence_pp_data_bTag_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak4CaloJetSequence_pp_data_bTag_cff')
-# process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak5CaloJetSequence_pp_data_bTag_cff')
 
-# process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak3PFJetSequence_pp_data_bTag_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak4PFJetSequence_pp_data_bTag_cff')
-# process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak5PFJetSequence_pp_data_bTag_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak3CaloJetSequence_pp_data_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak4CaloJetSequence_pp_data_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak5CaloJetSequence_pp_data_cff')
 
-process.ak4CaloJetTracksAssociatorAtVertex.tracks = cms.InputTag("generalTracks")
-process.ak4PFJetTracksAssociatorAtVertex.tracks = cms.InputTag("generalTracks")
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak3PFJetSequence_pp_data_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak4PFJetSequence_pp_data_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak5PFJetSequence_pp_data_cff')
 
 process.jetSequences = cms.Sequence(
 # process.ak3CaloJetSequence +
@@ -110,7 +122,8 @@ process.jetSequences = cms.Sequence(
                                     # process.akPu5PFJetSequence
 
                                     )
-
+                                    
+                                    
 process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_data_cfi')
 process.hiEvtAnalyzer.CentralitySrc = cms.InputTag("pACentrality")
 process.hiEvtAnalyzer.Vertex = cms.InputTag("offlinePrimaryVertices")
@@ -138,7 +151,9 @@ process.hltMuTree.vertices = cms.InputTag("offlinePrimaryVertices")
 # Track Analyzer
 #########################
 # process.ppTrack.qualityStrings = cms.untracked.vstring(['highPurity'])
-# process.ppTrack.trackSrc = cms.InputTag("generalTracks")
+process.ppTrack.trackSrc = cms.InputTag("generalTracks")
+# process.ppTrack.doMVA = cms.untracked.bool(False)
+process.ppTrack.mvaSrc = cms.string("generalTracks")
 # process.ppTrack.doPFMatching = False
 
 
@@ -250,9 +265,26 @@ process.ana_step = cms.Path(
                             process.ppTrack
                             )
 
+
+#####################################################################################
+# PAcollisionEventSelection stuff
+#####################################################################################
+process.load('HeavyIonsAnalysis.Configuration.hfCoincFilter_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.EventSelection_cff')
+process.PAprimaryVertexFilter = cms.EDFilter("VertexSelector",
+    src = cms.InputTag("offlinePrimaryVertices"),
+    cut = cms.string("!isFake && abs(z) <= 25 && position.Rho <= 2 && tracksSize >= 2"),
+    filter = cms.bool(True), # otherwise it won't filter the events
+)
+process.PAcollisionEventSelection = cms.Sequence(process.hfCoincFilter *
+                                         process.PAprimaryVertexFilter 
+                                         )
+
+                                         
+                                         
 process.phltJetHI = cms.Path( process.hltJetHI )
-process.pcollisionEventSelection = cms.Path(process.collisionEventSelectionAOD)
+# process.primaryVertexFilter.src = cms.InputTag("offlinePrimaryVertices")
+process.PAcollisionEventSelection = cms.Path(process.PAcollisionEventSelection)
 process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
 process.pHBHENoiseFilterResultProducer = cms.Path( process.HBHENoiseFilterResultProducer )
 
