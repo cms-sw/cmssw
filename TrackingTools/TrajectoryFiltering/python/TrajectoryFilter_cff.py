@@ -29,7 +29,7 @@ CkfBaseTrajectoryFilter_block = cms.PSet(
     constantValueForLostHitsFractionFilter = cms.double(2.),
 
 # Cut on the length of the seed extention (no lost hits allowed)
-    seedExtention = cms.int32(0),
+    seedExtension = cms.int32(0),
     strictSeedExtension = cms.bool(False),
 
 # Cuts for looperTrajectoryFilter
