@@ -588,7 +588,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
                          process.SiStripSources_TrkReco*
                          process.multFilter*
                          process.SiStripBaselineValidator*
-                         process.TrackingClients
+                         process.TrackingClient
                          )
     
 
