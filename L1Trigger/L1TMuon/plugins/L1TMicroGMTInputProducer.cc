@@ -33,8 +33,10 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
-#include "DataFormats/L1TMuon/interface/GMTInputCaloSum.h"
+#include "DataFormats/L1TMuon/interface/MuonCaloSumFwd.h"
+#include "DataFormats/L1TMuon/interface/MuonCaloSum.h"
 
 #include <iostream>
 //
@@ -92,7 +94,7 @@ L1TMicroGMTInputProducer::L1TMicroGMTInputProducer(const edm::ParameterSet& iCon
   produces<RegionalMuonCandBxCollection>("BarrelTFMuons");
   produces<RegionalMuonCandBxCollection>("OverlapTFMuons");
   produces<RegionalMuonCandBxCollection>("ForwardTFMuons");
-  produces<GMTInputCaloSumBxCollection>("TriggerTowerSums");
+  produces<MuonCaloSumBxCollection>("TriggerTowerSums");
 
   //now do what ever other initialization is needed
   m_fname = iConfig.getParameter<std::string> ("inputFileName");
@@ -162,10 +164,10 @@ L1TMicroGMTInputProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::auto_ptr<RegionalMuonCandBxCollection> barrelMuons (new RegionalMuonCandBxCollection());
   std::auto_ptr<RegionalMuonCandBxCollection> overlapMuons (new RegionalMuonCandBxCollection());
   std::auto_ptr<RegionalMuonCandBxCollection> endcapMuons (new RegionalMuonCandBxCollection());
-  std::auto_ptr<GMTInputCaloSumBxCollection> towerSums (new GMTInputCaloSumBxCollection());
+  std::auto_ptr<MuonCaloSumBxCollection> towerSums (new MuonCaloSumBxCollection());
 
   RegionalMuonCand mu;
-  GMTInputCaloSum tSum;
+  MuonCaloSum tSum;
   m_endOfBx = false;
   int caloCounter = 0;
   std::vector<int> bar{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};

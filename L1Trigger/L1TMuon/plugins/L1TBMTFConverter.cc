@@ -33,6 +33,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 
 #include <iostream>
@@ -75,8 +76,9 @@ class L1TBMTFConverter : public edm::EDProducer {
 //
 // constructors and destructor
 //
-L1TBMTFConverter::L1TBMTFConverter(const edm::ParameterSet& iConfig) : m_barrelTfInputTag("bmtfEmulator", "BM")
+L1TBMTFConverter::L1TBMTFConverter(const edm::ParameterSet& iConfig)
 {
+  m_barrelTfInputTag = iConfig.getParameter<edm::InputTag>("barrelTFInput");
   m_barrelTfInputToken = consumes<RegionalMuonCandBxCollection>(m_barrelTfInputTag);
   //register your products
   produces<RegionalMuonCandBxCollection>("ConvBMTFMuons");
