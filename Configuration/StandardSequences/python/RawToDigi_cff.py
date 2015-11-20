@@ -46,7 +46,7 @@ import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
 muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
 
 from EventFilter.CastorRawToDigi.CastorRawToDigi_cff import *
-castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone( FEDs = cms.untracked.vint32(690,691,692) )
+castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone( FEDs = cms.untracked.vint32(690,691,692, 693,722) )
 
 from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
 
@@ -63,10 +63,10 @@ RawToDigi = cms.Sequence(csctfDigis
                          +ecalDigis
                          +ecalPreshowerDigis
                          +hcalDigis
+                         +castorDigis
                          +muonCSCDigis
                          +muonDTDigis
                          +muonRPCDigis
-                         +castorDigis
                          +scalersRawToDigi
                          +tcdsDigis)
 
@@ -78,10 +78,10 @@ RawToDigi_noTk = cms.Sequence(csctfDigis
                               +ecalDigis
                               +ecalPreshowerDigis
                               +hcalDigis
+                              +castorDigis
                               +muonCSCDigis
                               +muonDTDigis
                               +muonRPCDigis
-                              +castorDigis
                               +scalersRawToDigi
                               +tcdsDigis)
     
