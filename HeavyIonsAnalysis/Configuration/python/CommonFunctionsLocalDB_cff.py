@@ -832,6 +832,89 @@ def overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db(process):
     process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
     return process
 
+
+def overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v6_db(process):
+    process.load("CondCore.DBCommon.CondDBCommon_cfi")
+    #from CondCore.DBCommon.CondDBSetup_cfi import *
+    process.jec = cms.ESSource("PoolDBESSource",
+                               DBParameters = cms.PSet(
+                                   messageLevel = cms.untracked.int32(0)
+                               ),
+                               timetype = cms.string('runnumber'),
+                               toGet = cms.VPSet(
+                                   cms.PSet(
+                                       record = cms.string('JetCorrectionsRecord'),
+                                       tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK1Calo_offline'),
+                                       label  = cms.untracked.string('AK1Calo_offline')
+                                   ),
+                                   cms.PSet(
+                                       record = cms.string('JetCorrectionsRecord'),
+                                       tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK2Calo_offline'),
+                                       label  = cms.untracked.string('AK2Calo_offline')
+                                   ),
+                                   cms.PSet(
+                                       record = cms.string('JetCorrectionsRecord'),
+                                       tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK3Calo_offline'),
+                                       label  = cms.untracked.string('AK3Calo_offline')
+                                   ),
+                                   cms.PSet(
+                                       record = cms.string('JetCorrectionsRecord'),
+                                       tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK4Calo_offline'),
+                                       label  = cms.untracked.string('AK4Calo_offline')
+                                   ),
+                                   cms.PSet(
+                                       record = cms.string('JetCorrectionsRecord'),
+                                       tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK5Calo_offline'),
+                                       label  = cms.untracked.string('AK5Calo_offline')
+                                   ),
+                                   cms.PSet(
+                                       record = cms.string('JetCorrectionsRecord'),
+                                       tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK6Calo_offline'),
+                                       label  = cms.untracked.string('AK6Calo_offline')
+                                   ),
+                                   cms.PSet(
+                                       record = cms.string('JetCorrectionsRecord'),
+                                       tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK1PF_offline'),
+                                       label  = cms.untracked.string('AK1PF_offline')
+                                   ),
+                                   cms.PSet(
+                                       record = cms.string('JetCorrectionsRecord'),
+                                       tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK2PF_offline'),
+                                       label  = cms.untracked.string('AK2PF_offline')
+                                   ),
+                                   cms.PSet(
+                                       record = cms.string('JetCorrectionsRecord'),
+                                       tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK3PF_offline'),
+                                       label  = cms.untracked.string('AK3PF_offline')
+                                   ),
+                                   cms.PSet(
+                                       record = cms.string('JetCorrectionsRecord'),
+                                       tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK4PF_offline'),
+                                       label  = cms.untracked.string('AK4PF_offline')
+                                   ),
+                                   cms.PSet(
+                                       record = cms.string('JetCorrectionsRecord'),
+                                       tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK5PF_offline'),
+                                       label  = cms.untracked.string('AK5PF_offline')
+                                   ),
+                                   cms.PSet(
+                                       record = cms.string('JetCorrectionsRecord'),
+                                       tag    = cms.string('JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK6PF_offline'),
+                                       label  = cms.untracked.string('AK6PF_offline')
+                                   ),
+                                   ## here you add as many jet types as you need
+                                   ## note that the tag name is specific for the particular sqlite file
+                               ),
+                               connect = cms.string('sqlite:HI_PythiaCUETP8M1_5020GeV_753p1_v6.db')
+                               # uncomment above tag lines and this comment to use MC JEC
+                               # connect = cms.string('sqlite:Summer12_V7_MC.db')
+    )
+    ## add an es_prefer statement to resolve a possible conflict from simultaneous connection to a global tag
+    process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
+    return process
+
+
+
 def overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v4_db(process):
     process.load("CondCore.DBCommon.CondDBCommon_cfi")
     #from CondCore.DBCommon.CondDBSetup_cfi import *
