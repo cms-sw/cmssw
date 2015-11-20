@@ -240,6 +240,9 @@ class HcalDetDiagPedestalMonitor : public HcalBaseDQMonitor {
 
       std::map<unsigned int, int> KnownBadCells_;
 
+      // previously: statics in analyze
+      bool PEDseq_;
+      int  lastPEDorbit_,nChecksPED_;
 };
 
 HcalDetDiagPedestalMonitor::HcalDetDiagPedestalMonitor(const edm::ParameterSet& iConfig): HcalBaseDQMonitor(iConfig) {
@@ -282,7 +285,7 @@ HcalDetDiagPedestalMonitor::HcalDetDiagPedestalMonitor(const edm::ParameterSet& 
   // register for data access
   tok_hbhe_ = consumes<HBHEDigiCollection>(inputLabelDigi_);
   tok_ho_ = consumes<HODigiCollection>(inputLabelDigi_);
-   tok_hf_ = consumes<HFDigiCollection>(inputLabelDigi_);
+  tok_hf_ = consumes<HFDigiCollection>(inputLabelDigi_);
   tok_raw_ = consumes<FEDRawDataCollection>(iConfig.getUntrackedParameter<edm::InputTag>("rawDataLabel"));
   tok_tb_ = consumes<HcalTBTriggerData>(iConfig.getParameter<edm::InputTag>("hcalTBTriggerDataTag"));
 
@@ -461,9 +464,7 @@ void HcalDetDiagPedestalMonitor::analyze(const edm::Event& iEvent, const edm::Ev
  if(createHTMLonly) return;
   HcalBaseDQMonitor::analyze(iEvent, iSetup); // increments counters
 int  eta,phi,depth,nTS;
-static bool PEDseq;
-static int  lastPEDorbit,nChecksPED;
-   if(ievt_==-1){ ievt_=0; PEDseq=false; lastPEDorbit=-1;nChecksPED=0; }
+   if(ievt_==-1){ ievt_=0; PEDseq_=false; lastPEDorbit_=-1;nChecksPED_=0; }
    int orbit=iEvent.orbitNumber();
    meRUN_->Fill(iEvent.id().run());
 
@@ -480,12 +481,12 @@ static int  lastPEDorbit,nChecksPED;
   if(LocalRun && !PedestalEvent) return; 
 
   if(!LocalRun && Online_){
-      if(PEDseq && (orbit-lastPEDorbit)>(11223*10) && ievt_>500){
-         PEDseq=false;
+      if(PEDseq_ && (orbit-lastPEDorbit_)>(11223*10) && ievt_>500){
+         PEDseq_=false;
          fillHistos();
          CheckStatus();
-         nChecksPED++;
-         if(nChecksPED==1 || (nChecksPED>1 && ((nChecksPED-1)%12)==0)){
+         nChecksPED_++;
+         if(nChecksPED_==1 || (nChecksPED_>1 && ((nChecksPED_-1)%12)==0)){
              SaveReference();
          }
          for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++)for(int l=0;l<4;l++) hb_data[i][j][k][l].reset();
@@ -508,7 +509,7 @@ static int  lastPEDorbit,nChecksPED;
 	 if ( fedData.size() < 24 ) continue ;
 	 int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ;
 	 if ( calibType < 0 )  calibType = value ;
-         if(value==hc_Pedestal){   PEDseq=true;  lastPEDorbit=orbit; break;} 
+         if(value==hc_Pedestal){   PEDseq_=true;  lastPEDorbit_=orbit; break;} 
        }
    }
    if(!LocalRun && calibType!=hc_Pedestal) return; 
