@@ -10,17 +10,26 @@ from SimGeneral.MixingModule.digitizers_cfi import *
 mix = cms.EDProducer("MixingModule",
     digitizers = cms.PSet(theDigitizers),
     LabelPlayback = cms.string(''),
-    maxBunch = cms.int32(3),
-    minBunch = cms.int32(-5), ## in terms of 25 ns
+    maxBunch = cms.int32(0),
+    minBunch = cms.int32(0), ## in terms of 25 ns
 
-    bunchspace = cms.int32(450),
+    bunchspace = cms.int32(1),
     mixProdStep1 = cms.bool(False),
     mixProdStep2 = cms.bool(False),
 
     playback = cms.untracked.bool(False),
     useCurrentProcessOnly = cms.bool(False),
-    mixObjects = cms.PSet(theMixObjects)
+    mixObjects = cms.PSet(
+        mixHepMC = cms.PSet(
+            input = cms.VInputTag(cms.InputTag("generator")),
+            makeCrossingFrame = cms.untracked.bool(True),
+            type = cms.string('HepMCProduct')
+            )
+        ),
+
 )
 
 mix.mixObjects.mixHepMC.makeCrossingFrame = True
+
+
 
