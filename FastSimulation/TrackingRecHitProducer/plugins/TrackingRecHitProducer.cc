@@ -27,12 +27,12 @@ TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config)
         TrackingRecHitAlgorithm* recHitAlgorithm = TrackingRecHitAlgorithmFactory::get()->tryToCreate(pluginType,pluginName,pluginConfig,consumeCollector);
         if (recHitAlgorithm)
         {
-            std::cout<<"TrackingRecHitProducer: adding plugin '"<<pluginName<<"' as '"<<recHitAlgorithm->getName()<<"'"<<std::endl;
+            std::cout<<"TrackingRecHitProducer: adding plugin type '"<<pluginType<<"' as '"<<pluginName<<"'"<<std::endl;
             _recHitAlgorithms.push_back(recHitAlgorithm);
         }
         else
         {
-            edm::LogWarning("TrackingRecHitAlgorithm plugin not found: ") << "plugin name = "<<pluginName<<"\nconfiguration=\n"<<pluginConfig.dump();
+            edm::LogWarning("TrackingRecHitAlgorithm plugin not found: ") << "plugin type = "<<pluginType<<"\nconfiguration=\n"<<pluginConfig.dump();
         }
     }
 

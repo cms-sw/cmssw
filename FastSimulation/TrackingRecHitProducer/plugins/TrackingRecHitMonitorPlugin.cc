@@ -31,10 +31,10 @@ class TrackingRecHitMonitorPlugin:
         ):
             TrackingRecHitAlgorithm(name,config,consumesCollector)
         {
-            double xmax = config.getParameter<double>( "xmax" );
-            double ymax = config.getParameter<double>( "ymax" );
+            double xmax = config.getParameter<double>( "dxmax" );
+            double ymax = config.getParameter<double>( "dymax" );
 
-            _hist = _fs->make<TH2F>((name+"_xy").c_str(), ";dx/#sigma x;dy/#sigma y", 100,  -xmax, xmax,100,  -ymax, ymax);
+            _hist = _fs->make<TH2F>((name+"_xy").c_str(), ";dx;dy", 50,  -xmax, xmax,50,  -ymax, ymax);
         }
 
         virtual TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const
@@ -46,7 +46,6 @@ class TrackingRecHitMonitorPlugin:
                 
                 const FastSingleTrackerRecHit& recHit = recHitToSimHitIdPair.first;
                 const Local3DPoint& recHitPosition = recHit.localPosition();
-                const LocalError& recHitError = recHit.localPositionError();
                 double simHitXmean = 0;
                 double simHitYmean = 0;
                 for (const TrackingRecHitProduct::SimHitIdPair& simHitIdPair: recHitToSimHitIdPair.second)
@@ -59,7 +58,7 @@ class TrackingRecHitMonitorPlugin:
                 simHitXmean/= recHitToSimHitIdPair.second.size();
                 simHitYmean/= recHitToSimHitIdPair.second.size();
                 
-                _hist->Fill((simHitXmean-recHitPosition.x())/sqrt(recHitError.xx()),(simHitYmean-recHitPosition.y())/sqrt(recHitError.yy()));
+                _hist->Fill((simHitXmean-recHitPosition.x()),(simHitYmean-recHitPosition.y()));
             }
             
             return product;

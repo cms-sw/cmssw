@@ -61,7 +61,7 @@ class TrackingRecGaussianSmearingPlugin:
                 const double boundX = bounds.width()/2.;
                 const double boundY = bounds.length()/2.;
                 
-                
+                std::cout<<"simHitPosition="<<simHitPosition.x()<<" BX="<<boundX<<std::endl;
                 
                 Local3DPoint recHitPosition;
                 do
