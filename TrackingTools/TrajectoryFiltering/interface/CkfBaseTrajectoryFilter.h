@@ -11,7 +11,7 @@
 #include "TrackingTools/TrajectoryFiltering/interface/MinPtTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/LostHitsFractionTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/LooperTrajectoryFilter.h"
-
+#include "TrackingTools/TrajectoryFiltering/interface/SeedExtentionTrajectoryFilter.h"
 
 class CkfBaseTrajectoryFilter : public TrajectoryFilter {
 public:
@@ -25,7 +25,8 @@ public:
     theLostHitsFractionTrajectoryFilter(new LostHitsFractionTrajectoryFilter(pset, iC)),
     theMinHitsTrajectoryFilter(new MinHitsTrajectoryFilter(pset, iC)),
     theMinPtTrajectoryFilter(new MinPtTrajectoryFilter(pset, iC)),
-    theLooperTrajectoryFilter(new LooperTrajectoryFilter(pset, iC))
+    theLooperTrajectoryFilter(new LooperTrajectoryFilter(pset, iC)),
+    theSeedExtentionTrajectoryFilter(new SeedExtentionTrajectoryFilter(pset, iC))
   {}
 
   void setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {
@@ -57,6 +58,7 @@ protected:
     return true;}
 
   template <class T> bool TBC(T& traj) const{
+    if (!theSeedExtentionTrajectoryFilter->toBeContinued(traj)) return false;
     if (!theMaxHitsTrajectoryFilter->toBeContinued(traj)) return false;     
     if (!theMaxLostHitsTrajectoryFilter->toBeContinued(traj)) return false;
     if (!theMaxConsecLostHitsTrajectoryFilter->toBeContinued(traj)) return false;
@@ -76,6 +78,7 @@ protected:
   std::unique_ptr<MinHitsTrajectoryFilter> theMinHitsTrajectoryFilter;
   std::unique_ptr<MinPtTrajectoryFilter> theMinPtTrajectoryFilter;
   std::unique_ptr<LooperTrajectoryFilter> theLooperTrajectoryFilter;
+  std::unique_ptr<SeedExtentionTrajectoryFilter> theSeedExtentionTrajectoryFilter;
 };
 
 #endif
