@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_5_0/HIon/V18 (CMSSW_7_5_5)
+# /dev/CMSSW_7_5_0/HIon/V19 (CMSSW_7_5_5)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_5_0/HIon/V18')
+  tableName = cms.string('/dev/CMSSW_7_5_0/HIon/V19')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -790,7 +790,6 @@ fragment.datasets = cms.PSet(
     'HLT_HIL2DoubleMu0_Cent30_OS_NHitQ_v1',
     'HLT_HIL2Mu20_2HF_v1',
     'HLT_HIL3DoubleMu0_OS_m2p5to4p5_v1',
-    'HLT_HIPhysics_v1',
     'HLT_HIPuAK4CaloBJetCSV80_Eta2p1_v1',
     'HLT_HIPuAK4CaloJet100_Eta5p1_v1',
     'HLT_HIPuAK4CaloJet120_Eta5p1_v1',

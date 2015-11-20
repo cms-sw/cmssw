@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_5_0/HLT/V86 (CMSSW_7_5_5)
+# /dev/CMSSW_7_5_0/HLT/V89 (CMSSW_7_5_5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_5_0/HLT/V86')
+  tableName = cms.string('/dev/CMSSW_7_5_0/HLT/V89')
 )
 
 process.transferSystem = cms.PSet( 
@@ -1031,7 +1031,6 @@ process.datasets = cms.PSet(
     'HLT_HIL2DoubleMu0_Cent30_OS_NHitQ_v1',
     'HLT_HIL2Mu20_2HF_v1',
     'HLT_HIL3DoubleMu0_OS_m2p5to4p5_v1',
-    'HLT_HIPhysics_v1',
     'HLT_HIPuAK4CaloBJetCSV80_Eta2p1_v1',
     'HLT_HIPuAK4CaloJet100_Eta5p1_v1',
     'HLT_HIPuAK4CaloJet120_Eta5p1_v1',
@@ -68725,6 +68724,18 @@ process.hltPreHIPhysicsVirginRawOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
+process.hltPreHIPhysicsMuonsOutput = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+process.hltPreHIPhysicsHardProbesOutput = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+process.hltPreHIPhysicsMinBiasUPCOutput = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
 process.hltPreParkingOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -69572,7 +69583,7 @@ process.hltSelectedElectronFEDListProducerGsf = cms.EDProducer( "SelectedElectro
     dumpSelectedHCALFed = cms.bool( True ),
     dRStripRegion = cms.double( 0.3 )
 )
-process.hltPreHIExpressOutput = cms.EDFilter( "HLTPrescaler",
+process.hltPreExpressOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -69601,6 +69612,10 @@ process.hltPreExpressOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_HT2500_v1' ),
     throw = cms.bool( True ),
     daqPartitions = cms.uint32( 1 )
+)
+process.hltPreHIExpressOutput = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
 )
 process.hltPreHIExpressOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     l1tIgnoreMask = cms.bool( False ),
@@ -72395,7 +72410,6 @@ process.hltOutputHIExpress = cms.OutputModule( "PoolOutputModule",
   'HLT_HIL2DoubleMu0_Cent30_OS_NHitQ_v1',
   'HLT_HIL2Mu20_2HF_v1',
   'HLT_HIL3DoubleMu0_OS_m2p5to4p5_v1',
-  'HLT_HIPhysics_v1',
   'HLT_HIPuAK4CaloBJetCSV80_Eta2p1_v1',
   'HLT_HIPuAK4CaloJet100_Eta5p1_v1',
   'HLT_HIPuAK4CaloJet120_Eta5p1_v1',
@@ -74506,9 +74520,9 @@ process.PhysicsEGammaCommissioningOutput = cms.EndPath( process.hltGtDigis + pro
 process.PhysicsEndOfFillOutput = cms.EndPath( process.hltGtDigis + process.hltPrePhysicsEndOfFillOutput + process.hltOutputPhysicsEndOfFill )
 process.PhysicsHadronsTausOutput = cms.EndPath( process.hltGtDigis + process.hltPrePhysicsHadronsTausOutput + process.hltOutputPhysicsHadronsTaus )
 process.PhysicsMuonsOutput = cms.EndPath( process.hltGtDigis + process.hltPreHIPhysicsVirginRawOutput + process.hltOutputPhysicsMuons )
-process.HIPhysicsMuonsOutput = cms.EndPath( process.hltGtDigis + process.hltPreHIPhysicsVirginRawOutput + process.hltOutputHIPhysicsMuons )
-process.HIPhysicsHardProbesOutput = cms.EndPath( process.hltGtDigis + process.hltPreHIPhysicsVirginRawOutput + process.hltOutputHIPhysicsHardProbes )
-process.HIPhysicsMinBiasUPCOutput = cms.EndPath( process.hltGtDigis + process.hltPreHIPhysicsVirginRawOutput + process.hltOutputHIPhysicsMinBiasUPC )
+process.HIPhysicsMuonsOutput = cms.EndPath( process.hltGtDigis + process.hltPreHIPhysicsMuonsOutput + process.hltOutputHIPhysicsMuons )
+process.HIPhysicsHardProbesOutput = cms.EndPath( process.hltGtDigis + process.hltPreHIPhysicsHardProbesOutput + process.hltOutputHIPhysicsHardProbes )
+process.HIPhysicsMinBiasUPCOutput = cms.EndPath( process.hltGtDigis + process.hltPreHIPhysicsMinBiasUPCOutput + process.hltOutputHIPhysicsMinBiasUPC )
 process.HIPhysicsVirginRawOutput = cms.EndPath( process.hltGtDigis + process.hltPreHIPhysicsVirginRawOutput + process.hltOutputHIPhysicsVirginRaw )
 process.ParkingOutput = cms.EndPath( process.hltGtDigis + process.hltPreParkingOutput + process.hltOutputParking )
 
@@ -74531,7 +74545,7 @@ process.ALCAPHISYMOutput = cms.EndPath( process.hltGtDigis + process.hltPreALCAP
 process.ALCALUMIPIXELSOutput = cms.EndPath( process.hltGtDigis + process.hltPreALCALUMIPIXELSOutput + process.hltOutputALCALUMIPIXELS )
 process.ALCAP0Output = cms.EndPath( process.hltGtDigis + process.hltPreALCAP0Output + process.hltOutputALCAP0 )
 process.ALCAELECTRONOutput = cms.EndPath( process.hltGtDigis + process.hltPreALCAELECTRONOutput + process.hltPreALCAELECTRONOutputSmart + process.hltSelectedElectronFEDListProducerGsf + process.hltOutputALCAELECTRON )
-process.ExpressOutput = cms.EndPath( process.hltGtDigis + process.hltPreHIExpressOutput + process.hltPreExpressOutputSmart + process.hltOutputExpress )
+process.ExpressOutput = cms.EndPath( process.hltGtDigis + process.hltPreExpressOutput + process.hltPreExpressOutputSmart + process.hltOutputExpress )
 process.HIExpressOutput = cms.EndPath( process.hltGtDigis + process.hltPreHIExpressOutput + process.hltPreHIExpressOutputSmart + process.hltOutputHIExpress )
 process.LookAreaOutput = cms.EndPath( process.hltGtDigis + process.hltPreLookAreaOutput + process.hltPreLookAreaOutputSmart + process.hltOutputLookArea )
 process.NanoDSTOutput = cms.EndPath( process.hltGtDigis + process.hltPreNanoDSTOutput + process.hltOutputNanoDST )

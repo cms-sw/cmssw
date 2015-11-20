@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_5_0/HIon/V18 (CMSSW_7_5_5)
+# /dev/CMSSW_7_5_0/HIon/V19 (CMSSW_7_5_5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_5_0/HIon/V18')
+  tableName = cms.string('/dev/CMSSW_7_5_0/HIon/V19')
 )
 
 process.transferSystem = cms.PSet( 
@@ -790,7 +790,6 @@ process.datasets = cms.PSet(
     'HLT_HIL2DoubleMu0_Cent30_OS_NHitQ_v1',
     'HLT_HIL2Mu20_2HF_v1',
     'HLT_HIL3DoubleMu0_OS_m2p5to4p5_v1',
-    'HLT_HIPhysics_v1',
     'HLT_HIPuAK4CaloBJetCSV80_Eta2p1_v1',
     'HLT_HIPuAK4CaloJet100_Eta5p1_v1',
     'HLT_HIPuAK4CaloJet120_Eta5p1_v1',
@@ -11575,6 +11574,18 @@ process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     reportBy = cms.untracked.string( "job" ),
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
+process.hltPreHIPhysicsMuonsOutput = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+process.hltPreHIPhysicsHardProbesOutput = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+process.hltPreHIPhysicsMinBiasUPCOutput = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
 process.hltPreHIPhysicsVirginRawOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -12491,7 +12502,6 @@ process.hltOutputHIExpress = cms.OutputModule( "PoolOutputModule",
   'HLT_HIL2DoubleMu0_Cent30_OS_NHitQ_v1',
   'HLT_HIL2Mu20_2HF_v1',
   'HLT_HIL3DoubleMu0_OS_m2p5to4p5_v1',
-  'HLT_HIPhysics_v1',
   'HLT_HIPuAK4CaloBJetCSV80_Eta2p1_v1',
   'HLT_HIPuAK4CaloJet100_Eta5p1_v1',
   'HLT_HIPuAK4CaloJet120_Eta5p1_v1',
@@ -12792,9 +12802,9 @@ process.AlCa_LumiPixels_Random_v1 = cms.Path( process.HLTBeginSequenceRandom + p
 process.AlCa_LumiPixels_ZeroBias_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ZeroBias + process.hltPreAlCaLumiPixelsZeroBias + process.hltFEDSelectorLumiPixels + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltGtDigis + process.hltPreAnalyzerEndpath + process.hltL1GtTrigReport + process.hltTrigReport )
-process.HIPhysicsMuonsOutput = cms.EndPath( process.hltGtDigis + process.hltPreHIPhysicsVirginRawOutput + process.hltOutputHIPhysicsMuons )
-process.HIPhysicsHardProbesOutput = cms.EndPath( process.hltGtDigis + process.hltPreHIPhysicsVirginRawOutput + process.hltOutputHIPhysicsHardProbes )
-process.HIPhysicsMinBiasUPCOutput = cms.EndPath( process.hltGtDigis + process.hltPreHIPhysicsVirginRawOutput + process.hltOutputHIPhysicsMinBiasUPC )
+process.HIPhysicsMuonsOutput = cms.EndPath( process.hltGtDigis + process.hltPreHIPhysicsMuonsOutput + process.hltOutputHIPhysicsMuons )
+process.HIPhysicsHardProbesOutput = cms.EndPath( process.hltGtDigis + process.hltPreHIPhysicsHardProbesOutput + process.hltOutputHIPhysicsHardProbes )
+process.HIPhysicsMinBiasUPCOutput = cms.EndPath( process.hltGtDigis + process.hltPreHIPhysicsMinBiasUPCOutput + process.hltOutputHIPhysicsMinBiasUPC )
 process.HIPhysicsVirginRawOutput = cms.EndPath( process.hltGtDigis + process.hltPreHIPhysicsVirginRawOutput + process.hltOutputHIPhysicsVirginRaw )
 
 # load the DQMStore and DQMRootOutputModule
