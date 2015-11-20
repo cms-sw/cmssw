@@ -11,4 +11,10 @@ def changeHeavyIonsToUseECALGlobalFit(process) :
         process.ecalRecHit.EBuncalibRecHitCollection = cms.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEB")
         process.caloReco.replace(process.ecalUncalibRecHitSequence, process.ecalUncalibRecHitSequenceHI)
 
+    if hasattr (process, "ecalMonitorTask") :
+        process.ecalMonitorTask.collectionTags.EBUncalibRecHit = cms.untracked.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEB")
+        process.ecalMonitorTask.collectionTags.EEUncalibRecHit = cms.untracked.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEE")
+        process.ecalMonitorTask.collectionTags.EBLaserLedUncalibRecHit = cms.untracked.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEB")
+        process.ecalMonitorTask.collectionTags.EELaserLedUncalibRecHit = cms.untracked.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEE")
+
     return process
