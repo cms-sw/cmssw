@@ -18,6 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigData.h"
 
 #include "TNtuple.h"
 
@@ -64,8 +65,14 @@ private:
   vector<string> moduleLabels_;
 
   edm::Service<TFileService> fs;
-  vector<TNtuple*> nt_;
+  vector<TTree*> nt_;
   int verbose_;
+
+  vector<double> id[500];
+  vector<double> pt[500];
+  vector<double> eta[500];
+  vector<double> phi[500];
+  vector<double> mass[500];
 };
 
 //
@@ -87,7 +94,10 @@ TriggerObjectAnalyzer::TriggerObjectAnalyzer(const edm::ParameterSet& ps):
 {
   //now do what ever initialization is needed
   nt_.reserve(triggerNames_.size());
-  nt_[0] = fs->make<TNtuple>("jetObjTree","HLT_HIJet*_Triggers","id:pt:eta:phi:mass");
+  for(unsigned int isize=0; isize<triggerNames_.size(); isize++){
+  nt_[isize] = fs->make<TTree>(triggerNames_.at(isize).c_str(),Form("trigger %d",isize));
+  }
+
   verbose_ = 0;
 }
 
@@ -111,7 +121,7 @@ TriggerObjectAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 {
   if(hltConfig_.size() > 0){
 
-    float id = -99,pt=-99,eta=-99,phi=-99,mass=-99;
+    //float id = -99,pt=-99,eta=-99,phi=-99,mass=-99;
 
     using namespace edm;
     iEvent.getByLabel(triggerEventTag_,triggerEventHandle_);
@@ -119,7 +129,8 @@ TriggerObjectAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     for(unsigned int itrig=0; itrig<triggerNames_.size(); itrig++){
 
-      triggerIndex_ = hltConfig_.triggerIndex(triggerNames_[itrig]);
+      
+    triggerIndex_ = hltConfig_.triggerIndex(triggerNames_[itrig]);
 
       const unsigned int mIndex = triggerResultsHandle_->index(triggerIndex_);
 
@@ -128,7 +139,7 @@ TriggerObjectAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       for (unsigned int j=0; j<=mIndex; ++j) {
 	// check whether the module is packed up in TriggerEvent product
 	string trigFilterIndex = hltConfig_.moduleLabels(triggerIndex_).at(j); //this is simple to put into a loop to get all triggers...
-	const unsigned int filterIndex(triggerEventHandle_->filterIndex(InputTag(trigFilterIndex,"",processName_)));
+        const unsigned int filterIndex(triggerEventHandle_->filterIndex(InputTag(trigFilterIndex,"",processName_)));
 	if (filterIndex<triggerEventHandle_->sizeFilters()) {
 	  const trigger::Vids& VIDS (triggerEventHandle_->filterIds(filterIndex));
 	  const trigger::Keys& KEYS(triggerEventHandle_->filterKeys(filterIndex));
@@ -141,22 +152,28 @@ TriggerObjectAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  for (unsigned int i=0; i!=n; ++i) {
 	    const trigger::TriggerObject& TO(TOC[KEYS[i]]);
 	    //This check prevents grabbing the L1 trigger object (VIDS < 0), and finds the max trigger pt within all trigger collections
-	    if(VIDS[i]>0 && pt<TO.pt()){
-	      //cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "
-	      //              << TO.id() << " " << TO.pt() << " " << TO.et() << " " << TO.eta() << " " << TO.phi() << " " << TO.mass()
-	      //                        << endl;
-	      id = TO.id();
-	      pt = TO.pt();
-	      eta = TO.eta();
-	      phi = TO.phi();
-	      mass = TO.mass();
+	    if(VIDS[i]>0){ // && pt<TO.pt()){
+	     // cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "
+	     //               << TO.id() << " " << TO.pt() << " " << TO.et() << " " << TO.eta() << " " << TO.phi() << " " << TO.mass()
+	     //                         << endl;
+	      id[itrig].push_back(TO.id());
+	      pt[itrig].push_back(TO.pt());
+	      eta[itrig].push_back(TO.eta());
+	      phi[itrig].push_back(TO.phi());
+	      mass[itrig].push_back(TO.mass());
 	    }
 	  }
 	}
       }
+      nt_[itrig]->Fill();
+      id[itrig].clear();
+      pt[itrig].clear();
+      eta[itrig].clear();
+      phi[itrig].clear();
+      mass[itrig].clear();
     }
 
-    nt_[0]->Fill(id,pt,eta,phi,mass);
+    //nt_[0]->Fill(id,pt,eta,phi,mass);
   }
 }
 
@@ -210,6 +227,13 @@ TriggerObjectAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
 	 << processName_ << endl;
   }
 
+  for(unsigned int itrig=0; itrig<triggerNames_.size(); itrig++){
+    nt_[itrig]->Branch("TriggerObjID",&(id[itrig]));
+    nt_[itrig]->Branch("pt",&(pt[itrig]));
+    nt_[itrig]->Branch("eta",&(eta[itrig]));
+    nt_[itrig]->Branch("phi",&(phi[itrig]));
+    nt_[itrig]->Branch("mass",&(mass[itrig]));
+  }
 }
 
 // ------------ method called when ending the processing of a run  ------------
