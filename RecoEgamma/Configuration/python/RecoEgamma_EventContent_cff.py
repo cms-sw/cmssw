@@ -42,7 +42,10 @@ RecoEgammaFEVT = cms.PSet(
         'keep *_hfRecoEcalCandidate_*_*',
         'keep *_hfEMClusters_*_*',
         'keep *_gedGsfElectronCores_*_*',
-        'keep *_gedGsfElectrons_*_*'
+        'keep *_gedGsfElectrons_*_*',
+        #temporarily here for pp running with HI stuff
+        'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerppGED_*_*',
+        'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerpp_*_*'
   )                                                                 
 )
 
@@ -97,7 +100,10 @@ RecoEgammaRECO = cms.PSet(
         'keep *_hfRecoEcalCandidate_*_*',
         'keep *_hfEMClusters_*_*',
         'keep *_gedGsfElectronCores_*_*',
-        'keep *_gedGsfElectrons_*_*'
+        'keep *_gedGsfElectrons_*_*',
+        #temporarily here for pp running with HI stuff
+        'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerppGED_*_*',
+        'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerpp_*_*'
   )                                                                 
 )
 
@@ -141,7 +147,10 @@ RecoEgammaAOD = cms.PSet(
         'keep *_hfRecoEcalCandidate_*_*',
         'keep *_hfEMClusters_*_*',
         'keep *_gedGsfElectronCores_*_*',
-        'keep *_gedGsfElectrons_*_*'
+        'keep *_gedGsfElectrons_*_*',
+        #temporarily here for pp running with HI stuff
+        'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerppGED_*_*',
+        'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerpp_*_*'
   )                                                                 
 )
 
