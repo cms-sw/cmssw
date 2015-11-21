@@ -29,7 +29,7 @@ if version == '':
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-                                "file:root://xrootd.unl.edu//store/user/dgulhan/PYTHIA_QCD_TuneCUETP8M1_cfi_GEN_SIM_5020GeV/PYTHIA_QCD_120_TuneCUETP8M1_cfi_RECODEBUG_5020GeV_NominalHICollisions2015_20151010/151014_210753/0000/step3_1.root"
+                                "file:step3_1.root"
                             ))
 
 # Number of events we want to process, -1 = all events
@@ -217,11 +217,16 @@ process.ppTrack.mvaSrc = cms.string("generalTracks")
 
 process.ppTrack.doSimVertex = True
 process.ppTrack.doSimTrack = True
+process.ppTrack.pfCandSrc = cms.InputTag("particleFlow")
+process.ppTrack.doPFMatching = cms.untracked.bool(True)
 
 process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cff")
 process.tpRecoAssocGeneralTracks = process.trackingParticleRecoTrackAsssociation.clone()
 process.tpRecoAssocGeneralTracks.label_tr = cms.InputTag("generalTracks")
 process.quickTrackAssociatorByHits.ComponentName = cms.string('quickTrackAssociatorByHits')
+process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
+process.quickTrackAssociatorByHits.Cut_RecoToSim = cms.double(0.75)
+process.quickTrackAssociatorByHits.Quality_SimToReco = cms.double(0.5)
 
 
 #####################
@@ -258,13 +263,13 @@ process.ana_step = cms.Path(process.hltanalysis *
                             process.PFTowers +
                             process.hiReRecoPFJets+
                             process.hiReRecoCaloJets+
-			    process.akHiGenJets  +
+			                process.akHiGenJets  +
                             process.jetSequences +
                             process.ggHiNtuplizer +
                             process.ggHiNtuplizerGED +
                             # process.pfcandAnalyzer +
-   						              process.quickTrackAssociatorByHits +
-			    process.tpRecoAssocGeneralTracks +
+   						    process.quickTrackAssociatorByHits +
+			                process.tpRecoAssocGeneralTracks +
                             process.HiForest +
                             process.ppTrack +
                             process.runAnalyzer
