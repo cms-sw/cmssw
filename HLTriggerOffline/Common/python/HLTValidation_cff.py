@@ -13,7 +13,6 @@ from HLTriggerOffline.B2G.b2gHLTValidation_cff import *
 from HLTriggerOffline.Exotica.ExoticaValidation_cff import *
 from HLTriggerOffline.SMP.SMPValidation_cff import *
 from HLTriggerOffline.Btag.HltBtagValidation_cff import *
-from HLTriggerOffline.Btag.HltBtagValidationFastSim_cff import  *
 
 # offline dqm:
 # from DQMOffline.Trigger.DQMOffline_Trigger_cff.py import *
@@ -28,7 +27,6 @@ from DQMOffline.Trigger.HLTMonTau_cfi import *
 # to evacuate producers/filters from the EndPath
 hltassociation = cms.Sequence( egammaSelectors
                                +ExoticaValidationProdSeq )
-
 
 hltvalidation = cms.Sequence(
     hltMultiTrackValidation
@@ -54,42 +52,20 @@ from Configuration.StandardSequences.Eras import eras
 if eras.phase1Pixel.isChosen():
     hltvalidation.remove(HiggsValidationSequence)
 
-# additional producer sequence prior to hltvalidation_fastsim
-# to evacuate producers from the EndPath
-hltassociation_fastsim = cms.Sequence(
-    egammaSelectors
-    + hltTauRef
-)
-
-hltvalidation_fastsim = cms.Sequence(
-     HLTMuonVal
-    +HLTTauValFS
-    +egammaValidationSequenceFS
-    +topHLTriggerOfflineDQM
-    +topHLTriggerValidation
-    +heavyFlavorValidationSequence
-    +HLTJetMETValSeq
-    #+HLTAlCaVal_FastSim
-    +HLTSusyExoValSeq_FastSim
-    +HiggsValidationSequence
-    +b2gHLTriggerValidation
-    +SMPValidationSequence
-    +hltbtagValidationSequenceFastSim
-    )
+# some hlt collections have no direct fastsim equivalent
+# remove the dependent modules for now
+# probably it would be rather easy to add or fake these collections
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    hltvalidation.remove(hltMultiTrackValidation)
+    hltvalidation.remove(hltMultiPVValidation)
 
 hltvalidation_preprod = cms.Sequence(
   HLTTauVal
   +heavyFlavorValidationSequence
   +HLTSusyExoValSeq
  #+HiggsValidationSequence
- )
-
-hltvalidation_preprod_fastsim = cms.Sequence(
- HLTTauVal
- +heavyFlavorValidationSequence
- +HLTSusyExoValSeq_FastSim
-#+HiggsValidationSequence
-)
+  )
 
 hltvalidation_prod = cms.Sequence(
   )
@@ -103,3 +79,5 @@ hltvalidation_withDQM = cms.Sequence(
     hltvalidation
     +trigdqm_forValidation
     )
+
+    
