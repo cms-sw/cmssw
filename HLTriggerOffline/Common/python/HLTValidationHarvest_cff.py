@@ -36,21 +36,14 @@ hltpostvalidation = cms.Sequence(
     +HltBTagPostVal
     )
 
-hltpostvalidation_fastsim = cms.Sequence( 
-     HLTMuonPostVal_FastSim
-    +HLTTauPostVal
-    +EgammaPostVal
-    +topHLTriggerValidationHarvest
-    +heavyFlavorValidationHarvestingSequence
-    +JetMETPostVal
-    #+HLTAlCaPostVal
-    +SusyExoPostVal_fastsim
-    +HLTHiggsPostVal
-    +b2gHLTriggerValidationHarvest
-    +HLTSMPPostVal
-    +HltBTagPostVal    
-    )
-
+# fastsim customs
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    hltpostvalidation.remove(postProcessorHLTtrackingSequence)
+    hltpostvalidation.remove(postProcessorHLTvertexing)
+    # remove this:     +hltvalidationqt ?
+    # remove this:    +hltExoticaPostProcessors ?
+    
 hltpostvalidation_preprod = cms.Sequence( 
     postProcessorHLTtrackingSequence
     +postProcessorHLTvertexing
