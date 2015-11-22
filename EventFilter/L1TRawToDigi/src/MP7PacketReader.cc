@@ -6,7 +6,7 @@
 using std::cout;
 using std::endl;
 
-MP7PacketReader::MP7PacketReader(const std::string& path, uint32_t striphdr, uint32_t stripftr) : reader_( path ), header_(striphdr), footer_(stripftr) {    
+MP7PacketReader::MP7PacketReader(const std::string& path, uint32_t striphdr, uint32_t stripftr, uint32_t ikey) : reader_( path ), header_(striphdr), footer_(stripftr), ikey_(ikey) {    
     if ( !reader_.valid() ) return;
     load();
 }
@@ -37,7 +37,7 @@ MP7PacketReader::load() {
         std::set< std::vector<PacketRange > > rangeSet;
         
         for( size_t k(0); k<raw.size(); ++k) {
-            std::vector<PacketRange > ranges = findPackets(raw.link(0)); 
+            std::vector<PacketRange > ranges = findPackets(raw.link(ikey_)); 
             rangeSet.insert(ranges);
         }
         //cout << "Number of different patterns: " << rangeSet.size() << endl;
