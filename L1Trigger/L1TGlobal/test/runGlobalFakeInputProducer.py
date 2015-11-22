@@ -71,26 +71,16 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-	"root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/06801062-95EA-E411-BAA4-002618943832.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/069BD085-9BEA-E411-B063-002618943985.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/0EABD22E-97EA-E411-9187-0025905A6068.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/10E5C59E-9DEA-E411-B378-00261894385D.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/14C238D9-96EA-E411-B343-00261894387E.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/2634383A-94EA-E411-B274-002590596486.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/36F53C7D-99EA-E411-995F-0026189437EB.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/3EC53EC3-A1EA-E411-A30F-002618943826.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/42B2E0FF-95EA-E411-9743-0025905B860C.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/444664B9-95EA-E411-844B-00261894391B.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/48D2AF08-98EA-E411-B556-002618943869.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/4A5FFFC2-95EA-E411-B62F-0025905B858C.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/5419CE7B-9AEA-E411-AE7C-002618943923.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/583FA9B9-98EA-E411-B867-0025905A7786.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/60CD47B5-95EA-E411-9469-00261894382D.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/647E2B80-A0EA-E411-80CB-002618943950.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/78A02D9A-94EA-E411-8625-0025905A6082.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/88637A5A-A0EA-E411-916B-0025905A6094.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/8E93F5C6-A0EA-E411-A4ED-0025905A6126.root",
-        "root://cmsxrootd-site.fnal.gov//store/relval/CMSSW_7_5_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU50ns_MCRUN2_74_V6-v1/00000/908AF505-96EA-E411-9C1D-003048FFD756.root",
+        "/store/user/puigh/L1Upgrade/GEN-SIM-DIGI-RAW-HLTDEBUG/CMSSW_7_6_0/4C462F65-9F7F-E511-972A-0026189438A9.root",
+        #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/4C462F65-9F7F-E511-972A-0026189438A9.root",
+        "root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/703E7EAB-9D7F-E511-B886-003048FFCBFC.root",
+        "root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/8AF07AAB-9D7F-E511-B8B4-003048FFCBFC.root",
+        "root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/962BEF7C-9D7F-E511-A2BB-0025905B85AA.root",
+        "root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/C409A519-9E7F-E511-BD4C-0025905B8590.root",
+        "root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/E8D41D6A-9F7F-E511-A10A-003048FFD740.root",
+        "root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/EE048767-9E7F-E511-B1AA-0025905B8606.root",
+        "root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/4431031E-9E7F-E511-9F42-0025905938A4.root",
+        #"root://cmsxrootd.fnal.gov//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/4431031E-9E7F-E511-9F42-0025905938A4.root",
 	),
     skipEvents = cms.untracked.uint32(skip)
     )
@@ -189,27 +179,18 @@ process.load('L1Trigger.L1TGlobal.StableParametersConfig_cff')
 process.load('L1Trigger.L1TGlobal.TriggerMenuXml_cfi')
 process.TriggerMenuXml.TriggerMenuLuminosity = 'startup'
 #process.TriggerMenuXml.DefXmlFile = 'L1_Example_Menu_2013.xml'
-process.TriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014.xml'
+#process.TriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014.xml'
+#process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v2.xml'
+process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v3.xml'
 
 process.load('L1Trigger.L1TGlobal.TriggerMenuConfig_cff')
 process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','TriggerMenuXml')
 
+## Run the Stage 2 uGT emulator
+process.load('L1Trigger.L1TGlobal.simGlobalStage2Digis_cff')
+process.simGlobalStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
+process.simGlobalStage2Digis.PrescaleSet = cms.uint32(1)
 
-process.simL1uGtDigis = cms.EDProducer("l1t::GtProducer",
-    #TechnicalTriggersUnprescaled = cms.bool(False),
-    ProduceL1GtObjectMapRecord = cms.bool(True),
-    AlgorithmTriggersUnmasked = cms.bool(False),
-    EmulateBxInEvent = cms.int32(1),
-    L1DataBxInEvent = cms.int32(5),
-    AlgorithmTriggersUnprescaled = cms.bool(False),
-    ProduceL1GtDaqRecord = cms.bool(True),
-    GmtInputTag = cms.InputTag("gtInput"),
-    caloInputTag = cms.InputTag("gtInput"),
-    AlternativeNrBxBoardDaq = cms.uint32(0),
-    #WritePsbL1GtDaqRecord = cms.bool(True),
-    BstLengthBytes = cms.int32(-1),
-    Verbosity = cms.untracked.int32(0)
-)
 
 process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
                 egInputTag    = cms.InputTag("gtInput"),
@@ -217,23 +198,26 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		tauInputTag   = cms.InputTag("gtInput"),
 		jetInputTag   = cms.InputTag("gtInput"),
 		etsumInputTag = cms.InputTag("gtInput"),
-		uGtRecInputTag = cms.InputTag("simL1uGtDigis"),
-		uGtAlgInputTag = cms.InputTag("simL1uGtDigis"),
-		uGtExtInputTag = cms.InputTag("simL1uGtDigis"),
+		uGtRecInputTag = cms.InputTag("simGlobalStage2Digis"),
+		uGtAlgInputTag = cms.InputTag("simGlobalStage2Digis"),
+		uGtExtInputTag = cms.InputTag("simGlobalStage2Digis"),
 		bxOffset       = cms.int32(skip),
 		minBx          = cms.int32(-2),
 		maxBx          = cms.int32(2),
 		minBxVec       = cms.int32(0),
 		maxBxVec       = cms.int32(0),		
 		dumpGTRecord   = cms.bool(False),
+                dumpTrigResults= cms.bool(True),
 		dumpVectors    = cms.bool(True),
-		tvFileName     = cms.string( ("TestVector_%03d.txt") % job )
+		tvFileName     = cms.string( ("TestVector_%03d.txt") % job ),
+                psFileName     = cms.string( "prescale_L1TGlobal.csv" ),
+                psColumn       = cms.int32(1)
 		 )
 
 
 
 process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi")
-process.l1GtTrigReport.L1GtRecordInputTag = "simL1uGtDigis"
+process.l1GtTrigReport.L1GtRecordInputTag = "simGlobalStage2Digis"
 process.l1GtTrigReport.PrintVerbosity = 2
 process.report = cms.Path(process.l1GtTrigReport)
 
@@ -247,7 +231,7 @@ else:
 process.p1 = cms.Path(
     process.gtInput
 #    *process.dumpGT
-    *process.simL1uGtDigis
+    *process.simGlobalStage2Digis
     *process.dumpGTRecord
 #    * process.debug
 #    *process.dumpED
@@ -264,6 +248,10 @@ if rootout:
 
 # Spit out filter efficiency at the end.
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
+
+# Options for multithreading
+#process.options.numberOfThreads = cms.untracked.uint32( 2 )
+#process.options.numberOfStreams = cms.untracked.uint32( 0 )
 
 if dump:
     outfile = open('dump_runGlobalFakeInputProducer_'+repr(job)+'.py','w')
