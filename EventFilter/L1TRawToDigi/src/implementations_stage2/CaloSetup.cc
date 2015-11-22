@@ -16,7 +16,9 @@ namespace l1t {
                return std::unique_ptr<PackerTokens>(new CaloTokens(cfg, cc));
             };
 
-            virtual void fillDescription(edm::ParameterSetDescription& desc) override {};
+            virtual void fillDescription(edm::ParameterSetDescription& desc) override {
+	      desc.addOptional<edm::InputTag>("TowerInputLabel")->setComment("for stage 2");
+};
 
             virtual PackerMap getPackers(int fed, unsigned int fw) override {
                PackerMap res;
@@ -24,7 +26,7 @@ namespace l1t {
                if (fed == 1366) {
                   // Use board id 1 for packing
                   res[{1, 1}] = {
-                     PackerFactory::get()->make("stage2::CaloTowerPacker"),
+		    //                     PackerFactory::get()->make("stage2::CaloTowerPacker"),
                      PackerFactory::get()->make("stage2::EGammaPacker"),
                      PackerFactory::get()->make("stage2::EtSumPacker"),
                      PackerFactory::get()->make("stage2::JetPacker"),

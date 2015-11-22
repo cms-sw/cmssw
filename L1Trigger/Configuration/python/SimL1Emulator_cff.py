@@ -132,8 +132,6 @@ simGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
 #
 # Make some changes if using the Stage 1 trigger
 #
-eras.stage1L1Trigger.toModify( simGtDigis, GctInputTag = 'simCaloStage1LegacyFormatDigis' )
-eras.stage1L1Trigger.toModify( simGtDigis, TechnicalTriggersInputTags = cms.VInputTag() )
 
 ### L1 Trigger sequences
 
@@ -161,15 +159,42 @@ SimL1Emulator = cms.Sequence(
     simGmtDigis + 
     SimL1TechnicalTriggers + 
     simGtDigis )
-##
-## Make changes for Run 2
-##
-if eras.stage1L1Trigger.isChosen() :
-    from L1Trigger.L1TCalorimeter.L1TCaloStage1_cff import L1TCaloStage1
-    SimL1Emulator.replace( simGctDigis, L1TCaloStage1 )
 
-# fastsim doesn't have the technical triggers
-if eras.fastSim.isChosen():
-    for _entry in [SimL1TechnicalTriggers]:
-        SimL1Emulator.remove(_entry)
+### Stage 1 modifications
+from L1Trigger.L1TCalorimeter.simRctUpgradeFormatDigis_cfi import *
+from L1Trigger.L1TCalorimeter.simCaloStage1Digis_cfi import *
+from L1Trigger.L1TCalorimeter.simCaloStage1FinalDigis_cfi import *
+from L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi import *
+
+# we no longer load emulator parameters from L1Trigger/L1TCalorimeter/python/L1TCaloStage1_cff.py because this is fundamentally wrong
+
+def _modifySimL1EmulatorForStage1Trigger( SimL1Emulator_object ) :
+    print "Modifying SimL1Emulator for stage 1"
+    L1TStage1EmulatorSeq = cms.Sequence( simRctUpgradeFormatDigis
+                                     +simCaloStage1Digis
+                                     +simCaloStage1FinalDigis
+                                     +simCaloStage1LegacyFormatDigis )
+    SimL1Emulator_object.replace( simGctDigis, L1TStage1EmulatorSeq )
+
+eras.stage1L1Trigger.toModify( SimL1Emulator, func=_modifySimL1EmulatorForStage1Trigger )
+eras.stage1L1Trigger.toModify( simGtDigis, GctInputTag = 'simCaloStage1LegacyFormatDigis' )
+eras.stage1L1Trigger.toModify( simGtDigis, TechnicalTriggersInputTags = cms.VInputTag() )
+
+
+
+### Stage 2 modifications
+
+from L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis
+from L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi import simCaloStage2Digis
+
+def _modifySimL1EmulatorForStage2Trigger( SimL1Emulator_object ) :
+    print "Modifying SimL1Emulator for stage 2"
+    SimL1Emulator_object.replace( simRctDigis, simCaloStage2Layer1Digis )
+    SimL1Emulator_object.replace( simGctDigis, simCaloStage2Digis )
+
+eras.stage2L1Trigger.toModify( SimL1Emulator, func=_modifySimL1EmulatorForStage2Trigger )
+
+
+
+
 

@@ -9,10 +9,6 @@ import FWCore.ParameterSet.Config as cms
 # V.M. Ghete 2009-07-11
 
  
-# L1Extra
-from L1Trigger.L1ExtraFromDigis.l1extraParticles_cfi import *
-l1extraParticles.centralBxOnly = False
-
 # L1 GT lite record
 from EventFilter.L1GlobalTriggerRawToDigi.l1GtRecord_cfi import *
 
@@ -34,7 +30,7 @@ l1L1GtObjectMap = convertObjectMapRecord.clone()
 
 # sequences
 
-L1Reco_L1Extra = cms.Sequence(l1extraParticles)
-L1Reco_L1Extra_L1GtRecord = cms.Sequence(l1extraParticles+l1GtRecord)
+L1Reco_L1Extra = cms.Sequence()
+L1Reco_L1Extra_L1GtRecord = cms.Sequence(l1GtRecord)
 #
-L1Reco = cms.Sequence(l1extraParticles+l1GtTriggerMenuLite+conditionsInEdm+l1L1GtObjectMap)
+L1Reco = cms.Sequence(l1GtTriggerMenuLite+conditionsInEdm+l1L1GtObjectMap)
