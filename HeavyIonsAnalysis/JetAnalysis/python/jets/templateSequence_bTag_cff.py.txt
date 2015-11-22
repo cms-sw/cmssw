@@ -16,7 +16,7 @@ ALGO_SUB_RADIUS_OBJECT_parton = patJetPartonMatch.clone(src = cms.InputTag("ALGO
 
 ALGO_SUB_RADIUS_OBJECT_corr = patJetCorrFactors.clone(
     useNPV = False,
-#    primaryVertices = cms.InputTag("hiSelectedVertex"),
+#    primaryVertices = cms.InputTag("VERTEX"),
     levels   = cms.vstring(JETCORRECTIONLEVELS),
     src = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_Jets"),
     payload = "CORRNAME_"
@@ -47,6 +47,7 @@ ALGO_SUB_RADIUS_OBJECT_TrackCountingHighPurBJetTags = ALGO_SUB_RADIUS_OBJECT_bTa
 ALGO_SUB_RADIUS_OBJECT_PatJetPartonAssociationLegacy = ALGO_SUB_RADIUS_OBJECT_bTagger.PatJetPartonAssociationLegacy
 
 ALGO_SUB_RADIUS_OBJECT_ImpactParameterTagInfos = ALGO_SUB_RADIUS_OBJECT_bTagger.ImpactParameterTagInfos
+ALGO_SUB_RADIUS_OBJECT_ImpactParameterTagInfos.primaryVertex = cms.InputTag("VERTEX")
 ALGO_SUB_RADIUS_OBJECT_JetProbabilityBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.JetProbabilityBJetTags
 ALGO_SUB_RADIUS_OBJECT_PositiveOnlyJetProbabilityBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.PositiveOnlyJetProbabilityBJetTags
 ALGO_SUB_RADIUS_OBJECT_NegativeOnlyJetProbabilityBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.NegativeOnlyJetProbabilityBJetTags
@@ -68,6 +69,7 @@ ALGO_SUB_RADIUS_OBJECT_NegativeCombinedSecondaryVertexBJetTags = ALGO_SUB_RADIUS
 ALGO_SUB_RADIUS_OBJECT_PositiveCombinedSecondaryVertexBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.PositiveCombinedSecondaryVertexBJetTags
 
 ALGO_SUB_RADIUS_OBJECT_SoftPFMuonsTagInfos = ALGO_SUB_RADIUS_OBJECT_bTagger.SoftPFMuonsTagInfos
+ALGO_SUB_RADIUS_OBJECT_SoftPFMuonsTagInfos.primaryVertex = cms.InputTag("VERTEX")
 ALGO_SUB_RADIUS_OBJECT_SoftPFMuonBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.SoftPFMuonBJetTags
 ALGO_SUB_RADIUS_OBJECT_SoftPFMuonByIP3dBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.SoftPFMuonByIP3dBJetTags
 ALGO_SUB_RADIUS_OBJECT_SoftPFMuonByPtBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.SoftPFMuonByPtBJetTags

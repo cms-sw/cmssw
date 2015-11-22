@@ -243,17 +243,3 @@ akPu6CaloJets
 +
 akPu7CaloJets
 +
-akVs1CaloJets
-+
-akVs2CaloJets
-+
-akVs3CaloJets
-+
-akVs4CaloJets
-+
-akVs5CaloJets
-+
-akVs6CaloJets
-+
-akVs7CaloJets
-)

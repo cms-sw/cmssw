@@ -48,6 +48,7 @@ ak3PFTrackCountingHighPurBJetTags = ak3PFbTagger.TrackCountingHighPurBJetTags
 ak3PFPatJetPartonAssociationLegacy = ak3PFbTagger.PatJetPartonAssociationLegacy
 
 ak3PFImpactParameterTagInfos = ak3PFbTagger.ImpactParameterTagInfos
+ak3PFImpactParameterTagInfos.primaryVertex = cms.InputTag("hiSelectedVertex")
 ak3PFJetProbabilityBJetTags = ak3PFbTagger.JetProbabilityBJetTags
 ak3PFPositiveOnlyJetProbabilityBJetTags = ak3PFbTagger.PositiveOnlyJetProbabilityBJetTags
 ak3PFNegativeOnlyJetProbabilityBJetTags = ak3PFbTagger.NegativeOnlyJetProbabilityBJetTags
@@ -69,6 +70,7 @@ ak3PFNegativeCombinedSecondaryVertexBJetTags = ak3PFbTagger.NegativeCombinedSeco
 ak3PFPositiveCombinedSecondaryVertexBJetTags = ak3PFbTagger.PositiveCombinedSecondaryVertexBJetTags
 
 ak3PFSoftPFMuonsTagInfos = ak3PFbTagger.SoftPFMuonsTagInfos
+ak3PFSoftPFMuonsTagInfos.primaryVertex = cms.InputTag("hiSelectedVertex")
 ak3PFSoftPFMuonBJetTags = ak3PFbTagger.SoftPFMuonBJetTags
 ak3PFSoftPFMuonByIP3dBJetTags = ak3PFbTagger.SoftPFMuonByIP3dBJetTags
 ak3PFSoftPFMuonByPtBJetTags = ak3PFbTagger.SoftPFMuonByPtBJetTags

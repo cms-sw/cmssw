@@ -45,6 +45,7 @@ do
                             domatch="True"
                             genparticles="genParticles"
                             tracks="hiGeneralTracks"
+			    vertex="hiSelectedVertex"
                             pflow="particleFlowTmp"
                             domatch="False"
                             match=""
@@ -55,6 +56,7 @@ do
                             if [ $system == "pPb" ]; then
                                 #corrlabel="_generalTracks"
                                 tracks="generalTracks"
+				vertex="offlinePrimaryVertices"
                                 genparticles="hiGenParticles"
                                 pflow="particleFlow"
                             fi
@@ -62,6 +64,7 @@ do
                             if [ $system == "pp" ]; then
                                 #corrlabel="_generalTracks"
                                 tracks="generalTracks"
+				vertex="offlinePrimaryVertices"
                                 genparticles="genParticles"
                                 pflow="particleFlow"
 				if [ $sample == "data" ] && [ $sub == "NONE" ] && [ $radius == 4 ] && [ $object == "PF" ]; then
@@ -119,6 +122,7 @@ do
                                 | sed "s/GENJETS/$genjets/g" \
                                 | sed "s/GENPARTICLES/$genparticles/g" \
                                 | sed "s/TRACKS/$tracks/g" \
+                                | sed "s/VERTEX/$vertex/g" \
                                 | sed "s/PARTICLEFLOW/$pflow/g" \
                                 | sed "s/DOMATCH/$domatch/g" \
                                 | sed "s/EVENTINFOTAG/$eventinfotag/g" \
@@ -208,7 +212,7 @@ echo "hiReRecoCaloJets = cms.Sequence(" >> HiReRecoJets_cff.py
 #echo "caloTowersRec*caloTowers*iterativeConePu5CaloJets +" >> HiReRecoJets_cff.py
 #echo "voronoiBackgroundCalo +" >> HiReRecoJets_cff.py
 
-for sub in NONE Pu Vs
+for sub in NONE Pu #Vs
 do
     subt=$sub
     if [ $sub == "NONE" ]; then

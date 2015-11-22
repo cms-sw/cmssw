@@ -12,7 +12,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 
 options = VarParsing.VarParsing ('analysis')
 
-options.inputFiles = '/store/user/mnguyen/PyquenUnquenched_BJetLO_pt30_5TeV_GEN-SIM/PyquenUnquenched_BJetLO_pthat30_PbPb_5TeV_embedded_740_MCHI2_74_V4_RECO/87777ff9102bfbec971698893bf3d6db/step3_RAW2DIGI_L1Reco_RECO_3_1_7H9.root'
+options.inputFiles = '/store/user/rkunnawa/Run2_PbPbpthat120_RECO_HCAL_Method0_40kevents/HydjetNcoll_Pyquen_DiJet_pt120to9999_5020GeV_cfi_GEN_SIM_750_run2_mc_HIon_BS_v2/Run2_PbPbpthat120_RECO_HCAL_Method0_40kevents/151021_183818/0000/step3_RAW2DIGI_L1Reco_RECO_PU_116.root'#'/store/user/mnguyen/PyquenUnquenched_BJetLO_pt30_5TeV_GEN-SIM/PyquenUnquenched_BJetLO_pthat30_PbPb_5TeV_embedded_740_MCHI2_74_V4_RECO/87777ff9102bfbec971698893bf3d6db/step3_RAW2DIGI_L1Reco_RECO_3_1_7H9.root'
 
 
 
@@ -215,7 +215,7 @@ process.reRecoJets = cms.Sequence(
 
 process.load("GeneratorInterface.HiGenCommon.HeavyIon_cff")
 
-process.ana_step = cms.Path(process.heavyIon*
+process.ana_step = cms.Path(#process.heavyIon*
                             process.centralityBin*
                             process.hltanalysis *
 #temp                            process.hltobject *
