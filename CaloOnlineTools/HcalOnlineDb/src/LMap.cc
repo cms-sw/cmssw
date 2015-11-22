@@ -231,8 +231,8 @@ EMap::EMap( const HcalElectronicsMap * emap ){
       row.slot      = eId->htrSlot();
       row.dcc       = eId->dccid();
       row.spigot    = eId->spigot();
-      row.fiber     = eId->slbSiteNumber();
-      row.fiberchan = eId->slbChannelIndex();
+      row.fiber     = eId->isVMEid() ? eId->slbSiteNumber()   : eId->fiberIndex();
+      row.fiberchan = eId->isVMEid() ? eId->slbChannelIndex() : eId->fiberChanId();
       if (eId->htrTopBottom()==1) row.topbottom = "t";
       else row.topbottom = "b";
       //
