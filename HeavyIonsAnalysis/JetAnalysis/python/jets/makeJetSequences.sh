@@ -212,7 +212,7 @@ echo "hiReRecoCaloJets = cms.Sequence(" >> HiReRecoJets_cff.py
 #echo "caloTowersRec*caloTowers*iterativeConePu5CaloJets +" >> HiReRecoJets_cff.py
 #echo "voronoiBackgroundCalo +" >> HiReRecoJets_cff.py
 
-for sub in NONE Pu #Vs
+for sub in NONE Pu Vs
 do
     subt=$sub
     if [ $sub == "NONE" ]; then
