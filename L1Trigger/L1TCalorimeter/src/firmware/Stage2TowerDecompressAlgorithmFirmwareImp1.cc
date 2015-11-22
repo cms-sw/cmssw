@@ -44,8 +44,8 @@ void l1t::Stage2TowerDecompressAlgorithmFirmwareImp1::processEvent(const std::ve
       int sum   = tow->hwPt();
       int ratio = tow->hwEtRatio();
       int qual  = tow->hwQual();
-
-      int denomCoeff = int ( ( 128./ ( 1. + ratio ) ) + 0.5 );
+      
+      int denomCoeff = int ( ( 128./ ( 1. + pow(2,ratio) ) ) + 0.5 );
       int numCoeff = 128 - denomCoeff;
 
       // if ((qual & 0x1)==0) {
@@ -94,21 +94,19 @@ void l1t::Stage2TowerDecompressAlgorithmFirmwareImp1::processEvent(const std::ve
 
       bool denomZeroFlag = ((qual&0x1) > 0);
       bool eOverHFlag    = ((qual&0x2) > 0);
+      
+      if (denomZeroFlag && !eOverHFlag) had = sum;
 
-      if (denomZeroFlag && !eOverHFlag)
-	had = sum;
-
-      if (denomZeroFlag && eOverHFlag)
-	em = sum;
+      if (denomZeroFlag && eOverHFlag) em = sum;
 
       if (!denomZeroFlag && !eOverHFlag) { // H > E, ratio = log(H/E)
-	em  = denomCoeff * sum;
-	had = numCoeff * sum;
+        em  = (denomCoeff * sum) >> 7;
+        had = (numCoeff * sum) >> 7;
       }
 
       if (!denomZeroFlag && eOverHFlag) { // E >= H , so ratio==log(E/H)
-	em  = numCoeff * sum;
-	had = denomCoeff * sum;
+        em  = (numCoeff * sum) >> 7;
+        had = (denomCoeff * sum) >> 7;
       }
 
       em  &= params_->towerMaskE();

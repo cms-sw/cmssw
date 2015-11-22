@@ -65,9 +65,9 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::processEvent(const std::vector<l
 
 void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::CaloTower> & towers, std::vector<l1t::Jet> & jets,
 						       std::vector<l1t::Jet> & alljets, std::string PUSubMethod) {
-
-  int etaMax=40, etaMin=1, phiMax=72, phiMin=1;
-
+  
+  int etaMax=36, etaMin=1, phiMax=72, phiMin=1;
+  
   // etaSide=1 is positive eta, etaSide=-1 is negative eta
   for (int etaSide=1; etaSide>=-1; etaSide-=2) {
 
@@ -309,35 +309,53 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
       const CaloTower& towPhiDown = CaloTools::getTower(towers, towEta, iphiDown);
       towEt = towPhiDown.hwPt();
       ring[1] += towEt;
-
-    }
-
-    // do EtaUp and EtaDown
+            
+    } 
+    
+    // do EtaUp
     for (int iphi=jetPhi-size+1; iphi<jetPhi+size; ++iphi) {
+      
+      if (ietaUp<=etaMax) {    
+        int towPhi = iphi;
+        while ( towPhi > phiMax ) towPhi -= phiMax;
+        while ( towPhi < phiMin ) towPhi += phiMax;
 
-      int towPhi = iphi;
-      while ( towPhi > phiMax ) towPhi -= phiMax;
-      while ( towPhi < phiMin ) towPhi += phiMax;
-
-      if (ietaUp>=etaMin && ietaUp<=etaMax) {
-	const CaloTower& towEtaUp = CaloTools::getTower(towers, ietaUp, towPhi);
-	int towEt = towEtaUp.hwPt();
-	ring[2] += towEt;
+        const CaloTower& towEtaUp = CaloTools::getTower(towers, ietaUp, towPhi);
+        int towEt = towEtaUp.hwPt();
+        ring[2] += towEt;
+      }else{
+        ring[2] = 0;
+        break;
       }
-
-      if (ietaDown>=etaMin && ietaDown<=etaMax) {
-	const CaloTower& towEtaDown = CaloTools::getTower(towers, ietaDown, towPhi);
-	int towEt = towEtaDown.hwPt();
-	ring[3] += towEt;
+      
+    } 
+    
+    // do EtaDown
+    for (int iphi=jetPhi-size+1; iphi<jetPhi+size; ++iphi) {
+      
+      if (ietaDown>=etaMin) {
+        int towPhi = iphi;
+        while ( towPhi > phiMax ) towPhi -= phiMax;
+        while ( towPhi < phiMin ) towPhi += phiMax;
+	
+        const CaloTower& towEtaDown = CaloTools::getTower(towers, ietaDown, towPhi);
+        int towEt = towEtaDown.hwPt();
+        ring[3] += towEt;
+      }else{
+        ring[3] = 0;
+        break;
       }
-
-    }
-
+      
+    }         
   }
 
   // for donut subtraction we only use the middle 2 (in energy) ring strips
-  std::sort(ring.begin(), ring.end(), std::greater<int>());
-  return ( ring[1]+ring[2] );
+  // std::sort(ring.begin(), ring.end(), std::greater<int>());
+  // return ( ring[1]+ring[2] ); 
+
+  // use lowest 3 strips as PU estimate
+  std::sort( ring.begin(), ring.end() );
+  return ( ring[0] + ring[1] + ring[2] );
 
 }
 

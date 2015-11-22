@@ -136,6 +136,14 @@ namespace l1t {
     void setEgCalibrationParams(std::vector<double> params) { pnode_[egCalibration].dparams_ = params; }
     void setEgCalibrationLUT(const l1t::LUT & lut) { pnode_[egCalibration].LUT_ = lut; }
 
+    // - recently imported:
+    std::string egShapeIdType() const { return pnode_[egShapeId].type_; }
+    void setEgShapeIdType(std::string type) { pnode_[egShapeId].type_ = type; }
+    unsigned egShapeIdVersion() const { return pnode_[egShapeId].version_; }
+    void setEgShapeIdVersion(unsigned version) { pnode_[egShapeId].version_ = version; }
+    unsigned egCalibrationVersion() const { return pnode_[egCalibration].version_; }
+    void setEgCalibrationVersion(unsigned version) { pnode_[egCalibration].version_ = version; }
+
     // tau
     int tauRegionMask() const {
       if (pnode_[tauPUS].version_ ==1)

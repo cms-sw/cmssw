@@ -53,6 +53,12 @@ from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
 from EventFilter.Utilities.tcdsRawToDigi_cfi import *
 tcdsDigis = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone()
 
+from EventFilter.L1TRawToDigi.caloStage1Digis_cfi import *
+caloStage1Digis = EventFilter.L1TRawToDigi.caloStage1Digis_cfi.caloStage1Digis.clone()
+
+from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import *
+caloStage2Digis = EventFilter.L1TRawToDigi.caloStage2Digis_cfi.caloStage2Digis.clone()
+
 RawToDigi = cms.Sequence(csctfDigis
                          +dttfDigis
                          +gctDigis
@@ -68,7 +74,9 @@ RawToDigi = cms.Sequence(csctfDigis
                          +muonRPCDigis
                          +castorDigis
                          +scalersRawToDigi
-                         +tcdsDigis)
+                         +tcdsDigis
+#                         +caloStage1Digis
+                         +caloStage2Digis)
 
 RawToDigi_noTk = cms.Sequence(csctfDigis
                               +dttfDigis
@@ -83,7 +91,9 @@ RawToDigi_noTk = cms.Sequence(csctfDigis
                               +muonRPCDigis
                               +castorDigis
                               +scalersRawToDigi
-                              +tcdsDigis)
+                              +tcdsDigis
+#                              +caloStage1Digis
+                              +caloStage2Digis)
     
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 csctfDigis.producer = 'rawDataCollector'

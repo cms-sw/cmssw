@@ -40,7 +40,7 @@ caloStage2Params.egIsoVetoNrTowersPhi       = cms.uint32(3)
 #caloStage2Params.egIsoPUEstTowerGranularity = cms.uint32(1)
 #caloStage2Params.egIsoMaxEtaAbsForTowerSum  = cms.uint32(4)
 #caloStage2Params.egIsoMaxEtaAbsForIsoSum    = cms.uint32(27)
-caloStage2Params.egPUSParams                = cms.vdouble(1,4,32) #Isolation window in firmware goes up to abs(ieta)=32 for now
+caloStage2Params.egPUSParams                = cms.vdouble(1,4,27)
 caloStage2Params.egCalibrationType          = cms.string("compressed")
 caloStage2Params.egCalibrationVersion       = cms.uint32(0)
 caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/corrections_Trimming5_PU40bx25_compressedieta_compressedE_compressedshape_v15.10.20.txt")
