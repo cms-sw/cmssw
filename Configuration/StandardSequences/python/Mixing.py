@@ -156,6 +156,7 @@ addMixingScenario("Flat_10_50_25ns",{'file': 'SimGeneral.MixingModule.mix_Flat_1
 addMixingScenario("Flat_10_50_50ns",{'file': 'SimGeneral.MixingModule.mix_Flat_10_50_50ns_cfi'})
 
 # scenarios for 5.02 TeV pp and PbPb
+addMixingScenario("PbPb5TeV_Add_1",{'file': 'SimGeneral.MixingModule.mix_FIX_average_cfi', 'BX': 500, 'B': (0,0), 'N': 1})
 addMixingScenario("PbPb5TeV_Fix_2",{'file': 'SimGeneral.MixingModule.mix_FIX_average_cfi', 'BX': 500, 'B': (0,0), 'N': 2})
 addMixingScenario("pp5TeV_Fix_2",{'file': 'SimGeneral.MixingModule.mix_FIX_average_cfi', 'BX': 25, 'B': (-5,3), 'N': 2})
 addMixingScenario("pp5TeV_Fix_3",{'file': 'SimGeneral.MixingModule.mix_FIX_average_cfi', 'BX': 25, 'B': (-5,3), 'N': 3})
