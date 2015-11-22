@@ -21,6 +21,7 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigData.h"
 
 #include "TNtuple.h"
+#include "TRegexp.h"
 
 using namespace std;
 using namespace edm;
@@ -67,6 +68,8 @@ private:
   edm::Service<TFileService> fs;
   vector<TTree*> nt_;
   int verbose_;
+
+  std::map<std::string, bool> triggerInMenu;
 
   vector<double> id[500];
   vector<double> pt[500];
@@ -128,7 +131,8 @@ TriggerObjectAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     iEvent.getByLabel(triggerResultsTag_,triggerResultsHandle_);
 
     for(unsigned int itrig=0; itrig<triggerNames_.size(); itrig++){
-
+        std::map<std::string,bool>::iterator inMenu = triggerInMenu.find(triggerNames_[itrig]);
+        if (inMenu==triggerInMenu.end()) continue;
       
     triggerIndex_ = hltConfig_.triggerIndex(triggerNames_[itrig]);
 
@@ -197,19 +201,21 @@ TriggerObjectAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   bool changed(true);
   if (hltConfig_.init(iRun,iSetup,processName_,changed)) {
     if (changed) {
-      const unsigned int n(hltConfig_.size());
+      std::vector<std::string> activeHLTPathsInThisEvent = hltConfig_.triggerNames();
       for(unsigned int itrig=0; itrig<triggerNames_.size(); itrig++){
-	if (triggerNames_[itrig]!="@") { // "@" means: analyze all triggers in config
-
-	  //This functionality is currently not working for me (kjung - mar 24, 2014)... no trigger passes the condition
-	  if (triggerIndex_>=n) {
-	    //cout << "HLTEventAnalyzerAOD::analyze:"
-	    //    << " TriggerName " << triggerNames_[0]
-	    //    << " not available in (new) config!" << endl;
-	    //cout << "Available TriggerNames are: " << endl;
-	    //hltConfig_.dump("Triggers");
-	  }
-	}
+          for (std::vector<std::string>::const_iterator iHLT = activeHLTPathsInThisEvent.begin(); iHLT != activeHLTPathsInThisEvent.end(); ++iHLT){
+              //matching with regexp filter name. More than 1 matching filter is allowed so trig versioning is transparent to analyzer
+              if (TString(*iHLT).Contains(TRegexp(TString(triggerNames_[itrig])))){
+                  triggerInMenu[*iHLT] = true;
+                  triggerNames_[itrig] = TString(*iHLT);
+              }
+          }
+      }
+      for(unsigned int itrig=0; itrig<triggerNames_.size(); itrig++){
+        std::map<std::string,bool>::iterator inMenu = triggerInMenu.find(triggerNames_[itrig]);
+	if (inMenu==triggerInMenu.end()) {
+            cout << "<HLT Object Analyzer> Warning! Trigger " << triggerNames_[itrig] << " not found in HLTMenu. Skipping..." << endl;
+        }
       }
       if(verbose_){
 	hltConfig_.dump("ProcessName");
@@ -222,7 +228,7 @@ TriggerObjectAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
       }
     }
   } else {
-    cout << "HLTEventAnalyzerAOD::analyze:"
+    cout << "HLTObjectAnalyzer::analyze:"
 	 << " config extraction failure with process name "
 	 << processName_ << endl;
   }
@@ -240,6 +246,7 @@ TriggerObjectAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
 void
 TriggerObjectAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
 {
+    triggerInMenu.clear();
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
