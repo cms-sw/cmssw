@@ -80,6 +80,7 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
       ++ntc;
     }
   LogDebug("TrackProducer") << "Number of Tracks found: " << cont << "\n";
+  // std::cout << "VICkfProducer " << "Number of Tracks found: " << cont << std::endl;
 }
 
 
