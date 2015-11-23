@@ -526,7 +526,7 @@ class LeptonAnalyzer( Analyzer ):
             momid = abs(mom.pdgId())
             if momid / 1000 == bid or momid / 100 == bid or momid == bid: 
                 return True
-            elif mom.status() == 2 and self.isFromB(mom, done=done):
+            elif mom.status() == 2 and self.isFromB(mom, done=done, bid=bid):
                 return True
         return False
 
@@ -541,6 +541,7 @@ class LeptonAnalyzer( Analyzer ):
                 if   self.isFromB(gen):       lep.mcMatchAny = 5 # B (inclusive of B->D)
                 elif self.isFromB(gen,bid=4): lep.mcMatchAny = 4 # Charm
                 else: lep.mcMatchAny = 1
+                if not getattr(lep, 'mcLep', None): lep.mcLep = gen
             else: 
                 lep.mcMatchAny = 0
             # fix case where the matching with the only prompt leptons failed, but we still ended up with a prompt match
