@@ -22,7 +22,10 @@ int GeometryComparisonPlotter::canvas_index = 0;
 
 
 void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTracker.root",
-                       TString outDir="outputDir/")
+                       TString outDir="outputDir/",
+                       TString modulesToPlot="all",
+                       TString alignmentName="Alignment",
+                       TString referenceName="Ideal")
 {
     // the output directory is created if it does not exist
     mkdir(outDir, S_IRWXU);
@@ -35,7 +38,7 @@ void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTrac
     // now the object to produce the comparison plots is created
     
     // Plot Translations
-    GeometryComparisonPlotter * trans = new GeometryComparisonPlotter (inFile, outDir);
+    GeometryComparisonPlotter * trans = new GeometryComparisonPlotter (inFile, outDir,modulesToPlot,alignmentName,referenceName);
     // x and y contain the couples to plot
     // -> every combination possible will be performed
     // /!\ always give units (otherwise, unexpected bug from root...)
@@ -52,60 +55,31 @@ void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTrac
     trans->MakePlots(x, y); // default output is pdf, but png gives a nicer result, so we use it as well
     // remark: what takes the more time is the creation of the output files,
     //         not the looping on the tree (because the code is perfect, of course :p)
-    trans->SetGrid(1,1);
     trans->SetPrintOption("png");
     trans->MakePlots(x, y);
 
     
     // Plot Rotations
-    GeometryComparisonPlotter * rot = new GeometryComparisonPlotter (inFile, outDir);
+    GeometryComparisonPlotter * rot = new GeometryComparisonPlotter (inFile, outDir,modulesToPlot,alignmentName,referenceName);
     // x and y contain the couples to plot
     // -> every combination possible will be performed
     // /!\ always give units (otherwise, unexpected bug from root...)
-    vector<TString> a,b;
-    a.push_back("alpha");       									rot->SetBranchUnits("alpha",    "rad");  
-    a.push_back("beta");        									rot->SetBranchUnits("beta",   "rad");
-    a.push_back("gamma");       									rot->SetBranchUnits("gamma",   "rad");
+    vector<TString> b;
+    //a.push_back("alpha");       									rot->SetBranchUnits("alpha",    "rad");  
+    //a.push_back("beta");        									rot->SetBranchUnits("beta",   "rad");
+    //a.push_back("gamma");       									rot->SetBranchUnits("gamma",   "rad");
+    rot->SetBranchUnits("r",     "cm");  
+    rot->SetBranchUnits("phi",   "rad");
+    rot->SetBranchUnits("z",     "cm"); 
     b.push_back("dalpha");	rot->SetBranchSF("dalpha", 	1000);      rot->SetBranchUnits("dalpha",    "mrad");      
     b.push_back("dbeta");   rot->SetBranchSF("dbeta", 	1000);    	rot->SetBranchUnits("dbeta",    "mrad");     
-    b.push_back("dgamma");  rot->SetBranchSF("dgamma", 	1000);    	rot->SetBranchUnits("dgamma",    "mrad");    
+    b.push_back("dgamma");  rot->SetBranchSF("dgamma", 	1000);    	rot->SetBranchUnits("dgamma",    "mrad");
     rot->SetGrid(1,1);
-    rot->MakePlots(a, b); // default output is pdf, but png gives a nicer result, so we use it as well
-    // remark: what takes the more time is the creation of the output files,
-    //         not the looping on the tree (because the code is perfect, of course :p)
-    rot->SetGrid(1,1);
+    rot->SetPrintOption("pdf");
+    rot->MakePlots(x, b);
     rot->SetPrintOption("png");
-    rot->MakePlots(a, b);
+    rot->MakePlots(x, b);
     
-    // Plot cross talk
-    GeometryComparisonPlotter * cross = new GeometryComparisonPlotter (inFile, outDir);
-    // x and y contain the couples to plot
-    // -> every combination possible will be performed
-    // /!\ always give units (otherwise, unexpected bug from root...)
-    vector<TString> dx,dy;
-    dx.push_back("dalpha"); cross->SetBranchSF("dalpha", 1000);     cross->SetBranchUnits("dalpha", "mrad");      
-    dx.push_back("dbeta");  cross->SetBranchSF("dbeta", 1000);     	cross->SetBranchUnits("dbeta",  "mrad");     
-    dx.push_back("dgamma"); cross->SetBranchSF("dgamma", 1000);     cross->SetBranchUnits("dgamma", "mrad"); 
-    dy.push_back("dr");		cross->SetBranchSF("dr", 	10000);     cross->SetBranchUnits("dr",    "#mum");
-    dy.push_back("dz");		cross->SetBranchSF("dz", 	10000);     cross->SetBranchUnits("dz",    "#mum");
-    dy.push_back("rdphi");	cross->SetBranchSF("rdphi",10000);      cross->SetBranchUnits("rdphi", "#mum rad");
-    dy.push_back("dx");		cross->SetBranchSF("dx", 	10000);     cross->SetBranchUnits("dx",    "#mum");  
-    dy.push_back("dy");		cross->SetBranchSF("dy", 	10000);     cross->SetBranchUnits("dy",    "#mum");     
-    cross->SetGrid(1,1);
-    cross->MakePlots(dx,dy); // default output is pdf, but png gives a nicer result, so we use it as well
-    // remark: what takes the more time is the creation of the output files,
-    //         not the looping on the tree (because the code is perfect, of course :p)
-    cross->SetGrid(1,1);
-    cross->SetPrintOption("png");
-    cross->MakePlots(dx, dy);
-
-    //Additional cross talk plots with dangles on y-axis
-    cross->SetPrintOption("pdf");
-    cross->MakePlots(dy,dx);
-    
-    cross->SetGrid(1,1);
-    cross->SetPrintOption("png");
-    cross->MakePlots(dy, dx);
 
     // now the same object can be reused with other specifications/cuts
     //void SetPrint               (const bool);           // activates the printing of the individual and global pdf

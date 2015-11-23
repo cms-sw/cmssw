@@ -56,10 +56,27 @@ process.MessageLogger = cms.Service("MessageLogger",
         'cout')
 )
 
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+    firstRun=cms.untracked.uint32(.oO[runGeomComp]Oo.)
+    )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
+)
+
+process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
+	cms.PSet(record = cms.string('SiStripDetCablingRcd'),
+            tag = cms.string('')), 
+        cms.PSet(record = cms.string('RunInfoRcd'),
+            tag = cms.string('')), 
+        cms.PSet(record = cms.string('SiStripBadChannelRcd'),
+            tag = cms.string('')), 
+        cms.PSet(record = cms.string('SiStripBadFiberRcd'),
+            tag = cms.string('')), 
+        cms.PSet(record = cms.string('SiStripBadModuleRcd'),
+            tag = cms.string('')), 
+        cms.PSet(record = cms.string('SiStripBadStripRcd'),
+            tag = cms.string(''))
 )
 
 process.load("DQM.SiStripCommon.TkHistoMap_cfi")
@@ -75,6 +92,7 @@ process.load("Alignment.OfflineValidation.TrackerGeometryCompare_cfi")
 
 process.TrackerGeometryCompare.inputROOTFile1 = '.oO[comparedGeometry]Oo.'
 process.TrackerGeometryCompare.inputROOTFile2 = '.oO[referenceGeometry]Oo.'
+process.TrackerGeometryCompare.moduleList = '.oO[moduleList]Oo.'
 process.TrackerGeometryCompare.outputFile = ".oO[name]Oo..Comparison_common.oO[common]Oo..root"
 
 process.load("CommonTools.UtilAlgos.TFileService_cfi")  
