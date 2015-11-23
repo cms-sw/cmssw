@@ -3,7 +3,6 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilter.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterHT.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterMultiMother.h"
-#include "GeneratorInterface/GenFilters/interface/HINEcalGenEvtSelector.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaDauFilter.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaJet.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaGamma.h"
@@ -53,7 +52,6 @@
   DEFINE_FWK_MODULE(PythiaFilter);
   DEFINE_FWK_MODULE(PythiaFilterHT);
   DEFINE_FWK_MODULE(PythiaFilterMultiMother);
-  DEFINE_FWK_MODULE(HINEcalGenEvtSelector);
   DEFINE_FWK_MODULE(PythiaDauFilter);
   DEFINE_FWK_MODULE(PythiaFilterGammaJet);
   DEFINE_FWK_MODULE(PythiaFilterGammaGamma);
