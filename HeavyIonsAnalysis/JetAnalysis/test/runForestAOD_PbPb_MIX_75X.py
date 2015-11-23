@@ -62,12 +62,12 @@ process.GlobalTag.toGet.extend([
     ),
 ])
 
-from HeavyIonsAnalysis.Configuration.CommonFunctionsLocalDB_cff import overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v4_db
-process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v4_db(process)
+from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_PbPb5020
+process = overrideJEC_PbPb5020(process)
 
 process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
-process.centralityBin.Centrality = cms.InputTag("hiCentrality")
-process.centralityBin.centralityVariable = cms.string("HFtowers")
+# process.centralityBin.Centrality = cms.InputTag("hiCentrality")
+# process.centralityBin.centralityVariable = cms.string("HFtowers")
 #process.centralityBin.nonDefaultGlauberModel = cms.string("HydjetDrum5")
 
 #####################################################################################

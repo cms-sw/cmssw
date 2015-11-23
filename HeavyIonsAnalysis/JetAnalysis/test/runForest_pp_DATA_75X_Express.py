@@ -77,8 +77,8 @@ process.GlobalTag.toGet.extend([
  ),
 ])
 
-from HeavyIonsAnalysis.Configuration.CommonFunctionsLocalDB_cff import overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v6_db
-process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v6_db(process)
+from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_pp5020
+process = overrideJEC_pp5020(process)
 
 #for pp data create centrality object and bin
 process.load("RecoHI.HiCentralityAlgos.pACentrality_cfi")

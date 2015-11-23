@@ -62,9 +62,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 #process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db(process)
 
 # Customization
-from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_pp5020_MC
-process = overrideJEC_pp5020_MC(process)
-
+from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_pp5020
+process = overrideJEC_pp5020(process)
 
 process.HeavyIonGlobalParameters = cms.PSet(
     centralityVariable = cms.string("HFtowersTrunc"),

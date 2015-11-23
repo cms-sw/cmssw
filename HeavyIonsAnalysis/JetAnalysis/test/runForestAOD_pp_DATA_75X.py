@@ -53,8 +53,9 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
-from HeavyIonsAnalysis.Configuration.CommonFunctionsLocalDB_cff import overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db
-process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db(process)
+from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_pp5020
+# process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db(process)
+process = overrideJEC_pp5020(process)
 
 process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
 process.centralityBin.Centrality = cms.InputTag("hiCentrality")
