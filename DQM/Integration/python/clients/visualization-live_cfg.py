@@ -56,7 +56,9 @@ process.load("DQM.Integration.config.FrontierCondition_GT_autoExpress_cfi")
 
 process.options = cms.untracked.PSet(
         Rethrow = cms.untracked.vstring('ProductNotFound'),
-        wantSummary = cms.untracked.bool(True)
+        wantSummary = cms.untracked.bool(True),
+        numberOfThreads = cms.untracked.uint32(8),
+        numberOfStreams = cms.untracked.uint32(8)
     )
 
 process.maxEvents = cms.untracked.PSet(
