@@ -25,13 +25,13 @@ trackingRecHitProducer = cms.EDProducer("TrackingRecHitProducer",
             select=cms.string("subdetId==BPX"),
         ),
         
-        cms.PSet(
-            name = cms.string("BPXmonitor"),
-            type=cms.string("TrackingRecHitMonitorPlugin"),
-            xmax=cms.double(5.0),
-            ymax=cms.double(5.0),
-            select=cms.string("subdetId==BPX"),
-         ),
+#        cms.PSet(
+#            name = cms.string("BPXmonitor"),
+#            type=cms.string("TrackingRecHitMonitorPlugin"),
+#            xmax=cms.double(5.0),
+#            ymax=cms.double(5.0),
+#            select=cms.string("subdetId==BPX"),
+#         ),
         cms.PSet(
             name = cms.string("pixelForwardSmearer"),
             type=cms.string("PixelForwardTemplateSmearerPlugin"),
@@ -53,14 +53,25 @@ trackingRecHitProducer = cms.EDProducer("TrackingRecHitProducer",
             select=cms.string("subdetId==FPX"),
         ),
         
-        cms.PSet(
-            name = cms.string("FPXmonitor"),
-            type=cms.string("TrackingRecHitMonitorPlugin"),
-            xmax=cms.double(5.0),
-            ymax=cms.double(5.0),
-            select=cms.string("subdetId==FPX"),
-         )
+#        cms.PSet(
+#            name = cms.string("FPXmonitor"),
+#            type=cms.string("TrackingRecHitMonitorPlugin"),
+#            xmax=cms.double(5.0),
+#            ymax=cms.double(5.0),
+#            select=cms.string("subdetId==FPX"),
+#         )
+#        cms.PSet(
+#            initialSeed = cms.untracked.uint32(12345),
+#            engineName = cms.untracked.string('TRandom3')
+#        )
      )
+                    
                                            
 )
 
+RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+        trackingRecHitProducer =cms.PSet(
+            initialSeed = cms.untracked.uint32(12345),
+            engineName = cms.untracked.string('TRandom3')
+        ),
+) 
