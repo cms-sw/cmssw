@@ -35,6 +35,7 @@ L1TMuonOverlapTrackProducer::L1TMuonOverlapTrackProducer(const edm::ParameterSet
 
   myInputMaker = new OMTFinputMaker();
   mySorter = new OMTFSorter();
+  myOMTF = 0;
   myWriter = 0;
 
   dumpResultToXML = theConfig.getParameter<bool>("dumpResultToXML");
