@@ -103,7 +103,7 @@ namespace {
 	
 	auto detid = item.id;
 	
-	for (auto i = item.offset; i<item.offset+int(item.size); ++i) {
+	for (int i = item.offset; i<item.offset+int(item.size); ++i) {
           auto clusCharge = siStripClusterTools::chargePerCM(detid,clusters[i]);
 	  if(clusCharge < minGoodStripCharge_) collectedStrips[i] = true; 
 	}
