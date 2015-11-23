@@ -17,11 +17,14 @@ using namespace std;
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
+#include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
+#include "EventFilter/HcalRawToDigi/interface/HcalDTCHeader.h"
+
 
 CastorRawToDigi::CastorRawToDigi(edm::ParameterSet const& conf):
   dataTag_(conf.getParameter<edm::InputTag>("InputLabel")),
   unpacker_(conf.getParameter<int>("CastorFirstFED"),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
-  zdcunpacker_(conf.getParameter<int>("ZDCFirstFED"),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
+  zdcunpacker_(conf.getParameter<int>("CastorFirstFED"),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
   ctdcunpacker_(conf.getParameter<int>("CastorFirstFED"),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
   filter_(conf.getParameter<bool>("FilterDataQuality"),conf.getParameter<bool>("FilterDataQuality"),false,0,0,-1),
   fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs",std::vector<int>())),
@@ -154,6 +157,13 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 	  }
 	if (fed.size()!=0)
 	  {
+			//const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fed.data());
+			//const HcalDTCHeader* dtcHeader=(const HcalDTCHeader*)(fed.data());
+			//int mode_ = 0;
+		  //bool is_VME_DCC=(dccHeader->getDCCDataFormatVersion()<0x10) || ((mode_&0x1)==0);
+		  //int dccid=(is_VME_DCC)?(dccHeader->getSourceId()-sourceIdOffset_):(dtcHeader->getSourceId()-sourceIdOffset_);
+		  //int dccid=dccHeader->getSourceId();
+		  //std::cout << __LINE__ << " fedid = " << *i << " dccid = " << dccid << std::endl;
 	    zdcunpacker_.unpack(fed,*readoutMap,colls,*report);
 	    report->addUnpacked(*i); 
 	  }
