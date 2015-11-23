@@ -99,7 +99,6 @@ MuonBadTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		
 	  const reco::MuonRef       muon  = cand.muonRef();
 		
-<<<<<<< HEAD
 		if (muon->muonBestTrack().isAvailable()) {
 			if (muon->muonBestTrack()->hitPattern().numberOfValidMuonHits() == 0) {
 				
@@ -154,22 +153,6 @@ MuonBadTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 					continue;
 				}
 			}
-=======
-		if (!muon->muonBestTrack().isAvailable()) continue;
-		if (muon->muonBestTrack()->hitPattern().numberOfValidMuonHits() != 0) continue;
-		
-		if (!muon->globalTrack().isAvailable()) continue;
-		if (muon->globalTrack()->normalizedChi2() > chi2Min_) {
-			foundBadTrack = true;
-			if ( debug_ ) cout << "globalTrack numberOfValidMuonHits: " << muon->globalTrack()->hitPattern().numberOfValidMuonHits() << 
-				" numberOfValidMuonCSCHits: " << muon->globalTrack()->hitPattern().numberOfValidMuonCSCHits() << 
-				" numberOfValidMuonDTHits: " << muon->globalTrack()->hitPattern().numberOfValidMuonDTHits() <<
-				" normalizedChi2: " << muon->globalTrack()->normalizedChi2() <<	endl;
-			if ( debug_ ) cout << "muonBestTrack numberOfValidMuonHits: " << muon->muonBestTrack()->hitPattern().numberOfValidMuonHits() << 
-				" numberOfValidMuonCSCHits: " << muon->muonBestTrack()->hitPattern().numberOfValidMuonCSCHits() << 
-				" numberOfValidMuonDTHits: " << muon->muonBestTrack()->hitPattern().numberOfValidMuonDTHits() <<
-				" normalizedChi2: " << muon->muonBestTrack()->normalizedChi2() <<	endl;
->>>>>>> 4373e11f02b851e88d7f422f26f9bbcc697d51e9
 		}
 		if (muon->tpfmsTrack().isAvailable()) {
       const double P = muon->tpfmsTrack()->p();
