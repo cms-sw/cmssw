@@ -157,13 +157,6 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 	  }
 	if (fed.size()!=0)
 	  {
-			//const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fed.data());
-			//const HcalDTCHeader* dtcHeader=(const HcalDTCHeader*)(fed.data());
-			//int mode_ = 0;
-		  //bool is_VME_DCC=(dccHeader->getDCCDataFormatVersion()<0x10) || ((mode_&0x1)==0);
-		  //int dccid=(is_VME_DCC)?(dccHeader->getSourceId()-sourceIdOffset_):(dtcHeader->getSourceId()-sourceIdOffset_);
-		  //int dccid=dccHeader->getSourceId();
-		  //std::cout << __LINE__ << " fedid = " << *i << " dccid = " << dccid << std::endl;
 	    zdcunpacker_.unpack(fed,*readoutMap,colls,*report);
 	    report->addUnpacked(*i); 
 	  }
