@@ -29,12 +29,14 @@ process.load('L1Trigger.L1TMuonOverlap.fakeMuonOverlapParams_cfi')
 process.load('L1Trigger.L1TMuonEndCap.fakeMuonEndCapParams_cfi')
 process.load('L1Trigger.L1TMuon.fakeMuonGlobalParams_cfi')
 process.load('L1Trigger.L1TCalorimeter.caloStage2Params_cfi')
+process.load('L1Trigger.L1TGlobal.hackConditions_cff')
 
 #### Emulators
 process.load('L1Trigger.L1TMuonBarrel.simMuonBarrelDigis_cfi')
 process.load('L1Trigger.L1TMuonOverlap.simMuonOverlapDigis_cfi')
 process.load('L1Trigger.L1TMuonEndCap.simMuonEndCapDigis_cfi')
 process.load('L1Trigger.L1TMuon.simMuonDigis_cfi')
+process.load('L1Trigger.L1TGlobal.simDigis_cff')
 
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
@@ -57,6 +59,36 @@ process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimiti
 process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
 process.load('L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi')
 
+# Additional output definition
+# TTree output file
+process.load("CommonTools.UtilAlgos.TFileService_cfi")
+process.TFileService.fileName = cms.string('l1t_debug.root')
+
+# enable debug message logging for our modules
+process.MessageLogger.categories.append('L1TCaloEvents')
+process.MessageLogger.categories.append('L1TGlobalEvents')
+process.MessageLogger.categories.append('l1t|Global')
+process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
+
+
+# gt analyzer
+process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
+    doText = cms.untracked.bool(True),
+    dmxEGToken = cms.InputTag("None"),
+    dmxTauToken = cms.InputTag("None"),
+    dmxJetToken = cms.InputTag("None"),
+    dmxEtSumToken = cms.InputTag("None"),
+    muToken = cms.InputTag("simGmtDigis"),
+    egToken = cms.InputTag("simCaloStage2Digis"),
+    tauToken = cms.InputTag("simCaloStage2Digis"),
+    jetToken = cms.InputTag("simCaloStage2Digis"),
+    etSumToken = cms.InputTag("simCaloStage2Digis"),
+    gtAlgToken = cms.InputTag("None"),
+    emulDxAlgToken = cms.InputTag("simGlobalStage2Digis"),
+    emulGtAlgToken = cms.InputTag("simGlobalStage2Digis")
+)
+
+
 process.L1TMuonSeq = cms.Sequence(   process.simCaloStage2Layer1Digis
                                    + process.simCaloStage2Digis
                                    + process.simTwinMuxDigis
@@ -65,9 +97,11 @@ process.L1TMuonSeq = cms.Sequence(   process.simCaloStage2Layer1Digis
                                    + process.simOmtfDigis 
                                    + process.simGmtCaloSumDigis
                                    + process.simGmtDigis
+                                   + process.simGlobalStage2Digis
 #                                   + process.dumpED
 #                                   + process.dumpES
                                    + process.l1tSummary
+                                   + process.l1tGlobalAnalyzer
 )
 
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
