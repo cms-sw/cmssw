@@ -14,7 +14,7 @@
 #include <map>
 
 
-namespace HcalUnpacker_impl {
+namespace ZdcUnpacker_impl {
   template <class DigiClass>
   const unsigned short* unpack_compact(const unsigned short* startPoint, const unsigned short* limit, DigiClass& digi, 
 				       int presamples, const HcalElectronicsId& eid, int startSample, int endSample, 
@@ -274,7 +274,7 @@ void ZdcUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& emap
 			if (!did.null()) {
 				if (did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId) {
 					colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(did)));
-					ptr_header=HcalUnpacker_impl::unpack_compact<ZDCDataFrame>(ptr_header, ptr_end, colls.zdcCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr);
+					ptr_header=ZdcUnpacker_impl::unpack_compact<ZDCDataFrame>(ptr_header, ptr_end, colls.zdcCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr);
 				}
 			} else {
 				report.countUnmappedDigi(eid);
