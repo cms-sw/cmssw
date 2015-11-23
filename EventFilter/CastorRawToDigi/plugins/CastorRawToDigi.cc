@@ -21,7 +21,7 @@ using namespace std;
 CastorRawToDigi::CastorRawToDigi(edm::ParameterSet const& conf):
   dataTag_(conf.getParameter<edm::InputTag>("InputLabel")),
   unpacker_(conf.getParameter<int>("CastorFirstFED"),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
-  zdcunpacker_(conf.getParameter<int>("ZDCFirstFED"),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
+  zdcunpacker_(conf.getParameter<int>("CastorFirstFED"),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
   ctdcunpacker_(conf.getParameter<int>("CastorFirstFED"),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
   filter_(conf.getParameter<bool>("FilterDataQuality"),conf.getParameter<bool>("FilterDataQuality"),false,0,0,-1),
   fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs",std::vector<int>())),
