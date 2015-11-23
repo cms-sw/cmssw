@@ -635,7 +635,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   //Variables related to the electron Cluster
   Float_t ElecEe = 0.;
   Float_t ElecEgamma = 0.;
-  reco::SuperClusterRef pfSuperCluster = theGsfEle.parentSuperCluster();
+  reco::SuperClusterRef pfSuperCluster = theGsfEle.superCluster();
   if ( pfSuperCluster.isNonnull() && pfSuperCluster.isAvailable() ) {
     for ( reco::CaloCluster_iterator pfCluster = pfSuperCluster->clustersBegin();
 	  pfCluster != pfSuperCluster->clustersEnd(); ++pfCluster ) {
