@@ -68,9 +68,9 @@ void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTrac
     //a.push_back("alpha");       									rot->SetBranchUnits("alpha",    "rad");  
     //a.push_back("beta");        									rot->SetBranchUnits("beta",   "rad");
     //a.push_back("gamma");       									rot->SetBranchUnits("gamma",   "rad");
-    trans->SetBranchUnits("r",     "cm");  
-    trans->SetBranchUnits("phi",   "rad");
-    trans->SetBranchUnits("z",     "cm"); 
+    rot->SetBranchUnits("r",     "cm");  
+    rot->SetBranchUnits("phi",   "rad");
+    rot->SetBranchUnits("z",     "cm"); 
     b.push_back("dalpha");	rot->SetBranchSF("dalpha", 	1000);      rot->SetBranchUnits("dalpha",    "mrad");      
     b.push_back("dbeta");   rot->SetBranchSF("dbeta", 	1000);    	rot->SetBranchUnits("dbeta",    "mrad");     
     b.push_back("dgamma");  rot->SetBranchSF("dgamma", 	1000);    	rot->SetBranchUnits("dgamma",    "mrad");
