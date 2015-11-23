@@ -88,6 +88,15 @@ process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
     emulGtAlgToken = cms.InputTag("simGlobalStage2Digis")
 )
 
+process.l1UpgradeTree = cms.EDAnalyzer(
+    "L1UpgradeTreeProducer",
+    egToken = cms.untracked.InputTag("simCaloStage2Digis"),
+    tauToken = cms.untracked.InputTag("simCaloStage2Digis"),
+    jetToken = cms.untracked.InputTag("simCaloStage2Digis"),
+    muonToken = cms.untracked.InputTag("simGmtDigis"),
+    sumToken = cms.untracked.InputTag("simCaloStage2Digis",""),
+    maxL1Upgrade = cms.uint32(60)
+)
 
 process.L1TMuonSeq = cms.Sequence(   process.simCaloStage2Layer1Digis
                                    + process.simCaloStage2Digis
@@ -101,7 +110,8 @@ process.L1TMuonSeq = cms.Sequence(   process.simCaloStage2Layer1Digis
 #                                   + process.dumpED
 #                                   + process.dumpES
                                    + process.l1tSummary
-                                   + process.l1tGlobalAnalyzer
+#                                   + process.l1tGlobalAnalyzer
+                                   + process.l1UpgradeTree
 )
 
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
