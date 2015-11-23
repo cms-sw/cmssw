@@ -88,6 +88,7 @@ private:
   const bool taggingMode_;
 
   const bool debug_;
+  const bool usekTPSaturated_;
   const int verbose_;
 
   const bool doEEfilter_;
@@ -182,6 +183,7 @@ private:
 EcalDeadCellTriggerPrimitiveFilter::EcalDeadCellTriggerPrimitiveFilter(const edm::ParameterSet& iConfig)
   : taggingMode_ (iConfig.getParameter<bool>("taggingMode") )
   , debug_ (iConfig.getParameter<bool>("debug") )
+  , usekTPSaturated_ (iConfig.getParameter<bool>("usekTPSaturated") )
   , verbose_ (iConfig.getParameter<int>("verbose") )
   , doEEfilter_ (iConfig.getUntrackedParameter<bool>("doEEfilter") )
   , ebReducedRecHitCollection_ (iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection") )
@@ -432,7 +434,9 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
 // since this function is written as a general one ...
      if( !ebrechit->isRecovered() ) toDo = false;
 //     if( !ebrechit->checkFlag(EcalRecHit::kTowerRecovered) ) toDo = false;
-
+     
+     if(usekTPSaturated_ && toDo && ebrechit->checkFlag(EcalRecHit::kTPSaturated)) return 1; // Filter fails if recHit recovered from saturated TP filter 
+  
      if( toDo ){
 
         EcalTrigTowerDetId ttDetId = ttItor->second;
@@ -494,6 +498,8 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
      if( !eerechit->isRecovered() ) toDo = false;
 //     if( !eerechit->checkFlag(EcalRecHit::kTowerRecovered) ) toDo = false;
 
+     if(usekTPSaturated_ && toDo && ebrechit->checkFlag(EcalRecHit::kTPSaturated)) return 1; // Filter fails if recHit recovered from saturated TP filter 
+
      if( toDo ){
 
 // vvvv= Only for debuging or testing purpose =vvvv
@@ -549,7 +555,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
 
      if( ttchnItor->second != 25 && debug_ && verbose_ >=2) cout<<"WARNING ... ttchnCnt : "<<ttchnItor->second<<"  NOT equal  25!"<<endl;
 
-     if( ttetVal >= tpValCut ){ isPassCut = 1; isPassCut *= ttzsideItor->second; }
+     if( ttetVal >= tpValCut*.9999 ){ isPassCut = 1; isPassCut *= ttzsideItor->second; }
 
   }
 
@@ -569,7 +575,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
 
      if( scchnItor->second != 25 && debug_ && verbose_ >=2) cout<<"WARNING ... scchnCnt : "<<scchnItor->second<<"  NOT equal  25!"<<endl;
 
-     if( scetVal >= tpValCut ){ isPassCut = 1; isPassCut *= sczsideItor->second; }
+     if( scetVal >= tpValCut*.9999 ){ isPassCut = 1; isPassCut *= sczsideItor->second; }
 
   }
 
@@ -612,7 +618,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtTPstatus(const double &tpValCut, c
         EcalTrigPrimDigiCollection::const_iterator tp = tpDigis->find( ttDetId );
         if( tp != tpDigis->end() ){
            double tpEt = ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() );
-           if(tpEt >= tpValCut ){ isPassCut = 1; isPassCut *= ttzside; }
+           if(tpEt >= tpValCut*.9999 ){ isPassCut = 1; isPassCut *= ttzside; }
         }
      }
   } // loop over EB + EE
