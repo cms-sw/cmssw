@@ -28,7 +28,7 @@ process.load('L1Trigger.L1TMuonBarrel.fakeMuonBarrelParams_cfi')
 process.load('L1Trigger.L1TMuonOverlap.fakeMuonOverlapParams_cfi')
 process.load('L1Trigger.L1TMuonEndCap.fakeMuonEndCapParams_cfi')
 process.load('L1Trigger.L1TMuon.fakeMuonGlobalParams_cfi')
-
+process.load('L1Trigger.L1TCalorimeter.caloStage2Params_cfi')
 
 #### Emulators
 process.load('L1Trigger.L1TMuonBarrel.simMuonBarrelDigis_cfi')
@@ -50,8 +50,10 @@ process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 process.load('L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi')
 process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
 process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
+process.load('L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi')
 
 process.L1TMuonSeq = cms.Sequence(   process.simCaloStage2Layer1Digis
+                                   + process.simCaloStage2Digis
                                    + process.simTwinMuxDigis
                                    + process.simBmtfDigis 
                                    + process.simEmtfDigis 
