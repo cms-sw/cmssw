@@ -155,6 +155,23 @@ addMixingScenario("Flat_0_50_50ns",{'file': 'SimGeneral.MixingModule.mix_Flat_0_
 addMixingScenario("Flat_10_50_25ns",{'file': 'SimGeneral.MixingModule.mix_Flat_10_50_25ns_cfi'})
 addMixingScenario("Flat_10_50_50ns",{'file': 'SimGeneral.MixingModule.mix_Flat_10_50_50ns_cfi'})
 
+# scenarios for 5.02 TeV pp and PbPb
+addMixingScenario("PbPb5TeV_Add_1",{'file': 'SimGeneral.MixingModule.mix_FIX_average_cfi', 'BX': 500, 'B': (0,0), 'N': 1})
+addMixingScenario("PbPb5TeV_Fix_2",{'file': 'SimGeneral.MixingModule.mix_FIX_average_cfi', 'BX': 500, 'B': (0,0), 'N': 2})
+addMixingScenario("pp5TeV_Fix_2",{'file': 'SimGeneral.MixingModule.mix_FIX_average_cfi', 'BX': 25, 'B': (-5,3), 'N': 2})
+addMixingScenario("pp5TeV_Fix_3",{'file': 'SimGeneral.MixingModule.mix_FIX_average_cfi', 'BX': 25, 'B': (-5,3), 'N': 3})
+addMixingScenario("pp5TeV_Fix_4",{'file': 'SimGeneral.MixingModule.mix_FIX_average_cfi', 'BX': 25, 'B': (-5,3), 'N': 4})
+addMixingScenario("pp5TeV_Fix_5",{'file': 'SimGeneral.MixingModule.mix_FIX_average_cfi', 'BX': 25, 'B': (-5,3), 'N': 5})
+addMixingScenario("pp5TeV_Fix_6",{'file': 'SimGeneral.MixingModule.mix_FIX_average_cfi', 'BX': 25, 'B': (-5,3), 'N': 6})
+addMixingScenario("pp5TeV_Poisson_0p5",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-5,3), 'N': 0.5})
+addMixingScenario("pp5TeV_Poisson_1p0",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-5,3), 'N': 1.0})
+addMixingScenario("pp5TeV_Poisson_1p5",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-5,3), 'N': 1.5})
+addMixingScenario("pp5TeV_Poisson_2p0",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-5,3), 'N': 2.0})
+addMixingScenario("pp5TeV_Poisson_2p5",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-5,3), 'N': 2.5})
+addMixingScenario("pp5TeV_Poisson_3p0",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-5,3), 'N': 3.0})
+addMixingScenario("pp5TeV_Poisson_3p5",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-5,3), 'N': 3.5})
+addMixingScenario("pp5TeV_Poisson_4p0",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-5,3), 'N': 4.0})
+
 MixingDefaultKey = '2012_Summer_50ns_PoissonOOTPU'
 
 def printMe():
