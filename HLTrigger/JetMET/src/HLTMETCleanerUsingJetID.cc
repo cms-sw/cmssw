@@ -93,10 +93,10 @@ void HLTMETCleanerUsingJetID::produce(edm::Event& iEvent, const edm::EventSetup&
         double mex_diff = mex_goodJets - mex_jets;
         double mey_diff = mey_goodJets - mey_jets;
         //double sumet_diff = sumet_goodJets - sumet_jets;  // cannot set sumet...
-        reco::Candidate::LorentzVector p4_diff(met->front().px()+mex_diff, mey_diff+met->front().py(), 0, sqrt((met->front().px()+mex_diff)*(met->front().px() +mex_diff)+(met->front().py()+mey_diff)*(met->front().py() +mey_diff)));
+        reco::Candidate::LorentzVector p4_clean(met->front().px()+mex_diff, mey_diff+met->front().py(), 0, sqrt((met->front().px()+mex_diff)*(met->front().px() +mex_diff)+(met->front().py()+mey_diff)*(met->front().py() +mey_diff)));
 
-        reco::CaloMET cleanmet ;
-        cleanmet.setP4(p4_diff);
+        reco::CaloMET cleanmet = met->front() ; 
+        cleanmet.setP4(p4_clean);
         result->push_back(cleanmet);
     }
 
