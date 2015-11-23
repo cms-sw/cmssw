@@ -85,15 +85,15 @@ ChargedHadronMuonRefFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 
     const reco::PFCandidate & cand = (*pfCandidates)[i];
 	
-		if (!(( fabs(cand.pdgId()) == 211 ) || ( fabs(cand.pdgId()) == 13 ))) continue;
-    // if ( debug_ ) cout << "Found charged hadron or muon candidate" << std::endl;
+		if ( fabs(cand.pdgId()) == 211 ) {
+	    // if ( debug_ ) cout << "Found charged hadron candidate" << std::endl;
 
-    if (cand.trackRef().isNull()) continue;
-    // if ( debug_ ) cout << "Found valid TrackRef" << std::endl;
-    const reco::TrackRef trackref = cand.trackRef();
-    const double Pt = trackref->pt();
-    if (Pt < ptMin_) continue;
-    // if ( debug_ ) cout << "track pT > " << ptMin_ << " GeV - algorithm: "  << trackref->algo() << std::endl;
+	    if (cand.trackRef().isNull()) continue;
+	    // if ( debug_ ) cout << "Found valid TrackRef" << std::endl;
+	    const reco::TrackRef trackref = cand.trackRef();
+	    const double Pt = trackref->pt();
+	    if (Pt < ptMin_) continue;
+	    // if ( debug_ ) cout << "track pT > " << ptMin_ << " GeV - algorithm: "  << trackref->algo() << std::endl;
 
       const double P = trackref->p();
       const double DPt = trackref->ptError();
@@ -105,10 +105,36 @@ ChargedHadronMuonRefFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 
         if ( debug_ ) {
           cout << cand << endl;
-          cout << "\t" << "track pT = " << Pt << " +/- " << DPt;
+          cout << "charged hadron \t" << "track pT = " << Pt << " +/- " << DPt;
           cout << endl;
         }
       }
+		}
+		else if ( fabs(cand.pdgId()) == 13 ) {
+	    // if ( debug_ ) cout << "Found muon candidate" << std::endl;
+
+	    if (cand.trackRef().isNull()) continue;
+	    // if ( debug_ ) cout << "Found valid TrackRef" << std::endl;
+	    const reco::TrackRef trackref = cand.trackRef();
+	    const double Pt = trackref->pt();
+	    if (Pt < ptMin_) continue;
+	    // if ( debug_ ) cout << "track pT > " << ptMin_ << " GeV - algorithm: "  << trackref->algo() << std::endl;
+
+      const double P = trackref->p();
+      const double DPt = trackref->ptError();
+      const unsigned int LostHits = trackref->numberOfLostHits();
+
+      if ((DPt/Pt) > (5 * sqrt(1.20*1.20/P+0.06*0.06) / (1.+LostHits))) {
+
+        foundBadTrack = true;
+
+        if ( debug_ ) {
+          cout << cand << endl;
+          cout << "muon \t" << "track pT = " << Pt << " +/- " << DPt;
+          cout << endl;
+        }
+      }
+		}
     
   } // end loop over PF candidates
 
