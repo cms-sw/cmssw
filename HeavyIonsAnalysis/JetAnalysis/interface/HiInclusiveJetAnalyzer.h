@@ -295,6 +295,8 @@ private:
     int svtxntrk[MAXJETS];
     float svtxdl[MAXJETS];
     float svtxdls[MAXJETS];
+    float svtxdl2d[MAXJETS];
+    float svtxdls2d[MAXJETS];
     float svtxm[MAXJETS];
     float svtxpt[MAXJETS];
     float svtxnormchi2[MAXJETS];

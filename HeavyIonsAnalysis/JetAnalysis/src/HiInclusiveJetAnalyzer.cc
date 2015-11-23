@@ -297,6 +297,8 @@ HiInclusiveJetAnalyzer::beginJob() {
     t->Branch("svtxntrk", jets_.svtxntrk, "svtxntrk[nref]/I");
     t->Branch("svtxdl",   jets_.svtxdl,   "svtxdl[nref]/F");
     t->Branch("svtxdls",  jets_.svtxdls,  "svtxdls[nref]/F");
+    t->Branch("svtxdl2d", jets_.svtxdl2d, "svtxdl2d[nref]/F");
+    t->Branch("svtxdls2d", jets_.svtxdls2d, "svtxdls2d[nref]/F");
     t->Branch("svtxm",    jets_.svtxm,    "svtxm[nref]/F");
     t->Branch("svtxpt",   jets_.svtxpt,   "svtxpt[nref]/F");
 
@@ -575,7 +577,10 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 	  Measurement1D m1D = tagInfoSV.flightDistance(0);
 	  jets_.svtxdl[jets_.nref]    = m1D.value();
 	  jets_.svtxdls[jets_.nref]   = m1D.significance();
-	  const Vertex& svtx = tagInfoSV.secondaryVertex(0);
+	  Measurement1D m2D = tagInfoSV.flightDistance(0,true);
+          jets_.svtxdl2d[jets_.nref] = m2D.value();
+          jets_.svtxdls2d[jets_.nref] = m2D.significance();
+          const Vertex& svtx = tagInfoSV.secondaryVertex(0);
 	  jets_.svtxm[jets_.nref]    = svtx.p4().mass();
 	  jets_.svtxpt[jets_.nref]   = svtx.p4().pt();
 	  if(svtx.ndof()>0)jets_.svtxnormchi2[jets_.nref]  = svtx.chi2()/svtx.ndof();
