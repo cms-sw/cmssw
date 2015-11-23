@@ -45,6 +45,13 @@ class CFG(object):
         all = [ header ]
         all.extend(varlines)
         return '\n'.join( all )
+
+    def clone(self, **kwargs):
+        import copy
+        other = copy.copy(self)
+        for k,v in kwargs.iteritems():
+            setattr(other, k, v)
+        return other
     
 class Analyzer( CFG ):
     '''Base analyzer configuration, see constructor'''
@@ -97,6 +104,12 @@ class Analyzer( CFG ):
         name = '_'.join([class_name, self.instance_label])
         return name 
 
+    def clone(self, **kwargs):
+        other = super(Analyzer, self).clone(**kwargs)
+        if 'class_object' in kwargs and 'name' not in kwargs:
+            other.name = other.build_name()
+        return other
+
     
 class Service( CFG ):
     
@@ -119,7 +132,20 @@ class Service( CFG ):
                                self.class_object.__name__])
         name = '_'.join([class_name, self.instance_label])
         return name 
-   
+
+    def __setattr__(self, name, value):
+        '''You may decide to copy an existing analyzer and change
+        its instance_label. In that case, one must stay consistent.'''
+        self.__dict__[name] = value
+        if name == 'instance_label':
+            self.name = self.build_name()   
+
+    def clone(self, **kwargs):
+        other = super(Service, self).clone(**kwargs)
+        if 'class_object' in kwargs and 'name' not in kwargs:
+            other.name = other.build_name()
+        return other
+
 
 class Sequence( list ):
     '''A list with print functionalities.
