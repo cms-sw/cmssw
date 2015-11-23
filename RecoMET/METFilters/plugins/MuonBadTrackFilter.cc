@@ -99,10 +99,10 @@ MuonBadTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		
 	  const reco::MuonRef       muon  = cand.muonRef();
 		
-		if (muon->muonBestTrack().isAvailable()) continue;
+		if (!muon->muonBestTrack().isAvailable()) continue;
 		if (muon->muonBestTrack()->hitPattern().numberOfValidMuonHits() != 0) continue;
 		
-		if (muon->globalTrack().isAvailable()) continue;
+		if (!muon->globalTrack().isAvailable()) continue;
 		if (muon->globalTrack()->normalizedChi2() > chi2Min_) {
 			foundBadTrack = true;
 			if ( debug_ ) cout << "globalTrack numberOfValidMuonHits: " << muon->globalTrack()->hitPattern().numberOfValidMuonHits() << 
