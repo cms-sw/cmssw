@@ -17,9 +17,6 @@ using namespace std;
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
-#include "EventFilter/HcalRawToDigi/interface/HcalDTCHeader.h"
-
 
 CastorRawToDigi::CastorRawToDigi(edm::ParameterSet const& conf):
   dataTag_(conf.getParameter<edm::InputTag>("InputLabel")),
