@@ -19,7 +19,7 @@ akPu2Calocorr = patJetCorrFactors.clone(
 #    primaryVertices = cms.InputTag("hiSelectedVertex"),
     levels   = cms.vstring('L2Relative','L3Absolute'),
     src = cms.InputTag("akPu2CaloJets"),
-    payload = "AK2Calo_offline"
+    payload = "AKPu2Calo_offline"
     )
 
 akPu2CalopatJets = patJets.clone(jetSource = cms.InputTag("akPu2CaloJets"),
