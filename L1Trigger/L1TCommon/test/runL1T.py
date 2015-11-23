@@ -39,13 +39,18 @@ process.load('L1Trigger.L1TMuon.simMuonDigis_cfi')
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
-#process.l1tSummary = cms.EDAnalyzer("L1TSummary")
-#process.l1tSummary.egToken   = cms.InputTag("simCaloStage2Digis");
-#process.l1tSummary.tauToken  = cms.InputTag("simCaloStage2Digis");
-#process.l1tSummary.jetToken  = cms.InputTag("simCaloStage2Digis");
-#process.l1tSummary.sumToken  = cms.InputTag("simCaloStage2Digis");
-#process.l1tSummary.muonToken = cms.InputTag("simGmtDigis","");
-##process.l1tSummary.muonToken = cms.InputTag("simGmtDigis","imdMuonsBMTF");
+process.l1tSummary = cms.EDAnalyzer("L1TSummary")
+process.l1tSummary.egCheck   = cms.bool(True);
+process.l1tSummary.tauCheck  = cms.bool(True);
+process.l1tSummary.jetCheck  = cms.bool(True);
+process.l1tSummary.sumCheck  = cms.bool(True);
+process.l1tSummary.muonCheck = cms.bool(True);
+process.l1tSummary.egToken   = cms.InputTag("simCaloStage2Digis");
+process.l1tSummary.tauToken  = cms.InputTag("simCaloStage2Digis");
+process.l1tSummary.jetToken  = cms.InputTag("simCaloStage2Digis");
+process.l1tSummary.sumToken  = cms.InputTag("simCaloStage2Digis");
+process.l1tSummary.muonToken = cms.InputTag("simGmtDigis","");
+#process.l1tSummary.muonToken = cms.InputTag("simGmtDigis","imdMuonsBMTF");
 
 process.load('L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi')
 process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
@@ -62,7 +67,7 @@ process.L1TMuonSeq = cms.Sequence(   process.simCaloStage2Layer1Digis
                                    + process.simGmtDigis
 #                                   + process.dumpED
 #                                   + process.dumpES
-#                                   + process.l1tSummary
+                                   + process.l1tSummary
 )
 
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
