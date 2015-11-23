@@ -19,7 +19,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(-1)
 )
 
 process.source = cms.Source ("PoolSource",
@@ -67,7 +67,7 @@ for subdetId,trackerLayers in trackerStripGaussianResolutions.iteritems():
     for trackerLayer, resolutionX in trackerLayers.iteritems():
         pluginConfig = cms.PSet(
             name = cms.string(subdetId+str(trackerLayer)),
-            type=cms.string("TrackingRecGaussianSmearingPlugin"),
+            type=cms.string("TrackingRecHitStripGSSmearingPlugin"),
             resolutionX=resolutionX,
             select=cms.string("(subdetId=="+subdetId+") && (layer=="+str(trackerLayer)+")"),
         )
