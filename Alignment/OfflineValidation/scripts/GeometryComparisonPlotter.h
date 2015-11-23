@@ -28,7 +28,10 @@ class GeometryComparisonPlotter
     TString _sublevel_names[NB_SUBLEVELS],
             _output_directory,
             _output_filename,
-            _print_option;
+            _print_option,
+            _module_plot_option,
+            _alignment_name,
+            _reference_name;
     bool _print,
          _legend,
          _write,
@@ -67,7 +70,10 @@ public:
 
     // constructor and destructor
     GeometryComparisonPlotter(TString tree_file_name,
-                              TString outputDirname = "output/");
+                              TString outputDirname = "output/",
+                              TString modulesToPlot="all",
+                              TString referenceName="Ideal",
+                              TString alignmentName="Alignment");
     ~GeometryComparisonPlotter ();
 
     // main methods

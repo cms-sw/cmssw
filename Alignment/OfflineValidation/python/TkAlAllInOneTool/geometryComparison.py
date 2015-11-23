@@ -28,7 +28,9 @@ class GeometryComparison(GenericValidation):
 	defaults = {
 	    "3DSubdetector1":"1",
 	    "3DSubdetector2":"2",
-	    "3DTranslationalScaleFactor":"50"
+	    "3DTranslationalScaleFactor":"50",
+	    "modulesToPlot":"all",
+	    "moduleList": "/store/caf/user/cschomak/emptyModuleList.txt"
             }
         mandatories = ["levels", "dbOutput"]
         GenericValidation.__init__(self, valName, alignment, config, 
@@ -124,7 +126,7 @@ class GeometryComparison(GenericValidation):
                      "/scripts/GeometryComparisonPlotter.cc .\n"
                      "root -b -q 'comparisonScript.C+(\""
                      ".oO[name]Oo..Comparison_common"+name+".root\",\""
-                     "./\")'\n"
+                     "./\",\".oO[modulesToPlot]Oo.\",\".oO[alignmentName]Oo.\",\".oO[reference]Oo.\")'\n"
 		     "rfcp "+path+"/TkAl3DVisualization_.oO[name]Oo..C .\n"
 		     "root -l -b -q TkAl3DVisualization_.oO[name]Oo..C+\n")
                 if  self.copyImages:
@@ -137,12 +139,9 @@ class GeometryComparison(GenericValidation):
                    repMap["runComparisonScripts"] += \
                        ("rfmkdir -p .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images/Rotations\n")
-                   repMap["runComparisonScripts"] += \
-                       ("rfmkdir -p .oO[datadir]Oo./.oO[name]Oo."
-                        ".Comparison_common"+name+"_Images/CrossTalk\n")
 
 
-                   ### At the moment translations are immages with suffix _1 and _2, rotations _3 and _4, and cross talk _5, _6, _7 and _8
+                   ### At the moment translations are images with suffix _1 and _2, rotations _3 and _4
                    ### The numeration depends on the order of the MakePlots(x, y) commands in comparisonScript.C
                    ### If comparisonScript.C is changed, check if the following lines need to be changed as well
                    repMap["runComparisonScripts"] += \
@@ -162,23 +161,6 @@ class GeometryComparison(GenericValidation):
                        ("find . -maxdepth 1 -name \"*_4*\" "
                         "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
                         "/.oO[name]Oo..Comparison_common"+name+"_Images/Rotations/\" \n")
-                   
-                   repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*_5*\" "
-                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/CrossTalk/\" \n")
-                   repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*_6*\" "
-                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/CrossTalk/\" \n")
-                   repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*_7*\" "
-                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/CrossTalk/\" \n")
-                   repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"*_8*\" "
-                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name+"_Images/CrossTalk/\" \n")
                    
                    repMap["runComparisonScripts"] += \
                        ("find . -maxdepth 1 -name "
@@ -232,6 +214,9 @@ class GeometryComparison(GenericValidation):
                 self.filesToCompare[ name ] = resultingFile
 
         repMap["CommandLine"]=""
+        repMap["CommandLine"]+= \
+                 ("# copy module list required for comparison script \n"
+                 "rfcp .oO[moduleList]Oo. .\n")
 
         for cfg in self.configFiles:
             # FIXME: produce this line only for enabled dbOutput
