@@ -48,6 +48,7 @@ akPu7PFTrackCountingHighPurBJetTags = akPu7PFbTagger.TrackCountingHighPurBJetTag
 akPu7PFPatJetPartonAssociationLegacy = akPu7PFbTagger.PatJetPartonAssociationLegacy
 
 akPu7PFImpactParameterTagInfos = akPu7PFbTagger.ImpactParameterTagInfos
+akPu7PFImpactParameterTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
 akPu7PFJetProbabilityBJetTags = akPu7PFbTagger.JetProbabilityBJetTags
 akPu7PFPositiveOnlyJetProbabilityBJetTags = akPu7PFbTagger.PositiveOnlyJetProbabilityBJetTags
 akPu7PFNegativeOnlyJetProbabilityBJetTags = akPu7PFbTagger.NegativeOnlyJetProbabilityBJetTags
@@ -69,6 +70,7 @@ akPu7PFNegativeCombinedSecondaryVertexBJetTags = akPu7PFbTagger.NegativeCombined
 akPu7PFPositiveCombinedSecondaryVertexBJetTags = akPu7PFbTagger.PositiveCombinedSecondaryVertexBJetTags
 
 akPu7PFSoftPFMuonsTagInfos = akPu7PFbTagger.SoftPFMuonsTagInfos
+akPu7PFSoftPFMuonsTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
 akPu7PFSoftPFMuonBJetTags = akPu7PFbTagger.SoftPFMuonBJetTags
 akPu7PFSoftPFMuonByIP3dBJetTags = akPu7PFbTagger.SoftPFMuonByIP3dBJetTags
 akPu7PFSoftPFMuonByPtBJetTags = akPu7PFbTagger.SoftPFMuonByPtBJetTags
@@ -134,7 +136,7 @@ akPu7PFJetBtaggingMu = cms.Sequence(akPu7PFSoftPFMuonsTagInfos * (akPu7PFSoftPFM
 akPu7PFJetBtagging = cms.Sequence(akPu7PFJetBtaggingIP
             *akPu7PFJetBtaggingSV
             *akPu7PFJetBtaggingNegSV
-            *akPu7PFJetBtaggingMu
+#            *akPu7PFJetBtaggingMu
             )
 
 akPu7PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("akPu7PFJets"),
@@ -151,8 +153,8 @@ akPu7PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("akPu7PFJets
             cms.InputTag("akPu7PFCombinedSecondaryVertexV2BJetTags"),
             cms.InputTag("akPu7PFJetBProbabilityBJetTags"),
             cms.InputTag("akPu7PFJetProbabilityBJetTags"),
-            cms.InputTag("akPu7PFSoftPFMuonByPtBJetTags"),
-            cms.InputTag("akPu7PFSoftPFMuonByIP3dBJetTags"),
+            #cms.InputTag("akPu7PFSoftPFMuonByPtBJetTags"),
+            #cms.InputTag("akPu7PFSoftPFMuonByIP3dBJetTags"),
             cms.InputTag("akPu7PFTrackCountingHighEffBJetTags"),
             cms.InputTag("akPu7PFTrackCountingHighPurBJetTags"),
             ),
@@ -162,7 +164,7 @@ akPu7PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("akPu7PFJets
         addDiscriminators = True,
         addAssociatedTracks = True,
         addJetCharge = False,
-        addJetID = True,
+        addJetID = False,
         getJetMCFlavour = False,
         addGenPartonMatch = False,
         addGenJetMatch = False,
@@ -181,7 +183,8 @@ akPu7PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu7PFpa
                                                              trackTag = cms.InputTag("generalTracks"),
                                                              fillGenJets = False,
                                                              isMC = False,
-                                                             genParticles = cms.untracked.InputTag("genParticles"),
+                                                             useHepMC = cms.untracked.bool(False),
+							     genParticles = cms.untracked.InputTag("genParticles"),
 							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
@@ -199,8 +202,8 @@ akPu7PFJetSequence_mc = cms.Sequence(
                                                   *
                                                   akPu7PFcorr
                                                   *
-                                                  akPu7PFJetID
-                                                  *
+                                                  #akPu7PFJetID
+                                                  #*
                                                   akPu7PFPatJetFlavourIdLegacy
                                                   #*
 			                          #akPu7PFPatJetFlavourId  # Use legacy algo till PU implemented

@@ -514,9 +514,9 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
   // Soft muon tagger
   //------------------------------------------------------
 
-  Handle<SoftLeptonTagInfoCollection> tagInos_softmuon;
-  Handle<JetTagCollection> jetTags_softMu;
-  Handle<JetTagCollection> jetTags_softMuneg;
+  //Handle<SoftLeptonTagInfoCollection> tagInos_softmuon;
+  //Handle<JetTagCollection> jetTags_softMu;
+  //Handle<JetTagCollection> jetTags_softMuneg;
 
   if(doLifeTimeTagging_){
     iEvent.getByLabel(ImpactParameterTagInfos_, tagInfo);
@@ -539,8 +539,8 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
     iEvent.getByLabel(CombinedSecondaryVertexBJetTags_, jetTags_CombinedSvtx);
     iEvent.getByLabel(NegativeCombinedSecondaryVertexBJetTags_, jetTags_negCombinedSvtx);
     iEvent.getByLabel(PositiveCombinedSecondaryVertexBJetTags_, jetTags_posCombinedSvtx);
-    iEvent.getByLabel(NegativeSoftPFMuonByPtBJetTags_, jetTags_softMuneg);
-    iEvent.getByLabel(PositiveSoftPFMuonByPtBJetTags_, jetTags_softMu);
+    //iEvent.getByLabel(NegativeSoftPFMuonByPtBJetTags_, jetTags_softMuneg);
+    //iEvent.getByLabel(PositiveSoftPFMuonByPtBJetTags_, jetTags_softMu);
   }
 
 
@@ -661,19 +661,19 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
       ith_tagged    = this->TaggedJet(jet,jetTags_NegTCHighPur);
       if(ith_tagged >= 0) jets_.ndiscr_tcHighPur[jets_.nref]   = (*jetTags_NegTCHighPur)[ith_tagged].second;
 
-      ith_tagged = this->TaggedJet(jet,jetTags_softMu);
-      if(ith_tagged >= 0){
-	if ( (*jetTags_softMu)[ith_tagged].second     > -100000 )
-	  jets_.discr_muByPt[jets_.nref]  = (*jetTags_softMu)[ith_tagged].second;
-      }
-      ith_tagged = this->TaggedJet(jet,jetTags_softMuneg);
-      if(ith_tagged >= 0){
-	float SoftMN = 0;
-	if ( (*jetTags_softMuneg)[ith_tagged].second  > -100000 )
-	  SoftMN = ((*jetTags_softMuneg)[ith_tagged].second);
-	if ( SoftMN > 0 ) SoftMN = -SoftMN;
-	jets_.ndiscr_muByPt[jets_.nref] = SoftMN;
-      }
+      //ith_tagged = this->TaggedJet(jet,jetTags_softMu);
+      //if(ith_tagged >= 0){
+      //  if ( (*jetTags_softMu)[ith_tagged].second     > -100000 )
+      //    jets_.discr_muByPt[jets_.nref]  = (*jetTags_softMu)[ith_tagged].second;
+      //}
+      //ith_tagged = this->TaggedJet(jet,jetTags_softMuneg);
+      //if(ith_tagged >= 0){
+      //  float SoftMN = 0;
+      //  if ( (*jetTags_softMuneg)[ith_tagged].second  > -100000 )
+      //    SoftMN = ((*jetTags_softMuneg)[ith_tagged].second);
+      //  if ( SoftMN > 0 ) SoftMN = -SoftMN;
+      //  jets_.ndiscr_muByPt[jets_.nref] = SoftMN;
+      //}
 
       const PFCandidateCollection *pfCandidateColl = &(*pfCandidates);
       int pfMuonIndex = getPFJetMuon(jet, pfCandidateColl);

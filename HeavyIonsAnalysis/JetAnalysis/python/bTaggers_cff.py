@@ -99,7 +99,7 @@ class bTaggers:
 
         self.SoftPFMuonsTagInfos                = softPFMuonsTagInfos.clone()
         self.SoftPFMuonsTagInfos.jets           = cms.InputTag(jetname+"Jets")
-        self.SoftPFMuonsTagInfos.primaryVertex  = cms.InputTag("offlinePrimaryVertices")
+        #self.SoftPFMuonsTagInfos.primaryVertex  = cms.InputTag("offlinePrimaryVertices")
         self.SoftPFMuonBJetTags                = softPFMuonBJetTags.clone()
         self.SoftPFMuonBJetTags.tagInfos       = cms.VInputTag(cms.InputTag(jetname+"SoftPFMuonsTagInfos"))
         self.SoftPFMuonByIP3dBJetTags          = softPFMuonByIP3dBJetTags.clone()

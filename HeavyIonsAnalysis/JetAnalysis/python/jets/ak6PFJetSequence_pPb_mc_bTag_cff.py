@@ -48,6 +48,7 @@ ak6PFTrackCountingHighPurBJetTags = ak6PFbTagger.TrackCountingHighPurBJetTags
 ak6PFPatJetPartonAssociationLegacy = ak6PFbTagger.PatJetPartonAssociationLegacy
 
 ak6PFImpactParameterTagInfos = ak6PFbTagger.ImpactParameterTagInfos
+ak6PFImpactParameterTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
 ak6PFJetProbabilityBJetTags = ak6PFbTagger.JetProbabilityBJetTags
 ak6PFPositiveOnlyJetProbabilityBJetTags = ak6PFbTagger.PositiveOnlyJetProbabilityBJetTags
 ak6PFNegativeOnlyJetProbabilityBJetTags = ak6PFbTagger.NegativeOnlyJetProbabilityBJetTags
@@ -69,6 +70,7 @@ ak6PFNegativeCombinedSecondaryVertexBJetTags = ak6PFbTagger.NegativeCombinedSeco
 ak6PFPositiveCombinedSecondaryVertexBJetTags = ak6PFbTagger.PositiveCombinedSecondaryVertexBJetTags
 
 ak6PFSoftPFMuonsTagInfos = ak6PFbTagger.SoftPFMuonsTagInfos
+ak6PFSoftPFMuonsTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
 ak6PFSoftPFMuonBJetTags = ak6PFbTagger.SoftPFMuonBJetTags
 ak6PFSoftPFMuonByIP3dBJetTags = ak6PFbTagger.SoftPFMuonByIP3dBJetTags
 ak6PFSoftPFMuonByPtBJetTags = ak6PFbTagger.SoftPFMuonByPtBJetTags
@@ -134,7 +136,7 @@ ak6PFJetBtaggingMu = cms.Sequence(ak6PFSoftPFMuonsTagInfos * (ak6PFSoftPFMuonBJe
 ak6PFJetBtagging = cms.Sequence(ak6PFJetBtaggingIP
             *ak6PFJetBtaggingSV
             *ak6PFJetBtaggingNegSV
-            *ak6PFJetBtaggingMu
+#            *ak6PFJetBtaggingMu
             )
 
 ak6PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("ak6PFJets"),
@@ -151,8 +153,8 @@ ak6PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("ak6PFJets"),
             cms.InputTag("ak6PFCombinedSecondaryVertexV2BJetTags"),
             cms.InputTag("ak6PFJetBProbabilityBJetTags"),
             cms.InputTag("ak6PFJetProbabilityBJetTags"),
-            cms.InputTag("ak6PFSoftPFMuonByPtBJetTags"),
-            cms.InputTag("ak6PFSoftPFMuonByIP3dBJetTags"),
+            #cms.InputTag("ak6PFSoftPFMuonByPtBJetTags"),
+            #cms.InputTag("ak6PFSoftPFMuonByIP3dBJetTags"),
             cms.InputTag("ak6PFTrackCountingHighEffBJetTags"),
             cms.InputTag("ak6PFTrackCountingHighPurBJetTags"),
             ),
@@ -162,7 +164,7 @@ ak6PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("ak6PFJets"),
         addDiscriminators = True,
         addAssociatedTracks = True,
         addJetCharge = False,
-        addJetID = True,
+        addJetID = False,
         getJetMCFlavour = True,
         addGenPartonMatch = True,
         addGenJetMatch = True,
@@ -181,7 +183,8 @@ ak6PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak6PFpatJet
                                                              trackTag = cms.InputTag("generalTracks"),
                                                              fillGenJets = True,
                                                              isMC = True,
-                                                             genParticles = cms.untracked.InputTag("hiGenParticles"),
+                                                             useHepMC = cms.untracked.bool(False),
+							     genParticles = cms.untracked.InputTag("hiGenParticles"),
 							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
@@ -199,8 +202,8 @@ ak6PFJetSequence_mc = cms.Sequence(
                                                   *
                                                   ak6PFcorr
                                                   *
-                                                  ak6PFJetID
-                                                  *
+                                                  #ak6PFJetID
+                                                  #*
                                                   ak6PFPatJetFlavourIdLegacy
                                                   #*
 			                          #ak6PFPatJetFlavourId  # Use legacy algo till PU implemented

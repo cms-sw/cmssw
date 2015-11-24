@@ -48,6 +48,7 @@ ak1PFTrackCountingHighPurBJetTags = ak1PFbTagger.TrackCountingHighPurBJetTags
 ak1PFPatJetPartonAssociationLegacy = ak1PFbTagger.PatJetPartonAssociationLegacy
 
 ak1PFImpactParameterTagInfos = ak1PFbTagger.ImpactParameterTagInfos
+ak1PFImpactParameterTagInfos.primaryVertex = cms.InputTag("hiSelectedVertex")
 ak1PFJetProbabilityBJetTags = ak1PFbTagger.JetProbabilityBJetTags
 ak1PFPositiveOnlyJetProbabilityBJetTags = ak1PFbTagger.PositiveOnlyJetProbabilityBJetTags
 ak1PFNegativeOnlyJetProbabilityBJetTags = ak1PFbTagger.NegativeOnlyJetProbabilityBJetTags
@@ -69,6 +70,7 @@ ak1PFNegativeCombinedSecondaryVertexBJetTags = ak1PFbTagger.NegativeCombinedSeco
 ak1PFPositiveCombinedSecondaryVertexBJetTags = ak1PFbTagger.PositiveCombinedSecondaryVertexBJetTags
 
 ak1PFSoftPFMuonsTagInfos = ak1PFbTagger.SoftPFMuonsTagInfos
+ak1PFSoftPFMuonsTagInfos.primaryVertex = cms.InputTag("hiSelectedVertex")
 ak1PFSoftPFMuonBJetTags = ak1PFbTagger.SoftPFMuonBJetTags
 ak1PFSoftPFMuonByIP3dBJetTags = ak1PFbTagger.SoftPFMuonByIP3dBJetTags
 ak1PFSoftPFMuonByPtBJetTags = ak1PFbTagger.SoftPFMuonByPtBJetTags
@@ -134,7 +136,7 @@ ak1PFJetBtaggingMu = cms.Sequence(ak1PFSoftPFMuonsTagInfos * (ak1PFSoftPFMuonBJe
 ak1PFJetBtagging = cms.Sequence(ak1PFJetBtaggingIP
             *ak1PFJetBtaggingSV
             *ak1PFJetBtaggingNegSV
-            *ak1PFJetBtaggingMu
+#            *ak1PFJetBtaggingMu
             )
 
 ak1PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("ak1PFJets"),
@@ -151,8 +153,8 @@ ak1PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("ak1PFJets"),
             cms.InputTag("ak1PFCombinedSecondaryVertexV2BJetTags"),
             cms.InputTag("ak1PFJetBProbabilityBJetTags"),
             cms.InputTag("ak1PFJetProbabilityBJetTags"),
-            cms.InputTag("ak1PFSoftPFMuonByPtBJetTags"),
-            cms.InputTag("ak1PFSoftPFMuonByIP3dBJetTags"),
+            #cms.InputTag("ak1PFSoftPFMuonByPtBJetTags"),
+            #cms.InputTag("ak1PFSoftPFMuonByIP3dBJetTags"),
             cms.InputTag("ak1PFTrackCountingHighEffBJetTags"),
             cms.InputTag("ak1PFTrackCountingHighPurBJetTags"),
             ),
@@ -162,7 +164,7 @@ ak1PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("ak1PFJets"),
         addDiscriminators = True,
         addAssociatedTracks = True,
         addJetCharge = False,
-        addJetID = True,
+        addJetID = False,
         getJetMCFlavour = True,
         addGenPartonMatch = True,
         addGenJetMatch = True,
@@ -181,7 +183,8 @@ ak1PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak1PFpatJet
                                                              trackTag = cms.InputTag("hiGeneralTracks"),
                                                              fillGenJets = True,
                                                              isMC = True,
-                                                             genParticles = cms.untracked.InputTag("genParticles"),
+                                                             useHepMC = cms.untracked.bool(False),
+							     genParticles = cms.untracked.InputTag("genParticles"),
 							     eventInfoTag = cms.InputTag("generator"),
                                                              doLifeTimeTagging = cms.untracked.bool(True),
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(True),
@@ -199,8 +202,8 @@ ak1PFJetSequence_mc = cms.Sequence(
                                                   *
                                                   ak1PFcorr
                                                   *
-                                                  ak1PFJetID
-                                                  *
+                                                  #ak1PFJetID
+                                                  #*
                                                   ak1PFPatJetFlavourIdLegacy
                                                   #*
 			                          #ak1PFPatJetFlavourId  # Use legacy algo till PU implemented
