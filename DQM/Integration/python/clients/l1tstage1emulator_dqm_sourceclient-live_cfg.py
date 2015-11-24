@@ -79,6 +79,8 @@ process.l1HwValEmulatorMonitorPath = cms.Path(process.l1Stage1HwValEmulatorMonit
 #process.load("L1TriggerConfig.RCTConfigProducers.l1RCTOmdsFedVectorProducer_cfi")
 #process.valRctDigis.getFedsFromOmds = cms.bool(True)
 
+process.stage1UnpackerPath = cms.Path(process.caloStage1Digis+process.caloStage1LegacyFormatDigis)
+
 #
 process.l1EmulatorMonitorClientPath = cms.Path(process.l1EmulatorMonitorClient)
 
@@ -89,6 +91,7 @@ process.l1EmulatorMonitorEndPath = cms.EndPath(process.dqmEnv*process.dqmSaver)
 
 #
 process.schedule = cms.Schedule(process.rawToDigiPath,
+                                process.stage1UnpackerPath,
                                 process.l1HwValEmulatorMonitorPath,
                                 process.l1EmulatorMonitorClientPath,
                                 process.l1EmulatorMonitorEndPath)
