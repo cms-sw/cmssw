@@ -20,7 +20,7 @@ akPu1PFcorr = patJetCorrFactors.clone(
 #    primaryVertices = cms.InputTag("hiSelectedVertex"),
     levels   = cms.vstring('L2Relative','L3Absolute'),
     src = cms.InputTag("akPu1PFJets"),
-    payload = "AKPu1PF_offline"
+    payload = "AK1PF_offline"
     )
 
 akPu1PFJetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('akPu1CaloJets'))
@@ -48,7 +48,6 @@ akPu1PFTrackCountingHighPurBJetTags = akPu1PFbTagger.TrackCountingHighPurBJetTag
 akPu1PFPatJetPartonAssociationLegacy = akPu1PFbTagger.PatJetPartonAssociationLegacy
 
 akPu1PFImpactParameterTagInfos = akPu1PFbTagger.ImpactParameterTagInfos
-akPu1PFImpactParameterTagInfos.primaryVertex = cms.InputTag("hiSelectedVertex")
 akPu1PFJetProbabilityBJetTags = akPu1PFbTagger.JetProbabilityBJetTags
 akPu1PFPositiveOnlyJetProbabilityBJetTags = akPu1PFbTagger.PositiveOnlyJetProbabilityBJetTags
 akPu1PFNegativeOnlyJetProbabilityBJetTags = akPu1PFbTagger.NegativeOnlyJetProbabilityBJetTags
@@ -70,7 +69,6 @@ akPu1PFNegativeCombinedSecondaryVertexBJetTags = akPu1PFbTagger.NegativeCombined
 akPu1PFPositiveCombinedSecondaryVertexBJetTags = akPu1PFbTagger.PositiveCombinedSecondaryVertexBJetTags
 
 akPu1PFSoftPFMuonsTagInfos = akPu1PFbTagger.SoftPFMuonsTagInfos
-akPu1PFSoftPFMuonsTagInfos.primaryVertex = cms.InputTag("hiSelectedVertex")
 akPu1PFSoftPFMuonBJetTags = akPu1PFbTagger.SoftPFMuonBJetTags
 akPu1PFSoftPFMuonByIP3dBJetTags = akPu1PFbTagger.SoftPFMuonByIP3dBJetTags
 akPu1PFSoftPFMuonByPtBJetTags = akPu1PFbTagger.SoftPFMuonByPtBJetTags
