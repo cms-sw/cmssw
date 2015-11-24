@@ -2,6 +2,7 @@
 //#define DebugLog
 
 // system include files
+#include <atomic>
 #include <memory>
 #include <string>
 #include <cmath>
@@ -13,7 +14,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -76,39 +77,48 @@
 // class declaration
 //
 
-class AlCaIsoTracksProducer : public edm::EDProducer {
+namespace AlCaIsoTracks {
+  struct Counters {
+    Counters() : nAll_(0), nGood_(0) {}
+    mutable std::atomic<unsigned int> nAll_, nGood_;
+  };
+}
+
+class AlCaIsoTracksProducer : public edm::stream::EDProducer<edm::GlobalCache<AlCaIsoTracks::Counters> > {
 public:
-  explicit AlCaIsoTracksProducer(const edm::ParameterSet&);
+  explicit AlCaIsoTracksProducer(edm::ParameterSet const&, const AlCaIsoTracks::Counters* count);
   ~AlCaIsoTracksProducer();
   
-  virtual void produce(edm::Event &, const edm::EventSetup&);
+  static std::unique_ptr<AlCaIsoTracks::Counters> initializeGlobalCache(edm::ParameterSet const& ) {
+    return std::unique_ptr<AlCaIsoTracks::Counters>(new AlCaIsoTracks::Counters());
+  }
+
+  virtual void produce(edm::Event &, edm::EventSetup const&) override;
+  virtual void endStream() override;
+  static  void globalEndJob(const AlCaIsoTracks::Counters* counters);
  
 private:
 
-  virtual void beginJob() ;
-  virtual void endJob() ;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  reco::HcalIsolatedTrackCandidateCollection* select(edm::Handle<edm::TriggerResults>& triggerResults, const std::vector<std::string> & triggerNames_, edm::Handle<reco::TrackCollection>& trkCollection, math::XYZPoint& leadPV,edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle, edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle, edm::Handle<HBHERecHitCollection>& hbhe);
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  reco::HcalIsolatedTrackCandidateCollection* select(edm::Handle<edm::TriggerResults>& triggerResults, const std::vector<std::string> & triggerNames_, edm::Handle<reco::TrackCollection>& trkCollection, math::XYZPoint& leadPV,edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle, edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle, edm::Handle<HBHERecHitCollection>& hbhe, double ptL1, double etaL1, double phiL1);
   void setPtEtaPhi(std::vector< edm::Ref<l1extra::L1JetParticleCollection> >& objref, double &ptL1, double &etaL1, double &phiL1);
 
   // ----------member data ---------------------------
-  HLTConfigProvider          hltConfig_;
-  std::vector<std::string>   trigNames, HLTNames;
-  std::vector<int>           trigKount, trigPass;
-  spr::trackSelectionParameters selectionParameters;
-  std::string                theTrackQuality, processName;
-  std::string                l1Filter, l2Filter, l3Filter;
-  double                     a_mipR, a_coneR, a_charIsoR;
-  double                     pTrackMin_, eEcalMax_, eIsolation_;
-  int                        nRun, nAll, nGood;
-  edm::InputTag              labelTriggerEvent_, labelTriggerResults_;
-  edm::InputTag              labelGenTrack_, labelRecVtx_,  labelHltGT_;
-  edm::InputTag              labelEB_, labelEE_, labelHBHE_, labelBS_;
-  std::string                labelIsoTk_;
-  const MagneticField       *bField;
-  const CaloGeometry        *geo;
-  double                     ptL1, etaL1, phiL1;
+  HLTConfigProvider               hltConfig_;
+  std::vector<std::string>        trigNames_, HLTNames_;
+  unsigned int                    nRun_, nAll_, nGood_;
+  spr::trackSelectionParameters   selectionParameter_;
+  std::string                     theTrackQuality_, processName_;
+  double                          maxRestrictionPt_, slopeRestrictionPt_;
+  double                          a_mipR_, a_coneR_, a_charIsoR_;
+  double                          pTrackMin_, eEcalMax_, eIsolation_;
+  edm::InputTag                   labelTriggerEvent_, labelTriggerResults_;
+  edm::InputTag                   labelGenTrack_, labelRecVtx_,  labelHltGT_;
+  edm::InputTag                   labelEB_, labelEE_, labelHBHE_, labelBS_;
+  std::string                     labelIsoTk_;
+  const MagneticField            *bField;
+  const CaloGeometry             *geo;
 
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>  tok_hltGT_;
   edm::EDGetTokenT<trigger::TriggerEvent>                 tok_trigEvt_;
@@ -122,29 +132,28 @@ private:
 };
 
 
-AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig) :
-  nRun(0), nAll(0), nGood(0), ptL1(0), etaL1(0), phiL1(0) {
+AlCaIsoTracksProducer::AlCaIsoTracksProducer(edm::ParameterSet const& iConfig, const AlCaIsoTracks::Counters* counters) :
+  nRun_(0), nAll_(0), nGood_(0) {
   //Get the run parameters
   const double isolationRadius(28.9);
-  trigNames                           = iConfig.getParameter<std::vector<std::string> >("Triggers");
-  theTrackQuality                     = iConfig.getParameter<std::string>("TrackQuality");
-  processName                         = iConfig.getParameter<std::string>("ProcessName");
-  l1Filter                            = iConfig.getParameter<std::string>("L1Filter");
-  l2Filter                            = iConfig.getParameter<std::string>("L2Filter");
-  l3Filter                            = iConfig.getParameter<std::string>("L3Filter");
-  selectionParameters.minPt           = iConfig.getParameter<double>("MinTrackPt");
-  selectionParameters.minQuality      = reco::TrackBase::qualityByName(theTrackQuality);
-  selectionParameters.maxDxyPV        = iConfig.getParameter<double>("MaxDxyPV");
-  selectionParameters.maxDzPV         = iConfig.getParameter<double>("MaxDzPV");
-  selectionParameters.maxChi2         = iConfig.getParameter<double>("MaxChi2");
-  selectionParameters.maxDpOverP      = iConfig.getParameter<double>("MaxDpOverP");
-  selectionParameters.minOuterHit     = iConfig.getParameter<int>("MinOuterHit");
-  selectionParameters.minLayerCrossed = iConfig.getParameter<int>("MinLayerCrossed");
-  selectionParameters.maxInMiss       = iConfig.getParameter<int>("MaxInMiss");
-  selectionParameters.maxOutMiss      = iConfig.getParameter<int>("MaxOutMiss");
-  a_coneR                             = iConfig.getParameter<double>("ConeRadius");
-  a_charIsoR                          = a_coneR + isolationRadius;
-  a_mipR                              = iConfig.getParameter<double>("ConeRadiusMIP");
+  trigNames_                          = iConfig.getParameter<std::vector<std::string> >("Triggers");
+  theTrackQuality_                    = iConfig.getParameter<std::string>("TrackQuality");
+  processName_                        = iConfig.getParameter<std::string>("ProcessName");
+  maxRestrictionPt_                   = iConfig.getParameter<double>("MinTrackPt");
+  slopeRestrictionPt_                 = iConfig.getParameter<double>("SlopeTrackPt");
+  selectionParameter_.minPt           = (slopeRestrictionPt_ > 0) ? (maxRestrictionPt_ - 2.5/slopeRestrictionPt_) : maxRestrictionPt_;
+  selectionParameter_.minQuality      = reco::TrackBase::qualityByName(theTrackQuality_);
+  selectionParameter_.maxDxyPV        = iConfig.getParameter<double>("MaxDxyPV");
+  selectionParameter_.maxDzPV         = iConfig.getParameter<double>("MaxDzPV");
+  selectionParameter_.maxChi2         = iConfig.getParameter<double>("MaxChi2");
+  selectionParameter_.maxDpOverP      = iConfig.getParameter<double>("MaxDpOverP");
+  selectionParameter_.minOuterHit     = iConfig.getParameter<int>("MinOuterHit");
+  selectionParameter_.minLayerCrossed = iConfig.getParameter<int>("MinLayerCrossed");
+  selectionParameter_.maxInMiss       = iConfig.getParameter<int>("MaxInMiss");
+  selectionParameter_.maxOutMiss      = iConfig.getParameter<int>("MaxOutMiss");
+  a_coneR_                            = iConfig.getParameter<double>("ConeRadius");
+  a_charIsoR_                         = a_coneR_ + isolationRadius;
+  a_mipR_                             = iConfig.getParameter<double>("ConeRadiusMIP");
   pTrackMin_                          = iConfig.getParameter<double>("MinimumTrackP");
   eEcalMax_                           = iConfig.getParameter<double>("MaximumEcalEnergy");
   eIsolation_                         = iConfig.getParameter<double>("IsolationEnergy");
@@ -171,31 +180,27 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig) :
   tok_hbhe_     = consumes<HBHERecHitCollection>(labelHBHE_);
 
   edm::LogInfo("HcalIsoTrack") <<"Parameters read from config file \n" 
-			       <<"\t minPt "           << selectionParameters.minPt   
-			       <<"\t theTrackQuality " << theTrackQuality
-			       <<"\t minQuality "      << selectionParameters.minQuality
-			       <<"\t maxDxyPV "        << selectionParameters.maxDxyPV          
-			       <<"\t maxDzPV "         << selectionParameters.maxDzPV          
-			       <<"\t maxChi2 "         << selectionParameters.maxChi2          
-			       <<"\t maxDpOverP "      << selectionParameters.maxDpOverP
-			       <<"\t minOuterHit "     << selectionParameters.minOuterHit
-			       <<"\t minLayerCrossed " << selectionParameters.minLayerCrossed
-			       <<"\t maxInMiss "       << selectionParameters.maxInMiss
-			       <<"\t maxOutMiss "      << selectionParameters.maxOutMiss
-			       <<"\t a_coneR "         << a_coneR          
-			       <<"\t a_charIsoR "      << a_charIsoR          
-			       <<"\t a_mipR "          << a_mipR
+			       <<"\t minPt "           << maxRestrictionPt_
+			       <<":"                   << slopeRestrictionPt_
+			       <<"\t theTrackQuality " << theTrackQuality_
+			       <<"\t minQuality "      << selectionParameter_.minQuality
+			       <<"\t maxDxyPV "        << selectionParameter_.maxDxyPV          
+			       <<"\t maxDzPV "         << selectionParameter_.maxDzPV          
+			       <<"\t maxChi2 "         << selectionParameter_.maxChi2          
+			       <<"\t maxDpOverP "      << selectionParameter_.maxDpOverP
+			       <<"\t minOuterHit "     << selectionParameter_.minOuterHit
+			       <<"\t minLayerCrossed " << selectionParameter_.minLayerCrossed
+			       <<"\t maxInMiss "       << selectionParameter_.maxInMiss
+			       <<"\t maxOutMiss "      << selectionParameter_.maxOutMiss
+			       <<"\t a_coneR "         << a_coneR_
+			       <<"\t a_charIsoR "      << a_charIsoR_
+			       <<"\t a_mipR "          << a_mipR_
 			       <<"\t pTrackMin "       << pTrackMin_
 			       <<"\t eEcalMax "        << eEcalMax_
-			       <<"\t eIsolation "      << eIsolation_;
-  edm::LogInfo("HcalIsoTrack") << "Process " << processName << " L1Filter:" 
-			       << l1Filter << " L2Filter:" << l2Filter 
-			       << " L3Filter:" << l3Filter;
-  for (unsigned int k=0; k<trigNames.size(); ++k)
-    edm::LogInfo("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames[k];
-
-  std::vector<int> dummy(trigNames.size(),0);
-  trigKount = trigPass = dummy;
+			       <<"\t eIsolation "      << eIsolation_
+			       << "\tProcess "         << processName_;
+  for (unsigned int k=0; k<trigNames_.size(); ++k)
+    edm::LogInfo("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k];
 
   //create also IsolatedPixelTrackCandidateCollection which contains isolation info and reference to primary track
   produces<reco::HcalIsolatedTrackCandidateCollection>(labelIsoTk_);
@@ -217,52 +222,56 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig) :
 AlCaIsoTracksProducer::~AlCaIsoTracksProducer() { }
 
 
-void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
 
-  nAll++;
+  nAll_++;
 #ifdef DebugLog
   edm::LogInfo("HcalIsoTrack") << "Run " << iEvent.id().run() << " Event " 
 			       << iEvent.id().event() << " Luminosity " 
 			       << iEvent.luminosityBlock() << " Bunch " 
 			       << iEvent.bunchCrossing();
 #endif
+  bool valid(true);
   //Step1: Get all the relevant containers
   trigger::TriggerEvent triggerEvent;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
   iEvent.getByToken(tok_trigEvt_, triggerEventHandle);
   if (!triggerEventHandle.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelTriggerEvent_;
-    return;
+    valid = false;
   }
   edm::Handle<edm::TriggerResults> triggerResults;
   iEvent.getByToken(tok_trigRes_, triggerResults);
   if (!triggerResults.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelTriggerResults_;
-    return;
+    valid = false;
   }
 
   edm::Handle<reco::TrackCollection> trkCollection;
   iEvent.getByToken(tok_genTrack_, trkCollection);
   if (!trkCollection.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
-    return;
+    valid = false;
   }
   reco::TrackCollection::const_iterator trkItr;
+
   edm::Handle<reco::VertexCollection> recVtxs;
   iEvent.getByToken(tok_recVtx_, recVtxs);  
-  if (!trkCollection.isValid()) {
+  if (!recVtxs.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
-    return;
+    valid = false;
   }
 
   edm::Handle<reco::BeamSpot> beamSpotH;
   iEvent.getByToken(tok_bs_, beamSpotH);
   math::XYZPoint leadPV(0,0,0);
-  if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
-    leadPV = math::XYZPoint((*recVtxs)[0].x(),(*recVtxs)[0].y(),
-			    (*recVtxs)[0].z());
-  } else if (beamSpotH.isValid()) {
-    leadPV = beamSpotH->position();
+  if (valid) {
+    if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
+      leadPV = math::XYZPoint((*recVtxs)[0].x(),(*recVtxs)[0].y(),
+			      (*recVtxs)[0].z());
+    } else if (beamSpotH.isValid()) {
+      leadPV = beamSpotH->position();
+    }
   }
 #ifdef DebugLog
   edm::LogInfo("HcalIsoTrack") << "Primary Vertex " << leadPV;
@@ -272,59 +281,66 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
   if (!barrelRecHitsHandle.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEB_;
-    return;
+    valid = false;
   }
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
   iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
   if (!endcapRecHitsHandle.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEE_;
-    return;
+    valid = false;
   }
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByToken(tok_hbhe_, hbhe);
   if (!hbhe.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelHBHE_;
-    return;
+    valid = false;
   }
 
   //Get L1 trigger object
-  ptL1 = etaL1 = phiL1 = 0;
+  double ptL1(0), etaL1(0), phiL1(0);
   edm::Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
   iEvent.getByToken(tok_hltGT_, l1trigobj);
 
-  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1tauobjref;
-  l1trigobj->getObjects(trigger::TriggerL1TauJet, l1tauobjref);
-  setPtEtaPhi(l1tauobjref,ptL1,etaL1,phiL1);
+  if (l1trigobj.isValid()) {
+    std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1tauobjref;
+    l1trigobj->getObjects(trigger::TriggerL1TauJet, l1tauobjref);
+    setPtEtaPhi(l1tauobjref,ptL1,etaL1,phiL1);
 
-  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1jetobjref;
-  l1trigobj->getObjects(trigger::TriggerL1CenJet, l1jetobjref);
-  setPtEtaPhi(l1jetobjref,ptL1,etaL1,phiL1);
+    std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1jetobjref;
+    l1trigobj->getObjects(trigger::TriggerL1CenJet, l1jetobjref);
+    setPtEtaPhi(l1jetobjref,ptL1,etaL1,phiL1);
 
-  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1forjetobjref;
-  l1trigobj->getObjects(trigger::TriggerL1ForJet, l1forjetobjref);
-  setPtEtaPhi(l1forjetobjref,ptL1,etaL1,phiL1);
+    std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1forjetobjref;
+    l1trigobj->getObjects(trigger::TriggerL1ForJet, l1forjetobjref);
+    setPtEtaPhi(l1forjetobjref,ptL1,etaL1,phiL1);
+  } else {
+    valid = false;
+  }
+
+  std::auto_ptr<reco::HcalIsolatedTrackCandidateCollection> outputHcalIsoTrackColl(new reco::HcalIsolatedTrackCandidateCollection);
+  std::auto_ptr<reco::VertexCollection> outputVColl(new reco::VertexCollection);
+  std::auto_ptr<EBRecHitCollection>     outputEBColl(new EBRecHitCollection);
+  std::auto_ptr<EERecHitCollection>     outputEEColl(new EERecHitCollection);
+  std::auto_ptr<HBHERecHitCollection>   outputHBHEColl(new HBHERecHitCollection);
 
   //For valid HLT record
-  if (!triggerEventHandle.isValid()) {
-    edm::LogWarning("HcalIsoTrack") << "Error! Can't get the product "
-				    << labelTriggerEvent_.label() ;
+  if (!valid) {
+    edm::LogWarning("HcalIsoTrack") << "Error! Can't get some of the products";
   } else {
     trigger::TriggerEvent triggerEvent = *(triggerEventHandle.product());
     if (triggerResults.isValid()) {
       const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
       const std::vector<std::string> & triggerNames_ = triggerNames.triggerNames();
-      reco::HcalIsolatedTrackCandidateCollection* isotk = select(triggerResults,triggerNames_,trkCollection,leadPV, barrelRecHitsHandle, endcapRecHitsHandle, hbhe);
+      reco::HcalIsolatedTrackCandidateCollection* isotk = select(triggerResults, triggerNames_, trkCollection, leadPV, barrelRecHitsHandle, endcapRecHitsHandle, hbhe, ptL1, etaL1, phiL1);
 #ifdef DebugLog
       edm::LogInfo("HcalIsoTrack") << "AlCaIsoTracksProducer::select returns "
 				   << isotk->size() << " isolated tracks";
 #endif
-      std::auto_ptr<reco::HcalIsolatedTrackCandidateCollection> outputHcalIsoTrackColl(isotk);
-      std::auto_ptr<reco::VertexCollection> outputVColl(new reco::VertexCollection);
-      std::auto_ptr<EBRecHitCollection>     outputEBColl(new EBRecHitCollection);
-      std::auto_ptr<EERecHitCollection>     outputEEColl(new EERecHitCollection);
-      std::auto_ptr<HBHERecHitCollection>   outputHBHEColl(new HBHERecHitCollection);
     
       if (isotk->size() > 0) {
+	for (reco::HcalIsolatedTrackCandidateCollection::const_iterator itr=isotk->begin(); itr!=isotk->end(); ++itr)
+	  outputHcalIsoTrackColl->push_back(*itr);
+	
 	for (reco::VertexCollection::const_iterator vtx=recVtxs->begin(); vtx!=recVtxs->end(); ++vtx)
 	  outputVColl->push_back(*vtx);
       
@@ -336,32 +352,31 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     
 	for (std::vector<HBHERecHit>::const_iterator hhit=hbhe->begin(); hhit!=hbhe->end(); ++hhit)
 	  outputHBHEColl->push_back(*hhit);
+	++nGood_;
       }
-
-      iEvent.put(outputHcalIsoTrackColl, labelIsoTk_);
-      iEvent.put(outputVColl,            labelRecVtx_.label());
-      iEvent.put(outputEBColl,           labelEB_.instance());
-      iEvent.put(outputEEColl,           labelEE_.instance());
-      iEvent.put(outputHBHEColl,         labelHBHE_.label());
     }
   }
+  iEvent.put(outputHcalIsoTrackColl, labelIsoTk_);
+  iEvent.put(outputVColl,            labelRecVtx_.label());
+  iEvent.put(outputEBColl,           labelEB_.instance());
+  iEvent.put(outputEEColl,           labelEE_.instance());
+  iEvent.put(outputHBHEColl,         labelHBHE_.label());
 }
 
-void AlCaIsoTracksProducer::beginJob() { }
+void AlCaIsoTracksProducer::endStream() {
+  globalCache()->nAll_  += nAll_;
+  globalCache()->nGood_ += nGood_;
+}
 
-void AlCaIsoTracksProducer::endJob() {
-  edm::LogInfo("HcalIsoTrack") << "Finds " << nGood << " good tracks in " 
-			       << nAll << " events from " << nRun << " runs";
-  for (unsigned int k=0; k<trigNames.size(); ++k)
-    edm::LogInfo("HcalIsoTrack") << "Trigger[" << k << "]: " << trigNames[k] 
-				 << " Events " << trigKount[k] << " Passed " 
-				 << trigPass[k];
+void AlCaIsoTracksProducer::globalEndJob(const AlCaIsoTracks::Counters* count) {
+  edm::LogInfo("HcalIsoTrack") << "Finds " << count->nGood_ <<" good tracks in "
+			       << count->nAll_ << " events";
 }
 
 void AlCaIsoTracksProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   bool changed(false);
-  edm::LogInfo("HcalIsoTrack") << "Run[" << nRun << "] " << iRun.run() 
-			       << " hltconfig.init " << hltConfig_.init(iRun,iSetup,processName,changed);
+  edm::LogInfo("HcalIsoTrack") << "Run[" << nRun_ << "] " << iRun.run() 
+			       << " hltconfig.init " << hltConfig_.init(iRun,iSetup,processName_,changed);
 
   edm::ESHandle<MagneticField> bFieldH;
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
@@ -372,8 +387,8 @@ void AlCaIsoTracksProducer::beginRun(edm::Run const& iRun, edm::EventSetup const
 }
 
 void AlCaIsoTracksProducer::endRun(edm::Run const& iRun, edm::EventSetup const&) {
-  nRun++;
-  edm::LogInfo("HcalIsoTrack") << "endRun[" << nRun << "] " << iRun.run();
+  edm::LogInfo("HcalIsoTrack") << "endRun [" << nRun_ << "] " << iRun.run();
+  ++nRun_;
 }
 
 reco::HcalIsolatedTrackCandidateCollection* 
@@ -382,7 +397,8 @@ AlCaIsoTracksProducer::select(edm::Handle<edm::TriggerResults>& triggerResults,
 			      edm::Handle<reco::TrackCollection>& trkCollection,
 			      math::XYZPoint& leadPV,edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle, 
 			      edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle, 
-			      edm::Handle<HBHERecHitCollection>& hbhe) {
+			      edm::Handle<HBHERecHitCollection>& hbhe,
+			      double ptL1, double etaL1, double phiL1) {
   
   reco::HcalIsolatedTrackCandidateCollection* trackCollection=new reco::HcalIsolatedTrackCandidateCollection;
   bool ok(false);
@@ -390,12 +406,10 @@ AlCaIsoTracksProducer::select(edm::Handle<edm::TriggerResults>& triggerResults,
   // Find a good HLT trigger
   for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
     int hlt    = triggerResults->accept(iHLT);
-    for (unsigned int i=0; i<trigNames.size(); ++i) {
-      if (triggerNames_[iHLT].find(trigNames[i].c_str())!=std::string::npos) {
-	trigKount[i]++;
+    for (unsigned int i=0; i<trigNames_.size(); ++i) {
+      if (triggerNames_[iHLT].find(trigNames_[i].c_str())!=std::string::npos) {
 	if (hlt > 0) {
 	  ok = true;
-	  trigPass[i]++;
 	}
 	edm::LogInfo("HcalIsoTrack") << "The trigger we are looking for "
 				     << triggerNames_[iHLT] << " Flag " 
@@ -406,7 +420,7 @@ AlCaIsoTracksProducer::select(edm::Handle<edm::TriggerResults>& triggerResults,
 
   //Propagate tracks to calorimeter surface)
   std::vector<spr::propagatedTrackDirection> trkCaloDirections;
-  spr::propagateCALO(trkCollection, geo, bField, theTrackQuality,
+  spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_,
 		     trkCaloDirections, false);
 
   std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
@@ -423,7 +437,8 @@ AlCaIsoTracksProducer::select(edm::Handle<edm::TriggerResults>& triggerResults,
 				 << pTrack->phi() << "|" << pTrack->p();
 #endif	    
     //Selection of good track
-    bool qltyFlag  = spr::goodTrack(pTrack,leadPV,selectionParameters,false);
+    selectionParameter_.minPt = maxRestrictionPt_ - std::abs(pTrack->eta())/slopeRestrictionPt_;
+    bool qltyFlag  = spr::goodTrack(pTrack,leadPV,selectionParameter_,false);
 #ifdef DebugLog
     edm::LogInfo("HcalIsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag
 				 << "|" << trkDetItr->okECAL << "|"  
@@ -436,12 +451,12 @@ AlCaIsoTracksProducer::select(edm::Handle<edm::TriggerResults>& triggerResults,
       double eMipDR = spr::eCone_ecal(geo, barrelRecHitsHandle, 
 				      endcapRecHitsHandle,
 				      trkDetItr->pointHCAL,
-				      trkDetItr->pointECAL, a_mipR,
+				      trkDetItr->pointECAL, a_mipR_,
 				      trkDetItr->directionECAL, 
 				      nRH_eMipDR);
       double hmaxNearP = spr::chargeIsolationCone(nTracks,
 						  trkCaloDirections,
-						  a_charIsoR, 
+						  a_charIsoR_,
 						  nNearTRKs, false);
 #ifdef DebugLog
       edm::LogInfo("HcalIsoTrack") << "This track : " << nTracks 
