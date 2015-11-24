@@ -186,6 +186,10 @@ class ValidationJob:
                     "script": script,
                     "bsub": "/afs/cern.ch/cms/caf/scripts/cmsbsub"
                     }
+                for ext in ("stdout", "stderr", "stdout.gz", "stderr.gz"):
+                    oldlog = "%(logDir)s/%(jobName)s."%repMap + ext
+                    if os.path.exists(oldlog):
+                        os.remove(oldlog)
                 bsubOut=getCommandOutput2("%(bsub)s %(commands)s "
                                           "-J %(jobName)s "
                                           "-o %(logDir)s/%(jobName)s.stdout "
@@ -539,6 +543,11 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
                 "bsub": "/afs/cern.ch/cms/caf/scripts/cmsbsub",
                 "conditions": '"' + " && ".join(["ended(" + jobId + ")" for jobId in ValidationJob.batchJobIds]) + '"'
                 }
+            for ext in ("stdout", "stderr", "stdout.gz", "stderr.gz"):
+                oldlog = "%(logDir)s/%(jobName)s."%repMap + ext
+                if os.path.exists(oldlog):
+                    os.remove(oldlog)
+
             getCommandOutput2("%(bsub)s %(commands)s "
                               "-o %(logDir)s/%(jobName)s.stdout "
                               "-e %(logDir)s/%(jobName)s.stderr "
