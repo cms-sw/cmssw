@@ -66,9 +66,10 @@ def _modifyDigiToRawForStage2L1Trigger( DigiToRaw_object ) :
 eras.stage2L1Trigger.toModify( DigiToRaw, func=_modifyDigiToRawForStage2L1Trigger )
 eras.stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("caloStage2Raw")) )
 
-if eras.phase1Pixel.isChosen() :
-    DigiToRaw.remove(siPixelRawData)
-    DigiToRaw.remove(castorRawData)
+# Not in 76X:
+#if eras.phase1Pixel.isChosen() :
+#    DigiToRaw.remove(siPixelRawData)
+#    DigiToRaw.remove(castorRawData)
 
 if eras.fastSim.isChosen() :
     for _entry in [siPixelRawData,SiStripDigiToRaw,castorRawData]:

@@ -133,9 +133,10 @@ def _modifyRawToDigiForStage2Trigger( RawToDigi_object ) :
 
 eras.stage2L1Trigger.toModify( RawToDigi, func=_modifyRawToDigiForStage2Trigger )
 
-if eras.phase1Pixel.isChosen() :
-    RawToDigi.remove(siPixelDigis)
-    RawToDigi.remove(castorDigis)
+# Not in 76X
+#if eras.phase1Pixel.isChosen() :
+#    RawToDigi.remove(siPixelDigis)
+#    RawToDigi.remove(castorDigis)
 
 
 
