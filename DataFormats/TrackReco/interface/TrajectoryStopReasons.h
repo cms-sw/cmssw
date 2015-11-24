@@ -10,6 +10,7 @@ enum class StopReason {
   MIN_PT = 5,
   CHARGE_SIGNIFICANCE = 6,
   LOOPER = 7,
+  NO_SEGMENTS_FOR_VALID_LAYERS = 8,
   NOT_STOPPED = 255 // this is the max allowed since it will be streames as type uint8_t
 };
 

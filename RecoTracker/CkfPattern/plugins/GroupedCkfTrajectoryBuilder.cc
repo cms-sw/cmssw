@@ -656,6 +656,8 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
 
   if ( !foundSegments ){
     LogDebug("CkfPattern")<< "GCTB: adding input trajectory to result";
+    if (stateAndLayers.second.size() > 0)
+      traj.setStopReason(StopReason::NO_SEGMENTS_FOR_VALID_LAYERS);
     addToResult(traj, result, inOut);
   }
   return foundNewCandidates;
