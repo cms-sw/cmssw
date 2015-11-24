@@ -69,7 +69,12 @@ if not (eras.stage2L1Trigger.isChosen()):
 #
 if eras.stage2L1Trigger.isChosen():
     print "L1TMuon Sequence configured for Stage-2 (2016) trigger. "
-#    from L1Trigger.L1TMuon.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis
-#    from L1Trigger.L1TMuon.simCaloStage2Digis_cfi import simCaloStage2Digis
-#    SimL1TMuon = cms.Sequence( simCaloStage2Layer1Digis + simCaloStage2Digis )
-    SimL1TMuon = cms.Sequence(SimL1TMuonCommon)
+    from L1Trigger.L1TMuonBarrel.simTwinMuxDigis_cfi import *
+    from L1Trigger.L1TMuonBarrel.simBmtfDigis_cfi import *
+    from L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi import *
+    from L1Trigger.L1TMuonOverlap.simOmtfDigis_cfi import *
+    from L1Trigger.L1TMuon.simGmtCaloSumDigis_cfi import *
+    from L1Trigger.L1TMuon.simGmtDigis_cfi import *
+#
+#
+    SimL1TMuon = cms.Sequence(SimL1TMuonCommon + simTwinMuxDigis + simBmtfDigis + simEmtfDigis + simOmtfDigis + simGmtCaloSumDigis + simGmtDigis)

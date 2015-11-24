@@ -51,13 +51,13 @@ import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.L1TCalorimeter.simDigis_cff import *
 from L1Trigger.L1TMuon.simDigis_cff import *
-#from L1Trigger.L1TGlobal.simDigis_cff import *
+from L1Trigger.L1TGlobal.simDigis_cff import *
 
 SimL1Emulator = cms.Sequence(
     SimL1TCalorimeter +
-    SimL1TMuon 
+    SimL1TMuon +
 #    SimL1TTechnical +
-#    SimL1TGlobal
+    SimL1TGlobal
     )
 
 #
@@ -66,7 +66,7 @@ SimL1Emulator = cms.Sequence(
 #
 from L1Trigger.L1TCalorimeter.hackConditions_cff import *
 from L1Trigger.L1TMuon.hackConditions_cff import *
-#from L1Trigger.L1TGlobal.hackConditions_cff import *
+from L1Trigger.L1TGlobal.hackConditions_cff import *
 
 
 

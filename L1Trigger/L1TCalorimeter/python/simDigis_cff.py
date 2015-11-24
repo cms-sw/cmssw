@@ -36,8 +36,7 @@ if eras.stage1L1Trigger.isChosen() and not eras.stage2L1Trigger.isChosen():
     from L1Trigger.L1TCalorimeter.simCaloStage1Digis_cfi import *
     from L1Trigger.L1TCalorimeter.simCaloStage1FinalDigis_cfi import *
     from L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi import *
-    SimL1TCalorimeter = cms.Sequence(simRctDigis + simRctUpgradeFormatDigis + simCaloStage1Digis + simCaloStage1LegacyFormatDigis)
-
+    SimL1TCalorimeter = cms.Sequence(simRctDigis + simRctUpgradeFormatDigis + simCaloStage1Digis + simCaloStage1FinalDigis + simCaloStage1LegacyFormatDigis)
 #
 # Stage-2 Trigger
 #
