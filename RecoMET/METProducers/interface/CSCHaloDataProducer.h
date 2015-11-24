@@ -30,6 +30,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/METReco/interface/CSCHaloData.h"
 #include "RecoMET/METAlgorithms/interface/CSCHaloAlgo.h"
@@ -125,6 +126,8 @@
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
+class MuonServiceProxy;
+
 namespace reco
 {
 class CSCHaloDataProducer : public edm::stream::EDProducer<> {
@@ -150,6 +153,9 @@ class CSCHaloDataProducer : public edm::stream::EDProducer<> {
 
     //Muon-Segment Matching
     MuonSegmentMatcher *TheMatcher;
+
+    //Muon Service
+    MuonServiceProxy* TheService;
 
     //RecHit Level
     edm::InputTag IT_CSCRecHit;

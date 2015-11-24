@@ -39,7 +39,7 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig)
   //Muon to Segment Matching
   edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
   edm::ConsumesCollector iC = consumesCollector();
-  TheMatcher = new MuonSegmentMatcher(matchParameters, iC);
+  TheMatcher = new MuonSegmentMatcher(matchParameters, TheService, iC);
 
   // Cosmic track selection parameters
   CSCAlgo.SetDetaThreshold( (float) iConfig.getParameter<double>("DetaParam"));
