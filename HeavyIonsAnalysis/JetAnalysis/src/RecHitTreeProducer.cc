@@ -632,7 +632,7 @@ RecHitTreeProducer::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 	myTowers.vsArea[myTowers.n] = vsArea;
 
       }
-
+      myTowers.e[myTowers.n] = hit.energy();
       myTowers.et[myTowers.n] = hit.p4(vtx).Et();
       myTowers.eta[myTowers.n] = hit.p4(vtx).Eta();
       myTowers.phi[myTowers.n] = hit.p4(vtx).Phi();
