@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("L1TMuonEmulation")
+from Configuration.StandardSequences.Eras import eras
+
+process = cms.Process("L1TMuonEmulation", eras.Run2_2016)
 import os
 import sys
 import commands
@@ -23,21 +25,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
-####Event Setup Producers
-process.load('L1Trigger.L1TMuonBarrel.fakeMuonBarrelParams_cfi')
-process.load('L1Trigger.L1TMuonOverlap.fakeMuonOverlapParams_cfi')
-process.load('L1Trigger.L1TMuonEndCap.fakeMuonEndCapParams_cfi')
-process.load('L1Trigger.L1TMuon.fakeMuonGlobalParams_cfi')
-process.load('L1Trigger.L1TCalorimeter.caloStage2Params_cfi')
-process.load('L1Trigger.L1TGlobal.hackConditions_cff')
-
-#### Emulators
-process.load('L1Trigger.L1TMuonBarrel.simMuonBarrelDigis_cfi')
-process.load('L1Trigger.L1TMuonOverlap.simMuonOverlapDigis_cfi')
-process.load('L1Trigger.L1TMuonEndCap.simMuonEndCapDigis_cfi')
-process.load('L1Trigger.L1TMuon.simMuonDigis_cfi')
-process.load('L1Trigger.L1TGlobal.simDigis_cff')
-
+#### Sim L1 Emulator Sequence:
+process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
@@ -98,15 +87,7 @@ process.l1UpgradeTree = cms.EDAnalyzer(
     maxL1Upgrade = cms.uint32(60)
 )
 
-process.L1TMuonSeq = cms.Sequence(   process.simCaloStage2Layer1Digis
-                                   + process.simCaloStage2Digis
-                                   + process.simTwinMuxDigis
-                                   + process.simBmtfDigis 
-                                   + process.simEmtfDigis 
-                                   + process.simOmtfDigis 
-                                   + process.simGmtCaloSumDigis
-                                   + process.simGmtDigis
-                                   + process.simGlobalStage2Digis
+process.L1TSeq = cms.Sequence(   process.SimL1Emulator
 #                                   + process.dumpED
 #                                   + process.dumpES
                                    + process.l1tSummary
@@ -114,12 +95,12 @@ process.L1TMuonSeq = cms.Sequence(   process.simCaloStage2Layer1Digis
                                    + process.l1UpgradeTree
 )
 
-process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
+process.L1TPath = cms.Path(process.L1TSeq)
 
 process.out = cms.OutputModule("PoolOutputModule", 
-   fileName = cms.untracked.string("l1tmuon.root")
+   fileName = cms.untracked.string("l1t.root")
 )
 
 process.output_step = cms.EndPath(process.out)
-process.schedule = cms.Schedule(process.L1TMuonPath)
+process.schedule = cms.Schedule(process.L1TPath)
 process.schedule.extend([process.output_step])
