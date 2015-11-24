@@ -9,6 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/resolveSymbolicLinks.h"
 
 #include "cppunit/extensions/HelperMacros.h"
 
@@ -207,6 +208,16 @@ void testmakepset::fileinpathAux() {
   char *releaseBase = getenv("CMSSW_RELEASE_BASE");
   char *localBase = getenv("CMSSW_BASE");
   bool localArea = (releaseBase != nullptr && strlen(releaseBase) != 0 && strcmp(releaseBase, localBase));
+  if(localArea) {
+    // Need to account for possible symbolic links
+    std::string const src("/src");
+    std::string release = releaseBase + src;
+    std::string local = localBase + src;
+    edm::resolveSymbolicLinks(release);
+    edm::resolveSymbolicLinks(local);
+    localArea = (local != release);
+  }
+
   if(localArea) {
     CPPUNIT_ASSERT(fip.location() == edm::FileInPath::Local);
   }
