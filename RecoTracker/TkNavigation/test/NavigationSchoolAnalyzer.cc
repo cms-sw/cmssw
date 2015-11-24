@@ -226,6 +226,11 @@ NavigationSchoolAnalyzer::~NavigationSchoolAnalyzer() {}
 
 
 void NavigationSchoolAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  tTopo = tTopoHandle.product();
+
   std::ostringstream byNav;
   std::ostringstream byGeom;
   std::ostringstream oldStyle;
@@ -237,7 +242,7 @@ void NavigationSchoolAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
   //get the navigation school
   edm::ESHandle<NavigationSchool> nav;
   iSetup.get<NavigationSchoolRecord>().get(theNavigationSchoolName, nav);
-  byNav <<nav.product();
+  print(byNav,nav.product());
   printUsingGeom(byGeom,*nav.product());
   printOldStyle(oldStyle,*nav.product());
 
@@ -259,9 +264,9 @@ void NavigationSchoolAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 }
 
 void NavigationSchoolAnalyzer::beginRun(edm::Run & run, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  tTopo = tTopoHandle.product();
+//  edm::ESHandle<TrackerTopology> tTopoHandle;
+//  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+//  tTopo = tTopoHandle.product();
 
   //get the navigation school
   edm::ESHandle<NavigationSchool> nav;
