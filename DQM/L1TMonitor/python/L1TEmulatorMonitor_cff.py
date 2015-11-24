@@ -119,8 +119,8 @@ l1EmulatorMonitorStage1 = cms.Sequence(
 
 l1Stage1HwValEmulatorMonitor = cms.Sequence(
     rctDigis*
-    caloStage1Digis*
-    caloStage1LegacyFormatDigis*
+    #caloStage1Digis*
+    #caloStage1LegacyFormatDigis*
     l1GtUnpack*
     L1HardwareValidationforStage1 +
     l1EmulatorMonitorStage1                            

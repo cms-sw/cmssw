@@ -89,6 +89,7 @@ process.l1tSyncPath = cms.Path(process.l1tSyncHltFilter+process.l1tSync)
 process.l1tMonitorPath = cms.Path(process.l1tMonitorStage1Online)
 process.l1tMonitorClientPath = cms.Path(process.l1tMonitorStage1Client)
 
+process.stage1UnpackPath = cms.Path(process.caloStage1Digis+process.caloStage1LegacyFormatDigis)
 
 #
 process.l1tMonitorEndPath = cms.EndPath(process.l1tMonitorEndPathSeq)
@@ -104,6 +105,7 @@ process.dqmEndPath = cms.EndPath(
 
 #
 process.schedule = cms.Schedule(process.rawToDigiPath,
+                                process.stage1UnpackPath,
                                 process.l1tMonitorPath,
                                 process.l1tSyncPath,
                                 process.l1tMonitorClientPath,
@@ -131,7 +133,7 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 #process.l1tMonitorStage1Online.remove(process.bxTiming)
 process.l1tMonitorStage1Online.remove(process.l1tBPTX)
 
-process.l1tMonitorStage1Online.remove(process.l1tRctRun1)
+#process.l1tMonitorStage1Online.remove(process.l1tRctRun1)
 
 #process.l1tMonitorOnline.remove(process.l1tLtc)
 
@@ -182,6 +184,8 @@ process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
 process.bxTiming.FedSource = cms.untracked.InputTag("rawDataCollector")
 process.l1s.fedRawData = cms.InputTag("rawDataCollector")
+process.caloStage1Digis.InputLabel = cms.InputTag("rawDataCollector")
+process.rctDigis.inputLabel = cms.InputTag("rawDataCollector")
     
 if (process.runType.getRunType() == process.runType.hi_run):
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
@@ -201,6 +205,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
     process.bxTiming.FedSource = cms.untracked.InputTag("rawDataRepacker")
     process.l1s.fedRawData = cms.InputTag("rawDataRepacker")
+    process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.rctDigis.inputLabel = cms.InputTag("rawDataRepacker")
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *

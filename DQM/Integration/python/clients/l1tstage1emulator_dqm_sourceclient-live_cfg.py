@@ -86,6 +86,7 @@ process.l1HwValEmulatorMonitorPath = cms.Path(process.l1Stage1HwValEmulatorMonit
 #process.load("L1TriggerConfig.RCTConfigProducers.l1RCTOmdsFedVectorProducer_cfi")
 #process.valRctDigis.getFedsFromOmds = cms.bool(True)
 
+process.stage1UnpackerPath = cms.Path(process.caloStage1Digis+process.caloStage1LegacyFormatDigis)
 #
 process.l1EmulatorMonitorClientPath = cms.Path(process.l1EmulatorMonitorClient)
 
@@ -96,6 +97,7 @@ process.l1EmulatorMonitorEndPath = cms.EndPath(process.dqmEnv*process.dqmSaver)
 
 #
 process.schedule = cms.Schedule(process.rawToDigiPath,
+                                process.stage1UnpackerPath,
                                 process.l1HwValEmulatorMonitorPath,
                                 process.l1EmulatorMonitorClientPath,
                                 process.l1EmulatorMonitorEndPath)
@@ -205,6 +207,7 @@ process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
 process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
 process.caloStage1Digis.InputLabel = cms.InputTag("rawDataCollector")
+process.rctDigis.inputLabel = cms.InputTag("rawDataCollector")
 
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
@@ -228,6 +231,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
     process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.rctDigis.inputLabel = cms.InputTag("rawDataRepacker")
     process.load("L1Trigger.L1TCalorimeter.caloConfigStage1HI_cfi")
     process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_condDBv2_cff')
     process.GlobalTag.toGet = cms.VPSet(
