@@ -1,4 +1,5 @@
 // system include files
+#include <atomic>
 #include <memory>
 #include <cmath>
 #include <iostream>
@@ -7,7 +8,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -38,25 +39,37 @@
 // class declaration
 //
 
-class AlCaHBHEMuonFilter : public edm::EDFilter {
+namespace AlCaHBHEMuons {
+  struct Counters {
+    Counters() : nAll_(0), nGood_(0) {}
+    mutable std::atomic<unsigned int> nAll_, nGood_;
+  };
+}
+
+class AlCaHBHEMuonFilter : public edm::stream::EDFilter<edm::GlobalCache<AlCaHBHEMuons::Counters> > {
 public:
-  explicit AlCaHBHEMuonFilter(const edm::ParameterSet&);
+  explicit AlCaHBHEMuonFilter(edm::ParameterSet const&, const AlCaHBHEMuons::Counters* count);
   ~AlCaHBHEMuonFilter();
   
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static std::unique_ptr<AlCaHBHEMuons::Counters> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::unique_ptr<AlCaHBHEMuons::Counters>(new AlCaHBHEMuons::Counters());
+  }
+  
+  virtual bool filter(edm::Event&, edm::EventSetup const&) override;
+  virtual void endStream() override;
+  static  void globalEndJob(const AlCaHBHEMuons::Counters* counters);
+  static  void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
+
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   
   // ----------member data ---------------------------
   HLTConfigProvider          hltConfig_;
   std::vector<std::string>   trigNames_, HLTNames_;
-  std::vector<int>           trigKount_, trigPass_;
   std::string                processName_;
-  int                        nRun_, nAll_, nGood_;
+  unsigned int               nRun_, nAll_, nGood_;
   edm::InputTag              triggerResults_, labelMuon_;
   edm::EDGetTokenT<trigger::TriggerEvent>  tok_trigEvt;
   edm::EDGetTokenT<edm::TriggerResults>    tok_trigRes_;
@@ -74,7 +87,7 @@ private:
 //
 // constructors and destructor
 //
-AlCaHBHEMuonFilter::AlCaHBHEMuonFilter(const edm::ParameterSet& iConfig) :
+AlCaHBHEMuonFilter::AlCaHBHEMuonFilter(edm::ParameterSet const& iConfig, const AlCaHBHEMuons::Counters* count) :
   nRun_(0), nAll_(0), nGood_(0) {
   //now do what ever initialization is needed
   trigNames_             = iConfig.getParameter<std::vector<std::string> >("Triggers");
@@ -85,8 +98,6 @@ AlCaHBHEMuonFilter::AlCaHBHEMuonFilter(const edm::ParameterSet& iConfig) :
   // define tokens for access
   tok_trigRes_  = consumes<edm::TriggerResults>(triggerResults_);
   tok_Muon_     = consumes<reco::MuonCollection>(labelMuon_);
-  std::vector<int> dummy(trigNames_.size(),0);
-  trigKount_ = trigPass_ = dummy;
   edm::LogInfo("HcalHBHEMuon") << "Parameters read from config file \n" 
 			       << "Process " << processName_;
   for (unsigned int k=0; k<trigNames_.size(); ++k)
@@ -101,9 +112,9 @@ AlCaHBHEMuonFilter::~AlCaHBHEMuonFilter() {}
 //
 
 // ------------ method called on each new Event  ------------
-bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   bool accept(false);
-  nAll_++;
+  ++nAll_;
 #ifdef DebugLog
   edm::LogInfo("HcalHBHEMuon") << "AlCaHBHEMuonFilter::Run " 
 			       << iEvent.id().run() << " Event " 
@@ -124,15 +135,13 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       int hlt    = triggerResults->accept(iHLT);
       for (unsigned int i=0; i<trigNames_.size(); ++i) {
 	if (triggerNames_[iHLT].find(trigNames_[i].c_str())!=std::string::npos){
-	  trigKount_[i]++;
 	  if (hlt > 0) {
 	    ok = true;
-	    trigPass_[i]++;
 	  }
 #ifdef DebugLog
 	  edm::LogInfo("HcalHBHEMuon") << "AlCaHBHEMuonFilter::Trigger "
-				       << triggerNames_[iHLT] << " Flag " << hlt
-				       << ":" << ok;
+				       << triggerNames_[iHLT] << " Flag " 
+				       << hlt << ":" << ok;
 #endif
 	}
       }
@@ -182,26 +191,27 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
   }
   // Step 4:  Return the acceptance flag
-  if (accept) nGood_++;
+  if (accept) ++nGood_;
   return accept;
 
 }  // AlCaHBHEMuonFilter::filter
 
 // ------------ method called once each job just after ending the event loop  ------------
-void AlCaHBHEMuonFilter::endJob() {
-  edm::LogInfo("HcalHBHEMuon") << "Selects " << nGood_ << " in " << nAll_ 
-			       << " events from " << nRun_ << " runs";
-  for (unsigned int k=0; k<trigNames_.size(); ++k)
-    edm::LogInfo("HcalHBHEMuon") << "Trigger[" << k << "]: " << trigNames_[k] 
-				 << " Events " << trigKount_[k] << " Passed " 
-				 << trigPass_[k];
+void AlCaHBHEMuonFilter::endStream() {
+  globalCache()->nAll_  += nAll_;
+  globalCache()->nGood_ += nGood_;
+}
+
+void AlCaHBHEMuonFilter::globalEndJob(const AlCaHBHEMuons::Counters* count) {
+  edm::LogInfo("HcalHBHEMuon") << "Selects " << count->nGood_ << " in " 
+			       << count->nAll_ << " events";
 }
 
 
 // ------------ method called when starting to processes a run  ------------
 void AlCaHBHEMuonFilter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  bool changed(true);
-  bool flag = hltConfig_.init(iRun, iSetup,"HLT" , changed);
+  bool changed(false);
+  bool flag = hltConfig_.init(iRun, iSetup, processName_, changed);
   edm::LogInfo("HcalHBHEMuon") << "Run[" << nRun_ << "] " << iRun.run() 
 			       << " hltconfig.init " << flag;
 }
