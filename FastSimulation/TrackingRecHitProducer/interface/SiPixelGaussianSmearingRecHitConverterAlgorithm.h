@@ -59,7 +59,6 @@ public:
   //
   void smearHit( const PSimHit& simHit, const PixelGeomDetUnit* detUnit, const double boundX, const double boundY,
                  RandomEngineAndDistribution const*);
-  bool hitsMerge(const PSimHit& simHit);
 
 private:
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
@@ -97,8 +96,6 @@ private:
   std::string thePixelResolutionFileName2;
   TFile* thePixelResolutionFile3;
   std::string thePixelResolutionFileName3;
-  TFile* probfile;
-  std::string probfileName;
 
   unsigned int theLayer;
   // output
