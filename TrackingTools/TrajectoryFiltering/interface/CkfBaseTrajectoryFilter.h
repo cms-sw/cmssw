@@ -11,6 +11,7 @@
 #include "TrackingTools/TrajectoryFiltering/interface/MinPtTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/LostHitsFractionTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/LooperTrajectoryFilter.h"
+#include "TrackingTools/TrajectoryFiltering/interface/MaxCCCLostHitsTrajectoryFilter.h"
 
 
 class CkfBaseTrajectoryFilter : public TrajectoryFilter {
@@ -25,7 +26,8 @@ public:
     theLostHitsFractionTrajectoryFilter(new LostHitsFractionTrajectoryFilter(pset, iC)),
     theMinHitsTrajectoryFilter(new MinHitsTrajectoryFilter(pset, iC)),
     theMinPtTrajectoryFilter(new MinPtTrajectoryFilter(pset, iC)),
-    theLooperTrajectoryFilter(new LooperTrajectoryFilter(pset, iC))
+    theLooperTrajectoryFilter(new LooperTrajectoryFilter(pset, iC)),
+    theMaxCCCLostHitsTrajectoryFilter(new MaxCCCLostHitsTrajectoryFilter(pset, iC))
   {}
 
   void setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {
@@ -37,6 +39,7 @@ public:
     theMinHitsTrajectoryFilter->setEvent(iEvent, iSetup);
     theLostHitsFractionTrajectoryFilter->setEvent(iEvent, iSetup);
     theLooperTrajectoryFilter->setEvent(iEvent, iSetup);
+    theMaxCCCLostHitsTrajectoryFilter->setEvent(iEvent, iSetup);
   }
 
   virtual bool qualityFilter( const Trajectory& traj) const {return QF<Trajectory>(traj);}
@@ -61,6 +64,7 @@ protected:
     if (!theMaxLostHitsTrajectoryFilter->toBeContinued(traj)) return false;
     if (!theMaxConsecLostHitsTrajectoryFilter->toBeContinued(traj)) return false;
     if (!theLostHitsFractionTrajectoryFilter->toBeContinued(traj)) return false;
+    if (!theMaxCCCLostHitsTrajectoryFilter->toBeContinued(traj)) return false;
     if (!theMinPtTrajectoryFilter->toBeContinued(traj)) return false;     
     if (!theChargeSignificanceTrajectoryFilter->toBeContinued(traj)) return false;
     if (!theLooperTrajectoryFilter->toBeContinued(traj)) return false;
@@ -76,6 +80,7 @@ protected:
   std::unique_ptr<MinHitsTrajectoryFilter> theMinHitsTrajectoryFilter;
   std::unique_ptr<MinPtTrajectoryFilter> theMinPtTrajectoryFilter;
   std::unique_ptr<LooperTrajectoryFilter> theLooperTrajectoryFilter;
+  std::unique_ptr<MaxCCCLostHitsTrajectoryFilter> theMaxCCCLostHitsTrajectoryFilter;
 };
 
 #endif

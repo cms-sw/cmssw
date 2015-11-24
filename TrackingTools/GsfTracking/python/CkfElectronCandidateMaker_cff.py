@@ -17,7 +17,9 @@ TrajectoryFilterForElectrons = cms.PSet(
     maxNumberOfHits = cms.int32(-1),
     maxConsecLostHits = cms.int32(1),
     nSigmaMinPt = cms.double(5.0),
-    minimumNumberOfHits = cms.int32(5)
+    minimumNumberOfHits = cms.int32(5),
+    maxCCCLostHits = cms.int32(9999),
+    minGoodStripCharge = cms.double(-1)
 )
 
 # Trajectory Builder

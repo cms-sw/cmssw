@@ -31,7 +31,11 @@ CkfBaseTrajectoryFilter_block = cms.PSet(
 # Cuts for looperTrajectoryFilter
     minNumberOfHits = cms.int32(13),
     minNumberOfHitsPerLoop = cms.int32(4),
-    extraNumberOfHitsBeforeTheFirstLoop = cms.int32(4), 
+    extraNumberOfHitsBeforeTheFirstLoop = cms.int32(4),
+
+# Cut on CCC hits
+    maxCCCLostHits = cms.int32(2),
+    minGoodStripCharge = cms.double(1620)
 )
 
 
@@ -70,5 +74,10 @@ ThresholdPtTrajectoryFilter_block = cms.PSet(
     nSigmaThresholdPt = cms.double(5.0),
     minHitsThresholdPt = cms.int32(3),
     thresholdPt = cms.double(10.0)
+)
+MaxCCCLostHitsTrajectoryFilter_block = cms.PSet(
+    ComponentType = cms.string('MaxCCCLostHitsTrajectoryFilter'),
+    maxCCCLostHits = cms.int32(3),
+    minGoodStripCharge = cms.double(1620)
 )
 
