@@ -12,7 +12,7 @@ gmtParamsSource = cms.ESSource(
     firstValid = cms.vuint32(1)
 )
 
-gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
+fakeGmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     fwVersion = cms.uint32(1),
 
     AbsIsoCheckMemLUTPath        = cms.string(os.path.join(lut_dir, 'AbsIsoCheckMem.lut')),

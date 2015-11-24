@@ -24,17 +24,21 @@ from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 ####Event Setup Producers
-process.load('L1Trigger.L1TMuonBarrel.fakeMuonBarrelParams_cfi')
-process.load('L1Trigger.L1TMuonOverlap.fakeMuonOverlapParams_cfi')
-process.load('L1Trigger.L1TMuonEndCap.fakeMuonEndCapParams_cfi')
-process.load('L1Trigger.L1TMuon.fakeMuonGlobalParams_cfi')
-
+process.load('L1Trigger.L1TMuonBarrel.fakeBmtfParams_cff')
+process.load('L1Trigger.L1TMuonOverlap.fakeOmtfParams_cff')
+process.load('L1Trigger.L1TMuonEndCap.fakeEmtfParams_cff')
+process.load('L1Trigger.L1TMuon.fakeGmtParams_cff')
 
 #### Emulators
-process.load('L1Trigger.L1TMuonBarrel.simMuonBarrelDigis_cfi')
-process.load('L1Trigger.L1TMuonOverlap.simMuonOverlapDigis_cfi')
-process.load('L1Trigger.L1TMuonEndCap.simMuonEndCapDigis_cfi')
-process.load('L1Trigger.L1TMuon.simMuonDigis_cfi')
+process.load('L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi')
+process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
+process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
+process.load('L1Trigger.L1TMuonBarrel.simTwinMuxDigis_cfi')
+process.load('L1Trigger.L1TMuonBarrel.simBmtfDigis_cfi')
+process.load('L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi')
+process.load('L1Trigger.L1TMuonOverlap.simOmtfDigis_cfi')
+process.load('L1Trigger.L1TMuon.simGmtCaloSumDigis_cfi')
+process.load('L1Trigger.L1TMuon.simGmtDigis_cfi')
 
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
@@ -46,10 +50,6 @@ process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 #process.l1tSummary.sumToken  = cms.InputTag("simCaloStage2Digis");
 #process.l1tSummary.muonToken = cms.InputTag("simGmtDigis","");
 ##process.l1tSummary.muonToken = cms.InputTag("simGmtDigis","imdMuonsBMTF");
-
-process.load('L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi')
-process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
-process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
 
 process.L1TMuonSeq = cms.Sequence(   process.simCaloStage2Layer1Digis
                                    + process.simTwinMuxDigis
@@ -72,3 +72,6 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.output_step = cms.EndPath(process.out)
 process.schedule = cms.Schedule(process.L1TMuonPath)
 process.schedule.extend([process.output_step])
+
+
+

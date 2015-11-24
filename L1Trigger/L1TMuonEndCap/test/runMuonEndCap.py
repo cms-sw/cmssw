@@ -26,26 +26,26 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 
 ####Event Setup Producer
-process.load('L1Trigger.L1TMuonEndCap.fakeMuonEndCapParams_cfi')
-process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
-   toGet = cms.VPSet(
-      cms.PSet(record = cms.string('L1TMuonEndCapParamsRcd'),
-               data = cms.vstring('L1TMuonEndCapParams'))
-                   ),
-   verbose = cms.untracked.bool(True)
-)
+#process.load('L1Trigger.L1TMuonEndCap.fakeEmtfParams_cff')
+#process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
+#   toGet = cms.VPSet(
+#      cms.PSet(record = cms.string('L1TMuonEndCapParamsRcd'),
+#               data = cms.vstring('L1TMuonEndCapParams'))
+#                   ),
+#   verbose = cms.untracked.bool(True)
+#)
 
 
 ####OMTF Emulator
-process.load('L1Trigger.L1TMuonEndCap.simMuonEndCapDigis_cfi')
+process.load('L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi')
 
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
-process.L1TMuonSeq = cms.Sequence( process.esProd          
-                                   + process.simEmtfDigis 
-                                   + process.dumpED
-                                   + process.dumpES
+process.L1TMuonSeq = cms.Sequence(    process.simEmtfDigis 
+#                                   + process.dumpED
+#                                   + process.dumpES
+#                                   + process.esProd                                                
 )
 
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)

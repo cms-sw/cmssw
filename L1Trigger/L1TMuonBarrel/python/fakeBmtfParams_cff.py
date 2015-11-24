@@ -11,7 +11,7 @@ bmbtfParamsSource = cms.ESSource(
     firstValid = cms.vuint32(1)
 )
 
-bmtfParams = cms.ESProducer('L1TMuonBarrelParamsESProducer',
+fakeBmtfParams = cms.ESProducer('L1TMuonBarrelParamsESProducer',
     fwVersion = cms.uint32(1),
 
     AssLUTPath        = cms.string(os.path.join(l1tbmtfluts_dir, 'LUTs_Ass/')),

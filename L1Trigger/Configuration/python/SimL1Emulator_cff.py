@@ -50,12 +50,12 @@ import FWCore.ParameterSet.Config as cms
 #simCastorTechTrigDigis = SimCalorimetry.CastorTechTrigProducer.castorTTRecord_cfi.simCastorTTRecord.clone()
 
 from L1Trigger.L1TCalorimeter.simDigis_cff import *
-#from L1Trigger.L1TMuon.simDigis_cff import *
+from L1Trigger.L1TMuon.simDigis_cff import *
 #from L1Trigger.L1TGlobal.simDigis_cff import *
 
 SimL1Emulator = cms.Sequence(
-    SimL1TCalorimeter 
-#    SimL1TMuon +
+    SimL1TCalorimeter +
+    SimL1TMuon 
 #    SimL1TTechnical +
 #    SimL1TGlobal
     )
@@ -65,6 +65,8 @@ SimL1Emulator = cms.Sequence(
 # using the Era configuration.
 #
 from L1Trigger.L1TCalorimeter.hackConditions_cff import *
+from L1Trigger.L1TMuon.hackConditions_cff import *
+#from L1Trigger.L1TGlobal.hackConditions_cff import *
 
 
 

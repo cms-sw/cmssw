@@ -26,7 +26,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 
 ####Event Setup Producer
-process.load('L1Trigger.L1TMuonBarrel.fakeMuonBarrelParams_cfi')
+process.load('L1Trigger.L1TMuonBarrel.fakeBmtfParams_cff')
 process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(
       cms.PSet(record = cms.string('L1TMuonBarrelParamsRcd'),
@@ -37,7 +37,8 @@ process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
 
 
 ####BMTF Emulator
-process.load('L1Trigger.L1TMuonBarrel.simMuonBarrelDigis_cfi')
+process.load('L1Trigger.L1TMuonBarrel.simTwinMuxDigis_cfi')
+process.load('L1Trigger.L1TMuonBarrel.simBmtfDigis_cfi')
 process.simBmtfDigis.Debug = cms.untracked.int32(0)
 
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
@@ -46,16 +47,23 @@ process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 process.L1TMuonSeq = cms.Sequence( process.esProd          
 				   + process.simTwinMuxDigis 
                                    + process.simBmtfDigis 
-                                   + process.dumpED
-                                   + process.dumpES
+#                                   + process.dumpED
+#                                   + process.dumpES
 )
 
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 
 process.out = cms.OutputModule("PoolOutputModule", 
-   fileName = cms.untracked.string("l1tbmtf_superprimitives1.root")
+   fileName = cms.untracked.string("l1tbmtf.root")
 )
 
 process.output_step = cms.EndPath(process.out)
 process.schedule = cms.Schedule(process.L1TMuonPath)
 process.schedule.extend([process.output_step])
+
+
+
+
+
+
+

@@ -8,7 +8,7 @@ omtfParamsSource = cms.ESSource(
 )
 
 ###OMTF ESProducer. Fills CondFormats from XML files.
-omtfParams = cms.ESProducer(
+fakeOmtfParams = cms.ESProducer(
     "L1TMuonOverlapParamsESProducer",
     configFromXML = cms.bool(False), #this is necessary as we contruct OMTFConfiguration inside ESProducer. This is a temporary solution.   
     patternsXMLFiles = cms.VPSet(
@@ -16,7 +16,3 @@ omtfParams = cms.ESProducer(
     ),
     configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer.xml"),
 )
-
-
-
-

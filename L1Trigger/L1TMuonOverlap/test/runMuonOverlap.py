@@ -26,7 +26,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 
 ####Event Setup Producer
-process.load('L1Trigger.L1TMuonOverlap.fakeMuonOverlapParams_cfi')
+process.load('L1Trigger.L1TMuonOverlap.fakeOmtfParams_cff')
 process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(
       cms.PSet(record = cms.string('L1TMuonOverlapParamsRcd'),
@@ -37,21 +37,21 @@ process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
 
 
 ####OMTF Emulator
-process.load('L1Trigger.L1TMuonOverlap.simMuonOverlapDigis_cfi')
+process.load('L1Trigger.L1TMuonOverlap.simOmtfDigis_cfi')
 
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
 process.L1TMuonSeq = cms.Sequence( process.esProd          
                                    + process.simOmtfDigis 
-                                   + process.dumpED
-                                   + process.dumpES
+#                                   + process.dumpED
+#                                   + process.dumpES
 )
 
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 
 process.out = cms.OutputModule("PoolOutputModule", 
-   fileName = cms.untracked.string("l1tomtf_superprimitives1.root")
+   fileName = cms.untracked.string("l1tomtf.root")
 )
 
 process.output_step = cms.EndPath(process.out)

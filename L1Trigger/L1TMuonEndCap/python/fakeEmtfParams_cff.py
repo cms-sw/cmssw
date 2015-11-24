@@ -13,7 +13,7 @@
 #)
 
 ###EMTF ESProducer. Fills CondFormats from XML files.
-#emtfParams = cms.ESProducer(
+#fakeEmtfParams = cms.ESProducer(
 #    "L1TMuonEndCapParamsESProducer"
 #    ... local parameter setting ...
 #)
