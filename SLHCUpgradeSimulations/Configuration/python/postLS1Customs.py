@@ -194,7 +194,7 @@ def customise_DQM_25ns(process):
     # Switch the default decision of the HCAL noise filter
     if hasattr(process,'HBHENoiseFilterResultProducer'):
         process.HBHENoiseFilterResultProducer.defaultDecision = cms.string("HBHENoiseFilterResultRun2Loose")
-
+    #Empty place-holder
     # Switch to Stage1 Digi
     process.load("L1Trigger.L1TCommon.l1tRawToDigi_cfi")
     process.load("L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi")
