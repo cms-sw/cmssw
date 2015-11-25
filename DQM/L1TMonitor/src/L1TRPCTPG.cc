@@ -39,12 +39,10 @@ L1TRPCTPG::~L1TRPCTPG()
 
 void L1TRPCTPG::dqmBeginRun(edm::Run const& r, edm::EventSetup const& c){
   //
-  //runId_->Fill(r.id().run());
 }
 
 void L1TRPCTPG::beginLuminosityBlock(edm::LuminosityBlock const& l, edm::EventSetup const& c){
   //
-  //lumisecId_->Fill(l.id().luminosityBlock());
 }
 
 
@@ -54,8 +52,6 @@ void L1TRPCTPG::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm:
   nev_ = 0;
   
   ibooker.setCurrentFolder("L1T/L1TRPCTPG");
-  runId_=ibooker.bookInt("iRun");
-  lumisecId_=ibooker.bookInt("iLumi");
   
   rpctpgbx = ibooker.book1D("RPCTPG_bx", 
        "RPC digis bx - all events", 9, -4.5, 4.5 ) ;
