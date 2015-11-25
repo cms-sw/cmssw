@@ -1,6 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 from RecoHI.HiJetAlgos.HiRecoJets_cff import *
 from RecoHI.HiJetAlgos.HiRecoPFJets_cff import *
+
+
+
+ak1PFJets = ak5PFJets.clone(rParam = cms.double(0.1))
+ak2PFJets = ak5PFJets.clone(rParam = cms.double(0.2))
+ak3PFJets = ak5PFJets.clone(rParam = cms.double(0.3))
+ak4PFJets = ak5PFJets.clone(rParam = cms.double(0.4))
+ak5PFJets = ak5PFJets.clone(rParam = cms.double(0.5))
+ak6PFJets = ak5PFJets.clone(rParam = cms.double(0.6))
+ak7PFJets = ak5PFJets.clone(rParam = cms.double(0.7))
+
 akVs1PFJets.jetPtMin = 1
 akVs1PFJets.src = cms.InputTag("particleFlowTmp")
 akVs1CaloJets.jetPtMin = 1
