@@ -97,7 +97,8 @@ namespace Phase2Tracker {
       // Skip FED if buffer is not a valid tracker FEDBuffer
       if(buffer.isValid() == 0) 
       { 
-        LogTrace("Phase2TrackerDigiProducer") << "invalid buffer" << endl;
+        LogTrace("Phase2TrackerDigiProducer") << "[Phase2Tracker::Phase2TrackerDigiProducer::"<<__func__<<"]: \n";
+        LogTrace("Phase2TrackerDigiProducer") << "Skipping invalid buffer for FED nr " << *fedIndex << endl;
         continue; 
       }
 

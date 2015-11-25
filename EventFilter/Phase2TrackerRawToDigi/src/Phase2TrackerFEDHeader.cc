@@ -52,8 +52,8 @@ namespace Phase2Tracker
     if (Version != 2)
     {
       std::ostringstream ss;
-      ss << "[Phase2Tracker::Phase2TrackerFEDHeader::"<<__func__<<"] ";
-      ss << "WARNING: Skipping FED ";
+      ss << "[Phase2Tracker::Phase2TrackerFEDHeader::"<<__func__<<"] \n";
+      ss << "WARNING: FED has been marked as invalid and will be skipped \n";
       ss << "Cause: Invalid Data Format Version in Tracker Header : ";
       printHex(&header_first_word_,1,ss);
 			LogTrace("Phase2TrackerFEDHeader") << ss.str() << std::endl;

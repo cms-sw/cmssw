@@ -2,8 +2,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define EDM_ML_DEBUG // remove this !
-
 namespace Phase2Tracker
 {
 
@@ -14,6 +12,7 @@ namespace Phase2Tracker
       valid_(1)
   {
       
+      LogTrace("Phase2TrackerFEDBuffer") << "[Phase2Tracker::Phase2TrackerFEDBuffer::"<<__func__<<"] " << "\n"; 
       LogTrace("Phase2TrackerFEDBuffer") << "content of buffer with size: "<<int(fedBufferSize)<<std::endl;
       for ( size_t i = 0;  i < fedBufferSize; i += 8)
       {
