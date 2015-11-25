@@ -88,10 +88,14 @@ def miniAOD_customizeCommon(process):
     #
     # apply type I + other PFMEt corrections to pat::MET object
     # and estimate systematic uncertainties on MET
+
+    process.selectedPatJetsForMETUnc = process.selectedPatJets.clone()
+    process.selectedPatJetsForMETUnc.cut = cms.string("pt > 15")
+
     from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncForMiniAODProduction
     runMetCorAndUncForMiniAODProduction(process, metType="PF",
                                         jetCollUnskimmed="patJets",
-                                        jetColl="selectedPatJets")
+                                        jetColl="selectedPatJetsForMETUnc")
     
     #caloMET computation
     from PhysicsTools.PatAlgos.tools.metTools import addMETCollection

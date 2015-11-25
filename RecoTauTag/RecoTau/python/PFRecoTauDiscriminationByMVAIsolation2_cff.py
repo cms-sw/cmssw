@@ -43,20 +43,6 @@ puCorrPtSum = pfRecoTauDiscriminationByIsolation.clone(
     verbosity = cms.int32(0)
 )
 
-photonPtSumOutsideSignalCone = chargedIsoPtSum.clone(
-    ApplyDiscriminationByTrackerIsolation = cms.bool(False),
-    storeRawSumPt = cms.bool(False),
-    storeRawPhotonSumPt_outsideSignalCone = cms.bool(True),
-    verbosity = cms.int32(0)
-)
-
-footprintCorrection = chargedIsoPtSum.clone(
-    ApplyDiscriminationByTrackerIsolation = cms.bool(False),
-    storeRawSumPt = cms.bool(False),
-    storeRawFootprintCorrection = cms.bool(True),
-    verbosity = cms.int32(0)
-)
-
 discriminationByIsolationMVA2raw = cms.EDProducer("PFRecoTauDiscriminationByIsolationMVA2",
 
     # tau collection to discriminate
@@ -75,9 +61,7 @@ discriminationByIsolationMVA2raw = cms.EDProducer("PFRecoTauDiscriminationByIsol
     
     srcChargedIsoPtSum = cms.InputTag('chargedIsoPtSum'),
     srcNeutralIsoPtSum = cms.InputTag('neutralIsoPtSum'),
-    srcPUcorrPtSum = cms.InputTag('puCorrPtSum'),
-    srcPhotonPtSumOutsideSignalCone = cms.InputTag('photonPtSumOutsideSignalCone'),
-    srcFootprintCorrection = cms.InputTag('footprintCorrection')                                                  
+    srcPUcorrPtSum = cms.InputTag('puCorrPtSum')
 )
 
 discriminationByIsolationMVA2VLoose = recoTauDiscriminantCutMultiplexer.clone(
@@ -107,8 +91,6 @@ mvaIsolation2Seq = cms.Sequence(
     chargedIsoPtSum
    + neutralIsoPtSum
    + puCorrPtSum
-   + photonPtSumOutsideSignalCone
-   + footprintCorrection
    + discriminationByIsolationMVA2raw
    + discriminationByIsolationMVA2VLoose
    + discriminationByIsolationMVA2Loose

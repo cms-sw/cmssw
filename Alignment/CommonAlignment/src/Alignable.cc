@@ -243,9 +243,18 @@ AlignmentSurfaceDeformations* Alignable::surfaceDeformations( void ) const
  
 void Alignable::cacheTransformation()
 {
+  // first treat itself
   theCachedSurface = theSurface;
   theCachedDisplacement = theDisplacement;
   theCachedRotation = theRotation;
+
+  // now treat components (a clean design would move that to AlignableComposite...)
+  const Alignables comps(this->components());
+
+  for (auto it = comps.begin(); it != comps.end(); ++it) {
+    (*it)->cacheTransformation();
+  }
+
 }
 
 void Alignable::restoreCachedTransformation()
