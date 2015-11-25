@@ -85,16 +85,11 @@ std::ostream & operator<<(std::ostream& o, const l1t::BlockHeader& h) {
 namespace l1t {
    L1TRawToDigi::L1TRawToDigi(const edm::ParameterSet& config) :
       fedIds_(config.getParameter<std::vector<int>>("FedIds")),
-      fwId_(-1),
-      fwOverride_(false),
+      fwId_(config.getParameter<unsigned int>("FWId")),
+      fwOverride_(config.getParameter<bool>("FWOverride")),
       ctp7_mode_(config.getUntrackedParameter<bool>("CTP7", false))
    {
       fedData_ = consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputLabel"));
-
-      if (config.exists("FWId")) {
-         fwId_ = config.getParameter<unsigned int>("FWId");
-         fwOverride_ = true;
-      }
 
       prov_ = PackingSetupFactory::get()->make(config.getParameter<std::string>("Setup"));
       prov_->registerProducts(*this);
@@ -256,7 +251,9 @@ namespace l1t {
    void
    L1TRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
      edm::ParameterSetDescription desc;
-     desc.addOptional<unsigned int>("FWId")->setComment("32 bits: if the first eight bits are 0xff, will read the 74x MC format");
+     //NOTE: having optional parameters, where behavior is different if set vs unset, makes customisation difficult.
+     desc.add<unsigned int>("FWId",0)->setComment("32 bits: if the first eight bits are 0xff, will read the 74x MC format.  No effect unless FWOverride is true.");
+     desc.add<bool>("FWOverride", false); // (see note above) 
      desc.addUntracked<bool>("CTP7", false);
      desc.add<edm::InputTag>("InputLabel");
      desc.add<std::vector<int>>("FedIds", {});
