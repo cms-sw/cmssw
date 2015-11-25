@@ -165,22 +165,22 @@ void TestDetSet::filling() {
     CPPUNIT_ASSERT(detsets.size()==n);
     CPPUNIT_ASSERT(detsets.dataSize()==ntot);
     CPPUNIT_ASSERT(detsets.detsetSize(n-1)==0);
-    CPPUNIT_ASSERT(ff.item.offset==int(detsets.dataSize()));
-    CPPUNIT_ASSERT(ff.item.size==0);
-    CPPUNIT_ASSERT(ff.item.id==id);
+    CPPUNIT_ASSERT(ff.m_item.offset==int(detsets.dataSize()));
+    CPPUNIT_ASSERT(ff.m_item.size==0);
+    CPPUNIT_ASSERT(ff.m_item.id==id);
     ntot+=1;
     ff.push_back(3.14);
     CPPUNIT_ASSERT(detsets.dataSize()==ntot);
     CPPUNIT_ASSERT(detsets.detsetSize(n-1)==1);
     CPPUNIT_ASSERT(detsets.m_data.back().v==3.14f);
-    CPPUNIT_ASSERT(ff.item.offset==int(detsets.dataSize())-1);
-    CPPUNIT_ASSERT(ff.item.size==1);
+    CPPUNIT_ASSERT(ff.m_item.offset==int(detsets.dataSize())-1);
+    CPPUNIT_ASSERT(ff.m_item.size==1);
     ntot+=n-1;
     ff.resize(n);
     CPPUNIT_ASSERT(detsets.dataSize()==ntot);
     CPPUNIT_ASSERT(detsets.detsetSize(n-1)==n);
-    CPPUNIT_ASSERT(ff.item.offset==int(detsets.dataSize()-n));
-    CPPUNIT_ASSERT(ff.item.size==n);
+    CPPUNIT_ASSERT(ff.m_item.offset==int(detsets.dataSize()-n));
+    CPPUNIT_ASSERT(ff.m_item.size==n);
 
     std::copy(sv.begin(),sv.begin()+n,ff.begin());
 
@@ -261,12 +261,12 @@ void TestDetSet::fillingTS() {
       TSFF ff(detsets, id);
       CPPUNIT_ASSERT(detsets.size()==n);
       CPPUNIT_ASSERT(detsets.dataSize()==ntot);
-      CPPUNIT_ASSERT(ff.item.size==0);
+      CPPUNIT_ASSERT(ff.m_item.size==0);
       CPPUNIT_ASSERT(ff.id()==id);
       ntot+=1;
       ff.push_back(3.14);
       CPPUNIT_ASSERT(detsets.dataSize()==ntot-1);
-      CPPUNIT_ASSERT(ff.item.size==0);
+      CPPUNIT_ASSERT(ff.m_item.size==0);
       CPPUNIT_ASSERT(ff.size()==1);
       ntot+=n-1;
       ff.resize(n);

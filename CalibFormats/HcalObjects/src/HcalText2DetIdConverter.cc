@@ -94,6 +94,10 @@ bool HcalText2DetIdConverter::init (DetId fId) {
     }
     else {
       flavorName = "HT";
+      setField (1, triggerId.ieta());
+      setField (2, triggerId.iphi());
+      setField (3, triggerId.version()*10 + triggerId.depth());
+/*      
       if (triggerId.version() == 0) {
         setField (1, triggerId.ieta());
         setField (2, triggerId.iphi());
@@ -105,6 +109,7 @@ bool HcalText2DetIdConverter::init (DetId fId) {
       } else {
         // Unknown version
       }
+*/
     }
   }
   else if (genId.isHcalZDCDetId ()) {
@@ -170,6 +175,8 @@ bool HcalText2DetIdConverter::init (const std::string& fFlavor, const std::strin
     // has a 0 in the 10s digit, whereas 1x1 has a 1. The ones digit is still
     // used to indicate depth, although in the 1x1 case this must be 0, so we
     // set it as such.
+    mId = HcalTrigTowerDetId (getField (1), getField (2), getField (3));
+/*
     const int depth_field = getField(3);
     const int ones = depth_field % 10;
     const int tens = (depth_field - ones) / 10;
@@ -184,6 +191,7 @@ bool HcalText2DetIdConverter::init (const std::string& fFlavor, const std::strin
     } else {
       // Undefined version!
     }
+*/
   }
   else if (flavorName.find ("ZDC_") == 0) {
     HcalZDCDetId::Section section = flavorName == "ZDC_EM" ? HcalZDCDetId::EM :

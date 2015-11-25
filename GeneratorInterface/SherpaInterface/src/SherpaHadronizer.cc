@@ -160,8 +160,6 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   std::string shRes  = "RESULT_DIRECTORY=" + SherpaResultDir; // from Sherpa 1.2.0 on
   //Name of the external random number class
   std::string shRng  = "EXTERNAL_RNG=CMS_SHERPA_RNG";
-  //switch off multithreading
-  std::string shNoMT = "-j1";
 
   //create the command line
   arguments.push_back(shRun.c_str());
@@ -169,7 +167,6 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   arguments.push_back(shPathPiece.c_str());
   arguments.push_back(shRes.c_str());
   arguments.push_back(shRng.c_str());
-  arguments.push_back(shNoMT.c_str());
   isInitialized=false;
  //initialization of Sherpa moved to initializeForInternalPartons
 }
