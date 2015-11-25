@@ -4,6 +4,8 @@
 
 #include "CaloTokens.h"
 
+#include "L1TStage2Layer2Constants.h"
+
 namespace l1t {
    namespace stage2 {
       class EGammaPacker : public Packer {
@@ -23,28 +25,34 @@ namespace stage2 {
       edm::Handle<EGammaBxCollection> egs;
       event.getByToken(static_cast<const CaloTokens*>(toks)->getEGammaToken(), egs);
 
-      std::vector<uint32_t> load;
+      std::vector<uint32_t> load1, load2;
 
       for (int i = egs->getFirstBX(); i <= egs->getLastBX(); ++i) {
-         int n = 0;
-         for (auto j = egs->begin(i); j != egs->end(i) && n < 12; ++j, ++n) {
-            uint32_t word = \
-                            std::min(j->hwPt(), 0x1FF) |
-                            (abs(j->hwEta()) & 0x7F) << 9 |
-                            ((j->hwEta() < 0) & 0x1) << 16 |
-                            (j->hwPhi() & 0xFF) << 17 |
-                            (j->hwIso() & 0x1) << 25 |
-                            (j->hwQual() & 0x7) << 26;
-            load.push_back(word);
-         }
-
-         // pad for up to 12 egammas
-         for (; n < 12; ++n)
-            load.push_back(0);
+	
+	for (auto j = egs->begin(i); j != egs->end(i); ++j) {
+	  uint32_t word =					\
+	    std::min(j->hwPt(), 0x1FF) |
+	    (abs(j->hwEta()) & 0x7F) << 9 |
+	    ((j->hwEta() < 0) & 0x1) << 16 |
+	    (j->hwPhi() & 0xFF) << 17 |
+	    (j->hwIso() & 0x1) << 25 |
+	    (j->hwQual() & 0x7) << 26;
+	
+	  if (load1.size() < l1t::stage2::layer2::demux::nEGPerLink) load1.push_back(word);
+	  else load2.push_back(word);
+	
+	}
       }
+      
+      // push zeroes if jets are missing                                      
+      while (load1.size()<l1t::stage2::layer2::demux::nOutputFramePerBX) load1.push_back(0);
+      
+      while (load2.size()<l1t::stage2::layer2::demux::nOutputFramePerBX) load2.push_back(0);
+  
+      return {Block(9, load1), Block(11, load2)};
 
-      return {Block(1, load)};
    }
+
 }
 }
 
