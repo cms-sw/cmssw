@@ -719,9 +719,9 @@ void JetTester_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
   mPtRecoOverGen_B_20_30_Cent_50_80    = ibooker.book1D("PtRecoOverGen_B_20_30_Cent_50_80",    "20<genpt<30; recopt/genpt (50-80%) (Barrel);counts",    90, 0, 2);
   mPtRecoOverGen_E_20_30_Cent_50_80    = ibooker.book1D("PtRecoOverGen_E_20_30_Cent_50_80",    "20<genpt<30; recopt/genpt (50-80%) (EndCap);counts",    90, 0, 2);
   mPtRecoOverGen_F_20_30_Cent_50_80    = ibooker.book1D("PtRecoOverGen_F_20_30_Cent_50_80",    "20<genpt<30; recopt/genpt (50-80%) (Forward);counts",    90, 0, 2);
-  mPtRecoOverGen_B_50_80_Cent_50_80    = ibooker.book1D("PtRecoOverGen_B_50_80_Cent_50_80",    "30<genpt<50; recopt/genpt (50-80%) (Barrel);counts",    90, 0, 2);
-  mPtRecoOverGen_E_50_80_Cent_50_80    = ibooker.book1D("PtRecoOverGen_E_50_80_Cent_50_80",    "30<genpt<50; recopt/genpt (50-80%) (EndCap);counts",    90, 0, 2);
-  mPtRecoOverGen_F_50_80_Cent_50_80    = ibooker.book1D("PtRecoOverGen_F_50_80_Cent_50_80",    "30<genpt<50; recopt/genpt (50-80%) (Forward);counts",    90, 0, 2);
+  mPtRecoOverGen_B_30_50_Cent_50_80    = ibooker.book1D("PtRecoOverGen_B_30_50_Cent_50_80",    "30<genpt<50; recopt/genpt (50-80%) (Barrel);counts",    90, 0, 2);
+  mPtRecoOverGen_E_30_50_Cent_50_80    = ibooker.book1D("PtRecoOverGen_E_30_50_Cent_50_80",    "30<genpt<50; recopt/genpt (50-80%) (EndCap);counts",    90, 0, 2);
+  mPtRecoOverGen_F_30_50_Cent_50_80    = ibooker.book1D("PtRecoOverGen_F_30_50_Cent_50_80",    "30<genpt<50; recopt/genpt (50-80%) (Forward);counts",    90, 0, 2);
   mPtRecoOverGen_B_50_80_Cent_50_80    = ibooker.book1D("PtRecoOverGen_B_50_80_Cent_50_80",    "50<genpt<80; recopt/genpt (50-80%) (Barrel);counts",    90, 0, 2);
   mPtRecoOverGen_E_50_80_Cent_50_80    = ibooker.book1D("PtRecoOverGen_E_50_80_Cent_50_80",    "50<genpt<80; recopt/genpt (50-80%) (EndCap);counts",    90, 0, 2);
   mPtRecoOverGen_F_50_80_Cent_50_80    = ibooker.book1D("PtRecoOverGen_F_50_80_Cent_50_80",    "50<genpt<80; recopt/genpt (50-80%) (Forward);counts",    90, 0, 2);
@@ -778,7 +778,7 @@ void JetTester_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
   mPtRecoOverGen_GenEta_300_Inf_Cent_30_50 = ibooker.bookProfile("PtRecoOverGen_GenEta_300_Inf_Cent_30_50","300<genpt<Inf (30-50%);geneta;recopt/genpt",90, etaRange, 0, 2, " ");
 
   mPtRecoOverGen_GenEta_20_30_Cent_50_80 = ibooker.bookProfile("PtRecoOverGen_GenEta_20_30_Cent_50_80","20<genpt<30 (50-80%);geneta;recopt/genpt",90, etaRange, 0, 2, " ");
-  mPtRecoOverGen_GenEta_50_80_Cent_50_80 = ibooker.bookProfile("PtRecoOverGen_GenEta_50_80_Cent_50_80","30<genpt<50 (50-80%);geneta;recopt/genpt",90, etaRange, 0, 2, " ");
+  mPtRecoOverGen_GenEta_30_50_Cent_50_80 = ibooker.bookProfile("PtRecoOverGen_GenEta_30_50_Cent_50_80","30<genpt<50 (50-80%);geneta;recopt/genpt",90, etaRange, 0, 2, " ");
   mPtRecoOverGen_GenEta_50_80_Cent_50_80 = ibooker.bookProfile("PtRecoOverGen_GenEta_50_80_Cent_50_80","50<genpt<80 (50-80%);geneta;recopt/genpt",90, etaRange, 0, 2, " ");
   mPtRecoOverGen_GenEta_80_120_Cent_50_80 = ibooker.bookProfile("PtRecoOverGen_GenEta_80_120_Cent_50_80","80<genpt<120 (50-80%);geneta;recopt/genpt",90, etaRange, 0, 2, " ");
   mPtRecoOverGen_GenEta_120_180_Cent_50_80 = ibooker.bookProfile("PtRecoOverGen_GenEta_120_180_Cent_50_80","120<genpt<180 (50-80%);geneta;recopt/genpt",90, etaRange, 0, 2, " ");
