@@ -209,6 +209,14 @@ process.hcalNZSMonitor.RawDataLabel = rawuntrackedTag
 process.hcalNoiseMonitor.RawDataLabel = rawuntrackedTag
 process.hcalRawDataMonitor.FEDRawDataCollection = rawuntrackedTag
 process.hcalDigiMonitor.FEDRawDataCollection = rawuntrackedTag
+process.hcalHotCellMonitor.FEDRawDataCollection = rawuntrackedTag
+process.hcalDeadCellMonitor.FEDRawDataCollection = rawuntrackedTag
+process.hcalRecHitMonitor.FEDRawDataCollection = rawuntrackedTag
+process.hcalBeamMonitor.FEDRawDataCollection = rawuntrackedTag
+process.hcalTrigPrimMonitor.FEDRawDataCollection = rawuntrackedTag
+process.hcalCoarsePedestalMonitor.FEDRawDataCollection = rawuntrackedTag
+process.hcalDetDiagNoiseMonitor.FEDRawDataCollection = rawuntrackedTag
+process.hcalNZSMonitor.FEDRawDataCollection = rawuntrackedTag
 
 #-------------------------------------
 #	Some Settings before Finishing up

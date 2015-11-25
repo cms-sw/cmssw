@@ -81,9 +81,9 @@ cmssw			= os.getenv("CMSSW_VERSION").split("_")
 rawTag			= cms.InputTag("hltHcalCalibrationRaw")
 rawuntrackedTag = cms.untracked.InputTag("hltHcalCalibrationRaw")
 isHeavyIon		= runType==4
-if isHeavyIon:
-	rawTag = cms.InputTag("rawDataRepacker")
-	rawuntrackedTag = cms.untracked.InputTag("rawDataRepacker")
+#if isHeavyIon:
+#	rawTag = cms.InputTag("rawDataRepacker")
+#	rawuntrackedTag = cms.untracked.InputTag("rawDataRepacker")
 process.essourceSev = cms.ESSource(
 		"EmptyESSource",
 		recordName		= cms.string("HcalSeverityLevelComputerRcd"),
