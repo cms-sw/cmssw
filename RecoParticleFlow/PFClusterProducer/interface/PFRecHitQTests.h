@@ -5,7 +5,8 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitQTestBase.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-
+#include <iostream>
+using namespace std;
 
 //
 //  Quality test that checks threshold
@@ -462,7 +463,7 @@ class PFRecHitQTestES : public PFRecHitQTestBase {
 	   rh.checkFlag(EcalRecHit::kESTS3Largest) || 
 	   rh.checkFlag(EcalRecHit::kESTS3Negative)
 	   )) {
-      clean=true;
+      clean=false;
       return false;
     }
 

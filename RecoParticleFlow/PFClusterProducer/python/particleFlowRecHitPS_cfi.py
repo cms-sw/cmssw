@@ -11,11 +11,11 @@ particleFlowRecHitPS = cms.EDProducer("PFRecHitProducer",
             qualityTests = cms.VPSet(
                 cms.PSet(
                     name = cms.string("PFRecHitQTestThreshold"),
-                    threshold = cms.double(7e-6)
+                    threshold = cms.double(0.)
                     ),
                 cms.PSet(
                     name = cms.string("PFRecHitQTestES"),
-                    cleaningThreshold = cms.double(1400.),
+                    cleaningThreshold = cms.double(0.),
                     topologicalCleaning = cms.bool(True)
                     )
                 )
