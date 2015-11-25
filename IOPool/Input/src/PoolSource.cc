@@ -129,8 +129,8 @@ namespace edm {
             branchIDsToReplace_[i].push_back(*it);
           }
         }
+        secondaryFileSequence_->initAssociationsFromSecondary(associationsFromSecondary);
       }
-      secondaryFileSequence_->initAssociationsFromSecondary(associationsFromSecondary);
     }
   }
 

@@ -1,5 +1,6 @@
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 const HcalTrigTowerDetId HcalTrigTowerDetId::Undefined(0x4a000000u);
 
@@ -13,12 +14,25 @@ HcalTrigTowerDetId::HcalTrigTowerDetId(uint32_t rawid) : DetId(rawid) {
 HcalTrigTowerDetId::HcalTrigTowerDetId(int ieta, int iphi) : DetId(Hcal,HcalTriggerTower) {
   id_|=((ieta>0)?(0x2000|(ieta<<7)):((-ieta)<<7)) |
     (iphi&0x7F);
+// Default to depth = 0 & version = 0
 }
 
 HcalTrigTowerDetId::HcalTrigTowerDetId(int ieta, int iphi, int depth) : DetId(Hcal,HcalTriggerTower) {
-  id_|=((depth&0x7)<<14) |
+  const int ones = depth % 10;
+  const int tens = (depth - ones) / 10;
+  // version convension   0 : default for 3x2 TP; 1, 2, 3 : for future & currently version = 1 is for 1x1 TP
+  // Note that in this conversion, depth can take values from 0 to 9 for different purpose 
+  // -> so depth should be = ones!
+  id_|=((ones&0x7)<<14) |
     ((ieta>0)?(0x2000|(ieta<<7)):((-ieta)<<7)) |
     (iphi&0x7F);
+
+  const int version = tens;
+  if( version > 9 ){ // do NOT envision to have versions over 9...  
+     edm::LogError("HcalTrigTowerDetId")<<"in its ctor using depth, version larger than 9 (too many of it!)?"<<std::endl;
+  }
+
+  id_|=((version&0x7)<<17);
 }
 
 HcalTrigTowerDetId::HcalTrigTowerDetId(int ieta, int iphi, int depth, int version) : DetId(Hcal,HcalTriggerTower) {

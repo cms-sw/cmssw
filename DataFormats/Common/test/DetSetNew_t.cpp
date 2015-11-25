@@ -37,7 +37,7 @@ typedef edmNew::DetSetVector<T> DSTV;
 typedef edmNew::DetSet<T> DST;
 typedef edmNew::det_id_type det_id_type;
 typedef DSTV::FastFiller FF;
-
+typedef DSTV::TSFastFiller TSFF;
 
 class TestDetSet: public CppUnit::TestFixture
 {
@@ -45,6 +45,7 @@ class TestDetSet: public CppUnit::TestFixture
   CPPUNIT_TEST(default_ctor);
   CPPUNIT_TEST(inserting);
   CPPUNIT_TEST(filling);
+  CPPUNIT_TEST(fillingTS);
   CPPUNIT_TEST(iterator);
   CPPUNIT_TEST(algorithm);
   CPPUNIT_TEST(onDemand);
@@ -61,6 +62,7 @@ public:
   void default_ctor();
   void inserting();
   void filling();
+  void fillingTS();
   void iterator();
   void algorithm();
   void onDemand();
@@ -79,6 +81,10 @@ TestDetSet::TestDetSet() : sv(10){
 }
 
 void TestDetSet::default_ctor() {
+#ifdef CMS_NOCXX11
+  CPPUNIT_ASSERT(false && "CMS_NOCXX11");
+#endif
+
 
   DSTV detsets(2);
   CPPUNIT_ASSERT(!detsets.onDemand());
@@ -148,6 +154,7 @@ void TestDetSet::inserting() {
   }
 }
 
+
 void TestDetSet::filling() {
 
   DSTV detsets(2);
@@ -158,22 +165,22 @@ void TestDetSet::filling() {
     CPPUNIT_ASSERT(detsets.size()==n);
     CPPUNIT_ASSERT(detsets.dataSize()==ntot);
     CPPUNIT_ASSERT(detsets.detsetSize(n-1)==0);
-    CPPUNIT_ASSERT(ff.item.offset==int(detsets.dataSize()));
-    CPPUNIT_ASSERT(ff.item.size==0);
-    CPPUNIT_ASSERT(ff.item.id==id);
+    CPPUNIT_ASSERT(ff.m_item.offset==int(detsets.dataSize()));
+    CPPUNIT_ASSERT(ff.m_item.size==0);
+    CPPUNIT_ASSERT(ff.m_item.id==id);
     ntot+=1;
     ff.push_back(3.14);
     CPPUNIT_ASSERT(detsets.dataSize()==ntot);
     CPPUNIT_ASSERT(detsets.detsetSize(n-1)==1);
     CPPUNIT_ASSERT(detsets.m_data.back().v==3.14f);
-    CPPUNIT_ASSERT(ff.item.offset==int(detsets.dataSize())-1);
-    CPPUNIT_ASSERT(ff.item.size==1);
+    CPPUNIT_ASSERT(ff.m_item.offset==int(detsets.dataSize())-1);
+    CPPUNIT_ASSERT(ff.m_item.size==1);
     ntot+=n-1;
     ff.resize(n);
     CPPUNIT_ASSERT(detsets.dataSize()==ntot);
     CPPUNIT_ASSERT(detsets.detsetSize(n-1)==n);
-    CPPUNIT_ASSERT(ff.item.offset==int(detsets.dataSize()-n));
-    CPPUNIT_ASSERT(ff.item.size==n);
+    CPPUNIT_ASSERT(ff.m_item.offset==int(detsets.dataSize()-n));
+    CPPUNIT_ASSERT(ff.m_item.size==n);
 
     std::copy(sv.begin(),sv.begin()+n,ff.begin());
 
@@ -217,6 +224,12 @@ void TestDetSet::filling() {
  }
  CPPUNIT_ASSERT(detsets.size()==5);
  CPPUNIT_ASSERT(!detsets.exists(31));
+ { FF ff1(detsets, 32,true); }
+ CPPUNIT_ASSERT(detsets.size()==6);
+ detsets.clean();
+ CPPUNIT_ASSERT(detsets.size()==4);
+ CPPUNIT_ASSERT(!detsets.exists(30));
+ CPPUNIT_ASSERT(!detsets.exists(32));
 
   // test error conditions
   try {
@@ -230,6 +243,79 @@ void TestDetSet::filling() {
   try {
     FF ff1(detsets, 44);
     FF ff2(detsets, 45);
+    CPPUNIT_ASSERT(" fast filler did not throw"==0);
+  } catch (edm::Exception const &err) {
+    CPPUNIT_ASSERT(err.categoryCode()==edm::errors::LogicError);
+  }
+}
+
+
+void TestDetSet::fillingTS() {
+
+  DSTV detsets(2);
+  detsets.reserve(5,100);
+  unsigned int ntot=0;
+  for (unsigned int n=1;n<5;++n) {
+    unsigned int id=20+n;
+    {
+      TSFF ff(detsets, id);
+      CPPUNIT_ASSERT(detsets.size()==n);
+      CPPUNIT_ASSERT(detsets.dataSize()==ntot);
+      CPPUNIT_ASSERT(ff.m_item.size==0);
+      CPPUNIT_ASSERT(ff.id()==id);
+      ntot+=1;
+      ff.push_back(3.14);
+      CPPUNIT_ASSERT(detsets.dataSize()==ntot-1);
+      CPPUNIT_ASSERT(ff.m_item.size==0);
+      CPPUNIT_ASSERT(ff.size()==1);
+      ntot+=n-1;
+      ff.resize(n);
+      CPPUNIT_ASSERT(ff.size()==n);
+      std::copy(sv.begin(),sv.begin()+n,ff.begin());
+    }
+    CPPUNIT_ASSERT(detsets.size()==n);
+    CPPUNIT_ASSERT(detsets.dataSize()==ntot);
+
+    std::vector<DST::data_type> v1(n);
+    std::vector<DST::data_type> v2(n);
+    std::copy(detsets.m_data.begin()+ntot-n,detsets.m_data.begin()+ntot,v2.begin());
+    std::copy(sv.begin(),sv.begin()+n,v1.begin());
+    CPPUNIT_ASSERT(v1==v2);
+  }
+
+  // test abort and empty
+  { TSFF ff1(detsets, 30); CPPUNIT_ASSERT(detsets.exists(30));}
+  CPPUNIT_ASSERT(detsets.size()==5);
+  CPPUNIT_ASSERT(detsets.exists(30));
+  detsets.clean();
+  CPPUNIT_ASSERT(detsets.size()==4);
+  CPPUNIT_ASSERT(!detsets.exists(30));
+
+  unsigned int cs = detsets.dataSize();
+  {
+    TSFF ff1(detsets, 31);
+    ff1.resize(4);
+    ff1.abort();
+  }
+  CPPUNIT_ASSERT(detsets.size()==5);
+  CPPUNIT_ASSERT(detsets.dataSize()==cs);
+  CPPUNIT_ASSERT(detsets.exists(31));
+  detsets.clean();
+  CPPUNIT_ASSERT(detsets.size()==4);
+  CPPUNIT_ASSERT(!detsets.exists(31));
+
+  // test error conditions
+  try {
+    TSFF ff1(detsets, 22);
+    CPPUNIT_ASSERT(" fast filler did not throw"==0);
+  }
+  catch (edm::Exception const & err) {
+    CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
+  }
+
+  try {
+    TSFF ff1(detsets, 44);
+    TSFF ff2(detsets, 45);
     CPPUNIT_ASSERT(" fast filler did not throw"==0);
   } catch (edm::Exception const &err) {
     CPPUNIT_ASSERT(err.categoryCode()==edm::errors::LogicError);
@@ -260,9 +346,9 @@ namespace {
   struct Getter final : public DSTV::Getter {
     Getter(TestDetSet * itest):ntot(0), test(*itest){}
 
-    void fill(FF& ff) override {
+    void fill(TSFF& ff) override {
       try {
-         int n=ff.id()-20;
+        int n=ff.id()-20;
         CPPUNIT_ASSERT(n>0);
         ff.resize(n);
         std::copy(test.sv.begin(),test.sv.begin()+n,ff.begin());

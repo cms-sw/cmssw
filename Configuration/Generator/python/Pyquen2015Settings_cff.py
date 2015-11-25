@@ -39,6 +39,7 @@ hydjetParameters = cms.PSet(sigmaInelNN = cms.double(70),
                             maxTransverseRapidity = cms.double(1.25),
                             rotateEventPlane = cms.bool(True),
                             allowEmptyEvents = cms.bool(False),
+                            angularSpectrumSelector = cms.int32(1), ## angular emitted gluon spectrum
                             embeddingMode = cms.bool(False)
                             )
 

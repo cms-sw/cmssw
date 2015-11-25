@@ -13,13 +13,13 @@ from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fix
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
 def cust_2017(process):
-    process=customisePostLS1(process)
+    process=customisePostLS1(process,displayDeprecationWarning=False)
     process=customisePhase1Tk(process)
     #process=customise_HcalPhase0(process)
     return process
 
 def cust_2019(process):
-    process=customisePostLS1(process)
+    process=customisePostLS1(process,displayDeprecationWarning=False)
     process=customisePhase1Tk(process)
     process=customise_HcalPhase1(process)
     return process

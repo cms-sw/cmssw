@@ -2315,7 +2315,8 @@ cc      SAVE /PB/
 cc      SAVE /PC/
       COMMON   /PD/LPION(MAXSTR,MAXR)
 cc      SAVE /PD/
-      dimension bb(3),p1(4),p2(4),p3(4),px(4),py(4),pz(4)
+      dimension bb(3),p1(4),p2(4),p3(4)
+cms      ,px(4),py(4),pz(4)
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       COMMON /dpert/dpertt(MAXSTR,MAXR),dpertp(MAXSTR),dplast(MAXSTR),
@@ -3462,7 +3463,7 @@ c            WRITE (57, 333) BMT * (I - 0.5), SCALE2 * DMT2LA(I)
 c            WRITE (58, 333) BMT * (I - 0.5), SCALE2 * DMT2LB(I)
          END IF
  1004 CONTINUE
- 333  format(2(f12.5,1x))
+c      format(2(f12.5,1x))
 
       RETURN
       END

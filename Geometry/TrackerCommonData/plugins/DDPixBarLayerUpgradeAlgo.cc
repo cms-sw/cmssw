@@ -86,7 +86,6 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
   DDMaterial matter(matname);
   DDLogicalPart layer(solid.ddname(), matter, solid);
 
-  double dr = coolRadius+0.5*ladderThick;
   std::string name = idName + "CoolTube";
   solid = DDSolidFactory::tubs(DDName(name,idNameSpace), 0.5*coolDz,
 			       0, coolRadius, 0, CLHEP::twopi);
@@ -121,6 +120,7 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
     DDTranslation tran;
     DDRotation rot;
     iup  =-iup;
+    double dr;
     if ((i==1)||(i==number/2+1)){
 	dr=coolRadius+0.5*ladderThick+ladderOffset; //interface ladder offset
 	}else{

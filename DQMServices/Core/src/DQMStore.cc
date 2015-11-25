@@ -2093,12 +2093,14 @@ DQMStore::forceReset(void)
 void
 DQMStore::deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi)
 {
+  if (!enableMultiThread_)
+    return;
+  
   std::lock_guard<std::mutex> guard(book_mutex_);
 
   std::string null_str("");
-  MonitorElement proto(&null_str, null_str, run, 0, 0);
-  if (enableMultiThread_)
-    proto.setLumi(lumi);
+  MonitorElement proto(&null_str, null_str, run, 0, 0);  
+  proto.setLumi(lumi);
 
   std::set<MonitorElement>::const_iterator e = data_.end();
   std::set<MonitorElement>::const_iterator i = data_.lower_bound(proto);
@@ -2107,7 +2109,7 @@ DQMStore::deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi)
     if (i->data_.streamId != 0 ||
         i->data_.moduleId != 0)
       break;
-    if ((i->data_.lumi != lumi) && enableMultiThread_)
+    if (i->data_.lumi != lumi)
       break;
     if (i->data_.run != run)
       break;

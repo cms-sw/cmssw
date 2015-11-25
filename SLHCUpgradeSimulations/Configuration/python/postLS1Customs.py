@@ -43,25 +43,26 @@ def customisePostLS1_Common(process):
     return process
 
 
-def customisePostLS1(process):
-    print """
-    #
-    # -- Warning! You are using a deprecated customisation function. --
-    #
-    # It will probably run fine, but the customisations you are getting may be out of date.
-    # You should update your configuration file by
-    #   If using cmsDriver:
-    #       1) remove the "--customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1" option
-    #       2) add the option "--era Run2_25ns"
-    #   If using a pre-made configuration file:
-    #       1) remove or comment out the "process = customisePostLS1(process)" line.
-    #       2) add "from Configuration.StandardSequences.Eras import eras" to the TOP of the config file (above
-    #          the process declaration).
-    #       3) add "eras.Run2_25ns" as a parameter to the process object, e.g. "process = cms.Process('HLT',eras.Run2_25ns)"
-    #
-    # There is more information at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCmsDriverEras
-    #
-    """
+def customisePostLS1(process,displayDeprecationWarning=True):
+    if displayDeprecationWarning :
+        print """
+        #
+        # -- Warning! You are using a deprecated customisation function. --
+        #
+        # It will probably run fine, but the customisations you are getting may be out of date.
+        # You should update your configuration file by
+        #   If using cmsDriver:
+        #       1) remove the "--customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1" option
+        #       2) add the option "--era Run2_25ns" 
+        #   If using a pre-made configuration file:
+        #       1) remove or comment out the "process = customisePostLS1(process)" line.
+        #       2) add "from Configuration.StandardSequences.Eras import eras" to the TOP of the config file (above
+        #          the process declaration).
+        #       3) add "eras.Run2_25ns" as a parameter to the process object, e.g. "process = cms.Process('HLT',eras.Run2_25ns)" 
+        #
+        # There is more information at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCmsDriverEras
+        #
+        """
     # common customisation
     process = customisePostLS1_Common(process)
 
@@ -86,25 +87,26 @@ def customisePostLS1_lowPU(process):
     return process
 
 
-def customisePostLS1_50ns(process):
-    print """
-    #
-    # -- Warning! You are using a deprecated customisation function. --
-    #
-    # It will probably run fine, but the customisations you are getting may be out of date.
-    # You should update your configuration file by
-    #   If using cmsDriver:
-    #       1) remove the "--customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns" option
-    #       2) add the option "--era Run2_50ns"
-    #   If using a pre-made configuration file:
-    #       1) remove or comment out the "process = customisePostLS1_50ns(process)" line.
-    #       2) add "from Configuration.StandardSequences.Eras import eras" to the TOP of the config file (above
-    #          the process declaration).
-    #       3) add "eras.Run2_50ns" as a parameter to the process object, e.g. "process = cms.Process('HLT',eras.Run2_50ns)"
-    #
-    # There is more information at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCmsDriverEras
-    #
-    """
+def customisePostLS1_50ns(process,displayDeprecationWarning=True):
+    if displayDeprecationWarning :
+        print """
+        #
+        # -- Warning! You are using a deprecated customisation function. --
+        #
+        # It will probably run fine, but the customisations you are getting may be out of date.
+        # You should update your configuration file by
+        #   If using cmsDriver:
+        #       1) remove the "--customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns" option
+        #       2) add the option "--era Run2_50ns"
+        #   If using a pre-made configuration file:
+        #       1) remove or comment out the "process = customisePostLS1_50ns(process)" line.
+        #       2) add "from Configuration.StandardSequences.Eras import eras" to the TOP of the config file (above
+        #          the process declaration).
+        #       3) add "eras.Run2_50ns" as a parameter to the process object, e.g. "process = cms.Process('HLT',eras.Run2_50ns)"
+        #
+        # There is more information at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCmsDriverEras
+        #
+        """
 
     # common customisations
     process = customisePostLS1_Common(process)
@@ -116,25 +118,26 @@ def customisePostLS1_50ns(process):
     return process
 
 
-def customisePostLS1_HI(process):
-    print """
-    #
-    # -- Warning! You are using a deprecated customisation function. --
-    #
-    # It will probably run fine, but the customisations you are getting may be out of date.
-    # You should update your configuration file by
-    #   If using cmsDriver:
-    #       1) remove the "--customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_HI" option
-    #       2) add the option "--era Run2_HI"
-    #   If using a pre-made configuration file:
-    #       1) remove or comment out the "process = customisePostLS1_HI(process)" line.
-    #       2) add "from Configuration.StandardSequences.Eras import eras" to the TOP of the config file (above
-    #          the process declaration).
-    #       3) add "eras.Run2_HI" as a parameter to the process object, e.g. "process = cms.Process('HLT',eras.Run2_HI)"
-    #
-    # There is more information at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCmsDriverEras
-    #
-    """
+def customisePostLS1_HI(process,displayDeprecationWarning=True):
+    if displayDeprecationWarning :
+        print """
+        #
+        # -- Warning! You are using a deprecated customisation function. --
+        #
+        # It will probably run fine, but the customisations you are getting may be out of date.
+        # You should update your configuration file by
+        #   If using cmsDriver:
+        #       1) remove the "--customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_HI" option
+        #       2) add the option "--era Run2_HI"
+        #   If using a pre-made configuration file:
+        #       1) remove or comment out the "process = customisePostLS1_HI(process)" line.
+        #       2) add "from Configuration.StandardSequences.Eras import eras" to the TOP of the config file (above
+        #          the process declaration).
+        #       3) add "eras.Run2_HI" as a parameter to the process object, e.g. "process = cms.Process('HLT',eras.Run2_HI)"
+        #
+        # There is more information at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCmsDriverEras
+        #
+        """
 
     # common customisation
     process = customisePostLS1_Common(process)

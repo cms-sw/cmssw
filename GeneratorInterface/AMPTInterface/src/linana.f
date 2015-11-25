@@ -231,7 +231,7 @@ clin-12/14/03-end
             elseif(amax1(abs(xlast(1,ip)),abs(xlast(2,ip)),
      1              abs(xlast(3,ip)),abs(xlast(4,ip))).lt.9999) then
                if(dplast(ip).gt.oneminus.and.dplast(ip).lt.oneplus) then
-            write(16,200) INVFLV(lblast(ip)), plast(1,ip),
+                 write(16,200) INVFLV(lblast(ip)), plast(1,ip),
      1           plast(2,ip),plast(3,ip),plast(4,ip),
      2           xlast(1,ip),xlast(2,ip),xlast(3,ip),xlast(4,ip)
                else
@@ -247,7 +247,7 @@ clin-12/14/03-end
             else
 c     change format for large numbers:
                if(dplast(ip).gt.oneminus.and.dplast(ip).lt.oneplus) then
-            write(16,201) INVFLV(lblast(ip)), plast(1,ip),
+                   write(16,201) INVFLV(lblast(ip)), plast(1,ip),
      1           plast(2,ip),plast(3,ip),plast(4,ip),
      2           xlast(1,ip),xlast(2,ip),xlast(3,ip),xlast(4,ip)
                else
@@ -599,8 +599,8 @@ c
                  vyp0(npar)=dble(patt(i,2)/patt(i,4))
                  vzp0(npar)=dble(patt(i,3)/patt(i,4))
  1001     continue
- 200      format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,f8.2))
- 201      format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,e8.2))
+cms 200      format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,f8.2))
+cms 201      format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,e8.2))
 c
               if((isoft.eq.4.or.isoft.eq.5)
      1 .and.iabs(it(2)).gt.1000) then

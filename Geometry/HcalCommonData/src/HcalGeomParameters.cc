@@ -76,12 +76,11 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
   bool dodet=true, hf=false;
   std::vector<double> rb(20,0.0), ze(20,0.0), thkb(20,-1.0), thke(20,-1.0);
   std::vector<int>    ib(20,0),   ie(20,0);
-  std::vector<int>    izb, phib, ize, phie, izf, phif;
+  std::vector<int>    izb, phib, ize, phie;
   std::vector<double> rxb;
   php.rhoxHB.clear(); php.zxHB.clear(); php.dyHB.clear(); php.dxHB.clear();
   php.layHB.clear(); php.layHE.clear();
   php.zxHE.clear(); php.rhoxHE.clear(); php.dyHE.clear(); php.dx1HE.clear(); php.dx2HE.clear();
-  double zf = 0;
   dzVcal    = -1.;
 
   while (dodet) {
@@ -237,15 +236,12 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
 	for (unsigned j=0; j<paras.size(); j++)
 	  std::cout << "HF Parameter[" << j << "] = " << paras[j] << std::endl;
 #endif
-	zf  = fabs(t.z());
 	if (sol.shape() == ddpolycone_rrz) {
 	  int nz  = (int)(paras.size())-3;
-	  zf     += paras[3];
 	  dzVcal  = 0.5*(paras[nz]-paras[3]);
 	  hf      = true;
 	} else if (sol.shape() == ddtubs || sol.shape() == ddcons) {
 	  dzVcal  = paras[0];
-	  zf     -= paras[0];
 	  hf      = true;
 	}
       }
@@ -290,7 +286,7 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
   for (unsigned int k=0; k<php.layHE.size(); ++k) 
     std::cout << "HE: " << php.layHE[k] << " R " << php.rhoxHE[k] << " Z " << php.zxHE[k] << " X1|X2 " << php.dx1HE[k] << "|" << php.dx2HE[k] << " DY " << php.dyHE[k] << "\n";
   std::cout << "HcalGeomParameters: Maximum Layer for HB " << ibmx << " for HE "
-	    << iemx << " Z for HF " << zf << " extent " << dzVcal << std::endl;
+	    << iemx << " extent " << dzVcal << std::endl;
 #endif
 
   if (ibmx > 0) {

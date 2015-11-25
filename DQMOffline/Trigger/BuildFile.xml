@@ -15,6 +15,7 @@
 <use   name="DataFormats/METReco"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/CaloTowers"/>
+<use   name="DataFormats/HeavyIonEvent"/>
 <use   name="CommonTools/Utils"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="RecoEgamma/EgammaHLTAlgos"/>

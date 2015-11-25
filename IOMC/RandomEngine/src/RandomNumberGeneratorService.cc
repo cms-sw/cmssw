@@ -56,10 +56,6 @@ namespace edm {
     const std::uint32_t RandomNumberGeneratorService::maxSeedHepJames =  900000000U;
     const std::uint32_t RandomNumberGeneratorService::maxSeedTRandom3 = 4294967295U;
 
-    // This supports the mySeed function
-    // DELETE THIS WHEN/IF that functions is deleted.
-    thread_local std::string RandomNumberGeneratorService::moduleLabel_;
-
     RandomNumberGeneratorService::RandomNumberGeneratorService(ParameterSet const& pset,
                                                                ActivityRegistry& activityRegistry):
       nStreams_(0),
@@ -202,13 +198,6 @@ namespace edm {
         activityRegistry.watchPostModuleStreamEndLumi(this, &RandomNumberGeneratorService::postModuleStreamEndLumi);
       }
 
-      // The next 5 lines support the mySeed function
-      // DELETE THEM when/if that function is deleted.
-      activityRegistry.watchPostModuleConstruction(this, &RandomNumberGeneratorService::postModuleConstruction);
-      activityRegistry.watchPreModuleBeginJob(this, &RandomNumberGeneratorService::preModuleBeginJob);
-      activityRegistry.watchPostModuleBeginJob(this, &RandomNumberGeneratorService::postModuleBeginJob);
-      activityRegistry.watchPreModuleEndJob(this, &RandomNumberGeneratorService::preModuleEndJob);
-      activityRegistry.watchPostModuleEndJob(this, &RandomNumberGeneratorService::postModuleEndJob);
     }
 
     RandomNumberGeneratorService::~RandomNumberGeneratorService() {
@@ -299,15 +288,10 @@ namespace edm {
       std::string label;
       ModuleCallingContext const* mcc = CurrentModuleOnThread::getCurrentModuleOnThread();
       if(mcc == nullptr) {
-        if(!moduleLabel_.empty()) {
-          label = moduleLabel_;
-        }
-        else {
-          throw Exception(errors::LogicError)
-            << "RandomNumberGeneratorService::getEngine()\n"
-               "Requested a random number engine from the RandomNumberGeneratorService\n"
-               "when no module was active. ModuleCallingContext is null\n";
-        }
+        throw Exception(errors::LogicError)
+          << "RandomNumberGeneratorService::getEngine()\n"
+          "Requested a random number engine from the RandomNumberGeneratorService\n"
+          "from an unallowed transition. ModuleCallingContext is null\n";
       } else {
         label = mcc->moduleDescription()->moduleLabel();
       }
@@ -366,36 +350,6 @@ namespace edm {
       if(iter != seedsAndNameMap_.end()) {
         iter->second.setModuleID(description.id());
       }
-      // The next line supports the mySeed function
-      // DELETE IT when/if that function is deleted.
-      moduleLabel_ = description.moduleLabel();
-    }
-
-    // The next 5 functions support the mySeed function
-    // DELETE THEM when/if that function is deleted.
-    void
-    RandomNumberGeneratorService::postModuleConstruction(ModuleDescription const& description) {
-      moduleLabel_.clear();
-    }
-
-    void
-    RandomNumberGeneratorService::preModuleBeginJob(ModuleDescription const& description) {
-      moduleLabel_ = description.moduleLabel();
-    }
-
-    void
-    RandomNumberGeneratorService::postModuleBeginJob(ModuleDescription const& description) {
-      moduleLabel_.clear();
-    }
-
-    void
-    RandomNumberGeneratorService::preModuleEndJob(ModuleDescription const& description) {
-      moduleLabel_ = description.moduleLabel();
-    }
-
-    void
-    RandomNumberGeneratorService::postModuleEndJob(ModuleDescription const& description) {
-      moduleLabel_.clear();
     }
 
     void

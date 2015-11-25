@@ -758,7 +758,7 @@ int HcalTopology::nPhiBins(int etaRing) const {
 
 int HcalTopology::nPhiBins(HcalSubdetector bc, int etaRing) const {
   static const double twopi = M_PI+M_PI;
-  int lastPhiBin=singlePhiBins_;
+  int lastPhiBin;
   if (bc == HcalForward) {
     lastPhiBin = (int)((twopi+0.001)/dPhiTableHF[etaRing-firstHFRing_]);
   } else {
@@ -1044,7 +1044,6 @@ unsigned int HcalTopology::detId2denseIdCALIB(const DetId& id) const {
       //std::cout<<"CALIB_HO:  ";
       //there are 5 special calib crosstalk channels, one in each ring
       if (channel==7) {
-	channel = 2;
 	index = (ieta+2) + 420;
       //for HOM/HOP dphi = 6 (12 phi values),  2 channel types (0,1), eta = -2,-1 or 1,2
       //for HO0/YB0 dphi = 12 (6 phi values),  2 channel types (0,1), eta = 0
