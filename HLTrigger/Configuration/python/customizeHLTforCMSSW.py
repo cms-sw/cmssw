@@ -215,6 +215,12 @@ def customiseFor11920(process):
         if hasattr(process.CaloTowerGeometryFromDBEP,'hcalTopologyConstants'):
             delattr(process.CaloTowerGeometryFromDBEP,'hcalTopologyConstants')
     return process
+def customiseFor12346(process):
+
+    if hasattr(process, 'hltMetCleanUsingJetID'):
+       if hasattr(process.hltMetCleanUsingJetID, 'usePt'):
+           delattr(process.hltMetCleanUsingJetID, 'usePt')
+    return process
 
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
@@ -222,6 +228,7 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     cmsswVersion = os.environ['CMSSW_VERSION']
 
     if cmsswVersion >= "CMSSW_8_0":
+        process = customiseFor12346(process)
         process = customiseFor11920(process)
     if cmsswVersion >= "CMSSW_7_6":
         process = customiseFor10418(process)
