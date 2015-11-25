@@ -8,7 +8,11 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-
+# Modify the Raw Data Collection Raw collection List to include upgrade collections where appropriate:
+from EventFilter.RawDataCollector.rawDataCollectorByLabel_cfi import *
+eras.stage1L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("caloStage1Raw")) )
+eras.stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("caloStage2Raw")) )
+eras.stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("gmtStage2Raw")) )
 
 #
 # Legacy Trigger:
@@ -48,13 +52,12 @@ if eras.stage1L1Trigger.isChosen() and not eras.stage2L1Trigger.isChosen():
     l1GtPack.DaqGtInputTag = 'simGtDigis'
     l1GtPack.MuGmtInputTag = 'simGmtDigis'
 
-    # Initially for stage-1, the stage-1 was packed via GCT...
-    from EventFilter.GctRawToDigi.gctDigiToRaw_cfi import *
-    gctDigiToRaw.gctInputLabel = 'simCaloStage1LegacyFormatDigis'
-    gctDigiToRaw.rctInputLabel = 'simRctDigis'
+    # Initially, the stage-1 was packed via GCT... this is no longer needed.
+    #from EventFilter.GctRawToDigi.gctDigiToRaw_cfi import *
+    #gctDigiToRaw.gctInputLabel = 'simCaloStage1LegacyFormatDigis'
+    #gctDigiToRaw.rctInputLabel = 'simRctDigis'
     from EventFilter.L1TRawToDigi.caloStage1Raw_cfi import *
     L1TDigiToRaw = cms.Sequence(csctfpacker+dttfpacker+gctDigiToRaw+l1GtPack+caloStage1Raw)
-#   +caloStage1Raw 
 
 #
 # Stage-2 Trigger

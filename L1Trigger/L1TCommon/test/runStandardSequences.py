@@ -150,16 +150,9 @@ if (eras.stage2L1Trigger.isChosen()):
 process.debug_step = cms.Path(
 #    process.dumpES + 
 #    process.dumpED +
-#    process.l1tSummary +
-#    process.l1tSummaryB
+    process.l1tSummary +
+    process.l1tSummaryB
 )
-
-# Don't know why these hack seem to be  needed... something not configured in RawDataCollector correctly?
-if (eras.stage1L1Trigger.isChosen()):
-    process.caloStage1Digis.InputLabel = 'caloStage1Raw' 
-if (eras.stage2L1Trigger.isChosen()):
-    process.caloStage2Digis.InputLabel = 'caloStage2Raw' 
-    process.gmtStage2Digis.InputLabel = 'gmtStage2Raw' 
 
 # Schedule definition
 process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.raw2digi_step,process.debug_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
