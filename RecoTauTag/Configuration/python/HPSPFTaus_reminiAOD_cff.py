@@ -27,16 +27,27 @@ from RecoTauTag.RecoTau.TauDiscriminatorTools import *
 from RecoTauTag.RecoTau.PFRecoTauPFJetInputs_cfi import PFRecoTauPFJetInputs
 
 # deltaBeta correction factor
-ak4dBetaCorrection=0.20
+ak4dBetaCorrection = 0.20
 
 # Load MVAs from SQLlite file/prep. DB
 from RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi import *
 
 # Select those taus that pass the HPS selections
 #  - pt > 15, mass cuts, tauCone cut
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationByHPSSelection_cfi import hpsSelectionDiscriminator, decayMode_1Prong0Pi0, decayMode_1Prong1Pi0, decayMode_1Prong2Pi0, decayMode_3Prong0Pi0
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByHPSSelection_cfi import hpsSelectionDiscriminator, decayMode_1Prong0Pi0, decayMode_1Prong1Pi0, decayMode_1Prong2Pi0, decayMode_2Prong0Pi0, decayMode_2Prong1Pi0, decayMode_3Prong0Pi0
 hpsPFTauDiscriminationByDecayModeFindingNewDMs = hpsSelectionDiscriminator.clone(
-    PFTauProducer = cms.InputTag('hpsPFTauProducer')
+    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    #----------------------------------------------------------------------------
+    # CV: disable 3Prong1Pi0 decay mode
+    decayModes = cms.VPSet(
+        decayMode_1Prong0Pi0,
+        decayMode_1Prong1Pi0,
+        decayMode_1Prong2Pi0,
+        decayMode_2Prong0Pi0,
+        decayMode_2Prong1Pi0,
+        decayMode_3Prong0Pi0
+    )
+    #----------------------------------------------------------------------------
 )
 hpsPFTauDiscriminationByDecayModeFindingOldDMs = hpsSelectionDiscriminator.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
@@ -701,6 +712,17 @@ hpsPFTauDiscriminationByPileupWeightedIsolationSeq3Hits = cms.Sequence(
 
 # Define the HPS selection discriminator used in cleaning
 hpsSelectionDiscriminator.PFTauProducer = cms.InputTag("combinatoricRecoTaus")
+#----------------------------------------------------------------------------
+# CV: disable 3Prong1Pi0 decay mode
+hpsSelectionDiscriminator.decayModes = cms.VPSet(
+    decayMode_1Prong0Pi0,
+    decayMode_1Prong1Pi0,
+    decayMode_1Prong2Pi0,
+    decayMode_2Prong0Pi0,
+    decayMode_2Prong1Pi0,
+    decayMode_3Prong0Pi0
+)
+#----------------------------------------------------------------------------
 
 from RecoTauTag.RecoTau.RecoTauCleaner_cfi import RecoTauCleaner
 hpsPFTauProducerSansRefs = RecoTauCleaner.clone(
@@ -712,7 +734,6 @@ from RecoTauTag.RecoTau.RecoTauPiZeroUnembedder_cfi import RecoTauPiZeroUnembedd
 hpsPFTauProducer = RecoTauPiZeroUnembedder.clone(
     src = cms.InputTag("hpsPFTauProducerSansRefs")
 )
-
 
 from RecoTauTag.RecoTau.PFTauPrimaryVertexProducer_cfi      import *
 from RecoTauTag.RecoTau.PFTauSecondaryVertexProducer_cfi    import *
@@ -1179,13 +1200,13 @@ hpsPFTauMVAIsolation2Seq = cms.Sequence(
    #+ hpsPFTauDiscriminationByTightIsolationMVA3oldDMwoLT
    #+ hpsPFTauDiscriminationByVTightIsolationMVA3oldDMwoLT
    #+ hpsPFTauDiscriminationByVVTightIsolationMVA3oldDMwoLT    
-   #+ hpsPFTauDiscriminationByIsolationMVA3oldDMwLTraw
-   #+ hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwLT
-   #+ hpsPFTauDiscriminationByLooseIsolationMVA3oldDMwLT
-   #+ hpsPFTauDiscriminationByMediumIsolationMVA3oldDMwLT
-   #+ hpsPFTauDiscriminationByTightIsolationMVA3oldDMwLT
-   #+ hpsPFTauDiscriminationByVTightIsolationMVA3oldDMwLT
-   #+ hpsPFTauDiscriminationByVVTightIsolationMVA3oldDMwLT
+   + hpsPFTauDiscriminationByIsolationMVA3oldDMwLTraw
+   + hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwLT
+   + hpsPFTauDiscriminationByLooseIsolationMVA3oldDMwLT
+   + hpsPFTauDiscriminationByMediumIsolationMVA3oldDMwLT
+   + hpsPFTauDiscriminationByTightIsolationMVA3oldDMwLT
+   + hpsPFTauDiscriminationByVTightIsolationMVA3oldDMwLT
+   + hpsPFTauDiscriminationByVVTightIsolationMVA3oldDMwLT
    #+ hpsPFTauDiscriminationByIsolationMVA3newDMwoLTraw
    #+ hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwoLT
    #+ hpsPFTauDiscriminationByLooseIsolationMVA3newDMwoLT
@@ -1193,13 +1214,13 @@ hpsPFTauMVAIsolation2Seq = cms.Sequence(
    #+ hpsPFTauDiscriminationByTightIsolationMVA3newDMwoLT
    #+ hpsPFTauDiscriminationByVTightIsolationMVA3newDMwoLT
    #+ hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwoLT 
-   #+ hpsPFTauDiscriminationByIsolationMVA3newDMwLTraw
-   #+ hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwLT
-   #+ hpsPFTauDiscriminationByLooseIsolationMVA3newDMwLT
-   #+ hpsPFTauDiscriminationByMediumIsolationMVA3newDMwLT
-   #+ hpsPFTauDiscriminationByTightIsolationMVA3newDMwLT
-   #+ hpsPFTauDiscriminationByVTightIsolationMVA3newDMwLT
-   #+ hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwLT    
+   + hpsPFTauDiscriminationByIsolationMVA3newDMwLTraw
+   + hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwLT
+   + hpsPFTauDiscriminationByLooseIsolationMVA3newDMwLT
+   + hpsPFTauDiscriminationByMediumIsolationMVA3newDMwLT
+   + hpsPFTauDiscriminationByTightIsolationMVA3newDMwLT
+   + hpsPFTauDiscriminationByVTightIsolationMVA3newDMwLT
+   + hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwLT    
    # new MVA isolations for Run2
    + hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw
    + hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT
@@ -1283,12 +1304,12 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByLooseElectronRejection*
     hpsPFTauDiscriminationByMediumElectronRejection*
     hpsPFTauDiscriminationByTightElectronRejection*
-    #hpsPFTauDiscriminationByMVA5rawElectronRejection*
-    #hpsPFTauDiscriminationByMVA5VLooseElectronRejection*
-    #hpsPFTauDiscriminationByMVA5LooseElectronRejection*
-    #hpsPFTauDiscriminationByMVA5MediumElectronRejection*
-    #hpsPFTauDiscriminationByMVA5TightElectronRejection*
-    #hpsPFTauDiscriminationByMVA5VTightElectronRejection*
+    hpsPFTauDiscriminationByMVA5rawElectronRejection*
+    hpsPFTauDiscriminationByMVA5VLooseElectronRejection*
+    hpsPFTauDiscriminationByMVA5LooseElectronRejection*
+    hpsPFTauDiscriminationByMVA5MediumElectronRejection*
+    hpsPFTauDiscriminationByMVA5TightElectronRejection*
+    hpsPFTauDiscriminationByMVA5VTightElectronRejection*
     hpsPFTauDiscriminationByMVA6rawElectronRejection*
     hpsPFTauDiscriminationByMVA6VLooseElectronRejection*
     hpsPFTauDiscriminationByMVA6LooseElectronRejection*
@@ -1313,3 +1334,5 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
 
     hpsPFTauMVAIsolation2Seq
 )
+
+
