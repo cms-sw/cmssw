@@ -58,7 +58,7 @@ footprintCorrection = chargedIsoPtSum.clone(
     verbosity = cms.int32(0)
 )
 
-discriminationByIsolationMVArun2v1raw = cms.EDProducer("PFRecoTauDiscriminationByIsolationMVARun2",
+discriminationByIsolationMVArun2v1raw = cms.EDProducer("PFRecoTauDiscriminationByMVAIsolationRun2",
 
     # tau collection to discriminate
     PFTauProducer = cms.InputTag('pfTauProducer'),
