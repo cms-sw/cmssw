@@ -153,4 +153,3 @@ def customiseSimL1EmulatorForPostLS1_Additional_HI(process):
     if hasattr(process,'caloConfig'):
         process.caloConfig.fwVersionLayer2 = cms.uint32(1)
     return process
-

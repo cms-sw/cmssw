@@ -90,6 +90,8 @@ process.l1tMonitorPath = cms.Path(process.l1tMonitorStage1Online)
 process.l1tMonitorClientPath = cms.Path(process.l1tMonitorStage1Client)
 
 process.stage1UnpackPath = cms.Path(process.caloStage1Digis+process.caloStage1LegacyFormatDigis)
+process.caloStage1LegacyFormatDigis.bxMin = cms.int32(-2)
+process.caloStage1LegacyFormatDigis.bxMax = cms.int32(2)
 
 #
 process.l1tMonitorEndPath = cms.EndPath(process.l1tMonitorEndPathSeq)
