@@ -3,7 +3,7 @@
 // Description: Numbering scheme for High Granularity Calorimeter
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Calo/interface/HGCNumberingScheme.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "DataFormats/Math/interface/FastMath.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -29,10 +29,10 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer, int
   int icell     = phicell.second;
   
   //build the index
-  uint32_t index = HGCalDetId(subdet,iz,layer,sector,phiSector,icell).rawId();
+  uint32_t index = HGCalTestNumbering::packSquareIndex(iz,layer,sector,phiSector,icell);
   
   //check if it fits
-  if ((!HGCalDetId::isValid(subdet,iz,layer,sector,phiSector,icell)) ||
+  if ((!HGCalTestNumbering::isValidSquare(iz,layer,sector,phiSector,icell)) ||
       (!hgcons->isValid(layer,sector,icell,false))) {
     index = 0;
     if (check_ && icell != -1) {
@@ -47,8 +47,8 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer, int
   if (verbosity > 0)
     std::cout << "HGCNumberingScheme::i/p " << subdet << ":" << layer << ":" 
 	      << sector << ":" << iz << ":" << pos << " o/p " << phiSector 
-	      << ":" << icell << ":" << std::hex << index << std::dec << " " 
-	      << HGCalDetId(index) << std::endl;
+	      << ":" << icell << ":" << std::hex << index << std::dec 
+	      << std::endl;
   return index;
 }
 
