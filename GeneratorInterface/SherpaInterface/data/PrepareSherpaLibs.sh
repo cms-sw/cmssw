@@ -96,7 +96,8 @@ function build_python_cff() {
     mv ${file}.tmp2 ${file}.tmp1
     sed '/^$/d' < ${file}.tmp1 > ${file}.tmp2                      # remove empty lines
     mv ${file}.tmp2 ${file}.tmp1
-    sed -e 's/^/ /g;s/ (/(/;s/ }/}/' < ${file}.tmp1 > ${file}.tmp2 # add single space in front of parameters
+    #sed -e 's/^/ /g;s/ (/(/;s/ }/}/' < ${file}.tmp1 > ${file}.tmp2 # add single space in front of parameters
+    sed -e 's/^/ /g;s/ }/}/' < ${file}.tmp1 > ${file}.tmp2 # add single space in front of parameters
     mv ${file}.tmp2 ${file}.tmp1
 ###
     sed -e 's/\"/\\"/g' < ${file}.tmp1 > ${file}.tmp2              # protect existing '"' by '\"'
