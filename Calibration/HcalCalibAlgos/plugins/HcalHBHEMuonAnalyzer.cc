@@ -159,6 +159,7 @@ private:
   std::string                labelEBRecHit_, labelEERecHit_;
   std::string                labelVtx_, labelHBHERecHit_, labelMuon_;
   int                        verbosity_, maxDepth_;
+  bool                       useRaw_;
 
   edm::EDGetTokenT<edm::TriggerResults>                   tok_trigRes_;
   edm::EDGetTokenT<reco::VertexCollection>                tok_Vtx_;
@@ -213,6 +214,7 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) {
   else if (maxDepth_ < 1) maxDepth_ = 4;
   std::string modnam = iConfig.getUntrackedParameter<std::string>("ModuleName","");
   std::string procnm = iConfig.getUntrackedParameter<std::string>("ProcessName","");
+  useRaw_            = iConfig.getUntrackedParameter<bool>("UseRaw",false);
 
   tok_trigRes_  = consumes<edm::TriggerResults>(HLTriggerResults_);
   if (modnam == "") {
@@ -314,7 +316,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   const CaloTopology *caloTopology = theCaloTopology.product();
   
   edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
+  iSetup.get<IdealGeometryRecord>().get(htopo);
   const HcalTopology* theHBHETopology = htopo.product();
 
   // Relevant blocks from iEvent
@@ -459,21 +461,21 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 
 	if (trackID.okHCAL) {
 	  const DetId closestCell(trackID.detIdHCAL);
-	  eHcal = spr::eHCALmatrix(theHBHETopology, closestCell, hbhe,0,0, false, true, -100.0, -100.0, -100.0, -100.0, -500.,500.);
+	  eHcal = spr::eHCALmatrix(theHBHETopology, closestCell, hbhe,0,0, false, true, -100.0, -100.0, -100.0, -100.0, -500.,500.,useRaw_);
 	  std::vector<std::pair<double,int> > ehdepth;
-	  spr::energyHCALCell((HcalDetId) closestCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, (((verbosity_/1000)%10)>0));
+	  spr::energyHCALCell((HcalDetId) closestCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, (((verbosity_/1000)%10)>0));
 	  for (unsigned int i=0; i<ehdepth.size(); ++i) {
 	    eHcalDepth[ehdepth[i].second-1] = ehdepth[i].first;
 	  }
 	  
 	  HcalDetId hcid0(closestCell.rawId());
 	  activeL = activeLength(trackID.detIdHCAL);
-	  HcalDetId hotCell;
-	  spr::eHCALmatrix(geo,theHBHETopology, closestCell, hbhe, 1,1, hotCell, false, false);
+	  HcalDetId           hotCell;
+	  spr::eHCALmatrix(geo, theHBHETopology, closestCell, hbhe, 1,1, hotCell, false, useRaw_, false);
 	  isHot = matchId(closestCell,hotCell);
 	  if (hotCell != HcalDetId()) {
 	    std::vector<std::pair<double,int> > ehdepth;
-	    spr::energyHCALCell(hotCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, false);//(((verbosity_/1000)%10)>0    ));
+	    spr::energyHCALCell(hotCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, false);//(((verbosity_/1000)%10)>0    ));
 	    for (unsigned int i=0; i<ehdepth.size(); ++i) {
 	      eHcalDepthHot[ehdepth[i].second-1] = ehdepth[i].first;
 	    }

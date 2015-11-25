@@ -507,6 +507,20 @@ namespace spr{
     return trkD;
   }
 
+  std::pair<bool,HcalDetId> propagateHCALBack(const reco::Track* track, const CaloGeometry* geo, const MagneticField* bField, bool debug) {
+    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+    GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
+    GlobalVector momentum (track->px(), track->py(), track->pz());
+    int charge (track->charge());
+    spr::propagatedTrack info = spr::propagateCalo(vertex, momentum, charge, bField, 549.3, 288.8, 1.392, debug);
+    if (info.ok) {
+      const GlobalPoint point = GlobalPoint(info.point.x(),info.point.y(),info.point.z());
+      return std::pair<bool,HcalDetId>(true,HcalDetId(gHB->getClosestCell(point)));
+    } else {
+      return std::pair<bool,HcalDetId>(false,HcalDetId());
+    }
+  }
+
   propagatedTrack propagateTrackToECAL(const reco::Track *track, const MagneticField* bfield, bool debug) {
     GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
     GlobalVector momentum (track->px(), track->py(), track->pz());
