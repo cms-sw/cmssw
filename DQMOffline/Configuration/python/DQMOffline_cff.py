@@ -131,4 +131,7 @@ DQMOfflineEGamma = cms.Sequence( egammaDQMOffline )
 
 DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
                                                                  
-DQMOfflineMiniAOD = cms.Sequence( miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD )
+DQMOfflineMiniAOD = cms.Sequence()
+
+DQMOfflineMiniAODEndPath = cms.Sequence(miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD)
+DQMOfflineEndPath = cms.Sequence()

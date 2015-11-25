@@ -22,9 +22,10 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
                               '@commonSiStripZeroBias+@muon+@hcal+@jetmet+@ecal'],
             'allForPrompt':  ['@common+@muon+@hcal+@jetmet+@ecal',
                               '@common+@muon+@hcal+@jetmet+@ecal'],
-            'miniAODDQM': ['DQMOfflineMiniAOD',
-                           'DQMHarvestMiniAOD'],
-            'standardDQM': ['DQMOffline',
+
+            'miniAODDQM': ['DQMOfflineMiniAOD','DQMOfflineMiniAODEndPath',
+                        'DQMHarvestMiniAOD'],
+            'standardDQM': ['DQMOffline','DQMOfflineEndPath',
                             'dqmHarvesting'],
             'standardDQMFakeHLT': ['DQMOfflineFakeHLT',
                                    'dqmHarvestingFakeHLT']
