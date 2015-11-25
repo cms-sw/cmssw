@@ -57,7 +57,7 @@ if eras.stage1L1Trigger.isChosen() and not eras.stage2L1Trigger.isChosen():
     #gctDigiToRaw.gctInputLabel = 'simCaloStage1LegacyFormatDigis'
     #gctDigiToRaw.rctInputLabel = 'simRctDigis'
     from EventFilter.L1TRawToDigi.caloStage1Raw_cfi import *
-    L1TDigiToRaw = cms.Sequence(csctfpacker+dttfpacker+gctDigiToRaw+l1GtPack+caloStage1Raw)
+    L1TDigiToRaw = cms.Sequence(csctfpacker+dttfpacker+l1GtPack+caloStage1Raw)
 
 #
 # Stage-2 Trigger
