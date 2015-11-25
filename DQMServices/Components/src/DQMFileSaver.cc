@@ -126,6 +126,9 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi) con
                (DQMStore::SaveReferenceTag) saveReference_,
                saveReferenceQMin_,
                fileUpdate_ ? "UPDATE" : "RECREATE");
+
+    // save the JobReport
+    saveJobReport(filename);
   }
   else // save EventInfo folders for luminosity sections
   {
@@ -154,6 +157,7 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi) con
       }
     }
   }
+
 }
 
 static void
@@ -824,12 +828,6 @@ DQMFileSaver::endJob(void)
 	  << "Internal error.  Can only save files at the end of the"
 	  << " job in Offline mode.";
     }
-  
-  // save JobReport once per job
-  char suffix[64];
-  sprintf(suffix, "R%09d", irun_.load());
-  std::string filename = onlineOfflineFileName(fileBaseName_, suffix, workflow_, child_, fileFormat_);
-  saveJobReport(filename);
 }
 
 void
