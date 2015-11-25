@@ -59,7 +59,8 @@ process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("L1Trigger.Configuration.L1DummyConfig_cff")
 process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
-process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+process.load("EventFilter.CastorRawToDigi.CastorRawToDigi_cff")
+process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_zdc_cfi")
 
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module Settings
@@ -105,6 +106,8 @@ process.emulTPDigis.InputTagFEDRaw = rawTag
 process.l1GtUnpack.DaqGtInputTag = rawTag
 process.hbhereco = process.hbheprereco.clone()
 process.hcalDigis.InputLabel = rawTag
+process.castorDigis.InputLabel = rawTag
+process.zdcreco.digiLabel = cms.InputTag("castorDigis")
 
 #-------------------------------------
 #	Hcal DQM Tasks and Clients import
@@ -124,6 +127,7 @@ process.load("DQM.HcalMonitorModule.HcalMonitorModule_cfi")
 process.load("DQM.HcalMonitorTasks.HcalMonitorTasks_cfi")
 process.load("DQM.HcalMonitorTasks.HcalTasksOnline_cff")
 process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
+process.load("DQM.HcalMonitorModule.ZDCMonitorModule_cfi")
 from DQM.HcalMonitorTasks.HcalMonitorTasks_cfi import SetTaskParams
 
 #-------------------------------------
@@ -217,6 +221,7 @@ process.hcalTrigPrimMonitor.FEDRawDataCollection = rawuntrackedTag
 process.hcalCoarsePedestalMonitor.FEDRawDataCollection = rawuntrackedTag
 process.hcalDetDiagNoiseMonitor.FEDRawDataCollection = rawuntrackedTag
 process.hcalNZSMonitor.FEDRawDataCollection = rawuntrackedTag
+process.zdcMonitor.FEDRawDataCollection = rawuntrackedTag
 
 #-------------------------------------
 #	Some Settings before Finishing up
@@ -239,6 +244,7 @@ process.tasksSequence = cms.Sequence(
 		+process.hcalTimingTask
 		+process.hcalMonitor
 		+process.hcalMonitorTasksOnlineSequence
+		+process.zdcMonitor
 )
 
 process.clientsSequence = cms.Sequence(
@@ -263,6 +269,7 @@ process.qTester = cms.EDAnalyzer(
 #-------------------------------------
 process.preRecoSequence = cms.Sequence(
 		process.hcalDigis
+		*process.castorDigis
 		*process.l1GtUnpack
 )
 
@@ -271,6 +278,7 @@ process.recoSequence = cms.Sequence(
 		+process.hfreco
 		+process.hbhereco
 		+process.horeco
+		+process.zdcreco
 )
 
 process.dqmSequence = cms.Sequence(

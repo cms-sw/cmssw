@@ -29,7 +29,7 @@ zdcMonitor = cms.EDAnalyzer("ZDCMonitorModule",
                             #Specify Pedestal Units 
                             pedestalsInFC			= cms.untracked.bool(True),
                             #Specify Digis
-                            digiLabel = cms.InputTag("hcalDigis"), 
+                            digiLabel = cms.InputTag("castorDigis"), 
                             #Specify RecHits 
                             zdcRecHitLabel = cms.InputTag("zdcreco"),
 
