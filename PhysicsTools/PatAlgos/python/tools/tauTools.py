@@ -91,13 +91,15 @@ classicTauIDSources = [
     ("ecalIsolation", "DiscriminationByECALIsolation"),
     ("byIsolation", "DiscriminationByIsolation"),
     ("againstElectron", "DiscriminationAgainstElectron"),
-    ("againstMuon", "DiscriminationAgainstMuon") ]
+    ("againstMuon", "DiscriminationAgainstMuon")
+]
 
 classicPFTauIDSources = [
     ("leadingPionPtCut", "DiscriminationByLeadingPionPtCut"),
     ("trackIsolationUsingLeadingPion", "DiscriminationByTrackIsolationUsingLeadingPion"),
     ("ecalIsolationUsingLeadingPion", "DiscriminationByECALIsolationUsingLeadingPion"),
-    ("byIsolationUsingLeadingPion", "DiscriminationByIsolationUsingLeadingPion")]
+    ("byIsolationUsingLeadingPion", "DiscriminationByIsolationUsingLeadingPion")
+]
 
 # Hadron-plus-strip(s) (HPS) Tau Discriminators
 hpsTauIDSources = [
@@ -169,7 +171,110 @@ hpsTauIDSources = [
     ##("againstMuonLooseMVA", "DiscriminationByMVALooseMuonRejection"),
     ##("againstMuonMediumMVA", "DiscriminationByMVAMediumMuonRejection"),
     ##("againstMuonTightMVA", "DiscriminationByMVATightMuonRejection")
-    ]
+]
+
+#--------------------------------------------------------------------------------
+# CV: define list of old and new tau ID discriminators for CMSSW 7_6_x reminiAOD v2
+hpsTauIDSources76xReMiniAOD =  [
+    ("decayModeFindingNewDMs", "DiscriminationByDecayModeFindingNewDMs"),
+    ("decayModeFinding", "DiscriminationByDecayModeFinding"), # CV: kept for backwards compatibility
+    ("byLooseCombinedIsolationDeltaBetaCorr3Hits", "DiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),
+    ("byMediumCombinedIsolationDeltaBetaCorr3Hits", "DiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits"),
+    ("byTightCombinedIsolationDeltaBetaCorr3Hits", "DiscriminationByTightCombinedIsolationDBSumPtCorr3Hits"),
+    ("byCombinedIsolationDeltaBetaCorrRaw3Hits", "DiscriminationByRawCombinedIsolationDBSumPtCorr3Hits"),
+    ("byLoosePileupWeightedIsolation3Hits", "DiscriminationByLoosePileupWeightedIsolation3Hits"),
+    ("byMediumPileupWeightedIsolation3Hits", "DiscriminationByMediumPileupWeightedIsolation3Hits"),
+    ("byTightPileupWeightedIsolation3Hits", "DiscriminationByTightPileupWeightedIsolation3Hits"),
+    ("byPhotonPtSumOutsideSignalCone", "DiscriminationByPhotonPtSumOutsideSignalCone"),
+    ("byPileupWeightedIsolationRaw3Hits", "DiscriminationByRawPileupWeightedIsolation3Hits"),
+    ("chargedIsoPtSum", "ChargedIsoPtSum"),
+    ("neutralIsoPtSum", "NeutralIsoPtSum"),
+    ("puCorrPtSum", "PUcorrPtSum"),
+    ("neutralIsoPtSumWeight", "NeutralIsoPtSumWeight"),
+    ("footprintCorrection", "FootprintCorrection"),
+    ("photonPtSumOutsideSignalCone", "PhotonPtSumOutsideSignalCone"),
+    ("byIsolationMVA3oldDMwLTraw", "DiscriminationByIsolationMVA3oldDMwLTraw"),
+    ("byVLooseIsolationMVA3oldDMwLT", "DiscriminationByVLooseIsolationMVA3oldDMwLT"),
+    ("byLooseIsolationMVA3oldDMwLT", "DiscriminationByLooseIsolationMVA3oldDMwLT"),
+    ("byMediumIsolationMVA3oldDMwLT", "DiscriminationByMediumIsolationMVA3oldDMwLT"),
+    ("byTightIsolationMVA3oldDMwLT", "DiscriminationByTightIsolationMVA3oldDMwLT"),
+    ("byVTightIsolationMVA3oldDMwLT", "DiscriminationByVTightIsolationMVA3oldDMwLT"),
+    ("byVVTightIsolationMVA3oldDMwLT", "DiscriminationByVVTightIsolationMVA3oldDMwLT"),
+    ("byIsolationMVA3newDMwLTraw", "DiscriminationByIsolationMVA3newDMwLTraw"),
+    ("byVLooseIsolationMVA3newDMwLT", "DiscriminationByVLooseIsolationMVA3newDMwLT"),
+    ("byLooseIsolationMVA3newDMwLT", "DiscriminationByLooseIsolationMVA3newDMwLT"),
+    ("byMediumIsolationMVA3newDMwLT", "DiscriminationByMediumIsolationMVA3newDMwLT"),
+    ("byTightIsolationMVA3newDMwLT", "DiscriminationByTightIsolationMVA3newDMwLT"),
+    ("byVTightIsolationMVA3newDMwLT", "DiscriminationByVTightIsolationMVA3newDMwLT"),
+    ("byVVTightIsolationMVA3newDMwLT", "DiscriminationByVVTightIsolationMVA3newDMwLT"),
+    ("againstElectronMVA5raw", "DiscriminationByMVA5rawElectronRejection"),
+    ("againstElectronMVA5category", "DiscriminationByMVA5rawElectronRejection:category"),
+    ("againstElectronVLooseMVA5", "DiscriminationByMVA5VLooseElectronRejection"),
+    ("againstElectronLooseMVA5", "DiscriminationByMVA5LooseElectronRejection"),
+    ("againstElectronMediumMVA5", "DiscriminationByMVA5MediumElectronRejection"),
+    ("againstElectronTightMVA5", "DiscriminationByMVA5TightElectronRejection"),
+    ("againstElectronVTightMVA5", "DiscriminationByMVA5VTightElectronRejection"),
+    ("againstMuonLoose3", "DiscriminationByLooseMuonRejection3"),
+    ("againstMuonTight3", "DiscriminationByTightMuonRejection3"),
+    ##New Run2 MVA isolation
+    ("byIsolationMVArun2v1DBoldDMwLTraw", "DiscriminationByIsolationMVArun2v1DBoldDMwLTraw"),
+    ("byVLooseIsolationMVArun2v1DBoldDMwLT", "DiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT"),
+    ("byLooseIsolationMVArun2v1DBoldDMwLT", "DiscriminationByLooseIsolationMVArun2v1DBoldDMwLT"),
+    ("byMediumIsolationMVArun2v1DBoldDMwLT", "DiscriminationByMediumIsolationMVArun2v1DBoldDMwLT"),
+    ("byTightIsolationMVArun2v1DBoldDMwLT", "DiscriminationByTightIsolationMVArun2v1DBoldDMwLT"),
+    ("byVTightIsolationMVArun2v1DBoldDMwLT", "DiscriminationByVTightIsolationMVArun2v1DBoldDMwLT"),
+    ("byVVTightIsolationMVArun2v1DBoldDMwLT", "DiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT"),
+    ("byIsolationMVArun2v1DBnewDMwLTraw", "DiscriminationByIsolationMVArun2v1DBnewDMwLTraw"),
+    ("byVLooseIsolationMVArun2v1DBnewDMwLT", "DiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT"),
+    ("byLooseIsolationMVArun2v1DBnewDMwLT", "DiscriminationByLooseIsolationMVArun2v1DBnewDMwLT"),
+    ("byMediumIsolationMVArun2v1DBnewDMwLT", "DiscriminationByMediumIsolationMVArun2v1DBnewDMwLT"),
+    ("byTightIsolationMVArun2v1DBnewDMwLT", "DiscriminationByTightIsolationMVArun2v1DBnewDMwLT"),
+    ("byVTightIsolationMVArun2v1DBnewDMwLT", "DiscriminationByVTightIsolationMVArun2v1DBnewDMwLT"),
+    ("byVVTightIsolationMVArun2v1DBnewDMwLT", "DiscriminationByVVTightIsolationMVArun2v1DBnewDMwLT"),
+    ("byIsolationMVArun2v1PWoldDMwLTraw", "DiscriminationByIsolationMVArun2v1PWoldDMwLTraw"),
+    ("byVLooseIsolationMVArun2v1PWoldDMwLT", "DiscriminationByVLooseIsolationMVArun2v1PWoldDMwLT"),
+    ("byLooseIsolationMVArun2v1PWoldDMwLT", "DiscriminationByLooseIsolationMVArun2v1PWoldDMwLT"),
+    ("byMediumIsolationMVArun2v1PWoldDMwLT", "DiscriminationByMediumIsolationMVArun2v1PWoldDMwLT"),
+    ("byTightIsolationMVArun2v1PWoldDMwLT", "DiscriminationByTightIsolationMVArun2v1PWoldDMwLT"),
+    ("byVTightIsolationMVArun2v1PWoldDMwLT", "DiscriminationByVTightIsolationMVArun2v1PWoldDMwLT"),
+    ("byVVTightIsolationMVArun2v1PWoldDMwLT", "DiscriminationByVVTightIsolationMVArun2v1PWoldDMwLT"),
+    ("byIsolationMVArun2v1PWnewDMwLTraw", "DiscriminationByIsolationMVArun2v1PWnewDMwLTraw"),
+    ("byVLooseIsolationMVArun2v1PWnewDMwLT", "DiscriminationByVLooseIsolationMVArun2v1PWnewDMwLT"),
+    ("byLooseIsolationMVArun2v1PWnewDMwLT", "DiscriminationByLooseIsolationMVArun2v1PWnewDMwLT"),
+    ("byMediumIsolationMVArun2v1PWnewDMwLT", "DiscriminationByMediumIsolationMVArun2v1PWnewDMwLT"),
+    ("byTightIsolationMVArun2v1PWnewDMwLT", "DiscriminationByTightIsolationMVArun2v1PWnewDMwLT"),
+    ("byVTightIsolationMVArun2v1PWnewDMwLT", "DiscriminationByVTightIsolationMVArun2v1PWnewDMwLT"),
+    ("byVVTightIsolationMVArun2v1PWnewDMwLT", "DiscriminationByVVTightIsolationMVArun2v1PWnewDMwLT"),
+    ("chargedIsoPtSumdR03", "ChargedIsoPtSumdR03"),
+    ("neutralIsoPtSumdR03", "NeutralIsoPtSumdR03"),
+    ("puCorrPtSumdR03", "PUcorrPtSumdR03"),
+    ("neutralIsoPtSumWeightdR03", "NeutralIsoPtSumWeightdR03"),
+    ("footprintCorrectiondR03", "FootprintCorrectiondR03"),
+    ("photonPtSumOutsideSignalConedR03", "PhotonPtSumOutsideSignalConedR03"),
+    ("byIsolationMVArun2v1DBdR03oldDMwLTraw", "DiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw"),
+    ("byVLooseIsolationMVArun2v1DBdR03oldDMwLT", "DiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT"),
+    ("byLooseIsolationMVArun2v1DBdR03oldDMwLT", "DiscriminationByLooseIsolationMVArun2v1DBdR03oldDMwLT"),
+    ("byMediumIsolationMVArun2v1DBdR03oldDMwLT", "DiscriminationByMediumIsolationMVArun2v1DBdR03oldDMwLT"),
+    ("byTightIsolationMVArun2v1DBdR03oldDMwLT", "DiscriminationByTightIsolationMVArun2v1DBdR03oldDMwLT"),
+    ("byVTightIsolationMVArun2v1DBdR03oldDMwLT", "DiscriminationByVTightIsolationMVArun2v1DBdR03oldDMwLT"),
+    ("byVVTightIsolationMVArun2v1DBdR03oldDMwLT", "DiscriminationByVVTightIsolationMVArun2v1DBdR03oldDMwLT"),
+    ("byIsolationMVArun2v1PWdR03oldDMwLTraw", "DiscriminationByIsolationMVArun2v1PWdR03oldDMwLTraw"),
+    ("byVLooseIsolationMVArun2v1PWdR03oldDMwLT", "DiscriminationByVLooseIsolationMVArun2v1PWdR03oldDMwLT"),
+    ("byLooseIsolationMVArun2v1PWdR03oldDMwLT", "DiscriminationByLooseIsolationMVArun2v1PWdR03oldDMwLT"),
+    ("byMediumIsolationMVArun2v1PWdR03oldDMwLT", "DiscriminationByMediumIsolationMVArun2v1PWdR03oldDMwLT"),
+    ("byTightIsolationMVArun2v1PWdR03oldDMwLT", "DiscriminationByTightIsolationMVArun2v1PWdR03oldDMwLT"),
+    ("byVTightIsolationMVArun2v1PWdR03oldDMwLT", "DiscriminationByVTightIsolationMVArun2v1PWdR03oldDMwLT"),
+    ("byVVTightIsolationMVArun2v1PWdR03oldDMwLT", "DiscriminationByVVTightIsolationMVArun2v1PWdR03oldDMwLT"),
+    ##New Run2 MVA discriminator against electrons
+    ("againstElectronMVA6raw", "DiscriminationByMVA6rawElectronRejection"),
+    ("againstElectronMVA6category", "DiscriminationByMVA6rawElectronRejection:category"),
+    ("againstElectronVLooseMVA6", "DiscriminationByMVA6VLooseElectronRejection"),
+    ("againstElectronLooseMVA6", "DiscriminationByMVA6LooseElectronRejection"),
+    ("againstElectronMediumMVA6", "DiscriminationByMVA6MediumElectronRejection"),
+    ("againstElectronTightMVA6", "DiscriminationByMVA6TightElectronRejection"),
+    ("againstElectronVTightMVA6", "DiscriminationByMVA6VTightElectronRejection"),
+]
+#--------------------------------------------------------------------------------
 
 # switch to PFTau collection produced for fixed dR = 0.07 signal cone size
 def switchToPFTauFixedCone(process,
@@ -211,6 +316,29 @@ def switchToPFTauHPS(process,
         getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = \
         'pt > 18 & abs(eta) < 2.3 & tauID("decayModeFinding") > 0.5 & tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5' \
         + ' & tauID("againstMuonTight3") > 0.5 & tauID("againstElectronVLooseMVA5") > 0.5'
+
+#--------------------------------------------------------------------------------
+# CV: function called by PhysicsTools/PatAlgos/python/slimming/miniAOD_tools.py
+#     to add old and new tau ID discriminators for CMSSW 7_6_x reminiAOD v2
+def switchToPFTauHPS76xReMiniAOD(process,
+                                 tauSource = cms.InputTag('hpsPFTauProducer'),
+                                 patTauLabel = "",
+                                 jecLevels = [],
+                                 postfix = ""):
+
+    _switchToPFTau(process, tauSource, 'hpsPFTau', hpsTauIDSources76xReMiniAOD,
+                   patTauLabel = patTauLabel, postfix = postfix)
+
+    # CV: enable tau lifetime information for HPS PFTaus
+    applyPostfix(process, "patTaus" + patTauLabel, postfix).tauTransverseImpactParameterSource = tauSource.value().replace("Producer", "TransverseImpactParameters")
+
+    ## adapt cleanPatTaus
+    if hasattr(process, "cleanPatTaus" + patTauLabel + postfix):
+        getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = \
+        'pt > 18 & abs(eta) < 2.3 & tauID("decayModeFinding") > 0.5 & tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5' \
+        + ' & tauID("againstMuonTight3") > 0.5 & tauID("againstElectronVLooseMVA6") > 0.5'
+#--------------------------------------------------------------------------------
+
 
 # Select switcher by string
 def switchToPFTauByType(process,
