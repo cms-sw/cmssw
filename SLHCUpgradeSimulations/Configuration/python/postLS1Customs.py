@@ -191,6 +191,7 @@ def customise_DQM(process):
 
 
 def customise_DQM_25ns(process):
+    #Empty place-holder
     # Switch the default decision of the HCAL noise filter
     if hasattr(process,'HBHENoiseFilterResultProducer'):
         process.HBHENoiseFilterResultProducer.defaultDecision = cms.string("HBHENoiseFilterResultRun2Loose")
@@ -203,7 +204,6 @@ def customise_DQM_25ns(process):
         process.RawToDigi.replace(process.gctDigis, process.L1RawToDigiSeq)
 
     process.load('DQMOffline.L1Trigger.L1TriggerDqmOffline_cff')
-
     if hasattr(process, 'l1tMonitorStage1Online'):
         process.l1tRct.rctSource = 'caloStage1Digis'
         process.l1tRctfromRCT.rctSource = 'rctDigis'
