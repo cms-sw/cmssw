@@ -46,7 +46,7 @@ namespace Phase2Tracker {
       FEDReadoutMode readoutMode() const;
       inline const uint8_t* getPointerToPayload()  const { return trackerHeader_.getPointerToData(); }
       inline const uint8_t* getPointerToCondData() const { return condDataPointer_; }
-      inline const uint8_t* getPointerToTriggerData() const { return triggerPointer_; }
+      inline const uint16_t* getPointerToTriggerData() const { return triggerPointer_; }
 
     private:
       const uint8_t* buffer_;
@@ -57,7 +57,7 @@ namespace Phase2Tracker {
       Phase2TrackerFEDHeader trackerHeader_;
       const uint8_t* payloadPointer_;
       const uint8_t* condDataPointer_;
-      const uint8_t* triggerPointer_;
+      const uint16_t* triggerPointer_;
       void findChannels();
       int valid_;
 

@@ -21,7 +21,7 @@ namespace Phase2Tracker {
     Phase2TrackerFEDRawChannelUnpacker& operator ++ (int);
   private:
     const uint8_t* data_;
-    uint8_t currentOffset_;
+    uint16_t currentOffset_;
     uint8_t currentStrip_;
     uint16_t valuesLeft_;
     uint8_t currentWord_;

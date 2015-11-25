@@ -175,7 +175,7 @@ namespace Phase2Tracker
     // round the offset to the next 64 bits word
     int words64 = (offsetBeginningOfChannel + 8 - 1)/8; // size in 64 bit
     int payloadSize = words64 * 8; // size in bytes
-    triggerPointer_ = payloadPointer_ + payloadSize;
+    triggerPointer_ = (uint16_t*)(payloadPointer_ + payloadSize);
 
     // get diff size in bytes:
     // fedBufferSize - (DAQHeader+TrackHeader+PayloadSize+TriggerSize+DAQTrailer)
@@ -185,7 +185,7 @@ namespace Phase2Tracker
     // check if condition data is supposed to be there:
     if(trackerHeader_.getConditionData())
     {
-      condDataPointer_  = triggerPointer_ + TRIGGER_SIZE;
+      condDataPointer_  = payloadPointer_ + payloadSize + TRIGGER_SIZE;
       // diff must be equal to condition data size
       if (bufferDiff <= 0)
       {
