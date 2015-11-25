@@ -1392,17 +1392,30 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap&
       DetId trigger = fObject.lookupTrigger (eid);
       if (trigger.rawId ()) {
 	HcalText2DetIdConverter converter (trigger);
-	// changes by Jared, 6.03.09/(included 25.03.09)
-	//	sprintf (buf, " %10X %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
-	sprintf (buf, " %7X %3d %3d %3c %4d %7d %10d %14d %7s %5s %5s %6s",
-		 //		 i,
-		 converter.getId().rawId(),
-		 // changes by Jared, 6.03.09/(included 25.03.09)
-		 //		 eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
-		 eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.slbSiteNumber(), eid.slbChannelIndex(),
-		 converter.getFlavor ().c_str (), converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str ()
-		 );
-	fOutput << buf << std::endl;
+        if( eid.isVMEid() ){
+	  // changes by Jared, 6.03.09/(included 25.03.09)
+	  //	sprintf (buf, " %10X %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
+	  sprintf (buf, " %7X %3d %3d %3c %4d %7d %10d %14d %7s %5s %5s %6s",
+		   //		 i,
+		   converter.getId().rawId(),
+		   // changes by Jared, 6.03.09/(included 25.03.09)
+		   //		 eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
+		   eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.slbSiteNumber(), eid.slbChannelIndex(),
+		   converter.getFlavor ().c_str (), converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str ()
+	  	   );
+	  fOutput << buf << std::endl;
+        }else if( eid.isUTCAid() ){
+           sprintf (buf, " %7X %3d %3d   u %4d %7d %10d %14d %7s %5s %5s %6s",
+                    converter.getId().rawId(),
+//                    eid.crateId(), eid.slot(), 0, eid.spigot(), eid.fiberIndex(), eid.fiberChanId(), 
+                    eid.crateId(), eid.slot(), 0, 0, eid.fiberIndex(), eid.fiberChanId(), 
+                    converter.getFlavor ().c_str (), converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str ()
+                   );
+           fOutput << buf << std::endl;
+        }else{
+           sprintf (buf, "NOT SUPPORTED!");
+           fOutput << buf << std::endl;
+        }
       }
     } else {
       DetId channel = fObject.lookup (eid);
@@ -1418,10 +1431,11 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap&
 		   converter.getFlavor ().c_str (), converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str ()
 		   );
 	} else {
-	  sprintf (buf, " %7X %3d %3d u %4d %7d %10d %14d %7s %5s %5s %6s",
+	  sprintf (buf, " %7X %3d %3d   u %4d %7d %10d %14d %7s %5s %5s %6s",
 		   //		 i,
 		   converter.getId().rawId(),
-		   eid.crateId(), eid.slot(), 0, eid.slot(), eid.fiberIndex(), eid.fiberChanId(),
+//		   eid.crateId(), eid.slot(), 0, eid.slot(), eid.fiberIndex(), eid.fiberChanId(),
+		   eid.crateId(), eid.slot(), 0, 0, eid.fiberIndex(), eid.fiberChanId(),
 		   converter.getFlavor ().c_str (), converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str ()
 		   );
 	}
