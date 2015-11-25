@@ -27,13 +27,11 @@ noBSChalo = hltLevel1GTSeed.clone(
     L1SeedsLogicalExpression = cms.string('NOT (36 OR 37 OR 38 OR 39)')
 )
 
-collisionEventSelection = cms.Sequence(noBSChalo *
-                                       hfCoincFilter3 *
+collisionEventSelection = cms.Sequence(hfCoincFilter3 *
                                        primaryVertexFilter *
                                        siPixelRecHits *
                                        hltPixelClusterShapeFilter)
 
-collisionEventSelectionAOD = cms.Sequence(noBSChalo *
-                                          hfCoincFilter3 *
+collisionEventSelectionAOD = cms.Sequence(hfCoincFilter3 *
                                           primaryVertexFilter *
                                           clusterCompatibilityFilter)
