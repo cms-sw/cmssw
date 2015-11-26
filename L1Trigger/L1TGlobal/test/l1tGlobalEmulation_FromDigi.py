@@ -92,11 +92,11 @@ process.load('L1Trigger.L1TGlobal.TriggerMenuConfig_cff')
 process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','TriggerMenuXml')
 
 ## Run the Stage 2 uGT emulator
-process.load('L1Trigger.L1TGlobal.simGlobalStage2Digis_cff')
-process.simGlobalStage2Digis.caloInputTag = cms.InputTag('caloStage2Digis')
-process.simGlobalStage2Digis.GmtInputTag = cms.InputTag('None')
-process.simGlobalStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
-process.simGlobalStage2Digis.PrescaleSet = cms.uint32(1)
+process.load('L1Trigger.L1TGlobal.simGtStage2Digis_cff')
+process.simGtStage2Digis.caloInputTag = cms.InputTag('caloStage2Digis')
+process.simGtStage2Digis.GmtInputTag = cms.InputTag('None')
+process.simGtStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
+process.simGtStage2Digis.PrescaleSet = cms.uint32(1)
 
 
 
@@ -114,7 +114,7 @@ process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
     etSumToken = cms.InputTag("gtStage2Digis","GT"),
     gtAlgToken = cms.InputTag("gtStage2Digis"),
     emulDxAlgToken = cms.InputTag("None"),
-    emulGtAlgToken = cms.InputTag("simGlobalStage2Digis")
+    emulGtAlgToken = cms.InputTag("simGtStage2Digis")
 )
 
 
@@ -126,7 +126,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		jetInputTag   = cms.InputTag("gtStage2Digis","GT"),
 		etsumInputTag = cms.InputTag("gtStage2Digis","GT"),
 		uGtRecInputTag = cms.InputTag(""),
-		uGtAlgInputTag = cms.InputTag("simGlobalStage2Digis"),
+		uGtAlgInputTag = cms.InputTag("simGtStage2Digis"),
 		uGtExtInputTag = cms.InputTag(""),
 		bxOffset       = cms.int32(0),
 		minBx          = cms.int32(0),
@@ -147,7 +147,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 
 # Path and EndPath definitions
 process.path = cms.Path(
-    process.simGlobalStage2Digis
+    process.simGtStage2Digis
     +process.l1tGlobalAnalyzer
     +process.dumpGTRecord
 )

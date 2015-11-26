@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # cfi uGT emulator
 
-simGlobalStage2Digis = cms.EDProducer("l1t::GtProducer",
+simGtStage2Digis = cms.EDProducer("l1t::GtProducer",
     #TechnicalTriggersUnprescaled = cms.bool(False),
     ProduceL1GtObjectMapRecord = cms.bool(True),
     AlgorithmTriggersUnmasked = cms.bool(False),

@@ -28,9 +28,9 @@ if eras.stage2L1Trigger.isChosen():
 # -  Global Trigger emulator
 #
     print "L1TGlobal Sequence configured for Stage-2 (2016) trigger. "
-    from L1Trigger.L1TGlobal.simGlobalStage2Digis_cff import *
-    simGlobalStage2Digis.caloInputTag = cms.InputTag('simCaloStage2Digis')
-    simGlobalStage2Digis.GmtInputTag = cms.InputTag('simGmtStage2Digis')
-    simGlobalStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
-    simGlobalStage2Digis.PrescaleSet = cms.uint32(1)
-    SimL1TGlobal = cms.Sequence(simGlobalStage2Digis)
+    from L1Trigger.L1TGlobal.simGtStage2Digis_cfi import *
+    simGtStage2Digis.caloInputTag = cms.InputTag('simCaloStage2Digis')
+    simGtStage2Digis.GmtInputTag = cms.InputTag('simGmtStage2Digis')
+    simGtStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
+    simGtStage2Digis.PrescaleSet = cms.uint32(1)
+    SimL1TGlobal = cms.Sequence(simGtStage2Digis)
