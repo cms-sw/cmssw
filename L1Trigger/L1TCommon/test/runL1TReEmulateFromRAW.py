@@ -13,7 +13,7 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 
 process.source = cms.Source(
     'PoolSource',
-    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/m/mulhearn/public/data/raw_76x.root'),
+    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/m/mulhearn/public/data/raw_stage2_76x.root'),
     inputCommands = cms.untracked.vstring(
         'keep *', 
         'drop *_hlt*_*_*',
