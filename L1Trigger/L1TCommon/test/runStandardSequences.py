@@ -122,7 +122,7 @@ if (eras.stage2L1Trigger.isChosen()):
     process.l1tSummary.tauToken  = cms.InputTag("simCaloStage2Digis");
     process.l1tSummary.jetToken  = cms.InputTag("simCaloStage2Digis");
     process.l1tSummary.sumToken  = cms.InputTag("simCaloStage2Digis");
-    process.l1tSummary.muonToken = cms.InputTag("simGmtDigis","");
+    process.l1tSummary.muonToken = cms.InputTag("simGmtStage2Digis","");
 
 # from packed -> unpacked
 

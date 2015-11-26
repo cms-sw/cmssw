@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 gmtStage2Raw = cms.EDProducer(
     "L1TDigiToRaw",
     Setup = cms.string("stage2::GMTSetup"),
-    InputLabel = cms.InputTag("simGmtDigis"),
+    InputLabel = cms.InputTag("simGmtStage2Digis"),
     BMTFInputLabel = cms.InputTag("simBmtfDigis", "BMTF"),
     OMTFInputLabel = cms.InputTag("simOmtfDigis", "OMTF"),
     EMTFInputLabel = cms.InputTag("simEmtfDigis", "EMTF"),
