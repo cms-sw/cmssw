@@ -38,8 +38,8 @@ CkfBaseTrajectoryFilter_block = cms.PSet(
     extraNumberOfHitsBeforeTheFirstLoop = cms.int32(4),
 
 # Cut on CCC hits
-    maxCCCLostHits = cms.int32(2),
-    minGoodStripCharge = cms.double(1620)
+    maxCCCLostHits = cms.int32(9999),
+    minGoodStripCharge = cms.double(-1.)
 )
 
 
