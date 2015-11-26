@@ -35,7 +35,7 @@ ak7Caloparton = patJetPartonMatch.clone(src = cms.InputTag("ak7CaloJets"), match
 ak7CaloPatJetFlavourAssociationLegacy = ak7CalobTagger.PatJetFlavourAssociationLegacy
 ak7CaloPatJetPartons = ak7CalobTagger.PatJetPartons
 ak7CaloJetTracksAssociatorAtVertex = ak7CalobTagger.JetTracksAssociatorAtVertex
-ak7CaloJetTracksAssociatorAtVertex.tracks = cms.InputTag("generalTracks")
+ak7CaloJetTracksAssociatorAtVertex.tracks = cms.InputTag("PureTracks")
 ak7CaloSimpleSecondaryVertexHighEffBJetTags = ak7CalobTagger.SimpleSecondaryVertexHighEffBJetTags
 ak7CaloSimpleSecondaryVertexHighPurBJetTags = ak7CalobTagger.SimpleSecondaryVertexHighPurBJetTags
 ak7CaloCombinedSecondaryVertexBJetTags = ak7CalobTagger.CombinedSecondaryVertexBJetTags

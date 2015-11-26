@@ -1,4 +1,4 @@
-import FWCore.ParameterSet.Config as cms
+B1;95;0cB1;95;0cimport FWCore.ParameterSet.Config as cms
 process = cms.Process('HiForest')
 process.options = cms.untracked.PSet(
     # wantSummary = cms.untracked.bool(True)
@@ -87,7 +87,12 @@ process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs5CaloJetSequence_PbPb_data_
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs5PFJetSequence_PbPb_data_bTag_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu5PFJetSequence_PbPb_data_bTag_cff')
 
-process.jetSequences = cms.Sequence(process.akPu3CaloJetSequence +
+process.PureTracks = cms.EDFilter("TrackSelector",
+                      src = cms.InputTag("hiGeneralTracks"),
+                      cut = cms.string('quality("highPurity")'))
+
+process.jetSequences = cms.Sequence(process.PureTracks +
+                                    process.akPu3CaloJetSequence +
                                     process.akVs3CaloJetSequence +
                                     process.akVs3PFJetSequence +
                                     process.akPu3PFJetSequence +
