@@ -28,7 +28,7 @@ public:
     theMinHitsTrajectoryFilter(new MinHitsTrajectoryFilter(pset, iC)),
     theMinPtTrajectoryFilter(new MinPtTrajectoryFilter(pset, iC)),
     theLooperTrajectoryFilter(new LooperTrajectoryFilter(pset, iC)),
-    theSeedExtensionTrajectoryFilter(new SeedExtensionTrajectoryFilter(pset, iC))
+    theSeedExtensionTrajectoryFilter(new SeedExtensionTrajectoryFilter(pset, iC)),
     theMaxCCCLostHitsTrajectoryFilter(new MaxCCCLostHitsTrajectoryFilter(pset, iC))
   {}
 
