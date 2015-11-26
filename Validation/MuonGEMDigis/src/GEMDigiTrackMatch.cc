@@ -143,14 +143,16 @@ void GEMDigiTrackMatch::fillMatchedHitID( const char* hTitle_prefix, std::unorde
       int binX = (id.chamber()-1)*2 + (id.layer()-1);
       int binY = id.roll();
       Int_t station = id.station();
-      
+      bool copad = true ; 
+      if ( std::string(hTitle_prefix).find("copad") == string::npos ) {  
+        copad = false;
+      }
       if ( 2== station ) return; // remove st2_short hits.
       if ( 3== station ) station=2 ; // Just to labeling.
-
-
       TString histname = TString::Format("%s_r%d_st%d", hTitle_prefix, id.region(), station);
-      std::cout<<histname<<std::endl;
+      LogDebug("GEMDigiTrackMatch")<<histname;
       hist_map[histname.Hash()]->Fill(binX, binY);
+      if ( copad ) hist_map[histname.Hash()]->Fill(binX+1, binY); 
 }
 
 void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)

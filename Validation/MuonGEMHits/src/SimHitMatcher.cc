@@ -147,7 +147,6 @@ SimHitMatcher::matchSimHitsToSimTrack(std::vector<unsigned int> track_ids,
 
   // find pads with hits
   auto detids = detIdsGEM();
-  // find 2-layer coincidence pads with hits
   for (auto d: detids)
   {
     GEMDetId id(d);
@@ -169,8 +168,6 @@ SimHitMatcher::matchSimHitsToSimTrack(std::vector<unsigned int> track_ids,
     GEMDetId id1(d);
     if (id1.layer() != 1) continue;
     GEMDetId id2(id1.region(), id1.ring(), id1.station(), 2, id1.chamber(), id1.roll());
-    // does layer 2 has simhits?
-    if (detids.find(id2()) == detids.end()) continue;
 
     // find pads with hits in layer1
     auto hits1 = hitsInDetId(d);
