@@ -10,6 +10,7 @@ class TriggerMatchAnalyzer( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(TriggerMatchAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
         self.processName = getattr(self.cfg_ana,"processName","PAT")
+        self.fallbackName = getattr(self.cfg_ana,"fallbackProcessName","RECO")
         self.unpackPathNames = getattr(self.cfg_ana,"unpackPathNames",True)
         self.label = self.cfg_ana.label
         self.trgObjSelectors = []
@@ -24,7 +25,8 @@ class TriggerMatchAnalyzer( Analyzer ):
     def declareHandles(self):
         super(TriggerMatchAnalyzer, self).declareHandles()
         self.handles['TriggerBits'] = AutoHandle( ('TriggerResults','','HLT'), 'edm::TriggerResults' )
-        self.handles['TriggerObjects'] = AutoHandle( ('selectedPatTrigger','',self.processName), 'std::vector<pat::TriggerObjectStandAlone>' )
+        fallback = ( 'selectedPatTrigger','', self.fallbackName) if self.fallbackName else None
+        self.handles['TriggerObjects'] = AutoHandle( ('selectedPatTrigger','',self.processName), 'std::vector<pat::TriggerObjectStandAlone>', fallbackLabel=fallback )
 
     def beginLoop(self, setup):
         super(TriggerMatchAnalyzer,self).beginLoop(setup)
@@ -66,6 +68,7 @@ setattr(TriggerMatchAnalyzer,"defaultConfig",cfg.Analyzer(
     TriggerMatchAnalyzer, name="TriggerMatchAnalyzerDefault",
     label='DefaultTrigObjSelection',
     processName = 'PAT',
+    fallbackProcessName = 'RECO',
     unpackPathNames = True,
     trgObjSelectors = [],
     collToMatch = None,
