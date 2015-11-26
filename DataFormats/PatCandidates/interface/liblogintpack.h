@@ -5,6 +5,11 @@
 
 namespace logintpack
 {
+        constexpr int8_t smallestPositive = 0;
+        // note that abs(unpack(smallestNegative)) == unpack(1), i.e. there
+        // is no "x" such that "unpack(x) == -unpack(0)"
+        constexpr int8_t smallestNegative = -1;
+
         int8_t pack8logCeil(double x,double lmin, double lmax, uint8_t base=128)
         {
                 if(base>128) base=128;
@@ -13,7 +18,7 @@ namespace logintpack
                 int8_t  r=ceil(centered);
                 if(centered >= base-1) r=base-1;
                 if(centered < 0) r=0;
-                if(x<0) r=-r;
+                if(x<0) r = r==0 ? -1 : -r;
                 return r;
         }
 
@@ -25,7 +30,7 @@ namespace logintpack
 		int8_t  r=centered;
 		if(centered >= base-1) r=base-1;
 		if(centered < 0) r=0;
-		if(x<0) r=-r;
+		if(x<0) r = r==0 ? -1 : -r;
 		return r;
 	}
 
@@ -39,7 +44,7 @@ namespace logintpack
 		int8_t  r=round(centered);
 		if(centered >= base-1) r=base-1;
 		if(centered < 0) r=0;
-		if(x<0) r=-r;
+		if(x<0) r = r==0 ? -1 : -r;
 		return r;
 	}
 
