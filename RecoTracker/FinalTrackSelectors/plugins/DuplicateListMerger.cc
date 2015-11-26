@@ -252,11 +252,12 @@ void DuplicateListMerger::produce(edm::StreamID, edm::Event& iEvent, const edm::
   assert(producer.selTracks_->size()==pquals->size());
   
   for (auto isel=0U;isel<nsel;++isel) {
+    algoMask[isel].set(reco::TrackBase::duplicateMerge);
     auto & otk = (*producer.selTracks_)[isel];
     otk.setQualityMask((*pquals)[isel]);
     otk.setAlgorithm(reco::TrackBase::duplicateMerge);
     otk.setOriginalAlgorithm(oriAlgo[isel]);
-    otk.setAlgoMask(algoMask[isel]|reco::TrackBase::duplicateMerge);
+    otk.setAlgoMask(algoMask[isel]);
   }
 
   
