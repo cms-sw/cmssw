@@ -186,11 +186,11 @@ void HcalDataIntegrityTask::processEvent(const FEDRawDataCollection& rawraw,
 void HcalDataIntegrityTask::unpack(const FEDRawData& raw, 
 				   const HcalElectronicsMap& emap){
   // get the DCC header
-  const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
+  const HcalDCCHeader* dccHeader=reinterpret_cast<const HcalDCCHeader*>(raw.data());
   if(!dccHeader) return;
 
   // get the DCC trailer 
-  unsigned char* trailer_ptr = (unsigned char*) (raw.data()+raw.size()-sizeof(uint64_t));
+  unsigned char const* trailer_ptr = reinterpret_cast<unsigned char const*>(raw.data()+raw.size()-sizeof(uint64_t));
   FEDTrailer trailer = FEDTrailer(trailer_ptr);
 
   int dccid=dccHeader->getSourceId();
