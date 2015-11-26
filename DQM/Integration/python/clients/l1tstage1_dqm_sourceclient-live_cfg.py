@@ -91,7 +91,9 @@ process.l1tSyncPath = cms.Path(process.l1tSyncHltFilter+process.l1tSync)
 #process.l1tMonitorPath = cms.Path(process.l1tMonitorStage1Online)
 process.l1tMonitorClientPath = cms.Path(process.l1tMonitorStage1Client)
 
-
+process.stage1UnpackPath = cms.Path(process.caloStage1Digis+process.caloStage1LegacyFormatDigis)
+process.caloStage1LegacyFormatDigis.bxMin = cms.int32(-2)
+process.caloStage1LegacyFormatDigis.bxMax = cms.int32(2)
 #
 process.l1tMonitorEndPath = cms.EndPath(process.l1tMonitorEndPathSeq)
 
@@ -106,6 +108,7 @@ process.dqmEndPath = cms.EndPath(
 
 #
 process.schedule = cms.Schedule(process.rawToDigiPath,
+                                process.stage1UnpackPath,
                                 process.l1tMonitorPath,
                                 process.l1tSyncPath,
                                 process.l1tMonitorClientPath,
@@ -133,7 +136,7 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 #process.l1tMonitorStage1Online.remove(process.bxTiming)
 process.l1tMonitorStage1Online.remove(process.l1tBPTX)
 
-process.l1tMonitorStage1Online.remove(process.l1tRctRun1)
+#process.l1tMonitorStage1Online.remove(process.l1tRctRun1)
 
 #process.l1tMonitorOnline.remove(process.l1tLtc)
 

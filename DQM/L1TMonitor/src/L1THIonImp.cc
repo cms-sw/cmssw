@@ -155,13 +155,13 @@ void L1THIonImp::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm
   const std::string clabel[8] = {"cenJet","forJet","single track", "isoEm", "nonIsoEm", "EtSum", "MET", "HTT"};
   const std::string olabel[3] = {"rank", "eta", "phi"};
   
-  unsigned int Bin[3][8] = {{64,64,64,64,64,R12BINS,R12BINS,R12BINS},
+  unsigned int Bin[3][8] = {{64,64,64,64,64,128,128,128},
 		      {EMETABINS,EMETABINS,EMETABINS,EMETABINS,EMETABINS,EMETABINS,EMETABINS,EMETABINS},
 		      {PHIBINS,PHIBINS,PHIBINS,PHIBINS,PHIBINS,PHIBINS,METPHIBINS,PHIBINS}};
   float Min[3][8] = {{-0.5,-0.5,-0.5,-0.5,-0.5,-0.5,-0.5,-0.5},
 	       {-0.5,-0.5,-0.5,-0.5,-0.5,-0.5,-0.5,-0.5},
 	       {-0.5,-0.5,-0.5,-0.5,-0.5,-0.5,-0.5,-0.5}};
-  float Max[3][8] = {{63.5,63.5,63.5,63.5,63.5,4095.5,4095.5,4095.5},
+  float Max[3][8] = {{63.5,63.5,63.5,63.5,63.5,1023.5,1023.5,1023.5},
 	       {21.5,21.5,21.5,21.5,21.5,21.5,21.5,21.5},
 	       {17.5,17.5,17.5,17.5,17.5,17.5,71.5,17.5}};
 
