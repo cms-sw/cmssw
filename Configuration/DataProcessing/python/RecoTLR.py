@@ -186,7 +186,6 @@ def customiseExpressHI(process):
 ##############################################################################
 def customisePromptHI(process):
     process = customiseCommonHI(process)
-    process = _swapOfflineBSwithOnline(process)
 
     process = _addLumiProducer(process)
 
