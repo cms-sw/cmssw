@@ -35,7 +35,7 @@ akPu7PFparton = patJetPartonMatch.clone(src = cms.InputTag("akPu7PFJets"), match
 akPu7PFPatJetFlavourAssociationLegacy = akPu7PFbTagger.PatJetFlavourAssociationLegacy
 akPu7PFPatJetPartons = akPu7PFbTagger.PatJetPartons
 akPu7PFJetTracksAssociatorAtVertex = akPu7PFbTagger.JetTracksAssociatorAtVertex
-akPu7PFJetTracksAssociatorAtVertex.tracks = cms.InputTag("hiGeneralTracks")
+akPu7PFJetTracksAssociatorAtVertex.tracks = cms.InputTag("PureTracks")
 akPu7PFSimpleSecondaryVertexHighEffBJetTags = akPu7PFbTagger.SimpleSecondaryVertexHighEffBJetTags
 akPu7PFSimpleSecondaryVertexHighPurBJetTags = akPu7PFbTagger.SimpleSecondaryVertexHighPurBJetTags
 akPu7PFCombinedSecondaryVertexBJetTags = akPu7PFbTagger.CombinedSecondaryVertexBJetTags

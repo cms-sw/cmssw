@@ -35,7 +35,7 @@ ak6PFparton = patJetPartonMatch.clone(src = cms.InputTag("ak6PFJets"), matched =
 ak6PFPatJetFlavourAssociationLegacy = ak6PFbTagger.PatJetFlavourAssociationLegacy
 ak6PFPatJetPartons = ak6PFbTagger.PatJetPartons
 ak6PFJetTracksAssociatorAtVertex = ak6PFbTagger.JetTracksAssociatorAtVertex
-ak6PFJetTracksAssociatorAtVertex.tracks = cms.InputTag("generalTracks")
+ak6PFJetTracksAssociatorAtVertex.tracks = cms.InputTag("PureTracks")
 ak6PFSimpleSecondaryVertexHighEffBJetTags = ak6PFbTagger.SimpleSecondaryVertexHighEffBJetTags
 ak6PFSimpleSecondaryVertexHighPurBJetTags = ak6PFbTagger.SimpleSecondaryVertexHighPurBJetTags
 ak6PFCombinedSecondaryVertexBJetTags = ak6PFbTagger.CombinedSecondaryVertexBJetTags

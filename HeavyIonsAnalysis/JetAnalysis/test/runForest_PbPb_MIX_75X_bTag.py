@@ -128,11 +128,16 @@ process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu3CaloJetSequence_PbPb_mix_b
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu3PFJetSequence_PbPb_mix_bTag_cff')
 
 process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
-process.offlinePrimaryVertices.TrackLabel = 'hiGeneralTracks'
+process.offlinePrimaryVertices.TrackLabel = 'PureTracks'
 
 process.load("RecoHI.HiJetAlgos.ParticleTowerProducer_cfi")
 
+process.PureTracks = cms.EDFilter("TrackSelector",
+                       src = cms.InputTag("hiGeneralTracks"),
+                       cut = cms.string('quality("highPurity")'))
+
 process.jetSequences = cms.Sequence(
+    process.PureTracks +
     process.offlinePrimaryVertices +
     process.akPu3CaloJetSequence +
     process.akPu3PFJetSequence
