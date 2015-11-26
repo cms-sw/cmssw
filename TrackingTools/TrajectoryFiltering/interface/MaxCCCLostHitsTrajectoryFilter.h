@@ -14,8 +14,8 @@ public:
 
   explicit MaxCCCLostHitsTrajectoryFilter (
       const edm::ParameterSet & pset, edm::ConsumesCollector& iC) :
-      theMaxCCCLostHits_(pset.getParameter<int>("maxCCCLostHits")),
-      minGoodStripCharge_(pset.getParameter<double>("minGoodStripCharge")) {}
+      theMaxCCCLostHits_(pset.existsAs<int>("maxCCCLostHits") ? pset.getParameter<int>("maxCCCLostHits") : 9999),
+      minGoodStripCharge_(pset.existsAs<double>("minGoodStripCharge") ? pset.getParameter<double>("minGoodStripCharge") : -1.) {}
 
   virtual bool qualityFilter( const Trajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
   virtual bool qualityFilter( const TempTrajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
