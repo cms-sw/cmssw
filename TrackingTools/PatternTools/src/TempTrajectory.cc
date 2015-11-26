@@ -135,14 +135,6 @@ void TempTrajectory::updateBadForCCC(float ccc_threshold) {
   for (auto const & h : theData) {
     if (badForCCC(h))
       theNumberOfCCCBadHits_++;
-    // auto const * thit = dynamic_cast<const BaseTrackerRecHit*>( h.recHit()->hit() );
-    // //      auto const & thit = dynamic_cast<BaseTrackerRecHit const&>(*(tms[itm-1].recHit()));
-    // if (thit && !thit->isPixel() && thit->isValid()) {
-    //   if (siStripClusterTools::chargePerCM(thit->rawId(),
-    //                                        thit->firstClusterRef().stripCluster(),
-    //                                        h.updatedState().localParameters())
-    //       < theCCCThreshold_ )
-        // theNumberOfCCCBadHits_++;
   }
 }
 
