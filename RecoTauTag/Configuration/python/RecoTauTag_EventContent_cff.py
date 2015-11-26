@@ -113,7 +113,9 @@ RecoTauTagRECO = cms.PSet(
         'keep *_hpsPFTauMVA3IsolationChargedIsoPtSum_*_*',
         'keep *_hpsPFTauMVA3IsolationNeutralIsoPtSum_*_*',
         'keep *_hpsPFTauMVA3IsolationPUcorrPtSum_*_*',
-        'keep *_hpsPFTauTransverseImpactParameters_*_*'
+        'keep *_hpsPFTauTransverseImpactParameters_*_*',
+        'keep *_hpsPFTauNeutralIsoPtSumWeight_*_*',
+        'keep *_hpsPFTauPhotonPtSumOutsideSignalCone_*_*'
     )
 )
 #AOD content
