@@ -48,9 +48,9 @@ class TrackingRecHitProduct
             }
         }
 
-        virtual void addRecHit(FastSingleTrackerRecHit & recHit, std::vector<const PSimHit*> simHits={})
+        virtual void addRecHit(FastSingleTrackerRecHit & recHit, std::vector<const PSimHit*> simHits={}) __attribute__((deprecated))
         {
-            //TODO: this function is bad and deprecated!!!
+            //TODO: this function is slow and therefore deprecated!!!
             //
             std::vector<SimHitIdPair> simHitIdPairs;
             for (unsigned int isimhit = 0; isimhit < simHits.size(); ++isimhit)
@@ -64,7 +64,7 @@ class TrackingRecHitProduct
                     }
                 }
             }
-            _recHits.push_back(std::make_pair(recHit,simHitIdPairs));
+            addRecHit(recHit,simHitIdPairs);
         }
         
         virtual const std::vector<RecHitToSimHitIdPairs>& getRecHitToSimHitIdPairs() const
