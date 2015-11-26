@@ -78,14 +78,14 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
   float value = -10.;
 
   // default variable values
-  float z_ratio = -3.;
-  float trackSip3dSig_3 = -50., trackSip3dSig_2 = -50., trackSip3dSig_1 = -50., trackSip3dSig_0 = -50.;
-  float tau2_trackSip3dSig_0 = -50., tau1_trackSip3dSig_0 = -50., tau2_trackSip3dSig_1 = -50., tau1_trackSip3dSig_1 = -50.;
-  float trackSip2dSigAboveCharm_0 = -19., trackSip2dSigAboveBottom_0 = -19., trackSip2dSigAboveBottom_1 = -19.;
-  float tau1_trackEtaRel_0 = -1., tau1_trackEtaRel_1 = -1., tau1_trackEtaRel_2 = -1.;
-  float tau2_trackEtaRel_0 = -1., tau2_trackEtaRel_1 = -1., tau2_trackEtaRel_2 = -1.;
-  float tau1_vertexMass = -1., tau1_vertexEnergyRatio = -1., tau1_vertexDeltaR = -1., tau1_flightDistance2dSig = -1.;
-  float tau2_vertexMass = -1., tau2_vertexEnergyRatio = -1., tau2_vertexDeltaR = -1., tau2_flightDistance2dSig = -1.;
+  float z_ratio = dummyZ_ratio;
+  float trackSip3dSig_3 = dummyTrackSip3dSig, trackSip3dSig_2 = dummyTrackSip3dSig, trackSip3dSig_1 = dummyTrackSip3dSig, trackSip3dSig_0 = dummyTrackSip3dSig;
+  float tau2_trackSip3dSig_0 = dummyTrackSip3dSig, tau1_trackSip3dSig_0 = dummyTrackSip3dSig, tau2_trackSip3dSig_1 = dummyTrackSip3dSig, tau1_trackSip3dSig_1 = dummyTrackSip3dSig;
+  float trackSip2dSigAboveCharm_0 = dummyTrackSip2dSigAbove, trackSip2dSigAboveBottom_0 = dummyTrackSip2dSigAbove, trackSip2dSigAboveBottom_1 = dummyTrackSip2dSigAbove;
+  float tau1_trackEtaRel_0 = dummyTrackEtaRel, tau1_trackEtaRel_1 = dummyTrackEtaRel, tau1_trackEtaRel_2 = dummyTrackEtaRel;
+  float tau2_trackEtaRel_0 = dummyTrackEtaRel, tau2_trackEtaRel_1 = dummyTrackEtaRel, tau2_trackEtaRel_2 = dummyTrackEtaRel;
+  float tau1_vertexMass = dummyVertexMass, tau1_vertexEnergyRatio = dummyVertexEnergyRatio, tau1_vertexDeltaR = dummyVertexDeltaR, tau1_flightDistance2dSig = dummyFlightDistance2dSig;
+  float tau2_vertexMass = dummyVertexMass, tau2_vertexEnergyRatio = dummyVertexEnergyRatio, tau2_vertexDeltaR = dummyVertexDeltaR, tau2_flightDistance2dSig = dummyFlightDistance2dSig;
   float jetNTracks = 0, nSV = 0, tau1_nSecondaryVertices = 0, tau2_nSecondaryVertices = 0;
 
   // get the jet reference

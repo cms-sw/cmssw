@@ -52,6 +52,15 @@ class CandidateBoostedDoubleSecondaryVertexComputer : public JetTagComputer {
     std::unique_ptr<TMVAEvaluator> mvaID;
 
     // static variables
+    static constexpr float dummyZ_ratio             = -3.0f;
+    static constexpr float dummyTrackSip3dSig       = -50.0f;
+    static constexpr float dummyTrackSip2dSigAbove  = -19.0f;
+    static constexpr float dummyTrackEtaRel         = -1.0f;
+    static constexpr float dummyVertexMass          = -1.0f;
+    static constexpr float dummyVertexEnergyRatio   = -1.0f;
+    static constexpr float dummyVertexDeltaR        = -1.0f;
+    static constexpr float dummyFlightDistance2dSig = -1.0f;
+
     static constexpr float charmThreshold  = 1.5f;
     static constexpr float bottomThreshold = 5.2f;
 };
