@@ -39,12 +39,12 @@ protected:
   }
 
 
-  template<class T> bool TBC(const T& traj) const {
-    if(traj.isLooper() && 
-       ( (traj.nLoops()*theMinNumberOfHitsPerLoop + theExtraNumberOfHitsBeforeTheFirstLoop)>traj.foundHits()) )
-      return false;
-    else
-      return true;
+  template<class T> bool TBC(T& traj) const {
+    bool ret = !(traj.isLooper() &&
+                 ( (traj.nLoops()*theMinNumberOfHitsPerLoop + theExtraNumberOfHitsBeforeTheFirstLoop)>traj.foundHits()));
+    if (!ret)
+      traj.setStopReason(StopReason::LOOPER);
+    return ret;
   }
 
   int theMinNumberOfHits;

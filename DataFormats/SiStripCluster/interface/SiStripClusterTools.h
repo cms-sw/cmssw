@@ -9,7 +9,7 @@
 namespace siStripClusterTools {
 
   // to be moved and optimized in TrackerCommon when TrackerTopology will support moduleGeometry
-  float sensorThicknessInverse (DetId detid)
+  inline float sensorThicknessInverse (DetId detid)
   {
     if (detid.subdetId()>=SiStripDetId::TIB) {
       SiStripDetId siStripDetId = detid(); 
