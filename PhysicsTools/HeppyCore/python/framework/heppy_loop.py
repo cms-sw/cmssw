@@ -127,6 +127,9 @@ _heppyGlobalOptions = {}
 def getHeppyOption(name,default=None):
     global _heppyGlobalOptions
     return _heppyGlobalOptions[name] if name in _heppyGlobalOptions else default
+def setHeppyOption(name,value=True):
+    global _heppyGlobalOptions
+    _heppyGlobalOptions[name] = value
 
 def main( options, args, parser ):
 
