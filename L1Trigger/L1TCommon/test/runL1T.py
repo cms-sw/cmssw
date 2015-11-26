@@ -40,8 +40,8 @@ process.l1tSummary.egToken   = cms.InputTag("simCaloStage2Digis");
 process.l1tSummary.tauToken  = cms.InputTag("simCaloStage2Digis");
 process.l1tSummary.jetToken  = cms.InputTag("simCaloStage2Digis");
 process.l1tSummary.sumToken  = cms.InputTag("simCaloStage2Digis");
-process.l1tSummary.muonToken = cms.InputTag("simGmtDigis","");
-#process.l1tSummary.muonToken = cms.InputTag("simGmtDigis","imdMuonsBMTF");
+process.l1tSummary.muonToken = cms.InputTag("simGmtStage2Digis","");
+#process.l1tSummary.muonToken = cms.InputTag("simGmtStage2Digis","imdMuonsBMTF");
 
 process.load('L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi')
 process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
@@ -67,7 +67,7 @@ process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
     dmxTauToken = cms.InputTag("None"),
     dmxJetToken = cms.InputTag("None"),
     dmxEtSumToken = cms.InputTag("None"),
-    muToken = cms.InputTag("simGmtDigis"),
+    muToken = cms.InputTag("simGmtStage2Digis"),
     egToken = cms.InputTag("simCaloStage2Digis"),
     tauToken = cms.InputTag("simCaloStage2Digis"),
     jetToken = cms.InputTag("simCaloStage2Digis"),
@@ -82,7 +82,7 @@ process.l1UpgradeTree = cms.EDAnalyzer(
     egToken = cms.untracked.InputTag("simCaloStage2Digis"),
     tauToken = cms.untracked.InputTag("simCaloStage2Digis"),
     jetToken = cms.untracked.InputTag("simCaloStage2Digis"),
-    muonToken = cms.untracked.InputTag("simGmtDigis"),
+    muonToken = cms.untracked.InputTag("simGmtStage2Digis"),
     sumToken = cms.untracked.InputTag("simCaloStage2Digis",""),
     maxL1Upgrade = cms.uint32(60)
 )

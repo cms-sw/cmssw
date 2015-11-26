@@ -38,7 +38,7 @@ process.load('L1Trigger.L1TMuonBarrel.simBmtfDigis_cfi')
 process.load('L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi')
 process.load('L1Trigger.L1TMuonOverlap.simOmtfDigis_cfi')
 process.load('L1Trigger.L1TMuon.simGmtCaloSumDigis_cfi')
-process.load('L1Trigger.L1TMuon.simGmtDigis_cfi')
+process.load('L1Trigger.L1TMuon.simGmtStage2Digis_cfi')
 
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
@@ -48,8 +48,8 @@ process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 #process.l1tSummary.tauToken  = cms.InputTag("simCaloStage2Digis");
 #process.l1tSummary.jetToken  = cms.InputTag("simCaloStage2Digis");
 #process.l1tSummary.sumToken  = cms.InputTag("simCaloStage2Digis");
-#process.l1tSummary.muonToken = cms.InputTag("simGmtDigis","");
-##process.l1tSummary.muonToken = cms.InputTag("simGmtDigis","imdMuonsBMTF");
+#process.l1tSummary.muonToken = cms.InputTag("simGmtStage2Digis","");
+##process.l1tSummary.muonToken = cms.InputTag("simGmtStage2Digis","imdMuonsBMTF");
 
 process.L1TMuonSeq = cms.Sequence(   process.simCaloStage2Layer1Digis
                                    + process.simTwinMuxDigis
@@ -57,7 +57,7 @@ process.L1TMuonSeq = cms.Sequence(   process.simCaloStage2Layer1Digis
                                    + process.simEmtfDigis 
                                    + process.simOmtfDigis 
                                    + process.simGmtCaloSumDigis
-                                   + process.simGmtDigis
+                                   + process.simGmtStage2Digis
 #                                   + process.dumpED
 #                                   + process.dumpES
 #                                   + process.l1tSummary
