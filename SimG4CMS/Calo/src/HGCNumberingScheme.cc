@@ -9,6 +9,8 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 
+//#define DebugLog
+
 HGCNumberingScheme::HGCNumberingScheme(const DDCompactView & cpv, 
 				       std::string & name, bool check,
 				       int verbose) :
@@ -44,11 +46,13 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer, int
 			      << "," << pos.y() << "," << pos.z() << ")";
     }
   }    
+#ifdef DebugLog
   if (verbosity > 0)
     std::cout << "HGCNumberingScheme::i/p " << subdet << ":" << layer << ":" 
 	      << sector << ":" << iz << ":" << pos << " o/p " << phiSector 
 	      << ":" << icell << ":" << std::hex << index << std::dec 
 	      << std::endl;
+#endif
   return index;
 }
 
