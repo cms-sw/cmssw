@@ -102,6 +102,7 @@ RecoTauTagRECO = cms.PSet(
         'keep *_hpsPFTauDiscriminationByMVArawMuonRejection_*_*',
         'keep *_hpsPFTauDiscriminationByRawPileupWeightedIsolation3Hits_*_*',
         'keep *_hpsPFTauDiscriminationByPhotonPtSumOutsideSignalCone_*_*',
+        'keep *_hpsPFTauFootprintCorrection_*_*',
         'keep *_hpsPFTauDiscriminationByLoosePileupWeightedIsolation3Hits_*_*',
         'keep *_hpsPFTauNeutralIsoPtSum_*_*',
         'keep *_hpsPFTauDiscriminationByTightPileupWeightedIsolation3Hits_*_*',
