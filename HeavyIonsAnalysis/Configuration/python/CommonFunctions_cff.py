@@ -905,6 +905,7 @@ def overrideJEC_PbPb5020(process):
                                             label = cms.untracked.string("AK6PF_offline")
                                    )
     )
+	)
                                ## add an es_prefer statement to resolve a possible conflict from simultaneous connection to a global tag
     process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
     return process
