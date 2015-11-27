@@ -191,7 +191,7 @@ std::pair<float,DetId> EcalBarrelClusterFastTimer::getTimeForECALPFCluster(const
     best_time_guess = timehits.find(best_hit)->time();
   }
   
-  std::cout << "EcalBarrelFastTimer: " << best_time_guess << ' ' << best_energy << ' ' << best_hit << std::endl;
+  //std::cout << "EcalBarrelFastTimer: " << best_time_guess << ' ' << best_energy << ' ' << best_hit << std::endl;
 
   return std::make_pair(best_time_guess,DetId(best_hit));
 }
@@ -211,8 +211,10 @@ float EcalBarrelClusterFastTimer::correctTimeToVertex(const float intime, const 
   const math::XYZVector to_center = layerPos_cm - math::XYZPoint(0.,0.,0.);
   const math::XYZVector to_vtx = layerPos_cm - vtx.position();
   
+  /*
   std::cout << intime << ' ' << to_center.r()/cm_per_ns << ' ' << to_vtx.r()/cm_per_ns
             << ' ' << intime + to_center.r()/cm_per_ns - to_vtx.r()/cm_per_ns << std::endl;
+  */
 
   return intime + to_center.r()/cm_per_ns - to_vtx.r()/cm_per_ns;
 }

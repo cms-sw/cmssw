@@ -401,7 +401,8 @@ def cust_2023HGCalPandoraMuonFastTime(process):
         process.load("RecoParticleFlow.FastTiming.ecalBarrelClusterFastTimer_cfi")
         process.offlinePrimaryVertices1D = process.offlinePrimaryVertices.clone()
         process.offlinePrimaryVertices1D.TkFilterParameters.minPt = cms.double(1.0)
-        process.offlinePrimaryVertices4D = process.offlinePrimaryVertices.clone( verbose = cms.untracked.bool(True), TkClusParameters = process.DA2DParameters )
+        process.offlinePrimaryVertices4D = process.offlinePrimaryVertices.clone( verbose = cms.untracked.bool(False), TkClusParameters = process.DA2DParameters )
+        process.offlinePrimaryVertices4D.TkFilterParameters.minPt = cms.double(1.0)
         process.particleFlowReco = cms.Sequence(process.trackTimeValueMapProducer+process.offlinePrimaryVertices1D+process.offlinePrimaryVertices4D+process.particleFlowReco)
         process.RandomNumberGeneratorService.trackTimeValueMapProducer = cms.PSet(
             initialSeed = cms.untracked.uint32(1234), engineName = cms.untracked.string('TRandom3')
@@ -454,7 +455,8 @@ def cust_2023HGCalPandoraMuonPerfectFastTime(process):
         process.load("RecoParticleFlow.FastTiming.ecalBarrelClusterFastTimer_cfi")
         process.offlinePrimaryVertices1D = process.offlinePrimaryVertices.clone()
         process.offlinePrimaryVertices1D.TkFilterParameters.minPt = cms.double(1.0)
-        process.offlinePrimaryVertices4D = process.offlinePrimaryVertices.clone( verbose = cms.untracked.bool(True), TkClusParameters = process.DA2DParameters )
+        process.offlinePrimaryVertices4D = process.offlinePrimaryVertices.clone( verbose = cms.untracked.bool(False), TkClusParameters = process.DA2DParameters )
+        process.offlinePrimaryVertices4D.TkFilterParameters.minPt = cms.double(1.0)
         process.particleFlowReco = cms.Sequence(process.trackTimeValueMapProducer+process.offlinePrimaryVertices1D+process.offlinePrimaryVertices4D+process.particleFlowReco)
         process.RandomNumberGeneratorService.trackTimeValueMapProducer = cms.PSet(
             initialSeed = cms.untracked.uint32(1234), engineName = cms.untracked.string('TRandom3')

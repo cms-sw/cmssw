@@ -170,16 +170,16 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & unstracks) con
   sort ( tracks.begin(), tracks.end(), CompareTwoTracks() );
   // Linearization Point
   GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
-  std::cout << "linearized point: " << linP  << std::endl;
+  //std::cout << "linearized point: " << linP  << std::endl;
   // Initial vertex seed, with a very large error matrix
-  std::cout << "setup vertex seed state" << std::endl;
+  //std::cout << "setup vertex seed state" << std::endl;
   VertexState lseed (linP, linPointError() );
-  std::cout << lseed.error4D().matrix4D() << std::endl;
+  //std::cout << lseed.error4D().matrix4D() << std::endl;
   vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, lseed);
 
-  std::cout << "fit start" << std::endl;
+  //std::cout << "fit start" << std::endl;
   VertexState seed (linP, fitError() );
-  std::cout << seed.error4D().matrix4D() << std::endl;
+  //std::cout << seed.error4D().matrix4D() << std::endl;
   return fit(vtContainer, seed, false);
 }
 
@@ -528,7 +528,7 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
                           const VertexState & priorSeed,
                           bool withPrior) const
 {
-  std::cout << "[AdaptiveVertexFit] fit with " << tracks.size() << endl;
+  //std::cout << "[AdaptiveVertexFit] fit with " << tracks.size() << endl;
   theAssProbComputer->resetAnnealing();
 
   vector<RefCountedVertexTrack> initialTracks;
@@ -561,29 +561,29 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
   int ns_trks=0; // number of significant tracks.
   // If we have only two significant tracks, we return an invalid vertex
 
-  std::cout << "[AdaptiveVertexFit] start " << tracks.size() << endl;
+  //std::cout << "[AdaptiveVertexFit] start " << tracks.size() << endl;
   
   for ( vector< RefCountedVertexTrack >::const_iterator 
         i=globalVTracks.begin(); i!=globalVTracks.end() ; ++i )
   {
-    std::cout << "  mom=" << (**i).linearizedTrack()->track().initialFreeState().momentum() << endl;
-    std::cout << "  pos=" << (**i).linearizedTrack()->track().initialFreeState().position() << endl;
+    //std::cout << "  mom=" << (**i).linearizedTrack()->track().initialFreeState().momentum() << endl;
+    //std::cout << "  pos=" << (**i).linearizedTrack()->track().initialFreeState().position() << endl;
   }
   do {
     ns_trks=0;
     CachingVertex<5> fVertex = initialVertex;
-    std::cout << "[AdaptiveVertexFit] step " << step << " at " << fVertex.position() << endl;
+    //std::cout << "[AdaptiveVertexFit] step " << step << " at " << fVertex.position() << endl;
     if ((previousPosition - newPosition).transverse() > theMaxLPShift)
     {
       // relinearize and reweight.
       // (reLinearizeTracks also reweights tracks)
-      std::cout << "[AdaptiveVertexFit] relinearize at " << returnVertex.position() << endl;
+      //std::cout << "[AdaptiveVertexFit] relinearize at " << returnVertex.position() << endl;
       if (gsfIntermediarySmoothing_) returnVertex = theSmoother->smooth(returnVertex);
       globalVTracks = reLinearizeTracks( globalVTracks, returnVertex );
       lpStep++;
     } else if (step) {
       // reweight, if it is not the first step
-      std::cout << "[AdaptiveVertexFit] reweight at " << returnVertex.position() << endl;
+      //std::cout << "[AdaptiveVertexFit] reweight at " << returnVertex.position() << endl;
       if (gsfIntermediarySmoothing_) returnVertex = theSmoother->smooth(returnVertex);
       globalVTracks = reWeightTracks( globalVTracks, returnVertex );
     }
@@ -643,7 +643,7 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
     for ( vector< RefCountedVertexTrack >::const_iterator 
         i=globalVTracks.begin(); i!=globalVTracks.end() ; ++i )
       {
-        std::cout << "  wgt=" << (**i).weight() << std::endl;
+        //std::cout << "  wgt=" << (**i).weight() << std::endl;
       }
     edm::LogInfo("AdaptiveVertexFitter") 
       << "fewer than two significant tracks (w>" << theWeightThreshold << ")."
