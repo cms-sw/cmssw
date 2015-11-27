@@ -1535,7 +1535,7 @@ for step in upgradeSteps:
                 #so please be careful   
                 s=frag[:-4]+'_'+key
                 if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter:
-                    steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+frag[:-4]+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
+                    steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+upgradeDatasetFromFragment[frag]+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
    else:
         for key in upgradeKeys:
             k=step+'_'+key
