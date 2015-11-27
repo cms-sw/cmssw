@@ -23,10 +23,21 @@ def _getOrCreateObject(tdirectory, nameOrCreator):
         return nameOrCreator.create(tdirectory)
     return _getObject(tdirectory, nameOrCreator)
 
-def _getDirectory(tfile, possibleDirs, subDir=None):
+class GetDirectoryCode:
+    class FileNotExist: pass
+    class PossibleDirsNotExist: pass
+    class SubDirNotExist: pass
+
+    @staticmethod
+    def codesToNone(code):
+        if code in [GetDirectoryCode.FileNotExist, GetDirectoryCode.PossibleDirsNotExist, GetDirectoryCode.SubDirNotExist]:
+            return None
+        return code
+
+def _getDirectoryDetailed(tfile, possibleDirs, subDir=None):
     """Get TDirectory from TFile."""
     if tfile is None:
-        return None
+        return GetDirectoryCode.FileNotExist
     for pdf in possibleDirs:
         d = tfile.Get(pdf)
         if d:
@@ -38,12 +49,17 @@ def _getDirectory(tfile, possibleDirs, subDir=None):
                 else:
                     if verbose:
                         print "Did not find subdirectory '%s' from directory '%s' in file %s" % (subDir, pdf, tfile.GetName())
-                    return None
+#                        if "Step" in subDir:
+#                            raise Exception("Foo")
+                    return GetDirectoryCode.SubDirNotExist
             else:
                 return d
     if verbose:
         print "Did not find any of directories '%s' from file %s" % (",".join(possibleDirs), tfile.GetName())
-    return None
+    return GetDirectoryCode.PossibleDirsNotExist
+
+def _getDirectory(*args, **kwargs):
+    return GetDirectoryCode.codesToNone(_getDirectoryDetailed(*args, **kwargs))
 
 def _createCanvas(name, width, height):
     # silence warning of deleting canvas with the same name
@@ -1799,30 +1815,19 @@ class PlotFolder:
                 return pg
         raise Exception("No PlotGroup named '%s'" % name)
 
-    def create(self, files, labels, possibleDqmFolders, dqmSubFolder=None, isPileupSample=True, requireAllHistograms=False):
+    def create(self, dirs, labels, isPileupSample=True, requireAllHistograms=False):
         """Create histograms from a list of TFiles.
 
         Arguments:
-        files  -- List of TFiles
+        dirs   -- List of TDirectories
         labels -- List of strings for legend labels corresponding the files
-        possibleDqmFolders -- List of strings for possible directories of histograms in TFiles
-        dqmSubFolder -- Optional string for subdirectory inside the dqmFolder; if list of strings, then each corresponds to a TFile
         isPileupSample -- Is sample pileup (some PlotGroups may limit themselves to pileup)
         requireAllHistograms -- If True, a plot is produced if histograms from all files are present (default: False)
         """
 
-        if len(files) != len(labels):
+        if len(dirs) != len(labels):
             raise Exception("len(files) should be len(labels), now they are %d and %d" % (len(files), len(labels)))
 
-        dirs = []
-        if isinstance(dqmSubFolder, list):
-            if len(dqmSubFolder) != len(files):
-                raise Exception("When dqmSubFolder is a list, len(dqmSubFolder) should be len(files), now they are %d and %d" % (len(dqmSubFolder), len(files)))
-        else:
-            dqmSubFolder = [dqmSubFolder]*len(files)
-
-        for fil, sf in zip(files, dqmSubFolder):
-            dirs.append(_getDirectory(fil, possibleDqmFolders, sf))
         self._labels = labels
 
         for pg in self._plotGroups:
@@ -1892,7 +1897,7 @@ class PlotterFolder:
     PlotterItem, to be more specific), and not used directly by the
     user.
     """
-    def __init__(self, name, possibleDqmFolders, dqmSubFolders, plotFolder, fallbackNames, tableCreators):
+    def __init__(self, name, possibleDqmFolders, dqmSubFolders, plotFolder, fallbackNames, fallbackDqmSubFolders, tableCreators):
         """
         Constructor
 
@@ -1902,6 +1907,7 @@ class PlotterFolder:
         dqmSubFolders      -- List of lists of strings for list of subfolders per input file, or None if no subfolders
         plotFolder         -- PlotFolder object
         fallbackNames      -- List of names for backward compatibility (can be empty). These are used only by validation.Validation (class responsible of the release validation workflow) in case the reference file pointed by 'name' does not exist.
+        fallbackDqmSubFolders -- List of dicts of (string->string) for mapping the subfolder names found in the first file to another names. Use case is comparing files that have different iteration naming convention.
         tableCreators      -- List of PlotterTableItem objects for tables to be created from this folder
         """
         self._name = name
@@ -1915,9 +1921,8 @@ class PlotterFolder:
             self._dqmSubFolders = filter(lambda sf: sf.translated is not None, self._dqmSubFolders)
 
         self._fallbackNames = fallbackNames
+        self._fallbackDqmSubFolders = fallbackDqmSubFolders
         self._tableCreators = tableCreators
-
-        # TODO: matchmaking of dqmsubfolders in case of differences between files
 
     def getName(self):
         return self._name
@@ -1973,8 +1978,21 @@ class PlotterFolder:
         requireAllHistograms -- If True, a plot is produced if histograms from all files are present (default: False)
         """
 
-        # TODO: for cases of differently named subfolders, need to think something here
-        self._plotFolder.create(files, labels, self._possibleDqmFolders, dqmSubFolder.subfolder if dqmSubFolder is not None else None, isPileupSample, requireAllHistograms)
+        subfolder = dqmSubFolder.subfolder if dqmSubFolder is not None else None
+        dirs = []
+
+        for tfile in files:
+            ret = _getDirectoryDetailed(tfile, self._possibleDqmFolders, subfolder)
+            # If file and any of possibleDqmFolders exist but subfolder does not, try the fallbacks
+            if ret is GetDirectoryCode.SubDirNotExist:
+                for fallbackDict in self._fallbackDqmSubFolders:
+                    if subfolder in fallbackDict:
+                        ret = _getDirectoryDetailed(tfile, self._possibleDqmFolders, fallbackDict[subfolder])
+                        if ret is not GetDirectoryCode.SubDirNotExist:
+                            break
+            dirs.append(GetDirectoryCode.codesToNone(ret))
+
+        self._plotFolder.create(dirs, labels, isPileupSample, requireAllHistograms)
 
     def draw(self, *args, **kwargs):
         """Draw and save all plots using settings of a given algorithm."""
@@ -1997,7 +2015,7 @@ class PlotterInstance:
 
 # Helper for Plotter
 class PlotterItem:
-    def __init__(self, name, possibleDirs, plotFolder, fallbackNames=[]):
+    def __init__(self, name, possibleDirs, plotFolder, fallbackNames=[], fallbackDqmSubFolders=[]):
         """ Constructor
 
         Arguments:
@@ -2007,11 +2025,13 @@ class PlotterItem:
 
         Keyword arguments
         fallbackNames -- Optional list of names for backward compatibility. These are used only by validation.Validation (class responsible of the release validation workflow) in case the reference file pointed by 'name' does not exist.
+        fallbackDqmSubFolders -- Optional list of dicts of (string->string) for mapping the subfolder names found in the first file to another names. Use case is comparing files that have different iteration naming convention.
         """
         self._name = name
         self._possibleDirs = possibleDirs
         self._plotFolder = plotFolder
         self._fallbackNames = fallbackNames
+        self._fallbackDqmSubFolders = fallbackDqmSubFolders
         self._tableCreators = []
 
     def getName(self):
@@ -2064,7 +2084,7 @@ class PlotterItem:
         if not possibleDirFound:
             return None
 
-        return PlotterFolder(self._name, self._possibleDirs, subFolders, self._plotFolder, self._fallbackNames, self._tableCreators)
+        return PlotterFolder(self._name, self._possibleDirs, subFolders, self._plotFolder, self._fallbackNames, self._fallbackDqmSubFolders, self._tableCreators)
 
 class PlotterTableItem:
     def __init__(self, possibleDirs, tableCreator):
