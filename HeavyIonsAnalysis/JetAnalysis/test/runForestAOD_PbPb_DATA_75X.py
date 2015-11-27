@@ -15,7 +15,7 @@ import subprocess
 version = subprocess.Popen(["(cd $CMSSW_BASE/src && git describe --tags)"], stdout=subprocess.PIPE, shell=True).stdout.read()
 if version == '':
     version = 'no git info'
-process.HiForest.HiForestVersion = cms.untracked.string(version)
+    process.HiForest.HiForestVersion = cms.untracked.string(version)
 
 #####################################################################################
 # Input source
@@ -23,13 +23,13 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-                            fileNames = cms.untracked.vstring("file:/mnt/hadoop/cms/store/user/dgulhan/HIHighPt/HIHighPt_photon20and30_HIRun2011-v1_RECO_753_patch1/fd44351629dd155a25de2b4c109c824c/RECO_100_1_Uk0.root")                        )
+                            fileNames = cms.untracked.vstring("file:hireco_RAW2DIGI_L1Reco_RECO_run262563_ls0080.root")
+)
 
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10))
-
+    input = cms.untracked.int32(2))
 
 
 #####################################################################################
@@ -134,18 +134,22 @@ process.anaTrack.doPFMatching = False
 process.pixelTrack.doPFMatching = False
 
 #####################
+# hcal noise filter
+process.load("HeavyIonsAnalysis.JetAnalysis.hcalNoise_cff")
+
+#####################
 
 # photons
 process.load('HeavyIonsAnalysis.PhotonAnalysis.ggHiNtuplizer_cfi')
 process.ggHiNtuplizer.doGenParticles = False
 process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.InputTag('gedPhotonsTmp'),
                                                        recoPhotonHiIsolationMap = cms.InputTag('photonIsolationHIProducerGED')
-                                                       )
+)
 
 ###############################################################
 
 process.ana_step = cms.Path(process.hltanalysis *
-#temp                            process.hltobject *
+                            #temp                            process.hltobject *
                             process.centralityBin *
                             process.hiEvtAnalyzer*
                             process.jetSequences +
@@ -153,7 +157,8 @@ process.ana_step = cms.Path(process.hltanalysis *
                             process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
                             process.HiForest +
-                            process.anaTrack
+                            process.anaTrack +
+                            process.hcalNoise
                             #process.pixelTrack
                             )
 
