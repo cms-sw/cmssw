@@ -300,6 +300,28 @@ _possibleTrackingCollsOld = {
     "Ninth" : "iter9",
     "Tenth" : "iter10",
 }
+_trackingSubFoldersFallbackSLHC = {
+    "general_trackingParticleRecoAsssociation"                      : "general_AssociatorByHitsRecoDenom",
+    "cutsRecoHp_trackingParticleRecoAsssociation"                   : "cutsRecoHp_AssociatorByHitsRecoDenom",
+    "cutsRecoInitialStep_trackingParticleRecoAsssociation"          : "cutsRecoZero_AssociatorByHitsRecoDenom",
+    "cutsRecoInitialStepHp_trackingParticleRecoAsssociation"        : "cutsRecoZeroHp_AssociatorByHitsRecoDenom",
+    "cutsRecoLowPtTripletStep_trackingParticleRecoAsssociation"     : "cutsRecoFirst_AssociatorByHitsRecoDenom",
+    "cutsRecoLowPtTripletStepHp_trackingParticleRecoAsssociation"   : "cutsRecoFirstHp_AssociatorByHitsRecoDenom",
+    "cutsRecoPixelPairStep_trackingParticleRecoAsssociation"        : "cutsRecoSecond_AssociatorByHitsRecoDenom",
+    "cutsRecoPixelPairStepHp_trackingParticleRecoAsssociation"      : "cutsRecoSecondHp_AssociatorByHitsRecoDenom",
+    "cutsRecoMixedTripletStep_trackingParticleRecoAsssociation"     : "cutsRecoFourth_AssociatorByHitsRecoDenom",
+    "cutsRecoMixedTripletStepHp_trackingParticleRecoAsssociation"   : "cutsRecoFourthHp_AssociatorByHitsRecoDenom",
+    "cutsRecoMuonSeededStepInOut_trackingParticleRecoAsssociation"  : "cutsRecoNinth_AssociatorByHitsRecoDenom",
+    "cutsRecoMuonSeededStepInOutHp_trackingParticleRecoAsssociation": "cutsRecoNinthHp_AssociatorByHitsRecoDenom",
+    "cutsRecoMuonSeededStepOutIn_trackingParticleRecoAsssociation"  : "cutsRecoTenth_AssociatorByHitsRecoDenom",
+    "cutsRecoMuonSeededStepOutInHp_trackingParticleRecoAsssociation": "cutsRecoTenthHp_AssociatorByHitsRecoDenom",
+#    "initialStep"        : "iter0",
+#    "lowPtTripletStep"   : "iter1", # also iter3
+#    "pixelPairStep"      : "iter2", # also iter6
+#    "mixedTripletStep"   : "iter4", # also iter5
+#    "muonSeededStepInOut": "iter9",
+#    "muonSeededStepOutIn": "iter10",
+}
 def _mapCollectionToAlgoQuality(collName):
     if "Hp" in collName:
         quality = "highPurity"
@@ -673,7 +695,7 @@ _packedCandidatePlots = [
 plotter = Plotter()
 def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, seeding=False):
     # to keep backward compatibility, this set of plots has empty name
-    plotter.append(name, _trackingFolders(lastDirName), TrackingPlotFolder(*algoPlots, onlyForPileup=onlyForPileup, purpose=PlotPurpose.TrackingIteration))
+    plotter.append(name, _trackingFolders(lastDirName), TrackingPlotFolder(*algoPlots, onlyForPileup=onlyForPileup, purpose=PlotPurpose.TrackingIteration), fallbackDqmSubFolders=[_trackingSubFoldersFallbackSLHC])
     summaryName = ""
     if name != "":
         summaryName += name+"_"
