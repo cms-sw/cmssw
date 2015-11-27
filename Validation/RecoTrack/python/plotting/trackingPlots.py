@@ -17,6 +17,10 @@ _maxFake = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]
 _minMaxResol = [1e-5, 4e-5, 1e-4, 4e-4, 1e-3, 4e-3, 1e-2, 4e-2, 0.1, 0.4, 1]
 _minMaxN = [5e-1, 5, 5e1, 5e2, 5e3, 5e4, 5e5, 5e6, 5e7, 5e8, 5e9]
 
+_maxLayers = 25
+_maxPixelLayers = 8
+_max3DLayers = 20
+
 _effandfake1 = PlotGroup("effandfake1", [
     Plot("efficPt", title="Efficiency vs p_{T}", xtitle="TP p_{T} (GeV)", ytitle="efficiency vs p_{T}", xlog=True, ymax=_maxEff),
     Plot(FakeDuplicate("fakeduprate_vs_pT", assoc="num_assoc(recoToSim)_pT", dup="num_duplicate_pT", reco="num_reco_pT", title="fake+duplicates vs p_{T}"),
@@ -49,15 +53,15 @@ _effandfake3 = PlotGroup("effandfake3", [
     Plot("effic_vs_hit", xtitle="TP hits", ytitle="efficiency vs hits", ymax=_maxEff),
     Plot(FakeDuplicate("fakeduprate_vs_hit", assoc="num_assoc(recoToSim)_hit", dup="num_duplicate_hit", reco="num_reco_hit", title="fake+duplicates vs hit"),
          xtitle="track hits", ytitle="fake+duplicates rate vs hits", ymax=_maxFake),
-    Plot("effic_vs_layer", xtitle="TP layers", ytitle="efficiency vs layers", xmax=25, ymax=_maxEff),
+    Plot("effic_vs_layer", xtitle="TP layers", ytitle="efficiency vs layers", xmax=_maxLayers, ymax=_maxEff),
     Plot(FakeDuplicate("fakeduprate_vs_layer", assoc="num_assoc(recoToSim)_layer", dup="num_duplicate_layer", reco="num_reco_layer", title="fake+duplicates vs layer"),
-         xtitle="track layers", ytitle="fake+duplicates rate vs layers", ymax=_maxFake, xmax=25),
-    Plot("effic_vs_pixellayer", xtitle="TP pixel layers", ytitle="efficiency vs pixel layers", title="", xmax=6, ymax=_maxEff),
+         xtitle="track layers", ytitle="fake+duplicates rate vs layers", xmax=_maxLayers, ymax=_maxFake),
+    Plot("effic_vs_pixellayer", xtitle="TP pixel layers", ytitle="efficiency vs pixel layers", title="", xmax=_maxPixelLayers, ymax=_maxEff),
     Plot(FakeDuplicate("fakeduprate_vs_pixellayer", assoc="num_assoc(recoToSim)_pixellayer", dup="num_duplicate_pixellayer", reco="num_reco_pixellayer", title=""),
-         xtitle="track pixel layers", ytitle="fake+duplicates rate vs pixel layers", ymax=_maxFake, xmax=6),
-    Plot("effic_vs_3Dlayer", xtitle="TP 3D layers", ytitle="efficiency vs 3D layers", xmax=20, ymax=_maxEff),
+         xtitle="track pixel layers", ytitle="fake+duplicates rate vs pixel layers", xmax=_maxPixelLayers, ymax=_maxFake),
+    Plot("effic_vs_3Dlayer", xtitle="TP 3D layers", ytitle="efficiency vs 3D layers", xmax=_max3DLayers, ymax=_maxEff),
     Plot(FakeDuplicate("fakeduprate_vs_3Dlayer", assoc="num_assoc(recoToSim)_3Dlayer", dup="num_duplicate_3Dlayer", reco="num_reco_3Dlayer", title="fake+duplicates vs 3D layer"),
-         xtitle="track 3D layers", ytitle="fake+duplicates rate vs 3D layers", ymax=_maxFake, xmax=20),
+         xtitle="track 3D layers", ytitle="fake+duplicates rate vs 3D layers", xmax=_max3DLayers, ymax=_maxFake),
 ],
                          legendDy=0.09
 )
@@ -106,17 +110,17 @@ _dupandfake3 = PlotGroup("dupandfake3", [
     Plot("duplicatesRate_hit", xtitle="track hits", ytitle="duplicates rate vs hits", ymax=_maxFake),
     Plot("pileuprate_hit", xtitle="track hits", ytitle="pileup rate vs hits", ymax=_maxFake),
     #
-    Plot("fakerate_vs_layer", xtitle="track layers", ytitle="fakerate vs layer", ymax=_maxFake, xmax=25),
-    Plot("duplicatesRate_layer", xtitle="track layers", ytitle="duplicates rate vs layers", ymax=_maxFake, xmax=25),
-    Plot("pileuprate_layer", xtitle="track layers", ytitle="pileup rate vs layers", ymax=_maxFake, xmax=25),
+    Plot("fakerate_vs_layer", xtitle="track layers", ytitle="fakerate vs layer", ymax=_maxFake, xmax=_maxLayers),
+    Plot("duplicatesRate_layer", xtitle="track layers", ytitle="duplicates rate vs layers", ymax=_maxFake, xmax=_maxLayers),
+    Plot("pileuprate_layer", xtitle="track layers", ytitle="pileup rate vs layers", ymax=_maxFake, xmax=_maxLayers),
     #
-    Plot("fakerate_vs_pixellayer", xtitle="track pixel layers", ytitle="fakerate vs pixel layers", title="", ymax=_maxFake, xmax=6),
-    Plot("duplicatesRate_pixellayer", xtitle="track pixel layers", ytitle="duplicates rate vs pixel layers", title="", ymax=_maxFake, xmax=6),
-    Plot("pileuprate_pixellayer", xtitle="track pixel layers", ytitle="pileup rate vs pixel layers", title="", ymax=_maxFake, xmax=6),
+    Plot("fakerate_vs_pixellayer", xtitle="track pixel layers", ytitle="fakerate vs pixel layers", title="", ymax=_maxFake, xmax=_maxPixelLayers),
+    Plot("duplicatesRate_pixellayer", xtitle="track pixel layers", ytitle="duplicates rate vs pixel layers", title="", ymax=_maxFake, xmax=_maxPixelLayers),
+    Plot("pileuprate_pixellayer", xtitle="track pixel layers", ytitle="pileup rate vs pixel layers", title="", ymax=_maxFake, xmax=_maxPixelLayers),
     #
-    Plot("fakerate_vs_3Dlayer", xtitle="track 3D layers", ytitle="fakerate vs 3D layers", ymax=_maxFake, xmax=20),
-    Plot("duplicatesRate_3Dlayer", xtitle="track 3D layers", ytitle="duplicates rate vs 3D layers", ymax=_maxFake, xmax=20),
-    Plot("pileuprate_3Dlayer", xtitle="track 3D layers", ytitle="pileup rate vs 3D layers", ymax=_maxFake, xmax=20)
+    Plot("fakerate_vs_3Dlayer", xtitle="track 3D layers", ytitle="fakerate vs 3D layers", ymax=_maxFake, xmax=_max3DLayers),
+    Plot("duplicatesRate_3Dlayer", xtitle="track 3D layers", ytitle="duplicates rate vs 3D layers", ymax=_maxFake, xmax=_max3DLayers),
+    Plot("pileuprate_3Dlayer", xtitle="track 3D layers", ytitle="pileup rate vs 3D layers", ymax=_maxFake, xmax=_max3DLayers)
 ], ncols=3,
                          legendDy=0.09
 )
@@ -215,7 +219,7 @@ _hitsAndPt = PlotGroup("hitsAndPt", [
     Plot("missing_outer_layers", ymax=1, **_common),
     Plot("hits_eta", stat=True, statx=0.38, xtitle="track #eta", ytitle="<hits> vs #eta", ymin=8, ymax=24, statyadjust=[0,0,-0.15],
          fallback={"name": "nhits_vs_eta", "profileX": True}),
-    Plot("hits", stat=True, xtitle="track hits", xmin=0, xmax=40, drawStyle="hist"),
+    Plot("hits", stat=True, xtitle="track hits", xmin=0, ylog=True, ymin=[5e-1, 5, 5e1, 5e2, 5e3], drawStyle="hist"),
     Plot("num_simul_pT", xtitle="TP p_{T}", xlog=True, ymax=[1e-1, 2e-1, 5e-1, 1], **_common),
     Plot("num_reco_pT", xtitle="track p_{T}", xlog=True, ymax=[1e-1, 2e-1, 5e-1, 1], **_common)
 ])
@@ -263,8 +267,11 @@ _resolutionsPt = PlotGroup("resolutionsPt", [
 _possibleTrackingIterations = [
     'initialStepPreSplitting',
     'initialStep',
+    'highPtTripletStep', # phase1
+    'lowPtQuadStep', # phase1
     'lowPtTripletStep',
     'pixelPairStep',
+    'detachedQuadStep', # phase1
     'detachedTripletStep',
     'mixedTripletStepA', # seeds
     'mixedTripletStepB', # seeds

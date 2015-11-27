@@ -17,6 +17,7 @@ _globalTags = {
     "CMSSW_6_2_0_SLHC15": {"UPG2019withGEM": "DES19_62_V8", "UPG2023SHNoTaper": "DES23_62_V1"},
     "CMSSW_6_2_0_SLHC17": {"UPG2019withGEM": "DES19_62_V8", "UPG2023SHNoTaper": "DES23_62_V1"},
     "CMSSW_6_2_0_SLHC20": {"UPG2019withGEM": "DES19_62_V8", "UPG2023SHNoTaper": "DES23_62_V1"},
+    "CMSSW_6_2_0_SLHC27_phase1": {"default": "DES17_62_V8_UPG17"},
     "CMSSW_7_0_0": {"default": "POSTLS170_V3", "fullsim_50ns": "POSTLS170_V4"},
     "CMSSW_7_0_0_AlcaCSA14": {"default": "POSTLS170_V5_AlcaCSA14", "fullsim_50ns": "POSTLS170_V6_AlcaCSA14"},
     "CMSSW_7_0_7_pmx": {"default": "PLS170_V7AN1", "fullsim_50ns": "PLS170_V6AN1"},
@@ -108,10 +109,14 @@ _globalTags = {
     "CMSSW_7_6_2": {"default": "76X_mcRun2_asymptotic_v12", "fullsim_50ns": "76X_mcRun2_startup_v11"},
     "CMSSW_8_0_0_pre1": {"default": "76X_mcRun2_asymptotic_v11", "fullsim_50ns": "76X_mcRun2_startup_v11"},
     "CMSSW_8_0_0_pre2": {"default": "76X_mcRun2_asymptotic_v12", "fullsim_50ns": "76X_mcRun2_startup_v11"},
+    "CMSSW_8_0_0_pre2_phase1": {"default": "76X_upgrade2017_design_v7"},
+    "CMSSW_8_0_0_pre2_phase1_rereco": {"default": "76X_upgrade2017_design_v7_rereco"},
+    "CMSSW_8_0_0_pre3_phase1": {"default": "76X_upgrade2017_design_v8"},
+    "CMSSW_8_0_0_pre3_phase1_pythia8": {"default": "76X_upgrade2017_design_v8_pythia8"},
 }
 
 _releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_71XGENSIM_pmx", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
-                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT"]
+                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT", "_phase1_rereco", "_phase1_pythia8", "_phase1"]
 def _stripRelease(release):
     for pf in _releasePostfixes:
         if pf in release:

@@ -41,6 +41,12 @@ pileupstartupsamples = [
     Sample('RelValZMM', putype=putype("50ns"), midfix="13")
 ]
 
+phase1samples = [
+    Sample('RelValTenMuE_0_200'),
+    Sample("RelValTTbar", midfix="14TeV"),
+    Sample("RelValTTbar", midfix="14TeV", putype=putype("25ns")),
+]
+
 upgradesamples = [
 #    Sample("RelValTTbar", midfix="14TeV", scenario="UPG2019withGEM"  ),
 #    Sample("RelValTTbar", midfix="14TeV", scenario="UPG2023SHNoTaper"),
@@ -90,12 +96,19 @@ if "_extended" in NewRelease:
     doFastVsFull = False
     if not NewRelease in validation._globalTags:
         validation._globalTags[NewRelease] = validation._globalTags[NewRelease.replace("_extended", "")]
+if "_phase1" in NewRelease:
+    startupsamples = phase1samples
+    pileupstartupsamples = []
+    fastsimstartupsamples = []
+    pileupfastsimstartupsamples = []
+    doFastVsFull = False
 
 ### Track algorithm name and quality. Can be a list.
 Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripletStep','mixedTripletStep','pixelLessStep','tobTecStep','jetCoreRegionalStep','muonSeededStepInOut','muonSeededStepOutIn',
         'ak4PFJets','btvLike'
 ]
 #Algos= ['ootb']
+#Algos= ['ootb','initialStep','lowPtTripletStep','pixelPairStep','mixedTripletStep','muonSeededStepInOut','muonSeededStepOutIn'] # phase1
 Qualities=['', 'highPurity']
 VertexCollections=["offlinePrimaryVertices", "selectedOfflinePrimaryVertices"]
 
@@ -116,7 +129,7 @@ val = Validation(
 htmlReport = val.createHtmlReport()
 val.download()
 val.doPlots(plotter=trackingPlots.plotter, plotterDrawArgs={"ratio": True},
-#            limitSubFoldersOnlyTo={"": limitProcessing},
+#            limitSubFoldersOnlyTo={"": limitProcessing, "allTPEffic": limitProcessing, "fromPV": limitProcessing, "fromPVAllTP": limitProcessing},
             htmlReport=htmlReport, doFastVsFull=doFastVsFull
 )
 
