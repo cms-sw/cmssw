@@ -12,12 +12,15 @@
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
+#include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 #include "CLHEP/Random/RandGauss.h"
@@ -117,7 +120,7 @@ void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm:
 	setup.get<TrackerTopologyRcd>().get(tTopoHandle);
 	const TrackerTopology* const tTopo = tTopoHandle.product();
 
-	edm::ESHandle<GeometricDet>  geom;
+	edm::ESHandle<GeometricDet> geom;
 	setup.get<IdealGeometryRecord>().get(geom);
 	edm::ESHandle<PTrackerParameters> ptp;
 	setup.get<PTrackerParametersRcd>().get( ptp );
@@ -132,9 +135,13 @@ void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm:
 		setup.get<TrackerAlignmentRcd>().get(alignments);
 		setup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
 
+		edm::ESHandle<Alignments> globalPositionRcd;
+		setup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
+
 		//apply the latest alignments
 		GeometryAligner aligner;
-		aligner.applyAlignments<TrackerGeometry>( &(*tracker), &(*alignments), &(*alignmentErrors), AlignTransform() );
+		aligner.applyAlignments<TrackerGeometry>( &(*tracker), &(*alignments), &(*alignmentErrors),
+							  align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
 
 	}
 
