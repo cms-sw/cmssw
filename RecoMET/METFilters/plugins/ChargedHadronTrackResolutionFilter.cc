@@ -82,17 +82,17 @@ ChargedHadronTrackResolutionFilter::filter(edm::Event& iEvent, const edm::EventS
   for ( unsigned i=0; i<pfCandidates->size(); ++i ) {
 
     const reco::PFCandidate & cand = (*pfCandidates)[i];
-	
-		if ( fabs(cand.pdgId()) == 211 ) {
-	    // if ( debug_ ) cout << "Found charged hadron candidate" << std::endl;
+  
+    if ( fabs(cand.pdgId()) == 211 ) {
+      // if ( debug_ ) cout << "Found charged hadron candidate" << std::endl;
 
-	    if (cand.trackRef().isNull()) continue;
-	    // if ( debug_ ) cout << "Found valid TrackRef" << std::endl;
-	    const reco::TrackRef trackref = cand.trackRef();
-	    const double Pt = trackref->pt();
-			const double DPt = trackref->ptError();
-	    if (Pt < ptMin_) continue;
-	    if ( debug_ ) cout << "charged hadron track pT > " << Pt << " GeV - " << " dPt: " << DPt << " GeV - algorithm: "  << trackref->algo() << std::endl;
+      if (cand.trackRef().isNull()) continue;
+      // if ( debug_ ) cout << "Found valid TrackRef" << std::endl;
+      const reco::TrackRef trackref = cand.trackRef();
+      const double Pt = trackref->pt();
+      const double DPt = trackref->ptError();
+      if (Pt < ptMin_) continue;
+      if ( debug_ ) cout << "charged hadron track pT > " << Pt << " GeV - " << " dPt: " << DPt << " GeV - algorithm: "  << trackref->algo() << std::endl;
 
       const double P = trackref->p();
       
@@ -108,7 +108,7 @@ ChargedHadronTrackResolutionFilter::filter(edm::Event& iEvent, const edm::EventS
           cout << endl;
         }
       }
-		}
+    }
   } // end loop over PF candidates
 
   bool pass = !foundBadTrack;

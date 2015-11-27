@@ -40,7 +40,7 @@ private:
   edm::EDGetTokenT<reco::PFCandidateCollection>   tokenPFCandidates_;
   const bool taggingMode_;
   const double          ptMin_;
-	const double          chi2Min_;
+  const double          chi2Min_;
   const bool debug_;
 
 };
@@ -60,7 +60,7 @@ MuonBadTrackFilter::MuonBadTrackFilter(const edm::ParameterSet& iConfig)
   : tokenPFCandidates_ ( consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag> ("PFCandidates")  ))
   , taggingMode_          ( iConfig.getParameter<bool>    ("taggingMode")         )
   , ptMin_                ( iConfig.getParameter<double>        ("ptMin")         )
-	, chi2Min_              ( iConfig.getParameter<double>      ("chi2Min")         )
+  , chi2Min_              ( iConfig.getParameter<double>      ("chi2Min")         )
   , debug_                ( iConfig.getParameter<bool>          ("debug")         )
 {
   produces<bool>();
@@ -89,37 +89,37 @@ MuonBadTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for ( unsigned i=0; i<pfCandidates->size(); ++i ) {
 
     const reco::PFCandidate & cand = (*pfCandidates)[i];
-	
-		if ( fabs(cand.pdgId()) != 13 ) continue;
+  
+    if ( fabs(cand.pdgId()) != 13 ) continue;
     // if ( debug_ ) cout << "Found muon" << std::endl;
 
     if (cand.pt() < ptMin_) continue;
 
     if (cand.muonRef().isNull()) continue;
     // if ( debug_ ) cout << "Found valid MuonRef" << std::endl;
-		
-	  const reco::MuonRef       muon  = cand.muonRef();
+    
+    const reco::MuonRef       muon  = cand.muonRef();
     if ( debug_ ) printMuonProperties(muon);
-		
-		if (muon->muonBestTrack().isAvailable()) {
-			if (muon->muonBestTrack()->hitPattern().numberOfValidMuonHits() == 0) {
-				
-				if (muon->globalTrack().isAvailable()) {
-					if (muon->globalTrack()->normalizedChi2() > chi2Min_) {
-						foundBadTrack = true;
-						if ( debug_ ) cout << "globalTrack numberOfValidMuonHits: " << muon->globalTrack()->hitPattern().numberOfValidMuonHits() <<
-							" numberOfValidMuonCSCHits: " << muon->globalTrack()->hitPattern().numberOfValidMuonCSCHits() <<
-							" numberOfValidMuonDTHits: " << muon->globalTrack()->hitPattern().numberOfValidMuonDTHits() <<
-							" normalizedChi2: " << muon->globalTrack()->normalizedChi2() <<	endl;
-						if ( debug_ ) cout << "muonBestTrack numberOfValidMuonHits: " << muon->muonBestTrack()->hitPattern().numberOfValidMuonHits() <<
-							" numberOfValidMuonCSCHits: " << muon->muonBestTrack()->hitPattern().numberOfValidMuonCSCHits() <<
-							" numberOfValidMuonDTHits: " << muon->muonBestTrack()->hitPattern().numberOfValidMuonDTHits() <<
-							" normalizedChi2: " << muon->muonBestTrack()->normalizedChi2() <<	endl;
-					}
-				}
+    
+    if (muon->muonBestTrack().isAvailable()) {
+      if (muon->muonBestTrack()->hitPattern().numberOfValidMuonHits() == 0) {
+        
+        if (muon->globalTrack().isAvailable()) {
+          if (muon->globalTrack()->normalizedChi2() > chi2Min_) {
+            foundBadTrack = true;
+            if ( debug_ ) cout << "globalTrack numberOfValidMuonHits: " << muon->globalTrack()->hitPattern().numberOfValidMuonHits() <<
+              " numberOfValidMuonCSCHits: " << muon->globalTrack()->hitPattern().numberOfValidMuonCSCHits() <<
+              " numberOfValidMuonDTHits: " << muon->globalTrack()->hitPattern().numberOfValidMuonDTHits() <<
+              " normalizedChi2: " << muon->globalTrack()->normalizedChi2() << endl;
+            if ( debug_ ) cout << "muonBestTrack numberOfValidMuonHits: " << muon->muonBestTrack()->hitPattern().numberOfValidMuonHits() <<
+              " numberOfValidMuonCSCHits: " << muon->muonBestTrack()->hitPattern().numberOfValidMuonCSCHits() <<
+              " numberOfValidMuonDTHits: " << muon->muonBestTrack()->hitPattern().numberOfValidMuonDTHits() <<
+              " normalizedChi2: " << muon->muonBestTrack()->normalizedChi2() << endl;
+          }
+        }
 
-			}
-		}
+      }
+    }
     
     // perform same check as for charged hadrons
     if (!cand.trackRef().isNull()) {
@@ -143,65 +143,65 @@ MuonBadTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     }
 
-		// check if at least one track has good quality
-		if (muon->innerTrack().isAvailable()) {
+    // check if at least one track has good quality
+    if (muon->innerTrack().isAvailable()) {
       const double P = muon->innerTrack()->p();
       const double DPt = muon->innerTrack()->ptError();
-			if (P != 0) {
-				if ( debug_ ) cout << "innerTrack DPt/P: " << DPt/P << endl;
-				if (DPt/P < 1) {
-					if ( debug_ ) cout << "innerTrack good" << endl;
-					continue;
-				}
-			}
-		}
-		if (muon->pickyTrack().isAvailable()) {
+      if (P != 0) {
+        if ( debug_ ) cout << "innerTrack DPt/P: " << DPt/P << endl;
+        if (DPt/P < 1) {
+          if ( debug_ ) cout << "innerTrack good" << endl;
+          continue;
+        }
+      }
+    }
+    if (muon->pickyTrack().isAvailable()) {
       const double P = muon->pickyTrack()->p();
       const double DPt = muon->pickyTrack()->ptError();
-			if (P != 0) {
-				if ( debug_ ) cout << "pickyTrack DPt/P: " << DPt/P << endl;
-				if (DPt/P < 1) {
-					if ( debug_ ) cout << "pickyTrack good" << endl;
-					continue;
-				}
-			}
-		}
-		if (muon->globalTrack().isAvailable()) {
+      if (P != 0) {
+        if ( debug_ ) cout << "pickyTrack DPt/P: " << DPt/P << endl;
+        if (DPt/P < 1) {
+          if ( debug_ ) cout << "pickyTrack good" << endl;
+          continue;
+        }
+      }
+    }
+    if (muon->globalTrack().isAvailable()) {
       const double P = muon->globalTrack()->p();
       const double DPt = muon->globalTrack()->ptError();
-			if (P != 0) {
-				if ( debug_ ) cout << "globalTrack DPt/P: " << DPt/P << endl;
-				if (DPt/P < 1) {
-					if ( debug_ ) cout << "globalTrack good" << endl;
-					continue;
-				}
-			}
-		}
-		if (muon->tpfmsTrack().isAvailable()) {
+      if (P != 0) {
+        if ( debug_ ) cout << "globalTrack DPt/P: " << DPt/P << endl;
+        if (DPt/P < 1) {
+          if ( debug_ ) cout << "globalTrack good" << endl;
+          continue;
+        }
+      }
+    }
+    if (muon->tpfmsTrack().isAvailable()) {
       const double P = muon->tpfmsTrack()->p();
       const double DPt = muon->tpfmsTrack()->ptError();
-			if (P != 0) {
-				if ( debug_ ) cout << "tpfmsTrack DPt/P: " << DPt/P << endl;
-				if (DPt/P < 1) {
-					if ( debug_ ) cout << "tpfmsTrack good" << endl;
-					continue;
-				}
-			}
-		}
-		if (muon->dytTrack().isAvailable()) {
+      if (P != 0) {
+        if ( debug_ ) cout << "tpfmsTrack DPt/P: " << DPt/P << endl;
+        if (DPt/P < 1) {
+          if ( debug_ ) cout << "tpfmsTrack good" << endl;
+          continue;
+        }
+      }
+    }
+    if (muon->dytTrack().isAvailable()) {
       const double P = muon->dytTrack()->p();
       const double DPt = muon->dytTrack()->ptError();
-			if (P != 0) {
-				if ( debug_ ) cout << "dytTrack DPt/P: " << DPt/P << endl;
-				if (DPt/P < 1) {
-					if ( debug_ ) cout << "dytTrack good" << endl;
-					continue;
-				}
-			}
-		}
-		if ( debug_ ) cout << "No tracks are good" << endl;
-		foundBadTrack = true;
-		
+      if (P != 0) {
+        if ( debug_ ) cout << "dytTrack DPt/P: " << DPt/P << endl;
+        if (DPt/P < 1) {
+          if ( debug_ ) cout << "dytTrack good" << endl;
+          continue;
+        }
+      }
+    }
+    if ( debug_ ) cout << "No tracks are good" << endl;
+    foundBadTrack = true;
+    
     
   } // end loop over PF candidates
 
@@ -227,18 +227,18 @@ std::string MuonBadTrackFilter::trackInfo(const reco::TrackRef& trackRef) {
   else {
     const reco::Track& track = *trackRef; 
     out << "pt = " << track.pt() << " +- " << track.ptError()/track.pt()
-	<< " chi2 = " << track.normalizedChi2()
-	<< "; Muon Hits: " << track.hitPattern().numberOfValidMuonHits()
-	<< "/" << track.hitPattern().numberOfLostMuonHits()
-	<< " (DT: " << track.hitPattern().numberOfValidMuonDTHits()
-	<< "/" << track.hitPattern().numberOfLostMuonDTHits()
-	<< " CSC: " << track.hitPattern().numberOfValidMuonCSCHits()
-	<< "/" << track.hitPattern().numberOfLostMuonCSCHits()
-	<< " RPC: " << track.hitPattern().numberOfValidMuonRPCHits()
-	<< "/" << track.hitPattern().numberOfLostMuonRPCHits() << ")"
+  << " chi2 = " << track.normalizedChi2()
+  << "; Muon Hits: " << track.hitPattern().numberOfValidMuonHits()
+  << "/" << track.hitPattern().numberOfLostMuonHits()
+  << " (DT: " << track.hitPattern().numberOfValidMuonDTHits()
+  << "/" << track.hitPattern().numberOfLostMuonDTHits()
+  << " CSC: " << track.hitPattern().numberOfValidMuonCSCHits()
+  << "/" << track.hitPattern().numberOfLostMuonCSCHits()
+  << " RPC: " << track.hitPattern().numberOfValidMuonRPCHits()
+  << "/" << track.hitPattern().numberOfLostMuonRPCHits() << ")"
         << "; Valid inner hits:"
-	<< " TRK: " << track.hitPattern().numberOfValidTrackerHits()
- 	<< " PIX: " << track.hitPattern().numberOfValidPixelHits();  
+  << " TRK: " << track.hitPattern().numberOfValidTrackerHits()
+  << " PIX: " << track.hitPattern().numberOfValidPixelHits();  
   }   
   return out.str();
 }
@@ -268,15 +268,15 @@ void MuonBadTrackFilter::printMuonProperties(const reco::MuonRef& muonRef) {
   } 
 
   std::cout<<"pt " << muonRef->pt()
-	   <<" eta " << muonRef->eta()  
+     <<" eta " << muonRef->eta()  
            <<" GL: "<<isGL
-	   <<" TR: "<<isTR
-	   <<" ST: "<<isST
-	   <<" TPFMS: "<<isTPFMS
-	   <<" Picky: "<<isPicky
-	   <<" DYT: "<<isDyt
-	   <<" TuneP: "<<tunePTypeStr
-	   <<" nMatches "<<muonRef->numberOfMatches()<<std::endl;
+     <<" TR: "<<isTR
+     <<" ST: "<<isST
+     <<" TPFMS: "<<isTPFMS
+     <<" Picky: "<<isPicky
+     <<" DYT: "<<isDyt
+     <<" TuneP: "<<tunePTypeStr
+     <<" nMatches "<<muonRef->numberOfMatches()<<std::endl;
   
   if ( isGL ) {
     std::cout<<"\tCombined "<<trackInfo(muonRef->combinedMuon())<<std::endl;
@@ -292,26 +292,26 @@ void MuonBadTrackFilter::printMuonProperties(const reco::MuonRef& muonRef) {
     const reco::Track& track = *trackerMu;
     std::cout<<"\tInner "<<trackInfo(trackerMu)<<std::endl;
     std::cout<< "\t\tTMLastStationAngLoose               "
-	<< muon::isGoodMuon(*muonRef,muon::TMLastStationAngLoose) << std::endl       
-	<< "\t\tTMLastStationAngTight               "
-	<< muon::isGoodMuon(*muonRef,muon::TMLastStationAngTight) << std::endl          
-	<< "\t\tTMLastStationLoose               "
-	<< muon::isGoodMuon(*muonRef,muon::TMLastStationLoose) << std::endl       
-	<< "\t\tTMLastStationTight               "
-	<< muon::isGoodMuon(*muonRef,muon::TMLastStationTight) << std::endl          
-	<< "\t\tTMOneStationLoose                "
-	<< muon::isGoodMuon(*muonRef,muon::TMOneStationLoose) << std::endl       
-	<< "\t\tTMOneStationTight                "
-	<< muon::isGoodMuon(*muonRef,muon::TMOneStationTight) << std::endl       
-	<< "\t\tTMLastStationOptimizedLowPtLoose " 
-	<< muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose) << std::endl
-	<< "\t\tTMLastStationOptimizedLowPtTight " 
-	<< muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtTight) << std::endl 
-	<< "\t\tTMLastStationOptimizedBarrelLowPtLoose " 
-	<< muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedBarrelLowPtLoose) << std::endl
-	<< "\t\tTMLastStationOptimizedBarrelLowPtTight " 
-	<< muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedBarrelLowPtTight) << std::endl 
-	<< std::endl;
+  << muon::isGoodMuon(*muonRef,muon::TMLastStationAngLoose) << std::endl       
+  << "\t\tTMLastStationAngTight               "
+  << muon::isGoodMuon(*muonRef,muon::TMLastStationAngTight) << std::endl          
+  << "\t\tTMLastStationLoose               "
+  << muon::isGoodMuon(*muonRef,muon::TMLastStationLoose) << std::endl       
+  << "\t\tTMLastStationTight               "
+  << muon::isGoodMuon(*muonRef,muon::TMLastStationTight) << std::endl          
+  << "\t\tTMOneStationLoose                "
+  << muon::isGoodMuon(*muonRef,muon::TMOneStationLoose) << std::endl       
+  << "\t\tTMOneStationTight                "
+  << muon::isGoodMuon(*muonRef,muon::TMOneStationTight) << std::endl       
+  << "\t\tTMLastStationOptimizedLowPtLoose " 
+  << muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose) << std::endl
+  << "\t\tTMLastStationOptimizedLowPtTight " 
+  << muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtTight) << std::endl 
+  << "\t\tTMLastStationOptimizedBarrelLowPtLoose " 
+  << muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedBarrelLowPtLoose) << std::endl
+  << "\t\tTMLastStationOptimizedBarrelLowPtTight " 
+  << muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedBarrelLowPtTight) << std::endl 
+  << std::endl;
   }
 
   if( isPicky ) {
@@ -327,9 +327,9 @@ void MuonBadTrackFilter::printMuonProperties(const reco::MuonRef& muonRef) {
   }
 
   std::cout<< "TM2DCompatibilityLoose           "
-	   << muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityLoose) << std::endl 
-	   << "TM2DCompatibilityTight           "
-	   << muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityTight) << std::endl;
+     << muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityLoose) << std::endl 
+     << "TM2DCompatibilityTight           "
+     << muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityTight) << std::endl;
   
   if ( muonRef->isGlobalMuon() 
        &&  muonRef->isTrackerMuon() 
@@ -338,35 +338,35 @@ void MuonBadTrackFilter::printMuonProperties(const reco::MuonRef& muonRef) {
     reco::TrackRef trackerMu = muonRef->track();
     reco::TrackRef standAloneMu = muonRef->standAloneMuon();
     
-    double sigmaCombined = combinedMu->ptError()/(combinedMu->pt()*combinedMu->pt()); 	 
-    double sigmaTracker = trackerMu->ptError()/(trackerMu->pt()*trackerMu->pt()); 	 
-    double sigmaStandAlone = standAloneMu->ptError()/(standAloneMu->pt()*standAloneMu->pt()); 	 
+    double sigmaCombined = combinedMu->ptError()/(combinedMu->pt()*combinedMu->pt());    
+    double sigmaTracker = trackerMu->ptError()/(trackerMu->pt()*trackerMu->pt());    
+    double sigmaStandAlone = standAloneMu->ptError()/(standAloneMu->pt()*standAloneMu->pt());    
     
-    bool combined = combinedMu->ptError()/combinedMu->pt() < 0.20; 	 
-    bool tracker = trackerMu->ptError()/trackerMu->pt() < 0.20; 	 
-    bool standAlone = standAloneMu->ptError()/standAloneMu->pt() < 0.20; 	 
+    bool combined = combinedMu->ptError()/combinedMu->pt() < 0.20;   
+    bool tracker = trackerMu->ptError()/trackerMu->pt() < 0.20;    
+    bool standAlone = standAloneMu->ptError()/standAloneMu->pt() < 0.20;   
   
-    double delta1 =  combined && tracker ? 	 
-      fabs(1./combinedMu->pt() -1./trackerMu->pt()) 	 
-      /sqrt(sigmaCombined*sigmaCombined + sigmaTracker*sigmaTracker) : 100.; 	 
-    double delta2 = combined && standAlone ? 	 
-      fabs(1./combinedMu->pt() -1./standAloneMu->pt()) 	 
+    double delta1 =  combined && tracker ?   
+      fabs(1./combinedMu->pt() -1./trackerMu->pt())    
+      /sqrt(sigmaCombined*sigmaCombined + sigmaTracker*sigmaTracker) : 100.;   
+    double delta2 = combined && standAlone ?   
+      fabs(1./combinedMu->pt() -1./standAloneMu->pt())   
       /sqrt(sigmaCombined*sigmaCombined + sigmaStandAlone*sigmaStandAlone) : 100.;
  
-    double delta3 = standAlone && tracker ? 	 
-      fabs(1./standAloneMu->pt() -1./trackerMu->pt()) 	 
+    double delta3 = standAlone && tracker ?    
+      fabs(1./standAloneMu->pt() -1./trackerMu->pt())    
       /sqrt(sigmaStandAlone*sigmaStandAlone + sigmaTracker*sigmaTracker) : 100.;  
 
-    double delta = 	 
-      standAloneMu->hitPattern().numberOfValidMuonDTHits()+ 	 
-      standAloneMu->hitPattern().numberOfValidMuonCSCHits() > 0 ? 	 
-      std::min(delta3,std::min(delta1,delta2)) : std::max(delta3,std::max(delta1,delta2)); 	 
+    double delta =   
+      standAloneMu->hitPattern().numberOfValidMuonDTHits()+    
+      standAloneMu->hitPattern().numberOfValidMuonCSCHits() > 0 ?    
+      std::min(delta3,std::min(delta1,delta2)) : std::max(delta3,std::max(delta1,delta2));   
 
-    std::cout << "delta = " << delta << " delta1 "<<delta1<<" delta2 "<<delta2<<" delta3 "<<delta3<<std::endl; 	 
+    std::cout << "delta = " << delta << " delta1 "<<delta1<<" delta2 "<<delta2<<" delta3 "<<delta3<<std::endl;   
     
-    double ratio = 	 
-      combinedMu->ptError()/combinedMu->pt() 	 
-      / (trackerMu->ptError()/trackerMu->pt()); 	 
+    double ratio =   
+      combinedMu->ptError()/combinedMu->pt()   
+      / (trackerMu->ptError()/trackerMu->pt());    
     //if ( ratio > 2. && delta < 3. ) std::cout << "ALARM ! " << ratio << ", " << delta << std::endl;
     std::cout<<" ratio "<<ratio<<" combined mu pt "<<combinedMu->pt()<<std::endl;
     //bool quality3 =  ( combinedMu->pt() < 50. || ratio < 2. ) && delta <  3.;
