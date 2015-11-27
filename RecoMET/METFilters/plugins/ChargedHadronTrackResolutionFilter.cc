@@ -14,8 +14,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -24,10 +22,10 @@
 // class declaration
 //
 
-class ChargedHadronMuonRefFilter : public edm::EDFilter {
+class ChargedHadronTrackResolutionFilter : public edm::EDFilter {
 public:
-  explicit ChargedHadronMuonRefFilter(const edm::ParameterSet&);
-  ~ChargedHadronMuonRefFilter();
+  explicit ChargedHadronTrackResolutionFilter(const edm::ParameterSet&);
+  ~ChargedHadronTrackResolutionFilter();
 
 private:
   virtual bool filter(edm::Event&, const edm::EventSetup&) override;
@@ -52,7 +50,7 @@ private:
 //
 // constructors and destructor
 //
-ChargedHadronMuonRefFilter::ChargedHadronMuonRefFilter(const edm::ParameterSet& iConfig)
+ChargedHadronTrackResolutionFilter::ChargedHadronTrackResolutionFilter(const edm::ParameterSet& iConfig)
   : tokenPFCandidates_ ( consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag> ("PFCandidates")  ))
   , taggingMode_          ( iConfig.getParameter<bool>    ("taggingMode")         )
   , ptMin_                ( iConfig.getParameter<double>        ("ptMin")         )
@@ -61,7 +59,7 @@ ChargedHadronMuonRefFilter::ChargedHadronMuonRefFilter(const edm::ParameterSet& 
   produces<bool>();
 }
 
-ChargedHadronMuonRefFilter::~ChargedHadronMuonRefFilter() { }
+ChargedHadronTrackResolutionFilter::~ChargedHadronTrackResolutionFilter() { }
 
 
 //
@@ -70,7 +68,7 @@ ChargedHadronMuonRefFilter::~ChargedHadronMuonRefFilter() { }
 
 // ------------ method called on each new Event  ------------
 bool
-ChargedHadronMuonRefFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+ChargedHadronTrackResolutionFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace std;
   using namespace edm;
@@ -79,7 +77,7 @@ ChargedHadronMuonRefFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByToken(tokenPFCandidates_,pfCandidates);
 
   bool foundBadTrack = false;
-  // if ( debug_ ) cout << "starting loop over pfCandidates" << endl;
+  if ( debug_ ) cout << "starting loop over pfCandidates" << endl;
 
   for ( unsigned i=0; i<pfCandidates->size(); ++i ) {
 
@@ -92,11 +90,12 @@ ChargedHadronMuonRefFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 	    // if ( debug_ ) cout << "Found valid TrackRef" << std::endl;
 	    const reco::TrackRef trackref = cand.trackRef();
 	    const double Pt = trackref->pt();
+			const double DPt = trackref->ptError();
 	    if (Pt < ptMin_) continue;
-	    // if ( debug_ ) cout << "track pT > " << ptMin_ << " GeV - algorithm: "  << trackref->algo() << std::endl;
+	    if ( debug_ ) cout << "charged hadron track pT > " << Pt << " GeV - " << " dPt: " << DPt << " GeV - algorithm: "  << trackref->algo() << std::endl;
 
       const double P = trackref->p();
-      const double DPt = trackref->ptError();
+      
       const unsigned int LostHits = trackref->numberOfLostHits();
 
       if ((DPt/Pt) > (5 * sqrt(1.20*1.20/P+0.06*0.06) / (1.+LostHits))) {
@@ -110,32 +109,6 @@ ChargedHadronMuonRefFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
         }
       }
 		}
-		else if ( fabs(cand.pdgId()) == 13 ) {
-	    // if ( debug_ ) cout << "Found muon candidate" << std::endl;
-
-	    if (cand.trackRef().isNull()) continue;
-	    // if ( debug_ ) cout << "Found valid TrackRef" << std::endl;
-	    const reco::TrackRef trackref = cand.trackRef();
-	    const double Pt = trackref->pt();
-	    if (Pt < ptMin_) continue;
-	    // if ( debug_ ) cout << "track pT > " << ptMin_ << " GeV - algorithm: "  << trackref->algo() << std::endl;
-
-      const double P = trackref->p();
-      const double DPt = trackref->ptError();
-      const unsigned int LostHits = trackref->numberOfLostHits();
-
-      if ((DPt/Pt) > (5 * sqrt(1.20*1.20/P+0.06*0.06) / (1.+LostHits))) {
-
-        foundBadTrack = true;
-
-        if ( debug_ ) {
-          cout << cand << endl;
-          cout << "muon \t" << "track pT = " << Pt << " +/- " << DPt;
-          cout << endl;
-        }
-      }
-		}
-    
   } // end loop over PF candidates
 
   bool pass = !foundBadTrack;
@@ -146,4 +119,4 @@ ChargedHadronMuonRefFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(ChargedHadronMuonRefFilter);
+DEFINE_FWK_MODULE(ChargedHadronTrackResolutionFilter);
