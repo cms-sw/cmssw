@@ -1948,10 +1948,10 @@ class ConfigBuilder(object):
 			setattr(self.process,pathName, cms.Path( getattr(self.process, sequence) ) ) 
 		self.schedule.append(getattr(self.process,pathName))
 
-	pathName='dqmoffline_endstep'
+	pathName='dqmofflineOnPAT_step'
 	for (i,sequence) in enumerate(postSequenceList):
                 if (i!=0):
-                        pathName='dqmoffline_%d_endstep'%(i)
+                        pathName='dqmofflineOnPAT_%d_step'%(i)
 
 		# if both MINIAOD and DQM are run in the same process, schedule DQM in an EndPath
 		if 'PAT' in self.stepMap.keys():
