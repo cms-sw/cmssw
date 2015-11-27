@@ -770,9 +770,10 @@ def _copyDir(src, dst):
             obj.Delete()
 
 class SimpleSample:
-    def __init__(self, label, name):
+    def __init__(self, label, name, pileup=True):
         self._label = label
         self._name = name
+        self._pileup = pileup
 
     def digest(self):
         # Label should be unique among the plotting run, so it serves also as the digest
@@ -788,6 +789,12 @@ class SimpleSample:
         # No need to emulate the release validation fastsim behaviour here
         return False
 
+    def hasPileup(self):
+        return self._pileup
+
+    def pileupType(self):
+        return ""
+
 class SimpleValidation:
     def __init__(self, files, labels, newdir):
         self._files = files
@@ -797,8 +804,13 @@ class SimpleValidation:
     def createHtmlReport(self, baseUrl=None, validationName=""):
         return html.HtmlReport(validationName, self._newdir, baseUrl)
 
-    def doPlots(self, plotter, subdirprefix, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy()):
-        self._subdirprefix=subdirprefix
+    def doPlots(self, plotter, subdirprefix=None, sample=None, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy()):
+        if subdirprefix is None and sample is None:
+            raise Exception("Need either 'subdirprefix' or 'sample'")
+        if subdirprefix is not None and sample is not None:
+            raise Exception("May give only one of 'subdirprefix' or 'sample', got both")
+
+        self._subdirprefix = sample.label() if sample is not None else subdirprefix
         self._plotterDrawArgs = plotterDrawArgs
 
         self._openFiles = []
@@ -810,6 +822,8 @@ class SimpleValidation:
 
         plotterInstance = plotter.readDirs(*self._openFiles)
         for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
+            if sample is not None and plotterFolder.onlyForPileup() and not sample.hasPileup():
+                continue
             plotFiles = self._doPlots(plotterFolder, dqmSubFolder, htmlReport)
             if len(plotFiles) > 0:
                 htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
