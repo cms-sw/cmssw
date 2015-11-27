@@ -398,7 +398,7 @@ def cust_2023HGCalPandoraMuonFastTime(process):
     if hasattr(process,'reconstruction_step'):
         process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
         process.load("RecoParticleFlow.FastTiming.trackTimeValueMapProducer_cfi")
-        process.load("RecoParticleFlow.FastTimgin.ecalBarrelClusterFastTimer_cfi")
+        process.load("RecoParticleFlow.FastTiming.ecalBarrelClusterFastTimer_cfi")
         process.offlinePrimaryVertices1D = process.offlinePrimaryVertices.clone()
         process.offlinePrimaryVertices1D.TkFilterParameters.minPt = cms.double(1.0)
         process.offlinePrimaryVertices4D = process.offlinePrimaryVertices.clone( verbose = cms.untracked.bool(True), TkClusParameters = process.DA2DParameters )
@@ -451,7 +451,7 @@ def cust_2023HGCalPandoraMuonPerfectFastTime(process):
     if hasattr(process,'reconstruction_step'):
         process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
         process.load("RecoParticleFlow.FastTiming.trackTimeValueMapProducer_cfi")
-        process.load("RecoParticleFlow.FastTimging.ecalBarrelClusterFastTimer_cfi")
+        process.load("RecoParticleFlow.FastTiming.ecalBarrelClusterFastTimer_cfi")
         process.offlinePrimaryVertices1D = process.offlinePrimaryVertices.clone()
         process.offlinePrimaryVertices1D.TkFilterParameters.minPt = cms.double(1.0)
         process.offlinePrimaryVertices4D = process.offlinePrimaryVertices.clone( verbose = cms.untracked.bool(True), TkClusParameters = process.DA2DParameters )
