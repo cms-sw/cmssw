@@ -232,6 +232,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
     process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.rctDigis.inputLabel = cms.InputTag("rawDataRepacker")
+    process.l1GtUnpack.DaqGtInputTag = cms.InputTag("rawDataRepacker")
     process.load("L1Trigger.L1TCalorimeter.caloConfigStage1HI_cfi")
     process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_condDBv2_cff')
     process.GlobalTag.toGet = cms.VPSet(

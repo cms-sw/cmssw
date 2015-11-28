@@ -209,6 +209,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.l1s.fedRawData = cms.InputTag("rawDataRepacker")
     process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.rctDigis.inputLabel = cms.InputTag("rawDataRepacker")
+    process.l1GtUnpack.DaqGtInputTag = cms.InputTag("rawDataRepacker")
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
