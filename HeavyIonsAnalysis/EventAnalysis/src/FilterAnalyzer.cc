@@ -57,6 +57,9 @@ private:
   TTree* HltTree;
   int* trigflag;
 
+  bool useHBHENoiseProducer;
+  std::string HBHENoiseProducer_;
+
 };
 
 //
@@ -78,6 +81,9 @@ FilterAnalyzer::FilterAnalyzer(const edm::ParameterSet& conf)
   hltresults_   = conf.getParameter<edm::InputTag> ("hltresults");
   superFilters_  = conf.getParameter<vector<string> > ("superFilters");
   _Debug  = conf.getUntrackedParameter<bool> ("Debug",0);
+
+  useHBHENoiseProducer = conf.getParameter<bool> ("useHBHENoiseProducer");
+  HBHENoiseProducer_ = conf.getParameter<std::string> ("HBHENoiseProducer");
 
   HltEvtCnt = 0;
   edm::Service<TFileService> fs;
@@ -112,14 +118,30 @@ FilterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::TriggerNames const& triggerNames = iEvent.triggerNames(*hltresults);
   int ntrigs = hltresults->size();
 
+  const int nFilters = 5;
+  TString HBHEFilters[nFilters];
+  HBHEFilters[0] = "HBHENoiseFilterResultRun1";
+  HBHEFilters[1] = "HBHENoiseFilterResultRun2Loose";
+  HBHEFilters[2] = "HBHENoiseFilterResultRun2Tight";
+  HBHEFilters[3] = "HBHENoiseFilterResult";
+  HBHEFilters[4] = "HBHEIsoNoiseFilterResult";
+
   if (HltEvtCnt==0){
     for (int itrig = 0; itrig != ntrigs; ++itrig) {
       TString trigName = triggerNames.triggerName(itrig);
       HltTree->Branch(trigName,trigflag+itrig,trigName+"/I");
     }
     HltEvtCnt++;
-  }
 
+
+    if(useHBHENoiseProducer)
+    {
+      for(int i = 0; i < nFilters; i++)
+      {
+	HltTree->Branch(HBHEFilters[i],trigflag+ntrigs+i,HBHEFilters[i]+"/I");
+      }
+    }
+  }
   bool saveEvent = 1;
 
   for (int itrig = 0; itrig != ntrigs; ++itrig){
@@ -141,6 +163,17 @@ FilterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 			    << ntrigs << std::endl;
       std::cout << "%HLTInfo --  HLTTrigger(" << itrig << "): "
 		<< trigName << " = " << accept << std::endl;
+    }
+  }
+
+  if(useHBHENoiseProducer)
+  {
+    edm::Handle<bool> HBHEFilterResults[nFilters];
+    for(int i = 0; i < nFilters; i++)
+    {
+      edm::InputTag HBHENoiseProducerTag(HBHENoiseProducer_,HBHEFilters[i].Data(),"");
+      iEvent.getByLabel(HBHENoiseProducerTag,HBHEFilterResults[i]);
+      trigflag[ntrigs+i] = *(HBHEFilterResults[i].product());
     }
   }
 

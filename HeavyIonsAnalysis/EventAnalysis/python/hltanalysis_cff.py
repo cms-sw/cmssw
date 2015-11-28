@@ -15,5 +15,7 @@ hltanalysis = hltbitanalysis.clone(
 
 skimanalysis = cms.EDAnalyzer("FilterAnalyzer",
                               hltresults = cms.InputTag("TriggerResults","","HiForest"),
-                              superFilters = cms.vstring("")
+                              superFilters = cms.vstring(""),
+                              useHBHENoiseProducer = cms.bool(True),
+                              HBHENoiseProducer = cms.string("HBHENoiseFilterResultProducer")
                               )
