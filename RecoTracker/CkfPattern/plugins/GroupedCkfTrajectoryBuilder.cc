@@ -361,7 +361,7 @@ GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (const TrajectorySeed& see
       if ((int)newCand.size() > theMaxCand) {
 	//ShowCand()(newCand);
 
- 	sort( newCand.begin(), newCand.end(), GroupedTrajCandLess(theLostHitPenalty,theFoundHitBonus));
+ 	std::partial_sort( newCand.begin(), newCand.begin()+theMaxCand, newCand.end(), GroupedTrajCandLess(theLostHitPenalty,theFoundHitBonus));
  	newCand.erase( newCand.begin()+theMaxCand, newCand.end());
       }
       LogDebug("CkfPattern")<<"newCand(2): after removing extra candidates.\n"<<PrintoutHelper::dumpCandidates(newCand);
