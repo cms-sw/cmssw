@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include <TFile.h>
+#include <array>
 
 AntiElectronIDMVA6::AntiElectronIDMVA6(const edm::ParameterSet& cfg)
   : isInitialized_(false),
@@ -190,7 +191,10 @@ double AntiElectronIDMVA6::MVAValue(Float_t TauPt,
     dPhi2  += (pt_i*phi_i*phi_i);
   }
 
-  Float_t TauGammaEnFracIn = sumPt/TauPt;
+  Float_t TauGammaEnFracIn = -99.;
+  if ( TauPt > 0. ) {
+    TauGammaEnFracIn = sumPt/TauPt;
+  }
 
   if ( sumPt > 0. ) {
     dEta  /= sumPt;
@@ -878,7 +882,6 @@ double AntiElectronIDMVA6::minimum(double a, double b)
 }
 
 
-#include<array>
 namespace {
 
   // IN: define locations of the 18 phi-cracks

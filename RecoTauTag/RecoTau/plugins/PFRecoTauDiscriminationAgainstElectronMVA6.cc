@@ -18,8 +18,6 @@
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include <TMath.h>
-
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -161,7 +159,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 	  }
 	  //// Veto taus that go to Ecal crack
 
-	  if ( TMath::Abs(tauEtaAtEcalEntrance) < 1.479 ) { // Barrel
+	  if ( std::abs(tauEtaAtEcalEntrance) < 1.479 ) { // Barrel
 	    if ( numSignalPFGammaCandsInSigCone == 0 && hasGsfTrack ) {
 	      category = 5.;
 	    }
@@ -177,7 +175,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 	    }
 	  }
 
-	  mvaValue = TMath::Min(mvaValue, mva_match);
+	  mvaValue = std::min(mvaValue, mva_match);
 	  isGsfElectronMatched = true;
 	} // deltaR < 0.3
       } // electron pt > 10
@@ -196,7 +194,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
       }
       //// Veto taus that go to Ecal crack
       
-      if ( TMath::Abs(tauEtaAtEcalEntrance) < 1.479 ) { // Barrel
+      if ( std::abs(tauEtaAtEcalEntrance) < 1.479 ) { // Barrel
 	if ( numSignalPFGammaCandsInSigCone == 0 && !hasGsfTrack ) {
 	  category = 0.;
 	}
