@@ -75,6 +75,9 @@ namespace edmNew {
     inline
     const_iterator end() const { return data()+m_size;}
 
+   DataContainer const & container() const { return *m_data; }
+
+    int offset() const {return m_offset;}
 
     inline
     id_type id() const { return m_id;}
