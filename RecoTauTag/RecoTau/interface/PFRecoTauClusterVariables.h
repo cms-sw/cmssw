@@ -84,7 +84,7 @@ namespace
   
     float sum_pt = 0.;
     float sum_dx_pt = 0.;
-    float signalrad = (tau.pt() > 0) ? std::max(0.05, std::min(0.1, 3./tau.pt())) : 0.05;
+    float signalrad = std::max(0.05, std::min(0.1, 3./std::max(1., tau.pt())));
     int is3prong = (decaymode==10);
 
     auto& cands = getPFGammas(tau, mode < 2);

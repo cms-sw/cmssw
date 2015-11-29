@@ -322,8 +322,15 @@ double AntiElectronIDMVA6::MVAValue(Float_t TauPt,
   }
 
   double mvaValue = -99.;
+  
+  const float ECALBarrelEndcapEtaBorder = 1.479;
+  float ElecDeltaPinPoutOverPin = (ElecPin > 0.0) ? (std::abs(ElecPin - ElecPout)/ElecPin) : 1.0;
+  float ElecEecalOverPout = (ElecPout > 0.0) ? (ElecEecal/ElecPout) : 20.0;
+  float ElecNumHitsDiffOverSum = ((ElecGSFNumHits + ElecKFNumHits) > 0.0) ? 
+                                 ((ElecGSFNumHits - ElecKFNumHits)/(ElecGSFNumHits + ElecKFNumHits)) : 1.0;
+  
   if ( deltaR(TauEtaAtEcalEntrance, TauPhi, ElecEta, ElecPhi) > 0.3 && TauSignalPFGammaCandsIn == 0 && TauHasGsf < 0.5) {
-    if ( std::abs(TauEtaAtEcalEntrance) < 1.479 ){    
+    if ( std::abs(TauEtaAtEcalEntrance) < ECALBarrelEndcapEtaBorder ){    
       Var_NoEleMatch_woGwoGSF_Barrel_[0] = TauEtaAtEcalEntrance;
       Var_NoEleMatch_woGwoGSF_Barrel_[1] = TauLeadChargedPFCandEtaAtEcalEntrance;
       Var_NoEleMatch_woGwoGSF_Barrel_[2] = std::min(float(2.), TauLeadChargedPFCandPt/std::max(float(1.), TauPt));
@@ -349,7 +356,7 @@ double AntiElectronIDMVA6::MVAValue(Float_t TauPt,
     }
   }
   else if ( deltaR(TauEtaAtEcalEntrance, TauPhi, ElecEta, ElecPhi) > 0.3 && TauSignalPFGammaCandsIn > 0 && TauHasGsf < 0.5 ) {
-    if ( std::abs(TauEtaAtEcalEntrance) < 1.479 ){
+    if ( std::abs(TauEtaAtEcalEntrance) < ECALBarrelEndcapEtaBorder ){
       Var_NoEleMatch_wGwoGSF_Barrel_[0]  = TauEtaAtEcalEntrance;
       Var_NoEleMatch_wGwoGSF_Barrel_[1]  = TauLeadChargedPFCandEtaAtEcalEntrance;
       Var_NoEleMatch_wGwoGSF_Barrel_[2]  = std::min(float(2.), TauLeadChargedPFCandPt/std::max(float(1.), TauPt));
@@ -391,16 +398,16 @@ double AntiElectronIDMVA6::MVAValue(Float_t TauPt,
     }
   }    
   else if ( TauSignalPFGammaCandsIn == 0 && TauHasGsf > 0.5 ) {
-    if ( std::abs(TauEtaAtEcalEntrance) < 1.479 ) {
+    if ( std::abs(TauEtaAtEcalEntrance) < ECALBarrelEndcapEtaBorder ) {
       Var_woGwGSF_Barrel_[0]  = std::max(float(-0.1), ElecEtotOverPin);
       Var_woGwGSF_Barrel_[1]  = std::log(ElecChi2NormGSF);
       Var_woGwGSF_Barrel_[2]  = ElecGSFNumHits;
       Var_woGwGSF_Barrel_[3]  = std::log(ElecGSFTrackResol);
       Var_woGwGSF_Barrel_[4]  = ElecGSFTracklnPt;
-      Var_woGwGSF_Barrel_[5]  = ((ElecGSFNumHits - ElecKFNumHits)/(ElecGSFNumHits + ElecKFNumHits));
+      Var_woGwGSF_Barrel_[5]  = ElecNumHitsDiffOverSum;
       Var_woGwGSF_Barrel_[6]  = std::log(ElecChi2NormKF);
-      Var_woGwGSF_Barrel_[7]  = std::min(std::abs(ElecPin - ElecPout)/ElecPin, float(1.));
-      Var_woGwGSF_Barrel_[8]  = std::min(ElecEecal/ElecPout, float(20.));
+      Var_woGwGSF_Barrel_[7]  = std::min(ElecDeltaPinPoutOverPin, float(1.));
+      Var_woGwGSF_Barrel_[8]  = std::min(ElecEecalOverPout, float(20.));
       Var_woGwGSF_Barrel_[9]  = ElecDeltaEta;
       Var_woGwGSF_Barrel_[10] = ElecDeltaPhi;
       Var_woGwGSF_Barrel_[11] = std::min(ElecMvaInSigmaEtaEta, float(0.01));
@@ -423,10 +430,10 @@ double AntiElectronIDMVA6::MVAValue(Float_t TauPt,
       Var_woGwGSF_Endcap_[2]  = ElecGSFNumHits;
       Var_woGwGSF_Endcap_[3]  = std::log(ElecGSFTrackResol);
       Var_woGwGSF_Endcap_[4]  = ElecGSFTracklnPt;
-      Var_woGwGSF_Endcap_[5]  = ((ElecGSFNumHits - ElecKFNumHits)/(ElecGSFNumHits + ElecKFNumHits));
+      Var_woGwGSF_Endcap_[5]  = ElecNumHitsDiffOverSum;
       Var_woGwGSF_Endcap_[6]  = std::log(ElecChi2NormKF);
-      Var_woGwGSF_Endcap_[7]  = std::min(std::abs(ElecPin - ElecPout)/ElecPin, float(1.));
-      Var_woGwGSF_Endcap_[8]  = std::min(ElecEecal/ElecPout, float(20.));
+      Var_woGwGSF_Endcap_[7]  = std::min(ElecDeltaPinPoutOverPin, float(1.));
+      Var_woGwGSF_Endcap_[8]  = std::min(ElecEecalOverPout, float(20.));
       Var_woGwGSF_Endcap_[9]  = ElecDeltaEta;
       Var_woGwGSF_Endcap_[10] = ElecDeltaPhi;
       Var_woGwGSF_Endcap_[11] = std::min(ElecMvaInSigmaEtaEta, float(0.01));
@@ -445,16 +452,16 @@ double AntiElectronIDMVA6::MVAValue(Float_t TauPt,
     } 
   }
   else if ( TauSignalPFGammaCandsIn > 0 && TauHasGsf > 0.5 ) {
-    if ( std::abs(TauEtaAtEcalEntrance) < 1.479 ) {
+    if ( std::abs(TauEtaAtEcalEntrance) < ECALBarrelEndcapEtaBorder ) {
       Var_wGwGSF_Barrel_[0]  = std::max(float(-0.1), ElecEtotOverPin);
       Var_wGwGSF_Barrel_[1]  = std::log(ElecChi2NormGSF);
       Var_wGwGSF_Barrel_[2]  = ElecGSFNumHits;
       Var_wGwGSF_Barrel_[3]  = std::log(ElecGSFTrackResol);
       Var_wGwGSF_Barrel_[4]  = ElecGSFTracklnPt;
-      Var_wGwGSF_Barrel_[5]  = ((ElecGSFNumHits - ElecKFNumHits)/(ElecGSFNumHits + ElecKFNumHits));
+      Var_wGwGSF_Barrel_[5]  = ElecNumHitsDiffOverSum;
       Var_wGwGSF_Barrel_[6]  = std::log(ElecChi2NormKF);
-      Var_wGwGSF_Barrel_[7]  = std::min(std::abs(ElecPin - ElecPout)/ElecPin, float(1.));
-      Var_wGwGSF_Barrel_[8]  = std::min(ElecEecal/ElecPout, float(20.));
+      Var_wGwGSF_Barrel_[7]  = std::min(ElecDeltaPinPoutOverPin, float(1.));
+      Var_wGwGSF_Barrel_[8]  = std::min(ElecEecalOverPout, float(20.));
       Var_wGwGSF_Barrel_[9]  = ElecDeltaEta;
       Var_wGwGSF_Barrel_[10] = ElecDeltaPhi;
       Var_wGwGSF_Barrel_[11] = std::min(ElecMvaInSigmaEtaEta, float(0.01));
@@ -485,10 +492,10 @@ double AntiElectronIDMVA6::MVAValue(Float_t TauPt,
       Var_wGwGSF_Endcap_[2]  = ElecGSFNumHits;
       Var_wGwGSF_Endcap_[3]  = std::log(ElecGSFTrackResol);
       Var_wGwGSF_Endcap_[4]  = ElecGSFTracklnPt;
-      Var_wGwGSF_Endcap_[5]  = ((ElecGSFNumHits - ElecKFNumHits)/(ElecGSFNumHits + ElecKFNumHits));
+      Var_wGwGSF_Endcap_[5]  = ElecNumHitsDiffOverSum;
       Var_wGwGSF_Endcap_[6]  = std::log(ElecChi2NormKF);
-      Var_wGwGSF_Endcap_[7]  = std::min(std::abs(ElecPin - ElecPout)/ElecPin, float(1.));
-      Var_wGwGSF_Endcap_[8]  = std::min(ElecEecal/ElecPout, float(20.));
+      Var_wGwGSF_Endcap_[7]  = std::min(ElecDeltaPinPoutOverPin, float(1.));
+      Var_wGwGSF_Endcap_[8]  = std::min(ElecEecalOverPout, float(20.));
       Var_wGwGSF_Endcap_[9]  = ElecDeltaEta;
       Var_wGwGSF_Endcap_[10] = ElecDeltaPhi;
       Var_wGwGSF_Endcap_[11] = std::min(ElecMvaInSigmaEtaEta, float(0.01));
@@ -522,7 +529,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
 
 {
   // === tau variables ===
-  Float_t TauEtaAtEcalEntrance = -99.;
+  float TauEtaAtEcalEntrance = -99.;
   float sumEtaTimesEnergy = 0.;
   float sumEnergy = 0.;
   const std::vector<reco::PFCandidatePtr>& signalPFCands = thePFTau.signalPFCands();
@@ -574,9 +581,10 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   for ( unsigned i = 0 ; i < thePFTau.signalPFGammaCands().size(); ++i ) {
     reco::PFCandidatePtr gamma = thePFTau.signalPFGammaCands().at(i);
     float dR = deltaR(gamma->p4(), thePFTau.leadPFChargedHadrCand()->p4());
+    float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTau.pt())));
 
     // pfGammas inside the tau signal cone
-    if (dR < std::max(0.05, std::min(0.10, 3.0/thePFTau.pt()))) {
+    if (dR < signalrad) {
       if ( thePFTau.leadPFChargedHadrCand().isNonnull() ) {
         GammasdEtaInSigCone.push_back(gamma->eta() - thePFTau.leadPFChargedHadrCand()->eta());
         GammasdPhiInSigCone.push_back(gamma->phi() - thePFTau.leadPFChargedHadrCand()->phi());
@@ -605,9 +613,10 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   for ( unsigned i = 0 ; i < thePFTau.signalPFChargedHadrCands().size(); ++i ) {
     reco::PFCandidatePtr charged = thePFTau.signalPFChargedHadrCands().at(i);
     float dR = deltaR(charged->p4(), thePFTau.leadPFChargedHadrCand()->p4());
+    float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTau.pt())));
   
     // charged particles inside the tau signal cone
-    if (dR < std::max(0.05, std::min(0.10, 3.0/thePFTau.pt()))) {
+    if (dR < signalrad) {
         pfChargedSum += charged->p4();
     }
   }
@@ -650,8 +659,8 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   }
   
   Float_t ElecPin = std::sqrt(theGsfEle.trackMomentumAtVtx().Mag2());
-  Float_t ElecPout = std::sqrt(theGsfEle.trackMomentumOut().Mag2());
-  Float_t ElecEtotOverPin = (ElecEe + ElecEgamma)/ElecPin;
+  Float_t ElecPout = std::sqrt(theGsfEle.trackMomentumOut().Mag2());  
+  Float_t ElecEtotOverPin = (ElecPin > 0.0) ? ((ElecEe + ElecEgamma)/ElecPin) : -0.1;
   Float_t ElecEecal = theGsfEle.ecalEnergy();
   Float_t ElecDeltaEta = theGsfEle.deltaEtaSeedClusterTrackAtCalo();
   Float_t ElecDeltaPhi = theGsfEle.deltaPhiSeedClusterTrackAtCalo();
@@ -723,7 +732,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
 double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau)
 {
   // === tau variables ===
-  Float_t TauEtaAtEcalEntrance = -99.;
+  float TauEtaAtEcalEntrance = -99.;
   float sumEtaTimesEnergy = 0.;
   float sumEnergy = 0.;
   const std::vector<reco::PFCandidatePtr>& signalPFCands = thePFTau.signalPFCands();
@@ -775,9 +784,10 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau)
   for ( unsigned i = 0 ; i < thePFTau.signalPFGammaCands().size(); ++i ) {
     reco::PFCandidatePtr gamma = thePFTau.signalPFGammaCands().at(i);
     float dR = deltaR(gamma->p4(), thePFTau.leadPFChargedHadrCand()->p4());
+    float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTau.pt())));
 
     // pfGammas inside the tau signal cone
-    if (dR < std::max(0.05, std::min(0.10, 3.0/thePFTau.pt()))) {
+    if (dR < signalrad) {
       if ( thePFTau.leadPFChargedHadrCand().isNonnull() ) {
         GammasdEtaInSigCone.push_back(gamma->eta() - thePFTau.leadPFChargedHadrCand()->eta());
         GammasdPhiInSigCone.push_back(gamma->phi() - thePFTau.leadPFChargedHadrCand()->phi());
@@ -806,9 +816,10 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau)
   for ( unsigned i = 0 ; i < thePFTau.signalPFChargedHadrCands().size(); ++i ) {
     reco::PFCandidatePtr charged = thePFTau.signalPFChargedHadrCands().at(i);
     float dR = deltaR(charged->p4(), thePFTau.leadPFChargedHadrCand()->p4());
+    float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTau.pt())));
   
     // charged particles inside the tau signal cone
-    if (dR < std::max(0.05, std::min(0.10, 3.0/thePFTau.pt()))) {
+    if (dR < signalrad) {
         pfChargedSum += charged->p4();
     }
   }
