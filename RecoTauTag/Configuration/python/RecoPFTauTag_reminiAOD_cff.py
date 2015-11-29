@@ -16,8 +16,6 @@ from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import TransientTrac
 # the jet are reconstructed.
 #-------------------------------------------------------------------------------
 
-
-
 # Collection PFCandidates from a DR=0.8 cone about the jet axis and make new
 # faux jets with this collection
 from RecoTauTag.RecoTau.RecoTauJetRegionProducer_cfi import \
@@ -26,8 +24,6 @@ recoTauAK4PFJets08Region=RecoTauJetRegionProducer.clone(
     src = PFRecoTauPFJetInputs.inputJetCollection
 )
 
-
-
 # Reconstruct the pi zeros in our pre-selected jets.
 from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
          ak4PFJetsLegacyHPSPiZeros
@@ -35,7 +31,6 @@ ak4PFJetsLegacyHPSPiZeros.jetSrc = PFRecoTauPFJetInputs.inputJetCollection
 # import charged hadrons
 from RecoTauTag.RecoTau.PFRecoTauChargedHadronProducer_cfi import \
           ak4PFJetsRecoTauChargedHadrons
-
 
 #-------------------------------------------------------------------------------
 #------------------ Produce combinatoric base taus------------------------------
@@ -49,12 +44,25 @@ from RecoTauTag.RecoTau.RecoTauCombinatoricProducer_cfi import \
 
 combinatoricRecoTaus.jetSrc = PFRecoTauPFJetInputs.inputJetCollection
 
+#--------------------------------------------------------------------------------
+# CV: disable reconstruction of 3Prong1Pi0 tau candidates
+combinatoricRecoTaus.builders[0].decayModes.remove(combinatoricRecoTaus.builders[0].decayModes[6])
+#--------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------
+# CV: set mass of tau candidates reconstructed in 1Prong0pi0 decay mode to charged pion mass
+combinatoricRecoTaus.modifiers.append(cms.PSet(
+    name = cms.string("tau_mass"),
+    plugin = cms.string("PFRecoTauMassPlugin"),
+    verbosity = cms.int32(0)                                    
+))    
+#--------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
 #------------------ HPS Taus ---------------------------------------------------
 #-------------------------------------------------------------------------------
 
-from RecoTauTag.Configuration.HPSPFTaus_cff import *
+from RecoTauTag.Configuration.HPSPFTaus_reminiAOD_cff import *
 
 combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak4PFJetsLegacyHPSPiZeros")
 
@@ -90,15 +98,12 @@ recoTauPileUpVertices = cms.EDFilter(
     filter = cms.bool(False),
 )
 
-
 recoTauCommonSequence = cms.Sequence(
     ak4PFJetTracksAssociatorAtVertex *
     recoTauAK4PFJets08Region*
     recoTauPileUpVertices*
     pfRecoTauTagInfoProducer
 )
-
-
 
 # Produce only classic HPS taus
 recoTauClassicHPSSequence = cms.Sequence(
@@ -107,7 +112,6 @@ recoTauClassicHPSSequence = cms.Sequence(
     combinatoricRecoTaus *
     produceAndDiscriminateHPSPFTaus
 )
-
 
 PFTau = cms.Sequence(
     recoTauCommonSequence *
