@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
+#process = cms.Process("L1TMuonEmulation", eras.Run2_25ns)
 process = cms.Process("L1TMuonEmulation", eras.Run2_2016)
 import os
 import sys
@@ -11,16 +12,20 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(50)
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 
+
 process.source = cms.Source(
     'PoolSource',
-    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/m/mulhearn/public/data/raw_stage2_76x.root'),
+ fileNames = cms.untracked.vstring('/store/data/Run2015B/DoubleEG/RAW/v1/000/251/251/00000/069C1D5D-EA25-E511-8377-02163E013807.root', 
+        '/store/data/Run2015B/DoubleEG/RAW/v1/000/251/251/00000/0A005856-EA25-E511-B409-02163E013542.root', 
+        '/store/data/Run2015B/DoubleEG/RAW/v1/000/251/251/00000/1ABA9855-EA25-E511-9141-02163E011A74.root', 
+        '/store/data/Run2015B/DoubleEG/RAW/v1/000/251/251/00000/F852D556-EA25-E511-ABF7-02163E011C17.root'),
+    lumisToProcess = cms.untracked.VLuminosityBlockRange("251251:1-251251:31", "251251:33-251251:97", "251251:99-251251:167"),
     inputCommands = cms.untracked.vstring(
         'keep *', 
         'drop *_hlt*_*_*',
         'drop *_sim*_*_*'
         ) 
     )
-
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
 
@@ -45,11 +50,21 @@ process.l1tSummaryA.tauCheck  = cms.bool(True);
 process.l1tSummaryA.jetCheck  = cms.bool(True);
 process.l1tSummaryA.sumCheck  = cms.bool(True);
 process.l1tSummaryA.muonCheck = cms.bool(True);
-process.l1tSummaryA.egToken   = cms.InputTag("caloStage2Digis");
-process.l1tSummaryA.tauToken  = cms.InputTag("caloStage2Digis");
-process.l1tSummaryA.jetToken  = cms.InputTag("caloStage2Digis");
-process.l1tSummaryA.sumToken  = cms.InputTag("caloStage2Digis");
-process.l1tSummaryA.muonToken = cms.InputTag("gmtStage2Digis","");
+if (eras.stage1L1Trigger.isChosen()):
+    process.l1tSummaryA.egToken   = cms.InputTag("caloStage1FinalDigis");
+    process.l1tSummaryA.tauToken  = cms.InputTag("caloStage1FinalDigis:rlxTaus");
+    process.l1tSummaryA.jetToken  = cms.InputTag("caloStage1FinalDigis");
+    process.l1tSummaryA.sumToken  = cms.InputTag("caloStage1FinalDigis");
+    process.l1tSummaryA.muonToken = cms.InputTag("None");
+    process.l1tSummaryA.muonCheck = cms.bool(False);
+if (eras.stage2L1Trigger.isChosen()):
+    process.l1tSummaryA.egToken   = cms.InputTag("caloStage2Digis");
+    process.l1tSummaryA.tauToken  = cms.InputTag("caloStage2Digis");
+    process.l1tSummaryA.jetToken  = cms.InputTag("caloStage2Digis");
+    process.l1tSummaryA.sumToken  = cms.InputTag("caloStage2Digis");
+    process.l1tSummaryA.muonToken = cms.InputTag("gmtStage2Digis","");
+
+
 
 
 process.l1tSummaryB = cms.EDAnalyzer("L1TSummary")
@@ -58,11 +73,19 @@ process.l1tSummaryB.tauCheck  = cms.bool(True);
 process.l1tSummaryB.jetCheck  = cms.bool(True);
 process.l1tSummaryB.sumCheck  = cms.bool(True);
 process.l1tSummaryB.muonCheck = cms.bool(True);
-process.l1tSummaryB.egToken   = cms.InputTag("simCaloStage2Digis");
-process.l1tSummaryB.tauToken  = cms.InputTag("simCaloStage2Digis");
-process.l1tSummaryB.jetToken  = cms.InputTag("simCaloStage2Digis");
-process.l1tSummaryB.sumToken  = cms.InputTag("simCaloStage2Digis");
-process.l1tSummaryB.muonToken = cms.InputTag("simGmtStage2Digis","");
+if (eras.stage1L1Trigger.isChosen()):
+    process.l1tSummaryB.egToken   = cms.InputTag("simCaloStage1FinalDigis");
+    process.l1tSummaryB.tauToken  = cms.InputTag("simCaloStage1FinalDigis:rlxTaus");
+    process.l1tSummaryB.jetToken  = cms.InputTag("simCaloStage1FinalDigis");
+    process.l1tSummaryB.sumToken  = cms.InputTag("simCaloStage1FinalDigis");
+    process.l1tSummaryB.muonToken = cms.InputTag("None");
+    process.l1tSummaryB.muonCheck = cms.bool(False);
+if (eras.stage2L1Trigger.isChosen()):
+    process.l1tSummaryB.egToken   = cms.InputTag("simCaloStage2Digis");
+    process.l1tSummaryB.tauToken  = cms.InputTag("simCaloStage2Digis");
+    process.l1tSummaryB.jetToken  = cms.InputTag("simCaloStage2Digis");
+    process.l1tSummaryB.sumToken  = cms.InputTag("simCaloStage2Digis");
+    process.l1tSummaryB.muonToken = cms.InputTag("simGmtStage2Digis","");
 
 
 # Additional output definition
@@ -105,11 +128,10 @@ process.l1UpgradeTree = cms.EDAnalyzer(
 )
 
 process.L1TSeq = cms.Sequence(   process.RawToDigi        
-#                                   + process.SimL1Emulator
                                    + process.L1TReEmulateFromRAW
-                                   + process.dumpED
+#                                   + process.dumpED
 #                                   + process.dumpES
-                                   + process.l1tSummaryA
+#                                   + process.l1tSummaryA
                                    + process.l1tSummaryB
 #                                   + process.l1tGlobalAnalyzer
 #                                   + process.l1UpgradeTree
@@ -124,3 +146,5 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.output_step = cms.EndPath(process.out)
 process.schedule = cms.Schedule(process.L1TPath)
 process.schedule.extend([process.output_step])
+
+print process.L1TReEmulateFromRAW

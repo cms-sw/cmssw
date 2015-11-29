@@ -16,27 +16,48 @@ from L1Trigger.Configuration.SimL1Emulator_cff import *
 # NOTE:  2016 HCAL HF TPs require a new emulation, which is not yet available...
 #
 
-# calo TP generation not normally run during Sim, step, so preprend it to the sequence:
-L1TReEmulateFromRAW = cms.Sequence(
-    CaloTriggerPrimitives +
-    SimL1Emulator 
-    )
-
-# now simple change all the inputs to the first step of the emulation to use
+# now change all the inputs to the first step of the emulation to use
 # unpacked digis instead of simDigis:
 simEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
 simHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(
     cms.InputTag('hcalDigis'),
     cms.InputTag('hcalDigis')
     )
+# not sure what this does...
+HcalTPGCoderULUT.LUTGenerationMode = cms.bool(True)
+
+
+# ...
 simDtTriggerPrimitiveDigis.digiTag = 'muonDTDigis'
 simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'muonCSCDigis', 'MuonCSCComparatorDigi' )
 simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'muonCSCDigis', 'MuonCSCWireDigi' )
 
+
+
+
+L1TRerunHCALTP_FromRAW = cms.Sequence(
+
+
+)
+
+
+# calo TP generation not normally run during Sim, step, so preprend it to the sequence:
+L1TReEmulateFromRAW = cms.Sequence(
+    # hcalDigis *
+    simHcalTriggerPrimitiveDigis
+    * SimL1Emulator 
+    )
+
 if not (eras.stage2L1Trigger.isChosen()):
+    # HCAL input would be from hcalDigis if hack not needed
+    from L1Trigger.Configuration.SimL1Emulator_cff import simRctDigis
+    simRctDigis.ecalDigis = cms.VInputTag( cms.InputTag( 'ecalDigis:EcalTriggerPrimitives' ) )
+    simRctDigis.hcalDigis = cms.VInputTag( cms.InputTag( 'simHcalTriggerPrimitiveDigis' ) )
     simRpcTriggerDigis.label         = 'muonRPCDigis'
     # simRpcTechTrigDigis.RPCDigiLabel = 'muonRPCDigis' # IGNORING TECH TRIGGERS FOR NOW
 
 if eras.stage2L1Trigger.isChosen():
-    simTwinMuxDigis.RPC_Source     = cms.InputTag('muonRPCDigis')
-    simOmtfDigis.srcRPC            = cms.InputTag('muonRPCDigis')
+    simTwinMuxDigis.RPC_Source         = cms.InputTag('muonRPCDigis')
+    simOmtfDigis.srcRPC                = cms.InputTag('muonRPCDigis')
+    simCaloStage2Layer1Digis.ecalToken = cms.InputTag('ecalDigis:EcalTriggerPrimitives')
+    simCaloStage2Layer1Digis.hcalToken = cms.InputTag('simHcalTriggerPrimitiveDigis')
