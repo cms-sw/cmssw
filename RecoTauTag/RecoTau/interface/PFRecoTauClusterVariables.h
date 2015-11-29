@@ -26,11 +26,17 @@ namespace
 
   bool isInside(float photon_pt, float deta, float dphi){
 
+    double stripEtaAssociationDistance_0p95_p0 = 0.197077;
+    double stripEtaAssociationDistance_0p95_p1 = 0.658701;
+
+    double stripPhiAssociationDistance_0p95_p0 = 0.352476;
+    double stripPhiAssociationDistance_0p95_p1 = 0.707716;
+
     if(photon_pt==0){return false;}
 
     if(
-       (dphi < TMath::Min(0.3, TMath::Max(0.05, 0.352476*TMath::Power(photon_pt, -0.707716)))) && \
-       (deta < TMath::Min(0.15, TMath::Max(0.05, 0.197077*TMath::Power(photon_pt, -0.658701))))
+       (dphi < std::min(0.3, std::max(0.05, stripPhiAssociationDistance_0p95_p0*std::pow(photon_pt, -(stripPhiAssociationDistance_0p95_p1))))) && \
+       (deta < std::min(0.15, std::max(0.05, stripEtaAssociationDistance_0p95_p0*std::pow(photon_pt, -(stripEtaAssociationDistance_0p95_p1)))))
        ){
       return true;
     }
@@ -78,7 +84,7 @@ namespace
   
     float sum_pt = 0.;
     float sum_dx_pt = 0.;
-    float signalrad = std::max(0.05, std::min(0.1, 3./tau.pt()));
+    float signalrad = (tau.pt() > 0) ? std::max(0.05, std::min(0.1, 3./tau.pt())) : 0.05;
     int is3prong = (decaymode==10);
 
     auto& cands = getPFGammas(tau, mode < 2);
