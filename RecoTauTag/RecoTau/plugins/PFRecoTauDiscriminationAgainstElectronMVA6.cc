@@ -91,6 +91,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 
   float deltaRDummy = 9.9;
 
+  const float ECALBarrelEndcapEtaBorder = 1.479;
   float tauEtaAtEcalEntrance = -99.;
   float sumEtaTimesEnergy = 0.;
   float sumEnergy = 0.;
@@ -131,9 +132,10 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 	  pfGamma != signalPFGammaCands.end(); ++pfGamma ) {
             
       double dR = deltaR((*pfGamma)->p4(), thePFTauRef->leadPFChargedHadrCand()->p4());
+      double signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTauRef->pt())));
             
       // pfGammas inside the tau signal cone
-      if (dR < std::max(0.05, std::min(0.10, 3.0/thePFTauRef->pt()))) {
+      if (dR < signalrad) {
         numSignalPFGammaCandsInSigCone += 1;
       }
     }
@@ -159,7 +161,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 	  }
 	  //// Veto taus that go to Ecal crack
 
-	  if ( std::abs(tauEtaAtEcalEntrance) < 1.479 ) { // Barrel
+	  if ( std::abs(tauEtaAtEcalEntrance) < ECALBarrelEndcapEtaBorder ) { // Barrel
 	    if ( numSignalPFGammaCandsInSigCone == 0 && hasGsfTrack ) {
 	      category = 5.;
 	    }
@@ -194,7 +196,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
       }
       //// Veto taus that go to Ecal crack
       
-      if ( std::abs(tauEtaAtEcalEntrance) < 1.479 ) { // Barrel
+      if ( std::abs(tauEtaAtEcalEntrance) < ECALBarrelEndcapEtaBorder ) { // Barrel
 	if ( numSignalPFGammaCandsInSigCone == 0 && !hasGsfTrack ) {
 	  category = 0.;
 	}
