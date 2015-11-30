@@ -233,7 +233,7 @@ public:
    *  patter recognition. Used mainly as a criteria for abandoning a
    *  trajectory candidate during trajectory building.
    */
-  int CCCBadHits() const { return theNumberOfCCCBadHits_;}
+  int cccBadHits() const { return theNumberOfCCCBadHits_;}
 
   //number of hits in seed
   unsigned int seedNHits() const { return theNHseed;}

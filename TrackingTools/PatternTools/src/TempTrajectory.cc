@@ -18,7 +18,7 @@ TempTrajectory::TempTrajectory(Trajectory && traj):
   theNHseed(traj.seedNHits()),
   theNLoops(traj.nLoops()),
   theDPhiCache(traj.dPhiCacheForLoopersReconstruction()),
-  theCCCThreshold_(traj.CCCThreshold()),
+  theCCCThreshold_(traj.cccThreshold()),
   stopReason_(traj.stopReason()) {
 
   Trajectory::DataContainer::const_iterator begin=traj.measurements().begin();

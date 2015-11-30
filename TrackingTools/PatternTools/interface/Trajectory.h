@@ -306,7 +306,7 @@ public:
    *  patter recognition. Used mainly as a criteria for abandoning a
    *  trajectory candidate during trajectory building.
    */
-  int CCCBadHits() const { return theNumberOfCCCBadHits_;}
+  int cccBadHits() const { return theNumberOfCCCBadHits_;}
 
   //number of hits in seed
   unsigned int seedNHits() const { return seed().nHits();}
@@ -394,7 +394,7 @@ public:
   /// two layers crossed by the trajectory
    float dPhiCacheForLoopersReconstruction() const { return theDPhiCache;}
 
-   float CCCThreshold() const {return theCCCThreshold_;}
+   float cccThreshold() const {return theCCCThreshold_;}
 
   /// method to set the delta phi angle betweem the directions of the two measurements on the last 
   /// two layers crossed by the trajectory
