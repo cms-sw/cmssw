@@ -35,6 +35,7 @@ private:
   edm::EDGetTokenT<reco::PFCandidateCollection>   tokenPFCandidates_;
   const bool taggingMode_;
   const double          ptMin_;
+  const double          dPtMin_;
   const bool debug_;
 
 };
@@ -54,6 +55,7 @@ ChargedHadronTrackResolutionFilter::ChargedHadronTrackResolutionFilter(const edm
   : tokenPFCandidates_ ( consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag> ("PFCandidates")  ))
   , taggingMode_          ( iConfig.getParameter<bool>    ("taggingMode")         )
   , ptMin_                ( iConfig.getParameter<double>        ("ptMin")         )
+  , dPtMin_               ( iConfig.getParameter<double>        ("dPtMin")        )
   , debug_                ( iConfig.getParameter<bool>          ("debug")         )
 {
   produces<bool>();
@@ -98,7 +100,7 @@ ChargedHadronTrackResolutionFilter::filter(edm::Event& iEvent, const edm::EventS
       
       const unsigned int LostHits = trackref->numberOfLostHits();
 
-      if ((DPt/Pt) > (5 * sqrt(1.20*1.20/P+0.06*0.06) / (1.+LostHits))) {
+      if ( ((DPt/Pt) > (5 * sqrt(1.20*1.20/P+0.06*0.06) / (1.+LostHits))) && (DPt > dPtMin_) ) {
 
         foundBadTrack = true;
 
