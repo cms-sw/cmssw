@@ -336,13 +336,13 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
   if (HithbheMB.size() < 5100 && runNZS_) {
     edm::LogWarning("AnalyzerMB") << "HBHE problem " << rnnum_ << " size "
 				  << HithbheMB.size();
-    return;
   }
     
   edm::Handle<HFRecHitCollection> hfMB;
   iEvent.getByToken(tok_hfrecoMB_, hfMB);
   if (!hfMB.isValid()) {
     edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hf product!";
+    return;
   }
   const HFRecHitCollection HithfMB = *(hfMB.product());
   edm::LogInfo("AnalyzerMB") << "HF MB size of collection " << HithfMB.size();
