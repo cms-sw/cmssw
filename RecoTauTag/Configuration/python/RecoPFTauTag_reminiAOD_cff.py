@@ -39,8 +39,9 @@ ak4PFJetsRecoTauChargedHadrons76xReMiniAOD = ak4PFJetsRecoTauChargedHadrons.clon
 # produced for each jet, which are cleaned by the respective algorithms.
 # We split it into different collections for each different decay mode.
 
-from RecoTauTag.RecoTau.RecoTauCombinatoricProducer_cfi import combinatoricRecoTaus
+from RecoTauTag.RecoTau.RecoTauCombinatoricProducer_cfi import combinatoricRecoTaus, combinatoricModifierConfigs
 combinatoricRecoTaus76xReMiniAOD = combinatoricRecoTaus.clone()
+combinatoricRecoTaus76xReMiniAOD.modifiers = cms.VPSet(combinatoricModifierConfigs)
 combinatoricRecoTaus76xReMiniAOD.jetRegionSrc = cms.InputTag("recoTauAK4PFJets08Region76xReMiniAOD")
 combinatoricRecoTaus76xReMiniAOD.jetSrc = PFRecoTauPFJetInputs.inputJetCollection
 
@@ -83,15 +84,7 @@ tautagInfoModifer76xReMiniAOD = cms.PSet(
     plugin = cms.string("RecoTauTagInfoWorkaroundModifer"),
     pfTauTagInfoSrc = cms.InputTag("pfRecoTauTagInfoProducer76xReMiniAOD"),
 )
-
-# Add the modifier to our tau producers
-hasTTIworkaround = False
-for modifier in combinatoricRecoTaus76xReMiniAOD.modifiers:
-    if hasattr(modifier, "name") and modifier.name.value() == "TTIworkaround":
-        hasTTIworkaround = True
-if not hasTTIworkaround:
-    combinatoricRecoTaus76xReMiniAOD.modifiers.append(tautagInfoModifer76xReMiniAOD)
-##combinatoricRecoTaus76xReMiniAOD.modifiers.append(tautagInfoModifer76xReMiniAOD)
+combinatoricRecoTaus76xReMiniAOD.modifiers.append(tautagInfoModifer76xReMiniAOD)
 
 recoTauPileUpVertices76xReMiniAOD = cms.EDFilter("RecoTauPileUpVertexSelector",
     src = cms.InputTag("offlinePrimaryVertices"),
