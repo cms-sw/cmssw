@@ -14,7 +14,7 @@
     </QTEST>
 
 
-    <LINK name="*GCTexpert/HFSums/HFSumsErrorFlag">
+    <LINK name="*Stage1Layer2expert/HFSums/HFSumsErrorFlag">
         <TestName activate="true">L1EmulatorHfRingEtSumsGctErrorFlagQT</TestName>
     </LINK>
 
