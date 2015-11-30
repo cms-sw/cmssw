@@ -3,8 +3,8 @@
 # ConfDB configurations to use
 MASTER="/dev/CMSSW_7_5_0/HLT"              # no explicit version, take te most recent
 TARGET="/dev/CMSSW_7_5_0/\$TABLE"          # no explicit version, take te most recent
-#TABLES="GRun HIon PIon 50nsGRun LowPU 25nsLowPU"     # $TABLE in the above variable will be expanded to these TABLES
-TABLES="GRun HIon PIon"     # $TABLE in the above variable will be expanded to these TABLES
+#TABLES="GRun HIon PIon PRef 50nsGRun LowPU 25nsLowPU"     # $TABLE in the above variable will be expanded to these TABLES
+TABLES="GRun HIon PIon PRef"     # $TABLE in the above variable will be expanded to these TABLES
 
 # print extra messages ?
 VERBOSE=false

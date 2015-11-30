@@ -218,7 +218,7 @@ HLT_HIL1Tech5_BPTX_PlusOnly_v*				# CMSHLT-641
 HLT_HIL1Tech6_BPTX_MinusOnly_v*				# CMSHLT-641
 HLT_HIL1Tech7_NoBPTX_v*					# CMSHLT-641
 HLT_HIPhysics_v*					# CMSHLT-641
-HLT_HIPhysicsNoZS_v*					# CMSHLT-641
+#HLT_HIPhysicsNoZS_v*					# CMSHLT-641, removed CMSHLT-679
 HLT_HIRandom_v*						# CMSHLT-641
 
 HLT_EcalCalibration_v*					# CMSHLT-640

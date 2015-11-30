@@ -12,6 +12,7 @@ globalTag = {
   '50ns' : 'auto:run2_mc_50nsGRun',
   'HIon' : 'auto:run2_mc_HIon',
   'PIon' : 'auto:run2_mc_PIon',
+  'PRef' : 'auto:run2_mc_PRef',
   'LowPU': 'auto:run2_mc_LowPU',
   '25nsLowPU': 'auto:run2_mc_25nsLowPU',
   'data' : 'auto:run1_hlt',
@@ -116,7 +117,7 @@ class HLTProcessOptions(object):
   def __init__(self):
     self.menu       = None        #     hlt menu
     self.name       = 'HLTX'      # (*) if set, override the process name
-    self.type       = 'GRun'      #     defines global options for 'GRun', 'HIon', 'PIon' or 'online' menus
+    self.type       = 'GRun'      #     defines global options for 'GRun', 'HIon', 'PIon', 'PRef' or 'online' menus
     self.data       = True        #     run on data (true) or mc (false)
     self.online     = False       # (*) run online (true) or offline (false)
     self.globaltag  = None        # (*) if set, override the GlobalTag
