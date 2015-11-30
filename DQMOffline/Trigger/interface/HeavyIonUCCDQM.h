@@ -49,6 +49,7 @@ private:
 	// histo
 	MonitorElement* h_SumEt;
 	MonitorElement* h_SiPixelClusters;
+	MonitorElement* h_SumEt_SiPixelClusters;
 };
 
 #endif
