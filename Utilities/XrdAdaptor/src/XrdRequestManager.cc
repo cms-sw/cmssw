@@ -303,7 +303,7 @@ RequestManager::compareSources(const timespec &now, unsigned a, unsigned b)
 void
 RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
 {
-  std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
+  std::unique_lock<std::recursive_mutex> sentry(m_source_mutex);
 
   bool findNewSource = false;
   if (m_activeSources.size() <= 1)
@@ -370,10 +370,14 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
         }
     }
   }
+  // NOTE: OpenHandler will take an internal mutex, then invoke RequestManager methods that take
+  // m_source_mutex.  This ordering is also done within OpenHandler::HandleResponseWithHosts; hence,
+  // we must release m_source_mutex before calling open() or deadlock due to mutex ordering.
   if (findNewSource)
   {
-    m_open_handler->open();
     m_lastSourceCheck = now;
+    sentry.unlock();
+    m_open_handler->open();
   }
 
   // Only aggressively look for new sources if we don't have two.
@@ -681,14 +685,15 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
     std::shared_ptr<Source> new_source;
     if (m_activeSources.size() == 0)
     {
-        std::shared_future<std::shared_ptr<Source> > future = m_open_handler->open();
+        // NOTE: Due to lock ordering, we cannot hold m_source_mutex and call open.
         timespec now;
         GET_CLOCK_MONOTONIC(now);
         m_lastSourceCheck = now;
+        sentry.unlock();
+        std::shared_future<std::shared_ptr<Source> > future = m_open_handler->open();
         // Note we only wait for 180 seconds here.  This is because we've already failed
         // once and the likelihood the program has some inconsistent state is decent.
         // We'd much rather fail hard than deadlock!
-        sentry.unlock();
         std::future_status status = future.wait_for(std::chrono::seconds(m_timeout+10));
         if (status == std::future_status::timeout)
         {
