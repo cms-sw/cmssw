@@ -437,6 +437,17 @@ std::shared_ptr<XrdCl::File>
 RequestManager::getActiveFile()
 {
   std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
+  if (m_activeSources.empty())
+  {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "XrdAdaptor::RequestManager::getActiveFile(name='" << m_name
+       << "', flags=0x" << std::hex << m_flags
+       << ", permissions=0" << std::oct << m_perms << std::dec
+       << ") => Source used after fatal exception.";
+    ex.addContext("In XrdAdaptor::RequestManager::handle()");
+    addConnections(ex);
+    throw ex;
+  }
   return m_activeSources[0]->getFileHandle();
 }
 
@@ -505,6 +516,17 @@ RequestManager::pickSingleSource()
             source = m_activeSources[1];
             m_nextInitialSourceToggle = true;
         }
+    }
+    else if (m_activeSources.empty())
+    {
+        edm::Exception ex(edm::errors::FileReadError);
+        ex << "XrdAdaptor::RequestManager::handle read(name='" << m_name
+               << "', flags=0x" << std::hex << m_flags
+               << ", permissions=0" << std::oct << m_perms << std::dec
+               << ") => Source used after fatal exception.";
+        ex.addContext("In XrdAdaptor::RequestManager::handle()");
+        addConnections(ex);
+        throw ex;
     }
     else
     {
@@ -616,13 +638,24 @@ XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vector<IOPosBuffer> > io
     edm::CPUTimer timer;
     timer.start();
 
-    assert(m_activeSources.size());
     if (m_activeSources.size() == 1)
     {
         std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr(new XrdAdaptor::ClientRequest(*this, iolist));
         checkSources(now, c_ptr->getSize());
         m_activeSources[0]->handle(c_ptr);
         return c_ptr->get_future();
+    }
+    // Make sure active
+    else if (m_activeSources.empty())
+    {
+        edm::Exception ex(edm::errors::FileReadError);
+        ex << "XrdAdaptor::RequestManager::handle readv(name='" << m_name
+               << "', flags=0x" << std::hex << m_flags
+               << ", permissions=0" << std::oct << m_perms << std::dec
+               << ") => Source used after fatal exception.";
+        ex.addContext("In XrdAdaptor::RequestManager::handle()");
+        addConnections(ex);
+        throw ex;
     }
 
     assert(iolist.get());
