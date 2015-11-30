@@ -73,8 +73,6 @@ tautagInfoModifer = cms.PSet(
     plugin = cms.string("RecoTauTagInfoWorkaroundModifer"),
     pfTauTagInfoSrc = cms.InputTag("pfRecoTauTagInfoProducer"),
 )
-
-# Add the modifier to our tau producers
 combinatoricRecoTaus.modifiers.append(tautagInfoModifer)
 
 recoTauPileUpVertices = cms.EDFilter(

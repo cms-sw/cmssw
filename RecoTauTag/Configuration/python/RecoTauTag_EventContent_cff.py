@@ -102,6 +102,7 @@ RecoTauTagRECO = cms.PSet(
         'keep *_hpsPFTauDiscriminationByMVArawMuonRejection_*_*',
         'keep *_hpsPFTauDiscriminationByRawPileupWeightedIsolation3Hits_*_*',
         'keep *_hpsPFTauDiscriminationByPhotonPtSumOutsideSignalCone_*_*',
+        'keep *_hpsPFTauFootprintCorrection_*_*',
         'keep *_hpsPFTauDiscriminationByLoosePileupWeightedIsolation3Hits_*_*',
         'keep *_hpsPFTauNeutralIsoPtSum_*_*',
         'keep *_hpsPFTauDiscriminationByTightPileupWeightedIsolation3Hits_*_*',
@@ -112,7 +113,9 @@ RecoTauTagRECO = cms.PSet(
         'keep *_hpsPFTauMVA3IsolationChargedIsoPtSum_*_*',
         'keep *_hpsPFTauMVA3IsolationNeutralIsoPtSum_*_*',
         'keep *_hpsPFTauMVA3IsolationPUcorrPtSum_*_*',
-        'keep *_hpsPFTauTransverseImpactParameters_*_*'
+        'keep *_hpsPFTauTransverseImpactParameters_*_*',
+        'keep *_hpsPFTauNeutralIsoPtSumWeight_*_*',
+        'keep *_hpsPFTauPhotonPtSumOutsideSignalCone_*_*'
     )
 )
 #AOD content
