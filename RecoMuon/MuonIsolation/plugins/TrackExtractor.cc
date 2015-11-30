@@ -13,7 +13,7 @@ using namespace muonisolation;
 using reco::isodeposit::Direction;
 
 TrackExtractor::TrackExtractor( const ParameterSet& par, edm::ConsumesCollector && iC ) :
-  theTrackCollectionToken(iC.consumes<View<Track> >(par.getParameter<edm::InputTag>("inputTrackCollection"))),
+  theTrackCollectionToken(iC.consumes<TrackCollection>(par.getParameter<edm::InputTag>("inputTrackCollection"))),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theDiff_r(par.getParameter<double>("Diff_r")),
   theDiff_z(par.getParameter<double>("Diff_z")),
@@ -52,7 +52,7 @@ IsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & event
   deposit.setVeto( veto(muonDir) );
   deposit.addCandEnergy(muon.pt());
 
-  Handle<View<Track> > tracksH;
+  Handle<TrackCollection> tracksH;
   event.getByToken(theTrackCollectionToken, tracksH);
   //  const TrackCollection tracks = *(tracksH.product());
   LogTrace(metname)<<"***** TRACK COLLECTION SIZE: "<<tracksH->size();
