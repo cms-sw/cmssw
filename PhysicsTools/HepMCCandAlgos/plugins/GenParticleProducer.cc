@@ -102,7 +102,7 @@ GenParticleProducer::GenParticleProducer( const ParameterSet & cfg ) :
   }
 
   if(useCF_) mixToken_ = mayConsume<CrossingFrame<HepMCProduct> >(InputTag(cfg.getParameter<std::string>( "mix" ),"generatorSmeared"));
-  else srcToken_ = mayConsume<HepMCProduct>(cfg.getParameter<InputTag>( "src" ));
+  else srcToken_ = mayConsume<edm::HepMCProduct>(edm::InputTag(cfg.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"));
 }
 
 GenParticleProducer::~GenParticleProducer() {
