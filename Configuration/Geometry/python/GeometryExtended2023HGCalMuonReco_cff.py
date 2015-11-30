@@ -10,6 +10,7 @@ from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
 
 #Tracker
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
+from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 
 #Muon
@@ -27,7 +28,7 @@ trackerGeometry.applyAlignment = cms.bool(False)
 #  Calorimeters
 from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *
 from Geometry.CaloEventSetup.HGCalTopology_cfi import *
-from Geometry.FCalGeometry.HGCalGeometryESProducer_cfi import *
+from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
 
@@ -44,7 +45,7 @@ from Geometry.HcalEventSetup.HcalGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *
 from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *
-from Geometry.HcalEventSetup.hcalTopologyIdealSLHC_cfi import *
+from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *
 from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
 
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *

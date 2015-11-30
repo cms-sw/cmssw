@@ -10,7 +10,7 @@ import matplotlib
 from RecoLuminosity.LumiDB import CommonUtil,lumiTime,csvReporter
 
 batchonly=False
-if not os.environ.has_key('DISPLAY') or not os.environ['DISPLAY']:
+if 'DISPLAY' not in os.environ or not os.environ['DISPLAY']:
     batchonly=True
     matplotlib.use('Agg',warn=False)
 else:
@@ -172,7 +172,7 @@ class matplotRender():
         textsummaryline=['#'+str(len(xpoints))]
         for ylabel in keylist:
             cl='k'
-            if self.colormap.has_key(ylabel):
+            if ylabel in self.colormap:
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.3f'%(ytotal[ylabel])+' '+unitstring)
@@ -184,7 +184,7 @@ class matplotRender():
             csvreport.writeRow(head)
             allruns=[int(t[0]) for t in rawdata[referenceLabel]]
             flat.insert(0,allruns)
-            rows=zip(*flat)
+            rows=list(zip(*flat))
             csvreport.writeRows([list(t) for t in rows])
             csvreport.writeRow(textsummaryhead)
             csvreport.writeRow(textsummaryline)
@@ -270,7 +270,7 @@ class matplotRender():
         textsummaryline=['#'+str(len(xpoints))]
         for ylabel in keylist:
             cl='k'
-            if self.colormap.has_key(ylabel):
+            if ylabel in self.colormap:
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.3f'%(ytotal[ylabel])+' '+unitstring)
@@ -283,7 +283,7 @@ class matplotRender():
             allruns=[int(t[1]) for t in rawdata[referenceLabel]]
             flat.insert(0,allfills)
             flat.insert(1,allruns)
-            rows=zip(*flat)
+            rows=list(zip(*flat))
             csvreport.writeRow(head)
             csvreport.writeRows([list(t) for t in rows])
             csvreport.writeRow(textsummaryhead)
@@ -384,7 +384,7 @@ class matplotRender():
         textsummaryline=['#'+str(len(xpoints))]
         for ylabel in keylist:
             cl='k'
-            if self.colormap.has_key(ylabel):
+            if ylabel in self.colormap:
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.3f'%(ytotal[ylabel])+' '+unitstring)
@@ -400,7 +400,7 @@ class matplotRender():
             flat.insert(0,allruns)
             flat.insert(1,allstarts)
             flat.insert(2,allstops)
-            rows=zip(*flat)
+            rows=list(zip(*flat))
             csvreport.writeRows([list(t) for t in rows])
             csvreport.writeRow(textsummaryhead)
             csvreport.writeRow(textsummaryline)
@@ -509,7 +509,7 @@ class matplotRender():
             flat.insert(1,allstarts)
             flat.insert(2,allstops)
             flat.append(alldates)
-            rows=zip(*flat)
+            rows=list(zip(*flat))
             csvreport.writeRows([list(t) for t in rows])
         yearStrMin=minTime.strftime('%Y')
         yearStrMax=maxTime.strftime('%Y')
@@ -540,7 +540,7 @@ class matplotRender():
         textsummaryline=['#'+str(len(alldays))]
         for ylabel in labels:
             cl='k'
-            if self.colormap.has_key(ylabel):
+            if ylabel in self.colormap:
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' Max '+'%.3f'%(ymax[ylabel])+' '+unitstring)
@@ -654,7 +654,7 @@ class matplotRender():
             flat.insert(1,allruns)
             flat.insert(2,allls)
             flat.append(alldates)
-            rows=zip(*flat)
+            rows=list(zip(*flat))
             csvreport.writeRows([list(t) for t in rows])
             
         yearStrMin=minTime.strftime('%Y')
@@ -686,7 +686,7 @@ class matplotRender():
         textsummaryline=['#'+str(len(alldays))]
         for ylabel in labels:
             cl='k'
-            if self.colormap.has_key(ylabel):
+            if ylabel in self.colormap:
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label='Max Inst',color=cl,drawstyle='steps')
             legendlist.append('Max Inst %.3f'%(ymax[ylabel])+' '+unitstring)
@@ -775,7 +775,7 @@ class matplotRender():
 
         for ylabel in keylist:
             cl='k'
-            if self.colormap.has_key(ylabel):
+            if ylabel in self.colormap:
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],'.',label=ylabel,color=cl)
             legendlist.append(ylabel)      

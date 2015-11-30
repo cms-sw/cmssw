@@ -441,12 +441,12 @@ void CastorLedAnalysis::LedTrendings(map<HcalDetId, map<int,LEDBUNCH> > &toolT)
 // LED timing - put content and errors
     int j=0;
     for(sample_it=_meol->second[10+m_fitflag].second.first[0].begin();
-        sample_it!=_meol->second[10+m_fitflag].second.first[0].end();sample_it++){
+        sample_it!=_meol->second[10+m_fitflag].second.first[0].end();++sample_it){
       _meol->second[10+m_fitflag].second.second[0]->SetBinContent(++j,*sample_it);
     }
     j=0;
     for(sample_it=_meol->second[10+m_fitflag].second.first[1].begin();
-        sample_it!=_meol->second[10+m_fitflag].second.first[1].end();sample_it++){
+        sample_it!=_meol->second[10+m_fitflag].second.first[1].end();++sample_it){
       _meol->second[10+m_fitflag].second.second[0]->SetBinError(++j,*sample_it);
     }
     sprintf(name,"Sample (%d events)",m_nevtsample);
@@ -495,7 +495,7 @@ void CastorLedAnalysis::processLedEvent(const CastorDigiCollection& castor,
   // HF/Castor
   try{
     if(!castor.size()) throw (int)castor.size();
-    for (CastorDigiCollection::const_iterator j=castor.begin(); j!=castor.end(); j++){
+    for (CastorDigiCollection::const_iterator j=castor.begin(); j!=castor.end(); ++j){
       const CastorDataFrame digi = (const CastorDataFrame)(*j);
       _meol = castorHists.LEDTRENDS.find(digi.id());
       if (_meol==castorHists.LEDTRENDS.end()){

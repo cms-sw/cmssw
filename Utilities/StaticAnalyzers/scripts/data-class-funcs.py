@@ -65,9 +65,8 @@ for line in f :
 f.close()
 
 
-f = open('db.txt')
-
-for line in f :
+import fileinput 
+for line in fileinput.input(files =('function-statics-db.txt','function-calls-db.txt')):
 	if not bfunc.search(line) : continue
 	fields = line.split("'")
 	if skip.search(fields[1]) or skip.search(fields[3]) : continue
@@ -90,8 +89,7 @@ for line in f :
 	if fields[2] == ' static variable ' :
 		G.add_edge(fields[1],fields[3],kind=' static variable ')
 		statics.add(fields[3])
-f.close()
-
+fileinput.close()
 
 for n,nbrdict in G.adjacency_iter():
 	for nbr,eattr in nbrdict.items():

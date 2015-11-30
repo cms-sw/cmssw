@@ -2,7 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <SolidSection label="hgcalEE.xml">
- <Polyhedra name="HGCalEEM" numSide="1" startPhi="345*deg" deltaPhi="30*deg">
+ <Polyhedra name="HGCalEEM" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
   <ZSection z="[hgcal:zMinEE]" rMin="[hgcal:rMinEEMin]" rMax="[hgcal:rMapEEMin]"/>
   <ZSection z="[hgcal:zMaxEE]" rMin="[hgcal:rMinEEMax]" rMax="[hgcal:rMapEEMax]"/>
  </Polyhedra>
@@ -21,7 +21,7 @@
   <String name="ChildName"    value="HGCalEEM"/>
   <Numeric name="StartCopyNo" value="1"/>
   <Numeric name="IncrCopyNo"  value="1"/>
-  <Numeric name="N"           value="12"/>
+  <Numeric name="N"           value="18"/>
   <Numeric name="StartAngle"  value="0*deg"/>
   <Numeric name="RangeAngle"  value="360*deg"/>
   <Numeric name="Radius" value="0*m"/>
@@ -41,7 +41,7 @@
    EEAirGap,    EEThermalScreen, EEScreenCover, EEThermalGap</Vector>
   <Vector name="Thickness" type="numeric" nEntries="15">
    0.5*mm, 2.0*mm,  2.8*mm,  4.2*mm,  0.6*mm,  1.2*mm, 2.2*mm, 
-   0.5*mm, 6.0*mm,  0.1*mm,  2.0*mm,  3.0*mm, 16.0*mm, 2.0*mm, 10.0*mm</Vector>
+   0.5*mm, 6.0*mm,  0.1*mm,  2.0*mm,  2.0*mm, 16.0*mm, 2.0*mm, 10.0*mm</Vector>
   <String name="Rotation" value="rotations:YXZ4"/>
   <Vector name="LayerType" type="numeric" nEntries="256"> 
     13, 12, 13, 14,
@@ -79,6 +79,16 @@
   </Vector>
   <Vector name="LayerThick" type="numeric" nEntries="256"> 
     30*mm, 30*mm, 30*mm, 30*mm,
+    19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm,
+    19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm,
+    19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm,
+    19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm,
+    19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm,
+    19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm,
+    19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm,
+    19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm,
+    19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm,
+    19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm, 19.8*mm,
     21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm,
     21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm,
     21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm,
@@ -89,27 +99,17 @@
     21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm,
     21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm,
     21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm, 21.8*mm,
-    23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm,
-    23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm,
-    23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm,
-    23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm,
-    23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm,
-    23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm,
-    23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm,
-    23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm,
-    23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm,
-    23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm, 23.8*mm,
-    27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm,
-    27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm,
-    27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm,
-    27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm,
-    27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm,
-    27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm,
-    27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm,
-    27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm, 27.2*mm
+    25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm,
+    25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm,
+    25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm,
+    25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm,
+    25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm,
+    25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm,
+    25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm,
+    25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm, 25.2*mm
   </Vector>
   <Numeric name="zMinBlock"   value="[hgcal:zMinEE]"/>
-  <Numeric name="Sectors"     value="12"/>
+  <Numeric name="Sectors"     value="18"/>
   <Numeric name="SlopeBottom" value="[etaMax:slope]"/>
   <Vector name="SlopeTop" type="numeric" nEntries="4">
     [hgcal:slope2], [hgcal:slope3], 0, 0</Vector>
@@ -124,90 +124,90 @@
   <SpecPar name="HGCalEE">
     <PartSelector path="//HGCalEESensitive.*"/>
     <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
-    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
+    <Parameter name="Granularity" value="10.25*mm"/>
   </SpecPar>
 </SpecParSection>
 

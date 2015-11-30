@@ -57,11 +57,11 @@ Provide human readable units
     it=iter(units)
     v=long(value/1024)
     p=0
-    runit=it.next()
+    runit=next(it)
     while v > 0:
       v=long(v/1024)
       try:
-        runit=it.next()
+        runit=next(it)
         p+=1
       except:
         break

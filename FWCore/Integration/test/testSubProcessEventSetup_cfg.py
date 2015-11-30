@@ -78,7 +78,7 @@ process.path1 = cms.Path(process.esTestAnalyzerA*process.esTestAnalyzerAZ)
 # previous process.
 
 process1 = cms.Process("TEST1")
-process.subProcess = cms.SubProcess(process1)
+process.addSubProcess(cms.SubProcess(process1))
 
 process1.emptyESSourceA = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordA"),
@@ -118,7 +118,7 @@ process1.path1 = cms.Path(process1.esTestAnalyzerA)
 # because of a difference in a tracked parameter
 
 process2 = cms.Process("TEST2")
-process1.subProcess = cms.SubProcess(process2)
+process1.addSubProcess(cms.SubProcess(process2))
 
 process2.emptyESSourceA = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordA"),
@@ -160,7 +160,7 @@ process2.path1 = cms.Path(process2.esTestAnalyzerA)
 # Data is not gotten on event 3.
 
 process3 = cms.Process("TEST3")
-process2.subProcess = cms.SubProcess(process3)
+process2.addSubProcess(cms.SubProcess(process3))
 
 process3.emptyESSourceA = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordA"),
@@ -203,7 +203,7 @@ process3.path1 = cms.Path(process3.esTestAnalyzerA)
 # exactly. No data gotten on event 4 and 5.
 
 process4 = cms.Process("TEST4")
-process3.subProcess = cms.SubProcess(process4)
+process3.addSubProcess(cms.SubProcess(process4))
 
 process4.emptyESSourceA = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordA"),
@@ -250,7 +250,7 @@ process4.path1 = cms.Path(process4.esTestAnalyzerA*process4.esTestAnalyzerAZ)
 # not anything earlier. No data gotten on events 4, 5, and 6.
 
 process5 = cms.Process("TEST5")
-process4.subProcess = cms.SubProcess(process5)
+process4.addSubProcess(cms.SubProcess(process5))
 
 process5.emptyESSourceA = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordA"),
@@ -298,7 +298,7 @@ process5.path1 = cms.Path(process5.esTestAnalyzerA*process5.esTestAnalyzerAZ)
 # No data gotten on event 7
 
 process6 = cms.Process("TEST6")
-process5.subProcess = cms.SubProcess(process6)
+process5.addSubProcess(cms.SubProcess(process6))
 
 process6.emptyESSourceA = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordA"),
@@ -334,7 +334,7 @@ process6.path1 = cms.Path(process6.esTestAnalyzerA)
 # gotten on event 8.
 
 process7 = cms.Process("TEST7")
-process6.subProcess = cms.SubProcess(process7)
+process6.addSubProcess(cms.SubProcess(process7))
 
 process7.emptyESSourceA = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordA"),
@@ -374,7 +374,7 @@ process7.path1 = cms.Path(process7.esTestAnalyzerA)
 # difference. No data gotten on event 1 to 4.
 
 process8 = cms.Process("TEST8")
-process7.subProcess = cms.SubProcess(process8)
+process7.addSubProcess(cms.SubProcess(process8))
 
 process8.emptyESSourceA = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordA"),
@@ -415,7 +415,7 @@ process8.path1 = cms.Path(process8.esTestAnalyzerA)
 # same record. No data gotten on event 1 to 5.
 
 process9 = cms.Process("TEST9")
-process8.subProcess = cms.SubProcess(process9)
+process8.addSubProcess(cms.SubProcess(process9))
 
 process9.emptyESSourceA = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordA"),
@@ -448,7 +448,7 @@ process9.path1 = cms.Path(process9.esTestAnalyzerA)
 # same record. No data gotten on event 1 to 6.
 
 process10 = cms.Process("TEST10")
-process9.subProcess = cms.SubProcess(process10)
+process9.addSubProcess(cms.SubProcess(process10))
 
 process10.emptyESSourceA = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordA"),
@@ -493,7 +493,7 @@ process10.path1 = cms.Path(process10.esTestAnalyzerA)
 # same record has a differing configuration. No data gotten on event 1 to 7.
 
 process11 = cms.Process("TEST11")
-process10.subProcess = cms.SubProcess(process11)
+process10.addSubProcess(cms.SubProcess(process11))
 
 process11.emptyESSourceA = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordA"),
@@ -533,7 +533,7 @@ process11.path1 = cms.Path(process11.esTestAnalyzerA)
 # because the emptyESSourceZ has a differing configuration.
 
 process12 = cms.Process("TEST12")
-process11.subProcess = cms.SubProcess(process12)
+process11.addSubProcess(cms.SubProcess(process12))
 
 process12.emptyESSourceA = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordA"),

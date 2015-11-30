@@ -34,7 +34,8 @@ ecalLedClient = cms.untracked.PSet(
     sources = cms.untracked.PSet(
         Timing = ecalLedTask.MEs.Timing,
         PNAmplitude = ecalLedTask.MEs.PNAmplitude,
-        Amplitude = ecalLedTask.MEs.Amplitude
+        Amplitude = ecalLedTask.MEs.Amplitude,
+        CalibStatus = ecalLedTask.MEs.CalibStatus
     ),
     MEs = cms.untracked.PSet(
         TimingMean = cms.untracked.PSet(

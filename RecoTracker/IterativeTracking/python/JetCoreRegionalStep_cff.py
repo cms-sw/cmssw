@@ -81,7 +81,8 @@ jetCoreRegionalStepSeeds.SeedCreatorPSet.forceKinematicWithRegionDirection = cms
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 jetCoreRegionalStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
-    minimumNumberOfHits = 3,
+    minimumNumberOfHits = 4,
+    seedPairPenalty = 0,
     minPt = 0.1
 )
 

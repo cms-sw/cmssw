@@ -44,10 +44,12 @@ namespace ecaldqm
       kCrystal,
       kTriggerTower,
       kSuperCrystal,
+      kPseudoStrip,
       kTCC,
       kDCC,
       kProjEta,
       kProjPhi,
+      kRCT,
       kUser,
       kReport,
       kTrend,
@@ -55,7 +57,7 @@ namespace ecaldqm
     };
 
     enum Constants {
-      nPresetBinnings = kProjPhi + 1,
+      nPresetBinnings = kRCT + 1,
 
       nEBSMEta = 85,
       nEBSMPhi = 20,
@@ -159,6 +161,8 @@ namespace ecaldqm
     int findBinCrystal_(ObjectType, DetId const&, int = -1);
     int findBinCrystal_(ObjectType, EcalElectronicsId const&);
     int findBinTriggerTower_(ObjectType, DetId const&);
+    int findBinPseudoStrip_(ObjectType, DetId const&);
+    int findBinRCT_(ObjectType, DetId const&);
     int findBinSuperCrystal_(ObjectType, DetId const&, int = -1);
     int findBinSuperCrystal_(ObjectType, EcalElectronicsId const&);
   }

@@ -74,7 +74,10 @@ public:
   std::vector<hgtrap>::const_iterator getLastModule(bool reco=false)  const { return (reco ? moduler_.end() : modules_.end()); }
    std::vector<hgtrform>::const_iterator getFirstTrForm() const { return trform_.begin(); }
   std::vector<hgtrform>::const_iterator getLastTrForm()  const { return trform_.end(); }
- 
+
+  const std::vector<hgtrap> & getModules( void ) const { return moduler_; }
+  const std::vector<hgtrform> & getTrForms( void ) const { return trform_; }
+  
 private:
   void                initialize(const DDCompactView& cpv, std::string name);
   void                loadGeometry(const DDFilteredView& fv, const std::string& tag);

@@ -19,6 +19,12 @@
 #include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
+namespace {
+  static const edm::InputTag digisLabelEE("mix","HGCDigisEE");
+  static const edm::InputTag digisLabelFH("mix","HGCDigisHEfront");
+  static const edm::InputTag digisLabelBH("mix","HGCDigisHEback");
+}
+
 class HGCalDigiTester : public edm::EDAnalyzer {
 public:
   explicit HGCalDigiTester(const edm::ParameterSet& );
@@ -29,9 +35,16 @@ public:
 
 private:
   // ----------member data ---------------------------
+
+  edm::EDGetTokenT<HGCEEDigiCollection> digisTokenEE;
+  edm::EDGetTokenT<HGCHEDigiCollection> digisTokenFH, digisTokenBH;
 };
 
-HGCalDigiTester::HGCalDigiTester(const edm::ParameterSet& ) {}
+HGCalDigiTester::HGCalDigiTester(const edm::ParameterSet& ) {
+  digisTokenEE = consumes<HGCEEDigiCollection>( digisLabelEE );
+  digisTokenFH = consumes<HGCHEDigiCollection>( digisLabelFH );
+  digisTokenBH = consumes<HGCHEDigiCollection>( digisLabelBH );
+}
 
 
 HGCalDigiTester::~HGCalDigiTester() {}
@@ -46,23 +59,23 @@ void HGCalDigiTester::analyze(const edm::Event& iEvent,
   iSetup.get<IdealGeometryRecord>().get(name,geom);
   if (geom.isValid()) {
     edm::Handle<HGCEEDigiCollection> digis;
-    iEvent.getByLabel(edm::InputTag("mix","HGCDigisEE"),digis); 
+    iEvent.getByLabel(digisLabelEE,digis); 
     if (digis.isValid()) {
-      std::cout << "HGCEE with " << (*digis).size() << " elements" 
+      edm::LogVerbatim("HGCalDigiTester") << "HGCEE with " << (*digis).size() << " elements" 
 		<< std::endl;
       for (unsigned int k=0; k < (*digis).size(); ++k) {
 	HGCEEDetId  id = (*digis)[k].id();
 	GlobalPoint global = (*geom).getPosition(id);
 	HGCEEDetId  idc    = (HGCEEDetId)((*geom).getClosestCell(global));
-	std::cout << "HGCalDigiTester:ID " << id << " global (" << global.x() 
+	edm::LogVerbatim("HGCalDigiTester") << "HGCalDigiTester:ID " << id << " global (" << global.x() 
 		  << ", " << global.y() << ", " << global.z() << ") new ID " 
 		  << idc << std::endl;
       }
     } else {
-      std::cout << "No valid collection for HGCEE" << std::endl;
+      edm::LogVerbatim("HGCalDigiTester") << "No valid collection for HGCEE" << std::endl;
     }
   } else {
-    std::cout << "Cannot get valid HGCalGeometry Object for " << name 
+    edm::LogVerbatim("HGCalDigiTester") << "Cannot get valid HGCalGeometry Object for " << name 
 	      << std::endl;
   }
 
@@ -70,23 +83,23 @@ void HGCalDigiTester::analyze(const edm::Event& iEvent,
   iSetup.get<IdealGeometryRecord>().get(name,geom);
   if (geom.isValid()) {
     edm::Handle<HGCHEDigiCollection> digis;
-    iEvent.getByLabel(edm::InputTag("mix","HGCDigisHEfront"),digis); 
+    iEvent.getByLabel(digisLabelFH,digis); 
     if (digis.isValid()) {
-      std::cout << "HGCHEfront with " << (*digis).size() << " elements" 
+      edm::LogVerbatim("HGCalDigiTester") << "HGCHEfront with " << (*digis).size() << " elements" 
 		<< std::endl;
       for (unsigned int k=0; k < (*digis).size(); ++k) {
 	HGCHEDetId  id = (*digis)[k].id();
 	GlobalPoint global = (*geom).getPosition(id);
 	HGCHEDetId  idc    = (HGCHEDetId)((*geom).getClosestCell(global));
-	std::cout << "HGCalDigiTester:ID " << id << " global (" << global.x() 
+	edm::LogVerbatim("HGCalDigiTester") << "HGCalDigiTester:ID " << id << " global (" << global.x() 
 		  << ", " << global.y() << ", " << global.z() << ") new ID " 
 		  << idc << std::endl;
       }
     } else {
-      std::cout << "No valid collection for HGCHEfront" << std::endl;
+      edm::LogVerbatim("HGCalDigiTester") << "No valid collection for HGCHEfront" << std::endl;
     }
   } else {
-    std::cout << "Cannot get valid HGCalGeometry Object for " << name 
+    edm::LogVerbatim("HGCalDigiTester") << "Cannot get valid HGCalGeometry Object for " << name 
 	      << std::endl;
   }
 
@@ -94,23 +107,23 @@ void HGCalDigiTester::analyze(const edm::Event& iEvent,
   iSetup.get<IdealGeometryRecord>().get(name,geom);
   if (geom.isValid()) {
     edm::Handle<HGCHEDigiCollection> digis;
-    iEvent.getByLabel(edm::InputTag("mix","HGCDigisHEback"),digis); 
+    iEvent.getByLabel(digisLabelBH,digis); 
     if (digis.isValid()) {
-      std::cout << "HGCHEback with " << (*digis).size() << " elements" 
+      edm::LogVerbatim("HGCalDigiTester") << "HGCHEback with " << (*digis).size() << " elements" 
 		<< std::endl;
       for (unsigned int k=0; k < (*digis).size(); ++k) {
 	HGCHEDetId  id = (*digis)[k].id();
 	GlobalPoint global = (*geom).getPosition(id);
 	HGCHEDetId  idc    = (HGCHEDetId)((*geom).getClosestCell(global));
-	std::cout << "HGCalDigiTester:ID " << id << " global (" << global.x()
+	edm::LogVerbatim("HGCalDigiTester") << "HGCalDigiTester:ID " << id << " global (" << global.x()
 		  << ", " << global.y() << ", " << global.z() << ") new ID "
 		  << idc << std::endl;
       }
     } else {
-      std::cout << "No valid collection for HGCHEback" << std::endl;
+      edm::LogVerbatim("HGCalDigiTester") << "No valid collection for HGCHEback" << std::endl;
     }
   } else {
-    std::cout << "Cannot get valid HGCalGeometry Object for " << name 
+    edm::LogVerbatim("HGCalDigiTester") << "Cannot get valid HGCalGeometry Object for " << name 
 	      << std::endl;
   }
 

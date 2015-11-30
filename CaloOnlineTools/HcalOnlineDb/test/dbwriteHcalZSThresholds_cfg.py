@@ -16,9 +16,9 @@ process.MessageLogger=cms.Service("MessageLogger",
                               )
 )
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = cms.string('sqlite_file:testExample_zs_text.db')
-process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+process.load("CondCore.CondDB.CondDB_cfi")
+process.CondDB.connect = cms.string('sqlite_file:testExample_zs_text.db')
+process.CondDB.DBParameters.authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
 
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
@@ -35,7 +35,7 @@ process.es_ascii = cms.ESSource("HcalTextCalibrations",
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBCommon,
+    process.CondDB,
     timetype = cms.untracked.string('runnumber'),
     logconnect= cms.untracked.string('sqlite_file:log_zs_text.db'),
     toPut = cms.VPSet(cms.PSet(

@@ -13,6 +13,12 @@
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/counting_iterator.hpp>
 
+// Function for testing SmallWORMDict
+namespace test {
+  namespace SmallWORMDict {
+    int test();
+  }
+}
 
 namespace cond {
 
@@ -21,6 +27,8 @@ namespace cond {
  */
 
   class SmallWORMDict {
+    friend int test::SmallWORMDict::test();
+
   public:
     SmallWORMDict();
     ~SmallWORMDict();

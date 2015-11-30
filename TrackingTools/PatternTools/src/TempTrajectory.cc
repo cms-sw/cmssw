@@ -6,8 +6,9 @@
 TempTrajectory::TempTrajectory(Trajectory && traj):
   theChiSquared(0),
   theNumberOfFoundHits(0), theNumberOfLostHits(0),
-  theDirection(traj.direction()), theDirectionValidity(true),
+  theDirection(traj.direction()),
   theValid(traj.isValid()),
+  theNHseed(traj.seedNHits()),
   theNLoops(traj.nLoops()),
   theDPhiCache(traj.dPhiCacheForLoopersReconstruction()) {
 
@@ -43,21 +44,10 @@ void TempTrajectory::pushAux(double chi2Increment) {
   
   theChiSquared += chi2Increment;
 
-  // in case of a Trajectory constructed without direction, 
-  // determine direction from the radii of the first two measurements
-
-  if ( !theDirectionValidity && theData.size() >= 2) {
-    if (theData.front().updatedState().globalPosition().perp2() <
-	theData.back().updatedState().globalPosition().perp2())
-      theDirection = alongMomentum;
-    else theDirection = oppositeToMomentum;
-    theDirectionValidity = true;
-  }
 }
 
 void TempTrajectory::push(const TempTrajectory& segment) {
   assert (segment.theDirection == theDirection) ;
-  assert(theDirectionValidity); // given the above...
 
   const int N = segment.measurements().size();
   TrajectoryMeasurement const * tmp[N];
@@ -73,7 +63,6 @@ void TempTrajectory::push(const TempTrajectory& segment) {
 
 void TempTrajectory::join( TempTrajectory& segment) {
   assert (segment.theDirection == theDirection) ;
-  assert(theDirectionValidity);
 
   if (segment.theData.shared()) {
     push(segment); 
@@ -88,8 +77,7 @@ void TempTrajectory::join( TempTrajectory& segment) {
 
 
 PropagationDirection TempTrajectory::direction() const {
-  if (theDirectionValidity) return PropagationDirection(theDirection);
-  else throw cms::Exception("TrackingTools/PatternTools","Trajectory::direction() requested but not set");
+  return PropagationDirection(theDirection);
 }
 
 void TempTrajectory::check() const {
@@ -111,7 +99,6 @@ bool TempTrajectory::lost( const TrackingRecHit& hit)
 }
 
 Trajectory TempTrajectory::toTrajectory() const {
-  assert(theDirectionValidity);
   PropagationDirection p=PropagationDirection(theDirection);
   Trajectory traj(p);
   traj.setNLoops(theNLoops);

@@ -224,7 +224,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     cfgFile = open(cfgFileName+'.py' , 'w' )
                     cfgFile.write(filenames)
 
-                    if (Events.has_key(sample)!=True):
+                    if ((sample in Events)!=True):
                         Nevents=defaultNevents
                     else:
                         Nevents=Events[sample]

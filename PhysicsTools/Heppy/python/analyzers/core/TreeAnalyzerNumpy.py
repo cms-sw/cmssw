@@ -28,7 +28,7 @@ class TreeAnalyzerNumpy( Analyzer ):
             self.file = TFile( fileName, 'recreate', '', isCompressed )
         self.file.cd()
         if self.file.Get(self.treename) :
-            raise RuntimeError, "You are booking two Trees with the same name in the same file"
+            raise RuntimeError("You are booking two Trees with the same name in the same file")
         self.tree = Tree(self.treename, self.name)
         self.tree.setDefaultFloatType(getattr(self.cfg_ana, 'defaultFloatType','D')); # or 'F'
         self.declareVariables(setup)

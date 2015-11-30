@@ -49,7 +49,7 @@ try :
         process.source.fileNames.append(afile['LogicalFileName'])
         print afile['LogicalFileName']
 
-except DbsApiException, ex:
+except DbsApiException as ex:
      print "Caught API Exception %s: %s "  % (ex.getClassName(), ex.getErrorMessage() )
      if ex.getErrorCode() not in (None, ""):
           print "DBS Exception Error Code: ", ex.getErrorCode()

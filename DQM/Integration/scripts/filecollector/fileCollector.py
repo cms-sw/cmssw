@@ -213,10 +213,10 @@ while True:
             lFile.close()
           done=True
           
-  except KeyboardInterrupt, e:
+  except KeyboardInterrupt as e:
     sys.exit(0)
 
-  except Exception, e:
+  except Exception as e:
     logme('ERROR: %s', e)
     now = datetime.now()
     if now - EMAILINTERVAL > lastEmailSent:

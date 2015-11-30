@@ -250,7 +250,7 @@ def searchDuplicatePlugins ():
     cmd = "cat %s | awk '{print $2\" \"$1}' | sort | uniq | awk '{print $1}' | sort | uniq -c | grep '2 ' | awk '{print $2}'" % edmpluginFile
     output = commands.getoutput (cmd).split('\n')
     for line in output:
-      if ignoreEdmDP.has_key(line): continue
+      if line in ignoreEdmDP: continue
       line = line.replace("*","\*")
       cmd = "cat %s | grep ' %s ' | awk '{print $1}' | sort | uniq " % (edmpluginFile,line)
       out1 = commands.getoutput (cmd).split('\n')

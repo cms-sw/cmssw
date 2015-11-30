@@ -750,7 +750,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if baseName[-len(postfix):] == postfix:
             baseName = baseName[0:-len(postfix)]
         else:
-            raise StandardError("Tried to remove postfix %s from %s, but it wasn't there" % (postfix, baseName))
+            raise Exception("Tried to remove postfix %s from %s, but it wasn't there" % (postfix, baseName))
         
         return baseName
 

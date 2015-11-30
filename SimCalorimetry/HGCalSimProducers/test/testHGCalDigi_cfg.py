@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('SIMDIGI')
+process = cms.Process('SIMDIGI',eras.Run2_25ns)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -10,8 +11,8 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023HGCalMuonReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023HGCalMuon_cff')
+process.load('Configuration.Geometry.GeometryExtended2023DevReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023Dev_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
@@ -62,7 +63,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
@@ -102,19 +103,19 @@ for path in process.paths:
 # customisation of the process.
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023HGCalMuon
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023HGCal
 
 #call to customisation function cust_2023HGCalMuon imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023HGCalMuon(process)
+process = cust_2023HGCal(process)
 
 # End of customisation functions
 
-process.g4SimHits.HGCSD.Verbosity                         = 1
-process.mix.digitizers.hgceeDigitizer.useAllChannels      = False
-process.mix.digitizers.hgceeDigitizer.verbosity           = 1
-process.mix.digitizers.hgchefrontDigitizer.useAllChannels = False
-process.mix.digitizers.hgchefrontDigitizer.verbosity      = 1
-process.mix.digitizers.hgchebackDigitizer.useAllChannels  = False
-process.mix.digitizers.hgchebackDigitizer.verbosity       = 1
+#process.g4SimHits.HGCSD.Verbosity                         = 1
+#process.mix.digitizers.hgceeDigitizer.useAllChannels      = False
+#process.mix.digitizers.hgceeDigitizer.verbosity           = 1
+#process.mix.digitizers.hgchefrontDigitizer.useAllChannels = False
+#process.mix.digitizers.hgchefrontDigitizer.verbosity      = 1
+#process.mix.digitizers.hgchebackDigitizer.useAllChannels  = False
+#process.mix.digitizers.hgchebackDigitizer.verbosity       = 1
 
 

@@ -56,7 +56,7 @@ if __name__ == "__main__":
         node.foreign='a'
     except AttributeError:
         print 'caught right exception'
-    except Exception, er:
+    except Exception as er:
         print 'unexpected error'
         print str(er)
     leaf=LeafNode()

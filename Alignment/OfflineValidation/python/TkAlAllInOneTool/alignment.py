@@ -25,7 +25,7 @@ class Alignment:
         }
         section = "alignment:%s"%name
         if not config.has_section( section ):
-            raise AllInOneError, ("section %s not found. Please define the "
+            raise AllInOneError("section %s not found. Please define the "
                                   "alignment!"%section)
         config.checkInput(section,
                           knownSimpleOptions = ['globaltag', 'style', 'color', 'title'],

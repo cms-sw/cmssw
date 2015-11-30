@@ -24,11 +24,7 @@
 #include "TEveProjectionAxes.h"
 #include "TGLabel.h"
 #include "TEveProjectionManager.h"
-
-//!!! FIXME add get/sets for TEveCalo2D for CellIDs
-#define protected public  
 #include "TEveCalo.h"
-#undef protected
 
 // user include files
 #include "Fireworks/Core/interface/FWRPZView.h"
@@ -361,7 +357,7 @@ FWRPZView::voteCaloMaxVal()
       typedef std::vector<TEveCaloData::vCellId_t*>           vBinCells_t;
       typedef std::vector<TEveCaloData::vCellId_t*>::iterator vBinCells_i;
 
-      vBinCells_t   cellLists = m_calo->fCellLists;
+      vBinCells_t   cellLists = m_calo->GetBinLists();
       for (vBinCells_i it = cellLists.begin(); it != cellLists.end(); it++)
       {
          TEveCaloData::vCellId_t* binCells = *it;

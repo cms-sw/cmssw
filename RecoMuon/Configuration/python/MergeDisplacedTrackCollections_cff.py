@@ -1,9 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
+#
+#  FIXME most probably this part is not needed for dispaced muons...
+#
+
 from  RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
 
 #for displaced global muons                                      
-duplicateDisplacedTrackCandidates = RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi.duplicateTrackMerger.clone(
+duplicateDisplacedTrackCandidates = DuplicateTrackMerger.clone(
     source=cms.InputTag("preDuplicateMergingDisplacedTracks"),
     useInnermostState  = cms.bool(True),
     ttrhBuilderName    = cms.string("WithAngleAndTemplate")
@@ -27,11 +31,13 @@ duplicateDisplacedTrackClassifier.mva.maxLostLayers = [99,99,99]
 
 
 #for displaced global muons
-displacedTracks = RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi.duplicateListMerger.clone(
+displacedTracks = DuplicateListMerger.clone(
     originalSource = cms.InputTag("preDuplicateMergingDisplacedTracks"),
+    originalMVAVals = cms.InputTag("preDuplicateMergingDisplacedTracks","MVAValues"),
     mergedSource = cms.InputTag("mergedDuplicateDisplacedTracks"),
     mergedMVAVals = cms.InputTag("duplicateDisplacedTrackClassifier","MVAValues"),
-    candidateSource = cms.InputTag("duplicateDisplacedTrackCandidates","candidateMap")
+    candidateSource = cms.InputTag("duplicateDisplacedTrackCandidates","candidates"),
+    candidateComponents = cms.InputTag("duplicateDisplacedTrackCandidates","candidateMap")
     )
 #for displaced global muons
 displacedTracksSequence = cms.Sequence(

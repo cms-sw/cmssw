@@ -7,6 +7,9 @@
  *  \author cerati
  */
 
+
+#include "AlgoProductTraits.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -39,15 +42,16 @@ struct FitterCloner {
 
 
 template <class T>
-class TrackProducerAlgorithm {
+class TrackProducerAlgorithm : public AlgoProductTraits<T> {
 public:
-  typedef std::vector<T> TrackCollection;
-  typedef std::pair<Trajectory*, std::pair<T*,PropagationDirection> > AlgoProduct; 
-  typedef std::vector< AlgoProduct >  AlgoProductCollection;
-  typedef edm::RefToBase<TrajectorySeed> SeedRef;
-  typedef edm::AssociationMap<edm::OneToOne<std::vector<T>,std::vector<VertexConstraint> > > 
-  VtxConstraintAssociationCollection;
- public:
+  using Base = AlgoProductTraits<T>;
+  using TrackCollection = typename Base::TrackCollection;
+  using AlgoProductCollection = typename Base::AlgoProductCollection;
+
+  using SeedRef= edm::RefToBase<TrajectorySeed>;
+  using VtxConstraintAssociationCollection = edm::AssociationMap<edm::OneToOne<std::vector<T>,std::vector<VertexConstraint> > > ;
+  
+public:
 
   /// Constructor
   TrackProducerAlgorithm(const edm::ParameterSet& conf) : 

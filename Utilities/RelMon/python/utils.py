@@ -28,7 +28,7 @@ sys.argv=theargv
 
 from urllib2  import Request,build_opener,urlopen
 
-if os.environ.has_key("RELMON_SA"):
+if "RELMON_SA" in os.environ:
   from definitions import *
   from authentication import X509CertOpen
   from utils import __file__ as this_module_name  
@@ -51,7 +51,7 @@ def setTDRStyle():
   this_dir_one_up=this_dir[:this_dir.rfind("/")+1]
   #this_dir_two_up=this_dir_one_up[:this_dir_one_up.rfind("/")+1]
   style_file=''
-  if os.environ.has_key("RELMON_SA"):
+  if "RELMON_SA" in os.environ:
     style_file=this_dir_one_up+"data/tdrstyle_mod.C"
   else:
     style_file="%s/src/Utilities/RelMon/data/tdrstyle_mod.C"%(os.environ["CMSSW_BASE"])
@@ -577,7 +577,7 @@ def make_files_pairs(files, verbose=True):
     versions_files = dict()
     for file in files:
         version = get_cmssw_version(file)
-        if versions_files.has_key(version):
+        if version in versions_files:
             versions_files[version].append(file)
         else:
             versions_files[version] = [file]

@@ -98,7 +98,7 @@ def runserv(port):
     try:
         server = SimpleXMLRPCServer.SimpleXMLRPCServer((socket.gethostname(),port))
         server.register_function(request_benchmark)
-    except socket.error, detail:
+    except socket.error as detail:
         print "ERROR: Could not initialise server:", detail
         sys.stdout.flush()        
         sys.exit()
@@ -141,12 +141,12 @@ def readlog(logfile):
     try:
         for line in open(logfile,"r"):
             astr += line
-    except (OSError, IOError) , detail:
+    except (OSError, IOError) as detail:
         print detail
     return astr
 
 def getCPSkeyword(key,dict):
-    if dict.has_key(key):
+    if key in dict:
         return dict[key]
     else:
         return _DEFAULTS[key]
@@ -184,7 +184,7 @@ def request_benchmark(cmds):
             if os.path.exists(logfile):
                 logfile = logfile + str(cmd_num)
             print cmd
-            if cmd.has_key('cpus'):
+            if 'cpus' in cmd:
                 if cmd['cpus'] == "All":
                     print "Running performance suite on all CPUS!\n"
                     cmd['cpus']=""
@@ -269,7 +269,7 @@ def request_benchmark(cmds):
 
             
         return outs #Not sure what James intended to return here... the contents of all logfiles in a list of logfiles?
-    except exceptions.Exception, detail:
+    except exceptions.Exception as detail:
         # wrap the entire function in try except so we can log the error at client and server
         logh = open(os.path.join(os.getcwd(),"error.log"),"a")
         logh.write(str(detail) + "\n")

@@ -466,7 +466,7 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
                         elif isnan(tmpbeam.Z) or isnan(tmpbeam.Zerr) or isnan(tmpbeam.sigmaZerr) or isnan(tmpbeam.beamWidthXerr) or isnan(tmpbeam.beamWidthYerr):
                             print "invalid fit, NaN values!! skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)                       
 			elif hasBX:
-                            if maplist.has_key(tmpBX) == False:
+                            if (tmpBX in maplist) == False:
                                 maplist[tmpBX] = [tmpbeam]
                             else:
                                 maplist[tmpBX].append(tmpbeam)
@@ -560,7 +560,7 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
 			if isnan(tmpbeam.Z) or isnan(tmpbeam.Zerr) or isnan(tmpbeam.sigmaZerr) or isnan(tmpbeam.beamWidthXerr) or isnan(tmpbeam.beamWidthYerr):
                             print "invalid fit, NaN values!! skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)                       
 			elif hasBX:
-                            if maplist.has_key(tmpBX) == False:
+                            if (tmpBX in maplist) == False:
                                 maplist[tmpBX] = [tmpbeam]
                             else:
                                 maplist[tmpBX].append(tmpbeam)

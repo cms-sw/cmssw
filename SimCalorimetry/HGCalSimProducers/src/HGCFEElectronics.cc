@@ -1,0 +1,353 @@
+#include "SimCalorimetry/HGCalSimProducers/interface/HGCFEElectronics.h"
+#include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
+
+using namespace std;
+
+//
+template<class DFr>
+HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet &ps) :
+  toaMode_(WEIGHTEDBYE)
+{
+  tdcResolutionInNs_ = 1e-9; // set time resolution very small by default
+
+  fwVersion_                      = ps.getParameter< uint32_t >("fwVersion");
+  edm::LogVerbatim("HGCFE") << "[HGCFEElectronics] running with version " << fwVersion_ << std::endl;
+  if( ps.exists("adcPulse") )                       
+    {
+      adcPulse_  = ps.getParameter< std::vector<double> >("adcPulse");
+      pulseAvgT_ = ps.getParameter< std::vector<double> >("pulseAvgT");
+    }
+  adcSaturation_fC_=-1.0;
+  if( ps.exists("adcNbits") )
+    {
+      uint32_t adcNbits = ps.getParameter<uint32_t>("adcNbits");
+      adcSaturation_fC_ = ps.getParameter<double>("adcSaturation_fC");
+      adcLSB_fC_=adcSaturation_fC_/pow(2.,adcNbits);
+      edm::LogVerbatim("HGCFE") 
+         << "[HGCFEElectronics] " << adcNbits << " bit ADC defined"
+	 << " with LSB=" << adcLSB_fC_ 
+	 << " saturation to occur @ " << adcSaturation_fC_ << endl;
+    }
+
+  tdcSaturation_fC_=-1.0;
+  if( ps.exists("tdcNbits") )
+    {
+      uint32_t tdcNbits = ps.getParameter<uint32_t>("tdcNbits");
+      tdcSaturation_fC_ = ps.getParameter<double>("tdcSaturation_fC");
+      tdcLSB_fC_=tdcSaturation_fC_/pow(2.,tdcNbits);
+      edm::LogVerbatim("HGCFE") 
+         << "[HGCFEElectronics] " << tdcNbits << " bit TDC defined with LSB=" 
+         << tdcLSB_fC_ << " saturation to occur @ " << tdcSaturation_fC_ << endl;
+    }
+  if( ps.exists("adcThreshold_fC") )                adcThreshold_fC_                = ps.getParameter<double>("adcThreshold_fC");
+  if( ps.exists("tdcOnset_fC") )                    tdcOnset_fC_                    = ps.getParameter<double>("tdcOnset_fC");
+  if( ps.exists("toaLSB_ns") )                      toaLSB_ns_                      = ps.getParameter<double>("toaLSB_ns");
+  if( ps.exists("tdcChargeDrainParameterisation") ) tdcChargeDrainParameterisation_ = ps.getParameter< std::vector<double> >("tdcChargeDrainParameterisation");
+  if( ps.exists("tdcResolutionInPs") )              tdcResolutionInNs_              = ps.getParameter<double>("tdcResolutionInPs")*1e-3; // convert to ns
+  if( ps.exists("toaMode") )                        toaMode_                        = ps.getParameter<uint32_t>("toaMode");
+}
+
+
+//
+template<class DFr>
+void HGCFEElectronics<DFr>::runTrivialShaper(DFr &dataFrame,std::vector<float> &chargeColl)
+{
+  bool debug(false);
+  
+#ifdef EDM_ML_DEBUG  
+  for(int it=0; it<(int)(chargeColl.size()); it++) debug |= (chargeColl[it]>adcThreshold_fC_);
+#endif
+    
+  if(debug) edm::LogVerbatim("HGCFE") << "[runTrivialShaper]" << endl;
+  
+  //set new ADCs
+  HGCSample newSample;
+  for(int it=0; it<(int)(chargeColl.size()); it++)
+    {
+      //brute force saturation, maybe could to better with an exponential like saturation      
+      const uint32_t adc=std::floor( std::min(chargeColl[it],adcSaturation_fC_) / adcLSB_fC_ );
+      newSample.set(chargeColl[it]>adcThreshold_fC_,false,0,adc);
+      dataFrame.setSample(it,newSample);
+
+      if(debug) edm::LogVerbatim("HGCFE") << adc << " (" << chargeColl[it] << "/" << adcLSB_fC_ << ") ";
+    }
+
+  if(debug) { 
+    std::stringstream msg;
+    dataFrame.print(msg);
+    edm::LogVerbatim("HGCFE") << msg << endl; 
+  } 
+}
+
+//
+template<class DFr>
+void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame,std::vector<float> &chargeColl)
+{
+  //convolute with pulse shape to compute new ADCs
+  newCharge.resize(chargeColl.size(),0);
+  bool debug(false);
+  for(int it=0; it<(int)(chargeColl.size()); it++)
+    {
+      const float charge(chargeColl[it]);
+      if(charge==0) continue;
+            
+#ifdef EDM_ML_DEBUG
+      debug|=(charge>adcThreshold_fC_);
+#endif
+
+      if(debug) edm::LogVerbatim("HGCFE") << "\t Redistributing SARS ADC" << charge << " @ " << it;
+      
+      for(int ipulse=-2; ipulse<(int)(adcPulse_.size())-2; ipulse++)
+	{
+	  if(it+ipulse<0) continue;
+	  if(it+ipulse>=(int)(dataFrame.size())) continue;
+	  const float chargeLeak=charge*adcPulse_[(ipulse+2)]/adcPulse_[2];
+	  newCharge[it+ipulse]+= chargeLeak;
+	  
+	  if(debug) edm::LogVerbatim("HGCFE") << " | " << it+ipulse << " " << chargeLeak;
+	}
+      
+      if(debug) edm::LogVerbatim("HGCFE") << std::endl;
+    }
+
+  //set new ADCs
+  HGCSample newSample;
+  for(int it=0; it<(int)(newCharge.size()); it++)
+    {
+      //brute force saturation, maybe could to better with an exponential like saturation
+      const float saturatedCharge(min(newCharge[it],adcSaturation_fC_));
+      newSample.set(newCharge[it]>adcThreshold_fC_,false,0,floor(saturatedCharge/adcLSB_fC_));
+      dataFrame.setSample(it,newSample);      
+
+      if(debug) edm::LogVerbatim("HGCFE") << std::floor(saturatedCharge/adcLSB_fC_) << " (" << saturatedCharge << "/" << adcLSB_fC_ <<" ) " ;
+    }
+  
+  if(debug) { 
+    std::stringstream msg;
+    dataFrame.print(msg);
+    edm::LogVerbatim("HGCFE") << msg << endl; 
+  }
+  newCharge.clear();
+}
+
+//
+template<class DFr>
+void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toaColl, CLHEP::HepRandomEngine* engine)
+{
+  busyFlags.resize(chargeColl.size());
+  totFlags.resize(chargeColl.size());
+  newCharge.resize(chargeColl.size());
+  toaFromToT.resize(chargeColl.size());
+  
+  busyFlags.assign( busyFlags.size(), false );
+  totFlags.assign( totFlags.size(), false );
+  newCharge.assign( newCharge.size(), 0.f );
+  toaFromToT.assign( toaFromToT.size(), 0.f );
+
+#ifdef EDM_ML_DEBUG
+  constexpr bool debug(true);
+#else
+  constexpr bool debug(false);
+#endif
+
+  //first identify bunches which will trigger ToT
+  if(debug) edm::LogVerbatim("HGCFE") << "[runShaperWithToT]" << endl;  
+  for(int it=0; it<(int)(chargeColl.size()); ++it)
+    {
+      //if already flagged as busy it can't be re-used to trigger the ToT
+      if(busyFlags[it]) continue;
+
+      //if below TDC onset will be handled by SARS ADC later
+      float charge = chargeColl[it];
+      if(charge < tdcOnset_fC_)  continue;
+
+      //raise TDC mode
+      float toa    = toaColl[it];
+      totFlags[it]=true;
+
+      if(debug) edm::LogVerbatim("HGCFE") << "\t q=" << charge << " fC with <toa>=" << toa << " ns, triggers ToT @ " << it << std::endl;
+
+      //compute total charge to be integrated and integration time 
+      //needs a loop as ToT will last as long as there is charge to dissipate
+      int busyBxs(0);
+      float totalCharge(charge), finalToA(toa), integTime(0);
+      while(true) {        
+        //compute integration time in ns and # bunches
+        //float newIntegTime(0);
+        int poffset = 0;
+        float charge_offset = 0.f;
+        const float charge_kfC(totalCharge*1e-3);
+        if(charge_kfC<tdcChargeDrainParameterisation_[3]) {
+          //newIntegTime=tdcChargeDrainParameterisation_[0]*pow(charge_kfC,2)+tdcChargeDrainParameterisation_[1]*charge_kfC+tdcChargeDrainParameterisation_[2];
+        } else if(charge_kfC<tdcChargeDrainParameterisation_[7]) {
+          poffset = 4;
+          charge_offset = tdcChargeDrainParameterisation_[3];          
+          //newIntegTime=tdcChargeDrainParameterisation_[4]*pow(charge_kfC-tdcChargeDrainParameterisation_[3],2)+tdcChargeDrainParameterisation_[5]*(charge_kfC-tdcChargeDrainParameterisation_[3])+tdcChargeDrainParameterisation_[6];
+        } else {
+          poffset = 8;
+          charge_offset = tdcChargeDrainParameterisation_[7];
+          //newIntegTime=tdcChargeDrainParameterisation_[8]*pow(charge_kfC-tdcChargeDrainParameterisation_[7],2)+tdcChargeDrainParameterisation_[9]*(charge_kfC-tdcChargeDrainParameterisation_[7])+tdcChargeDrainParameterisation_[10];
+        }
+        const float charge_mod = charge_kfC - charge_offset;
+        const float newIntegTime = ( ( tdcChargeDrainParameterisation_[poffset]*charge_mod + 
+                                       tdcChargeDrainParameterisation_[poffset+1]            )*charge_mod +
+                                     tdcChargeDrainParameterisation_[poffset+2] );
+                                      
+          
+        
+        const int newBusyBxs=std::floor(newIntegTime/25.f)+1;      
+        
+        //if no update is needed regarding the number of bunches,
+        //then the ToT integration time has converged
+        integTime=newIntegTime;
+        if(newBusyBxs==busyBxs) break;
+        
+        //update charge integrated during ToT
+        if(debug)
+          {
+            if(busyBxs==0) edm::LogVerbatim("HGCFE") << "\t Intial busy estimate="<< integTime << " ns = " << newBusyBxs << " bxs" << std::endl;
+            else           edm::LogVerbatim("HGCFE") << "\t ...integrated charge overflows initial busy estimate, interating again" << std::endl;
+          }
+        
+        //update number of busy bunches
+        busyBxs=newBusyBxs;
+        
+        //reset charge to be integrated
+        totalCharge=charge;
+        if(toaMode_==WEIGHTEDBYE) finalToA=toa*charge;
+        
+        //add leakage from previous bunches in SARS ADC mode
+        for(int jt=0; jt<it; ++jt)
+          {
+            if(totFlags[jt] || busyFlags[jt]) continue;
+            
+            const float chargeDep_jt(chargeColl[jt]);
+            if(chargeDep_jt==0) continue;
+            
+            const int deltaT=(it-jt);
+            if(deltaT+2>(int)(adcPulse_.size())) continue;
+            
+            const float leakCharge( chargeDep_jt*adcPulse_[deltaT+2]/adcPulse_[2] );
+            if(debug) edm::LogVerbatim("HGCFE") << "\t\t leaking " << chargeDep_jt << " fC @ deltaT=-" << deltaT << " -> +" << leakCharge << " with avgT=" << pulseAvgT_[deltaT+2] << std::endl;
+            
+            totalCharge  += leakCharge;
+            if(toaMode_==WEIGHTEDBYE) finalToA     += leakCharge*pulseAvgT_[deltaT+2];
+          }
+        
+        //add contamination from posterior bunches
+        for(int jt=it+1; jt<it+busyBxs && jt<dataFrame.size() ; ++jt) 
+          { 
+            //this charge will be integrated in TDC mode
+            //disable for SARS ADC
+            busyFlags[jt]=true; 
+            
+            const float extraCharge=chargeColl[jt];
+            if(extraCharge==0) continue;
+            if(debug) edm::LogVerbatim("HGCFE") << "\t\t adding " << extraCharge << " fC @ deltaT=+" << (jt-it) << std::endl; 
+            
+            totalCharge += extraCharge;
+            if(toaMode_==WEIGHTEDBYE) finalToA    += extraCharge*toaColl[jt];
+          }
+        
+        //finalize ToA contamination
+        if(toaMode_==WEIGHTEDBYE) finalToA /= totalCharge;
+      }
+
+      toaFromToT[it] = CLHEP::RandGaussQ::shoot(engine,finalToA,tdcResolutionInNs_);
+      newCharge[it]  = (totalCharge-tdcOnset_fC_);      
+      
+      if(debug) edm::LogVerbatim("HGCFE") << "\t Final busy estimate="<< integTime << " ns = " << busyBxs << " bxs" << std::endl
+			                  << "\t Total integrated=" << totalCharge << " fC <toa>=" << toaFromToT[it] << " (raw=" << finalToA << ") ns " << std::endl; 
+      
+      //last fC (tdcOnset) are dissipated trough pulse
+      if(it+busyBxs<(int)(newCharge.size())) 
+	{
+	  const float deltaT2nextBx((busyBxs*25-integTime));
+	  const float tdcOnsetLeakage(tdcOnset_fC_*exp(-deltaT2nextBx/tdcChargeDrainParameterisation_[11]));
+	  if(debug) edm::LogVerbatim("HGCFE") << "\t Leaking remainder of TDC onset " << tdcOnset_fC_ 
+			                      << " fC, to be dissipated in " << deltaT2nextBx 
+			                      << " DeltaT/tau=" << deltaT2nextBx << " / " << tdcChargeDrainParameterisation_[11] 
+			                      << " ns, adds "  << tdcOnsetLeakage << " fC @ " << it+busyBxs << " bx (first free bx)" << std::endl;
+	  newCharge[it+busyBxs] +=  tdcOnsetLeakage;
+	}
+    }
+  
+  //including the leakage from bunches in SARS ADC when not declared busy or in ToT
+  for(int it=0; it<(int)(chargeColl.size()); it++)
+    {
+      //if busy, charge has been already integrated
+      if(totFlags[it] || busyFlags[it]) continue;
+      const float charge(chargeColl[it]);
+      if(charge==0) continue;
+
+      if(debug) edm::LogVerbatim("HGCFE") << "\t SARS ADC pulse activated @ " << it << " : ";
+      for(int ipulse=-2; ipulse<(int)(adcPulse_.size())-2; ipulse++)
+	{
+	  if(it+ipulse<0) continue;
+	  if(it+ipulse>=(int)(newCharge.size())) continue;
+
+	  //notice that if the channel is already busy,
+	  //it has already been affected by the leakage of the SARS ADC
+	  if(totFlags[it] || busyFlags[it+ipulse]) continue;
+	  const float chargeLeak=charge*adcPulse_[(ipulse+2)]/adcPulse_[2];
+	  if(debug) edm::LogVerbatim("HGCFE") << " | " << it+ipulse << " " << chargeLeak << "( " << charge << "->";
+	  newCharge[it+ipulse]+=chargeLeak;
+	  if(debug) edm::LogVerbatim("HGCFE") << newCharge[it+ipulse] << ") ";
+	}
+      
+      if(debug) edm::LogVerbatim("HGCFE") << std::endl;
+    }
+
+  //set new ADCs and ToA
+  if(debug) edm::LogVerbatim("HGCFE") << "\t final result : ";
+  for(int it=0; it<(int)(newCharge.size()); it++)
+    {
+      if(debug) edm::LogVerbatim("HGCFE") << chargeColl[it] << " -> " << newCharge[it] << " ";
+
+      HGCSample newSample;
+      if(totFlags[it] || busyFlags[it])
+	{
+	  if(totFlags[it]) 
+	    {
+	      float finalToA(toaFromToT[it]);
+	      while(finalToA<0)  finalToA+=25.;
+	      while(finalToA>25) finalToA-=25;
+
+	      //brute force saturation, maybe could to better with an exponential like saturation
+	      float saturatedCharge(std::min(newCharge[it],tdcSaturation_fC_));	      
+	      newSample.set(true,true,finalToA/toaLSB_ns_,floor(saturatedCharge/tdcLSB_fC_));
+	    }
+	  else
+	    {
+	      newSample.set(false,true,0,0);
+	    }
+	}
+      else
+	{
+	   //brute force saturation, maybe could to better with an exponential like saturation
+	      float saturatedCharge(min(newCharge[it],adcSaturation_fC_));
+	  newSample.set(newCharge[it]>adcThreshold_fC_,false,0,saturatedCharge/adcLSB_fC_);
+	}
+      dataFrame.setSample(it,newSample);
+    }
+
+  if(debug) { 
+    std::stringstream msg;
+    dataFrame.print(msg);
+    edm::LogVerbatim("HGCFE") << msg << endl; 
+  }  
+}
+
+template<class DFr>
+void HGCFEElectronics<DFr>::resetCaches() {
+  std::vector<bool>().swap(busyFlags);
+  std::vector<bool>().swap(totFlags);
+  std::vector<float>().swap(newCharge);
+  std::vector<float>().swap(toaFromToT);
+}
+
+// cause the compiler to generate the appropriate code
+#include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
+template class HGCFEElectronics<HGCEEDataFrame>;
+template class HGCFEElectronics<HGCHEDataFrame>;
+

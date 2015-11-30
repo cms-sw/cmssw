@@ -18,7 +18,7 @@ def guessPackage() :
     lines = ( line for line in file('src/plugin.cc')
               if (line.find('CondFormats')>0 and line.find('DataRecord')<0)
     )
-    _f = lines.next()
+    _f = next(lines)
     _f = _f[_f.find('CondFormats/')+len('CondFormats/'):]
     return _f[:_f.find('/')]
  

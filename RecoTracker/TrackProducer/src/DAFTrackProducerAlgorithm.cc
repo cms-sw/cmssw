@@ -275,7 +275,7 @@ bool DAFTrackProducerAlgorithm::buildTrack (const Trajectory vtraj,
                                                           tscbl.trackStateAtPCA().curvilinearError(), algo));
     theTrack->setQualityMask((*BeforeDAFTrack)->qualityMask());
 
-    AlgoProduct aProduct(theTraj.release(), std::make_pair(theTrack.release(), vtraj.direction()));
+    AlgoProduct aProduct{theTraj.release(), theTrack.release(), vtraj.direction(),0};
     algoResults.push_back(aProduct);
 
     return true;

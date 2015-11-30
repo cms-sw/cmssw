@@ -402,7 +402,7 @@ class HTTP(object):
 
 def addToTarFile(tarFile, fileobj, arcname):
     tarInfo = tarFile.gettarinfo(fileobj = fileobj, arcname = arcname)
-    tarInfo.mode = 0400
+    tarInfo.mode = 0o400
     tarInfo.uid = tarInfo.gid = tarInfo.mtime = 0
     tarInfo.uname = tarInfo.gname = 'root'
     tarFile.addfile(tarInfo, fileobj)

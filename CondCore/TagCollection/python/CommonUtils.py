@@ -21,8 +21,8 @@ def dropAllTreeTables(dbsession):
 	   if tname.find('TAGTREE_') != -1:
               dbsession.nominalSchema().dropTable(tname)
 	dbsession.transaction().commit()
-    except Exception, e:
-        raise Exception, str(e)
+    except Exception as e:
+        raise Exception(str(e))
 	    
 def tagInTrees(dbsession,tagname,pfn=''):
     """returns the tree names which contain the given tag
@@ -45,7 +45,7 @@ def tagInTrees(dbsession,tagname,pfn=''):
 	invquery.addToOutputList('pfn')
 	cursor = invquery.execute()
 	tagidmap={}
-	while ( cursor.next() ):
+	while ( next(cursor) ):
 	    tagid=cursor.currentRow()['tagid'].data()
 	    pfn=cursor.currentRow()['pfn'].data()
 	    tagidmap[pfn]=tagid
@@ -76,15 +76,15 @@ def tagInTrees(dbsession,tagname,pfn=''):
 	      q.defineOutput(myresult)
 	      q.setCondition(condition,conditionBind)
 	      cr=q.execute()
-	      while (cr.next()):
+	      while (next(cr)):
 	        if cr.currentRow()['count'].data()!=0:
 		  result[pfn].append(t[len('TAGTREE_TABLE_'):])
 	      cr.close()
 	      del q
 	dbsession.transaction().commit()	
         return result    
-    except Exception, e:
-        raise Exception, str(e)
+    except Exception as e:
+        raise Exception(str(e))
 
 if __name__ == "__main__":
     #context = coral.Context()
@@ -106,7 +106,7 @@ if __name__ == "__main__":
 	mikey=tagInTrees(session,'Tracker_Geometry_CRUZET3','frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_20X_ALIGNMENT')
 	print mikey
 	del session
-    except Exception, e:
+    except Exception as e:
         print "Failed in unit test"
         print str(e)
         del session

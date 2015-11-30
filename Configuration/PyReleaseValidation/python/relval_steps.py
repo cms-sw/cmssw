@@ -923,7 +923,7 @@ steps['REPACKHID']=merge([{'--scenario':'HeavyIons',
                          '--eventcontent':'REPACKRAW'},
                         steps['RECOD']])
 steps['RECOHID10']=merge([{'--scenario':'HeavyIons',
-                         '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBiasHI+HcalCalMinBias,DQM',
+                         '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBiasHI+TkAlUpsilonMuMuHI+TkAlZMuMuHI+TkAlMuonIsolatedHI+TkAlJpsiMuMuHI+HcalCalMinBias,DQM',
                          '--datatier':'RECO,DQMIO',
                          '--eventcontent':'RECO,DQM','-n':30},
                         steps['RECOD']])
@@ -944,6 +944,20 @@ steps['TIER0EXP']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCAPRODUCER:@allForExpr
                           '--eventcontent':'ALCARECO,DQM',
                           '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
                           },steps['TIER0']])
+
+steps['TIER0EXPHI']={      '--conditions':'auto:run1_data',
+          '-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForExpressHI,DQM,ENDJOB',
+          '--datatier':'ALCARECO,DQMIO',
+          '--eventcontent':'ALCARECO,DQM',
+          '--data':'',
+          '--process':'RECO',
+          '--scenario':'HeavyIons',
+          '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpressHI',
+          '--repacked':'',
+          '-n':'10'
+                          }
+    
+
 
 steps['RECOCOSD']=merge([{'--scenario':'cosmics',
                           '-s':'RAW2DIGI,L1Reco,RECO,DQM,ALCA:MuAlCalIsolatedMu+DtCalib',
@@ -1096,6 +1110,8 @@ steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibP
                   '--conditions':'auto:run1_data',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO'}
+steps['ALCAEXPHI']=merge([{'-s':'ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains',
+                  '--scenario':'HeavyIons'},steps['ALCAEXP']])
 
 # step4
 step4Defaults = { 
@@ -1136,24 +1152,28 @@ steps['ALCAHARVD1']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQuali
                     '--scenario':'pp',
                     '--data':'',
                     '--filein':'file:PromptCalibProd.root'}
+steps['ALCAHARVD1HI']=merge([{'--scenario':'HeavyIons'},steps['ALCAHARVD1']])
 
 steps['ALCAHARVD2']={'-s':'ALCAHARVEST:SiStripQuality',
                     '--conditions':'auto:run1_data',
                     '--scenario':'pp',
                     '--data':'',
                     '--filein':'file:PromptCalibProdSiStrip.root'}
+steps['ALCAHARVD2HI']=merge([{'--scenario':'HeavyIons'},steps['ALCAHARVD2']])
 
 steps['ALCAHARVD3']={'-s':'ALCAHARVEST:SiStripGains',
                     '--conditions':'auto:run1_data',
                     '--scenario':'pp',
                     '--data':'',
                     '--filein':'file:PromptCalibProdSiStripGains.root'}
+steps['ALCAHARVD3HI']=merge([{'--scenario':'HeavyIons'},steps['ALCAHARVD3']])
 
 steps['ALCAHARVD4']={'-s':'ALCAHARVEST:SiPixelAli',
                     '--conditions':'auto:run1_data',
                     '--scenario':'pp',
                     '--data':'',
                     '--filein':'file:PromptCalibProdSiPixelAli.root'}
+steps['ALCAHARVD4HI']=merge([{'--scenario':'HeavyIons'},steps['ALCAHARVD4']])
 
 steps['RECOHISt4']=steps['RECOHI']
 steps['RECOHIMIX']=merge([steps['RECOHI'],{'--pileup':'HiMix','--pileup_input':'das:/RelValHydjetQ_MinBias_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[9])}])

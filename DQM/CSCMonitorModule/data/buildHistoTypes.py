@@ -16,7 +16,7 @@ def main():
 
   try:
     opts, args = getopt(argv[1:], "d:t:", ["data=","tmpl="])
-  except getopt.GetoptError, err:
+  except getopt.GetoptError as err:
     print str(err)
     usage()
     exit(1)

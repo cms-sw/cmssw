@@ -76,7 +76,7 @@ if __name__ == '__main__':
         runkeyquery.defineOutput(qResult)
         runkeyquery.setCondition('RUN_NUMBER>=:runnum',qCondition)
         cursor=runkeyquery.execute()
-        while cursor.next():
+        while next(cursor):
             gtrskey=cursor.currentRow()['GT_RS_KEY'].data()
             runnum=cursor.currentRow()['RUN_NUMBER'].data()
             runkeymap[runnum]=gtrskey
@@ -112,7 +112,7 @@ if __name__ == '__main__':
             ttquery.defineOutput(ttResult)
             ttquery.setCondition(ttConditionStr,ttCondition)
             cursor=ttquery.execute()
-            while cursor.next():
+            while next(cursor):
                 for ttidx in range(0,64):
                     kvalue=cursor.currentRow()['tt_%03d'%(ttidx)].data()
                     if kvalue!=0:
@@ -134,7 +134,7 @@ if __name__ == '__main__':
             algoquery.defineOutput(algoResult)
             algoquery.setCondition(algoConditionStr,algoCondition)
             cursor=algoquery.execute()
-            while cursor.next():
+            while next(cursor):
                 for algoidx in range(0,128):
                     kvalue=cursor.currentRow()['algo_%03d'%(algoidx)].data()
                     if kvalue!=0:

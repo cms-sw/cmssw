@@ -31,12 +31,12 @@ process.dqmSaver.tag = "BeamPixel"
 # Sub-system Configuration
 #----------------------------
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 # Use this to run locally (for testing purposes)
-#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 #from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, '74X_dataRun2_Prompt_v0', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, "74X_dataRun2_Prompt_v0", "")
 # Otherwise use this
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
@@ -79,7 +79,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.siPixelDigis.InputLabel          = cms.InputTag("rawDataCollector")
     process.siStripDigis.ProductLabel        = cms.InputTag("rawDataCollector")
 
-    process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
+    process.load("Configuration.StandardSequences.Reconstruction_Data_cff")
 
 
     #----------------------------
@@ -117,25 +117,30 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     #----------------------------
     # Pixel-Tracks&Vertices Config
     #----------------------------
+    from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
+    process.RegionPSetBlock.RegionPSet.originRadius = cms.double(0.4)
+
     process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+    process.PixelTrackReconstructionBlock.RegionFactoryPSet = cms.PSet(RegionPSetBlock, ComponentName = cms.string("GlobalTrackingRegion"))
     process.pixelVertices.TkFilterParameters.minPt = process.pixelTracks.RegionFactoryPSet.RegionPSet.ptMin
-    process.offlinePrimaryVertices.TrackLabel = cms.InputTag("pixelTracks")
+
     from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
-    process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
-    process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
+    process.PixelLayerTriplets.BPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
+    process.PixelLayerTriplets.FPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
+
     from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
-    process.pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.clusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCachePreSplitting')
+    process.pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCachePreSplitting")
 
 
     #----------------------------
     # Pixel-Tracks&Vertices Reco
     #----------------------------
-    process.reconstructionStep  = cms.Sequence(process.siPixelDigis*
-                                               process.offlineBeamSpot*
-                                               process.siPixelClustersPreSplitting*
-                                               process.siPixelRecHitsPreSplitting*
-                                               process.siPixelClusterShapeCachePreSplitting*
-                                               process.recopixelvertexing)
+    process.reconstructionStep = cms.Sequence(process.siPixelDigis*
+                                              process.offlineBeamSpot*
+                                              process.siPixelClustersPreSplitting*
+                                              process.siPixelRecHitsPreSplitting*
+                                              process.siPixelClusterShapeCachePreSplitting*
+                                              process.recopixelvertexing)
 
 
     #----------------------------

@@ -7,7 +7,7 @@ usage = "Usage: geometryDiff.py [-h|--help] [-e|--epsilon epsilon] geometry1.xml
 
 try:
   opts, args = getopt.getopt(sys.argv[1:], "he:", ["help", "epsilon="])
-except getopt.GetoptError, msg:
+except getopt.GetoptError as msg:
   print >>sys.stderr, usage
   sys.exit(2)
 

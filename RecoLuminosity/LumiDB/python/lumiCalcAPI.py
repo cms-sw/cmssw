@@ -125,7 +125,7 @@ def beamForIds(schema,irunlsdict,dataidmap,withBeamIntensity=False,minIntensity=
         lslist=irunlsdict[run]
         if lslist is not None and len(lslist)==0:
             continue
-        if not dataidmap.has_key(run):
+        if run not in dataidmap:
             continue #run non exist
         lumidataid=dataidmap[run][0]
         if lumidataid is None:
@@ -166,7 +166,7 @@ def hltForIds(schema,irunlsdict,dataidmap,hltpathname=None,hltpathpattern=None,w
         if lslist is not None and len(lslist)==0:
             result[run]=[]#if no LS is selected for a run
             continue
-        if not dataidmap.has_key(run):
+        if run not in dataidmap:
             continue
         hltdataid=dataidmap[run][2]
         if hltdataid is None:
@@ -211,7 +211,7 @@ def trgForIds(schema,irunlsdict,dataidmap,trgbitname=None,trgbitnamepattern=None
         if lslist is not None and len(lslist)==0:
             #if no LS is selected for a run
             continue
-        if not dataidmap.has_key(run):
+        if run not in dataidmap:
             continue
         trgdataid=dataidmap[run][1]
         if trgdataid is None:
@@ -289,7 +289,7 @@ def instLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap,beamstatusfilter=No
             continue
         fillnum=runsummaryMap[run][4]
         runstarttimeStr=runsummaryMap[run][6]
-        if not dataidmap.has_key(run):
+        if run not in dataidmap:
             result[run]=[]#no lumi data for this run in lumiDB
             continue
         (lumidataid,trgid,hltid )=dataidmap[run]
@@ -413,13 +413,13 @@ def deliveredLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap,beamstatusfilt
             result[run]=None
             continue
         intglumi=0.
-        if normmap and intglumimap and intglumimap.has_key(run) and intglumimap[run]:
+        if normmap and intglumimap and run in intglumimap and intglumimap[run]:
             intglumi=intglumimap[run]
         nBXs=0
-        if normmap and lumirundata and lumirundata.has_key(run) and lumirundata[run][2]:
+        if normmap and lumirundata and run in lumirundata and lumirundata[run][2]:
             nBXs=lumirundata[run][2]
         fillschemeStr=''
-        if normmap and runsummaryMap and runsummaryMap.has_key(run) and runsummaryMap[run][5]:
+        if normmap and runsummaryMap and run in runsummaryMap and runsummaryMap[run][5]:
             fillschemeStr=runsummaryMap[run][5]
         if allsince:
             lastsince=allsince[0]
@@ -507,7 +507,7 @@ def lumiForIds(schema,irunlsdict,dataidmap,runsummaryMap,beamstatusfilter=None,t
         if perrundata is None or len(perrundata)==0: #pass through 
             continue
         alltrgls=[]
-        if trgresult.has_key(run) and trgresult[run]:
+        if run in trgresult and trgresult[run]:
             alltrgls=[x[0] for x in trgresult[run]]
         for perlsdata in perrundata:#loop over ls
             if not perlsdata: continue #no lumi data for this ls
@@ -562,10 +562,10 @@ def effectiveLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap=None,beamstatu
         if perrundata is None or len(perrundata)==0:#pass through 
             continue
         alltrgls=[]
-        if trgresult.has_key(run) and trgresult[run]:
+        if run in trgresult and trgresult[run]:
             alltrgls=[x[0] for x in trgresult[run]]
         allhltls=[]
-        if hltresult.has_key(run) and hltresult[run]:
+        if run in hltresult and hltresult[run]:
             allhltls=[x[0] for x in hltresult[run]]            
         l1bitinfo=[]
         hltpathinfo=[]

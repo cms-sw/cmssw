@@ -57,10 +57,10 @@ def queryStatusXML(filename):
 
     try:
         report = loadIMProvFile(filename)
-    except StandardError, ex:
+    except Exception as ex:
         msg = "Error reading CRAB Status Report: %s\n" % filename
         msg += str(ex)
-        raise RuntimeError, msg
+        raise RuntimeError(msg)
 
     query = IMProvQuery("Task/TaskJobs/Job/RunningJob")
     Jobs = query(report)
@@ -100,7 +100,7 @@ def crabStatusFromReport(filename):
     nJobs = 0
     for j in Jobs:
         jobStatus = str(j.attrs.get(statusField,None))
-        if summary.has_key(jobStatus): summary[jobStatus] += 1
+        if jobStatus in summary: summary[jobStatus] += 1
         else: summary[jobStatus] = 1
         nJobs += 1
 

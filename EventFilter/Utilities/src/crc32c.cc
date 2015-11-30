@@ -88,7 +88,7 @@ static uint32_t crc32c_sw(uint32_t crci, const unsigned char *buf, size_t len)
 
     pthread_once(&crc32c_once_sw, crc32c_init_sw);
     crc = crci ^ 0xffffffff;
-    while (len && ((uintptr_t)next & 7) != 0) {
+    while (len && ((const uintptr_t)next & 7) != 0) {
         crc = crc32c_table[0][(crc ^ *next++) & 0xff] ^ (crc >> 8);
         len--;
     }
@@ -243,7 +243,7 @@ static uint32_t crc32c_hw(uint32_t crc, const unsigned char *buf, size_t len)
 
     /* compute the crc for up to seven leading bytes to bring the data pointer
        to an eight-byte boundary */
-    while (len && ((uintptr_t)next & 7) != 0) {
+    while (len && ((const uintptr_t)next & 7) != 0) {
         __asm__("crc32b\t" "(%1), %0"
                 : "=r"(crc0)
                 : "r"(next), "0"(crc0));

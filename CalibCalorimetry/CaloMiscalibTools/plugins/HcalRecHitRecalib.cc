@@ -125,7 +125,7 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        //loop on all EcalRecHits (barrel)
       HBHERecHitCollection::const_iterator itHBHE;
-      for (itHBHE=HBHERecHits->begin(); itHBHE!=HBHERecHits->end(); itHBHE++) {
+      for (itHBHE=HBHERecHits->begin(); itHBHE!=HBHERecHits->end(); ++itHBHE) {
 	
 	// find intercalib constant for this cell
 
@@ -156,7 +156,7 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        //loop on all EcalRecHits (barrel)
       HFRecHitCollection::const_iterator itHF;
-      for (itHF=HFRecHits->begin(); itHF!=HFRecHits->end(); itHF++) {
+      for (itHF=HFRecHits->begin(); itHF!=HFRecHits->end(); ++itHF) {
 	
 	// find intercalib constant for this cell
 
@@ -187,7 +187,7 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        //loop on all EcalRecHits (barrel)
       HORecHitCollection::const_iterator itHO;
-      for (itHO=HORecHits->begin(); itHO!=HORecHits->end(); itHO++) {
+      for (itHO=HORecHits->begin(); itHO!=HORecHits->end(); ++itHO) {
 	
 	// find intercalib constant for this cell
 

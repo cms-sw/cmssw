@@ -65,6 +65,7 @@ private:
   unsigned int maxEventsToPrint;
   std::vector<std::string> arguments;
   SHERPA::Sherpa Generator;
+  bool isInitialized;
   bool isRNGinitialized;
 };
 
@@ -169,7 +170,7 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   arguments.push_back(shRes.c_str());
   arguments.push_back(shRng.c_str());
   arguments.push_back(shNoMT.c_str());
-
+  isInitialized=false;
  //initialization of Sherpa moved to initializeForInternalPartons
 }
 
@@ -179,14 +180,15 @@ SherpaHadronizer::~SherpaHadronizer()
 
 bool SherpaHadronizer::initializeForInternalPartons()
 {
-  int argc=arguments.size();
-  char* argv[argc];
-  for (int l=0; l<argc; l++) argv[l]=(char*)arguments[l].c_str();
-  
-  Generator.InitializeTheRun(argc,argv);
-  //initialize Sherpa
-  Generator.InitializeTheEventHandler();
-
+  //initialize Sherpa but only once
+  if (!isInitialized){
+      int argc=arguments.size();
+      char* argv[argc];
+      for (int l=0; l<argc; l++) argv[l]=(char*)arguments[l].c_str();
+      Generator.InitializeTheRun(argc,argv);
+      Generator.InitializeTheEventHandler();
+      isInitialized=true;
+  }
   return true;
 }
 

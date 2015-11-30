@@ -3,6 +3,7 @@
 The sequential dictionary is a combination of a list and a dictionary so you can do most operations defined with lists . 
 seqdict - single value dictionary , keeps one value for one key 
 '''
+from functools import reduce
 
 class seqdict:
   def __init__(self,List=[],Dict={}):
@@ -24,7 +25,7 @@ class seqdict:
       self.list,self.dict = List[:],Dict.copy()
       
   def append(self,key,value):
-    if self.dict.has_key(key):
+    if key in self.dict:
       self.list.remove(key)
     self.list.append(key)
     self.dict[key]=value
@@ -51,7 +52,7 @@ class seqdict:
       return self.__class__(key,newdict)
     return self.dict[key]
   def __setitem__(self,key,value):
-    if not self.dict.has_key(key):
+    if key not in self.dict:
       self.list.append(key)
     self.dict[key]=value
   def __delitem__(self, key):
@@ -68,7 +69,7 @@ class seqdict:
     start = max(start,0); stop = max(stop,0)
     delindexes = []
     for key in newdict.keys():
-      if self.dict.has_key(key):
+      if key in self.dict:
         index = self.list.index(key)
         delindexes.append(index)
         if index < start:
@@ -119,7 +120,7 @@ class seqdict:
   def index(self,key):return self.list.index(key)
   def insert(self,i,x):self.__setslice__(i,i,x)
   def items(self):return map(None,self.list,self.values())
-  def has_key(self,key):return self.dict.has_key(key)
+  def has_key(self,key):return key in self.dict
   def keys(self):return self.list
   def map(self,function):
     return self.__class__(map(function,self.items()))
@@ -146,18 +147,18 @@ class seqdict:
     del self.dict[key]
     self.list.remove(key)
   def reverse(self):self.list.reverse()
-  def sort(self,*args):apply(self.list.sort,args)
+  def sort(self,*args):self.list.sort(*args)
   def split(self,function,Ignore=None):
     splitdict = seqdict() #self.__class__()
     for key in self.list:
       skey = function(key)
       if skey != Ignore:
-        if not splitdict.has_key(skey):
+        if skey not in splitdict:
           splitdict[skey] = self.__class__()
         splitdict[skey][key] = self.dict[key]
     return splitdict
   def swap(self):
-    tmp = self.__class__(map(lambda (x,y):(y,x),self.items()))
+    tmp = self.__class__(map(lambda x_y:(x_y[1],x_y[0]),self.items()))
     self.list,self.dict = tmp.list,tmp.dict
   def update(self,newdict):
     for key,value in newdict.items():

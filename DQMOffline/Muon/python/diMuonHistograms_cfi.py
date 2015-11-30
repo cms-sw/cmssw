@@ -10,6 +10,10 @@ diMuonHistos = cms.EDAnalyzer("DiMuonHistograms",
                               etaBin = cms.int32(400),
                               etaBBin = cms.int32(400),
                               etaEBin = cms.int32(200),
+ 
+                              etaBinLM = cms.int32(0),
+                              etaBBinLM = cms.int32(0),
+                              etaEBinLM = cms.int32(0),
                               
                               etaBMin = cms.double(0.),
                               etaBMax = cms.double(1.1),

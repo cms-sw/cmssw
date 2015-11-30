@@ -114,7 +114,6 @@
  <class name="std::vector<SiStripMatchedRecHit2D>"/>
  <class name="edmNew::DetSetVector<SiStripMatchedRecHit2D>"/>
  <class name="edm::Wrapper<edmNew::DetSetVector<SiStripMatchedRecHit2D> >"/>
- <class name="std::vector<SiPixelRecHit>"/>
  <class name="edmNew::DetSetVector<SiPixelRecHit>"/>
  <class name="edm::Wrapper<edmNew::DetSetVector<SiPixelRecHit> >"/>
 

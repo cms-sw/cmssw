@@ -15,7 +15,7 @@
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
 //
 //
-#define private public // workaround for bug in 5.34.18
+
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TColor.h"
@@ -97,26 +97,12 @@ EveDisplayPlugin::run(const edm::EventSetup& iSetup)
    ESHandle<TGeoManager> geom;
    iSetup.get<DisplayGeomRecord>().get(geom);
 
-
-
-// AMT workaround for an agressive clenup in 5.43.18
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,34,18)
-   if (!gStyle) {
-      TColor::fgInitDone=false;
-      TColor::InitializeColors();
-      TStyle::BuildStyles();
-      gROOT->SetStyle(gEnv->GetValue("Canvas.Style", "Modern"));
-      gStyle = gROOT->GetStyle("Classic");
-   }
-#endif
-
    TEveManager::Create();
 
    TEveGeoTopNode* trk = new TEveGeoTopNode(const_cast<TGeoManager*>(geom.product()),
 					    geom->GetTopNode());
    trk->SetVisLevel(2);
    gEve->AddGlobalElement(trk);
-
 }
 
 

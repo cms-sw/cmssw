@@ -121,7 +121,7 @@ class SVG:
   [1, 0]                       <tspan (1 sub) />
   """
   def __init__(self, *t_sub, **attr):
-    if len(t_sub) == 0: raise TypeError, "SVG element must have a t (SVG type)"
+    if len(t_sub) == 0: raise TypeError("SVG element must have a t (SVG type)")
 
     # first argument is t (SVG type)
     self.t = t_sub[0]
@@ -228,7 +228,7 @@ class SVG:
           self.iterators.append(self.__class__(s, self.ti + (k,), self.depth_limit))
         self.iterators = itertools.chain(*self.iterators)
 
-      return self.iterators.next()
+      return next(self.iterators)
   ### end nested class
 
   def depth_first(self, depth_limit=None):
@@ -241,7 +241,7 @@ class SVG:
 
     Returns a breadth-first generator over the SVG.  If depth_limit
     is a number, stop recursion at that depth."""
-    raise NotImplementedError, "Got an algorithm for breadth-first searching a tree without effectively copying the tree?"
+    raise NotImplementedError("Got an algorithm for breadth-first searching a tree without effectively copying the tree?")
 
   def __iter__(self): return self.depth_first()
 
@@ -511,7 +511,7 @@ def canvas_outline(*sub, **attr):
   so that you know how close your image is to the edges."""
   svg = canvas(*sub, **attr)
   match = re.match("[, \t]*([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]*", svg["viewBox"])
-  if match == None: raise ValueError, "canvas viewBox is incorrectly formatted"
+  if match == None: raise ValueError("canvas viewBox is incorrectly formatted")
   x, y, width, height = [float(x) for x in match.groups()]
   svg.prepend(SVG("rect", x=x, y=y, width=width, height=height, stroke="none", fill="cornsilk"))
   svg.append(SVG("rect", x=x, y=y, width=width, height=height, stroke="black", fill="none"))
@@ -618,7 +618,7 @@ def totrans(expr, vars=("x", "y"), globals=None, locals=None):
       return output
 
     else:
-      raise TypeError, "must be a function of 2 or 1 variables"
+      raise TypeError("must be a function of 2 or 1 variables")
 
   if len(vars) == 2:
     g = math.__dict__
@@ -637,7 +637,7 @@ def totrans(expr, vars=("x", "y"), globals=None, locals=None):
     return output2
 
   else:
-    raise TypeError, "vars must have 2 or 1 elements"
+    raise TypeError("vars must have 2 or 1 elements")
 
 def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100, xlogbase=None, ylogbase=None, minusInfinity=-1000, flipx=False, flipy=True):
   """Creates and returns a coordinate transformation (a function that
@@ -673,9 +673,9 @@ def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100, xlogbase=Non
   ix2 = xmax
   iy2 = ymax
   
-  if xlogbase != None and (ix1 <= 0. or ix2 <= 0.): raise ValueError, "x range incompatible with log scaling: (%g, %g)" % (ix1, ix2)
+  if xlogbase != None and (ix1 <= 0. or ix2 <= 0.): raise ValueError("x range incompatible with log scaling: (%g, %g)" % (ix1, ix2))
 
-  if ylogbase != None and (iy1 <= 0. or iy2 <= 0.): raise ValueError, "y range incompatible with log scaling: (%g, %g)" % (iy1, iy2)
+  if ylogbase != None and (iy1 <= 0. or iy2 <= 0.): raise ValueError("y range incompatible with log scaling: (%g, %g)" % (iy1, iy2))
 
   def maybelog(t, it1, it2, ot1, ot2, logbase):
     if t <= 0.: return minusInfinity
@@ -746,7 +746,7 @@ class Fig:
 
     self.trans = kwds["trans"]; del kwds["trans"]
     if len(kwds) != 0:
-      raise TypeError, "Fig() got unexpected keyword arguments %s" % kwds.keys()
+      raise TypeError("Fig() got unexpected keyword arguments %s" % kwds.keys())
 
   def SVG(self, trans=None):
     """Apply the transformation "trans" and return an SVG object.
@@ -851,7 +851,7 @@ class Plot:
     self.text_attr = kwds["text_attr"]; del kwds["text_attr"]
     self.axis_attr = kwds["axis_attr"]; del kwds["axis_attr"]
     if len(kwds) != 0:
-      raise TypeError, "Plot() got unexpected keyword arguments %s" % kwds.keys()
+      raise TypeError("Plot() got unexpected keyword arguments %s" % kwds.keys())
 
   def SVG(self, trans=None):
     """Apply the transformation "trans" and return an SVG object."""
@@ -950,7 +950,7 @@ class Frame:
     self.axis_attr.update(kwds["axis_attr"]); del kwds["axis_attr"]
 
     if len(kwds) != 0:
-      raise TypeError, "Frame() got unexpected keyword arguments %s" % kwds.keys()
+      raise TypeError("Frame() got unexpected keyword arguments %s" % kwds.keys())
 
   def SVG(self):
     """Apply the window transformation and return an SVG object."""
@@ -1006,7 +1006,7 @@ class Frame:
 def pathtoPath(svg):
   """Converts SVG("path", d="...") into Path(d=[...])."""
   if not isinstance(svg, SVG) or svg.t != "path":
-    raise TypeError, "Only SVG <path /> objects can be converted into Paths"
+    raise TypeError("Only SVG <path /> objects can be converted into Paths")
   attr = dict(svg.attr)
   d = attr["d"]
   del attr["d"]
@@ -1131,7 +1131,7 @@ class Path:
       elif command in ("H", "h", "V", "v"):
         errstring = "Path command \"%s\" requires a number at index %d" % (command, index)
         num1, index, pathdata = self.parse_number(index, pathdata)
-        if num1 == None: raise ValueError, errstring
+        if num1 == None: raise ValueError(errstring)
 
         while num1 != None:
           output.append((command, num1))
@@ -1143,10 +1143,10 @@ class Path:
         num1, index, pathdata = self.parse_number(index, pathdata)
         num2, index, pathdata = self.parse_number(index, pathdata)
 
-        if num1 == None: raise ValueError, errstring
+        if num1 == None: raise ValueError(errstring)
 
         while num1 != None:
-          if num2 == None: raise ValueError, errstring
+          if num2 == None: raise ValueError(errstring)
           output.append((command, num1, num2, False))
 
           num1, index, pathdata = self.parse_number(index, pathdata)
@@ -1160,10 +1160,10 @@ class Path:
         num3, index, pathdata = self.parse_number(index, pathdata)
         num4, index, pathdata = self.parse_number(index, pathdata)
 
-        if num1 == None: raise ValueError, errstring
+        if num1 == None: raise ValueError(errstring)
 
         while num1 != None:
-          if num2 == None or num3 == None or num4 == None: raise ValueError, errstring
+          if num2 == None or num3 == None or num4 == None: raise ValueError(errstring)
           output.append((command, num1, num2, False, num3, num4, False))
 
           num1, index, pathdata = self.parse_number(index, pathdata)
@@ -1181,10 +1181,10 @@ class Path:
         num5, index, pathdata = self.parse_number(index, pathdata)
         num6, index, pathdata = self.parse_number(index, pathdata)
         
-        if num1 == None: raise ValueError, errstring
+        if num1 == None: raise ValueError(errstring)
 
         while num1 != None:
-          if num2 == None or num3 == None or num4 == None or num5 == None or num6 == None: raise ValueError, errstring
+          if num2 == None or num3 == None or num4 == None or num5 == None or num6 == None: raise ValueError(errstring)
 
           output.append((command, num1, num2, False, num3, num4, False, num5, num6, False))
 
@@ -1206,10 +1206,10 @@ class Path:
         num6, index, pathdata = self.parse_number(index, pathdata)
         num7, index, pathdata = self.parse_number(index, pathdata)
 
-        if num1 == None: raise ValueError, errstring
+        if num1 == None: raise ValueError(errstring)
 
         while num1 != None:
-          if num2 == None or num3 == None or num4 == None or num5 == None or num6 == None or num7 == None: raise ValueError, errstring
+          if num2 == None or num3 == None or num4 == None or num5 == None or num6 == None or num7 == None: raise ValueError(errstring)
 
           output.append((command, num1, num2, False, num3, num4, num5, num6, num7, False))
 
@@ -1231,7 +1231,7 @@ class Path:
     output = []
     for datum in self.d:
       if not isinstance(datum, (tuple, list)):
-        raise TypeError, "pathdata elements must be tuples/lists"
+        raise TypeError("pathdata elements must be tuples/lists")
 
       command = datum[0]
 
@@ -1580,7 +1580,7 @@ class Curve:
     sys.setrecursionlimit(self.recursion_limit + 100)
     try:
       # the best way to keep all the information while sampling is to make a linked list
-      if not (self.low < self.high): raise ValueError, "low must be less than high"
+      if not (self.low < self.high): raise ValueError("low must be less than high")
       low, high = self.Sample(float(self.low)), self.Sample(float(self.high))
       low.link(None, high)
       high.link(low, None)
@@ -1754,7 +1754,7 @@ class Poly:
           vx[i], vy[i] = 0., 0.
 
     else:
-      raise ValueError, "mode must be \"lines\", \"bezier\", \"velocity\", \"foreback\", \"smooth\", or an abbreviation"
+      raise ValueError("mode must be \"lines\", \"bezier\", \"velocity\", \"foreback\", \"smooth\", or an abbreviation")
 
     d = []
     indexes = range(len(self.d))
@@ -2015,7 +2015,7 @@ class Line(Curve):
           defs.append(make_marker(self.arrow_start, "arrow_start"))
           line.attr["marker-start"] = "url(#%s)" % self.arrow_start
         else:
-          raise TypeError, "arrow_start must be False/None or an id string for the new marker"
+          raise TypeError("arrow_start must be False/None or an id string for the new marker")
 
       if self.arrow_end != False and self.arrow_end != None:
         if isinstance(self.arrow_end, SVG):
@@ -2025,7 +2025,7 @@ class Line(Curve):
           defs.append(make_marker(self.arrow_end, "arrow_end"))
           line.attr["marker-end"] = "url(#%s)" % self.arrow_end
         else:
-          raise TypeError, "arrow_end must be False/None or an id string for the new marker"
+          raise TypeError("arrow_end must be False/None or an id string for the new marker")
 
       return SVG("g", defs, line)
 
@@ -2103,7 +2103,7 @@ class LineGlobal:
           defs.append(make_marker(self.arrow_start, "arrow_start"))
           line.attr["marker-start"] = "url(#%s)" % self.arrow_start
         else:
-          raise TypeError, "arrow_start must be False/None or an id string for the new marker"
+          raise TypeError("arrow_start must be False/None or an id string for the new marker")
 
       if self.arrow_end != False and self.arrow_end != None:
         if isinstance(self.arrow_end, SVG):
@@ -2113,7 +2113,7 @@ class LineGlobal:
           defs.append(make_marker(self.arrow_end, "arrow_end"))
           line.attr["marker-end"] = "url(#%s)" % self.arrow_end
         else:
-          raise TypeError, "arrow_end must be False/None or an id string for the new marker"
+          raise TypeError("arrow_end must be False/None or an id string for the new marker")
 
       return SVG("g", defs, line)
 
@@ -2450,7 +2450,7 @@ class Ticks:
         elif isinstance(self.arrow_start, basestring):
           defs.append(make_marker(self.arrow_start, "arrow_start"))
         else:
-          raise TypeError, "arrow_start must be False/None or an id string for the new marker"
+          raise TypeError("arrow_start must be False/None or an id string for the new marker")
 
       if self.arrow_end != False and self.arrow_end != None:
         if isinstance(self.arrow_end, SVG):
@@ -2458,7 +2458,7 @@ class Ticks:
         elif isinstance(self.arrow_end, basestring):
           defs.append(make_marker(self.arrow_end, "arrow_end"))
         else:
-          raise TypeError, "arrow_end must be False/None or an id string for the new marker"
+          raise TypeError("arrow_end must be False/None or an id string for the new marker")
 
       output.append(defs)
 
@@ -2523,7 +2523,7 @@ class Ticks:
     elif callable(self.labels):
       format = self.labels
 
-    else: raise TypeError, "labels must be None/False, True, a format string, or a number->string function"
+    else: raise TypeError("labels must be None/False, True, a format string, or a number->string function")
 
     # Now for the ticks
     ticks = self.ticks
@@ -2557,7 +2557,7 @@ class Ticks:
         return ticks, []
 
       else:
-        raise TypeError, "miniticks must be None/False, True, a number of desired miniticks, or a list of numbers"
+        raise TypeError("miniticks must be None/False, True, a number of desired miniticks, or a list of numbers")
         
     # Cases 3 & 4: ticks is iterable
     elif getattr(ticks, "__iter__", False):
@@ -2593,18 +2593,18 @@ class Ticks:
         return ticks, []
 
       else:
-        raise TypeError, "miniticks must be None/False, True, a number of desired miniticks, or a list of numbers"
+        raise TypeError("miniticks must be None/False, True, a number of desired miniticks, or a list of numbers")
         
     else:
-      raise TypeError, "ticks must be None/False, a number of desired ticks, a list of numbers, or a dictionary of explicit markers"
+      raise TypeError("ticks must be None/False, a number of desired ticks, a list of numbers, or a dictionary of explicit markers")
 
   def compute_ticks(self, N, format):
     """Return less than -N or exactly N optimal linear ticks.
 
     Normally only used internally.
     """
-    if self.low >= self.high: raise ValueError, "low must be less than high"
-    if N == 1: raise ValueError, "N can be 0 or >1 to specify the exact number of ticks or negative to specify a maximum"
+    if self.low >= self.high: raise ValueError("low must be less than high")
+    if N == 1: raise ValueError("N can be 0 or >1 to specify the exact number of ticks or negative to specify a maximum")
 
     eps = _epsilon * (self.high - self.low)
 
@@ -2696,7 +2696,7 @@ class Ticks:
     original_ticks.sort()
 
     if self.low > original_ticks[0] + _epsilon or self.high < original_ticks[-1] - _epsilon:
-      raise ValueError, "original_ticks {%g...%g} extend beyond [%g, %g]" % (original_ticks[0], original_ticks[-1], self.low, self.high)
+      raise ValueError("original_ticks {%g...%g} extend beyond [%g, %g]" % (original_ticks[0], original_ticks[-1], self.low, self.high))
 
     granularities = []
     for i in range(len(original_ticks)-1):
@@ -2720,8 +2720,8 @@ class Ticks:
 
     Normally only used internally.
     """
-    if self.low >= self.high: raise ValueError, "low must be less than high"
-    if N == 1: raise ValueError, "N can be 0 or >1 to specify the exact number of ticks or negative to specify a maximum"
+    if self.low >= self.high: raise ValueError("low must be less than high")
+    if N == 1: raise ValueError("N can be 0 or >1 to specify the exact number of ticks or negative to specify a maximum")
 
     eps = _epsilon * (self.high - self.low)
 
@@ -2771,7 +2771,7 @@ class Ticks:
 
     Normally only used internally.
     """
-    if self.low >= self.high: raise ValueError, "low must be less than high"
+    if self.low >= self.high: raise ValueError("low must be less than high")
 
     lowN = math.floor(math.log(self.low, base))
     highN = math.ceil(math.log(self.high, base))
@@ -2896,7 +2896,7 @@ class LineAxis(Line, Ticks):
   def interpret(self):
     if self.exclude != None and not (isinstance(self.exclude, (tuple, list)) and len(self.exclude) == 2 and \
                                      isinstance(self.exclude[0], (int, long, float)) and isinstance(self.exclude[1], (int, long, float))):
-      raise TypeError, "exclude must either be None or (low, high)"
+      raise TypeError("exclude must either be None or (low, high)")
 
     ticks, miniticks = Ticks.interpret(self)
     if self.exclude == None: return ticks, miniticks

@@ -234,6 +234,6 @@ process.schedule = cms.Schedule(process.L1simulation_step,
                                 process.RECOSIMoutput_step)
 
 if dump:
-    outfile = open('dump_TTBarRelVal_Stage2uGT_TestVectors_'+`job`+'.py','w')
+    outfile = open('dump_TTBarRelVal_Stage2uGT_TestVectors_'+repr(job)+'.py','w')
     print >> outfile,process.dumpPython()
     outfile.close()

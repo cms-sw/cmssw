@@ -49,7 +49,7 @@ class CMSRun(multiprocessing.Process):
                 self.p.send_signal(signal.SIGTERM)
 
     def wait_for_line(self, lambdaf):
-        print "**** waiting for the line:", lambdaf.func_code.co_consts, "****"
+        print "**** waiting for the line:", lambdaf.__code__.co_consts, "****"
         rejected = []
         while True:
             line = self.queue.get()

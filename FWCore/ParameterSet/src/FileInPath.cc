@@ -387,6 +387,12 @@ namespace edm
 	localTop_.clear();
       }
     }
+    if (releaseTop_ == localTop_) {
+      // RELEASETOP is the same as LOCALTOP.  This means that the environment is set
+      // for the base release itself.  So LOCALTOP actually contains the
+      // location of the base release.
+        localTop_.clear();
+    }
     if (!envstring(DATATOP, dataTop_)) {
       dataTop_.clear();
     }

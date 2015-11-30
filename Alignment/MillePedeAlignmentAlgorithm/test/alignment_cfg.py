@@ -95,9 +95,9 @@ process.TrackRefitter.TrajectoryInEvent = True
 # the following for refitting with analytical propagator (maybe for CRUZET?)
 #process.load("TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi")
 #process.load("TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi")
-#process.load("TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi")
-#process.load("TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi")
-#process.load("TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi")
+#process.load("TrackingTools.TrackFitters.KFTrajectoryFitter_cfi")
+#process.load("TrackingTools.TrackFitters.KFTrajectorySmoother_cfi")
+#process.load("TrackingTools.TrackFitters.KFFittingSmoother_cfi")
 #process.load("TrackingTools.GeomPropagators.AnalyticalPropagator_cfi")
 #process.load("TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi")
 #process.TrackRefitter.Propagator = "AnalyticalPropagator"

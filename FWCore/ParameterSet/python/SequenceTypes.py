@@ -313,7 +313,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         return self
     def __setattr__(self,name,value):
         if not name.startswith("_"):
-            raise AttributeError, "You cannot set parameters for sequence like objects."
+            raise AttributeError("You cannot set parameters for sequence like objects.")
         else:
             self.__dict__[name] = value
     #def replace(self,old,new):

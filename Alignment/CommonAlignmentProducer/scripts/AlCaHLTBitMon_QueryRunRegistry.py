@@ -69,7 +69,7 @@ def DBSquery(dataset,site,run):
         print lineno()
     try:
         files = api.listFiles(path=dataset,tier_list =site,runNumber=run)
-    except DbsApiException, ex:
+    except DbsApiException as ex:
         print "Caught API Exception %s: %s "  % (ex.getClassName(), ex.getErrorMessage() )
         files = ""
         if ex.getErrorCode() not in (None, ""):

@@ -14,7 +14,7 @@ workflows[1000] = [ '',['RunMinBias2011A','TIER0','SKIMD','HARVESTDfst2','ALCASP
 workflows[1001] = [ '',['RunMinBias2011A','TIER0EXP','ALCAEXP','ALCAHARVD1','ALCAHARVD2','ALCAHARVD3','ALCAHARVD4']]
 workflows[1002]=['RRD',['RunMinBias2011A','RECOD','COPYPASTE']]#,'RECODFROMRAWRECO']]
 workflows[1003]=['', ['RunMinBias2012A','RECODDQM','HARVESTDDQM']]
-
+workflows[1004] = [ '',['RunHI2011','TIER0EXPHI','ALCAEXPHI','ALCAHARVD1HI','ALCAHARVD2HI','ALCAHARVD3HI']]
 
 ## MC production test
 #workflows[1100] = [ '',[]]

@@ -4,8 +4,9 @@ msedict - multiple value dictionary, keeps multiple values per key
 You can slice, add, sort with dictionaries. The functional operations map, filter, reduce can also be used .
 The dictionary can also be used like a stack with push and pop. It can be used to Split , reverse and swap keys and values.
 '''
+from __future__ import absolute_import
 
-from seqvaluedict import seqdict   #Sequential Single Value Dictionary
+from .seqvaluedict import seqdict   #Sequential Single Value Dictionary
 from UserList import UserList
 
 class MyUserList(UserList):
@@ -51,7 +52,7 @@ class mseqdict(seqdict):    #Sequential Multiple Value Dictionary
           else:
             self.__setitem__(key,value)     
   def __setitem__(self,key,value):
-    if not self.dict.has_key(key):
+    if key not in self.dict:
       self.list.append(key)
       if isinstance(value,MyUserList):
         self.dict[key] = value
@@ -76,7 +77,7 @@ class mseqdict(seqdict):    #Sequential Multiple Value Dictionary
     start = max(start,0); stop = max(stop,0)
     delindexes = []
     for key in newdict.keys():
-      if self.dict.has_key(key):
+      if key in self.dict:
         index = self.list.index(key)
         delindexes.append(index)
         if index < start:
@@ -162,10 +163,10 @@ class mseqdict(seqdict):    #Sequential Multiple Value Dictionary
     if not func1:
       self.list.sort()
     else:
-      apply(self.list.sort,[func1])
+      self.list.sort(*[func1])
     if func2:
       for value in self.values():
-        apply(value.sort,[func2])
+        value.sort(*[func2])
       
   def swap(self):
     tmp = self.__class__()

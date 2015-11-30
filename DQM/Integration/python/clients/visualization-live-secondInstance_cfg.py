@@ -13,7 +13,7 @@ scenarios = {'pp_run': 'ppRun2','pp_run_stage1': 'ppRun2','cosmic_run':'cosmicsR
 
 if not runType.getRunTypeName() in scenarios.keys():
     msg = "Error getting the scenario out of the 'runkey', no mapping for: %s\n"%runType.getRunTypeName()
-    raise RuntimeError, msg
+    raise RuntimeError(msg)
 
 scenarioName = scenarios[runType.getRunTypeName()]
 
@@ -22,11 +22,11 @@ print "Using scenario:",scenarioName
 
 try:
     scenario = getScenario(scenarioName)
-except Exception, ex:
+except Exception as ex:
     msg = "Error getting Scenario implementation for %s\n" % (
         scenarioName,)
     msg += str(ex)
-    raise RuntimeError, msg
+    raise RuntimeError(msg)
 
 
 kwds = {}

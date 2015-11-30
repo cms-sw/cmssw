@@ -169,8 +169,8 @@ void pat::PackedCandidate::unpackTrk() const {
     m(4,3)=dxydz_;
     m(4,4)=dzdz_;
     math::RhoEtaPhiVector p3(p4_.load()->pt(),p4_.load()->eta(),phiAtVtx());
-    int numberOfPixelHits = packedHits_ & 0x7 ;
-    int numberOfHits = (packedHits_>>3) + numberOfPixelHits;
+    int numberOfPixelHits = packedHits_ & trackPixelHitsMask ;
+    int numberOfHits = (packedHits_>>trackStripHitsShift) + numberOfPixelHits;
 
     int ndof = numberOfHits+numberOfPixelHits-5;
     reco::HitPattern hp, hpExpIn;

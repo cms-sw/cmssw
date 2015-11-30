@@ -41,7 +41,7 @@ def main(*args):
     except IndexError:
         print 'runnumber should be provided'
         return 1
-    except Exception, er:
+    except Exception as er:
         print str(er)
         return 2
     else:

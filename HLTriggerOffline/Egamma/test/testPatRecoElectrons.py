@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from functools import reduce
 
 process = cms.Process("test")
 

@@ -13,8 +13,8 @@
   <class name="std::vector<PileupMixingContent>"/>  
   <class name="edm::Wrapper<PileupMixingContent>"/>
   <class name="edm::Wrapper<std::vector<PileupMixingContent> >"/>
-  <class name="PileupVertexContent" ClassVersion="-1">
-   <version ClassVersion="-1" checksum="3263569137"/>
+  <class name="PileupVertexContent" ClassVersion="3">
+   <version ClassVersion="3" checksum="3263569137"/>
   </class>
   <class name="std::vector<PileupVertexContent>"/>  
   <class name="edm::Wrapper<PileupVertexContent>"/>

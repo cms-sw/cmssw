@@ -57,3 +57,5 @@ source = cms.Source("DQMStreamerReader",
     deleteDatFiles = cms.untracked.bool(False),
     endOfRunKills  = cms.untracked.bool(True),
 )
+
+print "Source:", source

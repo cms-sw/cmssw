@@ -403,17 +403,16 @@ void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,const Stri
   rechitpro.clusiz = amplitudes.size();
   rechitpro.cluchg = totcharge;
 
-  matched.clear();
-  matched = associate.associateHit(rechit);
+  auto const & matched = associate.associateHit(rechit);
   rechitpro.NsimHit = matched.size();
 
   if(!matched.empty()){
 
     float mindist = std::numeric_limits<float>::max();
     float dist = std::numeric_limits<float>::max();
-    PSimHit* closest = NULL;
+    PSimHit const * closest = NULL;
  
-    for(auto &m : matched){
+    for(auto const &m : matched){
       dist = fabs(rechitpro.x - m.localPosition().x());
       if(dist<mindist){
 	mindist = dist;
@@ -470,23 +469,22 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
   //rechitpro.resolxy = error.xy();
   rechitpro.resolyy = error.yy();
 
-  matched.clear();
-  matched = associate.associateHit(rechit);
+  auto const & matched = associate.associateHit(rechit);
   rechitpro.NsimHit = matched.size();
 
-  if(!matched.empty()){
+  if(matched.empty()) return;
     float mindist = std::numeric_limits<float>::max();
     float dist = std::numeric_limits<float>::max();
     float dist2 = std::numeric_limits<float>::max();
     float distx = std::numeric_limits<float>::max();
     float disty = std::numeric_limits<float>::max();
-    PSimHit* closest = NULL;
+    PSimHit const * closest = nullptr;
     std::pair<LocalPoint,LocalVector> closestPair;
 
     const StripGeomDetUnit* partnerstripdet =(StripGeomDetUnit*) gluedDet->stereoDet();
     std::pair<LocalPoint,LocalVector> hitPair;
 
-    for(auto &m : matched){
+    for(auto const &m : matched){
       SiStripDetId hitDetId(m.detUnitId());
       if (hitDetId.stereo()) {  // project from the stereo sensor
       //project simhit;
@@ -503,7 +501,8 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
 	  closest = &m;
 	}
       }
-    }  
+    }
+    if (!closest) return;  
     rechitpro.bunch = closest->eventId().bunchCrossing();
     rechitpro.event = closest->eventId().event();
     rechitpro.resx = rechitpro.x - closestPair.first.x();
@@ -535,7 +534,7 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
     //	  std::cout << " chi2  = " << est << std::endl;
     //	  std::cout << "DEBUG BORIS,filling chi2rphi[i],i: " << i << std::endl;
     rechitpro.chi2 = est;
-  }
+  
 
 
 }

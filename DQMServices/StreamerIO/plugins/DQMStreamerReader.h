@@ -51,8 +51,8 @@ class DQMStreamerReader : public edm::StreamerInputSource {
 
   EventMsgView const* prepareNextEvent();
   bool prepareNextFile();
-  bool acceptEvent( const EventMsgView*);
- 
+  bool acceptEvent(const EventMsgView*);
+
   bool triggerSel();
   bool matchTriggerSel(Strings const& tnames);
   bool acceptAllEvt_;
@@ -76,9 +76,7 @@ class DQMStreamerReader : public edm::StreamerInputSource {
     std::unique_ptr<edm::StreamerInputFile> streamFile_;
     DQMFileIterator::LumiEntry lumi_;
 
-    bool open() {
-      return (streamFile_.get() != nullptr);
-    }
+    bool open() { return (streamFile_.get() != nullptr); }
 
   } file_;
 
@@ -89,6 +87,6 @@ class DQMStreamerReader : public edm::StreamerInputSource {
   edm::Service<DQMMonitoringService> mon_;
 };
 
-}  //end-of-namespace-def
+}  // end-of-namespace-def
 
 #endif

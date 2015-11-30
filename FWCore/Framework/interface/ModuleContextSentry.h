@@ -1,7 +1,7 @@
 #ifndef FWCore_Framework_ModuleContextSentry_h
 #define FWCore_Framework_ModuleContextSentry_h
 
-#include "FWCore/Framework/interface/CurrentModuleOnThread.h"
+#include "FWCore/ServiceRegistry/interface/CurrentModuleOnThread.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 

@@ -178,7 +178,7 @@ def do_validation(samples, GlobalTag):
                     cfgFile = open(cfgFileName + '.py', 'w')
                     cfgFile.write(filenames)
 
-                    if(Events.has_key(sample)):
+                    if(sample in Events):
                         Nevents = Events[sample]
                     else:
                         Nevents = defaultNevents

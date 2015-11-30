@@ -159,7 +159,7 @@ class ToolDataAccessor(BasicDataAccessor):
                 process.enableRecording()
                 process.resetModified()
                 process.resetModifiedObjects()
-            except Exception,e:
+            except Exception as e:
                 error="Error in python code (see logfile for details):\n"+str(e)
                 logging.warning(__name__ + ": setProperty: Error in python code: "+exception_traceback())
                 self._parameterErrors[str(id(object))+"."+name]=error
@@ -173,7 +173,7 @@ class ToolDataAccessor(BasicDataAccessor):
         if name!="comment":
             try:
                 object.setParameter(name,value)
-            except Exception, e:
+            except Exception as e:
                 error="Cannot set parameter "+name+" (see logfile for details):\n"+str(e)
                 logging.warning(__name__ + ": setProperty: Cannot set parameter "+name+": "+exception_traceback())
                 self._parameterErrors[str(id(object))+"."+name]=error
@@ -181,7 +181,7 @@ class ToolDataAccessor(BasicDataAccessor):
         elif name=="comment":
             try:
                 object.setComment(value)
-            except Exception, e:
+            except Exception as e:
                 error="Cannot set comment (see logfile for details):\n"+str(e)
                 logging.warning(__name__ + ": setProperty: Cannot set comment "+exception_traceback())
                 self._parameterErrors[str(id(object))+"."+name]=error
@@ -223,7 +223,7 @@ class ToolDataAccessor(BasicDataAccessor):
                     logging.error(__name__ + ": Could not apply tool: "+self.label(tool)+" (problem with enable recording flag)")
                     QCoreApplication.instance().errorMessage("Could not apply tool: "+self.label(tool)+" (problem with enable recording flag)")
                     return False
-        except Exception,e:
+        except Exception as e:
             logging.error(__name__ + ": Could not apply tool: "+self.label(tool)+": "+exception_traceback())
             QCoreApplication.instance().errorMessage("Could not apply tool (see log file for details):\n"+str(e))
             return False

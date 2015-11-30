@@ -150,7 +150,7 @@ def lumiDataFromDB(sourceschema,sourcelumidataid):
         qHandle.defineOutput(qResult)
         qHandle.setCondition('DATA_ID=:lumidataid',qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             source=cursor.currentRow()['SOURCE'].data()
             nominalegev=cursor.currentRow()['NOMINALEGEV'].data()
             ncollidingbunches=cursor.currentRow()['NCOLLIDINGBUNCHES'].data()
@@ -217,7 +217,7 @@ def lumiDataFromDB(sourceschema,sourcelumidataid):
         qHandle.defineOutput(qResult)
         qHandle.setCondition('DATA_ID=:lumidataid',qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             lumilsnum=cursor.currentRow()['LUMILSNUM'].data()
             cmslsnum=cursor.currentRow()['CMSLSNUM'].data()
             instlumi=cursor.currentRow()['INSTLUMI'].data()
@@ -338,7 +338,7 @@ if __name__ == "__main__":
         qHandle.defineOutput(qResult)
         qHandle.setCondition('RUNNUM=:runnum',qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             tagid=0
             if not cursor.currentRow()['TAGID'].isNull():
                 tagid=cursor.currentRow()['TAGID'].data()
@@ -369,7 +369,7 @@ if __name__ == "__main__":
     destsession.transaction().commit()
     print 'dest hfdataidmap ',hfdataidmap
     
-    if hfdataidmap.has_key(int(options.runnum)):
+    if int(options.runnum) in hfdataidmap:
         print 'existing old hf data in destdb of run ',options.runnum,hfdataidmap[int(options.runnum)]
         destsession.transaction().start(False)
         [destlumidataid,desttrgdataid,desthltdataid]=hfdataidmap[int(options.runnum)]

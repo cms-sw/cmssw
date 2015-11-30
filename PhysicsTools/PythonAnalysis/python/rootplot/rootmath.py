@@ -1,6 +1,7 @@
 """
 rootmath description
 """
+from __future__ import absolute_import
 
 __license__ = '''\
 Copyright (c) 2009-2010 Jeff Klukas <klukas@wisc.edu>
@@ -36,16 +37,16 @@ import re
 import tempfile
 import copy
 import fnmatch
-import argparse
+from . import argparse
 from os.path import join as joined
-from utilities import rootglob, loadROOT
+from .utilities import rootglob, loadROOT
 
 ROOT = loadROOT()
 
 ##############################################################################
 ######## Define globals ######################################################
 
-from version import __version__          # version number
+from .version import __version__          # version number
 
 
 ##############################################################################

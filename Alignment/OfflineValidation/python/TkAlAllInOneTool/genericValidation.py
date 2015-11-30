@@ -171,7 +171,7 @@ class GenericValidation:
                                                          path, repMap = repMap, repMaps = repMaps)
         for script in self.scriptFiles:
             for scriptwithindex in addIndex(script, self.NJobs):
-                os.chmod(scriptwithindex,0755)
+                os.chmod(scriptwithindex,0o755)
         return self.scriptFiles
 
     def createCrabCfg(self, fileContents, path ):
@@ -266,7 +266,7 @@ class GenericValidationData(GenericValidation):
                     begin = self.general["begin"],
                     end = self.general["end"],
                     parent = self.needParentFiles )
-            except AllInOneError, e:
+            except AllInOneError as e:
                 msg = "In section [%s:%s]: "%(valType, self.name)
                 msg += str(e)
                 raise AllInOneError(msg)
@@ -278,7 +278,7 @@ class GenericValidationData(GenericValidation):
             try:
                 theUpdate = config.getResultingSection(valType+":"+self.name,
                                                        demandPars = ["parallelJobs"])
-            except AllInOneError, e:
+            except AllInOneError as e:
                 msg = str(e)[:-1]+" when using 'jobmode: crab'."
                 raise AllInOneError(msg)
             self.general.update(theUpdate)
@@ -322,7 +322,7 @@ class GenericValidationData(GenericValidation):
                     begin = self.general["begin"],
                     end = self.general["end"],
                     crab = True )
-            except AllInOneError, e:
+            except AllInOneError as e:
                 msg = "In section [%s:%s]: "%(valType, self.name)
                 msg += str( e )
                 raise AllInOneError( msg )

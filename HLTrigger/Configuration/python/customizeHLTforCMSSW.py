@@ -203,12 +203,26 @@ def customiseFor12062(process):
         module.recordLabel = cms.string('HLT')
     return process
 
+# Remove hcalTopologyConstants
+def customiseFor11920(process):
+    if hasattr(process,'HcalGeometryFromDBEP'):
+        if hasattr(process.HcalGeometryFromDBEP,'hcalTopologyConstants'):
+            delattr(process.HcalGeometryFromDBEP,'hcalTopologyConstants')
+    if hasattr(process,'HcalTopologyIdealEP'):
+        if hasattr(process.HcalTopologyIdealEP,'hcalTopologyConstants'):
+            delattr(process.HcalTopologyIdealEP,'hcalTopologyConstants')
+    if hasattr(process,'CaloTowerGeometryFromDBEP'):
+        if hasattr(process.CaloTowerGeometryFromDBEP,'hcalTopologyConstants'):
+            delattr(process.CaloTowerGeometryFromDBEP,'hcalTopologyConstants')
+    return process
 
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     import os
     cmsswVersion = os.environ['CMSSW_VERSION']
 
+    if cmsswVersion >= "CMSSW_8_0":
+        process = customiseFor11920(process)
     if cmsswVersion >= "CMSSW_7_6":
         process = customiseFor10418(process)
         process = customiseFor10353(process)

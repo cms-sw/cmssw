@@ -58,7 +58,7 @@ namespace cond{
       void writeOne( T * payload, Time_t time, const std::string& recordName, bool withlogging=false ) {
         if( !payload ) throwException( "Provided payload pointer is invalid.","PoolDBOutputService::writeOne");
 	std::lock_guard<std::recursive_mutex> lock(m_mutex);
-	if (!m_dbstarted) this->initDB( false );
+	if (!m_dbstarted) this->initDB();
 	Hash payloadId = m_session.storePayload( *payload );
 	std::string payloadType = cond::demangledName(typeid(T));
 	if (isNewTagRequest(recordName) ){
@@ -81,7 +81,7 @@ namespace cond{
                          bool withlogging=false){
         if( !firstPayloadObj ) throwException( "Provided payload pointer is invalid.","PoolDBOutputService::createNewIOV");
 	std::lock_guard<std::recursive_mutex> lock(m_mutex);
-	if (!m_dbstarted) this->initDB( false );
+	if (!m_dbstarted) this->initDB();
         createNewIOV( m_session.storePayload( *firstPayloadObj ),
 		      cond::demangledName(typeid(T)),
                       firstSinceTime,
@@ -153,6 +153,8 @@ namespace cond{
       		   cond::TagInfo_t& result );
       
       virtual ~PoolDBOutputService();  
+
+      void forceInit();
       
     private:
 
@@ -187,7 +189,7 @@ namespace cond{
       
       void connect();    
       void disconnect();
-      void initDB( bool forReading=true );
+      void initDB( bool dummy=false );
 
       Record & lookUpRecord(const std::string& recordName);
       cond::UserLogInfo& lookUpUserLogInfo(const std::string& recordName);

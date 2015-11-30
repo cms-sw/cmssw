@@ -22,11 +22,13 @@
 void KfTrackProducerBase::putInEvt(edm::Event& evt,
 				   const Propagator* prop,
 				   const MeasurementTracker* measTk,
-				   std::auto_ptr<TrackingRecHitCollection>& selHits,
-				   std::auto_ptr<reco::TrackCollection>& selTracks,
-				   std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
-				   std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
-				   AlgoProductCollection& algoResults, TransientTrackingRecHitBuilder const * hitBuilder,
+				   std::unique_ptr<TrackingRecHitCollection>& selHits,
+				   std::unique_ptr<reco::TrackCollection>& selTracks,
+				   std::unique_ptr<reco::TrackExtraCollection>& selTrackExtras,
+				   std::unique_ptr<std::vector<Trajectory> >&   selTrajectories,
+				   std::unique_ptr<std::vector<int> >& indecesInput,
+				   AlgoProductCollection& algoResults,
+				   TransientTrackingRecHitBuilder const * hitBuilder,
                                    const TrackerTopology *ttopo,
                                    int BeforeOrAfter)
 {
@@ -44,14 +46,15 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
   if(trajectoryInEvent_) selTrajectories->reserve(algoResults.size());
 
   for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
-    Trajectory * theTraj = (*i).first;
+    auto theTraj = (*i).trajectory;
+    (*indecesInput).push_back((*i).indexInput);
     if(trajectoryInEvent_) {
       selTrajectories->push_back(*theTraj);
       iTjRef++;
     }
 
 
-    reco::Track * theTrack = (*i).second.first;
+    auto theTrack = (*i).track;
     
     // Hits are going to be re-sorted along momentum few lines later. 
     // Therefore the direction stored in the TrackExtra 
@@ -160,26 +163,30 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
   
   selTracks->shrink_to_fit();
   selTrackExtras->shrink_to_fit();
-  selHits->shrink_to_fit(); 
+  selHits->shrink_to_fit();
+  indecesInput->shrink_to_fit();
   if(BeforeOrAfter == 1){
-    rTracks_ = evt.put( selTracks, "beforeDAF" );
-    evt.put( selTrackExtras , "beforeDAF");
+    rTracks_ = evt.put(std::move(selTracks), "beforeDAF" );
+    evt.put(std::move(selTrackExtras), "beforeDAF");
+    evt.put(std::move(indecesInput), "beforeDAF");
   } else if (BeforeOrAfter == 2){
-    rTracks_ = evt.put( selTracks, "afterDAF" );
-    evt.put( selTrackExtras, "afterDAF" );
+    rTracks_ = evt.put(std::move(selTracks), "afterDAF" );
+    evt.put( std::move(selTrackExtras), "afterDAF" );
+    evt.put(std::move(indecesInput), "afterDAF");
   } else {
-    rTracks_ = evt.put( selTracks );
-    evt.put( selTrackExtras );
-    evt.put( selHits );
+    rTracks_ = evt.put(std::move(selTracks) );
+    evt.put(std::move(selTrackExtras) );
+    evt.put(std::move(selHits) );
+    evt.put(std::move(indecesInput));
   }
 
 
   if(trajectoryInEvent_ && BeforeOrAfter == 0) {
     selTrajectories->shrink_to_fit();
-    edm::OrphanHandle<std::vector<Trajectory> > rTrajs = evt.put(selTrajectories);
+    edm::OrphanHandle<std::vector<Trajectory> > rTrajs = evt.put(std::move(selTrajectories));
 
     // Now Create traj<->tracks association map
-    std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection(rTrajs, rTracks_) );
+    std::unique_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection(rTrajs, rTracks_) );
     for ( std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); 
           i != tjTkMap.end(); i++ ) {
       edm::Ref<std::vector<Trajectory> > trajRef( rTrajs, (*i).first );
@@ -187,7 +194,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
       trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, (*i).first ),
                             edm::Ref<reco::TrackCollection>( rTracks_, (*i).second ) );
     }
-    evt.put( trajTrackMap );
+    evt.put( std::move(trajTrackMap) );
   }
 }
 

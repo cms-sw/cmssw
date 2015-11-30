@@ -4,7 +4,7 @@ from Geometry.HcalEventSetup.HcalRelabel_cfi import HcalReLabel
 process = cms.Process("HcalGeometryTest")
 
 process.load("Configuration.Geometry.GeometryExtendedPostLS2_cff")
-process.load("Geometry.HcalEventSetup.HcalTopology_cfi")
+process.load("Geometry.HcalEventSetup.hcalTopologyIdeal_cfi")
 
 process.HcalHardcodeGeometryEP = cms.ESProducer( "HcalHardcodeGeometryEP" ,
                                                  appendToDataLabel = cms.string("_master"),

@@ -120,7 +120,8 @@ class mymf(modulefinder.ModuleFinder):
         if r is not None:
             self._depgraph.setdefault(self._last_caller.__name__,{})[r.__name__] = 1
         return r
-    def load_module(self, fqname, fp, pathname, (suffix, mode, type)):
+    def load_module(self, fqname, fp, pathname, aux_info):
+        (suffix, mode, type) = aux_info
         r = modulefinder.ModuleFinder.load_module(self, fqname, fp, pathname, (suffix, mode, type))
         if r is not None:
             self._types[r.__name__] = type

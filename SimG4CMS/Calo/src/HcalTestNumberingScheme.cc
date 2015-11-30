@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+//#define DebugLog
+
 HcalTestNumberingScheme::HcalTestNumberingScheme(bool forTB) : 
   HcalNumberingScheme(), forTBH2(forTB) {
   edm::LogInfo("HcalSim") << "Creating HcalTestNumberingScheme with TB Flag "
@@ -39,13 +41,13 @@ uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID&
     index = HcalTestNumbering::packHcalIndex(id.subdet, id.zside, id.depth, 
 					     id.etaR, id.phis, id.lay);
   }
-
-  LogDebug("HcalSim") << "HcalTestNumberingScheme det = " << id.subdet 
-		      << " depth/lay = " << id.depth << "/" << id.lay 
-		      << " zside = " << id.zside << " eta/R = " << id.etaR 
-		      << " phi = " << id.phis << " packed index = 0x" 
-		      << std::hex << index << std::dec;
-
+#ifdef DebugLog
+  edm::LogInfo("HcalSim") << "HcalTestNumberingScheme det = " << id.subdet 
+			  << " depth/lay = " << id.depth << "/" << id.lay 
+			  << " zside = " << id.zside << " eta/R = " << id.etaR 
+			  << " phi = " << id.phis << " packed index = 0x" 
+			  << std::hex << index << std::dec << std::endl;
+#endif
   return index;
 
 }

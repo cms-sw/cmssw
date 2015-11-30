@@ -7,8 +7,7 @@
 #include <algorithm>
 
 template< typename T >
-class StringToEnumParser
-{
+class StringToEnumParser {
   std::map< std::string, T > enumMap;
 public:
     
@@ -16,7 +15,7 @@ public:
 
   T parseString( const std::string &value )  { 
     typename std::map<std::string, T>::const_iterator iValue = enumMap.find( value );
-    if( iValue  == enumMap.end())
+    if (iValue  == enumMap.end())
       throw cms::Exception( "Configuration" )
 	<< "the value " << value << " is not defined.";
 	    
@@ -28,7 +27,9 @@ namespace HcalTopologyMode {
   enum Mode { LHC=0, H2=1, SLHC=2, H2HE=3 };
 
   enum TriggerMode {
-    tm_LHC_PreLS1=0  // HF is summed in 3x2 regions
+    tm_LHC_RCT=0,         // HF is summed in 3x2 regions
+    tm_LHC_RCT_and_1x1=1, // HF is summed in both 3x2 and 1x1 regions 
+    tm_LHC_1x1=2          // HF is summed in 1x1 regions
   };
 }
 

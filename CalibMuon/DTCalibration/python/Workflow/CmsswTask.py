@@ -19,7 +19,7 @@ class CmsswTask:
         cwd = os.getcwd()
         for pset in self.configs:
             os.chdir(self.dir)
-            if not os.path.exists(pset): raise RuntimeError,'%s not found in dir %s' % (pset,os.getcwd())
+            if not os.path.exists(pset): raise RuntimeError('%s not found in dir %s' % (pset,os.getcwd()))
 
             cmd = 'cmsRun %s' % pset
             print "Running", cmd, "in dir", self.dir

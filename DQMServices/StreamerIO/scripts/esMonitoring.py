@@ -77,7 +77,7 @@ class ElasticReport(object):
 
     def update_doc_recursive(self, old_obj, new_obj):
         for key, value in new_obj.items():
-            if (old_obj.has_key(key) and 
+            if (key in old_obj and 
                 isinstance(value, dict) and 
                 isinstance(old_obj[key], dict)):
 
@@ -277,7 +277,7 @@ class FDJsonHandler(AsyncLineReaderMixin, asyncore.dispatcher):
             doc = json.loads(line)
 
             for k in ["pid", "run", "lumi"]:
-                if doc.has_key(k):
+                if k in doc:
                     doc[k] = int(doc[k])
 
             self.es.update_doc_recursive(self.es.doc, doc)
@@ -313,7 +313,7 @@ class FDJsonServer(asyncore.file_dispatcher):
             os.unlink(self.fn)
 
         self.create_socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        oldmask = os.umask(0077)
+        oldmask = os.umask(0o077)
         try:
             self.bind(self.fn)
             self.listen(5)
@@ -417,7 +417,7 @@ def launch_monitoring(args):
 
             log("Open gzip log file: %s" % args.zlog)
             zlog = zlog_
-        except Exception, e:
+        except Exception as e:
             log("Failed to setup zlog file: " + str(e))
 
     es.update_doc({ "pid": p.pid })
@@ -432,7 +432,7 @@ def launch_monitoring(args):
     try:
         #manager.event_loop(timeout=5, exit_fd=p.stdout.fileno())
         asyncore.loop(timeout=5)
-    except select.error, e:
+    except select.error as e:
         # we have this on ctrl+c
         # just terminate the child
         log("Select error (we will terminate): " + str(e))

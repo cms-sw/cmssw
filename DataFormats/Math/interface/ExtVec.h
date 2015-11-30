@@ -20,7 +20,7 @@ typedef double VECTOR_EXT( 64 ) float64x8_t;
 // x86_64.
 // XXX: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65486
 // XXX: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65491
-#if defined(__aarch64__)
+#if defined(__aarch64__) || defined(__powerpc64__) || defined(__PPC64__) || defined(__powerpc__)
 typedef long double VECTOR_EXT( 32 ) float128x2_t;
 typedef long double VECTOR_EXT( 64 ) float128x4_t;
 typedef long double VECTOR_EXT( 128 ) float128x8_t;
@@ -57,7 +57,7 @@ struct ExtVecTraits<double, 4> {
 // x86_64.
 // XXX: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65486
 // XXX: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65491
-#if defined(__aarch64__)
+#if defined(__aarch64__) || defined(__powerpc64__) || defined(__PPC64__) || defined(__powerpc__)
 template<>
 struct ExtVecTraits<long double, 2> {
   typedef long double VECTOR_EXT( 2*sizeof(long double) ) type;

@@ -122,7 +122,7 @@ def make_file_pairs(files1, files2):
         for file in files:
             version = get_cmssw_version(file)
             if version:
-                if versions.has_key(version):
+                if version in versions:
                     versions[version].append(file)
                 else:
                     versions[version] = [file]
@@ -184,11 +184,11 @@ def auth_wget(url):
     try:
         opener = build_opener(X509CertOpen())
         return opener.open(Request(url)).read()
-    except HTTPError, e:
+    except HTTPError as e:
         print '\nError: DQM GUI is temporarily unavailable. Probably maintainance hours. '+\
                 'Please try again later. Original error message: ``%s``. \nExiting...\n' % (e,)
         exit()
-    except BadStatusLine, e:
+    except BadStatusLine as e:
         print '\nYou do not have permissions to access DQM GUI. Please check if your certificates '+\
             'in ``~/.globus`` directory are configured correctly. Exitting...' 
         exit()

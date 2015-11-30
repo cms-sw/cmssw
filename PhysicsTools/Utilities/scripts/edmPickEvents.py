@@ -66,11 +66,11 @@ class Event (dict):
             self['event']   = int( pieces[2] )
             self['dataset'] =  Event.dataset
         except:
-            raise RuntimeError, "Can not parse '%s' as Event object" \
-                  % line.strip()
+            raise RuntimeError("Can not parse '%s' as Event object" \
+                  % line.strip())
         if not self['dataset']:
             print "No dataset is defined for '%s'.  Aborting." % line.strip()
-            raise RuntimeError, 'Missing dataset'
+            raise RuntimeError('Missing dataset')
 
     def __getattr__ (self, key):
         return self[key]
@@ -109,7 +109,7 @@ def getFileNames (event):
 def fullCPMpath():
     base = os.environ.get ('CMSSW_BASE')
     if not base:
-        raise RuntimeError, "CMSSW Environment not set"
+        raise RuntimeError("CMSSW Environment not set")
     retval = "%s/src/PhysicsTools/Utilities/configuration/copyPickMerge_cfg.py" \
              % base
     if os.path.exists (retval):
@@ -119,7 +119,7 @@ def fullCPMpath():
              % base
     if os.path.exists (retval):
         return retval
-    raise RuntimeError, "Could not find copyPickMerge_cfg.py"
+    raise RuntimeError("Could not find copyPickMerge_cfg.py")
 
 def guessEmail():
     return '%s@%s' % (commands.getoutput ('whoami'),
@@ -239,7 +239,7 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents ''')
             try:
                 event = Event (piece)
             except:
-                raise RuntimeError, "'%s' is not a proper event" % piece
+                raise RuntimeError("'%s' is not a proper event" % piece)
             eventList.append (event)
     else:
         # read events from file
@@ -267,7 +267,7 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents ''')
         ## CRAB ##
         ##########
         if options.runInteractive:
-            raise RuntimeError, "This job cannot be run interactively, but rather by crab.  Please call without the '--runInteractive' flag or increase the '--maxEventsInteractive' value."
+            raise RuntimeError("This job cannot be run interactively, but rather by crab.  Please call without the '--runInteractive' flag or increase the '--maxEventsInteractive' value.")
         runsAndLumis = [ (event.run, event.lumi) for event in eventList]
         json = LumiList (lumis = runsAndLumis)
         eventsToProcess = '\n'.join(\

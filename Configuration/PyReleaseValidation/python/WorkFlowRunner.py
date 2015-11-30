@@ -79,7 +79,7 @@ def esReportWorkflow(**kwds):
   data = json.dumps(payload)
   try:
     result = urllib2.urlopen(request, data=data)
-  except urllib2.HTTPError, e:
+  except urllib2.HTTPError as e:
     print e
     try:
       print result.read()

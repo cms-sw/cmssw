@@ -35,7 +35,7 @@ class ppScenarioTest(unittest.TestCase):
         """get the scenario"""
         try:
             scenario = getScenario("pp")
-        except Exception, ex:
+        except Exception as ex:
             msg = "Failed to get pp scenario\n"
             msg += str(ex)
             self.fail(msg)
@@ -47,7 +47,7 @@ class ppScenarioTest(unittest.TestCase):
         try:
             process = scenario.promptReco("FT_R_42_V10A::All",writeTiers = ['RECO', 'AOD', 'ALCARECO', 'DQM'])
             writePSetFile("testPromptReco.py", process)
-        except Exception, ex:
+        except Exception as ex:
             msg = "Failed to create Prompt Reco configuration\n"
             msg += "for pp Scenario\n"
             msg += str(ex)

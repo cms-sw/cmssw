@@ -56,7 +56,7 @@ class inputFilesetParser(object):
                 if not CommonUtil.is_intstr(field0):
                     continue
                 runnumber=int(field0)
-                if not result.has_key(runnumber):
+                if runnumber not in result:
                     result[runnumber]=None
         return result.keys()
     def selectedRunsWithresult(self):

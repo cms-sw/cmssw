@@ -35,10 +35,10 @@ def insertIntglumiData(dbsession,intlumitorun,bulksize=1000):
                 db=dbUtil.dbUtil(dbsession.nominalSchema())
                 db.bulkInsert('INTGLUMI',dataDef,perrunData)
                 dbsession.transaction().commit()            
-    except Exception, e:
+    except Exception as e:
         dbsession.transaction().rollback()
         del dbsession
-        raise Exception, 'insertIntglumiData: '+str(e)
+        raise Exception('insertIntglumiData: '+str(e))
 
 def parselumifile(ifilename):
     '''
@@ -57,7 +57,7 @@ def parselumifile(ifilename):
                 continue
             delivered=float(row[2])
             result.append((runnumber,delivered))
-    except Exception,e:
+    except Exception as e:
         raise RuntimeError(str(e))
     return result
 

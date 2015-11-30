@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import coral
-import CommonUtils, TagTree, tagInventory
+from . import CommonUtils, TagTree, tagInventory
 
 class DBCopy(object):
     
@@ -32,7 +33,7 @@ class DBCopy(object):
             source_query.defineOutput(data)
             bulkOperation=my_editor.bulkInsert(data,self.__rowcachesize)
             cursor=source_query.execute()
-            while (cursor.next() ):
+            while (next(cursor) ):
                 bulkOperation.processNextIteration()
             bulkOperation.flush()
             del bulkOperation
@@ -48,7 +49,7 @@ class DBCopy(object):
             source_query.defineOutput(iddata)
             bulkOperation=my_ideditor.bulkInsert(iddata,self.__rowcachesize)
             cursor=source_query.execute()
-            while cursor.next():
+            while next(cursor):
                 bulkOperation.processNextIteration()
             bulkOperation.flush()
             del bulkOperation
@@ -68,7 +69,7 @@ class DBCopy(object):
                 source_query.defineOutput(commentdata)
                 bulkOperation=my_commenteditor.bulkInsert(commentdata,self.__rowcachesize)
                 cursor=source_query.execute()
-                while cursor.next():
+                while next(cursor):
                     bulkOperation.processNextIteration()
                 bulkOperation.flush()
                 del bulkOperation
@@ -76,10 +77,10 @@ class DBCopy(object):
             
             source_transaction.commit()
             dest_transaction.commit()
-        except Exception, e:
+        except Exception as e:
             source_transaction.rollback()
             dest_transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
 
     def copyTrees( self, treenames ):
         """copy tree from an external source.
@@ -130,7 +131,7 @@ class DBCopy(object):
 	      source_query.defineOutput(data)
 	      bulkOperation=dest_editor.bulkInsert(data,self.__rowcachesize)
 	      cursor=source_query.execute()
-              while cursor.next():
+              while next(cursor):
 	          bulkOperation.processNextIteration()
 	      bulkOperation.flush()
 	      del bulkOperation
@@ -146,7 +147,7 @@ class DBCopy(object):
 	      source_query.defineOutput(iddata)
 	      bulkOperation=dest_editor.bulkInsert(iddata,self.__rowcachesize)
 	      cursor=source_query.execute()
-              while cursor.next():
+              while next(cursor):
 	          bulkOperation.processNextIteration()
 	      bulkOperation.flush()
 	      del bulkOperation
@@ -165,7 +166,7 @@ class DBCopy(object):
                   source_query.defineOutput(data)
                   bulkOperation=dest_editor.bulkInsert(data,self.__rowcachesize)
                   cursor=source_query.execute()
-                  while cursor.next():
+                  while next(cursor):
                       bulkOperation.processNextIteration()
                   bulkOperation.flush()
                   del bulkOperation
@@ -175,10 +176,10 @@ class DBCopy(object):
 	      dest_transaction.commit()
 	      #fix leaf node links
 	      desttree.replaceLeafLinks(tagiddict)
-        except Exception, e:
+        except Exception as e:
             source_transaction.rollback()
             dest_transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
           		
 	
     def copyDB( self ):
@@ -194,9 +195,9 @@ class DBCopy(object):
            source_transaction.start(True)
 	   tablelist=list(self.__sourcesession.nominalSchema().listTables())
 	   source_transaction.commit()
-	except Exception, e:
+	except Exception as e:
 	   source_transaction.rollback()
-	   raise Exception, str(e)
+	   raise Exception(str(e))
 	try:
 	   i = tablelist.index(CommonUtils.inventoryTableName())
 	   alltablelist.append(CommonUtils.inventoryTableName())
@@ -248,17 +249,17 @@ class DBCopy(object):
 	    source_query.defineOutput(data)
 	    bulkOperation=my_editor.bulkInsert(data,self.__rowcachesize)
 	    cursor=source_query.execute()
-            while cursor.next():
+            while next(cursor):
 	       bulkOperation.processNextIteration()
 	    bulkOperation.flush()
 	    del bulkOperation
 	    del source_query
 	    source_transaction.commit()
 	    dest_transaction.commit()
-        except Exception, e:
+        except Exception as e:
             source_transaction.rollback()
             dest_transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
 
 if __name__ == "__main__":
     #context = coral.Context()
@@ -278,7 +279,7 @@ if __name__ == "__main__":
         dbcp.copyTrees(treenames)
         del sourcesession
         del destsession
-    except Exception, e:
+    except Exception as e:
         print "Failed in unit test"
         print str(e)
         del sourcesession
@@ -294,7 +295,7 @@ if __name__ == "__main__":
         dbcp.copyDB()
         del sourcesession
         del destsession
-    except Exception, e:
+    except Exception as e:
         print "Failed in unit test"
         print str(e)
         del sourcesession
