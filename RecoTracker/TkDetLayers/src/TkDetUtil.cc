@@ -4,6 +4,13 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
+#include "DataFormats/Math/interface/approx_atan2.h"
+
+namespace {
+  inline
+  float f_atan2f(float y, float x) { return unsafe_atan2f<9>(y,x); }
+}
+
 namespace tkDetUtil {
 
   float computeWindowSize( const GeomDet* det, 
@@ -35,18 +42,20 @@ namespace tkDetUtil {
       if (y0<maxDistance.y() && x0<maxDistance.x()) return M_PI;
 
       if (y0>maxDistance.y()) {
-        auto phimax = std::atan2(y0 + (x0<maxDistance.x() ? -maxDistance.y() : maxDistance.y()), x0 - maxDistance.x() );
-        auto phimin = std::atan2(y0 - maxDistance.y(), x0 + maxDistance.x() );
-        if (phimin>phimax) std::cout << "phimess x " << phimin<<','<<phimax << " " << x0 << ',' << maxDistance.x() << " " << y0 << ',' << maxDistance.y() << std::endl;
+        auto phimax = f_atan2f(y0 + (x0<maxDistance.x() ? -maxDistance.y() : maxDistance.y()), x0 - maxDistance.x() );
+        auto phimin = f_atan2f(y0 - maxDistance.y(), x0 + maxDistance.x() );
+        // if (phimin>phimax) std::cout << "phimess x " << phimin<<','<<phimax << " " << x0 << ',' << maxDistance.x() << " " << y0 << ',' << maxDistance.y() << std::endl;
         dphi=phimax-phimin;
       } else {
-        auto phimax = std::atan2(x0 - maxDistance.x(), -y0 - maxDistance.y() );
-        auto phimin = std::atan2(x0 - maxDistance.x(), -y0 + maxDistance.y() );
-        if (phimin>phimax) std::cout << "phimess y  " << phimin<<','<<phimax << std::endl;
+        auto phimax = f_atan2f(x0 - maxDistance.x(), -y0 - maxDistance.y() );
+        auto phimin = f_atan2f(x0 - maxDistance.x(), -y0 + maxDistance.y() );
+        // if (phimin>phimax) std::cout << "phimess y  " << phimin<<','<<phimax << std::endl;
         dphi=phimax-phimin;
       }
       return dphi;
     }
+
+    // generic algo
     float corners[]  =  { plane.toGlobal(LocalPoint( start.x()+maxDistance.x(), start.y()+maxDistance.y() )).barePhi(),
 			  plane.toGlobal(LocalPoint( start.x()-maxDistance.x(), start.y()+maxDistance.y() )).barePhi(),
 			  plane.toGlobal(LocalPoint( start.x()-maxDistance.x(), start.y()-maxDistance.y() )).barePhi(),
