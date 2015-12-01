@@ -63,7 +63,8 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 	unsigned int threshold	     = meta->getOutputLutThreshold();
 
 	int ieta=id.ieta();
-	bool isHBHE = (abs(ieta) < theTrigTowerGeometry.firstHFTower()); 
+	int version=id.version();
+	bool isHBHE = (abs(ieta) < theTrigTowerGeometry.firstHFTower(version)); 
 
 	for (unsigned int i = 0; i < threshold; ++i) outputLUT_[index].push_back(0);
 	for (unsigned int i = threshold; i < OUTPUT_LUT_SIZE; ++i){
@@ -75,7 +76,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 	hcaluncomp_[index].resize(TPGMAX);
 
 	double eta_low = 0., eta_high = 0.;
-	theTrigTowerGeometry.towerEtaBounds(ieta,eta_low,eta_high); 
+	theTrigTowerGeometry.towerEtaBounds(ieta,version,eta_low,eta_high); 
 	double cosh_ieta   = fabs(cosh((eta_low + eta_high)/2.));
 	double granularity =  meta->getLutGranularity(); 
 
