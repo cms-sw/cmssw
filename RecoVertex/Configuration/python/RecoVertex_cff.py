@@ -22,8 +22,7 @@ trackWithVertexRefSelectorBeforeSorting.ptErrorCut=9e99
 trackRefsForJetsBeforeSorting = trackRefsForJets.clone(src="trackWithVertexRefSelectorBeforeSorting")
 
 
-vertexreco = cms.Sequence(
-        unsortedOfflinePrimaryVertices*
+vertexreco = cms.Sequence(unsortedOfflinePrimaryVertices*
         trackWithVertexRefSelectorBeforeSorting*
         trackRefsForJetsBeforeSorting*
         caloJetsForTrk * 
