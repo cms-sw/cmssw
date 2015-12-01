@@ -22,6 +22,9 @@
 
 #include <algorithm>
 
+
+
+
 HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
 : 
   theAlgo_(ps.getParameter<bool>("peakFilter"),
@@ -41,6 +44,16 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   runZS_(ps.getParameter<bool>("RunZS")),
   runFrontEndFormatError_(ps.getParameter<bool>("FrontEndFormatError"))
 {
+    HFEMB_ = false;
+    if(ps.exists("LSConfig"))
+    {
+        LongShortCut_ = ps.getUntrackedParameter<edm::ParameterSet>("LSConfig");
+        HFEMB_ = LongShortCut_.getParameter<bool>("HcalFeatureHFEMBit");
+        MinLongEnergy_ = LongShortCut_.getParameter<double>("Min_Long_Energy"); //minimum long energy
+        MinShortEnergy_ = LongShortCut_.getParameter<double>("Min_Short_Energy"); //minimum short energy
+        LongShortSlope_ = LongShortCut_.getParameter<double>("Long_vrs_Short_Slope"); //slope of the line that cuts are based on
+        LongShortOffset_ = LongShortCut_.getParameter<double>("Long_Short_Offset"); //offset of line
+    }
   // register for data access
   if (runFrontEndFormatError_) {
     tok_raw_ = consumes<FEDRawDataCollection>(inputTagFEDRaw_);
@@ -108,15 +121,31 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
   }
 
 
+    edm::ESHandle < HcalDbService > pSetup;
+    eventSetup.get<HcalDbRecord> ().get(pSetup);
+
+    HcalFeatureBit* hfembit = 0;
+
+    if(HFEMB_)
+    {
+        hfembit = new HcalFeatureHFEMBit(MinShortEnergy_, MinLongEnergy_, LongShortSlope_, LongShortOffset_, *pSetup); //inputs values that cut will be based on
+        theAlgo_.run(inputCoder.product(), outTranscoder->getHcalCompressor().get(),
+                *hbheDigis, *hfDigis, *result, &(*pG), rctlsb, hfembit);
+
+    }// Step C: Invoke the algorithm, passing in inputs and getting back outputs.
+    else
+    {
+        theAlgo_.run(inputCoder.product(), outTranscoder->getHcalCompressor().get(),
+                *hbheDigis, *hfDigis, *result, &(*pG), rctlsb);
+    }
+
   // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
-  theAlgo_.run(inputCoder.product(),outTranscoder->getHcalCompressor().get(),
-	       *hbheDigis,  *hfDigis, *result, &(*pG), rctlsb);
+ 
 
   // Step C.1: Run FE Format Error / ZS for real data.
   if (runFrontEndFormatError_) {
 
-        edm::ESHandle < HcalDbService > pSetup;
-        eventSetup.get<HcalDbRecord> ().get(pSetup);
+       
         const HcalElectronicsMap *emap = pSetup->getHcalMapping();
 
         edm::Handle < FEDRawDataCollection > fedHandle;
