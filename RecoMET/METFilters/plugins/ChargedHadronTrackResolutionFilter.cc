@@ -17,7 +17,9 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
 //
 // class declaration
 //
@@ -33,9 +35,10 @@ private:
       // ----------member data ---------------------------
 
   edm::EDGetTokenT<reco::PFCandidateCollection>   tokenPFCandidates_;
+  edm::EDGetTokenT<reco::PFMETCollection>   tokenPFMET_;
   const bool taggingMode_;
   const double          ptMin_;
-  const double          dPtMin_;
+  const double          metSignifMin_;
   const bool debug_;
 
 };
@@ -53,9 +56,10 @@ private:
 //
 ChargedHadronTrackResolutionFilter::ChargedHadronTrackResolutionFilter(const edm::ParameterSet& iConfig)
   : tokenPFCandidates_ ( consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag> ("PFCandidates")  ))
+  , tokenPFMET_ (        consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag> ("PFMET")  )) 
   , taggingMode_          ( iConfig.getParameter<bool>    ("taggingMode")         )
   , ptMin_                ( iConfig.getParameter<double>        ("ptMin")         )
-  , dPtMin_               ( iConfig.getParameter<double>        ("dPtMin")        )
+  , metSignifMin_         ( iConfig.getParameter<double>        ("MetSignifMin")  )
   , debug_                ( iConfig.getParameter<bool>          ("debug")         )
 {
   produces<bool>();
@@ -77,6 +81,8 @@ ChargedHadronTrackResolutionFilter::filter(edm::Event& iEvent, const edm::EventS
 
   Handle<reco::PFCandidateCollection>     pfCandidates;
   iEvent.getByToken(tokenPFCandidates_,pfCandidates);
+  Handle<reco::PFMETCollection>     pfMET;
+  iEvent.getByToken(tokenPFMET_,pfMET);
 
   bool foundBadTrack = false;
   if ( debug_ ) cout << "starting loop over pfCandidates" << endl;
@@ -100,14 +106,33 @@ ChargedHadronTrackResolutionFilter::filter(edm::Event& iEvent, const edm::EventS
       
       const unsigned int LostHits = trackref->numberOfLostHits();
 
-      if ( ((DPt/Pt) > (5 * sqrt(1.20*1.20/P+0.06*0.06) / (1.+LostHits))) && (DPt > dPtMin_) ) {
+      if ( (DPt/Pt) > (5 * sqrt(1.20*1.20/P+0.06*0.06) / (1.+LostHits)) ) {
+        
+        const double MET_px = pfMET->begin()->px();
+        const double MET_py = pfMET->begin()->py();
+        const double MET_et = pfMET->begin()->et();
+        const double MET_sumEt = pfMET->begin()->sumEt();
+        const double hadron_px = cand.px();
+        const double hadron_py = cand.py();
+        if (MET_sumEt == 0) continue;
+        const double MET_signif = MET_et/MET_sumEt;
+        const double MET_et_corr = sqrt( (MET_px + hadron_px)*(MET_px + hadron_px) + (MET_py + hadron_py)*(MET_py + hadron_py) );
+        const double MET_signif_corr = MET_et_corr/MET_sumEt;
+        if ( debug_ ) std::cout << "MET signif before: " << MET_signif << " - after: " << MET_signif_corr << " - reduction factor: " << MET_signif/MET_signif_corr << endl;
 
-        foundBadTrack = true;
+        if ( (MET_signif/MET_signif_corr) > metSignifMin_ ) {
 
-        if ( debug_ ) {
-          cout << cand << endl;
-          cout << "charged hadron \t" << "track pT = " << Pt << " +/- " << DPt;
-          cout << endl;
+          foundBadTrack = true;
+
+          if ( debug_ ) {
+            cout << cand << endl;
+            cout << "charged hadron \t" << "track pT = " << Pt << " +/- " << DPt;
+            cout << endl;
+            cout << "MET: " << MET_et << " MET phi: " << pfMET->begin()->phi()<<
+              " MET sumet: " << MET_sumEt << " MET significance: " << MET_et/MET_sumEt << endl;
+            cout << "MET_px: " << MET_px << " MET_py: " << MET_py << " hadron_px: " << hadron_px << " hadron_py: " << hadron_py << endl;
+            cout << "corrected: " << sqrt( pow((MET_px + hadron_px),2) + pow((MET_py + hadron_py),2)) << endl;
+          }
         }
       }
     }
