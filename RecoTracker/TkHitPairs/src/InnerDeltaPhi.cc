@@ -43,20 +43,22 @@ namespace {
 }
 
 namespace {
-  // valid only for 0<x<0.5
+  // valid only for |x|<0.5 then degrades...
   template<typename T>
-  inline T f_asin05f(T x)  {
-    x = x>0 ? x : 0;
-    x = x> 0.5f ? 0.5f : x;
+  inline T f_asin05f(T xx)  {
+    auto x = xx>0 ? xx : -xx;
+    // x = x> 0.5f ? 0.5f : x;
 
     auto z = x * x;
     
-    return (((( 4.2163199048E-2f * z
+    z =  (((( 4.2163199048E-2f * z
             + 2.4181311049E-2f) * z
             + 4.5470025998E-2f) * z
             + 7.4953002686E-2f) * z
             + 1.6666752422E-1f) * z * x
             + x;
+
+    return xx>0 ? z : -z;
   }
 
   typedef float __attribute__( ( vector_size( 16 ) ) ) float32x4_t;
@@ -196,23 +198,23 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
   // this factor should be taken in computation of eror projection
   auto cosCross = std::abs( dHit.unit().dot(crossing.unit()));
 
-  /*
+  
   float32x4_t num{dHitmag,dLayer,theROrigin * (dHitmag-dLayer),1.f};
   float32x4_t den{2*theRCurvature,2*theRCurvature,dHitmag*dLayer,1.f};
   auto phis = f_asin05f(num/den);
   phis = phis*dLayer/(rLayer*cosCross);
   auto deltaPhi = std::abs(phis[0]-phis[1]);
   auto deltaPhiOrig = phis[2];
-  */
   
+  /*
   auto alphaHit = cropped_asin( dHitmag/(2*theRCurvature)); 
-  auto deltaPhi = std::abs( alphaHit - cropped_asin( dLayer/(2*theRCurvature)));
-  deltaPhi *= dLayer/(rLayer*cosCross);  
+  auto OdeltaPhi = std::abs( alphaHit - cropped_asin( dLayer/(2*theRCurvature)));
+  OdeltaPhi *= dLayer/(rLayer*cosCross);  
   // compute additional delta phi due to origin radius
-  auto deltaPhiOrig = cropped_asin( theROrigin * (dHitmag-dLayer) / (dHitmag*dLayer));
-  deltaPhiOrig *= dLayer/(rLayer*cosCross);
-  // std::cout << "dphi " << OdeltaPhi<<'/'<<OdeltaPhiOrig << ' ' << deltaPhi<<'/'<<deltaPhiOrig << std::endl;
-  
+  auto OdeltaPhiOrig = cropped_asin( theROrigin * (dHitmag-dLayer) / (dHitmag*dLayer));
+  OdeltaPhiOrig *= dLayer/(rLayer*cosCross);
+  std::cout << "dphi " << OdeltaPhi<<'/'<<OdeltaPhiOrig << ' ' << deltaPhi<<'/'<<deltaPhiOrig << std::endl;
+  */
 
   // additinal angle due to not perpendicular stright line crossing  (for displaced beam)
   //  double dPhiCrossing = (cosCross > 0.9999) ? 0 : dL *  sqrt(1-sqr(cosCross))/ rLayer;
