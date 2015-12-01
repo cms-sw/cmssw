@@ -53,8 +53,12 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
       // go two cells per trigger tower.
 
       int iphi = (((cellId.iphi()+shift)/HfTowerPhiSize) * HfTowerPhiSize + shift)%72; // 71+1 --> 1, 3+5 --> 5
-      if (useHFQuadPhiRings_ || cellId.ietaAbs() < theTopology->firstHFQuadPhiRing())
-        results.push_back( HcalTrigTowerDetId(ieta, iphi) );
+      if (useHFQuadPhiRings_ || cellId.ietaAbs() < theTopology->firstHFQuadPhiRing()) {
+        HcalTrigTowerDetId id(ieta, iphi);
+        if (useUpgradeConfigurationHFTowers_)
+          id.setVersion(1);
+        results.push_back(id);
+      }
     }
       
   } else {
