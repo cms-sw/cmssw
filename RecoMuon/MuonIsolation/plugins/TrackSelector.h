@@ -15,7 +15,7 @@ namespace muonisolation {
 
     typedef muonisolation::Range<float> Range;
     typedef std::list<const reco::Track*> result_type;
-    typedef edm::View<reco::Track> input_type;
+    typedef reco::TrackCollection input_type;
     typedef reco::TrackBase::Point BeamPoint;
   
     //!config parameters
