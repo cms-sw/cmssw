@@ -21,7 +21,7 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
     if (useRCT_) { 
       // first do eta
       int hfRing = cellId.ietaAbs();
-      int ieta = firstHFTower(); 
+      int ieta = firstHFTower(0); 
       // find the tower that contains this ring
       while(hfRing >= firstHFRingInTower(ieta+1)) {
 	++ieta;
@@ -129,7 +129,7 @@ HcalTrigTowerGeometry::detIds(const HcalTrigTowerDetId & hcalTrigTowerDetId) con
 
     if (hcalTrigTowerDetId.version()==0) {
     
-      int HfTowerPhiSize =  72 / nPhiBins(tower_ieta);
+      int HfTowerPhiSize =  72 / nPhiBins(tower_ieta,0);
 
       int HfTowerEtaSize     = hfTowerEtaSize(tower_ieta);
       int FirstHFRingInTower = firstHFRingInTower(abs(tower_ieta));
@@ -190,9 +190,9 @@ HcalTrigTowerGeometry::detIds(const HcalTrigTowerDetId & hcalTrigTowerDetId) con
 int HcalTrigTowerGeometry::hfTowerEtaSize(int ieta) const {
   
   int ietaAbs = abs(ieta); 
-  assert(ietaAbs >= firstHFTower() && ietaAbs <= nTowers());
+  assert(ietaAbs >= firstHFTower(0) && ietaAbs <= nTowers(0));
   // the first three come from rings 29-31, 32-34, 35-37. The last has 4 rings: 38-41
-  return (ietaAbs == nTowers()) ? 4 : 3;
+  return (ietaAbs == nTowers(0)) ? 4 : 3;
   
 }
 
@@ -201,7 +201,7 @@ int HcalTrigTowerGeometry::firstHFRingInTower(int ietaTower) const {
   // count up to the correct HF ring
   int inputTower = abs(ietaTower);
   int result = theTopology->firstHFRing();
-  for(int iTower = firstHFTower(); iTower != inputTower; ++iTower) {
+  for(int iTower = firstHFTower(0); iTower != inputTower; ++iTower) {
     result += hfTowerEtaSize(iTower);
   }
   
@@ -211,10 +211,10 @@ int HcalTrigTowerGeometry::firstHFRingInTower(int ietaTower) const {
 }
 
 
-void HcalTrigTowerGeometry::towerEtaBounds(int ieta, double & eta1, double & eta2) const {
+void HcalTrigTowerGeometry::towerEtaBounds(int ieta, int version, double & eta1, double & eta2) const {
   int ietaAbs = abs(ieta);
   std::pair<double,double> etas = 
-    (ietaAbs < firstHFTower()) ? theTopology->etaRange(HcalBarrel,ietaAbs) : 
+    (ietaAbs < firstHFTower(version)) ? theTopology->etaRange(HcalBarrel,ietaAbs) : 
     theTopology->etaRange(HcalForward,ietaAbs);
   eta1 = etas.first;
   eta2 = etas.second;
