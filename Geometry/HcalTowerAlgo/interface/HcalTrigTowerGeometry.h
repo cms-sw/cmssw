@@ -32,6 +32,10 @@ public:
   // get the topology pointer
   const HcalTopology& topology() const { return *theTopology; }
 
+  // Get the useRCT and use1x1 values
+  bool useRCT() const { return useRCT_; }
+  bool use1x1() const { return use1x1_; }
+
  private:
 
   /// the number of phi bins in this eta ring
