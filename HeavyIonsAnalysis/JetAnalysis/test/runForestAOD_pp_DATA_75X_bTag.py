@@ -24,7 +24,7 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             # fileNames = cms.untracked.vstring("file:/mnt/hadoop/cms/store/user/dgulhan/HIHighPt/HIHighPt_photon20and30_HIRun2011-v1_RECO_753_patch1/fd44351629dd155a25de2b4c109c824c/RECO_100_1_Uk0.root")                        )
-                            fileNames = cms.untracked.vstring('/store/data/Run2015E/BTagCSV/AOD/PromptReco-v1/000/261/395/00000/6C14573F-328E-E511-B2F4-02163E011EA8.root')
+                            fileNames = cms.untracked.vstring('/store/data/Run2015E/HighPtPhoton30AndZ/AOD/PromptReco-v1/000/262/271/00000/64088077-0096-E511-A701-02163E013539.root')
 )
 
 #import FWCore.PythonUtilities.LumiList as LumiList
@@ -32,7 +32,7 @@ process.source = cms.Source("PoolSource",
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1))
+    input = cms.untracked.int32(100))
 
 
 
@@ -225,8 +225,8 @@ process.ana_step = cms.Path(
                             #process.siPixelRecHits * process.pACentrality * process.centralityBin * #for pp data only on reco
                             #process.hiEvtAnalyzer*
 			    process.jetSequences +
-                            #process.ggHiNtuplizer +
-                            #process.ggHiNtuplizerGED +
+                            process.ggHiNtuplizer +
+                            process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
                             process.HiForest +
                             process.ppTrack
@@ -266,9 +266,11 @@ process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
 process.pHBHENoiseFilterResultProducer = cms.Path( process.HBHENoiseFilterResultProducer )
 '''
 process.pClusterCompaitiblityFilter = cms.Path(process.siPixelRecHits*process.hiClusterCompatibility * process.clusterCompatibilityFilter)
+'''
 process.pPAprimaryVertexFilter = cms.Path(process.PAprimaryVertexFilter)
-process.phltPixelClusterShapeFilter = cms.Path(process.siPixelRecHits*process.hltPixelClusterShapeFilter )
+#process.phltPixelClusterShapeFilter = cms.Path(process.siPixelRecHits*process.hltPixelClusterShapeFilter )
 process.pBeamScrapingFilter=cms.Path(process.NoScraping)
+'''
 process.phfCoincFilter = cms.Path(process.hfCoincFilter )
 process.phfCoincFilter3 = cms.Path(process.hfCoincFilter3 )
 process.phfPosFilter3 = cms.Path(process.towersAboveThreshold+process.hfPosTowers+process.hfNegTowers+process.hfPosFilter3)
