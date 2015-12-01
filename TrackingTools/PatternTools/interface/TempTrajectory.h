@@ -2,12 +2,14 @@
 #define CkfPattern_TempTrajectory_H
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "DataFormats/TrackReco/interface/TrajectoryStopReasons.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
 #include <vector>
 #include <algorithm>
+#include <limits>
 #include "TrackingTools/PatternTools/interface/bqueue.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -52,9 +54,16 @@ public:
   
   TempTrajectory() : 
     theChiSquared(0),
-    theNumberOfFoundHits(0), theNumberOfLostHits(0),
+    theNumberOfFoundHits(0),
+    theNumberOfLostHits(0),
+    theNumberOfCCCBadHits_(0),
     theDirection(anyDirection), 
-    theValid(false),theNHseed(0),theNLoops(0),theDPhiCache(0)
+    theValid(false),
+    theNHseed(0),
+    theNLoops(0),
+    theDPhiCache(0),
+    theCCCThreshold_(std::numeric_limits<float>::max()),
+    stopReason_(StopReason::UNINITIALIZED)
   {}
   
   
@@ -65,9 +74,16 @@ public:
    */
   TempTrajectory(PropagationDirection dir, unsigned char nhseed) : 
   theChiSquared(0), 
-  theNumberOfFoundHits(0), theNumberOfLostHits(0),
+  theNumberOfFoundHits(0),
+  theNumberOfLostHits(0),
+  theNumberOfCCCBadHits_(0),
   theDirection(dir),
-  theValid(true),theNHseed(nhseed),theNLoops(0),theDPhiCache(0)
+  theValid(true),
+  theNHseed(nhseed),
+  theNLoops(0),
+  theDPhiCache(0),
+  theCCCThreshold_(std::numeric_limits<float>::max()),
+  stopReason_(StopReason::UNINITIALIZED)
   {}
 
   
@@ -79,12 +95,16 @@ public:
   TempTrajectory(TempTrajectory && rh) noexcept :
     theData(std::move(rh.theData)),
     theChiSquared(rh.theChiSquared), 
-    theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
+    theNumberOfFoundHits(rh.theNumberOfFoundHits),
+    theNumberOfLostHits(rh.theNumberOfLostHits),
+    theNumberOfCCCBadHits_(rh.theNumberOfCCCBadHits_),
     theDirection(rh.theDirection),
     theValid(rh.theValid),
     theNHseed(rh.theNHseed),
     theNLoops(rh.theNLoops),
-    theDPhiCache(rh.theDPhiCache){}
+    theDPhiCache(rh.theDPhiCache),
+    theCCCThreshold_(rh.theCCCThreshold_),
+    stopReason_(rh.stopReason_){}
 
   TempTrajectory & operator=(TempTrajectory && rh) noexcept {
     using std::swap;
@@ -92,11 +112,14 @@ public:
     theChiSquared=rh.theChiSquared;
     theNumberOfFoundHits=rh.theNumberOfFoundHits;
     theNumberOfLostHits=rh.theNumberOfLostHits;
+    theNumberOfCCCBadHits_=rh.theNumberOfCCCBadHits_;
     theDirection=rh.theDirection;
     theValid=rh.theValid;    
     theNHseed=rh.theNHseed;
     theNLoops=rh.theNLoops;
     theDPhiCache=rh.theDPhiCache;
+    theCCCThreshold_=rh.theCCCThreshold_;
+    stopReason_=rh.stopReason_;
     return *this;
 
   }
@@ -206,6 +229,11 @@ public:
    */
   int lostHits() const { return theNumberOfLostHits;}
 
+  /** Number of hits that are not compatible with the CCC used during
+   *  patter recognition. Used mainly as a criteria for abandoning a
+   *  trajectory candidate during trajectory building.
+   */
+  int cccBadHits() const { return theNumberOfCCCBadHits_;}
 
   //number of hits in seed
   unsigned int seedNHits() const { return theNHseed;}
@@ -263,12 +291,20 @@ public:
    void setNLoops(signed char value) { theNLoops=value;}
    void incrementLoops() {theNLoops++;}
 
+   StopReason stopReason() const {return stopReason_;}
+   void setStopReason(StopReason s) { stopReason_ = s; }
+
+   int numberOfCCCBadHits(float ccc_threshold);
 
 private:
   /** Definition of what it means for a hit to be "lost".
    *  This definition is also used by the TrajectoryBuilder.
    */
   static bool lost( const TrackingRecHit& hit) dso_internal;
+
+  bool badForCCC(const TrajectoryMeasurement &tm);
+  void updateBadForCCC(float ccc_threshold);
+
 
 
   void pushAux(double chi2Increment);
@@ -281,6 +317,7 @@ private:
 
   signed short theNumberOfFoundHits;
   signed short theNumberOfLostHits;
+  signed short theNumberOfCCCBadHits_;
 
   // PropagationDirection 
   signed char theDirection;
@@ -290,7 +327,8 @@ private:
 
   signed char theNLoops;
   float theDPhiCache;
-
+  float theCCCThreshold_;
+  StopReason stopReason_;
 
   void check() const;
 };

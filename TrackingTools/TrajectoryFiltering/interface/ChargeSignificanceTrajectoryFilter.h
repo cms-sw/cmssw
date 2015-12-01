@@ -59,6 +59,7 @@ protected:
 	//
 	if (significance*qSig<0) {
 	    traj.invalidate();
+            traj.setStopReason(StopReason::CHARGE_SIGNIFICANCE);
 	    return false;
 	}
       }

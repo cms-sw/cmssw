@@ -1,4 +1,8 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "DataFormats/SiStripCluster/interface/SiStripClusterTools.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "boost/intrusive_ptr.hpp" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -21,6 +25,7 @@ void Trajectory::pop() {
     else if(isBad(* (theData.back().recHit()) ) && theData.back().recHit()->geographicalId().det()==DetId::Muon ) {
       theChiSquaredBad -= theData.back().estimate();
     }
+    else if(badForCCC(theData.back())) theNumberOfCCCBadHits_--;
 
     theData.pop_back();
   }
@@ -62,6 +67,8 @@ void Trajectory::pushAux(double chi2Increment) {
     theChiSquaredBad += chi2Increment;
   }
  
+  else if (badForCCC(tm)) theNumberOfCCCBadHits_++;
+
   // in case of a Trajectory constructed without direction, 
   // determine direction from the radii of the first two measurements
 
@@ -150,6 +157,37 @@ bool Trajectory::isBad( const TrackingRecHit& hit)
       return hit.getType() == TrackingRecHit::bad;
     }
   }
+}
+
+bool Trajectory::badForCCC(const TrajectoryMeasurement &tm) {
+  auto const * thit = dynamic_cast<const BaseTrackerRecHit*>( tm.recHit()->hit() );
+  if (!thit)
+    return false;
+  if (thit->isPixel())
+    return false;
+  return siStripClusterTools::chargePerCM(thit->rawId(),
+                                          thit->firstClusterRef().stripCluster(),
+                                          tm.updatedState().localParameters()) < theCCCThreshold_;
+}
+
+void Trajectory::updateBadForCCC(float ccc_threshold) {
+  // If the supplied threshold is the same as the currently cached
+  // one, then return the current number of bad hits for CCC,
+  // otherwise do a new full rescan.
+  if (ccc_threshold == theCCCThreshold_)
+    return;
+
+  theCCCThreshold_ = ccc_threshold;
+  theNumberOfCCCBadHits_ = 0;
+  for (auto const & h : theData) {
+    if (badForCCC(h))
+      theNumberOfCCCBadHits_++;
+  }
+}
+
+int Trajectory::numberOfCCCBadHits(float ccc_threshold) {
+  updateBadForCCC(ccc_threshold);
+  return theNumberOfCCCBadHits_;
 }
 
 TrajectoryStateOnSurface Trajectory::geometricalInnermostState() const {

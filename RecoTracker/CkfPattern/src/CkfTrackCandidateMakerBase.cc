@@ -157,7 +157,7 @@ namespace cms{
 
   // Functions that gets called by framework every event
   void CkfTrackCandidateMakerBase::produceBase(edm::Event& e, const edm::EventSetup& es)
-  { 
+  {
     // getting objects from the EventSetup
     setEventSetup( es ); 
 
@@ -287,7 +287,6 @@ namespace cms{
         theTmpTrajectories.clear();
 	auto const & startTraj = theTrajectoryBuilder->buildTrajectories( (*collseed)[j], theTmpTrajectories, nullptr );
 	
-       
 	LogDebug("CkfPattern") << "======== In-out trajectory building found " << theTmpTrajectories.size()
 			            << " trajectories from seed " << j << " ========"<<endl
 			       <<PrintoutHelper::dumpCandidates(theTmpTrajectories);
@@ -413,6 +412,7 @@ namespace cms{
             Trajectory trajectory(seed, direction);
 	    trajectory.setNLoops(it->nLoops());
             trajectory.setSeedRef(it->seedRef());
+            trajectory.setStopReason(it->stopReason());
             // 4) push states in reversed order
             Trajectory::DataContainer &meas = it->measurements();
             trajectory.reserve(meas.size());
@@ -482,7 +482,7 @@ namespace cms{
 	 else state = trajectoryStateTransform::persistentState( initState.first,
 							         initState.second->geographicalId().rawId());
 	 LogDebug("CkfPattern") << "pushing a TrackCandidate.";
-	 output->emplace_back(recHits,it->seed(),state,it->seedRef(),it->nLoops());
+	 output->emplace_back(recHits,it->seed(),state,it->seedRef(),it->nLoops(), (uint8_t)it->stopReason());
        }
       }//output trackcandidates
 

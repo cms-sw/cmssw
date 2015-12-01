@@ -10,6 +10,8 @@ TrajectoryFilterForConversions = TrackingTools.TrajectoryFiltering.TrajectoryFil
     maxNumberOfHits = cms.int32(-1),
     maxConsecLostHits = cms.int32(1),
     nSigmaMinPt = cms.double(5.0),
-    minimumNumberOfHits = cms.int32(3)
+    minimumNumberOfHits = cms.int32(3),
+    maxCCCLostHits = cms.int32(9999),
+    minGoodStripCharge = cms.double(-1)
 )
 
