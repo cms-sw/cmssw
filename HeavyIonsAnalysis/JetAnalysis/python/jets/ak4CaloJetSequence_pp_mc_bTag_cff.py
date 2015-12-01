@@ -219,8 +219,8 @@ ak4CaloJetSequence_mc = cms.Sequence(
 
 ak4CaloJetSequence_data = cms.Sequence(ak4Calocorr
                                                     *
-                                                    ak4CaloJetID
-                                                    *
+                                                    #ak4CaloJetID
+                                                    #*
                                                     ak4CaloJetTracksAssociatorAtVertex
                                                     *
                                                     ak4CaloJetBtagging
