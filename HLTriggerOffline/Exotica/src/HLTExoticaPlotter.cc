@@ -83,7 +83,8 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker & iBooker,
                 // If the target is electron or muon,
                 // we will add Dxy plots.
                 if ( *it == EVTColContainer::ELEC ||
-                     *it == EVTColContainer::MUON    ) { 
+                     *it == EVTColContainer::MUON || 
+                     *it == EVTColContainer::MUTRK    ) { 
                   bookHist(iBooker, source, objTypeStr, "Dxy");
                 }
               }
@@ -102,7 +103,8 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker & iBooker,
                 // If the target is electron or muon,
                 // we will add Dxy plots.
                 if ( *it == EVTColContainer::ELEC ||
-                     *it == EVTColContainer::MUON    ) { 
+                     *it == EVTColContainer::MUON || 
+                     *it == EVTColContainer::MUTRK    ) { 
                   bookHist(iBooker, source, objTypeStr, "Dxy");
                 }
               }
@@ -161,7 +163,7 @@ void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
 	  }
 	}
 
-        if ( dxys.size() && (objType == EVTColContainer::ELEC || objType == EVTColContainer::MUON ) ) 
+        if ( dxys.size() && (objType == EVTColContainer::ELEC || objType == EVTColContainer::MUON || objType == EVTColContainer::MUTRK) ) 
            this->fillHist(isPassTrigger, source, objTypeStr, "Dxy", dxys[j] );
 
         if (countobjects[objType] == 0) {
