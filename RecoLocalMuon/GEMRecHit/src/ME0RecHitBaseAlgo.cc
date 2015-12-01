@@ -13,9 +13,7 @@
 #include "DataFormats/GEMDigi/interface/ME0DigiPreRecoCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-ME0RecHitBaseAlgo::ME0RecHitBaseAlgo(const edm::ParameterSet& config) {
-  recOnlyMuons = config.getParameter<bool>("recOnlyMuons");
-}
+ME0RecHitBaseAlgo::ME0RecHitBaseAlgo(const edm::ParameterSet& config) {}
 
 ME0RecHitBaseAlgo::~ME0RecHitBaseAlgo(){}
 
