@@ -377,6 +377,8 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
   {
     m_lastSourceCheck = now;
     sentry.unlock();
+    // Automatically reacquire the lock after this code block finishes.
+    std::shared_ptr<const void> reacquire_lock_sentry(nullptr, [&sentry](void*) {sentry.lock();});
     m_open_handler->open();
   }
 
@@ -685,42 +687,45 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
     std::shared_ptr<Source> new_source;
     if (m_activeSources.size() == 0)
     {
-        // NOTE: Due to lock ordering, we cannot hold m_source_mutex and call open.
         timespec now;
         GET_CLOCK_MONOTONIC(now);
         m_lastSourceCheck = now;
-        sentry.unlock();
-        std::shared_future<std::shared_ptr<Source> > future = m_open_handler->open();
-        // Note we only wait for 180 seconds here.  This is because we've already failed
-        // once and the likelihood the program has some inconsistent state is decent.
-        // We'd much rather fail hard than deadlock!
-        std::future_status status = future.wait_for(std::chrono::seconds(m_timeout+10));
-        if (status == std::future_status::timeout)
         {
-            XrootdException ex(c_status, edm::errors::FileOpenError);
-            ex << "XrdAdaptor::RequestManager::requestFailure Open(name='" << m_name
-               << "', flags=0x" << std::hex << m_flags
-               << ", permissions=0" << std::oct << m_perms << std::dec
-               << ", old source=" << source_ptr->PrettyID()
-               << ") => timeout when waiting for file open";
-            ex.addContext("In XrdAdaptor::RequestManager::requestFailure()");
-            addConnections(ex);
-            throw ex;
-        }
-        else
-        {
-            try
+            // NOTE: Due to lock ordering, we cannot hold m_source_mutex and call open.
+            sentry.unlock();
+            // Automatically re-acquire the lock on exit from this code block.
+            std::shared_ptr<const void> reacquire_lock_sentry(nullptr, [&sentry](void*) {sentry.lock();});
+            std::shared_future<std::shared_ptr<Source> > future = m_open_handler->open();
+            // Note we only wait for 180 seconds here.  This is because we've already failed
+            // once and the likelihood the program has some inconsistent state is decent.
+            // We'd much rather fail hard than deadlock!
+            std::future_status status = future.wait_for(std::chrono::seconds(m_timeout+10));
+            if (status == std::future_status::timeout)
             {
-                new_source = future.get();
+                XrootdException ex(c_status, edm::errors::FileOpenError);
+                ex << "XrdAdaptor::RequestManager::requestFailure Open(name='" << m_name
+                   << "', flags=0x" << std::hex << m_flags
+                   << ", permissions=0" << std::oct << m_perms << std::dec
+                   << ", old source=" << source_ptr->PrettyID()
+                   << ") => timeout when waiting for file open";
+                ex.addContext("In XrdAdaptor::RequestManager::requestFailure()");
+                addConnections(ex);
+                throw ex;
             }
-            catch (edm::Exception &ex)
+            else
             {
-                ex.addContext("Handling XrdAdaptor::RequestManager::requestFailure()");
-                ex.addAdditionalInfo("Original failed source is " + source_ptr->PrettyID());
-                throw;
+                try
+                {
+                    new_source = future.get();
+                }
+                catch (edm::Exception &ex)
+                {
+                    ex.addContext("Handling XrdAdaptor::RequestManager::requestFailure()");
+                    ex.addAdditionalInfo("Original failed source is " + source_ptr->PrettyID());
+                    throw;
+                }
             }
         }
-        sentry.lock();
         
         if (std::find(m_disabledSourceStrings.begin(), m_disabledSourceStrings.end(), new_source->ID()) != m_disabledSourceStrings.end())
         {
