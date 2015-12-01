@@ -21,8 +21,10 @@ public:
 
  protected:
 
-  template<class T> bool TBC(const T & traj) const{
-    return traj.foundHits() < theMaxHits ;
+  template<class T> bool TBC(T & traj) const{
+    bool ret = traj.foundHits() < theMaxHits ;
+    if (!ret) traj.setStopReason(StopReason::MAX_HITS);
+    return ret;
   }
 
   int theMaxHits;

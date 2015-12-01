@@ -8,7 +8,7 @@ def loadListFromFile (filename):
     retval = []
     filename = os.path.expanduser (filename)
     if not os.path.exists (filename):
-        print "Error: '%s' file does not exist."
+        print "Error: file '%s' does not exist."%(filename)
         raise RuntimeError("Bad filename")
     source = open (filename, 'r')        
     for line in source.readlines():
