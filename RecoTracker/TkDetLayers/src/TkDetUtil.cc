@@ -4,13 +4,6 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#include "DataFormats/Math/interface/approx_atan2.h"
-
-namespace {
-  inline
-  float f_atan2f(float y, float x) { return unsafe_atan2f<9>(y,x); }
-}
-
 namespace tkDetUtil {
 
   float computeWindowSize( const GeomDet* det, 
@@ -36,24 +29,21 @@ namespace tkDetUtil {
     float dphi=0;
     if likely(std::abs(1.f-std::abs(plane.normalVector().z()))<tollerance) {
       auto ori = plane.toLocal(GlobalPoint(0.,0.,0.));
-      auto x0 = std::abs(start.x() - ori.x());
-      auto y0 = std::abs(start.y() - ori.y());
+      auto xc = std::abs(start.x() - ori.x());
+      auto yc = std::abs(start.y() - ori.y());
       
-      if (y0<maxDistance.y() && x0<maxDistance.x()) return M_PI;
+      if (yc<maxDistance.y() && xc<maxDistance.x()) return M_PI;
 
-      if (y0>maxDistance.y()) {
-        auto phimax = f_atan2f(y0 + (x0<maxDistance.x() ? -maxDistance.y() : maxDistance.y()), x0 - maxDistance.x() );
-        auto phimin = f_atan2f(y0 - maxDistance.y(), x0 + maxDistance.x() );
-        // if (phimin>phimax) std::cout << "phimess x " << phimin<<','<<phimax << " " << x0 << ',' << maxDistance.x() << " " << y0 << ',' << maxDistance.y() << std::endl;
-        dphi=phimax-phimin;
-      } else {
-        auto phimax = f_atan2f(x0 - maxDistance.x(), -y0 - maxDistance.y() );
-        auto phimin = f_atan2f(x0 - maxDistance.x(), -y0 + maxDistance.y() );
-        // if (phimin>phimax) std::cout << "phimess y  " << phimin<<','<<phimax << std::endl;
-        dphi=phimax-phimin;
-      }
+      auto hori = yc>maxDistance.y(); // quadrant 1 (&2), otherwiase quadrant 1&4
+      auto y0 = hori ? yc + std::copysign(maxDistance.y(), xc - maxDistance.x()) : xc - maxDistance.x();
+      auto x0 = hori ? xc - maxDistance.x() : -yc - maxDistance.y();
+      auto y1 = hori ? yc - maxDistance.y() :  xc - maxDistance.x();
+      auto x1 = hori ? xc + maxDistance.x() : -yc + maxDistance.y();
+
+      dphi = std::acos( (x0*x1+y0*y1)/std::sqrt((x0*x0+y0*y0)*(x1*x1+y1*y1)) );
       return dphi;
     }
+    
 
     // generic algo
     float corners[]  =  { plane.toGlobal(LocalPoint( start.x()+maxDistance.x(), start.y()+maxDistance.y() )).barePhi(),
