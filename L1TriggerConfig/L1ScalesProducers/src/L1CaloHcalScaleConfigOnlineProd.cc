@@ -261,13 +261,14 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	 uint32_t lutId = caloTPG->getOutputLUTId(ieta,iphi);
 
 	 double eta_low = 0., eta_high = 0.;
-	 theTrigTowerGeometry->towerEtaBounds(ieta,eta_low,eta_high); 
+	 const int version_of_hcal_TPs = 0;
+	 theTrigTowerGeometry->towerEtaBounds(ieta,version_of_hcal_TPs, eta_low,eta_high); 
 	 double cosh_ieta = fabs(cosh((eta_low + eta_high)/2.));
 
 
 	 if (!caloTPG->HTvalid(ieta, iphi)) continue;
 	 double factor = 0.;
-	 if (abs(ieta) >= theTrigTowerGeometry->firstHFTower())
+	 if (abs(ieta) >= theTrigTowerGeometry->firstHFTower(version_of_hcal_TPs))
 	   factor = rctlsb;
 	 else 
 	   factor = nominal_gain / cosh_ieta * lutGranularity;
@@ -275,7 +276,7 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	   outputLut[k] = 0;
 	 
          for (unsigned int k = threshold; k < 1024; ++k)
-	   outputLut[k] = (abs(ieta) < theTrigTowerGeometry->firstHFTower()) ? analyticalLUT[k] : identityLUT[k];
+	   outputLut[k] = (abs(ieta) < theTrigTowerGeometry->firstHFTower(version_of_hcal_TPs)) ? analyticalLUT[k] : identityLUT[k];
 	 
 
 	   // tpg - compressed value
