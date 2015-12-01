@@ -57,9 +57,9 @@ private:
 
   int FilterStatus;
   int MaxZeros, MaxHPDHits, MaxHPDNoOtherHits, MaxRBXHits;
-  int IsolatedCount, FlatNoiseCount, SpikeNoiseCount;
-  double IsolatedSumE, FlatNoiseSumE, SpikeNoiseSumE;
-  double IsolatedSumET, FlatNoiseSumET, SpikeNoiseSumET;
+  int IsolatedCount, FlatNoiseCount, SpikeNoiseCount, TriangleNoiseCount;
+  double IsolatedSumE, FlatNoiseSumE, SpikeNoiseSumE, TriangleNoiseSumE;
+  double IsolatedSumET, FlatNoiseSumET, SpikeNoiseSumET, TriangleNoiseSumET;
   bool HasBadTS4TS5;
   double TotalCalibCharge;
   double MinE2E10, MaxE2E10;
@@ -128,6 +128,9 @@ void HiHcalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   SpikeNoiseCount = hSummary->numSpikeNoiseChannels();
   SpikeNoiseSumE = hSummary->spikeNoiseSumE();
   SpikeNoiseSumET = hSummary->spikeNoiseSumEt();
+  TriangleNoiseCount = hSummary->numTriangleNoiseChannels();
+  TriangleNoiseSumE = hSummary->triangleNoiseSumE();
+  TriangleNoiseSumET = hSummary->triangleNoiseSumEt();
   HasBadTS4TS5 = hSummary->HasBadRBXTS4TS5();
   TotalCalibCharge = hSummary->GetTotalCalibCharge();
   MinE2E10 = hSummary->minE2Over10TS();
@@ -184,6 +187,9 @@ void HiHcalAnalyzer::beginJob()
   OutputTree->Branch("SpikeNoiseCount", &SpikeNoiseCount, "SpikeNoiseCount/I");
   OutputTree->Branch("SpikeNoiseSumE", &SpikeNoiseSumE, "SpikeNoiseSumE/D");
   OutputTree->Branch("SpikeNoiseSumET", &SpikeNoiseSumET, "SpikeNoiseSumET/D");
+  OutputTree->Branch("TriangleNoiseCount", &TriangleNoiseCount, "TriangleNoiseCount/I");
+  OutputTree->Branch("TriangleNoiseSumE", &TriangleNoiseSumE, "TriangleNoiseSumE/D");
+  OutputTree->Branch("TriangleNoiseSumET", &TriangleNoiseSumET, "TriangleNoiseSumET/D");
   OutputTree->Branch("HasBadTS4TS5", &HasBadTS4TS5, "HasBadTS4TS5/O");
   OutputTree->Branch("TotalCalibCharge", &TotalCalibCharge, "TotalCalibCharge/D");
   OutputTree->Branch("MinE2E10", &MinE2E10, "MinE2E10/D");
@@ -242,13 +248,16 @@ void HiHcalAnalyzer::CleanUp()
   MaxRBXHits = -1;
   IsolatedCount = -1;
   FlatNoiseCount = -1;
-  SpikeNoiseCount = -1;
   IsolatedSumE = -1;
   FlatNoiseSumE = -1;
-  SpikeNoiseSumE = -1;
   IsolatedSumET = -1;
   FlatNoiseSumET = -1;
   SpikeNoiseSumET = -1;
+  SpikeNoiseSumE = -1;
+  SpikeNoiseCount = -1;
+  TriangleNoiseSumET = -1;
+  TriangleNoiseSumE = -1;
+  TriangleNoiseCount = -1;
   HasBadTS4TS5 = false;
   TotalCalibCharge = -1;
   MinE2E10 = -1;
