@@ -131,7 +131,7 @@ void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<
 	  //if(filters.back()=="hltBoolEnd" && filters.size()>=2){
 	  for(size_t filter=0;filter<filters.size();filter++){
 	    //std::cout << filters[filter] << std::endl;
-	    if(filters[filter].find("Filter")!=filters[filter].npos){//keep only modules that contain the word "Filter"
+	    if(filters[filter].find("Filter")!=filters[filter].npos or pathName.find("HI")!=pathName.npos){//keep only modules that contain the word "Filter" or "HI"
 	      //std::cout<<"  Module Name: "<<filters[filter]<<" filter#: "<<int(filter)<<"/"<<filters.size()<<" ncandcut: "<<trigTools::getMinNrObjsRequiredByFilter(filters[filter])<<std::endl;
 	      if(//keep only the last filter and the last one with ncandcut==1 (for di-object triggers)
 		 (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==2)  
