@@ -218,8 +218,8 @@ ALGO_SUB_RADIUS_OBJECT_JetSequence_mc = cms.Sequence(
 
 ALGO_SUB_RADIUS_OBJECT_JetSequence_data = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_corr
                                                     *
-                                                    ALGO_SUB_RADIUS_OBJECT_JetID
-                                                    *
+                                                    #ALGO_SUB_RADIUS_OBJECT_JetID
+                                                    #*
                                                     ALGO_SUB_RADIUS_OBJECT_JetTracksAssociatorAtVertex
                                                     *
                                                     ALGO_SUB_RADIUS_OBJECT_JetBtagging

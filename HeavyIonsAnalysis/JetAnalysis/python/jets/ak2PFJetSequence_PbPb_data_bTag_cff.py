@@ -219,8 +219,8 @@ ak2PFJetSequence_mc = cms.Sequence(
 
 ak2PFJetSequence_data = cms.Sequence(ak2PFcorr
                                                     *
-                                                    ak2PFJetID
-                                                    *
+                                                    #ak2PFJetID
+                                                    #*
                                                     ak2PFJetTracksAssociatorAtVertex
                                                     *
                                                     ak2PFJetBtagging

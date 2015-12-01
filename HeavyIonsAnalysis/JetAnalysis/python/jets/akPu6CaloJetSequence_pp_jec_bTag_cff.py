@@ -219,8 +219,8 @@ akPu6CaloJetSequence_mc = cms.Sequence(
 
 akPu6CaloJetSequence_data = cms.Sequence(akPu6Calocorr
                                                     *
-                                                    akPu6CaloJetID
-                                                    *
+                                                    #akPu6CaloJetID
+                                                    #*
                                                     akPu6CaloJetTracksAssociatorAtVertex
                                                     *
                                                     akPu6CaloJetBtagging
