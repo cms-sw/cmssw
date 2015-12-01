@@ -74,7 +74,7 @@ run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > inputhandle, products& ou
 
       StripClusterParameterEstimator::LocalValues parameters = 	parameterestimator->localParameters(cluster,du);
       collector.push_back(SiStripRecHit2D( parameters.first, parameters.second, du, 
-                                           edmNew::makeRefTo(inputhandle, &cluster, &cluster - &(DS.container().front())) 
+                                           DS.makeRefTo(inputhandle, &cluster) 
                                           ));
     }
 
