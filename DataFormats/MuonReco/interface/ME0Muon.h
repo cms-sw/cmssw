@@ -8,6 +8,9 @@
  */
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
 #include <DataFormats/GEMRecHit/interface/ME0SegmentCollection.h>
 
@@ -53,12 +56,42 @@ namespace reco {
     double phi() const { return innerTrack_.get()->phi(); }
     /// pseudorapidity of momentum vector
     double eta() const { return innerTrack_.get()->eta(); }
+
+    //functions for easy variation of me0muon criteria
+    /* double xpull() const { return xpull_; } */
+    /* double xdiff() const { return xdiff_; } */
+    /* double ypull() const { return ypull_; } */
+    /* double ydiff() const { return ydiff_; } */
+    /* double phidirdiff() const { return phidirdiff_; } */
+
+    /* void setXpull( const double xpull ) { xpull_ = xpull; } */
+    /* void setXdiff( const double xdiff ) { xdiff_ = xdiff; } */
+    /* void setYpull( const double ypull ) { ypull_ = ypull; } */
+    /* void setYdiff( const double ydiff ) { ydiff_ = ydiff; } */
+    /* void setPhidirdiff( const double phidirdiff ) { phidirdiff_ = phidirdiff; } */
+
+    GlobalPoint globalTrackPosAtSurface() const { return globalTrackPosAtSurface_; }
+    GlobalVector globalTrackMomAtSurface() const { return globalTrackMomAtSurface_; }
+    int trackCharge() const { return trackCharge_; }
+    AlgebraicSymMatrix66 trackCov() const { return trackCov_; }
+
+    void setGlobalTrackPosAtSurface(const GlobalPoint globalTrackPosAtSurface) { globalTrackPosAtSurface_ = globalTrackPosAtSurface; }
+    void setGlobalTrackMomAtSurface(const GlobalVector globalTrackMomAtSurface) { globalTrackMomAtSurface_ = globalTrackMomAtSurface; }
+    void setTrackCharge(const int trackCharge) { trackCharge_ = trackCharge; }
+    void setTrackCov(const AlgebraicSymMatrix66 trackCov) { trackCov_ = trackCov; }
      
   private:
     /// reference to Track reconstructed in the tracker only
     TrackRef innerTrack_;
     ME0Segment me0Segment_;
     int me0segid_;
+
+    GlobalPoint globalTrackPosAtSurface_;
+    GlobalVector globalTrackMomAtSurface_;
+    int trackCharge_;
+    AlgebraicSymMatrix66 trackCov_;
+
+    //double xpull_,ypull_,xdiff_,ydiff_,phidirdiff_;
   };
 
 }
