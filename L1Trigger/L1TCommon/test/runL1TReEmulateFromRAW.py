@@ -15,10 +15,12 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 
 process.source = cms.Source(
     'PoolSource',
- fileNames = cms.untracked.vstring('/store/data/Run2015B/DoubleEG/RAW/v1/000/251/251/00000/069C1D5D-EA25-E511-8377-02163E013807.root', 
-        '/store/data/Run2015B/DoubleEG/RAW/v1/000/251/251/00000/0A005856-EA25-E511-B409-02163E013542.root', 
-        '/store/data/Run2015B/DoubleEG/RAW/v1/000/251/251/00000/1ABA9855-EA25-E511-9141-02163E011A74.root', 
-        '/store/data/Run2015B/DoubleEG/RAW/v1/000/251/251/00000/F852D556-EA25-E511-ABF7-02163E011C17.root'),
+# fileNames = cms.untracked.vstring('/store/data/Run2015B/DoubleEG/RAW/v1/000/251/251/00000/069C1D5D-EA25-E511-8377-02163E013807.root', 
+#        '/store/data/Run2015B/DoubleEG/RAW/v1/000/251/251/00000/0A005856-EA25-E511-B409-02163E013542.root', 
+#        '/store/data/Run2015B/DoubleEG/RAW/v1/000/251/251/00000/1ABA9855-EA25-E511-9141-02163E011A74.root', 
+#        '/store/data/Run2015B/DoubleEG/RAW/v1/000/251/251/00000/F852D556-EA25-E511-ABF7-02163E011C17.root'),
+ fileNames = cms.untracked.vstring('/store/data/Run2015B/DoubleMuon/RAW/v1/000/251/251/00000/9C66B64C-CA25-E511-818A-02163E0140E1.root', 
+        '/store/data/Run2015B/DoubleMuon/RAW/v1/000/251/251/00000/DA60E454-CA25-E511-BFF0-02163E01207C.root'),
     lumisToProcess = cms.untracked.VLuminosityBlockRange("251251:1-251251:31", "251251:33-251251:97", "251251:99-251251:167"),
     inputCommands = cms.untracked.vstring(
         'keep *', 
@@ -27,7 +29,7 @@ process.source = cms.Source(
         ) 
     )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
 
 # PostLS1 geometry used
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
@@ -36,6 +38,7 @@ process.load('Configuration.Geometry.GeometryExtended2015_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 #### Sim L1 Emulator Sequence:
 process.load('Configuration.StandardSequences.RawToDigi_cff')
@@ -87,7 +90,6 @@ if (eras.stage2L1Trigger.isChosen()):
     process.l1tSummaryB.sumToken  = cms.InputTag("simCaloStage2Digis");
     process.l1tSummaryB.muonToken = cms.InputTag("simGmtStage2Digis","");
 
-
 # Additional output definition
 # TTree output file
 process.load("CommonTools.UtilAlgos.TFileService_cfi")
@@ -134,7 +136,7 @@ process.L1TSeq = cms.Sequence(   process.RawToDigi
 #                                   + process.l1tSummaryA
                                    + process.l1tSummaryB
 #                                   + process.l1tGlobalAnalyzer
-#                                   + process.l1UpgradeTree
+                                   + process.l1UpgradeTree
 )
 
 process.L1TPath = cms.Path(process.L1TSeq)
