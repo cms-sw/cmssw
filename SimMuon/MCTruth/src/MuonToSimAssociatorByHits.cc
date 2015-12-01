@@ -25,6 +25,7 @@ MuonToSimAssociatorByHits::MuonToSimAssociatorByHits (const edm::ParameterSet& c
 
   //hack for consumes
   RPCHitAssociator rpctruth(conf,std::move(iC));
+  GEMHitAssociator gemtruth(conf,std::move(iC));
   DTHitAssociator dttruth(conf,std::move(iC));
   CSCHitAssociator muonTruth(conf,std::move(iC));
 }
@@ -136,8 +137,10 @@ void MuonToSimAssociatorByHits::associateMuons(MuonToSimCollection & recToSim, S
     DTHitAssociator dttruth(*event,*setup,conf_,printRtS);  
     // RPC hit association
     RPCHitAssociator rpctruth(*event,*setup,conf_);
+    // GEM hit association
+    GEMHitAssociator gemtruth(*event,*setup,conf_);
    
-    MuonAssociatorByHitsHelper::Resources resources = {tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth};
+    MuonAssociatorByHitsHelper::Resources resources = {tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth};
 
     auto recSimColl = helper_.associateRecoToSimIndices(muonHitRefs,tPC,resources);
     for (auto it = recSimColl.begin(), ed = recSimColl.end(); it != ed; ++it) {
