@@ -17,10 +17,10 @@ namespace {
 }
 
 ME0Segment::ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, LocalPoint origin, 
-	LocalVector direction, AlgebraicSymMatrix errors, double chi2) : 
+		       LocalVector direction, AlgebraicSymMatrix errors, double chi2, double averageTime, double timeUncrt) : 
   RecSegment(buildDetId(proto_segment.front()->me0Id())),
   theOrigin(origin), 
-  theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2){
+  theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2), theTimeValue(averageTime), theTimeUncrt(timeUncrt) {
 
   for(unsigned int i=0; i<proto_segment.size(); ++i)
     theME0RecHits.push_back(*proto_segment[i]);
@@ -82,17 +82,6 @@ AlgebraicMatrix ME0Segment::projectionMatrix() const {
   return theProjectionMatrix;
 }
 
-float ME0Segment::time() const {
-  float averageTime=0;
-  for (std::vector<ME0RecHit>::const_iterator itRH = theME0RecHits.begin();
-       itRH != theME0RecHits.end(); ++itRH) {
-    const  ME0RecHit *recHit = &(*itRH);
-    averageTime+=recHit->tof();
-  }
-  averageTime=averageTime/(theME0RecHits.size());
-  return averageTime;
-}
-
 //
 void ME0Segment::print() const {
   std::cout << *this << std::endl;
@@ -106,7 +95,8 @@ std::ostream& operator<<(std::ostream& os, const ME0Segment& seg) {
     " dirErr = (" << sqrt(seg.localDirectionError().xx())<<","<<sqrt(seg.localDirectionError().yy())<<
     "0,)\n"<<
     "            chi2/ndf = " << seg.chi2()/double(seg.degreesOfFreedom()) << 
-    " #rechits = " << seg.specificRecHits().size();
+    " #rechits = " << seg.specificRecHits().size() <<
+    " time = "<< seg.time() << " +/- " << seg.timeErr() << " ns ";
   return os;  
 }
 

@@ -76,6 +76,7 @@ private:
   bool    preClustering_useChaining;
   double  dPhiChainBoxMax;
   double  dEtaChainBoxMax;
+  double  dTimeChainBoxMax;
   int     maxRecHitsInCluster;
   
  private:
