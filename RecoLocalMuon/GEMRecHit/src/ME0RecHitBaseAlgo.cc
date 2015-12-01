@@ -33,7 +33,6 @@ const ME0DigiPreRecoCollection::Range& digiRange){
     // Call the compute method
     bool OK = this->compute(*digi, point, tmpErr);
     if (!OK) continue;
-    if (recOnlyMuons && std::abs(digi->pdgid()) != 13)  continue;
     ME0RecHit* recHit = new ME0RecHit(me0Id,digi->tof(),point,tmpErr);
     result.push_back(recHit);
   }
