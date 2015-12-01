@@ -77,8 +77,8 @@ HLT_HIL2Mu3Eta2p5_HIPhoton20Eta1p5_v* 			# CMSHLT-656
 HLT_HIL2Mu3Eta2p5_HIPhoton30Eta1p5_v* 			# CMSHLT-656
 HLT_HIL2Mu3Eta2p5_HIPhoton40Eta1p5_v* 			# CMSHLT-656
 
-HLT_HIUCC100_v* 					# CMSHLT-630
-HLT_HIUCC020_v* 					# CMSHLT-630
+HLT_HIUCC100_v* 					# CMSHLT-630, CMSHLT-682
+HLT_HIUCC020_v* 					# CMSHLT-630, CMSHLT-682
 HLT_HIQ2Bottom005_Centrality1030_v* 			# CMSHLT-630
 HLT_HIQ2Top005_Centrality1030_v* 			# CMSHLT-630
 HLT_HIQ2Bottom005_Centrality3050_v* 			# CMSHLT-630
@@ -201,6 +201,9 @@ HLT_HIDmesonHITrackingGlobal_Dpt60_v*			# CMSHLT-636
 HLT_HIDmesonHITrackingGlobal_Dpt70_v*			# CMSHLT-636
 HLT_HIDmesonHITrackingGlobal_Dpt60_Cent30_100_v*	# CMSHLT-636
 HLT_HIDmesonHITrackingGlobal_Dpt60_Cent50_100_v*	# CMSHLT-636
+HLT_HIDmesonHITrackingGlobal_Dpt20_Cent0_10_v*		# CMSHLT-677, CMSHLT-682
+HLT_HIDmesonHITrackingGlobal_Dpt30_Cent0_10_v*		# CMSHLT-677, CMSHLT-682
+HLT_HIDmesonHITrackingGlobal_Dpt40_Cent0_10_v*		# CMSHLT-677, CMSHLT-682
 
 HLT_HIL1MinimumBiasHF1OR_v*				# CMSHLT-654
 HLT_HIL1MinimumBiasHF2OR_v*				# CMSHLT-654
@@ -208,9 +211,15 @@ HLT_HIL1MinimumBiasHF1AND_v*				# CMSHLT-654
 HLT_HIL1MinimumBiasHF2AND_v*				# CMSHLT-654
 HLT_HIZeroBiasPixel_SingleTrack_v*			# CMSHLT-654
 HLT_HIL1MinimumBiasHF1ANDPixel_SingleTrack_v*		# CMSHLT-654
-HLT_HIL1Centralityext30100HFplusANDminusTH0_v*		# CMSHLT-654
-HLT_HIL1Centralityext50100HFplusANDminusTH0_v*		# CMSHLT-654
-HLT_HIL1Centralityext70100HFplusANDminusTH0_v*		# CMSHLT-654
+#HLT_HIL1Centralityext30100HFplusANDminusTH0_v*		# CMSHLT-654, removed CMSHLT-682
+#HLT_HIL1Centralityext50100HFplusANDminusTH0_v*		# CMSHLT-654, removed CMSHLT-682
+#HLT_HIL1Centralityext70100HFplusANDminusTH0_v*		# CMSHLT-654, removed CMSHLT-682
+HLT_HIL1Centralityext30100MinimumumBiasHF1AND_v*	  	      # CMSHLT-682
+HLT_HIL1Centralityext30100MinimumumBiasHF1ANDPixel_SingleTrack_v*     # CMSHLT-682
+HLT_HIL1Centralityext50100MinimumumBiasHF1AND_v*	  	      # CMSHLT-682
+HLT_HIL1Centralityext50100MinimumumBiasHF1ANDPixel_SingleTrack_v*     # CMSHLT-682
+HLT_HIL1Centralityext70100MinimumumBiasHF1AND_v*	  	      # CMSHLT-682
+HLT_HIL1Centralityext70100MinimumumBiasHF1ANDPixel_SingleTrack_v*     # CMSHLT-682
 
 HLT_HIZeroBias_v*					# CMSHLT-641
 HLT_HICentralityVeto_v*					# CMSHLT-641
@@ -218,7 +227,6 @@ HLT_HIL1Tech5_BPTX_PlusOnly_v*				# CMSHLT-641
 HLT_HIL1Tech6_BPTX_MinusOnly_v*				# CMSHLT-641
 HLT_HIL1Tech7_NoBPTX_v*					# CMSHLT-641
 HLT_HIPhysics_v*					# CMSHLT-641
-#HLT_HIPhysicsNoZS_v*					# CMSHLT-641, removed CMSHLT-679
 HLT_HIRandom_v*						# CMSHLT-641
 
 HLT_EcalCalibration_v*					# CMSHLT-640
