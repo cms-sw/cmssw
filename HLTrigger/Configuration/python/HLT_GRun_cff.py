@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_5_0/GRun/V22 (CMSSW_7_5_7_patch1)
+# /dev/CMSSW_7_5_0/GRun/V24 (CMSSW_7_5_7_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_5_0/GRun/V22')
+  tableName = cms.string('/dev/CMSSW_7_5_0/GRun/V24')
 )
 
 fragment.transferSystem = cms.PSet( 

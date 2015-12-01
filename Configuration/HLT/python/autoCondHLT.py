@@ -7,7 +7,7 @@ l1Menus= {
     '25ns14e33_v1' : 'L1Menu_Collisions2015_25ns_v2_L1T_Scales_20141121_Imp0_0x1030',
     '25ns14e33_v3' : 'L1Menu_Collisions2015_25nsStage1_v4',
     '25ns14e33_v4' : 'L1Menu_Collisions2015_25nsStage1_v5',
-    'HIon'         : 'L1Menu_CollisionsHeavyIons2015_v4',
+    'HIon'         : 'L1Menu_CollisionsHeavyIons2015_v5_mc',
     'PIon'         : 'L1Menu_Collisions2015_25nsStage1_v5',
     'PRef'         : 'L1Menu_Collisions2015_5TeV_pp_reference_v5_mc',
     '50nsGRun'     : 'L1Menu_Collisions2015_50nsGct_v4',
