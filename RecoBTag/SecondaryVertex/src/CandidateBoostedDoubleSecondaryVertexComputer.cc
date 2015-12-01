@@ -521,7 +521,6 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
     tau1_flightDistance2dSig= tau2_flightDistance2dSig;
     tau2_flightDistance2dSig= temp;
 
-    temp = tau1_vertexDeltaR;
     tau1_vertexDeltaR= tau2_vertexDeltaR;
 
     temp = tau1_vertexEnergyRatio;
