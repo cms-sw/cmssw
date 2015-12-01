@@ -1,3 +1,4 @@
+//April 2015 : Removal of itrg1, itrg2, but addition of isect2, same is true in HOCalibVariables.h
 // -*- C++ -*-
 //
 // Package:    HOCalibAnalyzer
@@ -9,6 +10,11 @@
 
  Implementation:
      <Notes on implementation>
+
+April 2015
+// Addition of these variables, ilumi (analyser), inslumi (analyser), nprim
+
+
 */
 //
 // Original Author:  Gobinda Majumder
@@ -30,10 +36,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //#include "DataFormats/HOCalibHit/interface/HOCalibVariables.h"
 #include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 #include "TMath.h"
 #include "TFile.h"
@@ -54,10 +61,6 @@
 #include <fstream>
 #include <iomanip>
 //#include <sstream>
-
-
-using namespace std;
-using namespace edm;
 
 
   //
@@ -95,13 +98,13 @@ static const int npixriup[21]={0, 5, 6, 7, 9, 0,11,12,13,14, 0,16, 0,17,18,19, 0
 
 static const int netamx=30;
 static const int nphimx =72;
-  const int nbgpr = 3;
-  const int nsgpr = 7;
+static const int nbgpr = 3;
+static const int nsgpr = 7;
 
 int ietafit;
 int iphifit;
-vector<float>sig_reg[netamx][nphimx+1];
-vector<float>cro_ssg[netamx][nphimx+1];
+std::vector<float>sig_reg[netamx][nphimx+1];
+std::vector<float>cro_ssg[netamx][nphimx+1];
 
 
 //#define CORREL
@@ -141,8 +144,6 @@ Double_t langaufun(Double_t *x, Double_t *par) {
   Double_t sum = 0.0;
   Double_t xlow,xupp;
   Double_t step;
-  Double_t i;
-  
   
   // MP shift correction
   mpc = par[1] - mpshift * par[0]*par[1]; 
@@ -154,11 +155,11 @@ Double_t langaufun(Double_t *x, Double_t *par) {
   step = (xupp-xlow) / np;
   
   // Convolution integral of Landau and Gaussian by sum
-  for(i=1.0; i<=np/2; i++) {
-    xx = xlow + (i-.5) * step;
+  for(double ij=1.0; ij<=np/2; ij++) {
+    xx = xlow + (ij-.5) * step;
     fland = TMath::Landau(xx,mpc,par[0]*par[1], kTRUE); // / par[0];
     sum += fland * TMath::Gaus(x[0],xx,par[3]);
-    xx = xupp - (i-.5) * step;
+    xx = xupp - (ij-.5) * step;
     fland = TMath::Landau(xx,mpc,par[0]*par[1], kTRUE); // / par[0];
     sum += fland * TMath::Gaus(x[0],xx,par[3]);
   }
@@ -173,10 +174,10 @@ Double_t totalfunc(Double_t* x, Double_t* par){
 void fcnbg(Int_t &npar, Double_t* gin, Double_t &f, Double_t* par, Int_t flag) {
   
   double fval = -par[0];
-  for (unsigned i=0; i<cro_ssg[ietafit][iphifit].size(); i++) {
-    double xval = (double)cro_ssg[ietafit][iphifit][i];
-    fval +=log(max(1.e-30,par[0]*TMath::Gaus(xval, par[1], par[2], 1)));
-    //    fval +=log(par[0]*TMath::Gaus(xval, par[1], par[2], 1));
+  for (unsigned ij=0; ij<cro_ssg[ietafit][iphifit].size(); ij++) {
+    double xval = (double)cro_ssg[ietafit][iphifit][ij];
+    fval +=std::log(std::max(1.e-30,par[0]*TMath::Gaus(xval, par[1], par[2], 1)));
+    //    fval +=std::log(par[0]*TMath::Gaus(xval, par[1], par[2], 1));
   }
   f = -fval;
 }
@@ -185,30 +186,30 @@ void fcnsg(Int_t &npar, Double_t* gin, Double_t &f, Double_t* par, Int_t flag) {
 
   double xval[2];
   double fval = -(par[0]+par[5]);
-  for (unsigned i=0; i<sig_reg[ietafit][iphifit].size(); i++) {
-    xval[0] = (double)sig_reg[ietafit][iphifit][i];
-    fval +=log(totalfunc(xval, par));
+  for (unsigned ij=0; ij<sig_reg[ietafit][iphifit].size(); ij++) {
+    xval[0] = (double)sig_reg[ietafit][iphifit][ij];
+    fval +=std::log(totalfunc(xval, par));
   }
   f = -fval;
 }
 
 void set_mean(double& x, bool mdigi) {
   if(mdigi) {
-    x = min(x, 0.5);
-    x = max(x, -0.5);
+    x = std::min(x, 0.5);
+    x = std::max(x, -0.5);
   } else {
-    x = min(x, 0.1);
-    x = max(x, -0.1);
+    x = std::min(x, 0.1);
+    x = std::max(x, -0.1);
   }
 }
 
 void set_sigma(double& x, bool mdigi) {
   if(mdigi) {
-    x = min(x, 1.2);
-    x = max(x, -1.2);
+    x = std::min(x, 1.2);
+    x = std::max(x, -1.2);
   } else {
-    x = min(x, 0.24);
-    x = max(x, -0.24);
+    x = std::min(x, 0.24);
+    x = std::max(x, 0.03);
   }
 }
 
@@ -226,11 +227,17 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
 
+      int  getHOieta(int ij) { return  (ij<netamx/2) ? -netamx/2 + ij : -netamx/2 + ij + 1;}
+      int  invert_HOieta(int ieta) {return (ieta<0) ? netamx/2 + ieta : netamx/2 + ieta - 1;}
+
+
+
       TFile* theFile;
       std::string theRootFileName;
       std::string theoutputtxtFile;
       std::string theoutputpsFile;
 
+      bool m_allHOsignal;
       bool m_hotime;
       bool m_hbtime;
       bool m_correl;
@@ -239,7 +246,6 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
       bool m_combined;
       bool m_constant;
       bool m_figure;
-      bool m_digiInput;  
       bool m_cosmic; 
       bool m_histfit;
       bool m_pedsuppr;
@@ -251,6 +257,12 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
   int ipass;
  
   TTree* T1;
+
+  TH2F* ho_entry;
+  TH2F* ho_energy;
+  TH2F* ho_energy2;
+  TH2F* ho_rms;
+  TH1F* ho_indenergy[netamx][nphimx]; 
 
   TH1F* muonnm;
   TH1F* muonmm;
@@ -264,17 +276,10 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
   TH1F* sel_muonph;    
   TH1F* sel_muonch; 
 
-  //  if (m_hotime) { // #ifdef HOTIME
   TProfile* hotime[netamx][nphimx];
   TProfile* hopedtime[netamx][nphimx];
-  //  } //  if (m_hotime) #endif
-  //  if (m_hbtime) { // #ifdef HBTIME
   TProfile* hbtime[netamx][nphimx];
-  //  } // m_hbtime #endif
 
-  //  double pedval[netamx][nphimx]; // ={0};
-
-  //  if (m_correl) { // #ifdef CORREL
   TH1F* corrsglb[netamx][nphimx];
   TH1F* corrsgrb[netamx][nphimx];
   TH1F* corrsglu[netamx][nphimx];
@@ -311,14 +316,10 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
   TH1F* nevcorrsgl;
   TH1F* nevcorrsgr;
 
-  //  } //m_correl #endif
-  //  if (m_checkmap) { // #ifdef CHECKMAP
   TH1F* corrsgc[netamx][nphimx];
   TH1F* mncorrsgc;
   TH1F* rmscorrsgc;
   TH1F* nevcorrsgc;
-
-  //  } //m_checkmap #endif
 
   TH1F* sigrsg[netamx][nphimx+1];
   TH1F* crossg[netamx][nphimx+1];
@@ -339,26 +340,19 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
   TH1F* ho_sig1m[9];
   TH1F* ho_sig2m[9];
 
-  //  if (m_hbinfo) { // #ifdef HBINFO
   TH1F* hbhe_sig[9];
-  //  } // m_hbinfo #endif
 
-
-  //  if (m_combined) { //#ifdef COMBINED
   static const int ringmx=5;
   static const int sectmx=12;
   static const int routmx=36;
   static const int rout12mx=24;
   static const int neffip=6;
 
-  //  if (m_hotime) { // #ifdef HOTIME
   TProfile* com_hotime[ringmx][sectmx];
   TProfile* com_hopedtime[ringmx][sectmx];
-  //  } //m_hotime #endif
-  //  if (m_hbtime) { #ifdef HBTIME
+
   TProfile* com_hbtime[ringmx][sectmx];
-    //  } // m_hbtime #endif
-  //  if (m_correl) { //#ifdef CORREL
+
   TH1F* com_corrsglb[ringmx][sectmx];
   TH1F* com_corrsgrb[ringmx][sectmx];
   TH1F* com_corrsglu[ringmx][sectmx];
@@ -367,18 +361,13 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
 
   TH1F* com_corrsgl[ringmx][sectmx];
   TH1F* com_corrsgr[ringmx][sectmx];
-  //  } //m_correl #endif
-  //  if (m_checkmap) { #ifdef CHECKMAP
+
   TH1F* com_corrsgc[ringmx][sectmx];
-  //  } // m_checkmap #endif
 
   TH1F* com_sigrsg[ringmx][routmx+1];
   TH1F* com_crossg[ringmx][routmx+1];
   float com_invang[ringmx][routmx+1];
   
-
-  //  } //m_combined #endif
-
   TH1F* ped_evt;
   TH1F* ped_mean;
   TH1F* ped_width;
@@ -425,9 +414,12 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
 
 
   //  int   irun, ievt, itrg1, itrg2, isect, nrecht, nfound, nlost, ndof, nmuon;
-  int   irun, ievt, itrg1, itrg2, isect, ndof, nmuon;
-  float trkdr, trkdz, trkvx, trkvy, trkvz, trkmm, trkth, trkph, chisq, therr, pherr, hodx, hody, 
+  unsigned ievt, hoflag;
+  int   irun, ilumi, nprim, isect, isect2, ndof, nmuon;
+
+  float inslumi, trkdr, trkdz, trkvx, trkvy, trkvz, trkmm, trkth, trkph, chisq, therr, pherr, hodx, hody, 
     hoang, htime, hosig[9], hocorsig[18], hocro, hbhesig[9], caloen[3];
+  float momatho, tkpt03, ecal03, hcal03;
 
   int Nevents; 
   int nbn;
@@ -438,6 +430,7 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
 
   edm::InputTag hoCalibVariableCollectionTag;
   edm::EDGetTokenT<HOCalibVariableCollection> tok_ho_; 
+  edm::EDGetTokenT<HORecHitCollection> tok_allho_;
       // ----------member data ---------------------------
 
 };
@@ -465,14 +458,16 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
   // hoCalibVariableCollectionTag = cms.InputTag('hoCalibProducer', 'HOCalibVariableCollection')
 {
    tok_ho_ = consumes<HOCalibVariableCollection>(iConfig.getParameter<edm::InputTag>("hoCalibVariableCollectionTag"));
+   tok_allho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputTag"));
    //now do what ever initialization is needed
   ipass = 0;
   Nevents = 0;
   
-  theRootFileName = iConfig.getUntrackedParameter<string>("RootFileName", "test.root");
-  theoutputtxtFile = iConfig.getUntrackedParameter<string>("txtFileName", "test.txt");
-  theoutputpsFile = iConfig.getUntrackedParameter<string>("psFileName", "test.ps");
+  theRootFileName = iConfig.getUntrackedParameter<std::string>("RootFileName", "test.root");
+  theoutputtxtFile = iConfig.getUntrackedParameter<std::string>("txtFileName", "test.txt");
+  theoutputpsFile = iConfig.getUntrackedParameter<std::string>("psFileName", "test.ps");
 
+  m_allHOsignal = iConfig.getUntrackedParameter<bool>("allsignal", false);
   m_hbinfo = iConfig.getUntrackedParameter<bool>("hbinfo", false);
   m_hbtime = iConfig.getUntrackedParameter<bool>("hbtime", false);
   m_hotime = iConfig.getUntrackedParameter<bool>("hotime", false);
@@ -481,11 +476,10 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
   m_combined = iConfig.getUntrackedParameter<bool>("combined", false);
   m_constant = iConfig.getUntrackedParameter<bool>("get_constant", false);
   m_figure = iConfig.getUntrackedParameter<bool>("get_figure", true);
-  m_digiInput = iConfig.getUntrackedParameter<bool>("digiInput", true);
   m_histfit = iConfig.getUntrackedParameter<bool>("histFit", true);
   m_pedsuppr = iConfig.getUntrackedParameter<bool>("pedSuppr", true);
   m_cosmic = iConfig.getUntrackedParameter<bool>("cosmic", true);
-  m_sigma = iConfig.getUntrackedParameter<double>("sigma", 1.0);
+  m_sigma = iConfig.getUntrackedParameter<double>("sigma", 0.05);
   
   edm::Service<TFileService> fs;
 
@@ -495,14 +489,24 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
   T1 = new TTree("T1", "DT+CSC+HO");
   
   T1->Branch("irun",&irun,"irun/I");  
-  T1->Branch("ievt",&ievt,"ievt/I");  
-  T1->Branch("itrg1",&itrg1,"itrg1/I");  
-  T1->Branch("itrg2",&itrg2,"itrg2/I");  
-
+  T1->Branch("ievt",&ievt,"ievt/i");
+  
+  //  T1->Branch("itrg1",&itrg1,"itrg1/I");  
+  //  T1->Branch("itrg2",&itrg2,"itrg2/I");  
+  
   T1->Branch("isect",&isect,"isect/I"); 
-  //  T1->Branch("nrecht",&nrecht,"nrecht/I"); 
+  T1->Branch("isect2",&isect2,"isect2/I"); 
   T1->Branch("ndof",&ndof,"ndof/I"); 
-  T1->Branch("nmuon",&nmuon,"nmuon/I"); 
+  T1->Branch("nmuon",&nmuon,"nmuon/I");
+ 
+  T1->Branch("ilumi", &ilumi, "ilumi/I");
+  if (!m_cosmic) { 
+    T1->Branch("inslumi",&inslumi,"inslumi/F");
+    T1->Branch("nprim", &nprim, "nprim/I"); 
+    T1->Branch("tkpt03", &tkpt03," tkpt03/F");
+    T1->Branch("ecal03", &ecal03," ecal03/F");
+    T1->Branch("hcal03", &hcal03," hcal03/F");
+  }
 
   T1->Branch("trkdr",&trkdr,"trkdr/F");
   T1->Branch("trkdz",&trkdz,"trkdz/F");
@@ -521,15 +525,40 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
   T1->Branch("hody",&hody,"hody/F");
   T1->Branch("hoang",&hoang,"hoang/F");
 
+  T1->Branch("momatho", &momatho,"momatho/F");
+  T1->Branch("hoflag",&hoflag,"hoflag/i");
   T1->Branch("htime",&htime,"htime/F");  
   T1->Branch("hosig",hosig,"hosig[9]/F");
   T1->Branch("hocro",&hocro,"hocro/F");
   T1->Branch("hocorsig",hocorsig,"hocorsig[18]/F");
   T1->Branch("caloen",caloen,"caloen[3]/F");
 
+
   if (m_hbinfo) { // #ifdef HBINFO
     T1->Branch("hbhesig",hbhesig,"hbhesig[9]/F");
   } //m_hbinfo #endif
+
+  char name[200];
+  char title[200];
+
+  if (m_allHOsignal) {
+    ho_entry = fs->make<TH2F>("ho_entry", "ho entry", netamx+1, -netamx/2-0.5, netamx/2+0.5,  nphimx, 0.5, nphimx+0.5);
+    
+    ho_energy = fs->make<TH2F>("ho_energy", "ho energy (GeV)", netamx+1, -netamx/2-0.5, netamx/2+0.5,  nphimx, 0.5, nphimx+0.5);
+    
+    ho_energy2 = fs->make<TH2F>("ho_energy2", "ho energy2 (GeV*GeV)", netamx+1, -netamx/2-0.5, netamx/2+0.5,  nphimx, 0.5, nphimx+0.5);
+    
+    ho_rms = fs->make<TH2F>("ho_rms", "ho rms (GeV)", netamx+1, -netamx/2-0.5, netamx/2+0.5,  nphimx, 0.5, nphimx+0.5);
+    
+    for (int ij=0; ij<netamx; ij++) {
+      int ieta=getHOieta(ij);
+      for (int jk=0; jk<nphimx; jk++) {
+	sprintf(name, "ho_indenergy_%i_%i", ij, jk);
+	sprintf(title, "ho IndEnergy (GeV) i#eta=%i i#phi=%i", ieta, jk+1);
+	ho_indenergy[ij][jk] = fs->make<TH1F> (name, title, 120, -5., 55.);
+      }
+    }
+  }
 
   muonnm = fs->make<TH1F>("muonnm", "No of muon", 10, -0.5, 9.5);
   muonmm = fs->make<TH1F>("muonmm", "P_{mu}", 200, -100., 100.);
@@ -548,116 +577,112 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
   alow = -2.0;// -1.85; //-1.90; // -1.95; // -2.0;
   ahigh = 8.0;// 8.15; // 8.10; //  8.05; //  8.0;
 
-  if (m_digiInput) {alow = -10.0; ahigh = 40.;}
-
   float tmpwid = (ahigh-alow)/nbin;
   nbn = int(-alow/tmpwid)+1;
   if (nbn <0) nbn = 0;
   if (nbn>nbin) nbn = nbin;
 
-  char name[200];
-  char title[200];
 
-  cout <<"nbin "<< nbin<<" "<<alow<<" "<<ahigh<<" "<<tmpwid<<" "<<nbn<<endl;
+  edm::LogInfo("HOCalib") <<"nbin "<< nbin<<" "<<alow<<" "<<ahigh<<" "<<tmpwid<<" "<<nbn;
 
-  for (int i=0; i<15; i++) {
+  for (int ij=0; ij<15; ij++) {
     
-    sprintf(title, "sigvsndof_ring%i", i+1); 
-    sigvsevt[i][0] = fs->make<TProfile>(title, title, 50, 0., 50.,-9., 20.);
+    sprintf(title, "sigvsndof_ring%i", ij+1); 
+    sigvsevt[ij][0] = fs->make<TProfile>(title, title, 50, 0., 50.,-9., 20.);
     
-    sprintf(title, "sigvschisq_ring%i", i+1); 
-    sigvsevt[i][1] = fs->make<TProfile>(title, title, 50, 0., 30.,-9., 20.);
+    sprintf(title, "sigvschisq_ring%i", ij+1); 
+    sigvsevt[ij][1] = fs->make<TProfile>(title, title, 50, 0., 30.,-9., 20.);
     
-    sprintf(title, "sigvsth_ring%i", i+1); 
-    sigvsevt[i][2] = fs->make<TProfile>(title, title, 50, .7, 2.4,-9., 20.);
+    sprintf(title, "sigvsth_ring%i", ij+1); 
+    sigvsevt[ij][2] = fs->make<TProfile>(title, title, 50, .7, 2.4,-9., 20.);
     
-    sprintf(title, "sigvsph_ring%i", i+1); 
-    sigvsevt[i][3] = fs->make<TProfile>(title, title, 50, -2.4, -0.7,-9., 20.);
+    sprintf(title, "sigvsph_ring%i", ij+1); 
+    sigvsevt[ij][3] = fs->make<TProfile>(title, title, 50, -2.4, -0.7,-9., 20.);
     
-    sprintf(title, "sigvstherr_ring%i", i+1); 
-    sigvsevt[i][4] = fs->make<TProfile>(title, title, 50, 0., 0.2,-9., 20.);
+    sprintf(title, "sigvstherr_ring%i", ij+1); 
+    sigvsevt[ij][4] = fs->make<TProfile>(title, title, 50, 0., 0.2,-9., 20.);
       
-    sprintf(title, "sigvspherr_ring%i", i+1); 
-    sigvsevt[i][5] = fs->make<TProfile>(title, title, 50, 0., 0.2,-9., 20.);
+    sprintf(title, "sigvspherr_ring%i", ij+1); 
+    sigvsevt[ij][5] = fs->make<TProfile>(title, title, 50, 0., 0.2,-9., 20.);
     
-    sprintf(title, "sigvsdircos_ring%i", i+1); 
-    sigvsevt[i][6] = fs->make<TProfile>(title, title, 50, 0.5, 1.,-9., 20.);
+    sprintf(title, "sigvsdircos_ring%i", ij+1); 
+    sigvsevt[ij][6] = fs->make<TProfile>(title, title, 50, 0.5, 1.,-9., 20.);
     
-    sprintf(title, "sigvstrkmm_ring%i", i+1); 
-    sigvsevt[i][7] = fs->make<TProfile>(title, title, 50, 0., 50.,-9., 20.);
+    sprintf(title, "sigvstrkmm_ring%i", ij+1); 
+    sigvsevt[ij][7] = fs->make<TProfile>(title, title, 50, 0., 50.,-9., 20.);
     
-    sprintf(title, "sigvsnmuon_ring%i", i+1); 
-    sigvsevt[i][8] = fs->make<TProfile>(title, title, 5, 0.5, 5.5,-9., 20.);
+    sprintf(title, "sigvsnmuon_ring%i", ij+1); 
+    sigvsevt[ij][8] = fs->make<TProfile>(title, title, 5, 0.5, 5.5,-9., 20.);
     
-    sprintf(title, "sigvserr_ring%i", i+1); 
-    sigvsevt[i][9] = fs->make<TProfile>(title, title, 50, 0., .3, -9., 20.);
+    sprintf(title, "sigvserr_ring%i", ij+1); 
+    sigvsevt[ij][9] = fs->make<TProfile>(title, title, 50, 0., .3, -9., 20.);
     
-    sprintf(title, "sigvsaccx_ring%i", i+1); 
-    sigvsevt[i][10] = fs->make<TProfile>(title, title, 100, -25., 25., -9., 20.);    
+    sprintf(title, "sigvsaccx_ring%i", ij+1); 
+    sigvsevt[ij][10] = fs->make<TProfile>(title, title, 100, -25., 25., -9., 20.);    
 
-    sprintf(title, "sigvsaccy_ring%i", i+1); 
-    sigvsevt[i][11] = fs->make<TProfile>(title, title, 100, -25., 25., -9., 20.);    
+    sprintf(title, "sigvsaccy_ring%i", ij+1); 
+    sigvsevt[ij][11] = fs->make<TProfile>(title, title, 100, -25., 25., -9., 20.);    
     
-    sprintf(title, "sigvscalo_ring%i", i+1); 
-    sigvsevt[i][12] = fs->make<TProfile>(title, title, 100, 0., 15., -9., 20.);    
+    sprintf(title, "sigvscalo_ring%i", ij+1); 
+    sigvsevt[ij][12] = fs->make<TProfile>(title, title, 100, 0., 15., -9., 20.);    
   }
 
-  for (int j=0; j<netamx; j++) {
-    int ieta = (j<15) ? j+1 : 14-j;
-    for (int i=0;i<nphimx+1;i++) {
-      if (i==nphimx) {
+  for (int jk=0; jk<netamx; jk++) {
+    int ieta = (jk<15) ? jk+1 : 14-jk;
+    for (int ij=0; ij<nphimx+1; ij++) {
+      if (ij==nphimx) {
 	sprintf(title, "sig_eta%i_allphi", ieta);
       } else {
-	sprintf(title, "sig_eta%i_phi%i", ieta,i+1);
+	sprintf(title, "sig_eta%i_phi%i", ieta,ij+1);
       }
-      sigrsg[j][i] = fs->make<TH1F>(title, title, nbin, alow, ahigh); 
-      if (i==nphimx) {
+      sigrsg[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh); 
+      if (ij==nphimx) {
 	sprintf(title, "ped_eta%i_allphi", ieta);
       } else {
-	sprintf(title, "ped_eta%i_phi%i", ieta,i+1);
+	sprintf(title, "ped_eta%i_phi%i", ieta,ij+1);
       }
-      crossg[j][i] = fs->make<TH1F>(title, title, nbin, alow, ahigh); 
+      crossg[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh); 
     }
 
-    for (int i=0;i<nphimx;i++) {
+    for (int ij=0; ij<nphimx; ij++) {
       if (m_hotime) { //#ifdef HOTIME
-	sprintf(title, "hotime_eta%i_phi%i", (j<=14) ? j+1 : 14-j, i+1);
-	hotime[j][i] = fs->make<TProfile>(title, title, 10, -0.5, 9.5, -1.0, 30.0);
+	sprintf(title, "hotime_eta%i_phi%i", (jk<=14) ? jk+1 : 14-jk, ij+1);
+	hotime[jk][ij] = fs->make<TProfile>(title, title, 10, -0.5, 9.5, -1.0, 30.0);
 	
-	sprintf(title, "hopedtime_eta%i_phi%i", (j<=14) ? j+1 : 14-j, i+1);
-	hopedtime[j][i] = fs->make<TProfile>(title, title, 10, -0.5, 9.5, -1.0, 30.0);
+	sprintf(title, "hopedtime_eta%i_phi%i", (jk<=14) ? jk+1 : 14-jk, ij+1);
+	hopedtime[jk][ij] = fs->make<TProfile>(title, title, 10, -0.5, 9.5, -1.0, 30.0);
 	
       } //m_hotime #endif
       if (m_hbtime) { //#ifdef HBTIME
-	sprintf(title, "hbtime_eta%i_phi%i", (j<=15) ? j+1 : 15-j, i+1);
-	hbtime[j][i] = fs->make<TProfile>(title, title, 10, -0.5, 9.5, -1.0, 30.0);
+	sprintf(title, "hbtime_eta%i_phi%i", (jk<=15) ? jk+1 : 15-jk, ij+1);
+	hbtime[jk][ij] = fs->make<TProfile>(title, title, 10, -0.5, 9.5, -1.0, 30.0);
       } //m_hbtime #endif
 
       if (m_correl) { //#ifdef CORREL    
-	sprintf(title, "corrsg_eta%i_phi%i_leftbottom", ieta,i+1);
-	corrsglb[j][i] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
+	sprintf(title, "corrsg_eta%i_phi%i_leftbottom", ieta,ij+1);
+	corrsglb[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
 	
-	sprintf(title, "corrsg_eta%i_phi%i_rightbottom", ieta,i+1);
-	corrsgrb[j][i] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
+	sprintf(title, "corrsg_eta%i_phi%i_rightbottom", ieta,ij+1);
+	corrsgrb[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
 	
-	sprintf(title, "corrsg_eta%i_phi%i_leftup", ieta,i+1);
-	corrsglu[j][i] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
+	sprintf(title, "corrsg_eta%i_phi%i_leftup", ieta,ij+1);
+	corrsglu[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
 	
-	sprintf(title, "corrsg_eta%i_phi%i_rightup", ieta,i+1);
-	corrsgru[j][i] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
+	sprintf(title, "corrsg_eta%i_phi%i_rightup", ieta,ij+1);
+	corrsgru[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
 	
-	sprintf(title, "corrsg_eta%i_phi%i_all", ieta,i+1);
-	corrsgall[j][i] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
+	sprintf(title, "corrsg_eta%i_phi%i_all", ieta,ij+1);
+	corrsgall[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
 	
-	sprintf(title, "corrsg_eta%i_phi%i_left", ieta,i+1);
-	corrsgl[j][i] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
+	sprintf(title, "corrsg_eta%i_phi%i_left", ieta,ij+1);
+	corrsgl[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
 	
-	sprintf(title, "corrsg_eta%i_phi%i_right", ieta,i+1);
-	corrsgr[j][i] = fs->make<TH1F>(title, title, nbin, alow, ahigh);
+	sprintf(title, "corrsg_eta%i_phi%i_right", ieta,ij+1);
+	corrsgr[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);
       } //m_correl #endif
       if (m_checkmap) {// #ifdef CHECKMAP    
-	sprintf(title, "corrsg_eta%i_phi%i_centrl", ieta,i+1);
-	corrsgc[j][i] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
+	sprintf(title, "corrsg_eta%i_phi%i_centrl", ieta,ij+1);
+	corrsgc[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
       } //m_checkmap #endif
     }
   }
@@ -671,15 +696,15 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
   nevcrossg = fs->make<TH1F>("nevcrossg","nevcrossg", netamx*nphimx+ringmx*routmx, -0.5, netamx*nphimx+ringmx*routmx -0.5);  
 
   
-  for (int i=0; i<neffip; i++) {
-    if (i==0) {
+  for (int ij=0; ij<neffip; ij++) {
+    if (ij==0) {
       sprintf(title, "Total projected muon in tower"); 
       sprintf(name, "total_evt"); 
     } else {
-      sprintf(title, "Efficiency with sig >%i #sigma", i); 
-      sprintf(name, "Effi_with_gt%i_sig", i); 
+      sprintf(title, "Efficiency with sig >%i #sigma", ij); 
+      sprintf(name, "Effi_with_gt%i_sig", ij); 
     }
-    sig_effi[i] = fs->make<TH2F>(name, title, netamx+1, -netamx/2-0.5, netamx/2+0.5, nphimx, 0.5, nphimx+0.5);
+    sig_effi[ij] = fs->make<TH2F>(name, title, netamx+1, -netamx/2-0.5, netamx/2+0.5, nphimx, 0.5, nphimx+0.5);
   }
 
   sprintf(title, "Mean Energy of all towers"); 
@@ -723,100 +748,100 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
   } //m_checkmap #endif
   
   if (m_combined) { //#ifdef COMBINED
-    for (int j=0; j<ringmx; j++) {
+    for (int jk=0; jk<ringmx; jk++) {
 
-      for (int i=0;i<routmx+1;i++) {
-	if (j!=2 && i>rout12mx) continue;
-	int phmn = 3*i-1;
-	int phmx = 3*i+1;
-	if (j==2) {phmn = 2*i-1; phmx=2*i;}
+      for (int ij=0; ij<routmx+1; ij++) {
+	if (jk!=2 && ij>rout12mx) continue;
+	int phmn = 3*ij-1;
+	int phmx = 3*ij+1;
+	if (jk==2) {phmn = 2*ij-1; phmx=2*ij;}
 	if (phmn <=0) phmn = nphimx+phmn;
 	if (phmx <=0) phmx = nphimx+phmx;
 	
-	if ((j==2 && i==routmx) || (j!=2 && i==rout12mx)) {
-	  sprintf(title, "sig_ring%i_allrm", j-2);
-	  sprintf(name, "sig_ring%i_allrm", j-2);
+	if ((jk==2 && ij==routmx) || (jk!=2 && ij==rout12mx)) {
+	  sprintf(title, "sig_ring%i_allrm", jk-2);
+	  sprintf(name, "sig_ring%i_allrm", jk-2);
 	} else {
-	  sprintf(title, "sig_ring%i_phi%i-%i", j-2,phmn,phmx);
-	  sprintf(name, "sig_ring%i_rout%i", j-2,i+1);
+	  sprintf(title, "sig_ring%i_phi%i-%i", jk-2,phmn,phmx);
+	  sprintf(name, "sig_ring%i_rout%i", jk-2,ij+1);
 	}
-	com_sigrsg[j][i] = fs->make<TH1F>(name, title, nbin, alow, ahigh);
-	if ((j==2 && i==routmx) || (j!=2 && i==rout12mx)) {
-	  sprintf(title, "ped_ring%i_allrm", j-2);
-	  sprintf(name, "ped_ring%i_allrm", j-2);
+	com_sigrsg[jk][ij] = fs->make<TH1F>(name, title, nbin, alow, ahigh);
+	if ((jk==2 && ij==routmx) || (jk!=2 && ij==rout12mx)) {
+	  sprintf(title, "ped_ring%i_allrm", jk-2);
+	  sprintf(name, "ped_ring%i_allrm", jk-2);
 	} else {
-	  sprintf(title, "ped_ring%i_phi%i-%i", j-2,phmn, phmx);
-	  sprintf(name, "ped_ring%i_rout%i", j-2,i+1);
+	  sprintf(title, "ped_ring%i_phi%i-%i", jk-2,phmn, phmx);
+	  sprintf(name, "ped_ring%i_rout%i", jk-2,ij+1);
 	}
-	com_crossg[j][i] = fs->make<TH1F>(name, title, nbin, alow, ahigh);   
+	com_crossg[jk][ij] = fs->make<TH1F>(name, title, nbin, alow, ahigh);   
       }
 
-      for (int i=0;i<sectmx;i++) {
+      for (int ij=0; ij<sectmx; ij++) {
 	if (m_hotime) { //#ifdef HOTIME
-	  sprintf(title, "com_hotime_ring%i_sect%i", j-2, i+1);
-	  com_hotime[j][i] = fs->make<TProfile>(title, title, 10, -0.5, 9.5, -1.0, 30.0);
+	  sprintf(title, "com_hotime_ring%i_sect%i", jk-2, ij+1);
+	  com_hotime[jk][ij] = fs->make<TProfile>(title, title, 10, -0.5, 9.5, -1.0, 30.0);
 	  
-	  sprintf(title, "com_hopedtime_ring%i_sect%i", j-2, i+1);
-	  com_hopedtime[j][i] = fs->make<TProfile>(title, title, 10, -0.5, 9.5, -1.0, 30.0);
+	  sprintf(title, "com_hopedtime_ring%i_sect%i", jk-2, ij+1);
+	  com_hopedtime[jk][ij] = fs->make<TProfile>(title, title, 10, -0.5, 9.5, -1.0, 30.0);
 	} //m_hotime #endif      
 	if (m_hbtime){ //#ifdef HBTIME
-	  sprintf(title, "_com_hbtime_ring%i_serrct%i", j-2, i+1);
-	  com_hbtime[j][i] = fs->make<TProfile>(title, title, 10, -0.5, 9.5, -1.0, 30.0);
+	  sprintf(title, "_com_hbtime_ring%i_serrct%i", jk-2, ij+1);
+	  com_hbtime[jk][ij] = fs->make<TProfile>(title, title, 10, -0.5, 9.5, -1.0, 30.0);
 	} //m_hbtime #endif
 	
 	if (m_correl) { //#ifdef CORREL    
-	  sprintf(title, "com_corrsg_ring%i_sect%i_leftbottom", j-2,i+1);
-	  com_corrsglb[j][i] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
+	  sprintf(title, "com_corrsg_ring%i_sect%i_leftbottom", jk-2,ij+1);
+	  com_corrsglb[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
 	  
-	  sprintf(title, "com_corrsg_ring%i_sect%i_rightbottom", j-2,i+1);
-	  com_corrsgrb[j][i] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
+	  sprintf(title, "com_corrsg_ring%i_sect%i_rightbottom", jk-2,ij+1);
+	  com_corrsgrb[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
 	  
-	  sprintf(title, "com_corrsg_ring%i_sect%i_leftup", j-2,i+1);
-	  com_corrsglu[j][i] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
+	  sprintf(title, "com_corrsg_ring%i_sect%i_leftup", jk-2,ij+1);
+	  com_corrsglu[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
 	  
-	  sprintf(title, "com_corrsg_ring%i_sect%i_rightup", j-2,i+1);
-	  com_corrsgru[j][i] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
+	  sprintf(title, "com_corrsg_ring%i_sect%i_rightup", jk-2,ij+1);
+	  com_corrsgru[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
 	  
-	  sprintf(title, "com_corrsg_ring%i_sect%i_all", j-2,i+1);
-	  com_corrsgall[j][i] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
+	  sprintf(title, "com_corrsg_ring%i_sect%i_all", jk-2,ij+1);
+	  com_corrsgall[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
 	  
-	  sprintf(title, "com_corrsg_ring%i_sect%i_left", j-2,i+1);
-	  com_corrsgl[j][i] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
+	  sprintf(title, "com_corrsg_ring%i_sect%i_left", jk-2,ij+1);
+	  com_corrsgl[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
 	  
-	  sprintf(title, "com_corrsg_ring%i_sect%i_right", j-2,i+1);
-	  com_corrsgr[j][i] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
+	  sprintf(title, "com_corrsg_ring%i_sect%i_right", jk-2,ij+1);
+	  com_corrsgr[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
 	} //m_correl #endif
 	
 	if (m_checkmap) { // #ifdef CHECKMAP    
-	  sprintf(title, "com_corrsg_ring%i_sect%i_centrl", j-2,i+1);
-	  com_corrsgc[j][i] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
+	  sprintf(title, "com_corrsg_ring%i_sect%i_centrl", jk-2,ij+1);
+	  com_corrsgc[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);   
 	} //m_checkmap #endif
       }
     }
   } //m_combined #endif  
 
-  for (int i=-1; i<=1; i++) {
-    for (int j=-1; j<=1; j++) {    
-      int k = 3*(i+1)+j+1;
+  for (int ij=-1; ij<=1; ij++) {
+    for (int jk=-1; jk<=1; jk++) {    
+      int kl = 3*(ij+1)+jk+1;
       
-      sprintf(title, "hosct2p_eta%i_phi%i", i, j);
-      ho_sig2p[k] = fs->make<TH1F>(title, title, nbin, alow, ahigh);
+      sprintf(title, "hosct2p_eta%i_phi%i", ij, jk);
+      ho_sig2p[kl] = fs->make<TH1F>(title, title, nbin, alow, ahigh);
       
-      sprintf(title, "hosct1p_eta%i_phi%i", i, j);
-      ho_sig1p[k] = fs->make<TH1F>(title, title, nbin, alow, ahigh);
+      sprintf(title, "hosct1p_eta%i_phi%i", ij, jk);
+      ho_sig1p[kl] = fs->make<TH1F>(title, title, nbin, alow, ahigh);
 
-      sprintf(title, "hosct00_eta%i_phi%i", i, j);
-      ho_sig00[k] = fs->make<TH1F>(title, title, nbin, alow, ahigh);
+      sprintf(title, "hosct00_eta%i_phi%i", ij, jk);
+      ho_sig00[kl] = fs->make<TH1F>(title, title, nbin, alow, ahigh);
 
-      sprintf(title, "hosct1m_eta%i_phi%i", i, j);
-      ho_sig1m[k] = fs->make<TH1F>(title, title, nbin, alow, ahigh);
+      sprintf(title, "hosct1m_eta%i_phi%i", ij, jk);
+      ho_sig1m[kl] = fs->make<TH1F>(title, title, nbin, alow, ahigh);
 
-      sprintf(title, "hosct2m_eta%i_phi%i", i, j);
-      ho_sig2m[k] = fs->make<TH1F>(title, title, nbin, alow, ahigh);
+      sprintf(title, "hosct2m_eta%i_phi%i", ij, jk);
+      ho_sig2m[kl] = fs->make<TH1F>(title, title, nbin, alow, ahigh);
 
       if (m_hbinfo) { // #ifdef HBINFO
-	sprintf(title, "hbhesig_eta%i_phi%i", i, j);
-	hbhe_sig[k] = fs->make<TH1F>(title, title, 51, -10.5, 40.5);
+	sprintf(title, "hbhesig_eta%i_phi%i", ij, jk);
+	hbhe_sig[kl] = fs->make<TH1F>(title, title, 51, -10.5, 40.5);
       } //m_hbinfo #endif
     }
   }
@@ -881,14 +906,14 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
     statmn_eta[ij] =  fs->make<TH1F>(title, title, nphimx, 0.5, nphimx+0.5);
   }
 
-  for (int j=0; j<netamx; j++) {
-    for (int i=0; i<nphimx; i++) {	       
-      invang[j][i] = 0.0;
+  for (int jk=0; jk<netamx; jk++) {
+    for (int ij=0; ij<nphimx; ij++) {	       
+      invang[jk][ij] = 0.0;
     }
   }
-  for (int j=0; j<ringmx; j++) {
-    for (int i=0;i<routmx+1;i++) {	       
-      com_invang[j][i] = 0.0;
+  for (int jk=0; jk<ringmx; jk++) {
+    for (int ij=0; ij<routmx+1; ij++) {	       
+      com_invang[jk][ij] = 0.0;
     }
   }
 
@@ -904,7 +929,7 @@ HOCalibAnalyzer::~HOCalibAnalyzer()
   theFile->cd();
   theFile->Write();
   theFile->Close();
-  cout <<" Selected events # is "<<ipass<<endl;
+  edm::LogInfo("HOCalib") <<" Ttoal events = "<< Nevents<<" Selected events # is "<<ipass;
 }
 
 
@@ -918,7 +943,7 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 {
 
   // calcualte these once (and avoid the pow(int,int) ambiguities for c++)
-  int mypow_2_0 = 0; // 2^0
+  int mypow_2_0 = 1; // 2^0
   int mypow_2_1 = 2; // 2^1
   int mypow_2_2 = 4; // 2^2
 
@@ -962,9 +987,9 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 			{-1, 1,-1,0, 1,1,0, 0,1,1, -1, 0,0,1, 1,0,0, 1,-1,0, -1},  //phimap0p
 			{-1, 0,-1,1, 0,0,1, 1,0,0, -1, 1,1,0, 0,1,1, 0,-1,1, -1}};  //phimap0m
   //swapped phi map for R0+/R0- (15/03/07)  
-  for (int i=0; i<4; i++) {
-    for (int j=0; j<21; j++) {
-      cout <<"ieta "<<i<<" "<<j<<" "<<etamap[i][j]<<endl;
+  for (int ij=0; ij<4; ij++) {
+    for (int jk=0; jk<21; jk++) {
+      edm::LogInfo("HOCalib") <<"ieta "<<ij<<" "<<jk<<" "<<etamap[ij][jk];
     }
   }
 
@@ -995,24 +1020,45 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   float pival = acos(-1.);
   irunold = irun = iEvent.id().run();
   ievt = iEvent.id().event();
+  ilumi = iEvent.luminosityBlock();
 
-  //  cout <<"Nevents "<<Nevents<<endl;
-  
+  if (m_allHOsignal) {
+    edm::Handle<HORecHitCollection> hoht;
+    iEvent.getByToken(tok_allho_,hoht); 
+    if (hoht.isValid() && (*hoht).size()>0) {
+      ho_entry->Fill(-1., -1.); //Count of total number of entries
+      for (HORecHitCollection::const_iterator ij=(*hoht).begin(); ij!=(*hoht).end(); ij++){
+	HcalDetId id =(*ij).id();
+	int tmpeta= id.ieta();
+	int tmpphi= id.iphi(); 
+	float signal = (*ij).energy();
+	ho_entry->Fill(tmpeta, tmpphi);
+	ho_energy->Fill(tmpeta, tmpphi, signal);
+	ho_energy2->Fill(tmpeta, tmpphi, signal*signal);
+	
+	int inveta = invert_HOieta(tmpeta);
+	ho_indenergy[inveta][tmpphi-1]->Fill(signal);
+      }
+    }
+  }
+
+
+
+
+
   edm::Handle<HOCalibVariableCollection>HOCalib;
   bool isCosMu = true;
   try {
     iEvent.getByToken(tok_ho_, HOCalib);
 
   } catch ( cms::Exception &iEvent ) { isCosMu = false; } 
+  if (Nevents%5000==1) edm::LogInfo("HOCalib") <<"nmuon event # "<<Nevents<<" Run # "<<iEvent.id().run()<<" Evt # "<<iEvent.id().event()<<" "<<ipass;
 
   if (isCosMu && (*HOCalib).size() >0 ) { 
     nmuon = (*HOCalib).size();
-    if (Nevents%5000==1)   cout <<"nmuon event # "<<Nevents<<" Run # "<<iEvent.id().run()<<" Evt # "<<iEvent.id().event()<<" "<<nmuon<<endl;
-    
     for (HOCalibVariableCollection::const_iterator hoC=(*HOCalib).begin(); hoC!=(*HOCalib).end(); hoC++){
-      itrg1 = (*hoC).trig1;
-      itrg2 = (*hoC).trig2;
-
+      //      itrg1 = (*hoC).trig1;
+      //      itrg2 = (*hoC).trig2;
       trkdr = (*hoC).trkdr;
       trkdz = (*hoC).trkdz;
 
@@ -1027,23 +1073,35 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       ndof   = (int)(*hoC).ndof;
       //      nrecht = (int)(*hoC).nrecht;
       chisq = (*hoC).chisq;
+      momatho = (*hoC).momatho;
 
       therr = (*hoC).therr;
       pherr = (*hoC).pherr;
       trkph = (*hoC).trkph;
 
+      if (!m_cosmic) {
+	nprim = (*hoC).nprim;
+	inslumi = (*hoC).inslumi;
+	tkpt03 = (*hoC).tkpt03;
+	ecal03 = (*hoC).ecal03;
+	hcal03 = (*hoC).hcal03;
+      }
+	
       isect = (*hoC).isect;
+      isect2 = (*hoC).isect2;
       hodx  = (*hoC).hodx;
       hody  = (*hoC).hody;
       hoang = (*hoC).hoang;
       htime = (*hoC).htime;
-      for (int i=0; i<9; i++) { hosig[i] = (*hoC).hosig[i];} //cout<<"hosig "<<i<<" "<<hosig[i]<<endl;}
-      for (int i=0; i<18; i++) { hocorsig[i] = (*hoC).hocorsig[i];} // cout<<"hocorsig "<<i<<" "<<hocorsig[i]<<endl;}    
+      hoflag = (*hoC).hoflag;
+      for (int ij=0; ij<9; ij++) { hosig[ij] = (*hoC).hosig[ij];} //edm::LogInfo("HOCalib")<<"hosig "<<i<<" "<<hosig[ij];}
+      for (int ij=0; ij<18; ij++) { hocorsig[ij] = (*hoC).hocorsig[ij];} // edm::LogInfo("HOCalib")<<"hocorsig "<<i<<" "<<hocorsig[ij];}    
       hocro = (*hoC).hocro;
-      for (int i=0; i<3; i++) { caloen[i] = (*hoC).caloen[i];}
+      for (int ij=0; ij<3; ij++) { caloen[ij] = (*hoC).caloen[ij];}
 
-      if (m_hbinfo) { for (int i=0; i<9; i++) { hbhesig[i] = (*hoC).hbhesig[i];}} // cout<<"hbhesig "<<i<<" "<<hbhesig[i]<<endl;}}
-
+      if (m_hbinfo) { for (int ij=0; ij<9; ij++) { hbhesig[ij] = (*hoC).hbhesig[ij];}} // edm::LogInfo("HOCalib")<<"hbhesig "<<ij<<" "<<hbhesig[ij];}}
+      
+      T1->Fill();      
 
       int ipsall=0;
       int ips0=0; 
@@ -1060,13 +1118,13 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       int ips11 =0;
       int ips12 = 0;
 
-      int iselect3 = 0;
-      if (ndof >=15 && chisq <30) iselect3 = 1;
+      //      int iselect3 = 0;
+      //      if (ndof >=15 && chisq <30) iselect3 = 1;
       
       if (isect <0) continue; //FIXGM Is it proper place ?
       if (fabs(trkth-pival/2)<0.000001) continue;   //22OCT07
 
-      int ieta = int((abs(isect)%10000)/100.)-30; //an offset to acodate -ve eta values
+      int ieta = int((abs(isect)%10000)/100.)-50; //an offset to acodate -ve eta values
       if (abs(ieta)>=16) continue;
       int iphi = abs(isect)%100;
 
@@ -1154,11 +1212,7 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	/*      */
       }
       
-      if (m_digiInput) {
-	if (htime >2.5 && htime <6.5)        {ips9=(int)mypow_2_9;ipsall +=ips9;}
-      } else {
-	if (htime >-40 && htime <60)         {ips9=(int)mypow_2_9;ipsall +=ips9;}
-      }    
+      if (htime >-40 && htime <60)         {ips9=(int)mypow_2_9;ipsall +=ips9;}
 
       if (ipsall-ips0==mypow_2_ncut-mypow_2_0-1) sigvsevt[iring2][0]->Fill(abs(ndof), hosig[4]);
       if (ipsall-ips1==mypow_2_ncut-mypow_2_1-1) sigvsevt[iring2][1]->Fill(chisq, hosig[4]);
@@ -1213,7 +1267,7 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	  }
 	}
       }
-      
+
       sigvsevt[iring2+10][0]->Fill(abs(ndof), hosig[4]);               
       sigvsevt[iring2+10][1]->Fill(chisq, hosig[4]);   
       sigvsevt[iring2+10][2]->Fill(trkth, hosig[4]);        
@@ -1247,7 +1301,7 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	sel_muonch->Fill(chisq);
       }
 
-      if (iselect3) T1->Fill();
+      //      if (iselect3) T1->Fill();
 
       int tmpphi = (iphi + 1)%3; //pixel mapping
       int npixel = 0;
@@ -1290,12 +1344,12 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	}  
       }
 
-      //      cout <<"cosmic "<<hosig[4]<<" "<<caloen[3]<<" "<<int(iselect2)<<" "<<int(m_cosmic)<<endl;
+      //      edm::LogInfo("HOCalib") <<"cosmic "<<hosig[4]<<" "<<caloen[3]<<" "<<int(iselect2)<<" "<<int(m_cosmic);
 
 
       if (iselect2==1) {
 	int tmpphi2 = iphi - 1;
-	if (!m_digiInput) { tmpphi2 =  (iphi+6 <=nphimx) ? iphi+5 : iphi+5-nphimx;}
+	tmpphi2 =  (iphi+6 <=nphimx) ? iphi+5 : iphi+5-nphimx;
 	
 	int tmpsect2 = int((tmpphi2 + 2)/6.) + 1;
 	if (tmpsect2 >12) tmpsect2 = 1;
@@ -1365,10 +1419,10 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	    if (iflip !=0) tmpphi = abs(tmpphi-2);
 	    if (int((hocorsig[fact*tmpeta+tmpphi]-hosig[4])*10000)/10000.!=0) {
 	      iaxxx++;
-	      cout<<"iring2xxx "<<irun<<" "<<ievt<<" "<<isect<<" "<<iring<<" "<<tmpsect<<" "<<ieta<<" "<<iphi<<" "<<npixel<<" "<<tmpeta<<" "<<tmpphi<<" "<<tmpeta1<<" "<<tmpphi1<<" itag "<<itag<<" "<<iflip<<" "<<fact<<" "<<hocorsig[fact*tmpeta+tmpphi]<<" "<<fact*tmpeta+tmpphi<<" "<<hosig[4]<<" "<<hodx<<" "<<hody<<endl;
+	      edm::LogInfo("HOCalib")<<"iring2xxx "<<irun<<" "<<ievt<<" "<<isect<<" "<<iring<<" "<<tmpsect<<" "<<ieta<<" "<<iphi<<" "<<npixel<<" "<<tmpeta<<" "<<tmpphi<<" "<<tmpeta1<<" "<<tmpphi1<<" itag "<<itag<<" "<<iflip<<" "<<fact<<" "<<hocorsig[fact*tmpeta+tmpphi]<<" "<<fact*tmpeta+tmpphi<<" "<<hosig[4]<<" "<<hodx<<" "<<hody;
 	      
-	      for (int i=0; i<18; i++) {cout <<" "<<i<<" "<<hocorsig[i];}
-	      cout<<" ix "<<iaxxx<<" "<<ibxxx<<endl;
+	      for (int ij=0; ij<18; ij++) {edm::LogInfo("HOCalib") <<" "<<ij<<" "<<hocorsig[ij];}
+	      edm::LogInfo("HOCalib")<<" ix "<<iaxxx<<" "<<ibxxx;
 	    } else { ibxxx++; }
 	    
 	    corrsgc[tmpeta1][tmpphi1]->Fill(hocorsig[fact*tmpeta+tmpphi]);
@@ -1465,23 +1519,16 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	    }	  
 	  if (m_hbinfo) { // #ifdef HBINFO
 	    hbhe_sig[k]->Fill(hbhesig[k]);
-	    //	    cout <<"hbhe "<<k<<" "<<hbhesig[k]<<endl;
+	    //	    edm::LogInfo("HOCalib") <<"hbhe "<<k<<" "<<hbhesig[k];
 	  } //m_hbinfo #endif
 	}
       } //if (iselect==1)
+
+
     } //for (HOCalibVariableCollection::const_iterator hoC=(*HOCalib).begin(); hoC!=(*HOCalib).end(); hoC++){
     
   } //if (isCosMu) 
   
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
-#endif
-   
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-#endif
 }
 
 
@@ -1496,113 +1543,131 @@ void
 HOCalibAnalyzer::endJob() {
 
   theFile->cd();
-  
-  for (int i=0; i<nphimx; i++) {
-    for (int j=0; j<netamx; j++) {
+
+  if (m_allHOsignal) {
+    for (int jk=0; jk<ho_energy->GetNbinsX(); jk++) {
+      for (int kl=0; kl<ho_energy->GetNbinsY(); kl++) { 
+	double entry=ho_entry->GetBinContent(jk+1, kl+1);
+	if (entry <1.) entry=1.;
+
+	double energy = ho_energy->GetBinContent(jk+1, kl+1)/entry;
+	double energy2 = ho_energy2->GetBinContent(jk+1, kl+1)/entry;
+	double rms = sqrt(energy2 - energy*energy);
+	
+	double xval = ho_energy->GetXaxis()->GetBinCenter(jk+1);
+	double yval = ho_energy->GetYaxis()->GetBinCenter(kl+1);
+	
+	ho_rms->Fill(xval, yval, rms);
+      }
+    }
+  } 
+
+  for (int ij=0; ij<nphimx; ij++) {
+    for (int jk=0; jk<netamx; jk++) {
       
-      nevsigrsg->Fill(netamx*i+j, sigrsg[j][i]->GetEntries());
-      mnsigrsg->Fill(netamx*i+j, sigrsg[j][i]->GetMean());
-      rmssigrsg->Fill(netamx*i+j, sigrsg[j][i]->GetRMS());
+      nevsigrsg->Fill(netamx*ij+jk, sigrsg[jk][ij]->GetEntries());
+      mnsigrsg->Fill(netamx*ij+jk, sigrsg[jk][ij]->GetMean());
+      rmssigrsg->Fill(netamx*ij+jk, sigrsg[jk][ij]->GetRMS());
       
-      nevcrossg->Fill(netamx*i+j, crossg[j][i]->GetEntries());
-      mncrossg->Fill(netamx*i+j, crossg[j][i]->GetMean());
-      rmscrossg->Fill(netamx*i+j, crossg[j][i]->GetRMS());
+      nevcrossg->Fill(netamx*ij+jk, crossg[jk][ij]->GetEntries());
+      mncrossg->Fill(netamx*ij+jk, crossg[jk][ij]->GetMean());
+      rmscrossg->Fill(netamx*ij+jk, crossg[jk][ij]->GetRMS());
       
       if (m_correl) { //#ifdef CORREL    
 	
-	nevcorrsglb->Fill(netamx*i+j, corrsglb[j][i]->GetEntries());
-	mncorrsglb->Fill(netamx*i+j, corrsglb[j][i]->GetMean());
-	rmscorrsglb->Fill(netamx*i+j, corrsglb[j][i]->GetRMS());
+	nevcorrsglb->Fill(netamx*ij+jk, corrsglb[jk][ij]->GetEntries());
+	mncorrsglb->Fill(netamx*ij+jk, corrsglb[jk][ij]->GetMean());
+	rmscorrsglb->Fill(netamx*ij+jk, corrsglb[jk][ij]->GetRMS());
 	
-	nevcorrsgrb->Fill(netamx*i+j, corrsgrb[j][i]->GetEntries());
-	mncorrsgrb->Fill(netamx*i+j, corrsgrb[j][i]->GetMean());
-	rmscorrsgrb->Fill(netamx*i+j, corrsgrb[j][i]->GetRMS());
+	nevcorrsgrb->Fill(netamx*ij+jk, corrsgrb[jk][ij]->GetEntries());
+	mncorrsgrb->Fill(netamx*ij+jk, corrsgrb[jk][ij]->GetMean());
+	rmscorrsgrb->Fill(netamx*ij+jk, corrsgrb[jk][ij]->GetRMS());
 	
-	nevcorrsglu->Fill(netamx*i+j, corrsglu[j][i]->GetEntries());
-	mncorrsglu->Fill(netamx*i+j, corrsglu[j][i]->GetMean());
-	rmscorrsglu->Fill(netamx*i+j, corrsglu[j][i]->GetRMS());
+	nevcorrsglu->Fill(netamx*ij+jk, corrsglu[jk][ij]->GetEntries());
+	mncorrsglu->Fill(netamx*ij+jk, corrsglu[jk][ij]->GetMean());
+	rmscorrsglu->Fill(netamx*ij+jk, corrsglu[jk][ij]->GetRMS());
 
-	nevcorrsgru->Fill(netamx*i+j, corrsgru[j][i]->GetEntries());
-	mncorrsgru->Fill(netamx*i+j, corrsgru[j][i]->GetMean());
-	rmscorrsgru->Fill(netamx*i+j, corrsgru[j][i]->GetRMS());
+	nevcorrsgru->Fill(netamx*ij+jk, corrsgru[jk][ij]->GetEntries());
+	mncorrsgru->Fill(netamx*ij+jk, corrsgru[jk][ij]->GetMean());
+	rmscorrsgru->Fill(netamx*ij+jk, corrsgru[jk][ij]->GetRMS());
 	
-	nevcorrsgall->Fill(netamx*i+j, corrsgall[j][i]->GetEntries());
-	mncorrsgall->Fill(netamx*i+j, corrsgall[j][i]->GetMean());
-	rmscorrsgall->Fill(netamx*i+j, corrsgall[j][i]->GetRMS());
+	nevcorrsgall->Fill(netamx*ij+jk, corrsgall[jk][ij]->GetEntries());
+	mncorrsgall->Fill(netamx*ij+jk, corrsgall[jk][ij]->GetMean());
+	rmscorrsgall->Fill(netamx*ij+jk, corrsgall[jk][ij]->GetRMS());
 	
-	nevcorrsgl->Fill(netamx*i+j, corrsgl[j][i]->GetEntries());
-	mncorrsgl->Fill(netamx*i+j, corrsgl[j][i]->GetMean());
-	rmscorrsgl->Fill(netamx*i+j, corrsgl[j][i]->GetRMS());
+	nevcorrsgl->Fill(netamx*ij+jk, corrsgl[jk][ij]->GetEntries());
+	mncorrsgl->Fill(netamx*ij+jk, corrsgl[jk][ij]->GetMean());
+	rmscorrsgl->Fill(netamx*ij+jk, corrsgl[jk][ij]->GetRMS());
 	
-	nevcorrsgr->Fill(netamx*i+j, corrsgr[j][i]->GetEntries());
-	mncorrsgr->Fill(netamx*i+j, corrsgr[j][i]->GetMean());
-	rmscorrsgr->Fill(netamx*i+j, corrsgr[j][i]->GetRMS());
+	nevcorrsgr->Fill(netamx*ij+jk, corrsgr[jk][ij]->GetEntries());
+	mncorrsgr->Fill(netamx*ij+jk, corrsgr[jk][ij]->GetMean());
+	rmscorrsgr->Fill(netamx*ij+jk, corrsgr[jk][ij]->GetRMS());
       } //m_correl #endif
       if (m_checkmap) { //#ifdef CHECKMAP
-	nevcorrsgc->Fill(netamx*i+j, corrsgc[j][i]->GetEntries());
-	mncorrsgc->Fill(netamx*i+j, corrsgc[j][i]->GetMean());
-	rmscorrsgc->Fill(netamx*i+j, corrsgc[j][i]->GetRMS());
+	nevcorrsgc->Fill(netamx*ij+jk, corrsgc[jk][ij]->GetEntries());
+	mncorrsgc->Fill(netamx*ij+jk, corrsgc[jk][ij]->GetMean());
+	rmscorrsgc->Fill(netamx*ij+jk, corrsgc[jk][ij]->GetRMS());
       } //m_checkmap #endif
     }
   }
 
   if (m_combined) { // #ifdef COMBINED
-    for (int j=0; j<ringmx; j++) {
-      for (int i=0; i<routmx; i++) {
-	if (j!=2 && i>=rout12mx) continue;
-	nevsigrsg->Fill(netamx*nphimx+ringmx*i+j, com_sigrsg[j][i]->GetEntries());
-	mnsigrsg->Fill(netamx*nphimx+ringmx*i+j, com_sigrsg[j][i]->GetMean());
-	rmssigrsg->Fill(netamx*nphimx+ringmx*i+j, com_sigrsg[j][i]->GetRMS());
+    for (int jk=0; jk<ringmx; jk++) {
+      for (int ij=0; ij<routmx; ij++) {
+	if (jk!=2 && ij>=rout12mx) continue;
+	nevsigrsg->Fill(netamx*nphimx+ringmx*ij+jk, com_sigrsg[jk][ij]->GetEntries());
+	mnsigrsg->Fill(netamx*nphimx+ringmx*ij+jk, com_sigrsg[jk][ij]->GetMean());
+	rmssigrsg->Fill(netamx*nphimx+ringmx*ij+jk, com_sigrsg[jk][ij]->GetRMS());
 	
-	nevcrossg->Fill(netamx*nphimx+ringmx*i+j, com_crossg[j][i]->GetEntries());
-	mncrossg->Fill(netamx*nphimx+ringmx*i+j, com_crossg[j][i]->GetMean());
-	rmscrossg->Fill(netamx*nphimx+ringmx*i+j, com_crossg[j][i]->GetRMS());
+	nevcrossg->Fill(netamx*nphimx+ringmx*ij+jk, com_crossg[jk][ij]->GetEntries());
+	mncrossg->Fill(netamx*nphimx+ringmx*ij+jk, com_crossg[jk][ij]->GetMean());
+	rmscrossg->Fill(netamx*nphimx+ringmx*ij+jk, com_crossg[jk][ij]->GetRMS());
       }
     }
 
-    for (int i=0; i<sectmx; i++) {
-      for (int j=0; j<ringmx; j++) {
+    for (int ij=0; ij<sectmx; ij++) {
+      for (int jk=0; jk<ringmx; jk++) {
 	if (m_correl) { // #ifdef CORREL      
-	  nevcorrsglb->Fill(netamx*nphimx+ringmx*i+j, com_corrsglb[j][i]->GetEntries());
-	  mncorrsglb->Fill(netamx*nphimx+ringmx*i+j, com_corrsglb[j][i]->GetMean());
-	  rmscorrsglb->Fill(netamx*nphimx+ringmx*i+j, com_corrsglb[j][i]->GetRMS());
+	  nevcorrsglb->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsglb[jk][ij]->GetEntries());
+	  mncorrsglb->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsglb[jk][ij]->GetMean());
+	  rmscorrsglb->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsglb[jk][ij]->GetRMS());
 	  
-	  nevcorrsgrb->Fill(netamx*nphimx+ringmx*i+j, com_corrsgrb[j][i]->GetEntries());
-	  mncorrsgrb->Fill(netamx*nphimx+ringmx*i+j, com_corrsgrb[j][i]->GetMean());
-	  rmscorrsgrb->Fill(netamx*nphimx+ringmx*i+j, com_corrsgrb[j][i]->GetRMS());
+	  nevcorrsgrb->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsgrb[jk][ij]->GetEntries());
+	  mncorrsgrb->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsgrb[jk][ij]->GetMean());
+	  rmscorrsgrb->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsgrb[jk][ij]->GetRMS());
 	  
-	  nevcorrsglu->Fill(netamx*nphimx+ringmx*i+j, com_corrsglu[j][i]->GetEntries());
-	  mncorrsglu->Fill(netamx*nphimx+ringmx*i+j, com_corrsglu[j][i]->GetMean());
-	  rmscorrsglu->Fill(netamx*nphimx+ringmx*i+j, com_corrsglu[j][i]->GetRMS());
+	  nevcorrsglu->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsglu[jk][ij]->GetEntries());
+	  mncorrsglu->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsglu[jk][ij]->GetMean());
+	  rmscorrsglu->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsglu[jk][ij]->GetRMS());
 	  
-	  nevcorrsgru->Fill(netamx*nphimx+ringmx*i+j, com_corrsgru[j][i]->GetEntries());
-	  mncorrsgru->Fill(netamx*nphimx+ringmx*i+j, com_corrsgru[j][i]->GetMean());
-	  rmscorrsgru->Fill(netamx*nphimx+ringmx*i+j, com_corrsgru[j][i]->GetRMS());
+	  nevcorrsgru->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsgru[jk][ij]->GetEntries());
+	  mncorrsgru->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsgru[jk][ij]->GetMean());
+	  rmscorrsgru->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsgru[jk][ij]->GetRMS());
 	  
-	  nevcorrsgall->Fill(netamx*nphimx+ringmx*i+j, com_corrsgall[j][i]->GetEntries());
-	  mncorrsgall->Fill(netamx*nphimx+ringmx*i+j, com_corrsgall[j][i]->GetMean());
-	  rmscorrsgall->Fill(netamx*nphimx+ringmx*i+j, com_corrsgall[j][i]->GetRMS());
+	  nevcorrsgall->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsgall[jk][ij]->GetEntries());
+	  mncorrsgall->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsgall[jk][ij]->GetMean());
+	  rmscorrsgall->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsgall[jk][ij]->GetRMS());
 	  
-	  nevcorrsgl->Fill(netamx*nphimx+ringmx*i+j, com_corrsgl[j][i]->GetEntries());
-	  mncorrsgl->Fill(netamx*nphimx+ringmx*i+j, com_corrsgl[j][i]->GetMean());
-	  rmscorrsgl->Fill(netamx*nphimx+ringmx*i+j, com_corrsgl[j][i]->GetRMS());
+	  nevcorrsgl->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsgl[jk][ij]->GetEntries());
+	  mncorrsgl->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsgl[jk][ij]->GetMean());
+	  rmscorrsgl->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsgl[jk][ij]->GetRMS());
 	  
-	  nevcorrsgr->Fill(netamx*nphimx+ringmx*i+j, com_corrsgr[j][i]->GetEntries());
-	  mncorrsgr->Fill(netamx*nphimx+ringmx*i+j, com_corrsgr[j][i]->GetMean());
-	  rmscorrsgr->Fill(netamx*nphimx+ringmx*i+j, com_corrsgr[j][i]->GetRMS());
+	  nevcorrsgr->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsgr[jk][ij]->GetEntries());
+	  mncorrsgr->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsgr[jk][ij]->GetMean());
+	  rmscorrsgr->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsgr[jk][ij]->GetRMS());
 	} //m_correl #endif
 	if (m_checkmap) { // #ifdef CHECKMAP
-	  nevcorrsgc->Fill(netamx*nphimx+ringmx*i+j, com_corrsgc[j][i]->GetEntries());
-	  mncorrsgc->Fill(netamx*nphimx+ringmx*i+j, com_corrsgc[j][i]->GetMean());
-	  rmscorrsgc->Fill(netamx*nphimx+ringmx*i+j, com_corrsgc[j][i]->GetRMS());
+	  nevcorrsgc->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsgc[jk][ij]->GetEntries());
+	  mncorrsgc->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsgc[jk][ij]->GetMean());
+	  rmscorrsgc->Fill(netamx*nphimx+ringmx*ij+jk, com_corrsgc[jk][ij]->GetRMS());
 	} //m_checkmap #endif
       }
     }
   } //m_combined #endif
 
 
-  for (int i=1; i<neffip; i++) {
-    sig_effi[i]->Divide(sig_effi[0]);
+  for (int ij=1; ij<neffip; ij++) {
+    sig_effi[ij]->Divide(sig_effi[0]);
   }
   for (int ij=0; ij<netamx; ij++) {
     for (int jk = 0; jk <nphimx; jk++) {
@@ -1667,55 +1732,55 @@ HOCalibAnalyzer::endJob() {
   int xsiz = 700;
   int ysiz = 500;
 
-  TCanvas *c2 = new TCanvas("c2", "Statistics and efficiency", xsiz, ysiz);
-  c2->Divide(2,1); //(3,2);
-  for (int ij=0; ij<neffip; ij=ij+3) {
-    sig_effi[ij]->GetXaxis()->SetTitle("#eta");
-    sig_effi[ij]->GetXaxis()->SetTitleSize(0.075);
-    sig_effi[ij]->GetXaxis()->SetTitleOffset(0.65); //0.85 
-    sig_effi[ij]->GetXaxis()->CenterTitle();
-    sig_effi[ij]->GetXaxis()->SetLabelSize(0.055);
-    sig_effi[ij]->GetXaxis()->SetLabelOffset(0.001); 
+//   TCanvas *c2 = new TCanvas("c2", "Statistics and efficiency", xsiz, ysiz);
+//   c2->Divide(2,1); //(3,2);
+//   for (int ij=0; ij<neffip; ij=ij+3) {
+//     sig_effi[ij]->GetXaxis()->SetTitle("#eta");
+//     sig_effi[ij]->GetXaxis()->SetTitleSize(0.075);
+//     sig_effi[ij]->GetXaxis()->SetTitleOffset(0.65); //0.85 
+//     sig_effi[ij]->GetXaxis()->CenterTitle();
+//     sig_effi[ij]->GetXaxis()->SetLabelSize(0.055);
+//     sig_effi[ij]->GetXaxis()->SetLabelOffset(0.001); 
     
-    sig_effi[ij]->GetYaxis()->SetTitle("#phi");
-    sig_effi[ij]->GetYaxis()->SetTitleSize(0.075);
-    sig_effi[ij]->GetYaxis()->SetTitleOffset(0.9); 
-    sig_effi[ij]->GetYaxis()->CenterTitle();
-    sig_effi[ij]->GetYaxis()->SetLabelSize(0.055);
-    sig_effi[ij]->GetYaxis()->SetLabelOffset(0.01); 
+//     sig_effi[ij]->GetYaxis()->SetTitle("#phi");
+//     sig_effi[ij]->GetYaxis()->SetTitleSize(0.075);
+//     sig_effi[ij]->GetYaxis()->SetTitleOffset(0.9); 
+//     sig_effi[ij]->GetYaxis()->CenterTitle();
+//     sig_effi[ij]->GetYaxis()->SetLabelSize(0.055);
+//     sig_effi[ij]->GetYaxis()->SetLabelOffset(0.01); 
     
-    c2->cd(int(ij/3.)+1); sig_effi[ij]->Draw("colz");
-  }
-  sprintf(out_file, "comb_hosig_evt_%i.jpg",irunold); 
-  c2->SaveAs(out_file); 
+//     c2->cd(int(ij/3.)+1); sig_effi[ij]->Draw("colz");
+//   }
+//   sprintf(out_file, "comb_hosig_evt_%i.jpg",irunold); 
+//   c2->SaveAs(out_file); 
   
-  gStyle->SetTitleFontSize(0.045);
-  gStyle->SetPadRightMargin(0.1);
-  gStyle->SetPadLeftMargin(0.1);
-  gStyle->SetPadBottomMargin(0.12);
+//   gStyle->SetTitleFontSize(0.045);
+//   gStyle->SetPadRightMargin(0.1);
+//   gStyle->SetPadLeftMargin(0.1);
+//   gStyle->SetPadBottomMargin(0.12);
 
-  TCanvas *c1 = new TCanvas("c1", "Mean signal in each tower", xsiz, ysiz);  
+//   TCanvas *c1 = new TCanvas("c1", "Mean signal in each tower", xsiz, ysiz);  
   
-  mean_energy->GetXaxis()->SetTitle("#eta");
-  mean_energy->GetXaxis()->SetTitleSize(0.075);
-  mean_energy->GetXaxis()->SetTitleOffset(0.65); //0.6 
-  mean_energy->GetXaxis()->CenterTitle();
-  mean_energy->GetXaxis()->SetLabelSize(0.045);
-  mean_energy->GetXaxis()->SetLabelOffset(0.001); 
+//   mean_energy->GetXaxis()->SetTitle("#eta");
+//   mean_energy->GetXaxis()->SetTitleSize(0.075);
+//   mean_energy->GetXaxis()->SetTitleOffset(0.65); //0.6 
+//   mean_energy->GetXaxis()->CenterTitle();
+//   mean_energy->GetXaxis()->SetLabelSize(0.045);
+//   mean_energy->GetXaxis()->SetLabelOffset(0.001); 
   
-  mean_energy->GetYaxis()->SetTitle("#phi");
-  mean_energy->GetYaxis()->SetTitleSize(0.075);
-  mean_energy->GetYaxis()->SetTitleOffset(0.5); 
-  mean_energy->GetYaxis()->CenterTitle();
-  mean_energy->GetYaxis()->SetLabelSize(0.045);
-  mean_energy->GetYaxis()->SetLabelOffset(0.01); 
+//   mean_energy->GetYaxis()->SetTitle("#phi");
+//   mean_energy->GetYaxis()->SetTitleSize(0.075);
+//   mean_energy->GetYaxis()->SetTitleOffset(0.5); 
+//   mean_energy->GetYaxis()->CenterTitle();
+//   mean_energy->GetYaxis()->SetLabelSize(0.045);
+//   mean_energy->GetYaxis()->SetLabelOffset(0.01); 
   
-  mean_energy->Draw("colz");
-  sprintf(out_file, "homean_energy_%i.jpg",irunold); 
-  c1->SaveAs(out_file); 
+//   mean_energy->Draw("colz");
+//   sprintf(out_file, "homean_energy_%i.jpg",irunold); 
+//   c1->SaveAs(out_file); 
   
-  delete c1; 
-  delete c2;
+//   delete c1; 
+//   delete c2;
 
   gStyle->SetPadBottomMargin(0.14);
   gStyle->SetPadLeftMargin(0.17);
@@ -1839,11 +1904,8 @@ HOCalibAnalyzer::endJob() {
 
 	  signall[izone]->GetXaxis()->SetLabelSize(.065);
 	  signall[izone]->GetYaxis()->SetLabelSize(.06);	    
-	  if (m_digiInput) {
-	    signall[izone]->GetXaxis()->SetTitle("Signal (fC)");
-	  } else {
-	    signall[izone]->GetXaxis()->SetTitle("Signal (GeV)");
-	  }
+	  signall[izone]->GetXaxis()->SetTitle("Signal (GeV)");
+
 	  signall[izone]->GetXaxis()->SetTitleSize(.065);
 	  signall[izone]->GetXaxis()->CenterTitle(); 
 	  
@@ -1884,17 +1946,12 @@ HOCalibAnalyzer::endJob() {
 
 	  float mean = pedstll[izone]->GetMean();
 	  float rms = pedstll[izone]->GetRMS();
-	  if (m_digiInput) {
-	    if (rms <0.6) rms = 0.6;
-	    if (rms >1.2) rms = 1.2;
-	    if (mean >1.2) mean = 1.2;
-	    if (mean <-1.2) mean = -1.2;
-	  } else {
-	    if (rms <0.10) rms = 0.10;
-	    if (rms >0.15) rms=0.15;
-	    if (mean >0.20) mean = 0.20;
-	    if (mean <-0.20) mean = -0.20;
-	  }
+
+	  if (rms <0.10) rms = 0.10;
+	  if (rms >0.15) rms=0.15;
+	  if (mean >0.20) mean = 0.20;
+	  if (mean <-0.20) mean = -0.20;
+	  
 	  float xmn = mean-6.*rms;
 	  float xmx = mean+6.*rms;
 	  
@@ -1920,32 +1977,20 @@ HOCalibAnalyzer::endJob() {
 	    pedstll[izone]->GetXaxis()->SetRangeUser(xmn, xmx);
 	    //	  }
 
-	  if (m_digiInput) {
-	    if (iijj==0) {
-	      pedstll[izone]->GetXaxis()->SetTitle("Pedestal/Signal (fC)");
-	    } else {
-	      pedstll[izone]->GetXaxis()->SetTitle("Pedestal (fC)");
-	    }
+	  if (iijj==0) {
+	    pedstll[izone]->GetXaxis()->SetTitle("Pedestal/Signal (GeV)");
 	  } else {
-	    if (iijj==0) {
-	      pedstll[izone]->GetXaxis()->SetTitle("Pedestal/Signal (GeV)");
-	    } else {
-	      pedstll[izone]->GetXaxis()->SetTitle("Pedestal (GeV)");
-	    }
+	    pedstll[izone]->GetXaxis()->SetTitle("Pedestal (GeV)");
 	  }
 	  pedstll[izone]->GetXaxis()->SetTitleSize(.065);
 	  pedstll[izone]->GetXaxis()->CenterTitle(); 
 	  //	  pedstll[izone]->SetLineWidth(2);
 
 	  pedstll[izone]->Draw();
-	  if (m_pedsuppr && !m_digiInput) {
+	  if (m_pedsuppr) {
 	    gaupr[0] = 0;
 	    gaupr[1] = 0.0; // pedmean[ietafit][iphifit];
-	    if (m_digiInput) {
-	      gaupr[2] = 0.90; //GMA need from database pedwidth[ietafit][iphifit];
-	    } else {
-	      gaupr[2] = 0.15; //GMA need from database
-	    }
+	    gaupr[2] = 0.15; //GMA need from database
 	    parer[0] = parer[1] = parer[2] = 0;
 	  } else {
 	    
@@ -1996,7 +2041,7 @@ HOCalibAnalyzer::endJob() {
 		  if (step[k] >-10) {
 		    gMinuit->mnpout(k, chnam, parv, err, xlo, xup, iuit);
 		    gMinuit->mnerrs(k, plerr, mierr, eparab, gcc);
-		    //		    cout <<"k "<< k<<" "<<chnam<<" "<<parv<<" "<<err<<" "<<xlo<<" "<<xup<<" "<<plerr<<" "<<mierr<<" "<<eparab<<endl;
+		    //		    edm::LogInfo("HOCalib") <<"k "<< k<<" "<<chnam<<" "<<parv<<" "<<err<<" "<<xlo<<" "<<xup<<" "<<plerr<<" "<<mierr<<" "<<eparab;
 		    if (k==0) {
 		      gaupr[k] = parv*binwid;
 		      parer[k] = err*binwid;
@@ -2021,7 +2066,7 @@ HOCalibAnalyzer::endJob() {
 	      }
 	    } else {
 	      for (int k=0; k<nbgpr; k++) {gaupr[k] = par[k]; }
-	      if (m_digiInput) { gaupr[2] = 0.90; } else { gaupr[2] = 0.15;}
+	      gaupr[2] = 0.15;
 	    }
 	  }
 	  //	  if (iijj!=0) 
@@ -2043,15 +2088,15 @@ HOCalibAnalyzer::endJob() {
 		       signall[izone]->GetBinContent(nbn)+
 		       signall[izone]->GetBinContent(nbn+1))/3.;
 	      
-	      if (m_pedsuppr && !m_digiInput) {
+	      if (m_pedsuppr) {
 		parall[1] = 0.0; // pedmean[ietafit][iphifit];
-		if (m_digiInput) { parall[2] = 0.90; } else { parall[2] = 0.15;}
+		parall[2] = 0.15;
 	      } else {
-		for (int i=0; i<nbgpr; i++) {parall[i] = gaupr[i];}
+		for (int lm=0; lm<nbgpr; lm++) {parall[lm] = gaupr[lm];}
 	      }
 	      
-	      set_mean(parall[1], m_digiInput);
-	      set_sigma(parall[2], m_digiInput);
+	      set_mean(parall[1], 0);
+	      set_sigma(parall[2], 0);
 
 	      parall[0] = 0.9*pedht; //GM for Z-mumu, there is almost no pedestal
 	      parall[3] = 0.14;
@@ -2078,13 +2123,8 @@ HOCalibAnalyzer::endJob() {
 		signal[izone]->SetParLimits(4, 0.2*fitprm[4][jk], 2.0*fitprm[4][jk]);
 		signal[izone]->SetParLimits(6, 0.2*fitprm[6][jk], 2.0*fitprm[6][jk]);
 	      } else {
-		if (m_digiInput) {
-		  signal[izone]->SetParLimits(4, 0.6, 6.0);
-		  signal[izone]->SetParLimits(6, 0.60, 3.0);
-		} else {
-		  signal[izone]->SetParLimits(4, 0.1, 1.0); 
-		  signal[izone]->SetParLimits(6, 0.035, 0.3);
-		}
+		signal[izone]->SetParLimits(4, 0.1, 1.0); 
+		signal[izone]->SetParLimits(6, 0.035, 0.3);
 	      }
 	      signal[izone]->SetParNames("const", "mean", "sigma","Width","MP","Area","GSigma");   
 	      signall[izone]->Fit(signal[izone], "0R+");
@@ -2098,11 +2138,11 @@ HOCalibAnalyzer::endJob() {
 	    } else {
 	      double pedhtx = 0;
 	      for (unsigned i =0; i<sig_reg[ietafit][iphifit].size(); i++) {
-		if (sig_reg[ietafit][iphifit][i] >gaupr[1]-3*gaupr[2] && sig_reg[ietafit][iphifit][i]<gaupr[1]+gaupr[2]) pedhtx++;
+		if (sig_reg[ietafit][iphifit][ij] >gaupr[1]-3*gaupr[2] && sig_reg[ietafit][iphifit][ij]<gaupr[1]+gaupr[2]) pedhtx++;
 	      }
 	      
-	      set_mean(gaupr[1], m_digiInput);
-	      set_sigma(gaupr[2], m_digiInput);
+	      set_mean(gaupr[1], 0);
+	      set_sigma(gaupr[2], 0);
 
 	      TString name[nsgpr] = {"const", "mean", "sigma","Width","MP","Area","GSigma"};
 	      double strt[nsgpr] = {0.9*pedhtx, gaupr[1], gaupr[2], fitprm[3][jk], fitprm[4][jk], signall[izone]->GetEntries(), fitprm[6][jk]};
@@ -2178,7 +2218,7 @@ HOCalibAnalyzer::endJob() {
 	    
 	    int kl = (jk<15) ? jk+1 : 14-jk;
 
-	    cout<<"histinfo"<<iijj<<" fit "
+	    edm::LogInfo("HOCalib")<<"histinfo"<<iijj<<" fit "
 		<<std::setw(3)<< kl<<" "
 		<<std::setw(3)<< ij+1<<" "
 		<<std::setw(5)<<pedstll[izone]->GetEntries()<<" "
@@ -2188,7 +2228,7 @@ HOCalibAnalyzer::endJob() {
 		<<std::setw(6)<<signall[izone]->GetMean()<<" "
 		<<std::setw(6)<<signall[izone]->GetRMS()<<" "
 		<<std::setw(6)<< signal[izone]->GetChisquare()<<" "
-		<<std::setw(3)<< signal[izone]->GetNDF()<<endl;
+		<<std::setw(3)<< signal[izone]->GetNDF();
 	    
 	    file_out<<"histinfo"<<iijj<<" fit "
 		    <<std::setw(3)<< kl<<" "
@@ -2200,10 +2240,10 @@ HOCalibAnalyzer::endJob() {
 		    <<std::setw(6)<<signall[izone]->GetMean()<<" "
 		    <<std::setw(6)<<signall[izone]->GetRMS()<<" "
 		    <<std::setw(6)<< signal[izone]->GetChisquare()<<" "
-		    <<std::setw(3)<< signal[izone]->GetNDF()<<endl;
+		    <<std::setw(3)<< signal[izone]->GetNDF()<<std::endl;
 	    
-	    file_out <<"fitres x"<<iijj<<" "<<kl<<" "<<ij+1<<" "<< fitres[0]<<" "<< fitres[1]<<" "<< fitres[2]<<" "<< fitres[3]<<" "<< fitres[4]<<" "<< fitres[5]<<" "<< fitres[6]<<endl;
-	    file_out <<"parserr"<<iijj<<" "<<kl<<" "<<ij+1<<" "<< parserr[0]<<" "<< parserr[1]<<" "<< parserr[2]<<" "<< parserr[3]<<" "<< parserr[4]<<" "<< parserr[5]<<" "<< parserr[6]<<endl;    
+	    file_out <<"fitres x"<<iijj<<" "<<kl<<" "<<ij+1<<" "<< fitres[0]<<" "<< fitres[1]<<" "<< fitres[2]<<" "<< fitres[3]<<" "<< fitres[4]<<" "<< fitres[5]<<" "<< fitres[6]<<std::endl;
+	    file_out <<"parserr"<<iijj<<" "<<kl<<" "<<ij+1<<" "<< parserr[0]<<" "<< parserr[1]<<" "<< parserr[2]<<" "<< parserr[3]<<" "<< parserr[4]<<" "<< parserr[5]<<" "<< parserr[6]<<std::endl;    
 
 	    double diff=fitres[4]-fitres[1];
 	    if (diff <=0) diff = 0.000001;
@@ -2240,7 +2280,7 @@ HOCalibAnalyzer::endJob() {
 		//GMA need to put this==1 in future
 		float fact=0.812;
 		if (abs(kl)<=4) fact=0.895;
-		if (!m_digiInput) fact *=0.19; //conversion factor for GeV/fC
+		fact *=0.19; //conversion factor for GeV/fC
 
 		float fact2 = 0;
 		if (iijj==2) fact2 = invang[jk][nphimx];
@@ -2248,13 +2288,13 @@ HOCalibAnalyzer::endJob() {
 		if (iijj==1) fact2 = com_invang[jk][ij];
 
 		float calibc = fact*fact2/(fitres[4]*signall[izone]->GetEntries());
-		float caliberr= TMath::Abs(calibc*parserr[4]/max(0.001,fitres[4]));
+		float caliberr= TMath::Abs(calibc*parserr[4]/std::max(0.001,fitres[4]));
 
 		if (iijj==2) {
 		  int ieta = (jk<15) ? jk+1 : 14-jk;
 		  mean_phi_hst->Fill(ieta, calibc);
 		  mean_phi_hst->SetBinError(mean_phi_hst->FindBin(ieta), caliberr);
-		  file_out<<"intieta "<<jk<<" "<<ij<<" "<<ieta<<" "<<mean_phi_hst->FindBin(double(ieta))<<" "<<calibc<<" "<<caliberr<<endl;
+		  file_out<<"intieta "<<jk<<" "<<ij<<" "<<ieta<<" "<<mean_phi_hst->FindBin(double(ieta))<<" "<<calibc<<" "<<caliberr<<std::endl;
 		} else if (iijj==3) {
 		  const_eta[jk]->Fill(ij+1,calibc);
 		  const_eta[jk]->SetBinError(const_eta[jk]->FindBin(ij+1), caliberr);
@@ -2264,7 +2304,7 @@ HOCalibAnalyzer::endJob() {
 
 		  int ieta = (jk<15) ? jk+1 : 14-jk;
 		  const_eta_phi->Fill(ieta, ij+1,calibc);
-		  file_out<<"intietax "<<jk<<" "<<ij<<" "<<ieta<<" "<<const_eta_phi->FindBin(ieta, ij+1)<<endl;
+		  file_out<<"intietax "<<jk<<" "<<ij<<" "<<ieta<<" "<<const_eta_phi->FindBin(ieta, ij+1)<<std::endl;
 		  if (caliberr >0) {
 		    const_eta_phi->SetBinError(const_eta_phi->FindBin(ieta, ij+1),caliberr);
 
@@ -2286,7 +2326,7 @@ HOCalibAnalyzer::endJob() {
 		}
 
 		file_out<<"HO  4 "<<iijj<<" "<< std::setw(3)<<kl<<" "<<std::setw(3)<<ij+1<<" "
-			<<std::setw(7)<<calibc<<" "<<std::setw(7)<<caliberr<<endl;
+			<<std::setw(7)<<calibc<<" "<<std::setw(7)<<caliberr<<std::endl;
 	      }
 	    }
 	    
@@ -2304,10 +2344,10 @@ HOCalibAnalyzer::endJob() {
 		    <<std::setw(6)<<signall[izone]->GetMean()<<" "
 		    <<std::setw(6)<<signall[izone]->GetRMS()<<" "
 		    <<std::setw(6)<< varx<<" "
-		    <<std::setw(3)<< varx<<endl;
+		    <<std::setw(3)<< varx<<std::endl;
 	    
-	    file_out <<"fitres x"<<iijj<<" "<<kl<<" "<<ij+1<<" "<< varx<<" "<< varx<<" "<< varx<<" "<< varx<<" "<< varx<<" "<< varx<<" "<< varx<<endl;
-	    file_out <<"parserr"<<iijj<<" "<<kl<<" "<<ij+1<<" "<< varx<<" "<< varx<<" "<< varx<<" "<< varx<<" "<< varx<<" "<< varx<<" "<< varx<<endl;
+	    file_out <<"fitres x"<<iijj<<" "<<kl<<" "<<ij+1<<" "<< varx<<" "<< varx<<" "<< varx<<" "<< varx<<" "<< varx<<" "<< varx<<" "<< varx<<std::endl;
+	    file_out <<"parserr"<<iijj<<" "<<kl<<" "<<ij+1<<" "<< varx<<" "<< varx<<" "<< varx<<" "<< varx<<" "<< varx<<" "<< varx<<" "<< varx<<std::endl;
 	    
 	  }
 	  iiter++;
@@ -2458,11 +2498,7 @@ HOCalibAnalyzer::endJob() {
 	  
 	  const_eta[ij]->GetYaxis()->SetLabelSize(.08);
 	  const_eta[ij]->GetYaxis()->SetLabelOffset(.01);	
-	  if (m_digiInput) {
-	    const_eta[ij]->GetYaxis()->SetTitle("GeV/fC");
-	  } else {
-	    const_eta[ij]->GetYaxis()->SetTitle("GeV/MIP-GeV!!");
-	  }
+	  const_eta[ij]->GetYaxis()->SetTitle("GeV/MIP-GeV!!");
 	  
 	  const_eta[ij]->GetYaxis()->SetTitleSize(.085);
 	  const_eta[ij]->GetYaxis()->CenterTitle(); 
@@ -2494,11 +2530,7 @@ HOCalibAnalyzer::endJob() {
 	  
 	  peak_eta[ij]->GetYaxis()->SetLabelSize(.08);
 	  peak_eta[ij]->GetYaxis()->SetLabelOffset(.01);	
-	  if (m_digiInput) {
-	    peak_eta[ij]->GetYaxis()->SetTitle("fC");
-	  } else {
-	    peak_eta[ij]->GetYaxis()->SetTitle("GeV");
-	  }
+	  peak_eta[ij]->GetYaxis()->SetTitle("GeV");
 	  
 	  peak_eta[ij]->GetYaxis()->SetTitleSize(.085);
 	  peak_eta[ij]->GetYaxis()->CenterTitle(); 
@@ -2656,11 +2688,8 @@ HOCalibAnalyzer::endJob() {
       c0x->Divide(3,2);
       for (int ij=0; ij<ringmx; ij++) {
 	int iread = (ij==2) ? routmx : rout12mx;
-	if (m_digiInput) {
-	  com_sigrsg[ij][iread]->GetXaxis()->SetTitle("Signal/ped (fC)");
-	} else {
-	  com_sigrsg[ij][iread]->GetXaxis()->SetTitle("Signal/ped (GeV)");
-	}
+	com_sigrsg[ij][iread]->GetXaxis()->SetTitle("Signal/ped (GeV)");
+
 	com_sigrsg[ij][iread]->GetXaxis()->SetTitleSize(0.060);
 	com_sigrsg[ij][iread]->GetXaxis()->SetTitleOffset(1.05);
 	com_sigrsg[ij][iread]->GetXaxis()->CenterTitle();
@@ -2731,11 +2760,7 @@ HOCalibAnalyzer::endJob() {
 	const_hpdrm[jk]->GetXaxis()->SetLabelSize(0.065);
 	const_hpdrm[jk]->GetXaxis()->SetLabelOffset(0.01);
 
-	if (m_digiInput) {
-	  const_hpdrm[jk]->GetYaxis()->SetTitle("Peak(fC)");
-	} else {
-	  const_hpdrm[jk]->GetYaxis()->SetTitle("Peak(GeV)");
-	}
+	const_hpdrm[jk]->GetYaxis()->SetTitle("Peak(GeV)");
 	const_hpdrm[jk]->GetYaxis()->SetTitleSize(0.065);
 	const_hpdrm[jk]->GetYaxis()->SetTitleOffset(1.0); 
 	const_hpdrm[jk]->GetYaxis()->CenterTitle();
@@ -2795,11 +2820,7 @@ HOCalibAnalyzer::endJob() {
       for (int ij=nmn; ij<nmx; ij++) {
 	int ieta = (ij<15) ? ij+1 : 14-ij;
 	c2x->cd(nzone+1); 
-	if (m_digiInput) {
-	  sprintf(name,"fC(#eta=%i)",ieta);
-	} else {
-	  sprintf(name,"GeV(#eta=%i)",ieta);
-	}
+	sprintf(name,"GeV(#eta=%i)",ieta);
 	sigrsg[ij][nphimx]->GetXaxis()->SetTitle(name);
 	sigrsg[ij][nphimx]->GetXaxis()->SetTitleSize(.08);
 	sigrsg[ij][nphimx]->GetXaxis()->CenterTitle(); 
@@ -2850,11 +2871,7 @@ HOCalibAnalyzer::endJob() {
 	statmn_eta[ij]->GetYaxis()->SetLabelOffset(.01);	
 	statmn_eta[ij]->GetXaxis()->SetLabelSize(.08);
 	statmn_eta[ij]->GetXaxis()->SetLabelOffset(.01);
-	if (m_digiInput) {
-	  statmn_eta[ij]->GetYaxis()->SetTitle("fC");
-	} else {
-	  statmn_eta[ij]->GetYaxis()->SetTitle("GeV");
-	}
+	statmn_eta[ij]->GetYaxis()->SetTitle("GeV");
 	statmn_eta[ij]->GetYaxis()->SetTitleSize(.075);
 	statmn_eta[ij]->GetYaxis()->CenterTitle(); 
 	statmn_eta[ij]->GetYaxis()->SetTitleOffset(1.30);
@@ -2901,10 +2918,10 @@ HOCalibAnalyzer::endJob() {
   } //if (m_figure) {
 
   if (!m_constant) { //m_constant
-    for (int j=0; j<netamx; j++) {
-      for (int i=0; i<nphimx; i++) {
-	if (crossg[j][i]) { delete crossg[j][i];}
-	if (sigrsg[j][i]) { delete sigrsg[j][i];}
+    for (int jk=0; jk<netamx; jk++) {
+      for (int ij=0; ij<nphimx; ij++) {
+	if (crossg[jk][ij]) { delete crossg[jk][ij];}
+	if (sigrsg[jk][ij]) { delete sigrsg[jk][ij];}
       }
     }
   }
@@ -2913,5 +2930,10 @@ HOCalibAnalyzer::endJob() {
 //define this as a plug-in
 DEFINE_FWK_MODULE(HOCalibAnalyzer);
 
+/*
+75minute 
+112MB data
+1M events
 
+*/
 
