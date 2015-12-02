@@ -1337,6 +1337,41 @@ class Plot:
                 return 0
             return numerator/denominator
 
+        def equal(a, b):
+            if a == 0. and b == 0.:
+                return True
+            return abs(a-b)/max(abs(a),abs(b)) < 1e-3
+
+        def findBins(wrap, bins_xvalues):
+            ret = []
+            currBin = wrap.begin()
+            i = 0
+            while i < len(bins_xvalues) and currBin < wrap.end():
+                (xcenter, xlow, xhigh) = bins_xvalues[i]
+                xlowEdge = xcenter-xlow
+                xupEdge = xcenter+xhigh
+
+                (curr_center, curr_low, curr_high) = wrap.xvalues(currBin)
+                curr_lowEdge = curr_center-curr_low
+                curr_upEdge = curr_center+curr_high
+
+                if equal(xlowEdge, curr_lowEdge) and equal(xupEdge,  curr_upEdge):
+                    ret.append(currBin)
+                    currBin += 1
+                    i += 1
+                elif curr_upEdge <= xlowEdge:
+                    currBin += 1
+                elif curr_lowEdge >= xupEdge:
+                    ret.append(None)
+                    i += 1
+                else:
+                    ret.append(None)
+                    currBin += 1
+                    i += 1
+            if len(ret) != len(bins_xvalues):
+                ret.extend([None]*( len(bins_xvalues) - len(ret) ))
+            return ret
+
         # Define wrappers for TH1/TGraph/TGraph2D to have uniform interface
         # TODO: having more global wrappers would make some things simpler also elsewhere in the code
         class WrapTH1:
@@ -1379,7 +1414,7 @@ class Plot:
                 return (yval, yerr, yerr)
             def y(self, bin):
                 return self._th1.GetBinContent(bin)
-            def divide(self, bin, scale, xcenter):
+            def divide(self, bin, scale):
                 self._ratio.SetBinContent(bin, _divideOrZero(self._th1.GetBinContent(bin), scale))
                 self._ratio.SetBinError(bin, _divideOrZero(self._th1.GetBinError(bin), scale))
             def makeRatio(self):
@@ -1395,7 +1430,6 @@ class Plot:
                 self._yvalues = []
                 self._yerrshigh = []
                 self._yerrslow = []
-                self._binOffset = 0
             def draw(self, style=None):
                 if self._ratio is None:
                     return
@@ -1416,7 +1450,7 @@ class Plot:
                 return (self._gr.GetY()[bin], self._gr.GetErrorYlow(bin), self._gr.GetErrorYhigh(bin))
             def y(self, bin):
                 return self._gr.GetY()[bin]
-            def divide(self, bin, scale, xcenter):
+            def divide(self, bin, scale):
                 # Ignore bin if denominator is zero
                 if scale == 0:
                     return
@@ -1424,22 +1458,13 @@ class Plot:
                 if bin >= self._gr.GetN():
                     return
                 # denominator is missing an item
-                trueBin = bin + self._binOffset
-                xvals = self.xvalues(trueBin)
+                xvals = self.xvalues(bin)
                 xval = xvals[0]
-                epsilon = 1e-3 * xval # to allow floating-point difference between TGraph and TH1
-                if xval+epsilon < xcenter:
-                    self._binOffset += 1
-                    return
-                # numerator is missing an item
-                elif xval-epsilon > xcenter:
-                    self._binOffset -= 1
-                    return
 
                 self._xvalues.append(xval)
                 self._xerrslow.append(xvals[1])
                 self._xerrshigh.append(xvals[2])
-                yvals = self.yvalues(trueBin)
+                yvals = self.yvalues(bin)
                 self._yvalues.append(yvals[0] / scale)
                 if self._uncertainty:
                     self._yerrslow.append(yvals[1] / scale)
@@ -1474,11 +1499,17 @@ class Plot:
         wrappers = [wrap(h) for h in histos]
         ref = wrappers[0]
 
-        for bin in xrange(ref.begin(), ref.end()):
+        wrappers_bins = []
+        ref_bins = [ref.xvalues(b) for b in xrange(ref.begin(), ref.end())]
+        for w in wrappers:
+            wrappers_bins.append(findBins(w, ref_bins))
+
+        for i, bin in enumerate(xrange(ref.begin(), ref.end())):
             (scale, ylow, yhigh) = ref.yvalues(bin)
-            (xval, xlow, xhigh) = ref.xvalues(bin)
-            for w in wrappers:
-                w.divide(bin, scale, xval)
+            for w, bins in zip(wrappers, wrappers_bins):
+                if bins[i] is None:
+                    continue
+                w.divide(bins[i], scale)
 
         for w in wrappers:
             w.makeRatio()
