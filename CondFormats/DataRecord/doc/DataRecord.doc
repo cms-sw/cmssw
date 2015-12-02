@@ -167,6 +167,7 @@
 - HcalPedestalWidthsRcd
 - HcalPedestalsRcd
 - HcalQIEDataRcd
+- HcalQIETypesRcd
 - HcalRecoParamsRcd
 - HcalRespCorrsRcd
 - HcalTimeCorrsRcd
