@@ -21,27 +21,10 @@ namespace edm {
   RootSecondaryFileSequence::RootSecondaryFileSequence(
                 ParameterSet const& pset,
                 PoolSource& input,
-                InputFileCatalog const& catalog,
-                unsigned int nStreams) :
+                InputFileCatalog const& catalog) :
     RootInputFileSequence(pset, catalog),
     input_(input),
-    firstFile_(true),
     orderedProcessHistoryIDs_(),
-    nStreams_(nStreams),
-    // The default value provided as the second argument to the getUntrackedParameter function call
-    // is not used when the ParameterSet has been validated and the parameters are not optional
-    // in the description.  This is currently true when PoolSource is the primary input source.
-    // The modules that use PoolSource as a SecSource have not defined their fillDescriptions function
-    // yet, so the ParameterSet does not get validated yet.  As soon as all the modules with a SecSource
-    // have defined descriptions, the defaults in the getUntrackedParameterSet function calls can
-    // and should be deleted from the code.
-    skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
-    bypassVersionCheck_(pset.getUntrackedParameter<bool>("bypassVersionCheck", false)),
-    treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
-    setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
-    productSelectorRules_(pset, "inputCommands", "InputSource"),
-    dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", true)),
-    labelRawDataLikeMC_(pset.getUntrackedParameter<bool>("labelRawDataLikeMC", true)),
     enablePrefetching_(false) {
 
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
@@ -59,7 +42,7 @@ namespace edm {
 
     // Open the first file.
     for(setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
-      initFile(skipBadFiles_);
+      initFile(input_.skipBadFiles());
       if(rootFile()) break;
     }
     if(rootFile()) {
@@ -100,25 +83,25 @@ namespace edm {
           false,   // initialNumberOfEventsToSkip_ != 0
           -1,      // remainingEvents() 
           -1,      // remainingLuminosityBlocks()
-	  nStreams_,
+	  input_.nStreams(),
           0U,      // treeCacheSize_
-          treeMaxVirtualSize_,
+          input_.treeMaxVirtualSize(),
           input_.processingMode(),
-          setRun_,
+          input_.setRun(),
           false,   // noEventSort_
-          productSelectorRules_,
+          input_.productSelectorRules(),
           InputType::SecondaryFile,
           input_.branchIDListHelper(),
           input_.thinnedAssociationsHelper(),
           associationsFromSecondary_,
           nullptr, //duplicateChecker_
-          dropDescendants_,
+          input_.dropDescendants(),
           input_.processHistoryRegistryForUpdate(),
           indexesIntoFiles(),
           currentIndexIntoFile,
           orderedProcessHistoryIDs_,
-          bypassVersionCheck_,
-          labelRawDataLikeMC_,
+          input_.bypassVersionCheck(),
+          input_.labelRawDataLikeMC(),
           false,   // usingGoToEvent_
           enablePrefetching_);
   }

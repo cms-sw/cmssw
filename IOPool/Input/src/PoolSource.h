@@ -11,6 +11,7 @@ PoolSource: This is an InputSource
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
+#include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "IOPool/Common/interface/RootServiceChecker.h"
 
@@ -33,40 +34,59 @@ namespace edm {
     using InputSource::processHistoryRegistryForUpdate;
     using InputSource::productRegistryUpdate;
 
+    // const accessors
+    bool skipBadFiles() const {return skipBadFiles_;}
+    bool dropDescendants() const {return dropDescendants_;}
+    bool bypassVersionCheck() const {return bypassVersionCheck_;}
+    bool labelRawDataLikeMC() const {return labelRawDataLikeMC_;}
+    unsigned int nStreams() const {return nStreams_;}
+    int treeMaxVirtualSize() const {return treeMaxVirtualSize_;}
+    RunNumber_t setRun() const {return setRun_;}
+    ProductSelectorRules const& productSelectorRules() const {return productSelectorRules_;}
+
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void readEvent_(EventPrincipal& eventPrincipal);
-    virtual std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
-    virtual void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
-    virtual std::shared_ptr<RunAuxiliary> readRunAuxiliary_();
-    virtual void readRun_(RunPrincipal& runPrincipal);
-    virtual std::unique_ptr<FileBlock> readFile_();
-    virtual void closeFile_();
-    virtual void endJob();
-    virtual ItemType getNextItemType();
+    virtual void readEvent_(EventPrincipal& eventPrincipal) override;
+    virtual std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
+    virtual void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) override;
+    virtual std::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
+    virtual void readRun_(RunPrincipal& runPrincipal) override;
+    virtual std::unique_ptr<FileBlock> readFile_() override;
+    virtual void closeFile_() override;
+    virtual void endJob() override;
+    virtual ItemType getNextItemType() override;
     virtual bool readIt(EventID const& id, EventPrincipal& eventPrincipal, StreamContext& streamContext) override;
-    virtual void skip(int offset);
-    virtual bool goToEvent_(EventID const& eventID);
-    virtual void rewind_();
-    virtual void preForkReleaseResources();
-    virtual bool randomAccess_() const;
-    virtual ProcessingController::ForwardState forwardState_() const;
-    virtual ProcessingController::ReverseState reverseState_() const;
+    virtual void skip(int offset) override;
+    virtual bool goToEvent_(EventID const& eventID) override;
+    virtual void rewind_() override;
+    virtual void preForkReleaseResources() override;
+    virtual bool randomAccess_() const override;
+    virtual ProcessingController::ForwardState forwardState_() const override;
+    virtual ProcessingController::ReverseState reverseState_() const override;
 
     SharedResourcesAcquirer* resourceSharedWithDelayedReader_() const override;
     
     RootServiceChecker rootServiceChecker_;
     InputFileCatalog catalog_;
     InputFileCatalog secondaryCatalog_;
-    std::unique_ptr<RootPrimaryFileSequence> primaryFileSequence_;
-    std::unique_ptr<RootSecondaryFileSequence> secondaryFileSequence_;
     std::shared_ptr<RunPrincipal> secondaryRunPrincipal_;
     std::shared_ptr<LuminosityBlockPrincipal> secondaryLumiPrincipal_;
     std::vector<std::unique_ptr<EventPrincipal>> secondaryEventPrincipals_;
     std::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;
+
+    unsigned int nStreams_;
+    bool skipBadFiles_;
+    bool bypassVersionCheck_;
+    int const treeMaxVirtualSize_;
+    RunNumber_t setRun_;
+    ProductSelectorRules productSelectorRules_;
+    bool dropDescendants_;
+    bool labelRawDataLikeMC_;
     
     std::unique_ptr<SharedResourcesAcquirer> resourceSharedWithDelayedReaderPtr_;
+    std::unique_ptr<RootPrimaryFileSequence> primaryFileSequence_;
+    std::unique_ptr<RootSecondaryFileSequence> secondaryFileSequence_;
   }; // class PoolSource
 }
 #endif
