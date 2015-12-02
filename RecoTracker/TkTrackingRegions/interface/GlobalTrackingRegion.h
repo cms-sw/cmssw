@@ -20,10 +20,10 @@ public:
    *  in the transverse plane. 
    */
   GlobalTrackingRegion ( float ptMin, const GlobalPoint & origin, 
-      float originRadius, float originHalfLength, bool precise=false)
+      float originRadius, float originHalfLength, bool precise=false, bool useMS=false)
     :  TrackingRegionBase(GlobalVector( 0, 0, 0), origin,
       Range( -1/ptMin, 1/ptMin), originRadius, originHalfLength),
-      thePrecise(precise) { }
+      thePrecise(precise), theUseMS(useMS) { }
 
   // obsolete constructor
   GlobalTrackingRegion ( float ptMin = 1., float originRadius = 0.2, 
@@ -53,6 +53,7 @@ public:
   virtual std::string print() const;
 
 private:
-  bool  thePrecise;
+  bool  thePrecise=false;
+  bool  theUseMS=false;
 };
 #endif
