@@ -7,12 +7,6 @@
  *                                                                                                                                                                                   
  */
 
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/PFTauFwd.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include <TMath.h>
-
 using namespace reco;
 
 namespace
