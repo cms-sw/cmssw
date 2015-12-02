@@ -9,6 +9,7 @@ ShallowEventDataProducer::ShallowEventDataProducer(const edm::ParameterSet& iCon
   produces <unsigned int> ( "lumi"       );
   produces <std::vector<bool> > ( "TrigTech" );
   produces <std::vector<bool> > ( "TrigPh" );
+	consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag(trig_label_));
 }
 
 void ShallowEventDataProducer::
@@ -22,7 +23,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 
   edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
-  iEvent.getByLabel( edm::InputTag("gtDigis"), gtRecord);
+  iEvent.getByLabel( edm::InputTag(trig_label_), gtRecord);
 
   std::vector<bool> TrigTech_(64,0);
   std::vector<bool> TrigPh_(128,0);

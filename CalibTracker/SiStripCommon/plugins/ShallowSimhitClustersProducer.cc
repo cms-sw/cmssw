@@ -1,7 +1,6 @@
 #include "CalibTracker/SiStripCommon/interface/ShallowSimhitClustersProducer.h"
 
 #include "CalibTracker/SiStripCommon/interface/ShallowTools.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -18,10 +17,17 @@
 #include "boost/foreach.hpp"
 
 ShallowSimhitClustersProducer::ShallowSimhitClustersProducer(const edm::ParameterSet& iConfig)
-  : inputTags( iConfig.getParameter<std::vector<edm::InputTag> >("InputTags") ),
-    theClustersLabel( iConfig.getParameter<edm::InputTag>("Clusters")),
-    Prefix( iConfig.getParameter<std::string>("Prefix") )
+  : clusters_token_( consumes< edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("Clusters"))),
+    Prefix( iConfig.getParameter<std::string>("Prefix") ),
+		runningmode_( iConfig.getParameter<std::string>("runningMode") )
 {
+	std::vector<edm::InputTag> simhits_tags = iConfig.getParameter<std::vector<edm::InputTag> >("InputTags");
+	for(auto itag : simhits_tags) {
+		simhits_tokens_.push_back(
+			consumes< std::vector<PSimHit> >(itag)
+			);
+	}
+
   produces <std::vector<unsigned> >      ( Prefix + "hits"       );
   produces <std::vector<float> >         ( Prefix + "strip"      );
   produces <std::vector<float> >         ( Prefix + "localtheta" );
@@ -38,7 +44,7 @@ ShallowSimhitClustersProducer::ShallowSimhitClustersProducer(const edm::Paramete
 
 void ShallowSimhitClustersProducer::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  shallow::CLUSTERMAP clustermap = shallow::make_cluster_map(iEvent,theClustersLabel);
+  shallow::CLUSTERMAP clustermap = shallow::make_cluster_map(iEvent,clusters_token_);
 
   int size = clustermap.size();
   std::auto_ptr<std::vector<unsigned> >       hits         ( new std::vector<unsigned>    (size,    0)   );
@@ -56,10 +62,12 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;         iSetup.get<TrackerDigiGeometryRecord>().get( theTrackerGeometry );  
   edm::ESHandle<MagneticField> magfield;		     iSetup.get<IdealMagneticFieldRecord>().get(magfield);		      
-  edm::ESHandle<SiStripLorentzAngle> SiStripLorentzAngle;    iSetup.get<SiStripLorentzAngleRcd>().get(SiStripLorentzAngle);      
+  edm::ESHandle<SiStripLorentzAngle> SiStripLorentzAngle;    iSetup.get<SiStripLorentzAngleRcd>().get(runningmode_, SiStripLorentzAngle);      
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;  iEvent.getByLabel("siStripClusters", "", clusters);
 
-  BOOST_FOREACH( const edm::InputTag inputTag, inputTags ) { edm::Handle<std::vector<PSimHit> > simhits; iEvent.getByLabel(inputTag, simhits);
+	for(auto& simhit_token : simhits_tokens_) {
+		edm::Handle< std::vector<PSimHit> > simhits; 
+		iEvent.getByToken(simhit_token, simhits);
     BOOST_FOREACH( const PSimHit hit, *simhits ) {
       
       const uint32_t id = hit.detUnitId();
