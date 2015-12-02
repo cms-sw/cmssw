@@ -42,7 +42,8 @@ from DQMOffline.RecoB.dqmAnalyzer_cff import *
 # filter/producer "pre-" sequence for globalValidation
 globalPrevalidation = cms.Sequence( 
     simHitTPAssocProducer
-  * tracksPreValidation
+  * tracksValidation
+  * vertexValidation
   * photonPrevalidationSequence
   * produceDenoms
   * prebTagSequenceMC
@@ -58,7 +59,6 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + trackerRecHitsValidation 
                                  + trackingTruthValid 
                                  + trackingRecHitsValid 
-                                 + tracksValidation 
                                  + ecalSimHitsValidationSequence 
                                  + ecalDigisValidationSequence 
                                  + ecalRecHitsValidationSequence 
@@ -77,7 +77,6 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + mixCollectionValidation 
                                  + JetValidation 
                                  + METValidation
-                                 + vertexValidation
                                  + egammaValidation
                                  + pfJetValidationSequence
                                  + pfMETValidationSequence
@@ -127,9 +126,7 @@ globalPrevalidationLiteTracking.remove(cutsRecoTracksMuonSeededStepOutInHp)
 # Tracking-only validation
 globalPrevalidationTrackingOnly = cms.Sequence(
       simHitTPAssocProducer
-    + tracksPreValidationTrackingOnly
-)
-globalValidationTrackingOnly = cms.Sequence(
-      tracksValidationTrackingOnly
+    + tracksValidationTrackingOnly
     + vertexValidation
 )
+globalValidationTrackingOnly = cms.Sequence()

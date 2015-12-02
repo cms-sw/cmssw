@@ -250,8 +250,8 @@ tracksPreValidation = cms.Sequence(
     tracksValidationTruthSignal
 )
 
-# selectors go into separate "prevalidation" sequence
 tracksValidation = cms.Sequence(
+    tracksPreValidation +
     trackValidator +
     trackValidatorFromPV +
     trackValidatorFromPVAllTP +
@@ -288,11 +288,6 @@ tracksValidationSelectorsStandalone = cms.Sequence(
     tracksValidationSelectorsByAlgoMaskStandalone +
     tracksValidationSelectorsFromPVStandalone
 )
-tracksPreValidationStandalone = cms.Sequence(
-    ak4PFL1FastL2L3CorrectorChain+
-    tracksPreValidation +
-    tracksValidationSelectorsStandalone
-)
 trackValidatorsStandalone = cms.Sequence(
     trackValidatorStandalone +
     trackValidatorFromPVStandalone +
@@ -300,8 +295,10 @@ trackValidatorsStandalone = cms.Sequence(
     trackValidatorAllTPEfficStandalone
 )
 tracksValidationStandalone = cms.Sequence(
-    tracksPreValidationStandalone+
-    trackValidatorsStandalone
+    ak4PFL1FastL2L3CorrectorChain +
+    tracksPreValidation +
+    tracksValidationSelectorsStandalone +
+    trackValidatorStandalone
 )
 
 ### TrackingOnly mode (i.e. MTV with DIGI input + tracking-only reconstruction
@@ -316,12 +313,13 @@ trackValidatorTrackingOnly.label.remove("cutsRecoTracksAK4PFJets")
 # sequences
 tracksPreValidationTrackingOnly = tracksPreValidation.copy()
 tracksPreValidationTrackingOnly.replace(tracksValidationSelectors, tracksValidationSelectorsTrackingOnly)
-tracksPreValidationTrackingOnly += tracksValidationSelectorsStandalone
 
 trackValidatorsTrackingOnly = trackValidatorsStandalone.copy()
 trackValidatorsTrackingOnly.replace(trackValidatorStandalone, trackValidatorTrackingOnly)
 
 tracksValidationTrackingOnly = cms.Sequence(
+    tracksPreValidationTrackingOnly +
+    tracksValidationSelectorsStandalone +
     trackValidatorsTrackingOnly
 )
 
