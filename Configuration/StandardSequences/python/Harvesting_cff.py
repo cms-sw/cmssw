@@ -24,7 +24,7 @@ validationpreprodHarvesting = cms.Path(postValidation_preprod*hltpostvalidation_
 validationprodHarvesting = cms.Path(hltpostvalidation_prod*postValidation_gen)
 
 # to be removed in subsequent request
-# to avoid to many extra github signatures
+# kept to avoid too many extra github signatures
 validationHarvestingFS = validationHarvesting.copy()
 
 validationHarvestingHI = cms.Path(postValidationHI)
