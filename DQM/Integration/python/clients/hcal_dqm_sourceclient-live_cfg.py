@@ -1,6 +1,5 @@
 #-------------------------------------
 #	Hcal DQM Application using New DQM Sources/Clients
-#	Old Modules are being run as well.
 #-------------------------------------
 
 #-------------------------------------
