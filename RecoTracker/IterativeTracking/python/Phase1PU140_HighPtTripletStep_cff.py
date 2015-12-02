@@ -100,10 +100,7 @@ highPtTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 import RecoTracker.TrackProducer.TrackProducer_cfi
 highPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'highPtTripletStepTrackCandidates',
-    # Algorithm name changed from highPtTripletStep (was iter1) to lowPtTripletStep in order
-    # to keep backward compatibility as detachedQuadStep would be unknown.
-    # In the future, a new enum or alias may be added to support iteration name aliases.
-    AlgorithmName = cms.string('lowPtTripletStep'),
+    AlgorithmName = cms.string('highPtTripletStep'),
     Fitter = cms.string('FlexibleKFFittingSmoother'),
     TTRHBuilder=cms.string('WithTrackAngle')
     )
