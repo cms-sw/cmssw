@@ -86,7 +86,7 @@ GlobalTrackingRegion::checkRZ(const DetLayer* layer,
     outerR = PixelRecoPointRZ(lr+dr, gz);
   }
   
-  MultipleScatteringParametrisation iSigma(layer,iSetup);
+  // MultipleScatteringParametrisation iSigma(layer,iSetup);
   PixelRecoPointRZ vtxMean(0.,origin().z());
 
   /*
@@ -103,10 +103,12 @@ GlobalTrackingRegion::checkRZ(const DetLayer* layer,
   */
 
 
-  float innerScatt = 3.f * ( outerlayer ?
+  float innerScatt = 0.;
+  /*
+  3.f * ( outerlayer ?
      iSigma( ptMin(), vtxMean, outerred, outerlayer->seqNum())
     :  iSigma( ptMin(), vtxMean, outerred) ) ;
-
+  */
 
   //
   //

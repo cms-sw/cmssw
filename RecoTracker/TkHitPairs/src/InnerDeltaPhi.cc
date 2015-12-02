@@ -43,22 +43,14 @@ namespace {
 }
 
 namespace {
-  // valid only for |x|<0.5 then degrades...
+  // reasonable (5.e-4) only for |x|<0.7 then degrades..
   template<typename T>
-  inline T f_asin05f(T xx)  {
-    auto x = xx>0 ? xx : -xx;
-    // x = x> 0.5f ? 0.5f : x;
+  inline T f_asin07f(T x)  {
 
-    auto z = x * x;
-    
-    z =  (((( 4.2163199048E-2f * z
-            + 2.4181311049E-2f) * z
-            + 4.5470025998E-2f) * z
-            + 7.4953002686E-2f) * z
-            + 1.6666752422E-1f) * z * x
-            + x;
+   auto ret = 
+       1.f + (x*x) * (0.157549798488616943359375f + (x*x)*0.125192224979400634765625f);
 
-    return xx>0 ? z : -z;
+   return x*ret;
   }
 
   typedef float __attribute__( ( vector_size( 16 ) ) ) float32x4_t;
@@ -71,7 +63,7 @@ namespace {
 
 namespace {
   inline
-  float f_atan2f(float y, float x) { return unsafe_atan2f<9>(y,x); }
+  float f_atan2f(float y, float x) { return unsafe_atan2f<7>(y,x); }
 }
 
 namespace {
@@ -201,7 +193,7 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
   
   float32x4_t num{dHitmag,dLayer,theROrigin * (dHitmag-dLayer),1.f};
   float32x4_t den{2*theRCurvature,2*theRCurvature,dHitmag*dLayer,1.f};
-  auto phis = f_asin05f(num/den);
+  auto phis = f_asin07f(num/den);
   phis = phis*dLayer/(rLayer*cosCross);
   auto deltaPhi = std::abs(phis[0]-phis[1]);
   auto deltaPhiOrig = phis[2];
