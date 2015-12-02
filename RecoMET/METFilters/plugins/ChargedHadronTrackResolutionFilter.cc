@@ -7,7 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -24,13 +24,13 @@
 // class declaration
 //
 
-class ChargedHadronTrackResolutionFilter : public edm::EDFilter {
+class ChargedHadronTrackResolutionFilter : public edm::global::EDFilter<> {
 public:
   explicit ChargedHadronTrackResolutionFilter(const edm::ParameterSet&);
   ~ChargedHadronTrackResolutionFilter();
 
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  virtual bool filter(edm::StreamID iID, edm::Event&, const edm::EventSetup&) const override;
 
       // ----------member data ---------------------------
 
@@ -39,6 +39,9 @@ private:
   const bool taggingMode_;
   const double          ptMin_;
   const double          metSignifMin_;
+  const double          p1_;
+  const double          p2_;
+  const double          p3_;
   const bool debug_;
 
 };
@@ -60,6 +63,9 @@ ChargedHadronTrackResolutionFilter::ChargedHadronTrackResolutionFilter(const edm
   , taggingMode_          ( iConfig.getParameter<bool>    ("taggingMode")         )
   , ptMin_                ( iConfig.getParameter<double>        ("ptMin")         )
   , metSignifMin_         ( iConfig.getParameter<double>        ("MetSignifMin")  )
+  , p1_                   ( iConfig.getParameter<double>        ("p1")            )
+  , p2_                   ( iConfig.getParameter<double>        ("p2")            )
+  , p3_                   ( iConfig.getParameter<double>        ("p3")            )
   , debug_                ( iConfig.getParameter<bool>          ("debug")         )
 {
   produces<bool>();
@@ -74,7 +80,7 @@ ChargedHadronTrackResolutionFilter::~ChargedHadronTrackResolutionFilter() { }
 
 // ------------ method called on each new Event  ------------
 bool
-ChargedHadronTrackResolutionFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+ChargedHadronTrackResolutionFilter::filter(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   using namespace std;
   using namespace edm;
@@ -91,11 +97,10 @@ ChargedHadronTrackResolutionFilter::filter(edm::Event& iEvent, const edm::EventS
 
     const reco::PFCandidate & cand = (*pfCandidates)[i];
   
-    if ( fabs(cand.pdgId()) == 211 ) {
-      // if ( debug_ ) cout << "Found charged hadron candidate" << std::endl;
+    if ( std::abs(cand.pdgId()) == 211 ) {
 
       if (cand.trackRef().isNull()) continue;
-      // if ( debug_ ) cout << "Found valid TrackRef" << std::endl;
+
       const reco::TrackRef trackref = cand.trackRef();
       const double Pt = trackref->pt();
       const double DPt = trackref->ptError();
@@ -106,7 +111,7 @@ ChargedHadronTrackResolutionFilter::filter(edm::Event& iEvent, const edm::EventS
       
       const unsigned int LostHits = trackref->numberOfLostHits();
 
-      if ( (DPt/Pt) > (5 * sqrt(1.20*1.20/P+0.06*0.06) / (1.+LostHits)) ) {
+      if ( (DPt/Pt) > (p1_ * sqrt(p2_*p2_/P+p3_*p3_) / (1.+LostHits)) ) {
         
         const double MET_px = pfMET->begin()->px();
         const double MET_py = pfMET->begin()->py();

@@ -7,7 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -25,15 +25,15 @@
 // class declaration
 //
 
-class MuonBadTrackFilter : public edm::EDFilter {
+class MuonBadTrackFilter : public edm::global::EDFilter<> {
 public:
   explicit MuonBadTrackFilter(const edm::ParameterSet&);
   ~MuonBadTrackFilter();
 
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual std::string trackInfo(const reco::TrackRef& trackRef);
-  virtual void printMuonProperties(const reco::MuonRef& muonRef);
+  virtual bool filter(edm::StreamID iID, edm::Event&, const edm::EventSetup&) const override;
+  virtual std::string trackInfo(const reco::TrackRef& trackRef) const;
+  virtual void printMuonProperties(const reco::MuonRef& muonRef) const;
 
       // ----------member data ---------------------------
 
@@ -41,6 +41,9 @@ private:
   const bool taggingMode_;
   const double          ptMin_;
   const double          chi2Min_;
+  const double          p1_;
+  const double          p2_;
+  const double          p3_;
   const bool debug_;
 
 };
@@ -61,6 +64,9 @@ MuonBadTrackFilter::MuonBadTrackFilter(const edm::ParameterSet& iConfig)
   , taggingMode_          ( iConfig.getParameter<bool>    ("taggingMode")         )
   , ptMin_                ( iConfig.getParameter<double>        ("ptMin")         )
   , chi2Min_              ( iConfig.getParameter<double>      ("chi2Min")         )
+  , p1_                   ( iConfig.getParameter<double>        ("p1")            )
+  , p2_                   ( iConfig.getParameter<double>        ("p2")            )
+  , p3_                   ( iConfig.getParameter<double>        ("p3")            )
   , debug_                ( iConfig.getParameter<bool>          ("debug")         )
 {
   produces<bool>();
@@ -75,7 +81,7 @@ MuonBadTrackFilter::~MuonBadTrackFilter() { }
 
 // ------------ method called on each new Event  ------------
 bool
-MuonBadTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+MuonBadTrackFilter::filter(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   using namespace std;
   using namespace edm;
@@ -84,19 +90,16 @@ MuonBadTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(tokenPFCandidates_,pfCandidates);
 
   bool foundBadTrack = false;
-  // if ( debug_ ) cout << "starting loop over pfCandidates" << endl;
 
   for ( unsigned i=0; i<pfCandidates->size(); ++i ) {
 
     const reco::PFCandidate & cand = (*pfCandidates)[i];
   
-    if ( fabs(cand.pdgId()) != 13 ) continue;
-    // if ( debug_ ) cout << "Found muon" << std::endl;
+    if ( std::abs(cand.pdgId()) != 13 ) continue;
 
     if (cand.pt() < ptMin_) continue;
 
     if (cand.muonRef().isNull()) continue;
-    // if ( debug_ ) cout << "Found valid MuonRef" << std::endl;
     
     const reco::MuonRef       muon  = cand.muonRef();
     if ( debug_ ) printMuonProperties(muon);
@@ -124,14 +127,13 @@ MuonBadTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // perform same check as for charged hadrons
     if (!cand.trackRef().isNull()) {
     
-      // if ( debug_ ) cout << "Found valid TrackRef" << std::endl;
       const reco::TrackRef trackref = cand.trackRef();
       const double Pt = trackref->pt();
       const double DPt = trackref->ptError();
       const double P = trackref->p();
       const unsigned int LostHits = trackref->numberOfLostHits();
 
-      if ((DPt/Pt) > (5 * sqrt(1.20*1.20/P+0.06*0.06) / (1.+LostHits))) {
+      if ((DPt/Pt) > (p1_ * sqrt(p2_*p2_/P+p3_*p3_) / (1.+LostHits))) {
 
         foundBadTrack = true;
 
@@ -214,7 +216,7 @@ MuonBadTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
-std::string MuonBadTrackFilter::trackInfo(const reco::TrackRef& trackRef) {
+std::string MuonBadTrackFilter::trackInfo(const reco::TrackRef& trackRef) const {
   
   std::ostringstream out;
   
@@ -244,7 +246,7 @@ std::string MuonBadTrackFilter::trackInfo(const reco::TrackRef& trackRef) {
 }
 
 
-void MuonBadTrackFilter::printMuonProperties(const reco::MuonRef& muonRef) {
+void MuonBadTrackFilter::printMuonProperties(const reco::MuonRef& muonRef) const {
   
   if ( !muonRef.isNonnull() ) return;
   
@@ -277,7 +279,7 @@ void MuonBadTrackFilter::printMuonProperties(const reco::MuonRef& muonRef) {
      <<" DYT: "<<isDyt
      <<" TuneP: "<<tunePTypeStr
      <<" nMatches "<<muonRef->numberOfMatches()<<std::endl;
-  
+
   if ( isGL ) {
     std::cout<<"\tCombined "<<trackInfo(muonRef->combinedMuon())<<std::endl;
     std::cout<<"\tInner "<<trackInfo(muonRef->innerTrack())<<std::endl;
@@ -330,29 +332,29 @@ void MuonBadTrackFilter::printMuonProperties(const reco::MuonRef& muonRef) {
      << muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityLoose) << std::endl 
      << "TM2DCompatibilityTight           "
      << muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityTight) << std::endl;
-  
+
   if ( muonRef->isGlobalMuon() 
        &&  muonRef->isTrackerMuon() 
        &&  muonRef->isStandAloneMuon() ) {
     reco::TrackRef combinedMu = muonRef->combinedMuon();
     reco::TrackRef trackerMu = muonRef->track();
     reco::TrackRef standAloneMu = muonRef->standAloneMuon();
-    
+  
     double sigmaCombined = combinedMu->ptError()/(combinedMu->pt()*combinedMu->pt());    
     double sigmaTracker = trackerMu->ptError()/(trackerMu->pt()*trackerMu->pt());    
     double sigmaStandAlone = standAloneMu->ptError()/(standAloneMu->pt()*standAloneMu->pt());    
-    
+  
     bool combined = combinedMu->ptError()/combinedMu->pt() < 0.20;   
     bool tracker = trackerMu->ptError()/trackerMu->pt() < 0.20;    
     bool standAlone = standAloneMu->ptError()/standAloneMu->pt() < 0.20;   
-  
+
     double delta1 =  combined && tracker ?   
       fabs(1./combinedMu->pt() -1./trackerMu->pt())    
       /sqrt(sigmaCombined*sigmaCombined + sigmaTracker*sigmaTracker) : 100.;   
     double delta2 = combined && standAlone ?   
       fabs(1./combinedMu->pt() -1./standAloneMu->pt())   
       /sqrt(sigmaCombined*sigmaCombined + sigmaStandAlone*sigmaStandAlone) : 100.;
- 
+
     double delta3 = standAlone && tracker ?    
       fabs(1./standAloneMu->pt() -1./trackerMu->pt())    
       /sqrt(sigmaStandAlone*sigmaStandAlone + sigmaTracker*sigmaTracker) : 100.;  
@@ -363,7 +365,7 @@ void MuonBadTrackFilter::printMuonProperties(const reco::MuonRef& muonRef) {
       std::min(delta3,std::min(delta1,delta2)) : std::max(delta3,std::max(delta1,delta2));   
 
     std::cout << "delta = " << delta << " delta1 "<<delta1<<" delta2 "<<delta2<<" delta3 "<<delta3<<std::endl;   
-    
+  
     double ratio =   
       combinedMu->ptError()/combinedMu->pt()   
       / (trackerMu->ptError()/trackerMu->pt());    
@@ -371,7 +373,7 @@ void MuonBadTrackFilter::printMuonProperties(const reco::MuonRef& muonRef) {
     std::cout<<" ratio "<<ratio<<" combined mu pt "<<combinedMu->pt()<<std::endl;
     //bool quality3 =  ( combinedMu->pt() < 50. || ratio < 2. ) && delta <  3.;
   }
-  
+
   double sumPtR03 = muonRef->isolationR03().sumPt;
   double emEtR03 = muonRef->isolationR03().emEt;
   double hadEtR03 = muonRef->isolationR03().hadEt;    
