@@ -3,7 +3,6 @@
 #include "CalibTracker/SiStripCommon/interface/ShallowTools.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
@@ -25,8 +24,9 @@
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 
 ShallowTrackClustersProducer::ShallowTrackClustersProducer(const edm::ParameterSet& iConfig)
-  :  theTracksLabel( iConfig.getParameter<edm::InputTag>("Tracks") ),
-     theClustersLabel( iConfig.getParameter<edm::InputTag>("Clusters") ),
+  :  tracks_token_(consumes<edm::View<reco::Track> >(iConfig.getParameter<edm::InputTag>("Tracks"))),
+		 association_token_(consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("Tracks"))),
+     clusters_token_( consumes< edmNew::DetSetVector<SiStripCluster> >( iConfig.getParameter<edm::InputTag>("Clusters") ) ),
      Suffix       ( iConfig.getParameter<std::string>("Suffix")    ),
      Prefix       ( iConfig.getParameter<std::string>("Prefix") )
 {
@@ -70,7 +70,7 @@ ShallowTrackClustersProducer::ShallowTrackClustersProducer(const edm::ParameterS
 
 void ShallowTrackClustersProducer::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  shallow::CLUSTERMAP clustermap = shallow::make_cluster_map(iEvent,theClustersLabel);
+  shallow::CLUSTERMAP clustermap = shallow::make_cluster_map(iEvent, clusters_token_);
 
   int size = clustermap.size();
   std::auto_ptr<std::vector<unsigned int> > trackmulti   ( new std::vector<unsigned int>(size,    0)   );
@@ -111,8 +111,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ESHandle<MagneticField> magfield;		     iSetup.get<IdealMagneticFieldRecord>().get(magfield);		      
   edm::ESHandle<SiStripLorentzAngle> SiStripLorentzAngle;    iSetup.get<SiStripLorentzAngleDepRcd>().get(SiStripLorentzAngle);      
 
-  edm::Handle<edm::View<reco::Track> > tracks;	             iEvent.getByLabel(theTracksLabel, tracks);	  
-  edm::Handle<TrajTrackAssociationCollection> associations;  iEvent.getByLabel(theTracksLabel, associations);
+  edm::Handle<edm::View<reco::Track> > tracks;	             iEvent.getByToken(tracks_token_, tracks);	  
+  edm::Handle<TrajTrackAssociationCollection> associations;  iEvent.getByToken(association_token_, associations);
 
   TrajectoryStateCombiner combiner;
 

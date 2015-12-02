@@ -1,7 +1,5 @@
 #include "CalibTracker/SiStripCommon/interface/ShallowRechitClustersProducer.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -16,9 +14,15 @@
 ShallowRechitClustersProducer::ShallowRechitClustersProducer(const edm::ParameterSet& iConfig)
   :  Suffix       ( iConfig.getParameter<std::string>("Suffix") ),
      Prefix       ( iConfig.getParameter<std::string>("Prefix") ),
-     theClustersLabel( iConfig.getParameter<edm::InputTag>("Clusters")),
-     inputTags    ( iConfig.getParameter<std::vector<edm::InputTag> >("InputTags"))
+     clusters_token_( consumes< edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("Clusters")))
 {
+	std::vector<edm::InputTag> rec_hits_tags = iConfig.getParameter<std::vector<edm::InputTag> >("InputTags");
+	for(auto itag : rec_hits_tags) {
+		rec_hits_tokens_.push_back(
+			consumes< SiStripRecHit2DCollection >(itag)
+			);
+	}
+
   produces <std::vector<float> >        ( Prefix + "strip"      + Suffix );   
   produces <std::vector<float> >        ( Prefix + "merr"       + Suffix );   
   produces <std::vector<float> >        ( Prefix + "localx"     + Suffix );   
@@ -32,7 +36,7 @@ ShallowRechitClustersProducer::ShallowRechitClustersProducer(const edm::Paramete
 
 void ShallowRechitClustersProducer::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  shallow::CLUSTERMAP clustermap = shallow::make_cluster_map(iEvent,theClustersLabel);
+  shallow::CLUSTERMAP clustermap = shallow::make_cluster_map(iEvent, clusters_token_); 
 
   int size = clustermap.size();
   std::auto_ptr<std::vector<float> >  strip       ( new std::vector<float>(size,  -10000  ));   
@@ -47,7 +51,9 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   edm::ESHandle<TrackerGeometry> theTrackerGeometry; iSetup.get<TrackerDigiGeometryRecord>().get( theTrackerGeometry );
 
-  BOOST_FOREACH(const edm::InputTag& input, inputTags ) {  edm::Handle<SiStripRecHit2DCollection> recHits; iEvent.getByLabel(input, recHits);
+	for(auto recHit_token : rec_hits_tokens_) {
+		edm::Handle<SiStripRecHit2DCollection> recHits; 
+		iEvent.getByToken(recHit_token, recHits);
     BOOST_FOREACH( const SiStripRecHit2DCollection::value_type& ds, *recHits) {
       BOOST_FOREACH( const SiStripRecHit2D& hit, ds) {
 	

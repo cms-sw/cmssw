@@ -6,11 +6,9 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-
-
-
 ShallowGainCalibration::ShallowGainCalibration(const edm::ParameterSet& iConfig)
-  :  theTracksLabel( iConfig.getParameter<edm::InputTag>("Tracks") ),
+  :  tracks_token_( consumes< edm::View<reco::Track> >(iConfig.getParameter<edm::InputTag>("Tracks")) ),
+		 association_token_( consumes< TrajTrackAssociationCollection >(iConfig.getParameter<edm::InputTag>("Tracks")) ),
      Suffix       ( iConfig.getParameter<std::string>("Suffix")    ),
      Prefix       ( iConfig.getParameter<std::string>("Prefix") )
 {
@@ -54,8 +52,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;         iSetup.get<TrackerDigiGeometryRecord>().get( theTrackerGeometry );  
   m_tracker=&(* theTrackerGeometry );
   edm::ESHandle<SiStripGain> gainHandle;                     iSetup.get<SiStripGainRcd>().get(gainHandle);
-  edm::Handle<edm::View<reco::Track> > tracks;	             iEvent.getByLabel(theTracksLabel, tracks);	  
-  edm::Handle<TrajTrackAssociationCollection> associations;  iEvent.getByLabel(theTracksLabel, associations);
+  edm::Handle<edm::View<reco::Track> > tracks;	             iEvent.getByToken(tracks_token_, tracks);	  
+  edm::Handle<TrajTrackAssociationCollection> associations;  iEvent.getByToken(association_token_, associations);
 
   for( TrajTrackAssociationCollection::const_iterator association = associations->begin(); association != associations->end(); association++) {
        const Trajectory*  traj  = association->key.get();
