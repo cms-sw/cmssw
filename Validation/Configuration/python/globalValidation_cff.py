@@ -4,7 +4,7 @@ from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import *
 from Validation.TrackerHits.trackerHitsValidation_cff import *
 from Validation.TrackerDigis.trackerDigisValidation_cff import *
 from Validation.TrackerRecHits.trackerRecHitsValidation_cff import *
-from Validation.TrackingMCTruth.trackingTruthValidation_cfi import * 
+from Validation.TrackingMCTruth.trackingTruthValidation_cfi import *
 from Validation.RecoTrack.SiTrackingRecHitsValid_cff import *
 from Validation.RecoTrack.TrackValidation_cff import *
 from Validation.EcalHits.ecalSimHitsValidationSequence_cff import *
