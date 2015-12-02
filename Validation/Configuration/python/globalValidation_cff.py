@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import *
-from Validation.TrackerHits.trackerHitsValidation_cff import *   # not in fs
-from Validation.TrackerDigis.trackerDigisValidation_cff import * # not in fs
-from Validation.TrackerRecHits.trackerRecHitsValidation_cff import * # not in fs
+from Validation.TrackerHits.trackerHitsValidation_cff import *
+from Validation.TrackerDigis.trackerDigisValidation_cff import *
+from Validation.TrackerRecHits.trackerRecHitsValidation_cff import *
 from Validation.TrackingMCTruth.trackingTruthValidation_cfi import * 
-from Validation.RecoTrack.SiTrackingRecHitsValid_cff import *   # not in fs
+from Validation.RecoTrack.SiTrackingRecHitsValid_cff import *
 from Validation.RecoTrack.TrackValidation_cff import *
 from Validation.EcalHits.ecalSimHitsValidationSequence_cff import *
 from Validation.EcalDigis.ecalDigisValidationSequence_cff import *
