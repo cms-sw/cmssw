@@ -60,9 +60,9 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    TTree*         tree_;
 
    // variables associated with tree branches
-   Int_t          run_;
-   Long64_t       event_;
-   Int_t          lumis_;
+   UInt_t          run_;
+   ULong64_t       event_;
+   UInt_t          lumis_;
    Bool_t         isData_;
 
    // PileupSummaryInfo
