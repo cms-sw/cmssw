@@ -43,7 +43,7 @@ private:
 
 private:
   edm::InputTag NoiseSummaryTag;
-  edm::InputTag NoiseRBXTag;
+  //edm::InputTag NoiseRBXTag;
 
 private:
   TTree *OutputTree;
@@ -63,17 +63,17 @@ private:
   bool HasBadTS4TS5;
   double TotalCalibCharge;
   double MinE2E10, MaxE2E10;
-
-  double RBXEnergy[72], RBXEnergy15[72];
-  int RBXHitCount[72];
-  double RBXR45[72];
-  double RBXCharge[72][10];
+  
+  // double RBXEnergy[72], RBXEnergy15[72];
+  // int RBXHitCount[72];
+  // double RBXR45[72];
+  // double RBXCharge[72][10];
 };
 //---------------------------------------------------------------------------
 HiHcalAnalyzer::HiHcalAnalyzer(const edm::ParameterSet& iConfig)
 {
   NoiseSummaryTag = iConfig.getUntrackedParameter<edm::InputTag>("NoiseSummaryTag");
-  NoiseRBXTag = iConfig.getUntrackedParameter<edm::InputTag>("NoiseRBXTag");
+  // NoiseRBXTag = iConfig.getUntrackedParameter<edm::InputTag>("NoiseRBXTag");
 }
 //---------------------------------------------------------------------------
 HiHcalAnalyzer::~HiHcalAnalyzer()
@@ -100,11 +100,13 @@ void HiHcalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   Handle<HcalNoiseSummary> hSummary;
   iEvent.getByLabel(NoiseSummaryTag, hSummary);
 
-  Handle<HcalNoiseRBXCollection> hRBX;
-  iEvent.getByLabel(NoiseRBXTag, hRBX);
+  // Handle<HcalNoiseRBXCollection> hRBX;
+  // iEvent.getByLabel(NoiseRBXTag, hRBX);
 
   // Check if the stuff we get is good.  If not...
-  if(hSummary.isValid() == false || hRBX.isValid() == false)
+  if(hSummary.isValid() == false
+     //|| hRBX.isValid() == false
+     )
   {
     // ...then we barf at user about bad file, but we still fill in a filler entry in the tree
     edm::LogError("DataNotFound") << "Hcal noise summary information is invalid for "
@@ -136,26 +138,26 @@ void HiHcalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   MinE2E10 = hSummary->minE2Over10TS();
   MaxE2E10 = hSummary->maxE2Over10TS();
 
-  // Dump information out of the RBX array
-  for(int iRBX = 0; iRBX < (int)hRBX->size(); iRBX++)
-  {
-    int ID = (*hRBX)[iRBX].idnumber();
-    if(ID >= 72)   // WTF!
-      continue;
+  // // Dump information out of the RBX array
+  // for(int iRBX = 0; iRBX < (int)hRBX->size(); iRBX++)
+  // {
+  //   int ID = (*hRBX)[iRBX].idnumber();
+  //   if(ID >= 72)   // WTF!
+  //     continue;
 
-    RBXEnergy[ID] = (*hRBX)[iRBX].recHitEnergy();
-    RBXEnergy15[ID] = (*hRBX)[iRBX].recHitEnergy(1.5);
-    RBXHitCount[ID] = (*hRBX)[iRBX].numRecHits(1.5);
+  //   RBXEnergy[ID] = (*hRBX)[iRBX].recHitEnergy();
+  //   RBXEnergy15[ID] = (*hRBX)[iRBX].recHitEnergy(1.5);
+  //   RBXHitCount[ID] = (*hRBX)[iRBX].numRecHits(1.5);
 
-    std::vector<float> allcharge = (*hRBX)[iRBX].allCharge();
-    for(int iTS = 0; iTS < 10 && iTS < (int)allcharge.size(); iTS++)
-      RBXCharge[ID][iTS] = allcharge[iTS];
+  //   std::vector<float> allcharge = (*hRBX)[iRBX].allCharge();
+  //   for(int iTS = 0; iTS < 10 && iTS < (int)allcharge.size(); iTS++)
+  //     RBXCharge[ID][iTS] = allcharge[iTS];
 
-    if(RBXCharge[ID][4] + RBXCharge[ID][5] > 1)
-      RBXR45[ID] = (RBXCharge[ID][4] - RBXCharge[ID][5]) / (RBXCharge[ID][4] + RBXCharge[ID][5]);
-    else
-      RBXR45[ID] = -9999;
-  }
+  //   if(RBXCharge[ID][4] + RBXCharge[ID][5] > 1)
+  //     RBXR45[ID] = (RBXCharge[ID][4] - RBXCharge[ID][5]) / (RBXCharge[ID][4] + RBXCharge[ID][5]);
+  //   else
+  //     RBXR45[ID] = -9999;
+  // }
 
   // Finally fill the tree
   OutputTree->Fill();
@@ -195,11 +197,11 @@ void HiHcalAnalyzer::beginJob()
   OutputTree->Branch("MinE2E10", &MinE2E10, "MinE2E10/D");
   OutputTree->Branch("MaxE2E10", &MaxE2E10, "MaxE2E10/D");
 
-  OutputTree->Branch("RBXEnergy", RBXEnergy, "RBXEnergy[72]/D");
-  OutputTree->Branch("RBXEnergy15", RBXEnergy15, "RBXEnergy15[72]/D");
-  OutputTree->Branch("RBXHitCount", RBXHitCount, "RBXHitCount[72]/I");
-  OutputTree->Branch("RBXR45", RBXR45, "RBXR45[72]/D");
-  OutputTree->Branch("RBXCharge", RBXCharge, "RBXCharge[72][10]/D");
+  // OutputTree->Branch("RBXEnergy", RBXEnergy, "RBXEnergy[72]/D");
+  // OutputTree->Branch("RBXEnergy15", RBXEnergy15, "RBXEnergy15[72]/D");
+  // OutputTree->Branch("RBXHitCount", RBXHitCount, "RBXHitCount[72]/I");
+  // OutputTree->Branch("RBXR45", RBXR45, "RBXR45[72]/D");
+  // OutputTree->Branch("RBXCharge", RBXCharge, "RBXCharge[72][10]/D");
 
 }
 //---------------------------------------------------------------------------
@@ -252,26 +254,26 @@ void HiHcalAnalyzer::CleanUp()
   FlatNoiseSumE = -1;
   IsolatedSumET = -1;
   FlatNoiseSumET = -1;
-  SpikeNoiseSumET = -1;
-  SpikeNoiseSumE = -1;
   SpikeNoiseCount = -1;
-  TriangleNoiseSumET = -1;
-  TriangleNoiseSumE = -1;
+  SpikeNoiseSumE = -1;
+  SpikeNoiseSumET = -1;
   TriangleNoiseCount = -1;
+  TriangleNoiseSumE = -1;
+  TriangleNoiseSumET = -1;
   HasBadTS4TS5 = false;
   TotalCalibCharge = -1;
   MinE2E10 = -1;
   MaxE2E10 = -1;
 
-  for(int iID = 0; iID < 72; iID++)
-  {
-    RBXEnergy[iID] = -1;
-    RBXEnergy15[iID] = -1;
-    RBXHitCount[iID] = -1;
-    RBXR45[iID] = 9999;
-    for(int iTS = 0; iTS < 10; iTS++)
-      RBXCharge[iID][iTS] = -1;
-  }
+  // for(int iID = 0; iID < 72; iID++)
+  // {
+  //   RBXEnergy[iID] = -1;
+  //   RBXEnergy15[iID] = -1;
+  //   RBXHitCount[iID] = -1;
+  //   RBXR45[iID] = 9999;
+  //   for(int iTS = 0; iTS < 10; iTS++)
+  //     RBXCharge[iID][iTS] = -1;
+  // }
 }
 //---------------------------------------------------------------------------
 //define this as a plug-in
