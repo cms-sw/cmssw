@@ -49,7 +49,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 	if(HcalDetId(*i).subdet()!=HcalTriggerTower) continue;
 	
 	HcalTrigTowerDetId id(*i); 
-	if(!theTopology->validHT(HcalTrigTowerDetId(id))) continue;
+	if(!theTopology->validHT(id)) continue;
 
 
 	unsigned int index = getOutputLUTId(id); 
