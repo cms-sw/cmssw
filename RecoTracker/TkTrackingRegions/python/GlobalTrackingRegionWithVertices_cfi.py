@@ -21,6 +21,7 @@ import FWCore.ParameterSet.Config as cms
 RegionPSetWithVerticesBlock = cms.PSet(
     RegionPSet = cms.PSet(
         precise = cms.bool(True),
+        useMultipleScattering = cms.bool(True),
         beamSpot = cms.InputTag("offlineBeamSpot"),
         useFixedError = cms.bool(True),
         originRadius = cms.double(0.2),
