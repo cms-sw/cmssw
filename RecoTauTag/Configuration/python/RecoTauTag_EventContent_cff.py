@@ -102,20 +102,16 @@ RecoTauTagRECO = cms.PSet(
         'keep *_hpsPFTauDiscriminationByMVArawMuonRejection_*_*',
         'keep *_hpsPFTauDiscriminationByRawPileupWeightedIsolation3Hits_*_*',
         'keep *_hpsPFTauDiscriminationByPhotonPtSumOutsideSignalCone_*_*',
-        'keep *_hpsPFTauFootprintCorrection_*_*',
         'keep *_hpsPFTauDiscriminationByLoosePileupWeightedIsolation3Hits_*_*',
         'keep *_hpsPFTauNeutralIsoPtSum_*_*',
         'keep *_hpsPFTauDiscriminationByTightPileupWeightedIsolation3Hits_*_*',
         'keep *_hpsPFTauDiscriminationByMediumPileupWeightedIsolation3Hits_*_*',
         'keep *_hpsPFTauPUcorrPtSum_*_*',
         'keep *_hpsPFTauChargedIsoPtSum_*_*',
-        #'keep *_hpsPFTau*PtSum_*_*',
         'keep *_hpsPFTauMVA3IsolationChargedIsoPtSum_*_*',
         'keep *_hpsPFTauMVA3IsolationNeutralIsoPtSum_*_*',
         'keep *_hpsPFTauMVA3IsolationPUcorrPtSum_*_*',
-        'keep *_hpsPFTauTransverseImpactParameters_*_*',
-        'keep *_hpsPFTauNeutralIsoPtSumWeight_*_*',
-        'keep *_hpsPFTauPhotonPtSumOutsideSignalCone_*_*'
+        'keep *_hpsPFTauTransverseImpactParameters_*_*'
     )
 )
 #AOD content
