@@ -23,3 +23,9 @@ TpSelectorForEfficiencyVsPhiBlock = generalTpSelectorBlock.clone()
 TpSelectorForEfficiencyVsPtBlock = generalTpSelectorBlock.clone(ptMin = 0.050 )
 TpSelectorForEfficiencyVsVTXRBlock = generalTpSelectorBlock.clone(tip = 60.0)
 TpSelectorForEfficiencyVsVTXZBlock = generalTpSelectorBlock.clone()
+
+def _modifyForPhase1(pset):
+    pset.minRapidity = -3
+    pset.maxRapidity = 3
+eras.phase1Pixel.toModify(generalTpSelectorBlock, _modifyForPhase1)
+eras.phase1Pixel.toModify(TpSelectorForEfficiencyVsEtaBlock, _modifyForPhase1)
