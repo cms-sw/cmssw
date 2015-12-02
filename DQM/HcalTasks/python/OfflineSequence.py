@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 #-----------------
 
 #	import the tasks
-from DQM.HcalTasks.DigiTask import rawTask
+from DQM.HcalTasks.DigiTask import digiTask
 from DQM.HcalTasks.RawTask import rawTask
 from DQM.HcalTasks.TPTask import tpTask
 from DQM.HcalTasks.RecHitTask import recHitTask
