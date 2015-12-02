@@ -785,82 +785,65 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
 
 std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder( const CaloTPGTranscoderULUT & _coder, std::string _tag, bool split_by_crate )
 {
-  std::cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT," << std::endl;
-  std::cout << "initialized from Event Setup" << std::endl;
-  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
+    std::cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT," << std::endl;
+    std::cout << "initialized from Event Setup" << std::endl;
+    std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
-  //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");
-  EMap _emap(emap);
+    EMap _emap(emap);
 
-  std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  std::cout << "EMap contains " << _map . size() << " channels" << std::endl;
+    std::vector<EMap::EMapRow> & _map = _emap.get_map();
+    std::cout << "EMap contains " << _map . size() << " channels" << std::endl;
 
-  // read LUTs and their eta/phi/depth/subdet ranges
-  //HcalLutSet _set = getLutSetFromFile( _filename, 2 );
-  //int lut_set_size = _set.lut.size(); // number of different luts
+    RooGKCounter _counter;
+    for( std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
+	LutXml::Config _cfg;
 
-  //loop over all EMap channels
-  RooGKCounter _counter;
-  for( std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
-    LutXml::Config _cfg;
+	if ( row->subdet.find("HT") == std::string::npos) continue;
 
-    // only trigger tower channels
-    // and valid (ieta,iphi)
-    if ( row->subdet . find("HT") != std::string::npos && _coder.HTvalid(row->ieta, row->iphi) ){
-      if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
-      }
-      else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
-      }
-      _cfg.ieta = row->ieta;
-      _cfg.iphi = row->iphi;
-      _cfg.depth = row->idepth;
-      _cfg.crate = row->crate;
-      _cfg.slot = row->slot;
-      if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
-      else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
-      else std::cout << "Warning! fpga out of range..." << std::endl;
-      _cfg.fiber = row->fiber;
-      _cfg.fiberchan = row->fiberchan;
-      _cfg.lut_type = 2;
-      _cfg.creationtag = _tag;
-      _cfg.creationstamp = get_time_stamp( time(0) );
-      _cfg.targetfirmware = "1.0.0";
-      _cfg.formatrevision = "1"; //???
-      // "original" definition of GENERALIZEDINDEX from Mike Weinberger
-      //   int generalizedIndex=id.ietaAbs()+10000*id.iphi()+
-      //       ((id.ieta()<0)?(0):(100));
-      _cfg.generalizedindex =
-	_cfg.iphi*10000+
-	(row->ieta>0)*100+abs(row->ieta);
+	HcalTrigTowerDetId _detid(row->rawId);
+
+	if(!cq->topo()->validHT(_detid)) continue;
+
+
+	if ( _xml.count(row->crate) == 0 && split_by_crate ){
+	    _xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
+	}
+	else if ( _xml.count(0) == 0 && !split_by_crate ){
+	    _xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
+	}
+
+	_cfg.ieta = row->ieta;
+	_cfg.iphi = row->iphi;
+	_cfg.depth = row->idepth;
+	_cfg.crate = row->crate;
+	_cfg.slot = row->slot;
+	if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
+	else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
+	else std::cout << "Warning! fpga out of range..." << std::endl;
+	_cfg.fiber = row->fiber;
+	_cfg.fiberchan = row->fiberchan;
+	_cfg.lut_type = 2;
+	_cfg.creationtag = _tag;
+	_cfg.creationstamp = get_time_stamp( time(0) );
+	_cfg.targetfirmware = "1.0.0";
+	_cfg.formatrevision = "1"; //???
+	_cfg.generalizedindex =_cfg.iphi*10000+ (row->ieta>0)*100+abs(row->ieta); //is this used for anything?
+
+	_cfg.lut = _coder.getCompressionLUT(_detid);
       
-      // FIXME: work around bug in emap v6: rawId wasn't filled
-      //HcalTrigTowerDetId _detid(row->rawId);
-      HcalTrigTowerDetId _detid(row->ieta, row->iphi);
       
-      std::vector<unsigned char> coder_lut = _coder.getCompressionLUT(_detid);
-      for (std::vector<unsigned char>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
-	unsigned int _temp = (unsigned int)(*_i);
-	//if (_temp!=0) std::cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << std::endl;
-	//unsigned int _temp = 0;
-	_cfg.lut.push_back(_temp);
-      }
-      //_cfg.lut = _set.lut[lut_index];
-      
-      if (split_by_crate ){
-	_xml[row->crate]->addLut( _cfg, lut_checksums_xml );  
-	_counter.count();
-      }
-      else{
-	_xml[0]->addLut( _cfg, lut_checksums_xml );  
-	_counter.count();
-      }
+	if (split_by_crate ){
+	    _xml[row->crate]->addLut( _cfg, lut_checksums_xml );  
+	    _counter.count();
+	}
+	else{
+	    _xml[0]->addLut( _cfg, lut_checksums_xml );  
+	    _counter.count();
+	}
     }
-  }
-  std::cout << "LUTs generated: " << _counter.getCount() << std::endl;
-  std::cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT...DONE" << std::endl;
-  return _xml;
+    std::cout << "LUTs generated: " << _counter.getCount() << std::endl;
+    std::cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT...DONE" << std::endl;
+    return _xml;
 }
 
 
@@ -924,14 +907,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
       //HcalTrigTowerDetId _detid(row->rawId);
       HcalTrigTowerDetId _detid(row->ieta, row->iphi);
       
-      std::vector<unsigned char> coder_lut = _coder.getCompressionLUT(_detid);
-      for (std::vector<unsigned char>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
-	unsigned int _temp = (unsigned int)(*_i);
-	//if (_temp!=0) std::cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << std::endl;
-	//unsigned int _temp = 0;
-	_cfg.lut.push_back(_temp);
-      }
-      //_cfg.lut = _set.lut[lut_index];
+      _cfg.lut = _coder.getCompressionLUT(_detid);
       
       if (split_by_crate ){
 	_xml[row->crate]->addLut( _cfg, lut_checksums_xml );  

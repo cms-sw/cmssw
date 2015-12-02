@@ -455,11 +455,12 @@ int LutXml::test_xpath( std::string filename ){
 }
 */
 
-HcalSubdetector LutXml::subdet_from_crate(int crate, int eta, int depth){
+HcalSubdetector LutXml::subdet_from_crate(int crate_, int eta, int depth){
   HcalSubdetector result;
   // HBHE: 0,1,4,5,10,11,14,15,17
   // HF: 2,9,12
   // HO: 3,6,7,13
+  int crate=crate_<20? crate_ : crate_-20;
 
   if (crate==2 || crate==9 || crate==12) result=HcalForward;
   else if (crate==3 || crate==6 || crate==7 || crate==13) result=HcalOuter;
