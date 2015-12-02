@@ -7,8 +7,6 @@
  *                                                                                                                                                                                   
  */
 
-using namespace reco;
-
 namespace
 {
 
