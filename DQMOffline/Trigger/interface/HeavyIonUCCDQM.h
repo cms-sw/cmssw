@@ -9,9 +9,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-//CaloMET
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
+//Centrality
+#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
 //SiPixelClusters
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
