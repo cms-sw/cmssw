@@ -21,33 +21,17 @@ namespace edm {
   RootPrimaryFileSequence::RootPrimaryFileSequence(
                 ParameterSet const& pset,
                 PoolSource& input,
-                InputFileCatalog const& catalog,
-                unsigned int nStreams) :
+                InputFileCatalog const& catalog) :
     RootInputFileSequence(pset, catalog),
     input_(input),
     firstFile_(true),
     branchesMustMatch_(BranchDescription::Permissive),
     orderedProcessHistoryIDs_(),
-    nStreams_(nStreams),
     eventSkipperByID_(EventSkipperByID::create(pset).release()),
-    // The default value provided as the second argument to the getUntrackedParameter function call
-    // is not used when the ParameterSet has been validated and the parameters are not optional
-    // in the description.  This is currently true when PoolSource is the primary input source.
-    // The modules that use PoolSource as a SecSource have not defined their fillDescriptions function
-    // yet, so the ParameterSet does not get validated yet.  As soon as all the modules with a SecSource
-    // have defined descriptions, the defaults in the getUntrackedParameterSet function calls can
-    // and should be deleted from the code.
-    initialNumberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)),
-    noEventSort_(pset.getUntrackedParameter<bool>("noEventSort", true)),
-    skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
-    bypassVersionCheck_(pset.getUntrackedParameter<bool>("bypassVersionCheck", false)),
-    treeCacheSize_(noEventSort_ ? pset.getUntrackedParameter<unsigned int>("cacheSize", roottree::defaultCacheSize) : 0U),
-    treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
-    setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
-    productSelectorRules_(pset, "inputCommands", "InputSource"),
+    initialNumberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents")),
+    noEventSort_(pset.getUntrackedParameter<bool>("noEventSort")),
+    treeCacheSize_(noEventSort_ ? pset.getUntrackedParameter<unsigned int>("cacheSize") : 0U),
     duplicateChecker_(new DuplicateChecker(pset)),
-    dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", true)),
-    labelRawDataLikeMC_(pset.getUntrackedParameter<bool>("labelRawDataLikeMC", true)),
     usingGoToEvent_(false),
     enablePrefetching_(false) {
 
@@ -69,7 +53,7 @@ namespace edm {
     }
     // Open the first file.
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
-      initFile(skipBadFiles_);
+      initFile(input_.skipBadFiles());
       if(rootFile()) break;
     }
     if(rootFile()) {
@@ -94,7 +78,7 @@ namespace edm {
       // The first input file has already been opened.
       firstFile_ = false;
       if(!rootFile()) {
-        initFile(skipBadFiles_);
+        initFile(input_.skipBadFiles());
       }
     } else {
       if(!nextFile()) {
@@ -140,25 +124,25 @@ namespace edm {
           initialNumberOfEventsToSkip_ != 0,
           remainingEvents(),
           remainingLuminosityBlocks(),
-	  nStreams_,
+	  input_.nStreams(),
           treeCacheSize_,
-          treeMaxVirtualSize_,
+          input_.treeMaxVirtualSize(),
           input_.processingMode(),
-          setRun_,
+          input_.setRun(),
           noEventSort_,
-          productSelectorRules_,
+          input_.productSelectorRules(),
           InputType::Primary,
           input_.branchIDListHelper(),
           input_.thinnedAssociationsHelper(),
           std::vector<BranchID>(), // associationsFromSecondary_
           duplicateChecker_,
-          dropDescendants_,
+          input_.dropDescendants(),
           input_.processHistoryRegistryForUpdate(),
           indexesIntoFiles(),
           currentIndexIntoFile,
           orderedProcessHistoryIDs_,
-          bypassVersionCheck_,
-          labelRawDataLikeMC_,
+          input_.bypassVersionCheck(),
+          input_.labelRawDataLikeMC(),
           usingGoToEvent_,
           enablePrefetching_);
   }
@@ -169,7 +153,7 @@ namespace edm {
       return false;
     }
 
-    initFile(skipBadFiles_);
+    initFile(input_.skipBadFiles());
 
     if(rootFile()) {
       // make sure the new product registry is compatible with the main one
@@ -346,28 +330,13 @@ namespace edm {
                      "Note 1: Events within the same lumi will always be processed contiguously.\n"
                      "Note 2: Lumis within the same run will always be processed contiguously.\n"
                      "Note 3: Any sorting occurs independently in each input file (no sorting across input files).");
-    desc.addUntracked<bool>("skipBadFiles", false)
-        ->setComment("True:  Ignore any missing or unopenable input file.\n"
-                     "False: Throw exception if missing or unopenable input file.");
-    desc.addUntracked<bool>("bypassVersionCheck", false)
-        ->setComment("True:  Bypass release version check.\n"
-                     "False: Throw exception if reading file in a release prior to the release in which the file was written.");
     desc.addUntracked<unsigned int>("cacheSize", roottree::defaultCacheSize)
         ->setComment("Size of ROOT TTree prefetch cache.  Affects performance.");
-    desc.addUntracked<int>("treeMaxVirtualSize", -1)
-        ->setComment("Size of ROOT TTree TBasket cache.  Affects performance.");
-    desc.addUntracked<unsigned int>("setRunNumber", 0U)
-        ->setComment("If non-zero, change number of first run to this number. Apply same offset to all runs.  Allowed only for simulation.");
-    desc.addUntracked<bool>("dropDescendantsOfDroppedBranches", true)
-        ->setComment("If True, also drop on input any descendent of any branch dropped on input.");
     std::string defaultString("permissive");
     desc.addUntracked<std::string>("branchesMustMatch", defaultString)
         ->setComment("'strict':     Branches in each input file must match those in the first file.\n"
                      "'permissive': Branches in each input file may be any subset of those in the first file.");
-    desc.addUntracked<bool>("labelRawDataLikeMC", true)
-        ->setComment("If True: replace module label for raw data to match MC. Also use 'LHC' as process.");
 
-    ProductSelectorRules::fillDescription(desc, "inputCommands");
     EventSkipperByID::fillDescription(desc);
     DuplicateChecker::fillDescription(desc);
   }
