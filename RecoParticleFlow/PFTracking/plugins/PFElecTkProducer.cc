@@ -477,6 +477,7 @@ bool PFElecTkProducer::isFifthStep(reco::PFRecTrackRef pfKfTrack) {
   switch (kfref->algo()) {
   case TrackBase::undefAlgorithm:
   case TrackBase::ctf:
+  case TrackBase::duplicateMerge:
   case TrackBase::initialStep:
   case TrackBase::lowPtTripletStep:
   case TrackBase::pixelPairStep:
