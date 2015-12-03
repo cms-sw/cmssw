@@ -36,33 +36,18 @@ private:
   bool corr;
   bool etaproj;
   bool digitizeOnlyMuons_;
+  bool gaussianSmearing_;
   double averageEfficiency_;
-  bool doBkgNoise_;
-  bool simulateIntrinsicNoise_;
+  // bool simulateIntrinsicNoise_; // not implemented
+  // double averageNoiseRate_;     // not implemented
   bool simulateElectronBkg_;
+  bool simulateNeutralBkg_;
 
-  double averageNoiseRate_;
-  int bxwidth_;
   int minBunch_;
   int maxBunch_;
 
-  //params for the simple pol6 model of neutral bkg for ME0:
-  double ME0ModNeuBkgParam0;
-  double ME0ModNeuBkgParam1;
-  double ME0ModNeuBkgParam2;
-  double ME0ModNeuBkgParam3;
-  double ME0ModNeuBkgParam4;
-  double ME0ModNeuBkgParam5;
-  double ME0ModNeuBkgParam6;
-
-  double ME0ModElecBkgParam0;
-  double ME0ModElecBkgParam1;
-  double ME0ModElecBkgParam2;
-  double ME0ModElecBkgParam3;
-  double ME0ModElecBkgParam4;
-  double ME0ModElecBkgParam5;
-  double ME0ModElecBkgParam6;
-  double ME0ModElecBkgParam7;
+  // params for the simple pol6 model of neutral bkg for ME0:
+  std::vector<double> neuBkg, eleBkg;
 
 };
 #endif
