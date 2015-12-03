@@ -10,8 +10,12 @@
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DQM/Physics/src/QcdHighPtDQM.h"
 #include "DQM/Physics/src/TopDiLeptonOfflineDQM.h"
+
 #include "DQM/Physics/src/TopSingleLeptonDQM.h"
+#include "DQM/Physics/src/TopSingleLeptonDQM_miniAOD.h"
+
 #include "DQM/Physics/src/SingleTopTChannelLeptonDQM.h"
+
 #include "DQM/Physics/src/SusyDQM.h"
 #include "DQM/Physics/src/QcdUeDQM.h"
 #include "DQM/Physics/src/HiggsDQM.h"
