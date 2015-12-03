@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "boost/cstdint.hpp"
 #include <string>
 
@@ -37,12 +38,16 @@ namespace sistrip {
 
     std::string inputModuleLabel_;
     std::string inputDigiLabel_;
+    //CAMM can we do without this bool based on the mode ?
+    bool copyBufferHeader_;
     FEDReadoutMode mode_;
     bool rawdigi_;
     DigiToRaw* digiToRaw_;
     uint32_t eventCounter_;
     edm::EDGetTokenT< edm::DetSetVector<SiStripRawDigi> > tokenRawDigi;
     edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> > tokenDigi;
+    edm::InputTag rawDataTag_;
+    edm::EDGetTokenT<FEDRawDataCollection> tokenRawBuffer;
 
   };
 
