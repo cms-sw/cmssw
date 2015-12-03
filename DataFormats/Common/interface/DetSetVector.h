@@ -468,6 +468,7 @@ namespace edm {
    //helper function to make it easier to create a edm::Ref
 
   template<class HandleT>
+  inline
   Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>
   makeRefTo(const HandleT& iHandle,
              det_id_type iDetID,
@@ -490,6 +491,7 @@ namespace edm {
   }
 
   template<class HandleT>
+  inline
   Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>
   makeRefToDetSetVector(const HandleT& iHandle,
              det_id_type iDetID,
