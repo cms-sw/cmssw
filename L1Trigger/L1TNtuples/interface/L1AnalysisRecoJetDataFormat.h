@@ -27,6 +27,10 @@ namespace L1Analysis
     corrFactor.clear();
     eta.clear();
     phi.clear();
+
+    isPF.clear();
+
+    // calo quantities
     eEMF.clear();
     eEmEB.clear();
     eEmEE.clear();
@@ -41,10 +45,12 @@ namespace L1Analysis
     towerSize.clear();
     n60.clear();
     n90.clear();
-
     n90hits.clear();
     fHPD.clear();
     fRBX.clear();
+
+    // PF quantities
+
     }
 
     unsigned nJets;
@@ -54,6 +60,8 @@ namespace L1Analysis
     std::vector<double> corrFactor;
     std::vector<double> eta;
     std::vector<double> phi;
+    std::vector<bool> isPF;
+
     std::vector<double> eEMF;
     std::vector<double> eHadHB;
     std::vector<double> eHadHE;

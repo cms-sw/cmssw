@@ -108,8 +108,8 @@ L1CaloTowerTreeProducer::L1CaloTowerTreeProducer(const edm::ParameterSet& iConfi
   hcalToken_ = consumes<HcalTrigPrimDigiCollection>(iConfig.getUntrackedParameter<edm::InputTag>("hcalToken"));
   l1TowerToken_ = consumes<l1t::CaloTowerBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("l1TowerToken"));
  
-  maxCaloTP_  = iConfig.getUntrackedParameter<unsigned int>("maxCaloTP", 4000);
-  maxL1Tower_ = iConfig.getUntrackedParameter<unsigned int>("maxL1Tower", 4000);
+  maxCaloTP_  = iConfig.getUntrackedParameter<unsigned int>("maxCaloTP", 5760);
+  maxL1Tower_ = iConfig.getUntrackedParameter<unsigned int>("maxL1Tower", 5760);
  
   //  l1CaloTPData = l1Upgrade->getData();
   //  l1CaloTPData = l1Upgrade->getData();

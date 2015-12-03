@@ -11,33 +11,45 @@ import os
 #
 ##############################################################################
 
-def L1NtupleAOD(process):
+def L1NtupleTFileOut(process):
 
-    process.TFileService = cms.Service("TFileService",
-                                       fileName = cms.string('L1NtupleAOD.root')
+    process.TFileService = cms.Service(
+        "TFileService",
+        fileName = cms.string('L1Ntuple.root')
     )
-
-    process.load('L1Trigger.L1TNtuples.L1NtupleAOD_cff')
-    process.l1ntuple = cms.Path(
-        process.L1NtupleAOD
-    )
-
-    process.schedule.append(process.l1ntuple)
 
     return process
 
-def L1NtupleRAW(process):
+from L1Trigger.L1TNtuples.customiseL1CustomReco import *
+        
 
-    process.TFileService = cms.Service("TFileService",
-                                       fileName = cms.string('L1NtupleRAW.root')
+def L1NtupleAOD(process):
+    
+    L1NtupleTFileOut(process)
+    L1NtupleCustomJetReco(process)
+    L1NtupleCustomEGReco(process)
+
+    process.load('L1Trigger.L1TNtuples.L1NtupleAOD_cff')
+    process.l1ntupleaod = cms.Path(
+        process.L1NtupleAOD
     )
 
+    process.schedule.append(process.l1ntupleaod)
+
+    return process
+
+
+
+def L1NtupleRAW(process):
+
+    L1NtupleTFileOut(process)
+
     process.load('L1Trigger.L1TNtuples.L1NtupleRAW_cff')
-    process.l1ntuple = cms.Path(
+    process.l1ntupleraw = cms.Path(
         process.L1NtupleRAW
     )
 
-    process.schedule.append(process.l1ntuple)
+    process.schedule.append(process.l1ntupleraw)
 
     # for 5 BX of candidates in L1Extra
     if process.producers.has_key("gctDigis"):
@@ -48,37 +60,43 @@ def L1NtupleRAW(process):
 
     return process
 
-def L1NtupleAODRAW(process):
 
 
-    # ---------------------------------------------------------------------
-    # Set up electron ID (VID framework)
-    # ---------------------------------------------------------------------
-    from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
-    # turn on VID producer, indicate data format  to be
-    # DataFormat.AOD or DataFormat.MiniAOD, as appropriate 
-    dataFormat = DataFormat.AOD
-    switchOnVIDElectronIdProducer(process, dataFormat)
-    process.load("RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cfi")
-    from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
-    process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
-    # define which IDs we want to produce
-    idmod = 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff'  
-    setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
+def L1NtupleEMU(process):
 
+    L1NtupleTFileOut(process)
 
-    process.TFileService = cms.Service("TFileService",
-                                       fileName = cms.string('L1NtupleAODRAW.root')
+    process.load('L1Trigger.L1TNtuples.L1NtupleEMU_cff')
+    process.l1ntuplesim = cms.Path(
+        process.L1NtupleEMU
     )
 
-    process.load('L1Trigger.L1TNtuples.L1NtupleRAW_cff')
-    process.load('L1Trigger.L1TNtuples.L1NtupleAOD_cff')
-    process.l1ntuple = cms.Path(
-        process.L1NtupleRAW
-        +process.egmGsfElectronIDSequence
-        +process.L1NtupleAOD
-    )
-
-    process.schedule.append(process.l1ntuple)
+    process.schedule.append(process.l1ntuplesim)
 
     return process
+
+
+def L1NtupleRAWEMU(process):
+
+    L1NtupleRAW(process)
+    L1NtupleEMU(process)
+
+    return process
+
+
+def L1NtupleAODRAW(process):
+
+    L1NtupleRAW(process)
+    L1NtupleAOD(process)
+
+    return process
+
+
+def L1NtupleAODRAWEMU(process):
+
+    L1NtupleRAW(process)
+    L1NtupleEMU(process)
+    L1NtupleAOD(process)
+
+    return process
+

@@ -41,8 +41,8 @@
 #include "TF1.h"
 
 //local  data formats
-#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoJet.h"
-#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMet.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoJetDataFormat.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMetDataFormat.h"
 
 //
 // class declaration
@@ -59,9 +59,10 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
-public:
-  L1Analysis::L1AnalysisRecoJet*        jet;
+  void doPFJets(edm::Handle<reco::PFJetCollection> pfJets);
+  void doCaloJets(edm::Handle<reco::CaloJetCollection> caloJets);
 
+public:
   L1Analysis::L1AnalysisRecoJetDataFormat*              jet_data;
 
 private:
@@ -73,12 +74,13 @@ private:
   TTree * tree_;
 
   // EDM input tags
-  edm::EDGetTokenT<reco::CaloJetCollection>     caloJetToken_;
-  edm::EDGetTokenT<edm::ValueMap<reco::JetID> > caloJetIdToken_;
-  edm::EDGetTokenT<reco::JetCorrector>          jetCorrectorToken_;
+  edm::EDGetTokenT<reco::PFJetCollection>     pfJetToken_;
+  //  edm::EDGetTokenT<reco::CaloJetCollection>     caloJetToken_;
+  //  edm::EDGetTokenT<edm::ValueMap<reco::JetID> > caloJetIdToken_;
+  edm::EDGetTokenT<reco::JetCorrector>        jecToken_;
 
   // debug stuff
-  bool caloJetsMissing_;
+  bool pfJetsMissing_;
   double jetptThreshold_;
   unsigned int maxCl_;
   unsigned int maxJet_;
@@ -89,22 +91,22 @@ private:
 
 
 L1JetRecoTreeProducer::L1JetRecoTreeProducer(const edm::ParameterSet& iConfig):
-  caloJetsMissing_(false)
+  pfJetsMissing_(false)
 {
   
-  caloJetToken_ = consumes<reco::CaloJetCollection>(iConfig.getUntrackedParameter("caloJetToken",edm::InputTag("ak4CaloJets")));
+  //  caloJetToken_ = consumes<reco::CaloJetCollection>(iConfig.getUntrackedParameter("caloJetToken",edm::InputTag("ak4CaloJets")));
+  pfJetToken_ = consumes<reco::PFJetCollection>(iConfig.getUntrackedParameter("pfJetToken",edm::InputTag("ak4PFJetsCHS")));
   //  caloJetIdToken_ = consumes<edm::ValueMap<reco::JetID> >(iConfig.getUntrackedParameter("jetIdToken",edm::InputTag("ak4JetID")));
-  jetCorrectorToken_ = consumes<reco::JetCorrector>(iConfig.getUntrackedParameter<edm::InputTag>("jetCorrToken"));
+  jecToken_ = consumes<reco::JetCorrector>(iConfig.getUntrackedParameter<edm::InputTag>("jecToken"));
 
   jetptThreshold_ = iConfig.getParameter<double>      ("jetptThreshold");
   maxJet_         = iConfig.getParameter<unsigned int>("maxJet");
 
-  jet           = new L1Analysis::L1AnalysisRecoJet();
-  jet_data           = jet->getData();
+  jet_data = new L1Analysis::L1AnalysisRecoJetDataFormat();
 
   // set up output
   tree_=fs_->make<TTree>("JetRecoTree", "JetRecoTree");
-  tree_->Branch("Jet",           "L1Analysis::L1AnalysisRecoJetDataFormat",         &jet_data,                32000, 3);
+  tree_->Branch("Jet", "L1Analysis::L1AnalysisRecoJetDataFormat", &jet_data, 32000, 3);
 
 }
 
@@ -126,28 +128,91 @@ L1JetRecoTreeProducer::~L1JetRecoTreeProducer()
 void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  jet->Reset();
+  jet_data->Reset();
 
-  // get jets  & co...
-  edm::Handle<reco::CaloJetCollection> recoCaloJets;
-  edm::Handle<edm::ValueMap<reco::JetID> > jetsID;
-  edm::Handle<reco::JetCorrector> jetCorr;
+  // get jets
+  edm::Handle<reco::PFJetCollection> pfJets;
+  iEvent.getByToken(pfJetToken_, pfJets);
 
-  iEvent.getByToken(caloJetToken_, recoCaloJets);
+  // get jet ID
+  //  edm::Handle<edm::ValueMap<reco::JetID> > jetsID;
   //iEvent.getByLabel(jetIdTag_,jetsID);
-  //iEvent.getByToken(jetCorrectorToken_, jetCorr);
 
-  if (recoCaloJets.isValid()) {
-    jet->SetCaloJet(iEvent, iSetup, recoCaloJets, maxJet_); //jetsID, maxJet_);
+  //  edm::Handle<reco::JetCorrector> corrector;
+  //  iEvent.getByToken(jecToken_, corrector);
+
+  if (pfJets.isValid()) {
+
+    jet_data->nJets=0;
+
+    doPFJets(pfJets);
+
   }
   else {
-    if (!caloJetsMissing_) {edm::LogWarning("MissingProduct") << "CaloJets not found.  Branch will not be filled" << std::endl;}
-    caloJetsMissing_ = true;
+    if (!pfJetsMissing_) {edm::LogWarning("MissingProduct") << "PFJets not found.  Branch will not be filled" << std::endl;}
+    pfJetsMissing_ = true;
   }
+
+
 
   tree_->Fill();
 
 }
+
+
+void
+L1JetRecoTreeProducer::doCaloJets(edm::Handle<reco::CaloJetCollection> caloJets) {
+
+
+  for( auto it=caloJets->begin();
+       it!=caloJets->end() && jet_data->nJets < maxJet_;
+       ++it) {
+    
+    jet_data->et.push_back(it->et());
+    jet_data->eta.push_back(it->eta());
+    jet_data->phi.push_back(it->phi());
+    jet_data->e.push_back(it->energy());
+    jet_data->isPF.push_back(false);
+    
+    jet_data->eEMF.push_back(it->emEnergyFraction());
+    jet_data->eEmEB.push_back(it->emEnergyInEB());
+    jet_data->eEmEE.push_back(it->emEnergyInEE());
+    jet_data->eEmHF.push_back(it->emEnergyInHF());
+    jet_data->eHadHB.push_back(it->hadEnergyInHB());
+    jet_data->eHadHE.push_back(it->hadEnergyInHE());
+    jet_data->eHadHO.push_back(it->hadEnergyInHO());
+    jet_data->eHadHF.push_back(it->hadEnergyInHF());
+    jet_data->eMaxEcalTow.push_back(it->maxEInEmTowers());
+    jet_data->eMaxHcalTow.push_back(it->maxEInHadTowers());
+    jet_data->towerArea.push_back(it->towersArea());
+
+    jet_data->nJets++;
+
+  }
+
+
+}
+
+
+void
+L1JetRecoTreeProducer::doPFJets(edm::Handle<reco::PFJetCollection> pfJets) {
+  
+  for( auto it=pfJets->begin();
+       it!=pfJets->end() && jet_data->nJets < maxJet_;
+       ++it) {
+    
+    jet_data->et.push_back(it->et());
+    jet_data->eta.push_back(it->eta());
+    jet_data->phi.push_back(it->phi());
+    jet_data->e.push_back(it->energy());
+    jet_data->isPF.push_back(true);
+    
+    jet_data->nJets++;
+    
+  }
+  
+}
+
 
 // ------------ method called once each job just before starting event loop  ------------
 void

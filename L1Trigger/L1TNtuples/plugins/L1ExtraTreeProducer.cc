@@ -80,46 +80,34 @@ private:
   TTree * tree_;
  
   // EDM input tags
-  edm::InputTag nonIsoEmLabel_;
-  edm::InputTag isoEmLabel_;
-  edm::InputTag tauJetLabel_;
-  edm::InputTag isoTauJetLabel_;
-  edm::InputTag cenJetLabel_;
-  edm::InputTag fwdJetLabel_;
-  edm::InputTag muonLabel_;
-  edm::InputTag metLabel_;
-  edm::InputTag mhtLabel_;
-  edm::InputTag hfRingsLabel_;
-
-  bool doUpgrade_;
-  edm::InputTag tauLabel_;
-  edm::InputTag isoTauLabel_;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection> nonIsoEmToken_;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection> isoEmToken_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tauJetToken_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> isoTauJetToken_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> cenJetToken_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> fwdJetToken_;
+  edm::EDGetTokenT<l1extra::L1MuonParticleCollection> muonToken_;
+  edm::EDGetTokenT<l1extra::L1EtMissParticleCollection> metToken_;
+  edm::EDGetTokenT<l1extra::L1EtMissParticleCollection> mhtToken_;
+  edm::EDGetTokenT<l1extra::L1HFRingsCollection> hfRingsToken_;
 
 };
 
 
 
-L1ExtraTreeProducer::L1ExtraTreeProducer(const edm::ParameterSet& iConfig):
-  nonIsoEmLabel_(iConfig.getUntrackedParameter("nonIsoEmLabel",edm::InputTag("l\
-1extraParticles:NonIsolated"))),
-  isoEmLabel_(iConfig.getUntrackedParameter("isoEmLabel",edm::InputTag("l\
-1extraParticles:Isolated"))),
-  tauJetLabel_(iConfig.getUntrackedParameter("tauJetLabel",edm::InputTag("l\
-1extraParticles:Tau"))),
-  isoTauJetLabel_(iConfig.getUntrackedParameter("isoTauJetLabel",edm::InputTag("l\
-1extraParticles:IsoTau"))),
-  cenJetLabel_(iConfig.getUntrackedParameter("cenJetLabel",edm::InputTag("l\
-1extraParticles:Central"))),
-  fwdJetLabel_(iConfig.getUntrackedParameter("fwdJetLabel",edm::InputTag("l\
-1extraParticles:Forward"))),
-  muonLabel_(iConfig.getUntrackedParameter("muonLabel",edm::InputTag("l\
-1extraParticles"))),
-  metLabel_(iConfig.getUntrackedParameter("metLabel",edm::InputTag("l\
-1extraParticles:MET"))),
-  mhtLabel_(iConfig.getUntrackedParameter("mhtLabel",edm::InputTag("l\
-1extraParticles:MHT"))),
-  hfRingsLabel_(iConfig.getUntrackedParameter("hfRingsLabel",edm::InputTag("l1extraParticles")))
-{
+L1ExtraTreeProducer::L1ExtraTreeProducer(const edm::ParameterSet& iConfig) {
+
+
+  nonIsoEmToken_ = consumes<l1extra::L1EmParticleCollection>(iConfig.getUntrackedParameter("nonIsoEmToken",edm::InputTag("l1extraParticles:NonIsolated")));
+  isoEmToken_ = consumes<l1extra::L1EmParticleCollection>(iConfig.getUntrackedParameter("isoEmToken",edm::InputTag("l1extraParticles:Isolated")));
+  tauJetToken_ = consumes<l1extra::L1JetParticleCollection>(iConfig.getUntrackedParameter("tauJetToken",edm::InputTag("l1extraParticles:Tau")));
+  isoTauJetToken_ = consumes<l1extra::L1JetParticleCollection>(iConfig.getUntrackedParameter("isoTauJetToken",edm::InputTag("l1extraParticles:IsoTau")));
+  cenJetToken_ = consumes<l1extra::L1JetParticleCollection>(iConfig.getUntrackedParameter("cenJetToken",edm::InputTag("l1extraParticles:Central")));
+  fwdJetToken_ = consumes<l1extra::L1JetParticleCollection>(iConfig.getUntrackedParameter("fwdJetToken",edm::InputTag("l1extraParticles:Forward")));
+  muonToken_ = consumes<l1extra::L1MuonParticleCollection>(iConfig.getUntrackedParameter("muonToken",edm::InputTag("l1extraParticles")));
+  metToken_ = consumes<l1extra::L1EtMissParticleCollection>(iConfig.getUntrackedParameter("metToken",edm::InputTag("l1extraParticles:MET")));
+  mhtToken_ = consumes<l1extra::L1EtMissParticleCollection>(iConfig.getUntrackedParameter("mhtToken",edm::InputTag("l1extraParticles:MHT")));
+  hfRingsToken_ = consumes<l1extra::L1HFRingsCollection>(iConfig.getUntrackedParameter("hfRingsToken",edm::InputTag("l1extraParticles")));
  
   maxL1Extra_ = iConfig.getParameter<unsigned int>("maxL1Extra");
  
@@ -164,16 +152,16 @@ L1ExtraTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<l1extra::L1EtMissParticleCollection> mhts;
   edm::Handle<l1extra::L1HFRingsCollection> hfRings ;
 
-  iEvent.getByLabel(nonIsoEmLabel_, nonIsoEm);
-  iEvent.getByLabel(isoEmLabel_, isoEm);
-  iEvent.getByLabel(tauJetLabel_, tauJet);
-  iEvent.getByLabel(isoTauJetLabel_, isoTauJet);
-  iEvent.getByLabel(cenJetLabel_, cenJet);
-  iEvent.getByLabel(fwdJetLabel_, fwdJet);
-  iEvent.getByLabel(muonLabel_, muon);
-  iEvent.getByLabel(metLabel_, mets);
-  iEvent.getByLabel(mhtLabel_, mhts);
-  iEvent.getByLabel(hfRingsLabel_, hfRings);
+  iEvent.getByToken(nonIsoEmToken_, nonIsoEm);
+  iEvent.getByToken(isoEmToken_, isoEm);
+  iEvent.getByToken(tauJetToken_, tauJet);
+  iEvent.getByToken(isoTauJetToken_, isoTauJet);
+  iEvent.getByToken(cenJetToken_, cenJet);
+  iEvent.getByToken(fwdJetToken_, fwdJet);
+  iEvent.getByToken(muonToken_, muon);
+  iEvent.getByToken(metToken_, mets);
+  iEvent.getByToken(mhtToken_, mhts);
+  iEvent.getByToken(hfRingsToken_, hfRings);
 
   if (isoEm.isValid()){ 
     l1Extra->SetIsoEm(isoEm, maxL1Extra_);
