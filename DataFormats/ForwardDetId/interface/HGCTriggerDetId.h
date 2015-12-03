@@ -61,7 +61,7 @@ public:
   int sector() const { return getMaskedId(sector_shift,sector_mask); }
 
   /// get the degree module
-  int module() const { return ( getMaskedId(module_shift,module_mask) ? 1 : -1); }
+  int module() const { return getMaskedId(module_shift,module_mask); }
 
   /// get the layer #
   int layer() const { return getMaskedId(layer_shift,layer_mask); }
