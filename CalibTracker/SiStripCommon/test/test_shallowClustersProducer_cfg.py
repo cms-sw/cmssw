@@ -6,7 +6,7 @@ process.testTree = cms.EDAnalyzer(
    "ShallowTree",
    outputCommands = cms.untracked.vstring(
       'drop *',
-      'keep *_cluster_*_*',
+      'keep *_shallowClusters_*_*',
       )
    )
 process.p = cms.Path(process.shallowClusters*process.testTree)
