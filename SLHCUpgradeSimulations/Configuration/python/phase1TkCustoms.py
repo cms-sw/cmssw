@@ -344,6 +344,7 @@ def customise_Reco(process,pileup):
     # CPE for other steps
     process.siPixelRecHits.CPE = cms.string('PixelCPEGeneric')
     # Turn of template use in tracking (iterative steps handled inside their configs)
+    process.duplicateTrackCandidates.ttrhBuilderName = 'WithTrackAngle'
     process.mergedDuplicateTracks.TTRHBuilder = 'WithTrackAngle'
     process.ctfWithMaterialTracks.TTRHBuilder = 'WithTrackAngle'
     process.muonSeededSeedsInOut.TrackerRecHitBuilder=cms.string('WithTrackAngle')
@@ -352,6 +353,25 @@ def customise_Reco(process,pileup):
     process.muons1stStep.TrackerKinkFinderParameters.TrackerRecHitBuilder=cms.string('WithTrackAngle')
     process.regionalCosmicTracks.TTRHBuilder=cms.string('WithTrackAngle')
     process.cosmicsVetoTracksRaw.TTRHBuilder=cms.string('WithTrackAngle')
+    process.trackerDrivenElectronSeeds.TTRHBuilder = 'WithTrackAngle'
+    process.globalMuons.GLBTrajBuilderParameters.GlbRefitterParameters.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.globalMuons.GLBTrajBuilderParameters.TrackTransformer.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.globalMuons.GLBTrajBuilderParameters.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.globalMuons.TrackLoaderParameters.TTRHBuilder = 'WithTrackAngle'
+    process.tevMuons.RefitterParameters.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.tevMuons.TrackLoaderParameters.TTRHBuilder = 'WithTrackAngle'
+    process.muonSeededTracksOutInDisplaced.TTRHBuilder = 'WithTrackAngle'
+    process.duplicateDisplacedTrackCandidates.ttrhBuilderName = 'WithTrackAngle'
+    process.mergedDuplicateDisplacedTracks.TTRHBuilder = 'WithTrackAngle'
+    process.displacedGlobalMuons.GLBTrajBuilderParameters.GlbRefitterParameters.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.displacedGlobalMuons.GLBTrajBuilderParameters.TrackTransformer.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.displacedGlobalMuons.GLBTrajBuilderParameters.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.displacedGlobalMuons.TrackLoaderParameters.TTRHBuilder = 'WithTrackAngle'
+    process.glbTrackQual.RefitterParameters.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.globalSETMuons.GLBTrajBuilderParameters.GlbRefitterParameters.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.globalSETMuons.GLBTrajBuilderParameters.TrackTransformer.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.globalSETMuons.GLBTrajBuilderParameters.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.globalSETMuons.TrackLoaderParameters.TTRHBuilder = 'WithTrackAngle'
     # End of pixel template needed section
 
     # Remove, for now, the pre-cluster-splitting clustering step
