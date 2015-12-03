@@ -24,7 +24,7 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             # fileNames = cms.untracked.vstring("file:/mnt/hadoop/cms/store/user/dgulhan/HIHighPt/HIHighPt_photon20and30_HIRun2011-v1_RECO_753_patch1/fd44351629dd155a25de2b4c109c824c/RECO_100_1_Uk0.root")                        )
-                            fileNames = cms.untracked.vstring('/store/data/Run2015E/HighPtPhoton30AndZ/AOD/PromptReco-v1/000/262/271/00000/64088077-0096-E511-A701-02163E013539.root')
+                            fileNames = cms.untracked.vstring('/store/data/Run2015E/HighPtJet80/AOD/PromptReco-v1/000/262/272/00000/803A4255-7696-E511-B178-02163E0142DD.root')
 )
 
 #import FWCore.PythonUtilities.LumiList as LumiList
@@ -32,7 +32,7 @@ process.source = cms.Source("PoolSource",
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100))
+    input = cms.untracked.int32(1000))
 
 
 
@@ -114,6 +114,8 @@ process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_data_cfi')
 process.hiEvtAnalyzer.CentralitySrc = cms.InputTag("pACentrality")
 process.hiEvtAnalyzer.Vertex = cms.InputTag("offlinePrimaryVertices")
 process.hiEvtAnalyzer.doEvtPlane = cms.bool(False)
+process.hiEvtAnalyzer.doCentrality = cms.bool(False)
+
 process.load('HeavyIonsAnalysis.EventAnalysis.hltanalysis_cff')
 
 ############ hlt oject
@@ -167,7 +169,7 @@ process.load("HeavyIonsAnalysis.JetAnalysis.hcalNoise_cff")
 process.ana_step = cms.Path(
                             process.hltanalysis *
                             #process.siPixelRecHits * process.pACentrality * process.centralityBin * #for pp data only on reco
-                            #process.hiEvtAnalyzer*
+                            process.hiEvtAnalyzer*
 			    process.jetSequences +
                             process.ggHiNtuplizer +
                             process.ggHiNtuplizerGED +
