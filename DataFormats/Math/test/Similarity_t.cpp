@@ -161,18 +161,11 @@ bool isSym(M const & m) {
 #include<iostream>
 #include "FWCore/Utilities/interface/HRRealTime.h"
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
-#include<random>
-#endif
 namespace {
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   std::mt19937 eng;
   std::uniform_real_distribution<double> rgen(-5.,5.);
 
   inline double rr() { return  rgen(eng);}
-#else
-  inline double rr() { return  -5 + 10*drand48();}
-#endif
 
   template<typename T,  IndexType D1,  IndexType D2 >
   inline void
