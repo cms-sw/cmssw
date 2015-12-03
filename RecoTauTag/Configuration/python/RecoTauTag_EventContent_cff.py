@@ -108,7 +108,6 @@ RecoTauTagRECO = cms.PSet(
         'keep *_hpsPFTauDiscriminationByMediumPileupWeightedIsolation3Hits_*_*',
         'keep *_hpsPFTauPUcorrPtSum_*_*',
         'keep *_hpsPFTauChargedIsoPtSum_*_*',
-        #'keep *_hpsPFTau*PtSum_*_*',
         'keep *_hpsPFTauMVA3IsolationChargedIsoPtSum_*_*',
         'keep *_hpsPFTauMVA3IsolationNeutralIsoPtSum_*_*',
         'keep *_hpsPFTauMVA3IsolationPUcorrPtSum_*_*',
