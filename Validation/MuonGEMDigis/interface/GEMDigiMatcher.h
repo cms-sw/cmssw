@@ -6,7 +6,6 @@
  Description: Matching of Digis for SimTrack in GEM
 
  Original Author:  "Vadim Khotilovich"
- $Id: GEMDigiMatcher.h,v 1.1 2013/02/11 07:33:07 khotilov Exp $
 */
 
 #include "GenericDigi.h"
@@ -30,11 +29,11 @@
 #include <map>
 #include <set>
 
-using namespace matching;
 class SimHitMatcher;
 class GEMGeometry;
 class GEMDigiMatcher 
 {
+  using DigiContainer = matching::DigiContainer;
 public:
 
   GEMDigiMatcher(const SimHitMatcher& sh, const edm::Event& , const GEMGeometry& geom, const edm::ParameterSet& cfg, edm::EDGetToken& ,edm::EDGetToken& ,edm::EDGetToken& );

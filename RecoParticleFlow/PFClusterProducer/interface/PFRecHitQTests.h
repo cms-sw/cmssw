@@ -6,7 +6,6 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include <iostream>
-using namespace std;
 
 //
 //  Quality test that checks threshold
