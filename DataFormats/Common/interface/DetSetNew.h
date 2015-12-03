@@ -1,7 +1,7 @@
 #ifndef DataFormats_Common_DetSetNew_h
 #define DataFormats_Common_DetSetNew_h
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include "DataFormats/Common/interface/Ref.h"
 #include <vector>
 #include <cassert>
 
@@ -75,6 +75,7 @@ namespace edmNew {
     inline
     const_iterator end() const { return data()+m_size;}
 
+    int offset() const {return m_offset;}
 
     inline
     id_type id() const { return m_id;}
@@ -87,8 +88,19 @@ namespace edmNew {
 
     inline
     bool empty() const { return m_size==0;}
+
+
+    template<typename HandleT>
+    edm::Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>
+    makeRefTo(HandleT const & handle, const_iterator ci) const {
+      return edm::Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>( handle.id(), ci, ci - &(container().front()) );
+    }
+
     
   private:
+
+     DataContainer const & container() const { return *m_data; }
+   
     data_type const * data() const {
       if(m_offset|m_size) assert(m_data);
       return m_data ? (&((*m_data)[m_offset])) : 0;

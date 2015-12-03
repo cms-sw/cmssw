@@ -21,6 +21,7 @@ SiPixelTrackResidualSource = cms.EDAnalyzer("SiPixelTrackResidualSource",
     bladeOn = cms.untracked.bool(True),
     diskOn = cms.untracked.bool(True),
     PtMinRes = cms.untracked.double(4.0),
+    vtxsrc= cms.untracked.string("offlinePrimaryVertices"),
 
     trajectoryInput = cms.InputTag('generalTracks')              
 )

@@ -47,7 +47,6 @@ class ME0RecHitBaseAlgo {
   virtual bool compute(const ME0DigiPreReco& digi,
                              LocalPoint& Point,
                              LocalError& error) const = 0;
-
 };
 #endif
 

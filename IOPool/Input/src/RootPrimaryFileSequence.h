@@ -34,14 +34,12 @@ namespace edm {
   public:
     explicit RootPrimaryFileSequence(ParameterSet const& pset,
                                    PoolSource& input,
-                                   InputFileCatalog const& catalog,
-                                   unsigned int nStreams);
+                                   InputFileCatalog const& catalog);
     virtual ~RootPrimaryFileSequence();
 
     RootPrimaryFileSequence(RootPrimaryFileSequence const&) = delete; // Disallow copying and moving
     RootPrimaryFileSequence& operator=(RootPrimaryFileSequence const&) = delete; // Disallow copying and moving
 
-    typedef std::shared_ptr<RootFile> RootFileSharedPtr;
     std::unique_ptr<FileBlock> readFile_();
     virtual void closeFile_() override;
     void endJob();
@@ -67,19 +65,11 @@ namespace edm {
     BranchDescription::MatchMode branchesMustMatch_;
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;
 
-    unsigned int nStreams_; 
     std::shared_ptr<EventSkipperByID> eventSkipperByID_;
     int initialNumberOfEventsToSkip_;
     bool noEventSort_;
-    bool skipBadFiles_;
-    bool bypassVersionCheck_;
     unsigned int treeCacheSize_;
-    int const treeMaxVirtualSize_;
-    RunNumber_t setRun_;
-    ProductSelectorRules productSelectorRules_;
     std::shared_ptr<DuplicateChecker> duplicateChecker_;
-    bool dropDescendants_;
-    bool labelRawDataLikeMC_;
     bool usingGoToEvent_;
     bool enablePrefetching_;
   }; // class RootPrimaryFileSequence

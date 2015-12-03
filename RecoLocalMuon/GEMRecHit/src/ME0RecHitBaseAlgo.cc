@@ -13,9 +13,7 @@
 #include "DataFormats/GEMDigi/interface/ME0DigiPreRecoCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
-ME0RecHitBaseAlgo::ME0RecHitBaseAlgo(const edm::ParameterSet& config) {
-}
+ME0RecHitBaseAlgo::ME0RecHitBaseAlgo(const edm::ParameterSet& config) {}
 
 ME0RecHitBaseAlgo::~ME0RecHitBaseAlgo(){}
 
@@ -33,12 +31,8 @@ const ME0DigiPreRecoCollection::Range& digiRange){
     // Call the compute method
     bool OK = this->compute(*digi, point, tmpErr);
     if (!OK) continue;
-   
-    if (std::abs(digi->pdgid()) == 13) {
-       ME0RecHit* recHit = new ME0RecHit(me0Id,digi->tof(),point,tmpErr);
-       result.push_back(recHit);
-    }
-
+    ME0RecHit* recHit = new ME0RecHit(me0Id,digi->tof(),point,tmpErr);
+    result.push_back(recHit);
   }
   return result;
 }

@@ -694,16 +694,19 @@ namespace edm {
 namespace edmNew {
    //helper function to make it easier to create a edm::Ref to a new DSV
   template<class HandleT>
+  // inline
   edm::Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>
   makeRefTo(const HandleT& iHandle,
              typename HandleT::element_type::value_type::const_iterator itIter) {
     BOOST_MPL_ASSERT((boost::is_same<typename HandleT::element_type, DetSetVector<typename HandleT::element_type::value_type::value_type> >));
-    typename HandleT::element_type::size_type index = (itIter - &*iHandle->data().begin()); 
+    auto index = itIter - &iHandle->data().front(); 
     return edm::Ref<typename HandleT::element_type,
 	       typename HandleT::element_type::value_type::value_type>
-	      (iHandle,index);
+	      (iHandle.id(), &(*itIter), index);
   }
 }
+
+
 
 #include "DataFormats/Common/interface/ContainerMaskTraits.h"
 
