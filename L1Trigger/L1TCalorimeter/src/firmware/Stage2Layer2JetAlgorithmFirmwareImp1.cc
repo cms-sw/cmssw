@@ -45,7 +45,7 @@ int mask_[9][9] = {
 
 std::vector<l1t::Jet>::iterator start_, end_;
 
-l1t::Stage2Layer2JetAlgorithmFirmwareImp1::Stage2Layer2JetAlgorithmFirmwareImp1(CaloParams* params) :
+l1t::Stage2Layer2JetAlgorithmFirmwareImp1::Stage2Layer2JetAlgorithmFirmwareImp1(CaloParamsHelper* params) :
   params_(params){}
 
 

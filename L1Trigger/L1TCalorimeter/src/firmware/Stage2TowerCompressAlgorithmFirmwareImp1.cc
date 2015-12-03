@@ -9,9 +9,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage2TowerCompressAlgorithmFirmware.h"
 //#include "DataFormats/Math/interface/LorentzVector.h "
 
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
-
-l1t::Stage2TowerCompressAlgorithmFirmwareImp1::Stage2TowerCompressAlgorithmFirmwareImp1(CaloParams* params) :
+l1t::Stage2TowerCompressAlgorithmFirmwareImp1::Stage2TowerCompressAlgorithmFirmwareImp1(CaloParamsHelper* params) :
   params_(params)
 {
 

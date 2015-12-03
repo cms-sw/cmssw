@@ -8,7 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2JetSumAlgorithmFirmware.h"
 
-l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::Stage2Layer2JetSumAlgorithmFirmwareImp1(CaloParams* params) :
+l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::Stage2Layer2JetSumAlgorithmFirmwareImp1(CaloParamsHelper* params) :
   params_(params)
 {
   etSumEtThresholdHwEt_ = floor(params_->etSumEtThreshold(0)/params_->jetLsb());
