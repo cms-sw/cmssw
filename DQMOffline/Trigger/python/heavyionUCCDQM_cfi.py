@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 heavyionUCCDQM_HIUCC100 = cms.EDAnalyzer('HeavyIonUCCDQM',
         triggerResults = cms.InputTag('TriggerResults','','HLT'),
-        caloMet = cms.InputTag('hltMetForHf'),
+        centralityTag = cms.InputTag('hiCentrality'),
         pixelCluster = cms.InputTag('siPixelClusters'),
         triggerPath = cms.string('HLT_HIUCC100_v'),
         nClusters = cms.int32(100),
@@ -15,7 +15,7 @@ heavyionUCCDQM_HIUCC100 = cms.EDAnalyzer('HeavyIonUCCDQM',
 
 heavyionUCCDQM_HIUCC020 = cms.EDAnalyzer('HeavyIonUCCDQM',
         triggerResults = cms.InputTag('TriggerResults','','HLT'),
-        caloMet = cms.InputTag('hltMetForHf'),
+        centralityTag = cms.InputTag('hiCentrality'),
         pixelCluster = cms.InputTag('siPixelClusters'),
         triggerPath = cms.string('HLT_HIUCC020_v'),
         nClusters = cms.int32(100),

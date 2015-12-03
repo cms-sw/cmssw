@@ -34,7 +34,7 @@ protected:
 
 private:
 	edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
-	edm::EDGetTokenT<reco::CaloMETCollection> theCaloMet;
+	edm::EDGetTokenT<reco::Centrality> theCentrality_;
 	edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > theSiPixelCluster;
 
 	std::string triggerPath_;
