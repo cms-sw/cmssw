@@ -17,7 +17,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 ## For more details have a look at: WGuideFrontierConditions
 ## --------------------------------------------------------------------
 ##process.GlobalTag.globaltag = 'GR_R_42_V14::All' 
-process.GlobalTag.globaltag = 'PRE_ST62_V8::All'
+process.GlobalTag.globaltag = 'MCRUN2_74_V9'
 
 
 #dbs search --query 'find file where site=srm-eoscms.cern.ch and dataset=/RelValTTbar/CMSSW_7_0_0_pre3-PRE_ST62_V8-v1/GEN-SIM-RECO'
