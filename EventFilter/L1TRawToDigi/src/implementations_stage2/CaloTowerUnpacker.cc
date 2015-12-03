@@ -2,8 +2,6 @@
 
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 
-#include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
-
 #include "CaloCollections.h"
 
 namespace l1t {
@@ -53,8 +51,6 @@ namespace stage2 {
      auto res_ = static_cast<CaloCollections*>(coll)->getTowers();
      res_->setBXRange(std::min(firstBX, res_->getFirstBX()), std::max(lastBX, res_->getLastBX()));
 
-     res_->resizeAll( l1t::CaloTools::caloTowerHashMax() );
-
      LogDebug("L1T") << "Block : id=" << block.header().getID() << ", size=" << block.header().getSize() << ", link=" << link << ", link_phi=" << link_phi << ", nBX=" << nBX << ", firstBX=" << firstBX << ", lastBX=" << lastBX;
 
      // Loop over multiple BX and fill towers collection
@@ -87,9 +83,7 @@ namespace stage2 {
                            << " qual " << tower1.hwQual() 
                            << " EtRatio " << tower1.hwEtRatio();
 
-	   size_t index = l1t::CaloTools::caloTowerHash( tower1.hwEta(), tower1.hwPhi() );
-
-           res_->set(bx,index, tower1);
+           res_->push_back(bx,tower1);
          }
 
          if (((raw_data >> 16)& 0xFFFF) != 0) {
@@ -115,8 +109,7 @@ namespace stage2 {
                            << " qual " << tower2.hwQual()
                            << " EtRatio " << tower2.hwEtRatio();
 
-	   size_t index = l1t::CaloTools::caloTowerHash( tower2.hwEta(), tower2.hwPhi() );
-           res_->set(bx,index, tower2);
+           res_->push_back(bx,tower2);
 	 }
        }
      }
