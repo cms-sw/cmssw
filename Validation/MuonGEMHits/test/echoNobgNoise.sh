@@ -4,9 +4,9 @@
 
 echo "
 # To save all contents
-process.FEVTDEBUGHLToutput.outputCommands.append("keep *_generatorSmeared_*_*")
-process.FEVTDEBUGHLToutput.outputCommands.append("keep *_ak4GenJets_*_*")
-process.FEVTDEBUGHLToutput.outputCommands.append("keep *_simCscTriggerPrimitiveDigis_*_*")
+process.FEVTDEBUGHLToutput.outputCommands.append('keep *_generatorSmeared_*_*')
+process.FEVTDEBUGHLToutput.outputCommands.append('keep *_ak4GenJets_*_*')
+process.FEVTDEBUGHLToutput.outputCommands.append('keep *_simCscTriggerPrimitiveDigis_*_*')
 
 
 # Manual customization to switch off background hits
