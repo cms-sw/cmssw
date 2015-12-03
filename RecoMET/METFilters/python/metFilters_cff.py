@@ -60,9 +60,6 @@ from RecoMET.METFilters.muonBadTrackFilter_cfi import *
 
 
 metFilters = cms.Sequence(
-   muonBadTrackFilter*
-   chargedHadronTrackResolutionFilter *
-   
    HBHENoiseFilterResultProducer *
    HBHENoiseFilter *
    primaryVertexFilter*
@@ -71,9 +68,9 @@ metFilters = cms.Sequence(
 #   hcalLaserEventFilter *
    EcalDeadCellTriggerPrimitiveFilter* 
 #   *goodVertices * trackingFailureFilter *
-   eeBadScFilter
+   eeBadScFilter *
 #   ecalLaserCorrFilter *
 #   trkPOGFilters
-   # chargedHadronMuonRefFilter *
-   # muonBadTrackFilter
+   chargedHadronTrackResolutionFilter *
+   muonBadTrackFilter
 )
