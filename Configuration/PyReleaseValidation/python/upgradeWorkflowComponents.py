@@ -27,7 +27,8 @@ upgradeKeys=['2017',
              'Extended2023HGCalV4',
              'Extended2023HGCalMuonPU',
              'Extended2023SHCalNoTaperPU',	     
-             '2019WithGEMAgingPU'
+             '2019WithGEMAgingPU',
+             '2017PU'
 	     ]
 
 
@@ -182,7 +183,8 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull'],#HARVESTING REMOV
                    'Extended2023HGCalV4' : ['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalMuonPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPUHGCAL'],
                    'Extended2023SHCalNoTaperPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],
-                   '2019WithGEMAgingPU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+                   '2019WithGEMAgingPU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],
+		   '2017PU':['GenSimFull','DigiFullPU','RecoFullPU']
                    }
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
