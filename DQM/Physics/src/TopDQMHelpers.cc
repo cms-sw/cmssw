@@ -198,11 +198,26 @@ double Calculate_miniAOD::tmassWBoson(pat::Muon* mu, const pat::MET& met,
   return tmassWBoson_;
 }
 
+double Calculate_miniAOD::tmassWBoson(pat::Electron* mu, const pat::MET& met,
+                              const pat::Jet& b) {
+  if (tmassWBoson_ < 0) operator()(b, mu, met);
+  return tmassWBoson_;
+}
+
+
 double Calculate_miniAOD::tmassTopQuark(pat::Electron* lepton,
                                 const pat::MET& met, const pat::Jet& b) {
   if (tmassTopQuark_ < 0) operator()(b, lepton, met);
   return tmassTopQuark_;
 }
+
+
+double Calculate_miniAOD::tmassTopQuark(pat::Muon* lepton,
+                                const pat::MET& met, const pat::Jet& b) {
+  if (tmassTopQuark_ < 0) operator()(b, lepton, met);
+  return tmassTopQuark_;
+}
+
 
 void Calculate_miniAOD::operator()(const pat::Jet& bJet, pat::Muon* lepton,
                            const pat::MET& met) {
