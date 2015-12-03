@@ -1811,10 +1811,7 @@ class ConfigBuilder(object):
 			    return ''
 		    else:
 			    return '%s'%index
-		    
-            if not 'DIGI' in self.stepMap and not self._options.fast and not any(map( lambda s : s.startswith('genvalid'), valSeqName)):
-		    if self._options.restoreRNDSeeds==False and not self._options.restoreRNDSeeds==True:
-			    self._options.restoreRNDSeeds=True
+
 
             #rename the HLT process in validation steps
 	    if ('HLT' in self.stepMap and not self._options.fast) or self._options.hltProcess:
@@ -1829,6 +1826,14 @@ class ConfigBuilder(object):
 	    for (i,s) in enumerate(valSeqName):
 		    setattr(self.process,'validation_step%s'%NFI(i), cms.EndPath( getattr(self.process, s)))
 		    self.schedule.append(getattr(self.process,'validation_step%s'%NFI(i)))
+
+            #needed in case the miniAODValidation sequence is run starting from AODSIM
+	    if 'PAT' in self.stepMap and not 'RECO' in self.stepMap:
+		    return
+
+            if not 'DIGI' in self.stepMap and not self._options.fast and not any(map( lambda s : s.startswith('genvalid'), valSeqName)):
+		    if self._options.restoreRNDSeeds==False and not self._options.restoreRNDSeeds==True:
+			    self._options.restoreRNDSeeds=True
 
 	    if not 'DIGI' in self.stepMap and not self._options.fast:
 		    self.executeAndRemember("process.mix.playback = True")
