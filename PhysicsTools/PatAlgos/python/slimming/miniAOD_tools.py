@@ -202,6 +202,13 @@ def miniAOD_customizeCommon(process):
         cms.InputTag('reducedEgamma','reducedGedPhotons')
     for idmod in photon_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection,None,False)
+
+    #----------------------------------------------------------------------------
+    # CV: add old and new tau ID discriminators for CMSSW 7_6_x reminiAOD v2
+    process.load("RecoTauTag.Configuration.RecoPFTauTag_reminiAOD_cff")
+    from PhysicsTools.PatAlgos.tools.tauTools import switchToPFTauHPS76xReMiniAOD
+    switchToPFTauHPS76xReMiniAOD(process)
+    #----------------------------------------------------------------------------
     
     # Adding puppi jets
     process.load('CommonTools.PileupAlgos.Puppi_cff')
