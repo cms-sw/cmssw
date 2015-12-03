@@ -6,7 +6,7 @@ from DQMServices.Components.DQMFastTimerService_cff import *
 from DQMServices.Components.DQMFastTimerServiceLuminosity_cfi import *
 
 from DQMOffline.Ecal.ecal_dqm_source_offline_cff import *
-from DQM.HcalTasks.OfflineSequence import *
+from DQM.HcalTasks.OfflineSourceSequence_pp import *
 from DQM.SiStripMonitorClient.SiStripSourceConfigTier0_cff import *
 from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
 from DQM.DTMonitorModule.dtDQMOfflineSources_cff import *
@@ -22,7 +22,7 @@ from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  l1TriggerDqmOffline * # L1 emulator is run within this sequence for real data
                                  ecal_dqm_source_offline *
-								 hcalOfflineSequence *
+								 hcalOfflineSourceSequence *
                                  SiStripDQMTier0 *
                                  siPixelOfflineDQM_source *
                                  dtSources *
@@ -111,7 +111,7 @@ DQMOfflineMuon = cms.Sequence( dtSources *
                                cscSources *
                                muonMonitors
                               )
-DQMOfflineHcal = cms.Sequence( hcalOfflineSequence )
+DQMOfflineHcal = cms.Sequence( hcalOfflineSourceSequence )
 
 DQMOfflineEcal = cms.Sequence( ecal_dqm_source_offline *
                                es_dqm_source_offline

@@ -5,7 +5,7 @@ from DQMServices.Components.DQMDcsInfo_cfi import *
 from DQMServices.Components.DQMFastTimerService_cff import *
 
 from DQMOffline.Ecal.ecal_dqm_source_offline_HI_cff import *
-from DQM.HcalMonitorModule.hcal_dqm_source_fileT0_HeavyIons_cff import *
+from DQM.HcalTasks.OfflineSourceSequence_hi import *
 from DQM.SiStripMonitorClient.SiStripSourceConfigTier0_HeavyIons_cff import *
 from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
 from DQM.DTMonitorModule.dtDQMOfflineSources_cff import *
@@ -18,7 +18,7 @@ from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 DQMOfflineHeavyIonsPreDPG = cms.Sequence( dqmDcsInfo *
                                           l1TriggerDqmOffline * # L1 emulator is run within this sequence for real data
                                           ecal_dqm_source_offline *
-                                          hcalOfflineDQMSource *
+                                          hcalOfflineSourceSequence *
                                           SiStripDQMTier0_hi *
                                           siPixelOfflineDQM_heavyions_source *
                                           dtSources *
