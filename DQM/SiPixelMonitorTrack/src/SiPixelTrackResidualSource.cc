@@ -84,7 +84,8 @@ SiPixelTrackResidualSource::SiPixelTrackResidualSource(const edm::ParameterSet& 
    ttrhbuilder_ = pSet_.getParameter<std::string>("TTRHBuilder");
    ptminres_= pSet.getUntrackedParameter<double>("PtMinRes",4.0) ;
    beamSpotToken_ = consumes<reco::BeamSpot>(std::string("offlineBeamSpot"));
-   offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
+   vtxsrc_=pSet_.getUntrackedParameter<std::string>("vtxsrc",  "offlinePrimaryVertices");
+   offlinePrimaryVerticesToken_ =  consumes<reco::VertexCollection>(vtxsrc_);// consumes<reco::VertexCollection>(std::string("hiSelectedVertex"));     //"offlinePrimaryVertices"));
    generalTracksToken_ = consumes<reco::TrackCollection>(pSet_.getParameter<edm::InputTag>("tracksrc"));
    tracksrcToken_ = consumes<std::vector<Trajectory> >(pSet_.getParameter<edm::InputTag>("trajectoryInput"));
    trackToken_ = consumes<std::vector<reco::Track> >(pSet_.getParameter<edm::InputTag>("trajectoryInput"));
@@ -880,20 +881,20 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   edm::Handle<std::vector<reco::Track> > trackCollectionHandle;
   //iEvent.getByLabel(tracksrc_,trackCollectionHandle);
   iEvent.getByToken( trackToken_, trackCollectionHandle );
-
   auto const & trackColl = *(trackCollectionHandle.product());
-
+  
   //get the map
   edm::Handle<TrajTrackAssociationCollection> match;
   //iEvent.getByLabel(tracksrc_,match);
   iEvent.getByToken( trackAssociationToken_, match);
   auto const &  ttac = *(match.product());
-
+  
   // get clusters
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> >  clusterColl;
   //iEvent.getByLabel( clustersrc_, clusterColl );
   iEvent.getByToken( clustersrcToken_, clusterColl );
   auto const & clustColl = *(clusterColl.product());
+  
 
   if(debug_){
     std::cout << "Trajectories\t : " << trajColl.size() << std::endl;
@@ -1047,7 +1048,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		float phi = clustgp.phi(); 
 		float z = clustgp.z();
 
-		PixelBarrelName pbn(DetId((*hit).geographicalId()), tTopo, isUpgrade);
+                PixelBarrelName pbn(DetId((*hit).geographicalId()), tTopo, isUpgrade);
                 int ladder = pbn.ladderName();
                 int module = pbn.moduleName();
 
