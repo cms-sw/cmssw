@@ -211,7 +211,7 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       int iphi = hcalItr->id().iphi();
 
       // we don't know how to deal with HF yet, so skip this
-      if (ieta>CaloTools::kHBHEEnd) continue;
+      if (abs(ieta)>CaloTools::kHBHEEnd) continue;
 
       int ietIn = hcalItr->SOI_compressedEt();
       int ifg = hcalItr->SOI_fineGrain();

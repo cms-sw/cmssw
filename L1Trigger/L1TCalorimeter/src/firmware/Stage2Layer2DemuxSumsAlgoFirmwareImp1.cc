@@ -29,8 +29,8 @@ l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::~Stage2Layer2DemuxSumsAlgoFirmwareIm
 void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<l1t::EtSum> & inputSums,
                                                               std::vector<l1t::EtSum> & outputSums) {
 
-  int32_t et(0), metx(0), mety(0), ht(0), mhtx(0), mhty(0), metPhi, mhtPhi;
-  uint32_t met, mht;
+  int32_t et(0), metx(0), mety(0), ht(0), mhtx(0), mhty(0), metPhi(0), mhtPhi(0);
+  uint32_t met(0), mht(0);
 
   // Add up the x, y and scalar components
   for (std::vector<l1t::EtSum>::const_iterator eSum = inputSums.begin() ; eSum != inputSums.end() ; ++eSum )
@@ -74,10 +74,10 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   if (mhty>0xFFF) mhty = 0xFFF;
 
   // Final MET calculation
-  cordic_( metx , mety , metPhi , met );
+  if (metx != 0 || mety != 0 ) cordic_( metx , mety , metPhi , met );
 
   // Final MHT calculation
-  cordic_( mhtx , mhty , mhtPhi , mht );
+  if (mhtx != 0 || mhty != 0 ) cordic_( mhtx , mhty , mhtPhi , mht );
 
   // Make final collection
   math::XYZTLorentzVector p4;

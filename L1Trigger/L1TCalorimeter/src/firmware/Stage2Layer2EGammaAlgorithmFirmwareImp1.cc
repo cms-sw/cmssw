@@ -119,7 +119,7 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
 
       // Identification of the egamma
       // Based on the seed tower FG bit, the H/E ratio of the seed toswer, and the shape of the cluster
-      bool hOverEBit = idHOverE(cluster, egamma.hwPt());
+      bool hOverEBit = idHOverE(cluster, egamma.hwPt());  // Temporary, will ultimately be provided by Layer 1
       bool shapeBit  = idShape(cluster, egamma.hwPt());
       bool fgBit     = !(cluster.hwSeedPt()>6 && cluster.fgECAL());
       int qual = 0;
@@ -217,8 +217,9 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
   for(const auto& egamma : egammas_raw){
 
     int fgBit = egamma.hwQual() & (0x1);
+    int hOverEBit = egamma.hwQual()>>1 & (0x1);
     int shapeBit = egamma.hwQual()>>2 & (0x1);
-    if(fgBit && shapeBit){
+    if(fgBit && shapeBit && hOverEBit){
       if(egamma.hwEta()<0)
 	egammas_eta_neg.push_back(egamma);
       else
