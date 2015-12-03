@@ -12,6 +12,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <TTree.h>
 
 class SiStripSummaryCreator;
 class DQMStore;
@@ -21,6 +22,7 @@ class SiStripQualityChecker;
 class SiStripFedCabling;
 class SiStripDetCabling;
 class SiStripConfigWriter;
+class SiStripDetInfoFileReader;
 
 class SiStripActionExecutor {
 
@@ -41,6 +43,7 @@ class SiStripActionExecutor {
                   DQMStore* dqm_store, std::string& map_type, const edm::EventSetup& eSetup);
  void createOfflineTkMap(const edm::ParameterSet & tkmapPset,
 			 DQMStore* dqm_store, std::string& map_type, const edm::EventSetup& eSetup);
+ void createTkInfoFile(std::vector<std::string> tkhmap_names, TTree* tkinfo_tree, DQMStore* dqm_store);
 
  void createStatus(DQMStore* dqm_store);
  void fillDummyStatus();
@@ -64,6 +67,8 @@ class SiStripActionExecutor {
   SiStripQualityChecker*   qualityChecker_;
 
   SiStripConfigWriter* configWriter_;
+
+  SiStripDetInfoFileReader* detInfoFileReader_;
 
   edm::ParameterSet pSet_;
 
