@@ -5,8 +5,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("electronPostValidation")
 
+process.options = cms.untracked.PSet( 
+#    SkipEvent = cms.untracked.vstring('ProductNotFound'),  
+#    Rethrow = cms.untracked.vstring('ProductNotFound') 
+)
+
 process.DQMStore = cms.Service("DQMStore")
-process.load("Validation.RecoEgamma.ElectronMcFakePostValidator_cfi")
+process.load("Validation.RecoEgamma.ElectronMcSignalPostValidatorMiniAOD_cfi")
 process.load("DQMServices.Components.DQMStoreStats_cfi")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -31,8 +36,8 @@ localFileInput = os.environ['TEST_HISTOS_FILE'].replace(".root", "_a.root") #
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring("file:" + localFileInput),
 secondaryFileNames = cms.untracked.vstring(),)
 
-process.electronMcFakePostValidator.InputFolderName = cms.string("EgammaV/ElectronMcFakeValidator")
-process.electronMcFakePostValidator.OutputFolderName = cms.string("EgammaV/ElectronMcFakeValidator")
+process.electronMcSignalPostValidatorMiniAOD.InputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorMiniAOD")
+process.electronMcSignalPostValidatorMiniAOD.OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorMiniAOD")
 
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
@@ -42,7 +47,7 @@ process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
 process.dqmSaver.workflow = '/electronHistos/' + t1[1] + '/RECO3'
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
-process.p = cms.Path(process.EDMtoME * process.electronMcFakePostValidator * process.dqmStoreStats)
+process.p = cms.Path(process.EDMtoME * process.electronMcSignalPostValidatorMiniAOD * process.dqmStoreStats)
 
 # Schedule
 process.schedule = cms.Schedule(
