@@ -12,7 +12,7 @@ process.testTree = cms.EDAnalyzer(
    "ShallowTree",
    outputCommands = cms.untracked.vstring(
       'drop *',
-      'keep *_GainCalibration_*_*',
+      'keep *_shallowGainCalibration_*_*',
       )
    )
 process.p = cms.Path(process.MeasurementTrackerEvent*process.tracksRefit*process.shallowGainCalibration*process.testTree)
