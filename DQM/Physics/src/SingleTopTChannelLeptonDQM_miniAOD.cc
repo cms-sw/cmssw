@@ -2,19 +2,18 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
-#include "DQM/Physics/src/TopSingleLeptonDQM_miniAOD.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DQM/Physics/src/SingleTopTChannelLeptonDQM_miniAOD.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include <iostream>
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
-
-#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/MET.h"
 using namespace std;
-namespace TopSingleLepton_miniAOD {
+namespace SingleTopTChannelLepton_miniAOD {
 
 // maximal number of leading jets
 // to be used for top mass estimate
@@ -25,65 +24,52 @@ static const double WMASS = 80.4;
 
 MonitorEnsemble::MonitorEnsemble(const char* label,
                                  const edm::ParameterSet& cfg,
+                                 const edm::VParameterSet& vcfg,
                                  edm::ConsumesCollector&& iC)
     : label_(label),
-      elecIso_(nullptr),
-      elecSelect_(nullptr),
       pvSelect_(nullptr),
-      muonIso_(nullptr),
-      muonSelect_(nullptr),
       jetIDSelect_(nullptr),
       includeBTag_(false),
       lowerEdge_(-1.),
       upperEdge_(-1.),
       logged_(0) {
-
   // sources have to be given; this PSet is not optional
   edm::ParameterSet sources = cfg.getParameter<edm::ParameterSet>("sources");
- // muons_ = iC.consumes<edm::View<reco::PFCandidate> >(
- //     sources.getParameter<edm::InputTag>("muons"));
+  muons_ = iC.consumes<edm::View<pat::Muon>>(
+      sources.getParameter<edm::InputTag>("muons"));
+  elecs_gsf_ = iC.consumes<edm::View<pat::Electron>>(
+      sources.getParameter<edm::InputTag>("elecs_gsf"));
 
-
-  muons_ = iC.consumes<edm::View<pat::Muon> >(
-    sources.getParameter<edm::InputTag>("muons"));
-
-
-  elecs_ = iC.consumes<edm::View<pat::Electron> >(
-      sources.getParameter<edm::InputTag>("elecs"));
-  pvs_ = iC.consumes<edm::View<reco::Vertex> >(
-      sources.getParameter<edm::InputTag>("pvs"));
-  jets_ = iC.consumes<edm::View<pat::Jet> >(
+  jets_ = iC.consumes<edm::View<pat::Jet>>(
       sources.getParameter<edm::InputTag>("jets"));
   for (edm::InputTag const& tag :
-       sources.getParameter<std::vector<edm::InputTag> >("mets"))
-    mets_.push_back(iC.consumes<edm::View<pat::MET> >(tag));
+       sources.getParameter<std::vector<edm::InputTag>>("mets"))
+    mets_.push_back(iC.consumes<edm::View<pat::MET>>(tag));
+  pvs_ = iC.consumes<edm::View<reco::Vertex>>(
+      sources.getParameter<edm::InputTag>("pvs"));
   // electronExtras are optional; they may be omitted or
   // empty
   if (cfg.existsAs<edm::ParameterSet>("elecExtras")) {
-    // rho for PF isolation with EA corrections
-    // eventrhoToken_ =
-    // iC.consumes<double>(edm::InputTag("fixedGridRhoFastjetAll"));
-
     edm::ParameterSet elecExtras =
         cfg.getParameter<edm::ParameterSet>("elecExtras");
     // select is optional; in case it's not found no
     // selection will be applied
     if (elecExtras.existsAs<std::string>("select")) {
-      elecSelect_.reset( new StringCutObjectSelector<pat::Electron>(
-          elecExtras.getParameter<std::string>("select")));
+      elecSelect_ = vcfg[1].getParameter<std::string>("select");
     }
     // isolation is optional; in case it's not found no
     // isolation will be applied
     if (elecExtras.existsAs<std::string>("isolation")) {
-      elecIso_.reset( new StringCutObjectSelector<pat::Electron>(
-          elecExtras.getParameter<std::string>("isolation")));
+      elecIso_ = elecExtras.getParameter<std::string>("isolation");
     }
+
+
     // electronId is optional; in case it's not found the
     // InputTag will remain empty
     if (elecExtras.existsAs<edm::ParameterSet>("electronId")) {
       edm::ParameterSet elecId =
           elecExtras.getParameter<edm::ParameterSet>("electronId");
-      electronId_ = iC.consumes<edm::ValueMap<float> >(
+      electronId_ = iC.consumes<edm::ValueMap<float>>(
           elecId.getParameter<edm::InputTag>("src"));
       eidCutValue_ = elecId.getParameter<double>("cutValue");
     }
@@ -100,22 +86,24 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
     }
   }
   // muonExtras are optional; they may be omitted or empty
-  if (cfg.existsAs<edm::ParameterSet>("muonExtras")) {
+  if (cfg.existsAs<edm::ParameterSet>(
+          "muonExtras")) {  // && vcfg.existsAs<std::vector<edm::ParameterSet>
+                            // >("selection")){
     edm::ParameterSet muonExtras =
         cfg.getParameter<edm::ParameterSet>("muonExtras");
+
     // select is optional; in case it's not found no
     // selection will be applied
     if (muonExtras.existsAs<std::string>("select")) {
-      muonSelect_.reset(new StringCutObjectSelector<pat::Muon>(
-          muonExtras.getParameter<std::string>("select")));
+      muonSelect_ = vcfg[1].getParameter<std::string>("select");
     }
     // isolation is optional; in case it's not found no
     // isolation will be applied
     if (muonExtras.existsAs<std::string>("isolation")) {
-      muonIso_.reset(new StringCutObjectSelector<pat::Muon>(
-          muonExtras.getParameter<std::string>("isolation")));
+      muonIso_ = muonExtras.getParameter<std::string>("isolation");
     }
   }
+
 
   // jetExtras are optional; they may be omitted or
   // empty
@@ -140,15 +128,18 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
     // selection will be applied (only implemented for
     // CaloJets at the moment)
     if (jetExtras.existsAs<std::string>("select")) {
+
       jetSelect_ = jetExtras.getParameter<std::string>("select");
+      jetSelect_ = vcfg[2].getParameter<std::string>("select");
     }
+
     // jetBDiscriminators are optional; in case they are
     // not found the InputTag will remain empty; they
     // consist of pairs of edm::JetFlavorAssociation's &
     // corresponding working points
     /* includeBTag_ = jetExtras.existsAs<edm::ParameterSet>("jetBTaggers");
     if (includeBTag_) {
-     edm::ParameterSet btagEff =
+      edm::ParameterSet btagEff =
           jetExtras.getParameter<edm::ParameterSet>("jetBTaggers")
               .getParameter<edm::ParameterSet>("trackCountingEff");
       btagEff_ = iC.consumes<reco::JetTagCollection>(
@@ -166,15 +157,14 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
       btagVtx_ = iC.consumes<reco::JetTagCollection>(
           btagVtx.getParameter<edm::InputTag>("label"));
       btagVtxWP_ = btagVtx.getParameter<double>("workingPoint");
-      edm::ParameterSet btagCSV =
+      edm::ParameterSet btagCombVtx =
           jetExtras.getParameter<edm::ParameterSet>("jetBTaggers")
-              .getParameter<edm::ParameterSet>("cvsVertex");
-      btagCSV_ = iC.consumes<reco::JetTagCollection>(
-          btagCSV.getParameter<edm::InputTag>("label"));
-      btagCSVWP_ = btagCSV.getParameter<double>("workingPoint");
-
-
-    }*/
+              .getParameter<edm::ParameterSet>("combinedSecondaryVertex");
+      btagCombVtx_ = iC.consumes<reco::JetTagCollection>(
+          btagCombVtx.getParameter<edm::InputTag>("label"));
+      btagCombVtxWP_ = btagCombVtx.getParameter<double>("workingPoint");
+    }
+  */
   }
 
   // triggerExtras are optional; they may be omitted or empty
@@ -184,7 +174,7 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
     triggerTable_ = iC.consumes<edm::TriggerResults>(
         triggerExtras.getParameter<edm::InputTag>("src"));
     triggerPaths_ =
-        triggerExtras.getParameter<std::vector<std::string> >("paths");
+        triggerExtras.getParameter<std::vector<std::string>>("paths");
   }
 
   // massExtras is optional; in case it's not found no mass
@@ -214,7 +204,18 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
   }
   // and don't forget to do the histogram booking
   directory_ = cfg.getParameter<std::string>("directory");
-  // book(ibooker);
+
+
+  muonSelect.reset(new StringCutObjectSelector<pat::Muon, true>(muonSelect_)); 
+  muonIso.reset(new StringCutObjectSelector<pat::Muon, true>(muonIso_)); 
+  
+  //jetSelectCalo=0;
+  //jetSelectPF=0;
+  //jetSelectJet=0;
+  
+  elecSelect.reset(new StringCutObjectSelector<pat::Electron, true>(elecSelect_)); 
+  elecIso.reset(new StringCutObjectSelector<pat::Electron, true>(elecIso_)); 
+
 }
 
 void MonitorEnsemble::book(DQMStore::IBooker & ibooker) {
@@ -227,23 +228,18 @@ void MonitorEnsemble::book(DQMStore::IBooker & ibooker) {
   unsigned int nPaths = triggerPaths_.size();
 
   // --- [STANDARD] --- //
-  // Run Number
-  hists_["RunNumb_"] = ibooker.book1D("RunNumber", "Run Nr.", 1.e4, 1.5e5, 3.e5);
-  // instantaneous luminosity
-  hists_["InstLumi_"] = ibooker.book1D("InstLumi", "Inst. Lumi.", 100, 0., 1.e3);
   // number of selected primary vertices
   hists_["pvMult_"] = ibooker.book1D("PvMult", "N_{pvs}", 100, 0., 100.);
   // pt of the leading muon
   hists_["muonPt_"] = ibooker.book1D("MuonPt", "pt(#mu)", 50, 0., 250.);
   // muon multiplicity before std isolation
-  hists_["muonMult_"] = ibooker.book1D("MuonMult", "N_{All}(#mu)", 10, 0., 10.);
+  hists_["muonMult_"] = ibooker.book1D("MuonMult", "N_{20}(#mu)", 10, 0., 10.);
   // muon multiplicity after  std isolation
-  hists_["muonMultIso_"] = ibooker.book1D("MuonMultIso",
-      "N_{Iso}(#mu)", 10, 0., 10.);
+  hists_["muonMultIso_"] = ibooker.book1D("MuonMultIso", "N_{Iso}(#mu)", 10, 0., 10.);
   // pt of the leading electron
   hists_["elecPt_"] = ibooker.book1D("ElecPt", "pt(e)", 50, 0., 250.);
   // electron multiplicity before std isolation
-  hists_["elecMult_"] = ibooker.book1D("ElecMult", "N_{All}(e)", 10, 0., 10.);
+  hists_["elecMult_"] = ibooker.book1D("ElecMult", "N_{30}(e)", 10, 0., 10.);
   // electron multiplicity after  std isolation
   hists_["elecMultIso_"] = ibooker.book1D("ElecMultIso", "N_{Iso}(e)", 10, 0., 10.);
   // multiplicity of jets with pt>20 (corrected to L2+L3)
@@ -254,57 +250,94 @@ void MonitorEnsemble::book(DQMStore::IBooker & ibooker) {
   // monitored trigger occupancy for single lepton triggers
   hists_["triggerMon_"] = ibooker.book1D("TriggerMon",
       "Mon(trigger)", nPaths, 0., nPaths);
-  // MET (calo)
+
   hists_["slimmedMETs_"] = ibooker.book1D("slimmedMETs", "MET_{slimmed}", 50, 0., 200.);
+
+  // MET (calo)
+  hists_["slimmedMETsNoHF_"] = ibooker.book1D("slimmedMETsNoHF", "MET_{slimmedNoHF}", 50, 0., 200.);
+  // MET (pflow)
+  hists_["slimmedMETsPuppi_"] = ibooker.book1D("slimmedMETsPuppi", "MET_{slimmedPuppi}", 50, 0., 200.);
   // W mass estimate
   hists_["massW_"] = ibooker.book1D("MassW", "M(W)", 60, 0., 300.);
   // Top mass estimate
   hists_["massTop_"] = ibooker.book1D("MassTop", "M(Top)", 50, 0., 500.);
-  // b-tagged Top mass
-  hists_["massBTop_"] = ibooker.book1D("MassBTop", "M(Top, 1 b-tag)", 50, 0., 500.);
+  // W mass transverse estimate mu
+  hists_["MTWm_"] = ibooker.book1D("MTWm", "M_{T}^{W}(#mu)", 60, 0., 300.);
+  // Top mass transverse estimate mu
+  hists_["mMTT_"] = ibooker.book1D("mMTT", "M_{T}^{t}(#mu)", 50, 0., 500.);
+
+  // W mass transverse estimate e
+  hists_["MTWe_"] = ibooker.book1D("MTWe", "M_{T}^{W}(e)", 60, 0., 300.);
+  // Top mass transverse estimate e
+  hists_["eMTT_"] = ibooker.book1D("eMTT", "M_{T}^{t}(e)", 50, 0., 500.);
+
   // set bin labels for trigger monitoring
   triggerBinLabels(std::string("trigger"), triggerPaths_);
 
   if (verbosity_ == STANDARD) return;
 
   // --- [VERBOSE] --- //
+
   // eta of the leading muon
   hists_["muonEta_"] = ibooker.book1D("MuonEta", "#eta(#mu)", 30, -3., 3.);
-  // relative isolation of the candidate muon (depending on the decay channel)
-  hists_["muonRelIso_"] = ibooker.book1D(
-      "MuonRelIso", "Iso_{Rel}(#mu) (#Delta#beta Corrected)", 50, 0., 1.);
+  // std isolation variable of the leading muon
+  hists_["muonPFRelIso_"] = ibooker.book1D("MuonPFRelIso",
+      "PFIso_{Rel}(#mu)", 50, 0., 1.);
+  hists_["muonRelIso_"] = ibooker.book1D("MuonRelIso", "Iso_{Rel}(#mu)", 50, 0., 1.);
+
   // eta of the leading electron
   hists_["elecEta_"] = ibooker.book1D("ElecEta", "#eta(e)", 30, -3., 3.);
   // std isolation variable of the leading electron
   hists_["elecRelIso_"] = ibooker.book1D("ElecRelIso", "Iso_{Rel}(e)", 50, 0., 1.);
+  hists_["elecPFRelIso_"] = ibooker.book1D("ElecPFRelIso",
+      "PFIso_{Rel}(e)", 50, 0., 1.);
+
   // multiplicity of btagged jets (for track counting high efficiency) with
   // pt(L2L3)>30
   hists_["jetMultBEff_"] = ibooker.book1D("JetMultBEff",
-      "N_{30}(TCHE)", 10, 0., 10.);
+      "N_{30}(b/eff)", 10, 0., 10.);
   // btag discriminator for track counting high efficiency for jets with
   // pt(L2L3)>30
   hists_["jetBDiscEff_"] = ibooker.book1D("JetBDiscEff",
-      "Disc_{TCHE}(jet)", 100, 0., 10.);
-  // eta of the 1. leading jet (corrected to L2+L3)
-  hists_["jet1Eta_"] = ibooker.book1D("Jet1Eta", "#eta_{L2L3}(jet1)", 60, -3., 3.);
+      "Disc_{b/eff}(jet)", 100, 0., 10.);
+
+  // eta of the 1. leading jet
+  hists_["jet1Eta_"] = ibooker.book1D("Jet1Eta", "#eta (jet1)", 50, -5., 5.);
+  // eta of the 2. leading jet
+  hists_["jet2Eta_"] = ibooker.book1D("Jet2Eta", "#eta (jet2)", 50, -5., 5.);
+
   // pt of the 1. leading jet (corrected to L2+L3)
   hists_["jet1Pt_"] = ibooker.book1D("Jet1Pt", "pt_{L2L3}(jet1)", 60, 0., 300.);
-  // eta of the 2. leading jet (corrected to L2+L3)
-  hists_["jet2Eta_"] = ibooker.book1D("Jet2Eta", "#eta_{L2L3}(jet2)", 60, -3., 3.);
   // pt of the 2. leading jet (corrected to L2+L3)
   hists_["jet2Pt_"] = ibooker.book1D("Jet2Pt", "pt_{L2L3}(jet2)", 60, 0., 300.);
-  // eta of the 3. leading jet (corrected to L2+L3)
-  hists_["jet3Eta_"] = ibooker.book1D("Jet3Eta", "#eta_{L2L3}(jet3)", 60, -3., 3.);
-  // pt of the 3. leading jet (corrected to L2+L3)
-  hists_["jet3Pt_"] = ibooker.book1D("Jet3Pt", "pt_{L2L3}(jet3)", 60, 0., 300.);
-  // eta of the 4. leading jet (corrected to L2+L3)
-  hists_["jet4Eta_"] = ibooker.book1D("Jet4Eta", "#eta_{L2L3}(jet4)", 60, -3., 3.);
-  // pt of the 4. leading jet (corrected to L2+L3)
-  hists_["jet4Pt_"] = ibooker.book1D("Jet4Pt", "pt_{L2L3}(jet4)", 60, 0., 300.);
-  // MET (tc)
-  hists_["slimmedMETsNoHF_"] = ibooker.book1D("slimmedMETsNoHF", "MET_{slimmedNoHF}", 50, 0., 200.);
-  // MET (pflow)
-  hists_["slimmedMETsPuppi_"] = ibooker.book1D("slimmedMETsPuppi", "MET_{slimmedPuppi}", 50, 0., 200.);
+
+  // eta and pt of the b-tagged jet (filled only when nJets==2)
+  hists_["TaggedJetEta_"] = ibooker.book1D("TaggedJetEta",
+      "#eta (Tagged jet)", 50, -5., 5.);
+  hists_["TaggedJetPt_"] = ibooker.book1D("TaggedJetPt",
+      "pt_{L2L3}(Tagged jet)", 60, 0., 300.);
+
+  // eta and pt of the jet not passing b-tag (filled only when nJets==2)
+  hists_["UnTaggedJetEta_"] = ibooker.book1D("UnTaggedJetEta",
+      "#eta (UnTagged jet)", 50, -5., 5.);
+  hists_["UnTaggedJetPt_"] = ibooker.book1D("UnTaggedJetPt",
+      "pt_{L2L3}(UnTagged jet)", 60, 0., 300.);
+
+  // eta and pt of the most forward jet in the event with nJets==2
+  hists_["FwdJetEta_"] = ibooker.book1D("FwdJetEta", "#eta (Fwd jet)", 50, -5., 5.);
+  hists_["FwdJetPt_"] = ibooker.book1D("FwdJetPt",
+      "pt_{L2L3}(Fwd jet)", 60, 0., 300.);
+
+  // 2D histogram (pt,eta) of the b-tagged jet (filled only when nJets==2)
+  hists_["TaggedJetPtEta_"] = ibooker.book2D("TaggedJetPt_Eta",
+      "(pt vs #eta)_{L2L3}(Tagged jet)", 60, 0., 300., 50, -5., 5.);
+
+  // 2D histogram (pt,eta) of the not-b tagged jet (filled only when nJets==2)
+  hists_["UnTaggedJetPtEta_"] = ibooker.book2D("UnTaggedJetPt_Eta",
+    "(pt vs #eta)_{L2L3}(UnTagged jet)", 60, 0., 300., 50, -5., 5.);
+
+
+
   // dz for muons (to suppress cosmis)
   hists_["muonDelZ_"] = ibooker.book1D("MuonDelZ", "d_{z}(#mu)", 50, -25., 25.);
   // dxy for muons (to suppress cosmics)
@@ -318,56 +351,65 @@ void MonitorEnsemble::book(DQMStore::IBooker & ibooker) {
   if (verbosity_ == VERBOSE) return;
 
   // --- [DEBUG] --- //
-  // charged hadron isolation component of the candidate muon (depending on the
-  // decay channel)
-  hists_["muonChHadIso_"] = ibooker.book1D("MuonChHadIsoComp",
-      "ChHad_{IsoComponent}(#mu)", 50, 0., 5.);
-  // neutral hadron isolation component of the candidate muon (depending on the
-  // decay channel)
-  hists_["muonNeHadIso_"] = ibooker.book1D("MuonNeHadIsoComp",
-      "NeHad_{IsoComponent}(#mu)", 50, 0., 5.);
-  // photon isolation component of the candidate muon (depending on the decay
-  // channel)
-  hists_["muonPhIso_"] = ibooker.book1D("MuonPhIsoComp",
-      "Photon_{IsoComponent}(#mu)", 50, 0., 5.);
-  // charged hadron isolation component of the candidate electron (depending on
-  // the decay channel)
-  hists_["elecChHadIso_"] = ibooker.book1D("ElectronChHadIsoComp",
-      "ChHad_{IsoComponent}(e)", 50, 0., 5.);
-  // neutral hadron isolation component of the candidate electron (depending on
-  // the decay channel)
-  hists_["elecNeHadIso_"] = ibooker.book1D("ElectronNeHadIsoComp",
-      "NeHad_{IsoComponent}(e)", 50, 0., 5.);
-  // photon isolation component of the candidate electron (depending on the
-  // decay channel)
-  hists_["elecPhIso_"] = ibooker.book1D("ElectronPhIsoComp",
-      "Photon_{IsoComponent}(e)", 50, 0., 5.);
+
+  // relative muon isolation from charged hadrons  for the leading muon
+  hists_["muonChHadIso_"] = ibooker.book1D("MuonChHadIso",
+      "Iso_{ChHad}(#mu)", 100, 0., 1.);
+  // relative muon isolation from neutral hadrons for the leading muon
+  hists_["muonNeuHadIso_"] = ibooker.book1D("MuonNeuHadIso",
+      "Iso_{NeuHad}(#mu)", 100, 0., 1.);
+  // relative muon isolation from photons for the leading muon
+  hists_["muonPhIso_"] = ibooker.book1D("MuonPhIso", "Iso_{Ph}(#mu)", 100, 0., 1.);
+
+  // relative electron isolation from charged hadrons for the leading electron
+  hists_["elecChHadIso_"] = ibooker.book1D("ElecChHadIso",
+      "Iso_{ChHad}(e)", 100, 0., 1.);
+  // relative electron isolation from neutral hadrons for the leading electron
+  hists_["elecNeuHadIso_"] = ibooker.book1D("ElecNeuHadIso",
+      "Iso_{NeuHad}(e)", 100, 0., 1.);
+  // relative electron isolation from photons for the leading electron
+  hists_["elecPhIso_"] = ibooker.book1D("ElecPhIso", "Iso_{Ph}(e)", 100, 0., 1.);
+
   // multiplicity of btagged jets (for track counting high purity) with
   // pt(L2L3)>30
   hists_["jetMultBPur_"] = ibooker.book1D("JetMultBPur",
-      "N_{30}(TCHP)", 10, 0., 10.);
+      "N_{30}(b/pur)", 10, 0., 10.);
   // btag discriminator for track counting high purity
   hists_["jetBDiscPur_"] = ibooker.book1D("JetBDiscPur",
-      "Disc_{TCHP}(Jet)", 100, 0., 10.);
+      "Disc_{b/pur}(Jet)", 200, -10., 10.);
+  // btag discriminator for track counting high purity for 1. leading jet
+  hists_["jet1BDiscPur_"] = ibooker.book1D("Jet1BDiscPur",
+      "Disc_{b/pur}(Jet1)", 200, -10., 10.);
+  // btag discriminator for track counting high purity for 2. leading jet
+  hists_["jet2BDiscPur_"] = ibooker.book1D("Jet2BDiscPur",
+      "Disc_{b/pur}(Jet2)", 200, -10., 10.);
+
   // multiplicity of btagged jets (for simple secondary vertex) with pt(L2L3)>30
   hists_["jetMultBVtx_"] = ibooker.book1D("JetMultBVtx",
-      "N_{30}(SSVHE)", 10, 0., 10.);
+      "N_{30}(b/vtx)", 10, 0., 10.);
   // btag discriminator for simple secondary vertex
   hists_["jetBDiscVtx_"] = ibooker.book1D("JetBDiscVtx",
-      "Disc_{SSVHE}(Jet)", 35, -1., 6.);
-  // multiplicity for combined secondary vertex
-  hists_["jetMultCSVtx_"] = ibooker.book1D("JetMultCSV", "N_{30}(CSV)", 10, 0., 10.);
+      "Disc_{b/vtx}(Jet)", 35, -1., 6.);
+
+  // multiplicity of btagged jets (for combined secondary vertex) with
+  // pt(L2L3)>30
+  hists_["jetMultBCombVtx_"] = ibooker.book1D("JetMultBCombVtx",
+      "N_{30}(b/CSV)", 10, 0., 10.);
   // btag discriminator for combined secondary vertex
-  hists_["jetBCVtx_"] = ibooker.book1D("JetDiscCSV",
-      "Disc_{CSV}(JET)", 100, -1., 2.);
+  hists_["jetBDiscCombVtx_"] = ibooker.book1D("JetBDiscCombVtx",
+      "Disc_{b/CSV}(Jet)", 60, -1., 2.);
+  // btag discriminator for combined secondary vertex for 1. leading jet
+  hists_["jet1BDiscCombVtx_"] = ibooker.book1D("Jet1BDiscCombVtx",
+      "Disc_{b/CSV}(Jet1)", 60, -1., 2.);
+  // btag discriminator for combined secondary vertex for 2. leading jet
+  hists_["jet2BDiscCombVtx_"] = ibooker.book1D("Jet2BDiscCombVtx",
+      "Disc_{b/CSV}(Jet2)", 60, -1., 2.);
+
   // pt of the 1. leading jet (uncorrected)
   hists_["jet1PtRaw_"] = ibooker.book1D("Jet1PtRaw", "pt_{Raw}(jet1)", 60, 0., 300.);
   // pt of the 2. leading jet (uncorrected)
   hists_["jet2PtRaw_"] = ibooker.book1D("Jet2PtRaw", "pt_{Raw}(jet2)", 60, 0., 300.);
-  // pt of the 3. leading jet (uncorrected)
-  hists_["jet3PtRaw_"] = ibooker.book1D("Jet3PtRaw", "pt_{Raw}(jet3)", 60, 0., 300.);
-  // pt of the 4. leading jet (uncorrected)
-  hists_["jet4PtRaw_"] = ibooker.book1D("Jet4PtRaw", "pt_{Raw}(jet4)", 60, 0., 300.);
+
   // selected events
   hists_["eventLogger_"] = ibooker.book2D("EventLogger",
       "Logged Events", 9, 0., 9., 10, 0., 10.);
@@ -389,23 +431,25 @@ void MonitorEnsemble::book(DQMStore::IBooker & ibooker) {
 
 void MonitorEnsemble::fill(const edm::Event& event,
                            const edm::EventSetup& setup) {
+  //cout<<"1"<<endl;
   // fetch trigger event if configured such
   edm::Handle<edm::TriggerResults> triggerTable;
-
   if (!triggerTable_.isUninitialized()) {
     if (!event.getByToken(triggerTable_, triggerTable)) return;
   }
-
+  //cout<<"2"<<endl;
   /*
-  ------------------------------------------------------------
+    ------------------------------------------------------------
 
-  Primary Vertex Monitoring
+    Primary Vertex Monitoring
 
-  ------------------------------------------------------------
+    ------------------------------------------------------------
   */
-  // fill monitoring plots for primary verices
-  edm::Handle<edm::View<reco::Vertex> > pvs;
+
+  // fill monitoring plots for primary vertices
+  edm::Handle<edm::View<reco::Vertex>> pvs;
   if (!event.getByToken(pvs_, pvs)) return;
+  //cout<<"3"<<endl;
   unsigned int pvMult = 0;
   for (edm::View<reco::Vertex>::const_iterator pv = pvs->begin();
        pv != pvs->end(); ++pv) {
@@ -414,151 +458,166 @@ void MonitorEnsemble::fill(const edm::Event& event,
   fill("pvMult_", pvMult);
 
   /*
-  ------------------------------------------------------------
+     ------------------------------------------------------------
 
-  Run and Inst. Luminosity information (Inst. Lumi. filled now with a dummy
-  value=5.0)
+     Electron Monitoring
 
-  ------------------------------------------------------------
-  */
-  if (!event.eventAuxiliary().run()) return;
-  fill("RunNumb_", event.eventAuxiliary().run());
-
-  double dummy = 5.;
-  fill("InstLumi_", dummy);
-
-  /*
-  ------------------------------------------------------------
-
-  Electron Monitoring
-
-  ------------------------------------------------------------
+     ------------------------------------------------------------
   */
 
   // fill monitoring plots for electrons
-  edm::Handle<edm::View<pat::Electron> > elecs;
-  if (!event.getByToken(elecs_, elecs)) return;
+  edm::Handle<edm::View<pat::Electron>> elecs_gsf;
 
+
+
+
+
+
+  if (!event.getByToken(elecs_gsf_, elecs_gsf)) return;
+  //cout<<"4"<<endl;
   // check availability of electron id
-  edm::Handle<edm::ValueMap<float> > electronId;
+/*  edm::Handle<edm::ValueMap<float>> electronId;
   if (!electronId_.isUninitialized()) {
-    if (!event.getByToken(electronId_, electronId)) return;
-  }
-
+    if (!event.getByToken(electronId_, electronId)) {
+      return;
+    }
+  }*/
   // loop electron collection
   unsigned int eMult = 0, eMultIso = 0;
   std::vector<const pat::Electron*> isoElecs;
+  pat::Electron e;
 
-//  for (edm::View<reco::PFCandidate>::const_iterator elec = elecs->begin();
-//       elec != elecs->end(); ++elec) {
-//    if (elec->gsfElectronRef().isNull()) {
-//      continue;
-//    }
-
- for (edm::View<pat::Electron>::const_iterator elec = elecs->begin();
-       elec != elecs->end(); ++elec) {
+  unsigned int idx_gsf = 0;
+  for ( edm::View<pat::Electron>::const_iterator elec = elecs_gsf->begin(); elec != elecs_gsf->end(); ++elec) {
+   // if (elec->gsfElectronRef().isNull()) continue;
 
 
-//    reco::GsfElectronRef elec = elec->gsfElectronRef();
+
+
     // restrict to electrons with good electronId
- //   if (electronId_.isUninitialized() ? true : ((double)(*electronId)[elec] >=
- //                                               eidCutValue_)) {
+//    if (electronId_.isUninitialized() ? true : ((double)(*electronId)[elec] >=
+//                                                eidCutValue_)) {
 
-      if(true){//no electron id applied yet!
-      if (!elecSelect_ || (*elecSelect_)(*elec)) {
+   if (true){
+      if ((*elecSelect)(*elec)) {
+        double isolationRel =
+            (elec->dr03TkSumPt() + elec->dr03EcalRecHitSumEt() +
+             elec->dr03HcalTowerSumEt()) /
+            elec->pt();
 
+        double isolationChHad =
+            elec->pt() /
+            (elec->pt() + elec->pfIsolationVariables().sumChargedHadronPt);
+        double isolationNeuHad =
+            elec->pt() /
+            (elec->pt() + elec->pfIsolationVariables().sumNeutralHadronEt);
+        double isolationPhoton =
+            elec->pt() /
+            (elec->pt() + elec->pfIsolationVariables().sumPhotonEt);
         double el_ChHadIso = elec->pfIsolationVariables().sumChargedHadronPt;
         double el_NeHadIso = elec->pfIsolationVariables().sumNeutralHadronEt;
         double el_PhIso = elec->pfIsolationVariables().sumPhotonEt;
-        double el_pfRelIso =
+        double PFisolationRel =
             (el_ChHadIso +
              max(0., el_NeHadIso + el_PhIso -
                          0.5 * elec->pfIsolationVariables().sumPUPt)) /
             elec->pt();
+
         if (eMult == 0) {
           // restrict to the leading electron
           fill("elecPt_", elec->pt());
           fill("elecEta_", elec->eta());
-          fill("elecRelIso_", el_pfRelIso);
-          fill("elecChHadIso_", el_ChHadIso);
-          fill("elecNeHadIso_", el_NeHadIso);
-          fill("elecPhIso_", el_PhIso);
+          fill("elecRelIso_", isolationRel);
+          fill("elecPFRelIso_", PFisolationRel);
+          fill("elecChHadIso_", isolationChHad);
+          fill("elecNeuHadIso_", isolationNeuHad);
+          fill("elecPhIso_", isolationPhoton);
         }
         // in addition to the multiplicity counter buffer the iso
         // electron candidates for later overlap check with jets
         ++eMult;
-        if (!elecIso_ || (*elecIso_)(*elec)) {
+        if ((*elecIso)(*elec)) {
+          if (eMultIso == 0) e = *elec;
           isoElecs.push_back(&(*elec));
           ++eMultIso;
         }
       }
     }
+    idx_gsf++;
   }
+
   fill("elecMult_", eMult);
   fill("elecMultIso_", eMultIso);
 
   /*
-  ------------------------------------------------------------
+     ------------------------------------------------------------
 
-  Muon Monitoring
+     Muon Monitoring
 
-  ------------------------------------------------------------
+     ------------------------------------------------------------
   */
 
   // fill monitoring plots for muons
   unsigned int mMult = 0, mMultIso = 0;
 
-  edm::Handle<edm::View<pat::Muon> > muons;
-  edm::View<pat::Muon>::const_iterator muonit;
+  edm::Handle<edm::View<pat::Muon>> muons;
+  //edm::View<pat::Muon>::const_iterator muonit;
+  //reco::MuonRef muon;
+  pat::Muon mu;
 
   if (!event.getByToken(muons_, muons)) return;
+  //cout<<"5"<<endl;
+  for (edm::View<pat::Muon>::const_iterator muon = muons->begin(); muon != muons->end();
+       ++muon) {  // for now, to use Reco::Muon need to substitute  muonit
+                    // with muon
+                    // and comment the MuonRef and PFCandidate parts
 
-//for (edm::View<pat::Muon>::const_iterator muonit = muons->begin();
-//       muonit != muons->end(); ++muonit) {
+    //if (muonit->muonRef().isNull()) continue;
+    //reco::MuonRef muon = muonit->muonRef();
 
-
-  for (edm::View<pat::Muon>::const_iterator muon = muons->begin();
-       muon != muons->end(); ++muon) {
-
-
-
-//    if (muonit->muonRef().isNull()) continue;
-//    reco::MuonRef muon = muonit->muonRef();
+    //if (muon->innerTrack().isNull()) continue;
 
     // restrict to globalMuons
     if (muon->isGlobalMuon()) {
-      fill("muonDelZ_", muon->innerTrack()->vz());  // CB using inner track!
-      fill("muonDelXY_", muon->innerTrack()->vx(), muon->innerTrack()->vy());
+      fill("muonDelZ_", muon->globalTrack()->vz());
+      fill("muonDelXY_", muon->globalTrack()->vx(), muon->globalTrack()->vy());
 
+      // apply selection
+      if ((*muonSelect)(*muon)) {
 
-
-      // apply preselection
-      if (!muonSelect_ || (*muonSelect_)(*muon)) {
-   
-//      if (true){
-
-        double chHadPt = muon->pfIsolationR04().sumChargedHadronPt;
-        double neHadEt = muon->pfIsolationR04().sumNeutralHadronEt;
-        double phoEt = muon->pfIsolationR04().sumPhotonEt;
-
-        double pfRelIso =
-            (chHadPt +
-             max(0., neHadEt + phoEt - 0.5 * muon->pfIsolationR04().sumPUPt)) /
-            muon->pt();  // CB dBeta corrected iso!
+        double isolationRel =
+            (muon->isolationR03().sumPt + muon->isolationR03().emEt +
+             muon->isolationR03().hadEt) /
+            muon->pt();
+        double isolationChHad =
+            muon->pt() /
+            (muon->pt() + muon->pfIsolationR04().sumChargedHadronPt);
+        double isolationNeuHad =
+            muon->pt() /
+            (muon->pt() + muon->pfIsolationR04().sumNeutralHadronEt);
+        double isolationPhoton =
+            muon->pt() / (muon->pt() + muon->pfIsolationR04().sumPhotonEt);
+        double PFisolationRel = (muon->pfIsolationR04().sumChargedHadronPt +
+                                 muon->pfIsolationR04().sumNeutralHadronEt +
+                                 muon->pfIsolationR04().sumPhotonEt) /
+                                muon->pt();
 
         if (mMult == 0) {
           // restrict to leading muon
           fill("muonPt_", muon->pt());
           fill("muonEta_", muon->eta());
-
-          fill("muonRelIso_", pfRelIso);
-
-          fill("muonChHadIso_", chHadPt);
-          fill("muonNeHadIso_", neHadEt);
-          fill("muonPhIso_", phoEt);
+          fill("muonRelIso_", isolationRel);
+          fill("muonChHadIso_", isolationChHad);
+          fill("muonNeuHadIso_", isolationNeuHad);
+          fill("muonPhIso_", isolationPhoton);
+          fill("muonPFRelIso_", PFisolationRel);
         }
         ++mMult;
-        if (!muonIso_ || (*muonIso_)(*muon)) ++mMultIso;
+
+        if ((*muonIso)(*muon)) {
+          if (mMultIso == 0) mu = *muon;
+          ++mMultIso;
+        }
       }
     }
   }
@@ -566,50 +625,44 @@ void MonitorEnsemble::fill(const edm::Event& event,
   fill("muonMultIso_", mMultIso);
 
   /*
-  ------------------------------------------------------------
+     ------------------------------------------------------------
 
-  Jet Monitoring
+     Jet Monitoring
 
-  ------------------------------------------------------------
+     ------------------------------------------------------------
   */
-
   // check availability of the btaggers
-/*  edm::Handle<reco::JetTagCollection> btagEff, btagPur, btagVtx, btagCSV;
+/*  edm::Handle<reco::JetTagCollection> btagEff, btagPur, btagVtx, btagCombVtx;
   if (includeBTag_) {
     if (!event.getByToken(btagEff_, btagEff)) return;
     if (!event.getByToken(btagPur_, btagPur)) return;
     if (!event.getByToken(btagVtx_, btagVtx)) return;
-    if (!event.getByToken(btagCSV_, btagCSV)) return;
+    if (!event.getByToken(btagCombVtx_, btagCombVtx)) return;
   }*/
+
   // load jet corrector if configured such
-/*  const JetCorrector* corrector = 0;
+ /* const JetCorrector* corrector = 0;
   if (!jetCorrector_.empty()) {
     // check whether a jet correcto is in the event setup or not
     if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<
             JetCorrectionsRecord>())) {
       corrector = JetCorrector::getJetCorrector(jetCorrector_, setup);
     } else {
-      edm::LogVerbatim("TopSingleLeptonDQM_miniAOD")
+      edm::LogVerbatim("SingleTopTChannelLeptonDQM_miniAOD")
           << "\n"
           << "-----------------------------------------------------------------"
              "-------------------- \n"
-          << " No JetCorrectionsRecord available from EventSetup:              "
-             "                     \n"
-          << "  - Jets will not be corrected.                                  "
-             "                     \n"
+          << " No JetCorrectionsRecord available from EventSetup:\n"
+          << "  - Jets will not be corrected.\n"
           << "  - If you want to change this add the following lines to your "
-             "cfg file:              \n"
-          << "                                                                 "
-             "                     \n"
-          << "  ## load jet corrections                                        "
-             "                     \n"
+             "cfg file:\n"
+          << "\n"
+          << "  ## load jet corrections\n"
           << "  "
              "process.load(\"JetMETCorrections.Configuration."
              "JetCorrectionServicesAllAlgos_cff\") \n"
-          << "  process.prefer(\"ak5CaloL2L3\")                                "
-             "                     \n"
-          << "                                                                 "
-             "                     \n"
+          << "  process.prefer(\"ak5CaloL2L3\")\n"
+          << "\n"
           << "-----------------------------------------------------------------"
              "-------------------- \n";
     }
@@ -617,100 +670,195 @@ void MonitorEnsemble::fill(const edm::Event& event,
 
   // loop jet collection
   std::vector<pat::Jet> correctedJets;
-  std::vector<double> JetTagValues;
-  unsigned int mult = 0, multBEff = 0, multBPur = 0, multBVtx = 0, multCSV = 0;
+  unsigned int mult = 0, multBEff = 0, multBPur = 0, multNoBPur = 0,
+               multBVtx = 0, multBCombVtx = 0;
 
-  edm::Handle<edm::View<pat::Jet> > jets;
-  if (!event.getByToken(jets_, jets)) {
-    return;
-  }
-
-  //edm::Handle<reco::JetIDValueMap> jetID;
-/*  if (jetIDSelect_) {
+  edm::Handle<edm::View<pat::Jet>> jets;
+  if (!event.getByToken(jets_, jets)) return;
+  //cout<<"6"<<endl;
+/*  edm::Handle<reco::JetIDValueMap> jetID;
+  if (jetIDSelect_) {
     if (!event.getByToken(jetIDLabel_, jetID)) return;
   }*/
 
+  vector<double> bJetDiscVal;
+  vector<double> NobJetDiscVal;
+  pat::Jet TaggedJetCand;
+  pat::Jet UnTaggedJetCand;
+  pat::Jet FwdJetCand;
   for (edm::View<pat::Jet>::const_iterator jet = jets->begin();
        jet != jets->end(); ++jet) {
     // check jetID for calo jets
-    unsigned int idx = jet - jets->begin();
-  //  if (jetIDSelect_ &&
-  //      dynamic_cast<const reco::CaloJet*>(jets->refAt(idx).get())) {
-  //    if (!(*jetIDSelect_)((*jetID)[jets->refAt(idx)])) continue;
-  //  }
-    // chekc additional jet selection for calo, pf and bare reco jets
- //   if (dynamic_cast<const reco::CaloJet*>(&*jet)) {
- //     reco::CaloJet sel = dynamic_cast<const reco::CaloJet&>(*jet);
- //     sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
- //     StringCutObjectSelector<reco::CaloJet> jetSelect(jetSelect_);
- //     if (!jetSelect(sel)) {
- //       continue;
- //     }
- //   } else if (dynamic_cast<const reco::PFJet*>(&*jet)) {
- //     reco::PFJet sel = dynamic_cast<const reco::PFJet&>(*jet);
- //     sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
- //     StringCutObjectSelector<reco::PFJet> jetSelect(jetSelect_);
- //     if (!jetSelect(sel)) continue;
-   // } else {
+   // unsigned int idx = jet - jets->begin();
+/*    if (dynamic_cast<const reco::CaloJet*>(&*jet)) {
+      if (jetIDSelect_ &&
+          dynamic_cast<const reco::CaloJet*>(jets->refAt(idx).get())) {
+        if (!(*jetIDSelect_)((*jetID)[jets->refAt(idx)])) continue;
+      }
+    }
+
+    // check additional jet selection for calo, pf and bare reco jets
+    if (dynamic_cast<const reco::CaloJet*>(&*jet)) {
+      reco::CaloJet sel = dynamic_cast<const reco::CaloJet&>(*jet);
+      sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
+      if ( jetSelectCalo==0)
+	jetSelectCalo.reset(new StringCutObjectSelector<reco::CaloJet>(jetSelect_));
+      if (!((*jetSelectCalo)(sel))) {
+        continue;
+      }
+    } else if (dynamic_cast<const reco::PFJet*>(&*jet)) {
+      reco::PFJet sel = dynamic_cast<const reco::PFJet&>(*jet);
+      sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
+      if ( jetSelectPF==0)
+	jetSelectPF.reset(new StringCutObjectSelector<reco::PFJet>(jetSelect_));
+      if (!((*jetSelectPF)(sel))) continue;
+    } else {*/
       pat::Jet sel = *jet;
-   //   sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
-      StringCutObjectSelector<pat::Jet> jetSelect(jetSelect_);
-      if (!jetSelect(sel)) continue;
+      //sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
+      if ( jetSelectJet==0)
+	jetSelectJet.reset(new StringCutObjectSelector<pat::Jet>(jetSelect_));
+
+      if (!((*jetSelectJet)(sel))) continue;
    // }
+    // check for overlaps -- comment this to be synchronous with the selection
+    // bool overlap=false;
+    // for(std::vector<const pat::Electron*>::const_iterator
+    // elec=isoElecs.begin(); elec!=isoElecs.end(); ++elec){
+    //  if(reco::deltaR((*elec)->eta(), (*elec)->phi(), jet->eta(),
+    // jet->phi())<0.4){overlap=true; break;}
+    //} if(overlap){continue;}
 
     // prepare jet to fill monitor histograms
     pat::Jet monitorJet = *jet;
- //   monitorJet.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
+   // monitorJet.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
     correctedJets.push_back(monitorJet);
+
     ++mult;  // determine jet multiplicity
-//    if (includeBTag_) {
-      // fill b-discriminators
-//      edm::RefToBase<pat::Jet> jetRef = jets->refAt(idx);
-//      fill("jetBDiscEff_", (*btagEff)[jetRef]);
-//      if ((*btagEff)[jetRef] > btagEffWP_) ++multBEff;
-//      fill("jetBDiscPur_", (*btagPur)[jetRef]);
-//      if ((*btagPur)[jetRef] > btagPurWP_) ++multBPur;
-//      fill("jetBDiscVtx_", (*btagVtx)[jetRef]);
-//      if ((*btagVtx)[jetRef] > btagVtxWP_) ++multBVtx;
-//      fill("jetBCVtx_", (*btagCSV)[jetRef]);
-//      if ((*btagCSV)[jetRef] > btagCSVWP_) ++multCSV;
 
 
       fill("jetBDiscEff_", monitorJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")); //hard coded discriminator and value right now.
       if (monitorJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.89) ++multBEff;
 
 
-      // Fill a vector with Jet b-tag WP for later M3+1tag calculation: CSV
-      // tagger
-      JetTagValues.push_back(monitorJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
-//    }
-    // fill pt (raw or L2L3) for the leading four jets
-    if (idx == 0) {
+
+      if (monitorJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.89) {
+        if (multBPur == 0) {
+          TaggedJetCand = monitorJet;
+          // TaggedJetCand = *jet;
+          bJetDiscVal.push_back(monitorJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+
+        } else if (multBPur == 1) {
+          bJetDiscVal.push_back(monitorJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+          if (bJetDiscVal[1] > bJetDiscVal[0]) TaggedJetCand = monitorJet;
+          // TaggedJetCand = *jet;
+        }
+        ++multBPur;
+      } else {
+        if (multNoBPur == 0) {
+          UnTaggedJetCand = monitorJet;
+          NobJetDiscVal.push_back(monitorJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+
+        } else if (multNoBPur == 1) {
+          NobJetDiscVal.push_back(monitorJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+          if (NobJetDiscVal[1] < NobJetDiscVal[0]) UnTaggedJetCand = monitorJet;
+        }
+
+        ++multNoBPur;
+      }
+
+
+      if (monitorJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.89) ++multBEff;
+      if (mult == 1) {
+        fill("jet1BDiscPur_", monitorJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+      } else if (mult == 2) {
+        fill("jet2BDiscPur_", monitorJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+      }
+
+      fill("jetBDiscPur_", monitorJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+
+   /* if (includeBTag_) {
+      // fill b-discriminators
+      edm::RefToBase<pat::Jet> jetRef = jets->refAt(idx);
+      if ((*btagVtx)[jetRef] > btagVtxWP_) ++multBVtx;
+      if ((*btagCombVtx)[jetRef] > btagCombVtxWP_) ++multBCombVtx;
+      if ((*btagPur)[jetRef] > btagPurWP_) {
+        if (multBPur == 0) {
+          TaggedJetCand = monitorJet;
+          // TaggedJetCand = *jet;
+          bJetDiscVal.push_back((*btagPur)[jetRef]);
+
+        } else if (multBPur == 1) {
+          bJetDiscVal.push_back((*btagPur)[jetRef]);
+          if (bJetDiscVal[1] > bJetDiscVal[0]) TaggedJetCand = monitorJet;
+          // TaggedJetCand = *jet;
+        }
+        ++multBPur;
+      } else {
+        if (multNoBPur == 0) {
+          UnTaggedJetCand = monitorJet;
+          NobJetDiscVal.push_back((*btagPur)[jetRef]);
+
+        } else if (multNoBPur == 1) {
+          NobJetDiscVal.push_back((*btagPur)[jetRef]);
+          if (NobJetDiscVal[1] < NobJetDiscVal[0]) UnTaggedJetCand = monitorJet;
+        }
+
+        ++multNoBPur;
+      }
+
+      if ((*btagEff)[jetRef] > btagEffWP_) ++multBEff;
+
+      if (mult == 1) {
+        fill("jet1BDiscPur_", (*btagPur)[jetRef]);
+        fill("jet1BDiscCombVtx_", (*btagCombVtx)[jetRef]);
+      } else if (mult == 2) {
+        fill("jet2BDiscPur_", (*btagPur)[jetRef]);
+        fill("jet2BDiscCombVtx_", (*btagCombVtx)[jetRef]);
+      }
+
+      fill("jetBDiscEff_", (*btagEff)[jetRef]);
+      fill("jetBDiscPur_", (*btagPur)[jetRef]);
+      fill("jetBDiscVtx_", (*btagVtx)[jetRef]);
+      fill("jetBDiscCombVtx_", (*btagCombVtx)[jetRef]);
+    }*/
+    // fill pt (raw or L2L3) for the leading jets
+    if (mult == 1) {
       fill("jet1Pt_", monitorJet.pt());
-      fill("jet1PtRaw_", jet->pt());
       fill("jet1Eta_", monitorJet.eta());
-    };
-    if (idx == 1) {
+      fill("jet1PtRaw_", jet->pt());
+      FwdJetCand = monitorJet;
+    }
+
+    if (mult == 2) {
       fill("jet2Pt_", monitorJet.pt());
-      fill("jet2PtRaw_", jet->pt());
       fill("jet2Eta_", monitorJet.eta());
-    }
-    if (idx == 2) {
-      fill("jet3Pt_", monitorJet.pt());
-      fill("jet3PtRaw_", jet->pt());
-      fill("jet3Eta_", monitorJet.eta());
-    }
-    if (idx == 3) {
-      fill("jet4Pt_", monitorJet.pt());
-      fill("jet4PtRaw_", jet->pt());
-      fill("jet4Eta_", monitorJet.eta());
+      fill("jet2PtRaw_", jet->pt());
+
+      if (abs(monitorJet.eta()) > abs(FwdJetCand.eta())) {
+        FwdJetCand = monitorJet;
+      }
+
+      fill("FwdJetPt_", FwdJetCand.pt());
+      fill("FwdJetEta_", FwdJetCand.eta());
     }
   }
+
+  if (multNoBPur == 1 && multBPur == 1) {
+
+    fill("TaggedJetPtEta_", TaggedJetCand.pt(), TaggedJetCand.eta());
+    fill("UnTaggedJetPtEta_", UnTaggedJetCand.pt(), UnTaggedJetCand.eta());
+
+    fill("TaggedJetPt_", TaggedJetCand.pt());
+    fill("TaggedJetEta_", TaggedJetCand.eta());
+    fill("UnTaggedJetPt_", UnTaggedJetCand.pt());
+    fill("UnTaggedJetEta_", UnTaggedJetCand.eta());
+  }
+
   fill("jetMult_", mult);
   fill("jetMultBEff_", multBEff);
   fill("jetMultBPur_", multBPur);
   fill("jetMultBVtx_", multBVtx);
-  fill("jetMultCSVtx_", multCSV);
+  fill("jetMultBCombVtx_", multBCombVtx);
 
   /*
   ------------------------------------------------------------
@@ -721,29 +869,32 @@ void MonitorEnsemble::fill(const edm::Event& event,
   */
 
   // fill monitoring histograms for met
-  for (std::vector<edm::EDGetTokenT<edm::View<pat::MET> > >::const_iterator
+  pat::MET mET;
+
+  for (std::vector<edm::EDGetTokenT<edm::View<pat::MET>>>::const_iterator
            met_ = mets_.begin();
        met_ != mets_.end(); ++met_) {
-    edm::Handle<edm::View<pat::MET> > met;
+    edm::Handle<edm::View<pat::MET>> met;
     if (!event.getByToken(*met_, met)) continue;
+    mET = *(met->begin());
     if (met->begin() != met->end()) {
       unsigned int idx = met_ - mets_.begin();
       if (idx == 0) fill("slimmedMETs_", met->begin()->et());
       if (idx == 1) fill("slimmedMETsNoHF_", met->begin()->et());
       if (idx == 2) fill("slimmedMETsPuppi_", met->begin()->et());
+
     }
   }
 
   /*
-  ------------------------------------------------------------
+     ------------------------------------------------------------
 
-  Event Monitoring
+     Event Monitoring
 
-  ------------------------------------------------------------
+     ------------------------------------------------------------
   */
 
   // fill W boson and top mass estimates
-
   Calculate_miniAOD eventKinematics(MAXJETS, WMASS);
   double wMass = eventKinematics.massWBoson(correctedJets);
   double topMass = eventKinematics.massTopQuark(correctedJets);
@@ -751,18 +902,8 @@ void MonitorEnsemble::fill(const edm::Event& event,
     fill("massW_", wMass);
     fill("massTop_", topMass);
   }
-
-  // Fill M3 with Btag (CSV Tight) requirement
-
- // if (!includeBTag_) return;
-  if (correctedJets.size() != JetTagValues.size()) return;
-  double btopMass =
-      eventKinematics.massBTopQuark(correctedJets, JetTagValues, 0.89); //hard coded CSVv2 value
-  
-  if (btopMass >= 0) fill("massBTop_", btopMass);
-
   // fill plots for trigger monitoring
- /* if ((lowerEdge_ == -1. && upperEdge_ == -1.) ||
+  if ((lowerEdge_ == -1. && upperEdge_ == -1.) ||
       (lowerEdge_ < wMass && wMass < upperEdge_)) {
     if (!triggerTable_.isUninitialized())
       fill(event, *triggerTable, "trigger", triggerPaths_);
@@ -785,11 +926,26 @@ void MonitorEnsemble::fill(const edm::Event& event,
       fill("eventLogger_", 8.5, logged_ + 0.5, topMass);
       ++logged_;
     }
-  }*/
+  }
+  if (multBPur != 0 && mMultIso == 1) {
+
+    double mtW = eventKinematics.tmassWBoson(&mu, mET, TaggedJetCand);
+    fill("MTWm_", mtW);
+    double MTT = eventKinematics.tmassTopQuark(&mu, mET, TaggedJetCand);
+    fill("mMTT_", MTT);
+  }
+
+  if (multBPur != 0 && eMultIso == 1) {
+    double mtW = eventKinematics.tmassWBoson(&e, mET, TaggedJetCand);
+    fill("MTWe_", mtW);
+    double MTT = eventKinematics.tmassTopQuark(&e, mET, TaggedJetCand);
+    fill("eMTT_", MTT);
+  }
 }
 }
 
-TopSingleLeptonDQM_miniAOD::TopSingleLeptonDQM_miniAOD(const edm::ParameterSet& cfg)
+SingleTopTChannelLeptonDQM_miniAOD::SingleTopTChannelLeptonDQM_miniAOD(
+    const edm::ParameterSet& cfg)
     : vertexSelect_(nullptr),
       beamspot_(""),
       beamspotSelect_(nullptr),
@@ -798,8 +954,8 @@ TopSingleLeptonDQM_miniAOD::TopSingleLeptonDQM_miniAOD(const edm::ParameterSet& 
       PvStep(nullptr),
       METStep(nullptr) {
   JetSteps.clear();
-//  CaloJetSteps.clear();
-//  PFJetSteps.clear();
+
+
   // configure preselection
   edm::ParameterSet presel =
       cfg.getParameter<edm::ParameterSet>("preselection");
@@ -808,7 +964,15 @@ TopSingleLeptonDQM_miniAOD::TopSingleLeptonDQM_miniAOD(const edm::ParameterSet& 
         presel.getParameter<edm::ParameterSet>("trigger");
     triggerTable__ = consumes<edm::TriggerResults>(
         trigger.getParameter<edm::InputTag>("src"));
-    triggerPaths_ = trigger.getParameter<std::vector<std::string> >("select");
+    triggerPaths_ = trigger.getParameter<std::vector<std::string>>("select");
+  }
+  if (presel.existsAs<edm::ParameterSet>("vertex")) {
+    edm::ParameterSet vertex = presel.getParameter<edm::ParameterSet>("vertex");
+    vertex_ = vertex.getParameter<edm::InputTag>("src");
+    vertex__ =
+        consumes<reco::Vertex>(vertex.getParameter<edm::InputTag>("src"));
+    vertexSelect_.reset(new StringCutObjectSelector<reco::Vertex>(
+        vertex.getParameter<std::string>("select")));
   }
   if (presel.existsAs<edm::ParameterSet>("beamspot")) {
     edm::ParameterSet beamspot =
@@ -819,70 +983,61 @@ TopSingleLeptonDQM_miniAOD::TopSingleLeptonDQM_miniAOD(const edm::ParameterSet& 
     beamspotSelect_.reset(new StringCutObjectSelector<reco::BeamSpot>(
         beamspot.getParameter<std::string>("select")));
   }
-
   // conifgure the selection
-  sel_ = cfg.getParameter<std::vector<edm::ParameterSet> >("selection");
-  setup_ = cfg.getParameter<edm::ParameterSet>("setup");
-  for (unsigned int i = 0; i < sel_.size(); ++i) {
-    selectionOrder_.push_back(sel_.at(i).getParameter<std::string>("label"));
+   std::vector<edm::ParameterSet> sel = 
+      cfg.getParameter<std::vector<edm::ParameterSet>>("selection");
+
+  for (unsigned int i = 0; i < sel.size(); ++i) {
+    selectionOrder_.push_back(sel.at(i).getParameter<std::string>("label"));
     selection_[selectionStep(selectionOrder_.back())] = std::make_pair(
-        sel_.at(i),
-        std::unique_ptr<TopSingleLepton_miniAOD::MonitorEnsemble>(
-          new TopSingleLepton_miniAOD::MonitorEnsemble(
+        sel.at(i),
+        std::unique_ptr<SingleTopTChannelLepton_miniAOD::MonitorEnsemble>(
+        new SingleTopTChannelLepton_miniAOD::MonitorEnsemble(
             selectionStep(selectionOrder_.back()).c_str(),
-            setup_, consumesCollector())));
+            cfg.getParameter<edm::ParameterSet>("setup"),
+            cfg.getParameter<std::vector<edm::ParameterSet>>("selection"),
+            consumesCollector())));
   }
   for (std::vector<std::string>::const_iterator selIt = selectionOrder_.begin();
        selIt != selectionOrder_.end(); ++selIt) {
     std::string key = selectionStep(*selIt), type = objectType(*selIt);
-    //cout<<key<<endl;
     if (selection_.find(key) != selection_.end()) {
+      using std::unique_ptr;
+
       if (type == "muons") {
         MuonStep.reset(new SelectionStep<pat::Muon>(selection_[key].first,
-                                                        consumesCollector()));
-    //cout<<"muon step"<<endl;
+                                                     consumesCollector()));
       }
       if (type == "elecs") {
         ElectronStep.reset(new SelectionStep<pat::Electron>(
             selection_[key].first, consumesCollector()));
-    //cout<<"elec step"<<endl;
       }
+
       if (type == "pvs") {
         PvStep.reset(new SelectionStep<reco::Vertex>(selection_[key].first,
-                                                 consumesCollector()));
-    //cout<<"pvs step"<<endl;
+                                                     consumesCollector()));
       }
       if (type == "jets") {
         JetSteps.push_back(std::unique_ptr<SelectionStep<pat::Jet>>(
-            new SelectionStep<pat::Jet>(selection_[key].first, consumesCollector())));
-    //cout<<"jets step"<<endl;
+            new SelectionStep<pat::Jet>(selection_[key].first,
+                                         consumesCollector())));
       }
-//      if (type == "jets/pf") {
-//        PFJetSteps.push_back(std::unique_ptr<SelectionStep<reco::PFJet>>(
-//            new SelectionStep<reco::PFJet>(selection_[key].first, consumesCollector())));
-//      }
-  //    if (type == "jets/calo") {
-  //      CaloJetSteps.push_back(std::unique_ptr<SelectionStep<reco::CaloJet>>(
-  //          new SelectionStep<reco::CaloJet>(selection_[key].first, consumesCollector())));
-  //    }
       if (type == "met") {
         METStep.reset(new SelectionStep<pat::MET>(selection_[key].first,
-                                               consumesCollector()));
-    //cout<<"met step"<<endl;
+                                                   consumesCollector()));
       }
     }
   }
 }
-void TopSingleLeptonDQM_miniAOD::bookHistograms(DQMStore::IBooker & ibooker,
+void SingleTopTChannelLeptonDQM_miniAOD::bookHistograms(DQMStore::IBooker & ibooker,
   edm::Run const &, edm::EventSetup const & ){
 
   for (auto selIt = selection_.begin(); selIt != selection_.end(); ++selIt) {
     selIt->second.second->book(ibooker);
   }
 }
-void TopSingleLeptonDQM_miniAOD::analyze(const edm::Event& event,
-                                 const edm::EventSetup& setup) {
-
+void SingleTopTChannelLeptonDQM_miniAOD::analyze(const edm::Event& event,
+                                         const edm::EventSetup& setup) {
   if (!triggerTable__.isUninitialized()) {
     edm::Handle<edm::TriggerResults> triggerTable;
     if (!event.getByToken(triggerTable__, triggerTable)) return;
@@ -893,11 +1048,18 @@ void TopSingleLeptonDQM_miniAOD::analyze(const edm::Event& event,
     if (!event.getByToken(beamspot__, beamspot)) return;
     if (!(*beamspotSelect_)(*beamspot)) return;
   }
-  //  cout<<" apply selection steps"<<endl;
+
+  if (!vertex__.isUninitialized()) {
+    edm::Handle<edm::View<reco::Vertex>> vertex;
+    if (!event.getByToken(vertex__, vertex)) return;
+    edm::View<reco::Vertex>::const_iterator pv = vertex->begin();
+    if (!(*vertexSelect_)(*pv)) return;
+  }
+
+  // apply selection steps
   unsigned int passed = 0;
   unsigned int nJetSteps = -1;
-//  unsigned int nPFJetSteps = -1;
-//  unsigned int nCaloJetSteps = -1;
+
   for (std::vector<std::string>::const_iterator selIt = selectionOrder_.begin();
        selIt != selectionOrder_.end(); ++selIt) {
     std::string key = selectionStep(*selIt), type = objectType(*selIt);
@@ -905,35 +1067,26 @@ void TopSingleLeptonDQM_miniAOD::analyze(const edm::Event& event,
       if (type == "empty") {
         selection_[key].second->fill(event, setup);
       }
+      if (type == "presel") {
+        selection_[key].second->fill(event, setup);
+      }
+      if (type == "elecs" && ElectronStep != 0) {
+        if (ElectronStep->select(event)) {
+          ++passed;
+          selection_[key].second->fill(event, setup);
+        } else
+          break;
+      }
       if (type == "muons" && MuonStep != 0) {
         if (MuonStep->select(event)) {
           ++passed;
-          //      cout<<"selected event! "<<selection_[key].second<<endl;
           selection_[key].second->fill(event, setup);
         } else
           break;
       }
-      // cout<<" apply selection steps 2"<<endl;
-      if (type == "elecs" && ElectronStep != 0) {
-        // cout<<"In electrons ..."<<endl;
-        if (ElectronStep->select(event/*, "electron"*/)) {
-          ++passed;
-          selection_[key].second->fill(event, setup);
-        } else
-          break;
-      }
-      // cout<<" apply selection steps 3"<<endl;
-      if (type == "pvs" && PvStep != 0) {
-        if (PvStep->selectVertex(event)) {
-          ++passed;
-          selection_[key].second->fill(event, setup);
-        } else
-          break;
-      }
-      // cout<<" apply selection steps 4"<<endl;
       if (type == "jets") {
         nJetSteps++;
-        if (JetSteps[nJetSteps] != NULL) {
+        if (JetSteps[nJetSteps]) {
           if (JetSteps[nJetSteps]->select(event, setup)) {
             ++passed;
             selection_[key].second->fill(event, setup);
@@ -941,26 +1094,6 @@ void TopSingleLeptonDQM_miniAOD::analyze(const edm::Event& event,
             break;
         }
       }
-/*      if (type == "jets/pf") {
-        nPFJetSteps++;
-        if (PFJetSteps[nPFJetSteps] != NULL) {
-          if (PFJetSteps[nPFJetSteps]->select(event, setup)) {
-            ++passed;
-            selection_[key].second->fill(event, setup);
-          } else
-            break;
-        }
-      }
-      if (type == "jets/calo") {
-        nCaloJetSteps++;
-        if (CaloJetSteps[nCaloJetSteps] != NULL) {
-          if (CaloJetSteps[nCaloJetSteps]->select(event, setup)) {
-            ++passed;
-            selection_[key].second->fill(event, setup);
-          } else
-            break;
-        }
-      }*/
       if (type == "met" && METStep != 0) {
         if (METStep->select(event)) {
           ++passed;
@@ -971,8 +1104,3 @@ void TopSingleLeptonDQM_miniAOD::analyze(const edm::Event& event,
     }
   }
 }
-
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:

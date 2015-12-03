@@ -91,6 +91,7 @@ process.MEtoEDMConverter.deleteAfterCopy = cms.untracked.bool(False)  ## line ad
 
 
 process.load("DQM.Physics.topSingleLeptonDQM_miniAOD_cfi")
+process.load("DQM.Physics.singleTopDQM_miniAOD_cfi")
 
 
 ## path definitions
@@ -102,9 +103,9 @@ process.p      = cms.Path(
     #process.topSingleMuonLooseDQM      +
     process.topSingleMuonMediumDQM_miniAOD +
     #process.topSingleElectronLooseDQM  +
-    process.topSingleElectronMediumDQM_miniAOD 
-#     process.singleTopMuonMediumDQM     +
-#    process.singleTopElectronMediumDQM
+    process.topSingleElectronMediumDQM_miniAOD +
+     process.singleTopMuonMediumDQM_miniAOD     +
+    process.singleTopElectronMediumDQM_miniAOD
 )
 process.endjob = cms.Path(
     process.endOfProcess

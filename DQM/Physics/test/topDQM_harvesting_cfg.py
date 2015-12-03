@@ -8,7 +8,7 @@ process.load('Configuration.StandardSequences.EDMtoMEAtRunEnd_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 ## global tag
-process.GlobalTag.globaltag = 'START61_V8::All'
+process.GlobalTag.globaltag = 'MCRUN2_74_V9'
 ##process.GlobalTag.globaltag = 'GR_R_38X_V13::All' 
 #process.GlobalTag.globaltag   = 'GR10_P_V10::All'
 #process.GlobalTag.globaltag   = 'GR_R_52_V7::All'
