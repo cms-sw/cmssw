@@ -114,9 +114,9 @@ private:
 
   float vx,vy,vz;
 
-  int event;
-  int run;
-  int lumi;
+  unsigned long long event;
+  unsigned int run;
+  unsigned int lumi;
 
 };
 
@@ -199,11 +199,11 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       alphaQCD = hepmcevt->GetEvent()->alphaQCD();
       alphaQED = hepmcevt->GetEvent()->alphaQED();
       qScale   = hepmcevt->GetEvent()->event_scale();
-      const HepMC::PdfInfo *hepPDF = hepmcevt->GetEvent()->pdf_info();    
+      const HepMC::PdfInfo *hepPDF = hepmcevt->GetEvent()->pdf_info();
       if (hepPDF) {
         pdfID = std::make_pair(hepPDF->id1(), hepPDF->id2());
         pdfX = std::make_pair(hepPDF->x1(), hepPDF->x2());
-        pdfXpdf = std::make_pair(hepPDF->pdf1(), hepPDF->pdf2());   
+        pdfXpdf = std::make_pair(hepPDF->pdf1(), hepPDF->pdf2());
       }
     }
     else {
@@ -218,7 +218,7 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         alphaQCD = genInfo->alphaQCD();
         alphaQED = genInfo->alphaQED();
         qScale = genInfo->qScale();
-        
+
         if (genInfo->hasPDF()) {
           pdfID = genInfo->pdf()->id;
           pdfX.first = genInfo->pdf()->x.first;
@@ -230,14 +230,14 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
     // MC PILEUP INFORMATION
-    edm::Handle<std::vector<PileupSummaryInfo>>    puInfos; 
+    edm::Handle<std::vector<PileupSummaryInfo>>    puInfos;
     if (iEvent.getByToken(puInfoToken_, puInfos)) {
       for (const auto& pu: *puInfos) {
         npus.push_back(pu.getPU_NumInteractions());
         tnpus.push_back(pu.getTrueNumInteractions());
       }
     }
-    
+
   }
 
   if (doCentrality_) {
@@ -307,7 +307,7 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     vy=vertex->begin()->y();
     vz=vertex->begin()->z();
   }
-  
+
   thi_->Fill();
 }
 
@@ -342,7 +342,7 @@ HiEvtAnalyzer::beginJob()
   alphaQED =  -1.;
   qScale   =  -1.;
   //  npu      =   1;
-  
+
   nEvtPlanes = 0;
   hiBin = -1;
   hiEvtPlane = new float[kMaxEvtPlanes];
@@ -352,9 +352,9 @@ HiEvtAnalyzer::beginJob()
   vz = -100;
 
   // Run info
-  thi_->Branch("run",&run,"run/I");
-  thi_->Branch("evt",&event,"evt/I");
-  thi_->Branch("lumi",&lumi,"lumi/I");
+  thi_->Branch("run",&run,"run/i");
+  thi_->Branch("evt",&event,"evt/l");
+  thi_->Branch("lumi",&lumi,"lumi/i");
 
   // Vertex
   thi_->Branch("vx",&vx,"vx/F");
