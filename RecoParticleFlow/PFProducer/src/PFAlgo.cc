@@ -1936,6 +1936,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       double blowError = 1.;
       switch (trackRef->algo()) {
       case TrackBase::ctf:
+      case TrackBase::duplicateMerge:
       case TrackBase::initialStep:
       case TrackBase::lowPtTripletStep:
       case TrackBase::pixelPairStep:
@@ -2397,6 +2398,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	switch (trackref->algo()) {
 	case TrackBase::ctf:
+        case TrackBase::duplicateMerge:
 	case TrackBase::initialStep:
 	case TrackBase::lowPtTripletStep:
 	case TrackBase::pixelPairStep:

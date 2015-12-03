@@ -283,7 +283,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      
 	      if((Algo == reco::TrackBase::undefAlgorithm ||
 	          Algo == reco::TrackBase::ctf ||
-	          Algo == reco::TrackBase::rs ||
+	          Algo == reco::TrackBase::duplicateMerge ||
 	          Algo == reco::TrackBase::cosmics ||
 	          Algo == reco::TrackBase::initialStep ||
 	          Algo == reco::TrackBase::lowPtTripletStep ||
@@ -2675,6 +2675,7 @@ unsigned int PFElectronAlgo::whichTrackAlgo(const reco::TrackRef& trackRef) {
   unsigned int Algo = 0; 
   switch (trackRef->algo()) {
   case TrackBase::ctf:
+  case TrackBase::duplicateMerge:
   case TrackBase::initialStep:
   case TrackBase::lowPtTripletStep:
   case TrackBase::pixelPairStep:

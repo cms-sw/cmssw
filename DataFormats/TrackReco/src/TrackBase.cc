@@ -9,7 +9,7 @@ using namespace reco;
 std::string const TrackBase::algoNames[] = {
     "undefAlgorithm",
     "ctf",
-    "rs",
+    "duplicateMerge",
     "cosmics",
     "initialStep",
     "lowPtTripletStep",
