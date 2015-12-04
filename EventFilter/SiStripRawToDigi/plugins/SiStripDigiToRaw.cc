@@ -243,11 +243,7 @@ namespace sistrip {
 	//zeroSuppressed here means converted to 8 bit...
 	if (mode_ == READOUT_MODE_PREMIX_RAW) zeroSuppressed=false;
 	FEDStripData fedData(zeroSuppressed);
-	/*if ( edm::isDebugEnabled() ) {
-	  edm::LogWarning("DigiToRaw")
-	    << "[sistrip::DigiToRaw::createFedBuffers_]"
-	    << "Fed " << *ifed ;
-	    }*/
+	
 	
 	for (auto iconn = conns.begin() ; iconn != conns.end(); iconn++ ) {
 	  
@@ -265,11 +261,7 @@ namespace sistrip {
 	  
 	  FEDStripData::ChannelData& chanData = fedData[iconn->fedCh()];
 
-	  /*if ( edm::isDebugEnabled() ) {
-	    edm::LogWarning("DigiToRaw") 
-	      << "[DigiToRaw::createFedBuffers] " 
-	      << " detid = " << key << " apvpair = " << ipair;
-	      }*/
+	
 	  
 	 
 	  // Find digis for DetID in collection
@@ -285,11 +277,6 @@ namespace sistrip {
 	  if (digis == collection->end()) { continue; } 
 	  
 
-	  /*if ( edm::isDebugEnabled() ) {
-	    edm::LogWarning("DigiToRaw") 
-	      << "[DigiToRaw::createFedBuffers] " 
-	      << " digi found ";
-	      }*/
 	  
 
 	  typename edm::DetSet<Digi_t>::const_iterator idigi, digis_begin(digis->data.begin());
@@ -327,12 +314,6 @@ namespace sistrip {
 	    
 	    // Add digi to buffer
 	    chanData[strip] = (*idigi).adc();
-	    /*if ( edm::isDebugEnabled() ) {
-	      edm::LogWarning("DigiToRaw") 
-		<< "[DigiToRaw::createFedBuffers] " 
-		<< " adc value = " << chanData[strip];
-		}*/
-	    
 	  }
 	}
 	// if ((*idigi).strip() >= (ipair+1)*256) break;
