@@ -153,10 +153,12 @@ namespace sistrip {
 	      << " Original header type: " << fedbuffer->headerType();
 	  }
 
-	  //bufferGenerator_.setHeaderType(FEDHeaderType::HEADER_TYPE_APV_ERROR);//fedbuffer->headerType());
-	  //bufferGenerator_.daqHeader() = fedbuffer->daqHeader();
-	  //bufferGenerator_.daqTrailer() = fedbuffer->daqTrailer();
-	  //bufferGenerator_.trackerSpecialHeader() = TrackerSpecialHeader((fedbuffer->trackerSpecialHeader()).data());
+
+	  bufferGenerator_.setHeaderType(FEDHeaderType::HEADER_TYPE_FULL_DEBUG);
+	  //fedbuffer->headerType());
+	  bufferGenerator_.daqHeader() = fedbuffer->daqHeader();
+	  bufferGenerator_.daqTrailer() = fedbuffer->daqTrailer();
+	  
 	  if(ifed==fed_ids.begin()){  fedbuffer->dump(std::cout); std::cout << std::endl;}
 	  bufferGenerator_.trackerSpecialHeader() = fedbuffer->trackerSpecialHeader();
 	  bufferGenerator_.setReadoutMode(mode_);
