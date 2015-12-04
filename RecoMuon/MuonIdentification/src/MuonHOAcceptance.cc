@@ -188,7 +188,7 @@ void MuonHOAcceptance::initIds(edm::EventSetup const& eSetup) {
 	// for (int i=0; i<deads->GetEntries(); ++i) {
 	//   deads->GetEntry(i);
 	//   if (deadness > 0.4) {
-	HcalDetId did(HcalOuter,ieta,iphi,4);
+	HcalDetId did(HcalOuter,ieta,iphi,4,false);
 	const HcalChannelStatus *mystatus = myqual->getValues(did.rawId());
 	if (mySeverity->dropChannel(mystatus->getValue())) {
 	  deadIds.push_back(did.rawId());

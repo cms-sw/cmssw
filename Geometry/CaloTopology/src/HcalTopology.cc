@@ -195,13 +195,14 @@ bool HcalTopology::validHcal(const HcalDetId& id) const {
 
 bool HcalTopology::validDetId(HcalSubdetector subdet, int ieta, int iphi, 
                               int depth) const {
-  HcalDetId id(subdet,ieta,iphi,depth);
+  HcalDetId id(subdet,ieta,iphi,depth,false);
   return validHcal(id);
 }
 
 bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
 
   if (id.iphi()<1 || id.iphi()>72 || id.ieta()==0) return false;
+  if (id.depth() != 0)                             return false;
   if (id.version()==0) {
     if (triggerMode_==HcalTopologyMode::tm_LHC_1x1) return false;
     if ((id.ietaAbs()>32) || 
@@ -330,7 +331,7 @@ int HcalTopology::exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi
   for (int ieta=ieta_l; ieta<=ieta_h; ieta++) 
     for (int iphi=iphi_l; iphi<=iphi_h; iphi++) 
       for (int depth=depth_l; depth<=depth_h; depth++) {
-	HcalDetId id(subdet,ieta,iphi,depth);
+	HcalDetId id(subdet,ieta,iphi,depth,false);
 	if (validRaw(id)) { // use 'validRaw' to include check validity in "uncut" detector
 	  exclude(id);  
 	  n++;
@@ -707,7 +708,7 @@ bool HcalTopology::incrementDepth(HcalDetId & detId) const {
       return false;
     }
   }
-  detId = HcalDetId(subdet, ieta, detId.iphi(), depth,form);
+  detId = HcalDetId(subdet, ieta, detId.iphi(), depth, form);
   return validRaw(detId);
 }
 
@@ -1212,9 +1213,9 @@ DetId HcalTopology::denseId2detId(unsigned int denseid) const {
     }
   }
 #ifdef DebugLog
-  std::cout << "Dens2Det " << topoVersion_ << " i/p " << std::hex << denseid << std::dec << " : " << HcalDetId(sd,iz*int(ie),ip,dp) << std::endl;
+  std::cout << "Dens2Det " << topoVersion_ << " i/p " << std::hex << denseid << std::dec << " : " << HcalDetId(sd,iz*int(ie),ip,dp,false) << std::endl;
 #endif
-  return HcalDetId( sd, iz*int(ie), ip, dp );
+  return HcalDetId(sd, iz*int(ie), ip, dp, false);
 }
 
 unsigned int HcalTopology::ncells() const {

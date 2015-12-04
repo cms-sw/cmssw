@@ -134,7 +134,7 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     else if(fabs(eta)< 3.) sd = HcalEndcap;  // Use the endcap until eta =3
     else sd = HcalForward;
     
-    HcalDetId hid = HcalDetId(sd,ieta,iphi,1); // assume depth=1
+    HcalDetId hid = HcalDetId(sd,ieta,iphi,1,false); // assume depth=1
 
     // check against the old method (boundaries slightly shifted in the endcaps
     /*

@@ -11,6 +11,8 @@
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 
 #include "CondFormats/DataRecord/interface/HcalAllRcds.h"
@@ -40,11 +42,12 @@ namespace {
   */
 
     if (result.size () <= 0) {
-      for (int eta = -50; eta < 50; eta++) {
-	for (int phi = 0; phi < 100; phi++) {
-	  for (int depth = 1; depth < maxDepthHB + maxDepthHE; depth++) {
-	    for (int det = 1; det < 5; det++) {
-	      HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
+      for (int eta = -HcalDetId::kHcalEtaMask2; 
+           eta <= HcalDetId::kHcalEtaMask2; eta++) {
+        for (int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
+          for (int depth = 1; depth < maxDepthHB + maxDepthHE; depth++) {
+            for (int det = 1; det <= HcalForward; det++) {
+	      HcalDetId cell ((HcalSubdetector) det, eta, phi, depth, false);
 	      if (hcaltopology.valid(cell)) result.push_back (cell);
 
 	    /*
@@ -86,18 +89,14 @@ namespace {
       // - As no valid(cell) check found for HcalTrigTowerDetId 
       // to create HT cells (ieta=1-28, iphi=1-72)&(ieta=29-32, iphi=1,5,... 69)
 
-      for (int eta = -32; eta <= 32; eta++) {
-	if(abs(eta) <= 28 && (eta != 0)) {
-	  for (int phi = 1; phi <= 72; phi++) {
-	    HcalTrigTowerDetId cell(eta, phi);       
-	    result.push_back (cell);
-	  }
-	}
-	else if (abs(eta) > 28) {
-	  for (int phi = 1; phi <= 69;) {
-	    HcalTrigTowerDetId cell(eta, phi);       
-	    result.push_back (cell);
-	    phi += 4;
+      for (int vers=0; vers<=HcalTrigTowerDetId::kHcalVersMask; ++vers) {
+        for (int depth=0; depth<=HcalTrigTowerDetId::kHcalDepthMask; ++depth) {
+          for (int eta = -HcalTrigTowerDetId::kHcalEtaMask; 
+               eta <= HcalTrigTowerDetId::kHcalEtaMask; eta++) {
+            for (int phi = 1; phi <= HcalTrigTowerDetId::kHcalPhiMask; phi++) {
+              HcalTrigTowerDetId cell(eta, phi,depth,vers); 
+              if (hcaltopology.validHT(cell)) result.push_back (cell);
+	    }
 	  }
 	}
       }

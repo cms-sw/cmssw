@@ -3,7 +3,7 @@
 #include <ostream>
 #include <iostream>
 
-const HcalDetId HcalDetId::Undefined(HcalEmpty,0,0,0);
+const HcalDetId HcalDetId::Undefined(HcalEmpty,0,0,0,false);
 
 HcalDetId::HcalDetId() : DetId() {
 }
@@ -33,9 +33,23 @@ HcalDetId::HcalDetId(const DetId& gen) {
 	 subdet!=HcalTriggerTower && subdet!=HcalOther)) {
       throw cms::Exception("Invalid DetId") << "Cannot initialize HcalDetId from " << std::hex << gen.rawId() << std::dec; 
     }  
+    uint32_t rawid = gen.rawId();
+    if ((rawid&kHcalIdFormat2)==0) {
+      int zsid = (rawid&kHcalZsideMask1)?(1):(-1);
+      int eta  = (rawid>>kHcalEtaOffset1)&kHcalEtaMask1;
+      int phi  = rawid&kHcalPhiMask1;
+      int dep  = (rawid>>kHcalDepthOffset1)&kHcalDepthMask1;
+      id_ = rawid&kHcalIdMask;
+      id_ |= (kHcalIdFormat2) | ((dep&kHcalDepthMask2)<<kHcalDepthOffset2) |
+	((zsid>0)?(kHcalZsideMask2|(eta<<kHcalEtaOffset2)):((eta)<<kHcalEtaOffset2)) |
+	(phi&kHcalPhiMask2);
+    } else {
+      id_ = rawid;
+    }
+  } else {
+    id_ = gen.rawId();
   }
-  id_=gen.rawId();
-}
+ }
 
 HcalDetId& HcalDetId::operator=(const DetId& gen) {
   if (!gen.null()) {
@@ -45,9 +59,23 @@ HcalDetId& HcalDetId::operator=(const DetId& gen) {
 	 subdet!=HcalOuter && subdet!=HcalForward &&
 	 subdet!=HcalTriggerTower && subdet!=HcalOther)) {
       throw cms::Exception("Invalid DetId") << "Cannot assign HcalDetId from " << std::hex << gen.rawId() << std::dec; 
-    }  
+    }
+    uint32_t rawid = gen.rawId();
+    if ((rawid&kHcalIdFormat2)==0) {
+      int zsid = (rawid&kHcalZsideMask1)?(1):(-1);
+      int eta  = (rawid>>kHcalEtaOffset1)&kHcalEtaMask1;
+      int phi  = rawid&kHcalPhiMask1;
+      int dep  = (rawid>>kHcalDepthOffset1)&kHcalDepthMask1;
+      id_ = rawid&kHcalIdMask;
+      id_ |= (kHcalIdFormat2) | ((dep&kHcalDepthMask2)<<kHcalDepthOffset2) |
+	((zsid>0)?(kHcalZsideMask2|(eta<<kHcalEtaOffset2)):((eta)<<kHcalEtaOffset2)) |
+	(phi&kHcalPhiMask2);
+    } else {
+      id_ = rawid;
+    }
+  } else {
+    id_ = gen.rawId();
   }
-  id_=gen.rawId();
   return (*this);
 }
 

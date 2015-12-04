@@ -175,7 +175,7 @@ void HcalDetDiagPedestalClient::calculateProblems(DQMStore::IBooker &ib, DQMStor
 		  else if (isHE(eta,d+1)) subdet=HcalEndcap;
 		  else if (isHF(eta,d+1)) subdet=HcalForward;
 		  else if (isHO(eta,d+1)) subdet=HcalOuter;
-		  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1));
+		  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1), false);
 		  if (badstatusmap.find(hcalid)!=badstatusmap.end())
 		    problemvalue=999;
 		}
@@ -503,7 +503,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
 	     else if (isHE(eta,d+1)) subdet=HcalEndcap;
 	     else if (isHF(eta,d+1)) subdet=HcalForward;
 	     else if (isHO(eta,d+1)) subdet=HcalOuter;
-	  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1));
+	  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1), false);
           float val=Missing_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val!=0){
             if(subdet==HcalBarrel){
@@ -606,7 +606,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           if(!isHB(eta,d+1)) continue;
           float val=Missing_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
-          HcalDetId hcalid(HcalBarrel,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalBarrel,ieta,phi+1,d+1,false);
           std::string s=" ";
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s="Known problem";}	
 	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
@@ -627,7 +627,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           if(!isHE(eta,d+1)) continue;
           float val=Missing_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
-          HcalDetId hcalid(HcalEndcap,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalEndcap,ieta,phi+1,d+1,false);
           std::string s=" ";
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s="Known problem";}	
 	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
@@ -648,7 +648,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           if(!isHO(eta,d+1)) continue;
           float val=Missing_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
-          HcalDetId hcalid(HcalOuter,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalOuter,ieta,phi+1,d+1,false);
           std::string s=" ";
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s="Known problem";}
 	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
@@ -669,7 +669,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           if(!isHF(eta,d+1)) continue;
           float val=Missing_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
-          HcalDetId hcalid(HcalForward,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalForward,ieta,phi+1,d+1,false);
           std::string s=" ";
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s="Known problem";}	
 	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
@@ -691,7 +691,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           if(!isHB(eta,d+1)) continue;
           float val=Unstable_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
-          HcalDetId hcalid(HcalBarrel,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalBarrel,ieta,phi+1,d+1,false);
           char comment[100]; sprintf(comment,"Missing in %.3f%% of events\n",(1.0-val)*100.0);
           std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
@@ -713,7 +713,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           if(!isHE(eta,d+1)) continue;
           float val=Unstable_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
-          HcalDetId hcalid(HcalEndcap,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalEndcap,ieta,phi+1,d+1,false);
           char comment[100]; sprintf(comment,"Missing in %.3f%% of events\n",(1.0-val)*100.0);
           std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
@@ -735,7 +735,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           if(!isHO(eta,d+1)) continue;
           float val=Unstable_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
-          HcalDetId hcalid(HcalOuter,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalOuter,ieta,phi+1,d+1,false);
           char comment[100]; sprintf(comment,"Missing in %.3f%% of events\n",(1.0-val)*100.0);
           std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}
@@ -757,7 +757,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           if(!isHF(eta,d+1)) continue;
           float val=Unstable_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
-          HcalDetId hcalid(HcalForward,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalForward,ieta,phi+1,d+1,false);
           char comment[100]; sprintf(comment,"Missing in %.3f%% of events\n",(1.0-val)*100.0);
           std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
@@ -781,7 +781,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           float val1=BadPed_val[d]->GetBinContent(eta+1,phi+1);
           float val2=BadRMS_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val1==0 && val2==0) continue;
-          HcalDetId hcalid(HcalBarrel,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalBarrel,ieta,phi+1,d+1,false);
 	  char comment[100]; 
 	  if(val1!=0) sprintf(comment,"Ped-Ref=%.2f",val1);
 	  if(val2!=0) sprintf(comment,"Rms-Ref=%.2f",val2);
@@ -807,7 +807,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           float val1=BadPed_val[d]->GetBinContent(eta+1,phi+1);
           float val2=BadRMS_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val1==0 && val2==0) continue;
-          HcalDetId hcalid(HcalEndcap,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalEndcap,ieta,phi+1,d+1,false);
 	  char comment[100]; 
 	  if(val1!=0) sprintf(comment,"Ped-Ref=%.2f",val1);
 	  if(val2!=0) sprintf(comment,"Rms-Ref=%.2f",val2);
@@ -833,7 +833,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           float val1=BadPed_val[d]->GetBinContent(eta+1,phi+1);
           float val2=BadRMS_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val1==0 && val2==0) continue;
-          HcalDetId hcalid(HcalOuter,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalOuter,ieta,phi+1,d+1,false);
 	  char comment[100]; 
 	  if(val1!=0) sprintf(comment,"Ped-Ref=%.2f",val1);
 	  if(val2!=0) sprintf(comment,"Rms-Ref=%.2f",val2);
@@ -859,7 +859,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           float val1=BadPed_val[d]->GetBinContent(eta+1,phi+1);
           float val2=BadRMS_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val1==0 && val2==0) continue;
-          HcalDetId hcalid(HcalForward,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalForward,ieta,phi+1,d+1,false);
 	  char comment[100]; 
 	  if(val1!=0) sprintf(comment,"Ped-Ref=%.2f",val1);
 	  if(val2!=0) sprintf(comment,"Rms-Ref=%.2f",val2);

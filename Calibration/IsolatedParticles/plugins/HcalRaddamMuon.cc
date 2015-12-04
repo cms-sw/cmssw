@@ -724,8 +724,8 @@ void HcalRaddamMuon::clearVectors() {
 
 int HcalRaddamMuon::matchId(const HcalDetId& id1, const HcalDetId& id2) {
 
-  HcalDetId kd1(id1.subdet(),id1.ieta(),id1.iphi(),1);
-  HcalDetId kd2(id2.subdet(),id2.ieta(),id2.iphi(),1);
+  HcalDetId kd1(id1.subdet(),id1.ieta(),id1.iphi(),1,false);
+  HcalDetId kd2(id2.subdet(),id2.ieta(),id2.iphi(),1,false);
   int match = ((kd1 == kd2) ? 1 : 0);
   return match;
 }

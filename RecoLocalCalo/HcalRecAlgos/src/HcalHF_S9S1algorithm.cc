@@ -120,7 +120,7 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
     {
       double EL=0;
       // look for long partner
-      HcalDetId neighbor(HcalForward, ieta,iphi,1);
+      HcalDetId neighbor(HcalForward, ieta,iphi,1,false);
       HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
       if (neigh!=rec.end())
 	EL=neigh->energy();
@@ -148,7 +148,7 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
 	    if (d==depth || isS8S1_==true) continue;  // don't add the cell itself; don't count neighbor in same ieta-phi if S8S1 test enabled
 
 	  // Look to see if neighbor is in rechit collection
-	  HcalDetId neighbor(HcalForward, i,testphi,d);
+	  HcalDetId neighbor(HcalForward, i,testphi,d,false);
 	  HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
 	  // require that neighbor exists, and that it doesn't have a prior flag already set
 	  if (neigh!=rec.end())
@@ -176,7 +176,7 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
 	  while (testphi<0) testphi+=72;
 	  while (testphi>72) testphi-=72;
 	  // Look to see if neighbor is in rechit collection
-	  HcalDetId neighbor(HcalForward, ieta,testphi,d);
+	  HcalDetId neighbor(HcalForward, ieta,testphi,d,false);
 	  HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
 	  if (neigh!=rec.end())
 	    {
@@ -193,7 +193,7 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
     {
       for (int d=1;d<=2;++d) // add cells from both depths!
 	{
-	  HcalDetId neighbor(HcalForward, 39*abs(ieta)/ieta,(iphi+2)%72,d);  
+	  HcalDetId neighbor(HcalForward, 39*abs(ieta)/ieta,(iphi+2)%72,d,false);  
 	  HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
 	  if (neigh!=rec.end())
             {

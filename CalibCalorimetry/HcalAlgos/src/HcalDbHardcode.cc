@@ -594,17 +594,17 @@ HcalQIEShape HcalDbHardcode::makeQIEShape () {
 #define EMAP_NHSETSHO 3
 
 void HcalDbHardcode::makeHardcodeDcsMap(HcalDcsMap& dcs_map) {
-  dcs_map.mapGeomId2DcsId(HcalDetId(HcalBarrel, -16, 1, 1), 
+  dcs_map.mapGeomId2DcsId(HcalDetId(HcalBarrel, -16, 1, 1, false), 
 			  HcalDcsDetId(HcalDcsBarrel, -1, 1, HcalDcsDetId::HV, 2));
-  dcs_map.mapGeomId2DcsId(HcalDetId(HcalForward, -41, 3, 1), 
+  dcs_map.mapGeomId2DcsId(HcalDetId(HcalForward, -41, 3, 1, false), 
 			  HcalDcsDetId(HcalDcsForward, -1, 1, HcalDcsDetId::DYN8, 1));
-  dcs_map.mapGeomId2DcsId(HcalDetId(HcalForward, -26, 25, 2), 
+  dcs_map.mapGeomId2DcsId(HcalDetId(HcalForward, -26, 25, 2, false), 
 			  HcalDcsDetId(HcalDcsForward, -1, 7, HcalDcsDetId::HV, 1));
-  dcs_map.mapGeomId2DcsId(HcalDetId(HcalBarrel, -15, 68, 1), 
+  dcs_map.mapGeomId2DcsId(HcalDetId(HcalBarrel, -15, 68, 1, false), 
 			  HcalDcsDetId(HcalDcsBarrel, -1, 18, HcalDcsDetId::HV, 3));
-  dcs_map.mapGeomId2DcsId(HcalDetId(HcalOuter, -14, 1, 4), 
+  dcs_map.mapGeomId2DcsId(HcalDetId(HcalOuter, -14, 1, 4, false), 
 			  HcalDcsDetId(HcalDcsOuter, -2, 2, HcalDcsDetId::HV, 4));
-  dcs_map.mapGeomId2DcsId(HcalDetId(HcalForward, 41, 71, 2), 
+  dcs_map.mapGeomId2DcsId(HcalDetId(HcalForward, 41, 71, 2, false), 
 			  HcalDcsDetId(HcalDcsForward, 1, 4, HcalDcsDetId::DYN8, 3));
 }
 
@@ -807,7 +807,7 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap) {
 	      /// load map
 	      HcalElectronicsId elId(ifi_ch, ihtr_fi, ispigot, ifed-700);
 	      elId.setHTR(icrate, ihtr, (fpga=="top")?(1):(0));
-	      HcalDetId hId((det=="HB")?(HcalBarrel):(HcalEndcap),ieta*iside,iphi,idepth);
+	      HcalDetId hId((det=="HB")?(HcalBarrel):(HcalEndcap),ieta*iside,iphi,idepth,false);
 	      emap.mapEId2chId(elId,hId);
 	      
 	      //	      printf(" %9d %9d %9d %9d %9s %9d %9d %9s %9d %9d %9d %9d %9d %9d\n",iside,ieta,iphi,idepth,&det,icrate,ihtr,&fpga,ihtr_fi,ifi_ch,ispigot,idcc,idcc_sl,ifed);
@@ -840,7 +840,7 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap) {
 	      ifed=fedhfnum[ic][idcc-1];
 	      HcalElectronicsId elId(ifi_ch, ihtr_fi, ispigot, ifed-700);
 	      elId.setHTR(icrate, ihtr, (fpga=="top")?(1):(0));
-	      HcalDetId hId(HcalForward,ieta*iside,iphi,idepth);
+	      HcalDetId hId(HcalForward,ieta*iside,iphi,idepth,false);
 	      emap.mapEId2chId(elId,hId);
 	      // printf(" %9d %9d %9d %9d %9s %9d %9d %9s %9d %9d %9d %9d %9d %9d\n",iside,ieta,iphi,idepth,&det,icrate,ihtr,&fpga,ihtr_fi,ifi_ch,ispigot,idcc,idcc_sl,ifed);
 	    }}}}}}
@@ -876,7 +876,7 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap) {
 	      if (ieta==0) { // unmapped 
 		emap.mapEId2chId(elId,DetId(HcalDetId::Undefined));
 	      } else {
-		HcalDetId hId(HcalOuter,ieta*iside,iphi,idepth+3); // HO is officially "depth=4"
+		HcalDetId hId(HcalOuter,ieta*iside,iphi,4,false); // HO is officially "depth=4"
 		emap.mapEId2chId(elId,hId);
 	      }
 	      // printf(" %9d %9d %9d %9d %9s %9d %9d %9s %9d %9d %9d %9d %9d %9d\n",iside,ieta,iphi,idepth,&det,icrate,ihtr,&fpga,ihtr_fi,ifi_ch,ispigot,idcc,idcc_sl,ifed);

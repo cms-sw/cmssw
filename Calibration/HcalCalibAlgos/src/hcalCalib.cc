@@ -384,7 +384,7 @@ void hcalCalib::Terminate() {
       }
 
       for (vector<UInt_t>::iterator v_it=idForSummedCells.begin(); v_it!=idForSummedCells.end(); ++v_it) {
-	UInt_t addCoefId = HcalDetId(HcalBarrel, HcalDetId(*v_it).ieta(), HcalDetId(*v_it).iphi(), 2);
+	UInt_t addCoefId = HcalDetId(HcalBarrel, HcalDetId(*v_it).ieta(), HcalDetId(*v_it).iphi(), 2, false);
 	solution[addCoefId] = solution[*v_it];
       }
      
@@ -652,7 +652,7 @@ Bool_t hcalCalib::ReadPhiSymCor() {
 
     // check if the data is consistent    
   
-    if (HcalDetId(sd, iEta, iPhi, depth) != HcalDetId(detId)) {
+    if (HcalDetId(sd, iEta, iPhi, depth, false) != HcalDetId(detId)) {
       cout << "\nInconsistent info in phi symmetry file: subdet, iEta, iPhi, depth do not match rawId!\n" << endl;
       return kFALSE;    
     }
@@ -663,7 +663,7 @@ Bool_t hcalCalib::ReadPhiSymCor() {
       return kFALSE;    
     }
 
-    phiSymCor[HcalDetId(sd, iEta, iPhi, depth)] = value;
+    phiSymCor[HcalDetId(sd, iEta, iPhi, depth, false)] = value;
   }
 
   return kTRUE;
@@ -696,8 +696,8 @@ void hcalCalib::makeTextFile() {
 
 	  for(Int_t d=1; d<5; d++) {
 
-	    if (!topo_->valid(HcalDetId(HcalSubdetector(sd), eta, phi, d))) continue;
-	    HcalDetId id(HcalSubdetector(sd), eta, phi, d);
+	    if (!topo_->valid(HcalDetId(HcalSubdetector(sd), eta, phi, d, false))) continue;
+	    HcalDetId id(HcalSubdetector(sd), eta, phi, d, false);
 	    Float_t corrFactor = 1.0;
 	    
 
@@ -716,10 +716,10 @@ void hcalCalib::makeTextFile() {
 	      if (CALIB_METHOD=="L3" || CALIB_METHOD=="L3_AND_MTRX_INV") {
 
 
-		if (SUM_DEPTHS && COMBINE_PHI) corrFactor = solution[HcalDetId(HcalSubdetector(subdetInd), eta, 1, 1)];
-		else if (SUM_DEPTHS) corrFactor = solution[HcalDetId(HcalSubdetector(subdetInd), eta, phi, 1)];
-		else if (COMBINE_PHI) corrFactor = solution[HcalDetId(HcalSubdetector(sd), eta, 1, d)];
-		else corrFactor = solution[HcalDetId(HcalSubdetector(sd), eta, phi, d)];
+		if (SUM_DEPTHS && COMBINE_PHI) corrFactor = solution[HcalDetId(HcalSubdetector(subdetInd), eta, 1, 1, false)];
+		else if (SUM_DEPTHS) corrFactor = solution[HcalDetId(HcalSubdetector(subdetInd), eta, phi, 1, false)];
+		else if (COMBINE_PHI) corrFactor = solution[HcalDetId(HcalSubdetector(sd), eta, 1, d, false)];
+		else corrFactor = solution[HcalDetId(HcalSubdetector(sd), eta, phi, d, false)];
 
 
 		// Remark: a new case was added (sumSmallDepths) where the first two depths in towers 15,16 
@@ -736,7 +736,7 @@ void hcalCalib::makeTextFile() {
 	      }
 
 	      else if (CALIB_METHOD=="ISO_TRK_PHI_SYM") {
-		corrFactor = solution[HcalDetId(HcalSubdetector(sd), eta, phi, d)];
+		corrFactor = solution[HcalDetId(HcalSubdetector(sd), eta, phi, d, false)];
 	      }
 
 

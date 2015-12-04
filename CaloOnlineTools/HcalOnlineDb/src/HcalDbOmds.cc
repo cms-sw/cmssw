@@ -45,7 +45,7 @@ DetId HcalDbOmds::getId(oracle::occi::ResultSet * rs){
     return HcalDetId(get_subdetector(rs->getString(2)),
 		     rs->getInt(3),
 		     rs->getInt(4),
-		     rs->getInt(5));
+		     rs->getInt(5),false);
   }
   else if (rs->getString(1).find("HcalCalibDetId")!=std::string::npos){
     //std::cerr << "DEBUG: HcalCalibDetId" << std::endl;
@@ -121,7 +121,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
       //int iphi = rs->getInt(22);
       //int depth = rs->getInt(23);
       //HcalSubdetector subdetector = get_subdetector(rs->getString(24));
-      //HcalDetId id(subdetector,ieta,iphi,depth);
+      //HcalDetId id(subdetector,ieta,iphi,depth,false);
       std::cout << "DEBUG: " << std::endl;
       //std::cout << "DEBUG: " << id << " " << cap0 << " " << cap1 << " " << cap2 << " " << cap3 << std::endl;
       HcalPedestal * fCondObject = new HcalPedestal(id.rawId(), cap0, cap1, cap2, cap3, variance0, variance1, variance2, variance3);
@@ -271,7 +271,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
       //int iphi = rs->getInt(6);
       //int depth = rs->getInt(7);
       //HcalSubdetector subdetector = get_subdetector(rs->getString(8));
-      //HcalDetId id(subdetector,ieta,iphi,depth);
+      //HcalDetId id(subdetector,ieta,iphi,depth,false);
       //std::cout << "DEBUG: " << id << " " << cap0 << " " << cap1 << " " << cap2 << " " << cap3 << std::endl;
       HcalGain * fCondObject = new HcalGain(id, cap0, cap1, cap2, cap3);
       fObject->addValues(*fCondObject);
@@ -326,7 +326,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
       //int iphi = rs->getInt(6);
       //int depth = rs->getInt(7);
       //HcalSubdetector subdetector = get_subdetector(rs->getString(8));
-      //HcalDetId id(subdetector,ieta,iphi,depth);
+      //HcalDetId id(subdetector,ieta,iphi,depth,false);
       //std::cout << "DEBUG: " << id << " " << cap0 << " " << cap1 << " " << cap2 << " " << cap3 << std::endl;
       HcalGainWidth * fCondObject = new HcalGainWidth(id, cap0, cap1, cap2, cap3);
       fObject->addValues(*fCondObject);
@@ -587,7 +587,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
       //int iphi = rs->getInt(3);
       //int depth = rs->getInt(4);
       //HcalSubdetector subdetector = get_subdetector(rs->getString(5));
-      //HcalDetId id(subdetector,ieta,iphi,depth);
+      //HcalDetId id(subdetector,ieta,iphi,depth,false);
       //std::cout << "DEBUG: " << id << " " << value << std::endl;
       HcalRespCorr * fCondObject = new HcalRespCorr(id, value);
       fObject->addValues(*fCondObject);
@@ -639,7 +639,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
       //int iphi = rs->getInt(3);
       //int depth = rs->getInt(4);
       //HcalSubdetector subdetector = get_subdetector(rs->getString(5));
-      //HcalDetId id(subdetector,ieta,iphi,depth);
+      //HcalDetId id(subdetector,ieta,iphi,depth,false);
       //std::cout << "DEBUG: " << id << " " << zs << std::endl;
       HcalZSThreshold * fCondObject = new HcalZSThreshold(id, zs);
       fObject->addValues(*fCondObject);
@@ -768,7 +768,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
       //int iphi = rs->getInt(3);
       //int depth = rs->getInt(4);
       //HcalSubdetector subdetector = get_subdetector(rs->getString(5));
-      //HcalDetId id(subdetector,ieta,iphi,depth);
+      //HcalDetId id(subdetector,ieta,iphi,depth,false);
       //std::cout << "DEBUG: " << id << " " << value << std::endl;
       HcalValidationCorr * fCondObject = new HcalValidationCorr(id, value);
       fObject->addValues(*fCondObject);

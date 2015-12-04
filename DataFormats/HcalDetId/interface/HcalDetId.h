@@ -11,7 +11,7 @@
  */
 class HcalDetId : public DetId {
 
-private:
+public:
   static const int kHcalPhiMask1       = 0x7F;
   static const int kHcalPhiMask2       = 0x3FF;
   static const int kHcalEtaOffset1     = 7;
@@ -35,7 +35,7 @@ public:
   /** Create cellid from raw id (0=invalid tower id) */
   HcalDetId(uint32_t rawid);
   /** Constructor from subdetector, signed tower ieta,iphi,and depth */
-  HcalDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth, bool oldFormat = false);
+  HcalDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth, bool oldFormat);
   /** Constructor from a generic cell id */
   HcalDetId(const DetId& id);
   /** Assignment from a generic cell id */

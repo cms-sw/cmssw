@@ -86,7 +86,7 @@ bool HcalHitMaker::addHit(const XYZPoint& point, unsigned layer)
     } else {
       mylayer = 1;
     }
-    HcalDetId myDetId2((HcalSubdetector)myDetId.subdetId(),myDetId.ieta(),myDetId.iphi(),mylayer);
+    HcalDetId myDetId2((HcalSubdetector)myDetId.subdetId(),myDetId.ieta(),myDetId.iphi(),mylayer,false);
     thecellID = myDetId2;
 	myDetId = myDetId2;
   }
