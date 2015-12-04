@@ -9,9 +9,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-//CaloMET
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
+//Centrality
+#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
 //SiPixelClusters
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
@@ -34,7 +33,7 @@ protected:
 
 private:
 	edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
-	edm::EDGetTokenT<reco::CaloMETCollection> theCaloMet;
+	edm::EDGetTokenT<reco::Centrality> theCentrality_;
 	edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > theSiPixelCluster;
 
 	std::string triggerPath_;

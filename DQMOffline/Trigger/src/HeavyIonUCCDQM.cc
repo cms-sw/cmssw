@@ -8,7 +8,7 @@
 HeavyIonUCCDQM::HeavyIonUCCDQM(const edm::ParameterSet& ps)
 {
 	triggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("triggerResults"));
-	theCaloMet = consumes<reco::CaloMETCollection>(ps.getParameter<edm::InputTag>("caloMet"));
+	theCentrality_ = consumes<reco::Centrality>(ps.getParameter<edm::InputTag>("centralityTag"));
 	theSiPixelCluster = consumes<edmNew::DetSetVector<SiPixelCluster> >(ps.getParameter<edm::InputTag>("pixelCluster"));
 	triggerPath_ = ps.getParameter<std::string>("triggerPath");
 
@@ -66,14 +66,14 @@ void HeavyIonUCCDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 		h_SiPixelClusters->Fill(cluster->dataSize());
 	}
 
-	edm::Handle<reco::CaloMETCollection> calometColl;
-	e.getByToken(theCaloMet, calometColl);
-	if ( calometColl.isValid() ) {
-		h_SumEt->Fill((*calometColl).front().sumEt());
+	edm::Handle<reco::Centrality> hiCentrality;
+	e.getByToken(theCentrality_, hiCentrality);
+	if ( hiCentrality.isValid() ) {
+		h_SumEt->Fill( hiCentrality->EtHFtowerSum());
 	}
 
-	if ( cluster.isValid() && calometColl.isValid() ) {
-	        h_SumEt_SiPixelClusters->Fill((*calometColl).front().sumEt(), cluster->dataSize());
+	if ( cluster.isValid() && hiCentrality.isValid() ) {
+	        h_SumEt_SiPixelClusters->Fill( hiCentrality->EtHFtowerSum(), cluster->dataSize());
 	}
 
 
