@@ -140,7 +140,7 @@ namespace sistrip {
 	    fedbuffer.reset(new sistrip::FEDBuffer(rawfedData.data(),rawfedData.size(),true));
 	    //bufferBase.reset(new sistrip::FEDBufferBase(rawfedData.data(),rawfedData.size()));
 	  } catch (const cms::Exception& e) {
-	    std::cerr << "[sistrip::DigiToRaw::createFedBuffers_]"
+	    edm::LogWarning("DigiToRaw") << "[sistrip::DigiToRaw::createFedBuffers_]"
 		      << " Invalid raw data, cannot get buffer..."
 		      << std::endl;
 	  }
