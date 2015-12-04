@@ -21,6 +21,7 @@ namespace edm {
   class InputFile;
   class RootTree;
   class SharedResourcesAcquirer;
+  class Exception;
 
   //------------------------------------------------------------
   // Class RootDelayedReader: pretends to support file reading.
@@ -60,6 +61,10 @@ namespace edm {
     std::unique_ptr<SharedResourcesAcquirer> resourceAcquirer_;
     InputType inputType_;
     TClass* wrapperBaseTClass_;
+    //If a fatal exception happens we need to make a copy so we can
+    // rethrow that exception on other threads. This avoids TTree
+    // non-exception safety problems on later calls to TTree.
+    mutable std::unique_ptr<Exception> lastException_;
   }; // class RootDelayedReader
   //------------------------------------------------------------
 }
