@@ -12,7 +12,7 @@
 #include <iostream>
 #include <iomanip>
 
-#define DebugLog
+//#define DebugLog
 
 namespace {
   int getTopologyMode(const char* s, const DDsvalues_type & sv, bool type) {
