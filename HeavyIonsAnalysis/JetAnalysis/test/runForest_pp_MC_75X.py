@@ -57,6 +57,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 # pp 75X MC
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.HiForest.GlobalTagLabel = process.GlobalTag.globaltag
 
 #from HeavyIonsAnalysis.Configuration.CommonFunctionsLocalDB_cff import overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db
 #process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db(process)
@@ -167,7 +168,7 @@ process.jetSequences = cms.Sequence(
     process.ak5PFJetSequence +
     process.ak5CaloJetSequence +
     process.ak6PFJetSequence +
-    process.ak6CaloJetSequence 
+    process.ak6CaloJetSequence
 )
 
 process.ak1PFJetAnalyzer.doSubEvent = True

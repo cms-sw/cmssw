@@ -15,7 +15,7 @@ import subprocess
 version = subprocess.Popen(["(cd $CMSSW_BASE/src && git describe --tags)"], stdout=subprocess.PIPE, shell=True).stdout.read()
 if version == '':
     version = 'no git info'
-    process.HiForest.HiForestVersion = cms.untracked.string(version)
+process.HiForest.HiForestVersion = cms.string(version)
 
 #####################################################################################
 # Input source
@@ -23,7 +23,7 @@ if version == '':
 
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-                            fileNames = cms.untracked.vstring("file:hireco_RAW2DIGI_L1Reco_RECO_run262563_ls0080.root")
+                            fileNames = cms.untracked.vstring("/store/group/phys_heavyions/velicanu/reco/HIPhysicsMinBiasUPC/v0/000/262/548/recoExpress_84.root")
 )
 
 
@@ -51,6 +51,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+process.HiForest.GlobalTagLabel = process.GlobalTag.globaltag
 
 from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_PbPb5020
 process = overrideJEC_PbPb5020(process)

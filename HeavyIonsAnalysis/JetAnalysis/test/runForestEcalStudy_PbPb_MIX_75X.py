@@ -57,7 +57,7 @@ process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
 process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
 for pset in process.GlobalTag.toGet.value():
     pset.connect = pset.connect.value().replace('frontier://FrontierProd/', 'frontier://FrontierProd/')
-    
+
 process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
 process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
@@ -68,6 +68,7 @@ connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
 label = cms.untracked.string("HFtowersHydjetDrum5")
  ),
 ])
+process.HiForest.GlobalTagLabel = process.GlobalTag.globaltag
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 from CondCore.DBCommon.CondDBSetup_cfi import *
@@ -81,13 +82,13 @@ process.jec = cms.ESSource("PoolDBESSource",
                  tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v1_AK4Calo_hlt"),
                  label = cms.untracked.string("AK4Calo")
                  ),
-        
+
         cms.PSet(record = cms.string("JetCorrectionsRecord"),
                  tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v1_AK4Calo_hlt"),
                  label = cms.untracked.string("AK4Calo")
-                 )        
+                 )
       ),
-                           connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),                           
+                           connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
 )
 
 process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
@@ -227,7 +228,7 @@ process.ggHiNtuplizer.genParticleSrc = cms.InputTag("genParticles")
 process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.InputTag('gedPhotonsTmp'),
                                                        recoPhotonHiIsolationMap = cms.InputTag('photonIsolationHIProducerGED')
                                                        )
-                                                       
+
 process.hltGGHiNtuplizer = process.ggHiNtuplizer.clone()
 process.hltGGHiNtuplizer.recoPhotonSrc = cms.InputTag("photonsHlt")
 process.hltGGHiNtuplizer.useValMapIso = False

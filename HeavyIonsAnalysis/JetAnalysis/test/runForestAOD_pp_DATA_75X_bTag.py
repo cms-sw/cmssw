@@ -57,6 +57,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '75X_dataRun2_Prompt_ppAt5TeV_v1', '')
+process.HiForest.GlobalTagLabel = process.GlobalTag.globaltag
 
 from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_pp5020
 # process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db(process)
@@ -97,12 +98,12 @@ process.jetSequences = cms.Sequence(
                                     # process.ak3PFJetSequence +
 
                                     process.PureTracks +
-				    
-				    
-				    process.ak3PFJets * process.ak3PFJetSequence + 
+
+
+				    process.ak3PFJets * process.ak3PFJetSequence +
 				    process.ak4CaloJetSequence +
                                     process.ak4PFJetSequence +
-    				    process.ak5PFJets * process.ak5PFJetSequence	
+    				    process.ak5PFJets * process.ak5PFJetSequence
                                     # process.akPu5CaloJetSequence +
                                     # process.akVs5CaloJetSequence +
                                     # process.akVs5PFJetSequence +
@@ -203,7 +204,7 @@ process.clusterCompatibilityFilter.clusterPars = cms.vdouble(0.0,0.006)
 '''
 process.PAcollisionEventSelection = cms.Sequence(process.hfCoincFilter *
                                          process.PAprimaryVertexFilter *
-                                         process.NoScraping 
+                                         process.NoScraping
                                          )
 
 process.phltJetHI = cms.Path( process.hltJetHI )

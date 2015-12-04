@@ -64,6 +64,7 @@ connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
 label = cms.untracked.string("HFtowersHydjetDrum5")
  ),
 ])
+process.HiForest.GlobalTagLabel = process.GlobalTag.globaltag
 
 
 from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_PbPb5020

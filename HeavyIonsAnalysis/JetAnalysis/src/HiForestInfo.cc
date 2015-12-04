@@ -2,7 +2,7 @@
 //
 // Package:    HiForestInfo
 // Class:      HiForestInfo
-// 
+//
 /**\class HiForestInfo HiForestInfo.cc CmsHi/HiForestInfo/src/HiForestInfo.cc
 
    Description: [one line class summary]
@@ -64,6 +64,7 @@ private:
 
   TTree* HiForestVersionTree;
   std::string HiForestVersion_;
+  std::string GlobalTagLabel_;
 };
 
 //
@@ -80,13 +81,14 @@ private:
 HiForestInfo::HiForestInfo(const edm::ParameterSet& iConfig)
 {
   inputLines_ = iConfig.getParameter<std::vector<std::string> >("inputLines");
-  HiForestVersion_ = iConfig.getUntrackedParameter<std::string>("HiForestVersion",std::string("xxUNTAGGEDxx"));
+  HiForestVersion_ = iConfig.getParameter<std::string>("HiForestVersion");
+  GlobalTagLabel_ = iConfig.getParameter<std::string>("GlobalTagLabel");
 }
 
 
 HiForestInfo::~HiForestInfo()
 {
- 
+
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 
@@ -107,45 +109,56 @@ HiForestInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 HiForestInfo::beginJob()
 {
+  HiForestVersionTree = fs->make<TTree>("HiForestInfo","HiForestInfo");
+  std::vector<char *>inputLines_c;
+  inputLines_c.resize(inputLines_.size());
   for(unsigned i = 0; i < inputLines_.size(); ++i){
-    fs->make<TH1D>(Form("h%d",i),inputLines_[i].data(),1,0,1);
+    char * cstr = new char [inputLines_[i].length()+1];
+    std::strcpy (cstr, inputLines_[i].c_str());
+    inputLines_c[i] = cstr;
+    HiForestVersionTree->Branch(Form("InputLines_%i",i),inputLines_c[i],"InputLines/C");
   }
 
-  //HiForestVersion = "xxUNTAGGEDxx";
-  HiForestVersionTree = fs->make<TTree>("HiForestVersion",HiForestVersion_.c_str());
-  // HiForestVersionTree->Branch("HiForestVersion",&HiForestVersion,"HiForestVersion/C");
-  // HiForestVersionTree->Fill();
+  char *HiForestVersion_c = new char[HiForestVersion_.length()+1];
+  std::strcpy(HiForestVersion_c, HiForestVersion_.c_str());
+  HiForestVersionTree->Branch("HiForestVersion",HiForestVersion_c,"HiForestVersion/C");
+
+  char *GlobalTagLabel_c = new char[GlobalTagLabel_.length()+1];
+  std::strcpy(GlobalTagLabel_c, GlobalTagLabel_.c_str());
+  HiForestVersionTree->Branch("GlobalTag",GlobalTagLabel_c,"GlobalTag/C");
+
+  HiForestVersionTree->Fill();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-HiForestInfo::endJob() 
+void
+HiForestInfo::endJob()
 {
 }
 
 // ------------ method called when starting to processes a run  ------------
-void 
+void
 HiForestInfo::beginRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a run  ------------
-void 
+void
 HiForestInfo::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
-void 
+void
 HiForestInfo::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-void 
+void
 HiForestInfo::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
