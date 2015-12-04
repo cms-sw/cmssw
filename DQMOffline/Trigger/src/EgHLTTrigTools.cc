@@ -115,7 +115,7 @@ void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<
     const std::string& pathName = hltConfig.triggerName(pathNr);
 
     if(pathName.find("HLT_")==0){ //hlt path as they all start with HLT_XXXX
-      if((pathName.find("Photon")==4 || pathName.find("Ele")==4 || pathName.find("EG")!=pathName.npos || pathName.find("Activity")==4 || pathName.find("Physics")==4 || pathName.find("DiSC") == 4)// e/g paths, pho or ele always come first
+      if((pathName.find("Photon")!=pathName.npos || pathName.find("Ele")!=pathName.npos || pathName.find("EG")!=pathName.npos || pathName.find("Activity")!=pathName.npos || pathName.find("Physics")!=pathName.npos || pathName.find("DiSC") != pathName.npos)// e/g paths, pho or ele always come first
 	 && (pathName.find("Jet")==pathName.npos && pathName.find("Muon")==pathName.npos 
 	     && pathName.find("Tau")==pathName.npos && pathName.find("HT")==pathName.npos 
 	     && pathName.find("MR")==pathName.npos && pathName.find("LEITI")==pathName.npos 
@@ -131,7 +131,7 @@ void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<
 	  //if(filters.back()=="hltBoolEnd" && filters.size()>=2){
 	  for(size_t filter=0;filter<filters.size();filter++){
 	    //std::cout << filters[filter] << std::endl;
-	    if(filters[filter].find("Filter")!=filters[filter].npos){//keep only modules that contain the word "Filter"
+	    if(filters[filter].find("Filter")!=filters[filter].npos or pathName.find("HI")!=pathName.npos){//keep only modules that contain the word "Filter" or "HI"
 	      //std::cout<<"  Module Name: "<<filters[filter]<<" filter#: "<<int(filter)<<"/"<<filters.size()<<" ncandcut: "<<trigTools::getMinNrObjsRequiredByFilter(filters[filter])<<std::endl;
 	      if(//keep only the last filter and the last one with ncandcut==1 (for di-object triggers)
 		 (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==2)  
