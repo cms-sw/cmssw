@@ -28,7 +28,7 @@ namespace sistrip {
     rawdigi_( false ),
     digiToRaw_(0),
     eventCounter_(0),
-    rawDataTag_(pset.getUntrackedParameter<edm::InputTag>("RawDataTag",edm::InputTag("source","")))
+    rawDataTag_(pset.getUntrackedParameter<edm::InputTag>("RawDataTag",edm::InputTag("rawDataCollector","")))
   {
     if ( edm::isDebugEnabled() ) {
       LogDebug("DigiToRawModule") 
