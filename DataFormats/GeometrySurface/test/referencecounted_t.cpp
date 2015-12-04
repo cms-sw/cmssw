@@ -30,8 +30,8 @@ namespace testreferencecounted {
    static unsigned int s_construct = 0;
 
    struct RefTest : public ReferenceCounted {
-	 RefTest() { s_construct = 1; }
-	 ~RefTest() { s_construct = 0; }
+	 RefTest() { s_construct++; }
+	 ~RefTest() { s_construct--; }
    };
 
    typedef ReferenceCountingPointer<RefTest> RefPtr;
