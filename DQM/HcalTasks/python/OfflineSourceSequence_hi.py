@@ -18,10 +18,10 @@ recHitTask.ptype = cms.untracked.int32(1)
 rawTask.ptype = cms.untracked.int32(1)
 
 #	set the run key(value and name)
-digiTask.runkeyVal = cms.untracked.int32(-1),
-tpTask.runkeyVal = cms.untracked.int32(-1),
-recHitTask.runkeyVal = cms.untracked.int32(-1)
-rawTask.runkeyVal = cms.untracked.int32(-1)
+digiTask.runkeyVal = cms.untracked.int32(4)
+tpTask.runkeyVal = cms.untracked.int32(4)
+recHitTask.runkeyVal = cms.untracked.int32(4)
+rawTask.runkeyVal = cms.untracked.int32(4)
 
 digiTask.runkeyName = cms.untracked.string("hi_run")
 tpTask.runkeyName = cms.untracked.string("hi_run")
