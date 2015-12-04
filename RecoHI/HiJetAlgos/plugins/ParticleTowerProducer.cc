@@ -85,7 +85,7 @@ ParticleTowerProducer::~ParticleTowerProducer()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
+  delete random_;
 }
 
 
@@ -165,7 +165,8 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    for ( std::map< DetId, double >::const_iterator iter = towers_.begin();
 	 iter != towers_.end(); ++iter ){
      
-     CaloTowerDetId newTowerId(iter->first.rawId());
+     HcalDetId id = HcalDetId(iter->first);
+     CaloTowerDetId newTowerId(id.ieta(),id.iphi());
      double et = iter->second;
 
      if(et>0){
