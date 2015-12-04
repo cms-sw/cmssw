@@ -112,10 +112,8 @@ namespace sistrip {
       bufferGenerator_.setL1ID(0xFFFFFF & event.id().event());
       auto fed_ids = cabling->fedIds();
 
-      std::cout << " Are you valid or not ??" << std::endl;
       //copy header if valid rawbuffers handle
       if (rawbuffers.isValid()){
-	std::cout << " yes..." << std::endl;
 	if ( edm::isDebugEnabled() ) {
 	  edm::LogWarning("DigiToRaw")
 	    << "[sistrip::DigiToRaw::createFedBuffers_]"
