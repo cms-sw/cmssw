@@ -48,7 +48,6 @@ protected:
   }
 
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   ProxyBase(ProxyBase&& other)  noexcept {
     theData = other.theData;
     other.theData=0;
@@ -62,7 +61,6 @@ protected:
     }
     return *this;
   }
-#endif
 
   const T& data() const { check(); return *theData;}
 
