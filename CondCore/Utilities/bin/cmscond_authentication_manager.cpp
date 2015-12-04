@@ -3,8 +3,6 @@
 #include "CondCore/DBCommon/interface/Auth.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/CredentialStore.h"
-#include "CondCore/IOVService/interface/IOVNames.h"
-#include "CondCore/IOVService/interface/IOVSchemaUtility.h"
 #include "CondCore/Utilities/interface/Utilities.h"
 //
 #include "RelationalAccess/AuthenticationCredentials.h"

@@ -25,7 +25,7 @@ int run( const std::string& connectionString ){
     std::cout <<"> Connecting with db in "<<connectionString<<std::endl;
     ConnectionPool connPool;
     connPool.setMessageVerbosity( coral::Debug );
-    Session session = connPool.createSession( connectionString, true, cond::COND_DB );
+    Session session = connPool.createSession( connectionString, true );
     session.transaction().start( false );
     MyTestData d0( 17 );
     MyTestData d1( 999 );
@@ -54,34 +54,32 @@ int run( const std::string& connectionString ){
       editor.flush();
     }
 
-    bool isOra = session.isOraSession();
     session.transaction().commit();
     std::cout <<"> iov changes committed!..."<<std::endl;
 
-    if ( !isOra ){
-      session.transaction().start( false );
-      std::cout <<"## now trying to insert in the past..."<<std::endl;
-      try{
-	editor = session.editIov( "MyNewIOV" );
-	editor.insert( 200, p1 );
-	editor.insert( 300, p1 );
-	editor.insert( 50, p1 );
-	editor.flush();
-	std::cout <<"ERROR: forbidden insertion."<<std::endl;
-	session.transaction().commit();
-      } catch ( const cond::persistency::Exception& e ){
-	std::cout <<"Expected error: "<<e.what()<<std::endl;
-	session.transaction().rollback();
-      }
-      session.transaction().start( false );
-      editor = session.editIov( "StringData" );
-      editor.insert( 3000000, p3 );
-      editor.insert( 4000000, p3 );
-      editor.insert( 1500000, p3);
+    session.transaction().start( false );
+    std::cout <<"## now trying to insert in the past..."<<std::endl;
+    try{
+      editor = session.editIov( "MyNewIOV" );
+      editor.insert( 200, p1 );
+      editor.insert( 300, p1 );
+      editor.insert( 50, p1 );
       editor.flush();
-      std::cout <<"Insertion in the past completed."<<std::endl;
+      std::cout <<"ERROR: forbidden insertion."<<std::endl;
       session.transaction().commit();
+    } catch ( const cond::persistency::Exception& e ){
+      std::cout <<"Expected error: "<<e.what()<<std::endl;
+      session.transaction().rollback();
     }
+    session.transaction().start( false );
+    editor = session.editIov( "StringData" );
+    editor.insert( 3000000, p3 );
+    editor.insert( 4000000, p3 );
+    editor.insert( 1500000, p3);
+    editor.flush();
+    std::cout <<"Insertion in the past completed."<<std::endl;
+    session.transaction().commit();
+
     ::sleep(2);
     session.transaction().start();
 
@@ -153,20 +151,7 @@ int main (int argc, char** argv)
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
   std::string connectionString0("sqlite_file:cms_conditions_0.db");
-  std::cout <<"## Running with CondDBV2 format..."<<std::endl;
   ret = run( connectionString0 );
-  if( ret<0 ) return ret;
-  std::string connectionString1("sqlite_file:cms_conditions_ora.db");
-  {
-    cond::DbConnection oraConn;
-    cond::DbSession oraSess = oraConn.createSession();
-    oraSess.open( connectionString1 );
-    oraSess.transaction().start( false );
-    oraSess.createDatabase();
-    oraSess.transaction().commit();
-  }
-  std::cout <<"## Running with CondDBV1 format..."<<std::endl;
-  ret = run( connectionString1 );
   return ret;
 }
 

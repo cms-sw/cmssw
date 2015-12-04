@@ -21,7 +21,7 @@ int run( const std::string& connectionString ){
     std::cout <<"> Connecting with db in "<<connectionString<<std::endl;
     ConnectionPool connPool;
     connPool.setMessageVerbosity( coral::Debug );
-    Session session = connPool.createSession( connectionString, true, cond::COND_DB );
+    Session session = connPool.createSession( connectionString, true );
     session.transaction().start( false );
     IOVEditor editor;
     if( !session.existsDatabase() || !session.existsIov( "BasicPayload_v0" ) ){

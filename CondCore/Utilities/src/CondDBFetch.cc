@@ -2,7 +2,7 @@
 
 #define FETCH_PAYLOAD_CASE( TYPENAME ) \
   if( payloadTypeName == #TYPENAME ){ \
-    auto payload = deserialize<TYPENAME>( payloadTypeName, data, streamerInfo, isOra ); \
+    auto payload = deserialize<TYPENAME>( payloadTypeName, data, streamerInfo ); \
     payloadPtr = payload; \
     match = true; \
   }
@@ -20,7 +20,7 @@ namespace cond {
 
   namespace persistency {
 
-    std::pair<std::string, boost::shared_ptr<void> > fetchOne( const std::string &payloadTypeName, const cond::Binary &data, const cond::Binary &streamerInfo, boost::shared_ptr<void> payloadPtr, bool isOra ){
+    std::pair<std::string, boost::shared_ptr<void> > fetchOne( const std::string &payloadTypeName, const cond::Binary &data, const cond::Binary &streamerInfo, boost::shared_ptr<void> payloadPtr ){
 
       bool match = false;
       FETCH_PAYLOAD_CASE( std::string ) 
@@ -154,7 +154,6 @@ namespace cond {
       FETCH_PAYLOAD_CASE( HcalPedestalWidths )
       FETCH_PAYLOAD_CASE( HcalPedestals )
       FETCH_PAYLOAD_CASE( HcalQIEData )
-      FETCH_PAYLOAD_CASE( HcalQIETypes ) 
       FETCH_PAYLOAD_CASE( HcalRecoParams )
       FETCH_PAYLOAD_CASE( HcalRespCorrs )
       FETCH_PAYLOAD_CASE( HcalTimeCorrs )
@@ -279,17 +278,17 @@ namespace cond {
 
       //   
       if( payloadTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>" ){    
-	auto payload = deserialize<PhysicsTools::Calibration::Histogram3D<double,double,double,double> >(payloadTypeName, data, streamerInfo, isOra );
+	auto payload = deserialize<PhysicsTools::Calibration::Histogram3D<double,double,double,double> >(payloadTypeName, data, streamerInfo );
 	payloadPtr = payload;
 	match = true;
       }
       if( payloadTypeName == "PhysicsTools::Calibration::Histogram2D<double,double,double>" ){    
-	auto payload = deserialize<PhysicsTools::Calibration::Histogram2D<double,double,double> >(payloadTypeName, data, streamerInfo, isOra );
+	auto payload = deserialize<PhysicsTools::Calibration::Histogram2D<double,double,double> >(payloadTypeName, data, streamerInfo );
 	payloadPtr = payload;
 	match = true;
       }
       if( payloadTypeName == "std::vector<unsignedlonglong,std::allocator<unsignedlonglong>>" ){
-	auto payload = deserialize<std::vector<unsigned long long> >( payloadTypeName, data, streamerInfo, isOra );
+	auto payload = deserialize<std::vector<unsigned long long> >( payloadTypeName, data, streamerInfo );
 	payloadPtr = payload;
 	match = true;
       }
@@ -304,10 +303,8 @@ namespace cond {
       cond::Binary streamerInfo;
       std::string payloadTypeName;
       bool found = session.fetchPayloadData( payloadId, payloadTypeName, data, streamerInfo );
-      if( !found ) throwException( "Payload with id "+boost::lexical_cast<std::string>(payloadId)+" has not been found in the database.","fetchAndCompare" );
-      //std::cout <<"--> payload type "<<payloadTypeName<<" has blob size "<<data.size()<<std::endl;
-      bool isOra = session.isOraSession();
-      return fetchOne(payloadTypeName, data, streamerInfo, payloadPtr, isOra);
+      if( !found ) throwException( "Payload with id "+boost::lexical_cast<std::string>(payloadId)+" has not been found in the database.","fetch" );
+      return fetchOne(payloadTypeName, data, streamerInfo, payloadPtr );
     }
 
  }

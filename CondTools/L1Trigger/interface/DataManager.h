@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/DataKeyTags.h"
 #include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/DBCommon/interface/DbConnection.h"
-#include "CondCore/MetaDataService/interface/MetaData.h"
 
 #include <string>
 
