@@ -35,7 +35,7 @@ public:
 
   virtual std::vector< const DetLayer * > compatibleLayers (const FreeTrajectoryState &fts, 
 							    PropagationDirection timeDirection,
-							    int& counter) const  GCC11_FINAL;
+							    int& counter) const  final;
   
 protected:
   

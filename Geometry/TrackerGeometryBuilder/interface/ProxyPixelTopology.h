@@ -25,7 +25,7 @@
 
 class Plane;
 
-class ProxyPixelTopology GCC11_FINAL : public PixelTopology {
+class ProxyPixelTopology final : public PixelTopology {
 public:
 
   ProxyPixelTopology( PixelGeomDetType const * type, Plane * bp );

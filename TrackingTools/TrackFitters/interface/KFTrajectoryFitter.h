@@ -19,7 +19,7 @@
 
 #include <memory>
 
-class KFTrajectoryFitter GCC11_FINAL: public TrajectoryFitter {
+class KFTrajectoryFitter final: public TrajectoryFitter {
 
 private:
 

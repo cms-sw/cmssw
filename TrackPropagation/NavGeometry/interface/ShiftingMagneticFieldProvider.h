@@ -8,7 +8,7 @@
 
 
 template <class T>
-class ShiftingMagneticFieldProvider GCC11_FINAL : public MagneticFieldProvider<T> {
+class ShiftingMagneticFieldProvider final : public MagneticFieldProvider<T> {
 public:
 
   typedef typename MagneticFieldProvider<T>::LocalPointType    LocalPointType;

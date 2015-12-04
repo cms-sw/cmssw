@@ -65,11 +65,11 @@ class FastTrackerRecHit : public BaseTrackerRecHit
 
     /// Steers behaviour of hit in track fit.
     /// Hit is interpreted as 1D or 2D depending on value of is2D_
-    void getKfComponents( KfComponentsHolder & holder ) const GCC11_OVERRIDE { if(is2D_) getKfComponents2D(holder); else getKfComponents1D(holder);}
+    void getKfComponents( KfComponentsHolder & holder ) const override { if(is2D_) getKfComponents2D(holder); else getKfComponents1D(holder);}
 
     /// Steers behaviour of hit in track fit.
     /// Hit is interpreted as 1D or 2D depending on value of is2D_
-    int dimension() const GCC11_OVERRIDE {return is2D_ ? 2 : 1;} ///< get the dimensions right
+    int dimension() const override {return is2D_ ? 2 : 1;} ///< get the dimensions right
 
     /// Steers behaviour of hit in track fit.
     /// FastSim hit smearing assumes
@@ -87,7 +87,7 @@ class FastTrackerRecHit : public BaseTrackerRecHit
 
     virtual int32_t              recHitCombinationIndex() const { return recHitCombinationIndex_;}
 
-    bool isPixel() const GCC11_OVERRIDE {return isPixel_;} ///< pixel or strip?
+    bool isPixel() const override {return isPixel_;} ///< pixel or strip?
 
     /* setters */
 
@@ -174,7 +174,7 @@ class FastTrackerRecHit : public BaseTrackerRecHit
 
     protected:
 
-    virtual FastTrackerRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const GCC11_OVERRIDE {
+    virtual FastTrackerRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
 	return this->clone();
     }
   

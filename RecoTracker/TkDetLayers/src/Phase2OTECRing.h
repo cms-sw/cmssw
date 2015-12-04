@@ -11,7 +11,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class Phase2OTECRing GCC11_FINAL : public GeometricSearchDet {
+class Phase2OTECRing final : public GeometricSearchDet {
  public:
   Phase2OTECRing(std::vector<const GeomDet*>& innerDets,
 		 std::vector<const GeomDet*>& outerDets,

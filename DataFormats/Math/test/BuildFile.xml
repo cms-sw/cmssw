@@ -37,6 +37,8 @@
 </bin>
 <bin   file="eta_t.cpp" name="DataFormatsEta_t">
 </bin>
+<bin   file="arc.cpp" name="DataFormatsAsin_t">
+</bin>
 <bin file="testAtan2.cpp" />
 <bin file="testAtan2.cpp" name="testAtan2FastMath">
    <flags CXXFLAGS="-ffast-math"/>

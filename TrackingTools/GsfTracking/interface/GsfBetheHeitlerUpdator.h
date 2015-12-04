@@ -23,7 +23,7 @@
  * construction time.
  */
 
-class GsfBetheHeitlerUpdator GCC11_FINAL: public GsfMaterialEffectsUpdator {
+class GsfBetheHeitlerUpdator final: public GsfMaterialEffectsUpdator {
 
 private:
   static constexpr int MaxSize=6;

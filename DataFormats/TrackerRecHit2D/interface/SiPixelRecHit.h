@@ -20,7 +20,7 @@
 
 #include "TkCloner.h"
 
-class SiPixelRecHit GCC11_FINAL : public TrackerSingleRecHit {
+class SiPixelRecHit final : public TrackerSingleRecHit {
   
 public:
   
@@ -37,12 +37,12 @@ public:
     TrackerSingleRecHit(pos,err,idet, clus){
     qualWord_=qual; }
 
-  virtual bool isPixel() const GCC11_OVERRIDE { return true;}
+  virtual bool isPixel() const override { return true;}
 
   
-  virtual SiPixelRecHit * clone() const GCC11_OVERRIDE {return new SiPixelRecHit( * this); }
+  virtual SiPixelRecHit * clone() const override {return new SiPixelRecHit( * this); }
 #ifndef __GCCXML__
-  virtual RecHitPointer cloneSH() const GCC11_OVERRIDE { return std::make_shared<SiPixelRecHit>(*this);}
+  virtual RecHitPointer cloneSH() const override { return std::make_shared<SiPixelRecHit>(*this);}
 #endif
 
   
@@ -50,18 +50,18 @@ public:
 
   void setClusterRef(ClusterRef const & ref)  {setClusterPixelRef(ref);}
 
-  virtual int dimension() const GCC11_OVERRIDE {return 2;}
-  virtual void getKfComponents( KfComponentsHolder & holder ) const GCC11_OVERRIDE { getKfComponents2D(holder); }
+  virtual int dimension() const override {return 2;}
+  virtual void getKfComponents( KfComponentsHolder & holder ) const override { getKfComponents2D(holder); }
   
   
-  virtual bool canImproveWithTrack() const GCC11_OVERRIDE {return true;}
+  virtual bool canImproveWithTrack() const override {return true;}
 private:
   // double dispatch
-  virtual SiPixelRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const GCC11_OVERRIDE {
+  virtual SiPixelRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
     return cloner(*this,tsos).release();
   }
 #ifndef __GCCXML__
-  virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const GCC11_OVERRIDE {
+  virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
     return cloner.makeShared(*this,tsos);
   }
 #endif  

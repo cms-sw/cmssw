@@ -17,7 +17,7 @@
 
 class ME0DetId;
 
-class ME0Segment GCC11_FINAL : public RecSegment {
+class ME0Segment final : public RecSegment {
 
 public:
 

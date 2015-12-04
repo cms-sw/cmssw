@@ -37,7 +37,7 @@
 # include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-class RectangularPixelTopology GCC11_FINAL : public PixelTopology
+class RectangularPixelTopology final : public PixelTopology
 {
 public:
 

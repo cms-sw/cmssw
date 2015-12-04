@@ -5,7 +5,7 @@
 
 // #include<iostream>
 
-class ProjectedSiStripRecHit2D GCC11_FINAL  : public TrackerSingleRecHit  {
+class ProjectedSiStripRecHit2D final  : public TrackerSingleRecHit  {
 public:
   
   inline static bool isMono(GeomDet const & gdet, GeomDet const & sdet) {

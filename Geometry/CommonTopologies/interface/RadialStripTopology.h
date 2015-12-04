@@ -92,7 +92,7 @@ class RadialStripTopology : public StripTopology {
    * not sensible for a RadialStripTopology since strip widths vary with local y.
    * Use localPitch(.) instead.
    */
-  virtual float pitch() const GCC11_FINAL;
+  virtual float pitch() const final;
 
   /** 
    * Pitch (strip width) at a given LocalPoint. <BR>

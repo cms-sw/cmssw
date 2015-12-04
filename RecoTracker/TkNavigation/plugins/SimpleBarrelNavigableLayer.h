@@ -9,7 +9,7 @@
 /** A concrete NavigableLayer for the barrel 
  */
 
-class dso_hidden SimpleBarrelNavigableLayer GCC11_FINAL : public SimpleNavigableLayer {
+class dso_hidden SimpleBarrelNavigableLayer final : public SimpleNavigableLayer {
 
 public:
 

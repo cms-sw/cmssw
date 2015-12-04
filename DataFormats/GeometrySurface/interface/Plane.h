@@ -16,19 +16,16 @@
 
 class Plane : public Surface {
 public:
-#ifndef CMS_NOCXX11
  template<typename... Args>
   Plane(Args&& ... args) :
     Surface(std::forward<Args>(args)...){setPosPrec();computeSpan();}
-#endif  
 
-  typedef ReferenceCountingPointer<Plane> PlanePointer;
-  typedef ConstReferenceCountingPointer<Plane> ConstPlanePointer;
-  typedef ReferenceCountingPointer<Plane> BoundPlanePointer;
-  typedef ConstReferenceCountingPointer<Plane> ConstBoundPlanePointer;
+  using PlanePointer = ReferenceCountingPointer<Plane>;
+  using ConstPlanePointer = ConstReferenceCountingPointer<Plane>;
+  using BoundPlanePointer = ReferenceCountingPointer<Plane>;
+  using ConstBoundPlanePointer = ConstReferenceCountingPointer<Plane>;
 
 
-#ifndef CMS_NOCXX11
   /// Construct a Plane.
   /// The reference frame is defined by pos and rot; the plane is
   /// orthogonal to the local Z axis.
@@ -36,7 +33,6 @@ public:
   static PlanePointer build(Args&& ... args) {
     return PlanePointer(new Plane(std::forward<Args>(args)...));
   }
-#endif
  
   ~Plane(){}
 
@@ -50,12 +46,10 @@ public:
     return normalVector().dot(gp-position());
   }
 
-#ifndef CMS_NOCXX11
   float localZclamped (const GlobalPoint& gp) const {
     auto d = localZ(gp);
     return std::abs(d) > posPrec() ? d : 0; 
   }
-#endif
 
   /// Fast access to component perpendicular to plane for a vector.
   float localZ (const GlobalVector& gv) const {
@@ -70,38 +64,34 @@ public:
 
 // implementation of Surface interface    
 
-  virtual SurfaceOrientation::Side side( const LocalPoint& p, Scalar toler) const GCC11_FINAL {
+  virtual SurfaceOrientation::Side side( const LocalPoint& p, Scalar toler) const final {
     return (std::abs(p.z())<toler) ? SurfaceOrientation::onSurface : 
 	(p.z()>0 ? SurfaceOrientation::positiveSide : SurfaceOrientation::negativeSide);
   }
 
-  virtual SurfaceOrientation::Side side( const GlobalPoint& p, Scalar toler) const GCC11_FINAL {
+  virtual SurfaceOrientation::Side side( const GlobalPoint& p, Scalar toler) const final {
     Scalar lz = localZ(p);
     return (std::abs(lz)<toler ? SurfaceOrientation::onSurface : 
 	    (lz>0 ? SurfaceOrientation::positiveSide : SurfaceOrientation::negativeSide));
   }
 
   /// tangent plane to surface from global point
-  virtual ConstReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const GCC11_FINAL;
+  virtual ConstReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const final;
 
   /// tangent plane to surface from local point
-  virtual ConstReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const GCC11_FINAL;
+  virtual ConstReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const final;
 
 private:
   void setPosPrec() {
-#ifndef CMS_NOCXX11
     constexpr auto maxf = std::numeric_limits<float>::max();
     auto p = position();
     float l = std::max(std::max(std::abs(p.x()),std::abs(p.y())),std::abs(p.z()));
     m_posPrec = std::abs(l-::nextafterf(l,maxf));  //  LSB  (can be multiplied by 4 or divided by 4 for safety depending on usage)
-#endif
   }
 
   Scalar m_posPrec; // the precision on the actual global position
 
 };
-#ifndef CMS_NOCXX11
 using BoundPlane = Plane;
-#endif
 
 #endif

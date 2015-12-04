@@ -16,7 +16,7 @@
 #include <vector>
 #include <atomic>
 
-class EcalBarrelGeometry GCC11_FINAL : public CaloSubdetectorGeometry 
+class EcalBarrelGeometry final : public CaloSubdetectorGeometry 
 {
    public:
 

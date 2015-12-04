@@ -16,7 +16,7 @@
    
 */
 
-class TruncatedPyramid  GCC11_FINAL : public CaloCellGeometry {
+class TruncatedPyramid  final : public CaloCellGeometry {
 public:
 
   typedef CaloCellGeometry::CCGFloat CCGFloat ;

@@ -13,7 +13,7 @@
  * In case the propagation was not successful, this state can be invalid.
  */
 
-class TSCPBuilderNoMaterial GCC11_FINAL : 
+class TSCPBuilderNoMaterial final : 
   public TrajectoryStateClosestToPointBuilder
 {
 public: 

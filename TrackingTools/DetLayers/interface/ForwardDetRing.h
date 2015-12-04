@@ -23,7 +23,7 @@ class ForwardDetRing : public GeometricSearchDet {
 		   const MeasurementEstimator& est,
 		   std::vector<DetWithState>& result) const;
   
-  virtual const BoundSurface& surface() const GCC11_FINAL {return *theDisk;}
+  virtual const BoundSurface& surface() const final {return *theDisk;}
 
   
   //--- Extension of the interface

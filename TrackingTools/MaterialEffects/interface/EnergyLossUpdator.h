@@ -17,7 +17,7 @@
 
 class MediumProperties;
 
-class EnergyLossUpdator GCC11_FINAL : public MaterialEffectsUpdator 
+class EnergyLossUpdator final : public MaterialEffectsUpdator 
 {
  public:
   virtual EnergyLossUpdator* clone() const {

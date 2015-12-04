@@ -32,7 +32,7 @@ class Plane;
 
 /* Class SmartPropagator Interface */
 
-class SmartPropagator GCC11_FINAL : public Propagator {
+class SmartPropagator final : public Propagator {
 
   public:
 

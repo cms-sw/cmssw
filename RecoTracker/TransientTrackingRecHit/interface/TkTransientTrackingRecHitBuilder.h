@@ -12,7 +12,7 @@ class SiStripRecHitMatcher;
 class PixelClusterParameterEstimator;
 class StripClusterParameterEstimator;
 
-class TkTransientTrackingRecHitBuilder GCC11_FINAL : public TransientTrackingRecHitBuilder {
+class TkTransientTrackingRecHitBuilder final : public TransientTrackingRecHitBuilder {
   
  public:
   TkTransientTrackingRecHitBuilder (const TrackingGeometry* trackingGeometry, 

@@ -14,7 +14,7 @@
  *  of components. The relevant formulas can be found in
  *  R. Fruhwirth, Computer Physics Communications 100 (1997), 1.
  */
-class BasicMultiTrajectoryState GCC11_FINAL : public BasicTrajectoryState {
+class BasicMultiTrajectoryState final : public BasicTrajectoryState {
 
   typedef TrajectoryStateOnSurface        TSOS;  
   

@@ -10,7 +10,7 @@
  * on demand to improve performance.
  */
 
-class VertexState GCC11_FINAL : private  BasicVertexState::Proxy {
+class VertexState final : private  BasicVertexState::Proxy {
 
   using Base =  BasicVertexState::Proxy;
   using BSVS =  BasicSingleVertexState;
