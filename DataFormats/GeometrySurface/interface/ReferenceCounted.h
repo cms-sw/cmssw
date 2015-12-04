@@ -36,7 +36,6 @@ class BasicReferenceCounted
       BasicReferenceCounted& operator=(BasicReferenceCounted&& ) = default;
 
       BasicReferenceCounted& operator=( const BasicReferenceCounted& ) {
-        referenceCount_=0;
 	return *this;
       }
 

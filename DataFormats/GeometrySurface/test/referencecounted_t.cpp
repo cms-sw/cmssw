@@ -14,7 +14,8 @@ namespace testreferencecounted {
 	 CPPUNIT_TEST(deleteTest);
 	 CPPUNIT_TEST(multiRefTest);
 	 CPPUNIT_TEST(assignmentTest);
-	 CPPUNIT_TEST(intrusiveTest);
+         CPPUNIT_TEST(modifyTest);
+ 	 CPPUNIT_TEST(intrusiveTest);
 	 CPPUNIT_TEST_SUITE_END();
       public:
 	 void setUp(){}
@@ -22,6 +23,7 @@ namespace testreferencecounted {
 	 void deleteTest();
 	 void multiRefTest();
 	 void assignmentTest();
+         void modifyTest();
 	 void intrusiveTest();
    };
    
@@ -65,6 +67,19 @@ namespace testreferencecounted {
       }
       assert( 0 == s_construct );
    }
+
+   void Test::modifyTest() {
+      {
+       	 RefPtr pointer( new RefTest );
+         {
+            RefPtr pointer2;
+            pointer2 = pointer;
+            *pointer = RefTest();
+         }
+      }
+      assert( 0 == s_construct );
+   }
+
 
    void Test::intrusiveTest() {
       {
