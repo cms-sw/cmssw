@@ -210,14 +210,14 @@ void MTVHistoProducerAlgoForTracker::bookSimTrackHistos(DQMStore::IBooker& ibook
   h_assochit.push_back( ibook.book1D("num_assoc(simToReco)_hit","N of associated tracks (simToReco) vs hit",nintHit,minHit,maxHit) );
   h_simulhit.push_back( ibook.book1D("num_simul_hit","N of simulated tracks vs hit",nintHit,minHit,maxHit) );
 
-  h_assoclayer.push_back( ibook.book1D("num_assoc(simToReco)_layer","N of associated tracks (simToReco) vs layer",nintHit,minHit,maxHit) );
-  h_simullayer.push_back( ibook.book1D("num_simul_layer","N of simulated tracks vs layer",nintHit,minHit,maxHit) );
+  h_assoclayer.push_back( ibook.book1D("num_assoc(simToReco)_layer","N of associated tracks (simToReco) vs layer",nintLayers,minLayers,maxLayers) );
+  h_simullayer.push_back( ibook.book1D("num_simul_layer","N of simulated tracks vs layer",nintLayers,minLayers,maxLayers) );
 
-  h_assocpixellayer.push_back( ibook.book1D("num_assoc(simToReco)_pixellayer","N of associated tracks (simToReco) vs pixel layer",nintHit,minHit,maxHit) );
-  h_simulpixellayer.push_back( ibook.book1D("num_simul_pixellayer","N of simulated tracks vs pixel layer",nintHit,minHit,maxHit) );
+  h_assocpixellayer.push_back( ibook.book1D("num_assoc(simToReco)_pixellayer","N of associated tracks (simToReco) vs pixel layer",nintLayers,minLayers,maxLayers) );
+  h_simulpixellayer.push_back( ibook.book1D("num_simul_pixellayer","N of simulated tracks vs pixel layer",nintLayers,minLayers,maxLayers) );
 
-  h_assoc3Dlayer.push_back( ibook.book1D("num_assoc(simToReco)_3Dlayer","N of associated tracks (simToReco) vs 3D layer",nintHit,minHit,maxHit) );
-  h_simul3Dlayer.push_back( ibook.book1D("num_simul_3Dlayer","N of simulated tracks vs 3D layer",nintHit,minHit,maxHit) );
+  h_assoc3Dlayer.push_back( ibook.book1D("num_assoc(simToReco)_3Dlayer","N of associated tracks (simToReco) vs 3D layer",nintLayers,minLayers,maxLayers) );
+  h_simul3Dlayer.push_back( ibook.book1D("num_simul_3Dlayer","N of simulated tracks vs 3D layer",nintLayers,minLayers,maxLayers) );
 
   h_assocpu.push_back( ibook.book1D("num_assoc(simToReco)_pu","N of associated tracks (simToReco) vs pu",nintPu,minPu,maxPu) );
   h_simulpu.push_back( ibook.book1D("num_simul_pu","N of simulated tracks vs pu",nintPu,minPu,maxPu) );
@@ -322,23 +322,23 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
   h_misidhit.push_back( ibook.book1D("num_chargemisid_hit","N of associated (recoToSim) charge misIDed tracks vs hit",nintHit,minHit,maxHit) );
   h_pileuphit.push_back( ibook.book1D("num_pileup_hit","N of associated (recoToSim) pileup tracks vs hit",nintHit,minHit,maxHit) );
   //
-  h_recolayer.push_back( ibook.book1D("num_reco_layer","N of reco track vs layer",nintHit,minHit,maxHit) );
-  h_assoc2layer.push_back( ibook.book1D("num_assoc(recoToSim)_layer","N of associated (recoToSim) tracks vs layer",nintHit,minHit,maxHit) );
-  h_looperlayer.push_back( ibook.book1D("num_duplicate_layer","N of associated (recoToSim) duplicate tracks vs layer",nintHit,minHit,maxHit) );
-  h_misidlayer.push_back( ibook.book1D("num_chargemisid_layer","N of associated (recoToSim) charge misIDed tracks vs layer",nintHit,minHit,maxHit) );
-  h_pileuplayer.push_back( ibook.book1D("num_pileup_layer","N of associated (recoToSim) pileup tracks vs layer",nintHit,minHit,maxHit) );
+  h_recolayer.push_back( ibook.book1D("num_reco_layer","N of reco track vs layer",nintLayers,minLayers,maxLayers) );
+  h_assoc2layer.push_back( ibook.book1D("num_assoc(recoToSim)_layer","N of associated (recoToSim) tracks vs layer",nintLayers,minLayers,maxLayers) );
+  h_looperlayer.push_back( ibook.book1D("num_duplicate_layer","N of associated (recoToSim) duplicate tracks vs layer",nintLayers,minLayers,maxLayers) );
+  h_misidlayer.push_back( ibook.book1D("num_chargemisid_layer","N of associated (recoToSim) charge misIDed tracks vs layer",nintLayers,minLayers,maxLayers) );
+  h_pileuplayer.push_back( ibook.book1D("num_pileup_layer","N of associated (recoToSim) pileup tracks vs layer",nintLayers,minLayers,maxLayers) );
   //
-  h_recopixellayer.push_back( ibook.book1D("num_reco_pixellayer","N of reco track vs pixellayer",nintHit,minHit,maxHit) );
-  h_assoc2pixellayer.push_back( ibook.book1D("num_assoc(recoToSim)_pixellayer","N of associated (recoToSim) tracks vs pixellayer",nintHit,minHit,maxHit) );
-  h_looperpixellayer.push_back( ibook.book1D("num_duplicate_pixellayer","N of associated (recoToSim) duplicate tracks vs pixellayer",nintHit,minHit,maxHit) );
-  h_misidpixellayer.push_back( ibook.book1D("num_chargemisid_pixellayer","N of associated (recoToSim) charge misIDed tracks vs pixellayer",nintHit,minHit,maxHit) );
-  h_pileuppixellayer.push_back( ibook.book1D("num_pileup_pixellayer","N of associated (recoToSim) pileup tracks vs pixellayer",nintHit,minHit,maxHit) );
+  h_recopixellayer.push_back( ibook.book1D("num_reco_pixellayer","N of reco track vs pixellayer",nintLayers,minLayers,maxLayers) );
+  h_assoc2pixellayer.push_back( ibook.book1D("num_assoc(recoToSim)_pixellayer","N of associated (recoToSim) tracks vs pixellayer",nintLayers,minLayers,maxLayers) );
+  h_looperpixellayer.push_back( ibook.book1D("num_duplicate_pixellayer","N of associated (recoToSim) duplicate tracks vs pixellayer",nintLayers,minLayers,maxLayers) );
+  h_misidpixellayer.push_back( ibook.book1D("num_chargemisid_pixellayer","N of associated (recoToSim) charge misIDed tracks vs pixellayer",nintLayers,minLayers,maxLayers) );
+  h_pileuppixellayer.push_back( ibook.book1D("num_pileup_pixellayer","N of associated (recoToSim) pileup tracks vs pixellayer",nintLayers,minLayers,maxLayers) );
   //
-  h_reco3Dlayer.push_back( ibook.book1D("num_reco_3Dlayer","N of reco track vs 3D layer",nintHit,minHit,maxHit) );
-  h_assoc23Dlayer.push_back( ibook.book1D("num_assoc(recoToSim)_3Dlayer","N of associated (recoToSim) tracks vs 3D layer",nintHit,minHit,maxHit) );
-  h_looper3Dlayer.push_back( ibook.book1D("num_duplicate_3Dlayer","N of associated (recoToSim) duplicate tracks vs 3D layer",nintHit,minHit,maxHit) );
-  h_misid3Dlayer.push_back( ibook.book1D("num_chargemisid_3Dlayer","N of associated (recoToSim) charge misIDed tracks vs 3D layer",nintHit,minHit,maxHit) );
-  h_pileup3Dlayer.push_back( ibook.book1D("num_pileup_3Dlayer","N of associated (recoToSim) pileup tracks vs 3D layer",nintHit,minHit,maxHit) );
+  h_reco3Dlayer.push_back( ibook.book1D("num_reco_3Dlayer","N of reco track vs 3D layer",nintLayers,minLayers,maxLayers) );
+  h_assoc23Dlayer.push_back( ibook.book1D("num_assoc(recoToSim)_3Dlayer","N of associated (recoToSim) tracks vs 3D layer",nintLayers,minLayers,maxLayers) );
+  h_looper3Dlayer.push_back( ibook.book1D("num_duplicate_3Dlayer","N of associated (recoToSim) duplicate tracks vs 3D layer",nintLayers,minLayers,maxLayers) );
+  h_misid3Dlayer.push_back( ibook.book1D("num_chargemisid_3Dlayer","N of associated (recoToSim) charge misIDed tracks vs 3D layer",nintLayers,minLayers,maxLayers) );
+  h_pileup3Dlayer.push_back( ibook.book1D("num_pileup_3Dlayer","N of associated (recoToSim) pileup tracks vs 3D layer",nintLayers,minLayers,maxLayers) );
   //
   h_recopu.push_back( ibook.book1D("num_reco_pu","N of reco track vs pu",nintPu,minPu,maxPu) );
   h_assoc2pu.push_back( ibook.book1D("num_assoc(recoToSim)_pu","N of associated (recoToSim) tracks vs pu",nintPu,minPu,maxPu) );
@@ -418,15 +418,15 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
   nTEChits_vs_eta.push_back( ibook.bookProfile("TEChits_vs_eta","mean # TEC hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
 
   nLayersWithMeas_vs_eta.push_back( ibook.bookProfile("LayersWithMeas_eta","mean # Layers with measurement vs eta",
-                                                      nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+                                                      nintEta,minEta,maxEta,nintLayers,minLayers,maxLayers, " ") );
   nPXLlayersWithMeas_vs_eta.push_back( ibook.bookProfile("PXLlayersWithMeas_vs_eta","mean # PXL Layers with measurement vs eta",
-                                                         nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+                                                         nintEta,minEta,maxEta,nintLayers,minLayers,maxLayers, " ") );
   nSTRIPlayersWithMeas_vs_eta.push_back( ibook.bookProfile("STRIPlayersWithMeas_vs_eta","mean # STRIP Layers with measurement vs eta",
-                                                           nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+                                                           nintEta,minEta,maxEta,nintLayers,minLayers,maxLayers, " ") );
   nSTRIPlayersWith1dMeas_vs_eta.push_back( ibook.bookProfile("STRIPlayersWith1dMeas_vs_eta","mean # STRIP Layers with 1D measurement vs eta",
-                                                             nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+                                                             nintEta,minEta,maxEta,nintLayers,minLayers,maxLayers, " ") );
   nSTRIPlayersWith2dMeas_vs_eta.push_back( ibook.bookProfile("STRIPlayersWith2dMeas_vs_eta","mean # STRIP Layers with 2D measurement vs eta",
-                                                             nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+                                                             nintEta,minEta,maxEta,nintLayers,minLayers,maxLayers, " ") );
 
   nhits_vs_phi.push_back( ibook.bookProfile("hits_phi","mean # hits vs #phi",nintPhi,minPhi,maxPhi,nintHit,minHit,maxHit, " ") );
 

@@ -42,8 +42,8 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     nintPu = cms.int32(100),
     #
     minLayers = cms.double(-0.5),                            
-    maxLayers = cms.double(15.5),
-    nintLayers = cms.int32(16),
+    maxLayers = cms.double(25.5),
+    nintLayers = cms.int32(26),
     #
     minPhi = cms.double(-3.1416),
     maxPhi = cms.double(3.1416),
