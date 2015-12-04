@@ -231,15 +231,15 @@ void HcalHPDRBXMap::indexHPDfromEtaPhi(int ieta, int iphi, std::vector<int>& hpd
   int absieta=abs(ieta);
 
   if(absieta<=15) {        // HB only, depth doesn't matter
-    hpdindices.push_back(indexHPD(HcalDetId(HcalBarrel, ieta, iphi, 1)));
+    hpdindices.push_back(indexHPD(HcalDetId(HcalBarrel, ieta, iphi, 1,false)));
   } else if(absieta==16) { // HB and HE, depth doesn't matter
-    hpdindices.push_back(indexHPD(HcalDetId(HcalBarrel, ieta, iphi, 1)));
-    hpdindices.push_back(indexHPD(HcalDetId(HcalEndcap, ieta, iphi, 3)));
+    hpdindices.push_back(indexHPD(HcalDetId(HcalBarrel, ieta, iphi, 1,false)));
+    hpdindices.push_back(indexHPD(HcalDetId(HcalEndcap, ieta, iphi, 3,false)));
   } else if(absieta<29) {  // HE only, depth doesn't matter
-    hpdindices.push_back(indexHPD(HcalDetId(HcalEndcap, ieta, iphi, 1)));
+    hpdindices.push_back(indexHPD(HcalDetId(HcalEndcap, ieta, iphi, 1,false)));
   } else {                 // HE only, but depth matters
-    hpdindices.push_back(indexHPD(HcalDetId(HcalEndcap, ieta, iphi, 1)));
-    hpdindices.push_back(indexHPD(HcalDetId(HcalEndcap, ieta, iphi, 2)));
+    hpdindices.push_back(indexHPD(HcalDetId(HcalEndcap, ieta, iphi, 1,false)));
+    hpdindices.push_back(indexHPD(HcalDetId(HcalEndcap, ieta, iphi, 2,false)));
   }
 
   return;
@@ -252,12 +252,12 @@ void HcalHPDRBXMap::indexRBXfromEtaPhi(int ieta, int iphi, std::vector<int>& rbx
   int absieta=abs(ieta);
 
   if(absieta<=15) {        // HB only
-    rbxindices.push_back(indexRBX(HcalDetId(HcalBarrel, ieta, iphi, 1)));
+    rbxindices.push_back(indexRBX(HcalDetId(HcalBarrel, ieta, iphi, 1,false)));
   } else if(absieta==16) { // HB and HE
-    rbxindices.push_back(indexRBX(HcalDetId(HcalBarrel, ieta, iphi, 1)));
-    rbxindices.push_back(indexRBX(HcalDetId(HcalEndcap, ieta, iphi, 3)));
+    rbxindices.push_back(indexRBX(HcalDetId(HcalBarrel, ieta, iphi, 1,false)));
+    rbxindices.push_back(indexRBX(HcalDetId(HcalEndcap, ieta, iphi, 3,false)));
   } else {                 // HE only
-    rbxindices.push_back(indexRBX(HcalDetId(HcalEndcap, ieta, iphi, 1)));
+    rbxindices.push_back(indexRBX(HcalDetId(HcalEndcap, ieta, iphi, 1,false)));
   }
 
   return;

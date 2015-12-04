@@ -110,14 +110,14 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
     // Next line is premature depth 1 and 2 can coexist for large z-extent
     //    HcalDetId bestId(bc,etabin,phibin,((fabs(r.z())>=z_short)?(2):(1)));
     // above line is no good with finite precision
-    HcalDetId bestId(bc,etabin,phibin,((fabs(r.z()) - z_short >-0.1)?(2):(1)));
+    HcalDetId bestId(bc,etabin,phibin,((fabs(r.z()) - z_short >-0.1)?(2):(1)),false);
     return bestId;
   } else {
 
     //Now do depth if required
     int dbin = 1;
     double pointrz=0, drz=99999.;
-    HcalDetId currentId(bc, etabin, phibin, dbin);
+    HcalDetId currentId(bc, etabin, phibin, dbin,false);
     if (bc == HcalBarrel) pointrz = r.mag();
     else                  pointrz = std::abs(r.z());
     HcalDetId bestId;
@@ -189,7 +189,7 @@ CaloSubdetectorGeometry::DetIdSet HcalGeometry::getCells(const GlobalPoint& r,
 	       for (int jphi ( jphi_lo ) ; jphi <= jphi_hi ; ++jphi) { // over phi limits
 		 const int iphi ( 1 > jphi ? jphi+72 : jphi ) ;
 		 for (int idep ( idep_lo ) ; idep <= idep_hi ; ++idep ) {
-		   const HcalDetId did ( hs[is], ieta, iphi, idep ) ;
+		   const HcalDetId did (hs[is], ieta, iphi, idep, false) ;
 		   if (theTopology.valid(did)) {
 		     const CaloCellGeometry* cell ( getGeometry( did ) );
 		     if (0 != cell ) {
@@ -216,21 +216,21 @@ DetId HcalGeometry::detIdFromBarrelAlignmentIndex(unsigned int i) {
    assert( i < numberOfBarrelAlignments() ) ;
    const int ieta  ( i < numberOfBarrelAlignments()/2 ? -1 : 1 ) ;
    const int iphi ( 1 + (4*i)%72 ) ;
-   return HcalDetId( HcalBarrel, ieta, iphi, 1 ) ;
+   return HcalDetId(HcalBarrel, ieta, iphi, 1, false) ;
 }
 
 DetId HcalGeometry::detIdFromEndcapAlignmentIndex(unsigned int i) {
    assert( i < numberOfEndcapAlignments() ) ;
    const int ieta  ( i < numberOfEndcapAlignments()/2 ? -16 : 16 ) ;
    const int iphi ( 1 + (4*i)%72 ) ;
-   return HcalDetId( HcalEndcap, ieta, iphi, 1 ) ;
+   return HcalDetId(HcalEndcap, ieta, iphi, 1, false) ;
 }
 
 DetId HcalGeometry::detIdFromForwardAlignmentIndex(unsigned int i) {
    assert( i < numberOfForwardAlignments() ) ;
    const int ieta ( i < numberOfForwardAlignments()/2 ? -29 : 29 ) ;
    const int iphi ( 1 + (4*i)%72 ) ;
-   return HcalDetId( HcalForward, ieta, iphi, 1 ) ;
+   return HcalDetId(HcalForward, ieta, iphi, 1, false) ;
 }
 
 DetId HcalGeometry::detIdFromOuterAlignmentIndex(unsigned int i) {
@@ -241,7 +241,7 @@ DetId HcalGeometry::detIdFromOuterAlignmentIndex(unsigned int i) {
 		    2 == ring ?  1  :
 		    3 == ring ?  5  : 11 ) ;
    const int iphi ( 1 + ( i - ring*12 )*6 ) ;
-   return HcalDetId( HcalOuter, ieta, iphi, 4 ) ;
+   return HcalDetId(HcalOuter, ieta, iphi, 4, false) ;
 }
 
 DetId HcalGeometry::detIdFromLocalAlignmentIndex(unsigned int i) {

@@ -149,7 +149,7 @@ int LMap::impl::read( std::string map_file, std::string type )
 	  
 	  _table . push_back( aRow );
 
-	  HcalDetId _hdid(aRow.det, aRow.side*aRow.eta, aRow.phi, aRow.depth);
+	  HcalDetId _hdid(aRow.det, aRow.side*aRow.eta, aRow.phi, aRow.depth, false);
 
 	  _lmap[_hdid.rawId()] = aRow;
 

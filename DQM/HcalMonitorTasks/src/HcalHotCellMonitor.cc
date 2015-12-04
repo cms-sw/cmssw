@@ -639,7 +639,7 @@ void HcalHotCellMonitor::processHit_rechitNeighbors(RECHIT& rechit,
 	if (nD==0 && nE==0 && nP==0) 
 	  continue; // don't count the cell itself
 	int myphi=(nP+iphi)%72;
-	HcalDetId myid((HcalSubdetector)(1), nE+ieta, myphi, nD+depth); // HB
+	HcalDetId myid((HcalSubdetector)(1), nE+ieta, myphi, nD+depth, false); // HB
 	RECHIT part=coll.find(myid);
 	if (part==coll.end())
 	  continue;

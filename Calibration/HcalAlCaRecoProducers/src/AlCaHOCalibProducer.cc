@@ -445,7 +445,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if (tmpeta1 <0 || tmpeta1 >netamx) continue;
 	for (int j=0; j<nphimx; j++) {
 	  
-	  HcalDetId id(HcalOuter, i, j+1, 4);
+	  HcalDetId id(HcalOuter, i, j+1, 4, false);
 	  calibped = conditions_->getHcalCalibrations(id);
 	  
 	  for (int k =0; k<ncidmx-1; k++) {

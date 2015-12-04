@@ -111,7 +111,7 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet,
                              << phi/deg << ", " << dphi/deg << ") depth "
                              << depthBin;
 #endif
-        HcalDetId id(subdet, etaRing, iphi, depthBin);
+        HcalDetId id(subdet, etaRing, iphi, depthBin, false);
         hcalIds.push_back(id);
         makeCell(id,hcalCells[i],phi,dphi,geom) ;
       }
@@ -126,7 +126,7 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet,
                                << phi/deg << ", " << dphi/deg << ") depth "
                                << depthBin;
 #endif
-          HcalDetId id(subdet, -etaRing, iphi, depthBin);
+          HcalDetId id(subdet, -etaRing, iphi, depthBin, false);
           hcalIds.push_back(id);
   	  makeCell(id,hcalCells[i],phi,dphi,geom) ;
         }

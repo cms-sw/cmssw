@@ -49,7 +49,7 @@ HBHEHFLogicalMapEntry::HBHEHFLogicalMapEntry(
   else if (in_s_det=="HE") mysubdet = HcalEndcap;
   else if (in_s_det=="HF") mysubdet = HcalForward;
 
-  HcalDetId hdid( mysubdet, in_sid*in_et, in_ph, in_dep );
+  HcalDetId hdid(mysubdet, in_sid*in_et, in_ph, in_dep, false);
 
   HcalFrontEndId hrbx( in_s_rbx, in_rm, in_pix, in_rm_fi, in_fi_ch, in_qie, in_adc );
 
@@ -122,7 +122,7 @@ HOHXLogicalMapEntry::HOHXLogicalMapEntry(
 
   if (in_s_det=="HO") {
     //create the hcal det id in the case of regular HO channel
-    HcalDetId hdid( HcalOuter, in_sid*in_et, in_ph, in_dep );
+    HcalDetId hdid(HcalOuter, in_sid*in_et, in_ph, in_dep, false);
     hcalDetID_ = hdid.rawId();
   }
   else {

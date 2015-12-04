@@ -109,12 +109,12 @@ void HcalGeometryTester::testClosestCells(CaloSubdetectorGeometry* g,
 					  const HcalTopology& topology ) {
   
   // make sure each cel is its own closest cell
-  HcalDetId barrelDet1(HcalBarrel, 1, 1, 1);
-  HcalDetId barrelDet2(HcalBarrel, 16, 50, 1);
-  HcalDetId endcapDet1(HcalEndcap, -17, 72, 1);
-  HcalDetId endcapDet2(HcalEndcap, 29, 35, 1);
-  HcalDetId forwardDet1(HcalForward, 30, 71, 1);
-  HcalDetId forwardDet3(HcalForward, -40, 71, 1);
+  HcalDetId barrelDet1(HcalBarrel, 1, 1, 1, false);
+  HcalDetId barrelDet2(HcalBarrel, 16, 50, 1, false);
+  HcalDetId endcapDet1(HcalEndcap, -17, 72, 1, false);
+  HcalDetId endcapDet2(HcalEndcap, 29, 35, 1, false);
+  HcalDetId forwardDet1(HcalForward, 30, 71, 1, false);
+  HcalDetId forwardDet3(HcalForward, -40, 71, 1, false);
   
   if (topology.valid(barrelDet1))  testClosestCell(barrelDet1 , g);
   if (topology.valid(barrelDet2))  testClosestCell(barrelDet2 , g);
@@ -154,11 +154,11 @@ void HcalGeometryTester::testTriggerGeometry(const HcalTopology& topology) {
   }
 
   // now test some cell mappings
-  HcalDetId barrelDet(HcalBarrel, 1, 1, 1);
-  HcalDetId endcapDet(HcalEndcap, 29, 1, 1);
-  HcalDetId forwardDet1(HcalForward, 29, 71, 1);
-  HcalDetId forwardDet2(HcalForward, 29, 71, 2);
-  HcalDetId forwardDet3(HcalForward, 40, 71, 1);
+  HcalDetId barrelDet(HcalBarrel, 1, 1, 1, false);
+  HcalDetId endcapDet(HcalEndcap, 29, 1, 1, false);
+  HcalDetId forwardDet1(HcalForward, 29, 71, 1, false);
+  HcalDetId forwardDet2(HcalForward, 29, 71, 2, false);
+  HcalDetId forwardDet3(HcalForward, 40, 71, 1, false);
 
   typedef std::vector<HcalTrigTowerDetId> TowerDets;
   if (topology.valid(barrelDet)) {
@@ -230,7 +230,7 @@ void HcalGeometryTester::testFlexiGeomHF(CaloSubdetectorGeometry* caloGeom) {
 
   std::cout << std::endl << "Test HF Geometry : " << std::endl;
   for (int ieta = 29; ieta <=41; ++ieta) {
-    HcalDetId cell3 (HcalForward, ieta, 3, 1);
+    HcalDetId cell3 (HcalForward, ieta, 3, 1, false);
     const CaloCellGeometry* cellGeometry3 = caloGeom->getGeometry (cell3);
     if (cellGeometry3) {
       std::cout << "cell geometry iphi=3 -> ieta=" << ieta

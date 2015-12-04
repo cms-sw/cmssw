@@ -325,7 +325,7 @@ void HcalRecHitClient::calculateProblems(DQMStore::IBooker &ib, DQMStore::IGette
 		  else if (isHE(eta,d+1)) subdet=HcalEndcap;
 		  else if (isHF(eta,d+1)) subdet=HcalForward;
 		  else if (isHO(eta,d+1)) subdet=HcalOuter;
-		  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1));
+		  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1), false);
 		  if (badstatusmap.find(hcalid)!=badstatusmap.end())
 		    problemvalue=999;
 		}

@@ -70,7 +70,7 @@ int HcalChannelIterator::addListFromLmapAscii(std::string filename){
       else if ( subdet.find("HF")!=std::string::npos ) _det = HcalForward;
       else _det = HcalOther;
 
-      HcalDetId _detid(_det, _side*_eta, _phi, _depth);
+      HcalDetId _detid(_det, _side*_eta, _phi, _depth, false);
       
       if (_det == HcalBarrel || _det == HcalEndcap || _det == HcalOuter || _det == HcalForward){
 	channel_list . push_back( _detid );

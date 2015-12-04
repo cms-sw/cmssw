@@ -60,13 +60,13 @@ DetId HcalHitRelabeller::relabel(const uint32_t testId) const {
   sign=(z==0)?(-1):(1);
 
   if (id.subdet==int(HcalBarrel)) {
-    hid=HcalDetId(HcalBarrel,sign*id.eta,id.phi,id.depth);        
+    hid=HcalDetId(HcalBarrel,sign*id.eta,id.phi,id.depth,false);
   } else if (id.subdet==int(HcalEndcap)) {
-    hid=HcalDetId(HcalEndcap,sign*id.eta,id.phi,id.depth);    
+    hid=HcalDetId(HcalEndcap,sign*id.eta,id.phi,id.depth,false);
   } else if (id.subdet==int(HcalOuter)) {
-    hid=HcalDetId(HcalOuter,sign*id.eta,id.phi,id.depth);    
+    hid=HcalDetId(HcalOuter,sign*id.eta,id.phi,id.depth,false);
   } else if (id.subdet==int(HcalForward)) {
-    hid=HcalDetId(HcalForward,sign*id.eta,id.phi,id.depth);
+    hid=HcalDetId(HcalForward,sign*id.eta,id.phi,id.depth,false);
   }
 #ifdef DebugLog
   std::cout << " new HcalDetId -> hex.RawID = "

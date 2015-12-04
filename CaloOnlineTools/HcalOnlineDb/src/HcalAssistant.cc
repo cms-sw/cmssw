@@ -255,8 +255,8 @@ int HcalAssistant::getRawIdFromCmssw(int _geomId){
       HcalDetId _id( getSubdetector(s_det),
 		     getHcalIeta(_geomId),
 		     getHcalIphi(_geomId),
-		     getHcalDepth(_geomId)
-		     );
+		     getHcalDepth(_geomId),
+		     false);
       return _id.rawId();
     }
   else if ( s_det.find("ZDC") != std::string::npos )

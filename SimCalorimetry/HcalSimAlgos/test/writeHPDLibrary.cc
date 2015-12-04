@@ -14,22 +14,22 @@ int main () {
 
   HPDNoiseData event;
   for (size_t i = 0; i < 10; i++) data[i] = i;
-  id = HcalDetId (HcalBarrel, 1, 1, 1);
+  id = HcalDetId (HcalBarrel, 1, 1, 1, false);
   event.addChannel (id, data);
-  id = HcalDetId (HcalBarrel, 1, 2, 1);
+  id = HcalDetId (HcalBarrel, 1, 2, 1, false);
   event.addChannel (id, data);
-  id = HcalDetId (HcalBarrel, 1, 3, 1);
+  id = HcalDetId (HcalBarrel, 1, 3, 1, false);
   event.addChannel (id, data);
   
   maker.newHpdEvent ("HPD01", event);
 
   event.clear ();
   for (size_t i = 0; i < 10; i++) data[i] = i*10;
-  id = HcalDetId (HcalBarrel, 2, 1, 1);
+  id = HcalDetId (HcalBarrel, 2, 1, 1, false);
   event.addChannel (id, data);
-  id = HcalDetId (HcalBarrel, 2, 2, 1);
+  id = HcalDetId (HcalBarrel, 2, 2, 1, false);
   event.addChannel (id, data);
-  id = HcalDetId (HcalBarrel, 2, 3, 1);
+  id = HcalDetId (HcalBarrel, 2, 3, 1, false);
   event.addChannel (id, data);
   
   maker.newHpdEvent ("HPD02", event);
@@ -37,11 +37,11 @@ int main () {
 
   event.clear ();
   for (size_t i = 0; i < 10; i++) data[i] = i*100;
-  id = HcalDetId (HcalBarrel, 3, 1, 1);
+  id = HcalDetId (HcalBarrel, 3, 1, 1, false);
   event.addChannel (id, data);
-  id = HcalDetId (HcalBarrel, 3, 2, 1);
+  id = HcalDetId (HcalBarrel, 3, 2, 1, false);
   event.addChannel (id, data);
-  id = HcalDetId (HcalBarrel, 3, 3, 1);
+  id = HcalDetId (HcalBarrel, 3, 3, 1, false);
   event.addChannel (id, data);
   
   maker.newHpdEvent ("HPD03", event);

@@ -20,7 +20,7 @@ public:
   HOTriggerPrimitiveDigi(uint32_t data) { theHO_TP=data; }
   HOTriggerPrimitiveDigi(int ieta, int iphi, int nsamples, int whichSampleTriggered, int databits);
  
-  const HcalDetId id() const { return HcalDetId(HcalOuter,ieta(),iphi(),4); }
+  const HcalDetId id() const { return HcalDetId(HcalOuter,ieta(),iphi(),4,false); }
  
   /// get the raw (packed) Triger Primitive
   uint32_t raw() const { return theHO_TP; }

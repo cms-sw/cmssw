@@ -1183,7 +1183,7 @@ void HcalBeamMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 	  else depth = -1;
 	  if (depth !=-1 && ieta!=1)
 	    {
-	      HcalDetId thisID(HcalForward, ieta, iphi, depth);
+	      HcalDetId thisID(HcalForward, ieta, iphi, depth, false);
 	      if (BadCells_.find(thisID)!=BadCells_.end())
 		continue;
 	    }
@@ -1228,7 +1228,7 @@ void HcalBeamMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 	      if (depth !=-1 && ieta!=1)
 		{
 		  // skip over channels that are flagged as bad
-		  HcalDetId thisID(HcalForward, ieta, iphi, depth);
+		  HcalDetId thisID(HcalForward, ieta, iphi, depth, false);
 		  if (BadCells_.find(thisID)!=BadCells_.end())
 		    continue;
 		}

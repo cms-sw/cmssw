@@ -16,7 +16,7 @@ namespace spr{
 
     std::vector< typename T::const_iterator> hit;
     HcalDetId hcid0(det0.rawId());
-    HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1);
+    HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1,false);
     DetId det(hcid.rawId());
     if (debug) std::cout << "Inside eHCALmatrix " << 2*ieta+1 << "X" << 2*iphi+1 << " AlgoNew " << algoNew << " Inclusion of HO Flag " << includeHO << std::endl;
     double energySum = 0.0;
@@ -35,7 +35,7 @@ namespace spr{
   double eHCALmatrix(const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ietaE, int ietaW, int iphiN, int iphiS, bool includeHO, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, bool debug) {
 
     HcalDetId hcid0(det0.rawId());
-    HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1);
+    HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1,false);
     DetId det(hcid.rawId());
     if (debug) std::cout << "Inside eHCALmatrix " << ietaE+ietaW+1 << "X" << iphiN+iphiS+1 	<< " Inclusion of HO Flag " << includeHO << std::endl;
 
@@ -49,7 +49,7 @@ namespace spr{
     bool debug = false;
     bool includeHO = false;
     HcalDetId hcid0(det0.rawId());
-    HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1);
+    HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1,false);
     DetId det(hcid.rawId());
 
     std::vector< typename T::const_iterator> hit;
@@ -83,7 +83,7 @@ namespace spr{
     bool debug = false;
     bool includeHO = false;
     HcalDetId hcid0(det0.rawId());
-    HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1);
+    HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1,false);
     DetId det(hcid.rawId());
 
     std::vector< typename T::const_iterator> hit;
@@ -128,7 +128,7 @@ namespace spr{
   double eHCALmatrix(const CaloGeometry* geo, const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ieta, int iphi, HcalDetId& hotCell, bool includeHO, bool debug) { 
 
     HcalDetId hcid0(det0.rawId());
-    HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1);
+    HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1,false);
     DetId det(hcid.rawId());
 
     std::vector< typename T::const_iterator> hit;
@@ -222,7 +222,7 @@ namespace spr{
     if (debug)
       std::cout << "energyHCALCell: input ID " << detID << " MaxDepth " << maxDepth << " Threshold (E) " << eThr << " (T) " << tMin << ":" << tMax << std::endl;
     for (int i=0; i<maxDepth; i++) {
-      HcalDetId hcid(detID.subdet(),detID.ieta(),detID.iphi(),i+1);
+      HcalDetId hcid(detID.subdet(),detID.ieta(),detID.iphi(),i+1,false);
       DetId det(hcid.rawId());
       std::vector< typename T::const_iterator> hit = spr::findHit(hits, det);
       double energy(0);

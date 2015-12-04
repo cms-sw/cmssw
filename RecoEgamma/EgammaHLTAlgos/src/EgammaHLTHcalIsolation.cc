@@ -41,13 +41,13 @@ std::pair<float,float> EgammaHLTHcalIsolation::getSum(const float candEta,const 
       }else{
 	//the special case, tower 28 depth 3 is split between tower 28 and 29 when using calo towers so we have to emulate it. To do this we need to divide energy by 2 and then check seperately if 28 and 29 are accepted
 	float energy = hbheItr->energy()/2.;
-	HcalDetId tower28Id(id.subdet(),28*id.zside(),id.iphi(),2);
+	HcalDetId tower28Id(id.subdet(),28*id.zside(),id.iphi(),2,false);
 	const GlobalPoint& tower28Pos = geometry->getPosition(tower28Id);
 	if(acceptHit_(id,tower28Pos,energy,candEta,candPhi)){
 	  sumE+=energy;
 	  sumEt+=energy*sin(tower28Pos.theta());
 	}
-	HcalDetId tower29Id(id.subdet(),29*id.zside(),id.iphi(),2);
+	HcalDetId tower29Id(id.subdet(),29*id.zside(),id.iphi(),2,false);
 	const GlobalPoint& tower29Pos = geometry->getPosition(tower29Id);
 	if(acceptHit_(id,tower29Pos,energy,candEta,candPhi)){
 	  sumE+=energy;

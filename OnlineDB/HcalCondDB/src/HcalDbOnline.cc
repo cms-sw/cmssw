@@ -103,7 +103,7 @@ bool HcalDbOnline::getObject (HcalElectronicsMap* fObject, const std::string& fT
       eid.setHTR (crate, slot, fpga);
 
       HcalSubdetector sub = hcalSubdet (subdet);
-      HcalDetId id (sub, z * eta, phi, depth);
+      HcalDetId id (sub, z * eta, phi, depth, false);
 
 //      fObject->setMapping (id, eid, HcalTrigTowerDetId ());
       DetId detid(id);
@@ -254,7 +254,7 @@ bool HcalDbOnline::getObject (HcalQIEData* fObject, const std::string& fTag, IOV
 	}
 	
 	HcalSubdetector sub = hcalSubdet (subdet);
-	HcalDetId id (sub, z * eta, phi, depth);
+	HcalDetId id (sub, z * eta, phi, depth, false);
 
 	HcalQIECoder coder(id.rawId());
 	for (int capId = 0; capId < 4; capId++) {
@@ -395,7 +395,7 @@ bool HcalDbOnline::getObject (HcalCalibrationQIEData* fObject, const std::string
 	for (unsigned bin = 0; bin < 32; bin++) values [bin] = rset->getFloat (index++);
 	
 	HcalSubdetector sub = hcalSubdet (subdet);
-	HcalDetId id (sub, z * eta, phi, depth);
+	HcalDetId id (sub, z * eta, phi, depth, false);
 
 	HcalCalibrationQIECoder coder(id.rawId());
 	coder.setMinCharges (values);
@@ -452,7 +452,7 @@ bool HcalDbOnline::getObject (HcalPedestals* fObject, HcalPedestalWidths* fWidth
 //       unsigned long iovEnd = rset->getNumber (index++);
 
       HcalSubdetector sub = hcalSubdet (subdet);
-      HcalDetId id (sub, z * eta, phi, depth);
+      HcalDetId id (sub, z * eta, phi, depth, false);
       
       if (fObject) {
 	  if (fObject->exists(id) )
@@ -529,7 +529,7 @@ bool HcalDbOnline::getObject (HcalGains* fObject, HcalGainWidths* fWidths, const
 //       unsigned long iovEnd = rset->getNumber (index++);
 
       HcalSubdetector sub = hcalSubdet (subdet);
-      HcalDetId id (sub, z * eta, phi, depth);
+      HcalDetId id (sub, z * eta, phi, depth, false);
 
       if (fObject) {
 	if (fObject->exists(id) )

@@ -10,8 +10,7 @@ HcalDetId cell= MiscalibReaderFromXMLHcal::getCellFromAttributes(
                                             getIntAttribute(attribute,"det_index"),
                                             getIntAttribute(attribute,"eta_index"),
                                             getIntAttribute(attribute,"phi_index"),
-                                            getIntAttribute(attribute,"depth_index")
-                                            );
+                                            getIntAttribute(attribute,"depth_index"));
 return cell;
 }
 
@@ -19,7 +18,7 @@ HcalDetId MiscalibReaderFromXMLHcal::getCellFromAttributes(int idet, int ieta, i
 {
   try
     {
-      HcalDetId cell((HcalSubdetector) idet, ieta, iphi, idepth);
+      HcalDetId cell((HcalSubdetector) idet, ieta, iphi, idepth, false);
       return cell;
     }
   catch (...)

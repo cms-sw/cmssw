@@ -240,7 +240,7 @@ void HcalDeadCellClient::calculateProblems(DQMStore::IBooker &ib, DQMStore::IGet
 		  else if (isHE(eta,d+1)) subdet=HcalEndcap;
 		  else if (isHF(eta,d+1)) subdet=HcalForward;
 		  else if (isHO(eta,d+1)) subdet=HcalOuter;
-		  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1));
+		  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1), false);
 		  if (badstatusmap.find(hcalid)!=badstatusmap.end())
 		    problemvalue=999;
 		}
@@ -400,7 +400,7 @@ void HcalDeadCellClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& 
 		subdet=HcalOuter;
 	      // Set correct depth label
 	      
-	      HcalDetId myid((HcalSubdetector)(subdet), ieta, iphi, d+1);
+	      HcalDetId myid((HcalSubdetector)(subdet), ieta, iphi, d+1, false);
 	      // Need this to keep from flagging non-existent HE/HF cells
 	      if (!(topo_->validDetId((HcalSubdetector)(subdet), ieta, iphi, d+1))) continue;
 	      
