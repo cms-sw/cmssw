@@ -39,6 +39,7 @@ pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = cms.InputTag(
 pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.015
 pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.fixedError = 0.03
+pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.useMultipleScattering = True
 pixelPairStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.InputTag('pixelPairStepSeedLayers')
 
 pixelPairStepSeeds.SeedComparitorPSet = cms.PSet(
