@@ -3871,7 +3871,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   /////// separate loop to compare with miniAOD
   for ( reco::GenParticleCollection::const_iterator mcIter=genParticles->begin() ; mcIter!=genParticles->end() ; mcIter++ ) {
     if ( !(mcIter->pdgId() == 22 ) ) continue;
-    if ( !(mcIter->mother()->pdgId()==25) ) continue;
+    if ( mcIter->mother() != nullptr and  !(mcIter->mother()->pdgId()==25) ) continue;
     if ( fabs(mcIter->eta()) > 2.5 ) continue;
      
     float mcPhi= mcIter->phi();
