@@ -15,7 +15,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 #include "fastjet/PseudoJet.hh"
-#include "fastjet/contrib/Njettiness.hh"
 
 class CandidateBoostedDoubleSecondaryVertexComputer : public JetTagComputer {
 
@@ -34,8 +33,6 @@ class CandidateBoostedDoubleSecondaryVertexComputer : public JetTagComputer {
 
     const double beta_;
     const double R0_;
-    // N-subjettiness calculator
-    fastjet::contrib::Njettiness njettiness_;
 
     const double maxSVDeltaRToJet_;
     const bool useCondDB_;
