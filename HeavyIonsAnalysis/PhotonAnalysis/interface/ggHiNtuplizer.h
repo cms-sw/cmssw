@@ -169,8 +169,9 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    vector<int>    phohasPixelSeed_;
 // vector<int>    phoEleVeto_;         // TODO: not available in reco::
    vector<float>  phoR9_;
+   vector<float>  phoHadTowerOverEm_;
    vector<float>  phoHoverE_;
-   vector<float>  phoSigmaIEtaIEta_; 
+   vector<float>  phoSigmaIEtaIEta_;
 // vector<float>  phoSigmaIEtaIPhi_;   // TODO: not available in reco::
 // vector<float>  phoSigmaIPhiIPhi_;   // TODO: not available in reco::
    vector<float>  phoE1x3_;

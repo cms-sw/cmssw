@@ -151,6 +151,7 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps)
   tree_->Branch("phohasPixelSeed",       &phohasPixelSeed_);
 // tree_->Branch("phoEleVeto",            &phoEleVeto_);        // TODO: not available in reco::
   tree_->Branch("phoR9",                 &phoR9_);
+  tree_->Branch("phoHadTowerOverEm",     &phoHadTowerOverEm_);
   tree_->Branch("phoHoverE",             &phoHoverE_);
   tree_->Branch("phoSigmaIEtaIEta",      &phoSigmaIEtaIEta_); 
 // tree_->Branch("phoSigmaIEtaIPhi",      &phoSigmaIEtaIPhi_);  // TODO: not available in reco::
@@ -446,6 +447,7 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   phohasPixelSeed_      .clear();
 // phoEleVeto_           .clear();  // TODO: not available in reco::
   phoR9_                .clear();
+  phoHadTowerOverEm_    .clear();
   phoHoverE_            .clear();
   phoSigmaIEtaIEta_     .clear();
 // phoSigmaIEtaIPhi_     .clear();  // TODO: not available in reco::
@@ -953,8 +955,8 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
     phohasPixelSeed_  .push_back((int)pho->hasPixelSeed());
 //    phoEleVeto_       .push_back((int)pho->passElectronVeto());   // TODO: not available in reco::
     phoR9_            .push_back(pho->r9());
-    phoHoverE_        .push_back(pho->hadTowOverEm());
-
+    phoHadTowerOverEm_.push_back(pho->hadTowOverEm());
+    phoHoverE_        .push_back(pho->hadronicOverEm());
     phoSigmaIEtaIEta_ .push_back(pho->sigmaIetaIeta());
     //phoSigmaIEtaIPhi_ .push_back(pho->sep());   // TODO: not available in reco::
     //phoSigmaIPhiIPhi_ .push_back(pho->spp());   // TODO: not available in reco::
