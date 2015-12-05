@@ -14,11 +14,11 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
 
+#include "fastjet/contrib/Njettiness.hh"
 
 CandidateBoostedDoubleSecondaryVertexComputer::CandidateBoostedDoubleSecondaryVertexComputer(const edm::ParameterSet & parameters) :
   beta_(parameters.getParameter<double>("beta")),
   R0_(parameters.getParameter<double>("R0")),
-  njettiness_(fastjet::contrib::OnePass_KT_Axes(), fastjet::contrib::NormalizedMeasure(beta_,R0_)),
   maxSVDeltaRToJet_(parameters.getParameter<double>("maxSVDeltaRToJet")),
   useCondDB_(parameters.getParameter<bool>("useCondDB")),
   gbrForestLabel_(parameters.existsAs<std::string>("gbrForestLabel") ? parameters.getParameter<std::string>("gbrForestLabel") : ""),
@@ -583,10 +583,13 @@ void CandidateBoostedDoubleSecondaryVertexComputer::calcNsubjettiness(const reco
       edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-subjettiness computation is missing!";
   }
 
+  // N-subjettiness calculator
+  fastjet::contrib::Njettiness njettiness(fastjet::contrib::OnePass_KT_Axes(), fastjet::contrib::NormalizedMeasure(beta_,R0_));
+
   // calculate N-subjettiness
-  tau1 = njettiness_.getTau(1, fjParticles);
-  tau2 = njettiness_.getTau(2, fjParticles);
-  currentAxes = njettiness_.currentAxes();
+  tau1 = njettiness.getTau(1, fjParticles);
+  tau2 = njettiness.getTau(2, fjParticles);
+  currentAxes = njettiness.currentAxes();
 }
 
 
