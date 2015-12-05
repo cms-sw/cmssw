@@ -151,10 +151,10 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 const int netabin= 16;  
 const int nphimx = 72;
 const int netamx = 32;
-const int nchnmx = 10;
+//const int nchnmx = 10;
 const int ncidmx = 5;
 
-const int nsigpk = 7;
+//const int nsigpk = 7;
 const int nstrbn = 0;
 const int ntrgp_gm = 11;
 
