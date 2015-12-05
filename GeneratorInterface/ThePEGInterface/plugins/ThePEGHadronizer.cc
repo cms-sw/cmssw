@@ -50,7 +50,7 @@ class ThePEGHadronizer : public ThePEGInterface, public gen::BaseHadronizer {
 
     private:
 
-        virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { setPEGRandomEngine(v); }
+        //virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { setPEGRandomEngine(v); }
 
 	unsigned int			eventsToPrint;
 
