@@ -251,6 +251,9 @@ private:
 
   edm::InputTag HcalRecHitHFSrc_;
   edm::InputTag HcalRecHitHBHESrc_;
+  edm::InputTag zdcDigiSrc_;
+  edm::InputTag zdcRecHitSrc_;
+
   edm::InputTag EBSrc_;
   edm::InputTag EESrc_;
   edm::InputTag BCSrc_;
@@ -309,6 +312,9 @@ RecHitTreeProducer::RecHitTreeProducer(const edm::ParameterSet& iConfig) :
   EESrc_ = iConfig.getUntrackedParameter<edm::InputTag>("EERecHitSrc",edm::InputTag("ecalRecHit","EcalRecHitsEE"));
   HcalRecHitHFSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("hcalHFRecHitSrc",edm::InputTag("hfreco"));
   HcalRecHitHBHESrc_ = iConfig.getUntrackedParameter<edm::InputTag>("hcalHBHERecHitSrc",edm::InputTag("hbhereco"));
+  zdcDigiSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("zdcDigiSrc",edm::InputTag("castorDigis"));
+  zdcRecHitSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("zdcRecHitSrc",edm::InputTag("nothing"));
+
   BCSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("BasicClusterSrc1",edm::InputTag("ecalRecHit","EcalRecHitsEB","RECO"));
   TowerSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("towersSrc",edm::InputTag("towerMaker"));
   VtxSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("vtxSrc",edm::InputTag("hiSelectedVertex"));
@@ -729,7 +735,7 @@ RecHitTreeProducer::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 
     edm::Handle<ZDCRecHitCollection> zdcrechits;
 
-    try{ ev.getByLabel("zdcreco",zdcrechits); }
+    try{ ev.getByLabel(zdcRecHitSrc_,zdcrechits); }
     catch(...) { edm::LogWarning(" ZDC ") << " Cannot get ZDC RecHits " << std::endl; }
 
     int nhits = 0;
@@ -762,7 +768,7 @@ RecHitTreeProducer::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 
     edm::Handle<ZDCDigiCollection> zdcdigis;
 
-    try{ ev.getByLabel("hcalDigis",zdcdigis); }
+    try{ ev.getByLabel(zdcDigiSrc_,zdcdigis); }
     catch(...) { edm::LogWarning(" ZDC ") << " Cannot get ZDC Digis " << std::endl; }
 
     int nhits = 0;
