@@ -83,9 +83,7 @@ private:
   MonitorElement* m_digiBxRPCEnd;
   MonitorElement* m_digiBxDT;
   MonitorElement* m_digiBxCSC;
-  MonitorElement* runId_;
-  MonitorElement* lumisecId_;
-  
+ 
   std::map<uint32_t, std::map<std::string, MonitorElement*> >  rpctpgmeCollection;
 
   int nev_; // Number of events processed

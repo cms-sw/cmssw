@@ -262,10 +262,6 @@ private:
     MonitorElement* m_fdlDataEmulTechDecisionMask[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlDataEmulTechDecision_Err[NumberOfGtRecords];
 
-    
-    MonitorElement* runId_;
-    MonitorElement* lumisecId_;
-
     MonitorElement* m_excludedAlgorithmsAgreement;
 
     /// PSB

@@ -68,83 +68,83 @@ l1tEventInfoClient = cms.EDAnalyzer("L1TEventInfoClient",
                         QualityTests = cms.VPSet(
                             cms.PSet(
                                 QualityTestName = cms.string("HotChannels_RCT_2D"),
-                                QualityTestHist = cms.string("L1T/L1TRCT/RctEmIsoEmEtEtaPhi"),
+                                QualityTestHist = cms.string("L1T/L1TRCT/Layer2EmIsoEmEtEtaPhi"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),                                                     
                             cms.PSet(
                                 QualityTestName = cms.string("DeadChannels_RCT_2D_loose"),
-                                QualityTestHist = cms.string("L1T/L1TRCT/RctEmIsoEmEtEtaPhi"),
+                                QualityTestHist = cms.string("L1T/L1TRCT/Layer2EmIsoEmEtEtaPhi"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             #                     
                             cms.PSet(
                                 QualityTestName = cms.string("HotChannels_RCT_2D"),
-                                QualityTestHist = cms.string("L1T/L1TRCT/RctEmNonIsoEmEtEtaPhi"),
+                                QualityTestHist = cms.string("L1T/L1TRCT/Layer2EmNonIsoEmEtEtaPhi"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),                                                     
                             cms.PSet(
                                 QualityTestName = cms.string("DeadChannels_RCT_2D_loose"),
-                                QualityTestHist = cms.string("L1T/L1TRCT/RctEmNonIsoEmEtEtaPhi"),
+                                QualityTestHist = cms.string("L1T/L1TRCT/Layer2EmNonIsoEmEtEtaPhi"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             #                                         
                             cms.PSet(
                                 QualityTestName = cms.string("HotChannels_RCT_2D"),
-                                QualityTestHist = cms.string("L1T/L1TRCT/RctRegionsEtEtaPhi"),
+                                QualityTestHist = cms.string("L1T/L1TRCT/Layer2RegionsEtEtaPhi"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),                                                     
                             cms.PSet(
                                 QualityTestName = cms.string("DeadChannels_RCT_2D_tight"),
-                                QualityTestHist = cms.string("L1T/L1TRCT/RctRegionsEtEtaPhi"),
+                                QualityTestHist = cms.string("L1T/L1TRCT/Layer2RegionsEtEtaPhi"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             )
                         ),                                 
                     cms.PSet(
-                        SystemLabel = cms.string("GCT"),
-                        HwValLabel = cms.string("GCT"),
+                        SystemLabel = cms.string("Stage1Layer2"),
+                        HwValLabel = cms.string("Stage1Layer2"),
                         SystemDisable  = cms.uint32(0),
                         QualityTests = cms.VPSet(
                             cms.PSet(
                                 QualityTestName = cms.string("HotChannels_GCT_2D"),
-                                QualityTestHist = cms.string("L1T/L1TGCT/IsoEmRankEtaPhi"),
+                                QualityTestHist = cms.string("L1T/L1TStage1Layer2/IsoEmRankEtaPhi"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),                                                    
                             cms.PSet(
                                 QualityTestName = cms.string("DeadChannels_GCT_2D_loose"),
-                                QualityTestHist = cms.string("L1T/L1TGCT/IsoEmRankEtaPhi"),
+                                QualityTestHist = cms.string("L1T/L1TStage1Layer2/IsoEmRankEtaPhi"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             #                     
                             cms.PSet(
                                 QualityTestName = cms.string("HotChannels_GCT_2D"),
-                                QualityTestHist = cms.string("L1T/L1TGCT/IsoEmRankEtaPhi"),
+                                QualityTestHist = cms.string("L1T/L1TStage1Layer2/IsoEmRankEtaPhi"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),                                                    
                             cms.PSet(
                                 QualityTestName = cms.string("DeadChannels_GCT_2D_loose"),
-                                QualityTestHist = cms.string("L1T/L1TGCT/NonIsoEmRankEtaPhi"),
+                                QualityTestHist = cms.string("L1T/L1TStage1Layer2/NonIsoEmRankEtaPhi"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             #                     
                             cms.PSet(
                                 QualityTestName = cms.string("HotChannels_GCT_2D"),
-                                QualityTestHist = cms.string("L1T/L1TGCT/AllJetsEtEtaPhi"),
+                                QualityTestHist = cms.string("L1T/L1TStage1Layer2/AllJetsEtEtaPhi"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),                                                    
                             cms.PSet(
                                 QualityTestName = cms.string("DeadChannels_GCT_2D_tight"),
-                                QualityTestHist = cms.string("L1T/L1TGCT/AllJetsEtEtaPhi"),
+                                QualityTestHist = cms.string("L1T/L1TStage1Layer2/AllJetsEtEtaPhi"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
                                 QualityTestName = cms.string("HotChannels_GCT_2D"),
-                                QualityTestHist = cms.string("L1T/L1TGCT/TauJetsEtEtaPhi"),
+                                QualityTestHist = cms.string("L1T/L1TStage1Layer2/TauJetsEtEtaPhi"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),                                                    
                             cms.PSet(
                                 QualityTestName = cms.string("DeadChannels_GCT_2D_tight"),
-                                QualityTestHist = cms.string("L1T/L1TGCT/TauJetsEtEtaPhi"),
+                                QualityTestHist = cms.string("L1T/L1TStage1Layer2/TauJetsEtEtaPhi"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 )
                             )
@@ -363,7 +363,7 @@ l1tEventInfoClient = cms.EDAnalyzer("L1TEventInfoClient",
                             )
                         ),                                 
                     cms.PSet(
-                        ObjectLabel = cms.string("TauJet"),
+                        ObjectLabel = cms.string("Tau"),
                         ObjectDisable  = cms.uint32(0),
                         QualityTests = cms.VPSet(
                             cms.PSet(
