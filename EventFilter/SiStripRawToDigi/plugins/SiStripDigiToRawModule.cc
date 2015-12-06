@@ -1,4 +1,3 @@
-
 #include "SiStripDigiToRawModule.h"
 #include "SiStripDigiToRaw.h"
 
@@ -23,12 +22,12 @@ namespace sistrip {
   DigiToRawModule::DigiToRawModule( const edm::ParameterSet& pset ) :
     inputModuleLabel_( pset.getParameter<std::string>( "InputModuleLabel" ) ),
     inputDigiLabel_( pset.getParameter<std::string>( "InputDigiLabel" ) ),
-    copyBufferHeader_(pset.getUntrackedParameter<bool>("CopyBufferHeader",false)),
+    copyBufferHeader_(pset.getParameter<bool>("CopyBufferHeader")),
     mode_( fedReadoutModeFromString(pset.getParameter<std::string>( "FedReadoutMode" ))),
     rawdigi_( false ),
     digiToRaw_(0),
     eventCounter_(0),
-    rawDataTag_(pset.getUntrackedParameter<edm::InputTag>("RawDataTag",edm::InputTag("rawDataCollector","")))
+    rawDataTag_(pset.getParameter<edm::InputTag>("RawDataTag"))
   {
     if ( edm::isDebugEnabled() ) {
       LogDebug("DigiToRawModule") 
