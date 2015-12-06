@@ -157,7 +157,6 @@ namespace sistrip {
 	  bufferGenerator_.daqHeader() = fedbuffer->daqHeader();
 	  bufferGenerator_.daqTrailer() = fedbuffer->daqTrailer();
 	  
-	  if(ifed==fed_ids.begin()){  fedbuffer->dump(std::cout); std::cout << std::endl;}
 	  bufferGenerator_.trackerSpecialHeader() = fedbuffer->trackerSpecialHeader();
 	  bufferGenerator_.setReadoutMode(mode_);
 
