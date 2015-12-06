@@ -32,7 +32,7 @@ class SiStripDetCabling;
 class SiStripDetInfoFileReader;
 class TrackerTopology;
 
-class SiStripQuality GCC11_FINAL : public SiStripBadStrip {
+class SiStripQuality final : public SiStripBadStrip {
 
  public:
 

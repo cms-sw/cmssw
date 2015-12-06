@@ -19,7 +19,6 @@ class DetGroupElement {
   DetGroupElement( const Det* d, const TrajectoryStateOnSurface& s) :
     det_(d), state_(s) {}
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   DetGroupElement(DetGroupElement const & rhs) : det_(rhs.det_), state_(rhs.state_){}
   DetGroupElement(DetGroupElement && rhs)  noexcept : det_(rhs.det_), state_(std::move(rhs.state_)){}
   DetGroupElement & operator=(DetGroupElement const & rhs) {
@@ -34,8 +33,6 @@ class DetGroupElement {
   }
   DetGroupElement( const Det* d, TrajectoryStateOnSurface&& s) noexcept :
     det_(d), state_(std::move(s)) {}
-
-#endif
 
   const Det* det() const {return det_;}
   const TrajectoryStateOnSurface& trajectoryState() const {return state_;}
@@ -55,7 +52,6 @@ public:
   typedef DetGroupElement::DetWithState         DetWithState;
 
   DetGroup() {}
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   DetGroup(DetGroup const & rhs) : Base(rhs), index_(rhs.index_), indexSize_(rhs.indexSize_)  {}
   DetGroup(DetGroup && rhs)  noexcept : Base(std::forward<Base>(rhs)), index_(rhs.index_), indexSize_(rhs.indexSize_)  {}
   DetGroup & operator=(DetGroup const & rhs) {
@@ -70,7 +66,6 @@ public:
     indexSize_ = rhs.indexSize_;
     return *this;
   }
-#endif
 
 
   DetGroup(int ind, int indSize) : index_(ind), indexSize_(indSize) {}

@@ -10,7 +10,7 @@
 
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 
-class KFStrip1DUpdator GCC11_FINAL : public TrajectoryStateUpdator {
+class KFStrip1DUpdator final : public TrajectoryStateUpdator {
 
 private:
   

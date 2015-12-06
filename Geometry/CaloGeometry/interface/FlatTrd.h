@@ -16,7 +16,7 @@
    
 */
 
-class FlatTrd  GCC11_FINAL : public CaloCellGeometry {
+class FlatTrd  final : public CaloCellGeometry {
 public:
 
   typedef CaloCellGeometry::CCGFloat CCGFloat ;

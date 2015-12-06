@@ -6,7 +6,7 @@
 
 
 
-class TRecHit2DPosConstraint GCC11_FINAL : public TransientTrackingRecHit {
+class TRecHit2DPosConstraint final : public TransientTrackingRecHit {
 public:
 
   virtual ~TRecHit2DPosConstraint() {}

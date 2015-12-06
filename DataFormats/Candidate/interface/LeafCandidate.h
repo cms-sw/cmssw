@@ -88,64 +88,64 @@ namespace reco {
     }
 
     /// electric charge
-    virtual int charge() const GCC11_FINAL { return m_state.charge(); }
+    virtual int charge() const final { return m_state.charge(); }
     /// set electric charge                                                               
-    virtual void setCharge( Charge q ) GCC11_FINAL { m_state.setCharge(q); }
+    virtual void setCharge( Charge q ) final { m_state.setCharge(q); }
     /// electric charge                                                                   
-    virtual int threeCharge() const GCC11_FINAL { return m_state.threeCharge(); }
+    virtual int threeCharge() const final { return m_state.threeCharge(); }
     /// set electric charge                                                               
-    virtual void setThreeCharge( Charge qx3 ) GCC11_FINAL {m_state.setThreeCharge(qx3); }
+    virtual void setThreeCharge( Charge qx3 ) final {m_state.setThreeCharge(qx3); }
     /// four-momentum Lorentz vector                                                      
-    virtual const LorentzVector & p4() const GCC11_FINAL { return m_state.p4(); }
+    virtual const LorentzVector & p4() const final { return m_state.p4(); }
     /// four-momentum Lorentz vector                                                      
-    virtual const PolarLorentzVector & polarP4() const GCC11_FINAL { return m_state.polarP4(); }
+    virtual const PolarLorentzVector & polarP4() const final { return m_state.polarP4(); }
     /// spatial momentum vector                                                           
-    virtual Vector momentum() const GCC11_FINAL { return m_state.momentum(); }
+    virtual Vector momentum() const final { return m_state.momentum(); }
     /// boost vector to boost a Lorentz vector                                            
     /// to the particle center of mass system                                             
-    virtual Vector boostToCM() const GCC11_FINAL { return m_state.boostToCM(); }
+    virtual Vector boostToCM() const final { return m_state.boostToCM(); }
     /// magnitude of momentum vector                                                      
-    virtual double p() const GCC11_FINAL { return m_state.p(); }
+    virtual double p() const final { return m_state.p(); }
     /// energy                                                                            
-    virtual double energy() const GCC11_FINAL { return m_state.energy(); }
+    virtual double energy() const final { return m_state.energy(); }
     /// transverse energy                                                                 
-    virtual double et() const GCC11_FINAL { return m_state.et(); }
+    virtual double et() const final { return m_state.et(); }
     /// transverse energy squared (use this for cut!)                                                                 
-    virtual double et2() const GCC11_FINAL { return m_state.et2(); }
+    virtual double et2() const final { return m_state.et2(); }
     /// mass                                                                              
-    virtual double mass() const GCC11_FINAL { return m_state.mass(); }
+    virtual double mass() const final { return m_state.mass(); }
     /// mass squared                                                                      
-    virtual double massSqr() const GCC11_FINAL { return mass() * mass(); }
+    virtual double massSqr() const final { return mass() * mass(); }
 
     /// transverse mass                                                                   
-    virtual double mt() const GCC11_FINAL  { return m_state.mt(); }
+    virtual double mt() const final  { return m_state.mt(); }
     /// transverse mass squared                                                           
-    virtual double mtSqr() const GCC11_FINAL  { return m_state.mtSqr(); }
+    virtual double mtSqr() const final  { return m_state.mtSqr(); }
     /// x coordinate of momentum vector                                                   
-    virtual double px() const GCC11_FINAL  {  return m_state.px(); }
+    virtual double px() const final  {  return m_state.px(); }
     /// y coordinate of momentum vector                                                   
-    virtual double py() const GCC11_FINAL  { return m_state.py(); }
+    virtual double py() const final  { return m_state.py(); }
     /// z coordinate of momentum vector                                                   
-    virtual double pz() const GCC11_FINAL  {  return m_state.pz(); }
+    virtual double pz() const final  {  return m_state.pz(); }
     /// transverse momentum                                                               
-    virtual double pt() const GCC11_FINAL  { return m_state.pt();}
+    virtual double pt() const final  { return m_state.pt();}
     /// momentum azimuthal angle                                                          
-    virtual double phi() const GCC11_FINAL  { return m_state.phi(); }
+    virtual double phi() const final  { return m_state.phi(); }
     /// momentum polar angle                                                              
-    virtual double theta() const GCC11_FINAL  {  return m_state.theta(); }
+    virtual double theta() const final  {  return m_state.theta(); }
     /// momentum pseudorapidity                                                           
-    virtual  double eta() const GCC11_FINAL  { return m_state.eta(); }
+    virtual  double eta() const final  { return m_state.eta(); }
     /// rapidity                                                                          
-    virtual double rapidity() const GCC11_FINAL  {  return m_state.rapidity(); }
+    virtual double rapidity() const final  {  return m_state.rapidity(); }
     /// rapidity                                                                          
-    virtual double y() const GCC11_FINAL  { return rapidity(); }
+    virtual double y() const final  { return rapidity(); }
     /// set 4-momentum                                                                    
-    virtual void setP4( const LorentzVector & p4 ) GCC11_FINAL  { m_state.setP4(p4);}
+    virtual void setP4( const LorentzVector & p4 ) final  { m_state.setP4(p4);}
     /// set 4-momentum                                                                    
-    virtual void setP4( const PolarLorentzVector & p4 ) GCC11_FINAL  {m_state.setP4(p4); }
+    virtual void setP4( const PolarLorentzVector & p4 ) final  {m_state.setP4(p4); }
     /// set particle mass                                                                 
-    virtual void setMass( double m ) GCC11_FINAL  {m_state.setMass(m);}
-    virtual void setPz( double pz ) GCC11_FINAL  { m_state.setPz(pz);}
+    virtual void setMass( double m ) final  {m_state.setMass(m);}
+    virtual void setPz( double pz ) final  { m_state.setPz(pz);}
     /// vertex position                 (overwritten by PF...)                                                  
     virtual const Point & vertex() const { return m_state.vertex(); }
     /// x coordinate of vertex position                                                   
@@ -158,23 +158,23 @@ namespace reco {
     virtual void setVertex( const Point & vertex )   { m_state.setVertex(vertex); }
 
     /// PDG identifier                                                                    
-    virtual int pdgId() const GCC11_FINAL  { return m_state.pdgId(); }
+    virtual int pdgId() const final  { return m_state.pdgId(); }
     // set PDG identifier                                                                 
-    virtual void setPdgId( int pdgId ) GCC11_FINAL  { m_state.setPdgId(pdgId); }
+    virtual void setPdgId( int pdgId ) final  { m_state.setPdgId(pdgId); }
     /// status word                                                                       
-    virtual int status() const GCC11_FINAL  { return m_state.status(); }
+    virtual int status() const final  { return m_state.status(); }
     /// set status word                                                                   
-    virtual void setStatus( int status ) GCC11_FINAL  { m_state.setStatus(status); }
+    virtual void setStatus( int status ) final  { m_state.setStatus(status); }
     /// long lived flag                                                                   
     /// set long lived flag                                                               
-    virtual void setLongLived() GCC11_FINAL  { m_state.setLongLived(); }
+    virtual void setLongLived() final  { m_state.setLongLived(); }
     /// is long lived?                                                                    
-    virtual bool longLived() const GCC11_FINAL  { return m_state.longLived(); }
+    virtual bool longLived() const final  { return m_state.longLived(); }
     /// do mass constraint flag
     /// set mass constraint flag
-    virtual void setMassConstraint() GCC11_FINAL  { m_state.setMassConstraint();}
+    virtual void setMassConstraint() final  { m_state.setMassConstraint();}
     /// do mass constraint?
-    virtual bool massConstraint() const GCC11_FINAL  { return m_state.massConstraint(); }
+    virtual bool massConstraint() const final  { return m_state.massConstraint(); }
 
     /// returns a clone of the Candidate object                                           
     virtual LeafCandidate * clone() const  {
@@ -195,7 +195,7 @@ namespace reco {
     /// (i, j)-th element of error matrix, i, j = 0, ... 2                                                             
     virtual double vertexCovariance(int i, int j) const;
     /// return SMatrix                                                                                                 
-    CovarianceMatrix vertexCovariance() const GCC11_FINAL  { CovarianceMatrix m; fillVertexCovariance(m); return m; }
+    CovarianceMatrix vertexCovariance() const final  { CovarianceMatrix m; fillVertexCovariance(m); return m; }
     /// fill SMatrix                                                                                                   
     virtual void fillVertexCovariance(CovarianceMatrix & v) const;
     /// returns true if this candidate has a reference to a master clone.                                              

@@ -8,7 +8,7 @@
 
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 
-class RectangularStripTopology GCC11_FINAL : public StripTopology {
+class RectangularStripTopology final : public StripTopology {
 public:
 
   RectangularStripTopology(int nstrips, float pitch, float detlength);

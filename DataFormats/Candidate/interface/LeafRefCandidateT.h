@@ -49,25 +49,25 @@ protected:
 
 public:
     /// number of daughters
-    virtual size_t numberOfDaughters() const GCC11_FINAL  { return 0; }
+    virtual size_t numberOfDaughters() const final  { return 0; }
     /// return daughter at a given position (throws an exception)
-    virtual const Candidate * daughter( size_type ) const GCC11_FINAL  { return 0; }
+    virtual const Candidate * daughter( size_type ) const final  { return 0; }
     /// number of mothers
-    virtual size_t numberOfMothers() const GCC11_FINAL  { return 0; }
+    virtual size_t numberOfMothers() const final  { return 0; }
     /// return mother at a given position (throws an exception)
-    virtual const Candidate * mother( size_type ) const GCC11_FINAL  { return 0; }
+    virtual const Candidate * mother( size_type ) const final  { return 0; }
     /// return daughter at a given position (throws an exception)
-    virtual Candidate * daughter( size_type ) GCC11_FINAL  { return 0; }
+    virtual Candidate * daughter( size_type ) final  { return 0; }
     /// return daughter with a specified role name
-    virtual Candidate * daughter(const std::string& s ) GCC11_FINAL  { return 0; }
+    virtual Candidate * daughter(const std::string& s ) final  { return 0; }
     /// return daughter with a specified role name                                        
-    virtual const Candidate * daughter(const std::string& s ) const GCC11_FINAL  { return 0; }
+    virtual const Candidate * daughter(const std::string& s ) const final  { return 0; }
     /// return the number of source Candidates                                            
     /// ( the candidates used to construct this Candidate)                                
-    virtual size_t numberOfSourceCandidatePtrs() const GCC11_FINAL  { return 0;}
+    virtual size_t numberOfSourceCandidatePtrs() const final  { return 0;}
     /// return a Ptr to one of the source Candidates                                      
     /// ( the candidates used to construct this Candidate)                                
-    virtual CandidatePtr sourceCandidatePtr( size_type i ) const GCC11_FINAL  {
+    virtual CandidatePtr sourceCandidatePtr( size_type i ) const final  {
       static const CandidatePtr dummyPtr;
       return dummyPtr;
     }
@@ -75,18 +75,18 @@ public:
 
                      
     /// This only happens if the concrete Candidate type is ShallowCloneCandidate                                      
-    virtual bool hasMasterClone() const GCC11_FINAL  { return false; }
+    virtual bool hasMasterClone() const final  { return false; }
     /// returns ptr to master clone, if existing.                                                                      
     /// Throws an exception unless the concrete Candidate type is ShallowCloneCandidate                                
-    virtual const CandidateBaseRef & masterClone() const GCC11_FINAL  { 
+    virtual const CandidateBaseRef & masterClone() const final  { 
       static const CandidateBaseRef dummyRef; return dummyRef; 
     }
     /// returns true if this candidate has a ptr to a master clone.                                                    
     /// This only happens if the concrete Candidate type is ShallowClonePtrCandidate                                   
-    virtual bool hasMasterClonePtr() const GCC11_FINAL  { return false; }
+    virtual bool hasMasterClonePtr() const final  { return false; }
     /// returns ptr to master clone, if existing.                                                                      
     /// Throws an exception unless the concrete Candidate type is ShallowClonePtrCandidate                             
-    virtual const CandidatePtr & masterClonePtr() const GCC11_FINAL  { 
+    virtual const CandidatePtr & masterClonePtr() const final  { 
       static const CandidatePtr dummyPtr; return dummyPtr; 
     }
 
@@ -126,15 +126,15 @@ public:
     }
 
 
-    virtual bool isElectron() const GCC11_FINAL  { return false; }
-    virtual bool isMuon() const GCC11_FINAL  { return false; }
-    virtual bool isStandAloneMuon() const GCC11_FINAL  { return false; }
-    virtual bool isGlobalMuon() const GCC11_FINAL  { return false; }
-    virtual bool isTrackerMuon() const GCC11_FINAL  { return false; }
-    virtual bool isCaloMuon() const GCC11_FINAL  { return false; }
-    virtual bool isPhoton() const GCC11_FINAL  { return false; }
-    virtual bool isConvertedPhoton() const GCC11_FINAL  { return false; }
-    virtual bool isJet() const GCC11_FINAL  { return false; }
+    virtual bool isElectron() const final  { return false; }
+    virtual bool isMuon() const final  { return false; }
+    virtual bool isStandAloneMuon() const final  { return false; }
+    virtual bool isGlobalMuon() const final  { return false; }
+    virtual bool isTrackerMuon() const final  { return false; }
+    virtual bool isCaloMuon() const final  { return false; }
+    virtual bool isPhoton() const final  { return false; }
+    virtual bool isConvertedPhoton() const final  { return false; }
+    virtual bool isJet() const final  { return false; }
 
     CMS_CLASS_VERSION(13)
 
@@ -156,22 +156,22 @@ public:
     /// Hide these from all users:
     ///
     /*                                    
-    virtual void setCharge( Charge q ) GCC11_FINAL  {}                                         
-    virtual void setThreeCharge( Charge qx3 ) GCC11_FINAL  {}
-    virtual void setP4( const LorentzVector & p4 ) GCC11_FINAL  {}
-    virtual void setP4( const PolarLorentzVector & p4 ) GCC11_FINAL  {}
-    virtual void setPz( double pz ) GCC11_FINAL  {}                            
-    virtual void setVertex( const Point & vertex ) GCC11_FINAL  {}
-    virtual void setPdgId( int pdgId ) GCC11_FINAL  {}                                              
-    virtual void setStatus( int status ) GCC11_FINAL  {}
-    virtual void setLongLived() GCC11_FINAL  {}                                      
-    virtual void setMassConstraint() GCC11_FINAL  {}
+    virtual void setCharge( Charge q ) final  {}                                         
+    virtual void setThreeCharge( Charge qx3 ) final  {}
+    virtual void setP4( const LorentzVector & p4 ) final  {}
+    virtual void setP4( const PolarLorentzVector & p4 ) final  {}
+    virtual void setPz( double pz ) final  {}                            
+    virtual void setVertex( const Point & vertex ) final  {}
+    virtual void setPdgId( int pdgId ) final  {}                                              
+    virtual void setStatus( int status ) final  {}
+    virtual void setLongLived() final  {}                                      
+    virtual void setMassConstraint() final  {}
 
-    virtual double vertexChi2() const GCC11_FINAL  { return 0.; }
-    virtual double vertexNdof() const GCC11_FINAL  { return 0.; }
-    virtual double vertexNormalizedChi2() const GCC11_FINAL  { return 0.; }
-    virtual double vertexCovariance(int i, int j) const GCC11_FINAL  { return 0.; }
-    virtual void fillVertexCovariance(CovarianceMatrix & v) const GCC11_FINAL  {}
+    virtual double vertexChi2() const final  { return 0.; }
+    virtual double vertexNdof() const final  { return 0.; }
+    virtual double vertexNormalizedChi2() const final  { return 0.; }
+    virtual double vertexCovariance(int i, int j) const final  { return 0.; }
+    virtual void fillVertexCovariance(CovarianceMatrix & v) const final  {}
     */
   };
 

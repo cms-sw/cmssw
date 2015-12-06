@@ -24,17 +24,17 @@ public:
   TrackingRecHit * cloneHit() const { return hit()->clone();}
 
   // Extension of the TrackingRecHit interface
-  virtual const Surface * surface() const GCC11_FINAL {return &(det()->surface());}
+  virtual const Surface * surface() const final {return &(det()->surface());}
 
 
-  virtual GlobalPoint globalPosition() const GCC11_FINAL {
+  virtual GlobalPoint globalPosition() const final {
       return surface()->toGlobal(localPosition());
   }
   
-  GlobalError globalPositionError() const GCC11_FINAL { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
-  float errorGlobalR() const GCC11_FINAL { return std::sqrt(globalPositionError().rerr(globalPosition()));}
-  float errorGlobalZ() const GCC11_FINAL { return std::sqrt(globalPositionError().czz()); }
-  float errorGlobalRPhi() const GCC11_FINAL { return globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
+  GlobalError globalPositionError() const final { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
+  float errorGlobalR() const final { return std::sqrt(globalPositionError().rerr(globalPosition()));}
+  float errorGlobalZ() const final { return std::sqrt(globalPositionError().czz()); }
+  float errorGlobalRPhi() const final { return globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
 
   // once cache removed will obsolete the above
   TrackingRecHitGlobalState globalState() const {

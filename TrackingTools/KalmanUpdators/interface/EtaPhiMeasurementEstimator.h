@@ -12,7 +12,7 @@
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
-class EtaPhiMeasurementEstimator GCC11_FINAL : public Chi2MeasurementEstimatorBase {
+class EtaPhiMeasurementEstimator final : public Chi2MeasurementEstimatorBase {
 public:
 
   explicit EtaPhiMeasurementEstimator(double dEta, double dPhi) : 

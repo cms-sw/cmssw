@@ -23,7 +23,7 @@
 
 class FlatTrd;
 
-class HGCalGeometry GCC11_FINAL: public CaloSubdetectorGeometry {
+class HGCalGeometry final: public CaloSubdetectorGeometry {
 
 public:
   

@@ -5,7 +5,7 @@
 
 class SiTrackerMultiRecHitUpdator;
 
-class MRHChi2MeasurementEstimator GCC11_FINAL : public Chi2MeasurementEstimatorBase {
+class MRHChi2MeasurementEstimator final : public Chi2MeasurementEstimatorBase {
 public:
 
   /** Construct with cuts on chi2 and nSigma.

@@ -10,7 +10,7 @@
   *  
   * \author J. Mans - Minnesota
   */
-class CaloTowerTopology GCC11_FINAL : public CaloSubdetectorTopology {
+class CaloTowerTopology final : public CaloSubdetectorTopology {
 public:
   /// standard constructor
   CaloTowerTopology(const HcalTopology * topology);

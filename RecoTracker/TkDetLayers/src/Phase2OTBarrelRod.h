@@ -13,7 +13,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class Phase2OTBarrelRod GCC11_FINAL : public DetRod {
+class Phase2OTBarrelRod final : public DetRod {
  public:
   typedef GenericBinFinderInZ<float,GeomDet>   BinFinderType;
 

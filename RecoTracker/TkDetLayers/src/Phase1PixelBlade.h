@@ -13,7 +13,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class Phase1PixelBlade GCC11_FINAL : public GeometricSearchDet {
+class Phase1PixelBlade final : public GeometricSearchDet {
  public:
 
   Phase1PixelBlade(std::vector<const GeomDet*>& frontDets,

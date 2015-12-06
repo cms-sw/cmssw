@@ -29,7 +29,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 class Plane;
 
-class ProxyStripTopology GCC11_FINAL : public StripTopology {
+class ProxyStripTopology final : public StripTopology {
 public:
 
   ProxyStripTopology(StripGeomDetType const * type, Plane * bp);

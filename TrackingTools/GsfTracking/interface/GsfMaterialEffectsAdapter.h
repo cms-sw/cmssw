@@ -8,7 +8,7 @@
 /** Make standard (single state) MaterialEffectsUpdator usable in
  *  the context of GSF.
  */
-class GsfMaterialEffectsAdapter  GCC11_FINAL : public GsfMaterialEffectsUpdator 
+class GsfMaterialEffectsAdapter  final : public GsfMaterialEffectsUpdator 
 {
   virtual GsfMaterialEffectsAdapter* clone() const
   {
