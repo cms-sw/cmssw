@@ -29,6 +29,7 @@
 #include "HLTrigger/special/interface/HLTRegionalEcalResonanceFilter.h"
 
 #include "HLTrigger/special/interface/HLTPixelAsymmetryFilter.h"
+#include "HLTrigger/special/interface/HLTPixelActivityHFSumEnergyFilter.h"
 #include "HLTrigger/special/interface/HLTHFAsymmetryFilter.h"
 #include "HLTrigger/special/interface/HLTTrackerHaloFilter.h"
 
@@ -65,5 +66,6 @@ DEFINE_FWK_MODULE(HLTEcalResonanceFilter);
 DEFINE_FWK_MODULE(HLTRegionalEcalResonanceFilter);
 
 DEFINE_FWK_MODULE(HLTPixelAsymmetryFilter);
+DEFINE_FWK_MODULE(HLTPixelActivityHFSumEnergyFilter);
 DEFINE_FWK_MODULE(HLTHFAsymmetryFilter);
 DEFINE_FWK_MODULE(HLTTrackerHaloFilter);
