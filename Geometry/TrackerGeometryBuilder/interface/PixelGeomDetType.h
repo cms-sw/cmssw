@@ -9,7 +9,7 @@
  * Generic DetType for the Pixels. Specialized in SiPixelGeomDetType.
  */
 
-class PixelGeomDetType GCC11_FINAL: public GeomDetType {
+class PixelGeomDetType final: public GeomDetType {
 
 public:
   typedef  PixelTopology        TopologyType;

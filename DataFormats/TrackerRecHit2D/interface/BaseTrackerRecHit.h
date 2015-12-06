@@ -35,7 +35,7 @@ public:
   BaseTrackerRecHit() : qualWord_(0){}
 
   // fake TTRH interface
-  BaseTrackerRecHit const * hit() const GCC11_FINAL { return this;}  
+  BaseTrackerRecHit const * hit() const final { return this;}  
 
   virtual ~BaseTrackerRecHit() {}
 
@@ -70,11 +70,11 @@ public:
   // verify that hits can share clusters...
   inline bool sameDetModule(TrackingRecHit const & hit) const;
 
-  bool hasPositionAndError() const  GCC11_FINAL; 
+  bool hasPositionAndError() const  final; 
 
-  virtual LocalPoint localPosition() const  GCC11_FINAL { check(); return pos_;}
+  virtual LocalPoint localPosition() const  final { check(); return pos_;}
 
-  virtual LocalError localPositionError() const  GCC11_FINAL { check(); return err_;}
+  virtual LocalError localPositionError() const  final { check(); return err_;}
 
  
   const LocalPoint & localPositionFast()      const { check(); return pos_; }
@@ -92,17 +92,17 @@ public:
 
   // global coordinates
   // Extension of the TrackingRecHit interface
-  virtual const Surface * surface() const GCC11_FINAL {return &(det()->surface());}
+  virtual const Surface * surface() const final {return &(det()->surface());}
 
 
-  virtual GlobalPoint globalPosition() const GCC11_FINAL {
+  virtual GlobalPoint globalPosition() const final {
       return surface()->toGlobal(localPosition());
   }
   
-  GlobalError globalPositionError() const GCC11_FINAL { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
-  float errorGlobalR() const GCC11_FINAL { return std::sqrt(globalPositionError().rerr(globalPosition()));}
-  float errorGlobalZ() const GCC11_FINAL { return std::sqrt(globalPositionError().czz()); }
-  float errorGlobalRPhi() const GCC11_FINAL { return globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
+  GlobalError globalPositionError() const final { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
+  float errorGlobalR() const final { return std::sqrt(globalPositionError().rerr(globalPosition()));}
+  float errorGlobalZ() const final { return std::sqrt(globalPositionError().czz()); }
+  float errorGlobalRPhi() const final { return globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
 
   // once cache removed will obsolete the above
   TrackingRecHitGlobalState globalState() const {

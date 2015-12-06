@@ -14,7 +14,7 @@
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 
-class Cone  GCC11_FINAL  : public Surface {
+class Cone  final  : public Surface {
 public:
 
   template<typename... Args>

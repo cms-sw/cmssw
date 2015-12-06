@@ -16,7 +16,7 @@
    * </ul>
    */
 
-class TwoTrackMinimumDistance GCC11_FINAL : public ClosestApproachOnHelices {
+class TwoTrackMinimumDistance final : public ClosestApproachOnHelices {
 
 public:
 

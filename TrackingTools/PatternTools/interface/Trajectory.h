@@ -42,13 +42,8 @@ class Trajectory
 public:
 
   typedef std::vector<TrajectoryMeasurement>                   DataContainer;
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   using ConstRecHitContainer = TrackingRecHit::ConstRecHitContainer;
   using RecHitContainer = ConstRecHitContainer;
-#else
-  typedef TrackingRecHit::ConstRecHitContainer        ConstRecHitContainer;
-  typedef ConstRecHitContainer                                 RecHitContainer;
-#endif
 
   /** Default constructor of an empty trajectory with undefined seed and 
    * undefined direction. This constructor is necessary in order to transiently
@@ -160,8 +155,6 @@ public:
   {}
 
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
- 
   Trajectory(Trajectory const & rh) = default;
   Trajectory & operator=(Trajectory const & rh) = default;
 
@@ -205,12 +198,6 @@ public:
 
   }
 
-#else
-//  private:
-//  Trajectory(Trajectory const & rh){}	
-//  Trajectory & operator=(Trajectory const & rh){ return *this;}
-//  public:
-#endif
 
   /** Reserves space in the vector to avoid lots of allocations when 
       push_back-ing measurements */
@@ -226,10 +213,8 @@ public:
    */
   void push(const TrajectoryMeasurement & tm, double chi2Increment);
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   void push(TrajectoryMeasurement&& tm);
   void push(TrajectoryMeasurement&& tm, double chi2Increment);
-#endif
 
   /** Remove the last measurement from the trajectory.
    */
@@ -270,7 +255,6 @@ public:
 
   /** Return all RecHits in a container.
    */
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   ConstRecHitContainer recHits() const {
     ConstRecHitContainer hits;
     hits.reserve(theData.size());
@@ -285,7 +269,6 @@ public:
    *
    */
   void validRecHits(ConstRecHitContainer & cont) const;
-#endif
 
   /** Number of valid RecHits used to determine the trajectory.
    *  Can be less than the number of measurements in data() since

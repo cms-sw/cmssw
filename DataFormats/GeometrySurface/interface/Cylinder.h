@@ -16,7 +16,7 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 
-class Cylinder GCC11_FINAL  : public Surface {
+class Cylinder final  : public Surface {
 public:
 
   template<typename... Args>

@@ -29,6 +29,7 @@ _algos = [
     "jetCoreRegionalStep",
     "muonSeededStepInOut",
     "muonSeededStepOutIn",
+    "duplicateMerge",
 ]
 def _algoToSelector(algo):
     sel = ""

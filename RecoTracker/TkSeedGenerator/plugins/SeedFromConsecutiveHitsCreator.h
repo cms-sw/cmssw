@@ -37,12 +37,12 @@ public:
   // initialize the "event dependent state"
   virtual void init(const TrackingRegion & region,
 	       const edm::EventSetup& es,
-	       const SeedComparitor *filter) GCC11_FINAL;
+	       const SeedComparitor *filter) final;
 
   // make job
   // fill seedCollection with the "TrajectorySeed"
   virtual void makeSeed(TrajectorySeedCollection & seedCollection,
-			const SeedingHitSet & hits) GCC11_FINAL;
+			const SeedingHitSet & hits) final;
 
 
 private:

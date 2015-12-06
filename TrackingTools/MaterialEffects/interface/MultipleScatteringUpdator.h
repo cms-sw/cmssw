@@ -12,7 +12,7 @@
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 
-class MultipleScatteringUpdator GCC11_FINAL : public MaterialEffectsUpdator 
+class MultipleScatteringUpdator final : public MaterialEffectsUpdator 
 {
   virtual dso_export MultipleScatteringUpdator* clone() const {
     return new MultipleScatteringUpdator(*this);

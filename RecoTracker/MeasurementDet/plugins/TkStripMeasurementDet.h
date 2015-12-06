@@ -81,7 +81,7 @@ public:
 };
 
 
-class dso_hidden TkStripMeasurementDet GCC11_FINAL : public MeasurementDet {
+class dso_hidden TkStripMeasurementDet final : public MeasurementDet {
 public:
   
   typedef StripClusterParameterEstimator::LocalValues    LocalValues;

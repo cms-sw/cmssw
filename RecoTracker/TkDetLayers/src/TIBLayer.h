@@ -10,7 +10,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TIBLayer GCC11_FINAL : public TBLayer {
+class TIBLayer final : public TBLayer {
  public:
 
   TIBLayer(std::vector<const TIBRing*>& innerRings,

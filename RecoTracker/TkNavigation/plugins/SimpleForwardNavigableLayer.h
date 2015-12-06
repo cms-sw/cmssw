@@ -6,7 +6,7 @@
 /** A concrete NavigableLayer for the forward
  */
 
-class dso_hidden SimpleForwardNavigableLayer GCC11_FINAL : public SimpleNavigableLayer {
+class dso_hidden SimpleForwardNavigableLayer final : public SimpleNavigableLayer {
 
 public:
 

@@ -10,9 +10,7 @@
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
  
-#ifndef CMS_NOCXX11
 #include "FWCore/Utilities/interface/clone_ptr.h"
-#endif
 #include <algorithm>
 
 
@@ -30,11 +28,7 @@ namespace SurfaceOrientation {
 //template <class T> class ReferenceCountingPointer;
 
 class Plane;
-#ifndef CMS_NOCXX11
 using TangentPlane = Plane;
-#else
-typedef Plane TangentPlane;
-#endif
 
 /** Base class for 2D surfaces in 3D space.
  *  May have MediumProperties.
@@ -49,9 +43,9 @@ class Surface : public GloballyPositioned<float>
 	      , public ReferenceCountedInConditions 
 {
 public:
-  typedef SurfaceOrientation::Side Side;
+  using Side =  SurfaceOrientation::Side;
 
-  typedef GloballyPositioned<float>       Base;
+  using Base = GloballyPositioned<float>;
 
   virtual ~Surface(){}
 
@@ -89,13 +83,11 @@ protected:
   theBounds(iSurface.theBounds)
   {}
   
-#ifndef CMS_NOCXX11
   Surface(Surface&& iSurface ) : 
   Base(iSurface), 
   theMediumProperties(iSurface.theMediumProperties),
   theBounds(std::move(iSurface.theBounds))
   {}
-#endif
 
 public:
 
@@ -146,11 +138,7 @@ public:
 
 protected:
   MediumProperties theMediumProperties;
-#ifndef CMS_NOCXX11
   extstd::clone_ptr<Bounds> theBounds;
-#else
-  Bounds * theBounds;
-#endif
 };
   
 

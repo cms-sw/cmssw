@@ -16,7 +16,7 @@
  *
  */
 
-class Disk GCC11_FINAL : public Plane {
+class Disk final : public Plane {
 public:
 
   /*

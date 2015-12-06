@@ -31,8 +31,6 @@ namespace reco {
     ~TransientTrack() noexcept {}
 
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
-
     TransientTrack(TransientTrack const & rh) noexcept :
       Base(rh){}
     
@@ -50,8 +48,6 @@ namespace reco {
       return *this;
     }
 
-#endif
-  
     void swap(TransientTrack & rh) noexcept {
       Base::swap(rh);
     }

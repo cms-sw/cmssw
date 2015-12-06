@@ -10,7 +10,7 @@
  * Some data is calculated on demand to improve performance.
  */
 
-class BasicSingleVertexState GCC11_FINAL : public BasicVertexState {
+class BasicSingleVertexState final : public BasicVertexState {
 
 public:
 
