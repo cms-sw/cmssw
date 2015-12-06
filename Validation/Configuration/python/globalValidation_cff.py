@@ -123,3 +123,13 @@ globalPrevalidationLiteTracking.remove(cutsRecoTracksMuonSeededStepInOut)
 globalPrevalidationLiteTracking.remove(cutsRecoTracksMuonSeededStepInOutHp)
 globalPrevalidationLiteTracking.remove(cutsRecoTracksMuonSeededStepOutIn)
 globalPrevalidationLiteTracking.remove(cutsRecoTracksMuonSeededStepOutInHp)
+
+# Tracking-only validation
+globalPrevalidationTrackingOnly = cms.Sequence(
+      simHitTPAssocProducer
+    + tracksPreValidationTrackingOnly
+)
+globalValidationTrackingOnly = cms.Sequence(
+      tracksValidationTrackingOnly
+    + vertexValidation
+)
