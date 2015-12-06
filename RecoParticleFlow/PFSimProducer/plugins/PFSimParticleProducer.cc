@@ -113,18 +113,6 @@ PFSimParticleProducer::~PFSimParticleProducer()
   delete mySimEvent; 
 }
 
-void 
-PFSimParticleProducer::beginRun(const edm::Run& run,
-				const edm::EventSetup & es)
-{  
-  // init Particle data table (from Pythia)
-  edm::ESHandle < HepPDT::ParticleDataTable > pdt;
-  //  edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
-  es.getData(pdt);
-  mySimEvent->initializePdt(&(*pdt));
-}
-
-
 void PFSimParticleProducer::produce(Event& iEvent, 
 				    const EventSetup& iSetup) 
 {  
