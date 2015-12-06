@@ -52,12 +52,13 @@ localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS
 from RecoLocalCalo.Castor.Castor_cff import *
 from RecoLocalCalo.Configuration.hcalGlobalReco_cff import *
 
-globalreco = cms.Sequence(offlineBeamSpot*
+globalreco_tracking = cms.Sequence(offlineBeamSpot*
                           MeasurementTrackerEventPreSplitting* # unclear where to put this
                           siPixelClusterShapeCachePreSplitting* # unclear where to put this
                           standalonemuontracking*
                           trackingGlobalReco*
-                          vertexreco*
+                          vertexreco)
+globalreco = cms.Sequence(globalreco_tracking*
                           hcalGlobalRecoSequence*
                           particleFlowCluster*
                           ecalClusters*
@@ -93,6 +94,8 @@ from FWCore.Modules.logErrorHarvester_cfi import *
 
 # "Export" Section
 reconstruction         = cms.Sequence(bunchSpacingProducer*localreco*globalreco*highlevelreco*logErrorHarvester)
+
+reconstruction_trackingOnly = cms.Sequence(bunchSpacingProducer*localreco*globalreco_tracking)
 
 #need a fully expanded sequence copy
 modulesToRemove = list() # copy does not work well

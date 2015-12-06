@@ -52,6 +52,10 @@ postValidation_fastsim = cms.Sequence(
     + runTauEff
 )
 
+postValidation_trackingOnly = cms.Sequence(
+      postProcessorTrackSequence
+    + postProcessorVertex
+)
  
 postValidation_gen = cms.Sequence(
     EventGeneratorPostProcessor

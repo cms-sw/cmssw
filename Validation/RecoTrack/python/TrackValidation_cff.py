@@ -283,24 +283,51 @@ for _label in ["cutsRecoTracksBtvLike", "cutsRecoTracksAK4PFJets"]:
     trackValidatorAllTPEfficStandalone.label.remove(_label)
 
 # sequences
-tracksPreValidationStandalone = cms.Sequence(
-    tracksPreValidation +
+tracksValidationSelectorsStandalone = cms.Sequence(
     tracksValidationSelectorsByOriginalAlgoStandalone +
     tracksValidationSelectorsByAlgoMaskStandalone +
     tracksValidationSelectorsFromPVStandalone
 )
-tracksValidationStandalone = cms.Sequence(
+tracksPreValidationStandalone = cms.Sequence(
     ak4PFL1FastL2L3CorrectorChain+
-    tracksPreValidationStandalone+
+    tracksPreValidation +
+    tracksValidationSelectorsStandalone
+)
+trackValidatorsStandalone = cms.Sequence(
     trackValidatorStandalone +
     trackValidatorFromPVStandalone +
     trackValidatorFromPVAllTPStandalone +
     trackValidatorAllTPEfficStandalone
 )
+tracksValidationStandalone = cms.Sequence(
+    tracksPreValidationStandalone+
+    trackValidatorsStandalone
+)
+
+### TrackingOnly mode (i.e. MTV with DIGI input + tracking-only reconstruction
+
+# selectors
+tracksValidationSelectorsTrackingOnly = tracksValidationSelectors.copyAndExclude([ak4JetTracksAssociatorExplicitAll,cutsRecoTracksAK4PFJets]) # selectors using track information only (i.e. no PF)
+
+# MTV instances
+trackValidatorTrackingOnly = trackValidatorStandalone.clone()
+trackValidatorTrackingOnly.label.remove("cutsRecoTracksAK4PFJets")
+
+# sequences
+tracksPreValidationTrackingOnly = tracksPreValidation.copy()
+tracksPreValidationTrackingOnly.replace(tracksValidationSelectors, tracksValidationSelectorsTrackingOnly)
+tracksPreValidationTrackingOnly += tracksValidationSelectorsStandalone
+
+trackValidatorsTrackingOnly = trackValidatorsStandalone.copy()
+trackValidatorsTrackingOnly.replace(trackValidatorStandalone, trackValidatorTrackingOnly)
+
+tracksValidationTrackingOnly = cms.Sequence(
+    trackValidatorsTrackingOnly
+)
 
 
 ### 'slim' sequences that only depend on track and tracking particle collections
-tracksValidationSelectorsSlim = tracksValidationSelectors.copyAndExclude([cutsRecoTracksBtvLike,ak4JetTracksAssociatorExplicitAll,cutsRecoTracksAK4PFJets])
+tracksValidationSelectorsSlim = tracksValidationSelectorsTrackingOnly.copyAndExclude([cutsRecoTracksBtvLike])
 
 tracksPreValidationSlim = cms.Sequence(
     tracksValidationSelectorsSlim +
