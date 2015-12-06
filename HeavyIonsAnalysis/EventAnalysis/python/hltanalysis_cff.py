@@ -15,17 +15,14 @@ hltanalysis = hltbitanalysis.clone(
     )
 
 
-    
-    
+
+
 skimanalysis = cms.EDAnalyzer("FilterAnalyzer",
                               hltresults = cms.InputTag("TriggerResults","","HiForest"),
                               superFilters = cms.vstring(""),
                               useHBHENoiseProducer = cms.bool(True),
                               HBHENoiseProducer = cms.string("HBHENoiseFilterResultProducer")
                               )
-
-from HeavyIonsAnalysis.EventAnalysis.dummybranches_cff import *
-
 
 
 

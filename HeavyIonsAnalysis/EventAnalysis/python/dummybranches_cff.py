@@ -1,5 +1,9 @@
 
-hltanalysis.dummyBranches.extend( [
+import FWCore.ParameterSet.Config as cms
+
+def addHLTdummybranches( process):
+
+  process.hltanalysis.dummyBranches.extend( [
       "DST_Physics_v1"
       ,"HLT_HIPuAK4CaloJet40_Eta5p1_v1"
       ,"HLT_HIPuAK4CaloJet60_Eta5p1_v1"
@@ -101,7 +105,8 @@ hltanalysis.dummyBranches.extend( [
       ,"HLT_HIQ2Top005_Centrality3050_v1"
       ,"HLT_HIQ2Bottom005_Centrality5070_v1"
       ])
-hltanalysis.dummyBranches.extend( [
+  process.hltanalysis.dummyBranches.extend( [
+      "HLT_HIQ2Top005_Centrality5070_v1"
       "HLT_HIQ2Top005_Centrality5070_v1"
       ,"HLT_HIFullTrack12_L1MinimumBiasHF2_AND_v1"
       ,"HLT_HIFullTrack12_L1Centrality010_v1"
@@ -203,7 +208,8 @@ hltanalysis.dummyBranches.extend( [
       ,"HLT_HIL1Tech5_BPTX_PlusOnly_v1"
       ,"HLT_HIL1Tech6_BPTX_MinusOnly_v1"
       ])
-hltanalysis.dummyBranches.extend( [
+  process.hltanalysis.dummyBranches.extend( [
+      "HLT_HIL1Tech7_NoBPTX_v1"
       "HLT_HIL1Tech7_NoBPTX_v1"
       ,"HLT_HIL1MinimumBiasHF1OR_v1"
       ,"HLT_HIL1MinimumBiasHF2OR_v1"
@@ -304,7 +310,8 @@ hltanalysis.dummyBranches.extend( [
       ,"HLT_HISinglePhoton30_Eta3p1_v2"
       ,"HLT_HISinglePhoton40_Eta3p1_v2"
       ])
-hltanalysis.dummyBranches.extend( [
+  process.hltanalysis.dummyBranches.extend( [
+      "HLT_HISinglePhoton50_Eta3p1_v2"
       "HLT_HISinglePhoton50_Eta3p1_v2"
       ,"HLT_HISinglePhoton60_Eta3p1_v2"
       ,"HLT_HISinglePhoton10_Eta3p1_Cent50_100_v2"
@@ -405,7 +412,8 @@ hltanalysis.dummyBranches.extend( [
       ,"HLT_HIUPCL1DoubleEG2NotHF2_v2"
       ,"HLT_HIUPCDoubleEG2NotHF2Pixel_SingleTrack_v2"
       ])
-hltanalysis.dummyBranches.extend( [
+  process.hltanalysis.dummyBranches.extend( [
+      "HLT_HIUPCL1SingleEG5NotHF2_v2"
       "HLT_HIUPCL1SingleEG5NotHF2_v2"
       ,"HLT_HIUPCSingleEG5NotHF2Pixel_SingleTrack_v2"
       ,"HLT_HIUPCL1DoubleMuOpenNotHF1_v2"
@@ -507,7 +515,8 @@ hltanalysis.dummyBranches.extend( [
       ,"HLT_HIDmesonHITrackingGlobal_Dpt30_Cent30_100_v3"
       ,"HLT_HIDmesonHITrackingGlobal_Dpt30_Cent50_100_v3"
       ])
-hltanalysis.dummyBranches.extend( [
+  process.hltanalysis.dummyBranches.extend( [
+      "HLT_HIDmesonHITrackingGlobal_Dpt40_v3"
       "HLT_HIDmesonHITrackingGlobal_Dpt40_v3"
       ,"HLT_HIDmesonHITrackingGlobal_Dpt40_Cent0_10_v3"
       ,"HLT_HIDmesonHITrackingGlobal_Dpt40_Cent30_100_v3"
@@ -608,7 +617,8 @@ hltanalysis.dummyBranches.extend( [
       ,"HLT_HIL3Mu7_NHitQ15_2HF_v3"
       ,"HLT_HIL3Mu7_NHitQ15_2HF0_v3"
       ])
-hltanalysis.dummyBranches.extend( [
+  process.hltanalysis.dummyBranches.extend( [
+      "HLT_HIL2Mu15_v3"
       "HLT_HIL2Mu15_v3"
       ,"HLT_HIL2Mu15_2HF_v3"
       ,"HLT_HIL2Mu15_2HF0_v3"
@@ -710,7 +720,8 @@ hltanalysis.dummyBranches.extend( [
       ,"HLT_HIPuAK4CaloJet60_Eta5p1_v4"
       ,"HLT_HIPuAK4CaloJet80_Eta5p1_v4"
       ])
-hltanalysis.dummyBranches.extend( [
+  process.hltanalysis.dummyBranches.extend( [
+      "HLT_HIPuAK4CaloJet80_Eta5p1ForZS_v4"
       "HLT_HIPuAK4CaloJet80_Eta5p1ForZS_v4"
       ,"HLT_HIPuAK4CaloJet100_Eta5p1_v4"
       ,"HLT_HIPuAK4CaloJet110_Eta5p1_v4"
@@ -811,7 +822,8 @@ hltanalysis.dummyBranches.extend( [
       ,"HLT_HIFullTrack12_L1MinimumBiasHF2_AND_v4"
       ,"HLT_HIFullTrack12_L1Centrality010_v4"
       ])
-hltanalysis.dummyBranches.extend( [
+  process.hltanalysis.dummyBranches.extend( [
+      "HLT_HIFullTrack12_L1Centrality30100_v4"
       "HLT_HIFullTrack12_L1Centrality30100_v4"
       ,"HLT_HIFullTrack18_L1MinimumBiasHF2_AND_v4"
       ,"HLT_HIFullTrack18_L1Centrality010_v4"
@@ -913,7 +925,8 @@ hltanalysis.dummyBranches.extend( [
       ,"HLT_HIL1MinimumBiasHF1OR_v4"
       ,"HLT_HIL1MinimumBiasHF2OR_v4"
       ])
-hltanalysis.dummyBranches.extend( [
+  process.hltanalysis.dummyBranches.extend( [
+      "HLT_HIL1MinimumBiasHF1AND_v4"
       "HLT_HIL1MinimumBiasHF1AND_v4"
       ,"HLT_HIL1MinimumBiasHF1ANDExpress_v4"
       ,"HLT_HIL1MinimumBiasHF2AND_part1_v4"
@@ -1014,7 +1027,8 @@ hltanalysis.dummyBranches.extend( [
       ,"HLT_HISinglePhoton60_Eta3p1_v5"
       ,"HLT_HISinglePhoton10_Eta3p1_Cent50_100_v5"
       ])
-hltanalysis.dummyBranches.extend( [
+  process.hltanalysis.dummyBranches.extend( [
+      "HLT_HISinglePhoton15_Eta3p1_Cent50_100_v5"
       "HLT_HISinglePhoton15_Eta3p1_Cent50_100_v5"
       ,"HLT_HISinglePhoton20_Eta3p1_Cent50_100_v5"
       ,"HLT_HISinglePhoton30_Eta3p1_Cent50_100_v5"
@@ -1116,7 +1130,8 @@ hltanalysis.dummyBranches.extend( [
       ,"HLT_HIUPCL1DoubleMuOpenNotHF1_v5"
       ,"HLT_HIUPCDoubleMuNotHF1Pixel_SingleTrack_v5"
       ])
-hltanalysis.dummyBranches.extend( [
+  process.hltanalysis.dummyBranches.extend( [
+      "HLT_HIUPCL1DoubleEG2NotZDCAND_v5"
       "HLT_HIUPCL1DoubleEG2NotZDCAND_v5"
       ,"HLT_HIUPCL1DoubleEG2NotZDCANDPixel_SingleTrack_v5"
       ,"HLT_HIUPCL1DoubleMuOpenNotZDCAND_v5"
