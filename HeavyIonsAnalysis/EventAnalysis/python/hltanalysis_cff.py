@@ -11,7 +11,11 @@ hltanalysis = hltbitanalysis.clone(
     l1extramu            = cms.string('l1extraParticles'),
     l1extramc            = cms.string('l1extraParticles'),
     hltresults           = cms.InputTag("TriggerResults","","HLT"),
+    dummyBranches = cms.untracked.vstring()
     )
+
+
+
 
 skimanalysis = cms.EDAnalyzer("FilterAnalyzer",
                               hltresults = cms.InputTag("TriggerResults","","HiForest"),
@@ -19,3 +23,7 @@ skimanalysis = cms.EDAnalyzer("FilterAnalyzer",
                               useHBHENoiseProducer = cms.bool(True),
                               HBHENoiseProducer = cms.string("HBHENoiseFilterResultProducer")
                               )
+
+
+
+
