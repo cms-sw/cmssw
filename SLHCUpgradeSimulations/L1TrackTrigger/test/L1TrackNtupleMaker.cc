@@ -154,6 +154,7 @@ private:
   std::vector<float>* m_tp_pt;
   std::vector<float>* m_tp_eta;
   std::vector<float>* m_tp_phi;
+  std::vector<float>* m_tp_dxy;
   std::vector<float>* m_tp_d0;
   std::vector<float>* m_tp_z0;
   std::vector<float>* m_tp_d0_prod;
@@ -287,6 +288,7 @@ void L1TrackNtupleMaker::beginJob()
   m_tp_pt     = new std::vector<float>;
   m_tp_eta    = new std::vector<float>;
   m_tp_phi    = new std::vector<float>;
+  m_tp_dxy    = new std::vector<float>;
   m_tp_d0     = new std::vector<float>;
   m_tp_z0     = new std::vector<float>;
   m_tp_d0_prod = new std::vector<float>;
@@ -368,6 +370,7 @@ void L1TrackNtupleMaker::beginJob()
   eventTree->Branch("tp_pt",     &m_tp_pt);
   eventTree->Branch("tp_eta",    &m_tp_eta);
   eventTree->Branch("tp_phi",    &m_tp_phi);
+  eventTree->Branch("tp_dxy",    &m_tp_dxy);
   eventTree->Branch("tp_d0",     &m_tp_d0);
   eventTree->Branch("tp_z0",     &m_tp_z0);
   eventTree->Branch("tp_d0_prod",&m_tp_d0_prod);
@@ -461,6 +464,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
   m_tp_pt->clear();
   m_tp_eta->clear();
   m_tp_phi->clear();
+  m_tp_dxy->clear();
   m_tp_d0->clear();
   m_tp_z0->clear();
   m_tp_d0_prod->clear();
@@ -849,6 +853,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
     // for pions in ttbar, only consider TPs coming from near the IP!
     float dxy = sqrt(tmp_tp_vx*tmp_tp_vx + tmp_tp_vy*tmp_tp_vy);
+    float tmp_tp_dxy = dxy;
     if (MyProcess==6 && (dxy > 1.0)) continue;
 
 
@@ -1036,6 +1041,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_tp_pt->push_back(tmp_tp_pt);
     m_tp_eta->push_back(tmp_tp_eta);
     m_tp_phi->push_back(tmp_tp_phi);
+    m_tp_dxy->push_back(tmp_tp_dxy);
     m_tp_z0->push_back(tmp_tp_z0);
     m_tp_d0->push_back(tmp_tp_d0);
     m_tp_z0_prod->push_back(tmp_tp_z0_prod);
