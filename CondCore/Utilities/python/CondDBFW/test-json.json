@@ -1,0 +1,10 @@
+{
+	"table1" : [
+		{"name" : "test", "col" : "another test"},
+		{"name" : "test2", "col" : "test 3"}
+	],
+	"table2" : [
+		{"col1" : "test", "col2" : "another test", "col3" : "more tests"},
+		{"col1" : "asdfd", "col2" : "sfdasf", "col3" : "sdafdassfadsf"}
+	]
+}
