@@ -1,6 +1,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
+#include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizer.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
@@ -171,29 +172,28 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   std::vector< HGCCaloHitTuple_t > hitRefs(nchits);
   for(int i=0; i<nchits; i++)
     {
-      HGCalDetId simId( hits->at(i).id() );
-
+      int layer, cell, sec, subsec, zp;
+      uint32_t simId = hits->at(i).id();
+      HGCalTestNumbering::unpackSquareIndex(simId, zp, layer, sec, subsec, cell);
       //skip this hit if after ganging it is not valid
-      int layer(simId.layer()), cell(simId.cell());
       std::pair<int,int> recoLayerCell=dddConst.simToReco(cell,layer,topo.detectorType());
       cell  = recoLayerCell.first;
       layer = recoLayerCell.second;
-      if(layer<0 || cell<0) 
-	{
-	  hitRefs[i]=std::make_tuple( i, 0, 0.);
-	  continue;
-	}
+      if (layer<0 || cell<0) {
+	hitRefs[i]=std::make_tuple( i, 0, 0.);
+	continue;
+      }
 
       //assign the RECO DetId
       DetId id( producesEEDigis() ?
-		(uint32_t)HGCEEDetId(mySubDet_,simId.zside(),layer,simId.sector(),simId.subsector(),cell):
-		(uint32_t)HGCHEDetId(mySubDet_,simId.zside(),layer,simId.sector(),simId.subsector(),cell) );
+		(uint32_t)HGCEEDetId(mySubDet_,zp,layer,sec,subsec,cell):
+		(uint32_t)HGCHEDetId(mySubDet_,zp,layer,sec,subsec,cell) );
 
       if (verbosity_>0) {
 	if (producesEEDigis())
-          edm::LogInfo("HGCDigitizer") <<" i/p " << simId << " o/p " << HGCEEDetId(id) << std::endl;
+	  edm::LogInfo("HGCDigitizer") <<" i/p " << std::hex << simId << std::dec << " o/p " << HGCEEDetId(id) << std::endl;
 	else
-          edm::LogInfo("HGCDigitizer") << " i/p " << simId << " o/p " << HGCHEDetId(id) << std::endl;
+	  edm::LogInfo("HGCDigitizer") << " i/p " << std::hex << simId << std::dec << " o/p " << HGCHEDetId(id) << std::endl;
       }
 
       hitRefs[i]=std::make_tuple( i, 
@@ -228,9 +228,9 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
       if(itime<0 || itime>14) continue; 
             
       //check if already existing (perhaps could remove this in the future - 2nd event should have all defined)
-      HGCSimHitDataAccumulator::iterator simHitIt = simHitAccumulator_->find(id);
-      if( simHitIt == simHitAccumulator_->end() ) {
-        simHitIt = simHitAccumulator_->insert( std::make_pair(id,baseData) ).first;
+      HGCSimHitDataAccumulator::iterator simHitIt=simHitAccumulator_->find(id);
+      if(simHitIt == simHitAccumulator_->end()) {
+	simHitIt = simHitAccumulator_->insert( std::make_pair(id,baseData) ).first;
       }
       
       //check if time index is ok and store energy
@@ -261,7 +261,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 		      fireTDC               = deltaT*(deltaQ2TDCOnset/deltaQ)+prev_tof;
 		    }		  
 		}
-
+	      
 	      (simHitIt->second)[1][itime]=fireTDC;
 	    }
 	}
