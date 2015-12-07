@@ -26,12 +26,15 @@ class LHEWriter : public edm::EDAnalyzer {
 	virtual void beginRun(const edm::Run &run, const edm::EventSetup &es);
 	virtual void endRun(const edm::Run &run, const edm::EventSetup &es);
 	virtual void analyze(const edm::Event &event, const edm::EventSetup &es);
+        
+        std::string output;
 
     private:
 	std::ofstream	file;
 };
 
-LHEWriter::LHEWriter(const edm::ParameterSet &params)
+LHEWriter::LHEWriter(const edm::ParameterSet &params) :
+  output(params.getUntrackedParameter<std::string>("output"))
 {
 }
 
@@ -43,8 +46,12 @@ void LHEWriter::beginRun(const edm::Run &run, const edm::EventSetup &es)
 {
 	edm::Handle<LHERunInfoProduct> product;
 	run.getByLabel("source", product);
+        
+        if (!product.isValid()) {
+          run.getByLabel("externalLHEProducer", product);
+        }
 
-	file.open("writer.lhe", std::fstream::out | std::fstream::trunc);
+	file.open(output.c_str(), std::fstream::out | std::fstream::trunc);
 	std::copy(product->begin(), product->end(),
 	          std::ostream_iterator<std::string>(file));
 }
@@ -59,6 +66,10 @@ void LHEWriter::analyze(const edm::Event &event, const edm::EventSetup &es)
 {
 	edm::Handle<LHEEventProduct> product;
 	event.getByLabel("source", product);
+        
+        if (!product.isValid()) {
+          event.getByLabel("externalLHEProducer", product);
+        }        
 
 	std::copy(product->begin(), product->end(),
 	          std::ostream_iterator<std::string>(file));
