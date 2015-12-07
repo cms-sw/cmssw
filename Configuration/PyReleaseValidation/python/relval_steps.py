@@ -274,7 +274,11 @@ baseDataSetRelease=[
     'CMSSW_7_6_0_pre7-PU50ns_76X_mcRun2_startup_v5-v1',            # 6 - fullSim PU 50ns premix
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v6_FastSim-v1',        # 7 - fastSim MinBias for mixing
     'CMSSW_7_6_0_pre5-PU25ns_76X_mcRun2_asymptotic_v1_FastSim-v1', # 8 - fastSim premixed MinBias
-    'CMSSW_7_6_0_pre6-76X_mcRun2_HeavyIon_v4-v1' 	           # 9 - Run2 HI GEN-SIM
+    'CMSSW_7_6_0_pre6-76X_mcRun2_HeavyIon_v4-v1', 	           # 9 - Run2 HI GEN-SIM
+    'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                 # 10 - 13 TeV High Stats GEN-SIM [keep consistent with 80x, not used here in 76x]
+    'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',      # 11 - 13 TeV High Stats MiniBias for mixing GEN-SIM [keep consistent with 80x, not used here in 76x]
+    'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                # 12 - fullSim REMINIAOD RECO input 
+    'CMSSW_7_6_0-76X_dataRun2_v10_RelVal_DATASETSTRING-v1',    # 13 - data REMINIAOD RECO input
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -375,6 +379,28 @@ steps['SingleMuPt10_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10_
 steps['SingleMuPt100_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt100_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['SingleMuPt1000_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['NuGun_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValNuGun_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+
+
+# re-miniAOD reco input for production tests
+steps['ProdMinBias_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValProdMinBias_13/%s/AODSIM'%(baseDataSetRelease[12],),location='STD')}
+steps['ProdTTbar_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValProdTTbar_13/%s/AODSIM'%(baseDataSetRelease[12],),location='STD')}
+steps['ProdQCD_Pt_3000_3500_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValProdQCD_Pt_3000_3500_13/%s/AODSIM'%(baseDataSetRelease[12],),location='STD')}
+
+
+# re-miniAOD reco input for fullSim
+steps['ZEE_13_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['ZTT_13_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValZTT_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+steps['ZMM_13_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValZMM_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
+
+# re-miniAOD reco input for data run2
+# 2015b
+steps['RunDoubleEG2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[13].replace('DATASETSTRING','doubEG2015B'),),label='doubEG2015B',events=100000,location='STD', ls=Run2015B)}
+
+# 2015c
+steps['RunDoubleEG2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[13].replace('DATASETSTRING','doubEG2015C'),),label='doubEG2015C',events=100000,location='STD', ls=Run2015C)}
+
+# 2015d
+steps['RunDoubleEG2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[13].replace('DATASETSTRING','doubEG2015D'),),label='doubEG2015D',events=100000,location='STD', ls=Run2015D)}
 
 #input for fast sim workflows to be added - TODO
 
@@ -1256,6 +1282,30 @@ steps['HARVESTUP15FS']={'-s':'HARVESTING:validationHarvestingFS',
                         '--filetype':'DQM',
                         '--scenario':'pp'}
 
+steps['HARVESTREMINIAOD']={
+    '-s':'HARVESTING:@miniAODValidation+@miniAODDQM',
+    '--conditions':'auto:run2_mc_'+autoHLT['relval25ns'],
+    '--mc':'',
+    '--era' : 'Run2_25ns',
+    '--filetype':'DQM',
+    }
+
+steps['HARVESTREMINIAODPROD']=merge([{
+                                '-s':'HARVESTING:@miniAODValidation+@miniAODDQM',
+                                #'-s':'HARVESTING:@miniAODDQM',
+                               }, steps['HARVESTREMINIAOD']])
+
+
+steps['HARVESTREMINIAODDR2']={'-s':'HARVESTING:@miniAODDQM',
+                   '--conditions':'auto:run2_data_'+menuR2_25ns,
+                   '--data':'',
+                   '--filetype':'DQM',
+                   '--scenario':'pp'}
+
+steps['HARVESTREMINIAODDR2_50ns'] = merge([ {'--conditions':'auto:run2_data_'+menuR2_50ns,}, steps['HARVESTREMINIAODDR2'] ])
+steps['HARVESTREMINIAODDR2_25ns'] = merge([ {'--conditions':'auto:run2_data_'+menuR2_25ns,}, steps['HARVESTREMINIAODDR2'] ])
+
+
 
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
                     '--conditions':'auto:run1_data',
@@ -1341,6 +1391,37 @@ steps['MINIAODMCUP15']     =merge([stepMiniAODMC])
 #steps['MINIAODMCUP15HI']   =merge([{'--conditions':'auto:run2_mc_HIon','--era':'Run2_HI'},stepMiniAODMC])
 steps['MINIAODMCUP15FS']   =merge([{'--filein':'file:step1.root','--fast':''},stepMiniAODMC])
 steps['MINIAODMCUP15FS50'] =merge([{'--conditions':'auto:run2_mc_50ns','--era':'Run2_50ns'},steps['MINIAODMCUP15FS']])
+
+## re-miniAOD for Prod tests
+steps['REMINIAOD'] = merge([{'--conditions':'auto:run2_mc_'+autoHLT['relval25ns'],
+                                   '--runUnscheduled':'',
+                                   '-s':'PAT,DQM:@miniAODDQM,VALIDATION:@miniAODValidation',
+                                   '--datatier' : 'MINIAODSIM,DQMIO',
+                                   '--eventcontent':'MINIAODSIM,DQM',},stepMiniAODMC])
+
+## re-miniAOD for Prod tests
+steps['REMINIAODPROD']=merge([{
+                    '-s':'PAT,DQM:@miniAODDQM,VALIDATION:@miniAODValidation',
+                    #'-s':'PAT,DQM:@miniAODDQM',
+                    '--datatier':'MINIAODSIM,DQMIO',
+                    '--eventcontent':'MINIAODSIM,DQM'
+                    },step3Up2015Defaults])
+
+
+### re-miniAOD for data 2015
+
+REMINIAODDR2={ '--runUnscheduled':'',
+          '--conditions':'auto:run2_data_'+menuR2_25ns,
+          '-s':'PAT,DQM:@miniAODDQM',
+          '--datatier':'MINIAOD,DQMIO',
+          '--eventcontent':'MINIAOD,DQM',
+          '--data':'',
+          '--scenario':'pp',
+          }
+
+steps['REMINIAODDR2_25ns']=merge([{'--conditions':'auto:run2_data_'+menuR2_25ns,'--customise':'Configuration/DataProcessing/RecoTLR.customiseDataRun2Common_25ns',},REMINIAODDR2])
+
+steps['REMINIAODDR2_50ns']=merge([{'--conditions':'auto:run2_data_'+menuR2_25ns,'--customise':'Configuration/DataProcessing/RecoTLR.customiseDataRun2Common_25ns',},REMINIAODDR2])
 
 
 #################################################################################
