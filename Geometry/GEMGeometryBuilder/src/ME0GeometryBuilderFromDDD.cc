@@ -59,33 +59,33 @@ ME0Geometry* ME0GeometryBuilderFromDDD::build(const DDCompactView* cview, const 
 
 ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants)
 {
-  LogDebug("ME0GeometryBuilderFromDDD") <<"Building the geometry service" << std::endl;
+  LogDebug("ME0GeometryBuilderFromDDD") <<"Building the geometry service";
   ME0Geometry* geometry = new ME0Geometry();
 
   LogDebug("ME0GeometryBuilderFromDDD") << "About to run through the ME0 structure\n" 
 					<<" First logical part "
-					<<fview.logicalPart().name().name() << std::endl;
+					<<fview.logicalPart().name().name();
 
 
   bool doSubDets = fview.firstChild();
  
-  LogDebug("ME0GeometryBuilderFromDDD") << "doSubDets = " << doSubDets << std::endl;
+  LogDebug("ME0GeometryBuilderFromDDD") << "doSubDets = " << doSubDets;
 
-   LogDebug("ME0GeometryBuilderFromDDD") <<"start the loop" << std::endl; 
+   LogDebug("ME0GeometryBuilderFromDDD") <<"start the loop"; 
 
    int nChambers(0);
   while (doSubDets)
   {
     // Get the Base Muon Number
     MuonDDDNumbering mdddnum(muonConstants);
-    LogDebug("ME0GeometryBuilderFromDDD") <<"Getting the Muon base Number" << std::endl;
+    LogDebug("ME0GeometryBuilderFromDDD") <<"Getting the Muon base Number";
     MuonBaseNumber mbn = mdddnum.geoHistoryToBaseNumber(fview.geoHistory());
 
-    LogDebug("ME0GeometryBuilderFromDDD") <<"Start the ME0 Numbering Schema" << std::endl;
+    LogDebug("ME0GeometryBuilderFromDDD") <<"Start the ME0 Numbering Schema";
     ME0NumberingScheme me0num(muonConstants);
 
     ME0DetId rollDetId(me0num.baseNumberToUnitNumber(mbn));
-    LogDebug("ME0GeometryBuilderFromDDD") << "ME0 eta partition rawId: " << rollDetId.rawId() << ", detId: " << rollDetId << std::endl;
+    LogDebug("ME0GeometryBuilderFromDDD") << "ME0 eta partition rawId: " << rollDetId.rawId() << ", detId: " << rollDetId;
 
     // chamber id for this partition. everything is the same; but partition number is 0.
     ME0DetId chamberId(rollDetId.chamberId());
@@ -134,7 +134,7 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     pars.push_back(nPads);
 
     LogDebug("ME0GeometryBuilderFromDDD") 
-      << "ME0 " << name << " par " << be << " " << te << " " << ap << " " << dpar[0] << std::endl;
+      << "ME0 " << name << " par " << be << " " << te << " " << ap << " " << dpar[0];
     
     ME0EtaPartitionSpecs* e_p_specs = new ME0EtaPartitionSpecs(GeomDetEnumerators::ME0, name, pars);
 
@@ -165,7 +165,7 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
   int oldLayerNumber = 1;
   for (unsigned i=1; i<=partitions.size(); ++i){
     ME0DetId detId(partitions.at(i-1)->id());
-    LogDebug("ME0GeometryBuilderFromDDD") << "Making ME0DetId = " <<detId<<std::endl;
+    LogDebug("ME0GeometryBuilderFromDDD") << "Making ME0DetId = " <<detId;
 
     //The GEM methodology depended on rollNumber changing from chamber to chamber, we need to use layer ID
     //const int rollNumber(detId.roll());
@@ -180,8 +180,8 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 
       ME0DetId fId(vDetId.front());
       ME0DetId chamberId(fId.chamberId());
-      LogDebug("ME0GeometryBuilderFromDDD") << "ME0DetId = " << fId <<std::endl;
-      LogDebug("ME0GeometryBuilderFromDDD") << "ME0ChamberId = " << chamberId <<std::endl;
+      LogDebug("ME0GeometryBuilderFromDDD") << "ME0DetId = " << fId ;
+      LogDebug("ME0GeometryBuilderFromDDD") << "ME0ChamberId = " << chamberId ;
       // compute the overall boundplane using the first eta partition
       const ME0EtaPartition* p(geometry->etaPartition(fId));
       const BoundPlane& bps = p->surface();
@@ -189,14 +189,14 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
       ReferenceCountingPointer<BoundPlane> surf(bp);
       
       ME0Chamber* ch = new ME0Chamber(chamberId, surf); 
-      LogDebug("ME0GeometryBuilderFromDDD")  << "Creating chamber " << chamberId << " with " << vDetId.size() << " eta partitions" << std::endl;
+      LogDebug("ME0GeometryBuilderFromDDD")  << "Creating chamber " << chamberId << " with " << vDetId.size() << " eta partitions";
       
       for(auto id : vDetId){
-	LogDebug("ME0GeometryBuilderFromDDD") << "Adding eta partition " << id << " to ME0 chamber" << std::endl;
+	LogDebug("ME0GeometryBuilderFromDDD") << "Adding eta partition " << id << " to ME0 chamber";
 	ch->add(const_cast<ME0EtaPartition*>(geometry->etaPartition(id)));
       }
 
-      LogDebug("ME0GeometryBuilderFromDDD") << "Adding the chamber to the geometry" << std::endl;
+      LogDebug("ME0GeometryBuilderFromDDD") << "Adding the chamber to the geometry";
       geometry->add(ch);
       vDetId.clear();
     }
