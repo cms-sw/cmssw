@@ -45,7 +45,8 @@ do
                             domatch="True"
                             genparticles="genParticles"
                             tracks="hiGeneralTracks"
-			    vertex="hiSelectedVertex"
+			    #vertex="hiSelectedVertex" #for b-tagging offlinePV are re-recoed
+			    vertex="offlinePrimaryVertices"
                             pflow="particleFlowTmp"
                             domatch="False"
                             match=""

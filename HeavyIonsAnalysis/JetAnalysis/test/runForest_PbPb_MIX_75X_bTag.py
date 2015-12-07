@@ -11,8 +11,8 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ## parse some command line arguments
 
 options = VarParsing.VarParsing ('analysis')
-
-options.inputFiles = '/store/user/rkunnawa/Run2_PbPbpthat120_RECO_HCAL_Method0_40kevents/HydjetNcoll_Pyquen_DiJet_pt120to9999_5020GeV_cfi_GEN_SIM_750_run2_mc_HIon_BS_v2/Run2_PbPbpthat120_RECO_HCAL_Method0_40kevents/151021_183818/0000/step3_RAW2DIGI_L1Reco_RECO_PU_116.root'#'/store/user/mnguyen/PyquenUnquenched_BJetLO_pt30_5TeV_GEN-SIM/PyquenUnquenched_BJetLO_pthat30_PbPb_5TeV_embedded_740_MCHI2_74_V4_RECO/87777ff9102bfbec971698893bf3d6db/step3_RAW2DIGI_L1Reco_RECO_3_1_7H9.root'
+options.inputFiles='file:step3_RAW2DIGI_L1Reco_RECO_9_1_GTa.root'
+#options.inputFiles = '/store/user/rkunnawa/Run2_PbPbpthat120_RECO_HCAL_Method0_40kevents/HydjetNcoll_Pyquen_DiJet_pt120to9999_5020GeV_cfi_GEN_SIM_750_run2_mc_HIon_BS_v2/Run2_PbPbpthat120_RECO_HCAL_Method0_40kevents/151021_183818/0000/step3_RAW2DIGI_L1Reco_RECO_PU_116.root'#'/store/user/mnguyen/PyquenUnquenched_BJetLO_pt30_5TeV_GEN-SIM/PyquenUnquenched_BJetLO_pthat30_PbPb_5TeV_embedded_740_MCHI2_74_V4_RECO/87777ff9102bfbec971698893bf3d6db/step3_RAW2DIGI_L1Reco_RECO_3_1_7H9.root'
 
 
 
@@ -37,7 +37,7 @@ import subprocess
 version = subprocess.Popen(["(cd $CMSSW_BASE/src && git describe --tags)"], stdout=subprocess.PIPE, shell=True).stdout.read()
 if version == '':
     version = 'no git info'
-process.HiForest.HiForestVersion = cms.untracked.string(version)
+process.HiForest.HiForestVersion = cms.string(version)
 
 #####################################################################################
 # Input source
@@ -127,22 +127,27 @@ process.allOutput = cms.OutputModule("PoolOutputModule",
 
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu3CaloJetSequence_PbPb_mix_bTag_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu3PFJetSequence_PbPb_mix_bTag_cff')
-
-process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
-process.offlinePrimaryVertices.TrackLabel = 'PureTracks'
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu4CaloJetSequence_PbPb_mix_bTag_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu4PFJetSequence_PbPb_mix_bTag_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs3CaloJetSequence_PbPb_mix_bTag_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs3PFJetSequence_PbPb_mix_bTag_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs4CaloJetSequence_PbPb_mix_bTag_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs4PFJetSequence_PbPb_mix_bTag_cff')
 
 process.load("RecoHI.HiJetAlgos.ParticleTowerProducer_cfi")
+process.load('HeavyIonsAnalysis.JetAnalysis.bTaggingTracks_cff')
 
-process.PureTracks = cms.EDFilter("TrackSelector",
-                       src = cms.InputTag("hiGeneralTracks"),
-                       cut = cms.string('quality("highPurity")'))
-
-process.jetSequences = cms.Sequence(
-    process.PureTracks +
-    process.offlinePrimaryVertices +
-    process.akPu3CaloJetSequence +
-    process.akPu3PFJetSequence
-    )
+process.jetSequences = cms.Sequence(process.PureTracks + process.offlinePrimaryVertices +
+                                    process.offlinePrimaryVertices +
+                                    process.akPu3CaloJetSequence +
+                                    process.akPu3PFJetSequence +
+                                    process.akPu4CaloJetSequence +
+                                    process.akPu4PFJetSequence +
+                                    process.akVs3CaloJetSequence +
+                                    process.akVs3PFJetSequence +
+                                    process.akVs4CaloJetSequence +
+                                    process.akVs4PFJetSequence
+                                    )
 
 process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_mc_cfi')
 process.hiEvtAnalyzer.doMC = cms.bool(False) #the gen info dataformat has changed in 73X, we need to update hiEvtAnalyzer code
@@ -208,6 +213,7 @@ process.load("RecoHI.HiJetAlgos.HiGenJets_cff")
 process.hiExtraGenSequence = cms.Sequence(
     process.myPartons*
     process.genParticlesForJets*
+    process.ak3HiGenJets*
     process.ak3HiGenJets
     )
 
@@ -215,8 +221,8 @@ process.load("RecoHI.HiJetAlgos.HiRecoPFJets_cff")
 process.PFTowers.useHF = True
 
 process.reRecoJets = cms.Sequence(
-    process.PFTowers
-    *process.akPu3PFJets
+#    process.PFTowers
+#    *process.akPu3PFJets
     )
 
 process.load("GeneratorInterface.HiGenCommon.HeavyIon_cff")
@@ -241,13 +247,15 @@ process.ana_step = cms.Path(#process.heavyIon*
 
 process.load('HeavyIonsAnalysis.JetAnalysis.EventSelection_cff')
 #process.phltJetHI = cms.Path( process.hltJetHI )
-process.pcollisionEventSelection = cms.Path(process.collisionEventSelection)
+process.pcollisionEventSelection = cms.Path(process.collisionEventSelectionAOD)
+process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
+process.pHBHENoiseFilterResultProducer = cms.Path( process.HBHENoiseFilterResultProducer )
 #process.pHBHENoiseFilter = cms.Path( process.HBHENoiseFilter )
-process.phfCoincFilter = cms.Path(process.hfCoincFilter )
-process.phfCoincFilter3 = cms.Path(process.hfCoincFilter3 )
+#process.phfCoincFilter = cms.Path(process.hfCoincFilter )
+#process.phfCoincFilter3 = cms.Path(process.hfCoincFilter3 )
 process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter )
-process.phltPixelClusterShapeFilter = cms.Path(process.siPixelRecHits*process.hltPixelClusterShapeFilter )
-process.phiEcalRecHitSpikeFilter = cms.Path(process.hiEcalRecHitSpikeFilter )
+#process.phltPixelClusterShapeFilter = cms.Path(process.siPixelRecHits*process.hltPixelClusterShapeFilter )
+#process.phiEcalRecHitSpikeFilter = cms.Path(process.hiEcalRecHitSpikeFilter )
 
 process.pAna = cms.EndPath(process.skimanalysis)
 #process.output_step = cms.EndPath(process.allOutput)
