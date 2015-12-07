@@ -45,7 +45,7 @@ private:
 
   // Histograms
   TH1F *hPtRec;
-  TH1F *hPtSim; 
+  TH1F *hPtSim;
   TH1F *hPres;
   TH1F *h1_Pres;
   TH1F *hPTDiff;
@@ -58,6 +58,6 @@ private:
   int numberOfRecTracks;
 
   std::string theDataType;
-  
+
 };
 #endif
