@@ -278,7 +278,7 @@ baseDataSetRelease=[
     'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                 # 10 - 13 TeV High Stats GEN-SIM [keep consistent with 80x, not used here in 76x]
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',      # 11 - 13 TeV High Stats MiniBias for mixing GEN-SIM [keep consistent with 80x, not used here in 76x]
     'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                # 12 - fullSim REMINIAOD RECO input 
-    'CMSSW_7_6_0-76X_dataRun2_v10_RelVal_DATASETSTRING-v1',    # 13 - data REMINIAOD RECO input
+    'CMSSW_7_6_1-76X_dataRun2_v15_rerecoGT_RelVal_doubEG2015B-v1',    # 13 - data REMINIAOD RECO input
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
