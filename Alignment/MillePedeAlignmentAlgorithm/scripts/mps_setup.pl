@@ -194,7 +194,7 @@ if ($mssDir ne "") {
   }
 
   #$testMssDir = `nsls -d $mssDir`;
-  $testMssDir = `cmsLs -d $mssDir`;
+  $testMssDir = `$Mpslib::eos ls -d $mssDir`;
   chomp $testMssDir;
   if ($testMssDir eq "") {
     print "Bad MSS directory name $mssDir\n";
