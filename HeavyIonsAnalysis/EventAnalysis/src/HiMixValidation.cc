@@ -53,6 +53,24 @@ using namespace edm;
 // class declaration
 //
 
+struct EventArray{
+
+   int event[100];
+   int lumi[100];
+   int run[100];
+   int file[100];
+
+   float xVtx[100];
+   float yVtx[100];
+   float zVtx[100];
+
+
+
+
+};
+
+
+
 class HiMixValidation : public edm::EDAnalyzer {
    public:
       explicit HiMixValidation(const edm::ParameterSet&);
@@ -122,6 +140,8 @@ class HiMixValidation : public edm::EDAnalyzer {
       *hGenVertices,
       *hGenVerticesCF;
 
+   TTree *t;
+
    double particlePtMin;
    double jetPtMin;
    double photonPtMin;
@@ -131,6 +151,14 @@ class HiMixValidation : public edm::EDAnalyzer {
    double rMatch;
    double rMatch2;
    bool useCF_;
+
+   bool doGEN_;
+   bool doSIM_;
+   bool doRAW_;
+   bool doRECO_;
+   bool doHIST_;
+
+
    edm::Service<TFileService> f;
 
 
@@ -150,6 +178,12 @@ HiMixValidation::HiMixValidation(const edm::ParameterSet& iConfig)
    muonPtMin = iConfig.getUntrackedParameter<double>("muonPtMin",3.);
    electronPtMin = iConfig.getUntrackedParameter<double>("electronPtMin",3.);
    
+   doGEN_ = iConfig.getUntrackedParameter<bool>("doGEN",true);
+   doSIM_ = iConfig.getUntrackedParameter<bool>("doSIM",true);
+   doRAW_ = iConfig.getUntrackedParameter<bool>("doRAW",true);
+   doRECO_ = iConfig.getUntrackedParameter<bool>("doRECO",true);
+   doHIST_ = iConfig.getUntrackedParameter<bool>("doHIST",true);
+
    useCF_ = iConfig.getUntrackedParameter<bool>("useCF",true);
    if(useCF_) cfLabel = consumes<CrossingFrame<edm::HepMCProduct> >(iConfig.getUntrackedParameter<edm::InputTag>("mixLabel",edm::InputTag("mix","generator")));
 
@@ -178,6 +212,10 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    double zgen[2]={-29,-29};
    cout<<"x2"<<endl;
 
+
+
+
+
    for(UInt_t i = 0; i < parts->size(); ++i){
       const reco::GenParticle& p = (*parts)[i];
       int sube = p.collisionId();
@@ -194,20 +232,14 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       int pdg = abs(p.pdgId());
       double eta = p.eta();
       double pt = p.pt();
+      if(doHIST_){
+
       if(sube == 0){
 	 if(p.charge() != 0 && pt > particlePtMin) hGenParticleEtaSignal->Fill(eta);
 	 if(pdg == 22 && pt > photonPtMin) hGenPhotonEtaSignal->Fill(eta);	 
 	 if(pdg == 11 && pt > electronPtMin) hGenElectronEtaSignal->Fill(eta);	 
 	 if(pdg == 13 && pt > muonPtMin){
-	    /*
-	    for(UInt_t j = 0; j < muons->size(); ++j){
-	       if(rMatch2 > reco::deltaR2(p,(*muons)[j])){
-		  double recopt = (*muons)[j].pt();
-		  if(recopt>ptmatch) ptmatch = recopt;
-	       }	       
-	       hMuonResponseSignal->Fill(pt,recopt);
-	    */
-	       hGenMuonEtaSignal->Fill(eta);
+	    hGenMuonEtaSignal->Fill(eta);
 	 }
       }else{
 	 if(p.charge() != 0 && pt > particlePtMin) hGenParticleEtaBkg->Fill(eta);
@@ -226,10 +258,11 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       if(pdg == 22 && pt > photonPtMin) hGenPhotonEtaMixed->Fill(eta);
       if(pdg == 11 && pt > electronPtMin) hGenElectronEtaMixed->Fill(eta);
       if(pdg == 13 && pt > muonPtMin) hGenMuonEtaMixed->Fill(eta);
+      }
    }
    cout<<"x3"<<endl;
 
-   hGenVertices->Fill(zgen[0],zgen[1]);
+   if(doHIST_) hGenVertices->Fill(zgen[0],zgen[1]);
    cout<<"x4"<<endl;
 
    edm::Handle<reco::GenJetCollection> genjets;
@@ -302,7 +335,6 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	    HepMC::GenEvent::particle_const_iterator pt=inev->particles_begin();
 	    HepMC::GenEvent::particle_const_iterator ptend=inev->particles_end();
 	    while(!genvtx || ( genvtx->particles_in_size() == 1 && pt != ptend ) ){
-	       //if(!genvtx) cout<<"No Gen Vertex!"<<endl;
 	       if(pt == ptend) cout<<"End reached, No Gen Vertex!"<<endl;
 	       genvtx = (*pt)->production_vertex();
 	       ++pt;
@@ -319,23 +351,26 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
    // RECO INFO
-
-   const reco::VertexCollection * recoVertices;
-   edm::Handle<reco::VertexCollection> vertexCollection;
-   iEvent.getByLabel(vertexSrc_,vertexCollection);
-   recoVertices = vertexCollection.product();
-
-   int nVertex = recoVertices->size();
-   hNrecoVertex->Fill(nVertex);
-   if(nVertex > 2) nVertex = 2;
-   double z[2] = {-29,-29};
-   for (int i = 0 ; i< nVertex; ++i){
-      z[i] = (*recoVertices)[i].position().z();
+   if(doRECO_){
+      const reco::VertexCollection * recoVertices;
+      edm::Handle<reco::VertexCollection> vertexCollection;
+      iEvent.getByLabel(vertexSrc_,vertexCollection);
+      recoVertices = vertexCollection.product();
+      
+      int nVertex = recoVertices->size();
+      hNrecoVertex->Fill(nVertex);
+      if(nVertex > 2) nVertex = 2;
+      double z[2] = {-29,-29};
+      for (int i = 0 ; i< nVertex; ++i){
+	 z[i] = (*recoVertices)[i].position().z();
+      }
+      
+      if(doHIST_){
+	 hZrecoVertex0->Fill(z[0]);
+	 hZrecoVertex1->Fill(z[1]);
+	 hZrecoVertices->Fill(z[0],z[1]);
+      }
    }
-
-   hZrecoVertex0->Fill(z[0]);
-   hZrecoVertex1->Fill(z[1]);
-   hZrecoVertices->Fill(z[0],z[1]);
 
 }
 
@@ -349,52 +384,59 @@ HiMixValidation::beginJob()
    int NcentralityBins = 100;
    int NvtxMax = 20;
 
-   hGenParticleEtaSignal = f->make<TH1D>("hGenParticleEtaSignal",";#eta;Particles",histEtaBins,-histEtaMax,histEtaMax);
-   hGenParticleEtaBkg = f->make<TH1D>("hGenParticleEtaBkg",";#eta;Particles",histEtaBins,-histEtaMax,histEtaMax);
-   hGenParticleEtaBkgNpart2 = f->make<TH1D>("hGenParticleEtaBkgNpart2",";#eta;Particles",histEtaBins,-histEtaMax,histEtaMax);
-   hGenParticleEtaMixed = f->make<TH1D>("hGenParticleEtaMixed",";#eta;Particles",histEtaBins,-histEtaMax,histEtaMax);
-   hGenJetEtaSignal = f->make<TH1D>("hGenJetEtaSignal",";#eta;GenJets",histEtaBins,-histEtaMax,histEtaMax);
-   hGenJetEtaBkg = f->make<TH1D>("hGenJetEtaBkg",";#eta;GenJets",histEtaBins,-histEtaMax,histEtaMax);
-   hGenJetEtaBkgNpart2 = f->make<TH1D>("hGenJetEtaBkgNpart2",";#eta;GenJets",histEtaBins,-histEtaMax,histEtaMax);
-   hGenJetEtaMixed = f->make<TH1D>("hGenJetEtaMixed",";#eta;GenJets",histEtaBins,-histEtaMax,histEtaMax);
-   hGenPhotonEtaSignal = f->make<TH1D>("hGenPhotonEtaSignal",";#eta;Photons",histEtaBins,-histEtaMax,histEtaMax);
-   hGenPhotonEtaBkg = f->make<TH1D>("hGenPhotonEtaBkg",";#eta;Photons",histEtaBins,-histEtaMax,histEtaMax);
-   hGenPhotonEtaBkgNpart2 = f->make<TH1D>("hGenPhotonEtaBkgNpart2",";#eta;Photons",histEtaBins,-histEtaMax,histEtaMax);
-   hGenPhotonEtaMixed = f->make<TH1D>("hGenPhotonEtaMixed",";#eta;Photons",histEtaBins,-histEtaMax,histEtaMax);
-   hGenMuonEtaSignal = f->make<TH1D>("hGenMuonEtaSignal",";#eta;Muons",histEtaBins,-histEtaMax,histEtaMax);
-   hGenMuonEtaBkg = f->make<TH1D>("hGenMuonEtaBkg",";#eta;Muons",histEtaBins,-histEtaMax,histEtaMax);
-   hGenMuonEtaBkgNpart2 = f->make<TH1D>("hGenMuonEtaBkgNpart2",";#eta;Muons",histEtaBins,-histEtaMax,histEtaMax);
-   hGenMuonEtaMixed = f->make<TH1D>("hGenMuonEtaMixed",";#eta;Muons",histEtaBins,-histEtaMax,histEtaMax);
-   hGenElectronEtaSignal = f->make<TH1D>("hGenElectronEtaSignal",";#eta;Electrons",histEtaBins,-histEtaMax,histEtaMax);
-   hGenElectronEtaBkg = f->make<TH1D>("hGenElectronEtaBkg",";#eta;Electrons",histEtaBins,-histEtaMax,histEtaMax);
-   hGenElectronEtaBkgNpart2 = f->make<TH1D>("hGenElectronEtaBkgNpart2",";#eta;Electrons",histEtaBins,-histEtaMax,histEtaMax);
-   hGenElectronEtaMixed = f->make<TH1D>("hGenElectronEtaMixed",";#eta;Electrons",histEtaBins,-histEtaMax,histEtaMax);
+   t = f->make<TTree>("mixTree","tree for validation of mixing");
+   //   t->Branch("",bkg,"");
 
-   hCentralityBin = f->make<TH1D>("hCentralityBin",";Bin;Events",NcentralityBins,0,NcentralityBins);
-   hNrecoVertex = f->make<TH1D>("hNrecoVertex",";Number of reconstructed vertices;Events",NvtxMax,0,NvtxMax);
-   hZrecoVertex0 = f->make<TH1D>("hZrecoVertex0",";z-position of first vertex [cm];Events",60,-30,30);
-   hZrecoVertex1 = f->make<TH1D>("hZrecoVertex1",";z-position of second vertex [cm];Events",60,-30,30);
+   if(doHIST_){
 
-   hZrecoVertices = f->make<TH2D>("hZrecoVertices",";z-position of first vertex;z-position of second vertex;Events",60,-30,30,60,-30,30);
-   hNtrackHF = f->make<TH2D>("hNtrackHF",";E_{T}^{HF};N_{tracks};Events",50,0,5000,50,0,5000);
+      hGenParticleEtaSignal = f->make<TH1D>("hGenParticleEtaSignal",";#eta;Particles",histEtaBins,-histEtaMax,histEtaMax);
+      hGenParticleEtaBkg = f->make<TH1D>("hGenParticleEtaBkg",";#eta;Particles",histEtaBins,-histEtaMax,histEtaMax);
+      hGenParticleEtaBkgNpart2 = f->make<TH1D>("hGenParticleEtaBkgNpart2",";#eta;Particles",histEtaBins,-histEtaMax,histEtaMax);
+      hGenParticleEtaMixed = f->make<TH1D>("hGenParticleEtaMixed",";#eta;Particles",histEtaBins,-histEtaMax,histEtaMax);
+      hGenJetEtaSignal = f->make<TH1D>("hGenJetEtaSignal",";#eta;GenJets",histEtaBins,-histEtaMax,histEtaMax);
+      hGenJetEtaBkg = f->make<TH1D>("hGenJetEtaBkg",";#eta;GenJets",histEtaBins,-histEtaMax,histEtaMax);
+      hGenJetEtaBkgNpart2 = f->make<TH1D>("hGenJetEtaBkgNpart2",";#eta;GenJets",histEtaBins,-histEtaMax,histEtaMax);
+      hGenJetEtaMixed = f->make<TH1D>("hGenJetEtaMixed",";#eta;GenJets",histEtaBins,-histEtaMax,histEtaMax);
+      hGenPhotonEtaSignal = f->make<TH1D>("hGenPhotonEtaSignal",";#eta;Photons",histEtaBins,-histEtaMax,histEtaMax);
+      hGenPhotonEtaBkg = f->make<TH1D>("hGenPhotonEtaBkg",";#eta;Photons",histEtaBins,-histEtaMax,histEtaMax);
+      hGenPhotonEtaBkgNpart2 = f->make<TH1D>("hGenPhotonEtaBkgNpart2",";#eta;Photons",histEtaBins,-histEtaMax,histEtaMax);
+      hGenPhotonEtaMixed = f->make<TH1D>("hGenPhotonEtaMixed",";#eta;Photons",histEtaBins,-histEtaMax,histEtaMax);
+      hGenMuonEtaSignal = f->make<TH1D>("hGenMuonEtaSignal",";#eta;Muons",histEtaBins,-histEtaMax,histEtaMax);
+      hGenMuonEtaBkg = f->make<TH1D>("hGenMuonEtaBkg",";#eta;Muons",histEtaBins,-histEtaMax,histEtaMax);
+      hGenMuonEtaBkgNpart2 = f->make<TH1D>("hGenMuonEtaBkgNpart2",";#eta;Muons",histEtaBins,-histEtaMax,histEtaMax);
+      hGenMuonEtaMixed = f->make<TH1D>("hGenMuonEtaMixed",";#eta;Muons",histEtaBins,-histEtaMax,histEtaMax);
+      hGenElectronEtaSignal = f->make<TH1D>("hGenElectronEtaSignal",";#eta;Electrons",histEtaBins,-histEtaMax,histEtaMax);
+      hGenElectronEtaBkg = f->make<TH1D>("hGenElectronEtaBkg",";#eta;Electrons",histEtaBins,-histEtaMax,histEtaMax);
+      hGenElectronEtaBkgNpart2 = f->make<TH1D>("hGenElectronEtaBkgNpart2",";#eta;Electrons",histEtaBins,-histEtaMax,histEtaMax);
+      hGenElectronEtaMixed = f->make<TH1D>("hGenElectronEtaMixed",";#eta;Electrons",histEtaBins,-histEtaMax,histEtaMax);
+      
+      hCentralityBin = f->make<TH1D>("hCentralityBin",";Bin;Events",NcentralityBins,0,NcentralityBins);
+      hNrecoVertex = f->make<TH1D>("hNrecoVertex",";Number of reconstructed vertices;Events",NvtxMax,0,NvtxMax);
+      hZrecoVertex0 = f->make<TH1D>("hZrecoVertex0",";z-position of first vertex [cm];Events",60,-30,30);
+      hZrecoVertex1 = f->make<TH1D>("hZrecoVertex1",";z-position of second vertex [cm];Events",60,-30,30);
+      
+      hZrecoVertices = f->make<TH2D>("hZrecoVertices",";z-position of first vertex;z-position of second vertex;Events",60,-30,30,60,-30,30);
+      hNtrackHF = f->make<TH2D>("hNtrackHF",";E_{T}^{HF};N_{tracks};Events",50,0,5000,50,0,5000);
+      
+      hJetResponseSignal = f->make<TH2D>("hJetResponseSignal","",100,0,200,100,0,200);
+      hPhotonResponseSignal = f->make<TH2D>("hPhotonResponseSignal","",100,0,100,100,0,100);
+      hMuonResponseSignal = f->make<TH2D>("hMuonResponseSignal","",100,0,20,100,0,20);
+      hElectronResponseSignal = f->make<TH2D>("hElectronResponseSignal","",100,0,20,100,0,20);
+      
+      hJetResponseBkg = f->make<TH2D>("hJetResponseBkg","",100,0,200,100,0,200);
+      hPhotonResponseBkg = f->make<TH2D>("hPhotonResponseBkg","",100,0,100,100,0,100);
+      hMuonResponseBkg = f->make<TH2D>("hMuonResponseBkg","",100,0,20,100,0,20);
+      hElectronResponseBkg = f->make<TH2D>("hElectronResponseBkg","",100,0,20,100,0,20);
+      
+      hJetResponseMixed = f->make<TH2D>("hJetResponseMixed","",100,0,200,100,0,200);
+      hPhotonResponseMixed = f->make<TH2D>("hPhotonResponseMixed","",100,0,100,100,0,100);
+      hMuonResponseMixed = f->make<TH2D>("hMuonResponseMixed","",100,0,20,100,0,20);
+      hElectronResponseMixed = f->make<TH2D>("hElectronResponseMixed","",100,0,20,100,0,20);
+      
+      hGenVertices = f->make<TH2D>("hGenVertices","",60,-30,30,60,-30,30);
+      hGenVerticesCF = f->make<TH2D>("hGenVerticesCF","",60,-30,30,60,-30,30);
+   }
 
-   hJetResponseSignal = f->make<TH2D>("hJetResponseSignal","",100,0,200,100,0,200);
-   hPhotonResponseSignal = f->make<TH2D>("hPhotonResponseSignal","",100,0,100,100,0,100);
-   hMuonResponseSignal = f->make<TH2D>("hMuonResponseSignal","",100,0,20,100,0,20);
-   hElectronResponseSignal = f->make<TH2D>("hElectronResponseSignal","",100,0,20,100,0,20);
-
-   hJetResponseBkg = f->make<TH2D>("hJetResponseBkg","",100,0,200,100,0,200);
-   hPhotonResponseBkg = f->make<TH2D>("hPhotonResponseBkg","",100,0,100,100,0,100);
-   hMuonResponseBkg = f->make<TH2D>("hMuonResponseBkg","",100,0,20,100,0,20);
-   hElectronResponseBkg = f->make<TH2D>("hElectronResponseBkg","",100,0,20,100,0,20);
-
-   hJetResponseMixed = f->make<TH2D>("hJetResponseMixed","",100,0,200,100,0,200);
-   hPhotonResponseMixed = f->make<TH2D>("hPhotonResponseMixed","",100,0,100,100,0,100);
-   hMuonResponseMixed = f->make<TH2D>("hMuonResponseMixed","",100,0,20,100,0,20);
-   hElectronResponseMixed = f->make<TH2D>("hElectronResponseMixed","",100,0,20,100,0,20);
-
-   hGenVertices = f->make<TH2D>("hGenVertices","",60,-30,30,60,-30,30);
-   hGenVerticesCF = f->make<TH2D>("hGenVerticesCF","",60,-30,30,60,-30,30);
 
 }
 

@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-process.mixAnalyzer = cms.EDAnalyzer('HiMixValidation',
-                                     jetSrc = cms.untracked.InputTag('akPu4CaloJets')
+mixAnalyzer = cms.EDAnalyzer('HiMixValidation',
+                             doRECO = cms.untracked.bool(False),
+                             jetSrc = cms.untracked.InputTag('akPu4CaloJets')
 )
 
 
