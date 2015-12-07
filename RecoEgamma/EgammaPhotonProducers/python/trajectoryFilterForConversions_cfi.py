@@ -12,6 +12,6 @@ TrajectoryFilterForConversions = TrackingTools.TrajectoryFiltering.TrajectoryFil
     nSigmaMinPt = cms.double(5.0),
     minimumNumberOfHits = cms.int32(3),
     maxCCCLostHits = cms.int32(9999),
-    minGoodStripCharge = cms.double(-1)
+    minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
 
