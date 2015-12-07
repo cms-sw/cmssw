@@ -55,7 +55,9 @@ import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 pixelPairStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     minimumNumberOfHits = 3,
     seedPairPenalty =0,
-    minPt = 0.1
+    minPt = 0.1,
+    maxCCCLostHits = 1,
+    minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
     )
 import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi
 pixelPairStepTrajectoryFilterShape = RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi.StripSubClusterShapeTrajectoryFilterTIX12.clone()

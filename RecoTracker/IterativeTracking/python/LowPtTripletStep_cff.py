@@ -43,7 +43,9 @@ lowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = 
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 lowPtTripletStepStandardTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     minimumNumberOfHits = 3,
-    minPt = 0.075
+    minPt = 0.075,
+    maxCCCLostHits = 1,
+    minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
     )
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
