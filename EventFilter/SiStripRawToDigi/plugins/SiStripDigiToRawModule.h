@@ -10,6 +10,9 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "boost/cstdint.hpp"
 #include <string>
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 namespace sistrip {
 
@@ -33,6 +36,7 @@ namespace sistrip {
     virtual void endJob() {}
   
     virtual void produce( edm::Event&, const edm::EventSetup& );
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
   private:
 
