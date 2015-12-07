@@ -48,7 +48,7 @@ ak6CaloTrackCountingHighPurBJetTags = ak6CalobTagger.TrackCountingHighPurBJetTag
 ak6CaloPatJetPartonAssociationLegacy = ak6CalobTagger.PatJetPartonAssociationLegacy
 
 ak6CaloImpactParameterTagInfos = ak6CalobTagger.ImpactParameterTagInfos
-ak6CaloImpactParameterTagInfos.primaryVertex = cms.InputTag("hiSelectedVertex")
+ak6CaloImpactParameterTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
 ak6CaloJetProbabilityBJetTags = ak6CalobTagger.JetProbabilityBJetTags
 ak6CaloPositiveOnlyJetProbabilityBJetTags = ak6CalobTagger.PositiveOnlyJetProbabilityBJetTags
 ak6CaloNegativeOnlyJetProbabilityBJetTags = ak6CalobTagger.NegativeOnlyJetProbabilityBJetTags
@@ -70,7 +70,7 @@ ak6CaloNegativeCombinedSecondaryVertexBJetTags = ak6CalobTagger.NegativeCombined
 ak6CaloPositiveCombinedSecondaryVertexBJetTags = ak6CalobTagger.PositiveCombinedSecondaryVertexBJetTags
 
 ak6CaloSoftPFMuonsTagInfos = ak6CalobTagger.SoftPFMuonsTagInfos
-ak6CaloSoftPFMuonsTagInfos.primaryVertex = cms.InputTag("hiSelectedVertex")
+ak6CaloSoftPFMuonsTagInfos.primaryVertex = cms.InputTag("offlinePrimaryVertices")
 ak6CaloSoftPFMuonBJetTags = ak6CalobTagger.SoftPFMuonBJetTags
 ak6CaloSoftPFMuonByIP3dBJetTags = ak6CalobTagger.SoftPFMuonByIP3dBJetTags
 ak6CaloSoftPFMuonByPtBJetTags = ak6CalobTagger.SoftPFMuonByPtBJetTags
