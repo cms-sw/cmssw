@@ -9,30 +9,26 @@ HGCalDetId::HGCalDetId() : DetId() {
 HGCalDetId::HGCalDetId(uint32_t rawid) : DetId(rawid) {
 }
 
-HGCalDetId::HGCalDetId(ForwardSubdetector subdet, int zp, int lay, int sec, int subsec, int cell) : DetId(Forward,subdet) {  
-
-  if (cell > kHGCalCellMask || sec>kHGCalSectorMask || 
-      subsec > kHGCalSubSectorMask || lay>kHGCalLayerMask ) {
+HGCalDetId::HGCalDetId(ForwardSubdetector subdet, int zp, int lay, int wafertype, int wafer, int cell) : DetId(Forward,subdet) {  
+    
+  if (cell>kHGCalCellMask || cell<0 || wafer>kHGCalWaferMask || wafer<0 || wafertype>kHGCalWaferTypeMask || wafertype<0 || lay>kHGCalLayerMask || lay<0) {
 #ifdef DebugLog
     std::cout << "[HGCalDetId] request for new id for layer=" << lay
 	      << " @ zp=" << zp 
-	      << " sector=" << sec 
-	      << " subsec=" << subsec 
+	      << " wafer=" << wafer
+	      << " waferType=" << wafertype
 	      << " cell=" << cell 
 	      << " for subdet=" << subdet 
 	      << " has one or more fields out of bounds and will be reset" 
 	      << std::endl;
 #endif
-    cell=0;  sec=0;  subsec=0; lay=0;
+    zp = lay = wafertype = wafer = cell=0;
   }
-  uint32_t rawid=0;
-  rawid |= ((cell   & kHGCalCellMask)        << kHGCalCellOffset);
-  rawid |= ((sec    & kHGCalSectorMask)      << kHGCalSectorOffset);
-  if (subsec<0) subsec=0;
-  rawid |= ((subsec & kHGCalSubSectorMask)   << kHGCalSubSectorOffset);
-  rawid |= ((lay    & kHGCalLayerMask)       << kHGCalLayerOffset);
-  if (zp>0) rawid |= ((zp & kHGCalZsideMask) << kHGCalZsideOffset);
-  id_ = rawid;
+  id_ |= ((cell   & kHGCalCellMask)         << kHGCalCellOffset);
+  id_ |= ((wafer  & kHGCalWaferMask)        << kHGCalWaferOffset);
+  id_ |= ((wafertype & kHGCalWaferTypeMask) << kHGCalWaferTypeOffset);
+  id_ |= ((lay    & kHGCalLayerMask)        << kHGCalLayerOffset);
+  if (zp>0) id_ |= ((zp & kHGCalZsideMask)  << kHGCalZsideOffset);
 }
 
 HGCalDetId::HGCalDetId(const DetId& gen) {
@@ -44,22 +40,22 @@ HGCalDetId& HGCalDetId::operator=(const DetId& gen) {
   return (*this);
 }
 
-bool HGCalDetId::isValid(ForwardSubdetector subdet, int zp, int lay, 
-			 int mod, int subsec, int cell) {
+bool HGCalDetId::isValid(ForwardSubdetector subdet, int zp, int lay, int wafertype, int wafer, int cell) {
+
   bool ok = ((subdet == HGCEE || subdet == HGCHEF || subdet == HGCHEB) &&
 	     (cell >= 0 && cell <= kHGCalCellMask) && 
-	     (mod >= 1 && mod <= kHGCalSectorMask) &&
-	     (subsec == 0 || subsec == 1) && 
+	     (wafer >= 0 && wafer <= kHGCalWaferMask) &&
+	     (wafertype >= 0 || wafertype <= kHGCalWaferTypeMask) && 
 	     (lay >= 0 && lay <= kHGCalLayerMask) &&
 	     (zp == -1 || zp == 1));
 #ifdef DebugLog
   if (!ok) 
     std::cout << "HGCalDetId: subdet " << subdet << ":" 
 	      << (subdet == HGCEE || subdet == HGCHEF || subdet == HGCHEB) 
-	      << " Cell " << cell << ":" << (cell >= 0 && cell <= 0xffff) 
-	      << " Module " << mod << ":" << (mod >= 1 && mod <= 0x7f) 
-	      << " SubSector " << subsec << ":" << (subsec == 0 || subsec == 1)
-	      << " Layer " << lay << ":" << (lay >= 0 && lay <= 0x7f) 
+	      << " Cell " << cell << ":" << (cell >= 0 && cell <= kHGCalCellMask) 
+	      << " Wafer " << wafer << ":" << (wafer >= 0 && wafer <= kHGCalWaferMask) 
+	      << " WaferType " << wafertype << ":" << (wafertype >= 0 || wafertype <= kHGCalWaferTypeMask)
+	      << " Layer " << lay << ":" << (lay >= 0 && lay <= kHGCalLayerMask) 
 	      << " zp " << zp << ":" << (zp == -1 || zp == 1) << std::endl;
 #endif
   return ok;
@@ -67,6 +63,6 @@ bool HGCalDetId::isValid(ForwardSubdetector subdet, int zp, int lay,
 
 std::ostream& operator<<(std::ostream& s,const HGCalDetId& id) {
   return s << "isHGCal=" << id.isHGCal() << " zpos=" << id.zside() 
-	   << " layer=" << id.layer()  << " phi subSector=" << id.subsector()
-	   << " sector=" << id.sector() << " cell=" << id.cell();
+	   << " layer=" << id.layer()  << " wafer type=" << id.waferType()
+	   << " wafer=" << id.wafer() << " cell=" << id.cell();
 }
