@@ -214,6 +214,7 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    vector<float>  pho_trackIsoR5PtCut20_;
    vector<float>  pho_swissCrx_;
    vector<float>  pho_seedTime_;
+   vector<int>    pho_genMatchedIndex_;
 
    //photon pf isolation stuff
    vector<float> pfcIso1;

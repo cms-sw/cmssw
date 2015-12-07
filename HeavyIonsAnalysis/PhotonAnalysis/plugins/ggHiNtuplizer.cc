@@ -3,6 +3,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "HeavyIonsAnalysis/PhotonAnalysis/src/pfIsoCalculator.h"
 
@@ -153,7 +154,7 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps)
   tree_->Branch("phoR9",                 &phoR9_);
   tree_->Branch("phoHadTowerOverEm",     &phoHadTowerOverEm_);
   tree_->Branch("phoHoverE",             &phoHoverE_);
-  tree_->Branch("phoSigmaIEtaIEta",      &phoSigmaIEtaIEta_); 
+  tree_->Branch("phoSigmaIEtaIEta",      &phoSigmaIEtaIEta_);
 // tree_->Branch("phoSigmaIEtaIPhi",      &phoSigmaIEtaIPhi_);  // TODO: not available in reco::
 // tree_->Branch("phoSigmaIPhiIPhi",      &phoSigmaIPhiIPhi_);  // TODO: not available in reco::
   tree_->Branch("phoE1x3",               &phoE1x3_);
@@ -164,7 +165,7 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps)
   tree_->Branch("phoE2x5",               &phoE2x5_);
   tree_->Branch("phoE5x5",               &phoE5x5_);
   tree_->Branch("phoMaxEnergyXtal",      &phoMaxEnergyXtal_);
-  tree_->Branch("phoSigmaEtaEta",        &phoSigmaEtaEta_); 
+  tree_->Branch("phoSigmaEtaEta",        &phoSigmaEtaEta_);
   tree_->Branch("phoR1x5",               &phoR1x5_);
   tree_->Branch("phoR2x5",               &phoR2x5_);
   tree_->Branch("phoESEffSigmaRR",       &phoESEffSigmaRR_);
@@ -196,6 +197,9 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps)
   tree_->Branch("pho_trackIsoR5PtCut20", &pho_trackIsoR5PtCut20_);
   tree_->Branch("pho_swissCrx", &pho_swissCrx_);
   tree_->Branch("pho_seedTime", &pho_seedTime_);
+  if (doGenParticles_) {
+    tree_->Branch("pho_genMatchedIndex", &pho_genMatchedIndex_);
+  }
 
   if(doPfIso_){
     tree_->Branch("pfcIso1",&pfcIso1);
@@ -492,6 +496,7 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   pho_trackIsoR5PtCut20_.clear();
   pho_swissCrx_.clear();
   pho_seedTime_.clear();
+  pho_genMatchedIndex_.clear();
 
   //photon pf isolation stuff
   pfcIso1.clear();
@@ -933,11 +938,6 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
     isoMap = * recoPhotonHiIsoHandle;
   }
 
-  //edm::Handle<vector<reco::PFCandidate> > pfHandle;
-  //e.getByToken(pfCollection_, pfHandle);
-  //edm::Handle<edm::ValueMap<reco::VoronoiBackground> > pfVsMapHandle;
-  //e.getByToken(voronoiBkgPF_, pfVsMapHandle);
-
   // loop over photons
   for (edm::View<reco::Photon>::const_iterator pho = recoPhotonsHandle->begin(); pho != recoPhotonsHandle->end(); ++pho) {
     phoE_             .push_back(pho->energy());
@@ -1049,18 +1049,6 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
       pfpIso4.push_back( pfIso.getPfIso(*pho, 4, 0.4, 0.0, 0.015, 0 ));
       pfpIso5.push_back( pfIso.getPfIso(*pho, 4, 0.5, 0.0, 0.015, 0 ));
 
-      // pfsumIso1                       [nphotonscounter]    =  pfcIso1[nphotonscounter] + pfnIso1[nphotonscounter] + pfpIso1[nphotonscounter] ;
-      // pfsumIso2                       [nphotonscounter]    =  pfcIso2[nphotonscounter] + pfnIso2[nphotonscounter] + pfpIso2[nphotonscounter] ;
-      // pfsumIso3                       [nphotonscounter]    =  pfcIso3[nphotonscounter] + pfnIso3[nphotonscounter] + pfpIso3[nphotonscounter] ;
-      // pfsumIso4                       [nphotonscounter]    =  pfcIso4[nphotonscounter] + pfnIso4[nphotonscounter] + pfpIso4[nphotonscounter] ;
-      // pfsumIso5                       [nphotonscounter]    =  pfcIso5[nphotonscounter] + pfnIso5[nphotonscounter] + pfpIso5[nphotonscounter] ;
-
-      // pfVsSubIso1                       [nphotonscounter]    =  0;  //pfIso.getVsPfIso(pho, 0.2, 0.06, 0.04, 0, false );
-      // pfVsSubIso2                       [nphotonscounter]    =  0; //pfIso.getVsPfIso(pho, 0.2, 0.06, 0.04, 0, false );
-      // pfVsSubIso3                       [nphotonscounter]    =  0;  //pfIso.getVsPfIso(pho, 0.3, 0.06, 0.04, 0, false );
-      // pfVsSubIso4                       [nphotonscounter]    =  0;  //pfIso.getVsPfIso(pho, 0.4, 0.06, 0.04, 0, false );
-      // pfVsSubIso5                   [nphotonscounter]    =  0;  //pfIso.getVsPfIso(pho, 0.5, 0.06, 0.04, 0, false );
-
       if(doVsIso_)
       {
 	pfcVsIso1.push_back(pfIso.getVsPfIso(*pho, 1, 0.1, 0.02, 0.0, 0, true));
@@ -1111,25 +1099,48 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
 	pfpVsIso3th2.push_back( pfIso.getVsPfIso(*pho, 4, 0.3,  0.0, 0.015, 2, true ));
 	pfpVsIso4th2.push_back( pfIso.getVsPfIso(*pho, 4, 0.4,  0.0, 0.015, 2, true ));
 	pfpVsIso5th2.push_back( pfIso.getVsPfIso(*pho, 4, 0.5,  0.0, 0.015, 2, true ));
-
-
-	// pfsumVsIso1       [nphotonscounter]    =  pfcVsIso1[nphotonscounter] + pfnVsIso1[nphotonscounter] + pfpVsIso1[nphotonscounter] ;
-	// pfsumVsIso2       [nphotonscounter]    =  pfcVsIso2[nphotonscounter] + pfnVsIso2[nphotonscounter] + pfpVsIso2[nphotonscounter] ;
-	// pfsumVsIso3       [nphotonscounter]    =  pfcVsIso3[nphotonscounter] + pfnVsIso3[nphotonscounter] + pfpVsIso3[nphotonscounter] ;
-	// pfsumVsIso4       [nphotonscounter]    =  pfcVsIso4[nphotonscounter] + pfnVsIso4[nphotonscounter] + pfpVsIso4[nphotonscounter] ;
-	// pfsumVsIso5       [nphotonscounter]    =  pfcVsIso5[nphotonscounter] + pfnVsIso5[nphotonscounter] + pfpVsIso5[nphotonscounter] ;
-	// pfsumVsIso1th1    [nphotonscounter]    =  pfcVsIso1th1[nphotonscounter] + pfnVsIso1th1[nphotonscounter] + pfpVsIso1th1[nphotonscounter] ;
-	// pfsumVsIso2th1    [nphotonscounter]    =  pfcVsIso2th1[nphotonscounter] + pfnVsIso2th1[nphotonscounter] + pfpVsIso2th1[nphotonscounter] ;
-	// pfsumVsIso3th1    [nphotonscounter]    =  pfcVsIso3th1[nphotonscounter] + pfnVsIso3th1[nphotonscounter] + pfpVsIso3th1[nphotonscounter] ;
-	// pfsumVsIso4th1    [nphotonscounter]    =  pfcVsIso4th1[nphotonscounter] + pfnVsIso4th1[nphotonscounter] + pfpVsIso4th1[nphotonscounter] ;
-	// pfsumVsIso5th1    [nphotonscounter]    =  pfcVsIso5th1[nphotonscounter] + pfnVsIso5th1[nphotonscounter] + pfpVsIso5th1[nphotonscounter] ;
-	// pfsumVsIso1th2    [nphotonscounter]    =  pfcVsIso1th2[nphotonscounter] + pfnVsIso1th2[nphotonscounter] + pfpVsIso1th2[nphotonscounter] ;
-	// pfsumVsIso2th2    [nphotonscounter]    =  pfcVsIso2th2[nphotonscounter] + pfnVsIso2th2[nphotonscounter] + pfpVsIso2th2[nphotonscounter] ;
-	// pfsumVsIso3th2    [nphotonscounter]    =  pfcVsIso3th2[nphotonscounter] + pfnVsIso3th2[nphotonscounter] + pfpVsIso3th2[nphotonscounter] ;
-	// pfsumVsIso4th2    [nphotonscounter]    =  pfcVsIso4th2[nphotonscounter] + pfnVsIso4th2[nphotonscounter] + pfpVsIso4th2[nphotonscounter] ;
-	// pfsumVsIso5th2    [nphotonscounter]    =  pfcVsIso5th2[nphotonscounter] + pfnVsIso5th2[nphotonscounter] + pfpVsIso5th2[nphotonscounter] ;
       }
     }
+
+    //////////////////////////////////    // MC matching /////////////////////////////////////////
+    if (doGenParticles_ && !isData_) {
+      float delta2 = 0.15*0.15;
+
+      bool gpTemp(false);
+      Float_t currentMaxPt(-1);
+      int matchedIndex = -1;
+
+      for (unsigned igen = 0; igen < mcEt_.size(); ++igen){
+	if (mcStatus_[igen] != 1 || (mcPID_[igen]) != 22 ) continue;
+	if(reco::deltaR2(pho->eta(), pho->phi(), mcEta_[igen], mcPhi_[igen])<delta2
+	   && mcPt_[igen] > currentMaxPt ) {
+
+	  gpTemp = true;
+	  currentMaxPt = mcPt_[igen];
+	  matchedIndex = igen;
+	}
+      }
+
+      // if no matching photon was found try with other particles
+      std::vector<int> otherPdgIds_(1,11);
+      if( !gpTemp ) {
+	currentMaxPt = -1;
+	for (unsigned igen = 0; igen < mcEt_.size(); ++igen){
+	  if (mcStatus_[igen] != 1 || find(otherPdgIds_.begin(),otherPdgIds_.end(),fabs(mcPID_[igen])) == otherPdgIds_.end() ) continue;
+	  if(reco::deltaR2(pho->eta(), pho->phi(), mcEta_[igen], mcPhi_[igen])<delta2
+	     && mcPt_[igen] > currentMaxPt ) {
+
+	    gpTemp = true;
+	    currentMaxPt = mcPt_[igen];
+	    matchedIndex = igen;
+	  }
+
+	} // end of loop over gen particles
+      } // if not matched to gen photon
+
+      pho_genMatchedIndex_.push_back(matchedIndex);
+    } // if it's a MC
+
     nPho_++;
 
   } // photons loop
