@@ -5,6 +5,9 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="DataFormats/HeavyIonEvent"/>
 <use name="DataFormats/VertexReco"/>
+<use name="RecoHI/HiCentralityAlgos"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/JetReco"/>
 <use name="DataFormats/Common"/>
 <use name="SimDataFormats/HiGenData"/>
 <use name="SimDataFormats/GeneratorProducts"/>
