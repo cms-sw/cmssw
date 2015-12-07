@@ -13,6 +13,7 @@
 # By: Gerhard Raven / Tristan du Pree
 # Date: 10 Oct 2006
 #
+# By A.Starodumov from PDG 2015
 Define Hp 0.481 #
 Define Hz 0.723 #
 Define Hm 0.496 #
@@ -20,8 +21,8 @@ Define pHp 3.14 #
 Define pHz 0.0
 Define pHm 3.14 #
 # Upddate dgammas
-Define dms 17.69e12
-Define dgammas 10.0e10
+Define dms 17.76e12
+Define dgammas 8.0e10
 #yesIncoherentBsMixing dms dgammas
 #
 Alias MyB_s0 B_s0
