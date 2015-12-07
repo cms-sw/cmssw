@@ -11,9 +11,24 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <cstdlib>
 
 namespace sistrip {
+	
+  //fill Descriptions needed to define default parameters	
+  void DigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("InputModuleLabel", "simSiStripDigis");
+    desc.add<std::string>("InputDigiLabel", "ZeroSuppressed");
+    desc.add<std::string>("FedReadoutMode", "ZERO_SUPPRESSED");
+    desc.add<bool>("UseFedKey", false);
+    desc.add<bool>("UseWrongDigiType", false);
+    desc.add<bool>("CopyBufferHeader", false);
+    desc.add<edm::InputTag>("RawDataTag", edm::InputTag("rawDataCollector"));
+    descriptions.add("SiStripDigiToRawModule",desc);
+  }
 
   // -----------------------------------------------------------------------------
   /** 
