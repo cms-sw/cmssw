@@ -32,8 +32,9 @@ class RadDamTask : public DQTask
 		virtual void _process(edm::Event const&, edm::EventSetup const&);
 		virtual bool _isApplicable(edm::Event const&);
 
-		//	vars
+		//	Tags and Tokens
 		edm::InputTag	_tagHF;
+		edm::EDGetTokenT<HFDigiCollection>	_tokHF;
 
 		//	vector of Detector Ids for RadDam
 		std::vector<HcalDetId>	_vDetIds;

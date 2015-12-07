@@ -129,6 +129,9 @@
 			edm::InputTag("horeco"));
 		_tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF",
 			edm::InputTag("hfreco"));
+		_tokHBHE = consumes<HBHERecHitCollection>(_tagHBHE);
+		_tokHO = consumes<HORecHitCollection>(_tagHO);
+		_tokHF = consumes<HFRecHitCollection>(_tagHF);
 
 		//	cuts
 		_cutE_HBHE = ps.getUntrackedParameter<double>("cutE_HBHE", 5);
@@ -191,13 +194,13 @@
 		edm::Handle<HORecHitCollection>		cho;
 		edm::Handle<HFRecHitCollection>		chf;
 
-		if (!(e.getByLabel(_tagHBHE, chbhe)))
+		if (!(e.getByToken(_tokHBHE, chbhe)))
 			_logger.dqmthrow("Collection HBHERecHitCollection not available "
 				+ _tagHBHE.label() + " " + _tagHBHE.instance());
-		if (!(e.getByLabel(_tagHO, cho)))
+		if (!(e.getByToken(_tokHO, cho)))
 			_logger.dqmthrow("Collection HORecHitCollection not available "
 				+ _tagHO.label() + " " + _tagHO.instance());
-		if (!(e.getByLabel(_tagHF, chf)))
+		if (!(e.getByToken(_tokHF, chf)))
 			_logger.dqmthrow("Collection HFRecHitCollection not available "
 				+ _tagHF.label() + " " + _tagHF.instance());
 

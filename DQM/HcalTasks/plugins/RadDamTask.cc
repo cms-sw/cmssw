@@ -79,6 +79,7 @@ RadDamTask::RadDamTask(edm::ParameterSet const& ps):
 	//	tags
 	_tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF", 
 		edm::InputTag("hcalDigis"));
+	_tokHF = consumes<HFDigiCollection>(_tagHF);
 }
 
 /* virtual */ void RadDamTask::bookHistograms(DQMStore::IBooker& ib,
@@ -93,7 +94,7 @@ RadDamTask::RadDamTask(edm::ParameterSet const& ps):
 	edm::EventSetup const& es)
 {
 	edm::Handle<HFDigiCollection> chf;
-	if (!e.getByLabel(_tagHF, chf))
+	if (!e.getByToken(_tokHF, chf))
 		_logger.dqmthrow("Collection HFDigiCollection isn't avalaible"
 			+ _tagHF.label() + " " + _tagHF.instance());
 

@@ -53,6 +53,10 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		edm::InputTag("hcalDigis"));
 	_tagTrigger = ps.getUntrackedParameter<edm::InputTag>("tagTrigger",
 		edm::InputTag("tbunpacker"));
+	_tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
+	_tokHO = consumes<HODigiCollection>(_tagHO);
+	_tokHF = consumes<HFDigiCollection>(_tagHF);
+	_tokTrigger = consumes<HcalTBTriggerData>(_tagTrigger);
 
 	//	constants
 	_lowHBHE = ps.getUntrackedParameter<double>("lowHBHE",
@@ -114,13 +118,13 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 	edm::Handle<HODigiCollection>		cho;
 	edm::Handle<HFDigiCollection>		chf;
 
-	if (!e.getByLabel(_tagHBHE, chbhe))
+	if (!e.getByToken(_tokHBHE, chbhe))
 		_logger.dqmthrow("Collection HBHEDigiCollection isn't available "
 			+ _tagHBHE.label() + " " + _tagHBHE.instance());
-	if (!e.getByLabel(_tagHO, cho))
+	if (!e.getByToken(_tokHO, cho))
 		_logger.dqmthrow("Collection HODigiCollection isn't available "
 			+ _tagHO.label() + " " + _tagHO.instance());
-	if (!e.getByLabel(_tagHF, chf))
+	if (!e.getByToken(_tokHF, chf))
 		_logger.dqmthrow("Collection HFDigiCollection isn't available "
 			+ _tagHF.label() + " " + _tagHF.instance());
 
@@ -190,7 +194,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 	{
 		//	local
 		edm::Handle<HcalTBTriggerData> ctrigger;
-		if (!e.getByLabel(_tagTrigger, ctrigger))
+		if (!e.getByToken(_tokTrigger, ctrigger))
 			_logger.dqmthrow("Collection HcalTBTriggerData isn't available "
 				+ _tagTrigger.label() + " " + _tagTrigger.instance());
 		return ctrigger->wasLEDTrigger();

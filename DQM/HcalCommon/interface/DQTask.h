@@ -57,7 +57,9 @@ namespace hcaldqm
 			//	counters
 			int			_procLSs;
 
+			//	Tags and corresponding Tokens
 			edm::InputTag		_tagRaw;
+			edm::EDGetTokenT<FEDRawDataCollection> _tokRaw;
 	};
 }
 

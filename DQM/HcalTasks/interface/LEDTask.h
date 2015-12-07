@@ -40,6 +40,10 @@ class LEDTask : public DQTask
 		edm::InputTag	_tagHO;
 		edm::InputTag	_tagHF;
 		edm::InputTag	_tagTrigger;
+		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
+		edm::EDGetTokenT<HODigiCollection> _tokHO;
+		edm::EDGetTokenT<HFDigiCollection> _tokHF;
+		edm::EDGetTokenT<HcalTBTriggerData> _tokTrigger;
 
 		//	Cuts
 		double _lowHBHE;

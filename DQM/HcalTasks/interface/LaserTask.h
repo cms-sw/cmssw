@@ -35,11 +35,15 @@ class LaserTask : public DQTask
 		virtual bool _isApplicable(edm::Event const&);
 		virtual void _dump();
 
-		//	vars
+		//	Tags and Tokens
 		edm::InputTag	_tagHBHE;
 		edm::InputTag	_tagHO;
 		edm::InputTag	_tagHF;
 		edm::InputTag	_tagTrigger;
+		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
+		edm::EDGetTokenT<HODigiCollection> _tokHO;
+		edm::EDGetTokenT<HFDigiCollection> _tokHF;
+		edm::EDGetTokenT<HcalTBTriggerData> _tokTrigger;
 
 		//	Cuts
 		double _lowHBHE;

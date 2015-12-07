@@ -146,6 +146,8 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		edm::InputTag("hcalDigis"));
 	_tagEmul = ps.getUntrackedParameter<edm::InputTag>("tagEmul",
 		edm::InputTag("emulDigis"));
+	_tokData = consumes<HcalTrigPrimDigiCollection>(_tagData);
+	_tokEmul = consumes<HcalTrigPrimDigiCollection>(_tagEmul);
 
 	//	Special
 	_skip1x1 = ps.getUntrackedParameter<bool>("skip1x1", true);
@@ -207,10 +209,10 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 	edm::Handle<HcalTrigPrimDigiCollection> ctpd;
 	edm::Handle<HcalTrigPrimDigiCollection> ctpe;
 
-	if (!e.getByLabel(_tagData, ctpd))
+	if (!e.getByToken(_tokData, ctpd))
 		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available"
 			+ _tagData.label() + " " + _tagData.instance());
-	if (!e.getByLabel(_tagEmul, ctpe))
+	if (!e.getByToken(_tokEmul, ctpe))
 		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available"
 			+ _tagEmul.label() + " " + _tagEmul.instance());
 

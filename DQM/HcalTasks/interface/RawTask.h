@@ -45,8 +45,9 @@ class RawTask : public DQTask
 		//	FED Skip List
 		std::vector<int>	_vSkipFEDList;
 
-		//	Tags
+		//	Tags and Tokens
 		edm::InputTag	_tagFEDs;
+		edm::EDGetTokenT<FEDRawDataCollection> _tokFEDs;
 
 		//	Flag Names
 		std::vector<std::string> _fNames;

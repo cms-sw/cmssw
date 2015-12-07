@@ -46,9 +46,11 @@
 			virtual void _process(edm::Event const&, edm::EventSetup const&);
 			virtual void _resetMonitors(UpdateFreq);
 
-			//	tags
+			//	tags and tokens
 			edm::InputTag	_tagData;
 			edm::InputTag	_tagEmul;
+			edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokData;
+			edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokEmul;
 
 			//	counters
 			int _nMsmEt[constants::TPSUBDET_NUM];

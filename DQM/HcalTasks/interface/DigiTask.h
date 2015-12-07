@@ -46,10 +46,13 @@ class DigiTask : public DQTask
 		virtual void _process(edm::Event const&, edm::EventSetup const&);
 		virtual void _resetMonitors(UpdateFreq);
 
-		//	Tags
+		//	Tags and corresponding Tokens
 		edm::InputTag	_tagHBHE;
 		edm::InputTag	_tagHO;
 		edm::InputTag	_tagHF;
+		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
+		edm::EDGetTokenT<HODigiCollection> _tokHO;
+		edm::EDGetTokenT<HFDigiCollection> _tokHF;
 
 		//	Flag Names
 		std::vector<std::string> _fNames;

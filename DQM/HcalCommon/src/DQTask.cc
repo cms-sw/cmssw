@@ -13,8 +13,10 @@ namespace hcaldqm
 		_cProcessingTypeName(_name, "ProcessingType"),
 		_procLSs(0)
 	{
+		//	tags and Tokens
 		_tagRaw = ps.getUntrackedParameter<edm::InputTag>("tagRaw",
 			edm::InputTag("rawDataCollector"));
+		_tokRaw = consumes<FEDRawDataCollection>(_tagRaw);
 	}
 
 	/*
@@ -124,7 +126,7 @@ namespace hcaldqm
 		int calibType = 0;
 
 		edm::Handle<FEDRawDataCollection> craw;
-		if (!e.getByLabel(_tagRaw, craw))
+		if (!e.getByToken(_tokRaw, craw))
 			_logger.dqmthrow(
 				"Collection FEDRawDataCollection isn't available " 
 				+ _tagRaw.label() + " " + _tagRaw.instance());

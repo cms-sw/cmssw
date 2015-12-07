@@ -149,13 +149,16 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		new axis::ValueAxis(axis::fXaxis, axis::fLS),
 		new axis::FlagAxis(axis::fYaxis, "Flag", int(nDigiFlag)));
 
-	//	tags
+	//	tags and tokens
 	_tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE",
 		edm::InputTag("hcalDigis"));
 	_tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO",
 		edm::InputTag("hcalDigis"));
 	_tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF",
 		edm::InputTag("hcalDigis"));
+	_tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
+	_tokHO = consumes<HODigiCollection>(_tagHO);
+	_tokHF = consumes<HFDigiCollection>(_tagHF);
 
 	// cuts
 	_cutSumQ_HBHE = ps.getUntrackedParameter<double>("cutSumQ_HBHE", 20);
@@ -273,13 +276,13 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	edm::Handle<HODigiCollection>		cho;
 	edm::Handle<HFDigiCollection>		chf;
 
-	if (!e.getByLabel(_tagHBHE, chbhe))
+	if (!e.getByToken(_tokHBHE, chbhe))
 		_logger.dqmthrow("Collection HBHEDigiCollection isn't available"
 			+ _tagHBHE.label() + " " + _tagHBHE.instance());
-	if (!e.getByLabel(_tagHO, cho))
+	if (!e.getByToken(_tokHO, cho))
 		_logger.dqmthrow("Collection HODigiCollection isn't available"
 			+ _tagHO.label() + " " + _tagHO.instance());
-	if (!e.getByLabel(_tagHF, chf))
+	if (!e.getByToken(_tokHF, chf))
 		_logger.dqmthrow("Collection HFDigiCollection isn't available"
 			+ _tagHF.label() + " " + _tagHF.instance());
 

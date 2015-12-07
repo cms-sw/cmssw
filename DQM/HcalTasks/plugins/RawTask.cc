@@ -42,6 +42,7 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 	//	tags
 	_tagFEDs = ps.getUntrackedParameter<edm::InputTag>("tagFEDs",
 		edm::InputTag("rawDataCollector"));
+	_tokFEDs = consumes<FEDRawDataCollection>(_tagFEDs);
 
 	//	Skip List
 	_vSkipFEDList = ps.getUntrackedParameter<std::vector<int> >("skipFEDList");
@@ -129,7 +130,7 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 	edm::EventSetup const&)
 {
 	edm::Handle<FEDRawDataCollection> craw;
-	if (!e.getByLabel(_tagFEDs, craw))
+	if (!e.getByToken(_tokFEDs, craw))
 		_logger.dqmthrow("Collection FEDRawDataCollection isn't available"
 			+ _tagFEDs.label() + " " + _tagFEDs.instance());
 	
