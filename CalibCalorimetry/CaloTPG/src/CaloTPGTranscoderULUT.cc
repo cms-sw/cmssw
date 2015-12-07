@@ -160,16 +160,8 @@ void CaloTPGTranscoderULUT::rctJetUncompress(const HcalTrigTowerDetId& hid, cons
 }
 
 bool CaloTPGTranscoderULUT::HTvalid(const int ieta, const int iphiin) const {
-	int iphi = iphiin;
-	if (iphi <= 0 || iphi > 72 || ieta == 0 || abs(ieta) > 32) return false;
-	if (abs(ieta) > 28) {
-	  if (newHFphi) {
-	    if ((iphi/4)*4 + 1 != iphi) return false;
-	    iphi = iphi/4 + 1;
-	  }
-	  if (iphi > 18) return false;
-	}
-	return true;
+	HcalTrigTowerDetId id(ieta, iphiin);
+	return theTopology->validHT(id);
 }
 
 int CaloTPGTranscoderULUT::getOutputLUTId(const HcalTrigTowerDetId& id) const {
@@ -177,17 +169,8 @@ int CaloTPGTranscoderULUT::getOutputLUTId(const HcalTrigTowerDetId& id) const {
 }
 
 int CaloTPGTranscoderULUT::getOutputLUTId(const int ieta, const int iphiin) const {
-	int iphi = iphiin;
-	if (HTvalid(ieta, iphi)) {
-		int offset = 0, ietaabs;
-		ietaabs = abs(ieta);
-		if (ieta < 0) offset = NOUTLUTS/2;
-		if (ietaabs < 29) return 72*(ietaabs - 1) + (iphi - 1) + offset;
-		else {
-		  if (newHFphi) iphi = iphi/4 + 1;
-		  return 18*(ietaabs - 29) + iphi + 2015 + offset;
-		}
-	} else return -1;	
+	HcalTrigTowerDetId id(ieta, iphiin);
+	return theTopology->detId2denseIdHT(id);
 }
 
 std::vector<unsigned int> CaloTPGTranscoderULUT::getCompressionLUT(HcalTrigTowerDetId id) const {
