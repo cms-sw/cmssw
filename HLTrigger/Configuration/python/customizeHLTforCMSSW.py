@@ -222,6 +222,29 @@ def customiseFor12346(process):
            delattr(process.hltMetCleanUsingJetID, 'usePt')
     return process
 
+def customiseForXXXYYY(process):
+    if hasattr(process, 'HLTPSetMuonCkfTrajectoryFilter'):
+        process.HLTPSetMuonCkfTrajectoryFilter.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+    if hasattr(process, 'HLTIter0PSetTrajectoryFilterIT'):
+        process.HLTIter0PSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+    if hasattr(process, 'HLTIter1PSetTrajectoryFilterIT'):
+        process.HLTIter1PSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+    if hasattr(process, 'HLTIter2PSetTrajectoryFilterIT'):
+        process.HLTIter2PSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+    if hasattr(process, 'HLTPSetTrajectoryFilterForElectrons'):
+        process.HLTPSetTrajectoryFilterForElectrons.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+    if hasattr(process, 'process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT'):
+        process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+    if hasattr(process, 'HLTIter2HighPtTkMuPSetTrajectoryFilterIT'):
+        process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+    if hasattr(process, 'HLTPSetMuTrackJpsiTrajectoryFilter'):
+        process.HLTPSetMuTrackJpsiTrajectoryFilter.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+    if hasattr(process, 'HLTIter4PSetTrajectoryFilterIT'):
+        process.HLTIter4PSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+    if hasattr(process, 'HLTIter3PSetTrajectoryFilterIT'):
+        process.HLTIter3PSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+    return process
+
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     import os
@@ -230,6 +253,7 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     if cmsswVersion >= "CMSSW_8_0":
         process = customiseFor12346(process)
         process = customiseFor11920(process)
+        process = customiseForXXXYYY(process)
     if cmsswVersion >= "CMSSW_7_6":
         process = customiseFor10418(process)
         process = customiseFor10353(process)
