@@ -8,15 +8,49 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "FWCore/Utilities/interface/Likely.h"
 
+#include<iostream>
+#include<algorithm>
+
 // there are tons of safety checks.
 // Try to move all of the out the regular control flow using gcc magic
+namespace {
+  struct Stat {
+
+   float xmin=1.1;
+   float xmax=-1.1;
+   int nt=0;
+   int nn=0;
+   int nl=0;
+
+   ~Stat() { std::cout << "ASIN " << xmin <<',' << xmax <<',' << nt <<','<< nn <<','<< nl << std::endl;}
+
+  };
+
+  Stat stat;
+
+}
+
+namespace {
+  template <class T> 
+  inline T cropped_asin(T x) {
+    stat.nt++;
+    if (x<0.f) stat.nn++;
+    if (x>0.7f) stat.nl++;
+    stat.xmin = std::min(float(x),stat.xmin);
+    stat.xmax =	std::max(float(x),stat.xmax);
+    
+    return std::abs(x) <= 1 ? std::asin(x) : (x > 0 ? T(M_PI/2) : -T(M_PI/2));
+  }
+}
 
 
 namespace {
   template<class T> inline T sqr(T t) { return t * t; }
   template<class T> inline T sgn(T t) { return std::signbit(t) ? -T(1.) : T(1.); }
-  template<class T> inline T clamped_acos(T t)
-  { return unlikely(t <= T(-1)) ? T(M_PI) : unlikely(t >= T(1)) ? T(0) : std::acos(t); }
+  template<class T> inline T clamped_acos(T x) {
+    return T(M_PI/2) - cropped_asin(x);
+  }
+//  { return unlikely(t <= T(-1)) ? T(M_PI) : unlikely(t >= T(1)) ? T(0) : std::acos(t); }
   template<class T> inline T clamped_sqrt(T t)
   { return likely(t > 0) ? std::sqrt(t) : T(0); }
 }

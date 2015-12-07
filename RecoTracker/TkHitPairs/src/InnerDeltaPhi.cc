@@ -11,11 +11,59 @@
 using namespace std;
 
 namespace {
+  struct Stat {
+
+   float xmin=1.1;
+   float xmax=-1.1;
+   int nt=0;
+   int nn=0;
+   int nl=0;
+
+   ~Stat() { std::cout << "ASIN " << xmin <<',' << xmax <<',' << nt <<','<< nn <<','<< nl << std::endl;}
+
+  };
+
+  Stat stat;
+
+}
+
+namespace {
   template <class T> inline T sqr( T t) {return t*t;}
+
   template <class T> 
   inline T cropped_asin(T x) {
+    stat.nt++;
+    if (x<0.f) stat.nn++;
+    if (x>0.5f) stat.nl++;
+    stat.xmin = std::min(x,stat.xmin);
+    stat.xmax =	std::max(x,stat.xmax);
+    
     return std::abs(x) <= 1 ? std::asin(x) : (x > 0 ? T(M_PI/2) : -T(M_PI/2));
   }
+}
+
+namespace {
+  // reasonable (5.e-4) only for |x|<0.7 then degrades..
+  template<typename T>
+  inline T f_asin07f(T x)  {
+
+   auto ret = 
+       1.f + (x*x) * (0.157549798488616943359375f + (x*x)*0.125192224979400634765625f);
+
+   return x*ret;
+  }
+
+  typedef float __attribute__( ( vector_size( 16 ) ) ) float32x4_t;
+
+
+}
+
+
+#include "DataFormats/Math/interface/approx_atan2.h"
+
+namespace {
+  inline
+  float f_atan2f(float y, float x) { return unsafe_atan2f<7>(y,x); }
 }
 
 namespace {
@@ -142,15 +190,29 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
   // this factor should be taken in computation of eror projection
   auto cosCross = std::abs( dHit.unit().dot(crossing.unit()));
 
+  
+  float32x4_t num{dHitmag,dLayer,theROrigin * (dHitmag-dLayer),1.f};
+  float32x4_t den{2*theRCurvature,2*theRCurvature,dHitmag*dLayer,1.f};
+  auto phis = f_asin07f(num/den);
+  phis = phis*dLayer/(rLayer*cosCross);
+  auto deltaPhi = std::abs(phis[0]-phis[1]);
+  auto deltaPhiOrig = phis[2];
+  
+  /*
   auto alphaHit = cropped_asin( dHitmag/(2*theRCurvature)); 
-  auto deltaPhi = std::abs( alphaHit - cropped_asin( dLayer/(2*theRCurvature)));
-  deltaPhi *= dLayer/(rLayer*cosCross);  
+  auto OdeltaPhi = std::abs( alphaHit - cropped_asin( dLayer/(2*theRCurvature)));
+  OdeltaPhi *= dLayer/(rLayer*cosCross);  
+  // compute additional delta phi due to origin radius
+  auto OdeltaPhiOrig = cropped_asin( theROrigin * (dHitmag-dLayer) / (dHitmag*dLayer));
+  OdeltaPhiOrig *= dLayer/(rLayer*cosCross);
+  std::cout << "dphi " << OdeltaPhi<<'/'<<OdeltaPhiOrig << ' ' << deltaPhi<<'/'<<deltaPhiOrig << std::endl;
+  */
 
   // additinal angle due to not perpendicular stright line crossing  (for displaced beam)
   //  double dPhiCrossing = (cosCross > 0.9999) ? 0 : dL *  sqrt(1-sqr(cosCross))/ rLayer;
   Point2D crossing2 = theVtx + dHit.unit()* (dLayer+dL);
-  auto phicross2 = crossing2.barePhi();  
-  auto phicross1 = crossing.barePhi();
+  auto phicross2 = f_atan2f(crossing2.y(),crossing2.x());  
+  auto phicross1 = f_atan2f(crossing.y(),crossing.x());
   auto dphicross = phicross2-phicross1;
   if (dphicross < -float(M_PI)) dphicross += float(2*M_PI);
   if (dphicross >  float(M_PI)) dphicross -= float(2*M_PI);
@@ -158,9 +220,6 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
   phicross2 = phicross1 + dphicross;
         
 
-  // compute additional delta phi due to origin radius
-  auto deltaPhiOrig = cropped_asin( theROrigin * (dHitmag-dLayer) / (dHitmag*dLayer));
-  deltaPhiOrig *= dLayer/(rLayer*cosCross);
 
   // inner hit error taken as constant
   auto deltaPhiHit = theExtraTolerance / rLayer;

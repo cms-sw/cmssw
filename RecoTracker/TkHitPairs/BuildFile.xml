@@ -1,3 +1,5 @@
+<flags   CXXFLAGS="-Ofast"/>
+
 <use   name="clhep"/>
 <use   name="boost"/>
 <use   name="RecoTracker/Record"/>
