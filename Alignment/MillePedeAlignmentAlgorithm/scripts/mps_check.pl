@@ -18,7 +18,7 @@ use Mpslib;
 
 read_db();
 
-my @cmslsoutput = `cmsLs -l $mssDir`;
+my @cmslsoutput = `$Mpslib::eos ls -l $mssDir`;
 
 # loop over FETCH jobs
 for ($i=0; $i<@JOBID; ++$i) {
@@ -156,8 +156,6 @@ for ($i=0; $i<@JOBID; ++$i) {
     # for mille jobs checks that milleBinary file is not empty
     if ( $i < $nJobs ) { # mille job!
       my $milleOut = sprintf("milleBinary%03d.dat",$i+1);
-      #$mOutSize = `nsls -l $mssDir | grep $milleOut | head -1 | awk '{print \$5}'`;
-      #$mOutSize = `cmsLs -l $mssDir | grep $milleOut | head -1 | awk '{print \$2}'`;
       my $mOutSize = 0;
       foreach my $line (@cmslsoutput)
         {
