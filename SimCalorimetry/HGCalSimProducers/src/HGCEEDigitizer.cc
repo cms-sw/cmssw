@@ -1,5 +1,7 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCEEDigitizer.h"
 
+using namespace hgc_digi;
+
 //
 HGCEEDigitizer::HGCEEDigitizer(const edm::ParameterSet& ps) : HGCDigitizerBase(ps) { }
 

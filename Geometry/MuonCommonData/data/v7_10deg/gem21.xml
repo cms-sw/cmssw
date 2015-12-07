@@ -32,7 +32,9 @@
   <Constant name="rMax"	        value="318.95*cm"/>
   <Constant name="dxTop"        value="28.000*cm"/>
   <Constant name="Angle"	value="5.1065*deg"/>
-  <Constant name="slope"	value="tan([Angle])"/>
+  <Constant name="distSens"     value="33.0*mm"/>
+  <Constant name="distTop"      value="([rMinL]+2*[dzInL]+[distSens])"/>
+  <Constant name="slope"	value="[dxTop]/[distTop]"/>
   <Constant name="dx011L"       value="([dxTop]-[slope]*([dzInL]-[z010L]+[dzS01L]))"/>
   <Constant name="dx012L"       value="([dxTop]-[slope]*([dzInL]-[z010L]-[dzS01L]))"/>
   <Constant name="dx021L"       value="([dxTop]-[slope]*([dzInL]-[z020L]+[dzS02L]))"/>
@@ -105,7 +107,7 @@
   <Constant name="dxTopCardL"   value="298.552*mm"/>
   <Constant name="dxBotCardL"   value="([dxTopCardL]-2*[slope]*[dzCardL])"/>
   <Constant name="dzFoilL"      value="[dzInL]"/>
-  <Constant name="zFoilL"       value="(33.0*mm-[dzGB21L]+[dzFoilL])"/>
+  <Constant name="zFoilL"       value="([distSens]-[dzGB21L]+[dzFoilL])"/>
   <Constant name="dxTopFoilL"   value="[dxTop]"/>
   <Constant name="dxBotFoilL"   value="([dxTopFoilL]-2*[slope]*[dzFoilL])"/>
   <Constant name="Tilt"         value="2.5*deg"/>

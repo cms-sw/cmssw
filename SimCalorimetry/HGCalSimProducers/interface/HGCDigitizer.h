@@ -85,7 +85,7 @@ private :
   //handle sim hits
   int maxSimHitsAccTime_;
   double bxTime_;
-  std::unique_ptr<HGCSimHitDataAccumulator> simHitAccumulator_;  
+  std::unique_ptr<hgc::HGCSimHitDataAccumulator> simHitAccumulator_;  
   void resetSimHitDataAccumulator();
 
   //digitizers

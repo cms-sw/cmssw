@@ -12,26 +12,22 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerTypes.h"
+
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCFEElectronics.h"
 
-typedef float HGCSimData_t;
-
-//15 time samples: 9 pre-samples, 1 in-time, 5 post-samples
-typedef std::array<HGCSimData_t,15> HGCSimHitData;
-
-//1st array=energy, 2nd array=energy weighted time-of-flight
-typedef std::unordered_map<uint32_t, std::array<HGCSimHitData,2> > HGCSimHitDataAccumulator; 
+namespace hgc = hgc_digi;
 
 template <class DFr>
 class HGCDigitizerBase {
  public:
- 
+  
   typedef edm::SortedCollection<DFr> DColl;
-
+  
   /**
      @short CTOR
-   */
- HGCDigitizerBase(const edm::ParameterSet &ps)  {
+  */
+  HGCDigitizerBase(const edm::ParameterSet &ps)  {
     bxTime_        = ps.getParameter<double>("bxTime");
     myCfg_         = ps.getParameter<edm::ParameterSet>("digiCfg"); 
     doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
@@ -43,14 +39,14 @@ class HGCDigitizerBase {
     myFEelectronics_        = std::unique_ptr<HGCFEElectronics<DFr> >( new HGCFEElectronics<DFr>(feCfg) );
   }
       
-  /**
-     @short steer digitization mode
-   */
-  void run(std::auto_ptr<DColl> &digiColl,HGCSimHitDataAccumulator &simData,uint32_t digitizationType,CLHEP::HepRandomEngine* engine);
-
+ /**
+    @short steer digitization mode
+ */
+  void run(std::auto_ptr<DColl> &digiColl, hgc::HGCSimHitDataAccumulator &simData, uint32_t digitizationType,CLHEP::HepRandomEngine* engine);
+  
   /**
      @short getters
-   */
+  */
   float keV2fC() const { return keV2fC_; }
   bool toaModeByEnergy() const { return (myFEelectronics_->toaMode()==HGCFEElectronics<DFr>::WEIGHTEDBYE); }
   float tdcOnset() const { return myFEelectronics_->getTDCOnset(); }
@@ -58,24 +54,24 @@ class HGCDigitizerBase {
   /**
      @short a trivial digitization: sum energies and digitize without noise
    */
-  void runSimple(std::auto_ptr<DColl> &coll,HGCSimHitDataAccumulator &simData, CLHEP::HepRandomEngine* engine);
-
+  void runSimple(std::auto_ptr<DColl> &coll, hgc::HGCSimHitDataAccumulator &simData, CLHEP::HepRandomEngine* engine);
+  
   /**
      @short prepares the output according to the number of time samples to produce
-   */
-  void updateOutput(std::auto_ptr<DColl> &coll,const DFr& rawDataFrame);
-
+  */
+  void updateOutput(std::auto_ptr<DColl> &coll, const DFr& rawDataFrame);
+  
   /**
      @short to be specialized by top class
-   */
-  virtual void runDigitizer(std::auto_ptr<DColl> &coll,HGCSimHitDataAccumulator &simData,uint32_t digitizerType, CLHEP::HepRandomEngine* engine)
+  */
+  virtual void runDigitizer(std::auto_ptr<DColl> &coll, hgc::HGCSimHitDataAccumulator &simData,uint32_t digitizerType, CLHEP::HepRandomEngine* engine)
   {
     throw cms::Exception("HGCDigitizerBaseException") << " Failed to find specialization of runDigitizer";
   }
-
+  
   /**
      @short DTOR
-   */
+  */
   ~HGCDigitizerBase() 
     { };
   
