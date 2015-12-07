@@ -1,8 +1,10 @@
 #ifndef MaxCCCLostHitsTrajectoryFilter_H
 #define MaxCCCLostHitsTrajectoryFilter_H
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/ClusterChargeCut.h"
 
 class MaxCCCLostHitsTrajectoryFilter final : public TrajectoryFilter {
 public:
@@ -15,7 +17,7 @@ public:
   explicit MaxCCCLostHitsTrajectoryFilter (
       const edm::ParameterSet & pset, edm::ConsumesCollector& iC) :
       theMaxCCCLostHits_(pset.existsAs<int>("maxCCCLostHits") ? pset.getParameter<int>("maxCCCLostHits") : 9999),
-      minGoodStripCharge_(pset.existsAs<double>("minGoodStripCharge") ? pset.getParameter<double>("minGoodStripCharge") : -1.) {}
+      minGoodStripCharge_(clusterChargeCut(pset.getParameter<edm::ParameterSet>("minGoodStripCharge"))) {}
 
   virtual bool qualityFilter( const Trajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
   virtual bool qualityFilter( const TempTrajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
