@@ -5,6 +5,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="DataFormats/Provenance"/>
 <use   name="DataFormats/DetId"/>
+<use   name="DataFormats/TrackerCommon"/>
 <use   name="roothistmatrix"/>
 <export>
   <lib   name="1"/>

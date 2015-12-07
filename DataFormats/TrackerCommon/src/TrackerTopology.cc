@@ -113,6 +113,45 @@ uint32_t TrackerTopology::Stack(const DetId &id) const {
     throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::Stack";
 }
 
+uint32_t TrackerTopology::Lower(const DetId &id) const {
+
+    uint32_t subdet=id.subdetId();
+    if ( subdet == PixelSubdetector::PixelBarrel )
+      return 0;
+    if ( subdet == PixelSubdetector::PixelEndcap )
+      return 0;
+    if ( subdet == StripSubdetector::TIB )
+      return tibLower(id);
+    if ( subdet == StripSubdetector::TID )
+      return tidLower(id);
+    if ( subdet == StripSubdetector::TOB )
+      return tobLower(id);
+    if ( subdet == StripSubdetector::TEC )
+      return tecLower(id);
+
+    throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::Lower";
+}
+
+uint32_t TrackerTopology::Upper(const DetId &id) const {
+
+    uint32_t subdet=id.subdetId();
+    if ( subdet == PixelSubdetector::PixelBarrel )
+      return 0;
+    if ( subdet == PixelSubdetector::PixelEndcap )
+      return 0;
+    if ( subdet == StripSubdetector::TIB )
+      return tibUpper(id);
+    if ( subdet == StripSubdetector::TID )
+      return tidUpper(id);
+    if ( subdet == StripSubdetector::TOB )
+      return tobUpper(id);
+    if ( subdet == StripSubdetector::TEC )
+      return tecUpper(id);
+
+    throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::Upper";
+}
+
+
 bool TrackerTopology::isStereo(const DetId &id) const {
 
     uint32_t subdet=id.subdetId();
@@ -218,19 +257,31 @@ std::string TrackerTopology::print(DetId id) const {
   std::stringstream strstr;
 
   if ( subdet == PixelSubdetector::PixelBarrel ) {
-    strstr  << "(PixelBarrel " 
-	    << pxbLayer(id) << ',' 
-	    << pxbLadder(id) << ',' 
-	    << pxbModule(id) << ')'; 
+    unsigned int theLayer  = pxbLayer(id);
+    unsigned int theLadder = pxbLadder(id);
+    unsigned int theModule = pxbModule(id);
+    strstr << "PixelBarrel" 
+	   << " Layer " << theLayer
+	   << " Ladder " << theLadder
+           << " Module " << theModule ;
+    strstr << " (" << id.rawId() << ")";
     return strstr.str();
   }
 
   if ( subdet == PixelSubdetector::PixelEndcap ) {
-    strstr << "(PixelEndcap " 
-	   << pxfDisk(id) << ',' 
-	   << pxfBlade(id)  << ',' 
-	   << pxfPanel(id)  << ',' 
-	   << pxfModule(id)   << ')'; 
+    unsigned int theSide   = pxfSide(id);
+    unsigned int theDisk   = pxfDisk(id);
+    unsigned int theBlade  = pxfBlade(id);
+    unsigned int thePanel  = pxfPanel(id);
+    unsigned int theModule = pxfModule(id);
+    std::string side  = (pxfSide(id) == 1 ) ? "-" : "+";
+    strstr << "PixelEndcap" 
+           << " Side   " << theSide << side
+	   << " Disk   " << theDisk
+	   << " Blade  " << theBlade
+	   << " Panel  " << thePanel
+           << " Module " << theModule ;
+    strstr << " (" << id.rawId() << ")";
     return strstr.str();
   }
 
@@ -260,7 +311,8 @@ std::string TrackerTopology::print(DetId id) const {
   }
 
   if ( subdet == StripSubdetector::TID ) {
-    unsigned int         theDisk   = tidWheel(id);
+    unsigned int 	 theSide   = tidSide(id);
+    unsigned int         theWheel  = tidWheel(id);
     unsigned int         theRing   = tidRing(id);
     std::vector<unsigned int> theModule = tidModuleInfo(id);
     std::string side;
@@ -275,8 +327,9 @@ std::string TrackerTopology::print(DetId id) const {
     typeUpgrade = (isLower(id)) ? "lower" : typeUpgrade;
     typeUpgrade = (isUpper(id)) ? "upper" : typeUpgrade;
     typeUpgrade = (isUpper(id) || isLower(id)) ? typeUpgrade+" stack": "module";
-    strstr << "TID" << side
-	   << " Disk " << theDisk
+    strstr << "TID" 
+           << " Side   " << theSide << side
+	   << " Wheel " << theWheel
 	   << " Ring " << theRing << " " << part;
     strstr << " Module for phase0 " << theModule[1] << " " << type;
     strstr << " Module for phase2 " << theModule[1] << " " << typeUpgrade;
@@ -309,6 +362,7 @@ std::string TrackerTopology::print(DetId id) const {
   }
 
   if ( subdet == StripSubdetector::TEC ) {
+    unsigned int 	      theSide   = tecSide(id);
     unsigned int              theWheel  = tecWheel(id);
     unsigned int              theModule = tecModule(id);
     std::vector<unsigned int> thePetal  = tecPetalInfo(id);
@@ -325,7 +379,8 @@ std::string TrackerTopology::print(DetId id) const {
     typeUpgrade = (isLower(id)) ? "lower" : typeUpgrade;
     typeUpgrade = (isUpper(id)) ? "upper" : typeUpgrade;
     typeUpgrade = (isUpper(id) || isLower(id)) ? typeUpgrade+" stack": "module";
-    strstr << "TEC" << side
+    strstr << "TEC" 
+           << " Side   " << theSide << side
 	   << " Wheel " << theWheel
 	   << " Petal " << thePetal[1] << " " << petal
 	   << " Ring " << theRing;

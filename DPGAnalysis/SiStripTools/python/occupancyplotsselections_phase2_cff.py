@@ -913,7 +913,7 @@ OccupancyPlotsFPIXR2WantedSubDets = cms.VPSet (
                                                                                                                "0x1fbff000-0x148ad000",
                                                                                                                "0x1fbff000-0x148ae000",
                                                                                                                "0x1fbff000-0x148af000",
-                                                                                                               "0x1fbff000-0x14870000",
+                                                                                                               "0x1fbff000-0x148b0000", #!!!
                                                                                                                "0x1fbff000-0x148b1000",
                                                                                                                "0x1fbff000-0x148b2000",
                                                                                                                "0x1fbff000-0x148b3000",
@@ -1253,7 +1253,7 @@ OccupancyPlotsFPIXR2WantedSubDets = cms.VPSet (
                                                                                                                "0x1fbff000-0x150ad000",
                                                                                                                "0x1fbff000-0x150ae000",
                                                                                                                "0x1fbff000-0x150af000",
-                                                                                                               "0x1fbff000-0x15070000",
+                                                                                                               "0x1fbff000-0x150b0000",  #!!!
                                                                                                                "0x1fbff000-0x150b1000",
                                                                                                                "0x1fbff000-0x150b2000",
                                                                                                                "0x1fbff000-0x150b3000",
