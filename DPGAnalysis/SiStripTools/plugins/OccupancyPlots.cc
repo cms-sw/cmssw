@@ -193,7 +193,7 @@ OccupancyPlots::OccupancyPlots(const edm::ParameterSet& iConfig):
 
 
     m_wantedsubdets[detsel]=DetIdSelector(selstr);
-    m_wantedsubdetslbl[detsel] = DetIdSelector(sellbl, "words");
+    //m_wantedsubdetslbl[detsel] = DetIdSelector(sellbl, "words");
 
     LogTrace("OccupancyPlots") << ">>>>>>>>>" ;
   }
