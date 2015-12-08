@@ -80,7 +80,7 @@ namespace edm {
         throw cms::Exception("MismatchedInput","RootInputFileSequence::previousEvent()") << mergeInfo;
       }
       branchIDListHelper.updateFromInput(header.branchIDLists());
-      thinnedHelper.updateFromInput(header.thinnedAssociationsHelper(), false, std::vector<BranchID>());
+      thinnedHelper.updateFromPrimaryInput(header.thinnedAssociationsHelper());
     } else {
       declareStreamers(descs);
       buildClassCache(descs);
@@ -89,7 +89,7 @@ namespace edm {
         reg.updateFromInput(descs);
       }
       branchIDListHelper.updateFromInput(header.branchIDLists());
-      thinnedHelper.updateFromInput(header.thinnedAssociationsHelper(), false, std::vector<BranchID>());
+      thinnedHelper.updateFromPrimaryInput(header.thinnedAssociationsHelper());
     }
   }
 

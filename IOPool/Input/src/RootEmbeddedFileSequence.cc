@@ -129,30 +129,16 @@ namespace edm {
           ProcessConfiguration(),
           logicalFileName(),
           filePtr,
-          nullptr, // eventSkipperByID_
-          false,   // initialNumberOfEventsToSkip_ != 0 (not used)
-          -1,      // remainingEvents() 
-          -1,      // remainingLuminosityBlocks()
 	  input_.nStreams(),
-          0U,      // treeCacheSize_
           input_.treeMaxVirtualSize(),
-          InputSource::RunsLumisAndEvents,
-          0U,      // setRun_
-          false,   // noEventSort_
+          input_.runHelper(),
           input_.productSelectorRules(),
           InputType::SecondarySource,
-          std::make_shared<BranchIDListHelper>(),
-          std::make_shared<ThinnedAssociationsHelper>(),
-          std::vector<BranchID>(), // associationsFromSecondary_
-          nullptr, // duplicateChecker_
-          false,   // dropDescendants_
           input_.processHistoryRegistryForUpdate(),
           indexesIntoFiles(),
           currentIndexIntoFile,
           orderedProcessHistoryIDs_,
           input_.bypassVersionCheck(),
-          false,   // labelRawDataLikeMC_
-          false,   // usingGoToEvent_
           enablePrefetching_);
   }
 

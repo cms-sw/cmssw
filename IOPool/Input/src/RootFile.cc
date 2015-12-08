@@ -5,6 +5,7 @@
 #include "DuplicateChecker.h"
 #include "InputFile.h"
 #include "ProvenanceAdaptor.h"
+#include "RunHelper.h"
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
@@ -83,21 +84,6 @@ namespace edm {
   };
 
   namespace {
-    int
-    forcedRunOffset(RunNumber_t const& forcedRunNumber, IndexIntoFile::IndexIntoFileItr inxBegin, IndexIntoFile::IndexIntoFileItr inxEnd) {
-      if(inxBegin == inxEnd) return 0;
-      int defaultOffset = (inxBegin.run() != 0 ? 0 : 1);
-      int offset = (forcedRunNumber != 0U ? forcedRunNumber - inxBegin.run() : defaultOffset);
-      if(offset < 0) {
-        throw Exception(errors::Configuration)
-          << "The value of the 'setRunNumber' parameter must not be\n"
-          << "less than the first run number in the first input file.\n"
-          << "'setRunNumber' was " << forcedRunNumber <<", while the first run was "
-          << forcedRunNumber - offset << ".\n";
-      }
-      return offset;
-    }
-
     void
     checkReleaseVersion(std::vector<ProcessHistory> processHistoryVector, std::string const& fileName) {
       std::string releaseVersion = getReleaseVersion();
@@ -148,13 +134,13 @@ namespace edm {
                      unsigned int treeCacheSize,
                      int treeMaxVirtualSize,
                      InputSource::ProcessingMode processingMode,
-                     RunNumber_t const& forcedRunNumber,
+                     RunHelperBase* runHelper,
                      bool noEventSort,
                      ProductSelectorRules const& productSelectorRules,
                      InputType inputType,
                      std::shared_ptr<BranchIDListHelper> branchIDListHelper,
                      std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
-                     std::vector<BranchID> const& associationsFromSecondary,
+                     std::vector<BranchID> const* associationsFromSecondary,
                      std::shared_ptr<DuplicateChecker> duplicateChecker,
                      bool dropDescendants,
                      ProcessHistoryRegistry& processHistoryRegistry,
@@ -199,7 +185,7 @@ namespace edm {
       fileThinnedAssociationsHelper_(),
       thinnedAssociationsHelper_(thinnedAssociationsHelper),
       processingMode_(processingMode),
-      forcedRunOffset_(0),
+      runHelper_(runHelper),
       newBranchToOldBranch_(),
       eventHistoryTree_(nullptr),
       eventSelectionIDs_(),
@@ -389,7 +375,7 @@ namespace edm {
       }
     }
 
-    if(!bypassVersionCheck) { 
+    if(!bypassVersionCheck) {
       checkReleaseVersion(pHistVector, file());
     }
 
@@ -430,13 +416,13 @@ namespace edm {
     }
 
     eventTree_.trainCache(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
-        
+
     // Update the branch id info. This has to be done before validateFile since
     // depending on the file format, the branchIDListHelper_ may have its fixBranchListIndexes call made
-    if(inputType == InputType::Primary || inputType == InputType::SecondarySource) {
+    if(inputType == InputType::Primary) {
       branchListIndexesUnchanged_ = branchIDListHelper_->updateFromInput(*branchIDLists_);
     }
-        
+
     validateFile(inputType, usingGoToEvent);
 
     // Here, we make the class that will make the ProvenanceReader
@@ -451,7 +437,7 @@ namespace edm {
     initializeDuplicateChecker(indexesIntoFiles, currentIndexIntoFile);
     indexIntoFileIter_ = indexIntoFileBegin_ = indexIntoFile_.begin(noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder);
     indexIntoFileEnd_ = indexIntoFile_.end(noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder);
-    forcedRunOffset_ = forcedRunOffset(forcedRunNumber, indexIntoFileBegin_, indexIntoFileEnd_);
+    runHelper_->setForcedRunOffset(indexIntoFileBegin_ == indexIntoFileEnd_ ? 1 : indexIntoFileBegin_.run());
     eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
 
     // Set product presence information in the product registry.
@@ -485,10 +471,11 @@ namespace edm {
         }
       }
       dropOnInput(*newReg, productSelectorRules, dropDescendants, inputType);
-      if(inputType != InputType::SecondarySource) {
-        thinnedAssociationsHelper->updateFromInput(*fileThinnedAssociationsHelper_,
-                                                   inputType == InputType::SecondaryFile,
-                                                   associationsFromSecondary);
+      if(inputType == InputType::SecondaryFile) {
+        thinnedAssociationsHelper->updateFromSecondaryInput(*fileThinnedAssociationsHelper_,
+                                                            *associationsFromSecondary);
+      } else if (inputType == InputType::Primary) {
+        thinnedAssociationsHelper->updateFromPrimaryInput(*fileThinnedAssociationsHelper_);
       }
       // freeze the product registry
       newReg->setFrozen(inputType != InputType::Primary);
@@ -643,14 +630,6 @@ namespace edm {
     if(remainingLumis >= 0 && lumiTree_.entries() > remainingLumis) {
       whyNotFastClonable_ += FileBlock::MaxLumisTooSmall;
     }
-    // We no longer fast copy the EventAuxiliary branch, so there
-    // is no longer any need to disable fast copying because the run
-    // number is being modified.   Also, this check did not work anyway
-    // because this function is called before forcedRunOffset_ is set.
-
-    // if(forcedRunOffset_ != 0) {
-    //   whyNotFastClonable_ += FileBlock::RunNumberModified;
-    // }
     if(duplicateChecker_ &&
       !duplicateChecker_->checkDisabled() &&
       !duplicateChecker_->noDuplicatesInFile()) {
@@ -780,6 +759,7 @@ namespace edm {
     }
     if(entryType == IndexIntoFile::kRun) {
       run = indexIntoFileIter_.run();
+      runHelper_->checkForNewRun(run);
       return IndexIntoFile::kRun;
     } else if(processingMode_ == InputSource::Runs) {
       indexIntoFileIter_.advanceToNextRun();
@@ -1254,7 +1234,9 @@ namespace edm {
       // old format.  branchListIndexes_ must be filled in from the ProvenanceAdaptor.
       provenanceAdaptor_->branchListIndexes(branchListIndexes_);
     }
-    branchIDListHelper_->fixBranchListIndexes(branchListIndexes_);
+    if(branchIDListHelper_) {
+      branchIDListHelper_->fixBranchListIndexes(branchListIndexes_);
+    }
   }
 
   std::shared_ptr<LuminosityBlockAuxiliary>
@@ -1414,8 +1396,8 @@ namespace edm {
     // read the event
     readCurrentEvent(principal);
 
-    assert(eventAux().run() == indexIntoFileIter_.run() + forcedRunOffset_);
-    assert(eventAux().luminosityBlock() == indexIntoFileIter_.lumi());
+    runHelper_->checkRunConsistency(eventAux().run(), indexIntoFileIter_.run());
+    runHelper_->checkLumiConsistency(eventAux().luminosityBlock(), indexIntoFileIter_.lumi());
 
     // If this next assert shows up in performance profiling or significantly affects memory, then these three lines should be deleted.
     // The IndexIntoFile should guarantee that it never fails.
@@ -1439,7 +1421,7 @@ namespace edm {
         eventAux_.resetObsoleteInfo();
     }
     fillEventHistory();
-    overrideRunNumber(eventAux_.id(), eventAux().isRealData());
+    runHelper_->overrideRunNumber(eventAux_.id(), eventAux().isRealData());
 
     // We're not done ... so prepare the EventPrincipal
     eventTree_.insertEntryForIndex(principal.transitionIndex());
@@ -1462,6 +1444,10 @@ namespace edm {
 
   std::shared_ptr<RunAuxiliary>
   RootFile::readRunAuxiliary_() {
+    if(runHelper_->fakeNewRun()) {
+      runHelper_->overrideRunNumber(savedRunAuxiliary_->id());
+      return savedRunAuxiliary_;
+    }
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun);
 
@@ -1476,14 +1462,15 @@ namespace edm {
       fillEventAuxiliary(eventEntry);
 
       RunID run = RunID(indexIntoFileIter_.run());
-      overrideRunNumber(run);
-      return std::make_shared<RunAuxiliary>(run.run(), eventAux().time(), Timestamp::invalidTimestamp());
+      runHelper_->overrideRunNumber(run);
+      savedRunAuxiliary_ = std::make_shared<RunAuxiliary>(run.run(), eventAux().time(), Timestamp::invalidTimestamp());
+      return savedRunAuxiliary_;
     }
     // End code for backward compatibility before the existence of run trees.
     runTree_.setEntryNumber(indexIntoFileIter_.entry());
     std::shared_ptr<RunAuxiliary> runAuxiliary = fillRunAuxiliary();
     assert(runAuxiliary->run() == indexIntoFileIter_.run());
-    overrideRunNumber(runAuxiliary->id());
+    runHelper_->overrideRunNumber(runAuxiliary->id());
     filePtr_->reportInputRunNumber(runAuxiliary->run());
     // If RunAuxiliary did not contain a valid begin timestamp, invalidate any end timestamp.
     if(runAuxiliary->beginTime() == Timestamp::invalidTimestamp()) {
@@ -1514,23 +1501,22 @@ namespace edm {
         if(!fileFormatVersion().processHistorySameWithinRun()) {
           fillEventHistory();
           runAuxiliary->setProcessHistoryID(eventAux().processHistoryID());
-          savedRunAuxiliary_ = runAuxiliary;
         }
-      } else {
-        // No valid event, just use what is there, because it is the best we can do.
-        savedRunAuxiliary_ = runAuxiliary;
       }
     }
+    savedRunAuxiliary_ = runAuxiliary;
     return runAuxiliary;
   }
 
   void
   RootFile::readRun_(RunPrincipal& runPrincipal) {
-    assert(indexIntoFileIter_ != indexIntoFileEnd_);
-    assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun);
+    if(!runHelper_->fakeNewRun()) {
+      assert(indexIntoFileIter_ != indexIntoFileEnd_);
+      assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun);
+      ++indexIntoFileIter_;
+    }
     // Begin code for backward compatibility before the existence of run trees.
     if(!runTree_.isValid()) {
-      ++indexIntoFileIter_;
       return;
     }
     // End code for backward compatibility before the existence of run trees.
@@ -1538,8 +1524,8 @@ namespace edm {
     runPrincipal.fillRunPrincipal(*processHistoryRegistry_, runTree_.rootDelayedReader());
     // Read in all the products now.
     runPrincipal.readImmediate();
-    ++indexIntoFileIter_;
   }
+
 
   std::shared_ptr<LuminosityBlockAuxiliary>
   RootFile::readLuminosityBlockAuxiliary_() {
@@ -1553,7 +1539,7 @@ namespace edm {
       fillEventAuxiliary(eventEntry);
 
       LuminosityBlockID lumi = LuminosityBlockID(indexIntoFileIter_.run(), indexIntoFileIter_.lumi());
-      overrideRunNumber(lumi);
+      runHelper_->overrideRunNumber(lumi);
       return std::make_shared<LuminosityBlockAuxiliary>(lumi.run(), lumi.luminosityBlock(), eventAux().time(), Timestamp::invalidTimestamp());
     }
     // End code for backward compatibility before the existence of lumi trees.
@@ -1561,7 +1547,7 @@ namespace edm {
     std::shared_ptr<LuminosityBlockAuxiliary> lumiAuxiliary = fillLumiAuxiliary();
     assert(lumiAuxiliary->run() == indexIntoFileIter_.run());
     assert(lumiAuxiliary->luminosityBlock() == indexIntoFileIter_.lumi());
-    overrideRunNumber(lumiAuxiliary->id());
+    runHelper_->overrideRunNumber(lumiAuxiliary->id());
     filePtr_->reportInputLumiSection(lumiAuxiliary->run(), lumiAuxiliary->luminosityBlock());
     if(lumiAuxiliary->beginTime() == Timestamp::invalidTimestamp()) {
       IndexIntoFile::EntryNumber_t eventEntry = indexIntoFileIter_.firstEventEntryThisLumi();
@@ -1633,37 +1619,6 @@ namespace edm {
     fillEventAuxiliary(indexIntoFileIter_.entry());
     return true;
   }
-
-  void
-  RootFile::overrideRunNumber(RunID& id) {
-    if(forcedRunOffset_ != 0) {
-      id = RunID(id.run() + forcedRunOffset_);
-    }
-    if(id < RunID::firstValidRun()) id = RunID::firstValidRun();
-  }
-
-  void
-  RootFile::overrideRunNumber(LuminosityBlockID& id) {
-    if(forcedRunOffset_ != 0) {
-      id = LuminosityBlockID(id.run() + forcedRunOffset_, id.luminosityBlock());
-    }
-    if(RunID(id.run()) < RunID::firstValidRun()) id = LuminosityBlockID(RunID::firstValidRun().run(), id.luminosityBlock());
-  }
-
-  void
-  RootFile::overrideRunNumber(EventID& id, bool isRealData) {
-    if(forcedRunOffset_ != 0) {
-      if(isRealData) {
-        throw Exception(errors::Configuration, "RootFile::RootFile()")
-          << "The 'setRunNumber' parameter of PoolSource cannot be used with real data.\n";
-      }
-      id = EventID(id.run() + forcedRunOffset_, id.luminosityBlock(), id.event());
-    }
-    if(RunID(id.run()) < RunID::firstValidRun()) {
-      id = EventID(RunID::firstValidRun().run(), LuminosityBlockID::firstValidLuminosityBlock().luminosityBlock(), id.event());
-    }
-  }
-
 
   void
   RootFile::readEventHistoryTree() {
@@ -1987,7 +1942,6 @@ namespace edm {
         ProductProvenance entry(info.branchID(), parentage.id());
         provRetriever.insertIntoSet(entry);
       }
-    
     }
   }
 

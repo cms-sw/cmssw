@@ -26,6 +26,7 @@ namespace edm {
   class FileCatalogItem;
   class RootPrimaryFileSequence;
   class RootSecondaryFileSequence;
+  class RunHelperBase;
 
   class PoolSource : public InputSource {
   public:
@@ -41,8 +42,8 @@ namespace edm {
     bool labelRawDataLikeMC() const {return labelRawDataLikeMC_;}
     unsigned int nStreams() const {return nStreams_;}
     int treeMaxVirtualSize() const {return treeMaxVirtualSize_;}
-    RunNumber_t setRun() const {return setRun_;}
     ProductSelectorRules const& productSelectorRules() const {return productSelectorRules_;}
+    RunHelperBase* runHelper() {return runHelper_.get();}
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
@@ -79,11 +80,11 @@ namespace edm {
     bool skipBadFiles_;
     bool bypassVersionCheck_;
     int const treeMaxVirtualSize_;
-    RunNumber_t setRun_;
     ProductSelectorRules productSelectorRules_;
     bool dropDescendants_;
     bool labelRawDataLikeMC_;
     
+    std::unique_ptr<RunHelperBase> runHelper_;
     std::unique_ptr<SharedResourcesAcquirer> resourceSharedWithDelayedReaderPtr_;
     std::unique_ptr<RootPrimaryFileSequence> primaryFileSequence_;
     std::unique_ptr<RootSecondaryFileSequence> secondaryFileSequence_;
