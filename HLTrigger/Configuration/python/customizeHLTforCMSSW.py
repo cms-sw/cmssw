@@ -222,7 +222,7 @@ def customiseFor12346(process):
            delattr(process.hltMetCleanUsingJetID, 'usePt')
     return process
 
-def customiseForXXXYYY(process):
+def customiseFor12718(process):
     if hasattr(process, 'HLTPSetMuonCkfTrajectoryFilter'):
         process.HLTPSetMuonCkfTrajectoryFilter.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
     if hasattr(process, 'HLTIter0PSetTrajectoryFilterIT'):
@@ -253,7 +253,7 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     if cmsswVersion >= "CMSSW_8_0":
         process = customiseFor12346(process)
         process = customiseFor11920(process)
-        process = customiseForXXXYYY(process)
+        process = customiseFor12718(process)
     if cmsswVersion >= "CMSSW_7_6":
         process = customiseFor10418(process)
         process = customiseFor10353(process)
