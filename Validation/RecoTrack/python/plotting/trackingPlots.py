@@ -732,117 +732,266 @@ plotter.append("packedCandidateLostTracks", _trackingFolders("PackedCandidate/lo
                PlotFolder(*_packedCandidatePlots, loopSubFolders=False,
                           purpose=PlotPurpose.MiniAOD, page="miniaod", section="PackedCandidate (lostTracks)"))
 
-_iterModuleMap = collections.OrderedDict([
-    ("initialStepPreSplitting", ["initialStepSeedLayersPreSplitting",
-                                 "initialStepSeedsPreSplitting",
-                                 "initialStepTrackCandidatesPreSplitting",
-                                 "initialStepTracksPreSplitting",
-                                 "firstStepPrimaryVerticesPreSplitting",
-                                 "iter0TrackRefsForJetsPreSplitting",
-                                 "caloTowerForTrkPreSplitting",
-                                 "ak4CaloJetsForTrkPreSplitting",
-                                 "jetsForCoreTrackingPreSplitting",
-                                 "siPixelClusters",
-                                 "siPixelRecHits",
-                                 "MeasurementTrackerEvent",
-                                 "siPixelClusterShapeCache"]),
-    ("initialStep", ['initialStepClusters',
-                     'initialStepSeedLayers',
-                     'initialStepSeeds',
-                     'initialStepTrackCandidates',
-                     'initialStepTracks',
-                     'initialStepSelector',
-                     'initialStep']),
-    ("lowPtTripletStep", ['lowPtTripletStepClusters',
-                          'lowPtTripletStepSeedLayers',
-                          'lowPtTripletStepSeeds',
-                          'lowPtTripletStepTrackCandidates',
-                          'lowPtTripletStepTracks',
-                          'lowPtTripletStepSelector']),
-    ("pixelPairStep", ['pixelPairStepClusters',
-                       'pixelPairStepSeedLayers',
-                       'pixelPairStepSeeds',
-                       'pixelPairStepTrackCandidates',
-                       'pixelPairStepTracks',
-                       'pixelPairStepSelector']),
-    ("detachedTripletStep", ['detachedTripletStepClusters',
-                             'detachedTripletStepSeedLayers',
-                             'detachedTripletStepSeeds',
-                             'detachedTripletStepTrackCandidates',
-                             'detachedTripletStepTracks',
-                             'detachedTripletStepSelector',
-                             'detachedTripletStep']),
-    ("mixedTripletStep", ['mixedTripletStepClusters',
-                          'mixedTripletStepSeedLayersA',
-                          'mixedTripletStepSeedLayersB',
-                          'mixedTripletStepSeedsA',
-                          'mixedTripletStepSeedsB',
-                          'mixedTripletStepSeeds',
-                          'mixedTripletStepTrackCandidates',
-                          'mixedTripletStepTracks',
-                          'mixedTripletStepSelector',
-                          'mixedTripletStep']),
-    ("pixelLessStep", ['pixelLessStepClusters',
-                       'pixelLessStepSeedClusters',
-                       'pixelLessStepSeedLayers',
-                       'pixelLessStepSeeds',
-                       'pixelLessStepTrackCandidates',
-                       'pixelLessStepTracks',
-                       'pixelLessStepSelector',
-                       'pixelLessStep']),
-    ("tobTecStep", ['tobTecStepClusters',
-                    'tobTecStepSeedClusters',
-                    'tobTecStepSeedLayersTripl',
-                    'tobTecStepSeedLayersPair',
-                    'tobTecStepSeedsTripl',
-                    'tobTecStepSeedsPair',
-                    'tobTecStepSeeds',
-                    'tobTecStepTrackCandidates',
-                    'tobTecStepTracks',
-                    'tobTecStepSelector']),
-    ("jetCoreRegionalStep", ['iter0TrackRefsForJets',
-                             'caloTowerForTrk',
-                             'ak4CaloJetsForTrk',
-                             'jetsForCoreTracking',
-                             'firstStepPrimaryVertices',
-                             'firstStepGoodPrimaryVertices',
-                             'jetCoreRegionalStepSeedLayers',
-                             'jetCoreRegionalStepSeeds',
-                             'jetCoreRegionalStepTrackCandidates',
-                             'jetCoreRegionalStepTracks',
-                             'jetCoreRegionalStepSelector']),
-    ("muonSeededStep", ['earlyMuons',
-                        'muonSeededSeedsInOut',
-                        'muonSeededSeedsInOut',
-                        'muonSeededTracksInOut',
-                        'muonSeededSeedsOutIn',
-                        'muonSeededTrackCandidatesOutIn',
-                        'muonSeededTracksOutIn',
-                        'muonSeededTracksInOutSelector',
-                        'muonSeededTracksOutInSelector']),
-])
+# Timing
+class Iteration:
+    def __init__(self, name, clusterMasking=None, seeding=None, building=None, fit=None, selection=None, other=[]):
+        self._name = name
+
+        def _set(param, name, modules):
+            if param is not None:
+                setattr(self, name, param)
+            else:
+                setattr(self, name, modules)
+
+        _set(clusterMasking, "_clusterMasking", [self._name+"Clusters"])
+        _set(seeding, "_seeding", [self._name+"SeedingLayers", self._name+"Seeds"])
+        _set(building, "_building", [self._name+"TrackCandidates"])
+        _set(fit, "_fit", [self._name+"Tracks"])
+        _set(selection, "_selection", [self._name])
+        self._other = other
+
+    def name(self):
+        return self._name
+
+    def all(self):
+        return self._clusterMasking+self._seeding+self._building+self._fit+self._selection+self._other
+
+    def clusterMasking(self):
+        return self._clusterMasking
+
+    def seeding(self):
+        return self._seeding
+
+    def building(self):
+        return self._building
+
+    def fit(self):
+        return self._fit
+
+    def selection(self):
+        return self._selection
+
+    def other(self):
+        return self._other
+
+    def modules(self):
+        return [("ClusterMask", self.clusterMasking()),
+                ("Seeding", self.seeding()),
+                ("Building", self.building()),
+                ("Fit", self.fit()),
+                ("Selection", self.selection()),
+                ("Other", self.other())]
 
 
-_timing = PlotGroup("", [
-    Plot(AggregateBins("iterative", "reconstruction_step_module_average", _iterModuleMap), ytitle="Average processing time [ms]", title="Average processing time / event", drawStyle="HIST", xbinlabelsize=0.03),
+_iterations = [
+    Iteration("initialStepPreSplitting", clusterMasking=[],
+              seeding=["initialStepSeedLayersPreSplitting",
+                       "initialStepSeedsPreSplitting"],
+              building=["initialStepTrackCandidatesPreSplitting"],
+              fit=["initialStepTracksPreSplitting"],
+              other=["firstStepPrimaryVerticesPreSplitting",
+                     "initialStepTrackRefsForJetsPreSplitting",
+                     "caloTowerForTrkPreSplitting",
+                     "ak4CaloJetsForTrkPreSplitting",
+                     "jetsForCoreTrackingPreSplitting",
+                     "siPixelClusters",
+                     "siPixelRecHits",
+                     "MeasurementTrackerEvent",
+                     "siPixelClusterShapeCache"]),
+    Iteration("initialStep", clusterMasking=[],
+              selection=["initialStepClassifier1",
+                         "initialStepClassifier2",
+                         "initialStepClassifier3",
+                         "initialStep"],
+              other=["firstStepPrimaryVertices"]),
+    Iteration("highPtTripletStep",
+              selection=["highPtTripletStepClassifier1",
+                         "highPtTripletStepClassifier2",
+                         "highPtTripletStepClassifier3",
+                         "highPtTripletStep"]),
+    Iteration("detachedQuadStep",
+              selection=["detachedQuadStepClassifier1",
+                         "detachedQuadStepClassifier2",
+                         "detachedQuadStep"]),
+    Iteration("detachedTripletStep",
+              selection=["detachedTripletStepClassifier1",
+                         "detachedTripletStepClassifier2",
+                         "detachedTripletStep"]),
+    Iteration("lowPtQuadStep"),
+    Iteration("lowPtTripletStep"),
+    Iteration("pixelPairStep"),
+    Iteration("mixedTripletStep",
+              seeding=["mixedTripletStepSeedLayersA",
+                       "mixedTripletStepSeedLayersB",
+                       "mixedTripletStepSeedsA",
+                       "mixedTripletStepSeedsB",
+                       "mixedTripletStepSeeds"],
+              selection=["mixedTripletStepClassifier1",
+                         "mixedTripletStepClassifier2",
+                         "mixedTripletStep"]),
+    Iteration("pixelLessStep",
+              selection=["pixelLessStepClassifier1",
+                         "pixelLessStepClassifier2",
+                         "pixelLessStep"]),
+    Iteration("tobTecStep",
+              seeding=["tobTecStepSeedLayersTripl",
+                       "tobTecStepSeedLayersPair",
+                       "tobTecStepSeedsTripl",
+                       "tobTecStepSeedsPair",
+                       "tobTecStepSeeds"],
+              selection=["tobTecStepClassifier1",
+                         "tobTecStepClassifier2",
+                         "tobTecStep"]),
+    Iteration("jetCoreRegionalStep",
+              clusterMasking=[],
+              other=["initialStepTrackRefsForJets",
+                     "caloJetsForTrk",
+                     "jetsForCoreTracking",
+                     "firstStepGoodPrimaryVertices",
+                     ]),
+    Iteration("muonSeededSteps",
+              clusterMasking=[],
+              seeding=["muonSeededSeedsInOut",
+                       "muonSeededSeedsOutIn"],
+              building=["muonSeededTrackCandidatesInOut",
+                        "muonSeededTrackCandidatesOutIn"],
+              fit=["muonSeededTracksInOut",
+                   "muonSeededTracksOutIn"],
+              selection=["muonSeededTracksInOutClassifier",
+                         "muonSeededTracksOutIntClassifier"],
+#              other=["earlyMuons"]
+          ),
+    Iteration("duplicateMerge",
+              clusterMasking=[], seeding=[],
+              building=["duplicateTrackCandidates"],
+              fit=["mergedDuplicateTracks"],
+              selection=["duplicateTrackClassifier"]),
+    Iteration("generalTracks",
+              clusterMasking=[], seeding=[], building=[], fit=[], selection=[],
+              other=["preDuplicateMergingGeneralTracks",
+                     "generalTracks"]),
+    Iteration("ConvStep",
+              clusterMasking=["convClusters"],
+              seeding=["convLayerPairs",
+                       "photonConvTrajSeedFromSingleLeg"],
+              building=["convTrackCandidates"],
+              fit=["convStepTracks"],
+              selection=["convStepSelector"]),
+]
+
+def _iterModuleMap(includeConvStep=True, onlyConvStep=False):
+    iterations = _iterations
+    if not includeConvStep:
+        iterations = filter(lambda i: i.name() != "ConvStep", iterations)
+    if onlyConvStep:
+        iterations = filter(lambda i: i.name() == "ConvStep", iterations)
+    return collections.OrderedDict([(i.name(), i.all()) for i in iterations])
+def _stepModuleMap():
+    def getProp(prop):
+        ret = []
+        for i in _iterations:
+            if i.name() == "ConvStep":
+                continue
+            ret.extend(getattr(i, prop)())
+        return ret
+
+    return collections.OrderedDict([
+        ("ClusterMask", getProp("clusterMasking")),
+        ("Seeding", getProp("seeding")),
+        ("Building", getProp("building")),
+        ("Fitting", getProp("fit")),
+        ("Selection", getProp("selection")),
+        ("Other", getProp("other"))
+    ])
+
+class TrackingTimingTable:
+    def __init__(self):
+        self._purpose = PlotPurpose.Timing
+        self._page = "timing"
+        self._section = "timing"
+
+    def getPurpose(self):
+        return self._purpose
+
+    def getPage(self):
+        return self._page
+
+    def getSection(self, dqmSubFolder):
+        return self._section
+
+    def create(self, tdirectory):
+        h = tdirectory.Get("reconstruction_step_module_average")
+        totalReco = None
+        if h:
+            totalReco = "%.1f" % h.Integral()
+
+        creator = AggregateBins("iteration", "reconstruction_step_module_average", _iterModuleMap(includeConvStep=False), ignoreMissingBins=True)
+        h = creator.create(tdirectory)
+        totalTracking = None
+        if h:
+            totalTracking = "%.1f" % h.Integral()
+
+        creator = AggregateBins("iteration", "reconstruction_step_module_average", _iterModuleMap(onlyConvStep=True), ignoreMissingBins=True)
+        h = creator.create(tdirectory)
+        totalConvStep = None
+        if h:
+            totalConvStep = "%.1f" % h.Integral()
+
+        return [
+            totalReco,
+            totalTracking,
+            totalConvStep,
+        ]
+
+    def headers(self):
+        return [
+            "Average reco time / event (ms)",
+            "Average tracking (w/o convStep) time / event (ms)",
+            "Average convStep time / event (ms)",
+        ]
+
+_common = {
+    "drawStyle": "P",
+    "xbinlabelsize": 10,
+    "xbinlabeloption": "d"
+}
+_timing_summary = PlotGroup("summary", [
+    Plot(AggregateBins("iteration", "reconstruction_step_module_average", _iterModuleMap(), ignoreMissingBins=True),
+         ytitle="Average processing time (ms)", title="Average processing time / event", legendDx=-0.4, **_common),
+    Plot(AggregateBins("iteration_fraction", "reconstruction_step_module_average", _iterModuleMap(), ignoreMissingBins=True),
+         ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
+    #
+    Plot(AggregateBins("step", "reconstruction_step_module_average", _stepModuleMap(), ignoreMissingBins=True),
+         ytitle="Average processing time (ms)", title="Average processing time / event", **_common),
+    Plot(AggregateBins("step_fraction", "reconstruction_step_module_average", _stepModuleMap(), ignoreMissingBins=True),
+         ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
 #    Plot(AggregateBins("iterative_norm", "reconstruction_step_module_average", _iterModuleMap), ytitle="Average processing time", title="Average processing time / event (normalized)", drawStyle="HIST", xbinlabelsize=0.03, normalizeToUnitArea=True)
-    Plot(AggregateBins("iterative_norm", "reconstruction_step_module_average", _iterModuleMap, normalizeTo="ak7CaloJets"), ytitle="Average processing time / ak7CaloJets", title="Average processing time / event (normalized to ak7CaloJets)", drawStyle="HIST", xbinlabelsize=0.03)
+#    Plot(AggregateBins("iterative_norm", "reconstruction_step_module_average", _iterModuleMap, normalizeTo="ak7CaloJets"), ytitle="Average processing time / ak7CaloJets", title="Average processing time / event (normalized to ak7CaloJets)", drawStyle="HIST", xbinlabelsize=0.03)
 
     ],
-                    legendDx=-0.1, legendDw=-0.35, legendDy=0.39,
+                    legendDy=-0.025
 )
+_timing_iterations = PlotGroup("iterations", [
+    Plot(AggregateBins(i.name(), "reconstruction_step_module_average", collections.OrderedDict(i.modules()), ignoreMissingBins=True),
+         ytitle="Average processing time (ms)", title=i.name(), **_common)
+    for i in _iterations
+])
 _pixelTiming = PlotGroup("pixelTiming", [
     Plot(AggregateBins("pixel", "reconstruction_step_module_average", {"pixelTracks": ["pixelTracks"]}), ytitle="Average processing time [ms]", title="Average processing time / event", drawStyle="HIST")
 ])
 
-timePlotter = Plotter()
-timePlotter.append("timing", [
+_timeFolders = [
     "DQMData/Run 1/DQM/Run summary/TimerService/Paths",
     "DQMData/Run 1/DQM/Run summary/TimerService/process RECO/Paths",
-], PlotFolder(
-    _timing
-#    _pixelTiming
+]
+timePlotter = Plotter()
+timePlotter.append("timing", _timeFolders, PlotFolder(
+    _timing_summary,
+    _timing_iterations,
+    # _pixelTiming,
+    loopSubFolders=False, purpose=PlotPurpose.Timing, page="timing"
 ))
+timePlotter.appendTable("timing", _timeFolders, TrackingTimingTable())
 
 _common = {"stat": True, "normalizeToUnitArea": True, "drawStyle": "hist"}
 _tplifetime = PlotGroup("tplifetime", [
