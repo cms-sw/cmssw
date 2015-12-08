@@ -5,15 +5,7 @@ process = cms.Process("TEST")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #process.GlobalTag.globaltag = 'STARTHI53_LV1'
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_HIon', '')
-
-process.GlobalTag.toGet.extend([
-	cms.PSet(record = cms.string("HeavyIonRcd"),
-		tag = cms.string("CentralityTable_HFtowers200_Glauber2010A_v5315x01_offline"),
-		connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
-		label = cms.untracked.string("HFtowers")
-	),
-])
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_hi', '')
 
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(100),
