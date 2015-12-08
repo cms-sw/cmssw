@@ -277,8 +277,10 @@ baseDataSetRelease=[
     'CMSSW_7_6_0_pre6-76X_mcRun2_HeavyIon_v4-v1', 	           # 9 - Run2 HI GEN-SIM
     'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                 # 10 - 13 TeV High Stats GEN-SIM [keep consistent with 80x, not used here in 76x]
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',      # 11 - 13 TeV High Stats MiniBias for mixing GEN-SIM [keep consistent with 80x, not used here in 76x]
-    'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                # 12 - fullSim REMINIAOD RECO input 
-    'CMSSW_7_6_1-76X_dataRun2_v15_rerecoGT_RelVal_doubEG2015B-v1',    # 13 - data REMINIAOD RECO input
+    'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                # 12 - fullSim noPU REMINIAOD RECO input 
+    'CMSSW_7_6_0-PU50ns_76X_mcRun2_startup_v11-v1',            # 13 - fullSim PU50ns REMINIAOD RECO input
+    'CMSSW_7_6_0-PU25ns_76X_mcRun2_asymptotic_v11-v1',         # 14 - fullSim PU25ns REMINIAOD RECO input
+    'CMSSW_7_6_1-76X_dataRun2_v15_rerecoGT_RelVal_DATASETSTRING-v1',    # 15 - data REMINIAOD RECO input
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -387,20 +389,24 @@ steps['ProdTTbar_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValProdTTbar_13/%s
 steps['ProdQCD_Pt_3000_3500_13_MINIAOD']={'INPUT':InputInfo(dataSet='/RelValProdQCD_Pt_3000_3500_13/%s/AODSIM'%(baseDataSetRelease[12],),location='STD')}
 
 
-# re-miniAOD reco input for fullSim
+# re-miniAOD reco input for fullSim noPU
 steps['ZEE_13_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
 steps['ZTT_13_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValZTT_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
 steps['ZMM_13_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValZMM_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
 
+# re-miniAOD reco input for fullSim PU
+steps['ZEE_13_PU50_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[13],),location='STD')}
+steps['ZEE_13_PU25_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[14],),location='STD')}
+
 # re-miniAOD reco input for data run2
 # 2015b
-steps['RunDoubleEG2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[13].replace('DATASETSTRING','doubEG2015B'),),label='doubEG2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunDoubleEG2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','doubEG2015B'),),label='doubEG2015B',events=100000,location='STD', ls=Run2015B)}
 
 # 2015c
-steps['RunDoubleEG2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[13].replace('DATASETSTRING','doubEG2015C'),),label='doubEG2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunDoubleEG2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','doubEG2015C'),),label='doubEG2015C',events=100000,location='STD', ls=Run2015C)}
 
 # 2015d
-steps['RunDoubleEG2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[13].replace('DATASETSTRING','doubEG2015D'),),label='doubEG2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunDoubleEG2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','doubEG2015D'),),label='doubEG2015D',events=100000,location='STD', ls=Run2015D)}
 
 #input for fast sim workflows to be added - TODO
 
@@ -1290,6 +1296,9 @@ steps['HARVESTREMINIAOD']={
     '--filetype':'DQM',
     }
 
+steps['HARVESTREMINIAOD_PU25']=steps['HARVESTREMINIAOD']
+steps['HARVESTREMINIAOD_PU50']=merge([{'--era' : 'Run2_50ns'},steps['HARVESTREMINIAOD']])
+
 steps['HARVESTREMINIAODPROD']=merge([{
                                 '-s':'HARVESTING:@miniAODValidation+@miniAODDQM',
                                 #'-s':'HARVESTING:@miniAODDQM',
@@ -1398,6 +1407,11 @@ steps['REMINIAOD'] = merge([{'--conditions':'auto:run2_mc_'+autoHLT['relval25ns'
                                    '-s':'PAT,DQM:@miniAODDQM,VALIDATION:@miniAODValidation',
                                    '--datatier' : 'MINIAODSIM,DQMIO',
                                    '--eventcontent':'MINIAODSIM,DQM',},stepMiniAODMC])
+
+
+steps['REMINIAOD_PU25'] = steps['REMINIAOD']
+steps['REMINIAOD_PU50'] = merge([{'--conditions':'auto:run2_mc_'+autoHLT['relval50ns'],'--era':'Run2_50ns'},steps['REMINIAOD']])
+
 
 ## re-miniAOD for Prod tests
 steps['REMINIAODPROD']=merge([{
