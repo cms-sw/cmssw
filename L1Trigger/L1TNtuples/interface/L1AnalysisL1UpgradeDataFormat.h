@@ -53,6 +53,9 @@ namespace L1Analysis
       muonEt.clear();
       muonEta.clear();
       muonPhi.clear();
+      muonIEt.clear();
+      muonIEta.clear();
+      muonIPhi.clear();
       muonChg.clear();
       muonIso.clear();
       muonBx.clear();
