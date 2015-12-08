@@ -16,14 +16,13 @@ using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
-class DetZLess {
+class DetGroupElementPerpLess {
 public:
-  bool operator()(const GeomDet* a,const GeomDet* b) 
+  bool operator()(DetGroup a,DetGroup b)
   {
-    return (a->position().z() < b->position().z());
-  } 
+    return (a.front().det()->position().perp() < b.front().det()->position().perp());
+  }
 };
-
 
 Phase2OTBarrelRod::Phase2OTBarrelRod(vector<const GeomDet*>& innerDets,
 					     vector<const GeomDet*>& outerDets,
@@ -42,13 +41,8 @@ Phase2OTBarrelRod::Phase2OTBarrelRod(vector<const GeomDet*>& innerDets,
   theInnerPlane = planeBuilder( theInnerDets);
   theOuterPlane = planeBuilder( theOuterDets);
 
+  // modules be already sorted in z
 
-  sort(theDets.begin(),theDets.end(),DetZLess());  // this can be dangerous because of the pt modules. On the other hand theDets is never used
-  // shouldn't the modules be already sorted in Z? 
-  sort(theInnerDets.begin(),theInnerDets.end(),DetZLess());
-  sort(theOuterDets.begin(),theOuterDets.end(),DetZLess());
-  sort(theInnerDetBrothers.begin(),theInnerDetBrothers.end(),DetZLess());
-  sort(theOuterDetBrothers.begin(),theOuterDetBrothers.end(),DetZLess());
   theInnerBinFinder = BinFinderType(theInnerDets.begin(), theInnerDets.end());
   theOuterBinFinder = BinFinderType(theOuterDets.begin(), theOuterDets.end());
 
@@ -172,6 +166,19 @@ Phase2OTBarrelRod::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     DetGroupMerger::orderAndMergeTwoLevels( std::move(closestCompleteResult), std::move(nextCompleteResult), result, 
 					    crossings.closestIndex(), crossingSide);
   }
+
+  //due to propagator problems, when we add single pt sub modules, we should order them in r (barrel)
+  sort(result.begin(),result.end(),DetGroupElementPerpLess());
+  for (auto&  grp : result) {
+    if ( grp.empty() )  continue;
+    LogTrace("TkDetLayers") <<"New group in Phase2OTBarrelLayer made by : ";
+    for (auto const & det : grp) {
+      LogTrace("TkDetLayers") <<" geom det at r: " << det.det()->position().perp() <<" id:" << det.det()->geographicalId().rawId()
+                              <<" tsos at:" << det.trajectoryState().globalPosition();
+    }
+  }
+
+
 }
 
 
