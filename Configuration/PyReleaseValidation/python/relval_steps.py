@@ -437,9 +437,26 @@ steps['WpToENu_M-2000_13_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValWpT
 steps['DisplacedSUSY_stopToBottom_M_300_1000mm_13_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValDisplacedSUSY_stopToBottom_M_300_1000mm_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[12],),location='STD')}
 
 
-# re-miniAOD reco input for fullSim PU
+# re-miniAOD reco input for fullSim PU 50ns
 steps['ZEE_13_PU50_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[13],),location='STD')}
+steps['TTbar_13_PU50_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[13],),location='STD')}
+steps['H125GGgluonfusion_13_PU50_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValH125GGgluonfusion_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[13],),location='STD')}
+steps['QQH1352T_13_PU50_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[13],),location='STD')}
+steps['ZTT_13_PU50_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValZTT_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[13],),location='STD')}
+steps['ZMM_13_PU50_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValZMM_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[13],),location='STD')}
+steps['NuGun_UP15_PU50_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValNuGun_UP15/%s/GEN-SIM-RECO'%(baseDataSetRelease[13],),location='STD')}
+steps['SMS-T1tttt_mGl-1500_mLSP-100_13_PU50_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[13],),location='STD')}
+
+# re-miniAOD reco input for fullSim PU 25ns
 steps['ZEE_13_PU25_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[14],),location='STD')}
+steps['TTbar_13_PU25_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[14],),location='STD')}
+steps['H125GGgluonfusion_13_PU25_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValH125GGgluonfusion_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[14],),location='STD')}
+steps['QQH1352T_13_PU25_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[14],),location='STD')}
+steps['ZTT_13_PU25_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValZTT_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[14],),location='STD')}
+steps['ZMM_13_PU25_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValZMM_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[14],),location='STD')}
+steps['NuGun_UP15_PU25_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValNuGun_UP15/%s/GEN-SIM-RECO'%(baseDataSetRelease[14],),location='STD')}
+steps['SMS-T1tttt_mGl-1500_mLSP-100_13_PU25_REMINIAODINPUT']={'INPUT':InputInfo(dataSet='/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/%s/GEN-SIM-RECO'%(baseDataSetRelease[14],),location='STD')} 
+
 
 # re-miniAOD reco input for data run2
 # 2015b
