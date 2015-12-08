@@ -5,6 +5,7 @@
 #include "RecoParticleFlow/PFProducer/interface/PFElectronAlgo.h"  
 #include "RecoParticleFlow/PFProducer/interface/PFPhotonAlgo.h"    
 #include "RecoParticleFlow/PFProducer/interface/PFElectronExtraEqual.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
@@ -1934,36 +1935,18 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       // ... tracks first (in case it's needed)
       double Dpt = trackRef->ptError();
       double blowError = 1.;
-      switch (trackRef->algo()) {
-      case TrackBase::ctf:
-      case TrackBase::duplicateMerge:
-      case TrackBase::initialStep:
-      case TrackBase::lowPtTripletStep:
-      case TrackBase::pixelPairStep:
-      case TrackBase::detachedTripletStep:
-      case TrackBase::mixedTripletStep:
-      case TrackBase::jetCoreRegionalStep:
-      case TrackBase::muonSeededStepInOut:
-      case TrackBase::muonSeededStepOutIn:
+      switch (PFTrackAlgoTools::getAlgoCategory(trackRef->algo())) {
+      case 0:
+      case 1:
+      case 5:
 	blowError = 1.;
 	break;
-      case TrackBase::pixelLessStep:
+      case 2:
+      case 3:
 	blowError = factors45_[0];
 	break;
-      case TrackBase::tobTecStep:
+      case 4:
 	blowError = factors45_[1];
-	break;
-      case reco::TrackBase::hltIter0:
-      case reco::TrackBase::hltIter1:
-      case reco::TrackBase::hltIter2:
-      case reco::TrackBase::hltIter3:
-	blowError = 1.;
-	break;
-      case reco::TrackBase::hltIter4:
-	blowError = factors45_[0];
-	break;
-      case reco::TrackBase::hltIterX:
-	blowError = 1.;
 	break;
       default:
 	blowError = 1E9;

@@ -1,4 +1,5 @@
 #include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexFinder.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -285,28 +286,11 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
     TransientTrack tmpTk( *((*ie).get()), magField_, globTkGeomHandle_);
     transTracksRaw.push_back( tmpTk );
     transTracksRefRaw.push_back( *ie );
-    switch((*ie)->algo()) {
-    case reco::TrackBase::undefAlgorithm:
-    case reco::TrackBase::ctf:
-    case reco::TrackBase::cosmics:
-      nNotIterative++;
-      break;
-    case reco::TrackBase::initialStep:
-    case reco::TrackBase::lowPtTripletStep:
-    case reco::TrackBase::pixelPairStep:
-    case reco::TrackBase::detachedTripletStep:
-    case reco::TrackBase::duplicateMerge:
-      break;
-    case reco::TrackBase::mixedTripletStep:
-    case reco::TrackBase::pixelLessStep:
+    unsigned int algo = PFTrackAlgoTools::getAlgoCategory((*ie)->algo());
+    if (algo ==1 ||algo==2) //why not TOB-TEC here as well???  
       nStep45++;
-      break;
-    default:
+    else if (algo >5)
       nNotIterative++;
-      nStep45++; // why this should be increased for these cases?
-      break;
-    };
-
   }
 
   if (rho > 25 && nStep45 + nNotIterative < 1){
