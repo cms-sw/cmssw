@@ -160,13 +160,13 @@ namespace sistrip {
     if( rawdigi_ ) {
       edm::Handle< edm::DetSetVector<SiStripRawDigi> > rawdigis;
       iEvent.getByToken( tokenRawDigi, rawdigis );
-      digiToRaw_->createFedBuffers( iEvent, cabling, rawdigis, buffers );
       if (copyBufferHeader_) digiToRaw_->createFedBuffers( iEvent, cabling, rawbuffers, rawdigis, buffers );
+      else digiToRaw_->createFedBuffers( iEvent, cabling, rawdigis, buffers );
     } else {
       edm::Handle< edm::DetSetVector<SiStripDigi> > digis;
       iEvent.getByToken( tokenDigi, digis );
-      digiToRaw_->createFedBuffers( iEvent, cabling, digis, buffers );
       if (copyBufferHeader_) digiToRaw_->createFedBuffers( iEvent, cabling, rawbuffers, digis, buffers );
+      else digiToRaw_->createFedBuffers( iEvent, cabling, digis, buffers );
     }
 
 
