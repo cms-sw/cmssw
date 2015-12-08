@@ -86,7 +86,7 @@ foreach gtag ( MC DATA )
     continue
   endif
 
-  foreach table ( GRun 50nsGRun HIon PIon 25nsLowPU LowPU 25ns14e33_v4 25ns14e33_v3 50ns_5e33_v3 25ns14e33_v1 50ns_5e33_v1 Fake )
+  foreach table ( GRun 50nsGRun HIon PIon PRef 25nsLowPU LowPU 25ns14e33_v4 25ns14e33_v3 50ns_5e33_v3 25ns14e33_v1 50ns_5e33_v1 Fake )
 # foreach table ( GRun 50nsGRun HIon PIon LowPU 25ns14e33_v3 50ns_5e33_v3 Fake )
 
     set name = ${table}_${gtag}  
@@ -220,6 +220,18 @@ foreach gtag ( MC DATA )
       set SCEN = pp
       set InputGenSim = $InputGenSimPIon
       set InputLHCRaw = $InputLHCRawPIon
+      set Custom1 = $CustomRun2
+      set Custom2 = " "
+      set L1REPACK = L1REPACK:GCTGT
+    else if ( $table == PRef ) then
+      set XL1T = $XL1TPP3
+      set XHLT = HLT:PRef
+      set GTAG = ${BASE2}_PRef
+      set RTAG = ${BASE2RD}_PRef
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun2
+      set InputLHCRaw = $InputLHCRawGRun
       set Custom1 = $CustomRun2
       set Custom2 = " "
       set L1REPACK = L1REPACK:GCTGT

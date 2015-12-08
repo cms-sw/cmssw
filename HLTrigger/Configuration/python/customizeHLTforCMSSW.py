@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # Update to replace old jet corrector mechanism
 from HLTrigger.Configuration.customizeHLTforNewJetCorrectors import customizeHLTforNewJetCorrectors
 
-# Possibility to put different ring dependent cut on ADC (PR #9232)                                                              
+# Possibility to put different ring dependent cut on ADC (PR #9232)
 def customiseFor9232(process):
     if hasattr(process,'hltEcalPhiSymFilter'):
         if hasattr(process.hltEcalPhiSymFilter,'ampCut_barrel'):
@@ -15,7 +15,8 @@ def customiseFor9232(process):
 # upgrade RecoTrackSelector to allow BTV-like cuts (PR #8679)
 def customiseFor8679(process):
     if hasattr(process,'hltBSoftMuonMu5L3') :
-       delattr(process.hltBSoftMuonMu5L3,'min3DHit')
+       if hasattr(process.hltBSoftMuonMu5L3,'min3DHit') :
+          delattr(process.hltBSoftMuonMu5L3,'min3DHit')
        setattr(process.hltBSoftMuonMu5L3,'minLayer', cms.int32(0))
        setattr(process.hltBSoftMuonMu5L3,'min3DLayer', cms.int32(0))
        setattr(process.hltBSoftMuonMu5L3,'minPixelHit', cms.int32(0))
