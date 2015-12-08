@@ -53,7 +53,7 @@ detachedTripletStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.Traj
 #    constantValueForLostHitsFractionFilter = cms.double(0.701),
     minimumNumberOfHits = 3,
     minPt = 0.075,
-    maxCCCLostHits = 1,
+    maxCCCLostHits = 2,
     minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
     )
 import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi
