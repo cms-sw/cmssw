@@ -150,7 +150,8 @@ do
                                 >> $algo$subt$radius${object}JetSequence_${system}_${sample}_cff.py
                             fi
 
-                            if [ $sample == "jec" ] && [ $btaggers == "NONE" ]; then
+# skip no sub
+                            if [ $sample == "jec" ] && [ $btaggers == "NONE" ] && [ $sub != "NONE" ]; then
                                 echo "${algo}${subt}${radius}${object}Jets.jetPtMin = 1" >> HiReRecoJets_cff.py
                                 if [ $object == "PF" ] && [ $sub != "Pu" ]; then
                                     echo "${algo}${subt}${radius}${object}Jets.src = cms.InputTag(\"particleFlowTmp\")" >> HiReRecoJets_cff.py
@@ -196,16 +197,22 @@ do
     subt=$sub
     if [ $sub == "NONE" ]; then
 	subt=""
+#   skip no sub
+#   fi
+    else
+#   skip no sub
+	for radius in 1 2 3 4 5 6 7
+	do
+	    echo "${algo}${subt}${radius}PFJets" >> HiReRecoJets_cff.py
+	    if [ $radius -eq 7 ] && [ $sub == "Vs" ]; then
+		echo ")" >> HiReRecoJets_cff.py
+	    else
+		echo "+" >> HiReRecoJets_cff.py
+	    fi
+	done
+#   skip no sub
     fi
-    for radius in 1 2 3 4 5 6 7
-    do
-	echo "${algo}${subt}${radius}PFJets" >> HiReRecoJets_cff.py
-	if [ $radius -eq 7 ] && [ $sub == "Vs" ]; then
-	    echo ")" >> HiReRecoJets_cff.py
-	else
-	    echo "+" >> HiReRecoJets_cff.py
-	fi
-    done
+#   skip no sub
 done
 
 echo "" >> HiReRecoJets_cff.py
@@ -218,16 +225,22 @@ do
     subt=$sub
     if [ $sub == "NONE" ]; then
 	subt=""
+#   skip no sub
+#    fi
+    else
+#   skip no sub
+	for radius in 1 2 3 4 5 6 7
+	do
+	    echo "${algo}${subt}${radius}CaloJets" >> HiReRecoJets_cff.py
+	    if [ $radius -eq 7 ] && [ $sub == "Vs" ]; then
+		echo ")" >> HiReRecoJets_cff.py
+	    else
+		echo "+" >> HiReRecoJets_cff.py
+	    fi
+	done
+#   skip no sub
     fi
-    for radius in 1 2 3 4 5 6 7
-    do
-	echo "${algo}${subt}${radius}CaloJets" >> HiReRecoJets_cff.py
-	if [ $radius -eq 7 ] && [ $sub == "Vs" ]; then
-	    echo ")" >> HiReRecoJets_cff.py
-	else
-	    echo "+" >> HiReRecoJets_cff.py
-	fi
-    done
+#   skip no sub
 done
 
 cat HiReRecoJets_cff.py | sed "s/particleFlowTmp/particleFlow/g" > HiReRecoJets_pp_cff.py

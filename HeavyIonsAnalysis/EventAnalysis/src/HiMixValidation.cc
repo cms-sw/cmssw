@@ -42,6 +42,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
+#include "TTree.h"
 #include "TH1D.h"
 #include "TH2D.h"
 
@@ -184,7 +185,7 @@ HiMixValidation::HiMixValidation(const edm::ParameterSet& iConfig)
    doRECO_ = iConfig.getUntrackedParameter<bool>("doRECO",true);
    doHIST_ = iConfig.getUntrackedParameter<bool>("doHIST",true);
 
-   useCF_ = iConfig.getUntrackedParameter<bool>("useCF",true);
+   useCF_ = iConfig.getUntrackedParameter<bool>("useCF",false);
    if(useCF_) cfLabel = consumes<CrossingFrame<edm::HepMCProduct> >(iConfig.getUntrackedParameter<edm::InputTag>("mixLabel",edm::InputTag("mix","generator")));
 
    rMatch = iConfig.getUntrackedParameter<double>("rMatch",0.3);
@@ -304,51 +305,52 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    cout<<"x6"<<endl;
 
    // Gen-Vertices from CrossingFrame
+   if(useCF_){
 
-   Handle<CrossingFrame<edm::HepMCProduct> > cf;
-   cout<<"x7"<<endl;
+      Handle<CrossingFrame<edm::HepMCProduct> > cf;
+      cout<<"x7"<<endl;
 
-   iEvent.getByToken(cfLabel,cf);
-   cout<<"x8"<<endl;
+      iEvent.getByToken(cfLabel,cf);
+      cout<<"x8"<<endl;
 
-   MixCollection<edm::HepMCProduct> mix(cf.product());
-   cout<<"x9"<<endl;
-   HepMC::GenVertex* genvtx = 0;
-   const HepMC::GenEvent* inev = 0;
-   cout<<"x10"<<endl;
-   double zcf[2]={-29,-29};
-   if(mix.size() != 2){
-      cout<<"More or less than 2 sub-events, mixing seems to have failed! Size : "<<mix.size()<<endl;
-   }else{
-      for(int i = 0; i < 2; ++i){
-	 cout<<"i "<<i<<endl;
-	 const edm::HepMCProduct& bkg = mix.getObject(i);
-	 cout<<"a"<<endl;
-	 inev = bkg.GetEvent();
-         cout<<"b"<<endl;
-
-	 genvtx = inev->signal_process_vertex();
-         cout<<"c"<<endl;
-
-	 if(!genvtx){
-	    cout<<"No Signal Process Vertex!"<<endl;
-	    HepMC::GenEvent::particle_const_iterator pt=inev->particles_begin();
-	    HepMC::GenEvent::particle_const_iterator ptend=inev->particles_end();
-	    while(!genvtx || ( genvtx->particles_in_size() == 1 && pt != ptend ) ){
-	       if(pt == ptend) cout<<"End reached, No Gen Vertex!"<<endl;
-	       genvtx = (*pt)->production_vertex();
-	       ++pt;
+      MixCollection<edm::HepMCProduct> mix(cf.product());
+      cout<<"x9"<<endl;
+      HepMC::GenVertex* genvtx = 0;
+      const HepMC::GenEvent* inev = 0;
+      cout<<"x10"<<endl;
+      double zcf[2]={-29,-29};
+      if(mix.size() != 2){
+	 cout<<"More or less than 2 sub-events, mixing seems to have failed! Size : "<<mix.size()<<endl;
+      }else{
+	 for(int i = 0; i < 2; ++i){
+	    cout<<"i "<<i<<endl;
+	    const edm::HepMCProduct& bkg = mix.getObject(i);
+	    cout<<"a"<<endl;
+	    inev = bkg.GetEvent();
+	    cout<<"b"<<endl;
+	    
+	    genvtx = inev->signal_process_vertex();
+	    cout<<"c"<<endl;
+	    
+	    if(!genvtx){
+	       cout<<"No Signal Process Vertex!"<<endl;
+	       HepMC::GenEvent::particle_const_iterator pt=inev->particles_begin();
+	       HepMC::GenEvent::particle_const_iterator ptend=inev->particles_end();
+	       while(!genvtx || ( genvtx->particles_in_size() == 1 && pt != ptend ) ){
+		  if(pt == ptend) cout<<"End reached, No Gen Vertex!"<<endl;
+		  genvtx = (*pt)->production_vertex();
+		  ++pt;
+	       }
+	       if(!genvtx) cout<<"No Gen Vertex!"<<endl;
 	    }
-	    if(!genvtx) cout<<"No Gen Vertex!"<<endl;
+	    zcf[i] = genvtx->position().z()*mm;
+	    cout<<"z : "<<zcf[i]<<endl;
+	    cout<<"---"<<endl;
 	 }
-	 zcf[i] = genvtx->position().z()*mm;
-         cout<<"z : "<<zcf[i]<<endl;
-	 cout<<"---"<<endl;
       }
+
+      hGenVerticesCF->Fill(zcf[0],zcf[1]);
    }
-
-   hGenVerticesCF->Fill(zcf[0],zcf[1]);
-
 
    // RECO INFO
    if(doRECO_){
