@@ -1,45 +1,21 @@
 #ifndef DQM_L1TMonitor_L1TStage2CaloLayer2_h
 #define DQM_L1TMonitor_L1TStage2CaloLayer2_h
 
-// system include files
-#include <iosfwd>
-#include <memory>
-#include <vector>
-#include <string>
-#include <algorithm>
-
-// user include files
 //   base classes
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-//
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+// DQM
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 // stage2 collection
 
-#include "DataFormats/L1Trigger/interface/BXVector.h"
-#include "DataFormats/L1Trigger/interface/CaloSpare.h"
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
-#include "DataFormats/L1Trigger/interface/Muon.h"
-
-// DQM
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
 
 class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   
@@ -60,10 +36,10 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
 
   std::string monitorDir_;
 
-  edm::InputTag stage2CaloLayer2JetSource_;
-  edm::InputTag stage2CaloLayer2EGammaSource_;
-  edm::InputTag stage2CaloLayer2TauSource_;
-  edm::InputTag stage2CaloLayer2EtSumSource_;
+  edm::EDGetTokenT<l1t::JetBxCollection> stage2CaloLayer2JetToken_;
+  edm::EDGetTokenT<l1t::EGammaBxCollection> stage2CaloLayer2EGammaToken_;
+  edm::EDGetTokenT<l1t::TauBxCollection> stage2CaloLayer2TauToken_;
+  edm::EDGetTokenT<l1t::EtSumBxCollection> stage2CaloLayer2EtSumToken_;
 
   bool verbose_;
 
@@ -120,12 +96,6 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement* stage2CaloLayer2HTTRank_;
   MonitorElement* stage2CaloLayer2HTTPhi_;
   MonitorElement* stage2CaloLayer2HTTEta_;
-  
-  edm::EDGetToken stage2CaloLayer2JetToken_;
-  edm::EDGetToken stage2CaloLayer2EGammaToken_;
-  edm::EDGetToken stage2CaloLayer2TauToken_;
-  edm::EDGetToken stage2CaloLayer2EtSumToken_;
-
 };
 
 #endif 

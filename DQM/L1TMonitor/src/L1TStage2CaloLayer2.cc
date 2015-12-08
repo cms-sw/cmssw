@@ -2,21 +2,13 @@
 
 L1TStage2CaloLayer2::L1TStage2CaloLayer2(const edm::ParameterSet & ps) :
   monitorDir_(ps.getUntrackedParameter<std::string>("monitorDir","")),
-  stage2CaloLayer2JetSource_(ps.getParameter<edm::InputTag>("stage2CaloLayer2JetSource")),
-  stage2CaloLayer2EGammaSource_(ps.getParameter<edm::InputTag>("stage2CaloLayer2EGammaSource")),
-  stage2CaloLayer2TauSource_(ps.getParameter<edm::InputTag>("stage2CaloLayer2TauSource")),
-  stage2CaloLayer2EtSumSource_(ps.getParameter<edm::InputTag>("stage2CaloLayer2EtSumSource")),
+  stage2CaloLayer2JetToken_(consumes<l1t::JetBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2JetSource"))),
+  stage2CaloLayer2EGammaToken_(consumes<l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2EGammaSource"))),
+  stage2CaloLayer2TauToken_(consumes<l1t::TauBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2TauSource"))),
+  stage2CaloLayer2EtSumToken_(consumes<l1t::EtSumBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2EtSumSource"))),
   verbose_(ps.getUntrackedParameter < bool > ("verbose", false))
 {
-
-  //set Token(-s)
-  stage2CaloLayer2JetToken_=consumes<l1t::JetBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2JetSource"));
-  stage2CaloLayer2EGammaToken_=consumes<l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2EGammaSource"));
-  stage2CaloLayer2TauToken_=consumes<l1t::TauBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2TauSource"));
-  stage2CaloLayer2EtSumToken_=consumes<l1t::EtSumBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2EtSumSource"));
-  
 }
-
 
 L1TStage2CaloLayer2::~L1TStage2CaloLayer2()
 {}
@@ -59,19 +51,19 @@ void L1TStage2CaloLayer2::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
 
   //IsoTau
   stage2CaloLayer2IsoTauEtEtaPhi_ = ibooker.book2D("IsoTausEtEtaPhi", "ISO Tau E_{T} ETA PHI", 229, -114.5, 114.5, 144, -0.5, 143.5);
-  stage2CaloLayer2IsoTauEta_ = ibooker.book1D("IsoTauEta", "ISO Tau ETA", 229, -114.5, 114.5);
-  stage2CaloLayer2IsoTauPhi_ = ibooker.book1D("IsoTauPhi", "ISO Tau PHI", 144, -0.5, 143.5);
+  stage2CaloLayer2IsoTauEta_ = ibooker.book1D("IsoTausEta", "ISO Tau ETA", 229, -114.5, 114.5);
+  stage2CaloLayer2IsoTauPhi_ = ibooker.book1D("IsoTausPhi", "ISO Tau PHI", 144, -0.5, 143.5);
   stage2CaloLayer2IsoTauRank_ = ibooker.book1D("IsoTausRank", "ISO Tau E_{T}", 512, -0.5, 511.5);
   stage2CaloLayer2IsoTauOcc_ = ibooker.book2D("IsoTausOcc", "ISO Tau OCCUPANCY", 229, -114.5, 114.5, 144, -0.5, 143.5);
   stage2CaloLayer2IsoTauBxOcc_ = ibooker.book2D("IsoTausBxOcc", "ISO Tau BX OCCUPANCY", 5,-2.5, 2.5, 512, -0.5, 511.5);
 
   //rlxTau
-  stage2CaloLayer2TauEtEtaPhi_ = ibooker.book2D("TauEtEtaPhi", "Tau E_{T} ETA PHI", 229, -114.5, 114.5, 144, -0.5, 143.5);
-  stage2CaloLayer2TauEta_ = ibooker.book1D("TauEta", "Tau ETA", 229, -114.5, 114.5);
-  stage2CaloLayer2TauPhi_ = ibooker.book1D("TauPhi", "Tau PHI", 144, -0.5, 143.5);
-  stage2CaloLayer2TauRank_ = ibooker.book1D("TauRank", "Tau E_{T}", 512, -0.5, 511.5);
-  stage2CaloLayer2TauOcc_ = ibooker.book2D("TauOcc", "Tau OCCUPANCY", 229, -114.5, 114.5, 144, -0.5, 143.5);
-  stage2CaloLayer2TauBxOcc_ = ibooker.book2D("TauBxOcc", "Tau BX OCCUPANCY", 5,-2.5, 2.5, 512, -0.5, 511.5);
+  stage2CaloLayer2TauEtEtaPhi_ = ibooker.book2D("TausEtEtaPhi", "Tau E_{T} ETA PHI", 229, -114.5, 114.5, 144, -0.5, 143.5);
+  stage2CaloLayer2TauEta_ = ibooker.book1D("TausEta", "Tau ETA", 229, -114.5, 114.5);
+  stage2CaloLayer2TauPhi_ = ibooker.book1D("TausPhi", "Tau PHI", 144, -0.5, 143.5);
+  stage2CaloLayer2TauRank_ = ibooker.book1D("TausRank", "Tau E_{T}", 512, -0.5, 511.5);
+  stage2CaloLayer2TauOcc_ = ibooker.book2D("TausOcc", "Tau OCCUPANCY", 229, -114.5, 114.5, 144, -0.5, 143.5);
+  stage2CaloLayer2TauBxOcc_ = ibooker.book2D("TausBxOcc", "Tau BX OCCUPANCY", 5,-2.5, 2.5, 512, -0.5, 511.5);
 
   //EtSums
   stage2CaloLayer2EtSumBxOcc_ = ibooker.book2D("EtSumBxOcc", "EtSum BX OCCUPANCY",  5,-2.5, 2.5, 4095, -0.5, 4095.5);
