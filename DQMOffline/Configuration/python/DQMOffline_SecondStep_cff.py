@@ -58,6 +58,8 @@ DQMOffline_SecondStepPOG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMOffline_SecondStep_PrePOG *
                                          DQMMessageLoggerClientSeq )
 
+HLTMonitoringClient = cms.Sequence()
+
 DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                       DQMOffline_SecondStep_PreDPG *
                                       DQMOffline_SecondStep_PrePOG *
@@ -119,7 +121,5 @@ DQMHarvestJetMET = cms.Sequence( SusyPostProcessorSequence )
 DQMHarvestEGamma = cms.Sequence( egammaPostProcessing )                     
 
 DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )  
-
-HLTMonitoringClient = cms.Sequence()
 
 DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence )
