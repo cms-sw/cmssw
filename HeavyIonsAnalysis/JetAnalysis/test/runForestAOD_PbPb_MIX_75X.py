@@ -15,7 +15,7 @@ import subprocess
 version = subprocess.Popen(["(cd $CMSSW_BASE/src && git describe --tags)"], stdout=subprocess.PIPE, shell=True).stdout.read()
 if version == '':
     version = 'no git info'
-process.HiForest.HiForestVersion = cms.untracked.string(version)
+process.HiForest.HiForestVersion = cms.string(version)
 
 #####################################################################################
 # Input source
@@ -24,13 +24,14 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-        "file:/mnt/hadoop/cms/store/user/richard/GlobalEcalRECO/ZEE_5TeV-GlobalEcalReco/ZEE_5TeV_GEN_SIM_PU/ZEE_5TeV-GlobalEcalReco/151115_000658/0000/step3_RAW2DIGI_L1Reco_RECO_42.root"
-
+#    "/store/user/richard/GlobalEcalRECO/ZEE_5TeV-GlobalEcalReco/ZEE_5TeV_GEN_SIM_PU/ZEE_5TeV-GlobalEcalReco/151115_000658/0000/step3_RAW2DIGI_L1Reco_RECO_42.root"
+"/store/user/mnguyen/Pythia8_Hydjet_bjet80_5020GeV_GEN-SIM_v6/Pythia8_Hydjet_bjet80_5020GeV_RECO_v6/step3_RAW2DIGI_L1Reco_RECO_9_1_GTa.root"
     ))
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10))
+    input = cms.untracked.int32(1)
+)
 
 
 #####################################################################################
@@ -116,6 +117,8 @@ process.jetSequences = cms.Sequence(process.akPu3CaloJetSequence +
                                     )
 
 process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_mc_cfi')
+process.load('HeavyIonsAnalysis.EventAnalysis.HiMixAnalyzerRECO_cff')
+
 process.hiEvtAnalyzer.doMC = cms.bool(False) #the gen info dataformat has changed in 73X, we need to update hiEvtAnalyzer code
 process.load('HeavyIonsAnalysis.EventAnalysis.hltanalysis_cff')
 process.load('GeneratorInterface.HiGenCommon.HeavyIon_cff')
@@ -175,7 +178,7 @@ process.anaTrack.doSimTrack = cms.untracked.bool(False)
 
 process.HiGenParticleAna.genParticleSrc = cms.untracked.InputTag("genParticles")
 
-process.ana_step = cms.Path(process.heavyIon*
+process.ana_step = cms.Path(process.mixAnalyzer *
                             process.hltanalysis *
 #temp                            process.hltobject *
                             process.centralityBin *

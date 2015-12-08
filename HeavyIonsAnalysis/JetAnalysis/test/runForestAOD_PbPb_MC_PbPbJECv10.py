@@ -256,15 +256,7 @@ process.load('HeavyIonsAnalysis.JetAnalysis.ExtraTrackReco_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_MC_cff')
 process.load("HeavyIonsAnalysis.TrackAnalysis.METAnalyzer_cff")
 process.load("HeavyIonsAnalysis.JetAnalysis.pfcandAnalyzer_cfi")
-process.load('HeavyIonsAnalysis.JetAnalysis.rechitanalyzer_cfi')
-
-process.rechitanalyzer.EBTreePtMin = -9999
-process.rechitanalyzer.EETreePtMin = -9999
-process.rechitanalyzer.HBHETreePtMin = -9999
-process.rechitanalyzer.HFTreePtMin = -9999
-process.rechitanalyzer.HFlongMin = -9999
-process.rechitanalyzer.HFshortMin = -9999
-process.rechitanalyzer.HFtowerMin = -9999
+process.load('HeavyIonsAnalysis.JetAnalysis.rechitanalyzer_aod_cfi')
 
 process.rechitAna = cms.Sequence(process.rechitanalyzer+process.pfTowers)
 process.pfcandAnalyzer.skipCharged = False
@@ -287,8 +279,8 @@ process.anaTrack.trackSrc = cms.InputTag("hiGeneralTracks")
 process.anaTrack.doPFMatching = True
 process.pixelTrack.doPFMatching = False
 
-process.anaTrack.doSimVertex = True
-process.anaTrack.doSimTrack = True
+process.anaTrack.doSimVertex = False
+process.anaTrack.doSimTrack = False
 # process.ppTrack.fillSimTrack = True
 
 process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cff")
@@ -403,7 +395,7 @@ process.ana_step = cms.Path(
                             process.HiGenParticleAna*
                             #process.hiGenJetsCleaned*
                             process.quickTrackAssociatorByHits*
-                            process.tpRecoAssocGeneralTracks + #used in HiPFJetAnalyzer
+#                            process.tpRecoAssocGeneralTracks + #used in HiPFJetAnalyzer
                             #process.hiSelectGenJets +
                             process.akHiGenJets +
                             process.hiReRecoCaloJets +
@@ -446,11 +438,11 @@ process.phfCoincFilter4 = cms.Path(process.hfCoincFilter4 )
 process.phfCoincFilter5 = cms.Path(process.hfCoincFilter5 )
 
 process.phltJetHI = cms.Path( process.hltJetHI )
-process.pcollisionEventSelection = cms.Path(process.collisionEventSelection)
+process.pcollisionEventSelection = cms.Path(process.collisionEventSelectionAOD)
 process.pHBHENoiseFilterResultProducer = cms.Path( process.HBHENoiseFilterResultProducer )
 process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter )
-process.phltPixelClusterShapeFilter = cms.Path(process.siPixelRecHits*process.hltPixelClusterShapeFilter )
-process.phiEcalRecHitSpikeFilter = cms.Path(process.hiEcalRecHitSpikeFilter )
+#process.phltPixelClusterShapeFilter = cms.Path(process.siPixelRecHits*process.hltPixelClusterShapeFilter )
+#process.phiEcalRecHitSpikeFilter = cms.Path(process.hiEcalRecHitSpikeFilter )
 
 process.pAna = cms.EndPath(process.skimanalysis)
 

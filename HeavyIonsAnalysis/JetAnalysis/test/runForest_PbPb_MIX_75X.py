@@ -24,7 +24,7 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-"file:/mnt/hadoop/cms/store/user/richard/GlobalEcalRECO/ZEE_5TeV-GlobalEcalReco/ZEE_5TeV_GEN_SIM_PU/ZEE_5TeV-GlobalEcalReco/151115_000658/0000/step3_RAW2DIGI_L1Reco_RECO_42.root"
+        "/store/user/mnguyen/Pythia8_Hydjet_bjet80_5020GeV_GEN-SIM_v6/Pythia8_Hydjet_bjet80_5020GeV_RECO_v6/step3_RAW2DIGI_L1Reco_RECO_9_1_GTa.root"
     ))
 
 # Number of events we want to process, -1 = all events
