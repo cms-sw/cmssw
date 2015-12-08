@@ -311,7 +311,7 @@ class TrackingPageSet(PageSet):
         #
         # it is bit of a hack to access trackingPlots.TrackingPlotFolder this way,
         # but it was simple and it works
-        if not plotterFolder._plotFolder.isAlgoIterative(algo):
+        if algo != "ootb" and not plotterFolder._plotFolder.isAlgoIterative(algo):
             pageName = "ootb"
             sectionName = algo
 
