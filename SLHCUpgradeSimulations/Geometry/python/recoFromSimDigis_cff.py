@@ -1,8 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import *
+from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizerPreSplitting_cfi import *
 siPixelClusters.src = 'simSiPixelDigis'
 siPixelClusters.MissCalibrate = False
+siPixelClustersPreSplitting.src = 'simSiPixelDigis'
+siPixelClustersPreSplitting.MissCalibrate = False
 
 from RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi import *
 siStripZeroSuppression.RawDigiProducersList = cms.VInputTag( cms.InputTag('simSiStripDigis','VirginRaw'),

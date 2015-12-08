@@ -20,6 +20,7 @@ def customise(process):
             sys.exit(1)
     if hasattr(process,'reconstruction'):
         process=customise_Reco(process,float(n))
+#        process=customise_Reco_v2(process)
                 
     if hasattr(process,'digitisation_step'):
         process=customise_Digi(process)
@@ -416,6 +417,255 @@ def customise_Reco(process,pileup):
     process.pixelTracks.FilterPSet.chi2 = cms.double(50.0)
     process.pixelTracks.FilterPSet.tipMax = cms.double(0.05)
     process.pixelTracks.RegionFactoryPSet.RegionPSet.originRadius =  cms.double(0.02)
+    process.templates.DoLorentz=False
+    process.templates.LoadTemplatesFromDB = cms.bool(False)
+    process.PixelCPEGenericESProducer.useLAWidthFromDB = cms.bool(False)
+
+    # This probably breaks badly the "displaced muon" reconstruction,
+    # but let's do it for now, until the upgrade tracking sequences
+    # are modernized
+    process.preDuplicateMergingDisplacedTracks.inputClassifiers.remove("muonSeededTracksInOutClassifier")
+    process.preDuplicateMergingDisplacedTracks.trackProducers.remove("muonSeededTracksInOut")
+
+    return process
+
+
+
+def customise_Reco_v2(process):
+    #use with latest pixel geometry
+    process.ClusterShapeHitFilterESProducer.PixelShapeFile = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par')
+    # Need this line to stop error about missing siPixelDigis.
+    process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
+
+    # new layer list (3/4 pixel seeding) in InitialStep and pixelTracks
+    process.PixelLayerTriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
+                                                        'BPix2+BPix3+BPix4',
+                                                        'BPix1+BPix3+BPix4',
+                                                        'BPix1+BPix2+BPix4',
+                                                        'BPix2+BPix3+FPix1_pos',
+                                                        'BPix2+BPix3+FPix1_neg',
+                                                        'BPix1+BPix2+FPix1_pos',
+                                                        'BPix1+BPix2+FPix1_neg',
+                                                        'BPix2+FPix1_pos+FPix2_pos',
+                                                        'BPix2+FPix1_neg+FPix2_neg',
+                                                        'BPix1+FPix1_pos+FPix2_pos',
+                                                        'BPix1+FPix1_neg+FPix2_neg',
+                                                        'FPix1_pos+FPix2_pos+FPix3_pos',
+                                                        'FPix1_neg+FPix2_neg+FPix3_neg' )
+
+    # New tracking.  This is really ugly because it redefines globalreco and reconstruction.
+    # It can be removed if change one line in Configuration/StandardSequences/python/Reconstruction_cff.py
+    # from RecoTracker_cff.py to RecoTrackerPhase1PU140_cff.py
+
+    # remove all the tracking first
+    itIndex=process.globalreco_tracking.index(process.trackingGlobalReco)
+    grIndex=process.globalreco.index(process.globalreco_tracking)
+
+    process.globalreco.remove(process.globalreco_tracking)
+    process.globalreco_tracking.remove(process.iterTracking)
+    process.globalreco_tracking.remove(process.electronSeedsSeq)
+    process.reconstruction_fromRECO.remove(process.trackingGlobalReco)
+    process.reconstruction_fromRECO.remove(process.electronSeedsSeq)
+    process.reconstruction_fromRECO.remove(process.initialStep)
+    process.reconstruction_fromRECO.remove(process.initialStepSeedLayers)
+    process.reconstruction_fromRECO.remove(process.initialStepSeeds)
+    process.reconstruction_fromRECO.remove(process.initialStepClassifier1)
+    process.reconstruction_fromRECO.remove(process.initialStepClassifier2)
+    process.reconstruction_fromRECO.remove(process.initialStepClassifier3)
+    process.reconstruction_fromRECO.remove(initialStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(initialStepTracks)
+    process.reconstruction_fromRECO.remove(process.initialStepTrackRefsForJets)
+    process.reconstruction_fromRECO.remove(process.firstStepPrimaryVertices)
+    process.reconstruction_fromRECO.remove(process.firstStepGoodPrimaryVertices)
+    process.reconstruction_fromRECO.remove(lowPtTripletStepClusters)
+    process.reconstruction_fromRECO.remove(lowPtTripletStepSeedLayers)
+    process.reconstruction_fromRECO.remove(lowPtTripletStepSeeds)
+    process.reconstruction_fromRECO.remove(lowPtTripletStep)
+    process.reconstruction_fromRECO.remove(lowPtTripletStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(lowPtTripletStepTracks)
+
+    process.reconstruction_fromRECO.remove(process.detachedTripletStep)
+    process.reconstruction_fromRECO.remove(process.detachedTripletStepClusters)
+    process.reconstruction_fromRECO.remove(process.detachedTripletStepSeedLayers)
+    process.reconstruction_fromRECO.remove(process.detachedTripletStepSeeds)
+    process.reconstruction_fromRECO.remove(process.detachedTripletStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(process.detachedTripletStepTracks)
+    process.reconstruction_fromRECO.remove(process.detachedTripletStepClassifier1)
+    process.reconstruction_fromRECO.remove(process.detachedTripletStepClassifier2)
+
+    process.reconstruction_fromRECO.remove(mixedTripletStep)
+    process.reconstruction_fromRECO.remove(mixedTripletStepClusters)
+    process.reconstruction_fromRECO.remove(mixedTripletStepSeedLayersA)
+    process.reconstruction_fromRECO.remove(mixedTripletStepSeedLayersB)
+    process.reconstruction_fromRECO.remove(mixedTripletStepSeeds)
+    process.reconstruction_fromRECO.remove(mixedTripletStepSeedsA)
+    process.reconstruction_fromRECO.remove(mixedTripletStepSeedsB)
+    process.reconstruction_fromRECO.remove(mixedTripletStepClassifier1)
+    process.reconstruction_fromRECO.remove(mixedTripletStepClassifier2)
+    process.reconstruction_fromRECO.remove(mixedTripletStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(mixedTripletStepTracks)
+
+    process.reconstruction_fromRECO.remove(pixelPairStepClusters)
+    process.reconstruction_fromRECO.remove(pixelPairStepSeeds)
+    process.reconstruction_fromRECO.remove(pixelPairStepSeedLayers)
+    process.reconstruction_fromRECO.remove(pixelPairStep)
+    process.reconstruction_fromRECO.remove(pixelPairStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(pixelPairStepTracks)
+
+    process.reconstruction_fromRECO.remove(process.pixelLessStep)
+    process.reconstruction_fromRECO.remove(process.pixelLessStepClusters)
+    process.reconstruction_fromRECO.remove(process.pixelLessStepSeeds)
+    process.reconstruction_fromRECO.remove(process.pixelLessStepSeedLayers)
+    process.reconstruction_fromRECO.remove(process.pixelLessStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(process.pixelLessStepTracks)
+    process.reconstruction_fromRECO.remove(process.pixelLessStepClassifier1)
+    process.reconstruction_fromRECO.remove(process.pixelLessStepClassifier2)
+    
+    process.reconstruction_fromRECO.remove(tobTecStepClusters)
+    process.reconstruction_fromRECO.remove(tobTecStepSeeds)
+    process.reconstruction_fromRECO.remove(process.tobTecStepSeedLayersPair)
+    process.reconstruction_fromRECO.remove(process.tobTecStepSeedLayersTripl)
+    process.reconstruction_fromRECO.remove(process.tobTecStepSeedsPair)
+    process.reconstruction_fromRECO.remove(process.tobTecStepSeedsTripl)
+    #process.reconstruction_fromRECO.remove(tobTecStepSeedLayers)
+    process.reconstruction_fromRECO.remove(tobTecStepClassifier1)
+    process.reconstruction_fromRECO.remove(tobTecStepClassifier2)
+    process.reconstruction_fromRECO.remove(tobTecStep)
+    process.reconstruction_fromRECO.remove(tobTecStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(tobTecStepTracks)
+
+    process.reconstruction_fromRECO.remove(process.jetCoreRegionalStep)
+    process.reconstruction_fromRECO.remove(process.jetCoreRegionalStepSeedLayers)
+    process.reconstruction_fromRECO.remove(process.jetCoreRegionalStepSeeds)
+    process.reconstruction_fromRECO.remove(process.jetCoreRegionalStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(process.jetCoreRegionalStepTracks)
+    process.reconstruction_fromRECO.remove(process.jetsForCoreTracking)
+
+    # Yes, needs to be done twice for InOut...
+    process.reconstruction_fromRECO.remove(process.muonSeededSeedsInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededSeedsInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededTrackCandidatesInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededTrackCandidatesInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededTracksInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededTracksInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededSeedsOutIn)
+    process.reconstruction_fromRECO.remove(process.muonSeededTrackCandidatesOutIn)
+    process.reconstruction_fromRECO.remove(process.muonSeededTracksOutIn)
+    # Why are these modules in this sequence (isn't iterTracking enough)?
+    process.muonSeededStepCoreDisplaced.remove(process.muonSeededSeedsInOut)
+    process.muonSeededStepCoreDisplaced.remove(process.muonSeededTrackCandidatesInOut)
+    process.muonSeededStepCoreDisplaced.remove(process.muonSeededTracksInOut)
+    process.muonSeededStepCoreDisplaced.remove(process.muonSeededSeedsOutIn)
+    process.muonSeededStepExtraDisplaced.remove(process.muonSeededTracksInOutClassifier)
+
+    process.reconstruction_fromRECO.remove(process.convClusters)
+    process.reconstruction_fromRECO.remove(process.convLayerPairs)
+    process.reconstruction_fromRECO.remove(process.convStepSelector)
+    process.reconstruction_fromRECO.remove(process.convTrackCandidates)
+    process.reconstruction_fromRECO.remove(process.convStepTracks)
+    process.reconstruction_fromRECO.remove(process.photonConvTrajSeedFromSingleLeg)
+
+    process.reconstruction_fromRECO.remove(process.preDuplicateMergingGeneralTracks)
+
+    process.reconstruction_fromRECO.remove(process.chargeCut2069Clusters)
+
+    # Needed to make the loading of recoFromSimDigis_cff below to work
+    process.InitialStepPreSplitting.remove(siPixelClusters)
+
+    del process.iterTracking
+    del process.ckftracks
+    del process.ckftracks_woBH
+    del process.ckftracks_wodEdX
+    del process.ckftracks_plus_pixelless
+    del process.trackingGlobalReco
+    del process.electronSeedsSeq
+    del process.InitialStepPreSplitting
+    del process.InitialStep
+    del process.LowPtTripletStep
+    del process.PixelPairStep
+    del process.DetachedTripletStep
+    del process.MixedTripletStep
+    del process.PixelLessStep
+    del process.TobTecStep
+    del process.JetCoreRegionalStep
+    del process.earlyGeneralTracks
+    del process.muonSeededStep
+    del process.muonSeededStepCore
+    del process.muonSeededStepDebug
+    del process.muonSeededStepDebugDisplaced
+    del process.ConvStep
+
+    # Need these until pixel templates are used, and need to load this
+    # before the tracking configuration
+    process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
+
+    # add the correct tracking back in
+    process.load("RecoTracker.Configuration.RecoTrackerPhase1_cff")
+
+    process.globalreco_tracking.insert(itIndex,process.trackingGlobalReco)
+    process.globalreco.insert(grIndex,process.globalreco_tracking)
+    #Note process.reconstruction_fromRECO is broken
+    
+    # End of new tracking configuration which can be removed if new Reconstruction is used.
+
+
+    process.reconstruction.remove(process.castorreco)
+    process.reconstruction.remove(process.CastorTowerReco)
+    process.reconstruction.remove(process.ak5CastorJets)
+    process.reconstruction.remove(process.ak5CastorJetID)
+    process.reconstruction.remove(process.ak7CastorJets)
+    #process.reconstruction.remove(process.ak7BasicJets)
+    process.reconstruction.remove(process.ak7CastorJetID)
+
+    #the quadruplet merger configuration     
+    process.load("RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff")
+    process.PixelSeedMergerQuadruplets.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
+    process.PixelSeedMergerQuadruplets.BPix.HitProducer = cms.string("siPixelRecHits" )
+    process.PixelSeedMergerQuadruplets.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
+    process.PixelSeedMergerQuadruplets.FPix.HitProducer = cms.string("siPixelRecHits" )    
+    
+    # Need these until pixel templates are used
+    # PixelCPEGeneric #
+    process.PixelCPEGenericESProducer.Upgrade = cms.bool(True)
+    process.PixelCPEGenericESProducer.UseErrorsFromTemplates = cms.bool(False)
+    process.PixelCPEGenericESProducer.LoadTemplatesFromDB = cms.bool(False)
+    process.PixelCPEGenericESProducer.TruncatePixelCharge = cms.bool(False)
+    process.PixelCPEGenericESProducer.IrradiationBiasCorrection = False
+    process.PixelCPEGenericESProducer.DoCosmics = False
+    # CPE for other steps
+    process.siPixelRecHits.CPE = cms.string('PixelCPEGeneric')
+    # Turn of template use in tracking (iterative steps handled inside their configs)
+    process.duplicateTrackCandidates.ttrhBuilderName = 'WithTrackAngle'
+    process.convStepTracks.TTRHBuilder = 'WithTrackAngle'
+    process.mergedDuplicateTracks.TTRHBuilder = 'WithTrackAngle'
+    process.ctfWithMaterialTracks.TTRHBuilder = 'WithTrackAngle'
+    process.muonSeededSeedsInOut.TrackerRecHitBuilder=cms.string('WithTrackAngle')
+    process.muonSeededTracksInOut.TTRHBuilder=cms.string('WithTrackAngle')
+    process.muonSeededTracksOutIn.TTRHBuilder=cms.string('WithTrackAngle')
+    process.muons1stStep.TrackerKinkFinderParameters.TrackerRecHitBuilder=cms.string('WithTrackAngle')
+    process.regionalCosmicTracks.TTRHBuilder=cms.string('WithTrackAngle')
+    process.cosmicsVetoTracksRaw.TTRHBuilder=cms.string('WithTrackAngle')
+    process.trackerDrivenElectronSeeds.TTRHBuilder = 'WithTrackAngle'
+    process.globalMuons.GLBTrajBuilderParameters.GlbRefitterParameters.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.globalMuons.GLBTrajBuilderParameters.TrackTransformer.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.globalMuons.GLBTrajBuilderParameters.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.globalMuons.TrackLoaderParameters.TTRHBuilder = 'WithTrackAngle'
+    process.tevMuons.RefitterParameters.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.tevMuons.TrackLoaderParameters.TTRHBuilder = 'WithTrackAngle'
+    process.muonSeededTracksOutInDisplaced.TTRHBuilder = 'WithTrackAngle'
+    process.duplicateDisplacedTrackCandidates.ttrhBuilderName = 'WithTrackAngle'
+    process.mergedDuplicateDisplacedTracks.TTRHBuilder = 'WithTrackAngle'
+    process.displacedGlobalMuons.GLBTrajBuilderParameters.GlbRefitterParameters.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.displacedGlobalMuons.GLBTrajBuilderParameters.TrackTransformer.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.displacedGlobalMuons.GLBTrajBuilderParameters.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.displacedGlobalMuons.TrackLoaderParameters.TTRHBuilder = 'WithTrackAngle'
+    process.glbTrackQual.RefitterParameters.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.globalSETMuons.GLBTrajBuilderParameters.GlbRefitterParameters.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.globalSETMuons.GLBTrajBuilderParameters.TrackTransformer.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.globalSETMuons.GLBTrajBuilderParameters.TrackerRecHitBuilder = 'WithTrackAngle'
+    process.globalSETMuons.TrackLoaderParameters.TTRHBuilder = 'WithTrackAngle'
+    # End of pixel template needed section
+
     process.templates.DoLorentz=False
     process.templates.LoadTemplatesFromDB = cms.bool(False)
     process.PixelCPEGenericESProducer.useLAWidthFromDB = cms.bool(False)
