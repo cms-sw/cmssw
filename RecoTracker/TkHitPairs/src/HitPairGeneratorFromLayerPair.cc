@@ -112,6 +112,7 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
   // constexpr float nSigmaRZ = std::sqrt(12.f);
   constexpr float nSigmaPhi = 3.f;
   for (int io = 0; io!=int(outerHitsMap.theHits.size()); ++io) {
+    if (!deltaPhi.prefilter(outerHitsMap.x[io],outerHitsMap.y[io])) continue;
     Hit const & ohit =  outerHitsMap.theHits[io].hit();
     PixelRecoRange<float> phiRange = deltaPhi(outerHitsMap.x[io],
 					      outerHitsMap.y[io],

@@ -218,12 +218,32 @@ TkDetLayersAnalyzer::analyze( const Event& iEvent, const EventSetup& iSetup )
   }
 
 
+    // ------------- END -------------------------
+
 
   
   // -------- here it constructs the whole GeometricSearchTracker --------------
   GeometricSearchTrackerBuilder myTrackerBuilder;
   GeometricSearchTracker* testTracker = myTrackerBuilder.build( &(*pDD),&(*pTrackerGeometry), &(*tTopo));
   edm::LogInfo("TkDetLayersAnalyzer") << "testTracker: " << testTracker ;
+
+  for (auto const & l : testTracker->allLayers()) {
+     auto const & layer = *l;
+     std::cout << layer.seqNum() << ' ' << layer.subDetector() << ' ' << layer.basicComponents().size() <<'\n';
+     //auto mx = std::minmax_element (layer.basicComponents().begin(),layer.basicComponents().end(),[](    );
+      auto m_min(std::numeric_limits<float>::max());
+      auto m_max(std::numeric_limits<float>::min());
+     for (auto const & c : layer.basicComponents()) {
+       auto const &det = *c;
+       auto xi = det.specificSurface().mediumProperties().xi();
+       m_min=std::min(m_min,xi);m_max=std::max(m_max,xi);
+       // std::cout <<  det.specificSurface().mediumProperties().xi() <<',';
+     }	
+     std::cout << "xi " << m_min<<'/'<<m_max;
+     std::cout << std::endl;
+
+  }
+
 
 
   // ------------- END -------------------------
