@@ -71,6 +71,9 @@ DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            dqmFastTimerServiceLuminosity *
                            DQMMessageLogger )
 
+DQMOfflineRun1 = cms.Sequence( DQMOffline )
+DQMOfflineRun1.remove( HLTMonitoring )
+
 DQMOfflinePrePOGMC = cms.Sequence( pvMonitor *
                                    bTagPlotsDATA *
                                    dqmPhysics )
