@@ -151,7 +151,6 @@ namespace sistrip {
 	      << " Original header type: " << fedbuffer->headerType();
 	  }
 
-
 	  bufferGenerator_.setHeaderType(FEDHeaderType::HEADER_TYPE_FULL_DEBUG);
 	  //fedbuffer->headerType());
 	  bufferGenerator_.daqHeader() = fedbuffer->daqHeader();
@@ -179,7 +178,6 @@ namespace sistrip {
 	      << " SpecialHeader: " << debugStream.str();
 	  }
 
-	  //bufferGenerator_.feHeader() = ;
 	  std::auto_ptr<FEDFEHeader> tempFEHeader(fedbuffer->feHeader()->clone());
 	  FEDFullDebugHeader* fedFeHeader = dynamic_cast<FEDFullDebugHeader*>(tempFEHeader.get());
 	  if ( edm::isDebugEnabled() ) {
@@ -200,8 +198,6 @@ namespace sistrip {
             (bufferGenerator_.feHeader()).set32BitReservedRegister(iFE,fedFeHeader->get32BitWordFrom(fedFeHeader->feWord(iFE)+10));
           }
 	  for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
-            //added these 2
-            (bufferGenerator_.feHeader()).setFEUnitLength(iFE,fedFeHeader->feUnitLength(iFE));
             (bufferGenerator_.feHeader()).setFEUnitMajorityAddress(iFE,fedFeHeader->feUnitMajorityAddress(iFE));
 	    for (uint8_t iFEUnitChannel = 0; iFEUnitChannel < FEDCH_PER_FEUNIT; iFEUnitChannel++) {
 	      (bufferGenerator_.feHeader()).setChannelStatus(iFE,iFEUnitChannel,fedFeHeader->getChannelStatus(iFE,iFEUnitChannel));
@@ -217,6 +213,98 @@ namespace sistrip {
 	      << " length of feHeader: " << bufferGenerator_.feHeader().lengthInBytes() << "\n"
 	      << debugStream.str();
 	  }
+          auto conns = cabling->fedConnections(*ifed);
+          
+          //for special mode premix raw, data is zero-suppressed but not converted to 8 bit
+          //zeroSuppressed here means converted to 8 bit...
+          if (mode_ == READOUT_MODE_PREMIX_RAW) zeroSuppressed=false;
+          FEDStripData fedData(zeroSuppressed);
+          
+          
+          for (auto iconn = conns.begin() ; iconn != conns.end(); iconn++ ) {
+            
+            // Determine FED key from cabling
+            uint32_t fed_key = ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
+            
+            // Determine whether DetId or FED key should be used to index digi containers
+            uint32_t key = ( useFedKey_ || mode_ == READOUT_MODE_SCOPE ) ? fed_key : iconn->detId();
+            
+            // Check key is non-zero and valid
+            if ( !key || ( key == sistrip::invalid32_ ) ) { continue; }
+            
+            // Determine APV pair number (needed only when using DetId)
+            uint16_t ipair = ( useFedKey_ || mode_ == READOUT_MODE_SCOPE ) ? 0 : iconn->apvPairNumber();
+            
+            FEDStripData::ChannelData& chanData = fedData[iconn->fedCh()];
+
+            // Find digis for DetID in collection
+            if (!collection.isValid()){
+              if ( edm::isDebugEnabled() ) {
+                edm::LogWarning("DigiToRaw") 
+          	<< "[DigiToRaw::createFedBuffers] " 
+          	<< "digis collection is not valid...";
+              }
+              break;
+            }
+            typename std::vector< edm::DetSet<Digi_t> >::const_iterator digis = collection->find( key );
+            if (digis == collection->end()) { continue; } 
+
+            typename edm::DetSet<Digi_t>::const_iterator idigi, digis_begin(digis->data.begin());
+            for ( idigi = digis_begin; idigi != digis->data.end(); idigi++ ) {
+              
+              if ( STRIP(idigi, digis_begin) < ipair*256 ||
+          	 STRIP(idigi, digis_begin) > ipair*256+255 ) { continue; }
+              const unsigned short strip = STRIP(idigi, digis_begin) % 256;
+              
+              if ( strip >= STRIPS_PER_FEDCH ) {
+                if ( edm::isDebugEnabled() ) {
+          	std::stringstream ss;
+          	ss << "[sistrip::DigiToRaw::createFedBuffers]"
+          	   << " strip >= strips_per_fedCh";
+          	edm::LogWarning("DigiToRaw") << ss.str();
+                }
+                continue;
+              }
+              
+              // check if value already exists
+              if ( edm::isDebugEnabled() ) {
+                const uint16_t value = 0;//chanData[strip];
+                if ( value && value != (*idigi).adc() ) {
+          	std::stringstream ss; 
+          	ss << "[sistrip::DigiToRaw::createFedBuffers]" 
+          	   << " Incompatible ADC values in buffer!"
+          	   << "  FedId/FedCh: " << *ifed << "/" << iconn->fedCh()
+          	   << "  DetStrip: " << STRIP(idigi, digis_begin)
+          	   << "  FedChStrip: " << strip
+          	   << "  AdcValue: " << (*idigi).adc()
+          	   << "  RawData[" << strip << "]: " << value;
+          	edm::LogWarning("DigiToRaw") << ss.str();
+                }
+              }
+              
+              // Add digi to buffer
+              chanData[strip] = (*idigi).adc();
+            }
+          }
+          // if ((*idigi).strip() >= (ipair+1)*256) break;
+          
+          if ( edm::isDebugEnabled() ) {
+            edm::LogWarning("DigiToRaw") 
+              << "DigiToRaw::createFedBuffers] " 
+              << "Almost at the end...";
+          }
+          //create the buffer
+          FEDRawData& fedrawdata = buffers->FEDData( *ifed );
+          bufferGenerator_.generateBuffer(&fedrawdata,fedData,*ifed);
+
+          if ( edm::isDebugEnabled() ) {
+            std::ostringstream debugStream;
+            bufferGenerator_.feHeader().print(debugStream);
+            edm::LogWarning("DigiToRaw")
+              << "[sistrip::DigiToRaw::createFedBuffers_]"
+              << " length of final feHeader: " << bufferGenerator_.feHeader().lengthInBytes() << "\n"
+              << debugStream.str();
+          }
 	}//loop on fedids
 	if ( edm::isDebugEnabled() ) {
 	  edm::LogWarning("DigiToRaw")
@@ -224,119 +312,112 @@ namespace sistrip {
 	    << "end of first loop on feds";
 	}
 
-      }
-      
-      if ( edm::isDebugEnabled() ) {
-	edm::LogWarning("DigiToRaw")
-	  << "[sistrip::DigiToRaw::createFedBuffers_]"
-	  << "Now getting the digis..."
-	  << " Number of feds: " << fed_ids.size() << " between "
-	  << *(fed_ids.begin()) << " and " << *(fed_ids.end());
-      }
+      }//end of workflow for copying header, below is workflow without copying header
+      else{     
+        if ( edm::isDebugEnabled() ) {
+          edm::LogWarning("DigiToRaw")
+            << "[sistrip::DigiToRaw::createFedBuffers_]"
+            << "Now getting the digis..."
+            << " Number of feds: " << fed_ids.size() << " between "
+            << *(fed_ids.begin()) << " and " << *(fed_ids.end());
+        }
 
-      for ( auto ifed = fed_ids.begin(); ifed != fed_ids.end(); ++ifed ) {
-        
-	auto conns = cabling->fedConnections(*ifed);
-	
-	//for special mode premix raw, data is zero-suppressed but not converted to 8 bit
-	//zeroSuppressed here means converted to 8 bit...
-	if (mode_ == READOUT_MODE_PREMIX_RAW) zeroSuppressed=false;
-	FEDStripData fedData(zeroSuppressed);
-	
-	
-	for (auto iconn = conns.begin() ; iconn != conns.end(); iconn++ ) {
-	  
-	  // Determine FED key from cabling
-	  uint32_t fed_key = ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
-	  
-	  // Determine whether DetId or FED key should be used to index digi containers
-	  uint32_t key = ( useFedKey_ || mode_ == READOUT_MODE_SCOPE ) ? fed_key : iconn->detId();
-	  
-	  // Check key is non-zero and valid
-	  if ( !key || ( key == sistrip::invalid32_ ) ) { continue; }
-	  
-	  // Determine APV pair number (needed only when using DetId)
-	  uint16_t ipair = ( useFedKey_ || mode_ == READOUT_MODE_SCOPE ) ? 0 : iconn->apvPairNumber();
-	  
-	  FEDStripData::ChannelData& chanData = fedData[iconn->fedCh()];
+        for ( auto ifed = fed_ids.begin(); ifed != fed_ids.end(); ++ifed ) {
+          
+          auto conns = cabling->fedConnections(*ifed);
+          
+          //for special mode premix raw, data is zero-suppressed but not converted to 8 bit
+          //zeroSuppressed here means converted to 8 bit...
+          if (mode_ == READOUT_MODE_PREMIX_RAW) zeroSuppressed=false;
+          FEDStripData fedData(zeroSuppressed);
+          
+          
+          for (auto iconn = conns.begin() ; iconn != conns.end(); iconn++ ) {
+            
+            // Determine FED key from cabling
+            uint32_t fed_key = ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
+            
+            // Determine whether DetId or FED key should be used to index digi containers
+            uint32_t key = ( useFedKey_ || mode_ == READOUT_MODE_SCOPE ) ? fed_key : iconn->detId();
+            
+            // Check key is non-zero and valid
+            if ( !key || ( key == sistrip::invalid32_ ) ) { continue; }
+            
+            // Determine APV pair number (needed only when using DetId)
+            uint16_t ipair = ( useFedKey_ || mode_ == READOUT_MODE_SCOPE ) ? 0 : iconn->apvPairNumber();
+            
+            FEDStripData::ChannelData& chanData = fedData[iconn->fedCh()];
 
-	
-	  
-	 
-	  // Find digis for DetID in collection
-	  if (!collection.isValid()){
-	    if ( edm::isDebugEnabled() ) {
-	      edm::LogWarning("DigiToRaw") 
-		<< "[DigiToRaw::createFedBuffers] " 
-		<< "digis collection is not valid...";
-	    }
-	    break;
-	  }
-	  typename std::vector< edm::DetSet<Digi_t> >::const_iterator digis = collection->find( key );
-	  if (digis == collection->end()) { continue; } 
-	  
+            // Find digis for DetID in collection
+            if (!collection.isValid()){
+              if ( edm::isDebugEnabled() ) {
+                edm::LogWarning("DigiToRaw") 
+          	<< "[DigiToRaw::createFedBuffers] " 
+          	<< "digis collection is not valid...";
+              }
+              break;
+            }
+            typename std::vector< edm::DetSet<Digi_t> >::const_iterator digis = collection->find( key );
+            if (digis == collection->end()) { continue; } 
 
-	  
+            typename edm::DetSet<Digi_t>::const_iterator idigi, digis_begin(digis->data.begin());
+            for ( idigi = digis_begin; idigi != digis->data.end(); idigi++ ) {
+              
+              if ( STRIP(idigi, digis_begin) < ipair*256 ||
+          	 STRIP(idigi, digis_begin) > ipair*256+255 ) { continue; }
+              const unsigned short strip = STRIP(idigi, digis_begin) % 256;
+              
+              if ( strip >= STRIPS_PER_FEDCH ) {
+                if ( edm::isDebugEnabled() ) {
+          	std::stringstream ss;
+          	ss << "[sistrip::DigiToRaw::createFedBuffers]"
+          	   << " strip >= strips_per_fedCh";
+          	edm::LogWarning("DigiToRaw") << ss.str();
+                }
+                continue;
+              }
+              
+              // check if value already exists
+              if ( edm::isDebugEnabled() ) {
+                const uint16_t value = 0;//chanData[strip];
+                if ( value && value != (*idigi).adc() ) {
+          	std::stringstream ss; 
+          	ss << "[sistrip::DigiToRaw::createFedBuffers]" 
+          	   << " Incompatible ADC values in buffer!"
+          	   << "  FedId/FedCh: " << *ifed << "/" << iconn->fedCh()
+          	   << "  DetStrip: " << STRIP(idigi, digis_begin)
+          	   << "  FedChStrip: " << strip
+          	   << "  AdcValue: " << (*idigi).adc()
+          	   << "  RawData[" << strip << "]: " << value;
+          	edm::LogWarning("DigiToRaw") << ss.str();
+                }
+              }
+              
+              // Add digi to buffer
+              chanData[strip] = (*idigi).adc();
+            }
+          }
+          // if ((*idigi).strip() >= (ipair+1)*256) break;
+          
+          if ( edm::isDebugEnabled() ) {
+            edm::LogWarning("DigiToRaw") 
+              << "DigiToRaw::createFedBuffers] " 
+              << "Almost at the end...";
+          }
+          //create the buffer
+          FEDRawData& fedrawdata = buffers->FEDData( *ifed );
+          bufferGenerator_.generateBuffer(&fedrawdata,fedData,*ifed);
 
-	  typename edm::DetSet<Digi_t>::const_iterator idigi, digis_begin(digis->data.begin());
-	  for ( idigi = digis_begin; idigi != digis->data.end(); idigi++ ) {
-	    
-	    if ( STRIP(idigi, digis_begin) < ipair*256 ||
-		 STRIP(idigi, digis_begin) > ipair*256+255 ) { continue; }
-	    const unsigned short strip = STRIP(idigi, digis_begin) % 256;
-	    
-	    if ( strip >= STRIPS_PER_FEDCH ) {
-	      if ( edm::isDebugEnabled() ) {
-		std::stringstream ss;
-		ss << "[sistrip::DigiToRaw::createFedBuffers]"
-		   << " strip >= strips_per_fedCh";
-		edm::LogWarning("DigiToRaw") << ss.str();
-	      }
-	      continue;
-	    }
-	    
-	    // check if value already exists
-	    if ( edm::isDebugEnabled() ) {
-	      const uint16_t value = 0;//chanData[strip];
-	      if ( value && value != (*idigi).adc() ) {
-		std::stringstream ss; 
-		ss << "[sistrip::DigiToRaw::createFedBuffers]" 
-		   << " Incompatible ADC values in buffer!"
-		   << "  FedId/FedCh: " << *ifed << "/" << iconn->fedCh()
-		   << "  DetStrip: " << STRIP(idigi, digis_begin)
-		   << "  FedChStrip: " << strip
-		   << "  AdcValue: " << (*idigi).adc()
-		   << "  RawData[" << strip << "]: " << value;
-		edm::LogWarning("DigiToRaw") << ss.str();
-	      }
-	    }
-	    
-	    // Add digi to buffer
-	    chanData[strip] = (*idigi).adc();
-	  }
-	}
-	// if ((*idigi).strip() >= (ipair+1)*256) break;
-	
-	if ( edm::isDebugEnabled() ) {
-	  edm::LogWarning("DigiToRaw") 
-	    << "DigiToRaw::createFedBuffers] " 
-	    << "Almost at the end...";
-	}
-	//create the buffer
-	FEDRawData& fedrawdata = buffers->FEDData( *ifed );
-	bufferGenerator_.generateBuffer(&fedrawdata,fedData,*ifed);
-
-	if ( edm::isDebugEnabled() ) {
-	  std::ostringstream debugStream;
-	  bufferGenerator_.feHeader().print(debugStream);
-	  edm::LogWarning("DigiToRaw")
-	    << "[sistrip::DigiToRaw::createFedBuffers_]"
-	    << " length of final feHeader: " << bufferGenerator_.feHeader().lengthInBytes() << "\n"
-	    << debugStream.str();
-	}
-
-        
-      }//loop on feds
+          if ( edm::isDebugEnabled() ) {
+            std::ostringstream debugStream;
+            bufferGenerator_.feHeader().print(debugStream);
+            edm::LogWarning("DigiToRaw")
+              << "[sistrip::DigiToRaw::createFedBuffers_]"
+              << " length of final feHeader: " << bufferGenerator_.feHeader().lengthInBytes() << "\n"
+              << debugStream.str();
+          }
+        }//loop on feds
+      }//end if-else for copying header
     }//try
     catch (const std::exception& e) {
       if ( edm::isDebugEnabled() ) {
