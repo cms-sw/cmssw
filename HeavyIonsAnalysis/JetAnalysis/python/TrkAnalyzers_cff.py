@@ -17,6 +17,7 @@ pixelTrack.trackPtMin = 0.4
 mergedTrack = pixelTrack.clone(trackSrc = cms.InputTag("hiMergedTracks"))
 
 ppTrack = anaTrack.clone(trackSrc = cms.InputTag("generalTracks"),
-                         vertexSrc = ["offlinePrimaryVerticesWithBS"]
+                         vertexSrc = ["offlinePrimaryVertices"],
+                         mvaSrc = cms.string("generalTracks")
                          )
 

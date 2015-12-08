@@ -19,9 +19,6 @@ akVs5CaloJets.jetPtMin = 1
 akVs6PFJets.jetPtMin = 1
 akVs6PFJets.src = cms.InputTag("particleFlow")
 akVs6CaloJets.jetPtMin = 1
-akVs7PFJets.jetPtMin = 1
-akVs7PFJets.src = cms.InputTag("particleFlow")
-akVs7CaloJets.jetPtMin = 1
 akPu1PFJets.jetPtMin = 1
 akPu1CaloJets.jetPtMin = 1
 akPu2PFJets.jetPtMin = 1
@@ -34,8 +31,6 @@ akPu5PFJets.jetPtMin = 1
 akPu5CaloJets.jetPtMin = 1
 akPu6PFJets.jetPtMin = 1
 akPu6CaloJets.jetPtMin = 1
-akPu7PFJets.jetPtMin = 1
-akPu7CaloJets.jetPtMin = 1
 akVs1PFJets.jetPtMin = 1
 akVs1PFJets.src = cms.InputTag("particleFlow")
 akVs1CaloJets.jetPtMin = 1
@@ -54,9 +49,6 @@ akVs5CaloJets.jetPtMin = 1
 akVs6PFJets.jetPtMin = 1
 akVs6PFJets.src = cms.InputTag("particleFlow")
 akVs6CaloJets.jetPtMin = 1
-akVs7PFJets.jetPtMin = 1
-akVs7PFJets.src = cms.InputTag("particleFlow")
-akVs7CaloJets.jetPtMin = 1
 akPu1PFJets.jetPtMin = 1
 akPu1CaloJets.jetPtMin = 1
 akPu2PFJets.jetPtMin = 1
@@ -69,8 +61,6 @@ akPu5PFJets.jetPtMin = 1
 akPu5CaloJets.jetPtMin = 1
 akPu6PFJets.jetPtMin = 1
 akPu6CaloJets.jetPtMin = 1
-akPu7PFJets.jetPtMin = 1
-akPu7CaloJets.jetPtMin = 1
 akVs1PFJets.jetPtMin = 1
 akVs1PFJets.src = cms.InputTag("particleFlow")
 akVs1CaloJets.jetPtMin = 1
@@ -89,9 +79,6 @@ akVs5CaloJets.jetPtMin = 1
 akVs6PFJets.jetPtMin = 1
 akVs6PFJets.src = cms.InputTag("particleFlow")
 akVs6CaloJets.jetPtMin = 1
-akVs7PFJets.jetPtMin = 1
-akVs7PFJets.src = cms.InputTag("particleFlow")
-akVs7CaloJets.jetPtMin = 1
 akPu1PFJets.jetPtMin = 1
 akPu1CaloJets.jetPtMin = 1
 akPu2PFJets.jetPtMin = 1
@@ -104,8 +91,6 @@ akPu5PFJets.jetPtMin = 1
 akPu5CaloJets.jetPtMin = 1
 akPu6PFJets.jetPtMin = 1
 akPu6CaloJets.jetPtMin = 1
-akPu7PFJets.jetPtMin = 1
-akPu7CaloJets.jetPtMin = 1
 
 hiReRecoPFJets = cms.Sequence(
 akPu1PFJets
@@ -120,8 +105,6 @@ akPu5PFJets
 +
 akPu6PFJets
 +
-akPu7PFJets
-+
 akVs1PFJets
 +
 akVs2PFJets
@@ -133,8 +116,6 @@ akVs4PFJets
 akVs5PFJets
 +
 akVs6PFJets
-+
-akVs7PFJets
 )
 
 hiReRecoCaloJets = cms.Sequence(
@@ -150,8 +131,6 @@ akPu5CaloJets
 +
 akPu6CaloJets
 +
-akPu7CaloJets
-+
 akVs1CaloJets
 +
 akVs2CaloJets
@@ -163,6 +142,4 @@ akVs4CaloJets
 akVs5CaloJets
 +
 akVs6CaloJets
-+
-akVs7CaloJets
 )

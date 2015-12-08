@@ -29,7 +29,7 @@ process.source = cms.Source("PoolSource",
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2))
+    input = cms.untracked.int32(10))
 
 
 #####################################################################################
@@ -87,22 +87,29 @@ process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs5CaloJetSequence_PbPb_data_
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs5PFJetSequence_PbPb_data_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu5PFJetSequence_PbPb_data_cff')
 
-process.jetSequences = cms.Sequence(process.akPu3CaloJetSequence +
-                                    process.akVs3CaloJetSequence +
-                                    process.akVs3PFJetSequence +
-                                    process.akPu3PFJetSequence +
+process.highPurityTracks = cms.EDFilter("TrackSelector",
+                      src = cms.InputTag("hiGeneralTracks"),
+                      cut = cms.string('quality("highPurity")'))
 
-                                    process.akPu4CaloJetSequence +
-                                    process.akVs4CaloJetSequence +
-                                    process.akVs4PFJetSequence +
-                                    process.akPu4PFJetSequence
 
-                                    # process.akPu5CaloJetSequence +
-                                    # process.akVs5CaloJetSequence +
-                                    # process.akVs5PFJetSequence +
-                                    # process.akPu5PFJetSequence
-
-                                    )
+process.jetSequences = cms.Sequence(
+    process.highPurityTracks +
+    process.akPu3CaloJetSequence +
+    process.akVs3CaloJetSequence +
+    process.akVs3PFJetSequence +
+    process.akPu3PFJetSequence +
+    
+    process.akPu4CaloJetSequence +
+    process.akVs4CaloJetSequence +
+    process.akVs4PFJetSequence +
+    process.akPu4PFJetSequence
+    
+    # process.akPu5CaloJetSequence +
+    # process.akVs5CaloJetSequence +
+    # process.akVs5PFJetSequence +
+    # process.akPu5PFJetSequence
+    
+    )
 
 process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_data_cfi')
 process.load('HeavyIonsAnalysis.EventAnalysis.hltanalysis_cff')
