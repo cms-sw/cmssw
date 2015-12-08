@@ -546,14 +546,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     theService->eventSetup().get<TrajectoryFitter::Record>().get(theSmootherName,aSmoother);
     theSmoother.reset(aSmoother->clone());
     edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-    try {
-      std::string theTrackerRecHitBuilderName("WithAngleAndTemplate");  // to be moved to cfg in another PR
-      theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
-      theTrackerRecHitBuilder.product();
-    } catch(...) {
-      std::string theTrackerRecHitBuilderName("hltESPTTRHBWithTrackAngle");  // FIXME FIXME
-      theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
-    }
+    theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
     hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner();
     theSmoother->setHitCloner(&hitCloner);
   }

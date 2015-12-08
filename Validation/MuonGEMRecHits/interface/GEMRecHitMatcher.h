@@ -10,7 +10,6 @@
 
 */
 
-//#include "Validation/MuonGEMHits/interface/SimHitMatcher.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -33,13 +32,11 @@
 #include <DataFormats/GEMRecHit/interface/GEMRecHit.h>
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 #include "Validation/MuonGEMDigis/interface/GenericDigi.h"
-//#include "Validation/MuonGEMDigis/interface/GEMDigiMatcher.h"
 
 #include <vector>
 #include <map>
 #include <set>
 
-using namespace matching;
 class SimHitMatcher;
 class GEMGeometry;
 class GEMRecHitMatcher
