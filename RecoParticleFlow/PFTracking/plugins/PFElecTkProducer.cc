@@ -188,9 +188,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
       if( useFifthStepForEcalDriven_ == false
 	  || useFifthStepForTrackDriven_ == false) {
 	
-
-	unsigned int algo = PFTrackAlgoTools::getAlgoCategory(kf_ref->trackRef()->algo());
-	bool isFifthStepTrack = algo==4 || algo>5;
+	bool isFifthStepTrack = PFTrackAlgoTools::isFifthStep(kf_ref->trackRef()->algo());
 	bool isEcalDriven = true;
 	bool isTrackerDriven = true;
 	

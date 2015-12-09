@@ -314,7 +314,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 	  //	    << " has no track ref.." << std::endl;
 	  continue;
 	}
-	unsigned int iter = PFTrackAlgoTools::getAlgoCategory(trackRef->algo()); 
+	unsigned int iter = trackRef->algo()>6 ? 6: trackRef->algo();
 	++(chMult[iter]);
       }
 

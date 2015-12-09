@@ -1934,24 +1934,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       // ... blow up errors of 5th anf 4th iteration, to reject those
       // ... tracks first (in case it's needed)
       double Dpt = trackRef->ptError();
-      double blowError = 1.;
-      switch (PFTrackAlgoTools::getAlgoCategory(trackRef->algo())) {
-      case 0:
-      case 1:
-      case 5:
-	blowError = 1.;
-	break;
-      case 2:
-      case 3:
-	blowError = factors45_[0];
-	break;
-      case 4:
-	blowError = factors45_[1];
-	break;
-      default:
-	blowError = 1E9;
-	break;
-      }
+      double blowError = PFTrackAlgoTools::errorScale(trackRef->algo(),factors45_);
       // except if it is from an interaction
       bool isPrimaryOrSecondary = isFromSecInt(elements[iTrack], "all");
 

@@ -2430,7 +2430,8 @@ unlinkRefinableObjectKFandECALMatchedToHCAL(ProtoEGObject& RO,
     NotCloserToOther<reco::PFBlockElement::TRACK,reco::PFBlockElement::HCAL>
       tracksToHCALs(_currentblock,_currentlinks,secd_kf->first);
     reco::TrackRef trkRef =   secd_kf->first->trackRef();
-    const unsigned int Algo = PFTrackAlgoTools::getAlgoCategory(trkRef->algo());
+
+    bool goodTrack = PFTrackAlgoTools::isGoodForEGM(trkRef->algo());
     const float secpin = trkRef->p();       
     
     for( auto ecal = ecal_begin; ecal != ecal_end; ++ecal ) {
@@ -2465,7 +2466,7 @@ unlinkRefinableObjectKFandECALMatchedToHCAL(ProtoEGObject& RO,
 	    dynamic_cast<const reco::PFBlockElementCluster*>(hcalclus->first); 
 	  const double hcalenergy = clusthcal->clusterRef()->energy();	  
 	  const double hpluse = ecalenergy+hcalenergy;
-	  const bool isHoHE = ( (hcalenergy / hpluse ) > 0.1 && (Algo < 3 ||Algo==5) );
+	  const bool isHoHE = ( (hcalenergy / hpluse ) > 0.1 && goodTrack );
 	  const bool isHoE  = ( hcalenergy > ecalenergy );
 	  const bool isPoHE = ( secpin > hpluse );	
 	  if( cluster_in_sc[clus_idx] ) {
@@ -2478,7 +2479,7 @@ unlinkRefinableObjectKFandECALMatchedToHCAL(ProtoEGObject& RO,
 		<< " HCAL ENE " << hcalenergy
 		<< " ECAL ENE " << ecalenergy
 		<< " secPIN " << secpin 
-		<< " Algo Track " << Algo << std::endl;
+		<< " Algo Track " << trkRef->algo() << std::endl;
 	      remove_this_kf = true;
 	    }
 	  } else {
@@ -2491,7 +2492,7 @@ unlinkRefinableObjectKFandECALMatchedToHCAL(ProtoEGObject& RO,
 		<< " HCAL ENE " << hcalenergy
 		<< " ECAL ENE " << ecalenergy
 		<< " secPIN " << secpin 
-		<< " Algo Track " << Algo << std::endl;
+		<< " Algo Track " <<trkRef->algo() << std::endl;
 	      remove_this_kf = true;
 	    }
 	  }  

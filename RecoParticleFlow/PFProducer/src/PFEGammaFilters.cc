@@ -189,7 +189,8 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
       cout << " My track element number " <<  itrk->second << endl;
     if(pfele.type()==reco::PFBlockElement::TRACK) {
       reco::TrackRef trackref = pfele.trackRef();
-      unsigned int Algo = PFTrackAlgoTools::getAlgoCategory(trackref->algo());
+
+      bool goodTrack = PFTrackAlgoTools::isGoodForEGM(trackref->algo());
       // iter0, iter1, iter2, iter3 = Algo < 3
       // algo 4,5,6,7
       int nexhits = trackref->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS); 
@@ -203,7 +204,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
       }
       
       // probably we could now remove the algo request?? 
-      if((Algo < 3 ||Algo==5) && nexhits == 0 && trackIsFromPrimaryVertex) {
+      if(goodTrack && nexhits == 0 && trackIsFromPrimaryVertex) {
 	float p_trk = trackref->p();
 	SumExtraKfP += p_trk;
 	iextratrack++;
@@ -219,7 +220,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
 	}
 	if(debugSafeForJetMET) 
 	  cout << " The ecalGsf cluster is not isolated: >0 KF extra with algo < 3" 
-	       << " Algo " << Algo
+	       << " Algo " << trackref->algo()
 	       << " nexhits " << nexhits
 	       << " trackIsFromPrimaryVertex " << trackIsFromPrimaryVertex << endl;
 	if(debugSafeForJetMET) 
@@ -229,7 +230,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
       else {
 	if(debugSafeForJetMET) 
 	  cout << " Tracks from PU " 
-	       << " Algo " << Algo
+	       << " Algo " << trackref->algo()
 	       << " nexhits " << nexhits
 	       << " trackIsFromPrimaryVertex " << trackIsFromPrimaryVertex << endl;
 	if(debugSafeForJetMET) 

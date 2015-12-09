@@ -286,10 +286,11 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
     TransientTrack tmpTk( *((*ie).get()), magField_, globTkGeomHandle_);
     transTracksRaw.push_back( tmpTk );
     transTracksRefRaw.push_back( *ie );
-    unsigned int algo = PFTrackAlgoTools::getAlgoCategory((*ie)->algo());
-    if (algo ==1 ||algo==2) //why not TOB-TEC here as well???  
+    bool nonIt = PFTrackAlgoTools::nonIterative((*ie)->algo());
+    bool step45 = PFTrackAlgoTools::step45((*ie)->algo());
+    if (step45)
       nStep45++;
-    else if (algo >5)
+    if (nonIt)
       nNotIterative++;
   }
 
