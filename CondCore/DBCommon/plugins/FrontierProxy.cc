@@ -4,8 +4,6 @@
 #include "RelationalAccess/IWebCacheControl.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-//#include "CondCore/MetaDataService/interface/MetaDataNames.h"
-#include "CondCore/IOVService/interface/IOVNames.h"
 
 #include "CondCore/DBCommon/interface/TechnologyProxy.h"
 #include <string>
@@ -35,9 +33,6 @@ cond::FrontierProxy::FrontierProxy():
   m_dbConnection(0),
   m_refreshtablelist(){
   m_refreshtablelist.reserve(10);
-  //table names for IOVSequence in the old POOL mapping
-  m_refreshtablelist.push_back(cond::IOVNames::iovTableName());
-  m_refreshtablelist.push_back(cond::IOVNames::iovDataTableName());
   //table names for IOVSequence in ORA
   //FIXME: do not use hard-coded names, ORA should provide them for a given container...
   m_refreshtablelist.push_back("ORA_C_COND_IOVSEQUENCE");

@@ -1,7 +1,5 @@
 <use   name="FWCore/Framework"/>
 <use   name="CondCore/DBCommon"/>
-<use   name="CondCore/IOVService"/>
-<use   name="CondCore/MetaDataService"/>
 <use   name="CondFormats/Alignment"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="CondFormats/SiStripObjects"/>

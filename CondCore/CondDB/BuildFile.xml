@@ -1,8 +1,6 @@
 <use   name="CondCore/DBCommon"/>
-<use   name="CondCore/IOVService"/>
-<use   name="CondCore/MetaDataService"/>
-<use   name="CondCore/TagCollection"/>
-<use   name="CondCore/ORA"/>
+<use   name="CondFormats/Serialization"/>
+<use   name="CondFormats/Common"/>
 <use   name="FWCore/Framework"/>
 <use   name="boost"/>
 <use   name="openssl"/>

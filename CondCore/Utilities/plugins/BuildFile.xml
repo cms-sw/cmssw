@@ -1,10 +1,3 @@
-<library   file="CondPyWrappers.cc" name="CondDBPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-</library>
 <library   file="EmptyIOVSource.cc" name="CondEmptyIOVSource">
   <use   name="CondCore/CondDB"/>
   <use   name="FWCore/Sources"/>

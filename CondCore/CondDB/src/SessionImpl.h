@@ -36,9 +36,6 @@ namespace cond {
       bool isOra = false;
       size_t clients = 0;
     };
-
-    BackendType checkBackendType( boost::shared_ptr<coral::ISessionProxy>& session, 
-				  const std::string& connectionString );
     
     class SessionImpl {
     public:
@@ -46,8 +43,7 @@ namespace cond {
     public:
       SessionImpl();
       SessionImpl( boost::shared_ptr<coral::ISessionProxy>& session, 
-		   const std::string& connectionString, 
-		   BackendType backType );
+		   const std::string& connectionString );
 
       ~SessionImpl();
       
@@ -71,7 +67,6 @@ namespace cond {
       boost::shared_ptr<coral::ISessionProxy> coralSession;
       // not really useful outside the ORA bridging...
       std::string connectionString;
-      BackendType theBackendType;
       std::unique_ptr<ITransaction> transaction;
       std::unique_ptr<IIOVSchema> iovSchemaHandle; 
       std::unique_ptr<IGTSchema> gtSchemaHandle; 

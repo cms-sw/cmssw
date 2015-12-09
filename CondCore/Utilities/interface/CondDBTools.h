@@ -19,15 +19,8 @@ namespace cond {
 		    const std::string& destTag, 
 		    Session& destSession, 
 		    UpdatePolicy policy,
-		    bool log, 
-		    bool forValidation ); 
+		    bool log ); 
   
-    size_t migrateTag( const std::string& sourceTag, 
-		       Session& sourceSession, 
-		       const std::string& destTag, 
-		       Session& destSession,
-		       UpdatePolicy policy,
-		       cond::DbSession& logDbSession);   
 
     size_t importIovs( const std::string& sourceTag, 
 		       Session& sourceSession, 
@@ -46,16 +39,7 @@ namespace cond {
 		  const std::string& description,
 		  bool log );
  
-    bool compareTags( const std::string& firstTag,
-		      Session& firstSession, 
-		      const std::string& firstFileName, 
-		      const std::string& secondTag, 
-		      Session& secondSession,
-		      const std::string& secondFileName );
-
-    bool validateTag( const std::string& refTag, Session& refSession, const std::string& candTag, Session& candSession );
-
-  }
+ }
 
 }
 

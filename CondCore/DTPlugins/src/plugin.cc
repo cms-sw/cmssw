@@ -53,8 +53,7 @@
 namespace cond {
   template <> boost::shared_ptr<BaseKeyed> deserialize<BaseKeyed>( const std::string& payloadType,
 						 const Binary& payloadData,
-						 const Binary& streamerInfoData,
-						 bool unpackingOnly ){
+						 const Binary& streamerInfoData ){
     DESERIALIZE_BASE_CASE( BaseKeyed );                                                                                                                                                                                                             
     DESERIALIZE_POLIMORPHIC_CASE( BaseKeyed, DTKeyedConfig );
 
