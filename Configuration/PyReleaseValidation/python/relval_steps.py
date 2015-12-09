@@ -460,13 +460,44 @@ steps['SMS-T1tttt_mGl-1500_mLSP-100_13_PU25_REMINIAODINPUT']={'INPUT':InputInfo(
 
 # re-miniAOD reco input for data run2
 # 2015b
+steps['RunHLTPhy2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/HLTPhysics/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','hltPhy2015B'),),label='hltPhy2015B',events=100000,location='STD', ls=Run2015B)}
 steps['RunDoubleEG2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','doubEG2015B'),),label='doubEG2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunDoubleMuon2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleMuon/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','doubMu2015B'),),label='doubMu2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunJetHT2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/JetHT/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','jetHT2015B'),),label='jetHT2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunMET2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/MET/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','met2015B'),),label='met2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunMuonEG2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/MuonEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','muEG2015B'),),label='muEG2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunSingleEl2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/SingleElectron/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sigEl2015B'),),label='sigEl2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunSingleMu2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/SingleMuon/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sigMu2015B'),),label='sigMu2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunSinglePh2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/SinglePhoton/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sigPh2015B'),),label='sigPh2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunZeroBias2015B_MINIAOD']={'INPUT':InputInfo(dataSet='/ZeroBias/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','zb2015B'),),label='zb2015B',events=100000,location='STD', ls=Run2015B)}
 
 # 2015c
+steps['RunHLTPhy2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/HLTPhysics/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','hltPhy2015C'),),label='hltPhy2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunDoubleEG2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','doubEG2015C'),),label='doubEG2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunDoubleMuon2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleMuon/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','doubMu2015C'),),label='doubMu2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunJetHT2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/JetHT/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','jetHT2015C'),),label='jetHT2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunMET2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/MET/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','met2015C'),),label='met2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunMuonEG2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/MuonEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','muEG2015C'),),label='muEG2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunDoubleEGPrpt2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','dbEGPrpt2015C'),),label='dbEGPrpt2015C',events=100000,location='STD', ls=Run2015C_full)}
+steps['RunSingleMuPrpt2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/SingleMuon/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sgMuPrpt2015C'),),label='sgMuPrpt2015C',events=100000,location='STD', ls=Run2015C_full)}
+steps['RunSingleEl2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/SingleElectron/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sigEl2015C'),),label='sigEl2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunSingleMu2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/SingleMuon/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sigMu2015C'),),label='sigMu2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunSinglePh2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/SinglePhoton/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sigPh2015C'),),label='sigPh2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunZeroBias2015C_MINIAOD']={'INPUT':InputInfo(dataSet='/ZeroBias/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','zb2015C'),),label='zb2015C',events=100000,location='STD', ls=Run2015C)}
 
 # 2015d
+steps['RunHLTPhy2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/HLTPhysics/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','hltPhy2015D'),),label='hltPhy2015D',events=100000,location='STD', ls=Run2015D)}
 steps['RunDoubleEG2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','doubEG2015D'),),label='doubEG2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunDoubleMuon2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleMuon/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','doubMu2015D'),),label='doubMu2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunJetHT2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/JetHT/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','jetHT2015D'),),label='jetHT2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunMET2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/MET/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','met2015D'),),label='met2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunMuonEG2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/MuonEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','muEG2015D'),),label='muEG2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunDoubleEGPrpt2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/DoubleEG/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','dbEGPrpt2015D'),),label='dbEGPrpt2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunSingleMuPrpt2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/SingleMuon/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sgMuPrpt2015D'),),label='sgMuPrpt2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunSingleEl2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/SingleElectron/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sigEl2015D'),),label='sigEl2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunSingleMu2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/SingleMuon/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sigMu2015D'),),label='sigMu2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunSinglePh2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/SinglePhoton/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','sigPh2015D'),),label='sigPh2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunZeroBias2015D_MINIAOD']={'INPUT':InputInfo(dataSet='/ZeroBias/%s/RECO'%(baseDataSetRelease[15].replace('DATASETSTRING','zb2015D'),),label='zb2015D',events=100000,location='STD',ib_block='38d4cab6-5d5f-11e5-824b-001e67ac06a0',ls=Run2015D)}
 
 #input for fast sim workflows to be added - TODO
 
