@@ -1,11 +1,11 @@
-# /frozen/2015/25ns14e33/v4.4/HLT/V2 (CMSSW_7_4_15)
+# /frozen/2015/25ns14e33/v4.4/HLT/V3 (CMSSW_7_4_15)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT25ns14e33v4" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/frozen/2015/25ns14e33/v4.4/HLT/V2')
+  tableName = cms.string('/frozen/2015/25ns14e33/v4.4/HLT/V3')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
