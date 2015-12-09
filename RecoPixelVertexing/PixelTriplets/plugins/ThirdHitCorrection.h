@@ -72,7 +72,6 @@ private:
   float theMultScattCorrRPhi=0;
   float theMScoeff=0;
   float thePt;
-  const DetLayer * outLayer=nullptr;
 
   pixelrecoutilities::LongitudinalBendingCorrection theBendingCorrection;
   MultipleScatteringParametrisation sigmaRPhi;

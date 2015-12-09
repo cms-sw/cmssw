@@ -11,6 +11,8 @@
 #include<iostream>
 #include<algorithm>
 
+#include "DataFormats/Math/interface/approx_asin.h"
+
 // there are tons of safety checks.
 // Try to move all of the out the regular control flow using gcc magic
 namespace {
@@ -48,11 +50,11 @@ namespace {
   template<class T> inline T sqr(T t) { return t * t; }
   template<class T> inline T sgn(T t) { return std::signbit(t) ? -T(1.) : T(1.); }
   template<class T> inline T clamped_acos(T x) {
-    return T(M_PI/2) - cropped_asin(x);
+    x = std::min(T(1.),std::max(-T(1.),x));
+    return unsafe_acos<5>(x);
   }
-//  { return unlikely(t <= T(-1)) ? T(M_PI) : unlikely(t >= T(1)) ? T(0) : std::acos(t); }
-  template<class T> inline T clamped_sqrt(T t)
-  { return likely(t > 0) ? std::sqrt(t) : T(0); }
+
+  template<class T> inline T clamped_sqrt(T t) { return std::sqrt(std::max(T(0),t)); }
 }
 
 ThirdHitPredictionFromCircle::ThirdHitPredictionFromCircle( 

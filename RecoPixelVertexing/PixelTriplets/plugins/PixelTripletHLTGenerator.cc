@@ -97,14 +97,15 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
   float maxphi = Geom::ftwoPi(), minphi = -maxphi; // increase to cater for any range
   
   // fill the prediction vector
-  for (int il=0; il!=size; ++il) {
+  for (int il=0; il<size; ++il) {
     thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, ev, es);
     auto const & hits = *thirdHitMap[il];
     ThirdHitRZPrediction<PixelRecoLineRZ> & pred = preds[il];
     pred.initLayer(thirdLayers[il].detLayer());
     pred.initTolerance(extraHitRZtolerance);
 
-    corrections[il].init(es, region.ptMin(), *doublets.detLayer(HitDoublets::inner), *doublets.detLayer(HitDoublets::outer), *thirdLayers[il].detLayer(), useMScat, useBend);
+    corrections[il].init(es, region.ptMin(), *doublets.detLayer(HitDoublets::inner), *doublets.detLayer(HitDoublets::outer), 
+                         *thirdLayers[il].detLayer(), useMScat, useBend);
 
     layerTree.clear();
     float minv=999999.0, maxv= -999999.0; // Initialise to extreme values in case no hits

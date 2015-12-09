@@ -30,7 +30,6 @@ void ThirdHitCorrection::init(
 
   theBarrel = layer3.isBarrel();
   thePt = pt;
-  outLayer = &layer3;
 
   if (theUseMultipleScattering) sigmaRPhi.init(&layer3,es);
 }
@@ -86,11 +85,12 @@ void ThirdHitCorrection::init(
       const PixelRecoLineRZ & line,
       const PixelRecoPointRZ & constraint, int il) {
 
+  theLine = line;
   if (!theUseMultipleScattering) return;
 
     // auto newCorr = theMultScattCorrRPhi;
     theMultScattCorrRPhi = 3.f*sigmaRPhi(thePt, line.cotLine(), constraint, il);
-    // std::cout << "ThirdHitCorr " << theMultScattCorrRPhi << ' ' << newCorr << ' ' << newCorr/theMultScattCorrRPhi << std::endl;
+    // std::cout << "ThirdHitCorr " << (theBarrel ? "B " : "F " )<< theMultScattCorrRPhi << ' ' << newCorr << ' ' << newCorr/theMultScattCorrRPhi << std::endl;
     float overSinTheta = std::sqrt(1.f+sqr(line.cotLine()));
     if (theBarrel) {
       theMScoeff =  theMultScattCorrRPhi*overSinTheta; 
