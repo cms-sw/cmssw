@@ -75,41 +75,10 @@ process.TFileService = cms.Service("TFileService",
 #############################
 # Jets
 #############################
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu3CaloJetSequence_PbPb_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs3CaloJetSequence_PbPb_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs3PFJetSequence_PbPb_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu3PFJetSequence_PbPb_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.FullJetSequence_nominalPbPb')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu4CaloJetSequence_PbPb_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs4CaloJetSequence_PbPb_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs4PFJetSequence_PbPb_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu4PFJetSequence_PbPb_mc_cff')
-
-process.load('HeavyIonsAnalysis.JetAnalysis.makePartons_cff')
-
-process.highPurityTracks = cms.EDFilter("TrackSelector",
-                                        src = cms.InputTag("hiGeneralTracks"),
-                                        cut = cms.string('quality("highPurity")'))
-
-process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
-process.offlinePrimaryVertices.TrackLabel = 'highPurityTracks'
-
-
-process.jetSequences = cms.Sequence(
-    process.makePartons +
-    process.highPurityTracks +
-    process.offlinePrimaryVertices +
-
-    process.akPu3CaloJetSequence +
-    process.akVs3CaloJetSequence +
-    process.akVs3PFJetSequence +
-    process.akPu3PFJetSequence +
-
-    process.akPu4CaloJetSequence +
-    process.akVs4CaloJetSequence +
-    process.akVs4PFJetSequence +
-    process.akPu4PFJetSequence
-    )
+# Use this one for JEC:
+#process.load('HeavyIonsAnalysis.JetAnalysis.FullJetSequence_JECPbPb')
 
 ####################################################################################
 
