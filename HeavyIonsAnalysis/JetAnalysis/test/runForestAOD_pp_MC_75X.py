@@ -96,13 +96,16 @@ process.highPurityTracks = cms.EDFilter("TrackSelector",
 
 # Other radii jets and calo jets need to be reconstructed
 process.jetSequences = cms.Sequence(
+    process.genParticlesForJets +
     process.ak3GenJets +
     process.ak5GenJets +
     process.ak3PFJets +
     process.ak5PFJets +
     process.makePartons +
     process.highPurityTracks +
+    process.ak3PFJetSequence +
     process.ak4PFJetSequence +
+    process.ak5PFJetSequence +
     process.ak4CaloJetSequence
 )
 

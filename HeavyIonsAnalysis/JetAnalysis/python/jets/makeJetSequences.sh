@@ -25,8 +25,8 @@ do
                         if [ $sub == "NONE" ]; then
                             subt=""
                         fi
-			
-                        genjets="HiGenJets"			
+
+                        genjets="HiGenJets"
                         ismc="False"
                         corrlabel="_offline"
                         domatch="True"
@@ -39,7 +39,7 @@ do
                         eventinfotag="generator"
 			jetcorrectionlevels="\'L2Relative\',\'L3Absolute\'"
                         echo "" > $algo$subt$radius${object}JetSequence_${system}_${sample}_cff.py
-			
+
                         if [ $system == "pp" ]; then
                                 #corrlabel="_generalTracks"
                             tracks="generalTracks"
@@ -50,25 +50,25 @@ do
 				jetcorrectionlevels="\'L2Relative\',\'L3Absolute\',\'L2L3Residual\'"
 			    fi
                         fi
-			
+
                         if [ $sample == "mc" ] || [ $sample == "jec" ] || [ $sample == "mix" ]; then
                             ismc="True"
                         fi
-			
+
                         if [ $system == "pp" ]; then
-                            genjets="HiGenJets"
+                            genjets="GenJets"
                         fi
-			
+
                             #if [ $sample == "mix" ]; then
                             #    eventinfotag="hiSignal"
                             #fi
-			
+
                             #if [ $object == "Calo" ]; then
                             #    corrlabel="_HI"
                             #fi
-			
+
                         corrname=`echo ${algo} | sed 's/\(.*\)/\U\1/'`${radius}${object}${corrlabel}
-			
+
                          cat templateSequence_bTag_cff.py.txt \
                             | sed "s/ALGO_/$algo/g" \
                             | sed "s/SUB_/$subt/g" \
@@ -87,7 +87,7 @@ do
                             | sed "s/EVENTINFOTAG/$eventinfotag/g" \
 			    | sed "s/JETCORRECTIONLEVELS/$jetcorrectionlevels/g" \
                             >> $algo$subt$radius${object}JetSequence_${system}_${sample}_cff.py
-			
+
 # skip no sub
                         if [ $sample == "jec" ] && [ $sub != "NONE" ]; then
                             echo "${algo}${subt}${radius}${object}Jets.jetPtMin = 1" >> HiReRecoJets_cff.py  # NO! this sets ptmin to 1 for all algos
@@ -119,7 +119,7 @@ for algo in ak
     else
 	echo ")" >> HiGenJets_cff.py
     fi
-    
+
   done
 done
 
