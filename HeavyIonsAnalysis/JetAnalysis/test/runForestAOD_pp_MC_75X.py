@@ -70,10 +70,23 @@ process.TFileService = cms.Service("TFileService",
 #############################
 # Jets
 #############################
+
+### PP RECO does not include R=3 or R=5 jets.
+### re-RECO is only possible for PF, RECO is missing calotowers
+from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
+ak5PFJets.doAreaFastjet = True
+process.ak5PFJets = ak5PFJets
+process.ak3PFJets = ak5PFJets.clone(rParam = 0.3)
+from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
+process.ak5GenJets = ak5GenJets
+process.ak3GenJets = ak5GenJets.clone(rParam = 0.3)
+
 process.load('RecoJets.Configuration.GenJetParticles_cff')
 process.load('RecoHI.HiJetAlgos.HiGenJets_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.makePartons_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak3PFJetSequence_pp_mc_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak4PFJetSequence_pp_mc_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak5PFJetSequence_pp_mc_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak4CaloJetSequence_pp_mc_cff')
 
 process.highPurityTracks = cms.EDFilter("TrackSelector",
@@ -83,6 +96,10 @@ process.highPurityTracks = cms.EDFilter("TrackSelector",
 
 # Other radii jets and calo jets need to be reconstructed
 process.jetSequences = cms.Sequence(
+    process.ak3GenJets +
+    process.ak5GenJets +
+    process.ak3PFJets +
+    process.ak5PFJets +
     process.makePartons +
     process.highPurityTracks +
     process.ak4PFJetSequence +
