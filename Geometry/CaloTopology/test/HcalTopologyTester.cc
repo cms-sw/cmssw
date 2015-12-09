@@ -64,7 +64,7 @@ void HcalTopologyTester::doTest(const HcalTopology& topology) {
     for (int depth=1; depth<4; ++depth) {
       for (int ieta=-41; ieta<=41; ieta++) {
 	for (int iphi=1; iphi<=72; iphi++) {
-	  const HcalDetId id(subdet,ieta,iphi,depth);
+	  const HcalDetId id(subdet,ieta,iphi,depth,false);
 	  if (topology.valid(id)) {
 	    std::vector<DetId> idE = topology.east(id);
 	    std::vector<DetId> idW = topology.west(id);

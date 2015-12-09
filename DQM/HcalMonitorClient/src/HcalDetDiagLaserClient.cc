@@ -166,7 +166,7 @@ void HcalDetDiagLaserClient::calculateProblems(DQMStore::IBooker &ib, DQMStore::
 		  else if (isHE(eta,d+1)) subdet=HcalEndcap;
 		  else if (isHF(eta,d+1)) subdet=HcalForward;
 		  else if (isHO(eta,d+1)) subdet=HcalOuter;
-		  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1));
+		  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1), false);
 		  if (badstatusmap.find(hcalid)!=badstatusmap.end())
 		    problemvalue=999; 		
 		}
@@ -548,7 +548,7 @@ void HcalDetDiagLaserClient::htmlOutput(DQMStore::IBooker &ib, DQMStore::IGetter
 	     else if (isHE(eta,d+1)) subdet=HcalEndcap;
 	     else if (isHF(eta,d+1)) subdet=HcalForward;
 	     else if (isHO(eta,d+1)) subdet=HcalOuter;
-	  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1));
+	  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1), false);
           float val=BadTiming_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val!=0){
             if(subdet==HcalBarrel){
@@ -603,7 +603,7 @@ void HcalDetDiagLaserClient::htmlOutput(DQMStore::IBooker &ib, DQMStore::IGetter
           if(!isHB(eta,d+1)) continue;
           float val=BadTiming_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
-          HcalDetId hcalid(HcalBarrel,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalBarrel,ieta,phi+1,d+1,false);
 	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
           sprintf(str,"Time-Ref=%.2f",val);
@@ -623,7 +623,7 @@ void HcalDetDiagLaserClient::htmlOutput(DQMStore::IBooker &ib, DQMStore::IGetter
           if(!isHE(eta,d+1)) continue;
           float val=BadTiming_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
-          HcalDetId hcalid(HcalEndcap,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalEndcap,ieta,phi+1,d+1,false);
 	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
           sprintf(str,"Time-Ref=%.2f",val);
@@ -643,7 +643,7 @@ void HcalDetDiagLaserClient::htmlOutput(DQMStore::IBooker &ib, DQMStore::IGetter
           if(!isHO(eta,d+1)) continue;
           float val=BadTiming_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
-          HcalDetId hcalid(HcalOuter,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalOuter,ieta,phi+1,d+1,false);
 	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
           sprintf(str,"Time-Ref=%.2f",val);
@@ -663,7 +663,7 @@ void HcalDetDiagLaserClient::htmlOutput(DQMStore::IBooker &ib, DQMStore::IGetter
           if(!isHF(eta,d+1)) continue;
           float val=BadTiming_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
-          HcalDetId hcalid(HcalForward,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalForward,ieta,phi+1,d+1,false);
 	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
           sprintf(str,"Time-Ref=%.2f",val);
@@ -684,7 +684,7 @@ void HcalDetDiagLaserClient::htmlOutput(DQMStore::IBooker &ib, DQMStore::IGetter
           if(!isHB(eta,d+1)) continue;
           float val=BadEnergy_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
-          HcalDetId hcalid(HcalBarrel,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalBarrel,ieta,phi+1,d+1,false);
 	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
           sprintf(str,"Energy/Ref=%.2f",val);
@@ -704,7 +704,7 @@ void HcalDetDiagLaserClient::htmlOutput(DQMStore::IBooker &ib, DQMStore::IGetter
           if(!isHE(eta,d+1)) continue;
           float val=BadEnergy_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
-          HcalDetId hcalid(HcalEndcap,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalEndcap,ieta,phi+1,d+1,false);
 	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
           sprintf(str,"Energy/Ref=%.2f",val);
@@ -724,7 +724,7 @@ void HcalDetDiagLaserClient::htmlOutput(DQMStore::IBooker &ib, DQMStore::IGetter
           if(!isHO(eta,d+1)) continue;
           float val=BadEnergy_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
-          HcalDetId hcalid(HcalOuter,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalOuter,ieta,phi+1,d+1,false);
 	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
           sprintf(str,"Energy/Ref=%.2f",val);
@@ -744,7 +744,7 @@ void HcalDetDiagLaserClient::htmlOutput(DQMStore::IBooker &ib, DQMStore::IGetter
           if(!isHF(eta,d+1)) continue;
           float val=BadEnergy_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
-          HcalDetId hcalid(HcalForward,ieta,phi+1,d+1);
+          HcalDetId hcalid(HcalForward,ieta,phi+1,d+1,false);
 	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
           sprintf(str,"Energy/Ref=%.2f",val);

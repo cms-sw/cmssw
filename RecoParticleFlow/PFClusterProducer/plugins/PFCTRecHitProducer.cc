@@ -280,8 +280,8 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 		double shortFibre = energyhadHF/2.;
 		int ieta = detid.ieta();
 		int iphi = detid.iphi();
-		HcalDetId theLongDetId (HcalForward, ieta, iphi, 1);
-		HcalDetId theShortDetId (HcalForward, ieta, iphi, 2);
+		HcalDetId theLongDetId (HcalForward, ieta, iphi, 1, false);
+		HcalDetId theShortDetId (HcalForward, ieta, iphi, 2, false);
 		typedef HFRecHitCollection::const_iterator iHF;
 		iHF theLongHit = hfHandle->find(theLongDetId); 
 		iHF theShortHit = hfHandle->find(theShortDetId); 
@@ -495,8 +495,8 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 		// First, check the timing of long and short fibre in eta = 29 if tower 30.
 		else if ( abs(ieta) == 30 ) { 
 		  int ieta29 = ieta > 0 ? 29 : -29;
-		  HcalDetId theLongDetId29 (HcalForward, ieta29, iphi, 1);
-		  HcalDetId theShortDetId29 (HcalForward, ieta29, iphi, 2);
+		  HcalDetId theLongDetId29 (HcalForward, ieta29, iphi, 1, false);
+		  HcalDetId theShortDetId29 (HcalForward, ieta29, iphi, 2, false);
 		  iHF theLongHit29 = hfHandle->find(theLongDetId29); 
 		  iHF theShortHit29 = hfHandle->find(theShortDetId29); 
 		  // 

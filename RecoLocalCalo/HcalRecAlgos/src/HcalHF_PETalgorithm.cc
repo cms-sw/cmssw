@@ -107,7 +107,7 @@ void HcalHF_PETalgorithm::HFSetFlagFromPET(HFRecHit& hf,
     }
 
   // Step 2:  Get partner info, check if partner is excluded from rechits already
-  HcalDetId partner(HcalForward, ieta, iphi, 3-depth); //  if depth=1, 3-depth=2, and vice versa
+  HcalDetId partner(HcalForward, ieta, iphi, 3-depth, false); //  if depth=1, 3-depth=2, and vice versa
   DetId detpartner=DetId(partner);
   const HcalChannelStatus* partnerstatus=myqual->getValues(detpartner.rawId());
 

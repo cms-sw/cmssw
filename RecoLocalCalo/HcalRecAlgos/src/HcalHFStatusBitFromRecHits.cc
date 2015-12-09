@@ -79,7 +79,7 @@ void HcalHFStatusBitFromRecHits::hfSetFlagFromRecHits(HFRecHitCollection& rec,
       // Check for cells whose partners have been excluded from the rechit collections
       // Such cells will not get flagged (since we can't make an L vs. S comparison)
 
-      HcalDetId partner(HcalForward, ieta, iphi, 3-depth); // if depth=1, 3-depth =2, and vice versa
+      HcalDetId partner(HcalForward, ieta, iphi, 3-depth, false); // if depth=1, 3-depth =2, and vice versa
       DetId detpartner=DetId(partner);
       const HcalChannelStatus* partnerstatus=myqual->getValues(detpartner.rawId());
       if (mySeverity->dropChannel(partnerstatus->getValue() ) ) continue;  // partner was dropped; don't set flag

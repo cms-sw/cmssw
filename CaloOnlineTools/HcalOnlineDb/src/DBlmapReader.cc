@@ -216,7 +216,7 @@ void printEMAProw(int channel, FILE * emap, VectorLMAP * lmap){
     _subdet = HcalBarrel;
     std::cerr<<"Bad Subdet"<<std::endl;
   }
-  HcalDetId _hcaldetid( _subdet, (lmap->sideC[j])*(lmap->etaC[j]), lmap->phiC[j], lmap->depthC[j] );
+  HcalDetId _hcaldetid( _subdet, (lmap->sideC[j])*(lmap->etaC[j]), lmap->phiC[j], lmap->depthC[j], false );
   int hcalID = _hcaldetid . rawId(); 
 
   char tb = lmap->fpgaC[j][0];

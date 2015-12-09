@@ -10,7 +10,7 @@ DetId hcalTransformedId(const DetId& aid) {
   DetId id;
   if (aid.det()==DetId::Hcal) {
     HcalDetId hcid(aid);
-    id   = HcalDetId(hcid.subdet(),hcid.ieta(),hcid.iphi(),hcid.depth());
+    id   = HcalDetId(hcid.subdet(),hcid.ieta(),hcid.iphi(),hcid.depth(),false);
   } else if (aid.det()==DetId::Calo && aid.subdetId()==HcalZDCDetId::SubdetectorId) {
     HcalZDCDetId hcid(aid);
     id   = HcalZDCDetId(hcid.section(),(hcid.zside()>0),hcid.channel());

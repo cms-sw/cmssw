@@ -14,7 +14,7 @@ namespace spr{
       double energy = getEnergy(hit.at(ihit));
       HcalDetId id0 = hit.at(ihit)->id();
       if ((id0.subdet() != HcalOuter) || includeHO) {
-      	HcalDetId id1(id0.subdet(),id0.ieta(),id0.iphi(),1);
+      	HcalDetId id1(id0.subdet(),id0.ieta(),id0.iphi(),1,false);
         bool found(false);
         for (unsigned int idet=0; idet<dets.size(); ++idet) {
           if (id1 == dets[idet]) {
@@ -48,7 +48,7 @@ namespace spr{
       double energy = hit.at(ihit)->energy();
       HcalDetId id0 = hit.at(ihit)->id();
       if ((id0.subdet() != HcalOuter) || includeHO) {
-      	HcalDetId id1(id0.subdet(),id0.ieta(),id0.iphi(),1);
+      	HcalDetId id1(id0.subdet(),id0.ieta(),id0.iphi(),1,false);
         bool found(false);
         for (unsigned int idet=0; idet<dets.size(); ++idet) {
           if (id1 == dets[idet]) {

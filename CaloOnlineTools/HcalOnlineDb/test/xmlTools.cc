@@ -1076,7 +1076,7 @@ int createZSLoader( void )
       if ( row->det . c_str() == "HE" ) _subdet = HcalEndcap;
       if ( row->det . c_str() == "HO" ) _subdet = HcalOuter;
       if ( row->det . c_str() == "HF" ) _subdet = HcalForward;
-      HcalDetId _hcaldetid( _subdet, (row->side)*(row->eta), row->phi, row->depth );
+      HcalDetId _hcaldetid( _subdet, (row->side)*(row->eta), row->phi, row->depth, false );
       conf . hcal_channel_id = _hcaldetid . rawId();
 
       conf . zero_suppression = 9;
@@ -1103,7 +1103,7 @@ int createZSLoader( void )
       if ( row->det . c_str() == "HE" ) _subdet = HcalEndcap;
       if ( row->det . c_str() == "HO" ) _subdet = HcalOuter;
       if ( row->det . c_str() == "HF" ) _subdet = HcalForward;
-      HcalDetId _hcaldetid( _subdet, (row->side)*(row->eta), row->phi, row->depth );
+      HcalDetId _hcaldetid( _subdet, (row->side)*(row->eta), row->phi, row->depth, false );
       conf . hcal_channel_id = _hcaldetid . rawId();
 
       conf . zero_suppression = 9;
@@ -1222,7 +1222,7 @@ int createZSLoader2( std::string & tag, std::string & comment, std::string & zs2
       else{
 	_subdet = HcalOther;
       }
-      HcalDetId _hcaldetid( _subdet, side*eta_abs, phi, depth );
+      HcalDetId _hcaldetid( _subdet, side*eta_abs, phi, depth, false );
       conf . hcal_channel_id = _hcaldetid . rawId();
 
       //conf . zero_suppression = 9;

@@ -14,7 +14,7 @@ int main()
 
   //  HPDIonFeedbackSim feedbackSim(pset, theShapes);
   CLHEP::HepJamesRandom engine;
-  HcalDetId detId(HcalBarrel, 1, 1, 1);
+  HcalDetId detId(HcalBarrel, 1, 1, 1, false);
 
   int nRuns = 1000;
 

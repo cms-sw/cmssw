@@ -140,7 +140,7 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) :
 			    (std::abs(ieta[k]) > 16) ? HcalEndcap :
 			    ((std::abs(ieta[k]) == 16) && (depth[k] == 3)) ? HcalEndcap :
 			    (depth[k] == 4) ? HcalOuter : HcalBarrel);
-    unsigned int id = (HcalDetId(subd,ieta[k],iphi[k],depth[k])).rawId();
+    unsigned int id = (HcalDetId(subd,ieta[k],iphi[k],depth[k],false)).rawId();
     hcalID_.push_back(id);
     edm::LogInfo("AnalyzerMB") << "DetId[" << k << "] " << HcalDetId(id);
   }
@@ -203,7 +203,7 @@ void RecAnalyzerMinbias::beginRun(edm::Run const&, edm::EventSetup const& iS) {
 	for (int eta = -50; eta < 50; eta++) {
 	  for (int phi = 0; phi < 100; phi++) {
 	    for (int depth = 1; depth < maxDepthHB; depth++) {
-	      HcalDetId cell (HcalBarrel, eta, phi, depth);
+	      HcalDetId cell (HcalBarrel, eta, phi, depth, false);
 	      if (hcaltopology->valid(cell)) {
 		sprintf (name, "HBeta%dphi%ddep%d", eta, phi, depth);
 		sprintf (title,"Energy (HB #eta %d #phi %d depth %d)", eta, phi, depth);
@@ -219,7 +219,7 @@ void RecAnalyzerMinbias::beginRun(edm::Run const&, edm::EventSetup const& iS) {
 	for (int eta = -50; eta < 50; eta++) {
 	  for (int phi = 0; phi < 100; phi++) {
 	    for (int depth = 1; depth < maxDepthHE; depth++) {
-	      HcalDetId cell (HcalEndcap, eta, phi, depth);
+	      HcalDetId cell (HcalEndcap, eta, phi, depth, false);
 	      if (hcaltopology->valid(cell)) {
 		sprintf (name, "HEeta%dphi%ddep%d", eta, phi, depth);
 		sprintf (title,"Energy (HE #eta %d #phi %d depth %d)", eta, phi, depth);
@@ -235,7 +235,7 @@ void RecAnalyzerMinbias::beginRun(edm::Run const&, edm::EventSetup const& iS) {
 	for (int eta = -50; eta < 50; eta++) {
 	  for (int phi = 0; phi < 100; phi++) {
 	    for (int depth = 1; depth < maxDepthHF; depth++) {
-	      HcalDetId cell (HcalForward, eta, phi, depth);
+	      HcalDetId cell (HcalForward, eta, phi, depth, false);
 	      if (hcaltopology->valid(cell)) {
 		sprintf (name, "HFeta%dphi%ddep%d", eta, phi, depth);
 		sprintf (title,"Energy (HF #eta %d #phi %d depth %d)", eta, phi, depth);

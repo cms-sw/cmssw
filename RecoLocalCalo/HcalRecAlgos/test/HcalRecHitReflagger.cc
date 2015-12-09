@@ -445,7 +445,7 @@ double HcalRecHitReflagger::GetS9S1value(const HFRecHit& hf)
 	  while (testphi<0) testphi+=72;
 	  if (i==ieta && d==depth) continue;  // don't add the cell itself
 	  // Look to see if neighbor is in rechit collection
-	  HcalDetId neighbor(HcalForward, i,testphi,d);
+	  HcalDetId neighbor(HcalForward, i,testphi,d,false);
 	  HFRecHitCollection::const_iterator neigh=hfRecHits->find(neighbor);
 	  if (neigh!=hfRecHits->end())
 	    S9S1+=neigh->energy();
@@ -466,7 +466,7 @@ double HcalRecHitReflagger::GetS9S1value(const HFRecHit& hf)
 	  while (testphi<0) testphi+=72;
 	  while (testphi>72) testphi-=72;
 	  // Look to see if neighbor is in rechit collection
-	  HcalDetId neighbor(HcalForward, ieta,testphi,d);
+	  HcalDetId neighbor(HcalForward, ieta,testphi,d,false);
 	  HFRecHitCollection::const_iterator neigh=hfRecHits->find(neighbor);
 	  if (neigh!=hfRecHits->end())
 	    S9S1+=neigh->energy();
@@ -477,7 +477,7 @@ double HcalRecHitReflagger::GetS9S1value(const HFRecHit& hf)
     {
       for (int d=1;d<=2;++d) // add cells from both depths!
 	{
-	  HcalDetId neighbor(HcalForward, 39*abs(ieta)/ieta,(iphi+2)%72,d);  
+	  HcalDetId neighbor(HcalForward, 39*abs(ieta)/ieta,(iphi+2)%72,d,false);
 	  HFRecHitCollection::const_iterator neigh=hfRecHits->find(neighbor);
 	  if (neigh!=hfRecHits->end())
 	      S9S1+=neigh->energy();
@@ -498,7 +498,7 @@ double HcalRecHitReflagger::GetPETvalue(const HFRecHit& hf)
   double energy=hf.energy();
   if (debug_>0)  std::cout <<"\t<HcalRecHitReflagger::GetPETvalue>  Channel = ("<<iphi<<",  "<<ieta<<",  "<<depth<<")  :  Energy = "<<energy<<std::endl; 
 
-  HcalDetId pId(HcalForward, ieta,iphi,3-depth); // get partner;
+  HcalDetId pId(HcalForward, ieta,iphi,3-depth,false); // get partner;
   // Check if partner is in known dead cell list; if so, don't flag
   if (badstatusmap.find(pId)!=badstatusmap.end())
     return 0;

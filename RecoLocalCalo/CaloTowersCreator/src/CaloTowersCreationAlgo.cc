@@ -1348,8 +1348,8 @@ GlobalPoint CaloTowersCreationAlgo::hadShwrPos(CaloTowerDetId towerId, float fra
 
   if(towerId.ietaAbs() >= theTowerTopology->firstHFRing()){
     // forward, take the geometry for long fibers
-    frontCellId = HcalDetId(HcalForward, towerId.zside()*theTowerTopology->convertCTtoHcal(abs(iEta)), iPhi, 1);
-    backCellId  = HcalDetId(HcalForward, towerId.zside()*theTowerTopology->convertCTtoHcal(abs(iEta)), iPhi, 1);    
+    frontCellId = HcalDetId(HcalForward, towerId.zside()*theTowerTopology->convertCTtoHcal(abs(iEta)), iPhi, 1, false);
+    backCellId  = HcalDetId(HcalForward, towerId.zside()*theTowerTopology->convertCTtoHcal(abs(iEta)), iPhi, 1, false);    
   }
   else {
     //use constituents map
