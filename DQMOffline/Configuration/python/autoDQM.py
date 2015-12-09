@@ -25,6 +25,8 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
             'miniAODDQM': ['DQMOfflineMiniAOD',
                         'DQMHarvestMiniAOD'],
             'standardDQM': ['DQMOffline',
-                            'dqmHarvesting']
+                            'dqmHarvesting'],
+            'liteDQMHI': ['liteDQMOfflineHeavyIons',
+                          'dqmHarvesting']
             }
 
