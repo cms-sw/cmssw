@@ -19,8 +19,8 @@ Chi2EstimatorForRefit.MaxChi2 = cms.double(100000.0)
 Chi2EstimatorForRefit.nSigma = cms.double(3.0)
 
 
-from TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi import *
-from TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi import *
+from TrackingTools.TrackFitters.KFTrajectoryFitter_cfi import *
+from TrackingTools.TrackFitters.KFTrajectorySmoother_cfi import *
 
 KFFitterForRefitOutsideIn = KFTrajectoryFitter.clone()
 KFFitterForRefitOutsideIn.ComponentName = cms.string('KFFitterForRefitOutsideIn')

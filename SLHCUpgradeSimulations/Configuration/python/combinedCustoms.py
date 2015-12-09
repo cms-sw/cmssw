@@ -13,13 +13,13 @@ from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fix
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
 def cust_2017(process):
-    process=customisePostLS1(process)
+    process=customisePostLS1(process,displayDeprecationWarning=False)
     process=customisePhase1Tk(process)
     #process=customise_HcalPhase0(process)
     return process
 
 def cust_2019(process):
-    process=customisePostLS1(process)
+    process=customisePostLS1(process,displayDeprecationWarning=False)
     process=customisePhase1Tk(process)
     process=customise_HcalPhase1(process)
     return process
@@ -37,6 +37,40 @@ def cust_2023MuonOnly(process):
 
 def noCrossing(process):
     process=customise_NoCrossing(process)
+    return process
+
+def cust_2023HGCal_common(process):   
+    process = customise_rpc(process)
+    process = fixRPCConditions(process)
+    process = customise_HcalPhase1(process)
+    process = customisePhase1Tk(process)    
+    if hasattr(process,'L1simulation_step'):
+        process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
+    if hasattr(process,'digitisation_step'):
+        if hasattr(process.mix.digitizers,'ecal'):
+            process.mix.digitizers.ecal.doEE = cms.bool(False)
+            process.mix.digitizers.ecal.doES = cms.bool(False)
+        process.load('SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi')
+        process.mix.digitizers.hgceeDigitizer=process.hgceeDigitizer
+        process.mix.digitizers.hgchebackDigitizer=process.hgchebackDigitizer
+        process.mix.digitizers.hgchefrontDigitizer=process.hgchefrontDigitizer
+        # Also need to tell the MixingModule to make the correct collections available from
+        # the pileup, even if not creating CrossingFrames.
+        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgceeDigitizer.hitCollection.value()) )
+        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgchebackDigitizer.hitCollection.value()) )
+        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgchefrontDigitizer.hitCollection.value()) )
+        process.mix.mixObjects.mixCH.subdets.append( process.hgceeDigitizer.hitCollection.value() )
+        process.mix.mixObjects.mixCH.subdets.append( process.hgchebackDigitizer.hitCollection.value() )
+        process.mix.mixObjects.mixCH.subdets.append( process.hgchefrontDigitizer.hitCollection.value() )    
+    return process
+
+def cust_2023HGCal(process):    
+    process = cust_2023HGCal_common(process)
+    return process
+
+def cust_2023HGCalMuon(process):    
+    process = customise_me0(process)
+    process = cust_2023HGCal_common(process)    
     return process
 
 ##### clone aging.py here 

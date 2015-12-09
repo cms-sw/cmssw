@@ -34,6 +34,7 @@ namespace sistrip {
     token_ = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel"));
     int16_t appended_bytes = pset.getParameter<int>("AppendedBytes");
     int16_t trigger_fed_id = pset.getParameter<int>("TriggerFedId");
+    bool legacy_unpacker = pset.getParameter<bool>("LegacyUnpacker");
     bool use_daq_register = pset.getParameter<bool>("UseDaqRegister");
     bool using_fed_key = pset.getParameter<bool>("UseFedKey");
     bool unpack_bad_channels = pset.getParameter<bool>("UnpackBadChannels");
@@ -49,6 +50,7 @@ namespace sistrip {
     uint32_t errorThreshold = pset.getParameter<unsigned int>("ErrorThreshold");
 
     rawToDigi_ = new sistrip::RawToDigiUnpacker( appended_bytes, fed_buffer_dump_freq, fed_event_dump_freq, trigger_fed_id, using_fed_key, unpack_bad_channels, mark_missing_feds, errorThreshold);
+    rawToDigi_->legacy(legacy_unpacker);
     rawToDigi_->quiet(quiet);
     rawToDigi_->useDaqRegister( use_daq_register ); 
     rawToDigi_->extractCm(extractCm_);

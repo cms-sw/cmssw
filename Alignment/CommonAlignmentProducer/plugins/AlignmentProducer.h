@@ -32,7 +32,6 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include <FWCore/Framework/interface/Frameworkfwd.h>
-#include "CondCore/DBCommon/interface/Time.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
 

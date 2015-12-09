@@ -68,11 +68,11 @@ def compareSimMemPair(newLog,candle,profdir,curdir,oldlog,oldRelName=""):
         print "HERE Oldlog:%s"%oldlog
         print "HERE newLog:%s"%newLog
         cpr.cmpSimpMemReport(rootf,curdir,oldlog,newLog,1,True,candle,prevrev = oldRelName)
-    except cpr.SimpMemParseErr, detail:
+    except cpr.SimpMemParseErr as detail:
         print "WARNING: Could not parse data from log file %s; not performing regression" % detail.message
-    except OSError, detail:
+    except OSError as detail:
         print "WARNING: The OS returned the following error when comparing %s and %s" % (oldlog,log), detail
-    except IOError, detail:
+    except IOError as detail:
         print "IOError:", detail
     else:
         print "Successfully compared %s and %s" % (oldlog,newLog)        
@@ -199,14 +199,14 @@ def regressReports(olddir,newdir,oldRelName = "",newRelName=""):
                                         elif prof == "IgProfMemLive":
                                             IgProfMemOpt="-y MEM_LIVE"
                                             cpr.cmpIgProfReport(outpath,oldlog,log,IgProfMemOpt)
-                                    except cpr.PerfReportErr,detail:
+                                    except cpr.PerfReportErr as detail:
                                         print "WARNING: Perfreport return non-zero exit status when comparing %s and %s. Perfreport output follows" % (oldlog,log)
                                         print detail.message
-                                    except cpr.TimingParseErr,detail:
+                                    except cpr.TimingParseErr as detail:
                                         print "WARNING: Could not parse data from log file %s; not performing regression" % detail.message                                            
-                                    except OSError, detail:
+                                    except OSError as detail:
                                         print "WARNING: The OS returned the following error when comparing %s and %s" % (oldlog,log), detail
-                                    except IOError, detail:
+                                    except IOError as detail:
                                         print "IOError:", detail
                                     else:
                                         print "Successfully compared %s and %s" % (oldlog,log)                                            

@@ -151,6 +151,8 @@ PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
   hepMC_Token_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
   genjets_Token_ = consumes<reco::GenJetCollection>(
       edm::InputTag("ak4GenJets"));
+ 
+  genpartToken_ = consumes<reco::GenParticleCollection>(edm::InputTag( "genParticles" ));
 
   consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag("trackAssociatorByHitsForPhotonValidation"));
 
@@ -1189,7 +1191,105 @@ void PhotonValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::Run cons
   
   
     //}
+
+  ///// Histos to allow comparison with miniAOD
+
+  h_scEta_miniAOD_[0] =   iBooker.book1D("scEta_miniAOD"," SC Eta ",etaBin,etaMin, etaMax);
+  h_scPhi_miniAOD_[0] =   iBooker.book1D("scPhi_miniAOD"," SC Phi ",phiBin,phiMin,phiMax);
+  histname = "phoE";
+  h_phoE_miniAOD_[0][0]=iBooker.book1D(histname+"All_miniAOD"," Photon Energy: All ecal ", eBin,eMin, eMax);
+  h_phoE_miniAOD_[0][1]=iBooker.book1D(histname+"Barrel_miniAOD"," Photon Energy: barrel ",eBin,eMin, eMax);
+  h_phoE_miniAOD_[0][2]=iBooker.book1D(histname+"Endcap_miniAOD"," Photon Energy: Endcap ",eBin,eMin, eMax);
   
+  histname = "phoEt";
+  h_phoEt_miniAOD_[0][0] = iBooker.book1D(histname+"All_miniAOD"," Photon Transverse Energy: All ecal ", etBin,etMin, etMax);
+  h_phoEt_miniAOD_[0][1] = iBooker.book1D(histname+"Barrel_miniAOD"," Photon Transverse Energy: Barrel ",etBin,etMin, etMax);
+  h_phoEt_miniAOD_[0][2] = iBooker.book1D(histname+"Endcap_miniAOD"," Photon Transverse Energy: Endcap ",etBin,etMin, etMax);
+  
+  
+  histname = "eRes";
+  h_phoERes_miniAOD_[0][0] = iBooker.book1D(histname+"All_miniAOD"," Photon E/E_{true}: All ecal;  E/E_{true} (GeV)", resBin,resMin, resMax);
+  h_phoERes_miniAOD_[0][1] = iBooker.book1D(histname+"Barrel_miniAOD","Photon E/E_{true}: Barrel; E/E_{true} (GeV)",resBin,resMin, resMax);
+  h_phoERes_miniAOD_[0][2] = iBooker.book1D(histname+"Endcap_miniAOD"," Photon E/E_{true}: Endcap; E/E_{true} (GeV)",resBin,resMin, resMax);
+
+  histname = "sigmaEoE";
+  h_phoSigmaEoE_miniAOD_[0][0] = iBooker.book1D(histname+"All_miniAOD","#sigma_{E}/E: All ecal; #sigma_{E}/E", 100,0., 0.08);
+  h_phoSigmaEoE_miniAOD_[0][1] = iBooker.book1D(histname+"Barrel_miniAOD","#sigma_{E}/E: Barrel; #sigma_{E}/E",100,0., 0.08);
+  h_phoSigmaEoE_miniAOD_[0][2] = iBooker.book1D(histname+"Endcap_miniAOD","#sigma_{E}/E: Endcap, #sigma_{E}/E",100,0., 0.08);
+
+
+  histname = "r9";
+  h_r9_miniAOD_[0][0] = iBooker.book1D(histname+"All_miniAOD",   " r9: All Ecal",r9Bin,r9Min, r9Max) ;
+  h_r9_miniAOD_[0][1] = iBooker.book1D(histname+"Barrel_miniAOD"," r9: Barrel ",r9Bin,r9Min, r9Max) ;
+  h_r9_miniAOD_[0][2] = iBooker.book1D(histname+"Endcap_miniAOD"," r9: Endcap ",r9Bin,r9Min, r9Max) ;
+  histname = "full5x5_r9";
+  h_full5x5_r9_miniAOD_[0][0] = iBooker.book1D(histname+"All_miniAOD",   " r9: All Ecal",r9Bin,r9Min, r9Max) ;
+  h_full5x5_r9_miniAOD_[0][1] = iBooker.book1D(histname+"Barrel_miniAOD"," r9: Barrel ",r9Bin,r9Min, r9Max) ;
+  h_full5x5_r9_miniAOD_[0][2] = iBooker.book1D(histname+"Endcap_miniAOD"," r9: Endcap ",r9Bin,r9Min, r9Max) ;
+  histname = "r1";
+  h_r1_miniAOD_[0][0] = iBooker.book1D(histname+"All_miniAOD",   " e1x5/e5x5: All Ecal",r9Bin,r9Min, r9Max) ;
+  h_r1_miniAOD_[0][1] = iBooker.book1D(histname+"Barrel_miniAOD"," e1x5/e5x5: Barrel ",r9Bin,r9Min, r9Max) ;
+  h_r1_miniAOD_[0][2] = iBooker.book1D(histname+"Endcap_miniAOD"," e1x5/e5x5: Endcap ",r9Bin,r9Min, r9Max) ;
+  histname = "r2";
+  h_r2_miniAOD_[0][0] = iBooker.book1D(histname+"All_miniAOD",   " e2x5/e5x5: All Ecal",r9Bin,r9Min, r9Max) ;
+  h_r2_miniAOD_[0][1] = iBooker.book1D(histname+"Barrel_miniAOD"," e2x5/e5x5: Barrel ",r9Bin,r9Min, r9Max) ;
+  h_r2_miniAOD_[0][2] = iBooker.book1D(histname+"Endcap_miniAOD"," e2x5/e5x5: Endcap ",r9Bin,r9Min, r9Max) ;
+  histname = "hOverE";
+  h_hOverE_miniAOD_[0][0] = iBooker.book1D(histname+"All_miniAOD",   "H/E: All Ecal",100,0., 0.2) ;
+  h_hOverE_miniAOD_[0][1] = iBooker.book1D(histname+"Barrel_miniAOD","H/E: Barrel ", 100,0., 0.2) ;
+  h_hOverE_miniAOD_[0][2] = iBooker.book1D(histname+"Endcap_miniAOD","H/E: Endcap ", 100,0., 0.2) ;
+  //
+  histname = "newhOverE";
+  h_newhOverE_miniAOD_[0][0] = iBooker.book1D(histname+"All_miniAOD",   "new H/E: All Ecal",100,0., 0.2) ;
+  h_newhOverE_miniAOD_[0][1] = iBooker.book1D(histname+"Barrel_miniAOD","new H/E: Barrel ", 100,0., 0.2) ;
+  h_newhOverE_miniAOD_[0][2] = iBooker.book1D(histname+"Endcap_miniAOD","new H/E: Endcap ", 100,0., 0.2) ;
+  //
+  histname = "sigmaIetaIeta";
+  h_sigmaIetaIeta_miniAOD_[0][0] = iBooker.book1D(histname+"All_miniAOD",   "sigmaIetaIeta: All Ecal",100,0., 0.1) ;
+  h_sigmaIetaIeta_miniAOD_[0][1] = iBooker.book1D(histname+"Barrel_miniAOD","sigmaIetaIeta: Barrel ", 100,0., 0.05) ;
+  h_sigmaIetaIeta_miniAOD_[0][2] = iBooker.book1D(histname+"Endcap_miniAOD","sigmaIetaIeta: Endcap ", 100,0., 0.1) ;
+  histname = "full5x5_sigmaIetaIeta";
+  h_full5x5_sigmaIetaIeta_miniAOD_[0][0] = iBooker.book1D(histname+"All_miniAOD",   "Full5x5 sigmaIetaIeta: All Ecal",100,0., 0.1) ;
+  h_full5x5_sigmaIetaIeta_miniAOD_[0][1] = iBooker.book1D(histname+"Barrel_miniAOD","Full5x5 sigmaIetaIeta: Barrel ", 100,0., 0.05) ;
+  h_full5x5_sigmaIetaIeta_miniAOD_[0][2] = iBooker.book1D(histname+"Endcap_miniAOD","Full5x5 sigmaIetaIeta: Endcap ", 100,0., 0.1) ;
+  //
+  histname = "ecalRecHitSumEtConeDR04";
+  h_ecalRecHitSumEtConeDR04_miniAOD_[0][0] = iBooker.book1D(histname+"All_miniAOD",   "ecalRecHitSumEtDR04: All Ecal",etBin,etMin,20.);
+  h_ecalRecHitSumEtConeDR04_miniAOD_[0][1] = iBooker.book1D(histname+"Barrel_miniAOD","ecalRecHitSumEtDR04: Barrel ", etBin,etMin,20.);
+  h_ecalRecHitSumEtConeDR04_miniAOD_[0][2] = iBooker.book1D(histname+"Endcap_miniAOD","ecalRecHitSumEtDR04: Endcap ", etBin,etMin,20.);
+  histname = "hcalTowerSumEtConeDR04";
+  h_hcalTowerSumEtConeDR04_miniAOD_[0][0] = iBooker.book1D(histname+"All_miniAOD",   "hcalTowerSumEtConeDR04: All Ecal",etBin,etMin,20.);
+  h_hcalTowerSumEtConeDR04_miniAOD_[0][1] = iBooker.book1D(histname+"Barrel_miniAOD","hcalTowerSumEtConeDR04: Barrel ", etBin,etMin,20.);
+  h_hcalTowerSumEtConeDR04_miniAOD_[0][2] = iBooker.book1D(histname+"Endcap_miniAOD","hcalTowerSumEtConeDR04: Endcap ", etBin,etMin,20.);
+  //
+  histname = "hcalTowerBcSumEtConeDR04";
+  h_hcalTowerBcSumEtConeDR04_miniAOD_[0][0] = iBooker.book1D(histname+"All_miniAOD",   "hcalTowerBcSumEtConeDR04: All Ecal",etBin,etMin,20.);
+  h_hcalTowerBcSumEtConeDR04_miniAOD_[0][1] = iBooker.book1D(histname+"Barrel_miniAOD","hcalTowerBcSumEtConeDR04: Barrel ", etBin,etMin,20.);
+  h_hcalTowerBcSumEtConeDR04_miniAOD_[0][2] = iBooker.book1D(histname+"Endcap_miniAOD","hcalTowerBcSumEtConeDR04: Endcap ", etBin,etMin,20.);
+  histname = "isoTrkSolidConeDR04";
+  h_isoTrkSolidConeDR04_miniAOD_[0][0] = iBooker.book1D(histname+"All_miniAOD",   "isoTrkSolidConeDR04: All Ecal",etBin,etMin,etMax*0.1);
+  h_isoTrkSolidConeDR04_miniAOD_[0][1] = iBooker.book1D(histname+"Barrel_miniAOD","isoTrkSolidConeDR04: Barrel ", etBin,etMin,etMax*0.1);
+  h_isoTrkSolidConeDR04_miniAOD_[0][2] = iBooker.book1D(histname+"Endcap_miniAOD","isoTrkSolidConeDR04: Endcap ", etBin,etMin,etMax*0.1);
+  histname = "nTrkSolidConeDR04";
+  h_nTrkSolidConeDR04_miniAOD_[0][0] = iBooker.book1D(histname+"All_miniAOD",   "nTrkSolidConeDR04: All Ecal",20,0., 20) ;
+  h_nTrkSolidConeDR04_miniAOD_[0][1] = iBooker.book1D(histname+"Barrel_miniAOD","nTrkSolidConeDR04: Barrel ", 20,0., 20) ;
+  h_nTrkSolidConeDR04_miniAOD_[0][2] = iBooker.book1D(histname+"Endcap_miniAOD","nTrkSolidConeDR04: Endcap ", 20,0., 20) ;
+
+
+  //  Infos from Particle Flow - isolation and ID
+  histname = "chargedHadIso";
+  h_chHadIso_miniAOD_[0]=  iBooker.book1D(histname+"All_miniAOD",   "PF chargedHadIso:  All Ecal",etBin,etMin,20.);
+  h_chHadIso_miniAOD_[1]=  iBooker.book1D(histname+"Barrel_miniAOD",   "PF chargedHadIso:  Barrel",etBin,etMin,20.);
+  h_chHadIso_miniAOD_[2]=  iBooker.book1D(histname+"Endcap_miniAOD",   "PF chargedHadIso:  Endcap",etBin,etMin,20.);
+  histname = "neutralHadIso";
+  h_nHadIso_miniAOD_[0]=  iBooker.book1D(histname+"All_miniAOD",   "PF neutralHadIso:  All Ecal",etBin,etMin,20.);
+  h_nHadIso_miniAOD_[1]=  iBooker.book1D(histname+"Barrel_miniAOD",   "PF neutralHadIso:  Barrel",etBin,etMin,20.);
+  h_nHadIso_miniAOD_[2]=  iBooker.book1D(histname+"Endcap_miniAOD",   "PF neutralHadIso:  Endcap",etBin,etMin,20.);
+  histname = "photonIso";
+  h_phoIso_miniAOD_[0]=  iBooker.book1D(histname+"All_miniAOD",   "PF photonIso:  All Ecal",etBin,etMin,20.);
+  h_phoIso_miniAOD_[1]=  iBooker.book1D(histname+"Barrel_miniAOD",   "PF photonIso:  Barrel",etBin,etMin,20.);
+  h_phoIso_miniAOD_[2]=  iBooker.book1D(histname+"Endcap_miniAOD",   "PF photonIso:  Endcap",etBin,etMin,20.);
+
   iBooker.setCurrentFolder("EgammaV/"+fName_+"/ConversionInfo");
   
   
@@ -1762,6 +1862,11 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   e.getByToken(hepMC_Token_, hepMC);
   const HepMC::GenEvent *myGenEvent = hepMC->GetEvent();
 
+  Handle<reco::GenParticleCollection> genParticles;
+  e.getByToken( genpartToken_, genParticles );
+
+    
+
 
   // get generated jets
   Handle<reco::GenJetCollection> GenJetsHandle ;
@@ -2080,6 +2185,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       mcConvEta_= (*mcPho).vertex().eta();
       mcConvPhi_= (*mcPho).vertex().phi();
 
+
       if ( fabs(mcEta_) > END_HI ) continue;
 
 
@@ -2216,6 +2322,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
       if ( ! matched) continue;
 
+
+
       bool  phoIsInBarrel=false;
       bool  phoIsInEndcap=false;
       bool  phoIsInEndcapP=false;
@@ -2264,13 +2372,16 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       const EcalRecHitCollection ecalRecHitCollection = *(ecalRecHitHandle.product());
       float photonE = matchingPho->energy();
       float sigmaEoE =  matchingPho->getCorrectedEnergyError(matchingPho->getCandidateP4type())/matchingPho->energy();
-      float photonEt= matchingPho->energy()/cosh( matchingPho->eta()) ;
+      //float photonEt= matchingPho->energy()/cosh( matchingPho->eta()) ;
+      float photonEt= matchingPho->pt();
       float photonERegr1 = matchingPho->getCorrectedEnergy(reco::Photon::regression1);
       float photonERegr2 = matchingPho->getCorrectedEnergy(reco::Photon::regression2);
       float r9 = matchingPho->r9();
+      //     float full5x5_r9 = matchingPho->full5x5_r9();
       float r1 = matchingPho->r1x5();
       float r2 = matchingPho->r2x5();
       float sigmaIetaIeta =  matchingPho->sigmaIetaIeta();
+      //float full5x5_sieie =  matchingPho->full5x5_sigmaIetaIeta();
       float hOverE = matchingPho->hadronicOverEm();
       float newhOverE = matchingPho->hadTowOverEm();
       float ecalIso = matchingPho->ecalRecHitSumEtConeDR04();
@@ -2285,6 +2396,10 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       float etOutsideMustache = matchingPho->etOutsideMustache();
       int   nClusterOutsideMustache = matchingPho->nClusterOutsideMustache();
       float pfMVA = matchingPho->pfMVA();
+
+
+
+
 
       std::vector< std::pair<DetId, float> >::const_iterator rhIt;
       bool atLeastOneDeadChannel=false;
@@ -3752,6 +3867,178 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       } // end loop over conversions
     } // if !fastSim
   } // end loop over sim jets
+
+  /////// separate loop to compare with miniAOD
+  for ( reco::GenParticleCollection::const_iterator mcIter=genParticles->begin() ; mcIter!=genParticles->end() ; mcIter++ ) {
+    if ( !(mcIter->pdgId() == 22 ) ) continue;
+    if ( mcIter->mother() != nullptr and  !(mcIter->mother()->pdgId()==25) ) continue;
+    if ( fabs(mcIter->eta()) > 2.5 ) continue;
+     
+    float mcPhi= mcIter->phi();
+    float mcEta= mcIter->eta();
+    //mcEta = etaTransformation(mcEta, (*mcPho).primaryVertex().z() );
+    float mcEnergy=mcIter->energy();
+    
+    
+    double dR = 9999999.;
+    float minDr=10000.;
+    int iMatch=-1;
+    bool matched=false;
+    
+    for(unsigned int ipho=0; ipho < photonHandle->size(); ipho++) {
+      reco::PhotonRef pho(reco::PhotonRef(photonHandle, ipho));
+      
+      double dphi = pho->phi()-mcPhi;
+      if (std::fabs(dphi)>CLHEP::pi)
+	{ dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi ; }
+      double deta = pho->superCluster()->position().eta()-mcEta;
+      
+      dR = sqrt(pow((deta),2) + pow(dphi,2));
+      if ( dR<0.1 && dR< minDr ) {
+	minDr=dR;
+	iMatch=ipho;
+      }
+    }
+    
+    
+    if ( iMatch >-1)  matched=true;
+    if ( ! matched) continue;
+    
+   
+    reco::PhotonRef matchingPho(reco::PhotonRef(photonHandle, iMatch));
+    
+    bool  phoIsInBarrel=false;
+    bool  phoIsInEndcap=false;
+    
+    float phoEta =  matchingPho->superCluster()->position().eta();  
+    if ( fabs(phoEta) < 1.479) {
+      phoIsInBarrel=true;
+    } else {
+      phoIsInEndcap=true;
+    }	  
+    
+    
+    
+    float photonE = matchingPho->energy();
+    float sigmaEoE =  matchingPho->getCorrectedEnergyError(matchingPho->getCandidateP4type())/matchingPho->energy();
+    float photonEt= matchingPho->energy()/cosh( matchingPho->eta()) ;
+    //	float photonERegr1 = matchingPho->getCorrectedEnergy(reco::Photon::regression1);
+    //float photonERegr2 = matchingPho->getCorrectedEnergy(reco::Photon::regression2);
+    float r9 = matchingPho->r9();
+    float full5x5_r9 = matchingPho->full5x5_r9();
+    float r1 = matchingPho->r1x5();
+    float r2 = matchingPho->r2x5();
+    float sigmaIetaIeta =  matchingPho->sigmaIetaIeta();
+    float full5x5_sieie =  matchingPho->full5x5_sigmaIetaIeta();
+    float hOverE = matchingPho->hadronicOverEm();
+    float newhOverE = matchingPho->hadTowOverEm();
+    float ecalIso = matchingPho->ecalRecHitSumEtConeDR04();
+    float hcalIso = matchingPho->hcalTowerSumEtConeDR04();
+    float newhcalIso = matchingPho->hcalTowerSumEtBcConeDR04();
+    float trkIso =  matchingPho->trkSumPtSolidConeDR04();
+    float nIsoTrk   =  matchingPho->nTrkSolidConeDR04();
+    // PF related quantities
+    float chargedHadIso =  matchingPho->chargedHadronIso();
+    float neutralHadIso =  matchingPho->neutralHadronIso();
+    float photonIso     =  matchingPho->photonIso();
+    //	float etOutsideMustache = matchingPho->etOutsideMustache();
+    //	int   nClusterOutsideMustache = matchingPho->nClusterOutsideMustache();
+    //float pfMVA = matchingPho->pfMVA();
+    
+    if ( ( photonEt > 14 &&   newhOverE <0.15 )    ||  ( photonEt > 10 && photonEt < 14 && chargedHadIso <10  ) ) {
+      
+            
+      h_scEta_miniAOD_[0]->Fill( matchingPho->superCluster()->eta() );
+      h_scPhi_miniAOD_[0]->Fill( matchingPho->superCluster()->phi() );
+      
+      h_phoE_miniAOD_[0][0]->Fill( photonE );
+      h_phoEt_miniAOD_[0][0]->Fill( photonEt);
+      
+      h_phoERes_miniAOD_[0][0]->Fill( photonE / mcEnergy );
+      h_phoSigmaEoE_miniAOD_[0][0] -> Fill (sigmaEoE);
+      
+      
+      h_r9_miniAOD_[0][0]->Fill( r9 );
+      h_full5x5_r9_miniAOD_[0][0]->Fill( full5x5_r9 );
+      h_r1_miniAOD_[0][0]->Fill( r1 );
+      h_r2_miniAOD_[0][0]->Fill( r2 );
+      
+      h_sigmaIetaIeta_miniAOD_[0][0]->Fill(sigmaIetaIeta);
+      h_full5x5_sigmaIetaIeta_miniAOD_[0][0]->Fill(full5x5_sieie);
+      h_hOverE_miniAOD_[0][0]->Fill( hOverE );
+      h_newhOverE_miniAOD_[0][0]->Fill( newhOverE );
+      
+      h_ecalRecHitSumEtConeDR04_miniAOD_[0][0]->Fill( ecalIso );
+      h_hcalTowerSumEtConeDR04_miniAOD_[0][0]->Fill( hcalIso );
+      h_hcalTowerBcSumEtConeDR04_miniAOD_[0][0]->Fill( newhcalIso );
+      h_isoTrkSolidConeDR04_miniAOD_[0][0]->Fill( trkIso );
+      h_nTrkSolidConeDR04_miniAOD_[0][0]->Fill( nIsoTrk );
+      
+      //
+      h_chHadIso_miniAOD_[0]-> Fill (chargedHadIso);
+      h_nHadIso_miniAOD_[0]-> Fill (neutralHadIso);
+      h_phoIso_miniAOD_[0]-> Fill (photonIso);
+      
+      //
+      if ( phoIsInBarrel ) {
+	h_phoE_miniAOD_[0][1]->Fill( photonE );
+	h_phoEt_miniAOD_[0][1]->Fill( photonEt);
+	
+	h_phoERes_miniAOD_[0][1]->Fill( photonE / mcEnergy );
+	h_phoSigmaEoE_miniAOD_[0][1] -> Fill (sigmaEoE);
+	    
+	h_r9_miniAOD_[0][1]->Fill( r9 );
+	h_full5x5_r9_miniAOD_[0][1]->Fill( full5x5_r9 );
+	h_r1_miniAOD_[0][1]->Fill( r1 );
+	h_r2_miniAOD_[0][1]->Fill( r2 );
+	h_sigmaIetaIeta_miniAOD_[0][1]->Fill(sigmaIetaIeta);
+	h_full5x5_sigmaIetaIeta_miniAOD_[0][1]->Fill(full5x5_sieie);
+	h_hOverE_miniAOD_[0][1]->Fill( hOverE );
+	h_newhOverE_miniAOD_[0][1]->Fill( newhOverE );
+	h_ecalRecHitSumEtConeDR04_miniAOD_[0][1]->Fill( ecalIso );
+	h_hcalTowerSumEtConeDR04_miniAOD_[0][1]->Fill( hcalIso );
+	h_hcalTowerBcSumEtConeDR04_miniAOD_[0][1]->Fill( newhcalIso );
+	h_isoTrkSolidConeDR04_miniAOD_[0][1]->Fill( trkIso );
+	h_nTrkSolidConeDR04_miniAOD_[0][1]->Fill( nIsoTrk );
+	h_chHadIso_miniAOD_[1]-> Fill (chargedHadIso);
+	h_nHadIso_miniAOD_[1]-> Fill (neutralHadIso);
+	h_phoIso_miniAOD_[1]-> Fill (photonIso);
+	
+      }
+      if ( phoIsInEndcap ) {
+	h_phoE_miniAOD_[0][2]->Fill( photonE );
+	h_phoEt_miniAOD_[0][2]->Fill( photonEt);
+	
+	h_phoERes_miniAOD_[0][2]->Fill( photonE / mcEnergy);
+	h_phoSigmaEoE_miniAOD_[0][2] -> Fill (sigmaEoE);
+	h_r9_miniAOD_[0][2]->Fill( r9 );
+	h_full5x5_r9_miniAOD_[0][2]->Fill( full5x5_r9 );
+	h_r1_miniAOD_[0][2]->Fill( r1 );
+	h_r2_miniAOD_[0][2]->Fill( r2 );
+	h_sigmaIetaIeta_miniAOD_[0][2]->Fill(sigmaIetaIeta);
+	h_full5x5_sigmaIetaIeta_miniAOD_[0][2]->Fill(full5x5_sieie);
+	h_hOverE_miniAOD_[0][2]->Fill( hOverE );
+	h_newhOverE_miniAOD_[0][2]->Fill( newhOverE );
+	h_ecalRecHitSumEtConeDR04_miniAOD_[0][2]->Fill( ecalIso );
+	h_hcalTowerSumEtConeDR04_miniAOD_[0][2]->Fill( hcalIso );
+	h_hcalTowerBcSumEtConeDR04_miniAOD_[0][2]->Fill( newhcalIso );
+	h_isoTrkSolidConeDR04_miniAOD_[0][2]->Fill( trkIso );
+	h_nTrkSolidConeDR04_miniAOD_[0][2]->Fill( nIsoTrk );
+	h_chHadIso_miniAOD_[2]-> Fill (chargedHadIso);
+	h_nHadIso_miniAOD_[2]-> Fill (neutralHadIso);
+	h_phoIso_miniAOD_[2]-> Fill (photonIso);
+	
+      }
+    } // end histos for comparing with miniAOD
+    
+
+
+
+
+    } // end loop over gen photons
+
+
+
 
   h_nPho_->Fill(float(nPho));
 

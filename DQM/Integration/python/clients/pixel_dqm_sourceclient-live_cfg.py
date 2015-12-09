@@ -7,7 +7,7 @@ process.MessageLogger = cms.Service("MessageLogger",
                                          #'siPixelClusters', 
                                          'SiPixelRawDataErrorSource', 
                                          'SiPixelDigiSource', 
-					 'sipixelEDAClient'),
+                                         'sipixelEDAClient'),
     cout = cms.untracked.PSet(threshold = cms.untracked.string('ERROR')),
     destinations = cms.untracked.vstring('cout')
 )
@@ -131,14 +131,19 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 #--------------------------
 # Scheduling
 #--------------------------
-process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters)
-process.DQMmodules = cms.Sequence(process.dqmEnv*process.qTester*process.dqmSaver)
-
 process.SiPixelDigiSource.layOn = True
 process.SiPixelDigiSource.diskOn = True
+process.DQMmodules = cms.Sequence(process.dqmEnv*process.qTester*process.dqmSaver)
+
+if (process.runType.getRunType() == process.runType.hi_run):
+    process.Reco = cms.Sequence(process.siPixelDigis*process.pixeltrackerlocalreco)
+    process.SiPixelClusterSource.src = cms.InputTag("siPixelClustersPreSplitting")
+
+else:
+    process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters)
 
 process.p = cms.Path(process.Reco*process.DQMmodules*process.SiPixelRawDataErrorSource*process.SiPixelDigiSource*process.SiPixelClusterSource*process.PixelP5DQMClientWithDataCertification)
-
+    
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
@@ -148,4 +153,3 @@ process = customise(process)
 #--------------------------------------------------
 
 print "Running with run type = ", process.runType.getRunType()
-

@@ -1,7 +1,7 @@
 import re
 try:
     import cx_Oracle
-except ImportError, e:
+except ImportError as e:
     print "Cannot import cx_Oracle:", e
 
 def ExtractID(release):

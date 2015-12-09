@@ -87,6 +87,7 @@ namespace ecaldqm {
   void
   LedTask::runOnRawData(EcalRawDataCollection const& _rawData)
   {
+    MESet& meCalibStatus(MEs_.at("CalibStatus"));
     for(EcalRawDataCollection::const_iterator rItr(_rawData.begin()); rItr != _rawData.end(); ++rItr){
       unsigned iDCC(rItr->id() - 1);
       if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
@@ -109,6 +110,26 @@ namespace ecaldqm {
 
       rtHalf_[index] = rItr->getRtHalf();
     }
+    bool LedStatus[2];
+    for(unsigned iW(0); iW < 2; iW++){
+       LedStatus[iW] = false;
+    }
+    for(unsigned index(0); index < nEEDCC; ++index){
+       switch (wavelength_[index])
+       {
+         case 1: 
+           LedStatus[0] = true; 
+           break;
+         case 2:
+           LedStatus[1] = true; 
+           break;
+         default:
+           break;
+        } 
+    }
+    for(unsigned iWL(0); iWL<2; iWL++){
+       meCalibStatus.fill(double(iWL+3), LedStatus[iWL]? 1:0);
+    }  
   }
 
   void

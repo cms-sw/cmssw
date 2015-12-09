@@ -7,12 +7,13 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 from Configuration.StandardSequences.GeometryRecoDB_cff import *
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.Services_cff')
 
 #for data in 720pre7
-process.GlobalTag.globaltag ='75X_dataRun1_v2'
+process.GlobalTag.globaltag ='76X_mcRun2_asymptotic_v5'
 
 # check # of bins
 process.load("DQMServices.Components.DQMStoreStats_cfi")
@@ -21,12 +22,13 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-        '/store/relval/CMSSW_7_5_0_pre6/JetHT/RECO/75X_dataRun1_v2_RelVal_jet2012D-v1/00000/003E50FE-F71B-E511-B849-002590593902.root',
-        '/store/relval/CMSSW_7_5_0_pre6/JetHT/RECO/75X_dataRun1_v2_RelVal_jet2012D-v1/00000/0212B89F-401C-E511-90B7-0025905964A2.root',
-        '/store/relval/CMSSW_7_5_0_pre6/JetHT/RECO/75X_dataRun1_v2_RelVal_jet2012D-v1/00000/02925C10-FC1B-E511-A4B4-0025905B85A2.root',
-        '/store/relval/CMSSW_7_5_0_pre6/JetHT/RECO/75X_dataRun1_v2_RelVal_jet2012D-v1/00000/040DBAE5-FB1B-E511-9854-0025905B85D0.root',
-        '/store/relval/CMSSW_7_5_0_pre6/JetHT/RECO/75X_dataRun1_v2_RelVal_jet2012D-v1/00000/0658D146-2C1C-E511-BCA1-0025905A48F2.root',
-        '/store/relval/CMSSW_7_5_0_pre6/JetHT/RECO/75X_dataRun1_v2_RelVal_jet2012D-v1/00000/0A06BB23-401C-E511-ACE9-0025905A610C.root'
+       '/store/relval/CMSSW_7_6_0_pre7/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/76X_mcRun2_asymptotic_v5-v1/00000/7E692CF1-2971-E511-9609-0025905A497A.root',
+       '/store/relval/CMSSW_7_6_0_pre7/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/76X_mcRun2_asymptotic_v5-v1/00000/B4DD46D7-2971-E511-B4DD-0025905A4964.root' 
+       #'/store/relval/CMSSW_7_5_2/JetHT/MINIAOD/75X_dataRun1_HLT_frozen_v2_RelVal_jet2012D-v1/00000/7CEB618B-8151-E511-8D05-002618943857.root',
+       #'/store/relval/CMSSW_7_5_2/JetHT/MINIAOD/75X_dataRun1_HLT_frozen_v2_RelVal_jet2012D-v1/00000/8A6ED13D-8351-E511-A6E1-0025905964C2.root',
+       #'/store/relval/CMSSW_7_5_2/JetHT/MINIAOD/75X_dataRun1_HLT_frozen_v2_RelVal_jet2012D-v1/00000/9A6F45A5-8251-E511-8BB5-0025905964A6.root',
+       #'/store/relval/CMSSW_7_5_2/JetHT/MINIAOD/75X_dataRun1_HLT_frozen_v2_RelVal_jet2012D-v1/00000/D6536366-7E51-E511-BC81-0025905A48F2.root',
+       #'/store/relval/CMSSW_7_5_2/JetHT/MINIAOD/75X_dataRun1_HLT_frozen_v2_RelVal_jet2012D-v1/00000/DE6F609B-8251-E511-940D-002618943916.root' 
        ] );
 
 
@@ -63,11 +65,11 @@ process.dqmSaver.workflow = Workflow
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.p = cms.Path(                    #process.dump*
-                     #process.jetMETDQMOfflineSourceMiniAOD*
+                     process.jetMETDQMOfflineSourceMiniAOD*
                      #for cosmic data and MC
                      #process.jetMETDQMOfflineSourceCosmic*
                      #for Data and MC pp and HI
-                     process.jetMETDQMOfflineSource*
+                     #process.jetMETDQMOfflineSource*
                      process.dataCertificationJetMETSequence*
                      process.dqmSaver
                      )

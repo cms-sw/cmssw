@@ -59,7 +59,6 @@
   <class name="FWEveText"/>
   <class name="FWEveTextProjected"/>
   <class name="FWEveTextGL"/>
-  <class name="FWInvMassDialog"/>
   <class name="FWGeometryTableViewBase"/>
   <class name="FWGeometryTableView"/>
   <class name="FWOverlapTableView"/>

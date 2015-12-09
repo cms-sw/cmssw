@@ -1169,7 +1169,6 @@ inline int HitPattern::outermostMuonStationWithAnyHits() const
     return outermostMuonStationWithHits(-1);
 }
 
-#ifndef CMS_NOCXX11 // cint....
 
 template<int N = HitPattern::MaxHits>
 struct PatternSet {
@@ -1246,7 +1245,6 @@ inline PatternSet<N> commonHits(PatternSet<N> const &p1, PatternSet<N> const &p2
     comm.nhit = std::set_intersection(p1.begin(), p1.end(), p2.begin(), p2.end(), comm.begin()) - comm.begin();
     return comm;
 }
-#endif // gcc11
 
 } // namespace reco
 

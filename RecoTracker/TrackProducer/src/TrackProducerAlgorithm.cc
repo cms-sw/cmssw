@@ -87,7 +87,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
 						 float ndof,
 						 const reco::BeamSpot& bs,
 						 SeedRef seedRef,
-						 int qualityMask,signed char nLoops)						 
+						 int qualityMask,signed char nLoops)
 {
   //variable declarations
 
@@ -215,12 +215,13 @@ std::cout << algo_ << ": " <<  hits.size() <<'|' <<theTraj->measurements().size(
   if(algoMask_.any())                                  theTrack->setAlgoMask(algoMask_);
   theTrack->setQualityMask(qualityMask);
   theTrack->setNLoops(nLoops);
-  
+  theTrack->setStopReason(stopReason_);
+
   LogDebug("TrackProducer") << "theTrack->pt()=" << theTrack->pt();
   
   LogDebug("TrackProducer") <<"track done\n";
   
-  AlgoProduct aProduct(theTraj,std::make_pair(theTrack,seedDir));
+  AlgoProduct aProduct{theTraj,theTrack,seedDir,0};
   algoResults.push_back(aProduct);
   
   statCount.track(nLoops);
@@ -344,10 +345,13 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
   theTrack->setAlgorithm(algo_);
   if(originalAlgo_ != reco::TrackBase::undefAlgorithm) theTrack->setOriginalAlgorithm(originalAlgo_);
   if(algoMask_.any())                                  theTrack->setAlgoMask(algoMask_);
-  
+
+  theTrack->setStopReason(stopReason_);
+
   LogDebug("GsfTrackProducer") <<"track done\n";
   
-  AlgoProduct aProduct(theTraj,std::make_pair(theTrack,seedDir));
+  AlgoProduct aProduct{theTraj,theTrack,seedDir,0};
+
   LogDebug("GsfTrackProducer") <<"track done1\n";
   algoResults.push_back(aProduct);
   LogDebug("GsfTrackProducer") <<"track done2\n";

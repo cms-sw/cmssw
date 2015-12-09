@@ -40,7 +40,6 @@ namespace edm {
       }
     };
 
-#ifndef __GCCXML__
     // valueTypeInfo_() will return typeid(T::value_type) if T::value_type is declared and typeid(void) otherwise.
     // Definitions for the following struct and function templates are not needed; we only require the declarations.
     template<typename T> static yes_tag& has_value_type(typename T::value_type*);
@@ -162,7 +161,6 @@ namespace edm {
         return true; // Should never be called
       }
     };
-#endif
   }
 }
 #endif

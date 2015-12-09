@@ -16,7 +16,6 @@
 //
 // Original Author:  Bill Tanenbaum
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
 
 // user include files
@@ -43,5 +42,4 @@ namespace fwlite {
      edm::FileIndex fileIndex_;
    };
 }
-#endif /*__CINT__ */
 #endif

@@ -13,7 +13,7 @@
  *  
  */
 #pragma GCC visibility push(hidden)
-class TBPLayer GCC11_FINAL : public TBLayer {
+class TBPLayer final : public TBLayer {
  public:
   typedef PeriodicBinFinderInPhi<float>   BinFinderType;
 

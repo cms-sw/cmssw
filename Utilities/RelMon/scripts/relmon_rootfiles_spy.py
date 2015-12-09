@@ -21,7 +21,7 @@ from sys import exit
 from urllib2  import Request,build_opener,urlopen
 
 import os
-if os.environ.has_key("RELMON_SA"):
+if "RELMON_SA" in os.environ:
   from authentication import X509CertOpen
   from definitions import server
   from utils import wget  

@@ -6,7 +6,7 @@ import ConfigParser
 class Constituent:
     def __init__(self, line, predefinedMaterials):
         if  len(line.split('"')) < 5 or len(line.split('"')[4].split()) < 3:
-            raise StandardError , "not a well formed Constituent: "+constString
+            raise Exception("not a well formed Constituent: "+constString)
         self.theDescription = line.split('"')[1]
         self.theName = line.split('"')[3]
         self.theCount = float(line.split('"')[4].split()[1])
@@ -23,11 +23,11 @@ class Constituent:
 class Material:
     def __init__(self, matString, comment):
         if matString == "" or not matString[0] == "#":
-            raise StandardError , "not a valid material Definition: "+matString
+            raise Exception("not a valid material Definition: "+matString)
         line = matString[1:]
 
         if    len( line.split('"') ) < 5 or len( line.split('"')[4].split() ) < 2:
-            raise StandardError , "not a well formed Material Definition: "+matString            
+            raise Exception("not a well formed Material Definition: "+matString)            
         self.theDescription = line.split('"')[1]
         self.theName = line.split('"')[3]
         self.theMcVolume = float(line.split('"')[4].split()[0])
@@ -72,13 +72,13 @@ class Material:
         
     def addConstituent(self, constString, predefinedMaterials):
         if constString  == "" or not constString[0] == "*":
-            raise StandardError , "not a valid Constituent: "+constString
+            raise Exception("not a valid Constituent: "+constString)
         line = constString[1:]
         self.theConstituents.append( Constituent(line, predefinedMaterials) )
 
         number = int( line.split('"')[0].split()[0] )
         if not len(self.theConstituents) == number:
-            raise StandardError, "Constituent Number mismatch for "+str(len(self.theConstituents))+" in: "+line
+            raise Exception("Constituent Number mismatch for "+str(len(self.theConstituents))+" in: "+line)
     
     def __str__(self):
         result = "[ "+self.theName+" Description: "+self.theDescription+" MC-Volume:"+str(self.theMcVolume)+"\n"
@@ -191,7 +191,7 @@ def main():
     (options, args) = optParser.parse_args()
 
     if options.inFile == None:
-        raise StandardError, "no .in File given!"
+        raise Exception("no .in File given!")
     if options.output == None:
         options.output = options.inFile.replace(".in",".twiki")
     if options.config == None:

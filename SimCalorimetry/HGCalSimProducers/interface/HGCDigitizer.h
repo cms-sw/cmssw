@@ -1,5 +1,5 @@
 #ifndef HGCalSimProducers_HGCDigitizer_h
-#define HGcalSimProducers_HGCDigitizer_h
+#define HGCalSimProducers_HGCDigitizer_h
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
@@ -13,43 +13,50 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCHEbackDigitizer.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 
 #include <vector>
 #include <map>
 #include <memory>
+#include <tuple>
 
 class PCaloHit;
 class PileUpEventPrincipal;
 
-namespace edm {
-  class ConsumesCollector;
-}
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
-class HGCDigitizer {
-
+class HGCDigitizer
+{
 public:
   
-  explicit HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& iC);
+  HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& iC);
   ~HGCDigitizer() { }
+
+  typedef std::tuple<int,uint32_t,float> HGCCaloHitTuple_t;
+  static bool orderByDetIdThenTime(const HGCCaloHitTuple_t &a, const HGCCaloHitTuple_t &b)
+  {
+    unsigned int detId_a(std::get<1>(a)), detId_b(std::get<1>(b));
+
+    if(detId_a<detId_b) return true;
+    if(detId_a>detId_b) return false;
+
+    double time_a(std::get<2>(a)), time_b(std::get<2>(b));
+    if(time_a<time_b) return true;
+
+    return false;
+  }
+
 
   /**
      @short handle SimHit accumulation
    */
-  void accumulate(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine*);
-  void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine*);
-  void accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const edm::ESHandle<HGCalGeometry> &geom, CLHEP::HepRandomEngine*);
+  void accumulate(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
+  void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
+  void accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const edm::ESHandle<HGCalGeometry> &geom, CLHEP::HepRandomEngine* hre);
 
   /**
      @short actions at the start/end of event
    */
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
-  void finalizeEvent(edm::Event& e, edm::EventSetup const& c, CLHEP::HepRandomEngine*);
+  void finalizeEvent(edm::Event& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
 
   /**
    */
@@ -77,8 +84,8 @@ private :
 
   //handle sim hits
   int maxSimHitsAccTime_;
-  int bxTime_;
-  std::unique_ptr<HGCSimHitDataAccumulator> simHitAccumulator_;  
+  double bxTime_;
+  std::unique_ptr<hgc::HGCSimHitDataAccumulator> simHitAccumulator_;  
   void resetSimHitDataAccumulator();
 
   //digitizers
@@ -91,7 +98,7 @@ private :
 
   //misc switches
   bool useAllChannels_;
-  int  verbosity_;
+  uint32_t verbosity_;
 
   //reference speed to evaluate time of arrival at the sensititive detector, assuming the center of CMS
   float refSpeed_;
@@ -100,4 +107,8 @@ private :
   float tofDelay_;
 };
 
+
 #endif
+
+
+ 

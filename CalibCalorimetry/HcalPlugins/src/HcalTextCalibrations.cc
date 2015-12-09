@@ -31,7 +31,7 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
   //parsing parameters
   std::vector<edm::ParameterSet> data = iConfig.getParameter<std::vector<edm::ParameterSet> >("input");
   std::vector<edm::ParameterSet>::iterator request = data.begin ();
-  for (; request != data.end (); request++) {
+  for (; request != data.end (); ++request) {
     std::string objectName = request->getParameter<std::string> ("object");
     edm::FileInPath fp = request->getParameter<edm::FileInPath>("file");
     mInputs [objectName] = fp.fullPath();
@@ -54,6 +54,10 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
     else if (objectName == "QIEData") {
       setWhatProduced (this, &HcalTextCalibrations::produceQIEData);
       findingRecord <HcalQIEDataRcd> ();
+    }
+    else if (objectName == "QIETypes") {
+      setWhatProduced (this, &HcalTextCalibrations::produceQIETypes);
+      findingRecord <HcalQIETypesRcd> ();
     }
     else if (objectName == "ChannelQuality") {
       setWhatProduced (this, &HcalTextCalibrations::produceChannelQuality);
@@ -138,7 +142,7 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
     else {
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
-		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap "
+		<< "Pedestals PedestalWidths Gains GainWidths QIEData QIETypes ChannelQuality ElectronicsMap "
 		<< "ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects "
 		<< "ValidationCorrs LutMetadata DcsValues DcsMap CholeskyMatrices CovarianceMatrices "
 		<< "RecoParams LongRecoParams ZDCLowGainFraction FlagHFDigiTimeParams MCParams "
@@ -231,6 +235,13 @@ std::auto_ptr<HcalQIEData> HcalTextCalibrations::produceQIEData (const HcalQIEDa
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
   return produce_impl<HcalQIEData> (topo,mInputs ["QIEData"]);
+}
+
+std::auto_ptr<HcalQIETypes> HcalTextCalibrations::produceQIETypes (const HcalQIETypesRcd& rcd) {
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalQIETypes> (topo,mInputs ["QIETypes"]);
 }
 
 std::auto_ptr<HcalChannelQuality> HcalTextCalibrations::produceChannelQuality (const HcalChannelQualityRcd& rcd) {

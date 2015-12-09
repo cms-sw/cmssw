@@ -20,7 +20,7 @@ SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
 # APV shots monitoring
 SiStripMonitorDigi.TkHistoMapNApvShots_On = True 
 SiStripMonitorDigi.TkHistoMapNStripApvShots_On= True
-SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= True
+SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= False
 
 SiStripMonitorDigi.TH1NApvShots.subdetswitchon = True
 SiStripMonitorDigi.TH1NApvShots.globalswitchon = True

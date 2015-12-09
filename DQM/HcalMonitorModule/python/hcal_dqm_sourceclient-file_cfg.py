@@ -96,7 +96,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 # Set collector host to machine where gui output to be collected
 process.DQM.collectorHost = 'lxplus305'
-if (host<>None):
+if (host!=None):
     process.DQM.collectorHost = host
 process.DQM.collectorPort = 9190
 process.dqmSaver.convention = 'Online'

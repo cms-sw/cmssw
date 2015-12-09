@@ -42,7 +42,7 @@ void RecoTrackAccumulator::accumulate(edm::Event const& e, edm::EventSetup const
 
 void RecoTrackAccumulator::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& iSetup, edm::StreamID const&) {
   if (e.bunchCrossing()==0) {
-    accumulateEvent( e, iSetup,pileUpTracksTag);
+      accumulateEvent( e, iSetup,pileUpTracksTag);
   }
 }
 
@@ -59,13 +59,22 @@ template<class T> void RecoTrackAccumulator::accumulateEvent(const T& e, edm::Ev
   edm::Handle<reco::TrackCollection> tracks;
   edm::Handle<TrackingRecHitCollection> hits;
   edm::Handle<reco::TrackExtraCollection> trackExtras;
-  if(!(e.getByLabel(label, tracks) and e.getByLabel(label, hits) and e.getByLabel(label, trackExtras))){
-    edm::LogError ("RecoTrackAccumulator") << "Failed to find track, hit or trackExtra collections with inputTag " << label;
-    exit(1);
+  e.getByLabel(label, tracks);
+  e.getByLabel(label, hits);
+  e.getByLabel(label, trackExtras);
+  
+  if(! tracks.isValid())
+  {
+      throw cms::Exception ("RecoTrackAccumulator") << "Failed to find track collections with inputTag " << label << std::endl;
   }
-  if (tracks->size()==0)
-    return;
-
+  if(!hits.isValid())
+  {
+      throw cms::Exception ("RecoTrackAccumulator") << "Failed to find hit collections with inputTag " << label << std::endl;
+  }
+  if(!trackExtras.isValid())
+  {
+      throw cms::Exception ("RecoTrackAccumulator") << "Failed to find trackExtra collections with inputTag " << label << std::endl;
+  }
   
   for (size_t t = 0; t < tracks->size();++t){
     const reco::Track & track = (*tracks)[t];

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DUMP")
-process.load("Geometry.HGCalCommonData.testCFCXML_cfi")
+process.load("Geometry.HGCalCommonData.testHGCXML_cfi")
 
 process.source = cms.Source("EmptySource")
 

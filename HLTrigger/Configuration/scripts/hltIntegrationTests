@@ -265,6 +265,9 @@ log "HLT menu: $(head -n1 hlt.py | cut -c 3-)"
 # check the prescale modules
 hltCheckPrescaleModules -w hlt.py
 
+# check for multi-threading
+edmCheckMultithreading hlt.py | grep legacy
+
 log "Preparing single-path configurations"
 for TRIGGER in $TRIGGERS; do
   cat > "$TRIGGER".py << @EOF

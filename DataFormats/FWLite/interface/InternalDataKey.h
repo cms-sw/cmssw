@@ -18,7 +18,6 @@
 // Original Author:  Eric Vaandering
 //         Created:  Jan 29 09:01:20 CDT 2009
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -95,5 +94,4 @@ namespace fwlite {
 
 }
 
-#endif /*__CINT__ */
 #endif

@@ -40,3 +40,10 @@ simSiStripDigis = cms.EDAlias(
 #      cms.PSet(type = cms.string('TrackingVertexs'))
 #    )
 #)
+
+# no castor,pixel,strip digis in fastsim
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    del simCastorDigis
+    del simSiPixelDigis
+    del simSiStripDigis

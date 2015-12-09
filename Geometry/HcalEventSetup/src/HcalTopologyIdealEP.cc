@@ -53,25 +53,10 @@ HcalTopologyIdealEP::HcalTopologyIdealEP(const edm::ParameterSet& conf)
 HcalTopologyIdealEP::~HcalTopologyIdealEP() { }
 
 void HcalTopologyIdealEP::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) {
-  edm::ParameterSetDescription hcalTopologyConstants;
-  hcalTopologyConstants.add<std::string>( "mode", "HcalTopologyMode::LHC" );
-  hcalTopologyConstants.add<int>( "maxDepthHB", 2 );
-  hcalTopologyConstants.add<int>( "maxDepthHE", 3 );  
-
-  edm::ParameterSetDescription hcalSLHCTopologyConstants;
-  hcalSLHCTopologyConstants.add<std::string>( "mode", "HcalTopologyMode::SLHC" );
-  hcalSLHCTopologyConstants.add<int>( "maxDepthHB", 7 );
-  hcalSLHCTopologyConstants.add<int>( "maxDepthHE", 7 );
 
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>( "Exclude", "" );
-  desc.addOptional<edm::ParameterSetDescription>( "hcalTopologyConstants", hcalTopologyConstants );
   descriptions.add( "hcalTopologyIdeal", desc );
-
-  edm::ParameterSetDescription descSLHC;
-  descSLHC.addUntracked<std::string>( "Exclude", "" );
-  descSLHC.addOptional<edm::ParameterSetDescription>( "hcalTopologyConstants", hcalSLHCTopologyConstants );
-  descriptions.add( "hcalTopologyIdealSLHC", descSLHC );  
 }
 
 //

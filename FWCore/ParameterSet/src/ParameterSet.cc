@@ -141,11 +141,11 @@ namespace edm {
     return *this;
   }
 
-  std::auto_ptr<ParameterSet> ParameterSet::popParameterSet(std::string const& name) {
+  std::unique_ptr<ParameterSet> ParameterSet::popParameterSet(std::string const& name) {
     assert(!isRegistered());
     psettable::iterator it = psetTable_.find(name);
     assert(it != psetTable_.end());
-    std::auto_ptr<ParameterSet> pset(new ParameterSet);
+    std::unique_ptr<ParameterSet> pset = std::make_unique<ParameterSet>();
     std::swap(*pset, it->second.psetForUpdate());
     psetTable_.erase(it);
     return pset;
@@ -170,11 +170,11 @@ namespace edm {
     }
   }
 
-  std::auto_ptr<std::vector<ParameterSet> > ParameterSet::popVParameterSet(std::string const& name) {
+  std::unique_ptr<std::vector<ParameterSet> > ParameterSet::popVParameterSet(std::string const& name) {
     assert(!isRegistered());
     vpsettable::iterator it = vpsetTable_.find(name);
     assert(it != vpsetTable_.end());
-    std::auto_ptr<std::vector<ParameterSet> > vpset(new std::vector<ParameterSet>);
+    std::unique_ptr<std::vector<ParameterSet> > vpset = std::make_unique<std::vector<ParameterSet> >();
     std::swap(*vpset, it->second.vpsetForUpdate());
     vpsetTable_.erase(it);
     return vpset;

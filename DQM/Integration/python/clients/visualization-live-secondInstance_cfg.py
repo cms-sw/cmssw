@@ -9,11 +9,11 @@ from DQM.Integration.config.inputsource_cfi import options,runType,source
 
 # this is needed to map the names of the run-types chosen by DQM to the scenarios, ideally we could converge to the same names
 #scenarios = {'pp_run': 'ppRun2','cosmic_run':'cosmicsRun2','hi_run':'HeavyIons'}
-scenarios = {'pp_run': 'ppRun2','pp_run_stage1': 'ppRun2','cosmic_run':'cosmicsRun2','cosmic_run_stage1':'cosmicsRun2','hi_run':'HeavyIons'}
+scenarios = {'pp_run': 'ppRun2','pp_run_stage1': 'ppRun2','cosmic_run':'cosmicsRun2','cosmic_run_stage1':'cosmicsRun2','hi_run':'HeavyIonsRun2'}
 
 if not runType.getRunTypeName() in scenarios.keys():
     msg = "Error getting the scenario out of the 'runkey', no mapping for: %s\n"%runType.getRunTypeName()
-    raise RuntimeError, msg
+    raise RuntimeError(msg)
 
 scenarioName = scenarios[runType.getRunTypeName()]
 
@@ -22,11 +22,11 @@ print "Using scenario:",scenarioName
 
 try:
     scenario = getScenario(scenarioName)
-except Exception, ex:
+except Exception as ex:
     msg = "Error getting Scenario implementation for %s\n" % (
         scenarioName,)
     msg += str(ex)
-    raise RuntimeError, msg
+    raise RuntimeError(msg)
 
 
 kwds = {}
@@ -56,7 +56,9 @@ process.load("DQM.Integration.config.FrontierCondition_GT_autoExpress_cfi")
 
 process.options = cms.untracked.PSet(
         Rethrow = cms.untracked.vstring('ProductNotFound'),
-        wantSummary = cms.untracked.bool(True)
+        wantSummary = cms.untracked.bool(True),
+        numberOfThreads = cms.untracked.uint32(8),
+        numberOfStreams = cms.untracked.uint32(8)
     )
 
 process.maxEvents = cms.untracked.PSet(

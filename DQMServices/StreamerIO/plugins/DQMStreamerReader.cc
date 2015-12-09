@@ -27,9 +27,7 @@ namespace dqmservices {
 
 DQMStreamerReader::DQMStreamerReader(edm::ParameterSet const& pset,
                                      edm::InputSourceDescription const& desc)
-    : StreamerInputSource(pset, desc),
-      fiterator_(pset) {
-
+    : StreamerInputSource(pset, desc), fiterator_(pset) {
   runNumber_ = pset.getUntrackedParameter<unsigned int>("runNumber");
   runInputDir_ = pset.getUntrackedParameter<std::string>("runInputDir");
   hltSel_ =
@@ -106,16 +104,17 @@ void DQMStreamerReader::openFile_(const DQMFileIterator::LumiEntry& entry) {
   // dump the list of HLT trigger name from the header
   //  dumpInitHeader(header);
 
-  // if specific trigger selection is requested, check if the requested triggers 
-  // match with trigger paths in the header file 
-  if (!acceptAllEvt_){
+  // if specific trigger selection is requested, check if the requested triggers
+  // match with trigger paths in the header file
+  if (!acceptAllEvt_) {
     Strings tnames;
     header->hltTriggerNames(tnames);
-    
+
     pset.addParameter<Strings>("SelectEvents", hltSel_);
     eventSelector_.reset(new TriggerSelector(pset, tnames));
 
-    // check if any trigger path name requested matches with trigger name in the header file
+    // check if any trigger path name requested matches with trigger name in the
+    // header file
     matchTriggerSel(tnames);
   }
 
@@ -140,12 +139,20 @@ void DQMStreamerReader::closeFile_(const std::string& reason) {
 bool DQMStreamerReader::openNextFile_() {
   closeFile_("skipping to another file");
 
-  DQMFileIterator::LumiEntry currentLumi  = fiterator_.open();
+  DQMFileIterator::LumiEntry currentLumi = fiterator_.open();
   std::string p = fiterator_.make_path(currentLumi.datafn);
 
   if (boost::filesystem::exists(p)) {
-    openFile_(currentLumi);
-    return true;
+    try {
+      openFile_(currentLumi);
+      return true;
+    } catch (const cms::Exception& e) {
+      fiterator_.logFileAction(std::string("Can't deserialize registry data (in open file): ") + e.what(), p);
+      fiterator_.logLumiState(currentLumi, "error: data file corrupted");
+
+      closeFile_("data file corrupted");
+      return false;
+    }
   } else {
     /* dat file missing */
     fiterator_.logFileAction("Data file (specified in json) is missing:", p);
@@ -159,7 +166,8 @@ InitMsgView const* DQMStreamerReader::getHeaderMsg() {
   InitMsgView const* header = file_.streamFile_->startMessage();
 
   if (header->code() != Header::INIT) {  // INIT Msg
-    throw edm::Exception(edm::errors::FileReadError, "DQMStreamerReader::readHeader")
+    throw edm::Exception(edm::errors::FileReadError,
+                         "DQMStreamerReader::readHeader")
         << "received wrong message type: expected INIT, got " << header->code()
         << "\n";
   }
@@ -204,7 +212,6 @@ bool DQMStreamerReader::prepareNextFile() {
     // this clean exit
     if ((!file_.open()) && (!fiterator_.lumiReady()) &&
         (fiterator_.state() == State::EOR)) {
-
       return false;
     }
 
@@ -212,7 +219,6 @@ bool DQMStreamerReader::prepareNextFile() {
     // close it
     if ((processedEventPerLs_ >= minEventsPerLs_) &&
         (!fiterator_.lumiReady()) && (fiterator_.state() == State::EOR)) {
-
       closeFile_("graceful end-of-run");
       return false;
     }
@@ -290,57 +296,74 @@ bool DQMStreamerReader::checkNextEvent() {
   if (file_.streamFile_->newHeader()) {
     // A new file has been opened and we must compare Headers here !!
     // Get header/init from reader
-    InitMsgView const* header = getHeaderMsg();
-    deserializeAndMergeWithRegistry(*header, true);
+
+    try {
+      InitMsgView const* header = getHeaderMsg();
+      deserializeAndMergeWithRegistry(*header, true);
+    } catch (const cms::Exception& e) {
+      fiterator_.logFileAction(std::string("Can't deserialize registry data: ") + e.what());
+      closeFile_("data file corrupted");
+      return checkNextEvent();
+    }
+  }
+
+  // try to recover from corrupted files/events
+  try {
+    deserializeEvent(*eview);
+  } catch (const cms::Exception& e) {
+    fiterator_.logFileAction(std::string("Can't deserialize event data: ") + e.what());
+    closeFile_("error");
+    return checkNextEvent();
   }
 
   processedEventPerLs_ += 1;
-  deserializeEvent(*eview);
 
   return true;
 }
 
 /**
- * If hlt trigger selection is '*', return a boolean variable to accept all events
+ * If hlt trigger selection is '*', return a boolean variable to accept all
+ * events
  */
 bool DQMStreamerReader::triggerSel() {
   acceptAllEvt_ = false;
-  for (Strings::const_iterator i(hltSel_.begin()), end(hltSel_.end()); 
-       i!=end; ++i){
+  for (Strings::const_iterator i(hltSel_.begin()), end(hltSel_.end()); i != end;
+       ++i) {
     std::string hltPath(*i);
-    boost::erase_all(hltPath, " \t"); 
+    boost::erase_all(hltPath, " \t");
     if (hltPath == "*") acceptAllEvt_ = true;
   }
   return acceptAllEvt_;
 }
 
 /**
- * Check if hlt selection matches any trigger name taken from the header file  
+ * Check if hlt selection matches any trigger name taken from the header file
  */
 bool DQMStreamerReader::matchTriggerSel(Strings const& tnames) {
   matchTriggerSel_ = false;
-  for (Strings::const_iterator i(hltSel_.begin()), end(hltSel_.end()); 
-       i!=end; ++i){
+  for (Strings::const_iterator i(hltSel_.begin()), end(hltSel_.end()); i != end;
+       ++i) {
     std::string hltPath(*i);
     boost::erase_all(hltPath, " \t");
-    std::vector<Strings::const_iterator> matches = edm::regexMatch(tnames, hltPath);
+    std::vector<Strings::const_iterator> matches =
+        edm::regexMatch(tnames, hltPath);
     if (!matches.empty()) {
       matchTriggerSel_ = true;
     }
   }
 
   if (!matchTriggerSel_) {
-    edm::LogWarning("Trigger selection does not match any trigger path!!!") << std::endl;
+    edm::LogWarning("Trigger selection does not match any trigger path!!!")
+        << std::endl;
   }
 
   return matchTriggerSel_;
 }
 
 /**
- * Check the trigger path to accept event  
+ * Check the trigger path to accept event
  */
 bool DQMStreamerReader::acceptEvent(const EventMsgView* evtmsg) {
-
   if (acceptAllEvt_) return true;
   if (!matchTriggerSel_) return false;
 
@@ -354,7 +377,7 @@ bool DQMStreamerReader::acceptEvent(const EventMsgView* evtmsg) {
   if (eventSelector_->wantAll() ||
       eventSelector_->acceptEvent(&hltTriggerBits_[0], evtmsg->hltCount())) {
     return true;
-  }else{
+  } else {
     return false;
   }
 }
@@ -371,32 +394,35 @@ void DQMStreamerReader::skip(int toSkip) {
 
 void DQMStreamerReader::fillDescriptions(
     edm::ConfigurationDescriptions& descriptions) {
-
   edm::ParameterSetDescription desc;
   desc.setComment("Reads events from streamer files.");
 
   desc.addUntracked<std::vector<std::string> >("SelectEvents")
       ->setComment("HLT path to select events ");
 
-  desc.addUntracked<int>("minEventsPerLumi", 1)->setComment(
-      "Minimum number of events to process per lumisection, "
-      "before switching to a new input file. If the next file "
-      "does not yet exist, "
-      "the number of processed events will be bigger.");
+  desc.addUntracked<int>("minEventsPerLumi", 1)
+      ->setComment(
+          "Minimum number of events to process per lumisection, "
+          "before switching to a new input file. If the next file "
+          "does not yet exist, "
+          "the number of processed events will be bigger.");
 
-  desc.addUntracked<bool>("skipFirstLumis", false)->setComment(
-      "Skip (and ignore the minEventsPerLumi parameter) for the files "
-      "which have been available at the begining of the processing. "
-      "If set to true, the reader will open last available file for "
-      "processing.");
+  desc.addUntracked<bool>("skipFirstLumis", false)
+      ->setComment(
+          "Skip (and ignore the minEventsPerLumi parameter) for the files "
+          "which have been available at the begining of the processing. "
+          "If set to true, the reader will open last available file for "
+          "processing.");
 
-  desc.addUntracked<bool>("deleteDatFiles", false)->setComment(
-      "Delete data files after they have been closed, in order to "
-      "save disk space.");
+  desc.addUntracked<bool>("deleteDatFiles", false)
+      ->setComment(
+          "Delete data files after they have been closed, in order to "
+          "save disk space.");
 
-  desc.addUntracked<bool>("endOfRunKills", false)->setComment(
-      "Kill the processing as soon as the end-of-run file appears, even if "
-      "there are/will be unprocessed lumisections.");
+  desc.addUntracked<bool>("endOfRunKills", false)
+      ->setComment(
+          "Kill the processing as soon as the end-of-run file appears, even if "
+          "there are/will be unprocessed lumisections.");
 
   // desc.addUntracked<unsigned int>("skipEvents", 0U)
   //    ->setComment("Skip the first 'skipEvents' events that otherwise would "
@@ -413,7 +439,7 @@ void DQMStreamerReader::fillDescriptions(
   descriptions.add("source", desc);
 }
 
-} // end of namespace
+}  // end of namespace
 
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

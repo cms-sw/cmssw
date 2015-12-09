@@ -28,7 +28,7 @@ def dqmWorkflowName(datasetpath,type,rev=1):
     return workflowName 
    
 def listFilesInCastor(castor_dir,type = 'root',prefix = 'rfio:'):
-    if not castor_dir: raise ValueError,'Please specify valid castor dir'
+    if not castor_dir: raise ValueError('Please specify valid castor dir')
 
     from subprocess import Popen,PIPE
     p1 = Popen(['nsls',castor_dir],stdout=PIPE)
@@ -40,7 +40,7 @@ def listFilesInCastor(castor_dir,type = 'root',prefix = 'rfio:'):
     return files
 
 def listFilesLocal(dir,type = 'root'):
-    if not dir: raise ValueError,'Please specify valid dir'
+    if not dir: raise ValueError('Please specify valid dir')
 
     #from subprocess import Popen,PIPE
     #p1 = Popen(['ls',dir],stdout=PIPE)
@@ -61,13 +61,13 @@ def copyFilesFromCastor(castor_dir,output_dir,type='root'):
         cmd = ['rfcp',item,output_dir] 
         print "..." + item
         retcode = call(cmd)
-        if retcode != 0: raise RuntimeError,'Error in copying file %s to directory %s' % (item,output_dir)
+        if retcode != 0: raise RuntimeError('Error in copying file %s to directory %s' % (item,output_dir))
 
     return 0
 
 def copyFilesLocal(dir,output_dir,type='root'):
-    if not dir: raise ValueError,'Please specify valid dir'
-    if not output_dir: raise ValueError,'Please specify valid output dir'
+    if not dir: raise ValueError('Please specify valid dir')
+    if not output_dir: raise ValueError('Please specify valid output dir')
   
     from subprocess import call
     files = listFilesLocal(dir,type)
@@ -79,8 +79,8 @@ def copyFilesLocal(dir,output_dir,type='root'):
     return retcode
 
 def haddInCastor(castor_dir,result_file,type = 'root',prefix = 'rfio:',suffix = None):
-    if not castor_dir: raise ValueError,'Please specify valid castor dir'
-    if not result_file: raise ValueError,'Please specify valid output file name'
+    if not castor_dir: raise ValueError('Please specify valid castor dir')
+    if not result_file: raise ValueError('Please specify valid output file name')
 
     #cmd = 'hadd %s `./listfilesCastor %s | grep %s`'%(result_file,castor_dir,type)
     #print "Running",cmd
@@ -96,8 +96,8 @@ def haddInCastor(castor_dir,result_file,type = 'root',prefix = 'rfio:',suffix = 
     return retcode
 
 def haddLocal(dir,result_file,type = 'root'):
-    if not dir: raise ValueError,'Please specify valid dir'
-    if not result_file: raise ValueError,'Please specify valid output file name'
+    if not dir: raise ValueError('Please specify valid dir')
+    if not result_file: raise ValueError('Please specify valid output file name')
 
     from subprocess import call
     files = listFilesLocal(dir,type)
@@ -133,7 +133,7 @@ def parseInput(inputFields,requiredFields = ()):
 
     for item in requiredFields:
         if not hasattr(options,item):
-            raise RuntimeError,'Need to set "%s"' % item
+            raise RuntimeError('Need to set "%s"' % item)
 
     return options
 

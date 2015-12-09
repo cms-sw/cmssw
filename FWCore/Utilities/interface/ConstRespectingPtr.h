@@ -17,9 +17,7 @@ the classes_def.xml file if it is a member of a persistent class!
 // Original Author:  W. David Dagenhart
 //         Created:  20 March 2014
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <memory>
-#endif
 
 namespace edm {
 
@@ -42,9 +40,7 @@ namespace edm {
 
     bool isSet() const;
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     void set(std::unique_ptr<T> iNewValue);
-#endif
 
     T* release();
     void reset();
@@ -56,8 +52,6 @@ namespace edm {
 
     T* m_data;
   };
-
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 
   template<typename T>
   ConstRespectingPtr<T>::ConstRespectingPtr() : m_data(nullptr) {}
@@ -91,6 +85,5 @@ namespace edm {
     delete m_data;
     m_data = nullptr;
   }
-#endif
 }
 #endif

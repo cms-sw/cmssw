@@ -24,7 +24,7 @@
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
 
-class BeamSpotTransientTrackingRecHit GCC11_FINAL : public TValidTrackingRecHit {
+class BeamSpotTransientTrackingRecHit final : public TValidTrackingRecHit {
  public:
 
   typedef TrackingRecHit::Type Type;

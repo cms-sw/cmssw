@@ -22,7 +22,7 @@ namespace test {
   }
 }
 
-class ClosestApproachInRPhi GCC11_FINAL : public ClosestApproachOnHelices {
+class ClosestApproachInRPhi final : public ClosestApproachOnHelices {
   friend int test::ClosestApproachInRPhi_t::test();
 
 public:

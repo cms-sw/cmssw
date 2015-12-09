@@ -70,13 +70,9 @@ namespace edm {
     static unsigned int getUniqueID();
 
     ///Returns a value identifying an invalid id (the max unsigned int value)
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     static constexpr unsigned int invalidID() {
         return std::numeric_limits<unsigned int>::max();
     }
-#else
-    static unsigned int invalidID();
-#endif
 
   private:
 

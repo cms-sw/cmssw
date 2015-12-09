@@ -108,7 +108,7 @@ namespace edm {
     virtual void updateLookup(BranchType iBranchType,
                       ProductHolderIndexHelper const&) = 0;
 
-    virtual void modulesDependentUpon(std::vector<const char*>& oModuleLabels) const = 0;
+    virtual void modulesDependentUpon(std::vector<const char*>& oModuleLabels, bool iPrint) const = 0;
 
     virtual void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
                                                  ProductRegistry const& preg,

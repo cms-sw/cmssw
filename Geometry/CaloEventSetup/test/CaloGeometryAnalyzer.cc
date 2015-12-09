@@ -1,19 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    CaloGeometryAnalyzer
-// Class:      CaloGeometryAnalyzer
-// 
-/**\class CaloGeometryAnalyzer CaloGeometryAnalyzer.cc test/CaloGeometryAnalyzer/src/CaloGeometryAnalyzer.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-
-#include <memory>
-
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -48,11 +32,8 @@
 #include "TH1.h"
 #include "TH1D.h"
 #include "TProfile.h"
-//
-// class decleration
 
-
-class CaloGeometryAnalyzer : public edm::one::EDAnalyzer<> {
+class CaloGeometryAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   enum CenterOrCorner { kCenter , kCorner } ;
   enum XorYorZ { kX, kY, kZ } ;
 
@@ -136,6 +117,8 @@ private:
 
 CaloGeometryAnalyzer::CaloGeometryAnalyzer( const edm::ParameterSet& /*iConfig*/ )
 {
+  usesResource("TFileService");
+  
   pass_=0;
 
   h_dPhi[0] = h_fs->make<TProfile>("dPhi:EB:index", "EB: dPhi vs index", 61200, -0.5, 61199.5, " " ) ;

@@ -180,7 +180,6 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
   std::string topFolderName_;
   std::vector<std::string> SubDetList_;
   
-  std::vector<PSimHit> matched;
   std::map<std::string, LayerMEs> LayerMEsMap;
   std::map<std::string, StereoAndMatchedMEs> StereoAndMatchedMEsMap;
   std::map<std::string, SubDetMEs> SubDetMEsMap;

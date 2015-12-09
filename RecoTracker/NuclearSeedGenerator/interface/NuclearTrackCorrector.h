@@ -63,8 +63,6 @@
 
 
 
-
-
 class TransientInitialStateEstimator;
 
 //
@@ -73,12 +71,13 @@ class TransientInitialStateEstimator;
 
 class NuclearTrackCorrector :  public edm::EDProducer {
 
-   public:
-      typedef edm::RefVector<TrajectorySeedCollection> TrajectorySeedRefVector;
-      typedef edm::Ref<TrajectoryCollection> TrajectoryRef;
-      typedef edm::Ref<TrackCandidateCollection> TrackCandidateRef;
-      typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
-      typedef TrackProducerAlgorithm<reco::Track>::AlgoProductCollection AlgoProductCollection;
+public:
+  typedef edm::RefVector<TrajectorySeedCollection> TrajectorySeedRefVector;
+  typedef edm::Ref<TrajectoryCollection> TrajectoryRef;
+  typedef edm::Ref<TrackCandidateCollection> TrackCandidateRef;
+  typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
+
+  using AlgoProductCollection =  TrackProducerAlgorithm<reco::Track>::AlgoProductCollection;
 
    public:
 

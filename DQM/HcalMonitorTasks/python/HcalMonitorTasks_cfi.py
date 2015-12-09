@@ -74,7 +74,7 @@ def SetTaskParams(process,param, value):
     # Tries to set all task parameter 'param' to the value 'value'
     newval=value
     isstring=False
-    if (newval<>True and newval<>False):
+    if (newval!=True and newval!=False):
         try:
             newval=string.atoi(newval)
         except:

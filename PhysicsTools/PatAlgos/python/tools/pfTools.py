@@ -88,7 +88,7 @@ def adaptPFElectrons(process,module, postfix):
 
 
 def adaptPFPhotons(process,module):
-    raise RuntimeError, "Photons are not supported yet"
+    raise RuntimeError("Photons are not supported yet")
 
 from RecoTauTag.RecoTau.TauDiscriminatorTools import adaptTauDiscriminator, producerIsTauTypeMapper
 

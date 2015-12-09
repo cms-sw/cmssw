@@ -18,9 +18,7 @@ RefCoreWithIndex: The component of edm::Ref containing the product ID and produc
 #include <algorithm>
 #include <typeinfo>
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>
-#endif
 
 namespace edm {  
   class RefCoreWithIndex {
@@ -35,11 +33,9 @@ namespace edm {
     
     RefCoreWithIndex& operator=(RefCoreWithIndex const&);
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     RefCoreWithIndex( RefCoreWithIndex&& iOther): cachePtr_(iOther.cachePtr_.load()),processIndex_(iOther.processIndex_),
     productIndex_(iOther.productIndex_),elementIndex_(iOther.elementIndex_) {}
     RefCoreWithIndex& operator=(RefCoreWithIndex&&) = default;
-#endif
 
     ProductID id() const {ID_IMPL;}
 
@@ -138,11 +134,7 @@ namespace edm {
     //The low bit of the address is used to determine  if the cachePtr_
     // is storing the productPtr or the EDProductGetter. The bit is set if
     // the address refers to the EDProductGetter.
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     mutable std::atomic<void const*> cachePtr_; // transient
-#else
-    mutable void const* cachePtr_;               // transient
-#endif
     //The following is what is stored in a ProductID
     // the high bit of processIndex is used to store info on
     // if this is transient.
@@ -152,7 +144,6 @@ namespace edm {
 
   };
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   inline 
   void
   RefCoreWithIndex::swap(RefCoreWithIndex & other) {
@@ -161,7 +152,6 @@ namespace edm {
     other.cachePtr_.store(cachePtr_.exchange(other.cachePtr_.load()));
     std::swap(elementIndex_,other.elementIndex_);
   }
-#endif
 
   inline void swap(edm::RefCoreWithIndex & lhs, edm::RefCoreWithIndex & rhs) {
     lhs.swap(rhs);

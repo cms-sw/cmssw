@@ -8,6 +8,7 @@ import threading #Needed in threading use for Valgrind
 import subprocess #Nicer subprocess management than os.popen
 import datetime #Used to time the running of the performance suite
 import pickle #Used to dump the running timing information
+from functools import reduce
 
 #Redefine _cleanup() function not to poll active processes
 #[This is necessary to avoid issues when threading]
@@ -575,7 +576,7 @@ class PerfSuite:
             exitstat= process.wait()
             cmdout   = process.stdout.read()
             exitstat = process.returncode
-        except OSError, detail:
+        except OSError as detail:
             self.logh.write("Race condition in subprocess.Popen has robbed us of the exit code of the %s process (PID %s).Assume it failed!\n %s\n"%(command,pid,detail))
             self.logh.flush()
             exitstat=999
@@ -635,10 +636,10 @@ class PerfSuite:
                 if "cerr" in line or "CMSException" in line:
                     self.logh.write("ERROR: %s\n" % line)
                     self.ERRORS += 1
-        except OSError, detail:
+        except OSError as detail:
             self.logh.write("WARNING: %s\n" % detail)
             self.ERRORS += 1        
-        except IOError, detail:
+        except IOError as detail:
             self.logh.write("WARNING: %s\n" % detail)
             self.ERRORS += 1
         
@@ -932,7 +933,7 @@ class PerfSuite:
         if not logfile == None:
            try:
               self.logh = open(logfile,"a")
-           except (OSError, IOError), detail:
+           except (OSError, IOError) as detail:
               self.logh.write(detail + "\n")
               self.logh.flush()  
 
@@ -1680,7 +1681,7 @@ class PerfSuite:
                 self.logh.write("ERROR: There were %s errors detected in the log files, please revise!\n" % self.ERRORS)
                 #print "No exit code test"
                 #sys.exit(1)
-        except exceptions.Exception, detail:
+        except exceptions.Exception as detail:
            self.logh.write(str(detail) + "\n")
            self.logh.flush()
            if not self.logh.isatty():
@@ -1791,13 +1792,13 @@ def main(argv=[__name__]): #argv is a list of arguments.
                 ActualLogfile.write("Please check what happened: A file named %s existed already and the attempt to move it to %s produced the following output: %s\n"%(PerfSuiteArgs['logfile'],oldlogfile,mvOldLogfile.stdout))
              else:
                 ActualLogfile.write("***WARNING! A file named %s existed already!\n***It has been moved to %s before starting the current logfile!\n"%(PerfSuiteArgs['logfile'],oldlogfile))
-          except (OSError, IOError), detail:
+          except (OSError, IOError) as detail:
              ActualLogfile.write("Failed to open the intended logfile %s, detail error:\n%s"%(PerfSuiteArgs['logfile'],detail))
               
        else:
           try:
              ActualLogfile = open(PerfSuiteArgs['logfile'],"w")
-          except (OSError, IOError), detail:
+          except (OSError, IOError) as detail:
              ActualLogfile.write("Failed to open the intended logfile %s, detail error:\n%s"%(PerfSuiteArgs['logfile'],detail))
        ActualLogfile.flush()
                  

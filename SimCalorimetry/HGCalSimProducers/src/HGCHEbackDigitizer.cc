@@ -1,87 +1,86 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCHEbackDigitizer.h"
+
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
+#include "vdt/vdtMath.h"
+
+using namespace hgc_digi;
+
 //
-HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitizerBase(ps) {
-  try{
-    edm::ParameterSet caliceSpec =  ps.getParameter<edm::ParameterSet>("digiCfg").getParameter<edm::ParameterSet>("caliceSpecific");
-    nPEperMIP_ = caliceSpec.getParameter<double>("nPEperMIP");
-    nTotalPE_  = caliceSpec.getParameter<double>("nTotalPE");
-    xTalk_     = caliceSpec.getParameter<double>("xTalk");
-    sdPixels_  = caliceSpec.getParameter<double>("sdPixels");
-  }catch(std::exception &e){
-    //no need to propagate
-  }
+HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitizerBase(ps)
+{
+  edm::ParameterSet cfg = ps.getParameter<edm::ParameterSet>("digiCfg");
+  keV2MIP_   = cfg.getParameter<double>("keV2MIP");
+  keV2fC_    = 1.0; //keV2MIP_; // hack for HEB
+  noise_MIP_ = cfg.getParameter<double>("noise_MIP");
+  nPEperMIP_ = cfg.getParameter<double>("nPEperMIP");
+  nTotalPE_  = cfg.getParameter<double>("nTotalPE");
+  xTalk_     = cfg.getParameter<double>("xTalk");
+  sdPixels_  = cfg.getParameter<double>("sdPixels");
 }
 
 //
-void HGCHEbackDigitizer::runDigitizer(std::auto_ptr<HGCHEDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,uint32_t digitizationType, CLHEP::HepRandomEngine* engine) {
-  switch(digitizationType) {
-  case 1: 
-    {
-      runCaliceLikeDigitizer(digiColl,simData,engine);
-      break;
-    }
-  }
+void HGCHEbackDigitizer::runDigitizer(std::auto_ptr<HGCHEDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,uint32_t digitizationType, CLHEP::HepRandomEngine* engine)
+{
+  runCaliceLikeDigitizer(digiColl,simData,engine);
 }
   
 //
-void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData, CLHEP::HepRandomEngine* engine) {
- 
+void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData, CLHEP::HepRandomEngine* engine)
+{
+
+  //switch to true if you want to print some details
+  constexpr bool debug(false);
+  
+  HGCSimHitData chargeColl;
   for(HGCSimHitDataAccumulator::iterator it=simData.begin();
-      it!=simData.end(); it++) {
-    //init a new data frame
-    HGCHEDataFrame newDataFrame( it->first );
+      it!=simData.end();
+      it++)
+    {
+      chargeColl.fill(0.f);      
+      for(size_t i=0; i<it->second[0].size(); ++i)
+	{          
+	  //convert total energy keV->MIP, since converted to keV in accumulator
+	  float totalIniMIPs( (it->second)[0][i]*keV2MIP_ );
+          //std::cout << "energy in MIP: " << std::scientific << totalIniMIPs << std::endl;
 
-    for(size_t i=0; i<it->second.size(); i++) {
-      //convert total energy GeV->keV->ADC counts
-      float totalEn( (it->second)[i]*1e6 );
+	  //generate random number of photon electrons
+	  uint32_t npe = std::floor(CLHEP::RandPoissonQ::shoot(engine,totalIniMIPs*nPEperMIP_));
+          
+	  //number of pixels	
+	  float x = vdt::fast_expf( -((float)npe)/nTotalPE_ );
+	  uint32_t nPixel(0);
+	  if(xTalk_*x!=1) nPixel=(uint32_t) std::max( nTotalPE_*(1.f-x)/(1.f-xTalk_*x), 0.f );
+	            
+	  //update signal
+	  nPixel = (uint32_t)std::max( CLHEP::RandGaussQ::shoot(engine,(double)nPixel,sdPixels_), 0. );
+	            
+	  //convert to MIP again and saturate
+	  float totalMIPs(totalIniMIPs);
+          const float xtalk = (nTotalPE_-xTalk_*((float)nPixel))/(nTotalPE_-((float)nPixel));
+	  if( nTotalPE_ != nPixel && xtalk > 0. )
+	    totalMIPs = (nTotalPE_/nPEperMIP_)*vdt::fast_logf(xtalk);
+	  else
+	    totalMIPs = 0.f;
 	  
-      //convert energy to MIP
-      float totalIniMIPs = totalEn/mipInKeV_;
-	  
-      //generate random number of photon electrons
-      CLHEP::RandPoissonQ randPoissonQ(*engine, totalIniMIPs*nPEperMIP_);
-      uint32_t npe = (uint32_t)randPoissonQ.fire();
-	  
-      //number of pixels	
-      float x=exp(-(float)(npe)/(float)(nTotalPE_));
-      uint32_t nPixel(0);
-      if(xTalk_*x!=1) nPixel=(uint32_t) std::max( float(nTotalPE_*(1-x)/(1-xTalk_*x)), float(0.) );
-	  
-      //update signal
-      nPixel=(uint32_t)std::max( float(CLHEP::RandGaussQ::shoot(engine,(float)nPixel,(float)sdPixels_)),float(0.) );
-	  
-      //convert to MIP again and saturate
-      float totalMIPs(totalIniMIPs);
-      if(nTotalPE_!=nPixel && (nTotalPE_-xTalk_*nPixel)/(nTotalPE_-nPixel)>0 )
-	totalMIPs = (nTotalPE_/nPEperMIP_)*log((nTotalPE_-xTalk_*nPixel)/(nTotalPE_-nPixel));
-      else
-	totalMIPs = 0;
-	  
-      //add noise (in MIPs)
-      double noiseMIPs=CLHEP::RandGaussQ::shoot(engine,0.,1./mip2noise_);
-      totalMIPs=std::max(float(totalMIPs+noiseMIPs),float(0.));
-	  
-      //round to integer (sample will saturate the value according to available bits)
-      uint16_t totalEnInt = floor( totalMIPs / lsbInMIP_ );
-	 	  
-      //0 gain for the moment
-      HGCSample singleSample;
-      singleSample.set(0, totalEnInt );
-      newDataFrame.setSample(i, singleSample);
-
-    }	
+	  //add noise (in MIPs)
+	  chargeColl[i] = totalMIPs+std::max( CLHEP::RandGaussQ::shoot(engine,0.,noise_MIP_), 0. );
+	  if(debug && (it->second)[0][i]>0) 
+	    std::cout << "[runCaliceLikeDigitizer] xtalk=" << xtalk << " En=" << (it->second)[0][i] << " keV -> " << totalIniMIPs << " raw-MIPs -> " << chargeColl[i] << " digi-MIPs" << std::endl;          
+	}	
       
-    //run shaper
-    runShaper(newDataFrame);
+      //init a new data frame and run shaper
+      HGCHEDataFrame newDataFrame( it->first );
+      myFEelectronics_->runTrivialShaper( newDataFrame, chargeColl );
 
-    //prepare the output
-    updateOutput(digiColl,newDataFrame);
-  } 
+      //prepare the output
+      updateOutput(digiColl,newDataFrame);
+    } 
 }
 
 //
-HGCHEbackDigitizer::~HGCHEbackDigitizer() { }
+HGCHEbackDigitizer::~HGCHEbackDigitizer()
+{
+}
 

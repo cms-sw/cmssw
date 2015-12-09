@@ -15,13 +15,13 @@
 <use   name="DataFormats/METReco"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/CaloTowers"/>
+<use   name="DataFormats/HeavyIonEvent"/>
 <use   name="CommonTools/Utils"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="RecoEgamma/EgammaHLTAlgos"/>
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="CondFormats/DataRecord"/>
-<use   name="DQM/HLTEvF"/>
 <use   name="RecoJets/JetAssociationAlgorithms"/>
 <use   name="RecoJets/JetAlgorithms"/>
 <use   name="RecoJets/JetProducers"/>

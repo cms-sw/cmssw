@@ -203,21 +203,13 @@ namespace edm {
     template <typename REFV>
     std::shared_ptr<RefHolderBase>
     RefVectorHolder<REFV>::refBase(size_t idx) const {
-#ifdef __GCCXML__
-      return std::shared_ptr<RefHolderBase>(new RefHolder<typename REFV::value_type>(refs_[idx]));
-#else
       return std::shared_ptr<RefHolderBase>(std::make_shared<RefHolder<typename REFV::value_type> >(refs_[idx]));
-#endif
     }
 
     template<typename REFV>
     std::shared_ptr<RefHolderBase>
     RefVectorHolder<REFV>::const_iterator_imp_specific::deref() const {
-#ifdef __GCCXML__
-      return std::shared_ptr<RefHolderBase>(new RefHolder<typename REFV::value_type>(*i));
-#else
       return std::shared_ptr<RefHolderBase>(std::make_shared<RefHolder<typename REFV::value_type> >(*i));
-#endif
     }
   }
 }

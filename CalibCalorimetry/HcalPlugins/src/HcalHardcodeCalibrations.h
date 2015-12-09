@@ -21,6 +21,7 @@ class HcalPedestalWidthsRcd;
 class HcalGainsRcd;
 class HcalGainWidthsRcd;
 class HcalQIEDataRcd;
+class HcalQIETypesRcd;
 class HcalChannelQualityRcd;
 class HcalElectronicsMapRcd;
 class HcalRespCorrsRcd;
@@ -42,9 +43,16 @@ class HcalTimingParamsRcd;
 class HcalCholeskyMatricesRcd;
 class HcalCovarianceMatricesRcd;
 
-class HcalHardcodeCalibrations : public edm::ESProducer,
-		       public edm::EventSetupRecordIntervalFinder
-{
+class HcalHardcodeCalibrations : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+public:
+  static const int kHcalPhiMask2       = 0x3FF;
+  static const int kHcalEtaMask2       = 0x1FF;
+  static const int kHcalDepthMask2     = 0xF;
+  static const int kHcalPhiMask        = 0x7F;
+  static const int kHcalEtaMask        = 0x3F;
+  static const int kHcalDepthMask      = 0x7;
+  static const int kHcalVersMask       = 0x7;
+
 public:
   HcalHardcodeCalibrations (const edm::ParameterSet& );
   ~HcalHardcodeCalibrations ();
@@ -61,6 +69,7 @@ protected:
   std::auto_ptr<HcalGains> produceGains (const HcalGainsRcd& rcd);
   std::auto_ptr<HcalGainWidths> produceGainWidths (const HcalGainWidthsRcd& rcd);
   std::auto_ptr<HcalQIEData> produceQIEData (const HcalQIEDataRcd& rcd);
+  std::auto_ptr<HcalQIETypes> produceQIETypes (const HcalQIETypesRcd& rcd); 
   std::auto_ptr<HcalChannelQuality> produceChannelQuality (const HcalChannelQualityRcd& rcd);
   std::auto_ptr<HcalElectronicsMap> produceElectronicsMap (const HcalElectronicsMapRcd& rcd);
 

@@ -17,7 +17,6 @@
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
 #include <memory>
 #include <string>
@@ -172,5 +171,4 @@ class MultiChainEvent: public EventBase
 };
 
 }
-#endif /*__CINT__ */
 #endif

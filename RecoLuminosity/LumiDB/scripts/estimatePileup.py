@@ -153,7 +153,7 @@ if __name__ == '__main__':
         sys.exit()
     if len (args) != 1:
         parser.print_usage()
-        raise RuntimeError, "Exactly one output file must be given"
+        raise RuntimeError("Exactly one output file must be given")
     output = args[0]
 
     # get database session hooked up
@@ -226,8 +226,7 @@ if __name__ == '__main__':
             
         histFile = ROOT.TFile.Open (output, 'recreate')
         if not histFile:
-            raise RuntimeError, \
-                  "Could not open '%s' as an output root file" % output
+            raise RuntimeError("Could not open '%s' as an output root file" % output)
         pileupHist.Write()
         for hist in histList:
             hist.Write()
@@ -269,8 +268,7 @@ if __name__ == '__main__':
                                  debug = options.debugLumi)
     histFile = ROOT.TFile.Open (output, 'recreate')
     if not histFile:
-        raise RuntimeError, \
-              "Could not open '%s' as an output root file" % output
+        raise RuntimeError("Could not open '%s' as an output root file" % output)
     pileupHist.Write()
     for hist in histList:
         hist.Write()

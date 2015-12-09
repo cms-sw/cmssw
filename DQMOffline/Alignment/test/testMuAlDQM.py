@@ -85,7 +85,7 @@ process.muonAlignment
 
 process.outpath = cms.EndPath(process.myDQM)
 
-from CondCore.DBCommon.CondDBSetup_cfi import *
+from CondCore.CondDB.CondDB_cfi import *
 
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -101,11 +101,11 @@ if os.environ["CMS_PATH"] != "":
 #process.prefer("GlobalTag")
 process.GlobalTag.globaltag = 'CRAFT_ALL_V11::All'
 
-process.myAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
+process.myAlignment = cms.ESSource("PoolDBESSource",CondDB,
 #connect = cms.string('sqlite_file:/afs/cern.ch/user/p/pablom/public/DBs/Alignments_CRAFT_ALL_V4_refitter.db'),
 #connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONALIGN/HWAlignment/AlignmentDB/AlignmentsNewEndcap.db'),
 connect = cms.string('sqlite_file:/afs/cern.ch/user/p/pivarski/public/CRAFTalignment4_NewTracker_xyphiz2_alignedonlyAPEs.db'),
-#DBParameters = CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup.DBParameters,
+#DBParameters = CondCore.CondDB.CondDB_cfi.CondDB.DBParameters,
 
 toGet = cms.VPSet(
   cms.PSet(

@@ -25,7 +25,7 @@
  * this version is optimized for tracker and is FINAL
  */
 
-class TkRadialStripTopology GCC11_FINAL : public RadialStripTopology {
+class TkRadialStripTopology final : public RadialStripTopology {
  public:
 
   /** 

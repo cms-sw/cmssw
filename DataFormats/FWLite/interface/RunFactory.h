@@ -18,8 +18,6 @@
 //         Created:  Wed Feb 10 11:15:16 CST 2010
 //
 
-#if !defined(__CINT__) && !defined(__MAKECINT__)
-
 #include <memory>
 
 #include "DataFormats/FWLite/interface/Run.h"
@@ -44,6 +42,5 @@ namespace fwlite {
     };
 }
 
-#endif /*__CINT__ */
 
 #endif

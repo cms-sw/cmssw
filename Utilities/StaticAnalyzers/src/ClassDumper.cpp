@@ -11,22 +11,13 @@ using namespace llvm;
 
 namespace clangcms {
 
-void fixAnonNS(std::string & name, const char * fname ){
-     const std::string anon_ns = "(anonymous namespace)";
-     if (name.substr(0, anon_ns.size()) == anon_ns ) {
-          const char* sname = "/src/";
-          const char* filename = std::strstr(fname, sname);
-          if (filename != NULL) name = name.substr(0, anon_ns.size() - 1)+" in "+filename+")"+name.substr(anon_ns.size());
-          }
-     return;
-}
 
 void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR, std::string tname ) const {
      const char *sfile=BR.getSourceManager().getPresumedLoc(RD->getLocation()).getFilename();
      if (!RD->hasDefinition()) return;
      std::string rname = RD->getQualifiedNameAsString();
-     fixAnonNS(rname,sfile);
+     support::fixAnonNS(rname,sfile);
      clang::LangOptions LangOpts;
      LangOpts.CPlusPlus = true;
      clang::PrintingPolicy Policy(LangOpts);
@@ -45,18 +36,18 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
                     if (tt->isRecordType()) {
                          auto TAD = tt->getAsCXXRecordDecl();
                          if (TAD) taname = TAD->getQualifiedNameAsString();
-                         fixAnonNS(taname,sfile);
+                         support::fixAnonNS(taname,sfile);
                          std::string sdname = SD->getQualifiedNameAsString();
-                         fixAnonNS(sdname,sfile);
+                         support::fixAnonNS(sdname,sfile);
                          std::string cfname = "templated data class '"+sdname+"' template type class '"+taname+"'";
                          support::writeLog(crname+" "+cfname,tname);
                     }
-                    if (tt->isPointerType() || tt->isReferenceType() ) {
+                    if ( tt->isPointerType() || tt->isReferenceType() ) {
                          auto TAD = tt->getPointeeCXXRecordDecl();
                          if (TAD) taname = TAD->getQualifiedNameAsString();
-                         fixAnonNS(taname,sfile);
+                         support::fixAnonNS(taname,sfile);
                          std::string sdname = SD->getQualifiedNameAsString();
-                         fixAnonNS(sdname,sfile);
+                         support::fixAnonNS(sdname,sfile);
                          std::string cfname = "templated data class '"+sdname+"' template type class '"+taname+"'";
                          std::string cbname = "templated data class 'bare_ptr' template type class '"+taname+"'";
                          support::writeLog(crname+" "+cfname,tname);
@@ -83,7 +74,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
                     if (!qual.getTypePtr()->isRecordType()) continue;
                     if (const CXXRecordDecl * TRD = qual.getTypePtr()->getAsCXXRecordDecl()) {
                          std::string fname = TRD->getQualifiedNameAsString();
-                         fixAnonNS(fname, sfile);
+                         support::fixAnonNS(fname, sfile);
                          const ClassTemplateSpecializationDecl *SD = dyn_cast_or_null<ClassTemplateSpecializationDecl>(TRD);
                          if (SD) {
                                    std::string buf;
@@ -99,18 +90,18 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
                                              if ( tt->isRecordType() ) {
                                                   const clang::CXXRecordDecl * TAD = tt->getAsCXXRecordDecl();
                                                   if (TAD) taname = TAD->getQualifiedNameAsString();
-                                                  fixAnonNS(taname,sfile);
+                                                  support::fixAnonNS(taname,sfile);
                                                   std::string sdname = SD->getQualifiedNameAsString();
-                                                  fixAnonNS(sdname,sfile);
+                                                  support::fixAnonNS(sdname,sfile);
                                                   std::string cfname = "templated member data class '"+sdname+"' template type class '"+taname+"'";
                                                   support::writeLog(crname+" "+cfname,tname);
                                              }
                                              if ( tt->isPointerType() || tt->isReferenceType() ) {
                                                   const clang::CXXRecordDecl * TAD = tt->getPointeeCXXRecordDecl();
                                                   if (TAD) taname = TAD->getQualifiedNameAsString();
-                                                  fixAnonNS(taname,sfile);
+                                                  support::fixAnonNS(taname,sfile);
                                                   std::string sdname = SD->getQualifiedNameAsString();
-                                                  fixAnonNS(sdname,sfile);
+                                                  support::fixAnonNS(sdname,sfile);
                                                   std::string cfname = "templated member data class '"+sdname+"' template type class '"+taname+"'";
                                                   std::string cbname = "templated member data class 'bare_ptr' template type class '"+taname+"'";
                                                   support::writeLog(crname+" "+cfname,tname);
@@ -141,7 +132,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
                auto BRD = J->getType()->getAsCXXRecordDecl();
                if (!BRD) continue;
                std::string bname = BRD->getQualifiedNameAsString();
-               fixAnonNS(bname,sfile);
+               support::fixAnonNS(bname,sfile);
                std::string cbname = "base class '"+bname+"'";
                support::writeLog(crname+" "+cbname,tname);
           }
@@ -154,10 +145,10 @@ void ClassDumperCT::checkASTDecl(const clang::ClassTemplateDecl *TD,clang::ento:
 
       const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation()).getFilename();
       if (!support::isCmsLocalFile(sfile)) return;
-
      std::string crname("class '");
      std::string pname = "classes.txt.dumperct.unsorted";
      std::string tname = TD->getTemplatedDecl()->getQualifiedNameAsString();
+
      if ( tname == "edm::Wrapper" || tname == "edm::RunCache" || tname == "edm::LuminosityBlockCache" || tname == "edm::GlobalCache" ) {
           for ( auto I = TD->spec_begin(),
                E = TD->spec_end(); I != E; ++I) {
@@ -166,9 +157,9 @@ void ClassDumperCT::checkASTDecl(const clang::ClassTemplateDecl *TD,clang::ento:
                          if (D) {
                                    ClassDumper dumper; dumper.checkASTDecl( D, mgr, BR,pname );
                                    std::string taname = D->getQualifiedNameAsString();
-                                   fixAnonNS(taname,sfile);
+                                   support::fixAnonNS(taname,sfile);
                                    std::string tdname = TD->getQualifiedNameAsString();
-                                   fixAnonNS(tdname,sfile);
+                                   support::fixAnonNS(tdname,sfile);
                                    std::string cfname = "templated class '"+tdname+"' template type class '"+taname+"'";
                                    support::writeLog(cfname,pname);
                                    }
@@ -176,9 +167,9 @@ void ClassDumperCT::checkASTDecl(const clang::ClassTemplateDecl *TD,clang::ento:
                          if (E) {
                                    ClassDumper dumper; dumper.checkASTDecl( E, mgr, BR,pname );
                                    std::string taname = E->getQualifiedNameAsString();
-                                   fixAnonNS(taname,sfile);
+                                   support::fixAnonNS(taname,sfile);
                                    std::string tdname = TD->getQualifiedNameAsString();
-                                   fixAnonNS(tdname,sfile);
+                                   support::fixAnonNS(tdname,sfile);
                                    std::string cfname = "templated class '"+tdname+"' template type class '"+taname+"'";
                                    support::writeLog(cfname,pname);
                                    std::string cbname = "templated class 'bare_ptr' template type class '"+taname+"'";
@@ -187,7 +178,6 @@ void ClassDumperCT::checkASTDecl(const clang::ClassTemplateDecl *TD,clang::ento:
                }
           }
      }
-
 } //end class
 
 void ClassDumperFT::checkASTDecl(const clang::FunctionTemplateDecl *TD,clang::ento::AnalysisManager& mgr,
@@ -195,7 +185,6 @@ void ClassDumperFT::checkASTDecl(const clang::FunctionTemplateDecl *TD,clang::en
 
       const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation()).getFilename();
       if (!support::isCmsLocalFile(sfile)) return;
-
      std::string crname("class '");
      std::string pname = "classes.txt.dumperft.unsorted";
      if (TD->getTemplatedDecl()->getQualifiedNameAsString().find("typelookup::className") != std::string::npos ) {
@@ -207,9 +196,9 @@ void ClassDumperFT::checkASTDecl(const clang::FunctionTemplateDecl *TD,clang::en
                     if (D) {
                          ClassDumper dumper; dumper.checkASTDecl( D, mgr, BR,pname );
                          std::string taname = D->getQualifiedNameAsString();
-                         fixAnonNS(taname,sfile);
+                         support::fixAnonNS(taname,sfile);
                          std::string sdname = SD->getQualifiedNameAsString();
-                         fixAnonNS(sdname,sfile);
+                         support::fixAnonNS(sdname,sfile);
                          std::string cfname = "templated function '"+sdname+"' template type class '"+taname+"'";
                          support::writeLog(cfname,pname);
                          }
@@ -217,9 +206,9 @@ void ClassDumperFT::checkASTDecl(const clang::FunctionTemplateDecl *TD,clang::en
                     if (E) {
                          ClassDumper dumper; dumper.checkASTDecl( E, mgr, BR,pname );
                          std::string taname = E->getQualifiedNameAsString();
-                         fixAnonNS(taname,sfile);
+                         support::fixAnonNS(taname,sfile);
                          std::string sdname = SD->getQualifiedNameAsString();
-                         fixAnonNS(sdname,sfile);
+                         support::fixAnonNS(sdname,sfile);
                          std::string cfname = "templated function '"+sdname+"' template type class '"+taname+"'";
                          support::writeLog(cfname,pname);
                          std::string cbname = "templated function 'bare_ptr' template type class '"+taname+"'";
@@ -228,7 +217,7 @@ void ClassDumperFT::checkASTDecl(const clang::FunctionTemplateDecl *TD,clang::en
 
                }
           }
-     }
+      }
 } //end class
 
 void ClassDumperInherit::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::AnalysisManager& mgr,

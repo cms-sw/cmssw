@@ -97,7 +97,7 @@ process.source = cms.Source("PoolSource",
 
 process.output =cms.OutputModule("PoolOutputModule",
         outputCommands = cms.untracked.vstring('keep *'),
-	fileName = cms.untracked.string('testGlobalMCInputProducer_'+`job`+'.root')
+	fileName = cms.untracked.string('testGlobalMCInputProducer_'+repr(job)+'.root')
 	)
 	
 process.options = cms.untracked.PSet()
@@ -266,6 +266,6 @@ if rootout:
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 if dump:
-    outfile = open('dump_runGlobalFakeInputProducer_'+`job`+'.py','w')
+    outfile = open('dump_runGlobalFakeInputProducer_'+repr(job)+'.py','w')
     print >> outfile,process.dumpPython()
     outfile.close()

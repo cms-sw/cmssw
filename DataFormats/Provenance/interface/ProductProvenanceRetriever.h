@@ -27,9 +27,7 @@ namespace edm {
   class ProductProvenanceRetriever : private boost::noncopyable {
   public:
     explicit ProductProvenanceRetriever(unsigned int iTransitionIndex);
-#ifndef __GCCXML__
     explicit ProductProvenanceRetriever(std::unique_ptr<ProvenanceReaderBase> reader);
-#endif
 
     ~ProductProvenanceRetriever();
 

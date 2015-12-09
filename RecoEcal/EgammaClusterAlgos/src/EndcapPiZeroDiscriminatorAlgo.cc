@@ -292,6 +292,7 @@ void EndcapPiZeroDiscriminatorAlgo::readWeightFile(const char *Weights_file){
         }
    }
    fclose(weights);
+   delete[] line;
 }
 
 //=====================================================================================

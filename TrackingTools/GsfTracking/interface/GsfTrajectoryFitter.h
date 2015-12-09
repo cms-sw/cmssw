@@ -17,7 +17,7 @@ class MultiTrajectoryStateMerger;
 /** A GSF fitter, similar to KFTrajectoryFitter.
  */
 
-class GsfTrajectoryFitter  GCC11_FINAL  : public TrajectoryFitter {
+class GsfTrajectoryFitter  final  : public TrajectoryFitter {
 
 private:
   typedef TrajectoryStateOnSurface TSOS;

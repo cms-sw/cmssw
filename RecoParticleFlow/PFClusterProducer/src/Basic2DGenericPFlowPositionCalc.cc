@@ -82,7 +82,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   double depth = 0.0;  
   double position_norm = 0.0;
   double x(0.0),y(0.0),z(0.0);
-  const reco::PFRecHitRefVector* seedNeighbours = NULL;
+  const reco::PFRecHitRefVector* seedNeighbours = nullptr;
   switch( _posCalcNCrystals ) {
   case 5:
     seedNeighbours = &refseed->neighbours4();
@@ -90,8 +90,10 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   case 9:
     seedNeighbours = &refseed->neighbours8();
     break;
-  default:
+  case -1:
     break;
+  default:
+    assert(0); //bug
   }
 
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {

@@ -18,7 +18,7 @@ class NjettinessAdder : public edm::stream::EDProducer<> {
     enum MeasureDefinition_t {
         NormalizedMeasure=0,       // (beta,R0) 
         UnnormalizedMeasure,       // (beta) 
-        GeometricMeasure,          // (beta) 
+        OriginalGeometricMeasure,  // (beta) 
         NormalizedCutoffMeasure,   // (beta,R0,Rcutoff) 
         UnnormalizedCutoffMeasure, // (beta,Rcutoff) 
         GeometricCutoffMeasure,    // (beta,Rcutoff) 

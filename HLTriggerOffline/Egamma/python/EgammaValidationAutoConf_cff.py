@@ -81,4 +81,3 @@ emdqm = cms.EDAnalyzer('EmDQM',
 
 # selectors go into separate "prevalidation" sequence
 egammaValidationSequence   = cms.Sequence(emdqm)
-egammaValidationSequenceFS = cms.Sequence(emdqm)

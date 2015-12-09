@@ -15,18 +15,25 @@
 //#define DebugLog
 
 namespace {
-  double getTopologyMode( const char* s, const DDsvalues_type & sv ) {
+  int getTopologyMode(const char* s, const DDsvalues_type & sv, bool type) {
     DDValue val( s );
-    if( DDfetch( &sv, val )) {
+    if (DDfetch( &sv, val )) {
       const std::vector<std::string> & fvec = val.strings();
-      if( fvec.size() == 0 ) {
+      if (fvec.size() == 0) {
 	throw cms::Exception( "HcalParametersFromDD" ) << "Failed to get " << s << " tag.";
       }
 
-      StringToEnumParser<HcalTopologyMode::Mode> eparser;
-      HcalTopologyMode::Mode mode = (HcalTopologyMode::Mode) eparser.parseString( fvec[0] );
-
-      return double( mode );
+      int result(-1);
+      if (type) {
+	StringToEnumParser<HcalTopologyMode::Mode> eparser;
+	HcalTopologyMode::Mode mode = (HcalTopologyMode::Mode) eparser.parseString(fvec[0]);
+	result = (int)(mode);
+      } else {
+	StringToEnumParser<HcalTopologyMode::TriggerMode> eparser;
+	HcalTopologyMode::TriggerMode mode = (HcalTopologyMode::TriggerMode) eparser.parseString(fvec[0]);
+	result = (int)(mode);
+      }
+      return result;
     } else {
       throw cms::Exception( "HcalParametersFromDD" ) << "Failed to get "<< s << " tag.";
     }
@@ -112,7 +119,9 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
   ok = fv2.firstChild();
   if (ok) {
     DDsvalues_type sv(fv2.mergedSpecifics());
-    php.topologyMode = getTopologyMode("TopologyMode", sv);
+    int topoMode = getTopologyMode("TopologyMode", sv, true);
+    int trigMode = getTopologyMode("TriggerMode", sv, false);
+    php.topologyMode = ((trigMode&0xFF)<<8) | (topoMode&0xFF);
     php.etagroup = dbl_to_int( DDVectorGetter::get( "etagroup" ));
     php.phigroup = dbl_to_int( DDVectorGetter::get( "phigroup" ));
     for (unsigned int i = 1; i<=nEtaMax; ++i) {
@@ -222,7 +231,8 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
       std::cout << " " << ++i << ":" << (*kt);
     std::cout << std::endl;
   }
-  std::cout << "HcalParametersFromDD: topologyMode " << php.topologyMode << std::endl;
+  std::cout << "HcalParametersFromDD: (topology|trigger)Mode " << std::hex
+	    << php.topologyMode << std::dec << std::endl;
 #endif
 
   return true;

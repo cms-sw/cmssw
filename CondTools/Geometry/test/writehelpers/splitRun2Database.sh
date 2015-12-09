@@ -2,6 +2,9 @@
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtended2015.db -t XMLFILE_Geometry_TagXX_Extended2015_mc -i XMLFILE_Geometry_TagXX_Extended2015_mc
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileIdeal2015.db -t XMLFILE_Geometry_TagXX_Ideal2015_mc -i XMLFILE_Geometry_TagXX_Ideal2015_mc
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtended2015ZeroMaterial.db -t XMLFILE_Geometry_TagXX_Extended2015ZeroMaterial_mc -i XMLFILE_Geometry_TagXX_Extended2015ZeroMaterial_mc
+conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtended2015CastorMeasured.db -t XMLFILE_Geometry_TagXX_Extended2015CastorMeasured_mc -i XMLFILE_Geometry_TagXX_Extended2015CastorMeasured_mc
+conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtended2015CastorSystMinus.db -t XMLFILE_Geometry_TagXX_Extended2015CastorSystMinus_mc -i XMLFILE_Geometry_TagXX_Extended2015CastorSystMinus_mc
+conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtended2015CastorSystPlus.db -t XMLFILE_Geometry_TagXX_Extended2015CastorSystPlus_mc -i XMLFILE_Geometry_TagXX_Extended2015CastorSystPlus_mc
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:TKRECO_Geometry.db -t TKRECO_Geometry2015_TagXX -i TKRECO_Geometry2015_TagXX
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:TKExtra_Geometry.db -t TKExtra_Geometry2015_TagXX -i TKExtra_Geometry2015_TagXX
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:TKParameters_Geometry.db -t TKParameters_Geometry2015_TagXX -i TKParameters_Geometry2015_TagXX

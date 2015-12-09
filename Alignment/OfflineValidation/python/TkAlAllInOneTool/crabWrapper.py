@@ -55,7 +55,7 @@ class CrabWrapper:
         try:
             theCrab.initialize_( options )
             theCrab.run()
-        except crab_exceptions.CrabException, e:
+        except crab_exceptions.CrabException as e:
             raise AllInOneError( str( e ) )
         del theCrab
 
@@ -75,5 +75,5 @@ if __name__ == "__main__":
     theCrabOptions = {"-getoutput":""}
     try:
         theCrab.run( theCrabOptions )
-    except AllInOneError, e:
+    except AllInOneError as e:
         print "crab: ", e

@@ -40,7 +40,7 @@ from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *
 from Geometry.HcalEventSetup.HcalGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *
 from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *
-from Geometry.HcalEventSetup.hcalTopologyIdealSLHC_cfi import *
+from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *
 from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMapping_cfi import *

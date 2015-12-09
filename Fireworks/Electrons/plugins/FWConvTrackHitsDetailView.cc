@@ -1,8 +1,6 @@
 
-#define protected public
 #include "TGLViewer.h" // access to over-all bounding box
 #include "TEveCalo.h" // workaround for TEveCalo3D bounding box
-#undef protected
 #include "TGLFontManager.h"
 #include "TEveScene.h"
 #include "TEveManager.h"
@@ -66,7 +64,7 @@ void setCameraInit(TGLViewer* v, TGLViewer::ECameraType type, const TEveVectorD 
    TGLMatrix& trans = cam.RefCamBase();
 
    trans.Set(trans.GetTranslation(), b3.Arr(), b1.Arr());
-   cam.Setup(v->fOverallBoundingBox, kTRUE);
+   cam.Setup(v->RefOverallBoundingBox(), kTRUE);
   
    cam.SetExternalCenter(true);
    cam.SetCenterVec(center.fX, center.fY, center.fZ);
@@ -237,29 +235,29 @@ FWConvTrackHitsDetailView::build (const FWModelId &id, const reco::Conversion* c
       
       FWECALDetailViewBuilder caloBld( id.item()->getEvent(), id.item()->getGeom(), eta, phi, 30);
       TEveCaloData* data = caloBld.buildCaloData(false);
-       // AMT!!! this is mempry leak, check why it needs to be added
+       // AMT!!! this is memory leak, check why it needs to be added
       TEveCalo3D* calo3d = new TEveCalo3D(data);
       gEve->AddElement(data);
       calo3d->SetBarrelRadius(129.00);
       calo3d->SetEndCapPos(268.36);
       
       float theta = TEveCaloData::EtaToTheta(eta);
-      float eps = data->GetMaxVal(true) * calo3d->GetValToHeight();
+      float ext   = data->GetMaxVal(true) * calo3d->GetValToHeight();
       if (TMath::Abs(eta) < calo3d->GetTransitionEta())
       {
-        // printf("barrel\n");
-         float x =   calo3d->GetBarrelRadius() * TMath::Cos(phi);
-         float y =   calo3d->GetBarrelRadius() * TMath::Sin(phi);
-         float z =   calo3d->GetBarrelRadius() / TMath::Tan(theta); 
+         // printf("barrel\n");
+         float x = calo3d->GetBarrelRadius() * TMath::Cos(phi);
+         float y = calo3d->GetBarrelRadius() * TMath::Sin(phi);
+         float z = calo3d->GetBarrelRadius() / TMath::Tan(theta); 
          
-         calo3d->BBoxZero(eps, x, y, z);
+         calo3d->SetupBBoxCube(ext, x, y, z);
       }
       else
       {
-       //  printf("endcap\n");
-         float z  = TMath::Sign(calo3d->GetEndCapPos(), eta);
-         float r =   z*TMath::Tan(theta);
-         calo3d->BBoxZero(eps, r* TMath::Cos(phi), r*TMath::Sin(phi), z);
+         // printf("endcap\n");
+         float z = TMath::Sign(calo3d->GetEndCapPos(), eta);
+         float r = z*TMath::Tan(theta);
+         calo3d->SetupBBoxCube(ext, r* TMath::Cos(phi), r*TMath::Sin(phi), z);
       }
       m_eveScene->AddElement(calo3d);
    }

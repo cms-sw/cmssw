@@ -17,7 +17,7 @@ class cacheconfigParser(object):
                 for attrName in attrs.keys():
                     attrNode=attrs.get(attrName)
                     attrValue=attrNode.nodeValue
-                    if  self.__parameterDict.has_key(tagname):
+                    if  tagname in self.__parameterDict:
                         self.__parameterDict[tagname].append((attrName,attrValue))
                     else:
                         valuelist=[]

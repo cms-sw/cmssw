@@ -20,10 +20,10 @@ double HcalTimeSlew::delay(double fC, ParaSource source, BiasSetting bias, doubl
     return HcalTimeSlew::delay(fC, bias);
   }
   else if (source==InputPars) {
-    return std::min(cap, par0 + par1*log(fC+par2));
+    return std::fmin(cap, par0 + par1*log(fC+par2));
   }
   else if (source==Data || source==MC){
-    return std::min(cap,tspar0[source-1]+tspar1[source-1]*log(fC+tspar2[source-1]));
+    return std::fmin(cap,tspar0[source-1]+tspar1[source-1]*log(fC+tspar2[source-1]));
   }
   return 0;
 }

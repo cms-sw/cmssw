@@ -16,7 +16,7 @@
 <use   name="RecoEgamma/EgammaHLTAlgos"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="CondFormats/DataRecord"/>
-<use   name="DQM/HLTEvF"/>
+<use   name="DQMServices/Core"/>
 <use   name="root"/>
 <use   name="roofit"/>
 <use   name="boost"/>

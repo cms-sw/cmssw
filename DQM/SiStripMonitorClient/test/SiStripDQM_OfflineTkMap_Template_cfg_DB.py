@@ -107,15 +107,21 @@ process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
        TkMapOptions             = cms.untracked.VPSet(
     cms.PSet(mapName=cms.untracked.string('QTestAlarm'),fedMap=cms.untracked.bool(True),useSSQuality=cms.untracked.bool(True),ssqLabel=cms.untracked.string(""),psuMap=cms.untracked.bool(True),loadLVCabling=cms.untracked.bool(True),mapMax=cms.untracked.double(1.)),
     cms.PSet(mapName=cms.untracked.string('FractionOfBadChannels'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True)),
-    cms.PSet(mapName=cms.untracked.string('NumberOfCluster'),TopModules=cms.untracked.bool(True),numberTopModules=cms.untracked.int32(20)),
+    cms.PSet(mapName=cms.untracked.string('NumberOfCluster'),TopModules=cms.untracked.bool(True),numberTopModules=cms.untracked.uint32(20)),
     cms.PSet(mapName=cms.untracked.string('NumberOfDigi'),TopModules=cms.untracked.bool(True)),
     cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster'),TopModules=cms.untracked.bool(True)),
     cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster'),mapSuffix=cms.untracked.string("_autoscale"),mapMax=cms.untracked.double(-1.)),
     cms.PSet(mapName=cms.untracked.string('NumberOfOnTrackCluster')),
     cms.PSet(mapName=cms.untracked.string('StoNCorrOnTrack')),
     cms.PSet(mapName=cms.untracked.string('NApvShots'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True)),
-#    cms.PSet(mapName=cms.untracked.string('NApvShots'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True),psuMap=cms.untracked.bool(True),loadLVCabling=cms.untracked.bool(True)),
-    cms.PSet(mapName=cms.untracked.string('MedianChargeApvShots'),mapMax=cms.untracked.double(-1.))
+    cms.PSet(mapName=cms.untracked.string('NApvShots'),logScale=cms.untracked.bool(True),psuMap=cms.untracked.bool(True),loadLVCabling=cms.untracked.bool(True),TopModules=cms.untracked.bool(True)),
+#    cms.PSet(mapName=cms.untracked.string('MedianChargeApvShots'),mapMax=cms.untracked.double(-1.)),
+#    cms.PSet(mapName=cms.untracked.string('ClusterCharge'),mapMax=cms.untracked.double(-1.)),
+#    cms.PSet(mapName=cms.untracked.string('ChargePerCMfromOrigin')),
+    cms.PSet(mapName=cms.untracked.string('ChargePerCMfromTrack')),
+    cms.PSet(mapName=cms.untracked.string('NumberMissingHits')),
+    cms.PSet(mapName=cms.untracked.string('NumberValidHits')),
+    cms.PSet(mapName=cms.untracked.string('NumberInactiveHits'))
     )
 )
 

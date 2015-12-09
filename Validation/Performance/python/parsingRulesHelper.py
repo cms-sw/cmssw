@@ -44,7 +44,7 @@ def rulesParser(parsing_rules, lines, compileRules = True):
 		for rule in parsing_rules:
 			for field_name in rule[0]:
 				if field_name:
-					if not info.has_key(field_name):
+					if field_name not in info:
 						info[field_name] = ""
 					""" check for required fields"""
 					if len(rule) == 3 and rule[2] =="req":

@@ -86,11 +86,11 @@ FakeTrackProducer<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     Handle<vector<T> > src;
     iEvent.getByToken(src_, src);
 
-    auto_ptr<vector<reco::Track> > out(new vector<reco::Track>());
+    unique_ptr<vector<reco::Track> > out(new vector<reco::Track>());
     out->reserve(src->size());
-    auto_ptr<vector<reco::TrackExtra> > outEx(new vector<reco::TrackExtra>());
+    unique_ptr<vector<reco::TrackExtra> > outEx(new vector<reco::TrackExtra>());
     outEx->reserve(src->size());
-    auto_ptr<OwnVector<TrackingRecHit> > outHits(new OwnVector<TrackingRecHit>());
+    unique_ptr<OwnVector<TrackingRecHit> > outHits(new OwnVector<TrackingRecHit>());
 
     TrackingRecHitRefProd rHits = iEvent.getRefBeforePut<TrackingRecHitCollection>();
     reco::TrackExtraRefProd rTrackExtras = iEvent.getRefBeforePut<reco::TrackExtraCollection>();
@@ -133,9 +133,9 @@ FakeTrackProducer<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
         ex.setHits( rHits, firstHitIndex, outHits->size()-firstHitIndex);
     }
 
-    iEvent.put(out);
-    iEvent.put(outEx);
-    iEvent.put(outHits);
+    iEvent.put(std::move(out));
+    iEvent.put(std::move(outEx));
+    iEvent.put(std::move(outHits));
 }
 
 typedef  FakeTrackProducer<TrajectorySeed> FakeTrackProducerFromSeed;

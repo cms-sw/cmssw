@@ -22,28 +22,28 @@ namespace edm {
       Holder& operator= (Holder const& rhs);
       void swap(Holder& other);
       virtual ~Holder();
-      virtual BaseHolder<T>* clone() const GCC11_OVERRIDE;
+      virtual BaseHolder<T>* clone() const override;
 
-      virtual T const* getPtr() const GCC11_OVERRIDE;
-      virtual ProductID id() const GCC11_OVERRIDE;
-      virtual size_t key() const GCC11_OVERRIDE;
-      virtual bool isEqualTo(BaseHolder<T> const& rhs) const GCC11_OVERRIDE;
+      virtual T const* getPtr() const override;
+      virtual ProductID id() const override;
+      virtual size_t key() const override;
+      virtual bool isEqualTo(BaseHolder<T> const& rhs) const override;
       REF const& getRef() const;
 
       virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
-					  std::string& msg) const GCC11_OVERRIDE;
+					  std::string& msg) const override;
 
-      virtual std::auto_ptr<RefHolderBase> holder() const GCC11_OVERRIDE {
+      virtual std::auto_ptr<RefHolderBase> holder() const override {
 	return std::auto_ptr<RefHolderBase>( new RefHolder<REF>( ref_ ) );
       }
-      virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const GCC11_OVERRIDE;
-      virtual EDProductGetter const* productGetter() const GCC11_OVERRIDE;
+      virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const override;
+      virtual EDProductGetter const* productGetter() const override;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
-      virtual bool isAvailable() const GCC11_OVERRIDE { return ref_.isAvailable(); }
+      virtual bool isAvailable() const override { return ref_.isAvailable(); }
 
-      virtual bool isTransient() const GCC11_OVERRIDE { return ref_.isTransient(); }
+      virtual bool isTransient() const override { return ref_.isTransient(); }
 
       //Used by ROOT storage
       CMS_CLASS_VERSION(10)

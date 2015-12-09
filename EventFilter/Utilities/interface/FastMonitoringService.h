@@ -45,6 +45,11 @@
   which should continue to use the concrete class interface) will be defined 
 
 */
+class FedRawDataInputSource;
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 namespace evf{
 
@@ -69,7 +74,7 @@ namespace evf{
 	  return (it!=quickReference_.end()) ? (*it).second : 0;
 	}
 	const void* decode(unsigned int index){return decoder_[index];}
-	void fillReserved(void* add, unsigned int i){
+	void fillReserved(const void* add, unsigned int i){
 	  //	  translation_[*name]=current_; 
 	  quickReference_[add]=i; 
 	  if(decoder_.size()<=i)
@@ -77,7 +82,7 @@ namespace evf{
 	  else
 	    decoder_[currentReserved_] = add;
 	}
-	void updateReserved(void* add){
+	void updateReserved(const void* add){
 	  fillReserved(add,currentReserved_);
 	  currentReserved_++;
 	}
@@ -86,7 +91,7 @@ namespace evf{
 	  for(unsigned int i = currentReserved_; i<reserved_; i++)
 	    fillReserved(dummiesForReserved_+i,i);
 	}
-	void update(void* add){
+	void update(const void* add){
 	  //	  translation_[*name]=current_; 
 	  quickReference_[add]=current_; 
 	  decoder_.push_back(add); 
@@ -111,6 +116,7 @@ namespace evf{
       static const std::string nopath_;
       FastMonitoringService(const edm::ParameterSet&,edm::ActivityRegistry&);
       ~FastMonitoringService();
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
      
       std::string makePathLegendaJson();
       std::string makeModuleLegendaJson();
@@ -146,7 +152,6 @@ namespace evf{
       void setMicroState(MicroStateService::Microstate);
       void setMicroState(edm::StreamID, MicroStateService::Microstate);
 
-      void reportEventsThisLumiInSource(unsigned int lumi,unsigned int events);
       void accumulateFileSize(unsigned int lumi, unsigned long fileSize);
       void startedLookingForFile();
       void stoppedLookingForFile(unsigned int lumi);
@@ -160,6 +165,7 @@ namespace evf{
         return !getAbortFlagForLumi(lumi) && (processed || emptyLumisectionMode_);
       }
       std::string getRunDirName() const { return runDirectory_.stem().string(); }
+      void setInputSource(FedRawDataInputSource *inputSource) {inputSource_=inputSource;}
 
     private:
 
@@ -201,6 +207,7 @@ namespace evf{
       FastMonitoringThread fmt_;
       Encoding encModule_;
       std::vector<Encoding> encPath_;
+      FedRawDataInputSource * inputSource_ = nullptr;
 
       unsigned int nStreams_;
       unsigned int nThreads_;
@@ -250,8 +257,6 @@ namespace evf{
       std::vector<bool> pathNamesReady_;
 
       boost::filesystem::path workingDirectory_, runDirectory_;
-
-      std::map<unsigned int,unsigned int> sourceEventsReport_;
 
       bool threadIDAvailable_ = false;
 

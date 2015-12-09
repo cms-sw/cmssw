@@ -25,8 +25,8 @@ def customizeHLTforMC(process,_fastSim=False):
     process.hltHbhereco.timeSlewParsType        = cms.int32( 3 )
     # new time slew parametrisation
     process.hltHbhereco.timeSlewPars            = cms.vdouble( 12.2999, -2.19142, 0, 12.2999, -2.19142, 0, 12.2999, -2.19142, 0 )
-    # old response correction, matching the 2015D 25ns data
-    process.hltHbhereco.respCorrM3              = cms.double( 1.0 )
+    # new response correction, matching Method 2
+    process.hltHbhereco.respCorrM3              = cms.double( 0.95 )
 
 
   if _fastSim:

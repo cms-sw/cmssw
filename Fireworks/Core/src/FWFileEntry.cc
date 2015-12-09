@@ -15,10 +15,7 @@
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
-#define private public
 #include "Fireworks/Core/interface/FWEventItem.h"
-#undef private
-
 #include "Fireworks/Core/interface/FWFileEntry.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/fwLog.h"

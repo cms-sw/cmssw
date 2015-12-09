@@ -318,10 +318,10 @@ string getGifMergeCommand(int start, int breakspot1, int breakspot2, int end) {
     return str;
 }
 
-//gets string that is a unix command that merges gifs using ImageMagick
+//gets string that is a unix command that merges gifs using GraphicsMagick
 string getConvertCommand(int start, int breakspot1, int breakspot2, int end) {
     string str = "";
-    str += "convert -loop 0 -delay 5 ";
+    str += "gm convert -loop 0 -delay 5 ";
     for (int i = start; i < breakspot1; i++) {
         str += "images/i"+to_string(i)+".gif ";
     }
@@ -448,7 +448,7 @@ void runVisualizer(TString input,
     //gSystem->Exec(TString(getGifMergeCommand(0, start1, start2, _i)));
     gSystem->Exec(TString(getConvertCommand(0, start1, start2, _i)));
     cout << "images merged." << endl;
-    gSystem->Exec(TString("convert "+_outputFileName+".gif -rotate 90 "+_outputFileName+"_rotated.gif"));
+    gSystem->Exec(TString("gm convert "+_outputFileName+".gif -rotate 90 "+_outputFileName+"_rotated.gif"));
     cout << "images rotated." << endl;
 }
 

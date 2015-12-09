@@ -71,8 +71,8 @@ void GsfVertexConstraintProducer::produce(edm::Event& iEvent, const edm::EventSe
   Handle<reco::GsfTrackCollection> theTCollection;
   iEvent.getByLabel(srcTag,theTCollection);
   
-  std::auto_ptr<std::vector<VertexConstraint> > pairs(new std::vector<VertexConstraint>);
-  std::auto_ptr<GsfTrackVtxConstraintAssociationCollection> output(new GsfTrackVtxConstraintAssociationCollection);
+  std::unique_ptr<std::vector<VertexConstraint> > pairs(new std::vector<VertexConstraint>);
+  std::unique_ptr<GsfTrackVtxConstraintAssociationCollection> output(new GsfTrackVtxConstraintAssociationCollection);
   
   edm::RefProd<std::vector<VertexConstraint> > rPairs = iEvent.getRefBeforePut<std::vector<VertexConstraint> >();
 
@@ -84,8 +84,8 @@ void GsfVertexConstraintProducer::produce(edm::Event& iEvent, const edm::EventSe
     index++;
   }
   
-  iEvent.put(pairs);
-  iEvent.put(output);
+  iEvent.put(std::move(pairs));
+  iEvent.put(std::move(output));
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

@@ -302,8 +302,10 @@ namespace edm {
       LogWarning("") << "Input file: " << fileName() << " was not found or could not be opened, and will be skipped.\n";
     }
   }
+
   void
   RootInputFileSequence::setIndexIntoFile(size_t index) {
    indexesIntoFiles_[index] = rootFile()->indexIntoFileSharedPtr();
   }
+
 }

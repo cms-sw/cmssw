@@ -29,7 +29,7 @@
 
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 
-class KFUpdator GCC11_FINAL : public TrajectoryStateUpdator {
+class KFUpdator final : public TrajectoryStateUpdator {
 
 public:
 

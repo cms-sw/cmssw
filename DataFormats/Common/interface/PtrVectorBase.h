@@ -37,12 +37,8 @@ namespace edm {
 
     explicit PtrVectorBase(ProductID const& productID, void const* prodPtr = 0,
                            EDProductGetter const* prodGetter = 0)
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     :
       core_(productID, prodPtr, prodGetter, false), indicies_(), cachedItems_(nullptr) {}
-#else
-    ;
-#endif
     
     PtrVectorBase( const PtrVectorBase&);
 
@@ -82,11 +78,7 @@ namespace edm {
 
     /// Clear the PtrVector
     void clear()
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     { core_ = RefCore(); indicies_.clear(); if(cachedItems_) { delete cachedItems_.load(); cachedItems_.store(nullptr); } }
-#else
-    ;
-#endif
   
     bool operator==(PtrVectorBase const& iRHS) const;
     // ---------- static member functions --------------------
@@ -174,11 +166,7 @@ namespace edm {
     // ---------- member data --------------------------------
     RefCore core_;
     std::vector<key_type> indicies_;
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     mutable std::atomic<std::vector<void const*>*> cachedItems_; //! transient
-#else
-    mutable std::vector<void const*>* cachedItems_;               //!transient
-#endif
 
   };
 }

@@ -15,7 +15,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class KFSwitching1DUpdator GCC11_FINAL : public TrajectoryStateUpdator {
+class KFSwitching1DUpdator final : public TrajectoryStateUpdator {
 
 private:
   typedef TrajectoryStateOnSurface TSOS;

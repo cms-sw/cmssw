@@ -11,6 +11,8 @@
 #include "EventFilter/Utilities/plugins/RecoEventOutputModuleForFU.h"
 #include "EventFilter/Utilities/plugins/RawEventOutputModuleForBU.h"
 #include "EventFilter/Utilities/plugins/DaqFakeReader.h"
+#include "FWCore/Framework/interface/InputSourceMacros.h"
+#include "EventFilter/Utilities/interface/FedRawDataInputSource.h"
 
 using namespace edm::serviceregistry;
 using namespace evf;
@@ -36,3 +38,4 @@ DEFINE_FWK_MODULE(RawStreamFileWriterForBU);
 DEFINE_FWK_MODULE(EvFOutputModule);
 DEFINE_FWK_MODULE(ShmStreamConsumer);
 DEFINE_FWK_MODULE(DaqFakeReader);
+DEFINE_FWK_INPUT_SOURCE(FedRawDataInputSource);

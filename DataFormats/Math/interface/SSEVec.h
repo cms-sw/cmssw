@@ -1,48 +1,18 @@
 #ifndef DataFormat_Math_SSEVec_H
 #define DataFormat_Math_SSEVec_H
 
-#if !defined(__arm__) && !defined(__aarch64__) && !defined(__MIC__)
-#if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)
+#if !defined(__arm__) && !defined(__aarch64__) && !defined(__MIC__) && !defined(__powerpc64__) && !defined(__PPC64__) && !defined(__powerpc__)
+#if defined(__GNUC__) 
 #include <x86intrin.h>
 #define CMS_USE_SSE
 #ifdef __AVX__
 #define CMS_USE_AVX
 #endif /* __AVX__ */
-#else /* defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4) */
-
-#ifdef __SSE2__
-#define CMS_USE_SSE
-
-#include <mmintrin.h>
-#include <emmintrin.h>
-#endif /* __SSE2__ */
-#ifdef __SSE3__
-#include <pmmintrin.h>
-#endif /* __SSE3__ */
-#ifdef __SSE4_1__
-#include <smmintrin.h>
-#endif /* __SSE4_1__ */
-
-#endif /* defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4) */
+#endif /* defined(__GNUC__) */
 #endif /* !defined(__arm__) && !defined(__aarch64__) && !defined(__MIC__) */
 
 #include<cmath>
 
-// needed fro gcc < 4.6
-namespace mathSSE {
-  struct ZeroUpper {
-    ZeroUpper() {
-#ifdef __AVX__
-    _mm256_zeroupper();
-#endif
-    }
-   ~ZeroUpper() {
-#ifdef __AVX__
-    _mm256_zeroupper();
-#endif
-    }
-  };
-}
 
 namespace mathSSE {
   template<typename T> inline T sqrt(T t) { return std::sqrt(t);}
@@ -953,25 +923,6 @@ namespace mathSSE {
 #endif
 }
 
-// chephes func
-#include "DataFormats/Math/interface/sse_mathfun.h"
-namespace mathSSE {
-  inline Vec4F log(Vec4F v) { return log_ps(v.vec);}
-  inline Vec4F exp(Vec4F v) { return exp_ps(v.vec);}
-  inline Vec4F sin(Vec4F v) { return sin_ps(v.vec);}
-  inline Vec4F cos(Vec4F v) { return cos_ps(v.vec);}
-  inline void sincos(Vec4F v, Vec4F & s, Vec4F & c) { sincos_ps(v.vec,&s.vec, &c.vec);}
-
-  inline float log(float f) { float s; _mm_store_ss(&s,log_ps(_mm_load_ss(&f))); return s;}
-  inline float exp(float f) { float s; _mm_store_ss(&s,exp_ps(_mm_load_ss(&f))); return s;}
-  inline float sin(float f) { float s; _mm_store_ss(&s,sin_ps(_mm_load_ss(&f))); return s;}
-  inline float cos(float f) { float s; _mm_store_ss(&s,log_ps(_mm_load_ss(&f))); return s;}
-  inline void sincos(float f, float & s, float & c) { 
-    __m128 vs, vc; 
-    sincos_ps(_mm_load_ss(&f),&vs, &vc);   
-    _mm_store_ss(&s,vs);_mm_store_ss(&c,vc);   
-  }
-}
 #endif // CMS_USE_SSE
 
 

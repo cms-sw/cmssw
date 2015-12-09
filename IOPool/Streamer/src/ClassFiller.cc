@@ -61,12 +61,6 @@ namespace edm {
     TClass* getRootClass(std::string const& name) {
       TClass* tc = TClass::GetClass(name.c_str());    
       
-      // get ROOT TClass for this product
-      // CINT::Type* cint_type = CINT::Type::get(typ_ref);
-      // tc_ = cint_type->rootClass();
-      // TClass* tc = TClass::GetClass(typeid(se));
-      // tc_ = TClass::GetClass("edm::SendEvent");
-      
       if(tc == 0) {
 	throw edm::Exception(errors::Configuration,"getRootClass")
 	  << "could not find TClass for " << name

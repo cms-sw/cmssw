@@ -20,7 +20,7 @@ public:
   void endJob() override {}
 
 private:
-  const HcalFlexiHardcodeGeometryLoader& m_loader;
+  const HcalFlexiHardcodeGeometryLoader m_loader;
   std::string m_label;
 };
 

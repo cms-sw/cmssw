@@ -42,7 +42,7 @@ try:
     query.setCondition( condition, conditionData)
     conditionData['nodelabel'].setData('testtest')
     cursor = query.execute()
-    while ( cursor.next() ):
+    while ( next(cursor) ):
         tagid=cursor.currentRow()['tagid'].data()
         print 'tagid',tagid
         nodeid=cursor.currentRow()['nodeid'].data()
@@ -61,7 +61,7 @@ try:
         print 'globaltill',globaltill    
     transaction.commit()
     del session
-except Exception, e:
+except Exception as e:
     print "Failed in unit test"
     print str(e)
     transaction.rollback()

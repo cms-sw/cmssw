@@ -31,7 +31,7 @@ namespace cond {
 
     void BasePayloadProxy::reload(){
       std::string tag = m_iovProxy.tag();
-      if( !tag.empty() ) m_iovProxy.reload();
+      if( !tag.empty() ) loadTag( tag );
     }
     
     ValidityInterval BasePayloadProxy::setIntervalFor(cond::Time_t time, bool load) {

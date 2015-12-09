@@ -19,13 +19,6 @@ process.GlobalTag.toGet = cms.VPSet(
                   connect = cms.untracked.string("sqlite_file:./myfile.db")
                   )
          )
-#process.load("Configuration.Geometry.GeometryExtendedPostLS2_cff")
-#process.load("Geometry.HcalEventSetup.HcalTopology_cfi")
-
-## process.HcalHardcodeGeometryEP = cms.ESProducer( "HcalHardcodeGeometryEP" ,
-##                                                  appendToDataLabel = cms.string("_master"),
-##                                                  HcalReLabel = HcalReLabel
-##                                                  )
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(

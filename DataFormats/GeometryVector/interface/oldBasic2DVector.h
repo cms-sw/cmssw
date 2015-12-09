@@ -1,13 +1,10 @@
 #ifndef GeometryVector_oldBasic2DVector_h
 #define GeometryVector_oldBasic2DVector_h
-#if ( defined(IN_DICTBUILD) || defined(__CINT__) )  && !defined(__REFLEX__)
-#define __REFLEX__
-#endif
 
 #include "DataFormats/GeometryVector/interface/Phi.h"
 #include "DataFormats/GeometryVector/interface/PreciseFloatType.h"
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
-#ifndef __REFLEX__ 
+#if (!defined(IN_DICTBUILD))
 #include "DataFormats/Math/interface/SIMDVec.h"
 #endif
 

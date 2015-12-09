@@ -108,8 +108,6 @@ class HcalRaddamData{
    int s2_adc[128];
 };
 
-HcalRaddamData Raddam_data[56];
-
 class HcalDetDiagLaserData{
 public: 
    HcalDetDiagLaserData(){ 
@@ -376,6 +374,13 @@ class HcalDetDiagLaserMonitor : public HcalBaseDQMonitor {
       HcalDetDiagLaserData calib_data[5][5][72];
 
       std::map<unsigned int, int> KnownBadCells_;
+
+      HcalRaddamData Raddam_data[56];
+
+      // previously: statics in analyze
+      bool HBHEseq_,HOseq_,HFseq_;
+      int  lastHBHEorbit_,lastHOorbit_,lastHForbit_,nChecksHBHE_,nChecksHO_,nChecksHF_,ievt_hbhe_,ievt_ho_,ievt_hf_;
+
 };
 
 HcalDetDiagLaserMonitor::HcalDetDiagLaserMonitor(const edm::ParameterSet& iConfig):
@@ -582,11 +587,9 @@ void HcalDetDiagLaserMonitor::analyze(const edm::Event& iEvent, const edm::Event
   HcalBaseDQMonitor::analyze(iEvent,iSetup); // base class increments ievt_, etc. counters
  
 int  eta,phi,depth,nTS;
-static bool HBHEseq,HOseq,HFseq;
-static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksHF,ievt_hbhe,ievt_ho,ievt_hf;
    if(ievt_==-1){ 
-       ievt_=0;HBHEseq=HOseq=HFseq=false; lastHBHEorbit=lastHOorbit=lastHForbit=-1;nChecksHBHE=nChecksHO=nChecksHF=0; 
-       ievt_hbhe=0,ievt_ho=0,ievt_hf=0;
+       ievt_=0;HBHEseq_=HOseq_=HFseq_=false; lastHBHEorbit_=lastHOorbit_=lastHForbit_=-1;nChecksHBHE_=nChecksHO_=nChecksHF_=0; 
+       ievt_hbhe_=0,ievt_ho_=0,ievt_hf_=0;
    }
 
    bool LaserEvent=false;
@@ -601,31 +604,31 @@ static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksH
        LocalRun=true;
    }
    if(!LocalRun && Online_){
-      if(HBHEseq && (orbit-lastHBHEorbit)>(11223*10) && ievt_hbhe>40){
-         HBHEseq=false;
+      if(HBHEseq_ && (orbit-lastHBHEorbit_)>(11223*10) && ievt_hbhe_>40){
+         HBHEseq_=false;
          fillHistos(HcalBarrel);
          fillProblems(HcalBarrel);
          fillProblems(HcalEndcap);
-         nChecksHBHE++;
-         ievt_hbhe=0;
+         nChecksHBHE_++;
+         ievt_hbhe_=0;
          for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++) hb_data[i][j][k].reset();
          for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++) he_data[i][j][k].reset();
       }
-      if(HOseq && (orbit-lastHOorbit)>(11223*10) && ievt_ho>40){
-         HOseq=false;
+      if(HOseq_ && (orbit-lastHOorbit_)>(11223*10) && ievt_ho_>40){
+         HOseq_=false;
          fillHistos(HcalOuter);
          fillProblems(HcalOuter);
-         nChecksHO++; 
-         ievt_ho=0;
+         nChecksHO_++; 
+         ievt_ho_=0;
          for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++) ho_data[i][j][k].reset();
       }
-      if(HFseq && (orbit-lastHForbit)>(11223*10) && ievt_hf>40){
-         HFseq=false;
+      if(HFseq_ && (orbit-lastHForbit_)>(11223*10) && ievt_hf_>40){
+         HFseq_=false;
          fillHistos(HcalForward);
          fillProblems(HcalForward);
-         nChecksHF++; 
-         ievt_hf=0;
-         if(nChecksHF==1 || (nChecksHF>1 && ((nChecksHF-1)%12)==0)){
+         nChecksHF_++; 
+         ievt_hf_=0;
+         if(nChecksHF_==1 || (nChecksHF_>1 && ((nChecksHF_-1)%12)==0)){
              SaveReference();
          }
          for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++) hf_data[i][j][k].reset();
@@ -643,9 +646,9 @@ static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksH
           const FEDRawData& fedData = rawdata->FEDData(i) ;
           if ( fedData.size() < 24 ) continue ;
           int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ;
-	  if(value==hc_HBHEHPD){ HBHEseq=true; HOseq=HFseq=false; lastHBHEorbit=orbit; ievt_hbhe++; }
-	  if(value==hc_HOHPD){   HOseq=true; HBHEseq=HFseq=false; lastHOorbit=orbit;   ievt_ho++;   }
-	  if(value==hc_HFPMT){   HFseq=true; HBHEseq=HOseq=false; lastHForbit=orbit;   ievt_hf++;   }
+	  if(value==hc_HBHEHPD){ HBHEseq_=true; HOseq_=HFseq_=false; lastHBHEorbit_=orbit; ievt_hbhe_++; }
+	  if(value==hc_HOHPD){   HOseq_=true; HBHEseq_=HFseq_=false; lastHOorbit_=orbit;   ievt_ho_++;   }
+	  if(value==hc_HFPMT){   HFseq_=true; HBHEseq_=HOseq_=false; lastHForbit_=orbit;   ievt_hf_++;   }
           
           if(value==hc_HBHEHPD || value==hc_HOHPD || value==hc_HFPMT){ LaserEvent=true; break;}
 	  if(value==hc_RADDAM){ LaserEvent=true; LaserRaddam=true; break;} 

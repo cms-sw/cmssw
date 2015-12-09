@@ -38,17 +38,13 @@ namespace edm {
   class ViewBase {
   public:
     virtual ~ViewBase();
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     std::unique_ptr<ViewBase> clone() const;
-#endif
 
   protected:
     ViewBase();
     ViewBase(ViewBase const&);
     ViewBase& operator=(ViewBase const&);
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     virtual std::unique_ptr<ViewBase> doClone() const = 0;
-#endif
     void swap(ViewBase&) {} // Nothing to swap
   };
 
@@ -140,9 +136,7 @@ namespace edm {
   private:
     seq_t items_;
     std::vector<Ptr<value_type> > vPtrs_;
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     std::unique_ptr<ViewBase> doClone() const override;
-#endif
   };
 
   // Associated free functions (same as for std::vector)
@@ -164,7 +158,6 @@ namespace edm {
     vPtrs_() {
   }
 
-#ifndef __GCCXML__
   template<typename T>
   View<T>::View(std::vector<void const*> const& pointers,
                 FillViewHelperVector const& helpers,
@@ -193,7 +186,6 @@ namespace edm {
       }
     }
   }
-#endif
 
   template<typename T>
   View<T>::~View() {
@@ -278,7 +270,6 @@ namespace edm {
     return *items_[pos];
   }
 
-#ifndef __GCCXML__
   template<typename T>
   inline
   RefToBase<T>
@@ -295,7 +286,6 @@ namespace edm {
                           }
                         } );
   }
-#endif
   
   template<typename T>
   inline
@@ -336,13 +326,11 @@ namespace edm {
       output.items_[i] = first;
   }
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   template<typename T>
   std::unique_ptr<ViewBase>
   View<T>::doClone() const {
     return std::unique_ptr<ViewBase>{new View(*this)};
   }
-#endif
   
   template<typename T>
   inline

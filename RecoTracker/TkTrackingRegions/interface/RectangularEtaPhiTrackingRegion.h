@@ -26,7 +26,7 @@ class BarrelDetLayer;
 class ForwardDetLayer;
 class MeasurementTrackerEvent;
 
-class RectangularEtaPhiTrackingRegion GCC11_FINAL : public TrackingRegion {
+class RectangularEtaPhiTrackingRegion final : public TrackingRegion {
 public:
   enum class UseMeasurementTracker {
     kNever = -1,

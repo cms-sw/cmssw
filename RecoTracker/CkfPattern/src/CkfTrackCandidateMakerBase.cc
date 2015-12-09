@@ -41,6 +41,10 @@
 #include<algorithm>
 #include<functional>
 
+// #define VI_SORTSEED
+// #define VI_REPRODUCIBLE
+// #define VI_TBB
+
 #include <thread>
 #ifdef VI_TBB
 #include "tbb/parallel_for.h"
@@ -84,15 +88,16 @@ namespace cms{
     //      theSeedLabel = InputTag(conf_.getParameter<std::string>("SeedProducer"),conf_.getParameter<std::string>("SeedLabel"));
     //    else
       theSeedLabel= iC.consumes<edm::View<TrajectorySeed> >(conf.getParameter<edm::InputTag>("src"));
+#ifndef	VI_REPRODUCIBLE
       if ( conf.exists("maxSeedsBeforeCleaning") ) 
 	   maxSeedsBeforeCleaning_=conf.getParameter<unsigned int>("maxSeedsBeforeCleaning");
-
+#endif
       if (conf.existsAs<edm::InputTag>("clustersToSkip")) {
         skipClusters_ = true;
         maskPixels_ = iC.consumes<PixelClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
         maskStrips_ = iC.consumes<StripClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
       }
-
+#ifndef VI_REPRODUCIBLE
     std::string cleaner = conf.getParameter<std::string>("RedundantSeedCleaner");
     if (cleaner == "SeedCleanerByHitPosition") {
         theSeedCleaner = new SeedCleanerByHitPosition();
@@ -111,7 +116,13 @@ namespace cms{
     } else {
         throw cms::Exception("RedundantSeedCleaner not found", cleaner);
     }
+#endif
 
+#ifdef VI_REPRODUCIBLE
+   std::cout << "CkfTrackCandidateMaker in reproducible setting" << std::endl;
+   assert(nullptr==theSeedCleaner);
+   assert(0>=maxSeedsBeforeCleaning_);
+#endif
 
   }
 
@@ -146,7 +157,7 @@ namespace cms{
 
   // Functions that gets called by framework every event
   void CkfTrackCandidateMakerBase::produceBase(edm::Event& e, const edm::EventSetup& es)
-  { 
+  {
     // getting objects from the EventSetup
     setEventSetup( es ); 
 
@@ -217,11 +228,14 @@ namespace cms{
       size_t collseed_size = collseed->size();
 
       unsigned int indeces[collseed_size]; for (auto i=0U; i< collseed_size; ++i) indeces[i]=i;
+
+
+
+
+#ifdef VI_SORTSEED
       // std::random_shuffle(indeces,indeces+collseed_size);
-
-
-      /* 
-       * here only for reference: does not seems to help
+       
+       // here only for reference: does not seems to help
      
       auto const & seeds = *collseed;
       
@@ -231,7 +245,7 @@ namespace cms{
         {  val[i] =  seeds[i].startingState().pt();};
       //  { val[i] =  std::abs((*seeds[i].recHits().first).surface()->eta());}
       
-
+      /*
       unsigned long long val[collseed_size];
       for (auto i=0U; i< collseed_size; ++i) {
         if (seeds[i].nHits()<2) { val[i]=0; continue;}
@@ -243,16 +257,18 @@ namespace cms{
     	  val[i] |= (unsigned long long)(hit.firstClusterRef().key())<<32; 
         }
       }
-
+      */
       std::sort(indeces,indeces+collseed_size, [&](unsigned int i, unsigned int j){return val[i]<val[j];});
              
 
       // std::cout << spt(indeces[0]) << ' ' << spt(indeces[collseed_size-1]) << std::endl;
+#endif      
       
-      */
-
+      std::atomic<unsigned int> ntseed(0);
       auto theLoop = [&](size_t ii) {    
         auto j = indeces[ii];
+
+        ntseed++; 
 
         // to be moved inside a par section (how with tbb??)
         std::vector<Trajectory> theTmpTrajectories;
@@ -271,7 +287,6 @@ namespace cms{
         theTmpTrajectories.clear();
 	auto const & startTraj = theTrajectoryBuilder->buildTrajectories( (*collseed)[j], theTmpTrajectories, nullptr );
 	
-       
 	LogDebug("CkfPattern") << "======== In-out trajectory building found " << theTmpTrajectories.size()
 			            << " trajectories from seed " << j << " ========"<<endl
 			       <<PrintoutHelper::dumpCandidates(theTmpTrajectories);
@@ -347,12 +362,18 @@ namespace cms{
        theLoop(j);
       }
 #endif
-     
+      assert(ntseed==collseed_size); 
       if (theSeedCleaner) theSeedCleaner->done();
    
-      // std::cout << "VICkfPattern " << "rawResult trajectories found = " << rawResult.size() << std::endl;
+      // std::cout << "VICkfPattern " << "rawResult trajectories found = " << rawResult.size() << " in " << ntseed << " seeds " << collseed_size << std::endl;
 
-   
+#ifdef VI_REPRODUCIBLE
+      // sort trajectory	
+     std::sort(rawResult.begin(), rawResult.end(),[](const Trajectory & a, const Trajectory & b)
+               { return a.seedRef().key() < b.seedRef().key();});
+             //{ return a.chiSquared()*b.ndof() < b.chiSquared()*a.ndof();});
+#endif
+
       // Step E: Clean the results to avoid duplicate tracks
       // Rejected ones just flagged as invalid.
       theTrajectoryCleaner->clean(rawResult);
@@ -391,6 +412,7 @@ namespace cms{
             Trajectory trajectory(seed, direction);
 	    trajectory.setNLoops(it->nLoops());
             trajectory.setSeedRef(it->seedRef());
+            trajectory.setStopReason(it->stopReason());
             // 4) push states in reversed order
             Trajectory::DataContainer &meas = it->measurements();
             trajectory.reserve(meas.size());
@@ -460,7 +482,7 @@ namespace cms{
 	 else state = trajectoryStateTransform::persistentState( initState.first,
 							         initState.second->geographicalId().rawId());
 	 LogDebug("CkfPattern") << "pushing a TrackCandidate.";
-	 output->emplace_back(recHits,it->seed(),state,it->seedRef(),it->nLoops());
+	 output->emplace_back(recHits,it->seed(),state,it->seedRef(),it->nLoops(), (uint8_t)it->stopReason());
        }
       }//output trackcandidates
 

@@ -107,6 +107,22 @@
  </class>
  <class name="HcalCalibrationQIEData"/>
 
+ <class name="HcalQIEType"/>
+ <class name="std::vector<HcalQIEType>"/>
+ <class name="std::pair<std::string, std::vector<HcalQIEType> >"/>
+ <class name="std::vector<std::pair<std::string, std::vector<HcalQIEType> > >"/>
+ <class name="HcalCondObjectContainer<HcalQIEType>">
+  <field name="HBcontainer" mapping="blob" />
+  <field name="HEcontainer" mapping="blob" />
+  <field name="HFcontainer" mapping="blob" />
+  <field name="HOcontainer" mapping="blob" />
+  <field name="HTcontainer" mapping="blob" />
+  <field name="ZDCcontainer" mapping="blob" />
+  <field name="CALIBcontainer" mapping="blob" />
+  <field name="CASTORcontainer" mapping="blob" />
+ </class>
+ <class name="HcalQIETypes"/>
+
  <class name="HcalElectronicsMap">
   <field name="mPItemsById" transient="true"/>
   <field name="mTItemsByTrigId" transient="true"/>

@@ -124,3 +124,6 @@ def _modifyRawToDigiForStage1Trigger( theProcess ) :
 eras.run2_common.toModify( RawToDigi, func=_modifyRawToDigiForRun2 )
 # A unique name is required for this object, so I'll call it "modify<python filename>ForRun2_"
 modifyConfigurationStandardSequencesRawToDigiForRun2_ = eras.stage1L1Trigger.makeProcessModifier( _modifyRawToDigiForStage1Trigger )
+if eras.phase1Pixel.isChosen() :
+    RawToDigi.remove(siPixelDigis)
+    RawToDigi.remove(castorDigis)

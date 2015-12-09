@@ -34,7 +34,7 @@ file.write(header)
 
 for i in ("emCorr_et", "em_et"):
     for j in range(0, len(eta1)):
-        if variable[j] <> i:
+        if variable[j] != i:
             continue
         bin = str(int((float(eta1[j]) + float(eta2[j]))*50))
         file.write("  h_" + i + "->SetBinContent(" + bin + ", " + mean[j] + ");\n")

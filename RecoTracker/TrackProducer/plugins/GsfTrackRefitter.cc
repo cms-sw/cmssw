@@ -53,11 +53,11 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
   //
   // create empty output collections
   //
-  std::auto_ptr<TrackingRecHitCollection>   outputRHColl (new TrackingRecHitCollection);
-  std::auto_ptr<reco::GsfTrackCollection>      outputTColl(new reco::GsfTrackCollection);
-  std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
-  std::auto_ptr<reco::GsfTrackExtraCollection> outputGsfTEColl(new reco::GsfTrackExtraCollection);
-  std::auto_ptr<std::vector<Trajectory> >   outputTrajectoryColl(new std::vector<Trajectory>);
+  std::unique_ptr<TrackingRecHitCollection>   outputRHColl (new TrackingRecHitCollection);
+  std::unique_ptr<reco::GsfTrackCollection>      outputTColl(new reco::GsfTrackCollection);
+  std::unique_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
+  std::unique_ptr<reco::GsfTrackExtraCollection> outputGsfTEColl(new reco::GsfTrackExtraCollection);
+  std::unique_ptr<std::vector<Trajectory> >   outputTrajectoryColl(new std::vector<Trajectory>);
 
   //
   //declare and get stuff to be retrieved from ES

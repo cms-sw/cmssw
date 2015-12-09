@@ -13,12 +13,22 @@
 
 #include <cmath>
 
+#include <Math/Transform3D.h>
+#include <Math/EulerAngles.h>
+
+typedef CaloCellGeometry::Tr3D Tr3D;
+typedef std::vector<float> ParmVec;
+
 //#define DebugLog
 
-HGCalGeometry::HGCalGeometry(const HGCalTopology& topology_)
-  : mTopology (topology_) {
-  m_halfType = topology().detectorType();
-  m_subdet   = topology().subDetector();
+HGCalGeometry::HGCalGeometry( const HGCalTopology& topology_ )
+  : m_topology( topology_ ),
+    m_cellVec( topology_.totalGeomModules()),
+    m_validGeomIds( topology_.totalGeomModules()),
+    m_halfType( topology_.detectorType()),
+    m_subdet( topology_.subDetector())
+{
+  m_validIds.reserve( topology().totalModules());
 #ifdef DebugLog
   std::cout << "Expected total # of Geometry Modules " 
 	    << topology().totalGeomModules() << std::endl;
@@ -32,6 +42,13 @@ void HGCalGeometry::fillNamedParams (DDFilteredView fv) {}
 void HGCalGeometry::initializeParms() {
 }
 
+void HGCalGeometry::localCorners(Pt3DVec&        lc,
+				 const CCGFloat* pv,
+				 unsigned int    i,
+				 Pt3D&           ref) {
+  FlatTrd::localCorners( lc, pv, ref ) ;
+}
+
 void HGCalGeometry::newCell( const GlobalPoint& f1 ,
 			     const GlobalPoint& f2 ,
 			     const GlobalPoint& f3 ,
@@ -41,25 +58,21 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
   DetId geomId = (detId.subdetId() == HGCEE ? 
 		  (DetId)(HGCEEDetId(detId).geometryCell()) :
 		  (DetId)(HGCHEDetId(detId).geometryCell()));
-  if (cellIndex >= m_cellVec.size())      m_cellVec.resize (cellIndex+1);
-  if (cellIndex >= m_validGeomIds.size()) m_validGeomIds.resize (cellIndex+1);
-  m_cellVec     [cellIndex] = FlatTrd( cornersMgr(), f1, f2, f3, parm ) ;
-  m_validGeomIds[cellIndex] = geomId ;
+  m_cellVec.at( cellIndex ) = FlatTrd( cornersMgr(), f1, f2, f3, parm ) ;
+  m_validGeomIds.at( cellIndex ) = geomId ;
 
   HGCalTopology::DecodedDetId id = topology().decode(detId);
   int cells = topology().dddConstants().maxCells(id.iLay,true);
-  unsigned int nOld = m_validIds.size();
-  unsigned int nNew = nOld + (unsigned int)(m_halfType ? cells : 2*cells);
-  m_validIds.resize(nNew);
   for (int cell = 0; cell < cells; ++cell) {
     id.iCell = cell;
-    m_validIds[nOld+cell] = topology().encode(id);
+    m_validIds.push_back( topology().encode(id));
     if (!m_halfType) {
       id.iSubSec = -id.iSubSec;
-      m_validIds[nOld+cells+cell] = topology().encode(id);
+      m_validIds.push_back( topology().encode(id));
       id.iSubSec = -id.iSubSec;
     }
   }
+
 #ifdef DebugLog
   std::cout << "HGCalGeometry::newCell-> [" << cellIndex << "]"
 	    << " front:" << f1.x() << '/' << f1.y() << '/' << f1.z() 
@@ -237,6 +250,96 @@ unsigned int HGCalGeometry::getClosestCellIndex (const GlobalPoint& r) const {
 
 #endif
   return cellIndex;
+}
+
+// FIXME: Change sorting algorithm if needed
+namespace
+{
+  struct rawIdSort
+  {
+    bool operator()( const DetId& a, const DetId& b )
+    {
+      return( a.rawId() < b.rawId());
+    }
+  };
+}
+
+void
+HGCalGeometry::sortDetIds( void )
+{
+  m_validIds.shrink_to_fit();
+  std::sort( m_validIds.begin(), m_validIds.end(), rawIdSort());
+}
+
+void
+HGCalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
+			   CaloSubdetectorGeometry::IVec&   iVector,
+			   CaloSubdetectorGeometry::DimVec& dimVector,
+			   CaloSubdetectorGeometry::IVec& dinsVector ) const 
+{
+  unsigned int numberOfCells = m_topology.totalGeomModules(); // total Geom Modules both sides
+  unsigned int numberOfShapes = HGCalGeometry::k_NumberOfShapes;
+  unsigned int numberOfParametersPerShape = HGCalGeometry::k_NumberOfParametersPerShape;
+
+  trVector.reserve( numberOfCells * numberOfTransformParms());
+  iVector.reserve( numberOfCells );
+  dimVector.reserve( numberOfShapes * numberOfParametersPerShape );
+  dinsVector.reserve( numberOfCells );
+  
+  for( auto volItr = m_topology.dddConstants().getFirstModule( true );
+       volItr != m_topology.dddConstants().getLastModule( true ); ++volItr )
+  {
+    ParmVec params( HGCalGeometry::k_NumberOfParametersPerShape, 0 );
+    params[0] = volItr->dz;
+    params[1] = params[2] = 0;
+    params[3] = params[7] = volItr->h;
+    params[4] = params[8] = volItr->bl;
+    params[5] = params[9] = volItr->tl;
+    params[6] = params[10]= volItr->alpha;
+    params[11]= volItr->cellSize;
+
+    dimVector.insert( dimVector.end(), params.begin(), params.end());
+  }
+  
+  for( unsigned int i( 0 ); i < numberOfCells; ++i )
+  {
+    DetId detId = m_validGeomIds[i];
+    int layer = ((detId.subdetId() ==  ForwardSubdetector::HGCEE) ?
+		 (HGCEEDetId(detId).layer()) :
+		 (HGCHEDetId(detId).layer()));
+    dinsVector.push_back( m_topology.detId2denseGeomId( detId ));
+    iVector.push_back( layer );
+    
+    Tr3D tr;
+    const CaloCellGeometry* ptr( cellGeomPtr( i ));
+    if( 0 != ptr )
+    {
+      ptr->getTransform( tr, ( Pt3DVec* ) 0 );
+
+      if( Tr3D() == tr ) // there is no rotation
+      {
+	const GlobalPoint& gp( ptr->getPosition()); 
+	tr = HepGeom::Translate3D( gp.x(), gp.y(), gp.z());
+      }
+
+      const CLHEP::Hep3Vector tt( tr.getTranslation());
+      trVector.push_back( tt.x());
+      trVector.push_back( tt.y());
+      trVector.push_back( tt.z());
+      if( 6 == numberOfTransformParms())
+      {
+	const CLHEP::HepRotation rr( tr.getRotation());
+	const ROOT::Math::Transform3D rtr( rr.xx(), rr.xy(), rr.xz(), tt.x(),
+					   rr.yx(), rr.yy(), rr.yz(), tt.y(),
+					   rr.zx(), rr.zy(), rr.zz(), tt.z());
+	ROOT::Math::EulerAngles ea;
+	rtr.GetRotation( ea );
+	trVector.push_back( ea.Phi());
+	trVector.push_back( ea.Theta());
+	trVector.push_back( ea.Psi());
+      }
+    }
+  }
 }
 
 #include "FWCore/Utilities/interface/typelookup.h"

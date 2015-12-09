@@ -129,7 +129,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
             if hasattr(event,"pdfWeights") :
               for (pdf,nvals) in self.pdfWeights:
                 if len(event.pdfWeights[pdf]) != nvals:
-                    raise RuntimeError, "PDF lenght mismatch for %s, declared %d but the event has %d" % (pdf,nvals,event.pdfWeights[pdf])
+                    raise RuntimeError("PDF lenght mismatch for %s, declared %d but the event has %d" % (pdf,nvals,event.pdfWeights[pdf]))
                 if self.scalar:
                     for i,w in enumerate(event.pdfWeights[pdf]):
                         tr.fill('pdfWeight_%s_%d' % (pdf,i), w)

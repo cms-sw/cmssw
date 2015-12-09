@@ -10,6 +10,7 @@ muonAssociatorByHitsNoSimHitsHelper = cms.EDProducer("MuonToTrackingParticleAsso
 # don't read simhits, they're not there
 muonAssociatorByHitsNoSimHitsHelper.CSCsimHitsTag = ""
 muonAssociatorByHitsNoSimHitsHelper.RPCsimhitsTag = ""
+muonAssociatorByHitsNoSimHitsHelper.GEMsimhitsTag = ""
 muonAssociatorByHitsNoSimHitsHelper.DTsimhitsTag  = ""
 
 ### The following is useful when running only on RECO

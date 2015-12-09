@@ -9,70 +9,66 @@ class ThreeThresholdAlgorithm final : public StripClusterizerAlgorithm {
 
  public:
 
-  void clusterizeDetUnit(const    edm::DetSet<SiStripDigi> &, output_t::FastFiller &);
-  void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> &, output_t::FastFiller &);
+  using State = StripClusterizerAlgorithm::State;
+  using Det = StripClusterizerAlgorithm::Det;
+  void clusterizeDetUnit(const    edm::DetSet<SiStripDigi> &, output_t::TSFastFiller &) const override;
+  void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> &, output_t::TSFastFiller &) const override;
 
-  bool stripByStripBegin(uint32_t id);
+  Det stripByStripBegin(uint32_t id) const;
 
   // LazyGetter interface
-  void stripByStripAdd(uint16_t strip, uint8_t adc, std::vector<SiStripCluster>& out);
-  void stripByStripEnd(std::vector<SiStripCluster>& out);
-  void addFed(sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, std::vector<SiStripCluster>& out) {
+  void stripByStripAdd(State & state, uint16_t strip, uint8_t adc, std::vector<SiStripCluster>& out) const override;
+  void stripByStripEnd(State & state, std::vector<SiStripCluster>& out) const override;
+
+  void addFed(State & state, sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, std::vector<SiStripCluster>& out) const {
     while (unpacker.hasData()) {
-      stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),out);
+      stripByStripAdd(state,unpacker.sampleNumber()+ipair*256,unpacker.adc(),out);
       unpacker++;
     }
   }
 
   // detset interface
-  void addFed(sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::FastFiller & out) override {
+  void addFed(State & state, sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::TSFastFiller & out) const override {
     while (unpacker.hasData()) {
-      stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),out);
+      stripByStripAdd(state, unpacker.sampleNumber()+ipair*256,unpacker.adc(),out);
       unpacker++;
     }
   }
 
-  void stripByStripAdd(uint16_t strip, uint8_t adc, output_t::FastFiller & out) override {
-    if(candidateEnded(strip)) endCandidate(out);
-    addToCandidate(strip,adc);
+  void stripByStripAdd(State & state, uint16_t strip, uint8_t adc, output_t::TSFastFiller & out) const override {
+    if(candidateEnded(state, strip)) endCandidate(state, out);
+    addToCandidate(state, strip,adc);
   }
 
-  void stripByStripEnd(output_t::FastFiller & out) override { endCandidate(out);}
-
-  void cleanState() override {clearCandidate();}
+  void stripByStripEnd(State & state, output_t::TSFastFiller & out) const override { endCandidate(state,out);}
 
 
  private:
 
-  template<class T> void clusterizeDetUnit_(const T&, output_t::FastFiller&);
+  template<class T> void clusterizeDetUnit_(const T&, output_t::TSFastFiller&) const;
+
   ThreeThresholdAlgorithm(float, float, float, unsigned, unsigned, unsigned, std::string qualityLabel,
-			  bool setDetId, bool removeApvShots, float minGoodCharge);
+			  bool removeApvShots, float minGoodCharge);
 
-  //state of the candidate cluster
-  std::vector<uint8_t> ADCs;  
-  uint16_t lastStrip;
-  float noiseSquared;
-  bool candidateLacksSeed;
 
-  //constant methods with state information
-  uint16_t firstStrip() const {return lastStrip - ADCs.size() + 1;}
-  bool candidateEnded(const uint16_t&) const;
-  bool candidateAccepted() const;
+    //constant methods with state information
+    uint16_t firstStrip(State const & state) const {return state.lastStrip - state.ADCs.size() + 1;}
+    bool candidateEnded(State const & state, const uint16_t&) const;
+    bool candidateAccepted(State const & state) const;
 
   //state modification methods
-  template<class T> void endCandidate(T&);
-  void clearCandidate() { candidateLacksSeed = true;  noiseSquared = 0;  ADCs.clear();}
-  void addToCandidate(const SiStripDigi& digi) { addToCandidate(digi.strip(),digi.adc());}
-  void addToCandidate(uint16_t strip, uint8_t adc);
-  void appendBadNeighbors();
-  void applyGains();
+    template<class T> void endCandidate(State & state, T&) const;
+    void clearCandidate(State & state) const { state.candidateLacksSeed = true;  state.noiseSquared = 0;  state.ADCs.clear();}
+    void addToCandidate(State & state, const SiStripDigi& digi) const { addToCandidate(state, digi.strip(),digi.adc());}
+    void addToCandidate(State & state, uint16_t strip, uint8_t adc) const;
+    void appendBadNeighbors(State & state) const;
+    void applyGains(State & state) const;
 
   float ChannelThreshold, SeedThreshold, ClusterThresholdSquared;
   uint8_t MaxSequentialHoles, MaxSequentialBad, MaxAdjacentBad;
   bool RemoveApvShots;
   float minGoodCharge;
 
-  SiStripApvShotCleaner ApvCleaner;
 };
 
 #endif

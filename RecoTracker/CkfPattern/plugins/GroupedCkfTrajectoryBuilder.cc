@@ -270,8 +270,6 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
   groupedLimitedCandidates(seed, startingTraj, regionalCondition, forwardPropagator(seed), inOut, work_);
   if ( work_.empty() )  return startingTraj;
 
-
-
   /*  rebuilding is de-coupled from standard building
   //
   // try to additional hits in the seeding region
@@ -284,6 +282,7 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
   }
 
   */
+
   boost::shared_ptr<const TrajectorySeed> pseed(new TrajectorySeed(seed));
   result.reserve(work_.size());
   for (TempTrajectoryContainer::const_iterator it = work_.begin(), ed = work_.end(); it != ed; ++it) {
@@ -360,7 +359,7 @@ GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (const TrajectorySeed& see
       if ((int)newCand.size() > theMaxCand) {
 	//ShowCand()(newCand);
 
- 	sort( newCand.begin(), newCand.end(), GroupedTrajCandLess(theLostHitPenalty,theFoundHitBonus));
+ 	std::nth_element( newCand.begin(), newCand.begin()+theMaxCand, newCand.end(), GroupedTrajCandLess(theLostHitPenalty,theFoundHitBonus));
  	newCand.erase( newCand.begin()+theMaxCand, newCand.end());
       }
       LogDebug("CkfPattern")<<"newCand(2): after removing extra candidates.\n"<<PrintoutHelper::dumpCandidates(newCand);
@@ -643,6 +642,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
 	
 	LogDebug("CkfPattern")<<"GCTB: adding updated trajectory to candidates: inOut="<<inOut<<" hits="<<newTraj.foundHits();
 
+        newTraj.setStopReason(StopReason::NOT_STOPPED);
 	newCand.push_back(std::move(newTraj));
 	foundNewCandidates = true;
       }
@@ -650,7 +650,6 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
 	// Have finished building this track. Check if it passes cuts.
 
 	LogDebug("CkfPattern")<< "GCTB: adding completed trajectory to results if passes cuts: inOut="<<inOut<<" hits="<<newTraj.foundHits();
-
 	moveToResult(std::move(newTraj), result, inOut);
       }
     } // loop over segs
@@ -658,6 +657,8 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
 
   if ( !foundSegments ){
     LogDebug("CkfPattern")<< "GCTB: adding input trajectory to result";
+    if (stateAndLayers.second.size() > 0)
+      traj.setStopReason(StopReason::NO_SEGMENTS_FOR_VALID_LAYERS);
     addToResult(traj, result, inOut);
   }
   return foundNewCandidates;
@@ -877,11 +878,16 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed&seed,
     //
     int nRebuilt =
       rebuildSeedingRegion (seed, seedHits,reFitted,rebuiltTrajectories);
+    // Loop over the last nRebuilt trajectories and propagate back the
+    // real cause that stopped the original in-out trajectory, since
+    // that's the one we want to monitor
+    for (size_t i = rebuiltTrajectories.size() - 1; i < rebuiltTrajectories.size() - nRebuilt - 1; --i) {
+      rebuiltTrajectories[i].setStopReason(it->stopReason());
+    }
 
     if ( nRebuilt==0 && !theKeepOriginalIfRebuildFails ) it->invalidate();  // won't use original in-out track
 
     if ( nRebuilt<0 ) rebuiltTrajectories.push_back(std::move(*it));
-
   }
   //
   // Replace input trajectories with new ones
@@ -978,7 +984,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed&seed,
     //
     // save & count result
     nrOfTrajectories++;
-    result.emplace_back(seed.direction());
+    result.emplace_back(seed.direction(),seed.nHits());
     TempTrajectory & reversedTrajectory = result.back();
     reversedTrajectory.setNLoops(it->nLoops());
     for (TempTrajectory::DataContainer::const_iterator im=newMeasurements.rbegin(), ed = newMeasurements.rend();
@@ -1097,7 +1103,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
 
 
   LogDebug("CkfPattern")<<"Obtained bwdFitted trajectory with measurement size " << bwdFitted.measurements().size();
-  TempTrajectory fitted(fwdTraj.direction());
+  TempTrajectory fitted(fwdTraj.direction(),nSeed);
   fitted.setNLoops(fwdTraj.nLoops());
   vector<TM> const & tmsbf = bwdFitted.measurements();
   int iDetLayer=0;

@@ -11,7 +11,7 @@ def get_yaxis_range(list):
     about an IB, this function returns a tuple (low, high) with the lowest
     and the highest value of y-axis, respectively. 
     """
-    low, high = sys.maxint, -1
+    low, high = sys.maxsize, -1
     for node in list:
         low = min((node['average'] - node['error']), low)
         high = max((node['average'] + node['error']), high)
@@ -84,7 +84,7 @@ def operate(timelog, memlog, json_f, num):
         if re.search(regex, IB) is None:
             raise RuntimeError('Not a valid IB. Valid IB: ' +\
                                '[CMSSW_X_X_X_YYYY-MM-DD-HHMM]')
-    except Exception, err:
+    except Exception as err:
         sys.stderr.write(script_name + ': Error: ' + str(err) + '\n')
         return 2
     

@@ -13,7 +13,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class Phase2OTECRingedLayer GCC11_FINAL : public RingedForwardLayer {
+class Phase2OTECRingedLayer final : public RingedForwardLayer {
  public:
   Phase2OTECRingedLayer(std::vector<const Phase2OTECRing*>& rings)  __attribute__ ((cold));
   ~Phase2OTECRingedLayer()  __attribute__ ((cold));

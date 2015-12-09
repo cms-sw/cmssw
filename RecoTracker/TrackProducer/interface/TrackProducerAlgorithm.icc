@@ -44,15 +44,13 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
 {
   LogDebug("TrackProducer") << "Number of TrackCandidates: " << theTCCollection.size() << "\n";
 
-  int cont = 0;
-  for (TrackCandidateCollection::const_iterator i=theTCCollection.begin(); i!=theTCCollection.end();i++)
+  int cont = 0; int ntc=0;
+  for (auto const  theTC : theTCCollection)
     {
-      
-      const TrackCandidate * theTC = &(*i);
 
-      PTrajectoryStateOnDet const & state = theTC->trajectoryStateOnDet();
-      const TrackCandidate::range & recHitVec=theTC->recHits();
-      const TrajectorySeed & seed = theTC->seed();
+      PTrajectoryStateOnDet const & state = theTC.trajectoryStateOnDet();
+      const TrackCandidate::range & recHitVec=theTC.recHits();
+      const TrajectorySeed & seed = theTC.seed();
 
       //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
   
@@ -68,20 +66,22 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
       
       float ndof=0;     
       //  we assume are transient...
-      for (edm::OwnVector<TrackingRecHit>::const_iterator i=recHitVec.first;
-	   i!=recHitVec.second; i++){
+      for (auto  i = recHitVec.first; i!=recHitVec.second; ++i){
 	hits.push_back((*i).cloneSH());  // major waste, will be soon fitted and recloned...
       }      
-      
+
+      stopReason_ = theTC.stopReason();
       //build Track
       LogDebug("TrackProducer") << "going to buildTrack"<< "\n";
       FitterCloner fc(theFitter,builder);   
       bool ok = buildTrack(fc.fitter.get(),thePropagator,algoResults, hits, theTSOS, seed, ndof, bs,
-      	      		    theTC->seedRef(),0,theTC->nLoops());
+      	      		    theTC.seedRef(),0,theTC.nLoops());
       LogDebug("TrackProducer") << "buildTrack result: " << ok << "\n";
-      if(ok) cont++;
+      if(ok) { algoResults.back().indexInput=ntc; ++cont;  }
+      ++ntc;
     }
   LogDebug("TrackProducer") << "Number of Tracks found: " << cont << "\n";
+  // std::cout << "VICkfProducer " << "Number of Tracks found: " << cont << std::endl;
 }
 
 
@@ -173,6 +173,8 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 	algo_=theT->algo();	
 	originalAlgo_ = theT->originalAlgo();
 	algoMask_ = theT->algoMask();
+
+        stopReason_ = theT->stopReason();
 
 	//=====  the hits are in the same order as they were in the track::extra.
         FitterCloner fc(theFitter,builder);        

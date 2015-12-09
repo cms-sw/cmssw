@@ -145,12 +145,12 @@ process.ep = cms.EndPath(process.out)
 
 
 read2Process = cms.Process("READ2")
-process.subProcess = cms.SubProcess(read2Process,
+process.addSubProcess(cms.SubProcess(read2Process,
     outputCommands = cms.untracked.vstring(
         "keep *", 
         "drop *_putInt2_*_*"
     )
-)
+))
 
 read2Process.getInt = cms.EDAnalyzer("TestFindProduct",
   inputTags = cms.untracked.VInputTag(

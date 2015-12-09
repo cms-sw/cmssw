@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("RPCGeometryWriter")
+process = cms.Process("GEMGeometryWriter")
 process.load('CondCore.DBCommon.CondDBCommon_cfi')
 process.load('Configuration.Geometry.GeometryExtended2019_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')

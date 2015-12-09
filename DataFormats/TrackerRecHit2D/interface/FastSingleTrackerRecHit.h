@@ -21,14 +21,14 @@ class FastSingleTrackerRecHit : public FastTrackerRecHit {
     
     public:
 
-    virtual FastSingleTrackerRecHit * clone() const GCC11_OVERRIDE  {FastSingleTrackerRecHit * p =  new FastSingleTrackerRecHit( * this); p->load(); return p;}
+    virtual FastSingleTrackerRecHit * clone() const override  {FastSingleTrackerRecHit * p =  new FastSingleTrackerRecHit( * this); p->load(); return p;}
 
-    size_t                       nIds()                    const { return 1;}
-    int32_t                      id(size_t i =0)           const { return i == 0 ? id_ : -1;}
-    int32_t                      eventId(size_t i = 0)     const { return i == 0 ? eventId_ : -1;}
-    size_t                       nSimTrackIds()            const { return simTrackIds_.size();}                             ///< see addSimTrackId(int32_t simTrackId)
-    int32_t                      simTrackId(size_t i)      const { return i < simTrackIds_.size() ? simTrackIds_[i] : -1;}  ///< see addSimTrackId(int32_t simTrackId)
-    int32_t                      simTrackEventId(size_t i) const { return i < simTrackIds_.size() ? eventId_ : -1;}  ///< see addSimTrackId(int32_t simTrackId)
+    size_t                       nIds()                    const override { return 1;}
+    int32_t                      id(size_t i =0)           const override { return i == 0 ? id_ : -1;}
+    int32_t                      eventId(size_t i = 0)     const override { return i == 0 ? eventId_ : -1;}
+    size_t                       nSimTrackIds()            const override { return simTrackIds_.size();}                             ///< see addSimTrackId(int32_t simTrackId)
+    int32_t                      simTrackId(size_t i)      const override { return i < simTrackIds_.size() ? simTrackIds_[i] : -1;}  ///< see addSimTrackId(int32_t simTrackId)
+    int32_t                      simTrackEventId(size_t i) const override { return i < simTrackIds_.size() ? eventId_ : -1;}  ///< see addSimTrackId(int32_t simTrackId)
 
 
     /// add an id number to the list of id numbers of SimTracks from which the hit originates
@@ -43,7 +43,7 @@ class FastSingleTrackerRecHit : public FastTrackerRecHit {
     /// set the hit's event number
     /// there is in principle no reason to play with this variable outside the PU mixing modules
     /// see Adjuster::doTheOffset(int bunchSpace, int bcr, TrackingRecHitCollection & trackingrechits, unsigned int evtNr, int vertexOffset)
-    void setEventId(int32_t eventId)    {eventId_ = eventId;}
+    void setEventId(int32_t eventId) override {eventId_ = eventId;}
 
     private:
 

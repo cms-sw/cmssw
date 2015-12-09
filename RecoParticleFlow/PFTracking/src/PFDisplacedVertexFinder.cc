@@ -288,7 +288,6 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
     switch((*ie)->algo()) {
     case reco::TrackBase::undefAlgorithm:
     case reco::TrackBase::ctf:
-    case reco::TrackBase::rs:
     case reco::TrackBase::cosmics:
       nNotIterative++;
       break;
@@ -296,6 +295,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
     case reco::TrackBase::lowPtTripletStep:
     case reco::TrackBase::pixelPairStep:
     case reco::TrackBase::detachedTripletStep:
+    case reco::TrackBase::duplicateMerge:
       break;
     case reco::TrackBase::mixedTripletStep:
     case reco::TrackBase::pixelLessStep:

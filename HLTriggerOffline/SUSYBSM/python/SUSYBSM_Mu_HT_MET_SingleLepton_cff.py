@@ -53,6 +53,3 @@ SUSY_HLT_Mu_HT_MET_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClien
                                                                 resolution = cms.vstring('')
                                                                 )
 
-SUSY_HLT_Mu_HT_MET_SingleLepton_FASTSIM = deepcopy(SUSY_HLT_Mu_HT_MET_SingleLepton)
-
-SUSY_HLT_Mu_HT_MET_SingleLepton_FASTSIM_POSTPROCESSING = deepcopy(SUSY_HLT_Mu_HT_MET_SingleLepton_POSTPROCESSING)

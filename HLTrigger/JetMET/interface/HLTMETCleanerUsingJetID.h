@@ -39,8 +39,6 @@ class HLTMETCleanerUsingJetID : public edm::stream::EDProducer<> {
     virtual void produce(edm::Event& iEvent, const edm::EventSetup & iSetup);
 
   private:
-    /// Use pt; otherwise, use et.
-    bool            usePt_;
 
     /// Minimum pt requirement for jets
     double          minPt_;

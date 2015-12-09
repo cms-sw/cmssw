@@ -19,65 +19,87 @@ class FedChannelConnection;
 class StripClusterizerAlgorithm {
   
  public:
-
+  static constexpr unsigned short invalidI = std::numeric_limits<unsigned short>::max();
+  
+  // state of detID
+  struct Det {
+    bool valid() const { return ind!=invalidI; }
+    float noise(const uint16_t& strip) const { return SiStripNoises::getNoise( strip, noiseRange ); }
+    float gain(const uint16_t& strip)  const { return SiStripGain::getStripGain( strip, gainRange ); }
+    bool bad(const uint16_t& strip)    const { return quality->IsStripBad( qualityRange, strip ); }
+    bool allBadBetween(uint16_t L, const uint16_t& R) const { while( ++L < R  &&  bad(L) ); return L == R; }
+    SiStripQuality const * quality;
+    SiStripApvGain::Range gainRange;
+    SiStripNoises::Range  noiseRange;
+    SiStripQuality::Range qualityRange;
+    uint32_t detId=0;
+    unsigned short ind=invalidI;
+  };
+  
+  //state of the candidate cluster
+  struct State {
+    State(Det const & idet) : m_det(idet) { ADCs.reserve(128);}
+    Det const & det() const { return m_det;}
+    std::vector<uint8_t> ADCs;  
+    uint16_t lastStrip=0;
+    float noiseSquared=0;
+    bool candidateLacksSeed=true;
+  private:
+    Det const & m_det;
+  };
+  
+  
   virtual ~StripClusterizerAlgorithm() {}
   virtual void initialize(const edm::EventSetup&);
 
 
   //Offline DetSet interface
   typedef edmNew::DetSetVector<SiStripCluster> output_t;
-  void clusterize(const    edm::DetSetVector<SiStripDigi> &, output_t &);
-  void clusterize(const edmNew::DetSetVector<SiStripDigi> &, output_t &);
-  virtual void clusterizeDetUnit(const    edm::DetSet<SiStripDigi> &, output_t::FastFiller &) = 0;
-  virtual void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> &, output_t::FastFiller &) = 0;
+  void clusterize(const    edm::DetSetVector<SiStripDigi> &, output_t &) const;
+  void clusterize(const edmNew::DetSetVector<SiStripDigi> &, output_t &) const;
+  virtual void clusterizeDetUnit(const    edm::DetSet<SiStripDigi> &, output_t::TSFastFiller &) const = 0;
+  virtual void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> &, output_t::TSFastFiller &) const = 0;
 
   //HLT stripByStrip interface
-  virtual bool stripByStripBegin(uint32_t id) = 0;
+  virtual Det stripByStripBegin(uint32_t id)const  = 0;
 
-  virtual void addFed(sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, std::vector<SiStripCluster>& out) {}
-  virtual void stripByStripAdd(uint16_t strip, uint8_t adc, std::vector<SiStripCluster>& out) {}
-  virtual void stripByStripEnd(std::vector<SiStripCluster>& out) {}
+  virtual void addFed(Det const & det, sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, std::vector<SiStripCluster>& out)  const {}
+  virtual void stripByStripAdd(State & state, uint16_t strip, uint8_t adc, std::vector<SiStripCluster>& out)  const{}
+  virtual void stripByStripEnd(State & state, std::vector<SiStripCluster>& out)  const {}
 
-  virtual void addFed(sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::FastFiller & out) {}
-  virtual void stripByStripAdd(uint16_t strip, uint8_t adc, output_t::FastFiller & out) {}
-  virtual void stripByStripEnd(output_t::FastFiller & out) {}
-  
-  virtual void cleanState(){}
+  virtual void addFed(State & state, sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::TSFastFiller & out)  const {}
+  virtual void stripByStripAdd(State & state, uint16_t strip, uint8_t adc, output_t::TSFastFiller & out)  const {}
+  virtual void stripByStripEnd(State & state, output_t::TSFastFiller & out)  const {}
+
 
   struct InvalidChargeException : public cms::Exception { public: InvalidChargeException(const SiStripDigi&); };
 
 
   SiStripDetCabling const * cabling() const { return theCabling;} 
   std::vector<uint32_t> const & allDetIds() const { return detIds;}
-  std::vector<const FedChannelConnection *> const & currentConnection() const { return connections[ind]; }
+
+  std::vector<const FedChannelConnection *> const & currentConnection(const Det& det) const { return connections[det.ind]; }
 
  protected:
 
   StripClusterizerAlgorithm() : qualityLabel(""), noise_cache_id(0), gain_cache_id(0), quality_cache_id(0) {}
 
-  uint32_t currentId() {return detId;}
-  bool setDetId(const uint32_t);
-  float noise(const uint16_t& strip) const { return SiStripNoises::getNoise( strip, noiseRange ); }
-  float gain(const uint16_t& strip)  const { return SiStripGain::getStripGain( strip, gainRange ); }
-  bool bad(const uint16_t& strip)    const { return qualityHandle->IsStripBad( qualityRange, strip ); }
+  Det findDetId(const uint32_t) const;
   bool isModuleBad(const uint32_t& id)  const { return qualityHandle->IsModuleBad( id ); }
   bool isModuleUsable(const uint32_t& id)  const { return qualityHandle->IsModuleUsable( id ); }
-  bool allBadBetween(uint16_t L, const uint16_t& R) const { while( ++L < R  &&  bad(L) ); return L == R; }
 
   std::string qualityLabel;
-  bool _setDetId;
 
  private:
 
-  template<class T> void clusterize_(const T& input, output_t& output) {
+  template<class T> void clusterize_(const T& input, output_t& output) const {
     for(typename T::const_iterator it = input.begin(); it!=input.end(); it++) {
-      output_t::FastFiller ff(output, it->detId());	
+      output_t::TSFastFiller ff(output, it->detId());	
       clusterizeDetUnit(*it, ff);	
       if(ff.empty()) ff.abort();	
     }	
   }
 
-  static constexpr unsigned short invalidI = std::numeric_limits<unsigned short>::max();
   struct Index { 
     unsigned short 
     gi=invalidI,
@@ -87,15 +109,12 @@ class StripClusterizerAlgorithm {
   std::vector<uint32_t> detIds; // from cabling (connected and not bad)
   std::vector<std::vector<const FedChannelConnection *> > connections;
   std::vector<Index> indices;
-  SiStripApvGain::Range gainRange;
-  SiStripNoises::Range  noiseRange;
-  SiStripQuality::Range qualityRange;
   edm::ESHandle<SiStripGain> gainHandle;
   edm::ESHandle<SiStripNoises> noiseHandle;
   edm::ESHandle<SiStripQuality> qualityHandle;
   SiStripDetCabling const * theCabling = nullptr;
-  uint32_t noise_cache_id, gain_cache_id, quality_cache_id, detId=0;
-  unsigned short ind=invalidI;
+  uint32_t noise_cache_id, gain_cache_id, quality_cache_id;
+    
 
 };
 #endif

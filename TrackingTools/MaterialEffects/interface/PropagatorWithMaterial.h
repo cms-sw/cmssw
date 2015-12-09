@@ -22,7 +22,7 @@
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
 
 class MagneticField;
-class PropagatorWithMaterial GCC11_FINAL : public Propagator {
+class PropagatorWithMaterial final : public Propagator {
 
 public:
   /** Constructor with PropagationDirection and mass hypothesis.

@@ -254,8 +254,6 @@ void L1TDTTF::beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::Eve
 void L1TDTTF::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&)
 {
  /// testing purposes
-  runId_=ibooker.bookInt("iRun");
-  lumisecId_=ibooker.bookInt("iLumi");
   nev_ = 0;
   nev_dttf_ = 0;
   nev_dttf_track2_ = 0;

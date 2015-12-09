@@ -1,4 +1,5 @@
 <lcgdict>
+
   <class name="reco::TrackBase::AlgoMask"/>
   <class name="reco::HitPattern" ClassVersion="12">
       <version ClassVersion="12" checksum="3922863495"/>
@@ -7,7 +8,8 @@
   <class name="reco::TrackResiduals" ClassVersion="10">
    <version ClassVersion="10" checksum="2022291691"/>
   </class>
-  <class name="reco::TrackBase" ClassVersion="17">
+  <class name="reco::TrackBase" ClassVersion="19">
+   <version ClassVersion="19" checksum="4090229239"/>
    <version ClassVersion="18" checksum="1935215297"/>
    <version ClassVersion="17" checksum="1774167599"/>
    <version ClassVersion="16" checksum="3673246687"/>
@@ -282,10 +284,6 @@
       ]]>
  </ioread>
 
-  <class name="reco::TrackResiduals" ClassVersion="10">
-   <version ClassVersion="10" checksum="2022291691"/>
-  </class>
-
   <class name="reco::TrackExtraBase" ClassVersion="11">
    <version ClassVersion="10" checksum="3548207838"/>
    <version ClassVersion="11" checksum="3450798337"/>
@@ -317,7 +315,8 @@
   <class name="edm::Ref<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
 
-  <class name="reco::Track" ClassVersion="17">
+  <class name="reco::Track" ClassVersion="19">
+   <version ClassVersion="19" checksum="362503460"/>
    <version ClassVersion="18" checksum="3235158110"/>
    <version ClassVersion="17" checksum="3387867292"/>
    <version ClassVersion="16" checksum="697987788"/>

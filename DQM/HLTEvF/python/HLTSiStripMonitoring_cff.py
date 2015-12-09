@@ -158,7 +158,7 @@ hltESPChi2MeasurementEstimator30 = cms.ESProducer( "Chi2MeasurementEstimatorESPr
   ComponentName = cms.string( "hltESPChi2MeasurementEstimator30" )
 )
 
-from TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi import KFTrajectoryFitter
+from TrackingTools.TrackFitters.KFTrajectoryFitter_cfi import KFTrajectoryFitter
 hltESPTrajectoryFitterRK = KFTrajectoryFitter.clone(
   minHits = cms.int32( 3 ),
   ComponentName = cms.string( "hltESPTrajectoryFitterRK" ),

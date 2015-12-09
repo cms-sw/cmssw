@@ -138,7 +138,6 @@ process.es_pool = cms.ESSource(
 #-----------------------------
 # Castor DQM Source + SimpleReconstrctor
 #-----------------------------
-###process.load("EventFilter.CastorRawToDigi.CastorRawToDigi_cfi")
 ###process.load("RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi")
 process.castorreco = cms.EDProducer("CastorSimpleReconstructor",
                                     correctionPhaseNS = cms.double(0.0),
@@ -156,85 +155,8 @@ process.castorreco = cms.EDProducer("CastorSimpleReconstructor",
 ###process.castorreco.tsFromDB = cms.untracked.bool(False)
 process.load('RecoLocalCalo.Castor.Castor_cff') #castor tower and jet reconstruction
 
-###process.castorDigis = cms.EDProducer("CastorRawToDigi",
-###   CastorFirstFED = cms.untracked.int32(690),
-###   FilterDataQuality = cms.bool(True),
-###   ExceptionEmptyData = cms.untracked.bool(True),
-###   InputLabel = cms.InputTag("source"),
-###   UnpackCalib = cms.untracked.bool(False),
-###   FEDs = cms.untracked.vint32(690,691,692),
-###   lastSample = cms.int32(9),
-###   firstSample = cms.int32(0)
-###) 
-
-process.castorDigis = cms.EDProducer("CastorRawToDigi",
-   CastorFirstFED = cms.int32(690),
-   FilterDataQuality = cms.bool(True),
-   ExceptionEmptyData = cms.untracked.bool(True),
-   InputLabel = cms.InputTag("rawDataCollector"), #source #rawDataCollector
-   #UnpackCalib = cms.untracked.bool(False),
-   # castor technical trigger processor
-   UnpackTTP = cms.bool(True),
-   FEDs = cms.untracked.vint32(690,691,692),
-   lastSample = cms.int32(9),
-   firstSample = cms.int32(0),
-   CastorCtdc = cms.bool(False),
-   UseNominalOrbitMessageTime = cms.bool(True),
-   ExpectedOrbitMessageTime = cms.int32(-1)#,
-   # Do not complain about missing FEDs
-   #ComplainEmptyData = cms.untracked.bool(False),
-)
-
-###process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
-###                           ### GLOBAL VARIABLES
-###                           debug = cms.untracked.int32(0), # make debug an int so that different
-###                                                           # values can trigger different levels of messaging
-###                           # Turn on/off timing diagnostic info
-###                           showTiming          = cms.untracked.bool(False),
-###                           dump2database       = cms.untracked.bool(False),
-###                           pedestalsInFC = cms.untracked.bool(False),			   
-###		 
-###			   # Define Labels
-###                           digiLabel            = cms.InputTag("castorDigis"),
-###                           rawLabel             = cms.InputTag("source"),
-###                           unpackerReportLabel  = cms.InputTag("castorDigis"),
-###                           CastorRecHitLabel    = cms.InputTag("castorreco"),
-###                           CastorTowerLabel     = cms.InputTag("CastorTowerReco"),
-###                           CastorBasicJetsLabel = cms.InputTag("ak7BasicJets"),
-###                           CastorJetIDLabel     = cms.InputTag("ak7CastorJetID"),
-###                          
-###			   DataIntMonitor= cms.untracked.bool(True),
-###			   TowerJetMonitor= cms.untracked.bool(False),
-###
-###                           DigiMonitor = cms.untracked.bool(True),
-###                           DigiPerChannel = cms.untracked.bool(True), 
-###                           DigiInFC = cms.untracked.bool(False),
-###                          
-###                           RecHitMonitor = cms.untracked.bool(True), 
-###			   RecHitsPerChannel = cms.untracked.bool(True),
-###
-###                           ChannelQualityMonitor= cms.untracked.bool(True),
-###                           nThreshold = cms.untracked.double(60),
-###                           dThreshold = cms.untracked.double(1.0),
-###                           OfflineMode = cms.untracked.bool(False),
-###                           averageEnergyMethod = cms.untracked.bool(True),          
-###
-###                           PSMonitor= cms.untracked.bool(True),
-###                           numberSigma = cms.untracked.double(1.5),
-###                           thirdRegionThreshold =  cms.untracked.double(999999.0), # to avoid empty cells in reportSummary            
-###                           EDMonitor= cms.untracked.bool(True),
-###                           HIMonitor= cms.untracked.bool(True),
-###                                       
-###                           diagnosticPrescaleTime = cms.untracked.int32(-1),
-###                           diagnosticPrescaleUpdate = cms.untracked.int32(-1),
-###                           diagnosticPrescaleLS = cms.untracked.int32(-1),
-###                             
-###                           LEDMonitor = cms.untracked.bool(True),
-###                           LEDPerChannel = cms.untracked.bool(True),
-###                           FirstSignalBin = cms.untracked.int32(0),
-###                           LastSignalBin = cms.untracked.int32(9),
-###                           LED_ADC_Thresh = cms.untracked.double(-1000.0)      
-###                           )
+from EventFilter.CastorRawToDigi.CastorRawToDigi_cff import *
+process.castorDigis = castorDigis.clone()
 
 process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
        ### GLOBAL VARIABLES
@@ -308,7 +230,7 @@ process.castorMonitor.rawLabel = cms.InputTag("rawDataCollector")
 
 print "Running with run type = ", process.runType.getRunTypeName()
 
-if (process.runType.getRunTypeName() == process.runType.hi_run):
+if (process.runType.getRunType() == process.runType.hi_run):
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.castorMonitor.rawLabel = cms.InputTag("rawDataRepacker")
 

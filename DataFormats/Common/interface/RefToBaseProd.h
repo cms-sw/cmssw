@@ -132,7 +132,6 @@ namespace edm {
     return * operator->();
   }
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   /// Member dereference operator
   template<typename T>
   inline
@@ -160,7 +159,6 @@ namespace edm {
     }
     return viewPtr();
   }
-#endif
 
   template<typename T>
   inline
@@ -198,7 +196,6 @@ namespace edm {
 #include "DataFormats/Common/interface/FillView.h"
 
 namespace edm {
-#ifndef __GCCXML__
   template<typename T>
   template<typename C>
   inline
@@ -209,7 +206,6 @@ namespace edm {
     fillView(* ref.product(), ref.id(), pointers, helpers);
     product_.setProductPtr(new View<T>(pointers, helpers, ref.refCore().productGetter()));
   }
-#endif
 
   template<typename T>
   template<typename C>

@@ -258,7 +258,7 @@ _resolutionsPt = PlotGroup("resolutionsPt", [
 #
 ########################################
 
-_possibleTrackingColls = [
+_possibleTrackingIterations = [
     'initialStep',
     'lowPtTripletStep',
     'pixelPairStep',
@@ -269,6 +269,9 @@ _possibleTrackingColls = [
     'jetCoreRegionalStep',
     'muonSeededStepInOut',
     'muonSeededStepOutIn',
+    'duplicateMerge',
+]
+_possibleTrackingColls = _possibleTrackingIterations+[
     'ak4PFJets',
     'btvLike',
 ]
@@ -443,6 +446,10 @@ class TrackingPlotFolder(PlotFolder):
         """
         (algo, quality) = translatedDqmSubFolder
         return limitOnlyTo(algo, quality)
+
+    # track-specific hack
+    def isAlgoIterative(self, algo):
+        return algo in _possibleTrackingIterations
 
 def _trackingFolders(lastDirName="Track"):
     return [

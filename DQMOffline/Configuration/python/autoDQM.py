@@ -2,6 +2,8 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
                         'DQMHarvestCommon+DQMCertCommon'],
             'commonSiStripZeroBias' : ['DQMOfflineCommonSiStripZeroBias',
                                        'DQMHarvestCommonSiStripZeroBias+DQMCertCommon'],
+            'trackingOnlyDQM' : ["DQMOfflineTracking",
+                             "DQMHarvestTracking"],
             'muon': ['DQMOfflineMuon',
                      'DQMHarvestMuon+DQMCertMuon'],
             'hcal':     ['DQMOfflineHcal',
@@ -21,8 +23,10 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
             'allForPrompt':  ['@common+@muon+@hcal+@jetmet+@ecal',
                               '@common+@muon+@hcal+@jetmet+@ecal'],
             'miniAODDQM': ['DQMOfflineMiniAOD',
-                        'DQMHarvestMiniAOD'],
+                           'DQMHarvestMiniAOD'],
             'standardDQM': ['DQMOffline',
-                            'dqmHarvesting']
+                            'dqmHarvesting'],
+            'standardDQMRun1': ['DQMOfflineRun1',
+                                'dqmHarvestingRun1']
             }
 

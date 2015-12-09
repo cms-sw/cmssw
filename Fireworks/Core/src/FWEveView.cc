@@ -19,10 +19,8 @@
 
 // user include files
 
-#define private public  //!!! TODO add get/sets for camera zoom and FOV
 #include "TGLOrthoCamera.h"
 #include "TGLPerspectiveCamera.h"
-#undef private
 #include "TGLCameraGuide.h"
 
 #include "TGLEmbeddedViewer.h"
@@ -31,9 +29,7 @@
 #include "TEveElement.h"
 #include "TEveWindow.h"
 #include "TEveScene.h"
-#define protected public  //!!! TODO add get/sets for TEveCalo2D for CellIDs
 #include "TEveCalo.h"
-#undef protected
 #include "TGLOverlay.h"
 
 #include "Fireworks/Core/interface/FWTEveViewer.h"
@@ -532,8 +528,7 @@ FWEveView::setFromPerspectiveCamera(TGLPerspectiveCamera* cam, const std::string
          {
             throw std::runtime_error ("can't restore parameter cameraMatrixBase.");
          }
-         std::istringstream s(value->value());
-         s>>cam->fFOV;
+         cam->SetFOV(std::stod(value->value()));
       }
       
       cam->IncTimeStamp();

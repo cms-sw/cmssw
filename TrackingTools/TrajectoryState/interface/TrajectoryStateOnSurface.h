@@ -25,15 +25,11 @@ public:
   // construct
   TrajectoryStateOnSurface() {}
   /// Constructor from one of the basic states
-#ifndef CMS_NOCXX11
   explicit TrajectoryStateOnSurface( Base::pointer p) : Base(p) {}
-#endif
   explicit TrajectoryStateOnSurface( BasicTrajectoryState* p) : Base(p) {}
   explicit TrajectoryStateOnSurface( BasicSingleTrajectoryState* p) : Base(p) {}
 
   ~TrajectoryStateOnSurface() {}
-
-#ifndef CMS_NOCXX11
 
  TrajectoryStateOnSurface(TrajectoryStateOnSurface & rh)  noexcept :
     Base(rh){}
@@ -57,8 +53,6 @@ public:
 
   template<typename... Args>
   explicit TrajectoryStateOnSurface(Args && ...args) : Base(BTSOS::churn<BasicSingleTrajectoryState>(std::forward<Args>(args)...)){}
-
-#endif
 
   void swap(TrajectoryStateOnSurface & rh)  noexcept {
     Base::swap(rh);
@@ -138,16 +132,6 @@ public:
   std::vector<TrajectoryStateOnSurface> components() const {
     return data().components();
   }
-  /*
-  std::vector<TrajectoryStateOnSurface> components() const {
-    std::vector<BasicTrajectoryState::RCPtr> c( data().components());
-    std::vector<TrajectoryStateOnSurface> result; 
-    result.reserve(c.size());
-    for (std::vector<BasicTrajectoryState::RCPtr>::iterator i=c.begin();
-	 i != c.end(); i++) result.push_back(&(**i));
-    return result;
-  }
-  */
 
   /// Position relative to material, defined relative to momentum vector.
   SurfaceSide surfaceSide() const {
@@ -171,17 +155,6 @@ public:
                const LocalTrajectoryError& err,
                SurfaceSide side) {unsharedData().update(p, err, side);}
 
-  /*
-  void update( const GlobalTrajectoryParameters& par,
-	       const SurfaceType& aSurface,
-	       SurfaceSide side) { unsharedData().update(par, aSurface, side);}
-  
-  void update( const GlobalTrajectoryParameters& par,
-               const CurvilinearTrajectoryError& err,
-               const SurfaceType& aSurface,
-               SurfaceSide side) { unsharedData().update(par, err, aSurface, side);}
-  */
-
   /** Mutator from local parameters, errors and surface. For surfaces 
    *  with material the side of the surface should be specified explicitely. 
    *  For multi-states the weight should be specified explicitely.
@@ -193,18 +166,6 @@ public:
 	      const SurfaceType& aSurface,
 	      const MagneticField* field,
 	      SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
-  /*
-#ifndef CMS_NOCXX11
-  template<typename... Args>
-  void update(Args && ...args) {
-    if (data().canUpdateLocalParameters()) {
-      unsharedData().update(std::forward<Args>(args)...);
-    } else {
-      *this = TrajectoryStateOnSurface(std::forward<Args>(args)...);
-    }
-  }
-#endif
-  */
 
   CurvilinearTrajectoryError & setCurvilinearError() {
         return sharedData().setCurvilinearError();

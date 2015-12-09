@@ -149,7 +149,7 @@ class parserPerfsuiteMetadata:
 
 	def handleParsingError(self, message):
 		if self._DEBUG:
-			raise ValueError, message
+			raise ValueError(message)
 		print " ======== AND ERROR WHILE PARSING METADATA ===="
 		print message
 		print " =============== end ========================= "
@@ -204,7 +204,7 @@ class parserPerfsuiteMetadata:
 				"cpu_cache_size": [attr[1].strip() for attr in cpu_attributes if attr[0].strip() == "cache size"][0],
 				"cpu_model_name": [attr[1].strip() for attr in cpu_attributes if attr[0].strip() == "model name"][0]
 			}
-		except IOError,e:
+		except IOError as e:
 			print e
 
 		
@@ -224,7 +224,7 @@ class parserPerfsuiteMetadata:
 				"memory_total_ram": [attr[1].strip() for attr in mem_attributes if attr[0].strip() == "MemTotal"][0]
 			}
 
-		except IOError,e:
+		except IOError as e:
 			print e
 	
 		cpu_result.update(mem_result)
@@ -340,7 +340,7 @@ class parserPerfsuiteMetadata:
 		try:
 			cmd_index = self.findFirstIndex_ofStartsWith(lines, "Performance suite invoked with command line:") + 1 #that's the next line
 			info["command_line"] = 	lines[cmd_index]
-		except IndexError, e:
+		except IndexError as e:
 			if self._DEBUG:
 				print e
 			info["command_line"] = 	""
@@ -349,7 +349,7 @@ class parserPerfsuiteMetadata:
 			cmd_parsed_start = self.findFirstIndex_ofStartsWith(lines, "Initial PerfSuite Arguments:") + 1
 			cmd_parsed_end = self.findFirstIndex_ofStartsWith(lines, "Running cmsDriver.py")
 			info["command_line_parsed"] = self._LINE_SEPARATOR.join(lines[cmd_parsed_start:cmd_parsed_end])
-		except IndexError, e:
+		except IndexError as e:
 			if self._DEBUG:
 				print e
 			info["command_line"] = 	""
@@ -463,7 +463,7 @@ class parserPerfsuiteMetadata:
 			thread_id, thread_number = reAddThread.match(job_lines[thread_id_index]).groups()
 			info["thread_id"] = thread_id
 			
-			if not test.has_key(testName):
+			if testName not in test:
 				test[testName] = []
 			test[testName].append(info)
 		
@@ -478,7 +478,7 @@ class parserPerfsuiteMetadata:
 					#we search for the exit code
 					line_exitcode = self.findLineBefore(line_index, lines, test_condition=lambda l: reExitCode.match(l))
 					exit_code, = reExitCode.match(line_exitcode).groups()
-				except Exception, e:
+				except Exception as e:
 					print "Error while getting exit code (Other test): %s" + str(e)
 					
 				for key, thread in test.items():
@@ -645,7 +645,7 @@ class parserPerfsuiteMetadata:
 		for core_number in scimark_files:
 			try:
 				csimark.extend(self.readCmsScimarkTest(testName = "cmsScimark_%s" % str(core_number), testType = "NotUsedCore_%s" %str(core_number), core = core_number))
-			except IOError, e:
+			except IOError as e:
 				if self._DEBUG:
 					print e
 		return csimark
@@ -686,7 +686,7 @@ class parserPerfsuiteMetadata:
 				print "Extracted castor tarball full path by re-parsing cmsPerfSuite.log: %s"%url
 				
 			except:
-				if os.environ.has_key("PERFDB_CASTOR_FILE_URL"):
+				if "PERFDB_CASTOR_FILE_URL" in os.environ:
 					url = os.environ["PERFDB_CASTOR_FILE_URL"]
 					
 				else: #FIXME: add the possibility to get it directly from the cmsPerfSuite.log file (make sure it is dumped there before doing the tarball itself...)
@@ -735,13 +735,13 @@ class parserPerfsuiteMetadata:
 		if len(self.lines_timesize) > 0:
 			try:
 				result["TestResults"].update(self.parseTimeSize())
-			except Exception, e:
+			except Exception as e:
 				print "BAD BAD BAD UNHANDLED ERROR in parseTimeSize: " + str(e)
 
 		print "Parsing Other(IgProf, Memcheck, ...) runs..."
 		try:
 			result["TestResults"].update(self.parseAllOtherTests())
-		except Exception, e:
+		except Exception as e:
 			print "BAD BAD BAD UNHANDLED ERROR in parseAllOtherTests: " + str(e)
 
 		#print result["TestResults"]

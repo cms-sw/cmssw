@@ -316,6 +316,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 	unsigned int iter = 0; 
 	switch (trackRef->algo()) {
 	case TrackBase::ctf:
+        case TrackBase::duplicateMerge:
 	case TrackBase::initialStep:
 	  iter = 0;
 	  break;

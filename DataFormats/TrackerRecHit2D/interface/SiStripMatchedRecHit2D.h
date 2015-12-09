@@ -5,7 +5,7 @@
 
 #include "TkCloner.h"
 
-class SiStripMatchedRecHit2D GCC11_FINAL : public BaseTrackerRecHit {
+class SiStripMatchedRecHit2D final : public BaseTrackerRecHit {
  public:
   typedef BaseTrackerRecHit Base;
 

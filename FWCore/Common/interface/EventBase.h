@@ -19,7 +19,6 @@
 // Original Author:  Chris Jones
 //         Created:  Thu Aug 27 11:01:06 CDT 2009
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 
 // user include files
 #include "DataFormats/Common/interface/BasicHandle.h"
@@ -86,7 +85,6 @@ namespace edm {
 
    };
 
-#if !defined(__REFLEX__)
    template<typename T>
    bool
    EventBase::getByLabel(InputTag const& tag, Handle<T>& result) const {
@@ -110,9 +108,7 @@ namespace edm {
       }
       return true;
    }
-#endif
   
 }
-#endif /*!defined(__CINT__) && !defined(__MAKECINT__)*/
 
 #endif

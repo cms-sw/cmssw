@@ -1,5 +1,6 @@
 // include header for MagneticFieldGrid (regular + extension for some trapezoids)
 #include "MagneticFieldGrid.h"
+#include <cassert>
 
 using namespace std;
 
@@ -48,6 +49,8 @@ void MagneticFieldGrid::load(const string& name){
     inFile >> BasicDistance0[0]    >> BasicDistance0[1]    >> BasicDistance0[2];
     inFile >> RParAsFunOfPhi[0]    >> RParAsFunOfPhi[1]    >> RParAsFunOfPhi[2]    >> RParAsFunOfPhi[3];
     break;
+  default:
+    assert(0); //this is a bug
   }
   //reading the field
   float Bx, By, Bz;
@@ -146,17 +149,17 @@ void MagneticFieldGrid::putCoordGetInd(double X1, double X2, double X3, int &Ind
   double pnt[3] = {X1,X2,X3};
   int index[3];
   switch (GridType){
-  case 1:
+  case 1:{
     for (int i=0; i<3; ++i){
       index[i] = int((pnt[i]-ReferencePoint[i])/BasicDistance0[i]);
     }
-    break;
-  case 2:
+    break;}
+  case 2:{
     // FIXME: Should use else!
     for (int i=0; i<3; ++i){
       if (EasyCoordinate[i]){
 	index[i] = int((pnt[i]-ReferencePoint[i])/BasicDistance0[i]);
-      }
+      } else index[i] = 0;//computed below
     }
     for (int i=0; i<3; ++i){
       if (!EasyCoordinate[i]){
@@ -169,18 +172,18 @@ void MagneticFieldGrid::putCoordGetInd(double X1, double X2, double X3, int &Ind
 	index[i] = int((pnt[i]-(ReferencePoint[i] + offset))/stepSize);
       }
     }
-    break;
-  case 3:
+    break;}
+  case 3:{
     for (int i=0; i<3; ++i){
       index[i] = int((pnt[i]-ReferencePoint[i])/BasicDistance0[i]);
     }
-    break;
-  case 4:
+    break;}
+  case 4:{
     // FIXME: should use else!
     for (int i=0; i<3; ++i){
       if (EasyCoordinate[i]){
 	index[i] = int((pnt[i]-ReferencePoint[i])/BasicDistance0[i]);
-      }
+      } else index[i] = 0;//computed below
     }
     for (int i=0; i<3; ++i){
       if (!EasyCoordinate[i]){
@@ -193,8 +196,8 @@ void MagneticFieldGrid::putCoordGetInd(double X1, double X2, double X3, int &Ind
 	index[i] = int((pnt[i]-(ReferencePoint[i] + offset))/stepSize);
       }
     }
-    break;
-  case 5:
+    break;}
+  case 5:{
     double sinPhi = sin(pnt[1]);
     double stepSize = RParAsFunOfPhi[0] + RParAsFunOfPhi[1]/sinPhi - RParAsFunOfPhi[2] - RParAsFunOfPhi[3]/sinPhi;
     stepSize =  stepSize/(NumberOfPoints[0]-1);
@@ -202,7 +205,9 @@ void MagneticFieldGrid::putCoordGetInd(double X1, double X2, double X3, int &Ind
     index[0] = int((pnt[0]-startingPoint)/stepSize);
     index[1] = int((pnt[1]-ReferencePoint[1])/BasicDistance0[1]);
     index[2] = int((pnt[2]-ReferencePoint[2])/BasicDistance0[2]);
-    break;
+    break;}
+  default:
+    assert(0); //shouldn't be here
   }
   Index1 = index[0];
   Index2 = index[1];
@@ -224,12 +229,12 @@ void MagneticFieldGrid::putIndGetCoord(int Index1, int Index2, int Index3, doubl
   int index[3] = {Index1, Index2, Index3};
   double pnt[3];
   switch (GridType){
-  case 1:
+  case 1:{
     for (int i=0; i<3; ++i){
       pnt[i] = ReferencePoint[i] + BasicDistance0[i]*index[i];
     }
-    break;
-  case 2:
+    break;}
+  case 2:{
     for (int i=0; i<3; ++i){
       if (EasyCoordinate[i]){
 	pnt[i] = ReferencePoint[i] + BasicDistance0[i]*index[i];
@@ -244,13 +249,13 @@ void MagneticFieldGrid::putIndGetCoord(int Index1, int Index2, int Index3, doubl
 	pnt[i] = ReferencePoint[i] + offset + stepSize*index[i];
       }
     }
-    break;
-  case 3:
+    break;}
+  case 3:{
     for (int i=0; i<3; ++i){
       pnt[i] = ReferencePoint[i] + BasicDistance0[i]*index[i];
     }
-    break;
-  case 4:
+    break;}
+  case 4:{
     for (int i=0; i<3; ++i){
       if (EasyCoordinate[i]){
 	pnt[i] = ReferencePoint[i] + BasicDistance0[i]*index[i];
@@ -265,8 +270,8 @@ void MagneticFieldGrid::putIndGetCoord(int Index1, int Index2, int Index3, doubl
 	pnt[i] = ReferencePoint[i] + offset + stepSize*index[i];
       }
     }
-    break;
-  case 5:
+    break;}
+  case 5:{
     pnt[2] = ReferencePoint[2] + BasicDistance0[2]*index[2];
     pnt[1] = ReferencePoint[1] + BasicDistance0[1]*index[1];
     double sinPhi = sin(pnt[1]);
@@ -274,7 +279,9 @@ void MagneticFieldGrid::putIndGetCoord(int Index1, int Index2, int Index3, doubl
     stepSize =  stepSize/(NumberOfPoints[0]-1);
     double startingPoint = RParAsFunOfPhi[2] + RParAsFunOfPhi[3]/sinPhi;
     pnt[0] = startingPoint + stepSize*index[0];
-    break;
+    break;}
+  default:
+    assert(0);//bug if make it here
   }
   X1 = pnt[0];
   X2 = pnt[1];

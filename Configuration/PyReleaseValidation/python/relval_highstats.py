@@ -11,17 +11,17 @@ workflows = Matrix()
 ### data ### as it was forgoten in the past 140 + standard wf
 workflows[144.5]  = ['', ['RunCosmicsA','RECOCOSD','ALCACOSD']]
 workflows[144.45] = ['', ['RunCosmicsA','RECOD']]
-workflows[144.6]  = ['', ['MinimumBias2010A','RECOSKIMALCA']]
-workflows[144.7]  = ['', ['MinimumBias2010B','RECOSKIMALCA']]
-workflows[144.8]  = ['', ['WZMuSkim2010A','RECOSKIMALCA']]
-workflows[144.9]  = ['', ['WZEGSkim2010A','RECOSKIMALCA']]
-workflows[144.10] = ['', ['WZMuSkim2010B','RECOSKIMALCA']]
-workflows[144.11] = ['', ['WZEGSkim2010B','RECOSKIMALCA']]
-workflows[144.12] = ['', ['RunMinBias2010B','RECOD']]
-workflows[144.13] = ['', ['RunMu2010B','RECOD']]
-workflows[144.14] = ['', ['RunElectron2010B','RECOD']]
-workflows[144.15] = ['', ['RunPhoton2010B','RECOD']]
-workflows[144.16] = ['', ['RunJet2010B','RECOD']]
+workflows[144.6]  = ['', ['MinimumBias2010A','RECOSKIMALCAR1']]
+workflows[144.7]  = ['', ['MinimumBias2010B','RECOSKIMALCAR1']]
+workflows[144.8]  = ['', ['WZMuSkim2010A','RECOSKIMALCAR1']]
+workflows[144.9]  = ['', ['WZEGSkim2010A','RECOSKIMALCAR1']]
+workflows[144.10] = ['', ['WZMuSkim2010B','RECOSKIMALCAR1']]
+workflows[144.11] = ['', ['WZEGSkim2010B','RECOSKIMALCAR1']]
+workflows[144.12] = ['', ['RunMinBias2010B','RECODR1']]
+workflows[144.13] = ['', ['RunMu2010B','RECODR1']]
+workflows[144.14] = ['', ['RunElectron2010B','RECODR1']]
+workflows[144.15] = ['', ['RunPhoton2010B','RECODR1']]
+workflows[144.16] = ['', ['RunJet2010B','RECODR1']]
 
 workflows[101] = [ '', ['SingleElectronE120EHCAL']]
 workflows[102] = [ '', ['SinglePiE50HCAL']]
@@ -68,4 +68,17 @@ workflows[131]=['',['SinglePiPt100','DIGI','RECO']]
 workflows[132]=['',['LM9p','DIGI','RECO']]
 workflows[133]=['',['RSGrav','DIGI','RECO']]
 
-workflows[134]=['MinimumBiasBS',['RunMinBias2011B','RECOD','ALCAPROMPT','ALCAHARVD']]
+workflows[134]=['MinimumBiasBS',['RunMinBias2011B','RECODR1','ALCAPROMPT','ALCAHARVD']]
+
+### HighStats HLT Physics 2015D ###
+workflows[134.99901] = ['',['RunHLTPhy2015DHS','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2_25nsreHLT']]
+
+## 13 TeV Run2 fullSim noPU
+workflows[139901] = ['', ['ZMM_13_HS','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[139902] = ['', ['TTbar_13_HS','DIGIUP15','RECOUP15','HARVESTUP15']]
+
+## 13 TeV Run2 fullSim PU 25ns
+workflows[13992501]=['',['ZMM_13_HS','DIGIUP15_PU25HS','RECOUP15_PU25HS','HARVESTUP15_PU25']]
+workflows[13992502]=['',['TTbar_13_HS','DIGIUP15_PU25HS','RECOUP15_PU25HS','HARVESTUP15_PU25']]
+
+

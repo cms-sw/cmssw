@@ -24,10 +24,10 @@ TrackingParticle RecoTracktoTP::TPMother(unsigned short i) const
         if(TP().parentVertex()->nSourceTracks() > 0)
         {
         for(TrackingParticleRefVector::iterator si = TP().parentVertex()->sourceTracks_begin();
-            si != TP().parentVertex()->sourceTracks_end(); si++)
+            si != TP().parentVertex()->sourceTracks_end(); ++si)
             {
             for(TrackingParticleRefVector::iterator di = TP().parentVertex()->daughterTracks_begin();
-                di != TP().parentVertex()->daughterTracks_end(); di++)
+                di != TP().parentVertex()->daughterTracks_end(); ++di)
                 {
                     if(si != di)
                     {
@@ -56,10 +56,10 @@ int RecoTracktoTP::numTPMothers() const
 {
     int count = 0;
     for(TrackingParticleRefVector::iterator si = TP().parentVertex()->sourceTracks_begin();
-        si != TP().parentVertex()->sourceTracks_end(); si++)
+        si != TP().parentVertex()->sourceTracks_end(); ++si)
     {
         for(TrackingParticleRefVector::iterator di = TP().parentVertex()->daughterTracks_begin();
-            di != TP().parentVertex()->daughterTracks_end(); di++)
+            di != TP().parentVertex()->daughterTracks_end(); ++di)
         {
             if(si != di) count++;
             break;

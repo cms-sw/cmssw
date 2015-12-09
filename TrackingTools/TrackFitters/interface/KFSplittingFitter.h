@@ -11,7 +11,7 @@
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/RecHitSplitter.h"
 
-class KFSplittingFitter GCC11_FINAL : public TrajectoryFitter {
+class KFSplittingFitter final : public TrajectoryFitter {
 
 private:
 

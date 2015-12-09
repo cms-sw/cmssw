@@ -27,9 +27,7 @@ namespace edm {
     typedef T value_type;
     typedef T wrapped_type; // used with the dictionary to identify Wrappers
     Wrapper() : WrapperBase(), present(false), obj() {}
-#ifndef __GCCXML__
     explicit Wrapper(std::unique_ptr<T> ptr);
-#endif
     virtual ~Wrapper() {}
     T const* product() const {return (present ? &obj : 0);}
     T const* operator->() const {return product();}
@@ -45,28 +43,26 @@ namespace edm {
     CMS_CLASS_VERSION(3)
 
 private:
-    virtual bool isPresent_() const GCC11_OVERRIDE {return present;}
-    virtual std::type_info const& dynamicTypeInfo_() const GCC11_OVERRIDE {return typeid(T);}
-    virtual std::type_info const& wrappedTypeInfo_() const GCC11_OVERRIDE {return typeid(Wrapper<T>);}
+    virtual bool isPresent_() const override {return present;}
+    virtual std::type_info const& dynamicTypeInfo_() const override {return typeid(T);}
+    virtual std::type_info const& wrappedTypeInfo_() const override {return typeid(Wrapper<T>);}
 
-    virtual std::type_info const& valueTypeInfo_() const GCC11_OVERRIDE;
-    virtual std::type_info const& memberTypeInfo_() const GCC11_OVERRIDE;
-#ifndef __GCCXML__
-    virtual bool isMergeable_() const GCC11_OVERRIDE;
-    virtual bool mergeProduct_(WrapperBase const* newProduct) GCC11_OVERRIDE;
-    virtual bool hasIsProductEqual_() const GCC11_OVERRIDE;
-    virtual bool isProductEqual_(WrapperBase const* newProduct) const GCC11_OVERRIDE;
-#endif
+    virtual std::type_info const& valueTypeInfo_() const override;
+    virtual std::type_info const& memberTypeInfo_() const override;
+    virtual bool isMergeable_() const override;
+    virtual bool mergeProduct_(WrapperBase const* newProduct) override;
+    virtual bool hasIsProductEqual_() const override;
+    virtual bool isProductEqual_(WrapperBase const* newProduct) const override;
 
     virtual void do_fillView(ProductID const& id,
                              std::vector<void const*>& pointers,
-                             FillViewHelperVector& helpers) const GCC11_OVERRIDE;
+                             FillViewHelperVector& helpers) const override;
     virtual void do_setPtr(std::type_info const& iToType,
                            unsigned long iIndex,
-                           void const*& oPtr) const GCC11_OVERRIDE;
+                           void const*& oPtr) const override;
     virtual void do_fillPtrVector(std::type_info const& iToType,
                                   std::vector<unsigned long> const& iIndices,
-                                  std::vector<void const*>& oPtr) const GCC11_OVERRIDE;
+                                  std::vector<void const*>& oPtr) const override;
 
   private:
     // We wish to disallow copy construction and assignment.
@@ -78,7 +74,6 @@ private:
     T obj;
   };
 
-#ifndef __GCCXML__
   template<typename T>
   inline
   void swap_or_assign(T& a, T& b) {
@@ -149,7 +144,6 @@ private:
     assert(wrappedNewProduct != nullptr);
     return detail::doIsProductEqual<T>()(obj, wrappedNewProduct->obj);
   }
-#endif
 }
 
 #include "DataFormats/Common/interface/WrapperView.icc"

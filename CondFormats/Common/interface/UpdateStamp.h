@@ -7,6 +7,11 @@
 #include <string>
 
 
+// Unit test class for UpdateStamp
+namespace {
+  class TestUpdateStamp;
+}
+
 namespace cond {
   
   /** class to "stamp" a new version of an updateble persistent object
@@ -14,6 +19,8 @@ namespace cond {
       no history in mantained at the moment
    */
   class UpdateStamp {
+    friend class ::TestUpdateStamp;
+
   public:
     // constrcutor creates and invalid stamp
     UpdateStamp();

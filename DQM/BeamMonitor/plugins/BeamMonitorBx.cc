@@ -25,11 +25,10 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-const char * BeamMonitorBx::formatFitTime( const time_t & t )  {
+void BeamMonitorBx::formatFitTime(char *ts, const time_t & t )  {
 #define CET (+1)
 #define CEST (+2)
 
-  static char ts[] = "yyyy-Mm-dd hh:mm:ss";
   tm * ptm;
   ptm = gmtime ( &t );
   sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", ptm->tm_year,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CEST)%24, ptm->tm_min, ptm->tm_sec);
@@ -38,8 +37,6 @@ const char * BeamMonitorBx::formatFitTime( const time_t & t )  {
   unsigned int b = strlen(ts);
   while (ts[--b] == ' ') {ts[b] = 0;}
 #endif
-  return ts;
-
 }
 
 //
@@ -302,7 +299,9 @@ void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMa
 	  hst[histName]->getTH1()->SetBins(3600,0.5,3600+0.5);
 	  hst[histName]->setAxisTimeDisplay(1);
 	  hst[histName]->setAxisTimeFormat("%H:%M:%S",1);
-	  const char* eventTime = formatFitTime(startTime);
+
+	  char eventTime[64];
+	  formatFitTime(eventTime, startTime);
 	  TDatime da(eventTime);
 	  if (debug_) {
 	    edm::LogInfo("BX|BeamMonitorBx") << "TimeOffset = ";

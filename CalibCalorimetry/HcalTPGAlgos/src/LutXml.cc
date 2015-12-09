@@ -257,7 +257,7 @@ DOMElement * LutXml::addData( std::string _elements, std::string _encoding, cons
 
   std::stringstream buf;
 
-  for (std::vector<unsigned int>::const_iterator iter = _lut.begin();iter!=_lut.end();iter++){
+  for (std::vector<unsigned int>::const_iterator iter = _lut.begin();iter!=_lut.end();++iter){
     char buf2[8];
     sprintf(buf2,"%x",(*iter));
     buf << buf2 << " ";
@@ -386,7 +386,7 @@ int LutXml::test_access( std::string filename ){
   std::cout << "HcalEmap contains " << _map . size() << " entries" << std::endl;
 
   int _counter=0;
-  for (std::vector<HcalEmap::HcalEmapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++){
+  for (std::vector<HcalEmap::HcalEmapRow>::const_iterator row=_map.begin(); row!=_map.end(); ++row){
     if (row->subdet=="HB"){
       HcalDetId det_id(HcalBarrel,row->ieta,row->iphi,row->idepth);
       uint32_t raw_id = det_id.rawId();

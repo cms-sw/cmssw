@@ -64,7 +64,7 @@ class EventBrowserPlugin(BrowserPlugin):
         """ Calls next() function of current tab controller.
         """
         try:
-            self.application().currentTabController().next()
+            next(self.application().currentTabController())
         except NoCurrentTabControllerException:
             logging.warning(self.__class__.__name__ + ": next() - No tab controller found.")
 

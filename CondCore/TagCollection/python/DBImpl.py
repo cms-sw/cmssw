@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import coral
-import IdGenerator
+from . import IdGenerator
         
 class DBImpl(object):
     """Class wrap up all the database operations.\n
@@ -17,13 +18,13 @@ class DBImpl(object):
             query.setCondition(condition,conditionbindDict)
             cursor = query.execute()
             result=False
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 result=True
                 cursor.close()
             del query
             return result
-        except Exception, e:
-            raise Exception, str(e)
+        except Exception as e:
+            raise Exception(str(e))
     def insertOneRow( self, tableName, tabrowDefDict, tabrowValueDict ):
         """Insert row 
         """
@@ -36,8 +37,8 @@ class DBImpl(object):
                 inputData.extend( name, type )
                 inputData[name].setData(tabrowValueDict[name])
             editor.insertRow( inputData )
-        except Exception, e:
-            raise Exception, str(e)
+        except Exception as e:
+            raise Exception(str(e))
     def bulkInsert( self, tableName, tabrowDefDict, bulkinput):
         """Bulk insert bulkinput=[{}]
         """
@@ -54,8 +55,8 @@ class DBImpl(object):
                 bulkOperation.processNextIteration()
             bulkOperation.flush()
             del bulkOperation
-        except Exception, e:
-            raise Exception, str(e)
+        except Exception as e:
+            raise Exception(str(e))
     def deleteRows( self, tableName, condition, conditionbindDict ):
         """Delete row(s)
         """
@@ -63,8 +64,8 @@ class DBImpl(object):
             tableHandle = self.__schema.tableHandle(tableName)
             editor = tableHandle.dataEditor()
             editor.deleteRows( condition, conditionbindDict )
-        except Exception, e:
-            raise Exception, str(e)
+        except Exception as e:
+            raise Exception(str(e))
         
     def dropTable( self, tableName ):
         """Drop specified table.
@@ -76,7 +77,7 @@ class DBImpl(object):
         try:
             self.__schema.tableHandle(tableName)
             return True
-        except coral.Exception, e:
+        except coral.Exception as e:
             return False
 
 if __name__ == "__main__":

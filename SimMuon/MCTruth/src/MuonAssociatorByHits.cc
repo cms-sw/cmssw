@@ -142,6 +142,7 @@ MuonAssociatorByHits::MuonAssociatorByHits (const edm::ParameterSet& conf, edm::
 {
   //hack for consumes
   RPCHitAssociator rpctruth(conf,std::move(iC));
+  GEMHitAssociator gemtruth(conf,std::move(iC));
   DTHitAssociator dttruth(conf,std::move(iC));
   CSCHitAssociator muonTruth(conf,std::move(iC));
   if( conf.getUntrackedParameter<bool>("dumpInputCollections") ) {
@@ -181,8 +182,10 @@ MuonAssociatorByHits::associateRecoToSim( const edm::RefToBaseVector<reco::Track
   DTHitAssociator dttruth(*e,*setup,conf_,printRtS);  
   // RPC hit association
   RPCHitAssociator rpctruth(*e,*setup,conf_);
+  // GEM hit association
+  GEMHitAssociator gemtruth(*e,*setup,conf_);
    
-  MuonAssociatorByHitsHelper::Resources resources = {tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth};
+  MuonAssociatorByHitsHelper::Resources resources = {tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth};
 
   if(diagnostics_) {
     resources.diagnostics_ = [this, e](const TrackHitsCollection& hC, const TrackingParticleCollection& pC) {
@@ -226,8 +229,10 @@ MuonAssociatorByHits::associateSimToReco( const edm::RefToBaseVector<reco::Track
   DTHitAssociator dttruth(*e,*setup,conf_,printRtS);  
   // RPC hit association
   RPCHitAssociator rpctruth(*e,*setup,conf_);
+  // GEM hit association
+  GEMHitAssociator gemtruth(*e,*setup,conf_);
    
-  MuonAssociatorByHitsHelper::Resources resources = {tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth};
+  MuonAssociatorByHitsHelper::Resources resources = {tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth};
   
   auto bareAssoc = helper_.associateSimToRecoIndices(tH, TPCollectionH, resources);
   for (auto it = bareAssoc.begin(), ed = bareAssoc.end(); it != ed; ++it) {

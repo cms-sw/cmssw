@@ -23,12 +23,12 @@ class idDealer(object):
             query.setForUpdate() #lock it
             cursor = query.execute()
             result = 0
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 result = cursor.currentRow()[self.__idTableColumnName].data()
             del query
             return result
-        except Exception, e:
-            raise Exception, str(e)
+        except Exception as e:
+            raise Exception(str(e))
 
     def generateNextIDForTable( self, tableName ):
         """
@@ -43,15 +43,15 @@ class idDealer(object):
             query.setForUpdate() #lock it
             cursor = query.execute()
             result = 0
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 result = cursor.currentRow()[0].data()
             dataEditor = tableHandle.dataEditor()
             inputData = coral.AttributeList()
             dataEditor.updateRows('NEXTID = NEXTID+1','',inputData)
             del query            
             return result+1
-        except Exception, e:
-            raise Exception, str(e)
+        except Exception as e:
+            raise Exception(str(e))
 
 if __name__ == "__main__":
     fakeIDtableName='Fake_ID'
@@ -78,10 +78,10 @@ if __name__ == "__main__":
         print idor.getIDforTable('Fake')
         transaction.commit()
         del session
-    except coral.Exception,e:
+    except coral.Exception as e:
         transaction.rollback()
         del session
-    except Exception, e:
+    except Exception as e:
         print 'failed in unit test'
         print str(e)
         del session

@@ -5,7 +5,7 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 class FreeTrajectoryState;
 
-class dso_hidden SeedFromConsecutiveHitsStraightLineCreator GCC11_FINAL : public SeedFromConsecutiveHitsCreator {
+class dso_hidden SeedFromConsecutiveHitsStraightLineCreator final : public SeedFromConsecutiveHitsCreator {
 public:
 
   SeedFromConsecutiveHitsStraightLineCreator( const edm::ParameterSet & cfg):

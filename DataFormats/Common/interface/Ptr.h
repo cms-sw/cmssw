@@ -290,7 +290,6 @@ namespace edm {
 #include "DataFormats/Common/interface/HolderToVectorTrait_Ptr_specialization.h"
 #include <vector>
 
-#ifndef __GCCXML__
 namespace edm {
   template <typename T>
   inline
@@ -311,6 +310,5 @@ namespace edm {
     }
   }
 }
-#endif
 
 #endif

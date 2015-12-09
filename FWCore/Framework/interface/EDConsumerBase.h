@@ -75,8 +75,10 @@ namespace edm {
     typedef ProductLabels Labels;
     void labelsForToken(EDGetToken iToken, Labels& oLabels) const;
     
-    void modulesDependentUpon(const std::string& iProcessName,
-                              std::vector<const char*>& oModuleLabels) const;
+    void modulesDependentUpon(std::string const& iProcessName,
+                              std::string const& iModuleLabel,
+                              bool iPrint,
+                              std::vector<char const*>& oModuleLabels) const;
 
     void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
                                          ProductRegistry const& preg,

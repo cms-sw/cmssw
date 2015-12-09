@@ -27,7 +27,8 @@ upgradeKeys=['2017',
              'Extended2023HGCalV4',
              'Extended2023HGCalMuonPU',
              'Extended2023SHCalNoTaperPU',	     
-             '2019WithGEMAgingPU'
+             '2019WithGEMAgingPU',
+             '2017PU'
 	     ]
 
 
@@ -135,7 +136,7 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi','SingleElectronPt10_cfi',
                   'DoubleMuPt10Extended_pythia8_cfi',
                   'DoubleMuPt100Extended_pythia8_cfi',
                   'DoubleMuPt1000Extended_pythia8_cfi',
-                  'TenMuE_0_200_upgrade_cfi',
+                  'TenMuE_0_200_pythia8_cfi',
                   'SinglePiE50HCAL_cfi',
 		  'QCDForPF_14TeV_cfi',
 		  'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff',
@@ -155,7 +156,7 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi','SingleElectronPt10_cfi',
 # step7 is fastsim harvesting
 upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFull','RecoFullHGCAL','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','HARVESTFullPU','DigiFullTrigger']
 
-upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull'],#HARVESTING REMOVED
                    '2019':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    '2019WithGEM':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    '2017Aging':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
@@ -182,13 +183,14 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalV4' : ['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalMuonPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPUHGCAL'],
                    'Extended2023SHCalNoTaperPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],
-                   '2019WithGEMAgingPU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+                   '2019WithGEMAgingPU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],
+		   '2017PU':['GenSimFull','DigiFullPU','RecoFullPU']
                    }
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
 
 howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
-           'TenMuE_0_200_upgrade_cfi':Kby(10,100),
+           'TenMuE_0_200_pythia8_cfi':Kby(10,100),
            'FourMuExtendedPt_1_200_pythia8_cfi':Kby(10,100),
            'TenMuExtendedE_0_200_pythia8_cfi':Kby(10,100),
            'SingleElectronPt10_cfi':Kby(9,100),
@@ -246,7 +248,7 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'H130GGgluonfusion_14TeV_cfi':Kby(9,100),
            'PhotonJet_Pt_10_14TeV_cfi':Kby(9,100),
            'QQH1352T_Tauola_14TeV_cfi':Kby(9,100),
-           'MinBias_TuneZ2star_14TeV_pythia6_cff':Kby(9,100),
+           'MinBias_TuneZ2star_14TeV_pythia6_cff':Kby(90,100),
            'WM_14TeV_cfi':Kby(9,100),
            'ZMM_14TeV_cfi':Kby(18,100),
 	   'QCDForPF_14TeV_cfi':Kby(9,50),
@@ -256,7 +258,7 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
 
 upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
                             'FourMuExtendedPt_1_200_pythia8_cfi': 'FourMuExtendedPt1_200',
-                            'TenMuE_0_200_upgrade_cfi': 'TenMuE_0_200',
+                            'TenMuE_0_200_pythia8_cfi': 'TenMuE_0_200',
                             'TenMuExtendedE_0_200_pythia8_cfi': 'TenMuExtendedE_0_200',
                             'SingleElectronPt10_cfi' : 'SingleElectronPt10',
                             'SingleElectronPt35_cfi' : 'SingleElectronPt35',

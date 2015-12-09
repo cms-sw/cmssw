@@ -84,7 +84,8 @@ SiPixelTrackResidualSource::SiPixelTrackResidualSource(const edm::ParameterSet& 
    ttrhbuilder_ = pSet_.getParameter<std::string>("TTRHBuilder");
    ptminres_= pSet.getUntrackedParameter<double>("PtMinRes",4.0) ;
    beamSpotToken_ = consumes<reco::BeamSpot>(std::string("offlineBeamSpot"));
-   offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
+   vtxsrc_=pSet_.getUntrackedParameter<std::string>("vtxsrc",  "offlinePrimaryVertices");
+   offlinePrimaryVerticesToken_ =  consumes<reco::VertexCollection>(vtxsrc_);// consumes<reco::VertexCollection>(std::string("hiSelectedVertex"));     //"offlinePrimaryVertices"));
    generalTracksToken_ = consumes<reco::TrackCollection>(pSet_.getParameter<edm::InputTag>("tracksrc"));
    tracksrcToken_ = consumes<std::vector<Trajectory> >(pSet_.getParameter<edm::InputTag>("trajectoryInput"));
    trackToken_ = consumes<std::vector<reco::Track> >(pSet_.getParameter<edm::InputTag>("trajectoryInput"));
@@ -480,6 +481,17 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
     meClPosLayersOnTrack.push_back(iBooker.book2D(ss1.str(),ss2.str(),200,-30.,30.,128,-3.2,3.2));
     meClPosLayersOnTrack.at(i-1)->setAxisTitle("Global Z (cm)",1);
     meClPosLayersOnTrack.at(i-1)->setAxisTitle("Global #phi",2);
+
+    int ybins = -1; float ymin = 0.; float ymax = 0.;
+    if (i==1) { ybins = 23; ymin = -11.5; ymax = 11.5; }
+    if (i==2) { ybins = 33; ymin = -17.5; ymax = 17.5; }
+    if (i==3) { ybins = 45; ymin = -24.5; ymax = 24.5; }
+    ss1.str(std::string()); ss1 << "position_" + clustersrc_.label() + "_LadvsMod_Layer_" << i;
+    ss2.str(std::string()); ss2 << "Clusters Layer" << i << "_LadvsMod (on track)";
+    meClPosLayersLadVsModOnTrack.push_back(iBooker.book2D(ss1.str(),ss2.str(),11,-5.5,5.5,ybins,ymin,ymax));
+    meClPosLayersLadVsModOnTrack.at(i-1)->setAxisTitle("z-module",1);
+    meClPosLayersLadVsModOnTrack.at(i-1)->setAxisTitle("Ladder",2);
+
   }
   //fpix
   for (int i = 1; i <= noOfDisks; i++)
@@ -863,26 +875,26 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
   //iEvent.getByLabel(tracksrc_,trajCollectionHandle);
   iEvent.getByToken ( tracksrcToken_, trajCollectionHandle );
-  const std::vector<Trajectory> trajColl = *(trajCollectionHandle.product());
+  auto const & trajColl = *(trajCollectionHandle.product());
    
   //get tracks
   edm::Handle<std::vector<reco::Track> > trackCollectionHandle;
   //iEvent.getByLabel(tracksrc_,trackCollectionHandle);
   iEvent.getByToken( trackToken_, trackCollectionHandle );
-
-  const std::vector<reco::Track> trackColl = *(trackCollectionHandle.product());
-
+  auto const & trackColl = *(trackCollectionHandle.product());
+  
   //get the map
   edm::Handle<TrajTrackAssociationCollection> match;
   //iEvent.getByLabel(tracksrc_,match);
   iEvent.getByToken( trackAssociationToken_, match);
-  const TrajTrackAssociationCollection ttac = *(match.product());
-
+  auto const &  ttac = *(match.product());
+  
   // get clusters
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> >  clusterColl;
   //iEvent.getByLabel( clustersrc_, clusterColl );
   iEvent.getByToken( clustersrcToken_, clusterColl );
-  const edmNew::DetSetVector<SiPixelCluster> clustColl = *(clusterColl.product());
+  auto const & clustColl = *(clusterColl.product());
+  
 
   if(debug_){
     std::cout << "Trajectories\t : " << trajColl.size() << std::endl;
@@ -1035,10 +1047,26 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		DBlayer = PixelBarrelName(DetId((*hit).geographicalId()), tTopo, isUpgrade).layerName();
 		float phi = clustgp.phi(); 
 		float z = clustgp.z();
+
+                PixelBarrelName pbn(DetId((*hit).geographicalId()), tTopo, isUpgrade);
+                int ladder = pbn.ladderName();
+                int module = pbn.moduleName();
+
+		PixelBarrelName::Shell sh = pbn.shell(); //enum
+                int ladderSigned=ladder;
+                int moduleSigned=module;
+                // Shell { mO = 1, mI = 2 , pO =3 , pI =4 };
+                int shell = int(sh);
+                // change the module sign for z<0
+                if(shell==1 || shell==2) { moduleSigned = -module; }
+                // change ladeer sign for Outer )x<0)
+                if(shell==1 || shell==3) { ladderSigned = -ladder; }
+
 		for (int i = 0; i < noOfLayers; i++)
 		  {
           if (DBlayer == i + 1) {
              meClPosLayersOnTrack.at(i)->Fill(z,phi);
+	     meClPosLayersLadVsModOnTrack.at(i)->Fill(moduleSigned,ladderSigned);
              meClChargeOnTrack_layers.at(i)->Fill(corrCharge);
              meClSizeOnTrack_layers.at(i)->Fill((*clust).size());
              meClSizeXOnTrack_layers.at(i)->Fill((*clust).sizeX());

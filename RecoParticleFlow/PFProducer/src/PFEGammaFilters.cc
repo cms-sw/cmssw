@@ -365,6 +365,7 @@ unsigned int PFEGammaFilters::whichTrackAlgo(const reco::TrackRef& trackRef) {
   unsigned int Algo = 0; 
   switch (trackRef->algo()) {
   case TrackBase::ctf:
+  case TrackBase::duplicateMerge:
   case TrackBase::initialStep:
   case TrackBase::lowPtTripletStep:
   case TrackBase::pixelPairStep:

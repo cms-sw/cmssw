@@ -29,12 +29,13 @@ void
 GsfTrackProducerBase::putInEvt(edm::Event& evt,
 			       const Propagator* prop,
 			       const MeasurementTracker* measTk,
-			       std::auto_ptr<TrackingRecHitCollection>& selHits,
-			       std::auto_ptr<reco::GsfTrackCollection>& selTracks,
-			       std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
-			       std::auto_ptr<reco::GsfTrackExtraCollection>& selGsfTrackExtras,
-			       std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
-			       AlgoProductCollection& algoResults, TransientTrackingRecHitBuilder const * hitBuilder,
+			       std::unique_ptr<TrackingRecHitCollection>& selHits,
+			       std::unique_ptr<reco::GsfTrackCollection>& selTracks,
+			       std::unique_ptr<reco::TrackExtraCollection>& selTrackExtras,
+			       std::unique_ptr<reco::GsfTrackExtraCollection>& selGsfTrackExtras,
+			       std::unique_ptr<std::vector<Trajectory> >&   selTrajectories,
+			       AlgoProductCollection& algoResults,
+			       TransientTrackingRecHitBuilder const * hitBuilder,
 			       const reco::BeamSpot& bs, const TrackerTopology *ttopo)
 {
 
@@ -52,15 +53,15 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
 
   TSCBLBuilderNoMaterial tscblBuilder;
   
-  for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
-    Trajectory * theTraj = (*i).first;
+  for(auto & i : algoResults){
+    Trajectory * theTraj = i.trajectory;
     if(trajectoryInEvent_) {
       selTrajectories->push_back(*theTraj);
       iTjRef++;
     }
 
-    reco::GsfTrack * theTrack = (*i).second.first;
-    PropagationDirection seedDir = (*i).second.second;  
+    reco::GsfTrack * theTrack = i.track;
+    PropagationDirection seedDir = i.pDir;  
     
     LogDebug("TrackProducer") << "In GsfTrackProducerBase::putInEvt - seedDir=" << seedDir;
 
@@ -243,16 +244,16 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
   LogTrace("TrackingRegressionTest") << "=================================================";
   
 
-  rTracks_ = evt.put( selTracks );
-  evt.put( selTrackExtras );
-  evt.put( selGsfTrackExtras );
-  evt.put( selHits );
+  rTracks_ = evt.put(std::move(selTracks) );
+  evt.put(std::move(selTrackExtras) );
+  evt.put(std::move(selGsfTrackExtras) );
+  evt.put(std::move(selHits) );
 
   if(trajectoryInEvent_) {
-    edm::OrphanHandle<std::vector<Trajectory> > rTrajs = evt.put(selTrajectories);
+    edm::OrphanHandle<std::vector<Trajectory> > rTrajs = evt.put(std::move(selTrajectories));
 
     // Now Create traj<->tracks association map
-    std::auto_ptr<TrajGsfTrackAssociationCollection> trajTrackMap( new TrajGsfTrackAssociationCollection(rTrajs, rTracks_) );
+    std::unique_ptr<TrajGsfTrackAssociationCollection> trajTrackMap( new TrajGsfTrackAssociationCollection(rTrajs, rTracks_) );
     for ( std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); 
 	  i != tjTkMap.end(); i++ ) {
       edm::Ref<std::vector<Trajectory> > trajRef( rTrajs, (*i).first );
@@ -260,7 +261,7 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
       trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, (*i).first ),
 			    edm::Ref<reco::GsfTrackCollection>( rTracks_, (*i).second ) );
     }
-    evt.put( trajTrackMap );
+    evt.put( std::move(trajTrackMap) );
   }
 }
 

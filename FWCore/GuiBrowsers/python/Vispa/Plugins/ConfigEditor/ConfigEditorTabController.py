@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import sys
 import logging
 import os.path
@@ -17,20 +18,20 @@ from Vispa.Gui.TextDialog import TextDialog
 try:
     from FWCore.GuiBrowsers.DOTExport import DotExport
     import_dotexport_error=None
-except Exception,e:
+except Exception as e:
     import_dotexport_error=(str(e),exception_traceback())
 
 try:
     from Vispa.Plugins.EdmBrowser.EventContentDialog import EventContentDialog
     event_content_error=None
-except Exception,e:
+except Exception as e:
     event_content_error=(str(e),exception_traceback())
 
 try:
-    from ToolDataAccessor import ToolDataAccessor,ConfigToolBase,standardConfigDir
-    from ToolDialog import ToolDialog
+    from .ToolDataAccessor import ToolDataAccessor,ConfigToolBase,standardConfigDir
+    from .ToolDialog import ToolDialog
     import_tools_error=None
-except Exception,e:
+except Exception as e:
     import_tools_error=(str(e),exception_traceback())
 
 class ConfigEditorTabController(BrowserTabController):
@@ -285,7 +286,7 @@ class ConfigEditorTabController(BrowserTabController):
                     dot.export(self.dataAccessor(), name + ".dot", "dot")
                     logging.error(self.__class__.__name__ +": exportDot() - "+"'dot' executable not found which is needed for conversion to '*." + ext + "'. Created '*.dot' file instead.")
                     self.plugin().application().errorMessage("'dot' executable not found which is needed for conversion to '*." + ext + "'. Created '*.dot' file instead.")
-                except Exception,e:
+                except Exception as e:
                     logging.error(self.__class__.__name__ +": exportDot() - "+"Could not export dot graphic (see logfile for details): " + str(e))
                     self.plugin().application().errorMessage("Could not export dot graphic: " + exception_traceback())
 

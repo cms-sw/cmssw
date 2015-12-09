@@ -17,7 +17,6 @@
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
 #include <memory>
 #include <string>
@@ -147,5 +146,4 @@ namespace fwlite {
 };
 
 }
-#endif /*__CINT__ */
 #endif

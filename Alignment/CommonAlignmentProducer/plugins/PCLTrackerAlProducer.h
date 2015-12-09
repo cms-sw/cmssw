@@ -34,7 +34,6 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondCore/DBCommon/interface/Time.h"
 
 /*** Alignment ***/
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"

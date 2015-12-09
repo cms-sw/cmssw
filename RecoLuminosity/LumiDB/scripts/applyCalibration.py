@@ -29,7 +29,7 @@ def calibrateRange(dbsession,normfactor,startrun,endrun):
         nchanged=schema.tableHandle('LUMISUMMARY').dataEditor().updateRows('INSTLUMI=INSTLUMI*:normfactor','RUNNUM>=:startrun AND RUNNUM<=:endrun',inputData)
         dbsession.transaction().commit()
         return nchanged
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -52,7 +52,7 @@ def calibrateRun(dbsession,normfactor,runnum):
         nchanged=schema.tableHandle('LUMISUMMARY').dataEditor().updateRows('INSTLUMI=INSTLUMI*:normfactor','RUNNUM=:runnumber',inputData)
         dbsession.transaction().commit()
         return nchanged
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession

@@ -49,15 +49,15 @@ public:
 
   virtual void vocalCorners( Pt3DVec&        vec ,
 			     const CCGFloat* pv  ,
-			     Pt3D&           ref  ) const 
+			     Pt3D&           ref  ) const override 
     { localCorners( vec, pv, ref ) ; }
 
   static void localCorners( Pt3DVec&        vec ,
 			    const CCGFloat* pv  , 
 			    Pt3D&           ref  ) ;
 
-  virtual Tr3D getTransform( Pt3DVec* /*lptr*/ ) const
-    { return Tr3D() ; }
+  virtual void getTransform( Tr3D& tr, Pt3DVec* /*lptr*/ ) const override
+    { }
  private:
   virtual void initCorners(CaloCellGeometry::CornersVec&) override;
 };

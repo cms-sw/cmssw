@@ -8,7 +8,8 @@ ElectronChi2.MaxChi2 = 2000.
 ElectronChi2.nSigma = 3.
 
 # Trajectory Filter
-TrajectoryFilterForElectrons = cms.PSet(
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
+TrajectoryFilterForElectrons = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     chargeSignificance = cms.double(-1.0),
     minPt = cms.double(2.0),
     minHitsMinPt = cms.int32(-1),
@@ -17,7 +18,9 @@ TrajectoryFilterForElectrons = cms.PSet(
     maxNumberOfHits = cms.int32(-1),
     maxConsecLostHits = cms.int32(1),
     nSigmaMinPt = cms.double(5.0),
-    minimumNumberOfHits = cms.int32(5)
+    minimumNumberOfHits = cms.int32(5),
+    maxCCCLostHits = cms.int32(9999),
+    minGoodStripCharge = cms.double(-1)
 )
 
 # Trajectory Builder

@@ -30,7 +30,7 @@ CastorPedestalsAnalysis::~CastorPedestalsAnalysis()
    //Calculate pedestal constants
    std::cout << "Calculating Pedestal constants...\n";
    std::vector<NewPedBunch>::iterator bunch_it;
-   for(bunch_it=Bunches.begin(); bunch_it != Bunches.end(); bunch_it++)
+   for(bunch_it=Bunches.begin(); bunch_it != Bunches.end(); ++bunch_it)
    {
       if(bunch_it->usedflag){
 
@@ -275,7 +275,7 @@ CastorPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSe
       iSetup.get<CastorElectronicsMapRcd>().get(refEMap);
       const CastorElectronicsMap* myRefEMap = refEMap.product();
       std::vector<HcalGenericDetId> listEMap = myRefEMap->allPrecisionId();
-      for (std::vector<HcalGenericDetId>::const_iterator it = listEMap.begin(); it != listEMap.end(); it++)
+      for (std::vector<HcalGenericDetId>::const_iterator it = listEMap.begin(); it != listEMap.end(); ++it)
       {     
          HcalGenericDetId mygenid(it->rawId());
          if(mygenid.isHcalCastorDetId())
@@ -307,10 +307,10 @@ CastorPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSe
 
    std::vector<NewPedBunch>::iterator bunch_it;
 
-   for(CastorDigiCollection::const_iterator j = castor->begin(); j != castor->end(); j++)
+   for(CastorDigiCollection::const_iterator j = castor->begin(); j != castor->end(); ++j)
    {
       const CastorDataFrame digi = (const CastorDataFrame)(*j);
-      for(bunch_it = Bunches.begin(); bunch_it != Bunches.end(); bunch_it++)
+      for(bunch_it = Bunches.begin(); bunch_it != Bunches.end(); ++bunch_it)
          if(bunch_it->detid.rawId() == digi.id().rawId()) break;
       bunch_it->usedflag = true;
       for(int ts = firstTS; ts != lastTS+1; ts++)

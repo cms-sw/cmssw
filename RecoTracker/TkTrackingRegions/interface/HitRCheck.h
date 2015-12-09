@@ -7,7 +7,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
 
-class HitRCheck GCC11_FINAL : public HitRZCompatibility {
+class HitRCheck final : public HitRZCompatibility {
 public:
   static constexpr Algo me =rAlgo;
 

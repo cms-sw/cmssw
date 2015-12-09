@@ -60,8 +60,12 @@
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "RecoJets/JetProducers/interface/JetMatchingTools.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 const Int_t MAXPARTICLE = 10000;
+const Double_t BarrelEta = 2.0;
+const Double_t EndcapEta = 3.0;
+const Double_t ForwardEta = 5.0;
 
 class MonitorElement;
 
@@ -89,7 +93,13 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   edm::InputTag   mInputPFCandCollection;
   // edm::InputTag   mInputCandCollection;
   // edm::InputTag   rhoTag;
-  edm::InputTag   centrality;
+  edm::InputTag centralityTag_;
+  edm::EDGetTokenT<reco::Centrality> centralityToken;
+  edm::Handle<reco::Centrality> centrality_;
+
+  edm::InputTag centralityBinTag_;
+  edm::EDGetTokenT<int> centralityBinToken;
+  edm::Handle<int>centralityBin_;
   
   std::string     mOutputFile;
   std::string     JetType;
@@ -110,14 +120,13 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::BasicJetCollection> basicJetsToken_;
   edm::EDGetTokenT<reco::JPTJetCollection> jptJetsToken_;
   edm::EDGetTokenT<reco::GenJetCollection> genJetsToken_;
-  edm::EDGetTokenT<edm::HepMCProduct> evtToken_;
+  edm::EDGetTokenT<GenEventInfoProduct> evtToken_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandToken_; 
   edm::EDGetTokenT<reco::CandidateView> pfCandViewToken_;
   edm::EDGetTokenT<reco::CandidateView> caloCandViewToken_;
   //edm::EDGetTokenT<reco::VoronoiMap> backgrounds_;
   edm::EDGetTokenT<edm::ValueMap<reco::VoronoiBackground>> backgrounds_;
   edm::EDGetTokenT<std::vector<float>> backgrounds_value_;
-  edm::EDGetTokenT<reco::Centrality> centralityToken_;
   edm::EDGetTokenT<std::vector<reco::Vertex> > hiVertexToken_;
   
   //Include Particle flow variables 
@@ -136,41 +145,22 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   MonitorElement *mCaloVsPtInitial;
   MonitorElement *mCaloArea;
   MonitorElement *mSumpt;
-  MonitorElement *mvn;
-  MonitorElement *mpsin;
-  // MonitorElement *ueraw;  
 
   MonitorElement *mSumPFVsPt;
   MonitorElement *mSumPFVsPtInitial;
   MonitorElement *mSumPFPt;
 
-  MonitorElement *mSumPFVsPtInitial_eta;
-  MonitorElement *mSumPFVsPt_eta;
-  MonitorElement *mSumPFPt_eta;
-
   MonitorElement *mSumCaloVsPt;
   MonitorElement *mSumCaloVsPtInitial;
   MonitorElement *mSumCaloPt;
-
-  MonitorElement *mSumCaloVsPtInitial_eta;
-  MonitorElement *mSumCaloVsPt_eta;
-  MonitorElement *mSumCaloPt_eta;
 
   MonitorElement *mSumSquaredPFVsPt;
   MonitorElement *mSumSquaredPFVsPtInitial;
   MonitorElement *mSumSquaredPFPt;
 
-  MonitorElement *mSumSquaredPFVsPtInitial_eta;
-  MonitorElement *mSumSquaredPFVsPt_eta;
-  MonitorElement *mSumSquaredPFPt_eta;
-
   MonitorElement *mSumSquaredCaloVsPt;
   MonitorElement *mSumSquaredCaloVsPtInitial;
   MonitorElement *mSumSquaredCaloPt;
-
-  MonitorElement *mSumSquaredCaloVsPtInitial_eta;
-  MonitorElement *mSumSquaredCaloVsPt_eta;
-  MonitorElement *mSumSquaredCaloPt_eta;
 
   // Event variables (including centrality)
   MonitorElement* mNvtx;
@@ -180,34 +170,13 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   MonitorElement *mSumPFVsPt_HF;
   MonitorElement *mSumPFVsPtInitial_HF;
   MonitorElement *mSumPFPt_HF;
-  MonitorElement *mPFVsPtInitial_eta_phi;
-  MonitorElement *mPFVsPt_eta_phi;
-  MonitorElement *mPFPt_eta_phi;
-  //MonitorElement *mSumDeltapT_HF;
   MonitorElement *mDeltapT;
   MonitorElement *mDeltapT_eta;
-  //MonitorElement *mDeltapT_phiMinusPsi2;
-  MonitorElement *mDeltapT_eta_phi;
 
   MonitorElement *mSumCaloVsPt_HF;
   MonitorElement *mSumCaloVsPtInitial_HF;
   MonitorElement *mSumCaloPt_HF;
-  MonitorElement *mCaloVsPtInitial_eta_phi;
-  MonitorElement *mCaloVsPt_eta_phi;
-  MonitorElement *mCaloPt_eta_phi;
 
-  MonitorElement *mVs_0_x;
-  MonitorElement *mVs_0_y;
-  MonitorElement *mVs_1_x;
-  MonitorElement *mVs_1_y;
-  MonitorElement *mVs_2_x;
-  MonitorElement *mVs_2_y;
-  MonitorElement *mVs_0_x_versus_HF;
-  MonitorElement *mVs_0_y_versus_HF;
-  MonitorElement *mVs_1_x_versus_HF;
-  MonitorElement *mVs_1_y_versus_HF;
-  MonitorElement *mVs_2_x_versus_HF;
-  MonitorElement *mVs_2_y_versus_HF;
   
   MonitorElement *mSumPFVsPtInitial_n5p191_n2p650;
   MonitorElement *mSumPFVsPtInitial_n2p650_n2p043;
@@ -319,6 +288,183 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   MonitorElement* mNJets;
   MonitorElement* mNJets_40;
 
+  // histograms added on Oct 27th to study the gen-reco
+  MonitorElement* mGenEta;
+  MonitorElement* mGenPhi;
+  MonitorElement* mGenPt;
+  MonitorElement* mPtHat;
+
+  MonitorElement* mPtRecoOverGen_B_20_30_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_E_20_30_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_F_20_30_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_B_30_50_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_E_30_50_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_F_30_50_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_B_50_80_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_E_50_80_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_F_50_80_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_B_80_120_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_E_80_120_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_F_80_120_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_B_120_180_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_E_120_180_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_F_120_180_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_B_180_300_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_E_180_300_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_F_180_300_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_B_300_Inf_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_E_300_Inf_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_F_300_Inf_Cent_0_10;
+  
+  MonitorElement* mPtRecoOverGen_B_20_30_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_E_20_30_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_F_20_30_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_B_30_50_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_E_30_50_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_F_30_50_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_B_50_80_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_E_50_80_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_F_50_80_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_B_80_120_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_E_80_120_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_F_80_120_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_B_120_180_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_E_120_180_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_F_120_180_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_B_180_300_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_E_180_300_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_F_180_300_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_B_300_Inf_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_E_300_Inf_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_F_300_Inf_Cent_10_30;
+
+  MonitorElement* mPtRecoOverGen_B_20_30_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_E_20_30_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_F_20_30_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_B_30_50_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_E_30_50_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_F_30_50_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_B_50_80_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_E_50_80_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_F_50_80_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_B_80_120_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_E_80_120_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_F_80_120_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_B_120_180_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_E_120_180_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_F_120_180_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_B_180_300_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_E_180_300_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_F_180_300_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_B_300_Inf_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_E_300_Inf_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_F_300_Inf_Cent_30_50;
+
+  MonitorElement* mPtRecoOverGen_B_20_30_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_E_20_30_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_F_20_30_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_B_30_50_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_E_30_50_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_F_30_50_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_B_50_80_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_E_50_80_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_F_50_80_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_B_80_120_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_E_80_120_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_F_80_120_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_B_120_180_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_E_120_180_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_F_120_180_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_B_180_300_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_E_180_300_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_F_180_300_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_B_300_Inf_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_E_300_Inf_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_F_300_Inf_Cent_50_80;
+
+  // generation profiles
+  MonitorElement* mPtRecoOverGen_GenPt_B_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_GenPt_E_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_GenPt_F_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_GenPt_B_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_GenPt_E_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_GenPt_F_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_GenPt_B_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_GenPt_E_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_GenPt_F_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_GenPt_B_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_GenPt_E_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_GenPt_F_Cent_50_80;
+
+  MonitorElement* mPtRecoOverGen_GenEta_20_30_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_GenEta_30_50_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_GenEta_50_80_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_GenEta_80_120_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_GenEta_120_180_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_GenEta_180_300_Cent_0_10;
+  MonitorElement* mPtRecoOverGen_GenEta_300_Inf_Cent_0_10;
+
+  MonitorElement* mPtRecoOverGen_GenEta_20_30_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_GenEta_30_50_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_GenEta_50_80_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_GenEta_80_120_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_GenEta_120_180_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_GenEta_180_300_Cent_10_30;
+  MonitorElement* mPtRecoOverGen_GenEta_300_Inf_Cent_10_30;
+
+  MonitorElement* mPtRecoOverGen_GenEta_20_30_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_GenEta_30_50_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_GenEta_50_80_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_GenEta_80_120_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_GenEta_120_180_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_GenEta_180_300_Cent_30_50;
+  MonitorElement* mPtRecoOverGen_GenEta_300_Inf_Cent_30_50;
+  
+  MonitorElement* mPtRecoOverGen_GenEta_20_30_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_GenEta_30_50_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_GenEta_50_80_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_GenEta_80_120_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_GenEta_120_180_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_GenEta_180_300_Cent_50_80;
+  MonitorElement* mPtRecoOverGen_GenEta_300_Inf_Cent_50_80;
+  
+  MonitorElement* mPFCandpT_vs_eta_Unknown; // pf id 0
+  MonitorElement* mPFCandpT_vs_eta_ChargedHadron; // pf id - 1 
+  MonitorElement* mPFCandpT_vs_eta_electron; // pf id - 2
+  MonitorElement* mPFCandpT_vs_eta_muon; // pf id - 3
+  MonitorElement* mPFCandpT_vs_eta_photon; // pf id - 4
+  MonitorElement* mPFCandpT_vs_eta_NeutralHadron; // pf id - 5
+  MonitorElement* mPFCandpT_vs_eta_HadE_inHF; // pf id - 6
+  MonitorElement* mPFCandpT_vs_eta_EME_inHF; // pf id - 7
+  
+  MonitorElement* mPFCandpT_Barrel_Unknown; // pf id 0
+  MonitorElement* mPFCandpT_Barrel_ChargedHadron; // pf id - 1 
+  MonitorElement* mPFCandpT_Barrel_electron; // pf id - 2
+  MonitorElement* mPFCandpT_Barrel_muon; // pf id - 3
+  MonitorElement* mPFCandpT_Barrel_photon; // pf id - 4
+  MonitorElement* mPFCandpT_Barrel_NeutralHadron; // pf id - 5
+  MonitorElement* mPFCandpT_Barrel_HadE_inHF; // pf id - 6
+  MonitorElement* mPFCandpT_Barrel_EME_inHF; // pf id - 7
+
+  MonitorElement* mPFCandpT_Endcap_Unknown; // pf id 0
+  MonitorElement* mPFCandpT_Endcap_ChargedHadron; // pf id - 1 
+  MonitorElement* mPFCandpT_Endcap_electron; // pf id - 2
+  MonitorElement* mPFCandpT_Endcap_muon; // pf id - 3
+  MonitorElement* mPFCandpT_Endcap_photon; // pf id - 4
+  MonitorElement* mPFCandpT_Endcap_NeutralHadron; // pf id - 5
+  MonitorElement* mPFCandpT_Endcap_HadE_inHF; // pf id - 6
+  MonitorElement* mPFCandpT_Endcap_EME_inHF; // pf id - 7
+
+  MonitorElement* mPFCandpT_Forward_Unknown; // pf id 0
+  MonitorElement* mPFCandpT_Forward_ChargedHadron; // pf id - 1 
+  MonitorElement* mPFCandpT_Forward_electron; // pf id - 2
+  MonitorElement* mPFCandpT_Forward_muon; // pf id - 3
+  MonitorElement* mPFCandpT_Forward_photon; // pf id - 4
+  MonitorElement* mPFCandpT_Forward_NeutralHadron; // pf id - 5
+  MonitorElement* mPFCandpT_Forward_HadE_inHF; // pf id - 6
+  MonitorElement* mPFCandpT_Forward_EME_inHF; // pf id - 7
+  
+ 
   // Parameters
 
   bool            isCaloJet;
@@ -330,7 +476,7 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
 
   static const size_t nedge_pseudorapidity = etaBins_ + 1;
 
- 
+
 };
 
 #endif

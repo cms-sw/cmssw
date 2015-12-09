@@ -36,6 +36,12 @@ from DQMOffline.Trigger.HigPhotonJetHLTOfflineSource_cfi import *
 #hotline 
 from DQMOffline.Trigger.hotlineDQM_cfi import *
 
+#eventshape
+from DQMOffline.Trigger.eventshapeDQM_cfi import *
+
+#UCC
+from DQMOffline.Trigger.heavyionUCCDQM_cfi import *
+
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvHLT.subSystemFolder = 'HLT'
@@ -55,6 +61,8 @@ offlineHLTSource = cms.Sequence(
     higPhotonJetHLTOfflineSource*
     dqmEnvHLT *
     topHLTriggerOfflineDQM *
+    eventshapeDQMSequence *
+    HeavyIonUCCDQMSequence *
     hotlineDQMSequence
     )
 

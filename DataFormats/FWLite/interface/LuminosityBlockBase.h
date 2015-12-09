@@ -17,7 +17,6 @@
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan  13 15:01:20 EDT 2007
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
 #include <string>
 #include <typeinfo>
@@ -60,5 +59,4 @@ namespace fwlite
    };
 } // fwlite namespace
 
-#endif /*__CINT__ */
 #endif

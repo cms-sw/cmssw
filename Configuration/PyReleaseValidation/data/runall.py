@@ -44,7 +44,7 @@ def main(argv) :
     
     try:
         opts, args = getopt.getopt(argv, "", ["nproc=","dohighstat",'hlt','inFile=','intbld'])
-    except getopt.GetoptError, e:
+    except getopt.GetoptError as e:
         print "unknown option", str(e)
         sys.exit(2)
         

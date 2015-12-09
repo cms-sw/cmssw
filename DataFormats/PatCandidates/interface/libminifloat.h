@@ -45,6 +45,48 @@ class MiniFloatConverter {
             conv.i32&=mask;
             return conv.flt;
         }
+
+        inline static float max() {
+            union { float flt; uint32_t i32; } conv;
+            conv.i32 = 0x477fe000; // = mantissatable[offsettable[0x1e]+0x3ff]+exponenttable[0x1e]
+            return conv.flt;
+        }
+
+        // Maximum float32 value that gets rounded to max()
+        inline static float max32RoundedToMax16() {
+            union { float flt; uint32_t i32; } conv;
+            // 2^16 in float32 is the first to result inf in float16, so
+            // 2^16-1 is the last float32 to result max() in float16
+            conv.i32 = (0x8f<<23) - 1;
+            return conv.flt;
+        }
+
+        inline static float min() {
+            union { float flt; uint32_t i32; } conv;
+            conv.i32 = 0x38800000; // = mantissatable[offsettable[1]+0]+exponenttable[1]
+            return conv.flt;
+        }
+
+        // Minimum float32 value that gets rounded to min()
+        inline static float min32RoundedToMin16() {
+            union { float flt; uint32_t i32; } conv;
+            // 2^-14-1 in float32 is the first to result denormalized in float16, so
+            // 2^-14 is the first float32 to result min() in float16
+            conv.i32 = (0x71<<23);
+            return conv.flt;
+        }
+
+        inline static float denorm_min() {
+            union { float flt; uint32_t i32; } conv;
+            conv.i32 = 0x33800000; // mantissatable[offsettable[0]+1]+exponenttable[0]
+            return conv.flt;
+        }
+
+        inline static bool isdenorm(uint16_t h) {
+            // if exponent is zero (sign-bit excluded of course) and mantissa is not zero
+            return ((h >> 10) & 0x1f) == 0 && (h & 0x3ff) != 0;
+        }
+
     private:
         CMS_THREAD_SAFE static uint32_t mantissatable[2048];
         CMS_THREAD_SAFE static uint32_t exponenttable[64];

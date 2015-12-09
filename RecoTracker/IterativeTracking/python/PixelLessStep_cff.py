@@ -133,6 +133,7 @@ import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 pixelLessStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     maxLostHits = 0,
     minimumNumberOfHits = 4,
+    seedPairPenalty = 1,
     minPt = 0.1
     )
 

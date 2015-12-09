@@ -10,8 +10,7 @@ StripByStripTestDriver(const edm::ParameterSet&conf)
     hlt( conf.getParameter<bool>("HLT") )//,
   /*hltFactory(0)*/ {
 
-  if(hlt);// hltFactory = new SiStripClusterizerFactory(conf);
-  else    algorithm  = StripClusterizerAlgorithmFactory::create(conf);
+  algorithm  = StripClusterizerAlgorithmFactory::create(conf);
   
   produces<output_t>("");
 }
@@ -30,29 +29,18 @@ produce(edm::Event& event, const edm::EventSetup& es) {
   edm::Handle< edm::DetSetVector<SiStripDigi> >  input;  
   event.getByLabel(inputTag, input);
 
-  if(hlt);// hltFactory->eventSetup(es);  
-  else    algorithm->initialize(es);
+  algorithm->initialize(es);
 
-  for(edm::DetSetVector<SiStripDigi>::const_iterator 
-	inputDetSet = input->begin(); inputDetSet != input->end(); inputDetSet++) {
+  for( auto const & inputDetSet : *input) {
+    output_t::TSFastFiller filler(*output, inputDetSet.detId());
 
-    std::vector<SiStripCluster> clusters;
-    if( hlt || algorithm->stripByStripBegin( inputDetSet->detId() ) ) {
-      for( edm::DetSet<SiStripDigi>::const_iterator
-	     digi = inputDetSet->begin(); digi != inputDetSet->end(); digi++ ) {
-	if(hlt);// hltFactory->algorithm()->add(clusters, inputDetSet->detId(), digi->strip(), digi->adc());
-	else    algorithm->stripByStripAdd(digi->strip(), digi->adc(), clusters);
-      }
-      if(hlt);// hltFactory->algorithm()->endDet(clusters, inputDetSet->detId());
-      else    algorithm->stripByStripEnd(clusters);
-    }
-
-    if(!clusters.empty()) {
-      output_t::FastFiller filler(*output, inputDetSet->detId());
-      for( unsigned i=0; i<clusters.size(); i++) filler.push_back(clusters[i]);
-    }
+    auto const & det = algorithm->stripByStripBegin( inputDetSet.detId());
+    if( !det.valid() ) continue;
+    StripClusterizerAlgorithm::State state(det);
+    for(auto const & digi : inputDetSet)
+      algorithm->stripByStripAdd(state, digi.strip(), digi.adc(), filler);
+    algorithm->stripByStripEnd(state, filler);
   }
-
 
   edm::LogInfo("Output") << output->dataSize() << " clusters from " 
 			 << output->size()     << " modules";

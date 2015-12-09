@@ -103,10 +103,10 @@ void testTrack::checkAll() {
     am.set(reco::TrackBase::ctf);
     CPPUNIT_ASSERT(t.algo() == reco::TrackBase::ctf);
     CPPUNIT_ASSERT(t.algoMask()==am);
-    am.set(reco::TrackBase::rs);
-    t.setOriginalAlgorithm(reco::TrackBase::rs);
+    am.set(reco::TrackBase::cosmics);
+    t.setOriginalAlgorithm(reco::TrackBase::cosmics);
     CPPUNIT_ASSERT(t.algo() == reco::TrackBase::ctf);
-    CPPUNIT_ASSERT(t.originalAlgo() == reco::TrackBase::rs);
+    CPPUNIT_ASSERT(t.originalAlgo() == reco::TrackBase::cosmics);
     CPPUNIT_ASSERT(t.algoMask()==am);
     
 }

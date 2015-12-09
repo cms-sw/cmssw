@@ -20,9 +20,7 @@
 
 #include "TMath.h"
 #include "TGLIncludes.h"
-#define protected public
 #include "TGLFBO.h"
-#undef protected
 
 #include "Fireworks/Core/interface/FWTEveViewer.h"
 #include "Fireworks/Core/interface/FWTGLViewer.h"

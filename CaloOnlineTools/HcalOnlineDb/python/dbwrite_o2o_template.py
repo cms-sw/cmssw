@@ -9,9 +9,9 @@ process.MessageLogger=cms.Service("MessageLogger",
                               )
 )
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = cms.string('CONNECT_STRING')
-process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('POOL_AUTH_PATH')
+process.load("CondCore.CondDB.CondDB_cfi")
+process.CondDB.connect = cms.string('CONNECT_STRING')
+process.CondDB.DBParameters.authenticationPath = cms.untracked.string('POOL_AUTH_PATH')
 
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
@@ -35,7 +35,7 @@ process.es_omds = cms.ESSource("HcalOmdsCalibrations",
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBCommon,
+    process.CondDB,
     timetype = cms.untracked.string('runnumber'),
     logconnect= cms.untracked.string('POOL_LOGCONNECT'),
     toPut = cms.VPSet(cms.PSet(

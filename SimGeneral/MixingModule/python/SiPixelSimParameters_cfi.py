@@ -34,6 +34,69 @@ def _modifyPixelDigitizerForRun2Bunchspacing50( digitizer ) :
     digitizer.theLadderEfficiency_BPix2 = cms.vdouble( [0.994321,0.993944]*16 )
     digitizer.theLadderEfficiency_BPix3 = cms.vdouble( [0.996787,0.996945]*22 )
 
+def _modifyPixelDigitizerForPhase1Pixel( digitizer ) :
+    """
+    Function that modifies the pixel digitiser for the Phase 1 pixel detector.
+    
+    First argument is the pixelDigitizer object.
+    """
+    digitizer.MissCalibrate = False
+    digitizer.LorentzAngle_DB = False
+    digitizer.killModules = False
+    digitizer.useDB = False
+    digitizer.DeadModules_DB = False
+    digitizer.NumPixelBarrel = cms.int32(4)
+    digitizer.NumPixelEndcap = cms.int32(3)
+    digitizer.ThresholdInElectrons_FPix = cms.double(2000.0)
+    digitizer.ThresholdInElectrons_BPix = cms.double(2000.0)
+    digitizer.ThresholdInElectrons_BPix_L1 = cms.double(2000.0)
+    digitizer.thePixelColEfficiency_BPix1 = cms.double(0.999)
+    digitizer.thePixelColEfficiency_BPix2 = cms.double(0.999)
+    digitizer.thePixelColEfficiency_BPix3 = cms.double(0.999)
+    digitizer.thePixelColEfficiency_BPix4 = cms.double(0.999)
+    digitizer.thePixelEfficiency_BPix1 = cms.double(0.999)
+    digitizer.thePixelEfficiency_BPix2 = cms.double(0.999)
+    digitizer.thePixelEfficiency_BPix3 = cms.double(0.999)
+    digitizer.thePixelEfficiency_BPix4 = cms.double(0.999)
+    digitizer.thePixelChipEfficiency_BPix1 = cms.double(0.999)
+    digitizer.thePixelChipEfficiency_BPix2 = cms.double(0.999)
+    digitizer.thePixelChipEfficiency_BPix3 = cms.double(0.999)
+    digitizer.thePixelChipEfficiency_BPix4 = cms.double(0.999)
+    digitizer.thePixelColEfficiency_FPix1 = cms.double(0.999)
+    digitizer.thePixelColEfficiency_FPix2 = cms.double(0.999)
+    digitizer.thePixelColEfficiency_FPix3 = cms.double(0.999)
+    digitizer.thePixelEfficiency_FPix1 = cms.double(0.999)
+    digitizer.thePixelEfficiency_FPix2 = cms.double(0.999)
+    digitizer.thePixelEfficiency_FPix3 = cms.double(0.999)
+    digitizer.thePixelChipEfficiency_FPix1 = cms.double(0.999)
+    digitizer.thePixelChipEfficiency_FPix2 = cms.double(0.999)
+    digitizer.thePixelChipEfficiency_FPix3 = cms.double(0.999)
+    # something broken in the configs above - turn off for now
+    digitizer.AddPixelInefficiency = cms.bool(False)
+
+def _modifyPixelDigitizerForPhase1PixelWithPileup( processObject ) :
+    """
+    Function that checks if there is pileup being used then modifies the
+    pixel digitiser for the Phase 1 pixel detector accordingly.
+    
+    First argument is the "process" object. This function can only be applied
+    with a <era>.makeProcessModifier() command, since it can only be applied
+    at the end because the number of pileup interactions is not known yet.
+    """
+    if hasattr(processObject,'mix'): 
+        n=0
+        if hasattr(processObject.mix,'input'):
+            n=processObject.mix.input.nbPileupEvents.averageNumber.value()
+        if n>0:
+            processObject.mix.digitizers.pixel.thePixelColEfficiency_BPix1 = cms.double(1.0-(0.0238*n/50.0))
+            processObject.mix.digitizers.pixel.thePixelColEfficiency_BPix2 = cms.double(1.0-(0.0046*n/50.0))
+            processObject.mix.digitizers.pixel.thePixelColEfficiency_BPix3 = cms.double(1.0-(0.0018*n/50.0))
+            processObject.mix.digitizers.pixel.thePixelColEfficiency_BPix4 = cms.double(1.0-(0.0008*n/50.0))
+            processObject.mix.digitizers.pixel.thePixelColEfficiency_FPix1 = cms.double(1.0-(0.0018*n/50.0))
+            processObject.mix.digitizers.pixel.thePixelColEfficiency_FPix2 = cms.double(1.0-(0.0018*n/50.0))
+            processObject.mix.digitizers.pixel.thePixelColEfficiency_FPix3 = cms.double(1.0-(0.0018*n/50.0))
+
+
 SiPixelSimBlock = cms.PSet(
     DoPixelAging = cms.bool(False),
     ReadoutNoiseInElec = cms.double(350.0),
@@ -160,6 +223,9 @@ DeadModules = cms.VPSet(
 #
 eras.run2_25ns_specific.toModify( SiPixelSimBlock, func=_modifyPixelDigitizerForRun2Bunchspacing25 )
 eras.run2_50ns_specific.toModify( SiPixelSimBlock, func=_modifyPixelDigitizerForRun2Bunchspacing50 )
+eras.phase1Pixel.toModify( SiPixelSimBlock, func=_modifyPixelDigitizerForPhase1Pixel )
+# Note that this object must have a unique name, so I'll call it "modify<python filename>ForPhase1WithPileup_"
+modifySimGeneralMixingModuleSiPixelSimParametersForPhase1WithPileup_ = eras.phase1Pixel.makeProcessModifier( _modifyPixelDigitizerForPhase1PixelWithPileup )
 
 # Threshold in electrons are the Official CRAFT09 numbers:
 # FPix(smearing)/BPix(smearing) = 2480(160)/2730(200)

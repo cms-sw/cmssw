@@ -14,7 +14,7 @@ events = Events(args.file)
 jet_labels = args.collections
 tested_discriminators = ['pfCombinedCvsLJetTags', 'pfCombinedCvsBJetTags']
 
-evt = events.__iter__().next()
+evt = next(events.__iter__())
 handle = Handle('std::vector<pat::Jet>')
 for label in jet_labels:
    evt.getByLabel(label, handle)

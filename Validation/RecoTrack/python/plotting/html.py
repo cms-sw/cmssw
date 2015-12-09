@@ -64,6 +64,7 @@ _trackAlgoOrder = [
     'jetCoreRegionalStep',
     'muonSeededStepInOut',
     'muonSeededStepOutIn',
+    'duplicateMerge',
 ]
 
 _pageNameMap = {
@@ -307,7 +308,10 @@ class TrackingPageSet(PageSet):
         sectionName = quality
 
         # put all non-iterative stuff under OOTB
-        if "ootb" not in algo and "Step" not in algo:
+        #
+        # it is bit of a hack to access trackingPlots.TrackingPlotFolder this way,
+        # but it was simple and it works
+        if not plotterFolder._plotFolder.isAlgoIterative(algo):
             pageName = "ootb"
             sectionName = algo
 

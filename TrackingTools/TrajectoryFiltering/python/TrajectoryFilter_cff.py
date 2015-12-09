@@ -6,6 +6,8 @@ CkfBaseTrajectoryFilter_block = cms.PSet(
 #--- Cuts applied to completed trajectory
 # At least this many hits (counting matched hits as 1)
     minimumNumberOfHits = cms.int32(5),
+# add this if seed is a Pair  (opposed to a triplet)
+    seedPairPenalty = cms.int32(0),
 # What is this ?
     chargeSignificance = cms.double(-1.0),
     #chargeSignificance = cms.double(3.0),
@@ -26,10 +28,18 @@ CkfBaseTrajectoryFilter_block = cms.PSet(
     maxLostHitsFraction = cms.double(1./10),
     constantValueForLostHitsFractionFilter = cms.double(2.),
 
+# Cut on the length of the seed extention (no lost hits allowed)
+    seedExtension = cms.int32(0),
+    strictSeedExtension = cms.bool(False),
+
 # Cuts for looperTrajectoryFilter
     minNumberOfHits = cms.int32(13),
     minNumberOfHitsPerLoop = cms.int32(4),
-    extraNumberOfHitsBeforeTheFirstLoop = cms.int32(4), 
+    extraNumberOfHitsBeforeTheFirstLoop = cms.int32(4),
+
+# Cut on CCC hits
+    maxCCCLostHits = cms.int32(9999),
+    minGoodStripCharge = cms.double(-1.)
 )
 
 
@@ -68,5 +78,10 @@ ThresholdPtTrajectoryFilter_block = cms.PSet(
     nSigmaThresholdPt = cms.double(5.0),
     minHitsThresholdPt = cms.int32(3),
     thresholdPt = cms.double(10.0)
+)
+MaxCCCLostHitsTrajectoryFilter_block = cms.PSet(
+    ComponentType = cms.string('MaxCCCLostHitsTrajectoryFilter'),
+    maxCCCLostHits = cms.int32(3),
+    minGoodStripCharge = cms.double(1620)
 )
 
