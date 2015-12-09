@@ -1524,9 +1524,9 @@ REMINIAODDR2={ '--runUnscheduled':'',
           '--scenario':'pp',
           }
 
-steps['REMINIAODDR2_25ns']=merge([{'--conditions':'auto:run2_data_'+menuR2_25ns,'--customise':'Configuration/DataProcessing/RecoTLR.customiseDataRun2Common_25ns',},REMINIAODDR2])
+steps['REMINIAODDR2_25ns']=merge([{'--conditions':'auto:run2_data_'+menuR2_25ns,'--era':'Run2_25ns',},REMINIAODDR2])
 
-steps['REMINIAODDR2_50ns']=merge([{'--conditions':'auto:run2_data_'+menuR2_25ns,'--customise':'Configuration/DataProcessing/RecoTLR.customiseDataRun2Common',},REMINIAODDR2])
+steps['REMINIAODDR2_50ns']=merge([{'--conditions':'auto:run2_data_'+menuR2_50ns,'--era':'Run2_50ns',},REMINIAODDR2])
 
 
 #################################################################################
