@@ -62,3 +62,10 @@ from SimGeneral.PileupInformation.AddPileupSummaryPreMixed_cfi import *
 
 pdatamix = cms.Sequence(mixData+postDMDigi+addPileupInfo)
 
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    # digi collections need different names in FastSim => use aliases
+    from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliases
+    loadDigiAliases(nopremix = False)
+    from FastSimulation.Configuration.DigiAliases_cff import generalTracks,ecalPreshowerDigis,ecalDigis,hcalDigis,muonDTDigis,muonCSCDigis,muonRPCDigis
+

@@ -1,12 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# watch out here, we assume that
-#   - loading FastSimulation.Configuration.Digi_cff.py causes generalTracksAliasInfo.key.value() to return "mix"
-#   - loading FastSimulation.Configuration.DataMixerPreMix_cff.py causes generalTracksAliasInfo.key.value() to return "dataMix"
-# such that the HLT reads the tracks from the right MixingModule
-
-import FastSimulation.Configuration.DigiAndMixAliasInfo_cff as _aliasInfo
-
 HLTIterativeTrackingIter04 = cms.Sequence()
 HLTIterativeTrackingIter02 = cms.Sequence()
 HLTIterativeTracking = cms.Sequence()

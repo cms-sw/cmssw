@@ -62,3 +62,7 @@ modifyConfigurationStandardSequencesDigiToRawForRun2_ = eras.stage1L1Trigger.mak
 if eras.phase1Pixel.isChosen() :
     DigiToRaw.remove(siPixelRawData)
     DigiToRaw.remove(castorRawData)
+
+if eras.fastSim.isChosen() :
+    for _entry in [siPixelRawData,SiStripDigiToRaw,castorRawData]:
+        DigiToRaw.remove(_entry)
