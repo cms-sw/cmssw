@@ -2,9 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MapWriter")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = cms.string("sqlite_file:cabling.db")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 from Configuration.AlCa.autoCond_condDBv2 import autoCond
 process.GlobalTag.globaltag = autoCond['run2_design']
@@ -19,19 +20,26 @@ process.source = cms.Source("EmptyIOVSource",
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBCommon,
+    DBParameters = cms.PSet(
+     messageLevel = cms.untracked.int32(0),
+     authenticationPath = cms.untracked.string('.')
+    ),
+    timetype = cms.untracked.string('runnumber'),
+    connect = cms.string("sqlite_file:cabling.db"),
+    #process.CondDBCommon,
     toPut = cms.VPSet(cms.PSet(
         record =  cms.string('SiPixelFedCablingMapRcd'),
-        tag = cms.string('SiPixelFedCablingMap_v16')
+        tag = cms.string('SiPixelFedCablingMap_vtest')
     )),
-    loadBlobStreamer = cms.untracked.bool(False)
+    # loadBlobStreamer = cms.untracked.bool(False)
 )
+#process.CondDBCommon.connect = cms.string("sqlite_file:cabling.db")
 
-#process.MessageLogger = cms.Service("MessageLogger",
-#    debugModules = cms.untracked.vstring('*'),
-#    destinations = cms.untracked.vstring('out'),
-#    out = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG'))
-#)
+process.MessageLogger = cms.Service("MessageLogger",
+    debugModules = cms.untracked.vstring('*'),
+    destinations = cms.untracked.vstring('out'),
+    out = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG'))
+)
 
 process.load("CalibTracker.SiPixelConnectivity.PixelToLNKAssociateFromAsciiESProducer_cfi")
 

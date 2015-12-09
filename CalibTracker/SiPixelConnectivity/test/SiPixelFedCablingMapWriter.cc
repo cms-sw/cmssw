@@ -29,24 +29,29 @@ class SiPixelFedCablingMapWriter : public edm::EDAnalyzer {
  private:
   SiPixelFedCablingTree * cabling;
   string record_;
-  string pixelToFedAssociator_;
+  //string pixelToFedAssociator_;
+  string fileName_;
+  bool phase1_;
 };
 
 SiPixelFedCablingMapWriter::SiPixelFedCablingMapWriter( 
     const edm::ParameterSet& cfg ) 
   : 
     record_(cfg.getParameter<std::string>("record")), 
-    pixelToFedAssociator_(cfg.getUntrackedParameter<std::string>("associator","PixelToFEDAssociateFromAscii")) 
+    //pixelToFedAssociator_(cfg.getUntrackedParameter<std::string>("associator","PixelToFEDAssociateFromAscii")), 
+    fileName_(cfg.getUntrackedParameter<std::string>("fileName","pixelToLNK.ascii")), 
+    phase1_(cfg.getUntrackedParameter<bool>("phase1",false)) 
 {
   
   stringstream out;
-  out << " HERE record:               " << record_ << endl;
-  out << " HERE pixelToFedAssociator: " << pixelToFedAssociator_ << endl;
-  LogInfo("initialisatino: ")<<out.str();
+  out << " record:          " << record_ << endl;
+  out << " input file name "  << fileName_ << endl;
+  out << " phase " << phase1_ << endl;
+  LogInfo("initialisation: ")<<out.str();
 
 
-  ::putenv(const_cast<char*>(std::string("CORAL_AUTH_USER=me").c_str()));
-  ::putenv(const_cast<char*>(std::string("CORAL_AUTH_PASSWORD=none").c_str())); 
+  //::putenv(const_cast<char*>(std::string("CORAL_AUTH_USER=me").c_str()));
+  //::putenv(const_cast<char*>(std::string("CORAL_AUTH_PASSWORD=none").c_str())); 
 }
 
 
@@ -60,8 +65,9 @@ void SiPixelFedCablingMapWriter::analyze(const edm::Event &iEvent, const edm::Ev
   if (1 == first) {
     first = 0; 
     std::cout << "-------HERE-----------" << endl;
-    cabling = SiPixelFedCablingMapBuilder(pixelToFedAssociator_).produce(iSetup);
-    std::cout << "-------HERE2-----------" << endl;
+    //cabling = SiPixelFedCablingMapBuilder(pixelToFedAssociator_).produce(iSetup);
+    cabling = SiPixelFedCablingMapBuilder(fileName_,phase1_).produce(iSetup);
+    std::cout << "-------Print Map ----------- DOES NOT WORK for phase1 " << endl;
     edm::LogInfo("PRINTING MAP:") << cabling->print(3) << endl;
   }
 }
