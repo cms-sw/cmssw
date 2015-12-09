@@ -943,6 +943,8 @@ steps['RECODR2AlCaEle']=merge([{'--scenario':'pp','--conditions':'auto:run2_data
 steps['RECODSplit']=steps['RECOD'] # finer job splitting  
 steps['RECOSKIMALCA']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'
                               },steps['RECOD']])
+steps['RECOSKIMALCAR1']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'
+                                },steps['RECODR1']])
 steps['REPACKHID']=merge([{'--scenario':'HeavyIons',
                          '-s':'RAW2DIGI,REPACK',
                          '--datatier':'RAW',
@@ -1243,7 +1245,7 @@ steps['HARVESTDR2_25nsreHLT'] = merge([ {'--conditions':'auto:run2_data_'+menuR2
 
 steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@common+@muon+@hcal+@jetmet+@ecal'},steps['HARVESTD']])
 
-steps['HARVESTDfst2']=merge([{'--filein':'file:step2_inDQM.root'},steps['HARVESTD']])
+steps['HARVESTDfst2']=merge([{'--filein':'file:step2_inDQM.root'},steps['HARVESTDR1']])
 
 steps['HARVESTDC']={'-s':'HARVESTING:dqmHarvesting',
                    '--conditions':'auto:run1_data',
