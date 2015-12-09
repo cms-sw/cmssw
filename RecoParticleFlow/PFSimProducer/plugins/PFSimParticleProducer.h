@@ -50,8 +50,6 @@ class PFSimParticleProducer : public edm::EDProducer {
   
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
-//virtual void beginRun(edm::Run const & r, const edm::EventSetup & c) override;
-
   typedef edm::Handle<reco::PFRecTrackCollection> TrackHandle;
   void getSimIDs( const TrackHandle& trackh,
 		  std::vector<unsigned>& recTrackSimID );
