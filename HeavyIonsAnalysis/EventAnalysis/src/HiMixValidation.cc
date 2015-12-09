@@ -32,6 +32,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoNew.h"
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 #include "DataFormats/JetReco/interface/JetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -56,10 +57,15 @@ using namespace edm;
 
 struct EventArray{
 
-   int event[100];
-   int lumi[100];
-   int run[100];
-   int file[100];
+   int nmix;
+   int nbx;
+
+   ULong64_t event[100];
+   ULong64_t lumi[100];
+   ULong64_t run[100];
+   ULong64_t file[100];
+
+   int bx[100];
 
    float xVtx[100];
    float yVtx[100];
@@ -97,6 +103,7 @@ class HiMixValidation : public edm::EDAnalyzer {
    edm::InputTag vertexSrc_;
    edm::InputTag genJetSrc_;
    edm::InputTag jetSrc_;
+   edm::InputTag playbackSrc_;
    edm::EDGetTokenT<CrossingFrame<HepMCProduct> >   cfLabel;
 
    TH1D *hGenParticleEtaSignal, 
@@ -162,7 +169,7 @@ class HiMixValidation : public edm::EDAnalyzer {
 
    edm::Service<TFileService> f;
 
-
+   EventArray piles;
 };
 
 HiMixValidation::HiMixValidation(const edm::ParameterSet& iConfig)
@@ -203,11 +210,40 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
    double mm = 0.1;
 
-   edm::Handle<GenHIEvent> higen;
+
+   Handle<CrossingFramePlaybackInfoNew> playback;
+   iEvent.getByLabel(playbackSrc_,playback);
+
+   piles.nmix = playback->eventInfo_.size()+1;
+   piles.nbx = playback->nBcrossings_;
+
+   piles.event[0] = iEvent.id().event();
+   piles.run[0] = iEvent.id().run();
+   piles.lumi[0] = iEvent.id().luminosityBlock();
+
+   piles.bx[0] = iEvent.bunchCrossing();
+
+   piles.file[0] = 0;
+
+
+
+   for(unsigned int i = 0; i < playback->eventInfo_.size(); ++i){
+
+      EventID const& id = playback->eventInfo_[i].eventID();
+      piles.event[i+1] = id.event();
+      piles.run[i+1] = id.run();
+      piles.lumi[i+1] = id.luminosityBlock();
+      //      piles.bx[i+1] = id.;
+      piles.file[i+1] = playback->eventInfo_[i].fileNameHash();
+
+   }
+
+
+   Handle<GenHIEvent> higen;
    iEvent.getByLabel(genHIsrc_,higen);
    double npart = higen->Npart();
 
-   edm::Handle<reco::GenParticleCollection> parts;
+   Handle<reco::GenParticleCollection> parts;
    iEvent.getByLabel(genParticleSrc_,parts);
    cout<<"x1"<<endl;
    double zgen[2]={-29,-29};
@@ -387,7 +423,21 @@ HiMixValidation::beginJob()
    int NvtxMax = 20;
 
    t = f->make<TTree>("mixTree","tree for validation of mixing");
-   //   t->Branch("",bkg,"");
+
+
+   t->Branch("nmix",&piles.nmix,"nmix/I");
+   t->Branch("nbx",&piles.nbx,"nbx/I");
+
+   t->Branch("xVtx",piles.xVtx,"xVtx[nmix]/F");
+   t->Branch("yVtx",piles.yVtx,"yVtx[nmix]/F");
+   t->Branch("zVtx",piles.zVtx,"zVtx[nmix]/F");
+
+   t->Branch("bx",piles.bx,"bx[nmix]/l");
+
+   t->Branch("event",piles.event,"event[nmix]/l");
+   t->Branch("lumi",piles.lumi,"lumi[nmix]/l");
+   t->Branch("run",piles.run,"run[nmix]/l");
+   t->Branch("file",piles.file,"file[nmix]/l");
 
    if(doHIST_){
 
