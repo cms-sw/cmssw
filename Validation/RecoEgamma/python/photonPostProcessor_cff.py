@@ -29,3 +29,8 @@ conversionPostprocessing.standalone = cms.bool(False)
 photonPostProcessor = cms.Sequence(photonPostprocessing*pfPhotonPostprocessing*conversionPostprocessing)
 #photonPostProcessor = cms.Sequence(photonPostprocessing*conversionPostprocessing)
 
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    photonPostprocessing.fastsim = cms.bool(True)
+    oldpfPhotonPostprocessing.fastsim = cms.bool(True)
+    

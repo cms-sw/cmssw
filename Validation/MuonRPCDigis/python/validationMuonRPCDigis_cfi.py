@@ -11,5 +11,7 @@ validationMuonRPCDigis = cms.EDAnalyzer("RPCDigiValid",
     outputFile = cms.untracked.string('')
 )
 
-
-
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    validationMuonRPCDigis.simHitTag = cms.untracked.InputTag("MuonSimHits","MuonRPCHits")
+    

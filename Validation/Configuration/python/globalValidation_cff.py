@@ -90,6 +90,20 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + L1Validator
 )
 
+
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    # fastsim has no tracker digis and different tracker rechit and simhit structure => skipp
+    globalValidation.remove(trackerHitsValidation)
+    globalValidation.remove(trackerDigisValidation)
+    globalValidation.remove(trackerRecHitsValidation)
+    globalValidation.remove(trackingRecHitsValid)
+    # globalValidation.remove(mixCollectionValidation) # can be put back, once mixing is migrated to fastsim era
+    # the following depends on crossing frame of ecal simhits, which is a bit hard to implement in the fastsim workflow
+    # besides: is this cross frame doing something, or is it a relic from the past?
+    globalValidation.remove(ecalDigisValidationSequence)
+    globalValidation.remove(ecalRecHitsValidationSequence)
+    
 #lite tracking validator to be used in the Validation matrix
 liteTrackValidator=trackValidator.clone()
 liteTrackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
