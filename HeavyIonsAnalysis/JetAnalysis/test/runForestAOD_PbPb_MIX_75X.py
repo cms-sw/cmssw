@@ -26,7 +26,7 @@ process.HiForest.HiForestVersion = cms.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-                                "file:/tmp/mnguyen/step3_RAW2DIGI_L1Reco_RECO_99.root"
+                                "file:/afs/cern.ch/work/r/richard/public/PbPb_AODSIM.root"
                             )
 )
 
@@ -116,8 +116,7 @@ process.anaTrack.qualityStrings = cms.untracked.vstring(['highPurity','tight','l
 process.pixelTrack.qualityStrings = cms.untracked.vstring('highPurity')
 process.hiTracks.cut = cms.string('quality("highPurity")')
 process.anaTrack.trackSrc = cms.InputTag("hiGeneralTracks")
-process.anaTrack.doPFMatching = False
-process.pixelTrack.doPFMatching = False
+process.anaTrack.doPFMatching = True
 process.anaTrack.doSimVertex = True
 process.anaTrack.doSimTrack = False
 
@@ -143,7 +142,8 @@ process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.Input
 # Main analysis list
 #########################
 
-process.ana_step = cms.Path(process.mixAnalyzer *
+process.ana_step = cms.Path(process.heavyIon *
+                            #process.mixAnalyzer *
                             process.runAnalyzer *
                             process.hltanalysis *
                             process.centralityBin *
@@ -169,6 +169,15 @@ process.pcollisionEventSelection = cms.Path(process.collisionEventSelectionAOD)
 process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
 process.pHBHENoiseFilterResultProducer = cms.Path( process.HBHENoiseFilterResultProducer )
 process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter )
+
+process.load('HeavyIonsAnalysis.Configuration.hfCoincFilter_cff')
+process.phfCoincFilter1 = cms.Path(process.hfCoincFilter)
+process.phfCoincFilter2 = cms.Path(process.hfCoincFilter2)
+process.phfCoincFilter3 = cms.Path(process.hfCoincFilter3)
+process.phfCoincFilter4 = cms.Path(process.hfCoincFilter4)
+process.phfCoincFilter5 = cms.Path(process.hfCoincFilter5)
+
+process.pclusterCompatibilityFilter = cms.Path(process.clusterCompatibilityFilter)
 
 process.pAna = cms.EndPath(process.skimanalysis)
 

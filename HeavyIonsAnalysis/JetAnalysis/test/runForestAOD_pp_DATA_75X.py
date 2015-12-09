@@ -104,7 +104,6 @@ process.jetSequences = cms.Sequence(
 # Event Analysis
 ############################
 process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_data_cfi')
-process.hiEvtAnalyzer.CentralitySrc = cms.InputTag("pACentrality")
 process.hiEvtAnalyzer.Vertex = cms.InputTag("offlinePrimaryVertices")
 process.hiEvtAnalyzer.doCentrality = cms.bool(False)
 process.hiEvtAnalyzer.doEvtPlane = cms.bool(False)
@@ -128,6 +127,7 @@ process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_cff')
 process.ppTrack.trackSrc = cms.InputTag("generalTracks")
 process.ppTrack.mvaSrc = cms.string("generalTracks")
 process.ppTrack.pfCandSrc = cms.InputTag('particleFlow')
+process.ppTrack.qualityStrings = cms.untracked.vstring(['highPurity','tight','loose'])
 
 ####################################################################################
 

@@ -73,6 +73,13 @@ process.TFileService = cms.Service("TFileService",
 #############################
 # Jets
 #############################
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.HiReRecoJets_HI_cff')
+
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu2CaloJetSequence_PbPb_data_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs2CaloJetSequence_PbPb_data_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs2PFJetSequence_PbPb_data_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu2PFJetSequence_PbPb_data_cff')
+
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu3CaloJetSequence_PbPb_data_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs3CaloJetSequence_PbPb_data_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs3PFJetSequence_PbPb_data_cff')
@@ -83,6 +90,12 @@ process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs4CaloJetSequence_PbPb_data_
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs4PFJetSequence_PbPb_data_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu4PFJetSequence_PbPb_data_cff')
 
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu5CaloJetSequence_PbPb_data_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs5CaloJetSequence_PbPb_data_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs5PFJetSequence_PbPb_data_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu5PFJetSequence_PbPb_data_cff')
+
+
 process.highPurityTracks = cms.EDFilter("TrackSelector",
                                         src = cms.InputTag("hiGeneralTracks"),
                                         cut = cms.string('quality("highPurity")'))
@@ -91,8 +104,33 @@ process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
 process.offlinePrimaryVertices.TrackLabel = 'highPurityTracks'
 
 process.jetSequences = cms.Sequence(
+    process.akPu2CaloJets +
+    process.akPu2PFJets +
+    process.akVs2CaloJets +
+    process.akVs2PFJets +
+
+    #process.akPu3CaloJets +
+    #process.akPu3PFJets +
+    process.akVs3CaloJets +
+    process.akVs3PFJets +
+
+    #process.akPu4CaloJets +
+    #process.akPu4PFJets +
+    process.akVs4CaloJets +
+    process.akVs4PFJets +
+
+    process.akPu5CaloJets +
+    process.akPu5PFJets +
+    process.akVs5CaloJets +
+    process.akVs5PFJets +
+
     process.highPurityTracks +
     process.offlinePrimaryVertices +
+
+    process.akPu2CaloJetSequence +
+    process.akVs2CaloJetSequence +
+    process.akVs2PFJetSequence +
+    process.akPu2PFJetSequence +
 
     process.akPu3CaloJetSequence +
     process.akVs3CaloJetSequence +
@@ -102,7 +140,12 @@ process.jetSequences = cms.Sequence(
     process.akPu4CaloJetSequence +
     process.akVs4CaloJetSequence +
     process.akVs4PFJetSequence +
-    process.akPu4PFJetSequence
+    process.akPu4PFJetSequence +
+
+    process.akPu5CaloJetSequence +
+    process.akVs5CaloJetSequence +
+    process.akVs5PFJetSequence +
+    process.akPu5PFJetSequence
     )
 
 #####################################################################################
@@ -130,8 +173,7 @@ process.anaTrack.qualityStrings = cms.untracked.vstring(['highPurity','tight','l
 process.pixelTrack.qualityStrings = cms.untracked.vstring('highPurity')
 process.hiTracks.cut = cms.string('quality("highPurity")')
 process.anaTrack.trackSrc = cms.InputTag("hiGeneralTracks")
-process.anaTrack.doPFMatching = False
-process.pixelTrack.doPFMatching = False
+process.anaTrack.doPFMatching = True
 
 ####################################################################################
 
@@ -173,6 +215,15 @@ process.pcollisionEventSelection = cms.Path(process.collisionEventSelectionAOD)
 process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
 process.pHBHENoiseFilterResultProducer = cms.Path( process.HBHENoiseFilterResultProducer )
 process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter )
+
+process.load('HeavyIonsAnalysis.Configuration.hfCoincFilter_cff')
+process.phfCoincFilter1 = cms.Path(process.hfCoincFilter)
+process.phfCoincFilter2 = cms.Path(process.hfCoincFilter2)
+process.phfCoincFilter3 = cms.Path(process.hfCoincFilter3)
+process.phfCoincFilter4 = cms.Path(process.hfCoincFilter4)
+process.phfCoincFilter5 = cms.Path(process.hfCoincFilter5)
+
+process.pclusterCompatibilityFilter = cms.Path(process.clusterCompatibilityFilter)
 
 process.pAna = cms.EndPath(process.skimanalysis)
 
