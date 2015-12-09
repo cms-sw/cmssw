@@ -23,6 +23,7 @@ process.source = cms.Source("PoolSource",
 ##-------------------- User analyzer  --------------------------------
 process.demo  = cms.EDAnalyzer('JetResolutionDemo',
     jets = cms.InputTag('slimmedJets'),
+    rho = cms.InputTag('fixedGridRhoAll'),
 
     payload = cms.string('AK4PFchs'),
 
