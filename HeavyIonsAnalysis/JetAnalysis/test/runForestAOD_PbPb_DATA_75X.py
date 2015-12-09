@@ -49,7 +49,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:75X_dataRun2_v12', '')  #for now track GT manually, since centrality tables updated ex post facto
+process.GlobalTag = GlobalTag(process.GlobalTag, '75X_dataRun2_v12', '')  #for now track GT manually, since centrality tables updated ex post facto
 process.HiForest.GlobalTagLabel = process.GlobalTag.globaltag
 
 from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_PbPb5020
@@ -90,9 +90,12 @@ process.highPurityTracks = cms.EDFilter("TrackSelector",
                       src = cms.InputTag("hiGeneralTracks"),
                       cut = cms.string('quality("highPurity")'))
 
+process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
+process.offlinePrimaryVertices.TrackLabel = 'highPurityTracks'
 
 process.jetSequences = cms.Sequence(
     process.highPurityTracks +
+    process.offlinePrimaryVertices +
     process.akPu3CaloJetSequence +
     process.akVs3CaloJetSequence +
     process.akVs3PFJetSequence +

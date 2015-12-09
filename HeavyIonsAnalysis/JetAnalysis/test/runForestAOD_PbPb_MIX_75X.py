@@ -24,13 +24,14 @@ process.HiForest.HiForestVersion = cms.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-#    "/store/user/richard/GlobalEcalRECO/ZEE_5TeV-GlobalEcalReco/ZEE_5TeV_GEN_SIM_PU/ZEE_5TeV-GlobalEcalReco/151115_000658/0000/step3_RAW2DIGI_L1Reco_RECO_42.root"
-"/store/user/mnguyen/Pythia8_Hydjet_bjet80_5020GeV_GEN-SIM_v6/Pythia8_Hydjet_bjet80_5020GeV_RECO_v6/step3_RAW2DIGI_L1Reco_RECO_9_1_GTa.root"
+        #    "/store/user/richard/GlobalEcalRECO/ZEE_5TeV-GlobalEcalReco/ZEE_5TeV_GEN_SIM_PU/ZEE_5TeV-GlobalEcalReco/151115_000658/0000/step3_RAW2DIGI_L1Reco_RECO_42.root"
+        #"/store/user/mnguyen/Pythia8_Hydjet_bjet80_5020GeV_GEN-SIM_v6/Pythia8_Hydjet_bjet80_5020GeV_RECO_v6/step3_RAW2DIGI_L1Reco_RECO_9_1_GTa.root"
+        "file:/tmp/mnguyen/step3_RAW2DIGI_L1Reco_RECO_99.root"
     ))
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(10)
 )
 
 
@@ -91,22 +92,36 @@ process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs5CaloJetSequence_PbPb_mc_cf
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs5PFJetSequence_PbPb_mc_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu5PFJetSequence_PbPb_mc_cff')
 
-process.jetSequences = cms.Sequence(process.akPu3CaloJetSequence +
-                                    process.akVs3CaloJetSequence +
-                                    process.akVs3PFJetSequence +
-                                    process.akPu3PFJetSequence +
+process.load('HeavyIonsAnalysis.JetAnalysis.makePartons_cff')
 
-                                    process.akPu4CaloJetSequence +
-                                    process.akVs4CaloJetSequence +
-                                    process.akVs4PFJetSequence +
-                                    process.akPu4PFJetSequence
+process.highPurityTracks = cms.EDFilter("TrackSelector",
+                      src = cms.InputTag("hiGeneralTracks"),
+                      cut = cms.string('quality("highPurity")'))
 
-                                    # process.akPu5CaloJetSequence +
-                                    # process.akVs5CaloJetSequence +
-                                    # process.akVs5PFJetSequence +
-                                    # process.akPu5PFJetSequence
+process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
+process.offlinePrimaryVertices.TrackLabel = 'highPurityTracks'
 
-                                    )
+
+process.jetSequences = cms.Sequence(
+    process.makePartons +
+    process.highPurityTracks +
+    process.offlinePrimaryVertices +
+    process.akPu3CaloJetSequence +
+    process.akVs3CaloJetSequence +
+    process.akVs3PFJetSequence +
+    process.akPu3PFJetSequence +
+    
+    process.akPu4CaloJetSequence +
+    process.akVs4CaloJetSequence +
+    process.akVs4PFJetSequence +
+    process.akPu4PFJetSequence
+    
+    # process.akPu5CaloJetSequence +
+    # process.akVs5CaloJetSequence +
+    # process.akVs5PFJetSequence +
+    # process.akPu5PFJetSequence
+    
+    )
 
 process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_mc_cfi')
 process.load('HeavyIonsAnalysis.EventAnalysis.HiMixAnalyzerRECO_cff')

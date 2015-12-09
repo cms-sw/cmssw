@@ -39,6 +39,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.Geometry.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
