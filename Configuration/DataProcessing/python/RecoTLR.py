@@ -85,9 +85,8 @@ def customiseDataRun2Common_25ns(process):
     process = customiseDataRun2Common_withStage1(process)
 
     import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
-    if hasattr(process,'hcalRecAlgos'):
-        HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HFDigiTime",8)
-        HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HFDigiTime",8)
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
 
     from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_DQM_25ns
     if hasattr(process,'dqmoffline_step'):

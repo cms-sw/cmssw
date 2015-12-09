@@ -212,9 +212,8 @@ def customise_csc_LocalReco(process):
     process = customise_csc_Indexing(process)
 
     # Turn off some flags for CSCRecHitD that are turned ON in default config
-    if hasattr(process, 'csc2DRecHits'):
-        process.csc2DRecHits.readBadChannels = cms.bool(False)
-        process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
+    process.csc2DRecHits.readBadChannels = cms.bool(False)
+    process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
 
     return process
 
