@@ -81,4 +81,12 @@
   </Algorithm>
 </PosPartSection> 
 
+<SpecParSection label="hgcalEE.xml" eval="true">
+  <SpecPar name="HGCalEE">
+    <PartSelector path="//HGCalEESensitive.*"/>
+    <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon" eval="false"/>
+  </SpecPar>
+</SpecParSection>
+
 </DDDefinition>

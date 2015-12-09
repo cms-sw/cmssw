@@ -13,7 +13,6 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Mon 2014/03/21
-// $Id: HGCalNumberingTester.cc,v 1.0 2014/032/21 14:06:07 sunanda Exp $
 //
 //
 
@@ -42,8 +41,7 @@
 
 #include "CoralBase/Exception.h"
 
-class HGCalNumberingTester : public edm::one::EDAnalyzer<>
-{
+class HGCalNumberingTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalNumberingTester( const edm::ParameterSet& );
   ~HGCalNumberingTester();
@@ -75,7 +73,7 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
     lxy = hgeedc.assignCell(xy.first,xy.second,i+1,0,false);
     std::cout << "Input: (" << localx << "," << localy << "," << i+1 
 	      << ", 0), assignCell o/p (" << kxy.first << ", " << kxy.second 
-	      << ") loatCell o/p (" << xy.first << ", " << xy.second << ")," 
+	      << ") locateCell o/p (" << xy.first << ", " << xy.second << ")," 
 	      << " final (" << lxy.first << ", " << lxy.second << ")"
 	      << std::endl;
     kxy = hgeedc.assignCell(-localx,-localy,i+1,0,false);
@@ -83,7 +81,7 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
     lxy = hgeedc.assignCell(xy.first,xy.second,i+1,0,false);
     std::cout << "Input: (" <<-localx << "," <<-localy << "," << i+1 
 	      << ", 0), assignCell o/p (" << kxy.first << ", " << kxy.second 
-	      << ") loatCell o/p (" << xy.first << ", " << xy.second << ")," 
+	      << ") locateCell o/p (" << xy.first << ", " << xy.second << ")," 
 	      << " final (" << lxy.first << ", " << lxy.second << ")" 
 	      << std::endl;
     std::vector<int> ncells = hgeedc.numberCells(i+1,false);
@@ -108,7 +106,7 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
     lxy = hghesidc.assignCell(xy.first,xy.second,i+1,0,false);
     std::cout << "Input: (" << localx << "," << localy << "," << i+1 
 	      << ", 0), assignCell o/p (" << kxy.first << ", " << kxy.second 
-	      << ") loatCell o/p (" << xy.first << ", " << xy.second << ")," 
+	      << ") locateCell o/p (" << xy.first << ", " << xy.second << ")," 
 	      << " final (" << lxy.first << ", " << lxy.second << ")" 
 	      << std::endl;
     kxy = hghesidc.assignCell(-localx,-localy,i+1,0,false);
@@ -116,7 +114,7 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
     lxy = hghesidc.assignCell(xy.first,xy.second,i+1,0,false);
     std::cout << "Input: (" <<-localx << "," <<-localy << "," << i+1 
 	      << ", 0), assignCell o/p (" << kxy.first << ", " << kxy.second 
-	      << ") loatCell o/p (" << xy.first << ", " << xy.second << ")," 
+	      << ") locateCell o/p (" << xy.first << ", " << xy.second << ")," 
 	      << " final (" << lxy.first << ", " << lxy.second << ")" 
 	      << std::endl;
     std::vector<int> ncells = hghesidc.numberCells(i+1,false);
@@ -135,7 +133,7 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
   const HGCalDDDConstants hghescdc(*pHGNDC);
   std::cout << "HE Scintillator Layers = " << hghescdc.layers(false) 
 	    << " Sectors = " << hghescdc.sectors() << std::endl;
-  std::vector<HGCalDDDConstants::hgtrap>::const_iterator itr = hghescdc.getFirstModule(false);
+  std::vector<HGCalParameters::hgtrap>::const_iterator itr = hghescdc.getFirstModule(false);
   int subsec = ((itr->alpha) > 0) ? 1 : 0;
   for (unsigned int i=0; i<hghescdc.layers(false); ++i) {
     kxy = hghescdc.assignCell(localx,localy,i+1,subsec,false);
@@ -143,7 +141,7 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
     lxy = hghescdc.assignCell(xy.first,xy.second,i+1,0,false);
     std::cout << "Input: (" << localx << "," << localy << "," << i+1 
 	      << "," << subsec << "), assignCell o/p (" << kxy.first << ", " 
-	      << kxy.second  << ") loatCell o/p (" << xy.first << ", " 
+	      << kxy.second  << ") locateCell o/p (" << xy.first << ", " 
 	      << xy.second << "), final (" << lxy.first << ", " << lxy.second 
 	      << ")" << std::endl;
     kxy = hghescdc.assignCell(-localx,-localy,i+1,subsec,false);
@@ -151,7 +149,7 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
     lxy = hghescdc.assignCell(xy.first,xy.second,i+1,0,false);
     std::cout << "Input: (" <<-localx << "," <<-localy << "," << i+1 
 	      << "," << subsec << "), assignCell o/p (" << kxy.first << ", " 
-	      << kxy.second  << ") loatCell o/p (" << xy.first << ", " 
+	      << kxy.second  << ") locateCell o/p (" << xy.first << ", " 
 	      << xy.second << "), final (" << lxy.first << ", " << lxy.second 
 	      << ")"  << std::endl;
     std::vector<int> ncells = hghescdc.numberCells(i+1,false);
