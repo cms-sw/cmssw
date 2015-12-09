@@ -67,9 +67,15 @@ process.TFileService = cms.Service("TFileService",
 #############################
 # Jets
 #############################
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak3CaloJetSequence_pp_data_cff')
+
+### PP RECO does not include R=3 or R=5 jets.
+### re-RECO is only possible for PF, RECO is missing calotowers
+from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
+ak5PFJets.doAreaFastjet = True
+process.ak5PFJets = ak5PFJets
+process.ak3PFJets = ak5PFJets.clone(rParam = 0.3)
+
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak4CaloJetSequence_pp_data_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak5CaloJetSequence_pp_data_cff')
 
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak3PFJetSequence_pp_data_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak4PFJetSequence_pp_data_cff')
@@ -83,16 +89,13 @@ process.highPurityTracks = cms.EDFilter("TrackSelector",
 
 
 process.jetSequences = cms.Sequence(
-    # process.ak3CaloJetSequence +
-    # process.ak3PFJetSequence +
+    process.ak3PFJets +
+    process.ak5PFJets +
     process.highPurityTracks +
     process.ak4CaloJetSequence +
-    process.ak4PFJetSequence
-    # process.akPu5CaloJetSequence +
-    # process.akVs5CaloJetSequence +
-    # process.akVs5PFJetSequence +
-    # process.akPu5PFJetSequence
-
+    process.ak3PFJetSequence +
+    process.ak4PFJetSequence +
+    process.ak5PFJetSequence
     )
 
 #####################################################################################
