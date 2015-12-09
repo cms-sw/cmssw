@@ -26,7 +26,7 @@ process.HiForest.HiForestVersion = cms.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-                                "file:/afs/cern.ch/work/r/richard/public/PbPb_AODSIM.root"
+                                "file:/afs/cern.ch/work/r/richard/public/PbPb_RECODEBUG.root"
                             )
 )
 

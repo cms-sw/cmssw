@@ -73,6 +73,10 @@ process.TFileService = cms.Service("TFileService",
 #############################
 # Jets
 #############################
+from Configuration.StandardSequences.ReconstructionHeavyIons_cff import voronoiBackgroundPF, voronoiBackgroundCalo
+
+process.voronoiBackgroundPF = voronoiBackgroundPF
+process.voronoiBackgroundCalo = voronoiBackgroundCalo
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.HiReRecoJets_HI_cff')
 
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu2CaloJetSequence_PbPb_data_cff')
@@ -104,6 +108,9 @@ process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
 process.offlinePrimaryVertices.TrackLabel = 'highPurityTracks'
 
 process.jetSequences = cms.Sequence(
+    voronoiBackgroundPF+
+    voronoiBackgroundCalo+
+
     process.akPu2CaloJets +
     process.akPu2PFJets +
     process.akVs2CaloJets +
