@@ -52,17 +52,9 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 # PbPb 53X MC
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_HIon', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_HIon', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '75X_mcRun2_HeavyIon_v11', '') #for now track GT manually, since centrality tables updated ex post facto 
 process.HiForest.GlobalTagLabel = process.GlobalTag.globaltag
-
-process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
-process.GlobalTag.toGet.extend([
-    cms.PSet(record = cms.string("HeavyIonRcd"),
-             tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5_v755x01_mc"),
-             connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
-             label = cms.untracked.string("HFtowers")
-    ),
-])
 
 from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_PbPb5020
 process = overrideJEC_PbPb5020(process)

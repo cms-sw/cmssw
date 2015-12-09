@@ -49,7 +49,6 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 process.HiForest.GlobalTagLabel = process.GlobalTag.globaltag
 
 from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_pp5020
-# process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db(process)
 process = overrideJEC_pp5020(process)
 
 process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
