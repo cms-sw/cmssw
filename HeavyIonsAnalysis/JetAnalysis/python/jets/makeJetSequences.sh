@@ -2,7 +2,7 @@
 
 #echo "import FWCore.ParameterSet.Config as cms" > HiGenJetsCleaned_cff.py
 #echo "from PhysicsTools.PatAlgos.patHeavyIonSequences_cff import *" >> HiGenJetsCleaned_cff.py
-#echo "from RecoHI.HiJetAlgos.HiGenJets_cff import *" >> HiGenJets_cff.py
+echo "from RecoHI.HiJetAlgos.HiGenJets_cff import *" > HiGenJets_cff.py
 
 # ReReco stuff for jec only
 echo "import FWCore.ParameterSet.Config as cms" > HiReRecoJets_cff.py
