@@ -85,7 +85,7 @@ def customiseDataRun2Common_25ns(process):
     process = customiseDataRun2Common_withStage1(process)
 
     import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
-    if hasattr(process,'process.hcalRecAlgos'):
+    if hasattr(process,'hcalRecAlgos'):
         HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HFDigiTime",8)
         HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
 
