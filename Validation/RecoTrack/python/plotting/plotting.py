@@ -996,7 +996,7 @@ class Plot:
         _set("xbinlabelsize", None)
         _set("xbinlabeloption", None)
 
-        _set("drawStyle", None)
+        _set("drawStyle", "EP")
         _set("drawCommand", None)
         _set("lineWidth", 2)
 
@@ -1192,12 +1192,11 @@ class Plot:
 
         # Use marker or hist style
         style = _styleMarker
-        if self._drawStyle is not None:
-            if "hist" in self._drawStyle.lower():
+        if "hist" in self._drawStyle.lower():
+            style = _styleHist
+        if len(self._histograms) > 0 and isinstance(self._histograms[0], ROOT.TGraph):
+            if "l" in self._drawStyle.lower():
                 style = _styleHist
-            if len(self._histograms) > 0 and isinstance(self._histograms[0], ROOT.TGraph):
-                if "l" in self._drawStyle.lower():
-                    style = _styleHist
 
         # Apply style to histograms, filter out Nones
         histos = []
