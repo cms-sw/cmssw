@@ -32,6 +32,8 @@ int main() {
       << unsafe_acos07<5>(std::cos(c)) << ' '
       << unsafe_asin71<5>(std::sin(c)) << ' '
       << unsafe_acos71<5>(std::cos(c)) << ' '
+      << unsafe_asin<5>(std::sin(c)) << ' '
+      << unsafe_acos<5>(std::cos(c)) << ' '
       << std::endl;
 
    return 0;

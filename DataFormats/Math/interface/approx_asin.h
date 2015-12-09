@@ -81,12 +81,12 @@ inline float unsafe_asin71(float x) {
 
 template<int DEGREE>
 inline float unsafe_asin(float x) {
-  return (x<0.71f) ? unsafe_asin07<DEGREE>(x) : unsafe_asin71<DEGREE>(x);
+  return (std::abs(x)<0.71f) ? unsafe_asin07<DEGREE>(x) : unsafe_asin71<DEGREE>(x);
 }
 
 template<int DEGREE>
 inline float unsafe_acos(float x) {
-  return (x<0.71f) ? unsafe_acos07<DEGREE>(x) :	unsafe_acos71<DEGREE>(x);
+  return (std::abs(x)<0.71f) ? unsafe_acos07<DEGREE>(x) :	unsafe_acos71<DEGREE>(x);
 }
 
 
