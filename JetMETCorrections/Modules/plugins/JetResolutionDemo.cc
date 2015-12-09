@@ -32,6 +32,7 @@ class JetResolutionDemo : public edm::EDAnalyzer {
         virtual void endJob() override;
 
         edm::EDGetTokenT<std::vector<pat::Jet>> m_jets_token;
+        edm::EDGetTokenT<double> m_rho_token;
 
         bool m_debug = false;
         bool m_use_conddb = false;
@@ -51,6 +52,7 @@ class JetResolutionDemo : public edm::EDAnalyzer {
 JetResolutionDemo::JetResolutionDemo(const edm::ParameterSet& iConfig)
 {
     m_jets_token = consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jets"));
+    m_rho_token  = consumes<double>(iConfig.getParameter<edm::InputTag>("rho"));
     m_debug      = iConfig.getUntrackedParameter<bool>("debug", false);
     m_use_conddb = iConfig.getUntrackedParameter<bool>("useCondDB", false);
 
@@ -73,6 +75,9 @@ void JetResolutionDemo::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     edm::Handle<std::vector<pat::Jet>> jets;
     iEvent.getByToken(m_jets_token, jets);
+
+    edm::Handle<double> rho;
+    iEvent.getByToken(m_rho_token, rho);
 
     // Access jet resolution and scale factor from the condition database
     // or from text files
@@ -129,7 +134,7 @@ void JetResolutionDemo::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     for (const auto& jet: *jets) {
         if (m_debug) {
-            std::cout << "New jet; pt=" << jet.pt() << "  eta=" << jet.eta() << "  phi=" << jet.phi() << "  e=" << jet.energy() << std::endl;
+            std::cout << "New jet; pt=" << jet.pt() << "  eta=" << jet.eta() << "  phi=" << jet.phi() << "  e=" << jet.energy() << "  rho=" << *rho << std::endl;
         }
 
 
@@ -149,24 +154,26 @@ void JetResolutionDemo::analyze(const edm::Event& iEvent, const edm::EventSetup&
         JME::JetParameters parameters_1;
         parameters_1.setJetPt(jet.pt());
         parameters_1.setJetEta(jet.eta());
+        parameters_1.setRho(*rho);
 
         // You can also chain calls
 
         JME::JetParameters parameters_2;
-        parameters_2.setJetPt(jet.pt()).setJetEta(jet.eta());
+        parameters_2.setJetPt(jet.pt()).setJetEta(jet.eta()).setRho(*rho);
 
         // Second, using the set() function
         JME::JetParameters parameters_3;
         parameters_3.set(JME::Binning::JetPt, jet.pt());
         parameters_3.set({JME::Binning::JetEta, jet.eta()});
+        parameters_3.set({JME::Binning::Rho, *rho});
 
         // Or
 
         JME::JetParameters parameters_4;
-        parameters_4.set(JME::Binning::JetPt, jet.pt()).set(JME::Binning::JetEta, jet.eta());
+        parameters_4.set(JME::Binning::JetPt, jet.pt()).set(JME::Binning::JetEta, jet.eta()).set(JME::Binning::Rho, *rho);
     
         // Third, using a initializer_list
-        JME::JetParameters parameters_5 = {{JME::Binning::JetPt, jet.pt()}, {JME::Binning::JetEta, jet.eta()}};
+        JME::JetParameters parameters_5 = {{JME::Binning::JetPt, jet.pt()}, {JME::Binning::JetEta, jet.eta()}, {JME::Binning::Rho, *rho}};
 
         // Now, get the resolution
 
@@ -179,7 +186,7 @@ void JetResolutionDemo::analyze(const edm::Event& iEvent, const edm::EventSetup&
             std::cout << "Resolution with parameters_5: " << resolution.getResolution(parameters_5) << std::endl;
 
             // You can also use a shortcut to get the resolution
-            float r2 = resolution.getResolution({{JME::Binning::JetPt, jet.pt()}, {JME::Binning::JetEta, jet.eta()}});
+            float r2 = resolution.getResolution({{JME::Binning::JetPt, jet.pt()}, {JME::Binning::JetEta, jet.eta()}, {JME::Binning::Rho, *rho}});
             std::cout << "Resolution using shortcut   : " << r2 << std::endl;
         }
 
