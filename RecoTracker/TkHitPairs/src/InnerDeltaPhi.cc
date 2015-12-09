@@ -64,6 +64,7 @@ namespace {
 namespace {
   inline
   float f_atan2f(float y, float x) { return unsafe_atan2f<7>(y,x); }
+  template<typename V> inline float f_phi(V v) { return f_atan2f(v.y(),v.x());}
 }
 
 namespace {
@@ -237,8 +238,8 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
   // additinal angle due to not perpendicular stright line crossing  (for displaced beam)
   //  double dPhiCrossing = (cosCross > 0.9999) ? 0 : dL *  sqrt(1-sqr(cosCross))/ rLayer;
   Point2D crossing2 = theVtx + dHit.unit()* (dLayer+dL);
-  auto phicross2 = f_atan2f(crossing2.y(),crossing2.x());  
-  auto phicross1 = f_atan2f(crossing.y(),crossing.x());
+  auto phicross2 = f_phi(crossing2);
+  auto phicross1 = f_phi(crossing);
   auto dphicross = phicross2-phicross1;
   if (dphicross < -float(M_PI)) dphicross += float(2*M_PI);
   if (dphicross >  float(M_PI)) dphicross -= float(2*M_PI);

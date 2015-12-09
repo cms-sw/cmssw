@@ -11,6 +11,13 @@
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 
+#include "DataFormats/Math/interface/approx_atan2.h"
+namespace {
+  inline
+  float f_atan2f(float y, float x) { return unsafe_atan2f<7>(y,x); }
+  template<typename V> inline float f_phi(V v) { return f_atan2f(v.y(),v.x());}
+}
+
 namespace {
   template <class T> inline T sqr( T t) {return t*t;}
 }
@@ -79,7 +86,7 @@ ThirdHitPredictionFromInvParabola::rangeRPhi(Scalar radius, int icharge) const
     findPointAtCurve(radius,ipv[i],u[i],v[i]);
 
   // 
-  Scalar phi1 = theRotation.rotateBack(Point2D(u[0],v[0])).barePhi();
+  Scalar phi1 = f_phi(theRotation.rotateBack(Point2D(u[0],v[0])));
   Scalar phi2 = phi1+(v[1]-v[0]); 
   
   if (ip.empty()) {

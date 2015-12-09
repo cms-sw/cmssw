@@ -15,34 +15,11 @@
 
 // there are tons of safety checks.
 // Try to move all of the out the regular control flow using gcc magic
+#include "DataFormats/Math/interface/approx_atan2.h"
 namespace {
-  struct Stat {
-
-   float xmin=1.1;
-   float xmax=-1.1;
-   int nt=0;
-   int nn=0;
-   int nl=0;
-
-   ~Stat() { std::cout << "ASIN " << xmin <<',' << xmax <<',' << nt <<','<< nn <<','<< nl << std::endl;}
-
-  };
-
-  Stat stat;
-
-}
-
-namespace {
-  template <class T> 
-  inline T cropped_asin(T x) {
-    stat.nt++;
-    if (x<0.f) stat.nn++;
-    if (x>0.7f) stat.nl++;
-    stat.xmin = std::min(float(x),stat.xmin);
-    stat.xmax =	std::max(float(x),stat.xmax);
-    
-    return std::abs(x) <= 1 ? std::asin(x) : (x > 0 ? T(M_PI/2) : -T(M_PI/2));
-  }
+  inline
+  float f_atan2f(float y, float x) { return unsafe_atan2f<7>(y,x); }
+  template<typename V> inline float f_phi(V v) { return f_atan2f(v.y(),v.x());}
 }
 
 
@@ -81,9 +58,9 @@ float ThirdHitPredictionFromCircle::phi(float curvature, float radius) const
     float orthog = clamped_sqrt(radius2 - delta2);
     Basic2DVector<float> lcenter = Basic2DVector<float>(center) - sign * orthog *  Basic2DVector<float>(axis);
     float rc2 = lcenter.mag2();
-    float cos = (rc2 + sqr(radius) - radius2) /
-      (2.f *std:: sqrt(rc2) * radius);
-    phi = lcenter.barePhi() + sign * clamped_acos(cos);
+    float r2 = sqr(radius);
+    float cos = (rc2 + r2 - radius2)/std::sqrt(4.f*rc2*r2);
+    phi = f_phi(lcenter) + sign * clamped_acos(cos);
  }
 
   while(unlikely(phi >= float(M_PI))) phi -= float(2. * M_PI);
