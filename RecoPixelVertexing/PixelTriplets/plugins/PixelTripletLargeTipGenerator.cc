@@ -35,6 +35,7 @@ namespace {
     ThirdHitRZPrediction<PixelRecoLineRZ> line;
     ThirdHitRZPrediction<HelixRZ> helix1, helix2;
     MatchedHitRZCorrectionFromBending rzPositionFixup;
+    ThirdHitCorrection correction;
   };
 }
 
@@ -126,7 +127,9 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
     predRZ.helix1.initTolerance(extraHitRZtolerance);
     predRZ.helix2.initTolerance(extraHitRZtolerance);
     predRZ.rzPositionFixup = MatchedHitRZCorrectionFromBending(layer,tTopo);
-    
+    predRZ.correction.init(es, region.ptMin(), *doublets.detLayer(HitDoublets::inner), *doublets.detLayer(HitDoublets::outer), *thirdLayers[il].detLayer(), useMScat, false);
+
+
     layerTree.clear();
     float minv=999999.0; float maxv = -999999.0; // Initialise to extreme values in case no hits
     float maxErr=0.0f;
@@ -176,11 +179,14 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
       bool barrelLayer = layer->isBarrel();
       
       Range curvature = generalCurvature;
-      ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2,  outSeq, useMScat);
-      
+
       LayerRZPredictions &predRZ = mapPred[il];
       predRZ.line.initPropagator(&line);
-      
+
+      auto & correction = predRZ.correction;
+      correction.init(line, point2,  outSeq);
+
+
       Range rzRange;
       if (useBend) {
         // For the barrel region:

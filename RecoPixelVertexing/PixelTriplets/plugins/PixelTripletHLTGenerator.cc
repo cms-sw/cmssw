@@ -74,8 +74,10 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
   
   #ifdef __clang__
   std::vector<ThirdHitRZPrediction<PixelRecoLineRZ>> preds(size);
+  std::vector<ThirdHitCorrection> corrections(size);
   #else
   ThirdHitRZPrediction<PixelRecoLineRZ> preds[size];
+  ThirdHitCorrection corrections[size];
   #endif
   
   const RecHitsSortedInPhi * thirdHitMap[size];
@@ -101,7 +103,9 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
     ThirdHitRZPrediction<PixelRecoLineRZ> & pred = preds[il];
     pred.initLayer(thirdLayers[il].detLayer());
     pred.initTolerance(extraHitRZtolerance);
-    
+
+    corrections[il].init(es, region.ptMin(), *doublets.detLayer(HitDoublets::inner), *doublets.detLayer(HitDoublets::outer), *thirdLayers[il].detLayer(), useMScat, useBend);
+
     layerTree.clear();
     float minv=999999.0, maxv= -999999.0; // Initialise to extreme values in case no hits
     float maxErr=0.0f;
@@ -161,9 +165,11 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
       const DetLayer * layer = thirdLayers[il].detLayer();
       auto barrelLayer = layer->isBarrel();
 
-      ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2, outSeq, useMScat, useBend); 
+      auto & correction = corrections[il];
+
+      correction.init(line, point2, outSeq); 
       
-      ThirdHitRZPrediction<PixelRecoLineRZ> & predictionRZ =  preds[il];
+      auto & predictionRZ =  preds[il];
       
       predictionRZ.initPropagator(&line);
       Range rzRange = predictionRZ();
