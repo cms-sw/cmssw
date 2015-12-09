@@ -44,11 +44,6 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.Geometry.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.load('Configuration.StandardSequences.Digi_cff')
-process.load('Configuration.StandardSequences.SimL1Emulator_cff')
-process.load('Configuration.StandardSequences.DigiToRaw_cff')
-process.load('Configuration.StandardSequences.RawToDigi_cff')
-process.load('Configuration.StandardSequences.ReconstructionHeavyIons_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
@@ -69,7 +64,7 @@ process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
 #####################################################################################
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName=cms.string("HiForest.root"))
+                                   fileName=cms.string("HiForestAOD.root"))
 
 #####################################################################################
 # Additional Reconstruction and Analysis: Main Body
@@ -90,11 +85,6 @@ process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs4CaloJetSequence_PbPb_mc_cf
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs4PFJetSequence_PbPb_mc_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu4PFJetSequence_PbPb_mc_cff')
 
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu5CaloJetSequence_PbPb_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs5CaloJetSequence_PbPb_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akVs5PFJetSequence_PbPb_mc_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.jets.akPu5PFJetSequence_PbPb_mc_cff')
-
 process.load('HeavyIonsAnalysis.JetAnalysis.makePartons_cff')
 
 process.highPurityTracks = cms.EDFilter("TrackSelector",
@@ -109,6 +99,7 @@ process.jetSequences = cms.Sequence(
     process.makePartons +
     process.highPurityTracks +
     process.offlinePrimaryVertices +
+
     process.akPu3CaloJetSequence +
     process.akVs3CaloJetSequence +
     process.akVs3PFJetSequence +
@@ -118,12 +109,6 @@ process.jetSequences = cms.Sequence(
     process.akVs4CaloJetSequence +
     process.akVs4PFJetSequence +
     process.akPu4PFJetSequence
-
-    # process.akPu5CaloJetSequence +
-    # process.akVs5CaloJetSequence +
-    # process.akVs5PFJetSequence +
-    # process.akPu5PFJetSequence
-
     )
 
 ####################################################################################
