@@ -76,6 +76,7 @@ process.load('RecoJets.Configuration.GenJetParticles_cff')
 
 process.load('RecoHI.HiJetAlgos.HiGenJets_cff')
 
+process.load('HeavyIonsAnalysis.JetAnalysis.makePartons_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak4PFJetSequence_pp_mc_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak4CaloJetSequence_pp_mc_cff')
 
@@ -87,6 +88,7 @@ process.highPurityTracks = cms.EDFilter("TrackSelector",
 
 # Other radii jets and calo jets need to be reconstructed
 process.jetSequences = cms.Sequence(
+    process.makePartons +
     process.highPurityTracks +
     #process.ak1PFJetSequence +
     #process.ak1CaloJetSequence +
