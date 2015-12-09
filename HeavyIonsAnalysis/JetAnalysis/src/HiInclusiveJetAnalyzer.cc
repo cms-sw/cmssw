@@ -63,7 +63,7 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
   trackQuality_ = iConfig.getUntrackedParameter<string>("trackQuality","highPurity");
 
   isMC_ = iConfig.getUntrackedParameter<bool>("isMC",false);
-  useHepMC_ = iConfig.getUntrackedParameter<bool> ("useHepMC",true);
+  useHepMC_ = iConfig.getUntrackedParameter<bool> ("useHepMC",false);
   fillGenJets_ = iConfig.getUntrackedParameter<bool>("fillGenJets",false);
 
   doTrigger_ = iConfig.getUntrackedParameter<bool>("doTrigger",false);

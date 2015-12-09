@@ -45,12 +45,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.Geometry.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.load('Configuration.StandardSequences.Digi_cff')
-process.load('Configuration.StandardSequences.SimL1Emulator_cff')
-process.load('Configuration.StandardSequences.DigiToRaw_cff')
-process.load('Configuration.StandardSequences.RawToDigi_cff')
-process.load('Configuration.StandardSequences.ReconstructionHeavyIons_cff')
-process.load('RecoHI.HiCentralityAlgos.CentralityBin_cfi')
+#process.load('RecoHI.HiCentralityAlgos.CentralityBin_cfi')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
@@ -59,18 +54,11 @@ from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.HiForest.GlobalTagLabel = process.GlobalTag.globaltag
 
-#from HeavyIonsAnalysis.Configuration.CommonFunctionsLocalDB_cff import overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db
-#process = overrideJEC_HI_PythiaCUETP8M1_5020GeV_753p1_v3_db(process)
 
 # Customization
 from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_pp5020
 process = overrideJEC_pp5020(process)
 
-process.HeavyIonGlobalParameters = cms.PSet(
-    centralityVariable = cms.string("HFtowersTrunc"),
-    nonDefaultGlauberModel = cms.string("Hijing"),
-    centralitySrc = cms.InputTag("hiCentrality")
-)
 
 #####################################################################################
 # Define tree output
@@ -86,21 +74,10 @@ process.TFileService = cms.Service("TFileService",
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('RecoJets.Configuration.GenJetParticles_cff')
 
-process.hiCentrality.producePixelhits = False
-process.hiCentrality.producePixelTracks = False
-process.hiCentrality.srcTracks = cms.InputTag("generalTracks")
-process.hiCentrality.srcVertex = cms.InputTag("offlinePrimaryVerticesWithBS")
-
 process.load('RecoHI.HiJetAlgos.HiGenJets_cff')
 
 process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak4PFJetSequence_pp_mc_cff')
-
-
-#process.load('HeavyIonsAnalysis.JetAnalysis.jets.HiReRecoJets_pp_cff')
-
-
-#process.voronoiBackgroundPF.src = cms.InputTag("particleFlow")
-#process.PFTowers.src = cms.InputTag("particleFlow")
+process.load('HeavyIonsAnalysis.JetAnalysis.jets.ak4CaloJetSequence_pp_mc_cff')
 
 
 process.highPurityTracks = cms.EDFilter("TrackSelector",
@@ -117,8 +94,8 @@ process.jetSequences = cms.Sequence(
     #process.ak2CaloJetSequence +
     #process.ak3PFJetSequence +
     #process.ak3CaloJetSequence +
-    process.ak4PFJetSequence #+
-    #process.ak4CaloJetSequence +
+    process.ak4PFJetSequence +
+    process.ak4CaloJetSequence #+
     #process.ak5PFJetSequence +
     #process.ak5CaloJetSequence +
     #process.ak6PFJetSequence +
