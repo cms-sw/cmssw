@@ -1,22 +1,23 @@
 import FWCore.ParameterSet.Config as cms
 
-# dummy implementations of the objects defined by loadDigiAliases and loadTriggerDigiAliases
-generalTracks = cms.Sequence()
-ecalPreshowerDigis = cms.Sequence()
-ecalDigis = cms.Sequence()
-hcalDigis = cms.Sequence()
-muonDTDigis = cms.Sequence()
-muonCSCDigis = cms.Sequence()
-muonRPCDigis = cms.Sequence()
-gtDigisAliasInfo = cms.Sequence()
-gmtDigisAliasInfo = cms.Sequence()
+# define some global variables
+# to be filled in by the load* functions below
+generalTracks = None
+ecalPreshowerDigis = None
+ecalDigis = None
+hcalDigis = None
+muonDTDigis = None
+muonCSCDigis = None
+muonRPCDigis = None
+gtDigisAliasInfo = None
+gmtDigisAliasInfo = None
 
 def loadDigiAliases(nopremix = True):
 
     global generalTracks,ecalPreshowerDigis,ecalDigis,hcalDigis,muonDTDigis,muonCSCDigis,muonRPCDigis
 
     generalTracks = cms.EDAlias(
-        **{"mix" if nopremix else "mixData" 
+        **{"mix" if nopremix else "mixData" :
            cms.VPSet(
                 cms.PSet(
                     fromProductInstance = cms.string('generalTracks'),
@@ -37,7 +38,7 @@ def loadDigiAliases(nopremix = True):
            }
           )
     
-    ecalPreShowerDigis = cms.EDAlias(
+    ecalPreshowerDigis = cms.EDAlias(
         **{"simEcalPreshowerDigis" if nopremix else "DMEcalPreshowerDigis" :
                cms.VPSet(
                 cms.PSet(
@@ -107,7 +108,7 @@ def loadDigiAliases(nopremix = True):
            }
           )
 
-    muonCSCDigi = cms.EDAlias(
+    muonCSCDigis = cms.EDAlias(
         **{"simMuonCSCDigis" if nopremix else "mixData" :
                cms.VPSet(
                 cms.PSet(
@@ -135,7 +136,7 @@ def loadTriggerDigiAliases():
     
 
     gmtDigis = cms.EDAlias (
-        simGmtDigisn = 
+        simGmtDigis = 
         cms.VPSet(
             cms.PSet(type = cms.string("L1MuGMTReadoutCollection"))
             )
