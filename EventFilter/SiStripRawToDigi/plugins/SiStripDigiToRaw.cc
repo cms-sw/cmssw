@@ -189,7 +189,6 @@ namespace sistrip {
 	      << " length of original feHeader: " << fedFeHeader->lengthInBytes() << "\n"
 	      << debugStream.str();
 	  }
-          
           //status registers
           (bufferGenerator_.feHeader()).setBEStatusRegister(fedFeHeader->beStatusRegister());
           (bufferGenerator_.feHeader()).setDAQRegister2(fedFeHeader->daqRegister2());
@@ -197,12 +196,17 @@ namespace sistrip {
           for(uint8_t iFE=1; iFE<6; iFE++) {
             (bufferGenerator_.feHeader()).set32BitReservedRegister(iFE,fedFeHeader->get32BitWordFrom(fedFeHeader->feWord(iFE)+10));
           }
+
+          std::vector<bool> feEnabledVec;
+	  feEnabledVec.resize(FEUNITS_PER_FED,true);
 	  for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
+            feEnabledVec[iFE]=fedbuffer->trackerSpecialHeader().feEnabled(iFE);  
             (bufferGenerator_.feHeader()).setFEUnitMajorityAddress(iFE,fedFeHeader->feUnitMajorityAddress(iFE));
 	    for (uint8_t iFEUnitChannel = 0; iFEUnitChannel < FEDCH_PER_FEUNIT; iFEUnitChannel++) {
 	      (bufferGenerator_.feHeader()).setChannelStatus(iFE,iFEUnitChannel,fedFeHeader->getChannelStatus(iFE,iFEUnitChannel));
 	    }//loop on channels
 	  }//loop on fe units
+          bufferGenerator_.setFEUnitEnables(feEnabledVec);
 
 	  if ( edm::isDebugEnabled() ) {
 	    std::ostringstream debugStream;
