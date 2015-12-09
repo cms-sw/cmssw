@@ -83,3 +83,7 @@ ecalSelectiveReadoutValidation = cms.EDAnalyzer("EcalSelectiveReadoutValidation"
 
 
 
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    ecalSelectiveReadoutValidation.EbSimHitCollection = cms.InputTag("famosSimHits","EcalHitsEB")
+    ecalSelectiveReadoutValidation.EeSimHitCollection = cms.InputTag("famosSimHits","EcalHitsEE")

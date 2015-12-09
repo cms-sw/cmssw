@@ -9,7 +9,6 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="FrontierProxy.cc" name="CondCoreDBCommonFrontierProxy">
-  <use   name="CondCore/MetaDataService"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="XMLAuthenticationService.cc" name="CondCoreDBCommonXMLAuthenticationService">

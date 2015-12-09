@@ -153,37 +153,12 @@ namespace cond {
 			     const std::string& postFix  );
     public:
       
-      bool checkMigrationLog( const std::string& sourceAccount, 
-			      const std::string& sourceTag, 
-			      std::string& destinationTag,
-			      cond::MigrationStatus& status );
-      void addToMigrationLog( const std::string& sourceAccount, 
-			      const std::string& sourceTag, 
-			      const std::string& destinationTag,
-			      cond::MigrationStatus status);
-      void updateMigrationLog( const std::string& sourceAccount, 
-			       const std::string& sourceTag, 
-			       cond::MigrationStatus status);
-
-      bool lookupMigratedPayload( const std::string& sourceAccount, 
-				  const std::string& sourceToken, 
-				  std::string& payloadId );
-      void addMigratedPayload( const std::string& sourceAccount, 
-			       const std::string& sourceToken, 
-			       const std::string& payloadId );
-      void updateMigratedPayload( const std::string& sourceAccount, 
-				  const std::string& sourceToken, 
-				  const std::string& payloadId );
-      std::string parsePoolToken( const std::string& poolToken );
-
       std::string connectionString();
 
       coral::ISessionProxy& coralSession();
       // TO BE REMOVED in the long term. The new code will use coralSession().
       coral::ISchema& nominalSchema();
       
-      bool isOraSession(); 
-
     private:
       cond::Hash storePayloadData( const std::string& payloadObjectType, 
 				   const std::pair<Binary,Binary>& payloadAndStreamerInfoData, 
@@ -204,7 +179,7 @@ namespace cond {
       std::string payloadObjectType = cond::demangledName(typeid(payload));
       cond::Hash ret; 
       try{
-	ret = storePayloadData( payloadObjectType, serialize( payload, isOraSession() ), creationTime ); 
+	ret = storePayloadData( payloadObjectType, serialize( payload ), creationTime ); 
       } catch ( const cond::persistency::Exception& e ){
 	std::string em(e.what());
 	throwException( "Payload of type "+payloadObjectType+" could not be stored. "+em,"Session::storePayload"); 	
@@ -221,7 +196,7 @@ namespace cond {
 			"Session::fetchPayload" );
       boost::shared_ptr<T> ret;
       try{ 
-	ret = deserialize<T>(  payloadType, payloadData, streamerInfoData, isOraSession() );
+	ret = deserialize<T>(  payloadType, payloadData, streamerInfoData );
       } catch ( const cond::persistency::Exception& e ){
 	std::string em(e.what());
 	throwException( "Payload of type "+payloadType+" with id "+payloadHash+" could not be loaded. "+em,"Session::fetchPayload"); 

@@ -49,8 +49,6 @@ namespace cond {
     std::string tag() const;
     std::string payloadType() const;
 
-    bool isOra() { return 0; }
-
     bool get( cond::Time_t targetTime, bool debug );
 
     size_t numberOfQueries() const;
@@ -416,7 +414,7 @@ public:
     const cond::Binary &buffer = p->getBuffer();
     const cond::Binary &streamerInfo = p->getStreamerInfo();
   
-    auto result = new std::pair< std::string, boost::shared_ptr<void> > (cond::persistency::fetchOne( payloadTypeName, buffer, streamerInfo, payloadPtr, p->isOra() ));
+    auto result = new std::pair< std::string, boost::shared_ptr<void> > (cond::persistency::fetchOne( payloadTypeName, buffer, streamerInfo, payloadPtr ));
     payload = result->second;
 
     return;
@@ -596,7 +594,7 @@ int cond::TestGTPerf::execute(){
       tasksD.push_back(dw); 
     } else { // single tread only
        try {
-	 std::pair<std::string, boost::shared_ptr<void> > result = fetchOne( payloadTypeName, p->getBuffer(), p->getStreamerInfo(), payloadPtr, p->isOra() );
+	 std::pair<std::string, boost::shared_ptr<void> > result = fetchOne( payloadTypeName, p->getBuffer(), p->getStreamerInfo(), payloadPtr);
            payloads.push_back(result.second);
        } catch ( const cond::Exception& e ){
            std::cout << "\nERROR (cond): " << e.what() << std::endl;

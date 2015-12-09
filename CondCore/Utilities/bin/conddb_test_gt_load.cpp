@@ -201,8 +201,7 @@ bool cond::UntypedPayloadProxy::get( cond::Time_t targetTime, bool debug ){
       std::cout <<"ERROR: payload with id "<<m_data->current.payloadId<<" could not be loaded."<<std::endl;
     }else {
       std::stringstream sz;
-      if( data.oraObject().address()==0 ) sz << data.size();
-      else sz <<"?";
+      sz << data.size();
       if( debug ) std::cout <<"Loaded payload of type \""<< payloadType <<"\" ("<<sz.str()<<" bytes)"<<std::endl;  
     }
   } else {

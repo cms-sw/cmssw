@@ -50,66 +50,53 @@ namespace cond {
   typedef cond::serialization::InputArchive  CondInputArchive;
   typedef cond::serialization::OutputArchive CondOutputArchive;
 
-  // call for the serialization. Setting packingOnly = TRUE the data will stay in the original memory layout 
-  // ( no serialization in this case ). This option is used by the ORA backend - will be dropped after the changeover
-  template <typename T> std::pair<Binary,Binary> serialize( const T& payload, bool packingOnly = false ){
+  // call for the serialization. 
+  template <typename T> std::pair<Binary,Binary> serialize( const T& payload ){
     std::pair<Binary,Binary> ret;
-    if( !packingOnly ){
-      std::string streamerInfo( StreamerInfo::jsonString() );
-      try{
-	// save data to buffers
-	std::ostringstream dataBuffer;
-	CondOutputArchive oa( dataBuffer );
-	oa << payload;
-	//TODO: avoid (2!!) copies
-	ret.first.copy( dataBuffer.str() );
-	ret.second.copy( streamerInfo );
-      } catch ( const std::exception& e ){
-	std::string em( e.what() );
-	throwException("Serialization failed: "+em+". Serialization info:"+streamerInfo,"serialize");
-      }
-    } else {
-      // ORA objects case: nothing to serialize, the object is kept in memory in the original layout - the bare pointer is exchanged
-      ret.first = Binary( payload );
+    std::string streamerInfo( StreamerInfo::jsonString() );
+    try{
+      // save data to buffers
+      std::ostringstream dataBuffer;
+      CondOutputArchive oa( dataBuffer );
+      oa << payload;
+      //TODO: avoid (2!!) copies
+      ret.first.copy( dataBuffer.str() );
+      ret.second.copy( streamerInfo );
+    } catch ( const std::exception& e ){
+      std::string em( e.what() );
+      throwException("Serialization failed: "+em+". Serialization info:"+streamerInfo,"serialize");
     }
     return ret;
   }
 
-  // generates an instance of T from the binary serialized data. With unpackingOnly = true the memory is already storing the object in the final 
-  // format. Only a cast is required in this case - Used by the ORA backed, will be dropped in the future.
+  // generates an instance of T from the binary serialized data. 
   template <typename T> boost::shared_ptr<T> default_deserialize( const std::string& payloadType, 
 								  const Binary& payloadData, 
-								  const Binary& streamerInfoData, 
-								  bool unpackingOnly ){
+								  const Binary& streamerInfoData ){
     boost::shared_ptr<T> payload;
-    if( !unpackingOnly ){
-      std::stringbuf sstreamerInfoBuf;
-      sstreamerInfoBuf.pubsetbuf( static_cast<char*>(const_cast<void*>(streamerInfoData.data())), streamerInfoData.size() );
-      std::string streamerInfo = sstreamerInfoBuf.str();
-      try{
-	std::stringbuf sdataBuf;
-	sdataBuf.pubsetbuf( static_cast<char*>(const_cast<void*>(payloadData.data())), payloadData.size() );
-	std::istream dataBuffer( &sdataBuf );
-	CondInputArchive ia( dataBuffer );
-	payload.reset( createPayload<T>(payloadType) );
-	ia >> (*payload);
-      } catch ( const std::exception& e ){
-	std::string errorMsg("De-serialization failed: ");
-	std::string em( e.what() );
-	if( em == "unsupported version" )  {
-	  errorMsg += "the current boost version ("+StreamerInfo::techVersion()+
-	    ") is unable to read the payload. Data might have been serialized with an incompatible version.";
-	} else if( em == "input stream error" ) {
-	  errorMsg +="data size does not fit with the current class layout. The Class "+payloadType+" might have been changed with respect to the layout used in the upload.";
-	} else {
-	  errorMsg += em;
-	}
-	if( !streamerInfo.empty() ) errorMsg += " Payload serialization info: "+streamerInfo;
-	throwException( errorMsg, "default_deserialize" );
+    std::stringbuf sstreamerInfoBuf;
+    sstreamerInfoBuf.pubsetbuf( static_cast<char*>(const_cast<void*>(streamerInfoData.data())), streamerInfoData.size() );
+    std::string streamerInfo = sstreamerInfoBuf.str();
+    try{
+      std::stringbuf sdataBuf;
+      sdataBuf.pubsetbuf( static_cast<char*>(const_cast<void*>(payloadData.data())), payloadData.size() );
+      std::istream dataBuffer( &sdataBuf );
+      CondInputArchive ia( dataBuffer );
+      payload.reset( createPayload<T>(payloadType) );
+      ia >> (*payload);
+    } catch ( const std::exception& e ){
+      std::string errorMsg("De-serialization failed: ");
+      std::string em( e.what() );
+      if( em == "unsupported version" )  {
+	errorMsg += "the current boost version ("+StreamerInfo::techVersion()+
+	  ") is unable to read the payload. Data might have been serialized with an incompatible version.";
+      } else if( em == "input stream error" ) {
+	errorMsg +="data size does not fit with the current class layout. The Class "+payloadType+" might have been changed with respect to the layout used in the upload.";
+      } else {
+	errorMsg += em;
       }
-    } else {
-      // ORA objects case: nothing to de-serialize, the object is already in memory in the final layout, ready to be casted
-      payload = boost::static_pointer_cast<T>(payloadData.oraObject().makeShared());
+      if( !streamerInfo.empty() ) errorMsg += " Payload serialization info: "+streamerInfo;
+      throwException( errorMsg, "default_deserialize" );
     }
     return payload;
   }
@@ -117,21 +104,20 @@ namespace cond {
   // default specialization
   template <typename T> boost::shared_ptr<T> deserialize( const std::string& payloadType, 
 							  const Binary& payloadData, 
-							  const Binary& streamerInfoData, 
-							  bool unpackingOnly = false){
-    return default_deserialize<T>( payloadType, payloadData, streamerInfoData, unpackingOnly );
+							  const Binary& streamerInfoData ){
+    return default_deserialize<T>( payloadType, payloadData, streamerInfoData );
  }
 
 }
 
 #define DESERIALIZE_BASE_CASE( BASETYPENAME )  \
   if( payloadType == #BASETYPENAME ){ \
-    return default_deserialize<BASETYPENAME>( payloadType, payloadData, streamerInfoData, unpackingOnly ); \
+    return default_deserialize<BASETYPENAME>( payloadType, payloadData, streamerInfoData ); \
   } 
 
 #define DESERIALIZE_POLIMORPHIC_CASE( BASETYPENAME, DERIVEDTYPENAME )	\
   if( payloadType == #DERIVEDTYPENAME ){ \
-    return boost::dynamic_pointer_cast<BASETYPENAME>( default_deserialize<DERIVEDTYPENAME>( payloadType, payloadData, streamerInfoData, unpackingOnly ) ); \
+    return boost::dynamic_pointer_cast<BASETYPENAME>( default_deserialize<DERIVEDTYPENAME>( payloadType, payloadData, streamerInfoData ) ); \
   }
  
 #endif

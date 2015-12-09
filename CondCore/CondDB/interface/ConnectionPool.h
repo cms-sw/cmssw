@@ -40,7 +40,7 @@ namespace cond {
       bool isLoggingEnabled() const;
       void setParameters( const edm::ParameterSet& connectionPset );
       void configure();
-      Session createSession( const std::string& connectionString, bool writeCapable=false, BackendType backType=DEFAULT_DB );
+      Session createSession( const std::string& connectionString, bool writeCapable=false );
       Session createReadOnlySession( const std::string& connectionString, const std::string& transactionId );
       boost::shared_ptr<coral::ISessionProxy> createCoralSession( const std::string& connectionString, bool writeCapable=false );
       
@@ -50,8 +50,7 @@ namespace cond {
 								  bool writeCapable=false );
       Session createSession( const std::string& connectionString, 
 			     const std::string& transactionId, 
-			     bool writeCapable=false, 
-			     BackendType backType=DEFAULT_DB );
+			     bool writeCapable=false );
       void configure( coral::IConnectionServiceConfiguration& coralConfig);
     private:
       std::string m_authPath;

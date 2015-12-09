@@ -25,13 +25,15 @@ from DQMOffline.Trigger.HLTMonTau_cfi import *
  
 # additional producer sequence prior to hltvalidation
 # to evacuate producers/filters from the EndPath
-hltassociation = cms.Sequence( egammaSelectors
-                               +ExoticaValidationProdSeq )
-
-hltvalidation = cms.Sequence(
+hltassociation = cms.Sequence(
     hltMultiTrackValidation
     +hltMultiPVValidation
-    +HLTMuonVal
+    +egammaSelectors
+    +ExoticaValidationProdSeq
+    )
+
+hltvalidation = cms.Sequence(
+    HLTMuonVal
     +HLTTauVal
     +egammaValidationSequence
     +topHLTriggerOfflineDQM
@@ -57,8 +59,8 @@ if eras.phase1Pixel.isChosen():
 # probably it would be rather easy to add or fake these collections
 from Configuration.StandardSequences.Eras import eras
 if eras.fastSim.isChosen():
-    hltvalidation.remove(hltMultiTrackValidation)
-    hltvalidation.remove(hltMultiPVValidation)
+    hltassociation.remove(hltMultiTrackValidation)
+    hltassociation.remove(hltMultiPVValidation)
 
 hltvalidation_preprod = cms.Sequence(
   HLTTauVal

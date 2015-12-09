@@ -16,8 +16,7 @@
 namespace cond {
   template <> boost::shared_ptr<PerformancePayload> deserialize<PerformancePayload>( const std::string& payloadType, 
 										     const Binary& payloadData, 
-										     const Binary& streamerInfoData, 
-										     bool unpackingOnly ){
+										     const Binary& streamerInfoData ){
     // DESERIALIZE_BASE_CASE( PerformancePayload );  abstract 
     DESERIALIZE_POLIMORPHIC_CASE( PerformancePayload, PerformancePayloadFromTFormula ); 
     DESERIALIZE_POLIMORPHIC_CASE( PerformancePayload, PerformancePayloadFromBinnedTFormula ); 

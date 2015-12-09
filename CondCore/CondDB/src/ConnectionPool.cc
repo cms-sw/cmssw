@@ -22,11 +22,6 @@ namespace cond {
 
   namespace persistency {
 
-    static const std::string POOL_IOV_TABLE_DATA("IOV_DATA");
-    static const std::string ORA_IOV_TABLE_1("ORA_C_COND_IOVSEQUENCE");
-    static const std::string ORA_IOV_TABLE_2("ORA_C_COND_IOVSEQU_A0");
-    static const std::string ORA_IOV_TABLE_3("ORA_C_COND_IOVSEQU_A1");
-   
     ConnectionPool::ConnectionPool(){
       m_pluginManager = new cond::CoralServiceManager;
       configure();
@@ -138,11 +133,6 @@ namespace cond {
       coral::ConnectionService connServ;
       std::pair<std::string,std::string> fullConnectionPars = getConnectionParams( connectionString, transactionId );
       if( !fullConnectionPars.second.empty() ) {
-	// the olds formats
-	connServ.webCacheControl().refreshTable( fullConnectionPars.second, POOL_IOV_TABLE_DATA );
-	connServ.webCacheControl().refreshTable( fullConnectionPars.second, ORA_IOV_TABLE_1 );
-	connServ.webCacheControl().refreshTable( fullConnectionPars.second, ORA_IOV_TABLE_2 );
-	connServ.webCacheControl().refreshTable( fullConnectionPars.second, ORA_IOV_TABLE_3 );
 	// the new schema...
 	connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, TAG::tname, 1 );
 	connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, IOV::tname, 1 );
@@ -156,16 +146,10 @@ namespace cond {
 
     Session ConnectionPool::createSession( const std::string& connectionString, 
 					   const std::string& transactionId, 
-					   bool writeCapable,
-					   BackendType backType){
+					   bool writeCapable ){
       coral::ConnectionService connServ;
       std::pair<std::string,std::string> fullConnectionPars = getConnectionParams( connectionString, transactionId );
       if( !fullConnectionPars.second.empty() ) {
-	// the olds formats
-	connServ.webCacheControl().refreshTable( fullConnectionPars.second, POOL_IOV_TABLE_DATA );
-	connServ.webCacheControl().refreshTable( fullConnectionPars.second, ORA_IOV_TABLE_1 );
-	connServ.webCacheControl().refreshTable( fullConnectionPars.second, ORA_IOV_TABLE_2 );
-	connServ.webCacheControl().refreshTable( fullConnectionPars.second, ORA_IOV_TABLE_3 );
 	// the new schema...
 	connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, TAG::tname, 1 );
 	connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, IOV::tname, 1 );
@@ -174,22 +158,12 @@ namespace cond {
 
       boost::shared_ptr<coral::ISessionProxy> coralSession = createCoralSession( connectionString, transactionId, writeCapable );
 
-      BackendType bt;
-      auto it = m_dbTypes.find( connectionString);
-      if( it == m_dbTypes.end() ){
-	bt = checkBackendType( coralSession, connectionString );
-	if( bt == UNKNOWN_DB && writeCapable) bt = backType;
-	m_dbTypes.insert( std::make_pair( connectionString, bt ) );
-      } else {
-	bt = (BackendType) it->second;
-      }
-   
-      std::shared_ptr<SessionImpl> impl( new SessionImpl( coralSession, connectionString, bt ) );  
+      std::shared_ptr<SessionImpl> impl( new SessionImpl( coralSession, connectionString ) );  
       return Session( impl );
     }
 
-    Session ConnectionPool::createSession( const std::string& connectionString, bool writeCapable, BackendType backType ){
-      return createSession( connectionString, "", writeCapable, backType );
+    Session ConnectionPool::createSession( const std::string& connectionString, bool writeCapable ){
+      return createSession( connectionString, "", writeCapable );
     }
       
     Session ConnectionPool::createReadOnlySession( const std::string& connectionString, const std::string& transactionId ){

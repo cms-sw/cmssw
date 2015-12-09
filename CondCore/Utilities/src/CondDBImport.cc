@@ -28,8 +28,7 @@ namespace cond {
       std::string payloadTypeName;
       exists = session.fetchPayloadData( payloadId, payloadTypeName, data, streamerInfo );
       if( exists ) {
-	bool isOra = session.isOraSession();
-	return fetchOne(payloadTypeName, data, streamerInfo, payloadPtr, isOra);
+	return fetchOne(payloadTypeName, data, streamerInfo, payloadPtr );
       } else return std::make_pair( std::string(""), boost::shared_ptr<void>() );
     }
 
@@ -169,7 +168,6 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( HcalPedestalWidths )
       IMPORT_PAYLOAD_CASE( HcalPedestals )
       IMPORT_PAYLOAD_CASE( HcalQIEData )
-      IMPORT_PAYLOAD_CASE( HcalQIETypes ) 
       IMPORT_PAYLOAD_CASE( HcalRecoParams )
       IMPORT_PAYLOAD_CASE( HcalRespCorrs )
       IMPORT_PAYLOAD_CASE( HcalTimeCorrs )
@@ -220,37 +218,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( MagFieldConfig )
       if( inputTypeName == "L1TriggerKeyList" ){ 
 	match = true;
-	const L1TriggerKeyList& obj = *static_cast<const L1TriggerKeyList*>( inputPtr );
-        L1TriggerKeyList converted;
-	for( const auto& kitem : obj.tscKeyToTokenMap() ){
-	  std::string pid("0");
-	  std::string sourcePid = source.parsePoolToken( kitem.second );
-	  if( !destination.lookupMigratedPayload( source.connectionString(), sourcePid, pid ) ){
-	    std::cout <<"WARNING: L1Trigger key stored on "<<sourcePid<<" has not been migrated (yet?). Attemping to do the export..."<<std::endl;
-	    bool exists = false;
-            std::pair<std::string,boost::shared_ptr<void> > missingPayload = fetchIfExists( sourcePid, source, exists );
-	    if( exists ) pid = import( source, sourcePid, missingPayload.first, missingPayload.second.get(), destination );
-	    std::cout <<"WARNING: OID "<<sourcePid<<" will be mapped to HASH "<<pid<<std::endl;
-	    if( pid != "0" ) destination.addMigratedPayload( source.connectionString(), sourcePid, pid );
-	  }
-          converted.addKey( kitem.first, pid );
-	}
-	for( const auto& ritem : obj.recordTypeToKeyToTokenMap() ){
-	  for( const auto& kitem : ritem.second ){
-	    std::string pid("0");
-	    std::string sourcePid = source.parsePoolToken( kitem.second );
-	    if( !destination.lookupMigratedPayload( source.connectionString(), sourcePid, pid ) ){
-	      std::cout <<"WARNING: L1Trigger key stored on "<<sourcePid<<" has not been migrated (yet?). Attemping to do the export..."<<std::endl;
-	      bool exists = false;
-	      std::pair<std::string,boost::shared_ptr<void> > missingPayload = fetchIfExists( sourcePid, source, exists );
-	      if( exists ) pid = import( source, sourcePid, missingPayload.first, missingPayload.second.get(), destination );
-	      std::cout <<"WARNING: OID "<<sourcePid<<" will be mapped to HASH "<<pid<<std::endl;
-	      if( pid != "0" ) destination.addMigratedPayload( source.connectionString(), sourcePid, pid );
-	    }
-	    converted.addKey( ritem.first, kitem.first, pid );
-	  }
-	}
-	payloadId = destination.storePayload( converted, boost::posix_time::microsec_clock::universal_time() );
+	throwException( "Import of \"L1TriggerKeyList\" type payloads is not supported.","import" );
       }
       //IMPORT_PAYLOAD_CASE( L1TriggerKeyList )
       IMPORT_PAYLOAD_CASE( lumi::LumiSectionData )
