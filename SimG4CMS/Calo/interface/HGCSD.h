@@ -7,6 +7,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
+#include "SimG4Core/Notification/interface/BeginOfJob.h"
+#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "SimG4CMS/Calo/interface/HGCNumberingScheme.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
@@ -21,7 +23,7 @@ class G4LogicalVolume;
 class G4Material;
 class G4Step;
 
-class HGCSD : public CaloSD {
+class HGCSD : public CaloSD, public Observer<const BeginOfJob *> {
 
 public:    
 
@@ -34,6 +36,7 @@ public:
 
 protected:
 
+  virtual void                  update(const BeginOfJob *);
   virtual void                  initRun();
   virtual bool                  filterHit(CaloG4Hit*, double);
 
@@ -43,6 +46,9 @@ private:
   bool                          isItinFidVolume (G4ThreeVector&) {return true;}
   int                           setTrackID(G4Step * step);
 
+  std::string                   nameX;
+  bool                          checkID;
+  HGCalDDDConstants*            hgcalCons;
   HGCNumberingScheme*           numberingScheme;
   G4int                         verbosity, mumPDG, mupPDG; 
   double                        eminHit;

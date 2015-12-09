@@ -24,6 +24,7 @@ public:
 private:
 
   double                   cellSize;      //Cell Size
+  int                      cellType;      //Type (1 fine; 2 coarse)
   std::vector<std::string> childNames;    //Names of children
   std::vector<int>         positionX;     //Position in X
   std::vector<int>         positionY;     //Position in Y

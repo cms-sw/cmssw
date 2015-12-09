@@ -8,6 +8,8 @@
   <Constant name="CellNF" value="15"/>
   <Constant name="CellWC" value="[WaferW]/[CellNC]"/>
   <Constant name="CellWF" value="[WaferW]/[CellNF]"/>
+  <Constant name="TypeWC" value="2"/>
+  <Constant name="TypeWF" value="1"/>
 </ConstantsSection>
 
 <SolidSection label="hgcalwafer.xml">
@@ -70,6 +72,7 @@
   <Algorithm name="hgcal:DDHGCalWaferAlgo">
     <rParent name="hgcalwafer:HGCalWaferCoarse"/>
     <Numeric name="CellSize" value="[CellWC]"/>
+    <Numeric name="CellType" value="[TypeWC]"/>
     <Vector name="ChildNames" type="string" nEntries="2">
       HGCalCellCoarse, HGCalCellCoarseHalf</Vector>
     <Vector name="PositionX" type="numeric" nEntries="133">
@@ -123,6 +126,7 @@
   <Algorithm name="hgcal:DDHGCalWaferAlgo">
     <rParent name="hgcalwafer:HGCalWaferFine"/>
     <Numeric name="CellSize" value="[CellWF]"/>
+    <Numeric name="CellType" value="[TypeWF]"/>
     <Vector name="ChildNames" type="string" nEntries="2">
       HGCalCellFine, HGCalCellFineHalf</Vector>
     <Vector name="PositionX" type="numeric" nEntries="240">
