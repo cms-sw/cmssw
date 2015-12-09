@@ -11,11 +11,11 @@
 
 //#define DebugLog
 
-HGCNumberingScheme::HGCNumberingScheme(const DDCompactView & cpv, 
+HGCNumberingScheme::HGCNumberingScheme(HGCalDDDConstants* hgc, 
 				       std::string & name, bool check,
 				       int verbose) :
   CaloNumberingScheme(0), check_(check), verbosity(verbose),
-  hgcons(new HGCalDDDConstants(cpv,name)) {
+  hgcons(hgc) {
   edm::LogInfo("HGCSim") << "Creating HGCNumberingScheme for " << name;
 }
 

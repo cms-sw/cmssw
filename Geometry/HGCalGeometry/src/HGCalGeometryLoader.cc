@@ -33,8 +33,8 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
   bool               detType = topology.detectorType();
 
   // loop over modules
-  std::vector<HGCalDDDConstants::hgtrform>::const_iterator trItr;
-  std::vector<HGCalDDDConstants::hgtrap>::const_iterator   volItr;
+  std::vector<HGCalParameters::hgtrform>::const_iterator trItr;
+  std::vector<HGCalParameters::hgtrap>::const_iterator   volItr;
   ParmVec params(HGCalGeometry::k_NumberOfParametersPerShape,0);
   unsigned int counter(0);
   for (trItr = topology.dddConstants().getFirstTrForm(); 
