@@ -69,7 +69,7 @@ do
 			
                         corrname=`echo ${algo} | sed 's/\(.*\)/\U\1/'`${radius}${object}${corrlabel}
 			
-                        cat templateSequence_cff.py.txt \
+                         cat templateSequence_bTag_cff.py.txt \
                             | sed "s/ALGO_/$algo/g" \
                             | sed "s/SUB_/$subt/g" \
                             | sed "s/RADIUS_/$radius/g" \
