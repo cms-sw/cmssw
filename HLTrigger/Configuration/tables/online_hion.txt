@@ -252,7 +252,7 @@ RatesMonitoring					# only in 'online'
 HIPhysicsMuonsOutput
 HIPhysicsHardProbesOutput
 HIPhysicsMinBiasUPCOutput
-HIPhysicsVirginRawOutput
+#HIPhysicsVirginRawOutput			# Removed CMSHLT-679
 
 HIExpressOutput
 
