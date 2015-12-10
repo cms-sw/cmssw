@@ -2,7 +2,7 @@
 #include "Geometry/GEMGeometry/interface/ME0EtaPartitionSpecs.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoissonQ.h"
@@ -43,34 +43,41 @@ ME0PreRecoGaussianModel::~ME0PreRecoGaussianModel()
 
 void ME0PreRecoGaussianModel::simulateSignal(const ME0EtaPartition* roll, const edm::PSimHitContainer& simHits, CLHEP::HepRandomEngine* engine)
 {
-for (const auto & hit: simHits)
-{
-  // Digitize only Muons?
-  if (std::abs(hit.particleType()) != 13 && digitizeOnlyMuons_) continue;
-  // Digitize only in [minBunch,maxBunch] window                                                                                                                                                           
-  // window is: [(2n-1)*bxw/2, (2n+1)*bxw/2], n = [minBunch, maxBunch]                                                                                                                                     
-  if(hit.timeOfFlight() < (2*minBunch_-1)*bxwidth*1.0/2 || hit.timeOfFlight() > (2*maxBunch_+1)*bxwidth*1.0/2) continue;
-  // is GEM efficient?
-  if (CLHEP::RandFlat::shoot(engine) > averageEfficiency_) continue;
-  // create digi
-  auto entry = hit.entryPoint();
-  double x=0.0, y=0.0;
-  if(gaussianSmearing_) { // Gaussian Smearing
-    x=CLHEP::RandGaussQ::shoot(engine, entry.x(), sigma_u);
-    y=CLHEP::RandGaussQ::shoot(engine, entry.y(), sigma_v);
+  for (const auto & hit: simHits) {
+    // Digitize only Muons?
+    if (std::abs(hit.particleType()) != 13 && digitizeOnlyMuons_) continue;
+    // Digitize only in [minBunch,maxBunch] window
+    // window is: [(2n-1)*bxw/2, (2n+1)*bxw/2], n = [minBunch, maxBunch]
+    if(hit.timeOfFlight() < (2*minBunch_-1)*bxwidth*1.0/2 || hit.timeOfFlight() > (2*maxBunch_+1)*bxwidth*1.0/2) continue;
+    // is GEM efficient?
+    if (CLHEP::RandFlat::shoot(engine) > averageEfficiency_) continue;
+    // create digi
+    auto entry = hit.entryPoint();
+    double x=0.0, y=0.0;
+    if(gaussianSmearing_) { // Gaussian Smearing
+      x=CLHEP::RandGaussQ::shoot(engine, entry.x(), sigma_u);
+      y=CLHEP::RandGaussQ::shoot(engine, entry.y(), sigma_v);
+    }
+    else { // Uniform Smearing ... use the sigmas as boundaries
+      x=entry.x()+(CLHEP::RandFlat::shoot(engine)-0.5)*sigma_u;
+      y=entry.y()+(CLHEP::RandFlat::shoot(engine)-0.5)*sigma_v;
+    }
+    double ex=sigma_u;
+    double ey=sigma_v;
+    double corr=0.;
+    double tof=CLHEP::RandGaussQ::shoot(engine, hit.timeOfFlight(), sigma_t);
+    int pdgid = hit.particleType();
+    ME0DigiPreReco digi(x,y,ex,ey,corr,tof,pdgid);
+    digi_.insert(digi);
+    
+    edm::LogVerbatim("ME0PreRecoGaussianModel") << "[ME0PreRecoDigi :: simulateSignal] :: simhit in "<<roll->id()<<" at loc x = "<<std::setw(8)<<entry.x()<<" [cm]"
+						<< " loc y = "<<std::setw(8)<<entry.y()<<" [cm] time = "<<std::setw(8)<<hit.timeOfFlight()<<" [ns] pdgid = "<<std::showpos<<std::setw(4)<<pdgid;
+    edm::LogVerbatim("ME0PreRecoGaussianModel") << "[ME0PreRecoDigi :: simulateSignal] :: digi   in "<<roll->id()<<" at loc x = "<<std::setw(8)<<x<<" [cm] loc y = "<<std::setw(8)<<y<<" [cm]"
+						<<" time = "<<std::setw(8)<<tof<<" [ns]";
+    edm::LogVerbatim("ME0PreRecoGaussianModel") << "[ME0PreRecoDigi :: simulateSignal] :: digi   in "<<roll->id()<<" with DX = "<<std::setw(8)<<(entry.x()-x)<<" [cm]"
+						<<" DY = "<<std::setw(8)<<(entry.y()-y)<<" [cm] DT = "<<std::setw(8)<<(hit.timeOfFlight()-tof)<<" [ns]";
+    
   }
-  else { // Uniform Smearing ... use the sigmas as boundaries
-    x=entry.x()+(CLHEP::RandFlat::shoot(engine)-0.5)*sigma_u;
-    y=entry.y()+(CLHEP::RandFlat::shoot(engine)-0.5)*sigma_v;
-  }
-  double ex=sigma_u;
-  double ey=sigma_v;
-  double corr=0.;
-  double tof=CLHEP::RandGaussQ::shoot(engine, hit.timeOfFlight(), sigma_t);
-  int pdgid = hit.particleType();
-  ME0DigiPreReco digi(x,y,ex,ey,corr,tof,pdgid);
-  digi_.insert(digi);
-}
 }
 
 void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::HepRandomEngine* engine)
@@ -91,6 +98,10 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
   double myTanPhi    = (topLength - bottomLength) / (height * 2);
   double rollRadius  = top_->radius();
   trArea = height * (topLength + bottomLength) / 2.0;
+
+  edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: simulateNoise] :: extracting parameters from the TrapezoidalStripTopology";
+  edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: simulateNoise] :: bottom = "<<bottomLength<<" [cm] top  = "<<topLength<<" [cm] height = "<<height
+						   <<" [cm] radius = "<<rollRadius<<" [cm]" ;
 
   // simulate intrinsic noise and background hits in all BX that are being read out
   for(int bx=minBunch_; bx<maxBunch_+1; ++bx) {
@@ -121,6 +132,10 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
       const double averageElecRate(averageElectronRatePerRoll * (bxwidth*1.0e-9) * trArea);
       int n_elechits(CLHEP::RandPoissonQ::shoot(engine, averageElecRate));
 
+      edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: simulateNoise :: ele bkg] :: myRandY = "<<std::setw(12)<<myRandY<<" => local y = "<<std::setw(12)<<yy_rand<<" [cm]"
+                                                       <<" => global y (global R) = "<<std::setw(12)<<yy_glob<<" [cm] || Probability = "<<std::setw(12)<<averageElecRate
+                                                       <<" => efficient? "<<n_elechits<<std::endl;
+
       // max length in x for given y coordinate (cfr trapezoidal eta partition)
       double xMax = topLength/2.0 - (height/2.0 - yy_rand) * myTanPhi;
 
@@ -142,6 +157,10 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
         else                pdgid = 11;  // positron                                   
         ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid);
         digi_.insert(digi);
+
+	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: simulateNoise :: ele bkg] :: electron hit in "<<roll->id()<<" pdgid = "<<pdgid<<" bx = "<<bx
+                                                         <<" ==> digitized at loc x = "<<xx_rand<<" loc y = "<<yy_rand<<" time = "<<time<<" [ns]";
+
       }
     }
 
@@ -164,6 +183,10 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
       // max length in x for given y coordinate (cfr trapezoidal eta partition)   
       double xMax = topLength/2.0 - (height/2.0 - yy_rand) * myTanPhi;
 
+      edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: simulateNoise :: neu bkg] :: myRandY = "<<std::setw(12)<<myRandY<<" => local y = "<<std::setw(12)<<yy_rand<<" [cm]"
+                                                       <<" => global y (global R) = "<<std::setw(12)<<yy_glob<<" [cm] || Probability "<<std::setw(12)<<averageNeutrRate
+                                                       <<" => efficient? "<<n_hits<<std::endl;
+
       // loop over amount of neutral hits in this roll                            
       for (int i = 0; i < n_hits; ++i) {
         //calculate xx_rand at a given yy_rand                                    
@@ -182,6 +205,10 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
         else                 pdgid = 22;   // photons:  GEM sensitivity for photons:  1.04% ==> neutron fraction = (0.08 / 1.04) = 0.077 = 0.08
         ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid);
         digi_.insert(digi);
+
+	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: simulateNoise :: neu bkg] :: neutral hit in "<<roll->id()<<" pdgid = "<<pdgid<<" bx = "<<bx
+                                                         <<" ==> digitized at loc x = "<<xx_rand<<" loc y = "<<yy_rand<<" time = "<<time<<" [ns]";
+
       }
     }
 
