@@ -6,6 +6,7 @@ then
 else
   echo Initiating test, run with -v to save all logs and test configs.
 fi
+rm fail.test_* 
 
 #############################################################
 # Step 1: Get the input samples if they're not already here #
@@ -17,7 +18,8 @@ then
   echo Samples found.
 else
   printf "Grabbing samples..."
-  git@github.com:velicanu/samples.git &> /dev/null
+  git clone git@github.com:velicanu/samples.git &> /dev/null
+  mv samples .samples
   echo Done.
 fi
 
