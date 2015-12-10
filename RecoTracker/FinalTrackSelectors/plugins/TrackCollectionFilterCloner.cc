@@ -51,12 +51,12 @@ class TrackCollectionFilterCloner final : public edm::global::EDProducer<> {
   
 
   TrackCollectionCloner collectionCloner;
-  TrackCollectionCloner::Tokens originalTrackSource_;
+  const TrackCollectionCloner::Tokens originalTrackSource_;
 
   edm::EDGetTokenT<MVACollection>         originalMVAValsToken_;
   edm::EDGetTokenT<QualityMaskCollection> originalQualValsToken_;
 
-  reco::TrackBase::TrackQuality minQuality_; 
+  const reco::TrackBase::TrackQuality minQuality_; 
 
 };
 }
