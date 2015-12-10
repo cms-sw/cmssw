@@ -82,6 +82,14 @@ void ME0PreRecoGaussianModel::simulateSignal(const ME0EtaPartition* roll, const 
     int pdgid = hit.particleType();
     ME0DigiPreReco digi(x, y, ex, ey, corr, tof, pdgid, 1);
     digi_.insert(digi);
+
+    edm::LogVerbatim("ME0PreRecoGaussianModel") << "[ME0PreRecoDigi :: simulateSignal] :: simhit in "<<roll->id()<<" at loc x = "<<std::setw(8)<<entry.x()<<" [cm]"
+                                                << " loc y = "<<std::setw(8)<<entry.y()<<" [cm] time = "<<std::setw(8)<<hit.timeOfFlight()<<" [ns] pdgid = "<<std::showpos<<std::setw(4)<<pdgid;
+    edm::LogVerbatim("ME0PreRecoGaussianModel") << "[ME0PreRecoDigi :: simulateSignal] :: digi   in "<<roll->id()<<" at loc x = "<<std::setw(8)<<x<<" [cm] loc y = "<<std::setw(8)<<y<<" [cm]"
+                                                <<" time = "<<std::setw(8)<<tof<<" [ns]";
+    edm::LogVerbatim("ME0PreRecoGaussianModel") << "[ME0PreRecoDigi :: simulateSignal] :: digi   in "<<roll->id()<<" with DX = "<<std::setw(8)<<(entry.x()-x)<<" [cm]"
+                                                <<" DY = "<<std::setw(8)<<(entry.y()-y)<<" [cm] DT = "<<std::setw(8)<<(hit.timeOfFlight()-tof)<<" [ns]";
+
   }
 }
 void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
@@ -100,6 +108,10 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
   double myTanPhi    = (topLength - bottomLength) / (height * 2);
   double rollRadius = top_->radius();
   trArea = height * (topLength + bottomLength) / 2.0;
+
+  edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: simulateNoise] :: extracting parameters from the TrapezoidalStripTopology";
+  edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: simulateNoise] :: bottom = "<<bottomLength<<" [cm] top  = "<<topLength<<" [cm] height = "<<height
+						   <<" [cm] radius = "<<rollRadius<<" [cm]" ;
 
   // simulate intrinsic noise and background hits in all BX that are being read out
   for(int bx=minBunch_; bx<maxBunch_+1; ++bx) {
@@ -131,6 +143,10 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
       const double averageElecRate(averageElectronRatePerRoll * (bxwidth*1.0e-9) * trArea); 
       int n_elechits(poisson_->fire(averageElecRate));
 
+      edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: simulateNoise :: ele bkg] :: myRandY = "<<std::setw(12)<<myRandY<<" => local y = "<<std::setw(12)<<yy_rand<<" [cm]"
+                                                       <<" => global y (global R) = "<<std::setw(12)<<yy_glob<<" [cm] || Probability = "<<std::setw(12)<<averageElecRate
+                                                       <<" => efficient? "<<n_elechits<<std::endl;
+
       // max length in x for given y coordinate (cfr trapezoidal eta partition)
       double xMax = topLength/2.0 - (height/2.0 - yy_rand) * myTanPhi;
 
@@ -152,6 +168,10 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
 	else 	            pdgid = 11;  // positron
 	ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid, 0);
 	digi_.insert(digi);
+
+	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: simulateNoise :: ele bkg] :: electron hit in "<<roll->id()<<" pdgid = "<<pdgid<<" bx = "<<bx
+                                                         <<" ==> digitized at loc x = "<<xx_rand<<" loc y = "<<yy_rand<<" time = "<<time<<" [ns]";
+
       }
     }
 
@@ -172,6 +192,10 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
       // Rate [Hz/cm^2] * 25*10^-9 [s] * Area [cm] = # hits in this roll
       const double averageNeutrRate(averageNeutralRatePerRoll * (bxwidth*1.0e-9) * trArea);
       int n_hits(poisson_->fire(averageNeutrRate));
+
+      edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: simulateNoise :: neu bkg] :: myRandY = "<<std::setw(12)<<myRandY<<" => local y = "<<std::setw(12)<<yy_rand<<" [cm]"
+                                                       <<" => global y (global R) = "<<std::setw(12)<<yy_glob<<" [cm] || Probability "<<std::setw(12)<<averageNeutrRate
+                                                       <<" => efficient? "<<n_hits<<std::endl;
 
       // max length in x for given y coordinate (cfr trapezoidal eta partition)
       double xMax = topLength/2.0 - (height/2.0 - yy_rand) * myTanPhi;
@@ -194,6 +218,10 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
         else                 pdgid = 22;   // photons:  GEM sensitivity for photons:  1.04% ==> neutron fraction = (0.08 / 1.04) = 0.077 = 0.08
         ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid, 0);
         digi_.insert(digi);
+
+	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: simulateNoise :: neu bkg] :: neutral hit in "<<roll->id()<<" pdgid = "<<pdgid<<" bx = "<<bx
+                                                         <<" ==> digitized at loc x = "<<xx_rand<<" loc y = "<<yy_rand<<" time = "<<time<<" [ns]";
+
       }
     }
 
