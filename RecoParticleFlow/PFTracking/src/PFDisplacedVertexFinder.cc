@@ -288,10 +288,16 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
     transTracksRefRaw.push_back( *ie );
     bool nonIt = PFTrackAlgoTools::nonIterative((*ie)->algo());
     bool step45 = PFTrackAlgoTools::step45((*ie)->algo());
+    bool highQ = PFTrackAlgoTools::highQuality((*ie)->algo());   
     if (step45)
       nStep45++;
-    if (nonIt)
+    else if (nonIt)
       nNotIterative++;
+    else if (!highQ) {
+      nNotIterative++;
+      nStep45++;
+    }
+
   }
 
   if (rho > 25 && nStep45 + nNotIterative < 1){

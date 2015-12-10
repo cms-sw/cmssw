@@ -163,6 +163,22 @@ bool isFifthStep(const reco::TrackBase::TrackAlgorithm& algo){
 }
 
 
+bool highQuality(const reco::TrackBase::TrackAlgorithm& algo){
+  switch (algo) {
+  case reco::TrackBase::initialStep:
+  case reco::TrackBase::lowPtTripletStep:
+  case reco::TrackBase::pixelPairStep:
+  case reco::TrackBase::detachedTripletStep:
+  case reco::TrackBase::duplicateMerge:
+  case reco::TrackBase::jetCoreRegionalStep:
+    return true;
+  default:
+    return false;
+  }
+
+}
+
+
 bool nonIterative(const reco::TrackBase::TrackAlgorithm& algo){
   switch (algo) {
   case reco::TrackBase::undefAlgorithm:
@@ -181,6 +197,7 @@ bool step45(const reco::TrackBase::TrackAlgorithm& algo){
   switch (algo) {
   case reco::TrackBase::mixedTripletStep:
   case reco::TrackBase::pixelLessStep:
+  case reco::TrackBase::tobTecStep:
     return true;
   default:
     return false;
@@ -189,8 +206,8 @@ bool step45(const reco::TrackBase::TrackAlgorithm& algo){
 }
 
 
-
-
-
+bool step5(const reco::TrackBase::TrackAlgorithm& algo){
+  return algo==reco::TrackBase::tobTecStep;
+}
 
 }

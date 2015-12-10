@@ -1395,6 +1395,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	   const reco::PFBlockElementTrack * kfEle = 
 	     docast(const reco::PFBlockElementTrack*,kftrack.first);
 	   const reco::TrackRef trackref = kfEle->trackRef();
+
 	   const reco::TrackBase::TrackAlgorithm Algo = trackref->algo();
 	   const int nexhits = 
 	     trackref->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);

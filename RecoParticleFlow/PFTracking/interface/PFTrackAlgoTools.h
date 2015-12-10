@@ -9,5 +9,7 @@ namespace PFTrackAlgoTools  {
   bool isFifthStep(const reco::TrackBase::TrackAlgorithm&) ;
 
   bool nonIterative(const reco::TrackBase::TrackAlgorithm&);
+  bool highQuality(const reco::TrackBase::TrackAlgorithm&);
   bool step45(const reco::TrackBase::TrackAlgorithm&);
+  bool step5(const reco::TrackBase::TrackAlgorithm&);
 }
