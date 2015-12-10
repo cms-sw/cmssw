@@ -392,24 +392,3 @@ tracksValidationTrackingOnly = cms.Sequence(
     tracksValidationSeedSelectorsTrackingOnly +
     trackValidatorsTrackingOnly
 )
-
-
-### 'slim' sequences that only depend on track and tracking particle collections
-tracksValidationSelectorsSlim = tracksValidationSelectorsTrackingOnly.copyAndExclude([cutsRecoTracksBtvLike])
-
-tracksPreValidationSlim = cms.Sequence(
-    tracksValidationSelectorsSlim +
-    tracksValidationTruth
-)
-
-trackValidatorSlim = trackValidator.clone(
-    doPVAssociationPlots = cms.untracked.bool(False),
-    dodEdxPlots = False
-)
-for _label in ["cutsRecoTracksBtvLike", "cutsRecoTracksAK4PFJets"]:
-    trackValidatorSlim.label.remove(_label)
-
-tracksValidationSlim = cms.Sequence(
-    tracksPreValidationSlim+
-    trackValidatorSlim
-)
