@@ -195,6 +195,22 @@ double ThirdHitPredictionFromCircle::transverseIP(const Vector2D &p2) const
 
 //------------------------------------------------------------------------------
 
+
+namespace {
+  // 2asin(cd)/c
+  inline
+float arc(float c, float d) {
+    float z = c*d; z*=z;
+    float x = 2.f*d;
+
+    if (z>0.5f) return std::min(1.f,2.f*unsafe_asin<5>(c*d)/c);
+
+    return x*approx_asin_P<7>(z);
+
+  }
+}
+
+
 ThirdHitPredictionFromCircle::HelixRZ::HelixRZ(
   const ThirdHitPredictionFromCircle * icircle, double iz1, double z2, double curv) :
   circle(icircle), curvature(curv), radius(1./curv), z1(iz1)
@@ -204,15 +220,8 @@ ThirdHitPredictionFromCircle::HelixRZ::HelixRZ(
 
   Scalar absCurv = std::abs(curv);
   seg = circle->delta;
-
-  if (likely(absCurv > 1.0e-5)) {
-    seg *= absCurv;
-    seg = seg < -1.0 ? -M_PI_2 : seg > 1.0 ? M_PI_2 : std::asin(seg);
-    seg /= absCurv;
-  }
-
-  seg *= 2.;
-  dzdu = likely(std::abs(seg) > 1.0e-5) ? ((z2 - z1) / seg) : 99999.0;
+  seg = arc(absCurv,seg);
+  dzdu = (z2 - z1) / seg;
 }
 
 double ThirdHitPredictionFromCircle::HelixRZ::maxCurvature(
@@ -255,6 +264,9 @@ ThirdHitPredictionFromCircle::HelixRZ::zAtR(Scalar r) const {
   return z1 + ((u1 >= seg && u1 < u2)? u1 : u2) * dzdu;
 }
 
+
+#include<vdt/sincos.h>
+
 ThirdHitPredictionFromCircle::HelixRZ::Scalar
 ThirdHitPredictionFromCircle::HelixRZ::rAtZ(Scalar z) const {
   if (unlikely(std::abs(dzdu) < 1.0e-5))
@@ -287,8 +299,9 @@ ThirdHitPredictionFromCircle::HelixRZ::rAtZ(Scalar z) const {
 
   Vector2D rel = circle->p1 - center;
 
-  Scalar c = std::cos(phi);
-  Scalar s = std::sin(phi);
+  float c;
+  float s;
+  vdt::fast_sincosf(phi,s,c);
 
   Vector2D p(center.x() + c * rel.x() - s * rel.y(),
             center.y() + s * rel.x() + c * rel.y());

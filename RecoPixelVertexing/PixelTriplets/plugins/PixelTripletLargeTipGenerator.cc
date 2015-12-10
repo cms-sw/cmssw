@@ -24,6 +24,8 @@
 #include <cmath>
 #include <map>
 
+#include "CommonTools/Utils/interface/DynArray.h"
+
 using namespace std;
 
 typedef PixelRecoRange<float> Range;
@@ -100,13 +102,9 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
   std::vector<NodeInfo > layerTree; // re-used throughout
   std::vector<unsigned int> foundNodes; // re-used throughout
   foundNodes.reserve(100);
-  #ifdef __clang__
-  std::vector<KDTreeLinkerAlgo<unsigned int>> hitTree(size);
-  std::vector<LayerRZPredictions> mapPred(size);
-  #else
-  KDTreeLinkerAlgo<unsigned int> hitTree[size];
-  LayerRZPredictions mapPred[size];
-  #endif
+
+  declareDynArray(KDTreeLinkerAlgo<unsigned int>, size, hitTree);
+  declareDynArray(LayerRZPredictions, size, mapPred);
 
   float rzError[size]; //save maximum errors
   float maxphi = Geom::ftwoPi(), minphi = -maxphi; //increase to cater for any range
@@ -166,6 +164,8 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
     GlobalPoint gp1(xi,yi,zi);
     GlobalPoint gp2(xo,yo,zo);
 
+    auto toPos = std::signbit(zo-zi); 
+
     PixelRecoLineRZ line(gp1, gp2);
     PixelRecoPointRZ point2(gp2.perp(), zo);
     ThirdHitPredictionFromCircle predictionRPhi(gp1, gp2, extraHitRPhitolerance);
@@ -177,6 +177,9 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
       if (hitTree[il].empty()) continue; // Don't bother if no hits
       const DetLayer *layer = thirdLayers[il].detLayer();
       bool barrelLayer = layer->isBarrel();
+
+      if ( (!barrelLayer) & (toPos != std::signbit(layer->position().z())) ) continue;
+
       
       Range curvature = generalCurvature;
 

@@ -17,10 +17,11 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 
 #include "DataFormats/GeometryVector/interface/Pi.h"
-//#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerAlgo.h"
-//#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerTools.h"
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerAlgo.h" //amend to point at your copy...
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
+
+#include "CommonTools/Utils/interface/DynArray.h"
+
 
 #include<cstdio>
 
@@ -72,13 +73,8 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
   float regOffset = region.origin().perp(); //try to take account of non-centrality (?)
   int size = thirdLayers.size();
   
-  #ifdef __clang__
-  std::vector<ThirdHitRZPrediction<PixelRecoLineRZ>> preds(size);
-  std::vector<ThirdHitCorrection> corrections(size);
-  #else
-  ThirdHitRZPrediction<PixelRecoLineRZ> preds[size];
-  ThirdHitCorrection corrections[size];
-  #endif
+  declareDynArray(ThirdHitRZPrediction<PixelRecoLineRZ>, size, preds);
+  declareDynArray(ThirdHitCorrection, size, corrections);
   
   const RecHitsSortedInPhi * thirdHitMap[size];
   typedef RecHitsSortedInPhi::Hit Hit;
@@ -88,11 +84,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
   std::vector<unsigned int> foundNodes; // re-used thoughout
   foundNodes.reserve(100);
 
-  #ifdef __clang__
-  std::vector<KDTreeLinkerAlgo<unsigned int>> hitTree(size);
-  #else
-  KDTreeLinkerAlgo<unsigned int> hitTree[size];
-  #endif
+  declareDynArray(KDTreeLinkerAlgo<unsigned int>,size, hitTree);
   float rzError[size]; //save maximum errors
   float maxphi = Geom::ftwoPi(), minphi = -maxphi; // increase to cater for any range
   
@@ -143,7 +135,9 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
     auto yo = doublets.y(ip,HitDoublets::outer);
     auto zo = doublets.z(ip,HitDoublets::outer);
     auto rvo = doublets.rv(ip,HitDoublets::outer);
-    
+
+    auto toPos = std::signbit(zo-zi);    
+
     PixelRecoPointRZ point1(rvi, zi);
     PixelRecoPointRZ point2(rvo, zo);
     PixelRecoLineRZ  line(point1, point2);
@@ -159,13 +153,15 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
     //                        << point2.r() << ","<< point2.z() <<std::endl;
 
     for (int il=0; il!=size; ++il) {
+      const DetLayer * layer = thirdLayers[il].detLayer();
+      auto barrelLayer = layer->isBarrel();
+
+      if ( (!barrelLayer) & (toPos != std::signbit(layer->position().z())) ) continue;
+
       if (hitTree[il].empty()) continue; // Don't bother if no hits
       
       auto const & hits = *thirdHitMap[il];
       
-      const DetLayer * layer = thirdLayers[il].detLayer();
-      auto barrelLayer = layer->isBarrel();
-
       auto & correction = corrections[il];
 
       correction.init(line, point2, outSeq); 
