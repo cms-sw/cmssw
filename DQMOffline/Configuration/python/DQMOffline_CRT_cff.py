@@ -27,3 +27,10 @@ crt_dqmoffline = cms.Sequence( siStripCertificationInfo *
                                egammaDataCertificationTask *
                                dqmOfflineTriggerCert )
 
+#
+# Make changes for different running scenarios
+#
+from Configuration.StandardSequences.Eras import eras
+if eras.phase1Pixel.isChosen():
+    crt_dqmoffline.remove(dataCertificationJetMET)
+    crt_dqmoffline.remove(sipixelCertification)
