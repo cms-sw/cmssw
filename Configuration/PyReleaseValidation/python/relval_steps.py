@@ -280,7 +280,8 @@ baseDataSetRelease=[
     'CMSSW_7_6_2-76X_mcRun2_asymptotic_v12-v1',                # 12 - fullSim noPU REMINIAOD RECO input 
     'CMSSW_7_6_2-PU50ns_76X_mcRun2_startup_v11-v1',            # 13 - fullSim PU50ns REMINIAOD RECO input
     'CMSSW_7_6_2-PU25ns_76X_mcRun2_asymptotic_v12-v1',         # 14 - fullSim PU25ns REMINIAOD RECO input
-    'CMSSW_7_6_2-76X_dataRun2_HLT_frozen_v9_rerecoGT_RelVal_DATASETSTRING-v1',    # 15 - data REMINIAOD RECO input
+    #'CMSSW_7_6_2-76X_dataRun2_HLT_frozen_v9_rerecoGT_RelVal_DATASETSTRING-v1',    # 15 - data REMINIAOD RECO input
+    'CMSSW_7_6_1-76X_dataRun2_v15_rerecoGT_RelVal_DATASETSTRING-v1',    # 15 - data REMINIAOD RECO input
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
