@@ -27,8 +27,8 @@ OccupancyPlotsPixelWantedSubDetsGeneral = cms.VPSet (
     cms.PSet(detSelection=cms.uint32(211),detLabel=cms.string("TID_Side1_Wheel01"),selection=cms.untracked.vstring("0x1fbc0000-0x18840000")),
     cms.PSet(detSelection=cms.uint32(212),detLabel=cms.string("TID_Side1_Wheel02"),selection=cms.untracked.vstring("0x1fbc0000-0x18880000")),
     cms.PSet(detSelection=cms.uint32(213),detLabel=cms.string("TID_Side1_Wheel03"),selection=cms.untracked.vstring("0x1fbc0000-0x188c0000")),
-     cms.PSet(detSelection=cms.uint32(214),detLabel=cms.string("TID_Side1_Wheel04"),selection=cms.untracked.vstring("0x1fbc0000-0x18900000")),
-     cms.PSet(detSelection=cms.uint32(215),detLabel=cms.string("TID_Side1_Wheel05"),selection=cms.untracked.vstring("0x1fbc0000-0x18940000")),
+    cms.PSet(detSelection=cms.uint32(214),detLabel=cms.string("TID_Side1_Wheel04"),selection=cms.untracked.vstring("0x1fbc0000-0x18900000")),
+    cms.PSet(detSelection=cms.uint32(215),detLabel=cms.string("TID_Side1_Wheel05"),selection=cms.untracked.vstring("0x1fbc0000-0x18940000")),
      #Endcap : 15 side +   
      cms.PSet(detSelection=cms.uint32(251),detLabel=cms.string("PXF_Side2_Disk01"),selection=cms.untracked.vstring("0x1fbc0000-0x15040000")),
      cms.PSet(detSelection=cms.uint32(252),detLabel=cms.string("PXF_Side2_Disk02"),selection=cms.untracked.vstring("0x1fbc0000-0x15080000")),

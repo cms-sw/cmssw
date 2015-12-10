@@ -110,7 +110,8 @@ if not options.inputFiles :
 process.source = cms.Source("PoolSource",
                     fileNames = cms.untracked.vstring(options.inputFiles),
 #                    skipBadFiles = cms.untracked.bool(True),
-                    inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
+                    inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*"),
+#                    skipEvents = cms.untracked.uint32(1)
                     )
 
 # HLT Selection ------------------------------------------------------------
