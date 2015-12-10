@@ -4,6 +4,7 @@
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "DataFormats/GEMDigi/interface/ME0DigiPreReco.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
