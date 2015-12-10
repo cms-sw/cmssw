@@ -91,6 +91,9 @@ process.load('GeneratorInterface.HiGenCommon.HeavyIon_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.HiGenAnalyzer_cfi')
 process.load('HeavyIonsAnalysis.EventAnalysis.runanalyzer_cff')
 process.HiGenParticleAna.genParticleSrc = cms.untracked.InputTag("genParticles")
+# Temporary disactivation - until we have DIGI & RECO in CMSSW_7_5_7_patch4
+process.HiGenParticleAna.doHI = False
+
 
 #####################################################################################
 
@@ -143,7 +146,9 @@ process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.Input
 # Main analysis list
 #########################
 
-process.ana_step = cms.Path(#process.mixAnalyzer *
+process.ana_step = cms.Path(
+# Temporary disactivation - until we have DIGI & RECO in CMSSW_7_5_7_patch4
+# process.mixAnalyzer *
                             process.runAnalyzer *
                             process.hltanalysis *
                             process.centralityBin *
