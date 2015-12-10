@@ -114,7 +114,7 @@ template <typename T, typename Textractor>
       evt.getByToken(jetCorrTokenUpToL3Res_, jetCorrUpToL3Res);
     }
     
-    std::auto_ptr<JetCollection> shiftedJets(new JetCollection);
+    std::unique_ptr<JetCollection> shiftedJets(new JetCollection);
 
     
     if ( jetCorrPayloadName_ != "" ) {
@@ -178,7 +178,7 @@ template <typename T, typename Textractor>
       shiftedJets->push_back(shiftedJet);
     }
 
-    evt.put(shiftedJets);
+    evt.put(std::move(shiftedJets));
   }
 
   std::string moduleLabel_;
