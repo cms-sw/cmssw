@@ -65,6 +65,7 @@ namespace edm {
       const_iterator & operator +=(difference_type d) { i += d; return *this; }
       const_iterator & operator -=(difference_type d) { i -= d; return *this; }
       reference operator[](difference_type d) const { return *const_iterator(i+d); } // for boost::iterator_range []
+      typename base::const_iterator base_iter() const { return i; }
     private:
       typename base::const_iterator i;
     };
@@ -136,6 +137,17 @@ namespace edm {
     template <typename D> void push_back(D* const& d);
     template <typename D> void push_back(std::auto_ptr<D> d);
     void push_back(T const& valueToCopy);
+
+    template <typename D> void set(size_t i, D*& d);
+    template <typename D> void set(size_t i, D* const & d);
+    template <typename D> void set(size_t i, std::auto_ptr<D> d);
+    void set(size_t i, T const& valueToCopy);
+
+    template <typename D> void insert(const_iterator i, D*& d);
+    template <typename D> void insert(const_iterator i, D* const & d);
+    template <typename D> void insert(const_iterator i, std::auto_ptr<D> d);
+    void insert(const_iterator i, T const& valueToCopy);
+
     bool is_back_safe() const;
     void pop_back();
     reference back();
@@ -308,6 +320,70 @@ namespace edm {
   inline void OwnVector<T, P>::push_back(T const& d) {
     data_.push_back(policy_type::clone(d));
   }
+
+  template<typename T, typename P>
+  template<typename D>
+  inline void OwnVector<T, P>::set(size_t i, D*& d) {
+    // see push_back for documentation
+    if (d == data_[i]) return; 
+    delete data_[i];
+    data_[i] = d;
+    d = 0;
+  }
+
+  template<typename T, typename P>
+  template<typename D>
+  inline void OwnVector<T, P>::set(size_t i, D* const& d) {
+    // see push_back for documentation
+    if (d == data_[i]) return; 
+    delete data_[i];
+    data_[i] = d;
+  }
+
+
+  template<typename T, typename P>
+  template<typename D>
+  inline void OwnVector<T, P>::set(size_t i, std::auto_ptr<D> d) {
+    if (d.get() == data_[i]) return; 
+    delete data_[i];
+    data_[i] = d.release();
+  }
+
+
+  template<typename T, typename P>
+  inline void OwnVector<T, P>::set(size_t i, T const& d) {
+    if (&d == data_[i]) return; 
+    delete data_[i];
+    data_[i] = policy_type::clone(d);
+  }
+
+
+  template<typename T, typename P>
+  template<typename D>
+  inline void OwnVector<T, P>::insert(const_iterator it, D*& d) {
+    data_.insert(it.base_iter(), d);
+    d = 0;
+  }
+
+  template<typename T, typename P>
+  template<typename D>
+  inline void OwnVector<T, P>::insert(const_iterator it, D* const& d) {
+    data_.insert(it.base_iter(), d);
+  }
+
+
+  template<typename T, typename P>
+  template<typename D>
+  inline void OwnVector<T, P>::insert(const_iterator it, std::auto_ptr<D> d) {
+    data_.insert(it.base_iter(), d.release());
+  }
+
+
+  template<typename T, typename P>
+  inline void OwnVector<T, P>::insert(const_iterator it, T const& d) {
+    data_.insert(it.base_iter(), policy_type::clone(d));
+  }
+
 
 
   template<typename T, typename P>
