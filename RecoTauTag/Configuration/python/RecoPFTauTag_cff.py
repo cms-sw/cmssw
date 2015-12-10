@@ -63,7 +63,7 @@ combinatoricRecoTaus.modifiers.append(cms.PSet(
 #------------------ HPS Taus ---------------------------------------------------
 #-------------------------------------------------------------------------------
 
-from RecoTauTag.Configuration.HPSPFTaus_reminiAOD_cff import *
+from RecoTauTag.Configuration.HPSPFTaus_cff import *
 
 combinatoricRecoTaus.chargedHadronSrc = cms.InputTag("ak4PFJetsRecoTauChargedHadrons")
 combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak4PFJetsLegacyHPSPiZeros")
