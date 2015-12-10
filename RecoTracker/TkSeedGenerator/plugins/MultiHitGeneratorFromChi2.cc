@@ -319,6 +319,9 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
     SimpleLineRZ line(PixelRecoPointRZ(gp0.perp(),gp0.z()), PixelRecoPointRZ(gp1.perp(),gp1.z()));
     ThirdHitPredictionFromCircle predictionRPhi(gp0, gp1, extraHitRPhitolerance);
 
+    auto toPos = std::signbit(gp1.z()-gp0.z());
+
+
     //gc: this is the curvature of the two hits assuming the region
     Range pairCurvature = predictionRPhi.curvature(region.originRBound());
     //gc: intersect not only returns a bool but may change pairCurvature to intersection with curv
@@ -343,6 +346,9 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 
       const DetLayer *layer = thirdLayers[il].detLayer();
       bool barrelLayer = layer->location() == GeomDetEnumerators::barrel;
+
+      if ( (!barrelLayer) & (toPos != std::signbit(layer->position().z())) ) continue;
+
 
       LayerRZPredictions &predRZ = mapPred.find(thirdLayers[il].name())->second;
       predRZ.line.initPropagator(&line);
