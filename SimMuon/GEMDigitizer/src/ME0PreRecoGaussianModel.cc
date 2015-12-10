@@ -69,7 +69,7 @@ void ME0PreRecoGaussianModel::simulateSignal(const ME0EtaPartition* roll, const 
     double x=0.0, y=0.0;
     if(gaussianSmearing_) { // Gaussian Smearing
       x=gauss_->fire(entry.x(), sigma_u);
-      y=gauss_->fire(entry.x(), sigma_u);
+      y=gauss_->fire(entry.y(), sigma_v);
     }
     else { // Uniform Smearing ... use the sigmas as boundaries
       x=entry.x()+(flat1_->fire(0., 1.)-0.5)*sigma_u;
