@@ -975,7 +975,9 @@ _timing_iterations = PlotGroup("iterations", [
     Plot(AggregateBins(i.name(), "reconstruction_step_module_average", collections.OrderedDict(i.modules()), ignoreMissingBins=True),
          ytitle="Average processing time (ms)", title=i.name(), **_common)
     for i in _iterations
-])
+],
+                               legend=False
+)
 _pixelTiming = PlotGroup("pixelTiming", [
     Plot(AggregateBins("pixel", "reconstruction_step_module_average", {"pixelTracks": ["pixelTracks"]}), ytitle="Average processing time [ms]", title="Average processing time / event", drawStyle="HIST")
 ])

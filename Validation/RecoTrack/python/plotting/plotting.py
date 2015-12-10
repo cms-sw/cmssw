@@ -1530,6 +1530,7 @@ class PlotGroup:
         legendDy -- Float for moving TLegend in y direction (default None)
         legendDw -- Float for changing TLegend width (default None)
         legendDh -- Float for changing TLegend height (default None)
+        legend   -- Bool for disabling legend (default True for legend being enabled)
         overrideLegendLabels -- List of strings for legend labels, if given, these are used instead of the ones coming from Plotter (default None)
         onlyForPileup  -- Plots this group only for pileup samples
         """
@@ -1545,6 +1546,7 @@ class PlotGroup:
         _set("legendDy", None)
         _set("legendDw", None)
         _set("legendDh", None)
+        _set("legend", True)
 
         _set("overrideLegendLabels", None)
 
@@ -1753,6 +1755,9 @@ class PlotGroup:
         pad2.SetBottomMargin(bottomMargin/(self._ratioFactor*divisionPoint))
 
     def _createLegend(self, plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.016, denomUncertainty=True):
+        if not self._legend:
+            return None
+
         l = ROOT.TLegend(lx1, ly1, lx2, ly2)
         l.SetTextSize(textSize)
         l.SetLineColor(1)
