@@ -1,5 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
+#
+# This object is used to make changes for different running scenarios
+#
+from Configuration.StandardSequences.Eras import eras
+
 #Client:
 sipixelEDAClient = cms.EDAnalyzer("SiPixelEDAClient",
     EventOffsetForInit = cms.untracked.int32(10),
@@ -13,6 +18,11 @@ sipixelEDAClient = cms.EDAnalyzer("SiPixelEDAClient",
     DoHitEfficiency = cms.untracked.bool(True),
     isUpgrade = cms.untracked.bool(False)	
 )
+# Modify for running with the Phase 1 pixel detector.
+# Note that with this change the sipixelPhase1Client block below is not
+# necessary, but I'll leave it for pixel upgrade experts to decide whether
+# to take it out or not.
+eras.phase1Pixel.toModify( sipixelEDAClient, isUpgrade=True )
 
 sipixelPhase1Client = cms.EDAnalyzer("SiPixelEDAClient",
     EventOffsetForInit = cms.untracked.int32(10),

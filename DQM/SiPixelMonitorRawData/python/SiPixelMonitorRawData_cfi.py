@@ -1,5 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
+#
+# This object is used to make changes for different running scenarios
+#
+from Configuration.StandardSequences.Eras import eras
+
 SiPixelRawDataErrorSource = cms.EDAnalyzer("SiPixelRawDataErrorSource",
     TopFolderName = cms.string('Pixel'),
     src = cms.InputTag("siPixelDigis"),
@@ -13,4 +18,5 @@ SiPixelRawDataErrorSource = cms.EDAnalyzer("SiPixelRawDataErrorSource",
     bladeOn = cms.untracked.bool(False)
 )
 
-
+# Modify for if the phase 1 pixel detector is active
+eras.phase1Pixel.toModify( SiPixelRawDataErrorSource, isUpgrade=cms.untracked.bool(True) )

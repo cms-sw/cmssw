@@ -182,57 +182,69 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 
 
   LogVerbatim ("PixelDQM") << " *** Geometry node for TrackerGeom is  "<<&(*pDD)<<std::endl;
-  LogVerbatim ("PixelDQM") << " *** I have " << pDD->dets().size() <<" detectors"<<std::endl;
-  LogVerbatim ("PixelDQM") << " *** I have " << pDD->detTypes().size() <<" types"<<std::endl;
+  LogVerbatim ("PixelDQM") << " *** I have " << pDD->detsPXB().size() <<" barrel pixel detectors"<<std::endl;
+  LogVerbatim ("PixelDQM") << " *** I have " << pDD->detsPXF().size() <<" endcap pixel detectors"<<std::endl;
+  //LogVerbatim ("PixelDQM") << " *** I have " << pDD->detTypes().size() <<" types"<<std::endl;
 
-  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+  for(TrackerGeometry::DetContainer::const_iterator it = pDD->detsPXB().begin(); it != pDD->detsPXB().end(); it++){
 
-    if( GeomDetEnumerators::isTrackerPixel((*it)->subDetector())) {
+    const GeomDetUnit* geoUnit = dynamic_cast<const GeomDetUnit*>(*it);
+    //check if it is a detUnit
+    if ( geoUnit == 0 )
+      LogError ("PixelDQM") << "Pixel GeomDet is not a GeomDetUnit!" << std::endl;
+    const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
+    int nrows = (pixDet->specificTopology()).nrows();
+    int ncols = (pixDet->specificTopology()).ncolumns();
 
-      DetId detId = (*it)->geographicalId();
-      const GeomDetUnit      * geoUnit = pDD->idToDetUnit( detId );
-      const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
-      int nrows = (pixDet->specificTopology()).nrows();
-      int ncols = (pixDet->specificTopology()).ncolumns();
+    if(isPIB) continue;
+    DetId detId = (*it)->geographicalId();
+    LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
+    uint32_t id = detId();
+    SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
+    thePixelStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
 
-      if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
-        if(isPIB) continue;
-        LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
-	uint32_t id = detId();
-	SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
-	thePixelStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
+  }
 
-      }	else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) ) {
-	LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
-	uint32_t id = detId();
-	SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
+
+  for(TrackerGeometry::DetContainer::const_iterator it = pDD->detsPXF().begin(); it != pDD->detsPXF().end(); it++){
+
+    const GeomDetUnit* geoUnit = dynamic_cast<const GeomDetUnit*>(*it);
+    //check if it is a detUnit
+    if ( geoUnit == 0 )
+      LogError ("PixelDQM") << "Pixel GeomDet is not a GeomDetUnit!" << std::endl;
+    const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
+    int nrows = (pixDet->specificTopology()).nrows();
+    int ncols = (pixDet->specificTopology()).ncolumns();
+
+    DetId detId = (*it)->geographicalId();
+    LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
+    uint32_t id = detId();
+    SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
 	
-        PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id), pTT, isUpgrade).halfCylinder();
-        int disk   = PixelEndcapName(DetId(id), pTT, isUpgrade).diskName();
-        int blade  = PixelEndcapName(DetId(id), pTT, isUpgrade).bladeName();
-        int panel  = PixelEndcapName(DetId(id), pTT, isUpgrade).pannelName();
-        int module = PixelEndcapName(DetId(id), pTT, isUpgrade).plaquetteName();
+    PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id), pTT, isUpgrade).halfCylinder();
+    int disk   = PixelEndcapName(DetId(id), pTT, isUpgrade).diskName();
+    int blade  = PixelEndcapName(DetId(id), pTT, isUpgrade).bladeName();
+    int panel  = PixelEndcapName(DetId(id), pTT, isUpgrade).pannelName();
+    int module = PixelEndcapName(DetId(id), pTT, isUpgrade).plaquetteName();
+    
+    char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
+    char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
+    char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
+    char spanel[80]; sprintf(spanel, "Panel_%i",panel);
+    char smodule[80];sprintf(smodule,"Module_%i",module);
+    std::string side_str = sside;
+    std::string disk_str = sdisk;
+    bool mask = side_str.find("HalfCylinder_1")!=string::npos||
+                side_str.find("HalfCylinder_2")!=string::npos||
+    	    side_str.find("HalfCylinder_4")!=string::npos||
+    	    disk_str.find("Disk_2")!=string::npos;
+    // clutch to take all of FPIX, but no BPIX:
+    mask = false;
+    if(isPIB && mask) continue;
+    	
+    thePixelStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
 
-        char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
-        char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
-        char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
-        char spanel[80]; sprintf(spanel, "Panel_%i",panel);
-        char smodule[80];sprintf(smodule,"Module_%i",module);
-        std::string side_str = sside;
-	std::string disk_str = sdisk;
-	bool mask = side_str.find("HalfCylinder_1")!=string::npos||
-	            side_str.find("HalfCylinder_2")!=string::npos||
-		    side_str.find("HalfCylinder_4")!=string::npos||
-		    disk_str.find("Disk_2")!=string::npos;
-	// clutch to take all of FPIX, but no BPIX:
-	mask = false;
-	if(isPIB && mask) continue;
-		
-	thePixelStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
-
-      }	
-    }//MAIN_IF
-  }//FOR_LOOP
+  }
 
   LogDebug ("PixelDQM") << " ---> Adding Module for Additional Errors " << endl;
   pair<int,int> fedIds (FEDNumbering::MINSiPixelFEDID, FEDNumbering::MAXSiPixelFEDID);

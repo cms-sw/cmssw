@@ -16,9 +16,9 @@ def customiseForRunI(process):
     if not hasattr(process,'reconstruction'):
         return process
 
-    tgrIndex = process.globalreco.index(process.trackingGlobalReco)
+    tgrIndex = process.globalreco_tracking.index(process.trackingGlobalReco)
     tgrIndexFromReco = process.reconstruction_fromRECO.index(process.InitialStep)
-    process.globalreco.remove(process.trackingGlobalReco)
+    process.globalreco_tracking.remove(process.trackingGlobalReco)
     process.reconstruction_fromRECO.remove(process.InitialStep)
     process.reconstruction_fromRECO.remove(process.DetachedTripletStep)
     process.reconstruction_fromRECO.remove(process.LowPtTripletStep)
@@ -51,8 +51,8 @@ def customiseForRunI(process):
     # Load the new Iterative Tracking configuration
     process.load("RecoTracker.Configuration.RecoTrackerRunI_cff")
 
-    process.globalreco.insert(tgrIndex, process.trackingGlobalReco)
-    process.globalreco.insert(tgrIndex, process.recopixelvertexing)
+    process.globalreco_tracking.insert(tgrIndex, process.trackingGlobalReco)
+    process.globalreco_tracking.insert(tgrIndex, process.recopixelvertexing)
     process.reconstruction_fromRECO.insert(tgrIndexFromReco, process.iterTracking)
 
     # Now get rid of spurious reference to JetCore step
@@ -79,8 +79,8 @@ def customiseForRunI(process):
     process.pixeltrackerlocalreco.replace(process.siPixelClustersPreSplitting, process.siPixelClusters)
     process.pixeltrackerlocalreco.replace(process.siPixelRecHitsPreSplitting, process.siPixelRecHits)
     process.clusterSummaryProducer.pixelClusters = 'siPixelClusters'
-    process.globalreco.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
-    process.globalreco.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
+    process.globalreco_tracking.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
+    process.globalreco_tracking.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
 
     # Now restore pixelVertices wherever was not possible with an ad-hoc RunI cfg
     process.muonSeededTracksInOutClassifier.vertices = 'pixelVertices'
