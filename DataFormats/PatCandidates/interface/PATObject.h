@@ -344,7 +344,7 @@ namespace pat {
       /// returns a range of values corresponding to key
       std::vector<int> userIntRange( const std::string& key ) const;
       /// Set user-defined int
-      void addUserInt( const std::string & label,  int32_t data );
+      void addUserInt( const std::string & label,  int32_t data, const bool overwrite = false );
       /// Get list of user-defined int names
       const std::vector<std::string> & userIntNames() const  { return userIntLabels_; }
       /// Return true if there is a user-defined int with a given name
@@ -799,8 +799,11 @@ namespace pat {
     if( it == userFloatLabels_.end() || *it != label ) {      
       userFloatLabels_.insert(it,label);
       userFloats_.insert(userFloats_.begin()+dist,data);
-    } else if( *it == label  ) {
+    } else if( overwrite ) {
+      userFloats_[ dist ] = data;
+    } else {
       //create a range by adding behind the first entry
+      userFloatLabels_.insert(it+1,label);
       userFloats_.insert(userFloats_.begin()+dist+1, data); 
     }
   }
@@ -830,15 +833,19 @@ namespace pat {
 
   template <class ObjectType>
   void PATObject<ObjectType>::addUserInt( const std::string &label,
-                                          int data )
+                                          int data,
+                                          bool overwrite )
   {
     auto it = std::lower_bound(userIntLabels_.begin(),userIntLabels_.end(),label);
     const auto dist = std::distance(userIntLabels_.begin(),it);
     if( it == userIntLabels_.end() || *it != label ) { 
       userIntLabels_.insert(it,label);
       userInts_.insert(userInts_.begin()+dist,data);
-    } else if( *it == label ) {
+    } else if( overwrite ) {
+      userInts_[dist] = data;
+    } else {
       //create a range by adding behind the first entry
+      userIntLabels_.insert(it+1, label);
       userInts_.insert(userInts_.begin()+dist+1,data);
     }
   }
@@ -863,7 +870,7 @@ namespace pat {
     if( it == userCandLabels_.end() || *it != label ) {      
       userCandLabels_.insert(it,label);
       userCands_.insert(userCands_.begin()+dist,data);
-    } else if( overwrite && *it == label ) {
+    } else if( overwrite ) {
       userCands_[dist] = data;
     } else {
       edm::LogWarning("addUserCand") 
