@@ -1053,7 +1053,7 @@ void HcalDeadCellMonitor::fillNevents_recentdigis(const HcalTopology& topology){
 		    if (!(topology.validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
 		      continue;
 		    // now check which dead cell tests failed; increment counter if any failed
-		    HcalDetId TempID((HcalSubdetector)subdet, ieta, iphi, (int)depth+1);
+		    HcalDetId TempID((HcalSubdetector)subdet, ieta, iphi, (int)depth+1, false);
 		    
 		    int index = logicalMap_->getHcalFrontEndId(TempID).rbxIndex();
 		    // if(subdet==HcalForward) continue;
@@ -1169,7 +1169,7 @@ void HcalDeadCellMonitor::fillNevents_recentrechits(const HcalTopology& topology
 		    if (!(topology.validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
 		      continue;
 		    // now check which dead cell tests failed; increment counter if any failed
-		    HcalDetId TempID((HcalSubdetector)subdet, ieta, iphi, (int)depth+1);
+		    HcalDetId TempID((HcalSubdetector)subdet, ieta, iphi, (int)depth+1, false);
 		    
 		    int index = logicalMap_->getHcalFrontEndId(TempID).rbxIndex();
 		    // if(subdet==HcalForward) continue;
@@ -1393,7 +1393,7 @@ void HcalDeadCellMonitor::fillNevents_problemCells(const HcalTopology& topology)
 		      (deadmon_test_rechits_ && recentoccupancy_rechit[eta][phi][depth]==0  && (deadevt_>=minDeadEventCount_))
 		      )
 		    {
-		      HcalDetId TempID((HcalSubdetector)subdet, ieta, iphi, (int)depth+1);
+		      HcalDetId TempID((HcalSubdetector)subdet, ieta, iphi, (int)depth+1, false);
 		      if (subdet==HcalBarrel)      
 			{ 
 			  ++NumBadHB;
@@ -1468,7 +1468,7 @@ void HcalDeadCellMonitor::fillNevents_problemCells(const HcalTopology& topology)
 		  // Count recent unoccupied digis if the total events in this lumi section is > minEvents_
 		  if (deadmon_test_digis_ && recentoccupancy_digi[eta][phi][depth]==0 && deadevt_>=minDeadEventCount_)
 		    {
-		      HcalDetId TempID((HcalSubdetector)subdet, ieta, iphi, (int)depth+1);
+		      HcalDetId TempID((HcalSubdetector)subdet, ieta, iphi, (int)depth+1, false);
 		      if (subdet==HcalBarrel) ++unoccupiedHB;
 		      else if (subdet==HcalEndcap) ++unoccupiedHE;
 		      else if (subdet==HcalOuter) 
@@ -1498,7 +1498,7 @@ void HcalDeadCellMonitor::fillNevents_problemCells(const HcalTopology& topology)
 			}
 		      if (recentoccupancy_rechit[eta][phi][depth]==0 && deadevt_>=minDeadEventCount_)
 			{
-			  HcalDetId TempID((HcalSubdetector)subdet, ieta, iphi, (int)depth+1);
+			  HcalDetId TempID((HcalSubdetector)subdet, ieta, iphi, (int)depth+1, false);
 			  if (subdet==HcalBarrel) ++belowenergyHB;
 			  else if (subdet==HcalEndcap) ++belowenergyHE;
 			  else if (subdet==HcalOuter) 

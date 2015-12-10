@@ -20,27 +20,27 @@ void HcalTestHitGenerator::getNoiseHits(std::vector<PCaloHit> & noiseHits)
   double hoTof = 22.;
   for(int i = 1; i <= 16; ++i)
   {
-     HcalDetId detId(HcalBarrel, i, 1, 1);
+    HcalDetId detId(HcalBarrel, i, 1, 1, false);
      noiseHits.emplace_back(detId.rawId(), e/theBarrelSampling[i-1], hbTof, 0., 0);
   }
 
   // ring 16 is special
-  HcalDetId detId(HcalEndcap, 16, 1, 3);
+  HcalDetId detId(HcalEndcap, 16, 1, 3, false);
   noiseHits.emplace_back(detId.rawId(), e/theEndcapSampling[0], heTof, 0., 0);
 
   for(int i = 17; i <= 29; ++i)
   {
-     HcalDetId detId(HcalEndcap, i, 1, 1);
+    HcalDetId detId(HcalEndcap, i, 1, 1, false);
      noiseHits.emplace_back(detId.rawId(), e/theEndcapSampling[i-16], heTof, 0., 0);
   }
 
-  HcalDetId outerDetId(HcalOuter, 1, 1, 4);
+  HcalDetId outerDetId(HcalOuter, 1, 1, 4, false);
   noiseHits.emplace_back(outerDetId.rawId(), 0.45, hoTof, 0., 0);
 
-  HcalDetId forwardDetId1(HcalForward, 30, 1, 1);
+  HcalDetId forwardDetId1(HcalForward, 30, 1, 1, false);
   noiseHits.emplace_back(forwardDetId1.rawId(), 35., hfTof, 0., 0);
 
-  HcalDetId forwardDetId2(HcalForward, 30, 1, 2);
+  HcalDetId forwardDetId2(HcalForward, 30, 1, 2, false);
   noiseHits.emplace_back(forwardDetId2.rawId(), 48., hfTof, 0., 0);
 
   //HcalZDCDetId zdcDetId(HcalZDCDetId::Section(2),true,1);

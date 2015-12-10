@@ -109,7 +109,7 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
 	} else {
 	  mylayer = 1;
 	}
-	HcalDetId myDetId2((HcalSubdetector)myDetId.subdetId(),myDetId.ieta(),myDetId.iphi(),mylayer);
+	HcalDetId myDetId2((HcalSubdetector)myDetId.subdetId(),myDetId.ieta(),myDetId.iphi(),mylayer,false);
 	result = myDetId2;
 	return result;
       }
@@ -129,7 +129,7 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
       else if(ieta>=27)
         azmin += 21.0;
 
-      HcalDetId first(HcalEndcap,myDetId.ieta(),myDetId.iphi(),1);
+      HcalDetId first(HcalEndcap,myDetId.ieta(),myDetId.iphi(),1,false);
       bool layer2=(fabs(point.Z())>azmin);
       if(!layer2)
         {
@@ -137,7 +137,7 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
         }
       else
         {
-          HcalDetId second(HcalEndcap,myDetId.ieta(),myDetId.iphi(),2);
+          HcalDetId second(HcalEndcap,myDetId.ieta(),myDetId.iphi(),2,false);
 	  if(second!=HcalDetId()) result=second;
 	}
 #ifdef DEBUGGCC

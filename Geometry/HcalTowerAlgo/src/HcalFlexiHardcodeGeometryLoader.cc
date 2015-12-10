@@ -114,7 +114,7 @@ void HcalFlexiHardcodeGeometryLoader::fillHBHO (CaloSubdetectorGeometry* fGeomet
     const HcalFlexiHardcodeGeometryLoader::HBHOCellParameters& param = fCells[iCell];
     for (int iPhi = param.phiFirst; iPhi <= param.nPhi; iPhi += param.phiStep) {
       for (int iside = -1; iside <= 1; iside += 2) { // both detector sides are identical
-	HcalDetId hid (fHB ? HcalBarrel : HcalOuter, param.eta*iside, iPhi, param.depth);
+	HcalDetId hid (fHB ? HcalBarrel : HcalOuter, param.eta*iside, iPhi, param.depth, false);
 	float phiCenter = param.phiStart+(iPhi-0.5)*param.dphi; // middle of the cell
 	float etaCenter = 0.5*(param.etaMin + param.etaMax);
 	float x = param.rMin* cos (phiCenter);
@@ -296,7 +296,7 @@ void HcalFlexiHardcodeGeometryLoader::fillHE (CaloSubdetectorGeometry* fGeometry
     int kPhi(param.phiFirst);
     for (int iPhi = param.phiFirst; iPhi <= param.nPhi; iPhi += param.phiStep, ++kPhi) {
       for (int iside = -1; iside <= 1; iside += 2) { // both detector sides are identical
-	HcalDetId hid (HcalEndcap, param.eta*iside, iPhi, param.depth);
+	HcalDetId hid (HcalEndcap, param.eta*iside, iPhi, param.depth, false);
 	float phiCenter = param.phiStart + (kPhi-0.5)*param.dphi; // middle of the cell
 	float etaCenter = 0.5 * (param.etaMin + param.etaMax);
 
@@ -333,7 +333,7 @@ void HcalFlexiHardcodeGeometryLoader::fillHF (CaloSubdetectorGeometry* fGeometry
 //  int kPhi(0);
     for (int iPhi = param.phiFirst; iPhi <= MAX_HCAL_PHI; iPhi += param.phiStep) {
       for (int iside = -1; iside <= 1; iside += 2) { // both detector sides are identical
-	HcalDetId hid (HcalForward, param.eta*iside, iPhi, param.depth);
+	HcalDetId hid (HcalForward, param.eta*iside, iPhi, param.depth, false);
 	// middle of the cell
 //      float phiCenter = ((kPhi + 0.5) * param.dphi) * DEGREE2RAD;
 	float phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD;

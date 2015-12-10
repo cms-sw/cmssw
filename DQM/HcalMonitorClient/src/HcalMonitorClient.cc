@@ -542,7 +542,7 @@ void HcalMonitorClient::PlotPedestalValues(const HcalDbService& cond)
 		{
 		  iphi=phi+1;
 		  if (!(hctopo_->validDetId((HcalSubdetector)(subdet), ieta, iphi, depth+1))) continue;
-		  HcalDetId detid((HcalSubdetector)(subdet), ieta, iphi, depth+1);
+		  HcalDetId detid((HcalSubdetector)(subdet), ieta, iphi, depth+1, false);
 		  ADC_ped=0;
 		  ADC_width=0;
 		  fC_ped=0;

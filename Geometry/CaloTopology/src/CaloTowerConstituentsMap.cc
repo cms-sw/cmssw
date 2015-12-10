@@ -95,39 +95,39 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
     if (id.ietaAbs()<=m_cttopo->lastHBRing()) {
       m_hcaltopo->depthBinInformation(HcalBarrel,hcal_ieta,nd,sd);
       for (int i=0; i<nd; i++)
-        items.push_back(HcalDetId(HcalBarrel,hcal_ieta*id.zside(),id.iphi(),i+sd));
+        items.push_back(HcalDetId(HcalBarrel,hcal_ieta*id.zside(),id.iphi(),i+sd,false));
     }
   }
   if (standardHO_) {
     if (id.ietaAbs()<=m_cttopo->lastHORing()) {
       m_hcaltopo->depthBinInformation(HcalOuter,hcal_ieta,nd,sd);
       for (int i=0; i<nd; i++)
-        items.push_back(HcalDetId(HcalOuter,hcal_ieta*id.zside(),id.iphi(),i+sd));
+        items.push_back(HcalDetId(HcalOuter,hcal_ieta*id.zside(),id.iphi(),i+sd,false));
     }
   }
   if (standardHE_) {
     if (id.ietaAbs()>=m_cttopo->firstHERing() && id.ietaAbs()<=m_cttopo->lastHERing()) {
       m_hcaltopo->depthBinInformation(HcalEndcap,hcal_ieta,nd,sd);
       for (int i=0; i<nd; i++)
-        items.push_back(HcalDetId(HcalEndcap,hcal_ieta*id.zside(),id.iphi(),i+sd));
+        items.push_back(HcalDetId(HcalEndcap,hcal_ieta*id.zside(),id.iphi(),i+sd,false));
     }
   }
   if (standardHF_) {
     if (id.ietaAbs()>=m_cttopo->firstHFRing() && id.ietaAbs()<=m_cttopo->lastHFRing()) { 
       m_hcaltopo->depthBinInformation(HcalForward,hcal_ieta,nd,sd);
       for (int i=0; i<nd; i++)
-        items.push_back(HcalDetId(HcalForward,hcal_ieta*id.zside(),id.iphi(),i+sd));
+        items.push_back(HcalDetId(HcalForward,hcal_ieta*id.zside(),id.iphi(),i+sd,false));
       // special handling for first HF tower
       if (id.ietaAbs() == m_cttopo->firstHFRing()) {
         int hcal_ieta2 = hcal_ieta-1;
         m_hcaltopo->depthBinInformation(HcalForward,hcal_ieta2,nd,sd);
         for (int i=0; i<nd; i++)
-          items.push_back(HcalDetId(HcalForward,hcal_ieta2*id.zside(),id.iphi(),i+sd));
+          items.push_back(HcalDetId(HcalForward,hcal_ieta2*id.zside(),id.iphi(),i+sd,false));
       }
     }
   }
   if (standardEB_ && hcal_ieta<=EBDetId::MAX_IETA/5) {
-    HcalDetId hid(HcalBarrel,hcal_ieta*id.zside(),id.iphi(),1); // for the limits
+    HcalDetId hid(HcalBarrel,hcal_ieta*id.zside(),id.iphi(),1,false); // for the limits
     int etaMin, etaMax;
     if (hid.zside() == -1) {
       etaMin = hid.crystal_ieta_high();

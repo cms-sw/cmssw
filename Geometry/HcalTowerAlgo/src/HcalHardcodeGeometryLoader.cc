@@ -167,7 +167,7 @@ void HcalHardcodeGeometryLoader::fillHBHO (CaloSubdetectorGeometry* fGeometry, c
     const HcalHardcodeGeometryLoader::HBHOCellParameters& param = fCells[iCell];
     for (int iPhi = param.phiFirst; iPhi <= MAX_HCAL_PHI; iPhi += param.phiStep) {
       for (int iside = -1; iside <= 1; iside += 2) { // both detector sides are identical
-	HcalDetId hid (fHB ? HcalBarrel : HcalOuter, param.eta*iside, iPhi, param.depth);
+	HcalDetId hid (fHB ? HcalBarrel : HcalOuter, param.eta*iside, iPhi, param.depth, false);
 	float phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD; // middle of the cell
 	float etaCenter = 0.5*(param.etaMin + param.etaMax);
 	float x = param.rMin* cos (phiCenter);
@@ -392,7 +392,7 @@ void HcalHardcodeGeometryLoader::fillHE (CaloSubdetectorGeometry* fGeometry, con
     const HcalHardcodeGeometryLoader::HECellParameters& param = fCells[iCell];
     for (int iPhi = param.phiFirst; iPhi <= MAX_HCAL_PHI; iPhi += param.phiStep) {
       for (int iside = -1; iside <= 1; iside += 2) { // both detector sides are identical
-	HcalDetId hid (HcalEndcap, param.eta*iside, iPhi, param.depth);
+	HcalDetId hid (HcalEndcap, param.eta*iside, iPhi, param.depth, false);
 	float phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD; // middle of the cell
 	float etaCenter = 0.5 * (param.etaMin + param.etaMax);
 
@@ -428,7 +428,7 @@ void HcalHardcodeGeometryLoader::fillHF (CaloSubdetectorGeometry* fGeometry, con
     const HcalHardcodeGeometryLoader::HFCellParameters& param = fCells[iCell];
     for (int iPhi = param.phiFirst; iPhi <= MAX_HCAL_PHI; iPhi += param.phiStep) {
       for (int iside = -1; iside <= 1; iside += 2) { // both detector sides are identical
-	HcalDetId hid (HcalForward, param.eta*iside, iPhi, param.depth);
+	HcalDetId hid (HcalForward, param.eta*iside, iPhi, param.depth, false);
 	float phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD; // middle of the cell
 	GlobalPoint inner (param.rMin, 0, param.zMin);
 	GlobalPoint outer (param.rMax, 0, param.zMin);

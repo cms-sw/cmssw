@@ -126,7 +126,7 @@ HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   iSetup.get<HcalDbRecord>().get( pSetup );
   std::cout << "HcalDbAnalyzer::analyze-> got HcalDbRecord: " << std::endl;
   std::cout << "HcalDbAnalyzer::analyze-> getting information for HB channel eta=1, phi=1, depth=1..." << std::endl;
-  HcalDetId cell (HcalBarrel, 1, 1, 1);
+  HcalDetId cell (HcalBarrel, 1, 1, 1, false);
   
   const HcalCalibrations& calibrations=pSetup->getHcalCalibrations(cell);
   const HcalCalibrationWidths widths = pSetup->getHcalCalibrationWidths(cell);

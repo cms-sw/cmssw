@@ -74,29 +74,29 @@ void HcalDigitizerTest::beginJob() {
   // correspond to a 100 GeV particle
 
   for (int phi = 1; phi < 50 ; ++phi) {
-    HcalDetId detId(HcalBarrel, 1 , phi, 1);
+    HcalDetId detId(HcalBarrel, 1 , phi, 1, false);
     PCaloHit barrelHit(detId.rawId(),  0.085*phi, 0.);
     hcalDetIds.push_back(detId);
     hits.push_back(barrelHit);
   }
 
-  HcalDetId endcapDetId(HcalEndcap, 17, 1, 1);
+  HcalDetId endcapDetId(HcalEndcap, 17, 1, 1, false);
   PCaloHit endcapHit(endcapDetId.rawId(), 0.9, 0.);
   hcalDetIds.push_back(endcapDetId);
   hits.push_back(endcapHit);
 
-  HcalDetId outerDetId(HcalOuter, 1, 1, 4);
+  HcalDetId outerDetId(HcalOuter, 1, 1, 4, false);
   PCaloHit outerHit(outerDetId.rawId(), 0.45, 0.);
   hoDetIds.push_back(outerDetId);
   outerHcalDetIds.push_back(outerDetId);
   hits.push_back(outerHit);
 
-  HcalDetId forwardDetId1(HcalForward, 30, 1, 1);
+  HcalDetId forwardDetId1(HcalForward, 30, 1, 1, false);
   PCaloHit forwardHit1(forwardDetId1.rawId(), 35.2, 0.);
   hfDetIds.push_back(forwardDetId1);
   hits.push_back(forwardHit1);
 
-  HcalDetId forwardDetId2(HcalForward, 30, 1, 2);
+  HcalDetId forwardDetId2(HcalForward, 30, 1, 2, false);
   PCaloHit forwardHit2(forwardDetId2.rawId(), 47.8, 0.);
   hfDetIds.push_back(forwardDetId2);
   hits.push_back(forwardHit2);
@@ -129,10 +129,10 @@ void HcalDigitizerTest::analyze(const edm::Event& iEvent,
   crossingFrame.addSignals(&hits, iEvent.id());
 
   // make 1 GeV pileup hit
-  HcalDetId barrelDetId(HcalBarrel, 1, 1, 1);
+  HcalDetId barrelDetId(HcalBarrel, 1, 1, 1, false);
   PCaloHit barrelPileup(barrelDetId.rawId(), 0.00855, 0.);
   // 10 GeV pileup hit
-  HcalDetId forwardDetId1(HcalForward, 30, 1, 1);
+  HcalDetId forwardDetId1(HcalForward, 30, 1, 1, false);
   PCaloHit  forwardPileup(forwardDetId1.rawId(), 3.52, 0.);
   HcalZDCDetId zdcDetId(HcalZDCDetId::Section(1),true,1);
   PCaloHit     zdcPileup(zdcDetId.rawId(), 3.52, 0.);

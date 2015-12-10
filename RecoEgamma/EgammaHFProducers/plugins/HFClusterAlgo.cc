@@ -131,7 +131,7 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
     }
     double elong=j->energy()*m_correctionByEta[indexByEta(j->id())];
     if (elong>m_cutByEta[iz]) {
-      j2=hf.find(HcalDetId(HcalForward,j->id().ieta(),j->id().iphi(),2));
+      j2=hf.find(HcalDetId(HcalForward,j->id().ieta(),j->id().iphi(),2,false));
       double eshort=(j2==hf.end())?(0):(j2->energy());
       if (j2!=hf.end())
          eshort*=m_correctionByEta[indexByEta(j2->id())];
@@ -224,7 +224,7 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
   std::vector<DetId> usedHits; 
  
   HFRecHitCollection::const_iterator si;
-  HcalDetId sid(HcalForward,seedid.ieta(),seedid.iphi(),1);
+  HcalDetId sid(HcalForward,seedid.ieta(),seedid.iphi(),1,false);
   si=hf.find(sid);  
 
   bool clusterOk=true; // assume the best to start...
@@ -256,8 +256,8 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 	}
       }
 
-      HcalDetId idl(HcalForward,seedid.ieta()+de,phiWrap,1);
-      HcalDetId ids(HcalForward,seedid.ieta()+de,phiWrap,2);
+      HcalDetId idl(HcalForward,seedid.ieta()+de,phiWrap,1,false);
+      HcalDetId ids(HcalForward,seedid.ieta()+de,phiWrap,2,false);
 
 	
       il=hf.find(idl);
