@@ -891,8 +891,8 @@ namespace pat {
     } else if( overwrite ) {
       userCands_[dist] = data;
     } else {
-      edm::LogWarning("addUserCand") 
-        << "Attempting to add userCand " << label << " failed, Ptr exists already!";
+      userCandLabels_.insert(it+1,label);
+      userCands_.insert(userCands_.begin()+dist+1,data);
     }    
   }
 
