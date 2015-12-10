@@ -113,10 +113,10 @@ process.pfcandAnalyzer.pfPtMin = 0
 # Track Analyzer
 #########################
 process.load('HeavyIonsAnalysis.JetAnalysis.ExtraTrackReco_cff')
-# process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_Corr_cff')  # Replace the line above for track corrections
+process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_cff')
 
-# process.load("HeavyIonsAnalysis.TrackAnalysis.METAnalyzer_cff")
+# Use this instead for track corrections
+## process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_Corr_cff')
 
 #####################################################################################
 

@@ -26,7 +26,7 @@ process.HiForest.HiForestVersion = cms.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-                                "file:step3.root"  
+                                "file:step3.root"
                             )
 )
 
@@ -74,7 +74,7 @@ process.TFileService = cms.Service("TFileService",
 process.load("HeavyIonsAnalysis.JetAnalysis.FullJetSequence_nominalPP")
 
 # Use this version for JEC
-#process.load("HeavyIonsAnalysis.JetAnalysis.FullJetSequence_JECPP")
+# process.load("HeavyIonsAnalysis.JetAnalysis.FullJetSequence_JECPP")
 
 #####################################################################################
 
@@ -104,8 +104,10 @@ process.pfcandAnalyzer.genLabel = cms.InputTag("genParticles")
 # Track Analyzer
 #########################
 process.load('HeavyIonsAnalysis.JetAnalysis.ExtraTrackReco_cff')
-# process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_Corr_cff') # Replace the line above for track corrections
+process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_cff')
+
+# Use this instead for track corrections
+## process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_Corr_cff')
 
 #####################################################################################
 
@@ -134,7 +136,7 @@ process.ana_step = cms.Path(process.hltanalysis *
                             process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
                             process.HiForest +
-							process.trackSequencesPP + 
+			    process.trackSequencesPP +
                             process.runAnalyzer
 )
 
