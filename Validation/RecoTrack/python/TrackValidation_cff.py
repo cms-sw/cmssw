@@ -372,6 +372,7 @@ trackValidatorBuildingTrackingOnly = trackValidatorTrackingOnly.clone(
 trackValidatorSeedingTrackingOnly = trackValidatorBuildingTrackingOnly.clone(
     dirName = "Tracking/TrackSeeding/",
     label = _seedSelectors,
+    doSeedPlots = True,
 )
 
 

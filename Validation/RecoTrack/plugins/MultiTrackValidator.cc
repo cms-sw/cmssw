@@ -51,7 +51,8 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   doSimTrackPlots_(pset.getUntrackedParameter<bool>("doSimTrackPlots")),
   doRecoTrackPlots_(pset.getUntrackedParameter<bool>("doRecoTrackPlots")),
   dodEdxPlots_(pset.getUntrackedParameter<bool>("dodEdxPlots")),
-  doPVAssociationPlots_(pset.getUntrackedParameter<bool>("doPVAssociationPlots"))
+  doPVAssociationPlots_(pset.getUntrackedParameter<bool>("doPVAssociationPlots")),
+  doSeedPlots_(pset.getUntrackedParameter<bool>("doSeedPlots"))
 {
   ParameterSet psetForHistoProducerAlgo = pset.getParameter<ParameterSet>("histoProducerAlgoBlock");
   histoProducerAlgo_ = std::make_unique<MTVHistoProducerAlgoForTracker>(psetForHistoProducerAlgo, consumesCollector());
@@ -133,6 +134,12 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
     for (auto const& src: associators) {
       associatormapStRs.push_back(consumes<reco::SimToRecoCollection>(src));
       associatormapRtSs.push_back(consumes<reco::RecoToSimCollection>(src));
+    }
+  }
+
+  if(doSeedPlots_) {
+    for(const auto& tag: pset.getParameter< std::vector<edm::InputTag> >("label")) {
+      seedToTrackTokens_.push_back(consumes<std::vector<int>>(tag));
     }
   }
 }
@@ -220,6 +227,10 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         histoProducerAlgo_->bookRecoHistos(ibook);
         if (dodEdxPlots_) histoProducerAlgo_->bookRecodEdxHistos(ibook);
         if (doPVAssociationPlots_) histoProducerAlgo_->bookRecoPVAssociationHistos(ibook);
+      }
+
+      if(doSeedPlots_) {
+        histoProducerAlgo_->bookSeedHistos(ibook);
       }
     }//end loop www
   }// end loop ww
@@ -512,6 +523,14 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       reco::RecoToSimCollection const & recSimColl = *recSimCollP;
       reco::SimToRecoCollection const & simRecColl = *simRecCollP;
  
+
+      // Fill seed-specific histograms
+      if(doSeedPlots_) {
+        edm::Handle<std::vector<int>> hseedToTrack;
+        event.getByToken(seedToTrackTokens_[www], hseedToTrack);
+        const int failed = std::count(hseedToTrack->begin(), hseedToTrack->end(), -1);
+        histoProducerAlgo_->fill_seed_histos(www, failed, hseedToTrack->size());
+      }
 
 
       // ########################################################

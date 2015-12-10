@@ -82,6 +82,7 @@ multiTrackValidator = cms.EDAnalyzer(
     doRecoTrackPlots = cms.untracked.bool(True),
     dodEdxPlots = cms.untracked.bool(False),
     doPVAssociationPlots = cms.untracked.bool(False), # do plots that require true PV, if True, label_vertex and vertexAssociator are read
+    doSeedPlots = cms.untracked.bool(False), # input comes from TrackFromSeedProducer
 )
 
 from Configuration.StandardSequences.Eras import eras

@@ -38,6 +38,7 @@ class MTVHistoProducerAlgoForTracker {
   void bookRecoHistos(DQMStore::IBooker& ibook);
   void bookRecoPVAssociationHistos(DQMStore::IBooker& ibook);
   void bookRecodEdxHistos(DQMStore::IBooker& ibook);
+  void bookSeedHistos(DQMStore::IBooker& ibook);
 
 
   void fill_generic_simTrack_histos(const TrackingParticle::Vector&,const TrackingParticle::Point& vertex, int bx);
@@ -94,6 +95,8 @@ class MTVHistoProducerAlgoForTracker {
 					 int chargeTP,
 					 const reco::Track& track,
 					 const math::XYZPoint& bsPosition);
+
+  void fill_seed_histos(int count, int seedsFitFailed, int seedsTotal);
 
  private:
 
@@ -156,7 +159,7 @@ class MTVHistoProducerAlgoForTracker {
   MonitorElement *h_ptSIM, *h_etaSIM, *h_tracksSIM, *h_vertposSIM, *h_bunchxSIM;
 
   //1D
-  std::vector<MonitorElement*> h_tracks, h_fakes, h_hits, h_charge, h_algo;;
+  std::vector<MonitorElement*> h_tracks, h_fakes, h_hits, h_charge, h_algo, h_seedsFitFailed, h_seedsFitFailedFraction;
   std::vector<MonitorElement*> h_recoeta, h_assoceta, h_assoc2eta, h_simuleta, h_loopereta, h_misideta, h_pileupeta;
   std::vector<MonitorElement*> h_recopT, h_assocpT, h_assoc2pT, h_simulpT, h_looperpT, h_misidpT, h_pileuppT;
   std::vector<MonitorElement*> h_recohit, h_assochit, h_assoc2hit, h_simulhit, h_looperhit, h_misidhit, h_pileuphit;

@@ -565,6 +565,11 @@ void MTVHistoProducerAlgoForTracker::bookRecodEdxHistos(DQMStore::IBooker& ibook
       });
 }
 
+void MTVHistoProducerAlgoForTracker::bookSeedHistos(DQMStore::IBooker& ibook) {
+  h_seedsFitFailed.push_back(ibook.book1D("seeds_fitFailed", "Number of seeds for which the fit failed", nintTracks, minTracks, maxTracks));
+  h_seedsFitFailedFraction.push_back(ibook.book1D("seeds_fitFailedFraction", "Fraction of seeds for which the fit failed", 100, 0, 1));
+}
+
 void MTVHistoProducerAlgoForTracker::fill_generic_simTrack_histos(const TrackingParticle::Vector& momentumTP,
 								  const TrackingParticle::Point& vertexTP,
                                                                   int bx){
@@ -1138,4 +1143,11 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     if (isMatched) fillPlotNoFlow(h_assoczpos[count],vertexTP.z());
   }
 
+}
+
+void MTVHistoProducerAlgoForTracker::fill_seed_histos(int count,
+                                                      int seedsFitFailed,
+                                                      int seedsTotal) {
+  fillPlotNoFlow(h_seedsFitFailed[count], seedsFitFailed);
+  h_seedsFitFailedFraction[count]->Fill(static_cast<double>(seedsFitFailed)/seedsTotal);
 }
