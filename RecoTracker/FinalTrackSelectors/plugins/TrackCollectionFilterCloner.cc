@@ -53,8 +53,8 @@ class TrackCollectionFilterCloner final : public edm::global::EDProducer<> {
   TrackCollectionCloner collectionCloner;
   const TrackCollectionCloner::Tokens originalTrackSource_;
 
-  edm::EDGetTokenT<MVACollection>         originalMVAValsToken_;
-  edm::EDGetTokenT<QualityMaskCollection> originalQualValsToken_;
+  const edm::EDGetTokenT<MVACollection>         originalMVAValsToken_;
+  const edm::EDGetTokenT<QualityMaskCollection> originalQualValsToken_;
 
   const reco::TrackBase::TrackQuality minQuality_; 
 
@@ -90,12 +90,11 @@ void TrackCollectionFilterCloner::fillDescriptions(edm::ConfigurationDescription
 TrackCollectionFilterCloner::TrackCollectionFilterCloner(const edm::ParameterSet& iConfig) :
   collectionCloner(*this, iConfig, true)
   , originalTrackSource_  (iConfig.getParameter<edm::InputTag>("originalSource"),consumesCollector())
+  , originalMVAValsToken_  (consumes<MVACollection>        (iConfig.getParameter<edm::InputTag>("originalMVAVals") ) )
+  , originalQualValsToken_ (consumes<QualityMaskCollection>(iConfig.getParameter<edm::InputTag>("originalQualVals")) )
   , minQuality_           (reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("minQuality")) )
 {    
   
-  originalMVAValsToken_  = consumes<MVACollection>        (iConfig.getParameter<edm::InputTag>("originalMVAVals") );
-  originalQualValsToken_ = consumes<QualityMaskCollection>(iConfig.getParameter<edm::InputTag>("originalQualVals"));
-
   produces<MVACollection>("MVAValues");
   produces<QualityMaskCollection>("QualityMasks");
 
