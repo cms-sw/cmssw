@@ -5,19 +5,28 @@ from HeavyIonsAnalysis.TrackAnalysis.trackAnalyzer_cff import *
 anaTrack.trackPtMin = 0.49
 anaTrack.useQuality = False
 anaTrack.doPFMatching = True
+anaTrack.doSimVertex = False  
+anaTrack.doSimTrack = False
 anaTrack.pfCandSrc = cms.InputTag("particleFlowTmp")
 anaTrack.trackSrc = cms.InputTag("hiGeneralTracks")
+anaTrack.qualityStrings = cms.untracked.vstring(['highPurity','tight','loose'])
 
-anaTrack.qualityStrings = cms.untracked.vstring('highPurity','highPuritySetWithPV')
-
-pixelTrack = anaTrack.clone(trackSrc = cms.InputTag("hiGeneralAndPixelTracks"))
-pixelTrack.useQuality = False
-pixelTrack.trackPtMin = 0.4
-
-mergedTrack = pixelTrack.clone(trackSrc = cms.InputTag("hiMergedTracks"))
+pixelTrack = anaTrack.clone(trackSrc = cms.InputTag("hiGeneralAndPixelTracks"),
+                            useQuality = False,
+							trackPtMin = 0.4,
+							qualityStrings = cms.untracked.vstring('highPurity'))
 
 ppTrack = anaTrack.clone(trackSrc = cms.InputTag("generalTracks"),
                          vertexSrc = ["offlinePrimaryVertices"],
-                         mvaSrc = cms.string("generalTracks")
+                         mvaSrc = cms.string("generalTracks"),
+						 qualityStrings = cms.untracked.vstring(['highPurity','tight','loose']),
+						 doPFMatching = True,
+						 pfCandSrc = cms.InputTag('particleFlow'),
+                         doSimVertex = False,  
+                         doSimTrack = False
                          )
 
+trackSequencesPbPb = cms.Sequence(anaTrack)
+								  
+trackSequencesPP = cms.Sequence(ppTrack)
+							

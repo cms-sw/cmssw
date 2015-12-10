@@ -27,7 +27,7 @@ process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
         #                                "file:/afs/cern.ch/work/r/richard/public/PbPb_RECODEBUG.root",
-        "/store/user/echapon/Ups1SMM_5p02TeV_TuneCUETP8M1_ptUps36/Ups1SMM_5p02TeV_TuneCUETP8M1_ptUps36_step3_20151208/151208_095635/0000/step3_RAW2DIGI_L1Reco_RECO_1.root",
+        "file:step3_hi_mc.root",
                                 )
                             )
 
@@ -113,21 +113,10 @@ process.pfcandAnalyzer.pfPtMin = 0
 # Track Analyzer
 #########################
 process.load('HeavyIonsAnalysis.JetAnalysis.ExtraTrackReco_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_MC_cff')
-process.load("HeavyIonsAnalysis.TrackAnalysis.METAnalyzer_cff")
+# process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_Corr_cff')  # Replace the line above for track corrections
 
-process.anaTrack.qualityStrings = cms.untracked.vstring(['highPurity','tight','loose'])
-process.pixelTrack.qualityStrings = cms.untracked.vstring('highPurity')
-process.hiTracks.cut = cms.string('quality("highPurity")')
-process.anaTrack.trackSrc = cms.InputTag("hiGeneralTracks")
-process.anaTrack.doPFMatching = True
-process.anaTrack.doSimVertex = True
-process.anaTrack.doSimTrack = False
-
-process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cff")
-process.tpRecoAssocGeneralTracks = process.trackingParticleRecoTrackAsssociation.clone()
-process.tpRecoAssocGeneralTracks.label_tr = cms.InputTag("hiGeneralTracks")
-process.quickTrackAssociatorByHits.ComponentName = cms.string('quickTrackAssociatorByHits')
+# process.load("HeavyIonsAnalysis.TrackAnalysis.METAnalyzer_cff")
 
 #####################################################################################
 
@@ -154,13 +143,12 @@ process.ana_step = cms.Path(
                             process.centralityBin *
                             process.hiEvtAnalyzer*
                             process.HiGenParticleAna*
-                            process.quickTrackAssociatorByHits*
                             process.jetSequences +
                             process.ggHiNtuplizer +
                             process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
                             process.HiForest +
-                            process.anaTrack
+                            process.trackSequencesPbPb
                             )
 
 #####################################################################################

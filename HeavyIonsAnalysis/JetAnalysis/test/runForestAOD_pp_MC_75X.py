@@ -26,7 +26,7 @@ process.HiForest.HiForestVersion = cms.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-                                "file:/afs/cern.ch/work/m/mnguyen/public/testPPfile/step3.root"  
+                                "file:step3.root"  
                             )
 )
 
@@ -104,15 +104,8 @@ process.pfcandAnalyzer.genLabel = cms.InputTag("genParticles")
 # Track Analyzer
 #########################
 process.load('HeavyIonsAnalysis.JetAnalysis.ExtraTrackReco_cff')
-process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_MC_cff')
-process.ppTrack.trackSrc = cms.InputTag("generalTracks")
-process.ppTrack.mvaSrc = cms.string("generalTracks")
-process.ppTrack.pfCandSrc = cms.InputTag('particleFlow')
-process.ppTrack.qualityStrings = cms.untracked.vstring(['highPurity','tight','loose'])
-process.ppTrack.doSimVertex = False
-process.ppTrack.doSimTrack = False
-process.ppTrack.pfCandSrc = cms.InputTag("particleFlow")
-process.ppTrack.doPFMatching = cms.untracked.bool(True)
+# process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_cff')
+process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_Corr_cff') # Replace the line above for track corrections
 
 #####################################################################################
 
@@ -141,7 +134,7 @@ process.ana_step = cms.Path(process.hltanalysis *
                             process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
                             process.HiForest +
-                            process.ppTrack +
+							process.trackSequencesPP + 
                             process.runAnalyzer
 )
 

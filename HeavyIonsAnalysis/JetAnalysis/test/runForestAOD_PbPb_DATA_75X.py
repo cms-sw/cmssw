@@ -174,13 +174,8 @@ process.load("HeavyIonsAnalysis.JetAnalysis.hcalNoise_cff")
 #########################
 process.load('HeavyIonsAnalysis.JetAnalysis.ExtraTrackReco_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_cff')
-process.load("HeavyIonsAnalysis.TrackAnalysis.METAnalyzer_cff")
+# process.load("HeavyIonsAnalysis.TrackAnalysis.METAnalyzer_cff")
 
-process.anaTrack.qualityStrings = cms.untracked.vstring(['highPurity','tight','loose'])
-process.pixelTrack.qualityStrings = cms.untracked.vstring('highPurity')
-process.hiTracks.cut = cms.string('quality("highPurity")')
-process.anaTrack.trackSrc = cms.InputTag("hiGeneralTracks")
-process.anaTrack.doPFMatching = True
 
 ####################################################################################
 
@@ -207,7 +202,7 @@ process.ana_step = cms.Path(process.hltanalysis *
                             process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
                             process.HiForest +
-                            process.anaTrack +
+                            process.trackSequencesPbPb +
                             process.hcalNoise
                             )
 

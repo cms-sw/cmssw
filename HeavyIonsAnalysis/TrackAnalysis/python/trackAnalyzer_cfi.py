@@ -17,6 +17,7 @@ anaTrack = cms.EDAnalyzer('TrackAnalyzer',
                           tpFakeSrc = cms.untracked.InputTag('mix','MergedTrackTruth'),
                           tpEffSrc = cms.untracked.InputTag('mix','MergedTrackTruth'),
                           # associateChi2 = cms.bool(False),
-                          associatorMap = cms.InputTag('tpRecoAssocGeneralTracks'),
-                          doMVA = cms.untracked.bool(True)
+                          associatorMap = cms.InputTag('tpRecoAssocHiGeneralTracks'),
+                          doMVA = cms.untracked.bool(True),
+						  fillSimTrack = cms.untracked.bool(False)
                           )

@@ -124,10 +124,6 @@ process.load("HeavyIonsAnalysis.JetAnalysis.hcalNoise_cff")
 #########################
 process.load('HeavyIonsAnalysis.JetAnalysis.ExtraTrackReco_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_cff')
-process.ppTrack.trackSrc = cms.InputTag("generalTracks")
-process.ppTrack.mvaSrc = cms.string("generalTracks")
-process.ppTrack.pfCandSrc = cms.InputTag('particleFlow')
-process.ppTrack.qualityStrings = cms.untracked.vstring(['highPurity','tight','loose'])
 
 ####################################################################################
 
@@ -158,7 +154,7 @@ process.ana_step = cms.Path(process.hltanalysis *
                             process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
                             process.HiForest +
-                            process.ppTrack
+                            process.trackSequencesPP
                             )
 
 #####################################################################################
