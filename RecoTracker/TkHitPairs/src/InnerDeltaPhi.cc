@@ -10,6 +10,7 @@
 
 using namespace std;
 
+#ifdef VI_DEBUG
 namespace {
   struct Stat {
 
@@ -28,8 +29,6 @@ namespace {
 }
 
 namespace {
-  template <class T> inline T sqr( T t) {return t*t;}
-
   template <class T> 
   inline T cropped_asin(T x) {
     stat.nt++;
@@ -41,8 +40,13 @@ namespace {
     return std::abs(x) <= 1 ? std::asin(x) : (x > 0 ? T(M_PI/2) : -T(M_PI/2));
   }
 }
+#endif
+
 
 namespace {
+
+  template <class T> inline T sqr( T t) {return t*t;}
+
   // reasonable (5.e-4) only for |x|<0.7 then degrades..
   template<typename T>
   inline T f_asin07f(T x)  {
@@ -53,8 +57,9 @@ namespace {
    return x*ret;
   }
 
+#if defined(__GNUC__) 
   typedef float __attribute__( ( vector_size( 16 ) ) ) float32x4_t;
-
+#endif
 
 }
 
@@ -217,23 +222,26 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
     dL = theThickness/cosCross; 
   }
 
-
+#if defined(__GNUC__) 
   float32x4_t num{dHitmag,dLayer,theROrigin * (dHitmag-dLayer),1.f};
   float32x4_t den{2*theRCurvature,2*theRCurvature,dHitmag*dLayer,1.f};
   auto phis = f_asin07f(num/den);
   phis = phis*dLayer/(rLayer*cosCross);
   auto deltaPhi = std::abs(phis[0]-phis[1]);
   auto deltaPhiOrig = phis[2];
-  
-  /*
+#else
+//  #warning no vector!  
   auto alphaHit = cropped_asin( dHitmag/(2*theRCurvature)); 
   auto OdeltaPhi = std::abs( alphaHit - cropped_asin( dLayer/(2*theRCurvature)));
   OdeltaPhi *= dLayer/(rLayer*cosCross);  
   // compute additional delta phi due to origin radius
   auto OdeltaPhiOrig = cropped_asin( theROrigin * (dHitmag-dLayer) / (dHitmag*dLayer));
   OdeltaPhiOrig *= dLayer/(rLayer*cosCross);
-  std::cout << "dphi " << OdeltaPhi<<'/'<<OdeltaPhiOrig << ' ' << deltaPhi<<'/'<<deltaPhiOrig << std::endl;
-  */
+  // std::cout << "dphi " << OdeltaPhi<<'/'<<OdeltaPhiOrig << ' ' << deltaPhi<<'/'<<deltaPhiOrig << std::endl;
+
+  auto deltaPhi = OdeltaPhi;
+  auto deltaPhiOrig = OdeltaPhiOrig;
+#endif
 
   // additinal angle due to not perpendicular stright line crossing  (for displaced beam)
   //  double dPhiCrossing = (cosCross > 0.9999) ? 0 : dL *  sqrt(1-sqr(cosCross))/ rLayer;

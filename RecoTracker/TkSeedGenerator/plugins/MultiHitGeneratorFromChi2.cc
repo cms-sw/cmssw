@@ -29,6 +29,7 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "CommonTools/Utils/interface/DynArray.h"
 
 #include <algorithm>
 #include <iostream>
@@ -169,11 +170,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   std::vector<KDTreeNodeInfo<RecHitsSortedInPhi::HitIter> > layerTree; // re-used throughout
   std::vector<RecHitsSortedInPhi::HitIter> foundNodes; // re-used thoughout
   foundNodes.reserve(100);
-  #ifdef __clang__
-  std::vector<KDTreeLinkerAlgo<RecHitsSortedInPhi::HitIter>> hitTree(size);
-  #else
-  KDTreeLinkerAlgo<RecHitsSortedInPhi::HitIter> hitTree[size];
-  #endif
+  declareDynArray(KDTreeLinkerAlgo<RecHitsSortedInPhi::HitIter>,size, hitTree);
   float rzError[size]; //save maximum errors
   double maxphi = Geom::twoPi(), minphi = -maxphi; //increase to cater for any range
 
