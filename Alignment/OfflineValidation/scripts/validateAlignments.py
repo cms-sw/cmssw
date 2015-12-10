@@ -314,9 +314,9 @@ def createMergeScript( path, validations ):
             repMap["haddLoop"] = validation.appendToMerge(repMap["haddLoop"])
             repMap["haddLoop"] += "tmpMergeRetCode=${?}\n"
             repMap["haddLoop"] += ("if [[ tmpMergeRetCode -eq 0 ]]; then "
-                                   "cmsStage -f "
+                                   "xrdcp -f "
                                    +validation.getRepMap()["finalOutputFile"]
-                                   +" "
+                                   +" root://eoscms//eos/cms"
                                    +validation.getRepMap()["finalResultFile"]
                                    +"; fi\n")
             repMap["haddLoop"] += ("if [[ ${tmpMergeRetCode} -gt ${mergeRetCode} ]]; then "
@@ -324,7 +324,7 @@ def createMergeScript( path, validations ):
             for f in validation.getRepMap()["outputFiles"]:
                 longName = os.path.join("/store/caf/user/$USER/",
                                         validation.getRepMap()["eosdir"], f)
-                repMap["rmUnmerged"] += "    cmsRm "+longName+"\n"
+                repMap["rmUnmerged"] += "    $eos rm "+longName+"\n"
     repMap["rmUnmerged"] += ("else\n"
                              "    echo -e \\n\"WARNING: Merging failed, unmerged"
                              " files won't be deleted.\\n"
