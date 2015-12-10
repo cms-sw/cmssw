@@ -27,16 +27,16 @@ fi
 # Step 2: Setup each runForest on the appropriate sample    #
 #############################################################
 
-replacename=`cat runForestAOD_PbPb_DATA_75X.py | grep -A10 process.source | grep root | awk '{print $1}'`
+replacename=`cat runForestAOD_PbPb_DATA_75X.py | grep -v '#' | grep -A10 process.source | grep root | sed 's@,@@g' | awk '{print $1}'`
 cat runForestAOD_PbPb_DATA_75X.py | sed 's@'$replacename'@"file:.samples/PbPb_DATA_AOD.root"@g' | sed 's@HiForestAOD.root@HiForestAOD_PbPb_DATA_AOD.root@g' > test_runForestAOD_PbPb_DATA_75X.py
 
-replacename=`cat runForestAOD_pp_DATA_75X.py | grep -A10 process.source | grep root | awk '{print $1}'`
+replacename=`cat runForestAOD_pp_DATA_75X.py | grep -v '#' | grep -A10 process.source | grep root | sed 's@,@@g' | awk '{print $1}'`
 cat runForestAOD_pp_DATA_75X.py | sed 's@'$replacename'@"file:.samples/pp_DATA_AOD.root"@g' | sed 's@HiForestAOD.root@HiForestAOD_pp_DATA_AOD.root@g' > test_runForestAOD_pp_DATA_75X.py
 
-replacename=`cat runForestAOD_PbPb_MIX_75X.py | grep -A10 process.source | grep root | awk '{print $1}'`
+replacename=`cat runForestAOD_PbPb_MIX_75X.py | grep -v '#' | grep -A10 process.source | grep root | sed 's@,@@g' | awk '{print $1}'`
 cat runForestAOD_PbPb_MIX_75X.py | sed 's@'$replacename'@"file:.samples/PbPb_MC_AODSIM.root"@g' | sed 's@HiForestAOD.root@HiForestAOD_PbPb_MC_AODSIM.root@g' > test_runForestAOD_PbPb_MIX_75X.py
 
-replacename=`cat runForestAOD_pp_MC_75X.py | grep -A10 process.source | grep root | awk '{print $1}'`
+replacename=`cat runForestAOD_pp_MC_75X.py | grep -v '#' | grep -A10 process.source | grep root | sed 's@,@@g' | awk '{print $1}'`
 cat runForestAOD_pp_MC_75X.py | sed 's@'$replacename'@"file:.samples/pp_MC_AODSIM.root"@g' | sed 's@HiForestAOD.root@HiForestAOD_pp_MC_AODSIM.root@g' > test_runForestAOD_pp_MC_75X.py
 
 #############################################################
