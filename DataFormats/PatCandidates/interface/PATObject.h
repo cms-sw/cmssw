@@ -306,16 +306,14 @@ namespace pat {
       /// and it will throw exception if they're missing,
       /// unless transientOnly is set to true
       template<typename T>
-      void addUserData( const std::string & label, const T & data, bool transientOnly=false ) {
-        userDataLabels_.push_back(label);
-        userDataObjects_.push_back(pat::UserData::make<T>(data, transientOnly));
+      void addUserData( const std::string & label, const T & data, bool transientOnly=false, bool overwrite=false ) {
+        addUserDataObject_( label, pat::UserData::make<T>(data, transientOnly), overwrite );
       }
 
       /// Set user-defined data. To be used only to fill from ValueMap<Ptr<UserData>>
       /// Do not use unless you know what you are doing.
-      void addUserDataFromPtr( const std::string & label, const edm::Ptr<pat::UserData> & data ) {
-        userDataLabels_.push_back(label);
-        userDataObjects_.push_back(data->clone());
+      void addUserDataFromPtr( const std::string & label, const edm::Ptr<pat::UserData> & data, bool overwrite=false ) {
+        addUserDataObject_( label, data->clone(), overwrite );
       }
 
       /// Get user-defined float
@@ -456,6 +454,8 @@ namespace pat {
       /// Labels for the kinematic resolutions.
       /// if (kinResolutions_.size() == kinResolutionLabels_.size()+1), then the first resolution has no label.
       std::vector<std::string>            kinResolutionLabels_;
+
+      void addUserDataObject_( const std::string & label, pat::UserData * value, bool overwrite = false ) ;
 
     private:
       const pat::UserData *  userDataObject_(const std::string &key) const ;
@@ -766,6 +766,24 @@ namespace pat {
     }
     return nullptr;
   }
+
+  template <class ObjectType>
+  void PATObject<ObjectType>::addUserDataObject_( const std::string & label, pat::UserData * data, bool overwrite ) 
+  {
+    auto it = std::lower_bound(userDataLabels_.begin(), userDataLabels_.end(), label);
+    const auto dist = std::distance(userDataLabels_.begin(), it);
+    if( it == userDataLabels_.end() || *it != label ) {
+        userDataLabels_.insert(it,label);
+        userDataObjects_.insert(userDataObjects_.begin()+dist, data);
+    } else if( overwrite ) {
+        userDataObjects_.set(dist, data);
+    } else {
+        //create a range by adding behind the first entry
+        userDataLabels_.insert(it+1,label);
+        userDataObjects_.insert(userDataObjects_.begin()+dist+1, data);
+    }
+  }
+
 
   template <class ObjectType>
   float PATObject<ObjectType>::userFloat( const std::string &key ) const
