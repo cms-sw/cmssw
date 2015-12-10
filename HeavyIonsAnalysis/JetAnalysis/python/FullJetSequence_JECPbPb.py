@@ -55,6 +55,14 @@ from HeavyIonsAnalysis.JetAnalysis.jets.ak6CaloJetSequence_PbPb_jec_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akVs6PFJetSequence_PbPb_jec_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.akPu6PFJetSequence_PbPb_jec_cff import *
 from HeavyIonsAnalysis.JetAnalysis.jets.ak6PFJetSequence_PbPb_jec_cff import *
+from HeavyIonsAnalysis.JetAnalysis.makePartons_cff import *
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
+offlinePrimaryVertices.TrackLabel = 'highPurityTracks'
+
+highPurityTracks = cms.EDFilter("TrackSelector",
+                                src = cms.InputTag("hiGeneralTracks"),
+                                cut = cms.string('quality("highPurity")')
+)
 
 akVs1PFJetAnalyzer.doSubEvent = True
 akVs1CaloJetAnalyzer.doSubEvent = True
@@ -111,13 +119,18 @@ ak6PFJetAnalyzer.doSubEvent = True
 ak6CaloJetAnalyzer.doSubEvent = True
 
 
+
 jetSequences = cms.Sequence(akHiGenJets +
                             voronoiBackgroundPF+
                             voronoiBackgroundCalo+
 
                             hiReRecoCaloJets +
                             hiReRecoPFJets +
-
+                            
+							myPartons +
+							highPurityTracks +
+							offlinePrimaryVertices +
+							
                     	    ak1CaloJetSequence +
                             akPu1CaloJetSequence +
                             akVs1CaloJetSequence +
@@ -125,15 +138,15 @@ jetSequences = cms.Sequence(akHiGenJets +
                             akVs1PFJetSequence +
                             akPu1PFJetSequence +
 
-			    ak2CaloJetSequence +
-			    akPu2CaloJetSequence +
+			                ak2CaloJetSequence +
+			                akPu2CaloJetSequence +
                             akVs2CaloJetSequence +
                             akVs2PFJetSequence +
                             akPu2PFJetSequence +
                             ak2PFJetSequence +
 
-			    ak3CaloJetSequence +
-			    akPu3CaloJetSequence +
+			                ak3CaloJetSequence +
+			                akPu3CaloJetSequence +
                             akVs3CaloJetSequence +
                             ak3PFJetSequence +
                             akVs3PFJetSequence +

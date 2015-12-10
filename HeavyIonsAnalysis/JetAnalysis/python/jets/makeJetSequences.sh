@@ -74,7 +74,7 @@ do
 			# skip no sub
 			if [ $sample == "jec" ]; then
                             echo "${algo}${subt}${radius}${object}JetAnalyzer.genPtMin = cms.untracked.double(1)" >> $algo$subt$radius${object}JetSequence_${system}_${sample}_cff.py
-			    echo "${algo}${subt}${radius}${object}JetAnalyzer.jtPtMin = cms.untracked.double(1)" >> $algo$subt$radius${object}JetSequence_${system}_${sample}_cff.py
+			    echo "${algo}${subt}${radius}${object}JetAnalyzer.jetPtMin = cms.untracked.double(1)" >> $algo$subt$radius${object}JetSequence_${system}_${sample}_cff.py
                         fi
                     done
                 done
