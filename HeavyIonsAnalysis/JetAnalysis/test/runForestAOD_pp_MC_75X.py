@@ -26,7 +26,7 @@ process.HiForest.HiForestVersion = cms.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-                                "file:/afs/cern.ch/work/m/mnguyen/public/testPPfile/step3.root"  # replace me
+                                "file:/afs/cern.ch/work/m/mnguyen/public/testPPfile/step3.root"  
                             )
 )
 
