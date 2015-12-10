@@ -174,6 +174,9 @@ class HiMixValidation : public edm::EDAnalyzer {
 
 HiMixValidation::HiMixValidation(const edm::ParameterSet& iConfig)
 {
+
+   playbackSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("playbackSrc",edm::InputTag("mix"));
+
    genParticleSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("genpSrc",edm::InputTag("hiGenParticles"));
    genJetSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("genJetSrc",edm::InputTag("ak3HiGenJets"));
    genHIsrc_ = iConfig.getUntrackedParameter<edm::InputTag>("genHiSrc",edm::InputTag("heavyIon"));
@@ -225,15 +228,22 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
    piles.file[0] = 0;
 
-
+   int bx = 0;
+   int sbx = 0;
 
    for(unsigned int i = 0; i < playback->eventInfo_.size(); ++i){
+
+      if(i > sbx + playback->sizes_[bx]){
+         sbx += playback->sizes_[bx];
+         bx++;
+      }
 
       EventID const& id = playback->eventInfo_[i].eventID();
       piles.event[i+1] = id.event();
       piles.run[i+1] = id.run();
       piles.lumi[i+1] = id.luminosityBlock();
-      //      piles.bx[i+1] = id.;
+
+      piles.bx[i+1] = playback->minBunch_ + bx;
       piles.file[i+1] = playback->eventInfo_[i].fileNameHash();
 
    }
@@ -410,6 +420,8 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       }
    }
 
+   t->Fill();
+
 }
 
 
@@ -432,7 +444,7 @@ HiMixValidation::beginJob()
    t->Branch("yVtx",piles.yVtx,"yVtx[nmix]/F");
    t->Branch("zVtx",piles.zVtx,"zVtx[nmix]/F");
 
-   t->Branch("bx",piles.bx,"bx[nmix]/l");
+   t->Branch("bx",piles.bx,"bx[nmix]/I");
 
    t->Branch("event",piles.event,"event[nmix]/l");
    t->Branch("lumi",piles.lumi,"lumi[nmix]/l");
