@@ -1,6 +1,7 @@
 #include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -30,8 +31,8 @@ CaloTPGTranscoderULUT::~CaloTPGTranscoderULUT() {
 void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
                                              HcalTrigTowerGeometry const& theTrigTowerGeometry) {
     // Initialize analytical compression LUT's here
-    // TODO cms::Error log
-    if (OUTPUT_LUT_SIZE != (unsigned int) 0x400) std::cout << "Error: Analytic compression expects 10-bit LUT; found LUT with " << OUTPUT_LUT_SIZE << " entries instead" << std::endl;
+    if (OUTPUT_LUT_SIZE != (unsigned int) 0x400)
+        edm::LogError("CaloTPGTranscoderULUT") << "Analytic compression expects 10-bit LUT; found LUT with " << OUTPUT_LUT_SIZE << " entries instead";
 
     std::vector<unsigned int> analyticalLUT(OUTPUT_LUT_SIZE, 0);
     std::vector<unsigned int> identityLUT(OUTPUT_LUT_SIZE, 0);
@@ -110,9 +111,13 @@ HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTow
 double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& iphi, const int& compET) const {
   double etvalue = 0.;
   int itower = getOutputLUTId(ieta,iphi);
-  if (itower < 0) std::cout << "hcaletValue error: no decompression LUT found for ieta, iphi = " << ieta << ", " << iphi << std::endl;
-  else if (compET < 0 || compET > 0xff) std::cout << "hcaletValue error: compressed value out of range: eta, phi, cET = " << ieta << ", " << iphi << ", " << compET << std::endl;
-  else etvalue = hcaluncomp_[itower][compET];
+  if (itower < 0) {
+    edm::LogError("CaloTPGTranscoderULUT") << "No decompression LUT found for ieta, iphi = " << ieta << ", " << iphi;
+  } else if (compET < 0 || compET > 0xff) {
+    edm::LogError("CaloTPGTranscoderULUT") << "Compressed value out of range: eta, phi, cET = " << ieta << ", " << iphi << ", " << compET;
+  } else {
+    etvalue = hcaluncomp_[itower][compET];
+  }
   return(etvalue);
 }
 
@@ -121,8 +126,9 @@ double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& compET) co
 // The user is encouraged to use hcaletValue(const int& ieta, const int& iphi, const int& compET) instead
 
   double etvalue = 0.;
-  if (compET < 0 || compET > 0xff) std::cout << "hcaletValue error: compressed value out of range: eta, cET = " << ieta << ", " << compET << std::endl;
-  else {
+  if (compET < 0 || compET > 0xff) {
+    edm::LogError("CaloTPGTranscoderULUT") << "Compressed value out of range: eta, cET = " << ieta << ", " << compET;
+  } else {
 	int nphi = 0;
 	for (int iphi=1; iphi <= 72; iphi++) {
 		if (HTvalid(ieta,iphi)) {
@@ -131,8 +137,11 @@ double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& compET) co
 			etvalue += hcaluncomp_[itower][compET];
 		}
 	}
-	if (nphi > 0) etvalue /= nphi;
-	else std::cout << "hcaletValue error: no decompression LUTs found for any iphi for ieta = " << ieta << std::endl;
+	if (nphi > 0) {
+		etvalue /= nphi;
+	} else {
+		edm::LogError("CaloTPGTranscoderULUT") << "No decompression LUTs found for any iphi for ieta = " << ieta;
+	}
   }
   return(etvalue);
 }
