@@ -9,6 +9,7 @@ it into cmsRun for testing with a few input files etc from the command line
 
 import sys
 import getopt
+import traceback
 
 from Configuration.DataProcessing.GetScenario import getScenario
 
@@ -95,7 +96,7 @@ class RunExpressProcessing:
             return
         except Exception as ex:
             msg = "Error creating Express Processing config:\n"
-            msg += str(ex)
+            msg += traceback.format_exc()
             raise RuntimeError(msg)
 
         process.source.fileNames = [self.inputLFN]
