@@ -429,6 +429,9 @@ namespace sistrip {
       virtual void setChannelStatus(const uint8_t internalFEDChannelNum, const FEDChannelStatus status) = 0;
       virtual void setFEUnitMajorityAddress(const uint8_t internalFEUnitNum, const uint8_t address) = 0;
       virtual void setBEStatusRegister(const FEDBackendStatusRegister beStatusRegister) = 0;
+      virtual void setDAQRegister(const uint32_t daqRegister) = 0;
+      virtual void setDAQRegister2(const uint32_t daqRegister2) = 0;
+      virtual void set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister) = 0;
       virtual void setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length) = 0;
       void setChannelStatus(const uint8_t internalFEUnitNum, const uint8_t internalFEUnitChannelNum, const FEDChannelStatus status);
     };
@@ -453,6 +456,9 @@ namespace sistrip {
       virtual void setChannelStatus(const uint8_t internalFEDChannelNum, const FEDChannelStatus status);
       virtual void setFEUnitMajorityAddress(const uint8_t internalFEUnitNum, const uint8_t address);
       virtual void setBEStatusRegister(const FEDBackendStatusRegister beStatusRegister);
+      virtual void setDAQRegister(const uint32_t daqRegister);
+      virtual void setDAQRegister2(const uint32_t daqRegister2);
+      virtual void set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister);
       virtual void setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length);
     private:
       static const size_t APV_ERROR_HEADER_SIZE_IN_64BIT_WORDS = 3;
@@ -503,7 +509,11 @@ namespace sistrip {
       virtual void setBEStatusRegister(const FEDBackendStatusRegister beStatusRegister);
       virtual void setDAQRegister(const uint32_t daqRegister);
       virtual void setDAQRegister2(const uint32_t daqRegister2);
+      virtual void set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister);
       virtual void setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length);
+      static uint32_t get32BitWordFrom(const uint8_t* startOfWord);
+      const uint8_t* feWord(const uint8_t internalFEUnitNum) const;
+      uint8_t* feWord(const uint8_t internalFEUnitNum);
       FEDFullDebugHeader(const std::vector<uint16_t>& feUnitLengths = std::vector<uint16_t>(FEUNITS_PER_FED,0),
                          const std::vector<uint8_t>& feMajorityAddresses = std::vector<uint8_t>(FEUNITS_PER_FED,0),
                          const std::vector<FEDChannelStatus>& channelStatus = std::vector<FEDChannelStatus>(FEDCH_PER_FED,CHANNEL_STATUS_NO_PROBLEMS),
@@ -511,10 +521,7 @@ namespace sistrip {
                          const uint32_t daqRegister = 0, const uint32_t daqRegister2 = 0);
     private:
       bool getBit(const uint8_t internalFEDChannelNum, const uint8_t bit) const;
-      static uint32_t get32BitWordFrom(const uint8_t* startOfWord);
       static void set32BitWordAt(uint8_t* startOfWord, const uint32_t value);
-      const uint8_t* feWord(const uint8_t internalFEUnitNum) const;
-      uint8_t* feWord(const uint8_t internalFEUnitNum);
       void setBit(const uint8_t internalFEDChannelNum, const uint8_t bit, const bool value);
       
       //These methods return true if there was an error of the appropriate type (ie if the error bit is 0).
