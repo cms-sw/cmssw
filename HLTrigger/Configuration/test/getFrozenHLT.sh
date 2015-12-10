@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-TABLES="Fake 50ns_5e33_v1 25ns14e33_v1 50ns_5e33_v3 25ns14e33_v3 25ns14e33_v4"
+TABLES="Fake 50ns_5e33_v1 25ns14e33_v1 50ns_5e33_v3 25ns14e33_v3 25ns14e33_v4 HIon_2015_v2 pp5TeV_2015_v2"
 #TABLES="Fake 50ns_5e33_v1 25ns14e33_v1"
 # Do not update the frozen menus in 74X
 # TABLES="Fake Fake"
@@ -11,6 +11,8 @@ HLT_50ns_5e33_v3="/frozen/2015/50ns_5e33/v3.0/HLT"
 HLT_25ns14e33_v3="/frozen/2015/25ns14e33/v3.3/HLT"
 HLT_50ns_5e33_v1="/frozen/2015/50ns_5e33/v1.2/HLT"
 HLT_25ns14e33_v1="/frozen/2015/25ns14e33/v1.2/HLT"
+HLT_HIon_2015_v2="/frozen/2015/HIon/v2.0/HLT"
+HLT_pp5TeV_2015_v2="/frozen/2015/pp5TeV/v2.0/HLT"
 
 # print extra messages ?
 VERBOSE=false

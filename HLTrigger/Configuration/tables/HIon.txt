@@ -252,7 +252,7 @@ HLTAnalyzerEndpath				# only in 'GRun', not in 'online
 HIPhysicsMuonsOutput
 HIPhysicsHardProbesOutput
 HIPhysicsMinBiasUPCOutput
-HIPhysicsVirginRawOutput
+#HIPhysicsVirginRawOutput			# Removed CMSHLT-679
 
 HIExpressOutput
 

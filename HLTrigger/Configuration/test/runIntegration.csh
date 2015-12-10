@@ -10,11 +10,11 @@ echo Start $0 $1 $2
 if ( $2 == "" ) then
   set tables = ( GRun 50nsGRun )
 else if ( $2 == ALL ) then
-  set tables = ( GRun 50nsGRun HIon PIon 25nsLowPU LowPU 25ns14e33_v4 25ns14e33_v3 50ns_5e33_v3 25ns14e33_v1 50ns_5e33_v1 Fake )
+  set tables = ( GRun 50nsGRun HIon PIon PRef 25nsLowPU LowPU HIon_2015_v2 pp5TeV_2015_v2 25ns14e33_v4 25ns14e33_v3 50ns_5e33_v3 25ns14e33_v1 50ns_5e33_v1 Fake )
 else if ( $2 == IB ) then
-  set tables = ( GRun 50nsGRun HIon PIon 25nsLowPU LowPU )
+  set tables = ( GRun HIon PIon PRef )
 else if ( $2 == DEV ) then
-  set tables = ( GRun 50nsGRun HIon PIon 25nsLowPU LowPU )
+  set tables = ( GRun 50nsGRun HIon PIon PRef 25nsLowPU LowPU )
 else if ( $2 == LOWPU ) then
   set tables = ( 25nsLowPU LowPU )
 else if ( $2 == FULL ) then
@@ -22,7 +22,7 @@ else if ( $2 == FULL ) then
 else if ( $2 == FAKE ) then
   set tables = ( Fake )
 else if ( $2 == FROZEN ) then
-  set tables = ( 25ns14e33_v4 25ns14e33_v3 50ns_5e33_v3 25ns14e33_v1 50ns_5e33_v1 Fake )
+  set tables = ( HIon_2015_v2 pp5TeV_2015_v2 25ns14e33_v4 25ns14e33_v3 50ns_5e33_v3 25ns14e33_v1 50ns_5e33_v1 Fake )
 else
   set tables = ( $2 )
 endif
