@@ -143,8 +143,7 @@ process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.Input
 # Main analysis list
 #########################
 
-process.ana_step = cms.Path(process.heavyIon *
-                            #process.mixAnalyzer *
+process.ana_step = cms.Path(#process.mixAnalyzer *
                             process.runAnalyzer *
                             process.hltanalysis *
                             process.centralityBin *
