@@ -15,6 +15,7 @@
 #include <memory>
 #include <algorithm>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -50,7 +51,9 @@ public:
       producer.template produces< TrajTrackAssociationCollection >().setBranchAlias( alias + "TrajectoryTrackAssociations" );
     }
 
-  }
+    }
+
+   static void fill(edm::ParameterSetDescription& desc);
 
   struct Producer {
     Producer(edm::Event& ievt, TrackCollectionCloner const & cloner);

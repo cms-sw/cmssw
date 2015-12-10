@@ -1,5 +1,10 @@
 #include "RecoTracker/FinalTrackSelectors/interface/TrackCollectionCloner.h"
 
+void 
+TrackCollectionCloner::fill(edm::ParameterSetDescription& desc) {
+  desc.addUntracked<bool>("copyExtras",      true);
+  desc.addUntracked<bool>("copyTrajectories",true);  
+}
 
 TrackCollectionCloner::Producer::Producer(edm::Event& ievt, TrackCollectionCloner const & cloner) :
   copyExtras_(cloner.copyExtras_), copyTrajectories_(cloner.copyTrajectories_), evt(ievt)  {
