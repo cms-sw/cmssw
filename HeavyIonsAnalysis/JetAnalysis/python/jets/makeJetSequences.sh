@@ -2,7 +2,7 @@
 
 for system in PbPb pp
 do
-    for sample in data mix jec mc
+    for sample in data jec mc
     do
         for algo in ak
         do
