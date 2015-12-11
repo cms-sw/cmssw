@@ -101,7 +101,7 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
   
      using namespace edm::es;
  
-     std:: cout << "object Key " << objectKey <<std::endl <<std::flush;
+     edm::LogInfo("L1CaloHcalScaleConfigOnlineProd") << "object Key " << objectKey;
 
      if(objectKey == "NULL" || objectKey == "")  // return default blank ecal scale	 
        return boost::shared_ptr< L1CaloHcalScale >( hcalScale );
@@ -325,8 +325,10 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
        } // zside
      }// eta
 
-     std::cout << std::setprecision(10);
-     hcalScale->print(std::cout);
+     std::stringstream s;
+     s << std::setprecision(10);
+     hcalScale->print(s);
+     edm::LogInfo("L1CaloHcalScaleConfigOnlineProd") << s.str();
 // ------------ method called to produce the data  ------------
      return boost::shared_ptr< L1CaloHcalScale >( hcalScale );
 

@@ -20,6 +20,7 @@
 #include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include "FWCore/Utilities/interface/md5.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/HcalEmap.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
@@ -134,7 +135,7 @@ std::vector<unsigned int> * LutXml::getLutFast( uint32_t det_id ){
   }
   */
    if (lut_map.find(det_id) != lut_map.end()) return &(lut_map)[det_id];
-   std::cerr << "LUT not found, null pointer is returned" << std::endl;
+   edm::LogError("LutXml") << "LUT not found, null pointer is returned";
    return 0;
 }
 
@@ -238,7 +239,7 @@ void LutXml::addLut( LutXml::Config & _config, XMLDOMBlock * checksums_xml )
     addData( "1024", "hex", _config.lut );
   }
   else{
-    std::cout << "Unknown LUT type...produced XML will be incorrect" << std::endl;
+    edm::LogError("LutXml") << "Unknown LUT type...produced XML will be incorrect";
   }
 
   // if the pointer to the checksums XML was given,
@@ -358,7 +359,7 @@ std::string LutXml::get_checksum( std::vector<unsigned int> & lut )
     }
   }
   else{
-    std::cout << "ERROR: irregular LUT size, do not know how to compute checksum, exiting..." << std::endl;
+    edm::LogError("LutXml") << "Irregular LUT size, do not know how to compute checksum, exiting...";
     exit(-1);
   }
   md5_finish(&md5er,digest);
@@ -374,8 +375,7 @@ std::string LutXml::get_checksum( std::vector<unsigned int> & lut )
 
 int LutXml::test_access( std::string filename ){
   //create_lut_map();
-  //std::cout << "Created map size: " << lut_map->size() << std::endl;
-  std::cout << "Created map size: " << lut_map.size() << std::endl;
+  edm::LogInfo("LutXml") << "Created map size: " << lut_map.size();
 
   struct timeval _t;
   gettimeofday( &_t, NULL );
@@ -383,7 +383,7 @@ int LutXml::test_access( std::string filename ){
 
   HcalEmap _emap("./backup/official_emap_v6.04_080905.txt");
   std::vector<HcalEmap::HcalEmapRow> & _map = _emap.get_map();
-  std::cout << "HcalEmap contains " << _map . size() << " entries" << std::endl;
+  edm::LogInfo("LutXml") << "HcalEmap contains " << _map . size() << " entries";
 
   int _counter=0;
   for (std::vector<HcalEmap::HcalEmapRow>::const_iterator row=_map.begin(); row!=_map.end(); ++row){
@@ -413,7 +413,7 @@ int LutXml::test_access( std::string filename ){
     }
   }
   gettimeofday( &_t, NULL );
-  std::cout << "access to " << _counter << " HCAL channels took: " << (double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0 - _time << "sec" << std::endl;
+  edm::LogInfo("LutXml") << "access to " << _counter << " HCAL channels took: " << (double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0 - _time << "sec";
 
   //std::cout << std::endl;
   //for (std::vector<unsigned int>::const_iterator i=l->begin();i!=l->end();i++){
@@ -470,12 +470,12 @@ HcalSubdetector LutXml::subdet_from_crate(int crate_, int eta, int depth){
     else if (eta==16 && depth!=3) result=HcalBarrel;
     else if (eta==16 && depth==3) result=HcalEndcap;
     else{
-      std::cerr << "Impossible to determine HCAL subdetector!!!" << std::endl;
+      edm::LogError("LutXml") << "Impossible to determine HCAL subdetector!!!";
       exit(-1);
     }
   }
   else{
-    std::cerr << "Impossible to determine HCAL subdetector!!!" << std::endl;
+    edm::LogError("LutXml") << "Impossible to determine HCAL subdetector!!!";
     exit(-1);
   }
 
@@ -574,7 +574,7 @@ int LutXml::create_lut_map( void ){
     }
   }
   else{
-    std::cerr << "XML file with LUTs is not loaded, cannot create map!" << std::endl;
+    edm::LogError("LutXml") << "XML file with LUTs is not loaded, cannot create map!";
   }
 
 
