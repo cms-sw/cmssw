@@ -189,7 +189,6 @@ process.pixeloccupancyxyplots = process.occupancyplots.clone()
 process.pixeloccupancyxyplots.wantedSubDets = process.spclusmultprodxy.wantedSubDets
 process.pixeloccupancyxyplots.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprodxy"))
 process.pixeloccupancyxyplots.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprodxy"))
-process.pixeloccupancyxyplots.checkWithLabels = cms.bool(True)
 
 process.pixeloccupancyplotsontrack = process.occupancyplots.clone()
 process.pixeloccupancyplotsontrack.wantedSubDets = process.spclusmultprodontrack.wantedSubDets
@@ -232,7 +231,7 @@ process.seqAnalyzers = cms.Sequence(
     #process.bxlumianalyzer +
     process.goodVertices + process.primaryvertexanalyzer +
 #    process.alloccupancyplots
-#    process.pixeloccupancyplots + process.pixeloccupancyplotsontrack +
+    process.pixeloccupancyplots + process.pixeloccupancyplotsontrack +
     process.pixeloccupancyxyplots + process.pixeloccupancyxyplotsontrack
 )
 
