@@ -1096,6 +1096,18 @@ namespace sistrip {
   {
     return;
   }
+  void FEDAPVErrorHeader::setDAQRegister(const uint32_t daqRegister)
+  {
+    return;
+  }
+  void FEDAPVErrorHeader::setDAQRegister2(const uint32_t daqRegister2)
+  {
+    return;
+  }
+  void FEDAPVErrorHeader::set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister)
+  {
+    return;
+  }
   void FEDAPVErrorHeader::setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length)
   {
     return;
@@ -1230,6 +1242,12 @@ namespace sistrip {
   void FEDFullDebugHeader::setDAQRegister2(const uint32_t daqRegister2)
   {
     set32BitWordAt(feWord(6)+10,daqRegister2);
+  }
+
+  //used by DigiToRaw to copy reserved registers in internalFEUnit buffers 1 through 5
+  void FEDFullDebugHeader::set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister)
+  {
+    set32BitWordAt(feWord(internalFEUnitNum)+10,reservedRegister);
   }
   
   void FEDFullDebugHeader::setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length)
