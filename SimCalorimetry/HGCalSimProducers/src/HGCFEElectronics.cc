@@ -74,9 +74,9 @@ void HGCFEElectronics<DFr>::runTrivialShaper(DFr &dataFrame, HGCSimHitData& char
     }
 
   if(debug) { 
-    std::stringstream msg;
+    std::ostringstream msg;
     dataFrame.print(msg);
-    edm::LogVerbatim("HGCFE") << msg << std::endl; 
+    edm::LogVerbatim("HGCFE") << msg.str() << std::endl;
   } 
 }
 
@@ -124,9 +124,9 @@ void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame, HGCSimHitData& charg
     }
   
   if(debug) { 
-    std::stringstream msg;
+    std::ostringstream msg;
     dataFrame.print(msg);
-    edm::LogVerbatim("HGCFE") << msg << std::endl; 
+    edm::LogVerbatim("HGCFE") << msg.str() << std::endl;
   }
 }
 
@@ -327,9 +327,9 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
     }
 
   if(debug) { 
-    std::stringstream msg;
+    std::ostringstream msg;
     dataFrame.print(msg);
-    edm::LogVerbatim("HGCFE") << msg << std::endl; 
+    edm::LogVerbatim("HGCFE") << msg.str() << std::endl;
   }  
 }
 
