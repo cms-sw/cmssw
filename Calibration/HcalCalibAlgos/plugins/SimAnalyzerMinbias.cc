@@ -15,6 +15,8 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
@@ -41,21 +43,22 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob() ;
   virtual void endJob() ;
+  virtual void beginRun(const edm::Run& r, const edm::EventSetup& iSetup);
+  virtual void endRun(const edm::Run& r, const edm::EventSetup& iSetup);
     
 private:
     
   // ----------member data ---------------------------
-  std::string fOutputFileName_;
-  double      timeCut_;
-  TFile*      hOutputFile_;
-  TTree*      myTree_;
+  edm::Service<TFileService> fs_;
+  double                     timeCut_;
+  TTree*                     myTree_;
   
   // Root tree members
   int   mydet, mysubd, depth, iphi, ieta, cells;
   float mom0_MB, mom1_MB, mom2_MB, mom3_MB, mom4_MB;
   struct myInfo{
     double theMB0, theMB1, theMB2, theMB3, theMB4;
-    void MyInfo() {
+    myInfo() {
       theMB0 = theMB1 = theMB2 = theMB3 = theMB4 = 0;
     }
   };
@@ -67,16 +70,14 @@ private:
 // constructors and destructor
 
 SimAnalyzerMinbias::SimAnalyzerMinbias(const edm::ParameterSet& iConfig) {
-  // get name of output file with histogramms
-  fOutputFileName_= iConfig.getUntrackedParameter<std::string>("HistOutFile", "simOutput.root");
+
   timeCut_        = iConfig.getUntrackedParameter<double>("TimeCut", 500);
     
   // get token names of modules, producing object collections
-  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
+  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
   tok_hcal_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalHits"));
 
-  edm::LogInfo("AnalyzerMB") << "Use Time cut of " << timeCut_
-			     << " ns and store o/p in " << fOutputFileName_;
+  edm::LogInfo("AnalyzerMB")  << "Use Time cut of " << timeCut_ << " ns";
 }
   
 SimAnalyzerMinbias::~SimAnalyzerMinbias() {
@@ -84,10 +85,15 @@ SimAnalyzerMinbias::~SimAnalyzerMinbias() {
   // (e.g. close files, deallocate resources etc.)
 }
   
+void SimAnalyzerMinbias::beginRun(const edm::Run& r, const edm::EventSetup& iSetup) {
+}
+  
+void SimAnalyzerMinbias::endRun(const edm::Run& r, const edm::EventSetup& iSetup) {
+}
+  
 void SimAnalyzerMinbias::beginJob() {
-  hOutputFile_ = new TFile( fOutputFileName_.c_str(), "RECREATE" );
 
-  myTree_ = new TTree("SimJet","SimJet Tree");
+  myTree_ = fs_->make<TTree>("SimJet","SimJet Tree");
   myTree_->Branch("mydet",    &mydet, "mydet/I");
   myTree_->Branch("mysubd",   &mysubd, "mysubd/I");
   myTree_->Branch("cells",    &cells, "cells");
@@ -131,10 +137,6 @@ void SimAnalyzerMinbias::endJob() {
     }
   }
   edm::LogInfo("AnalyzerMB") << "cells " << cells;    
-  hOutputFile_->cd();
-  myTree_->Write();
-  hOutputFile_->Write();   
-  hOutputFile_->Close() ;
 }
 
 //
@@ -145,18 +147,18 @@ void SimAnalyzerMinbias::endJob() {
   
 void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, 
 				 const edm::EventSetup&) {
-
   edm::LogInfo("AnalyzerMB") << " Start SimAnalyzerMinbias::analyze " 
-			     << iEvent.id().run() << ":" << iEvent.id().event();
+			     << iEvent.id().run() << ":" <<iEvent.id().event();
+
   
   edm::Handle<edm::HepMCProduct> evtMC;
   iEvent.getByToken(tok_evt_, evtMC);  
   if (!evtMC.isValid()) {
-    edm::LogInfo("AnalyzerMB") << "no HepMCProduct found";
+    edm::LogWarning("AnalyzerMB") << "no HepMCProduct found";
   } else {
     const HepMC::GenEvent * myGenEvent = evtMC->GetEvent();
     edm::LogInfo("AnalyzerMB") << "Event with " << myGenEvent->particles_size()
-			       << " particles + " << myGenEvent->vertices_size()
+			       << " particles + " <<myGenEvent->vertices_size()
 			       << " vertices";
   }
 
@@ -165,7 +167,7 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent,
   iEvent.getByToken(tok_hcal_,hcalHits);
   if (!hcalHits.isValid()) {
     edm::LogWarning("AnalyzerMB") << "Error! can't get HcalHits product!";
-    return;
+    return ;
   }
   
   const edm::PCaloHitContainer * HitHcal = hcalHits.product () ;
