@@ -1378,7 +1378,7 @@ void Tupel::processJets(){
   for ( unsigned int i=0; i<jets->size(); ++i ) {
     const pat::Jet & jet = jets->at(i);
 
-    JetAk04PuMva_->push_back(jet.userFloat("pileupJetId:fullDiscriminant"));
+    //JetAk04PuMva_->push_back(jet.userFloat("pileupJetId:fullDiscriminant"));
 
     chf = jet.chargedHadronEnergyFraction();
     nhf = (jet.neutralHadronEnergy()+jet.HFHadronEnergy())/jet.correctedJet(0).energy();
