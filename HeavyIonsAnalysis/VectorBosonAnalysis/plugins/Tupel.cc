@@ -170,7 +170,7 @@ private:
   void processPu(const edm::Event& iEvent);
 
   //Processes GenParticles
-  //  void processGenParticles(const edm::Event& iEvent);
+  void processGenParticles(const edm::Event& iEvent);
 
   void processGenJets(const edm::Event& iEvent);
 
@@ -184,7 +184,7 @@ private:
 
   void processJets();
 
-  //  void processPhotons();
+  void processPhotons();
 
   /** Check if the argument is one of the
    * HLT trigger considered to be stored and if it is set
@@ -203,24 +203,24 @@ private:
   bool compTrigger(const char* triggerBasename, const char* triggerName) const;
   
   // input tags
-  //  edm::InputTag trigger_;
-  //  edm::InputTag triggerEvent_;
-  //  edm::InputTag triggerSummaryLabel_;
+  //edm::InputTag trigger_;
+  //edm::InputTag triggerEvent_;
+  //edm::InputTag triggerSummaryLabel_;
   std::string elecMatch_;
   std::string muonMatch_;
   std::string muonMatch2_;
-  //  edm::InputTag photonSrc_;
-  edm::InputTag vtxSrc_;
+  edm::InputTag photonSrc_;
   edm::InputTag elecSrc_;
   edm::InputTag muonSrc_;
   edm::InputTag tauSrc_;
   edm::InputTag jetSrc_;
   edm::InputTag gjetSrc_;
   edm::InputTag metSrc_;
-  //  edm::InputTag mSrcRho_;
-  edm::InputTag CaloJet_;
+  edm::InputTag mSrcRho_;
+  //  edm::InputTag CaloJet_;
+  edm::InputTag vtxSrc_;
   edm::InputTag lheSource_;
-  //  edm::InputTag genParticleSrc_;
+  edm::InputTag genParticleSrc_;
   std::vector<edm::InputTag> metSources;
   bool triggerStat_;
 
@@ -228,7 +228,7 @@ private:
    */
   Long64_t analyzedEventCnt_;
 
-  //  bool photonIdsListed_;
+  bool photonIdsListed_;
   bool elecIdsListed_;
   bool hltListed_;
 
@@ -248,13 +248,11 @@ private:
   std::auto_ptr<int> 	  EvtPuCnt_;
   std::auto_ptr<int> 	  EvtPuCntTruth_;
   std::auto_ptr<std::vector<double> > EvtWeights_;
-  //  std::auto_ptr<float>    EvtFastJetRho_;
+  std::auto_ptr<float>    EvtFastJetRho_;
 
   //Trigger
   std::auto_ptr<unsigned>          TrigHlt_;
   std::map<std::string, unsigned>  TrigHltMap_; //bit assignment
-  //  std::auto_ptr<ULong64_t>         TrigHltPhot_;
-  //  std::map<std::string, ULong64_t> TrigHltPhotMap_; //bit assignment
   std::auto_ptr<ULong64_t>         TrigHltMu_;
   std::map<std::string, ULong64_t> TrigHltMuMap_; //bit assignment
   std::auto_ptr<ULong64_t>         TrigHltDiMu_;
@@ -263,8 +261,8 @@ private:
   std::map<std::string, ULong64_t> TrigHltElMap_; //bit assignment
   std::auto_ptr<ULong64_t>         TrigHltDiEl_;
   std::map<std::string, ULong64_t> TrigHltDiElMap_; //bit assignment
-  //  std::auto_ptr<ULong64_t>         TrigHltElMu_;
-  //  std::map<std::string, ULong64_t> TrigHltElMuMap_; //bit assignment
+  std::auto_ptr<ULong64_t>         TrigHltElMu_;
+  std::map<std::string, ULong64_t> TrigHltElMuMap_; //bit assignment
   struct  TrigHltMapRcd {
     TrigHltMapRcd(): pMap(0), pTrig(0) {}
     TrigHltMapRcd(std::map<std::string, ULong64_t>* pMap_, ULong64_t* pTrig_): pMap(pMap_), pTrig(pTrig_) {
@@ -342,7 +340,6 @@ private:
   std::auto_ptr<std::vector<int> >   GLepClosePhotSt_;
 
   //Gen Jets
-  
   std::auto_ptr<std::vector<float> > GJetAk04Pt_;
   std::auto_ptr<std::vector<float> > GJetAk04Eta_;
   std::auto_ptr<std::vector<float> > GJetAk04Phi_;
@@ -356,7 +353,7 @@ private:
   std::auto_ptr<std::vector<float> > GJetAk04ConstEta_;
   std::auto_ptr<std::vector<float> > GJetAk04ConstPhi_;
   std::auto_ptr<std::vector<float> > GJetAk04ConstE_;
-  
+
   //Exta generator information
   std::auto_ptr<std::vector<int> >   GPdfId1_;
   std::auto_ptr<std::vector<int> >   GPdfId2_;
@@ -368,7 +365,6 @@ private:
 
 
   ///Muons
-  
   std::auto_ptr<std::vector<float> > 	MuPt_;
   std::auto_ptr<std::vector<float> > 	MuEta_;
   std::auto_ptr<std::vector<float> > 	MuPhi_;
@@ -380,7 +376,7 @@ private:
   std::auto_ptr<std::vector<float> > 	MuCh_;
   std::auto_ptr<std::vector<float> > 	MuVtxZ_;
   std::auto_ptr<std::vector<float> > 	MuDxy_;
-  //  std::auto_ptr<std::vector<float> > 	MuIsoRho_;
+  std::auto_ptr<std::vector<float> > 	MuIsoRho_;
   std::auto_ptr<std::vector<float> > 	MuPfIso_;
   std::auto_ptr<std::vector<float> > 	MuType_;
   std::map<std::string, unsigned>    	MuTypeMap_; //bit assignment
@@ -398,7 +394,7 @@ private:
   std::auto_ptr<std::vector<float> > 	MuPfIsoNeutralHad_;
   std::auto_ptr<std::vector<float> > 	MuPfIsoRawRel_;
   std::auto_ptr<std::vector<unsigned> > MuHltMatch_;
-  
+
   //Electrons
   std::auto_ptr<std::vector<float> > 	ElPt_;
   std::auto_ptr<std::vector<float> > 	ElEta_;
@@ -411,8 +407,8 @@ private:
   std::auto_ptr<std::vector<float> > 	ElMvaTrig_;
   std::auto_ptr<std::vector<float> > 	ElMvaNonTrig_;
   std::auto_ptr<std::vector<float> > 	ElMvaPresel_;
-  //  std::auto_ptr<std::vector<float> > 	ElDEtaTkScAtVtx_;
-  //  std::auto_ptr<std::vector<float> > 	ElDPhiTkScAtVtx_;
+  std::auto_ptr<std::vector<float> > 	ElDEtaTkScAtVtx_;
+  std::auto_ptr<std::vector<float> > 	ElDPhiTkScAtVtx_;
   std::auto_ptr<std::vector<float> > 	ElHoE_;
   std::auto_ptr<std::vector<float> > 	ElSigmaIetaIeta_;
   std::auto_ptr<std::vector<float> > 	ElSigmaIetaIetaFull5x5_;
@@ -428,7 +424,7 @@ private:
   std::auto_ptr<std::vector<float> > 	ElPfIsoPuChHad_;
   std::auto_ptr<std::vector<float> > 	ElPfIsoRaw_;
   std::auto_ptr<std::vector<float> > 	ElPfIsoDbeta_;
-  //  std::auto_ptr<std::vector<float> > 	ElPfIsoRho_;
+  std::auto_ptr<std::vector<float> > 	ElPfIsoRho_;
   std::auto_ptr<std::vector<float> > 	ElAEff_;
 
   std::auto_ptr<std::vector<float> > 	 charged_;
@@ -440,7 +436,6 @@ private:
 
   //Photons
   //photon momenta
-  /*
   std::auto_ptr<std::vector<float> > PhotPt_;
   std::auto_ptr<std::vector<float> > PhotEta_;
   std::auto_ptr<std::vector<float> > PhotPhi_;
@@ -486,7 +481,7 @@ private:
 
   //photon timing
   std::auto_ptr<std::vector<float> > PhotTime_;
-  */
+
   ///PF Jets
   std::auto_ptr<std::vector<float> > JetAk04Pt_;
   std::auto_ptr<std::vector<float> > JetAk04Eta_;
@@ -494,7 +489,7 @@ private:
   std::auto_ptr<std::vector<float> > JetAk04E_;
   std::auto_ptr<std::vector<float> > JetAk04Id_;
   std::auto_ptr<std::vector<bool> >  JetAk04PuId_;
-  //  std::auto_ptr<std::vector<float> > JetAk04PuMva_;
+  std::auto_ptr<std::vector<float> > JetAk04PuMva_;
   std::auto_ptr<std::vector<float> > JetAk04RawPt_;
   std::auto_ptr<std::vector<float> > JetAk04RawE_;
   std::auto_ptr<std::vector<float> > JetAk04HfHadE_;
@@ -536,13 +531,12 @@ private:
   unsigned kTkMu_;
   unsigned kPfMu_;
 
-  unsigned kElec17_Elec8_;
-  unsigned kMu17_Mu8_;
-  unsigned kMu17_TkMu8_;
+  unsigned kHLT_HIDoublePhoton15_Eta1p5_Mass50_1000_; //FIXME
+  unsigned kHLT_HIL2Mu15_;
 
   ///Event objects
-  //  edm::Handle<GenParticleCollection> genParticles_h;
-  //  const GenParticleCollection* genParticles;
+  edm::Handle<GenParticleCollection> genParticles_h;
+  const GenParticleCollection* genParticles;
   edm::Handle<edm::View<pat::Muon> > muons;
   const edm::View<pat::Muon> * muon;
   edm::Handle<vector<pat::Electron> > electrons;
@@ -552,14 +546,14 @@ private:
   edm::Handle<edm::View<pat::Jet> > jets;
   const edm::View<pat::Jet> * jettt;
   edm::Handle<edm::View<pat::MET> > mets;
-  //  const edm::View<pat::Photon>  *photons;
+  const edm::View<pat::Photon>  *photons;
   edm::Handle<edm::View<reco::Vertex> >  pvHandle;
   edm ::Handle<reco::VertexCollection> vtx_h;
   const edm::View<reco::Vertex> * vtxx;
-  //  double rhoIso;
+  double rhoIso;
   edm::Handle<reco::BeamSpot> beamSpotHandle;
   reco::BeamSpot beamSpot;
-  //  edm::Handle<double> rho;
+  edm::Handle<double> rho;
   edm::Handle<reco::GenJetCollection> genjetColl_;
   ///
 
@@ -587,32 +581,32 @@ using namespace std;
 using namespace reco;
 //int ccnevent=0;
 Tupel::Tupel(const edm::ParameterSet& iConfig):
-  //  trigger_( iConfig.getParameter< edm::InputTag >( "trigger" ) ),
-  //  triggerEvent_( iConfig.getParameter< edm::InputTag >( "triggerEvent" ) ),
-  //  triggerSummaryLabel_( iConfig.getParameter< edm::InputTag >( "triggerSummaryLabel" ) ), //added by jyhan
+  //trigger_( iConfig.getParameter< edm::InputTag >( "trigger" ) ),
+  //triggerEvent_( iConfig.getParameter< edm::InputTag >( "triggerEvent" ) ),
+  //triggerSummaryLabel_( iConfig.getParameter< edm::InputTag >( "triggerSummaryLabel" ) ), //added by jyhan
   elecMatch_( iConfig.getParameter< std::string >( "elecMatch" ) ),
   muonMatch_( iConfig.getParameter< std::string >( "muonMatch" ) ),
   muonMatch2_( iConfig.getParameter< std::string >( "muonMatch2" ) ),
-  //  photonSrc_(iConfig.getUntrackedParameter<edm::InputTag>("photonSrc")),
-  vtxSrc_(iConfig.getUntrackedParameter<edm::InputTag>("vtxSrc")),
+  photonSrc_(iConfig.getUntrackedParameter<edm::InputTag>("photonSrc")),
   elecSrc_(iConfig.getUntrackedParameter<edm::InputTag>("electronSrc")),
   muonSrc_(iConfig.getUntrackedParameter<edm::InputTag>("muonSrc")),
   //tauSrc_(iConfig.getUntrackedParameter<edm::InputTag>("tauSrc" )),
   jetSrc_(iConfig.getUntrackedParameter<edm::InputTag>("jetSrc" )),
   gjetSrc_(iConfig.getUntrackedParameter<edm::InputTag>("gjetSrc" )),
   metSrc_(iConfig.getUntrackedParameter<edm::InputTag>("metSrc" )),
-  //  mSrcRho_(iConfig.getUntrackedParameter<edm::InputTag>("mSrcRho" )),
+  mSrcRho_(iConfig.getUntrackedParameter<edm::InputTag>("mSrcRho" )),
   //  CaloJet_(iConfig.getUntrackedParameter<edm::InputTag>("CalojetLabel")),
+  vtxSrc_(iConfig.getUntrackedParameter<edm::InputTag>("vtxSrc" )),
   lheSource_(iConfig.getUntrackedParameter<edm::InputTag>("lheSource")),
-  //  genParticleSrc_(iConfig.getUntrackedParameter<edm::InputTag >("genSrc")),
+  genParticleSrc_(iConfig.getUntrackedParameter<edm::InputTag >("genSrc")),
   metSources(iConfig.getParameter<std::vector<edm::InputTag> >("metSource")),
   triggerStat_(iConfig.getUntrackedParameter<bool>("triggerStat", false)),
   analyzedEventCnt_(0),
-  //  photonIdsListed_(false),
+  photonIdsListed_(false),
   elecIdsListed_(false),
   hltListed_(false),
   trigStatValid_(true)
-  // singleMuOnly_(0)
+  //singleMuOnly_(0)
   //full5x5SigmaIEtaIEtaMapToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("full5x5SigmaIEtaIEtaMap")))
 {
 }
@@ -623,195 +617,58 @@ Tupel::~Tupel()
 
 void Tupel::defineBitFields(){
 
-  //  trigHltMapList_.push_back(TrigHltMapRcd(&TrigHltPhotMap_, TrigHltPhot_.get()));
   trigHltMapList_.push_back(TrigHltMapRcd(&TrigHltMuMap_,   TrigHltMu_.get()));
   trigHltMapList_.push_back(TrigHltMapRcd(&TrigHltDiMuMap_, TrigHltDiMu_.get()));
   trigHltMapList_.push_back(TrigHltMapRcd(&TrigHltElMap_,   TrigHltEl_.get()));
   trigHltMapList_.push_back(TrigHltMapRcd(&TrigHltDiElMap_, TrigHltDiEl_.get()));
-  // trigHltMapList_.push_back(TrigHltMapRcd(&TrigHltElMuMap_, TrigHltElMu_.get()));
+  trigHltMapList_.push_back(TrigHltMapRcd(&TrigHltElMuMap_, TrigHltElMu_.get()));
 
-  DEF_BIT(TrigHlt, 0, Elec17_Elec8);
-  DEF_BIT(TrigHlt, 1, Mu17_Mu8);
-  DEF_BIT(TrigHlt, 2, Mu17_TkMu8);
-  //  DEF_BIT2(TrigHltPhot, 1 , Photon26_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon16_AND_HE10_R9Id65_Eta2_Mass60);
-  //  DEF_BIT2(TrigHltPhot, 2 , Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_Eta2_Mass15);
-  //  DEF_BIT2(TrigHltPhot, 3 , Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelSeedMatch_Mass70);
-  //  DEF_BIT2(TrigHltPhot, 4 , Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95);
-  //  DEF_BIT2(TrigHltPhot, 5 , Diphoton30_18_Solid_R9Id_AND_IsoCaloId_AND_HE_R9Id_Mass55);
-  //  DEF_BIT2(TrigHltPhot, 6 , Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55);
-  //  DEF_BIT2(TrigHltPhot, 7 , Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55);
-  //  DEF_BIT2(TrigHltPhot, 8 , DoublePhoton85);
-  //  DEF_BIT2(TrigHltPhot, 9 , Photon120_R9Id90_HE10_Iso40_EBOnly_PFMET40);
-  //  DEF_BIT2(TrigHltPhot, 10, Photon120_R9Id90_HE10_Iso40_EBOnly_VBF);
-  //  DEF_BIT2(TrigHltPhot, 11, Photon120_R9Id90_HE10_IsoM);
-  //  DEF_BIT2(TrigHltPhot, 12, Photon120);
-  //  DEF_BIT2(TrigHltPhot, 13, Photon135_PFMET100_NoiseCleaned);
-  //  DEF_BIT2(TrigHltPhot, 14, Photon165_HE10);
-  //  DEF_BIT2(TrigHltPhot, 15, Photon165_R9Id90_HE10_IsoM);
-  //  DEF_BIT2(TrigHltPhot, 16, Photon175);
-  //  DEF_BIT2(TrigHltPhot, 17, Photon22_R9Id90_HE10_Iso40_EBOnly_PFMET40);
-  //  DEF_BIT2(TrigHltPhot, 18, Photon22_R9Id90_HE10_Iso40_EBOnly_VBF);
-  //  DEF_BIT2(TrigHltPhot, 19, Photon22_R9Id90_HE10_IsoM);
-  //  DEF_BIT2(TrigHltPhot, 20, Photon22);
-  //  DEF_BIT2(TrigHltPhot, 21, Photon250_NoHE);
-  //  DEF_BIT2(TrigHltPhot, 22, Photon30_R9Id90_HE10_IsoM);
-  //  DEF_BIT2(TrigHltPhot, 23, Photon30);
-  //  DEF_BIT2(TrigHltPhot, 24, Photon300_NoHE);
-  //  DEF_BIT2(TrigHltPhot, 25, Photon36_R9Id90_HE10_Iso40_EBOnly_PFMET40);
-  //  DEF_BIT2(TrigHltPhot, 26, Photon36_R9Id90_HE10_Iso40_EBOnly_VBF);
-  //  DEF_BIT2(TrigHltPhot, 27, Photon36_R9Id90_HE10_IsoM);
-  //  DEF_BIT2(TrigHltPhot, 28, Photon36);
-  //  DEF_BIT2(TrigHltPhot, 29, Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon25_AND_HE10_R9Id65_Eta2_Mass15);
-  //  DEF_BIT2(TrigHltPhot, 30, Photon50_R9Id90_HE10_Iso40_EBOnly_PFMET40);
-  //  DEF_BIT2(TrigHltPhot, 31, Photon50_R9Id90_HE10_Iso40_EBOnly_VBF);
-  //  DEF_BIT2(TrigHltPhot, 32, Photon50_R9Id90_HE10_IsoM);
-  //  DEF_BIT2(TrigHltPhot, 33, Photon50);
-  //  DEF_BIT2(TrigHltPhot, 34, Photon500);
-  //  DEF_BIT2(TrigHltPhot, 35, Photon600);
-  //  DEF_BIT2(TrigHltPhot, 36, Photon75_R9Id90_HE10_Iso40_EBOnly_PFMET40);
-  //  DEF_BIT2(TrigHltPhot, 37, Photon75_R9Id90_HE10_Iso40_EBOnly_VBF);
-  //  DEF_BIT2(TrigHltPhot, 38, Photon75_R9Id90_HE10_IsoM);
-  //  DEF_BIT2(TrigHltPhot, 39, Photon75);
-  //  DEF_BIT2(TrigHltPhot, 40, Photon90_CaloIdL_PFHT500);
-  //  DEF_BIT2(TrigHltPhot, 41, Photon90_CaloIdL_PFHT600);
-  //  DEF_BIT2(TrigHltPhot, 42, Photon90_R9Id90_HE10_Iso40_EBOnly_PFMET40);
-  //  DEF_BIT2(TrigHltPhot, 43, Photon90_R9Id90_HE10_Iso40_EBOnly_VBF);
-  //  DEF_BIT2(TrigHltPhot, 44, Photon90_R9Id90_HE10_IsoM);
-  //  DEF_BIT2(TrigHltPhot, 45, Photon90);
-  
-  DEF_BIT2(TrigHltDiMu, 1 ,HLT_DoubleMu33NoFiltersNoVtx);
-  DEF_BIT2(TrigHltDiMu, 2 ,HLT_DoubleMu38NoFiltersNoVtx);
-  DEF_BIT2(TrigHltDiMu, 3 ,HLT_DoubleMu23NoFiltersNoVtxDisplaced);
-  DEF_BIT2(TrigHltDiMu, 4 ,HLT_DoubleMu28NoFiltersNoVtxDisplaced);
-  DEF_BIT2(TrigHltDiMu, 5 ,HLT_DoubleIsoMu17_eta2p1);
-  DEF_BIT2(TrigHltDiMu, 6 ,HLT_L2DoubleMu23_NoVertex);
-  DEF_BIT2(TrigHltDiMu, 7 ,HLT_L2DoubleMu28_NoVertex_2Cha_Angle2p5_Mass10);
-  DEF_BIT2(TrigHltDiMu, 8 ,HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_Mass10);
-  DEF_BIT2(TrigHltDiMu, 9 ,HLT_Mu17_Mu8_DZ);
-  DEF_BIT2(TrigHltDiMu, 10,HLT_Mu17_Mu8_SameSign_DZ);
-  DEF_BIT2(TrigHltDiMu, 11,HLT_Mu20_Mu10);
-  DEF_BIT2(TrigHltDiMu, 12,HLT_Mu20_Mu10_DZ);
-  DEF_BIT2(TrigHltDiMu, 13,HLT_Mu20_Mu10_SameSign_DZ);
-  DEF_BIT2(TrigHltDiMu, 14,HLT_Mu27_TkMu8);
-  DEF_BIT2(TrigHltDiMu, 15,HLT_Mu30_TkMu11);
-  DEF_BIT2(TrigHltDiMu, 16,HLT_Mu40_TkMu11);
-  DEF_BIT2(TrigHltDiMu, 17,HLT_Mu17_TkMu8_DZ);
-  DEF_BIT2(TrigHltDiMu, 18,HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL);
-  DEF_BIT2(TrigHltDiMu, 19,HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ);
-  DEF_BIT2(TrigHltDiMu, 20,HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL);
-  DEF_BIT2(TrigHltDiMu, 21,HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ);
-  DEF_BIT2(TrigHltDiMu, 22,HLT_DoubleMu18NoFiltersNoVtx);
-  DEF_BIT2(TrigHltDiMu, 23,HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx);
-  DEF_BIT2(TrigHltDiMu, 24,HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx);
+  DEF_BIT(TrigHlt, 0, HLT_HIDoublePhoton15_Eta1p5_Mass50_1000); //FIXME
+  DEF_BIT(TrigHlt, 1, HLT_HIL2Mu15);
 
-  DEF_BIT2(TrigHltMu, 1 , HLT_Mu16_eta2p1_CaloMET30);
-  DEF_BIT2(TrigHltMu, 2 , HLT_IsoMu16_eta2p1_CaloMET30);
-  DEF_BIT2(TrigHltMu, 3 , HLT_IsoMu16_eta2p1_CaloMET30_LooseIsoPFTau50_Trk30_eta2p1);
-  DEF_BIT2(TrigHltMu, 4 , HLT_IsoMu17_eta2p1);
-  DEF_BIT2(TrigHltMu, 5 , HLT_IsoMu17_eta2p1_LooseIsoPFTau20);
-  DEF_BIT2(TrigHltMu, 6 , HLT_IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1);
-  DEF_BIT2(TrigHltMu, 7 , HLT_IsoMu17_eta2p1_MediumIsoPFTau40_Trk1_eta2p1_Reg);
-  DEF_BIT2(TrigHltMu, 8 , HLT_IsoMu24_eta2p1_LooseIsoPFTau20);
-  DEF_BIT2(TrigHltMu, 9 , HLT_IsoMu20_eta2p1_CentralPFJet30_BTagCSV07);
-  DEF_BIT2(TrigHltMu, 10, HLT_IsoMu20_eta2p1_TriCentralPFJet30);
-  DEF_BIT2(TrigHltMu, 11, HLT_IsoMu20_eta2p1_TriCentralPFJet50_40_30);
-  DEF_BIT2(TrigHltMu, 12, HLT_IsoMu20);
-  DEF_BIT2(TrigHltMu, 13, HLT_IsoMu20_eta2p1);
-  DEF_BIT2(TrigHltMu, 14, HLT_IsoMu24_eta2p1_CentralPFJet30_BTagCSV07);
-  DEF_BIT2(TrigHltMu, 15, HLT_IsoMu24_eta2p1_TriCentralPFJet30);
-  DEF_BIT2(TrigHltMu, 16, HLT_IsoMu24_eta2p1_TriCentralPFJet50_40_30);
-  DEF_BIT2(TrigHltMu, 17, HLT_IsoMu24_eta2p1);
-  DEF_BIT2(TrigHltMu, 18, HLT_IsoMu27);
-  DEF_BIT2(TrigHltMu, 19, HLT_IsoTkMu20);
-  DEF_BIT2(TrigHltMu, 20, HLT_IsoTkMu20_eta2p1);
-  DEF_BIT2(TrigHltMu, 21, HLT_IsoTkMu24_eta2p1);
-  DEF_BIT2(TrigHltMu, 22, HLT_IsoTkMu27);
-  DEF_BIT2(TrigHltMu, 23, HLT_L2Mu10);
-  DEF_BIT2(TrigHltMu, 24, HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo);
-  DEF_BIT2(TrigHltMu, 25, HLT_L2Mu10_NoVertex_NoBPTX);
-  DEF_BIT2(TrigHltMu, 26, HLT_L2Mu35_NoVertex_3Sta_NoBPTX3BX_NoHalo);
-  DEF_BIT2(TrigHltMu, 27, HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_NoHalo);
-  DEF_BIT2(TrigHltMu, 28, HLT_Mu20);
-  DEF_BIT2(TrigHltMu, 29, HLT_TkMu20);
-  DEF_BIT2(TrigHltMu, 30, HLT_Mu24_eta2p1);
-  DEF_BIT2(TrigHltMu, 31, HLT_TkMu24_eta2p1);
-  DEF_BIT2(TrigHltMu, 32, HLT_Mu27);
-  DEF_BIT2(TrigHltMu, 33, HLT_TkMu27);
-  DEF_BIT2(TrigHltMu, 34, HLT_Mu50);
-  DEF_BIT2(TrigHltMu, 35, HLT_Mu55);
-  DEF_BIT2(TrigHltMu, 36, HLT_Mu45_eta2p1);
-  DEF_BIT2(TrigHltMu, 37, HLT_Mu50_eta2p1);
-  DEF_BIT2(TrigHltMu, 38, HLT_Mu8_TrkIsoVVL);
-  DEF_BIT2(TrigHltMu, 39, HLT_Mu17_TrkIsoVVL);
-  DEF_BIT2(TrigHltMu, 40, HLT_Mu24_TrkIsoVVL);
-  DEF_BIT2(TrigHltMu, 41, HLT_Mu34_TrkIsoVVL);
-  DEF_BIT2(TrigHltMu, 42, HLT_Mu8);
-  DEF_BIT2(TrigHltMu, 43, HLT_Mu17);
-  DEF_BIT2(TrigHltMu, 44, HLT_Mu24);
-  DEF_BIT2(TrigHltMu, 45, HLT_Mu34);
-  DEF_BIT2(TrigHltMu, 46, HLT_IsoMu22);
-  DEF_BIT2(TrigHltMu, 47, HLT_IsoMu18);
-  DEF_BIT2(TrigHltMu, 47, HLT_IsoTkMu18);
-  /*
-  DEF_BIT2(TrigHltEl,  1, HLT_Ele25WP60_Ele8_Mass55);
-  DEF_BIT2(TrigHltEl,  2, HLT_Ele25WP60_SC4_Mass55);
-  DEF_BIT2(TrigHltEl,  3, HLT_Ele22_eta2p1_WPLoose_Gsf);
-  DEF_BIT2(TrigHltEl,  4, HLT_Ele22_eta2p1_WPTight_Gsf);
-  DEF_BIT2(TrigHltEl,  5, HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20);
-  DEF_BIT2(TrigHltEl,  6, HLT_Ele23_WPLoose_Gsf);
-  DEF_BIT2(TrigHltEl,  7, HLT_Ele27_WPLoose_Gsf_WHbbBoost);
-  DEF_BIT2(TrigHltEl,  8, HLT_Ele27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20);
-  DEF_BIT2(TrigHltEl,  9, HLT_Ele27_eta2p1_WPLoose_Gsf_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg);
-  DEF_BIT2(TrigHltEl, 10, HLT_Ele27_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07);
-  DEF_BIT2(TrigHltEl, 11, HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet30);
-  DEF_BIT2(TrigHltEl, 12, HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30);
-  DEF_BIT2(TrigHltEl, 13, HLT_Ele27_eta2p1_WPLoose_Gsf);
-  DEF_BIT2(TrigHltEl, 14, HLT_Ele27_eta2p1_WPTight_Gsf);
-  DEF_BIT2(TrigHltEl, 15, HLT_Ele32_eta2p1_WPLoose_Gsf_LooseIsoPFTau20);
-  DEF_BIT2(TrigHltEl, 16, HLT_Ele32_eta2p1_WPLoose_Gsf_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg);
-  DEF_BIT2(TrigHltEl, 17, HLT_Ele32_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07);
-  DEF_BIT2(TrigHltEl, 18, HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet30);
-  DEF_BIT2(TrigHltEl, 19, HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30);
-  DEF_BIT2(TrigHltEl, 20, HLT_Ele32_eta2p1_WPLoose_Gsf);
-  DEF_BIT2(TrigHltEl, 21, HLT_Ele32_eta2p1_WPTight_Gsf);
-  DEF_BIT2(TrigHltEl, 22, HLT_Ele105_CaloIdVT_GsfTrkIdT);
-  DEF_BIT2(TrigHltEl, 23, HLT_Ele115_CaloIdVT_GsfTrkIdT);
-  DEF_BIT2(TrigHltEl, 24, HLT_Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30);
-  DEF_BIT2(TrigHltEl, 25, HLT_Ele18_CaloIdL_TrackIdL_IsoVL_PFJet30);
-  DEF_BIT2(TrigHltEl, 26, HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30);
-  DEF_BIT2(TrigHltEl, 27, HLT_Ele33_CaloIdL_TrackIdL_IsoVL_PFJet30);
-  DEF_BIT2(TrigHltEl, 28, HLT_Ele17_CaloIdL_TrackIdL_IsoVL);
-  DEF_BIT2(TrigHltEl, 29, HLT_Ele23_CaloIdL_TrackIdL_IsoVL);
-  DEF_BIT2(TrigHltEl, 30, HLT_Ele12_CaloIdL_TrackIdL_IsoVL);
-  DEF_BIT2(TrigHltEl, 31, HLT_Ele27_eta2p1_WPLoose_Gsf_HT200);
-  DEF_BIT2(TrigHltEl, 32, HLT_Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV0p54PF);
-  DEF_BIT2(TrigHltEl, 33, HLT_Ele15_IsoVVVL_BTagCSV0p72_PFHT400);
-  DEF_BIT2(TrigHltEl, 34, HLT_Ele15_IsoVVVL_PFHT350_PFMET70);
-  DEF_BIT2(TrigHltEl, 35, HLT_Ele15_IsoVVVL_PFHT600);
-  DEF_BIT2(TrigHltEl, 36, HLT_Ele8_CaloIdM_TrackIdM_PFJet30);
-  DEF_BIT2(TrigHltEl, 37, HLT_Ele12_CaloIdM_TrackIdM_PFJet30);
-  DEF_BIT2(TrigHltEl, 38, HLT_Ele18_CaloIdM_TrackIdM_PFJet30);
-  DEF_BIT2(TrigHltEl, 39, HLT_Ele23_CaloIdM_TrackIdM_PFJet30);
-  DEF_BIT2(TrigHltEl, 40, HLT_Ele33_CaloIdM_TrackIdM_PFJet30);
-  DEF_BIT2(TrigHltEl, 41, HLT_Ele15_PFHT300);
+  DEF_BIT2(TrigHltDiMu, 1 ,HLT_HIL1DoubleMu0);
+  DEF_BIT2(TrigHltDiMu, 2 ,HLT_HIL1DoubleMu10);
+  DEF_BIT2(TrigHltDiMu, 3 ,HLT_HIL2DoubleMu0_NHitQ);
+  DEF_BIT2(TrigHltDiMu, 4 ,HLT_HIL3DoubleMu0_OS_m2p5to4p5);
+  DEF_BIT2(TrigHltDiMu, 5 ,HLT_HIL3DoubleMu0_OS_m7to14);
 
-  DEF_BIT2(TrigHltDiEl, 1, HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ);
-  DEF_BIT2(TrigHltDiEl, 2, HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ);
-  DEF_BIT2(TrigHltDiEl, 3, HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL);
-  DEF_BIT2(TrigHltDiEl, 4, HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL);
-  DEF_BIT2(TrigHltDiEl, 5, HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL);
-  DEF_BIT2(TrigHltDiEl, 6, HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300);
-  DEF_BIT2(TrigHltDiEl, 7, HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf);
-  DEF_BIT2(TrigHltDiEl, 8, HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW);
-  DEF_BIT2(TrigHltDiEl, 9, HLT_DoubleEle33_CaloIdL_GsfTrkIdVL);
-  */
-  /*
-  DEF_BIT2(TrigHltElMu, 1, HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL);
-  DEF_BIT2(TrigHltElMu, 2, HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL);
-  DEF_BIT2(TrigHltElMu, 3, HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL);
-  DEF_BIT2(TrigHltElMu, 4, HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL);
-  DEF_BIT2(TrigHltElMu, 5, HLT_Mu30_Ele30_CaloIdL_GsfTrkIdVL);
-  */
+  DEF_BIT2(TrigHltMu, 1 , HLT_HIL2Mu3_NHitQ10);
+  DEF_BIT2(TrigHltMu, 2 , HLT_HIL3Mu3_NHitQ15);
+  DEF_BIT2(TrigHltMu, 3 , HLT_HIL2Mu5_NHitQ10);
+  DEF_BIT2(TrigHltMu, 4 , HLT_HIL3Mu5_NHitQ15);
+  DEF_BIT2(TrigHltMu, 5 , HLT_HIL2Mu7_NHitQ10);
+  DEF_BIT2(TrigHltMu, 6 , HLT_HIL3Mu7_NHitQ15);
+  DEF_BIT2(TrigHltMu, 7 , HLT_HIL2Mu15);
+  DEF_BIT2(TrigHltMu, 8 , HLT_HIL3Mu15);
+  DEF_BIT2(TrigHltMu, 9 , HLT_HIL2Mu20);
+  DEF_BIT2(TrigHltMu, 10, HLT_HIL3Mu20);
+
+  DEF_BIT2(TrigHltEl, 1,  HLT_HISinglePhoton10_Eta1p5);
+  DEF_BIT2(TrigHltEl, 2,  HLT_HISinglePhoton15_Eta1p5);
+  DEF_BIT2(TrigHltEl, 3,  HLT_HISinglePhoton20_Eta1p5);
+  DEF_BIT2(TrigHltEl, 4,  HLT_HISinglePhoton30_Eta1p5);
+  DEF_BIT2(TrigHltEl, 5,  HLT_HISinglePhoton40_Eta1p5);
+  DEF_BIT2(TrigHltEl, 6,  HLT_HISinglePhoton50_Eta1p5);
+  DEF_BIT2(TrigHltEl, 7,  HLT_HISinglePhoton60_Eta1p5);
+  DEF_BIT2(TrigHltEl, 8,  HLT_HISinglePhoton10_Eta3p1);
+  DEF_BIT2(TrigHltEl, 9,  HLT_HISinglePhoton15_Eta3p1);
+  DEF_BIT2(TrigHltEl, 10, HLT_HISinglePhoton20_Eta3p1);
+  DEF_BIT2(TrigHltEl, 11, HLT_HISinglePhoton30_Eta3p1);
+  DEF_BIT2(TrigHltEl, 12, HLT_HISinglePhoton40_Eta3p1);
+  DEF_BIT2(TrigHltEl, 13, HLT_HISinglePhoton50_Eta3p1);
+  DEF_BIT2(TrigHltEl, 14, HLT_HISinglePhoton60_Eta3p1);
+
+  DEF_BIT2(TrigHltDiEl, 1, HLT_HIDoublePhoton15_Eta1p5_Mass50_1000);
+  DEF_BIT2(TrigHltDiEl, 2, HLT_HIDoublePhoton15_Eta1p5_Mass50_1000_R9HECut);
+  DEF_BIT2(TrigHltDiEl, 3, HLT_HIDoublePhoton15_Eta2p1_Mass50_1000_R9Cut);
+  DEF_BIT2(TrigHltDiEl, 4, HLT_HIDoublePhoton15_Eta2p5_Mass50_1000_R9SigmaHECut);
+
+  DEF_BIT2(TrigHltElMu, 1, HLT_HIL2Mu3Eta2p5_HIPhoton10Eta1p5);
+  DEF_BIT2(TrigHltElMu, 2, HLT_HIL2Mu3Eta2p5_HIPhoton15Eta1p5);
+  DEF_BIT2(TrigHltElMu, 3, HLT_HIL2Mu3Eta2p5_HIPhoton20Eta1p5);
+  DEF_BIT2(TrigHltElMu, 4, HLT_HIL2Mu3Eta2p5_HIPhoton30Eta1p5);
+  DEF_BIT2(TrigHltElMu, 5, HLT_HIL2Mu3Eta2p5_HIPhoton40Eta1p5);
+
   DEF_BIT(MuId, 0, MuIdLoose);
   DEF_BIT_L(MuId, 3, MuIdCustom, "Mu Id: isGlobalMuon\n"
 	    "&& isPFMuon\n"
@@ -822,7 +679,7 @@ void Tupel::defineBitFields(){
   DEF_BIT(MuType, 0, GlobMu);
   DEF_BIT(MuType, 1, TkMu);
   DEF_BIT(MuType, 2, PfMu);
-  
+
   int nElId = 0;
   DEF_BIT2(ElId, nElId++, cutBasedElectronID-CSA14-50ns-V1-standalone-veto); 
   DEF_BIT2(ElId, nElId++, cutBasedElectronID-CSA14-50ns-V1-standalone-loose);
@@ -855,8 +712,8 @@ void Tupel::readEvent(const edm::Event& iEvent){
   *EvtIsRealData_ = iEvent.isRealData();
 
   const pat::helper::TriggerMatchHelper matchHelper;
-  //  iEvent.getByLabel(genParticleSrc_, genParticles_h);
-  //  genParticles  = genParticles_h.failedToGet () ? 0 : &*genParticles_h;
+  iEvent.getByLabel(genParticleSrc_, genParticles_h);
+  genParticles  = genParticles_h.failedToGet () ? 0 : &*genParticles_h;
 
   // get muon collection
   iEvent.getByLabel(muonSrc_,muons);
@@ -883,28 +740,28 @@ void Tupel::readEvent(const edm::Event& iEvent){
   iEvent.getByLabel(metSrc_,mets);
 
   // get photon collection
-  //  edm::Handle<edm::View<pat::Photon> > hPhotons;
-  //  iEvent.getByLabel(photonSrc_, hPhotons);
+  edm::Handle<edm::View<pat::Photon> > hPhotons;
+  iEvent.getByLabel(photonSrc_, hPhotons);
   //  photons = hPhotons.failedToGet () ? 0 :  &*hPhotons;
-  //  photons = &*hPhotons;
+  photons = &*hPhotons;
 
   //get Gen jets
   iEvent.getByLabel(gjetSrc_, genjetColl_);
 
   iEvent.getByLabel(vtxSrc_, pvHandle);
-  vtxx = pvHandle.failedToGet () ? 0 : &*pvHandle ;
+  //vtxx = pvHandle.failedToGet () ? 0 : &*pvHandle ;
   vtxx = &*pvHandle;
 
   iEvent.getByLabel(vtxSrc_, vtx_h);
-  if(vtxx){
-    int nvtx=vtx_h->size();
-    if(nvtx==0) return;
-    reco::VertexRef primVtx(vtx_h,0);
-  }
+  //  if(vtxx){
+  //    int nvtx=vtx_h->size();
+  //    if(nvtx==0) return;
+  //    reco::VertexRef primVtx(vtx_h,0);
+  //  }
 
-  //  iEvent.getByLabel(mSrcRho_, rho);
-  //  rhoIso=99;
-  //  if(!rho.failedToGet()) rhoIso = *rho;
+  iEvent.getByLabel(mSrcRho_, rho);
+  rhoIso=99;
+  if(!rho.failedToGet()) rhoIso = *rho;
 
   iEvent.getByLabel("offlineBeamSpot", beamSpotHandle);
 
@@ -977,7 +834,7 @@ void Tupel::processPu(const edm::Event& iEvent){
     *EvtPuCnt_ = -2.;
   }
 }
-/*
+
 void Tupel::processGenParticles(const edm::Event& iEvent){
   const std::vector<reco::GenParticle> & gen = *genParticles_h;
   for (size_t i=0; i<genParticles->size(); ++i){
@@ -988,7 +845,6 @@ void Tupel::processGenParticles(const edm::Event& iEvent){
 
 
     // ---- consider only gen  photons -----------------
-    
     if (TMath::Abs(id) == 22) {
       TLorentzVector genPho(0, 0, 0, 0);
       genPho.SetPtEtaPhiE(gen[i].pt(),gen[i].eta(),gen[i].phi(),gen[i].energy());
@@ -1038,7 +894,7 @@ void Tupel::processGenParticles(const edm::Event& iEvent){
       GPhotIsoSumPtDR04_->push_back(isoSumPtDR04);
       GPhotIsoSumPtDR05_->push_back(isoSumPtDR05);
     } // if |id| == 22
-    
+
 
     if(gen[i].numberOfMothers()){
       //        if (st!=3 && fabs(id)!=13&& fabs(id)!=11 && fabs(id)!=22 && fabs(id)!=23) continue;
@@ -1056,17 +912,17 @@ void Tupel::processGenParticles(const edm::Event& iEvent){
 	GLepSt3St_->push_back(st);
       }
       GLepSt3MotherCnt_->push_back(gen[i].numberOfMothers());
-      if(abs(id)==15){
+      /* if(abs(id)==15){
       //cout<<gen[i].numberOfMothers() <<"  "<< gen[i].mother()->pdgId()<<"  "<< gen[i].pdgId()<<"  "<<st<<endl;
       n_tau++;
-      }
+      }*/
 
       int momId = gen[i].mother()->pdgId();
       if(gen[i].numberOfMothers() ==1 &&  momId != id){
 	//if(abs(id)==15)cout<<"DEAD"<<endl;
 	continue;
       }
-      if (st==1 && (abs(id)==13||abs(id)==11 || abs(id)==15 ||abs(id)==12||abs(id)==14||abs(id)==16) && gen[i].pt() > 0.1 && fabs(gen[i].eta())<3.0){
+      if (st==1 && (abs(id)==13||abs(id)==11 || abs(id)==15 ||abs(id)==12||abs(id)==14||abs(id)==16) /*&& gen[i].pt() > 0.1 && fabs(gen[i].eta())<3.0*/){
 
 	TLorentzVector genLep1(0,0,0,0);
 	genLep1.SetPtEtaPhiE(gen[i].pt(),gen[i].eta(),gen[i].phi(),gen[i].energy());
@@ -1076,11 +932,10 @@ void Tupel::processGenParticles(const edm::Event& iEvent){
 	iEvent.getByLabel(genParticleSrc_, genpart2);
 	const std::vector<reco::GenParticle> & gen2 = *genpart2;
 	//LOOP over photons//
-	
 	if (st==1 && (abs(id)==13||abs(id)==11)){
 	  for(unsigned int j=0; j<genpart2->size(); ++j){
 	    if(gen2[j].numberOfMothers()){
-	    if( gen2[j].status()!=1|| gen2[j].pdgId()!=22 || gen2[j].energy()<0.000001 || fabs(MomId2)!=fabs(id)) continue;
+	      if( gen2[j].status()!=1|| gen2[j].pdgId()!=22 || gen2[j].energy()<0.000001 /*|| fabs(MomId2)!=fabs(id)*/) continue;
 	      TLorentzVector thisPho1(0,0,0,0);
 	      thisPho1.SetPtEtaPhiE(gen2[j].pt(),gen2[j].eta(),gen2[j].phi(),gen2[j].energy());
 	      double dR = genLep1.DeltaR(thisPho1);
@@ -1122,7 +977,7 @@ void Tupel::processGenParticles(const edm::Event& iEvent){
     }
   }
 }
-*/
+
 void Tupel::processGenJets(const edm::Event& iEvent){
   //matrix element info
   Handle<LHEEventProduct> lheH;
@@ -1147,8 +1002,7 @@ void Tupel::processGenJets(const edm::Event& iEvent){
       //if ( chargedFraction == 0 ) cout << " is chargeid: " << isChargedJet << "   " << chargedFraction/genjet[k].pt()<< endl;
       //GJetAk04ChargedFraction_->push_back(chargedFraction/genjet[k].pt());
       GJetAk04ConstCnt_->push_back(genjet[k].numberOfDaughters());
-      /*
-      if(genjet[k].numberOfDaughters()>0){
+      /*if(genjet[k].numberOfDaughters()>0){
 	for(unsigned int idx =0; idx<genjet[k].numberOfDaughters();idx++){
 	//cout<<genjet[k].numberOfDaughters()<<" GEN AHMEEEEET "<<idx<<"  "<<genjet[k].daughter(idx)->pdgId()<<"  "<<endl;
 	GJetAk04ConstId->push_back(genjet[k].daughter(idx)->pdgId());
@@ -1161,7 +1015,6 @@ void Tupel::processGenJets(const edm::Event& iEvent){
     }
   }
 }
-
 
 void Tupel::processPdfInfo(const edm::Event& iEvent){
   edm::Handle<GenEventInfoProduct> genEventInfoProd;
@@ -1214,9 +1067,8 @@ void Tupel::processTrigger(const edm::Event& iEvent){
       //insert trigger name in the acceptance map if not yet in:
       if (HLTResHandle->accept(i)){
 	if(triggerStat_) trigIndexList.push_back(i);
-	if(trigNames->triggerName(i).find("HLT_Mu17_Mu8") != std::string::npos) *TrigHlt_ |= kMu17_Mu8_;
-	if(trigNames->triggerName(i).find("HLT_Mu17_TkMu8") != std::string::npos) *TrigHlt_ |= kMu17_TkMu8_;
-	if(trigNames->triggerName(i).find("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL")!=std::string::npos) *TrigHlt_ |= kElec17_Elec8_;
+	if(trigNames->triggerName(i).find("HLT_HIDoublePhoton15_Eta1p5_Mass50_1000") != std::string::npos) *TrigHlt_ |= kHLT_HIDoublePhoton15_Eta1p5_Mass50_1000_; //FIXME
+	if(trigNames->triggerName(i).find("HLT_HIL2Mu15") != std::string::npos) *TrigHlt_ |= kHLT_HIL2Mu15_;
 	std::string thisTrigger = trigNames->triggerName(i);
 	fillTrig(std::string(trigNames->triggerName(i)));
       }
@@ -1331,20 +1183,17 @@ void Tupel::processMuons(){
       MuId_->push_back(muId);
 
       //      unsigned muHltMath = 0;
-      /*
       float muEta = mu[j].eta(); // essentially track direction at Vtx (recommended prescription)
-
       float Aecal=0.041; // initiallize with EE value
       float Ahcal=0.032; // initiallize with HE value
       if (fabs(muEta)<1.48) {
 	Aecal = 0.074;   // substitute EB value
 	Ahcal = 0.023;   // substitute EE value
       }
-      */
-      //      double theRho = *rho;
-      //      float muonIsoRho = mu[j].isolationR03().sumPt + std::max(0.,(mu[j].isolationR03().emEt -Aecal*(theRho))) + std::max(0.,(mu[j].isolationR03().hadEt-Ahcal*(theRho)));
-      //      double dbeta = muonIsoRho/mu[j].pt();
-      //      MuIsoRho_->push_back(dbeta);
+      double theRho = *rho;
+      float muonIsoRho = mu[j].isolationR03().sumPt + std::max(0.,(mu[j].isolationR03().emEt -Aecal*(theRho))) + std::max(0.,(mu[j].isolationR03().hadEt-Ahcal*(theRho)));
+      double dbeta = muonIsoRho/mu[j].pt();
+      MuIsoRho_->push_back(dbeta);
 
       // pf Isolation variables
       double chargedHadronIso = mu[j].pfIsolationR04().sumChargedHadronPt;
@@ -1355,10 +1204,11 @@ void Tupel::processMuons(){
       // OPTION 1: DeltaBeta corrections for iosolation
       float RelativeIsolationDBetaCorr = (chargedHadronIso + std::max(photonIso+neutralHadronIso - 0.5*chargedHadronIsoPU,0.))/std::max(a, mu[j].pt());
       MuPfIso_->push_back(RelativeIsolationDBetaCorr);
-      unsigned muType = 0;
+      int muType = 0;
       if(mu[j].isGlobalMuon()) muType |= kGlobMu_;
       if(mu[j].isTrackerMuon()) muType |= kTkMu_;
       if(mu[j].isPFMuon()) muType |= kPfMu_;
+      MuType_->push_back(muType);
       MuIsoTkIsoAbs_->push_back(mu[j].isolationR03().sumPt);
       MuIsoTkIsoRel_->push_back(mu[j].isolationR03().sumPt/mu[j].pt());
       MuIsoCalAbs_->push_back(mu[j].isolationR03().emEt + mu[j].isolationR03().hadEt);
@@ -1377,8 +1227,8 @@ void Tupel::processElectrons(){
   for (unsigned int j=0; j < electronColl->size();++j){
     pat::Electron & el = (*electronColl)[j];
 
-    //    double dEtaIn_;
-    //    double dPhiIn_;
+    double dEtaIn_;
+    double dPhiIn_;
     double hOverE_;
     double sigmaIetaIeta_;
     double full5x5_sigmaIetaIeta_;
@@ -1386,7 +1236,7 @@ void Tupel::processElectrons(){
     double ooEmooP_;
     double d0_ = -99.;
     double dz_ = -99.;
-    //    int   expectedMissingInnerHits_;
+    int   expectedMissingInnerHits_;
     int   passConversionVeto_;
 
     std::vector<std::pair<std::string,float> > idlist = el.electronIDs();
@@ -1413,8 +1263,8 @@ void Tupel::processElectrons(){
       
     ElId_->push_back(elecid);
 
-    //    dEtaIn_ = el.deltaEtaSuperClusterTrackAtVtx();
-    //    dPhiIn_ = el.deltaPhiSuperClusterTrackAtVtx();
+    dEtaIn_ = el.deltaEtaSuperClusterTrackAtVtx();
+    dPhiIn_ = el.deltaPhiSuperClusterTrackAtVtx();
     hOverE_ = el.hcalOverEcal();
     sigmaIetaIeta_ = el.sigmaIetaIeta();
     full5x5_sigmaIetaIeta_ =  el.full5x5_sigmaIetaIeta();
@@ -1427,15 +1277,15 @@ void Tupel::processElectrons(){
     }else{
       ooEmooP_ = fabs(1.0/el.ecalEnergy() - el.eSuperClusterOverP()/el.ecalEnergy() );
     }
-    
+
     if(vtx_h->size() > 0){
       d0_ = (-1) * el.gsfTrack()->dxy((*vtx_h)[0].position() );
       dz_ = el.gsfTrack()->dz( (*vtx_h)[0].position() );
     }
-    
 
 
-    //    expectedMissingInnerHits_ = el.gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();//MISSING!!
+
+    //     expectedMissingInnerHits_ = el.gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();//MISSING!!
     passConversionVeto_ = false;
     if( beamSpotHandle.isValid() && conversions_h.isValid()) {
       passConversionVeto_ = !ConversionTools::hasMatchedConversion(el,conversions_h,
@@ -1447,15 +1297,15 @@ void Tupel::processElectrons(){
 
     //cout<<dEtaIn_<<"  "<<dPhiIn_<<"  "<<hOverE_<<"  "<<sigmaIetaIeta_<<"  "<<full5x5_sigmaIetaIeta_<<"  "<<ooEmooP_<<"  "<< d0_<<"  "<< dz_<<"  "<<expectedMissingInnerHits_<<"  "<<passConversionVeto_<<endl;
 
-    //    ElDEtaTkScAtVtx_->push_back(dEtaIn_);
-    //    ElDPhiTkScAtVtx_->push_back(dPhiIn_);
+    ElDEtaTkScAtVtx_->push_back(dEtaIn_);
+    ElDPhiTkScAtVtx_->push_back(dPhiIn_);
     ElHoE_->push_back(hOverE_);
     ElSigmaIetaIeta_->push_back(sigmaIetaIeta_);
     ElSigmaIetaIetaFull5x5_->push_back(full5x5_sigmaIetaIeta_);
     ElEinvMinusPinv_->push_back(ooEmooP_);
     ElD0_->push_back(d0_);
     ElDz_->push_back(dz_);
-    //  ElExpectedMissingInnerHitCnt_->push_back(expectedMissingInnerHits_);
+    ElExpectedMissingInnerHitCnt_->push_back(expectedMissingInnerHits_);
     ElPassConvVeto_->push_back(passConversionVeto_);
 
     int hltMatch = 0;
@@ -1486,10 +1336,10 @@ void Tupel::processElectrons(){
     ElPfIsoRaw_->push_back(( chIso03_ + nhIso03_ + phIso03_ ) / el.pt());
     ElPfIsoDbeta_->push_back(( chIso03_ + max(0.0, nhIso03_ + phIso03_ - 0.5*puChIso03_) )/ el.pt());
 
-    //    *EvtFastJetRho_ =  rhoIso;
-    //    double rhoPrime = std::max(0., rhoIso);
+    *EvtFastJetRho_ =  rhoIso;
+    double rhoPrime = std::max(0., rhoIso);
 
-    //    ElPfIsoRho_->push_back(( chIso03_ + max(0.0, nhIso03_ + phIso03_ - rhoPrime*(aeff)) )/ el.pt());
+    ElPfIsoRho_->push_back(( chIso03_ + max(0.0, nhIso03_ + phIso03_ - rhoPrime*(aeff)) )/ el.pt());
 
     bool myTrigPresel = false;
     if(fabs(el.superCluster()->eta()) < 1.479){
@@ -1528,7 +1378,7 @@ void Tupel::processJets(){
   for ( unsigned int i=0; i<jets->size(); ++i ) {
     const pat::Jet & jet = jets->at(i);
 
-    //    JetAk04PuMva_->push_back(jet.userFloat("pileupJetId:fullDiscriminant"));
+    JetAk04PuMva_->push_back(jet.userFloat("pileupJetId:fullDiscriminant"));
 
     chf = jet.chargedHadronEnergyFraction();
     nhf = (jet.neutralHadronEnergy()+jet.HFHadronEnergy())/jet.correctedJet(0).energy();
@@ -1540,7 +1390,6 @@ void Tupel::processJets(){
     // cout<<"jet.bDiscriminator(combinedSecondaryVertexBJetTags)=  "<<jet.bDiscriminator("combinedSecondaryVertexBJetTags")<<endl;
     //  cout<<"jet.bDiscriminator(combinedSecondaryVertexV1BJetTags)=  "<<jet.bDiscriminator("combinedSecondaryVertexV1BJetTags")<<endl;
     //  cout<<"jet.bDiscriminator(combinedSecondaryVertexSoftPFLeptonV1BJetTags)=  "<<jet.bDiscriminator("combinedSecondaryVertexSoftPFLeptonV1BJetTags")<<endl;
-    /*
     JetAk04BTagCsv_->push_back(jet.bDiscriminator("combinedSecondaryVertexBJetTags"));
     JetAk04BTagCsvV1_->push_back(jet.bDiscriminator("combinedSecondaryVertexV1BJetTags"));
     JetAk04BTagCsvSLV1_->push_back(jet.bDiscriminator("combinedSecondaryVertexSoftPFLeptonV1BJetTags"));
@@ -1551,7 +1400,6 @@ void Tupel::processJets(){
     JetAk04BDiscTchp_->push_back(jet.bDiscriminator("pfTrackCountingHighPurBJetTags"));
     JetAk04BDiscSsvhe_->push_back(jet.bDiscriminator("pfSimpleSecondaryVertexHighEffBJetTags"));
     JetAk04BDiscSsvhp_->push_back(jet.bDiscriminator("pfSimpleSecondaryVertexHighPurBJetTags"));
-    */
     JetAk04PartFlav_->push_back(jet.partonFlavour());
 
     JetAk04E_->push_back(jet.energy());
@@ -1597,7 +1445,6 @@ void Tupel::processJets(){
     JetAk04Id_->push_back(tempJetID);//ala
     //PFjetFill++;
 
-    /*    
     if(!*EvtIsRealData_){
       int genJetIdx = -1; //code for not matched jets
       if (jet.genJet()){
@@ -1629,11 +1476,9 @@ void Tupel::processJets(){
       }
       JetAk04GenJet_->push_back(genJetIdx);
     }
-    */
   }
 }
 
-/*
 void Tupel::processPhotons(){
   for (unsigned j = 0; j < photons->size(); ++j){
     const pat::Photon& photon = (*photons)[j];
@@ -1700,7 +1545,7 @@ void Tupel::processPhotons(){
     PhotHasPixelSeed_->push_back(photon.hasPixelSeed());
   }
 }
-*/
+
 void Tupel::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   using namespace edm; //ADD
   ++analyzedEventCnt_;
@@ -1708,8 +1553,8 @@ void Tupel::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   readEvent(iEvent);
 
   // PAT trigger EvtNum
-  //  edm::Handle<pat::TriggerEvent>  triggerEvent;
-  //  iEvent.getByLabel( triggerEvent_, triggerEvent );
+  //edm::Handle<pat::TriggerEvent>  triggerEvent;
+  //iEvent.getByLabel( triggerEvent_, triggerEvent );
 
 
   // edm::Handle<edm::ValueMap<float> > full5x5sieie;
@@ -1717,11 +1562,11 @@ void Tupel::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
   processMET(iEvent);
 
-  //  processVtx();
+  processVtx();
 
   if (!*EvtIsRealData_){
     processPu(iEvent);
-    //    if (genParticles) processGenParticles(iEvent);
+    if (genParticles) processGenParticles(iEvent);
     processGenJets(iEvent);
     processPdfInfo(iEvent);
   }
@@ -1737,7 +1582,7 @@ void Tupel::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   if(jettt) processJets();
 
   //photons. Ph. G.
-  //  if(photons) processPhotons();
+  if(photons) processPhotons();
 
   //Stores the EvtNum in the output tree
   treeHelper_->fill();
@@ -1789,20 +1634,19 @@ Tupel::beginJob()
   ADD_BRANCH_D(EvtRunNum, "Run number");
   ADD_BRANCH_D(EvtLumiNum, "Luminosity block number");
   ADD_BRANCH_D(EvtBxNum, "Bunch crossing number");
-  //  ADD_BRANCH_D(EvtVtxCnt, "Number of reconstructed primary vertices");
+  ADD_BRANCH_D(EvtVtxCnt, "Number of reconstructed primary vertices");
   ADD_BRANCH_D(EvtPuCnt, "Number of measured pile-up events");
   ADD_BRANCH_D(EvtPuCntTruth, "True number of pile-up events");
   ADD_BRANCH(EvtWeights); //description filled in endRun()
-  //  ADD_BRANCH_D(EvtFastJetRho, "Fastjet pile-up variable \\rho");
+  ADD_BRANCH_D(EvtFastJetRho, "Fastjet pile-up variable \\rho");
 
   //Trigger
   ADD_BRANCH_D(TrigHlt, "HLT triggger bits. See BitField.TrigHlt for bit description.");
-  //  ADD_BRANCH_D(TrigHltPhot, "HLT Photon triggger bits. See BitField.TrigHltPhot for bit description.");
   ADD_BRANCH_D(TrigHltMu, "HLT Muon triggger bits. See BitField.TrigHltMu for bit description.");
   ADD_BRANCH_D(TrigHltDiMu, "HLT Dimuon triggger bits. See BitField.TrigHltDiMu for bit description.");
   ADD_BRANCH_D(TrigHltEl, "HLT Electron triggger bits. See BitField.TrigHltEl for bit description.");
   ADD_BRANCH_D(TrigHltDiEl, "HLT Dielecton triggger bits. See BitField.TrigHltDiEl for bit description.");
-  //  ADD_BRANCH_D(TrigHltElMu, "HLT Muon + Electron triggger bits. See BitField.TrigHltElMu for bit description.");
+  ADD_BRANCH_D(TrigHltElMu, "HLT Muon + Electron triggger bits. See BitField.TrigHltElMu for bit description.");
 
   //Missing Energy
   treeHelper_->addDescription("MET", "PF MET");
@@ -1843,7 +1687,6 @@ Tupel::beginJob()
   ADD_BRANCH_D(GLepSt3Mother0Id, "Lepton mother PDG Id. Filled only for first mother. Number of mothers can be checked in GLepoSt3MotherCnt.");
   ADD_BRANCH(GLepSt3MotherCnt);
   //Generator level photons.
-  
   treeHelper_->addDescription("GPhot", "Generator-level photons.");
   ADD_BRANCH(GPhotPt);
   ADD_BRANCH(GPhotEta);
@@ -1868,9 +1711,7 @@ Tupel::beginJob()
   ADD_BRANCH_D(GLepClosePhotMother0Id, "Photon mother PDG Id. Filled only for first mother. Number of mothers can be checked in GLepoSt3MotherCnt.");
   ADD_BRANCH(GLepClosePhotMotherCnt);
   ADD_BRANCH(GLepClosePhotSt);
-  
 
-  
   //Gen Jets
   treeHelper_->addDescription("GJetAk04", "Generator-level reconstructed with the anti-kt algorithm with distance parameter R = 0.4");
   ADD_BRANCH(GJetAk04Pt);
@@ -1884,7 +1725,7 @@ Tupel::beginJob()
   ADD_BRANCH(GJetAk04ConstEta);
   ADD_BRANCH(GJetAk04ConstPhi);
   ADD_BRANCH(GJetAk04ConstE);
-  
+
   //Exta generator information
   ADD_BRANCH_D(GPdfId1, "PDF Id for beam 1");
   ADD_BRANCH_D(GPdfId2, "PDF Id for beam 2");
@@ -1893,7 +1734,7 @@ Tupel::beginJob()
   ADD_BRANCH_D(GPdfScale, "PDF energy scale");
   ADD_BRANCH_D(GBinningValue, "Value of the observable used to split the MC sample generation (e.g. pt_hat for a pt_hat binned MC sample).");
   ADD_BRANCH_D(GNup, "Number of particles/partons included in the matrix element.");
-  
+
   //Muons
   treeHelper_->addDescription("Mu", "PF reconstruced muons.");
   ADD_BRANCH(MuPt);
@@ -1905,7 +1746,7 @@ Tupel::beginJob()
   ADD_BRANCH(MuCh);
   ADD_BRANCH(MuVtxZ);
   ADD_BRANCH(MuDxy);
-  //  ADD_BRANCH(MuIsoRho);
+  ADD_BRANCH(MuIsoRho);
   ADD_BRANCH(MuPfIso);
   ADD_BRANCH(MuType);
   ADD_BRANCH(MuIsoTkIsoAbs);
@@ -1922,7 +1763,6 @@ Tupel::beginJob()
   ADD_BRANCH(MuPfIsoNeutralHad);
   ADD_BRANCH(MuPfIsoRawRel);
   ADD_BRANCH(MuHltMatch);
-  
 
   //Electrons
   treeHelper_->addDescription("El", "PF reconstructed electrons");
@@ -1936,8 +1776,8 @@ Tupel::beginJob()
   ADD_BRANCH(ElMvaTrig);
   ADD_BRANCH(ElMvaNonTrig);
   ADD_BRANCH(ElMvaPresel);
-  //  ADD_BRANCH(ElDEtaTkScAtVtx);
-  //  ADD_BRANCH(ElDPhiTkScAtVtx);
+  ADD_BRANCH(ElDEtaTkScAtVtx);
+  ADD_BRANCH(ElDPhiTkScAtVtx);
   ADD_BRANCH(ElHoE);
   ADD_BRANCH(ElSigmaIetaIeta);
   ADD_BRANCH(ElSigmaIetaIetaFull5x5);
@@ -1953,19 +1793,18 @@ Tupel::beginJob()
   ADD_BRANCH(ElPfIsoPuChHad);
   ADD_BRANCH(ElPfIsoRaw);
   ADD_BRANCH(ElPfIsoDbeta);
-  //  ADD_BRANCH(ElPfIsoRho);
+  ADD_BRANCH(ElPfIsoRho);
   ADD_BRANCH_D(ElAEff, "Electron effecive area");
 
   ADD_BRANCH(charged);
-  //  ADD_BRANCH(photon);
+  ADD_BRANCH(photon);
   ADD_BRANCH(neutral);
   ADD_BRANCH(charged_Tom);
   ADD_BRANCH(photon_Tom);
   ADD_BRANCH(neutral_Tom);
 
-  
+
   //photon momenta
-  /*
   treeHelper_->addDescription("Phot", "Particle flow photons");
   ADD_BRANCH(PhotPt);;
   ADD_BRANCH(PhotEta);;
@@ -2011,7 +1850,7 @@ Tupel::beginJob()
 
   //photon timing
   //ADD_BRANCH_D(PhotTime, "Photon. Timing from ECAL");
-  */  
+
   //PF Jets
   treeHelper_->addDescription("JetAk04", "Reconstricuted jets clustered with the anti-ket algorithm with distance parameter R = 0.4");
   ADD_BRANCH(JetAk04Pt);
@@ -2020,7 +1859,7 @@ Tupel::beginJob()
   ADD_BRANCH(JetAk04E);
   ADD_BRANCH_D(JetAk04Id, "Id to reject fake jets from electronic noice");
   ADD_BRANCH_D(JetAk04PuId, "Id to reject jets from pile-up events");
-  //  ADD_BRANCH_D(JetAk04PuMva, "MVA based descriminant for PU jets");
+  ADD_BRANCH_D(JetAk04PuMva, "MVA based descriminant for PU jets");
   ADD_BRANCH_D(JetAk04RawPt, "Jet Pt before corrections");
   ADD_BRANCH_D(JetAk04RawE, "Jet energy before corrections");
   ADD_BRANCH_D(JetAk04HfHadE, "Jet hadronic energy deposited in HF");
@@ -2036,16 +1875,16 @@ Tupel::beginJob()
   ADD_BRANCH(JetAk04JetBetaStar);
   ADD_BRANCH(JetAk04JetBetaStarClassic);
   treeHelper_->addDescription("JetAk04BTag", "B tagging with different algorithms");
-  //  ADD_BRANCH_D(JetAk04BTagCsv, "combinedSecondaryVertexBJetTags");
-  //  ADD_BRANCH_D(JetAk04BTagCsvV1, "combinedSecondaryVertexV1BJetTags");
-  //  ADD_BRANCH_D(JetAk04BTagCsvSLV1, "combinedSecondaryVertexSoftPFLeptonV1BJetTags");
-  //  ADD_BRANCH_D(JetAk04BDiscCisvV2, "pfCombinedInclusiveSecondaryVertexV2BJetTags");
+  ADD_BRANCH_D(JetAk04BTagCsv, "combinedSecondaryVertexBJetTags");
+  ADD_BRANCH_D(JetAk04BTagCsvV1, "combinedSecondaryVertexV1BJetTags");
+  ADD_BRANCH_D(JetAk04BTagCsvSLV1, "combinedSecondaryVertexSoftPFLeptonV1BJetTags");
+  ADD_BRANCH_D(JetAk04BDiscCisvV2, "pfCombinedInclusiveSecondaryVertexV2BJetTags");
   ADD_BRANCH_D(JetAk04BDiscJp, "pfJetProbabilityBJetTags");
   ADD_BRANCH_D(JetAk04BDiscBjp, "pfJetBProbabilityBJetTags");
   ADD_BRANCH_D(JetAk04BDiscTche, "pfTrackCountingHighEffBJetTags");
   ADD_BRANCH_D(JetAk04BDiscTchp, "pfTrackCountingHighPurBJetTags");
-  //  ADD_BRANCH_D(JetAk04BDiscSsvhe, "pfSimpleSecondaryVertexHighEffBJetTags");
-  //  ADD_BRANCH_D(JetAk04BDiscSsvhp, "pfSimpleSecondaryVertexHighPurBJetTags");
+  ADD_BRANCH_D(JetAk04BDiscSsvhe, "pfSimpleSecondaryVertexHighEffBJetTags");
+  ADD_BRANCH_D(JetAk04BDiscSsvhp, "pfSimpleSecondaryVertexHighPurBJetTags");
   ADD_BRANCH_D(JetAk04PartFlav, "Quark-based jet.");
   ADD_BRANCH(JetAk04JecUncUp);
   ADD_BRANCH(JetAk04JecUncDwn);
@@ -2054,7 +1893,7 @@ Tupel::beginJob()
   ADD_BRANCH(JetAk04ConstEta);
   ADD_BRANCH(JetAk04ConstPhi);
   ADD_BRANCH(JetAk04ConstE);
-  //  ADD_BRANCH(JetAk04GenJet);
+  ADD_BRANCH(JetAk04GenJet);
 
   defineBitFields();
 
