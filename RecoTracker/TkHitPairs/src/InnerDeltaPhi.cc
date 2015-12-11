@@ -6,7 +6,11 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 #include "DataFormats/GeometryVector/interface/Basic2DVector.h"
+#include "DataFormats/Math/interface/ExtVec.h"
 
+#if !defined(__INTEL_COMPILER)
+#define USE_VECTORS_HERE
+#endif
 
 using namespace std;
 
@@ -56,10 +60,6 @@ namespace {
 
    return x*ret;
   }
-
-#if defined(__GNUC__) 
-  typedef float __attribute__( ( vector_size( 16 ) ) ) float32x4_t;
-#endif
 
 }
 
@@ -222,7 +222,7 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
     dL = theThickness/cosCross; 
   }
 
-#if defined(__GNUC__) 
+#ifdef USE_VECTORS_HERE 
   float32x4_t num{dHitmag,dLayer,theROrigin * (dHitmag-dLayer),1.f};
   float32x4_t den{2*theRCurvature,2*theRCurvature,dHitmag*dLayer,1.f};
   auto phis = f_asin07f(num/den);
@@ -230,7 +230,7 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
   auto deltaPhi = std::abs(phis[0]-phis[1]);
   auto deltaPhiOrig = phis[2];
 #else
-//  #warning no vector!  
+#warning no vector!  
   auto alphaHit = cropped_asin( dHitmag/(2*theRCurvature)); 
   auto OdeltaPhi = std::abs( alphaHit - cropped_asin( dLayer/(2*theRCurvature)));
   OdeltaPhi *= dLayer/(rLayer*cosCross);  
