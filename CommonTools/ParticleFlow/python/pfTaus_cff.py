@@ -84,8 +84,26 @@ pfTausProducer.src = cms.InputTag("pfTausProducerSansRefs")
 pfTausDiscriminationByDecayModeFinding = hpsPFTauDiscriminationByDecayModeFinding.clone()
 pfTausDiscriminationByDecayModeFinding.PFTauProducer="pfTausProducer"
 
-pfTausDiscriminationByIsolation= hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits.clone()
-pfTausDiscriminationByIsolation.PFTauProducer="pfTausProducer"
+pfTausDiscriminationByIsolation= pfRecoTauDiscriminationByIsolation.clone(
+     PFTauProducer = cms.InputTag('pfTausProducer'),
+     ApplyDiscriminationByECALIsolation = cms.bool(True),
+     ApplyDiscriminationByTrackerIsolation = cms.bool(True),
+     applySumPtCut = cms.bool(False),
+     applyDeltaBetaCorrection = cms.bool(True),
+     applyPhotonPtSumOutsideSignalConeCut = cms.bool(True),
+     deltaBetaFactor = cms.string('0.2000'),
+     deltaBetaPUTrackPtCutOverride = cms.double(0.5),
+     maximumSumPtCut = cms.double(2.5),
+     storeRawSumPt = cms.bool(True),
+     storeRawPUsumPt = cms.bool(False),     
+     customOuterCone = PFRecoTauPFJetInputs.isolationConeSize,
+     isoConeSizeForDeltaBeta = cms.double(0.8),
+     verbosity = cms.int32(0),
+     applyOccupancyCut = cms.bool(False)
+)   
+
+
+
 
 pfTausrequireDecayMode = cms.PSet(
     BooleanOperator = cms.string("and"),

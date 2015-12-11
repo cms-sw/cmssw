@@ -18,6 +18,8 @@ from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon2_cfi                 
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuonMVA_cfi                   import *
 
 from RecoTauTag.RecoTau.RecoTauDiscriminantCutMultiplexer_cfi import *
+from RecoTauTag.RecoTau.RecoTauDiscriminantSimpleCut_cfi      import *
+
 
 # Load helper functions to change the source of the discriminants
 from RecoTauTag.RecoTau.TauDiscriminatorTools import *
@@ -66,6 +68,25 @@ hpsPFTauDiscriminationByLooseIsolation = pfRecoTauDiscriminationByIsolation.clon
     ApplyDiscriminationByECALIsolation = True,
     applyOccupancyCut = True
 )
+
+
+#AJ's attempt to redo the isoPtSums using RecoTauDiscriminantSimpleCut
+
+#hpsPFTauDiscriminationByLooseIsolation = recoTauDiscriminantSimpleCut.clone( 
+#    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+#    Prediscriminants = requireDecayMode.clone(),    
+#    rawIsoPtSum = cms.InputTag('pfRecoTauDiscriminationByIsolation'),
+#    cut = cms.double(2.5),
+#    ApplyDiscriminationByTrackerIsolation = False,
+#    ApplyDiscriminationByECALIsolation = True,
+#    applyOccupancyCut = True
+#)
+
+
+
+
+
+
 hpsPFTauDiscriminationByLooseIsolation.Prediscriminants.preIso = cms.PSet(
     Producer = cms.InputTag("hpsPFTauDiscriminationByLooseChargedIsolation"),
     cut = cms.double(0.5))
@@ -106,7 +127,7 @@ hpsPFTauDiscriminationByVLooseIsolationDBSumPtCorr = hpsPFTauDiscriminationByVLo
     isoConeSizeForDeltaBeta = 0.8,
     deltaBetaFactor = "%0.4f"%(0.0123/0.1687),
     applyOccupancyCut = False,
-    applySumPtCut = True,
+    applySumPtCut = False,
 )
 hpsPFTauDiscriminationByVLooseIsolationDBSumPtCorr.maximumSumPtCut = hpsPFTauDiscriminationByVLooseIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt
 
@@ -116,7 +137,7 @@ hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr = hpsPFTauDiscriminationByLoos
     isoConeSizeForDeltaBeta = 0.8,
     deltaBetaFactor = "%0.4f"%(0.0123/0.1687),
     applyOccupancyCut = False,
-    applySumPtCut = True,
+    applySumPtCut = False,
 )
 hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr.maximumSumPtCut = hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt
 
@@ -126,7 +147,7 @@ hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr = hpsPFTauDiscriminationByMed
     isoConeSizeForDeltaBeta = 0.8,
     deltaBetaFactor = "%0.4f"%(0.0462/0.1687),
     applyOccupancyCut = False,
-    applySumPtCut = True,
+    applySumPtCut = False,
 )
 hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr.maximumSumPtCut = hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt
 
@@ -136,7 +157,7 @@ hpsPFTauDiscriminationByTightIsolationDBSumPtCorr = hpsPFTauDiscriminationByTigh
     isoConeSizeForDeltaBeta = 0.8,
     deltaBetaFactor = "%0.4f"%(ak4dBetaCorrection),
     applyOccupancyCut = False,
-    applySumPtCut = True,
+    applySumPtCut = False,
 )
 hpsPFTauDiscriminationByTightIsolationDBSumPtCorr.maximumSumPtCut = hpsPFTauDiscriminationByTightIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt
 
@@ -152,7 +173,7 @@ hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminat
     ApplyDiscriminationByECALIsolation = True,
     deltaBetaFactor = "%0.4f"%((0.09/0.25)*(ak4dBetaCorrection)),
     applyOccupancyCut = False,
-    applySumPtCut = True,
+    applySumPtCut = False,
     maximumSumPtCut = 3.5,
     Prediscriminants = requireDecayMode.clone()
 )
@@ -164,7 +185,7 @@ hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminati
     ApplyDiscriminationByECALIsolation = True,
     deltaBetaFactor = "%0.4f"%(ak4dBetaCorrection),
     applyOccupancyCut = False,
-    applySumPtCut = True,
+    applySumPtCut = False,
     maximumSumPtCut = 2.5,
     Prediscriminants = requireDecayMode.clone()
 )
@@ -193,7 +214,7 @@ hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminat
     ApplyDiscriminationByECALIsolation = True,
     deltaBetaFactor = "%0.4f"%(ak4dBetaCorrection),
     applyOccupancyCut = False,
-    applySumPtCut = True,
+    applySumPtCut = False,
     maximumSumPtCut = 1.5,
     Prediscriminants = requireDecayMode.clone()
 )
@@ -205,7 +226,7 @@ hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminati
     ApplyDiscriminationByECALIsolation = True,
     deltaBetaFactor = "%0.4f"%(ak4dBetaCorrection),
     applyOccupancyCut = False,
-    applySumPtCut = True,
+    applySumPtCut = False,
     maximumSumPtCut = 0.8,
     Prediscriminants = requireDecayMode.clone()
 )
@@ -528,6 +549,60 @@ hpsPFTauDiscriminationByDeadECALElectronRejection = pfRecoTauDiscriminationAgain
     Prediscriminants = requireDecayMode.clone()
 )
 
+
+#AJ's attempt to redo the isoPtSums using RecoTauDiscriminantSimpleCut
+
+printEventContent = cms.EDAnalyzer('EventContentAnalyzer')
+
+hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits = pfRecoTauDiscriminationByIsolation.clone(
+     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+     Prediscriminants = requireDecayMode.clone(),
+     ApplyDiscriminationByECALIsolation = cms.bool(True),
+     ApplyDiscriminationByTrackerIsolation = cms.bool(True),
+     applySumPtCut = cms.bool(False),
+     applyDeltaBetaCorrection = cms.bool(True),
+     applyPhotonPtSumOutsideSignalConeCut = cms.bool(True),
+     deltaBetaFactor = cms.string('0.2000'),
+     deltaBetaPUTrackPtCutOverride = cms.double(0.5),
+     maximumSumPtCut = cms.double(2.5),
+     storeRawSumPt = cms.bool(True),
+     storeRawPUsumPt = cms.bool(False),     
+     customOuterCone = PFRecoTauPFJetInputs.isolationConeSize,
+     isoConeSizeForDeltaBeta = cms.double(0.8),
+     verbosity = cms.int32(0),
+     applyOccupancyCut = cms.bool(False)
+)
+
+hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits = recoTauDiscriminantSimpleCut.clone( 
+    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    Prediscriminants = requireDecayMode.clone(),    
+    applySumPtCut = cms.bool(False),
+    cut = cms.double(2.5),
+    maximumSumPtCut = cms.double(6.0),
+    rawIsoPtSum = cms.InputTag('hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits')
+)
+
+hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits = recoTauDiscriminantSimpleCut.clone( 
+    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    Prediscriminants = requireDecayMode.clone(),    
+    applySumPtCut = cms.bool(False),
+    cut = cms.double(1.5),
+    maximumSumPtCut = cms.double(6.0),
+    rawIsoPtSum = cms.InputTag('hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits')
+)
+
+hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits = recoTauDiscriminantSimpleCut.clone( 
+    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    Prediscriminants = requireDecayMode.clone(),    
+    applySumPtCut = cms.bool(False),
+    cut = cms.double(0.8),
+    maximumSumPtCut = cms.double(6.0),
+    rawIsoPtSum = cms.InputTag('hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits')
+)
+
+
+
+'''
 #Define new sequence that is using smaller number on hits cut
 hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits = hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr.clone()
 hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits = hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr.clone()
@@ -544,12 +619,14 @@ hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits = hpsPFTauDiscrimin
     applySumPtCut = False,
     storeRawSumPt = cms.bool(True)
 )
+'''
+
 
 hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr3Hits = cms.Sequence(
+    hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits*
     hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits*
     hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits*
-    hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits*
-    hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits
+    hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits
 )
 
 hpsPFTauDiscriminationByLoosePileupWeightedIsolation3Hits = hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits.clone(
@@ -907,3 +984,4 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
 
     hpsPFTauMVAIsolation2Seq
 )
+
