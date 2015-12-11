@@ -35,7 +35,6 @@ Implementation:
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include "HepMC/HeavyIon.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -53,12 +52,11 @@ class GenHIEventProducer : public edm::EDProducer {
 
     private:
         virtual void produce(edm::Event&, const edm::EventSetup&) override;
-
-        edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct> > hepmcSrc_;
+        std::vector<std::string> hepmcSrc_;
         edm::ESHandle < ParticleDataTable > pdt;
 
-        double ptCut_;
-        bool doParticleInfo_;
+  double ptCut_;
+  bool doParticleInfo_;
 };
 
 //
@@ -76,12 +74,10 @@ class GenHIEventProducer : public edm::EDProducer {
 GenHIEventProducer::GenHIEventProducer(const edm::ParameterSet& iConfig)
 {
     produces<edm::GenHIEvent>();
-
-    hepmcSrc_ = consumes<CrossingFrame<edm::HepMCProduct> >(iConfig.getParameter<edm::InputTag>("src"));
-
+    hepmcSrc_ = iConfig.getParameter<std::vector<std::string> >("generators");
     doParticleInfo_ = iConfig.getUntrackedParameter<bool>("doParticleInfo",false);
     if(doParticleInfo_){
-      ptCut_ = iConfig.getParameter<double> ("ptCut");
+      ptCut_ = iConfig.getUntrackedParameter<double> ("ptCut",1.);
     }
 }
 
@@ -124,20 +120,11 @@ GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double EtMR = 0; // Normalized of total energy bym
     double TotEnergy = 0; // Total energy bym
 
-    Handle<CrossingFrame<edm::HepMCProduct> > hepmc;
+    for(size_t ihep = 0; ihep < hepmcSrc_.size(); ++ihep){
+        Handle<edm::HepMCProduct> hepmc;
+        iEvent.getByLabel(hepmcSrc_[ihep],hepmc);
 
-    iEvent.getByToken(hepmcSrc_,hepmc);
-    MixCollection<HepMCProduct> mix(hepmc.product());
-
-	if(mix.size() < 1){
-	   throw cms::Exception("MatchVtx")
-	      <<"Mixing has "<<mix.size()<<" sub-events, should have been at least 1"
-	      <<endl;
-	}
-
-	// use the last event, bkg for embedding, signal in non-embedded
-	const HepMCProduct& hievt = mix.getObject(mix.size()-1);
-        const HepMC::GenEvent* evt = hievt.GetEvent();
+        const HepMC::GenEvent* evt = hepmc->GetEvent();
 	if(doParticleInfo_){
 	  HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();
 	  HepMC::GenEvent::particle_const_iterator end = evt->particles_end();
@@ -184,7 +171,7 @@ GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		ecc = hi->eccentricity();
             }
         }
-
+    }
     // Get the normalized total energy bym
     if(TotEnergy != 0){
         EtMR = TotEnergy/2;
