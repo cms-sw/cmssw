@@ -154,8 +154,7 @@ process.spclusmultprod.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
 process.spclusmultprodontrack=process.spclusmultprod.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
 process.spclusmultprodxy = process.spclusmultprod.clone()
-process.spclusmultprodxy.wantedSubDets = OccupancyPlotsFPIXmDetailedWantedSubDets
-process.spclusmultprodxy.wantedSubDets.extend(OccupancyPlotsFPIXpDetailedWantedSubDets)
+process.spclusmultprodxy.wantedSubDets = OccupancyPlotsPXFDetailedWantedSubDets
 process.spclusmultprodxyontrack=process.spclusmultprodxy.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
 process.spclusoccuprod = cms.EDProducer("SiPixelClusterMultiplicityProducer",
@@ -167,8 +166,7 @@ process.spclusoccuprod.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
 process.spclusoccuprodontrack=process.spclusoccuprod.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
 process.spclusoccuprodxy = process.spclusoccuprod.clone()
-process.spclusoccuprodxy.wantedSubDets = OccupancyPlotsFPIXmDetailedWantedSubDets
-process.spclusoccuprodxy.wantedSubDets.extend(OccupancyPlotsFPIXpDetailedWantedSubDets)
+process.spclusoccuprodxy.wantedSubDets = OccupancyPlotsPXFDetailedWantedSubDets
 process.spclusoccuprodxyontrack=process.spclusoccuprodxy.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
 process.seqMultProd = cms.Sequence(#process.ssclusmultprod + process.ssclusoccuprod +
@@ -191,6 +189,7 @@ process.pixeloccupancyxyplots = process.occupancyplots.clone()
 process.pixeloccupancyxyplots.wantedSubDets = process.spclusmultprodxy.wantedSubDets
 process.pixeloccupancyxyplots.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprodxy"))
 process.pixeloccupancyxyplots.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprodxy"))
+process.pixeloccupancyxyplots.checkWithLabels = cms.bool(True)
 
 process.pixeloccupancyplotsontrack = process.occupancyplots.clone()
 process.pixeloccupancyplotsontrack.wantedSubDets = process.spclusmultprodontrack.wantedSubDets
@@ -233,8 +232,8 @@ process.seqAnalyzers = cms.Sequence(
     #process.bxlumianalyzer +
     process.goodVertices + process.primaryvertexanalyzer +
 #    process.alloccupancyplots
-    process.pixeloccupancyplots + process.pixeloccupancyplotsontrack 
-#    process.pixeloccupancyxyplots + process.pixeloccupancyxyplotsontrack
+#    process.pixeloccupancyplots + process.pixeloccupancyplotsontrack +
+    process.pixeloccupancyxyplots + process.pixeloccupancyxyplotsontrack
 )
 
 #-------------------------------------------------------------------------------------------

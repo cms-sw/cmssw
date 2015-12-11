@@ -108,6 +108,7 @@ private:
   TProfile** m_xavedz;
   TProfile** m_xavedrphi;
 
+  //this are created with labels - check
   TProfile** m2_averadius;
   TProfile** m2_avez;
   TProfile** m2_avex;
@@ -374,7 +375,7 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 
     if(checkLabels_ && (*m_averadius)->Integral() != (*m2_averadius)->Integral()){
       edm::LogError("OccupancyPlots") << "The selection is different with Labels and Bits:\n"  
-                      << (*m_averadius)->Integral() << " dets selected with bits"
+                      << (*m_averadius)->Integral() << " dets selected with bits\n"
                       << (*m2_averadius)->Integral() << " dets selected with label";
       return;
     }

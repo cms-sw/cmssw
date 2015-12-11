@@ -60,6 +60,8 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 
       if (subdet == PixelSubdetector::PixelBarrel) {
         std::cout << "PixelSubdetector::PixelBarrel " << std::endl;
+	DetIdPrint = tTopo->print(*id);
+	std::cout << DetIdPrint << std::endl;
 	resultsOld[0] = tTopo->pxbLayer(*id);
 	resultsOld[1] = tTopo->pxbModule(*id);
 	resultsNew[2] = tTopo->pxbLadder(*id);
@@ -68,6 +70,8 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
       }
       else if (subdet == PixelSubdetector::PixelEndcap) {
         std::cout << "PixelSubdetector::PixelEndcap " << std::endl;
+	DetIdPrint = tTopo->print(*id);
+	std::cout << DetIdPrint << std::endl;
 	resultsOld[0] = tTopo->pxfDisk(*id);
 	resultsOld[1] = tTopo->pxfModule(*id);
 	resultsNew[2] = tTopo->pxfSide(*id);

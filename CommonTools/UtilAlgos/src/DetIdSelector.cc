@@ -76,7 +76,6 @@ void DetIdSelector::addSelection(const std::vector<std::string>& selstrings) {
 }
 
 void DetIdSelector::addSelectionByWords(const std::string& selstring) {
-  //LogTrace("OccupancyPlots") << "m_labels.push_back: " << selstring;
 
   m_labels.push_back(selstring);
 
@@ -120,49 +119,36 @@ bool DetIdSelector::isSelectedByWords(const DetId& detid, const TrackerTopology*
   bool isSelected = false;
   for(unsigned int i=0; i<m_labels.size() ; ++i) {
 
-    //LogTrace("OccupancyPlots") << "string: " << m_labels[i];
-
     pos = m_labels[i].find("PXB");
     if(pos>=0){
-      //LogTrace("OccupancyPlots") << "the label is PXB!!";
       isSelected = isSelectedByWordsPXB( m_labels[i], detid, tTopo);
     }
 
     pos = m_labels[i].find("PXF");
     if(pos>=0){
-      //LogTrace("OccupancyPlots") << "the label is PXF!!";
       isSelected = isSelectedByWordsPXF( m_labels[i], detid, tTopo);
     }
 
     pos = m_labels[i].find("TIB");
     if(pos>=0){
-      //LogTrace("OccupancyPlots") << "the label is TIB!!";
       isSelected = isSelectedByWordsTIB( m_labels[i], detid, tTopo);
     }
 
     pos = m_labels[i].find("TOB");
     if(pos>=0){
-      //LogTrace("OccupancyPlots") << "the label is TOB!!";
       isSelected = isSelectedByWordsTOB( m_labels[i], detid, tTopo);
     }
 
     pos = m_labels[i].find("TID");
     if(pos>=0){
-      //LogTrace("OccupancyPlots") << "the label is TID!!";
       isSelected = isSelectedByWordsTID( m_labels[i], detid, tTopo);
     }
 
     pos = m_labels[i].find("TEC");
     if(pos>=0){
-      //LogTrace("OccupancyPlots") << "the label is TEC!!";
       isSelected = isSelectedByWordsTEC( m_labels[i], detid, tTopo);
     }
   }
-
-//  uint32_t subdet = detid.subdetId();
-//  for(unsigned int i=0; i<m_labels.size() ; ++i) {
-//    if( m_labels[i].find("PXB") && subdet == PixelSubdetector::PixelBarrel ) return isSelectedByWords(detid.rawId(), tTopo);
-//  }
 
   return isSelected;
 
