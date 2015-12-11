@@ -1218,7 +1218,7 @@ namespace edm {
           }
         }
         if(nPathDependencyOnly < 2) {
-          reportError(tempStack,index,iGraph);
+          throwOnError(tempStack,index,iGraph);
         }
       }
     private:
@@ -1236,9 +1236,9 @@ namespace edm {
       }
       
       void
-      reportError(std::vector<Edge>const& iEdges,
-                  boost::property_map<Graph, boost::vertex_index_t>::type const& iIndex,
-                  Graph const& iGraph) const {
+      throwOnError(std::vector<Edge>const& iEdges,
+                   boost::property_map<Graph, boost::vertex_index_t>::type const& iIndex,
+                   Graph const& iGraph) const {
         std::stringstream oStream;
         oStream <<"Module run order problem found: \n";
         bool first_edge = true;
@@ -1270,7 +1270,8 @@ namespace edm {
         oStream<<"\n Running in the threaded framework would lead to indeterminate results."
         "\n Please change order of modules in mentioned Path(s) to avoid inconsistent module ordering.";
         
-        LogError("UnrunnableSchedule")<<oStream.str();
+        throw Exception(errors::ScheduleExecutionFailure, "Unrunnable schedule\n")
+           << oStream.str() << "\n";
       }
       
       EdgeToPathMap const& m_edgeToPathMap;
