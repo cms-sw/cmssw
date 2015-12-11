@@ -388,25 +388,25 @@ int LutXml::test_access( std::string filename ){
   int _counter=0;
   for (std::vector<HcalEmap::HcalEmapRow>::const_iterator row=_map.begin(); row!=_map.end(); ++row){
     if (row->subdet=="HB"){
-      HcalDetId det_id(HcalBarrel,row->ieta,row->iphi,row->idepth);
+      HcalDetId det_id(HcalBarrel,row->ieta,row->iphi,row->idepth,false);
       uint32_t raw_id = det_id.rawId();
       std::vector<unsigned int> * l = getLutFast(raw_id);
       if (l) _counter++;
     }
     if (row->subdet=="HE"){
-      HcalDetId det_id(HcalEndcap,row->ieta,row->iphi,row->idepth);
+      HcalDetId det_id(HcalEndcap,row->ieta,row->iphi,row->idepth,false);
       uint32_t raw_id = det_id.rawId();
       std::vector<unsigned int> * l = getLutFast(raw_id);
       if (l) _counter++;
     }
     if (row->subdet=="HF"){
-      HcalDetId det_id(HcalForward,row->ieta,row->iphi,row->idepth);
+      HcalDetId det_id(HcalForward,row->ieta,row->iphi,row->idepth,false);
       uint32_t raw_id = det_id.rawId();
       std::vector<unsigned int> * l = getLutFast(raw_id);
       if (l) _counter++;
     }
     if (row->subdet=="HO"){
-      HcalDetId det_id(HcalOuter,row->ieta,row->iphi,row->idepth);
+      HcalDetId det_id(HcalOuter,row->ieta,row->iphi,row->idepth,false);
       uint32_t raw_id = det_id.rawId();
       std::vector<unsigned int> * l = getLutFast(raw_id);
       if (l) _counter++;
@@ -562,7 +562,7 @@ int LutXml::create_lut_map( void ){
       // filling the map
       uint32_t _key = 0;
       if (lut_type==1){
-	HcalDetId _id(subdet,ieta,iphi,depth);
+	HcalDetId _id(subdet,ieta,iphi,depth,false);
 	_key = _id.rawId();
       }
       else if (lut_type==2){

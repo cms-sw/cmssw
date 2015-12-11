@@ -32,9 +32,9 @@ uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID&
     HcalSubdetector subdet =  (HcalSubdetector)(id.subdet);
     if (subdet == HcalBarrel && phi > 4) { // HB2 
       if (etaR > 4 && etaR < 10)
-	index = HcalDetId(subdet,id.lay,id.phis,1).rawId();
+	index = HcalDetId(subdet,id.lay,id.phis,1,false).rawId();
     } else { // HB1
-      index = HcalDetId(subdet,etaR,id.phis,id.depth).rawId();
+      index = HcalDetId(subdet,etaR,id.phis,id.depth,false).rawId();
     }
   } else {
     // Test case

@@ -7,8 +7,8 @@ int main() {
   std::auto_ptr<HcalPulseContainmentManager> manager;
   manager = std::auto_ptr<HcalPulseContainmentManager>( new HcalPulseContainmentManager(max_fracerror));
 
-  HcalDetId hb1(HcalBarrel, 1, 1, 1);
-  HcalDetId he1(HcalEndcap, 17, 1, 1);
+  HcalDetId hb1(HcalBarrel, 1, 1, 1, false);
+  HcalDetId he1(HcalEndcap, 17, 1, 1, false);
   double fc = 10.;
   // test re-finding the correction
   double corr1 = manager->correction(hb1, 4, fixedphase_ns, fc);

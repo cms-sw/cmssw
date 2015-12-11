@@ -168,7 +168,7 @@ bool HcalText2DetIdConverter::init (const std::string& fFlavor, const std::strin
       flavorName == "HE" ? HcalEndcap :
       flavorName == "HO" ? HcalOuter :
       HcalForward;
-    mId = HcalDetId (sub, getField (1), getField (2), getField (3));
+    mId = HcalDetId (sub, getField (1), getField (2), getField (3), false);
   }
   else if (flavorName == "HT") {
     // We use the depth to signal the "version" being used (RCT or 1x1 HF). RCT

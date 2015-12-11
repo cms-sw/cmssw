@@ -140,7 +140,7 @@ void HcaluLUTTPGCoder::update(const char* filename, const HcalTopology& theTopo,
          for (int iphi = iphiL[i]; iphi <= iphiU[i]; ++iphi){
             for (int depth = depL[i]; depth <= depU[i]; ++depth){
 	      
-               HcalDetId id(subdet[i], ieta, iphi, depth);
+	      HcalDetId id(subdet[i], ieta, iphi, depth, false);
  	       if (!theTopo.valid(id)) continue;
 
                int lutId = getLUTId(id);
@@ -168,7 +168,7 @@ void HcaluLUTTPGCoder::updateXML(const char* filename, const HcalTopology& theTo
       for (int iphi=1; iphi<=72; ++iphi){
          for (int depth=1; depth<=3; ++depth){
             for (int isub=0; isub<3; ++isub){
-               HcalDetId detid(subdet[isub], ieta, iphi, depth);
+	      HcalDetId detid(subdet[isub], ieta, iphi, depth, false);
                if (!theTopo.valid(detid)) continue;
                int id = getLUTId(subdet[isub], ieta, iphi, depth);
                std::vector<unsigned int>* lut = _xml->getLutFast(detid);
@@ -204,7 +204,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
       for (int ieta = -41; ieta <= 41; ++ieta){
          for (int iphi = 1; iphi <= 72; ++iphi){
             for (int depth = 1; depth <= 3; ++depth){
-               HcalDetId cell(subdet, ieta, iphi, depth);
+	      HcalDetId cell(subdet, ieta, iphi, depth, false);
 	       if (!metadata->topo()->valid(cell)) continue;
 
                const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);

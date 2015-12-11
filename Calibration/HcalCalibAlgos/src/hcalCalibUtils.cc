@@ -65,9 +65,9 @@ void sumDepths(vector<TCell> &selectCells) {
 	
       UInt_t newId;
       if (abs(HcalDetId(i_it2->id()).ieta())==16)
-	newId = HcalDetId(HcalBarrel, HcalDetId(i_it2->id()).ieta(), HcalDetId(i_it2->id()).iphi(), 1);
+	newId = HcalDetId(HcalBarrel, HcalDetId(i_it2->id()).ieta(), HcalDetId(i_it2->id()).iphi(), 1, false);
       else
-	newId = HcalDetId(HcalDetId(i_it2->id()).subdet(), HcalDetId(i_it2->id()).ieta(), HcalDetId(i_it2->id()).iphi(), 1);
+	newId = HcalDetId(HcalDetId(i_it2->id()).subdet(), HcalDetId(i_it2->id()).ieta(), HcalDetId(i_it2->id()).iphi(), 1, false);
 	
       selectCellsDepth1.push_back(TCell(newId, 0.0));
       //////////            cout << "\nCreated a dummy cell in depth one to recover energy!!!\n" << endl;
@@ -109,7 +109,7 @@ void combinePhi(vector<TCell> &selectCells) {
   vector<TCell>::iterator i_it = selectCells.begin();
   for (; i_it != selectCells.end(); ++i_it) {
     DetId id = HcalDetId(i_it->id());
-    UInt_t thisKey = HcalDetId(HcalDetId(id).subdet(), HcalDetId(id).ieta(), 1, HcalDetId(id).depth() );
+    UInt_t thisKey = HcalDetId(HcalDetId(id).subdet(), HcalDetId(id).ieta(), 1, HcalDetId(id).depth(), false);
     etaSliceE[thisKey].push_back(i_it->e());
   }
     
@@ -137,7 +137,7 @@ void combinePhi(vector<TCell> &selectCells, vector<TCell> &combinedCells) {
   vector<TCell>::iterator i_it = selectCells.begin();
   for (; i_it != selectCells.end(); ++i_it) {
     DetId id = HcalDetId(i_it->id());
-    UInt_t thisKey = HcalDetId(HcalDetId(id).subdet(), HcalDetId(id).ieta(), 1, HcalDetId(id).depth() );
+    UInt_t thisKey = HcalDetId(HcalDetId(id).subdet(), HcalDetId(id).ieta(), 1, HcalDetId(id).depth(), false);
     etaSliceE[thisKey].push_back(i_it->e());
   }
     
@@ -312,7 +312,7 @@ void sumSmallDepths(vector<TCell> &selectCells) {
   vector<TCell> createdCells; // cells that need to be added or they exists;
 
   for (vector<TCell>::iterator i_it = manipulatedCells.begin(); i_it!=manipulatedCells.end(); ++i_it) {
-    UInt_t dummyId = HcalDetId(HcalDetId(i_it->id()).subdet(), HcalDetId(i_it->id()).ieta(), HcalDetId(i_it->id()).iphi(), 1);
+    UInt_t dummyId = HcalDetId(HcalDetId(i_it->id()).subdet(), HcalDetId(i_it->id()).ieta(), HcalDetId(i_it->id()).iphi(), 1, false);
     if (find(dummyIds.begin(), dummyIds.end(), dummyId)==dummyIds.end()) {
       dummyIds.push_back(dummyId);
       createdCells.push_back(TCell(dummyId, 0.0));

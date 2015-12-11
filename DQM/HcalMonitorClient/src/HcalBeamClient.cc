@@ -151,7 +151,7 @@ void HcalBeamClient::calculateProblems(DQMStore::IBooker &ib, DQMStore::IGetter 
 	      if (problemvalue==0) continue;
 
 	      // Search for known bad problems in channel status db
-	      HcalDetId hcalid(HcalForward, myieta, myiphi, mydepth);
+	      HcalDetId hcalid(HcalForward, myieta, myiphi, mydepth, false);
 	      if (badstatusmap.find(hcalid)!=badstatusmap.end())
 		problemvalue=999; 	
 	      myieta<0 ?  zside=-1 : zside=1;

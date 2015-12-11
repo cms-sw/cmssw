@@ -21,7 +21,7 @@ namespace spr{
   std::pair<double,int> eHCALmatrixTotal(const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO, double hbThr, double heThr, double hfThr, double hoThr, bool debug) {
 
     HcalDetId hcid0(det0.rawId());
-    HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1);
+    HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1,false);
     DetId det(hcid.rawId());
     if (debug) std::cout << "Inside eHCALmatrixTotal " << ieta << "X" << iphi << " Inclusion of HO Flag " << includeHO << std::endl;
 
@@ -48,7 +48,7 @@ namespace spr{
   double energyHCALmatrix(const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO, double hbThr, double heThr, double hfThr, double hoThr, bool debug) {
 
     HcalDetId hcid0(det0.rawId());
-    HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1);
+    HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1,false);
     DetId det(hcid.rawId());
     if (debug) std::cout << "Inside energyHCALmatrix " << 2*ieta+1 << "X" << 2*iphi+1 << " Inclusion of HO Flag " << includeHO << std::endl;
 

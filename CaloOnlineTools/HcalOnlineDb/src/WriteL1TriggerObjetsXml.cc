@@ -105,7 +105,7 @@ WriteL1TriggerObjetsXml::analyze(const edm::Event& iEvent, const edm::EventSetup
       for (int ieta = -41; ieta <= 41; ++ieta){
          for (int iphi = 1; iphi <=72; ++iphi){
             for (int depth = 1; depth <= 3; ++depth){
-               HcalDetId id(subDet[isub], ieta, iphi, depth);
+	      HcalDetId id(subDet[isub], ieta, iphi, depth, false);
 
                if (!topo->valid(id)) continue;
                HcalCalibrations calibrations = conditions->getHcalCalibrations(id);

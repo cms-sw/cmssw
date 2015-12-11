@@ -668,7 +668,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
       ((row->second.det==HcalForward && row->second.eta==29)?(4*10000):(0));
 
     //HcalDetId _detid(row->first);
-    HcalDetId _detid(row->second.det, row->second.side*row->second.eta, row->second.phi, row->second.depth);
+    HcalDetId _detid(row->second.det, row->second.side*row->second.eta, row->second.phi, row->second.depth,false);
     //std::cout << "### DEBUG: rawid = " << _detid.rawId() << std::endl;    
 
     //std::cout << "### DEBUG: subdetector = " << row->second.det << std::endl;    
@@ -752,7 +752,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
       else if ( row->subdet.find("HO")!=string::npos ) _subdet = HcalOuter;
       else if ( row->subdet.find("HF")!=string::npos ) _subdet = HcalForward;
       else _subdet = HcalOther;
-      HcalDetId _detid(_subdet, row->ieta, row->iphi, row->idepth);
+      HcalDetId _detid(_subdet, row->ieta, row->iphi, row->idepth, false);
       //
       // consider channel status here
       uint32_t status_word = cq->getValues(_detid)->getValue();
@@ -1204,7 +1204,7 @@ int HcalLutManager::test_xml_access( std::string _tag, std::string _filename )
 	else if ( _map[_key].subdet.find("HO")!=string::npos ) _subdet = HcalOuter;
 	else if ( _map[_key].subdet.find("HF")!=string::npos ) _subdet = HcalForward;
 	else _subdet = HcalOther;
-	HcalDetId _detid(_subdet, _map[_key].ieta, _map[_key].iphi, _map[_key].idepth);
+	HcalDetId _detid(_subdet, _map[_key].ieta, _map[_key].iphi, _map[_key].idepth, false);
 	_raw_id = _detid.rawId();
 	break;
       }

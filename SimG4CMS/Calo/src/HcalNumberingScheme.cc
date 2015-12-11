@@ -27,7 +27,7 @@ uint32_t HcalNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID& id){
 
   //pack it into an integer
   // to be consistent with HcalDetId convention
-  uint32_t index = HcalDetId(subdet,etaR,id.phis,id.depth).rawId();
+  uint32_t index = HcalDetId(subdet,etaR,id.phis,id.depth,false).rawId();
 
 #ifdef DebugLog
   edm::LogInfo("HcalSim") << "HcalNumberingScheme det = " << id.subdet 

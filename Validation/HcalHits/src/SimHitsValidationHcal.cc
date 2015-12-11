@@ -138,13 +138,13 @@ void SimHitsValidationHcal::analyze(const edm::Event& e,
 	
 	HcalDetId hid;
 	if (subdet==int(HcalBarrel)) {
-	  hid = HcalDetId(HcalBarrel,sign*id.eta,id.phi,id.depth);        
+	  hid = HcalDetId(HcalBarrel,sign*id.eta,id.phi,id.depth,false);
 	} else if (subdet==int(HcalEndcap)) {
-	  hid = HcalDetId(HcalEndcap,sign*id.eta,id.phi,id.depth);    
+	  hid = HcalDetId(HcalEndcap,sign*id.eta,id.phi,id.depth,false);    
 	} else if (subdet==int(HcalOuter)) {
-	  hid = HcalDetId(HcalOuter,sign*id.eta,id.phi,id.depth);    
+	  hid = HcalDetId(HcalOuter,sign*id.eta,id.phi,id.depth,false);
 	} else if (subdet==int(HcalForward)) {
-	  hid = HcalDetId(HcalForward,sign*id.eta,id.phi,id.depth);
+	  hid = HcalDetId(HcalForward,sign*id.eta,id.phi,id.depth,false);
 	}
 	caloHits[i].setID(hid.rawId());
 #ifdef DebugLog
