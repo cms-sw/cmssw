@@ -6,12 +6,12 @@
 #include<iostream>
 
 namespace spr{
-  HcalDetId getHotCell(std::vector<HBHERecHitCollection::const_iterator>& hit, bool& includeHO, bool& debug) {
+  HcalDetId getHotCell(std::vector<HBHERecHitCollection::const_iterator>& hit, bool includeHO, bool useRaw, bool) {
 
     std::vector<HcalDetId> dets;
     std::vector<double> energies;
     for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
-      double energy = getEnergy(hit.at(ihit));
+      double energy = getRawEnergy(hit.at(ihit), useRaw);
       HcalDetId id0 = hit.at(ihit)->id();
       if ((id0.subdet() != HcalOuter) || includeHO) {
       	HcalDetId id1(id0.subdet(),id0.ieta(),id0.iphi(),1);
@@ -40,13 +40,13 @@ namespace spr{
     return hotCell;
   }
 
-  HcalDetId getHotCell(std::vector<std::vector<PCaloHit>::const_iterator>& hit, bool& includeHO, bool& debug) {
+  HcalDetId getHotCell(std::vector<std::vector<PCaloHit>::const_iterator>& hit, bool includeHO, bool useRaw, bool) {
 
     std::vector<HcalDetId> dets;
     std::vector<double> energies;
     for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
       double energy = hit.at(ihit)->energy();
-      HcalDetId id0 = hit.at(ihit)->id();
+      HcalDetId id0 = getRawEnergy(hit.at(ihit),useRaw);
       if ((id0.subdet() != HcalOuter) || includeHO) {
       	HcalDetId id1(id0.subdet(),id0.ieta(),id0.iphi(),1);
         bool found(false);

@@ -102,7 +102,7 @@ private:
   //////////////////////////////////////////////////////
   HLTConfigProvider hltConfig_;
   int               verbosity_;
-  bool              isAOD_, isSLHC_;
+  bool              isAOD_, isSLHC_, useRaw_;
   std::string       hltlabel_;
   std::vector<std::string> all_triggers,all_triggers1,all_triggers2,all_triggers3,all_triggers4,all_triggers5;
   ////////////////////////////////////////////////////////////
@@ -146,6 +146,7 @@ HcalRaddamMuon::HcalRaddamMuon(const edm::ParameterSet& iConfig) {
   isAOD_            = iConfig.getUntrackedParameter<bool>("IsAOD",false);
   isSLHC_           = iConfig.getUntrackedParameter<bool>("IsSLHC",true);
   maxDepth_         = iConfig.getUntrackedParameter<int>("MaxDepth",4);
+  useRaw_           = iConfig.getUntrackedParameter<bool>("UseRaw",false);
 
   if (maxDepth_ > 7)      maxDepth_ = 7;
   else if (maxDepth_ < 1) maxDepth_ = 4;
@@ -386,22 +387,22 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	
 	if (trackID.okHCAL) {
 	  const DetId closestCell(trackID.detIdHCAL);
-	  eHcal = spr::eHCALmatrix(theHBHETopology, closestCell, hbhe,0,0, false, true, -100.0, -100.0, -100.0, -100.0, -500.,500.);
+	  eHcal = spr::eHCALmatrix(theHBHETopology, closestCell, hbhe,0,0, false, true, -100.0, -100.0, -100.0, -100.0, -500.,500.,useRaw_);
 	  
 	  //std::cout<<"eHcal"<<eHcal<<std::endl;
 	  std::vector<std::pair<double,int> > ehdepth;
-	  spr::energyHCALCell((HcalDetId) closestCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, (((verbosity_/1000)%10)>0));
+	  spr::energyHCALCell((HcalDetId) closestCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_,(((verbosity_/1000)%10)>0));
 	  for (unsigned int i=0; i<ehdepth.size(); ++i) {
 	    eHcalDepth[ehdepth[i].second-1] = ehdepth[i].first;
 	    //std::cout<<eHcalDepth[ehdepth[i].second-1]<<std::endl;
 	  }
 
-	  eHcal = spr::eHCALmatrix(theHBHETopology, closestCell, calosimhits,0,0, false, true, -100.0, -100.0, -100.0, -100.0, -500.,500.);
+	  eHcal = spr::eHCALmatrix(theHBHETopology, closestCell, calosimhits,0,0, false, true, -100.0, -100.0, -100.0, -100.0, -500.,500.,useRaw_);
 	  
 	  //std::cout<<"eHcal"<<eHcal<<std::endl;
 	  const DetId closestCellCalo(trackID.detIdHCAL);
 	  std::vector<std::pair<double,int> > ehdepthCalo;
-	  spr::energyHCALCell((HcalDetId) closestCellCalo, calosimhits, ehdepthCalo, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, (((verbosity_/1000)%10)>0));
+	  spr::energyHCALCell((HcalDetId) closestCellCalo, calosimhits, ehdepthCalo, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, (((verbosity_/1000)%10)>0));
 	  for (unsigned int i=0; i<ehdepthCalo.size(); ++i) {
 	    eHcalDepthCalo[ehdepthCalo[i].second-1] = ehdepthCalo[i].first;
 	    //std::cout<<eHcalDepth[ehdepth[i].second-1]<<std::endl;
@@ -412,8 +413,8 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  
 	  std::cout<<activeL<<std::endl;
 	  HcalDetId hotCell, hotCellCalo;
-	  h3x3 = spr::eHCALmatrix(geo,theHBHETopology, closestCell, hbhe, 1,1, hotCell, false, false);
-	  h3x3Calo = spr::eHCALmatrix(geo,theHBHETopology, closestCellCalo, calosimhits, 1,1, hotCellCalo, false, false);
+	  h3x3 = spr::eHCALmatrix(geo,theHBHETopology, closestCell, hbhe, 1,1, hotCell, false, useRaw_, false);
+	  h3x3Calo = spr::eHCALmatrix(geo,theHBHETopology, closestCellCalo, calosimhits, 1,1, hotCellCalo, false, useRaw_, false);
 
 	  isHot = matchId(closestCell,hotCell);
 	  isHotCalo = matchId(closestCellCalo,hotCellCalo);
@@ -421,7 +422,7 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  // std::cout<<"hcal 3X3  < "<<h3x3<<">" << " ClosestCell <" << (HcalDetId)(closestCell) << "> hotCell id < " << hotCell << "> isHot" << isHot << std::endl;
 	  if (hotCell != HcalDetId()) {
 	    std::vector<std::pair<double,int> > ehdepth;
-	    //   spr::energyHCALCell(hotCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, false);//(((verbosity_/1000)%10)>0    ));
+	    //   spr::energyHCALCell(hotCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, false);//(((verbosity_/1000)%10)>0    ));
 	    spr::energyHCALCell(hotCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, false);
 	    for (unsigned int i=0; i<ehdepth.size(); ++i) {
 	      eHcalDepthHot[ehdepth[i].second-1] = ehdepth[i].first;
@@ -432,7 +433,7 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  if (hotCellCalo != HcalDetId()) {
 	    std::vector<std::pair<double,int> > ehdepthCalo;
 
-	    spr::energyHCALCell(hotCellCalo, calosimhits, ehdepthCalo, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, false);
+	    spr::energyHCALCell(hotCellCalo, calosimhits, ehdepthCalo, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, false);
 	    for (unsigned int i=0; i<ehdepthCalo.size(); ++i) {
 	      eHcalDepthHotCalo[ehdepthCalo[i].second-1] = ehdepthCalo[i].first;
 	      //  std::cout<<eHcalDepthHot[ehdepth[i].second-1]<<std::endl;                                                                         

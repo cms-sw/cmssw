@@ -25,22 +25,21 @@ PixelBarrelName::PixelBarrelName(const DetId & id, const TrackerTopology* tt, bo
     theModule(0), theLadder(0), phase1(phase) {
 
   theLayer = tt->pxbLayer(id);
-  int oldModule = tt->pxbModule(id) -4; if (oldModule<=0) oldModule--;
-  int oldLadder = tt->pxbLadder(id);
+  int oldModule = tt->pxbModule(id);  // CMSSW convention 
+  int oldLadder = tt->pxbLadder(id);  // CMSSW convention
 
-  //cout<<oldLadder<<" "<<oldModule<<endl;
-
-  int ladder = convertLadderNumber(oldLadder);
+  int ladder = convertLadderNumber(oldLadder); // convert to online convention
+  int module = oldModule-4; // convert 
+  if (module<=0) module--; 
 
   //
   // part
   //
-  if      (oldModule < 0 && ladder < 0) thePart = mO; 
-  else if (oldModule > 0 && ladder < 0) thePart = pO;
-  else if (oldModule < 0 && ladder > 0) thePart = mI;
-  else if (oldModule > 0 && ladder > 0) thePart = pI;
+  if      (module < 0 && ladder < 0) thePart = mO; 
+  else if (module > 0 && ladder < 0) thePart = pO;
+  else if (module < 0 && ladder > 0) thePart = mI;
+  else if (module > 0 && ladder > 0) thePart = pI;
   
-
   //
   // ladder
   //
@@ -49,10 +48,11 @@ PixelBarrelName::PixelBarrelName(const DetId & id, const TrackerTopology* tt, bo
   //
   // module
   //
-  theModule = abs(oldModule);
+  theModule = abs(module);
 
 }
 
+// Old constructor, works with the old pixel classes  DO NOT USE
 PixelBarrelName::PixelBarrelName(const DetId & id, bool phase) 
   : PixelModuleName(true), thePart(mO), theLayer(0),
     theModule(0), theLadder(0), phase1(phase) {
@@ -63,7 +63,6 @@ PixelBarrelName::PixelBarrelName(const DetId & id, bool phase)
   theLayer = cmssw_numbering.layer();
 
   int oldModule = cmssw_numbering.module() -4; if (oldModule<=0) oldModule--;
-
   int oldLadder = cmssw_numbering.ladder();
 
   if(phase1) { // phase 1
@@ -292,13 +291,50 @@ int PixelBarrelName::sectorName() const
   if (theLayer==1) {
 
     if(phase1) { // phase 1
+      // Layer 1 for phase1 is special, modules on a ladder are shared in different sectors
+      // Ladder   Module    Sector
+      //   1      2,3,4       1
+      //   1        1         2
+      //   2       3,4        2
+      //   2       1,2        3
+      //   3        4         3
+      //   3      1,2,3       4
+      //   4      2,3,4       5
+      //   4        1         6
+      //   5       3,4        6
+      //   5       1,2        7
+      //   6        4         7
+      //   6      1,2,3       8
+
       switch (theLadder) {
-      case 1 :  {sector = 1; break;}
-      case 2 :  {sector = 2; break;}
-      case 3 :  {sector = 3; break;}
-      case 4 :  {sector = 6; break;}
-      case 5 :  {sector = 7; break;}
-      case 6 :  {sector = 8; break;}
+      case 1 :  {  // ladder 1
+	if(theModule>=2) {sector = 1; break;}  // mods 2,3,4
+	else             {sector = 2; break;}  // mods 1
+      }
+      case 2 :  { // ladder 2
+	if(theModule>=3) {sector = 2; break;} // mods 3,4
+	else             {sector = 3; break;} // mods 1,2
+      }
+      case 3 :  { // ladder 3
+	if(theModule>=4) {sector = 3; break;}
+	else             {sector = 4; break;}
+	sector = 3; break;
+      }
+      case 4 :  { // ladder 4
+	if(theModule>=2) {sector = 5; break;}
+	else             {sector = 6; break;}
+	sector = 6; break;
+      }
+      case 5 :  { // ladder 5
+	if(theModule>=3) {sector = 6; break;}
+	else             {sector = 7; break;}
+	sector = 7; break;
+      }
+      case 6 :  { // ladder 6
+	if(theModule>=4) {sector = 7; break;} // mods 4
+	else             {sector = 8; break;} // mods 1,2,3
+	sector = 8; break;
+      }
       default: ;
       };
 
@@ -320,14 +356,14 @@ int PixelBarrelName::sectorName() const
 
     if(phase1) { // phase 1
       switch (theLadder) {
-      case  1 : case  2: {sector = 1; break;}
-      case  3 : case  4: {sector = 2; break;}
-      case  5 : case  6: {sector = 3; break;}
-      case  7 :          {sector = 4; break;}
-      case  8 :          {sector = 5; break;}
-      case  9 : case 10: {sector = 6; break;}
-      case 11 : case 12: {sector = 7; break;}
-      case 13 : case 14: {sector = 8; break;}    
+      case  1: case  2: {sector = 1; break;}
+      case  3: case  4: {sector = 2; break;}
+      case  5:          {sector = 3; break;}
+      case  6: case  7: {sector = 4; break;}
+      case  8: case  9: {sector = 5; break;}
+      case 10:          {sector = 6; break;}
+      case 11: case 12: {sector = 7; break;}
+      case 13: case 14: {sector = 8; break;}    
       default: ;
       };
 
@@ -349,14 +385,14 @@ int PixelBarrelName::sectorName() const
 
     if(phase1) { // phase 1
       switch (theLadder) {
-      case  1 : case  2: case  3: {sector = 1; break;}
-      case  4 : case  5: case  6: {sector = 2; break;}
-      case  7 : case  8: case  9: {sector = 3; break;}
-      case 10 : case 11:          {sector = 4; break;}
-      case 12 : case 13:          {sector = 5; break;}
-      case 14 : case 15: case 16: {sector = 6; break;}
-      case 17 : case 18: case 19: {sector = 7; break;}
-      case 20 : case 21: case 22: {sector = 8; break;}
+      case  1: case  2:          {sector = 1; break;}
+      case  3: case  4: case  5: {sector = 2; break;}
+      case  6: case  7: case  8: {sector = 3; break;}
+      case  9: case 10: case 11: {sector = 4; break;}
+      case 12: case 13: case 14: {sector = 5; break;}
+      case 15: case 16: case 17: {sector = 6; break;}
+      case 18: case 19: case 20: {sector = 7; break;}
+      case 21: case 22:          {sector = 8; break;}
       default: ;
       };
 
