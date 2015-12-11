@@ -484,11 +484,12 @@ DDExpandedView::nav_type DDExpandedView::copyNumbers() const
   return result;
 }
 
-std::ostream & printNavType(std::ostream & os, int const * n, size_t sz){
-  os << '(' ;
+std::string printNavType(int const * n, size_t sz){
+  std::ostringstream oss;
+  oss << '(' ;
   for (int const * it=n; it != n+sz; ++it) {
-    os << *it << ',';
+    oss << *it << ',';
   }
-  os << ')';
-  return os;
+  oss << ')';
+  return oss.str();
 }
