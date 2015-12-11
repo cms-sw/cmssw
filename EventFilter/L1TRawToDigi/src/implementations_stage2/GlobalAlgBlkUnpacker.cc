@@ -93,8 +93,14 @@ namespace stage2 {
            }
 	 } else if(block.header().getID()==finalBlkID+4 && wd==4) {
            //This is the FINOR
-           alg.setFinalOR(raw_data);
+           if ( (raw_data & 0x10000)>>16 ) alg.setFinalOR(true);
+	   if ( (raw_data &   0x100)>> 8 ) alg.setFinalORVeto(true);
+	   if ( (raw_data &     0x1)>> 0 ) alg.setFinalORPreVeto(true);
            LogDebug("L1T")  << " Packing the FinalOR " << wd << " 0x" << hex << raw_data << endl;	
+	 } else if(block.header().getID()==finalBlkID+4 && wd==5) {
+           //This is the Prescale Column
+           alg.setPreScColumn(raw_data & 0xFF );
+           LogDebug("L1T")  << " Packing the Prescale Column " << wd << " 0x" << hex << raw_data << endl;	
          }
        }
 
