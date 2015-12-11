@@ -207,7 +207,7 @@ bool step45(const reco::TrackBase::TrackAlgorithm& algo){
 
 
 bool step5(const reco::TrackBase::TrackAlgorithm& algo){
-  return algo==reco::TrackBase::tobTecStep;
+  return algo==(reco::TrackBase::tobTecStep||reco::TrackBase::pixelLessStep);
 }
 
 }
