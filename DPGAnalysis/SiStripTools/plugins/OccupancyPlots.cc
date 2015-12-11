@@ -81,6 +81,7 @@ private:
 
   std::vector<edm::InputTag> m_multiplicityMaps;
   std::vector<edm::InputTag> m_occupancyMaps;
+  bool checkLabels_;
   edm::FileInPath m_fp;
 
   RunHistogramManager m_rhm;
@@ -137,6 +138,7 @@ private:
 OccupancyPlots::OccupancyPlots(const edm::ParameterSet& iConfig):
   m_multiplicityMaps(iConfig.getParameter<std::vector<edm::InputTag> >("multiplicityMaps")),
   m_occupancyMaps(iConfig.getParameter<std::vector<edm::InputTag> >("occupancyMaps")),
+  checkLabels_(iConfig.getParameter<bool>("checkWithLabels")),
   m_fp(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiPixelESProducers/data/PixelSkimmedGeometry.txt"))),
   m_rhm(), m_wantedsubdets(), m_wantedsubdetslbl()
 {
@@ -193,7 +195,7 @@ OccupancyPlots::OccupancyPlots(const edm::ParameterSet& iConfig):
 
 
     m_wantedsubdets[detsel]=DetIdSelector(selstr);
-    //m_wantedsubdetslbl[detsel] = DetIdSelector(sellbl, "words");
+    if(checkLabels_)  m_wantedsubdetslbl[detsel] = DetIdSelector(sellbl, "words");
 
     LogTrace("OccupancyPlots") << ">>>>>>>>>" ;
   }
@@ -370,8 +372,8 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
          
      }
 
-    if((*m_averadius)->Integral() != (*m2_averadius)->Integral()){
-      edm::LogError("OccupancyPlots") << "qui abbiamo fatto merda!\n"  
+    if(checkLabels_ && (*m_averadius)->Integral() != (*m2_averadius)->Integral()){
+      edm::LogError("OccupancyPlots") << "The selection is different with Labels and Bits:\n"  
                       << (*m_averadius)->Integral() << " dets selected with bits"
                       << (*m2_averadius)->Integral() << " dets selected with label";
       return;
@@ -381,7 +383,7 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   
 
   edm::LogInfo("OccupancyPlots") << (*m_averadius)->Integral() << " dets selected with bits";
-  edm::LogInfo("OccupancyPlots") << (*m2_averadius)->Integral() << " dets selected with label";
+  if (checkLabels_)  edm::LogInfo("OccupancyPlots") << (*m2_averadius)->Integral() << " dets selected with label";
 
   edm::ESHandle<SiStripQuality> quality;
   iSetup.get<SiStripQualityRcd>().get("",quality);
