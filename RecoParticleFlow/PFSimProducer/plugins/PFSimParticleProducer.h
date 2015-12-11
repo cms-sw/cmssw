@@ -41,7 +41,7 @@ class FSimEvent;
 
 
 
-class PFSimParticleProducer : public edm::EDProducer {
+class PFSimParticleProducer : public edm::stream::EDProducer<> {
  public:
 
   explicit PFSimParticleProducer(const edm::ParameterSet&);
