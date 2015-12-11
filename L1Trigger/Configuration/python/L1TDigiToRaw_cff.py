@@ -13,6 +13,7 @@ from EventFilter.RawDataCollector.rawDataCollectorByLabel_cfi import *
 eras.stage1L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("caloStage1Raw")) )
 eras.stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("caloStage2Raw")) )
 eras.stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("gmtStage2Raw")) )
+eras.stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("gtStage2Raw")) )
 
 #
 # Legacy Trigger:
@@ -66,6 +67,7 @@ if eras.stage2L1Trigger.isChosen():
     print "L1TDigiToRaw Sequence configured for Stage-2 (2016) trigger. "
     from EventFilter.L1TRawToDigi.caloStage2Raw_cfi import *
     from EventFilter.L1TRawToDigi.gmtStage2Raw_cfi import *
-    L1TDigiToRaw = cms.Sequence(caloStage2Raw + gmtStage2Raw)
-    # Missing: global trigger, muon TFs, calo layer1, 
+    from EventFilter.L1TRawToDigi.gtStage2Raw_cfi import *
+    L1TDigiToRaw = cms.Sequence(caloStage2Raw + gmtStage2Raw + gtStage2Raw)
+    # Missing: muon TFs, calo layer1, 
 

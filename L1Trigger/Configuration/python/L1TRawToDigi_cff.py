@@ -68,5 +68,6 @@ if eras.stage2L1Trigger.isChosen():
     print "L1TRawToDigi Sequence configured for Stage-2 (2016) trigger. "
     from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import *
     from EventFilter.L1TRawToDigi.gmtStage2Digis_cfi import *
-    L1TRawToDigi = cms.Sequence(caloStage2Digis + gmtStage2Digis)
+    from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import *
+    L1TRawToDigi = cms.Sequence(caloStage2Digis + gmtStage2Digis + gtStage2Digis)
 
