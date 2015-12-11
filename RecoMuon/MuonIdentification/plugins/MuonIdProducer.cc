@@ -1125,11 +1125,14 @@ void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup
    reco::IsoDeposit depHcal = caloDeps.at(1);
    reco::IsoDeposit depHo   = caloDeps.at(2);
 
-   trackDep = depTrk;
-   ecalDep = depEcal;
-   hcalDep = depHcal;
-   hoDep = depHo;
-   jetDep = depJet;
+   //no need to copy outside if we don't write them
+   if (writeIsoDeposits_){
+     trackDep = depTrk;
+     ecalDep = depEcal;
+     hcalDep = depHcal;
+     hoDep = depHo;
+     jetDep = depJet;
+   }
 
    isoR03.sumPt     = depTrk.depositWithin(0.3);
    isoR03.emEt      = depEcal.depositWithin(0.3);
