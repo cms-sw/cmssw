@@ -216,8 +216,8 @@ private:
   edm::InputTag jetSrc_;
   edm::InputTag gjetSrc_;
   edm::InputTag metSrc_;
-  edm::InputTag mSrcRho_;
-  //  edm::InputTag CaloJet_;
+  // edm::InputTag mSrcRho_;
+  // edm::InputTag CaloJet_;
   edm::InputTag vtxSrc_;
   edm::InputTag lheSource_;
   edm::InputTag genParticleSrc_;
@@ -248,7 +248,7 @@ private:
   std::auto_ptr<int> 	  EvtPuCnt_;
   std::auto_ptr<int> 	  EvtPuCntTruth_;
   std::auto_ptr<std::vector<double> > EvtWeights_;
-  std::auto_ptr<float>    EvtFastJetRho_;
+  //std::auto_ptr<float>    EvtFastJetRho_;
 
   //Trigger
   std::auto_ptr<unsigned>          TrigHlt_;
@@ -376,7 +376,7 @@ private:
   std::auto_ptr<std::vector<float> > 	MuCh_;
   std::auto_ptr<std::vector<float> > 	MuVtxZ_;
   std::auto_ptr<std::vector<float> > 	MuDxy_;
-  std::auto_ptr<std::vector<float> > 	MuIsoRho_;
+  //std::auto_ptr<std::vector<float> > 	MuIsoRho_;
   std::auto_ptr<std::vector<float> > 	MuPfIso_;
   std::auto_ptr<std::vector<float> > 	MuType_;
   std::map<std::string, unsigned>    	MuTypeMap_; //bit assignment
@@ -424,7 +424,7 @@ private:
   std::auto_ptr<std::vector<float> > 	ElPfIsoPuChHad_;
   std::auto_ptr<std::vector<float> > 	ElPfIsoRaw_;
   std::auto_ptr<std::vector<float> > 	ElPfIsoDbeta_;
-  std::auto_ptr<std::vector<float> > 	ElPfIsoRho_;
+  //std::auto_ptr<std::vector<float> > 	ElPfIsoRho_;
   std::auto_ptr<std::vector<float> > 	ElAEff_;
 
   std::auto_ptr<std::vector<float> > 	 charged_;
@@ -550,10 +550,10 @@ private:
   edm::Handle<edm::View<reco::Vertex> >  pvHandle;
   edm ::Handle<reco::VertexCollection> vtx_h;
   const edm::View<reco::Vertex> * vtxx;
-  double rhoIso;
+  //double rhoIso;
   edm::Handle<reco::BeamSpot> beamSpotHandle;
   reco::BeamSpot beamSpot;
-  edm::Handle<double> rho;
+  //edm::Handle<double> rho;
   edm::Handle<reco::GenJetCollection> genjetColl_;
   ///
 
@@ -594,8 +594,8 @@ Tupel::Tupel(const edm::ParameterSet& iConfig):
   jetSrc_(iConfig.getUntrackedParameter<edm::InputTag>("jetSrc" )),
   gjetSrc_(iConfig.getUntrackedParameter<edm::InputTag>("gjetSrc" )),
   metSrc_(iConfig.getUntrackedParameter<edm::InputTag>("metSrc" )),
-  mSrcRho_(iConfig.getUntrackedParameter<edm::InputTag>("mSrcRho" )),
-  //  CaloJet_(iConfig.getUntrackedParameter<edm::InputTag>("CalojetLabel")),
+  //mSrcRho_(iConfig.getUntrackedParameter<edm::InputTag>("mSrcRho" )),
+  //CaloJet_(iConfig.getUntrackedParameter<edm::InputTag>("CalojetLabel")),
   vtxSrc_(iConfig.getUntrackedParameter<edm::InputTag>("vtxSrc" )),
   lheSource_(iConfig.getUntrackedParameter<edm::InputTag>("lheSource")),
   genParticleSrc_(iConfig.getUntrackedParameter<edm::InputTag >("genSrc")),
@@ -759,9 +759,9 @@ void Tupel::readEvent(const edm::Event& iEvent){
   //    reco::VertexRef primVtx(vtx_h,0);
   //  }
 
-  iEvent.getByLabel(mSrcRho_, rho);
-  rhoIso=99;
-  if(!rho.failedToGet()) rhoIso = *rho;
+  //iEvent.getByLabel(mSrcRho_, rho);
+  //rhoIso=99;
+  //if(!rho.failedToGet()) rhoIso = *rho;
 
   iEvent.getByLabel("offlineBeamSpot", beamSpotHandle);
 
@@ -1183,17 +1183,17 @@ void Tupel::processMuons(){
       MuId_->push_back(muId);
 
       //      unsigned muHltMath = 0;
-      float muEta = mu[j].eta(); // essentially track direction at Vtx (recommended prescription)
-      float Aecal=0.041; // initiallize with EE value
-      float Ahcal=0.032; // initiallize with HE value
-      if (fabs(muEta)<1.48) {
-	Aecal = 0.074;   // substitute EB value
-	Ahcal = 0.023;   // substitute EE value
-      }
-      double theRho = *rho;
-      float muonIsoRho = mu[j].isolationR03().sumPt + std::max(0.,(mu[j].isolationR03().emEt -Aecal*(theRho))) + std::max(0.,(mu[j].isolationR03().hadEt-Ahcal*(theRho)));
-      double dbeta = muonIsoRho/mu[j].pt();
-      MuIsoRho_->push_back(dbeta);
+      //float muEta = mu[j].eta(); // essentially track direction at Vtx (recommended prescription)
+      //float Aecal=0.041; // initiallize with EE value
+      //float Ahcal=0.032; // initiallize with HE value
+      //if (fabs(muEta)<1.48) {
+	//Aecal = 0.074;   // substitute EB value
+	//Ahcal = 0.023;   // substitute EE value
+      //}
+      //double theRho = *rho;
+      //float muonIsoRho = mu[j].isolationR03().sumPt + std::max(0.,(mu[j].isolationR03().emEt -Aecal*(theRho))) + std::max(0.,(mu[j].isolationR03().hadEt-Ahcal*(theRho)));
+      //double dbeta = muonIsoRho/mu[j].pt();
+      //MuIsoRho_->push_back(dbeta);
 
       // pf Isolation variables
       double chargedHadronIso = mu[j].pfIsolationR04().sumChargedHadronPt;
@@ -1336,10 +1336,10 @@ void Tupel::processElectrons(){
     ElPfIsoRaw_->push_back(( chIso03_ + nhIso03_ + phIso03_ ) / el.pt());
     ElPfIsoDbeta_->push_back(( chIso03_ + max(0.0, nhIso03_ + phIso03_ - 0.5*puChIso03_) )/ el.pt());
 
-    *EvtFastJetRho_ =  rhoIso;
-    double rhoPrime = std::max(0., rhoIso);
+    //*EvtFastJetRho_ =  rhoIso;
+    //double rhoPrime = std::max(0., rhoIso);
 
-    ElPfIsoRho_->push_back(( chIso03_ + max(0.0, nhIso03_ + phIso03_ - rhoPrime*(aeff)) )/ el.pt());
+    //ElPfIsoRho_->push_back(( chIso03_ + max(0.0, nhIso03_ + phIso03_ - rhoPrime*(aeff)) )/ el.pt());
 
     bool myTrigPresel = false;
     if(fabs(el.superCluster()->eta()) < 1.479){
@@ -1638,7 +1638,7 @@ Tupel::beginJob()
   ADD_BRANCH_D(EvtPuCnt, "Number of measured pile-up events");
   ADD_BRANCH_D(EvtPuCntTruth, "True number of pile-up events");
   ADD_BRANCH(EvtWeights); //description filled in endRun()
-  ADD_BRANCH_D(EvtFastJetRho, "Fastjet pile-up variable \\rho");
+  //ADD_BRANCH_D(EvtFastJetRho, "Fastjet pile-up variable \\rho");
 
   //Trigger
   ADD_BRANCH_D(TrigHlt, "HLT triggger bits. See BitField.TrigHlt for bit description.");
@@ -1746,7 +1746,7 @@ Tupel::beginJob()
   ADD_BRANCH(MuCh);
   ADD_BRANCH(MuVtxZ);
   ADD_BRANCH(MuDxy);
-  ADD_BRANCH(MuIsoRho);
+  //ADD_BRANCH(MuIsoRho);
   ADD_BRANCH(MuPfIso);
   ADD_BRANCH(MuType);
   ADD_BRANCH(MuIsoTkIsoAbs);
@@ -1793,7 +1793,7 @@ Tupel::beginJob()
   ADD_BRANCH(ElPfIsoPuChHad);
   ADD_BRANCH(ElPfIsoRaw);
   ADD_BRANCH(ElPfIsoDbeta);
-  ADD_BRANCH(ElPfIsoRho);
+  //ADD_BRANCH(ElPfIsoRho);
   ADD_BRANCH_D(ElAEff, "Electron effecive area");
 
   ADD_BRANCH(charged);
