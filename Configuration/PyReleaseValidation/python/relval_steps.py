@@ -1388,7 +1388,7 @@ steps['HARVESTREMINIAOD']={
     }
 
 steps['HARVESTREMINIAOD_PU25']=steps['HARVESTREMINIAOD']
-steps['HARVESTREMINIAOD_PU50']=merge([{'--era' : 'Run2_50ns'},steps['HARVESTREMINIAOD']])
+steps['HARVESTREMINIAOD_PU50']=merge([{'--conditions':'auto:run2_data_'+menuR2_50ns, '--era' : 'Run2_50ns'},steps['HARVESTREMINIAOD']])
 
 steps['HARVESTREMINIAODPROD']=merge([{
                                 '-s':'HARVESTING:@miniAODValidation+@miniAODDQM',
