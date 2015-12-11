@@ -63,10 +63,16 @@ DQMOfflinePrePOG = cms.Sequence( TrackingDQMSourceTier0 *
 DQMOfflinePOG = cms.Sequence( DQMOfflinePrePOG *
                               DQMMessageLogger )
 
+HLTMonitoring = cms.Sequence( OfflineHLTMonitoring )
+
 DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            DQMOfflinePrePOG *
+                           HLTMonitoring *
                            dqmFastTimerServiceLuminosity *
                            DQMMessageLogger )
+
+DQMOfflineRun1 = cms.Sequence( DQMOffline )
+DQMOfflineRun1.remove( HLTMonitoring )
 
 DQMOfflinePrePOGMC = cms.Sequence( pvMonitor *
                                    bTagPlotsDATA *
@@ -124,7 +130,5 @@ DQMOfflineJetMET = cms.Sequence( jetMETDQMOfflineSource )
 DQMOfflineEGamma = cms.Sequence( egammaDQMOffline )
 
 DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
-
-HLTMonitoring = cms.Sequence( OfflineHLTMonitoring )
                                                                  
 DQMOfflineMiniAOD = cms.Sequence( miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD )
