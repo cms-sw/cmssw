@@ -631,6 +631,20 @@ void Tupel::defineBitFields(){
   DEF_BIT2(TrigHltDiMu, 3 ,HLT_HIL2DoubleMu0_NHitQ);
   DEF_BIT2(TrigHltDiMu, 4 ,HLT_HIL3DoubleMu0_OS_m2p5to4p5);
   DEF_BIT2(TrigHltDiMu, 5 ,HLT_HIL3DoubleMu0_OS_m7to14);
+  DEF_BIT2(TrigHltDiMu, 6 ,HLT_HIL1DoubleMu0_2HF);
+  DEF_BIT2(TrigHltDiMu, 7 ,HLT_HIL1DoubleMu0_2HF0);
+  DEF_BIT2(TrigHltDiMu, 8 ,HLT_HIL2DoubleMu0_NHitQ_2HF);
+  DEF_BIT2(TrigHltDiMu, 9 ,HLT_HIL2DoubleMu0_NHitQ_2HF0);
+  DEF_BIT2(TrigHltDiMu, 10,HLT_HIL1DoubleMu0_2HF_Cent30100);
+  DEF_BIT2(TrigHltDiMu, 11,HLT_HIL1DoubleMu0_2HF0_Cent30100);
+  DEF_BIT2(TrigHltDiMu, 12,HLT_HIL2DoubleMu0_2HF_Cent30100_NHitQ);
+  DEF_BIT2(TrigHltDiMu, 13,HLT_HIL1DoubleMu0_Cent30);
+  DEF_BIT2(TrigHltDiMu, 14,HLT_HIL2DoubleMu0_2HF0_Cent30100_NHitQ);
+  DEF_BIT2(TrigHltDiMu, 15,HLT_HIL2DoubleMu0_Cent30_OS_NHitQ);
+  DEF_BIT2(TrigHltDiMu, 16,HLT_HIL2DoubleMu0_Cent30_NHitQ);
+  DEF_BIT2(TrigHltDiMu, 17,HLT_HIL3DoubleMu0_Cent30);
+  DEF_BIT2(TrigHltDiMu, 18,HLT_HIL3DoubleMu0_Cent30_OS_m2p5to4p5);
+  DEF_BIT2(TrigHltDiMu, 19,HLT_HIL3DoubleMu0_Cent30_OS_m7to14);
 
   DEF_BIT2(TrigHltMu, 1 , HLT_HIL2Mu3_NHitQ10);
   DEF_BIT2(TrigHltMu, 2 , HLT_HIL3Mu3_NHitQ15);
@@ -642,6 +656,26 @@ void Tupel::defineBitFields(){
   DEF_BIT2(TrigHltMu, 8 , HLT_HIL3Mu15);
   DEF_BIT2(TrigHltMu, 9 , HLT_HIL2Mu20);
   DEF_BIT2(TrigHltMu, 10, HLT_HIL3Mu20);
+  DEF_BIT2(TrigHltMu, 11, HLT_HIL2Mu3_NHitQ10_2HF);
+  DEF_BIT2(TrigHltMu, 12, HLT_HIL2Mu3_NHitQ10_2HF0);
+  DEF_BIT2(TrigHltMu, 13, HLT_HIL3Mu3_NHitQ15_2HF);
+  DEF_BIT2(TrigHltMu, 14, HLT_HIL3Mu3_NHitQ15_2HF0);
+  DEF_BIT2(TrigHltMu, 15, HLT_HIL2Mu5_NHitQ10_2HF);
+  DEF_BIT2(TrigHltMu, 16, HLT_HIL2Mu5_NHitQ10_2HF0);
+  DEF_BIT2(TrigHltMu, 17, HLT_HIL3Mu5_NHitQ15_2HF);
+  DEF_BIT2(TrigHltMu, 18, HLT_HIL3Mu5_NHitQ15_2HF0);
+  DEF_BIT2(TrigHltMu, 19, HLT_HIL2Mu7_NHitQ10_2HF);
+  DEF_BIT2(TrigHltMu, 20, HLT_HIL2Mu7_NHitQ10_2HF0);
+  DEF_BIT2(TrigHltMu, 21, HLT_HIL3Mu7_NHitQ15_2HF);
+  DEF_BIT2(TrigHltMu, 22, HLT_HIL3Mu7_NHitQ15_2HF0);
+  DEF_BIT2(TrigHltMu, 23, HLT_HIL2Mu15_2HF);
+  DEF_BIT2(TrigHltMu, 24, HLT_HIL2Mu15_2HF0);
+  DEF_BIT2(TrigHltMu, 25, HLT_HIL3Mu15_2HF);
+  DEF_BIT2(TrigHltMu, 26, HLT_HIL3Mu15_2HF0);
+  DEF_BIT2(TrigHltMu, 27, HLT_HIL2Mu20_2HF);
+  DEF_BIT2(TrigHltMu, 28, HLT_HIL2Mu20_2HF0);
+  DEF_BIT2(TrigHltMu, 29, HLT_HIL3Mu20_2HF);
+  DEF_BIT2(TrigHltMu, 30, HLT_HIL3Mu20_2HF0);
 
   DEF_BIT2(TrigHltEl, 1,  HLT_HISinglePhoton10_Eta1p5);
   DEF_BIT2(TrigHltEl, 2,  HLT_HISinglePhoton15_Eta1p5);
@@ -657,6 +691,28 @@ void Tupel::defineBitFields(){
   DEF_BIT2(TrigHltEl, 12, HLT_HISinglePhoton40_Eta3p1);
   DEF_BIT2(TrigHltEl, 13, HLT_HISinglePhoton50_Eta3p1);
   DEF_BIT2(TrigHltEl, 14, HLT_HISinglePhoton60_Eta3p1);
+
+  DEF_BIT2(TrigHltEl, 15, HLT_HISinglePhoton10_Eta1p5_Cent50_100);
+  DEF_BIT2(TrigHltEl, 16, HLT_HISinglePhoton15_Eta1p5_Cent50_100);
+  DEF_BIT2(TrigHltEl, 17, HLT_HISinglePhoton20_Eta1p5_Cent50_100);
+  DEF_BIT2(TrigHltEl, 18, HLT_HISinglePhoton30_Eta1p5_Cent50_100);
+  DEF_BIT2(TrigHltEl, 19, HLT_HISinglePhoton40_Eta1p5_Cent50_100);
+  DEF_BIT2(TrigHltEl, 20, HLT_HISinglePhoton10_Eta1p5_Cent30_100);
+  DEF_BIT2(TrigHltEl, 21, HLT_HISinglePhoton15_Eta1p5_Cent30_100);
+  DEF_BIT2(TrigHltEl, 22, HLT_HISinglePhoton20_Eta1p5_Cent30_100);
+  DEF_BIT2(TrigHltEl, 23, HLT_HISinglePhoton30_Eta1p5_Cent30_100);
+  DEF_BIT2(TrigHltEl, 24, HLT_HISinglePhoton40_Eta1p5_Cent30_100);
+  DEF_BIT2(TrigHltEl, 25, HLT_HISinglePhoton40_Eta2p1);
+  DEF_BIT2(TrigHltEl, 26, HLT_HISinglePhoton10_Eta3p1_Cent50_100);
+  DEF_BIT2(TrigHltEl, 27, HLT_HISinglePhoton15_Eta3p1_Cent50_100);
+  DEF_BIT2(TrigHltEl, 28, HLT_HISinglePhoton20_Eta3p1_Cent50_100);
+  DEF_BIT2(TrigHltEl, 29, HLT_HISinglePhoton30_Eta3p1_Cent50_100);
+  DEF_BIT2(TrigHltEl, 30, HLT_HISinglePhoton40_Eta3p1_Cent50_100);
+  DEF_BIT2(TrigHltEl, 31, HLT_HISinglePhoton10_Eta3p1_Cent30_100);
+  DEF_BIT2(TrigHltEl, 32, HLT_HISinglePhoton15_Eta3p1_Cent30_100);
+  DEF_BIT2(TrigHltEl, 33, HLT_HISinglePhoton20_Eta3p1_Cent30_100);
+  DEF_BIT2(TrigHltEl, 34, HLT_HISinglePhoton30_Eta3p1_Cent30_100);
+  DEF_BIT2(TrigHltEl, 35, HLT_HISinglePhoton40_Eta3p1_Cent30_100);
 
   DEF_BIT2(TrigHltDiEl, 1, HLT_HIDoublePhoton15_Eta1p5_Mass50_1000);
   DEF_BIT2(TrigHltDiEl, 2, HLT_HIDoublePhoton15_Eta1p5_Mass50_1000_R9HECut);
@@ -1049,17 +1105,17 @@ void Tupel::processTrigger(const edm::Event& iEvent){
   if(triggerStat_) trigIndexList.reserve(30);
   iEvent.getByLabel(HLTTag, HLTResHandle);
   std::ofstream f;
-  if(analyzedEventCnt_==1){
+  /*if(analyzedEventCnt_==1){
     f.open("trigger_list.txt");
     f << "List of triggers extracted from event " << iEvent.id().event()
       << " of run " << iEvent.id().run() << "\n\n";
-  }
+  }*/
   if ( HLTResHandle.isValid() && !HLTResHandle.failedToGet() ) {
     edm::RefProd<edm::TriggerNames> trigNames( &(iEvent.triggerNames( *HLTResHandle )) );
     ntrigs = (int)trigNames->size();
     if(triggerStat_) allocateTrigMap(ntrigs);
     for (int i = 0; i < ntrigs; i++) {
-      if(analyzedEventCnt_==1) f << trigNames->triggerName(i) << "\n";
+      //if(analyzedEventCnt_==1) f << trigNames->triggerName(i) << "\n";
       if(triggerStat_){
 	if(!trigNameFilled) trigNames_[i] = trigNames->triggerName(i);
 	else if(trigNames_[i] != trigNames->triggerName(i)) trigStatValid_ = false;
