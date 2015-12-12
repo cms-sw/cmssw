@@ -217,6 +217,7 @@ process.patElectrons.electronSource = cms.InputTag("gedGsfElectronsTmp")
 process.patElectrons.reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB")
 process.patElectrons.reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE")
 process.patElectrons.pvSrc = cms.InputTag("hiSelectedVertex")
+process.patElectrons.addElectronID = cms.bool(False)
 process.patElectronSequence = cms.Sequence(process.patElectrons)
 
 process.tupel = cms.EDAnalyzer("Tupel",
