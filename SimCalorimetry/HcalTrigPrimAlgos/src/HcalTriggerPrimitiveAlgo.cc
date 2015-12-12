@@ -43,6 +43,117 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<d
 HcalTriggerPrimitiveAlgo::~HcalTriggerPrimitiveAlgo() {
 }
 
+void converttoGCTeta(int& eta)
+  {
+          if (eta == 29 || eta == 30 || eta == 31)
+          {
+                  eta = 18;
+          }
+          else if (eta == 32 || eta == 33 || eta == 34)
+          {
+                  eta = 19;
+          }
+          else if (eta == 35 || eta == 36 || eta == 37)
+          {
+                  eta = 20;
+          }
+          else if (eta == 38 || eta == 39 || eta == 40 || eta == 41)
+          {
+                  eta = 21;
+          }
+          else if (eta == -29 || eta == -30 || eta == -31)
+           {
+                   eta = 3;
+           }
+           else if (eta == -32 || eta == -33 || eta == -34)
+           {
+                   eta = 2;
+           }
+           else if (eta == -35 || eta == -36 || eta == -37)
+           {
+                   eta = 1;
+           }
+           else if (eta == -38 || eta == -39 || eta == -40 || eta == -41)
+           {
+                   eta = 0;
+           }
+ }
+
+void converttoGCTphi(int& phi)
+ {
+          if (phi == 1 || phi == 71)
+          {       
+                  phi = 0;
+          }
+          else if (phi == 3 || phi == 5)
+            {     
+                  phi = 1;
+            }
+          else if (phi == 7 || phi == 9)
+            {     
+                  phi = 2;
+            }
+          else if (phi == 11 || phi == 13)
+            {     
+                  phi = 3;
+            }
+          else if (phi == 15 || phi == 17)
+            {     
+                  phi = 4;
+            }
+          else if (phi == 19 || phi == 21)
+            {     
+                  phi = 5;
+            }
+          else if (phi == 23 || phi == 25)
+            {     
+                  phi = 6;
+            }
+          else if (phi == 27 || phi == 29)
+            {     
+                  phi = 7;
+            }
+          else if (phi == 31 || phi == 33)
+            {
+                  phi = 8;
+            }
+          else if (phi == 35 || phi == 37)
+            {
+                  phi = 9;
+            }
+          else if (phi == 39 || phi == 41)
+            {
+                  phi = 10;
+            }
+          else if (phi == 43 || phi == 45)
+            {
+                  phi = 11;
+            }
+          else if (phi == 47 || phi == 49)
+            {
+                  phi = 12;
+            }
+          else if (phi == 51 || phi == 53)
+             {
+                  phi = 13;
+             }
+          else if (phi == 55 || phi == 57)
+             {
+                  phi = 14;
+	     }
+          else if (phi == 59 || phi == 61)
+             {
+                  phi = 15;
+             }
+          else if (phi == 63 || phi == 65)
+             {
+                  phi = 16;
+             }
+          else if (phi == 67 || phi == 69)
+             {
+                  phi = 17;
+             }
+ }
 
 void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
                                    const HcalTPGCompressor* outcoder,
@@ -73,14 +184,19 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
       addSignal(*hfItr);
 
    }
+//int iter1 = 0;
 
    for(SumMap::iterator mapItr = theSumMap.begin(); mapItr != theSumMap.end(); ++mapItr) {
       result.push_back(HcalTriggerPrimitiveDigi(mapItr->first));
       HcalTrigTowerDetId detId(mapItr->second.id());
       if(detId.ietaAbs() >= theTrigTowerGeometry->firstHFTower())
-         { analyzeHF(mapItr->second, result.back(), rctlsb);}
+         { analyzeHF(hfDigis,mapItr->second, result.back(), rctlsb);
+//		iter1++;
+//		std::cout << iter1 << " ieta: " << detId.ietaAbs() << std::endl;
+	}
          else{analyze(mapItr->second, result.back());}
-   }
+  
+   }	 	
    return;
 }
 
@@ -262,7 +378,7 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
 }
 
 
-void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, float rctlsb) {
+void HcalTriggerPrimitiveAlgo::analyzeHF(const HFDigiCollection& hfDigis, IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, float rctlsb) {
    HcalTrigTowerDetId detId(samples.id());
 
    // Align digis and TP
@@ -289,16 +405,94 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTrigg
    // Note: 1 samples.id() = 6 x (L+S) without noZS
    for (SumFGContainer::const_iterator sumFGItr = sumFG.begin(); sumFGItr != sumFG.end(); ++sumFGItr) {
       const std::vector<bool>& veto = HF_Veto[sumFGItr->id().rawId()];
-      for (int ibin = 0; ibin < tpSamples; ++ibin) {
+    for (int ibin = 0; ibin < tpSamples; ++ibin) {
          int idx = ibin + shift;
          // if not vetod, add L+S to total sum and calculate FG
 	 bool vetoed = idx<int(veto.size()) && veto[idx];
          if (!(vetoed && (*sumFGItr)[idx] > PMT_NoiseThreshold_)) {
             samples[idx] += (*sumFGItr)[idx];
-            finegrain[ibin] = (finegrain[ibin] || (*sumFGItr)[idx] >= FG_threshold_);
-         }
+  //          finegrain[ibin] = (finegrain[ibin] || (*sumFGItr)[idx] >= FG_threshold_);
+//		finegrain[ibin] = false;
+		  
+	 }
       }
    }
+
+
+  int thresh1 = 12;
+  int thresh2 = 17; 
+
+  int phiBin = 18;
+  int etaBin = 22;
+  int thresholds = 2;
+ 
+  int fiberQIEThresh[phiBin][etaBin][thresholds];
+ 
+  for (int i = 0; i < phiBin; i++)
+  {
+         for (int j = 0; j < etaBin; j++)
+         {
+                 for (int k = 0; k < thresholds; k++)
+                 {
+                         fiberQIEThresh[i][j][k] = 0;
+                 }
+         }
+  }
+ 
+  for (HFDigiCollection::const_iterator hfdigi = hfDigis.begin(); hfdigi != hfDigis.end(); hfdigi++)
+     {   
+         HcalDetId hcalid = HcalDetId(hfdigi->id()) ;
+         
+         int ieta = hcalid.ieta();
+         int iphi = hcalid.iphi();
+         int presample = hfdigi->presamples(); 
+         
+         double qieval = hfdigi->sample(presample).adc();
+         converttoGCTeta(ieta);
+         converttoGCTphi(iphi);
+         
+         if (qieval >= thresh1)
+         {       
+                 fiberQIEThresh[iphi][ieta][0]++;
+         }
+         if (qieval >= thresh2)
+         {       
+                 fiberQIEThresh[iphi][ieta][1]++;
+         }
+    }
+ 
+   // Calculate the final FG bit
+int count = 0;
+ 
+         for (int i = 0; i < phiBin; i++)
+         {
+                 for (int j = 0; j < etaBin; j++)
+                 {
+                         if (fiberQIEThresh[i][j][0] > 0 && j < 4)
+                         {
+                      		count++;
+			   }
+                         if (fiberQIEThresh[i][j][0] > 0 && j > 17)
+                         {
+	                	count++;     
+			    }
+                         if (fiberQIEThresh[i][j][1] > 0 && j < 4)
+                         {
+        			count++;    
+	             }
+                         if (fiberQIEThresh[i][j][1] > 0 && j > 17)
+                         {
+   				count++;
+	                      }
+		  }
+         }
+ if (count > 0)
+{
+for (int ibin = 0; ibin < tpSamples; ++ibin) {
+		finegrain[ibin] = true;
+ 
+          }
+ }
 
    IntegerCaloSamples output(samples.id(), tpSamples);
    output.setPresamples(tpPresamples);
