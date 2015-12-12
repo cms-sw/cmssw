@@ -454,17 +454,15 @@ HLTMuonMatchAndPlot::selectedMuons(const MuonCollection & allMuons,
   if (!hasRecoCuts)
     return MuonCollection();
 
-  MuonCollection reducedMuons(allMuons);
-  MuonCollection::iterator iter = reducedMuons.begin();
-  while (iter != reducedMuons.end()) {
+  MuonCollection reducedMuons;
+  for (auto const& mu : allMuons){
     const Track * track = 0;
-    if (iter->isTrackerMuon()) track = & * iter->innerTrack();
-    else if (iter->isStandAloneMuon()) track = & * iter->outerTrack();
-    if (track && selector(* iter) &&
+    if (mu.isTrackerMuon()) track = & * mu.innerTrack();
+    else if (mu.isStandAloneMuon()) track = & * mu.outerTrack();
+    if (track && selector(mu) &&
         fabs(track->dxy(beamSpot.position())) < d0Cut &&
         fabs(track->dz(beamSpot.position())) < z0Cut)
-      ++iter;
-    else reducedMuons.erase(iter);
+      reducedMuons.push_back(mu);
   }
 
   return reducedMuons;
