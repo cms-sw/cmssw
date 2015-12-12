@@ -637,23 +637,23 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   // Get the PhotonId objects
   bool validloosePhotonID=true;
   Handle<edm::ValueMap<bool> > loosePhotonFlag;
-  edm::ValueMap<bool> dummyLPID;
   e.getByToken(PhotonIDLoose_token_, loosePhotonFlag);
   if ( !loosePhotonFlag.isValid()) {
     edm::LogInfo(fName_) << "Error! Can't get the product: PhotonIDLoose_token_" << endl;
     validloosePhotonID=false;
   }
-  const edm::ValueMap<bool>& loosePhotonID(validloosePhotonID? *(loosePhotonFlag.product()) : dummyLPID);
+  //  edm::ValueMap<bool> dummyLPID;
+  //  const edm::ValueMap<bool>& loosePhotonID(validloosePhotonID? *(loosePhotonFlag.product()) : dummyLPID);
 
   bool validtightPhotonID=true;
   Handle<edm::ValueMap<bool> > tightPhotonFlag;
-  edm::ValueMap<bool> dummyTPI;
   e.getByToken(PhotonIDTight_token_, tightPhotonFlag);
   if ( !tightPhotonFlag.isValid()) {
     edm::LogInfo(fName_) << "Error! Can't get the product: PhotonIDTight_token_" << endl;
     validtightPhotonID=false;
   }
-  const edm::ValueMap<bool>& tightPhotonID(validtightPhotonID ? *(tightPhotonFlag.product()) : dummyTPI);
+  //  edm::ValueMap<bool> dummyTPI;
+  //  const edm::ValueMap<bool>& tightPhotonID(validtightPhotonID ? *(tightPhotonFlag.product()) : dummyTPI);
 
 
   edm::Handle<reco::VertexCollection> vtxH;
