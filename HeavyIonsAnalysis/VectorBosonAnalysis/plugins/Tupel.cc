@@ -1516,8 +1516,8 @@ void Tupel::processJets(){
 	for(genJetIdx = 0; (unsigned) genJetIdx < genjetColl_->size();++genJetIdx){
 	  if(&(*genjetColl_)[genJetIdx] == jet.genJet()) break;
 	}
-	genJetIdx = jet.genJetFwdRef().backRef().key();
-	assert(jet.genJet() == &(*genjetColl_)[genJetIdx]);
+	//genJetIdx = jet.genJetFwdRef().backRef().key();
+	//assert(jet.genJet() == &(*genjetColl_)[genJetIdx]);
 	//	if((unsigned)genJetIdx == genjetColl_->size()){
 	//	  genJetIdx = -2;
 	//	  std::cerr << "Matched gen jet not found!\n";
