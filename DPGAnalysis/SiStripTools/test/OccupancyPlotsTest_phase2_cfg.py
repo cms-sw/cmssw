@@ -9,7 +9,7 @@ process = cms.Process("OccupancyPlotsTest")
 options = VarParsing.VarParsing("analysis")
 
 options.register ('globalTag',
-                  "DONOTEXIST::All",
+                  "DES23_62_V1::All",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "GlobalTag")
@@ -129,9 +129,7 @@ if options.triggerPath=="*":
 #--------------------------------------
 #from DPGAnalysis.SiStripTools.occupancyplotsselections_cff import *
 #from DPGAnalysis.SiStripTools.occupancyplotsselections_simplified_cff import *
-#from DPGAnalysis.SiStripTools.occupancyplotsselections_phase2_cff import *
-from DPGAnalysis.SiStripTools.occupancyplotsselections_phase2_newdetlabel_cff import *
-#from DPGAnalysis.SiStripTools.occupancyplotsselections_phase2_newdetlabel_prova_cff import *
+from DPGAnalysis.SiStripTools.occupancyplotsselections_phase2_cff import *
 
 #process.ssclusmultprod = cms.EDProducer("SiStripClusterMultiplicityProducer",
 #                                        clusterdigiCollection = cms.InputTag("siStripClusters"),
@@ -268,10 +266,6 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10D import *
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-if not options.globalTag :
-  #from Configuration.AlCa.GlobalTag import GlobalTag
-  #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
-  options.globalTag = "DES23_62_V1::All"
 process.GlobalTag.globaltag = options.globalTag
 
 
