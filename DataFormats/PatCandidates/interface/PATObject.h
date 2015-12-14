@@ -307,13 +307,15 @@ namespace pat {
       /// unless transientOnly is set to true
       template<typename T>
       void addUserData( const std::string & label, const T & data, bool transientOnly=false, bool overwrite=false ) {
-        addUserDataObject_( label, pat::UserData::make<T>(data, transientOnly), overwrite );
+        std::auto_ptr<pat::UserData> made(pat::UserData::make<T>(data, transientOnly));
+        addUserDataObject_( label, made, overwrite );
       }
 
       /// Set user-defined data. To be used only to fill from ValueMap<Ptr<UserData>>
       /// Do not use unless you know what you are doing.
       void addUserDataFromPtr( const std::string & label, const edm::Ptr<pat::UserData> & data, bool overwrite=false ) {
-        addUserDataObject_( label, data->clone(), overwrite );
+        std::auto_ptr<pat::UserData> cloned(data->clone());
+        addUserDataObject_( label, cloned, overwrite );
       }
 
       /// Get user-defined float
@@ -455,7 +457,7 @@ namespace pat {
       /// if (kinResolutions_.size() == kinResolutionLabels_.size()+1), then the first resolution has no label.
       std::vector<std::string>            kinResolutionLabels_;
 
-      void addUserDataObject_( const std::string & label, pat::UserData * value, bool overwrite = false ) ;
+      void addUserDataObject_( const std::string & label, std::auto_ptr<pat::UserData> & value, bool overwrite = false ) ;
 
     private:
       const pat::UserData *  userDataObject_(const std::string &key) const ;
@@ -768,7 +770,7 @@ namespace pat {
   }
 
   template <class ObjectType>
-  void PATObject<ObjectType>::addUserDataObject_( const std::string & label, pat::UserData * data, bool overwrite ) 
+  void PATObject<ObjectType>::addUserDataObject_( const std::string & label, std::auto_ptr<pat::UserData> & data, bool overwrite ) 
   {
     auto it = std::lower_bound(userDataLabels_.begin(), userDataLabels_.end(), label);
     const auto dist = std::distance(userDataLabels_.begin(), it);
