@@ -19,7 +19,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -54,7 +54,7 @@
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 
 
-EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
+EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
    DigiAccumulatorMixMod(),
    m_APDShape         ( params.getParameter<double>( "apdShapeTstart" ) ,
 			params.getParameter<double>( "apdShapeTau"    )   )  ,
