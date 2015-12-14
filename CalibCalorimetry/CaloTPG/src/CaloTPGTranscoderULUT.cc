@@ -4,7 +4,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <fstream>
 #include <math.h>
@@ -36,8 +35,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
         edm::LogError("CaloTPGTranscoderULUT") << "Analytic compression expects 10-bit LUT; found LUT with " << OUTPUT_LUT_SIZE << " entries instead";
 
     if (!theTopology) {
-        edm::LogError("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
-        assert(theTopology);
+        throw cms::Exception("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
     }
 
     std::vector<unsigned int> analyticalLUT(OUTPUT_LUT_SIZE, 0);
@@ -177,24 +175,21 @@ void CaloTPGTranscoderULUT::rctJetUncompress(const HcalTrigTowerDetId& hid, cons
 bool CaloTPGTranscoderULUT::HTvalid(const int ieta, const int iphiin) const {
 	HcalTrigTowerDetId id(ieta, iphiin);
 	if (!theTopology) {
-		edm::LogError("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
-		assert(theTopology);
+		throw cms::Exception("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
 	}
 	return theTopology->validHT(id);
 }
 
 int CaloTPGTranscoderULUT::getOutputLUTId(const HcalTrigTowerDetId& id) const {
     if (!theTopology) {
-        edm::LogError("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
-        assert(theTopology);
+        throw cms::Exception("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
     }
     return theTopology->detId2denseIdHT(id);
 }
 
 int CaloTPGTranscoderULUT::getOutputLUTId(const int ieta, const int iphiin) const {
 	if (!theTopology) {
-		edm::LogError("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
-		assert(theTopology);
+		throw cms::Exception("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
 	}
 	HcalTrigTowerDetId id(ieta, iphiin);
 	return theTopology->detId2denseIdHT(id);
