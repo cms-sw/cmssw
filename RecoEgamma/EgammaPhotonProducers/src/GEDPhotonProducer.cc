@@ -268,25 +268,24 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
  // Get EcalRecHits
   bool validEcalRecHits=true;
   Handle<EcalRecHitCollection> barrelHitHandle;
-  EcalRecHitCollection barrelRecHits;
+  const EcalRecHitCollection dummyEB;
   theEvent.getByToken(barrelEcalHits_, barrelHitHandle);
   if (!barrelHitHandle.isValid()) {
     edm::LogError("GEDPhotonProducer") 
       << "Error! Can't get the barrelEcalHits";
     validEcalRecHits=false; 
   }
-  if (  validEcalRecHits)  barrelRecHits = *(barrelHitHandle.product());
-
+  const EcalRecHitCollection& barrelRecHits(validEcalRecHits ? *(barrelHitHandle.product()) : dummyEB);
   
   Handle<EcalRecHitCollection> endcapHitHandle;
   theEvent.getByToken(endcapEcalHits_, endcapHitHandle);
-  EcalRecHitCollection endcapRecHits;
+  const EcalRecHitCollection dummyEE;
   if (!endcapHitHandle.isValid()) {
     edm::LogError("GEDPhotonProducer") 
       << "Error! Can't get the endcapEcalHits";
     validEcalRecHits=false; 
   }
-  if( validEcalRecHits) endcapRecHits = *(endcapHitHandle.product());
+  const EcalRecHitCollection& endcapRecHits(validEcalRecHits ? *(endcapHitHandle.product()) : dummyEE);
 
 
 
@@ -338,7 +337,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 
   // Get the primary event vertex
   Handle<reco::VertexCollection> vertexHandle;
-  reco::VertexCollection vertexCollection;
+  const reco::VertexCollection dummyVC;
   bool validVertex=true;
   if ( usePrimaryVertex_ ) {
     theEvent.getByToken(vertexProducer_, vertexHandle);
@@ -347,8 +346,9 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 	<< "Error! Can't get the product primary Vertex Collection";
       validVertex=false;
     }
-    if (validVertex) vertexCollection = *(vertexHandle.product());
   }
+  const reco::VertexCollection& vertexCollection(usePrimaryVertex_ && validVertex ? *(vertexHandle.product()) : dummyVC);
+
   //  math::XYZPoint vtx(0.,0.,0.);
   //if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
 
@@ -429,7 +429,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 					     const EcalRecHitCollection* ecalBarrelHits,
 					     const EcalRecHitCollection* ecalEndcapHits,
 					     const edm::Handle<CaloTowerCollection> & hcalTowersHandle, 
-					     reco::VertexCollection & vertexCollection,
+					     const reco::VertexCollection & vertexCollection,
 					     reco::PhotonCollection & outputPhotonCollection, int& iSC) {
   
   

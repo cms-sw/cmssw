@@ -115,7 +115,7 @@ void EcalClusterLazyToolsBase::getIntercalibConstants( const edm::EventSetup &es
 {
   // get IC's
   es.get<EcalIntercalibConstantsRcd>().get(ical);
-  icalMap = ical->getMap();
+  icalMap = &ical->getMap();
 }
 
 
@@ -193,9 +193,9 @@ float EcalClusterLazyToolsBase::BasicClusterTime(const reco::BasicCluster &clust
       float lasercalib = 1.;
       lasercalib = laser->getLaserCorrection( detitr->first, ev.time());
       // 2) get intercalibration
-      EcalIntercalibConstantMap::const_iterator icalit = icalMap.find(detitr->first);
+      EcalIntercalibConstantMap::const_iterator icalit = icalMap->find(detitr->first);
       EcalIntercalibConstant icalconst = 1.;
-      if( icalit!=icalMap.end() ) {
+      if( icalit!=icalMap->end() ) {
 	icalconst = (*icalit);
 	// std::cout << "icalconst set to: " << icalconst << std::endl;
       } else {
