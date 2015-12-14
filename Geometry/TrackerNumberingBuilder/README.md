@@ -154,8 +154,8 @@ The phase 2 detector DetId schema is identical to the one of the phase 1 detecto
 | _not used_ | 24 | 0x1 | 1 | | |
 | Layer | 20 | 0xF | 4 | tobLayer(id) or layer(id) | increasing r |
 | Ladder | 12 | 0xFF | 8 | tobRod(id) | increasing phi |
-| Module | 2 | 0x3FF | 10 | tobModule(id) | increasing z and in the same pt module modules are sorted by increasing r |
-| _not used_ | 0 | 0x3 | 2 | | |
+| Module | 2 | 0x3FF | 10 | tobModule(id) | increasing z |
+| Module type | 0 | 0x3 | 2 | tobLower(id) or tobUpper(id) | 1=lower in local s.o.r.(P sensor into PS), 2=upper in local s.o.r.(S sensor into PS), 0=pair |
 
 * Subdetector 4  (`DetId::subDetId() == StripSubdetector::TID`): Phase2 Outer Tracker Endcap
 
@@ -166,8 +166,8 @@ The phase 2 detector DetId schema is identical to the one of the phase 1 detecto
 | Disk | 18 | 0xF | 4 | tidDisk(id) or side(id) | increasing abs(z) |
 | _Ring_ | 12 | 0x3F | 6 | tidRing(id) | increasing r |
 | Panel | 10 | 0x3 | 2 | _tidOrder(id)_ | always = 1 |
-| Module | 2 | 0xFF | 8 | tidModule(id) | increasing phi and modules in the same pt module are sorted by increasing abs(z) |
-| _not used_ | 0 | 0x3 | 2 | | |
+| Module | 2 | 0xFF | 8 | tidModule(id) | increasing phi |
+| Module type | 0 | 0x3 | 2 | tidLower(id) or tidUpper(id) | 1=lower in local s.o.r.(P sensor into PS), 2=upper in local s.o.r.(S sensor into PS), 0=pair |
 
 The configuration names for this detid schema are `trackerNumberingGeometry_cfi` (to run on geometry built from xml files) or `trackerNumberingGeometryDB_cfi` (to run on geometry from DB) for `TrackerGeometricDetESModule` and `trackerTopology2023Constants_cfi` for `TrackerTopology`
 The xml description of tracker parameters for this detid schema is in [Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml](../TrackerCommonData/data/PhaseII/trackerParameters.xml)
