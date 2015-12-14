@@ -30,7 +30,24 @@ class GeometryComparison(GenericValidation):
 	    "3DSubdetector2":"2",
 	    "3DTranslationalScaleFactor":"50",
 	    "modulesToPlot":"all",
-	    "moduleList": "/store/caf/user/cschomak/emptyModuleList.txt"
+	    "moduleList": "/store/caf/user/cschomak/emptyModuleList.txt",
+	    "useDefaultRange":"false",
+	    "dx_min":"-99999",
+	    "dx_max":"-99999",
+	    "dy_min":"-99999",
+	    "dy_max":"-99999",
+	    "dz_min":"-99999",
+	    "dz_max":"-99999",
+	    "dr_min":"-99999",
+	    "dr_max":"-99999",
+	    "rdphi_min":"-99999",
+	    "rdphi_max":"-99999",
+	    "dalpha_min":"-99999",
+	    "dalpha_max":"-99999",
+	    "dbeta_min":"-99999",
+	    "dbeta_max":"-99999",
+	    "dgamma_min":"-99999",
+	    "dgamma_max":"-99999",
             }
         mandatories = ["levels", "dbOutput"]
         GenericValidation.__init__(self, valName, alignment, config, 
@@ -113,6 +130,13 @@ class GeometryComparison(GenericValidation):
         repMap["runComparisonScripts"] = ""
         scriptName = replaceByMap(("TkAlGeomCompare.%s..oO[name]Oo..sh"
                                    %self.name), repMap)
+        
+        y_ranges = ""
+        plottedDifferences = ["dx","dy","dz","dr","rdphi","dalpha","dbeta","dgamma"]
+        for diff in plottedDifferences:
+			y_ranges += ","+repMap["%s_min"%diff]
+			y_ranges += ","+repMap["%s_max"%diff]
+			
         for name in self.__compares:
             if  '"DetUnit"' in self.__compares[name][0].split(","):
                 repMap["outputFile"] = (".oO[name]Oo..Comparison_common"+name+".root")
@@ -126,7 +150,7 @@ class GeometryComparison(GenericValidation):
                      "/scripts/GeometryComparisonPlotter.cc .\n"
                      "root -b -q 'comparisonScript.C+(\""
                      ".oO[name]Oo..Comparison_common"+name+".root\",\""
-                     "./\",\".oO[modulesToPlot]Oo.\",\".oO[alignmentName]Oo.\",\".oO[reference]Oo.\")'\n"
+                     "./\",\".oO[modulesToPlot]Oo.\",\".oO[alignmentName]Oo.\",\".oO[reference]Oo.\",\".oO[useDefaultRange]Oo.\""+y_ranges+")'\n"
 		     "rfcp "+path+"/TkAl3DVisualization_.oO[name]Oo..C .\n"
 		     "root -l -b -q TkAl3DVisualization_.oO[name]Oo..C+\n")
                 if  self.copyImages:
