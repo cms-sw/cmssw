@@ -121,7 +121,7 @@ namespace edm {
 	"which is not present in the configuration file.  You must add the service\n"
 	"in the configuration file or remove the modules that require it.";
     }
-    
+
     if (!(histoDistribution_ || probFunctionDistribution_ || poisson_ || fixed_ || none_) && !DB) {
       throw cms::Exception("Illegal parameter value","PileUp::PileUp(ParameterSet const& pset)")
         << "'type' parameter (a string) has a value of '" << type_ << "'.\n"
@@ -129,60 +129,52 @@ namespace edm {
     }
 
     if (!DB){
-    manage_OOT_ = pset.getUntrackedParameter<bool>("manage_OOT", false);
+      manage_OOT_ = pset.getUntrackedParameter<bool>("manage_OOT", false);
 
-    // Check for string describing special processing.  Add these here for individual cases
+      // Check for string describing special processing.  Add these here for individual cases
+      PU_Study_ = false;
+      Study_type_ = pset.getUntrackedParameter<std::string>("Special_Pileup_Studies", "");
 
-    PU_Study_ = false;
-    Study_type_ = "";
+      if(Study_type_ == "Fixed_ITPU_Vary_OOTPU") {
+        PU_Study_ = true;
+        intFixed_ITPU_ = pset.getUntrackedParameter<int>("intFixed_ITPU", 0);
+      }
 
-    Study_type_ = pset.getUntrackedParameter<std::string>("Special_Pileup_Studies", "");
+      if(manage_OOT_) { // figure out what the parameters are
 
-    if(Study_type_ == "Fixed_ITPU_Vary_OOTPU") {
+        //      if (playback_) throw cms::Exception("Illegal parameter clash","PileUp::PileUp(ParameterSet const& pset)")
+        // << " manage_OOT option not allowed with playback ";
 
-      PU_Study_ = true;
-      intFixed_ITPU_ = pset.getUntrackedParameter<int>("intFixed_ITPU", 0);
+        std::string OOT_type = pset.getUntrackedParameter<std::string>("OOT_type");
 
+        if(OOT_type == "Poisson" || OOT_type == "poisson") {
+	  poisson_OOT_ = true;
+        }
+        else if(OOT_type == "Fixed" || OOT_type == "fixed") {
+	  fixed_OOT_ = true;
+	  // read back the fixed number requested out-of-time
+          intFixed_OOT_ = pset.getUntrackedParameter<int>("intFixed_OOT", -1);
+          if(intFixed_OOT_ < 0) {
+	    throw cms::Exception("Illegal parameter value","PileUp::PileUp(ParameterSet const& pset)")
+	      << " Fixed out-of-time pileup requested, but no fixed value given ";
+	   }
+        } else {
+	  throw cms::Exception("Illegal parameter value","PileUp::PileUp(ParameterSet const& pset)")
+	    << "'OOT_type' parameter (a string) has a value of '" << OOT_type << "'.\n"
+	    << "Legal values are 'poisson' or 'fixed'\n";
+        }
+        edm::LogInfo("MixingModule") <<" Out-of-time pileup will be generated with a " << OOT_type << " distribution. " ;
+      }
     }
 
-    if(manage_OOT_) { // figure out what the parameters are
-
-      //      if (playback_) throw cms::Exception("Illegal parameter clash","PileUp::PileUp(ParameterSet const& pset)")
-      // << " manage_OOT option not allowed with playback ";
-
-      std::string OOT_type = pset.getUntrackedParameter<std::string>("OOT_type");
-
-      if(OOT_type == "Poisson" || OOT_type == "poisson") {
-	poisson_OOT_ = true;
-      }
-      else if(OOT_type == "Fixed" || OOT_type == "fixed") {
-	fixed_OOT_ = true;
-	// read back the fixed number requested out-of-time
-	intFixed_OOT_ = pset.getUntrackedParameter<int>("intFixed_OOT", -1);
-	if(intFixed_OOT_ < 0) {
-	  throw cms::Exception("Illegal parameter value","PileUp::PileUp(ParameterSet const& pset)") 
-	    << " Fixed out-of-time pileup requested, but no fixed value given ";
-	}
-      }
-      else {
-	throw cms::Exception("Illegal parameter value","PileUp::PileUp(ParameterSet const& pset)")
-	  << "'OOT_type' parameter (a string) has a value of '" << OOT_type << "'.\n"
-	  << "Legal values are 'poisson' or 'fixed'\n";
-      }
-      edm::LogInfo("MixingModule") <<" Out-of-time pileup will be generated with a " << OOT_type << " distribution. " ;
-    }
-    }
-    
     if(Source_type_ == "cosmics") {  // allow for some extra flexibility for mixing
       minBunch_cosmics_ = pset.getUntrackedParameter<int>("minBunch_cosmics", -1000);
       maxBunch_cosmics_ = pset.getUntrackedParameter<int>("maxBunch_cosmics", 1000);
     }
-
-
-
   } // end of constructor
 
-  void PileUp::beginStream (edm::StreamID iID) {
+  void PileUp::beginStream (edm::StreamID) {
+    auto iID = eventPrincipal_->streamID(); // each producer has its own workermanager, so use default streamid
     streamContext_.reset(new StreamContext(iID, processContext_.get()));
     input_->doBeginJob();
     if (provider_.get() != nullptr) {
@@ -201,7 +193,7 @@ namespace edm {
     if (provider_.get() != nullptr) {
       auto aux = std::make_shared<RunAuxiliary>(run.runAuxiliary());
       runPrincipal_.reset(new RunPrincipal(aux, productRegistry_, *processConfiguration_, nullptr, 0));
-      provider_->beginRun(*runPrincipal_, setup, run.moduleCallingContext());
+      provider_->beginRun(*runPrincipal_, setup, run.moduleCallingContext(), *streamContext_);
     }
   }
   void PileUp::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup) {
@@ -209,18 +201,18 @@ namespace edm {
       auto aux = std::make_shared<LuminosityBlockAuxiliary>(lumi.luminosityBlockAuxiliary());
       lumiPrincipal_.reset(new LuminosityBlockPrincipal(aux, productRegistry_, *processConfiguration_, nullptr, 0));
       lumiPrincipal_->setRunPrincipal(runPrincipal_);
-      provider_->beginLuminosityBlock(*lumiPrincipal_, setup, lumi.moduleCallingContext());
+      provider_->beginLuminosityBlock(*lumiPrincipal_, setup, lumi.moduleCallingContext(), *streamContext_);
     }
   }
 
   void PileUp::endRun(const edm::Run& run, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
-      provider_->endRun(*runPrincipal_, setup, run.moduleCallingContext());
+      provider_->endRun(*runPrincipal_, setup, run.moduleCallingContext(), *streamContext_);
     }
   }
   void PileUp::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
-      provider_->endLuminosityBlock(*lumiPrincipal_, setup, lumi.moduleCallingContext());
+      provider_->endLuminosityBlock(*lumiPrincipal_, setup, lumi.moduleCallingContext(), *streamContext_);
     }
   }
 
@@ -229,7 +221,7 @@ namespace edm {
       // note:  run and lumi numbers must be modified to match lumiPrincipal_
       eventPrincipal_->setLuminosityBlockPrincipal(lumiPrincipal_);
       eventPrincipal_->setRunAndLumiNumber(lumiPrincipal_->run(), lumiPrincipal_->luminosityBlock());
-      provider_->setupPileUpEvent(*eventPrincipal_, setup);
+      provider_->setupPileUpEvent(*eventPrincipal_, setup, *streamContext_);
     }
   }
 
@@ -248,9 +240,9 @@ namespace edm {
     poisson_=type_ == "poisson";
     fixed_=type_ == "fixed";
     none_=type_ == "none";
-    
+
     if (histoDistribution_) edm::LogError("MisConfiguration")<<"type histo cannot be reloaded from DB, yet";
-    
+
     if (fixed_){
       averageNumber_=averageNumber();
     }
@@ -266,42 +258,42 @@ namespace edm {
 	//need to reload the histogram from DB
 	const std::vector<int> & dataProbFunctionVar = config.probFunctionVariable();
 	std::vector<double> dataProb = config.probValue();
-	
+
 	int varSize = (int) dataProbFunctionVar.size();
 	int probSize = (int) dataProb.size();
-		
-	if ((dataProbFunctionVar[0] != 0) || (dataProbFunctionVar[varSize - 1] != (varSize - 1))) 
+
+	if ((dataProbFunctionVar[0] != 0) || (dataProbFunctionVar[varSize - 1] != (varSize - 1)))
 	  throw cms::Exception("BadProbFunction") << "Please, check the variables of the probability function! The first variable should be 0 and the difference between two variables should be 1." << std::endl;
-		
+
 	// Complete the vector containing the probability  function data
 	// with the values "0"
 	if (probSize < varSize){
 	  edm::LogWarning("MixingModule") << " The probability function data will be completed with " <<(varSize - probSize)  <<" values 0.";
-	  
+
 	  for (int i=0; i<(varSize - probSize); i++) dataProb.push_back(0);
-	  
+
 	  probSize = dataProb.size();
 	  edm::LogInfo("MixingModule") << " The number of the P(x) data set after adding the values 0 is " << probSize;
 	}
-	
-	// Create an histogram with the data from the probability function provided by the user		  
+
+	// Create an histogram with the data from the probability function provided by the user
 	int xmin = (int) dataProbFunctionVar[0];
 	int xmax = (int) dataProbFunctionVar[varSize-1]+1;  // need upper edge to be one beyond last value
 	int numBins = varSize;
-	
+
 	edm::LogInfo("MixingModule") << "An histogram will be created with " << numBins << " bins in the range ("<< xmin << "," << xmax << ")." << std::endl;
 
 	histo_.reset(new TH1F("h","Histo from the user's probability function",numBins,xmin,xmax));
-	
+
 	LogDebug("MixingModule") << "Filling histogram with the following data:" << std::endl;
-	
+
 	for (int j=0; j < numBins ; j++){
 	  LogDebug("MixingModule") << " x = " << dataProbFunctionVar[j ]<< " P(x) = " << dataProb[j];
-	  histo_->Fill(dataProbFunctionVar[j]+0.5,dataProb[j]); // assuming integer values for the bins, fill bin centers, not edges 
+	  histo_->Fill(dataProbFunctionVar[j]+0.5,dataProb[j]); // assuming integer values for the bins, fill bin centers, not edges
 	}
-	
+
 	// Check if the histogram is normalized
-	if (std::abs(histo_->Integral() - 1) > 1.0e-02){ 
+	if (std::abs(histo_->Integral() - 1) > 1.0e-02){
 	  throw cms::Exception("BadProbFunction") << "The probability function should be normalized!!! " << std::endl;
 	}
 	averageNumber_=histo_->GetMean();
@@ -323,7 +315,7 @@ namespace edm {
 	fixed_OOT_ = false;
       }
 
-    
+
   }
   PileUp::~PileUp() {
   }
@@ -386,7 +378,7 @@ namespace edm {
     for(int bx = MinBunch; bx < MaxBunch+1; ++bx) {
 
       if(manage_OOT_) {
-	if(bx==0 && !poisson_OOT_) { 
+	if(bx==0 && !poisson_OOT_) {
 	  PileupSelection.push_back(nzero_crossing) ;
 	  TrueNumInteractions.push_back( nzero_crossing );
 	}
@@ -403,7 +395,7 @@ namespace edm {
 	  else {
 	    PileupSelection.push_back(intFixed_OOT_) ;
 	    TrueNumInteractions.push_back( intFixed_OOT_ );
-	  }  
+	  }
 	}
       }
       else {
@@ -429,7 +421,7 @@ namespace edm {
 	  TrueNumInteractions.push_back( d );
 	}
       }
-    
+
     }
   }
 
