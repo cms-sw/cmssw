@@ -15,7 +15,7 @@ source /afs/cern.ch/cms/caf/setup.csh
 cd -
 
 
-cmsStageIn _THE_INPUTBASE__THE_NUMBER_.root reco.root
+xrdcp _THE_INPUTBASE__THE_NUMBER_.root reco.root
 
 
 cmsRun $CMSSW_BASE/src/Alignment/APEEstimation/test/cfgTemplate/apeEstimator_cfg.py_THE_COMMANDS_
