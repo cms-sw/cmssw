@@ -33,7 +33,7 @@ public:
   virtual double hcaletValue(const int& ieta, const int& iphi, const int& compressedValue) const;
   virtual double hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const;
   virtual bool HTvalid(const int ieta, const int iphi) const;
-  virtual std::vector<unsigned int> getCompressionLUT(HcalTrigTowerDetId id) const;
+  virtual const std::vector<unsigned int>& getCompressionLUT(const HcalTrigTowerDetId& id) const;
   virtual void setup(HcalLutMetadata const&, HcalTrigTowerGeometry const&);
   virtual int getOutputLUTId(const HcalTrigTowerDetId& id) const;
   virtual int getOutputLUTId(const int ieta, const int iphi) const;

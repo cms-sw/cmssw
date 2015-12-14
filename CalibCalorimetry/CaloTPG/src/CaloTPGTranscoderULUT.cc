@@ -18,7 +18,8 @@ using namespace std;
 
 CaloTPGTranscoderULUT::CaloTPGTranscoderULUT(const std::string& compressionFile,
                                              const std::string& decompressionFile)
-                                                : nominal_gain_(0.), rctlsb_factor_(0.),
+                                                : theTopology(0),
+                                                  nominal_gain_(0.), rctlsb_factor_(0.),
                                                   compressionFile_(compressionFile),
                                                   decompressionFile_(decompressionFile)
 {
@@ -33,6 +34,11 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
     // Initialize analytical compression LUT's here
     if (OUTPUT_LUT_SIZE != (unsigned int) 0x400)
         edm::LogError("CaloTPGTranscoderULUT") << "Analytic compression expects 10-bit LUT; found LUT with " << OUTPUT_LUT_SIZE << " entries instead";
+
+    if (!theTopology) {
+        edm::LogError("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
+        assert(theTopology);
+    }
 
     std::vector<unsigned int> analyticalLUT(OUTPUT_LUT_SIZE, 0);
     std::vector<unsigned int> identityLUT(OUTPUT_LUT_SIZE, 0);
@@ -170,19 +176,31 @@ void CaloTPGTranscoderULUT::rctJetUncompress(const HcalTrigTowerDetId& hid, cons
 
 bool CaloTPGTranscoderULUT::HTvalid(const int ieta, const int iphiin) const {
 	HcalTrigTowerDetId id(ieta, iphiin);
+	if (!theTopology) {
+		edm::LogError("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
+		assert(theTopology);
+	}
 	return theTopology->validHT(id);
 }
 
 int CaloTPGTranscoderULUT::getOutputLUTId(const HcalTrigTowerDetId& id) const {
+    if (!theTopology) {
+        edm::LogError("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
+        assert(theTopology);
+    }
     return theTopology->detId2denseIdHT(id);
 }
 
 int CaloTPGTranscoderULUT::getOutputLUTId(const int ieta, const int iphiin) const {
+	if (!theTopology) {
+		edm::LogError("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
+		assert(theTopology);
+	}
 	HcalTrigTowerDetId id(ieta, iphiin);
 	return theTopology->detId2denseIdHT(id);
 }
 
-std::vector<unsigned int> CaloTPGTranscoderULUT::getCompressionLUT(HcalTrigTowerDetId id) const {
+const std::vector<unsigned int>& CaloTPGTranscoderULUT::getCompressionLUT(const HcalTrigTowerDetId& id) const {
    int itower = getOutputLUTId(id);
    return outputLUT_[itower];
 }
