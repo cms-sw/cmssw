@@ -4,6 +4,7 @@
 
 #include "RecoParticleFlow/PFProducer/interface/PFElectronAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 //#include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"
@@ -269,9 +270,10 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      
 	      int nexhits = refKf->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
 	      
-	      reco::TrackBase::TrackAlgorithm Algo = reco::TrackBase::undefAlgorithm;
+	      bool isGoodTrack=false;
 	      if (refKf.isNonnull()) 
-		Algo = refKf->algo(); 
+		isGoodTrack = PFTrackAlgoTools::isGoodForEGM(refKf->algo());
+
 	      
 	      bool trackIsFromPrimaryVertex = false;
 	      for (Vertex::trackRef_iterator trackIt = primaryVertex.tracks_begin(); trackIt != primaryVertex.tracks_end(); ++trackIt) {
@@ -280,16 +282,8 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 		  break;
 		}
 	      }
-	      
-	      if((Algo == reco::TrackBase::undefAlgorithm ||
-	          Algo == reco::TrackBase::ctf ||
-	          Algo == reco::TrackBase::duplicateMerge ||
-	          Algo == reco::TrackBase::cosmics ||
-	          Algo == reco::TrackBase::initialStep ||
-	          Algo == reco::TrackBase::lowPtTripletStep ||
-	          Algo == reco::TrackBase::pixelPairStep ||
-	          Algo == reco::TrackBase::detachedTripletStep ||
-	          Algo == reco::TrackBase::mixedTripletStep)
+      
+	      if(isGoodTrack
 	         && nexhits == 0 && trackIsFromPrimaryVertex) {
 		localactive[ecalKf_index] = false;
 	      } else {
@@ -789,8 +783,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      // Further Cleaning: DANIELE This could be improved!
 	      TrackRef trkRef =   TrkEl->trackRef();
 	      // iter0, iter1, iter2, iter3 = Algo < 3
-	      unsigned int Algo = whichTrackAlgo(trkRef);
-
+	      bool isGoodTrack = PFTrackAlgoTools::isGoodForEGM(trkRef->algo());
 	      float secpin = trkRef->p();	
 	      
 	      const reco::PFBlockElementCluster * clust =  
@@ -817,7 +810,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 		  dynamic_cast<const reco::PFBlockElementCluster*>((&elements[(hcalConvElems.begin()->second)])); 
 		enehcalclust  =clusthcal->clusterRef()->energy();
 		// NOTE: DANIELE? Are you sure you want to use the Algo type here? 
-		if( (enehcalclust / (enehcalclust+eneclust) ) > 0.1 && Algo < 3) {
+		if( (enehcalclust / (enehcalclust+eneclust) ) > 0.1 && isGoodTrack) {
 		  isHoHE = true;
 		  if(enehcalclust > eneclust) 
 		    isHoE = true;
@@ -838,7 +831,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 			 << " HCAL ENE " << enehcalclust 
 			 << " ECAL ENE " << eneclust 
 			 << " secPIN " << secpin 
-			 << " Algo Track " << Algo << endl;
+			 << " Algo Track " << trkRef->algo() << endl;
 		  continue;
 		}
 
@@ -866,7 +859,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 			 << " HCAL ENE " << enehcalclust 
 			 << " ECAL ENE " << eneclust 
 			 << " secPIN " << secpin 
-			 << " Algo Track " << Algo << endl;
+			 << " Algo Track " << trkRef->algo() << endl;
 		  continue;
 		}
 
@@ -1761,7 +1754,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 		
 		
 		reco::TrackRef trackref =  kfTk->trackRef();
-		unsigned int Algo = whichTrackAlgo(trackref);
+		bool goodTrack = PFTrackAlgoTools::isGoodForEGM(trackref->algo());
 		// iter0, iter1, iter2, iter3 = Algo < 3
 		// algo 4,5,6,7
 		int nexhits = trackref->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
@@ -1775,7 +1768,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 		}
 		
 		// probably we could now remove the algo request?? 
-		if(Algo < 3 && nexhits == 0 && trackIsFromPrimaryVertex) {
+		if(goodTrack  && nexhits == 0 && trackIsFromPrimaryVertex) {
 		  //if(Algo < 3) 
 		  if(DebugIDOutputs) 
 		    cout << " The ecalGsf cluster is not isolated: >0 KF extra with algo < 3" << endl;
@@ -2671,37 +2664,7 @@ void PFElectronAlgo::SetActive(const reco::PFBlockRef&  blockRef,
 void PFElectronAlgo::setEGElectronCollection(const reco::GsfElectronCollection & egelectrons) {
   theGsfElectrons_ = & egelectrons;
 }
-unsigned int PFElectronAlgo::whichTrackAlgo(const reco::TrackRef& trackRef) {
-  unsigned int Algo = 0; 
-  switch (trackRef->algo()) {
-  case TrackBase::ctf:
-  case TrackBase::duplicateMerge:
-  case TrackBase::initialStep:
-  case TrackBase::lowPtTripletStep:
-  case TrackBase::pixelPairStep:
-  case TrackBase::jetCoreRegionalStep:
-  case TrackBase::muonSeededStepInOut:
-  case TrackBase::muonSeededStepOutIn:
-    Algo = 0;
-    break;
-  case TrackBase::detachedTripletStep:
-    Algo = 1;
-    break;
-  case TrackBase::mixedTripletStep:
-    Algo = 2;
-    break;
-  case TrackBase::pixelLessStep:
-    Algo = 3;
-    break;
-  case TrackBase::tobTecStep:
-    Algo = 4;
-    break;
-  default:
-    Algo = 5;
-    break;
-  }
-  return Algo;
-}
+
 bool PFElectronAlgo::isPrimaryTrack(const reco::PFBlockElementTrack& KfEl,
 				    const reco::PFBlockElementGsfTrack& GsfEl) {
   bool isPrimary = false;

@@ -5,6 +5,7 @@
 #include "RecoParticleFlow/PFProducer/interface/PFElectronAlgo.h"  
 #include "RecoParticleFlow/PFProducer/interface/PFPhotonAlgo.h"    
 #include "RecoParticleFlow/PFProducer/interface/PFElectronExtraEqual.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
@@ -1136,9 +1137,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
       if ( rejectTracks_Step45_ && ecalElems.empty() && 
 	   trackMomentum > 30. && Dpt > 0.5 && 
-	   ( trackRef->algo() == TrackBase::mixedTripletStep || 
-	     trackRef->algo() == TrackBase::pixelLessStep || 
-	     trackRef->algo() == TrackBase::tobTecStep ) ) {
+	   ( PFTrackAlgoTools::step45(trackRef->algo())) ) {  
 
 	double dptRel = Dpt/trackRef->pt()*100;
 	bool isPrimaryOrSecondary = isFromSecInt(elements[iTrack], "all");
@@ -1933,42 +1932,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       // ... blow up errors of 5th anf 4th iteration, to reject those
       // ... tracks first (in case it's needed)
       double Dpt = trackRef->ptError();
-      double blowError = 1.;
-      switch (trackRef->algo()) {
-      case TrackBase::ctf:
-      case TrackBase::duplicateMerge:
-      case TrackBase::initialStep:
-      case TrackBase::lowPtTripletStep:
-      case TrackBase::pixelPairStep:
-      case TrackBase::detachedTripletStep:
-      case TrackBase::mixedTripletStep:
-      case TrackBase::jetCoreRegionalStep:
-      case TrackBase::muonSeededStepInOut:
-      case TrackBase::muonSeededStepOutIn:
-	blowError = 1.;
-	break;
-      case TrackBase::pixelLessStep:
-	blowError = factors45_[0];
-	break;
-      case TrackBase::tobTecStep:
-	blowError = factors45_[1];
-	break;
-      case reco::TrackBase::hltIter0:
-      case reco::TrackBase::hltIter1:
-      case reco::TrackBase::hltIter2:
-      case reco::TrackBase::hltIter3:
-	blowError = 1.;
-	break;
-      case reco::TrackBase::hltIter4:
-	blowError = factors45_[0];
-	break;
-      case reco::TrackBase::hltIterX:
-	blowError = 1.;
-	break;
-      default:
-	blowError = 1E9;
-	break;
-      }
+      double blowError = PFTrackAlgoTools::errorScale(trackRef->algo(),factors45_);
       // except if it is from an interaction
       bool isPrimaryOrSecondary = isFromSecInt(elements[iTrack], "all");
 
@@ -2396,20 +2360,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	if (isPrimaryOrSecondary && dptRel < dptRel_DispVtx_) continue;
 
-	switch (trackref->algo()) {
-	case TrackBase::ctf:
-        case TrackBase::duplicateMerge:
-	case TrackBase::initialStep:
-	case TrackBase::lowPtTripletStep:
-	case TrackBase::pixelPairStep:
-	case TrackBase::detachedTripletStep:
-	case TrackBase::mixedTripletStep:
-	case TrackBase::jetCoreRegionalStep:
-	case TrackBase::muonSeededStepInOut:
-	case TrackBase::muonSeededStepOutIn:
-	  break;
-	case TrackBase::pixelLessStep:
-	case TrackBase::tobTecStep:
+	if (PFTrackAlgoTools::step5(trackref->algo())) {
 	  active[iTrack] = false;	
 	  totalChargedMomentum -= trackref->p();
 	  
@@ -2417,20 +2368,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    std::cout << "\tElement  " << elements[iTrack] 
 		      << " rejected (Dpt = " << -it->first 
 		      << " GeV/c, algo = " << trackref->algo() << ")" << std::endl;
-	  break;
-	case reco::TrackBase::hltIter0:
-	case reco::TrackBase::hltIter1:
-	case reco::TrackBase::hltIter2:
-	case reco::TrackBase::hltIter3:
-	case reco::TrackBase::hltIter4:
-	case reco::TrackBase::hltIterX:
-	  break;	  
-	default:
-	  break;
+
 	}
       }
-    }
 
+    }
+  
     // New determination of the calo and track resolution avec track deletion/rescaling.
     Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta());    
     Caloresolution *= totalChargedMomentum;

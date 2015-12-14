@@ -74,7 +74,7 @@ class PFElecTkProducer final : public edm::stream::EDProducer<edm::GlobalCache<c
       int FindPfRef(const reco::PFRecTrackCollection & PfRTkColl, 
 		    const reco::GsfTrack&, bool);
       
-      bool isFifthStep(reco::PFRecTrackRef pfKfTrack);
+
 
       bool applySelection(const reco::GsfTrack&);
       

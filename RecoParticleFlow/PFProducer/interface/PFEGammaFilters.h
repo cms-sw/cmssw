@@ -54,7 +54,7 @@ class PFEGammaFilters {
 
  private:
 
-  unsigned int whichTrackAlgo(const reco::TrackRef& trackRef);
+
 
   // Photon selections
   float ph_Et_;

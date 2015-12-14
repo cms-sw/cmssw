@@ -284,7 +284,7 @@ private:
   // ------ end of new stuff 
   
   
-  unsigned int whichTrackAlgo(const reco::TrackRef& trackRef);
+
 
   bool isPrimaryTrack(const reco::PFBlockElementTrack& KfEl,
 		      const reco::PFBlockElementGsfTrack& GsfEl);  
