@@ -47,8 +47,11 @@ public:
   // Constant
   static const int NOUTLUTS = 4176;
   static const unsigned int OUTPUT_LUT_SIZE = 1024;
-  static const int TPGMAX = 256;
+  static const unsigned int TPGMAX = 256;
   static const bool newHFphi = true;
+
+  static constexpr float LSB_HBHE = 0.25f;
+  static constexpr float LSB_HF = 0.5f;
 
   // Member functions
   void loadHCALCompress(HcalLutMetadata const&, HcalTrigTowerGeometry const&) ; //Analytical compression tables

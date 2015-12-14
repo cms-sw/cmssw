@@ -46,7 +46,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
     // Compute compression LUT
     for (unsigned int i=0; i < OUTPUT_LUT_SIZE; i++) {
 	analyticalLUT[i] = (unsigned int)(sqrt(14.94*log(1.+i/14.94)*i) + 0.5);
-	identityLUT[i] = min(i,0xffu);
+	identityLUT[i] = min(i, TPGMAX - 1);
     }
  
     std::vector<DetId> allChannels = lutMetadata.getAllChannels();
@@ -119,7 +119,7 @@ double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& iphi, cons
   int itower = getOutputLUTId(ieta,iphi);
   if (itower < 0) {
     edm::LogError("CaloTPGTranscoderULUT") << "No decompression LUT found for ieta, iphi = " << ieta << ", " << iphi;
-  } else if (compET < 0 || compET > 0xff) {
+  } else if (compET < 0 || compET >= (int) TPGMAX) {
     edm::LogError("CaloTPGTranscoderULUT") << "Compressed value out of range: eta, phi, cET = " << ieta << ", " << iphi << ", " << compET;
   } else {
     etvalue = hcaluncomp_[itower][compET];
@@ -132,7 +132,7 @@ double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& compET) co
 // The user is encouraged to use hcaletValue(const int& ieta, const int& iphi, const int& compET) instead
 
   double etvalue = 0.;
-  if (compET < 0 || compET > 0xff) {
+  if (compET < 0 || compET >= (int) TPGMAX) {
     edm::LogError("CaloTPGTranscoderULUT") << "Compressed value out of range: eta, cET = " << ieta << ", " << compET;
   } else {
 	int nphi = 0;
@@ -210,8 +210,9 @@ void CaloTPGTranscoderULUT::setup(HcalLutMetadata const& lutMetadata, HcalTrigTo
     theTopology = lutMetadata.topo();
     nominal_gain_ = lutMetadata.getNominalGain();
     float rctlsb =lutMetadata.getRctLsb();
-    if (rctlsb != 0.25 && rctlsb != 0.5)
-	throw cms::Exception("RCTLSB") << " value=" << rctlsb << " (should be 0.25 or 0.5)" << std::endl;
+    if (rctlsb != LSB_HBHE && rctlsb != LSB_HF)
+	throw cms::Exception("RCTLSB") << " value=" << rctlsb << " (should be " << LSB_HBHE
+	    << " or " << LSB_HF << ")" << std::endl;
     rctlsb_factor_ = rctlsb;
 
     if (compressionFile_.empty() && decompressionFile_.empty()) {
