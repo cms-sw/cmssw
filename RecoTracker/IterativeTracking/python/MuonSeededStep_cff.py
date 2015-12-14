@@ -140,12 +140,18 @@ muonSeededTracksOutInClassifier.mva.maxLostLayers = [4,3,2]
 
 
 
+muonSeededStepCoreInOut = cms.Sequence(
+    muonSeededSeedsInOut + muonSeededTrackCandidatesInOut + muonSeededTracksInOut
+)
 muonSeededStepCore = cms.Sequence(
-    muonSeededSeedsInOut + muonSeededTrackCandidatesInOut + muonSeededTracksInOut +
-    muonSeededSeedsOutIn + muonSeededTrackCandidatesOutIn + muonSeededTracksOutIn 
+    muonSeededStepCoreInOut +
+    muonSeededSeedsOutIn + muonSeededTrackCandidatesOutIn + muonSeededTracksOutIn
+)
+muonSeededStepExtraInOut = cms.Sequence(
+    muonSeededTracksInOutClassifier
 )
 muonSeededStepExtra = cms.Sequence(
-    muonSeededTracksInOutClassifier +
+    muonSeededStepExtraInOut +
     muonSeededTracksOutInClassifier
 )
 
@@ -161,7 +167,10 @@ muonSeededSeedsInOutAsTracks = cms.EDProducer("FakeTrackProducerFromSeed", src =
 muonSeededSeedsOutInAsTracks = cms.EDProducer("FakeTrackProducerFromSeed", src = cms.InputTag("muonSeededSeedsOutIn"))
 muonSeededTrackCandidatesInOutAsTracks = cms.EDProducer("FakeTrackProducerFromCandidate", src = cms.InputTag("muonSeededTrackCandidatesInOut"))
 muonSeededTrackCandidatesOutInAsTracks = cms.EDProducer("FakeTrackProducerFromCandidate", src = cms.InputTag("muonSeededTrackCandidatesOutIn"))
+muonSeededStepDebugInOut = cms.Sequence(
+    muonSeededSeedsInOutAsTracks + muonSeededTrackCandidatesInOutAsTracks
+)
 muonSeededStepDebug = cms.Sequence(
     muonSeededSeedsOutInAsTracks + muonSeededTrackCandidatesOutInAsTracks +
-    muonSeededSeedsInOutAsTracks + muonSeededTrackCandidatesInOutAsTracks
+    muonSeededStepDebugInOut
 )

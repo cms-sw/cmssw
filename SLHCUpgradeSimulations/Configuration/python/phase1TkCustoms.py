@@ -441,7 +441,9 @@ def customise_Reco(process,pileup):
     del process.earlyGeneralTracks
     del process.muonSeededStep
     del process.muonSeededStepCore
+    del process.muonSeededStepCoreInOut
     del process.muonSeededStepDebug
+    del process.muonSeededStepDebugInOut
     del process.muonSeededStepDebugDisplaced
     del process.ConvStep
     # add the correct tracking back in
