@@ -24,7 +24,7 @@ BATCH_OUTPUTBASE1="${CMSSW_BASE}/src/Alignment/APEEstimation/test/batch/workingA
 BATCH_OUTPUTSUFFIX=".tcsh"
 
 helpFile1="help1.txt"
-cat $BATCH_TEMPLATEFILE |sed "s/_THE_INPUTBASE_/${inputBase}/g" > $helpFile1
+cat $BATCH_TEMPLATEFILE |sed "s/_THE_INPUTBASE_/root:\/\/eoscms\/\/eos\/cms\/${inputBase}/g" > $helpFile1
 
 
 
