@@ -27,7 +27,7 @@
 // class declaration
 //
 
-class HLTrigReport : public edm::one::EDAnalyzer<> {
+class HLTrigReport : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::WatchLuminosityBlocks> {
    private:
       enum ReportEvery {
         NEVER       = 0,
@@ -45,16 +45,16 @@ class HLTrigReport : public edm::one::EDAnalyzer<> {
       static
       ReportEvery decode(const std::string & value);
 
-      virtual void beginJob();
-      virtual void endJob();
+      virtual void beginJob() override;
+      virtual void endJob() override;
 
-      virtual void beginRun(edm::Run const &, edm::EventSetup const&);
-      virtual void endRun(edm::Run const &, edm::EventSetup const&);
+      virtual void beginRun(edm::Run const &, edm::EventSetup const&) override;
+      virtual void endRun(edm::Run const &, edm::EventSetup const&) override;
 
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       void reset(bool changed = false);     // reset all counters
 

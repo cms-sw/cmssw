@@ -39,6 +39,7 @@
   <use   name="FWCore/Utilities"/>
   <use   name="RecoParticleFlow/PFClusterTools"/>
   <use   name="RecoParticleFlow/PFProducer"/>
+  <use   name="RecoParticleFlow/PFTracking"/>
   <use   name="RecoEcal/EgammaCoreTools"/>
   <use   name="Geometry/CaloTopology"/>
   <use   name="RecoEgamma/EgammaIsolationAlgos"/>
@@ -87,6 +88,7 @@
   <use   name="FWCore/Utilities"/>
   <use   name="RecoParticleFlow/PFClusterTools"/>
   <use   name="RecoParticleFlow/PFProducer"/>
+  <use   name="RecoParticleFlow/PFTracking"/>
   <use   name="RecoEcal/EgammaCoreTools"/>
   <use   name="Geometry/CaloTopology"/>
   <use   name="RecoEgamma/EgammaIsolationAlgos"/>

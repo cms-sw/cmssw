@@ -1,4 +1,5 @@
 #include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexFinder.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -285,27 +286,17 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
     TransientTrack tmpTk( *((*ie).get()), magField_, globTkGeomHandle_);
     transTracksRaw.push_back( tmpTk );
     transTracksRefRaw.push_back( *ie );
-    switch((*ie)->algo()) {
-    case reco::TrackBase::undefAlgorithm:
-    case reco::TrackBase::ctf:
-    case reco::TrackBase::cosmics:
-      nNotIterative++;
-      break;
-    case reco::TrackBase::initialStep:
-    case reco::TrackBase::lowPtTripletStep:
-    case reco::TrackBase::pixelPairStep:
-    case reco::TrackBase::detachedTripletStep:
-    case reco::TrackBase::duplicateMerge:
-      break;
-    case reco::TrackBase::mixedTripletStep:
-    case reco::TrackBase::pixelLessStep:
+    bool nonIt = PFTrackAlgoTools::nonIterative((*ie)->algo());
+    bool step45 = PFTrackAlgoTools::step45((*ie)->algo());
+    bool highQ = PFTrackAlgoTools::highQuality((*ie)->algo());   
+    if (step45)
       nStep45++;
-      break;
-    default:
+    else if (nonIt)
       nNotIterative++;
-      nStep45++; // why this should be increased for these cases?
-      break;
-    };
+    else if (!highQ) {
+      nNotIterative++;
+      nStep45++;
+    }
 
   }
 

@@ -16,6 +16,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFElectronExtraEqual.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -1394,6 +1395,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	   const reco::PFBlockElementTrack * kfEle = 
 	     docast(const reco::PFBlockElementTrack*,kftrack.first);
 	   const reco::TrackRef trackref = kfEle->trackRef();
+
 	   const reco::TrackBase::TrackAlgorithm Algo = trackref->algo();
 	   const int nexhits = 
 	     trackref->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
@@ -2429,7 +2431,8 @@ unlinkRefinableObjectKFandECALMatchedToHCAL(ProtoEGObject& RO,
     NotCloserToOther<reco::PFBlockElement::TRACK,reco::PFBlockElement::HCAL>
       tracksToHCALs(_currentblock,_currentlinks,secd_kf->first);
     reco::TrackRef trkRef =   secd_kf->first->trackRef();
-    const unsigned int Algo = whichTrackAlgo(trkRef);
+
+    bool goodTrack = PFTrackAlgoTools::isGoodForEGM(trkRef->algo());
     const float secpin = trkRef->p();       
     
     for( auto ecal = ecal_begin; ecal != ecal_end; ++ecal ) {
@@ -2464,7 +2467,7 @@ unlinkRefinableObjectKFandECALMatchedToHCAL(ProtoEGObject& RO,
 	    dynamic_cast<const reco::PFBlockElementCluster*>(hcalclus->first); 
 	  const double hcalenergy = clusthcal->clusterRef()->energy();	  
 	  const double hpluse = ecalenergy+hcalenergy;
-	  const bool isHoHE = ( (hcalenergy / hpluse ) > 0.1 && Algo < 3 );
+	  const bool isHoHE = ( (hcalenergy / hpluse ) > 0.1 && goodTrack );
 	  const bool isHoE  = ( hcalenergy > ecalenergy );
 	  const bool isPoHE = ( secpin > hpluse );	
 	  if( cluster_in_sc[clus_idx] ) {
@@ -2477,7 +2480,7 @@ unlinkRefinableObjectKFandECALMatchedToHCAL(ProtoEGObject& RO,
 		<< " HCAL ENE " << hcalenergy
 		<< " ECAL ENE " << ecalenergy
 		<< " secPIN " << secpin 
-		<< " Algo Track " << Algo << std::endl;
+		<< " Algo Track " << trkRef->algo() << std::endl;
 	      remove_this_kf = true;
 	    }
 	  } else {
@@ -2490,7 +2493,7 @@ unlinkRefinableObjectKFandECALMatchedToHCAL(ProtoEGObject& RO,
 		<< " HCAL ENE " << hcalenergy
 		<< " ECAL ENE " << ecalenergy
 		<< " secPIN " << secpin 
-		<< " Algo Track " << Algo << std::endl;
+		<< " Algo Track " <<trkRef->algo() << std::endl;
 	      remove_this_kf = true;
 	    }
 	  }  
@@ -2505,37 +2508,7 @@ unlinkRefinableObjectKFandECALMatchedToHCAL(ProtoEGObject& RO,
 }
 
 
-unsigned int PFEGammaAlgo::whichTrackAlgo(const reco::TrackRef& trackRef) {
-  unsigned int Algo = 0; 
-  switch (trackRef->algo()) {
-  case TrackBase::ctf:
-  case TrackBase::duplicateMerge:
-  case TrackBase::initialStep:
-  case TrackBase::lowPtTripletStep:
-  case TrackBase::pixelPairStep:
-  case TrackBase::jetCoreRegionalStep:
-  case TrackBase::muonSeededStepInOut:
-  case TrackBase::muonSeededStepOutIn:
-    Algo = 0;
-    break;
-  case TrackBase::detachedTripletStep:
-    Algo = 1;
-    break;
-  case TrackBase::mixedTripletStep:
-    Algo = 2;
-    break;
-  case TrackBase::pixelLessStep:
-    Algo = 3;
-    break;
-  case TrackBase::tobTecStep:
-    Algo = 4;
-    break;
-  default:
-    Algo = 5;
-    break;
-  }
-  return Algo;
-}
+
 bool PFEGammaAlgo::isPrimaryTrack(const reco::PFBlockElementTrack& KfEl,
 				    const reco::PFBlockElementGsfTrack& GsfEl) {
   bool isPrimary = false;

@@ -6,6 +6,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
 class GeneralTracksImporter : public BlockElementImporterBase {
 public:
@@ -157,70 +158,28 @@ goodPtResolution( const reco::TrackRef& trackref) const {
   const unsigned int LostHits = trackref->numberOfLostHits();
   const double sigmaHad = sqrt(1.20*1.20/P+0.06*0.06) / (1.+LostHits);
 
-  // iteration 1,2,3,4,5 correspond to algo = 1/4,5,6,7,8,9
-  unsigned int Algo = 0; 
-  switch (trackref->algo()) {
-  case reco::TrackBase::ctf:
-  case reco::TrackBase::duplicateMerge:
-  case reco::TrackBase::initialStep:
-  case reco::TrackBase::lowPtTripletStep:
-  case reco::TrackBase::pixelPairStep:
-  case reco::TrackBase::jetCoreRegionalStep:
-    Algo = 0;
-    break;
-  case reco::TrackBase::detachedTripletStep:
-    Algo = 1;
-    break;
-  case reco::TrackBase::mixedTripletStep:
-    Algo = 2;
-    break;
-  case reco::TrackBase::pixelLessStep:
-    Algo = 3;
-    break;
-  case reco::TrackBase::tobTecStep:
-    Algo = 4;
-    break;
-  case reco::TrackBase::muonSeededStepInOut:
-  case reco::TrackBase::muonSeededStepOutIn:
-    Algo = 5;
-    break;
-  case reco::TrackBase::hltIter0:
-  case reco::TrackBase::hltIter1:
-  case reco::TrackBase::hltIter2:
-    Algo = _useIterTracking ? 0 : 0;
-    break;
-  case reco::TrackBase::hltIter3:
-    Algo = _useIterTracking ? 1 : 0;
-    break;
-  case reco::TrackBase::hltIter4:
-    Algo = _useIterTracking ? 2 : 0;
-    break;
-  case reco::TrackBase::hltIterX:
-    Algo = _useIterTracking ? 0 : 0;
-    break;
-  default:
-    Algo = _useIterTracking ? 6 : 0;
-    break;
-  }
-
   // Protection against 0 momentum tracks
   if ( P < 0.05 ) return false;
-
  
   if (_debug) std::cout << " PFBlockAlgo: PFrecTrack->Track Pt= "
 		   << Pt << " DPt = " << DPt << std::endl;
-  if ( ( _DPtovPtCut[Algo] > 0. && 
-	 DPt/Pt > _DPtovPtCut[Algo]*sigmaHad ) || 
-       NHit < _NHitCut[Algo] ) { 
+
+
+  double dptCut = PFTrackAlgoTools::dPtCut(trackref->algo(),_DPtovPtCut,_useIterTracking);
+  unsigned int nhitCut    = PFTrackAlgoTools::nHitCut(trackref->algo(),_NHitCut,_useIterTracking);
+
+  if ( ( dptCut > 0. && 
+	 DPt/Pt > dptCut*sigmaHad ) || 
+       NHit < nhitCut ) { 
     if (_debug) std::cout << " PFBlockAlgo: skip badly measured track"
 		     << ", P = " << P 
 		     << ", Pt = " << Pt 
 		     << " DPt = " << DPt 
 		     << ", N(hits) = " << NHit << " (Lost : " << LostHits << "/" << NLostHit << ")"
-		     << ", Algo = " << Algo
+			  << ", Algo = " << trackref->algo()
 		     << std::endl;
-    if (_debug) std::cout << " cut is DPt/Pt < " << _DPtovPtCut[Algo] * sigmaHad << std::endl;
-    if (_debug) std::cout << " cut is NHit >= " << _NHitCut[Algo] << std::endl;
+    if (_debug) std::cout << " cut is DPt/Pt < " << dptCut * sigmaHad << std::endl;
+    if (_debug) std::cout << " cut is NHit >= " << nhitCut << std::endl;
     return false;
   }
 

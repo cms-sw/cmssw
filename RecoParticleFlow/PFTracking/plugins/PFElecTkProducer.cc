@@ -32,6 +32,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
 #include "RecoParticleFlow/PFClusterTools/interface/ClusterClusterMapping.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
 #include "TMath.h"
 using namespace std;
@@ -186,7 +187,8 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
       // remove fifth step tracks
       if( useFifthStepForEcalDriven_ == false
 	  || useFifthStepForTrackDriven_ == false) {
-	bool isFifthStepTrack = isFifthStep(kf_ref);
+	
+	bool isFifthStepTrack = PFTrackAlgoTools::isFifthStep(kf_ref->trackRef()->algo());
 	bool isEcalDriven = true;
 	bool isTrackerDriven = true;
 	
@@ -467,47 +469,7 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
   }
   return -1;
 }
-bool PFElecTkProducer::isFifthStep(reco::PFRecTrackRef pfKfTrack) {
 
-  bool isFithStep = false;
-  
-
-  TrackRef kfref = pfKfTrack->trackRef();
-  unsigned int Algo = 0; 
-  switch (kfref->algo()) {
-  case TrackBase::undefAlgorithm:
-  case TrackBase::ctf:
-  case TrackBase::duplicateMerge:
-  case TrackBase::initialStep:
-  case TrackBase::lowPtTripletStep:
-  case TrackBase::pixelPairStep:
-  case TrackBase::jetCoreRegionalStep:
-  case TrackBase::muonSeededStepInOut:
-  case TrackBase::muonSeededStepOutIn:
-    Algo = 0;
-    break;
-  case TrackBase::detachedTripletStep:
-    Algo = 1;
-    break;
-  case TrackBase::mixedTripletStep:
-    Algo = 2;
-    break;
-  case TrackBase::pixelLessStep:
-    Algo = 3;
-    break;
-  case TrackBase::tobTecStep:
-    Algo = 4;
-    break;
-  default:
-    Algo = 5;
-    break;
-  }
-  if ( Algo >= 4 ) {
-    isFithStep = true;
-  }
-
-  return isFithStep;
-}
 // -- method to apply gsf electron selection to EcalDriven seeds
 bool 
 PFElecTkProducer::applySelection(const reco::GsfTrack& gsftk) {
