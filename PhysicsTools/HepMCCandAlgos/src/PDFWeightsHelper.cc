@@ -3,8 +3,6 @@
 #include <fstream>
 
 PDFWeightsHelper::PDFWeightsHelper() {
-  
-  Eigen::initParallel();
 
 }
 
