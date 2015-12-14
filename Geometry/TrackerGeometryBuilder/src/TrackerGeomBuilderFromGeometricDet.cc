@@ -248,7 +248,7 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
       glued[0]=dum;
       glued[1]=dus;
       PlaneBuilderForGluedDet::ResultType plane = gluedplaneBuilder.plane(glued);
-      GluedGeomDet* gluedDet = new GluedGeomDet(&(*plane),dum,dus);
+      GluedGeomDet* gluedDet = new GluedGeomDet(&(*plane),dum,dus,DetId(sidet.glued()));
       tracker->addDet((GeomDet*) gluedDet);
       tracker->addDetId(DetId(sidet.glued()));
     }
