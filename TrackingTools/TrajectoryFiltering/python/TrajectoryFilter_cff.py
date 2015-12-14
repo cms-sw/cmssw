@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
+
 CkfBaseTrajectoryFilter_block = cms.PSet(
     ComponentType = cms.string('CkfBaseTrajectoryFilter'),
 
@@ -39,7 +41,7 @@ CkfBaseTrajectoryFilter_block = cms.PSet(
 
 # Cut on CCC hits
     maxCCCLostHits = cms.int32(9999),
-    minGoodStripCharge = cms.double(-1.)
+    minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
 
 
@@ -82,6 +84,6 @@ ThresholdPtTrajectoryFilter_block = cms.PSet(
 MaxCCCLostHitsTrajectoryFilter_block = cms.PSet(
     ComponentType = cms.string('MaxCCCLostHitsTrajectoryFilter'),
     maxCCCLostHits = cms.int32(3),
-    minGoodStripCharge = cms.double(1620)
+    minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
 )
 

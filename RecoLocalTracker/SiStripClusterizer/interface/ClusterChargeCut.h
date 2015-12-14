@@ -4,7 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include<iostream>
 
-float clusterChargeCut(const edm::ParameterSet& conf, const char * name="clusterChargeCut") {
+inline float clusterChargeCut(const edm::ParameterSet& conf, const char * name="clusterChargeCut") {
    return conf.getParameter<edm::ParameterSet>(name).getParameter<double>("value");
 }
 
