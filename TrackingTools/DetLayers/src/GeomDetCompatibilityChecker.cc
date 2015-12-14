@@ -37,33 +37,40 @@ GeomDetCompatibilityChecker::isCompatible(const GeomDet* theDet,
 					  const MeasurementEstimator& est) {
   stat.ntot++;
 
-  constexpr float sagCut = 2;
+  constexpr float tollerance = 1.; // one cm
+  constexpr float sagCut = 2*tollerance;  
 
   auto const & plane = theDet->specificSurface();
   StraightLinePlaneCrossing crossing(tsos.globalPosition().basicVector(),tsos.globalMomentum().basicVector(), prop.propagationDirection());
   auto path = crossing.pathLength(plane);
 
-  TrajectoryStateOnSurface && propSt = prop.propagate( tsos, theDet->specificSurface());
-  if unlikely ( !propSt.isValid()) { stat.nf1++; return std::make_pair( false, std::move(propSt));}
   auto isIn = path.first;
   float thresh=99999999;
   bool close = false;
-  if(!path.first) stat.ns1++;
+  if  unlikely(!path.first) stat.ns1++;
   else {
     auto gpos =  GlobalPoint(crossing.position(path.second));
-    auto tpath = (gpos-tsos.globalPosition()).perp();
-    thresh = std::abs(tpath*tpath*tsos.globalParameters().transverseCurvature());
+    auto tpath2 = (gpos-tsos.globalPosition()).perp2();
+    // sagitta = d^2*c/2
+    thresh = std::abs(tpath2*tsos.globalParameters().transverseCurvature());
     close = thresh<sagCut;
-    if (close) stat.nth++;
-    auto pos = plane.toLocal(GlobalPoint(crossing.position(path.second)));
-    auto toll = LocalError(1.,0,1.);
-    isIn = plane.bounds().inside(pos,toll);
-    if (close && !isIn) { stat.ns2++;}// return std::make_pair( false,TrajectoryStateOnSurface()); }
+    if (close) { 
+       stat.nth++;
+       auto pos = plane.toLocal(GlobalPoint(crossing.position(path.second)));
+       auto toll = LocalError(tollerance,0,tollerance);
+       isIn = plane.bounds().inside(pos,toll);
+       if (!isIn) { stat.ns2++; if (prop.propagationDirection()==alongMomentum) return std::make_pair( false,TrajectoryStateOnSurface()); }
+    }
   }
+
+  TrajectoryStateOnSurface && propSt = prop.propagate( tsos, theDet->specificSurface());
+  if unlikely ( !propSt.isValid()) { stat.nf1++; return std::make_pair( false, std::move(propSt));}
+
+
   auto es = est.estimate( propSt, theDet->specificSurface());
   if (!es) stat.nf2++;
   if (close && (!isIn) && (!es) ) stat.ns11++;
-  if (close && es &&(!isIn)) { stat.ns21++; std::cout << thresh << std::endl;}
+  if (close && es &&(!isIn)) { stat.ns21++; } // std::cout << thresh << std::endl;}
   return std::make_pair( es, std::move(propSt));
 
 }
