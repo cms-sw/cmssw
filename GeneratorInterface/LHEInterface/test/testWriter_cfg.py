@@ -12,6 +12,7 @@ process.source = cms.Source("PoolSource",
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
 
-process.writer = cms.EDAnalyzer("LHEWriter")
+process.writer = cms.EDAnalyzer("LHEWriter",
+                                outputFile='writer.lhe')
 
 process.outpath = cms.EndPath(process.writer)
