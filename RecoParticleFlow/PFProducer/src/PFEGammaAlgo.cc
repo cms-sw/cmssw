@@ -1407,7 +1407,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	     }
 	   }// loop over tracks in primary vertex
 	    // if associated to good non-GSF matched track remove this cluster
-	   if( PFTrackAlgoTools::isNotPixelLessStep(trackref->algo()) && nexhits == 0 && fromprimaryvertex ) {
+	   if( PFTrackAlgoTools::isGoodForEGMPrimary(trackref->algo()) && nexhits == 0 && fromprimaryvertex ) {
 	     closestECAL.second = false;
 	   } else { // otherwise associate the cluster and KF track
 	     _recoveredlinks.push_back( ElementMap::value_type(closestECAL.first,kftrack.first) );

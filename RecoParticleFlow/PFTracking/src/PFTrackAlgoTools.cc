@@ -133,7 +133,7 @@ bool isGoodForEGM(const reco::TrackBase::TrackAlgorithm& algo){
 
 }
 
-bool isNotPixelLessStep(const reco::TrackBase::TrackAlgorithm& algo){
+bool isGoodForEGMPrimary(const reco::TrackBase::TrackAlgorithm& algo){
   switch (algo) {
   case reco::TrackBase::ctf:
   case reco::TrackBase::duplicateMerge:
