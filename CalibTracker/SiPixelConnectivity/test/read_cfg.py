@@ -4,8 +4,10 @@ process = cms.Process("SiPixelCablingReader")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'PRE_MC_71_V5::All'
+from Configuration.AlCa.autoCond_condDBv2 import autoCond
+process.GlobalTag.globaltag = autoCond['run2_design']
 
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
