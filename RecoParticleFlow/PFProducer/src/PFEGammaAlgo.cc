@@ -1396,7 +1396,6 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	     docast(const reco::PFBlockElementTrack*,kftrack.first);
 	   const reco::TrackRef trackref = kfEle->trackRef();
 
-	   const reco::TrackBase::TrackAlgorithm Algo = trackref->algo();
 	   const int nexhits = 
 	     trackref->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
 	   bool fromprimaryvertex = false;
@@ -1408,12 +1407,16 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	     }
 	   }// loop over tracks in primary vertex
 	    // if associated to good non-GSF matched track remove this cluster
-	   if( Algo < reco::TrackBase::pixelLessStep && nexhits == 0 && fromprimaryvertex ) {
+	   if( PFTrackAlgoTools::isNotPixelLessStep(trackref->algo()) && nexhits == 0 && fromprimaryvertex ) {
 	     closestECAL.second = false;
 	   } else { // otherwise associate the cluster and KF track
 	     _recoveredlinks.push_back( ElementMap::value_type(closestECAL.first,kftrack.first) );
 	     _recoveredlinks.push_back( ElementMap::value_type(kftrack.first,closestECAL.first) );
 	   }
+
+
+
+
 	 }
        } // found a good closest ECAL match
      } // no GSF track matched to KF

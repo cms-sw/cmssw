@@ -133,6 +133,22 @@ bool isGoodForEGM(const reco::TrackBase::TrackAlgorithm& algo){
 
 }
 
+bool isNotPixelLessStep(const reco::TrackBase::TrackAlgorithm& algo){
+  switch (algo) {
+  case reco::TrackBase::ctf:
+  case reco::TrackBase::duplicateMerge:
+  case reco::TrackBase::cosmics:
+  case reco::TrackBase::initialStep:
+  case reco::TrackBase::lowPtTripletStep:
+  case reco::TrackBase::pixelPairStep:
+  case reco::TrackBase::detachedTripletStep:
+  case reco::TrackBase::mixedTripletStep:
+    return true;
+  default:
+    return false;
+  }
+
+}
 
 bool isFifthStep(const reco::TrackBase::TrackAlgorithm& algo){
   switch (algo) {
