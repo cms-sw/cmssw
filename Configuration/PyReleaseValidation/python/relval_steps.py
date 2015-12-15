@@ -1462,6 +1462,7 @@ for k in upgradeKeys:
     geom=upgradeGeoms[k2]
     gt=upgradeGTs[k2]
     cust=upgradeCustoms[k2]
+    era=upgradeEras.get(k2, None)
     upgradeStepDict['GenSimFull'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
@@ -1471,6 +1472,7 @@ for k in upgradeKeys:
                                        '--geometry' : geom
                                        }
     if cust!=None : upgradeStepDict['GenSimFull'][k]['--customise']=cust
+    if era is not None: upgradeStepDict['GenSimFull'][k]['--era']=era
         
     upgradeStepDict['GenSimHLBeamSpotFull'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
@@ -1481,6 +1483,7 @@ for k in upgradeKeys:
                                        '--geometry' : geom
                                        }
     if cust!=None : upgradeStepDict['GenSimHLBeamSpotFull'][k]['--customise']=cust
+    if era is not None: upgradeStepDict['GenSimHLBeamSpotFull'][k]['--era']=era
     
     upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                                       '--conditions':gt,
@@ -1490,6 +1493,7 @@ for k in upgradeKeys:
                                       '--geometry' : geom
                                       }
     if cust!=None : upgradeStepDict['DigiFull'][k]['--customise']=cust
+    if era is not None: upgradeStepDict['DigiFull'][k]['--era']=era
     
     upgradeStepDict['DigiFullTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW',
                                       '--conditions':gt,
@@ -1499,6 +1503,7 @@ for k in upgradeKeys:
                                       '--geometry' : geom
                                       }
     if cust!=None : upgradeStepDict['DigiFullTrigger'][k]['--customise']=cust
+    if era is not None: upgradeStepDict['DigiFullTrigger'][k]['--era']=era
     
     
     if k2 in PUDataSets:
@@ -1511,6 +1516,7 @@ for k in upgradeKeys:
                                              '--geometry' : geom
                                              }
     if cust!=None : upgradeStepDict['DigiTrkTrigFull'][k]['--customise']=cust
+    if era is not None: upgradeStepDict['DigiTrkTrigFull'][k]['--era']=era
 
     upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO',
                                       '--conditions':gt,
@@ -1520,6 +1526,7 @@ for k in upgradeKeys:
                                       '--geometry' : geom
                                       }
     if cust!=None : upgradeStepDict['RecoFull'][k]['--customise']=cust
+    if era is not None: upgradeStepDict['RecoFull'][k]['--era']=era
 
     if k2 in PUDataSets:
         upgradeStepDict['RecoFullPU'][k]=merge([PUDataSets[k2],{'-s':'RAW2DIGI,L1Reco,RECO'},upgradeStepDict['RecoFull'][k]])
@@ -1532,6 +1539,7 @@ for k in upgradeKeys:
                                       '--geometry' : geom
                                       }
     if cust!=None : upgradeStepDict['RecoFullHGCAL'][k]['--customise']=cust
+    if era is not None: upgradeStepDict['RecoFullHGCAL'][k]['--era']=era
 
     if k2 in PUDataSets:
         upgradeStepDict['RecoFullPUHGCAL'][k]=merge([PUDataSets[k2],{'-s':'RAW2DIGI,L1Reco,RECO'},upgradeStepDict['RecoFullHGCAL'][k]])
@@ -1544,6 +1552,7 @@ for k in upgradeKeys:
                                     '--filetype':'DQM'
                                     }
     if cust!=None : upgradeStepDict['HARVESTFull'][k]['--customise']=cust
+    if era is not None: upgradeStepDict['HARVESTFull'][k]['--era']=era
 
     if k2 in PUDataSets:
         upgradeStepDict['HARVESTFullPU'][k]=merge([PUDataSets[k2],{'-s':'HARVESTING:dqmHarvesting'},upgradeStepDict['HARVESTFull'][k]])
@@ -1556,6 +1565,7 @@ for k in upgradeKeys:
                                    '--geometry' : geom,
                                    '--relval':'27000,3000'}
     if cust!=None : upgradeStepDict['FastSim'][k]['--customise']=cust
+    if era is not None: upgradeStepDict['FastSim'][k]['--era']=era
 
     upgradeStepDict['HARVESTFast'][k]={'-s':'HARVESTING:validationHarvesting',
                                     '--conditions':gt,
@@ -1564,6 +1574,7 @@ for k in upgradeKeys:
                                     '--scenario' : 'pp'
                                     }
     if cust!=None : upgradeStepDict['HARVESTFast'][k]['--customise']=cust
+    if era is not None: upgradeStepDict['HARVESTFast'][k]['--era']=era
 
 
 
