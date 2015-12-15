@@ -35,6 +35,7 @@ private:
 
   std::map<std::string,const PixelGeomDetType*> thePixelDetTypeMap;
   std::map<std::string,const StripGeomDetType*> theStripDetTypeMap;
+  const TrackerTopology* theTopo;
 };
 
 #endif
