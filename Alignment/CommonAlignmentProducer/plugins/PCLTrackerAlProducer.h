@@ -139,7 +139,7 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     void initBeamSpot(const edm::Event&);
 
     /// Creates ideal geometry @theTrackerGeometry from IdealGeometryRecord
-    void createGeometries(const edm::EventSetup&);
+    void createGeometries(const edm::EventSetup&, const TrackerTopology*);
 
     /// Applies Alignments from Database (GlobalPositionRcd) to Geometry
     /// @theTrackerGeometry

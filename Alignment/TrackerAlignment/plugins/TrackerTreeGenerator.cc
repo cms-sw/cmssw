@@ -53,6 +53,7 @@
 
 //#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
@@ -123,11 +124,16 @@ TrackerTreeGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    // now try to take directly the ideal geometry independent of used geometry in Global Tag
    edm::ESHandle<GeometricDet> geometricDet;
    iSetup.get<IdealGeometryRecord>().get(geometricDet);
+
+   //Retrieve tracker topology from geometry
+   edm::ESHandle<TrackerTopology> tTopoHandle;
+   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+   const TrackerTopology* const tTopo = tTopoHandle.product();
    
    edm::ESHandle<PTrackerParameters> ptp;
    iSetup.get<PTrackerParametersRcd>().get(ptp);
    TrackerGeomBuilderFromGeometricDet trackerBuilder;
-   TrackerGeometry* tkGeom = trackerBuilder.build(&(*geometricDet), *ptp);
+   TrackerGeometry* tkGeom = trackerBuilder.build(&(*geometricDet), *ptp, tTopo);
  
    const TrackerGeometry *bareTkGeomPtr = &(*tkGeom);
    

@@ -9,6 +9,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 class TrackerGeometry;
+class TrackerTopology;
 class PixelGeomDetType;
 class StripGeomDetType;
 class PTrackerParameters;
@@ -16,7 +17,7 @@ class PTrackerParameters;
 class TrackerGeomBuilderFromGeometricDet {
 public:
 
-  TrackerGeometry* build(const GeometricDet* gd, const PTrackerParameters & ptp );
+  TrackerGeometry* build(const GeometricDet* gd, const PTrackerParameters & ptp, const TrackerTopology* tTopo);
 
 private:
 
@@ -27,7 +28,7 @@ private:
 		  int BIG_PIX_PER_ROC_Y);
   void buildSilicon(std::vector<const GeometricDet*> const &,
 		    TrackerGeometry*,GeomDetType::SubDetector det, const std::string& part);
-  void buildGeomDet(TrackerGeometry*);
+  void buildGeomDet(TrackerGeometry* );
 
   PlaneBuilderFromGeometricDet::ResultType
   buildPlaneWithMaterial(const GeometricDet* gd,double scaleFactor=1.) const;

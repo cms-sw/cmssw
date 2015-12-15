@@ -455,7 +455,7 @@ void PCLTrackerAlProducer
 
   // Create the geometries from the ideal geometries (first time only)
   //std::shared_ptr<TrackingGeometry> theTrackerGeometry;
-  createGeometries(setup);
+  createGeometries(setup, tTopo);
 
   applyAlignmentsToDB(setup);
   createAlignables(tTopo);
@@ -495,7 +495,7 @@ void PCLTrackerAlProducer
 
 //_____________________________________________________________________________
 void PCLTrackerAlProducer
-::createGeometries(const edm::EventSetup& setup)
+::createGeometries(const edm::EventSetup& setup, const TrackerTopology* tTopo)
 {
   if (doTracker_) {
     edm::ESHandle<GeometricDet> geometricDet;
@@ -507,7 +507,7 @@ void PCLTrackerAlProducer
     setup.get<PTrackerParametersRcd>().get( ptp );
 
     theTrackerGeometry = boost::shared_ptr<TrackerGeometry>(
-        trackerBuilder.build(&(*geometricDet), *ptp )
+        trackerBuilder.build(&(*geometricDet), *ptp, tTopo )
     );
   }
 
