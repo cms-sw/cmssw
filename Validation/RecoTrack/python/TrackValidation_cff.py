@@ -17,6 +17,8 @@ from CommonTools.RecoAlgos.trackingParticleConversionSelector_cfi import trackin
 from CommonTools.RecoAlgos.sortedPrimaryVertices_cfi import sortedPrimaryVertices as _sortedPrimaryVertices
 from CommonTools.RecoAlgos.recoChargedRefCandidateToTrackRefProducer_cfi import recoChargedRefCandidateToTrackRefProducer as _recoChargedRefCandidateToTrackRefProducer
 
+from Configuration.StandardSequences.Eras import eras
+
 ### First define the stuff for the standard validation sequence
 ## Track selectors
 _algos = [
@@ -70,6 +72,45 @@ if eras.fastSim.isChosen():
     _trackProducers.remove("jetCoreRegionalStepTracks")
     _trackProducers.remove("muonSeededTracksInOut")
     _trackProducers.remove("muonSeededTracksOutIn")
+if eras.phase1Pixel.isChosen():
+    _algos = [
+        "generalTracks",
+        "initialStep",
+        "highPtTripletStep",
+        "lowPtQuadStep",
+        "lowPtTripletStep",
+        "detachedQuadStep",
+        "mixedTripletStep",
+        "pixelPairStep",
+        "tobTecStep",
+        "muonSeededStepInOut",
+        "muonSeededStepOutIn",
+    ]
+    _seedProducers = [
+        "initialStepSeeds",
+        "highPtTripletStepSeeds",
+        "lowPtQuadStepSeeds",
+        "lowPtTripletStepSeeds",
+        "detachedQuadStepSeeds",
+        "mixedTripletStepSeedsA",
+        "mixedTripletStepSeedsB",
+        "pixelPairStepSeeds",
+        "tobTecStepSeeds",
+        "muonSeededSeedsInOut",
+        "muonSeededSeedsOutIn",
+    ]
+    _trackProducers = [
+        "initialStepTracks",
+        "highPtTripletStepTracks",
+        "lowPtQuadStepTracks",
+        "lowPtTripletStepTracks",
+        "detachedQuadStepTracks",
+        "mixedTripletStepTracks",
+        "pixelPairStepTracks",
+        "tobTecStepTracks",
+        "muonSeededTracksInOut",
+        "muonSeededTracksOutIn",
+    ]
 
 def _algoToSelector(algo):
     sel = ""
