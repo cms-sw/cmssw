@@ -1,20 +1,32 @@
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 
-void QIE10DataFrame::setSample(edm::DataFrame::size_type isample, int adc, int le_tdc, int fe_tdc, int capid, bool soi, bool ok) {
+void QIE10DataFrame::setSample(edm::DataFrame::size_type isample, int adc, int le_tdc, int te_tdc, int capid, bool soi, bool ok) {
   if (isample>=size()) return;
-  edm::DataFrame::operator[](isample*WORDS_PER_SAMPLE+HEADER_WORDS)=(adc&Sample::MASK_ADC)|(soi?(Sample::MASK_SOI):(0))|(ok?(Sample::MASK_OK):(0));
-  edm::DataFrame::operator[](isample*WORDS_PER_SAMPLE+HEADER_WORDS+1)=(le_tdc&Sample::MASK_LE_TDC)|((fe_tdc&Sample::MASK_TE_TDC)<<Sample::OFFSET_TE_TDC)|((capid&Sample::MASK_CAPID)<<Sample::OFFSET_CAPID)|0x4000; // 0x4000 marks this as second word of a pair
+  m_data[isample*WORDS_PER_SAMPLE+HEADER_WORDS]=(adc&Sample::MASK_ADC)|(soi?(Sample::MASK_SOI):(0))|(ok?(Sample::MASK_OK):(0));
+  m_data[isample*WORDS_PER_SAMPLE+HEADER_WORDS+1]=(le_tdc&Sample::MASK_LE_TDC)|((te_tdc&Sample::MASK_TE_TDC)<<Sample::OFFSET_TE_TDC)|((capid&Sample::MASK_CAPID)<<Sample::OFFSET_CAPID)|0x4000; // 0x4000 marks this as second word of a pair
 }
 
 void QIE10DataFrame::setFlags(uint16_t v) {
-  edm::DataFrame::operator[](size()-1)=v;
+  m_data[size()-1]=v;
 }
 
 void QIE10DataFrame::copyContent(const QIE10DataFrame& digi) {
+  for (edm::DataFrame::size_type i=0; i<size() && i<digi.size();i++){
+    Sample sam = digi[i];
+    setSample(i, sam.adc(), sam.le_tdc(), sam.te_tdc(), sam.capid(), sam.soi(), sam.ok());
+  }
+}
 
-  for (size_type i=0; i<size() && i<digi.size();i++)
-    edm::DataFrame::operator[](i)=digi.edm::DataFrame::operator[](i);
+int QIE10DataFrame::presamples() const {
+  for (int i=0; i<samples(); i++) {
+    if ((*this)[i].soi()) return i;
+  }
+  return -1;
+}
+
+void QIE10DataFrame::setZSInfo(bool unsuppressed, bool markAndPass, uint32_t crossingMask){
+	if(markAndPass) m_data[0] |= MASK_MARKPASS;
 }
 
 std::ostream& operator<<(std::ostream& s, const QIE10DataFrame& digi) {
@@ -25,12 +37,13 @@ std::ostream& operator<<(std::ostream& s, const QIE10DataFrame& digi) {
   }
   s << " " << digi.samples() << " samples";
   if (digi.linkError()) s << " LinkError ";
-  if (digi.wasMarkAndPass()) s << " MaP ";
+  if (digi.zsMarkAndPass()) s << " MaP ";
   s << std::endl;
   for (int i=0; i<digi.samples(); i++) {
-    s << "  ADC=" << digi[i].adc() << " TDC(LE)=" << digi[i].le_tdc() << " TDC(TE)=" << digi[i].te_tdc() << " CAPID=" << digi[i].capid();
-    if (digi[i].soi()) s << " SOI ";
-    if (!digi[i].ok()) s << " !OK ";
+    QIE10DataFrame::Sample sam = digi[i];
+    s << "  ADC=" << sam.adc() << " TDC(LE)=" << sam.le_tdc() << " TDC(TE)=" << sam.te_tdc() << " CAPID=" << sam.capid();
+    if (sam.soi()) s << " SOI ";
+    if (!sam.ok()) s << " !OK ";
     s << std::endl;
   }
   return s;

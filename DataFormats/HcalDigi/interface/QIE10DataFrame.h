@@ -3,13 +3,12 @@
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/Common/interface/DataFrame.h"
-#include "DataFormats/Common/interface/DataFrameContainer.h"
 #include <ostream>
 
 /** Precision readout digi from QIE10 including TDC information
 
  */
-class QIE10DataFrame : protected edm::DataFrame {
+class QIE10DataFrame {
 public:
 
   static const int WORDS_PER_SAMPLE = 2;
@@ -17,8 +16,7 @@ public:
   static const int FLAG_WORDS = 1;
 
   QIE10DataFrame() { }
-  QIE10DataFrame(const edm::DataFrameContainer& c, edm::DataFrame::size_type i) : edm::DataFrame(c,i) { }
-  QIE10DataFrame(edm::DataFrame df) : edm::DataFrame(df) { }
+  QIE10DataFrame(edm::DataFrame const & df) : m_data(df) { }
 
   class Sample {
   public:
@@ -45,28 +43,46 @@ public:
   void copyContent(const QIE10DataFrame& src);
 
   /// Get the detector id
-  DetId detid() const { return DetId(id()); }
+  DetId detid() const { return DetId(m_data.id()); }
+  edm::DataFrame::id_type id() const { return m_data.id(); }
+  /// more accessors
+  edm::DataFrame::size_type size() const { return m_data.size(); }
+  /// iterators
+  edm::DataFrame::iterator begin() { return m_data.begin(); }
+  edm::DataFrame::iterator end() { return m_data.end(); }
+  edm::DataFrame::const_iterator begin() const { return m_data.begin(); }
+  edm::DataFrame::const_iterator end() const { return m_data.end(); }
   /// total number of samples in the digi
   int samples() const { return (size()-HEADER_WORDS-FLAG_WORDS)/WORDS_PER_SAMPLE; }
+  /// for backward compatibility
+  int presamples() const;
   /// get the flavor of the frame
   static const int OFFSET_FLAVOR = 12;
   static const int MASK_FLAVOR = 0x7;
-  int flavor() const { return ((edm::DataFrame::operator[](0)>>OFFSET_FLAVOR)&MASK_FLAVOR); }
+  int flavor() const { return ((m_data[0]>>OFFSET_FLAVOR)&MASK_FLAVOR); }
   /// was there a link error?
   static const int MASK_LINKERROR = 0x800;
-  bool linkError() const { return edm::DataFrame::operator[](0)&MASK_LINKERROR; }
+  bool linkError() const { return m_data[0]&MASK_LINKERROR; }
   /// was this a mark-and-pass ZS event?
   static const int MASK_MARKPASS = 0x100;
-  bool wasMarkAndPass() const {return edm::DataFrame::operator[](0)&MASK_MARKPASS; }
+  bool zsMarkAndPass() const {return m_data[0]&MASK_MARKPASS; }
+  /// other ZS functions (TODO: real implementation)
+  bool zsUnsuppressed() const { return false; }
+  uint32_t zsCrossingMask() const { return 0; }
+  /// set ZS params
+  void setZSInfo(bool unsuppressed, bool markAndPass, uint32_t crossingMask=0);
   /// get the sample
-  inline Sample operator[](edm::DataFrame::size_type i) const { return Sample(*this,i*WORDS_PER_SAMPLE+HEADER_WORDS); }
+  inline Sample operator[](edm::DataFrame::size_type i) const { return Sample(m_data,i*WORDS_PER_SAMPLE+HEADER_WORDS); }
   /// set the sample contents
-  void setSample(edm::DataFrame::size_type isample, int adc, int le_tdc, int fe_tdc, int capid, bool soi=false, bool ok=true);
+  void setSample(edm::DataFrame::size_type isample, int adc, int le_tdc, int te_tdc, int capid, bool soi=false, bool ok=true);
   /// get the flag word
-  uint16_t flags() const { return edm::DataFrame::operator[](size()-1); }
+  uint16_t flags() const { return m_data[size()-1]; }
   /// set the flag word
   void setFlags(uint16_t v);
   
+  private:
+   edm::DataFrame m_data;
+
 };
 
 std::ostream& operator<<(std::ostream&, const QIE10DataFrame&);
