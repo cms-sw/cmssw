@@ -20,6 +20,10 @@ highPurityTracks = cms.EDFilter("TrackSelector",
                                 src = cms.InputTag("generalTracks"),
                                 cut = cms.string('quality("highPurity")')
 )
+ak3PFJetAnalyzer.doSubEvent = True
+ak4PFJetAnalyzer.doSubEvent = True
+ak4CaloJetAnalyzer.doSubEvent = True
+ak5PFJetAnalyzer.doSubEvent = True
 
 # Other radii jets and calo jets need to be reconstructed
 jetSequences = cms.Sequence(

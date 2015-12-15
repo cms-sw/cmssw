@@ -36,6 +36,37 @@ highPurityTracks = cms.EDFilter("TrackSelector",
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
 offlinePrimaryVertices.TrackLabel = 'highPurityTracks'
 
+akVs2PFJetAnalyzer.doSubEvent = True
+akVs2CaloJetAnalyzer.doSubEvent = True
+
+akVs3PFJetAnalyzer.doSubEvent = True
+akVs3CaloJetAnalyzer.doSubEvent = True
+
+akVs4PFJetAnalyzer.doSubEvent = True
+akVs4CaloJetAnalyzer.doSubEvent = True
+
+akVs5PFJetAnalyzer.doSubEvent = True
+akVs5CaloJetAnalyzer.doSubEvent = True
+
+akVs6PFJetAnalyzer.doSubEvent = True
+akVs6CaloJetAnalyzer.doSubEvent = True
+
+akPu1PFJetAnalyzer.doSubEvent = True
+akPu1CaloJetAnalyzer.doSubEvent = True
+
+akPu2PFJetAnalyzer.doSubEvent = True
+akPu2CaloJetAnalyzer.doSubEvent = True
+
+akPu3PFJetAnalyzer.doSubEvent = True
+akPu3CaloJetAnalyzer.doSubEvent = True
+
+akPu4PFJetAnalyzer.doSubEvent = True
+akPu4CaloJetAnalyzer.doSubEvent = True
+
+akPu5PFJetAnalyzer.doSubEvent = True
+akPu5CaloJetAnalyzer.doSubEvent = True
+
+
 
 jetSequences = cms.Sequence(
     akHiGenJets +
