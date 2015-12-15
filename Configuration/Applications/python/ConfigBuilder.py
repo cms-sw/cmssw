@@ -975,7 +975,7 @@ class ConfigBuilder(object):
         self.RAW2DIGIDefaultSeq='RawToDigi'
         self.L1RecoDefaultSeq='L1Reco'
         self.L1TrackTriggerDefaultSeq='L1TrackTrigger'
-        if 'RAW2DIGI' in self.stepMap and 'RECO' in self.stepMap:
+        if self._options.fast or ('RAW2DIGI' in self.stepMap and 'RECO' in self.stepMap):
                 self.RECODefaultSeq='reconstruction'
         else:
                 self.RECODefaultSeq='reconstruction_fromRECO'
