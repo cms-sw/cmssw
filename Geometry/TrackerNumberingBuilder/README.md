@@ -123,7 +123,7 @@ The configuration names for this detid schema are `trackerNumberingGeometry_cfi`
 The xml description of tracker parameters for this detid schema is in [Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml](../TrackerCommonData/data/PhaseI/trackerParameters.xml)
 
 ### Phase 2 Upgrade Detector DetId schema
-The phase 2 detector DetId schema is identical to the one of the phase 1 detector for the inner pixel detector while for the outer tracker subdetector 5, for the barrel, and subdetector 4, for the endcap, are used. In some cases the name of the `TrackerTopology` methods is not so meaningful.
+The phase 2 detector DetId schema is identical to the one of the phase 1 detector for the inner pixel detector while for the outer tracker subdetector 5, for the barrel, and subdetector 4, for the endcap, are used. In some cases the name of the `TrackerTopology` methods is not so meaningful. In particular, for the Outer Tracker, the methods DoubleSided is not implemented, firstly because there is no need, secondly because it is not possible, just looking at the DetId and without something hardcoded, to understand if the module is single or double. This is also valid for Run I and Phase I.
  
 * Subdetector 1: (`DetId::subDetId() == PixelSubdetector::PixelBarrel`): Phase1 Pixel Barrel
 

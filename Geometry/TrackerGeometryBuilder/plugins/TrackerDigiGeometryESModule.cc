@@ -7,6 +7,7 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 // Alignments
 #include "CondFormats/Alignment/interface/Alignments.h"
@@ -76,7 +77,7 @@ TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord)
   iRecord.getRecord<IdealGeometryRecord>().get( gD );
 
   edm::ESHandle<TrackerTopology> tTopoHand;
-  iRecord.getRecord<IdealGeometryRecord>().get(tTopoHand);
+  iRecord.getRecord<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
   edm::ESHandle<PTrackerParameters> ptp;
