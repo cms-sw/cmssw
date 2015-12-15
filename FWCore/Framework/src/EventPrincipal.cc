@@ -40,7 +40,6 @@ namespace edm {
           luminosityBlockPrincipal_(),
           provRetrieverPtr_(new ProductProvenanceRetriever(streamIndex)),
           unscheduledHandler_(),
-          moduleLabelsRunning_(),
           eventSelectionIDs_(),
           branchIDListHelper_(branchIDListHelper),
           thinnedAssociationsHelper_(thinnedAssociationsHelper),
@@ -57,7 +56,6 @@ namespace edm {
     luminosityBlockPrincipal_.reset();
     provRetrieverPtr_->reset();
     unscheduledHandler_.reset();
-    moduleLabelsRunning_.clear();
     branchListIndexToProcessIndex_.clear();
   }
 
@@ -461,28 +459,6 @@ namespace edm {
   EventPrincipal::unscheduledFill(std::string const& moduleLabel,
                                   SharedResourcesAcquirer* sra,
                                   ModuleCallingContext const* mcc) const {
-
-    // If it is a module already currently running in unscheduled
-    // mode, then there is a circular dependency related to which
-    // EDProducts modules require and produce.  There is no safe way
-    // to recover from this.  Here we check for this problem and throw
-    // an exception.
-    std::vector<std::string>::const_iterator i =
-      find_in_all(moduleLabelsRunning_, moduleLabel);
-
-    if(i != moduleLabelsRunning_.end()) {
-      throw Exception(errors::LogicError)
-        << "Hit circular dependency while trying to run an unscheduled module.\n"
-        << "The last module on the stack shown above requested data from the\n"
-        << "module with label: '" << moduleLabel << "'.\n"
-        << "This is illegal because this module is already running (it is in the\n"
-        << "stack shown above, it might or might not be asking for data from itself).\n"
-        << "More information related to resolving circular dependences can be found here:\n"
-        << "https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideUnscheduledExecution#Circular_Dependence_Errors.";
-    }
-
-    UnscheduledSentry sentry(&moduleLabelsRunning_, moduleLabel);
-
     if(unscheduledHandler_) {
       if(mcc == nullptr) {
         throw Exception(errors::LogicError)
