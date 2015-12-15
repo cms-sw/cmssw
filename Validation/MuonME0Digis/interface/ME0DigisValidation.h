@@ -22,13 +22,10 @@ public:
   MonitorElement* me0_strip_dg_zr_tot[2];
   MonitorElement* me0_strip_dg_zr_tot_Muon[2];
 
-//  MonitorElement* me0_strip_digi_DeltaX[2][6];
-//  MonitorElement* me0_strip_digi_DeltaY[2][6];
-
   edm::EDGetToken InputTagToken_Digi;
 
   Int_t npart;
-  
+
 
 };
 

@@ -8,14 +8,11 @@ ME0HitsValidation::ME0HitsValidation(const edm::ParameterSet& cfg):  ME0BaseVali
 }
 
 void ME0HitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
-   //edm::ESHandle<ME0Geometry> hGeom;
-   //iSetup.get<MuonGeometryRecord>().get(hGeom);
-   //const ME0Geometry* ME0Geometry_ =( &*hGeom);
-  
+
   LogDebug("MuonME0HitsValidation")<<"Info : Loading Geometry information\n";
   ibooker.setCurrentFolder("MuonME0HitsV/ME0HitsTask");
 
-  unsigned int nregion  = 2; 
+  unsigned int nregion  = 2;
 
   edm::LogInfo("MuonME0HitsValidation")<<"+++ Info : # of region : "<<nregion<<std::endl;
 
@@ -37,9 +34,9 @@ void ME0HitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
           std::string hist_label_for_eloss = "SimHit energy loss : region"+regionLabel[region_num]+" layer "+layerLabel[layer_num]+" "+" ; Energy loss [eV] ; entries";
           std::string hist_label_for_elossMu = "SimHit energy loss(Muon only) : region"+regionLabel[region_num]+" layer "+layerLabel[layer_num]+" "+" ; Energy loss [eV] ; entries";
 
-          
+
           double tof_min, tof_max;
-          tof_min = 10; tof_max = 30; 
+          tof_min = 10; tof_max = 30;
           me0_sh_tof[region_num][layer_num] = ibooker.book1D( hist_name_for_tof.c_str(), hist_label_for_tof.c_str(), 40,tof_min,tof_max);
           me0_sh_tofMu[region_num][layer_num] = ibooker.book1D( hist_name_for_tofMu.c_str(), hist_label_for_tofMu.c_str(), 40,tof_min,tof_max);
           me0_sh_eloss[region_num][layer_num] = ibooker.book1D( hist_name_for_eloss.c_str(), hist_label_for_eloss.c_str(), 60,0.,6000.);
@@ -59,7 +56,7 @@ void ME0HitsValidation::analyze(const edm::Event& e,
  edm::ESHandle<ME0Geometry> hGeom;
  iSetup.get<MuonGeometryRecord>().get(hGeom);
  const ME0Geometry* ME0Geometry_ =( &*hGeom);
- 
+
   edm::Handle<edm::PSimHitContainer> ME0Hits;
   e.getByToken(InputTagToken_, ME0Hits);
   if (!ME0Hits.isValid()) {
@@ -83,9 +80,9 @@ void ME0HitsValidation::analyze(const edm::Event& e,
       std::cout<<"simHit did not matched with GEMGeometry."<<std::endl;
       continue;
     }
-    
+
     const LocalPoint hitLP(hits->localPosition());
-    
+
     const GlobalPoint hitGP(ME0Geometry_->idToDet(hits->detUnitId())->surface().toGlobal(hitLP));
     Float_t g_r = hitGP.perp();
     Float_t g_x = hitGP.x();
@@ -101,12 +98,9 @@ void ME0HitsValidation::analyze(const edm::Event& e,
       //fill histos for Muons only
       me0_sh_tofMu[(int)(region/2.+0.5)][layer-1]->Fill(timeOfFlightMuon);
       me0_sh_elossMu[(int)(region/2.+0.5)][layer-1]->Fill(energyLossMuon*1.e9);
- 	
-     // std::cout<<"Muons :   "<<timeOfFlightMuon<<"   EnergyLoss:  "<<energyLossMuon<<std::endl;
+
     }
     
-      // fill hist
-    // First, fill variable has no condition.
     me0_sh_zr[(int)(region/2.+0.5)][layer-1]->Fill(g_z,g_r);
     me0_sh_tot_zr[(int)(region/2.+0.5)]->Fill(g_z,g_r);
     me0_sh_xy[(int)(region/2.+0.5)][layer-1]->Fill(g_x,g_y);
@@ -115,4 +109,3 @@ void ME0HitsValidation::analyze(const edm::Event& e,
 
    }
 }
-

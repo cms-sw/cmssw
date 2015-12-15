@@ -21,7 +21,6 @@ public:
  private:
 
   MonitorElement* me0_rh_xy[2][6];
-  //MonitorElement* me0_rh_xy_Muon[2][6];
   MonitorElement* me0_rh_zr[2];
 
   MonitorElement* me0_rh_DeltaX[2][6];

@@ -8,9 +8,6 @@ ME0RecHitsValidation::ME0RecHitsValidation(const edm::ParameterSet& cfg):  ME0Ba
 }
 
 void ME0RecHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
-   //edm::ESHandle<ME0Geometry> hGeom;
-   //iSetup.get<MuonGeometryRecord>().get(hGeom);
-   //const ME0Geometry* ME0Geometry_ =( &*hGeom);
 
   LogDebug("MuonME0RecHitsValidation")<<"Info : Loading Geometry information\n";
   ibooker.setCurrentFolder("MuonME0RecHitsV/ME0RecHitsTask");
@@ -25,9 +22,7 @@ void ME0RecHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
   for( unsigned int region_num = 0 ; region_num < nregion ; region_num++ ) {
       me0_rh_zr[region_num] = BookHistZR(ibooker,"me0_rh_tot","Digi",region_num);
       for( unsigned int layer_num = 0 ; layer_num < 6 ; layer_num++) {
-          //me0_strip_dg_zr[region_num][layer_num] = BookHistZR(ibooker,"me0_strip_dg","SimHit",region_num,layer_num);
           me0_rh_xy[region_num][layer_num] = BookHistXY(ibooker,"me0_rh","RecHit",region_num,layer_num);
-          //me0_rh_xy_Muon[region_num][layer_num] = BookHistXY(ibooker,"me0_rh","RecHit Muon",region_num,layer_num);
 
           std::string histo_name_DeltaX = std::string("me0_rh_DeltaX_r")+regionLabel[region_num]+"_l"+layerLabel[layer_num];
           std::string histo_name_DeltaY = std::string("me0_rh_DeltaY_r")+regionLabel[region_num]+"_l"+layerLabel[layer_num];
@@ -87,7 +82,7 @@ void ME0RecHitsValidation::analyze(const edm::Event& e,
      std::cout<<"simHit did not matched with GEMGeometry."<<std::endl;
      continue;
    }
-   
+
    const LocalPoint hitLP(hits->localPosition());
 
    for (ME0RecHitCollection::const_iterator recHit = ME0RecHits->begin(); recHit != ME0RecHits->end(); ++recHit)
@@ -105,7 +100,6 @@ void ME0RecHitsValidation::analyze(const edm::Event& e,
        ME0DetId id((*recHit).me0Id());
 
        Short_t region = (Short_t) id.region();
-      // Short_t ring = 0;
        Short_t station = 0;
        Short_t layer = (Short_t) id.layer();
        Short_t chamber = (Short_t) id.chamber();
@@ -115,8 +109,6 @@ void ME0RecHitsValidation::analyze(const edm::Event& e,
        GlobalPoint rhGP = ME0Geometry_->idToDet((*recHit).me0Id())->surface().toGlobal(rhLP);
 
        Float_t globalR = rhGP.perp();
-      // Float_t globalEta = rhGP.eta();
-      // Float_t globalPhi = rhGP.phi();
        Float_t globalX = rhGP.x();
        Float_t globalY = rhGP.y();
        Float_t globalZ = rhGP.z();
