@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilter.h"
+#include "GeneratorInterface/GenFilters/interface/PythiaFilterHT.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaDauFilter.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaJet.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaGamma.h"
@@ -14,6 +15,7 @@
 #include "GeneratorInterface/GenFilters/interface/MCDijetResonance.h"
 #include "GeneratorInterface/GenFilters/interface/MCProcessFilter.h"
 #include "GeneratorInterface/GenFilters/interface/MCProcessRangeFilter.h"
+#include "GeneratorInterface/GenFilters/interface/MCPdgIndexFilter.h"
 #include "GeneratorInterface/GenFilters/interface/MCSingleParticleFilter.h"
 #include "GeneratorInterface/GenFilters/interface/MCSmartSingleParticleFilter.h"
 #include "GeneratorInterface/GenFilters/interface/MCZll.h"
@@ -43,10 +45,10 @@
 #include "GeneratorInterface/GenFilters/interface/ZgMassFilter.h"
 #include "GeneratorInterface/GenFilters/interface/ZgammaMassFilter.h"
 
-
   using cms::BHFilter;
   DEFINE_FWK_MODULE(LQGenFilter);
   DEFINE_FWK_MODULE(PythiaFilter);
+  DEFINE_FWK_MODULE(PythiaFilterHT);
   DEFINE_FWK_MODULE(PythiaDauFilter);
   DEFINE_FWK_MODULE(PythiaFilterGammaJet);
   DEFINE_FWK_MODULE(PythiaFilterGammaGamma);
@@ -60,6 +62,7 @@
   DEFINE_FWK_MODULE(MCDijetResonance);
   DEFINE_FWK_MODULE(MCProcessFilter);
   DEFINE_FWK_MODULE(MCProcessRangeFilter);
+  DEFINE_FWK_MODULE(MCPdgIndexFilter);
   DEFINE_FWK_MODULE(MCSingleParticleFilter);
   DEFINE_FWK_MODULE(MCSmartSingleParticleFilter);
   DEFINE_FWK_MODULE(MCZll);
