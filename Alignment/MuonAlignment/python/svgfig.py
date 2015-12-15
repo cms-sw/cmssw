@@ -608,13 +608,13 @@ def totrans(expr, vars=("x", "y"), globals=None, locals=None):
   """
 
   if callable(expr):
-    if expr.func_code.co_argcount == 2:
+    if expr.__code__.co_argcount == 2:
       return expr
 
-    elif expr.func_code.co_argcount == 1:
+    elif expr.__code__.co_argcount == 1:
       split = lambda z: (z.real, z.imag)
       output = lambda x, y: split(expr(x + y*1j))
-      output.func_name = expr.func_name
+      output.__name__ = expr.__name__
       return output
 
     else:
@@ -624,7 +624,7 @@ def totrans(expr, vars=("x", "y"), globals=None, locals=None):
     g = math.__dict__
     if globals != None: g.update(globals)
     output = eval("lambda %s, %s: (%s)" % (vars[0], vars[1], expr), g, locals)
-    output.func_name = "%s,%s -> %s" % (vars[0], vars[1], expr)
+    output.__name__ = "%s,%s -> %s" % (vars[0], vars[1], expr)
     return output
 
   elif len(vars) == 1:
@@ -633,7 +633,7 @@ def totrans(expr, vars=("x", "y"), globals=None, locals=None):
     output = eval("lambda %s: (%s)" % (vars[0], expr), g, locals)
     split = lambda z: (z.real, z.imag)
     output2 = lambda x, y: split(output(x + y*1j))
-    output2.func_name = "%s -> %s" % (vars[0], expr)
+    output2.__name__ = "%s -> %s" % (vars[0], expr)
     return output2
 
   else:
@@ -698,7 +698,7 @@ def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100, xlogbase=Non
 
   output = lambda x, y: (xfunc(x), yfunc(y))
 
-  output.func_name = "(%g, %g), (%g, %g) -> (%g, %g), (%g, %g)%s%s" % (ix1, ix2, iy1, iy2, ox1, ox2, oy1, oy2, xlogstr, ylogstr)
+  output.__name__ = "(%g, %g), (%g, %g) -> (%g, %g), (%g, %g)%s%s" % (ix1, ix2, iy1, iy2, ox1, ox2, oy1, oy2, xlogstr, ylogstr)
   return output
 
 def rotate(angle, cx=0, cy=0):
@@ -736,7 +736,7 @@ class Fig:
     elif isinstance(self.trans, basestring):
       return "<Fig (%d items) x,y -> %s>" % (len(self.d), self.trans)
     else:
-      return "<Fig (%d items) %s>" % (len(self.d), self.trans.func_name)
+      return "<Fig (%d items) %s>" % (len(self.d), self.trans.__name__)
 
   def __init__(self, *d, **kwds):
     self.d = list(d)
@@ -817,7 +817,7 @@ class Plot:
     if self.trans == None:
       return "<Plot (%d items)>" % len(self.d)
     else:
-      return "<Plot (%d items) %s>" % (len(self.d), self.trans.func_name)
+      return "<Plot (%d items) %s>" % (len(self.d), self.trans.__name__)
 
   def __init__(self, xmin, xmax, ymin, ymax, *d, **kwds):
     self.xmin, self.xmax, self.ymin, self.ymax = xmin, xmax, ymin, ymax
@@ -1462,7 +1462,7 @@ def funcRtoC(expr, var="t", globals=None, locals=None):
   output = eval("lambda %s: (%s)" % (var, expr), g, locals)
   split = lambda z: (z.real, z.imag)
   output2 = lambda t: split(output(t))
-  output2.func_name = "%s -> %s" % (var, expr)
+  output2.__name__ = "%s -> %s" % (var, expr)
   return output2
 
 def funcRtoR2(expr, var="t", globals=None, locals=None):
@@ -1477,7 +1477,7 @@ def funcRtoR2(expr, var="t", globals=None, locals=None):
   g = math.__dict__
   if globals != None: g.update(globals)
   output = eval("lambda %s: (%s)" % (var, expr), g, locals)
-  output.func_name = "%s -> %s" % (var, expr)
+  output.__name__ = "%s -> %s" % (var, expr)
   return output
 
 def funcRtoR(expr, var="x", globals=None, locals=None):
@@ -1492,7 +1492,7 @@ def funcRtoR(expr, var="x", globals=None, locals=None):
   g = math.__dict__
   if globals != None: g.update(globals)
   output = eval("lambda %s: (%s, %s)" % (var, var, expr), g, locals)
-  output.func_name = "%s -> %s" % (var, expr)
+  output.__name__ = "%s -> %s" % (var, expr)
   return output
 
 class Curve:

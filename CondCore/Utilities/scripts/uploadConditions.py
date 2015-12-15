@@ -320,7 +320,7 @@ class HTTP(object):
         
         try:
             self.token = json.loads( response.getvalue() )['token']
-        except Exception, e:
+        except Exception as e:
             logging.error('http::getToken> got error from server: %s ', str(e) )
             if 'No JSON object could be decoded' in str(e):
                 return None
@@ -411,7 +411,7 @@ class HTTP(object):
 
 def addToTarFile(tarFile, fileobj, arcname):
     tarInfo = tarFile.gettarinfo(fileobj = fileobj, arcname = arcname)
-    tarInfo.mode = 0400
+    tarInfo.mode = 0o400
     tarInfo.uid = tarInfo.gid = tarInfo.mtime = 0
     tarInfo.uname = tarInfo.gname = 'root'
     tarFile.addfile(tarInfo, fileobj)
@@ -434,7 +434,7 @@ class ConditionsUploader(object):
         logging.info('%s: Signing in user %s ...', self.hostname, username)
         try:
             self.token = self.http.getToken(username, password)
-        except Exception, e:
+        except Exception as e:
             logging.error("Caught exception when trying to get token for user %s from %s: %s" % (username, self.hostname, str(e)) )
             return False
 
@@ -498,7 +498,7 @@ class ConditionsUploader(object):
 
             with open('%s.db' % basepath, 'rb') as data:
                 addToTarFile(tarFile, data, 'data.db')
-        except Exception, e:
+        except Exception as e:
             msg = 'Error when creating tar file. \n'
             msg += 'Please check that you have write access to the directory you are running,\n'
             msg += 'and that you have enough space on this disk (df -h .)\n'
@@ -543,7 +543,7 @@ class ConditionsUploader(object):
                                         'uploadedFile': fileHash,
                                       }
                               )
-        except Exception, e:
+        except Exception as e:
             logging.error('Error from uploading: %s' % str(e))
             ret = json.dumps( { "status": -1, "upload" : { 'itemStatus' : { basename : {'status':'failed', 'info':str(e)}}}, "error" : str(e)} )
 

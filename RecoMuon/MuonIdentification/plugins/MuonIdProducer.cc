@@ -452,24 +452,6 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    init(iEvent, iSetup);
 
-   std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMap(new reco::MuonTimeExtraMap());
-   reco::MuonTimeExtraMap::Filler filler(*muonTimeMap);
-   std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMapDT(new reco::MuonTimeExtraMap());
-   reco::MuonTimeExtraMap::Filler fillerDT(*muonTimeMapDT);
-   std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMapCSC(new reco::MuonTimeExtraMap());
-   reco::MuonTimeExtraMap::Filler fillerCSC(*muonTimeMapCSC);
-
-   std::auto_ptr<reco::IsoDepositMap> trackDepMap(new reco::IsoDepositMap());
-   reco::IsoDepositMap::Filler trackDepFiller(*trackDepMap);
-   std::auto_ptr<reco::IsoDepositMap> ecalDepMap(new reco::IsoDepositMap());
-   reco::IsoDepositMap::Filler ecalDepFiller(*ecalDepMap);
-   std::auto_ptr<reco::IsoDepositMap> hcalDepMap(new reco::IsoDepositMap());
-   reco::IsoDepositMap::Filler hcalDepFiller(*hcalDepMap);
-   std::auto_ptr<reco::IsoDepositMap> hoDepMap(new reco::IsoDepositMap());
-   reco::IsoDepositMap::Filler hoDepFiller(*hoDepMap);
-   std::auto_ptr<reco::IsoDepositMap> jetDepMap(new reco::IsoDepositMap());
-   reco::IsoDepositMap::Filler jetDepFiller(*jetDepMap);
-
    // loop over input collections
 
    // muons first - no cleaning, take as is.
@@ -723,33 +705,27 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if ( fillMatching_ ) fillArbitrationInfo( outputMuons.get() );
    edm::OrphanHandle<reco::MuonCollection> muonHandle = iEvent.put(outputMuons);
 
-   filler.insert(muonHandle, combinedTimeColl.begin(), combinedTimeColl.end());
-   filler.fill();
-   fillerDT.insert(muonHandle, dtTimeColl.begin(), dtTimeColl.end());
-   fillerDT.fill();
-   fillerCSC.insert(muonHandle, cscTimeColl.begin(), cscTimeColl.end());
-   fillerCSC.fill();
-
-   iEvent.put(muonTimeMap,"combined");
-   iEvent.put(muonTimeMapDT,"dt");
-   iEvent.put(muonTimeMapCSC,"csc");
+   auto fillMap = [](auto refH, auto& vec, edm::Event& ev, const std::string& cAl = ""){
+     typedef  edm::ValueMap<typename std::decay<decltype(vec)>::type::value_type> MapType;
+     std::unique_ptr<MapType > oMap(new MapType());
+     {
+       typename MapType::Filler filler(*oMap);
+       filler.insert(refH, vec.begin(), vec.end());
+       vec.clear();
+       filler.fill();
+     }
+     ev.put(std::move(oMap), cAl);
+   };
+   fillMap(muonHandle, combinedTimeColl, iEvent, "combined");
+   fillMap(muonHandle, dtTimeColl, iEvent, "dt");
+   fillMap(muonHandle, cscTimeColl, iEvent, "csc");
 
    if (writeIsoDeposits_ && fillIsolation_){
-     trackDepFiller.insert(muonHandle, trackDepColl.begin(), trackDepColl.end());
-     trackDepFiller.fill();
-     iEvent.put(trackDepMap, trackDepositName_);
-     ecalDepFiller.insert(muonHandle, ecalDepColl.begin(), ecalDepColl.end());
-     ecalDepFiller.fill();
-     iEvent.put(ecalDepMap,  ecalDepositName_);
-     hcalDepFiller.insert(muonHandle, hcalDepColl.begin(), hcalDepColl.end());
-     hcalDepFiller.fill();
-     iEvent.put(hcalDepMap,  hcalDepositName_);
-     hoDepFiller.insert(muonHandle, hoDepColl.begin(), hoDepColl.end());
-     hoDepFiller.fill();
-     iEvent.put(hoDepMap,    hoDepositName_);
-     jetDepFiller.insert(muonHandle, jetDepColl.begin(), jetDepColl.end());
-     jetDepFiller.fill();
-     iEvent.put(jetDepMap,  jetDepositName_);
+     fillMap(muonHandle, trackDepColl, iEvent, trackDepositName_);
+     fillMap(muonHandle, ecalDepColl, iEvent, ecalDepositName_);
+     fillMap(muonHandle, hcalDepColl, iEvent, hcalDepositName_);
+     fillMap(muonHandle, hoDepColl, iEvent, hoDepositName_);
+     fillMap(muonHandle, jetDepColl, iEvent, jetDepositName_);
    }
 
    iEvent.put(caloMuons);
@@ -1149,11 +1125,14 @@ void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup
    reco::IsoDeposit depHcal = caloDeps.at(1);
    reco::IsoDeposit depHo   = caloDeps.at(2);
 
-   trackDep = depTrk;
-   ecalDep = depEcal;
-   hcalDep = depHcal;
-   hoDep = depHo;
-   jetDep = depJet;
+   //no need to copy outside if we don't write them
+   if (writeIsoDeposits_){
+     trackDep = depTrk;
+     ecalDep = depEcal;
+     hcalDep = depHcal;
+     hoDep = depHo;
+     jetDep = depJet;
+   }
 
    isoR03.sumPt     = depTrk.depositWithin(0.3);
    isoR03.emEt      = depEcal.depositWithin(0.3);
