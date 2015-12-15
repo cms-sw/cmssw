@@ -1,6 +1,7 @@
 import sys
 import math
 import array
+import difflib
 
 import ROOT
 ROOT.gROOT.SetBatch(True)
@@ -1106,10 +1107,10 @@ class Plot:
         if requireAllHistograms and None in self._histograms:
             self._histograms = [None]*len(self._histograms)
 
-    def _setStats(self, startingX, startingY):
+    def _setStats(self, histos, startingX, startingY):
         """Set stats box."""
         if not self._stat:
-            for h in self._histograms:
+            for h in histos:
                 if h is not None and hasattr(h, "SetStats"):
                     h.SetStats(0)
             return
@@ -1140,7 +1141,7 @@ class Plot:
             st.SetTextColor(col)
 
         dy = 0.0
-        for i, h in enumerate(self._histograms):
+        for i, h in enumerate(histos):
             if self._statyadjust is not None and i < len(self._statyadjust):
                 dy += self._statyadjust[i]
 
@@ -1210,6 +1211,36 @@ class Plot:
                 print "No histograms for plot {name}".format(name=self.getName())
             return
 
+        # Extract x bin labels, make sure that only bins with same
+        # label are compared with each other
+        xbinlabels = self._xbinlabels
+        if xbinlabels is None:
+            if len(histos[0].GetXaxis().GetBinLabel(1)) > 0:
+                xbinlabels = [histos[0].GetXaxis().GetBinLabel(i) for i in xrange(1, histos[0].GetNbinsX()+1)]
+                # Merge bin labels with difflib
+                for h in histos[1:]:
+                    labels = [h.GetXaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsX()+1)]
+                    diff = difflib.ndiff(xbinlabels, labels)
+                    xbinlabels = []
+                    for item in diff:
+                        xbinlabels.append(item[2:])
+
+                histos_new = []
+                for h in histos:
+                    h_new = h.Clone(h.GetName()+"_xbinlabels")
+                    h_new.SetBins(len(xbinlabels), h.GetBinLowEdge(1), h.GetBinLowEdge(1)+len(xbinlabels))
+                    for i, label in enumerate(xbinlabels):
+                        bin = h.GetXaxis().FindFixBin(label)
+                        if bin >= 0:
+                            h_new.SetBinContent(i+1, h.GetBinContent(bin))
+                            h_new.SetBinError(i+1, h.GetBinError(bin))
+                        else:
+                            h_new.SetBinContent(i+1, 0)
+                            h_new.SetBinError(i+1, 0)
+                    histos_new.append(h_new)
+                self._tmp_histos = histos_new # need to keep these in memory too ...
+                histos = histos_new
+
         bounds = _findBounds(histos, self._ylog,
                              xmin=self._xmin, xmax=self._xmax,
                              ymin=self._ymin, ymax=self._ymax)
@@ -1221,14 +1252,7 @@ class Plot:
         # mess in the plot (that frame creation cleans up)
         if ratio:
             pad.cd(1)
-        self._setStats(self._statx, self._staty)
-
-        xbinlabels = self._xbinlabels
-        if xbinlabels is None:
-            if len(histos[0].GetXaxis().GetBinLabel(1)) > 0:
-                xbinlabels = []
-                for i in xrange(1, histos[0].GetNbinsX()+1):
-                    xbinlabels.append(histos[0].GetXaxis().GetBinLabel(i))
+        self._setStats(histos, self._statx, self._staty)
 
         # Create frame
         if isTGraph2D:
