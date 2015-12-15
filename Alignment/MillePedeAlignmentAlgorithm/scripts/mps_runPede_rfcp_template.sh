@@ -178,6 +178,8 @@ gzip -f *.ps
 gzip -f millepede.*s
 # in case of diagonalisation zip this:
 gzip -f millepede.eve
+# zip monitoring file:
+gzip -f millepede.mon
 
 #list IOVs
 cmscond_list_iov -c sqlite_file:alignments_MP.db -t Alignments
