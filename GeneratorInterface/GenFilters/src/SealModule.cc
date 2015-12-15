@@ -45,6 +45,7 @@
 #include "GeneratorInterface/GenFilters/interface/ZgMassFilter.h"
 #include "GeneratorInterface/GenFilters/interface/ZgammaMassFilter.h"
 
+
   using cms::BHFilter;
   DEFINE_FWK_MODULE(LQGenFilter);
   DEFINE_FWK_MODULE(PythiaFilter);
