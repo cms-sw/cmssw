@@ -162,6 +162,9 @@ process.jetSequences = cms.Sequence(
 ############################
 process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_data_cfi')
 process.load('HeavyIonsAnalysis.EventAnalysis.hltanalysis_cff')
+from HeavyIonsAnalysis.EventAnalysis.dummybranches_cff import addHLTdummybranches
+addHLTdummybranches(process)
+
 process.load("HeavyIonsAnalysis.JetAnalysis.pfcandAnalyzer_cfi")
 process.pfcandAnalyzer.skipCharged = False
 process.pfcandAnalyzer.pfPtMin = 0
