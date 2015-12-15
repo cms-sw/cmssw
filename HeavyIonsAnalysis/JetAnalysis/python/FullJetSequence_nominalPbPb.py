@@ -48,9 +48,6 @@ akVs4CaloJetAnalyzer.doSubEvent = True
 akVs5PFJetAnalyzer.doSubEvent = True
 akVs5CaloJetAnalyzer.doSubEvent = True
 
-akPu1PFJetAnalyzer.doSubEvent = True
-akPu1CaloJetAnalyzer.doSubEvent = True
-
 akPu2PFJetAnalyzer.doSubEvent = True
 akPu2CaloJetAnalyzer.doSubEvent = True
 
