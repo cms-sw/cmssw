@@ -6,12 +6,10 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 #process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.Geometry.GeometryExtended2017Reco_cff")
 
-
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-# from Configuration.AlCa.GlobalTag import GlobalTag
-# works with condDB and condDBv2
-process.GlobalTag = GlobalTag(process.GlobalTag, '76X_upgrade2017_design_v8', '')
+from Configuration.AlCa.autoCond_condDBv2 import autoCond
+process.GlobalTag.globaltag = autoCond['phase1_2017__design']
+#process.GlobalTag = GlobalTag(process.GlobalTag, '76X_upgrade2017_design_v8', '')
 
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
