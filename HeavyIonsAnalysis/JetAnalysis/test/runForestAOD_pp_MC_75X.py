@@ -82,7 +82,7 @@ process.load("HeavyIonsAnalysis.JetAnalysis.FullJetSequence_nominalPP")
 # Event Analysis
 ############################
 process.load('HeavyIonsAnalysis.EventAnalysis.hltanalysis_cff')
-process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_mc_cfi')
+process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_data_cfi') #use data version to avoid PbPb MC
 process.hiEvtAnalyzer.Vertex = cms.InputTag("offlinePrimaryVertices")
 process.hiEvtAnalyzer.doCentrality = cms.bool(False)
 process.hiEvtAnalyzer.doEvtPlane = cms.bool(False)
@@ -130,6 +130,7 @@ process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.Input
 # Main analysis list
 #########################
 process.ana_step = cms.Path(process.hltanalysis *
+                            process.hiEvtAnalyzer *
                             process.HiGenParticleAna*
                             process.jetSequences +
                             process.ggHiNtuplizer +
