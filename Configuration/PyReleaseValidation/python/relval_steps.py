@@ -1518,18 +1518,18 @@ for k in upgradeKeys:
     if cust!=None : upgradeStepDict['DigiTrkTrigFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['DigiTrkTrigFull'][k]['--era']=era
 
-    upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO',
+    upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                                       '--conditions':gt,
-                                      '--datatier':'GEN-SIM-RECO',
+                                      '--datatier':'GEN-SIM-RECO,DQMIO',
                                       '-n':'10',
-                                      '--eventcontent':'FEVTDEBUGHLT',
+                                      '--eventcontent':'FEVTDEBUGHLT,DQM',
                                       '--geometry' : geom
                                       }
     if cust!=None : upgradeStepDict['RecoFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['RecoFull'][k]['--era']=era
 
     if k2 in PUDataSets:
-        upgradeStepDict['RecoFullPU'][k]=merge([PUDataSets[k2],{'-s':'RAW2DIGI,L1Reco,RECO'},upgradeStepDict['RecoFull'][k]])
+        upgradeStepDict['RecoFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFull'][k]])
 
     upgradeStepDict['RecoFullHGCAL'][k] = {'-s':'RAW2DIGI,L1Reco,RECO',
                                       '--conditions':gt,
@@ -1555,7 +1555,7 @@ for k in upgradeKeys:
     if era is not None: upgradeStepDict['HARVESTFull'][k]['--era']=era
 
     if k2 in PUDataSets:
-        upgradeStepDict['HARVESTFullPU'][k]=merge([PUDataSets[k2],{'-s':'HARVESTING:dqmHarvesting'},upgradeStepDict['HARVESTFull'][k]])
+        upgradeStepDict['HARVESTFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFull'][k]])
 
     upgradeStepDict['FastSim'][k]={'-s':'GEN,SIM,RECO,VALIDATION',
                                    '--eventcontent':'FEVTDEBUGHLT,DQM',
