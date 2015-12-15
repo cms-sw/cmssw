@@ -7,3 +7,5 @@ patPhotonSequence = cms.Sequence(photonMatch + patPhotons)
 
 from PhysicsTools.PatAlgos.mcMatchLayer0.electronMatch_cfi import electronMatch
 patElectronSequence = cms.Sequence(electronMatch + patElectrons)
+
+tupelPatSequence = cms.Sequence(patMuonsWithTriggerSequence + patPhotonSequence + patElectronSequence + tupel)

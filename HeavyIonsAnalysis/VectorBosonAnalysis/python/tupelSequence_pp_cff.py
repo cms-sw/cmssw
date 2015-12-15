@@ -16,5 +16,6 @@ patElectronSequence = cms.Sequence(patElectrons)
 
 from HeavyIonsAnalysis.VectorBosonAnalysis.tupel_cfi import tupel
 tupel.gjetSrc = cms.untracked.InputTag('ak4GenJets')
+tupel.jetSrc  = cms.untracked.InputTag("ak4PFpatJetsWithBtagging")
 
 tupelPatSequence = cms.Sequence(patMuonsWithTriggerSequence + patPhotonSequence + patElectronSequence + tupel)

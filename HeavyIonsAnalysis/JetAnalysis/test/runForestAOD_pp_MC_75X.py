@@ -146,8 +146,8 @@ process.ana_step = cms.Path(process.hltanalysis *
                             process.pfcandAnalyzer +
                             process.HiForest +
 			    process.trackSequencesPP +
-                            process.runAnalyzer #+
-                            #process.tupelPatSequence
+                            process.runAnalyzer +
+                            process.tupelPatSequence
 )
 
 #####################################################################################

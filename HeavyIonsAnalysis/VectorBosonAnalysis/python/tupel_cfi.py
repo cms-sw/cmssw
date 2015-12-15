@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 tupel = cms.EDAnalyzer(
     "Tupel",
-    #  trigger      = cms.InputTag( "patTrigger" ),
+    trigger      = cms.InputTag( "patTrigger" ),
     #  triggerEvent = cms.InputTag( "patTriggerEvent" ),
     #  triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
-    #photonSrc    = cms.untracked.InputTag("patPhotons"),
+    photonSrc    = cms.untracked.InputTag("patPhotons"),
     vtxSrc       = cms.untracked.InputTag("offlinePrimaryVertices"),
     electronSrc  = cms.untracked.InputTag("patElectrons"),
     muonSrc      = cms.untracked.InputTag("patMuonsWithTrigger"),
