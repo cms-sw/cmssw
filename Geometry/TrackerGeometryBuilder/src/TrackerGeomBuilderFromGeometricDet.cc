@@ -38,7 +38,7 @@ namespace {
 }
 
 TrackerGeometry*
-TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTrackerParameters& ptp )
+TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTrackerParameters& ptp, const TrackerTopology* tTopo )
 {
   int BIG_PIX_PER_ROC_X = ptp.vpars[2];
   int BIG_PIX_PER_ROC_Y = ptp.vpars[3];

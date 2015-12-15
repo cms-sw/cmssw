@@ -112,7 +112,7 @@ class AlignmentProducer : public edm::ESProducerLooper
                           float shift, float rot, bool local);
 
   /// Create tracker and muon geometries
-  void createGeometries_( const edm::EventSetup& );
+  void createGeometries_( const edm::EventSetup&, const TrackerTopology* );
 
   /// Apply DB constants belonging to (Err)Rcd to geometry,
   /// taking into account 'globalPosition' correction.
