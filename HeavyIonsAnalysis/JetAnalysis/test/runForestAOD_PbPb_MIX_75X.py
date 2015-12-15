@@ -129,6 +129,14 @@ process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.Input
                                                        recoPhotonHiIsolationMap = cms.InputTag('photonIsolationHIProducerGED')
 )
 
+####################################################################################
+
+#####################
+# tupel and necessary PAT sequences
+#####################
+
+process.load("HeavyIonsAnalysis.VectorBosonAnalysis.tupelSequence_PbPb_mc_cff")
+
 #####################################################################################
 
 #########################
@@ -148,7 +156,8 @@ process.ana_step = cms.Path(
                             process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
                             process.HiForest +
-                            process.trackSequencesPbPb
+                            process.trackSequencesPbPb #+
+                            #process.tupelPatSequence
                             )
 
 #####################################################################################
