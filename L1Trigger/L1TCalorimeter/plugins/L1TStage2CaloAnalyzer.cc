@@ -4,9 +4,7 @@
 // Class:      L1TCaloAnalyzer
 // 
 /**\class L1TCaloAnalyzer L1TCaloAnalyzer.cc L1Trigger/L1TCalorimeter/plugins/L1TCaloAnalyzer.cc
-
  Description: [one line class summary]
-
  Implementation:
      [Notes on implementation]
 */
@@ -94,18 +92,27 @@ private:
   
   bool doText_;
   bool doHistos_;
-  bool doEvtDisp_;
+  bool doEvtDisp_ = true;
 
   enum ObjectType{Tower=0x1,
 		  Cluster=0x2,
 		  EG=0x3,
 		  Tau=0x4,
 		  Jet=0x5,
-		  Sum=0x6,
-		  MPEG=0x7,
-		  MPTau=0x8,
-		  MPJet=0x9,
-		  MPSum=0x10};
+		  SumET=0x6,
+                  SumHT=0x7,
+                  SumMET=0x8,
+                  SumMHT=0x9,
+		  MPEG=0x10,
+		  MPTau=0x11,
+		  MPJet=0x12,
+		  MPSum=0x13,
+                  MPSumET=0x14,
+                  MPSumMETx=0x15,
+                  MPSumMETy=0x16,
+                  MPSumHT=0x17,
+                  MPSumMHTx=0x18,
+                  MPSumMHTy=0x19};
   
   std::vector< ObjectType > types_;
   std::vector< std::string > typeStr_;
@@ -121,6 +128,8 @@ private:
   std::map< ObjectType, TH2F* > hetaphi_;
 
   TFileDirectory evtDispDir_;
+
+  TH1F *hsortMP_, *hsort_;
 
 };
 
@@ -189,22 +198,39 @@ private:
   types_.push_back( MPEG );
   types_.push_back( MPTau );
   types_.push_back( MPJet );
-  types_.push_back( MPSum );
+  types_.push_back( MPSumET );
+  types_.push_back( MPSumMETx );
+  types_.push_back( MPSumMETy );
+  types_.push_back( MPSumHT );
+  types_.push_back( MPSumMHTx );
+  types_.push_back( MPSumMHTy );
   types_.push_back( EG );
   types_.push_back( Tau );
   types_.push_back( Jet );
-  types_.push_back( Sum );
+  types_.push_back( SumET );
+  types_.push_back( SumHT );
+  types_.push_back( SumMET );
+  types_.push_back( SumMHT );
+
 
   typeStr_.push_back( "tower" );
   typeStr_.push_back( "cluster" );
   typeStr_.push_back( "mpeg" );
   typeStr_.push_back( "mptau" );
   typeStr_.push_back( "mpjet" );
-  typeStr_.push_back( "mpsum" );
+  typeStr_.push_back( "mpsumet" );
+  typeStr_.push_back( "mpsummetx" );
+  typeStr_.push_back( "mpsummety" );
+  typeStr_.push_back( "mpsumht" );
+  typeStr_.push_back( "mpsummhtx" );
+  typeStr_.push_back( "mpsummhty" );
   typeStr_.push_back( "eg" );
   typeStr_.push_back( "tau" );
   typeStr_.push_back( "jet" );
-  typeStr_.push_back( "sum" );
+  typeStr_.push_back( "sumet" );
+  typeStr_.push_back( "sumht" );
+  typeStr_.push_back( "summet" );
+  typeStr_.push_back( "summht" );
 
 }
 
@@ -227,7 +253,19 @@ void
 L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-
+  /* 
+  int eventID = iEvent.id().event();
+  if (eventID<=9) {
+    m_doMPJets = false;
+    m_doMPSums = false;
+  }
+  else {
+    m_doMPJets = true;
+    m_doMPSums = true;
+  }
+  */
+  
+//if (eventID==31 || eventID==46 || eventID==63 || eventID==87 || eventID==104 || eventID==137 || eventID==149) return;
   std::stringstream text;
 
   TH2F* hEvtTow = new TH2F();
@@ -263,6 +301,9 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     for ( int ibx=towers->getFirstBX(); ibx<=towers->getLastBX(); ++ibx) {
 
       for ( auto itr = towers->begin(ibx); itr !=towers->end(ibx); ++itr ) {
+
+        if (itr->hwPt()<=0) continue;
+
 	hbx_.at(Tower)->Fill( ibx );
 	het_.at(Tower)->Fill( itr->hwPt() );
 	heta_.at(Tower)->Fill( itr->hwEta() );
@@ -350,13 +391,21 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   }
 
   // get jet
+int njetmp=0; 
+  std::vector<l1t::Jet> thejets_poseta;
+  std::vector<l1t::Jet> thejets_negeta;
+
   if (m_doMPJets) {
     Handle< BXVector<l1t::Jet> > mpjets;
     iEvent.getByToken(m_mpJetToken,mpjets);
-    
+
+    //Handle<BXVector<l1t::Jet>> jets;
+    //iEvent.getByToken(m_jetToken,jets);
+    //if (mpjets->size(0) == jets->size(0)) std::cout<<"******notequal"<<std::endl;
     for ( int ibx=mpjets->getFirstBX(); ibx<=mpjets->getLastBX(); ++ibx) {
 
       for ( auto itr = mpjets->begin(ibx); itr != mpjets->end(ibx); ++itr ) {
+        njetmp+=1;
         hbx_.at(MPJet)->Fill( ibx );
 	het_.at(MPJet)->Fill( itr->hwPt() );
 	heta_.at(MPJet)->Fill( itr->hwEta() );
@@ -366,11 +415,31 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	text << "MP Jet : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
 
 	if (doEvtDisp_) hEvtMPJet->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+
+        itr->hwEta()>0 ? thejets_poseta.push_back(*itr) : thejets_negeta.push_back(*itr);
       }
       
     }
 
   }
+
+ if (thejets_poseta.size()) {
+    for (unsigned int i=0; i<thejets_poseta.size()-1; i++) {
+      for (unsigned int j=i+1; j<thejets_poseta.size(); j++) {
+          hsortMP_->Fill(thejets_poseta.at(i).hwPt()-thejets_poseta.at(j).hwPt());
+                      }
+                          }
+                            }
+                            
+ if (thejets_negeta.size()) {
+    for (unsigned int i=0; i<thejets_negeta.size()-1; i++) {
+      for (unsigned int j=i+1; j<thejets_negeta.size(); j++) {
+          hsortMP_->Fill(thejets_negeta.at(i).hwPt()-thejets_negeta.at(j).hwPt());
+                      }
+                          }
+                            }
+
+std::cout<<"njetmp "<<njetmp<<std::endl;
 
   // get sums
   if (m_doMPSums) {
@@ -380,14 +449,25 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     for ( int ibx=mpsums->getFirstBX(); ibx<=mpsums->getLastBX(); ++ibx) {
 
       for ( auto itr = mpsums->begin(ibx); itr != mpsums->end(ibx); ++itr ) {
-	hbx_.at(MPSum)->Fill( ibx );
-	het_.at(MPSum)->Fill( itr->hwPt() );
-	heta_.at(MPSum)->Fill( itr->hwEta() );
-	hphi_.at(MPSum)->Fill( itr->hwPhi() );
-        hetaphi_.at(MPSum)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
-
+	
+	//hbx_.at(MPSum)->Fill( ibx );
+	
+        switch(itr->getType()){
+        case l1t::EtSum::EtSumType::kTotalEt:  het_.at(MPSumET)  ->Fill( itr->hwPt() ); break;
+        case l1t::EtSum::EtSumType::kTotalEtx: het_.at(MPSumMETx)->Fill( itr->hwPt() ); break;
+        case l1t::EtSum::EtSumType::kTotalEty: het_.at(MPSumMETy)->Fill( itr->hwPt() ); break;
+        case l1t::EtSum::EtSumType::kTotalHt:  het_.at(MPSumHT)  ->Fill( itr->hwPt() ); break;
+        case l1t::EtSum::EtSumType::kTotalHtx: het_.at(MPSumMHTx)->Fill( itr->hwPt() ); break;
+        case l1t::EtSum::EtSumType::kTotalHty: het_.at(MPSumMHTy)->Fill( itr->hwPt() ); break;
+	default: std::cout<<"wrong type of MP sum"<<std::endl;
+	}
+	
+	//heta_.at(MPSum)->Fill( itr->hwEta() );
+	//hphi_.at(MPSum)->Fill( itr->hwPhi() );
+	//hetaphi_.at(MPSum)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+	
 	text << "MP Sum : " << " type=" << itr->getType() << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
-
+	
       }
 
     }
@@ -440,28 +520,45 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     
   }
 
+
   // get jet
+int njetdem=0;
+  std::vector<l1t::Jet> thejets;
+
   if (m_doJets) {
     Handle< BXVector<l1t::Jet> > jets;
     iEvent.getByToken(m_jetToken,jets);
-    
+     
     for ( int ibx=jets->getFirstBX(); ibx<=jets->getLastBX(); ++ibx) {
 
       for ( auto itr = jets->begin(ibx); itr != jets->end(ibx); ++itr ) {
+        njetdem+=1;
         hbx_.at(Jet)->Fill( ibx );
 	het_.at(Jet)->Fill( itr->hwPt() );
-	heta_.at(Jet)->Fill( itr->hwEta() );
-	hphi_.at(Jet)->Fill( itr->hwPhi() );
-        hetaphi_.at(Jet)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+	heta_.at(Jet)->Fill( 0.5*itr->hwEta() );
+	hphi_.at(Jet)->Fill( 0.5*itr->hwPhi() );
+        hetaphi_.at(Jet)->Fill( 0.5*itr->hwEta(), 0.5*itr->hwPhi(), itr->hwPt() );
 
 	text << "Jet : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
 
 	if (doEvtDisp_) hEvtDemuxJet->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+
+	thejets.push_back(*itr);
       }
       
     }
 
   }
+
+  if (thejets.size()) {
+    for (unsigned int i=0; i<thejets.size()-1; i++) {
+      for (unsigned int j=i+1; j<thejets.size(); j++) {
+	//std::cout<<"i "<<thejets.at(i).hwPt()<<" j "<<thejets.at(j).hwPt()<<std::endl;
+	hsort_->Fill(thejets.at(i).hwPt()-thejets.at(j).hwPt());
+      }
+    }
+  }
+  std::cout<<"njetdem "<<njetdem<<std::endl;
 
   // get sums
   if (m_doSums) {
@@ -471,19 +568,29 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     for ( int ibx=sums->getFirstBX(); ibx<=sums->getLastBX(); ++ibx) {
 
       for ( auto itr = sums->begin(ibx); itr != sums->end(ibx); ++itr ) {
-	hbx_.at(Sum)->Fill( ibx );
-	het_.at(Sum)->Fill( itr->hwPt() );
-	heta_.at(Sum)->Fill( itr->hwEta() );
-	hphi_.at(Sum)->Fill( itr->hwPhi() );
-        hetaphi_.at(Sum)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+
+	//hbx_.at(Sum)->Fill( ibx );
+
+        switch(itr->getType()){
+        case l1t::EtSum::EtSumType::kTotalEt:    het_.at(SumET) ->Fill( itr->hwPt() ); break;
+        case l1t::EtSum::EtSumType::kTotalHt:    het_.at(SumHT) ->Fill( itr->hwPt() ); break;
+        case l1t::EtSum::EtSumType::kMissingEt:  het_.at(SumMET)->Fill( itr->hwPt() ); hphi_.at(SumMET)->Fill( itr->hwPhi() ); break;
+        case l1t::EtSum::EtSumType::kMissingHt:  het_.at(SumMHT)->Fill( itr->hwPt() ); hphi_.at(SumMHT)->Fill( itr->hwPhi() );  break;
+	default: std::cout<<"wrong type of demux sum"<<std::endl;
+	}
+	//heta_.at(Sum)->Fill( itr->hwEta() );
+	//hphi_.at(Sum)->Fill( itr->hwPhi() );
+        //hetaphi_.at(Sum)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
 	text << "Sum : " << " type=" << itr->getType() << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
+
       }
 
     }
 
   }
 
-  if (doText_) edm::LogInfo("L1TCaloEvents") << text.str();
+  //if (doText_) edm::LogInfo("L1TCaloEvents") << text.str();
+  if (doText_) std::cout << text.str();
 
 }
 
@@ -501,25 +608,35 @@ L1TStage2CaloAnalyzer::beginJob()
 
   for (; itr!=types_.end(); ++itr, ++str ) {
     
-    double etmax=99.5;
-    if (*itr==Jet || *itr==MPJet || *itr==Sum || *itr==MPSum) etmax=249.5;
+//    double etmax=199.5;
+    //if (*itr==Jet || *itr==MPJet || *itr==Sum || *itr==MPSum) etmax=249.5;
 
     dirs_.insert( std::pair< ObjectType, TFileDirectory >(*itr, fs->mkdir(*str) ) );
     
-    het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 100, -0.5, etmax) ));
+    if (*itr==MPSumMETx || *itr==MPSumMHTx || *itr==MPSumMETy || *itr==MPSumMHTy) {
+      het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 2000, -999.5, 1000.5) ));
+    }
+    else if (*itr==SumET || *itr==MPSumET || *itr==SumHT || *itr==MPSumHT) {
+      het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 7000, -0.5, 6999.5) )); 
+    }
+    else {//if (*itr==MPJet) {
+      het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 1500, -0.5, 1499.5) ));
+    }
 
     hbx_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("bx", "", 11, -5.5, 5.5) ));
 
-    if (*itr==EG || *itr==Jet || *itr==Tau || *itr==Sum) {
+    if (*itr==EG || *itr==Jet || *itr==Tau) {// || *itr==SumMET) || *itr==SumMHT) {
       heta_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("eta", "", 227, -113.5, 113.5) ));
       hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 144, -0.5, 143.5) ));
       hetaphi_.insert( std::pair< ObjectType, TH2F* >(*itr, dirs_.at(*itr).make<TH2F>("etaphi", "", 227, -113.5, 113.5, 144, -0.5, 143.5) ));
     }
-    else if (*itr==Tower || *itr==Cluster || *itr==MPEG || *itr==MPJet || *itr==MPTau || *itr==MPSum) {
+    else if (*itr==Tower || *itr==Cluster || *itr==MPEG || *itr==MPJet || *itr==MPTau){// || *itr==MPSum) {
       heta_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("eta", "", 83, -41.5, 41.5) ));
-      hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 73, 0.5, 72.5) ));
+      hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 72, 0.5, 72.5) ));
       hetaphi_.insert( std::pair< ObjectType, TH2F* >(*itr, dirs_.at(*itr).make<TH2F>("etaphi", "", 83, -41.5, 41.5, 72, .5, 72.5) ));
-
+    }
+    else if (*itr==SumMET || *itr==SumMHT) {
+      hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 1008, -0.5, 1007.5) ));
     }
 
     if (*itr==Tower) {
@@ -533,6 +650,9 @@ L1TStage2CaloAnalyzer::beginJob()
   if (doEvtDisp_) {
     evtDispDir_ = fs->mkdir("Events");
   }
+
+  hsort_ = fs->make<TH1F>("sort","",201,-100.5,100.5);
+  hsortMP_ = fs->make<TH1F>("sortMP","",201,-100.5,100.5);
 
 }
 

@@ -10,7 +10,22 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2Nav.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
+#include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
 
+
+namespace l1t {
+  bool operator > ( l1t::EGamma& a, l1t::EGamma& b )
+  {
+    if ( a.pt() == b.pt() ){
+      if( a.hwPhi() == b.hwPhi() )
+	return abs(a.hwEta()) > abs(b.hwEta());
+      else
+	return a.hwPhi() > b.hwPhi();
+    }
+    else
+      return a.pt() > b.pt();
+  }
+}
 
 
 /*****************************************************************/
@@ -33,6 +48,11 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
 {
   l1t::CaloStage2Nav caloNav;
   egammas.clear();
+
+  //Keep candidates with iEta<0 and iEta>0 separate for sorting
+  std::vector<l1t::EGamma> egammas_eta_neg;  
+  std::vector<l1t::EGamma> egammas_eta_pos;
+
   for(const auto& cluster : clusters)
   {
     // Keep only valid clusters
@@ -59,21 +79,29 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       const l1t::CaloTower& towerNN = l1t::CaloTools::getTower(towers, iEta , iPhiM2);
       const l1t::CaloTower& towerSS = l1t::CaloTools::getTower(towers, iEta , iPhiP2);
       //
-      int seedEt    = seed   .hwEtEm();
-      int towerEtNW = towerNW.hwEtEm();
-      int towerEtN  = towerN .hwEtEm();
-      int towerEtNE = towerNE.hwEtEm();
-      int towerEtE  = towerE .hwEtEm();
-      int towerEtSE = towerSE.hwEtEm();
-      int towerEtS  = towerS .hwEtEm();
-      int towerEtSW = towerSW.hwEtEm();
-      int towerEtW  = towerW .hwEtEm();
-      int towerEtNN = towerNN.hwEtEm();
-      int towerEtSS = towerSS.hwEtEm(); 
+
+      int seedEt    = seed   .hwPt();
+      int towerEtNW = towerNW.hwPt();
+      int towerEtN  = towerN .hwPt();
+      int towerEtNE = towerNE.hwPt();
+      int towerEtE  = towerE .hwPt();
+      int towerEtSE = towerSE.hwPt();
+      int towerEtS  = towerS .hwPt();
+      int towerEtSW = towerSW.hwPt();
+      int towerEtW  = towerW .hwPt();
+      int towerEtNN = towerNN.hwPt();
+      int towerEtSS = towerSS.hwPt();
+
+      if(abs(iEta)>28)
+	continue;
 
       // initialize egamma from cluster
-      egammas.push_back(cluster);
-      l1t::EGamma& egamma = egammas.back();
+      if(iEta>0)
+	egammas_eta_pos.push_back(cluster);
+      else
+	egammas_eta_neg.push_back(cluster);
+      l1t::EGamma& egamma = (iEta > 0) ? egammas_eta_pos.back() : egammas_eta_neg.back();
+     
 
       // Trim cluster (only for egamma energy computation, the original cluster is unchanged)
       l1t::CaloCluster clusterTrim = trimCluster(cluster);
@@ -103,12 +131,26 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       if(shapeBit)  qual |= (0x1<<2); // third bit = shape
       egamma.setHwQual( qual ); 
 
-
       // Isolation 
-      int hwEtSum = CaloTools::calHwEtSum(cluster.hwEta(), cluster.hwPhi(), towers,
+      /*int hwEtSum = CaloTools::calHwEtSum(cluster.hwEta(), cluster.hwPhi(), towers,
           -1*params_->egIsoAreaNrTowersEta(),params_->egIsoAreaNrTowersEta(),
           -1*params_->egIsoAreaNrTowersPhi(),params_->egIsoAreaNrTowersPhi(),
-          params_->egPUSParam(2));
+          params_->egPUSParam(2));*/
+
+      int isoLeftExtension = params_->egIsoAreaNrTowersEta();
+      int isoRightExtension = params_->egIsoAreaNrTowersEta();
+
+      if(cluster.checkClusterFlag(CaloCluster::TRIM_LEFT))
+	isoRightExtension++;
+      else
+	isoLeftExtension++;
+
+      int hwEtSum = CaloTools::calHwEtSum(cluster.hwEta(), cluster.hwPhi(), towers,
+					  -isoLeftExtension,isoRightExtension,
+					  -1*params_->egIsoAreaNrTowersPhi(),params_->egIsoAreaNrTowersPhi(),
+					  params_->egPUSParam(2));
+
+
       int hwFootPrint = isoCalEgHwFootPrint(cluster,towers);
 
       int nrTowers = CaloTools::calNrTowers(-1*params_->egPUSParam(1),
@@ -125,6 +167,7 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       // Energy calibration
       // Corrections function of ieta, ET, and cluster shape
       int calibPt = calibratedPt(cluster, egamma.hwPt());
+      egamma.setHwPt(calibPt);
 
       // Physical eta/phi. Computed from ieta/iphi of the seed tower and the fine-grain position within the seed
       double eta = 0.;
@@ -146,6 +189,23 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
 
     }//end of cuts on cluster to make EGamma
   }//end of cluster loop
+
+ //Keep only 6 candidate with highest Pt in each eta-half
+  std::vector<l1t::EGamma>::iterator start_, end_;
+
+  start_ = egammas_eta_pos.begin();  
+  end_   = egammas_eta_pos.end();
+  BitonicSort<l1t::EGamma>(down, start_, end_);
+  if (egammas_eta_pos.size()>6) egammas_eta_pos.resize(6);
+
+  start_ = egammas_eta_neg.begin();  
+  end_   = egammas_eta_neg.end();
+  BitonicSort<l1t::EGamma>(down, start_, end_);
+  if (egammas_eta_neg.size()>6) egammas_eta_neg.resize(6);
+
+  egammas = egammas_eta_pos;
+  egammas.insert(egammas.end(),egammas_eta_neg.begin(),egammas_eta_neg.end());
+
 }
 
 /*****************************************************************/
@@ -193,11 +253,24 @@ bool l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idShape(const l1t::CaloCluste
 unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idShapeLutIndex(int iEta, int E, int shape)
 /*****************************************************************/
 {
-  unsigned int iEtaNormed = abs(iEta);
-  if(iEtaNormed>28) iEtaNormed = 28;
-  if(E>255) E = 255;
-  unsigned int compressedShape = params_->egCompressShapesLUT()->data(shape);
-  return E+compressedShape*256+(iEtaNormed-1)*256*64;
+  if(params_->egShapeIdType()=="compressed")
+  {
+    unsigned int iEtaNormed = abs(iEta);
+    if(iEtaNormed>28) iEtaNormed = 28;
+    if(E>255) E = 255;
+    unsigned int compressedShape = params_->egCompressShapesLUT()->data(shape);
+    unsigned int compressedE     = params_->egCompressShapesLUT()->data((0x1<<7)+E);
+    unsigned int compressedEta   = params_->egCompressShapesLUT()->data((0x1<<12)+iEtaNormed);
+    return (compressedShape | compressedE | compressedEta);
+  }
+  else // Uncompressed (kept for backward compatibility)
+  {
+    unsigned int iEtaNormed = abs(iEta);
+    if(iEtaNormed>28) iEtaNormed = 28;
+    if(E>255) E = 255;
+    unsigned int compressedShape = params_->egCompressShapesLUT()->data(shape);
+    return E+compressedShape*256+(iEtaNormed-1)*256*64;
+  }
 }
 
 //calculates the footprint of the electron in hardware values
@@ -268,10 +341,8 @@ int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCl
   int corrXrawPt = corr*rawPt;// 17 bits
   // round corr*rawPt
   int addPt = corrXrawPt>>9;// 8 MS bits (truncation)
-  int remainder = corrXrawPt & 0x1FF; // 9 LS bits
-  if(remainder>=0x100) addPt += 1;
   int corrPt = rawPt + addPt;
-  if(corrPt>255) corrPt = 255;// 8 bits threshold
+  if(corrPt>511) corrPt = 511;// 9 bits threshold
   return corrPt;
 }
 
@@ -279,13 +350,26 @@ int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCl
 unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibrationLutIndex(int iEta, int E, int shape)
 /*****************************************************************/
 {
-  unsigned int iEtaNormed = abs(iEta);
-  if(iEtaNormed>28) iEtaNormed = 28;
-  if(E>255) E = 255;
-  if(E<22) E = 22;
-  unsigned int compressedShape = params_->egCompressShapesLUT()->data(shape);
-  if(compressedShape>31) compressedShape = 31;
-  return (E-20)+compressedShape*236+(iEtaNormed-1)*236*32;
+  if(params_->egCalibrationType()=="compressed")
+  {
+    unsigned int iEtaNormed = abs(iEta);
+    if(iEtaNormed>28) iEtaNormed = 28;
+    if(E>255) E = 255;
+    unsigned int compressedShape = params_->egCompressShapesLUT()->data(shape);
+    unsigned int compressedE     = params_->egCompressShapesLUT()->data((0x1<<7)+E);
+    unsigned int compressedEta   = params_->egCompressShapesLUT()->data((0x1<<7)+(0x1<<8)+iEtaNormed);
+    return (compressedShape | compressedE | compressedEta);
+  }
+  else // Uncompressed (kept for backward compatibility)
+  {
+    unsigned int iEtaNormed = abs(iEta);
+    if(iEtaNormed>28) iEtaNormed = 28;
+    if(E>255) E = 255;
+    if(E<22) E = 22;
+    unsigned int compressedShape = params_->egCompressShapesLUT()->data(shape);
+    if(compressedShape>31) compressedShape = 31;
+    return (E-20)+compressedShape*236+(iEtaNormed-1)*236*32;
+  }
 }
 
 /*****************************************************************/
