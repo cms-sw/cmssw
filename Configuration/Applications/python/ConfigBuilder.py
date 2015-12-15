@@ -1101,11 +1101,10 @@ class ConfigBuilder(object):
             self.SIMDefaultCFF="Configuration/StandardSequences/SimNOBEAM_cff"
             self._options.beamspot='NoSmear'
 
-        # if fastsim change some of the default cff and sequences
+        # fastsim requires some changes to the default cff files and sequences
 	if self._options.fast:
 		self.SIMDefaultCFF = 'FastSimulation.Configuration.SimIdeal_cff'
 		self.RECODefaultCFF= 'FastSimulation.Configuration.Reconstruction_AftMix_cff'
-		self.RECODefaultSeq= 'reconstruction'
                 self.EVTCONTDefaultCFF = "FastSimulation.Configuration.EventContent_cff"
                 self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
 		self.RECOBEFMIXDefaultCFF = 'FastSimulation.Configuration.Reconstruction_BefMix_cff'

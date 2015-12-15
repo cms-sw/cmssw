@@ -12,7 +12,9 @@ muonRPCDigis = None
 gtDigisAliasInfo = None
 gmtDigisAliasInfo = None
 
-def loadDigiAliases(nopremix = True):
+def loadDigiAliases(premix=False):
+
+    nopremix = not premix
 
     global generalTracks,ecalPreshowerDigis,ecalDigis,hcalDigis,muonDTDigis,muonCSCDigis,muonRPCDigis
 
