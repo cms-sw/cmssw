@@ -923,7 +923,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
     
     if(abs(d0)<15 && abs(dz)<50) crossesPixVol = true;
 
-    std::vector<TrajectoryMeasurement> tmeasColl =traj_iterator->measurements();
+    const std::vector<TrajectoryMeasurement>& tmeasColl =traj_iterator->measurements();
     std::vector<TrajectoryMeasurement>::const_iterator tmeasIt;
     //loop on measurements to find out whether there are bpix and/or fpix hits
     for(tmeasIt = tmeasColl.begin();tmeasIt!=tmeasColl.end();tmeasIt++){
@@ -947,7 +947,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
       
       if(crossesPixVol) meNofTracksInPixVol_->Fill(0,1);
 
-      std::vector<TrajectoryMeasurement> tmeasColl = traj_iterator->measurements();
+      const std::vector<TrajectoryMeasurement>& tmeasColl = traj_iterator->measurements();
       for(std::vector<TrajectoryMeasurement>::const_iterator tmeasIt = tmeasColl.begin(); tmeasIt!=tmeasColl.end(); tmeasIt++){   
 	if(! tmeasIt->updatedState().isValid()) continue; 
 	

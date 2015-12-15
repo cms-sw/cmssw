@@ -615,45 +615,45 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   // Get the trigger results
   bool validTriggerEvent=true;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
-  trigger::TriggerEvent triggerEvent;
+  const trigger::TriggerEvent dummyTE;
   e.getByToken(triggerEvent_token_,triggerEventHandle);
   if(!triggerEventHandle.isValid()) {
     edm::LogInfo(fName_) << "Error! Can't get the product: triggerEvent_" << endl;
     validTriggerEvent=false;
   }
-  if(validTriggerEvent) triggerEvent = *(triggerEventHandle.product());
+  const trigger::TriggerEvent& triggerEvent(validTriggerEvent? *(triggerEventHandle.product()) : dummyTE);
 
   // Get the reconstructed photons
   //  bool validPhotons=true;
   Handle<reco::PhotonCollection> photonHandle;
-  reco::PhotonCollection photonCollection;
   e.getByToken(photon_token_ , photonHandle);
   if ( !photonHandle.isValid()) {
     edm::LogInfo(fName_) << "Error! Can't get the product: photon_token_" << endl;
     // validPhotons=false;
   }
-  //  if(validPhotons) photonCollection = *(photonHandle.product());
+  const reco::PhotonCollection& photonCollection(*(photonHandle.product()));
+
 
   // Get the PhotonId objects
-  bool validloosePhotonID=true;
+  //  bool validloosePhotonID=true;
   Handle<edm::ValueMap<bool> > loosePhotonFlag;
-  edm::ValueMap<bool> loosePhotonID;
   e.getByToken(PhotonIDLoose_token_, loosePhotonFlag);
   if ( !loosePhotonFlag.isValid()) {
     edm::LogInfo(fName_) << "Error! Can't get the product: PhotonIDLoose_token_" << endl;
-    validloosePhotonID=false;
+    //    validloosePhotonID=false;
   }
-  if (validloosePhotonID) loosePhotonID = *(loosePhotonFlag.product());
+  //  edm::ValueMap<bool> dummyLPID;
+  //  const edm::ValueMap<bool>& loosePhotonID(validloosePhotonID? *(loosePhotonFlag.product()) : dummyLPID);
 
-  bool validtightPhotonID=true;
+  //  bool validtightPhotonID=true;
   Handle<edm::ValueMap<bool> > tightPhotonFlag;
-  edm::ValueMap<bool> tightPhotonID;
   e.getByToken(PhotonIDTight_token_, tightPhotonFlag);
   if ( !tightPhotonFlag.isValid()) {
     edm::LogInfo(fName_) << "Error! Can't get the product: PhotonIDTight_token_" << endl;
-    validtightPhotonID=false;
+    //    validtightPhotonID=false;
   }
-  if (validtightPhotonID) tightPhotonID = *(tightPhotonFlag.product());
+  //  edm::ValueMap<bool> dummyTPI;
+  //  const edm::ValueMap<bool>& tightPhotonID(validtightPhotonID ? *(tightPhotonFlag.product()) : dummyTPI);
 
 
   edm::Handle<reco::VertexCollection> vtxH;
@@ -714,7 +714,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
   /////////////////////////BEGIN LOOP OVER THE COLLECTION OF PHOTONS IN THE EVENT/////////////////////////
   for(unsigned int iPho=0; iPho < photonHandle->size(); iPho++) {
-    reco::PhotonRef aPho(reco::PhotonRef(photonHandle, iPho));
+    const reco::Photon* aPho = &photonCollection[iPho];
     //  for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
 
     //for HLT efficiency plots
@@ -1083,7 +1083,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
     if (isIsolated && aPho->et()>=invMassEtCut_){
       for(unsigned int iPho2=iPho+1; iPho2 < photonHandle->size(); iPho2++) {
-	reco::PhotonRef aPho2(reco::PhotonRef(photonHandle, iPho2));
+	const reco::Photon* aPho2 = &photonCollection[iPho2];
 
 	//      for (reco::PhotonCollection::const_iterator iPho2=iPho+1; iPho2!=photonCollection.end(); iPho2++){
 
@@ -1178,7 +1178,7 @@ void PhotonAnalyzer::fill3DHistoVector(vector<vector<vector<MonitorElement*> > >
   histoVector[cut][type][part]->Fill(x,y);
 }
 
-bool PhotonAnalyzer::photonSelection(const reco::PhotonRef & pho)
+bool PhotonAnalyzer::photonSelection(const reco::Photon* pho)
 {
   bool result=true;
   if ( pho->pt() <  minPhoEtCut_ )          result=false;
