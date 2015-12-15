@@ -177,7 +177,7 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         }
       }
       
-     if (csvCaloTags.isValid() && v->getTriggerType() == "Calo") 
+     if (csvCaloTags.isValid() && v->getTriggerType() == "Calo" && !csvCaloTags->empty()) 
      { 
       auto iter = csvCaloTags->begin();
       
