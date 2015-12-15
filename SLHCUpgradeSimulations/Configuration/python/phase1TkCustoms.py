@@ -98,6 +98,10 @@ def customise_Digi(process):
 
 # DQM steps change
 def customise_DQM(process,pileup):
+    # Ok, this customization does not work currently at all
+    # Need to be fixed before the tracking DQM can be enabled
+    return process
+
     # We cut down the number of iterative tracking steps
     if not eras.phase1Pixel.isChosen(): # these were migrated in #12459
         process.dqmoffline_step.remove(process.muonAnalyzer)

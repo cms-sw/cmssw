@@ -18,6 +18,8 @@ from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 from DQMOffline.Hcal.HcalDQMOfflinePostProcessor_cff import *
 
+from Configuration.StandardSequences.Eras import eras
+
 DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              ecal_dqm_client_offline *
                                              hcalOfflineDQMClient *
@@ -44,6 +46,8 @@ from DQMOffline.JetMET.SusyPostProcessor_cff import *
 from DQMOffline.JetMET.dataCertificationJetMET_cff import *
 from DQM.TrackingMonitorClient.TrackingClientConfig_Tier0_cff import *
 
+from Configuration.StandardSequences.Eras import eras
+
 DQMOffline_SecondStep_PrePOG = cms.Sequence( TrackingOfflineDQMClient *
                                              muonQualityTests *
                                              egammaPostProcessing *
@@ -69,6 +73,13 @@ DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
 
 DQMOffline_SecondStep_FakeHLT = cms.Sequence( DQMOffline_SecondStep )
 DQMOffline_SecondStep_FakeHLT.remove( HLTMonitoringClient )
+
+if eras.phase1Pixel.isChosen(): # FIXME
+    # These should be added back once somebody checks that they work,
+    # and those that do not, get fixed
+    DQMOffline_SecondStep.remove(DQMOffline_SecondStep_PreDPG)
+    DQMOffline_SecondStep.remove(DQMOffline_SecondStep_PrePOG)
+    DQMOffline_SecondStep.remove(HLTMonitoringClient)
 
 DQMOffline_SecondStep_PrePOGMC = cms.Sequence( bTagCollectorSequenceDATA )
 
@@ -106,6 +117,10 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
 
 DQMHarvestTracking = cms.Sequence( TrackingOfflineDQMClient *
                                    dqmFastTimerServiceClient )
+if eras.phase1Pixel.isChosen(): # FIXME
+    # These should be added back once somebody checks that they work,
+    # and those that do not, get fixed
+    DQMHarvestTracking.remove(TrackingOfflineDQMClient)
 
 DQMHarvestMuon = cms.Sequence( dtClients *
                                rpcTier0Client *

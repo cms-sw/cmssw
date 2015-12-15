@@ -17,6 +17,7 @@ from Validation.RecoVertex.PostProcessorVertex_cff import *
 from Validation.RecoMET.METPostProcessor_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
 
+from Configuration.StandardSequences.Eras import eras
 
 postValidation = cms.Sequence(
       recoMuonPostProcessors
@@ -41,6 +42,29 @@ postValidation_preprod = cms.Sequence(
   + MuIsoValPostProcessor
 )  
 
+if eras.phase1Pixel.isChosen():
+    # For starters, include only tracking validation
+    # The rest should be added back once somebody checks that they
+    # work, and those that do not, get fixed
+    postValidation.remove(recoMuonPostProcessors)
+    postValidation.remove(MuIsoValPostProcessor)
+    postValidation.remove(calotowersPostProcessor)
+    postValidation.remove(hcalSimHitsPostProcessor)
+    postValidation.remove(hcaldigisPostProcessor)
+    postValidation.remove(hcalrechitsPostProcessor)
+    postValidation.remove(electronPostValidationSequence)
+    postValidation.remove(photonPostProcessor)
+    postValidation.remove(pfJetClient)
+    postValidation.remove(pfMETClient)
+    postValidation.remove(pfJetResClient)
+    postValidation.remove(pfElectronClient)
+    postValidation.remove(rpcRecHitPostValidation_step)
+    postValidation.remove(runTauEff)
+    postValidation.remove(makeBetterPlots)
+    postValidation.remove(bTagCollectorSequenceMCbcl)
+    postValidation.remove(METPostProcessor)
+    postValidation_preprod.remove(recoMuonPostProcessors)
+    postValidation_preprod.remove(MuIsoValPostProcessor)
 
 postValidation_fastsim = cms.Sequence(
       recoMuonPostProcessors

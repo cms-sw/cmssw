@@ -54,6 +54,12 @@ from Configuration.StandardSequences.Eras import eras
 if eras.phase1Pixel.isChosen():
     hltvalidation.remove(HiggsValidationSequence)
 
+if eras.phase1Pixel.isChosen(): # FIXME
+    # These should be added back once somebody checks that they work,
+    # and those that do not, get fixed
+    hltassociation = cms.Sequence()
+    hltvalidation = cms.Sequence()
+
 # some hlt collections have no direct fastsim equivalent
 # remove the dependent modules for now
 # probably it would be rather easy to add or fake these collections
