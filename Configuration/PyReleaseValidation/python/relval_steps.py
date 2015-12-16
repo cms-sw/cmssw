@@ -489,6 +489,13 @@ steps['PhotonJets_Pt_10_13_HI']=merge([hiDefaults,steps['PhotonJets_Pt_10_13']])
 steps['ZMM_13_HI']=merge([hiDefaults,steps['ZMM_13']])
 steps['ZEEMM_13_HI']=merge([hiDefaults,steps['ZEEMM_13']])
 
+## pp Reference @ 5020 GeV for HI
+HIppRefDefaults={'--conditions':'75X_mcRun2_asymptotic_ppAt5TeV_v3',
+                 '--beamspot':'Nominal5TeVpp2015Collision'}
+genHIppRefDefaults=merge([HIppRefDefaults,{'--customise_commands':'"process.generator.comEnergy = cms.double(5020.0)"'}])
+
+steps['MiniBias_5020GeV']=merge([genHIppRefDefaults,steps['MinBias_13']])
+
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
 step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,L1Reco,RECO,EI,HLT:@fake,VALIDATION',
@@ -765,6 +772,9 @@ steps['DIGIHI']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,L1Reco
 steps['DIGIHI2011']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco'}, hiDefaults2011, {'--pileup':'HiMixNoPU'}, step2Defaults])
 steps['DIGIHIMIX']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,L1Reco', '-n':2}, hiDefaults, {'--pileup':'HiMix'}, PUHI, step2Upg2015Defaults])
 
+steps['DIGIHIppRef']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relvalPRef,RAW2DIGI,L1Reco',
+                        '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
+                        }, HIppRefDefaults, step2Upg2015Defaults])
 
 # PRE-MIXING : https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideSimulation#Pre_Mixing_Instructions
 premixUp2015Defaults = {
@@ -1023,6 +1033,12 @@ steps['RECOHID11St3']=merge([{
 steps['RECOHIR10D11']=merge([{'--filein':'file:step2_inREPACKRAW.root',
                               '--filtername':'reRECO'},
                              steps['RECOHID11St3']])
+
+steps['RECOHIppRef']=merge([{'--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
+                     },HIppRefDefaults,step3Up2015Defaults])
+
+steps['RECOHIppRefMB']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias,VALIDATION,DQM'},steps['RECOHIppRef']])
+
 #steps['RECOFS']=merge([{'--fast':'',
 #                        '-s':'RECO,EI,HLT:@fake,VALIDATION'},
 #                       steps['RECO']])
@@ -1187,6 +1203,15 @@ steps['HARVESTHI']=merge([hiDefaults,{'-s':'HARVESTING:validationHarvesting+dqmH
 steps['HARVESTHI2011']=merge([hiDefaults2011,{'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                                               '--mc':'',
                                               '--filetype':'DQM'}])
+
+steps['HARVESTHIppRef']=merge([HIppRefDefaults,{
+              '-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM', 
+              '--mc':'',
+              '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+              '--filetype':'DQM',
+    }])
+
+
 steps['HARVESTUP15']={
     # '-s':'HARVESTING:validationHarvesting+dqmHarvesting', # todo: remove UP from label
     '-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM', # todo: remove UP from label
