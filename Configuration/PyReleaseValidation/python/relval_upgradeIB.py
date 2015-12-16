@@ -26,6 +26,7 @@ for i,key in enumerate(upgradeKeys):
                 stepList.append(k+'_'+step)
             else:
                 stepList.append(step+'_'+key)
-        for numWF in numWFIB
+        if numWF in numWFIB:
+	    print numWF
 	    workflows[numWF] = [ upgradeDatasetFromFragment[frag], stepList]
         numWF+=1
