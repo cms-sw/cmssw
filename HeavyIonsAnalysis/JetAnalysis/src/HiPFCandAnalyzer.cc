@@ -49,9 +49,8 @@ HiPFCandAnalyzer::HiPFCandAnalyzer(const edm::ParameterSet& iConfig)
   // Event source
   // Event Info
   pfCandidateLabel_ = iConfig.getParameter<edm::InputTag>("pfCandidateLabel");
-  genLabel_ = iConfig.getParameter<edm::InputTag>("genLabel");
-  jetLabel_ = iConfig.getParameter<edm::InputTag>("jetLabel");
-
+  pfCandidatePF_ = consumes<reco::PFCandidateCollection> (pfCandidateLabel_);
+  pfCandidateView_ = consumes<reco::CandidateView> (pfCandidateLabel_);
   pfPtMin_ = iConfig.getParameter<double>("pfPtMin");
   genPtMin_ = iConfig.getParameter<double>("genPtMin");
   jetPtMin_ = iConfig.getParameter<double>("jetPtMin");
@@ -59,17 +58,27 @@ HiPFCandAnalyzer::HiPFCandAnalyzer(const edm::ParameterSet& iConfig)
   etaBins_ = iConfig.getParameter<int>("etaBins");
   fourierOrder_ = iConfig.getParameter<int>("fourierOrder");
 
-  srcVor_ = iConfig.getParameter<edm::InputTag>("bkg");
+  doVS_ = iConfig.getUntrackedParameter<bool>("doVS",0);
+  if(doVS_){
+    edm::InputTag vsTag = iConfig.getParameter<edm::InputTag>("bkg");
+    srcVorFloat_ = consumes<std::vector<float> >(vsTag);
+    srcVorMap_ = consumes<reco::VoronoiMap>(vsTag);
+  }
 
 
   // debug
   verbosity_ = iConfig.getUntrackedParameter<int>("verbosity", 0);
 
   doJets_ = iConfig.getUntrackedParameter<bool>("doJets",0);
-  doVS_ = iConfig.getUntrackedParameter<bool>("doVS",0);
+  if(doJets_){
+    jetLabel_ = consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("jetLabel"));
+  }
   doUEraw_ = iConfig.getUntrackedParameter<bool>("doUEraw",0);
 
   doMC_ = iConfig.getUntrackedParameter<bool>("doMC",0);
+  if(doMC_){
+    genLabel_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genLabel"));
+  }
   skipCharged_ = iConfig.getUntrackedParameter<bool>("skipCharged",0);
 
 
@@ -101,12 +110,12 @@ HiPFCandAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // Fill PF info
 
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
-  iEvent.getByLabel(pfCandidateLabel_,pfCandidates);
-  iEvent.getByLabel(pfCandidateLabel_,candidates_);
+  iEvent.getByToken(pfCandidatePF_,pfCandidates);
+  iEvent.getByToken(pfCandidateView_,candidates_);
   const reco::PFCandidateCollection *pfCandidateColl = pfCandidates.product();
   if (doVS_) {
-   iEvent.getByLabel(srcVor_,backgrounds_);
-   iEvent.getByLabel(srcVor_,vn_);
+   iEvent.getByToken(srcVorMap_,backgrounds_);
+   iEvent.getByToken(srcVorFloat_,vn_);
    UEParameters vnUE(vn_.product(),fourierOrder_,etaBins_);
    const std::vector<float>& vue = vnUE.get_raw();
 
@@ -158,7 +167,7 @@ HiPFCandAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // Fill GEN info
   if(doMC_){
     edm::Handle<reco::GenParticleCollection> genParticles;
-    iEvent.getByLabel(genLabel_,genParticles);
+    iEvent.getByToken(genLabel_,genParticles);
     const reco::GenParticleCollection* genColl= &(*genParticles);
 
     for(unsigned igen=0;igen<genColl->size(); igen++) {
@@ -180,7 +189,7 @@ HiPFCandAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // Fill Jet info
   if(doJets_){
     edm::Handle<pat::JetCollection> jets;
-    iEvent.getByLabel(jetLabel_,jets);
+    iEvent.getByToken(jetLabel_,jets);
     const pat::JetCollection *jetColl = &(*jets);
 
 

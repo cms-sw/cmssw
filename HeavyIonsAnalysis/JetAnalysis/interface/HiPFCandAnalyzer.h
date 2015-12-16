@@ -100,10 +100,12 @@ private:
 
   // Event Info
   edm::InputTag pfCandidateLabel_;
-  edm::InputTag genLabel_;
-  edm::InputTag jetLabel_;
-  edm::InputTag srcVor_;
-
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidatePF_;
+  edm::EDGetTokenT<reco::CandidateView> pfCandidateView_;
+  edm::EDGetTokenT<reco::GenParticleCollection> genLabel_;
+  edm::EDGetTokenT<pat::JetCollection> jetLabel_;
+  edm::EDGetTokenT<std::vector<float> > srcVorFloat_;
+  edm::EDGetTokenT<reco::VoronoiMap> srcVorMap_;
 
   TTree	  *pfTree_;
   TreePFCandEventData pfEvt_;
