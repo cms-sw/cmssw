@@ -496,6 +496,10 @@ genHIppRefDefaults=merge([HIppRefDefaults,{'--customise_commands':'"process.gene
 
 steps['MiniBias_5020GeV']=merge([genHIppRefDefaults,steps['MinBias_13']])
 
+steps['QCD_Pt_80_120_5020GeV']=merge([genHIppRefDefaults,steps['QCD_Pt_80_120_13']])
+steps['PhotonJets_Pt_10_5020GeV']=merge([genHIppRefDefaults,steps['PhotonJets_Pt_10_13']])
+steps['ZEEMM_5020GeV']=merge([genHIppRefDefaults,steps['ZEEMM_13']])
+
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
 step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,L1Reco,RECO,EI,HLT:@fake,VALIDATION',
