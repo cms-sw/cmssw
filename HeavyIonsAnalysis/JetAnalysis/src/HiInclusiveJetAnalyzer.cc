@@ -103,7 +103,7 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
 
   if(doTrigger_){
     L1gtReadout_ = consumes< L1GlobalTriggerReadoutRecord > (iConfig.getParameter<edm::InputTag>("L1gtReadout"));
-    hltResName_ = iConfig.getUntrackedParameter<string>("hltTrgResults","TriggerResults::HLT");
+    hltResName_ = consumes< TriggerResults >(iConfig.getUntrackedParameter<string>("hltTrgResults","TriggerResults::HLT"));
 
 
     if (iConfig.exists("hltTrgNames"))
@@ -118,28 +118,28 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
   }
   if(doLifeTimeTagging_){
     bTagJetName_ = iConfig.getUntrackedParameter<string>("bTagJetName");
-    ImpactParameterTagInfos_ = iConfig.getUntrackedParameter<string>("ImpactParameterTagInfos",(bTagJetName_+"ImpactParameterTagInfos"));
-    TrackCountingHighEffBJetTags_ = iConfig.getUntrackedParameter<string>("TrackCountingHighEffBJetTags",(bTagJetName_+"TrackCountingHighEffBJetTags"));
-    NegativeTrackCountingHighEffBJetTags_ = iConfig.getUntrackedParameter<string>("NegativeTrackCountingHighEffBJetTags",bTagJetName_+("NegativeTrackCountingHighEffBJetTags"));
-    TrackCountingHighPurBJetTags_ = iConfig.getUntrackedParameter<string>("TrackCountingHighPurBJetTags",(bTagJetName_+"TrackCountingHighPurBJetTags"));
-    NegativeTrackCountingHighPurBJetTags_ = iConfig.getUntrackedParameter<string>("NegativeTrackCountingHighPurBJetTags",(bTagJetName_+"NegativeTrackCountingHighPurBJetTags"));
-    JetProbabilityBJetTags_ = iConfig.getUntrackedParameter<string>("JetProbabilityBJetTags",(bTagJetName_+"JetProbabilityBJetTags"));
-    PositiveOnlyJetProbabilityBJetTags_ = iConfig.getUntrackedParameter<string>("PositiveOnlyJetProbabilityBJetTags",(bTagJetName_+"PositiveOnlyJetProbabilityBJetTags"));
-    NegativeOnlyJetProbabilityBJetTags_ = iConfig.getUntrackedParameter<string>("NegativeOnlyJetProbabilityBJetTags",(bTagJetName_+"NegativeOnlyJetProbabilityBJetTags"));
-    JetBProbabilityBJetTags_ = iConfig.getUntrackedParameter<string>("JetBProbabilityBJetTags",(bTagJetName_+"JetBProbabilityBJetTags"));
-    NegativeOnlyJetBProbabilityBJetTags_ = iConfig.getUntrackedParameter<string>("NegativeOnlyJetBProbabilityBJetTags",(bTagJetName_+"NegativeOnlyJetBProbabilityBJetTags"));
-    PositiveOnlyJetBProbabilityBJetTags_ = iConfig.getUntrackedParameter<string>("PositiveOnlyJetBProbabilityBJetTags",(bTagJetName_+"PositiveOnlyJetBProbabilityBJetTags"));
-    SecondaryVertexTagInfos_ = iConfig.getUntrackedParameter<string>("SecondaryVertexTagInfos",(bTagJetName_+"SecondaryVertexTagInfos"));
-    SecondaryVertexNegativeTagInfos_ = iConfig.getUntrackedParameter<string>("SecondaryVertexNegativeTagInfos",(bTagJetName_+"SecondaryVertexNegativeTagInfos"));
-    SimpleSecondaryVertexHighEffBJetTags_ = iConfig.getUntrackedParameter<string>("SimpleSecondaryVertexHighEffBJetTags",(bTagJetName_+"SimpleSecondaryVertexHighEffBJetTags"));
-    NegativeSimpleSecondaryVertexHighEffBJetTags_ = iConfig.getUntrackedParameter<string>("NegativeSimpleSecondaryVertexHighEffBJetTags",(bTagJetName_+"NegativeSimpleSecondaryVertexHighEffBJetTags"));
-    SimpleSecondaryVertexHighPurBJetTags_ = iConfig.getUntrackedParameter<string>("SimpleSecondaryVertexHighPurBJetTags",(bTagJetName_+"SimpleSecondaryVertexHighPurBJetTags"));
-    NegativeSimpleSecondaryVertexHighPurBJetTags_ = iConfig.getUntrackedParameter<string>("NegativeSimpleSecondaryVertexHighPurBJetTags",(bTagJetName_+"NegativeSimpleSecondaryVertexHighPurBJetTags"));
-    CombinedSecondaryVertexBJetTags_ = iConfig.getUntrackedParameter<string>("CombinedSecondaryVertexBJetTags",(bTagJetName_+"CombinedSecondaryVertexBJetTags"));
-    NegativeCombinedSecondaryVertexBJetTags_ = iConfig.getUntrackedParameter<string>("NegativeCombinedSecondaryVertexBJetTags",(bTagJetName_+"NegativeCombinedSecondaryVertexBJetTags"));
-    PositiveCombinedSecondaryVertexBJetTags_ = iConfig.getUntrackedParameter<string>("PositiveCombinedSecondaryVertexBJetTags",(bTagJetName_+"PositiveCombinedSecondaryVertexBJetTags"));
-    NegativeSoftPFMuonByPtBJetTags_ = iConfig.getUntrackedParameter<string>("NegativeSoftPFMuonByPtBJetTags",(bTagJetName_+"NegativeSoftPFMuonByPtBJetTags"));
-    PositiveSoftPFMuonByPtBJetTags_ = iConfig.getUntrackedParameter<string>("PositiveSoftPFMuonByPtBJetTags",(bTagJetName_+"PositiveSoftPFMuonByPtBJetTags"));
+    ImpactParameterTagInfos_ = consumes<vector<TrackIPTagInfo> > (iConfig.getUntrackedParameter<string>("ImpactParameterTagInfos",(bTagJetName_+"ImpactParameterTagInfos")));
+    TrackCountingHighEffBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("TrackCountingHighEffBJetTags",(bTagJetName_+"TrackCountingHighEffBJetTags")));
+    NegativeTrackCountingHighEffBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("NegativeTrackCountingHighEffBJetTags",bTagJetName_+("NegativeTrackCountingHighEffBJetTags")));
+    TrackCountingHighPurBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("TrackCountingHighPurBJetTags",(bTagJetName_+"TrackCountingHighPurBJetTags")));
+    NegativeTrackCountingHighPurBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("NegativeTrackCountingHighPurBJetTags",(bTagJetName_+"NegativeTrackCountingHighPurBJetTags")));
+    JetProbabilityBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("JetProbabilityBJetTags",(bTagJetName_+"JetProbabilityBJetTags")));
+    PositiveOnlyJetProbabilityBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("PositiveOnlyJetProbabilityBJetTags",(bTagJetName_+"PositiveOnlyJetProbabilityBJetTags")));
+    NegativeOnlyJetProbabilityBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("NegativeOnlyJetProbabilityBJetTags",(bTagJetName_+"NegativeOnlyJetProbabilityBJetTags")));
+    JetBProbabilityBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("JetBProbabilityBJetTags",(bTagJetName_+"JetBProbabilityBJetTags")));
+    NegativeOnlyJetBProbabilityBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("NegativeOnlyJetBProbabilityBJetTags",(bTagJetName_+"NegativeOnlyJetBProbabilityBJetTags")));
+    PositiveOnlyJetBProbabilityBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("PositiveOnlyJetBProbabilityBJetTags",(bTagJetName_+"PositiveOnlyJetBProbabilityBJetTags")));
+    SecondaryVertexTagInfos_ = consumes<vector<SecondaryVertexTagInfo> > (iConfig.getUntrackedParameter<string>("SecondaryVertexTagInfos",(bTagJetName_+"SecondaryVertexTagInfos")));
+    SecondaryVertexNegativeTagInfos_ = consumes<vector<SecondaryVertexTagInfo> > (iConfig.getUntrackedParameter<string>("SecondaryVertexNegativeTagInfos",(bTagJetName_+"SecondaryVertexNegativeTagInfos")));
+    SimpleSecondaryVertexHighEffBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("SimpleSecondaryVertexHighEffBJetTags",(bTagJetName_+"SimpleSecondaryVertexHighEffBJetTags")));
+    NegativeSimpleSecondaryVertexHighEffBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("NegativeSimpleSecondaryVertexHighEffBJetTags",(bTagJetName_+"NegativeSimpleSecondaryVertexHighEffBJetTags")));
+    SimpleSecondaryVertexHighPurBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("SimpleSecondaryVertexHighPurBJetTags",(bTagJetName_+"SimpleSecondaryVertexHighPurBJetTags")));
+    NegativeSimpleSecondaryVertexHighPurBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("NegativeSimpleSecondaryVertexHighPurBJetTags",(bTagJetName_+"NegativeSimpleSecondaryVertexHighPurBJetTags")));
+    CombinedSecondaryVertexBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("CombinedSecondaryVertexBJetTags",(bTagJetName_+"CombinedSecondaryVertexBJetTags")));
+    NegativeCombinedSecondaryVertexBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("NegativeCombinedSecondaryVertexBJetTags",(bTagJetName_+"NegativeCombinedSecondaryVertexBJetTags")));
+    PositiveCombinedSecondaryVertexBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("PositiveCombinedSecondaryVertexBJetTags",(bTagJetName_+"PositiveCombinedSecondaryVertexBJetTags")));
+    NegativeSoftPFMuonByPtBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("NegativeSoftPFMuonByPtBJetTags",(bTagJetName_+"NegativeSoftPFMuonByPtBJetTags")));
+    PositiveSoftPFMuonByPtBJetTags_ = consumes<JetTagCollection> (iConfig.getUntrackedParameter<string>("PositiveSoftPFMuonByPtBJetTags",(bTagJetName_+"PositiveSoftPFMuonByPtBJetTags")));
   }
 
   //  cout<<" jet collection : "<<jetTag_<<endl;
@@ -521,28 +521,28 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
   //Handle<JetTagCollection> jetTags_softMuneg;
 
   if(doLifeTimeTagging_){
-    iEvent.getByLabel(ImpactParameterTagInfos_, tagInfo);
-    iEvent.getByLabel(TrackCountingHighEffBJetTags_, jetTags_TCHighEff);
-    iEvent.getByLabel(NegativeTrackCountingHighEffBJetTags_, jetTags_NegTCHighEff);
-    iEvent.getByLabel(TrackCountingHighPurBJetTags_, jetTags_TCHighPur);
-    iEvent.getByLabel(NegativeTrackCountingHighPurBJetTags_, jetTags_NegTCHighPur);
-    iEvent.getByLabel(JetProbabilityBJetTags_, jetTags_JP);
-    iEvent.getByLabel(PositiveOnlyJetProbabilityBJetTags_, jetTags_PosJP);
-    iEvent.getByLabel(NegativeOnlyJetProbabilityBJetTags_, jetTags_NegJP);
-    iEvent.getByLabel(JetBProbabilityBJetTags_, jetTags_JB);
-    iEvent.getByLabel(NegativeOnlyJetBProbabilityBJetTags_, jetTags_NegJB);
-    iEvent.getByLabel(PositiveOnlyJetBProbabilityBJetTags_, jetTags_PosJB);
-    iEvent.getByLabel(SecondaryVertexTagInfos_, tagInfoSVx);
-    iEvent.getByLabel(SecondaryVertexNegativeTagInfos_, tagInfoNegSVx);
-    iEvent.getByLabel(SimpleSecondaryVertexHighEffBJetTags_, jetTags_SvtxHighEff);
-    iEvent.getByLabel(NegativeSimpleSecondaryVertexHighEffBJetTags_, jetTags_negSvtxHighEff);
-    iEvent.getByLabel(SimpleSecondaryVertexHighPurBJetTags_, jetTags_SvtxHighPur);
-    iEvent.getByLabel(NegativeSimpleSecondaryVertexHighEffBJetTags_, jetTags_negSvtxHighPur);
-    iEvent.getByLabel(CombinedSecondaryVertexBJetTags_, jetTags_CombinedSvtx);
-    iEvent.getByLabel(NegativeCombinedSecondaryVertexBJetTags_, jetTags_negCombinedSvtx);
-    iEvent.getByLabel(PositiveCombinedSecondaryVertexBJetTags_, jetTags_posCombinedSvtx);
-    //iEvent.getByLabel(NegativeSoftPFMuonByPtBJetTags_, jetTags_softMuneg);
-    //iEvent.getByLabel(PositiveSoftPFMuonByPtBJetTags_, jetTags_softMu);
+    iEvent.getByToken(ImpactParameterTagInfos_, tagInfo);
+    iEvent.getByToken(TrackCountingHighEffBJetTags_, jetTags_TCHighEff);
+    iEvent.getByToken(NegativeTrackCountingHighEffBJetTags_, jetTags_NegTCHighEff);
+    iEvent.getByToken(TrackCountingHighPurBJetTags_, jetTags_TCHighPur);
+    iEvent.getByToken(NegativeTrackCountingHighPurBJetTags_, jetTags_NegTCHighPur);
+    iEvent.getByToken(JetProbabilityBJetTags_, jetTags_JP);
+    iEvent.getByToken(PositiveOnlyJetProbabilityBJetTags_, jetTags_PosJP);
+    iEvent.getByToken(NegativeOnlyJetProbabilityBJetTags_, jetTags_NegJP);
+    iEvent.getByToken(JetBProbabilityBJetTags_, jetTags_JB);
+    iEvent.getByToken(NegativeOnlyJetBProbabilityBJetTags_, jetTags_NegJB);
+    iEvent.getByToken(PositiveOnlyJetBProbabilityBJetTags_, jetTags_PosJB);
+    iEvent.getByToken(SecondaryVertexTagInfos_, tagInfoSVx);
+    iEvent.getByToken(SecondaryVertexNegativeTagInfos_, tagInfoNegSVx);
+    iEvent.getByToken(SimpleSecondaryVertexHighEffBJetTags_, jetTags_SvtxHighEff);
+    iEvent.getByToken(NegativeSimpleSecondaryVertexHighEffBJetTags_, jetTags_negSvtxHighEff);
+    iEvent.getByToken(SimpleSecondaryVertexHighPurBJetTags_, jetTags_SvtxHighPur);
+    iEvent.getByToken(NegativeSimpleSecondaryVertexHighEffBJetTags_, jetTags_negSvtxHighPur);
+    iEvent.getByToken(CombinedSecondaryVertexBJetTags_, jetTags_CombinedSvtx);
+    iEvent.getByToken(NegativeCombinedSecondaryVertexBJetTags_, jetTags_negCombinedSvtx);
+    iEvent.getByToken(PositiveCombinedSecondaryVertexBJetTags_, jetTags_posCombinedSvtx);
+    //iEvent.getByToken(NegativeSoftPFMuonByPtBJetTags_, jetTags_softMuneg);
+    //iEvent.getByToken(PositiveSoftPFMuonByPtBJetTags_, jetTags_softMu);
   }
 
 
@@ -1222,7 +1222,7 @@ void HiInclusiveJetAnalyzer::fillHLTBits(const edm::Event &iEvent)
 {
   // Fill HLT trigger bits.
   Handle<TriggerResults> triggerResultsHLT;
-  getProduct(hltResName_, triggerResultsHLT, iEvent);
+  iEvent.getByToken(hltResName_, triggerResultsHLT);
 
   const TriggerResults *hltResults = triggerResultsHLT.product();
   const TriggerNames & triggerNames = iEvent.triggerNames(*hltResults);
@@ -1244,42 +1244,6 @@ void HiInclusiveJetAnalyzer::fillHLTBits(const edm::Event &iEvent)
     }
   }
 }
-
-//--------------------------------------------------------------------------------------------------
-template <typename TYPE>
-inline void HiInclusiveJetAnalyzer::getProduct(const std::string name, edm::Handle<TYPE> &prod,
-					       const edm::Event &event) const
-{
-  // Try to access data collection from EDM file. We check if we really get just one
-  // product with the given name. If not we throw an exception.
-
-  event.getByLabel(edm::InputTag(name),prod);
-  if (!prod.isValid())
-    throw edm::Exception(edm::errors::Configuration, "HiInclusiveJetAnalyzer::GetProduct()\n")
-      << "Collection with label '" << name << "' is not valid" <<  std::endl;
-}
-
-//--------------------------------------------------------------------------------------------------
-template <typename TYPE>
-inline bool HiInclusiveJetAnalyzer::getProductSafe(const std::string name, edm::Handle<TYPE> &prod,
-						   const edm::Event &event) const
-{
-  // Try to safely access data collection from EDM file. We check if we really get just one
-  // product with the given name. If not, we return false.
-
-  if (name.size()==0)
-    return false;
-
-  try {
-    event.getByLabel(edm::InputTag(name),prod);
-    if (!prod.isValid())
-      return false;
-  } catch (...) {
-    return false;
-  }
-  return true;
-}
-
 
 int
 HiInclusiveJetAnalyzer::getPFJetMuon(const pat::Jet& pfJet, const reco::PFCandidateCollection *pfCandidateColl)

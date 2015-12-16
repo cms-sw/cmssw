@@ -136,7 +136,7 @@ private:
 
   const CaloGeometry *geo;
 
-  std::string                   hltResName_;         //HLT trigger results name
+  edm::EDGetTokenT<edm::TriggerResults> hltResName_;         //HLT trigger results name
   std::vector<std::string>      hltProcNames_;       //HLT process name(s)
   std::vector<std::string>      hltTrgNames_;        //HLT trigger name(s)
 
@@ -146,28 +146,28 @@ private:
   std::string                   hltUsedResName_;     //used HLT trigger results name
 
   std::string bTagJetName_;
-  std::string ImpactParameterTagInfos_;
-  std::string TrackCountingHighEffBJetTags_;
-  std::string NegativeTrackCountingHighEffBJetTags_;
-  std::string TrackCountingHighPurBJetTags_;
-  std::string NegativeTrackCountingHighPurBJetTags_;
-  std::string JetProbabilityBJetTags_;
-  std::string PositiveOnlyJetProbabilityBJetTags_;
-  std::string NegativeOnlyJetProbabilityBJetTags_;
-  std::string JetBProbabilityBJetTags_;
-  std::string NegativeOnlyJetBProbabilityBJetTags_;
-  std::string PositiveOnlyJetBProbabilityBJetTags_;
-  std::string SecondaryVertexTagInfos_;
-  std::string SecondaryVertexNegativeTagInfos_;
-  std::string SimpleSecondaryVertexHighEffBJetTags_;
-  std::string NegativeSimpleSecondaryVertexHighEffBJetTags_;
-  std::string SimpleSecondaryVertexHighPurBJetTags_;
-  std::string NegativeSimpleSecondaryVertexHighPurBJetTags_;
-  std::string CombinedSecondaryVertexBJetTags_;
-  std::string NegativeCombinedSecondaryVertexBJetTags_;
-  std::string PositiveCombinedSecondaryVertexBJetTags_;
-  std::string NegativeSoftPFMuonByPtBJetTags_;
-  std::string PositiveSoftPFMuonByPtBJetTags_;
+  edm::EDGetTokenT<std::vector<reco::TrackIPTagInfo> > ImpactParameterTagInfos_;
+  edm::EDGetTokenT<reco::JetTagCollection> TrackCountingHighEffBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> NegativeTrackCountingHighEffBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> TrackCountingHighPurBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> NegativeTrackCountingHighPurBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> JetProbabilityBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> PositiveOnlyJetProbabilityBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> NegativeOnlyJetProbabilityBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> JetBProbabilityBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> NegativeOnlyJetBProbabilityBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> PositiveOnlyJetBProbabilityBJetTags_;
+  edm::EDGetTokenT<std::vector<reco::SecondaryVertexTagInfo> > SecondaryVertexTagInfos_;
+  edm::EDGetTokenT<std::vector<reco::SecondaryVertexTagInfo> > SecondaryVertexNegativeTagInfos_;
+  edm::EDGetTokenT<reco::JetTagCollection> SimpleSecondaryVertexHighEffBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> NegativeSimpleSecondaryVertexHighEffBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> SimpleSecondaryVertexHighPurBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> NegativeSimpleSecondaryVertexHighPurBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> CombinedSecondaryVertexBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> NegativeCombinedSecondaryVertexBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> PositiveCombinedSecondaryVertexBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> NegativeSoftPFMuonByPtBJetTags_;
+  edm::EDGetTokenT<reco::JetTagCollection> PositiveSoftPFMuonByPtBJetTags_;
 
   static const int MAXJETS = 500;
   static const int MAXTRACKS = 5000;
