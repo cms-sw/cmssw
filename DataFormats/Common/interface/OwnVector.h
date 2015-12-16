@@ -46,7 +46,6 @@ namespace edm {
       typedef T const& reference;
       typedef ptrdiff_t difference_type;
       typedef typename base::const_iterator::iterator_category iterator_category;
-      const_iterator(typename base::const_iterator const& it) : i(it) { }
       const_iterator(iterator const& it) : i(it.i) { }
       const_iterator() {}
       const_iterator& operator++() { ++i; return *this; }
@@ -65,9 +64,11 @@ namespace edm {
       const_iterator & operator +=(difference_type d) { i += d; return *this; }
       const_iterator & operator -=(difference_type d) { i -= d; return *this; }
       reference operator[](difference_type d) const { return *const_iterator(i+d); } // for boost::iterator_range []
-      typename base::const_iterator base_iter() const { return i; }
     private:
+      const_iterator(typename base::const_iterator const& it) : i(it) { }
+      typename base::const_iterator base_iter() const { return i; }
       typename base::const_iterator i;
+      friend class OwnVector<T,P>;
     };
     class iterator {
     public:
@@ -76,7 +77,6 @@ namespace edm {
       typedef T & reference;
       typedef ptrdiff_t difference_type;
       typedef typename base::iterator::iterator_category iterator_category;
-      iterator(typename base::iterator const& it) : i(it) { }
       iterator() {}
       iterator& operator++() { ++i; return *this; }
       iterator operator++(int) { iterator ci = *this; ++i; return ci; }
@@ -96,6 +96,7 @@ namespace edm {
       iterator & operator -=(difference_type d) { i -= d; return *this; }
       reference operator[](difference_type d) const { return *iterator(i+d); } // for boost::iterator_range []
     private:
+      iterator(typename base::iterator const& it) : i(it) { }
       typename base::iterator i;
       friend class const_iterator;
       friend class OwnVector<T, P>;
