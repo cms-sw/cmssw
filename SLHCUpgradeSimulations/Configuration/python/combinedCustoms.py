@@ -8,7 +8,7 @@ from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10DLHCCCooling
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10DLHCCNoDefect import customise as customiseBE5DPixel10DLHCCNoDefect
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10DCoolingDefect import customise as customiseBE5DPixel10DCoolingDefect
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10DDefect import customise as customiseBE5DPixel10DDefect
-from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10Ddev import customise as customiseBE5DPixel10Ddev
+from SLHCUpgradeSimulations.Configuration.phase2TkTilted import customise as customiseTiltedTK
 
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE import l1EventContent as customise_ev_BE
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5D import l1EventContent as customise_ev_BE5D
@@ -699,9 +699,9 @@ def cust_2023MuonNoExtPix(process):
     process=jetCustoms.customise_jets(process)
     return process
 
-def cust_2023Muondev(process):
+def cust_2023TiltedTK(process):
     process=customisePostLS1(process)
-    process=customiseBE5DPixel10Ddev(process)
+    process=customiseTiltedTK(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     process=customise_gem2023(process)
