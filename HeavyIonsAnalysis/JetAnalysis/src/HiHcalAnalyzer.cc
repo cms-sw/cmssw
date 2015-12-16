@@ -42,7 +42,7 @@ private:
   void CleanUp();
 
 private:
-  edm::InputTag NoiseSummaryTag;
+  edm::EDGetTokenT<HcalNoiseSummary> NoiseSummaryTag;
   //edm::InputTag NoiseRBXTag;
 
 private:
@@ -72,7 +72,7 @@ private:
 //---------------------------------------------------------------------------
 HiHcalAnalyzer::HiHcalAnalyzer(const edm::ParameterSet& iConfig)
 {
-  NoiseSummaryTag = iConfig.getUntrackedParameter<edm::InputTag>("NoiseSummaryTag");
+  NoiseSummaryTag = consumes<HcalNoiseSummary>(iConfig.getUntrackedParameter<edm::InputTag>("NoiseSummaryTag"));
   // NoiseRBXTag = iConfig.getUntrackedParameter<edm::InputTag>("NoiseRBXTag");
 }
 //---------------------------------------------------------------------------
@@ -98,7 +98,7 @@ void HiHcalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   // Get stuff
   Handle<HcalNoiseSummary> hSummary;
-  iEvent.getByLabel(NoiseSummaryTag, hSummary);
+  iEvent.getByToken(NoiseSummaryTag, hSummary);
 
   // Handle<HcalNoiseRBXCollection> hRBX;
   // iEvent.getByLabel(NoiseRBXTag, hRBX);
