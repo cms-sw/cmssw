@@ -298,7 +298,7 @@ tracksValidationStandalone = cms.Sequence(
     ak4PFL1FastL2L3CorrectorChain +
     tracksPreValidation +
     tracksValidationSelectorsStandalone +
-    trackValidatorStandalone
+    trackValidatorsStandalone
 )
 
 ### TrackingOnly mode (i.e. MTV with DIGI input + tracking-only reconstruction
