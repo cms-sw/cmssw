@@ -81,30 +81,39 @@ double PuppiContainer::goodVar(PseudoJet const &iPart,std::vector<PseudoJet> con
 }
 double PuppiContainer::var_within_R(int iId, const vector<PseudoJet> & particles, const PseudoJet& centre, double R){
     if(iId == -1) return 1;
+
+    //this is a circle in rapidity-phi
+    //it would make more sense to have var definition consistent
     fastjet::Selector sel = fastjet::SelectorCircle(R);
     sel.set_reference(centre);
-    vector<const PseudoJet*> near_particles;
-    near_particles.reserve(std::min(50UL, particles.size()));
+
+    vector<double > near_dR2s;     near_dR2s.reserve(std::min(50UL, particles.size()));
+    vector<double > near_pts;      near_pts.reserve(std::min(50UL, particles.size()));
     for (auto const& part : particles){
-      if ( sel(part) ) near_particles.push_back(&part);
+      if ( sel(part) ){
+	near_dR2s.push_back(reco::deltaR2(part, centre));
+	near_pts.push_back(part.pt());
+      }
     }
     double var = 0;
     //double lSumPt = 0;
-    //if(iId == 1) for(auto const* part : near_particles) lSumPt += part->pt();
-    for(auto const* part : near_particles){
-        double pDR2 = reco::deltaR2(*part, centre);
-        if(std::abs(pDR2)  <  0.0001) continue;
-        if(iId == 0) var += (part->pt()/pDR2);
-        if(iId == 1) var += part->pt();
-        if(iId == 2) var += (1./pDR2);
-        if(iId == 3) var += (1./pDR2);
-        if(iId == 4) var += part->pt();
-        if(iId == 5) var += (part->pt() * part->pt()/pDR2);
+    //if(iId == 1) for(auto  pt : near_pts) lSumPt += pt;
+    auto nParts = near_dR2s.size();
+    for(auto i = 0UL; i < nParts; ++i){
+        auto dr2 = near_dR2s[i];
+        auto pt  = near_pts[i];
+        if(dr2  <  0.0001) continue;
+        if(iId == 0) var += (pt/dr2);
+        else if(iId == 1) var += pt;
+        else if(iId == 2) var += (1./dr2);
+        else if(iId == 3) var += (1./dr2);
+        else if(iId == 4) var += pt;
+        else if(iId == 5) var += (pt * pt/dr2);
     }
     if(iId == 1) var += centre.pt(); //Sum in a cone
-    if(iId == 0 && var != 0) var = log(var);
-    if(iId == 3 && var != 0) var = log(var);
-    if(iId == 5 && var != 0) var = log(var);
+    else if(iId == 0 && var != 0) var = log(var);
+    else if(iId == 3 && var != 0) var = log(var);
+    else if(iId == 5 && var != 0) var = log(var);
     return var;
 }
 //In fact takes the median not the average
