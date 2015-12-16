@@ -15,7 +15,7 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage2MainProcessor.h"
 
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
 //#include "FWCore/Framework/interface/Event.h"
 
@@ -26,7 +26,7 @@ namespace l1t {
   public:
     typedef boost::shared_ptr<Stage2MainProcessor> ReturnType;
 
-    ReturnType create(unsigned fwv, CaloParams* params);
+    ReturnType create(unsigned fwv, CaloParamsHelper* params);
 
   };
 

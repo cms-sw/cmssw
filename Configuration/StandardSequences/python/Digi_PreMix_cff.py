@@ -20,3 +20,8 @@ simMuonRPCDigis.doBkgNoise = False
 simEcalDigis.UseFullReadout = cms.bool(True)
 # This is extra, since the configuration skips it anyway.  Belts and suspenders.
 pdigi.remove(simEcalPreshowerDigis)
+
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    # no need for the aliases for usual mixing
+    del generalTracks,ecalPreshowerDigis,ecalDigis,hcalDigis,muonDTDigis,muonCSCDigis,muonRPCDigis

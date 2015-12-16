@@ -48,7 +48,6 @@ namespace l1t {
 			      const std::vector<l1t::CaloRegion> * regions,
 			      std::vector<l1t::Jet> * uncalibjets)
   {
-    // std::cout << "Jet Seed: " << jetSeedThreshold << std::endl;
     for(std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
       int regionET = region->hwPt(); //regionPhysicalEt(*region);
       if (regionET  <= jetSeedThreshold) continue;
@@ -170,7 +169,6 @@ namespace l1t {
 			      const std::vector<l1t::CaloRegion> * regions,
 			      std::vector<l1t::Jet> * uncalibjets)
   {
-    // std::cout << "Jet Seed: " << jetSeedThreshold << std::endl;
     for(std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
       int regionET = region->hwPt(); //regionPhysicalEt(*region);
       if (regionET  < jetSeedThreshold) continue;
@@ -266,11 +264,16 @@ namespace l1t {
     }
   }
 
-  void TwoByTwoFinder(const std::vector<l1t::CaloRegion> * regions,
+  void TwoByTwoFinder(const int jetSeedThreshold,
+		      const int etaMask,
+		      const std::vector<l1t::CaloRegion> * regions,
 		      std::vector<l1t::Jet> * uncalibjets)
   {
     for(std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
       int regionET = region->hwPt();
+      if (regionET  <= jetSeedThreshold) continue;
+      int subEta = region->hwEta();
+      if((etaMask & (1<<subEta))>>subEta) regionET = 0;
       int neighborN_et = 0;
       int neighborS_et = 0;
       int neighborE_et = 0;
@@ -282,6 +285,9 @@ namespace l1t {
       unsigned int nNeighbors = 0;
       for(std::vector<CaloRegion>::const_iterator neighbor = regions->begin(); neighbor != regions->end(); neighbor++) {
 	int neighborET = neighbor->hwPt();
+	int subEta2 = neighbor->hwEta();
+	if((etaMask & (1<<subEta2))>>subEta2) neighborET = 0;
+
 	if(deltaGctPhi(*region, *neighbor) == 1 &&
 	   (region->hwEta()    ) == neighbor->hwEta()) {
 	  neighborN_et = neighborET;

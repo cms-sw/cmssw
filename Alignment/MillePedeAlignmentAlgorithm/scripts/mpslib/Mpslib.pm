@@ -59,6 +59,8 @@ package Mpslib;  # assumes Some/Module.pm
 		    @JOBSTATUS @JOBNTRY @JOBRUNTIME @JOBNEVT @JOBHOST @JOBINCR @JOBREMARK @JOBSP1 @JOBSP2 @JOBSP3
                    );
 
+our $eos = "/afs/cern.ch/project/eos/installation/cms/bin/eos.select";
+
 sub write_db() {
   $header = "mps database schema 3.2" ;
   $currentTime = `date +%s`;

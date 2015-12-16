@@ -137,9 +137,10 @@ namespace l1t {
                for(int j = 0; j < 8; j++) {
 
                   unsigned int hfet=(unsigned int)converter.GetHFEt(j);
+                  bool hfgrain=(bool)converter.GetHFFg(j);
 
                   LogDebug("L1T")<<"UNPACKER, CRATE"<<crate<<"region="<<j<<", rgnEt="<<hfet<<std::endl;
-                  L1CaloRegion rgn = L1CaloRegion(hfet,0,crate,j);
+                  L1CaloRegion rgn = L1CaloRegion(hfet,hfgrain,crate,j);
                   rgn.setBx(bx);
                   resRCTRegions_->push_back(rgn);
                }

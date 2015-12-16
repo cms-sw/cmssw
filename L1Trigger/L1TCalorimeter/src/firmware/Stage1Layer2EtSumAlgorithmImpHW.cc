@@ -16,7 +16,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
 #include <cassert>
 
-l1t::Stage1Layer2EtSumAlgorithmImpHW::Stage1Layer2EtSumAlgorithmImpHW(CaloParamsStage1* params) : params_(params)
+l1t::Stage1Layer2EtSumAlgorithmImpHW::Stage1Layer2EtSumAlgorithmImpHW(CaloParamsHelper* params) : params_(params)
 {
   //now do what ever initialization is needed
   for(size_t i=0; i<cordicPhiValues.size(); ++i) {
@@ -56,9 +56,7 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   //double etSumEtThresholdHt = params_->etSumEtThreshold(1);
   int etSumEtThresholdHt = (int) (params_->etSumEtThreshold(1) / jetLsb);
 
-  std::string regionPUSType = params_->regionPUSType();
-  std::vector<double> regionPUSParams = params_->regionPUSParams();
-  RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
+  RegionCorrection(regions, subRegions, params_);
 
   std::vector<SimpleRegion> regionEtVect;
   std::vector<SimpleRegion> regionHtVect;
@@ -155,35 +153,6 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
 
   delete subRegions;
   delete preGtEtSums;
-
-  // Emulator - HDL simulation comparison printout
-  const bool verbose = false;
-  if(verbose)
-  {
-    for(std::vector<l1t::EtSum>::const_iterator itetsum = etsums->begin();
-	itetsum != etsums->end(); ++itetsum){
-      if(EtSum::EtSumType::kMissingEt == itetsum->getType())
-      {
-      	cout << "Missing Et" << endl;
-      	cout << bitset<7>(itetsum->hwPhi()).to_string() << bitset<1>(itetsum->hwQual()).to_string() << bitset<12>(itetsum->hwPt()).to_string() << endl;
-      }
-      if(EtSum::EtSumType::kMissingHt == itetsum->getType())
-      {
-      	cout << "Missing Ht" << endl;
-      	cout << bitset<1>(itetsum->hwQual()).to_string() << bitset<7>(itetsum->hwPt()).to_string() << bitset<5>(itetsum->hwPhi()).to_string() << endl;
-      }
-      if(EtSum::EtSumType::kTotalEt == itetsum->getType())
-      {
-	cout << "Total Et" << endl;
-	cout << bitset<1>(itetsum->hwQual()).to_string() << bitset<12>(itetsum->hwPt()).to_string() << endl;
-      }
-      if(EtSum::EtSumType::kTotalHt == itetsum->getType())
-      {
-	cout << "Total Ht" << endl;
-	cout << bitset<1>(itetsum->hwQual()).to_string() << bitset<12>(itetsum->hwPt()).to_string() << endl;
-      }
-    }
-  }
 }
 
 std::tuple<int, int, int>
@@ -283,8 +252,6 @@ l1t::Stage1Layer2EtSumAlgorithmImpHW::cordicToMETPhi(int phase)
 
 int l1t::Stage1Layer2EtSumAlgorithmImpHW::DiJetPhi(const std::vector<l1t::Jet> * jets)  const {
 
-  // cout << "Number of jets: " << jets->size() << endl;
-
   int dphi = 10; // initialize to negative physical dphi value
   if (jets->size()<2) return dphi; // size() not really reliable as we pad the size to 8 (4cen+4for) in the sorter
   if ((*jets).at(0).hwPt() == 0) return dphi;
@@ -313,7 +280,5 @@ uint16_t l1t::Stage1Layer2EtSumAlgorithmImpHW::MHToverHT(uint16_t num,uint16_t d
       result = numerator/denominator;
       result = result & 0x7f;
     }
-  // cout << "Result: " << result << endl;
-
   return result;
 }

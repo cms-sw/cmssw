@@ -975,7 +975,7 @@ class ConfigBuilder(object):
         self.RAW2DIGIDefaultSeq='RawToDigi'
         self.L1RecoDefaultSeq='L1Reco'
         self.L1TrackTriggerDefaultSeq='L1TrackTrigger'
-        if 'RAW2DIGI' in self.stepMap and 'RECO' in self.stepMap:
+        if self._options.fast or ('RAW2DIGI' in self.stepMap and 'RECO' in self.stepMap):
                 self.RECODefaultSeq='reconstruction'
         else:
                 self.RECODefaultSeq='reconstruction_fromRECO'
@@ -1101,31 +1101,15 @@ class ConfigBuilder(object):
             self.SIMDefaultCFF="Configuration/StandardSequences/SimNOBEAM_cff"
             self._options.beamspot='NoSmear'
 
-        # if fastsim switch event content
+        # fastsim requires some changes to the default cff files and sequences
 	if self._options.fast:
 		self.SIMDefaultCFF = 'FastSimulation.Configuration.SimIdeal_cff'
-		self.SIMDefaultSeq = 'psim'
 		self.RECODefaultCFF= 'FastSimulation.Configuration.Reconstruction_AftMix_cff'
-		self.RECODefaultSeq= 'reconstruction'
                 self.EVTCONTDefaultCFF = "FastSimulation.Configuration.EventContent_cff"
                 self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
 		self.RECOBEFMIXDefaultCFF = 'FastSimulation.Configuration.Reconstruction_BefMix_cff'
 		self.RECOBEFMIXDefaultSeq = 'reconstruction_befmix'
-		self.DIGIDefaultCFF = 'FastSimulation.Configuration.Digi_cff'
-		if self._options.datamix == 'PreMix':
-			self.DIGIDefaultCFF="FastSimulation.Configuration.DigiDMPreMix_cff"
-		if "DIGIPREMIX" in self.stepMap.keys():
-			self.DIGIDefaultCFF="FastSimulation.Configuration.Digi_PreMix_cff"
-		if "DATAMIX" in self.stepMap.keys():
-			self.DATAMIXDefaultCFF="FastSimulation.Configuration.DataMixer"+self._options.datamix+"_cff"
-
-		self.DIGIDefaultSeq = 'pdigi'
-		self.L1EMDefaultCFF='FastSimulation.Configuration.SimL1Emulator_cff'
 		self.L1RecoDefaultCFF='FastSimulation.Configuration.L1Reco_cff'
-		self.DIGI2RAWDefaultCFF = 'FastSimulation.Configuration.DigiToRaw_cff'
-		self.DIGI2RAWDefaultSeq = 'DigiToRaw'
-		self.EVTCONTDefaultCFF = "FastSimulation.Configuration.EventContent_cff"
-		self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
 
 		
 

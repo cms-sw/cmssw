@@ -244,3 +244,13 @@ mixData = cms.EDProducer("DataMixingModule",
 mixData.doEB = cms.bool(True)
 mixData.doEE = cms.bool(True)
 mixData.doES = cms.bool(True)
+
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    # from signal: mix tracks not strip or pixel digis
+    mixData.TrackerMergeType = "tracks"
+    import FastSimulation.Tracking.recoTrackAccumulator_cfi
+    mixData.tracker = FastSimulation.Tracking.recoTrackAccumulator_cfi.recoTrackAccumulator.clone()
+    mixData.tracker.pileUpTracks = cms.InputTag("mix","generalTracks")
+    mixData.hitsProducer = "famosSimHits"
+

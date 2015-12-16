@@ -19,11 +19,11 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2DemuxJetAlgoFirmware.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2DemuxSumsAlgoFirmware.h"
 
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
 using namespace std;
 
-l1t::Stage2MainProcessorFirmwareImp1::Stage2MainProcessorFirmwareImp1(unsigned fwv, CaloParams* params) :
+l1t::Stage2MainProcessorFirmwareImp1::Stage2MainProcessorFirmwareImp1(unsigned fwv, CaloParamsHelper* params) :
   m_params(params)
 {
 
@@ -31,13 +31,13 @@ l1t::Stage2MainProcessorFirmwareImp1::Stage2MainProcessorFirmwareImp1(unsigned f
   m_egClusterAlgo = new Stage2Layer2ClusterAlgorithmFirmwareImp1(m_params,
 							       Stage2Layer2ClusterAlgorithmFirmwareImp1::ClusterInput::E);
   m_egAlgo = new Stage2Layer2EGammaAlgorithmFirmwareImp1(m_params);
-  m_tauClusterAlgo = new Stage2Layer2ClusterAlgorithmFirmwareImp1(m_params, 
+  m_tauClusterAlgo = new Stage2Layer2ClusterAlgorithmFirmwareImp1(m_params,
 								Stage2Layer2ClusterAlgorithmFirmwareImp1::ClusterInput::EH);
   m_tauAlgo = new Stage2Layer2TauAlgorithmFirmwareImp1(m_params);
   m_jetAlgo = new Stage2Layer2JetAlgorithmFirmwareImp1(m_params);
   m_sumAlgo = new Stage2Layer2EtSumAlgorithmFirmwareImp1(m_params);
   m_jetSumAlgo = new Stage2Layer2JetSumAlgorithmFirmwareImp1(m_params);
-  
+
   m_demuxEGAlgo = new Stage2Layer2DemuxEGAlgoFirmwareImp1(m_params);
   m_demuxTauAlgo = new Stage2Layer2DemuxTauAlgoFirmwareImp1(m_params);
   m_demuxJetAlgo = new Stage2Layer2DemuxJetAlgoFirmwareImp1(m_params);
@@ -46,7 +46,7 @@ l1t::Stage2MainProcessorFirmwareImp1::Stage2MainProcessorFirmwareImp1(unsigned f
 }
 
 l1t::Stage2MainProcessorFirmwareImp1::~Stage2MainProcessorFirmwareImp1()
-{ 
+{
 
 };
 
@@ -78,7 +78,7 @@ void l1t::Stage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1t::C
   m_tauAlgo->processEvent( tauClusters,outTowers, mpTaus );
   m_jetAlgo->processEvent( outTowers, mpJets, mpAllJets );
   m_sumAlgo->processEvent( outTowers, towerSums );
-  m_jetSumAlgo->processEvent( mpAllJets, jetSums );  
+  m_jetSumAlgo->processEvent( mpAllJets, jetSums );
 
   clusters.insert( clusters.end(), egClusters.begin(), egClusters.end() );
 
@@ -111,5 +111,3 @@ void l1t::Stage2MainProcessorFirmwareImp1::print(std::ostream& out) const {
   out << "  Sums algo        : " << (m_sumAlgo?1:0) << std::endl;
 
 }
-
-

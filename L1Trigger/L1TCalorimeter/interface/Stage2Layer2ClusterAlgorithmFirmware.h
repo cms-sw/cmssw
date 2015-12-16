@@ -14,13 +14,13 @@
 #define Stage2Layer2ClusterAlgorithmFirmware_H
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2ClusterAlgorithm.h"
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
-namespace l1t 
+namespace l1t
 {
 
   // Imp1 is for v1 and v2
-  class Stage2Layer2ClusterAlgorithmFirmwareImp1 : public Stage2Layer2ClusterAlgorithm 
+  class Stage2Layer2ClusterAlgorithmFirmwareImp1 : public Stage2Layer2ClusterAlgorithm
   {
     public:
       enum ClusterInput
@@ -30,7 +30,7 @@ namespace l1t
         EH = 2
       };
 
-      Stage2Layer2ClusterAlgorithmFirmwareImp1(CaloParams* params, ClusterInput clusterInput);
+      Stage2Layer2ClusterAlgorithmFirmwareImp1(CaloParamsHelper* params, ClusterInput clusterInput);
       virtual ~Stage2Layer2ClusterAlgorithmFirmwareImp1();
       virtual void processEvent(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::CaloCluster>& clusters);
 
@@ -45,7 +45,7 @@ namespace l1t
       int seedThreshold_;
       int clusterThreshold_;
       int hcalThreshold_;
-      CaloParams* params_;
+      CaloParamsHelper* params_;
   };
 
 }
