@@ -75,7 +75,7 @@ public:
    FWEventItem(fireworks::Context* iContext,
                unsigned int iItemId,
                boost::shared_ptr<FWItemAccessorBase> iAccessor,
-               const FWPhysicsObjectDesc& iDesc,  const FWConfiguration* pbConf = 0);
+               const FWPhysicsObjectDesc& iDesc,  bool showFiltered = true, const FWConfiguration* pbConf = 0);
    virtual ~FWEventItem();
 
    // ---------- const member functions ---------------------
@@ -96,6 +96,9 @@ public:
    bool isInBack() const;
 
    const std::string& filterExpression() const;
+   
+   bool showFilteredEntries() const { return m_showFilteredEntries;}
+   
    /**Unique ID for the item. This number starts at 0 and increments by one for each
       new item.*/
    unsigned int id() const;
@@ -171,6 +174,8 @@ public:
    void setDefaultDisplayProperties(const FWDisplayProperties&);
    /**Throws an FWExpresionException if there is a problem with the expression */
    void setFilterExpression(const std::string& );
+   
+   void setShowFilteredEntries(bool x);
 
    /**Select the item (i.e. container) itself*/
    void selectItem();
@@ -220,7 +225,7 @@ private:
 
    void getPrimaryData() const;
    void runFilter();
-   void handleChange();
+   void handleChange(bool filterUpdate = true);
    // ---------- member data --------------------------------
    const fireworks::Context* m_context;
    unsigned int m_id;
@@ -241,6 +246,7 @@ private:
    FWItemValueGetter m_interestingValueGetter;
 
    FWModelFilter m_filter;
+   bool m_showFilteredEntries;
    mutable bool m_printedErrorThisEvent;
    mutable std::string m_errorMessage;
    

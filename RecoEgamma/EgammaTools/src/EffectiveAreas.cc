@@ -106,10 +106,10 @@ void EffectiveAreas::checkConsistency() const {
 	  << "eta ranges improperly defined (disjointed) in the file " 
 	  << filename_ << std::endl;
 
-    // The effective area should be a positive number,
+    // The effective area should be non-negative number,
     // and should be less than the whole calorimeter area 
     // eta range -2.5 to 2.5, phi 0 to 2pi => Amax = 5*2*pi ~= 31.4
-    if( !( effectiveAreaValues_[iEta] > 0
+    if( !( effectiveAreaValues_[iEta] >= 0
 	   && effectiveAreaValues_[iEta] < 31.4 ) )
       throw cms::Exception("EffectiveAreas config failure")
 	<< "effective area values are too large or negative in the file"
