@@ -36,8 +36,8 @@ inputFilesAOD = cms.untracked.vstring(
 
 inputFilesMiniAOD = cms.untracked.vstring(
     # MiniAOD test files from /store/relval/CMSSW_7_4_8_patch1/RelValH130GGgluonfusion_13/MINIAODSIM/PU25ns_MCRUN2_74_V11_mulTrh-v1
-    '/store/relval/CMSSW_7_4_8_patch1/RelValH130GGgluonfusion_13/MINIAODSIM/PU25ns_MCRUN2_74_V11_mulTrh-v1/00000/96F1561D-403C-E511-A102-002618943856.root',
-    '/store/relval/CMSSW_7_4_8_patch1/RelValH130GGgluonfusion_13/MINIAODSIM/PU25ns_MCRUN2_74_V11_mulTrh-v1/00000/BE1C7C22-403C-E511-A986-0025905B858C.root'
+    '/store/relval/CMSSW_7_4_15/RelValZEE_13/MINIAODSIM/PU25ns_74X_mcRun2_asymptotic_v2-v1/00000/5E73FA20-3772-E511-965F-0025905B8572.root',
+    '/store/relval/CMSSW_7_4_15/RelValZEE_13/MINIAODSIM/PU25ns_74X_mcRun2_asymptotic_v2-v1/00000/88771C26-3772-E511-ACD7-0025905A48EC.root'
     )
 
 # Set up input/output depending on the format
