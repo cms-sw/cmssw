@@ -191,7 +191,7 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
   void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
   double discriminate(const PFTauRef& pfTau) const override;
 
-  inline  double weightedSum(std::vector<PFCandidatePtr> inColl_, double eta, double phi) const {
+  inline  double weightedSum(const std::vector<PFCandidatePtr>& inColl_, double eta, double phi) const {
     double out = 1.0;
     for (auto const & inObj_ : inColl_){
       double sum = (inObj_->pt()*inObj_->pt())/(deltaR2(eta,phi,inObj_->eta(),inObj_->phi()));
@@ -428,8 +428,8 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
       }
       LogTrace("discriminate") << "After cone cuts: " << isoPU_.size() << " " << chPV_.size() ;
     } else {
-      isoPU_ = allPU;
-      chPV_ = allNPU;
+      isoPU_ = std::move(allPU);
+      chPV_ = std::move(allNPU);
     }
   }
 
