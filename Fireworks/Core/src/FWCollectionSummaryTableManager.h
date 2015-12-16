@@ -53,7 +53,7 @@ public:
    
    // ---------- member functions ---------------------------
    virtual void buttonReleasedInRowHeader(Int_t row, Event_t* event, Int_t relX, Int_t relY);
-
+   void modelIdChanges();
 protected:
    virtual void implSort(int iCol, bool iSortOrder);
 private:

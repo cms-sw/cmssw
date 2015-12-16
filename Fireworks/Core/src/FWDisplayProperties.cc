@@ -18,12 +18,14 @@
 
 // A static default property.
 const FWDisplayProperties FWDisplayProperties::defaultProperties
-(FWColorManager::getDefaultStartColorIndex(), true, 0);
+(FWColorManager::getDefaultStartColorIndex(), true, true, 0);
 
 FWDisplayProperties::FWDisplayProperties(Color_t iColor,
                                          bool    isVisible,
+                                         bool    filterPassed,
                                          Char_t  transparency) 
    : m_color(iColor),
      m_isVisible(isVisible),
+     m_filterPassed(filterPassed),
      m_transparency(transparency)
 {}
