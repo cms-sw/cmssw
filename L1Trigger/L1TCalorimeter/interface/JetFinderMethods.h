@@ -24,7 +24,7 @@ namespace l1t {
 			      std::vector<l1t::Jet> * uncalibjets);
   void passThroughJets(const std::vector<l1t::CaloRegion> * regions,
 		       std::vector<l1t::Jet> * uncalibjets);
-  void TwoByTwoFinder(const std::vector<l1t::CaloRegion> * regions,
+  void TwoByTwoFinder(const int, const int, const std::vector<l1t::CaloRegion> * regions,
 		      std::vector<l1t::Jet> * uncalibjets);
 }
 

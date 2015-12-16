@@ -59,5 +59,6 @@ caloStage1Params.etSumEtaMax             = cms.vint32(17, 17) #ET, HT
 caloStage1Params.etSumEtThreshold        = cms.vdouble(0., 7.) #ET, HT
 
 # HI
-caloStage1Params.centralityLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/centralityLUT_5020TeV_stage1.txt")
+caloStage1Params.minimumBiasThresholds = cms.vint32(3,3,6,6)
+caloStage1Params.centralityLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/python/centrality_extended_LUT_preRun.txt")
 caloStage1Params.q2LUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/q2LUT_stage1.txt")

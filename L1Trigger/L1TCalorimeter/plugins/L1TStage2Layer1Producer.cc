@@ -2,7 +2,7 @@
 //
 // Package:    L1Trigger/skeleton
 // Class:      skeleton
-// 
+//
 /**\class skeleton skeleton.cc L1Trigger/skeleton/plugins/skeleton.cc
 
  Description: [one line class summary]
@@ -36,7 +36,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer1FirmwareFactory.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2PreProcessor.h"
 
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
@@ -58,46 +58,46 @@
 
 using namespace l1t;
 
-  
-  class L1TStage2Layer1Producer : public edm::EDProducer { 
+
+  class L1TStage2Layer1Producer : public edm::EDProducer {
   public:
     explicit L1TStage2Layer1Producer(const edm::ParameterSet& ps);
     ~L1TStage2Layer1Producer();
-    
+
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions)
       ;
-    
+
   private:
     virtual void beginJob() override;
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() override;
-    
+
     virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
     virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
     //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-    
+
     // ----------member data ---------------------------
 
     int verbosity_;
-    
+
     int bxFirst_, bxLast_; // bx range to process
     int ietaMin_, ietaMax_, iphiMin_, iphiMax_;
-    
+
     std::vector<edm::EDGetToken> ecalToken_;  // this is a crazy way to store multi-BX info
     std::vector<edm::EDGetToken> hcalToken_;  // should be replaced with a BXVector< > or similar
 
     // parameters
     unsigned long long paramsCacheId_;
     unsigned fwv_;
-    CaloParams* params_;
+    CaloParamsHelper* params_;
 
     // the processor
     Stage2Layer1FirmwareFactory factory_;
     boost::shared_ptr<Stage2PreProcessor> processor_;
-     
-  }; 
-  
+
+  };
+
 
 
 L1TStage2Layer1Producer::L1TStage2Layer1Producer(const edm::ParameterSet& ps) :
@@ -116,15 +116,15 @@ L1TStage2Layer1Producer::L1TStage2Layer1Producer(const edm::ParameterSet& ps) :
 
   // register what you produce
   produces<CaloTowerBxCollection> ();
-  
+
   // register what you consume and keep token for later access:
   for (int ibx=0; ibx<bxLast_+1-bxFirst_; ibx++) {
     ecalToken_[ibx] = consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalToken"));
     hcalToken_[ibx] = consumes<HcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("hcalToken"));
   }
-  
+
   // placeholder for the parameters
-  params_ = new CaloParams;
+  params_ = new CaloParamsHelper;
 
   // set firmware version from python config for now
   fwv_ = ps.getParameter<int>("firmware");
@@ -132,7 +132,7 @@ L1TStage2Layer1Producer::L1TStage2Layer1Producer(const edm::ParameterSet& ps) :
 }
 
 L1TStage2Layer1Producer::~L1TStage2Layer1Producer() {
-  
+
   delete params_;
 
 }
@@ -149,7 +149,7 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   edm::ESHandle<L1CaloEcalScale> ecalScale;
   iSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
   //  const L1CaloEcalScale* e = ecalScale.product();
-  
+
   edm::ESHandle<L1CaloHcalScale> hcalScale;
   iSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
   //  const L1CaloHcalScale* h = hcalScale.product();
@@ -163,19 +163,19 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // loop over crossings
   for (int bx = bxFirst_; bx < bxLast_+1; ++bx) {
-   
+
     int ibx = bx-bxFirst_;
- 
+
     edm::Handle<EcalTrigPrimDigiCollection> ecalTPs;
     edm::Handle<HcalTrigPrimDigiCollection> hcalTPs;
-    
+
     iEvent.getByToken(hcalToken_[ibx], hcalTPs);
     iEvent.getByToken(ecalToken_[ibx], ecalTPs);
 
     // create input and output tower vectors for this BX
     std::auto_ptr< std::vector<CaloTower> > localInTowers (new std::vector<CaloTower>(CaloTools::caloTowerHashMax()));
     std::auto_ptr< std::vector<CaloTower> > localOutTowers (new std::vector<CaloTower>()); //this is later filled to the same size as localInTowers
-    
+
     // loop over ECAL TPs
     EcalTrigPrimDigiCollection::const_iterator ecalItr;
     int nEcal=0;
@@ -191,8 +191,8 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       double et = ecalScale->et( ietIn, abs(ieta), (ieta>0) );
       int ietOut = floor( et / params_->towerLsbE() );
       //      int ietOutMask = (int) pow(2,params_->towerNBitsE())-1;
-      
-      if (ietIn>0) 
+
+      if (ietIn>0)
 	LogDebug("L1TDebug") << " ECAL TP : " << ieta << ", " << iphi << ", " << ietIn << ", " << et << ", " << ietOut << std::endl;
 
       int itow = CaloTools::caloTowerHash(ieta, iphi);
@@ -205,8 +205,8 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     HcalTrigPrimDigiCollection::const_iterator hcalItr;
     int nHcal=0;
     for (hcalItr=hcalTPs->begin(); hcalItr!=hcalTPs->end(); ++hcalItr, ++nHcal) {
-    
-      int ieta = hcalItr->id().ieta(); 
+
+      int ieta = hcalItr->id().ieta();
       int iphi = hcalItr->id().iphi();
 
       int ietIn = hcalItr->SOI_compressedEt();
@@ -217,7 +217,7 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       int ietOut = floor( et / params_->towerLsbH() );
       //      int ietOutMask = (int) pow(2,params_->towerNBitsH() )-1;
 
-      if (ietIn>0) 
+      if (ietIn>0)
 	LogDebug("L1TDebug") << " HCAL TP : " << ieta << ", " << iphi << ", " << ietIn << ", " << et << ", " << ietOut << std::endl;
 
       int itow = CaloTools::caloTowerHash(ieta, iphi);
@@ -238,7 +238,7 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	// get ECAL/HCAL raw numbers
 	int ietEcal = localInTowers->at(itow).hwEtEm();
 	int ietHcal = localInTowers->at(itow).hwEtHad();
-	
+
 	//	const LorentzVector& p4;
 	int iet = ietEcal + ietHcal;   // this is nonsense, temp solution!
 
@@ -253,29 +253,29 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
     // do the decompression
     processor_->processEvent(*localInTowers, *localOutTowers);
-    
+
     // copy towers to output collection
-    for(std::vector<CaloTower>::const_iterator tower = localOutTowers->begin(); 
-	tower != localOutTowers->end(); 
-	++tower) 
+    for(std::vector<CaloTower>::const_iterator tower = localOutTowers->begin();
+	tower != localOutTowers->end();
+	++tower)
       towersColl->push_back(ibx, *tower);
 
     LogDebug("L1TDebug") << "BX=" << ibx << ", N(Tower in)=" << localInTowers->size() << ", N(Tower out)=" << localOutTowers->size() << std::endl;
 
   }
- 
+
   iEvent.put(towersColl);
-  
+
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 L1TStage2Layer1Producer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 L1TStage2Layer1Producer::endJob() {
 }
 
@@ -289,8 +289,8 @@ L1TStage2Layer1Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
 
   // parameters
 
-  unsigned long long id = iSetup.get<L1TCaloParamsRcd>().cacheIdentifier();  
-  
+  unsigned long long id = iSetup.get<L1TCaloParamsRcd>().cacheIdentifier();
+
   if (id != paramsCacheId_) {
 
     paramsCacheId_ = id;
@@ -299,13 +299,13 @@ L1TStage2Layer1Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
     iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
 
     // replace our local copy of the parameters with a new one using placement new
-    params_->~CaloParams();
-    params_ = new (params_) CaloParams(*paramsHandle.product());
-    
+    params_->~CaloParamsHelper();
+    params_ = new (params_) CaloParamsHelper(*paramsHandle.product());
+
     LogDebug("L1TDebug") << *params_ << std::endl;
 
     if (! params_){
-      edm::LogError("l1t|caloStage2") << "Could not retrieve params from Event Setup" << std::endl;            
+      edm::LogError("l1t|caloStage2") << "Could not retrieve params from Event Setup" << std::endl;
     }
 
   }
@@ -313,21 +313,21 @@ L1TStage2Layer1Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
   // firmware
 
   if ( !processor_ ) { // in future, also check if the firmware cache ID has changed !
-    
+
     //     m_fwv = ; // get new firmware version in future
-    
+
     // Set the current algorithm version based on DB pars from database:
     processor_ = factory_.create(fwv_, params_);
 
     LogDebug("L1TDebug") << "Processor object : " << (processor_?1:0) << std::endl;
-        
+
     if (! processor_) {
       // we complain here once per run
       edm::LogError("l1t|caloStage2") << "Layer 1 firmware could not be configured.\n";
     }
-    
+
   }
-  
+
 
 }
 
@@ -346,7 +346,7 @@ t&)
 {
 }
 */
- 
+
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void
@@ -355,7 +355,7 @@ L1TStage2Layer1Producer::endLuminosityBlock(edm::LuminosityBlock const&, edm::Ev
 {
 }
 */
- 
+
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 L1TStage2Layer1Producer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

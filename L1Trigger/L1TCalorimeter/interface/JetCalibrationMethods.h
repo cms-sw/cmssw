@@ -6,7 +6,7 @@
 #ifndef JETCALIBRATIONMETHODS_H
 #define JETCALIBRATIONMETHODS_H
 
-#include "L1Trigger/L1TCalorimeter/interface/CaloParamsStage1.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 
 #include <vector>

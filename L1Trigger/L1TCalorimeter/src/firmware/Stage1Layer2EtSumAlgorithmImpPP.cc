@@ -15,7 +15,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/JetCalibrationMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
 
-l1t::Stage1Layer2EtSumAlgorithmImpPP::Stage1Layer2EtSumAlgorithmImpPP(CaloParamsStage1* params) : params_(params)
+l1t::Stage1Layer2EtSumAlgorithmImpPP::Stage1Layer2EtSumAlgorithmImpPP(CaloParamsHelper* params) : params_(params)
 {
   //now do what ever initialization is needed
   for(unsigned int i = 0; i < L1CaloRegionDetId::N_PHI; i++) {
@@ -64,9 +64,7 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   //double etSumEtThresholdHt = params_->etSumEtThreshold(1);
   int etSumEtThresholdHt = (int) (params_->etSumEtThreshold(1) / jetLsb);
 
-  std::string regionPUSType = params_->regionPUSType();
-  std::vector<double> regionPUSParams = params_->regionPUSParams();
-  RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
+  RegionCorrection(regions, subRegions, params_);
 
   double towerLsb = params_->towerLsbSum();
   int jetSeedThreshold = floor( params_->jetSeedThreshold()/towerLsb + 0.5);
@@ -125,9 +123,6 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   double physicalPhiHT = atan2(sumHy, sumHx) + 3.1415927;
   unsigned int iPhiHT = L1CaloRegionDetId::N_PHI * (physicalPhiHT) / (2 * 3.1415927);
 
-  //std::cout << "MET:" << MET << "\tHT: " << MHT << std::endl;
-  //std::cout << "sumMET:" << sumET << "\tsumHT: " << sumHT << std::endl;
-
   const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz(0,0,0,0);
 
   // Set quality (i.e. overflow) bits appropriately
@@ -174,39 +169,9 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   delete unSortedJets;
   delete SortedJets;
   delete preGtEtSums;
-
-  const bool verbose = false;
-  if(verbose)
-  {
-    for(std::vector<l1t::EtSum>::const_iterator itetsum = etsums->begin();
-	itetsum != etsums->end(); ++itetsum){
-      // if(EtSum::EtSumType::kMissingEt == itetsum->getType())
-      // {
-      // 	cout << "Missing Et" << endl;
-      // 	cout << bitset<12>(itetsum->hwPt()).to_string() << endl;
-      // }
-      // if(EtSum::EtSumType::kMissingHt == itetsum->getType())
-      // {
-      // 	cout << "Missing Ht" << endl;
-      // 	cout << bitset<12>(itetsum->hwPt()).to_string() << endl;
-      // }
-      if(EtSum::EtSumType::kTotalEt == itetsum->getType())
-      {
-	cout << "Total Et" << endl;
-	cout << bitset<12>(itetsum->hwPt()).to_string() << endl;
-      }
-      if(EtSum::EtSumType::kTotalHt == itetsum->getType())
-      {
-	cout << "Total Ht" << endl;
-	cout << bitset<12>(itetsum->hwPt()).to_string() << endl;
-      }
-    }
-  }
 }
 
 int l1t::Stage1Layer2EtSumAlgorithmImpPP::DiJetPhi(const std::vector<l1t::Jet> * jets)  const {
-
-  // cout << "Number of jets: " << jets->size() << endl;
 
   int dphi = 10; // initialize to negative physical dphi value
   if (jets->size()<2) return dphi; // size() not really reliable as we pad the size to 8 (4cen+4for) in the sorter
@@ -227,7 +192,7 @@ uint16_t l1t::Stage1Layer2EtSumAlgorithmImpPP::MHToverHT(uint16_t num,uint16_t d
 
   uint16_t result;
   uint32_t numerator(num),denominator(den);
-  
+
   if(numerator == denominator)
     result = 0x7f;
   else
@@ -236,7 +201,5 @@ uint16_t l1t::Stage1Layer2EtSumAlgorithmImpPP::MHToverHT(uint16_t num,uint16_t d
       result = numerator/denominator;
       result = result & 0x7f;
     }
-  // cout << "Result: " << result << endl;
-  
   return result;
 }

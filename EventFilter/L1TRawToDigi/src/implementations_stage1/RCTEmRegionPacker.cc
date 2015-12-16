@@ -48,7 +48,9 @@ namespace l1t {
             int overFlow=(int)j->overFlow();
             int fineGrain=(int)j->fineGrain();
             int mip=(int)j->mip();
+            bool tauveto=j->tauVeto();
             //int quiet=(int)j->quiet();
+        
             int rctCrate=(int)j->rctCrate();
             int rctCard=(int)j->rctCard();
             int rctRegion=(int)j->rctRegionIndex();  
@@ -57,13 +59,14 @@ namespace l1t {
             if(!isHf){
               converter[rctCrate].SetRCEt(et,rctCard,rctRegion);
               converter[rctCrate].SetRCOf(overFlow,rctCard,rctRegion);
-              converter[rctCrate].SetRCTau(fineGrain,rctCard,rctRegion);
+              converter[rctCrate].SetRCTau(tauveto,rctCard,rctRegion);
               converter[rctCrate].SetRCHad(mip,rctCard,rctRegion);
-              LogDebug("L1T")<<"CRATE"<<rctCrate<<"region="<<rctRegion<<", card="<<rctCard<<", rgnEt="<<et<<", overflow="<<overFlow<<", tauveto="<<fineGrain<<", hadveto="<<mip<<std::endl;
+              LogDebug("L1T")<<"CRATE"<<rctCrate<<"region="<<rctRegion<<", card="<<rctCard<<", rgnEt="<<et<<", overflow="<<overFlow<<", tauveto="<<tauveto<<", hadveto="<<mip<<std::endl;
 
             }
             else{
               converter[rctCrate].SetHFEt(et,rctRegion);
+              converter[rctCrate].SetHFFg(fineGrain,rctRegion);
               LogDebug("L1T")<<"CRATE"<<rctCrate<<"region="<<rctRegion<<", rgnEt="<<et<<std::endl;
 
             }

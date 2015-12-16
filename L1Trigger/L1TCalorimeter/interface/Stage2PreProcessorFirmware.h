@@ -15,14 +15,14 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage2PreProcessor.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2TowerCompressAlgorithm.h"
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
 namespace l1t {
 
   // first iteration
   class Stage2PreProcessorFirmwareImp1 : public Stage2PreProcessor {
   public:
-    Stage2PreProcessorFirmwareImp1(unsigned fwv, CaloParams* params);
+    Stage2PreProcessorFirmwareImp1(unsigned fwv, CaloParamsHelper* params);
 
     virtual ~Stage2PreProcessorFirmwareImp1();
 
@@ -34,14 +34,14 @@ namespace l1t {
     friend std::ostream& operator<<(std::ostream& o, const Stage2PreProcessorFirmwareImp1 & p) { p.print(o); return o; }
 
   private:
-    
+
     //FirmwareVersion const & m_fwv;
-    CaloParams* m_params;
+    CaloParamsHelper* m_params;
 
     Stage2TowerCompressAlgorithm* m_towerAlgo;
-    
+
   };
-  
+
 }
 
 #endif

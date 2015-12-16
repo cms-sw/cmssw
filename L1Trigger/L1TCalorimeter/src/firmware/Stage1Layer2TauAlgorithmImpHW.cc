@@ -22,7 +22,7 @@ using namespace std;
 using namespace l1t;
 
 
-Stage1Layer2TauAlgorithmImpHW::Stage1Layer2TauAlgorithmImpHW(CaloParamsStage1* params) : params_(params)
+Stage1Layer2TauAlgorithmImpHW::Stage1Layer2TauAlgorithmImpHW(CaloParamsHelper* params) : params_(params)
 {
 
   isoTauLut = new Stage1TauIsolationLUT(params_);
@@ -42,8 +42,6 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
 
   double towerLsb = params_->towerLsbSum();
 
-  std::string regionPUSType = params_->regionPUSType();
-  std::vector<double> regionPUSParams = params_->regionPUSParams();
   int tauSeedThreshold= floor( params_->tauSeedThreshold()/towerLsb + 0.5); // convert GeV to HW units
   int tauNeighbourThreshold= floor( params_->tauNeighbourThreshold()/towerLsb + 0.5); // convert GeV to HW units
   int tauMaxPtTauVeto = floor( params_->tauMaxPtTauVeto()/towerLsb + 0.5);
@@ -55,7 +53,7 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
 
   //Region Correction will return uncorrected subregions if
   //regionPUSType is set to None in the config
-  RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
+  RegionCorrection(regions, subRegions, params_);
 
 
 
@@ -137,8 +135,6 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
 	    if (tauEt >0){
 	      if (lutAddress > MAX_LUT_ADDRESS) lutAddress = MAX_LUT_ADDRESS;
 	      isoFlag = params_->tauIsolationLUT()->data(lutAddress);
-	      // isoFlag= isoTauLut->lutPayload(lutAddress);
-	      // if (isoFlag != params_->tauIsolationLUT()->data(lutAddress)) std::cout << "XXX -- isoFlag: " << isoFlag << "\tisoFlag2: " <<  params_->tauIsolationLUT()->data(lutAddress) << std::endl;
 	    }
 
 	  }else{ // no associated jet
@@ -180,23 +176,6 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
   delete preGtIsoTaus;
   delete preSortIsoTaus;
   delete sortedIsoTaus;
-
-  const bool verbose = false;
-  if(verbose)
-  {
-    std::cout << "Taus" << std::endl;
-    for(std::vector<l1t::Tau>::const_iterator iTau = taus->begin(); iTau != taus->end(); ++iTau)
-    {
-      unsigned int packed = pack15bits(iTau->hwPt(), iTau->hwEta(), iTau->hwPhi());
-      std::cout << bitset<15>(packed).to_string() << std::endl;
-    }
-    std::cout << "Isolated Taus" << std::endl;
-    for(std::vector<l1t::Tau>::const_iterator iTau = isoTaus->begin(); iTau != isoTaus->end(); ++iTau)
-    {
-      unsigned int packed = pack15bits(iTau->hwPt(), iTau->hwEta(), iTau->hwPhi());
-      std::cout << bitset<15>(packed).to_string() << std::endl;
-    }
-  }
 }
 
 
@@ -252,9 +231,6 @@ string l1t::Stage1Layer2TauAlgorithmImpHW::findNESW(int ieta, int iphi, int neta
 int l1t::Stage1Layer2TauAlgorithmImpHW::AssociatedJetPt(int ieta, int iphi,
 							      const std::vector<l1t::Jet> * jets)  const {
 
-  bool Debug=false;
-
-  if (Debug) cout << "Number of jets: " << jets->size() << endl;
   int pt = -1;
 
 
@@ -263,8 +239,6 @@ int l1t::Stage1Layer2TauAlgorithmImpHW::AssociatedJetPt(int ieta, int iphi,
 
     int jetEta = itJet->hwEta();
     int jetPhi = itJet->hwPhi();
-    if (Debug) cout << "Matching ETA: " << ieta << " " << jetEta << endl;
-    if (Debug) cout << "Matching PHI: " << iphi << " " << jetPhi << endl;
     if ((jetEta == ieta) && (jetPhi == iphi)){
       pt = itJet->hwPt();
       break;
@@ -323,6 +297,5 @@ unsigned l1t::Stage1Layer2TauAlgorithmImpHW::isoLutIndex(unsigned int tauPt,unsi
 
   unsigned int address= (jetPt << nbitsTau) + tauPt;
 
-  // std::cout << address << "\t## " << tauPt << " " << jetPt << std::endl;
   return address;
 }

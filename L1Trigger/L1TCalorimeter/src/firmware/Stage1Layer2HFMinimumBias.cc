@@ -10,7 +10,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2HFBitCountAlgorithmImp.h"
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
-l1t::Stage1Layer2HFMinimumBias::Stage1Layer2HFMinimumBias(CaloParamsStage1* params)
+l1t::Stage1Layer2HFMinimumBias::Stage1Layer2HFMinimumBias(CaloParamsHelper* params)
   : params_(params)
 {}
 
@@ -51,12 +51,5 @@ void l1t::Stage1Layer2HFMinimumBias::processEvent(const std::vector<l1t::CaloReg
       sumBits[i] = 0x7;
 
     spare->SetRing(i, sumBits[i]);
-  }
-
-  const bool verbose = false;
-  if(verbose)
-  {
-    std::cout << "HF Bit Counts (HFMinimumBias)" << std::endl;
-    std::cout << bitset<12>(spare->hwPt()).to_string() << std::endl;
   }
 }
