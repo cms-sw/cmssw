@@ -62,3 +62,10 @@ from SimGeneral.PileupInformation.AddPileupSummaryPreMixed_cfi import *
 
 pdatamix = cms.Sequence(mixData+postDMDigi+addPileupInfo)
 
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    # pretend these digis have been through digi2raw and raw2digi, by using the approprate aliases
+    # use an alias to make the mixed track collection available under the usual label
+    from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliases
+    loadDigiAliases(premix = True)
+    from FastSimulation.Configuration.DigiAliases_cff import generalTracks,ecalPreshowerDigis,ecalDigis,hcalDigis,muonDTDigis,muonCSCDigis,muonRPCDigis

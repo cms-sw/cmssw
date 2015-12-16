@@ -167,3 +167,9 @@ SimL1Emulator = cms.Sequence(
 if eras.stage1L1Trigger.isChosen() :
     from L1Trigger.L1TCalorimeter.L1TCaloStage1_cff import L1TCaloStage1
     SimL1Emulator.replace( simGctDigis, L1TCaloStage1 )
+
+# fastsim doesn't have the technical triggers
+if eras.fastSim.isChosen():
+    for _entry in [SimL1TechnicalTriggers]:
+        SimL1Emulator.remove(_entry)
+

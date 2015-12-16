@@ -34,3 +34,13 @@ pdigi = cms.Sequence(generatorSmeared*fixGenInfo*cms.SequencePlaceholder("random
 pdigi_valid = cms.Sequence(pdigi)
 pdigi_nogen=cms.Sequence(generatorSmeared*cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*addPileupInfo)
 pdigi_valid_nogen=cms.Sequence(pdigi_nogen)
+
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    # pretend these digis have been through digi2raw and raw2digi, by using the approprate aliases
+    # use an alias to make the mixed track collection available under the usual label
+    from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliases
+    loadDigiAliases(premix = False)
+    from FastSimulation.Configuration.DigiAliases_cff import generalTracks,ecalPreshowerDigis,ecalDigis,hcalDigis,muonDTDigis,muonCSCDigis,muonRPCDigis
+
+

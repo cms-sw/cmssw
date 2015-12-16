@@ -29,4 +29,7 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
 )
 
 
-
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    simMuonRPCDigis.InputCollection = 'MuonSimHitsMuonRPCHits'
+    
