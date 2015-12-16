@@ -59,7 +59,7 @@ const TrackingParticle* doRecoToTpMatch(reco::RecoToSimCollection recSimColl, co
 
 //-------------------------------------------------------------------------------------------------
 
-vector<int> matchTpToGen(const edm::Event& iEvent, const TrackingParticle* tparticle, edm::InputTag genCollection){
+vector<int> matchTpToGen(const edm::Event& iEvent, const TrackingParticle* tparticle, edm::EDGetTokenT<reco::GenParticleCollection> genCollection){
 
     vector<int> retArr;
     if(!tparticle){ retArr.push_back(-999); return retArr; }
@@ -74,7 +74,7 @@ vector<int> matchTpToGen(const edm::Event& iEvent, const TrackingParticle* tpart
     for(unsigned int ii=0; ii<tempStore.size(); ii++){ tripwire[ii]=0; } //reset tripwires
 
     edm::Handle<reco::GenParticleCollection> parts;
-    iEvent.getByLabel(genCollection,parts);
+    iEvent.getByToken(genCollection,parts);
     for(unsigned int igenCand=0; igenCand<tempStore.size(); igenCand++){
         for(UInt_t igenP = 0; igenP < parts->size(); ++igenP){
             const reco::GenParticle& p = (*parts)[igenP];

@@ -18,7 +18,7 @@ pixelTrack = anaTrack.clone(trackSrc = cms.InputTag("hiGeneralAndPixelTracks"),
 
 ppTrack = anaTrack.clone(trackSrc = cms.InputTag("generalTracks"),
                          vertexSrc = ["offlinePrimaryVertices"],
-                         mvaSrc = cms.string("generalTracks"),
+                         mvaSrc = cms.InputTag("generalTracks","MVAVals"),
 						 qualityStrings = cms.untracked.vstring(['highPurity','tight','loose']),
 						 doPFMatching = True,
 						 pfCandSrc = cms.InputTag('particleFlow'),
