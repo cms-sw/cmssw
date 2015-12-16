@@ -97,17 +97,7 @@ class MuonDetLayerGeometry : public DetLayerGeometry{
 
   /// return all backward (-Z) layers (CSC+RPC+GEM+ME0), inside-out
   const std::vector<const DetLayer*>& allBackwardLayers() const;
-          
-/*
-  /// return all endcap DetLayers (CSC+RPC), -Z to +Z
-  const std::vector<const DetLayer*>& allEndcapLayers() const;
-
-  /// return all forward (+Z) layers (CSC+RPC+GEM), inside-out
-  const std::vector<const DetLayer*>& allForwardLayers() const;
-
-  /// return all backward (-Z) layers (CSC+RPC+GEM), inside-out
-  const std::vector<const DetLayer*>& allBackwardLayers() const;
-*/  
+    
 /////////////////////////////// GEMs
 
   /// return all endcap DetLayers (CSC+GEM), -Z to +Z
@@ -223,7 +213,7 @@ class MuonDetLayerGeometry : public DetLayerGeometry{
 //////////////////////////////
     
 
-  std::map<DetId,DetLayer*> detLayersMap;
+  std::map<DetId,const DetLayer*> detLayersMap;
 };
 #endif
 

@@ -16,9 +16,6 @@
 #include <vector>
 #include <map>
 
-//class GeomDetType;
-//class GeomDetUnit;
-
 class ME0Geometry : public TrackingGeometry {
 
  public:

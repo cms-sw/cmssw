@@ -41,7 +41,7 @@ using namespace std;
 
 // constructors and destructor
 
-MuonSegmentMatcher::MuonSegmentMatcher(const edm::ParameterSet& matchParameters, MuonServiceProxy* service,edm::ConsumesCollector& iC)
+MuonSegmentMatcher::MuonSegmentMatcher(const edm::ParameterSet& matchParameters, edm::ConsumesCollector& iC)
   :
   DTSegmentTags_(matchParameters.getParameter<edm::InputTag>("DTsegments")),
   CSCSegmentTags_(matchParameters.getParameter<edm::InputTag>("CSCsegments")),

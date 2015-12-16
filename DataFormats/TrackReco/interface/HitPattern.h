@@ -34,7 +34,7 @@
 // | mu = 0 |    CSC = 2    | 4*(stat-1)+(ring-1)       |                 | hit type = 0-3 |
 // | mu = 0 |    RPC = 3    | 4*(stat-1)+2*layer+region |                 | hit type = 0-3 |
 // | mu = 0 |    GEM = 4    | 2*(stat-1)+2*(layer-1)    |                 | hit type = 0-3 |
-// |mu = 0  |    ME0 = 5    |                           |                 | hit type = 0-3 |
+// |mu = 0  |    ME0 = 5    | roll                      |                 | hit type = 0-3 |
 // +--------+---------------+---------------------------+-----------------+----------------+
 //
 //  hit type, see DataFormats/TrackingRecHit/interface/TrackingRecHit.h
@@ -222,12 +222,6 @@ public:
 
     /// GEM layer: 1,2. Only valid for muon GEM patterns, of course.
     static uint16_t getGEMLayer(uint16_t pattern);
-
-    /// ME0 roll: (1 for now, etaPartitioning not implemented). Only valid for muon ME0 patterns, of course.
-    //static uint32_t getME0Roll(uint32_t pattern);
-    /// ME0 layer: 1-6. Only valid for muon ME0 patterns, of course.
-    static uint32_t getME0Layer(uint32_t pattern);
-
 
     HitPattern();
 
@@ -789,22 +783,6 @@ inline uint16_t HitPattern::getGEMLayer(uint16_t pattern)
 {
     return (getSubSubStructure(pattern) & 1) + 1;
 }
-
-////////////////////////////// ME0
-
-  // inline uint32_t HitPattern::getME0Roll(uint32_t pattern) {
-  //   uint32_t sss = getSubSubStructure(pattern), stat = sss >> 1;
-  //   return stat + 1;
-  // }
-  
-  inline uint32_t HitPattern::getME0Layer(uint32_t pattern) {
-    return (getSubSubStructure(pattern) & 1) ;
-  }
-
-////////////////////////////// 
-  
-
-
 
 inline bool HitPattern::validHitFilter(uint16_t pattern)
 {

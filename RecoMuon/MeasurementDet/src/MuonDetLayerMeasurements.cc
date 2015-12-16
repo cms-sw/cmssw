@@ -84,8 +84,6 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
   theEvent = &iEvent;
   MuonRecHitContainer result;
 
-  //LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "geoId: "<<geoId<<std::endl;
-
   if (geoId.subdetId()  == MuonSubdetId::DT) {
     if(enableDTMeasurement) 
     {

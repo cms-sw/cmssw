@@ -48,7 +48,6 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
   bool enableDTMeasurement = par.getParameter<bool>("EnableDTMeasurement");
   bool enableCSCMeasurement = par.getParameter<bool>("EnableCSCMeasurement");
   bool enableRPCMeasurement = par.getParameter<bool>("EnableRPCMeasurement");
-//bool enableGEMMeasurement = par.getParameter<bool>("EnableGEMMeasurement");
 
 
 //  if(enableDTMeasurement)

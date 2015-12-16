@@ -7,7 +7,7 @@ process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
 process.load('Configuration.Geometry.GeometryExtended2023Muon_cff')
 
 
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 
 process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi")
 

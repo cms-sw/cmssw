@@ -160,7 +160,6 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
   auto& partitions(geometry->etaPartitions());
   // build the chambers and add them to the geometry
   std::vector<ME0DetId> vDetId;
-  vDetId.clear();
   //int oldRollNumber = 1;
   int oldLayerNumber = 1;
   for (unsigned i=1; i<=partitions.size(); ++i){

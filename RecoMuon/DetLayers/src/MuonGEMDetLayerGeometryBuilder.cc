@@ -75,7 +75,6 @@ MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,vector<int>& rings, int st
   vector<const ForwardDetRing*> frontRings, backRings;
 
 
-//  for (std::vector<int>::iterator ring=rings.begin(); ring!=rings.end();ring++){ 
   for (std::vector<int>::iterator ring=rings.begin(); ring!=rings.end()-2;ring++){ 
 
     for (vector<int>::iterator roll = rolls.begin(); roll!=rolls.end(); roll++) {    

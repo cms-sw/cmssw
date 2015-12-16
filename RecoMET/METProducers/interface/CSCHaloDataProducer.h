@@ -154,9 +154,6 @@ class CSCHaloDataProducer : public edm::stream::EDProducer<> {
     //Muon-Segment Matching
     MuonSegmentMatcher *TheMatcher;
 
-    //Muon Service
-    MuonServiceProxy* TheService;
-
     //RecHit Level
     edm::InputTag IT_CSCRecHit;
 

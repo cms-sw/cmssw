@@ -94,7 +94,7 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 
 #ifdef EDM_ML_DEBUG
     if (hit.isValid()) {
-      LogDebug("TrackFitters")<< " ----------------- HIT #" << hitcounter << " (VALID)-----------------------\n"
+      LogTrace("TrackFitters")<< " ----------------- HIT #" << hitcounter << " (VALID)-----------------------\n"
 	<< "  HIT IS AT R   " << hit.globalPosition().perp() << "\n"
 	<< "  HIT IS AT Z   " << hit.globalPosition().z() << "\n"
 	<< "  HIT IS AT Phi " << hit.globalPosition().phi() << "\n"
