@@ -156,7 +156,7 @@ class MuonDetLayerGeometry : public DetLayerGeometry{
   /// Add ME0 layers 
   /// gemlayers.first=forward (+Z), gemlayers.second=backward (-Z)
   /// both vectors are ASSUMED to be sorted inside-out
-  void addME0Layers(const std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > gemlayers);
+  void addME0Layers(const std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> >& gemlayers);
 
 //////////////////////////////
 

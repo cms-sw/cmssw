@@ -861,11 +861,9 @@ void HitPattern::printHitPattern(HitCategory category, int position, std::ostrea
         } else if (muonGEMHitFilter(pattern)) {
             stream << "\tgem " << (getGEMLayer(pattern) ? "layer1" : "layer2") 
                    << ", station " << getGEMStation(pattern);
-	} else if (muonME0HitFilter(pattern)) {
-	   stream << "\tme0 " << getME0Layer(pattern);
-        } else {
-            stream << "(UNKNOWN Muon SubStructure!) \tsubsubstructure "
-                   << getSubStructure(pattern);
+	} else {
+	  stream << "(UNKNOWN Muon SubStructure!) \tsubsubstructure "
+		 << getSubStructure(pattern);
         }
     } else {
         stream << "\tlayer " << getLayer(pattern);

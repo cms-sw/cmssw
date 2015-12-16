@@ -132,11 +132,6 @@
                         detId = RPCDetId(region, DONT_CARE, station, DONT_CARE, layer_muon, DONT_CARE, DONT_CARE);
                     }
                     break;
-                    case MuonSubdetId::ME0: {
-                        uint32_t roll =  1;
-                        detId = ME0DetId(DONT_CARE, DONT_CARE, DONT_CARE,roll);
-                    }
-                    break;
                     }
                     return newObj->appendMuonHit(detId, hitType);
                 }
@@ -260,12 +255,6 @@
                         detId = RPCDetId(region, DONT_CARE, station, DONT_CARE, layer_muon, DONT_CARE, DONT_CARE);
                     }
                     break;
-                    case MuonSubdetId::ME0: {
-                        uint16_t roll =  1;
-                        detId = ME0DetId(DONT_CARE, DONT_CARE, DONT_CARE,roll);
-                    }
-                    break;
-
                     }
                     return newObj->appendMuonHitPattern(detId, hitType);
                 }
