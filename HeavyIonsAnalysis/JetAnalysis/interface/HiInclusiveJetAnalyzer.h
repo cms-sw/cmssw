@@ -98,6 +98,10 @@ private:
   // edm::InputTag EESrc_;
   // edm::InputTag genParticleSrc_;
 
+  // towers
+  edm::Handle<CaloTowerCollection> towers;
+  edm::InputTag TowerSrc_;
+
   std::vector<float> usedStringPts;
 
   /// verbose ?
@@ -226,9 +230,9 @@ private:
     float signalChargedSum[MAXJETS];
     float signalHardSum[MAXJETS];
 
-    // Update by Raghav, since we are not saving the HBHErechit collection
-    // float hcalSum[MAXJETS];
-    // float ecalSum[MAXJETS];
+    // Update by Raghav, modified to take it from the towers
+    float hcalSum[MAXJETS];
+    float ecalSum[MAXJETS];
 
 
     float fHPD[MAXJETS];

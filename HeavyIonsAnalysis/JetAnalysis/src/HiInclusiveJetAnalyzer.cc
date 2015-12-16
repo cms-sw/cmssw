@@ -92,6 +92,8 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
 
   pfCandidateLabel_ = consumes<reco::PFCandidateCollection> (iConfig.getUntrackedParameter<edm::InputTag>("pfCandidateLabel",edm::InputTag("particleFlowTmp")));
 
+  TowerSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("towersSrc",edm::InputTag("towerMaker"));
+  
   // EBSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("EBRecHitSrc",edm::InputTag("ecalRecHit","EcalRecHitsEB"));
   // EESrc_ = iConfig.getUntrackedParameter<edm::InputTag>("EERecHitSrc",edm::InputTag("ecalRecHit","EcalRecHitsEE"));
   // HcalRecHitHFSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("hcalHFRecHitSrc",edm::InputTag("hfreco"));
@@ -215,8 +217,8 @@ HiInclusiveJetAnalyzer::beginJob() {
     t->Branch("neutralSum", jets_.neutralSum,"neutralSum[nref]/F");
     t->Branch("neutralN", jets_.neutralN,"neutralN[nref]/I");
 
-    // t->Branch("hcalSum", jets_.hcalSum,"hcalSum[nref]/F");
-    // t->Branch("ecalSum", jets_.ecalSum,"ecalSum[nref]/F");
+    t->Branch("hcalSum", jets_.hcalSum,"hcalSum[nref]/F");
+    t->Branch("ecalSum", jets_.ecalSum,"ecalSum[nref]/F");
 
     t->Branch("eMax", jets_.eMax,"eMax[nref]/F");
     t->Branch("eSum", jets_.eSum,"eSum[nref]/F");
@@ -544,6 +546,10 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
   }
 
 
+  // get tower information
+  
+  iEvent.getByLabel(TowerSrc_,towers);
+
   // FILL JRA TREE
   jets_.b = b;
   jets_.nref = 0;
@@ -732,8 +738,8 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
       jets_.trackHardSum[jets_.nref] = 0;
       jets_.trackHardN[jets_.nref] = 0;
 
-      // jets_.hcalSum[jets_.nref] = 0;
-      // jets_.ecalSum[jets_.nref] = 0;
+      jets_.hcalSum[jets_.nref] = 0;
+      jets_.ecalSum[jets_.nref] = 0;
 
       jets_.genChargedSum[jets_.nref] = 0;
       jets_.genHardSum[jets_.nref] = 0;
@@ -858,6 +864,18 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
       // 	  jets_.ecalSum[jets_.nref] += getEt(pos,hit.energy());
       // 	}
       //   }
+
+      // changing it to take things from towers
+      for(unsigned int i = 0; i < towers->size(); ++i){
+
+	const CaloTower & hit= (*towers)[i];
+       	double dr = deltaR(jet.eta(), jet.phi(), hit.p4(vtx).Eta(), hit.p4(vtx).Phi());
+       	if(dr < rParam){
+       	  jets_.ecalSum[jets_.nref] += hit.emEt(vtx);
+	  jets_.hcalSum[jets_.nref] += hit.hadEt(vtx);
+       	}
+
+      }
 
     }
     // Jet ID for CaloJets
