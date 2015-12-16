@@ -547,8 +547,12 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 
 
   // get tower information
-  
+
+  bool doTower = false;
   iEvent.getByLabel(TowerSrc_,towers);
+  if (iEvent.getByLabel(TowerSrc_,towers)) 
+    doTower = true;
+  
 
   // FILL JRA TREE
   jets_.b = b;
@@ -865,16 +869,18 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
       // 	}
       //   }
 
-      // changing it to take things from towers
-      for(unsigned int i = 0; i < towers->size(); ++i){
-
-	const CaloTower & hit= (*towers)[i];
-       	double dr = deltaR(jet.eta(), jet.phi(), hit.p4(vtx).Eta(), hit.p4(vtx).Phi());
-       	if(dr < rParam){
-       	  jets_.ecalSum[jets_.nref] += hit.emEt(vtx);
-	  jets_.hcalSum[jets_.nref] += hit.hadEt(vtx);
-       	}
-
+      if(doTower){
+	// changing it to take things from towers
+	for(unsigned int i = 0; i < towers->size(); ++i){
+	  
+	  const CaloTower & hit= (*towers)[i];
+	  double dr = deltaR(jet.eta(), jet.phi(), hit.p4(vtx).Eta(), hit.p4(vtx).Phi());
+	  if(dr < rParam){
+	    jets_.ecalSum[jets_.nref] += hit.emEt(vtx);
+	    jets_.hcalSum[jets_.nref] += hit.hadEt(vtx);
+	  }
+	  
+	}
       }
 
     }
