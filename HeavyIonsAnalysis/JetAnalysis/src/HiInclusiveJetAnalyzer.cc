@@ -92,7 +92,10 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
 
   pfCandidateLabel_ = consumes<reco::PFCandidateCollection> (iConfig.getUntrackedParameter<edm::InputTag>("pfCandidateLabel",edm::InputTag("particleFlowTmp")));
 
-  TowerSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("towersSrc",edm::InputTag("towerMaker"));
+  doTower = iConfig.getUntrackedParameter<bool>("doTower",false);
+  if(doTower){
+    TowerSrc_ = consumes<CaloTowerCollection>( iConfig.getUntrackedParameter<edm::InputTag>("towersSrc",edm::InputTag("towerMaker")));
+  }
   
   // EBSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("EBRecHitSrc",edm::InputTag("ecalRecHit","EcalRecHitsEB"));
   // EESrc_ = iConfig.getUntrackedParameter<edm::InputTag>("EERecHitSrc",edm::InputTag("ecalRecHit","EcalRecHitsEE"));
@@ -547,12 +550,10 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 
 
   // get tower information
-
-  bool doTower = false;
-  iEvent.getByLabel(TowerSrc_,towers);
-  if (iEvent.getByLabel(TowerSrc_,towers)) 
-    doTower = true;
-  
+  edm::Handle<CaloTowerCollection> towers;
+  if(doTower){
+    iEvent.getByToken(TowerSrc_,towers);
+  }
 
   // FILL JRA TREE
   jets_.b = b;

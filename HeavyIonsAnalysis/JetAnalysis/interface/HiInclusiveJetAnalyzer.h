@@ -99,8 +99,7 @@ private:
   // edm::InputTag genParticleSrc_;
 
   // towers
-  edm::Handle<CaloTowerCollection> towers;
-  edm::InputTag TowerSrc_;
+  edm::EDGetTokenT<CaloTowerCollection> TowerSrc_;
 
   std::vector<float> usedStringPts;
 
@@ -110,6 +109,7 @@ private:
   bool useVtx_;
   bool useJEC_;
   bool usePat_;
+  bool doTower;
   bool isMC_;
   bool useHepMC_;
   bool fillGenJets_;
