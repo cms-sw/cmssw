@@ -74,23 +74,25 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
 }
 PuppiContainer::~PuppiContainer(){}
 
-double PuppiContainer::goodVar(PseudoJet const &iPart,std::vector<PseudoJet> const &iParts, int iOpt,double iRCone) {
+double PuppiContainer::goodVar(PseudoJet const &iPart,std::vector<PseudoJet> const &iParts, int iOpt,const double iRCone) {
     double lPup = 0;
     lPup = var_within_R(iOpt,iParts,iPart,iRCone);
     return lPup;
 }
-double PuppiContainer::var_within_R(int iId, const vector<PseudoJet> & particles, const PseudoJet& centre, double R){
+double PuppiContainer::var_within_R(int iId, const vector<PseudoJet> & particles, const PseudoJet& centre, const double R){
     if(iId == -1) return 1;
 
     //this is a circle in rapidity-phi
     //it would make more sense to have var definition consistent
-    fastjet::Selector sel = fastjet::SelectorCircle(R);
-    sel.set_reference(centre);
+    //fastjet::Selector sel = fastjet::SelectorCircle(R);
+    //sel.set_reference(centre);
+    //the original code used Selector infrastructure: it is too heavy here
+    //logic of SelectorCircle is preserved below
 
     vector<double > near_dR2s;     near_dR2s.reserve(std::min(50UL, particles.size()));
     vector<double > near_pts;      near_pts.reserve(std::min(50UL, particles.size()));
     for (auto const& part : particles){
-      if ( sel(part) ){
+      if ( part.squared_distance(centre) < R*R ){
 	near_dR2s.push_back(reco::deltaR2(part, centre));
 	near_pts.push_back(part.pt());
       }
