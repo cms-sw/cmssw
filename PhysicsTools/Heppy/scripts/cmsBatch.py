@@ -7,13 +7,11 @@ from optparse import OptionParser
 
 # particle flow specific
 from PhysicsTools.HeppyCore.utils.batchmanager import BatchManager
-import PhysicsTools.HeppyCore.utils.eostools as castortools
+import PhysicsTools.HeppyCore.utils.eostools as eostools
 
 # cms specific
 import FWCore.ParameterSet.Config as cms
 from IOMC.RandomEngine.RandomServiceHelper import RandomNumberServiceHelper
-
-
 
 
 def batchScriptCCIN2P3():
@@ -77,6 +75,20 @@ cp -r $jobdir $PBS_O_WORKDIR
    return script
 
 
+
+def rootfiles_to_eos_script(index, remoteDir):
+   remoteDir = eostools.eosToLFN(remoteDir)
+   return """
+for file in *.root; do
+newFileName=`echo $file | sed -r -e 's/\./_{index}\./'`
+fullFileName={remoteDir}/$newFileName
+{eos} cp $file /eos/cms/$fullFileName
+{eos} chmod 755 /eos/cms/$fullFileName
+rm *.root
+done
+""".format(index=index, remoteDir=remoteDir, eos=eostools.eos_select)
+
+
 def batchScriptCERN(  remoteDir, index ):
    '''prepare the LSF version of the batch script, to run on LSF'''
    script = """#!/bin/bash
@@ -95,57 +107,39 @@ cp -rf $LS_SUBCWD .
 ls
 cd `find . -type d | grep /`
 echo 'running'
-%s run_cfg.py
+{prog} run_cfg.py
 if [ $? != 0 ]; then
     echo wrong exit code! removing all root files
     rm *.root
     exit 1 
 fi
 echo 'sending the job directory back'
-""" % prog
+""".format(prog=prog)
 
    if remoteDir != '':
-      remoteDir = castortools.eosToLFN(remoteDir) #remoteDir.replace('/eos/cms','')
-      script += """
-for file in *.root; do
-newFileName=`echo $file | sed -r -e 's/\./_%s\./'`
-fullFileName=%s/$newFileName
-#this does cmsStage, but with retries
-cmsStageWithFailover.py -f $file $fullFileName
-#write the files as user readable but not writable
-eos chmod 755 /eos/cms/$fullFileName
-done
-""" % (index, remoteDir)         
-      script += 'rm *.root\n'
+      script += rootfiles_to_eos_script(index, remoteDir)
+
    script += 'cp -rf * $LS_SUBCWD\n'
    
    return script
-
 
 def batchScriptLocal(  remoteDir, index ):
    '''prepare a local version of the batch script, to run using nohup'''
 
    script = """#!/bin/bash
 echo 'running'
-%s run_cfg.py
+{prog} run_cfg.py
 if [ $? != 0 ]; then
     echo wrong exit code! removing all root files
     rm *.root
     exit 1 
 fi
 echo 'sending the job directory back'
-""" % prog
+""".format(prog=prog)
 
    if remoteDir != '':
-      remoteDir = castortools.eosToLFN(remoteDir)
-      script += """
-for file in *.root; do
-newFileName=`echo $file | sed -r -e 's/\./_%s\./'`
-cmsStageWithFailover.py -f $file $fullFileName
-eos chmod 755 /eos/cms/$fullFileName
-done
-""" % (index, remoteDir)
-      script += 'rm *.root\n'
+      script += rootfiles_to_eos_script(index, remoteDir)
+
    return script
 
 

@@ -8,6 +8,8 @@ import re
 import pprint
 import shutil
 
+eos_select = '/afs/cern.ch/project/eos/installation/cms/bin/eos.select'
+    
 def setCAFPath():
     """Hack to get the CAF scripts on the PYTHONPATH"""
     caf = '/afs/cern.ch/cms/caf/python'
@@ -45,7 +47,7 @@ def runEOSCommand(path, cmd, *args):
     tokens = cmsIO.splitPFN(pfn)
     
     #obviously, this is not nice
-    command = ['/afs/cern.ch/project/eos/installation/pro/bin/eos.select', cmd]
+    command = [eos_select, cmd]
     command.extend(args)
     command.append(tokens[2])
     runner = cmsIO.cmsFileManip()
