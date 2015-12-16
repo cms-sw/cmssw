@@ -52,7 +52,7 @@ int FWEventItem::maxLayerValue()
 FWEventItem::FWEventItem(fireworks::Context* iContext,
                          unsigned int iId,
                          boost::shared_ptr<FWItemAccessorBase> iAccessor,
-                         const FWPhysicsObjectDesc& iDesc,  const FWConfiguration* pbc) :
+                         const FWPhysicsObjectDesc& iDesc,  bool showFiltered, const FWConfiguration* pbc) :
    m_context(iContext),
    m_id(iId),
    m_name(iDesc.name()),
@@ -67,6 +67,7 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
    m_event(0),
    m_interestingValueGetter(edm::TypeWithDict(*(m_accessor->modelType()->GetTypeInfo())), m_purpose),
    m_filter(iDesc.filterExpression(),""),
+   m_showFilteredEntries(showFiltered),
    m_printedErrorThisEvent(false),
    m_isSelected(false),
    m_proxyBuilderConfig(0)
@@ -204,6 +205,13 @@ FWEventItem::setFilterExpression(const std::string& iExpression)
 }
 
 void
+FWEventItem::setShowFilteredEntries(bool on)
+{
+   m_showFilteredEntries = on;
+   handleChange(false);
+}
+
+void
 FWEventItem::runFilter()
 {
    if(m_accessor->isCollection() && m_accessor->data()) {
@@ -217,9 +225,12 @@ FWEventItem::runFilter()
             bool wasVisible = itInfo->m_displayProperties.isVisible();
             if(not m_filter.passesFilter(m_accessor->modelData(index))) {
                itInfo->m_displayProperties.setIsVisible(false);
+               itInfo->m_displayProperties.setFilterPassed(false);
                changed = wasVisible==true;
+
             } else {
                itInfo->m_displayProperties.setIsVisible(true);
+               itInfo->m_displayProperties.setFilterPassed(true);
                changed = wasVisible==false;
             }
             if(changed) {
@@ -326,7 +337,7 @@ FWEventItem::moveToFront()
 
    m_itemInfos.clear();
    m_accessor->reset();
-   handleChange();
+   handleChange(false);
 }
 
 void
@@ -349,7 +360,7 @@ FWEventItem::moveToBack()
 
    m_itemInfos.clear();
    m_accessor->reset();
-   handleChange();
+   handleChange(false);
 }
 
 void
@@ -361,7 +372,7 @@ FWEventItem::moveToLayer(int layer)
 
    m_itemInfos.clear();
    m_accessor->reset();
-   handleChange();
+   handleChange(false);
 }
 
 void
@@ -375,14 +386,16 @@ FWEventItem::proxyConfigChanged()
 }
 
 void 
-FWEventItem::handleChange()
+FWEventItem::handleChange(bool filterUpdate)
 {
    preItemChanged_(this);
    FWChangeSentry sentry(*(this->changeManager()));
    //want filter to rerun after all changes have been made
    changeManager()->changed(this);
-   getPrimaryData();
-   runFilter();
+   if (filterUpdate) {
+      getPrimaryData();
+      runFilter();
+   }
 }
 
 //
@@ -538,6 +551,7 @@ FWEventItem::modelInfo(int iIndex) const
    if(m_displayProperties.isVisible()) {
       return m_itemInfos.at(iIndex);
    }
+
    FWDisplayProperties dp(m_itemInfos.at(iIndex).displayProperties());
    dp.setIsVisible(false);
    ModelInfo t(dp,m_itemInfos.at(iIndex).isSelected());
