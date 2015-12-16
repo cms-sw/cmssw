@@ -193,19 +193,6 @@ namespace edm {
     
   private:
 
-    class UnscheduledSentry {
-    public:
-      UnscheduledSentry(std::vector<std::string>* moduleLabelsRunning, std::string const& moduleLabel) :
-        moduleLabelsRunning_(moduleLabelsRunning) {
-        moduleLabelsRunning_->push_back(moduleLabel);
-      }
-      ~UnscheduledSentry() {
-        moduleLabelsRunning_->pop_back();
-      }
-    private:
-      std::vector<std::string>* moduleLabelsRunning_;
-    };
-
     EventAuxiliary aux_;
 
     std::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
@@ -215,8 +202,6 @@ namespace edm {
 
     // Handler for unscheduled modules
     std::shared_ptr<UnscheduledHandler> unscheduledHandler_;
-
-    mutable std::vector<std::string> moduleLabelsRunning_;
 
     EventSelectionIDVector eventSelectionIDs_;
 
