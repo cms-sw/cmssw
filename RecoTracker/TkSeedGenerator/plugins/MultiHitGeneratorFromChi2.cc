@@ -29,6 +29,7 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "CommonTools/Utils/interface/DynArray.h"
 
 #include <algorithm>
 #include <iostream>
@@ -169,11 +170,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   std::vector<KDTreeNodeInfo<RecHitsSortedInPhi::HitIter> > layerTree; // re-used throughout
   std::vector<RecHitsSortedInPhi::HitIter> foundNodes; // re-used thoughout
   foundNodes.reserve(100);
-  #ifdef __clang__
-  std::vector<KDTreeLinkerAlgo<RecHitsSortedInPhi::HitIter>> hitTree(size);
-  #else
-  KDTreeLinkerAlgo<RecHitsSortedInPhi::HitIter> hitTree[size];
-  #endif
+  declareDynArray(KDTreeLinkerAlgo<RecHitsSortedInPhi::HitIter>,size, hitTree);
   float rzError[size]; //save maximum errors
   double maxphi = Geom::twoPi(), minphi = -maxphi; //increase to cater for any range
 
@@ -319,6 +316,9 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
     SimpleLineRZ line(PixelRecoPointRZ(gp0.perp(),gp0.z()), PixelRecoPointRZ(gp1.perp(),gp1.z()));
     ThirdHitPredictionFromCircle predictionRPhi(gp0, gp1, extraHitRPhitolerance);
 
+    auto toPos = std::signbit(gp1.z()-gp0.z());
+
+
     //gc: this is the curvature of the two hits assuming the region
     Range pairCurvature = predictionRPhi.curvature(region.originRBound());
     //gc: intersect not only returns a bool but may change pairCurvature to intersection with curv
@@ -343,6 +343,9 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 
       const DetLayer *layer = thirdLayers[il].detLayer();
       bool barrelLayer = layer->location() == GeomDetEnumerators::barrel;
+
+      if ( (!barrelLayer) & (toPos != std::signbit(layer->position().z())) ) continue;
+
 
       LayerRZPredictions &predRZ = mapPred.find(thirdLayers[il].name())->second;
       predRZ.line.initPropagator(&line);

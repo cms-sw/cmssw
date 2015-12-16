@@ -24,6 +24,8 @@
 #include <cmath>
 #include <map>
 
+#include "CommonTools/Utils/interface/DynArray.h"
+
 using namespace std;
 
 typedef PixelRecoRange<float> Range;
@@ -35,6 +37,7 @@ namespace {
     ThirdHitRZPrediction<PixelRecoLineRZ> line;
     ThirdHitRZPrediction<HelixRZ> helix1, helix2;
     MatchedHitRZCorrectionFromBending rzPositionFixup;
+    ThirdHitCorrection correction;
   };
 }
 
@@ -99,13 +102,9 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
   std::vector<NodeInfo > layerTree; // re-used throughout
   std::vector<unsigned int> foundNodes; // re-used throughout
   foundNodes.reserve(100);
-  #ifdef __clang__
-  std::vector<KDTreeLinkerAlgo<unsigned int>> hitTree(size);
-  std::vector<LayerRZPredictions> mapPred(size);
-  #else
-  KDTreeLinkerAlgo<unsigned int> hitTree[size];
-  LayerRZPredictions mapPred[size];
-  #endif
+
+  declareDynArray(KDTreeLinkerAlgo<unsigned int>, size, hitTree);
+  declareDynArray(LayerRZPredictions, size, mapPred);
 
   float rzError[size]; //save maximum errors
   float maxphi = Geom::ftwoPi(), minphi = -maxphi; //increase to cater for any range
@@ -126,7 +125,9 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
     predRZ.helix1.initTolerance(extraHitRZtolerance);
     predRZ.helix2.initTolerance(extraHitRZtolerance);
     predRZ.rzPositionFixup = MatchedHitRZCorrectionFromBending(layer,tTopo);
-    
+    predRZ.correction.init(es, region.ptMin(), *doublets.detLayer(HitDoublets::inner), *doublets.detLayer(HitDoublets::outer), *thirdLayers[il].detLayer(), useMScat, false);
+
+
     layerTree.clear();
     float minv=999999.0; float maxv = -999999.0; // Initialise to extreme values in case no hits
     float maxErr=0.0f;
@@ -163,6 +164,8 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
     GlobalPoint gp1(xi,yi,zi);
     GlobalPoint gp2(xo,yo,zo);
 
+    auto toPos = std::signbit(zo-zi); 
+
     PixelRecoLineRZ line(gp1, gp2);
     PixelRecoPointRZ point2(gp2.perp(), zo);
     ThirdHitPredictionFromCircle predictionRPhi(gp1, gp2, extraHitRPhitolerance);
@@ -174,13 +177,19 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
       if (hitTree[il].empty()) continue; // Don't bother if no hits
       const DetLayer *layer = thirdLayers[il].detLayer();
       bool barrelLayer = layer->isBarrel();
+
+      if ( (!barrelLayer) & (toPos != std::signbit(layer->position().z())) ) continue;
+
       
       Range curvature = generalCurvature;
-      ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2,  outSeq, useMScat);
-      
+
       LayerRZPredictions &predRZ = mapPred[il];
       predRZ.line.initPropagator(&line);
-      
+
+      auto & correction = predRZ.correction;
+      correction.init(line, point2,  outSeq);
+
+
       Range rzRange;
       if (useBend) {
         // For the barrel region:

@@ -52,10 +52,10 @@ void MultipleScatteringParametrisation::initKeepers(const edm::EventSetup &iSetu
 
 //using namespace PixelRecoUtilities;
 //----------------------------------------------------------------------
-MultipleScatteringParametrisation::
-MultipleScatteringParametrisation( const DetLayer* layer,const edm::EventSetup &iSetup, X0Source x0Source) :
-  theLayerKeeper(keepers(x0Source))
-{
+void MultipleScatteringParametrisation::
+init( const DetLayer* layer,const edm::EventSetup &iSetup, X0Source x0Source) {
+
+  theLayerKeeper = keepers(x0Source);
 
   // FIXME not thread safe: move elsewhere...
   initKeepers(iSetup);
