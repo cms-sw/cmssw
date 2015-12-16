@@ -16,7 +16,8 @@ ak6PFparton = patJetPartonMatch.clone(src = cms.InputTag("ak6PFJets")
                                                         )
 
 ak6PFcorr = patJetCorrFactors.clone(
-    useNPV = False,
+    useNPV = cms.bool(False),
+    useRho = cms.bool(False),
 #    primaryVertices = cms.InputTag("hiSelectedVertex"),
     levels   = cms.vstring('L2Relative','L3Absolute'),
     src = cms.InputTag("ak6PFJets"),
@@ -183,6 +184,7 @@ ak6PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak6PFpatJet
                                                              trackTag = cms.InputTag("hiGeneralTracks"),
                                                              fillGenJets = True,
                                                              isMC = True,
+							     doSubEvent = True,
                                                              useHepMC = cms.untracked.bool(False),
 							     genParticles = cms.untracked.InputTag("genParticles"),
 							     eventInfoTag = cms.InputTag("generator"),
@@ -190,7 +192,8 @@ ak6PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak6PFpatJet
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(False),
                                                              bTagJetName = cms.untracked.string("ak6PF"),
                                                              genPtMin = cms.untracked.double(15),
-                                                             hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL')
+                                                             hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL'),
+							     doTower = cms.untracked.bool(True)
                                                              )
 
 ak6PFJetSequence_mc = cms.Sequence(

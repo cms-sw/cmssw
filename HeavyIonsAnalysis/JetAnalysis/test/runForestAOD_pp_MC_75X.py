@@ -82,10 +82,13 @@ process.load("HeavyIonsAnalysis.JetAnalysis.FullJetSequence_nominalPP")
 # Event Analysis
 ############################
 process.load('HeavyIonsAnalysis.EventAnalysis.hltanalysis_cff')
-process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_mc_cfi')
+process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_data_cfi') #use data version to avoid PbPb MC
 process.hiEvtAnalyzer.Vertex = cms.InputTag("offlinePrimaryVertices")
 process.hiEvtAnalyzer.doCentrality = cms.bool(False)
 process.hiEvtAnalyzer.doEvtPlane = cms.bool(False)
+process.hiEvtAnalyzer.doMC = cms.bool(True) #general MC info
+process.hiEvtAnalyzer.doHiMC = cms.bool(False) #HI specific MC info
+
 process.load('HeavyIonsAnalysis.JetAnalysis.HiGenAnalyzer_cfi')
 process.HiGenParticleAna.genParticleSrc = cms.untracked.InputTag("genParticles")
 process.HiGenParticleAna.doHI = False
@@ -124,12 +127,21 @@ process.ggHiNtuplizer.doVsIso            = cms.bool(False)
 process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.InputTag('gedPhotons'),
                                                        recoPhotonHiIsolationMap = cms.InputTag('photonIsolationHIProducerppGED'))
 
+####################################################################################
+
+#####################
+# tupel and necessary PAT sequences
+#####################
+
+process.load("HeavyIonsAnalysis.VectorBosonAnalysis.tupelSequence_pp_mc_cff")
+
 #####################################################################################
 
 #########################
 # Main analysis list
 #########################
 process.ana_step = cms.Path(process.hltanalysis *
+                            process.hiEvtAnalyzer *
                             process.HiGenParticleAna*
                             process.jetSequences +
                             process.ggHiNtuplizer +
@@ -137,7 +149,8 @@ process.ana_step = cms.Path(process.hltanalysis *
                             process.pfcandAnalyzer +
                             process.HiForest +
 			    process.trackSequencesPP +
-                            process.runAnalyzer
+                            process.runAnalyzer +
+                            process.tupelPatSequence
 )
 
 #####################################################################################

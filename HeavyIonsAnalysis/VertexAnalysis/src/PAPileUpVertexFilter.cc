@@ -45,7 +45,7 @@ public:
 
 private:
 
-  edm::InputTag vtxSrc_;
+  edm::EDGetTokenT<std::vector<reco::Vertex> > vtxSrc_;
   bool doDzNtrkCut_;
   bool doDxyDzCut_;
   bool doSurfaceCut_;
@@ -64,7 +64,7 @@ private:
 
 
 PAPileUpVertexFilter::PAPileUpVertexFilter(const edm::ParameterSet& iConfig) :
-  vtxSrc_(iConfig.getParameter<edm::InputTag>("vtxSrc")),
+  vtxSrc_(consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("vtxSrc"))),
   doDzNtrkCut_(iConfig.getParameter<bool>("doDzNtrkCut")),
   doDxyDzCut_(iConfig.getParameter<bool>("doDxyDzCut")),
   doSurfaceCut_(iConfig.getParameter<bool>("doSurfaceCut")),
@@ -102,7 +102,7 @@ PAPileUpVertexFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool accepted = true;
 
   Handle<std::vector<reco::Vertex> > vcol;
-  iEvent.getByLabel(vtxSrc_, vcol);
+  iEvent.getByToken(vtxSrc_, vcol);
 
   std::vector<reco::Vertex> vsorted = *vcol;
   // sort the vertcies by number of tracks in descending order

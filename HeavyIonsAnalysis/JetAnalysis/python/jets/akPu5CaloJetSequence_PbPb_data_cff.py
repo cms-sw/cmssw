@@ -16,7 +16,8 @@ akPu5Caloparton = patJetPartonMatch.clone(src = cms.InputTag("akPu5CaloJets")
                                                         )
 
 akPu5Calocorr = patJetCorrFactors.clone(
-    useNPV = False,
+    useNPV = cms.bool(False),
+    useRho = cms.bool(False),
 #    primaryVertices = cms.InputTag("hiSelectedVertex"),
     levels   = cms.vstring('L2Relative','L3Absolute'),
     src = cms.InputTag("akPu5CaloJets"),
@@ -183,6 +184,7 @@ akPu5CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu5Ca
                                                              trackTag = cms.InputTag("hiGeneralTracks"),
                                                              fillGenJets = False,
                                                              isMC = False,
+							     doSubEvent = False,
                                                              useHepMC = cms.untracked.bool(False),
 							     genParticles = cms.untracked.InputTag("genParticles"),
 							     eventInfoTag = cms.InputTag("generator"),
@@ -190,7 +192,8 @@ akPu5CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu5Ca
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(False),
                                                              bTagJetName = cms.untracked.string("akPu5Calo"),
                                                              genPtMin = cms.untracked.double(15),
-                                                             hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL')
+                                                             hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL'),
+							     doTower = cms.untracked.bool(True)
                                                              )
 
 akPu5CaloJetSequence_mc = cms.Sequence(

@@ -15,7 +15,8 @@ ALGO_SUB_RADIUS_OBJECT_parton = patJetPartonMatch.clone(src = cms.InputTag("ALGO
                                                         )
 
 ALGO_SUB_RADIUS_OBJECT_corr = patJetCorrFactors.clone(
-    useNPV = False,
+    useNPV = cms.bool(False),
+    useRho = cms.bool(False),
 #    primaryVertices = cms.InputTag("hiSelectedVertex"),
     levels   = cms.vstring('L2Relative','L3Absolute'),
     src = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_Jets"),
@@ -182,6 +183,7 @@ ALGO_SUB_RADIUS_OBJECT_JetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.Inp
                                                              trackTag = cms.InputTag("TRACKS"),
                                                              fillGenJets = ISMC,
                                                              isMC = ISMC,
+							     doSubEvent = ISMC,
                                                              useHepMC = cms.untracked.bool(False),
 							     genParticles = cms.untracked.InputTag("GENPARTICLES"),
 							     eventInfoTag = cms.InputTag("EVENTINFOTAG"),
@@ -189,7 +191,8 @@ ALGO_SUB_RADIUS_OBJECT_JetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.Inp
                                                              doLifeTimeTaggingExtras = cms.untracked.bool(False),
                                                              bTagJetName = cms.untracked.string("ALGO_SUB_RADIUS_OBJECT_"),
                                                              genPtMin = cms.untracked.double(15),
-                                                             hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL')
+                                                             hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL'),
+							     doTower = cms.untracked.bool(DOTOWERS_)
                                                              )
 
 ALGO_SUB_RADIUS_OBJECT_JetSequence_mc = cms.Sequence(

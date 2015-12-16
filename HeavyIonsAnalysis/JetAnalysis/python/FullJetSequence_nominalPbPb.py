@@ -8,6 +8,8 @@ from Configuration.StandardSequences.ReconstructionHeavyIons_cff import voronoiB
 akHiGenJets = cms.Sequence(
     genParticlesForJets +
     ak2HiGenJets +
+    ak3HiGenJets +
+    ak4HiGenJets +
     ak5HiGenJets)
 
 
@@ -35,7 +37,6 @@ highPurityTracks = cms.EDFilter("TrackSelector",
 
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
 offlinePrimaryVertices.TrackLabel = 'highPurityTracks'
-
 
 jetSequences = cms.Sequence(
     akHiGenJets +

@@ -26,6 +26,7 @@ do
 			vertex="offlinePrimaryVertices"
                         pflow="particleFlowTmp"
                         domatch="False"
+			doTower="True"
                         match=""
                         eventinfotag="generator"
 			jetcorrectionlevels="\'L2Relative\',\'L3Absolute\'"
@@ -37,6 +38,7 @@ do
 			    vertex="offlinePrimaryVertices"
                             genparticles="genParticles"
                             pflow="particleFlow"
+			    doTower="False"
 			    if [ $sample == "data" ] && [ $sub == "NONE" ] && [ $radius == 4 ] && [ $object == "PF" ]; then
 				jetcorrectionlevels="\'L2Relative\',\'L3Absolute\',\'L2L3Residual\'"
 			    fi
@@ -69,6 +71,7 @@ do
                             | sed "s/DOMATCH/$domatch/g" \
                             | sed "s/EVENTINFOTAG/$eventinfotag/g" \
 			    | sed "s/JETCORRECTIONLEVELS/$jetcorrectionlevels/g" \
+			    | sed "s/DOTOWERS_/$doTower/g" \
 				  >> $algo$subt$radius${object}JetSequence_${system}_${sample}_cff.py
 
 			# skip no sub
