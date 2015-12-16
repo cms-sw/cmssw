@@ -34,12 +34,6 @@ parser.add_option("--conditions",
                   default=None,
                   dest="conditions")
 
-parser.add_option("--useCondDBv1",
-                  help="use conditions DB V1",
-                  action="store_false",
-                  default=False,
-                  dest="useCondDBv1")
-
 parser.add_option("--eventcontent",
                   help="What event content to write out. Default=FEVTDEBUG, or FEVT (for cosmics)",
                   default='RECOSIM',

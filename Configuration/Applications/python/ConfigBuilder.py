@@ -26,7 +26,6 @@ defaultOptions.geometry = 'SimDB'
 defaultOptions.geometryExtendedOptions = ['ExtendedGFlash','Extended','NoCastor']
 defaultOptions.magField = ''
 defaultOptions.conditions = None
-defaultOptions.useCondDBv1 = False
 defaultOptions.scenarioOptions=['pp','cosmics','nocoll','HeavyIons']
 defaultOptions.harvesting= 'AtRunEnd'
 defaultOptions.gflash = False
@@ -798,19 +797,9 @@ class ConfigBuilder(object):
 		self._options.conditions = self._options.conditions.replace("FrontierConditions_GlobalTag,",'')
 						
         self.loadAndRemember(self.ConditionsDefaultCFF)
-
-	if self._options.useCondDBv1:
-		from Configuration.AlCa.GlobalTag_condDBv1 import GlobalTag
-	else:
-		from Configuration.AlCa.GlobalTag import GlobalTag
-
+        from Configuration.AlCa.GlobalTag import GlobalTag
         self.process.GlobalTag = GlobalTag(self.process.GlobalTag, self._options.conditions, self._options.custom_conditions)
-
-	if self._options.useCondDBv1:
-	        self.additionalCommands.append('from Configuration.AlCa.GlobalTag_condDBv1 import GlobalTag')
-	else:
-	        self.additionalCommands.append('from Configuration.AlCa.GlobalTag import GlobalTag')
-
+        self.additionalCommands.append('from Configuration.AlCa.GlobalTag import GlobalTag')
         self.additionalCommands.append('process.GlobalTag = GlobalTag(process.GlobalTag, %s, %s)' % (repr(self._options.conditions), repr(self._options.custom_conditions)))
 
 	if self._options.slhc:
@@ -938,10 +927,7 @@ class ConfigBuilder(object):
         self.HARVESTINGDefaultCFF="Configuration/StandardSequences/Harvesting_cff"
         self.ALCAHARVESTDefaultCFF="Configuration/StandardSequences/AlCaHarvesting_cff"
         self.ENDJOBDefaultCFF="Configuration/StandardSequences/EndOfProcess_cff"
-        if self._options.useCondDBv1:
-	    self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_condDBv1_cff"
-	else:
-            self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
+        self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
         self.CFWRITERDefaultCFF = "Configuration/StandardSequences/CrossingFrameWriter_cff"
         self.REPACKDefaultCFF="Configuration/StandardSequences/DigiToRaw_Repack_cff"
 
