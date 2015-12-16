@@ -177,6 +177,11 @@ class MatrixInjector(object):
             wmsplit['TTbar_13_ID']=1
             wmsplit['SingleMuPt10FS_ID']=1
             wmsplit['TTbarFS_ID']=1
+            wmsplit['DIGIHIppRef']=1
+            wmsplit['RECOHIppRef']=1
+            wmsplit['RECOHIppRefMB']=1
+
+
                                     
             #import pprint
             #pprint.pprint(wmsplit)            
