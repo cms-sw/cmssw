@@ -772,7 +772,7 @@ steps['DIGIHI']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,L1Reco
 steps['DIGIHI2011']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco'}, hiDefaults2011, {'--pileup':'HiMixNoPU'}, step2Defaults])
 steps['DIGIHIMIX']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,L1Reco', '-n':2}, hiDefaults, {'--pileup':'HiMix'}, PUHI, step2Upg2015Defaults])
 
-steps['DIGIHIppRef']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relvalPRef,RAW2DIGI,L1Reco',
+steps['DIGIHIppRef']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relvalPRef,RAW2DIGI,L1Reco',
                         '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
                         }, HIppRefDefaults, step2Upg2015Defaults])
 
