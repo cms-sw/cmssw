@@ -11,8 +11,9 @@
 <use   name="RecoTracker/TkSeedingLayers"/>
 <use   name="TrackingTools/TransientTrackingRecHit"/>
 <use   name="RecoTracker/TkSeedGenerator"/>
+<use   name="vdt_headers"/>
 <export>
   <lib   name="1"/>
 </export>
 
-<flags   CXXFLAGS="-O3 -fno-math-errno"/>
+<flags   CXXFLAGS="-Ofast -fno-math-errno"/>

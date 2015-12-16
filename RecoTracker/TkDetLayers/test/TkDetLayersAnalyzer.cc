@@ -15,6 +15,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
@@ -116,8 +117,9 @@ TkDetLayersAnalyzer::analyze( const Event& iEvent, const EventSetup& iSetup )
     << " And Contains  Daughters: "<< (*pDD).components().size() ;   
 
   ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  iSetup.get<TrackerTopologyRcd>().get(tTopo);
 
+  /*
 
   // -------- here it constructs only a TOBLayer -------------------------
   vector<const GeometricDet*> geometricDetLayers = (*pDD).components();
@@ -136,6 +138,8 @@ TkDetLayersAnalyzer::analyze( const Event& iEvent, const EventSetup& iSetup )
 
   edm::LogInfo("TkDetLayersAnalyzer") << "this Tob layer has: " << geometricDetTOBlayer->components().size() << " daughter" ;
 
+  */
+  
   /*
     vector<const GeometricDet*> geometricDetTOBlayer3Strings = geometricDetTOBlayer3->components();
     for(vector<const GeometricDet*>::const_iterator it=geometricDetTOBlayer3Strings.begin();
@@ -148,9 +152,13 @@ TkDetLayersAnalyzer::analyze( const Event& iEvent, const EventSetup& iSetup )
     }
   */
   
+
+   /*
   TOBLayerBuilder myTOBBuilder;
   TOBLayer* testTOBLayer = myTOBBuilder.build(geometricDetTOBlayer,&(*pTrackerGeometry),&(*tTopo));
   edm::LogInfo("TkDetLayersAnalyzer") << "testTOBLayer: " << testTOBLayer;
+
+  */
   // ------------- END -------------------------
 
 
@@ -210,12 +218,34 @@ TkDetLayersAnalyzer::analyze( const Event& iEvent, const EventSetup& iSetup )
   }
 
 
+    // ------------- END -------------------------
+
 
   
   // -------- here it constructs the whole GeometricSearchTracker --------------
   GeometricSearchTrackerBuilder myTrackerBuilder;
-  GeometricSearchTracker* testTracker = myTrackerBuilder.build( &(*pDD),&(*pTrackerGeometry));
+  GeometricSearchTracker* testTracker = myTrackerBuilder.build( &(*pDD),&(*pTrackerGeometry), &(*tTopo));
   edm::LogInfo("TkDetLayersAnalyzer") << "testTracker: " << testTracker ;
+
+  for (auto const & l : testTracker->allLayers()) {
+     auto const & layer = *l;
+     std::cout << layer.seqNum() << ' ' << layer.subDetector() << ' ' << layer.basicComponents().size() <<'\n';
+     //auto mx = std::minmax_element (layer.basicComponents().begin(),layer.basicComponents().end(),[](    );
+      auto m_min(std::numeric_limits<float>::max());
+      auto m_max(std::numeric_limits<float>::min());
+     for (auto const & c : layer.basicComponents()) {
+       auto const &det = *c;
+       auto xi = det.specificSurface().mediumProperties().xi();
+       m_min=std::min(m_min,xi);m_max=std::max(m_max,xi);
+       // std::cout <<  det.specificSurface().mediumProperties().xi() <<',';
+     }	
+     std::cout << "xi " << m_min<<'/'<<m_max;
+     std::cout << std::endl;
+
+  }
+
+
+
   // ------------- END -------------------------
   
 
