@@ -164,19 +164,21 @@ struct TrackEvent{
   float trkChi2hit1D[MAXTRACKS];
   unsigned char trkNdof[MAXTRACKS];
   float trkDz[MAXTRACKS];
-  float trkDz1[MAXTRACKS];               // dZ to the first vertex
-  float trkDz2[MAXTRACKS];               // dZ to the second vertex
+  float trkDz1[MAXTRACKS];               // dZ to the highest pt vertex
+  float trkDz2[MAXTRACKS];               // dZ to the highest mult vertex
   float trkDzError[MAXTRACKS];
   float trkDzError1[MAXTRACKS];
   float trkDzError2[MAXTRACKS];
+  float trkDzOverDzError[MAXTRACKS*MAXVTX];
   float trkDxy[MAXTRACKS];
   float trkDxyBS[MAXTRACKS];
-  float trkDxy1[MAXTRACKS];              // d0 to the first vertex
-  float trkDxy2[MAXTRACKS];              // d0 to the second vertex
+  float trkDxy1[MAXTRACKS];              // d0 to the highest pt vertex
+  float trkDxy2[MAXTRACKS];              // d0 to the highest mult vertex
   float trkDxyError[MAXTRACKS];
   float trkDxyErrorBS[MAXTRACKS];
   float trkDxyError1[MAXTRACKS];
   float trkDxyError2[MAXTRACKS];
+  float trkDxyOverDxyError[MAXTRACKS*MAXVTX];
   float trkVx[MAXTRACKS];
   float trkVy[MAXTRACKS];
   float trkVz[MAXTRACKS];
@@ -231,15 +233,18 @@ struct TrackEvent{
   int mtrkNdof[MAXTRACKS];
   float mtrkDz1[MAXTRACKS];
   float mtrkDzError1[MAXTRACKS];
+  float mtrkDzOverDzError[MAXTRACKS*MAXVTX];
   float mtrkDxy1[MAXTRACKS];
   float mtrkDxyError1[MAXTRACKS];
   float mtrkDz2[MAXTRACKS];
   float mtrkDzError2[MAXTRACKS];
   float mtrkDxy2[MAXTRACKS];
   float mtrkDxyError2[MAXTRACKS];
+  float mtrkDxyOverDxyError[MAXTRACKS*MAXVTX];
   int mtrkAlgo[MAXTRACKS];
   int mtrkOriginalAlgo[MAXTRACKS];
   float mtrkMVA[MAXTRACKS];
+  int nParticleTimesnVtx;
 
   // calo compatibility
   int mtrkPfType[MAXTRACKS];
@@ -424,7 +429,10 @@ TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //cout <<"Fill Tracks"<<endl;
   if (doTrack_) fillTracks(iEvent, iSetup);
   //cout <<"Tracks filled!"<<endl;
-  if (doSimTrack_) fillSimTracks(iEvent, iSetup);
+  if (doSimTrack_){
+    fillSimTracks(iEvent, iSetup);
+    pev_.nParticleTimesnVtx = pev_.nParticle*pev_.nVtx;
+  }
   //cout <<"SimTracks filled!"<<endl;
   pev_.nTrkTimesnVtx=pev_.nTrk*pev_.nVtx;
   trackTree_->Fill();
@@ -485,22 +493,27 @@ TrackAnalyzer::fillVertices(const edm::Event& iEvent){
       Handle<vector<Track> > etracks;
       iEvent.getByLabel(trackSrc_, etracks);
       if(doTrackVtxWImpPar_){
+        int trkCount = 0;
 	for(unsigned it=0; it<etracks->size(); ++it){
 	  if(i==0) pev_.trkNVtx[it]=0;
 	  pev_.trkAssocVtx[it*pev_.nVtx+i]=false;
 	  const reco::Track & etrk = (*etracks)[it];
 	  if (etrk.pt()<trackPtMin_) continue;
 	  if(fiducialCut_ && hitDeadPXF(etrk)) continue; // if track hits the dead region, igonore it;
-	  if(qualityStrings_.size()>0 && !etrk.quality(reco::TrackBase::qualityByName(qualityStrings_[0].data()))) continue;
 	  float Dz=etrk.dz(vtx_temp);
 	  float DzError=sqrt(etrk.dzError()*etrk.dzError()+pev_.zVtxErr[i]*pev_.zVtxErr[i]);
 	  float Dxy=etrk.dxy(vtx_temp);
 	  float DxyError=sqrt(etrk.dxyError()*etrk.dxyError()+pev_.xVtxErr[i]*pev_.yVtxErr[i]);
+          pev_.trkDzOverDzError[trkCount*pev_.nVtx+i]=fabs(rndSF(Dz/DzError,4));
+          pev_.trkDxyOverDxyError[trkCount*pev_.nVtx+i]=fabs(rndSF(Dxy/DxyError,4));
+          trkCount++;
+	  
+          if(qualityStrings_.size()>0 && !etrk.quality(reco::TrackBase::qualityByName(qualityStrings_[0].data()))) continue;
 	  if(fabs(Dz/DzError) < trackVtxMaxDistance_ && fabs(Dxy/DxyError)< trackVtxMaxDistance_ && etrk.ptError()/etrk.pt() < 0.1 && fabs(etrk.eta())<2.4){
 	    vtxSumPt+=etrk.pt();
 	    vtxMult++;
-	    pev_.trkAssocVtx[it*pev_.nVtx+i]=true;
-	    pev_.trkNVtx[it]++;
+	    pev_.trkAssocVtx[trkCount*pev_.nVtx+i]=true;
+	    pev_.trkNVtx[trkCount]++;
 	  }
 	}
       }
@@ -625,6 +638,7 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 pev_.trkChi2hit1D[pev_.nTrk]=(etrk.chi2()+count1dhits)/double(etrk.ndof()+count1dhits);
 
 	}
+ 
     pev_.trkEta[pev_.nTrk]=rndDP(etrk.eta(),3);
     pev_.trkPhi[pev_.nTrk]=rndDP(etrk.phi(),3);
     pev_.trkPt[pev_.nTrk]=rndSF(etrk.pt(),4);
@@ -642,6 +656,7 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
     pev_.trkVz[pev_.nTrk]=etrk.vz();
 
     math::XYZPoint v1(pev_.xVtx[pev_.maxPtVtx],pev_.yVtx[pev_.maxPtVtx], pev_.zVtx[pev_.maxPtVtx]);
+    std::cout << it << " " << pev_.nVtx << " " << etrk.dz(v1) << std::endl;
     pev_.trkDz1[pev_.nTrk]=rndSF(etrk.dz(v1),4);
     pev_.trkDzError1[pev_.nTrk]=rndSF(sqrt(etrk.dzError()*etrk.dzError()+pev_.zVtxErr[pev_.maxPtVtx]*pev_.zVtxErr[pev_.maxPtVtx]),4);
     pev_.trkDxy1[pev_.nTrk]=rndSF(etrk.dxy(v1),4);
@@ -859,6 +874,13 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
       pev_.mtrkDxyError2[pev_.nParticle] = sqrt(mtrk->dxyError()*mtrk->dxyError()+pev_.xVtxErr[pev_.maxMultVtx]*pev_.yVtxErr[pev_.maxMultVtx]);
       pev_.mtrkAlgo[pev_.nParticle] = mtrk->algo();
       pev_.mtrkOriginalAlgo[pev_.nParticle] = mtrk->originalAlgo();
+      if(doTrackVtxWImpPar_){
+        for(int vtxNum = 0; vtxNum<pev_.nVtx; vtxNum++){
+          math::XYZPoint pt(pev_.xVtx[vtxNum],pev_.yVtx[vtxNum], pev_.zVtx[vtxNum]);
+          pev_.mtrkDzOverDzError[pev_.nParticle*pev_.nVtx+vtxNum] = fabs(rndSF(mtrk->dz(pt)/(sqrt(mtrk->dzError()*mtrk->dzError()+pev_.zVtxErr[vtxNum]*pev_.zVtxErr[vtxNum])),4)); 
+          pev_.mtrkDxyOverDxyError[pev_.nParticle*pev_.nVtx+vtxNum] = fabs(rndSF(mtrk->dxy(pt)/(sqrt(mtrk->dxyError()*mtrk->dxyError()+pev_.xVtxErr[vtxNum]*pev_.yVtxErr[vtxNum])),4));
+        } 
+      }
       if(doMVA_){
         pev_.mtrkMVA[pev_.nParticle] = -99;
 	     if (pev_.mtrkPt[pev_.nParticle]>0) {
@@ -1124,6 +1146,8 @@ TrackAnalyzer::beginJob()
     trackTree_->Branch("trkNVtx",&pev_.trkNVtx,"trkNVtx[nTrk]/b");
     trackTree_->Branch("nTrkTimesnVtx",&pev_.nTrkTimesnVtx,"nTrkTimesnVtx/I");
     trackTree_->Branch("trkAssocVtx",&pev_.trkAssocVtx,"trkAssocVtx[nTrkTimesnVtx]/O");
+    trackTree_->Branch("trkDxyOverDxyError",&pev_.trkDxyOverDxyError,"trkDxyOverDxyError[nTrkTimesnVtx]/F");
+    trackTree_->Branch("trkDzOverDzError",&pev_.trkDzOverDzError,"trkDzOverDzError[nTrkTimesnVtx]/F");
   }
   else{
     trackTree_->Branch("trkVtxIndex",&pev_.trkVtxIndex,"trkVtxIndex[nTrk]/I");
@@ -1225,7 +1249,11 @@ TrackAnalyzer::beginJob()
       trackTree_->Branch("mtrkAlgo",&pev_.mtrkAlgo,"mtrkAlgo[nParticle]/I");
       trackTree_->Branch("mtrkOriginalAlgo",&pev_.mtrkOriginalAlgo,"mtrkOriginalAlgo[nParticle]/I");
       if(doMVA_) trackTree_->Branch("mtrkMVA",&pev_.mtrkMVA,"mtrkMVA[nParticle]/F");
-
+      if(doTrackVtxWImpPar_){
+        trackTree_->Branch("nParticleTimesnVtx",&pev_.nParticleTimesnVtx,"nParticleTimesnVtx/I");
+        trackTree_->Branch("mtrkDzOverDzError",&pev_.mtrkDzOverDzError,"mtrkDzOverDzError[nParticleTimesnVtx]/F");
+        trackTree_->Branch("mtrkDxyOverDxyError",&pev_.mtrkDxyOverDxyError,"mtrkDxyOverDxyError[nParticleTimesnVtx]/F");
+      }
       if (doPFMatching_) {
 	trackTree_->Branch("mtrkPfType",&pev_.mtrkPfType,"mtrkPfType[nParticle]/I");
 	trackTree_->Branch("mtrkPfCandPt",&pev_.mtrkPfCandPt,"mtrkPfCandPt[nParticle]/F");
