@@ -16,6 +16,8 @@
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ZdcLut.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
@@ -136,28 +138,30 @@ int HcalLutManager_test::getLutSetFromFile_test( std::string _filename )
 {
   HcalLutManager _manager;
   HcalLutSet _set = _manager . getLutSetFromFile( _filename );
-  std::cout << "===> Test of HcalLutSet HcalLutManager::getLutSetFromFile( std::string _filename )" << std::endl << std::endl;
-  std::cout << _set . label << std::endl;
-  for (unsigned int i = 0; i != _set.subdet.size(); i++) std::cout << _set.subdet[i] << "	";
-  std::cout << std::endl;
-  for (unsigned int i = 0; i != _set.eta_min.size(); i++) std::cout << _set.eta_min[i] << "	";
-  std::cout << std::endl;
-  for (unsigned int i = 0; i != _set.eta_max.size(); i++) std::cout << _set.eta_max[i] << "	";
-  std::cout << std::endl;
-  for (unsigned int i = 0; i != _set.phi_min.size(); i++) std::cout << _set.phi_min[i] << "	";
-  std::cout << std::endl;
-  for (unsigned int i = 0; i != _set.phi_max.size(); i++) std::cout << _set.phi_max[i] << "	";
-  std::cout << std::endl;
-  for (unsigned int i = 0; i != _set.depth_min.size(); i++) std::cout << _set.depth_min[i] << "	";
-  std::cout << std::endl;
-  for (unsigned int i = 0; i != _set.depth_max.size(); i++) std::cout << _set.depth_max[i] << "	";
-  std::cout << std::endl;
+  std::stringstream s;
+  s << "===> Test of HcalLutSet HcalLutManager::getLutSetFromFile( std::string _filename )" << std::endl << std::endl;
+  s << _set . label << std::endl;
+  for (unsigned int i = 0; i != _set.subdet.size(); i++) s << _set.subdet[i] << "	";
+  s << std::endl;
+  for (unsigned int i = 0; i != _set.eta_min.size(); i++) s << _set.eta_min[i] << "	";
+  s << std::endl;
+  for (unsigned int i = 0; i != _set.eta_max.size(); i++) s << _set.eta_max[i] << "	";
+  s << std::endl;
+  for (unsigned int i = 0; i != _set.phi_min.size(); i++) s << _set.phi_min[i] << "	";
+  s << std::endl;
+  for (unsigned int i = 0; i != _set.phi_max.size(); i++) s << _set.phi_max[i] << "	";
+  s << std::endl;
+  for (unsigned int i = 0; i != _set.depth_min.size(); i++) s << _set.depth_min[i] << "	";
+  s << std::endl;
+  for (unsigned int i = 0; i != _set.depth_max.size(); i++) s << _set.depth_max[i] << "	";
+  s << std::endl;
   for (unsigned int j = 0; j != _set.lut[0].size(); j++){
     for (unsigned int i = 0; i != _set.lut.size(); i++){
-      std::cout << _set.lut[i][j] << "	";
+      s << _set.lut[i][j] << "	";
     }
-    std::cout << "---> " << j << std::endl;
+    s << "---> " << j << std::endl;
   }
+  edm::LogInfo("HcalLutManager") << s.str();
   return 0;
 }
 
@@ -170,8 +174,8 @@ HcalLutSet HcalLutManager::getLutSetFromFile( std::string _filename, int _type )
   std::string buf;
 
   if ( infile . is_open() ){
-    std::cout << "File " << _filename << " is open..." << std::endl;
-    std::cout << "Reading LUTs and their eta/phi/depth/subdet ranges...";
+    edm::LogInfo("HcalLutManager") << "File " << _filename << " is open..." << std::endl
+      << "Reading LUTs and their eta/phi/depth/subdet ranges...";
 
     // get label
     getline( infile, _lutset . label );
@@ -241,7 +245,7 @@ HcalLutSet HcalLutManager::getLutSetFromFile( std::string _filename, int _type )
     }
   }
 
-  std::cout << "done." << std::endl;
+  edm::LogInfo("HcalLutManager") << "done.";
 
   return _lutset;
 }
@@ -250,14 +254,14 @@ HcalLutSet HcalLutManager::getLutSetFromFile( std::string _filename, int _type )
 
 std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMaster( std::string _filename, std::string _tag, int _crate, bool split_by_crate )
 {
-  std::cout << "Generating linearization (input) LUTs from ascii master file..." << std::endl;
+  edm::LogInfo("HcalLutManager") << "Generating linearization (input) LUTs from ascii master file...";
   std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
   LMap _lmap;
   _lmap . read( "./backup/HCALmapHBEF.txt", "HBEF" );
   _lmap . read( "./backup/HCALmapHO.txt", "HO" );
   std::map<int,LMapRow> & _map = _lmap.get_map();
-  std::cout << "LMap contains " << _map . size() << " channels" << std::endl;
+  edm::LogInfo("HcalLutManager") << "LMap contains " << _map . size() << " channels";
 
   // read LUTs and their eta/phi/depth/subdet ranges
   HcalLutSet _set = getLutSetFromFile( _filename );
@@ -297,7 +301,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMast
       _cfg.slot = row->second.htr;
       if (row->second.fpga . find("top") != std::string::npos) _cfg.topbottom = 1;
       else if (row->second.fpga . find("bot") != std::string::npos) _cfg.topbottom = 0;
-      else std::cout << "Warning! fpga out of range..." << std::endl;
+      else edm::LogWarning("HcalLutManager") << "fpga out of range...";
       // FIXME: probably fixed. fiber==htr_fi, not rm_fi in LMAP notation.
       //_cfg.fiber = row->second.rm_fi;
       _cfg.fiber = row->second.htr_fi;
@@ -326,8 +330,8 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMast
       }
     }
   }
-  std::cout << "LUTs generated: " << _counter.getCount() << std::endl;
-  std::cout << "Generating linearization (input) LUTs from ascii master file...DONE" << std::endl;
+  edm::LogInfo("HcalLutManager") << "LUTs generated: " << _counter.getCount() << std::endl
+    << "Generating linearization (input) LUTs from ascii master file...DONE" << std::endl;
   return _xml;
 }
 
@@ -336,17 +340,17 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMast
 //
 std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsciiMasterEmap( std::string _filename, std::string _tag, int _crate, bool split_by_crate )
 {
-  std::cout << "Generating linearization (input) LUTs from ascii master file..." << std::endl;
+  edm::LogInfo("HcalLutManager") << "Generating linearization (input) LUTs from ascii master file...";
   std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
   EMap _emap(emap);
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  std::cout << "EMap contains " << _map . size() << " entries" << std::endl;
+  edm::LogInfo("HcalLutManager") << "EMap contains " << _map . size() << " entries";
 
   // read LUTs and their eta/phi/depth/subdet ranges
   HcalLutSet _set = getLutSetFromFile( _filename );
   int lut_set_size = _set.lut.size(); // number of different luts
-  std::cout << "  ==> " << lut_set_size << " sets of different LUTs read from the master file" << std::endl;
+  edm::LogInfo("HcalLutManager") << "  ==> " << lut_set_size << " sets of different LUTs read from the master file";
 
   // setup "zero" LUT for channel masking
   std::vector<unsigned int> zeroLut;
@@ -392,7 +396,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
 	_cfg.slot = row->slot;
 	if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
 	else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
-	else std::cout << "Warning! fpga out of range..." << std::endl;
+	else edm::LogWarning("HcalLutManager") << "fpga out of range...";
 	_cfg.fiber = row->fiber;
 	_cfg.fiberchan = row->fiberchan;
 	_cfg.lut_type = 1;
@@ -428,21 +432,21 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
       }
     }
   }
-  std::cout << "LUTs generated: " << _counter.getCount() << std::endl;
-  std::cout << "Generating linearization (input) LUTs from ascii master file...DONE" << std::endl;
+  edm::LogInfo("HcalLutManager") << "LUTs generated: " << _counter.getCount() << std::endl
+    << "Generating linearization (input) LUTs from ascii master file...DONE" << std::endl;
   return _xml;
 }
 
 
 std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsciiMasterEmap_new( std::string _filename, std::string _tag, int _crate, bool split_by_crate )
 {
-  std::cout << "Generating linearization (input) LUTs from ascii master file..." << std::endl;
+  edm::LogInfo("HcalLutManager") << "Generating linearization (input) LUTs from ascii master file...";
   std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
   // read LUTs and their eta/phi/depth/subdet ranges
   HcalLutSet _set = getLutSetFromFile( _filename );
   int lut_set_size = _set.lut.size(); // number of different luts
-  std::cout << "  ==> " << lut_set_size << " sets of different LUTs read from the master file" << std::endl;
+  edm::LogInfo("HcalLutManager") << "  ==> " << lut_set_size << " sets of different LUTs read from the master file";
 
   RooGKCounter _counter;
   //loop over all EMap channels
@@ -521,30 +525,30 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
       }
     }
   }
-  std::cout << "LUTs generated: " << _counter.getCount() << std::endl;
-  std::cout << "Generating linearization (input) LUTs from ascii master file...DONE" << std::endl;
+  edm::LogInfo("HcalLutManager") << "LUTs generated: " << _counter.getCount() << std::endl
+    << "Generating linearization (input) LUTs from ascii master file...DONE" << std::endl;
   return _xml;
 }
 
 
 std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromAsciiMaster( std::string _filename, std::string _tag, int _crate, bool split_by_crate )
 {
-  std::cout << "Generating compression (output) LUTs from ascii master file..." << std::endl;
+  edm::LogInfo("HcalLutManager") << "Generating compression (output) LUTs from ascii master file...";
   std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
-  std::cout << "instantiating CaloTPGTranscoderULUT in order to check the validity of (ieta,iphi)..." << std::endl;
+  edm::LogInfo("HcalLutManager") << "instantiating CaloTPGTranscoderULUT in order to check the validity of (ieta,iphi)...";
   CaloTPGTranscoderULUT _coder;
 
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");
   EMap _emap(emap);
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  std::cout << "EMap contains " << _map . size() << " channels" << std::endl;
+  edm::LogInfo("HcalLutManager") << "EMap contains " << _map . size() << " channels";
 
   // read LUTs and their eta/phi/depth/subdet ranges
   HcalLutSet _set = getLutSetFromFile( _filename, 2 );
   int lut_set_size = _set.lut.size(); // number of different luts
-  std::cout << "  ==> " << lut_set_size << " sets of different LUTs read from the master file" << std::endl;
+  edm::LogInfo("HcalLutManager") << "  ==> " << lut_set_size << " sets of different LUTs read from the master file";
 
   //loop over all EMap channels
   RooGKCounter _counter;
@@ -579,7 +583,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
       _cfg.slot = row->slot;
       if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
       else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
-      else std::cout << "Warning! fpga out of range..." << std::endl;
+      else edm::LogWarning("HcalLutManager") << "fpga out of range...";
       _cfg.fiber = row->fiber;
       _cfg.fiberchan = row->fiberchan;
       if (_set.lut[lut_index].size() == 128) _cfg.lut_type = 1;
@@ -605,15 +609,15 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
       }
     }
   }
-  std::cout << "LUTs generated: " << _counter.getCount() << std::endl;
-  std::cout << "Generating compression (output) LUTs from ascii master file...DONE" << std::endl;
+  edm::LogInfo("HcalLutManager") << "LUTs generated: " << _counter.getCount() << std::endl
+    << "Generating compression (output) LUTs from ascii master file...DONE" << std::endl;
   return _xml;
 }
 
 
 std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCoder( const HcalTPGCoder & _coder, std::string _tag, bool split_by_crate )
 {
-  std::cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder..." << std::endl;
+  edm::LogInfo("HcalLutManager") << "Generating linearization (input) LUTs from HcaluLUTTPGCoder...";
   std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
@@ -625,7 +629,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
   // HO is not part of trigger, so TPGCoder cannot generate LUTs for it
   //_lmap . read( "backup/HCALmapHO.txt", "HO" );
   std::map<int,LMapRow> & _map = _lmap.get_map();
-  std::cout << "LMap contains " << _map . size() << " channels" << std::endl;
+  edm::LogInfo("HcalLutManager") << "LMap contains " << _map . size() << " channels";
 
   // read LUTs and their eta/phi/depth/subdet ranges
   //HcalLutSet _set = getLinearizationLutSetFromCoder();
@@ -649,7 +653,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
     _cfg.slot = row->second.htr;
     if (row->second.fpga . find("top") != std::string::npos) _cfg.topbottom = 1;
     else if (row->second.fpga . find("bot") != std::string::npos) _cfg.topbottom = 0;
-    else std::cout << "Warning! fpga out of range..." << std::endl;
+    else edm::LogWarning("HcalLutManager") << "fpga out of range...";
     // FIXME: probably fixed. fiber==htr_fi, not rm_fi in LMAP notation.
     //_cfg.fiber = row->second.rm_fi;
     _cfg.fiber = row->second.htr_fi;
@@ -688,8 +692,8 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
       _counter.count();
     }
   }
-  std::cout << "Generated LUTs: " << _counter.getCount() << std::endl;
-  std::cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder...DONE" << std::endl;
+  edm::LogInfo("HcalLutManager") << "Generated LUTs: " << _counter.getCount() << std::endl
+    << "Generating linearization (input) LUTs from HcaluLUTTPGCoder...DONE" << std::endl;
   return _xml;
 }
 
@@ -698,12 +702,12 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
 
 std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCoderEmap( const HcalTPGCoder & _coder, std::string _tag, bool split_by_crate )
 {
-  std::cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder..." << std::endl;
+  edm::LogInfo("HcalLutManager") << "Generating linearization (input) LUTs from HcaluLUTTPGCoder...";
   std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
   EMap _emap(emap);
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  std::cout << "EMap contains " << _map . size() << " entries" << std::endl;
+  edm::LogInfo("HcalLutManager") << "EMap contains " << _map . size() << " entries";
 
   std::vector<unsigned int> zeroLut;
   for (size_t adc = 0; adc < 128; adc++) zeroLut.push_back(0);
@@ -731,7 +735,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
       _cfg.slot = row->slot;
       if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
       else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
-      else std::cout << "Warning! fpga out of range..." << std::endl;
+      else edm::LogWarning("HcalLutManager") << "fpga out of range...";
       _cfg.fiber = row->fiber;
       _cfg.fiberchan = row->fiberchan;
       _cfg.lut_type = 1;
@@ -776,8 +780,8 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
       }
     }
   }
-  std::cout << "Generated LUTs: " << _counter.getCount() << std::endl;
-  std::cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder...DONE" << std::endl;
+  edm::LogInfo("HcalLutManager") << "Generated LUTs: " << _counter.getCount() << std::endl
+    << "Generating linearization (input) LUTs from HcaluLUTTPGCoder...DONE" << std::endl;
   return _xml;
 }
 
@@ -785,89 +789,72 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
 
 std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder( const CaloTPGTranscoderULUT & _coder, std::string _tag, bool split_by_crate )
 {
-  std::cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT," << std::endl;
-  std::cout << "initialized from Event Setup" << std::endl;
-  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
+    edm::LogInfo("HcalLutManager") << "Generating compression (output) LUTs from CaloTPGTranscoderULUT," << std::endl
+        << "initialized from Event Setup" << std::endl;
+    std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
-  //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");
-  EMap _emap(emap);
+    EMap _emap(emap);
 
-  std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  std::cout << "EMap contains " << _map . size() << " channels" << std::endl;
+    std::vector<EMap::EMapRow> & _map = _emap.get_map();
+    edm::LogInfo("HcalLutManager") << "EMap contains " << _map . size() << " channels";
 
-  // read LUTs and their eta/phi/depth/subdet ranges
-  //HcalLutSet _set = getLutSetFromFile( _filename, 2 );
-  //int lut_set_size = _set.lut.size(); // number of different luts
+    RooGKCounter _counter;
+    for( std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
+	LutXml::Config _cfg;
 
-  //loop over all EMap channels
-  RooGKCounter _counter;
-  for( std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
-    LutXml::Config _cfg;
+	if ( row->subdet.find("HT") == std::string::npos) continue;
 
-    // only trigger tower channels
-    // and valid (ieta,iphi)
-    if ( row->subdet . find("HT") != std::string::npos && _coder.HTvalid(row->ieta, row->iphi) ){
-      if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
-      }
-      else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
-      }
-      _cfg.ieta = row->ieta;
-      _cfg.iphi = row->iphi;
-      _cfg.depth = row->idepth;
-      _cfg.crate = row->crate;
-      _cfg.slot = row->slot;
-      if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
-      else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
-      else std::cout << "Warning! fpga out of range..." << std::endl;
-      _cfg.fiber = row->fiber;
-      _cfg.fiberchan = row->fiberchan;
-      _cfg.lut_type = 2;
-      _cfg.creationtag = _tag;
-      _cfg.creationstamp = get_time_stamp( time(0) );
-      _cfg.targetfirmware = "1.0.0";
-      _cfg.formatrevision = "1"; //???
-      // "original" definition of GENERALIZEDINDEX from Mike Weinberger
-      //   int generalizedIndex=id.ietaAbs()+10000*id.iphi()+
-      //       ((id.ieta()<0)?(0):(100));
-      _cfg.generalizedindex =
-	_cfg.iphi*10000+
-	(row->ieta>0)*100+abs(row->ieta);
+	HcalTrigTowerDetId _detid(row->rawId);
+
+	if(!cq->topo()->validHT(_detid)) continue;
+
+
+	if ( _xml.count(row->crate) == 0 && split_by_crate ){
+	    _xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
+	}
+	else if ( _xml.count(0) == 0 && !split_by_crate ){
+	    _xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
+	}
+
+	_cfg.ieta = row->ieta;
+	_cfg.iphi = row->iphi;
+	_cfg.depth = row->idepth;
+	_cfg.crate = row->crate;
+	_cfg.slot = row->slot;
+	if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
+	else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
+	else edm::LogWarning("HcalLutManager") << "fpga out of range...";
+	_cfg.fiber = row->fiber;
+	_cfg.fiberchan = row->fiberchan;
+	_cfg.lut_type = 2;
+	_cfg.creationtag = _tag;
+	_cfg.creationstamp = get_time_stamp( time(0) );
+	_cfg.targetfirmware = "1.0.0";
+	_cfg.formatrevision = "1"; //???
+	_cfg.generalizedindex =_cfg.iphi*10000+ (row->ieta>0)*100+abs(row->ieta); //is this used for anything?
+
+	_cfg.lut = _coder.getCompressionLUT(_detid);
       
-      // FIXME: work around bug in emap v6: rawId wasn't filled
-      //HcalTrigTowerDetId _detid(row->rawId);
-      HcalTrigTowerDetId _detid(row->ieta, row->iphi);
       
-      std::vector<unsigned char> coder_lut = _coder.getCompressionLUT(_detid);
-      for (std::vector<unsigned char>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
-	unsigned int _temp = (unsigned int)(*_i);
-	//if (_temp!=0) std::cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << std::endl;
-	//unsigned int _temp = 0;
-	_cfg.lut.push_back(_temp);
-      }
-      //_cfg.lut = _set.lut[lut_index];
-      
-      if (split_by_crate ){
-	_xml[row->crate]->addLut( _cfg, lut_checksums_xml );  
-	_counter.count();
-      }
-      else{
-	_xml[0]->addLut( _cfg, lut_checksums_xml );  
-	_counter.count();
-      }
+	if (split_by_crate ){
+	    _xml[row->crate]->addLut( _cfg, lut_checksums_xml );  
+	    _counter.count();
+	}
+	else{
+	    _xml[0]->addLut( _cfg, lut_checksums_xml );  
+	    _counter.count();
+	}
     }
-  }
-  std::cout << "LUTs generated: " << _counter.getCount() << std::endl;
-  std::cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT...DONE" << std::endl;
-  return _xml;
+    edm::LogInfo("HcalLutManager") << "LUTs generated: " << _counter.getCount() << std::endl
+      << "Generating compression (output) LUTs from CaloTPGTranscoderULUT...DONE" << std::endl;
+    return _xml;
 }
 
 
 
 std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder( std::string _tag, bool split_by_crate )
 {
-  std::cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT" << std::endl;
+  edm::LogInfo("HcalLutManager") << "Generating compression (output) LUTs from CaloTPGTranscoderULUT";
   std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v5_080208.txt");
@@ -876,7 +863,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
   EMap _emap(emap);
 
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  std::cout << "EMap contains " << _map . size() << " channels" << std::endl;
+  edm::LogInfo("HcalLutManager") << "EMap contains " << _map . size() << " channels";
 
   // read LUTs and their eta/phi/depth/subdet ranges
   //HcalLutSet _set = getLutSetFromFile( _filename, 2 );
@@ -905,7 +892,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
       _cfg.slot = row->slot;
       if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
       else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
-      else std::cout << "Warning! fpga out of range..." << std::endl;
+      else edm::LogWarning("HcalLutManager") << "fpga out of range...";
       _cfg.fiber = row->fiber;
       _cfg.fiberchan = row->fiberchan;
       _cfg.lut_type = 2;
@@ -924,14 +911,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
       //HcalTrigTowerDetId _detid(row->rawId);
       HcalTrigTowerDetId _detid(row->ieta, row->iphi);
       
-      std::vector<unsigned char> coder_lut = _coder.getCompressionLUT(_detid);
-      for (std::vector<unsigned char>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
-	unsigned int _temp = (unsigned int)(*_i);
-	//if (_temp!=0) std::cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << std::endl;
-	//unsigned int _temp = 0;
-	_cfg.lut.push_back(_temp);
-      }
-      //_cfg.lut = _set.lut[lut_index];
+      _cfg.lut = _coder.getCompressionLUT(_detid);
       
       if (split_by_crate ){
 	_xml[row->crate]->addLut( _cfg, lut_checksums_xml );  
@@ -943,8 +923,8 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
       }
     }
   }
-  std::cout << "LUTs generated: " << _counter.getCount() << std::endl;
-  std::cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT...DONE" << std::endl;
+  edm::LogInfo("HcalLutManager") << "LUTs generated: " << _counter.getCount() << std::endl
+    << "Generating compression (output) LUTs from CaloTPGTranscoderULUT...DONE" << std::endl;
   return _xml;
 }
 
@@ -1128,7 +1108,7 @@ int HcalLutManager::createAllLutXmlFilesLinAsciiCompCoder( std::string _tag, std
 void HcalLutManager::addLutMap(std::map<int, boost::shared_ptr<LutXml> > & result, const std::map<int, boost::shared_ptr<LutXml> > & other)
 {
   for ( std::map<int, boost::shared_ptr<LutXml> >::const_iterator lut=other.begin(); lut!=other.end(); lut++ ){
-    std::cout << "Added LUTs for crate " << lut->first << std::endl;
+    edm::LogInfo("HcalLutManager") << "Added LUTs for crate " << lut->first;
     if ( result.count(lut->first)==0 ){
       result . insert( *lut );
     }
@@ -1162,25 +1142,25 @@ int HcalLutManager::test_xml_access( std::string _tag, std::string _filename )
   EMap _emap(emap);
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
   int map_size = _map . size();
-  std::cout << "EMap contains " << map_size << " channels" << std::endl;
+  edm::LogInfo("HcalLutManager") << "EMap contains " << map_size << " channels";
 
   // make sure that all init is done
   std::vector<unsigned int> _lut;
   _lut = getLutFromXml( _tag, 1107313727, hcal::ConfigurationDatabase::LinearizerLUT );
 
 
-  std::cout << std::endl << "Testing direct parsing of the LUT XML" << std::endl;
+  edm::LogInfo("HcalLutManager") << "Testing direct parsing of the LUT XML";
   struct timeval _t;
   gettimeofday( &_t, NULL );
   double _time =(double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0;
   test_direct_xml_parsing(_filename);
   gettimeofday( &_t, NULL );
-  std::cout << "parsing took that much time: " << (double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0 - _time << std::endl;
+  edm::LogInfo("HcalLutManager") << "parsing took that much time: " << (double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0 - _time;
 
 
   gettimeofday( &_t, NULL );
   _time =(double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0;
-  std::cout << "before loop over random LUTs: " << _time << std::endl;
+  edm::LogInfo("HcalLutManager") << "before loop over random LUTs: " << _time;
   int _raw_id;
 
   // loop over random LUTs
@@ -1214,13 +1194,13 @@ int HcalLutManager::test_xml_access( std::string _tag, std::string _filename )
     gettimeofday( &_t, NULL );
   }
   double d_time = _t.tv_sec+_t.tv_usec/1000000.0 - _time;
-  std::cout << "after the loop over random LUTs: " << _time+d_time << std::endl;  
-  std::cout << "total time: " << d_time << std::endl;  
+  edm::LogInfo("HcalLutManager") << "after the loop over random LUTs: " << _time+d_time << std::endl
+    << "total time: " << d_time << std::endl;  
   
-  std::cout << "LUT length = " << _lut . size() << std::endl;
+  edm::LogInfo("HcalLutManager") << "LUT length = " << _lut . size();
   for ( std::vector<unsigned int>::const_iterator i = _lut . end() - 1; i != _lut . begin()-1; i-- )
     {
-      std::cout << (i-_lut.begin()) << "     " << _lut[(i-_lut.begin())] << std::endl;
+      edm::LogInfo("HcalLutManager") << (i-_lut.begin()) << "     " << _lut[(i-_lut.begin())];
       break;
     }
   
@@ -1240,7 +1220,7 @@ int HcalLutManager::read_lmap( std::string lmap_hbef_file, std::string lmap_ho_f
   lmap = new LMap();
   lmap -> read( lmap_hbef_file, "HBEF" );
   lmap -> read( lmap_ho_file, "HO" );
-  std::cout << "LMap contains " << lmap -> get_map() . size() << " channels (compare to 9072 of all HCAL channels)" << std::endl;
+  edm::LogInfo("HcalLutManager") << "LMap contains " << lmap -> get_map() . size() << " channels (compare to 9072 of all HCAL channels)";
   return 0;
 }
 
@@ -1270,7 +1250,7 @@ int HcalLutManager::local_connect( std::string lut_xml_file, std::string lmap_hb
 
 std::vector<unsigned int> HcalLutManager::getLutFromXml( std::string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt )
 {
-  std::cout << "getLutFromXml (new version) is not implemented. Use getLutFromXml_old() for now" << std::endl;
+  edm::LogInfo("HcalLutManager") << "getLutFromXml (new version) is not implemented. Use getLutFromXml_old() for now";
 
   std::vector<unsigned int> result;
 
@@ -1284,11 +1264,11 @@ std::vector<unsigned int> HcalLutManager::getLutFromXml( std::string tag, uint32
 std::vector<unsigned int> HcalLutManager::getLutFromXml_old( std::string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt )
 {
   if ( !lmap ){
-    std::cout << "HcalLutManager: cannot find LUT without LMAP, exiting..." << std::endl;
+    edm::LogError("HcalLutManager") << "Cannot find LUT without LMAP, exiting...";
     exit(-1);
   }
   if ( !db ){
-    std::cout << "HcalLutManager: cannot find LUT, no source (local XML file), exiting..." << std::endl;
+    edm::LogError("HcalLutManager") << "Cannot find LUT, no source (local XML file), exiting...";
     exit(-1);
   }
 
@@ -1314,7 +1294,7 @@ std::vector<unsigned int> HcalLutManager::getLutFromXml_old( std::string tag, ui
     if ( _fpga . find("top") != std::string::npos ) topbottom = 1;
     else if ( _fpga . find("bot") != std::string::npos ) topbottom = 0;
     else{
-      std::cout << "HcalLutManager: irregular LMAP fpga value... do not know what to do - exiting" << std::endl;
+      edm::LogError("HcalLutManager") << "Irregular LMAP fpga value... do not know what to do - exiting";
       exit(-1);
     }
     if ( _lt == hcal::ConfigurationDatabase::LinearizerLUT ) luttype = 1;
@@ -1355,7 +1335,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_orac
   db -> connect( _accessor );
   oracle::occi::Connection * _connection = db -> getConnection();  
 
-  std::cout << "Preparing to request the LUT CLOBs from the database..." << std::endl;
+  edm::LogInfo("HcalLutManager") << "Preparing to request the LUT CLOBs from the database...";
 
   //int crate = 0;
   
@@ -1373,19 +1353,19 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_orac
 
   try {
     //SELECT
-    std::cout << "Executing the query..." << std::endl;
+    edm::LogInfo("HcalLutManager") << "Executing the query...";
     Statement* stmt = _connection -> createStatement();
     ResultSet *rs = stmt->executeQuery(query.c_str());
-    std::cout << "Executing the query... done" << std::endl;
+    edm::LogInfo("HcalLutManager") << "Executing the query... done";
     
-    std::cout << "Processing the query results..." << std::endl;
+    edm::LogInfo("HcalLutManager") << "Processing the query results...";
     //RooGKCounter _lines;
     while (rs->next()) {
       //_lines.count();
       oracle::occi::Clob clob = rs->getClob (1);
       int crate = rs->getInt(2);
       if ( crate != -1 ){ // not a brick with checksums
-	cout << "Getting LUTs for crate #" << crate << " out of the database...";
+	edm::LogInfo("HcalLutManager") << "Getting LUTs for crate #" << crate << " out of the database...";
 	brick_set = db -> clobToString(clob);
 	/*
 	// FIXME: DEBUG lut xml files from simple strings
@@ -1400,7 +1380,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_orac
 	MemBufInputSource * lut_clob = new MemBufInputSource( (const XMLByte *)bs, strlen( bs ), "lut_clob", false );
 	boost::shared_ptr<LutXml> lut_xml = boost::shared_ptr<LutXml>( new LutXml( *lut_clob ) );
 	lut_map[crate] = lut_xml;
-        std::cout << " done" << std::endl;
+	edm::LogInfo("HcalLutManager") << "done";
       }
     }
     //Always terminate statement
@@ -1420,7 +1400,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_orac
 
 int HcalLutManager::create_lut_loader( std::string file_list, std::string _prefix, std::string tag_name, std::string comment, std::string version, int subversion )
 {
-  std::cout << "Generating XML loader for LUTs..." << std::endl;
+  edm::LogInfo("HcalLutManager") << "Generating XML loader for LUTs...";
   //std::cout << _prefix << "..." << tag_name << std::endl;
 
   XMLLUTLoader::loaderBaseConfig baseConf;
@@ -1485,7 +1465,7 @@ int HcalLutManager::create_lut_loader( std::string file_list, std::string _prefi
   //doc . write( _prefix + "_Loader.xml" );
   doc . write( tag_name + "_Loader.xml" );
 
-  std::cout << "Generating XML loader for LUTs... done." << std::endl;
+  edm::LogInfo("HcalLutManager") << "Generating XML loader for LUTs... done.";
 
   return 0;
 }
@@ -1496,7 +1476,8 @@ void HcalLutManager::test_emap( void ){
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");
   EMap _emap(emap);
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  std::cout << "EMap contains " << _map . size() << " channels" << std::endl;
+  std::stringstream s;
+  s << "EMap contains " << _map . size() << " channels" << std::endl;
   
   //loop over all EMap channels
   //RooGKCounter _c;
@@ -1504,14 +1485,15 @@ void HcalLutManager::test_emap( void ){
     
     // only trigger tower channels
     if ( row->subdet . find("HT") != std::string::npos ){
-      std::cout << " -----> Subdet = " << row->subdet << std::endl;
+      s << " -----> Subdet = " << row->subdet << std::endl;
       
       if (abs(row->ieta)>28){
 	//if (row->iphi == 71){
-	cout << " ==> (ieta,iphi) = " << row->ieta << ",	" << row->iphi << std::endl;
+	s << " ==> (ieta,iphi) = " << row->ieta << ",	" << row->iphi << std::endl;
       }
     }
   }
+  edm::LogInfo("HcalLutManager") << s.str();
 }
 
 
@@ -1583,7 +1565,7 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC( std::string
 std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( std::string _tag,
 								 bool split_by_crate )
 {
-  std::cout << "Generating ZDC LUTs ...may the Force be with us..." << std::endl;
+  edm::LogInfo("HcalLutManager") << "Generating ZDC LUTs ...may the Force be with us...";
   std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
   EMap _emap(emap);
@@ -1591,7 +1573,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( std::str
   ZdcLut zdc;
 
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  std::cout << "EMap contains " << _map . size() << " channels" << std::endl;
+  edm::LogInfo("HcalLutManager") << "EMap contains " << _map . size() << " channels";
 
   //loop over all EMap channels
   RooGKCounter _counter;
@@ -1615,7 +1597,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( std::str
       _cfg.slot = row->slot;
       if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
       else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
-      else std::cout << "Warning! fpga out of range..." << std::endl;
+      else edm::LogWarning("HcalLutManager") << "fpga out of range...";
       _cfg.fiber = row->fiber;
       _cfg.fiberchan = row->fiberchan;
       _cfg.lut_type = 1;
@@ -1630,7 +1612,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( std::str
       std::vector<int> coder_lut = zdc.get_lut(row->zdc_section,
 					       row->zdc_zside,
 					       row->zdc_channel);
-      std::cout << "***DEBUG: ZDC lut size: " << coder_lut.size() << std::endl;
+      edm::LogInfo("HcalLutManager") << "***DEBUG: ZDC lut size: " << coder_lut.size();
       if (coder_lut.size()!=0){
 	for (std::vector<int>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
 	  unsigned int _temp = (unsigned int)(*_i);
@@ -1651,8 +1633,8 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( std::str
       } //size of lut
     }
   }
-  std::cout << "LUTs generated: " << _counter.getCount() << std::endl;
-  std::cout << "Generating ZDC LUTs...DONE" << std::endl;
+  edm::LogInfo("HcalLutManager") << "LUTs generated: " << _counter.getCount() << std::endl
+    << "Generating ZDC LUTs...DONE" << std::endl;
 
   return _xml;
 }

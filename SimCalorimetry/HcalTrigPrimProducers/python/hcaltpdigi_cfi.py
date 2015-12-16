@@ -1,5 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
+LSParameter =cms.untracked.PSet(
+HcalFeatureHFEMBit= cms.bool(False),
+Min_Long_Energy= cms.double(10),#makes a cut based on energy deposited in short vrs long
+    Min_Short_Energy= cms.double(10),
+    Long_vrs_Short_Slope= cms.double(100.2),
+    Long_Short_Offset= cms.double(10.1))
+
+
 simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     peakFilter = cms.bool(True),
     weights = cms.vdouble(1.0, 1.0), ##hardware algo        
@@ -12,6 +20,9 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     numberOfPresamplesHF = cms.int32(2),
     MinSignalThreshold = cms.uint32(0), # For HF PMT veto
     PMTNoiseThreshold = cms.uint32(0),  # For HF PMT veto
+    LSConfig=LSParameter,
+    
+    
 #
     #vdouble weights = { -1, -1, 1, 1} //low lumi algo
     # Input digi label (_must_ be without zero-suppression!)
