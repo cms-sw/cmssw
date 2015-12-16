@@ -68,6 +68,7 @@ private:
   bool doCentrality_;
 
   bool doMC_;
+  bool doHiMC_;
   bool useHepMC_;
   bool doVertex_;
 
@@ -144,6 +145,7 @@ HiEvtAnalyzer::HiEvtAnalyzer(const edm::ParameterSet& iConfig) :
   doEvtPlaneFlat_(iConfig.getParameter<bool> ("doEvtPlaneFlat")),
   doCentrality_(iConfig.getParameter<bool> ("doCentrality")),
   doMC_(iConfig.getParameter<bool> ("doMC")),
+  doHiMC_(iConfig.getParameter<bool> ("doHiMC")),
   useHepMC_(iConfig.getParameter<bool> ("useHepMC")),
   doVertex_(iConfig.getParameter<bool>("doVertex")),
   evtPlaneLevel_(iConfig.getParameter<int>("evtPlaneLevel"))
@@ -175,22 +177,25 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   run = iEvent.id().run();
   lumi = iEvent.id().luminosityBlock();
 
-  if(doMC_){
+  if(doHiMC_){
     edm::Handle<edm::GenHIEvent> mchievt;
-    iEvent.getByToken(HiMCTag_, mchievt);
-    fb = mchievt->b();
-    fNpart = mchievt->Npart();
-    fNcoll = mchievt->Ncoll();
-    fNhard = mchievt->Nhard();
-    fPhi0 = mchievt->evtPlane();
-    fNcharged = mchievt->Ncharged();
-    fNchargedMR = mchievt->NchargedMR();
-    fMeanPt = mchievt->MeanPt();
-    fMeanPtMR = mchievt->MeanPtMR();
-    fEtMR = mchievt->EtMR();
-    fNchargedPtCut = mchievt->NchargedPtCut();
-    fNchargedPtCutMR = mchievt->NchargedPtCutMR();
-
+    if(iEvent.getByToken(HiMCTag_, mchievt)) {
+      fb = mchievt->b();
+      fNpart = mchievt->Npart();
+      fNcoll = mchievt->Ncoll();
+      fNhard = mchievt->Nhard();
+      fPhi0 = mchievt->evtPlane();
+      fNcharged = mchievt->Ncharged();
+      fNchargedMR = mchievt->NchargedMR();
+      fMeanPt = mchievt->MeanPt();
+      fMeanPtMR = mchievt->MeanPtMR();
+      fEtMR = mchievt->EtMR();
+      fNchargedPtCut = mchievt->NchargedPtCut();
+      fNchargedPtCutMR = mchievt->NchargedPtCutMR();
+    }
+  }
+    
+  if(doMC_){
     if(useHepMC_) {
       edm::Handle<edm::HepMCProduct> hepmcevt;
       iEvent.getByLabel("generator", hepmcevt);
@@ -237,8 +242,9 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         tnpus.push_back(pu.getTrueNumInteractions());
       }
     }
-
   }
+
+  
 
   if (doCentrality_) {
 
@@ -362,7 +368,7 @@ HiEvtAnalyzer::beginJob()
   thi_->Branch("vz",&vz,"vz/F");
 
   //Event observables
-  if (doMC_) {
+  if (doHiMC_) {
     thi_->Branch("Npart",&fNpart,"Npart/F");
     thi_->Branch("Ncoll",&fNcoll,"Ncoll/F");
     thi_->Branch("Nhard",&fNhard,"Nhard/F");
@@ -375,7 +381,8 @@ HiEvtAnalyzer::beginJob()
     thi_->Branch("EtMR",&fEtMR,"EtMR/F");
     thi_->Branch("NchargedPtCut",&fNchargedPtCut,"NchargedPtCut/I");
     thi_->Branch("NchargedPtCutMR",&fNchargedPtCutMR,"NchargedPtCutMR/I");
-
+  }
+  if (doMC_) {
     thi_->Branch("ProcessID",&proc_id,"ProcessID/I");
     thi_->Branch("pthat",&pthat,"pthat/F");
     thi_->Branch("weight",&weight,"weight/F");
