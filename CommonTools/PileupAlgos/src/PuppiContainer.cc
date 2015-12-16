@@ -1,4 +1,5 @@
 #include "CommonTools/PileupAlgos/interface/PuppiContainer.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "fastjet/internal/base.hh"
 #include "fastjet/FunctionOfPseudoJet.hh"
 #include "Math/ProbFunc.h"
@@ -82,22 +83,23 @@ double PuppiContainer::var_within_R(int iId, const vector<PseudoJet> & particles
     if(iId == -1) return 1;
     fastjet::Selector sel = fastjet::SelectorCircle(R);
     sel.set_reference(centre);
-    vector<PseudoJet> near_particles = sel(particles);
+    vector<const PseudoJet*> near_particles;
+    near_particles.reserve(std::min(50UL, particles.size()));
+    for (auto const& part : particles){
+      if ( sel(part) ) near_particles.push_back(&part);
+    }
     double var = 0;
     //double lSumPt = 0;
-    //if(iId == 1) for(unsigned int i=0; i<near_particles.size(); i++) lSumPt += near_particles[i].pt();
-    for(unsigned int i=0; i<near_particles.size(); i++){
-        double pDEta = near_particles[i].eta()-centre.eta();
-        double pDPhi = std::abs(near_particles[i].phi()-centre.phi());
-        if(pDPhi > 2.*M_PI-pDPhi) pDPhi =  2.*M_PI-pDPhi;
-        double pDR2 = pDEta*pDEta+pDPhi*pDPhi;
+    //if(iId == 1) for(auto const* part : near_particles) lSumPt += part->pt();
+    for(auto const* part : near_particles){
+        double pDR2 = reco::deltaR2(*part, centre);
         if(std::abs(pDR2)  <  0.0001) continue;
-        if(iId == 0) var += (near_particles[i].pt()/pDR2);
-        if(iId == 1) var += near_particles[i].pt();
+        if(iId == 0) var += (part->pt()/pDR2);
+        if(iId == 1) var += part->pt();
         if(iId == 2) var += (1./pDR2);
         if(iId == 3) var += (1./pDR2);
-        if(iId == 4) var += near_particles[i].pt();
-        if(iId == 5) var += (near_particles[i].pt() * near_particles[i].pt()/pDR2);
+        if(iId == 4) var += part->pt();
+        if(iId == 5) var += (part->pt() * part->pt()/pDR2);
     }
     if(iId == 1) var += centre.pt(); //Sum in a cone
     if(iId == 0 && var != 0) var = log(var);
