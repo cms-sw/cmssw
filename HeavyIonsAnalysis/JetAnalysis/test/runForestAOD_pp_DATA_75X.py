@@ -107,7 +107,11 @@ process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_data_cfi')
 process.hiEvtAnalyzer.Vertex = cms.InputTag("offlinePrimaryVertices")
 process.hiEvtAnalyzer.doCentrality = cms.bool(False)
 process.hiEvtAnalyzer.doEvtPlane = cms.bool(False)
+
 process.load('HeavyIonsAnalysis.EventAnalysis.hltanalysis_cff')
+from HeavyIonsAnalysis.EventAnalysis.dummybranches_cff import addHLTdummybranchesForPP
+addHLTdummybranchesForPP(process)
+
 process.load("HeavyIonsAnalysis.JetAnalysis.pfcandAnalyzer_cfi")
 process.pfcandAnalyzer.skipCharged = False
 process.pfcandAnalyzer.pfPtMin = 0
