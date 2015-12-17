@@ -11,21 +11,19 @@ date +%F\ %a\ %T
 echo Starting $0 $1 $2
 
 if ( $2 == "" ) then
-  set tables = ( GRun 50nsGRun )
+  set tables = ( GRun )
 else if ( ($2 == all) || ($2 == ALL) ) then
-  set tables = ( GRun 50nsGRun HIon PIon 25nsLowPU LowPU 25ns14e33_v4 25ns14e33_v3 50ns_5e33_v3 25ns14e33_v1 50ns_5e33_v1 Fake )
+  set tables = ( GRun HIon PIon PRef Fake )
 else if ( ($2 == ib) || ($2 == IB) ) then
-  set tables = ( GRun 50nsGRun HIon PIon 25nsLowPU LowPU )
+  set tables = ( GRun HIon PIon PRef )
 else if ( ($2 == dev) || ($2 == DEV) ) then
-  set tables = ( GRun 50nsGRun HIon PIon 25nsLowPU LowPU )
-else if ( ($2 == lowpu) || ($2 == LOWPU) || ($2 == LowPU) ) then
-  set tables = ( 25nsLowPU LowPU )
+  set tables = ( GRun HIon PIon PRef )
 else if ( ($2 == full) || ($2 == FULL) ) then
   set tables = ( FULL )
 else if ( ($2 == fake) || ($2 == FAKE) ) then
   set tables = ( Fake )
 else if ( ($2 == frozen) || ($2 == FROZEN) ) then
-  set tables = ( 25ns14e33_v4 25ns14e33_v3 50ns_5e33_v3 25ns14e33_v1 50ns_5e33_v1 Fake )
+  set tables = ( Fake )
 else
   set tables = ( $2 )
 endif
