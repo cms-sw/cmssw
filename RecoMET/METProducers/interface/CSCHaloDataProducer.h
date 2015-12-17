@@ -30,7 +30,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/METReco/interface/CSCHaloData.h"
 #include "RecoMET/METAlgorithms/interface/CSCHaloAlgo.h"

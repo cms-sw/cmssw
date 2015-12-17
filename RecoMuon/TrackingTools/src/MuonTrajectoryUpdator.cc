@@ -272,6 +272,7 @@ void MuonTrajectoryUpdator::sort(TransientTrackingRecHit::ConstRecHitContainer& 
     else
       LogError("Muon|RecoMuon|MuonTrajectoryUpdator") <<"MuonTrajectoryUpdator::sort: Wrong propagation direction!!";
   }
+
   else if(detLayer->subDetector()==GeomDetEnumerators::GEM){
     if(fitDirection() == insideOut)
       stable_sort(recHitsForFit.begin(),recHitsForFit.end(), ZedComparatorInOut() );

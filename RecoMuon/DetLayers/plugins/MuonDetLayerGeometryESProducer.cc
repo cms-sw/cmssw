@@ -81,6 +81,7 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
     LogDebug(metname) << "No ME0 geometry is available.";
   }
 
+
   // Build RPC layers
   edm::ESHandle<RPCGeometry> rpc;
   record.getRecord<MuonGeometryRecord>().get(rpc);

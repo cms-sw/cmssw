@@ -17,7 +17,6 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"

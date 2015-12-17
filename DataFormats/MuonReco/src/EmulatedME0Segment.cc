@@ -57,6 +57,7 @@ AlgebraicMatrix EmulatedME0Segment::projectionMatrix() const {
 }
 
 
+
 //
 void EmulatedME0Segment::print() const {
   std::cout << *this << std::endl;
