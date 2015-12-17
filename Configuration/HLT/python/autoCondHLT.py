@@ -23,6 +23,7 @@ hltGTs = {
 #   'symbolic GT'            : ('base GT',[('payload1',payload2')])
 
     'run1_mc_Fake'           : ('run1_mc'      ,l1Menus['Fake']),
+    'run2_mc_Fake'           : ('run2_mc'      ,l1Menus['Fake']),
     'run2_mc_FULL'           : ('run2_mc'      ,l1Menus['FULL']),
     'run2_mc_GRun'           : ('run2_mc'      ,l1Menus['GRun']),
     'run2_mc_HIon'           : ('run2_mc_hi'   ,l1Menus['HIon']),
@@ -30,6 +31,7 @@ hltGTs = {
     'run2_mc_PRef'           : ('run2_mc'      ,l1Menus['PRef']),
 
     'run1_hlt_Fake'          : ('run1_hlt'     ,l1Menus['Fake']),
+    'run2_hlt_Fake'          : ('run2_hlt'     ,l1Menus['Fake']),
     'run2_hlt_FULL'          : ('run2_hlt'     ,l1Menus['FULL']),
     'run2_hlt_GRun'          : ('run2_hlt'     ,l1Menus['GRun']),
     'run2_hlt_HIon'          : ('run2_hlt_hi'  ,l1Menus['HIon']),
@@ -37,6 +39,7 @@ hltGTs = {
     'run2_hlt_PRef'          : ('run2_hlt'     ,l1Menus['PRef']),
 
     'run1_data_Fake'         : ('run1_data'    ,l1Menus['Fake']),
+    'run2_data_Fake'         : ('run2_data'    ,l1Menus['Fake']),
     'run2_data_FULL'         : ('run2_data'    ,l1Menus['FULL']),
     'run2_data_GRun'         : ('run2_data'    ,l1Menus['GRun']),
     'run2_data_HIon'         : ('run2_data'    ,l1Menus['HIon']),
