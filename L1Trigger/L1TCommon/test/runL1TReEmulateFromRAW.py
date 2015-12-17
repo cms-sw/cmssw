@@ -1,8 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
+
+
+#
+# Use this Era to run the 2015 (Stage-1) Emulation
+#
 #process = cms.Process("L1TMuonEmulation", eras.Run2_25ns)
+#
+# Use this Era to run the 2016 (Stage-2) Emulation
+#
 process = cms.Process("L1TMuonEmulation", eras.Run2_2016)
+
 import os
 import sys
 import commands
@@ -29,7 +38,7 @@ process.source = cms.Source(
         ) 
     )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
 
 # PostLS1 geometry used
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
@@ -37,8 +46,13 @@ process.load('Configuration.Geometry.GeometryExtended2015_cff')
 ############################
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+
+# Note: We are re-emulating L1T based on the conditions in the GT, so best for
+#        now to use MC GT, even when running over a data file, and just ignore
+#        the main DT TP emulator warnings...  (In future we'll override only L1T
+#        emulator related conditions, so you can use a data GT)
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '') ## READ ABOVE BEFORE UNCOMMENTING 
 
 #### Sim L1 Emulator Sequence:
 process.load('Configuration.StandardSequences.RawToDigi_cff')
@@ -66,9 +80,6 @@ if (eras.stage2L1Trigger.isChosen()):
     process.l1tSummaryA.jetToken  = cms.InputTag("caloStage2Digis");
     process.l1tSummaryA.sumToken  = cms.InputTag("caloStage2Digis");
     process.l1tSummaryA.muonToken = cms.InputTag("gmtStage2Digis","");
-
-
-
 
 process.l1tSummaryB = cms.EDAnalyzer("L1TSummary")
 process.l1tSummaryB.egCheck   = cms.bool(True);
@@ -101,7 +112,6 @@ process.MessageLogger.categories.append('L1TGlobalEvents')
 process.MessageLogger.categories.append('l1t|Global')
 process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
 
-
 # gt analyzer
 process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
     doText = cms.untracked.bool(True),
@@ -119,21 +129,45 @@ process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
     emulGtAlgToken = cms.InputTag("simGlobalStage2Digis")
 )
 
-process.l1UpgradeTree = cms.EDAnalyzer(
-    "L1UpgradeTreeProducer",
-    egToken = cms.untracked.InputTag("simCaloStage2Digis"),
-    tauToken = cms.untracked.InputTag("simCaloStage2Digis"),
-    jetToken = cms.untracked.InputTag("simCaloStage2Digis"),
-    muonToken = cms.untracked.InputTag("simGmtStage2Digis"),
-    sumToken = cms.untracked.InputTag("simCaloStage2Digis",""),
-    maxL1Upgrade = cms.uint32(60)
-)
+# Stage-1 Ntuple will not contain muons, and might (investigating) miss some Taus.  (Work underway)
+process.l1UpgradeTree = cms.EDAnalyzer("L1UpgradeTreeProducer")
+if (eras.stage1L1Trigger.isChosen()):
+    process.l1UpgradeTree.egToken      = cms.untracked.InputTag("simCaloStage1FinalDigis")
+    process.l1UpgradeTree.tauToken     = cms.untracked.InputTag("simCaloStage1FinalDigis:rlxTaus")
+    process.l1UpgradeTree.jetToken     = cms.untracked.InputTag("simCaloStage1FinalDigis")
+    process.l1UpgradeTree.muonToken    = cms.untracked.InputTag("None")
+    process.l1UpgradeTree.sumToken     = cms.untracked.InputTag("simCaloStage1FinalDigis","")
+    process.l1UpgradeTree.maxL1Upgrade = cms.uint32(60)
+if (eras.stage2L1Trigger.isChosen()):
+    process.l1UpgradeTree.egToken      = cms.untracked.InputTag("simCaloStage2Digis")
+    process.l1UpgradeTree.tauToken     = cms.untracked.InputTag("simCaloStage2Digis")
+    process.l1UpgradeTree.jetToken     = cms.untracked.InputTag("simCaloStage2Digis")
+    process.l1UpgradeTree.muonToken    = cms.untracked.InputTag("simGmtStage2Digis")
+    process.l1UpgradeTree.sumToken     = cms.untracked.InputTag("simCaloStage2Digis","")
+    process.l1UpgradeTree.maxL1Upgrade = cms.uint32(60)
+
+
+if (eras.stage1L1Trigger.isChosen()):
+    process.l1tSummaryA.egToken   = cms.InputTag("caloStage1FinalDigis");
+    process.l1tSummaryA.tauToken  = cms.InputTag("caloStage1FinalDigis:rlxTaus");
+    process.l1tSummaryA.jetToken  = cms.InputTag("caloStage1FinalDigis");
+    process.l1tSummaryA.sumToken  = cms.InputTag("caloStage1FinalDigis");
+    process.l1tSummaryA.muonToken = cms.InputTag("None");
+    process.l1tSummaryA.muonCheck = cms.bool(False);
+if (eras.stage2L1Trigger.isChosen()):
+    process.l1tSummaryA.egToken   = cms.InputTag("caloStage2Digis");
+    process.l1tSummaryA.tauToken  = cms.InputTag("caloStage2Digis");
+    process.l1tSummaryA.jetToken  = cms.InputTag("caloStage2Digis");
+    process.l1tSummaryA.sumToken  = cms.InputTag("caloStage2Digis");
+    process.l1tSummaryA.muonToken = cms.InputTag("gmtStage2Digis","");
+
 
 process.L1TSeq = cms.Sequence(   process.RawToDigi        
                                    + process.L1TReEmulateFromRAW
 #                                   + process.dumpED
 #                                   + process.dumpES
 #                                   + process.l1tSummaryA
+# Comment this next module to silence per event dump of L1T objects:
                                    + process.l1tSummaryB
 #                                   + process.l1tGlobalAnalyzer
                                    + process.l1UpgradeTree

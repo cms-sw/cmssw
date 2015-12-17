@@ -13,15 +13,17 @@ void L1Analysis::L1AnalysisL1Upgrade::SetEm(const edm::Handle<l1t::EGammaBxColle
 {
   for (int ibx = em->getFirstBX(); ibx <= em->getLastBX(); ++ibx) {
     for (l1t::EGammaBxCollection::const_iterator it=em->begin(ibx); it!=em->end(ibx) && l1upgrade_.nEGs<maxL1Upgrade; it++){
-      l1upgrade_.egEt .push_back(it->pt());
-      l1upgrade_.egEta.push_back(it->eta());
-      l1upgrade_.egPhi.push_back(it->phi());
-      l1upgrade_.egIEt .push_back(it->hwPt());
-      l1upgrade_.egIEta.push_back(it->hwEta());
-      l1upgrade_.egIPhi.push_back(it->hwPhi());
-      l1upgrade_.egIso.push_back(it->hwIso());
-      l1upgrade_.egBx .push_back(ibx);
-      l1upgrade_.nEGs++;
+      if (it->pt() > 0){
+	l1upgrade_.egEt .push_back(it->pt());
+	l1upgrade_.egEta.push_back(it->eta());
+	l1upgrade_.egPhi.push_back(it->phi());
+	l1upgrade_.egIEt .push_back(it->hwPt());
+	l1upgrade_.egIEta.push_back(it->hwEta());
+	l1upgrade_.egIPhi.push_back(it->hwPhi());
+	l1upgrade_.egIso.push_back(it->hwIso());
+	l1upgrade_.egBx .push_back(ibx);
+	l1upgrade_.nEGs++;
+      }
     }
   }
 }
@@ -31,15 +33,17 @@ void L1Analysis::L1AnalysisL1Upgrade::SetTau(const edm::Handle<l1t::TauBxCollect
 {
   for (int ibx = tau->getFirstBX(); ibx <= tau->getLastBX(); ++ibx) {
     for (l1t::TauBxCollection::const_iterator it=tau->begin(ibx); it!=tau->end(ibx) && l1upgrade_.nTaus<maxL1Upgrade; it++){
-      l1upgrade_.tauEt .push_back(it->et());
-      l1upgrade_.tauEta.push_back(it->eta());
-      l1upgrade_.tauPhi.push_back(it->phi());
-      l1upgrade_.tauIEt .push_back(it->hwPt());
-      l1upgrade_.tauIEta.push_back(it->hwEta());
-      l1upgrade_.tauIPhi.push_back(it->hwPhi());
-      l1upgrade_.tauIso.push_back(it->hwIso());
-      l1upgrade_.tauBx .push_back(ibx);
-      l1upgrade_.nTaus++;
+      if (it->pt() > 0){
+	l1upgrade_.tauEt .push_back(it->et());
+	l1upgrade_.tauEta.push_back(it->eta());
+	l1upgrade_.tauPhi.push_back(it->phi());
+	l1upgrade_.tauIEt .push_back(it->hwPt());
+	l1upgrade_.tauIEta.push_back(it->hwEta());
+	l1upgrade_.tauIPhi.push_back(it->hwPhi());
+	l1upgrade_.tauIso.push_back(it->hwIso());
+	l1upgrade_.tauBx .push_back(ibx);
+	l1upgrade_.nTaus++;
+      }
     }
   }
 }
@@ -49,14 +53,16 @@ void L1Analysis::L1AnalysisL1Upgrade::SetJet(const edm::Handle<l1t::JetBxCollect
 {
   for (int ibx = jet->getFirstBX(); ibx <= jet->getLastBX(); ++ibx) {
     for (l1t::JetBxCollection::const_iterator it=jet->begin(ibx); it!=jet->end(ibx) && l1upgrade_.nJets<maxL1Upgrade; it++){
-      l1upgrade_.jetEt .push_back(it->et());
-      l1upgrade_.jetEta.push_back(it->eta());
-      l1upgrade_.jetPhi.push_back(it->phi());
-      l1upgrade_.jetIEt .push_back(it->hwPt());
-      l1upgrade_.jetIEta.push_back(it->hwEta());
-      l1upgrade_.jetIPhi.push_back(it->hwPhi());
-      l1upgrade_.jetBx .push_back(ibx);
-      l1upgrade_.nJets++;
+      if (it->pt() > 0){
+	l1upgrade_.jetEt .push_back(it->et());
+	l1upgrade_.jetEta.push_back(it->eta());
+	l1upgrade_.jetPhi.push_back(it->phi());
+	l1upgrade_.jetIEt .push_back(it->hwPt());
+	l1upgrade_.jetIEta.push_back(it->hwEta());
+	l1upgrade_.jetIPhi.push_back(it->hwPhi());
+	l1upgrade_.jetBx .push_back(ibx);
+	l1upgrade_.nJets++;
+      }
     }
   }
 }
@@ -66,17 +72,18 @@ void L1Analysis::L1AnalysisL1Upgrade::SetMuon(const edm::Handle<l1t::MuonBxColle
 {
   for (int ibx = muon->getFirstBX(); ibx <= muon->getLastBX(); ++ibx) {
     for (l1t::MuonBxCollection::const_iterator it=muon->begin(ibx); it!=muon->end(ibx) && l1upgrade_.nMuons<maxL1Upgrade; it++){
-      
-      l1upgrade_.muonEt .push_back(it->et());
-      l1upgrade_.muonEta.push_back(it->eta());
-      l1upgrade_.muonPhi.push_back(it->phi());
-      l1upgrade_.muonIEt .push_back(it->hwPt());
-      l1upgrade_.muonIEta.push_back(it->hwEta());
-      l1upgrade_.muonIPhi.push_back(it->hwPhi());
-      l1upgrade_.muonChg.push_back(0); //it->charge());
-      l1upgrade_.muonIso.push_back(it->hwIso());
-      l1upgrade_.muonBx .push_back(ibx);
-      l1upgrade_.nMuons++;
+      if (it->pt() > 0){
+	l1upgrade_.muonEt .push_back(it->et());
+	l1upgrade_.muonEta.push_back(it->eta());
+	l1upgrade_.muonPhi.push_back(it->phi());
+	l1upgrade_.muonIEt .push_back(it->hwPt());
+	l1upgrade_.muonIEta.push_back(it->hwEta());
+	l1upgrade_.muonIPhi.push_back(it->hwPhi());
+	l1upgrade_.muonChg.push_back(0); //it->charge());
+	l1upgrade_.muonIso.push_back(it->hwIso());
+	l1upgrade_.muonBx .push_back(ibx);
+	l1upgrade_.nMuons++;
+      }
     }
   }
 }
