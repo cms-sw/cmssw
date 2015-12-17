@@ -13,7 +13,6 @@ def customiseSimL1EmulatorForStage1(process):
     process.load("EventFilter.L1TRawToDigi.caloStage1Digis_cfi")
     process.load("L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi")
 
-    process.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
     process.load('L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi')
     process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
 
