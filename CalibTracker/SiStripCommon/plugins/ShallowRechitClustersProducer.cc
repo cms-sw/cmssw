@@ -57,21 +57,21 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     BOOST_FOREACH( const SiStripRecHit2DCollection::value_type& ds, *recHits) {
       BOOST_FOREACH( const SiStripRecHit2D& hit, ds) {
 	
-	shallow::CLUSTERMAP::iterator cluster = clustermap.find( std::make_pair(hit.geographicalId().rawId(), hit.cluster()->firstStrip()   ) );
-	if(cluster != clustermap.end() ) {
-	  const StripGeomDetUnit* theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTrackerGeometry->idToDet( hit.geographicalId() ) );
-	  unsigned int i = cluster->second;
-	  strip->at(i)  =    theStripDet->specificTopology().strip(hit.localPosition());
-	  merr->at(i)   =    sqrt(theStripDet->specificTopology().measurementError(hit.localPosition(), hit.localPositionError()).uu());
-	  localx->at(i) =    hit.localPosition().x();
-	  localy->at(i) =    hit.localPosition().y();
-	  localxerr->at(i) = sqrt(hit.localPositionError().xx());
-	  localyerr->at(i) = sqrt(hit.localPositionError().yy());
-	  globalx->at(i) =   theStripDet->toGlobal(hit.localPosition()).x();
-	  globaly->at(i) =   theStripDet->toGlobal(hit.localPosition()).y();
-	  globalz->at(i) =   theStripDet->toGlobal(hit.localPosition()).z();
-	}
-	else {throw cms::Exception("cluster not found");}
+				shallow::CLUSTERMAP::iterator cluster = clustermap.find( std::make_pair(hit.geographicalId().rawId(), hit.cluster()->firstStrip()   ) );
+				if(cluster != clustermap.end() ) {
+					const StripGeomDetUnit* theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTrackerGeometry->idToDet( hit.geographicalId() ) );
+					unsigned int i = cluster->second;
+					strip->at(i)  =    theStripDet->specificTopology().strip(hit.localPosition());
+					merr->at(i)   =    sqrt(theStripDet->specificTopology().measurementError(hit.localPosition(), hit.localPositionError()).uu());
+					localx->at(i) =    hit.localPosition().x();
+					localy->at(i) =    hit.localPosition().y();
+					localxerr->at(i) = sqrt(hit.localPositionError().xx());
+					localyerr->at(i) = sqrt(hit.localPositionError().yy());
+					globalx->at(i) =   theStripDet->toGlobal(hit.localPosition()).x();
+					globaly->at(i) =   theStripDet->toGlobal(hit.localPosition()).y();
+					globalz->at(i) =   theStripDet->toGlobal(hit.localPosition()).z();
+				}
+				else {throw cms::Exception("cluster not found");}
       }
     }
   }

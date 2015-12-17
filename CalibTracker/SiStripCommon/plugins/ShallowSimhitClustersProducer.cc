@@ -79,21 +79,21 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
       shallow::CLUSTERMAP::const_iterator cluster = match_cluster( id, driftedstrip_, clustermap, *clusters); 
       if(cluster != clustermap.end()) {
-	unsigned i = cluster->second;
-	hits->at(i)+=1;
-	if(hits->at(i) == 1) {
-	  strip->at(i) = hitstrip_;
-	  localtheta->at(i) = hit.thetaAtEntry();
-	  localphi->at(i) = hit.phiAtEntry();
-	  localx->at(i) = hit.localPosition().x();
-	  localy->at(i) = hit.localPosition().y();
-	  localz->at(i) = hit.localPosition().z();
-	  momentum->at(i) = hit.pabs();
-	  energyloss->at(i) = hit.energyLoss();
-	  time->at(i) = hit.timeOfFlight();
-	  particle->at(i) = hit.particleType();
-	  process->at(i) = hit.processType();
-	}
+				unsigned i = cluster->second;
+				hits->at(i)+=1;
+				if(hits->at(i) == 1) {
+					strip->at(i) = hitstrip_;
+					localtheta->at(i) = hit.thetaAtEntry();
+					localphi->at(i) = hit.phiAtEntry();
+					localx->at(i) = hit.localPosition().x();
+					localy->at(i) = hit.localPosition().y();
+					localz->at(i) = hit.localPosition().z();
+					momentum->at(i) = hit.pabs();
+					energyloss->at(i) = hit.energyLoss();
+					time->at(i) = hit.timeOfFlight();
+					particle->at(i) = hit.particleType();
+					process->at(i) = hit.processType();
+				}
       }    
     } 
   }
@@ -121,7 +121,7 @@ match_cluster( const unsigned& id, const float& strip_, const shallow::CLUSTERMA
     while( right != clustersDetSet->end() && strip_ > right->barycenter() ) 
       right++;
     left = right-1;
-    if(right!=clustersDetSet->end() && right!=clustersDetSet->begin()) {
+    if(right!=clustersDetSet->end() && right!=clustersDetSet->begin()) { 
       unsigned firstStrip = (right->barycenter()-strip_) < (strip_-left->barycenter()) ? right->firstStrip() : left->firstStrip();
       cluster = clustermap.find( std::make_pair( id, firstStrip));
     }
