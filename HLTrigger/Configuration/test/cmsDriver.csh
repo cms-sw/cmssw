@@ -85,8 +85,8 @@ foreach gtag ( MC DATA )
     continue
   endif
 
-  foreach table ( GRun 50nsGRun HIon PIon 25nsLowPU LowPU 25ns14e33_v4 25ns14e33_v3 50ns_5e33_v3 25ns14e33_v1 50ns_5e33_v1 Fake )
-# foreach table ( GRun 50nsGRun HIon PIon LowPU 25ns14e33_v3 50ns_5e33_v3 Fake )
+# foreach table ( GRun 50nsGRun HIon PIon PRef 25nsLowPU LowPU HIon_2015_v2 pp5TeV_2015_v2 25ns14e33_v4 25ns14e33_v3 50ns_5e33_v3 25ns14e33_v1 50ns_5e33_v1 Fake )
+  foreach table ( GRun HIon PIon PRef Fake )
 
     set name = ${table}_${gtag}  
 
@@ -210,6 +210,18 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun2HI
       set Custom = " "
       set L1REPACK = L1REPACK:GCTGT
+    else if ( $table == HIon_2015_v2 ) then
+      set XL1T = $XL1THI
+      set XHLT = HLT:HIon_2015_v2
+      set GTAG = ${BASE2}_HIon_2015_v2
+      set RTAG = ${BASE2RD}_HIon_2015_v2
+      set NN   = $NNHI
+      set SCEN = HeavyIons
+      set InputGenSim = $InputGenSimHIon
+      set InputLHCRaw = $InputLHCRawHIon
+      set Era  = $EraRun2HI
+      set Custom = " "
+      set L1REPACK = L1REPACK:GCTGT
     else if ( $table == PIon ) then
       set XL1T = $XL1TPI
       set XHLT = HLT:PIon
@@ -219,6 +231,30 @@ foreach gtag ( MC DATA )
       set SCEN = pp
       set InputGenSim = $InputGenSimPIon
       set InputLHCRaw = $InputLHCRawPIon
+      set Era  = $EraRun2pp
+      set Custom = " "
+      set L1REPACK = L1REPACK:GCTGT
+    else if ( $table == PRef ) then
+      set XL1T = $XL1TPP3
+      set XHLT = HLT:PRef
+      set GTAG = ${BASE2}_PRef
+      set RTAG = ${BASE2RD}_PRef
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun2
+      set InputLHCRaw = $InputLHCRawGRun
+      set Era  = $EraRun2pp
+      set Custom = " "
+      set L1REPACK = L1REPACK:GCTGT
+    else if ( $table == pp5TeV_2015_v2 ) then
+      set XL1T = $XL1TPP3
+      set XHLT = HLT:pp5TeV_2015_v2
+      set GTAG = ${BASE2}_pp5TeV_2015_v2
+      set RTAG = ${BASE2RD}_pp5TeV_2015_v2
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun2
+      set InputLHCRaw = $InputLHCRawGRun
       set Era  = $EraRun2pp
       set Custom = " "
       set L1REPACK = L1REPACK:GCTGT

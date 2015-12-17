@@ -3,18 +3,10 @@ globalTag = {
   'Fake': 'auto:run1_mc_Fake',
   'FULL': 'auto:run2_mc_FULL',
   'GRun': 'auto:run2_mc_GRun',       # used as default
-  '25ns14e33_v4': 'auto:run2_mc_25ns14e33_v4',
-  '25ns14e33_v3': 'auto:run2_mc_25ns14e33_v3',
-  '50ns_5e33_v3': 'auto:run2_mc_50ns_5e33_v3',
-  '25ns14e33_v1': 'auto:run2_mc_25ns14e33_v1',
-  '50ns_5e33_v1': 'auto:run2_mc_50ns_5e33_v1',
-  '50nsGRun': 'auto:run2_mc_50nsGRun',
-  '50ns' : 'auto:run2_mc_50nsGRun',
   'HIon' : 'auto:run2_mc_HIon',
   'PIon' : 'auto:run2_mc_PIon',
-  'LowPU': 'auto:run2_mc_LowPU',
-  '25nsLowPU': 'auto:run2_mc_25nsLowPU',
-  'data' : 'auto:run1_hlt',
+  'PRef' : 'auto:run2_mc_PRef',
+  'data' : 'auto:run2_hlt',
 }
 
 
@@ -116,7 +108,7 @@ class HLTProcessOptions(object):
   def __init__(self):
     self.menu       = None        #     hlt menu
     self.name       = 'HLTX'      # (*) if set, override the process name
-    self.type       = 'GRun'      #     defines global options for 'GRun', 'HIon', 'PIon' or 'online' menus
+    self.type       = 'GRun'      #     defines global options for 'GRun', 'HIon', 'PIon', 'PRef' or 'online' menus
     self.data       = True        #     run on data (true) or mc (false)
     self.online     = False       # (*) run online (true) or offline (false)
     self.globaltag  = None        # (*) if set, override the GlobalTag

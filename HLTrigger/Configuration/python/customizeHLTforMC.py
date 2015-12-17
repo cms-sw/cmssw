@@ -25,8 +25,8 @@ def customizeHLTforMC(process,_fastSim=False):
     process.hltHbhereco.timeSlewParsType        = cms.int32( 3 )
     # new time slew parametrisation
     process.hltHbhereco.timeSlewPars            = cms.vdouble( 12.2999, -2.19142, 0, 12.2999, -2.19142, 0, 12.2999, -2.19142, 0 )
-    # new response correction, matching Method 2
-    process.hltHbhereco.respCorrM3              = cms.double( 0.95 )
+    # old response correction, matching the 2015D 25ns data
+    process.hltHbhereco.respCorrM3              = cms.double( 1.0 )
 
 
   if _fastSim:
@@ -50,9 +50,6 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLT_L1SingleMuOpen_AntiBPTX_v*",
       "HLT_JetE*_NoBPTX*_v*",
       "HLT_L2Mu*_NoBPTX*_v*",
-      "HLT_PixelTracks_Multiplicity70_v*",
-      "HLT_PixelTracks_Multiplicity80_v*",
-      "HLT_PixelTracks_Multiplicity90_v*",
       "HLT_Beam*_v*",
       #"HLT_L1Tech_*_v*",
       "HLT_HI*",
@@ -79,6 +76,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLT_HT250_DisplacedDijet40_DisplacedTrack_v*",
       "HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_v*",
       "HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v*",
+      "HLT_MET60_IsoTrk*",
       "HLT_MET75_IsoTrk50_v*",
       "HLT_MET90_IsoTrk50_v*",
       "HLT_VBF_DisplacedJet40_DisplacedTrack_v*",
@@ -98,7 +96,6 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLT_DoubleMu18NoFiltersNoVtx_v*",
       "HLT_DoubleMuNoFiltersNoVtx_SaveObjects_v*",
       "MC_DoubleMuNoFiltersNoVtx_v*",
-      "HLT_MET60_IsoTrk*",
       "HLT_L1MuOpenNotHF2Pixel_SingleTrack*",
       "HLT_L1TOTEM0_RomanPotsAND_PixelClusters*",
       )
@@ -299,6 +296,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLTIterativeTrackingForHighPt",
       "HLTIterativeTrackingTau3Mu",
       "HLTIterativeTrackingReg",
+      "HLTIterativeTrackingForPA",
       "HLTIterativeTrackingForElectronIter02",
       "HLTIterativeTrackingForPhotonsIter02",
       "HLTIterativeTrackingL3MuonIter02",
@@ -447,6 +445,7 @@ def customizeHLTforMC(process,_fastSim=False):
       ('hltIter2DisplacedNRMuMuMerged', 'generalTracks'),
       ('hltIter0PFlowTrackSelectionHighPurityForBTag', 'generalTracks'),
       ('hltIter4HighPtMerged', 'generalTracks'),
+      ('hltIterativeTrackingForPAMerged', 'generalTracks'),
 
       ('hltRegionalTracksForL3MuonIsolation', 'hltPixelTracks'),
 
