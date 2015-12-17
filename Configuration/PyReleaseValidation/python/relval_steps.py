@@ -916,11 +916,13 @@ steps['RECOCOSD']=merge([{'--scenario':'cosmics',
                           },dataReco])
 
 step2HImixDefaults=merge([{'-n':'2', #too slow for 10 events/hour
-                           '--pileup':'HiMix',                        
-                           },hiDefaults,step1Up2015Defaults])
-steps['Pyquen_GammaJet_pt20_2760GeV']=merge([{'cfg':'Pyquen_GammaJet_pt20_2760GeV_cfi','--beamspot':'MatchHI', '--pileup':'HiMixGEN'},PUHI,step2HImixDefaults])
-steps['Pyquen_DiJet_pt80to120_2760GeV']=merge([{'cfg':'Pyquen_DiJet_pt80to120_2760GeV_cfi','--beamspot':'MatchHI', '--pileup':'HiMixGEN'},PUHI,step2HImixDefaults])
-steps['Pyquen_ZeemumuJets_pt10_2760GeV']=merge([{'cfg':'Pyquen_ZeemumuJets_pt10_2760GeV_cfi','--beamspot':'MatchHI', '--pileup':'HiMixGEN'},PUHI,step2HImixDefaults])
+                           '--pileup':'HiMixGEN',
+                           '--beamspot':'MatchHI'             
+                           },PUHI,hiDefaults,step1Up2015Defaults])
+
+steps['Pyquen_GammaJet_pt20_2760GeV']=merge([step2HImixDefaults,gen2015('Pyquen_GammaJet_pt20_2760GeV_cfi',U2000by1)])
+steps['Pyquen_DiJet_pt80to120_2760GeV']=merge([step2HImixDefaults,gen2015('Pyquen_DiJet_pt80to120_2760GeV_cfi',U2000by1)])
+steps['Pyquen_ZeemumuJets_pt10_2760GeV']=merge([step2HImixDefaults,gen2015('Pyquen_ZeemumuJets_pt10_2760GeV_cfi',U2000by1)])
 
 # step3 
 step3Defaults = {
