@@ -21,6 +21,11 @@ workflows[300]=['',['Pyquen_GammaJet_pt20_2760GeV','DIGIHIMIX','RECOHIMIX','HARV
 workflows[301]=['',['Pyquen_DiJet_pt80to120_2760GeV','DIGIHIMIX','RECOHIMIX','HARVESTHI']]
 workflows[302]=['',['Pyquen_ZeemumuJets_pt10_2760GeV','DIGIHIMIX','RECOHIMIX','HARVESTHI']]
 
+# HI ppRef PU workflows
+workflows[346.1] = ['',['QCD_Pt_80_120_5020GeV','DIGIHIppRefPU','RECOHIppRefPU','HARVESTHIppRefPU']]
+workflows[346.2] = ['',['PhotonJets_Pt_10_5020GeV','DIGIHIppRefPU','RECOHIppRefPU','HARVESTHIppRefPU']]
+workflows[346.4] = ['',['ZEEMM_5020GeV','DIGIHIppRefPU','RECOHIppRefPU','HARVESTHIppRefPU']]
+
 # 50 ns at 13 TeV and POSTLS1
 workflows[50200]=['',['ZEE_13','DIGIUP15_PU50','RECOUP15_PU50','HARVESTUP15_PU50']]
 workflows[50202]=['',['TTbar_13','DIGIUP15_PU50','RECOUP15_PU50','HARVESTUP15_PU50']]

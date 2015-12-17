@@ -246,7 +246,9 @@ baseDataSetRelease=[
     'CMSSW_7_5_3_patch1-PU50ns_75X_mcRun2_startup_v6_newCond-v1',            # 6 - fullSim PU 50ns premix
     'CMSSW_7_5_3-75X_mcRun2_asymptotic_v5_FastSim-v1',        # 7 - fastSim MinBias for mixing
     'CMSSW_7_5_3-PU25ns_75X_mcRun2_asymptotic_v5_FastSim-v1', # 8 - fastSim premixed MinBias 
-    'CMSSW_7_5_8_patch1-75X_mcRun2_HeavyIon_v12-v1'                   # 9 - Run2 HI GEN-SIM    
+    'CMSSW_7_5_8_patch1-75X_mcRun2_HeavyIon_v12-v1',          # 9 - Run2 HI GEN-SIM   
+    'CMSSW_7_5_8_patch1-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1' # 10 - HI ppRef at 5.02TeV GEN-SIM input 
+    
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -339,6 +341,12 @@ steps['SingleMuPt10_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10_
 steps['SingleMuPt100_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt100_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['SingleMuPt1000_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['NuGun_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValNuGun_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+
+
+# input for HI ppRef workflows
+steps['QCD_Pt_80_120_5020GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_80_120_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
+steps['PhotonJets_Pt_10_5020GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValPhotonJets_Pt_10_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
+steps['ZEEMM_5020GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValZEEMM_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 
 #input for fast sim workflows to be added - TODO
 
@@ -780,6 +788,12 @@ steps['DIGIHIppRef']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relvalPRef,
                         '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
                         }, HIppRefDefaults, step2Upg2015Defaults])
 
+PUHIppRef={'-n':10,'--pileup':'pp5TeV_Poisson_1p5','--pileup_input':'das:/RelValMiniBias_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[10],)}
+
+steps['DIGIHIppRefPU']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relvalPRef,RAW2DIGI,L1Reco',
+                        '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
+                        },PUHIppRef,HIppRefDefaults,step2Upg2015Defaults])
+
 # PRE-MIXING : https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideSimulation#Pre_Mixing_Instructions
 premixUp2015Defaults = {
     '--evt_type'    : 'SingleNuE10_cfi',
@@ -1045,6 +1059,9 @@ steps['RECOHIppRef']=merge([{'--customise'   :'SLHCUpgradeSimulations/Configurat
 
 steps['RECOHIppRefMB']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias,VALIDATION,DQM'},steps['RECOHIppRef']])
 
+steps['RECOHIppRefPU']=merge([{'--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
+                     },PUHIppRef,HIppRefDefaults,step3Up2015Defaults])
+
 #steps['RECOFS']=merge([{'--fast':'',
 #                        '-s':'RECO,EI,HLT:@fake,VALIDATION'},
 #                       steps['RECO']])
@@ -1210,13 +1227,6 @@ steps['HARVESTHI2011']=merge([hiDefaults2011,{'-s':'HARVESTING:validationHarvest
                                               '--mc':'',
                                               '--filetype':'DQM'}])
 
-steps['HARVESTHIppRef']=merge([HIppRefDefaults,{
-              '-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM', 
-              '--mc':'',
-              '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-              '--filetype':'DQM',
-    }])
-
 
 steps['HARVESTUP15']={
     # '-s':'HARVESTING:validationHarvesting+dqmHarvesting', # todo: remove UP from label
@@ -1231,6 +1241,11 @@ steps['HARVESTUP15']={
 steps['HARVESTUP15_PU25']=steps['HARVESTUP15']
 
 steps['HARVESTUP15_PU50']=merge([{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns,SLHCUpgradeSimulations/Configuration/postLS1Customs.customise_New_HCAL','--conditions':'auto:run2_mc_'+autoHLT['relval50ns']},steps['HARVESTUP15']])
+
+
+steps['HARVESTHIppRef']=merge([{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},HIppRefDefaults,steps['HARVESTUP15']])
+
+steps['HARVESTHIppRefPU']=steps['HARVESTHIppRef']
 
 # unSchHarvestOverrides={'-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM'}
 # steps['HARVESTmAODUP15']=merge([unSchHarvestOverrides,steps['HARVESTUP15']])
