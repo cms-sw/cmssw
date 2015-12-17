@@ -30,6 +30,7 @@ hcalSimBlock = cms.PSet(
     useOldHO = cms.bool(True),
     HBHEUpgradeQIE = cms.bool(True),
     HFUpgradeQIE   = cms.bool(False),
+    HFQIE10        = cms.bool(False),
     #HPDNoiseLibrary = cms.PSet(
     #   FileName = cms.FileInPath("SimCalorimetry/HcalSimAlgos/data/hpdNoiseLibrary.root"),
     #   HPDName = cms.untracked.string("HPD")

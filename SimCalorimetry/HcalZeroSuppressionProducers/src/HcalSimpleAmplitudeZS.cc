@@ -23,6 +23,7 @@ HcalSimpleAmplitudeZS::HcalSimpleAmplitudeZS(edm::ParameterSet const& conf):
   tok_hf_ = consumes<HFDigiCollection>(edm::InputTag(inputLabel_));
     tok_hbheUpgrade_ = consumes<HBHEUpgradeDigiCollection>(edm::InputTag(inputLabel_, "HBHEUpgradeDigiCollection"));
     tok_hfUpgrade_ = consumes<HFUpgradeDigiCollection>(edm::InputTag(inputLabel_, "HFUpgradeDigiCollection"));
+    tok_hfQIE10_ = consumes<QIE10DigiCollection>(edm::InputTag(inputLabel_, "HFQIE10DigiCollection"));
 
   const edm::ParameterSet& psHBHE=conf.getParameter<edm::ParameterSet>("hbhe");
   bool markAndPass=psHBHE.getParameter<bool>("markAndPass");
@@ -62,7 +63,12 @@ HcalSimpleAmplitudeZS::HcalSimpleAmplitudeZS(edm::ParameterSet const& conf):
 								  psHF.getParameter<int>("samplesToAdd"),
 								  psHF.getParameter<bool>("twoSided")));
   produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");  
-  
+  hfQIE10_=std::auto_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(markAndPass,	
+								  psHF.getParameter<int>("level"),
+								  psHF.getParameter<int>("firstSample"),
+								  psHF.getParameter<int>("samplesToAdd"),
+								  psHF.getParameter<bool>("twoSided")));
+  produces<QIE10DigiCollection>("HFQIE10DigiCollection");  
 }
     
 HcalSimpleAmplitudeZS::~HcalSimpleAmplitudeZS() {
@@ -154,6 +160,22 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
     // return result
     e.put(zs, "HFUpgradeDigiCollection");     
     hfUpgrade_->done();
+  }
+  {
+    hfQIE10_->prepare(&(*conditions));
+    edm::Handle<QIE10DigiCollection> digi;
+    e.getByToken(tok_hfUpgrade_,digi);
+    
+    // create empty output
+    std::auto_ptr<QIE10DigiCollection> zs(new QIE10DigiCollection);
+    // run the algorithm
+    hfQIE10_->suppress(*(digi.product()),*zs);
+
+    edm::LogInfo("HcalZeroSuppression") << "Suppression (HFQIE10) input " << digi->size() << " digis, output " << zs->size() << " digis";
+
+    // return result
+    e.put(zs, "HFQIE10DigiCollection");     
+    hfQIE10_->done();
   }
 
 }

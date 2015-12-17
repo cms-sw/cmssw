@@ -43,9 +43,11 @@ public:
   void swap(DataFrameContainer& other) {this->DataFrameContainer::swap(other);}
 
   //helpful accessors
+  using edm::DataFrameContainer::push_back;
   Digi backDataFrame() { return Digi(this->back()); }
   int samples() const { return int((stride()-Digi::HEADER_WORDS-Digi::FLAG_WORDS)/Digi::WORDS_PER_SAMPLE); }
   void addDataFrame(DetId detid, const uint16_t* data) { push_back(detid.rawId(),data); }
+  void push_back(const Digi& digi){ push_back(digi.id(), digi.begin()); }
 };
 
 typedef HcalDataFrameContainer<QIE10DataFrame> QIE10DigiCollection;
