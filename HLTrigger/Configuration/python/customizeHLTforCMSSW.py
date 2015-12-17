@@ -23,34 +23,25 @@ def customiseFor11920(process):
         if hasattr(process.CaloTowerGeometryFromDBEP,'hcalTopologyConstants'):
             delattr(process.CaloTowerGeometryFromDBEP,'hcalTopologyConstants')
     return process
-def customiseFor12346(process):
 
+def customiseFor12346(process):
     if hasattr(process, 'hltMetCleanUsingJetID'):
        if hasattr(process.hltMetCleanUsingJetID, 'usePt'):
            delattr(process.hltMetCleanUsingJetID, 'usePt')
     return process
 
 def customiseFor12718(process):
-    if hasattr(process, 'HLTPSetMuonCkfTrajectoryFilter'):
-        process.HLTPSetMuonCkfTrajectoryFilter.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
-    if hasattr(process, 'HLTIter0PSetTrajectoryFilterIT'):
-        process.HLTIter0PSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
-    if hasattr(process, 'HLTIter1PSetTrajectoryFilterIT'):
-        process.HLTIter1PSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
-    if hasattr(process, 'HLTIter2PSetTrajectoryFilterIT'):
-        process.HLTIter2PSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
-    if hasattr(process, 'HLTPSetTrajectoryFilterForElectrons'):
-        process.HLTPSetTrajectoryFilterForElectrons.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
-    if hasattr(process, 'process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT'):
-        process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
-    if hasattr(process, 'HLTIter2HighPtTkMuPSetTrajectoryFilterIT'):
-        process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
-    if hasattr(process, 'HLTPSetMuTrackJpsiTrajectoryFilter'):
-        process.HLTPSetMuTrackJpsiTrajectoryFilter.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
-    if hasattr(process, 'HLTIter4PSetTrajectoryFilterIT'):
-        process.HLTIter4PSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
-    if hasattr(process, 'HLTIter3PSetTrajectoryFilterIT'):
-        process.HLTIter3PSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+    for pset in process._Process__psets.values():
+        if hasattr(pset,'ComponentType'):
+            if (pset.ComponentType == 'CkfBaseTrajectoryFilter'):
+                if not hasattr(pset,'minGoodStripCharge'):
+                    pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+    return process
+
+def customiseFor12387(process):
+    for producer in producers_by_type(process, 'SiStripRawToDigiModule'):
+        if not hasattr(producer,'LegacyUnpacker'):
+            setattr(producer,'LegacyUnpacker',cms.bool(False))
     return process
 
 #
@@ -63,5 +54,6 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
         process = customiseFor12346(process)
         process = customiseFor11920(process)
         process = customiseFor12718(process)
+        process = customiseFor12387(process)
 
     return process
