@@ -44,7 +44,7 @@ namespace edm {
       ///returns true if found an EDProducer and ran it
       bool tryToFill(std::string const& label,
                      EventPrincipal& iEvent,
-                     ModuleCallingContext const* mcc);
+                     ModuleCallingContext const* mcc) const;
 
       void setEventSetup(EventSetup const& iSetup) {
          m_setup = &iSetup;
@@ -54,7 +54,7 @@ namespace edm {
       virtual bool tryToFillImpl(std::string const&,
                                  EventPrincipal&,
                                  EventSetup const&,
-                                 ModuleCallingContext const* mcc) = 0;
+                                 ModuleCallingContext const* mcc) const = 0;
       // ---------- member data --------------------------------
       EventSetup const* m_setup;
    };
