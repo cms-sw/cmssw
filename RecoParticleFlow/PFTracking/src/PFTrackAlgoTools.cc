@@ -6,10 +6,13 @@ namespace PFTrackAlgoTools {
     case reco::TrackBase::ctf:
     case reco::TrackBase::duplicateMerge:
     case reco::TrackBase::initialStep:
+    case reco::TrackBase::highPtTripletStep:
+    case reco::TrackBase::lowPtQuadStep:
     case reco::TrackBase::lowPtTripletStep:
     case reco::TrackBase::pixelPairStep:
     case reco::TrackBase::jetCoreRegionalStep:
       return cuts[0];
+    case reco::TrackBase::detachedQuadStep:
     case reco::TrackBase::detachedTripletStep:
       return cuts[1];
     case reco::TrackBase::mixedTripletStep:
@@ -44,10 +47,13 @@ namespace PFTrackAlgoTools {
     case reco::TrackBase::ctf:
     case reco::TrackBase::duplicateMerge:
     case reco::TrackBase::initialStep:
+    case reco::TrackBase::highPtTripletStep:
+    case reco::TrackBase::lowPtQuadStep:
     case reco::TrackBase::lowPtTripletStep:
     case reco::TrackBase::pixelPairStep:
     case reco::TrackBase::jetCoreRegionalStep:
       return cuts[0];
+    case reco::TrackBase::detachedQuadStep:
     case reco::TrackBase::detachedTripletStep:
       return cuts[1];
     case reco::TrackBase::mixedTripletStep:
@@ -82,11 +88,14 @@ namespace PFTrackAlgoTools {
     case reco::TrackBase::ctf:
     case reco::TrackBase::duplicateMerge:
     case reco::TrackBase::initialStep:
+    case reco::TrackBase::highPtTripletStep:
+    case reco::TrackBase::lowPtQuadStep:
     case reco::TrackBase::lowPtTripletStep:
     case reco::TrackBase::pixelPairStep:
     case reco::TrackBase::jetCoreRegionalStep:
     case reco::TrackBase::muonSeededStepInOut:
     case reco::TrackBase::muonSeededStepOutIn:
+    case reco::TrackBase::detachedQuadStep:
     case reco::TrackBase::detachedTripletStep:
     case reco::TrackBase::mixedTripletStep:
     case reco::TrackBase::hltIter0:
@@ -113,9 +122,12 @@ bool isGoodForEGM(const reco::TrackBase::TrackAlgorithm& algo){
   case reco::TrackBase::ctf:
   case reco::TrackBase::duplicateMerge:
   case reco::TrackBase::initialStep:
+  case reco::TrackBase::highPtTripletStep:
+  case reco::TrackBase::lowPtQuadStep:
   case reco::TrackBase::lowPtTripletStep:
   case reco::TrackBase::pixelPairStep:
   case reco::TrackBase::jetCoreRegionalStep:
+  case reco::TrackBase::detachedQuadStep:
   case reco::TrackBase::detachedTripletStep:
   case reco::TrackBase::mixedTripletStep:
   case reco::TrackBase::muonSeededStepInOut:
@@ -139,8 +151,11 @@ bool isGoodForEGMPrimary(const reco::TrackBase::TrackAlgorithm& algo){
   case reco::TrackBase::duplicateMerge:
   case reco::TrackBase::cosmics:
   case reco::TrackBase::initialStep:
+  case reco::TrackBase::highPtTripletStep:
+  case reco::TrackBase::lowPtQuadStep:
   case reco::TrackBase::lowPtTripletStep:
   case reco::TrackBase::pixelPairStep:
+  case reco::TrackBase::detachedQuadStep:
   case reco::TrackBase::detachedTripletStep:
   case reco::TrackBase::mixedTripletStep:
     return true;
@@ -155,9 +170,12 @@ bool isFifthStep(const reco::TrackBase::TrackAlgorithm& algo){
   case reco::TrackBase::ctf:
   case reco::TrackBase::duplicateMerge:
   case reco::TrackBase::initialStep:
+  case reco::TrackBase::highPtTripletStep:
+  case reco::TrackBase::lowPtQuadStep:
   case reco::TrackBase::lowPtTripletStep:
   case reco::TrackBase::pixelPairStep:
   case reco::TrackBase::jetCoreRegionalStep:
+  case reco::TrackBase::detachedQuadStep:
   case reco::TrackBase::detachedTripletStep:
   case reco::TrackBase::mixedTripletStep:
   case reco::TrackBase::pixelLessStep:
@@ -182,8 +200,11 @@ bool isFifthStep(const reco::TrackBase::TrackAlgorithm& algo){
 bool highQuality(const reco::TrackBase::TrackAlgorithm& algo){
   switch (algo) {
   case reco::TrackBase::initialStep:
+  case reco::TrackBase::highPtTripletStep:
+  case reco::TrackBase::lowPtQuadStep:
   case reco::TrackBase::lowPtTripletStep:
   case reco::TrackBase::pixelPairStep:
+  case reco::TrackBase::detachedQuadStep:
   case reco::TrackBase::detachedTripletStep:
   case reco::TrackBase::duplicateMerge:
   case reco::TrackBase::jetCoreRegionalStep:
