@@ -54,6 +54,8 @@ private:
   std::vector<std::string>   triggerNames_;
   edm::InputTag triggerResultsTag_;
   edm::InputTag triggerEventTag_;
+  const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+  const edm::EDGetTokenT<trigger::TriggerEvent> triggerEventToken_;
 
   edm::Handle<edm::TriggerResults>   triggerResultsHandle_;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle_;
@@ -93,7 +95,9 @@ TriggerObjectAnalyzer::TriggerObjectAnalyzer(const edm::ParameterSet& ps):
   processName_(ps.getParameter<std::string>("processName")),
   triggerNames_(ps.getParameter<std::vector<std::string> >("triggerNames")),
   triggerResultsTag_(ps.getParameter<edm::InputTag>("triggerResults")),
-  triggerEventTag_(ps.getParameter<edm::InputTag>("triggerEvent"))
+  triggerEventTag_(ps.getParameter<edm::InputTag>("triggerEvent")),
+  triggerResultsToken_(consumes<edm::TriggerResults>(triggerResultsTag_)),
+  triggerEventToken_(consumes<trigger::TriggerEvent>(triggerEventTag_))
 {
   //now do what ever initialization is needed
   nt_.reserve(triggerNames_.size());
@@ -169,15 +173,17 @@ TriggerObjectAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  }
 	}
       }
-      nt_[itrig]->Fill();
-      id[itrig].clear();
-      pt[itrig].clear();
-      eta[itrig].clear();
-      phi[itrig].clear();
-      mass[itrig].clear();
     }
 
     //nt_[0]->Fill(id,pt,eta,phi,mass);
+  }
+  for(unsigned int itrig=0; itrig<triggerNames_.size(); itrig++){
+	  nt_[itrig]->Fill();
+	  id[itrig].clear();
+	  pt[itrig].clear();
+	  eta[itrig].clear();
+	  phi[itrig].clear();
+	  mass[itrig].clear();
   }
 }
 

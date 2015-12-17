@@ -161,6 +161,7 @@ process.jetSequences = cms.Sequence(
 # Event Analysis
 ############################
 process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_data_cfi')
+process.load('HeavyIonsAnalysis.EventAnalysis.hltobject_PbPb_cfi')
 process.load('HeavyIonsAnalysis.EventAnalysis.hltanalysis_cff')
 from HeavyIonsAnalysis.EventAnalysis.dummybranches_cff import addHLTdummybranches
 addHLTdummybranches(process)
@@ -206,6 +207,7 @@ process.load("HeavyIonsAnalysis.VectorBosonAnalysis.tupelSequence_PbPb_cff")
 #########################
 
 process.ana_step = cms.Path(process.hltanalysis *
+			    process.hltobject *
                             process.centralityBin *
                             process.hiEvtAnalyzer*
                             process.jetSequences +
