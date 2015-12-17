@@ -27,7 +27,7 @@ namespace edm {
       WorkerLookup() = default;
       
       using worker_container = std::vector<Worker*>;
-      using iterator = worker_container::iterator;
+      using const_iterator = worker_container::const_iterator;
 
       void add(Worker* iWorker) {
         auto const& label = iWorker->description().moduleLabel();
@@ -47,8 +47,8 @@ namespace edm {
         return m_values[found->second];
       }
       
-      iterator begin() { return m_values.begin(); }
-      iterator end() { return m_values.end(); }
+      const_iterator begin() const { return m_values.begin(); }
+      const_iterator end() const { return m_values.end(); }
       
     private:
       //second element is the index of the key in m_values
@@ -64,7 +64,7 @@ namespace edm {
 
     template <typename T, typename U>
     void runNow(typename T::MyPrincipal& p, EventSetup const& es, StreamID streamID,
-                typename T::Context const* topContext, U const* context) {
+                typename T::Context const* topContext, U const* context) const {
       //do nothing for event since we will run when requested
       if(!T::isEvent_) {
         for(auto worker: workerLookup_) {
@@ -109,7 +109,7 @@ namespace edm {
     virtual bool tryToFillImpl(std::string const& moduleLabel,
                                EventPrincipal& event,
                                EventSetup const& eventSetup,
-                               ModuleCallingContext const* mcc) {
+                               ModuleCallingContext const* mcc) const override {
       auto worker =
         workerLookup_.find(moduleLabel);
       if(worker != nullptr) {
