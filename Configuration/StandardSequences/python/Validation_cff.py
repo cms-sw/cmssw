@@ -35,7 +35,7 @@ from Validation.RecoEgamma.egammaValidationMiniAOD_cff import *
 prevalidation = cms.Sequence( globalPrevalidation * hltassociation * metPreValidSeq * jetPreValidSeq )
 prevalidationLiteTracking = cms.Sequence( prevalidation )
 prevalidationLiteTracking.replace(globalPrevalidation,globalPrevalidationLiteTracking)
-prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence * photonMiniAODValidationSequence)
+prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence * photonMiniAODValidationSequence) * egammaValidationMiniAOD
 
 validation = cms.Sequence(cms.SequencePlaceholder("mix")
                          +genvalid_all
@@ -49,7 +49,7 @@ validationLiteTracking = cms.Sequence( validation )
 validationLiteTracking.replace(globalValidation,globalValidationLiteTracking)
 validationLiteTracking.remove(condDataValidation)
 
-validationMiniAOD = cms.Sequence(JetValidationMiniAOD * METValidationMiniAOD * type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD * egammaValidationMiniAOD)
+validationMiniAOD = cms.Sequence(JetValidationMiniAOD * METValidationMiniAOD * type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD)
 
 prevalidation_preprod = cms.Sequence( preprodPrevalidation )
 
