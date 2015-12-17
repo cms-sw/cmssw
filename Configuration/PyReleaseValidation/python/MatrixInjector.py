@@ -180,6 +180,8 @@ class MatrixInjector(object):
             wmsplit['DIGIHIppRef']=1
             wmsplit['RECOHIppRef']=1
             wmsplit['RECOHIppRefMB']=1
+            wmsplit['DIGIHIppRefPU']=1
+            wmsplit['RECOHIppRefPU']=1
 
 
                                     
