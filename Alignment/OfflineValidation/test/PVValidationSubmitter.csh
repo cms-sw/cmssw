@@ -38,6 +38,7 @@ set runcontrol=`more ${inputsource} | grep runcontrol | awk '{print $2}'`
 set runnumber=`more ${inputsource} | grep runnumber | awk '{print $2}'` 
 set applybows=`more ${inputsource} | grep applybows | awk '{print $2}'`
 set applycorrs=`more ${inputsource} | grep applycorrs | awk '{print $2}'`
+set filesource=`more ${inputsource} | grep filesource | awk '{print $2}'`
 set datasetpath=`more ${inputsource} | grep datasetpath | awk '{print $2}'`
 set maxevents=`more ${inputsource} | grep maxevents | awk '{print $2}'`
 set globaltag=`more ${inputsource} | grep globaltag | awk '{print $2}'`
@@ -59,7 +60,7 @@ if(${ismc} == "") then
 endif
 
 cp ${CMSSW_DIR}/PVValidation_TEMPL_cfg.py .
-cat PVValidation_TEMPL_cfg.py | sed "s?ISDATEMPLATE?${isda}?g" | sed "s?ISMCTEMPLATE?${ismc}?g" | sed "s?RUNCONTROLTEMPLATE?${runcontrol}?g"  | sed "s?RUNBOUNDARYTEMPLATE?${runnumber}?g" | sed "s?APPLYBOWSTEMPLATE?${applybows}?g" | sed "s?EXTRACONDTEMPLATE?${applycorrs}?g" | sed "s?DATASETTEMPLATE?${datasetpath}?g" | sed "s?MAXEVENTSTEMPLATE?${maxevents}?g" | sed "s?GLOBALTAGTEMPLATE?${globaltag}?g"  | sed "s?ALLFROMGTTEMPLATE?${allFromGT}?g" | sed "s?ALIGNOBJTEMPLATE?${alignobj}?g" | sed "s?GEOMTAGTEMPLATE?${taggeom}?g" | sed "s?APEOBJTEMPLATE?${apeobj}?g" | sed "s?ERRORTAGTEMPLATE?${tagape}?g" | sed "s?TRACKTYPETEMPLATE?${tracktype}?g" | sed "s?OUTFILETEMPLATE?${outfile}?g" | sed "s?VERTEXTYPETEMPLATE?${vertextype}?g" | sed "s?LUMILISTTEMPLATE?${lumilist}?g" | sed "s?PTCUTTEMPLATE?${ptcut}?g" >! ${jobname}_cfg
+cat PVValidation_TEMPL_cfg.py | sed "s?ISDATEMPLATE?${isda}?g" | sed "s?ISMCTEMPLATE?${ismc}?g" | sed "s?RUNCONTROLTEMPLATE?${runcontrol}?g"  | sed "s?RUNBOUNDARYTEMPLATE?${runnumber}?g" | sed "s?APPLYBOWSTEMPLATE?${applybows}?g" | sed "s?EXTRACONDTEMPLATE?${applycorrs}?g" | sed "s?FILESOURCETEMPLATE?${filesource}?g" | sed "s?DATASETTEMPLATE?${datasetpath}?g" | sed "s?MAXEVENTSTEMPLATE?${maxevents}?g" | sed "s?GLOBALTAGTEMPLATE?${globaltag}?g"  | sed "s?ALLFROMGTTEMPLATE?${allFromGT}?g" | sed "s?ALIGNOBJTEMPLATE?${alignobj}?g" | sed "s?GEOMTAGTEMPLATE?${taggeom}?g" | sed "s?APEOBJTEMPLATE?${apeobj}?g" | sed "s?ERRORTAGTEMPLATE?${tagape}?g" | sed "s?TRACKTYPETEMPLATE?${tracktype}?g" | sed "s?OUTFILETEMPLATE?${outfile}?g" | sed "s?VERTEXTYPETEMPLATE?${vertextype}?g" | sed "s?LUMILISTTEMPLATE?${lumilist}?g" | sed "s?PTCUTTEMPLATE?${ptcut}?g" >! ${jobname}_cfg
 if(${applybows} == "True") then
     cat ${jobname}_cfg | sed "s?BOWSOBJECTTEMPLATE?${bowsobj}?g" | sed "s?BOWSTAGTEMPLATE?${tagbows}?g"  >! ${jobname}_cfg.py
     rm ${jobname}_cfg

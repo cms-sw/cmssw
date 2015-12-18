@@ -12,18 +12,21 @@ process = cms.Process("Demo")
 ###################################################################
 # Event source and run selection
 ###################################################################
-# readFiles = cms.untracked.vstring()
-# readFiles.extend(FILESOURCETEMPLATE)
-# process.source = cms.Source("PoolSource",
-#                             fileNames = readFiles ,
-#                             duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
-#                             )
+if ('FILESOURCETEMPLATE'):
+     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Reading local input files list"
+     readFiles = cms.untracked.vstring()
+     readFiles.extend([FILESOURCETEMPLATE])
+     process.source = cms.Source("PoolSource",
+                                 fileNames = readFiles ,
+                                 duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
+                                 )
+else:
+     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Reading from configuration fragment"
+     process.load("Alignment.OfflineValidation.DATASETTEMPLATE")
 
-process.load("Alignment.OfflineValidation.DATASETTEMPLATE");
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr']
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-
+###################################################################
+#  Runs and events
+###################################################################
 runboundary = RUNBOUNDARYTEMPLATE
 process.source.firstRun = cms.untracked.uint32(int(runboundary))
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(MAXEVENTSTEMPLATE) )
@@ -32,19 +35,12 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(MAXEVENTSTEM
 # JSON Filtering
 ###################################################################
 if isMC:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is Simulation!"
+     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is simulation!"
      runboundary = 1
 else:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is DATA!"
-
-     ## working recipe for CMSSW_4_X_Y
-     ##import PhysicsTools.PythonAnalysis.LumiList as LumiList
-     #myLumis = LumiList.LumiList(filename = 'LUMILISTTEMPLATE').getCMSSWString().split(',')
-     #process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange()
-     #process.source.lumisToProcess.extend(myLumis)
-
-     ## working recipe for CMSSW_5_X_Y
-     if ("LUMILISTTEMPLATE" is not None):
+     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is real dATA!"
+     if ('LUMILISTTEMPLATE'):
+          print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: JSON filtering with: LUMILISTTEMPLATE"
           import FWCore.PythonUtilities.LumiList as LumiList
           process.source.lumisToProcess = LumiList.LumiList(filename ='LUMILISTTEMPLATE').getVLuminosityBlockRange()
 
@@ -66,14 +62,8 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 
 ###################################################################
-# Standard loads
+# Geometry load
 ###################################################################
-#from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
-# this line works in 44X, deprecated in 53X
-#process.load("Configuration.StandardSequences.GeometryIdeal_cff")
-#process.load("Configuration.Geometry.GeometryIdeal_cff")
-#process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
-#process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
 ####################################################################
@@ -186,11 +176,9 @@ process.noslowpt = cms.EDFilter("FilterOutLowPt",
                                 runControlNumber = cms.untracked.uint32(int(runboundary))
                                 )
 
-#process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.noslowpt)
 if isMC:
-     process.goodvertexSkim = cms.Sequence(process.noscraping)
+     process.goodvertexSkim = cms.Sequence(process.noscraping + process.noslowpt)
 else:
-     #process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping)
      process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.noslowpt)
 
 ####################################################################
