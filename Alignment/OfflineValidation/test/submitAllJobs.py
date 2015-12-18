@@ -184,7 +184,7 @@ class Job:
 
         self.lfn_list=list()      
 
-        #self.OUTDIR = "/eos/cern.ch/user/m/musich/ZbbAnalysis/test01Sept" # TODO: write a setter method
+        #self.OUTDIR = "" # TODO: write a setter method
         #self.OUTDIR = self.createEOSout()
 
     def __del__(self):
@@ -212,9 +212,9 @@ class Job:
 
         # decide which template according to data/mc
         if self.isMC:
-            template_cfg_file = os.path.join(self.the_dir,"PVValidation_T_cfg.py")
+            template_cfg_file = os.path.join(self.the_dir,"PVValidation_TEMPL_cfg.py")
         else:
-            template_cfg_file = os.path.join(self.the_dir,"PVValidation_T_cfg.py")
+            template_cfg_file = os.path.join(self.the_dir,"PVValidation_TEMPL_cfg.py")
 
         fin = open(template_cfg_file)
 
@@ -246,6 +246,8 @@ class Job:
                     line=line.replace("APPLYBOWSTEMPLATE",self.applyBOWS)
                 if line.find("EXTRACONDTEMPLATE")!=-1:
                     line=line.replace("EXTRACONDTEMPLATE",self.applyEXTRACOND)
+                if line.find("USEFILELISTTEMPLATE")!=-1:
+                    line=line.replace("USEFILELISTTEMPLATE","True")  
                 if line.find("RUNBOUNDARYTEMPLATE")!=-1:
                     line=line.replace("RUNBOUNDARYTEMPLATE",self.runboundary)  
                 if line.find("LUMILISTTEMPLATE")!=-1:
@@ -285,6 +287,8 @@ class Job:
                     line=line.replace("APPLYBOWSTEMPLATE",self.applyBOWS)
                 if line.find("EXTRACONDTEMPLATE")!=-1:
                     line=line.replace("EXTRACONDTEMPLATE",self.applyEXTRACOND)
+                if line.find("USEFILELISTTEMPLATE")!=-1:
+                    line=line.replace("USEFILELISTTEMPLATE","True")  
                 if line.find("RUNBOUNDARYTEMPLATE")!=-1:
                     line=line.replace("RUNBOUNDARYTEMPLATE",self.runboundary)        
                 if line.find("LUMILISTTEMPLATE")!=-1:

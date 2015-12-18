@@ -6,16 +6,17 @@ isMC = ISMCTEMPLATE
 allFromGT = ALLFROMGTTEMPLATE
 applyBows = APPLYBOWSTEMPLATE
 applyExtraConditions = EXTRACONDTEMPLATE
+useFileList = USEFILELISTTEMPLATE
 
 process = cms.Process("Demo") 
 
 ###################################################################
 # Event source and run selection
 ###################################################################
-if ('FILESOURCETEMPLATE'):
+if (useFileList):
      print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Reading local input files list"
      readFiles = cms.untracked.vstring()
-     readFiles.extend([FILESOURCETEMPLATE])
+     readFiles.extend(FILESOURCETEMPLATE)
      process.source = cms.Source("PoolSource",
                                  fileNames = readFiles ,
                                  duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
@@ -130,19 +131,10 @@ else:
           if applyExtraConditions:
                print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Applying extra calibration constants!"
 
-               ### this is just an example 
                import CalibTracker.Configuration.Common.PoolDBESSource_cfi
-               process.SiPixelTemplates = cms.ESSource("PoolDBESSource",CondDBSetup,
-                                                       connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-                                                       timetype = cms.string("runnumber"),
-                                                       toGet = cms.VPSet(cms.PSet(record = cms.string('SiPixelTemplateDBObjectRcd'),
-                                                                                  tag = cms.string('SiPixelTemplateDBObject_38T_v6_offline')
-                                                                                  )
-                                                                         )
-                                                       )
-               process.es_prefer_SiPixelTemplates = cms.ESPrefer("PoolDBESSource", "SiPixelTemplates") 
 
-               ## END OF EXTRA CONDITIONS
+               # Extra conditions to be plugged here
+               ##### END OF EXTRA CONDITIONS
                
           else:
                print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Not applying extra calibration constants!"
