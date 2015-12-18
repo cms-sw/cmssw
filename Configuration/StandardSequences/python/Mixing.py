@@ -107,6 +107,7 @@ addMixingScenario("Phys14_50ns_PoissonOOT",{'file': 'SimGeneral.MixingModule.mix
 addMixingScenario("2015_25ns_HiLum_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2015_25ns_HiLum_PoissonOOTPU_cfi'})
 addMixingScenario("2015_25ns_Startup_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2015_25ns_Startup_PoissonOOTPU_cfi'})
 addMixingScenario("2015_50ns_Startup_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2015_50ns_Startup_PoissonOOTPU_cfi'})
+addMixingScenario("2015_25ns_FallMC_matchData_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2015_25ns_FallMC_matchData_PoissonOOTPU_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 addMixingScenario("fromDB",{'file': 'SimGeneral.MixingModule.mix_fromDB_cfi'})
 
