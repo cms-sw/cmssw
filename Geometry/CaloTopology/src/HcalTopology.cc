@@ -202,6 +202,7 @@ bool HcalTopology::validDetId(HcalSubdetector subdet, int ieta, int iphi,
 bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
 
   if (id.iphi()<1 || id.iphi()>72 || id.ieta()==0) return false;
+  if (id.depth() != 0)                             return false;
   if (id.version()==0) {
     if (triggerMode_==HcalTopologyMode::tm_LHC_1x1) return false;
     if ((id.ietaAbs()>32) || 
@@ -259,32 +260,40 @@ void HcalTopology::excludeSubdetector(HcalSubdetector subdet) {
 std::vector<DetId> HcalTopology::east(const DetId& id) const {
   std::vector<DetId> vNeighborsDetId;
   HcalDetId neighbors[2];
-  for (int i=0;i<decIEta(HcalDetId(id),neighbors);i++)
+  for (int i=0;i<decIEta(HcalDetId(id),neighbors);i++) {
+    if (neighbors[i].oldFormat()) neighbors[i].changeForm();
     vNeighborsDetId.push_back(DetId(neighbors[i].rawId()));
+  }
   return vNeighborsDetId;
 }
 
 std::vector<DetId> HcalTopology::west(const DetId& id) const {
   std::vector<DetId> vNeighborsDetId;
   HcalDetId neighbors[2];
-  for (int i=0;i<incIEta(HcalDetId(id),neighbors);i++)
+  for (int i=0;i<incIEta(HcalDetId(id),neighbors);i++) {
+    if (neighbors[i].oldFormat()) neighbors[i].changeForm();
     vNeighborsDetId.push_back(DetId(neighbors[i].rawId()));
+  }
   return  vNeighborsDetId;
 }
 
 std::vector<DetId> HcalTopology::north(const DetId& id) const {
   std::vector<DetId> vNeighborsDetId;
   HcalDetId neighbor;
-  if (incIPhi(HcalDetId(id),neighbor))
+  if (incIPhi(HcalDetId(id),neighbor)) {
+    if (neighbor.oldFormat()) neighbor.changeForm();
     vNeighborsDetId.push_back(DetId(neighbor.rawId()));
+  }
   return  vNeighborsDetId;
 }
 
 std::vector<DetId> HcalTopology::south(const DetId& id) const {
   std::vector<DetId> vNeighborsDetId;
   HcalDetId neighbor;
-  if (decIPhi(HcalDetId(id),neighbor))
+  if (decIPhi(HcalDetId(id),neighbor)) {
+    if (neighbor.oldFormat()) neighbor.changeForm();
     vNeighborsDetId.push_back(DetId(neighbor.rawId()));
+  }
   return  vNeighborsDetId;
 }
 
@@ -292,6 +301,7 @@ std::vector<DetId> HcalTopology::up(const DetId& id) const {
   HcalDetId neighbor = id;
   std::vector<DetId> vNeighborsDetId;
   if (incrementDepth(neighbor)) {
+    if (neighbor.oldFormat()) neighbor.changeForm();
     vNeighborsDetId.push_back(neighbor);
   }
   return  vNeighborsDetId;
@@ -301,6 +311,7 @@ std::vector<DetId> HcalTopology::down(const DetId& id) const {
   HcalDetId neighbor = id;
   std::vector<DetId> vNeighborsDetId;
   if (decrementDepth(neighbor)) {
+    if (neighbor.oldFormat()) neighbor.changeForm();
     vNeighborsDetId.push_back(neighbor);
   }
   return  vNeighborsDetId;
@@ -455,6 +466,8 @@ bool HcalTopology::validRaw(const HcalDetId& id) const {
       if (aieta>lastHORing() || iphi>IPHI_MAX || depth!=4) ok=false;
     } else if (subdet==HcalForward) {
       if (aieta<firstHFRing() || aieta>lastHFRing() || ((iphi%2)==0) || (depth>maxDepthHF_) ||  (aieta>=firstHFQuadPhiRing() && ((iphi+1)%4)!=0)) ok=false;
+    } else if (subdet==HcalTriggerTower) {
+      ok=validHT(HcalTrigTowerDetId(id.rawId()));
     } else {
       ok=false;
     }
