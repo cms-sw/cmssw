@@ -1,26 +1,26 @@
-#ifndef TkDetLayers_Phase2OTECRingedLayer_h
-#define TkDetLayers_Phase2OTECRingedLayer_h
+#ifndef TkDetLayers_Phase2OTEndcapLayer_h
+#define TkDetLayers_Phase2OTEndcapLayer_h
 
 #define NOTECRINGS 15   // FIXME: for sure to be fixed. Hopefully a better algorithm would not require looking for compatible hits in all the layers !!
 
 #include "TrackingTools/DetLayers/interface/RingedForwardLayer.h"
-#include "Phase2OTECRing.h"
+#include "Phase2OTEndcapRing.h"
 #include <array>
 #include <atomic>
 
 /** A concrete implementation for Phase 2 OT EC layer 
- *  built out of Phase2OTECRings
+ *  built out of Phase2OTEndcapRings
  */
 
 #pragma GCC visibility push(hidden)
-class Phase2OTECRingedLayer final : public RingedForwardLayer {
+class Phase2OTEndcapLayer final : public RingedForwardLayer {
  public:
-  Phase2OTECRingedLayer(std::vector<const Phase2OTECRing*>& rings)  __attribute__ ((cold));
-  ~Phase2OTECRingedLayer()  __attribute__ ((cold));
+  Phase2OTEndcapLayer(std::vector<const Phase2OTEndcapRing*>& rings)  __attribute__ ((cold));
+  ~Phase2OTEndcapLayer()  __attribute__ ((cold));
 
   // Default implementations would not properly manage memory
-  Phase2OTECRingedLayer( const Phase2OTECRingedLayer& ) = delete;
-  Phase2OTECRingedLayer& operator=( const Phase2OTECRingedLayer&) = delete;
+  Phase2OTEndcapLayer( const Phase2OTEndcapLayer& ) = delete;
+  Phase2OTEndcapLayer& operator=( const Phase2OTEndcapLayer&) = delete;
 
   // GeometricSearchDet interface
   
@@ -39,7 +39,7 @@ class Phase2OTECRingedLayer final : public RingedForwardLayer {
 
  private:
   // private methods for the implementation of groupedCompatibleDets()
-  BoundDisk* computeDisk( const std::vector<const Phase2OTECRing*>& rings) const __attribute__ ((cold));
+  BoundDisk* computeDisk( const std::vector<const Phase2OTEndcapRing*>& rings) const __attribute__ ((cold));
 
   std::array<int,3> ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
 						   const Propagator& prop ) const;
@@ -61,7 +61,7 @@ class Phase2OTECRingedLayer final : public RingedForwardLayer {
  private:
   std::vector<GeomDet const*> theBasicComps;
   mutable std::atomic<std::vector<const GeometricSearchDet*>*> theComponents;
-  const Phase2OTECRing* theComps[NOTECRINGS];
+  const Phase2OTEndcapRing* theComps[NOTECRINGS];
   struct RingPar { float theRingR, thetaRingMin, thetaRingMax;};
   RingPar ringPars[NOTECRINGS];
 
