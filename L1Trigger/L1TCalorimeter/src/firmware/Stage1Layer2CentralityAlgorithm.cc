@@ -97,18 +97,20 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
   // Begin MB Trigger //
   std::vector<int> thresholds = params_->minimumBiasThresholds();
   int numOverThresh[4] = {0};
-  for(std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
-    if(region->hwEta() < 4) {
-      if(region->hwPt() >= thresholds.at(0))
-	numOverThresh[0]++;
-      if(region->hwPt() >= thresholds.at(2))
-	numOverThresh[2]++;
-    }
-    if(region->hwEta() > 17) {
-      if(region->hwPt() >= thresholds.at(1))
-	numOverThresh[1]++;
-      if(region->hwPt() >= thresholds.at(3))
-	numOverThresh[3]++;
+  if(thresholds.size() >= 4){ // guard against malformed/old GT
+    for(std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
+      if(region->hwEta() < 4) {
+	if(region->hwPt() >= thresholds.at(0))
+	  numOverThresh[0]++;
+	if(region->hwPt() >= thresholds.at(2))
+	  numOverThresh[2]++;
+      }
+      if(region->hwEta() > 17) {
+	if(region->hwPt() >= thresholds.at(1))
+	  numOverThresh[1]++;
+	if(region->hwPt() >= thresholds.at(3))
+	  numOverThresh[3]++;
+      }
     }
   }
 
