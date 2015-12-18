@@ -1,4 +1,4 @@
-#include "Phase2OTECRing.h"
+#include "Phase2OTEndcapRing.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -22,7 +22,7 @@ using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
-Phase2OTECRing::Phase2OTECRing(vector<const GeomDet*>& innerDets,
+Phase2OTEndcapRing::Phase2OTEndcapRing(vector<const GeomDet*>& innerDets,
 			       vector<const GeomDet*>& outerDets,
 			       vector<const GeomDet*>& innerDetBrothers,
 			       vector<const GeomDet*>& outerDetBrothers):
@@ -54,7 +54,7 @@ Phase2OTECRing::Phase2OTECRing(vector<const GeomDet*>& innerDets,
 
 
   
-  LogDebug("TkDetLayers") << "DEBUG INFO for Phase2OTECRing" ;
+  LogDebug("TkDetLayers") << "DEBUG INFO for Phase2OTEndcapRing" ;
   for(vector<const GeomDet*>::const_iterator it=theFrontDets.begin(); 
       it!=theFrontDets.end(); it++){
     LogDebug("TkDetLayers") << "frontDet phi,z,r: " 
@@ -74,28 +74,28 @@ Phase2OTECRing::Phase2OTECRing(vector<const GeomDet*>& innerDets,
 
 }
 
-Phase2OTECRing::~Phase2OTECRing(){
+Phase2OTEndcapRing::~Phase2OTEndcapRing(){
 
 } 
 
 const vector<const GeometricSearchDet*>& 
-Phase2OTECRing::components() const 
+Phase2OTEndcapRing::components() const 
 {
-  throw DetLayerException("Phase2OTECRing doesn't have GeometricSearchDet components");
+  throw DetLayerException("Phase2OTEndcapRing doesn't have GeometricSearchDet components");
 }
 
   
 pair<bool, TrajectoryStateOnSurface>
-Phase2OTECRing::compatible( const TrajectoryStateOnSurface&, const Propagator&, 
+Phase2OTEndcapRing::compatible( const TrajectoryStateOnSurface&, const Propagator&, 
 		  const MeasurementEstimator&) const{
-  edm::LogError("TkDetLayers") << "temporary dummy implementation of Phase2OTECRing::compatible()!!" ;
+  edm::LogError("TkDetLayers") << "temporary dummy implementation of Phase2OTEndcapRing::compatible()!!" ;
   return pair<bool,TrajectoryStateOnSurface>();
 }
 
 
 
 void 
-Phase2OTECRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
+Phase2OTEndcapRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 				 const Propagator& prop,
 				 const MeasurementEstimator& est,
 				 std::vector<DetGroup>& result) const
@@ -135,7 +135,7 @@ Phase2OTECRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 
 
 SubLayerCrossings 
-Phase2OTECRing::computeCrossings(const TrajectoryStateOnSurface& startingState,
+Phase2OTEndcapRing::computeCrossings(const TrajectoryStateOnSurface& startingState,
 			  PropagationDirection propDir) const
 {
   auto rho = startingState.transverseCurvature();
@@ -175,7 +175,7 @@ Phase2OTECRing::computeCrossings(const TrajectoryStateOnSurface& startingState,
   } 
 }
 
-bool Phase2OTECRing::addClosest( const TrajectoryStateOnSurface& tsos,
+bool Phase2OTEndcapRing::addClosest( const TrajectoryStateOnSurface& tsos,
 				 const Propagator& prop,
 				 const MeasurementEstimator& est,
 				 const SubLayerCrossing& crossing,
@@ -194,7 +194,7 @@ bool Phase2OTECRing::addClosest( const TrajectoryStateOnSurface& tsos,
 
 
 
-void Phase2OTECRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
+void Phase2OTEndcapRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				     const Propagator& prop,
 				     const MeasurementEstimator& est,
 				     const SubLayerCrossing& crossing,
