@@ -11,14 +11,14 @@
 l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::Stage2Layer2JetSumAlgorithmFirmwareImp1(CaloParamsHelper* params) :
   params_(params)
 {
-  etSumEtThresholdHwEt_ = floor(params_->etSumEtThreshold(0)/params_->jetLsb());
-  etSumEtThresholdHwMet_ = floor(params_->etSumEtThreshold(2)/params_->jetLsb());
+  etSumEtThresholdHwEt_ = floor(params_->etSumEtThreshold(1)/params_->jetLsb());
+  etSumEtThresholdHwMet_ = floor(params_->etSumEtThreshold(3)/params_->jetLsb());
 
-  etSumEtaMinEt_ = params_->etSumEtaMin(0);
-  etSumEtaMaxEt_ = params_->etSumEtaMax(0);
+  etSumEtaMinEt_ = params_->etSumEtaMin(1);
+  etSumEtaMaxEt_ = params_->etSumEtaMax(1);
  
-  etSumEtaMinMet_ = params_->etSumEtaMin(2);
-  etSumEtaMaxMet_ = params_->etSumEtaMax(2);
+  etSumEtaMinMet_ = params_->etSumEtaMin(3);
+  etSumEtaMaxMet_ = params_->etSumEtaMax(3);
 }
 
 
