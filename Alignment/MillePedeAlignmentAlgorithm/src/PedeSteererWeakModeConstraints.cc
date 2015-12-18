@@ -58,13 +58,15 @@ GeometryConstraintConfigData::GeometryConstraintConfigData(const std::vector<dou
                                                            const std::string& c,
                                                            const std::vector<std::pair<Alignable*,std::string> >& alisFile,
                                                            const int sd,
-                                                           const std::vector<Alignable*>& ex
+                                                           const std::vector<Alignable*>& ex,
+                                                           const int instance
                                                            ) :
   coefficients_(co),
   constraintName_(c),
   levelsFilenames_(alisFile),
   excludedAlignables_(ex),
-  sysdeformation_(sd)
+  sysdeformation_(sd),
+  instance_(instance)
 {
 }
 
@@ -89,12 +91,9 @@ PedeSteererWeakModeConstraints::PedeSteererWeakModeConstraints(AlignableTracker 
       pset.getParameter<std::vector<unsigned int> >("deadmodules") : std::vector<unsigned int>();
     std::string name = pset.getParameter<std::string> ("constraint");
     std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-
-    std::stringstream defaultsteerfileprefix;
-    defaultsteerfileprefix << "autosteerFilePrefix_" << name << "_" << psetnr;
-
-    const auto steerFilePrefix = pset.exists("steerFilePrefix") ?
-      pset.getParameter<std::string> ("steerFilePrefix") : defaultsteerfileprefix.str();
+    const auto ignoredInstances_ = pset.exists("ignoredInstances") ?
+      pset.getUntrackedParameter<std::vector<unsigned int> >("ignoredInstances"):
+      std::vector<unsigned int>();
 
     AlignmentParameterSelector selector(aliTracker, nullptr, nullptr);
     selector.clear();
@@ -108,26 +107,47 @@ PedeSteererWeakModeConstraints::PedeSteererWeakModeConstraints(AlignableTracker 
       selector_excludedalignables.addSelections(pset.getParameter<edm::ParameterSet> ("excludedAlignables"));
     }
     const auto& excluded_alis = selector_excludedalignables.selectedAlignables();
-      
-    const auto levelsFilenames = this->makeLevelsFilenames(steerFilePrefixContainer,
-							   alis,
-							   steerFilePrefix);
-    //check that the name of the deformation is known and that the number 
+
+    //check that the name of the deformation is known and that the number
     //of provided parameter is right.
     auto sysdeformation = this->verifyDeformationName(name,coefficients);
-      
-    //Add the configuration data for this constraint to the container of config data
-    ConstraintsConfigContainer_.push_back(GeometryConstraintConfigData(coefficients,
-                                                                       name,
-                                                                       levelsFilenames,
-                                                                       sysdeformation,
-                                                                       excluded_alis));
+
     if(deadmodules_.size() == 0) { //fill the list of dead modules only once
       edm::LogInfo("Alignment") << "@SUB=PedeSteererWeakModeConstraints"
                                 << "Load list of dead modules (size = " << dm.size()<< ").";
       for(const auto& it: dm) deadmodules_.push_back(it);
     }
-      
+
+    // loop over all IOVs/momentum ranges
+    for (unsigned int instance = 0;
+         instance < myLabels_->maxNumberOfParameterInstances();
+         ++instance) {
+      // check if this IOV/momentum range is to be ignored:
+      if (std::find(ignoredInstances_.begin(), ignoredInstances_.end(), instance)
+          != ignoredInstances_.end()) {
+        continue;
+      }
+      std::stringstream defaultsteerfileprefix;
+      defaultsteerfileprefix << "autosteerFilePrefix_" << name << "_" << psetnr
+                             << "_" << instance;
+
+      const auto steerFilePrefix = pset.exists("steerFilePrefix") ?
+        pset.getParameter<std::string> ("steerFilePrefix") + "_" + std::to_string(instance) :
+        defaultsteerfileprefix.str();
+
+      const auto levelsFilenames = this->makeLevelsFilenames(steerFilePrefixContainer,
+                                                             alis,
+                                                             steerFilePrefix);
+
+      //Add the configuration data for this constraint to the container of config data
+      ConstraintsConfigContainer_.push_back(GeometryConstraintConfigData(coefficients,
+                                                                         name,
+                                                                         levelsFilenames,
+                                                                         sysdeformation,
+                                                                         excluded_alis,
+                                                                         instance));
+    }
+
   }
 }
 
@@ -156,7 +176,7 @@ std::pair<align::GlobalPoint, align::GlobalPoint> PedeSteererWeakModeConstraints
 unsigned int PedeSteererWeakModeConstraints::createAlignablesDataStructure()
 {
   unsigned int nConstraints = 0;
-  for(auto& iC:ConstraintsConfigContainer_) {
+  for(auto& iC: ConstraintsConfigContainer_) {
     //loop over all HLS for which the constraint is to be determined
     for(const auto& iHLS: iC.levelsFilenames_) {
       //determine next active sub-alignables for iHLS
@@ -181,9 +201,8 @@ unsigned int PedeSteererWeakModeConstraints::createAlignablesDataStructure()
           }
         }
         //check if the module is excluded
-        for(std::vector<Alignable*>::const_iterator iEx = iC.excludedAlignables_.begin();
-            iEx != iC.excludedAlignables_.end(); iEx++) {
-          if(iD->id() == (*iEx)->id() &&  iD->alignableObjectId() == (*iEx)->alignableObjectId() ) {
+        for(const auto& iEx: iC.excludedAlignables_) {
+          if(iD->id() == iEx->id() &&  iD->alignableObjectId() == iEx->alignableObjectId() ) {
             //if(iD->geomDetId().rawId() == (*iEx)->geomDetId().rawId()) {
             isNOTdead = false;
             break;
@@ -386,7 +405,8 @@ bool PedeSteererWeakModeConstraints::checkSelectionShiftParameter(const Alignabl
         }
       }
       const char selChar = (selVar ? selVar->fullSelection().at(iParameter) : '1');
-      if(selChar == '1') { //FIXME??? what about 'r'?
+      // if(selChar == '1') { //FIXME??? what about 'r'?
+      if(selChar == '1' || selChar == 'r') {
         isselected = true;
       } else {
         isselected = false;
@@ -461,17 +481,17 @@ double PedeSteererWeakModeConstraints::getX0(const std::pair<Alignable*, std::li
         static_cast<int>(iParameter) < ali->alignmentParameters()->size(); iParameter++) {
       if(this->checkSelectionShiftParameter(ali,iParameter) ) {
         alignableIsFloating = true;
-        //verify that alignable has just one label -- meaning no IOV-dependence etc
-        const unsigned int nInstances = myLabels_->numberOfParameterInstances(ali, iParameter);
-        if(nInstances > 1) {
-          throw cms::Exception("PedeSteererWeakModeConstraints")
-            << "@SUB=PedeSteererWeakModeConstraints::ConstructConstraints"
-            << " Weak mode constraints are only supported for alignables which have"
-            << " just one label. However, e.g. alignable"
-            << " " << AlignableObjectId::idToString(ali->alignableObjectId())
-            << "at (" << ali->globalPosition().x() << ","<< ali->globalPosition().y() << "," << ali->globalPosition().z()<< "), "
-            << " was configured to have >1 label. Remove e.g. IOV-dependence for this (and other) alignables which are used in the constraint.";
-        }
+        // //verify that alignable has just one label -- meaning no IOV-dependence etc
+        // const unsigned int nInstances = myLabels_->numberOfParameterInstances(ali, iParameter);
+        // if(nInstances > 1) {
+        //   throw cms::Exception("PedeSteererWeakModeConstraints")
+        //     << "@SUB=PedeSteererWeakModeConstraints::ConstructConstraints"
+        //     << " Weak mode constraints are only supported for alignables which have"
+        //     << " just one label. However, e.g. alignable"
+        //     << " " << AlignableObjectId::idToString(ali->alignableObjectId())
+        //     << "at (" << ali->globalPosition().x() << ","<< ali->globalPosition().y() << "," << ali->globalPosition().z()<< "), "
+        //     << " was configured to have >1 label. Remove e.g. IOV-dependence for this (and other) alignables which are used in the constraint.";
+        // }
         break;
       }
     }
@@ -524,7 +544,7 @@ unsigned int PedeSteererWeakModeConstraints::constructConstraints(const std::vec
       for(std::list<Alignable*>::const_iterator iAlignables = iHLS.second.begin();
           iAlignables != iHLS.second.end(); iAlignables++) {
         const Alignable *ali = (*iAlignables);
-        const unsigned int aliLabel = myLabels_->alignableLabel(const_cast<Alignable*>(ali));
+        const auto aliLabel = myLabels_->alignableLabelFromParamAndInstance(const_cast<Alignable*>(ali), 0, it.instance_);
         const AlignableSurface &surface = ali->surface();
 
         const LocalPoint  lUDirection(1.,0.,0.),
@@ -535,7 +555,7 @@ unsigned int PedeSteererWeakModeConstraints::constructConstraints(const std::vec
           gVDirection = surface.toGlobal(lVDirection),
           gWDirection = surface.toGlobal(lWDirection);
 
-        const bool isDoubleSensor = ali->alignmentParameters()->type() == AlignmentParametersFactory::kTwoBowedSurfaces ? true : false;
+        const bool isDoubleSensor = ali->alignmentParameters()->type() == AlignmentParametersFactory::kTwoBowedSurfaces;
 
         const auto sensorpositions =
           isDoubleSensor ? this->getDoubleSensorPosition(ali) : std::make_pair(ali->globalPosition(), align::PositionType ());
@@ -633,7 +653,7 @@ void PedeSteererWeakModeConstraints::verifyParameterNames(const edm::ParameterSe
     if(name != "coefficients"
        && name != "deadmodules" && name != "constraint"
        && name != "steerFilePrefix" && name != "levels"
-       && name != "excludedAlignables"
+       && name != "excludedAlignables" && name != "ignoredInstances"
        ) {
       throw cms::Exception("BadConfig")
         << "@SUB=PedeSteererWeakModeConstraints::verifyParameterNames:"
