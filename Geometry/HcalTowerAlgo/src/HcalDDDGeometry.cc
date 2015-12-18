@@ -175,28 +175,19 @@ HcalDDDGeometry::newCell( const GlobalPoint& f1 ,
 
   HcalDetId hId(detId);
 
-  if( hId.subdet()==HcalBarrel )
-  {
+  if( hId.subdet()==HcalBarrel ) {
     m_hbCellVec[ din ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
-  }
-  else
-  {
-    if( hId.subdet()==HcalEndcap )
-    {
+  } else {
+    if( hId.subdet()==HcalEndcap ) {
       const unsigned int index ( din - m_hbCellVec.size() ) ;
       m_heCellVec[ index ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
-    }
-    else
-    {
-      if( hId.subdet()==HcalOuter )
-      {
+    } else  {
+      if( hId.subdet()==HcalOuter )  {
 	const unsigned int index ( din 
 				   - m_hbCellVec.size() 
 				   - m_heCellVec.size() ) ;
 	m_hoCellVec[ index ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
-      }
-      else
-      { // assuming HcalForward here!
+      } else { // assuming HcalForward here!
 	const unsigned int index ( din 
 				   - m_hbCellVec.size() 
 				   - m_heCellVec.size() 

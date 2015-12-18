@@ -154,9 +154,9 @@ class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
 					    temp,
 					    [](const reco::PFRecHit& a, 
 					       const reco::PFRecHit& b){
-					      return a.detId() < b.detId();
+					      return (HcalDetId)(a.detId()) < (HcalDetId)(b.detId());
 					    });
-	  if( found_hit != tmpOut.end() && found_hit->detId() == shortID.rawId() ) {
+	  if( found_hit != tmpOut.end() && (HcalDetId)(found_hit->detId()) == (HcalDetId)(shortID.rawId()) ) {
 	    sHORT = found_hit->energy();
 	    //Ask for fraction
 	    double energy = lONG-sHORT;
@@ -191,10 +191,10 @@ class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
 					    temp,
 					    [](const reco::PFRecHit& a, 
 					       const reco::PFRecHit& b){
-					      return a.detId() < b.detId();
+					      return (HcalDetId)(a.detId()) < (HcalDetId)(b.detId());
 					    });
 	  double energy = 2*sHORT;
-	  if( found_hit != tmpOut.end() && found_hit->detId() == longID.rawId() ) {
+	  if( found_hit != tmpOut.end() && (HcalDetId)(found_hit->detId()) == (HcalDetId)(longID.rawId()) ) {
 	    lONG = found_hit->energy();
 	    //Ask for fraction
 
@@ -250,8 +250,9 @@ class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
 
       bool operator()(const reco::PFRecHit& a,
 		     const reco::PFRecHit& b) {
-      return a.detId() < b.detId();
-    }
+	if (DetId(a.detId()).det() == DetId::Hcal || DetId(b.detId()).det() == DetId::Hcal) return (HcalDetId)(a.detId()) < (HcalDetId)(b.detId());
+	else return a.detId() < b.detId();
+      }
 
     };
 
