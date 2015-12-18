@@ -30,7 +30,7 @@ htmlPage     = None
 # you change something...
 contentTmplOrg = None
 contentTmpl  = None
-dataSrc      = 'http://cmsdoxy.web.cern.ch/cmsdoxy/cmssw/cmssw.php?ver='
+dataSrc      = 'http://cmsdoxy.web.cern.ch/cmsdoxy/cmssw/'
 githubBase   = 'https://github.com/cms-sw/cmssw/tree/{0}/{1}'
 data         = None
 cmsswVersion = None
@@ -108,7 +108,7 @@ def getClasses(classesPagePath):
     return data
 
 def prepareTemplate():
-    # please notice the fllowing hard coded tags and class names, you may need
+    # please notice the following hard coded tags and class names, you may need
     # to change them in future if doxygen changes its html output structure
     header  = htmlPage.find('div', {'class' : 'header'})
     content = htmlPage.find('div', {'class' : 'contents'})
