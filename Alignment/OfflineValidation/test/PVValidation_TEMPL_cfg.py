@@ -84,8 +84,9 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 ####################################################################
 # Get the GlogalTag
 ####################################################################
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-process.GlobalTag.globaltag = "GLOBALTAGTEMPLATE"  # take your favourite
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'GLOBALTAGTEMPLATE', '')
 
 if allFromGT:
      print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: All is taken from GT"
@@ -196,8 +197,8 @@ else:
 # Load and Configure Measurement Tracker Event
 ####################################################################
 #process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi") 
-#process.MeasurementTrackerEvent.pixelClusterProducer = 'ALCARECOTkAlMinBias'
-#process.MeasurementTrackerEvent.stripClusterProducer = 'ALCARECOTkAlMinBias'
+#process.MeasurementTrackerEvent.pixelClusterProducer = 'TRACKTYPETEMPLATE'
+#process.MeasurementTrackerEvent.stripClusterProducer = 'TRACKTYPETEMPLATE'
 #process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
 #process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag()
 

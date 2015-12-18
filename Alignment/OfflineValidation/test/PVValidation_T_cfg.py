@@ -147,8 +147,6 @@ else:
 ####################################################################
 # Load and Configure event selection
 ####################################################################
-#from RecoMET.METFilters.primaryVertexFilter_cfi import *
-
 process.primaryVertexFilter = cms.EDFilter("VertexSelector",
                                              src = cms.InputTag("VERTEXTYPETEMPLATE"),
                                              cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
@@ -185,8 +183,8 @@ else:
 # Load and Configure Measurement Tracker Event
 ####################################################################
 # process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi") 
-# process.MeasurementTrackerEvent.pixelClusterProducer = 'ALCARECOTkAlMinBias'
-# process.MeasurementTrackerEvent.stripClusterProducer = 'ALCARECOTkAlMinBias'
+# process.MeasurementTrackerEvent.pixelClusterProducer = 'TRACKTYPETEMPLATE'
+# process.MeasurementTrackerEvent.stripClusterProducer = 'TRACKTYPETEMPLATE'
 # process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
 # process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag()
 
