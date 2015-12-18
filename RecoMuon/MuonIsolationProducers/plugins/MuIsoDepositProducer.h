@@ -34,7 +34,7 @@ private:
   bool theExtractForCandidate;
 
   std::string theMuonTrackRefType;
-  edm::InputTag theMuonCollectionTag;
+  edm::EDGetToken theMuonCollectionTag;
   std::vector<std::string> theDepositNames;
   bool theMultipleDepositsFlag;
   reco::isodeposit::IsoDepositExtractor * theExtractor;

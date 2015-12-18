@@ -45,7 +45,20 @@ MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
   theInputType = ioPSet.getParameter<std::string>("InputType");
   theExtractForCandidate = ioPSet.getParameter<bool>("ExtractForCandidate");
   theMuonTrackRefType = ioPSet.getParameter<std::string>("MuonTrackRefType");
-  theMuonCollectionTag = ioPSet.getParameter<edm::InputTag>("inputMuonCollection");
+
+  bool readFromRecoTrack = theInputType == "TrackCollection";
+  bool readFromRecoMuon = theInputType == "MuonCollection";
+  bool readFromCandidateView = theInputType == "CandidateView";
+  if(readFromRecoTrack){
+    theMuonCollectionTag = consumes<View<Track>>(ioPSet.getParameter<edm::InputTag>("inputMuonCollection"));
+  } else if(readFromRecoMuon) {
+    theMuonCollectionTag = consumes<View<RecoCandidate>>(ioPSet.getParameter<edm::InputTag>("inputMuonCollection"));
+  } else if (readFromCandidateView) {
+    theMuonCollectionTag = consumes<View<Candidate>>(ioPSet.getParameter<edm::InputTag>("inputMuonCollection"));
+  } else {
+    throw cms::Exception("Configuration")<<"Inconsistent configuration or failure to read Candidate-muon view";
+  }
+
   theMultipleDepositsFlag = ioPSet.getParameter<bool>("MultipleDepositsFlag");
 
 
@@ -102,18 +115,18 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
   bool readFromCandidateView = theInputType == "CandidateView";
 
   if (readFromRecoMuon){
-    event.getByLabel(theMuonCollectionTag,muons);
+    event.getByToken(theMuonCollectionTag,muons);
     nMuons = muons->size();
     LogDebug(metname) <<"Got Muons of size "<<nMuons;
 
   }
   if (readFromRecoTrack){
-    event.getByLabel(theMuonCollectionTag,tracks);
+    event.getByToken(theMuonCollectionTag,tracks);
     nMuons = tracks->size();
     LogDebug(metname) <<"Got MuonTracks of size "<<nMuons;
   }
   if (readFromCandidateView || theExtractForCandidate){
-    event.getByLabel(theMuonCollectionTag,cands);
+    event.getByToken(theMuonCollectionTag,cands);
     unsigned int nCands = cands->size();
     if (readFromRecoMuon && theExtractForCandidate){
       //! expect nMuons set already
@@ -195,7 +208,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
       //! fill the maps here
       reco::IsoDepositMap::Filler filler(*depMaps[iDep]);
 
-      //!now figure out the source handle (see getByLabel above)
+      //!now figure out the source handle (see getByToken above)
       if (readFromRecoMuon){
 	filler.insert(muons, deps2D[iDep].begin(), deps2D[iDep].end());
       } else if (readFromRecoTrack){
