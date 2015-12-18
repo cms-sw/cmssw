@@ -70,7 +70,7 @@ namespace edm {
       // ---------- static member functions --------------------
       
       // ---------- member functions ---------------------------
-      const ModuleDescription& moduleDescription() { return moduleDescription_;}
+      const ModuleDescription& moduleDescription() const { return moduleDescription_;}
       
       void
       registerProductsAndCallbacks(ProducingModuleAdaptorBase const*, ProductRegistry* reg);
