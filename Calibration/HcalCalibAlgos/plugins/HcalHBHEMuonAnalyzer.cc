@@ -99,7 +99,7 @@ private:
   std::vector<double>       PtGlob, EtaGlob, PhiGlob, chiGlobal;
   std::vector<double>       GlobalMuonHits,MatchedStat,GlobalTrckPt;
   std::vector<double>       GlobalTrckEta,GlobalTrckPhi,TrackerLayer;
-  std::vector<double>       innerTrackpt,innerTracketa,innerTrackphi;
+  std::vector<double>       innerTrackpt,innerTracketa,innerTrackphi,matchedId;
   std::vector<double>       NumPixelLayers,chiTracker,DxyTracker,DzTracker;
   std::vector<double>       OuterTrackPt,OuterTrackEta,OuterTrackPhi;
   std::vector<double>       OuterTrackChi,OuterTrackHits,OuterTrackRHits;
@@ -369,6 +369,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
       MuonHOEnergy.push_back(RecMuon->calEnergy().hoS9);
       
       double eEcal(0),eHcal(0),activeL(0),eHcalDepth[7],eHcalDepthHot[7];
+      bool tmpmatch = false;
       unsigned int isHot = 0;
       for (int i=0; i<7; ++i) eHcalDepth[i]=eHcalDepthHot[i]=-10000;
       
@@ -378,8 +379,14 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	
 	MuonEcalDetId.push_back((trackID.detIdECAL)()); 
 	MuonHcalDetId.push_back((trackID.detIdHCAL)());  
-	MuonEHcalDetId.push_back((trackID.detIdEHCAL)());  
-	
+	MuonEHcalDetId.push_back((trackID.detIdEHCAL)());
+  
+	HcalDetId check;
+	std::pair<bool,HcalDetId> info = spr::propagateHCALBack(pTrack,  geo, bField, (((verbosity_/100)%10>0)));
+	if (info.first) { 
+	  check = info.second;
+	}	
+
 	if (trackID.okECAL) {
 	  const DetId isoCell(trackID.detIdECAL);
 	  std::pair<double,bool> e3x3 = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle,*theEcalChStatus,geo,caloTopology,sevlv.product(),1,1,-100.0,-100.0,-500.0,500.0,false);
@@ -388,6 +395,10 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 
 	if (trackID.okHCAL) {
 	  const DetId closestCell(trackID.detIdHCAL);
+	  HcalDetId hcidt(closestCell.rawId());  
+	  if ((hcidt.ieta() == check.ieta()) && (hcidt.iphi() == check.iphi())) 
+	    tmpmatch= true;
+
 	  eHcal = spr::eHCALmatrix(theHBHETopology, closestCell, hbhe,0,0, false, true, -100.0, -100.0, -100.0, -100.0, -500.,500.,useRaw_);
 	  std::vector<std::pair<double,int> > ehdepth;
 	  spr::energyHCALCell((HcalDetId) closestCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, (((verbosity_/1000)%10)>0));
@@ -415,6 +426,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	MuonEHcalDetId.push_back(0);
       }
       
+      matchedId.push_back(tmpmatch); 
       MuonEcal3x3Energy.push_back(eEcal);
       MuonHcal1x1Energy.push_back(eHcal);
       MuonHcalDepth1Energy.push_back(eHcalDepth[0]);
@@ -482,6 +494,7 @@ void HcalHBHEMuonAnalyzer::beginJob() {
   
 
   TREE->Branch("TrackerLayer",&TrackerLayer);
+  TREE->Branch("matchedId",&matchedId);
   TREE->Branch("innerTrack",&innerTrack);
   TREE->Branch("innerTrackpt",&innerTrackpt);
   TREE->Branch("innerTracketa",&innerTracketa);
@@ -607,6 +620,7 @@ void HcalHBHEMuonAnalyzer::clearVectors() {
   Energy.clear();
   Pmuon.clear();
   TrackerLayer.clear();
+  matchedId.clear();
   innerTrack.clear();
   NumPixelLayers.clear();
   chiTracker.clear();

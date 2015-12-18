@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////
+ //////////////////////////////////////////////////////////
 // This class has been automatically generated on
 // Tue Sep  9 17:21:19 2014 by ROOT version 5.34/03
 // from TTree CalibTree/CalibTree
@@ -14,16 +14,16 @@
 #include <TH1.h>
 #include <TGraph.h>
 #include <TProfile.h>
-
 #include <vector>
 #include <string>
 #include <iostream>
 #include <fstream>
 
-void Run(//const char *inFileName="root://eoscms//eos/cms/store/caf/user/gwalia/QCD_5_1000_S14",
-	 const char *inFileName="QCD_5_1000_S14.root",
-	 const char *outFileName="CalibHisto",
-	 const char *dirname="isopf", const char *treeName="CalibTree");
+void Run(const char *inFileName="QCD_5_3000_PUS14",
+	 const char *dirName="isopf", const char *treeName="CalibTree", 
+	 const char *outFileName="QCD_5_3000_PUS14_Out", bool useweight=true,
+	 int nMin=0, bool inverse=false, double ratMin=-1, double ratMax=-1,
+	 int ietaMax=21);
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -37,6 +37,7 @@ public :
   Int_t           t_Event;
   Int_t           t_ieta;
   Double_t        t_EventWeight;
+  Int_t           t_goodPV;
   Double_t        t_l1pt;
   Double_t        t_l1eta;
   Double_t        t_l1phi;
@@ -50,34 +51,49 @@ public :
   Double_t        t_eHcal;
   Double_t        t_hmaxNearP;
   Bool_t          t_selectTk;
+  Bool_t          t_qltyFlag;
   Bool_t          t_qltyMissFlag;
   Bool_t          t_qltyPVFlag;
   std::vector<unsigned int> *t_DetIds;
   std::vector<double>  *t_HitEnergies;
+  std::vector<bool>    *t_trgbits;
   std::map<unsigned int, double> Cprev;
   
   // List of branches
-  TBranch        *b_t_Run;   //!
-  TBranch        *b_t_Event;   //!
-  TBranch        *b_t_ieta;   //!
+  TBranch        *b_t_Run;           //!
+  TBranch        *b_t_Event;         //!
+  TBranch        *b_t_ieta;          //!
   TBranch        *b_t_EventWeight;   //!
-  TBranch        *b_t_l1pt;   //!
-  TBranch        *b_t_l1eta;   //!
-  TBranch        *b_t_l1phi;   //!
-  TBranch        *b_t_l3pt;   //!
-  TBranch        *b_t_l3eta;   //!
-  TBranch        *b_t_l3phi;   //!
-  TBranch        *b_t_p;   //!
-  TBranch        *b_t_mindR1;   //!
-  TBranch        *b_t_mindR2;   //!
-  TBranch        *b_t_eMipDR;   //!
-  TBranch        *b_t_eHcal;   //!
-  TBranch        *b_t_hmaxNearP;   //!
-  TBranch        *b_t_selectTk;   //!
-  TBranch        *b_t_qltyMissFlag;   //!
-  TBranch        *b_t_qltyPVFlag;   //!
-  TBranch        *b_t_DetIds;   //!
+  TBranch        *b_t_goodPV;        //!
+  TBranch        *b_t_l1pt;          //!
+  TBranch        *b_t_l1eta;         //!
+  TBranch        *b_t_l1phi;         //!
+  TBranch        *b_t_l3pt;          //!
+  TBranch        *b_t_l3eta;         //!
+  TBranch        *b_t_l3phi;         //!
+  TBranch        *b_t_p;             //!
+  TBranch        *b_t_mindR1;        //!
+  TBranch        *b_t_mindR2;        //!
+  TBranch        *b_t_eMipDR;        //!
+  TBranch        *b_t_eHcal;         //!
+  TBranch        *b_t_hmaxNearP;     //!
+  TBranch        *b_t_selectTk;      //!
+  TBranch        *b_t_qltyFlag;      //!
+  TBranch        *b_t_qltyMissFlag;  //!
+  TBranch        *b_t_qltyPVFlag;    //!
+  TBranch        *b_t_DetIds;        //!
   TBranch        *b_t_HitEnergies;   //!
+  TBranch        *b_t_trgbits;       //!
+
+  TH1D     *h_pbyE;
+  TProfile *h_Ebyp_bfr, *h_Ebyp_aftr;
+
+  struct myEntry {
+    myEntry (int k=0, double f1=0, double f2=0) : kount(k), factor1(f1), 
+						  factor2(f2) {}
+    int    kount;
+    double factor1, factor2;
+  };
 
   CalibTree(TTree *tree=0);
   virtual ~CalibTree();
@@ -85,63 +101,73 @@ public :
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
   virtual void     Init(TTree *tree);
-  virtual Double_t Loop(int loop);
+  virtual Double_t Loop(int k, TFile *fout, bool useweight, int nMin, 
+			bool inverse, double rMin, double rMax, int ietaMax,
+			bool last);
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
   bool             goodTrack();
-  void BookHisto(std::string fname);
-  TFile          *fout;
-
-private:
-  TProfile       *hprof_ndets;
-
 };
 
-void Run( const char *inFileName, const char *outFileName, 
-	  const char *dirname, const char *treeName) {  
+
+void Run(const char *inFileName, const char *dirName, const char *treeName, 
+	 const char *outFileName, bool useweight, int nMin, bool inverse, 
+	 double ratMin, double ratMax, int ietaMax) {
+ 
   char name[500];
   sprintf(name, "%s.root",inFileName);
   TFile *infile = TFile::Open(name);
-  TDirectory *dir = (TDirectory*)infile->FindObjectAny(dirname);
+  TDirectory *dir = (TDirectory*)infile->FindObjectAny(dirName);
   TTree *tree = (TTree*)dir->FindObjectAny(treeName);
-  std::cout << tree << " tree with nentries (tracks): " << tree->GetEntries() << std::endl;
-  CalibTree t(tree);
-  sprintf(name, "%s_%s_%s.root", outFileName, inFileName, dirname);
-  std::string outFile(name);
-  t.BookHisto(outFile);
+  std::cout << "Tree " << treeName << " " << tree << " in directory " 
+	    << dirName << " from file " << name << " with nentries (tracks): " 
+	    << tree->GetEntries() << std::endl;
+  CalibTree t(tree); 
+  t.h_pbyE = new TH1D("pbyE", "pbyE", 100, -1.0, 9.0);
+  t.h_Ebyp_bfr = new TProfile("Ebyp_bfr","Ebyp_bfr",60,-30,30,0,10);
+  t.h_Ebyp_aftr = new TProfile("Ebyp_aftr","Ebyp_aftr",60,-30,30,0,10);
+  
+  sprintf(name, "%s.root",outFileName);
+  TFile *fout = new TFile(outFileName, "UPDATE");
+  std::cout << "Output file: " << name << " opened in update mode" << std::endl;
+  fout->cd();
 
   double cvgs[100], itrs[100]; 
-  unsigned int k(0);
-  for (; k<20; ++k) {
-    double cvg = t.Loop(k);
+  unsigned int k(0), kmax(30);
+  for (; k<=kmax; ++k) {
+    std::cout << "Calling Loop() "  << k << "th time\n"; 
+    double cvg = t.Loop(k, fout, useweight, nMin, inverse, ratMin, ratMax, 
+			ietaMax, k==kmax);
     itrs[k] = k;
     cvgs[k] = cvg;
-    //    if (cvg < 0.00001) break;
+    if (cvg < 0.00001) break;
   }
   TGraph *g_cvg;
   g_cvg = new TGraph(k, itrs, cvgs);
-  t.fout->WriteTObject(g_cvg, "g_cvg");
+  fout->cd();
+  g_cvg->SetMarkerStyle(7);
+  g_cvg->SetMarkerSize(5.0);
+  g_cvg->Draw("AP");
+  g_cvg->Write("Cvg");
   std::cout << "Finish looping after " << k << " iterations" << std::endl;
+  fout->Close();
 }
 
 CalibTree::CalibTree(TTree *tree) : fChain(0) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
   if (tree == 0) {
-    TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("output.root");
+    TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/afs/cern.ch/work/g/gwalia/public/QCD_5_3000_PUS14.root");
     if (!f || !f->IsOpen()) {
-      f = new TFile("output.root");
+      f = new TFile("/afs/cern.ch/work/g/gwalia/public/QCD_5_3000_PUS14.root");
     }
-    TDirectory * dir = (TDirectory*)f->Get("output.root:/isopf");
+    TDirectory * dir = (TDirectory*)f->Get("/afs/cern.ch/work/g/gwalia/public/QCD_5_3000_PUS14.root:/isopf");
     dir->GetObject("CalibTree",tree);
   }
   Init(tree);
 }
 
 CalibTree::~CalibTree() {
-  fout->cd();
-  fout->Write();
-  fout->Close();
   if (!fChain) return;
   delete fChain->GetCurrentFile();
 }
@@ -176,6 +202,7 @@ void CalibTree::Init(TTree *tree) {
   // Set object pointer
   t_DetIds = 0;
   t_HitEnergies = 0;
+  t_trgbits = 0;
   // Set branch addresses and branch pointers
   if (!tree) return;
   fChain = tree;
@@ -186,6 +213,7 @@ void CalibTree::Init(TTree *tree) {
   fChain->SetBranchAddress("t_Event", &t_Event, &b_t_Event);
   fChain->SetBranchAddress("t_ieta", &t_ieta, &b_t_ieta);
   fChain->SetBranchAddress("t_EventWeight", &t_EventWeight, &b_t_EventWeight);
+  fChain->SetBranchAddress("t_goodPV", &t_goodPV, &b_t_goodPV);
   fChain->SetBranchAddress("t_l1pt", &t_l1pt, &b_t_l1pt);
   fChain->SetBranchAddress("t_l1eta", &t_l1eta, &b_t_l1eta);
   fChain->SetBranchAddress("t_l1phi", &t_l1phi, &b_t_l1phi);
@@ -199,10 +227,12 @@ void CalibTree::Init(TTree *tree) {
   fChain->SetBranchAddress("t_eHcal", &t_eHcal, &b_t_eHcal);
   fChain->SetBranchAddress("t_hmaxNearP", &t_hmaxNearP, &b_t_hmaxNearP);
   fChain->SetBranchAddress("t_selectTk", &t_selectTk, &b_t_selectTk);
+  fChain->SetBranchAddress("t_qltyFlag", &t_qltyFlag, &b_t_qltyFlag);
   fChain->SetBranchAddress("t_qltyMissFlag", &t_qltyMissFlag, &b_t_qltyMissFlag);
   fChain->SetBranchAddress("t_qltyPVFlag", &t_qltyPVFlag, &b_t_qltyPVFlag);
   fChain->SetBranchAddress("t_DetIds", &t_DetIds, &b_t_DetIds);
   fChain->SetBranchAddress("t_HitEnergies", &t_HitEnergies, &b_t_HitEnergies);
+  fChain->SetBranchAddress("t_trgbits", &t_trgbits, &b_t_trgbits);
   Notify();
 }
 
@@ -230,26 +260,24 @@ Int_t CalibTree::Cut(Long64_t ) {
   return 1;
 }
 
-Double_t CalibTree::Loop(int loop) {
-  char name[500];
+Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
+			 bool inverse, double rmin, double rmax, int ietaMax,
+			 bool last) {
   bool debug=false;
   if (fChain == 0) return 0;
   Long64_t nentries = fChain->GetEntriesFast();
   Long64_t nbytes = 0, nb = 0;
-  std::map<unsigned int, std::pair<double,double> >SumW;
-  std::map<unsigned int, unsigned int >nTrks;
-  unsigned int mask(0xFF80), ntrkMax(0);
+  std::map<unsigned int, myEntry > SumW;
+  std::map<unsigned int, double  > nTrks;
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
-  //  for (Long64_t jentry=0; jentry<1000;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
-    if(debug) std::cout << "***Entry (Track) Number : " << ientry 
-			<< " p/eHCal/eMipDR/nDets : " << t_p << "/" << t_eHcal 
-			<< "/" << t_eMipDR << "/" << (*t_DetIds).size() 
-			<< std::endl;
+    //    std::cout << "***Entry (Track) Number : " << ientry << std::endl;
+    //    std::cout << "p/eHCal/eMipDR/nDets : " << t_p << "/" << t_eHcal << "/"
+    //	      << t_eMipDR << "/" << (*t_DetIds).size() << std::endl;
+    unsigned int mask(0xFF80);
     if (goodTrack()) {
-      if (loop == 0) hprof_ndets->Fill(t_ieta, (*t_DetIds).size());
       double Etot=0.0;
       for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) { 
 	double hitEn=0.0;
@@ -260,50 +288,72 @@ Double_t CalibTree::Loop(int loop) {
 	  hitEn = (*t_HitEnergies)[idet];
 	Etot += hitEn;
       }
-      for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) {
-	unsigned int detid = (*t_DetIds)[idet] & mask;
-	double hitEn=0.0;
-	if (debug) std::cout << "idet " << idet << " detid/hitenergy : " 
-			     << std::hex << (*t_DetIds)[idet] << ":" << detid
-			     << "/" << (*t_HitEnergies)[idet] << std::endl;
-	if (Cprev.find(detid) != Cprev.end()) 
-	  hitEn = Cprev[detid] * (*t_HitEnergies)[idet];
-	else 
-	  hitEn = (*t_HitEnergies)[idet];
-	double Wi = hitEn/Etot;
-	double Fac = (Wi* t_p) / Etot;
-	if( SumW.find(detid) != SumW.end() ) {
-	  Wi  += SumW[detid].first;
-	  Fac += SumW[detid].second;
-	  SumW[detid] = std::pair<double,double>(Wi,Fac); 
-	  nTrks[detid]++;
-	} else {
-	  SumW.insert( std::pair<unsigned int, std::pair<double,double> >(detid,std::pair<double,double>(Wi,Fac)));
-	  nTrks.insert(std::pair<unsigned int,unsigned int>(detid, 1));
+      double evWt = (useweight) ? t_EventWeight : 1.0; 
+      double ratio= Etot/t_p;
+      if (loop==0) {
+	h_pbyE->Fill(ratio, evWt);
+        h_Ebyp_bfr->Fill(t_ieta, ratio, evWt);
+      }
+      if (last){
+        h_Ebyp_aftr->Fill(t_ieta, ratio, evWt);
+      }
+      if ((rmin >=0 && ratio > rmin) && (rmax >= 0 && ratio < rmax)) {
+	for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) {
+	  unsigned int detid = (*t_DetIds)[idet] & mask;
+	  double hitEn=0.0;
+	  if (debug) std::cout << "idet " << idet << " detid/hitenergy : " 
+			       << std::hex << (*t_DetIds)[idet] << ":" 
+			       << detid << "/" << (*t_HitEnergies)[idet] 
+			       << std::endl;
+	  if (Cprev.find(detid) != Cprev.end()) 
+	    hitEn = Cprev[detid] * (*t_HitEnergies)[idet];
+	  else 
+	    hitEn = (*t_HitEnergies)[idet];
+	  double Wi  = evWt * hitEn/Etot;
+	  double Fac = (inverse) ? ((Wi*Etot)/t_p) : ((Wi*t_p)/Etot);
+	  if (SumW.find(detid) != SumW.end() ) {
+	    Wi  += SumW[detid].factor1;
+	    Fac += SumW[detid].factor2;
+	    int kount = SumW[detid].kount + 1;
+	    SumW[detid]   = myEntry(kount,Wi,Fac); 
+	    nTrks[detid] += evWt;
+	  } else {
+	    SumW.insert(std::pair<unsigned int,myEntry>(detid,myEntry(1,Wi,Fac)));
+	    nTrks.insert(std::pair<unsigned int,unsigned int>(detid, evWt));
+	  }
 	}
-	if (nTrks[detid] > ntrkMax) ntrkMax = nTrks[detid];
       }
     }
   }
-  
-  std::map<unsigned int, std::pair<double,double> >::iterator SumWItr = SumW.begin();
-  unsigned int kount(0), mkount(0);
+  if (loop==0) {
+    h_pbyE->Write("h_pbyE");
+    h_Ebyp_bfr->Write("h_Ebyp_bfr");
+  }
+  if (last) {
+    h_Ebyp_aftr->Write("h_Ebyp_aftr");
+  }
+  std::map<unsigned int, myEntry>::iterator SumWItr = SumW.begin();
+  unsigned int kount(0), kountus(0);
   double       sumfactor(0);
-  double       dets[150], cfacs[150], wfacs[150], nTrk[150];
-  unsigned int ntrkCut = ntrkMax/10;
+  double dets[150], cfacs[150], wfacs[150], myId[150], nTrk[150];
   for (; SumWItr != SumW.end(); SumWItr++) {
-    if (debug) 
-      std::cout<< "Detid/SumWi/SumFac : " << SumWItr->first << " / "
-	       << (SumWItr->second).first << " / " << (SumWItr->second).second
-	       << std::endl;
     unsigned int detid = SumWItr->first;
-    double factor = (SumWItr->second).second / (SumWItr->second).first;
-
-    if(nTrks[detid]>ntrkCut) {
+    int ieta = (detid>>7) & 0x3f;
+    int zside= (detid&0x2000) ? 1 : -1;
+    int depth= (detid>>14)&0x1F;
+    double id = ieta*zside + 0.25*(depth-1);
+    if (debug) 
+      std::cout<< "Detid|kount|SumWi|SumFac|myId : " << SumWItr->first << " | "
+	       << (SumWItr->second).kount << " | " << (SumWItr->second).factor1
+	       << " | " << (SumWItr->second).factor2 << " | " << id <<std::endl;
+    double factor = (SumWItr->second).factor2/(SumWItr->second).factor1;
+    if (inverse) factor = 2.-factor;
+    if ((SumWItr->second).kount > nMin) {
+      kountus++;
       if (factor > 1) sumfactor += (1-1/factor);
       else            sumfactor += (1-factor);
-      mkount++;
     }
+    if (ieta > ietaMax) factor = 1;
     if (Cprev.find(detid) != Cprev.end()) {
       Cprev[detid] *= factor;
       cfacs[kount] = Cprev[detid];
@@ -311,30 +361,52 @@ Double_t CalibTree::Loop(int loop) {
       Cprev.insert( std::pair<unsigned int, double>(detid, factor) );
       cfacs[kount] = factor;
     }
-    int ieta = (detid>>7) & 0x3f;
-    int zside= (detid&0x2000) ? 1 : -1;
-    int depth= (detid>>14)&0x1F;
     wfacs[kount]= factor;
-    dets[kount] = zside*(ieta+0.1*(depth-1));
+    dets[kount] = detid;
+    myId[kount] = id;
     nTrk[kount] = nTrks[detid];
     kount++;
   }
-  TGraph *g_fac, *g_fac2, *g_nTrk;
-  g_fac = new TGraph(kount, dets, cfacs); 
-  sprintf(name, "Cfacs_detid_it%d", loop);
-  fout->WriteTObject(g_fac, name);
+  std::cout << kountus << " detids out of " << kount << "have trks > " << nMin << std::endl;
 
-  g_fac2 = new TGraph(kount, dets, wfacs); 
-  sprintf(name, "Wfacs_detid_it%d", loop);
-  fout->WriteTObject(g_fac2, name);
-
-  g_nTrk = new TGraph(kount, dets, nTrk); 
-  if (loop==0) fout->WriteTObject(g_nTrk, "nTrk_detid");
-
+  char fname[50];
+  fout->cd();
+  TGraph *g_fac1 = new TGraph(kount, dets, cfacs); 
+  sprintf (fname, "Cfacs%d", loop);
+  g_fac1->SetMarkerStyle(7);
+  g_fac1->SetMarkerSize(5.0);
+  g_fac1->Draw("AP");
+  g_fac1->Write(fname);
+  TGraph *g_fac2 = new TGraph(kount, dets, wfacs); 
+  sprintf (fname, "Wfacs%d", loop);
+  g_fac2->SetMarkerStyle(7);
+  g_fac2->SetMarkerSize(5.0);
+  g_fac2->Draw("AP");
+  g_fac2->Write(fname);
+  TGraph *g_fac3 = new TGraph(kount, myId, cfacs); 
+  sprintf (fname, "CfacsVsMyId%d", loop);
+  g_fac3->SetMarkerStyle(7);
+  g_fac3->SetMarkerSize(5.0);
+  g_fac3->Draw("AP");
+  g_fac3->Write(fname);
+  TGraph *g_fac4 = new TGraph(kount, myId, wfacs); 
+  sprintf (fname, "WfacsVsMyId%d", loop);
+  g_fac4->SetMarkerStyle(7);
+  g_fac4->SetMarkerSize(5.0);
+  g_fac4->Draw("AP");
+  g_fac4->Write(fname);
+  TGraph *g_nTrk = new TGraph(kount, myId, nTrk); 
+  sprintf (fname, "nTrk");
+  if(loop==0){
+  g_nTrk->SetMarkerStyle(7);
+  g_nTrk->SetMarkerSize(5.0);
+  g_nTrk->Draw("AP");
+  g_nTrk->Write(fname);
+  }
   std::cout << "The new factors are :" << std::endl;
   std::map<unsigned int, double>::iterator CprevItr = Cprev.begin();
   unsigned int indx(0);
-  for (CprevItr=Cprev.begin(); CprevItr != Cprev.end(); CprevItr++, indx++){
+  for (; CprevItr != Cprev.end(); CprevItr++, indx++){
     unsigned int detid = CprevItr->first;
     int ieta = (detid>>7) & 0x3f;
     int zside= (detid&0x2000) ? 1 : -1;
@@ -343,22 +415,14 @@ Double_t CalibTree::Loop(int loop) {
 	      << "(" << ieta*zside << "," << depth << ") ( nTrks:" 
 	      << nTrks[detid] << ") : " << CprevItr->second << std::endl;
   }
-  double mean = (mkount > 0) ? (sumfactor/mkount) : 0;
-  std::cout << "Mean deviation " << mean << " from 1 for " << mkount << ":"
-	    << kount << " DetIds" << std::endl;
+  double mean = (kountus > 0) ? (sumfactor/kountus) : 0;
+  std::cout << "Mean deviation " << mean << " from 1 for " << kountus 
+	    << " DetIds" << std::endl;
   return mean;
 }
-
 bool CalibTree::goodTrack() {
   bool ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < 2.0) && 
 	     (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (t_p > 40.0) &&
-	     (t_p < 60.0) && (t_eHcal > 0.5*t_p));
+	     (t_p < 60.0));
   return ok;
-}
-
-void CalibTree::BookHisto(std::string fname){
-  fout = new TFile(fname.c_str(), "UPDATE");
-  fout->cd();
-  hprof_ndets  = new TProfile("hndets","number of detids versus ieta",60,-30,30,0,20);
-
 }
