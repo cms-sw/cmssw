@@ -168,7 +168,7 @@ process.noslowpt = cms.EDFilter("FilterOutLowPt",
                                 numtrack = cms.untracked.uint32(0),
                                 thresh = cms.untracked.int32(1),
                                 ptmin  = cms.untracked.double(PTCUTTEMPLATE),
-                                runControl = cms.untracked.bool(True),
+                                runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
                                 runControlNumber = cms.untracked.uint32(int(runboundary))
                                 )
 
