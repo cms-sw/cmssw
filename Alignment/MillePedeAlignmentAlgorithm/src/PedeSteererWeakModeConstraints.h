@@ -12,11 +12,11 @@
 
 #include <list>
 #include <vector>
-#include <map> 
-#include <set> 
+#include <map>
+#include <set>
 #include <string>
 // forward ofstream:
-#include <iosfwd> 
+#include <iosfwd>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/src/PedeSteerer.h"
@@ -37,7 +37,8 @@ class GeometryConstraintConfigData {
                                const std::string& c,
                                const std::vector<std::pair<Alignable*,std::string> >& alisFile,
                                const int sd,
-                               const std::vector<Alignable*>& ex
+                               const std::vector<Alignable*>& ex,
+                               const int instance
                                );
   const std::vector<double> coefficients_;
   const std::string constraintName_;
@@ -45,7 +46,8 @@ class GeometryConstraintConfigData {
   const std::vector<Alignable*> excludedAlignables_;
   std::map<std::string, std::ofstream*> mapFileName_;
   std::list<std::pair<Alignable*, std::list<Alignable*> > > HLSsubdets_; //first pointer to HLS object, second list is the list of pointers to the lowest components
-  int sysdeformation_;
+  const int sysdeformation_;
+  const int instance_;
 };
 
 class PedeSteererWeakModeConstraints {
@@ -60,7 +62,7 @@ class PedeSteererWeakModeConstraints {
   //FIXME: split the code of the method into smaller pieces/submethods
   // Main method that configures everything and calculates also the constraints
   unsigned int constructConstraints(const std::vector<Alignable*> &alis);
- 
+
   // Returns a references to the container in which the configuration is stored
   std::list<GeometryConstraintConfigData>& getConfigData() { return ConstraintsConfigContainer_; }
 
@@ -101,7 +103,7 @@ class PedeSteererWeakModeConstraints {
 
   //returns true if iParameter of Alignable is selected in configuration file
   bool checkSelectionShiftParameter(const Alignable *ali, unsigned int iParameter) const;
- 
+
   // Method used to test the provided configuration for unknown parameters
   void verifyParameterNames(const edm::ParameterSet &pset, unsigned int psetnr) const;
 
@@ -114,9 +116,9 @@ class PedeSteererWeakModeConstraints {
 
   // Verify that the name of the configured deformation is known and that the number of coefficients has been correctly configured
   int verifyDeformationName(const std::string &name, const std::vector<double> &coefficients) const;
-  
+
   //list of dead modules which are not used in any constraint
-  std::list<align::ID> deadmodules_; 
+  std::list<align::ID> deadmodules_;
 
   //the data structure that holds all needed informations for the constraint configuration
   std::list<GeometryConstraintConfigData> ConstraintsConfigContainer_;
@@ -140,5 +142,5 @@ class PedeSteererWeakModeConstraints {
     kSkew
   };
 };
- 
+
 #endif
