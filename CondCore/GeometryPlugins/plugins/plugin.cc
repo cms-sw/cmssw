@@ -32,9 +32,6 @@
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
 
-#include "CondFormats/GeometryObjects/interface/PHcalParameters.h"
-#include "Geometry/Records/interface/PHcalParametersRcd.h"
-
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
 #include "Geometry/Records/interface/HcalParametersRcd.h"
 
@@ -47,7 +44,6 @@ REGISTER_PLUGIN(PEcalEndcapRcd,PCaloGeometry);
 REGISTER_PLUGIN(PEcalPreshowerRcd,PCaloGeometry);
 REGISTER_PLUGIN(PHcalRcd,PCaloGeometry);
 REGISTER_PLUGIN(PHGCalRcd,PCaloGeometry);
-REGISTER_PLUGIN(PHcalParametersRcd,PHcalParameters);
 REGISTER_PLUGIN(HcalParametersRcd,HcalParameters);
 REGISTER_PLUGIN(PCaloTowerRcd,PCaloGeometry);
 REGISTER_PLUGIN(PZdcRcd,PCaloGeometry);
