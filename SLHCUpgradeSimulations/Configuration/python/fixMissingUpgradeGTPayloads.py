@@ -17,33 +17,4 @@ def fixRPCConditions(process):
     )
     return process
 
-def fixDTAlignmentConditions(process):
-    if not hasattr(process.GlobalTag,'toGet'):
-        process.GlobalTag.toGet=cms.VPSet()
-    process.GlobalTag.toGet.extend( cms.VPSet(
-            cms.PSet(record = cms.string("DTAlignmentErrorExtendedRcd"),
-                     tag = cms.string("MuonDTAPEObjectsExtended_v0_mc"),
-                     connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
-                 )
-            )
-    ),
-    process.GlobalTag.toGet.extend( cms.VPSet(
-            cms.PSet(record = cms.string("DTRecoUncertaintiesRcd"),
-                     tag = cms.string("DTRecoUncertainties_True_v0"),
-                     connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
-                 )
-            )
-    ),
-    return process
 
-def fixCSCAlignmentConditions(process):
-    if not hasattr(process.GlobalTag,'toGet'):
-        process.GlobalTag.toGet=cms.VPSet()
-    process.GlobalTag.toGet.extend( cms.VPSet(
-            cms.PSet(record = cms.string("CSCAlignmentErrorExtendedRcd"),
-                     tag = cms.string("MuonCSCAPEObjectsExtended_v0_mc"),
-                     connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
-                 )
-            )
-    ),
-    return process
