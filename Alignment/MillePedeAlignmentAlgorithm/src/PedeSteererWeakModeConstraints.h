@@ -8,9 +8,6 @@
  *
  * \author    : Joerg Behr
  * date       : February 2013
- * $Date: 2013/06/18 15:47:55 $
- * $Revision: 1.10 $
- * (last update by $Author: jbehr $)
  */
 
 #include <list>
@@ -36,11 +33,11 @@ class PedeLabelerBase;
 //FIXME: move GeometryConstraintConfigData to PedeSteererWeakModeConstraints?
 class GeometryConstraintConfigData {
  public:
-  GeometryConstraintConfigData(const std::vector<double> co,
-                               const std::string c,
-                               const std::vector<std::pair<Alignable*,std::string> > &alisFile,
+  GeometryConstraintConfigData(const std::vector<double>& co,
+                               const std::string& c,
+                               const std::vector<std::pair<Alignable*,std::string> >& alisFile,
                                const int sd,
-                               const std::vector<Alignable*> ex
+                               const std::vector<Alignable*>& ex
                                );
   const std::vector<double> coefficients_;
   const std::string constraintName_;
@@ -65,7 +62,7 @@ class PedeSteererWeakModeConstraints {
   unsigned int constructConstraints(const std::vector<Alignable*> &alis);
  
   // Returns a references to the container in which the configuration is stored
-  std::list<GeometryConstraintConfigData>* getConfigData() { return &ConstraintsConfigContainer_; }
+  std::list<GeometryConstraintConfigData>& getConfigData() { return ConstraintsConfigContainer_; }
 
  private:
   // Method creates the data structures with the full configuration
@@ -73,7 +70,7 @@ class PedeSteererWeakModeConstraints {
 
   // Write the calculated constraints to the output files
   void writeOutput(const std::list<std::pair<unsigned int,double> > &output,
-                   const std::list<GeometryConstraintConfigData>::const_iterator &it, Alignable* iHLS, double sum_xi_x0);
+                   const GeometryConstraintConfigData &it, Alignable* iHLS, double sum_xi_x0);
 
   // Close the output files
   void closeOutputfiles();
@@ -89,8 +86,8 @@ class PedeSteererWeakModeConstraints {
   // The methods returns x depending on the type of deformation
   double getX(const int sysdeformation, const align::GlobalPoint &pos, const double phase) const;
 
-  double getX0(std::list<std::pair<Alignable*, std::list<Alignable*> > >::iterator &iHLS,
-               std::list<GeometryConstraintConfigData>::iterator &it);
+  double getX0(const std::pair<Alignable*, std::list<Alignable*> > &iHLS,
+               const GeometryConstraintConfigData &it) const;
 
   // Calculates and returns the coefficient for alignment parameter iParameter
   // for an alignable at position pos.
