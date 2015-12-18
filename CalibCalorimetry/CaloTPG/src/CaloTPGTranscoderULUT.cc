@@ -38,8 +38,8 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
         throw cms::Exception("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
     }
 
-    std::vector<unsigned int> analyticalLUT(OUTPUT_LUT_SIZE, 0);
-    std::vector<unsigned int> identityLUT(OUTPUT_LUT_SIZE, 0);
+    std::array<unsigned int, OUTPUT_LUT_SIZE> analyticalLUT;
+    std::array<unsigned int, OUTPUT_LUT_SIZE> identityLUT;
 
     // Compute compression LUT
     for (unsigned int i=0; i < OUTPUT_LUT_SIZE; i++) {
