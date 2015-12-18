@@ -86,69 +86,69 @@ namespace L1Analysis
 
     }
    
-    unsigned int nIsoEm;
-    std::vector<double> isoEmEt;
-    std::vector<double> isoEmEta;
-    std::vector<double> isoEmPhi;
+    unsigned short nIsoEm;
+    std::vector<float> isoEmEt;
+    std::vector<float> isoEmEta;
+    std::vector<float> isoEmPhi;
     std::vector<int>    isoEmBx;
  
-    unsigned int nNonIsoEm;
-    std::vector<double> nonIsoEmEt;
-    std::vector<double> nonIsoEmEta;
-    std::vector<double> nonIsoEmPhi;
+    unsigned short nNonIsoEm;
+    std::vector<float> nonIsoEmEt;
+    std::vector<float> nonIsoEmEta;
+    std::vector<float> nonIsoEmPhi;
     std::vector<int>    nonIsoEmBx;
  
-    unsigned int nCenJets;
-    std::vector<double> cenJetEt;
-    std::vector<double> cenJetEta;
-    std::vector<double> cenJetPhi;
+    unsigned short nCenJets;
+    std::vector<float> cenJetEt;
+    std::vector<float> cenJetEta;
+    std::vector<float> cenJetPhi;
     std::vector<int>    cenJetBx;
  
-    unsigned int nFwdJets;
-    std::vector<double> fwdJetEt;
-    std::vector<double> fwdJetEta;
-    std::vector<double> fwdJetPhi;
+    unsigned short nFwdJets;
+    std::vector<float> fwdJetEt;
+    std::vector<float> fwdJetEta;
+    std::vector<float> fwdJetPhi;
     std::vector<int>    fwdJetBx;
 
-    unsigned int nTauJets;
-    std::vector<double> tauJetEt;
-    std::vector<double> tauJetEta;
-    std::vector<double> tauJetPhi;
+    unsigned short nTauJets;
+    std::vector<float> tauJetEt;
+    std::vector<float> tauJetEta;
+    std::vector<float> tauJetPhi;
     std::vector<int>    tauJetBx;
 
-    unsigned int nIsoTauJets;
-    std::vector<double> isoTauJetEt;
-    std::vector<double> isoTauJetEta;
-    std::vector<double> isoTauJetPhi;
+    unsigned short nIsoTauJets;
+    std::vector<float> isoTauJetEt;
+    std::vector<float> isoTauJetEta;
+    std::vector<float> isoTauJetPhi;
     std::vector<int>    isoTauJetBx;
 
-    unsigned int nMuons;
-    std::vector<double>   muonEt;
-    std::vector<double>   muonEta;
-    std::vector<double>   muonPhi;
+    unsigned short nMuons;
+    std::vector<float>   muonEt;
+    std::vector<float>   muonEta;
+    std::vector<float>   muonPhi;
     std::vector<int>      muonChg;
-    std::vector<unsigned int> muonIso;
-    std::vector<unsigned int> muonFwd;
-    std::vector<unsigned int> muonMip;
-    std::vector<unsigned int> muonRPC;
+    std::vector<unsigned short> muonIso;
+    std::vector<unsigned short> muonFwd;
+    std::vector<unsigned short> muonMip;
+    std::vector<unsigned short> muonRPC;
     std::vector<int>      muonBx;
     std::vector<int>      muonQuality;
  
-    std::vector<double> hfEtSum;
-    std::vector<unsigned int> hfBitCnt;
+    std::vector<float> hfEtSum;
+    std::vector<unsigned short> hfBitCnt;
     std::vector<int> hfBx;
     
-    unsigned int nMet;
-    std::vector<double> et;
-    std::vector<double> met;
-    std::vector<double> metPhi;
-    std::vector<double> metBx;
+    unsigned short nMet;
+    std::vector<float> et;
+    std::vector<float> met;
+    std::vector<float> metPhi;
+    std::vector<float> metBx;
 
-    unsigned int nMht;
-    std::vector<double> ht;
-    std::vector<double> mht;
-    std::vector<double> mhtPhi;
-    std::vector<double> mhtBx;
+    unsigned short nMht;
+    std::vector<float> ht;
+    std::vector<float> mht;
+    std::vector<float> mhtPhi;
+    std::vector<float> mhtBx;
 
   }; 
 }

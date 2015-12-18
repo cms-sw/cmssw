@@ -40,21 +40,21 @@ namespace L1Analysis
     }
     
 
-    int nHCALTP;
-    std::vector<int> hcalTPieta;
-    std::vector<int> hcalTPiphi;
-    std::vector<int> hcalTPCaliphi;
-    std::vector<double> hcalTPet;
-    std::vector<int> hcalTPcompEt;
-    std::vector<short int> hcalTPfineGrain;
+    short nHCALTP;
+    std::vector<short> hcalTPieta;
+    std::vector<short> hcalTPiphi;
+    std::vector<short> hcalTPCaliphi;
+    std::vector<float> hcalTPet;
+    std::vector<short> hcalTPcompEt;
+    std::vector<short> hcalTPfineGrain;
 
-    int nECALTP;
-    std::vector<int> ecalTPieta;
-    std::vector<int> ecalTPiphi;
-    std::vector<int> ecalTPCaliphi;
-    std::vector<double> ecalTPet;
-    std::vector<int> ecalTPcompEt;
-    std::vector<short int> ecalTPfineGrain;
+    short nECALTP;
+    std::vector<short> ecalTPieta;
+    std::vector<short> ecalTPiphi;
+    std::vector<short> ecalTPCaliphi;
+    std::vector<float> ecalTPet;
+    std::vector<short> ecalTPcompEt;
+    std::vector<short> ecalTPfineGrain;
     
   }; 
 } 

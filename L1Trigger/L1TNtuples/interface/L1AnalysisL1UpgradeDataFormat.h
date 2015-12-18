@@ -61,6 +61,7 @@ namespace L1Analysis
       muonBx.clear();
 
       nSums = 0;
+      sumType.clear();
       sumEt.clear();
       sumPhi.clear();
       sumIEt.clear();
@@ -69,53 +70,54 @@ namespace L1Analysis
 
     }
    
-    unsigned int nEGs;
-    std::vector<double> egEt;
-    std::vector<double> egEta;
-    std::vector<double> egPhi;
-    std::vector<int> egIEt;
-    std::vector<int> egIEta;
-    std::vector<int> egIPhi;
-    std::vector<int>    egIso;
-    std::vector<int>    egBx;
+    unsigned short int nEGs;
+    std::vector<float> egEt;
+    std::vector<float> egEta;
+    std::vector<float> egPhi;
+    std::vector<short int> egIEt;
+    std::vector<short int> egIEta;
+    std::vector<short int> egIPhi;
+    std::vector<short int>    egIso;
+    std::vector<short int>    egBx;
  
-    unsigned int nTaus;
-    std::vector<double> tauEt;
-    std::vector<double> tauEta;
-    std::vector<double> tauPhi;
-    std::vector<int> tauIEt;
-    std::vector<int> tauIEta;
-    std::vector<int> tauIPhi;
-    std::vector<int>    tauIso;
-    std::vector<int>    tauBx;
+    unsigned short int nTaus;
+    std::vector<float> tauEt;
+    std::vector<float> tauEta;
+    std::vector<float> tauPhi;
+    std::vector<short int> tauIEt;
+    std::vector<short int> tauIEta;
+    std::vector<short int> tauIPhi;
+    std::vector<short int>    tauIso;
+    std::vector<short int>    tauBx;
 
-    unsigned int nJets;
-    std::vector<double> jetEt;
-    std::vector<double> jetEta;
-    std::vector<double> jetPhi;
-    std::vector<int> jetIEt;
-    std::vector<int> jetIEta;
-    std::vector<int> jetIPhi;
-    std::vector<int>    jetBx;
+    unsigned short int nJets;
+    std::vector<float> jetEt;
+    std::vector<float> jetEta;
+    std::vector<float> jetPhi;
+    std::vector<short int> jetIEt;
+    std::vector<short int> jetIEta;
+    std::vector<short int> jetIPhi;
+    std::vector<short int>    jetBx;
 
-    unsigned int nMuons;
-    std::vector<double>   muonEt;
-    std::vector<double>   muonEta;
-    std::vector<double>   muonPhi;
-    std::vector<int>   muonIEt;
-    std::vector<int>   muonIEta;
-    std::vector<int>   muonIPhi;
-    std::vector<int>      muonChg;
-    std::vector<unsigned int> muonIso;
-    std::vector<int>      muonBx;
+    unsigned short int nMuons;
+    std::vector<float>   muonEt;
+    std::vector<float>   muonEta;
+    std::vector<float>   muonPhi;
+    std::vector<short int>   muonIEt;
+    std::vector<short int>   muonIEta;
+    std::vector<short int>   muonIPhi;
+    std::vector<short int>      muonChg;
+    std::vector<unsigned short int> muonIso;
+    std::vector<short int>      muonBx;
 
     
-    unsigned int nSums;
-    std::vector<double> sumEt;
-    std::vector<double> sumPhi;
-    std::vector<int> sumIEt;
-    std::vector<int> sumIPhi;
-    std::vector<double> sumBx;
+    unsigned short int nSums;
+    std::vector<short int> sumType;
+    std::vector<float> sumEt;
+    std::vector<float> sumPhi;
+    std::vector<short int> sumIEt;
+    std::vector<short int> sumIPhi;
+    std::vector<float> sumBx;
 
   }; 
 }

@@ -2,7 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
-def L1NtupleCustomJetReco(process):
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
+
+def L1NtupleCustomReco(process):
+
+
+####  Custom Jet reco ####
 
     # load JEC from SQLite file
     process.load("CondCore.DBCommon.CondDBCommon_cfi")
@@ -34,16 +40,9 @@ def L1NtupleCustomJetReco(process):
 
     process.ak4PFCHSJetsL1FastL2L3Residual = process.ak4PFCHSJetsL1.clone(correctors = ['ak4PFCHSL1FastL2L3ResidualCorrector'])
 
-    return process
-
 
 
 ####  Custom E/Gamma reco ####
-
-from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
-from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
-
-def L1NtupleCustomEGReco(process):
 
     # turn on VID producer, indicate data format  to be
     # DataFormat.AOD or DataFormat.MiniAOD, as appropriate 
@@ -54,6 +53,7 @@ def L1NtupleCustomEGReco(process):
     # define which IDs we want to produce
     idmod = 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff'  
     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
+
 
     process.l1CustomReco = cms.Path(
         process.ak4PFCHSL1FastL2L3ResidualCorrectorChain

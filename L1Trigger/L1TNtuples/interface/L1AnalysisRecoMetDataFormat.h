@@ -19,24 +19,24 @@ namespace L1Analysis
     
     void Reset()
     {
-     met    = -999;
-     metPhi = -999;
-     Ht     = -999;
-     mHt    = -999;
-     mHtPhi = -999;
-     sumEt  = -999;
+     met    = -999.;
+     metPhi = -999.;
+     Ht     = -999.;
+     mHt    = -999.;
+     mHtPhi = -999.;
+     sumEt  = -999.;
      ecalFlag = 0;
      hcalFlag = 0;
     }
     
-    double met;
-    double metPhi;
-    double Ht;
-    double mHt;
-    double mHtPhi;
-    double sumEt;
-    unsigned ecalFlag;
-    unsigned hcalFlag;
+    float met;
+    float metPhi;
+    float Ht;
+    float mHt;
+    float mHtPhi;
+    float sumEt;
+    unsigned short ecalFlag;
+    unsigned short hcalFlag;
     
   }; 
 }

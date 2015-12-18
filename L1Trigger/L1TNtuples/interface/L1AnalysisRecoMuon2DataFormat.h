@@ -35,19 +35,19 @@ namespace L1Analysis
     hlt_deltaR.clear();
     }
 
-    unsigned nMuons;
-    std::vector<double> e;
-    std::vector<double> et;
-    std::vector<double> pt;
-    std::vector<double> eta;
-    std::vector<double> phi;
+    unsigned short nMuons;
+    std::vector<float> e;
+    std::vector<float> et;
+    std::vector<float> pt;
+    std::vector<float> eta;
+    std::vector<float> phi;
     std::vector<bool> isLooseMuon;
     std::vector<bool> isMediumMuon;
-    std::vector<double> iso;
-    std::vector<int> hlt_isomu;
-    std::vector<int> hlt_mu;
-    std::vector<double> hlt_isoDeltaR;
-    std::vector<double> hlt_deltaR;
+    std::vector<float> iso;
+    std::vector<short> hlt_isomu;
+    std::vector<short> hlt_mu;
+    std::vector<float> hlt_isoDeltaR;
+    std::vector<float> hlt_deltaR;
 
   };
 }

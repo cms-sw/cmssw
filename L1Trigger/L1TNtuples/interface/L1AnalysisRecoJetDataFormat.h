@@ -50,36 +50,65 @@ namespace L1Analysis
     fRBX.clear();
 
     // PF quantities
+    chef.clear();
+    nhef.clear();
+    pef.clear();
+    eef.clear();
+    mef.clear();
+    hfhef.clear();
+    hfemef.clear();
+    chMult.clear();
+    nhMult.clear();
+    phMult.clear();
+    elMult.clear();
+    muMult.clear();
+    hfhMult.clear();
+    hfemMult.clear();
 
     }
 
-    unsigned nJets;
-    std::vector<double> e;
-    std::vector<double> et;
-    std::vector<double> etCorr;
-    std::vector<double> corrFactor;
-    std::vector<double> eta;
-    std::vector<double> phi;
+    unsigned short nJets;
+    std::vector<float> e;
+    std::vector<float> et;
+    std::vector<float> etCorr;
+    std::vector<float> corrFactor;
+    std::vector<float> eta;
+    std::vector<float> phi;
     std::vector<bool> isPF;
 
-    std::vector<double> eEMF;
-    std::vector<double> eHadHB;
-    std::vector<double> eHadHE;
-    std::vector<double> eHadHO;
-    std::vector<double> eHadHF;
-    std::vector<double> eEmEB;
-    std::vector<double> eEmEE;
-    std::vector<double> eEmHF;
-    std::vector<double> eMaxEcalTow;
-    std::vector<double> eMaxHcalTow;
-    std::vector<double> towerArea;
-    std::vector<int> towerSize;
-    std::vector<int> n60;
-    std::vector<int> n90;
+    std::vector<float> eEMF;
+    std::vector<float> eHadHB;
+    std::vector<float> eHadHE;
+    std::vector<float> eHadHO;
+    std::vector<float> eHadHF;
+    std::vector<float> eEmEB;
+    std::vector<float> eEmEE;
+    std::vector<float> eEmHF;
+    std::vector<float> eMaxEcalTow;
+    std::vector<float> eMaxHcalTow;
+    std::vector<float> towerArea;
+    std::vector<short> towerSize;
+    std::vector<short> n60;
+    std::vector<short> n90;
 
-    std::vector<int> n90hits;
-    std::vector<double> fHPD;
-    std::vector<double> fRBX;
+    std::vector<short> n90hits;
+    std::vector<float> fHPD;
+    std::vector<float> fRBX;
+
+    std::vector<float> chef;
+    std::vector<float> nhef;
+    std::vector<float> pef;
+    std::vector<float> eef;
+    std::vector<float> mef;
+    std::vector<float> hfhef;
+    std::vector<float> hfemef;
+    std::vector<short> chMult;
+    std::vector<short> nhMult;
+    std::vector<short> phMult;
+    std::vector<short> elMult;
+    std::vector<short> muMult;
+    std::vector<short> hfhMult;
+    std::vector<short> hfemMult;
 
   };
 }

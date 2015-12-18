@@ -26,8 +26,7 @@ from L1Trigger.L1TNtuples.customiseL1CustomReco import *
 def L1NtupleAOD(process):
     
     L1NtupleTFileOut(process)
-    L1NtupleCustomJetReco(process)
-    L1NtupleCustomEGReco(process)
+    L1NtupleCustomReco(process)
 
     process.load('L1Trigger.L1TNtuples.L1NtupleAOD_cff')
     process.l1ntupleaod = cms.Path(

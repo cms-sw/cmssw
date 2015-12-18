@@ -38,20 +38,20 @@ namespace L1Analysis
     }
 
     unsigned nElectrons;
-    std::vector<double> e;
-    std::vector<double> et;
-    std::vector<double> e_SC;
-    std::vector<double> e_ECAL;
-    std::vector<double> phi_SC;
-    std::vector<double> pt;
-    std::vector<double> eta;
-    std::vector<double> eta_SC;
-    std::vector<double> phi;
-    std::vector<double> iso;
-    std::vector<int> isVetoElectron;
-    std::vector<int> isLooseElectron;
-    std::vector<int> isMediumElectron;
-    std::vector<int> isTightElectron;
+    std::vector<float> e;
+    std::vector<float> et;
+    std::vector<float> e_SC;
+    std::vector<float> e_ECAL;
+    std::vector<float> phi_SC;
+    std::vector<float> pt;
+    std::vector<float> eta;
+    std::vector<float> eta_SC;
+    std::vector<float> phi;
+    std::vector<float> iso;
+    std::vector<short> isVetoElectron;
+    std::vector<short> isLooseElectron;
+    std::vector<short> isMediumElectron;
+    std::vector<short> isTightElectron;
 
   };
 }

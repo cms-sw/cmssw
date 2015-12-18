@@ -92,6 +92,8 @@ void L1Analysis::L1AnalysisL1Upgrade::SetSum(const edm::Handle<l1t::EtSumBxColle
 {
   for (int ibx = sums->getFirstBX(); ibx <= sums->getLastBX(); ++ibx) {
     for (l1t::EtSumBxCollection::const_iterator it=sums->begin(ibx); it!=sums->end(ibx) && l1upgrade_.nSums<maxL1Upgrade; it++) {
+      int type = static_cast<int>( it->getType() ); 
+      l1upgrade_.sumType. push_back( type ); 
       l1upgrade_.sumEt. push_back( it->et() ); 
       l1upgrade_.sumPhi.push_back( it->phi() );
       l1upgrade_.sumIEt. push_back( it->hwPt() ); 

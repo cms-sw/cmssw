@@ -206,6 +206,21 @@ L1JetRecoTreeProducer::doPFJets(edm::Handle<reco::PFJetCollection> pfJets) {
     jet_data->phi.push_back(it->phi());
     jet_data->e.push_back(it->energy());
     jet_data->isPF.push_back(true);
+
+    jet_data->chef.push_back(it->chargedHadronEnergyFraction());
+    jet_data->nhef.push_back(it->neutralHadronEnergyFraction());
+    jet_data->pef.push_back(it->photonEnergyFraction());
+    jet_data->eef.push_back(it->electronEnergyFraction());
+    jet_data->mef.push_back(it->muonEnergyFraction());
+    jet_data->hfhef.push_back(it->HFHadronEnergyFraction());
+    jet_data->hfemef.push_back(it->HFEMEnergyFraction());
+    jet_data->chMult.push_back(it->chargedHadronMultiplicity());
+    jet_data->nhMult.push_back(it->neutralHadronMultiplicity());
+    jet_data->phMult.push_back(it->photonMultiplicity());
+    jet_data->elMult.push_back(it->electronMultiplicity());
+    jet_data->muMult.push_back(it->muonMultiplicity());
+    jet_data->hfhMult.push_back(it->HFHadronMultiplicity());
+    jet_data->hfemMult.push_back(it->HFEMMultiplicity());
     
     jet_data->nJets++;
     

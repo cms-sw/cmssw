@@ -21,10 +21,6 @@ namespace L1Analysis
     {
     nTaus=0;
 
-    /* e.clear(); */
-    /* et.clear(); */
-    /* etCorr.clear(); */
-    /* corrFactor.clear(); */
     e.clear();
     et.clear();
     pt.clear();
@@ -39,65 +35,23 @@ namespace L1Analysis
     TightAntiElectronFlag.clear();
     DMFindingNewDMs.clear();
     DMFindingOldDMs.clear();
-    /* phi.clear(); */
-    /* eEMF.clear(); */
-    /* eEmEB.clear(); */
-    /* eEmEE.clear(); */
-    /* eEmHF.clear(); */
-    /* eHadHB.clear(); */
-    /* eHadHE.clear(); */
-    /* eHadHO.clear(); */
-    /* eHadHF.clear(); */
-    /* eMaxEcalTow.clear(); */
-    /* eMaxHcalTow.clear(); */
-    /* towerArea.clear(); */
-    /* towerSize.clear(); */
-    /* n60.clear(); */
-    /* n90.clear(); */
-
-    /* n90hits.clear(); */
-    /* fHPD.clear(); */
-    /* fRBX.clear(); */
     }
 
     unsigned nTaus;
-    /* std::vector<double> e; */
-    /* std::vector<double> et; */
-    /* std::vector<double> etCorr; */
-    /* std::vector<double> corrFactor; */
-    std::vector<double> e;
-    std::vector<double> et;
-    std::vector<double> pt;
-    std::vector<double> eta;
-    std::vector<double> phi;
-    std::vector<double> DMFindingNewDMs;
-    std::vector<double> DMFindingOldDMs;
-    std::vector<double> TightIsoFlag;
-    std::vector<double> LooseIsoFlag;
-    std::vector<double> LooseAntiMuonFlag;
-    std::vector<double> TightAntiMuonFlag;
-    std::vector<double> VLooseAntiElectronFlag;
-    std::vector<double> LooseAntiElectronFlag;
-    std::vector<double> TightAntiElectronFlag;
-    /* std::vector<double> phi; */
-    /* std::vector<double> eEMF; */
-    /* std::vector<double> eHadHB; */
-    /* std::vector<double> eHadHE; */
-    /* std::vector<double> eHadHO; */
-    /* std::vector<double> eHadHF; */
-    /* std::vector<double> eEmEB; */
-    /* std::vector<double> eEmEE; */
-    /* std::vector<double> eEmHF; */
-    /* std::vector<double> eMaxEcalTow; */
-    /* std::vector<double> eMaxHcalTow; */
-    /* std::vector<double> towerArea; */
-    /* std::vector<int> towerSize; */
-    /* std::vector<int> n60; */
-    /* std::vector<int> n90; */
-
-    /* std::vector<int> n90hits; */
-    /* std::vector<double> fHPD; */
-    /* std::vector<double> fRBX; */
+    std::vector<float> e;
+    std::vector<float> et;
+    std::vector<float> pt;
+    std::vector<float> eta;
+    std::vector<float> phi;
+    std::vector<float> DMFindingNewDMs;
+    std::vector<float> DMFindingOldDMs;
+    std::vector<float> TightIsoFlag;
+    std::vector<float> LooseIsoFlag;
+    std::vector<float> LooseAntiMuonFlag;
+    std::vector<float> TightAntiMuonFlag;
+    std::vector<float> VLooseAntiElectronFlag;
+    std::vector<float> LooseAntiElectronFlag;
+    std::vector<float> TightAntiElectronFlag;
 
   };
 }

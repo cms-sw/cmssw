@@ -272,10 +272,10 @@ L1Muon2RecoTreeProducer::endJob() {
 
 void L1Muon2RecoTreeProducer::empty_hlt(){
 
-  muon_data->hlt_isomu.push_back(-999999);
-  muon_data->hlt_mu.push_back(-999999);
-  muon_data->hlt_isoDeltaR.push_back(-9999999);
-  muon_data->hlt_deltaR.push_back(-999999);
+  muon_data->hlt_isomu.push_back(-9999);
+  muon_data->hlt_mu.push_back(-9999);
+  muon_data->hlt_isoDeltaR.push_back(-9999);
+  muon_data->hlt_deltaR.push_back(-9999);
   
 }
 
