@@ -171,7 +171,7 @@ TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
    }
    
    if (nfailed > 0) {
-     edm::LogWarning("SeedValidator") << "failed to create tracks from " << nfailed <<  " out of " << seeds->size() << " seeds ";
+     edm::LogInfo("SeedValidator") << "failed to create tracks from " << nfailed <<  " out of " << seeds->size() << " seeds ";
    }
    iEvent.put(tracks);
    iEvent.put(seedToTrack);
