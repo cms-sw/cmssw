@@ -4,6 +4,7 @@ import SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
 from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import *
 import Validation.RecoTrack.MultiTrackValidator_cfi
+from Validation.RecoTrack.trajectorySeedTracks_cfi import trajectorySeedTracks as _trajectorySeedTracks
 from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
 from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
@@ -31,6 +32,44 @@ _algos = [
     "muonSeededStepOutIn",
     "duplicateMerge",
 ]
+_seedProducers = [
+    "initialStepSeedsPreSplitting",
+    "initialStepSeeds",
+    "detachedTripletStepSeeds",
+    "lowPtTripletStepSeeds",
+    "pixelPairStepSeeds",
+    "mixedTripletStepSeedsA",
+    "mixedTripletStepSeedsB",
+    "pixelLessStepSeeds",
+    "tobTecStepSeedsPair",
+    "tobTecStepSeedsTripl",
+    "jetCoreRegionalStepSeeds",
+    "muonSeededSeedsInOut",
+    "muonSeededSeedsOutIn",
+]
+_trackProducers = [
+    "initialStepTracksPreSplitting",
+    "initialStepTracks",
+    "lowPtTripletStepTracks",
+    "pixelPairStepTracks",
+    "detachedTripletStepTracks",
+    "mixedTripletStepTracks",
+    "pixelLessStepTracks",
+    "tobTecStepTracks",
+    "jetCoreRegionalStepTracks",
+    "muonSeededTracksInOut",
+    "muonSeededTracksOutIn",
+]
+if eras.fastSim.isChosen():
+    _seedProducers.remove("initialStepSeedsPreSplitting")
+    _seedProducers.remove("jetCoreRegionalStepSeeds")
+    _seedProducers.remove("muonSeededSeedsInOut")
+    _seedProducers.remove("muonSeededSeedsOutIn")
+    _trackProducers.remove("initialStepTracksPreSplitting")
+    _trackProducers.remove("jetCoreRegionalStepTracks")
+    _trackProducers.remove("muonSeededTracksInOut")
+    _trackProducers.remove("muonSeededTracksOutIn")
+
 def _algoToSelector(algo):
     sel = ""
     if algo != "generalTracks":
@@ -86,6 +125,16 @@ def _addSelectorsByOriginalAlgoMask(modules, midfix, algoParam):
         mod.algorithm = []
         globals()[modNameNew] = mod
         names.append(modNameNew)
+        seq += mod
+    return (names, seq)
+def _addSeedToTrackProducers():
+    names = []
+    seq = cms.Sequence()
+    for seed in _seedProducers:
+        modName = "seedTracks"+seed
+        mod = _trajectorySeedTracks.clone(src=seed)
+        globals()[modName] = mod
+        names.append(modName)
         seq += mod
     return (names, seq)
 
@@ -301,14 +350,31 @@ tracksValidationStandalone = cms.Sequence(
     trackValidatorsStandalone
 )
 
-### TrackingOnly mode (i.e. MTV with DIGI input + tracking-only reconstruction
+### TrackingOnly mode (i.e. MTV with DIGI input + tracking-only reconstruction)
 
 # selectors
 tracksValidationSelectorsTrackingOnly = tracksValidationSelectors.copyAndExclude([ak4JetTracksAssociatorExplicitAll,cutsRecoTracksAK4PFJets]) # selectors using track information only (i.e. no PF)
+(_seedSelectors, tracksValidationSeedSelectorsTrackingOnly) = _addSeedToTrackProducers()
 
 # MTV instances
 trackValidatorTrackingOnly = trackValidatorStandalone.clone()
 trackValidatorTrackingOnly.label.remove("cutsRecoTracksAK4PFJets")
+
+trackValidatorBuildingTrackingOnly = trackValidatorTrackingOnly.clone(
+    dirName = "Tracking/TrackBuilding/",
+    associators = ["quickTrackAssociatorByHits"],
+    UseAssociators = True,
+    label = _trackProducers,
+    dodEdxPlots = False,
+    doPVAssociationPlots = False,
+    doSimPlots = False,
+)
+trackValidatorSeedingTrackingOnly = trackValidatorBuildingTrackingOnly.clone(
+    dirName = "Tracking/TrackSeeding/",
+    label = _seedSelectors,
+    doSeedPlots = True,
+)
+
 
 # sequences
 tracksPreValidationTrackingOnly = tracksPreValidation.copy()
@@ -316,30 +382,14 @@ tracksPreValidationTrackingOnly.replace(tracksValidationSelectors, tracksValidat
 
 trackValidatorsTrackingOnly = trackValidatorsStandalone.copy()
 trackValidatorsTrackingOnly.replace(trackValidatorStandalone, trackValidatorTrackingOnly)
+trackValidatorsTrackingOnly += (
+    trackValidatorSeedingTrackingOnly +
+    trackValidatorBuildingTrackingOnly
+)
 
 tracksValidationTrackingOnly = cms.Sequence(
     tracksPreValidationTrackingOnly +
     tracksValidationSelectorsStandalone +
+    tracksValidationSeedSelectorsTrackingOnly +
     trackValidatorsTrackingOnly
-)
-
-
-### 'slim' sequences that only depend on track and tracking particle collections
-tracksValidationSelectorsSlim = tracksValidationSelectorsTrackingOnly.copyAndExclude([cutsRecoTracksBtvLike])
-
-tracksPreValidationSlim = cms.Sequence(
-    tracksValidationSelectorsSlim +
-    tracksValidationTruth
-)
-
-trackValidatorSlim = trackValidator.clone(
-    doPVAssociationPlots = cms.untracked.bool(False),
-    dodEdxPlots = False
-)
-for _label in ["cutsRecoTracksBtvLike", "cutsRecoTracksAK4PFJets"]:
-    trackValidatorSlim.label.remove(_label)
-
-tracksValidationSlim = cms.Sequence(
-    tracksPreValidationSlim+
-    trackValidatorSlim
 )
