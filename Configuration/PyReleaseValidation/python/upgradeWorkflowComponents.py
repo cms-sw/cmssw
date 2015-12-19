@@ -140,7 +140,9 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi','SingleElectronPt10_cfi',
                   'SinglePiE50HCAL_cfi',
 		  'QCDForPF_14TeV_cfi',
 		  'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff',
-		  'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff'		  ]
+		  'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff',
+		  'TTbar_14TeV_TuneCUETP8M1_cfi',
+		  'MinBias_14TeV_pythia8_TuneCUETP8M1_cfi'		  ]
 
 
 
@@ -253,7 +255,9 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'ZMM_14TeV_cfi':Kby(18,100),
 	   'QCDForPF_14TeV_cfi':Kby(9,50),
 	   'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff':Kby(9,100),
-	   'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff':Kby(9,100)
+	   'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff':Kby(9,100),
+           'TTbar_14TeV_TuneCUETP8M1_cfi':Kby(9,50),
+	   'MinBias_14TeV_pythia8_TuneCUETP8M1_cfi':Kby(90,100)
            }
 
 upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
@@ -320,7 +324,9 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
                             'ZMM_14TeV_cfi' : 'ZMM_14TeV',
 			    'QCDForPF_14TeV_cfi' : 'QCDForPF_14TeV',
 			    'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff' : 'DYToLL_M_50_TuneZ2star_14TeV',
-			    'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff' : 'DYtoTauTau_M_50_TuneD6T_14TeV'
+			    'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff' : 'DYtoTauTau_M_50_TuneD6T_14TeV',
+			    'TTbar_14TeV_TuneCUETP8M1_cfi' : 'TTbar_pythia8_14TeV',
+			    'MinBias_14TeV_pythia8_TuneCUETP8M1_cfi' : 'MinBias_pythia8_14TeV'
                             }
 
 
