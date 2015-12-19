@@ -113,34 +113,45 @@ L1TMuonQualityAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(m_overlapTfInputToken, omtfMuons);
   iEvent.getByToken(m_endCapTfInputToken, emtfMuons);
 
-  for (int bx = bmtfMuons->getFirstBX(); bx <= bmtfMuons->getLastBX(); ++bx) {
-    for (auto mu = bmtfMuons->begin(bx); mu != bmtfMuons->end(bx); ++mu) {
-      int newqual = 1;
-      l1t::RegionalMuonCand newMu((*mu));      
-      newMu.setHwQual(newqual);
-      filteredBMTFMuons->push_back(bx, newMu);      
+  
+  if (bmtfMuons.isValid()){
+    filteredBMTFMuons->setBXRange(bmtfMuons->getFirstBX(), bmtfMuons->getLastBX());
+    for (int bx = bmtfMuons->getFirstBX(); bx <= bmtfMuons->getLastBX(); ++bx) {
+      for (auto mu = bmtfMuons->begin(bx); mu != bmtfMuons->end(bx); ++mu) {
+	int newqual = 1;
+	l1t::RegionalMuonCand newMu((*mu));      
+	newMu.setHwQual(newqual);
+	filteredBMTFMuons->push_back(bx, newMu);      
+      }
     }
   }
 
-  for (int bx = emtfMuons->getFirstBX(); bx <= emtfMuons->getLastBX(); ++bx) {
-    for (auto mu = emtfMuons->begin(bx); mu != emtfMuons->end(bx); ++mu) {
-      int newqual = 0;
-      if (mu->hwQual() == 11 || mu->hwQual() > 12) newqual=1;
-      l1t::RegionalMuonCand newMu((*mu));
-      newMu.setHwQual(newqual);
-      filteredEMTFMuons->push_back(bx, newMu);
+  if (emtfMuons.isValid()){
+    filteredEMTFMuons->setBXRange(emtfMuons->getFirstBX(), emtfMuons->getLastBX());
+    for (int bx = emtfMuons->getFirstBX(); bx <= emtfMuons->getLastBX(); ++bx) {
+      for (auto mu = emtfMuons->begin(bx); mu != emtfMuons->end(bx); ++mu) {
+	int newqual = 0;
+	if (mu->hwQual() == 11 || mu->hwQual() > 12) newqual=1;
+	l1t::RegionalMuonCand newMu((*mu));
+	newMu.setHwQual(newqual);
+	filteredEMTFMuons->push_back(bx, newMu);
+      }
     }
   }
 
-  for (int bx = omtfMuons->getFirstBX(); bx <= omtfMuons->getLastBX(); ++bx) {
-    for (auto mu = omtfMuons->begin(bx); mu != omtfMuons->end(bx); ++mu) {
-      int newqual = 0;
-      if (mu->hwQual() > 0) newqual = 1;
-      l1t::RegionalMuonCand newMu((*mu));
-      newMu.setHwQual(newqual);
-      filteredOMTFMuons->push_back(bx, newMu);
+  if (omtfMuons.isValid()){
+    filteredOMTFMuons->setBXRange(omtfMuons->getFirstBX(), omtfMuons->getLastBX());
+    for (int bx = omtfMuons->getFirstBX(); bx <= omtfMuons->getLastBX(); ++bx) {
+      for (auto mu = omtfMuons->begin(bx); mu != omtfMuons->end(bx); ++mu) {
+	int newqual = 0;
+	if (mu->hwQual() > 0) newqual = 1;
+	l1t::RegionalMuonCand newMu((*mu));
+	newMu.setHwQual(newqual);
+	filteredOMTFMuons->push_back(bx, newMu);
+      }
     }
   }
+
   iEvent.put(filteredBMTFMuons, "BMTF");
   iEvent.put(filteredOMTFMuons, "OMTF");
   iEvent.put(filteredEMTFMuons, "EMTF");
