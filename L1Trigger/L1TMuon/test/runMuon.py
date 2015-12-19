@@ -4,6 +4,9 @@ import os
 import sys
 import commands
 
+from Configuration.StandardSequences.Eras import eras
+process = cms.Process("L1TMuonEmulation", eras.Run2_2016)
+
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(50)
@@ -12,7 +15,6 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 process.source = cms.Source('PoolSource',
  fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/g/gflouris/public/SingleMuPt6180_noanti_10k_eta1.root')
 	                    )
-
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
 
 # PostLS1 geometry used
@@ -24,10 +26,7 @@ from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 ####Event Setup Producers
-process.load('L1Trigger.L1TMuonBarrel.fakeBmtfParams_cff')
-process.load('L1Trigger.L1TMuonOverlap.fakeOmtfParams_cff')
-process.load('L1Trigger.L1TMuonEndCap.fakeEmtfParams_cff')
-process.load('L1Trigger.L1TMuon.fakeGmtParams_cff')
+process.load('L1Trigger.L1TMuon.hackConditions_cff')
 
 #### Emulators
 process.load('L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi')

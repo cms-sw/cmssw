@@ -108,6 +108,7 @@ namespace L1Analysis
     std::vector<short int>   muonIPhi;
     std::vector<short int>      muonChg;
     std::vector<unsigned short int> muonIso;
+    std::vector<unsigned short int> muonQual;
     std::vector<short int>      muonBx;
 
     
