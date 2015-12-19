@@ -420,7 +420,7 @@ def main():
     jobName         = None
     isMC            = None
     isDA            = None
-    doRunBased      = None
+    doRunBased      = False
     maxevents       = None
 
     gt              = None
@@ -519,7 +519,7 @@ def main():
         applyruncontrol = ['False']  
         ptcut           = ['3'] 
         runboundary     = ['1']  
-        lumilist        = ['fuffa']  
+        lumilist        = ['']  
  
     # start loop on samples
 
@@ -571,19 +571,31 @@ def main():
         inputFiles = []
         myRuns = []
         
-        if (to_bool(isMC[iConf])):
-            print "this is MC"
-            cmd = 'das_client.py --limit=0 --query \'file dataset='+opts.data+'\''
-            s = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
-            out,err = s.communicate()
-            mylist = out.split('\n')
-            mylist.pop()
-            #print mylist
+        if (to_bool(isMC[iConf]) or (not to_bool(doRunBased))):
+            if(to_bool(isMC[iConf])):
+                print "this is MC"
+                cmd = 'das_client.py --limit=0 --query \'file dataset='+opts.data+'\''
+                s = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
+                out,err = s.communicate()
+                mylist = out.split('\n')
+                mylist.pop()
+                #print mylist
            
-            splitList = split(mylist,10)
-            for files in splitList:
-                inputFiles.append(files)
-                myRuns.append(str(1))
+                splitList = split(mylist,10)
+                for files in splitList:
+                    inputFiles.append(files)
+                    myRuns.append(str(1))
+            else:
+                print "this is DATA (not doing full run-based selection)"
+                cmd = 'das_client.py --limit=0 --query \'file dataset='+opts.data+' run='+runboundary[iConf]+'\''
+                s = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
+                out,err = s.communicate()
+                mylist = out.split('\n')
+                mylist.pop()
+                #print "len(mylist):",len(mylist)
+                print "mylist:",mylist
+                inputFiles.append(mylist)
+                myRuns.append(str(runboundary[iConf]))
 
         else:
             print "this is Data"
