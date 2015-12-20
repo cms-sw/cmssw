@@ -54,6 +54,7 @@ private:
   edm::InputTag m_barrelTfInputTag;
   edm::InputTag m_overlapTfInputTag;
   edm::InputTag m_endCapTfInputTag;
+  int m_bmtfBxOffset; // Hack while sorting our source of -3 BX offset when re-Emulating...
 };
   
 //
@@ -73,6 +74,7 @@ L1TMuonQualityAdjuster::L1TMuonQualityAdjuster(const edm::ParameterSet& iConfig)
   m_barrelTfInputTag  = iConfig.getParameter<edm::InputTag>("bmtfInput");
   m_overlapTfInputTag = iConfig.getParameter<edm::InputTag>("omtfInput");
   m_endCapTfInputTag  = iConfig.getParameter<edm::InputTag>("emtfInput");
+  m_bmtfBxOffset      = iConfig.getParameter<int>("bmtfBxOffset");
   m_barrelTfInputToken  = consumes<l1t::RegionalMuonCandBxCollection>(m_barrelTfInputTag);
   m_overlapTfInputToken = consumes<l1t::RegionalMuonCandBxCollection>(m_overlapTfInputTag);
   m_endCapTfInputToken  = consumes<l1t::RegionalMuonCandBxCollection>(m_endCapTfInputTag);
@@ -121,9 +123,11 @@ L1TMuonQualityAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	int newqual = 1;
 	l1t::RegionalMuonCand newMu((*mu));      
 	newMu.setHwQual(newqual);
-	filteredBMTFMuons->push_back(bx, newMu);      
+	filteredBMTFMuons->push_back(bx+m_bmtfBxOffset, newMu);      
       }
     }
+  } else {
+    //cout << "ERROR:  did not find BMTF muons in event with label:  " << m_barrelTfInputTag << "\n";
   }
 
   if (emtfMuons.isValid()){
@@ -135,8 +139,10 @@ L1TMuonQualityAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	l1t::RegionalMuonCand newMu((*mu));
 	newMu.setHwQual(newqual);
 	filteredEMTFMuons->push_back(bx, newMu);
-      }
+      }    
     }
+  } else {
+    //cout << "ERROR:  did not find EMTF muons in event with label:  " << m_endCapTfInputTag << "\n";
   }
 
   if (omtfMuons.isValid()){
@@ -149,8 +155,15 @@ L1TMuonQualityAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	newMu.setHwQual(newqual);
 	filteredOMTFMuons->push_back(bx, newMu);
       }
-    }
+    } 
+  } else {
+    //cout << "ERROR:  did not find OMTF muons in event with label:  " << m_overlapTfInputTag << "\n";
   }
+
+  //cout << "Size BMTF(-3):  " << filteredBMTFMuons->size(-3) << "\n";
+  //cout << "Size BMTF:  " << filteredBMTFMuons->size(0) << "\n";
+  //cout << "Size OMTF:  " << filteredOMTFMuons->size(0) << "\n";
+  //cout << "Size EMTF:  " << filteredEMTFMuons->size(0) << "\n";
 
   iEvent.put(filteredBMTFMuons, "BMTF");
   iEvent.put(filteredOMTFMuons, "OMTF");
