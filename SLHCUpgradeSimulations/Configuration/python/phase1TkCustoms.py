@@ -410,13 +410,13 @@ def customise_Reco(process,pileup):
         process.siPixelRecHits
     )
     process.clusterSummaryProducer.pixelClusters = "siPixelClusters"
-    process.reconstruction.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
-    process.reconstruction.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
+    process.globalreco_tracking.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
+    process.globalreco_tracking.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
 
     # Enable, for now, pixel tracks and vertices
     # To be removed later together with the cluster splitting
-    process.reconstruction.replace(process.standalonemuontracking,
-                                   process.standalonemuontracking+process.recopixelvertexing)
+    process.globalreco_tracking.replace(process.standalonemuontracking,
+                                        process.standalonemuontracking+process.recopixelvertexing)
     process.initialStepSelector.vertices = "pixelVertices"
     process.highPtTripletStepSelector.vertices = "pixelVertices"
     process.lowPtQuadStepSelector.vertices = "pixelVertices"
