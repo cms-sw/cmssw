@@ -45,13 +45,12 @@ namespace edm {
     BranchDescription const& constBranchDescription() const {return *branchDescription_;}
     std::shared_ptr<BranchDescription const> const& constBranchDescriptionPtr() const {return branchDescription_;}
 
-    ProductProvenance* resolve() const;
-    ProductProvenance* productProvenance() const {
-      if (productProvenanceValid_) return productProvenancePtr_.get();
+    ProductProvenance const* productProvenance() const {
+      if (productProvenancePtr_) return productProvenancePtr_.get();
       return resolve();
     }
     bool productProvenanceValid() const {
-      return productProvenanceValid_;
+      return bool(productProvenancePtr_);
     }
     Parentage const& parentage() const {return productProvenance()->parentage();}
     BranchID const& branchID() const {return product().branchID();}
@@ -61,7 +60,7 @@ namespace edm {
     std::string const& processName() const {return product().processName();}
     std::string const& productInstanceName() const {return product().productInstanceName();}
     std::string const& friendlyClassName() const {return product().friendlyClassName();}
-    std::shared_ptr<ProductProvenanceRetriever> const& store() const {return store_;}
+    ProductProvenanceRetriever const* store() const {return store_;}
     ProcessHistory const& processHistory() const {return *processHistory_;}
     bool getProcessConfiguration(ProcessConfiguration& pc) const;
     ReleaseVersion releaseVersion() const;
@@ -71,13 +70,13 @@ namespace edm {
 
     void write(std::ostream& os) const;
 
-    void setStore(std::shared_ptr<ProductProvenanceRetriever> store) const {store_ = store;}
+    void setStore(ProductProvenanceRetriever const* store) {store_ = store;}
 
     void setProcessHistory(ProcessHistory const& ph) {processHistory_ = &ph;}
 
     ProductID const& productID() const {return productID_;}
 
-    void setProductProvenance(ProductProvenance const& prov) const;
+    void setProductProvenance(ProductProvenance const& prov);
 
     void setProductID(ProductID const& pid) {
       productID_ = pid;
@@ -87,17 +86,18 @@ namespace edm {
       branchDescription_ = p;
     }
 
-    void resetProductProvenance() const;
+    void resetProductProvenance();
 
     void swap(Provenance&);
 
   private:
+    ProductProvenance const* resolve() const;
+
     std::shared_ptr<BranchDescription const> branchDescription_;
     ProductID productID_;
     ProcessHistory const* processHistory_; // We don't own this
-    mutable bool productProvenanceValid_;
-    mutable std::shared_ptr<ProductProvenance> productProvenancePtr_;
-    mutable std::shared_ptr<ProductProvenanceRetriever> store_;
+    mutable std::shared_ptr<const ProductProvenance> productProvenancePtr_; //can be updated in resolve()
+    ProductProvenanceRetriever const* store_;
   };
 
   inline
