@@ -276,7 +276,6 @@ def addHLTdummybranches( process):
       ,"HLT_HIRandom_v1"
       ,"HLT_EcalCalibration_v1"
       ,"HLT_HcalCalibration_v1"
-      ,"HLT_HIPhysicsNoZS_v1"
       ])
 
 def addHLTdummybranchesForPP( process):
