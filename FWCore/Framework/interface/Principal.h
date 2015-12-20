@@ -29,6 +29,7 @@ pointer to a ProductHolder, when queried.
 #include "FWCore/Framework/interface/ProductHolder.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "boost/iterator/filter_iterator.hpp"
 
@@ -156,6 +157,10 @@ namespace edm {
     // merge Principals containing different products.
     void recombine(Principal& other, std::vector<BranchID> const& bids);
 
+    ProductHolderBase* getModifiableProductHolder(BranchID const& oid) {
+      return const_cast<ProductHolderBase*>( const_cast<const Principal*>(this)->getProductHolder(oid));
+    }
+
     size_t size() const;
 
     // These iterators skip over any null shared pointers
@@ -211,9 +216,9 @@ namespace edm {
     // throws if the pointed to product is already in the Principal.
     void checkUniquenessAndType(WrapperBase const* prod, ProductHolderBase const* productHolder) const;
 
-    void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductHolderBase const* productHolder) const;
+    void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductHolderBase* productHolder);
 
-    void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductProvenance& prov, ProductHolderBase* productHolder);
+    void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductProvenance&& prov, ProductHolderBase* productHolder);
 
   private:
 
@@ -278,7 +283,7 @@ namespace edm {
     // In use cases where the new process should not be appended to
     // input ProcessHistory, the following pointer should be null.
     // The Principal does not own this object.
-    HistoryAppender* historyAppender_;
+    edm::propagate_const<HistoryAppender*> historyAppender_;
     
     CacheIdentifier_t cacheIdentifier_;
 
@@ -294,10 +299,10 @@ namespace edm {
       return std::shared_ptr<Wrapper<PROD> const>(); 
     }
 
-    if(!(result->wrapper_->dynamicTypeInfo() == typeid(PROD))) {
-      handleimpl::throwConvertTypeError(typeid(PROD), result->wrapper_->dynamicTypeInfo());
+    if(!(result->wrapper()->dynamicTypeInfo() == typeid(PROD))) {
+      handleimpl::throwConvertTypeError(typeid(PROD), result->wrapper()->dynamicTypeInfo());
     }
-    return std::static_pointer_cast<Wrapper<PROD> const>(result->wrapper_);
+    return std::static_pointer_cast<Wrapper<PROD> const>(result->sharedConstWrapper());
   }
 }
 #endif

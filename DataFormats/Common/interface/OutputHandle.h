@@ -49,7 +49,7 @@ namespace edm {
       productProvenance_(h.productProvenance_),
       whyFailed_(h.whyFailed_){}
 
-    OutputHandle(WrapperBase const* product, BranchDescription const* desc, ProductProvenance* productProvenance) :
+    OutputHandle(WrapperBase const* product, BranchDescription const* desc, ProductProvenance const* productProvenance) :
       product_(product),
       desc_(desc),
       productProvenance_(productProvenance) {}
@@ -105,7 +105,7 @@ namespace edm {
   private:
     WrapperBase const* product_;
     BranchDescription const* desc_;
-    ProductProvenance* productProvenance_;
+    ProductProvenance const* productProvenance_;
     std::shared_ptr<cms::Exception> whyFailed_;
   };
 

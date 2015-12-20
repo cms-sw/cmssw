@@ -95,7 +95,7 @@ namespace edm{
     };
   }
   
-  UnscheduledHandler* getUnscheduledHandler(EventPrincipal const& ep) {
+  UnscheduledHandler const* getUnscheduledHandler(EventPrincipal const& ep) {
     return ep.unscheduledHandler().get();
   }
 
