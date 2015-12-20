@@ -58,6 +58,7 @@ namespace L1Analysis
       muonIPhi.clear();
       muonChg.clear();
       muonIso.clear();
+      muonQual.clear();
       muonBx.clear();
 
       nSums = 0;
