@@ -37,7 +37,7 @@
 #include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-#define DebugLog
+//#define DebugLog
 
 namespace HcalDigitizerImpl {
 
@@ -459,7 +459,9 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
       if (!htopoP->validHcal(hid)) {
 	edm::LogError("HcalDigitizer") << "bad hcal id found in digitizer. Skipping " << id.rawId() << std::endl;
       } else {
+#ifdef DebugLog
 	std::cout << "HcalDigitizer format " << hid.oldFormat() << " for " << hid << std::endl;
+#endif
 	if (hid.oldFormat()) {
 	  DetId newid = DetId(hid.newForm());
 #ifdef DebugLog
