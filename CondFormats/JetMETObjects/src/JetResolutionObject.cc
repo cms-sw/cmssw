@@ -40,7 +40,7 @@ namespace JME {
 
     void throwException(uint32_t code, const std::string& message) {
 #ifndef STANDALONE
-        throwException(code, message);
+        throw edm::Exception(static_cast<edm::errors::ErrorCodes>(code), message);
 #else
         std::stringstream error;
         error << message << " Error code: " << code;
