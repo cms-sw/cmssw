@@ -24,6 +24,7 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/scoped_ptr.hpp>
 
 class EmDQMReco;
 
