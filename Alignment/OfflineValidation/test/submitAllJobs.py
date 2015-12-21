@@ -1,5 +1,16 @@
 #!/usr/bin/env python
 
+'''Script that submits CMS Tracker Alignment Primary Vertex Validation workflows
+'''
+
+__author__ = 'Marco Musich'
+__copyright__ = 'Copyright 2015, CERN CMS'
+__credits__ = ['Ernesto Migliore', 'Salvatore Di Guida', 'Javier Duarte']
+__license__ = 'Unknown'
+__maintainer__ = 'Marco Musich'
+__email__ = 'marco.musich@cern.ch'
+__version__ = 1
+
 import datetime,time
 import os,sys
 import copy
@@ -7,6 +18,19 @@ import string, re
 import ConfigParser, json
 from optparse import OptionParser
 from subprocess import Popen, PIPE
+
+##############################################
+def drawProgressBar(percent, barLen=20):
+##############################################
+    sys.stdout.write("\r")
+    progress = ""
+    for i in range(barLen):
+        if i < int(barLen * percent):
+            progress += "="
+        else:
+            progress += " "
+    sys.stdout.write("[ %s ] %.2f%%" % (progress, percent * 100))
+    sys.stdout.flush()
 
 ##############################################
 def getCommandOutput(command):
@@ -551,13 +575,49 @@ def main():
     print "- Pt>           ",ptcut           
     print "- run=          ",runboundary     
     print "- JSON        : ",lumilist        
+    print "********************************************************"
+
+    sublogging_dir = os.path.join(AnalysisStep_dir,"submissions")
+    if not os.path.exists(sublogging_dir):
+        os.makedirs(sublogging_dir)
+    submission_log_file = os.path.join(sublogging_dir,"sub"+t+".log")
+    log_fout = open(submission_log_file,'w')
+    for iConf in range(len(jobName)):
+        log_fout.write("============================================================ \n")
+        log_fout.write("- timestamp   : "+t.strip("test_")+"\n")
+        log_fout.write("- submitted   : "+str(opts.submit)+"\n")
+        log_fout.write("- Jobname     : "+jobName[iConf]+"\n")           
+        log_fout.write("- use DA      : "+isDA[iConf]+"\n")            
+        log_fout.write("- is MC       : "+isMC[iConf]+"\n")            
+        log_fout.write("- is run-based: "+str(doRunBased)+"\n")
+        log_fout.write("- evts/job    : "+maxevents[iConf]+"\n")                    
+        log_fout.write("- GlobatTag   : "+gt[iConf]+"\n")      
+        log_fout.write("- allFromGT?  : "+allFromGT[iConf]+"\n")
+        log_fout.write("- extraCond?  : "+applyEXTRACOND[iConf]+"\n")
+        for x in conditions:
+            for attribute,value in x.items():
+                     log_fout.write('   - {} : {}'.format(attribute, value)+"\n")
+        log_fout.write("- Align db    : "+alignmentDB[iConf]+"\n")     
+        log_fout.write("- Align tag   : "+alignmentTAG[iConf]+"\n")    
+        log_fout.write("- APE db      : "+apeDB[iConf]+"\n")           
+        log_fout.write("- APE tag     : "+apeTAG[iConf]+"\n")          
+        log_fout.write("- use bows?   : "+applyBOWS[iConf]+"\n")       
+        log_fout.write("- K&B db      : "+bowDB[iConf]+"\n")
+        log_fout.write("- K&B tag     : "+bowTAG[iConf]+"\n")                        
+        log_fout.write("- VertexColl  : "+vertextype[iConf]+"\n")      
+        log_fout.write("- TrackColl   : "+tracktype[iConf]+"\n")                       
+        log_fout.write("- RunControl? : "+applyruncontrol[iConf]+"\n") 
+        log_fout.write("- Pt>           "+ptcut[iConf]+"\n")           
+        log_fout.write("- run=          "+runboundary[iConf]+"\n")     
+        log_fout.write("- JSON        : "+lumilist[iConf]+"\n")
+        log_fout.write("- output EOS  : "+eosdir+"\n")
 
     print "Will run on ",len(jobName),"workflows"
 
     for iConf in range(len(jobName)):
-        print iConf
+        print "Preparing",iConf," configurtion to run"
 
-    # for hadd script
+        # for hadd script
         scripts_dir = os.path.join(AnalysisStep_dir,"scripts")
         if not os.path.exists(scripts_dir):
             os.makedirs(scripts_dir)
@@ -610,15 +670,39 @@ def main():
             print "Will run on ",len(listOfRuns), " runs"
             print listOfRuns
 
+            procs = []
+
             for run in listOfRuns:
                 print "preparing run",run
                 cmd2 = ' das_client.py --limit=0 --query \'file run='+run+' dataset='+opts.data+'\''
                 q = Popen(cmd2 , shell=True, stdout=PIPE, stderr=PIPE)
-                out2, err2 = q.communicate()
+                procs.append(q)
+                #out2, err2 = q.communicate()
+                #mylist = out2.split('\n')
+                #mylist.pop()
+                #inputFiles.append(mylist)
+                
+            toolbar_width = len(listOfRuns)
+            # setup toolbar
+            print "********************************************************"
+            print " Retrieving run info"
+            #sys.stdout.write("[%s]" % (" " * toolbar_width))
+            #sys.stdout.flush()
+            #sys.stdout.write("\b" * (toolbar_width+1)) # return to start of line, after '['
+
+            for i,p in enumerate(procs):
+                out2,err2 = p.communicate()
                 mylist = out2.split('\n')
                 mylist.pop()
                 inputFiles.append(mylist)
-            
+                #sys.stdout.write("-")
+                #sys.stdout.flush()
+                percent = float(i)/len(procs)
+                #print percent
+                drawProgressBar(percent)
+
+            sys.stdout.write("\n") 
+
         for jobN,theSrcFiles in enumerate(inputFiles):
             print jobN,"run",myRuns[jobN],theSrcFiles
             thejobIndex=None
