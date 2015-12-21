@@ -19,8 +19,14 @@ import ConfigParser, json
 from optparse import OptionParser
 from subprocess import Popen, PIPE
 
+CopyRights  = '####################################\n'
+CopyRights += '#        submitAllJobs Script      #\n'
+CopyRights += '#     marco.musich@cern.ch         #\n'
+CopyRights += '#            December 2015         #\n'
+CopyRights += '####################################\n'
+
 ##############################################
-def drawProgressBar(percent, barLen=20):
+def drawProgressBar(percent, barLen=40):
 ##############################################
     sys.stdout.write("\r")
     progress = ""
@@ -225,7 +231,9 @@ class Job:
         
     def createTheCfgFile(self,lfn):
 ###############################
-        
+
+        global CopyRights
+
         # write the cfg file 
         self.cfg_dir = os.path.join(self.the_dir,"cfg")
         if not os.path.exists(self.cfg_dir):
@@ -242,6 +250,35 @@ class Job:
 
         fin = open(template_cfg_file)
 
+        config_txt = '\n\n' + CopyRights + '\n\n'
+        config_txt += fin.read()
+
+        config_txt=config_txt.replace("ISDATEMPLATE",self.isDA)                 
+        config_txt=config_txt.replace("ISMCTEMPLATE",self.isMC)                  
+        config_txt=config_txt.replace("APPLYBOWSTEMPLATE",self.applyBOWS)       
+        config_txt=config_txt.replace("EXTRACONDTEMPLATE",self.applyEXTRACOND)                  
+        config_txt=config_txt.replace("USEFILELISTTEMPLATE","True")             
+        config_txt=config_txt.replace("RUNBOUNDARYTEMPLATE",self.runboundary)   
+        config_txt=config_txt.replace("LUMILISTTEMPLATE",self.lumilist)         
+        config_txt=config_txt.replace("MAXEVENTSTEMPLATE",self.maxevents)       
+        config_txt=config_txt.replace("GLOBALTAGTEMPLATE",self.gt)              
+        config_txt=config_txt.replace("ALLFROMGTTEMPLATE",self.allFromGT)       
+        config_txt=config_txt.replace("ALIGNOBJTEMPLATE",self.alignmentDB)      
+        config_txt=config_txt.replace("GEOMTAGTEMPLATE",self.alignmentTAG)      
+        config_txt=config_txt.replace("APEOBJTEMPLATE",self.apeDB)              
+        config_txt=config_txt.replace("ERRORTAGTEMPLATE",self.apeTAG)           
+        config_txt=config_txt.replace("BOWSOBJECTTEMPLATE",self.bowDB)          
+        config_txt=config_txt.replace("BOWSTAGTEMPLATE",self.bowTAG)            
+        config_txt=config_txt.replace("VERTEXTYPETEMPLATE",self.vertextype)     
+        config_txt=config_txt.replace("TRACKTYPETEMPLATE",self.tracktype)       
+        config_txt=config_txt.replace("PTCUTTEMPLATE",self.ptcut)               
+        config_txt=config_txt.replace("RUNCONTROLTEMPLATE",self.applyruncontrol)
+        lfn_with_quotes = map(lambda x: "\'"+x+"\'",lfn)                           
+        config_txt=config_txt.replace("FILESOURCETEMPLATE","["+",".join(lfn_with_quotes)+"]")         
+        config_txt=config_txt.replace("OUTFILETEMPLATE",self.output_full_name+".root")         
+
+        fout.write(config_txt)
+        
         for line in fin.readlines():
 
             if 'END OF EXTRA CONDITIONS' in line:
@@ -261,95 +298,95 @@ class Job:
                         fout.write("          ) \n")
                         fout.write("     process.prefer_conditionsIn"+element+" = cms.ESPrefer(\"PoolDBESSource\", \"conditionsIn"+element[0]+"\") \n \n") 
                         
-            if self.isMC:
-                if line.find("ISDATEMPLATE")!=-1:
-                    line=line.replace("ISDATEMPLATE",self.isDA)
-                if line.find("ISMCTEMPLATE")!=-1:
-                    line=line.replace("ISMCTEMPLATE",self.isMC)
-                if line.find("APPLYBOWSTEMPLATE")!=-1:
-                    line=line.replace("APPLYBOWSTEMPLATE",self.applyBOWS)
-                if line.find("EXTRACONDTEMPLATE")!=-1:
-                    line=line.replace("EXTRACONDTEMPLATE",self.applyEXTRACOND)
-                if line.find("USEFILELISTTEMPLATE")!=-1:
-                    line=line.replace("USEFILELISTTEMPLATE","True")  
-                if line.find("RUNBOUNDARYTEMPLATE")!=-1:
-                    line=line.replace("RUNBOUNDARYTEMPLATE",self.runboundary)  
-                if line.find("LUMILISTTEMPLATE")!=-1:
-                    line=line.replace("LUMILISTTEMPLATE",self.lumilist)
-                if line.find("MAXEVENTSTEMPLATE")!=-1:
-                    line=line.replace("MAXEVENTSTEMPLATE",self.maxevents)
-                if line.find("GLOBALTAGTEMPLATE")!=-1:
-                    line=line.replace("GLOBALTAGTEMPLATE",self.gt)    
-                if line.find("ALLFROMGTTEMPLATE")!=-1:
-                    line=line.replace("ALLFROMGTTEMPLATE",self.allFromGT)    
-                if line.find("ALIGNOBJTEMPLATE")!=-1:
-                    line=line.replace("ALIGNOBJTEMPLATE",self.alignmentDB)
-                if line.find("GEOMTAGTEMPLATE")!=-1:
-                    line=line.replace("GEOMTAGTEMPLATE",self.alignmentTAG)
-                if line.find("APEOBJTEMPLATE")!=-1:
-                    line=line.replace("APEOBJTEMPLATE",self.apeDB)
-                if line.find("ERRORTAGTEMPLATE")!=-1:
-                    line=line.replace("ERRORTAGTEMPLATE",self.apeTAG)
-                if line.find("BOWSOBJECTTEMPLATE")!=-1:
-                    line=line.replace("BOWSOBJECTTEMPLATE",self.bowDB)  
-                if line.find("BOWSTAGTEMPLATE")!=-1:
-                    line=line.replace("BOWSTAGTEMPLATE",self.bowTAG)
-                if line.find("VERTEXTYPETEMPLATE")!=-1:
-                    line=line.replace("VERTEXTYPETEMPLATE",self.vertextype) 
-                if line.find("TRACKTYPETEMPLATE")!=-1:
-                    line=line.replace("TRACKTYPETEMPLATE",self.tracktype) 
-                if line.find("PTCUTTEMPLATE")!=-1:
-                    line=line.replace("PTCUTTEMPLATE",self.ptcut) 
-                if line.find("RUNCONTROLTEMPLATE")!=-1:
-                    line=line.replace("RUNCONTROLTEMPLATE",self.applyruncontrol) 
-            else:                    
-                if line.find("ISDATTEMPLATE")!=-1:
-                    line=line.replace("ISDATEMPLATE",self.isDA)
-                if line.find("ISMCTEMPLATE")!=-1:
-                    line=line.replace("ISMCTEMPLATE",self.isMC)
-                if line.find("APPLYBOWSTEMPLATE")!=-1:
-                    line=line.replace("APPLYBOWSTEMPLATE",self.applyBOWS)
-                if line.find("EXTRACONDTEMPLATE")!=-1:
-                    line=line.replace("EXTRACONDTEMPLATE",self.applyEXTRACOND)
-                if line.find("USEFILELISTTEMPLATE")!=-1:
-                    line=line.replace("USEFILELISTTEMPLATE","True")  
-                if line.find("RUNBOUNDARYTEMPLATE")!=-1:
-                    line=line.replace("RUNBOUNDARYTEMPLATE",self.runboundary)        
-                if line.find("LUMILISTTEMPLATE")!=-1:
-                    line=line.replace("LUMILISTTEMPLATE",self.lumilist)
-                if line.find("MAXEVENTSTEMPLATE")!=-1:
-                    line=line.replace("MAXEVENTSTEMPLATE",self.maxevents)
-                if line.find("GLOBALTAGTEMPLATE")!=-1:
-                    line=line.replace("GLOBALTAGTEMPLATE",self.gt) 
-                if line.find("ALLFROMGTTEMPLATE")!=-1:
-                    line=line.replace("ALLFROMGTTEMPLATE",self.allFromGT)    
-                if line.find("ALIGNOBJTEMPLATE")!=-1:
-                    line=line.replace("ALIGNOBJTEMPLATE",self.alignmentDB)
-                if line.find("GEOMTAGTEMPLATE")!=-1:
-                    line=line.replace("GEOMTAGTEMPLATE",self.alignmentTAG)
-                if line.find("APEOBJTEMPLATE")!=-1:
-                    line=line.replace("APEOBJTEMPLATE",self.apeDB)
-                if line.find("ERRORTAGTEMPLATE")!=-1:
-                    line=line.replace("ERRORTAGTEMPLATE",self.apeTAG)
-                if line.find("BOWSOBJECTTEMPLATE")!=-1:
-                    line=line.replace("BOWSOBJECTTEMPLATE",self.bowDB)  
-                if line.find("BOWSTAGTEMPLATE")!=-1:
-                    line=line.replace("BOWSTAGTEMPLATE",self.bowTAG)
-                if line.find("VERTEXTYPETEMPLATE")!=-1:
-                    line=line.replace("VERTEXTYPETEMPLATE",self.vertextype) 
-                if line.find("TRACKTYPETEMPLATE")!=-1:
-                    line=line.replace("TRACKTYPETEMPLATE",self.tracktype) 
-                if line.find("PTCUTTEMPLATE")!=-1:
-                    line=line.replace("PTCUTTEMPLATE",self.ptcut) 
-                if line.find("RUNCONTROLTEMPLATE")!=-1:
-                    line=line.replace("RUNCONTROLTEMPLATE",self.applyruncontrol) 
+            # if self.isMC:
+            #     if line.find("ISDATEMPLATE")!=-1:
+            #         line=line.replace("ISDATEMPLATE",self.isDA)
+            #     if line.find("ISMCTEMPLATE")!=-1:
+            #         line=line.replace("ISMCTEMPLATE",self.isMC)
+            #     if line.find("APPLYBOWSTEMPLATE")!=-1:
+            #         line=line.replace("APPLYBOWSTEMPLATE",self.applyBOWS)
+            #     if line.find("EXTRACONDTEMPLATE")!=-1:
+            #         line=line.replace("EXTRACONDTEMPLATE",self.applyEXTRACOND)
+            #     if line.find("USEFILELISTTEMPLATE")!=-1:
+            #         line=line.replace("USEFILELISTTEMPLATE","True")  
+            #     if line.find("RUNBOUNDARYTEMPLATE")!=-1:
+            #         line=line.replace("RUNBOUNDARYTEMPLATE",self.runboundary)  
+            #     if line.find("LUMILISTTEMPLATE")!=-1:
+            #         line=line.replace("LUMILISTTEMPLATE",self.lumilist)
+            #     if line.find("MAXEVENTSTEMPLATE")!=-1:
+            #         line=line.replace("MAXEVENTSTEMPLATE",self.maxevents)
+            #     if line.find("GLOBALTAGTEMPLATE")!=-1:
+            #         line=line.replace("GLOBALTAGTEMPLATE",self.gt)    
+            #     if line.find("ALLFROMGTTEMPLATE")!=-1:
+            #         line=line.replace("ALLFROMGTTEMPLATE",self.allFromGT)    
+            #     if line.find("ALIGNOBJTEMPLATE")!=-1:
+            #         line=line.replace("ALIGNOBJTEMPLATE",self.alignmentDB)
+            #     if line.find("GEOMTAGTEMPLATE")!=-1:
+            #         line=line.replace("GEOMTAGTEMPLATE",self.alignmentTAG)
+            #     if line.find("APEOBJTEMPLATE")!=-1:
+            #         line=line.replace("APEOBJTEMPLATE",self.apeDB)
+            #     if line.find("ERRORTAGTEMPLATE")!=-1:
+            #         line=line.replace("ERRORTAGTEMPLATE",self.apeTAG)
+            #     if line.find("BOWSOBJECTTEMPLATE")!=-1:
+            #         line=line.replace("BOWSOBJECTTEMPLATE",self.bowDB)  
+            #     if line.find("BOWSTAGTEMPLATE")!=-1:
+            #         line=line.replace("BOWSTAGTEMPLATE",self.bowTAG)
+            #     if line.find("VERTEXTYPETEMPLATE")!=-1:
+            #         line=line.replace("VERTEXTYPETEMPLATE",self.vertextype) 
+            #     if line.find("TRACKTYPETEMPLATE")!=-1:
+            #         line=line.replace("TRACKTYPETEMPLATE",self.tracktype) 
+            #     if line.find("PTCUTTEMPLATE")!=-1:
+            #         line=line.replace("PTCUTTEMPLATE",self.ptcut) 
+            #     if line.find("RUNCONTROLTEMPLATE")!=-1:
+            #         line=line.replace("RUNCONTROLTEMPLATE",self.applyruncontrol) 
+            # else:                    
+            #     if line.find("ISDATTEMPLATE")!=-1:
+            #         line=line.replace("ISDATEMPLATE",self.isDA)
+            #     if line.find("ISMCTEMPLATE")!=-1:
+            #         line=line.replace("ISMCTEMPLATE",self.isMC)
+            #     if line.find("APPLYBOWSTEMPLATE")!=-1:
+            #         line=line.replace("APPLYBOWSTEMPLATE",self.applyBOWS)
+            #     if line.find("EXTRACONDTEMPLATE")!=-1:
+            #         line=line.replace("EXTRACONDTEMPLATE",self.applyEXTRACOND)
+            #     if line.find("USEFILELISTTEMPLATE")!=-1:
+            #         line=line.replace("USEFILELISTTEMPLATE","True")  
+            #     if line.find("RUNBOUNDARYTEMPLATE")!=-1:
+            #         line=line.replace("RUNBOUNDARYTEMPLATE",self.runboundary)     
+            #     if line.find("LUMILISTTEMPLATE")!=-1:
+            #         line=line.replace("LUMILISTTEMPLATE",self.lumilist)
+            #     if line.find("MAXEVENTSTEMPLATE")!=-1:
+            #         line=line.replace("MAXEVENTSTEMPLATE",self.maxevents)
+            #     if line.find("GLOBALTAGTEMPLATE")!=-1:
+            #         line=line.replace("GLOBALTAGTEMPLATE",self.gt) 
+            #     if line.find("ALLFROMGTTEMPLATE")!=-1:
+            #         line=line.replace("ALLFROMGTTEMPLATE",self.allFromGT)    
+            #     if line.find("ALIGNOBJTEMPLATE")!=-1:
+            #         line=line.replace("ALIGNOBJTEMPLATE",self.alignmentDB)
+            #     if line.find("GEOMTAGTEMPLATE")!=-1:
+            #         line=line.replace("GEOMTAGTEMPLATE",self.alignmentTAG)
+            #     if line.find("APEOBJTEMPLATE")!=-1:
+            #         line=line.replace("APEOBJTEMPLATE",self.apeDB)
+            #     if line.find("ERRORTAGTEMPLATE")!=-1:
+            #         line=line.replace("ERRORTAGTEMPLATE",self.apeTAG)
+            #     if line.find("BOWSOBJECTTEMPLATE")!=-1:
+            #         line=line.replace("BOWSOBJECTTEMPLATE",self.bowDB)  
+            #     if line.find("BOWSTAGTEMPLATE")!=-1:
+            #         line=line.replace("BOWSTAGTEMPLATE",self.bowTAG)
+            #     if line.find("VERTEXTYPETEMPLATE")!=-1:
+            #         line=line.replace("VERTEXTYPETEMPLATE",self.vertextype) 
+            #     if line.find("TRACKTYPETEMPLATE")!=-1:
+            #         line=line.replace("TRACKTYPETEMPLATE",self.tracktype) 
+            #     if line.find("PTCUTTEMPLATE")!=-1:
+            #         line=line.replace("PTCUTTEMPLATE",self.ptcut) 
+            #     if line.find("RUNCONTROLTEMPLATE")!=-1:
+            #         line=line.replace("RUNCONTROLTEMPLATE",self.applyruncontrol) 
                         
-            if line.find("FILESOURCETEMPLATE")!=-1:
-                lfn_with_quotes = map(lambda x: "\'"+x+"\'",lfn)                   
-                #print "["+",".join(lfn_with_quotes)+"]"
-                line=line.replace("FILESOURCETEMPLATE","["+",".join(lfn_with_quotes)+"]") 
-            if line.find("OUTFILETEMPLATE")!=-1:
-                line=line.replace("OUTFILETEMPLATE",self.output_full_name+".root")     
+            # if line.find("FILESOURCETEMPLATE")!=-1:
+            #     lfn_with_quotes = map(lambda x: "\'"+x+"\'",lfn)                   
+            #     #print "["+",".join(lfn_with_quotes)+"]"
+            #     line=line.replace("FILESOURCETEMPLATE","["+",".join(lfn_with_quotes)+"]") 
+            # if line.find("OUTFILETEMPLATE")!=-1:
+            #     line=line.replace("OUTFILETEMPLATE",self.output_full_name+".root")           
             fout.write(line)    
       
         fout.close()                
@@ -410,6 +447,9 @@ class Job:
 ##############################################
 def main():
 ##############################################
+
+    global CopyRights
+    print '\n'+CopyRights
 
     # CMSSW section
     input_CMSSW_BASE = os.environ.get('CMSSW_BASE')
@@ -673,7 +713,7 @@ def main():
             procs = []
 
             for run in listOfRuns:
-                print "preparing run",run
+                #print "preparing run",run
                 cmd2 = ' das_client.py --limit=0 --query \'file run='+run+' dataset='+opts.data+'\''
                 q = Popen(cmd2 , shell=True, stdout=PIPE, stderr=PIPE)
                 procs.append(q)
