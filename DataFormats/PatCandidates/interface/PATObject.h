@@ -306,16 +306,16 @@ namespace pat {
       /// and it will throw exception if they're missing,
       /// unless transientOnly is set to true
       template<typename T>
-      void addUserData( const std::string & label, const T & data, bool transientOnly=false ) {
-        userDataLabels_.push_back(label);
-        userDataObjects_.push_back(pat::UserData::make<T>(data, transientOnly));
+      void addUserData( const std::string & label, const T & data, bool transientOnly=false, bool overwrite=false ) {
+        std::auto_ptr<pat::UserData> made(pat::UserData::make<T>(data, transientOnly));
+        addUserDataObject_( label, made, overwrite );
       }
 
       /// Set user-defined data. To be used only to fill from ValueMap<Ptr<UserData>>
       /// Do not use unless you know what you are doing.
-      void addUserDataFromPtr( const std::string & label, const edm::Ptr<pat::UserData> & data ) {
-        userDataLabels_.push_back(label);
-        userDataObjects_.push_back(data->clone());
+      void addUserDataFromPtr( const std::string & label, const edm::Ptr<pat::UserData> & data, bool overwrite=false ) {
+        std::auto_ptr<pat::UserData> cloned(data->clone());
+        addUserDataObject_( label, cloned, overwrite );
       }
 
       /// Get user-defined float
@@ -344,7 +344,7 @@ namespace pat {
       /// returns a range of values corresponding to key
       std::vector<int> userIntRange( const std::string& key ) const;
       /// Set user-defined int
-      void addUserInt( const std::string & label,  int32_t data );
+      void addUserInt( const std::string & label,  int32_t data, const bool overwrite = false );
       /// Get list of user-defined int names
       const std::vector<std::string> & userIntNames() const  { return userIntLabels_; }
       /// Return true if there is a user-defined int with a given name
@@ -456,6 +456,8 @@ namespace pat {
       /// Labels for the kinematic resolutions.
       /// if (kinResolutions_.size() == kinResolutionLabels_.size()+1), then the first resolution has no label.
       std::vector<std::string>            kinResolutionLabels_;
+
+      void addUserDataObject_( const std::string & label, std::auto_ptr<pat::UserData> & value, bool overwrite = false ) ;
 
     private:
       const pat::UserData *  userDataObject_(const std::string &key) const ;
@@ -768,6 +770,24 @@ namespace pat {
   }
 
   template <class ObjectType>
+  void PATObject<ObjectType>::addUserDataObject_( const std::string & label, std::auto_ptr<pat::UserData> & data, bool overwrite ) 
+  {
+    auto it = std::lower_bound(userDataLabels_.begin(), userDataLabels_.end(), label);
+    const auto dist = std::distance(userDataLabels_.begin(), it);
+    if( it == userDataLabels_.end() || *it != label ) {
+        userDataLabels_.insert(it,label);
+        userDataObjects_.insert(userDataObjects_.begin()+dist, data);
+    } else if( overwrite ) {
+        userDataObjects_.set(dist, data);
+    } else {
+        //create a range by adding behind the first entry
+        userDataLabels_.insert(it+1,label);
+        userDataObjects_.insert(userDataObjects_.begin()+dist+1, data);
+    }
+  }
+
+
+  template <class ObjectType>
   float PATObject<ObjectType>::userFloat( const std::string &key ) const
   {
     auto it = std::lower_bound(userFloatLabels_.cbegin(),userFloatLabels_.cend(),key);
@@ -799,8 +819,11 @@ namespace pat {
     if( it == userFloatLabels_.end() || *it != label ) {      
       userFloatLabels_.insert(it,label);
       userFloats_.insert(userFloats_.begin()+dist,data);
-    } else if( *it == label  ) {
+    } else if( overwrite ) {
+      userFloats_[ dist ] = data;
+    } else {
       //create a range by adding behind the first entry
+      userFloatLabels_.insert(it+1,label);
       userFloats_.insert(userFloats_.begin()+dist+1, data); 
     }
   }
@@ -830,15 +853,19 @@ namespace pat {
 
   template <class ObjectType>
   void PATObject<ObjectType>::addUserInt( const std::string &label,
-                                          int data )
+                                          int data,
+                                          bool overwrite )
   {
     auto it = std::lower_bound(userIntLabels_.begin(),userIntLabels_.end(),label);
     const auto dist = std::distance(userIntLabels_.begin(),it);
     if( it == userIntLabels_.end() || *it != label ) { 
       userIntLabels_.insert(it,label);
       userInts_.insert(userInts_.begin()+dist,data);
-    } else if( *it == label ) {
+    } else if( overwrite ) {
+      userInts_[dist] = data;
+    } else {
       //create a range by adding behind the first entry
+      userIntLabels_.insert(it+1, label);
       userInts_.insert(userInts_.begin()+dist+1,data);
     }
   }
@@ -863,11 +890,11 @@ namespace pat {
     if( it == userCandLabels_.end() || *it != label ) {      
       userCandLabels_.insert(it,label);
       userCands_.insert(userCands_.begin()+dist,data);
-    } else if( overwrite && *it == label ) {
+    } else if( overwrite ) {
       userCands_[dist] = data;
     } else {
-      edm::LogWarning("addUserCand") 
-        << "Attempting to add userCand " << label << " failed, Ptr exists already!";
+      userCandLabels_.insert(it+1,label);
+      userCands_.insert(userCands_.begin()+dist+1,data);
     }    
   }
 
