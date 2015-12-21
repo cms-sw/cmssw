@@ -27,7 +27,7 @@ fileNames = cms.untracked.vstring(
 )
     )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000))
 
 # PostLS1 geometry used
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')

@@ -19,6 +19,7 @@ void rates(){
 
   // make trees
   TFile * file = new TFile("l1t_stage2.root");
+  //TFile * file = new TFile("all/combined.root");
   TTree * treeL1Up  = (TTree*) file->Get("l1UpgradeTree/L1UpgradeTree");
   treeL1Up->Print();
 
@@ -29,7 +30,7 @@ void rates(){
   // mu bins
   int nMuBins = 50;
   float muLo = 10.;
-  float muHi = 100.;
+  float muHi = 50.;
   float muBinWidth = (muHi-muLo)/nMuBins;
 
   // eg bins
@@ -103,11 +104,17 @@ void rates(){
 
     treeL1Up->GetEntry(jentry);
     
-    cout << upgrade_->nJets << "\n";
+    //cout << upgrade_->nJets << "\n";
 
     // get Mu rates
     double muEt(0);
     for(uint it=0; it<upgrade_->nMuons; ++it){
+      // work around a muon bug:
+      int offset = upgrade_->muonQual.size() - upgrade_->nMuons;
+      //cout << "INFO:  " << upgrade_->nMuons << "\n";
+      //cout << "INFO:  " << upgrade_->muonEt.size() << "\n";
+      //cout << "INFO:  " << upgrade_->muonQual.size() << "\n";
+      if (upgrade_->muonQual[it+offset]==0) continue;
       hMuEt->Fill(upgrade_->muonEt[it]);
       muEt = upgrade_->muonEt[it] > muEt ?  upgrade_->muonEt[it]  : muEt;
     }
@@ -264,7 +271,7 @@ void rates(){
   mg->Add(gEgRate);
   mg->Add(gTauRate);
   mg->Add(gJetRate);
-  mg->SetMinimum(0.8);
+  mg->SetMinimum(0.1);
   mg->SetMaximum(3E3);
   mg->Draw("APL");
   mg->GetXaxis()->SetTitle("Threshold [GeV]");
@@ -273,18 +280,16 @@ void rates(){
 
   TLegend* leg1 = new TLegend(0.5,0.73,0.7,0.88);
   leg1->SetFillColor(0);
-  leg1->AddEntry(gMuRate,"Muon","lp");
   leg1->AddEntry(gEgRate,"EGamma","lp");
   leg1->AddEntry(gTauRate,"Tau","lp");
   leg1->AddEntry(gJetRate,"Jets","lp");
   leg1->SetBorderSize(0);
   leg1->SetFillStyle(0);
-  leg1->Draw("same");
+  leg1->Draw();
 
-  n2.DrawLatex(0.5, 0.65, "CMS");
+
   n3.DrawLatex(0.5, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
-  n3.DrawLatex(0.5, 0.55, "Preliminary");
-  n4.DrawLatex(0.5, 0.45, "Zero Bias");
+  n4.DrawLatex(0.5, 0.55, "Zero Bias");
  
   c1->SaveAs("ratesJetEgTau.pdf");
 
@@ -292,18 +297,23 @@ void rates(){
   TCanvas* c2 = new TCanvas;
   c2->SetLogy();
 
+  gMuRate->SetTitle("");
   gMuRate->SetLineWidth(2);
   gMuRate->SetLineColor(kOrange);
   gMuRate->GetXaxis()->SetTitle("Threshold [GeV]");
   gMuRate->GetYaxis()->SetTitle("Rate");
   gMuRate->SetMarkerStyle(23);
   gMuRate->SetMarkerColor(kOrange);
-  gMuRate->GetYaxis()->SetRangeUser(1, 1e7);
+  gMuRate->GetYaxis()->SetRangeUser(1, 1e2);
 
   gMuRate->Draw("APL");
   gMuRate->GetXaxis()->SetTitle("Threshold [GeV]");
   gMuRate->GetYaxis()->SetTitle("Rate [kHz]");
   gPad->Modified();
+
+  leg1->Draw();
+  n3.DrawLatex(0.5, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
+  n4.DrawLatex(0.5, 0.55, "Zero Bias");
 
   c1->SaveAs("ratesMuon.pdf");
 
@@ -345,12 +355,13 @@ void rates(){
   leg2->SetFillStyle(0);
   leg2->Draw("same");
 
-  n2.DrawLatex(0.6, 0.45, "CMS");
   n3.DrawLatex(0.6, 0.4, "Run 260627 #sqrt{s} = 13 TeV");
-  n3.DrawLatex(0.6, 0.35, "Preliminary");
   n4.DrawLatex(0.6, 0.25, "Zero Bias");
   
   c3->SaveAs("ratesSums.pdf");
+
+
+
 
 
   TCanvas* c4 = new TCanvas;
@@ -391,9 +402,7 @@ void rates(){
   leg3->SetFillStyle(0);
   leg3->Draw("same");
 
-  n2.DrawLatex(0.3, 0.45, "CMS");
   n3.DrawLatex(0.3, 0.4, "Run 260627 #sqrt{s} = 13 TeV");
-  n3.DrawLatex(0.3, 0.35, "Preliminary");
   n4.DrawLatex(0.3, 0.25, "Zero Bias");
   
  
