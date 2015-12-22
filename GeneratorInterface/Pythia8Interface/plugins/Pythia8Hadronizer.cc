@@ -384,7 +384,12 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     edm::LogInfo("Pythia8Interface") << "Creating and initializing pythia8 EvtGen plugin";
 
     evtgenDecays = new EvtGenDecays(fMasterGen.get(), evtgenDecFile.c_str(), evtgenPdlFile.c_str());
-    evtgenDecays->readDecayFile("evtgen_userfile.dec");
+
+    for (unsigned int i=0; i<evtgenUserFiles.size(); i++) {
+      edm::FileInPath evtgenUserFile(evtgenUserFiles.at(i)); 
+      evtgenDecays->readDecayFile(evtgenUserFile.fullPath().c_str());
+    }
+
   }
 
   return (status&&status1);
@@ -485,7 +490,12 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
     std::string evtgenpath(getenv("EVTGENDATA"));
     evtgenDecays = new EvtGenDecays(fMasterGen.get(), evtgenDecFile.c_str(), evtgenPdlFile.c_str());
-    evtgenDecays->readDecayFile("evtgen_userfile.dec");
+
+    for (unsigned int i=0; i<evtgenUserFiles.size(); i++) {
+      edm::FileInPath evtgenUserFile(evtgenUserFiles.at(i));
+      evtgenDecays->readDecayFile(evtgenUserFile.fullPath().c_str());
+    }
+
   }
 
   return (status&&status1);
