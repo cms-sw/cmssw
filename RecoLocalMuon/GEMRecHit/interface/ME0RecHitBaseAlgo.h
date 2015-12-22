@@ -57,5 +57,8 @@ class ME0RecHitBaseAlgo {
                        const GlobalPoint& globPos, 
                        LocalPoint& Point,
                        LocalError& error) const = 0;
+
+  bool recOnlyMuons;
+  bool recOnlyPrompt;
 };
 #endif
