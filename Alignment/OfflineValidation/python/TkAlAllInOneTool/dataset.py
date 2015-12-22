@@ -178,6 +178,8 @@ class Dataset:
                     theLumiList.removeRuns( runsToRemove )
                     splitLumiList = list( self.__chunks(
                         theLumiList.getCMSSWString().split(','), 255 ) )
+                    if not (splitLumiList and splitLumiList[0] and splitLumiList[0][0]):
+                        splitLumiList = None
                 else:
                     with open(jsonPath) as f:
                         jsoncontents = f.read()
@@ -193,25 +195,32 @@ class Dataset:
                             if firstRun or lastRun:
                                 self.__firstusedrun = -1
                                 self.__lastusedrun = -1
-                                jsoncontents = re.sub("\d+:(\d+|max)-\d+:(\d+|max)", self.getForceRunRangeFunction(firstRun, lastRun), jsoncontents)
+                                jsoncontents = re.sub(r"\d+:(\d+|max)(-\d+:(\d+|max))?", self.getForceRunRangeFunction(firstRun, lastRun), jsoncontents)
+                                jsoncontents = (jsoncontents.replace("'',\n","").replace("''\n","")
+                                                            .replace('"",\n','').replace('""\n',''))
                                 self.__firstusedrun = max(self.__firstusedrun, int(self.__findInJson(runlist[0],"run_number")))
                                 self.__lastusedrun = min(self.__lastusedrun, int(self.__findInJson(runlist[-1],"run_number")))
+                                if self.__lastusedrun < self.__firstusedrun:
+                                    jsoncontents = None
                             else:
                                 self.__firstusedrun = int(self.__findInJson(runlist[0],"run_number"))
                                 self.__lastusedrun = int(self.__findInJson(runlist[-1],"run_number"))
                             lumiSecExtend = jsoncontents
-                            splitLumiList = [[""]]
+                            splitLumiList = None
+                        else:
+                            raise AllInOneError("%s is not a valid json file!" % jsonPath)
 
-            if splitLumiList and splitLumiList[0]:
-                if splitLumiList[0][0]:
-                    lumiSecStr = [ "',\n'".join( lumis ) \
-                                   for lumis in splitLumiList ]
-                    lumiSecStr = [ "lumiSecs.extend( [\n'" + lumis + "'\n] )" \
-                                   for lumis in lumiSecStr ]
-                    lumiSecExtend = "\n".join( lumiSecStr )
-                    runlist = self.__getRunList()
-                    self.__firstusedrun = max(int(splitLumiList[0][0].split(":")[0]), int(self.__findInJson(runlist[0],"run_number")))
-                    self.__lastusedrun = min(int(splitLumiList[-1][-1].split(":")[0]), int(self.__findInJson(runlist[-1],"run_number")))
+            if splitLumiList and splitLumiList[0] and splitLumiList[0][0]:
+                lumiSecStr = [ "',\n'".join( lumis ) \
+                               for lumis in splitLumiList ]
+                lumiSecStr = [ "lumiSecs.extend( [\n'" + lumis + "'\n] )" \
+                               for lumis in lumiSecStr ]
+                lumiSecExtend = "\n".join( lumiSecStr )
+                runlist = self.__getRunList()
+                self.__firstusedrun = max(int(splitLumiList[0][0].split(":")[0]), int(self.__findInJson(runlist[0],"run_number")))
+                self.__lastusedrun = min(int(splitLumiList[-1][-1].split(":")[0]), int(self.__findInJson(runlist[-1],"run_number")))
+            elif lumiSecExtend:
+                pass
             else:
                 msg = "You are trying to run a validation without any runs!  Check that:"
                 if firstRun or lastRun:
@@ -302,8 +311,12 @@ class Dataset:
         s = s.group()
         run1 = s.split("-")[0].split(":")[0]
         lum1 = s.split("-")[0].split(":")[1]
-        run2 = s.split("-")[1].split(":")[0]
-        lum2 = s.split("-")[1].split(":")[1]
+        try:
+            run2 = s.split("-")[1].split(":")[0]
+            lum2 = s.split("-")[1].split(":")[1]
+        except IndexError:
+            run2 = run1
+            lum2 = lum1
         if int(run2) < firstRun or int(run1) > lastRun:
             return ""
         if int(run1) < firstRun or firstRun < 0:
