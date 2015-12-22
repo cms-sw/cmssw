@@ -53,7 +53,7 @@ namespace edm {
   EventPrincipal::clearEventPrincipal() {
     clearPrincipal();
     aux_ = EventAuxiliary();
-    luminosityBlockPrincipal_.reset();
+    get_underlying(luminosityBlockPrincipal_).reset();
     provRetrieverPtr_->reset();
     unscheduledHandler_.reset();
     branchListIndexToProcessIndex_.clear();
@@ -64,10 +64,10 @@ namespace edm {
         ProcessHistoryRegistry const& processHistoryRegistry,
         EventSelectionIDVector&& eventSelectionIDs,
         BranchListIndexes&& branchListIndexes,
-        ProductProvenanceRetriever& provRetriever,
+        ProductProvenanceRetriever const& provRetriever,
         DelayedReader* reader) {
     eventSelectionIDs_ = eventSelectionIDs;
-    provRetrieverPtr_->deepSwap(provRetriever);
+    provRetrieverPtr_->deepCopy(provRetriever);
     branchListIndexes_ = branchListIndexes;
     if(branchIDListHelper_->hasProducedProducts()) {
       // Add index into BranchIDListRegistry for products produced this process
@@ -416,7 +416,7 @@ namespace edm {
     unscheduledHandler_ = iHandler;
   }
 
-  std::shared_ptr<UnscheduledHandler>
+  std::shared_ptr<const UnscheduledHandler>
   EventPrincipal::unscheduledHandler() const {
      return unscheduledHandler_;
   }
@@ -446,7 +446,7 @@ namespace edm {
     if (productData == nullptr) {
       return nullptr;
     }
-    WrapperBase const* product = productData->wrapper_.get();
+    WrapperBase const* product = productData->wrapper();
     if(!(typeid(edm::ThinnedAssociation) == product->dynamicTypeInfo())) {
       throw Exception(errors::LogicError)
         << "EventPrincipal::getThinnedProduct, product has wrong type, not a ThinnedAssociation.\n";

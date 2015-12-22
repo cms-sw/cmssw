@@ -17,6 +17,7 @@ is the DataBlock.
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Framework/interface/Principal.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
 
@@ -100,7 +101,7 @@ namespace edm {
         std::unique_ptr<WrapperBase> edp);
 
 
-    void readImmediate() const;
+    void readImmediate();
 
     void setComplete() {
       complete_ = true;
@@ -116,11 +117,11 @@ namespace edm {
 
     virtual unsigned int transitionIndex_() const override;
 
-    void resolveProductImmediate(ProductHolderBase const& phb) const;
+    void resolveProductImmediate(ProductHolderBase& phb);
 
-    std::shared_ptr<RunPrincipal> runPrincipal_;
+    edm::propagate_const<std::shared_ptr<RunPrincipal>> runPrincipal_;
 
-    std::shared_ptr<LuminosityBlockAuxiliary> aux_;
+    edm::propagate_const<std::shared_ptr<LuminosityBlockAuxiliary>> aux_;
 
     LuminosityBlockIndex index_;
     

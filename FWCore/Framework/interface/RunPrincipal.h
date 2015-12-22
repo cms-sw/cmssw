@@ -92,7 +92,7 @@ namespace edm {
         BranchDescription const& bd,
         std::unique_ptr<WrapperBase> edp);
 
-    void readImmediate() const;
+    void readImmediate();
 
     void setComplete() {
       complete_ = true;
@@ -108,9 +108,9 @@ namespace edm {
 
     virtual unsigned int transitionIndex_() const override;
 
-    void resolveProductImmediate(ProductHolderBase const& phb) const;
+    void resolveProductImmediate(ProductHolderBase& phb);
 
-    std::shared_ptr<RunAuxiliary> aux_;
+    edm::propagate_const<std::shared_ptr<RunAuxiliary>> aux_;
     ProcessHistoryID m_reducedHistoryID;
     RunIndex index_;
 

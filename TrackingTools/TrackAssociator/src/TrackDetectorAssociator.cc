@@ -299,12 +299,11 @@ void TrackDetectorAssociator::fillEcal( const edm::Event& iEvent,
    if (parameters.dREcalPreselection > parameters.dREcal)
      ecalIdsInRegion =  ecalDetIdAssociator_->getDetIdsInACone(ecalIdsInRegion, coreTrajectory, parameters.dREcal);
    LogTrace("TrackAssociator") << "ECAL hits in the cone: " << ecalIdsInRegion.size();
-   std::vector<DetId> crossedEcalIds =  
-     ecalDetIdAssociator_->getCrossedDetIds(ecalIdsInRegion, coreTrajectory);
+   info.crossedEcalIds  = ecalDetIdAssociator_->getCrossedDetIds(ecalIdsInRegion, coreTrajectory);
+   const std::vector<DetId>& crossedEcalIds =  info.crossedEcalIds;
    LogTrace("TrackAssociator") << "ECAL crossed hits " << crossedEcalIds.size();
    
-   info.crossedEcalIds = crossedEcalIds;
-   
+
    // add EcalRecHits
    for(std::vector<DetId>::const_iterator itr=crossedEcalIds.begin(); itr!=crossedEcalIds.end();itr++)
    {
@@ -364,12 +363,20 @@ void TrackDetectorAssociator::fillCaloTowers( const edm::Event& iEvent,
    } else caloTowerIdsInRegion = caloDetIdAssociator_->getDetIdsCloseToAPoint(trajectory[0], parameters.dRHcalPreselection);
    
    LogTrace("TrackAssociator") << "Towers in the region: " << caloTowerIdsInRegion.size();
-   std::set<DetId> caloTowerIdsInACone = caloDetIdAssociator_->getDetIdsInACone(caloTowerIdsInRegion, trajectory, parameters.dRHcal);
-   LogTrace("TrackAssociator") << "Towers in the cone: " << caloTowerIdsInACone.size();
-   std::vector<DetId> crossedCaloTowerIds = caloDetIdAssociator_->getCrossedDetIds(caloTowerIdsInRegion, trajectory);
+
+   auto caloTowerIdsInAConeBegin = caloTowerIdsInRegion.begin();
+   auto caloTowerIdsInAConeEnd = caloTowerIdsInRegion.end();
+   std::set<DetId> caloTowerIdsInAConeTmp;
+   if (!caloDetIdAssociator_->selectAllInACone(parameters.dRHcal)){
+     caloTowerIdsInAConeTmp = caloDetIdAssociator_->getDetIdsInACone(caloTowerIdsInRegion, trajectory, parameters.dRHcal);
+     caloTowerIdsInAConeBegin = caloTowerIdsInAConeTmp.begin();
+     caloTowerIdsInAConeEnd = caloTowerIdsInAConeTmp.end();
+   }
+   LogTrace("TrackAssociator") << "Towers in the cone: " << std::distance(caloTowerIdsInAConeBegin, caloTowerIdsInAConeEnd);
+
+   info.crossedTowerIds = caloDetIdAssociator_->getCrossedDetIds(caloTowerIdsInRegion, trajectory);
+   const std::vector<DetId>& crossedCaloTowerIds = info.crossedTowerIds;
    LogTrace("TrackAssociator") << "Towers crossed: " << crossedCaloTowerIds.size();
-   
-   info.crossedTowerIds = crossedCaloTowerIds;
    
    // add CaloTowers
    for(std::vector<DetId>::const_iterator itr=crossedCaloTowerIds.begin(); itr!=crossedCaloTowerIds.end();itr++)
@@ -381,7 +388,7 @@ void TrackDetectorAssociator::fillCaloTowers( const edm::Event& iEvent,
 	  LogTrace("TrackAssociator") << "Crossed CaloTower is not found for DetId: " << (*itr).rawId();
      }
    
-   for(std::set<DetId>::const_iterator itr=caloTowerIdsInACone.begin(); itr!=caloTowerIdsInACone.end();itr++)
+   for(std::set<DetId>::const_iterator itr=caloTowerIdsInAConeBegin; itr!=caloTowerIdsInAConeEnd;itr++)
      {
 	CaloTowerCollection::const_iterator tower = (*caloTowers).find(*itr);
 	if(tower != (*caloTowers).end()) 
@@ -411,9 +418,8 @@ void TrackDetectorAssociator::fillPreshower( const edm::Event& iEvent,
 						       parameters.dRPreshowerPreselection);
    
    LogTrace("TrackAssociator") << "Number of Preshower Ids in the region: " << idsInRegion.size();
-   std::vector<DetId> crossedIds = preshowerDetIdAssociator_->getCrossedDetIds(idsInRegion, trajectory);
-   LogTrace("TrackAssociator") << "Number of Preshower Ids in crossed: " << crossedIds.size();
-   info.crossedPreshowerIds = crossedIds;
+   info.crossedPreshowerIds = preshowerDetIdAssociator_->getCrossedDetIds(idsInRegion, trajectory);
+   LogTrace("TrackAssociator") << "Number of Preshower Ids in crossed: " << info.crossedPreshowerIds.size();
 }
 
 
@@ -448,13 +454,21 @@ void TrackDetectorAssociator::fillHcal( const edm::Event& iEvent,
    } else idsInRegion = hcalDetIdAssociator_->getDetIdsCloseToAPoint(coreTrajectory[0], parameters.dRHcalPreselection);
    
    LogTrace("TrackAssociator") << "HCAL hits in the region: " << idsInRegion.size() << "\n" << DetIdInfo::info(idsInRegion,0);
-   std::set<DetId> idsInACone = hcalDetIdAssociator_->getDetIdsInACone(idsInRegion, coreTrajectory, parameters.dRHcal);
-   LogTrace("TrackAssociator") << "HCAL hits in the cone: " << idsInACone.size() << "\n" << DetIdInfo::info(idsInACone,0);
-   std::vector<DetId> crossedIds = 
-     hcalDetIdAssociator_->getCrossedDetIds(idsInRegion, coreTrajectory);
+
+   auto idsInAConeBegin = idsInRegion.begin();
+   auto idsInAConeEnd = idsInRegion.end();
+   std::set<DetId> idsInAConeTmp;
+   if (! hcalDetIdAssociator_->selectAllInACone(parameters.dRHcal)){
+     idsInAConeTmp = hcalDetIdAssociator_->getDetIdsInACone(idsInRegion, coreTrajectory, parameters.dRHcal);
+     idsInAConeBegin = idsInAConeTmp.begin();
+     idsInAConeEnd = idsInAConeTmp.end();
+   }
+   LogTrace("TrackAssociator") << "HCAL hits in the cone: " << std::distance(idsInAConeBegin, idsInAConeEnd) << "\n" 
+			       << DetIdInfo::info(std::set<DetId>(idsInAConeBegin, idsInAConeEnd), 0);
+   info.crossedHcalIds = hcalDetIdAssociator_->getCrossedDetIds(idsInRegion, coreTrajectory);
+   const std::vector<DetId>& crossedIds = info.crossedHcalIds;
    LogTrace("TrackAssociator") << "HCAL hits crossed: " << crossedIds.size() << "\n" << DetIdInfo::info(crossedIds,0);
    
-   info.crossedHcalIds = crossedIds;
    // add Hcal
    for(std::vector<DetId>::const_iterator itr=crossedIds.begin(); itr!=crossedIds.end();itr++)
      {
@@ -464,7 +478,7 @@ void TrackDetectorAssociator::fillHcal( const edm::Event& iEvent,
 	else
 	  LogTrace("TrackAssociator") << "Crossed HBHERecHit is not found for DetId: " << itr->rawId();
      }
-   for(std::set<DetId>::const_iterator itr=idsInACone.begin(); itr!=idsInACone.end();itr++)
+   for(std::set<DetId>::const_iterator itr=idsInAConeBegin; itr!=idsInAConeEnd;itr++)
      {
 	HBHERecHitCollection::const_iterator hit = (*collection).find(*itr);
 	if( hit != (*collection).end() ) 
@@ -505,12 +519,18 @@ void TrackDetectorAssociator::fillHO( const edm::Event& iEvent,
    } else idsInRegion = hoDetIdAssociator_->getDetIdsCloseToAPoint(coreTrajectory[0], parameters.dRHcalPreselection);
    
    LogTrace("TrackAssociator") << "idsInRegion.size(): " << idsInRegion.size();
-   std::set<DetId> idsInACone = hoDetIdAssociator_->getDetIdsInACone(idsInRegion, coreTrajectory, parameters.dRHcal);
-   LogTrace("TrackAssociator") << "idsInACone.size(): " << idsInACone.size();
-   std::vector<DetId> crossedIds =
-     hoDetIdAssociator_->getCrossedDetIds(idsInRegion, coreTrajectory);
-   
-   info.crossedHOIds = crossedIds;
+
+   auto idsInAConeBegin = idsInRegion.begin();
+   auto idsInAConeEnd = idsInRegion.end();
+   std::set<DetId> idsInAConeTmp;
+   if (! hoDetIdAssociator_->selectAllInACone(parameters.dRHcal)){
+     idsInAConeTmp = hoDetIdAssociator_->getDetIdsInACone(idsInRegion, coreTrajectory, parameters.dRHcal);
+     idsInAConeBegin = idsInAConeTmp.begin();
+     idsInAConeEnd = idsInAConeTmp.end();
+   }
+   LogTrace("TrackAssociator") << "idsInACone.size(): " << std::distance(idsInAConeBegin, idsInAConeEnd);
+   info.crossedHOIds = hoDetIdAssociator_->getCrossedDetIds(idsInRegion, coreTrajectory);
+   const std::vector<DetId>& crossedIds = info.crossedHOIds;
    
    // add HO
    for(std::vector<DetId>::const_iterator itr=crossedIds.begin(); itr!=crossedIds.end();itr++)
@@ -522,7 +542,7 @@ void TrackDetectorAssociator::fillHO( const edm::Event& iEvent,
 	  LogTrace("TrackAssociator") << "Crossed HORecHit is not found for DetId: " << itr->rawId();
      }
 
-   for(std::set<DetId>::const_iterator itr=idsInACone.begin(); itr!=idsInACone.end();itr++)
+   for(std::set<DetId>::const_iterator itr=idsInAConeBegin; itr!=idsInAConeEnd;itr++)
      {
 	HORecHitCollection::const_iterator hit = (*collection).find(*itr);
 	if( hit != (*collection).end() ) 

@@ -47,6 +47,9 @@ useEvtGen(false), evtgenDecays(0)
     if ( ps.exists( "evtgenPdlFile" ) )
       evtgenPdlFile = ps.getParameter<string>("evtgenPdlFile");
 
+    if ( ps.exists( "evtgenUserFile" ) )
+      evtgenUserFiles = ps.getParameter< std::vector<std::string> >("evtgenUserFile");
+
   }
 
 }

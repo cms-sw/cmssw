@@ -595,23 +595,12 @@ namespace edm {
       ProductHolderBase const* parentProductHolder = parentPrincipal.getProductHolder(item->branchID());
       if(parentProductHolder != nullptr) {
         ProductData const& parentData = parentProductHolder->productData();
-        ProductHolderBase const* productHolder = principal.getProductHolder(item->branchID());
+        ProductHolderBase* productHolder = principal.getModifiableProductHolder(item->branchID());
         if(productHolder != nullptr) {
-          ProductData& thisData = const_cast<ProductData&>(productHolder->productData());
+          ProductData& thisData = productHolder->productData();
           //Propagate the per event(run)(lumi) data for this product to the subprocess.
           //First, the product itself.
-          thisData.wrapper_ = parentData.wrapper_;
-          // Then the product ID and the ProcessHistory 
-          thisData.prov_.setProductID(parentData.prov_.productID());
-          thisData.prov_.setProcessHistory(parentData.prov_.processHistory());
-          // Then the store, in case the product needs reading in a subprocess.
-          thisData.prov_.setStore(parentData.prov_.store());
-          // And last, the other per event provenance.
-          if(parentData.prov_.productProvenanceValid()) {
-            thisData.prov_.setProductProvenance(*parentData.prov_.productProvenance());
-          } else {
-            thisData.prov_.resetProductProvenance();
-          }
+          thisData.connectTo(parentData);
           // Sets unavailable flag, if known that product is not available
           (void)productHolder->productUnavailable();
         }

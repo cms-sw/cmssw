@@ -4,7 +4,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <fstream>
 #include <math.h>
@@ -18,7 +17,8 @@ using namespace std;
 
 CaloTPGTranscoderULUT::CaloTPGTranscoderULUT(const std::string& compressionFile,
                                              const std::string& decompressionFile)
-                                                : nominal_gain_(0.), rctlsb_factor_(0.),
+                                                : theTopology(0),
+                                                  nominal_gain_(0.), rctlsb_factor_(0.),
                                                   compressionFile_(compressionFile),
                                                   decompressionFile_(decompressionFile)
 {
@@ -34,13 +34,17 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
     if (OUTPUT_LUT_SIZE != (unsigned int) 0x400)
         edm::LogError("CaloTPGTranscoderULUT") << "Analytic compression expects 10-bit LUT; found LUT with " << OUTPUT_LUT_SIZE << " entries instead";
 
-    std::vector<unsigned int> analyticalLUT(OUTPUT_LUT_SIZE, 0);
-    std::vector<unsigned int> identityLUT(OUTPUT_LUT_SIZE, 0);
+    if (!theTopology) {
+        throw cms::Exception("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
+    }
+
+    std::array<unsigned int, OUTPUT_LUT_SIZE> analyticalLUT;
+    std::array<unsigned int, OUTPUT_LUT_SIZE> identityLUT;
 
     // Compute compression LUT
     for (unsigned int i=0; i < OUTPUT_LUT_SIZE; i++) {
 	analyticalLUT[i] = (unsigned int)(sqrt(14.94*log(1.+i/14.94)*i) + 0.5);
-	identityLUT[i] = min(i,0xffu);
+	identityLUT[i] = min(i, TPGMAX - 1);
     }
  
     std::vector<DetId> allChannels = lutMetadata.getAllChannels();
@@ -113,7 +117,7 @@ double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& iphi, cons
   int itower = getOutputLUTId(ieta,iphi);
   if (itower < 0) {
     edm::LogError("CaloTPGTranscoderULUT") << "No decompression LUT found for ieta, iphi = " << ieta << ", " << iphi;
-  } else if (compET < 0 || compET > 0xff) {
+  } else if (compET < 0 || compET >= (int) TPGMAX) {
     edm::LogError("CaloTPGTranscoderULUT") << "Compressed value out of range: eta, phi, cET = " << ieta << ", " << iphi << ", " << compET;
   } else {
     etvalue = hcaluncomp_[itower][compET];
@@ -126,7 +130,7 @@ double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& compET) co
 // The user is encouraged to use hcaletValue(const int& ieta, const int& iphi, const int& compET) instead
 
   double etvalue = 0.;
-  if (compET < 0 || compET > 0xff) {
+  if (compET < 0 || compET >= (int) TPGMAX) {
     edm::LogError("CaloTPGTranscoderULUT") << "Compressed value out of range: eta, cET = " << ieta << ", " << compET;
   } else {
 	int nphi = 0;
@@ -170,19 +174,28 @@ void CaloTPGTranscoderULUT::rctJetUncompress(const HcalTrigTowerDetId& hid, cons
 
 bool CaloTPGTranscoderULUT::HTvalid(const int ieta, const int iphiin) const {
 	HcalTrigTowerDetId id(ieta, iphiin);
+	if (!theTopology) {
+		throw cms::Exception("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
+	}
 	return theTopology->validHT(id);
 }
 
 int CaloTPGTranscoderULUT::getOutputLUTId(const HcalTrigTowerDetId& id) const {
+    if (!theTopology) {
+        throw cms::Exception("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
+    }
     return theTopology->detId2denseIdHT(id);
 }
 
 int CaloTPGTranscoderULUT::getOutputLUTId(const int ieta, const int iphiin) const {
+	if (!theTopology) {
+		throw cms::Exception("CaloTPGTranscoderULUT") << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
+	}
 	HcalTrigTowerDetId id(ieta, iphiin);
 	return theTopology->detId2denseIdHT(id);
 }
 
-std::vector<unsigned int> CaloTPGTranscoderULUT::getCompressionLUT(HcalTrigTowerDetId id) const {
+const std::vector<unsigned int>& CaloTPGTranscoderULUT::getCompressionLUT(const HcalTrigTowerDetId& id) const {
    int itower = getOutputLUTId(id);
    return outputLUT_[itower];
 }
@@ -192,8 +205,9 @@ void CaloTPGTranscoderULUT::setup(HcalLutMetadata const& lutMetadata, HcalTrigTo
     theTopology = lutMetadata.topo();
     nominal_gain_ = lutMetadata.getNominalGain();
     float rctlsb =lutMetadata.getRctLsb();
-    if (rctlsb != 0.25 && rctlsb != 0.5)
-	throw cms::Exception("RCTLSB") << " value=" << rctlsb << " (should be 0.25 or 0.5)" << std::endl;
+    if (rctlsb != LSB_HBHE && rctlsb != LSB_HF)
+	throw cms::Exception("RCTLSB") << " value=" << rctlsb << " (should be " << LSB_HBHE
+	    << " or " << LSB_HF << ")" << std::endl;
     rctlsb_factor_ = rctlsb;
 
     if (compressionFile_.empty() && decompressionFile_.empty()) {

@@ -21,21 +21,19 @@ namespace edm {
     branchDescription_(p),
     productID_(pid),
     processHistory_(),
-    productProvenanceValid_(false),
-    productProvenancePtr_(new ProductProvenance),
+    productProvenancePtr_(),
     store_() {
   }
 
-  ProductProvenance*
+  ProductProvenance const*
   Provenance::resolve() const {
     if(!store_) {
       return nullptr;
     }
-    if (!productProvenanceValid_) {
+    if (!productProvenancePtr_) {
       ProductProvenance const* prov  = store_->branchIDToProvenance(branchDescription_->branchID());
       if (prov) {
-        *productProvenancePtr_ = *prov;
-        productProvenanceValid_ = true;
+        productProvenancePtr_ = std::shared_ptr<ProductProvenance const>(prov, [](void const*) {}); //Do not take ownership
       }
     }
     return productProvenancePtr_.get();
@@ -58,7 +56,7 @@ namespace edm {
     // This is grossly inadequate, but it is not critical for the
     // first pass.
     product().write(os);
-    ProductProvenance* pp = productProvenance();
+    auto pp = productProvenance();
     if (pp != nullptr) {
       pp->write(os);
     }
@@ -69,15 +67,13 @@ namespace edm {
   }
 
   void
-  Provenance::resetProductProvenance() const {
-    *productProvenancePtr_ = ProductProvenance();
-    productProvenanceValid_ = false;
+  Provenance::resetProductProvenance() {
+    productProvenancePtr_.reset();
   }
 
   void
-  Provenance::setProductProvenance(ProductProvenance const& prov) const {
-    *productProvenancePtr_ = prov;
-    productProvenanceValid_ = true;
+  Provenance::setProductProvenance(ProductProvenance const& prov) {
+    productProvenancePtr_ = std::make_shared<ProductProvenance>(prov);
   }
 
   void
@@ -85,8 +81,7 @@ namespace edm {
     branchDescription_.swap(iOther.branchDescription_);
     productID_.swap(iOther.productID_);
     std::swap(processHistory_, iOther.processHistory_);
-    std::swap(productProvenanceValid_, iOther.productProvenanceValid_);
     productProvenancePtr_.swap(iOther.productProvenancePtr_);
-    store_.swap(iOther.store_);
+    std::swap(store_,iOther.store_);
  }
 }

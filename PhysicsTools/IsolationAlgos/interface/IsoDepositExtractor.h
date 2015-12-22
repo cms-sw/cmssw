@@ -32,6 +32,9 @@ namespace reco {
       //! check concrete extractors if it's no-op !
       virtual void fillVetos(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks) = 0;
 
+      //! perform some constly initialization
+      virtual void initEvent(const edm::Event & , const edm::EventSetup & ) {}
+
       //! make single IsoDeposit based on track as input
       //! purely virtual: have to implement in concrete implementations
       virtual reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup,

@@ -81,6 +81,10 @@ class DetIdAssociator{
 						  const double dThetaMinus,
 						  const double dPhiPlus,
 						  const double dPhiMinus) const;
+
+   /// helper to see if getDetIdsInACone is useful
+   virtual bool selectAllInACone(const double dR) const {return dR > 2*M_PI && dR > maxEta_;}
+
    /// Find DetIds that satisfy given requirements
    /// - inside eta-phi cone of radius dR
    virtual std::set<DetId> getDetIdsInACone(const std::set<DetId>&,

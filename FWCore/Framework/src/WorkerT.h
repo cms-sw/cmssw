@@ -12,6 +12,7 @@ WorkerT: Code common to all workers.
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <map>
 #include <memory>
@@ -26,7 +27,7 @@ namespace edm {
   class ProductRegistry;
   class ThinnedAssociationsHelper;
 
-  UnscheduledHandler* getUnscheduledHandler(EventPrincipal const& ep);
+  UnscheduledHandler const* getUnscheduledHandler(EventPrincipal const& ep);
 
   template<typename T>
   class WorkerT : public Worker {
@@ -133,7 +134,7 @@ namespace edm {
 
     virtual std::vector<ProductHolderIndexAndSkipBit> const& itemsToGetFromEvent() const override { return module_->itemsToGetFromEvent(); }
 
-    std::shared_ptr<T> module_;
+    edm::propagate_const<std::shared_ptr<T>> module_;
   };
 
 }

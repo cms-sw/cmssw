@@ -59,6 +59,7 @@ namespace gen {
          EvtGenDecays* evtgenDecays;
          std::string evtgenDecFile;
          std::string evtgenPdlFile;
+         std::vector<std::string> evtgenUserFiles;
 
       private:
 

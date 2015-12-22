@@ -191,7 +191,7 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
   void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
   double discriminate(const PFTauRef& pfTau) const override;
 
-  inline  double weightedSum(std::vector<PFCandidatePtr> inColl_, double eta, double phi) const {
+  inline  double weightedSum(const std::vector<PFCandidatePtr>& inColl_, double eta, double phi) const {
     double out = 1.0;
     for (auto const & inObj_ : inColl_){
       double sum = (inObj_->pt()*inObj_->pt())/(deltaR2(eta,phi,inObj_->eta(),inObj_->phi()));
@@ -332,10 +332,10 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
   std::vector<PFCandidatePtr> chPV_;
   isoCharged_.reserve(pfTau->isolationPFChargedHadrCands().size());
   isoNeutral_.reserve(pfTau->isolationPFGammaCands().size());
-  isoPU_.reserve(chargedPFCandidatesInEvent_.size());
+  isoPU_.reserve(std::min(100UL, chargedPFCandidatesInEvent_.size()));
   isoNeutralWeight_.reserve(pfTau->isolationPFGammaCands().size());
 
-  chPV_.reserve(chargedPFCandidatesInEvent_.size());
+  chPV_.reserve(std::min(50UL, chargedPFCandidatesInEvent_.size()));
 
   // Get the primary vertex associated to this tau
   reco::VertexRef pv = vertexAssociator_->associatedVertex(*pfTau);
@@ -428,8 +428,8 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
       }
       LogTrace("discriminate") << "After cone cuts: " << isoPU_.size() << " " << chPV_.size() ;
     } else {
-      isoPU_ = allPU;
-      chPV_ = allNPU;
+      isoPU_ = std::move(allPU);
+      chPV_ = std::move(allNPU);
     }
   }
 
