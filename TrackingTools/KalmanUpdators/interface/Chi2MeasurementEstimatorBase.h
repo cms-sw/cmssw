@@ -9,7 +9,6 @@
  */
 
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class Chi2MeasurementEstimatorBase : public MeasurementEstimator {
 public:

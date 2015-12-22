@@ -71,8 +71,8 @@ lowPtQuadStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilt
                  cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
     )
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-lowPtQuadStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+lowPtQuadStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('lowPtQuadStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(25.0)

@@ -84,8 +84,8 @@ hiJetCoreRegionalStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.Trajec
     minPt = 10.0
 )
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-hiJetCoreRegionalStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+hiJetCoreRegionalStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('hiJetCoreRegionalStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(30.0)

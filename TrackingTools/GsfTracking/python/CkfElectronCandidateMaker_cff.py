@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 #Chi2 estimator
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-ElectronChi2 = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone()
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+ElectronChi2 = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone()
 ElectronChi2.ComponentName = 'ElectronChi2'
 ElectronChi2.MaxChi2 = 2000.
 ElectronChi2.nSigma = 3.

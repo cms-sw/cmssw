@@ -87,8 +87,8 @@ detachedQuadStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryF
                  cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
     )
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-detachedQuadStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+detachedQuadStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('detachedQuadStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(9.0)

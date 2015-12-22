@@ -12,10 +12,10 @@ import RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi
 #      }	
 # TrajectoryBuilder
 TrajectoryBuilderForPixelMatchGsfElectrons = RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi.CkfTrajectoryBuilder.clone()
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
 # Electron propagators and estimators
 # Looser chi2 estimator for electron trajectory building
-gsfElectronChi2 = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone()
+gsfElectronChi2 = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone()
 # "backward" propagator for electrons
 from RecoEgamma.EgammaElectronProducers.bwdGsfElectronPropagator_cff import *
 # "forward" propagator for electrons

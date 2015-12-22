@@ -76,8 +76,8 @@ hiPixelPairTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter
     minPt = 1.0
     )
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-hiPixelPairChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+hiPixelPairChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('hiPixelPairChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(9.0),
