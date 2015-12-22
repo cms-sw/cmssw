@@ -53,9 +53,9 @@ namespace edm {
   }
 
   void
-  LuminosityBlockPrincipal::readImmediate() const {
-    for(auto const& prod : *this) {
-      ProductHolderBase const& phb = *prod;
+  LuminosityBlockPrincipal::readImmediate() {
+    for(auto & prod : *this) {
+      ProductHolderBase & phb = *prod;
       if(phb.singleProduct() && !phb.branchDescription().produced()) {
         if(!phb.productUnavailable()) {
           resolveProductImmediate(phb);
@@ -65,7 +65,7 @@ namespace edm {
   }
 
   void
-  LuminosityBlockPrincipal::resolveProductImmediate(ProductHolderBase const& phb) const {
+  LuminosityBlockPrincipal::resolveProductImmediate(ProductHolderBase& phb)  {
     if(phb.branchDescription().produced()) return; // nothing to do.
     if(!reader()) return; // nothing to do.
 

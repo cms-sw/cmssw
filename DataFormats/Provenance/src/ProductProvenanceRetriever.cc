@@ -38,18 +38,18 @@ namespace edm {
     }
   }
 
-  void ProductProvenanceRetriever::deepSwap(ProductProvenanceRetriever& iFrom)
+  void ProductProvenanceRetriever::deepCopy(ProductProvenanceRetriever const& iFrom)
   {
-    entryInfoSet_.swap(iFrom.entryInfoSet_);
+    entryInfoSet_ = iFrom.entryInfoSet_;
     provenanceReader_ = iFrom.provenanceReader_;
     if(provenanceReader_) {
       delayedRead_=true;
     }
     if(iFrom.nextRetriever_) {
       if(not nextRetriever_) {
-        nextRetriever_.reset(new ProductProvenanceRetriever(transitionIndex_));
+        get_underlying(nextRetriever_) = std::make_shared<ProductProvenanceRetriever>(transitionIndex_);
       }
-      nextRetriever_->deepSwap(*(iFrom.nextRetriever_));
+      nextRetriever_->deepCopy(*(iFrom.nextRetriever_));
     }
   }
 

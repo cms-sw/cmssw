@@ -9,11 +9,8 @@ ProductProvenanceRetriever: Manages the per event/lumi/run per product provenanc
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
-#include "boost/scoped_ptr.hpp"
-#include "boost/utility.hpp"
-
-#include <iosfwd>
 #include <memory>
 #include <set>
 
@@ -24,10 +21,12 @@ ProductProvenanceRetriever: Manages the per event/lumi/run per product provenanc
 namespace edm {
   class ProvenanceReaderBase;
 
-  class ProductProvenanceRetriever : private boost::noncopyable {
+  class ProductProvenanceRetriever {
   public:
     explicit ProductProvenanceRetriever(unsigned int iTransitionIndex);
     explicit ProductProvenanceRetriever(std::unique_ptr<ProvenanceReaderBase> reader);
+    
+    ProductProvenanceRetriever& operator=(ProductProvenanceRetriever const&) = delete;
 
     ~ProductProvenanceRetriever();
 
@@ -37,7 +36,7 @@ namespace edm {
 
     void mergeProvenanceRetrievers(std::shared_ptr<ProductProvenanceRetriever> other);
 
-    void deepSwap(ProductProvenanceRetriever&);
+    void deepCopy(ProductProvenanceRetriever const&);
     
     void reset();
   private:
@@ -49,8 +48,8 @@ namespace edm {
     typedef std::set<ProductProvenance> eiSet;
 
     mutable eiSet entryInfoSet_;
-    std::shared_ptr<ProductProvenanceRetriever> nextRetriever_;
-    mutable std::shared_ptr<ProvenanceReaderBase> provenanceReader_;
+    edm::propagate_const<std::shared_ptr<ProductProvenanceRetriever>> nextRetriever_;
+    std::shared_ptr<const ProvenanceReaderBase> provenanceReader_;
     unsigned int transitionIndex_;
     mutable bool delayedRead_;
   };
