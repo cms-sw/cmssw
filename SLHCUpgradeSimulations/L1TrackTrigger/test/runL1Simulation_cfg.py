@@ -13,19 +13,7 @@ process = cms.Process("L1simulation")
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
-   # MinBias, new GT :
-   #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m1_SingleNeutrino_E2023TTI_PU140.root'
-   #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m2_SingleNeutrino_E2023TTI_PU140.root'
-   #
-   # old GT :
-   #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140/m1_SingleNeutrino_E2023TTI_PU140.root'
-   #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140/m2_SingleNeutrino_E2023TTI_PU140.root'
-   #
-   # SingleElectrons (old GT)
-   '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m1_SingleElectron_E2023TTI_PU140.root',
-   '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m1_SinglePositron_E2023TTI_PU140.root',
-   '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m2_SingleElectron_E2023TTI_PU140.root',
-   '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m2_SinglePositron_E2023TTI_PU140.root'
+  '/store/mc/TTI2023Upg14D/SingleElectronFlatPt0p2To50/GEN-SIM-DIGI-RAW/PU140bx25_PH2_1K_FB_V3-v2/00000/C001841E-A3E5-E311-8C0C-003048678E52.root'
    )
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )

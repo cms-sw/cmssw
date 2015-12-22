@@ -82,6 +82,7 @@ namespace
     edm::Ptr< TTTrack< Ref_PixelDigi_ > >                                    P_T_PD;
     edm::Wrapper< edm::Ptr< TTTrack< Ref_PixelDigi_ > > >                  W_P_T_PD;
     std::vector< edm::Ptr< TTTrack< Ref_PixelDigi_ > > >                   V_P_T_PD;
+    edm::Ref< std::vector < TTTrack< Ref_PixelDigi_ > > >                   R_V_T_PD;
     edm::Wrapper< std::vector< edm::Ptr< TTTrack< Ref_PixelDigi_ > > > > W_V_P_T_PD;
 
     /// TTPixelTrack and containers

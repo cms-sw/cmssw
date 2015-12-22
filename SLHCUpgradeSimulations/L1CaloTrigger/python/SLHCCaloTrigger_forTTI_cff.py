@@ -5,7 +5,7 @@ from SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTrigger_cfi import *
 # use the old H/E cut (as in 620_SLHC10, i.e. seed = 3x3 cluster)), 
 # since the new one (seed tower) is inefficient at PU140
 
-L1CaloProtoClusterSharing.oeCutMode = cms.int32(1)    # 0 = seed tower H/E, 1 = 3x3 cluster H/E
+L1CaloProtoClusterSharing.hoeCutMode = cms.int32(1)    # 0 = seed tower H/E, 1 = 3x3 cluster H/E
 
 
 SLHCCaloTrigger  = cms.Sequence(#L1TestPatternCaloTowerProducer+

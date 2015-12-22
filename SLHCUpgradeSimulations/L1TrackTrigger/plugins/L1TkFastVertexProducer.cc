@@ -107,10 +107,13 @@ class L1TkFastVertexProducer : public edm::EDProducer {
         //const StackedTrackerGeometry*                   theStackedGeometry;
 
 	bool doPtComp ;
-	bool doTightChi2 ;
+        bool doTightChi2 ;
+  
+        int WEIGHT; // weight (power) of pT 0 , 1, 2
 
 	TH1F* htmp;
-	TH1F* htmp_weight;
+        TH1F* htmp_weight;
+
 
 };
 
@@ -157,6 +160,7 @@ L1TkFastVertexProducer::L1TkFastVertexProducer(const edm::ParameterSet& iConfig)
   doPtComp = iConfig.getParameter<bool>("doPtComp");
   doTightChi2 = iConfig.getParameter<bool>("doTightChi2");
 
+  WEIGHT = iConfig.getParameter<int>("WEIGHT");
 
  //int nbins = 300;
  //float xmin = -15;
@@ -173,6 +177,8 @@ L1TkFastVertexProducer::L1TkFastVertexProducer(const edm::ParameterSet& iConfig)
 
   htmp = new TH1F("htmp",";z (cm); Tracks",nbins,xmin,xmax);
   htmp_weight = new TH1F("htmp_weight",";z (cm); Tracks",nbins,xmin,xmax);
+
+
 
   produces<L1TkPrimaryVertexCollection>();
 
@@ -279,8 +285,10 @@ L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
           << std::endl;
      }
 
+     //     std::cout<<zvtx_gen<<endl;
 
      L1TkPrimaryVertex genvtx( zvtx_gen, -999.); 
+     
      result -> push_back( genvtx );
      iEvent.put( result);
      return;
@@ -308,6 +316,9 @@ L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     float chi2 = trackIter->getChi2();
     float pt = trackIter->getMomentum().perp();
     float eta  = trackIter ->getMomentum().eta();
+
+    //..............................................................    
+    float wt = pow(pt,WEIGHT); // calculating the weight for tks in as pt^0,pt^1 or pt^2 based on WEIGHT
 
 
     if (fabs(z) > ZMAX ) continue;
@@ -365,8 +376,10 @@ L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
 
      htmp -> Fill( z );
-     htmp_weight -> Fill( z, pt ); 
-   
+     htmp_weight -> Fill( z, wt );// changed from "pt" to "wt" which is some power of pt (0,1 or 2)
+  
+
+     
   } // end loop over tracks
   
 
@@ -417,6 +430,7 @@ L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         zvtx_sliding =  ( a0 * z0 + a1 * z1 + a2 * z2 ) / sigma;
      }
   }
+  //  cout<<zvtx_sliding<<"\t"<< sigma_max<<endl;
  //L1TkPrimaryVertex vtx4( zvtx_sliding, zvtx_gen);
  L1TkPrimaryVertex vtx4( zvtx_sliding, sigma_max);
 

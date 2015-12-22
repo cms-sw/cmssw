@@ -165,6 +165,9 @@ private:
   string geometry_;
   double phiWindowSF_;
 
+  string asciiEventOutName_;
+  std::ofstream asciiEventOut_;
+
   /// ///////////////// ///
   /// MANDATORY METHODS ///
   virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
@@ -182,6 +185,14 @@ L1TrackProducer::L1TrackProducer(edm::ParameterSet const& iConfig) // :   config
 
   geometry_ = iConfig.getUntrackedParameter<string>("geometry","");
   phiWindowSF_ = iConfig.getUntrackedParameter<double>("phiWindowSF",1.0);
+
+  asciiEventOutName_ = iConfig.getUntrackedParameter<string>("asciiFileName","");
+
+  eventnum=0;
+  if (asciiEventOutName_!="") {
+    asciiEventOut_.open(asciiEventOutName_.c_str());
+  }
+
 }
 
 /////////////
@@ -190,12 +201,17 @@ L1TrackProducer::~L1TrackProducer()
 {
   /// Insert here what you need to delete
   /// when you close the class instance
+  if (asciiEventOutName_!="") {
+    asciiEventOut_.close();
+  }
+
 }  
 
 //////////
 // END JOB
 void L1TrackProducer::endRun(const edm::Run& run, const edm::EventSetup& iSetup)
 {
+
   /// Things to be done at the exit of the event Loop 
 
 }
@@ -204,7 +220,6 @@ void L1TrackProducer::endRun(const edm::Run& run, const edm::EventSetup& iSetup)
 // BEGIN JOB
 void L1TrackProducer::beginRun(const edm::Run& run, const edm::EventSetup& iSetup )
 {
-  eventnum=0;
 }
 
 //////////
@@ -329,9 +344,8 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const TTStub<Ref_PixelDigi_>* stub=iterTTStub;
 
       double stubPt = theStackedGeometry->findRoughPt(mMagneticFieldStrength,stub);
-
+      
       if (stubPt>10000.0) stubPt=9999.99;
-      GlobalPoint stubPosition = theStackedGeometry->findGlobalPosition(stub);
 
       StackedTrackerDetId stubDetId = stub->getDetId();
       unsigned int iStack = stubDetId.iLayer();
@@ -339,6 +353,12 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       unsigned int iPhi = stubDetId.iPhi();
       unsigned int iZ = stubDetId.iZ();
 
+
+      GlobalPoint stubPosition = theStackedGeometry->findGlobalPosition(stub);
+
+      if (stub->getTriggerBend()<0.0) stubPt=-stubPt;
+      if (iStack==999999 && stubPosition.z()>0) stubPt=-stubPt;
+	
       std::vector<bool> innerStack;
       std::vector<int> irphi;
       std::vector<int> iz;
@@ -406,9 +426,20 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}    
       }    
 
-      if (ev.addStub(iStack,iPhi+1,iZ,stubPt,
+      int strip=-1;
+      if (irphi.size()!=0) {
+	strip=irphi[0];
+      }
+      //std::cout << "strip = "<<strip<<std::endl;
+
+      if (ev.addStub(iStack,iPhi+1,iZ,strip,stubPt,stub->getTriggerBend(),
 		 stubPosition.x(),stubPosition.y(),stubPosition.z(),
 		     innerStack,irphi,iz,iladder,imodule)) {
+
+
+	//if (ev.addStub(iStack,iPhi+1,iZ,stubPt,
+	//	 stubPosition.x(),stubPosition.y(),stubPosition.z(),
+	//	     innerStack,irphi,iz,iladder,imodule)) {
 
 	edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStubRef = edmNew::makeRefTo( TTStubHandle, iterTTStub);
 
@@ -452,9 +483,13 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   assert(mode==1||mode==2||mode==3||mode==4);
 
+  if (asciiEventOutName_!="") {
+    ev.write(asciiEventOut_);
+  }
+
 #include "L1Tracking.icc"  
 
-
+  
   
   for (unsigned itrack=0; itrack<purgedTracks.size(); itrack++) {
     L1TTrack track=purgedTracks.get(itrack);

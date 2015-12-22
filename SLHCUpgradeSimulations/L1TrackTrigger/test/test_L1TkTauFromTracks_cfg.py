@@ -25,8 +25,7 @@ process.source = cms.Source("PoolSource",
 
 # to run over another sample:
 #process.source = cms.Source("PoolSource",
-     # electron file:
-     #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m1_SingleElectron_E2023TTI_PU140.root',
+#'/store/mc/TTI2023Upg14D/Neutrino_Pt2to20_gun/GEN-SIM-DIGI-RAW/PU140bx25_PH2_1K_FB_V3-v2/00000/022FFF01-E4E0-E311-9DAD-002618943919.root',
      #)
 #)
 
