@@ -4,6 +4,15 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
+#include "DataFormats/Math/interface/approx_asin.h"
+
+namespace {
+  template<class T> inline T clamped_acos(T x) {
+    x = std::min(T(1.),std::max(-T(1.),x));
+    return unsafe_acos<5>(x);
+  }
+}
+
 namespace tkDetUtil {
 
   float computeWindowSize( const GeomDet* det, 
@@ -40,9 +49,7 @@ namespace tkDetUtil {
       auto y1 = hori ? yc - maxDistance.y() :  xc - maxDistance.x();
       auto x1 = hori ? xc + maxDistance.x() : -yc + maxDistance.y();
 
-      auto sp = (x0*x1+y0*y1)/std::sqrt((x0*x0+y0*y0)*(x1*x1+y1*y1));
-      sp = std::min(std::max(sp,-1.f),1.f);
-      dphi = std::acos(sp);
+      dphi = clamped_acos((x0*x1+y0*y1)/std::sqrt((x0*x0+y0*y0)*(x1*x1+y1*y1)));
       return dphi;
     }
     
