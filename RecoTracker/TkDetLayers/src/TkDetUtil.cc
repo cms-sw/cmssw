@@ -40,7 +40,9 @@ namespace tkDetUtil {
       auto y1 = hori ? yc - maxDistance.y() :  xc - maxDistance.x();
       auto x1 = hori ? xc + maxDistance.x() : -yc + maxDistance.y();
 
-      dphi = std::acos( (x0*x1+y0*y1)/std::sqrt((x0*x0+y0*y0)*(x1*x1+y1*y1)) );
+      auto sp = (x0*x1+y0*y1)/std::sqrt((x0*x0+y0*y0)*(x1*x1+y1*y1));
+      sp = std::min(std::max(sp,-1.f),1.f);
+      dphi = std::acos(sp);
       return dphi;
     }
     
