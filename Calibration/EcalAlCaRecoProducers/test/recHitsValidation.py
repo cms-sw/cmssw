@@ -7,7 +7,7 @@ from PhysicsTools.PythonAnalysis import *
 
 #print_options.set_float_precision(4)
 gSystem.Load("libFWCoreFWLite.so")
-FWLiteEnabler::enable()
+AutoLibraryLoader.enable()
 
 #import EcalDetId
 #from DataFormats.EcalDetId import *
@@ -69,17 +69,24 @@ eventNumber=694966852
 lumi=466
 eventNumber=685233340
 
+eventNumber=-1
 eventMin=-1
+lumi=-1
 
 # for now look for events in two files with a given lumi section
 maxEvents=-1
 event_counter=0
 
 for arg in sys.argv:
-    if (arg=='testAlca1'):
-        print "testAlca1"
-        file="/tmp/"+os.environ["USER"]+"/testAlca1.root"
-        file_format = "AlcaFromAOD"
+    if (arg=='alcareco'):
+        print "alcareco"
+        file="EcalCalZElectron.root"
+        file_format = "alcareco"
+        break
+    elif(arg=='alcarereco'):
+        print "alcarereco"
+        file="/afs/cern.ch/user/l/lbrianza/work/PHD/DEF_ECALELF/CHE_SUCCEDE_IN_ECALELF/CMSSW_7_5_0_pre3/src/Calibration/DoubleElectron-Run2012D/EcalRecalElectron.root"
+        file_format = "alcarereco"
         break
     elif(arg=='testAlca2'):
         print 'testAlca2'
@@ -168,7 +175,7 @@ elif(file_format == 'sandbox'):
     electronTAG = 'electronRecalibSCAssociator'
 elif(file_format == "AOD"):
     processName = "RECO"
-    electronTAG = 'gedGsfElectrons'
+    electronTAG = 'electronRecalibSCAssociator'
 elif(file_format == "AlcaFromAOD"):
     processName = "ALCASKIM"
     electronTAG = 'gedGsfElectrons'
@@ -178,6 +185,12 @@ elif(file_format == "AlcaFromAOD_Recalib"):
 elif(file_format == "RECO"):
     electronTAG = "gedGsfElectrons"
     processName = "RECO"
+elif(file_format == "alcareco"):
+    processName = "RECO"
+    electronTAG = 'gedGsfElectrons'
+elif(file_format == "alcarereco"):
+    processName = "RECO"
+    electronTAG = 'electronRecalibSCAssociator'
     
 
 
@@ -225,8 +238,14 @@ for event in events:
         event.getByLabel("ecalRecHit",    "EcalRecHitsEB",   "ALCASKIM", handleRecHitsEB_ALCASKIM)
         event.getByLabel("ecalRecHit",    "EcalRecHitsEE",   "ALCASKIM", handleRecHitsEE_ALCASKIM)
     else:
-        event.getByLabel("alCaIsolatedElectrons","alcaBarrelHits", "ALCARERECO", handleRecHitsEB_ALCARECO)
-        event.getByLabel("alCaIsolatedElectrons","alcaEndcapHits", "ALCARERECO", handleRecHitsEE_ALCARECO)
+#        event.getByLabel("alCaIsolatedElectrons","alcaBarrelHits", "ALCARERECO", handleRecHitsEB_ALCARECO)
+#        event.getByLabel("alCaIsolatedElectrons","alcaEndcapHits", "ALCARERECO", handleRecHitsEE_ALCARECO)
+        if (arg=='alcareco'):
+            event.getByLabel("alCaIsolatedElectrons","alcaBarrelHits", "", handleRecHitsEB_ALCARECO)
+            event.getByLabel("alCaIsolatedElectrons","alcaEndcapHits", "", handleRecHitsEE_ALCARECO)
+        elif (arg=='alcarereco'):
+            event.getByLabel("alCaIsolatedElectrons","alcaBarrelHits", "RERECO", handleRecHitsEB_ALCARECO)
+            event.getByLabel("alCaIsolatedElectrons","alcaEndcapHits", "RERECO", handleRecHitsEE_ALCARECO)
 
     if(file_format=="sandbox"):
 
@@ -256,18 +275,32 @@ for event in events:
                print "------------------------------"
                print recHits_ALCASKIM
     else:
+
+       print "Electron:   eta    phi    SC energy    SC number of recHit    parent SC energy    parent SC number of RH"
+
        for electron in electrons:
-           if(abs(electron.eta()) < 1.4442):
-               recHits_ALCARECO = handleRecHitsEB_ALCARECO.product()
-           else:
-               recHits_ALCARECO = handleRecHitsEE_ALCARECO.product()
-       
-           nRecHits_ALCARECO=0
-           for recHit in recHits_ALCARECO:
-               nRecHits_ALCARECO=nRecHits_ALCARECO+1
-               #               if(recHit.checkFlag(EcalRecHit.kTowerRecovered)):
-               print recHit.id().rawId(), recHit.checkFlag(EcalRecHit.kTowerRecovered)
-               
+           if(electron.ecalDrivenSeed()):
+               print electron.eta()," ",electron.phi()," ",electron.superCluster().energy()," ",electron.superCluster().hitsAndFractions().size()," ",electron.parentSuperCluster().energy()," ",electron.parentSuperCluster().hitsAndFractions().size(), electron.superCluster().seed().energy(), electron.superCluster().seed().seed().rawId()
+#           else:
+#               print "TK SEED: ", electron.eta()," ",electron.phi()," ",electron.superCluster().energy()," ",electron.superCluster().hitsAndFractions().size()," ", electron.superCluster().seed().energy(), electron.superCluster().seed().seed().rawId()
+
+       print "#############################"    
+       print "RECHIT:  rawId    energy"
+
+       if(abs(electron.eta()) < 1.4442):
+           recHits_ALCARECO = handleRecHitsEB_ALCARECO.product()
+       else:
+           recHits_ALCARECO = handleRecHitsEE_ALCARECO.product()
+           
+       nRecHits_ALCARECO=0
+
+#        for recHit in recHits_ALCARECO:
+#            nRecHits_ALCARECO=nRecHits_ALCARECO+1
+#                #               if(recHit.checkFlag(EcalRecHit.kTowerRecovered)):
+# #           print recHit.id().rawId(), recHit.checkFlag(EcalRecHit.kTowerRecovered)
+#            print recHit.id().rawId(), recHit.energy()
+
+
 print event_counter
 
 
