@@ -158,7 +158,7 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 	  IntSubDetID == StripSubdetector::TIB || 
 	  IntSubDetID == StripSubdetector::TOB) {
 	
-	uOrientation = deltaPhi(gUDirection.phi(),gPModule.phi()) >= 0. ? +1.F : -1.F;
+	uOrientation = deltaPhi(gUDirection.barePhi(),gPModule.barePhi()) >= 0. ? +1.F : -1.F;
 	vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F;
 	resXTopol = res.x();
 	resXatTrkYTopol = res.x();
@@ -181,7 +181,7 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
       } else if (IntSubDetID == PixelSubdetector::PixelEndcap) {
 	
 	uOrientation = gUDirection.perp() - gPModule.perp() >= 0 ? +1.F : -1.F;
-	vOrientation = deltaPhi(gVDirection.phi(),gPModule.phi()) >= 0. ? +1.F : -1.F;
+	vOrientation = deltaPhi(gVDirection.barePhi(),gPModule.barePhi()) >= 0. ? +1.F : -1.F;
 	resXTopol = res.x();
 	resXatTrkYTopol = res.x();
 	resYTopol = res.y();
@@ -203,7 +203,7 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
       } else if (IntSubDetID == StripSubdetector::TID ||
 		 IntSubDetID == StripSubdetector::TEC) {
 	
-	uOrientation = deltaPhi(gUDirection.phi(),gPModule.phi()) >= 0. ? +1.F : -1.F;
+	uOrientation = deltaPhi(gUDirection.barePhi(),gPModule.barePhi()) >= 0. ? +1.F : -1.F;
 	vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F;
 	
 	if (!dynamic_cast<const RadialStripTopology*>(&detUnit.type().topology()))continue;

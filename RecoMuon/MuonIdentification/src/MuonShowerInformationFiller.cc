@@ -289,7 +289,7 @@ MuonShowerInformationFiller::findPhiCluster(MuonTransientTrackingRecHit::MuonRec
   stable_sort(muonRecHits.begin(), muonRecHits.end(), AbsLessDPhi(refpoint));
 
   for (MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator ihit = muonRecHits.begin(); ihit != muonRecHits.end() - 1; ++ihit) {
-      if (fabs(deltaPhi((*(ihit+1))->globalPosition().phi(), (*ihit)->globalPosition().phi() )) < step) {
+      if (fabs(deltaPhi((*(ihit+1))->globalPosition().barePhi(), (*ihit)->globalPosition().barePhi() )) < step) {
           result.push_back(*ihit);  
         } else {
            break;
@@ -853,7 +853,7 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
           muonRecHitsPhiTemp.clear();
           muonRecHitsPhiTemp = findPhiCluster(muonRecHits[stat], refpoint); //get clustered hits for this iseed
       if (muonRecHitsPhiTemp.size() > 1) {
-         float dphi = fabs(deltaPhi((float)muonRecHitsPhiTemp.back()->globalPosition().phi(), (float)muonRecHitsPhiTemp.front()->globalPosition().phi()));
+         float dphi = fabs(deltaPhi((float)muonRecHitsPhiTemp.back()->globalPosition().barePhi(), (float)muonRecHitsPhiTemp.front()->globalPosition().barePhi()));
          if (dphi > dphimax) {
             dphimax = dphi;
             muonRecHitsPhiBest = muonRecHitsPhiTemp;
@@ -891,7 +891,7 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
 
      //fill deltaRs
      if (muonRecHitsThetaBest.size() > 1 && muonRecHitsPhiBest.size() > 1)
-       theStationShowerDeltaR.at(stat) = sqrt(pow(muonRecHitsPhiBest.front()->globalPosition().phi()-muonRecHitsPhiBest.back()->globalPosition().phi(),2)+pow(muonRecHitsThetaBest.front()->globalPosition().theta()-muonRecHitsThetaBest.back()->globalPosition().theta(),2));
+       theStationShowerDeltaR.at(stat) = sqrt(pow(deltaPhi(muonRecHitsPhiBest.front()->globalPosition().barePhi(),muonRecHitsPhiBest.back()->globalPosition().barePhi()),2)+pow(muonRecHitsThetaBest.front()->globalPosition().theta()-muonRecHitsThetaBest.back()->globalPosition().theta(),2));
 
         }//not empty container
       }//loop over station

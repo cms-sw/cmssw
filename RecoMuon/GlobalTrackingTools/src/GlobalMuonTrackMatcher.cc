@@ -272,10 +272,10 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
 
       if (muonTSOS.isValid() && (*is).second.isValid()) {
 	// check matching between tracker and muon tracks using dEta cut looser then dPhi cut 
-	LogTrace(category) << "    Stage 2 deltaR " << deltaR << " deltaEta " << fabs((*is).second.globalPosition().eta()-muonTSOS.globalPosition().eta()<1.5*theDeltaR_2) << " deltaPhi " << (fabs(deltaPhi((*is).second.globalPosition().phi(),muonTSOS.globalPosition().phi()))<theDeltaR_2) << endl;
+	LogTrace(category) << "    Stage 2 deltaR " << deltaR << " deltaEta " << fabs((*is).second.globalPosition().eta()-muonTSOS.globalPosition().eta()<1.5*theDeltaR_2) << " deltaPhi " << (fabs(deltaPhi((*is).second.globalPosition().barePhi(),muonTSOS.globalPosition().barePhi()))<theDeltaR_2) << endl;
         
 	if(fabs((*is).second.globalPosition().eta()-muonTSOS.globalPosition().eta())<1.5*theDeltaR_2
-	   &&fabs(deltaPhi((*is).second.globalPosition().phi(),muonTSOS.globalPosition().phi()))<theDeltaR_2){
+	   &&fabs(deltaPhi((*is).second.globalPosition().barePhi(),muonTSOS.globalPosition().barePhi()))<theDeltaR_2){
 	  result.push_back((*is).first);
 	  passes[jj]=true;
 	}

@@ -13,7 +13,6 @@
 #include <boost/multi_array.hpp>
 
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Math/interface/deltaR.h"
 #include "RecoHI/HiJetAlgos/interface/UECalibration.h"
 
 class VoronoiAlgorithm {

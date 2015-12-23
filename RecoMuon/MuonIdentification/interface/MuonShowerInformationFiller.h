@@ -125,7 +125,7 @@ class MuonShowerInformationFiller {
         LessDPhi(const GlobalPoint& point) : thePoint(point) {}
         bool operator()(const MuonTransientTrackingRecHit::MuonRecHitPointer& lhs,
                        const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const{
-           return deltaPhi(lhs->globalPosition().phi(), thePoint.phi()) < deltaPhi(rhs->globalPosition().phi(), thePoint.phi());
+           return deltaPhi(lhs->globalPosition().barePhi(), thePoint.barePhi()) < deltaPhi(rhs->globalPosition().barePhi(), thePoint.barePhi());
         }
       GlobalPoint thePoint;
     };
@@ -134,7 +134,7 @@ class MuonShowerInformationFiller {
         AbsLessDPhi(const GlobalPoint& point) : thePoint(point) {}
         bool operator()(const MuonTransientTrackingRecHit::MuonRecHitPointer& lhs,
                        const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const{
-           return ( fabs(deltaPhi(lhs->globalPosition().phi(), thePoint.phi())) < fabs(deltaPhi(rhs->globalPosition().phi(), thePoint.phi())) );
+           return ( fabs(deltaPhi(lhs->globalPosition().barePhi(), thePoint.barePhi())) < fabs(deltaPhi(rhs->globalPosition().barePhi(), thePoint.barePhi())) );
         }
       GlobalPoint thePoint;
     };
