@@ -4,6 +4,7 @@
 #include "InputFile.h"
 #include "RootPrimaryFileSequence.h"
 #include "RootSecondaryFileSequence.h"
+#include "RunHelper.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
@@ -76,12 +77,12 @@ namespace edm {
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles")),
     bypassVersionCheck_(pset.getUntrackedParameter<bool>("bypassVersionCheck")),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize")),
-    setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber")),
     productSelectorRules_(pset, "inputCommands", "InputSource"),
     dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches")),
     labelRawDataLikeMC_(pset.getUntrackedParameter<bool>("labelRawDataLikeMC")),
+    runHelper_(makeRunHelper(pset)),
     resourceSharedWithDelayedReaderPtr_(new SharedResourcesAcquirer{SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()}),
-    // Note: primaryFileSequence_ and secondaryFileSequence_ need to be initialized last, because they use data members 
+    // Note: primaryFileSequence_ and secondaryFileSequence_ need to be initialized last, because they use data members
     // initialized previously in their own initialization.
     primaryFileSequence_(new RootPrimaryFileSequence(pset, *this, catalog_)),
     secondaryFileSequence_(secondaryCatalog_.empty() ? nullptr :
@@ -131,7 +132,7 @@ namespace edm {
       } else {
         for(int i = InEvent; i < NumBranchTypes; ++i) {
           branchIDsToReplace_[i].reserve(idsToReplace[i].size());
-          for(auto const& id : idsToReplace[i]) {   
+          for(auto const& id : idsToReplace[i]) {
             branchIDsToReplace_[i].push_back(id);
           }
         }
@@ -265,14 +266,14 @@ namespace edm {
         }
       }
     }
-    return itemType;
+    return runHelper_->nextItemType(state(), itemType);
   }
 
   void
   PoolSource::preForkReleaseResources() {
     primaryFileSequence_->closeFile_();
   }
-  
+
   SharedResourcesAcquirer*
   PoolSource::resourceSharedWithDelayedReader_() const {
     return resourceSharedWithDelayedReaderPtr_.get();
@@ -317,8 +318,6 @@ namespace edm {
                      "False: Throw exception if reading file in a release prior to the release in which the file was written.");
     desc.addUntracked<int>("treeMaxVirtualSize", -1)
         ->setComment("Size of ROOT TTree TBasket cache. Affects performance.");
-    desc.addUntracked<unsigned int>("setRunNumber", 0U)
-        ->setComment("If non-zero, change number of first run to this number. Apply same offset to all runs. Allowed only for simulation.");
     desc.addUntracked<bool>("dropDescendantsOfDroppedBranches", true)
         ->setComment("If True, also drop on input any descendent of any branch dropped on input.");
     desc.addUntracked<bool>("labelRawDataLikeMC", true)
@@ -326,6 +325,7 @@ namespace edm {
     ProductSelectorRules::fillDescription(desc, "inputCommands");
     InputSource::fillDescription(desc);
     RootPrimaryFileSequence::fillDescription(desc);
+    RunHelperBase::fillDescription(desc);
 
     descriptions.add("source", desc);
   }
