@@ -18,8 +18,15 @@ DEFINE_EDM_PLUGIN(PileUpSubtractorFactory,VoronoiSubtractor,"VoronoiSubtractor")
 
 
 #include "RecoHI/HiJetAlgos/interface/ParticleTowerProducer.h"
-    //define this as a plug-in
 DEFINE_FWK_MODULE(ParticleTowerProducer);
+#include "RecoHI/HiJetAlgos/interface/HiGenCleaner.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+typedef HiGenCleaner<reco::GenParticle> HiPartonCleaner;
+typedef HiGenCleaner<reco::GenJet> HiGenJetCleaner;
+DEFINE_FWK_MODULE(HiPartonCleaner);
+DEFINE_FWK_MODULE(HiGenJetCleaner);
+
 
 
 

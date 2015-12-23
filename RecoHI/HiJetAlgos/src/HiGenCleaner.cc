@@ -17,6 +17,7 @@
 //
 
 // system include files
+#include "RecoHI/HiJetAlgos/interface/HiGenCleaner.h"
 #include <memory>
 #include <vector>
 
@@ -46,25 +47,6 @@ using namespace edm;
 //
 // class decleration
 //
-
-template <class T2>
-class HiGenCleaner : public edm::EDProducer {
-public:
-  typedef std::vector<T2> T2Collection;
-      explicit HiGenCleaner(const edm::ParameterSet&);
-      ~HiGenCleaner();
-
-   private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      // ----------member data ---------------------------
-
-   edm::EDGetTokenT<edm::View<T2> > jetSrc_;
-   double deltaR_;
-   double ptCut_;
-   bool makeNew_;
-   bool fillDummy_;
-
-};
 
 //
 // constants, enums and typedefs
@@ -163,9 +145,6 @@ HiGenCleaner<T2>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 }
 
-typedef HiGenCleaner<reco::GenParticle> HiPartonCleaner;
-typedef HiGenCleaner<reco::GenJet> HiGenJetCleaner;
 
-DEFINE_FWK_MODULE(HiPartonCleaner);
-DEFINE_FWK_MODULE(HiGenJetCleaner);
-
+template class HiGenCleaner<reco::GenParticle>;
+template class HiGenCleaner<reco::GenJet>;
