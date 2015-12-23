@@ -19,6 +19,7 @@ public:
   static const int kHGCalLayerMask       = 0x1F;
   static const int kHGCalZsideOffset     = 24;
   static const int kHGCalZsideMask       = 0x1;
+  static const int kHGCalMaskCell        = 0xFFFFFF00;
 
   /** Create a null cellid*/
   HGCalDetId();
@@ -30,6 +31,9 @@ public:
   HGCalDetId(const DetId& id);
   /** Assignment from a generic cell id */
   HGCalDetId& operator=(const DetId& id);
+  
+  /** Converter for a geometry cell id */
+  HGCalDetId geometryCell () const {return id_&kHGCalMaskCell;}
 
   /// get the absolute value of the cell #'s in x and y
   int cell() const { return id_&kHGCalCellMask; }
@@ -38,7 +42,7 @@ public:
   int wafer() const { return (id_>>kHGCalWaferOffset)&kHGCalWaferMask; }
 
   /// get the wafer type
-  int waferType() const { return (id_>>kHGCalWaferTypeOffset)&kHGCalWaferTypeMask; }
+  int waferType() const { return ((id_>>kHGCalWaferTypeOffset)&kHGCalWaferTypeMask ? 1 : -1); }
 
   /// get the layer #
   int layer() const { return (id_>>kHGCalLayerOffset)&kHGCalLayerMask; }

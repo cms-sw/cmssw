@@ -13,7 +13,10 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Step.hh"
@@ -34,17 +37,17 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
   CaloSD(name, cpv, clg, p, manager,
          (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
          p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")), 
-  numberingScheme(0) {
+  hgcalCons(0), numberingScheme(0) {
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit          = m_HGC.getParameter<double>("EminHit")*CLHEP::MeV;
-  bool checkID     = m_HGC.getUntrackedParameter<bool>("CheckID", false);
+  checkID          = m_HGC.getUntrackedParameter<bool>("CheckID", false);
   verbosity        = m_HGC.getUntrackedParameter<int>("Verbosity",0);
 
   //this is defined in the hgcsens.xml
   G4String myName(this->nameOfSD());
   myFwdSubdet_= ForwardSubdetector::ForwardEmpty;
-  std::string nameX("HGCal");
+  nameX = "HGCal";
   if (myName.find("HitsEE")!=std::string::npos) {
     myFwdSubdet_ = ForwardSubdetector::HGCEE;
     nameX        = "HGCalEESensitive";
@@ -67,8 +70,6 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
                       << "**************************************************";
 #endif
   edm::LogInfo("HGCSim") << "HGCSD:: Threshold for storing hits: " << eminHit;
-
-  numberingScheme = new HGCNumberingScheme(cpv,nameX,checkID,verbosity);
 }
 
 HGCSD::~HGCSD() { 
@@ -121,12 +122,36 @@ uint32_t HGCSD::setDetUnitId(G4Step * aStep) {
   //get the det unit id with 
   ForwardSubdetector subdet = myFwdSubdet_;
 
-  int layer  = touch->GetReplicaNumber(0);
-  int module = touch->GetReplicaNumber(1);
+  int layer(0), module(0), cell(0);
+  if (hgcalCons->geomMode() == HGCalGeometryMode::Square) {
+    layer  = touch->GetReplicaNumber(0);
+    module = touch->GetReplicaNumber(1);
+  } else {
+    layer  = touch->GetReplicaNumber(2);
+    module = touch->GetReplicaNumber(1);
+    cell   = touch->GetReplicaNumber(0);
+  }
   if (verbosity > 0) 
-    std::cout << "HGCSD::Global " << hitPoint << " local " << localpos 
-	      << std::endl;
-  return setDetUnitId (subdet, layer, module, iz, localpos);
+    edm::LogInfo("HGCSim") << "HGCSD::Global " << hitPoint << " local " 
+			   << localpos << "Layer|Module|Cell " << layer << "|" 
+			   << module << "|" << cell;
+  return setDetUnitId (subdet, layer, module, cell, iz, localpos);
+}
+
+void HGCSD::update(const BeginOfJob * job) {
+
+  const edm::EventSetup* es = (*job)();
+  edm::ESHandle<HGCalDDDConstants>    hdc;
+  es->get<IdealGeometryRecord>().get(nameX,hdc);
+  if (hdc.isValid()) {
+    hgcalCons = (HGCalDDDConstants*)(&(*hdc));
+  } else {
+    edm::LogError("HGCSim") << "HCalSD : Cannot find HGCalDDDConstants for "
+			    << nameX;
+    throw cms::Exception("Unknown", "HGCSD") << "Cannot find HGCalDDDConstants for " << nameX << "\n";
+  }
+
+  numberingScheme = new HGCNumberingScheme(hgcalCons,nameX,checkID,verbosity);
 }
 
 void HGCSD::initRun() {
@@ -146,8 +171,9 @@ bool HGCSD::filterHit(CaloG4Hit* aHit, double time) {
 
 
 //
-uint32_t HGCSD::setDetUnitId (ForwardSubdetector &subdet, int &layer, int &module, int &iz, G4ThreeVector &pos) {  
-  return (numberingScheme ? numberingScheme->getUnitID(subdet, layer, module, iz, pos) : 0);
+uint32_t HGCSD::setDetUnitId (ForwardSubdetector &subdet, int layer, int module,
+			      int cell, int iz, G4ThreeVector &pos) {  
+  return (numberingScheme ? numberingScheme->getUnitID(subdet, layer, module, cell, iz, pos) : 0);
 }
 
 //

@@ -4,8 +4,10 @@
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include <vector>
 #include <iostream>
 
@@ -82,6 +84,9 @@ public:
     return vNeighborsDetId;
   }
 
+  ///Geometry mode
+  int geomMode() const {return hdcons_.geomMode();}
+
   ///Dense indexing
   virtual uint32_t detId2denseId(const DetId& id) const;
   virtual DetId denseId2detId(uint32_t denseId) const;
@@ -93,6 +98,7 @@ public:
 
   unsigned int totalModules() const {return kSizeForDenseIndexing;}
   unsigned int totalGeomModules() const {return (unsigned int)(2*kHGeomHalf_);}
+  unsigned int allGeomModules() const;
 
   const HGCalDDDConstants& dddConstants () const {return hdcons_;}
   
@@ -101,6 +107,7 @@ public:
   DetId offsetBy(const DetId startId, int nrStepsX, int nrStepsY) const;
   DetId switchZSide(const DetId startId) const;
 
+  /// Use subSector in square mode as wafer type in hexagon mode
   static const int subSectors_ = 2;
 
   struct DecodedDetId {

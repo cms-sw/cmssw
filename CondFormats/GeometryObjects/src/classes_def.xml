@@ -89,6 +89,43 @@
  <class name="HcalParameters::LayerItem"/>
  <class name="std::vector<HcalParameters::LayerItem>"/>
 
+<!--
+ <class name="HGCalParameters" class_version="0"> 
+   <field name="name_"            mapping="blob"/>
+   <field name="nCells_"          mapping="blob"/>
+   <field name="nSectors_"        mapping="blob"/>
+   <field name="cellSize_"        mapping="blob"/>
+   <field name="layer_"           mapping="blob"/>
+   <field name="layerIndex_"      mapping="blob"/> 
+   <field name="layerGroup_"      mapping="blob"/> 
+   <field name="cellFactor_"      mapping="blob"/>
+   <field name="depth_"           mapping="blob"/> 
+   <field name="depthIndex_"      mapping="blob"/> 
+   <field name="depthLayerF_"     mapping="blob"/> 
+   <field name="zLayerHex_"       mapping="blob"/> 
+   <field name="rMinLayHex_"      mapping="blob"/>
+   <field name="rMaxLayHex_"      mapping="blob"/> 
+   <field name="waferCopy_"       mapping="blob"/> 
+   <field name="waferTypeL_"      mapping="blob"/> 
+   <field name="waferTypeT_"      mapping="blob"/> 
+   <field name="modules_"         mapping="blob"/>
+   <field name="moduler_"         mapping="blob"/>
+   <field name="trform_"          mapping="blob"/> 
+   <field name="waferPos_"        mapping="blob"/> 
+   <field name="cellFine_"        mapping="blob"/> 
+   <field name="cellCoarse_"      mapping="blob"/>
+   <field name="layerGroupM_"     mapping="blob"/>  
+   <field name="layerGroupO_"     mapping="blob"/>  
+   <field name="boundR_"          mapping="blob"/>  
+   <field name="waferR_"          mapping="blob"/>  
+   <field name="mode_"            mapping="blob"/>  
+ </class>
+ <class name="HGCalParameters::hgtrap"/>
+ <class name="std::vector<HGCalParameters::hgtrap>"/>
+ <class name="HGCalParameters::hgtrform"/>
+ <class name="std::vector<HGCalParameters::hgtrform>"/>
+ -->
+
  <class name="PHcalParameters" class_version="0"> 
    <field name="phioff" mapping="blob"/>
    <field name="etaTable" mapping="blob"/>

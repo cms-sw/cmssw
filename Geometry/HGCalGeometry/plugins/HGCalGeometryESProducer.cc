@@ -30,7 +30,7 @@
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometryLoader.h"
 
-//#define DebugLog
+#define DebugLog
 
 //
 // class decleration

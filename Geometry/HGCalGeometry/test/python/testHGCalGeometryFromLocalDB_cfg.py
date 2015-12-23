@@ -39,6 +39,19 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.test = cms.EDAnalyzer("HGCalGeometryTester")
+process.prodEE = cms.EDAnalyzer("HGCalGeometryTester",
+                                Detector   = cms.string("HGCalEESensitive"),
+                                SquareCell = cms.bool(True),
+                                )
 
-process.p1 = cms.Path(process.test)
+process.prodHEF = process.prodEE.clone(
+    Detector   = "HGCalHESiliconSensitive",
+    SquareCell = True
+)
+
+process.prodHEB = process.prodEE.clone(
+    Detector   = "HGCalHEScintillatorSensitive",
+    SquareCell = True
+)
+
+process.p1 = cms.Path(process.prodEE+process.prodHEF+process.prodHEB)

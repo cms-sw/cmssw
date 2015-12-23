@@ -26,8 +26,8 @@ HGCalGeometry::HGCalGeometry( const HGCalTopology& topology_ )
     m_cellVec( topology_.totalGeomModules()),
     m_validGeomIds( topology_.totalGeomModules()),
     m_halfType( topology_.detectorType()),
-    m_subdet( topology_.subDetector())
-{
+    m_subdet( topology_.subDetector()) {
+  
   m_validIds.reserve( topology().totalModules());
 #ifdef DebugLog
   std::cout << "Expected total # of Geometry Modules " 
@@ -54,19 +54,32 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
 			     const GlobalPoint& f3 ,
 			     const CCGFloat*    parm ,
 			     const DetId&       detId ) {
+
+  DetId geomId;
+  int   cells;
+  HGCalTopology::DecodedDetId id = topology().decode(detId);
+  if (topology().dddConstants().geomMode() == HGCalGeometryMode::Square) {
+    geomId = (detId.subdetId() == HGCEE ? 
+	      (DetId)(HGCEEDetId(detId).geometryCell()) :
+	      (DetId)(HGCHEDetId(detId).geometryCell()));
+    cells = topology().dddConstants().maxCells(id.iLay,true);
+  } else {
+    geomId = (DetId)(HGCalDetId(detId).geometryCell());
+    cells = topology().dddConstants().numberCellsHexagon(id.iSec);
+  }
   const uint32_t cellIndex (topology().detId2denseGeomId(detId));
-  DetId geomId = (detId.subdetId() == HGCEE ? 
-		  (DetId)(HGCEEDetId(detId).geometryCell()) :
-		  (DetId)(HGCHEDetId(detId).geometryCell()));
+
   m_cellVec.at( cellIndex ) = FlatTrd( cornersMgr(), f1, f2, f3, parm ) ;
   m_validGeomIds.at( cellIndex ) = geomId ;
 
-  HGCalTopology::DecodedDetId id = topology().decode(detId);
-  int cells = topology().dddConstants().maxCells(id.iLay,true);
+#ifdef DebugLog
+  unsigned int nOld = m_validIds.size();
+#endif
   for (int cell = 0; cell < cells; ++cell) {
     id.iCell = cell;
     m_validIds.push_back( topology().encode(id));
-    if (!m_halfType) {
+    if ((topology().dddConstants().geomMode() == HGCalGeometryMode::Square) &&
+	(!m_halfType)) {
       id.iSubSec = -id.iSubSec;
       m_validIds.push_back( topology().encode(id));
       id.iSubSec = -id.iSubSec;
@@ -79,8 +92,14 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
      	    << " back:" <<  f2.x() << '/' << f2.y() << '/' << f2.z()
 	    << " eta|phi " << m_cellVec[cellIndex].etaPos() << ":"
 	    << m_cellVec[cellIndex].phiPos() << " id:";
-  if (m_subdet == HGCEE) std::cout << HGCEEDetId(detId);
-  else                   std::cout << HGCHEDetId(detId);
+  if (topology().dddConstants().geomMode() != HGCalGeometryMode::Square) {
+    std::cout << HGCalDetId(detId);
+  } else if (m_subdet == HGCEE) {
+    std::cout << HGCEEDetId(detId);
+  } else {
+    std::cout << HGCHEDetId(detId);
+  }
+  unsigned int nNew = m_validIds.size();
   std::cout << " with valid DetId from " << nOld << " to " << nNew
  	    << std::endl; 
   std::cout << "Cell[" << cellIndex << "] " << std::hex << geomId.rawId() 
@@ -91,10 +110,16 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
 
 const CaloCellGeometry* HGCalGeometry::getGeometry(const DetId& id) const {
   if (id == DetId()) return 0; // nothing to get
-  DetId geoId = (id.subdetId() == HGCEE ? 
-		 (DetId)(HGCEEDetId(id).geometryCell()) : 
-		 (DetId)(HGCHEDetId(id).geometryCell()));
+  DetId geoId;
+  if (topology().dddConstants().geomMode() == HGCalGeometryMode::Square) {
+    geoId = (id.subdetId() == HGCEE ? 
+	     (DetId)(HGCEEDetId(id).geometryCell()) : 
+	     (DetId)(HGCHEDetId(id).geometryCell()));
+  } else {
+    geoId = (DetId)(HGCalDetId(id).geometryCell());
+  }
   const uint32_t cellIndex (topology().detId2denseGeomId(geoId));
+  std::cout << HGCalDetId(geoId) << " cellIndex " << cellIndex << std::endl;
   /*
   if (cellIndex <  m_cellVec.size()) {
     HGCalTopology::DecodedDetId id_ = topology().decode(id);
@@ -108,12 +133,17 @@ const CaloCellGeometry* HGCalGeometry::getGeometry(const DetId& id) const {
 
 }
 
-GlobalPoint HGCalGeometry::getPosition( const DetId& id ) const {
+GlobalPoint HGCalGeometry::getPosition(const DetId& id) const {
 
   unsigned int cellIndex =  indexFor(id);
   if (cellIndex <  m_cellVec.size()) {
     HGCalTopology::DecodedDetId id_ = topology().decode(id);
-    std::pair<float,float> xy = topology().dddConstants().locateCell(id_.iCell,id_.iLay,id_.iSubSec,true);
+    std::pair<float,float> xy;
+    if (topology().dddConstants().geomMode() == HGCalGeometryMode::Square) {
+      xy = topology().dddConstants().locateCell(id_.iCell,id_.iLay,id_.iSubSec,true);
+    } else {
+      xy = topology().dddConstants().locateCellHex(id_.iCell,id_.iSec,true);
+    }
     const HepGeom::Point3D<float> lcoord(xy.first,xy.second,0);
 #ifdef DebugLog
     std::cout << "getPosition:: index " << cellIndex << " Local " << xy.first
@@ -126,13 +156,18 @@ GlobalPoint HGCalGeometry::getPosition( const DetId& id ) const {
   return GlobalPoint();
 }
 
-HGCalGeometry::CornersVec HGCalGeometry::getCorners( const DetId& id ) const {
+HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& id) const {
 
   HGCalGeometry::CornersVec co (8, GlobalPoint(0,0,0));
   unsigned int cellIndex =  indexFor(id);
   if (cellIndex <  m_cellVec.size()) {
     HGCalTopology::DecodedDetId id_ = topology().decode(id);
-    std::pair<float,float> xy = topology().dddConstants().locateCell(id_.iCell,id_.iLay,id_.iSubSec,true);
+    std::pair<float,float> xy;
+    if (topology().dddConstants().geomMode() == HGCalGeometryMode::Square) {
+      xy = topology().dddConstants().locateCell(id_.iCell,id_.iLay,id_.iSubSec,true);
+    } else {
+      xy = topology().dddConstants().locateCellHex(id_.iCell,id_.iSec,true);
+    }
     float dz = m_cellVec[cellIndex].param()[0];
     float dx = 0.5*m_cellVec[cellIndex].param()[11];
     static const int signx[] = {-1,-1,1,1,-1,-1,1,1};
@@ -146,16 +181,28 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners( const DetId& id ) const {
   return co;
 }
 
-DetId HGCalGeometry::getClosestCell( const GlobalPoint& r ) const {
+DetId HGCalGeometry::getClosestCell(const GlobalPoint& r) const {
   unsigned int cellIndex = getClosestCellIndex(r);
   if (cellIndex < m_cellVec.size()) {
-    const HepGeom::Point3D<float> local = m_cellVec[cellIndex].getLocal(r);
     HGCalTopology::DecodedDetId id_ = topology().decode(m_validGeomIds[cellIndex]);
+    HepGeom::Point3D<float> local;
+    if (topology().dddConstants().geomMode() == HGCalGeometryMode::Square) {
+      local = m_cellVec[cellIndex].getLocal(r);
+    } else {
+      if (r.z() > 0) local = HepGeom::Point3D<float>(r.x(),r.y(),0);
+      else           local = HepGeom::Point3D<float>(-r.x(),r.y(),0);
+    }
     std::pair<int,int> kxy = 
       topology().dddConstants().assignCell(local.x(),local.y(),id_.iLay,
 					   id_.iSubSec,true);
     id_.iCell   = kxy.second;
-    id_.iSubSec = kxy.first;
+    if (topology().dddConstants().geomMode() == HGCalGeometryMode::Square) {
+      id_.iSubSec = kxy.first;
+    } else {
+      id_.iSec    = kxy.first;
+      id_.iSubSec = topology().dddConstants().waferTypeT(kxy.first);
+      if (id_.iSubSec != 1) id_.iSubSec = -1;
+    }
 #ifdef DebugLog
     std::cout << "getClosestCell: local " << local << " Id " << id_.zside 
 	      << ":" << id_.iLay << ":" << id_.iSec << ":" << id_.iSubSec
@@ -163,7 +210,7 @@ DetId HGCalGeometry::getClosestCell( const GlobalPoint& r ) const {
 #endif
 
     //check if returned cell is valid
-    if(id_.iCell>=0) return topology().encode(id_);
+    if (id_.iCell>=0) return topology().encode(id_);
   }
 
   //if not valid or out of bounds return a null DetId
@@ -184,9 +231,14 @@ std::string HGCalGeometry::cellElement() const {
 unsigned int HGCalGeometry::indexFor(const DetId& id) const {
   unsigned int cellIndex =  m_cellVec.size();
   if (id != DetId()) {
-    DetId geoId = (id.subdetId() == HGCEE ? 
-		   (DetId)(HGCEEDetId(id).geometryCell()) : 
-		   (DetId)(HGCHEDetId(id).geometryCell()));
+    DetId geoId;
+    if (topology().dddConstants().geomMode() == HGCalGeometryMode::Square) {
+      geoId = (id.subdetId() == HGCEE ? 
+	       (DetId)(HGCEEDetId(id).geometryCell()) : 
+	       (DetId)(HGCHEDetId(id).geometryCell()));
+    } else {
+      geoId = (DetId)(HGCalDetId(id).geometryCell());
+    }
     cellIndex = topology().detId2denseGeomId(geoId);
 #ifdef DebugLog
     std::cout << "indexFor " << std::hex << id.rawId() << ":" << geoId.rawId()
