@@ -2,6 +2,7 @@
 ----------------------------------------------------------------------*/
 #include "EmbeddedRootSource.h"
 #include "InputFile.h"
+#include "RunHelper.h"
 #include "RootEmbeddedFileSequence.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -28,6 +29,7 @@ namespace edm {
     bypassVersionCheck_(pset.getUntrackedParameter<bool>("bypassVersionCheck", false)),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     productSelectorRules_(pset, "inputCommands", "InputSource"),
+    runHelper_(new DefaultRunHelper()),
     catalog_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"),
       pset.getUntrackedParameter<std::string>("overrideCatalog", std::string())),
     // Note: fileSequence_ needs to be initialized last, because it uses data members 

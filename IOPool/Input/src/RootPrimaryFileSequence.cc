@@ -128,13 +128,13 @@ namespace edm {
           treeCacheSize_,
           input_.treeMaxVirtualSize(),
           input_.processingMode(),
-          input_.setRun(),
+          input_.runHelper(),
           noEventSort_,
           input_.productSelectorRules(),
           InputType::Primary,
           input_.branchIDListHelper(),
           input_.thinnedAssociationsHelper(),
-          std::vector<BranchID>(), // associationsFromSecondary_
+          nullptr, // associationsFromSecondary
           duplicateChecker_,
           input_.dropDescendants(),
           input_.processHistoryRegistryForUpdate(),

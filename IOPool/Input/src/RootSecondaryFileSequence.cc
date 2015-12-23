@@ -79,22 +79,15 @@ namespace edm {
           input_.processConfiguration(),
           logicalFileName(),
           filePtr,
-          nullptr, // eventSkipperByID_
-          false,   // initialNumberOfEventsToSkip_ != 0
-          -1,      // remainingEvents() 
-          -1,      // remainingLuminosityBlocks()
 	  input_.nStreams(),
-          0U,      // treeCacheSize_
           input_.treeMaxVirtualSize(),
           input_.processingMode(),
-          input_.setRun(),
-          false,   // noEventSort_
+          input_.runHelper(),
           input_.productSelectorRules(),
           InputType::SecondaryFile,
           input_.branchIDListHelper(),
           input_.thinnedAssociationsHelper(),
-          associationsFromSecondary_,
-          nullptr, //duplicateChecker_
+          &associationsFromSecondary_,
           input_.dropDescendants(),
           input_.processHistoryRegistryForUpdate(),
           indexesIntoFiles(),
@@ -102,7 +95,6 @@ namespace edm {
           orderedProcessHistoryIDs_,
           input_.bypassVersionCheck(),
           input_.labelRawDataLikeMC(),
-          false,   // usingGoToEvent_
           enablePrefetching_);
   }
 
