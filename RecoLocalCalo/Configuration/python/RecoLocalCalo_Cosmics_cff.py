@@ -21,7 +21,7 @@ from RecoLocalCalo.Configuration.hcalLocalReco_cff import *
 #
 # sequence CaloLocalReco and CaloGlobalReco
 #
-calolocalreco = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence)
+calolocalrecoCosmics = cms.Sequence(ecalLocalRecoSequenceCosmics+hcalLocalRecoSequence)
 hbheprereco.puCorrMethod = 0 
 hbheprereco.firstSample = 0
 hbheprereco.samplesToAdd = 10
@@ -54,4 +54,4 @@ zdcreco.correctionPhaseNS = 10.
 # R.Ofierzynski (29.Oct.2009): add NZS sequence
 #
 from RecoLocalCalo.Configuration.hcalLocalRecoNZS_cff import *
-calolocalrecoNZS = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence+hcalLocalRecoSequenceNZS) 
+calolocalrecoCosmicsNZS = cms.Sequence(ecalLocalRecoSequenceCosmics+hcalLocalRecoSequence+hcalLocalRecoSequenceNZS) 
