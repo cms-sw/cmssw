@@ -32,7 +32,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoHI/HiJetAlgos/plugins/ParticleTowerProducer.h"
+#include "RecoHI/HiJetAlgos/interface/ParticleTowerProducer.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -529,6 +529,3 @@ int ParticleTowerProducer::phi2iphi(double phi, int ieta) const {
   return iphi;
 
 }
-
-    //define this as a plug-in
-DEFINE_FWK_MODULE(ParticleTowerProducer);

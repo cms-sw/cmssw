@@ -17,5 +17,10 @@ DEFINE_EDM_PLUGIN(PileUpSubtractorFactory,VoronoiSubtractor,"VoronoiSubtractor")
 
 
 
+#include "RecoHI/HiJetAlgos/interface/ParticleTowerProducer.h"
+    //define this as a plug-in
+DEFINE_FWK_MODULE(ParticleTowerProducer);
+
+
 
 
