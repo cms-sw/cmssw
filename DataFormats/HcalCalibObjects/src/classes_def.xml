@@ -5,7 +5,9 @@
   <class name="HFRecalibration" ClassVersion="0">
    <version ClassVersion="0" checksum="526251233"/>
   </class>
-  <class name="HOCalibVariables" ClassVersion="14">
+  <class name="HOCalibVariables" ClassVersion="16">
+    <version ClassVersion="16" checksum="2161587371"/>
+   <version ClassVersion="15" checksum="2625437100"/>
    <version ClassVersion="14" checksum="2161587371"/>
   </class>
   <class name="std::vector<HOCalibVariables>"/>
