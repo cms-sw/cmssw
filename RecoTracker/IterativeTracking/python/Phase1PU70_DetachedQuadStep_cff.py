@@ -130,10 +130,7 @@ detachedQuadStepTrackCandidates.TrajectoryCleaner = 'detachedQuadStepTrajectoryC
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 detachedQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    # Algorithm name changed from detachedQuadStep (was iter4) to mixedTripletStep in order
-    # to keep backward compatibility as detachedQuadStep would be unknown.
-    # In the future, a new enum or alias may be added to support iteration name aliases.
-    AlgorithmName = cms.string('mixedTripletStep'),
+    AlgorithmName = cms.string('detachedQuadStep'),
     src = 'detachedQuadStepTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother'),
     TTRHBuilder=cms.string('WithTrackAngle')
