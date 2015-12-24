@@ -30,11 +30,11 @@ public:
 					   const TrackingRecHit &) const = 0;
 
   virtual bool estimate( const TrajectoryStateOnSurface& ts, 
-			 const Plane& plane) const;
+			 const Plane& plane) const final;
 
   virtual Local2DVector 
   maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
-			    const Plane& plane) const;
+			    const Plane& plane) const final;
 
   double chiSquaredCut() const {return theMaxChi2;}
   double nSigmaCut() const {return theNSigma;}

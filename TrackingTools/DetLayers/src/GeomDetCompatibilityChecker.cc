@@ -3,24 +3,33 @@
 
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 
+//#define STAT_TSB
 
+#ifdef STAT_TSB
 #include<iostream>
+#endif
 
 namespace{
 
   struct Stat {
 
-    long long ntot=0;
-    long long nf1=0;
-    long long nf2=0;
+    struct Nop { Nop(int=0){} Nop& operator=(int){return *this;}  void operator++(int){}};
+#ifdef STAT_TSB
+    using VAR=long long;
+#else
+    using VAR=Nop;
+#endif
+    VAR ntot=0;
+    VAR nf1=0;
+    VAR nf2=0;
 
-    long long ns1=0;
-    long long ns2=0;
-    long long ns11=0;
-    long long ns21=0;
+    VAR ns1=0;
+    VAR ns2=0;
+    VAR ns11=0;
+    VAR ns21=0;
 
-    long long nth=0;
-    long long nle=0;
+    VAR nth=0;
+    VAR nle=0;
 
 
                             //Geom checker     1337311   84696       634946      20369      259701        241266       18435         614128
@@ -28,11 +37,14 @@ namespace{
                             //    Geom checker 119,618,014  2,307,939 31,142,922 2,903,245 34,673,978    5,139,741     539,152         86,847,116 18,196,497
                             //    Geom checker 125,554,439  3,431,348 31,900,589 3,706,531 37,272,039    5,160,257     1,670,236       90,573,031 19,505,412
                             //    Geom checker 119,583,440  2,379,307 28,357,175 2,960,173 38,977,837    6,239,242       620,636       86,726,732  9,574,902
+                            //    Geom checker 214,884,027  6,756,424 54,479,049  7,059,696  78,135,883 18443999 1124058 158,174,933 17153503
+                            //    Geom checker 453,155,905 14,054,554 79,733,432 14,837,002 163,414,609 0 0 324,629,999 0
+#ifdef STAT_TSB
     ~Stat() { std::cout << "Geom checker " << ntot<<' '<< nf1<<' '<< nf2 <<' '<< ns1<< ' '<< ns2 << ' ' << ns11 << ' '<< ns21 << ' ' << nth << ' ' << nle <<std::endl;}
-
+#endif
   };
 
-  Stat stat;
+  [[cms::thread_safe]] Stat stat; // for production purpose it is thread safe
 
 }
 

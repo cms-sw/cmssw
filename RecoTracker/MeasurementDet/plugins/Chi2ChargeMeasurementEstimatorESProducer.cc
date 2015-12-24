@@ -21,7 +21,7 @@
 
 namespace {
 
-class Chi2ChargeMeasurementEstimator GCC11_FINAL : public Chi2MeasurementEstimator {
+class Chi2ChargeMeasurementEstimator final : public Chi2MeasurementEstimator {
 public:
 
   /** Construct with cuts on chi2 and nSigma.

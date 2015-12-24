@@ -31,8 +31,7 @@
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 
 // #define VI_DEBUG
-
-#define STAT_TSB
+// #define STAT_TSB
 
 namespace {
 #ifdef STAT_TSB
