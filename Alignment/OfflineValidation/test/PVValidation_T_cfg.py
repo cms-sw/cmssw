@@ -191,13 +191,47 @@ else:
 ####################################################################
 # Load and Configure TrackRefitter
 ####################################################################
-process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
-import RecoTracker.TrackProducer.TrackRefitters_cff
-process.TrackRefitter = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
-process.TrackRefitter.src = "TRACKTYPETEMPLATE"
-process.TrackRefitter.TrajectoryInEvent = True
-process.TrackRefitter.NavigationSchool = ''
-process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
+# process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
+# import RecoTracker.TrackProducer.TrackRefitters_cff
+# process.TrackRefitter = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
+# process.TrackRefitter.src = "TRACKTYPETEMPLATE"
+# process.TrackRefitter.TrajectoryInEvent = True
+# process.TrackRefitter.NavigationSchool = ''
+# process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
+
+####################################################################
+# Load and Configure common selection sequence
+####################################################################
+import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
+process.seqTrackselRefit = trackselRefit.getSequence(process,'TRACKTYPETEMPLATE')
+process.HighPurityTrackSelector.trackQualities = cms.vstring()
+process.AlignmentTrackSelector.ptMin     = cms.double(0.)
+process.AlignmentTrackSelector.nHitMin2D = cms.uint32(0)
+process.AlignmentTrackSelector.nHitMin   = cms.double(0.)
+process.AlignmentTrackSelector.d0Min     = cms.double(-999999.0)
+process.AlignmentTrackSelector.d0Max     = cms.double(+999999.0)                  
+process.AlignmentTrackSelector.dzMin     = cms.double(-999999.0)
+process.AlignmentTrackSelector.dzMax     = cms.double(+999999.0)  
+
+####################################################################
+# Debugging facility
+####################################################################
+#print process.seqTrackselRefit
+#print process.seqTrackselRefit.dumpSequencePython
+
+#obj = process.AlignmentTrackSelector
+#obj = process.HighPurityTrackSelector
+
+#for i in obj._Parameterizable__parameterNames:
+#     print i 
+
+#itemDir = obj.__dict__
+#for i in itemDir:
+#    print '{0}  :  {1}'.format(i, itemDir[i])
+
+#for attr in dir(obj):
+#    print "obj.%s = %s" % (attr, getattr(obj, attr))
+
 
 ####################################################################
 # Output file
@@ -212,7 +246,7 @@ process.TFileService = cms.Service("TFileService",
 if isDA:
      print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!"
      process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
-                                           TrackCollectionTag = cms.InputTag("TrackRefitter"),
+                                           TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
                                            VertexCollectionTag = cms.InputTag("VERTEXTYPETEMPLATE"),  
                                            Debug = cms.bool(False),
                                            storeNtuple = cms.bool(False),
@@ -248,7 +282,7 @@ if isDA:
 else:
      print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!"
      process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
-                                           TrackCollectionTag = cms.InputTag("TrackRefitter"),
+                                           TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
                                            VertexCollectionTag = cms.InputTag("VERTEXTYPETEMPLATE"), 
                                            Debug = cms.bool(False),
                                            isLightNtuple = cms.bool(True),
@@ -279,6 +313,7 @@ else:
 ####################################################################
 process.p = cms.Path(process.goodvertexSkim*
                      process.offlineBeamSpot*
+                     process.seqTrackselRefit*
                      #process.MeasurementTrackerEvent*
-                     process.TrackRefitter*
+                     #process.TrackRefitter*
                      process.PVValidation)
