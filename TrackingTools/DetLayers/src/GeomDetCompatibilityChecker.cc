@@ -46,6 +46,8 @@ GeomDetCompatibilityChecker::isCompatible(const GeomDet* theDet,
   auto const sagCut = est.maxSagita();
   auto const minTol2 = est.minTollerance2();
 
+  std::cout << "param " << sagCut << ' ' << minTol2 << std::endl;
+
   /*
   auto err2 = tsos.curvilinearError().matrix()(3,3);
   auto largeErr = err2> 0.1*tollerance2;
