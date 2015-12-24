@@ -493,7 +493,7 @@ namespace cms{
       						    <<PrintoutHelper::regressionTest(*tracker,unsmoothedResult);
 
       assert(viTotHits>=0); // just to use it...
-      std::cout << "VICkfPattern result " << output->size() << " " << viTotHits << std::endl;
+      // std::cout << "VICkfPattern result " << output->size() << " " << viTotHits << std::endl;
      
       if (theTrajectoryOutput){ outputT->swap(unsmoothedResult);}
 

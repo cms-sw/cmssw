@@ -21,6 +21,11 @@ public:
   explicit Chi2MeasurementEstimatorBase(double maxChi2, double nSigma = 3.) : 
     theMaxChi2(maxChi2), theNSigma(nSigma) {}
 
+  Chi2MeasurementEstimatorBase(double maxChi2, double nSigma, float maxSag, float minToll) : 
+    MeasurementEstimator(maxSag,minToll),
+    theMaxChi2(maxChi2), theNSigma(nSigma) {}
+
+
   virtual std::pair<bool, double> estimate(const TrajectoryStateOnSurface& ts,
 					   const TrackingRecHit &) const = 0;
 

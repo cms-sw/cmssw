@@ -43,42 +43,47 @@ GeomDetCompatibilityChecker::isCompatible(const GeomDet* theDet,
 					  const MeasurementEstimator& est) {
   stat.ntot++;
 
-  constexpr float tollerance = 2; // in cm
-  constexpr float tollerance2 = tollerance*tollerance;
-  constexpr float sagCut = 2*tollerance;  // take into account the missing 0.5 below  
+  auto const sagCut = est.maxSagita();
+  auto const minTol2 = est.minTollerance2();
 
+  /*
   auto err2 = tsos.curvilinearError().matrix()(3,3);
   auto largeErr = err2> 0.1*tollerance2;
   if (largeErr) stat.nle++; 
+  */
 
-  auto const & plane = theDet->specificSurface();
-  StraightLinePlaneCrossing crossing(tsos.globalPosition().basicVector(),tsos.globalMomentum().basicVector(), prop.propagationDirection());
-  auto path = crossing.pathLength(plane);
-
-  auto isIn = path.first;
-  float sagita=99999999;
-  bool close = false;
-  if  unlikely(!path.first) stat.ns1++;
-  else {
-    auto gpos =  GlobalPoint(crossing.position(path.second));
-    auto tpath2 = (gpos-tsos.globalPosition()).perp2();
-    // sagitta = d^2*c/2
-    sagita = std::abs(tpath2*tsos.globalParameters().transverseCurvature());
-    close = sagita<sagCut;
-    if (close) { 
-       stat.nth++;
-       auto pos = plane.toLocal(GlobalPoint(crossing.position(path.second)));
-       // auto toll = LocalError(tollerance2,0,tollerance2);
-       auto tollL2 = std::max(0.25f*sagita*sagita,0.25f);
-       auto toll = LocalError(tollL2,0,tollL2);
-       isIn = plane.bounds().inside(pos,toll);
-       if (!isIn) { stat.ns2++;
-                    if (prop.propagationDirection()==alongMomentum) return std::make_pair( false,TrajectoryStateOnSurface());  
-                     // if (!largeErr) return std::make_pair( false,TrajectoryStateOnSurface()); 
-                  }
+    bool isIn = false;
+    float sagita=99999999;
+    bool close = false;
+  if likely(sagCut>0) {
+    // linear approximation
+    auto const & plane = theDet->specificSurface();
+    StraightLinePlaneCrossing crossing(tsos.globalPosition().basicVector(),tsos.globalMomentum().basicVector(), prop.propagationDirection());
+    auto path = crossing.pathLength(plane);
+    isIn = path.first;
+    if  unlikely(!path.first) stat.ns1++;
+    else {
+      auto gpos =  GlobalPoint(crossing.position(path.second));
+      auto tpath2 = (gpos-tsos.globalPosition()).perp2();
+      // sagitta = d^2*c/2
+      sagita = 0.5f*std::abs(tpath2*tsos.globalParameters().transverseCurvature());
+      close = sagita<sagCut;
+      if (close) { 
+         stat.nth++;
+         auto pos = plane.toLocal(GlobalPoint(crossing.position(path.second)));
+         // auto toll = LocalError(tollerance2,0,tollerance2);
+         auto tollL2 = std::max(sagita*sagita,minTol2);
+         auto toll = LocalError(tollL2,0,tollL2);
+         isIn = plane.bounds().inside(pos,toll);
+         if (!isIn) { stat.ns2++;
+                      return std::make_pair( false,TrajectoryStateOnSurface());  
+                      // if (!largeErr) return std::make_pair( false,TrajectoryStateOnSurface()); 
+                     }
+      }
     }
   }
 
+  // precise propagation
   TrajectoryStateOnSurface && propSt = prop.propagate( tsos, theDet->specificSurface());
   if unlikely ( !propSt.isValid()) { stat.nf1++; return std::make_pair( false, std::move(propSt));}
 

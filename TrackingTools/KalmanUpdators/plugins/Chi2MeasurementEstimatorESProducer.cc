@@ -24,14 +24,13 @@ class  Chi2MeasurementEstimatorESProducer: public edm::ESProducer{
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  boost::shared_ptr<Chi2MeasurementEstimatorBase> _estimator;
-  edm::ParameterSet pset_;
+  boost::shared_ptr<Chi2MeasurementEstimatorBase> m_estimator;
+  edm::ParameterSet const m_pset;
 };
 
-Chi2MeasurementEstimatorESProducer::Chi2MeasurementEstimatorESProducer(const edm::ParameterSet & p) 
-{
+Chi2MeasurementEstimatorESProducer::Chi2MeasurementEstimatorESProducer(const edm::ParameterSet & p) :
+  m_pset(p) {
   std::string myname = p.getParameter<std::string>("ComponentName");
-  pset_ = p;
   setWhatProduced(this,myname);
 }
 
@@ -39,18 +38,22 @@ Chi2MeasurementEstimatorESProducer::~Chi2MeasurementEstimatorESProducer() {}
 
 boost::shared_ptr<Chi2MeasurementEstimatorBase> 
 Chi2MeasurementEstimatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
-  double maxChi2 = pset_.getParameter<double>("MaxChi2");
-  double nSigma = pset_.getParameter<double>("nSigma");
-  
-  _estimator = boost::shared_ptr<Chi2MeasurementEstimatorBase>(new Chi2MeasurementEstimator(maxChi2,nSigma));
-  return _estimator;
+  auto maxChi2 = m_pset.getParameter<double>("MaxChi2");
+  auto nSigma  = m_pset.getParameter<double>("nSigma");
+  auto maxSag  = m_pset.getParameter<double>("MaxSagita");
+  auto minToll =  m_pset.getParameter<double>("MinimalTollerance");
+   
+  m_estimator = boost::shared_ptr<Chi2MeasurementEstimatorBase>(new Chi2MeasurementEstimator(maxChi2,nSigma, maxSag, minToll));
+  return m_estimator;
 }
 
 void Chi2MeasurementEstimatorESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("ComponentName","");
+  desc.add<std::string>("ComponentName","Chi2");
   desc.add<double>("MaxChi2",30);
   desc.add<double>("nSigma",3);
+  desc.add<double>("MaxSagita",2.);
+  desc.add<double>("minimalTollerance",0.5);
   descriptions.add("Chi2MeasurementEstimator", desc);
 }
 

@@ -34,11 +34,13 @@ muonSeededMeasurementEstimatorForInOut = TrackingTools.KalmanUpdators.Chi2Measur
     ComponentName = cms.string('muonSeededMeasurementEstimatorForInOut'),
     MaxChi2 = cms.double(80.0), ## was 30 ## TO BE TUNED
     nSigma  = cms.double(4.),    ## was 3  ## TO BE TUNED 
+    MaxSagita = cms.double(-1.)
 )
 muonSeededMeasurementEstimatorForOutIn = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('muonSeededMeasurementEstimatorForOutIn'),
     MaxChi2 = cms.double(30.0), ## was 30 ## TO BE TUNED
-    nSigma  = cms.double(3.),    ## was 3  ## TO BE TUNED 
+    nSigma  = cms.double(3.),    ## was 3  ## TO BE TUNED
+    MaxSagita = cms.double(-1.) 
 )
 
 ###------------- TrajectoryFilter, defining selections on the trajectories while building them ----------------
