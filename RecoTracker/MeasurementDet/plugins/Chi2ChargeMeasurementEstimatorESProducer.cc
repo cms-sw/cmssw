@@ -142,14 +142,14 @@ Chi2ChargeMeasurementEstimatorESProducer::produce(const TrackingComponentsRecord
 
   auto maxChi2             =  m_pset.getParameter<double>("MaxChi2");
   auto nSigma              =  m_pset.getParameter<double>("nSigma");
-  auto maxSag              =  m_pset.getParameter<double>("MaxSagita");
-  auto minToll             =  m_pset.getParameter<double>("MinimalTollerance");
+  auto maxSag  = m_pset.existsAs<double>("MaxSagita") ? m_pset.getParameter<double>("MaxSagita") : -1.;
+  auto minTol = m_pset.existsAs<double>("MinimalTolerance") ?  m_pset.getParameter<double>("MinimalTolerance") : 10;
   auto minGoodPixelCharge  = 0;
   auto minGoodStripCharge  =  clusterChargeCut(m_pset);
   auto pTChargeCutThreshold=   m_pset.getParameter<double>("pTChargeCutThreshold");
 
   m_estimator = boost::shared_ptr<Chi2MeasurementEstimatorBase>(
-	new Chi2ChargeMeasurementEstimator(maxChi2,nSigma, maxSag, minToll, 
+	new Chi2ChargeMeasurementEstimator(maxChi2,nSigma, maxSag, minTol, 
 		minGoodPixelCharge, minGoodStripCharge, pTChargeCutThreshold));
   return m_estimator;
 }

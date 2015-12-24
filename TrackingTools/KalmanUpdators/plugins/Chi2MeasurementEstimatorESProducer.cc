@@ -41,9 +41,9 @@ Chi2MeasurementEstimatorESProducer::produce(const TrackingComponentsRecord & iRe
   auto maxChi2 = m_pset.getParameter<double>("MaxChi2");
   auto nSigma  = m_pset.getParameter<double>("nSigma");
   auto maxSag  = m_pset.existsAs<double>("MaxSagita") ? m_pset.getParameter<double>("MaxSagita") : -1.;
-  auto minToll = m_pset.existsAs<double>("MinimalTollerance") ?  m_pset.getParameter<double>("MinimalTollerance") : 10;
+  auto minTol = m_pset.existsAs<double>("MinimalTolerance") ?  m_pset.getParameter<double>("MinimalTolerance") : 10;
    
-  m_estimator = boost::shared_ptr<Chi2MeasurementEstimatorBase>(new Chi2MeasurementEstimator(maxChi2,nSigma, maxSag, minToll));
+  m_estimator = boost::shared_ptr<Chi2MeasurementEstimatorBase>(new Chi2MeasurementEstimator(maxChi2,nSigma, maxSag, minTol));
   return m_estimator;
 }
 
@@ -53,7 +53,7 @@ void Chi2MeasurementEstimatorESProducer::fillDescriptions(edm::ConfigurationDesc
   desc.add<double>("MaxChi2",30);
   desc.add<double>("nSigma",3);
   desc.add<double>("MaxSagita",2.);
-  desc.add<double>("MinimalTollerance",0.5);
+  desc.add<double>("MinimalTolerance",0.5);
   descriptions.add("Chi2MeasurementEstimator", desc);
 }
 

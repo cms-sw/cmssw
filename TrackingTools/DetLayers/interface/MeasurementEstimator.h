@@ -28,7 +28,7 @@ public:
   MeasurementEstimator() {}
   MeasurementEstimator(float maxSag, float minToll) :
      m_maxSagita(maxSag),
-     m_minTollerance2(minToll*minToll){}
+     m_minTolerance2(minToll*minToll){}
 
   virtual ~MeasurementEstimator() {}
 
@@ -74,12 +74,12 @@ public:
 			    const Plane& plane) const=0;
 
   float maxSagita() const { return m_maxSagita;}
-  float	minTollerance2() const { return m_minTollerance2;}
+  float	minTolerance2() const { return m_minTolerance2;}
 
 
 private:
   float m_maxSagita=-1.; // maximal sagita for linear approximation
-  float m_minTollerance2=100.; // square of minimum tollerance ot be considered inside a detector
+  float m_minTolerance2=100.; // square of minimum tolerance ot be considered inside a detector
 
 };
 

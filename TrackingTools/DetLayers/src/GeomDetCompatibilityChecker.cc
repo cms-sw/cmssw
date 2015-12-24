@@ -56,13 +56,13 @@ GeomDetCompatibilityChecker::isCompatible(const GeomDet* theDet,
   stat.ntot++;
 
   auto const sagCut = est.maxSagita();
-  auto const minTol2 = est.minTollerance2();
+  auto const minTol2 = est.minTolerance2();
 
   // std::cout << "param " << sagCut << ' ' << minTol2 << std::endl;
 
   /*
   auto err2 = tsos.curvilinearError().matrix()(3,3);
-  auto largeErr = err2> 0.1*tollerance2;
+  auto largeErr = err2> 0.1*tolerance2;
   if (largeErr) stat.nle++; 
   */
 
@@ -85,7 +85,7 @@ GeomDetCompatibilityChecker::isCompatible(const GeomDet* theDet,
       if (close) { 
          stat.nth++;
          auto pos = plane.toLocal(GlobalPoint(crossing.position(path.second)));
-         // auto toll = LocalError(tollerance2,0,tollerance2);
+         // auto toll = LocalError(tolerance2,0,tolerance2);
          auto tollL2 = std::max(sagita*sagita,minTol2);
          auto toll = LocalError(tollL2,0,tollL2);
          isIn = plane.bounds().inside(pos,toll);

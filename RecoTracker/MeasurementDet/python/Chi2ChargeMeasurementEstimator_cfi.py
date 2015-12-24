@@ -7,7 +7,7 @@ Chi2ChargeMeasurementEstimator = cms.ESProducer("Chi2ChargeMeasurementEstimatorE
     nSigma               = cms.double(3.0),
     MaxChi2              = cms.double(30.0),
     MaxSagita = cms.double(2),
-    MinimalTollerance = cms.double(0.5),
+    MinimalTolerance = cms.double(0.5),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
     pTChargeCutThreshold = cms.double(-1.)
 )
