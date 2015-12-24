@@ -53,7 +53,7 @@ void Chi2MeasurementEstimatorESProducer::fillDescriptions(edm::ConfigurationDesc
   desc.add<double>("MaxChi2",30);
   desc.add<double>("nSigma",3);
   desc.add<double>("MaxSagita",2.);
-  desc.add<double>("minimalTollerance",0.5);
+  desc.add<double>("MinimalTollerance",0.5);
   descriptions.add("Chi2MeasurementEstimator", desc);
 }
 
