@@ -7,9 +7,10 @@
 #include "DataFormats/Math/interface/approx_asin.h"
 
 namespace {
-  template<class T> inline T clamped_acos(T x) {
-    x = std::min(T(1.),std::max(-T(1.),x));
-    return unsafe_acos<5>(x);
+  template<class T> inline T clamped_asin(T x) {
+    x = std::min(T(1.),x);  // x is positive here
+    // return std::asin(x);
+    return unsafe_asin<5>(x);
   }
 }
 
@@ -35,7 +36,7 @@ namespace tkDetUtil {
     constexpr float tollerance=1.e-6;
     LocalPoint start = ts.localPosition();
     //     std::cout << "plane z " << plane.normalVector() << std::endl;
-    float dphi=0;
+    float dphi=0 ,cp=-2.;
     if likely(std::abs(1.f-std::abs(plane.normalVector().z()))<tollerance) {
       auto ori = plane.toLocal(GlobalPoint(0.,0.,0.));
       auto xc = std::abs(start.x() - ori.x());
@@ -49,7 +50,8 @@ namespace tkDetUtil {
       auto y1 = hori ? yc - maxDistance.y() :  xc - maxDistance.x();
       auto x1 = hori ? xc + maxDistance.x() : -yc + maxDistance.y();
 
-      dphi = clamped_acos((x0*x1+y0*y1)/std::sqrt((x0*x0+y0*y0)*(x1*x1+y1*y1)));
+      cp = std::abs(x0*y1-y0*x1)/std::sqrt((x0*x0+y0*y0)*(x1*x1+y1*y1));
+      dphi = clamped_asin(cp);
       return dphi;
     }
     
@@ -70,7 +72,7 @@ namespace tkDetUtil {
     }
     float phiWindow = phimax - phimin;
     if ( phiWindow < 0.) { phiWindow +=  2.*Geom::pi();}
-    // std::cout << "phiWindow " << phiWindow << ' ' << dphi << ' ' << dphi-phiWindow  << std::endl;
+    // std::cout << "phiWindow " << phiWindow << ' ' << dphi << ' ' << dphi-phiWindow  << ' ' << cp << std::endl;
     return phiWindow;
   }
 

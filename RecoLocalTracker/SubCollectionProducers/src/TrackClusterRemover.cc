@@ -1,5 +1,3 @@
-
-
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -200,6 +198,8 @@ namespace {
       }
     }
 
+
+    // std::cout << " => collectedStrips: " << collectedStrips.size() << std::endl;
 
     auto removedStripClusterMask =
       std::make_unique<StripMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiStripCluster>>(stripClusters),collectedStrips);
