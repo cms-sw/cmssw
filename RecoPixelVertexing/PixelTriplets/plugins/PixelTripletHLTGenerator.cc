@@ -321,7 +321,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
       }
     }
   }
-  std::cout << "triplets " << result.size() << std::endl;
+  // std::cout << "triplets " << result.size() << std::endl;
 }
 
 bool PixelTripletHLTGenerator::checkPhiInRange(float phi, float phi1, float phi2) const
