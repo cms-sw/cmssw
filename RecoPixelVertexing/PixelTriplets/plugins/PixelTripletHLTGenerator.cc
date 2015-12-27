@@ -24,6 +24,7 @@
 
 
 #include<cstdio>
+#include<iostream>
 
 using pixelrecoutilities::LongitudinalBendingCorrection;
 typedef PixelRecoRange<float> Range;
@@ -86,8 +87,13 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 
   declareDynArray(KDTreeLinkerAlgo<unsigned int>,size, hitTree);
   float rzError[size]; //save maximum errors
-  float maxphi = Geom::ftwoPi(), minphi = -maxphi; // increase to cater for any range
-  
+
+
+  const float maxDelphi = M_PI/8; // FIXME move to config
+  const float maxphi = M_PI+maxDelphi, minphi = -maxphi; // increase to cater for any range
+  const float safePhi = M_PI-maxDelphi; // sideband
+
+
   // fill the prediction vector
   for (int il=0; il<size; ++il) {
     thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, ev, es);
@@ -110,10 +116,9 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
       float myerr = hits.dv[i];
       maxErr = std::max(maxErr,myerr);
       layerTree.emplace_back(i, angle, v); // save it
-      if (angle < 0)  // wrap all points in phi
-	{ layerTree.emplace_back(i, angle+Geom::ftwoPi(), v);}
-      else
-	{ layerTree.emplace_back(i, angle-Geom::ftwoPi(), v);}
+      // populate side-bands
+      if (angle>safePhi) layerTree.emplace_back(i, angle-Geom::ftwoPi(), v);
+      else if (angle<-safePhi) layerTree.emplace_back(i, angle+Geom::ftwoPi(), v);
     }
     KDTreeBox phiZ(minphi, maxphi, minv-0.01f, maxv+0.01f);  // declare our bounds
     //add fudge factors in case only one hit and also for floating-point inaccuracy
@@ -228,13 +233,29 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
       
       foundNodes.clear(); // Now recover hits in bounding box...
       float prmin=phiRange.min(), prmax=phiRange.max();
-      if ((prmax-prmin) > Geom::ftwoPi())
-	{ prmax=Geom::fpi(); prmin = -Geom::fpi();}
-      else
-	{ while (prmax>maxphi) { prmin -= Geom::ftwoPi(); prmax -= Geom::ftwoPi();}
-	  while (prmin<minphi) { prmin += Geom::ftwoPi(); prmax += Geom::ftwoPi();}
-	  // This needs range -twoPi to +twoPi to work
-	}
+
+      auto reduceRange = [](float x) {
+       using T=float;
+       constexpr T o2pi = 1./(2.*M_PI);
+       if (std::abs(x) <= T(M_PI)) return x;
+       T n = std::round(x*o2pi);
+       return x - n*T(2.*M_PI);
+      };
+  
+      // cernlib V306
+      auto proxim = [](float b, float a) {
+        using T=float;
+        constexpr T c1 = 2.*M_PI;
+        constexpr T c2 = 1/c1;
+        return b+c1*std::round(c2*(a-b));
+      };
+
+      prmin = reduceRange(prmin);
+      prmax = proxim(prmax,prmin);
+      if (prmin>prmax) std::swap(prmax,prmin);
+
+      // if (prmax-prmin>maxDelphi) std::cout << "delphi " << ' ' << prmin << '/' << prmax << std::endl;
+
       if (barrelLayer)
 	{
 	  Range regMax = predictionRZ.detRange();
@@ -300,7 +321,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
       }
     }
   }
-  // std::cout << "triplets " << result.size() << std::endl;
+  std::cout << "triplets " << result.size() << std::endl;
 }
 
 bool PixelTripletHLTGenerator::checkPhiInRange(float phi, float phi1, float phi2) const
