@@ -185,3 +185,24 @@ process.pclusterCompatibilityFilter = cms.Path(process.clusterCompatibilityFilte
 process.pAna = cms.EndPath(process.skimanalysis)
 
 # Customization
+##########################################UE##########################################
+from CondCore.DBCommon.CondDBSetup_cfi import *
+process.uetable = cms.ESSource("PoolDBESSource",
+      DBParameters = cms.PSet(
+        messageLevel = cms.untracked.int32(0)
+        ),
+      timetype = cms.string('runnumber'),
+      toGet = cms.VPSet(
+          cms.PSet(record = cms.string("JetCorrectionsRecord"),
+                   tag = cms.string("UETableCompatibilityFormat_PF_HYDJET_5020GeV_754_38T_v01_mc"),
+                   label = cms.untracked.string("UETable_PF")
+          ),
+          cms.PSet(record = cms.string("JetCorrectionsRecord"),
+                   tag = cms.string("UETableCompatibilityFormat_Calo_HYDJET_5020GeV_754_38T_v01_mc"),
+                   label = cms.untracked.string("UETable_Calo")
+          )
+      ),
+      connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+)
+process.es_prefer_uetable = cms.ESPrefer('PoolDBESSource','uetable')
+##########################################UE##########################################
