@@ -57,26 +57,25 @@ public:
   int                 numberCellsHexagon(int wafer) const;
   int                 sectors() const {return hgpar_->nSectors_;}
   std::pair<int,int>  simToReco(int cell, int layer, int mod, bool half) const;
+  unsigned int        volumes() const {return hgpar_->moduleLayR_.size();}
   int                 waferFromCopy(int copy) const;
   bool                waferInLayer(int wafer, int lay, bool reco) const;
-  GlobalPoint         waferPosition(int wafer) const {return hgpar_->waferPos_.at(wafer); }
+  std::pair<double,double> waferPosition(int wafer) const;
   int                 wafers() const;
   int                 waferToCopy(int wafer) const {return ((wafer>=0)&&(wafer< (int)(hgpar_->waferCopy_.size()))) ? hgpar_->waferCopy_[wafer] : (int)(hgpar_->waferCopy_.size());}
   int                 waferTypeT(int wafer) const {return ((wafer>=0)&&(wafer<(int)(hgpar_->waferTypeT_.size()))) ? hgpar_->waferTypeT_[wafer] : 0;}
 
+  HGCalParameters::hgtrap getModule(unsigned int k, bool hexType, bool reco) const;
+  std::vector<HGCalParameters::hgtrap> getModules() const; 
 
-  std::vector<HGCalParameters::hgtrap>::const_iterator getFirstModule(bool reco=false) const {return (reco ? hgpar_->moduler_.begin() : hgpar_->modules_.begin());}
-  std::vector<HGCalParameters::hgtrap>::const_iterator getLastModule(bool reco=false)  const {return (reco ? hgpar_->moduler_.end() : hgpar_->modules_.end());}
-  std::vector<HGCalParameters::hgtrap>::const_iterator getModule(int wafer) const;
-  std::vector<HGCalParameters::hgtrform>::const_iterator getFirstTrForm() const {return hgpar_->trform_.begin();}
-  std::vector<HGCalParameters::hgtrform>::const_iterator getLastTrForm()  const {return hgpar_->trform_.end(); }
-
-  const std::vector<HGCalParameters::hgtrap> & getModules() const {return hgpar_->moduler_; }
-  const std::vector<HGCalParameters::hgtrform> & getTrForms() const {return hgpar_->trform_; }
+  unsigned int getTrFormN() const {return hgpar_->trformIndex_.size();}
+  HGCalParameters::hgtrform getTrForm(unsigned int k) const {return hgpar_->getTrForm(k);}
+  std::vector<HGCalParameters::hgtrform> getTrForms() const ;
   
 private:
   int cellHex(double xx, double yy, const double& cellR, 
-	      const std::vector<GlobalPoint>& pos) const;
+	      const std::vector<double>& posX,
+	      const std::vector<double>& posY) const;
   std::pair<int,float> getIndex(int lay, bool reco) const;
   void getParameterSquare(int lay, int subSec, bool reco, float& h, float& bl,
 			  float& tl, float& alpha) const;

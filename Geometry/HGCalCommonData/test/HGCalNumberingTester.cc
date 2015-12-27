@@ -80,8 +80,8 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
 	    << " Sectors = " << hgdc.sectors() << std::endl;
   std::pair<int,int> kxy, lxy;
   std::pair<float,float> xy;
-  std::vector<HGCalParameters::hgtrap>::const_iterator itr = hgdc.getFirstModule(false);
-  bool  halfCell = ((itr->alpha) > 0);
+  HGCalParameters::hgtrap mytr = hgdc.getModule(0,false,false);
+  bool  halfCell = ((mytr.alpha) > 0);
   int   subsec   = (halfCell) ? 1 : 0;
   float localx(position_), localy(position_);
   for (unsigned int i=0; i<hgdc.layers(false); ++i) {

@@ -39,6 +39,7 @@ void HGCalGeomParameters::loadGeometrySquare(const DDFilteredView& _fv,
   bool dodet(true), first(true);
   int  zpFirst(0);
   std::vector<HGCalParameters::hgtrform> trforms;
+  std::vector<bool>                      trformUse;
  
   while (dodet) {
     const DDSolid & sol  = fv.logicalPart().solid();
@@ -66,7 +67,7 @@ void HGCalGeomParameters::loadGeometrySquare(const DDFilteredView& _fv,
 	    break;
 	  }
 	}
-	php.modules_.push_back(mytr);
+	php.fillModule(mytr,false);
 	if (php.layer_.size() == 0) php.nSectors_ = 1;
 	php.layer_.push_back(lay);
       } else if (std::find(php.layer_.begin(),php.layer_.end(),lay) == 
@@ -89,8 +90,8 @@ void HGCalGeomParameters::loadGeometrySquare(const DDFilteredView& _fv,
       mytrf.subsec= subs;
       mytrf.h3v   = h3v;
       mytrf.hr    = hr;
-      mytrf.used  = false;
       trforms.push_back(mytrf);
+      trformUse.push_back(false);
     }
     dodet = fv.next();
   }
@@ -116,11 +117,10 @@ void HGCalGeomParameters::loadGeometrySquare(const DDFilteredView& _fv,
   for (unsigned int i=0; i<php.layerIndex_.size(); ++i) {
     int k = php.layerIndex_[i];
     std::cout << "Module[" << i << ":" << k << "] Layer " << php.layer_[k] 
-	      << ":" << php.modules_[k].lay << " dx " << php.modules_[k].bl 
-	      << ":" << php.modules_[k].tl << " dy " << php.modules_[k].h 
-	      << " dz " << php.modules_[k].dz << " alpha " 
-	      << php.modules_[k].alpha << " cell " << php.modules_[k].cellSize 
-	      << std::endl;
+	      << ":" << php.moduleLayS_[k] << " dx " << php.moduleBlS_[k] 
+	      << ":" << php.moduleTlS_[k] << " dy " << php.moduleHS_[k] 
+	      << " dz " << php.moduleDzS_[k] << " alpha "<< php.moduleAlphaS_[k]
+	      << " cell " << php.moduleCellS_[k] << std::endl;
   }
 #endif
   int depth(0);
@@ -134,18 +134,19 @@ void HGCalGeomParameters::loadGeometrySquare(const DDFilteredView& _fv,
 	  php.depthIndex_.push_back(depth);
 	  php.depthLayerF_.push_back(k);
 	  ++depth;
-	  php.moduler_.push_back(php.modules_[k]);
-	  php.moduler_.back().lay = depth;
-	  php.moduler_.back().bl *= k_ScaleFromDDD;
-	  php.moduler_.back().tl *= k_ScaleFromDDD;
-	  php.moduler_.back().h  *= k_ScaleFromDDD;
-	  php.moduler_.back().dz *= k_ScaleFromDDD;
-	  php.moduler_.back().cellSize *= (k_ScaleFromDDD*php.cellFactor_[k]);
-	  dz    = php.moduler_.back().dz;
+	  HGCalParameters::hgtrap mytr = php.getModule(k,false);
+	  mytr.lay = depth;
+	  mytr.bl *= k_ScaleFromDDD;
+	  mytr.tl *= k_ScaleFromDDD;
+	  mytr.h  *= k_ScaleFromDDD;
+	  mytr.dz *= k_ScaleFromDDD;
+	  mytr.cellSize *= (k_ScaleFromDDD*php.cellFactor_[k]);
+	  php.fillModule(mytr, true);
+	  dz    = mytr.dz;
 	  first = false;
 	} else {
-	  dz   += (k_ScaleFromDDD*php.modules_[k].dz);
-	  php.moduler_.back().dz = dz;
+	  dz   += (k_ScaleFromDDD*php.moduleDzS_[k]);
+	  php.moduleDzR_.back() = dz;
 	}
       }
     }
@@ -157,46 +158,50 @@ void HGCalGeomParameters::loadGeometrySquare(const DDFilteredView& _fv,
     int k = php.depthIndex_[i];
     std::cout << "Module[" << i << ":" << k << "]  First Layer " 
 	      << php.depthLayerF_[i] << " Depth " << php.depth_[k] 
-	      << ":" << php.moduler_[k].lay << " dx " << php.moduler_[k].bl 
-	      << ":" << php.moduler_[k].tl << " dy " << php.moduler_[k].h 
-	      << " dz " << php.moduler_[k].dz << " alpha " 
-	      << php.moduler_[k].alpha << " cell " << php.moduler_[k].cellSize 
-	      << std::endl;
+	      << ":" << php.moduleLayR_[k] << " dx " << php.moduleBlR_[k] 
+	      << ":" << php.moduleTlR_[k] << " dy " << php.moduleHR_[k] 
+	      << " dz " << php.moduleDzR_[k] << " alpha "<< php.moduleAlphaR_[k]
+	      << " cellSize " << php.moduleCellR_[k] << std::endl;
   }
 #endif
   for (unsigned int i=0; i<php.layer_.size(); ++i) {
     for (unsigned int i1=0; i1<trforms.size(); ++i1) {
-      if (!trforms[i1].used && php.layerGroup_[trforms[i1].lay-1] == 
+      if (!trformUse[i1] && php.layerGroup_[trforms[i1].lay-1] == 
 	  (int)(i+1)) {
-	php.trform_.push_back(trforms[i1]);
-	php.trform_.back().h3v *= k_ScaleFromDDD;
-	php.trform_.back().lay  = (i+1);
-	trforms[i1].used        = true;
+	trforms[i1].h3v *= k_ScaleFromDDD;
+	trforms[i1].lay  = (i+1);
+	trformUse[i1]    = true;
+	php.fillTrForm(trforms[i1]);
 	int nz(1);
 	for (unsigned int i2=i1+1; i2<trforms.size(); ++i2) {
-	  if (!trforms[i2].used && trforms[i2].zp ==  trforms[i1].zp &&
+	  if (!trformUse[i2] && trforms[i2].zp ==  trforms[i1].zp &&
 	      php.layerGroup_[trforms[i2].lay-1] == (int)(i+1) &&
 	      trforms[i2].sec == trforms[i1].sec &&
 	      trforms[i2].subsec == trforms[i1].subsec) {
-	    php.trform_.back().h3v += (k_ScaleFromDDD*trforms[i2].h3v);
+	    php.addTrForm(k_ScaleFromDDD*trforms[i2].h3v);
 	    nz++;
-	    trforms[i2].used = true;
+	    trformUse[i2] = true;
 	  }
 	}
 	if (nz > 0) {
-	  php.trform_.back().h3v /= nz;
+	  php.scaleTrForm(double(1.0/nz));
 	}
       }
     }
   }
 #ifdef DebugLog
-  std::cout << "Obtained " << php.trform_.size() << " transformation matrices"
-	    << std::endl;
-  for (unsigned int k=0; k<php.trform_.size(); ++k) {
-    std::cout << "Matrix[" << k << "] (" << php.trform_[k].zp << "," 
-	      << php.trform_[k].sec << "," << php.trform_[k].subsec << ","
-	      << php.trform_[k].lay << ") " << " Trnaslation " 
-	      << php.trform_[k].h3v << " Rotation " << php.trform_[k].hr;
+  std::cout << "Obtained " << php.trformIndex_.size() 
+	    << " transformation matrices"  << std::endl;
+  for (unsigned int k=0; k<php.trformIndex_.size(); ++k) {
+    std::cout << "Matrix[" << k << "] (" << std::hex << php.trformIndex_[k]
+	      << std::dec << ") Trnaslation (" << php.trformTranX_[k] << ", "
+	      << php.trformTranY_[k] << ", " << php.trformTranZ_[k]
+	      << " Rotation (" << php.trformRotXX_[k] << ", "
+	      << php.trformRotYX_[k] << ", " << php.trformRotZX_[k] << ", "
+	      << php.trformRotXY_[k] << ", " << php.trformRotYY_[k] << ", "
+	      << php.trformRotZY_[k] << ", " << php.trformRotXZ_[k] << ", "
+	      << php.trformRotYZ_[k] << ", " << php.trformRotZZ_[k] << ")"
+	      << std::endl;
   }
 #endif
 }
@@ -212,6 +217,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   bool dodet(true);
   std::map<int,HGCalGeomParameters::layerParameters> layers;
   std::vector<HGCalParameters::hgtrform> trforms;
+  std::vector<bool>                      trformUse;
   
   while (dodet) {
     const DDSolid & sol  = fv.logicalPart().solid();
@@ -258,8 +264,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 	mytrf.subsec= 0;
 	mytrf.h3v   = h3v;
 	mytrf.hr    = hr;
-	mytrf.used  = false;
 	trforms.push_back(mytrf);
+	trformUse.push_back(false);
       }
     }
     dodet = fv.next();
@@ -316,7 +322,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 	      mytr.tl = php.waferR_;  mytr.h = php.waferR_; 
 	      mytr.dz = dz;           mytr.alpha = 0.0;
 	      mytr.cellSize = waferSize_;
-	      php.modules_.push_back(mytr);
+	      php.fillModule(mytr,false);
 	      names.push_back(name);
 	    }
 	  }
@@ -413,23 +419,23 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   }
   for (unsigned int i=0; i<php.layer_.size(); ++i) {
     for (unsigned int i1=0; i1<trforms.size(); ++i1) {
-      if (!trforms[i1].used && php.layerGroup_[trforms[i1].lay-1] == 
+      if (!trformUse[i1] && php.layerGroup_[trforms[i1].lay-1] == 
 	  (int)(i+1)) {
-	php.trform_.push_back(trforms[i1]);
-	php.trform_.back().h3v *= k_ScaleFromDDD;
-	php.trform_.back().lay  = (i+1);
-	trforms[i1].used        = true;
+	trforms[i1].h3v *= k_ScaleFromDDD;
+	trforms[i1].lay  = (i+1);
+	trformUse[i1]    = true;
+	php.fillTrForm(trforms[i1]);
 	int nz(1);
 	for (unsigned int i2=i1+1; i2<trforms.size(); ++i2) {
-	  if (!trforms[i2].used && trforms[i2].zp ==  trforms[i1].zp &&
+	  if (!trformUse[i2] && trforms[i2].zp ==  trforms[i1].zp &&
 	      php.layerGroup_[trforms[i2].lay-1] == (int)(i+1)) {
-	    php.trform_.back().h3v += (k_ScaleFromDDD*trforms[i2].h3v);
+	    php.addTrForm(k_ScaleFromDDD*trforms[i2].h3v);
 	    nz++;
-	    trforms[i2].used = true;
+	    trformUse[i2] = true;
 	  }
 	}
 	if (nz > 0) {
-	  php.trform_.back().h3v /= nz;
+	  php.scaleTrForm(double(1.0/nz));
 	}
       }
     }
@@ -439,7 +445,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   for (std::map<int,GlobalPoint>::iterator itr = wafers.begin();
        itr != wafers.end(); ++itr) {
     php.waferCopy_.push_back(itr->first);
-    php.waferPos_.push_back(itr->second);
+    php.waferPosX_.push_back(itr->second.x());
+    php.waferPosY_.push_back(itr->second.y());
     std::map<int,int>::iterator ktr = wafertype.find(itr->first);
     int typet = (ktr == wafertype.end()) ? 0 : (ktr->second);
     php.waferTypeT_.push_back(typet);
@@ -470,7 +477,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 	if (xy.first > 0) xy.first -= 0.001;
 	else              xy.first += 0.001;
       } 
-      php.cellFine_.push_back(GlobalPoint(xy.first,xy.second,0));
+      php.cellFineX_.push_back(xy.first);
+      php.cellFineY_.push_back(xy.second);
     }
   }
   itrf = wafers.end();
@@ -489,7 +497,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 	if (xy.first > 0) xy.first -= 0.001;
 	else              xy.first += 0.001;
       } 
-      php.cellCoarse_.push_back(GlobalPoint(xy.first,xy.second,0));
+      php.cellCoarseX_.push_back(xy.first);
+      php.cellCoarseY_.push_back(xy.second);
     }
   }
   int depth(0);
@@ -507,16 +516,17 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       }
     }
   }
-  php.moduler_.push_back(php.modules_[0]);
-  php.moduler_.back().bl *= k_ScaleFromDDD;
-  php.moduler_.back().tl *= k_ScaleFromDDD;
-  php.moduler_.back().h  *= k_ScaleFromDDD;
-  php.moduler_.back().dz *= k_ScaleFromDDD;
-  double dz    = php.moduler_.back().dz;
-  php.moduler_.push_back(php.moduler_[0]);
-  php.moduler_.back().dz = 2*dz;
-  php.moduler_.push_back(php.moduler_[0]);
-  php.moduler_.back().dz = 3*dz;
+  HGCalParameters::hgtrap mytr = php.getModule(0, false);
+  mytr.bl   *= k_ScaleFromDDD;
+  mytr.tl   *= k_ScaleFromDDD;
+  mytr.h    *= k_ScaleFromDDD;
+  mytr.dz   *= k_ScaleFromDDD;
+  double dz  = mytr.dz;
+  php.fillModule(mytr, true);
+  mytr.dz = 2*dz;
+  php.fillModule(mytr, true);
+  mytr.dz = 3*dz;
+  php.fillModule(mytr, true);
 #ifdef DebugLog
   std::cout << "HGCalGeomParameters: rmax = " << rmax << ", ymax = " << ymax 
 	    << std::endl;
@@ -539,38 +549,41 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   for (unsigned int i=0; i<php.waferCopy_.size(); ++i) 
     std::cout << "Wafer[" << i << ": " <<php.waferCopy_[i] << "] type " 
 	      << php.waferTypeL_[i] << ":" << php.waferTypeT_[i] << " at (" 
-	      << php.waferPos_[i].x() << "," << php.waferPos_[i].y() << "," 
-	      << php.waferPos_[i].z() << ")" << std::endl;
+	      << php.waferPosX_[i] << "," << php.waferPosY_[i] << ",0)" 
+	      << std::endl;
   std::cout << "HGCalGeomParameters: wafer radius " << php.waferR_ 
 	    << " and dimensions of the wafers:" << std::endl;
-  std::cout << "Sim[0] " << php.modules_[0].lay << " dx " << php.modules_[0].bl
-	      << ":" << php.modules_[0].tl << " dy " << php.modules_[0].h 
-	      << " dz " << php.modules_[0].dz << " alpha " 
-	    << php.modules_[0].alpha << std::endl;
-  for (unsigned int k=0; k<php.moduler_.size(); ++k)
-    std::cout << "Rec[" << k << "] " << php.moduler_[k].lay << " dx " 
-	      << php.moduler_[k].bl << ":" << php.moduler_[k].tl << " dy " 
-	      << php.moduler_[k].h  << " dz " << php.moduler_[k].dz 
-	      << " alpha " << php.moduler_[k].alpha << std::endl;
-  std::cout << "HGCalGeomParameters finds " << php.cellFine_.size() 
+  std::cout << "Sim[0] " << php.moduleLayS_[0] << " dx " << php.moduleBlS_[0]
+	      << ":" << php.moduleTlS_[0] << " dy " << php.moduleHS_[0] 
+	      << " dz " << php.moduleDzS_[0] << " alpha "
+	    << php.moduleAlphaS_[0] << std::endl;
+  for (unsigned int k=0; k<php.moduleLayR_.size(); ++k)
+    std::cout << "Rec[" << k << "] " << php.moduleLayR_[k] << " dx " 
+	      << php.moduleBlR_[k] << ":" << php.moduleTlR_[k] << " dy " 
+	      << php.moduleHR_[k]  << " dz " << php.moduleDzR_[k] 
+	      << " alpha " << php.moduleAlphaR_[k] << std::endl;
+  std::cout << "HGCalGeomParameters finds " << php.cellFineX_.size() 
 	    << " fine cells in a  wafer" << std::endl;
-  for (unsigned int i=0; i<php.cellFine_.size(); ++i) 
-    std::cout << "Fine Cell[" << i << "] at (" << php.cellFine_[i].x() << ","
-	      << php.cellFine_[i].y() << "," << php.cellFine_[i].z()<< ")"
-	      << std::endl;
-  std::cout << "HGCalGeomParameters finds " << php.cellCoarse_.size() 
+  for (unsigned int i=0; i<php.cellFineX_.size(); ++i) 
+    std::cout << "Fine Cell[" << i << "] at (" << php.cellFineX_[i] << ","
+	      << php.cellFineY_[i] << ",0)" << std::endl;
+  std::cout << "HGCalGeomParameters finds " << php.cellCoarseX_.size() 
 	    << " coarse cells in a wafer" << std::endl;
-  for (unsigned int i=0; i<php.cellCoarse_.size(); ++i) 
-    std::cout << "Coarse Cell[" << i << "] at (" << php.cellCoarse_[i].x() 
-	      << "," << php.cellCoarse_[i].y() << "," << php.cellCoarse_[i].z()
-	      << ")" << std::endl;
-  std::cout << "Obtained " << php.trform_.size() << " transformation matrices"
-	    << std::endl;
-  for (unsigned int k=0; k<php.trform_.size(); ++k) {
-    std::cout << "Matrix[" << k << "] (" << php.trform_[k].zp << "," 
-	      << php.trform_[k].sec << "," << php.trform_[k].subsec << ","
-	      << php.trform_[k].lay << ") " << " Trnaslation " 
-	      << php.trform_[k].h3v << " Rotation " << php.trform_[k].hr;
+  for (unsigned int i=0; i<php.cellCoarseX_.size(); ++i) 
+    std::cout << "Coarse Cell[" << i << "] at (" << php.cellCoarseX_[i]
+	      << "," << php.cellCoarseY_[i] << ",0)" << std::endl;
+  std::cout << "Obtained " << php.trformIndex_.size() 
+	    << " transformation matrices"  << std::endl;
+  for (unsigned int k=0; k<php.trformIndex_.size(); ++k) {
+    std::cout << "Matrix[" << k << "] (" << std::hex << php.trformIndex_[k]
+	      << std::dec << ") Trnaslation (" << php.trformTranX_[k] << ", "
+	      << php.trformTranY_[k] << ", " << php.trformTranZ_[k]
+	      << " Rotation (" << php.trformRotXX_[k] << ", "
+	      << php.trformRotYX_[k] << ", " << php.trformRotZX_[k] << ", "
+	      << php.trformRotXY_[k] << ", " << php.trformRotYY_[k] << ", "
+	      << php.trformRotZY_[k] << ", " << php.trformRotXZ_[k] << ", "
+	      << php.trformRotYZ_[k] << ", " << php.trformRotZZ_[k] << ")"
+	      << std::endl;
   }
 #endif
 }

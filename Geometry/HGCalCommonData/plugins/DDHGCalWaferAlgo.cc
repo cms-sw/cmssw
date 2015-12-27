@@ -13,7 +13,7 @@
 #include "Geometry/HGCalCommonData/plugins/DDHGCalWaferAlgo.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#define DebugLog
+//#define DebugLog
 
 DDHGCalWaferAlgo::DDHGCalWaferAlgo() {
 #ifdef DebugLog

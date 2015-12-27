@@ -1,7 +1,7 @@
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include <iostream>
 
-#define DebugLog
+//#define DebugLog
 
 uint32_t HGCalTestNumbering::packSquareIndex(int zp, int lay, int sec, 
 					     int subsec, int cell) {

@@ -34,22 +34,26 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
   bool               detType = topology.detectorType();
 
   // loop over modules
-  std::vector<HGCalParameters::hgtrform>::const_iterator trItr;
-  std::vector<HGCalParameters::hgtrap>::const_iterator   volItr;
   ParmVec params(HGCalGeometry::k_NumberOfParametersPerShape,0);
   unsigned int counter(0);
-  for (trItr = topology.dddConstants().getFirstTrForm(); 
-       trItr != topology.dddConstants().getLastTrForm(); ++trItr) {
-    int zside  = trItr->zp;
-    int layer  = trItr->lay;
+#ifdef DebugLog
+  std::cout << "HGCalGeometryLoader with # of transformation matrices " 
+	    << topology.dddConstants().getTrFormN() << " and "
+	    << topology.dddConstants().volumes() << ":"
+	    << topology.dddConstants().sectors() << " volumes" << std::endl;
+#endif
+  for (unsigned itr=0; itr<topology.dddConstants().getTrFormN(); ++itr) {
+    HGCalParameters::hgtrform mytr = topology.dddConstants().getTrForm(itr);
+    int zside  = mytr.zp;
+    int layer  = mytr.lay;
 #ifdef DebugLog
     std::cout << "HGCalGeometryLoader:: Z:Layer:Sector:Subsector " << zside
 	      << ":" << layer <<std::endl;
 #endif
     if (topology.geomMode() == HGCalGeometryMode::Square) {
-      int sector = trItr->sec;
-      int subSec = (detType ? trItr->subsec : 0);
-      const HepGeom::Transform3D ht3d (trItr->hr, trItr->h3v);
+      int sector = mytr.sec;
+      int subSec = (detType ? mytr.subsec : 0);
+      const HepGeom::Transform3D ht3d (mytr.hr, mytr.h3v);
       DetId detId= ((subdet ==  HGCEE) ?
 		    (DetId)(HGCEEDetId(subdet,zside,layer,sector,subSec,0)) :
 		    (DetId)(HGCHEDetId(subdet,zside,layer,sector,subSec,0)));
@@ -58,19 +62,18 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 		<< subSec << " transf " << ht3d.getTranslation() << " and " 
 		<< ht3d.getRotation();
 #endif
-      for (volItr = topology.dddConstants().getFirstModule(true);
-	   volItr != topology.dddConstants().getLastModule(true); ++volItr) {
-	if (volItr->lay == layer) {
-	  double alpha = ((detType && subSec == 0) ? -fabs(volItr->alpha) :
-			  fabs(volItr->alpha));
-	  params[0] = volItr->dz;
+      for (unsigned int k=0; k<topology.dddConstants().volumes(); ++k) {
+	HGCalParameters::hgtrap vol = topology.dddConstants().getModule(k,false,true);
+	if (vol.lay == layer) {
+	  double alpha = ((detType && subSec == 0) ? -fabs(vol.alpha) :
+			  fabs(vol.alpha));
+	  params[0] = vol.dz;
 	  params[1] = params[2] = 0;
-	  params[3] = params[7] = volItr->h;
-	  params[4] = params[8] = volItr->bl;
-	  params[5] = params[9] = volItr->tl;
+	  params[3] = params[7] = vol.h;
+	  params[4] = params[8] = vol.bl;
+	  params[5] = params[9] = vol.tl;
 	  params[6] = params[10]= alpha;
-	  params[11]= volItr->cellSize;
-
+	  params[11]= vol.cellSize;
 	  buildGeom(params, ht3d, detId, geom);
 	  counter++;
 	  break;
@@ -82,21 +85,21 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 	  int type = topology.dddConstants().waferTypeT(wafer);
 	  if (type != 1) type = 0;
 	  DetId detId = (DetId)(HGCalDetId(subdet,zside,layer,type,wafer,0));
-	  GlobalPoint w = topology.dddConstants().waferPosition(wafer);
-	  double xx = (zside > 0) ? w.x() : -w.x();
-	  CLHEP::Hep3Vector h3v(xx,w.y(),trItr->h3v.z());
-	  const HepGeom::Transform3D ht3d (trItr->hr, h3v);
+	  std::pair<double,double>  w = topology.dddConstants().waferPosition(wafer);
+	  double xx = (zside > 0) ? w.first : -w.first;
+	  CLHEP::Hep3Vector h3v(xx,w.second,mytr.h3v.z());
+	  const HepGeom::Transform3D ht3d (mytr.hr, h3v);
 #ifdef DebugLog
 	  std::cout << "HGCalGeometryLoader:: Wafer:Type " << wafer << ":" 
 		    << type << " transf " << ht3d.getTranslation() << " and " 
 		    << ht3d.getRotation();
 #endif
-	  volItr = topology.dddConstants().getModule(wafer);
-	  params[0] = volItr->dz;
+	  HGCalParameters::hgtrap vol = topology.dddConstants().getModule(wafer,true,true);
+	  params[0] = vol.dz;
 	  params[1] = params[2] = 0;
-	  params[3] = params[7] = volItr->h;
-	  params[4] = params[8] = volItr->bl;
-	  params[5] = params[9] = volItr->tl;
+	  params[3] = params[7] = vol.h;
+	  params[4] = params[8] = vol.bl;
+	  params[5] = params[9] = vol.tl;
 	  params[6] = params[10]= 0;
 	  params[11]= topology.dddConstants().cellSizeHex(type);
 

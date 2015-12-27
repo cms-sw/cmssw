@@ -71,13 +71,13 @@ void HGCalGeometryTester::doTest(const HGCalGeometry& geom,
   int zsides[] = {1, -1};
   int cells[]  = {1, 51, 101};
   int wafers[] = {1, 101, 201, 301, 401};
-  int types[]  = {1,   0,   1,   0,   1};
   int ismax    = (squareCell) ? 3 : 5;
   for (int iz = 0; iz < 2; ++iz) {
     int zside = zsides[iz];
     for (int is = 0; is < ismax; ++is) {
       int sector = (squareCell) ? sectors[is] : wafers[is];
-      int type   = (squareCell) ? 0 : types[is];
+      int type   = (squareCell) ? 0 : geom.topology().dddConstants().waferTypeT(sector);
+      if (type != 1) type = 0;
       for (int il = 0; il < 3; ++il) {
 	int layer = layers[il];
 	for (int ic = 0; ic < 3; ++ic) {
