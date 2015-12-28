@@ -759,40 +759,40 @@ def overrideJEC_pp5020(process):
                                timetype = cms.string('runnumber'),
                                toGet = cms.VPSet(
                                    cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK1Calo_offline"),
+                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v12_AK1Calo_offline"),
                                             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
                                             label = cms.untracked.string("AK1Calo_offline")
                                    ),
                                    
                                    cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK1PF_offline"),
+                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v12_AK1PF_offline"),
                                             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
                                             label = cms.untracked.string("AK1PF_offline")
                                    ),
                                    cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK2Calo_offline"),
+                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v12_AK2Calo_offline"),
                                             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
                                             label = cms.untracked.string("AK2Calo_offline")
                                    ),
                                    
                                    cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK2PF_offline"),
+                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v12_AK2PF_offline"),
                                             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
                                             label = cms.untracked.string("AK2PF_offline")
                                    ),
                                    cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK3Calo_offline"),
+                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v12_AK3Calo_offline"),
                                             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
                                             label = cms.untracked.string("AK3Calo_offline")
                                    ),
                                    
                                    cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK3PF_offline"),
+                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v12_AK3PF_offline"),
                                             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
                                             label = cms.untracked.string("AK3PF_offline")
                                    ),
                                    cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK4Calo_offline"),
+                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v12_AK4Calo_offline"),
                                             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
                                             label = cms.untracked.string("AK4Calo_offline")
                                    ),
@@ -803,25 +803,25 @@ def overrideJEC_pp5020(process):
                                             label = cms.untracked.string("AK4PF_offline")
                                    ),
                                    cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK5Calo_offline"),
+                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v12_AK5Calo_offline"),
                                             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
                                             label = cms.untracked.string("AK5Calo_offline")
                                    ),
                                    
                                    cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK5PF_offline"),
+                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v12_AK5PF_offline"),
                                             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
                                             label = cms.untracked.string("AK5PF_offline")
                                    )
                                    ,
                                    cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK6Calo_offline"),
+                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v12_AK6Calo_offline"),
                                             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
                                             label = cms.untracked.string("AK6Calo_offline")
                                    ),
                                    
                                    cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v6_AK6PF_offline"),
+                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v12_AK6PF_offline"),
                                             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
                                             label = cms.untracked.string("AK6PF_offline")
                                    )
