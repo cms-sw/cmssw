@@ -1159,7 +1159,7 @@ TrackAnalyzer::beginJob()
   trackTree_->Branch("vtxDist2D",pev_.vtxDist2D,"vtxDist2D[nVtx]/F");
   trackTree_->Branch("vtxDist2DErr",pev_.vtxDist2DErr,"vtxDist2DErr[nVtx]/F");
   trackTree_->Branch("vtxDist2DSig",pev_.vtxDist2DSig,"vtxDist2DSig[nVtx]/F");
-  trackTree_->Branch("vtxDist2D",pev_.vtxDist3D,"vtxDist3D[nVtx]/F");
+  trackTree_->Branch("vtxDist3D",pev_.vtxDist3D,"vtxDist3D[nVtx]/F");
   trackTree_->Branch("vtxDist3DErr",pev_.vtxDist3DErr,"vtxDist3DErr[nVtx]/F");
   trackTree_->Branch("vtxDist3DSig",pev_.vtxDist3DSig,"vtxDist3DSig[nVtx]/F");
 
