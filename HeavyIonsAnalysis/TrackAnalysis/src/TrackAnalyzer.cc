@@ -525,7 +525,7 @@ TrackAnalyzer::fillVertices(const edm::Event& iEvent){
           trkCount++;
 	  
           if(qualityStrings_.size()>0 && !etrk.quality(reco::TrackBase::qualityByName(qualityStrings_[0].data()))) continue;
-	  if(fabs(Dz/DzError) < trackVtxMaxDistance_ && fabs(Dxy/DxyError)< trackVtxMaxDistance_ && etrk.ptError()/etrk.pt() < 0.1 && fabs(etrk.eta())<2.4){
+	  if(fabs(Dz/DzError) < trackVtxMaxDistance_ && fabs(Dxy/DxyError)< trackVtxMaxDistance_ && etrk.ptError()/etrk.pt() < 0.3 && fabs(etrk.eta())<2.4){
 	    vtxSumPt+=etrk.pt();
 	    vtxMult++;
 	    pev_.trkAssocVtx[trkCount*pev_.nVtx+i]=true;
@@ -705,7 +705,7 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (pev_.trkQual[0][pev_.nTrk]&&
         (fabs(pev_.trkDz1[pev_.nTrk]/pev_.trkDzError1[pev_.nTrk]) < trackVtxMaxDistance_)&&
         (fabs(pev_.trkDxy1[pev_.nTrk]/pev_.trkDxyError1[pev_.nTrk]) < trackVtxMaxDistance_)&&
-        (pev_.trkPtError[pev_.nTrk]/pev_.trkPt[pev_.nTrk]<0.1)&&
+        (pev_.trkPtError[pev_.nTrk]/pev_.trkPt[pev_.nTrk]<0.3)&&
         (fabs(pev_.trkEta[pev_.nTrk]) < 2.4)&&
         (pev_.trkPt[pev_.nTrk] > trackPtMin_)
       ) pev_.N++;
@@ -852,14 +852,14 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
 	if(doHighestPtVertex_){
 	  if ((fabs(tmtr->dz(v1)/sqrt(tmtr->dzError()*tmtr->dzError()+pev_.zVtxErr[pev_.maxPtVtx]*pev_.zVtxErr[pev_.maxPtVtx])) < trackVtxMaxDistance_)&&
 	      (fabs( tmtr->dxy(v1)/sqrt(tmtr->dxyError()*tmtr->dxyError()+pev_.xVtxErr[pev_.maxPtVtx]*pev_.yVtxErr[pev_.maxPtVtx])) < trackVtxMaxDistance_)&&
-	      (tmtr->ptError()/tmtr->pt()<0.1)&&
+	      (tmtr->ptError()/tmtr->pt()<0.3)&&
 	      (fabs(tmtr->eta()) < 2.4) &&
 	      (tmtr->pt() > trackPtMin_)) nrec++;
 	}
 	else{
 	  if ((fabs(tmtr->dz(v2)/sqrt(tmtr->dzError()*tmtr->dzError()+pev_.zVtxErr[pev_.maxMultVtx]*pev_.zVtxErr[pev_.maxMultVtx])) < trackVtxMaxDistance_)&&
 	      (fabs( tmtr->dxy(v2)/sqrt(tmtr->dxyError()*tmtr->dxyError()+pev_.xVtxErr[pev_.maxMultVtx]*pev_.yVtxErr[pev_.maxMultVtx])) < trackVtxMaxDistance_)&&
-	      (tmtr->ptError()/tmtr->pt()<0.1)&&
+	      (tmtr->ptError()/tmtr->pt()<0.3)&&
 	      (fabs(tmtr->eta()) < 2.4)&&
 	      (tmtr->pt() > trackPtMin_)) nrec++;
 	}
