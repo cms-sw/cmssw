@@ -131,6 +131,10 @@ def miniAOD_customizeCommon(process):
 
     #keep this after all addJetCollections otherwise it will attempt computing them also for stuf with no taginfos
     #Some useful BTAG vars
+    if not hasattr( process, 'pfImpactParameterTagInfos' ):
+        process.load('RecoBTag.ImpactParameter.pfImpactParameterTagInfos_cfi')
+    if not hasattr( process, 'pfSecondaryVertexTagInfos' ):
+        process.load('RecoBTag.SecondaryVertex.pfSecondaryVertexTagInfos_cfi')
     process.patJets.userData.userFunctions = cms.vstring(
     '?(tagInfoCandSecondaryVertex("pfSecondaryVertex").nVertices()>0)?(tagInfoCandSecondaryVertex("pfSecondaryVertex").secondaryVertex(0).p4.M):(0)',
     '?(tagInfoCandSecondaryVertex("pfSecondaryVertex").nVertices()>0)?(tagInfoCandSecondaryVertex("pfSecondaryVertex").secondaryVertex(0).numberOfSourceCandidatePtrs):(0)',
