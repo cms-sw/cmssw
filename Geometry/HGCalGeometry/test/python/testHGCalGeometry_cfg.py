@@ -5,6 +5,7 @@ process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.load("Geometry.HGCalCommonData.testHGCalXML_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
+process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.CaloEventSetup.HGCalTopology_cfi")
 process.load("Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi")
 

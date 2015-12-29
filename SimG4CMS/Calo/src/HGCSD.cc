@@ -13,7 +13,9 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Step.hh"
@@ -38,13 +40,13 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit          = m_HGC.getParameter<double>("EminHit")*CLHEP::MeV;
-  bool checkID     = m_HGC.getUntrackedParameter<bool>("CheckID", false);
+  checkID          = m_HGC.getUntrackedParameter<bool>("CheckID", false);
   verbosity        = m_HGC.getUntrackedParameter<int>("Verbosity",0);
 
   //this is defined in the hgcsens.xml
   G4String myName(this->nameOfSD());
   myFwdSubdet_= ForwardSubdetector::ForwardEmpty;
-  std::string nameX("HGCal");
+  nameX = "HGCal";
   if (myName.find("HitsEE")!=std::string::npos) {
     myFwdSubdet_ = ForwardSubdetector::HGCEE;
     nameX        = "HGCalEESensitive";
@@ -67,8 +69,6 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
                       << "**************************************************";
 #endif
   edm::LogInfo("HGCSim") << "HGCSD:: Threshold for storing hits: " << eminHit;
-
-  numberingScheme = new HGCNumberingScheme(cpv,nameX,checkID,verbosity);
 }
 
 HGCSD::~HGCSD() { 
@@ -127,6 +127,22 @@ uint32_t HGCSD::setDetUnitId(G4Step * aStep) {
     std::cout << "HGCSD::Global " << hitPoint << " local " << localpos 
 	      << std::endl;
   return setDetUnitId (subdet, layer, module, iz, localpos);
+}
+
+void HGCSD::update(const BeginOfJob * job) {
+
+  const edm::EventSetup* es = (*job)();
+  edm::ESHandle<HGCalDDDConstants>    hdc;
+  es->get<IdealGeometryRecord>().get(nameX,hdc);
+  if (hdc.isValid()) {
+    hgcalCons = (HGCalDDDConstants*)(&(*hdc));
+  } else {
+    edm::LogError("HGCSim") << "HCalSD : Cannot find HGCalDDDConstants for "
+			    << nameX;
+    throw cms::Exception("Unknown", "HGCSD") << "Cannot find HGCalDDDConstants for " << nameX << "\n";
+  }
+
+  numberingScheme = new HGCNumberingScheme(hgcalCons,nameX,checkID,verbosity);
 }
 
 void HGCSD::initRun() {

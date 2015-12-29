@@ -93,6 +93,7 @@
   <SpecPar name="HGCalHESilicon">
     <PartSelector path="//HGCalHESiliconSensitive.*"/>
     <Parameter name="Volume" value="HGCalHESiliconSensitive" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Square" eval="false"/>
     <Parameter name="Granularity" value="2.5*mm"/>
     <Parameter name="Granularity" value="2.5*mm"/>
     <Parameter name="Granularity" value="2.5*mm"/>
