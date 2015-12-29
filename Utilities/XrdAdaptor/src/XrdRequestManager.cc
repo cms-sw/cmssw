@@ -229,8 +229,9 @@ RequestManager::initialize(std::weak_ptr<RequestManager> self)
   std::shared_ptr<Source> source(new Source(ts, std::move(file), excludeString));
   {
     std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
+    auto oldList = m_activeSources;
     m_activeSources.push_back(source);
-    updateSiteInfo(orig_site);
+    reportSiteChange(oldList, m_activeSources, orig_site);
   }
   queueUpdateCurrentServer(source->ID());
   updateCurrentServer();
@@ -280,30 +281,42 @@ RequestManager::queueUpdateCurrentServer(const std::string &id)
     }
 }
 
+namespace  {
+  std::string formatSites(std::vector<std::shared_ptr<Source> > const& iSources) {
+    std::string siteA, siteB;
+    if (iSources.size()) {siteA = iSources[0]->Site();}
+    if (iSources.size() == 2) {siteB = iSources[1]->Site();}
+    std::string siteList = siteA;
+    if (siteB.size() && (siteB != siteA)) {siteList = siteA + ", " + siteB;}
+    return siteList;
+  }
+}
+  
 void
-RequestManager::updateSiteInfo(std::string orig_site)
+RequestManager::reportSiteChange(std::vector<std::shared_ptr<Source> > const& iOld,
+                               std::vector<std::shared_ptr<Source> > const& iNew,
+                               std::string orig_site) const
 {
-  std::string siteA, siteB, siteList;
-  if (m_activeSources.size()) {siteA = m_activeSources[0]->Site();}
-  if (m_activeSources.size() == 2) {siteB = m_activeSources[1]->Site();}
-  siteList = siteA;
-  if (siteB.size() && (siteB != siteA)) {siteList = siteA + ", " + siteB;}
+  auto siteList = formatSites(iNew);
   if (orig_site.size() && (orig_site != siteList))
   {
     edm::LogWarning("XrdAdaptor") << "Data is served from " << siteList << " instead of original site " << orig_site;
-    m_activeSites = siteList;
   }
-  else if (!orig_site.size() && (siteList != m_activeSites))
-  {
-    if (m_activeSites.size() >0 )
-      edm::LogWarning("XrdAdaptor") << "Data is now served from " << siteList << " instead of previous " << m_activeSites;
-    m_activeSites = siteList;
+  else {
+    auto oldSites = formatSites(iOld);
+    if (!orig_site.size() && (siteList != oldSites))
+    {
+      if (oldSites.size() >0 )
+        edm::LogWarning("XrdAdaptor") << "Data is now served from " << siteList << " instead of previous " << oldSites;
+    }
   }
 }
 
 
 void
-RequestManager::checkSources(timespec &now, IOSize requestSize)
+RequestManager::checkSources(timespec &now, IOSize requestSize,
+                             std::vector<std::shared_ptr<Source>>& activeSources,
+                             std::vector<std::shared_ptr<Source>>& inactiveSources)
 {
   edm::LogVerbatim("XrdAdaptorInternal") << "Time since last check "
     << timeDiffMS(now, m_lastSourceCheck) << "; last check "
@@ -312,65 +325,69 @@ RequestManager::checkSources(timespec &now, IOSize requestSize)
   if (timeDiffMS(now, m_lastSourceCheck) > 1000)
   {
     { // Be more aggressive about getting rid of very bad sources.
-      std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);   
-      compareSources(now, 0, 1);
-      compareSources(now, 1, 0);
+      compareSources(now, 0, 1, activeSources, inactiveSources);
+      compareSources(now, 1, 0, activeSources, inactiveSources);
     }
     if (timeDiffMS(now, m_nextActiveSourceCheck) > 0)
     {
-      checkSourcesImpl(now, requestSize);
+      checkSourcesImpl(now, requestSize, activeSources, inactiveSources);
     }
   }
 }
 
 
 bool
-RequestManager::compareSources(const timespec &now, unsigned a, unsigned b)
+RequestManager::compareSources(const timespec &now, unsigned a, unsigned b,
+                               std::vector<std::shared_ptr<Source>>& activeSources,
+                               std::vector<std::shared_ptr<Source>>& inactiveSources) const
 {
-  if (m_activeSources.size() < std::max(a, b)+1) {return false;}
+  if (activeSources.size() < std::max(a, b)+1) {return false;}
 
   bool findNewSource = false;
-  if ((m_activeSources[a]->getQuality() > 5130) ||
-     ((m_activeSources[a]->getQuality() > 260) && (m_activeSources[b]->getQuality()*4 < m_activeSources[a]->getQuality())))
+  if ((activeSources[a]->getQuality() > 5130) ||
+     ((activeSources[a]->getQuality() > 260) && (activeSources[b]->getQuality()*4 < activeSources[a]->getQuality())))
   {
     edm::LogVerbatim("XrdAdaptorInternal") << "Removing "
-          << m_activeSources[a]->PrettyID() << " from active sources due to poor quality ("
-          << m_activeSources[a]->getQuality() << " vs " << m_activeSources[b]->getQuality() << ")" << std::endl;
-    if (m_activeSources[a]->getLastDowngrade().tv_sec != 0) {findNewSource = true;}
-    m_activeSources[a]->setLastDowngrade(now);
-    m_inactiveSources.emplace_back(m_activeSources[a]);
-    m_activeSources.erase(m_activeSources.begin()+a);
-    updateSiteInfo();
+          << activeSources[a]->PrettyID() << " from active sources due to poor quality ("
+          << activeSources[a]->getQuality() << " vs " << activeSources[b]->getQuality() << ")" << std::endl;
+    if (activeSources[a]->getLastDowngrade().tv_sec != 0) {findNewSource = true;}
+    activeSources[a]->setLastDowngrade(now);
+    inactiveSources.emplace_back(activeSources[a]);
+    auto oldSources = activeSources;
+    activeSources.erase(activeSources.begin()+a);
+    reportSiteChange(oldSources,activeSources);
   }
   return findNewSource;
 }
 
 void
-RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
+RequestManager::checkSourcesImpl(timespec &now,
+                                 IOSize requestSize,
+                                 std::vector<std::shared_ptr<Source>>& activeSources,
+                                 std::vector<std::shared_ptr<Source>>& inactiveSources)
 {
-  std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
 
   bool findNewSource = false;
-  if (m_activeSources.size() <= 1)
+  if (activeSources.size() <= 1)
   {
     findNewSource = true;
   }
-  else if (m_activeSources.size() > 1)
+  else if (activeSources.size() > 1)
   {
-    edm::LogVerbatim("XrdAdaptorInternal") << "Source 0 quality " << m_activeSources[0]->getQuality() << ", source 1 quality " << m_activeSources[1]->getQuality() << std::endl;
-    findNewSource |= compareSources(now, 0, 1);
-    findNewSource |= compareSources(now, 1, 0);
+    edm::LogVerbatim("XrdAdaptorInternal") << "Source 0 quality " << activeSources[0]->getQuality() << ", source 1 quality " << activeSources[1]->getQuality() << std::endl;
+    findNewSource |= compareSources(now, 0, 1, activeSources,inactiveSources);
+    findNewSource |= compareSources(now, 1, 0,activeSources, inactiveSources);
 
     // NOTE: We could probably replace the copy with a better sort function.
     // However, there are typically very few sources and the correctness is more obvious right now.
-    std::vector<std::shared_ptr<Source> > eligibleInactiveSources; eligibleInactiveSources.reserve(m_inactiveSources.size());
-    for (const auto & source : m_inactiveSources)
+    std::vector<std::shared_ptr<Source> > eligibleInactiveSources; eligibleInactiveSources.reserve(inactiveSources.size());
+    for (const auto & source : inactiveSources)
     {
       if (timeDiffMS(now, source->getLastDowngrade()) > (XRD_ADAPTOR_SHORT_OPEN_DELAY-1)*1000) {eligibleInactiveSources.push_back(source);}
     }
-    std::vector<std::shared_ptr<Source> >::iterator bestInactiveSource = std::min_element(eligibleInactiveSources.begin(), eligibleInactiveSources.end(),
+    auto bestInactiveSource = std::min_element(eligibleInactiveSources.begin(), eligibleInactiveSources.end(),
         [](const std::shared_ptr<Source> &s1, const std::shared_ptr<Source> &s2) {return s1->getQuality() < s2->getQuality();});
-    std::vector<std::shared_ptr<Source> >::iterator worstActiveSource = std::max_element(m_activeSources.begin(), m_activeSources.end(),
+    auto worstActiveSource = std::max_element(activeSources.cbegin(), activeSources.cend(),
         [](const std::shared_ptr<Source> &s1, const std::shared_ptr<Source> &s2) {return s1->getQuality() < s2->getQuality();});
     if (bestInactiveSource != eligibleInactiveSources.end() && bestInactiveSource->get())
     {
@@ -381,11 +398,12 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
         << ", quality " << (*worstActiveSource)->getQuality();
         // Only upgrade the source if we only have one source and the best inactive one isn't too horrible.
         // Regardless, we will want to re-evaluate the new source quickly (within 5s).
-    if ((bestInactiveSource != eligibleInactiveSources.end()) && m_activeSources.size() == 1 && ((*bestInactiveSource)->getQuality() < 4*m_activeSources[0]->getQuality()))
+    if ((bestInactiveSource != eligibleInactiveSources.end()) && activeSources.size() == 1 && ((*bestInactiveSource)->getQuality() < 4*activeSources[0]->getQuality()))
     {
-        m_activeSources.push_back(*bestInactiveSource);
-        updateSiteInfo();
-        for (auto it = m_inactiveSources.begin(); it != m_inactiveSources.end(); it++) if (it->get() == bestInactiveSource->get()) {m_inactiveSources.erase(it); break;}
+        auto oldSources = activeSources;
+        activeSources.push_back(*bestInactiveSource);
+        reportSiteChange(oldSources, activeSources);
+        for (auto it = inactiveSources.begin(); it != inactiveSources.end(); it++) if (it->get() == bestInactiveSource->get()) {inactiveSources.erase(it); break;}
     }
     else while ((bestInactiveSource != eligibleInactiveSources.end()) && (*worstActiveSource)->getQuality() > (*bestInactiveSource)->getQuality()+XRD_ADAPTOR_SOURCE_QUALITY_FUDGE)
     {
@@ -394,16 +412,17 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
             << ") and promoting " << (*bestInactiveSource)->PrettyID() << " (quality: "
             << (*bestInactiveSource)->getQuality() << ")" << std::endl;
         (*worstActiveSource)->setLastDowngrade(now);
-        for (auto it = m_inactiveSources.begin(); it != m_inactiveSources.end(); it++) if (it->get() == bestInactiveSource->get()) {m_inactiveSources.erase(it); break;}
-        m_inactiveSources.emplace_back(std::move(*worstActiveSource));
-        m_activeSources.erase(worstActiveSource);
-        m_activeSources.emplace_back(std::move(*bestInactiveSource));
-        updateSiteInfo();
+        for (auto it = inactiveSources.begin(); it != inactiveSources.end(); it++) if (it->get() == bestInactiveSource->get()) {inactiveSources.erase(it); break;}
+        inactiveSources.emplace_back(std::move(*worstActiveSource));
+        auto oldSources = activeSources;
+        activeSources.erase(worstActiveSource);
+        activeSources.emplace_back(std::move(*bestInactiveSource));
+        reportSiteChange(oldSources, activeSources);
         eligibleInactiveSources.clear();
-        for (const auto & source : m_inactiveSources) if (timeDiffMS(now, source->getLastDowngrade()) > (XRD_ADAPTOR_LONG_OPEN_DELAY-1)*1000) eligibleInactiveSources.push_back(source);
+        for (const auto & source : inactiveSources) if (timeDiffMS(now, source->getLastDowngrade()) > (XRD_ADAPTOR_LONG_OPEN_DELAY-1)*1000) eligibleInactiveSources.push_back(source);
         bestInactiveSource = std::min_element(eligibleInactiveSources.begin(), eligibleInactiveSources.end(),
             [](const std::shared_ptr<Source> &s1, const std::shared_ptr<Source> &s2) {return s1->getQuality() < s2->getQuality();});
-        worstActiveSource = std::max_element(m_activeSources.begin(), m_activeSources.end(),
+        worstActiveSource = std::max_element(activeSources.begin(), activeSources.end(),
             [](const std::shared_ptr<Source> &s1, const std::shared_ptr<Source> &s2) {return s1->getQuality() < s2->getQuality();});
     }
     if (!findNewSource && (timeDiffMS(now, m_lastSourceCheck) > 1000*XRD_ADAPTOR_LONG_OPEN_DELAY))
@@ -422,7 +441,7 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
   }
 
   // Only aggressively look for new sources if we don't have two.
-  if (m_activeSources.size() == 2)
+  if (activeSources.size() == 2)
   {
     now.tv_sec += XRD_ADAPTOR_LONG_OPEN_DELAY - XRD_ADAPTOR_SHORT_OPEN_DELAY;
   }
@@ -434,7 +453,7 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
 }
 
 std::shared_ptr<XrdCl::File>
-RequestManager::getActiveFile()
+RequestManager::getActiveFile() const
 {
   std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
   if (m_activeSources.empty())
@@ -452,7 +471,7 @@ RequestManager::getActiveFile()
 }
 
 void
-RequestManager::getActiveSourceNames(std::vector<std::string> & sources)
+RequestManager::getActiveSourceNames(std::vector<std::string> & sources) const
 {
   std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
   sources.reserve(m_activeSources.size());
@@ -462,7 +481,7 @@ RequestManager::getActiveSourceNames(std::vector<std::string> & sources)
 }
 
 void
-RequestManager::getPrettyActiveSourceNames(std::vector<std::string> & sources)
+RequestManager::getPrettyActiveSourceNames(std::vector<std::string> & sources) const
 {
   std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
   sources.reserve(m_activeSources.size());
@@ -472,7 +491,7 @@ RequestManager::getPrettyActiveSourceNames(std::vector<std::string> & sources)
 }
 
 void
-RequestManager::getDisabledSourceNames(std::vector<std::string> & sources)
+RequestManager::getDisabledSourceNames(std::vector<std::string> & sources) const
 {
   sources.reserve(m_disabledSourceStrings.size());
   for (auto const& source : m_disabledSourceStrings) {
@@ -481,7 +500,7 @@ RequestManager::getDisabledSourceNames(std::vector<std::string> & sources)
 }
 
 void
-RequestManager::addConnections(cms::Exception &ex)
+RequestManager::addConnections(cms::Exception &ex) const
 {
   std::vector<std::string> sources;
   getPrettyActiveSourceNames(sources);
@@ -541,15 +560,31 @@ RequestManager::handle(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr)
   assert(c_ptr.get());
   timespec now;
   GET_CLOCK_MONOTONIC(now);
-  checkSources(now, c_ptr->getSize());
+  //NOTE: can't hold lock while calling checkSources since can lead to lock inversion
+  std::vector<std::shared_ptr<Source>> activeSources, inactiveSources;
+  {
+    std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
+    activeSources = m_activeSources;
+    inactiveSources = m_inactiveSources;
+  }
+  {
+    //make sure we update values before calling pickSingelSource
+    std::shared_ptr<void*> guard(nullptr, [this, &activeSources, &inactiveSources](void *) {
+      std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
+      m_activeSources = std::move(activeSources);
+      m_inactiveSources = std::move(inactiveSources);
+    });
 
+    checkSources(now, c_ptr->getSize(), activeSources, inactiveSources);
+  }
+  
   std::shared_ptr<Source> source = pickSingleSource();
   source->handle(c_ptr);
   return c_ptr->get_future();
 }
 
 std::string
-RequestManager::prepareOpaqueString()
+RequestManager::prepareOpaqueString() const
 {
     std::stringstream ss;
     ss << "tried=";
@@ -612,8 +647,9 @@ XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::shared_
         }
         if (m_activeSources.size() < 2)
         {
+            auto oldSources = m_activeSources;
             m_activeSources.push_back(source);
-            updateSiteInfo();
+            reportSiteChange(oldSources, m_activeSources);
             queueUpdateCurrentServer(source->ID());
         }
         else
@@ -631,7 +667,22 @@ XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::shared_
 std::future<IOSize>
 XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vector<IOPosBuffer> > iolist)
 {
-    std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
+    //Use a copy of m_activeSources and m_inactiveSources throughout this function
+    // in order to avoid holding the lock a long time and causing a deadlock.
+    // When the function is over we will update the values of the containers
+    std::vector<std::shared_ptr<Source>> activeSources, inactiveSources;
+    {
+       std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
+       activeSources = m_activeSources;
+       inactiveSources = m_inactiveSources;
+    }
+    //Make sure we update changes when we leave the function
+    std::shared_ptr<void*> guard(nullptr, [this, &activeSources, &inactiveSources](void *) {
+      std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
+      m_activeSources = std::move(activeSources);
+      m_inactiveSources = std::move(inactiveSources);
+    });
+  
     updateCurrentServer();
 
     timespec now;
@@ -640,15 +691,15 @@ XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vector<IOPosBuffer> > io
     edm::CPUTimer timer;
     timer.start();
 
-    if (m_activeSources.size() == 1)
+    if (activeSources.size() == 1)
     {
         std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr(new XrdAdaptor::ClientRequest(*this, iolist));
-        checkSources(now, c_ptr->getSize());
-        m_activeSources[0]->handle(c_ptr);
+        checkSources(now, c_ptr->getSize(), activeSources,inactiveSources);
+        activeSources[0]->handle(c_ptr);
         return c_ptr->get_future();
     }
     // Make sure active
-    else if (m_activeSources.empty())
+    else if (activeSources.empty())
     {
         edm::Exception ex(edm::errors::FileReadError);
         ex << "XrdAdaptor::RequestManager::handle readv(name='" << m_name
@@ -663,14 +714,14 @@ XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vector<IOPosBuffer> > io
     assert(iolist.get());
     std::shared_ptr<std::vector<IOPosBuffer> > req1(new std::vector<IOPosBuffer>);
     std::shared_ptr<std::vector<IOPosBuffer> > req2(new std::vector<IOPosBuffer>);
-    splitClientRequest(*iolist, *req1, *req2);
+    splitClientRequest(*iolist, *req1, *req2, activeSources);
 
-    checkSources(now, req1->size() + req2->size());
+    checkSources(now, req1->size() + req2->size(), activeSources, inactiveSources);
     // CheckSources may have removed a source
-    if (m_activeSources.size() == 1)
+    if (activeSources.size() == 1)
     {
         std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr(new XrdAdaptor::ClientRequest(*this, iolist));
-        m_activeSources[0]->handle(c_ptr);
+        activeSources[0]->handle(c_ptr);
         return c_ptr->get_future();
     }
 
@@ -679,13 +730,13 @@ XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vector<IOPosBuffer> > io
     if (req1->size())
     {
         c_ptr1.reset(new XrdAdaptor::ClientRequest(*this, req1));
-        m_activeSources[0]->handle(c_ptr1);
+        activeSources[0]->handle(c_ptr1);
         future1 = c_ptr1->get_future();
     }
     if (req2->size())
     {
         c_ptr2.reset(new XrdAdaptor::ClientRequest(*this, req2));
-        m_activeSources[1]->handle(c_ptr2);
+        activeSources[1]->handle(c_ptr2);
         future2 = c_ptr2->get_future();
     }
     if (req1->size() && req2->size())
@@ -752,13 +803,15 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
     std::unique_lock<std::recursive_mutex> sentry(m_source_mutex);
     if ((m_activeSources.size() > 0) && (m_activeSources[0].get() == source_ptr.get()))
     {
+        auto oldSources = m_activeSources;
         m_activeSources.erase(m_activeSources.begin());
-        updateSiteInfo();
+        reportSiteChange(oldSources, m_activeSources);
     }
     else if ((m_activeSources.size() > 1) && (m_activeSources[1].get() == source_ptr.get()))
     {
+        auto oldSources = m_activeSources;
         m_activeSources.erase(m_activeSources.begin()+1);
-        updateSiteInfo();
+        reportSiteChange(oldSources, m_activeSources);
     }
     std::shared_ptr<Source> new_source;
     if (m_activeSources.size() == 0)
@@ -797,8 +850,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
                 throw;
             }
         }
-        sentry.lock();
-        
+      
         if (std::find(m_disabledSourceStrings.begin(), m_disabledSourceStrings.end(), new_source->ID()) != m_disabledSourceStrings.end())
         {
             // The server gave us back a data node we requested excluded.  Fatal!
@@ -812,8 +864,11 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
             addConnections(ex);
             throw ex;
         }
+        sentry.lock();
+
+        auto oldSources = m_activeSources;
         m_activeSources.push_back(new_source);
-        updateSiteInfo();
+        reportSiteChange(oldSources,m_activeSources);
     }
     else
     {
@@ -937,7 +992,7 @@ static IOSize validateList(const std::vector<IOPosBuffer> req)
 }
 
 void
-XrdAdaptor::RequestManager::splitClientRequest(const std::vector<IOPosBuffer> &iolist, std::vector<IOPosBuffer> &req1, std::vector<IOPosBuffer> &req2)
+XrdAdaptor::RequestManager::splitClientRequest(const std::vector<IOPosBuffer> &iolist, std::vector<IOPosBuffer> &req1, std::vector<IOPosBuffer> &req2, std::vector<std::shared_ptr<Source>> const& activeSources) const
 {
     if (iolist.size() == 0) return;
     std::vector<IOPosBuffer> tmp_iolist(iolist.begin(), iolist.end());
@@ -946,8 +1001,8 @@ XrdAdaptor::RequestManager::splitClientRequest(const std::vector<IOPosBuffer> &i
     size_t front=0;
 
         // The quality of both is increased by 5 to prevent strange effects if quality is 0 for one source.
-    float q1 = static_cast<float>(m_activeSources[0]->getQuality())+5;
-    float q2 = static_cast<float>(m_activeSources[1]->getQuality())+5;
+    float q1 = static_cast<float>(activeSources[0]->getQuality())+5;
+    float q2 = static_cast<float>(activeSources[1]->getQuality())+5;
     IOSize chunk1, chunk2;
     // Make sure the chunk size is at least 1024; little point to reads less than that size.
     chunk1 = std::max(static_cast<IOSize>(static_cast<float>(XRD_CL_MAX_CHUNK)*(q2*q2/(q1*q1+q2*q2))), static_cast<IOSize>(1024));
