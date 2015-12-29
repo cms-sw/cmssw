@@ -55,7 +55,7 @@ GeomDetCompatibilityChecker::isCompatible(const GeomDet* theDet,
 					  const MeasurementEstimator& est) {
   stat.ntot++;
 
-  auto const sagCut = est.maxSagita();
+  auto const sagCut = est.maxSagitta();
   auto const minTol2 = est.minTolerance2();
 
   // std::cout << "param " << sagCut << ' ' << minTol2 << std::endl;
@@ -67,7 +67,7 @@ GeomDetCompatibilityChecker::isCompatible(const GeomDet* theDet,
   */
 
     bool isIn = false;
-    float sagita=99999999;
+    float sagitta=99999999;
     bool close = false;
   if likely(sagCut>0) {
     // linear approximation
@@ -80,18 +80,17 @@ GeomDetCompatibilityChecker::isCompatible(const GeomDet* theDet,
       auto gpos =  GlobalPoint(crossing.position(path.second));
       auto tpath2 = (gpos-tsos.globalPosition()).perp2();
       // sagitta = d^2*c/2
-      sagita = 0.5f*std::abs(tpath2*tsos.globalParameters().transverseCurvature());
-      close = sagita<sagCut;
+      sagitta = 0.5f*std::abs(tpath2*tsos.globalParameters().transverseCurvature());
+      close = sagitta<sagCut;
       if (close) { 
          stat.nth++;
          auto pos = plane.toLocal(GlobalPoint(crossing.position(path.second)));
          // auto toll = LocalError(tolerance2,0,tolerance2);
-         auto tollL2 = std::max(sagita*sagita,minTol2);
+         auto tollL2 = std::max(sagitta*sagitta,minTol2);
          auto toll = LocalError(tollL2,0,tollL2);
          isIn = plane.bounds().inside(pos,toll);
          if (!isIn) { stat.ns2++;
                       return std::make_pair( false,TrajectoryStateOnSurface());  
-                      // if (!largeErr) return std::make_pair( false,TrajectoryStateOnSurface()); 
                      }
       }
     }
@@ -105,7 +104,7 @@ GeomDetCompatibilityChecker::isCompatible(const GeomDet* theDet,
   auto es = est.estimate( propSt, theDet->specificSurface());
   if (!es) stat.nf2++;
   if (close && (!isIn) && (!es) ) stat.ns11++;
-  if (close && es &&(!isIn)) { stat.ns21++; } // std::cout << sagita << std::endl;}
+  if (close && es &&(!isIn)) { stat.ns21++; } // std::cout << sagitta << std::endl;}
   return std::make_pair( es, std::move(propSt));
 
 }

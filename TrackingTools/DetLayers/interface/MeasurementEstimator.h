@@ -27,7 +27,7 @@ public:
 
   MeasurementEstimator() {}
   MeasurementEstimator(float maxSag, float minToll) :
-     m_maxSagita(maxSag),
+     m_maxSagitta(maxSag),
      m_minTolerance2(minToll*minToll){}
 
   virtual ~MeasurementEstimator() {}
@@ -73,12 +73,12 @@ public:
   maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
 			    const Plane& plane) const=0;
 
-  float maxSagita() const { return m_maxSagita;}
+  float maxSagitta() const { return m_maxSagitta;}
   float	minTolerance2() const { return m_minTolerance2;}
 
 
 private:
-  float m_maxSagita=-1.; // maximal sagita for linear approximation
+  float m_maxSagitta=-1.; // maximal sagitta for linear approximation
   float m_minTolerance2=100.; // square of minimum tolerance ot be considered inside a detector
 
 };
