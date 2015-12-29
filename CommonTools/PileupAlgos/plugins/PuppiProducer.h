@@ -29,6 +29,7 @@ public:
 	typedef edm::View<reco::Candidate> CandidateView;
 	typedef std::vector< reco::PFCandidate >               PFInputCollection;
 	typedef std::vector< reco::PFCandidate >  PFOutputCollection;
+	typedef std::vector< pat::PackedCandidate >            PackedOutputCollection;
 	typedef edm::View<reco::PFCandidate>                   PFView;
 
 private:
@@ -52,10 +53,12 @@ private:
 	float           fDZCut;
 	bool fUseExistingWeights;
 	bool fUseWeightsNoLep;
+	bool fClonePackedCands;
 	int fVtxNdofCut;
 	double fVtxZCut;
 	std::unique_ptr<PuppiContainer> fPuppiContainer;
 	std::vector<RecoObj> fRecoObjCollection;
         std::auto_ptr< PFOutputCollection >          fPuppiCandidates;
+	std::auto_ptr< PackedOutputCollection >      fPackedPuppiCandidates;
 };
 #endif
