@@ -474,7 +474,6 @@ RequestManager::getPrettyActiveSourceNames(std::vector<std::string> & sources)
 void
 RequestManager::getDisabledSourceNames(std::vector<std::string> & sources)
 {
-  std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
   sources.reserve(m_disabledSourceStrings.size());
   for (auto const& source : m_disabledSourceStrings) {
     sources.push_back(source);
@@ -552,19 +551,22 @@ RequestManager::handle(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr)
 std::string
 RequestManager::prepareOpaqueString()
 {
-    std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
     std::stringstream ss;
     ss << "tried=";
     size_t count = 0;
-    for ( const auto & it : m_activeSources )
     {
-        count++;
-        ss << it->ExcludeID().substr(0, it->ExcludeID().find(":")) << ",";
-    }
-    for ( const auto & it : m_inactiveSources )
-    {
-        count++;
-        ss << it->ExcludeID().substr(0, it->ExcludeID().find(":")) << ",";
+        std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
+
+        for ( const auto & it : m_activeSources )
+        {
+            count++;
+            ss << it->ExcludeID().substr(0, it->ExcludeID().find(":")) << ",";
+        }
+        for ( const auto & it : m_inactiveSources )
+        {
+            count++;
+            ss << it->ExcludeID().substr(0, it->ExcludeID().find(":")) << ",";
+        }
     }
     for ( const auto & it : m_disabledExcludeStrings )
     {
@@ -722,7 +724,6 @@ XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vector<IOPosBuffer> > io
 void
 RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr, XrdCl::Status &c_status)
 {
-    std::unique_lock<std::recursive_mutex> sentry(m_source_mutex);
     std::shared_ptr<Source> source_ptr = c_ptr->getCurrentSource();
 
     // Fail early for invalid responses - XrdFile has a separate path for handling this.
@@ -748,6 +749,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
     m_disabledExcludeStrings.insert(source_ptr->ExcludeID());
     m_disabledSources.insert(source_ptr);
 
+    std::unique_lock<std::recursive_mutex> sentry(m_source_mutex);
     if ((m_activeSources.size() > 0) && (m_activeSources[0].get() == source_ptr.get()))
     {
         m_activeSources.erase(m_activeSources.begin());

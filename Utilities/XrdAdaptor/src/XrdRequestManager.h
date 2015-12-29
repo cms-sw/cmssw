@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 
 #include <boost/utility.hpp>
+#include "tbb/concurrent_unordered_set.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -21,8 +22,17 @@ namespace XrdCl {
     class File;
 }
 
+
 namespace XrdAdaptor {
 
+struct SourceHash {
+    using Key =std::shared_ptr<Source>;
+    size_t operator()(const Key& iKey) const {
+      return tbb::tbb_hasher(iKey.get());
+    }
+  };
+
+  
 class XrootdException : public edm::Exception {
 
 public:
@@ -191,10 +201,12 @@ private:
      */
     std::vector<std::shared_ptr<Source> > m_activeSources;
     std::vector<std::shared_ptr<Source> > m_inactiveSources;
-    std::set<std::string> m_disabledSourceStrings;
-    std::set<std::string> m_disabledExcludeStrings;
-    std::set<std::shared_ptr<Source> > m_disabledSources;
     std::string m_activeSites;
+  
+    tbb::concurrent_unordered_set<std::string> m_disabledSourceStrings;
+    tbb::concurrent_unordered_set<std::string> m_disabledExcludeStrings;
+    tbb::concurrent_unordered_set<std::shared_ptr<Source>, SourceHash> m_disabledSources;
+
     // StatisticsSenderService wants to know what our current server is;
     // this holds last-successfully-opened server name
     std::atomic<std::string*> m_serverToAdvertise;
