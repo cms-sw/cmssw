@@ -48,6 +48,7 @@ class AddJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'elSource',cms.InputTag('gedGsfElectrons'), "Label of the input collection for electrons used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'muSource',cms.InputTag('muons'), "Label of the input collection for muons used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'runIVF', False, "Re-run IVF secondary vertex reconstruction")
+        self.addParameter(self._defaultParameters,'loadStdRecoBTag', False, "Load the standard reconstruction b-tagging modules")
         self.addParameter(self._defaultParameters,'svClustering', False, "Secondary vertices ghost-associated to jets using jet clustering (mostly intended for subjets)")
         self.addParameter(self._defaultParameters,'fatJets', cms.InputTag(''), "Fat jet collection used for secondary vertex clustering", cms.InputTag)
         self.addParameter(self._defaultParameters,'groomedFatJets', cms.InputTag(''), "Groomed fat jet collection used for secondary vertex clustering", cms.InputTag)
@@ -91,7 +92,7 @@ class AddJetCollection(ConfigToolBase):
         """
         return self._defaultParameters
 
-    def __call__(self,process,labelName=None,postfix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,elSource=None,muSource=None,runIVF=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,getJetMCFlavour=None,genJetCollection=None,genParticles=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None,jetTrackAssociation=None,outputModules=None):
+    def __call__(self,process,labelName=None,postfix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,elSource=None,muSource=None,runIVF=None,loadStdRecoBTag=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,getJetMCFlavour=None,genJetCollection=None,genParticles=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None,jetTrackAssociation=None,outputModules=None):
         """
         Function call wrapper. This will check the parameters and call the actual implementation that
         can be found in toolCode via the base class function apply.
@@ -126,6 +127,9 @@ class AddJetCollection(ConfigToolBase):
         if runIVF is None:
             runIVF=self._defaultParameters['runIVF'].value
         self.setParameter('runIVF', runIVF)
+        if loadStdRecoBTag is None:
+            loadStdRecoBTag=self._defaultParameters['loadStdRecoBTag'].value
+        self.setParameter('loadStdRecoBTag', loadStdRecoBTag)
         if svClustering is None:
             svClustering=self._defaultParameters['svClustering'].value
         self.setParameter('svClustering', svClustering)
@@ -182,6 +186,7 @@ class AddJetCollection(ConfigToolBase):
         elSource=self._parameters['elSource'].value
         muSource=self._parameters['muSource'].value
         runIVF=self._parameters['runIVF'].value
+        loadStdRecoBTag=self._parameters['loadStdRecoBTag'].value
         svClustering=self._parameters['svClustering'].value
         fatJets=self._parameters['fatJets'].value
         groomedFatJets=self._parameters['groomedFatJets'].value
@@ -393,15 +398,19 @@ class AddJetCollection(ConfigToolBase):
                     if not tagInfoCovered :
                         requiredTagInfos.append(requiredTagInfo)
             ## load sequences and setups needed for btagging
-            ## This loads all available btagger, but the ones we need are added to the process by hand later. Only needed to get the ESProducer. Needs improvement
             if hasattr( process, 'candidateJetProbabilityComputer' ) == False :
-                #process.load("RecoBTag.Configuration.RecoBTag_cff") # commented out to prevent loading of IVF modules already run in the standard reconstruction. Instead, loading individual cffs from RecoBTag_cff
-                process.load("RecoBTag.ImpactParameter.impactParameter_cff")
-                process.load("RecoBTag.SecondaryVertex.secondaryVertex_cff")
-                process.load("RecoBTag.SoftLepton.softLepton_cff")
-                process.load("RecoBTag.Combined.combinedMVA_cff")
-                process.load("RecoBTag.CTagging.RecoCTagging_cff")
-            #addESProducers(process,'RecoBTag.Configuration.RecoBTag_cff')
+                if loadStdRecoBTag: # also loading modules already run in the standard reconstruction
+                    process.load("RecoBTag.ImpactParameter.impactParameter_cff")
+                    process.load("RecoBTag.SecondaryVertex.secondaryVertex_cff")
+                    process.load("RecoBTag.SoftLepton.softLepton_cff")
+                    process.load("RecoBTag.Combined.combinedMVA_cff")
+                    process.load("RecoBTag.CTagging.cTagging_cff")
+                else: # to prevent loading of modules already run in the standard reconstruction
+                    process.load("RecoBTag.ImpactParameter.impactParameter_EventSetup_cff")
+                    process.load("RecoBTag.SecondaryVertex.secondaryVertex_EventSetup_cff")
+                    process.load("RecoBTag.SoftLepton.softLepton_EventSetup_cff")
+                    process.load("RecoBTag.Combined.combinedMVA_EventSetup_cff")
+                    process.load("RecoBTag.CTagging.cTagging_EventSetup_cff")
             import RecoBTag.Configuration.RecoBTag_cff as btag
             import RecoJets.JetProducers.caTopTaggers_cff as toptag
 
@@ -521,7 +530,7 @@ class AddJetCollection(ConfigToolBase):
                         process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
             if 'inclusiveSecondaryVertexFinderFilteredTagInfos' in acceptedTagInfos:
                 if not hasattr( process, 'inclusiveSecondaryVerticesFiltered' ):
-                    process.load( 'RecoBTag.SecondaryVertex.secondaryVertex_cff' )
+                    process.load( 'RecoBTag.SecondaryVertex.inclusiveSecondaryVerticesFiltered_cfi' )
                 if not hasattr( process, 'bToCharmDecayVertexMerged' ):
                     process.load( 'RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi' )
             if 'caTopTagInfos' in acceptedTagInfos :
@@ -707,6 +716,7 @@ class SwitchJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'elSource',cms.InputTag('gedGsfElectrons'), "Label of the input collection for electrons used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'muSource',cms.InputTag('muons'), "Label of the input collection for muons used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'runIVF', False, "Re-run IVF secondary vertex reconstruction")
+        self.addParameter(self._defaultParameters,'loadStdRecoBTag', False, "Load the standard reconstruction b-tagging modules")
         self.addParameter(self._defaultParameters,'svClustering', False, "Secondary vertices ghost-associated to jets using jet clustering (mostly intended for subjets)")
         self.addParameter(self._defaultParameters,'fatJets', cms.InputTag(''), "Fat jet collection used for secondary vertex clustering", cms.InputTag)
         self.addParameter(self._defaultParameters,'groomedFatJets', cms.InputTag(''), "Groomed fat jet collection used for secondary vertex clustering", cms.InputTag)
@@ -747,7 +757,7 @@ class SwitchJetCollection(ConfigToolBase):
         """
         return self._defaultParameters
 
-    def __call__(self,process,postfix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,elSource=None,muSource=None,runIVF=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,getJetMCFlavour=None,genJetCollection=None,genParticles=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None,jetTrackAssociation=None,outputModules=None):
+    def __call__(self,process,postfix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,elSource=None,muSource=None,runIVF=None,loadStdRecoBTag=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,getJetMCFlavour=None,genJetCollection=None,genParticles=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None,jetTrackAssociation=None,outputModules=None):
         """
         Function call wrapper. This will check the parameters and call the actual implementation that
         can be found in toolCode via the base class function apply.
@@ -779,6 +789,9 @@ class SwitchJetCollection(ConfigToolBase):
         if runIVF is None:
             runIVF=self._defaultParameters['runIVF'].value
         self.setParameter('runIVF', runIVF)
+        if loadStdRecoBTag is None:
+            loadStdRecoBTag=self._defaultParameters['loadStdRecoBTag'].value
+        self.setParameter('loadStdRecoBTag', loadStdRecoBTag)
         if svClustering is None:
             svClustering=self._defaultParameters['svClustering'].value
         self.setParameter('svClustering', svClustering)
@@ -834,6 +847,7 @@ class SwitchJetCollection(ConfigToolBase):
         elSource=self._parameters['elSource'].value
         muSource=self._parameters['muSource'].value
         runIVF=self._parameters['runIVF'].value
+        loadStdRecoBTag=self._parameters['loadStdRecoBTag'].value
         svClustering=self._parameters['svClustering'].value
         fatJets=self._parameters['fatJets'].value
         groomedFatJets=self._parameters['groomedFatJets'].value
@@ -861,6 +875,7 @@ class SwitchJetCollection(ConfigToolBase):
             elSource=elSource,
             muSource=muSource,
             runIVF=runIVF,
+            loadStdRecoBTag=loadStdRecoBTag,
             svClustering=svClustering,
             fatJets=fatJets,
             groomedFatJets=groomedFatJets,

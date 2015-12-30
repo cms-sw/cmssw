@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Services/interface/PrintLoadingPlugins.h"
+#include "FWCore/Services/src/PrintLoadingPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/PluginInfo.h"

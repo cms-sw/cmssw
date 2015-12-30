@@ -1,5 +1,3 @@
-from RecoBTag.CTagging.pfInclusiveSecondaryVertexFinderCvsLTagInfos_cfi import *
-from RecoBTag.CTagging.pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos_cfi import *
 from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import *
 from RecoBTag.CTagging.cTagging_cff import *
 

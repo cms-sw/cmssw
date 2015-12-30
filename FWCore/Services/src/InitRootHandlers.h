@@ -49,6 +49,7 @@ namespace edm {
       std::shared_ptr<const void> sigBusHandler_;
       std::shared_ptr<const void> sigSegvHandler_;
       std::shared_ptr<const void> sigIllHandler_;
+      std::shared_ptr<const void> sigTermHandler_;
     };
 
     inline

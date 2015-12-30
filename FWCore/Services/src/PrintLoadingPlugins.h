@@ -7,8 +7,8 @@
 //
 // Package:     Services
 // Class  :     PrintLoadingPlugins
-// 
-/**\class PrintLoadingPlugins PrintLoadingPlugins.h FWCore/Services/interface/PrintLoadingPlugins.h
+//
+/**\class PrintLoadingPlugins PrintLoadingPlugins.h FWCore/Services/src/PrintLoadingPlugins.h
 
  Description: <one line class summary>
 
