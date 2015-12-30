@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-patJetsUpdated = cms.EDProducer("PATJetUpdater",
+updatedPatJets = cms.EDProducer("PATJetUpdater",
     # input
     jetSource = cms.InputTag("slimmedJets"),
     # add user data
@@ -27,7 +27,7 @@ patJetsUpdated = cms.EDProducer("PATJetUpdater",
     ),
     # jet energy corrections
     addJetCorrFactors    = cms.bool(True),
-    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsUpdated") ),
+    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("updatedPatJetCorrFactors") ),
 )
 
 
