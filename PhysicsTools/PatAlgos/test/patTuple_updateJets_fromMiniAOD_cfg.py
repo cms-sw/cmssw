@@ -1,5 +1,5 @@
 # This configuration is an example that recalibrates the slimmedJets from MiniAOD
-# and adds a new userfloat "oldJetMass" to it
+# and adds a new userfloat "oldJetMass" and an additional b-tag discriminator to them
 
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
@@ -12,7 +12,8 @@ process.options.allowUnscheduled = cms.untracked.bool(True)
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 
 ## An example where the jet energy correction are updated to the current GlobalTag
-## and a userFloat containing the previous mass of the jet is added
+## and a userFloat containing the previous mass of the jet and an additional
+## b-tag discriminator are added
 from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSSoftDropMass
 process.oldJetMass = ak8PFJetsCHSSoftDropMass.clone(
   src = cms.InputTag("slimmedJets"),
@@ -21,7 +22,8 @@ process.oldJetMass = ak8PFJetsCHSSoftDropMass.clone(
 updateJetCollection(
    process,
    jetSource = cms.InputTag('slimmedJets'),
-   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
+   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+   btagDiscriminators = ['pfCombinedSecondaryVertexBJetTags'] ## adding an old (Run 1) version of the CSV discriminator
 )
 process.updatedPatJets.userData.userFloats.src += ['oldJetMass']
 
