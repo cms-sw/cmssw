@@ -52,7 +52,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "FWCore/Services/src/Memory.h"
 
 #include <string>
 
