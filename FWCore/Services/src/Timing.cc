@@ -8,7 +8,7 @@
 // Original Author:  Jim Kowalkowski
 //
 
-#include "FWCore/Services/interface/Timing.h"
+#include "FWCore/Services/src/Timing.h"
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
