@@ -166,6 +166,17 @@ process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
     emulGtAlgToken = cms.InputTag("simGlobalStage2Digis")
 )
 
+process.l1EventTree = cms.EDAnalyzer("L1EventTreeProducer",
+                                     hltSource            = cms.InputTag("TriggerResults::HLT"),
+                                     puMCFile             = cms.untracked.string(""),
+                                     puDataFile           = cms.untracked.string(""),
+                                     puMCHist             = cms.untracked.string(""),
+                                     puDataHist           = cms.untracked.string(""),
+                                     
+                                     useAvgVtx            = cms.untracked.bool(True),
+                                     maxAllowedWeight     = cms.untracked.double(-1)                                     
+)
+
 # Stage-1 Ntuple will not contain muons, and might (investigating) miss some Taus.  (Work underway)
 process.l1UpgradeTree = cms.EDAnalyzer("L1UpgradeTreeProducer")
 if (eras.stage1L1Trigger.isChosen()):
@@ -208,6 +219,7 @@ process.L1TSeq = cms.Sequence(   process.RawToDigi
 #                                   + process.l1tSummaryB
 #                                   + process.l1tGlobalAnalyzer
                                    + process.l1UpgradeTree
+                                   + process.l1EventTree                                 
 )
 
 process.L1TPath = cms.Path(process.L1TSeq)
@@ -237,3 +249,5 @@ if (eras.stage1L1Trigger.isChosen()):
 
 print process.L1TSeq
 print process.L1TReEmulateFromRAW
+#processDumpFile = open('config.dump', 'w')
+#print >> processDumpFile, process.dumpPython()
