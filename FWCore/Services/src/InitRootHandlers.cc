@@ -295,15 +295,27 @@ namespace {
       const char* signalname = "unknown";
       switch (sig) {
         case SIGBUS:
-            signalname = "bus error";
-            break;
-          case SIGSEGV:
-            signalname = "segmentation violation";
-            break;
-          case SIGILL:
-            signalname = "illegal instruction"; 
-          default:
-            break;
+        {
+          signalname = "bus error";
+          break;
+        }
+        case SIGSEGV:
+        {
+          signalname = "segmentation violation";
+          break;
+        }
+        case SIGILL:
+        {
+          signalname = "illegal instruction";
+          break;
+        }
+        case SIGTERM:
+        {
+          signalname = "external termination request";
+          break;
+        }
+        default:
+          break;
       }
       full_cerr_write("\n\nA fatal system signal has occurred: ");
       full_cerr_write(signalname);
@@ -316,9 +328,9 @@ namespace {
       full_cerr_write(signalname);
       full_cerr_write("\n");
 
-      // For these three known cases, re-raise the signal so get the correct
+      // For these four known cases, re-raise the signal so get the correct
       // exit code.
-      if ((sig == SIGILL) || (sig == SIGSEGV) || (sig == SIGBUS))
+      if ((sig == SIGILL) || (sig == SIGSEGV) || (sig == SIGBUS) || (sig == SIGTERM))
       {
         signal(sig, SIG_DFL);
         raise(sig);
@@ -338,6 +350,7 @@ namespace {
     signal(SIGILL, SIG_DFL);
     signal(SIGSEGV, SIG_DFL);
     signal(SIGBUS, SIG_DFL);
+    signal(SIGTERM, SIG_DFL);
   }
 
 }  // end of unnamed namespace
@@ -527,6 +540,10 @@ namespace edm {
         installCustomHandler(SIGILL,sig_dostack_then_abort);
         sigIllHandler_ = std::shared_ptr<const void>(nullptr,[](void*) {
           installCustomHandler(SIGILL,sig_abort);
+        });
+        installCustomHandler(SIGTERM,sig_dostack_then_abort);
+        sigTermHandler_ = std::shared_ptr<const void>(nullptr,[](void*) {
+          installCustomHandler(SIGTERM,sig_abort);
         });
         iReg.watchPostForkReacquireResources(this, &InitRootHandlers::cachePidInfoHandler);
       }
