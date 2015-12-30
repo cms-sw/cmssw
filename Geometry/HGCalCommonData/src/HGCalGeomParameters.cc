@@ -409,7 +409,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
     for (std::map<int,HGCalGeomParameters::layerParameters>::iterator itr = layers.begin();
 	 itr != layers.end(); ++itr) {
       if (itr->first == (int)(i+1)) {
-	php.layerIndex_.push_back(itr->first);
+	php.layerIndex_.push_back(i);
 	php.rMinLayHex_.push_back(itr->second.rmin);
 	php.rMaxLayHex_.push_back(itr->second.rmax);
 	php.zLayerHex_.push_back(itr->second.zpos);
@@ -532,10 +532,13 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 	    << std::endl;
   std::cout << "HGCalGeomParameters finds " << php.zLayerHex_.size()
 	    << " layers" << std::endl;
-  for (unsigned int i=0; i<php.zLayerHex_.size(); ++i) 
-    std::cout << "Layer[" << i+1 << ":" << php.layerIndex_[i] << "] with r = " 
-	      << php.rMinLayHex_[i] << ":" << php.rMaxLayHex_[i] << " at z = "
-	      << php.zLayerHex_[i] << std::endl;
+  for (unsigned int i=0; i<php.zLayerHex_.size(); ++i) {
+    int k = php.layerIndex_[i];
+    std::cout << "Layer[" << i << ":" << k << ":" << php.layer_[k] 
+	      << "] with r = " << php.rMinLayHex_[i] << ":" 
+	      << php.rMaxLayHex_[i] << " at z = " << php.zLayerHex_[i] 
+	      << std::endl;
+  }
   std::cout << "HGCalGeomParameters has " << php.depthIndex_.size() 
 	    << " depths" << std::endl;
   for (unsigned int i=0; i<php.depthIndex_.size(); ++i) {
