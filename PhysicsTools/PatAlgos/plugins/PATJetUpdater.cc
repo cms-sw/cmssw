@@ -26,7 +26,8 @@ using namespace pat;
 
 
 PATJetUpdater::PATJetUpdater(const edm::ParameterSet& iConfig) :
-  useUserData_(iConfig.exists("userData"))
+  useUserData_(iConfig.exists("userData")),
+  printWarning_(true)
 {
   // initialize configurables
   jetsToken_ = consumes<edm::View<Jet> >(iConfig.getParameter<edm::InputTag>( "jetSource" ));
@@ -65,7 +66,6 @@ void PATJetUpdater::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
   // loop over jets
   std::auto_ptr< std::vector<Jet> > patJets ( new std::vector<Jet>() );
 
-  bool first=true; // this is introduced to issue warnings only for the first jet
   for (edm::View<Jet>::const_iterator itJet = jets->begin(); itJet != jets->end(); itJet++) {
 
     // construct the Jet from the ref -> save ref to original object
@@ -94,10 +94,10 @@ void PATJetUpdater::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
       }
       else{
 	ajet.initializeJEC(jetCorrs[0][jetRef].jecLevel("Uncorrected"), JetCorrFactors::NONE, setindex);
-	if(first){
-	  edm::LogWarning("L3Absolute not found") << "L2L3Residual and L3Absolute are not part of the correction applied jetCorrFactors \n"
-						  << "of module " <<  jetCorrs[0][jetRef].jecSet() << " jets will remain"
-						  << " uncorrected."; first=false;
+	if(printWarning_){
+	  edm::LogWarning("L3Absolute not found") << "L2L3Residual and L3Absolute are not part of the jetCorrFactors\n"
+						  << "of module " <<  jetCorrs[0][jetRef].jecSet() << ". Jets will remain"
+						  << " uncorrected."; printWarning_=false;
 	}
       }
     }
