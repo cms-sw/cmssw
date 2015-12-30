@@ -1,3 +1,4 @@
+#include "Calibration/IsolatedParticles/interface/CaloConstants.h"
 #include "Calibration/IsolatedParticles/interface/FindDistCone.h"
 
 #include <iostream>
@@ -42,8 +43,8 @@ namespace spr {
 			   bool debug) {
 
     double dR, Rec;
-    if (fabs(eta1)<1.479) Rec=129;
-    else Rec=317;
+    if (fabs(eta1)<spr::etaBEEcal) Rec=spr::rFrontEB;
+    else                           Rec=spr::zFrontEE;
     double ce1=cosh(eta1);
     double ce2=cosh(eta2);
     double te1=tanh(eta1);
@@ -67,8 +68,8 @@ namespace spr {
     // and Geometry/HcalCommonData/data/hcalbarrelalgo.xml
 
     double dR, Rec;
-    if (fabs(eta1)<1.392) Rec=177.5; 
-    else Rec=391.95;
+    if (fabs(eta1)<spr::etaBEHcal) Rec=spr::rFrontHB; 
+    else                           Rec=spr::zFrontHE;
     double ce1=cosh(eta1);
     double ce2=cosh(eta2);
     double te1=tanh(eta1);

@@ -16,14 +16,18 @@
 #include <TProfile.h>
 #include <vector>
 #include <string>
+#include <iomanip>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 void Run(const char *inFileName="QCD_5_3000_PUS14",
 	 const char *dirName="isopf", const char *treeName="CalibTree", 
-	 const char *outFileName="QCD_5_3000_PUS14_Out", bool useweight=true,
-	 int nMin=0, bool inverse=false, double ratMin=-1, double ratMax=-1,
-	 int ietaMax=21);
+	 const char *outFileName="QCD_5_3000_PUS14_Out", 
+	 const char *corrFileName="QCD_5_3000_PUS14_Out.txt",
+	 bool useweight=true, int nMin=0, bool inverse=false, 
+	 double ratMin=0.25, double ratMax=10., int ietaMax=21, 
+	 double l1Cut=0.0);
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -55,8 +59,8 @@ public :
   Bool_t          t_qltyMissFlag;
   Bool_t          t_qltyPVFlag;
   std::vector<unsigned int> *t_DetIds;
-  std::vector<double>  *t_HitEnergies;
-  std::vector<bool>    *t_trgbits;
+  std::vector<double>       *t_HitEnergies;
+  std::vector<bool>         *t_trgbits;
   std::map<unsigned int, double> Cprev;
   
   // List of branches
@@ -103,16 +107,18 @@ public :
   virtual void     Init(TTree *tree);
   virtual Double_t Loop(int k, TFile *fout, bool useweight, int nMin, 
 			bool inverse, double rMin, double rMax, int ietaMax,
-			bool last);
+			double l1Cut, bool last);
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
   bool             goodTrack();
+  void             writeCorrFactor(const char *corrFileName, int ietaMax);
 };
 
 
 void Run(const char *inFileName, const char *dirName, const char *treeName, 
-	 const char *outFileName, bool useweight, int nMin, bool inverse, 
-	 double ratMin, double ratMax, int ietaMax) {
+	 const char *outFileName, const char *corrFileName,  bool useweight, 
+	 int nMin, bool inverse, double ratMin, double ratMax, int ietaMax, 
+	 double l1Cut) {
  
   char name[500];
   sprintf(name, "%s.root",inFileName);
@@ -137,11 +143,14 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
   for (; k<=kmax; ++k) {
     std::cout << "Calling Loop() "  << k << "th time\n"; 
     double cvg = t.Loop(k, fout, useweight, nMin, inverse, ratMin, ratMax, 
-			ietaMax, k==kmax);
+			ietaMax, l1Cut, k==kmax);
     itrs[k] = k;
     cvgs[k] = cvg;
     if (cvg < 0.00001) break;
   }
+
+  t.writeCorrFactor(corrFileName, ietaMax);
+
   TGraph *g_cvg;
   g_cvg = new TGraph(k, itrs, cvgs);
   fout->cd();
@@ -262,7 +271,7 @@ Int_t CalibTree::Cut(Long64_t ) {
 
 Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 			 bool inverse, double rmin, double rmax, int ietaMax,
-			 bool last) {
+			 double l1Cut, bool last) {
   bool debug=false;
   if (fChain == 0) return 0;
   Long64_t nentries = fChain->GetEntriesFast();
@@ -297,7 +306,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
       if (last){
         h_Ebyp_aftr->Fill(t_ieta, ratio, evWt);
       }
-      if ((rmin >=0 && ratio > rmin) && (rmax >= 0 && ratio < rmax)) {
+      if ((rmin >=0 && ratio > rmin) && (rmax >= 0 && ratio < rmax) &&
+	  (t_mindR1 >= l1Cut)) {
 	for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) {
 	  unsigned int detid = (*t_DetIds)[idet] & mask;
 	  double hitEn=0.0;
@@ -420,9 +430,36 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	    << " DetIds" << std::endl;
   return mean;
 }
+
 bool CalibTree::goodTrack() {
   bool ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < 2.0) && 
 	     (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (t_p > 40.0) &&
 	     (t_p < 60.0));
   return ok;
+}
+
+void CalibTree::writeCorrFactor(const char *corrFileName, int ietaMax) {
+  ofstream myfile;
+  myfile.open(corrFileName);
+  if (!myfile.is_open()) {
+    std::cout << "** ERROR: Can't open '" << corrFileName << std::endl;
+  } else {
+    myfile << std::setprecision(4) << std::setw(10) << "detId" 
+	   << std::setw(10) << "ieta" << std::setw(10) << "depth" 
+	   << std::setw(10) << "corrFactor" << std::endl;
+    for (std::map<unsigned int, double>::const_iterator itr=Cprev.begin();
+	 itr != Cprev.end(); ++itr) {
+      unsigned int detId = itr->first;
+      int etaAbs= ((detId>>7)&0x3f);
+      int ieta  = ((detId&0x2000) ? etaAbs : -etaAbs);
+      int depth = ((detId>>14)&0x1f);
+      if (etaAbs <= ietaMax) {
+	myfile << std::setw(10) << std::hex << detId << std::setw(10) 
+	       << std::dec << ieta << std::setw(10) << depth << std::setw(10) 
+	       << itr->second << std::endl;
+
+      }
+    }
+    myfile.close();
+  }
 }
