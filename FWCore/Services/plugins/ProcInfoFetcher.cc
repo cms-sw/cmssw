@@ -28,7 +28,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "FWCore/Services/src/ProcInfoFetcher.h"
+#include "FWCore/Services/plugins/ProcInfoFetcher.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

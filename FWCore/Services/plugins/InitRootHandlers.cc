@@ -1,4 +1,6 @@
-#include "FWCore/Services/src/InitRootHandlers.h"
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+
+#include "FWCore/Utilities/interface/RootHandlers.h"
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
@@ -37,6 +39,60 @@
 
 #include "TThread.h"
 #include "TClassTable.h"
+
+#include <memory>
+
+namespace edm {
+  class ConfigurationDescriptions;
+  class ParameterSet;
+  class ActivityRegistry;
+  
+  namespace service {
+    class InitRootHandlers : public RootHandlers {
+      
+      friend int cmssw_stacktrace(void *);
+      
+    public:
+      explicit InitRootHandlers(ParameterSet const& pset, ActivityRegistry& iReg);
+      virtual ~InitRootHandlers();
+      
+      static void fillDescriptions(ConfigurationDescriptions& descriptions);
+      static void stacktraceFromThread();
+      
+    private:
+      static char *const *getPstackArgv();
+      virtual void enableWarnings_() override;
+      virtual void ignoreWarnings_() override;
+      virtual void willBeUsingThreads() override;
+      virtual void initializeThisThreadForUse() override;
+      
+      void cachePidInfoHandler(unsigned int, unsigned int) {cachePidInfo();}
+      void cachePidInfo();
+      static void stacktraceHelperThread();
+      
+      static const int pidStringLength_ = 200;
+      static char pidString_[pidStringLength_];
+      static char * const pstackArgv_[];
+      static int parentToChild_[2];
+      static int childToParent_[2];
+      static std::unique_ptr<std::thread> helperThread_;
+      bool unloadSigHandler_;
+      bool resetErrHandler_;
+      bool loadAllDictionaries_;
+      bool autoLibraryLoader_;
+      std::shared_ptr<const void> sigBusHandler_;
+      std::shared_ptr<const void> sigSegvHandler_;
+      std::shared_ptr<const void> sigIllHandler_;
+      std::shared_ptr<const void> sigTermHandler_;
+    };
+    
+    inline
+    bool isProcessWideService(InitRootHandlers const*) {
+      return true;
+    }
+    
+  }  // end of namespace service
+}  // end of namespace edm
 
 namespace edm {
   namespace service {
@@ -691,3 +747,8 @@ namespace edm {
 
   }  // end of namespace service
 }  // end of namespace edm
+
+using edm::service::InitRootHandlers;
+typedef edm::serviceregistry::AllArgsMaker<edm::RootHandlers,InitRootHandlers> RootHandlersMaker;
+DEFINE_FWK_SERVICE_MAKER(InitRootHandlers, RootHandlersMaker);
+
