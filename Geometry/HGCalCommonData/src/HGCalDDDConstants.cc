@@ -551,6 +551,12 @@ std::pair<double,double> HGCalDDDConstants::waferPosition(int wafer) const {
   return xy;
 }
 
+double HGCalDDDConstants::waferZ(int lay, bool reco) const {
+  std::pair<int,float> index = getIndex(lay, reco);
+  int i = index.first;
+  if (i < 0) return 0;
+  else       return hgpar_->zLayerHex_[i];
+}
 
 int HGCalDDDConstants::wafers() const {
 

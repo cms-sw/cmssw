@@ -64,6 +64,7 @@ public:
   int                 wafers() const;
   int                 waferToCopy(int wafer) const {return ((wafer>=0)&&(wafer< (int)(hgpar_->waferCopy_.size()))) ? hgpar_->waferCopy_[wafer] : (int)(hgpar_->waferCopy_.size());}
   int                 waferTypeT(int wafer) const {return ((wafer>=0)&&(wafer<(int)(hgpar_->waferTypeT_.size()))) ? hgpar_->waferTypeT_[wafer] : 0;}
+  double              waferZ(int layer, bool reco) const;
 
   HGCalParameters::hgtrap getModule(unsigned int k, bool hexType, bool reco) const;
   std::vector<HGCalParameters::hgtrap> getModules() const; 
