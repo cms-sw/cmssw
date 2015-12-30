@@ -45,9 +45,19 @@ namespace pat {
     private:
 
       // configurables
-      edm::EDGetTokenT<edm::View<Jet> > jetsToken_;
+      edm::EDGetTokenT<edm::View<reco::Jet> > jetsToken_;
       bool                     addJetCorrFactors_;
       std::vector<edm::EDGetTokenT<edm::ValueMap<JetCorrFactors> > > jetCorrFactorsTokens_;
+
+      bool                       addBTagInfo_;
+      bool                       addDiscriminators_;
+      std::vector<edm::InputTag> discriminatorTags_;
+      std::vector<edm::EDGetTokenT<reco::JetFloatAssociation::Container> > discriminatorTokens_;
+      std::vector<std::string>   discriminatorLabels_;
+      bool                       addTagInfos_;
+      std::vector<edm::InputTag> tagInfoTags_;
+      std::vector<edm::EDGetTokenT<edm::View<reco::BaseTagInfo> > > tagInfoTokens_;
+      std::vector<std::string>   tagInfoLabels_;
 
       GreaterByPt<Jet> pTComparator_;
 

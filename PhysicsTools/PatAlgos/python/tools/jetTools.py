@@ -1057,8 +1057,49 @@ class UpdateJetCollection(ConfigToolBase):
             setattr(process, 'selectedUpdatedPatJets'+_labelName+postfix, selectedPatJets.clone(src='updatedPatJets'+_labelName+postfix))
             knownModules.append('selectedUpdatedPatJets'+_labelName+postfix)
 
+        ## run btagging if required by user
+        if (bTagging):
+            print "**************************************************************"
+            print "b tagging needs to be run on uncorrected jets. Hence, the JECs"
+            print "will first be undone for 'updatedPatJets%s' and then applied to"%(_labelName+postfix)
+            print "'updatedPatJetsTransientCorrected%s'."%(_labelName+postfix)
+            print "**************************************************************"
+            _jetSource = cms.InputTag('updatedPatJets'+_labelName+postfix)
+            ## insert new jet collection with jet corrections applied and btag info added
+            self(
+                process,
+                labelName = ('TransientCorrected'+_labelName),
+                jetSource = _jetSource,
+                pfCandidates=pfCandidates,
+                explicitJTA=explicitJTA,
+                pvSource=pvSource,
+                svSource=svSource,
+                elSource=elSource,
+                muSource=muSource,
+                runIVF=runIVF,
+                svClustering=svClustering,
+                fatJets=fatJets,
+                groomedFatJets=groomedFatJets,
+                algo=algo,
+                rParam=rParam,
+                jetCorrections = jetCorrections,
+                postfix = postfix
+            )
+            ## setup btagging
+            _patJets=getattr(process, 'updatedPatJetsTransientCorrected'+_labelName+postfix)
+            setupBTagging(process, _jetSource, pfCandidates, explicitJTA, pvSource, svSource, elSource, muSource, runIVF, svClustering, fatJets, groomedFatJets,
+                          _algo, rParam, btagDiscriminators, btagInfos, _patJets, _labelName, postfix)
+            ## update final selected jets
+            _newSelectedPatJets=getattr(process, 'selectedUpdatedPatJets'+_labelName+postfix)
+            _newSelectedPatJets.src='updatedPatJetsTransientCorrected'+_labelName+postfix
+            ## remove automatically added but redundant 'TransientCorrected' selected jets
+            delattr(process, 'selectedUpdatedPatJetsTransientCorrected'+_labelName+postfix)
+        else:
+            _newPatJets.addBTagInfo = False
+            _newPatJets.addTagInfos = False
+
         ## add jet correction factors if required by user
-        if (jetCorrections != None):
+        if (jetCorrections != None or bTagging):
             ## check the jet corrections format
             checkJetCorrectionsFormat(jetCorrections)
             ## reset MET corrrection
@@ -1071,6 +1112,9 @@ class UpdateJetCollection(ConfigToolBase):
                 jetCorrectionsList = list(jetCorrections)
                 jetCorrectionsList[2] = 'None'
                 jetCorrections = tuple(jetCorrectionsList)
+            ## if running b tagging, need to use uncorrected jets
+            if (bTagging):
+                jetCorrections = ('AK4PFchs', cms.vstring([]), 'None')
             ## setup jet energy corrections
             setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSource, _newPatJets, _labelName, postfix)
         else:
