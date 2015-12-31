@@ -30,8 +30,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "FWCore/Services/src/Memory.h"
-
 
 namespace edm 
 {

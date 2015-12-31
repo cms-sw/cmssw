@@ -9,7 +9,8 @@
 // CPU.cc: v 1.0 2009/01/08 11:31:07
 
 
-#include "FWCore/Services/src/CPU.h"
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -25,6 +26,31 @@
 #include <fstream>
 #include <sstream>
 #include <set>
+
+namespace edm {
+  
+  namespace service {
+    class CPU {
+    public:
+      CPU(ParameterSet const&, ActivityRegistry&);
+      ~CPU();
+      
+      static void fillDescriptions(ConfigurationDescriptions& descriptions);
+      
+    private:
+      int totalNumberCPUs_;
+      double averageCoreSpeed_;
+      bool reportCPUProperties_;
+      
+      void postEndJob();
+    };
+    
+    inline
+    bool isProcessWideService(CPU const*) {
+      return true;
+    }
+  }
+}
 
 namespace edm {
   namespace service {
@@ -206,5 +232,9 @@ namespace edm {
     } //postEndJob
   } //service
 }  //edm
+
+
+using edm::service::CPU;
+DEFINE_FWK_SERVICE(CPU);
 
 
