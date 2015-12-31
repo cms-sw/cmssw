@@ -472,7 +472,7 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
     GlobalPoint ptg1(recHit->globalPosition());
     float deta = fabs (ptg1.eta()-ptg2.eta());
     // Geom::Phi should keep it in the range [-pi, pi]
-    float dphi = fabs( deltaPhi(ptg1.phi(), ptg2.phi()) );
+    float dphi = fabs( deltaPhi(ptg1.barePhi(), ptg2.barePhi()) );
     // be a little more lenient in cracks
     bool crack = isCrack(recHit) || isCrack(first);
     //float detaWindow = 0.3;
@@ -520,20 +520,20 @@ double MuonSeedOrcaPatternRecognition::discriminator(const ConstMuonRecHitPointe
   GlobalVector gd1 = first->globalDirection();
   GlobalVector gd2 = other->globalDirection();
   if(first->isDT() || other->isDT()) {
-    return fabs(deltaPhi(gd1.phi(), gd2.phi()));
+    return fabs(deltaPhi(gd1.barePhi(), gd2.barePhi()));
   }
 
   // penalize those 3-hit segments
   int nhits = other->recHits().size();
   int penalty = std::max(nhits-2, 1);
-  float dphig = deltaPhi(gp1.phi(), gp2.phi());
+  float dphig = deltaPhi(gp1.barePhi(), gp2.barePhi());
   // ME1A has slanted wires, so matching theta position doesn't work well.
   if(isME1A(first) || isME1A(other)) {
     return fabs(dphig/penalty);
   }
 
   float dthetag = gp1.theta()-gp2.theta();
-  float dphid2 = fabs(deltaPhi(gd2.phi(), gp2.phi()));
+  float dphid2 = fabs(deltaPhi(gd2.barePhi(), gp2.barePhi()));
   if (dphid2 > M_PI*.5) dphid2 = M_PI - dphid2;  //+v
   float dthetad2 = gp2.theta()-gd2.theta();
   // for CSC, make a big chi-squared of relevant variables
@@ -684,7 +684,7 @@ void MuonSeedOrcaPatternRecognition::filterOverlappingChambers(MuonRecHitContain
     {
       GlobalPoint pg2 = segments[j]->globalPosition();
       if(segments[i]->geographicalId().rawId() != segments[j]->geographicalId().rawId()
-         && fabs(deltaPhi(pg1.phi(), pg2.phi())) < dphiCut
+         && fabs(deltaPhi(pg1.barePhi(), pg2.barePhi())) < dphiCut
          && fabs(pg1.eta()-pg2.eta()) < detaCut)
       {
         LogTrace(metname) << "OVERLAP " << theDumper.dumpMuonId(segments[i]->geographicalId()) << " " <<

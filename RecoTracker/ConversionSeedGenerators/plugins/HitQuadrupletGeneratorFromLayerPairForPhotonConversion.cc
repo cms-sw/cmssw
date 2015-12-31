@@ -97,10 +97,10 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
 #ifdef mydebug_QSeed
       (*ss) << "\toPos " << oPos << " r " << oPos.perp() << " phi " << oPos.phi() <<  " cotTheta " << oPos.z()/oPos.perp() << std::endl;
       (*ss) << "\tnoPos " << noPos << " r " << noPos.perp() << " phi " << noPos.phi() <<  " cotTheta " << noPos.z()/noPos.perp() << std::endl;
-      (*ss) << "\tDeltaPhi " << reco::deltaPhi(noPos.phi(),oPos.phi()) << std::endl;
+      (*ss) << "\tDeltaPhi " << reco::deltaPhi(noPos.barePhi(),oPos.barePhi()) << std::endl;
 #endif
     
-    if(fabs(reco::deltaPhi(noPos.phi(),oPos.phi()))>maxDeltaPhi)  break;
+    if(fabs(reco::deltaPhi(noPos.barePhi(),oPos.barePhi()))>maxDeltaPhi)  break;
 
     totCountM2++;
     

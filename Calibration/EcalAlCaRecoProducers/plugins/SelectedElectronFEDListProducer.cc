@@ -301,8 +301,8 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
       module.x = (*itTracker)->position().x();
       module.y = (*itTracker)->position().y();
       module.z = (*itTracker)->position().z();
-      module.Phi = normalizedPhi((*itTracker)->position().phi()) ; 
-      module.Eta = (*itTracker)->position().eta() ;
+      module.Phi = (*itTracker)->position().phi(); 
+      module.Eta = (*itTracker)->position().eta();
       module.DetId  = (*itTracker)->geographicalId().rawId();
       const std::vector<sipixelobjects::CablingPathToDetUnit> path2det = PixelCabling_->pathToDetUnit(module.DetId);
       module.Fed = path2det[0].fed;
@@ -542,8 +542,8 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 	      if(*itElectronCollFlag) momentum = electron.gsfTrack()->momentum();
 	      else momentum = electron.track()->momentum();
 	      PixelRegion region (momentum,dPhiPixelRegion_,dEtaPixelRegion_,maxZPixelRegion_);
-	      PixelModule lowerBound (normalizedPhi(region.vector.phi())-region.dPhi, region.vector.eta()-region.dEta);
-	      PixelModule upperBound (normalizedPhi(region.vector.phi())+region.dPhi, region.vector.eta()+region.dEta);
+	      PixelModule lowerBound (region.vector.phi()-region.dPhi, region.vector.eta()-region.dEta);
+	      PixelModule upperBound (region.vector.phi()+region.dPhi, region.vector.eta()+region.dEta);
 	      
 	      std::vector<PixelModule>::const_iterator itUp, itDn ;
 	      if(lowerBound.Phi >= -M_PI  && upperBound.Phi <= M_PI ){

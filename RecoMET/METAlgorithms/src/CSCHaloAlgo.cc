@@ -195,7 +195,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	  StoreTrack = true;	  
 
 	  float deta = abs( OuterMostGlobalPosition.eta() - InnerMostGlobalPosition.eta() );
-	  float dphi = abs(deltaPhi( OuterMostGlobalPosition.phi() , InnerMostGlobalPosition.phi() )) ;
+	  float dphi = abs(deltaPhi( OuterMostGlobalPosition.barePhi() , InnerMostGlobalPosition.barePhi() )) ;
 	  float theta = Track->outerMomentum().theta();
 	  float innermost_x = InnerMostGlobalPosition.x() ;
 	  float innermost_y = InnerMostGlobalPosition.y();

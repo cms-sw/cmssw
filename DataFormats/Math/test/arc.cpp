@@ -36,6 +36,13 @@ int main() {
       << unsafe_acos<5>(std::cos(c)) << ' '
       << std::endl;
 
+   for (float c=-1; c<1.05; c+=0.1) {
+    auto d=std::acos(c)-unsafe_acos<11>(c);
+    auto e=std::asin(c)-unsafe_asin<11>(c);
+    std::cout << c << ' ' << d << ' ' << e << std::endl;
+   }
+
+
    return 0;
 
 }

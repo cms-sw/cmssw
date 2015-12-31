@@ -271,7 +271,7 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
 	 if ( (std::abs(thisPosition.x()-r3FinalReco.x()) < (theX_PULL_CUT * sigmax)) || (std::abs(thisPosition.x()-r3FinalReco.x()) < theX_RESIDUAL_CUT ) ) X_MatchFound = true;
 	 if ( (std::abs(thisPosition.y()-r3FinalReco.y()) < (theY_PULL_CUT * sigmay)) || (std::abs(thisPosition.y()-r3FinalReco.y()) < theY_RESIDUAL_CUT ) ) Y_MatchFound = true;
 
-	 if ( std::abs(reco::deltaPhi(p3FinalReco_glob.phi(),roll->toGlobal(thisSegment->localDirection()).phi())) < thePHIDIR_RESIDUAL_CUT) Dir_MatchFound = true;
+	 if ( std::abs(reco::deltaPhi(p3FinalReco_glob.barePhi(),roll->toGlobal(thisSegment->localDirection()).barePhi())) < thePHIDIR_RESIDUAL_CUT) Dir_MatchFound = true;
 
 	 //Check for a Match, and if there is a match, check the delR from the segment, keeping only the closest in MuonCandidate
 	 if (X_MatchFound && Y_MatchFound && Dir_MatchFound) {
