@@ -13,7 +13,8 @@
 // system include files
 
 // user include files
-#include "FWCore/Services/src/PrintLoadingPlugins.h"
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/PluginInfo.h"
@@ -27,6 +28,34 @@
 #include <iostream>
 #include <string>
 #include <map>
+
+class PrintLoadingPlugins
+{
+  
+public:
+  PrintLoadingPlugins();
+  virtual ~PrintLoadingPlugins();
+  
+  void goingToLoad(const boost::filesystem::path&);
+  
+  void askedToLoad(const std::string& ,const std::string& );
+  
+  // ---------- const member functions ---------------------
+  
+  // ---------- static member functions --------------------
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  
+  // ---------- member functions ---------------------------
+  
+private:
+  
+  PrintLoadingPlugins(const PrintLoadingPlugins&); // stop default
+  
+  const PrintLoadingPlugins& operator=(const PrintLoadingPlugins&); // stop default
+  
+  // ---------- member data --------------------------------
+  
+};
 
 //
 // constants, enums and typedefs
@@ -144,3 +173,7 @@ void PrintLoadingPlugins::goingToLoad(const boost::filesystem::path& Loadable_)
 //
 // static member functions
 //
+
+typedef edm::serviceregistry::NoArgsMaker<PrintLoadingPlugins> PrintLoadingPluginsMaker;
+DEFINE_FWK_SERVICE_MAKER(PrintLoadingPlugins, PrintLoadingPluginsMaker);
+

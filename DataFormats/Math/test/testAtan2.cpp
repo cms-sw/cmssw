@@ -1,4 +1,5 @@
 #include "DataFormats/Math/interface/approx_atan2.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 
 #include<cstdio>
@@ -12,19 +13,13 @@
 namespace {
 template <typename T> 
 inline T toPhi (T phi) { 
-  T result = phi;
-  while (result > T(M_PI)) result -= T(2*M_PI);
-  while (result <= -T(M_PI)) result += T(2*M_PI);
-  return result;
+  return reco::reduceRange(phi);
 }
 
 
 template <typename T> 
 inline T deltaPhi (T phi1, T phi2) { 
-  T result = phi1 - phi2;
-  while (result > T(M_PI)) result -= T(2*M_PI);
-  while (result <= -T(M_PI)) result += T(2*M_PI);
-  return result;
+  return reco::reduceRange(phi1 - phi2);
 }
 
 

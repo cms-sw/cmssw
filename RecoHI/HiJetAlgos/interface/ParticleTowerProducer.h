@@ -16,15 +16,12 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "DataFormats/Math/interface/deltaR.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 #include "TMath.h"
 #include "TRandom.h"
-
 
 
 class ParticleTowerProducer : public edm::EDProducer {

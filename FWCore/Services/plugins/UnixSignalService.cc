@@ -1,12 +1,37 @@
+/*----------------------------------------------------------------------
+ 
+ UnixSignalService: At present, this defines a SIGUSR2 handler and
+ sets the shutdown flag when that signal has been raised.
+ 
+ This service is instantiated at job startup.
+ 
+ ----------------------------------------------------------------------*/
 #include <iostream>
 #include <cstdlib>
 
-#include "FWCore/Services/src/UnixSignalService.h"
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+
+namespace edm {
+  namespace service {
+    class UnixSignalService {
+    public:
+      explicit UnixSignalService(ParameterSet const& ps);
+      ~UnixSignalService();
+      
+      static void fillDescriptions(ConfigurationDescriptions& descriptions);
+      
+    private:
+      bool enableSigInt_;
+    }; // class UnixSignalService
+  }  // end of namespace service
+}    // end of namespace edm
 
 namespace edm {
 
@@ -31,3 +56,9 @@ namespace edm {
     }
   } // end of namespace service
 } // end of namespace edm
+
+using edm::service::UnixSignalService;
+typedef edm::serviceregistry::ParameterSetMaker<UnixSignalService> UnixSignalMaker;
+DEFINE_FWK_SERVICE_MAKER(UnixSignalService, UnixSignalMaker);
+
+

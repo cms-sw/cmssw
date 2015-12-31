@@ -426,7 +426,7 @@ CosmicMuonSeedGenerator::makeSegPairs(const MuonTransientTrackingRecHit::MuonRec
      for (MuonRecHitContainer::const_iterator ihit2 = hits2.begin(); ihit2 != hits2.end(); ihit2++) {
         if ( !checkQuality(*ihit2) ) continue;
 
-        float dphi = deltaPhi((*ihit1)->globalPosition().phi(), (*ihit2)->globalPosition().phi());
+        float dphi = deltaPhi((*ihit1)->globalPosition().barePhi(), (*ihit2)->globalPosition().barePhi());
         if ( dphi < 0.5 ) {
 	   if ((*ihit1)->globalPosition().y() > 0.0 && ( (*ihit1)->globalPosition().y()  > (*ihit2)->globalPosition().y() ) ) { 
               std::string tag2 = "top"+tag;
@@ -452,7 +452,7 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const CosmicMuon
 
   MuonPatternRecoDumper dumper;
   
-  float dphi = deltaPhi((hitpair.first)->globalDirection().phi(), (hitpair.second)->globalDirection().phi());
+  float dphi = deltaPhi((hitpair.first)->globalDirection().barePhi(), (hitpair.second)->globalDirection().barePhi());
 
   LogTrace(category)<<"hitpair.type "<<hitpair.type; 
 

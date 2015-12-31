@@ -347,17 +347,17 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree, std::map<int, TrackerOffl
     double dR(999.), dPhi(999.), dZ(999.);
     if(treeMem.subDetId==PixelSubdetector::PixelBarrel || treeMem.subDetId==StripSubdetector::TIB || treeMem.subDetId==StripSubdetector::TOB){
       dR = gWDirection.perp() - gPModule.perp();
-      dPhi = deltaPhi(gUDirection.phi(),gPModule.phi());
+      dPhi = deltaPhi(gUDirection.barePhi(),gPModule.barePhi());
       dZ = gVDirection.z() - gPModule.z();
       if(dZ>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
     }else if(treeMem.subDetId==PixelSubdetector::PixelEndcap){
       dR = gUDirection.perp() - gPModule.perp();
-      dPhi = deltaPhi(gVDirection.phi(),gPModule.phi());
+      dPhi = deltaPhi(gVDirection.barePhi(),gPModule.barePhi());
       dZ = gWDirection.z() - gPModule.z();
       if(dR>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
     }else if(treeMem.subDetId==StripSubdetector::TID || treeMem.subDetId==StripSubdetector::TEC){
       dR = gVDirection.perp() - gPModule.perp();
-      dPhi = deltaPhi(gUDirection.phi(),gPModule.phi());
+      dPhi = deltaPhi(gUDirection.barePhi(),gPModule.barePhi());
       dZ = gWDirection.z() - gPModule.z();
       if(dR>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
     }

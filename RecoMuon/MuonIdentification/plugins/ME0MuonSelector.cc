@@ -83,7 +83,7 @@ bool muon::isGoodMuon(const reco::ME0Muon& me0muon, double MaxPullX, double MaxD
   
   if ( ( (std::abs(thisPosition.x()-r3FinalReco.x())/sigmax ) < MaxPullX ) || (std::abs(thisPosition.x()-r3FinalReco.x()) < MaxDiffX ) ) X_MatchFound = true;
   if ( ( (std::abs(thisPosition.y()-r3FinalReco.y())/sigmay ) < MaxPullY ) || (std::abs(thisPosition.y()-r3FinalReco.y()) < MaxDiffY ) ) Y_MatchFound = true;
-  if ( std::abs(reco::deltaPhi(me0muon.localTrackMomAtSurface().phi(),thisSegment.localDirection().phi())) < MaxDiffPhiDir) Dir_MatchFound = true;
+  if ( std::abs(reco::deltaPhi(me0muon.localTrackMomAtSurface().barePhi(),thisSegment.localDirection().barePhi())) < MaxDiffPhiDir) Dir_MatchFound = true;
 
   return (X_MatchFound && Y_MatchFound && Dir_MatchFound);
 

@@ -20,6 +20,7 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerAlgo.h" //amend to point at your copy...
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
 
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "CommonTools/Utils/interface/DynArray.h"
 
 
@@ -86,7 +87,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 
   declareDynArray(KDTreeLinkerAlgo<unsigned int>,size, hitTree);
   float rzError[size]; //save maximum errors
-  float maxphi = Geom::ftwoPi(), minphi = -maxphi; // increase to cater for any range
+  constexpr float maxphi = 2.*M_PI, minphi = -maxphi; // increase to cater for any range
   
   // fill the prediction vector
   for (int il=0; il<size; ++il) {
@@ -110,6 +111,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
       float myerr = hits.dv[i];
       maxErr = std::max(maxErr,myerr);
       layerTree.emplace_back(i, angle, v); // save it
+      //FIXME the side bands do not need to be so large 
       if (angle < 0)  // wrap all points in phi
 	{ layerTree.emplace_back(i, angle+Geom::ftwoPi(), v);}
       else
@@ -227,7 +229,9 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
       constexpr float nSigmaPhi = 3.f;
       
       foundNodes.clear(); // Now recover hits in bounding box...
+      //FIXME this needs a cleanup 
       float prmin=phiRange.min(), prmax=phiRange.max();
+      if( edm::isNotFinite(prmax) | edm::isNotFinite(prmin) ) continue;
       if ((prmax-prmin) > Geom::ftwoPi())
 	{ prmax=Geom::fpi(); prmin = -Geom::fpi();}
       else

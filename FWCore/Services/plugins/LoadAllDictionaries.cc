@@ -3,8 +3,14 @@
 // Package:     Services
 // Class  :     LoadAllDictionaries
 // 
-// Implementation:
-//     <Notes on implementation>
+/**\class LoadAllDictionaries
+ 
+ Description: Loads all Capability dictionaries
+ 
+ Usage:
+ <usage>
+ 
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 15 09:47:48 EDT 2005
@@ -13,12 +19,40 @@
 // system include files
 
 // user include files
-#include "FWCore/Services/src/LoadAllDictionaries.h"
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+namespace edm {
+  namespace service {
+    class LoadAllDictionaries
+    {
+      
+    public:
+      LoadAllDictionaries(const edm::ParameterSet&);
+      //virtual ~LoadAllDictionaries();
+      
+      // ---------- const member functions ---------------------
+      
+      // ---------- static member functions --------------------
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+      
+      // ---------- member functions ---------------------------
+      
+    private:
+      LoadAllDictionaries(const LoadAllDictionaries&); // stop default
+      
+      const LoadAllDictionaries& operator=(const LoadAllDictionaries&); // stop default
+      
+      // ---------- member data --------------------------------
+      
+    };
+  }
+}
 
 //
 // constants, enums and typedefs
@@ -70,4 +104,8 @@ void edm::service::LoadAllDictionaries::fillDescriptions(edm::ConfigurationDescr
   descriptions.add("LoadAllDictionaries", desc);
   descriptions.setComment("This service allows you to force all known dictionaries to be loaded at the beginning of the job");
 }
+
+using edm::service::LoadAllDictionaries;
+DEFINE_FWK_SERVICE_MAKER(LoadAllDictionaries,edm::serviceregistry::ParameterSetMaker<LoadAllDictionaries>);
+
 
