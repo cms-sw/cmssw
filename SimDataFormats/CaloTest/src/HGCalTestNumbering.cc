@@ -6,17 +6,7 @@
 uint32_t HGCalTestNumbering::packSquareIndex(int zp, int lay, int sec, 
 					     int subsec, int cell) {
 
-  if (cell > kHGCalCellSMask || sec>kHGCalSectorSMask || 
-      subsec > kHGCalSubSectorSMask || lay>kHGCalLayerSMask ) {
-#ifdef DebugLog
-    std::cout << "[HGCalTestNumbering] request for new id for layer=" << lay
-              << " zp=" << zp 
-              << " sector=" << sec 
-              << " subsec=" << subsec 
-              << " cell=" << cell 
-              << " has one or more fields out of bounds and will be reset" 
-              << std::endl;
-#endif
+  if (!HGCalTestNumbering::isValidSquare(zp, lay, sec, subsec,lay)) {
     zp = lay = sec = subsec = cell = 0;
   }
 
@@ -34,19 +24,7 @@ uint32_t HGCalTestNumbering::packHexagonIndex(int subdet, int zp, int lay,
 					      int wafer,  int celltyp, 
 					      int cell) {
 
-  if (cell > kHGCalCellHMask || celltyp>kHGCalCellTypHMask || 
-      wafer > kHGCalWaferHMask || lay>kHGCalLayerSMask || 
-      subdet > kHGCalSubdetHMask) {
-#ifdef DebugLog
-    std::cout << "[HGCalTestNumbering] request for new id for layer=" << lay
-              << " zp=" << zp 
-              << " wafer=" << wafer
-              << " celltyp=" << celltyp 
-              << " cell=" << cell 
-              << " for subdet=" << subdet 
-              << " has one or more fields out of bounds and will be reset" 
-              << std::endl;
-#endif
+  if (!HGCalTestNumbering::isValidHexagon(subdet,zp,lay,wafer,celltyp,cell)) {
     subdet = zp = lay = wafer = celltyp = cell = 0;
   }
 

@@ -3,8 +3,9 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-process.load("Geometry.HGCalCommonData.testHGCalXML_cfi")
+process.load("Geometry.HGCalCommonData.testHGCXML_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
+process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.CaloEventSetup.HGCalTopology_cfi")
 process.load("Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi")
 
@@ -47,6 +48,19 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prod = cms.EDAnalyzer("HGCalGeometryTester")
+process.prodEE = cms.EDAnalyzer("HGCalGeometryTester",
+                                Detector   = cms.string("HGCalEESensitive"),
+                                SquareCell = cms.bool(False),
+                                )
 
-process.p1 = cms.Path(process.generator*process.prod)
+process.prodHEF = process.prodEE.clone(
+    Detector   = "HGCalHESiliconSensitive",
+    SquareCell = False
+)
+
+process.prodHEB = process.prodEE.clone(
+    Detector   = "HGCalHEScintillatorSensitive",
+    SquareCell = True
+)
+
+process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF)
