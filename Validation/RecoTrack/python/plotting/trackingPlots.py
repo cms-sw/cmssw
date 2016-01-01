@@ -71,14 +71,17 @@ _effandfake3 = PlotGroup("effandfake3", [
                          legendDy=_legendDy_4rows
 )
 _common = {"ymin": 0, "ymax": _maxEff}
-_effvspos = PlotGroup("effvspos", [
-    Plot("effic_vs_vertpos", xtitle="TP vert xy pos (cm)", ytitle="efficiency vs vert xy pos", **_common),
-    Plot("effic_vs_zpos", xtitle="TP vert z pos (cm)", ytitle="efficiency vs vert z pos", **_common),
-    Plot("effic_vs_dr", xlog=True, xtitle="min #DeltaR", ytitle="efficiency vs #DeltaR", **_common),
-    Plot("fakerate_vs_dr", xlog=True, title="", xtitle="min #DeltaR", ytitle="Fake rate vs #DeltaR", ymin=0, ymax=_maxFake)
-],
-                         legendDy=_legendDy_2rows
-)
+_effandfake4 = PlotGroup("effandfake4", [
+    Plot("effic_vs_vertpos", xtitle="TP vert xy (cm)", ytitle="efficiency vs vert xy", **_common),
+    Plot(FakeDuplicate("fakeduprate_vs_vertpos", assoc="num_assoc(recoToSim)_vertpos", dup="num_duplicate_vertpos", reco="num_reco_vertpos", title="fake+duplicates vs. ref. point xy"),
+         xtitle="track ref. point xy (cm)", ytitle="fake+duplicates vs xy", ymax=_maxFake),
+    Plot("effic_vs_zpos", xtitle="TP vert z (cm)", ytitle="efficiency vs vert z", **_common),
+    Plot(FakeDuplicate("fakeduprate_vs_zpos", assoc="num_assoc(recoToSim)_zpos", dup="num_duplicate_zpos", reco="num_reco_zpos", title="fake+duplicates vs. ref. point z"),
+         xtitle="track ref. point z (cm)", ytitle="fake+duplicates vs z", ymax=_maxFake),
+    Plot("effic_vs_dr", xlog=True, xtitle="TP min #DeltaR", ytitle="efficiency vs dr", **_common),
+    Plot(FakeDuplicate("fakeduprate_vs_dr", assoc="num_assoc(recoToSim)_dr", dup="num_duplicate_dr", reco="num_reco_dr", title="fake+duplicates vs. #DeltaR"),
+         xtitle="track min #DeltaR", ytitle="fake+duplicates vs #DeltaR", xlog=True, ymax=_maxFake),
+])
 
 _dupandfake1 = PlotGroup("dupandfake1", [
     Plot("fakeratePt", xtitle="track p_{T} (GeV)", ytitle="fakerate vs p_{T}", xlog=True, ymax=_maxFake),
@@ -130,11 +133,23 @@ _dupandfake3 = PlotGroup("dupandfake3", [
                          ncols=3, legendDy=_legendDy_4rows
 )
 _dupandfake4 = PlotGroup("dupandfake4", [
+    Plot("fakerate_vs_vertpos", xtitle="track ref. point xy (cm)", ytitle="fakerate vs xy", ymax=_maxFake),
+    Plot("duplicatesRate_vertpos", xtitle="track ref. point xy (cm)", ytitle="duplicates rate vs xy", ymax=_maxFake),
+    Plot("pileuprate_vertpos", xtitle="track ref. point xy (cm)", ytitle="pileup rate vs xy", ymax=_maxFake),
+    #
+    Plot("fakerate_vs_zpos", xtitle="track ref. point z (cm)", ytitle="fakerate vs z", ymax=_maxFake),
+    Plot("duplicatesRate_zpos", xtitle="track ref. point z (cm)", ytitle="duplicates rate vs z", ymax=_maxFake),
+    Plot("pileuprate_zpos", xtitle="track ref. point z (cm)", ytitle="pileup rate vs z", ymax=_maxFake),
+    #
+    Plot("fakerate_vs_dr", xtitle="track min #DeltaR", ytitle="fakerate vs #DeltaR", xlog=True, ymax=_maxFake),
+    Plot("duplicatesRate_dr", xtitle="track min #DeltaR", ytitle="duplicates rate vs #DeltaR", xlog=True, ymax=_maxFake),
+    Plot("pileuprate_dr", xtitle="track min #DeltaR", ytitle="pileup rate vs #DeltaR", xlog=True, ymax=_maxFake),
+    #
     Plot("fakerate_vs_chi2", xtitle="track #chi^{2}", ytitle="fakerate vs #chi^{2}", ymax=_maxFake),
     Plot("duplicatesRate_chi2", xtitle="track #chi^{2}", ytitle="duplicates rate vs #chi^{2}", ymax=_maxFake),
     Plot("pileuprate_chi2", xtitle="track #chi^{2}", ytitle="pileup rate vs #chi^{2}", ymax=_maxFake)
 ],
-                         legendDy=_legendDy_2rows
+                         ncols=3, legendDy=_legendDy_4rows
 )
 _common = {
     "ytitle": "Fake+pileup rate",
@@ -705,7 +720,7 @@ _simBasedPlots = [
     _effandfake1,
     _effandfake2,
     _effandfake3,
-    _effvspos,
+    _effandfake4,
 ]
 _recoBasedPlots = [
     _dupandfake1,
