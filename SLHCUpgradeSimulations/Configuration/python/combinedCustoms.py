@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE import customise as customiseBE
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5D import customise as customiseBE5D
-from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10D import customise as customiseBE5DPixel10D
+from SLHCUpgradeSimulations.Configuration.phase2TkFlat import customise as customiseTkFlat
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10DLHCC import customise as customiseBE5DPixel10DLHCC
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10DLHCCCooling import customise as customiseBE5DPixel10DLHCCCooling
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10DLHCCNoDefect import customise as customiseBE5DPixel10DLHCCNoDefect
@@ -43,9 +43,9 @@ def cust_phase1_Pixel10D(process):
     process=jetCustoms.customise_jets(process)
     return process 
 
-def cust_phase2_BE5DPixel10D(process):
+def cust_phase2_TkFlat(process):
     process=customisePostLS1(process)
-    process=customiseBE5DPixel10D(process)
+    process=customiseTkFlat(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     process=jetCustoms.customise_jets(process)
@@ -525,7 +525,7 @@ def cust_2023HGCalPandoraMuonNoExtPix(process):
 
 def cust_2023HGCal_common(process):
     process=customisePostLS1(process)
-    process=customiseBE5DPixel10D(process)
+    process=customiseTkFlat(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     process=customise_gem2023(process)
@@ -669,7 +669,7 @@ def cust_2023SHCalTime(process):
 
 def cust_2023Pixel(process):
     process=customisePostLS1(process)
-    process=customiseBE5DPixel10D(process)
+    process=customiseTkFlat(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     process=customise_gem2023(process)
@@ -679,7 +679,7 @@ def cust_2023Pixel(process):
 
 def cust_2023Muon(process):
     process=customisePostLS1(process)
-    process=customiseBE5DPixel10D(process)
+    process=customiseTkFlat(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     process=customise_gem2023(process)
@@ -713,7 +713,7 @@ def cust_2023TiltedTK(process):
 def cust_2023TTI(process):
     process=customisePostLS1(process)
     process=customiseTTI(process)
-    process=customiseBE5DPixel10D(process)
+    process=customiseTkFlat(process)
     process=customise_HcalPhase0(process)
     process=customise_ev_l1tracker(process)
     return process
@@ -737,7 +737,7 @@ def cust_2023TTILHCCCool(process):
 def cust_2023TTI_forHLT(process):
     process=customisePostLS1(process)
     process=customiseTTI(process)
-    process=customiseBE5DPixel10D(process)
+    process=customiseTkFlat(process)
     process=customise_HcalPhase0(process)
     process=l1EventContent_TTI_forHLT(process)
     return process
