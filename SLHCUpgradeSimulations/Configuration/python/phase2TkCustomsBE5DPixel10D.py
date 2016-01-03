@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import SLHCUpgradeSimulations.Configuration.customise_PFlow as customise_PFlow
 
+print "!!!You are using the SUPPORTED flat  version of the Phase2 Tracker !!!"
 #GEN-SIM so far...
 def customise(process):
     if hasattr(process,'DigiToRaw'):
