@@ -4,8 +4,8 @@ from RecoTracker.IterativeTracking.iterativeTk_cff import *
 from RecoTracker.IterativeTracking.ElectronSeeds_cff import *
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_pixelMixing_PU
 
-print "!!! WARNING You are using the 62SLHC development version of the Pixel Phase1!!!"
 def customise(process):
+    print "!!! WARNING You are using the 62SLHC development version of the Pixel Phase1!!!"
     if hasattr(process,'DigiToRaw'):
         process=customise_DigiToRaw(process)
     if hasattr(process,'RawToDigi'):

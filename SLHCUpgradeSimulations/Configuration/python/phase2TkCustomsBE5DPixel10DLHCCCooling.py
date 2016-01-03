@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 import SLHCUpgradeSimulations.Configuration.customise_PFlow as customise_PFlow
 
-print "!!! WARINING You are using a special version (one layer less , one cooling loop OFF ) of the Phase2 Tracker - Scope Document usage only!!!"
 #GEN-SIM so far...
 def customise(process):
+    print "!!! WARINING You are using a special version (one layer less , one cooling loop OFF ) of the Phase2 Tracker - Scope Document usage only!!!"
     if hasattr(process,'DigiToRaw'):
         process=customise_DigiToRaw(process)
     if hasattr(process,'RawToDigi'):
