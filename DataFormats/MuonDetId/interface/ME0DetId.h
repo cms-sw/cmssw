@@ -65,12 +65,18 @@ class ME0DetId :public DetId {
 
   /// Return the corresponding ChamberId (mask layers)
   ME0DetId chamberId() const {
-    return ME0DetId(id_ & chamberIdMask_ & layerIdMask_);
+    return ME0DetId(id_ & chamberIdMask_);
   }
   /// Return the corresponding LayerId (mask eta partition)
   ME0DetId layerId() const {
     return ME0DetId(id_ & layerIdMask_);
   }
+
+  //Return the stationId, always 1 for now 
+  int station() const{
+    return 1;
+  }
+
 
   /// For future modifications (implement more layers)
   int nlayers() const{
@@ -81,10 +87,10 @@ class ME0DetId :public DetId {
   static const int maxRegionId=      1;
  
   static const int minChamberId=     0;
-  static const int maxChamberId=     36; // ME0 ring consists of 36 chambers spanning 10 degrees
+  static const int maxChamberId=     18; // ME0 ring consists of 18 chambers spanning 20 degrees
 
   static const int minLayerId=     0;
-  static const int maxLayerId=     6; // ME0 chamber consists of 6 layers for now, change here when changing ME0 Geometry
+  static const int maxLayerId=    6;
 
   static const int minRollId=	  0;
   static const int maxRollId=	  1; // ME0 layer consits of 1 etapartition for now, change here when changing ME0 Geometry

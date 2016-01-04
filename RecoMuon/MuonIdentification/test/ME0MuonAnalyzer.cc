@@ -224,6 +224,7 @@ public:
 
   TH2F *UnmatchedME0Muon_ScatterPlot;
 
+
   double  FakeRatePtCut, MatchingWindowDelR;
 
   double Nevents;
@@ -566,6 +567,7 @@ void ME0MuonAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
   Nevents=0;
 
 
+
 }
 
 
@@ -726,6 +728,7 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 		Pt_Track_Window_Failed_Under5->Fill(thisTrack->pt());
 	      }
 	      Pt_Track_Window_Failed->Fill(thisTrack->pt());
+
 	    }
 	  }
 	}
@@ -1281,6 +1284,7 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
 {
   
   //Write plots to histo root file and folder
+
   TString cmsText     = "CMS PhaseII Simulation Prelim.";
 
   TString lumiText = "PU 140, 14 TeV";
