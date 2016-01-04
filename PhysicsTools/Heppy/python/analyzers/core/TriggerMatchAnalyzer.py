@@ -55,8 +55,8 @@ class TriggerMatchAnalyzer( Analyzer ):
             if self.collToMatch:
                 for lep in tcoll:
                     mstring = 'None'
-                    if getattr(lep,'matchedTrgObj'+self.label):
-                        mstring = 'trigger obj with pt=%.2f, eta=%.2f, phi=%.2f, collection=%s'%(ob.pt(),ob.eta(),ob.phi(),ob.collection())
+                    ob = getattr(lep,'matchedTrgObj'+self.label)
+                    if ob: mstring = 'trigger obj with pt=%.2f, eta=%.2f, phi=%.2f, collection=%s'%(ob.pt(),ob.eta(),ob.phi(),ob.collection())
                     print 'Lepton pt=%.2f, eta=%.2f, phi=%.2f matched to %s'%(lep.pt(),lep.eta(),lep.phi(),mstring)
 
         return True
