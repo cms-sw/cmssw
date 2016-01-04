@@ -128,7 +128,7 @@ def getHeppyOption(name,default=None):
     global _heppyGlobalOptions
     return _heppyGlobalOptions[name] if name in _heppyGlobalOptions else default
 
-def main( options, args ):
+def main( options, args, parser ):
 
     if len(args) != 2:
         parser.print_help()
