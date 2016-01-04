@@ -32,6 +32,43 @@ typedef PixelRecoRange<float> Range;
 using namespace std;
 using namespace ctfseeding;
 
+
+namespace {
+  inline
+    float reduceRange(float x) {
+       using T=float;
+       constexpr T o2pi = 1./(2.*M_PI);
+       if (std::abs(x) <= T(M_PI)) return x;
+       T n = std::round(x*o2pi);
+       return x - n*T(2.*M_PI);
+      };
+   // cernlib V306
+  inline 
+  float proxim(float b, float a) {
+        using T=float;
+        constexpr T c1 = 2.*M_PI;
+        constexpr T c2 = 1/c1;
+        return b+c1*std::round(c2*(a-b));
+      };
+
+
+  inline
+  bool checkPhiInRange(float phi, float phi1, float phi2) {
+    using T=float;
+    constexpr T c1 = 2.*M_PI;
+    phi1 = reduceRange(phi1);
+    phi2 = proxim(phi2,phi1);
+    // phi & phi1 are in [-pi,pi] range...
+    return ( (phi1 <= phi) && (phi <= phi2) ) ||
+           ( (phi1 <= phi+c1) && (phi+c1 <= phi2) );
+  }
+
+
+
+}
+
+
+
 PixelTripletHLTGenerator:: PixelTripletHLTGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
   : HitTripletGeneratorFromPairAndLayers(cfg),
     useFixedPreFiltering(cfg.getParameter<bool>("useFixedPreFiltering")),
@@ -89,7 +126,8 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
   float rzError[size]; //save maximum errors
 
 
-  const float maxDelphi = M_PI/8; // FIXME move to config
+  const float maxDelphi = region.ptMin() < 0.3f ? float(M_PI)/4.f : float(M_PI)/8.f; // FIXME move to config?? 
+
   const float maxphi = M_PI+maxDelphi, minphi = -maxphi; // increase to cater for any range
   const float safePhi = M_PI-maxDelphi; // sideband
 
@@ -216,17 +254,51 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 	*/
 
 	auto rPhi1 = predictionRPhitmp(radius.max());
+        bool ok1 = !rPhi1.empty();
+        if (ok1) {
+          correction.correctRPhiRange(rPhi1);
+          rPhi1.first  /= radius.max();
+          rPhi1.second /= radius.max();
+        }
 	auto rPhi2 = predictionRPhitmp(radius.min());
+        bool ok2 = !rPhi2.empty();
+       	if (ok2) {
+	  correction.correctRPhiRange(rPhi2);
+	  rPhi2.first  /= radius.min();
+	  rPhi2.second /= radius.min();
+        }
 
+        // if (rPhi1.empty()) std::cout << "rphi1 empty " <<  rPhi1.second << ' ' << rPhi1.first << ' ' << radius.min() << ' ' << radius.max() <<std::endl;
+        // if (rPhi2.empty()) std::cout << "rphi2 empty " <<  rPhi2.second << ' ' << rPhi2.first << ' ' << radius.min() << ' ' << radius.max() <<std::endl;
 
-	correction.correctRPhiRange(rPhi1);
-	correction.correctRPhiRange(rPhi2);
-	rPhi1.first  /= radius.max();
-	rPhi1.second /= radius.max();
-	rPhi2.first  /= radius.min();
-	rPhi2.second /= radius.min();
-	phiRange = mergePhiRanges(rPhi1,rPhi2);
+        if (ok1) { 
+          rPhi1.first = reduceRange(rPhi1.first);
+          rPhi1.second = proxim(rPhi1.second,rPhi1.first);
+          if(ok2) {
+            rPhi2.first = proxim(rPhi2.first,rPhi1.first);
+            rPhi2.second = proxim(rPhi2.second,rPhi1.first);
+            phiRange = rPhi1.sum(rPhi2);
+          } else phiRange=rPhi1;
+        } else if(ok2) {
+          rPhi2.first = reduceRange(rPhi2.first);
+          rPhi2.second = proxim(rPhi2.second,rPhi2.first);
+          phiRange=rPhi2;
+        } else continue;
+   
+        // if (std::abs(rPhi1.second-rPhi1.first) > maxDelphi) std::cout << "rphi1 " <<  rPhi1.second << ' ' << rPhi1.first << std::endl; 
+       	// if (std::abs(rPhi2.second-rPhi2.first) > maxDelphi) std::cout << "rphi2 " <<  rPhi2.second << ' ' << rPhi2.first << std::endl;
+
+        // if (std::abs(rPhi2.first-rPhi1.first) > maxDelphi) std::cout << "rphi1 " <<  rPhi1.second << ' ' << rPhi1.first << " rphi2 " <<  rPhi2.second << ' ' << rPhi2.first<< std::endl;
+        // if (!rPhi1.hasIntersection(rPhi2)) {
+        //        std::cout << " no int rphi1 " <<  rPhi1.second << ' ' << rPhi1.first << " rphi2 " <<  rPhi2.second << ' ' << rPhi2.first 
+        //                  << ' ' << radius.min() << ' ' << radius.max() << std::endl;
+        // }
+
       }
+
+      // if (std::abs(phiRange.first)>float(M_PI)) std::cout << "bha1 " << phiRange.first << ' ' << phiRange.second << std::endl;
+      if (std::abs(phiRange.first)>float(M_PI) && std::abs(phiRange.second)>float(M_PI)) std::cout << "bha2 " << phiRange.first << ' ' << phiRange.second << std::endl;
+      
       
       constexpr float nSigmaRZ = 3.46410161514f; // std::sqrt(12.f); // ...and continue as before
       constexpr float nSigmaPhi = 3.f;
@@ -234,27 +306,9 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
       foundNodes.clear(); // Now recover hits in bounding box...
       float prmin=phiRange.min(), prmax=phiRange.max();
 
-      auto reduceRange = [](float x) {
-       using T=float;
-       constexpr T o2pi = 1./(2.*M_PI);
-       if (std::abs(x) <= T(M_PI)) return x;
-       T n = std::round(x*o2pi);
-       return x - n*T(2.*M_PI);
-      };
-  
-      // cernlib V306
-      auto proxim = [](float b, float a) {
-        using T=float;
-        constexpr T c1 = 2.*M_PI;
-        constexpr T c2 = 1/c1;
-        return b+c1*std::round(c2*(a-b));
-      };
 
-      prmin = reduceRange(prmin);
-      prmax = proxim(prmax,prmin);
-      if (prmin>prmax) std::swap(prmax,prmin);
-
-      // if (prmax-prmin>maxDelphi) std::cout << "delphi " << ' ' << prmin << '/' << prmax << std::endl;
+      if (prmax<prmin)  std::cout << "aarg " << phiRange.first << ' ' << phiRange.second << std::endl;
+      if (prmax-prmin>maxDelphi) std::cout << "delphi " << ' ' << prmin << '/' << prmax << std::endl;
 
       if (barrelLayer)
 	{
@@ -304,6 +358,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 	
 	float ir = 1.f/hits.rv(KDdata);
 	float phiErr = nSigmaPhi * hits.drphi[KDdata]*ir;
+        bool nook=true;
 	for (int icharge=-1; icharge <=1; icharge+=2) {
 	  Range rangeRPhi = predictionRPhi(hits.rv(KDdata), icharge);
 	  correction.correctRPhiRange(rangeRPhi);
@@ -315,28 +370,13 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 	    } else {
 	      LogDebug("RejectedTriplet") << "rejected triplet from comparitor ";
 	    }
-	    break;
+	    nook=false; break;
 	  } 
 	}
+        if (nook) LogDebug("RejectedTriplet") << "rejected triplet from second phicheck " << p3_phi;
       }
     }
   }
   // std::cout << "triplets " << result.size() << std::endl;
 }
 
-bool PixelTripletHLTGenerator::checkPhiInRange(float phi, float phi1, float phi2) const
-{
-  while (phi > phi2) phi -=  Geom::ftwoPi();
-  while (phi < phi1) phi +=  Geom::ftwoPi();
-  return (  (phi1 <= phi) && (phi <= phi2) );
-}  
-
-std::pair<float,float> PixelTripletHLTGenerator::mergePhiRanges(const std::pair<float,float>& r1,
-								const std::pair<float,float>& r2) const 
-{ float r2_min=r2.first;
-  float r2_max=r2.second;
-  while (r1.first-r2_min > Geom::fpi()) { r2_min += Geom::ftwoPi(); r2_max += Geom::ftwoPi();}
-  while (r1.first-r2_min < -Geom::fpi()) { r2_min -= Geom::ftwoPi();  r2_max -= Geom::ftwoPi(); }
-  
-  return std::make_pair(min(r1.first,r2_min),max(r1.second,r2_max));
-}

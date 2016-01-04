@@ -41,6 +41,9 @@ namespace tkDetUtil {
       auto x1 = hori ? xc + maxDistance.x() : -yc + maxDistance.y();
 
       dphi = std::acos( (x0*x1+y0*y1)/std::sqrt((x0*x0+y0*y0)*(x1*x1+y1*y1)) );
+
+      // if (dphi>0.5*M_PI) std::cout << "large dphi " << dphi << ' ' << ts.localDirection() << ' ' << ts.globalMomentum().perp() << ' ' << maxDistance << std::endl;
+
       return dphi;
     }
     

@@ -16,8 +16,8 @@ public:
   PixelRecoRange() { }
 
 
-template<class U>
-PixelRecoRange(PixelRecoRange<U> other) : 
+  template<class U>
+  PixelRecoRange(PixelRecoRange<U> other) : 
   std::pair<T,T> (other.min(),other.max()) { }
 
 
@@ -54,7 +54,7 @@ PixelRecoRange(PixelRecoRange<U> other) :
                         ); 
   }
 
-  void sort() { if (empty() ) std::swap(this->first,this->second); }
+  PixelRecoRange<T> & sort() { if (empty() ) std::swap(this->first,this->second); return *this;}
 };
 
 template <class T> std::ostream & operator<<( 

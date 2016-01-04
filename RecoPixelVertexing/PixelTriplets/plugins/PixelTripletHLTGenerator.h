@@ -32,11 +32,6 @@ public:
                             const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers) override;
 
 private:
-  bool checkPhiInRange(float phi, float phi1, float phi2) const;
-  std::pair<float,float> mergePhiRanges(
-      const std::pair<float,float> &r1, const std::pair<float,float> &r2) const; 
-
-private:
   bool useFixedPreFiltering;
   float extraHitRZtolerance;
   float extraHitRPhitolerance;
