@@ -160,8 +160,12 @@ process.ana_step = cms.Path(process.hltanalysis *
 #########################
 
 process.load('HeavyIonsAnalysis.JetAnalysis.EventSelection_cff')
-process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
 process.pHBHENoiseFilterResultProducer = cms.Path( process.HBHENoiseFilterResultProducer )
+process.HBHENoiseFilterResult = cms.Path(process.fHBHENoiseFilterResult)
+process.HBHENoiseFilterResultRun1 = cms.Path(process.fHBHENoiseFilterResultRun1)
+process.HBHENoiseFilterResultRun2Loose = cms.Path(process.fHBHENoiseFilterResultRun2Loose)
+process.HBHENoiseFilterResultRun2Tight = cms.Path(process.fHBHENoiseFilterResultRun2Tight)
+process.HBHEIsoNoiseFilterResult = cms.Path(process.fHBHEIsoNoiseFilterResult)
 
 process.PAprimaryVertexFilter = cms.EDFilter("VertexSelector",
     src = cms.InputTag("offlinePrimaryVertices"),

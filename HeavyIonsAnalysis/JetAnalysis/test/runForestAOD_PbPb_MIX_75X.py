@@ -169,8 +169,12 @@ process.ana_step = cms.Path(
 
 process.load('HeavyIonsAnalysis.JetAnalysis.EventSelection_cff')
 process.pcollisionEventSelection = cms.Path(process.collisionEventSelectionAOD)
-process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
 process.pHBHENoiseFilterResultProducer = cms.Path( process.HBHENoiseFilterResultProducer )
+process.HBHENoiseFilterResult = cms.Path(process.fHBHENoiseFilterResult)
+process.HBHENoiseFilterResultRun1 = cms.Path(process.fHBHENoiseFilterResultRun1)
+process.HBHENoiseFilterResultRun2Loose = cms.Path(process.fHBHENoiseFilterResultRun2Loose)
+process.HBHENoiseFilterResultRun2Tight = cms.Path(process.fHBHENoiseFilterResultRun2Tight)
+process.HBHEIsoNoiseFilterResult = cms.Path(process.fHBHEIsoNoiseFilterResult)
 process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter )
 
 process.load('HeavyIonsAnalysis.Configuration.hfCoincFilter_cff')

@@ -56,17 +56,6 @@ private:
 
   TTree* HltTree;
   int* trigflag;
-
-  bool useHBHENoiseProducer;
-  std::string HBHENoiseProducerLabel_;
-  std::vector<edm::EDGetTokenT<bool> >HBHENoiseProducer_;
-
-  const std::string HBHEFilters[5] = {
-    "HBHENoiseFilterResultRun1",
-    "HBHENoiseFilterResultRun2Loose",
-    "HBHENoiseFilterResultRun2Tight",
-    "HBHENoiseFilterResult",
-    "HBHEIsoNoiseFilterResult"};
 };
 
 //
@@ -88,14 +77,6 @@ FilterAnalyzer::FilterAnalyzer(const edm::ParameterSet& conf)
   hltresults_   = consumes<edm::TriggerResults>(conf.getParameter<edm::InputTag> ("hltresults"));
   superFilters_  = conf.getParameter<vector<string> > ("superFilters");
   _Debug  = conf.getUntrackedParameter<bool> ("Debug",0);
-
-  useHBHENoiseProducer = conf.getParameter<bool> ("useHBHENoiseProducer");
-  HBHENoiseProducerLabel_ = conf.getParameter<std::string> ("HBHENoiseProducer");
-
-  for(int i = 0; i < 5; i++)
-  {
-    HBHENoiseProducer_.push_back(consumes<bool> (edm::InputTag(HBHENoiseProducerLabel_,HBHEFilters[i])));
-  }
 
   HltEvtCnt = 0;
   edm::Service<TFileService> fs;
@@ -130,23 +111,12 @@ FilterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::TriggerNames const& triggerNames = iEvent.triggerNames(*hltresults);
   int ntrigs = hltresults->size();
 
-  const int nFilters = 5;
-
   if (HltEvtCnt==0){
     for (int itrig = 0; itrig != ntrigs; ++itrig) {
       TString trigName = triggerNames.triggerName(itrig);
       HltTree->Branch(trigName,trigflag+itrig,trigName+"/I");
     }
     HltEvtCnt++;
-
-
-    if(useHBHENoiseProducer)
-    {
-      for(int i = 0; i < nFilters; i++)
-      {
-	HltTree->Branch(HBHEFilters[i].c_str(),trigflag+ntrigs+i,(HBHEFilters[i]+"/I").c_str());
-      }
-    }
   }
   bool saveEvent = 1;
 
@@ -171,19 +141,7 @@ FilterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		<< trigName << " = " << accept << std::endl;
     }
   }
-
-  if(useHBHENoiseProducer)
-  {
-    edm::Handle<bool> HBHEFilterResults[5];
-    for(int i = 0; i < 5; i++)
-    {
-      iEvent.getByToken(HBHENoiseProducer_[i],HBHEFilterResults[i]);
-      trigflag[ntrigs+i] = *(HBHEFilterResults[i].product());
-    }
-  }
-
   if(saveEvent) HltTree->Fill();
-
 }
 
 
