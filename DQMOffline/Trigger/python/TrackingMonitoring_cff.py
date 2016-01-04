@@ -7,6 +7,7 @@ trackingMonHLT.primaryVertex    = cms.InputTag("hltPixelVertices")
 trackingMonHLT.doAllPlots       = cms.bool(False)
 trackingMonHLT.doLumiAnalysis   = cms.bool(False)     
 trackingMonHLT.doProfilesVsLS   = cms.bool(False)
+trackingMonHLT.pvNDOF           = cms.int32(1)
 
 pixelTracksMonitoringHLT = trackingMonHLT.clone()
 pixelTracksMonitoringHLT.FolderName       = 'HLT/Tracking/pixelTracks'
