@@ -11,10 +11,10 @@
  *
  */
 
-#include<string>
-#include<vector>
-#include<iostream>
-#include "CondFormats/GeometryObjects/interface/HGCalParameters.h"
+#include <string>
+#include <vector>
+#include <iostream>
+#include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
 class HGCalDDDConstants {

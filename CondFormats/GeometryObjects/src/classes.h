@@ -5,5 +5,5 @@
 #include "CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
-#include "CondFormats/GeometryObjects/interface/HGCalParameters.h"
+#include "CondFormats/GeometryObjects/interface/PHGCalParameters.h"
 

@@ -21,15 +21,15 @@
 #include <boost/shared_ptr.hpp>
 
 // user include files
-#include <FWCore/Framework/interface/ModuleFactory.h>
-#include <FWCore/Framework/interface/ESProducer.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <CondFormats/GeometryObjects/interface/HGCalParameters.h>
-#include <Geometry/HGCalCommonData/interface/HGCalDDDConstants.h>
-#include <Geometry/Records/interface/IdealGeometryRecord.h>
+#include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 //#define DebugLog
 

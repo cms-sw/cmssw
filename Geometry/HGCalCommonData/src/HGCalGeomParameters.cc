@@ -11,7 +11,7 @@
 #include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
-#include "CondFormats/GeometryObjects/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 

@@ -1,13 +1,13 @@
-#ifndef CondFormats_GeometryObjects_HGCalParameters_h
-#define CondFormats_GeometryObjects_HGCalParameters_h
+#ifndef Geometry_HGCalCommonData_HGCalParameters_h
+#define Geometry_HGCalCommonData_HGCalParameters_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include<string>
-#include<vector>
-#include<iostream>
-#include<stdint.h>
-#include<CLHEP/Geometry/Transform3D.h>
+#include <CLHEP/Geometry/Transform3D.h>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <stdint.h>
 
 class HGCalParameters {
 

@@ -1,7 +1,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParametersFromDD.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomParameters.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
-#include "CondFormats/GeometryObjects/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDVectorGetter.h"

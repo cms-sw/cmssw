@@ -5,7 +5,6 @@
 <use   name="DataFormats/DetId"/>
 <use   name="CondFormats/Serialization"/>
 <use   name="boost_serialization"/>
-<use   name="clhep"/>
 
 <export>
   <lib   name="1"/>

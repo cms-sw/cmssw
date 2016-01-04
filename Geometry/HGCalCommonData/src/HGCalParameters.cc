@@ -1,4 +1,4 @@
-#include "CondFormats/GeometryObjects/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 //#define DebugLog
 
 HGCalParameters::HGCalParameters(const std::string& nam): name_(nam) { }
@@ -144,3 +144,7 @@ void HGCalParameters::scaleTrForm(double scale) {
     trformTranZ_[k-1] *= scale;
   }
 }
+
+#include "FWCore/Utilities/interface/typelookup.h"
+
+TYPELOOKUP_DATA_REG(HGCalParameters);

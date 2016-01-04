@@ -11,12 +11,13 @@
  *
  */
 
-#include<string>
-#include<vector>
-#include<iostream>
+#include <string>
+#include <vector>
+#include <iostream>
 
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
 class DDCompactView;    
 class DDFilteredView;
 class HGCalParameters;
