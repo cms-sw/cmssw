@@ -3,6 +3,8 @@
  *  \author N. Amapane - CERN
  *
  *  \modified by R. Radogna & C. Calabria & A. Sharma
+ *  \modified by R. Radogna & C. Calabria
+ *  \modified by D. Nash
  */
 
 #include <RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h>
@@ -13,6 +15,7 @@
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <DataFormats/MuonDetId/interface/GEMDetId.h>
+#include <DataFormats/MuonDetId/interface/ME0DetId.h>
 
 #include <Utilities/General/interface/precomputed_value_sort.h>
 #include <DataFormats/GeometrySurface/interface/GeometricSorting.h>
@@ -49,18 +52,41 @@ void MuonDetLayerGeometry::addCSCLayers(const pair<vector<DetLayer*>, vector<Det
 }    
 
 void MuonDetLayerGeometry::addGEMLayers(const pair<vector<DetLayer*>, vector<DetLayer*> >& gemlayers) {
-
+  LogDebug("Muon|RecoMuon|MuonDetLayerGeometry") << "Adding GEMlayers "<<std::endl;
   for(auto const it : gemlayers.first) {
     gemLayers_fw.push_back(it);
     allForward.push_back(it);
     detLayersMap[ makeDetLayerId(it) ] = it;
+    LogDebug("Muon|RecoMuon|MuonDetLayerGeometry") << "Adding GEMforward "<<std::endl;
   }
   for(auto const it: gemlayers.second) {
     gemLayers_bk.push_back(it);
     allBackward.push_back(it);
     detLayersMap[ makeDetLayerId(it) ] = it;
+    LogDebug("Muon|RecoMuon|MuonDetLayerGeometry") << "Adding GEMbackward "<<std::endl;
     }
-  }   
+}   
+
+
+void MuonDetLayerGeometry::addME0Layers(const pair<vector<DetLayer*>, vector<DetLayer*> >& me0layers) {
+
+  LogDebug("Muon|RecoMuon|MuonDetLayerGeometry") << "Adding ME0layers "<<std::endl;
+
+  for(auto const it : me0layers.first) {
+    me0Layers_fw.push_back(it);
+    allForward.push_back(it);
+
+    detLayersMap[ makeDetLayerId(it) ] = it;
+    LogDebug("Muon|RecoMuon|MuonDetLayerGeometry") << "Adding ME0forward "<<std::endl;
+  }
+  for(auto const it : me0layers.second) {
+    me0Layers_bk.push_back(it);
+    allBackward.push_back(it);
+
+    detLayersMap[ makeDetLayerId(it) ] = it;
+    LogDebug("Muon|RecoMuon|MuonDetLayerGeometry") << "Adding ME0backward "<<std::endl;
+  }
+}
 
 void MuonDetLayerGeometry::addRPCLayers(const vector<DetLayer*>& barrelLayers, const pair<vector<DetLayer*>, vector<DetLayer*> >& endcapLayers) {
   
@@ -127,7 +153,10 @@ DetId MuonDetLayerGeometry::makeDetLayerId(const DetLayer* detLayer) const{
     GEMDetId id( detLayer->basicComponents().front()->geographicalId().rawId());
     return GEMDetId(id.region(),1,id.station(),id.layer(),0,0);
   }
-
+  else if( detLayer->subDetector()== GeomDetEnumerators::ME0){
+    ME0DetId id( detLayer->basicComponents().front()->geographicalId().rawId());
+    return ME0DetId(id.region(),id.layer(),0,0);
+  }
   else throw cms::Exception("InvalidModuleIdentification"); // << detLayer->module();
 }
 
@@ -173,6 +202,28 @@ MuonDetLayerGeometry::backwardGEMLayers() const {
 }
 
 //////////////////////////////////////////
+
+
+//////////////////// ME0s
+
+const vector<const DetLayer*>&
+MuonDetLayerGeometry::allME0Layers() const {
+    return me0Layers_all;
+}
+
+
+const vector<const DetLayer*>&
+MuonDetLayerGeometry::forwardME0Layers() const {
+    return me0Layers_fw;
+}
+
+
+const vector<const DetLayer*>&
+MuonDetLayerGeometry::backwardME0Layers() const {
+    return me0Layers_bk;
+}
+
+////////////////////
 
 const vector<const DetLayer*>& 
 MuonDetLayerGeometry::allRPCLayers() const {
@@ -251,6 +302,26 @@ MuonDetLayerGeometry::allCscGemBackwardLayers() const {
     return allCscGemBackward;
 }
 
+//////////////////// ME0s
+
+const vector<const DetLayer*>&
+MuonDetLayerGeometry::allEndcapCscME0Layers() const {
+    return allEndcapCscME0;    
+}    
+
+
+const vector<const DetLayer*>&
+MuonDetLayerGeometry::allCscME0ForwardLayers() const {
+    return allCscME0Forward;    
+}    
+
+
+const vector<const DetLayer*>&
+MuonDetLayerGeometry::allCscME0BackwardLayers() const {
+    return allCscME0Backward;    
+}    
+
+
 ////////////////////////////////////////////////////
 
 const DetLayer* MuonDetLayerGeometry::idToLayer(const DetId &detId) const{
@@ -284,7 +355,13 @@ const DetLayer* MuonDetLayerGeometry::idToLayer(const DetId &detId) const{
     GEMDetId gemId(detId.rawId() );
     id = GEMDetId(gemId.region(),1,gemId.station(),gemId.layer(),0,0);
   }
+  else if (detId.subdetId() == MuonSubdetId::ME0){
+    ME0DetId me0Id(detId.rawId() );
+    id = ME0DetId(me0Id.region(),me0Id.layer(),0,0);
+    LogDebug("Muon|RecoMuon|MuonDetLayerGeometry") << " Found an ME0DetId:  " << me0Id.rawId()
+						   <<",id: "<< id.rawId()<<std::endl;
 
+  }
   else throw cms::Exception("InvalidSubdetId")<< detId.subdetId();
 
   std::map<DetId,const DetLayer*>::const_iterator layer = detLayersMap.find(id);
@@ -334,6 +411,12 @@ void MuonDetLayerGeometry::sortLayers() {
   std::reverse(gemLayers_all.begin(),gemLayers_all.end());
   std::copy(gemLayers_fw.begin(),gemLayers_fw.end(),back_inserter(gemLayers_all));
 
+  //me0Layers_all: from -Z to +Z
+  me0Layers_all.reserve(me0Layers_bk.size()+me0Layers_fw.size());
+  std::copy(me0Layers_bk.begin(),me0Layers_bk.end(),back_inserter(me0Layers_all));
+  std::reverse(me0Layers_all.begin(),me0Layers_all.end());
+  std::copy(me0Layers_fw.begin(),me0Layers_fw.end(),back_inserter(me0Layers_all));
+
   //rpcLayers_endcap: from -Z to +Z
   rpcLayers_endcap.reserve(rpcLayers_bk.size()+rpcLayers_fw.size());
   std::copy(rpcLayers_bk.begin(),rpcLayers_bk.end(),back_inserter(rpcLayers_endcap));
@@ -370,6 +453,24 @@ void MuonDetLayerGeometry::sortLayers() {
   allCscGemBackward.reserve(cscLayers_bk.size()+gemLayers_bk.size());
   std::copy(cscLayers_bk.begin(),cscLayers_bk.end(),back_inserter(allCscGemBackward));
   std::copy(gemLayers_bk.begin(),gemLayers_bk.end(),back_inserter(allCscGemBackward));
+
+  // allCscME0Forward
+  allCscME0Forward.reserve(cscLayers_fw.size()+me0Layers_fw.size());
+  std::copy(cscLayers_fw.begin(),cscLayers_fw.end(),back_inserter(allCscME0Forward));
+  std::copy(me0Layers_fw.begin(),me0Layers_fw.end(),back_inserter(allCscME0Forward));
+
+  // allCscME0Backward
+  allCscME0Backward.reserve(cscLayers_bk.size()+me0Layers_bk.size());
+  std::copy(cscLayers_bk.begin(),cscLayers_bk.end(),back_inserter(allCscME0Backward));
+  std::copy(me0Layers_bk.begin(),me0Layers_bk.end(),back_inserter(allCscME0Backward));
+
+  // allEndcapCSCME0: order is  all bw, all fw
+  allEndcapCscME0.reserve(cscLayers_bk.size()+cscLayers_fw.size()+me0Layers_bk.size()+me0Layers_fw.size());
+  std::copy(cscLayers_bk.begin(),cscLayers_bk.end(),back_inserter(allEndcapCscME0));
+  std::copy(me0Layers_bk.begin(),me0Layers_bk.end(),back_inserter(allEndcapCscME0));
+  std::reverse(allEndcapCscME0.begin(),allEndcapCscME0.end());
+  std::copy(cscLayers_fw.begin(),cscLayers_fw.end(),back_inserter(allEndcapCscME0));
+  std::copy(me0Layers_fw.begin(),me0Layers_fw.end(),back_inserter(allEndcapCscME0));
 
   // allDetLayers: order is  all bw, all barrel, all fw
   allDetLayers.reserve(allBackward.size()+allBarrel.size()+allForward.size());

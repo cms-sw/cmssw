@@ -8,6 +8,7 @@
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *
  *  Modified by C. Calabria & A. Sharma
+ *  Modified by D. Nash
  */
 
 // Class Header
@@ -40,23 +41,29 @@ MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeom
   vector<string> propagatorNames;
 
   theMuonNavigationFlag = par.getUntrackedParameter<bool>("UseMuonNavigation",true);
-  if(theMuonNavigationFlag)  {
-                             theRPCLayer = par.getParameter<bool>("RPCLayers");
 
-                             if( par.existsAs<bool>("CSCLayers"))
-                              theCSCLayer = par.getParameter< bool >("CSCLayers");
-                             else theCSCLayer = true ;
+  if(theMuonNavigationFlag) {
+    theRPCLayer = par.getParameter<bool>("RPCLayers");
 
-                             if( par.existsAs<bool>("GEMLayers"))
-                              theGEMLayer = par.getParameter< bool >("GEMLayers");
-                             else theGEMLayer = false ;  
-                             }      
+    if( par.existsAs<bool>("CSCLayers"))
+      theCSCLayer = par.getParameter< bool >("CSCLayers");
+    else theCSCLayer = true ;
 
+    if( par.existsAs<bool>("GEMLayers"))
+      theGEMLayer = par.getParameter< bool >("GEMLayers");
+    else theGEMLayer = false ;  
+
+    if( par.existsAs<bool>("ME0Layers"))
+      theME0Layer = par.getParameter< bool >("ME0Layers");
+    else theME0Layer = false ;  
+
+  }
   else {
-       theRPCLayer = true;
-       theCSCLayer = true;
-       theGEMLayer = true;
- }
+  	theRPCLayer = true;
+  	theCSCLayer = true;
+  	theGEMLayer = true;
+  	theME0Layer = true;
+  }
 
   propagatorNames = par.getUntrackedParameter<vector<string> >("Propagators", noPropagators);
   
@@ -123,7 +130,7 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
     // the NavigableLayers (this is implemented in MuonNavigationSchool's dtor)
     if ( theMuonNavigationFlag ) {
       if(theSchool) delete theSchool;
-      theSchool = new MuonNavigationSchool(&*theDetLayerGeometry,theRPCLayer,theCSCLayer,theGEMLayer);
+      theSchool = new MuonNavigationSchool(&*theDetLayerGeometry,theRPCLayer,theCSCLayer,theGEMLayer,theME0Layer);
     }
   }
   
