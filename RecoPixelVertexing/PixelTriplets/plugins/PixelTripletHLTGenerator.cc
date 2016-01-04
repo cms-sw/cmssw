@@ -91,7 +91,6 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 
 
   const float maxDelphi = region.ptMin() < 0.3f ? float(M_PI)/4.f : float(M_PI)/8.f; // FIXME move to config?? 
-
   const float maxphi = M_PI+maxDelphi, minphi = -maxphi; // increase to cater for any range
   const float safePhi = M_PI-maxDelphi; // sideband
 
@@ -108,7 +107,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
                          *thirdLayers[il].detLayer(), useMScat, useBend);
 
     layerTree.clear();
-    float minv=999999.0, maxv= -999999.0; // Initialise to extreme values in case no hits
+    float minv=999999.0f, maxv= -minv; // Initialise to extreme values in case no hits
     float maxErr=0.0f;
     for (unsigned int i=0; i!=hits.size(); ++i) {
       auto angle = hits.phi(i);
@@ -195,27 +194,6 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 	if (radius.empty()) continue;
 
 	// std::cout << "++R " << radius.min() << " " << radius.max()  << std::endl;
-
-	/*
-	Range rPhi1m = predictionRPhitmp(radius.max(), -1);
-	Range rPhi1p = predictionRPhitmp(radius.max(),  1);
-	Range rPhi2m = predictionRPhitmp(radius.min(), -1);
-	Range rPhi2p = predictionRPhitmp(radius.min(),  1);
-	Range rPhi1 = rPhi1m.sum(rPhi1p);
-	Range rPhi2 = rPhi2m.sum(rPhi2p);
-	
-	
-	auto rPhi1N = predictionRPhitmp(radius.max());
-	auto rPhi2N = predictionRPhitmp(radius.min());
-
-	std::cout << "VI " 
-		  << rPhi1N.first <<'/'<< rPhi1.first << ' '
-		  << rPhi1N.second <<'/'<< rPhi1.second << ' '
-		  << rPhi2N.first <<'/'<< rPhi2.first << ' '
-		  << rPhi2N.second <<'/'<< rPhi2.second
-		  << std::endl;
-	
-	*/
 
 	auto rPhi1 = predictionRPhitmp(radius.max());
         bool ok1 = !rPhi1.empty();

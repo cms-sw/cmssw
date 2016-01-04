@@ -107,7 +107,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
 
   float rzError[size]; //save maximum errors
 
-  const float maxDelphi = region.ptMin() < 0.3f ? float(M_PI)/4.f : float(M_PI)/8.f; // FIXME move to config??
+  const float maxDelphi = region.ptMin() < 1.0f ? float(M_PI)/4.f : float(M_PI)/8.f; // FIXME move to config??
   const float maxphi = M_PI+maxDelphi, minphi = -maxphi; // increase to cater for any range
   const float safePhi = M_PI-maxDelphi; // sideband
 
@@ -305,7 +305,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
       float prmin=phiRange.min(), prmax=phiRange.max(); //get contiguous range
 
       if (prmax<prmin)  std::cout << "aarg " << phiRange.first << ' ' << phiRange.second << std::endl;
-      if (prmax-prmin>maxDelphi) std::cout << "delphi " << ' ' << prmin << '/' << prmax << std::endl;
+      // if (prmax-prmin>maxDelphi) std::cout << "delphi " << ' ' << prmin << '/' << prmax << std::endl;
 
 
       if (barrelLayer) {
