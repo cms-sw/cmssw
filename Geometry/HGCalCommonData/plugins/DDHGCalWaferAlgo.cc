@@ -30,6 +30,7 @@ void DDHGCalWaferAlgo::initialize(const DDNumericArguments & nArgs,
 				  const DDStringVectorArguments & vsArgs) {
 
   cellSize    = nArgs["CellSize"];
+  cellType    = (int)(nArgs["CellType"]);
   childNames  = vsArgs["ChildNames"];
   positionX   = dbl_to_int(vArgs["PositionX"]);
   positionY   = dbl_to_int(vArgs["PositionY"]);
@@ -87,10 +88,11 @@ void DDHGCalWaferAlgo::execute(DDCompactView& cpv) {
     double xpos = dx*positionX[k];
     double ypos = dy*positionY[k];
     DDTranslation tran(xpos, ypos, 0);
-    cpv.position(DDName(name,idNameSpace), parentName, k, tran, rotation);
+    int copy = cellType*1000+k;
+    cpv.position(DDName(name,idNameSpace), parentName, copy, tran, rotation);
 #ifdef DebugLog
     edm::LogInfo("HGCalGeom") << "DDHGCalWaferAlgo: " 
-			      << DDName(name,idNameSpace) << " number " << k
+			      << DDName(name,idNameSpace) << " number " << copy
 			      << " positioned in " << parentName << " at "
 			      << tran << " with " << rotation;
 #endif

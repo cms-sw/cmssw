@@ -20,10 +20,11 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
   // allocate geometry
   HGCalGeometry* geom = new HGCalGeometry (topology);
   unsigned int numberOfCells = topology.totalGeomModules(); // both sides
+  unsigned int numberExpected= topology.allGeomModules();
 #ifdef DebugLog
-  std::cout << "Number of Cells " << numberOfCells << " for sub-detector "
-	    << topology.subDetector() << " Shape parameters "
-	    << HGCalGeometry::k_NumberOfShapes << ":" 
+  std::cout << "Number of Cells " << numberOfCells << ":" << numberExpected
+	    << " for sub-detector " << topology.subDetector() 
+	    << " Shape parameters " << HGCalGeometry::k_NumberOfShapes << ":" 
 	    << HGCalGeometry::k_NumberOfParametersPerShape << std::endl;
 #endif
   geom->allocateCorners( numberOfCells ) ;
@@ -33,93 +34,140 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
   bool               detType = topology.detectorType();
 
   // loop over modules
-  std::vector<HGCalDDDConstants::hgtrform>::const_iterator trItr;
-  std::vector<HGCalDDDConstants::hgtrap>::const_iterator   volItr;
   ParmVec params(HGCalGeometry::k_NumberOfParametersPerShape,0);
   unsigned int counter(0);
-  for (trItr = topology.dddConstants().getFirstTrForm(); 
-       trItr != topology.dddConstants().getLastTrForm(); ++trItr) {
-    int zside  = trItr->zp;
-    int layer  = trItr->lay;
-    int sector = trItr->sec;
-    int subSec = (detType ? trItr->subsec : 0);
-    const HepGeom::Transform3D ht3d (trItr->hr, trItr->h3v);
-    DetId detId= ((subdet ==  HGCEE) ?
-		  (DetId)(HGCEEDetId(subdet,zside,layer,sector,subSec,0)) :
-		  (DetId)(HGCHEDetId(subdet,zside,layer,sector,subSec,0)));
+#ifdef DebugLog
+  std::cout << "HGCalGeometryLoader with # of transformation matrices " 
+	    << topology.dddConstants().getTrFormN() << " and "
+	    << topology.dddConstants().volumes() << ":"
+	    << topology.dddConstants().sectors() << " volumes" << std::endl;
+#endif
+  for (unsigned itr=0; itr<topology.dddConstants().getTrFormN(); ++itr) {
+    HGCalParameters::hgtrform mytr = topology.dddConstants().getTrForm(itr);
+    int zside  = mytr.zp;
+    int layer  = mytr.lay;
 #ifdef DebugLog
     std::cout << "HGCalGeometryLoader:: Z:Layer:Sector:Subsector " << zside
-	      << ":" << layer << ":" << sector << ":" << subSec << " transf "
-	      << ht3d.getTranslation() << " and " << ht3d.getRotation();
+	      << ":" << layer <<std::endl;
 #endif
-    for (volItr = topology.dddConstants().getFirstModule(true);
-	 volItr != topology.dddConstants().getLastModule(true); ++volItr) {
-      if (volItr->lay == layer) {
-	double alpha = ((detType && subSec == 0) ? -fabs(volItr->alpha) :
-			fabs(volItr->alpha));
-	params[0] = volItr->dz;
-	params[1] = params[2] = 0;
-	params[3] = params[7] = volItr->h;
-	params[4] = params[8] = volItr->bl;
-	params[5] = params[9] = volItr->tl;
-	params[6] = params[10]= alpha;
-	params[11]= volItr->cellSize;
+    if (topology.geomMode() == HGCalGeometryMode::Square) {
+      int sector = mytr.sec;
+      int subSec = (detType ? mytr.subsec : 0);
+      const HepGeom::Transform3D ht3d (mytr.hr, mytr.h3v);
+      DetId detId= ((subdet ==  HGCEE) ?
+		    (DetId)(HGCEEDetId(subdet,zside,layer,sector,subSec,0)) :
+		    (DetId)(HGCHEDetId(subdet,zside,layer,sector,subSec,0)));
 #ifdef DebugLog
-	std::cout << "Volume Parameters";
-	for (unsigned int i=0; i<12; ++i) std::cout << " : " << params[i];
-	std::cout << std::endl;
+      std::cout << "HGCalGeometryLoader:: Sector:Subsector " << sector << ":" 
+		<< subSec << " transf " << ht3d.getTranslation() << " and " 
+		<< ht3d.getRotation();
 #endif
-	std::vector<GlobalPoint> corners (8);
-	
-	FlatTrd::createCorners( params, ht3d, corners ) ;
-	
-	const CCGFloat* parmPtr (CaloCellGeometry::getParmPtr(params, 
-							      geom->parMgr(), 
-							      geom->parVecVec() ) ) ;
-	
-	GlobalPoint front ( 0.25*( corners[0].x() + 
-				   corners[1].x() + 
-				   corners[2].x() + 
-				   corners[3].x()   ),
-			    0.25*( corners[0].y() + 
-				   corners[1].y() + 
-				   corners[2].y() + 
-				   corners[3].y()   ),
-			    0.25*( corners[0].z() + 
-				   corners[1].z() + 
-				   corners[2].z() + 
-				   corners[3].z()   ) ) ;
-	
-	GlobalPoint back  ( 0.25*( corners[4].x() + 
-				   corners[5].x() + 
-				   corners[6].x() + 
-				   corners[7].x()   ),
-			    0.25*( corners[4].y() + 
-				   corners[5].y() + 
-				   corners[6].y() + 
-				   corners[7].y()   ),
-			    0.25*( corners[4].z() + 
-				   corners[5].z() + 
-				   corners[6].z() + 
-				   corners[7].z()   ) ) ;
-	
-	if (front.mag2() > back.mag2()) { // front should always point to the center, so swap front and back
-	  std::swap (front, back);
-	  std::swap_ranges (corners.begin(), corners.begin()+4, corners.begin()+4); 
+      for (unsigned int k=0; k<topology.dddConstants().volumes(); ++k) {
+	HGCalParameters::hgtrap vol = topology.dddConstants().getModule(k,false,true);
+	if (vol.lay == layer) {
+	  double alpha = ((detType && subSec == 0) ? -fabs(vol.alpha) :
+			  fabs(vol.alpha));
+	  params[0] = vol.dz;
+	  params[1] = params[2] = 0;
+	  params[3] = params[7] = vol.h;
+	  params[4] = params[8] = vol.bl;
+	  params[5] = params[9] = vol.tl;
+	  params[6] = params[10]= alpha;
+	  params[11]= vol.cellSize;
+	  buildGeom(params, ht3d, detId, geom);
+	  counter++;
+	  break;
 	}
-	
-	geom->newCell(front, back, corners[0], parmPtr, detId) ;
-	counter++;
-	break;
+      }
+    } else {
+      for (int wafer=0; wafer<topology.dddConstants().sectors(); ++wafer) {
+	if (topology.dddConstants().waferInLayer(wafer,layer,true)) {
+	  int type = topology.dddConstants().waferTypeT(wafer);
+	  if (type != 1) type = 0;
+	  DetId detId = (DetId)(HGCalDetId(subdet,zside,layer,type,wafer,0));
+	  std::pair<double,double>  w = topology.dddConstants().waferPosition(wafer);
+	  double xx = (zside > 0) ? w.first : -w.first;
+	  CLHEP::Hep3Vector h3v(xx,w.second,mytr.h3v.z());
+	  const HepGeom::Transform3D ht3d (mytr.hr, h3v);
+#ifdef DebugLog
+	  std::cout << "HGCalGeometryLoader:: Wafer:Type " << wafer << ":" 
+		    << type << " transf " << ht3d.getTranslation() << " and " 
+		    << ht3d.getRotation();
+#endif
+	  HGCalParameters::hgtrap vol = topology.dddConstants().getModule(wafer,true,true);
+	  params[0] = vol.dz;
+	  params[1] = params[2] = 0;
+	  params[3] = params[7] = vol.h;
+	  params[4] = params[8] = vol.bl;
+	  params[5] = params[9] = vol.tl;
+	  params[6] = params[10]= 0;
+	  params[11]= topology.dddConstants().cellSizeHex(type);
+
+	  buildGeom(params, ht3d, detId, geom);
+	  counter++;
+	}
       }
     }
   }
+
   geom->sortDetIds();
 
-  if (counter != numberOfCells) {
-    std::cerr << "inconsistent # of cells: expected " << numberOfCells << " , inited " << counter << std::endl;
+  if (counter != numberExpected) {
+    std::cerr << "inconsistent # of cells: expected " << numberExpected << ":"
+	      << numberOfCells << " , inited " << counter << std::endl;
     assert( counter == numberOfCells ) ;
   }
 
   return geom;
+}
+
+void HGCalGeometryLoader::buildGeom(const ParmVec& params, 
+				    const HepGeom::Transform3D& ht3d, 
+				    const DetId& detId,  HGCalGeometry* geom) {
+
+#ifdef DebugLog
+  std::cout << "Volume Parameters";
+  for (unsigned int i=0; i<12; ++i) std::cout << " : " << params[i];
+  std::cout << std::endl;
+#endif
+  std::vector<GlobalPoint> corners (8);
+	
+  FlatTrd::createCorners( params, ht3d, corners ) ;
+	
+  const CCGFloat* parmPtr (CaloCellGeometry::getParmPtr(params, 
+							geom->parMgr(), 
+							geom->parVecVec() ) ) ;
+	
+  GlobalPoint front ( 0.25*( corners[0].x() + 
+			     corners[1].x() + 
+			     corners[2].x() + 
+			     corners[3].x()   ),
+		      0.25*( corners[0].y() + 
+			     corners[1].y() + 
+			     corners[2].y() + 
+			     corners[3].y()   ),
+		      0.25*( corners[0].z() + 
+			     corners[1].z() + 
+			     corners[2].z() + 
+			     corners[3].z()   ) ) ;
+  
+  GlobalPoint back  ( 0.25*( corners[4].x() + 
+			     corners[5].x() + 
+			     corners[6].x() + 
+			     corners[7].x()   ),
+		      0.25*( corners[4].y() + 
+			     corners[5].y() + 
+			     corners[6].y() + 
+			     corners[7].y()   ),
+		      0.25*( corners[4].z() + 
+			     corners[5].z() + 
+			     corners[6].z() + 
+			     corners[7].z()   ) ) ;
+  
+  if (front.mag2() > back.mag2()) { // front should always point to the center, so swap front and back
+    std::swap (front, back);
+    std::swap_ranges (corners.begin(), corners.begin()+4, corners.begin()+4); 
+  }
+	
+  geom->newCell(front, back, corners[0], parmPtr, detId) ;
 }
