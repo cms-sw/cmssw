@@ -188,6 +188,11 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   std::shared_ptr<LUT> tauCalibrationLUT( new LUT(tauCalibrationLUTStream) );
   m_params_helper.setTauCalibrationLUT(*tauCalibrationLUT);
 
+  edm::FileInPath tauCompressLUTFile = conf.getParameter<edm::FileInPath>("tauCompressLUTFile");
+  std::ifstream tauCompressLUTStream(tauCompressLUTFile.fullPath());
+  std::shared_ptr<LUT> tauCompressLUT( new LUT(tauCompressLUTStream) );
+  m_params_helper.setTauCompressLUT(*tauCompressLUT);
+
   edm::FileInPath tauEtToHFRingEtLUTFile = conf.getParameter<edm::FileInPath>("tauEtToHFRingEtLUTFile");
   std::ifstream tauEtToHFRingEtLUTStream(tauEtToHFRingEtLUTFile.fullPath());
   std::shared_ptr<LUT> tauEtToHFRingEtLUT( new LUT(tauEtToHFRingEtLUTStream) );

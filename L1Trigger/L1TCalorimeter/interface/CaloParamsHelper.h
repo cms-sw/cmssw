@@ -171,6 +171,7 @@ namespace l1t {
     std::string tauCalibrationType() const { return pnode_[tauCalibration].type_; }
     std::vector<double> tauCalibrationParams() { return pnode_[tauCalibration].dparams_; }
     l1t::LUT* tauCalibrationLUT() { return &pnode_[tauCalibration].LUT_; }
+    l1t::LUT* tauCompressLUT() { return &pnode_[tauCompress].LUT_; }
 
     l1t::LUT* tauEtToHFRingEtLUT() { return &pnode_[tauEtToHFRingEt].LUT_; }
 
@@ -201,6 +202,7 @@ namespace l1t {
 
     void setTauCalibrationParams(std::vector<double> params) { pnode_[tauCalibration].dparams_ = params; }
     void setTauCalibrationLUT(const l1t::LUT & lut) { pnode_[tauCalibration].LUT_ = lut; }
+    void setTauCompressLUT(const l1t::LUT & lut) { pnode_[tauCompress].LUT_ = lut; }
     void setTauPUSParams(const std::vector<double> & params) { pnode_[tauPUS].dparams_ = params; }
 
     void setTauEtToHFRingEtLUT(const l1t::LUT & lut) { pnode_[tauEtToHFRingEt].LUT_ = lut; }
