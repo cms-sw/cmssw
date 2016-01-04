@@ -316,7 +316,8 @@ private:
   edm::EDGetTokenT<TrackingParticleCollection> tpEffSrc_;
   edm::EDGetTokenT<PFCandidateCollection> pfCandSrc_;
   edm::EDGetTokenT<DeDxDataValueMap> DeDxSrc_;
-  edm::EDGetTokenT<reco::SimToRecoCollection> associatorMap_;
+  edm::EDGetTokenT<reco::SimToRecoCollection> associatorMapSR_;
+  edm::EDGetTokenT<reco::RecoToSimCollection> associatorMapRS_;
 
   vector<edm::EDGetTokenT<reco::VertexCollection> > vertexSrc_;
   edm::EDGetTokenT<TrackingVertexCollection> simVertexSrc_;
@@ -390,7 +391,8 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
     particleSrc_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("particleSrc"));
     //tpFakeSrc_ =  consumes<>(iConfig.getUntrackedParameter<edm::InputTag>("tpFakeSrc",edm::InputTag("mix","MergedTrackTruth")));
     tpEffSrc_ =  consumes<TrackingParticleCollection>(iConfig.getUntrackedParameter<edm::InputTag>("tpEffSrc",edm::InputTag("mix","MergedTrackTruth")));
-    associatorMap_ = consumes<reco::SimToRecoCollection>(iConfig.getParameter<edm::InputTag>("associatorMap"));
+    associatorMapSR_ = consumes<reco::SimToRecoCollection>(iConfig.getParameter<edm::InputTag>("associatorMap"));
+    associatorMapRS_ = consumes<reco::RecoToSimCollection>(iConfig.getParameter<edm::InputTag>("associatorMap"));
   }
 
   std::vector<std::string> vertexSrcString_ = iConfig.getParameter<vector<string> >("vertexSrc");
@@ -607,7 +609,7 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
    iEvent.getByToken(mvaSrc_, mvaoutput);
   }
   if(doSimTrack_) {
-   iEvent.getByToken(associatorMap_,recotosimCollectionH);
+   iEvent.getByToken(associatorMapRS_,recotosimCollectionH);
    recSimColl= *(recotosimCollectionH.product());
   }
 
@@ -816,7 +818,7 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
    iEvent.getByToken(trackSrc_,etracks);
    iEvent.getByToken(mvaSrc_, mvaoutput);
   }
-  iEvent.getByToken(associatorMap_,simtorecoCollectionH);
+  iEvent.getByToken(associatorMapSR_,simtorecoCollectionH);
   simRecColl= *(simtorecoCollectionH.product());
 
 
