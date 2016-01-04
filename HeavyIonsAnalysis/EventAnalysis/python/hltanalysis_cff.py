@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from HeavyIonsAnalysis.EventAnalysis.hltobject_cfi import *
 from HLTrigger.HLTanalyzers.HLTBitAnalyser_cfi import *
 
 hltbitanalysis.UseTFileService = cms.untracked.bool(True)
