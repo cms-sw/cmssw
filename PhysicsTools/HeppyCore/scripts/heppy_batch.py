@@ -90,25 +90,38 @@ fi"""
    elif  remoteDir.startswith("root://eoscms.cern.ch//eos/cms/store/"):
        cpCmd="""echo 'sending root files to remote dir'
 export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH # 
-for f in Loop/tree*.root
+for f in Loop/*/tree*.root
 do
-   ff=`basename $f | cut -d . -f 1`
+   rm Loop/cmsswPreProcessing.root
+   ff=`echo $f | cut -d/ -f2`
+   ff="${{ff}}_`basename $f | cut -d . -f 1`"
    echo $f
    echo $ff
    export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch
    source $VO_CMS_SW_DIR/cmsset_default.sh
-   echo "gfal-copy file://`pwd`/Loop/$ff.root {srm}/${{ff}}_{idx}.root" 
-   gfal-copy file://`pwd`/Loop/$ff.root {srm}/${{ff}}_{idx}.root
-   echo $idx 
+   echo "/afs/cern.ch/project/eos/installation/pro/bin/eos.select mkdir {srm}"
+   /afs/cern.ch/project/eos/installation/pro/bin/eos.select mkdir {srm}
+   echo "/afs/cern.ch/project/eos/installation/pro/bin/eos.select cp `pwd`/$f {srm}/${{ff}}_{idx}.root"
+   /afs/cern.ch/project/eos/installation/pro/bin/eos.select cp `pwd`/$f {srm}/${{ff}}_{idx}.root
+   echo $idx
    if [ $? -ne 0 ]; then
       echo "ERROR: remote copy failed for file $ff"
    else
       echo "remote copy succeeded"
-      rm Loop/$ff.root
+      rm $f
+      echo root://eoscms.cern.ch/{srm}/${{ff}}_{idx}.root > $f.url
    fi
 done
-#fi
-""".format(idx=jobDir[jobDir.find("_Chunk")+6:].strip("/"),  srm=""+remoteDir+jobDir[jobDir.rfind("/"):jobDir.find("_Chunk")])
+cp -r Loop/* $LS_SUBCWD
+if [ $? -ne 0 ]; then
+   echo 'ERROR: problem copying job directory back'
+else
+   echo 'job directory copy succeeded'
+fi
+""".format(
+          idx = jobDir[jobDir.find("_Chunk")+6:].strip("/") if '_Chunk' in jobDir else 'all'
+          srm = (""+remoteDir+jobDir[ jobDir.rfind("/") : (jobDir.find("_Chunk") if '_Chunk' in jobDir else len(jobDir)) ]).replace("root://eoscms.cern.ch/","")
+          )
    else:
        print "chosen location not supported yet: ", remoteDir
        print 'path must start with /store/'
@@ -276,7 +289,7 @@ class MyBatchManager( BatchManager ):
        storeDir = self.remoteOutputDir_.replace('/castor/cern.ch/cms','')
        mode = self.RunningMode(options.batch)
        if mode == 'LXPLUS':
-           scriptFile.write( batchScriptCERN( jobDir, storeDir) ) 
+           scriptFile.write( batchScriptCERN( jobDir, storeDir ) ) 
        elif mode == 'PSI':
            scriptFile.write( batchScriptPSI ( value, jobDir, storeDir ) ) # storeDir not implemented at the moment
        elif mode == 'LOCAL':
