@@ -177,9 +177,11 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 l1t::Tau tau (emptyP4, mainCluster.hwPt(), mainCluster.hwEta(), mainCluster.hwPhi(), 0);
 
                 // Corrections function of ieta, ET, and cluster shape
-                //int calibPt = calibratedPt(cluster, egamma.hwPt()); // FIXME! for the moment no calibration
-                int calibPt = mainCluster.hwPt();
-                if (calibPt > 1023) calibPt = 1023; // only 10 bits available
+                int calibPt = calibratedPt(mainCluster, tau.hwPt(), false); // FIXME! for the moment no calibration
+                
+                //int calibPt = mainCluster.hwPt();
+                //if (calibPt > 1023) calibPt = 1023; // only 10 bits available
+                
                 tau.setHwPt(calibPt);
 
                 // Physical eta/phi. Computed from ieta/iphi of the seed tower and the fine-grain position within the seed
@@ -671,9 +673,9 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 // ==================================================================
 
                 // Corrections function of ieta, ET, and cluster shape
-                //int calibPt = calibratedPt(cluster, egamma.hwPt()); // FIXME! for the moment no calibration
-                int calibPt = mainCluster.hwPt()+secondaryCluster->hwPt();
-                if (calibPt > 1023) calibPt = 1023; // only 10 bits available
+                int calibPt = calibratedPt(mainCluster, tau.hwPt(), true); // FIXME! for the moment no calibration
+                //int calibPt = mainCluster.hwPt()+secondaryCluster->hwPt();
+                //if (calibPt > 1023) calibPt = 1023; // only 10 bits available
                 tau.setHwPt(calibPt);
                 
                 // Physical eta/phi. Computed from ieta/iphi of the seed tower and the fine-grain position within the seed
@@ -1033,4 +1035,53 @@ std::vector<l1t::CaloCluster*> l1t::Stage2Layer2TauAlgorithmFirmwareImp1::makeSe
     }
     return secClusters;
 }
+
+// isMerged=0,1 ; hasEM=0,1
+unsigned int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibLutIndex (int ieta, int Et, int hasEM, int isMerged)
+{
+    int absieta = abs(ieta);
+    if (absieta > 28) absieta = 28;
+
+    if (Et > 255) Et = 255;
+
+    unsigned int compressedEta = params_->tauCompressLUT()->data(absieta);
+    unsigned int compressedEt  = params_->tauCompressLUT()->data((0x1<<5)+Et);
+
+    //cout << "      * compressedEta = " << compressedEta << endl;
+    //cout << "      * compressedEt = "  << compressedEt  << endl;
+
+    unsigned int address = ( (compressedEta<<6) | (compressedEt<<2) | (hasEM<<1) | isMerged );
+    return address;
+}
+
+int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCluster& clus, int hwPt, bool isMerged)
+{
+    //cout << "** DEBUG: CALLING calibPt with params: " << hwPt << " " << isMerged << endl;
+
+    int hasEM = (clus.hwPtEm() > 0 ? 1 : 0);
+    int isMergedI = (isMerged ? 1 : 0);
+
+    //cout << "  --> ieta = " << clus.hwEta() << " , hasEM = " << hasEM << " , isMergedI = " << isMergedI << endl;
+
+    unsigned int idx = calibLutIndex(clus.hwEta(), hwPt, hasEM, isMergedI);
+    unsigned int corr = params_->tauCalibrationLUT()->data(idx);
+
+    //cout << "  --> idx = " << idx << " >>>> corr = " << corr << endl;
+
+
+    // now apply calibration factor: corrPt = rawPt * (corr[LUT] + 0.5)
+    // where corr[LUT] is an integer mapped to the range [0, 2]
+    int rawPt = hwPt;
+    if (rawPt > 255) rawPt = 255; // 8 bit
+    
+    int corrXrawPt = corr*rawPt; // 17 bits
+    int calibPt = (hwPt>>1) + (corrXrawPt>>8); // (10 bits) = (7 bits) + (9 bits) 
+    // saturation FIXME: to be done in demux?
+    if (calibPt > 255) calibPt = 255;
+    
+    //cout << "  --> hwPt = " << hwPt << " , calibPt = " << calibPt << endl;
+
+    return calibPt;
+}
+
 
