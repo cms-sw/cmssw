@@ -33,6 +33,7 @@ void HeavyIonUCCDQM::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const
 
 	h_SumEt = ibooker_.book1D("h_SumEt", "SumEt", nEt, minEt, maxEt);
 	h_SiPixelClusters = ibooker_.book1D("h_SiPixelClusters", "h_SiPixelClusters", nClusters, minClusters, maxClusters);
+	h_SumEt_SiPixelClusters = ibooker_.book2D("h_SumEt_SiPixelClusters","h_SumEt_SiPixelClusters",nEt, minEt, maxEt, nClusters, minClusters, maxClusters);
 
 	ibooker_.cd();
 }
@@ -70,6 +71,11 @@ void HeavyIonUCCDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 	if ( calometColl.isValid() ) {
 		h_SumEt->Fill((*calometColl).front().sumEt());
 	}
+
+	if ( cluster.isValid() && calometColl.isValid() ) {
+	        h_SumEt_SiPixelClusters->Fill((*calometColl).front().sumEt(), cluster->dataSize());
+	}
+
 
 }
 
