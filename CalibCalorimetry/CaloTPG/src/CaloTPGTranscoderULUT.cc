@@ -1,4 +1,5 @@
 #include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -51,7 +52,10 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 
     for(std::vector<DetId>::iterator i=allChannels.begin(); i!=allChannels.end(); ++i){
 
-	if(HcalDetId(*i).subdet()!=HcalTriggerTower) continue;
+	if (not HcalGenericDetId(*i).isHcalTrigTowerDetId()) {
+	    edm::LogWarning("CaloTPGTranscoderULUT") << "Encountered invalid HcalTrigTowerDetId " << HcalGenericDetId(*i);
+	    continue;
+	}
 	
 	HcalTrigTowerDetId id(*i); 
 	if(!theTopology->validHT(id)) continue;
