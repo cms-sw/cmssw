@@ -19,14 +19,14 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     comEnergy = cms.double(8000.),
 
     ExternalDecays = cms.PSet(
-        EvtGen130 = cms.untracked.PSet(
+        EvtGen1 = cms.untracked.PSet(
             decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_2010.DEC'),
             particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt.pdl'),
 #            user_decay_files = cms.vstring('DECAY_2010.DEC'),
             list_forced_decays = cms.vstring(),
             operates_on_particles = cms.vint32(0)
         ),
-        parameterSets = cms.vstring('EvtGen130')
+        parameterSets = cms.vstring('EvtGen1')
     ),
         
     PythiaParameters = cms.PSet(
@@ -63,8 +63,10 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('Py8_tt_evtgen130.root')
+    fileName = cms.untracked.string('Py8_tt_evtgen1.root')
 )
+
+process.genParticles.src = cms.InputTag("generator","unsmeared")
 
 process.printGenParticles = cms.EDAnalyzer("ParticleListDrawer",
                                            src = cms.InputTag("genParticles"),
