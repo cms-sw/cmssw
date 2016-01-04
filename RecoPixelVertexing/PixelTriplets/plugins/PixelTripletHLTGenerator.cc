@@ -22,51 +22,16 @@
 
 #include "CommonTools/Utils/interface/DynArray.h"
 
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 #include<cstdio>
 #include<iostream>
 
 using pixelrecoutilities::LongitudinalBendingCorrection;
-typedef PixelRecoRange<float> Range;
+using Range=PixelRecoRange<float>;
 
 using namespace std;
 using namespace ctfseeding;
-
-
-namespace {
-  inline
-    float reduceRange(float x) {
-       using T=float;
-       constexpr T o2pi = 1./(2.*M_PI);
-       if (std::abs(x) <= T(M_PI)) return x;
-       T n = std::round(x*o2pi);
-       return x - n*T(2.*M_PI);
-      };
-   // cernlib V306
-  inline 
-  float proxim(float b, float a) {
-        using T=float;
-        constexpr T c1 = 2.*M_PI;
-        constexpr T c2 = 1/c1;
-        return b+c1*std::round(c2*(a-b));
-      };
-
-
-  inline
-  bool checkPhiInRange(float phi, float phi1, float phi2) {
-    using T=float;
-    constexpr T c1 = 2.*M_PI;
-    phi1 = reduceRange(phi1);
-    phi2 = proxim(phi2,phi1);
-    // phi & phi1 are in [-pi,pi] range...
-    return ( (phi1 <= phi) && (phi <= phi2) ) ||
-           ( (phi1 <= phi+c1) && (phi+c1 <= phi2) );
-  }
-
-
-
-}
-
 
 
 PixelTripletHLTGenerator:: PixelTripletHLTGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
@@ -75,10 +40,9 @@ PixelTripletHLTGenerator:: PixelTripletHLTGenerator(const edm::ParameterSet& cfg
     extraHitRZtolerance(cfg.getParameter<double>("extraHitRZtolerance")),
     extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")),
     useMScat(cfg.getParameter<bool>("useMultScattering")),
-    useBend(cfg.getParameter<bool>("useBending"))
-{
-  dphi =  (useFixedPreFiltering) ?  cfg.getParameter<double>("phiPreFiltering") : 0;
-  
+    useBend(cfg.getParameter<bool>("useBending")),
+    dphi(useFixedPreFiltering ?  cfg.getParameter<double>("phiPreFiltering") : 0) 
+{  
   edm::ParameterSet comparitorPSet =
     cfg.getParameter<edm::ParameterSet>("SeedComparitorPSet");
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
@@ -272,7 +236,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
         // if (rPhi2.empty()) std::cout << "rphi2 empty " <<  rPhi2.second << ' ' << rPhi2.first << ' ' << radius.min() << ' ' << radius.max() <<std::endl;
 
         if (ok1) { 
-          rPhi1.first = reduceRange(rPhi1.first);
+          rPhi1.first = normalizedPhi(rPhi1.first);
           rPhi1.second = proxim(rPhi1.second,rPhi1.first);
           if(ok2) {
             rPhi2.first = proxim(rPhi2.first,rPhi1.first);
@@ -280,7 +244,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
             phiRange = rPhi1.sum(rPhi2);
           } else phiRange=rPhi1;
         } else if(ok2) {
-          rPhi2.first = reduceRange(rPhi2.first);
+          rPhi2.first = normalizedPhi(rPhi2.first);
           rPhi2.second = proxim(rPhi2.second,rPhi2.first);
           phiRange=rPhi2;
         } else continue;

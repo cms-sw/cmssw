@@ -24,13 +24,14 @@
 #include <cmath>
 #include <map>
 
+#include "DataFormats/Math/interface/normalizedPhi.h"
+
 #include "CommonTools/Utils/interface/DynArray.h"
 
 using namespace std;
 
-typedef PixelRecoRange<float> Range;
-
-typedef ThirdHitPredictionFromCircle::HelixRZ HelixRZ;
+using Range=PixelRecoRange<float>;
+using HelixRZ=ThirdHitPredictionFromCircle::HelixRZ;
 
 namespace {
   struct LayerRZPredictions {
@@ -43,7 +44,8 @@ namespace {
 
 constexpr double nSigmaRZ = 3.4641016151377544; // sqrt(12.)
 constexpr double nSigmaPhi = 3.;
-static const float fnSigmaRZ = std::sqrt(12.f);
+constexpr float fnSigmaRZ = nSigmaRZ;
+
 
 PixelTripletLargeTipGenerator::PixelTripletLargeTipGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
   : HitTripletGeneratorFromPairAndLayers(cfg),
@@ -51,11 +53,8 @@ PixelTripletLargeTipGenerator::PixelTripletLargeTipGenerator(const edm::Paramete
     extraHitRZtolerance(cfg.getParameter<double>("extraHitRZtolerance")),
     extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")),
     useMScat(cfg.getParameter<bool>("useMultScattering")),
-    useBend(cfg.getParameter<bool>("useBending"))
-{
-  if (useFixedPreFiltering)
-    dphi = cfg.getParameter<double>("phiPreFiltering");
-}
+    useBend(cfg.getParameter<bool>("useBending")),
+    dphi(useFixedPreFiltering ? cfg.getParameter<double>("phiPreFiltering") : 0) {}
 
 PixelTripletLargeTipGenerator::~PixelTripletLargeTipGenerator() {}
 
@@ -108,7 +107,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
 
   float rzError[size]; //save maximum errors
 
-  const float maxDelphi = M_PI/8; // FIXME move to config
+  const float maxDelphi = region.ptMin() < 0.3f ? float(M_PI)/4.f : float(M_PI)/8.f; // FIXME move to config??
   const float maxphi = M_PI+maxDelphi, minphi = -maxphi; // increase to cater for any range
   const float safePhi = M_PI-maxDelphi; // sideband
 
@@ -268,41 +267,45 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
             continue;
         }
 	
-        Range rPhi1 = predictionRPhi(curvature, radius.first);
-        Range rPhi2 = predictionRPhi(curvature, radius.second);
-        correction.correctRPhiRange(rPhi1);
-        correction.correctRPhiRange(rPhi2);
-        rPhi1.first  /= radius.first;
-        rPhi1.second /= radius.first;
-        rPhi2.first  /= radius.second;
-        rPhi2.second /= radius.second;
-        phiRange = mergePhiRanges(rPhi1, rPhi2);
+        auto rPhi1 = predictionRPhi(curvature, radius.first);
+        bool ok1 = !rPhi1.empty();
+        if (ok1) {
+          correction.correctRPhiRange(rPhi1);
+          rPhi1.first  /= radius.max();
+          rPhi1.second /= radius.max();
+        }
+        auto rPhi2 = predictionRPhi(curvature, radius.second);
+        bool ok2 = !rPhi2.empty();
+        if (ok2) {
+          correction.correctRPhiRange(rPhi2);
+          rPhi2.first  /= radius.min();
+          rPhi2.second /= radius.min();
+        }
+
+        if (ok1) {
+          rPhi1.first = normalizedPhi(rPhi1.first);
+          rPhi1.second = proxim(rPhi1.second,rPhi1.first);
+          if(ok2) {
+            rPhi2.first = proxim(rPhi2.first,rPhi1.first);
+            rPhi2.second = proxim(rPhi2.second,rPhi1.first);
+            phiRange = rPhi1.sum(rPhi2);
+          } else phiRange=rPhi1;
+        } else if(ok2) {
+          rPhi2.first = normalizedPhi(rPhi2.first);
+          rPhi2.second = proxim(rPhi2.second,rPhi2.first);
+          phiRange=rPhi2;
+        } else continue;
+
+        // if (std::abs(phiRange.first)>float(M_PI)) std::cout << "bha1 " << phiRange.first << ' ' << phiRange.second << std::endl;
+        if (std::abs(phiRange.first)>float(M_PI) && std::abs(phiRange.second)>float(M_PI)) std::cout << "bha2 " << phiRange.first << ' ' << phiRange.second << std::endl;
+
       }
       
       foundNodes.clear(); // Now recover hits in bounding box...
       float prmin=phiRange.min(), prmax=phiRange.max(); //get contiguous range
 
-      auto reduceRange = [](float x) {
-       using T=float;
-       constexpr T o2pi = 1./(2.*M_PI);
-       if (std::abs(x) <= T(M_PI)) return x;
-       T n = std::round(x*o2pi);
-       return x - n*T(2.*M_PI);
-      };
-  
-      // cernlib V306
-      auto proxim = [](float b, float a) {
-        using T=float;
-        constexpr T c1 = 2.*M_PI;
-        constexpr T c2 = 1/c1;
-        return b+c1*std::round(c2*(a-b));
-      };
-
-      prmin = reduceRange(prmin);
-      prmax = proxim(prmax,prmin);
-      if (prmin>prmax) std::swap(prmax,prmin);
-
-      // if (prmax-prmin>maxDelphi) std::cout << "delphi " << ' ' << prmin << '/' << prmax << std::endl;
+      if (prmax<prmin)  std::cout << "aarg " << phiRange.first << ' ' << phiRange.second << std::endl;
+      if (prmax-prmin>maxDelphi) std::cout << "delphi " << ' ' << prmin << '/' << prmax << std::endl;
 
 
       if (barrelLayer) {
@@ -381,18 +384,3 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
   // std::cout << "found triplets " << result.size() << std::endl;
 }
 
-bool PixelTripletLargeTipGenerator::checkPhiInRange(float phi, float phi1, float phi2) const
-{ while (phi > phi2) phi -= 2. * M_PI;
-  while (phi < phi1) phi += 2. * M_PI;
-  return phi <= phi2;
-}  
-
-std::pair<float, float>
-PixelTripletLargeTipGenerator::mergePhiRanges(const std::pair<float, float> &r1,
-					      const std::pair<float, float> &r2) const
-{ float r2Min = r2.first;
-  float r2Max = r2.second;
-  while (r1.first - r2Min > +M_PI) r2Min += 2. * M_PI, r2Max += 2. * M_PI;
-  while (r1.first - r2Min < -M_PI) r2Min -= 2. * M_PI, r2Max -= 2. * M_PI;
-  return std::make_pair(min(r1.first, r2Min), max(r1.second, r2Max));
-}
