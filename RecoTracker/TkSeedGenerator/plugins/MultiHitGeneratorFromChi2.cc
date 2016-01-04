@@ -217,7 +217,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	    if (myerr > maxErr) { maxErr = myerr;}
 	    layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle, myz)); // save it
             // populate side-bands
-           if (angle>safePhi) layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle-Geom::twoPi(), myz));
+            if (angle>safePhi) layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle-Geom::twoPi(), myz));
             else if (angle<-safePhi) layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle+Geom::twoPi(), myz));
 	  }
       }
@@ -383,7 +383,8 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	//gc: predictionRPhi uses the cosine rule to find the phi of the 3rd point at radius, assuming the pairCurvature range [-c,+c]
 	if (pairCurvature.first<0. && pairCurvature.second<0.) {
           radius.swap();
-	} else if (pairCurvature.first>=0. && pairCurvature.second>=0.) {
+	} else if (pairCurvature.first>=0. && pairCurvature.second>=0.) {;}
+        else {
 	  radius.first=radius.second;
         }
         auto phi12 = predictionRPhi.phi(pairCurvature.first,radius.first);
@@ -397,9 +398,15 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
       
       
       if (prmax<prmin)  std::cout << "aarg " << phiRange.first << ' ' << phiRange.second << std::endl;
-      if (prmax-prmin>maxDelphi) std::cout << "delphi " << ' ' << prmin << '/' << prmax << std::endl;
+      // if (prmax-prmin>maxDelphi) std::cout << "delphi " << ' ' << prmin << '/' << prmax << std::endl;
  
-      
+      if (prmax-prmin>maxDelphi) {
+        auto prm = phiRange.mean();
+        prmin = prm - 0.5f*maxDelphi;
+        prmax = prm + 0.5f*maxDelphi;
+      }
+
+
       //gc: this is the place where hits in the compatible region are put in the foundNodes
       using Hit=RecHitsSortedInPhi::Hit;
       foundNodes.clear(); // Now recover hits in bounding box...

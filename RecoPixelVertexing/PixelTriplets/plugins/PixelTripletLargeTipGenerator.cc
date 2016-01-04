@@ -107,7 +107,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
 
   float rzError[size]; //save maximum errors
 
-  const float maxDelphi = region.ptMin() < 1.0f ? float(M_PI)/4.f : float(M_PI)/8.f; // FIXME move to config??
+  const float maxDelphi = region.ptMin() < 0.3f ? float(M_PI)/4.f : float(M_PI)/8.f; // FIXME move to config??
   const float maxphi = M_PI+maxDelphi, minphi = -maxphi; // increase to cater for any range
   const float safePhi = M_PI-maxDelphi; // sideband
 
@@ -307,6 +307,11 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
       if (prmax<prmin)  std::cout << "aarg " << phiRange.first << ' ' << phiRange.second << std::endl;
       // if (prmax-prmin>maxDelphi) std::cout << "delphi " << ' ' << prmin << '/' << prmax << std::endl;
 
+      if (prmax-prmin>maxDelphi) {
+        auto prm = phiRange.mean();
+        prmin = prm - 0.5f*maxDelphi;
+        prmax =	prm + 0.5f*maxDelphi;
+      }
 
       if (barrelLayer) {
 	Range regMax = predRZ.line.detRange();
@@ -314,7 +319,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
 	regMax = predRZ.line(regMax.max());
 	correction.correctRZRange(regMin);
 	correction.correctRZRange(regMax);
-	if (regMax.min() < regMin.min()) { swap(regMax, regMin);}
+	if (regMax.min() < regMin.min()) { std::swap(regMax, regMin);}
 	KDTreeBox phiZ(prmin, prmax,
 		       regMin.min()-fnSigmaRZ*rzError[il],
 		       regMax.max()+fnSigmaRZ*rzError[il]);

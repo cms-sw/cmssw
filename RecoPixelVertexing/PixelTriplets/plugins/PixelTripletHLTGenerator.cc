@@ -250,8 +250,14 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 
 
       if (prmax<prmin)  std::cout << "aarg " << phiRange.first << ' ' << phiRange.second << std::endl;
-      if (prmax-prmin>maxDelphi) std::cout << "delphi " << ' ' << prmin << '/' << prmax << std::endl;
+      // if (prmax-prmin>maxDelphi) std::cout << "delphi " << ' ' << prmin << '/' << prmax << std::endl;
 
+      if (prmax-prmin>maxDelphi) {
+        auto prm = phiRange.mean();
+        prmin = prm - 0.5f*maxDelphi;
+        prmax = prm + 0.5f*maxDelphi;
+      }
+ 
       if (barrelLayer)
 	{
 	  Range regMax = predictionRZ.detRange();
