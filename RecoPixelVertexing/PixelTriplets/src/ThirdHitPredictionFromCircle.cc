@@ -11,6 +11,7 @@
 #include<iostream>
 #include<algorithm>
 
+#include "DataFormats/Math/interface/normalizedPhi.h"
 #include "DataFormats/Math/interface/approx_asin.h"
 
 // there are tons of safety checks.
@@ -62,11 +63,7 @@ float ThirdHitPredictionFromCircle::phi(float curvature, float radius) const
     float cos = (rc2 + r2 - radius2)/std::sqrt(4.f*rc2*r2);
     phi = f_phi(lcenter) + sign * clamped_acos(cos);
  }
-
-  while(unlikely(phi >= float(M_PI))) phi -= float(2. * M_PI);
-  while(unlikely(phi < -float(M_PI))) phi += float(2. * M_PI);
-
-  return phi;
+  return phi;  // not normalized
 }
 
 float ThirdHitPredictionFromCircle::angle(float curvature, float radius) const
@@ -88,10 +85,9 @@ float ThirdHitPredictionFromCircle::angle(float curvature, float radius) const
 ThirdHitPredictionFromCircle::Range
 ThirdHitPredictionFromCircle::operator()(Range curvature, float radius) const
 {
-  float phi1 = phi(curvature.second, radius);
-  float phi2 = phi(curvature.first, radius);
-
-  while(unlikely(phi2 <  phi1)) phi2 += float(2. * M_PI); 
+  float phi1 = normalizedPhi(phi(curvature.second, radius));
+  float phi2 = proxim(phi(curvature.first, radius),phi1);
+  if(phi2 < phi1) std::swap(phi2,phi1);
 
   return Range(phi1 * radius - theTolerance, phi2 * radius + theTolerance);
 }

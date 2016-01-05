@@ -653,9 +653,9 @@ void MultiHitGeneratorFromChi2::refit2Hits(HitOwnPtr & hit1,
 
   FastCircle theCircle(gp2,gp1,gp0);
   GlobalPoint cc(theCircle.x0(),theCircle.y0(),0);
-  float tesla0 = 0.1*nomField;
+  float tesla0 = 0.1f*nomField;
   float rho = theCircle.rho();
-  float cm2GeV = 0.01 * 0.3*tesla0;
+  float cm2GeV = 0.01f * 0.3f*tesla0;
   float pt = cm2GeV * rho;
 
   GlobalVector vec20 = gp2-gp0;
@@ -676,9 +676,10 @@ void MultiHitGeneratorFromChi2::refit2Hits(HitOwnPtr & hit1,
   }
 
   //now set z component
-  p0 = GlobalVector(p0.x(),p0.y(),p0.perp()/tan(vec20.theta()));
-  p1 = GlobalVector(p1.x(),p1.y(),p1.perp()/tan(vec20.theta()));
-  p2 = GlobalVector(p2.x(),p2.y(),p2.perp()/tan(vec20.theta()));
+  auto zv = vec20.z()/vec20.perp();
+  p0 = GlobalVector(p0.x(),p0.y(),p0.perp()*zv);
+  p1 = GlobalVector(p1.x(),p1.y(),p1.perp()*zv);
+  p2 = GlobalVector(p2.x(),p2.y(),p2.perp()*zv);
 
   //get charge from vectorial product
   TrackCharge q = 1;

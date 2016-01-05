@@ -13,9 +13,7 @@
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 
 #include "MatchedHitRZCorrectionFromBending.h"
-//#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerAlgo.h"
-//#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerTools.h"
-#include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerAlgo.h" //amend to point at your copy...
+#include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerAlgo.h" //amend to point at our version...
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
 
 #include <algorithm>
@@ -62,7 +60,7 @@ namespace {
   inline
   bool intersect(Range &range, const Range &second)
   {
-    if (range.first > second.max() || range.second < second.min())
+    if ( (range.min() > second.max()) | (range.max() < second.min()) )
       return false;
     if (range.first < second.min())
       range.first = second.min();
@@ -266,7 +264,8 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
           if (!intersect(radius, predRZ.line.detSize()))
             continue;
         }
-	
+         
+	/*
         auto rPhi1 = predictionRPhi(curvature, radius.first);
         bool ok1 = !rPhi1.empty();
         if (ok1) {
@@ -295,6 +294,26 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
           rPhi2.second = proxim(rPhi2.second,rPhi2.first);
           phiRange=rPhi2;
         } else continue;
+        */
+
+        //gc: predictionRPhi uses the cosine rule to find the phi of the 3rd point at radius, assuming the pairCurvature range [-c,+c]
+        if ( (curvature.first<0.0f) & (curvature.second<0.0f) ) {
+          radius.swap();
+        } else if ( (curvature.first>=0.0f) & (curvature.second>=0.0f) ) {;}
+        else {
+          radius.first=radius.second;
+        }
+        auto phi12 = predictionRPhi.phi(curvature.first,radius.first);
+        auto phi22 = predictionRPhi.phi(curvature.second,radius.second);
+        phi12 = normalizedPhi(phi12);
+        phi22 = proxim(phi22,phi12);
+        phiRange = Range(phi12,phi22); phiRange.sort();
+        auto rmean = radius.mean();
+        phiRange.first *= rmean;
+      	phiRange.second *= rmean;
+	correction.correctRPhiRange(phiRange);
+      	phiRange.first /= rmean;
+        phiRange.second /= rmean;
 
         // if (std::abs(phiRange.first)>float(M_PI)) std::cout << "bha1 " << phiRange.first << ' ' << phiRange.second << std::endl;
         if (std::abs(phiRange.first)>float(M_PI) && std::abs(phiRange.second)>float(M_PI)) std::cout << "bha2 " << phiRange.first << ' ' << phiRange.second << std::endl;
