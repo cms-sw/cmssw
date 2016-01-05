@@ -7,10 +7,11 @@
 #include <bitset>
 #include <vector>
 
+#include "CondFormats/L1TObjects/interface/LUT.h"
 #include "../interface/MicroGMTConfiguration.h"
 
 namespace l1t {
-  class MicroGMTLUT {
+  class MicroGMTLUT : public LUT {
     public:
       MicroGMTLUT() : m_totalInWidth(0), m_outWidth(0), m_initialized(false) {};
       virtual ~MicroGMTLUT() {};
@@ -26,17 +27,12 @@ namespace l1t {
 
       // I/O functions
       void save(std::ofstream& output);
-      void load(const std::string& inFileName);
-      // content to file
-      void contentsToStream(std::stringstream& stream);
-      void headerToStream(std::stringstream& stream) const;
+      int load(const std::string& inFileName);
 
     protected:
       unsigned m_totalInWidth;
       unsigned m_outWidth;
       std::vector<MicroGMTConfiguration::input_t> m_inputs;
-      std::map<int, int> m_contents;
-      std::string m_fname;
       bool m_initialized;
   };
 }
