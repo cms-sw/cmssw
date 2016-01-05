@@ -207,3 +207,7 @@ REGISTER_PLUGIN(L1CaloGeometryRecord, L1CaloGeometry);
 using namespace l1t;
 REGISTER_PLUGIN(L1TCaloParamsRcd, CaloParams);
 REGISTER_PLUGIN(L1TCaloConfigRcd, CaloConfig);
+
+#include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
+#include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
+REGISTER_PLUGIN(L1TMuonOverlapParamsRcd, L1TMuonOverlapParams);
