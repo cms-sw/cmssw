@@ -1037,9 +1037,9 @@ void l1t::GtBoard::fillExtRecord(int iBxInEvent,
 
     }
 // Set header information
-    m_uGtExtBlk.setOrbitNr((unsigned int)(orbNr & 0xFFFFFFFF));
-    m_uGtExtBlk.setbxNr((bxNr & 0xFFFF));
-    m_uGtExtBlk.setbxInEventNr((iBxInEvent & 0xF));
+//    m_uGtExtBlk.setOrbitNr((unsigned int)(orbNr & 0xFFFFFFFF));
+//    m_uGtExtBlk.setbxNr((bxNr & 0xFFFF));
+//    m_uGtExtBlk.setbxInEventNr((iBxInEvent & 0xF));
 
     uGtExtRecord->push_back(iBxInEvent, m_uGtExtBlk);
 
