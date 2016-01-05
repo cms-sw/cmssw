@@ -1,9 +1,7 @@
 # You will need separate scenarios HERE for full and fast. DON'T CHANGE THE ORDER, only
 # append new keys. Otherwise the numbering for the runTheMatrix tests will change.
 upgradeKeys=['2017',
-             '2019',
              '2017PU',
-             '2019PU',
 	     '2023' :  'XXXXX',
 	     '2023dev' :  'XXXXX'	       
 	     
@@ -11,19 +9,17 @@ upgradeKeys=['2017',
 
 
 upgradeGeoms={ '2017' : 'Extended2017',
-               '2019' : 'Extended2019',
 	       '2023' :  'XXXXX',
 	       '2023dev' :  'XXXXX'	       
                }
 	       
 upgradeGTs={ '2017' : 'auto:phase1_2017_design',
-             '2019' : 'auto:upgrade2019',
 	     '2023' :  'XXXXX',
 	     '2023dev' :  'XXXXX'	      
              }
 upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017',
-                 '2019' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019WithGem',
-		 '2023' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_XXXXX'
+ 		 '2023' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_XXXXX',
+ 		 '2023dev' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_XXXXX'
                  }
 
 upgradeFragments=['FourMuPt_1_200_pythia8_cfi','SingleElectronPt10_cfi',
