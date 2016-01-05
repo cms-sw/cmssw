@@ -224,7 +224,7 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
     // for overflow, the phi requirements are ignored
     if( MissingEnergy ){
       // check phi
-      if( !checkRangePhi(candPhi, objPar.phiWindowLower, objPar.phiWindowUpper, objPar.phiWindowVetoLower, objPar.phiWindowVetoLower) ){
+      if( !checkRangePhi(candPhi, objPar.phiWindow1Lower, objPar.phiWindow1Upper, objPar.phiWindow2Lower, objPar.phiWindow2Upper) ){
 	LogDebug("l1t|Global") << "\t\t l1t::EtSum failed checkRange(phi)" << std::endl;
 	return false;
       }

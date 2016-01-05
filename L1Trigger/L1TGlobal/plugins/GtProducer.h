@@ -22,6 +22,8 @@
 // system include files
 #include <string>
 #include <vector>
+#include<iostream>
+#include<fstream>
 
 #include <boost/cstdint.hpp>
 
@@ -50,7 +52,7 @@ class L1GtTriggerMask;
 
 namespace l1t {
 
-class GtProducer : public edm::EDProducer
+  class GtProducer : public edm::EDProducer
 {
 
 public:
@@ -122,6 +124,10 @@ private:
 
 
     const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
+    std::vector<std::vector<int> > m_initialPrescaleFactorsAlgoTrig;
+
+    /// CSV file for prescales
+    std::string m_prescalesFile;
 
 
     /// trigger masks & veto masks
@@ -132,9 +138,11 @@ private:
     unsigned long long m_l1GtTmVetoAlgoCacheID;
 
 
-    std::vector<unsigned int> m_triggerMaskAlgoTrig;
+    const std::vector<unsigned int>* m_triggerMaskAlgoTrig;
+    std::vector<unsigned int> m_initialTriggerMaskAlgoTrig;
 
-    std::vector<unsigned int> m_triggerMaskVetoAlgoTrig;
+    const std::vector<unsigned int>* m_triggerMaskVetoAlgoTrig;
+    std::vector<unsigned int> m_initialTriggerMaskVetoAlgoTrig;
 
 private:
 
@@ -147,9 +155,14 @@ private:
 
     /// input tag for muon collection from GMT
     edm::InputTag m_muInputTag;
+    edm::EDGetTokenT<BXVector<l1t::Muon>> m_muInputToken;
 
     /// input tag for calorimeter collections from GCT
     edm::InputTag m_caloInputTag;
+    edm::EDGetTokenT<BXVector<l1t::EGamma>> m_egInputToken;
+    edm::EDGetTokenT<BXVector<l1t::Tau>> m_tauInputToken;
+    edm::EDGetTokenT<BXVector<l1t::Jet>> m_jetInputToken;
+    edm::EDGetTokenT<BXVector<l1t::EtSum>> m_sumInputToken;
 
     /// logical flag to produce the L1 GT DAQ readout record
     bool m_produceL1GtDaqRecord;
@@ -175,6 +188,10 @@ private:
 
     /// length of BST record (in bytes) from parameter set
     int m_psBstLengthBytes;
+
+
+    /// prescale set used
+    unsigned int m_prescaleSet;
 
     /// run algorithm triggers
     ///     if true, unprescaled (all prescale factors 1)
