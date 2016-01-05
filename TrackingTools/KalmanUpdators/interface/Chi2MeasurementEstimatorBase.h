@@ -9,7 +9,6 @@
  */
 
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class Chi2MeasurementEstimatorBase : public MeasurementEstimator {
 public:
@@ -22,15 +21,20 @@ public:
   explicit Chi2MeasurementEstimatorBase(double maxChi2, double nSigma = 3.) : 
     theMaxChi2(maxChi2), theNSigma(nSigma) {}
 
+  Chi2MeasurementEstimatorBase(double maxChi2, double nSigma, float maxSag, float minToll) : 
+    MeasurementEstimator(maxSag,minToll),
+    theMaxChi2(maxChi2), theNSigma(nSigma) {}
+
+
   virtual std::pair<bool, double> estimate(const TrajectoryStateOnSurface& ts,
 					   const TrackingRecHit &) const = 0;
 
   virtual bool estimate( const TrajectoryStateOnSurface& ts, 
-			 const Plane& plane) const;
+			 const Plane& plane) const final;
 
   virtual Local2DVector 
   maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
-			    const Plane& plane) const;
+			    const Plane& plane) const final;
 
   double chiSquaredCut() const {return theMaxChi2;}
   double nSigmaCut() const {return theNSigma;}

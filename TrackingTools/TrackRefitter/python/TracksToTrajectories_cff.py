@@ -11,7 +11,7 @@ from TrackingTools.GeomPropagators.SmartPropagator_cff import *
 from RecoMuon.TransientTrackingRecHit.MuonTransientTrackingRecHitBuilder_cfi import *
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 
-from TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi import *
+from TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi import *
 
 Chi2EstimatorForRefit = Chi2MeasurementEstimator.clone()
 Chi2EstimatorForRefit.ComponentName = cms.string('Chi2EstimatorForRefit')

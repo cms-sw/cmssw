@@ -133,8 +133,8 @@ pixelLessStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilt
     minPt = 0.05
     )
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-pixelLessStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+pixelLessStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('pixelLessStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(9.0)

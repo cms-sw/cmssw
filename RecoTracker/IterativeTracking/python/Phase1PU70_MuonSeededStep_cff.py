@@ -29,13 +29,13 @@ muonSeededTrajectoryCleanerBySharedHits = TrackingTools.TrajectoryCleaning.Traje
 
 ###------------- MeasurementEstimator, defining the searcgh window for pattern recongnition ----------------
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-muonSeededMeasurementEstimatorForInOut = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+muonSeededMeasurementEstimatorForInOut = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('muonSeededMeasurementEstimatorForInOut'),
     MaxChi2 = cms.double(400.0), ## was 30 ## TO BE TUNED
     nSigma  = cms.double(4.),    ## was 3  ## TO BE TUNED
 )
-muonSeededMeasurementEstimatorForOutIn = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+muonSeededMeasurementEstimatorForOutIn = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('muonSeededMeasurementEstimatorForOutIn'),
     MaxChi2 = cms.double(30.0), ## was 30 ## TO BE TUNED
     nSigma  = cms.double(3.),    ## was 3  ## TO BE TUNED

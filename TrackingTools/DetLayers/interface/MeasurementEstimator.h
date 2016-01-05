@@ -22,12 +22,18 @@ public:
 
   struct OpaquePayload { virtual ~OpaquePayload(){} int tag=0;};
 
-  typedef Vector2DBase< float, LocalTag>    Local2DVector;
+  using Local2DVector = Vector2DBase< float, LocalTag>;
+
+
+  MeasurementEstimator() {}
+  MeasurementEstimator(float maxSag, float minToll) :
+     m_maxSagitta(maxSag),
+     m_minTolerance2(minToll*minToll){}
 
   virtual ~MeasurementEstimator() {}
 
-  typedef std::pair<bool,double>     HitReturnType;
-  typedef bool                   SurfaceReturnType;
+  using HitReturnType     = std::pair<bool,double>;
+  using SurfaceReturnType = bool;
 
   /** Returns pair( true, value) if the TrajectoryStateOnSurface is compatible
    *  with the RecHit, and pair( false, value) if it is not compatible.
@@ -65,7 +71,16 @@ public:
    */
   virtual Local2DVector 
   maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
-			    const Plane& plane) const;
+			    const Plane& plane) const=0;
+
+  float maxSagitta() const { return m_maxSagitta;}
+  float	minTolerance2() const { return m_minTolerance2;}
+
+
+private:
+  float m_maxSagitta=-1.; // maximal sagitta for linear approximation
+  float m_minTolerance2=100.; // square of minimum tolerance ot be considered inside a detector
+
 };
 
 #endif // Tracker_MeasurementEstimator_H
