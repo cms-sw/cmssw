@@ -706,6 +706,8 @@ class Process(object):
             result += "process.source = "+self.source_().dumpPython(options)
         if self.looper_():
             result += "process.looper = "+self.looper_().dumpPython()
+        result+=self._dumpPythonList(self.psets, options)
+        result+=self._dumpPythonList(self.vpsets, options)
         result+=self._dumpPythonSubProcesses(self.subProcesses_(), options)
         result+=self._dumpPythonList(self.producers_(), options)
         result+=self._dumpPythonList(self.filters_() , options)
@@ -719,8 +721,6 @@ class Process(object):
         result+=self._dumpPythonList(self.es_sources_(), options)
         result+=self._dumpPython(self.es_prefers_(), options)
         result+=self._dumpPythonList(self.aliases_(), options)
-        result+=self._dumpPythonList(self.psets, options)
-        result+=self._dumpPythonList(self.vpsets, options)
         if self.schedule:
             pathNames = ['process.'+p.label_() for p in self.schedule]
             result +='process.schedule = cms.Schedule(*[ ' + ', '.join(pathNames) + ' ])\n'
