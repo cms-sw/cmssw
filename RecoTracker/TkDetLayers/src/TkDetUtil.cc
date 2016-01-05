@@ -43,6 +43,9 @@ namespace tkDetUtil {
       auto sp = (x0*x1+y0*y1)/std::sqrt((x0*x0+y0*y0)*(x1*x1+y1*y1));
       sp = std::min(std::max(sp,-1.f),1.f);
       dphi = std::acos(sp);      
+
+      // if (dphi>0.5*M_PI) std::cout << "large dphi " << dphi << ' ' << ts.localDirection() << ' ' << ts.globalMomentum().perp() << ' ' << maxDistance << std::endl;
+
       return dphi;
     }
     
