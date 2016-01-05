@@ -174,13 +174,15 @@ void CorrelationTemplate::print(std::ostream& myCout) const
 
     myCout << "\n  Correlation parameters " << "[ hex ]" <<  std::endl;
 
-
+    myCout << "    Cut Type:  " << m_correlationParameter.corrCutType << std::endl;
     myCout << "    deltaEtaRange      = "
     << std::hex << m_correlationParameter.deltaEtaRange << std::endl;
     myCout << "    deltaPhiRange      = "
     << std::hex << m_correlationParameter.deltaPhiRange << std::endl;
     myCout << "    deltaPhiMaxbits    = "
     << std::hex << m_correlationParameter.deltaPhiMaxbits << std::endl;
+    myCout << "    minCutValue        = " << std::dec << m_correlationParameter.minCutValue << std::endl;
+    myCout << "    maxCutValue        = " << std::dec << m_correlationParameter.maxCutValue << std::endl;
 
     // reset to decimal output
     myCout << std::dec << std::endl;
