@@ -53,7 +53,8 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
     for(std::vector<DetId>::iterator i=allChannels.begin(); i!=allChannels.end(); ++i){
 
 	if (not HcalGenericDetId(*i).isHcalTrigTowerDetId()) {
-	    edm::LogWarning("CaloTPGTranscoderULUT") << "Encountered invalid HcalTrigTowerDetId " << HcalGenericDetId(*i);
+	    if (not HcalGenericDetId(*i).isHcalDetId())
+		edm::LogWarning("CaloTPGTranscoderULUT") << "Encountered invalid HcalDetId " << HcalGenericDetId(*i);
 	    continue;
 	}
 	
