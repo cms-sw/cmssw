@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    L1TValidationEventFilter
-// Class:      L1TValidationEventFilter
+// Package:    TMTFilter
+// Class:      TMTFilter
 // 
-/**\class L1TValidationEventFilter L1TValidationEventFilter.cc EventFilter/L1TRawToDigi/src/L1TValidationEventFilter.cc
+/**\class TMTFilter TMTFilter.cc EventFilter/L1TRawToDigi/src/TMTFilter.cc
 
 Description: <one line class summary>
 Implementation:
@@ -44,10 +44,10 @@ Implementation:
 // class declaration
 //
 
-class L1TValidationEventFilter : public edm::EDFilter {
+class TMTFilter : public edm::EDFilter {
 public:
-  explicit L1TValidationEventFilter(const edm::ParameterSet&);
-  virtual ~L1TValidationEventFilter();
+  explicit TMTFilter(const edm::ParameterSet&);
+  virtual ~TMTFilter();
   
 private:
   virtual void beginJob() override ;
@@ -57,7 +57,7 @@ private:
   // ----------member data ---------------------------
   edm::EDGetTokenT<FEDRawDataCollection> fedData_;
 
-  int period_;       // validation event period
+  std::vector<int> mpList_; // list of MPs to select
 
 };
 
@@ -65,8 +65,8 @@ private:
 //
 // constructors and destructor
 //
-L1TValidationEventFilter::L1TValidationEventFilter(const edm::ParameterSet& iConfig) :
-  period_( iConfig.getUntrackedParameter<int>("period", 107) )
+TMTFilter::TMTFilter(const edm::ParameterSet& iConfig) :
+  mpList_( iConfig.getUntrackedParameter<std::vector<int> >("mpList") )
 {
   //now do what ever initialization is needed
 
@@ -75,7 +75,7 @@ L1TValidationEventFilter::L1TValidationEventFilter(const edm::ParameterSet& iCon
 }
 
 
-L1TValidationEventFilter::~L1TValidationEventFilter()
+TMTFilter::~TMTFilter()
 {
  
   // do anything here that needs to be done at desctruction time
@@ -90,7 +90,7 @@ L1TValidationEventFilter::~L1TValidationEventFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-L1TValidationEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+TMTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   
@@ -107,24 +107,27 @@ L1TValidationEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   const unsigned char *data = l1tRcd.data();
   FEDHeader header(data);
 
-  bool fatEvent = (header.lvl1ID() % period_ == 0 );
+  bool mp = false;
+  for (auto itr : mpList_) {
+    mp |= ( ((header.bxID()-1)%9) == itr );
+  }
 
-  return fatEvent;
+  return mp;    
 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1TValidationEventFilter::beginJob()
+TMTFilter::beginJob()
 {
 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-L1TValidationEventFilter::endJob() {
+TMTFilter::endJob() {
 
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1TValidationEventFilter);
+DEFINE_FWK_MODULE(TMTFilter);
