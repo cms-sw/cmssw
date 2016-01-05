@@ -159,5 +159,4 @@
   <class name="std::vector<L1TriggerError>"/>
   <class name="edm::Wrapper<std::vector<L1TriggerError> >"/>
 
-
 </lcgdict>

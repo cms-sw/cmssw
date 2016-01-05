@@ -1,0 +1,17 @@
+<use name="L1Trigger/L1TMuon"/>
+<use name="L1Trigger/L1TMuonEndCap"/>
+<use name="L1Trigger/DTTrackFinder"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Framework"/>
+
+<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/L1TMuon"/>
+<use name="DQM/DTMonitorModule"/>
+<use name="CondFormats/L1TObjects"/>
+<use name="CondFormats/DataRecord"/>
+
+<export>
+  <lib name="1"/>
+</export>
+<flags ADD_SUBDIR="1"/>

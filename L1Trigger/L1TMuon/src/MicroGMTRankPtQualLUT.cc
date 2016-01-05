@@ -1,19 +1,15 @@
 #include "../interface/MicroGMTRankPtQualLUT.h"
 
-l1t::MicroGMTRankPtQualLUT::MicroGMTRankPtQualLUT (const edm::ParameterSet& iConfig) {
-  edm::ParameterSet config = iConfig.getParameter<edm::ParameterSet>("SortRankLUTSettings");
-  m_ptInWidth = config.getParameter<int>("pT_in_width");
-  m_qualInWidth = config.getParameter<int>("qual_in_width");
-  
+l1t::MicroGMTRankPtQualLUT::MicroGMTRankPtQualLUT (const std::string& fname) : MicroGMTLUT(), m_ptMask(0), m_qualMask(0), m_ptInWidth(9), m_qualInWidth(4)
+{
   m_totalInWidth = m_ptInWidth + m_qualInWidth;
 
   m_ptMask = (1 << m_ptInWidth) - 1;
   m_qualMask = (1 << (m_totalInWidth - 1)) - m_ptMask - 1;
   
   m_inputs.push_back(MicroGMTConfiguration::PT);
-  std::string m_fname = config.getParameter<std::string>("filename");
-  if (m_fname != std::string("")) {
-    load(m_fname);
+  if (fname != std::string("")) {
+    load(fname);
   } else {
     initialize();
   }
@@ -21,10 +17,10 @@ l1t::MicroGMTRankPtQualLUT::MicroGMTRankPtQualLUT (const edm::ParameterSet& iCon
 
 l1t::MicroGMTRankPtQualLUT::MicroGMTRankPtQualLUT () : MicroGMTLUT(), m_ptMask(0), m_qualMask(0), m_ptInWidth(9), m_qualInWidth(4)
 {
+  m_totalInWidth = m_ptInWidth + m_qualInWidth;
   m_ptMask = (1 << m_ptInWidth) - 1;
   m_qualMask = (1 << (m_totalInWidth - 1)) - m_ptMask - 1;
   m_outWidth = 10;
-  m_totalInWidth = m_ptInWidth + m_qualInWidth;
 } 
 
 l1t::MicroGMTRankPtQualLUT::~MicroGMTRankPtQualLUT ()
@@ -37,7 +33,7 @@ l1t::MicroGMTRankPtQualLUT::lookup(int pt, int qual) const
 {
   // normalize these two to the same scale and then calculate?
   if (m_initialized) {
-    return m_contents.at(hashInput(checkedInput(pt, m_ptInWidth), checkedInput(qual, m_qualInWidth)));
+    return data((unsigned)hashInput(checkedInput(pt, m_ptInWidth), checkedInput(qual, m_qualInWidth)));
   }
 
   int result = 0;
@@ -49,7 +45,7 @@ l1t::MicroGMTRankPtQualLUT::lookup(int pt, int qual) const
 int 
 l1t::MicroGMTRankPtQualLUT::lookupPacked(int in) const {
   if (m_initialized) {
-    return m_contents.at(in);
+    return data((unsigned)in);
   }
 
   int pt = 0;
