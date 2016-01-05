@@ -7,13 +7,11 @@
 #include "MicroGMTConfiguration.h"
 
 namespace l1t {
-  class MicroGMTExtrapolationLUT : MicroGMTLUT {
+  class MicroGMTExtrapolationLUT : public MicroGMTLUT {
     public: 
-      MicroGMTExtrapolationLUT (const edm::ParameterSet& iConfig, const std::string& setName, int type);
-      MicroGMTExtrapolationLUT (const edm::ParameterSet& iConfig, const char* setName, int type);
-      virtual ~MicroGMTExtrapolationLUT ();
-
-
+      MicroGMTExtrapolationLUT();
+      explicit MicroGMTExtrapolationLUT(const std::string& fname);
+      virtual ~MicroGMTExtrapolationLUT() {};
 
       // returns the index corresponding to the calo tower sum 
       int lookup(int angle, int pt) const;
@@ -21,8 +19,6 @@ namespace l1t {
       int hashInput(int angle, int pt) const;
       void unHashInput(int input, int& angle, int& pt) const;
     private:
-      void getParameters(const edm::ParameterSet& iConfig, const char* setName, int type);
-
       int m_etaRedInWidth;
       int m_ptRedInWidth;
 

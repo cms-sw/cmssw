@@ -40,7 +40,7 @@ namespace DataFormats_L1Trigger {
     l1t::MuonBxCollection   muonBxColl;
     l1t::TauBxCollection    tauBxColl;
     l1t::CaloSpareBxCollection caloSpareColl;
-
+    
     edm::Wrapper<l1t::L1CandidateBxCollection> w_l1CandidateBxColl;
     edm::Wrapper<l1t::EGammaBxCollection> w_eGammaBxColl;
     edm::Wrapper<l1t::EtSumBxCollection>  w_etSumBxColl;
