@@ -135,8 +135,8 @@ hiMixedTripletPropagatorOpposite = TrackingTools.MaterialEffects.OppositeMateria
     ptMin = 1.0
     )
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-hiMixedTripletChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+hiMixedTripletChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('hiMixedTripletChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(16.0)

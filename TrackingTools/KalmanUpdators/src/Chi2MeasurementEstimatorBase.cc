@@ -19,7 +19,7 @@ Chi2MeasurementEstimatorBase::maximalLocalDisplacement( const TrajectoryStateOnS
 {
   if ( ts.hasError()) {
     LocalError le = ts.localError().positionError();
-    return Local2DVector( sqrt(le.xx())*nSigmaCut(), sqrt(le.yy())*nSigmaCut());
+    return Local2DVector(std::sqrt(float(le.xx()))*float(nSigmaCut()), std::sqrt(float(le.yy()))*float(nSigmaCut()));
   }
   else return Local2DVector(0,0);
 }

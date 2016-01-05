@@ -1,15 +1,23 @@
-#include "TrackingTools/KalmanUpdators/interface/MRHChi2MeasurementEstimatorESProducer.h"
-
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/KalmanUpdators/interface/MRHChi2MeasurementEstimator.h"
+#include <boost/shared_ptr.hpp>
 
+namespace {
 
-#include <string>
-#include <memory>
-
-using namespace edm;
+class  MRHChi2MeasurementEstimatorESProducer: public edm::ESProducer{
+ public:
+  MRHChi2MeasurementEstimatorESProducer(const edm::ParameterSet & p);
+  virtual ~MRHChi2MeasurementEstimatorESProducer();
+  boost::shared_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord&);
+ private:
+  boost::shared_ptr<Chi2MeasurementEstimatorBase> _estimator;
+  edm::ParameterSet pset_;
+};
 
 MRHChi2MeasurementEstimatorESProducer::MRHChi2MeasurementEstimatorESProducer(const edm::ParameterSet & p) 
 {
@@ -29,4 +37,8 @@ MRHChi2MeasurementEstimatorESProducer::produce(const TrackingComponentsRecord& i
   return _estimator;
 }
 
+}
+
+
+DEFINE_FWK_EVENTSETUP_MODULE(MRHChi2MeasurementEstimatorESProducer);
 

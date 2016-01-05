@@ -7,8 +7,8 @@ import FWCore.ParameterSet.Config as cms
 #
 #
 #
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-EstimatorForSTA = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone()
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+EstimatorForSTA = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone()
 
 EstimatorForSTA.ComponentName = 'Chi2STA'
 EstimatorForSTA.MaxChi2 = 1000.

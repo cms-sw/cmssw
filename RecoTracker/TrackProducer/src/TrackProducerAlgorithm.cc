@@ -31,7 +31,7 @@
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 
 // #define VI_DEBUG
-
+// #define STAT_TSB
 
 namespace {
 #ifdef STAT_TSB
@@ -41,18 +41,18 @@ namespace {
     long long totGsfTrack=0;
     long long totFound=0;
     long long totLost=0;
-    long long totAlgo[12];
+    long long totAlgo[15];
     void track(int l) {
       if (l>0) ++totLoop; else ++totTrack;
     }
     void hits(int f, int l) { totFound+=f; totLost+=l;} 
     void gsf() {++totGsfTrack;}
-    void algo(int a) { if (a>=0 && a<12) ++totAlgo[a];}
+    void algo(int a) { if (a>=0 && a<15) ++totAlgo[a];}
 
 
     void print() const {
-      std::cout << "TrackProducer stat\nTrack/Loop/Gsf/FoundHits/LostHits/algos "
-    		<<  totTrack <<'/'<< totLoop <<'/'<< totGsfTrack  <<'/'<< totFound  <<'/'<< totLost;
+      std::cout << "TrackProducer stat\nTrack/Loop/Gsf/FoundHits/LostHits//algos "
+    		<<  totTrack <<'/'<< totLoop <<'/'<< totGsfTrack  <<'/'<< totFound  <<'/'<< totLost<<'/';
       for (auto a : totAlgo) std::cout << '/'<< a;
 	std::cout  << std::endl;
     }

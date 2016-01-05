@@ -10,13 +10,12 @@
  *  tschudi
  */
 
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 
-class EtaPhiMeasurementEstimator final : public Chi2MeasurementEstimatorBase {
+class EtaPhiMeasurementEstimator final : public MeasurementEstimator {
 public:
 
   explicit EtaPhiMeasurementEstimator(double dEta, double dPhi) : 
-    Chi2MeasurementEstimatorBase( 0.0, 0.0),
     thedEta(dEta),
     thedPhi(dPhi)
    {}

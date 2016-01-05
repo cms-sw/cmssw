@@ -23,11 +23,11 @@ namespace tkDetUtil {
   {
     MeasurementEstimator::Local2DVector maxDistance(std::abs(imaxDistance.x()),std::abs(imaxDistance.y()));
 
-    constexpr float tollerance=1.e-6;
+    constexpr float tolerance=1.e-6;
     LocalPoint start = ts.localPosition();
     //     std::cout << "plane z " << plane.normalVector() << std::endl;
     float dphi=0;
-    if likely(std::abs(1.f-std::abs(plane.normalVector().z()))<tollerance) {
+    if likely(std::abs(1.f-std::abs(plane.normalVector().z()))<tolerance) {
       auto ori = plane.toLocal(GlobalPoint(0.,0.,0.));
       auto xc = std::abs(start.x() - ori.x());
       auto yc = std::abs(start.y() - ori.y());

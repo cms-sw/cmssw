@@ -12,7 +12,7 @@ muonSeededSeedsOutInDisplaced = RecoTracker.SpecialSeedGenerators.outInSeedsFrom
 muonSeededSeedsOutInDisplaced.fromVertex = cms.bool(False)
 ###------------- MeasurementEstimator, defining the searcgh window for pattern recongnition ----------------
 #for displaced global muons
-muonSeededMeasurementEstimatorForOutInDisplaced = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+muonSeededMeasurementEstimatorForOutInDisplaced = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('muonSeededMeasurementEstimatorForOutInDisplaced'),
     MaxChi2 = cms.double(30.0), ## was 30 ## TO BE TUNED
     nSigma  = cms.double(3.),    ## was 3  ## TO BE TUNED 
