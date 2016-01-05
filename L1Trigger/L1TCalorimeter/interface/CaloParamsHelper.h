@@ -102,6 +102,7 @@ namespace l1t {
     const std::vector<double> & egPUSParams() const { return pnode_[egPUS].dparams_; }
     double egPUSParam(int ipar) const { return pnode_[egPUS].dparams_.at(ipar); }
 
+    std::string egIsolationType() const { return pnode_[egIsolation].type_; }
     l1t::LUT* egIsolationLUT() { return &pnode_[egIsolation].LUT_; }
     std::string egCalibrationType() const { return pnode_[egCalibration].type_; }
     std::vector<double> egCalibrationParams() { return pnode_[egCalibration].dparams_; }
@@ -131,10 +132,19 @@ namespace l1t {
     void setEgIsoVetoNrTowersPhi(unsigned iEgIsoVetoNrTowersPhi){egp_.isoVetoNrTowersPhi_=iEgIsoVetoNrTowersPhi;}
     void setEgPUSType(std::string type) { pnode_[egPUS].type_ = type; }
     void setEgPUSParams(const std::vector<double> & params) { pnode_[egPUS].dparams_ = params; }
+    void setEgIsolationType(std::string type) { pnode_[egIsolation].type_ = type; }
     void setEgIsolationLUT(const l1t::LUT & lut) { pnode_[egIsolation].LUT_ = lut; }
     void setEgCalibrationType(std::string type) { pnode_[egCalibration].type_ = type; }
     void setEgCalibrationParams(std::vector<double> params) { pnode_[egCalibration].dparams_ = params; }
     void setEgCalibrationLUT(const l1t::LUT & lut) { pnode_[egCalibration].LUT_ = lut; }
+
+    // - recently imported:
+    std::string egShapeIdType() const { return pnode_[egShapeId].type_; }
+    void setEgShapeIdType(std::string type) { pnode_[egShapeId].type_ = type; }
+    unsigned egShapeIdVersion() const { return pnode_[egShapeId].version_; }
+    void setEgShapeIdVersion(unsigned version) { pnode_[egShapeId].version_ = version; }
+    unsigned egCalibrationVersion() const { return pnode_[egCalibration].version_; }
+    void setEgCalibrationVersion(unsigned version) { pnode_[egCalibration].version_ = version; }
 
     // tau
     int tauRegionMask() const {
@@ -161,6 +171,7 @@ namespace l1t {
     std::string tauCalibrationType() const { return pnode_[tauCalibration].type_; }
     std::vector<double> tauCalibrationParams() { return pnode_[tauCalibration].dparams_; }
     l1t::LUT* tauCalibrationLUT() { return &pnode_[tauCalibration].LUT_; }
+    l1t::LUT* tauCompressLUT() { return &pnode_[tauCompress].LUT_; }
 
     l1t::LUT* tauEtToHFRingEtLUT() { return &pnode_[tauEtToHFRingEt].LUT_; }
 
@@ -191,6 +202,7 @@ namespace l1t {
 
     void setTauCalibrationParams(std::vector<double> params) { pnode_[tauCalibration].dparams_ = params; }
     void setTauCalibrationLUT(const l1t::LUT & lut) { pnode_[tauCalibration].LUT_ = lut; }
+    void setTauCompressLUT(const l1t::LUT & lut) { pnode_[tauCompress].LUT_ = lut; }
     void setTauPUSParams(const std::vector<double> & params) { pnode_[tauPUS].dparams_ = params; }
 
     void setTauEtToHFRingEtLUT(const l1t::LUT & lut) { pnode_[tauEtToHFRingEt].LUT_ = lut; }
