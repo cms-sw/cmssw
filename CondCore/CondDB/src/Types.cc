@@ -39,12 +39,18 @@ namespace cond {
 										       std::make_pair("prompt", SYNCH_PROMPT),
 										       std::make_pair("pcl", SYNCH_PCL) };
 
+  static std::pair<const char *, SynchronizationType> s_obsoleteSynchronizationTypeArray[] = { std::make_pair("Offline", SYNCH_OFFLINE),
+											       std::make_pair("HLT", SYNCH_HLT),
+											       std::make_pair("Prompt", SYNCH_PROMPT),
+											       std::make_pair("Pcl", SYNCH_PCL) };
   std::string synchronizationTypeNames(SynchronizationType type) {
     return s_synchronizationTypeArray[type].first;
   }
 
   SynchronizationType synchronizationTypeFromName( const std::string& name ){
     for (auto const &i : s_synchronizationTypeArray)
+      if (name.compare(i.first)==0) return i.second;
+    for (auto const &i : s_obsoleteSynchronizationTypeArray)
       if (name.compare(i.first)==0) return i.second;
     throwException( "SynchronizationType \""+name+"\" is unknown.","synchronizationTypeFromName");
   }
