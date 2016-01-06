@@ -124,7 +124,7 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
       continue;
     }
 
-    if (!(abs(hits-> particleType())) == 13) continue;
+    if (!(abs(hits-> particleType()) == 13)) continue;
 
     //const LocalPoint p0(0., 0., 0.);
     //const GlobalPoint Gp0(GEMGeometry_->idToDet(hits->detUnitId())->surface().toGlobal(p0));
