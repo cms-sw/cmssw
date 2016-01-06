@@ -43,7 +43,6 @@ namespace edm {
 
   ProductRegistry::Transients::Transients() :
       frozen_(false),
-      constProductList_(),
       productProduced_(),
       anyProductProduced_(false),
       eventProductLookup_(new ProductHolderIndexHelper),
@@ -61,7 +60,6 @@ namespace edm {
   void
   ProductRegistry::Transients::reset() {
     frozen_ = false;
-    constProductList_.clear();
     for(bool& isProduced : productProduced_) isProduced = false;
     anyProductProduced_ = false;
     eventProductLookup_.reset(new ProductHolderIndexHelper);
@@ -255,17 +253,7 @@ namespace edm {
         ++j;
       }
     }
-    updateConstProductRegistry();
     return differences.str();
-  }
-
-  void ProductRegistry::updateConstProductRegistry() {
-    constProductList().clear();
-    for(auto const& product : productList_) {
-      auto const& key = product.first;
-      auto const& desc = product.second;
-      constProductList().insert(std::make_pair(key, BranchDescription(desc)));
-    }
   }
 
   void ProductRegistry::initializeLookupTables() {
@@ -274,13 +262,9 @@ namespace edm {
     TypeSet missingDicts;
 
     transient_.branchIDToIndex_.clear();
-    constProductList().clear();
 
     for(auto const& product : productList_) {
-      auto const& key = product.first;
       auto const& desc = product.second;
-
-      constProductList().insert(std::make_pair(key, BranchDescription(desc)));
 
       if(desc.produced()) {
         setProductProduced(desc.branchType());
