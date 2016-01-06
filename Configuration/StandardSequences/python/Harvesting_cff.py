@@ -6,7 +6,7 @@ from DQMOffline.Configuration.DQMOffline_Certification_cff import *
 from Validation.Configuration.postValidation_cff import *
 from HLTriggerOffline.Common.HLTValidationHarvest_cff import *
 
-from FastSimulation.Configuration.Harvesting_cff import *
+#from FastSimulation.Configuration.Harvesting_cff import *
 
 from Validation.RecoHI.HarvestingHI_cff import *
 from Validation.RecoJets.JetPostProcessor_cff import *
@@ -14,6 +14,8 @@ from Validation.RecoMET.METPostProcessor_cff import *
 
 
 dqmHarvesting = cms.Path(DQMOffline_SecondStep*DQMOffline_Certification)
+dqmHarvestingRun1 = cms.Path(DQMOffline_SecondStep_Run1*DQMOffline_Certification)
+
 dqmHarvestingPOG = cms.Path(DQMOffline_SecondStep_PrePOG)
 
 dqmHarvestingPOGMC = cms.Path( DQMOffline_SecondStep_PrePOGMC )
@@ -25,7 +27,9 @@ validationpreprodHarvesting = cms.Path(postValidation_preprod*hltpostvalidation_
 # empty (non-hlt) postvalidation sequence here yet
 validationprodHarvesting = cms.Path(hltpostvalidation_prod*postValidation_gen)
 
-validationHarvestingFS = cms.Path(HarvestingFastSim)
+# to be removed in subsequent request
+# kept to avoid too many extra github signatures
+validationHarvestingFS = validationHarvesting.copy()
 
 validationHarvestingHI = cms.Path(postValidationHI)
 
