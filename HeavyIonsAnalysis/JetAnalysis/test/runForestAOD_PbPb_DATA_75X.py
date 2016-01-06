@@ -257,11 +257,11 @@ process.uetable = cms.ESSource("PoolDBESSource",
       timetype = cms.string('runnumber'),
       toGet = cms.VPSet(
           cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                   tag = cms.string("UETableCompatibilityFormat_PF_v00_offline"),
+                   tag = cms.string("UETableCompatibilityFormat_PF_v02_offline"),
                    label = cms.untracked.string("UETable_PF")
           ),
           cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                   tag = cms.string("UETableCompatibilityFormat_Calo_v00_offline"),
+                   tag = cms.string("UETableCompatibilityFormat_Calo_v02_offline"),
                    label = cms.untracked.string("UETable_Calo")
           )
       ), 
