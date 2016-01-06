@@ -188,6 +188,7 @@ HiInclusiveJetAnalyzer::beginJob() {
   t->Branch("nref",&jets_.nref,"nref/I");
   t->Branch("rawpt",jets_.rawpt,"rawpt[nref]/F");
   if(!skipCorrections_) t->Branch("jtpt",jets_.jtpt,"jtpt[nref]/F");
+  t->Branch("jtenergy",jets_.jtenergy,"jtenergy[nref]/F");
   t->Branch("jteta",jets_.jteta,"jteta[nref]/F");
   t->Branch("jty",jets_.jty,"jty[nref]/F");
   t->Branch("jtphi",jets_.jtphi,"jtphi[nref]/F");
@@ -978,6 +979,7 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
       }
     }
     jets_.jtpt[jets_.nref] = jet.pt();
+    jets_.jtenergy[jets_.nref] = jet.energy();
     jets_.jteta[jets_.nref] = jet.eta();
     jets_.jtphi[jets_.nref] = jet.phi();
     jets_.jty[jets_.nref] = jet.eta();

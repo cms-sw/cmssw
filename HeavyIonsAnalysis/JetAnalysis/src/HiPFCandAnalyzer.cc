@@ -147,6 +147,7 @@ HiPFCandAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
 
     double pt =  pfCandidate.pt();
+    double energy = pfCandidate.energy();
     if(pt<pfPtMin_) continue;
 
     int id = pfCandidate.particleId();
@@ -154,6 +155,7 @@ HiPFCandAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
     pfEvt_.pfId_[pfEvt_.nPFpart_] = id;
     pfEvt_.pfPt_[pfEvt_.nPFpart_] = rndSF(pt,4);
+    pfEvt_.pfEnergy_[pfEvt_.nPFpart_] = rndSF(energy,4);
     pfEvt_.pfVsPt_[pfEvt_.nPFpart_] = rndSF(vsPt,4);
     pfEvt_.pfVsPtInitial_[pfEvt_.nPFpart_] = rndSF(vsPtInitial,4);
     pfEvt_.pfArea_[pfEvt_.nPFpart_] = rndSF(vsArea,4);
@@ -281,6 +283,7 @@ void TreePFCandEventData::SetBranches(int etaBins, int fourierOrder, bool doUEra
   tree_->Branch("nPFpart",&(this->nPFpart_),"nPFpart/I");
   tree_->Branch("pfId",this->pfId_,"pfId[nPFpart]/I");
   tree_->Branch("pfPt",this->pfPt_,"pfPt[nPFpart]/F");
+  tree_->Branch("pfEnergy",this->pfEnergy_,"pfEnergy[nPFpart]/F");
   //tree_->Branch("pfVsPt",this->pfVsPt_,"pfVsPt[nPFpart]/F");
   tree_->Branch("pfVsPtInitial",this->pfVsPtInitial_,"pfVsPtInitial[nPFpart]/F");
   //tree_->Branch("pfArea",this->pfArea_,"pfArea[nPFpart]/F");
