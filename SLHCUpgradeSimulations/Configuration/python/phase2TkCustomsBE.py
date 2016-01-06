@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 #GEN-SIM so far...
+
 def customise(process):
+    print "!!!You are using the OBSOLETE  version of the Phase2 Tracker  !!!"
     if hasattr(process,'DigiToRaw'):
         process=customise_DigiToRaw(process)
     if hasattr(process,'RawToDigi'):

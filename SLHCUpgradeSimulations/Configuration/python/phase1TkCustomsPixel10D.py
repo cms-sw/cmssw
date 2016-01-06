@@ -5,6 +5,7 @@ from RecoTracker.IterativeTracking.ElectronSeeds_cff import *
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_pixelMixing_PU
 
 def customise(process):
+    print "!!! WARNING You are using a NON SUPPORTED AND OBSOLETE version of the Tracker (present Outer Tracker + phase2 Pixel) !!!"
     if hasattr(process,'DigiToRaw'):
         process=customise_DigiToRaw(process)
     if hasattr(process,'RawToDigi'):
