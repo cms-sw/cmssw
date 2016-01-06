@@ -18,9 +18,9 @@ namespace l1t {
   /// --------------- For heavy ion -------------------------------------
   void HICaloRingSubtraction(const std::vector<l1t::CaloRegion> & regions,
 			     std::vector<l1t::CaloRegion> *subRegions,
-			     std::vector<double> regionPUSParams,
-			     std::string regionPUSType)
+			     CaloParamsHelper *params)
   {
+    const bool verbose = false;
     int puLevelHI[L1CaloRegionDetId::N_ETA];
 
     for(unsigned i = 0; i < L1CaloRegionDetId::N_ETA; ++i)
@@ -33,25 +33,29 @@ namespace l1t {
       puLevelHI[region->hwEta()] += region->hwPt();
     }
 
+    if(verbose)
+      std::cout << "hwEta avgValue" << std::endl;
     for(unsigned i = 0; i < L1CaloRegionDetId::N_ETA; ++i)
     {
-      puLevelHI[i] = floor(((double)puLevelHI[i] / (double)L1CaloRegionDetId::N_PHI)+0.5);
+      //puLevelHI[i] = floor(((double)puLevelHI[i] / (double)L1CaloRegionDetId::N_PHI)+0.5);
+      puLevelHI[i] = (puLevelHI[i] + 9) * 455 / (1 << 13); // approx equals X/18 +0.5
+      if(verbose)
+	std::cout << i << " " << puLevelHI[i] << std::endl;
     }
 
+    if(verbose)
+      std::cout << "hwPt hwEta hwPhi subtractedValue hwPt_afterSub" << std::endl;
     for(std::vector<CaloRegion>::const_iterator region = regions.begin(); region!= regions.end(); region++){
       int subPt = std::max(0, region->hwPt() - puLevelHI[region->hwEta()]);
       int subEta = region->hwEta();
       int subPhi = region->hwPhi();
 
-      if((regionPUSType == "zeroWall") && (subEta == 4 || subEta == 17)) {
-	subPt = 0;
-      } else if ((regionPUSType == "zeroWideWall") &&
-		 (subEta == 4 || subEta == 17 || subEta == 5 || subEta == 16)) {
-	subPt = 0;
-      }
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
+      if(verbose)
+	std::cout << region->hwPt() << " " << subEta << " " << subPhi << " "
+		  << puLevelHI[region->hwEta()] << " " << subPt << std::endl;
       CaloRegion newSubRegion(*&ldummy, 0, 0, subPt, subEta, subPhi, region->hwQual(), region->hwEtEm(), region->hwEtHad());
       subRegions->push_back(newSubRegion);
     }
@@ -84,9 +88,10 @@ namespace l1t {
 
   void RegionCorrection(const std::vector<l1t::CaloRegion> & regions,
 			std::vector<l1t::CaloRegion> *subRegions,
-			std::vector<double> regionPUSParams,
-			std::string regionPUSType)
+			CaloParamsHelper *params)
   {
+
+    std::string regionPUSType = params->regionPUSType();
 
     if(regionPUSType == "None") {
       for(std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();
@@ -97,7 +102,7 @@ namespace l1t {
     }
 
     if (regionPUSType == "HICaloRingSub") {
-      HICaloRingSubtraction(regions, subRegions, regionPUSParams, regionPUSType);
+      HICaloRingSubtraction(regions, subRegions, params);
     }
 
     if (regionPUSType == "PUM0") {
@@ -120,7 +125,8 @@ namespace l1t {
 	int regionEta = notCorrectedRegion->hwEta();
 	int regionPhi = notCorrectedRegion->hwPhi();
 
-	int puSub = ceil(regionPUSParams[18*regionEta+pumbin]*2);
+	//int puSub = ceil(regionPUSParams[18*regionEta+pumbin]*2);
+	int puSub = params->regionPUSValue(pumbin, regionEta);
 	// The values in regionSubtraction are MULTIPLIED by
 	// RegionLSB=.5 (physicalRegionEt), so to get back unmultiplied
 	// regionSubtraction we want to multiply the number by 2
@@ -139,9 +145,6 @@ namespace l1t {
 	CaloRegion newSubRegion(*&lorentz, 0, 0, regionEtCorr, regionEta, regionPhi, notCorrectedRegion->hwQual(), notCorrectedRegion->hwEtEm(), notCorrectedRegion->hwEtHad());
 	subRegions->push_back(newSubRegion);
       }
-      //std::cout << "PUM0 " << puMult << std::endl;
     }
-
   }
-
 }

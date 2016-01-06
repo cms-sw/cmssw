@@ -15,7 +15,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/JetCalibrationMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
 
-l1t::Stage1Layer2EtSumAlgorithmImpPP::Stage1Layer2EtSumAlgorithmImpPP(CaloParamsStage1* params) : params_(params)
+l1t::Stage1Layer2EtSumAlgorithmImpPP::Stage1Layer2EtSumAlgorithmImpPP(CaloParamsHelper* params) : params_(params)
 {
   //now do what ever initialization is needed
   for(unsigned int i = 0; i < L1CaloRegionDetId::N_PHI; i++) {
@@ -64,9 +64,7 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   //double etSumEtThresholdHt = params_->etSumEtThreshold(1);
   int etSumEtThresholdHt = (int) (params_->etSumEtThreshold(1) / jetLsb);
 
-  std::string regionPUSType = params_->regionPUSType();
-  std::vector<double> regionPUSParams = params_->regionPUSParams();
-  RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
+  RegionCorrection(regions, subRegions, params_);
 
   double towerLsb = params_->towerLsbSum();
   int jetSeedThreshold = floor( params_->jetSeedThreshold()/towerLsb + 0.5);
@@ -227,7 +225,7 @@ uint16_t l1t::Stage1Layer2EtSumAlgorithmImpPP::MHToverHT(uint16_t num,uint16_t d
 
   uint16_t result;
   uint32_t numerator(num),denominator(den);
-  
+
   if(numerator == denominator)
     result = 0x7f;
   else
@@ -237,6 +235,6 @@ uint16_t l1t::Stage1Layer2EtSumAlgorithmImpPP::MHToverHT(uint16_t num,uint16_t d
       result = result & 0x7f;
     }
   // cout << "Result: " << result << endl;
-  
+
   return result;
 }

@@ -1,19 +1,19 @@
 ///
 /// \class l1t::Stage2Layer2EGAlgorithmFirmwareImp1
 ///
-/// \author: 
+/// \author:
 ///
-/// Description: 
+/// Description:
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2DemuxEGAlgoFirmware.h"
 
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
 #include <vector>
 #include <algorithm>
 
-l1t::Stage2Layer2DemuxEGAlgoFirmwareImp1::Stage2Layer2DemuxEGAlgoFirmwareImp1(CaloParams* params) :
+l1t::Stage2Layer2DemuxEGAlgoFirmwareImp1::Stage2Layer2DemuxEGAlgoFirmwareImp1(CaloParamsHelper* params) :
   params_(params)
 {
 
@@ -34,4 +34,3 @@ void l1t::Stage2Layer2DemuxEGAlgoFirmwareImp1::processEvent(const std::vector<l1
   outputEGammas = inputEGammas;
 
 }
-
