@@ -395,10 +395,6 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
       }
        
       float prmin=phiRange.min(), prmax=phiRange.max();
-      
-      
-      if (prmax<prmin)  std::cout << "aarg " << phiRange.first << ' ' << phiRange.second << std::endl;
-      // if (prmax-prmin>maxDelphi) std::cout << "delphi " << ' ' << prmin << '/' << prmax << std::endl;
  
       if (prmax-prmin>maxDelphi) {
         auto prm = phiRange.mean();

@@ -18,12 +18,13 @@ public:
    *  The errors of the trajectory state are multiplied by nSigma 
    *  to define acceptance of Plane and maximalLocalDisplacement.
    */
-  explicit Chi2MeasurementEstimatorBase(double maxChi2, double nSigma = 3.) : 
-    theMaxChi2(maxChi2), theNSigma(nSigma) {}
+  explicit Chi2MeasurementEstimatorBase(double maxChi2, double nSigma = 3., float maxDisp=100.) : 
+    theMaxChi2(maxChi2), theNSigma(nSigma), theMaxDisplacement(maxDisp) {}
 
-  Chi2MeasurementEstimatorBase(double maxChi2, double nSigma, float maxSag, float minToll) : 
+  Chi2MeasurementEstimatorBase(double maxChi2, double nSigma, float maxDisp,
+                               float maxSag, float minToll) : 
     MeasurementEstimator(maxSag,minToll),
-    theMaxChi2(maxChi2), theNSigma(nSigma) {}
+    theMaxChi2(maxChi2), theNSigma(nSigma), theMaxDisplacement(maxDisp)  {}
 
 
   virtual std::pair<bool, double> estimate(const TrajectoryStateOnSurface& ts,
@@ -46,8 +47,9 @@ protected:
   }
 
 private:
-  double theMaxChi2;
-  double theNSigma;
+  const double theMaxChi2;
+  const double theNSigma;
+  const float  theMaxDisplacement;
 };
 
 #endif

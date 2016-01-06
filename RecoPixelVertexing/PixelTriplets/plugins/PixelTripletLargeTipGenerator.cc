@@ -265,37 +265,6 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
             continue;
         }
          
-	/*
-        auto rPhi1 = predictionRPhi(curvature, radius.first);
-        bool ok1 = !rPhi1.empty();
-        if (ok1) {
-          correction.correctRPhiRange(rPhi1);
-          rPhi1.first  /= radius.max();
-          rPhi1.second /= radius.max();
-        }
-        auto rPhi2 = predictionRPhi(curvature, radius.second);
-        bool ok2 = !rPhi2.empty();
-        if (ok2) {
-          correction.correctRPhiRange(rPhi2);
-          rPhi2.first  /= radius.min();
-          rPhi2.second /= radius.min();
-        }
-
-        if (ok1) {
-          rPhi1.first = normalizedPhi(rPhi1.first);
-          rPhi1.second = proxim(rPhi1.second,rPhi1.first);
-          if(ok2) {
-            rPhi2.first = proxim(rPhi2.first,rPhi1.first);
-            rPhi2.second = proxim(rPhi2.second,rPhi1.first);
-            phiRange = rPhi1.sum(rPhi2);
-          } else phiRange=rPhi1;
-        } else if(ok2) {
-          rPhi2.first = normalizedPhi(rPhi2.first);
-          rPhi2.second = proxim(rPhi2.second,rPhi2.first);
-          phiRange=rPhi2;
-        } else continue;
-        */
-
         //gc: predictionRPhi uses the cosine rule to find the phi of the 3rd point at radius, assuming the pairCurvature range [-c,+c]
         if ( (curvature.first<0.0f) & (curvature.second<0.0f) ) {
           radius.swap();
@@ -315,16 +284,10 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
       	phiRange.first /= rmean;
         phiRange.second /= rmean;
 
-        // if (std::abs(phiRange.first)>float(M_PI)) std::cout << "bha1 " << phiRange.first << ' ' << phiRange.second << std::endl;
-        if (std::abs(phiRange.first)>float(M_PI) && std::abs(phiRange.second)>float(M_PI)) std::cout << "bha2 " << phiRange.first << ' ' << phiRange.second << std::endl;
-
       }
       
       foundNodes.clear(); // Now recover hits in bounding box...
       float prmin=phiRange.min(), prmax=phiRange.max(); //get contiguous range
-
-      if (prmax<prmin)  std::cout << "aarg " << phiRange.first << ' ' << phiRange.second << std::endl;
-      // if (prmax-prmin>maxDelphi) std::cout << "delphi " << ' ' << prmin << '/' << prmax << std::endl;
 
       if (prmax-prmin>maxDelphi) {
         auto prm = phiRange.mean();

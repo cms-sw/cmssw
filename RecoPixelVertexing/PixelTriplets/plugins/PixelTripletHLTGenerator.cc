@@ -210,9 +210,6 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 	  rPhi2.second /= radius.min();
         }
 
-        // if (rPhi1.empty()) std::cout << "rphi1 empty " <<  rPhi1.second << ' ' << rPhi1.first << ' ' << radius.min() << ' ' << radius.max() <<std::endl;
-        // if (rPhi2.empty()) std::cout << "rphi2 empty " <<  rPhi2.second << ' ' << rPhi2.first << ' ' << radius.min() << ' ' << radius.max() <<std::endl;
-
         if (ok1) { 
           rPhi1.first = normalizedPhi(rPhi1.first);
           rPhi1.second = proxim(rPhi1.second,rPhi1.first);
@@ -227,30 +224,14 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
           phiRange=rPhi2;
         } else continue;
    
-        // if (std::abs(rPhi1.second-rPhi1.first) > maxDelphi) std::cout << "rphi1 " <<  rPhi1.second << ' ' << rPhi1.first << std::endl; 
-       	// if (std::abs(rPhi2.second-rPhi2.first) > maxDelphi) std::cout << "rphi2 " <<  rPhi2.second << ' ' << rPhi2.first << std::endl;
-
-        // if (std::abs(rPhi2.first-rPhi1.first) > maxDelphi) std::cout << "rphi1 " <<  rPhi1.second << ' ' << rPhi1.first << " rphi2 " <<  rPhi2.second << ' ' << rPhi2.first<< std::endl;
-        // if (!rPhi1.hasIntersection(rPhi2)) {
-        //        std::cout << " no int rphi1 " <<  rPhi1.second << ' ' << rPhi1.first << " rphi2 " <<  rPhi2.second << ' ' << rPhi2.first 
-        //                  << ' ' << radius.min() << ' ' << radius.max() << std::endl;
-        // }
-
       }
 
-      // if (std::abs(phiRange.first)>float(M_PI)) std::cout << "bha1 " << phiRange.first << ' ' << phiRange.second << std::endl;
-      if (std::abs(phiRange.first)>float(M_PI) && std::abs(phiRange.second)>float(M_PI)) std::cout << "bha2 " << phiRange.first << ' ' << phiRange.second << std::endl;
-      
-      
       constexpr float nSigmaRZ = 3.46410161514f; // std::sqrt(12.f); // ...and continue as before
       constexpr float nSigmaPhi = 3.f;
       
       foundNodes.clear(); // Now recover hits in bounding box...
       float prmin=phiRange.min(), prmax=phiRange.max();
 
-
-      if (prmax<prmin)  std::cout << "aarg " << phiRange.first << ' ' << phiRange.second << std::endl;
-      // if (prmax-prmin>maxDelphi) std::cout << "delphi " << ' ' << prmin << '/' << prmax << std::endl;
 
       if (prmax-prmin>maxDelphi) {
         auto prm = phiRange.mean();
