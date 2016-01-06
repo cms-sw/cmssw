@@ -199,9 +199,10 @@ HiPFCandAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       const pat::Jet jet = jetColl->at(ijet);
 
       double pt =  jet.pt();
-
+      double energy =  jet.energy();
       if(pt>jetPtMin_){
 	pfEvt_.jetPt_[pfEvt_.njets_] = pt;
+	pfEvt_.jetEnergy_[pfEvt_.njets_] = energy;
 	pfEvt_.jetEta_[pfEvt_.njets_] = jet.eta();
 	pfEvt_.jetPhi_[pfEvt_.njets_] = jet.phi();
 	pfEvt_.njets_++;
