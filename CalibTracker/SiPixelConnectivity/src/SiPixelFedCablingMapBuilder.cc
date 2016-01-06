@@ -30,41 +30,55 @@
 using namespace std;
 using namespace sipixelobjects;
 
-//SiPixelFedCablingMapBuilder::SiPixelFedCablingMapBuilder(const string & associatorName) : theAssociatorName(associatorName)
 SiPixelFedCablingMapBuilder::SiPixelFedCablingMapBuilder(const string fileName, 
 							 const bool phase1) : 
-  fileName_(fileName), phase1_(phase1)
+  fileName_(fileName)  //, phase1_(phase1) not used anymore
 { }
 
 
 SiPixelFedCablingTree * SiPixelFedCablingMapBuilder::produce( const edm::EventSetup& setup) {
 
-  //bool phase1_ = false;  
-  //bool phase1_ = true;  
+  // Access geometry
+  edm::LogInfo("read tracker geometry...");
+  edm::ESHandle<TrackerGeometry> pDD;
+  setup.get<TrackerDigiGeometryRecord>().get( pDD );
+  edm::LogInfo("tracker geometry read")<<"There are: "<<  pDD->dets().size() <<" detectors";
 
-  cout<<" buildr "<<phase1_<<endl;
+  // Test new TrackerGeometry features
+  //cout << "Test of TrackerGeometry::isThere";
+  //cout  << " is there PixelBarrel: " << pDD->isThere(GeomDetEnumerators::PixelBarrel);
+  //cout  << " is there PixelEndcap: " << pDD->isThere(GeomDetEnumerators::PixelEndcap);
+  //cout  << " is there P1PXB: " << pDD->isThere(GeomDetEnumerators::P1PXB);
+  //cout  << " is there P1PXEC: " << pDD->isThere(GeomDetEnumerators::P1PXEC);
+  //cout  << endl;
 
-  int MINSiPixelFEDID = 0;
-  int MAXSiPixelFEDID = 39;
-  if(phase1_) {
-    // bpix 1200-1239, fpix 1240-1255
-    MINSiPixelFEDID = 1200;
-    MAXSiPixelFEDID = 1255;
+  // switch on the phase1 
+  if( (pDD->isThere(GeomDetEnumerators::P1PXB)) || 
+      (pDD->isThere(GeomDetEnumerators::P1PXEC)) ) {
+    phase1_ = true;
+    //cout<<" this is phase1 "<<endl;
+    edm::LogInfo("SiPixelFedCablingMapBuilder")<<" pixel phase1 setup ";
+  } else {
+    phase1_ = false;
+    //cout<<" this is phase0 "<<endl;
+    edm::LogInfo("SiPixelFedCablingMapBuilder")<<" pixel phase0 setup ";
   }
 
-  //FEDNumbering fednum;
-  // fed range should come from input ot automatic from geometry
-//  TRange<int> fedIds(FEDNumbering::MINSiPixelFEDID, FEDNumbering::MAXSiPixelFEDID);
-
-  TRange<int> fedIds(MINSiPixelFEDID,MAXSiPixelFEDID);
+  int MINFEDID = FEDNumbering::MINSiPixelFEDID;
+  int MAXFEDID = FEDNumbering::MAXSiPixelFEDID;
+  if(phase1_) {
+    // bpix 1200-1239, fpix 1240-1255
+    MINFEDID = FEDNumbering::MINSiPixeluTCAFEDID;
+    MAXFEDID = FEDNumbering::MAXSiPixeluTCAFEDID; // is actually 1349, might work
+  }
+  TRange<int> fedIds(MINFEDID,MAXFEDID);
   edm::LogInfo("SiPixelFedCablingMapBuilder")<<"pixel fedid range: "<<fedIds;
 
   // in the constrcuctor init() is called which reads the ascii file and makes 
   // the map roc<->link 
-  // what is this junk?
+  // what is this junk? Replace by fixed associator.
   //edm::ESHandle<PixelToFEDAssociate> associator;
   //setup.get<TrackerDigiGeometryRecord>().get(theAssociatorName,associator);
-
   //PixelToFEDAssociate * associator = new PixelToLNKAssociateFromAscii("pixelToLNK.ascii",phase1_);
   PixelToFEDAssociate * associator = new PixelToLNKAssociateFromAscii(fileName_,phase1_);
   
@@ -74,39 +88,10 @@ SiPixelFedCablingTree * SiPixelFedCablingMapBuilder::produce( const edm::EventSe
   SiPixelFedCablingTree * result = new SiPixelFedCablingTree(version);
   edm::LogInfo(" version ")<<version<<endl;
 
-  // Access geometry
-  edm::LogInfo("read tracker geometry...");
-  edm::ESHandle<TrackerGeometry> pDD;
-  setup.get<TrackerDigiGeometryRecord>().get( pDD );
-  edm::LogInfo("tracker geometry read")<<"There are: "<<  pDD->dets().size() <<" detectors";
-
-  // Test new TrackerGeometry features
-  cout << "Test of TrackerGeometry::isThere";
-  cout  << " is there PixelBarrel: " << pDD->isThere(GeomDetEnumerators::PixelBarrel);
-  cout  << " is there PixelEndcap: " << pDD->isThere(GeomDetEnumerators::PixelEndcap);
-  cout  << " is there P1PXB: " << pDD->isThere(GeomDetEnumerators::P1PXB);
-  cout  << " is there P1PXEC: " << pDD->isThere(GeomDetEnumerators::P1PXEC);
-  cout  << endl;
-
-  // switch on the phase1 
-  if( (pDD->isThere(GeomDetEnumerators::P1PXB)) && 
-      (pDD->isThere(GeomDetEnumerators::P1PXEC)) ) {
-    phase1_ = true;
-    cout<<" this is phase1 "<<endl;
-  } else {
-    phase1_ = false;
-    cout<<" this is phase0 "<<endl;
-  }
-
   // Access topology
-  //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
-  //es.get<IdealGeometryRecord>().get(tTopo);
   setup.get<TrackerTopologyRcd>().get(tTopo);
   const TrackerTopology* tt = tTopo.product();
-
-
-
 
   typedef TrackerGeometry::DetContainer::const_iterator ITG;
   int npxdets = 0;
