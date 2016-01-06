@@ -637,6 +637,9 @@ class HtmlReport:
 
         self._sections = collections.OrderedDict()
 
+    def addNote(self, note):
+        self._index.append('  <p>%s</p>'%note)
+
     def beginSample(self, sample, fastVsFull=False):
         key = (sample.digest(), fastVsFull)
         if key in self._sections:
