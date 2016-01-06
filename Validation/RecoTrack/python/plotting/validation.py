@@ -363,7 +363,7 @@ class Validation:
         Arguments:
         fullsimSamples -- List of Sample objects for FullSim samples (may be empty)
         fastsimSamples -- List of Sample objects for FastSim samples (may be empty)
-        refRelease    -- String for reference CMSSW release
+        refRelease    -- String for reference CMSSW release (can be None for no reference release)
         newRepository -- String for directory whete to put new files
         newRelease     -- CMSSW release to be validated
         refRepository  -- String for directory where reference root files are
@@ -513,22 +513,11 @@ class Validation:
                 plotFiles = self._doPlotsFastFull(fast, correspondingFull, plotterFolder, dqmSubFolder, htmlReport)
                 htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
 
-    def _doPlots(self, sample, harvestedFile, plotterFolder, dqmSubFolder, htmlReport):
-        """Do the real plotting work for a given sample and DQM subfolder"""
-        # Get GlobalTags
-        refGlobalTag = _getGlobalTag(sample, self._refRelease)
-        newGlobalTag = _getGlobalTag(sample, self._newRelease)
+    def _getRefFileAndSelection(self, sample, plotterFolder, dqmSubFolder, selectionNameBase, valname):
+        if self._refRelease is None:
+            return (None, "")
 
-        # Construct selection string
-        selectionNameBase = ""
-        if sample.hasScenario():
-            selectionNameBase += "_"+sample.scenario()
-        selectionNameBase += "_"+sample.pileup()
-        newSelection = newGlobalTag+selectionNameBase+plotterFolder.getSelectionName(dqmSubFolder)
-        if sample.hasPileup():
-            newPu = sample.pileupType(self._newRelease)
-            if newPu != "":
-                newSelection += "_"+newPu
+        refGlobalTag = _getGlobalTag(sample, self._refRelease)
         def _createRefSelection(selectionName):
             sel = refGlobalTag+selectionNameBase+selectionName
             if sample.hasPileup():
@@ -537,8 +526,6 @@ class Validation:
                     sel += "_"+refPu
             return sel
         refSelection = _createRefSelection(plotterFolder.getSelectionName(dqmSubFolder))
-
-        valname = "val.{sample}.root".format(sample=sample.name())
 
         # Construct reference directory name, and open reference file it it exists
         refValFile = None
@@ -566,6 +553,29 @@ class Validation:
                 if plotting.verbose:
                     print "None of the possible reference files %s not found" % ",".join(triedRefValFiles)
 
+        return (refValFile, refSelection)
+
+    def _doPlots(self, sample, harvestedFile, plotterFolder, dqmSubFolder, htmlReport):
+        """Do the real plotting work for a given sample and DQM subfolder"""
+        # Get GlobalTags
+        newGlobalTag = _getGlobalTag(sample, self._newRelease)
+
+        # Construct selection string
+        selectionNameBase = ""
+        if sample.hasScenario():
+            selectionNameBase += "_"+sample.scenario()
+        selectionNameBase += "_"+sample.pileup()
+        newSelection = newGlobalTag+selectionNameBase+plotterFolder.getSelectionName(dqmSubFolder)
+        if sample.hasPileup():
+            newPu = sample.pileupType(self._newRelease)
+            if newPu != "":
+                newSelection += "_"+newPu
+
+        valname = "val.{sample}.root".format(sample=sample.name())
+
+        # Construct reference file and selection string
+        (refValFile, refSelection) = self._getRefFileAndSelection(sample, plotterFolder, dqmSubFolder, selectionNameBase, valname)
+
         # Construct new directory name
         tmp = []
         if sample.fastsim():
@@ -586,7 +596,7 @@ class Validation:
             sample=sample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else "")
         rootFiles = [refValFile, newValFile]
         legendLabels = [
-            "%s, %s %s" % (sample.name(), _stripRelease(self._refRelease), refSelection),
+            "%s, %s %s" % (sample.name(), _stripRelease(self._refRelease), refSelection) if self._refRelease is not None else "dummy",
             "%s, %s %s" % (sample.name(), _stripRelease(self._newRelease), newSelection)
         ]
         plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=sample.hasPileup())
