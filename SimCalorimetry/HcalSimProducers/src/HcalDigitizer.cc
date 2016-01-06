@@ -462,14 +462,12 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
 #ifdef DebugLog
 	std::cout << "HcalDigitizer format " << hid.oldFormat() << " for " << hid << std::endl;
 #endif
-	if (hid.oldFormat()) {
-	  DetId newid = DetId(hid.newForm());
+        DetId newid = DetId(hid.newForm());
 #ifdef DebugLog
 	  std::cout << "Hit " << i << " out of " << hcalHits.size() << " " << std::hex << id.rawId() << " --> " << newid.rawId() << std::dec << " " << HcalDetId(newid.rawId()) << '\n';
 #endif
-	  hcalHitsOrig[i].setID(newid.rawId());
-	}
-	hcalHits.push_back(hcalHitsOrig[i]);
+        hcalHitsOrig[i].setID(newid.rawId());
+        hcalHits.push_back(hcalHitsOrig[i]);
       }
     }
 

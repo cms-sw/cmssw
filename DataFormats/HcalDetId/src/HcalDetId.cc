@@ -8,7 +8,7 @@ const HcalDetId HcalDetId::Undefined(HcalEmpty,0,0,0);
 HcalDetId::HcalDetId() : DetId() {
 }
 
-HcalDetId::HcalDetId(uint32_t rawid) : DetId(rawid) {
+HcalDetId::HcalDetId(uint32_t rawid) : DetId(newForm(rawid)) {
 }
 
 HcalDetId::HcalDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth) : DetId(Hcal,subdet) {
