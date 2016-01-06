@@ -2044,9 +2044,10 @@ class PlotterFolder:
             ret = _getDirectoryDetailed(tfile, self._possibleDqmFolders, subfolder)
             # If file and any of possibleDqmFolders exist but subfolder does not, try the fallbacks
             if ret is GetDirectoryCode.SubDirNotExist:
-                for fallbackDict in self._fallbackDqmSubFolders:
-                    if subfolder in fallbackDict:
-                        ret = _getDirectoryDetailed(tfile, self._possibleDqmFolders, fallbackDict[subfolder])
+                for fallbackFunc in self._fallbackDqmSubFolders:
+                    fallback = fallbackFunc(subfolder)
+                    if fallback is not None:
+                        ret = _getDirectoryDetailed(tfile, self._possibleDqmFolders, fallback)
                         if ret is not GetDirectoryCode.SubDirNotExist:
                             break
             dirs.append(GetDirectoryCode.codesToNone(ret))
@@ -2084,7 +2085,7 @@ class PlotterItem:
 
         Keyword arguments
         fallbackNames -- Optional list of names for backward compatibility. These are used only by validation.Validation (class responsible of the release validation workflow) in case the reference file pointed by 'name' does not exist.
-        fallbackDqmSubFolders -- Optional list of dicts of (string->string) for mapping the subfolder names found in the first file to another names. Use case is comparing files that have different iteration naming convention.
+        fallbackDqmSubFolders -- Optional list of functions for (string->string) mapping the subfolder names found in the first file to another names (function should return None for no mapping). Use case is comparing files that have different iteration naming convention.
         """
         self._name = name
         self._possibleDirs = possibleDirs
