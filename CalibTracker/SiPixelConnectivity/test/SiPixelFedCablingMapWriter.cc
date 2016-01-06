@@ -31,7 +31,7 @@ class SiPixelFedCablingMapWriter : public edm::EDAnalyzer {
   string record_;
   //string pixelToFedAssociator_;
   string fileName_;
-  bool phase1_;
+  //bool phase1_;
 };
 
 SiPixelFedCablingMapWriter::SiPixelFedCablingMapWriter( 
@@ -39,14 +39,14 @@ SiPixelFedCablingMapWriter::SiPixelFedCablingMapWriter(
   : 
     record_(cfg.getParameter<std::string>("record")), 
     //pixelToFedAssociator_(cfg.getUntrackedParameter<std::string>("associator","PixelToFEDAssociateFromAscii")), 
-    fileName_(cfg.getUntrackedParameter<std::string>("fileName","pixelToLNK.ascii")), 
-    phase1_(cfg.getUntrackedParameter<bool>("phase1",false)) 
+    //phase1_(cfg.getUntrackedParameter<bool>("phase1",false)), 
+    fileName_(cfg.getUntrackedParameter<std::string>("fileName","pixelToLNK.ascii")) 
 {
   
   stringstream out;
   out << " record:          " << record_ << endl;
   out << " input file name "  << fileName_ << endl;
-  out << " phase " << phase1_ << endl;
+  //out << " phase " << phase1_ << endl;
   LogInfo("initialisation: ")<<out.str();
 
 
@@ -64,11 +64,12 @@ void SiPixelFedCablingMapWriter::analyze(const edm::Event &iEvent, const edm::Ev
   static int first(1); 
   if (1 == first) {
     first = 0; 
-    std::cout << "-------HERE-----------" << endl;
+    //std::cout << "-------HERE-----------" << endl;
     //cabling = SiPixelFedCablingMapBuilder(pixelToFedAssociator_).produce(iSetup);
-    cabling = SiPixelFedCablingMapBuilder(fileName_,phase1_).produce(iSetup);
-    std::cout << "-------Print Map ----------- DOES NOT WORK for phase1 " << endl;
-    edm::LogInfo("PRINTING MAP:") << cabling->print(3) << endl;
+    //cabling = SiPixelFedCablingMapBuilder(fileName_,phase1_).produce(iSetup);
+    cabling = SiPixelFedCablingMapBuilder(fileName_).produce(iSetup);
+    //std::cout << "-------Print Map ----------- DOES NOT WORK for phase1 " << endl;
+    edm::LogInfo("PRINTING MAP (Does not work for phase1: ") << cabling->print(3);
   }
 }
 
@@ -80,9 +81,13 @@ void SiPixelFedCablingMapWriter::endJob( ) {
   LogInfo("Now NEW writing to DB");
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( !mydbservice.isAvailable() ){
-    std::cout<<"db service unavailable"<<std::endl;
+    edm::LogInfo("db service unavailable");
+    //std::cout<<"db service unavailable"<<std::endl;
     return;
-  } else { std::cout<<"OK"<<std::endl; }
+  } else { 
+    //std::cout<<"OK"<<std::endl; 
+    edm::LogInfo("Writing finished ");
+  }
 
   try {
     if( mydbservice->isNewTagRequest(record_) ){

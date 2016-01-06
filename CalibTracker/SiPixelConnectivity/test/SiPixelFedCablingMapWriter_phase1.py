@@ -8,7 +8,8 @@ process.load("Configuration.Geometry.GeometryExtended2017Reco_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond_condDBv2 import autoCond
-process.GlobalTag.globaltag = autoCond['phase1_2017__design']
+process.GlobalTag.globaltag = autoCond['phase1_2017_design']
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'phase1_2017_design', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '76X_upgrade2017_design_v8', '')
 
 process.source = cms.Source("EmptyIOVSource",
@@ -44,10 +45,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.mapwriter = cms.EDAnalyzer("SiPixelFedCablingMapWriter",
   record = cms.string('SiPixelFedCablingMapRcd'),
-  phase1 = cms.untracked.bool(True),
-  #fileName = cms.untracked.string('pixelToLNK.ascii_fpix_bpi')
-  #fileName = cms.untracked.string('pixelToLNK.ascii_bpix_bpi')
-  fileName = cms.untracked.string('pixelToLNK.ascii_phase1_v100')
+  fileName = cms.untracked.string('pixelToLNK.ascii_phase1_v1')
+  #phase1 = cms.untracked.bool(True),
   #associator = cms.untracked.string('PixelToLNKAssociateFromAscii')
 )
 

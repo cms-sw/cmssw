@@ -13,11 +13,6 @@ using namespace std;
 
 PixelToLNKAssociateFromAscii::PixelToLNKAssociateFromAscii(const string & fn, const bool phase) {
   phase1_ = phase;
-
-  //phase1_ = false;  
-  //phase1_ = true;  
-  //cout<<phase1_<<endl;
-
   init(fn);
 
 }
@@ -40,8 +35,6 @@ const PixelToLNKAssociateFromAscii::CablingRocId * PixelToLNKAssociateFromAscii:
 // This is where the reading and interpretation of the ascci cabling input file is
 void PixelToLNKAssociateFromAscii::init(const string & cfg_name) {
 
-  LogDebug("  DUPA1 init, input file: ") << cfg_name.c_str();   // does not print 
-  //edm::LogDebug("  DUPA2 init, input file: ") << cfg_name.c_str(); // does not compile 
   edm::LogInfo(" init, input file: ") << cfg_name.c_str();
 
   std::ifstream file( cfg_name.c_str() );
@@ -143,67 +136,65 @@ void PixelToLNKAssociateFromAscii::addConnections(
     int fedId, int linkId,  std::string module, Range rocDetIds) {
 
   string::size_type pos;
-  string module0=module;
 
-  // strip the trailing spaces 
-  string::size_type p = module0.find(" ");
-  //string::size_type p1 = module0.find_first_of(" ");
-  //string::size_type p2 = module0.find_last_not_of(" ");
-  //cout<<p<<" "<<p1<<" "<<p2<<endl;
-  if(p != string::npos) module0 = module0.substr(0,p);
 
   // check for Barrel modules
   pos = module.find("BPix");
   if (pos != string::npos) { 
+    
+    string module0=module;
+    // strip the trailing spaces 
+    string::size_type p = module0.find(" ");
+    //string::size_type p1 = module0.find_first_of(" ");
+    //string::size_type p2 = module0.find_last_not_of(" ");
+    //cout<<p<<" "<<p1<<" "<<p2<<endl;
+    if(p != string::npos) module0 = module0.substr(0,p);
+    PixelBarrelName * name = new PixelBarrelName(module0,phase1_);
 
-    // all this can be skipped 
     // shell
     string strP = module.substr(pos+6,2);
     PixelBarrelName::Shell part;
-    if (strP=="mO") part = PixelBarrelName::mO; 
+    if (strP=="mO")     part = PixelBarrelName::mO; 
     else if(strP=="mI") part = PixelBarrelName::mI;
-     else if(strP=="pO") part = PixelBarrelName::pO;
-     else                part = PixelBarrelName::pI;
-     module = module.substr(pos+9);
+    else if(strP=="pO") part = PixelBarrelName::pO;
+    else                part = PixelBarrelName::pI;
 
-     // sector
-     pos = module.find("_");
-     if (pos ==  string::npos) throw cms::Exception("problem with sector formatting");
-     // int sector = atoi( module.substr(3,pos-3).c_str());
-     module = module.substr(pos+1);
-
-     // layer
-     pos = module.find("_");
-     if (pos ==  string::npos) throw cms::Exception("problem with layer formatting");
-     int layer = atoi( module.substr(3,pos-3).c_str());
-     module = module.substr(pos+1);
-
-     // ladder
-     pos = module.find("_");
-     if (pos ==  string::npos) throw cms::Exception("problem with ladder formatting");
-     int ladder = atoi( module.substr(3,pos-3).c_str());
-     module = module.substr(pos+1);
-
-     // z-module
-     int zmodule = atoi( module.substr(3,pos-3).c_str());
-
-     // until here 
-
-     // place modules in connections
-     PixelBarrelName * name = new PixelBarrelName(part, layer, zmodule, ladder, phase1_);
-     PixelBarrelName * name0 = new PixelBarrelName(module0,phase1_);
-
-     if(name->name() != module0) cout<<" wrong name "<<fedId<<" "<<linkId<<" "
-				     <<module0<<" "<<name->name()<<" "<<name0->name()<<endl;
-     edm::LogInfo(" module ")<<fedId<<" "<<linkId<<" "<<module0<<" "
-			     <<name0->name()<<" "<<rocDetIds.max()<<endl;
-     
+    // // all this can be skipped ----------------------------------- 
+    // module = module.substr(pos+9);
+    // // sector
+    // pos = module.find("_");
+    // if (pos ==  string::npos) throw cms::Exception("problem with sector formatting");
+    // // int sector = atoi( module.substr(3,pos-3).c_str());
+    // module = module.substr(pos+1);
+    // // layer
+    // pos = module.find("_");
+    // if (pos ==  string::npos) throw cms::Exception("problem with layer formatting");
+    // int layer = atoi( module.substr(3,pos-3).c_str());
+    // module = module.substr(pos+1);
+    // // ladder
+    // pos = module.find("_");
+    // if (pos ==  string::npos) throw cms::Exception("problem with ladder formatting");
+    // int ladder = atoi( module.substr(3,pos-3).c_str());
+    // module = module.substr(pos+1);
+    // // z-module
+    // int zmodule = atoi( module.substr(3,pos-3).c_str());    
+    // // place modules in connections
+    // PixelBarrelName * name0 = new PixelBarrelName(part, layer, zmodule, ladder, phase1_);
+    // if(name->name() != module0) cout<<" wrong name "<<fedId<<" "<<linkId<<" "
+    // 				     <<module0<<" "<<name->name()<<" "<<name0->name()<<endl;
+    // if(name->name() != name0->name()) cout<<" wrong name "<<fedId<<" "<<linkId<<" "
+    // 				     <<module0<<" "<<name->name()<<" "<<name0->name()<<endl;
+    // //edm::LogInfo(" module ")<<fedId<<" "<<linkId<<" "<<module0<<" "
+    // //			     <<name0->name()<<" "<<rocDetIds.max()<<endl;
+    // // until here 
+    
+    
      int rocLnkId = 0; 
      for (int rocDetId=rocDetIds.min(); rocDetId <= rocDetIds.max(); rocDetId++) {
        rocLnkId++;
        DetectorRocId  detectorRocId;
-       detectorRocId.module = name0;
-       //detectorRocId.module = name;
+       //detectorRocId.module = name0;
+       detectorRocId.module = name;
        detectorRocId.rocDetId = rocDetId;
 
        CablingRocId   cablingRocId;
@@ -211,8 +202,7 @@ void PixelToLNKAssociateFromAscii::addConnections(
        cablingRocId.linkId = linkId;
        cablingRocId.rocLinkId = rocLnkId;
        // fix for type-B modules in barrel
-       edm::LogInfo(" roc ")<<rocDetId<<" "<<rocLnkId<<" "<<module0<<" "
-			    <<name0->name()<<" "<<name->isHalfModule()<<endl;
+       edm::LogInfo(" roc ")<<rocDetId<<" "<<rocLnkId<<" "<<name->isHalfModule()<<endl;
        if (name->isHalfModule() && (rocDetIds.min()>7)  
            && (part==PixelBarrelName::mO || PixelBarrelName::mI) ) {
 	 //cablingRocId.rocLinkId = 9-rocLnkId;
@@ -229,8 +219,6 @@ void PixelToLNKAssociateFromAscii::addConnections(
   pos = module.find("FPix");
   if (pos != string::npos) {
 
-
-    // can be skipped ------------------->
      string strH = module.substr(pos+6,2);
      PixelEndcapName::HalfCylinder part;
          if (strH=="mO") part = PixelEndcapName::mO;
@@ -262,8 +250,6 @@ void PixelToLNKAssociateFromAscii::addConnections(
 //     if (pos ==  string::npos) throw cms::Exception("problem with plaquette formatting");
 //     int plaq = atoi( module.substr(3,pos-3).c_str());
 
-// end of skipping <----------------------------------------
-
      int ring=1; // preset to 1 so it is ok for pilot blades
      // pannel type
      PixelPannelType::PannelType pannelType; 
@@ -291,6 +277,7 @@ void PixelToLNKAssociateFromAscii::addConnections(
        else throw cms::Exception("problem with pannel type formatting (unrecoginzed word)");      
      }
      
+
      // Cabling accoring to the panle type
      if ( pannelType==PixelPannelType::p4L) {
 //     cout <<"----------- p4L"<<endl;
@@ -301,12 +288,14 @@ void PixelToLNKAssociateFromAscii::addConnections(
          if (plaq==2) { rocs = Range(0,5); firstRoc=0; step=+1; }
          if (plaq==3) { rocs = Range(0,7); firstRoc=0; step=+1; }
          if (plaq==4) { rocs = Range(0,4); firstRoc=0; step=+1; }
+         PixelEndcapName * name  = new PixelEndcapName(part,disk,blade,pannel,plaq);
          for (int iroc =rocs.min(); iroc<=rocs.max(); iroc++) {
            rocLnkId++;
            int rocDetId = firstRoc + step*iroc; 
 
            DetectorRocId  detectorRocId;
-           detectorRocId.module = new PixelEndcapName(part,disk,blade,pannel,plaq);
+           //detectorRocId.module = new PixelEndcapName(part,disk,blade,pannel,plaq);
+           detectorRocId.module = name;
            detectorRocId.rocDetId = rocDetId;
 
            CablingRocId   cablingRocId;
@@ -328,13 +317,15 @@ void PixelToLNKAssociateFromAscii::addConnections(
          if (plaq==2) { rocs = Range(0,5); firstRoc=3; step=+1; }
          if (plaq==3) { rocs = Range(0,7); firstRoc=4; step=+1; }
          if (plaq==4) { rocs = Range(0,4); firstRoc=0; step=+1; }
+         PixelEndcapName * name  = new PixelEndcapName(part,disk,blade,pannel,plaq);
          for (int iroc =rocs.min(); iroc-rocs.max() <= 0; iroc++) {
            rocLnkId++;
            int rocDetId = firstRoc + step*iroc;
            if (rocDetId > rocs.max()) rocDetId = (rocDetId-1)%rocs.max();
 
            DetectorRocId  detectorRocId;
-           detectorRocId.module = new PixelEndcapName(part,disk,blade,pannel,plaq);
+           //detectorRocId.module = new PixelEndcapName(part,disk,blade,pannel,plaq);
+           detectorRocId.module = name;
            detectorRocId.rocDetId = rocDetId;
            CablingRocId   cablingRocId;
            cablingRocId.fedId = fedId;
@@ -354,12 +345,13 @@ void PixelToLNKAssociateFromAscii::addConnections(
          if (plaq==1) { rocs = Range(0,5); firstRoc=0; step=1; }
          if (plaq==2) { rocs = Range(0,7); firstRoc=0; step=1; }
          if (plaq==3) { rocs = Range(0,9); firstRoc=0; step=1; }
+         PixelEndcapName * name  = new PixelEndcapName(part,disk,blade,pannel,plaq);
          for (int iroc =rocs.min(); iroc<=rocs.max(); iroc++) {
            rocLnkId++;
            int rocDetId = firstRoc + step*iroc; 
 
            DetectorRocId  detectorRocId;
-           detectorRocId.module = new PixelEndcapName(part,disk,blade,pannel,plaq);
+           detectorRocId.module = name;
            detectorRocId.rocDetId = rocDetId;
 
            CablingRocId   cablingRocId;
@@ -380,13 +372,14 @@ void PixelToLNKAssociateFromAscii::addConnections(
          if (plaq==1) { rocs = Range(0,5); firstRoc=3; step=1; }
          if (plaq==2) { rocs = Range(0,7); firstRoc=4; step=1; }
          if (plaq==3) { rocs = Range(0,9); firstRoc=5; step=1; }
+         PixelEndcapName * name  = new PixelEndcapName(part,disk,blade,pannel,plaq);
          for (int iroc =rocs.min(); iroc<=rocs.max(); iroc++) {
            rocLnkId++;
            int rocDetId = firstRoc + step*iroc;
            if (rocDetId > rocs.max()) rocDetId = (rocDetId-1)%rocs.max();
 
            DetectorRocId  detectorRocId;
-           detectorRocId.module = new PixelEndcapName(part,disk,blade,pannel,plaq);
+           detectorRocId.module = name;
            detectorRocId.rocDetId = rocDetId;
 
            CablingRocId   cablingRocId;
@@ -404,16 +397,11 @@ void PixelToLNKAssociateFromAscii::addConnections(
        int rocLnkId = 0; 
        //       Range rocs = Range(0, 15); 
        //       for (int rocDetId=rocs.min(); rocDetId <= rocs.max(); rocDetId++) {
-       PixelEndcapName * name = new PixelEndcapName(part, disk, blade, pannel, ring, phase1_);
-       PixelEndcapName * name0 = new PixelEndcapName(module0, phase1_);
-       if((name->name() != name0->name()) ) // works only for phase0 
-	 cout<<" wrong translation "<<module<<" "<<module0<<" "<<name->name()<<" "<<name0->name()<<endl;
-       //cout<<module<<" "<<module0<<" "<<name->name()<<" "<<name0->name()<<" "<<ring<<endl;
-       
+       PixelEndcapName * name = new PixelEndcapName(part, disk, blade, pannel, ring, phase1_); 
        for (int rocDetId=rocDetIds.min(); rocDetId <= rocDetIds.max(); rocDetId++) {
 	 rocLnkId++;
 	 DetectorRocId  detectorRocId;
-	 detectorRocId.module = name0;
+	 detectorRocId.module = name;
 	 detectorRocId.rocDetId = rocDetId;
 	 CablingRocId   cablingRocId;
 	 cablingRocId.fedId = fedId;
@@ -425,7 +413,7 @@ void PixelToLNKAssociateFromAscii::addConnections(
 	   << " rocLnkId:" << rocLnkId 
 	   << " fedId = " << fedId 
 	   << " linkId = " << linkId
-	   << " name = " << name0->name();
+	   << " name = " << name->name();
 	 // cout << " rocDetId: " << rocDetId 
 	 //      << " rocLnkId:" << rocLnkId 
 	 //      << " fedId = " << fedId 
@@ -441,10 +429,6 @@ void PixelToLNKAssociateFromAscii::addConnections(
 
 PixelToLNKAssociateFromAscii::Range 
     PixelToLNKAssociateFromAscii::readRange( const string & l) const {
-  bool first = true;
-  int num1 = -1;
-  int num2 = -1;
-
   //cout<<l<<" in range "<<l.size()<<endl;
   string l1,l2;
   int i1=-1, i2=-1;
@@ -462,28 +446,29 @@ PixelToLNKAssociateFromAscii::Range
     //cout<<l1<<" "<<l2<<" "<<i1<<" "<<i2<<endl;
   }
 
-
+  return Range(i1,i2);
 
   // this method is very stupid it relies on a space being present after the last number!
   // exchange with string opertaions (above)
-
-  const char * line = l.c_str();
-  int i=0;
-  while (line) {
-    i++;
-    char * evp = 0;
-    int num = strtol(line, &evp, 10);
-    //cout<<i<<" "<<num<<" "<<evp<<" "<<line<<endl;
-    //{ stringstream s; s<<"read from line: "; s<<num; LogTrace("") << s.str(); }
-    if (evp != line) {
-      line = evp +1;
-      //cout<<i<<" "<<num<<" "<<evp<<" "<<line<<endl;
-      if (first) { num1 = num; first = false;}
-      num2 = num;
-      //cout<<" not first "<<num2<<endl;
-    } else line = 0;
-  }
-
+  //bool first = true;
+  //int num1 = -1;
+  //int num2 = -1;
+  // const char * line = l.c_str();
+  // int i=0;
+  // while (line) {
+  //   i++;
+  //   char * evp = 0;
+  //   int num = strtol(line, &evp, 10);
+  //   //cout<<i<<" "<<num<<" "<<evp<<" "<<line<<endl;
+  //   //{ stringstream s; s<<"read from line: "; s<<num; LogTrace("") << s.str(); }
+  //   if (evp != line) {
+  //     line = evp +1;
+  //     //cout<<i<<" "<<num<<" "<<evp<<" "<<line<<endl;
+  //     if (first) { num1 = num; first = false;}
+  //     num2 = num;
+  //     //cout<<" not first "<<num2<<endl;
+  //   } else line = 0;
+  // }
   // if (first) {
   //   string s = "** PixelToLNKAssociateFromAscii, read data, cant intrpret: " ;
   //   edm::LogInfo(s) << endl 
@@ -492,11 +477,10 @@ PixelToLNKAssociateFromAscii::Range
   //   s += l;
   //   throw cms::Exception(s);
   // }
-
-  if(i1!=num1) cout<<" something wrong with min range "<<i1<<" "<<num1<<endl;
-  if(!phase1_ && (i2!=num2)) cout<<" something wrong with max range "<<i2<<" "<<num2<<endl;
+  //if(i1!=num1) cout<<" something wrong with min range "<<i1<<" "<<num1<<endl;
+  //if(!phase1_ && (i2!=num2)) cout<<" something wrong with max range "<<i2<<" "<<num2<<endl;
   //cout<<" min max "<<num1<<" "<<num2<<endl;
-  return Range(i1,i2);
   //return Range(num1,num2);
+
 }
 

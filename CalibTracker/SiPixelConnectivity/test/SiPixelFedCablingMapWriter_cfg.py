@@ -8,7 +8,7 @@ process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond_condDBv2 import autoCond
-process.GlobalTag.globaltag = autoCond['run2_design']
+process.GlobalTag.globaltag = autoCond['run2_data']
 
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
@@ -27,7 +27,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     #process.CondDBCommon,
     toPut = cms.VPSet(cms.PSet(
         record =  cms.string('SiPixelFedCablingMapRcd'),
-        tag = cms.string('SiPixelFedCablingMap_vtest')
+        tag = cms.string('SiPixelFedCablingMap_v21')
     )),
     # loadBlobStreamer = cms.untracked.bool(False)
 )
@@ -43,7 +43,9 @@ process.load("CalibTracker.SiPixelConnectivity.PixelToLNKAssociateFromAsciiESPro
 
 process.mapwriter = cms.EDAnalyzer("SiPixelFedCablingMapWriter",
   record = cms.string('SiPixelFedCablingMapRcd'),
-  associator = cms.untracked.string('PixelToLNKAssociateFromAscii')
+  #associator = cms.untracked.string('PixelToLNKAssociateFromAscii'),
+  #phase1 = cms.untracked.bool(False),
+  fileName = cms.untracked.string('pixelToLNK.ascii_V21')
 )
 
 process.p1 = cms.Path(process.mapwriter)

@@ -11,7 +11,7 @@ process.GlobalTag.globaltag = autoCond['run2_design']
 
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
+        threshold = cms.untracked.string('DEBUG')
     ),
     destinations = cms.untracked.vstring('cout')
 )
@@ -30,15 +30,9 @@ process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(1)
 )
 
-####process.Timing = cms.Service("Timing")
-####process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
-####    ignoreTotal = cms.untracked.int32(0)
-####)
-
-
 ##### DATABASE CONNECTION INFO ######
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:cabling_v18.db'
+process.CondDBCommon.connect = 'sqlite_file:SiPixelFedCablingMap_v21.db'
 process.CondDBCommon.DBParameters.authenticationPath = '.'
 process.CondDBCommon.DBParameters.messageLevel = 1
 
@@ -50,13 +44,12 @@ process.PoolDBESSourceForReader = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(
         cms.PSet(
             record = cms.string('SiPixelFedCablingMapRcd'),
-            tag = cms.string('SiPixelFedCablingMap_v18')
+            tag = cms.string('SiPixelFedCablingMap_v21')
        ))
 )
 
 ###### PREFER ABOVE TAGS #######
 process.esprefer_DBReaders = cms.ESPrefer("PoolDBESSource", "PoolDBESSourceForReader")
-
 
 ####### CABLING MAP READER ######
 process.SiPixelFedCablingMapAnalyzer = cms.EDAnalyzer("SiPixelFedCablingMapAnalyzer")
