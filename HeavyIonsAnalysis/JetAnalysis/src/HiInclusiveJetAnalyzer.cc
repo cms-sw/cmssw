@@ -306,6 +306,7 @@ HiInclusiveJetAnalyzer::beginJob() {
     t->Branch("svtxdls2d", jets_.svtxdls2d, "svtxdls2d[nref]/F");
     t->Branch("svtxm",    jets_.svtxm,    "svtxm[nref]/F");
     t->Branch("svtxpt",   jets_.svtxpt,   "svtxpt[nref]/F");
+    t->Branch("svtxmcorr", jets_.svtxmcorr, "svtxmcorr[nref]/F");
 
     t->Branch("nIPtrk",jets_.nIPtrk,"nIPtrk[nref]/I");
     t->Branch("nselIPtrk",jets_.nselIPtrk,"nselIPtrk[nref]/I");
@@ -592,8 +593,18 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
           jets_.svtxdl2d[jets_.nref] = m2D.value();
           jets_.svtxdls2d[jets_.nref] = m2D.significance();
           const Vertex& svtx = tagInfoSV.secondaryVertex(0);
-	  jets_.svtxm[jets_.nref]    = svtx.p4().mass();
-	  jets_.svtxpt[jets_.nref]   = svtx.p4().pt();
+	  
+	  double svtxM = svtx.p4().mass();
+          double svtxPt = svtx.p4().pt();
+	  jets_.svtxm[jets_.nref]    = svtxM; 
+	  jets_.svtxpt[jets_.nref]   = svtxPt;
+	  
+	  //try out the corrected mass (http://arxiv.org/pdf/1504.07670v1.pdf)
+	  //mCorr=srqt(m^2+p^2sin^2(th)) + p*sin(th)
+	  double sinth = svtx.p4().Vect().Unit().Cross(tagInfoSV.flightDirection(0).unit()).Mag2();
+	  sinth = sqrt(sinth);
+	  jets_.svtxmcorr[jets_.nref] = sqrt(pow(svtxM,2)+(pow(svtxPt,2)*pow(sinth,2)))+svtxPt*sinth;
+
 	  if(svtx.ndof()>0)jets_.svtxnormchi2[jets_.nref]  = svtx.chi2()/svtx.ndof();
 	}
       }
