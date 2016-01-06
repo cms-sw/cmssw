@@ -300,29 +300,28 @@ _possibleTrackingCollsOld = {
     "Ninth" : "iter9",
     "Tenth" : "iter10",
 }
+
 def _trackingSubFoldersFallbackSLHC(subfolder):
-    return {
-        "general_trackingParticleRecoAsssociation"                      : "general_AssociatorByHitsRecoDenom",
-        "cutsRecoHp_trackingParticleRecoAsssociation"                   : "cutsRecoHp_AssociatorByHitsRecoDenom",
-        "cutsRecoInitialStep_trackingParticleRecoAsssociation"          : "cutsRecoZero_AssociatorByHitsRecoDenom",
-        "cutsRecoInitialStepHp_trackingParticleRecoAsssociation"        : "cutsRecoZeroHp_AssociatorByHitsRecoDenom",
-        "cutsRecoLowPtTripletStep_trackingParticleRecoAsssociation"     : "cutsRecoFirst_AssociatorByHitsRecoDenom",
-        "cutsRecoLowPtTripletStepHp_trackingParticleRecoAsssociation"   : "cutsRecoFirstHp_AssociatorByHitsRecoDenom",
-        "cutsRecoPixelPairStep_trackingParticleRecoAsssociation"        : "cutsRecoSecond_AssociatorByHitsRecoDenom",
-        "cutsRecoPixelPairStepHp_trackingParticleRecoAsssociation"      : "cutsRecoSecondHp_AssociatorByHitsRecoDenom",
-        "cutsRecoMixedTripletStep_trackingParticleRecoAsssociation"     : "cutsRecoFourth_AssociatorByHitsRecoDenom",
-        "cutsRecoMixedTripletStepHp_trackingParticleRecoAsssociation"   : "cutsRecoFourthHp_AssociatorByHitsRecoDenom",
-        "cutsRecoMuonSeededStepInOut_trackingParticleRecoAsssociation"  : "cutsRecoNinth_AssociatorByHitsRecoDenom",
-        "cutsRecoMuonSeededStepInOutHp_trackingParticleRecoAsssociation": "cutsRecoNinthHp_AssociatorByHitsRecoDenom",
-        "cutsRecoMuonSeededStepOutIn_trackingParticleRecoAsssociation"  : "cutsRecoTenth_AssociatorByHitsRecoDenom",
-        "cutsRecoMuonSeededStepOutInHp_trackingParticleRecoAsssociation": "cutsRecoTenthHp_AssociatorByHitsRecoDenom",
-#    "initialStep"        : "iter0",
-#    "lowPtTripletStep"   : "iter1", # also iter3
-#    "pixelPairStep"      : "iter2", # also iter6
-#    "mixedTripletStep"   : "iter4", # also iter5
-#    "muonSeededStepInOut": "iter9",
-#    "muonSeededStepOutIn": "iter10",
-    }.get(subfolder, None)
+    ret = subfolder.replace("trackingParticleRecoAsssociation", "AssociatorByHitsRecoDenom")
+    for (old, new) in [("InitialStep",         "Zero"),
+                       ("LowPtTripletStep",    "First"),
+                       ("PixelPairStep",       "Second"),
+                       ("MixedTripletStep",    "Fourth"),
+                       ("MuonSeededStepInOut", "Ninth"),
+                       ("MuonSeededStepOutIn", "Tenth")]:
+        ret = ret.replace(old, new)
+    if ret == subfolder:
+        return None
+    return ret
+def _trackingRefFileFallbackSLHC(path):
+    for (old, new) in [("initialStep",         "iter0"),
+                       ("lowPtTripletStep",    "iter1"),
+                       ("pixelPairStep",       "iter2"),
+                       ("mixedTripletStep",    "iter4"),
+                       ("muonSeededStepInOut", "iter9"),
+                       ("muonSeededStepOutIn", "iter10")]:
+        path = path.replace(old, new)
+    return path
 
 def _mapCollectionToAlgoQuality(collName):
     if "Hp" in collName:
@@ -531,8 +530,9 @@ _packedCandidateParam2 = PlotGroup("param2", [
 )
 
 class TrackingPlotFolder(PlotFolder):
-    def _init__(self, *args, **kwargs):
-        super(TrackingPlotFolder, self).__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        self._fallbackRefFiles = kwargs.pop("fallbackRefFiles", [])
+        PlotFolder.__init__(self, *args, **kwargs)
 
     def translateSubFolder(self, dqmSubFolderName):
         spl = dqmSubFolderName.split("_")
@@ -541,18 +541,20 @@ class TrackingPlotFolder(PlotFolder):
         collName = spl[0]
         return _mapCollectionToAlgoQuality(collName)
 
-    def getSelectionName(self, plotFolderName, translatedDqmSubFolder):
-        (algo, quality) = translatedDqmSubFolder
+    def iterSelectionName(self, plotFolderName, translatedDqmSubFolder):
+        (algoOrig, quality) = translatedDqmSubFolder
 
-        ret = ""
-        if plotFolderName != "":
-            ret += "_"+plotFolderName
-        if quality != "":
-            ret += "_"+quality
-        if not (algo == "ootb" and quality != ""):
-            ret += "_"+algo
+        for fallback in [lambda n: n]+self._fallbackRefFiles:
+            algo = fallback(algoOrig)
 
-        return ret
+            ret = ""
+            if plotFolderName != "":
+                ret += "_"+plotFolderName
+            if quality != "":
+                ret += "_"+quality
+            if not (algo == "ootb" and quality != ""):
+                ret += "_"+algo
+            yield ret
 
     def limitSubFolder(self, limitOnlyTo, translatedDqmSubFolder):
         """Return True if this subfolder should be processed
@@ -697,7 +699,7 @@ _packedCandidatePlots = [
 plotter = Plotter()
 def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, seeding=False):
     # to keep backward compatibility, this set of plots has empty name
-    plotter.append(name, _trackingFolders(lastDirName), TrackingPlotFolder(*algoPlots, onlyForPileup=onlyForPileup, purpose=PlotPurpose.TrackingIteration), fallbackDqmSubFolders=[_trackingSubFoldersFallbackSLHC])
+    plotter.append(name, _trackingFolders(lastDirName), TrackingPlotFolder(*algoPlots, onlyForPileup=onlyForPileup, purpose=PlotPurpose.TrackingIteration, fallbackRefFiles=[_trackingRefFileFallbackSLHC]), fallbackDqmSubFolders=[_trackingSubFoldersFallbackSLHC])
     summaryName = ""
     if name != "":
         summaryName += name+"_"
