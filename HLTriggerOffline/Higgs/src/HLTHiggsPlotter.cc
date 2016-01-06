@@ -214,14 +214,14 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & so
         {
             maxPt = "MaxPt";
             maxPt += (countobjects[objType]+1);
-            if( ! objType == EVTColContainer::PFJET || nMinOne[maxPt.Data()] ) {
+            if( objType != EVTColContainer::PFJET || nMinOne[maxPt.Data()] ) {
                 this->fillHist(isPassTrigger,source,objTypeStr,maxPt.Data(),pt);
             }
             ++(countobjects[objType]);
             ++counttotal;
         } 
         else continue; // if not needed (minCandidates == _NptPlots if _useNminOneCuts 
-        if( ! objType == EVTColContainer::PFJET || passAllCuts ) {
+        if( objType != EVTColContainer::PFJET || passAllCuts ) {
             this->fillHist(isPassTrigger,source,objTypeStr,"Eta",eta);
             this->fillHist(isPassTrigger,source,objTypeStr,"Phi",phi);
         }
