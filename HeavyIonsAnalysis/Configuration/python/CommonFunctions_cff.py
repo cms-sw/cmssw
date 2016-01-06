@@ -798,7 +798,7 @@ def overrideJEC_pp5020(process):
                                    ),
                                    
                                    cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v7_AK4PF_offline"),
+                                            tag = cms.string("JetCorrectorParametersCollection_HI_PythiaCUETP8M1_5020GeV_753p1_v12_AK4PF_offline"),
                                             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
                                             label = cms.untracked.string("AK4PF_offline")
                                    ),
