@@ -98,11 +98,6 @@ namespace edm {
 
     bool anyProducts(BranchType const brType) const;
 
-    ConstProductList& constProductList() {
-       //throwIfNotFrozen();
-       return transient_.constProductList_;
-    }
-
     std::shared_ptr<ProductHolderIndexHelper> const& productLookup(BranchType branchType) const;
 
     // returns the appropriate ProductHolderIndex else ProductHolderIndexInvalid if no BranchID is available
@@ -133,7 +128,6 @@ namespace edm {
       Transients();
       void reset();
       bool frozen_;
-      ConstProductList constProductList_;
       // Is at least one (run), (lumi), (event) product produced this process?
       boost::array<bool, NumBranchTypes> productProduced_;
       bool anyProductProduced_;
@@ -161,7 +155,6 @@ namespace edm {
 
     void freezeIt(bool frozen = true) {transient_.frozen_ = frozen;}
 
-    void updateConstProductRegistry();
     void initializeLookupTables();
     virtual void addCalled(BranchDescription const&, bool iFromListener);
     void throwIfNotFrozen() const;
