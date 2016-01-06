@@ -1921,14 +1921,14 @@ class PlotFolder:
         """
         return dqmSubFolderName
 
-    def getSelectionName(self, plotFolderName, translatedDqmSubFolder):
-        """Get selection name (used in output directory name and legend) from the name of PlotterFolder, and a return value of translateSubFolder"""
+    def iterSelectionName(self, plotFolderName, translatedDqmSubFolder):
+        """Iterate over possible selections name (used in output directory name and legend) from the name of PlotterFolder, and a return value of translateSubFolder"""
         ret = ""
         if plotFolderName != "":
             ret += "_"+plotFolderName
         if translatedDqmSubFolder is not None:
             ret += "_"+translatedDqmSubFolder
-        return ret
+        yield ret
 
     def limitSubFolder(self, limitOnlyTo, translatedDqmSubFolder):
         """Return True if this subfolder should be processed
@@ -2022,7 +2022,8 @@ class PlotterFolder:
     def getSelectionNameIterator(self, dqmSubFolder):
         """Get a generator for the 'selection name', looping over the name and fallbackNames"""
         for name in [self._name]+self._fallbackNames:
-            yield self._plotFolder.getSelectionName(name, dqmSubFolder.translated if dqmSubFolder is not None else None)
+            for selname in self._plotFolder.iterSelectionName(name, dqmSubFolder.translated if dqmSubFolder is not None else None):
+                yield selname
 
     def getSelectionName(self, dqmSubFolder):
         return next(self.getSelectionNameIterator(dqmSubFolder))
