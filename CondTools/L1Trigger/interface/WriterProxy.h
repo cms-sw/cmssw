@@ -8,8 +8,6 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-//#include "CondCore/DBCommon/interface/DbSession.h"
-//#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 
 #include "CondTools/L1Trigger/interface/Exception.h"
 

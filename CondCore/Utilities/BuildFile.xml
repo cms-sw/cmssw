@@ -6,8 +6,6 @@
 <use   name="FWCore/Concurrency"/>
 <use   name="boost"/>
 <use   name="boost_program_options"/>
-<use   name="CondCore/ORA"/>
-<use   name="CondCore/DBCommon"/>
 <use   name="CondCore/CondDB"/>
 <use   name="CondFormats/HLTObjects"/>
 <use   name="CondFormats/Alignment"/>
