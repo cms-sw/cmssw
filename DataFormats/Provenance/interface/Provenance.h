@@ -13,7 +13,6 @@ existence.
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
 
 #include <memory>
@@ -39,7 +38,6 @@ namespace edm {
 
     Provenance(std::shared_ptr<BranchDescription const> const& p, ProductID const& pid);
 
-    Parentage const& event() const {return parentage();}
     BranchDescription const& product() const {return *branchDescription_;}
 
     BranchDescription const& branchDescription() const {return *branchDescription_;}
@@ -47,7 +45,6 @@ namespace edm {
     std::shared_ptr<BranchDescription const> const& constBranchDescriptionPtr() const {return branchDescription_;}
 
     ProductProvenance const* productProvenance() const;
-    Parentage const& parentage() const {return productProvenance()->parentage();}
     BranchID const& branchID() const {return product().branchID();}
     std::string const& branchName() const {return product().branchName();}
     std::string const& className() const {return product().className();}
@@ -60,8 +57,6 @@ namespace edm {
     bool getProcessConfiguration(ProcessConfiguration& pc) const;
     ReleaseVersion releaseVersion() const;
     std::set<std::string> const& branchAliases() const {return product().branchAliases();}
-
-    std::vector<BranchID> const& parents() const {return parentage().parents();}
 
     void write(std::ostream& os) const;
 

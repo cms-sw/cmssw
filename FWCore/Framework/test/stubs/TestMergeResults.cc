@@ -304,7 +304,7 @@ namespace edmtest {
       edm::InputTag tag("thingWithMergeProducer", "event", "PROD");
       e.getByLabel(tag, h_thing);
       std::string expectedParent = expectedParents_[parentIndex_];
-      edm::BranchID actualParentBranchID = h_thing.provenance()->parentage().parents()[0];
+      edm::BranchID actualParentBranchID = h_thing.provenance()->productProvenance()->parentage().parents()[0];
 
       // There ought to be a get that uses the BranchID as an argument, but
       // there is not at the moment so we get the Provenance first and use that
