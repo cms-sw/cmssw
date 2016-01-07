@@ -27,7 +27,7 @@ trackerGeometry.applyAlignment = cms.bool(False)
 
 #  Calorimeters
 from Geometry.CaloEventSetup.HGCalV6Topology_cfi import *
-from Geometry.HGCalGeometry.HGCalGeometryV6ESProducer_cfi import *
+from Geometry.HGCalGeometry.HGCalV6GeometryESProducer_cfi import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
 
