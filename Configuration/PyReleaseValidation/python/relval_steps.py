@@ -246,7 +246,9 @@ baseDataSetRelease=[
     'CMSSW_7_5_3_patch1-PU50ns_75X_mcRun2_startup_v6_newCond-v1',            # 6 - fullSim PU 50ns premix
     'CMSSW_7_5_3-75X_mcRun2_asymptotic_v5_FastSim-v1',        # 7 - fastSim MinBias for mixing
     'CMSSW_7_5_3-PU25ns_75X_mcRun2_asymptotic_v5_FastSim-v1', # 8 - fastSim premixed MinBias 
-    'CMSSW_7_5_0-75X_mcRun2_HeavyIon_v1-v2'                   # 9 - Run2 HI GEN-SIM    
+    'CMSSW_7_5_8_patch1-75X_mcRun2_HeavyIon_v12-v1',          # 9 - Run2 HI GEN-SIM   
+    'CMSSW_7_5_8_patch1-75X_mcRun2_asymptotic_ppAt5TeV_v3-v1' # 10 - HI ppRef at 5.02TeV GEN-SIM input 
+    
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -339,6 +341,12 @@ steps['SingleMuPt10_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10_
 steps['SingleMuPt100_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt100_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['SingleMuPt1000_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['NuGun_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValNuGun_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+
+
+# input for HI ppRef workflows
+steps['QCD_Pt_80_120_5020GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_80_120_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
+steps['PhotonJets_Pt_10_5020GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValPhotonJets_Pt_10_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
+steps['ZEEMM_5020GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValZEEMM_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 
 #input for fast sim workflows to be added - TODO
 
@@ -473,7 +481,7 @@ hiAlca = {'--conditions':'auto:run2_mc_hi', '--customise':'SLHCUpgradeSimulation
 hiAlca2011 = {'--conditions':'auto:run1_mc_hi'}
 
 hiDefaults2011=merge([hiAlca2011,{'--scenario':'HeavyIons','-n':2,'--beamspot':'RealisticHI2011Collision'}])
-hiDefaults=merge([hiAlca,{'--scenario':'HeavyIons','-n':2,'--beamspot':'NominalHICollision2015'}])
+hiDefaults=merge([hiAlca,{'--scenario':'HeavyIons', '-n':2,'--beamspot':'NominalHICollision2015'}])
 
 steps['HydjetQ_MinBias_5020GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_5020GeV_cfi',U2000by1)])
 steps['HydjetQ_MinBias_5020GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[9],),location='STD',split=5)}
@@ -488,6 +496,17 @@ steps['QCD_Pt_80_120_13_HI']=merge([hiDefaults,steps['QCD_Pt_80_120_13']])
 steps['PhotonJets_Pt_10_13_HI']=merge([hiDefaults,steps['PhotonJets_Pt_10_13']])
 steps['ZMM_13_HI']=merge([hiDefaults,steps['ZMM_13']])
 steps['ZEEMM_13_HI']=merge([hiDefaults,steps['ZEEMM_13']])
+
+## pp Reference @ 5020 GeV for HI
+HIppRefDefaults={'--conditions':'75X_mcRun2_asymptotic_ppAt5TeV_v3',
+                 '--beamspot':'Nominal5TeVpp2015Collision'}
+genHIppRefDefaults=merge([HIppRefDefaults,{'--customise_commands':'"process.generator.comEnergy = cms.double(5020.0)"'}])
+
+steps['MiniBias_5020GeV']=merge([genHIppRefDefaults,steps['MinBias_13']])
+
+steps['QCD_Pt_80_120_5020GeV']=merge([genHIppRefDefaults,steps['QCD_Pt_80_120_13']])
+steps['PhotonJets_Pt_10_5020GeV']=merge([genHIppRefDefaults,steps['PhotonJets_Pt_10_13']])
+steps['ZEEMM_5020GeV']=merge([genHIppRefDefaults,steps['ZEEMM_13']])
 
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
@@ -765,6 +784,15 @@ steps['DIGIHI']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,L1Reco
 steps['DIGIHI2011']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco'}, hiDefaults2011, {'--pileup':'HiMixNoPU'}, step2Defaults])
 steps['DIGIHIMIX']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,L1Reco', '-n':2}, hiDefaults, {'--pileup':'HiMix'}, PUHI, step2Upg2015Defaults])
 
+steps['DIGIHIppRef']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relvalPRef,RAW2DIGI,L1Reco',
+                        '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
+                        }, HIppRefDefaults, step2Upg2015Defaults])
+
+PUHIppRef={'-n':10,'--pileup':'pp5TeV_Poisson_1p5','--pileup_input':'das:/RelValMiniBias_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[10],)}
+
+steps['DIGIHIppRefPU']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relvalPRef,RAW2DIGI,L1Reco',
+                        '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
+                        },PUHIppRef,HIppRefDefaults,step2Upg2015Defaults])
 
 # PRE-MIXING : https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideSimulation#Pre_Mixing_Instructions
 premixUp2015Defaults = {
@@ -902,11 +930,13 @@ steps['RECOCOSD']=merge([{'--scenario':'cosmics',
                           },dataReco])
 
 step2HImixDefaults=merge([{'-n':'2', #too slow for 10 events/hour
-                           '--pileup':'HiMix',                        
-                           },hiDefaults,step1Up2015Defaults])
-steps['Pyquen_GammaJet_pt20_2760GeV']=merge([{'cfg':'Pyquen_GammaJet_pt20_2760GeV_cfi','--beamspot':'MatchHI', '--pileup':'HiMixGEN'},PUHI,step2HImixDefaults])
-steps['Pyquen_DiJet_pt80to120_2760GeV']=merge([{'cfg':'Pyquen_DiJet_pt80to120_2760GeV_cfi','--beamspot':'MatchHI', '--pileup':'HiMixGEN'},PUHI,step2HImixDefaults])
-steps['Pyquen_ZeemumuJets_pt10_2760GeV']=merge([{'cfg':'Pyquen_ZeemumuJets_pt10_2760GeV_cfi','--beamspot':'MatchHI', '--pileup':'HiMixGEN'},PUHI,step2HImixDefaults])
+                           '--pileup':'HiMixGEN',
+                           '--beamspot':'MatchHI'             
+                           },PUHI,hiDefaults,step1Up2015Defaults])
+
+steps['Pyquen_GammaJet_pt20_2760GeV']=merge([step2HImixDefaults,gen2015('Pyquen_GammaJet_pt20_2760GeV_cfi',U2000by1)])
+steps['Pyquen_DiJet_pt80to120_2760GeV']=merge([step2HImixDefaults,gen2015('Pyquen_DiJet_pt80to120_2760GeV_cfi',U2000by1)])
+steps['Pyquen_ZeemumuJets_pt10_2760GeV']=merge([step2HImixDefaults,gen2015('Pyquen_ZeemumuJets_pt10_2760GeV_cfi',U2000by1)])
 
 # step3 
 step3Defaults = {
@@ -1023,6 +1053,15 @@ steps['RECOHID11St3']=merge([{
 steps['RECOHIR10D11']=merge([{'--filein':'file:step2_inREPACKRAW.root',
                               '--filtername':'reRECO'},
                              steps['RECOHID11St3']])
+
+steps['RECOHIppRef']=merge([{'--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
+                     },HIppRefDefaults,step3Up2015Defaults])
+
+steps['RECOHIppRefMB']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias,VALIDATION,DQM'},steps['RECOHIppRef']])
+
+steps['RECOHIppRefPU']=merge([{'--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
+                     },PUHIppRef,HIppRefDefaults,step3Up2015Defaults])
+
 #steps['RECOFS']=merge([{'--fast':'',
 #                        '-s':'RECO,EI,HLT:@fake,VALIDATION'},
 #                       steps['RECO']])
@@ -1187,6 +1226,8 @@ steps['HARVESTHI']=merge([hiDefaults,{'-s':'HARVESTING:validationHarvesting+dqmH
 steps['HARVESTHI2011']=merge([hiDefaults2011,{'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                                               '--mc':'',
                                               '--filetype':'DQM'}])
+
+
 steps['HARVESTUP15']={
     # '-s':'HARVESTING:validationHarvesting+dqmHarvesting', # todo: remove UP from label
     '-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM', # todo: remove UP from label
@@ -1200,6 +1241,11 @@ steps['HARVESTUP15']={
 steps['HARVESTUP15_PU25']=steps['HARVESTUP15']
 
 steps['HARVESTUP15_PU50']=merge([{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns,SLHCUpgradeSimulations/Configuration/postLS1Customs.customise_New_HCAL','--conditions':'auto:run2_mc_'+autoHLT['relval50ns']},steps['HARVESTUP15']])
+
+
+steps['HARVESTHIppRef']=merge([{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},HIppRefDefaults,steps['HARVESTUP15']])
+
+steps['HARVESTHIppRefPU']=steps['HARVESTHIppRef']
 
 # unSchHarvestOverrides={'-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM'}
 # steps['HARVESTmAODUP15']=merge([unSchHarvestOverrides,steps['HARVESTUP15']])
