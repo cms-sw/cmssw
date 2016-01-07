@@ -47,7 +47,7 @@ process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
 process.dqmSaver.workflow = '/electronHistos/' + t1[1] + '/RECO3'
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
-process.p = cms.Path(process.EDMtoME * process.electronMcMiniAODSignalPostValidator * process.dqmStoreStats)
+process.p = cms.Path(process.EDMtoME * process.electronMcSignalPostValidatorMiniAOD * process.dqmStoreStats)
 
 # Schedule
 process.schedule = cms.Schedule(
