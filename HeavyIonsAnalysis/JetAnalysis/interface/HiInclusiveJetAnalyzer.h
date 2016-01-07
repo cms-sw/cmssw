@@ -187,6 +187,7 @@ private:
 
     float rawpt[MAXJETS];
     float jtpt[MAXJETS];
+    float jtenergy[MAXJETS];
     float jteta[MAXJETS];
     float jtphi[MAXJETS];
     float jty[MAXJETS];
