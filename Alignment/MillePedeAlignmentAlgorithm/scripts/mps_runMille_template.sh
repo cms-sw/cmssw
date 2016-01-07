@@ -6,6 +6,9 @@
 #
 # In the very beginning of this script, stager requests for the files will be added.
 
+EOS="/afs/cern.ch/project/eos/installation/cms/bin/eos.select"
+EOSPREFIX="root://eoscms//eos/cms"
+
 
 # these defaults will be overwritten by MPS
 RUNDIR=$HOME/scratch0/some/path
@@ -62,12 +65,10 @@ if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
   rfcp treeFile*root         $MSSDIR/treeFileISN.root
   rfcp millePedeMonitor*root $MSSDIR/millePedeMonitorISN.root
 else
-# Using cmscafuser pool => cmsStageOut command must be used
-  . /afs/cern.ch/cms/caf/setup.sh
   MSSCAFDIR=`echo $MSSDIR | perl -pe 's/\/castor\/cern.ch\/cms//gi'`
   
-  echo "cmsStageOut -f milleBinaryISN.dat.gz $MSSCAFDIR/milleBinaryISN.dat.gz > /dev/null"
-  cmsStageOut -f milleBinaryISN.dat.gz    $MSSCAFDIR/milleBinaryISN.dat.gz  > /dev/null
-  cmsStageOut -f treeFile*root         $MSSCAFDIR/treeFileISN.root > /dev/null
-  cmsStageOut -f millePedeMonitor*root $MSSCAFDIR/millePedeMonitorISN.root > /dev/null
+  echo "xrdcp -f milleBinaryISN.dat.gz ${EOSPREFIX}${MSSCAFDIR}/milleBinaryISN.dat.gz > /dev/null"
+  xrdcp -f milleBinaryISN.dat.gz    ${EOSPREFIX}${MSSCAFDIR}/milleBinaryISN.dat.gz  > /dev/null
+  xrdcp -f treeFile*root         ${EOSPREFIX}${MSSCAFDIR}/treeFileISN.root > /dev/null
+  xrdcp -f millePedeMonitor*root ${EOSPREFIX}${MSSCAFDIR}/millePedeMonitorISN.root > /dev/null
 fi
