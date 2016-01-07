@@ -6,6 +6,7 @@ import argparse
 from Validation.RecoTrack.plotting.validation import SimpleValidation, SimpleSample
 import Validation.RecoTrack.plotting.trackingPlots as trackingPlots
 import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
+import Validation.RecoTrack.plotting.plotting as plotting
 
 def main(opts):
     files = opts.files
@@ -18,6 +19,8 @@ def main(opts):
         drawArgs["separate"] = True
     if opts.png:
         drawArgs["saveFormat"] = ".png"
+    if opts.verbose:
+        plotting.verbose = True
 
     val = SimpleValidation(files, labels, opts.outputDir)
     kwargs = {}
@@ -26,6 +29,7 @@ def main(opts):
         htmlReport.beginSample(SimpleSample(opts.html_prefix, opts.html_sample))
         kwargs["htmlReport"] = htmlReport
     val.doPlots(trackingPlots.plotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs)
+    val.doPlots(trackingPlots.timePlotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs)
     val.doPlots(vertexPlots.plotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs)
     print
     if opts.html:
@@ -58,6 +62,8 @@ if __name__ == "__main__":
                         help="Sample name for HTML page generation (default 'Sample')")
     parser.add_argument("--html-validation-name", default="",
                         help="Validation name for HTML page generation (enters to <title> element) (default '')")
+    parser.add_argument("--verbose", action="store_true",
+                        help="Be verbose")
 
     opts = parser.parse_args()
     for f in opts.files:
