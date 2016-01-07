@@ -1,8 +1,8 @@
-#include "CondCore/DBCommon/interface/DbSession.h"
-#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
-#include "CondCore/DBCommon/interface/Auth.h"
-#include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/CredentialStore.h"
+//#include "CondCore/CondDB/interface/DbSession.h"
+//#include "CondCore/CondDB/interface/DbScopedTransaction.h"
+#include "CondCore/CondDB/interface/Auth.h"
+#include "CondCore/CondDB/interface/Exception.h"
+#include "CondCore/CondDB/interface/CredentialStore.h"
 #include "CondCore/Utilities/interface/Utilities.h"
 //
 #include "RelationalAccess/AuthenticationCredentials.h"
@@ -378,6 +378,8 @@ int cond::AuthenticationManager::execute(){
     xmlFile.close();
     return 0;    
   }
+
+  std::cout <<"ERROR: no command specified."<<std::endl;  
 
   return 0;
 }
