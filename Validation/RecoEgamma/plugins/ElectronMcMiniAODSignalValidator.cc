@@ -40,7 +40,7 @@ ElectronMcSignalValidatorMiniAOD::ElectronMcSignalValidatorMiniAOD(const edm::Pa
 {
     mcTruthCollection_ = consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("mcTruthCollection"));
     electronToken_ = consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"));
- 
+
   maxPt_ = iConfig.getParameter<double>("MaxPt");
   maxAbsEta_ = iConfig.getParameter<double>("MaxAbsEta");
   deltaR_ = iConfig.getParameter<double>("DeltaR");
@@ -225,7 +225,7 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
     edm::Handle<edm::View<reco::GenParticle> > genParticles ;
     iEvent.getByToken(mcTruthCollection_, genParticles) ;  
 
-    edm::LogInfo("ElectronSignalValidatorMcMiniAOD::analyze")
+    edm::LogInfo("ElectronMcMiniAODSignalValidator::analyze")
       <<"Treating event "<<iEvent.id()
       <<" with "<<electrons.product()->size()<<" electrons" ;
     h1_recEleNum->Fill((*electrons).size()) ;
@@ -280,6 +280,7 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
         for ( unsigned int ii=0 ; ii<matchingMotherIDs_.size() ; ii++ ) {
             if ( (mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[ii]) )
                 { matchingMotherID = true ; 
+//			std::cout << "matchingMotherID :" << matchingMotherIDs_[ii] << std::endl ;
             }
         }
         if (!matchingMotherID) continue ;
@@ -386,5 +387,6 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
 
     } // fin boucle size_t i
 
+//    std::cout << ("fin analyze\n");
 }
 
