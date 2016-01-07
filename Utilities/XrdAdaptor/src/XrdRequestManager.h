@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 
 #include <boost/utility.hpp>
+#include "tbb/concurrent_unordered_set.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -21,8 +22,17 @@ namespace XrdCl {
     class File;
 }
 
+
 namespace XrdAdaptor {
 
+struct SourceHash {
+    using Key =std::shared_ptr<Source>;
+    size_t operator()(const Key& iKey) const {
+      return tbb::tbb_hasher(iKey.get());
+    }
+  };
+
+  
 class XrootdException : public edm::Exception {
 
 public:
@@ -75,25 +85,25 @@ public:
      * Retrieve the names of the active sources
      * (primarily meant to enable meaningful log messages).
      */
-    void getActiveSourceNames(std::vector<std::string> & sources);
-    void getPrettyActiveSourceNames(std::vector<std::string> & sources);
+    void getActiveSourceNames(std::vector<std::string> & sources) const;
+    void getPrettyActiveSourceNames(std::vector<std::string> & sources) const;
 
     /**
      * Retrieve the names of the disabled sources
      * (primarily meant to enable meaningful log messages).
      */
-    void getDisabledSourceNames(std::vector<std::string> & sources);
+    void getDisabledSourceNames(std::vector<std::string> & sources) const;
 
     /**
      * Return a pointer to an active file.  Useful for metadata
      * operations.
      */
-    std::shared_ptr<XrdCl::File> getActiveFile();
+    std::shared_ptr<XrdCl::File> getActiveFile() const;
 
     /**
      * Add the list of active connections to the exception extra info.
      */
-    void addConnections(cms::Exception &);
+    void addConnections(cms::Exception &) const;
 
     /**
      * Return current filename
@@ -135,7 +145,9 @@ private:
     /**
      * Given a client request, split it into two requests lists.
      */
-    void splitClientRequest(const std::vector<IOPosBuffer> &iolist, std::vector<IOPosBuffer> &req1, std::vector<IOPosBuffer> &req2);
+    void splitClientRequest(const std::vector<IOPosBuffer> &iolist,
+                            std::vector<IOPosBuffer> &req1, std::vector<IOPosBuffer> &req2,
+                            std::vector<std::shared_ptr<Source>> const& activeSources) const;
 
     /**
      * Given a request, broadcast it to all sources.
@@ -150,8 +162,12 @@ private:
      * The source check is somewhat expensive so it is only done once every
      * second.
      */
-    void checkSources(timespec &now, IOSize requestSize); // TODO: inline
-    void checkSourcesImpl(timespec &now, IOSize requestSize);
+    void checkSources(timespec &now, IOSize requestSize,
+                      std::vector<std::shared_ptr<Source>>& activeSources,
+                      std::vector<std::shared_ptr<Source>>& inactiveSources); // TODO: inline
+    void checkSourcesImpl(timespec &now, IOSize requestSize,
+                          std::vector<std::shared_ptr<Source>>& activeSources,
+                          std::vector<std::shared_ptr<Source>>& inactiveSources);
     /**
      * Helper function for checkSources; compares the quality of source A
      * versus source B; if source A is significantly worse, remove it from
@@ -160,13 +176,17 @@ private:
      * NOTE: assumes two sources are active and the caller must already hold
      * m_source_mutex
      */
-    bool compareSources(const timespec &now, unsigned a, unsigned b);
+    bool compareSources(const timespec &now, unsigned a, unsigned b,
+                        std::vector<std::shared_ptr<Source>>& activeSources,
+                        std::vector<std::shared_ptr<Source>>& inactiveSources) const;
 
     /**
      * Anytime we potentially switch sources, update the internal site source list;
      * alert the user if necessary.
      */
-    void updateSiteInfo(std::string orig_site="");
+    void reportSiteChange(std::vector<std::shared_ptr<Source> > const& iOld,
+                        std::vector<std::shared_ptr<Source> > const& iNew,
+                        std::string orig_site=std::string{}) const;
 
     /**
      * Update the StatisticsSenderService, if necessary, with the current server.
@@ -183,7 +203,7 @@ private:
      * Prepare an opaque string appropriate for asking a redirector to open the
      * current file but avoiding servers which we already have connections to.
      */
-    std::string prepareOpaqueString();
+    std::string prepareOpaqueString() const;
 
     /**
      * Note these member variables can only be accessed when the source mutex
@@ -191,10 +211,11 @@ private:
      */
     std::vector<std::shared_ptr<Source> > m_activeSources;
     std::vector<std::shared_ptr<Source> > m_inactiveSources;
-    std::set<std::string> m_disabledSourceStrings;
-    std::set<std::string> m_disabledExcludeStrings;
-    std::set<std::shared_ptr<Source> > m_disabledSources;
-    std::string m_activeSites;
+  
+    tbb::concurrent_unordered_set<std::string> m_disabledSourceStrings;
+    tbb::concurrent_unordered_set<std::string> m_disabledExcludeStrings;
+    tbb::concurrent_unordered_set<std::shared_ptr<Source>, SourceHash> m_disabledSources;
+
     // StatisticsSenderService wants to know what our current server is;
     // this holds last-successfully-opened server name
     std::atomic<std::string*> m_serverToAdvertise;
@@ -210,7 +231,7 @@ private:
     const std::string m_name;
     XrdCl::OpenFlags::Flags m_flags;
     XrdCl::Access::Mode m_perms;
-    std::recursive_mutex m_source_mutex;
+    mutable std::recursive_mutex m_source_mutex;
 
     std::mt19937 m_generator;
     std::uniform_real_distribution<float> m_distribution;
