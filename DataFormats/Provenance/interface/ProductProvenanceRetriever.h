@@ -13,6 +13,7 @@ ProductProvenanceRetriever: Manages the per event/lumi/run per product provenanc
 
 #include <memory>
 #include <set>
+#include <atomic>
 
 /*
   ProductProvenanceRetriever
@@ -45,20 +46,18 @@ namespace edm {
       transitionIndex_=transitionIndex;
     }
 
-    typedef std::set<ProductProvenance> eiSet;
-
-    mutable eiSet entryInfoSet_;
+    mutable std::set<ProductProvenance> entryInfoSet_;
+    mutable std::atomic<std::set<ProductProvenance>*> readEntryInfoSet_;
     edm::propagate_const<std::shared_ptr<ProductProvenanceRetriever>> nextRetriever_;
     std::shared_ptr<const ProvenanceReaderBase> provenanceReader_;
     unsigned int transitionIndex_;
-    mutable bool delayedRead_;
   };
 
   class ProvenanceReaderBase {
   public:
     ProvenanceReaderBase() {}
     virtual ~ProvenanceReaderBase();
-    virtual void readProvenance(ProductProvenanceRetriever const& mapper, unsigned int transitionIndex) const = 0;
+    virtual std::set<ProductProvenance> readProvenance(unsigned int transitionIndex) const = 0;
   };
   
 }
