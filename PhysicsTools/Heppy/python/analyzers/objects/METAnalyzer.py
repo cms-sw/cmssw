@@ -191,17 +191,21 @@ class METAnalyzer( Analyzer ):
           self.applyDeltaMet(self.met, deltaMetSmear)
 
 
-        #Shifted METs: to be re-enabled after updates to MiniAOD pass 2
-        #Uncertainties defined in https://github.com/cms-sw/cmssw/blob/CMSSW_7_2_X/DataFormats/PatCandidates/interface/MET.h#L168
-        #event.met_shifted = []
-        #if not self.cfg_ana.copyMETsByValue:
-        #  for i in range(self.met.METUncertaintySize):
-        #      m = ROOT.pat.MET(self.met)
-        #      px  = m.shiftedPx(i);
-        #      py  = m.shiftedPy(i);
-        #      m.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, hypot(px,py)))
-        #      #event.met_shifted += [m]
+        if (not self.cfg_ana.copyMETsByValue) and getattr(self.cfg_ana, 'makeShiftedMETs', True):
+          shifts = [] 
+          for obj in 'JetEn', 'JetRes', 'MuonEn', 'ElectronEn', 'PhotonEn', 'TauEn', 'UnclusteredEn':
+            for sh in 'Up', 'Down':
+                shifts.append( (obj+sh, getattr(self.met,obj+sh)) )
+          shifts.append( ('NoShift', self.met.NoShift) )
+          for name,i in shifts:
+               key = i
+               m = ROOT.pat.MET(self.met)
+               if self.old74XMiniAODs:
+                    if key > 12:   key = 12
+                    elif key <= 3: key = { 'JetEnUp':0, 'JetEnDown':1, 'JetResUp':2, 'JetResDown':3 }[name]
+               m.setP4(self.met.shiftedP4(key))
                setattr(event, "met{0}_shifted_{1}".format(self.cfg_ana.collectionPostFix, i),m)
+               setattr(event, "met{0}_shifted_{1}".format(self.cfg_ana.collectionPostFix, name),m)
 
         self.met_sig = self.met.significance()
         self.met_sumet = self.met.sumEt()
@@ -268,6 +272,7 @@ setattr(METAnalyzer,"defaultConfig", cfg.Analyzer(
     applyJetSmearing = True,
     jetAnalyzerPostFix = "",
     old74XMiniAODs = False, # need to set to True to get proper Raw MET on plain 74X MC produced with CMSSW <= 7_4_12
+    makeShiftedMETs = True,
     doTkMet = False,
     includeTkMetCHS = True,
     includeTkMetPVLoose = True,
