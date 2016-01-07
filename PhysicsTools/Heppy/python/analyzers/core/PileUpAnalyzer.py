@@ -95,7 +95,7 @@ class PileUpAnalyzer( Analyzer ):
 
     def beginLoop(self, setup):
         super(PileUpAnalyzer,self).beginLoop(setup)
-        self.averages.add('vertexWeight', Average('vertexWeight') )
+        self.averages.add('puWeight', Average('puWeight') )
 
 
     def process(self, event):
