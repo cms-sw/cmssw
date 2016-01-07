@@ -32,19 +32,19 @@
 #import httplib, urllib, urllib2, types, string, os, sys
 import os, sys, re, das_client
 
-if not os.environ.has_key('DD_SOURCE'):
+if 'DD_SOURCE' not in os.environ:
   os.environ['DD_SOURCE'] = 'das'
-if not os.environ.has_key('DD_RELEASE'):
+if 'DD_RELEASE' not in os.environ:
   os.environ['DD_RELEASE'] = ''
-if not os.environ.has_key('DD_SAMPLE'):
+if 'DD_SAMPLE' not in os.environ:
   os.environ['DD_SAMPLE'] = ''
-if not os.environ.has_key('DD_COND'):
+if 'DD_COND' not in os.environ:
   os.environ['DD_COND'] = ''
-if not os.environ.has_key('DD_TIER'):
+if 'DD_TIER' not in os.environ:
   os.environ['DD_TIER'] = ''
-if not os.environ.has_key('DD_TIER_SECONDARY'):
+if 'DD_TIER_SECONDARY' not in os.environ:
   os.environ['DD_TIER_SECONDARY'] = ''
-if not os.environ.has_key('DD_RUN'):
+if 'DD_RUN' not in os.environ:
   os.environ['DD_RUN'] = ''
   
 dd_release_re = re.compile(os.environ['DD_RELEASE'].replace('*','.*')) ;
@@ -175,7 +175,7 @@ def common_search(dd_tier):
     try:
       response = urllib2.urlopen(req)
       data = response.read()
-    except urllib2.HTTPError, e:
+    except urllib2.HTTPError as e:
       if e.code==201:
         print e.headers       
         print e.msg
