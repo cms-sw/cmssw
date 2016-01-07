@@ -829,6 +829,8 @@ def overrideJEC_pp5020(process):
     )
                                ## add an es_prefer statement to resolve a possible conflict from simultaneous connection to a global tag
     process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
+    if hasattr(process, 'HiForest'):
+        process.HiForest.inputLines.extend([process.jec.toGet[6].tag.configValue()]) #pick the ak4PF one to record
     return process
 
 def overrideJEC_PbPb5020(process):
@@ -908,6 +910,8 @@ def overrideJEC_PbPb5020(process):
 	)
                                ## add an es_prefer statement to resolve a possible conflict from simultaneous connection to a global tag
     process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
+    if hasattr(process, 'HiForest'):
+        process.HiForest.inputLines.extend([process.jec.toGet[6].tag.configValue()]) #pick the ak4PF one to record
     return process
 
 def overrideJEC_pp2760(process):
