@@ -32,14 +32,14 @@ namespace edm {
   // to also send the stream based transitions
   void SecondaryEventProvider::beginRun(RunPrincipal& run, const EventSetup& setup, ModuleCallingContext const* mcc, StreamContext& sContext) {
     workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> >(run, setup, StreamID::invalidStreamID(),
-                                                                                                  mcc->getGlobalContext(), mcc);
+                                                                                                  nullptr, mcc);
     workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> >(run, setup, sContext.streamID(),
                                                                                                   &sContext, mcc);
   }
 
   void SecondaryEventProvider::beginLuminosityBlock(LuminosityBlockPrincipal& lumi, const EventSetup& setup, ModuleCallingContext const* mcc, StreamContext& sContext) {
     workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> >(lumi, setup, StreamID::invalidStreamID(),
-                                                                                                              mcc->getGlobalContext(), mcc);
+                                                                                                              nullptr, mcc);
     workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> >(lumi, setup, sContext.streamID(),
                                                                                                               &sContext, mcc);
   }
@@ -48,14 +48,14 @@ namespace edm {
     workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> >(run, setup, sContext.streamID(),
                                                                                                 &sContext, mcc);
     workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> >(run, setup, StreamID::invalidStreamID(),
-                                                                                                mcc->getGlobalContext(), mcc);
+                                                                                                nullptr, mcc);
   }
 
   void SecondaryEventProvider::endLuminosityBlock(LuminosityBlockPrincipal& lumi, const EventSetup& setup, ModuleCallingContext const* mcc, StreamContext& sContext) {
     workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> >(lumi, setup, sContext.streamID(),
                                                                                                             &sContext, mcc);
     workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> >(lumi, setup, StreamID::invalidStreamID(),
-                                                                                                            mcc->getGlobalContext(), mcc);
+                                                                                                            nullptr, mcc);
   }
 
   void SecondaryEventProvider::setupPileUpEvent(EventPrincipal& ep, const EventSetup& setup, StreamContext& sContext) {
