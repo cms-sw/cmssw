@@ -11,9 +11,9 @@ def make_vpset_fromfile(filename):
             detid = int(line[0])
             layer = int(line[1])
             if(layer > 4):
-                type = (layer > 7) and "2S" or "PS"
+                mtype = (layer > 3) and "2S" or "PS"
                 psets.append(cms.PSet(
-                    moduleType=cms.string(type),
+                    moduleType=cms.string(mtype),
                     detid=cms.uint32(detid),
                     gbtid=cms.uint32(0),
                     fedid=cms.uint32(fedid),
@@ -28,7 +28,7 @@ def make_vpset_fromfile(filename):
         while channel != 72:
             detid = 0 
             psets.append(cms.PSet(
-                moduleType=cms.string(type),
+                moduleType=cms.string(mtype),
                 detid=cms.uint32(detid),
                 gbtid=cms.uint32(0),
                 fedid=cms.uint32(fedid),
@@ -40,6 +40,6 @@ def make_vpset_fromfile(filename):
 
     return psets
 
-my_psets = make_vpset_fromfile('detids_tracker.txt')
+my_psets = make_vpset_fromfile('detids_phase2.txt')
 
 Phase2TrackerCabling = cms.ESSource("Phase2TrackerCablingCfgESSource", modules = cms.VPSet( *my_psets ))

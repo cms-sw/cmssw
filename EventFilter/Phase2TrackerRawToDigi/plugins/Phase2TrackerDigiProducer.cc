@@ -22,6 +22,7 @@ using namespace std;
 
 namespace Phase2Tracker {
 
+  /*
   SiPixelCluster makeSiPixelCluster(int x, int sizex, int y = 0)
   {
     uint16_t adcs[sizex];
@@ -36,6 +37,7 @@ namespace Phase2Tracker {
     SiPixelCluster cluster (sizex, adcs, xpos, ypos, x, y);
     return cluster;
   }
+  */
 
   typedef Phase2TrackerDigi DummyClusterDigi;
 
@@ -46,7 +48,7 @@ namespace Phase2Tracker {
   {
     // define product
     produces< edm::DetSetVector<Phase2TrackerDigi> >("Unsparsified");
-    produces< edmNew::DetSetVector<SiPixelCluster> > ("Sparsified");
+    produces< edmNew::DetSetVector<Phase2TrackerCluster1D> > ("Sparsified");
     token_ = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel"));
   }
   
@@ -79,7 +81,7 @@ namespace Phase2Tracker {
     zs_work_digis_.clear();
 
     // NEW
-    std::auto_ptr<edmNew::DetSetVector<SiPixelCluster>> clusters( new edmNew::DetSetVector<SiPixelCluster>() ); 
+    std::auto_ptr<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters( new edmNew::DetSetVector<Phase2TrackerCluster1D>() ); 
 
     // Retrieve FEDRawData collection
     edm::Handle<FEDRawDataCollection> buffers;
@@ -233,8 +235,8 @@ namespace Phase2Tracker {
           const Phase2TrackerModule mod = cabling_->findFedCh(std::make_pair(*fedIndex, ife));
           uint32_t detid = mod.getDetid();
           // container for this module's digis
-          std::vector<SiPixelCluster> clustersTop;
-          std::vector<SiPixelCluster> clustersBottom;
+          std::vector<Phase2TrackerCluster1D> clustersTop;
+          std::vector<Phase2TrackerCluster1D> clustersBottom;
           // looping over concentrators (4 virtual concentrators in case of PS)
           for ( int iconc = 0; iconc < 4; iconc++ )
           {
@@ -253,15 +255,15 @@ namespace Phase2Tracker {
                 while (unpacker.hasData())
                 {
                   #ifdef EDM_ML_DEBUG
-                  ss << std::dec << "Son2S " << (int)unpacker.clusterX() << " " << (int)unpacker.clusterSize() << " " << unpacker.chipId() << endl;
+                  ss << std::dec << " Son2S " << (int)unpacker.clusterX() << " " << (int)unpacker.clusterSize() << " " << (int)unpacker.chipId() << endl;
                   #endif
                   if (unpacker.rawX()%2) 
                   {
-	      	        clustersTop.push_back(makeSiPixelCluster(unpacker.clusterX(),unpacker.clusterSize(),unpacker.clusterY()));
+	      	        clustersTop.push_back(Phase2TrackerCluster1D(unpacker.clusterX(),unpacker.clusterY(),unpacker.clusterSize()));
                   }
                   else 
                   {
-                    clustersBottom.push_back(makeSiPixelCluster(unpacker.clusterX(),unpacker.clusterSize(),unpacker.clusterY()));
+                    clustersBottom.push_back(Phase2TrackerCluster1D(unpacker.clusterX(),unpacker.clusterY(),unpacker.clusterSize()));
                   }
                   unpacker++;
                 }
@@ -272,9 +274,9 @@ namespace Phase2Tracker {
                 while (unpacker.hasData())
                 {
                   #ifdef EDM_ML_DEBUG
-                  ss << std::dec << "SonPS " << (int)unpacker.clusterX() << " " << (int)unpacker.clusterSize() << " " << unpacker.chipId() << endl;
+                  ss << std::dec << " SonPS " << (int)unpacker.clusterX() << " " << (int)unpacker.clusterSize() << " " << (int)unpacker.chipId() << endl;
                   #endif
-                  clustersTop.push_back(makeSiPixelCluster(unpacker.clusterX(),unpacker.clusterSize(),unpacker.clusterY()));
+                  clustersTop.push_back(Phase2TrackerCluster1D(unpacker.clusterX(),unpacker.clusterY(),unpacker.clusterSize()));
                   unpacker++;
                 }
               }
@@ -284,27 +286,32 @@ namespace Phase2Tracker {
                 while (unpacker.hasData())
                 {
                   #ifdef EDM_ML_DEBUG
-                  ss << std::dec << "PonPS " << (int)unpacker.clusterX() << " " << (int)unpacker.clusterSize() << " " << (int)unpacker.clusterY() << " " << unpacker.chipId() << endl;
+                  ss << std::dec << " PonPS " << (int)unpacker.clusterX() << " " << (int)unpacker.clusterSize() << " " << (int)unpacker.clusterY() << " " << (int)unpacker.chipId() << endl;
                   #endif
-                  clustersBottom.push_back(makeSiPixelCluster(unpacker.clusterX(),unpacker.clusterSize(),unpacker.clusterY()));
+                  clustersBottom.push_back(Phase2TrackerCluster1D(unpacker.clusterX(),unpacker.clusterY(),unpacker.clusterSize()));
                   unpacker++;
                 }
               }
+              #ifdef EDM_ML_DEBUG
+	          ss << endl;
+              LogTrace("Phase2TrackerDigiProducer") << ss.str(); ss.clear(); ss.str("");
+	          #endif
             } // end reading CBC's channel
             ichan++;
           } // end loop on channels
           if(detid > 0)
           {
-            std::vector<SiPixelCluster>::iterator it;
+            std::vector<Phase2TrackerCluster1D>::iterator it;
             {
-              edmNew::DetSetVector<SiPixelCluster>::FastFiller spct(*clusters, detid+4);
+              // outer detid is defined as inner detid + 1 or module detid + 2
+              edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spct(*clusters, detid+2);
               for(it=clustersTop.begin();it!=clustersTop.end();it++)
               {
                 spct.push_back(*it);
               }
             }
             {
-              edmNew::DetSetVector<SiPixelCluster>::FastFiller spcb(*clusters, detid);
+              edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spcb(*clusters, detid+1);
               for(it=clustersBottom.begin();it!=clustersBottom.end();it++)
               {
                 spcb.push_back(*it);

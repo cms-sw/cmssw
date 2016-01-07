@@ -12,7 +12,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include <stdint.h>
@@ -35,7 +35,7 @@ namespace Phase2Tracker {
     virtual void endJob() override;
 
   private:
-    edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> token_;
+    edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D>> token_;
     const Phase2TrackerCabling * cabling_;
     std::map<int,int> stackMap_;
   };

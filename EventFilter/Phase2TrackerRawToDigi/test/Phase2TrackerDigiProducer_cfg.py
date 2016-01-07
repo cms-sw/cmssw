@@ -9,12 +9,12 @@ process.MessageLogger = cms.Service("MessageLogger",
         logtrace      = cms.untracked.PSet( threshold  = cms.untracked.string('DEBUG') ),
         debugModules  = cms.untracked.vstring( 'Phase2TrackerDigiProducer', 'Phase2TrackerFEDBuffer' )
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
 
-# process.source = cms.Source("PoolSource",
+process.source = cms.Source("PoolSource",
 # use this to read testbeam .dat files
-process.source = cms.Source("NewEventStreamFileReader",
+# process.source = cms.Source("NewEventStreamFileReader",
     fileNames = cms.untracked.vstring( 'file:'+sys.argv[-1])
 )
 
@@ -27,10 +27,10 @@ process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerCommissioningDigiP
 process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerDigiProducer_cfi')
 
 # use these labels instead to run on raw data
-process.Phase2TrackerDigiProducer.ProductLabel = cms.InputTag("rawDataCollector")
-process.Phase2TrackerCommissioningDigiProducer.ProductLabel = cms.InputTag("rawDataCollector")
-# process.Phase2TrackerDigiProducer.ProductLabel = cms.InputTag("Phase2TrackerDigiToRawProducer")
-# process.Phase2TrackerCommissioningDigiProducer.ProductLabel = cms.InputTag("Phase2TrackerDigiToRawProducer")
+# process.Phase2TrackerDigiProducer.ProductLabel = cms.InputTag("rawDataCollector")
+# process.Phase2TrackerCommissioningDigiProducer.ProductLabel = cms.InputTag("rawDataCollector")
+process.Phase2TrackerDigiProducer.ProductLabel = cms.InputTag("Phase2TrackerDigiToRawProducer")
+process.Phase2TrackerCommissioningDigiProducer.ProductLabel = cms.InputTag("Phase2TrackerDigiToRawProducer")
 
 
 process.out = cms.OutputModule(

@@ -1,4 +1,4 @@
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
 
 namespace Phase2Tracker
@@ -6,7 +6,7 @@ namespace Phase2Tracker
   class stackedDigi {
     public:
       stackedDigi() {}
-      stackedDigi(const SiPixelCluster *, STACK_LAYER, int);
+      stackedDigi(const Phase2TrackerCluster1D *, STACK_LAYER, int);
       stackedDigi(int, int, int, STACK_LAYER, int);
       ~stackedDigi() {}
       bool operator<(stackedDigi) const ;
@@ -35,10 +35,10 @@ namespace Phase2Tracker
       int chipid_;
   };
 
-  stackedDigi::stackedDigi(const SiPixelCluster * digi, STACK_LAYER layer, int moduletype) : 
-      digix_(digi->minPixelRow()), 
-      digiy_(digi->minPixelCol()), 
-      sizex_(digi->sizeX()),
+  stackedDigi::stackedDigi(const Phase2TrackerCluster1D * digi, STACK_LAYER layer, int moduletype) : 
+      digix_(digi->firstStrip()), 
+      digiy_(digi->column()), 
+      sizex_(digi->size()),
       layer_(layer), 
       moduletype_(moduletype) 
   {

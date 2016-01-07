@@ -14,12 +14,11 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include <stdint.h>
 #include <iostream>
 #include <string>
 #include <vector>
-// this is ok while we use pixel clusters , we should switch later
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 namespace Phase2Tracker {
 
@@ -57,7 +56,7 @@ namespace Phase2Tracker {
     std::vector<Registry>          proc_work_registry_;
     std::vector<Phase2TrackerDigi> proc_work_digis_;
     std::vector<Registry>          zs_work_registry_;
-    std::vector<SiPixelCluster>    zs_work_digis_;
+    std::vector<Phase2TrackerCluster1D>    zs_work_digis_;
   };
 }
 #endif // EventFilter_Phase2TrackerRawToDigi_Phase2TrackerDigiProducer_H
