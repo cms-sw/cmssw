@@ -269,8 +269,8 @@ class JetAnalyzer( Analyzer ):
         self.gamma_cleanJetsFailId = [j for j in self.gamma_cleanJetsFailIdAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
         
         ## Associate jets to leptons
-        leptons = event.inclusiveLeptons if hasattr(event, 'inclusiveLeptons') else event.selectedLeptons
-        jlpairs = matchObjectCollection( leptons, allJets, self.jetLepDR**2)
+        incleptons = event.inclusiveLeptons if hasattr(event, 'inclusiveLeptons') else event.selectedLeptons
+        jlpairs = matchObjectCollection(incleptons, allJets, self.jetLepDR**2)
 
         for jet in allJets:
             jet.leptons = [l for l in jlpairs if jlpairs[l] == jet ]
