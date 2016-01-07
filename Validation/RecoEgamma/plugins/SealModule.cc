@@ -17,8 +17,8 @@
 
 
 DEFINE_FWK_MODULE(EgammaObjects);
-DEFINE_FWK_MODULE(ElectronMcMiniAODSignalValidator);
-DEFINE_FWK_MODULE(ElectronMcMiniAODSignalPostValidator);
+DEFINE_FWK_MODULE(ElectronMcSignalValidatorMiniAOD);
+DEFINE_FWK_MODULE(ElectronMcSignalPostValidatorMiniAOD);
 DEFINE_FWK_MODULE(PhotonValidator);
 DEFINE_FWK_MODULE(PhotonValidatorMiniAOD);
 DEFINE_FWK_MODULE(TkConvValidator);
