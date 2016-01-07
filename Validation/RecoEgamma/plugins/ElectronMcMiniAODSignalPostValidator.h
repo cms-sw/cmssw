@@ -24,7 +24,7 @@ class ElectronMcSignalPostValidatorMiniAOD : public ElectronDqmHarvesterBase
 
     // histos
 //    MonitorElement *h1_ele_xOverX0VsEta ;
-	 
+	
  } ;
 
 #endif
