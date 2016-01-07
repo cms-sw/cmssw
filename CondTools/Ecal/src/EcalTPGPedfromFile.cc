@@ -3,7 +3,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 #include "OnlineDB/EcalCondDB/interface/LMFSextuple.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "CondCore/DBCommon/interface/Time.h"
+#include "CondCore/CondDB/interface/Time.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
 
