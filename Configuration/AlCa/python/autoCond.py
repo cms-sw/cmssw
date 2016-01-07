@@ -2,33 +2,33 @@ autoCond = {
 
     ### NEW KEYS ###
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
-    'run1_design'       :   '76X_mcRun1_design_v10',
+    'run1_design'       :   '76X_mcRun1_design_v11',
     # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
-    'run1_mc'           :   '76X_mcRun1_realistic_v10',
+    'run1_mc'           :   '76X_mcRun1_realistic_v11',
     # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_hi'        :   '76X_mcRun1_HeavyIon_v10',
+    'run1_mc_hi'        :   '76X_mcRun1_HeavyIon_v11',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_pa'        :   '76X_mcRun1_pA_v10',
+    'run1_mc_pa'        :   '76X_mcRun1_pA_v11',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   '76X_mcRun2_design_v13',
+    'run2_design'       :   '76X_mcRun2_design_v14',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   '76X_mcRun2_startup_v12',
+    'run2_mc_50ns'      :   '76X_mcRun2_startup_v13',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   '76X_mcRun2_asymptotic_v13',
+    'run2_mc'           :   '76X_mcRun2_asymptotic_v14',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
-    'run2_mc_hi'        :   '76X_mcRun2_HeavyIon_v12',
+    'run2_mc_hi'        :   '76X_mcRun2_HeavyIon_v14',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '76X_dataRun1_v15',
+    'run1_data'         :   '76X_dataRun1_v16',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '76X_dataRun2_v15',
+    'run2_data'         :   '76X_dataRun2_v16',
     # GlobalTag for Run1 HLT: it points to the online GT
-    'run1_hlt'          :   '76X_dataRun1_HLT_frozen_v10',
+    'run1_hlt'          :   '76X_dataRun1_HLT_frozen_v11',
     # GlobalTag for Run2 HLT: it points to the online GT
-    'run2_hlt'          :   '76X_dataRun2_HLT_frozen_v10',
+    'run2_hlt'          :   '76X_dataRun2_HLT_frozen_v11',
     # GlobalTag for Run2 HLT for HI: it points to the online GT
-    'run2_hlt_hi'       :   '76X_dataRun2_HLTHI_v1',
+    'run2_hlt_hi'       :   '76X_dataRun2_HLTHI_frozen_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
-    'phase1_2017_design' :  '76X_upgrade2017_design_v8',
+    'phase1_2017_design' :  '76X_upgrade2017_design_v9',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
     'phase1_2019_design' :  'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase2
