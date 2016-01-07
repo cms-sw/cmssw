@@ -47,7 +47,7 @@ namespace edm {
     }
 
     mutable std::set<ProductProvenance> entryInfoSet_;
-    mutable std::atomic<std::set<ProductProvenance>*> readEntryInfoSet_;
+    mutable std::atomic<const std::set<ProductProvenance>*> readEntryInfoSet_;
     edm::propagate_const<std::shared_ptr<ProductProvenanceRetriever>> nextRetriever_;
     std::shared_ptr<const ProvenanceReaderBase> provenanceReader_;
     unsigned int transitionIndex_;

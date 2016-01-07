@@ -35,8 +35,8 @@ namespace edm {
   void
   ProductProvenanceRetriever::readProvenance() const {
     if(nullptr == readEntryInfoSet_.load() && provenanceReader_) {
-      auto temp = std::make_unique<std::set<ProductProvenance>>(provenanceReader_->readProvenance(transitionIndex_));
-      std::set<ProductProvenance>* expected = nullptr;
+      auto temp = std::make_unique<std::set<ProductProvenance> const>(provenanceReader_->readProvenance(transitionIndex_));
+      std::set<ProductProvenance> const* expected = nullptr;
       if(readEntryInfoSet_.compare_exchange_strong(expected, temp.get())) {
         temp.release();
       }
@@ -47,10 +47,9 @@ namespace edm {
   {
     if(iFrom.readEntryInfoSet_) {
       if (readEntryInfoSet_) {
-        *readEntryInfoSet_ = *iFrom.readEntryInfoSet_;
-      } else {
-        readEntryInfoSet_ = new std::set<ProductProvenance>(*iFrom.readEntryInfoSet_);
+        delete readEntryInfoSet_.exchange(nullptr);
       }
+      readEntryInfoSet_ = new std::set<ProductProvenance>(*iFrom.readEntryInfoSet_);
     } else {
       if(readEntryInfoSet_) {
         delete readEntryInfoSet_.load();
