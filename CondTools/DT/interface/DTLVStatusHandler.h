@@ -20,7 +20,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/CondDB/interface/Session.h"
 #include "CondFormats/DTObjects/interface/DTLVStatus.h"
 #include <string>
 
@@ -60,10 +60,8 @@ class DTLVStatusHandler: public popcon::PopConSourceHandler<DTLVStatus> {
   std::string bufferConnect;
   DTLVStatus* ccbStatus;
 
-  cond::DbConnection omds_conn;
-  cond::DbConnection buff_conn;
-  cond::DbSession omds_session;
-  cond::DbSession buff_session;
+  cond::persistency::Session omds_session;
+  cond::persistency::Session buff_session;
 
 };
 

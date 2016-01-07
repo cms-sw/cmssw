@@ -3,7 +3,6 @@
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 //
 #include "CondCore/CondDB/src/DbCore.h"
-#include "CondCore/DBCommon/interface/DbTransaction.h"
 //
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>

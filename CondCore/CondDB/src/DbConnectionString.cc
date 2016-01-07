@@ -2,7 +2,7 @@
 #include "CondCore/CondDB/interface/Utils.h"
 #include "DbConnectionString.h"
 //
-#include "CondCore/DBCommon/interface/FipProtocolParser.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -26,9 +26,18 @@ namespace cond {
       return count;
     }
 
+    std::string parseFipConnectionString(const std::string& fipConnect){
+      std::string connect("sqlite_file:");
+      std::string::size_type pos=fipConnect.find(':');
+      std::string fipLocation=fipConnect.substr(pos+1);
+      edm::FileInPath fip(fipLocation);
+      connect.append( fip.fullPath() );
+      return connect;
+    }
+
     std::pair<std::string,std::string> getConnectionParams( const std::string& connectionString, 
 							    const std::string& transactionId ){
-      if( connectionString.empty() ) throwException( "The connection string is empty.","getConnectionParams"); 
+      if( connectionString.empty() ) cond::throwException( "The connection string is empty.","getConnectionParams"); 
       std::string protocol = getConnectionProtocol( connectionString );
       std::string finalConn = connectionString;
       std::string refreshConn("");
@@ -39,7 +48,7 @@ namespace cond {
 	if(nslash==1){
 	  edm::Service<edm::SiteLocalConfig> localconfservice;
 	  if( !localconfservice.isAvailable() ){
-	    throwException("edm::SiteLocalConfigService is not available","getConnectionParams");       
+	    cond::throwException("edm::SiteLocalConfigService is not available","getConnectionParams");       
 	  }
 	  finalConn=localconfservice->lookupCalibConnect(connectionString);
 	}
@@ -64,8 +73,7 @@ namespace cond {
 	  }
 	}
       } else if ( protocol == "sqlite_fip" ){
-	cond::FipProtocolParser parser;
-	finalConn = parser.getRealConnect( connectionString ); 
+	finalConn = parseFipConnectionString( connectionString ); 
       }
       return std::make_pair( finalConn, refreshConn ); 
     }
