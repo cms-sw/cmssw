@@ -88,9 +88,6 @@ namespace edm {
     // Retrieves pointer to the per event(lumi)(run) provenance.
     ProductProvenance const* productProvenancePtr() const { return productProvenancePtr_(); }
 
-    // Sets the the per event(lumi)(run) provenance.
-    void setProductProvenance(ProductProvenance const& prov);
-
     // Retrieves a reference to the event independent provenance.
     BranchDescription const& branchDescription() const {return branchDescription_();}
 

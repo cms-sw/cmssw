@@ -50,7 +50,6 @@ namespace edm {
 
     void resetProductData() {
       wrapper_.reset();
-      prov_.resetProductProvenance();
     }
     
     void setProcessHistory(ProcessHistory const& ph) {
@@ -63,10 +62,6 @@ namespace edm {
       prov_.setProcessHistory(ph);
     }
     
-    void setProductProvenance(ProductProvenance const& prov ) {
-      prov_.setProductProvenance(prov);
-    }
-
     void connectTo( ProductData const& iOther) {
       wrapper_ = iOther.wrapper_;
       // Then the product ID and the ProcessHistory
@@ -74,13 +69,6 @@ namespace edm {
       prov_.setProcessHistory(iOther.prov_.processHistory());
       // Then the store, in case the product needs reading in a subprocess.
       prov_.setStore(iOther.prov_.store());
-      // And last, the other per event provenance.
-      if(iOther.prov_.productProvenanceValid()) {
-        prov_.setProductProvenance(*iOther.prov_.productProvenance());
-      } else {
-        prov_.resetProductProvenance();
-      }
-
     }
     // NOTE: We should probably think hard about whether these
     // variables should be declared "mutable" as part of
