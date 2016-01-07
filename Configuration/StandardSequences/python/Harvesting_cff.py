@@ -6,8 +6,6 @@ from DQMOffline.Configuration.DQMOffline_Certification_cff import *
 from Validation.Configuration.postValidation_cff import *
 from HLTriggerOffline.Common.HLTValidationHarvest_cff import *
 
-#from FastSimulation.Configuration.Harvesting_cff import *
-
 from Validation.RecoHI.HarvestingHI_cff import *
 from Validation.RecoJets.JetPostProcessor_cff import *
 from Validation.RecoMET.METPostProcessor_cff import *
