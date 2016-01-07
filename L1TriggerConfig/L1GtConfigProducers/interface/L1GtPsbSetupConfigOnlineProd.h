@@ -54,7 +54,7 @@ private:
     static bool notPsbColumnName(const std::string& columnName);
 
     /// Creates a new PSB object from a GT_PSB_SETUP entry and adds.
-    void addPsbFromDb(const std::string& psbKey, std::vector<L1GtPsbConfig>& psbSetup) const;
+    void addPsbFromDb(const std::string& psbKey, std::vector<L1GtPsbConfig>& psbSetup);
 
     /// Creates a default valued PSB from an empty foreign key in the GT_SETUP table.
     void addDefaultPsb(const std::string& psbColumn, std::vector<L1GtPsbConfig>& psbSetup) const;
