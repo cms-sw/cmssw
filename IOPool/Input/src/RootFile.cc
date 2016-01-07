@@ -1805,7 +1805,7 @@ namespace edm {
   public:
     ReducedProvenanceReader(RootTree* iRootTree, std::vector<ParentageID> const& iParentageIDLookup, DaqProvenanceHelper const* daqProvenanceHelper);
   private:
-    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int) const override;
+    virtual std::set<ProductProvenance> readProvenance(unsigned int) const override;
     RootTree* rootTree_;
     TBranch* provBranch_;
     StoredProductProvenanceVector provVector_;
@@ -1829,19 +1829,20 @@ namespace edm {
     provBranch_ = rootTree_->tree()->GetBranch(BranchTypeToProductProvenanceBranchName(rootTree_->branchType()).c_str());
   }
 
-  void
-  ReducedProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const {
+  std::set<ProductProvenance>
+  ReducedProvenanceReader::readProvenance(unsigned int transitionIndex) const {
     {
       std::lock_guard<SharedResourcesAcquirer> guard(resourceAcquirer_);
       ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
       me->rootTree_->fillBranchEntry(me->provBranch_, me->rootTree_->entryNumberForIndex(transitionIndex), me->pProvVector_);
       setRefCoreStreamer(true);
     }
+    std::set<ProductProvenance> retValue;
     if(daqProvenanceHelper_) {
       for(auto const& prov : provVector_) {
         BranchID bid(prov.branchID_);
-        provRetriever.insertIntoSet(ProductProvenance(daqProvenanceHelper_->mapBranchID(BranchID(prov.branchID_)),
-                                                      daqProvenanceHelper_->mapParentageID(parentageIDLookup_[prov.parentageIDIndex_])));
+        retValue.emplace(daqProvenanceHelper_->mapBranchID(BranchID(prov.branchID_)),
+                         daqProvenanceHelper_->mapParentageID(parentageIDLookup_[prov.parentageIDIndex_]));
       }
     } else {
       for(auto const& prov : provVector_) {
@@ -1852,9 +1853,10 @@ namespace edm {
             << "This should never happen.\n"
             << "Please report this to the framework hypernews forum 'hn-cms-edmFramework@cern.ch'.\n";
         }
-        provRetriever.insertIntoSet(ProductProvenance(BranchID(prov.branchID_), parentageIDLookup_[prov.parentageIDIndex_]));
+        retValue.emplace(BranchID(prov.branchID_), parentageIDLookup_[prov.parentageIDIndex_]);
       }
     }
+    return retValue;
   }
 
   class FullProvenanceReader : public ProvenanceReaderBase {
@@ -1862,7 +1864,7 @@ namespace edm {
     explicit FullProvenanceReader(RootTree* rootTree, DaqProvenanceHelper const* daqProvenanceHelper);
     virtual ~FullProvenanceReader() {}
   private:
-    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const override;
+    virtual std::set<ProductProvenance> readProvenance(unsigned int transitionIndex) const override;
     RootTree* rootTree_;
     ProductProvenanceVector infoVector_;
     mutable ProductProvenanceVector* pInfoVector_;
@@ -1879,23 +1881,25 @@ namespace edm {
          resourceAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()) {
   }
 
-  void
-  FullProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const {
+  std::set<ProductProvenance>
+  FullProvenanceReader::readProvenance(unsigned int transitionIndex) const {
     {
       std::lock_guard<SharedResourcesAcquirer> guard(resourceAcquirer_);
       rootTree_->fillBranchEntryMeta(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex), pInfoVector_);
       setRefCoreStreamer(true);
     }
+    std::set<ProductProvenance> retValue;
     if(daqProvenanceHelper_) {
       for(auto const& info : infoVector_) {
-        provRetriever.insertIntoSet(ProductProvenance(daqProvenanceHelper_->mapBranchID(info.branchID()),
-                                               daqProvenanceHelper_->mapParentageID(info.parentageID())));
+        retValue.emplace(daqProvenanceHelper_->mapBranchID(info.branchID()),
+                         daqProvenanceHelper_->mapParentageID(info.parentageID()));
       }
     } else {
       for(auto const& info : infoVector_) {
-        provRetriever.insertIntoSet(info);
+        retValue.emplace(info);
       }
     }
+    return retValue;
   }
 
   class OldProvenanceReader : public ProvenanceReaderBase {
@@ -1903,7 +1907,7 @@ namespace edm {
     explicit OldProvenanceReader(RootTree* rootTree, EntryDescriptionMap const& theMap, DaqProvenanceHelper const* daqProvenanceHelper);
     virtual ~OldProvenanceReader() {}
   private:
-    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const override;
+    virtual std::set<ProductProvenance> readProvenance(unsigned int transitionIndex) const override;
     RootTree* rootTree_;
     std::vector<EventEntryInfo> infoVector_;
     mutable std::vector<EventEntryInfo> *pInfoVector_;
@@ -1922,27 +1926,27 @@ namespace edm {
          resourceAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()) {
   }
 
-  void
-  OldProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const {
+  std::set<ProductProvenance>
+  OldProvenanceReader::readProvenance(unsigned int transitionIndex) const {
     {
       std::lock_guard<SharedResourcesAcquirer> guard(resourceAcquirer_);
       rootTree_->branchEntryInfoBranch()->SetAddress(&pInfoVector_);
       roottree::getEntry(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex));
       setRefCoreStreamer(true);
     }
+    std::set<ProductProvenance> retValue;
     for(auto const& info : infoVector_) {
       EntryDescriptionMap::const_iterator iter = entryDescriptionMap_.find(info.entryDescriptionID());
       assert(iter != entryDescriptionMap_.end());
       Parentage parentage(iter->second.parents());
       if(daqProvenanceHelper_) {
-        ProductProvenance entry(daqProvenanceHelper_->mapBranchID(info.branchID()),
+        retValue.emplace(daqProvenanceHelper_->mapBranchID(info.branchID()),
                                 daqProvenanceHelper_->mapParentageID(parentage.id()));
-        provRetriever.insertIntoSet(entry);
       } else {
-        ProductProvenance entry(info.branchID(), parentage.id());
-        provRetriever.insertIntoSet(entry);
+        retValue.emplace(info.branchID(), parentage.id());
       }
     }
+    return retValue;
   }
 
   class DummyProvenanceReader : public ProvenanceReaderBase {
@@ -1950,16 +1954,17 @@ namespace edm {
     DummyProvenanceReader();
     virtual ~DummyProvenanceReader() {}
   private:
-    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever,unsigned int) const override;
+    virtual std::set<ProductProvenance> readProvenance(unsigned int) const override;
   };
 
   DummyProvenanceReader::DummyProvenanceReader() :
       ProvenanceReaderBase() {
   }
 
-  void
-  DummyProvenanceReader::readProvenance(ProductProvenanceRetriever const&, unsigned int) const {
+  std::set<ProductProvenance>
+  DummyProvenanceReader::readProvenance(unsigned int) const {
     // Not providing parentage!!!
+    return std::set<ProductProvenance>{};
   }
 
   std::unique_ptr<ProvenanceReaderBase>
