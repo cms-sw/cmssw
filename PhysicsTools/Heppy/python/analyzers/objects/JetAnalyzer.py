@@ -173,7 +173,8 @@ class JetAnalyzer( Analyzer ):
         for jet in allJets:
             #Check if lepton and jet have overlapping PF candidates 
             leps_with_overlaps = []
-            for i in range(jet.numberOfSourceCandidatePtrs()):
+            if getattr(self.cfg_ana, 'checkLeptonPFOverlap', True):
+              for i in range(jet.numberOfSourceCandidatePtrs()):
                 p1 = jet.sourceCandidatePtr(i) #Ptr<Candidate> p1
                 for lep in leptons:
                     for j in range(lep.numberOfSourceCandidatePtrs()):
@@ -207,7 +208,7 @@ class JetAnalyzer( Analyzer ):
 
         self.cleanJets    = [j for j in self.cleanJetsAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
         self.cleanJetsFwd = [j for j in self.cleanJetsAll if abs(j.eta()) >= self.cfg_ana.jetEtaCentral ]
-        self.discardedJets = [j for j in allJets if j not in self.cleanJetsAll]
+        self.discardedJets = [j for j in self.jets if j not in self.cleanJetsAll]
         if hasattr(event, 'selectedLeptons') and self.cfg_ana.cleanSelectedLeptons:
             event.discardedLeptons = [ l for l in leptons if l not in cleanLeptons ]
             event.selectedLeptons  = [ l for l in event.selectedLeptons if l not in event.discardedLeptons ]
@@ -221,11 +222,10 @@ class JetAnalyzer( Analyzer ):
                     lep.jetOverlapIdx = 1000 + self.discardedJets.index(lep.jetOverlap)
 
         ## First cleaning, then Jet Id
-        noIdJetsEtaCut = [j for j in self.jetsAllNoID if abs(j.eta()) <  self.cfg_ana.jetEta ]
-        self.noIdCleanJetsAll, cleanLeptons = cleanJetsAndLeptons(noIdJetsEtaCut, leptons, self.jetLepDR, self.jetLepArbitration)
+        self.noIdCleanJetsAll, cleanLeptons = cleanJetsAndLeptons(self.jetsAllNoID, leptons, self.jetLepDR, self.jetLepArbitration)
         self.noIdCleanJets = [j for j in self.noIdCleanJetsAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
         self.noIdCleanJetsFwd = [j for j in self.noIdCleanJetsAll if abs(j.eta()) >=  self.cfg_ana.jetEtaCentral ]
-        self.noIdDiscardedJets = [j for j in self.jets if j not in self.noIdCleanJetsAll]
+        self.noIdDiscardedJets = [j for j in self.jetsAllNoID if j not in self.noIdCleanJetsAll]
 
         ## Clean Jets from photons (first cleaning, then Jet Id)
         photons = []
@@ -302,7 +302,7 @@ class JetAnalyzer( Analyzer ):
             if self.cfg_ana.cleanGenJetsFromPhoton:
                 self.cleanGenJets = cleanNearestJetOnly(self.cleanGenJets, photons, self.jetLepDR)
 
-	    if hasattr(self.cfg_ana,"genNuSelection") :
+	    if getattr(self.cfg_ana, 'attachNeutrinos', True) and hasattr(self.cfg_ana,"genNuSelection") :
 		jetNus=[x for x in event.genParticles if abs(x.pdgId()) in [12,14,16] and self.cfg_ana.genNuSelection(x) ]
 	 	pairs= matchObjectCollection (jetNus, self.genJets, 0.4**2)
                 
@@ -314,14 +314,6 @@ class JetAnalyzer( Analyzer ):
 				genJet.nu+=nu.p4()
 			
             
-            #event.nGenJets25 = 0
-            #event.nGenJets25Cen = 0
-            #event.nGenJets25Fwd = 0
-            #for j in event.cleanGenJets:
-            #    event.nGenJets25 += 1
-            #    if abs(j.eta()) <= 2.4: event.nGenJets25Cen += 1
-            #    else:                   event.nGenJets25Fwd += 1
-                    
             if self.cfg_ana.do_mc_match:
                 self.jetFlavour(event)
 
@@ -475,6 +467,7 @@ setattr(JetAnalyzer,"defaultConfig", cfg.Analyzer(
     relaxJetId = False,  
     doPuId = False, # Not commissioned in 7.0.X
     doQG = False, 
+    checkLeptonPFOverlap = True,
     recalibrateJets = False,
     applyL2L3Residual = 'Data', # if recalibrateJets, apply L2L3Residual to Data only
     recalibrationType = "AK4PFchs",
@@ -492,6 +485,9 @@ setattr(JetAnalyzer,"defaultConfig", cfg.Analyzer(
     cleanJetsFromIsoTracks = False,
     alwaysCleanPhotons = False,
     do_mc_match=True,
+    cleanGenJetsFromPhoton = False,
+    attachNeutrinos = True,
+    genNuSelection = lambda nu : True, #FIXME: add here check for ispromptfinalstate
     collectionPostFix = ""
     )
 )
