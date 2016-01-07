@@ -1,12 +1,12 @@
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="7_6_0_pre6_std">
-<var name="TEST_REF" value="7_6_0_pre5_std">
+<var name="TEST_NEW" value="8_0_0_pre2_std">
+<var name="TEST_REF" value="8_0_0_pre2_std">
 
-<var name="TAG_STARTUP" value="76X_mcRun2_asymptotic_v4">
+<var name="TAG_STARTUP" value="76X_mcRun2_asymptotic_v12">
 <var name="DATA_VERSION" value="v1">
 
 TAG for the REFERENCE DATA, USED ONLY FOR INFORMATION ON WEB PAGE
-<var name="DD_COND_REF" value="76X_mcRun2_asymptotic_v1-v1">
+<var name="DD_COND_REF" value="76X_mcRun2_asymptotic_v12-v1">
 
 <var name="DD_RELEASE" value="${CMSSW_VERSION}">
 
