@@ -9,11 +9,11 @@ existence.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
 
 #include <memory>
@@ -32,6 +32,7 @@ existence.
 
 namespace edm {
   class ProductProvenance;
+  class ProductProvenanceRetriever;
   class Provenance {
   public:
     Provenance();
@@ -45,13 +46,7 @@ namespace edm {
     BranchDescription const& constBranchDescription() const {return *branchDescription_;}
     std::shared_ptr<BranchDescription const> const& constBranchDescriptionPtr() const {return branchDescription_;}
 
-    ProductProvenance const* productProvenance() const {
-      if (productProvenancePtr_) return productProvenancePtr_.get();
-      return resolve();
-    }
-    bool productProvenanceValid() const {
-      return bool(productProvenancePtr_);
-    }
+    ProductProvenance const* productProvenance() const;
     Parentage const& parentage() const {return productProvenance()->parentage();}
     BranchID const& branchID() const {return product().branchID();}
     std::string const& branchName() const {return product().branchName();}
@@ -76,8 +71,6 @@ namespace edm {
 
     ProductID const& productID() const {return productID_;}
 
-    void setProductProvenance(ProductProvenance const& prov);
-
     void setProductID(ProductID const& pid) {
       productID_ = pid;
     }
@@ -86,17 +79,12 @@ namespace edm {
       branchDescription_ = p;
     }
 
-    void resetProductProvenance();
-
     void swap(Provenance&);
 
   private:
-    ProductProvenance const* resolve() const;
-
     std::shared_ptr<BranchDescription const> branchDescription_;
     ProductID productID_;
     ProcessHistory const* processHistory_; // We don't own this
-    mutable std::shared_ptr<const ProductProvenance> productProvenancePtr_; //can be updated in resolve()
     ProductProvenanceRetriever const* store_;
   };
 
