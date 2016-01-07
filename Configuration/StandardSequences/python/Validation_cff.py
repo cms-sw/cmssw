@@ -29,7 +29,7 @@ from Validation.EventGenerator.BasicGenValidation_cff import *
 # miniAOD
 from Validation.RecoParticleFlow.miniAODValidation_cff import *
 from Validation.RecoEgamma.photonMiniAODValidationSequence_cff import *
-from Validation.RecoEgamma.egammaMiniAODValidation_cff import *
+from Validation.RecoEgamma.egammaValidationMiniAOD_cff import *
 
 prevalidation = cms.Sequence( globalPrevalidation * hltassociation * metPreValidSeq * jetPreValidSeq )
 prevalidationLiteTracking = cms.Sequence( prevalidation )
