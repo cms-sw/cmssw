@@ -1,4 +1,5 @@
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
 
 namespace Phase2Tracker
@@ -78,16 +79,16 @@ namespace Phase2Tracker
         parts.push_back(ndig);
         pos += isize;
       }
-      // debug couts
-      /*  
-      std::cout << "--- Split digi at " << getDigiX() << ", raw: " << getRawX() << ", length: " << getSizeX() << std::endl;
+      #ifdef EDM_ML_DEBUG
+      std::ostringstream ss;
+      ss << "--- Split digi at " << getDigiX() << ", raw: " << getRawX() << ", length: " << getSizeX() << std::endl;
       for (auto id = parts.begin(); id < parts.end(); id++)
       {
-        std::cout << " -- " << id->getDigiX() << ", raw:  " << id->getRawX() << " " << id->getSizeX() << std::endl;
+        ss << " -- " << id->getDigiX() << ", raw:  " << id->getRawX() << " " << id->getSizeX() << std::endl;
       }
-      std::cout << "--- End of split ---" << std::endl;
-      */
-      // end of debug
+      ss << "--- End of split ---" << std::endl;
+      LogTrace("Phase2TrackerDigiProducer") << ss.str(); ss.clear(); ss.str("");
+      #endif
     }
     else
     {

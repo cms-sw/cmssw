@@ -214,10 +214,10 @@ namespace Phase2Tracker {
 
               // store beginning and end of this digis for this detid and add this registry to the list
               // and store data
-              Registry regItemTop(detid, STRIPS_PER_CBC*icbc/2, proc_work_digis_.size(), stripsTop.size());
+              Registry regItemTop(detid+2, STRIPS_PER_CBC*icbc/2, proc_work_digis_.size(), stripsTop.size());
               proc_work_registry_.push_back(regItemTop);
               proc_work_digis_.insert(proc_work_digis_.end(),stripsTop.begin(),stripsTop.end());
-              Registry regItemBottom(detid+4, STRIPS_PER_CBC*icbc/2, proc_work_digis_.size(), stripsBottom.size());
+              Registry regItemBottom(detid+1, STRIPS_PER_CBC*icbc/2, proc_work_digis_.size(), stripsBottom.size());
               proc_work_registry_.push_back(regItemBottom);
               proc_work_digis_.insert(proc_work_digis_.end(),stripsBottom.begin(),stripsBottom.end());
 	        }

@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDDAQHeader.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDDAQTrailer.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDHeader.h"

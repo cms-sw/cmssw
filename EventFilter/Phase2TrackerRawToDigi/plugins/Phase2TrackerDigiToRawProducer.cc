@@ -64,7 +64,7 @@ namespace Phase2Tracker {
     // build map to associate stacked tracker detids 
     for (TrackerGeometry::DetIdContainer::const_iterator gd = theTrackerGeom->detIds().begin(); gd != theTrackerGeom->detIds().end(); gd++) {
         DetId id = gd->rawId();
-        // // get detids and layers to build cabling file
+        // // get detids and layers to build cabling file (useful to rebuild detids.txt file)
         // if (id.subdetId() == StripSubdetector::TOB and tTopo->PartnerDetId(id) == 0) {
         //     std::cout << int(id) << " " << tTopo->layer(id) << std::endl;
         // } else if (id.subdetId() == StripSubdetector::TID) {
