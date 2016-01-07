@@ -2,6 +2,7 @@
 #define HGCalCommonData_HGCalParametersFromDD_h
 
 #include <string>
+
 class DDCompactView;
 class HGCalParameters;
 

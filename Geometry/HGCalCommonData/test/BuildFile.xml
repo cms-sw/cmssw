@@ -8,3 +8,8 @@
 <library   file="HGCGeometryTester.cc" name="testHGCGeometry">  </library>
 <library   file="HGCalNumberingTester.cc" name="testHGCalNumbering">  </library>
 <library   file="FastTimeNumberingTester.cc" name="testFastTimeNumbering">  </library>
+<library   file="HGCalParametersAnalyzer.cc" name="HGCalParametersAnalyzer">
+  <use   name="CondFormats/GeometryObjects"/>
+  <use   name="Geometry/Records"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
