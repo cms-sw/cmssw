@@ -62,5 +62,9 @@ if eras.stage2L1Trigger.isChosen():
     simCaloStage2Layer1Digis.ecalToken = cms.InputTag('ecalDigis:EcalTriggerPrimitives')
     simCaloStage2Layer1Digis.hcalToken = cms.InputTag('simHcalTriggerPrimitiveDigis')
     # this is a hack for -3 BX discrepancy between MC and re-Emulation, not yet understood:
-    simMuonQualityAdjusterDigis.bmtfBxOffset = cms.int32(3)
- 
+    # simMuonQualityAdjusterDigis.bmtfBxOffset = cms.int32(3) 
+    # Picking up simulation a bit further downstream for now:
+    simTwinMuxDigis.DTDigi_Source = cms.InputTag("dttfDigis")
+    simTwinMuxDigis.DTThetaDigi_Source = cms.InputTag("dttfDigis")
+    simBmtfDigis.DTDigi_Source       = cms.InputTag("simTwinMuxDigis")
+    simBmtfDigis.DTDigi_Theta_Source = cms.InputTag("dttfDigis")

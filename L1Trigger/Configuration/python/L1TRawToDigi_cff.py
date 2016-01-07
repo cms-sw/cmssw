@@ -69,5 +69,9 @@ if eras.stage2L1Trigger.isChosen():
     from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import *
     from EventFilter.L1TRawToDigi.gmtStage2Digis_cfi import *
     from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import *
-    L1TRawToDigi = cms.Sequence(caloStage2Digis + gmtStage2Digis + gtStage2Digis)
+    #L1TRawToDigi = cms.Sequence(caloStage2Digis + gmtStage2Digis + gtStage2Digis)
+    # For debugging, while available, useful to have the legacy DT trigger primitives
+    import EventFilter.DTTFRawToDigi.dttfunpacker_cfi
+    dttfDigis = EventFilter.DTTFRawToDigi.dttfunpacker_cfi.dttfunpacker.clone()
+    L1TRawToDigi = cms.Sequence(caloStage2Digis + gmtStage2Digis + gtStage2Digis + dttfDigis)
 

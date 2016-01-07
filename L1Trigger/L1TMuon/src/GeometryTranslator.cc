@@ -92,12 +92,12 @@ void GeometryTranslator::checkAndUpdateGeometry(const edm::EventSetup& es) {
 GlobalPoint 
 GeometryTranslator::getRPCSpecificPoint(const TriggerPrimitive& tp) const {
   const RPCDetId id(tp.detId<RPCDetId>());
-  std::unique_ptr<const RPCRoll>  roll(_georpc->roll(id));
+  const RPCRoll * roll = _georpc->roll(id);
   const uint16_t strip = tp.getRPCData().strip;
   const LocalPoint lp = roll->centreOfStrip(strip);
   const GlobalPoint gp = roll->toGlobal(lp);
   
-  roll.release();
+  //roll.release();
  
   return gp;
 }

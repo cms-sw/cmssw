@@ -34,7 +34,7 @@ options.register ('skip',   '',        VarParsing.VarParsing.multiplicity.single
 
 ## options.input = '/store/data/Run2015D/ZeroBias/RAW/v1/000/260/627/00000/00A76FFA-0C82-E511-B441-02163E01450F.root'
 options.input = '/store/data/Run2015D/ZeroBias1/RAW/v1/000/256/843/00000/FE8AD1BB-D05E-E511-B3A7-02163E01276B.root'
-options.max  = -1 
+options.max  = 100 
 options.skip = 0 
 
 options.parseArguments()
@@ -87,8 +87,28 @@ from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 if (eras.stage1L1Trigger.isChosen()):
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 # Note:  For stage-2, all conditions are overriden by local config file.  Use data tag: 
+
 if (eras.stage2L1Trigger.isChosen()):
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '') 
+    #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+    process.GlobalTag.toGet = cms.VPSet(
+        cms.PSet(record = cms.string("DTCCBConfigRcd"),
+                 tag = cms.string("DTCCBConfig_NOSingleL_V05_mc"),
+                 connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+                 ),
+#        cms.PSet(record = cms.string("DTKeyedConfigListRcd"),
+#                 tag = cms.string("DTKeyedConfigContainer_NOSingleL_V05_mc"),
+#                 connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+#                 ),
+        cms.PSet(record = cms.string("DTT0Rcd"),
+                 tag = cms.string("DTt0_STARTUP_V02_mc"),
+                 connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+                 ),
+        cms.PSet(record = cms.string("DTTPGParametersRcd"),
+                 tag = cms.string("DTTPGParameters_V01_mc"),
+                 connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+                 ),
+        )
 
 #### Sim L1 Emulator Sequence:
 process.load('Configuration.StandardSequences.RawToDigi_cff')
@@ -251,3 +271,10 @@ print process.L1TSeq
 print process.L1TReEmulateFromRAW
 #processDumpFile = open('config.dump', 'w')
 #print >> processDumpFile, process.dumpPython()
+
+
+#process.out = cms.OutputModule("PoolOutputModule", 
+#   fileName = cms.untracked.string("l1tbmtf.root")
+#)
+#process.output_step = cms.EndPath(process.out)
+#process.schedule.extend([process.output_step])
