@@ -441,8 +441,7 @@ class Validation:
             sys.exit(1)
 
     def createHtmlReport(self):
-        baseUrl = "http://cmsdoc.cern.ch/cms/Physics/tracking/validation/MC/%s/" % self._newRelease
-        return html.HtmlReport(self._newRelease, self._newBaseDir, baseUrl)
+        return html.HtmlReport(self._newRelease, self._newBaseDir)
 
     def doPlots(self, plotter, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy(), doFastVsFull=True):
         """Create validation plots.

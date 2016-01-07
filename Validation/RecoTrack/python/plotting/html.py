@@ -217,21 +217,17 @@ class PlotPurpose:
     class Timing: pass
 
 class Page(object):
-    def __init__(self, title, base, sampleName):
+    def __init__(self, title, sampleName):
         self._content = [
             '<html>',
             ' <head>',
             '  <title>%s</title>' % title,
-        ]
-        if base is not None:
-            self._content.append('  <base href="%s"/>' % base)
-        self._content.extend([
             ' </head>',
             ' <body>',
             '  '+sampleName,
             '  <br/>',
             '  <br/>',
-        ])
+        ]
 
         self._plotSets = {}
         self._tables = {}
@@ -422,9 +418,8 @@ class Page(object):
         return ret
 
 class PageSet(object):
-    def __init__(self, title, base, sampleName, sample, fastVsFull):
+    def __init__(self, title, sampleName, sample, fastVsFull):
         self._title = title
-        self._base = base
         self._sampleName = sampleName
         self._pages = collections.OrderedDict()
 
@@ -444,7 +439,7 @@ class PageSet(object):
 
     def _getPage(self, key, pageClass):
         if key not in self._pages:
-            page = pageClass(self._title, self._base, self._sampleName)
+            page = pageClass(self._title, self._sampleName)
             self._pages[key] = page
         else:
             page = self._pages[key]
@@ -554,7 +549,7 @@ class TrackingPageSet(PageSet):
 
 
 class IndexSection:
-    def __init__(self, sample, fastVsFull, title, base):
+    def __init__(self, sample, fastVsFull, title):
         self._sample = sample
 
         self._sampleName = ""
@@ -570,7 +565,7 @@ class IndexSection:
                 pileup = "with %s pileup" % sample.pileupType()
         self._sampleName += "%s sample %s" % (_sampleName.get(sample.name(), sample.name()), pileup)
 
-        params = [title, base, self._sampleName, sample, fastVsFull]
+        params = [title, self._sampleName, sample, fastVsFull]
         self._summaryPage = PageSet(*params)
         self._iterationPages = TrackingPageSet(*params)
         self._vertexPage = PageSet(*params)
@@ -618,22 +613,17 @@ class IndexSection:
         return ret
 
 class HtmlReport:
-    def __init__(self, validationName, newBaseDir, baseUrl=None):
+    def __init__(self, validationName, newBaseDir):
         self._title = "Tracking validation "+validationName
         self._newBaseDir = newBaseDir
-        self._base = baseUrl
 
         self._index = [
             '<html>',
             ' <head>',
             '  <title>%s</title>' % self._title,
-        ]
-        if self._base is not None:
-            self._index.append('  <base href="%s"/>' % self._base)
-        self._index.extend([
             ' </head>',
             ' <body>',
-        ])
+        ]
 
         self._sections = collections.OrderedDict()
 
@@ -645,7 +635,7 @@ class HtmlReport:
         if key in self._sections:
             self._currentSection = self._sections[key]
         else:
-            self._currentSection = IndexSection(sample, fastVsFull, self._title, self._base)
+            self._currentSection = IndexSection(sample, fastVsFull, self._title)
             self._sections[key] = self._currentSection
 
     def addPlots(self, *args, **kwargs):
