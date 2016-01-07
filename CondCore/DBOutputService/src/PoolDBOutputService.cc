@@ -1,7 +1,5 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/DBOutputService/interface/Exception.h"
-//#include "CondCore/DBCommon/interface/TagInfo.h"
-//#include "CondCore/DBCommon/interface/IOVInfo.h"
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -10,8 +8,6 @@
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "CondCore/CondDB/interface/Exception.h"
-#include "CondCore/DBCommon/interface/DbConnection.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
 //
 #include <vector>
 #include<memory>
@@ -36,19 +32,14 @@ cond::service::PoolDBOutputService::fillRecord( edm::ParameterSet & pset) {
 
   m_callbacks.insert(std::make_pair(thisrecord.m_idName,thisrecord));
 
-  // *** THE NEW LOGGING has still to be defined and implemented.
-  if( !m_logConnectionString.empty() ){
-    cond::UserLogInfo userloginfo;
-    m_logheaders.insert(std::make_pair(thisrecord.m_idName,userloginfo));
-  }
+  cond::UserLogInfo userloginfo;
+  m_logheaders.insert(std::make_pair(thisrecord.m_idName,userloginfo));
 }
 
 cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & iAR ): 
   m_timetypestr(""),
   m_currentTimes{},
   m_session(),
-  m_logConnectionString(""),
-  m_logdb(),
   m_dbstarted( false ),
   m_callbacks(),
   m_closeIOV(false),
@@ -65,15 +56,6 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   connection.configure();
   std::string connectionString = iConfig.getParameter<std::string>("connect");
   m_session = connection.createSession( connectionString, true ); 
-  
-  if( iConfig.exists("logconnect") ){
-    m_logConnectionString = iConfig.getUntrackedParameter<std::string>("logconnect");
-    cond::DbConnection conn;
-    conn.configuration().setParameters( connectionPset );
-    conn.configure();
-    cond::DbSession logSession = conn.createSession();
-    m_logdb.reset( new cond::Logger( logSession ) );
-  }  
   
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toPut=iConfig.getParameter<Parameters>("toPut");
@@ -127,11 +109,6 @@ cond::service::PoolDBOutputService::initDB( bool )
   try{ 
     if( !m_session.existsDatabase() ) m_session.createDatabase();
 
-    //init logdb if required
-    if(!m_logConnectionString.empty()){
-      m_logdb->connect( m_logConnectionString );
-      m_logdb->createLogDBIfNonExist();
-    }
   } catch( const std::exception& er ){
     cond::throwException( std::string(er.what()),"PoolDBOutputService::initDB" );
   }
@@ -220,9 +197,6 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
     cond::throwException( myrecord.m_tag + " is not a new tag", "PoolDBOutputService::createNewIOV");
   }
   std::string iovToken;
-  if( withlogging && m_logConnectionString.empty() ) 
-    cond::throwException("Log db was not set from PoolDBOutputService::createNewIOV",
-			 "PoolDBOutputService::createNewIOV");
 
   try{
     // FIX ME: synchronization type and description have to be passed as the other parameters?
@@ -231,17 +205,7 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
     editor.insert( firstSinceTime, firstPayloadId );
     editor.flush();
     myrecord.m_isNewTag=false;
-    if(withlogging){
-      std::string destconnect=m_session.connectionString();
-      cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logOperationNow(a,destconnect,payloadType,firstPayloadId,myrecord.m_tag,myrecord.timetypestr(),0,firstSinceTime);
-    }
   }catch(const std::exception& er){ 
-    if(withlogging){
-      std::string destconnect=m_session.connectionString();
-      cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logFailedOperationNow(a,destconnect,payloadType,firstPayloadId,myrecord.m_tag,myrecord.timetypestr(),0,firstSinceTime,std::string(er.what()));
-    }
     cond::throwException(std::string(er.what()) + " from PoolDBOutputService::createNewIOV ",
 			 "PoolDBOutputService::createNewIOV");
   }
@@ -261,10 +225,6 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
     cond::throwException( myrecord.m_tag + " is not a new tag", "PoolDBOutputService::createNewIOV");
   }
   std::string iovToken;
-  if( withlogging && m_logConnectionString.empty() ) 
-    cond::throwException("Log db was not set from PoolDBOutputService::createNewIOV",
-			 "PoolDBOutputService::createNewIOV");
-
   std::string payloadType("");
   try{
     // FIX ME: synchronization type and description have to be passed as the other parameters?
@@ -274,17 +234,7 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
     editor.insert( firstSinceTime, firstPayloadId );
     editor.flush();
     myrecord.m_isNewTag=false;
-    if(withlogging){
-      std::string destconnect=m_session.connectionString();
-      cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logOperationNow(a,destconnect,payloadType,firstPayloadId,myrecord.m_tag,myrecord.timetypestr(),0,firstSinceTime);
-    }
   }catch(const std::exception& er){ 
-    if(withlogging){
-      std::string destconnect=m_session.connectionString();
-      cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logFailedOperationNow(a,destconnect,payloadType,firstPayloadId,myrecord.m_tag,myrecord.timetypestr(),0,firstSinceTime,std::string(er.what()));
-    }
     cond::throwException(std::string(er.what()) + " from PoolDBOutputService::createNewIOV ",
 		   "PoolDBOutputService::createNewIOV");
   }
@@ -303,9 +253,6 @@ cond::service::PoolDBOutputService::appendSinceTime( const std::string& payloadI
     cond::throwException(std::string("Cannot append to non-existing tag ") + myrecord.m_tag,
 		   "PoolDBOutputService::appendSinceTime");  
   }
-  if( withlogging && m_logConnectionString.empty() ) 
-    cond::throwException("Log db was not set from PoolDBOutputService::createNewIOV",
-			 "PoolDBOutputService::createNewIOV");
   std::string payloadType("");
   try{
     cond::persistency::IOVEditor editor = m_session.editIov( myrecord.m_tag ); 
@@ -313,17 +260,7 @@ cond::service::PoolDBOutputService::appendSinceTime( const std::string& payloadI
     editor.insert( time, payloadId );
     editor.flush();
 
-    if(withlogging){
-      std::string destconnect=m_session.connectionString();
-      cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logOperationNow(a,destconnect,payloadType,payloadId,myrecord.m_tag,myrecord.timetypestr(),0,time);
-    }
   }catch(const std::exception& er){
-    if(withlogging){
-      std::string destconnect=m_session.connectionString();
-      cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logFailedOperationNow(a,destconnect,payloadType,payloadId,myrecord.m_tag,myrecord.timetypestr(),0,time,std::string(er.what()));
-    }
     cond::throwException(std::string(er.what()),
 		   "PoolDBOutputService::appendSinceTime");
   }
@@ -380,13 +317,6 @@ cond::service::PoolDBOutputService::setLogHeaderForRecord(const std::string& rec
   cond::UserLogInfo& myloginfo=this->lookUpUserLogInfo(recordName);
   myloginfo.provenance=dataprovenance;
   myloginfo.usertext=usertext;
-}
-
-//
-const cond::Logger& 
-cond::service::PoolDBOutputService::queryLog()const{
-  if( !m_logdb.get() ) throw cond::Exception("Log database is not set from PoolDBOutputService::queryLog");
-  return *m_logdb;
 }
 
 // Still required.

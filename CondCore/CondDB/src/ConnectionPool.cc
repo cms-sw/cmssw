@@ -3,8 +3,8 @@
 #include "SessionImpl.h"
 #include "IOVSchema.h"
 //
-#include "CondCore/DBCommon/interface/CoralServiceManager.h"
-#include "CondCore/DBCommon/interface/Auth.h"
+#include "CondCore/CondDB/interface/CoralServiceManager.h"
+#include "CondCore/CondDB/interface/Auth.h"
 // CMSSW includes
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 // coral includes

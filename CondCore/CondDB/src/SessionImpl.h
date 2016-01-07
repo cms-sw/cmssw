@@ -5,8 +5,6 @@
 #include "IOVSchema.h"
 #include "GTSchema.h"
 //
-#include "CondCore/DBCommon/interface/DbSession.h"
-//
 #include "RelationalAccess/ConnectionService.h"
 #include "RelationalAccess/ISessionProxy.h"
 //
