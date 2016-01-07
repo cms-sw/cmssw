@@ -89,7 +89,7 @@ if __name__ == "__main__":
     blue_file = args.pop(0)
   else :
     blue_file = ''
-      
+
   #===================================================
   # prepare output directories and check input files
   #===================================================
@@ -139,7 +139,7 @@ if __name__ == "__main__":
          
   (red_hd, red_release) = os.path.split(red_head)
   (blue_hd, blue_release) = os.path.split(blue_head)
-         
+
   #============================================
   # final commands
   #============================================
