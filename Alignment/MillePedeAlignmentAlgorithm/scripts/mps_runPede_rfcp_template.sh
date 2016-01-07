@@ -7,6 +7,9 @@
 #temporary fix (?):
 #unset PYTHONHOME
 
+EOS="/afs/cern.ch/project/eos/installation/cms/bin/eos.select"
+EOSPREFIX="root://eoscms//eos/cms"
+
 cd $CMSSW_BASE/src
 eval `scramv1 runtime -sh`
 cd -
@@ -20,7 +23,7 @@ MSSDIRPOOL=
 TREEFILELIST=
 if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
 else
-    TREEFILELIST=`cmsLs -l $MSSDIR | grep -i treeFile | grep -i root`
+    TREEFILELIST=`${EOS} ls -l $MSSDIR | grep -i treeFile | grep -i root`
 fi
 if [ -z "$TREEFILELIST" ]; then
     echo "\nThe list of treefiles seems to be empty.\n"
@@ -98,13 +101,10 @@ if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
   stager_get -M $MSSDIR/treeFileISN.root
   copytreefile rfcp $MSSDIR/treeFileISN.root $BATCH_DIR
 else
-# Using cmscafuser pool => cmsStageIn command must be used
-  . /afs/cern.ch/cms/caf/setup.sh
-  #MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
   MSSCAFDIR=`echo $MSSDIR | perl -pe 's/\/castor\/cern.ch\/cms//gi'`
   
-  untilSuccess cmsStageIn $MSSCAFDIR/milleBinaryISN.dat.gz milleBinaryISN.dat.gz
-  copytreefile cmsStageIn $MSSCAFDIR/treeFileISN.root treeFileISN.root
+  untilSuccess xrdcp ${EOSPREFIX}${MSSCAFDIR}/milleBinaryISN.dat.gz milleBinaryISN.dat.gz
+  copytreefile xrdcp ${EOSPREFIX}${MSSCAFDIR}/treeFileISN.root treeFileISN.root
 fi
 
 # We have gzipped binaries, but the python config looks for .dat
@@ -178,6 +178,8 @@ gzip -f *.ps
 gzip -f millepede.*s
 # in case of diagonalisation zip this:
 gzip -f millepede.eve
+# zip monitoring file:
+gzip -f millepede.mon
 
 #list IOVs
 cmscond_list_iov -c sqlite_file:alignments_MP.db -t Alignments
