@@ -16,6 +16,7 @@ int main()
     testSerialization<PTrackerParameters>();
     testSerialization<PTrackerParameters::Item>();
     testSerialization<HcalParameters>();
+    testSerialization<PHGCalParameters>();
 
     return 0;
 }

@@ -10,8 +10,13 @@ HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons,
   sectors_  = hdcons_.sectors();
   layers_   = hdcons_.layers(true);
   cells_    = hdcons_.maxCells(true);
-  kHGhalf_  = sectors_*layers_*subSectors_*cells_ ;
-  kHGeomHalf_ = (half_ ? (sectors_*layers_*subSectors_) : (sectors_*layers_));
+  if (geomMode() == HGCalGeometryMode::Square) {
+    kHGhalf_    = sectors_*layers_*subSectors_*cells_ ;
+    kHGeomHalf_ = (half_ ? (sectors_*layers_*subSectors_) : (sectors_*layers_));
+  } else {
+    kHGhalf_    = sectors_*layers_*cells_ ;
+    kHGeomHalf_ = sectors_*layers_;
+  }
   kSizeForDenseIndexing = (unsigned int)(2*kHGhalf_);
 #ifdef DebugLog
   std::cout << "HGCalTopology initialized for subdetector " << subdet_ 
@@ -22,13 +27,26 @@ HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons,
 #endif
 }
 
+unsigned int HGCalTopology::allGeomModules() const {
+  int n = (geomMode() == HGCalGeometryMode::Square) ?
+    (2*kHGeomHalf_) : (2*hdcons_.wafers());
+  return (unsigned int)(n);
+}
+
 uint32_t HGCalTopology::detId2denseId(const DetId& id) const {
 
   HGCalTopology::DecodedDetId id_ = decode(id);
   int isubsec= (id_.iSubSec > 0) ? 1 : 0;
-  uint32_t idx = (uint32_t)((((id_.zside > 0) ? kHGhalf_ : 0) +
-			     ((((id_.iCell-1)*layers_+id_.iLay-1)*sectors_+
-			       id_.iSec-1)*subSectors_+isubsec)));
+  uint32_t idx;
+  if (geomMode() == HGCalGeometryMode::Square) {
+    idx = (uint32_t)((((id_.zside > 0) ? kHGhalf_ : 0) +
+		      ((((id_.iCell-1)*layers_+id_.iLay-1)*sectors_+
+			id_.iSec-1)*subSectors_+isubsec)));
+  } else {
+    idx = (uint32_t)((((id_.zside > 0) ? kHGhalf_ : 0) +
+		      ((((id_.iCell-1)*layers_+id_.iLay-1)*sectors_+
+			id_.iSec)*subSectors_+isubsec)));
+  }
   return idx;
 }
 
@@ -40,7 +58,11 @@ DetId HGCalTopology::denseId2detId(uint32_t hi) const {
     int di     = ((int)(hi)%kHGhalf_);
     int iSubSec= (di%subSectors_);
     id_.iSubSec= (iSubSec == 0 ? -1 : 1);
-    id_.iSec   = (((di-iSubSec)/subSectors_)%sectors_+1);
+    if (geomMode() == HGCalGeometryMode::Square) {
+      id_.iSec   = (((di-iSubSec)/subSectors_)%sectors_+1);
+    } else {
+      id_.iSec   = (((di-iSubSec)/subSectors_)%sectors_);
+    }
     id_.iLay   = (((((di-iSubSec)/subSectors_)-id_.iSec+1)/sectors_)%layers_+1);
     id_.iCell  = (((((di-iSubSec)/subSectors_)-id_.iSec+1)/sectors_-id_.iLay+1)/layers_+1);
     return encode(id_);
@@ -53,18 +75,31 @@ uint32_t HGCalTopology::detId2denseGeomId(const DetId& id) const {
 
   HGCalTopology::DecodedDetId id_ = decode(id);
   int isubsec= (half_ && id_.iSubSec > 0) ? 1 : 0;
-  uint32_t idx = (uint32_t)(((id_.zside > 0) ? kHGeomHalf_ : 0) +
-			    ((isubsec*layers_+id_.iLay-1)*sectors_+
-			     id_.iSec-1));
+  uint32_t idx;
+  if (geomMode() == HGCalGeometryMode::Square) {
+    idx = (uint32_t)(((id_.zside > 0) ? kHGeomHalf_ : 0) +
+		     ((isubsec*layers_+id_.iLay-1)*sectors_+id_.iSec-1));
+  } else {
+    idx = (uint32_t)(((id_.zside > 0) ? kHGeomHalf_ : 0) +
+		     ((isubsec*layers_+id_.iLay-1)*sectors_+id_.iSec));
+  }
   return idx;
 }
 
 bool HGCalTopology::valid(const DetId& id) const {
 
   HGCalTopology::DecodedDetId id_ = decode(id);
-  bool flag = (id.det() == DetId::Forward && id.subdetId() == (int)(subdet_) &&
-	       id_.iCell >= 0 && id_.iCell < cells_ && id_.iLay > 0 && 
-	       id_.iLay <= layers_ && id_.iSec > 0 && id_.iSec <= sectors_);
+  bool flag;
+  if (geomMode() == HGCalGeometryMode::Square) {
+    flag = (id.det() == DetId::Forward && id.subdetId() == (int)(subdet_) &&
+	    id_.iCell >= 0 && id_.iCell < cells_ && id_.iLay > 0 && 
+	    id_.iLay <= layers_ && id_.iSec > 0 && id_.iSec <= sectors_);
+  } else {
+    flag = (id.det() == DetId::Forward && id.subdetId() == (int)(subdet_) &&
+	    id_.iCell >= 0 && id_.iCell < cells_ && id_.iLay > 0 && 
+	    id_.iLay <= layers_ && id_.iSec >= 0 && id_.iSec <= sectors_);
+    if (flag) flag = hdcons_.isValid(id_.iLay,id_.iSec,id_.iCell,true);
+  }
   return flag;
 }
 
@@ -97,7 +132,11 @@ HGCalTopology::DecodedDetId HGCalTopology::geomDenseId2decId(const uint32_t& hi)
     int di     = ((int)(hi)%kHGeomHalf_);
     int iSubSec= (di%subSectors_);
     id_.iSubSec= (iSubSec == 0 ? -1 : 1);
-    id_.iSec   = (((di-iSubSec)/subSectors_)%sectors_+1);
+    if (geomMode() == HGCalGeometryMode::Square) {
+      id_.iSec   = (((di-iSubSec)/subSectors_)%sectors_+1);
+    } else {
+      id_.iSec   = (((di-iSubSec)/subSectors_)%sectors_);
+    }
     id_.iLay   = (((((di-iSubSec)/subSectors_)-id_.iSec+1)/sectors_)%layers_+1);
   }
   return id_;
@@ -106,7 +145,15 @@ HGCalTopology::DecodedDetId HGCalTopology::geomDenseId2decId(const uint32_t& hi)
 HGCalTopology::DecodedDetId HGCalTopology::decode(const DetId& startId) const {
 
   HGCalTopology::DecodedDetId id_;
-  if (subdet_ == HGCEE) {
+  if (geomMode() == HGCalGeometryMode::Hexagon) {
+      HGCalDetId id(startId);
+      id_.iCell  = id.cell();
+      id_.iLay   = id.layer();
+      id_.iSec   = id.wafer();
+      id_.iSubSec= id.waferType();
+      id_.zside  = id.zside();
+      id_.subdet = id.subdetId();
+  } else if (subdet_ == HGCEE) {
     HGCEEDetId id(startId);
     id_.iCell  = id.cell();
     id_.iLay   = id.layer();
@@ -130,7 +177,9 @@ DetId HGCalTopology::encode(const HGCalTopology::DecodedDetId& id_) const {
 
   int isubsec= (id_.iSubSec > 0) ? 1 : 0;
   DetId id;
-  if (subdet_ == HGCEE) {
+  if (geomMode() == HGCalGeometryMode::Hexagon) {
+    id = HGCalDetId(subdet_,id_.zside,id_.iLay,isubsec,id_.iSec,id_.iCell).rawId();
+  } else if (subdet_ == HGCEE) {
     id = HGCEEDetId(subdet_,id_.zside,id_.iLay,id_.iSec,isubsec,id_.iCell).rawId();
   } else {
     id = HGCHEDetId(subdet_,id_.zside,id_.iLay,id_.iSec,isubsec,id_.iCell).rawId();

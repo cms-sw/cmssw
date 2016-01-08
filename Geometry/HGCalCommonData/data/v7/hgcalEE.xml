@@ -2,7 +2,10 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="hgcalEE.xml" eval="true">
-  <Constant name="rMaxFine" value="75.0*cm"/>
+  <Constant name="rMinFine"   value="0.0*fm"/>
+  <Constant name="rMaxFine"   value="75.0*cm"/>
+  <Constant name="rMaxMiddle" value="120.0*cm"/>
+  <Constant name="rMaxCoarse" value="2000.0*cm"/>
 </ConstantsSection>
 
 <PosPartSection label="hgcalEE.xml">
@@ -80,5 +83,17 @@
     <String name="RotNameSpace" value="hgcalmodule"/>
   </Algorithm>
 </PosPartSection> 
+
+<SpecParSection label="hgcalEE.xml" eval="true">
+  <SpecPar name="HGCalEE">
+    <PartSelector path="//HGCalEESensitive.*"/>
+    <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon" eval="false"/>
+    <Parameter name="RadiusBound"  value="[rMinFine]"/>
+    <Parameter name="RadiusBound"  value="[rMaxFine]"/>
+    <Parameter name="RadiusBound"  value="[rMaxMiddle]"/>
+    <Parameter name="RadiusBound"  value="[rMaxCoarse]"/>
+  </SpecPar>
+</SpecParSection>
 
 </DDDefinition>

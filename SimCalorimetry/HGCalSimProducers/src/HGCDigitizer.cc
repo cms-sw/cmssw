@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 
 #include <algorithm>
 #include <boost/foreach.hpp>
@@ -170,76 +171,86 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   //create list of tuples (pos in container, RECO DetId, time) to be sorted first
   int nchits=(int)hits->size();  
   std::vector< HGCCaloHitTuple_t > hitRefs(nchits);
-  for(int i=0; i<nchits; i++)
-    {
-      int layer, cell, sec, subsec, zp;
-      uint32_t simId = hits->at(i).id();
+  for(int i=0; i<nchits; i++) {
+    int layer, cell, sec, subsec, zp;
+    uint32_t simId = hits->at(i).id();
+    if (dddConst.geomMode() == HGCalGeometryMode::Square) {
       HGCalTestNumbering::unpackSquareIndex(simId, zp, layer, sec, subsec, cell);
-      //skip this hit if after ganging it is not valid
-      std::pair<int,int> recoLayerCell=dddConst.simToReco(cell,layer,topo.detectorType());
-      cell  = recoLayerCell.first;
-      layer = recoLayerCell.second;
-      if (layer<0 || cell<0) {
-	hitRefs[i]=std::make_tuple( i, 0, 0.);
-	continue;
-      }
-
-      //assign the RECO DetId
-      DetId id( producesEEDigis() ?
-		(uint32_t)HGCEEDetId(mySubDet_,zp,layer,sec,subsec,cell):
-		(uint32_t)HGCHEDetId(mySubDet_,zp,layer,sec,subsec,cell) );
-
-      if (verbosity_>0) {
-	if (producesEEDigis())
-	  edm::LogInfo("HGCDigitizer") <<" i/p " << std::hex << simId << std::dec << " o/p " << HGCEEDetId(id) << std::endl;
-	else
-	  edm::LogInfo("HGCDigitizer") << " i/p " << std::hex << simId << std::dec << " o/p " << HGCHEDetId(id) << std::endl;
-      }
-
-      hitRefs[i]=std::make_tuple( i, 
-				  id.rawId(), 
-				  (float)hits->at(i).time() );
+    } else {
+      int subdet;
+      HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell); 
+      mySubDet_ = (ForwardSubdetector)(subdet);
+      //sec is wafer and subsec is celltyp
     }
+    //skip this hit if after ganging it is not valid
+    std::pair<int,int> recoLayerCell=dddConst.simToReco(cell,layer,sec,topo.detectorType());
+    cell  = recoLayerCell.first;
+    layer = recoLayerCell.second;
+    if (layer<0 || cell<0) {
+      hitRefs[i]=std::make_tuple( i, 0, 0.);
+      continue;
+    }
+
+    //assign the RECO DetId
+    DetId id;
+    if (dddConst.geomMode() == HGCalGeometryMode::Square) {
+      id = (producesEEDigis() ?	
+	    (uint32_t)HGCEEDetId(mySubDet_,zp,layer,sec,subsec,cell):
+	    (uint32_t)HGCHEDetId(mySubDet_,zp,layer,sec,subsec,cell) );
+    } else {
+      id = HGCalDetId(mySubDet_,zp,layer,subsec,sec,cell);
+    }
+
+    if (verbosity_>0) {
+      if (producesEEDigis())
+	  edm::LogInfo("HGCDigitizer") <<" i/p " << std::hex << simId << std::dec << " o/p " << HGCEEDetId(id) << std::endl;
+      else
+	  edm::LogInfo("HGCDigitizer") << " i/p " << std::hex << simId << std::dec << " o/p " << HGCHEDetId(id) << std::endl;
+    }
+
+    hitRefs[i]=std::make_tuple( i, 
+				id.rawId(), 
+				(float)hits->at(i).time() );
+  }
   std::sort(hitRefs.begin(),hitRefs.end(),this->orderByDetIdThenTime);
   
   //loop over sorted hits
-  for(int i=0; i<nchits; ++i)
-    {
-      const int hitidx   = std::get<0>(hitRefs[i]);
-      const uint32_t id  = std::get<1>(hitRefs[i]);
-      if(id==0) continue; // to be ignored at RECO level
+  for(int i=0; i<nchits; ++i) {
+    const int hitidx   = std::get<0>(hitRefs[i]);
+    const uint32_t id  = std::get<1>(hitRefs[i]);
+    if(id==0) continue; // to be ignored at RECO level
 
-      const float toa    = std::get<2>(hitRefs[i]);
-      const PCaloHit &hit=hits->at( hitidx );     
-      const float charge = hit.energy()*1e6*keV2fC;
+    const float toa    = std::get<2>(hitRefs[i]);
+    const PCaloHit &hit=hits->at( hitidx );     
+    const float charge = hit.energy()*1e6*keV2fC;
       
-      //distance to the center of the detector
-      const float dist2center( geom->getPosition(id).mag() );
+    //distance to the center of the detector
+    const float dist2center( geom->getPosition(id).mag() );
       
-      //hit time: [time()]=ns  [centerDist]=cm [refSpeed_]=cm/ns + delay by 1ns
-      //accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
-      const float tof = toa-dist2center/refSpeed_+tofDelay_ ;
-      const int itime= std::floor( tof/bxTime_ ) + 9;
+    //hit time: [time()]=ns  [centerDist]=cm [refSpeed_]=cm/ns + delay by 1ns
+    //accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
+    const float tof = toa-dist2center/refSpeed_+tofDelay_ ;
+    const int itime= std::floor( tof/bxTime_ ) + 9;
       
-      //no need to add bx crossing - tof comes already corrected from the mixing module
-      //itime += bxCrossing;
-      //itime += 9;
+    //no need to add bx crossing - tof comes already corrected from the mixing module
+    //itime += bxCrossing;
+    //itime += 9;
       
-      if(itime<0 || itime>14) continue; 
-            
-      //check if already existing (perhaps could remove this in the future - 2nd event should have all defined)
-      HGCSimHitDataAccumulator::iterator simHitIt=simHitAccumulator_->find(id);
-      if(simHitIt == simHitAccumulator_->end()) {
-	simHitIt = simHitAccumulator_->insert( std::make_pair(id,baseData) ).first;
-      }
+    if(itime<0 || itime>14) continue; 
+    
+    //check if already existing (perhaps could remove this in the future - 2nd event should have all defined)
+    HGCSimHitDataAccumulator::iterator simHitIt=simHitAccumulator_->find(id);
+    if(simHitIt == simHitAccumulator_->end()) {
+      simHitIt = simHitAccumulator_->insert( std::make_pair(id,baseData) ).first;
+    }
       
-      //check if time index is ok and store energy
-      if(itime >= (int)simHitIt->second[0].size() ) continue;
+    //check if time index is ok and store energy
+    if(itime >= (int)simHitIt->second[0].size() ) continue;
 
-      (simHitIt->second)[0][itime] += charge;
-      float accCharge=(simHitIt->second)[0][itime];
+    (simHitIt->second)[0][itime] += charge;
+    float accCharge=(simHitIt->second)[0][itime];
       
-      //time-of-arrival (check how to be used)
+    //time-of-arrival (check how to be used)
       if(weightToAbyEnergy) (simHitIt->second)[1][itime] += charge*tof;
       else if((simHitIt->second)[1][itime]==0)
 	{	

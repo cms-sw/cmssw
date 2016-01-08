@@ -4,6 +4,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Calo/interface/HGCNumberingScheme.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "DataFormats/Math/interface/FastMath.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -11,11 +12,11 @@
 
 //#define DebugLog
 
-HGCNumberingScheme::HGCNumberingScheme(const DDCompactView & cpv, 
+HGCNumberingScheme::HGCNumberingScheme(HGCalDDDConstants* hgc, 
 				       std::string & name, bool check,
 				       int verbose) :
   CaloNumberingScheme(0), check_(check), verbosity(verbose),
-  hgcons(new HGCalDDDConstants(cpv,name)) {
+  hgcons(hgc) {
   edm::LogInfo("HGCSim") << "Creating HGCNumberingScheme for " << name;
 }
 
@@ -24,34 +25,60 @@ HGCNumberingScheme::~HGCNumberingScheme() {
 }
 
 //
-uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer, int sector, int iz, const G4ThreeVector &pos) {
+uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer, 
+				       int module, int cell, int iz, 
+				       const G4ThreeVector &pos) {
+  // module is the sector # for square cell
+  //           the copy number of the wafer as placed in the layer
+  int      phiSector(0), icell(0), celltyp(0), wafer(0);
+  uint32_t index(0);
+  if (hgcons->geomMode() == HGCalGeometryMode::Square) {
+    std::pair<int,int> phicell = hgcons->assignCell(pos.x(),pos.y(),layer,0,false);
+    phiSector = phicell.first;
+    icell     = phicell.second;
   
-  std::pair<int,int> phicell = hgcons->assignCell(pos.x(),pos.y(),layer,0,false);
-  int phiSector = phicell.first;
-  int icell     = phicell.second;
-  
-  //build the index
-  uint32_t index = HGCalTestNumbering::packSquareIndex(iz,layer,sector,phiSector,icell);
-  
-  //check if it fits
-  if ((!HGCalTestNumbering::isValidSquare(iz,layer,sector,phiSector,icell)) ||
-      (!hgcons->isValid(layer,sector,icell,false))) {
-    index = 0;
-    if (check_ && icell != -1) {
-      edm::LogError("HGCSim") << "[HGCNumberingScheme] ID out of bounds :"
-			      << " Subdet= " << subdet << " Zside= " << iz
-			      << " Layer= " << layer << " Sector= " << sector
-			      << " SubSector= " << phiSector << " Cell= "
-			      << icell << " Local position: (" << pos.x() 
-			      << "," << pos.y() << "," << pos.z() << ")";
+    //build the index
+    index = HGCalTestNumbering::packSquareIndex(iz,layer,module,phiSector,icell);
+    //check if it fits
+    if (!hgcons->isValid(layer,module,icell,false)) {
+      index = 0;
+      if (check_ && icell != -1) 
+	edm::LogError("HGCSim") << "[HGCNumberingScheme] ID out of bounds :"
+				<< " Subdet= " << subdet << " Zside= " << iz
+				<< " Layer= " << layer << " Module= " << module
+				<< " SubSector= " << phiSector << " Cell= "
+				<< icell << " Local position: (" << pos.x() 
+				<< "," << pos.y() << "," << pos.z() << ")";
     }
-  }    
+  } else {
+    celltyp = cell/1000;
+    icell   = cell%1000;
+    if (celltyp != 1) celltyp = 0;
+    wafer   = hgcons->waferFromCopy(module);
+    index   = HGCalTestNumbering::packHexagonIndex((int)subdet,iz,layer,wafer, 
+						   celltyp,icell);
+    //check if it fits
+    if (!hgcons->isValid(layer,wafer,icell,false)) {
+      index = 0;
+      if (check_) {
+	edm::LogError("HGCSim") << "[HGCNumberingScheme] ID out of bounds :"
+				<< " Subdet= " << subdet << " Zside= " << iz
+				<< " Layer= " << layer << " Wafer= " << module
+				<< " CellType= " << celltyp << " Cell= "
+				<< icell;
+      }    
+    }
+  }
 #ifdef DebugLog
-  if (verbosity > 0)
+  if (verbosity > 0) {
     std::cout << "HGCNumberingScheme::i/p " << subdet << ":" << layer << ":" 
-	      << sector << ":" << iz << ":" << pos << " o/p " << phiSector 
-	      << ":" << icell << ":" << std::hex << index << std::dec 
-	      << std::endl;
+	      << module << ":" << iz << ":";
+    if (hgcons->geomMode() == HGCalGeometryMode::Square) 
+      std::cout << pos << " o/p " << phiSector << ":" << icell;
+    else
+      std::cout << wafer << ":" << celltyp << ":" << icell;
+    std::cout << ":" << std::hex << index << std::dec  << std::endl;
+  }
 #endif
   return index;
 }

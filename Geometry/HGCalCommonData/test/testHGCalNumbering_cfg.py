@@ -2,8 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Geometry.HGCalCommonData.testHGCalXML_cfi")
-process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
+process.load("Geometry.HGCalCommonData.testHGCXML_cfi")
+process.load("Geometry.HGCalCommonData.hgcalV6ParametersInitialization_cfi")
+process.load("Geometry.HGCalCommonData.hgcalV6NumberingInitialization_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
@@ -44,6 +45,24 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prod = cms.EDAnalyzer("HGCalNumberingTester")
+process.prodEE = cms.EDAnalyzer("HGCalNumberingTester",
+                                NameSense     = cms.string("HGCalEESensitive"),
+                                NameDevice    = cms.string("HGCal EE"),
+                                LocalPosition = cms.double(500.0),
+                                Increment     = cms.int32(19)
+)
 
-process.p1 = cms.Path(process.generator*process.prod)
+process.prodHEF = process.prodEE.clone(
+    NameSense  = "HGCalHESiliconSensitive",
+    NameDevice = "HGCal HE Front",
+    Increment  = 9
+)
+ 
+process.prodHEB = process.prodEE.clone(
+    NameSense  = "HGCalHEScintillatorSensitive",
+    NameDevice = "HGCal HE Back",
+    Increment  = 9
+)
+ 
+
+process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF)
