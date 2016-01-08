@@ -19,8 +19,8 @@ const double k_ScaleFromDDD = 0.1;
 
 HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
 				     const std::string name) : hgpar_(hp), tan30deg_(std::tan(30.0*CLHEP::deg)) {
-
-  if (geomMode() == HGCalGeometryMode::Square) {
+  mode_ = HGCalGeometryMode( hgpar_->mode_ );
+  if (mode_ == HGCalGeometryMode::Square) {
     rmax_ = 0;
     edm::LogInfo("HGCalGeom") << "HGCalDDDConstants initialized for " << name
 			      << " with " << layers(false) << ":" <<layers(true)
@@ -57,7 +57,7 @@ std::pair<int,int> HGCalDDDConstants::assignCell(float x, float y, int lay,
   std::pair<int,int> cellAssignment(-1,-1);
   int i = index.first;
   if (i < 0) return cellAssignment;
-  if (geomMode() == HGCalGeometryMode::Square) {
+  if (mode_ == HGCalGeometryMode::Square) {
     float alpha, h, bl, tl;
     getParameterSquare(i,subSec,reco,h,bl,tl,alpha);
     cellAssignment = assignCellSquare(x, y, h, bl, tl, alpha, index.second);
@@ -144,7 +144,7 @@ std::pair<int,int> HGCalDDDConstants::findCell(int cell, int lay, int subSec,
   std::pair<int,float> index = getIndex(lay, reco);
   int i = index.first;
   if (i < 0) return std::pair<int,int>(-1,-1);
-  if (geomMode() == HGCalGeometryMode::Hexagon) {
+  if (mode_ == HGCalGeometryMode::Hexagon) {
     return std::pair<int,int>(-1,-1);
   } else {
     float alpha, h, bl, tl;
@@ -218,7 +218,7 @@ bool HGCalDDDConstants::isValid(int lay, int mod, int cell, bool reco) const {
 
   bool ok(false);
   int  cellmax(0), modmax(0);
-  if (geomMode() == HGCalGeometryMode::Square) {
+  if (mode_ == HGCalGeometryMode::Square) {
     cellmax = maxCells(lay,reco);
     modmax  = sectors();
     ok      = ((lay > 0 && lay <= (int)(layers(reco))) && 
@@ -252,7 +252,7 @@ std::pair<float,float> HGCalDDDConstants::locateCell(int cell, int lay,
   std::pair<int,float> index = getIndex(lay, reco);
   int i = index.first;
   if (i < 0) return std::pair<float,float>(x,y);
-  if (geomMode() == HGCalGeometryMode::Square) {
+  if (mode_ == HGCalGeometryMode::Square) {
     std::pair<int,int> kxy = findCell(cell, lay, type, reco);
     float alpha, h, bl, tl;
     getParameterSquare(i,type,reco,h,bl,tl,alpha);
@@ -312,7 +312,7 @@ int HGCalDDDConstants::maxCells(int lay, bool reco) const {
   std::pair<int,float> index = getIndex(lay, reco);
   int i = index.first;
   if (i < 0) return 0;
-  if (geomMode() == HGCalGeometryMode::Square) {
+  if (mode_ == HGCalGeometryMode::Square) {
     float h, bl, tl, alpha;
     getParameterSquare(i,0,reco,h,bl,tl,alpha);
     return maxCellsSquare(h, bl, tl, alpha, index.second);
@@ -352,7 +352,7 @@ int HGCalDDDConstants::maxRows(int lay, bool reco) const {
   std::pair<int,float> index = getIndex(lay, reco);
   int i = index.first;
   if (i < 0) return kymax;
-  if (geomMode() == HGCalGeometryMode::Square) {
+  if (mode_ == HGCalGeometryMode::Square) {
     float h = (reco) ? hgpar_->moduleHR_[i] : hgpar_->moduleHS_[i];
     kymax   = floor((2*h)/index.second);
   } else {
@@ -437,7 +437,7 @@ std::vector<int> HGCalDDDConstants::numberCells(int lay, bool reco) const {
   int i = index.first;
   std::vector<int> ncell;
   if (i >= 0) {
-    if (geomMode() == HGCalGeometryMode::Square) {
+    if (mode_ == HGCalGeometryMode::Square) {
       float h, bl, tl, alpha;
       getParameterSquare(i,0,reco,h,bl,tl,alpha);
       return numberCellsSquare(h, bl, tl, alpha, index.second);
@@ -486,7 +486,7 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay, int mod,
   int i = index.first;
   if (i < 0) return std::pair<int,int>(-1,-1);
   int kx(-1), depth(-1);
-  if (geomMode() == HGCalGeometryMode::Square) {
+  if (mode_ == HGCalGeometryMode::Square) {
     float h  = hgpar_->moduleHS_[i];
     float bl = hgpar_->moduleBlS_[i];
     float tl = hgpar_->moduleTlS_[i];
@@ -594,7 +594,7 @@ std::pair<int,float> HGCalDDDConstants::getIndex(int lay, bool reco) const {
   if (reco && lay>(int)(hgpar_->depthIndex_.size()))  return std::pair<int,float>(-1,0);
   int   indx(0);
   float cell(0);
-  if (geomMode() == HGCalGeometryMode::Square) {
+  if (mode_ == HGCalGeometryMode::Square) {
     indx = (reco ? hgpar_->depthIndex_[lay-1] : hgpar_->layerIndex_[lay-1]);
     cell = (reco ? hgpar_->moduleCellR_[indx] : hgpar_->moduleCellS_[indx]);
   } else {
