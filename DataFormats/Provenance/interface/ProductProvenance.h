@@ -26,8 +26,6 @@ namespace edm {
     ProductProvenance();
     explicit ProductProvenance(BranchID const& bid);
     ProductProvenance(BranchID const& bid,
-                      std::shared_ptr<Parentage> parentagePtr);
-    ProductProvenance(BranchID const& bid,
                       ParentageID const& id);
 
     ProductProvenance(BranchID const& bid,
