@@ -28,13 +28,6 @@ namespace edm {
     parentageID_(edid)
   {}
 
-   ProductProvenance::ProductProvenance(BranchID const& bid,
-				    std::shared_ptr<Parentage> pPtr) :
-    branchID_(bid),
-    parentageID_(pPtr->id()) {
-       ParentageRegistry::instance()->insertMapped(*pPtr);
-  }
-
   ProductProvenance::ProductProvenance(BranchID const& bid,
 		   std::vector<BranchID> const& parents) :
     branchID_(bid),
