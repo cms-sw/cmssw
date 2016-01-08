@@ -28,6 +28,15 @@ public:
 
   void hitPairs( const TrackingRegion& reg, OrderedHitPairs & prs,
                  const edm::Event & ev,  const edm::EventSetup& es, Layers layers);
+  static void doublets2(
+						      const TrackingRegion& region,
+						      const DetLayer & innerHitDetLayer,
+						      const DetLayer & outerHitDetLayer,
+						      const RecHitsSortedInPhi & innerHitsMap,
+						      const RecHitsSortedInPhi & outerHitsMap,
+						      const edm::EventSetup& iSetup,
+						      const unsigned int theMaxElement,
+						      HitDoublets & result);
 
   Layer innerLayer(const Layers& layers) const { return layers[theInnerLayer]; }
   Layer outerLayer(const Layers& layers) const { return layers[theOuterLayer]; }
