@@ -575,7 +575,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
         
                 const l1t::CaloTower& towerSec = l1t::CaloTools::getTower(towers, iSecEta, iSecPhi);
 
-
+                secondaryCluster->setHwPt(towerSec.hwPt());
                 secondaryCluster->setHwPtEm(towerSec.hwEtEm());
                 secondaryCluster->setHwPtHad(towerSec.hwEtHad());
                 secondaryCluster->setHwSeedPt(towerSec.hwPt());
@@ -894,6 +894,7 @@ std::vector<l1t::CaloCluster*> l1t::Stage2Layer2TauAlgorithmFirmwareImp1::makeSe
         secondaryCluster->setHwPtEm(towerSec.hwEtEm());
         secondaryCluster->setHwPtHad(towerSec.hwEtHad());
         secondaryCluster->setHwSeedPt(towerSec.hwPt());
+        secondaryCluster->setHwPt(towerSec.hwPt());
 
         int iSecEtaP  = caloNav.offsetIEta(iSecEta,  1);
         int iSecEtaM  = caloNav.offsetIEta(iSecEta, -1);
