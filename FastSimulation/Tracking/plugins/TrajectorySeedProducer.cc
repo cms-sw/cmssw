@@ -140,6 +140,7 @@ TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHi
 bool
 TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const
 {
+  cout<<"yeye1"<<endl;
   typedef BaseTrackerRecHit const * Hit;
 const DetLayer * innerLayer =
   measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
@@ -148,12 +149,18 @@ const DetLayer * innerLayer =
     vector<Hit> innerHits(1);
     innerHits.push_back((BaseTrackerRecHit*&&)innerHit);
     vector<Hit> outerHits(1);
-    innerHits.push_back((BaseTrackerRecHit*&&)outerHit);
+    outerHits.push_back((BaseTrackerRecHit*&&)outerHit);
     for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
+      cout<<"yeye2"<<endl;
       const RecHitsSortedInPhi* ihm=new RecHitsSortedInPhi (innerHits, (**ir).origin(), innerLayer);
+      cout<<"yeye2"<<endl;
       const RecHitsSortedInPhi* ohm=new RecHitsSortedInPhi (outerHits, (**ir).origin(), outerLayer);
-      HitDoublets result(*ihm,*ohm); result.reserve(std::max(ihm->size(),ohm->size()));
+      cout<<"yeye3"<<endl;
+      HitDoublets result(*ihm,*ohm); 
+      //result.reserve(std::max(ihm->size(),ohm->size()));
+      cout<<"yeye4"<<endl;
       HitPairGeneratorFromLayerPair::doublets2(**ir,*innerLayer,*outerLayer,*ihm,*ohm,*es_,0,result);
+      cout<<"yeye5"<<endl;
 	if(result.size()!=0)return true; 
     }
     
