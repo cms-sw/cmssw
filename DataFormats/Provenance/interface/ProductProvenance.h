@@ -43,24 +43,10 @@ namespace edm {
     ParentageID const& parentageID() const {return parentageID_;}
     Parentage const& parentage() const;
 
-    bool& noParentage() const {return transient_.noParentage_;}
-
-    void initializeTransients() const {transient_.reset();}
-
-    struct Transients {
-      Transients();
-      void reset();
-      std::shared_ptr<Parentage> parentagePtr_;
-      bool noParentage_;
-    };
-
   private:
-
-    std::shared_ptr<Parentage>& parentagePtr() const {return transient_.parentagePtr_;}
 
     BranchID branchID_;
     ParentageID parentageID_;
-    mutable Transients transient_;
   };
 
   inline
