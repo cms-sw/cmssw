@@ -452,7 +452,7 @@ def _summaryBinRename(binLabel, highPurity, byOriginalAlgo, byAlgoMask, seeds):
 
     return ret
 
-def _constructSummary(mapping, highPurity=False, byOriginalAlgo=False, byAlgoMask=False, seeds=False, midfix=""):
+def _constructSummary(mapping=None, highPurity=False, byOriginalAlgo=False, byAlgoMask=False, seeds=False, midfix=""):
     _common = {"drawStyle": "EP", "xbinlabelsize": 10, "xbinlabeloption": "d"}
     _commonN = {"ylog": True, "ymin": _minMaxN, "ymax": _minMaxN}
     _commonN.update(_common)
@@ -463,26 +463,50 @@ def _constructSummary(mapping, highPurity=False, byOriginalAlgo=False, byAlgoMas
     if byOriginalAlgo or byAlgoMask:
         _commonAB["minExistingBins"] = 2
     prefix = "summary"+midfix
-    summary = PlotGroup(prefix, [
-        Plot(AggregateBins("efficiency", "effic_vs_coll", **_commonAB),
-             title="Efficiency vs collection", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
-        Plot(AggregateBins("efficiencyAllPt", "effic_vs_coll_allPt", **_commonAB),
-             title="Efficiency vs collection (no pT cut in denominator)", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
 
-        Plot(AggregateBins("fakerate", "fakerate_vs_coll", **_commonAB), title="Fakerate vs collection", ytitle="Fake rate", ymax=_maxFake, **_common),
-        Plot(AggregateBins("duplicatesRate", "duplicatesRate_coll", **_commonAB), title="Duplicates rate vs collection", ytitle="Duplicates rate", ymax=_maxFake, **_common),
-        Plot(AggregateBins("pileuprate", "pileuprate_coll", **_commonAB), title="Pileup rate vs collection", ytitle="Pileup rate", ymax=_maxFake, **_common),
+    h_eff = "effic_vs_coll"
+    h_eff_allpt = "effic_vs_coll_allPt"
+    h_fakerate = "fakerate_vs_coll"
+    h_duplicaterate = "duplicatesRate_coll"
+    h_pileuprate = "pileuprate_coll"
+
+    h_reco = "num_reco_coll"
+    h_true = "num_assoc(recoToSim)_coll"
+    h_fake = Subtract("num_fake_coll_orig", "num_reco_coll", "num_assoc(recoToSim)_coll")
+    h_duplicate = "num_duplicate_coll"
+    h_pileup = "num_pileup_coll"
+    if mapping is not None:
+        h_eff = AggregateBins("efficiency", h_eff, **_commonAB)
+        h_eff_allpt = AggregateBins("efficiencyAllPt", h_eff_allpt, **_commonAB)
+        h_fakerate = AggregateBins("fakerate", h_fakerate, **_commonAB)
+        h_duplicaterate = AggregateBins("duplicatesRate", h_duplicaterate, **_commonAB)
+        h_pileuprate = AggregateBins("pileuprate", h_pileuprate, **_commonAB)
+
+        h_reco = AggregateBins("num_reco_coll", h_reco, **_commonAB)
+        h_true = AggregateBins("num_true_coll", h_true, **_commonAB)
+        h_fake = AggregateBins("num_fake_coll", h_fake, **_commonAB)
+        h_duplicate = AggregateBins("num_duplicate_coll", h_duplicate, **_commonAB)
+        h_pileup = AggregateBins("num_pileup_coll", h_pileup, **_commonAB)
+
+    summary = PlotGroup(prefix, [
+        Plot(h_eff, title="Efficiency vs collection", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
+        Plot(h_eff_allpt, title="Efficiency vs collection (no pT cut in denominator)", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
+
+        Plot(h_fakerate, title="Fakerate vs collection", ytitle="Fake rate", ymax=_maxFake, **_common),
+        Plot(h_duplicaterate, title="Duplicates rate vs collection", ytitle="Duplicates rate", ymax=_maxFake, **_common),
+        Plot(h_pileuprate, title="Pileup rate vs collection", ytitle="Pileup rate", ymax=_maxFake, **_common),
     ])
     summaryN = PlotGroup(prefix+"_ntracks", [
-        Plot(AggregateBins("num_reco_coll", "num_reco_coll", **_commonAB), ytitle="Tracks", title="Number of tracks vs collection", **_commonN),
-        Plot(AggregateBins("num_true_coll", "num_assoc(recoToSim)_coll", **_commonAB), ytitle="True tracks", title="Number of true tracks vs collection", **_commonN),
-        Plot(AggregateBins("num_fake_coll", Subtract("num_fake_coll_orig", "num_reco_coll", "num_assoc(recoToSim)_coll"), **_commonAB), ytitle="Fake tracks", title="Number of fake tracks vs collection", **_commonN),
-        Plot(AggregateBins("num_duplicate_coll", "num_duplicate_coll", **_commonAB), ytitle="Duplicate tracks", title="Number of duplicate tracks vs collection", **_commonN),
-        Plot(AggregateBins("num_pileup_coll", "num_pileup_coll", **_commonAB), ytitle="Pileup tracks", title="Number of pileup tracks vs collection", **_commonN),
+        Plot(h_reco, ytitle="Tracks", title="Number of tracks vs collection", **_commonN),
+        Plot(h_true, ytitle="True tracks", title="Number of true tracks vs collection", **_commonN),
+        Plot(h_fake, ytitle="Fake tracks", title="Number of fake tracks vs collection", **_commonN),
+        Plot(h_duplicate, ytitle="Duplicate tracks", title="Number of duplicate tracks vs collection", **_commonN),
+        Plot(h_pileup, ytitle="Pileup tracks", title="Number of pileup tracks vs collection", **_commonN),
     ])
 
     return (summary, summaryN)
 
+(_summaryRaw,              _summaryRawN)              = _constructSummary(midfix="Raw")
 (_summary,                 _summaryN)                 = _constructSummary(_collLabelMap)
 (_summaryHp,               _summaryNHp)               = _constructSummary(_collLabelMapHp, highPurity=True)
 (_summaryByOriginalAlgo,   _summaryByOriginalAlgoN)   = _constructSummary(_collLabelMapHp, byOriginalAlgo=True, midfix="ByOriginalAlgo")
@@ -777,15 +801,19 @@ _packedCandidatePlots = [
     _packedCandidateHitsHitPattern,
 ]
 plotter = Plotter()
-def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, seeding=False):
+def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, seeding=False, rawSummary=False):
     # to keep backward compatibility, this set of plots has empty name
     plotter.append(name, _trackingFolders(lastDirName), TrackingPlotFolder(*algoPlots, onlyForPileup=onlyForPileup, purpose=PlotPurpose.TrackingIteration, fallbackRefFiles=[_trackingRefFileFallbackSLHC]), fallbackDqmSubFolders=[_trackingSubFoldersFallbackSLHC])
     summaryName = ""
     if name != "":
         summaryName += name+"_"
     summaryName += "summary"
+    summaryPlots = []
+    if rawSummary:
+        summaryPlots.extend([_summaryRaw, _summaryRawN])
+    summaryPlots.extend(_summaryPlots)
     plotter.append(summaryName, _trackingFolders(lastDirName),
-                   PlotFolder(*_summaryPlots, loopSubFolders=False, onlyForPileup=onlyForPileup,
+                   PlotFolder(*summaryPlots, loopSubFolders=False, onlyForPileup=onlyForPileup,
                               purpose=PlotPurpose.TrackingSummary, page="summary", section=name))
     plotter.append(summaryName+"_highPurity", _trackingFolders(lastDirName),
                    PlotFolder(*_summaryPlotsHp, loopSubFolders=False, onlyForPileup=onlyForPileup,
