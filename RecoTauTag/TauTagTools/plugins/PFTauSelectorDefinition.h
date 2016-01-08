@@ -70,7 +70,7 @@ struct PFTauSelectorDefinition {
       // Check if it passed all the discrimiantors
       BOOST_FOREACH(const DiscCutPair &disc, discriminators_) {
         // Check this discriminator passes
-        if (!(*disc.handle)[tau] > disc.cut) {
+        if (!((*disc.handle)[tau] > disc.cut)) {
           passed = false;
           break;
         }
