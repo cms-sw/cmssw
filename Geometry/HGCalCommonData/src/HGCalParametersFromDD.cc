@@ -24,8 +24,8 @@ namespace {
       }
 
       int result(-1);
-      HGCalStringToEnumParser<HGCalGeometryMode::GeometryMode> eparser;
-      HGCalGeometryMode::GeometryMode mode = (HGCalGeometryMode::GeometryMode) eparser.parseString(fvec[0]);
+      HGCalStringToEnumParser<HGCalGeometryMode> eparser;
+      HGCalGeometryMode mode = (HGCalGeometryMode) eparser.parseString(fvec[0]);
       result = (int)(mode);
       return result;
     } else {
@@ -59,12 +59,12 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
     DDsvalues_type sv(fv.mergedSpecifics());
     php.mode_ = getGeometryMode("GeometryMode", sv);
     HGCalGeomParameters *geom = new HGCalGeomParameters();
-    if (php.mode_ == HGCalGeometryMode::Square) {
+    if (php.mode_ == static_cast<int> (HGCalGeometryMode::Square)) {
       //Load the SpecPars
       geom->loadSpecParsSquare(fv, php);
       //Load the Geometry parameters
       geom->loadGeometrySquare(fv, php, name);
-    } else if (php.mode_ == HGCalGeometryMode::Hexagon) {
+    } else if (php.mode_ == static_cast<int> (HGCalGeometryMode::Hexagon)) {
       //Load the SpecPars
       geom->loadSpecParsHexagon(fv, php, cpv, namew, namec);
       //Load the Geometry parameters
