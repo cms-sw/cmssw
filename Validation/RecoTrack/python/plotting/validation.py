@@ -815,8 +815,8 @@ class SimpleValidation:
         self._labels = labels
         self._newdir = newdir
 
-    def createHtmlReport(self, baseUrl=None, validationName=""):
-        return html.HtmlReport(validationName, self._newdir, baseUrl)
+    def createHtmlReport(self, validationName=""):
+        return html.HtmlReport(validationName, self._newdir)
 
     def doPlots(self, plotter, subdirprefix=None, sample=None, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy()):
         if subdirprefix is None and sample is None:
