@@ -18,7 +18,8 @@ simHcalUnsuppressedDigis = cms.EDAlias(
       cms.PSet(type = cms.string('HcalUpgradeDataFramesSorted')),
       cms.PSet(type = cms.string('HFDataFramesSorted')),
       cms.PSet(type = cms.string('HODataFramesSorted')),
-      cms.PSet(type = cms.string('ZDCDataFramesSorted'))
+      cms.PSet(type = cms.string('ZDCDataFramesSorted')),
+      cms.PSet(type = cms.string('QIE10DataFrameHcalDataFrameContainer'))
     )
 )
 simSiPixelDigis = cms.EDAlias(
