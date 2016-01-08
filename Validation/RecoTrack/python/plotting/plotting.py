@@ -2233,6 +2233,10 @@ class Plotter:
                 return
         raise Exception("Did not find plot folder '%s' when trying to attach a table creator to it" % attachToFolder)
 
+    def clear(self):
+        """Remove all plot folders and tables"""
+        self._plots = []
+
     def getPlotFolderNames(self):
         return [item.getName() for item in self._plots]
 
