@@ -284,7 +284,11 @@ _resolutionsPt = PlotGroup("resolutionsPt", [
 #
 ########################################
 
-_possibleTrackingIterations = [
+_possibleTrackingNonIterationColls = [
+    'ak4PFJets',
+    'btvLike',
+]
+_possibleTrackingColls = [
     'initialStepPreSplitting',
     'initialStep',
     'highPtTripletStep', # phase1
@@ -304,11 +308,7 @@ _possibleTrackingIterations = [
     'muonSeededStepInOut',
     'muonSeededStepOutIn',
     'duplicateMerge',
-]
-_possibleTrackingColls = _possibleTrackingIterations+[
-    'ak4PFJets',
-    'btvLike',
-]
+] + _possibleTrackingNonIterationColls
 _possibleTrackingCollsOld = {
     "Zero"  : "iter0",
     "First" : "iter1",
@@ -644,7 +644,7 @@ class TrackingPlotFolder(PlotFolder):
 
     # track-specific hack
     def isAlgoIterative(self, algo):
-        return algo in _possibleTrackingIterations or algo in _possibleTrackingCollsOld.values()
+        return algo not in _possibleTrackingNonIterationColls
 
 class TrackingSummaryTable:
     def __init__(self, section, highPurity=False):
