@@ -21,9 +21,10 @@
 #include "FastSimulation/Tracking/interface/FastTrackingHelper.h"
 
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
+#include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-
+#include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -42,7 +43,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-
+using namespace std;
 template class SeedingTree<TrackingLayer>;
 template class SeedingNode<TrackingLayer>;
 
@@ -100,7 +101,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
 	seedCreator.reset(SeedCreatorFactory::get()->create( seedCreatorName, seedCreatorPSet));
     }
 }
-
+/*
 bool
 TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const
 {
@@ -135,6 +136,30 @@ TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHi
     }
     return false;
 }
+*/
+bool
+TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const
+{
+  typedef BaseTrackerRecHit const * Hit;
+const DetLayer * innerLayer =
+  measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
+    const DetLayer * outerLayer =
+      measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
+    vector<Hit> innerHits(1);
+    innerHits.push_back((BaseTrackerRecHit*&&)innerHit);
+    vector<Hit> outerHits(1);
+    innerHits.push_back((BaseTrackerRecHit*&&)outerHit);
+    for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
+      const RecHitsSortedInPhi* ihm=new RecHitsSortedInPhi (innerHits, (**ir).origin(), innerLayer);
+      const RecHitsSortedInPhi* ohm=new RecHitsSortedInPhi (outerHits, (**ir).origin(), outerLayer);
+      HitDoublets result(*ihm,*ohm); result.reserve(std::max(ihm->size(),ohm->size()));
+      HitPairGeneratorFromLayerPair::doublets2(**ir,*innerLayer,*outerLayer,*ihm,*ohm,*es_,0,result);
+	if(result.size()!=0)return true; 
+    }
+    
+    return false;
+}
+
 
 const SeedingNode<TrackingLayer>* TrajectorySeedProducer::insertHit(
 								    const std::vector<TrajectorySeedHitCandidate>& trackerRecHits,

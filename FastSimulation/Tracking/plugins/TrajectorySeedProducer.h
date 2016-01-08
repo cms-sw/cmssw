@@ -14,7 +14,7 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
-
+#include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "FastSimulation/Tracking/interface/SeedingTree.h"
@@ -43,7 +43,7 @@ class TrajectorySeedProducer:
         const MagneticFieldMap* magneticFieldMap;
         const TrackerGeometry* trackerGeometry;
         const TrackerTopology* trackerTopology;
-
+	//const RecHitsSortedInPhi * ih;
         std::shared_ptr<PropagatorWithMaterial> thePropagator;
 
         double simTrack_pTMin;
@@ -68,7 +68,7 @@ class TrajectorySeedProducer:
         edm::EDGetTokenT<FastTrackerRecHitCombinationCollection> recHitCombinationsToken;
 	edm::EDGetTokenT<std::vector<bool> > hitMasksToken;        
     public:
-
+	//	const RecHitsSortedInPhi * ih;
     TrajectorySeedProducer(const edm::ParameterSet& conf);
     
     virtual ~TrajectorySeedProducer()
