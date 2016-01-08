@@ -11,6 +11,7 @@ ProductProvenanceRetriever: Manages the per event/lumi/run per product provenanc
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
+#include "tbb/concurrent_unordered_set.h"
 #include <memory>
 #include <set>
 #include <atomic>
@@ -21,6 +22,21 @@ ProductProvenanceRetriever: Manages the per event/lumi/run per product provenanc
 
 namespace edm {
   class ProvenanceReaderBase;
+
+  struct ProductProvenanceHasher {
+    size_t operator()(ProductProvenance const& tid) const {
+      return tid.branchID().id();
+    }
+  };
+
+  struct ProductProvenanceEqual {
+    //The default operator== for ProductProvenance does not work for this case
+    // Since (a<b)==false  and (a>b)==false does not mean a==b for the operators
+    // defined for ProductProvenance
+    bool operator()(ProductProvenance const& iLHS, ProductProvenance const iRHS) const {
+      return iLHS.branchID().id()== iRHS.branchID().id();
+    }
+  };
 
   class ProductProvenanceRetriever {
   public:
@@ -46,7 +62,7 @@ namespace edm {
       transitionIndex_=transitionIndex;
     }
 
-    mutable std::set<ProductProvenance> entryInfoSet_;
+    mutable tbb::concurrent_unordered_set<ProductProvenance, ProductProvenanceHasher, ProductProvenanceEqual> entryInfoSet_;
     mutable std::atomic<const std::set<ProductProvenance>*> readEntryInfoSet_;
     edm::propagate_const<std::shared_ptr<ProductProvenanceRetriever>> nextRetriever_;
     std::shared_ptr<const ProvenanceReaderBase> provenanceReader_;
