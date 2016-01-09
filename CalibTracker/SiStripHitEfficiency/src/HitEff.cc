@@ -408,7 +408,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	  const TrajectoryStateOnSurface tsosTEC9 = itm->updatedState();
 	  
 	  // check if track on positive or negative z
-	  if (!iidd ==  StripSubdetector::TEC) cout << "there is a problem with TEC 9 extrapolation" << endl;
+	  if (DEBUG)  if (!(iidd ==  StripSubdetector::TEC)) cout << "there is a problem with TEC 9 extrapolation" << endl;
 	  
 	  //cout << " tec9 id = " << iidd << " and side = " << tTopo->tecSide(iidd) << endl;
 	  vector<TrajectoryMeasurement> tmp;

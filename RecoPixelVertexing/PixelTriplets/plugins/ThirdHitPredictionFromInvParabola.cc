@@ -137,7 +137,6 @@ ThirdHitPredictionFromInvParabola::rangeRPhi(Scalar radius) const
     phi2[i] = phi1[i]+(v[i+2]-v[i]); 
   }
 
-
   return getRange(phi1[1],phi2[1],emptyM).sum(getRange(phi1[0],phi2[0],emptyP));
 }
 

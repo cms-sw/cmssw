@@ -12,7 +12,7 @@ namespace tkDetUtil {
   {
     const Plane& startPlane = det->surface();  
     auto maxDistance =  est.maximalLocalDisplacement( tsos, startPlane);
-    return calculatePhiWindow( maxDistance, tsos, startPlane);
+    return std::copysign(calculatePhiWindow(maxDistance, tsos, startPlane),maxDistance.x()); 
   }
 
 
@@ -43,6 +43,7 @@ namespace tkDetUtil {
       auto sp = (x0*x1+y0*y1)/std::sqrt((x0*x0+y0*y0)*(x1*x1+y1*y1));
       sp = std::min(std::max(sp,-1.f),1.f);
       dphi = std::acos(sp);      
+
       return dphi;
     }
     

@@ -29,16 +29,16 @@ public:
    *  The errors of the trajectory state are multiplied by nSigma 
    *  to define acceptance of Plane and maximalLocalDisplacement.
    */
-  explicit Chi2ChargeMeasurementEstimator(double maxChi2, double nSigma,
-        float maxSag, float minToll,
+  template<typename... Args>
+  Chi2ChargeMeasurementEstimator(
 	float minGoodPixelCharge, float minGoodStripCharge,
-	float pTChargeCutThreshold) : 
-    Chi2MeasurementEstimator( maxChi2, nSigma, maxSag, minToll),
+	float pTChargeCutThreshold,
+        Args && ...args) : 
+    Chi2MeasurementEstimator(args...),
     minGoodPixelCharge_(minGoodPixelCharge),
-    minGoodStripCharge_(minGoodStripCharge) {
-      if (pTChargeCutThreshold>=0.) pTChargeCutThreshold2_=pTChargeCutThreshold*pTChargeCutThreshold;
-      else pTChargeCutThreshold2_=std::numeric_limits<float>::max();
-    }
+    minGoodStripCharge_(minGoodStripCharge),
+    pTChargeCutThreshold2_( pTChargeCutThreshold>=0.? pTChargeCutThreshold*pTChargeCutThreshold :std::numeric_limits<float>::max())
+    {}
 
 
   bool preFilter(const TrajectoryStateOnSurface& ts,
@@ -50,9 +50,9 @@ public:
   }
 private:
 
-  float minGoodPixelCharge_; 
-  float minGoodStripCharge_;
-  float pTChargeCutThreshold2_;
+  const float minGoodPixelCharge_; 
+  const float minGoodStripCharge_;
+  const float pTChargeCutThreshold2_;
 
   bool checkClusterCharge(DetId id, SiStripCluster const & cluster, const TrajectoryStateOnSurface& ts) const {
     return siStripClusterTools::chargePerCM(id, cluster, ts.localParameters() ) >  minGoodStripCharge_;
@@ -119,6 +119,7 @@ Chi2ChargeMeasurementEstimatorESProducer::fillDescriptions(edm::ConfigurationDes
   desc.add<std::string>("ComponentName","");
   desc.add<double>("MaxChi2",30);
   desc.add<double>("nSigma",3);
+  desc.add<double>("MaxDispacement",1.5); 
   desc.add<double>("pTChargeCutThreshold",-1.);
   edm::ParameterSetDescription descCCC;
   descCCC.add<what>("",...);
@@ -142,6 +143,7 @@ Chi2ChargeMeasurementEstimatorESProducer::produce(const TrackingComponentsRecord
 
   auto maxChi2             =  m_pset.getParameter<double>("MaxChi2");
   auto nSigma              =  m_pset.getParameter<double>("nSigma");
+  auto maxDis  = m_pset.existsAs<double>("MaxDispacement") ? m_pset.getParameter<double>("MaxDispacement") : 100.;
   auto maxSag  = m_pset.existsAs<double>("MaxSagitta") ? m_pset.getParameter<double>("MaxSagitta") : -1.;
   auto minTol = m_pset.existsAs<double>("MinimalTolerance") ?  m_pset.getParameter<double>("MinimalTolerance") : 10;
   auto minGoodPixelCharge  = 0;
@@ -149,8 +151,9 @@ Chi2ChargeMeasurementEstimatorESProducer::produce(const TrackingComponentsRecord
   auto pTChargeCutThreshold=   m_pset.getParameter<double>("pTChargeCutThreshold");
 
   m_estimator = boost::shared_ptr<Chi2MeasurementEstimatorBase>(
-	new Chi2ChargeMeasurementEstimator(maxChi2,nSigma, maxSag, minTol, 
-		minGoodPixelCharge, minGoodStripCharge, pTChargeCutThreshold));
+	new Chi2ChargeMeasurementEstimator(minGoodPixelCharge, minGoodStripCharge, pTChargeCutThreshold,
+                                            maxChi2,nSigma, maxDis, maxSag, minTol) ); 
+
   return m_estimator;
 }
 
