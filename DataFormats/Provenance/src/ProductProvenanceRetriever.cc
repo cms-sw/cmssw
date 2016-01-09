@@ -12,39 +12,53 @@
 namespace edm {
   ProductProvenanceRetriever::ProductProvenanceRetriever(unsigned int iTransitionIndex) :
       entryInfoSet_(),
+      readEntryInfoSet_(),
       nextRetriever_(),
       provenanceReader_(),
-      transitionIndex_(iTransitionIndex),
-      delayedRead_(false){
+      transitionIndex_(iTransitionIndex){
   }
 
   ProductProvenanceRetriever::ProductProvenanceRetriever(std::unique_ptr<ProvenanceReaderBase> reader) :
       entryInfoSet_(),
+      readEntryInfoSet_(),
       nextRetriever_(),
       provenanceReader_(reader.release()),
-      transitionIndex_(std::numeric_limits<unsigned int>::max()),
-      delayedRead_(true)
+      transitionIndex_(std::numeric_limits<unsigned int>::max())
   {
     assert(provenanceReader_);
   }
 
-  ProductProvenanceRetriever::~ProductProvenanceRetriever() {}
+  ProductProvenanceRetriever::~ProductProvenanceRetriever() {
+    delete readEntryInfoSet_.load();
+  }
 
   void
   ProductProvenanceRetriever::readProvenance() const {
-    if(delayedRead_ && provenanceReader_) {
-      provenanceReader_->readProvenance(*this,transitionIndex_);
-      delayedRead_ = false; // only read once
+    if(nullptr == readEntryInfoSet_.load() && provenanceReader_) {
+      auto temp = std::make_unique<std::set<ProductProvenance> const>(provenanceReader_->readProvenance(transitionIndex_));
+      std::set<ProductProvenance> const* expected = nullptr;
+      if(readEntryInfoSet_.compare_exchange_strong(expected, temp.get())) {
+        temp.release();
+      }
     }
   }
 
   void ProductProvenanceRetriever::deepCopy(ProductProvenanceRetriever const& iFrom)
   {
+    if(iFrom.readEntryInfoSet_) {
+      if (readEntryInfoSet_) {
+        delete readEntryInfoSet_.exchange(nullptr);
+      }
+      readEntryInfoSet_ = new std::set<ProductProvenance>(*iFrom.readEntryInfoSet_);
+    } else {
+      if(readEntryInfoSet_) {
+        delete readEntryInfoSet_.load();
+        readEntryInfoSet_ = nullptr;
+      }
+    }
     entryInfoSet_ = iFrom.entryInfoSet_;
     provenanceReader_ = iFrom.provenanceReader_;
-    if(provenanceReader_) {
-      delayedRead_=true;
-    }
+    
     if(iFrom.nextRetriever_) {
       if(not nextRetriever_) {
         get_underlying(nextRetriever_) = std::make_shared<ProductProvenanceRetriever>(transitionIndex_);
@@ -55,8 +69,9 @@ namespace edm {
 
   void
   ProductProvenanceRetriever::reset() {
+    delete readEntryInfoSet_.load();
+    readEntryInfoSet_ = nullptr;
     entryInfoSet_.clear();
-    delayedRead_ = true;
     if(nextRetriever_) {
       nextRetriever_->reset();
     }
@@ -78,15 +93,22 @@ namespace edm {
 
   ProductProvenance const*
   ProductProvenanceRetriever::branchIDToProvenance(BranchID const& bid) const {
-    readProvenance();
     ProductProvenance ei(bid);
-    eiSet::const_iterator it = entryInfoSet_.find(ei);
+    auto it = entryInfoSet_.find(ei);
     if(it == entryInfoSet_.end()) {
+      //check in source
+      readProvenance();
+      auto ptr =readEntryInfoSet_.load();
+      if(ptr) {
+        auto it = ptr->find(ei);
+        if(it!= ptr->end()) {
+          return &*it;
+        }
+      }
       if(nextRetriever_) {
         return nextRetriever_->branchIDToProvenance(bid);
-      } else {
-        return 0;
       }
+      return nullptr;
     }
     return &*it;
   }

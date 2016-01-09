@@ -186,8 +186,8 @@ void testGenericHandle::getbyLabelTest() {
   ep.fillEventPrincipal(eventAux, phr);
   ep.setLuminosityBlockPrincipal(lbp);
   edm::BranchDescription const& branchFromRegistry = it->second;
-  auto entryDescriptionPtr = std::make_shared<edm::Parentage>();
-  edm::ProductProvenance prov(branchFromRegistry.branchID(), entryDescriptionPtr);
+  std::vector<edm::BranchID> const ids;
+  edm::ProductProvenance prov(branchFromRegistry.branchID(), ids);
   edm::BranchDescription const desc(branchFromRegistry);
   ep.put(desc, std::move(pprod), prov);
 

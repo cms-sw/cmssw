@@ -124,11 +124,8 @@ namespace edm {
     }
     assert(branchDescription().produced());
     assert(edp.get() != nullptr);
-    assert(!provenance()->productProvenanceValid());
     assert(status() != Present);
     assert(status() != Uninitialized);
-    setProductProvenance(productProvenance);
-    assert(provenance()->productProvenanceValid());
     productData().setWrapper(std::move(edp)); // ProductHolder takes ownership
     status_() = Present;
   }
@@ -137,9 +134,7 @@ namespace edm {
   ProducedProductHolder::mergeProduct_(
         std::unique_ptr<WrapperBase> edp,
         ProductProvenance const& productProvenance) {
-    assert(provenance()->productProvenanceValid());
     assert(status() == Present);
-    setProductProvenance(productProvenance);
     mergeTheProduct(std::move(edp));
   }
 
@@ -173,9 +168,6 @@ namespace edm {
         std::unique_ptr<WrapperBase> edp,
         ProductProvenance const& productProvenance) {
     assert(!product());
-    assert(!provenance()->productProvenanceValid());
-    setProductProvenance(productProvenance);
-    assert(provenance()->productProvenanceValid());
     setProduct(std::move(edp));
   }
 
@@ -261,11 +253,6 @@ namespace edm {
 
   void InputProductHolder::setPrincipal_(Principal* principal) {
     principal_ = principal;
-  }
-
-  void
-  ProductHolderBase::setProductProvenance(ProductProvenance const& prov) {
-    productData().setProductProvenance(prov);
   }
 
   // This routine returns true if it is known that currently there is no real product.
