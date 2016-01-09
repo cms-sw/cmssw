@@ -1,7 +1,7 @@
 #include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
@@ -21,22 +21,15 @@ namespace edm {
     branchDescription_(p),
     productID_(pid),
     processHistory_(),
-    productProvenancePtr_(),
     store_() {
   }
 
   ProductProvenance const*
-  Provenance::resolve() const {
+  Provenance::productProvenance() const {
     if(!store_) {
       return nullptr;
     }
-    if (!productProvenancePtr_) {
-      ProductProvenance const* prov  = store_->branchIDToProvenance(branchDescription_->branchID());
-      if (prov) {
-        productProvenancePtr_ = std::shared_ptr<ProductProvenance const>(prov, [](void const*) {}); //Do not take ownership
-      }
-    }
-    return productProvenancePtr_.get();
+    return store_->branchIDToProvenance(branchDescription_->branchID());
   }
 
   bool
@@ -66,22 +59,12 @@ namespace edm {
     return a.product() == b.product();
   }
 
-  void
-  Provenance::resetProductProvenance() {
-    productProvenancePtr_.reset();
-  }
-
-  void
-  Provenance::setProductProvenance(ProductProvenance const& prov) {
-    productProvenancePtr_ = std::make_shared<ProductProvenance>(prov);
-  }
 
   void
   Provenance::swap(Provenance& iOther) {
     branchDescription_.swap(iOther.branchDescription_);
     productID_.swap(iOther.productID_);
     std::swap(processHistory_, iOther.processHistory_);
-    productProvenancePtr_.swap(iOther.productProvenancePtr_);
     std::swap(store_,iOther.store_);
  }
 }

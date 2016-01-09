@@ -5,6 +5,7 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 OniaVtxReProducer::OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &handle, const edm::Event &iEvent) 
@@ -26,7 +27,7 @@ OniaVtxReProducer::OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &
     configure(psetFromProvenance); 
 
     // Now we also dig out the ProcessName used for the reco::Tracks and reco::Vertices
-    std::vector<edm::BranchID> parents = prov->parents();
+    std::vector<edm::BranchID> parents = prov->productProvenance()->parentage().parents();
     bool foundTracks = false;
     bool foundBeamSpot = false;
     for (std::vector<edm::BranchID>::const_iterator it = parents.begin(), ed = parents.end(); it != ed; ++it) {
