@@ -100,9 +100,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   }
   //CablingMap could have a label //Tav
   CablingMapLabel = ""; 
-  if (config_.exists("CablingMapLabel")) {
-    CablingMapLabel = config_.getParameter<std::string> ("CablingMapLabel");
-  }
+  CablingMapLabel = config_.getParameter<std::string> ("CablingMapLabel");
 
 }
 
