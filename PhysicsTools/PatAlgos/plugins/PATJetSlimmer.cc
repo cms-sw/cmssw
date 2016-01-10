@@ -91,6 +91,7 @@ pat::PATJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
             if( modifyJet_ ) { jetModifier_->modify(jet); }
             
 	    if(dropTagInfos_(*it)){
+		    jet.tagInfoLabels_.clear();
 		    jet.tagInfos_.clear();
 		    jet.tagInfosFwdPtr_.clear(); 
 	    }

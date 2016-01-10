@@ -104,6 +104,8 @@ namespace pat {
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::Jet>      userDataHelper_;
+      //
+      bool printWarning_; // this is introduced to issue warnings only once per job
 
 
 
