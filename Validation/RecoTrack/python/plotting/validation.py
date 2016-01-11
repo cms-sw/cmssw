@@ -107,16 +107,22 @@ _globalTags = {
     "CMSSW_7_6_0": {"default": "76X_mcRun2_asymptotic_v11", "fullsim_50ns": "76X_mcRun2_startup_v11"},
     "CMSSW_7_6_0_71XGENSIM": {"default": "76X_mcRun2_asymptotic_v11_gs7120p2rlBS", "fullsim_50ns": "76X_mcRun2_startup_v11_gs7120p2rlBS"},
     "CMSSW_7_6_2": {"default": "76X_mcRun2_asymptotic_v12", "fullsim_50ns": "76X_mcRun2_startup_v11"},
+    "CMSSW_7_6_3_patch2_0T": {"default": "76X_mcRun2_0T_v1_0Tv1GT"},
     "CMSSW_8_0_0_pre1": {"default": "76X_mcRun2_asymptotic_v11", "fullsim_50ns": "76X_mcRun2_startup_v11"},
     "CMSSW_8_0_0_pre2": {"default": "76X_mcRun2_asymptotic_v12", "fullsim_50ns": "76X_mcRun2_startup_v11"},
     "CMSSW_8_0_0_pre2_phase1": {"default": "76X_upgrade2017_design_v7"},
     "CMSSW_8_0_0_pre2_phase1_rereco": {"default": "76X_upgrade2017_design_v7_rereco"},
     "CMSSW_8_0_0_pre3_phase1": {"default": "76X_upgrade2017_design_v8"},
     "CMSSW_8_0_0_pre3_phase1_pythia8": {"default": "76X_upgrade2017_design_v8_pythia8"},
+    "CMSSW_8_0_0_pre4": {"default": "76X_mcRun2_asymptotic_v13", "fullsim_50ns": "76X_mcRun2_startup_v12"},
+    "CMSSW_8_0_0_pre4_phase1": {"default": "76X_upgrade2017_design_v8_UPG17"},
+    "CMSSW_8_0_0_pre4_phase1_13TeV": {"default": "76X_upgrade2017_design_v8_UPG17"},
+    "CMSSW_8_0_0_pre4_ecal15fb": {"default": "80X_mcRun2_asymptotic_2016EcalTune_15fb_v0_ecal15fbm1"},
+    "CMSSW_8_0_0_pre4_ecal30fb": {"default": "80X_mcRun2_asymptotic_2016EcalTune_30fb_v0_ecal30fbm1"},
 }
 
 _releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_71XGENSIM_pmx", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
-                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT", "_phase1_rereco", "_phase1_pythia8", "_phase1"]
+                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT", "_phase1_rereco", "_phase1_pythia8", "_phase1_13TeV", "_phase1", "_ecal15fb", "_ecal30fb"]
 def _stripRelease(release):
     for pf in _releasePostfixes:
         if pf in release:
