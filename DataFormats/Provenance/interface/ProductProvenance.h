@@ -31,6 +31,9 @@ namespace edm {
     ProductProvenance(BranchID const& bid,
                       std::vector<BranchID> const& parents);
 
+    ProductProvenance(BranchID const& bid,
+                      std::vector<BranchID>&& parents);
+
     ~ProductProvenance() {}
 
     ProductProvenance makeProductProvenance() const;
