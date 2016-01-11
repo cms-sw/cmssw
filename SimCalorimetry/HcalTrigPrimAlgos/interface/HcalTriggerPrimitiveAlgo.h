@@ -98,7 +98,7 @@ public:
       HFDataFrame ShortDigi;
       HFDataFrame LongDigi;
   };
-  typedef std::map<HcalTrigTowerDetId, HFDetails> HFDetailMap;
+  typedef std::map<HcalTrigTowerDetId, std::vector<HFDetails>> HFDetailMap;
   HFDetailMap theHFDetailMap;
   
   typedef std::vector<IntegerCaloSamples> SumFGContainer;
