@@ -43,11 +43,6 @@ if eras.fastSim.isChosen():
     hltpostvalidation.remove(postProcessorHLTvertexing)
     # remove this:     +hltvalidationqt ?
     # remove this:    +hltExoticaPostProcessors ?
-
-if eras.phase1Pixel.isChosen(): # FIXME
-    # These should be added back once somebody checks that they work,
-    # and those that do not, get fixed
-    hltpostvalidation = cms.Sequence()
     
 hltpostvalidation_preprod = cms.Sequence( 
     postProcessorHLTtrackingSequence

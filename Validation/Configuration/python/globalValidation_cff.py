@@ -103,49 +103,7 @@ if eras.fastSim.isChosen():
     # besides: is this cross frame doing something, or is it a relic from the past?
     globalValidation.remove(ecalDigisValidationSequence)
     globalValidation.remove(ecalRecHitsValidationSequence)
-if eras.phase1Pixel.isChosen(): # FIXME
-    # For starters, include only tracking validation
-    # The rest should be added back once somebody checks that they
-    # work, and those that do not, get fixed
-    globalPrevalidation.remove(photonPrevalidationSequence)
-    globalPrevalidation.remove(produceDenoms)
-    globalPrevalidation.remove(prebTagSequenceMC)
-    globalValidation.remove(trackerHitsValidation)
-    globalValidation.remove(trackerDigisValidation)
-    globalValidation.remove(trackerRecHitsValidation)
-    globalValidation.remove(trackingTruthValid)
-    globalValidation.remove(trackingRecHitsValid)
-    globalValidation.remove(ecalSimHitsValidationSequence)
-    globalValidation.remove(ecalDigisValidationSequence)
-    globalValidation.remove(ecalRecHitsValidationSequence)
-    globalValidation.remove(ecalClustersValidationSequence)
-    globalValidation.remove(hcalSimHitsValidationSequence)
-    globalValidation.remove(hcaldigisValidationSequence)
-    globalValidation.remove(hcalSimHitStudy)
-    globalValidation.remove(hcalRecHitsValidationSequence)
-    globalValidation.remove(calotowersValidationSequence)
-    globalValidation.remove(validSimHit)
-    globalValidation.remove(muondtdigianalyzer)
-    globalValidation.remove(cscDigiValidation)
-    globalValidation.remove(validationMuonRPCDigis)
-    globalValidation.remove(recoMuonValidation)
-    globalValidation.remove(muIsoVal_seq)
-    globalValidation.remove(muonIdValDQMSeq)
-    globalValidation.remove(mixCollectionValidation)
-    globalValidation.remove(JetValidation)
-    globalValidation.remove(METValidation)
-    globalValidation.remove(egammaValidation)
-    globalValidation.remove(pfJetValidationSequence)
-    globalValidation.remove(pfMETValidationSequence)
-    globalValidation.remove(pfElectronValidationSequence)
-    globalValidation.remove(pfJetResValidationSequence)
-    globalValidation.remove(pfMuonValidationSequence)
-    globalValidation.remove(rpcRecHitValidation_step)
-    globalValidation.remove(dtLocalRecoValidation_no2D)
-    globalValidation.remove(pfTauRunDQMValidation)
-    globalValidation.remove(bTagPlotsMCbcl)
-    globalValidation.remove(L1Validator)
-
+    
 #lite tracking validator to be used in the Validation matrix
 liteTrackValidator=trackValidator.clone()
 liteTrackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),

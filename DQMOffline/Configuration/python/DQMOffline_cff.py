@@ -48,8 +48,6 @@ from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_cff import *
 from Validation.RecoParticleFlow.miniAODDQM_cff import *
 from DQM.TrackingMonitor.tracksDQMMiniAOD_cff import *
 
-from Configuration.StandardSequences.Eras import eras
-
 DQMOfflinePrePOG = cms.Sequence( TrackingDQMSourceTier0 *
                                  muonMonitors *
                                  jetMETDQMOfflineSource *
@@ -75,23 +73,6 @@ DQMOffline = cms.Sequence( DQMOfflinePreDPG *
 
 DQMOfflineFakeHLT = cms.Sequence( DQMOffline )
 DQMOfflineFakeHLT.remove( HLTMonitoring )
-
-if eras.phase1Pixel.isChosen(): # FIXME
-    # These should be added back once somebody checks that they work,
-    # and those that do not, get fixed
-    DQMOfflinePrePOG.remove(TrackingDQMSourceTier0)
-    DQMOfflinePrePOG.remove(muonMonitors)
-    DQMOfflinePrePOG.remove(jetMETDQMOfflineSource)
-    DQMOfflinePrePOG.remove(egammaDQMOffline)
-    DQMOfflinePrePOG.remove(triggerOfflineDQMSource)
-    DQMOfflinePrePOG.remove(bTagPlotsDATA)
-    DQMOfflinePrePOG.remove(alcaBeamMonitor)
-    DQMOfflinePrePOG.remove(dqmPhysics)
-    DQMOfflinePrePOG.remove(produceDenoms)
-    DQMOfflinePrePOG.remove(pfTauRunDQMValidation)
-
-    DQMOffline.remove(DQMOfflinePreDPG)
-    DQMOffline.remove(HLTMonitoring)
 
 DQMOfflinePrePOGMC = cms.Sequence( pvMonitor *
                                    bTagPlotsDATA *
@@ -134,11 +115,6 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
 DQMOfflineTracking = cms.Sequence( TrackingDQMSourceTier0Common *
                                    pvMonitor
                                  )
-if eras.phase1Pixel.isChosen(): # FIXME
-    # These should be added back once somebody checks that they work,
-    # and those that do not, get fixed
-    DQMOfflineTracking.remove(TrackingDQMSourceTier0Common)
-
 DQMOfflineMuon = cms.Sequence( dtSources *
                                rpcTier0Source *
                                cscSources *
