@@ -35,6 +35,7 @@ _sampleFileName = {
 _allTPEfficName = "All tracks (all TPs)"
 _fromPVName = "Tracks from PV"
 _fromPVAllTPName = "Tracks from PV (all TPs)"
+_conversionName = "Tracks for conversions"
 _trackQualityNameOrder = collections.OrderedDict([
     ("seeding_seeds", "Seeds"),
     ("seeding_seedsa", "Seeds A"),
@@ -64,6 +65,7 @@ _trackQualityNameOrder = collections.OrderedDict([
     ("fromPVAllTP2_highPurity", "High purity "+_lowerFirst(_fromPVAllTPName).replace("PV", "PV v2")),
     ("fromPVAllTP2_Pt", _fromPVAllTPName.replace("Tracks", "Tracks pT &gt; 0.9 GeV").replace("PV", "PV v2")),
     ("fromPVAllTP2_highPurityPt", "High purity "+_lowerFirst(_fromPVAllTPName).replace("tracks", "tracks pT &gt; 0.9 GeV").replace("PV", "PV v2")),
+    ("conversion_", _conversionName)
 ])
 
 _trackAlgoName = {
@@ -96,6 +98,10 @@ _trackAlgoOrder = [
     'muonSeededStepInOut',
     'muonSeededStepOutIn',
     'duplicateMerge',
+    'convStep',
+    'conversionStep',
+    'ckfInOutFromConversions',
+    'ckfOutInFromConversions',
     'iter0',
     'iter1',
     'iter2',
@@ -127,6 +133,7 @@ _sectionNameMapOrder = collections.OrderedDict([
     ("fromPV_highPurity", "High purity "+_lowerFirst(_fromPVName)),
     ("fromPVAllTP", _fromPVAllTPName),
     ("fromPVAllTP_highPurity", "High purity "+_lowerFirst(_fromPVAllTPName)),
+    ("conversion", _conversionName),
     # These are for vertices
     ("offlinePrimaryVertices", "All vertices (offlinePrimaryVertices)"),
     ("selectedOfflinePrimaryVertices", "Selected vertices (selectedOfflinePrimaryVertices)"),
