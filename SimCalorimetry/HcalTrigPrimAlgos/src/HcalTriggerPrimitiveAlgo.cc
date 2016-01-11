@@ -410,7 +410,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHFV1(
         }
         int short_fiber_val = 0;
         if (IDX < HF_DETAILS->short_fiber.size()) {
-            short_fiber_val = HF_DETAILS->long_fiber[IDX];
+            short_fiber_val = HF_DETAILS->short_fiber[IDX];
         }
         output[ibin] = (long_fiber_val + short_fiber_val) >> HF_LUMI_SHIFT;
         static const int MAX_OUTPUT = 0x3FF;  // 0x3FF = 1023
