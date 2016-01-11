@@ -37,6 +37,10 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
+
+#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+#include "CondFormats/ESObjects/interface/ESChannelStatus.h"
+
 #include "TMVA/Reader.h"
 #include <iostream>
 #include <TH2D.h>
@@ -46,6 +50,7 @@
 #include <unordered_map>
 
 #include "RecoParticleFlow/PFProducer/interface/PFEGammaHeavyObjectCache.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
 class PFSCEnergyCalibration;
 class PFEnergyCalibration;
@@ -135,6 +140,14 @@ class PFEGammaAlgo {
 
   void setEEtoPSAssociation(const edm::Handle<EEtoPSAssociation>& eetops) {
     eetops_ = eetops;
+  }
+
+  void setAlphaGamma_ESplanes_fromDB(const ESEEIntercalibConstants* esEEInterCalib){
+    cfg_.thePFEnergyCalibration->initAlphaGamma_ESplanes_fromDB(esEEInterCalib);
+  }
+
+  void setESChannelStatus(const ESChannelStatus* channelStatus){
+    channelStatus_ = channelStatus;
   }
 
   void setnPU(int nVtx){
@@ -380,6 +393,7 @@ private:
   float x0inner_, x0middle_, x0outer_;
   //for PileUP
   float excluded_, Mustache_EtRatio_, Mustache_Et_out_;
+  const ESChannelStatus* channelStatus_;
   
   std::vector<unsigned int> AddFromElectron_;  
   
