@@ -5,9 +5,11 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "RecoParticleFlow/PFClusterTools/interface/ClusterClusterMapping.h"
+#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFPhotonClusters.h"
@@ -21,6 +23,9 @@
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
+
+#include "CondFormats/ESObjects/interface/ESChannelStatus.h"
+
 #include <TFile.h>
 #include <TVector2.h>
 #include <iomanip>
@@ -707,7 +712,8 @@ PFEGammaAlgo(const PFEGammaAlgo::PFEGConfigInfo& cfg) :
   TotPS1_(0.0), TotPS2_(0.0),
   nVtx_(0.0),
   x0inner_(0.0), x0middle_(0.0), x0outer_(0.0),
-  excluded_(0.0), Mustache_EtRatio_(0.0), Mustache_Et_out_(0.0)
+  excluded_(0.0), Mustache_EtRatio_(0.0), Mustache_Et_out_(0.0),
+  channelStatus_(0)
 {   
   //Material Map
   TFile *XO_File = new TFile(cfg_.X0_Map.c_str(),"READ");
@@ -2246,6 +2252,7 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
     rawSCEnergy(0), corrSCEnergy(0), corrPSEnergy(0),
     PS1_clus_sum(0), PS2_clus_sum(0),
     ePS1(0), ePS2(0), ps1_energy(0.0), ps2_energy(0.0); 
+  int condP1(1), condP2(1);
   for( auto& clus : RO.ecalclusters ) {
     ePS1 = 0;
     ePS2 = 0;
@@ -2262,17 +2269,59 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
     posZ += cluseraw * cluspos.Z();
     // update EE calibrated super cluster energies
     if( isEE ) {
+      ePS1 = 0;
+      ePS2 = 0;
+      condP1 = condP2 = 1;
       const auto& psclusters = RO.ecal2ps.at(clus.first);
+   
+      for( auto i_ps = psclusters.begin(); i_ps != psclusters.end(); ++i_ps) {
+        const PFClusterRef&  psclus = i_ps->first->clusterRef();
+
+        const std::vector<reco::PFRecHitFraction> recH_Frac = psclus->recHitFractions();
+
+        switch( psclus->layer() ) {
+        case PFLayer::PS1:
+	  for(unsigned int iVec=0; iVec<recH_Frac.size(); ++iVec){
+	    ESDetId strip1 = recH_Frac.at(iVec).recHitRef()->detId();
+	    if(strip1 != ESDetId(0)){
+	      ESChannelStatusMap::const_iterator status_p1 = channelStatus_->getMap().find(strip1);
+	      //getStatusCode() == 0 => active channel
+	      // apply correction if all recHits are dead
+	      if(status_p1->getStatusCode() == 0) condP1 = 0;
+	    }
+	  }
+	  break;
+	case PFLayer::PS2:
+	  //    ps2_energies.push_back(psclus->energy());                                                       
+	  for(unsigned int iVec=0; iVec<recH_Frac.size(); ++iVec){
+	    ESDetId strip2 = recH_Frac.at(iVec).recHitRef()->detId();
+	    if(strip2 != ESDetId(0)) {
+	      ESChannelStatusMap::const_iterator status_p2 = channelStatus_->getMap().find(strip2);
+	      if(status_p2->getStatusCode() == 0) condP2 = 0;
+	    }
+	  }
+	  break;
+	default:
+	  break;
+	}
+      }
+
       PS1_clus_sum = std::accumulate(psclusters.begin(),psclusters.end(),
 				     0.0,sumps1);
       PS2_clus_sum = std::accumulate(psclusters.begin(),psclusters.end(),
 				     0.0,sumps2);
+
+      if(condP1 == 1) ePS1 = -1.;
+      if(condP2 == 1) ePS2 = -1.;
+
       cluscalibe = 
 	cfg_.thePFEnergyCalibration->energyEm(*clusptr,
 					      PS1_clus_sum,PS2_clus_sum,
 					      ePS1, ePS2,
 					      cfg_.applyCrackCorrections);
     }
+    if(ePS1 == -1.) ePS1 = 0;
+    if(ePS2 == -1.) ePS2 = 0;
 
     rawSCEnergy  += cluseraw;
     corrSCEnergy += cluscalibe;    
