@@ -47,6 +47,7 @@ class HcalDbProducer : public edm::ESProducer {
   void gainsCallback (const HcalGainsRcd& fRecord);
   void gainWidthsCallback (const HcalGainWidthsRcd& fRecord);
   void QIEDataCallback (const HcalQIEDataRcd& fRecord);
+  void QIETypesCallback (const HcalQIETypesRcd& fRecord);
   void channelQualityCallback (const HcalChannelQualityRcd& fRecord);
   void zsThresholdsCallback (const HcalZSThresholdsRcd& fRecord);
   void respCorrsCallback (const HcalRespCorrsRcd& fRecord);
@@ -68,6 +69,7 @@ class HcalDbProducer : public edm::ESProducer {
   std::unique_ptr<HcalGains> mGains;
   std::unique_ptr<HcalGainWidths> mGainWidths;
   std::unique_ptr<HcalQIEData> mQIEData;
+  std::unique_ptr<HcalQIETypes> mQIETypes;
   std::unique_ptr<HcalRespCorrs> mRespCorrs;
   std::unique_ptr<HcalLUTCorrs> mLUTCorrs;
   std::unique_ptr<HcalPFCorrs> mPFCorrs;
