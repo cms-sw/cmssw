@@ -23,10 +23,15 @@ using namespace Pythia8;
 #include "Pythia8Plugins/JetMatching.h"
 #include "Pythia8Plugins/aMCatNLOHooks.h"
 
+#include "GeneratorInterface/Pythia8Interface/interface/MultiUserHook.h"
+
 // Emission Veto Hooks
 //
 #include "Pythia8Plugins/PowhegHooks.h"
 #include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook1.h"
+
+//decay filter hook
+#include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterHook.h"
 
 // EvtGen plugin
 //
@@ -96,6 +101,9 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     double fBeam1PZ;
     double fBeam2PZ;
 
+    //helper class to allow multiple user hooks simultaneously
+    MultiUserHook *fMultiUserHook;
+    
     // Reweight user hooks
     //
     UserHooks* fReweightUserHook;
@@ -112,6 +120,9 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     //
     PowhegHooks* fEmissionVetoHook;
     EmissionVetoHook1* fEmissionVetoHook1;
+    
+    //resonance decay filter hook
+    ResonanceDecayFilterHook *fResonanceDecayFilterHook;
     
     int  EV1_nFinal;
     bool EV1_vetoOn;
@@ -144,9 +155,9 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   comEnergy(params.getParameter<double>("comEnergy")),
   LHEInputFileName(params.getUntrackedParameter<std::string>("LHEInputFileName","")),
   fInitialState(PP),
-  fReweightUserHook(0),fReweightRapUserHook(0),fReweightPtHatRapUserHook(0),
+  fMultiUserHook(new MultiUserHook), fReweightUserHook(0),fReweightRapUserHook(0),fReweightPtHatRapUserHook(0),
   fJetMatchingHook(0),fJetMatchingPy8InternalHook(0), fMergingHook(0),
-  fEmissionVetoHook(0), fEmissionVetoHook1(0), nME(-1), nMEFiltered(-1), nISRveto(0), nFSRveto(0),
+  fEmissionVetoHook(0), fEmissionVetoHook1(0), fResonanceDecayFilterHook(0), nME(-1), nMEFiltered(-1), nISRveto(0), nFSRveto(0),
   NHooks(0)
 {
 
@@ -223,6 +234,15 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
         << std::endl;
      }  
   }
+  
+  //add settings for resonance decay filter
+  fMasterGen->settings.addFlag("ResonanceDecayFilter:filter",false);
+  fMasterGen->settings.addFlag("ResonanceDecayFilter:exclusive",false);
+  fMasterGen->settings.addFlag("ResonanceDecayFilter:eMuAsEquivalent",false);
+  fMasterGen->settings.addFlag("ResonanceDecayFilter:eMuTauAsEquivalent",false);
+  fMasterGen->settings.addFlag("ResonanceDecayFilter:allNuAsEquivalent",false);
+  fMasterGen->settings.addMVec("ResonanceDecayFilter:mothers",std::vector<int>(),false,false,0,0);
+  fMasterGen->settings.addMVec("ResonanceDecayFilter:daughters",std::vector<int>(),false,false,0,0);
 
   // Reweight user hook
   //
@@ -310,13 +330,13 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if(NHooks > 1)
     throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
       <<" Too many User Hooks. \n Please choose one from: reweightGen, reweightGenRap, reweightGenPtHatRap, jetMatching, emissionVeto1 \n";
-  if(fReweightUserHook) fMasterGen->setUserHooksPtr(fReweightUserHook);
-  if(fReweightRapUserHook) fMasterGen->setUserHooksPtr(fReweightRapUserHook);
-  if(fReweightPtHatRapUserHook) fMasterGen->setUserHooksPtr(fReweightPtHatRapUserHook);
-  if(fJetMatchingHook) fMasterGen->setUserHooksPtr(fJetMatchingHook);
+  if(fReweightUserHook) fMultiUserHook->addHook(fReweightUserHook);
+  if(fReweightRapUserHook) fMultiUserHook->addHook(fReweightRapUserHook);
+  if(fReweightPtHatRapUserHook) fMultiUserHook->addHook(fReweightPtHatRapUserHook);
+  if(fJetMatchingHook) fMultiUserHook->addHook(fJetMatchingHook);
   if(fEmissionVetoHook1) { 
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook 1 from CMSSW Pythia8Interface";
-    fMasterGen->setUserHooksPtr(fEmissionVetoHook1);
+    fMultiUserHook->addHook(fEmissionVetoHook1);
   }
 
 }
@@ -360,6 +380,16 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     // throw on unknown initial state !
     throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
       <<" UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron \n";
+  }
+  
+  bool resonanceDecayFilter = fMasterGen->settings.flag("ResonanceDecayFilter:filter");
+  if (resonanceDecayFilter && !fResonanceDecayFilterHook) {
+    fResonanceDecayFilterHook = new ResonanceDecayFilterHook;
+    fMultiUserHook->addHook(fResonanceDecayFilterHook);
+  }
+  
+  if (fMultiUserHook->nHooks()>0) {
+    fMasterGen->setUserHooksPtr(fMultiUserHook);
   }
 
   fMasterGen->settings.parm("Beams:eCM", comEnergy);
@@ -412,7 +442,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     fEmissionVetoHook = new PowhegHooks();
 
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
-    fMasterGen->setUserHooksPtr(fEmissionVetoHook);
+    fMultiUserHook->addHook(fEmissionVetoHook);
 
   }
 
@@ -427,7 +457,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   
   if (internalMatching && !fJetMatchingPy8InternalHook) {
     fJetMatchingPy8InternalHook = new Pythia8::JetMatchingMadgraph;
-    fMasterGen->setUserHooksPtr(fJetMatchingPy8InternalHook);
+    fMultiUserHook->addHook(fJetMatchingPy8InternalHook);
   }
   
   if (internalMerging && !fMergingHook) {
@@ -441,9 +471,18 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
                 2 :
                 0 );
     fMergingHook = new Pythia8::amcnlo_unitarised_interface(scheme);
-    fMasterGen->setUserHooksPtr(fMergingHook);
+    fMultiUserHook->addHook(fMergingHook);
   }
   
+  bool resonanceDecayFilter = fMasterGen->settings.flag("ResonanceDecayFilter:filter");
+  if (resonanceDecayFilter && !fResonanceDecayFilterHook) {
+    fResonanceDecayFilterHook = new ResonanceDecayFilterHook;
+    fMultiUserHook->addHook(fResonanceDecayFilterHook);
+  }
+  
+  if (fMultiUserHook->nHooks()>0) {
+    fMasterGen->setUserHooksPtr(fMultiUserHook);
+  }  
   
   if(LHEInputFileName != std::string()) {
 
