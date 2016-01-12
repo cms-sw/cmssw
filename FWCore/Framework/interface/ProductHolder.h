@@ -47,10 +47,11 @@ namespace edm {
     }
 
     ProductData const* resolveProduct(ResolveStatus& resolveStatus,
+                                      Principal const& principal,
                                       bool skipCurrentProcess,
                                       SharedResourcesAcquirer* sra,
                                       ModuleCallingContext const* mcc) const {
-      return resolveProduct_(resolveStatus, skipCurrentProcess, sra, mcc);
+      return resolveProduct_(resolveStatus, principal, skipCurrentProcess, sra, mcc);
     }
 
     void resetStatus () {
@@ -93,8 +94,6 @@ namespace edm {
 
     // Retrieves a reference to the event independent provenance.
     bool singleProduct() const {return singleProduct_();}
-
-    void setPrincipal(Principal* principal) { setPrincipal_(principal); }
 
     // Sets the pointer to the event independent provenance.
     void resetBranchDescription(std::shared_ptr<BranchDescription const> bd) {resetBranchDescription_(bd);}
@@ -174,6 +173,7 @@ namespace edm {
     virtual ProductData const& getProductData() const = 0;
     virtual ProductData& getProductData() = 0;
     virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
+                                               Principal const& principal,
                                                bool skipCurrentProcess,
                                                SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const = 0;
@@ -197,7 +197,6 @@ namespace edm {
     virtual ProductProvenance const* productProvenancePtr_() const = 0;
     virtual void resetProductData_() = 0;
     virtual bool singleProduct_() const = 0;
-    virtual void setPrincipal_(Principal* principal) = 0;
   };
 
   inline
@@ -209,9 +208,9 @@ namespace edm {
 
   class InputProductHolder : public ProductHolderBase {
     public:
-    explicit InputProductHolder(std::shared_ptr<BranchDescription const> bd, Principal* principal) :
+    explicit InputProductHolder(std::shared_ptr<BranchDescription const> bd) :
         ProductHolderBase(), productData_(bd), productIsUnavailable_(false),
-        productHasBeenDeleted_(false), principal_(principal) {}
+        productHasBeenDeleted_(false) {}
       virtual ~InputProductHolder();
 
       // The following is const because we can add an EDProduct to the
@@ -228,6 +227,7 @@ namespace edm {
         std::swap(productIsUnavailable_, other.productIsUnavailable_);
       }
       virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
+                                                 Principal const& principal,
                                                  bool skipCurrentProcess,
                                                  SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
@@ -253,12 +253,10 @@ namespace edm {
       virtual ProductProvenance const* productProvenancePtr_() const override;
       virtual void resetProductData_() override;
       virtual bool singleProduct_() const override;
-      virtual void setPrincipal_(Principal* principal) override;
 
       ProductData productData_;
       mutable bool productIsUnavailable_;
       mutable bool productHasBeenDeleted_;
-      Principal* principal_;
   };
 
   // Free swap function
@@ -303,7 +301,6 @@ namespace edm {
       virtual ProductProvenance const* productProvenancePtr_() const override;
       virtual void resetProductData_() override;
       virtual bool singleProduct_() const override;
-      virtual void setPrincipal_(Principal* principal) override;
   };
 
   class ScheduledProductHolder : public ProducedProductHolder {
@@ -317,6 +314,7 @@ namespace edm {
         std::swap(theStatus_, other.theStatus_);
       }
       virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
+                                                 Principal const& principal,
                                                  bool skipCurrentProcess,
                                                  SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
@@ -337,8 +335,8 @@ namespace edm {
 
   class UnscheduledProductHolder : public ProducedProductHolder {
     public:
-      explicit UnscheduledProductHolder(std::shared_ptr<BranchDescription const> bd, Principal* principal) :
-        ProducedProductHolder(), productData_(bd), theStatus_(UnscheduledNotRun), principal_(principal) {}
+      explicit UnscheduledProductHolder(std::shared_ptr<BranchDescription const> bd) :
+        ProducedProductHolder(), productData_(bd), theStatus_(UnscheduledNotRun) {}
       virtual ~UnscheduledProductHolder();
     private:
       virtual void swap_(ProductHolderBase& rhs) override {
@@ -347,6 +345,7 @@ namespace edm {
         std::swap(theStatus_, other.theStatus_);
       }
       virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
+                                                 Principal const& principal,
                                                  bool skipCurrentProcess,
                                                  SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
@@ -358,7 +357,6 @@ namespace edm {
 
       ProductData productData_;
       mutable ProductStatus theStatus_;
-      Principal* principal_;
   };
 
   // Free swap function
@@ -377,6 +375,7 @@ namespace edm {
         std::swap(theStatus_, other.theStatus_);
       }
       virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
+                                                 Principal const& principal,
                                                  bool skipCurrentProcess,
                                                  SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
@@ -403,9 +402,10 @@ namespace edm {
         std::swap(bd_, other.bd_);
       }
       virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
+                                                 Principal const& principal,
                                                  bool skipCurrentProcess,
                                                  SharedResourcesAcquirer* sra,
-                                                 ModuleCallingContext const* mcc) const override {return realProduct_.resolveProduct(resolveStatus, skipCurrentProcess, sra, mcc);}
+                                                 ModuleCallingContext const* mcc) const override {return realProduct_.resolveProduct(resolveStatus, principal, skipCurrentProcess, sra, mcc);}
       virtual bool onDemand_() const override {return realProduct_.onDemand();}
       virtual void resetStatus_() override {realProduct_.resetStatus();}
       virtual bool productUnavailable_() const override {return realProduct_.productUnavailable();}
@@ -437,7 +437,6 @@ namespace edm {
       virtual ProductProvenance const* productProvenancePtr_() const override;
       virtual void resetProductData_() override;
       virtual bool singleProduct_() const override;
-      virtual void setPrincipal_(Principal* principal) override;
 
       ProducedProductHolder& realProduct_;
       std::shared_ptr<BranchDescription const> bd_;
@@ -447,13 +446,13 @@ namespace edm {
     public:
       typedef ProducedProductHolder::ProductStatus ProductStatus;
       NoProcessProductHolder(std::vector<ProductHolderIndex> const& matchingHolders,
-                             std::vector<bool> const& ambiguous,
-                             Principal* principal);
+                             std::vector<bool> const& ambiguous);
       virtual ~NoProcessProductHolder();
     private:
       virtual ProductData const& getProductData() const override;
       virtual ProductData& getProductData() override;
       virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
+                                                 Principal const& principal,
                                                  bool skipCurrentProcess,
                                                  SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
@@ -477,11 +476,9 @@ namespace edm {
       virtual ProductProvenance const* productProvenancePtr_() const override;
       virtual void resetProductData_() override;
       virtual bool singleProduct_() const override;
-      virtual void setPrincipal_(Principal* principal) override;
 
       std::vector<ProductHolderIndex> matchingHolders_;
       std::vector<bool> ambiguous_;
-      Principal* principal_;
   };
 
   // Free swap function
