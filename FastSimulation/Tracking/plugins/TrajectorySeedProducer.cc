@@ -140,31 +140,32 @@ TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHi
 bool
 TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const
 {
-  cout<<"yeye1"<<endl;
-  typedef BaseTrackerRecHit const * Hit;
-const DetLayer * innerLayer =
-  measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
-    const DetLayer * outerLayer =
-      measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
-    vector<Hit> innerHits(1);
-    innerHits.push_back((BaseTrackerRecHit*&&)innerHit);
-    vector<Hit> outerHits(1);
-    outerHits.push_back((BaseTrackerRecHit*&&)outerHit);
-    for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
-      cout<<"yeye2"<<endl;
-      const RecHitsSortedInPhi* ihm=new RecHitsSortedInPhi (innerHits, (**ir).origin(), innerLayer);
-      cout<<"yeye2"<<endl;
-      const RecHitsSortedInPhi* ohm=new RecHitsSortedInPhi (outerHits, (**ir).origin(), outerLayer);
-      cout<<"yeye3"<<endl;
-      HitDoublets result(*ihm,*ohm); 
-      //result.reserve(std::max(ihm->size(),ohm->size()));
-      cout<<"yeye4"<<endl;
-      HitPairGeneratorFromLayerPair::doublets2(**ir,*innerLayer,*outerLayer,*ihm,*ohm,*es_,0,result);
-      cout<<"yeye5"<<endl;
-	if(result.size()!=0)return true; 
-    }
+  const DetLayer * innerLayer =
+    measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
+  const DetLayer * outerLayer =
+    measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
+  vector<BaseTrackerRecHit const *> innerHits;
+  innerHits.push_back((BaseTrackerRecHit*&&)innerHit);
+  vector<BaseTrackerRecHit const *> outerHits;
+  outerHits.push_back((BaseTrackerRecHit*&&)outerHit);
+  for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
     
-    return false;
+    const RecHitsSortedInPhi* ihm=new RecHitsSortedInPhi (innerHits, (**ir).origin(), innerLayer);
+    
+    const RecHitsSortedInPhi* ohm=new RecHitsSortedInPhi (outerHits, (**ir).origin(), outerLayer);
+    
+    HitDoublets result(*ihm,*ohm); 
+    //result.reserve(std::max(ihm->size(),ohm->size()));
+    
+    HitPairGeneratorFromLayerPair::doublets2(**ir,*innerLayer,*outerLayer,*ihm,*ohm,*es_,0,result);
+    
+    if(result.size()!=0){
+      seedCreator->init(**ir,*es_,0);
+      return true; }
+    
+  }
+  
+  return false;
 }
 
 
