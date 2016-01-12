@@ -8,29 +8,32 @@ struct BLOWFISH_CTX;
 
 namespace cond {
 
-  class Cipher {
-  public:
+  namespace auth {
 
-    explicit Cipher( const std::string& key );
+    class Cipher {
+    public:
 
-    ~Cipher();
+      explicit Cipher( const std::string& key );
 
-    size_t encrypt( const std::string& input, unsigned char*& output );
+      ~Cipher();
 
-    std::string decrypt( const unsigned char* input, size_t inputSize );
+      size_t encrypt( const std::string& input, unsigned char*& output );
 
-    std::string b64encrypt( const std::string& input );
+      std::string decrypt( const unsigned char* input, size_t inputSize );
 
-    std::string b64decrypt( const std::string& input );
+      std::string b64encrypt( const std::string& input );
 
-  private:
+      std::string b64decrypt( const std::string& input );
 
-    size_t bf_process_alloc( const unsigned char* input, size_t input_size, unsigned char*& output, bool decrypt=false );
+    private:
+
+      size_t bf_process_alloc( const unsigned char* input, size_t input_size, unsigned char*& output, bool decrypt=false );
     
-  private:
+    private:
 
-    BLOWFISH_CTX* m_ctx;
-  };
+      BLOWFISH_CTX* m_ctx;
+    };
+  }
 
 }
 

@@ -83,14 +83,14 @@ namespace cond {
       // authentication
       if( authPath.empty() ){
 	// first try to check the env...
-	const char* authEnv = ::getenv( cond::Auth::COND_AUTH_PATH );
+	const char* authEnv = ::getenv( cond::auth::COND_AUTH_PATH );
 	if(authEnv){
 	  authPath += authEnv;
 	} 
       }
       int authSys = m_authSys;
       // first attempt, look at the env...
-      const char* authSysEnv = ::getenv( cond::Auth::COND_AUTH_SYS );
+      const char* authSysEnv = ::getenv( cond::auth::COND_AUTH_SYS );
       if( authSysEnv ){
 	authSys = ::atoi( authSysEnv );
       }
@@ -115,7 +115,7 @@ namespace cond {
       }
       if( !authPath.empty() ){
 	authServiceName = servName;    
-	coral::Context::instance().PropertyManager().property(cond::Auth::COND_AUTH_PATH_PROPERTY)->set(authPath);  
+	coral::Context::instance().PropertyManager().property(cond::auth::COND_AUTH_PATH_PROPERTY)->set(authPath);  
 	coral::Context::instance().loadComponent( authServiceName, m_pluginManager );
       }
       
@@ -140,7 +140,7 @@ namespace cond {
       }
 
       return boost::shared_ptr<coral::ISessionProxy>( connServ.connect( fullConnectionPars.first, 
-									writeCapable?Auth::COND_WRITER_ROLE:Auth::COND_READER_ROLE,
+									writeCapable?auth::COND_WRITER_ROLE:auth::COND_READER_ROLE,
 									writeCapable?coral::Update:coral::ReadOnly ) ); 
     }
 
