@@ -9,6 +9,9 @@ namespace l1t {
 
   class Jet;
   typedef BXVector<Jet> JetBxCollection;
+  typedef edm::Ref< JetBxCollection > JetRef ;
+  typedef edm::RefVector< JetBxCollection > JetRefVector ;
+  typedef std::vector< JetRef > JetVectorRef ;
 
   class Jet : public L1Candidate {
 
