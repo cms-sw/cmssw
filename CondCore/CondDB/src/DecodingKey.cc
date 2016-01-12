@@ -71,7 +71,7 @@ namespace cond {
 
 }
 
-std::string cond::KeyGenerator::make( size_t keySize ){
+std::string cond::auth::KeyGenerator::make( size_t keySize ){
   ::srand( m_iteration+2 );
   int rseed = ::rand();
   int seed = ::time( NULL)%10 + rseed;
@@ -84,7 +84,7 @@ std::string cond::KeyGenerator::make( size_t keySize ){
   return ret;
 }
 
-std::string cond::KeyGenerator::makeWithRandomSize( size_t maxSize ){
+std::string cond::auth::KeyGenerator::makeWithRandomSize( size_t maxSize ){
   ::srand( m_iteration+2 );
   int rseed = ::rand();
   int seed = ::time( NULL)%10 + rseed;
@@ -93,10 +93,7 @@ std::string cond::KeyGenerator::makeWithRandomSize( size_t maxSize ){
   return make( sz );
 }
 
-const std::string cond::DecodingKey::FILE_NAME("db.key");
-const std::string cond::DecodingKey::FILE_PATH(".cms_cond/"+FILE_NAME);
-
-std::string cond::DecodingKey::templateFile(){
+std::string cond::auth::DecodingKey::templateFile(){
   std::stringstream s;
   s<<NAMEPREFIX<<"<principal_name>"<<std::endl;
   s<<OWNERPREFIX<<"<owner_name, optional>"<<std::endl;
@@ -108,7 +105,7 @@ std::string cond::DecodingKey::templateFile(){
   return s.str();
 }
 
-size_t cond::DecodingKey::init( const std::string& keyFileName, const std::string& password, bool readMode ){
+size_t cond::auth::DecodingKey::init( const std::string& keyFileName, const std::string& password, bool readMode ){
   if(keyFileName.empty()){
     std::string msg("Provided key file name is empty.");
     throwException(msg,"DecodingKey::init");    
@@ -186,7 +183,7 @@ size_t cond::DecodingKey::init( const std::string& keyFileName, const std::strin
   return nelem;
 }
 
-size_t cond::DecodingKey::createFromInputFile( const std::string& inputFileName, size_t generatedKeySize ){
+size_t cond::auth::DecodingKey::createFromInputFile( const std::string& inputFileName, size_t generatedKeySize ){
   size_t nelem = 0;
   if(inputFileName.empty()){
     std::string msg("Provided input file name is empty.");
@@ -235,7 +232,7 @@ size_t cond::DecodingKey::createFromInputFile( const std::string& inputFileName,
   return nelem;
 }
 
-void cond::DecodingKey::list( std::ostream& out ){
+void cond::auth::DecodingKey::list( std::ostream& out ){
   out <<NAMEPREFIX<<m_principalName<<std::endl;
   out <<KEYPREFIX<<m_principalKey<<std::endl;
   out <<OWNERPREFIX<<m_owner<<std::endl;
@@ -248,7 +245,7 @@ void cond::DecodingKey::list( std::ostream& out ){
   }
 }
 
-void cond::DecodingKey::flush(){
+void cond::auth::DecodingKey::flush(){
   std::ofstream outFile ( m_fileName.c_str(),std::ios::binary);
   if (outFile.is_open()){
     std::stringstream content;
@@ -283,11 +280,11 @@ void cond::DecodingKey::flush(){
   outFile.close();
 }
   
-void cond::DecodingKey::addDefaultService( const std::string& connectionString ){
+void cond::auth::DecodingKey::addDefaultService( const std::string& connectionString ){
   addService( DEFAULT_SERVICE, connectionString, "", "" );  
 }
 
-void cond::DecodingKey::addService( const std::string& serviceName, 
+void cond::auth::DecodingKey::addService( const std::string& serviceName, 
 				    const std::string& connectionString, 
 				    const std::string& userName, 
 				    const std::string& password ){  
