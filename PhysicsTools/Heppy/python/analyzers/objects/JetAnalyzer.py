@@ -164,6 +164,14 @@ class JetAnalyzer( Analyzer ):
         
 	##Sort Jets by pT 
         allJets.sort(key = lambda j : j.pt(), reverse = True)
+        
+        leptons = []
+        if hasattr(event, 'selectedLeptons'):
+            leptons = [ l for l in event.selectedLeptons if l.pt() > self.lepPtMin and self.lepSelCut(l) ]
+        if self.cfg_ana.cleanJetsFromTaus and hasattr(event, 'selectedTaus'):
+            leptons = leptons[:] + event.selectedTaus
+        if self.cfg_ana.cleanJetsFromIsoTracks and hasattr(event, 'selectedIsoCleanTrack'):
+            leptons = leptons[:] + event.selectedIsoCleanTrack
 
 	## Apply jet selection
         self.jets = []
@@ -190,12 +198,7 @@ class JetAnalyzer( Analyzer ):
                 if(self.cfg_ana.doQG):
                     jet.qgl_calc =  self.qglcalc.computeQGLikelihood
                     jet.qgl_rho =  rho
-                # temporary fix since the jetID it's not good for eta>3
                 if self.testJetID( jet ):
-                    if(self.cfg_ana.doQG):
-                        jet.qgl_calc =  self.qglcalc.computeQGLikelihood
-                        jet.qgl_rho =  rho
-                        
                     self.jets.append(jet)
                     self.jetsIdOnly.append(jet)
                 else:
@@ -479,7 +482,7 @@ setattr(JetAnalyzer,"defaultConfig", cfg.Analyzer(
     calculateSeparateCorrections = False,
     calculateType1METCorrection  = False,
     type1METParams = { 'jetPtThreshold':15., 'skipEMfractionThreshold':0.9, 'skipMuons':True },
-    cleanGenJetsFromPhoton = False,
+    addJERShifts = 0, # add +/-1 sigma shifts to jets, intended to be used with shiftJER=0
     cleanJetsFromFirstPhoton = False,
     cleanJetsFromTaus = False,
     cleanJetsFromIsoTracks = False,
