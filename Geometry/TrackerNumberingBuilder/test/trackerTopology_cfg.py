@@ -11,12 +11,20 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+#process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+<<<<<<< HEAD
+#process.load('Configuration.Geometry.GeometryExtended2023TiltedTKReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
+=======
+process.load('Configuration.Geometry.GeometryExtended2023MuondevReco_cff')
+>>>>>>> ebrondol/fixingTracking_SLHCDEV
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+#from Configuration.AlCa.GlobalTag import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 
 
@@ -30,6 +38,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 #process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 
 process.load("Geometry.TrackerNumberingBuilder.trackerTopologyConstants_cfi")
+
+process.es_prefer_trackerTopology = cms.ESPrefer("TrackerTopologyEP","trackerTopology2023Constants")
 
 process.source = cms.Source("EmptySource")
 

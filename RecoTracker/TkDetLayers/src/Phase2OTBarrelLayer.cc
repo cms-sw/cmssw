@@ -131,16 +131,14 @@ Phase2OTBarrelLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tso
 
   //std::cout << "Phase2OTBarrelLayer::groupedCompatibleDetsV - result size=" << result.size() << std::endl;
 
-  /*
-  for (auto gr : result) {
-    std::cout << "new group" << std::endl;
-    for (auto dge : gr) {
-      PixelBarrelNameUpgrade name(dge.det()->geographicalId());
-      std::cout << "new det with geom det at r:"<<dge.det()->position().perp()<<" id:"<<dge.det()->geographicalId().rawId()<<" name:"<<name.name()<<" isHalf:"<<name.isHalfModule()<<" tsos at:" <<dge.trajectoryState().globalPosition()<< std::endl;
+  for (auto&  grp : result) {
+    if ( grp.empty() )  continue;
+    LogTrace("TkDetLayers") <<"New group in Phase2OTBarrelLayer made by : ";
+    for (auto const & det : grp) {
+      LogTrace("TkDetLayers") <<" geom det at r: " << det.det()->position().perp() <<" id:" << det.det()->geographicalId().rawId()
+                              <<" tsos at:" << det.trajectoryState().globalPosition();
     }
   }
-  */
-
 
 }
 

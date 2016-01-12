@@ -276,6 +276,8 @@ class TrackerTopology {
   //return the detId of the glued or the stack
   uint32_t Glued(const DetId &id) const ;
   uint32_t Stack(const DetId &id) const ;
+  uint32_t Lower(const DetId &id) const ;
+  uint32_t Upper(const DetId &id) const ;
   //look at the last bits of the DetId to understand if the det is
   //stereo, rphi, lower or upper
   bool isStereo(const DetId &id) const;
