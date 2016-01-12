@@ -31,7 +31,7 @@ public:
 private:
   
   std::string globalFolder_, prefixDir_;
-  bool testMode_;
+  bool useNormalization_;
   bool  useRollInfo_;
   std::vector<MonitorElement *>  myOccupancyMe_;
   std::vector<RPCDetId>   myDetIds_;
@@ -43,15 +43,12 @@ private:
 
   MonitorElement * AsyMeWheel[5];      //Left Right Asymetry 
   MonitorElement * NormOccupWheel[5];
- 
-  MonitorElement * AsyMeDWheel[5];      //Left Right Asymetry 
   MonitorElement * NormOccupDWheel[5];
 
   MonitorElement * AsyMeDisk[10];      //Left Right Asymetry 
   MonitorElement * NormOccupDisk[10];
- 
-  MonitorElement * AsyMeDDisk[10];      //Left Right Asymetry 
   MonitorElement * NormOccupDDisk[10];
+  
   MonitorElement * Barrel_OccBySt;
   MonitorElement * EndCap_OccByRng;
   MonitorElement * EndCap_OccByDisk ;
