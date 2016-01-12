@@ -1976,8 +1976,17 @@ class PlotterFolder:
         if dqmSubFolders is None:
             self._dqmSubFolders = None
         else:
-            self._dqmSubFolders = map(lambda sf: DQMSubFolder(sf, self._plotFolder.translateSubFolder(sf)), dqmSubFolders[0])
-            self._dqmSubFolders = filter(lambda sf: sf.translated is not None, self._dqmSubFolders)
+            # Match the subfolders between files in case the lists differ
+            # equality is by the 'translated' name
+            subfolders = {}
+            for sf_list in dqmSubFolders:
+                for sf in sf_list:
+                    sf_translated = self._plotFolder.translateSubFolder(sf)
+                    if sf_translated is not None and not sf_translated in subfolders:
+                        subfolders[sf_translated] = DQMSubFolder(sf, sf_translated)
+
+            self._dqmSubFolders = subfolders.values()
+            self._dqmSubFolders.sort(key=lambda sf: sf.subfolder)
 
         self._fallbackNames = fallbackNames
         self._fallbackDqmSubFolders = fallbackDqmSubFolders
