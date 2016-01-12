@@ -48,11 +48,14 @@ namespace cond {
     }
     
     void ConnectionPool::setParameters( const edm::ParameterSet& connectionPset ){
-      setAuthenticationPath( connectionPset.getUntrackedParameter<std::string>( "authenticationPath", "" ) );
-      setAuthenticationSystem( connectionPset.getUntrackedParameter<int>( "authenticationSystem", 0 ) );
-      setFrontierSecurity( connectionPset.getUntrackedParameter<std::string>( "security", "" ) );
-      int messageLevel = connectionPset.getUntrackedParameter<int>( "messageLevel", 0 );
-      coral::MsgLevel level = coral::Error;
+      //set the connection parameters from a ParameterSet
+      //if a parameter is not defined, keep the values already set in the data members
+      //(i.e. default if no other setters called, or the ones currently available)
+      setAuthenticationPath( connectionPset.getUntrackedParameter<std::string>( "authenticationPath", m_authPath ) );
+      setAuthenticationSystem( connectionPset.getUntrackedParameter<int>( "authenticationSystem", m_authSys ) );
+      setFrontierSecurity( connectionPset.getUntrackedParameter<std::string>( "security", m_frontierSecurity ) );
+      int messageLevel = connectionPset.getUntrackedParameter<int>( "messageLevel", 0 ); //0 corresponds to Error level, current default
+      coral::MsgLevel level = m_messageLevel;
       switch (messageLevel) {
       case 0:
         level = coral::Error;
@@ -70,7 +73,7 @@ namespace cond {
         level = coral::Error;
       }
       setMessageVerbosity( level );
-      setLogging( connectionPset.getUntrackedParameter<bool>( "logging", false ) );
+      setLogging( connectionPset.getUntrackedParameter<bool>( "logging", m_loggingEnabled ) );
     }
 
     bool ConnectionPool::isLoggingEnabled() const {
