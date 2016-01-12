@@ -96,7 +96,7 @@ int cond::AuthenticationManager::execute(){
   std::string authPath("");
   if( hasOptionValue("authPath") ) authPath = getOptionValue<std::string>("authPath"); 
   if( authPath.empty() ){
-    const char* authEnv = ::getenv( Auth::COND_AUTH_PATH );
+    const char* authEnv = ::getenv( auth::COND_AUTH_PATH );
     if(authEnv){
       authPath += authEnv;
     } else {
@@ -161,8 +161,8 @@ int cond::AuthenticationManager::execute(){
   if( update_princ ){
     bool adminOpt = hasOptionValue("admin");
     std::string key = getOptionValue<std::string>("key");
-    DecodingKey pk;
-    pk.init( key, Auth::COND_KEY );
+    auth::DecodingKey pk;
+    pk.init( key, auth::COND_KEY );
     credDb.updatePrincipal( pk.principalName(), pk.principalKey(), adminOpt );
     return 0;
   }
@@ -360,7 +360,7 @@ int cond::AuthenticationManager::execute(){
 	xmlFile.openConnectionEntry( connectStr );
 	started = true;
 	connections.insert( connectStr );
-	std::pair<std::string,std::string> defRoleKey(connectStr,Auth::COND_DEFAULT_ROLE);
+	std::pair<std::string,std::string> defRoleKey(connectStr,auth::COND_DEFAULT_ROLE);
 	std::map< std::pair<std::string,std::string>, coral::AuthenticationCredentials* >::const_iterator iDef = creds.find( defRoleKey );
 	if( iDef != creds.end() ){
 	  xmlFile.addCredentialEntry( iDef->second->valueForItem( coral::IAuthenticationCredentials::userItem() ), 
@@ -368,7 +368,7 @@ int cond::AuthenticationManager::execute(){
 	}
       }
       const std::string& role = iEntry->first.second;
-      if( role != Auth::COND_DEFAULT_ROLE ){
+      if( role != auth::COND_DEFAULT_ROLE ){
 	xmlFile.openRoleEntry( role );
 	xmlFile.addCredentialEntry( iEntry->second->valueForItem( coral::IAuthenticationCredentials::userItem() ), 
 				    iEntry->second->valueForItem( coral::IAuthenticationCredentials::passwordItem() ) );
