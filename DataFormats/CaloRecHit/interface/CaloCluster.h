@@ -29,7 +29,7 @@ namespace reco {
   class CaloCluster {
   public:
     
-    enum AlgoId { island = 0, hybrid = 1, fixedMatrix = 2, dynamicHybrid = 3, multi5x5 = 4, particleFlow = 5,  undefined = 1000};
+    enum AlgoId { island = 0, hybrid = 1, fixedMatrix = 2, dynamicHybrid = 3, multi5x5 = 4, particleFlow = 5,  hgcal_em = 6, hgcal_had = 7, hgcal_mixed = 8, undefined = 1000};
 
     // super-cluster flags
     enum SCFlags { cleanOnly = 0, common = 100, uncleanOnly = 200 };
