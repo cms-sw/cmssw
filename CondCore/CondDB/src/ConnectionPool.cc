@@ -141,6 +141,7 @@ namespace cond {
       //all sessions opened with this connection service will share the same frontier security option.
       std::pair<std::string,std::string> fullConnectionPars = getConnectionParams( connectionString, transactionId, m_frontierSecurity );
       if( !fullConnectionPars.second.empty() ) {
+        //all sessions opened with this connection service will share the same TTL settings for TAG, IOV, and PAYLOAD tables.
         connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, TAG::tname, 1 );
         connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, IOV::tname, 1 );
         connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, PAYLOAD::tname, 3 );
@@ -154,13 +155,6 @@ namespace cond {
     Session ConnectionPool::createSession( const std::string& connectionString, 
                                            const std::string& transactionId, 
                                            bool writeCapable ){
-      coral::ConnectionService connServ;
-      std::pair<std::string,std::string> fullConnectionPars = getConnectionParams( connectionString, transactionId, m_frontierSecurity );
-      if( !fullConnectionPars.second.empty() ) {
-        connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, TAG::tname, 1 );
-        connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, IOV::tname, 1 );
-        connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, PAYLOAD::tname, 3 );
-      }
       boost::shared_ptr<coral::ISessionProxy> coralSession = createCoralSession( connectionString, transactionId, writeCapable );
       std::shared_ptr<SessionImpl> impl( new SessionImpl( coralSession, connectionString ) );  
       return Session( impl );
