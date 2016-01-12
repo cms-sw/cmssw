@@ -77,6 +77,10 @@ void L1TMuonBarrelTrackProducer::produce(edm::Event& e, const edm::EventSetup& c
   l1t::RegionalMuonCandBxCollection BMTracks = dtbx->getcache();
   *vec_product = BMTracks;
 
+
+  //for (int ibx = BMTracks.getFirstBX(); ibx  <= BMTracks.getLastBX(); ibx++){
+  //cout << "DEBUG:  BMTF size at bx " << ibx << " " << BMTracks.size(ibx) << "\n";
+  //}
   e.put(tra_product,"UnsortedBMTF");
   e.put(vec_product,"BMTF");
 
