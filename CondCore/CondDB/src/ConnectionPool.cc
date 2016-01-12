@@ -131,7 +131,7 @@ namespace cond {
 										const std::string& transactionId,
 										bool writeCapable ){
       coral::ConnectionService connServ;
-      std::pair<std::string,std::string> fullConnectionPars = getConnectionParams( connectionString, transactionId );
+      std::pair<std::string,std::string> fullConnectionPars = getConnectionParams( connectionString, transactionId, "" );
       if( !fullConnectionPars.second.empty() ) {
 	// the new schema...
 	connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, TAG::tname, 1 );
@@ -148,7 +148,7 @@ namespace cond {
 					   const std::string& transactionId, 
 					   bool writeCapable ){
       coral::ConnectionService connServ;
-      std::pair<std::string,std::string> fullConnectionPars = getConnectionParams( connectionString, transactionId );
+      std::pair<std::string,std::string> fullConnectionPars = getConnectionParams( connectionString, transactionId, "" );
       if( !fullConnectionPars.second.empty() ) {
 	// the new schema...
 	connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, TAG::tname, 1 );

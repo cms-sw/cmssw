@@ -25,7 +25,8 @@ namespace cond {
     }
 
     std::pair<std::string,std::string> getConnectionParams( const std::string& connectionString, 
-                                                            const std::string& transactionId ) {
+                                                            const std::string& transactionId,
+                                                            const std::string& signature ) {
       if( connectionString.empty() ) throwException( "The connection string is empty.", "getConnectionParams" ); 
       std::string protocol = getConnectionProtocol( connectionString );
       std::string finalConn = connectionString;
@@ -45,6 +46,16 @@ namespace cond {
           size_t l = finalConn.rfind('/');
           finalConn.insert( l, "(freshkey="+transactionId+')' );
 	      }
+
+        //When the signature parameter is set to sig, FroNTier requests that the server sends digital signatures on every response.
+        //We test here that the signature string, if defined, is actually set to sig, otherwise we throw an exception
+        std::string signatureParameter( "sig" );
+        if( !signature.empty() && signature.compare( signatureParameter ) == 0 ) {
+          std::string::size_type s = finalConn.rfind('/');
+          finalConn.insert( s, "(security="+signature+')' );
+        } else {
+          throwException( "The FroNTier security option is invalid.", "getConnectionParams" );
+        }
 
         std::string::size_type startRefresh = finalConn.find( "://" );
 	      if( startRefresh != std::string::npos ) {
