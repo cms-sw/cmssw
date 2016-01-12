@@ -2,24 +2,38 @@
 # append new keys. Otherwise the numbering for the runTheMatrix tests will change.
 upgradeKeys=['2017',
              '2017PU',
-	     '2023' :  'XXXXX',
-	     '2023dev' :  'XXXXX'	       
+	     '2023',   
+	     '2023dev', 
+	     '2023sim',
+	     '2023LReco',
+	     '2023Reco' 
+	     	       
 	     
 	     ]
 
 
 upgradeGeoms={ '2017' : 'Extended2017',
-	       '2023' :  'XXXXX',
-	       '2023dev' :  'XXXXX'	       
+	     '2023' : 'Extended2023',   
+	     '2023dev' : 'Extended2023dev', 
+	     '2023sim' : 'Extended2023',
+	     '2023LReco': 'Extended2023',
+	     '2023Reco' : 'Extended2023'
                }
 	       
 upgradeGTs={ '2017' : 'auto:phase1_2017_design',
-	     '2023' :  'XXXXX',
-	     '2023dev' :  'XXXXX'	      
+	     '2023' :  'auto_run2_mc',
+	     '2023dev' :  'auto_run2_mc',
+	     '2023sim' : 'Extended2023',
+	     '2023LReco': 'Extended2023',
+	     '2023Reco' : 'Extended2023'	     	      
              }
 upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017',
- 		 '2023' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_XXXXX',
- 		 '2023dev' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_XXXXX'
+ 		 '2023' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023',
+ 		 '2023dev' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023dev',
+ 		 '2023sim' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023sim',
+ 		 '2023LReco' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023LReco',
+ 		 '2023Reco' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023Reco'
+		 
                  }
 
 upgradeFragments=['FourMuPt_1_200_pythia8_cfi','SingleElectronPt10_cfi',
@@ -70,8 +84,8 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi','SingleElectronPt10_cfi',
 upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFull','RecoFullHGCAL','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','HARVESTFullPU','DigiFullTrigger']
 
 upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull'],#HARVESTING REMOVED
-		   '2023':['XXXXX','DigiFull','RecoFull'],
-		   '2023dev':['GenSimFull','DigiFull','RecoFull'],
+		   #'2023':['XXXXX','DigiFull','RecoFull'],
+		   #'2023dev':['GenSimFull','DigiFull','RecoFull'],
 		   
                    }
 
