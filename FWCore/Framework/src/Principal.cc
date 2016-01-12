@@ -283,26 +283,26 @@ namespace edm {
 
   void
   Principal::addScheduledProduct(std::shared_ptr<BranchDescription const> bd) {
-    std::auto_ptr<ProductHolderBase> phb(new ScheduledProductHolder(bd));
-    addProductOrThrow(phb);
+    std::unique_ptr<ProductHolderBase> phb(new ScheduledProductHolder(bd));
+    addProductOrThrow(std::move(phb));
   }
 
   void
   Principal::addSourceProduct(std::shared_ptr<BranchDescription const> bd) {
-    std::auto_ptr<ProductHolderBase> phb(new SourceProductHolder(bd));
-    addProductOrThrow(phb);
+    std::unique_ptr<ProductHolderBase> phb(new SourceProductHolder(bd));
+    addProductOrThrow(std::move(phb));
   }
 
   void
   Principal::addInputProduct(std::shared_ptr<BranchDescription const> bd) {
-    std::auto_ptr<ProductHolderBase> phb(new InputProductHolder(bd, this));
-    addProductOrThrow(phb);
+    std::unique_ptr<ProductHolderBase> phb(new InputProductHolder(bd, this));
+    addProductOrThrow(std::move(phb));
   }
 
   void
   Principal::addUnscheduledProduct(std::shared_ptr<BranchDescription const> bd) {
-    std::auto_ptr<ProductHolderBase> phb(new UnscheduledProductHolder(bd, this));
-    addProductOrThrow(phb);
+    std::unique_ptr<ProductHolderBase> phb(new UnscheduledProductHolder(bd, this));
+    addProductOrThrow(std::move(phb));
   }
 
   void
@@ -310,8 +310,8 @@ namespace edm {
     ProductHolderIndex index = preg_->indexFrom(bd->originalBranchID());
     assert(index != ProductHolderIndexInvalid);
 
-    std::auto_ptr<ProductHolderBase> phb(new AliasProductHolder(bd, dynamic_cast<ProducedProductHolder&>(*productHolders_[index])));
-    addProductOrThrow(phb);
+    std::unique_ptr<ProductHolderBase> phb(new AliasProductHolder(bd, dynamic_cast<ProducedProductHolder&>(*productHolders_[index])));
+    addProductOrThrow(std::move(phb));
   }
 
   // "Zero" the principal so it can be reused for another Event.
@@ -420,7 +420,7 @@ namespace edm {
   }
 
   void
-  Principal::addProduct_(std::auto_ptr<ProductHolderBase> productHolder) {
+  Principal::addProduct_(std::unique_ptr<ProductHolderBase> productHolder) {
     BranchDescription const& bd = productHolder->branchDescription();
     assert (!bd.className().empty());
     assert (!bd.friendlyClassName().empty());
@@ -434,7 +434,7 @@ namespace edm {
   }
 
   void
-  Principal::addProductOrThrow(std::auto_ptr<ProductHolderBase> productHolder) {
+  Principal::addProductOrThrow(std::unique_ptr<ProductHolderBase> productHolder) {
     ProductHolderBase const* phb = getExistingProduct(*productHolder);
     if(phb != nullptr) {
       BranchDescription const& bd = productHolder->branchDescription();
@@ -447,7 +447,7 @@ namespace edm {
           << bd.processName()
           << ")\n";
     }
-    addProduct_(productHolder);
+    addProduct_(std::move(productHolder));
   }
 
   Principal::ConstProductHolderPtr

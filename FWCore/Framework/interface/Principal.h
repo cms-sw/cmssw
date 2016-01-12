@@ -208,8 +208,8 @@ namespace edm {
     // ----- Add a new ProductHolder
     // *this takes ownership of the ProductHolder, which in turn owns its
     // data.
-    void addProduct_(std::auto_ptr<ProductHolderBase> phb);
-    void addProductOrThrow(std::auto_ptr<ProductHolderBase> phb);
+    void addProduct_(std::unique_ptr<ProductHolderBase> phb);
+    void addProductOrThrow(std::unique_ptr<ProductHolderBase> phb);
     ProductHolderBase* getExistingProduct(BranchID const& branchID);
     ProductHolderBase* getExistingProduct(ProductHolderBase const& phb);
 
