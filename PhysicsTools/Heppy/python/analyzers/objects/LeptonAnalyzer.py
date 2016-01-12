@@ -509,7 +509,6 @@ class LeptonAnalyzer( Analyzer ):
         for lep in leps:
             gen = match[lep]
             lep.mcMatchId  = (gen.sourceId if gen != None else  0)
-            lep.mcMatchPdgId  = (gen.pdgId() if gen != None else  0)
             lep.mcMatchTau = (gen in event.gentauleps if gen else -99)
             lep.mcLep=gen
 
@@ -540,10 +539,9 @@ class LeptonAnalyzer( Analyzer ):
             if gen != None and hasattr(lep,'mcMatchId') and lep.mcMatchId == 0:
                 if isPromptLepton(gen, False):
                     lep.mcMatchId = 100
-                    lep.mcMatchPdgId = gen.pdgId()
+                    lep.mcLep = gen
             elif not hasattr(lep,'mcMatchId'):
                 lep.mcMatchId = 0
-                lep.mcMatchPdgId = 0
             if not hasattr(lep,'mcMatchTau'): lep.mcMatchTau = 0
 
     def process(self, event):
