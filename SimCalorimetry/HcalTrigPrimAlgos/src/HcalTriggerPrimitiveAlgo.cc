@@ -203,13 +203,8 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
          }
          // HF 1x1
          else if (trig_tower_id.version() == 1) {
-            // Check if the entry exists, if not add
-            if ( theHFDetailMap.find(trig_tower_id) == theHFDetailMap.end() ) {
-               std::vector<HFDetails> hf_details;
-               theHFDetailMap.insert(std::make_pair(trig_tower_id, hf_details));
-            }
-
-            HFDetails details;
+            uint32_t fgid = (frame.id().maskDepth());
+            HFDetails& details = theHFDetailMap[trig_tower_id][fgid];
             // Check the frame type to determine long vs short
             if (frame.id().depth() == 1) { // Long
                details.long_fiber = samples;
@@ -222,7 +217,6 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
                 edm::LogWarning("HcalTPAlgo") << "Unable to figure out what to do with data frame for " << frame.id();
                 return;
             }
-            theHFDetailMap[trig_tower_id].push_back(details);
          }
          // Uh oh, we are in a bad/unknown state! Things will start crashing.
          else {
@@ -403,7 +397,8 @@ void HcalTriggerPrimitiveAlgo::analyzeHFV1(
     IntegerCaloSamples output(SAMPLES.id(), numberOfSamples_);
     output.setPresamples(numberOfPresamples_);
 
-    for (const auto& details: it->second) {
+    for (const auto& item: it->second) {
+        auto& details = item.second;
         for (int ibin = 0; ibin < numberOfSamples_; ++ibin) {
             const int IDX = ibin + SHIFT;
             int long_fiber_val = 0;
