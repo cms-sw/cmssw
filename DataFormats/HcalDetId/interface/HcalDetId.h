@@ -8,12 +8,9 @@
 
 /** \class HcalDetId
  *  Cell identifier class for the HCAL subdetectors, precision readout cells only
- *
- *  \author J. Mans - Minnesota
- *
- *  Rev.1.11: A.Kubik,R.Ofierzynski: add the hashed_index
  */
 class HcalDetId : public DetId {
+
 public:
   static const int kHcalPhiMask1       = 0x7F;
   static const int kHcalPhiMask2       = 0x3FF;
@@ -30,6 +27,9 @@ public:
   static const int kHcalDepthSet1      = 0x1C000;
   static const int kHcalDepthSet2      = 0xF00000;
   static const int kHcalIdFormat2      = 0x1000000;
+  static const int kHcalIdMask         = 0xFE000000;
+
+public:
   /** Create a null cellid*/
   HcalDetId();
   /** Create cellid from raw id (0=invalid tower id) */
@@ -40,21 +40,34 @@ public:
   HcalDetId(const DetId& id);
   /** Assignment from a generic cell id */
   HcalDetId& operator=(const DetId& id);
+  /** Comparison operator */
+  bool operator==(DetId id) const;
+  bool operator!=(DetId id) const;
+  bool operator<(DetId id) const;
 
   /// get the subdetector
   HcalSubdetector subdet() const { return (HcalSubdetector)(subdetId()); }
+  bool oldFormat() const { return ((id_&kHcalIdFormat2)==0)?(true):(false); }
   /// get the z-side of the cell (1/-1)
-  int zside() const { return (id_&kHcalZsideMask1)?(1):(-1); }
+  int zside() const;
   /// get the absolute value of the cell ieta
-  int ietaAbs() const { return (id_>>kHcalEtaOffset1)&kHcalEtaMask1; }
+  int ietaAbs() const;
   /// get the cell ieta
   int ieta() const { return zside()*ietaAbs(); }
   /// get the cell iphi
-  int iphi() const { return id_&kHcalPhiMask1; }
+  int iphi() const;
   /// get the tower depth
-  int depth() const { return (id_>>kHcalDepthOffset1)&kHcalDepthMask1; }
+  int depth() const;
+  /// get full depth information for HF
+  int hfdepth() const;
   /// get the tower depth
-  uint32_t maskDepth() const { return (id_ | kHcalDepthSet1); }
+  uint32_t maskDepth() const;
+  /// change format
+  uint32_t otherForm() const;
+  void changeForm();
+  uint32_t newForm() const;
+  static uint32_t newForm(const uint32_t&);
+
   /// get the smallest crystal_ieta of the crystal in front of this tower (HB and HE tower 17 only)
   int crystal_ieta_low() const { return ((ieta()-zside())*5)+zside(); }
   /// get the largest crystal_ieta of the crystal in front of this tower (HB and HE tower 17 only)
@@ -66,6 +79,10 @@ public:
 
   static const HcalDetId Undefined;
 
+private:
+
+  void newFromOld(const uint32_t&);
+  static void unpackId(const uint32_t&, int&, int&, int&, int&);
 };
 
 std::ostream& operator<<(std::ostream&,const HcalDetId& id);
