@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-import muonCustoms
 
 def customise_csc_PostLS1(process):
-    process=muonCustoms.customise_csc_PostLS1(process)
 
     if hasattr(process,'simCscTriggerPrimitiveDigis'):
         process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'mixData', 'MuonCSCComparatorDigisDM')
