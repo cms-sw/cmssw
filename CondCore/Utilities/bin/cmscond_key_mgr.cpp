@@ -33,10 +33,10 @@ int cond::KeyMgrUtilities::execute(){
   if( hasOptionValue("create") ) {
     inFile = getOptionValue<std::string>("create");
     size_t keySize = 0;
-    if( hasOptionValue("generate") ) keySize = Auth::COND_AUTHENTICATION_KEY_SIZE;
+    if( hasOptionValue("generate") ) keySize = auth::COND_AUTHENTICATION_KEY_SIZE;
     if(!inFile.empty()){
-      DecodingKey key;
-      key.init( DecodingKey::FILE_NAME, Auth::COND_KEY, false );
+      auth::DecodingKey key;
+      key.init( auth::DecodingKey::FILE_NAME, auth::COND_KEY, false );
       key.createFromInputFile( inFile, keySize );
       if( hasDebug() ) key.list( std::cout );
       key.flush();
@@ -48,8 +48,8 @@ int cond::KeyMgrUtilities::execute(){
   if( hasOptionValue("read") ) {
     inFile = getOptionValue<std::string>("read");
     if(!inFile.empty()){
-      DecodingKey key;
-      key.init( inFile, Auth::COND_KEY );
+      auth::DecodingKey key;
+      key.init( inFile, auth::COND_KEY );
       key.list( std::cout );
       return 0;
     }
@@ -57,7 +57,7 @@ int cond::KeyMgrUtilities::execute(){
   }
 
   if( hasOptionValue("dump_template") ) {
-    std::cout <<DecodingKey::templateFile() <<std::endl;
+    std::cout <<auth::DecodingKey::templateFile() <<std::endl;
     return 0;    
   }
 
