@@ -9,7 +9,7 @@
 namespace l1t {
   class MicroGMTExtrapolationLUT : public MicroGMTLUT {
     public: 
-      MicroGMTExtrapolationLUT();
+      MicroGMTExtrapolationLUT() {};
       explicit MicroGMTExtrapolationLUT(const std::string& fname);
       virtual ~MicroGMTExtrapolationLUT() {};
 

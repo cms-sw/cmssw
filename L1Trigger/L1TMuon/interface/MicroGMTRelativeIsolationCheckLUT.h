@@ -7,7 +7,7 @@
 namespace l1t {
   class MicroGMTRelativeIsolationCheckLUT : public MicroGMTLUT {
     public: 
-      MicroGMTRelativeIsolationCheckLUT();
+      MicroGMTRelativeIsolationCheckLUT() {};
       explicit MicroGMTRelativeIsolationCheckLUT(const std::string& fname);
       virtual ~MicroGMTRelativeIsolationCheckLUT() {};
 

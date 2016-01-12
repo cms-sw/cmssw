@@ -17,7 +17,7 @@ namespace l1t {
     public:
       // All possible inputs for LUTs
       enum input_t {
-        PT, PT_COARSE, PHI, ETA, ETA_COARSE, QUALITY, DELTA_ETA_RED, DELTA_PHI_RED
+        PT, PT_COARSE, PHI, ETA, ETA_COARSE, QUALITY, DELTA_ETA_RED, DELTA_PHI_RED, ENERGYSUM
       };
 
       typedef std::pair<input_t, int> PortType;
