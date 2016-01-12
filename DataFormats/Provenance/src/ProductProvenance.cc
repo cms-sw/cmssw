@@ -38,6 +38,16 @@ namespace edm {
       ParentageRegistry::instance()->insertMapped(p);
   }
 
+  ProductProvenance::ProductProvenance(BranchID const& bid,
+                                       std::vector<BranchID>&& parents) :
+  branchID_(bid),
+  parentageID_() {
+    Parentage p;
+    p.setParents(std::move(parents));
+    parentageID_ = p.id();
+    ParentageRegistry::instance()->insertMapped(std::move(p));
+  }
+
   ProductProvenance
   ProductProvenance::makeProductProvenance() const {
     return *this;
