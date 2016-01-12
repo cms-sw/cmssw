@@ -54,7 +54,7 @@ namespace cond {
                              bool writeCapable = false );
       void configure( coral::IConnectionServiceConfiguration& coralConfig );
     private:
-      std::string m_authPath;
+      std::string m_authPath = std::string( "" );
       int m_authSys = 0;
       coral::MsgLevel m_messageLevel = coral::Error;
       bool m_loggingEnabled = false;
