@@ -40,25 +40,25 @@ namespace cond {
       bool isLoggingEnabled() const;
       void setParameters( const edm::ParameterSet& connectionPset );
       void configure();
-      Session createSession( const std::string& connectionString, bool writeCapable=false );
+      Session createSession( const std::string& connectionString, bool writeCapable = false );
       Session createReadOnlySession( const std::string& connectionString, const std::string& transactionId );
-      boost::shared_ptr<coral::ISessionProxy> createCoralSession( const std::string& connectionString, bool writeCapable=false );
+      boost::shared_ptr<coral::ISessionProxy> createCoralSession( const std::string& connectionString, bool writeCapable = false );
       
     private:
       boost::shared_ptr<coral::ISessionProxy> createCoralSession( const std::string& connectionString, 
-								  const std::string& transactionId, 
-								  bool writeCapable=false );
+                                                                  const std::string& transactionId, 
+                                                                  bool writeCapable = false );
       Session createSession( const std::string& connectionString, 
-			     const std::string& transactionId, 
-			     bool writeCapable=false );
-      void configure( coral::IConnectionServiceConfiguration& coralConfig);
+                             const std::string& transactionId, 
+                             bool writeCapable = false );
+      void configure( coral::IConnectionServiceConfiguration& coralConfig );
     private:
       std::string m_authPath;
       int m_authSys = 0;
       coral::MsgLevel m_messageLevel = coral::Error;
       bool m_loggingEnabled = false;
       // this one has to be moved!
-      cond::CoralServiceManager* m_pluginManager = 0; 
+      cond::CoralServiceManager* m_pluginManager = nullptr; 
       std::map<std::string,int> m_dbTypes;
     };
   }
