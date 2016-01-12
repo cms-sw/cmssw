@@ -5,29 +5,28 @@
 
 namespace cond{
 
-  class Auth {
+  namespace auth {
 
-  public:
+    static constexpr const char* const COND_AUTH_PATH = "COND_AUTH_PATH";
+    static constexpr const char* const COND_AUTH_SYS = "COND_AUTH_SYS";
 
-    static const char* COND_AUTH_PATH;
-    static const char* COND_AUTH_SYS;
+    static constexpr const char* const COND_ADMIN_GROUP = "COND_ADMIN_GROUP";
+
+    static constexpr const char* const COND_DEFAULT_ROLE = "COND_DEFAULT_ROLE";
+    static constexpr const char* const COND_WRITER_ROLE  = "COND_WRITER_ROLE";
+    static constexpr const char* const COND_READER_ROLE  = "COND_READER_ROLE";
+    static constexpr const char* const COND_ADMIN_ROLE   = "COND_ADMIN_ROLE";
     
-    static const std::string COND_ADMIN_GROUP;
+    static constexpr const char* const COND_DEFAULT_PRINCIPAL = "COND_DEFAULT_PRINCIPAL";
+    
+    static constexpr const char* const COND_KEY = "Memento";
+    
+    static constexpr unsigned int COND_AUTHENTICATION_KEY_SIZE = 30;
+    static constexpr unsigned int COND_DB_KEY_SIZE = 30;
 
-    static const std::string COND_DEFAULT_ROLE;
-    static const std::string COND_WRITER_ROLE;
-    static const std::string COND_READER_ROLE;
-    static const std::string COND_ADMIN_ROLE;
-    static const std::string COND_DEFAULT_PRINCIPAL;
+    static constexpr const char* const COND_AUTH_PATH_PROPERTY = "AuthenticationFile";
+  }
 
-    static const std::string COND_KEY;
-    static const unsigned int COND_AUTHENTICATION_KEY_SIZE = 30;
-    static const unsigned int COND_DB_KEY_SIZE = 30;
-
-    static const std::string COND_AUTH_PATH_PROPERTY;
-
-  };
 }
-
 #endif
 
