@@ -1,3 +1,4 @@
+##cmsRun DPGAnalysis/SiStripTools/test/OccupancyPlotsTest_phase2_cfg.py print globalTag=DES23_62_V1::All inputFiles=file:10800/step3.root triggerPath="*"
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
@@ -8,7 +9,7 @@ process = cms.Process("OccupancyPlotsTest")
 options = VarParsing.VarParsing("analysis")
 
 options.register ('globalTag',
-                  "DONOTEXIST::All",
+                  "DES23_62_V1::All",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "GlobalTag")
@@ -37,7 +38,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.destinations.extend(cms.vstring("detids"))
 process.MessageLogger.categories.extend(cms.vstring("GeometricDetBuilding","DuplicateHitFinder","BuildingTrackerDetId",
                                                     "SubDetectorGeometricDetType","BuildingGeomDetUnits","LookingForFirstStrip",
-                                                    "BuildingSubDetTypeMap","SubDetTypeMapContent","NumberOfLayers","IsThereTest"))
+                                                    "BuildingSubDetTypeMap","SubDetTypeMapContent","NumberOfLayers","IsThereTest", "OccupancyPlots"))
 process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string("INFO")
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
@@ -75,6 +76,9 @@ process.MessageLogger.detids = cms.untracked.PSet(
     IsThereTest = cms.untracked.PSet(
         limit = cms.untracked.int32(100000000)
         ),
+    OccupancyPlots = cms.untracked.PSet(
+        limit = cms.untracked.int32(100000000)
+        ),
     threshold = cms.untracked.string("DEBUG")
     )    
 process.MessageLogger.cout.DuplicateHitFinder = cms.untracked.PSet(
@@ -100,10 +104,14 @@ process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
+if not options.inputFiles :
+  options.inputFiles = "file:step3.root"
+
 process.source = cms.Source("PoolSource",
                     fileNames = cms.untracked.vstring(options.inputFiles),
 #                    skipBadFiles = cms.untracked.bool(True),
-                    inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
+                    inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*"),
+#                    skipEvents = cms.untracked.uint32(1)
                     )
 
 # HLT Selection ------------------------------------------------------------
@@ -144,8 +152,7 @@ process.spclusmultprod.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
 process.spclusmultprodontrack=process.spclusmultprod.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
 process.spclusmultprodxy = process.spclusmultprod.clone()
-process.spclusmultprodxy.wantedSubDets = OccupancyPlotsFPIXmDetailedWantedSubDets
-process.spclusmultprodxy.wantedSubDets.extend(OccupancyPlotsFPIXpDetailedWantedSubDets)
+process.spclusmultprodxy.wantedSubDets = OccupancyPlotsPXFDetailedWantedSubDets
 process.spclusmultprodxyontrack=process.spclusmultprodxy.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
 process.spclusoccuprod = cms.EDProducer("SiPixelClusterMultiplicityProducer",
@@ -157,8 +164,7 @@ process.spclusoccuprod.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
 process.spclusoccuprodontrack=process.spclusoccuprod.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
 process.spclusoccuprodxy = process.spclusoccuprod.clone()
-process.spclusoccuprodxy.wantedSubDets = OccupancyPlotsFPIXmDetailedWantedSubDets
-process.spclusoccuprodxy.wantedSubDets.extend(OccupancyPlotsFPIXpDetailedWantedSubDets)
+process.spclusoccuprodxy.wantedSubDets = OccupancyPlotsPXFDetailedWantedSubDets
 process.spclusoccuprodxyontrack=process.spclusoccuprodxy.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
 process.seqMultProd = cms.Sequence(#process.ssclusmultprod + process.ssclusoccuprod +
@@ -170,7 +176,7 @@ process.seqMultProd = cms.Sequence(#process.ssclusmultprod + process.ssclusoccup
 
 process.load("DPGAnalysis.SiStripTools.occupancyplots_cfi")
 #process.occupancyplots.wantedSubDets = OccupancyPlotsStripWantedSubDets
-process.occupancyplots.file = cms.untracked.FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseII/Pixel10D/PixelSkimmedGeometry.txt")
+process.occupancyplots.file = cms.untracked.FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseII/Pixel10D/PixelSkimmedGeometry_phase2BE5D_stack.txt")
 
 process.pixeloccupancyplots = process.occupancyplots.clone()
 process.pixeloccupancyplots.wantedSubDets = process.spclusmultprod.wantedSubDets
@@ -192,12 +198,17 @@ process.pixeloccupancyxyplotsontrack.wantedSubDets = process.spclusmultprodxyont
 process.pixeloccupancyxyplotsontrack.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprodxyontrack"))
 process.pixeloccupancyxyplotsontrack.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprodxyontrack"))
 
-#process.alloccupancyplots = process.occupancyplots.clone()
-#process.alloccupancyplots.wantedSubDets = cms.VPSet()
-#process.alloccupancyplots.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
+#right now in phase2 all the modules are pixels: comment strips
+process.alloccupancyplots = process.occupancyplots.clone()
+process.alloccupancyplots.wantedSubDets = cms.VPSet()
+process.alloccupancyplots.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
 #process.alloccupancyplots.wantedSubDets.extend(OccupancyPlotsStripWantedSubDets)
-#process.alloccupancyplots.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprod"),cms.InputTag("ssclusmultprod"))
-#process.alloccupancyplots.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprod"),cms.InputTag("ssclusoccuprod"))
+process.alloccupancyplots.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprod"),
+							  #cms.InputTag("ssclusmultprod")
+)
+process.alloccupancyplots.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprod"),
+						       #cms.InputTag("ssclusoccuprod")
+)
 
 
 #process.load("TrackingPFG.Utilities.bxlumianalyzer_cfi")
@@ -217,9 +228,10 @@ process.primaryvertexanalyzer.vHistogramMakerPSet.runHistoBXProfile=cms.untracke
 process.seqAnalyzers = cms.Sequence(
     #process.bxlumianalyzer +
     process.goodVertices + process.primaryvertexanalyzer +
-#    process.occupancyplots +
+#    process.alloccupancyplots
     process.pixeloccupancyplots + process.pixeloccupancyplotsontrack +
-    process.pixeloccupancyxyplots + process.pixeloccupancyxyplotsontrack)
+    process.pixeloccupancyxyplots + process.pixeloccupancyxyplotsontrack
+)
 
 #-------------------------------------------------------------------------------------------
 
@@ -245,20 +257,16 @@ process.load("DPGAnalysis.SiStripTools.duplicaterechits_cfi")
 
 #----GlobalTag ------------------------
 
-#process.load("Configuration.StandardSequences.GeometryDB_cff")
 #process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5DPixel10DReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023MuondevReco_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
-#process.load("Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff")
-#process.load("Configuration.Geometry.GeometryExtendedPhaseIPixel_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10D import *
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = options.globalTag
-#from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 
 process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
@@ -281,6 +289,8 @@ process.TFileService = cms.Service('TFileService',
 process = customise_Reco(process,0)
 process = customise_condOverRides(process)
 
+# Need this line because Phase2Clusters are not produced with old clusterizer
+process.MeasurementTracker.Phase2TrackerCluster1DProducer = cms.string('')
 process.myrereco = cms.Sequence(
     process.siPixelRecHits + 
     process.trackingGlobalReco)
