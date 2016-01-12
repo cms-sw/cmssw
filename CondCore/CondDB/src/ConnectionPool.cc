@@ -39,46 +39,53 @@ namespace cond {
       m_authSys = authSysCode;
     }
     
+    void ConnectionPool::setFrontierSecurity( const std::string& signature ){
+      m_frontierSecurity = signature;
+    }
+    
     void ConnectionPool::setLogging( bool flag ){
       m_loggingEnabled = flag;
     }
     
     void ConnectionPool::setParameters( const edm::ParameterSet& connectionPset ){
-      setAuthenticationPath( connectionPset.getUntrackedParameter<std::string>("authenticationPath","") );
-      setAuthenticationSystem( connectionPset.getUntrackedParameter<int>("authenticationSystem",0) );
-      int messageLevel = connectionPset.getUntrackedParameter<int>("messageLevel",0);
-      coral::MsgLevel level = coral::Error;
+      //set the connection parameters from a ParameterSet
+      //if a parameter is not defined, keep the values already set in the data members
+      //(i.e. default if no other setters called, or the ones currently available)
+      setAuthenticationPath( connectionPset.getUntrackedParameter<std::string>( "authenticationPath", m_authPath ) );
+      setAuthenticationSystem( connectionPset.getUntrackedParameter<int>( "authenticationSystem", m_authSys ) );
+      setFrontierSecurity( connectionPset.getUntrackedParameter<std::string>( "security", m_frontierSecurity ) );
+      int messageLevel = connectionPset.getUntrackedParameter<int>( "messageLevel", 0 ); //0 corresponds to Error level, current default
+      coral::MsgLevel level = m_messageLevel;
       switch (messageLevel) {
-      case 0 :
-	level = coral::Error;
-	break;    
+      case 0:
+        level = coral::Error;
+        break;    
       case 1:
-	level = coral::Warning;
-	break;
+        level = coral::Warning;
+        break;
       case 2:
-	level = coral::Info;
-	break;
+        level = coral::Info;
+        break;
       case 3:
-	level = coral::Debug;
-	break;
+        level = coral::Debug;
+        break;
       default:
-	level = coral::Error;
+        level = coral::Error;
       }
-      setMessageVerbosity(level);
-      setLogging( connectionPset.getUntrackedParameter<bool>("logging",false) );
+      setMessageVerbosity( level );
+      setLogging( connectionPset.getUntrackedParameter<bool>( "logging", m_loggingEnabled ) );
     }
 
     bool ConnectionPool::isLoggingEnabled() const {
       return m_loggingEnabled;
     }
     
-    void ConnectionPool::configure( coral::IConnectionServiceConfiguration& coralConfig){
-      
+    void ConnectionPool::configure( coral::IConnectionServiceConfiguration& coralConfig ){
       coralConfig.disablePoolAutomaticCleanUp();
       coralConfig.disableConnectionSharing();
       // message streaming
       coral::MessageStream::setMsgVerbosity( m_messageLevel );
-      std::string authServiceName("CORAL/Services/EnvironmentAuthenticationService");
+      std::string authServiceName( "CORAL/Services/EnvironmentAuthenticationService" );
       std::string authPath = m_authPath;
       // authentication
       if( authPath.empty() ){
@@ -92,26 +99,26 @@ namespace cond {
       // first attempt, look at the env...
       const char* authSysEnv = ::getenv( cond::auth::COND_AUTH_SYS );
       if( authSysEnv ){
-	authSys = ::atoi( authSysEnv );
+        authSys = ::atoi( authSysEnv );
       }
       if( authSys !=CondDbKey && authSys != CoralXMLFile ){
-	// take the default
-	authSys = CondDbKey;
+        // take the default
+        authSys = CondDbKey;
       }  
-      std::string servName("");
+      std::string servName( "" );
       if( authSys == CondDbKey ){
-	if( authPath.empty() ){
-	  const char* authEnv = ::getenv("HOME");
-	  if(authEnv){
-	    authPath += authEnv;
-	  } 
-	}
-	servName = "COND/Services/RelationalAuthenticationService";     
+        if( authPath.empty() ){
+          const char* authEnv = ::getenv( "HOME" );
+          if(authEnv) {
+            authPath += authEnv;
+          }
+        }
+        servName = "COND/Services/RelationalAuthenticationService";     
       } else if( authSys == CoralXMLFile ){
-	if( authPath.empty() ){
-	  authPath = ".";
-	}
-	servName = "COND/Services/XMLAuthenticationService";  
+        if( authPath.empty() ){
+        authPath = ".";
+        }
+        servName = "COND/Services/XMLAuthenticationService";  
       }
       if( !authPath.empty() ){
 	authServiceName = servName;    
@@ -128,36 +135,27 @@ namespace cond {
     }
 
     boost::shared_ptr<coral::ISessionProxy> ConnectionPool::createCoralSession( const std::string& connectionString, 
-										const std::string& transactionId,
-										bool writeCapable ){
+                                                                                const std::string& transactionId,
+                                                                                bool writeCapable ){
       coral::ConnectionService connServ;
-      std::pair<std::string,std::string> fullConnectionPars = getConnectionParams( connectionString, transactionId );
+      //all sessions opened with this connection service will share the same frontier security option.
+      std::pair<std::string,std::string> fullConnectionPars = getConnectionParams( connectionString, transactionId, m_frontierSecurity );
       if( !fullConnectionPars.second.empty() ) {
-	// the new schema...
-	connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, TAG::tname, 1 );
-	connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, IOV::tname, 1 );
-	connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, PAYLOAD::tname, 3 );
+        //all sessions opened with this connection service will share the same TTL settings for TAG, IOV, and PAYLOAD tables.
+        connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, TAG::tname, 1 );
+        connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, IOV::tname, 1 );
+        connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, PAYLOAD::tname, 3 );
       }
 
       return boost::shared_ptr<coral::ISessionProxy>( connServ.connect( fullConnectionPars.first, 
-									writeCapable?auth::COND_WRITER_ROLE:auth::COND_READER_ROLE,
-									writeCapable?coral::Update:coral::ReadOnly ) ); 
+									writeCapable ? auth::COND_WRITER_ROLE : auth::COND_READER_ROLE,
+									writeCapable ? coral::Update : coral::ReadOnly ) ); 
     }
 
     Session ConnectionPool::createSession( const std::string& connectionString, 
-					   const std::string& transactionId, 
-					   bool writeCapable ){
-      coral::ConnectionService connServ;
-      std::pair<std::string,std::string> fullConnectionPars = getConnectionParams( connectionString, transactionId );
-      if( !fullConnectionPars.second.empty() ) {
-	// the new schema...
-	connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, TAG::tname, 1 );
-	connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, IOV::tname, 1 );
-	connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, PAYLOAD::tname, 3 );
-      }
-
+                                           const std::string& transactionId, 
+                                           bool writeCapable ){
       boost::shared_ptr<coral::ISessionProxy> coralSession = createCoralSession( connectionString, transactionId, writeCapable );
-
       std::shared_ptr<SessionImpl> impl( new SessionImpl( coralSession, connectionString ) );  
       return Session( impl );
     }
@@ -171,7 +169,7 @@ namespace cond {
     }
 
     boost::shared_ptr<coral::ISessionProxy> ConnectionPool::createCoralSession( const std::string& connectionString, 
-										bool writeCapable ){
+                                                                                bool writeCapable ){
       return createCoralSession( connectionString, "", writeCapable );
     }
 
