@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023Muondev 
+
 process = cms.Process("DigiToRaw")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -22,7 +24,7 @@ process.load('Configuration.Geometry.GeometryExtended2023MuondevReco_cff')
 process.load('DummyCablingTxt_cfi')
 process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerDigiToRawProducer_cfi')
 process.Phase2TrackerDigiToRawProducer.ProductLabel = cms.InputTag("siPhase2Clusters")
-process.load("Geometry.TrackerGeometryBuilder.StackedTrackerGeometry_cfi")
+
 
 process.out = cms.OutputModule(
     "PoolOutputModule",
@@ -37,3 +39,4 @@ process.out = cms.OutputModule(
 process.p = cms.Path(process.Phase2TrackerDigiToRawProducer)
 
 process.e = cms.EndPath(process.out)
+process = cust_2023Muondev(process)
