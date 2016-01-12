@@ -7,17 +7,17 @@
 #include "base64.h"
 #include <cassert>
 
-cond::Cipher::Cipher( const std::string& key ):
+cond::auth::Cipher::Cipher( const std::string& key ):
   m_ctx(new BLOWFISH_CTX){
   char* k = const_cast<char*>(key.c_str());
   Blowfish_Init( m_ctx, reinterpret_cast<unsigned char*>(k), key.size());  
 }
 
-cond::Cipher::~Cipher(){
+cond::auth::Cipher::~Cipher(){
   delete m_ctx;
 }
 
-size_t cond::Cipher::bf_process_alloc( const unsigned char* input, 
+size_t cond::auth::Cipher::bf_process_alloc( const unsigned char* input, 
 				       size_t input_size, 
 				       unsigned char*& output,
 				       bool decrypt ){
@@ -68,7 +68,7 @@ size_t cond::Cipher::bf_process_alloc( const unsigned char* input,
   return output_size;
 }
     
-size_t cond::Cipher::encrypt( const std::string& input, unsigned char*& output ){
+size_t cond::auth::Cipher::encrypt( const std::string& input, unsigned char*& output ){
   if( input.empty() ) {
     output = 0;
     return 0;
@@ -76,7 +76,7 @@ size_t cond::Cipher::encrypt( const std::string& input, unsigned char*& output )
   return bf_process_alloc( reinterpret_cast<const unsigned char*>(input.c_str()), input.size(), output, false );;
 }
 
-std::string cond::Cipher::decrypt( const unsigned char* input, size_t inputSize ){
+std::string cond::auth::Cipher::decrypt( const unsigned char* input, size_t inputSize ){
   if( !inputSize ) return ""; 
   unsigned char* out = 0;
   size_t outSize = bf_process_alloc( input, inputSize, out, true );
@@ -102,7 +102,7 @@ std::string cond::Cipher::decrypt( const unsigned char* input, size_t inputSize 
   return ret;
 }
 
-std::string cond::Cipher::b64encrypt( const std::string& input ){
+std::string cond::auth::Cipher::b64encrypt( const std::string& input ){
   if( input.empty() ) return "";
   unsigned char* out = 0;
   size_t outSize = bf_process_alloc( reinterpret_cast<const unsigned char*>(input.c_str()), input.size(), out, false );
@@ -114,7 +114,7 @@ std::string cond::Cipher::b64encrypt( const std::string& input ){
   return ret;
 }
 
-std::string cond::Cipher::b64decrypt( const std::string& b64in ){
+std::string cond::auth::Cipher::b64decrypt( const std::string& b64in ){
   if( b64in.empty() ) return "";
   char* input = 0;
   size_t inputSize = 0;

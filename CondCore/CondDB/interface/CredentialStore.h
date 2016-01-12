@@ -167,9 +167,9 @@ namespace cond {
       std::string m_principalKey;
 
       std::string m_serviceName;
-      const ServiceCredentials* m_serviceData;
+      const auth::ServiceCredentials* m_serviceData;
 
-      DecodingKey m_key;
+      auth::DecodingKey m_key;
 
   };
 
