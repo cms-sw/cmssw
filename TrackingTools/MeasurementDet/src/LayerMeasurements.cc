@@ -131,6 +131,7 @@ LayerMeasurements::groupedMeasurements( const DetLayer& layer,
     vector<TrajectoryMeasurement> tmpVec;
     for (auto const & det : grp) {
       const MeasurementDet* mdet = theDetSystem->idToDet(det.det()->geographicalId());
+      LogTrace("LayerMeasurements")<<"MeasurementDet for ... "<<det.det()->geographicalId().rawId();
       if (mdet == 0) {
 	throw MeasurementDetException( "MeasurementDet not found");
       }      
@@ -141,6 +142,7 @@ LayerMeasurements::groupedMeasurements( const DetLayer& layer,
     }
     
     // sort the final result
+    LogTrace("LayerMeasurements")<<"Sorting ... " << tmpVec.size() << " ...  temp measurements";
     sort( tmpVec.begin(), tmpVec.end(), TrajMeasLessEstim());
     addInvalidMeas( tmpVec, grp,layer); 
     result.emplace_back(std::move(tmpVec), std::move(grp));
@@ -156,6 +158,7 @@ LayerMeasurements::groupedMeasurements( const DetLayer& layer,
       result.emplace_back(std::move(tmVec), DetGroup());
     }
   }
+  LogTrace("LayerMeasurements")<<"Finish with number of hits in the traj:" << result.size();
   return result;
 }
 
