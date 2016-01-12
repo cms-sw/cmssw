@@ -59,6 +59,15 @@ ALCARECOTrackFilterRefit = cms.Sequence(ALCARECOCalibrationTracks +
                                         offlineBeamSpot +
                                         ALCARECOCalibrationTracksRefit )
 
+# ------------------------------------------------------------------------------
+# Get the information you need from the tracks, calibTree-style to have no code difference
+from CalibTracker.SiStripCommon.ShallowEventDataProducer_cfi import shallowEventRun
+from CalibTracker.SiStripCommon.ShallowTracksProducer_cfi import shallowTracks
+from CalibTracker.SiStripCommon.ShallowGainCalibration_cfi import shallowGainCalibration
+ALCARECOShallowEventRun = shallowEventRun.clone()
+ALCARECOShallowTracks = shallowTracks.clone(Tracks=cms.InputTag('ALCARECOCalibrationTracksRefit'))
+ALCARECOShallowGainCalibration = shallowGainCalibration.clone(Tracks=cms.InputTag('ALCARECOCalibrationTracksRefit'))
+ALCARECOShallowSequence = cms.Sequence(shallowEventRunPCL*shallowTracksPCL*shallowGainCalibrationPCL)
 
 # ------------------------------------------------------------------------------
 # This is the module actually doing the calibration
@@ -69,6 +78,9 @@ ALCARECOSiStripCalib.Tracks   = cms.untracked.InputTag('ALCARECOCalibrationTrack
 ALCARECOSiStripCalib.FirstSetOfConstants = cms.untracked.bool(False)
 ALCARECOSiStripCalib.harvestingMode    = cms.untracked.bool(False)
 ALCARECOSiStripCalib.doStoreOnDB         = cms.bool(False)
+ALCARECOSiStripCalib.gain.label = cms.string('ALCARECOShallowGainCalibration')
+ALCARECOSiStripCalib.evtinfo.label = cms.string('ALCARECOShallowEventRun')
+ALCARECOSiStripCalib.tracks.label = cms.string('ALCARECOShallowTracks')
 
 
 # ------------------------------------------------------------------------------
@@ -88,9 +100,12 @@ MEtoEDMConvertSiStripGains = cms.EDProducer("MEtoEDMConverter",
 
 
 # the actual sequence
-seqALCARECOPromptCalibProdSiStripGains = cms.Sequence(ALCARECOCalMinBiasFilterForSiStripGains *
-                                                      ALCARECOTrackFilterRefit *
-                                                      ALCARECOSiStripCalib *
-                                                      MEtoEDMConvertSiStripGains)
+seqALCARECOPromptCalibProdSiStripGains = cms.Sequence(
+   ALCARECOCalMinBiasFilterForSiStripGains *
+   ALCARECOTrackFilterRefit *
+   ALCARECOShallowSequence *
+   ALCARECOSiStripCalib *
+   MEtoEDMConvertSiStripGains
+)
 
 
