@@ -44,6 +44,13 @@ namespace {
     return std::abs(x) <= 1 ? std::asin(x) : (x > 0 ? T(M_PI/2) : -T(M_PI/2));
   }
 }
+#else // for icc
+namespace {
+  template <class T>
+  inline T cropped_asin(T x) {
+    return std::abs(x) <= 1 ? std::asin(x) : (x > 0 ? T(M_PI/2) : -T(M_PI/2));
+  }
+} 
 #endif
 
 
