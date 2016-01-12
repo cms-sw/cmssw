@@ -17,7 +17,9 @@ for tracks in selectedTracks :
     locals()[label].FolderName       = cms.string(mainfolderName[tracks])
     locals()[label].PVFolderName     = cms.string(vertexfolderName[tracks])
     locals()[label].TrackPtMin       = trackPtMin[tracks]
+    locals()[label].TrackPtBin       = trackPtN[tracks]
     locals()[label].TrackPtMax       = trackPtMax[tracks]
+    locals()[label].TrackPBin        = trackPtN[tracks]
     locals()[label].TrackPMin        = trackPtMin[tracks]
     locals()[label].TrackPMax        = trackPtMax[tracks]
     locals()[label].doDCAPlots       = doPlotsPCA[tracks]
@@ -26,6 +28,20 @@ for tracks in selectedTracks :
     locals()[label].doSIPPlots       = doPlotsPCA[tracks]
     locals()[label].numCut           = numCutString[tracks]
     locals()[label].denCut           = denCutString[tracks]
+    locals()[label].doGoodTracksPlots                   = doGoodTracksPlots                   [tracks]
+    locals()[label].doTrackerSpecific                   = doTrackerSpecific                   [tracks]
+    locals()[label].doHitPropertiesPlots                = doHitPropertiesPlots                [tracks]
+    locals()[label].doGeneralPropertiesPlots            = doGeneralPropertiesPlots            [tracks]
+    locals()[label].doBeamSpotPlots                     = doBeamSpotPlots                     [tracks]
+    locals()[label].doSeedParameterHistos               = doSeedParameterHistos               [tracks]
+    locals()[label].doRecHitVsPhiVsEtaPerTrack          = doRecHitVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doGoodTrackRecHitVsPhiVsEtaPerTrack = doGoodTrackRecHitVsPhiVsEtaPerTrack [tracks]
+    locals()[label].doLayersVsPhiVsEtaPerTrack          = doLayersVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doGoodTrackLayersVsPhiVsEtaPerTrack = doGoodTrackLayersVsPhiVsEtaPerTrack [tracks]
+    locals()[label].doPUmonitoring                      = doPUmonitoring                      [tracks]
+    locals()[label].doPlotsVsBXlumi                     = doPlotsVsBXlumi                     [tracks]
+    locals()[label].doPlotsVsGoodPVtx                   = doPlotsVsGoodPVtx                   [tracks]
+    locals()[label].doEffFromHitPattern                 = doEffFromHitPattern                 [tracks]
     locals()[label].setLabel(label)
     
 
@@ -35,7 +51,9 @@ for tracks in selectedTracks :
     locals()[label].FolderName       = cms.string(mainfolderName[tracks])
     locals()[label].PVFolderName     = cms.string(vertexfolderName[tracks])
     locals()[label].TrackPtMin       = trackPtMin[tracks]
+    locals()[label].TrackPtBin       = trackPtN[tracks]
     locals()[label].TrackPtMax       = trackPtMax[tracks]
+    locals()[label].TrackPBin        = trackPtN[tracks]
     locals()[label].TrackPMin        = trackPtMin[tracks]
     locals()[label].TrackPMax        = trackPtMax[tracks]
     locals()[label].doDCAPlots       = doPlotsPCA[tracks]
@@ -44,6 +62,20 @@ for tracks in selectedTracks :
     locals()[label].doSIPPlots       = doPlotsPCA[tracks]
     locals()[label].numCut           = numCutString[tracks]
     locals()[label].denCut           = denCutString[tracks]
+    locals()[label].doGoodTracksPlots                   = doGoodTracksPlots                   [tracks]
+    locals()[label].doTrackerSpecific                   = doTrackerSpecific                   [tracks]
+    locals()[label].doHitPropertiesPlots                = doHitPropertiesPlots                [tracks]
+    locals()[label].doGeneralPropertiesPlots            = doGeneralPropertiesPlots            [tracks]
+    locals()[label].doBeamSpotPlots                     = doBeamSpotPlots                     [tracks]
+    locals()[label].doSeedParameterHistos               = doSeedParameterHistos               [tracks]
+    locals()[label].doRecHitVsPhiVsEtaPerTrack          = doRecHitVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doGoodTrackRecHitVsPhiVsEtaPerTrack = doGoodTrackRecHitVsPhiVsEtaPerTrack [tracks]
+    locals()[label].doLayersVsPhiVsEtaPerTrack          = doLayersVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doGoodTrackLayersVsPhiVsEtaPerTrack = doGoodTrackLayersVsPhiVsEtaPerTrack [tracks]
+    locals()[label].doPUmonitoring                      = doPUmonitoring                      [tracks]
+    locals()[label].doPlotsVsBXlumi                     = doPlotsVsBXlumi                     [tracks]
+    locals()[label].doPlotsVsGoodPVtx                   = doPlotsVsGoodPVtx                   [tracks]
+    locals()[label].doEffFromHitPattern                 = doEffFromHitPattern                 [tracks]
     locals()[label].setLabel(label)
 
 
