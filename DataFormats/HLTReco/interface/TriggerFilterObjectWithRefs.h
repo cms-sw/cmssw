@@ -24,6 +24,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <iostream>
 
 namespace trigger
 {
@@ -62,7 +63,10 @@ namespace trigger
     
     /// collectionTags
     void addCollectionTag(const edm::InputTag& collectionTag){
-      collectionTags_.push_back(collectionTag.encode());
+      std::string tmp = collectionTag.encode();
+      //std::cout << collectionTags_ << "\n";
+      std::cout << "SIZE:  " << collectionTags_.size() << "\n";
+      collectionTags_.push_back(tmp);
     }
     
     void getCollectionTags(std::vector<edm::InputTag>& collectionTags) const {
