@@ -36,6 +36,7 @@ namespace cond {
       void setMessageVerbosity( coral::MsgLevel level );
       void setAuthenticationPath( const std::string& p );
       void setAuthenticationSystem( int authSysCode );
+      void setFrontierSecurity( const std::string& signature );
       void setLogging( bool flag );   
       bool isLoggingEnabled() const;
       void setParameters( const edm::ParameterSet& connectionPset );
@@ -57,6 +58,9 @@ namespace cond {
       int m_authSys = 0;
       coral::MsgLevel m_messageLevel = coral::Error;
       bool m_loggingEnabled = false;
+      //The frontier security option is turned on for all sessions
+      //usig this wrapper of the CORAL connection setup for configuring the server access
+      std::string m_frontierSecurity = std::string( "" );
       // this one has to be moved!
       cond::CoralServiceManager* m_pluginManager = nullptr; 
       std::map<std::string,int> m_dbTypes;

@@ -39,6 +39,10 @@ namespace cond {
       m_authSys = authSysCode;
     }
     
+    void ConnectionPool::setFrontierSecurity( const std::string& signature ){
+      m_frontierSecurity = signature;
+    }
+    
     void ConnectionPool::setLogging( bool flag ){
       m_loggingEnabled = flag;
     }
@@ -131,7 +135,8 @@ namespace cond {
                                                                                 const std::string& transactionId,
                                                                                 bool writeCapable ){
       coral::ConnectionService connServ;
-      std::pair<std::string,std::string> fullConnectionPars = getConnectionParams( connectionString, transactionId, "" );
+      //all sessions opened with this connection service will share the same frontier security option.
+      std::pair<std::string,std::string> fullConnectionPars = getConnectionParams( connectionString, transactionId, m_frontierSecurity );
       if( !fullConnectionPars.second.empty() ) {
         connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, TAG::tname, 1 );
         connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, IOV::tname, 1 );
@@ -147,7 +152,7 @@ namespace cond {
                                            const std::string& transactionId, 
                                            bool writeCapable ){
       coral::ConnectionService connServ;
-      std::pair<std::string,std::string> fullConnectionPars = getConnectionParams( connectionString, transactionId, "" );
+      std::pair<std::string,std::string> fullConnectionPars = getConnectionParams( connectionString, transactionId, m_frontierSecurity );
       if( !fullConnectionPars.second.empty() ) {
         connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, TAG::tname, 1 );
         connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, IOV::tname, 1 );
