@@ -168,13 +168,13 @@ namespace edm {
     while(pit != pie) {
       // set provenance
       if(!sameAsPrevious) {
-        ProductProvenance prov(pit->second->branchID(), gotBranchIDVector);
+        ProductProvenance prov(pit->second->branchID(), std::move(gotBranchIDVector));
         *previousParentageId = prov.parentageID();
-  	ep.put(*pit->second, std::move(pit->first), prov);
+        ep.put(*pit->second, std::move(pit->first), prov);
         sameAsPrevious = true;
       } else {
         ProductProvenance prov(pit->second->branchID(), *previousParentageId);
-  	ep.put(*pit->second, std::move(pit->first), prov);
+        ep.put(*pit->second, std::move(pit->first), prov);
       }
       ++pit;
     }
