@@ -31,9 +31,9 @@ stage2GTRaw = cms.EDProducer(
     # record, module will pad with zeros
     blocks           = cms.untracked.VPSet(
         cms.untracked.PSet(
-            rxBlockLength    = cms.untracked.vint32(0,0,0,0, # q0 0-3
-                                                    0,0,6,6, # q1 4-7
-                                                    0,0,6,0, # q2 8-11
+            rxBlockLength    = cms.untracked.vint32(6,6,6,6, # q0 0-3
+                                                    6,6,6,6, # q1 4-7
+                                                    6,6,6,0, # q2 8-11
                                                     0,0,0,0, # q3 12-15
                                                     0,0,0,0, # q4 16-19
                                                     0,0,0,0, # q5 20-23
@@ -50,13 +50,13 @@ stage2GTRaw = cms.EDProducer(
                                                     0,0,0,0, # q16 64-67
                                                     0,0,0,0), # q17 68-71
             
-            txBlockLength    = cms.untracked.vint32(6,6,6,0, # q0 0-3
+            txBlockLength    = cms.untracked.vint32(0,0,0,0, # q0 0-3 
                                                     0,0,0,0, # q1 4-7
                                                     0,0,0,0, # q2 8-11
                                                     0,0,0,0, # q3 12-15
-                                                    0,0,0,0, # q4 16-19
-                                                    0,0,0,0, # q5 20-23
-                                                    0,0,0,0, # q6 24-27
+                                                    6,6,6,6, # q4 16-19
+                                                    6,6,6,6, # q5 20-23
+                                                    6,0,0,0, # q6 24-27
                                                     0,0,0,0, # q7 28-31
                                                     0,0,0,0, # q8 32-35
                                                     0,0,0,0, # q9 36-39

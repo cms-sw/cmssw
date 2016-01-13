@@ -29,6 +29,7 @@
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/CaloSpare.h"
+#include "DataFormats/L1Trigger/interface/L1DataEmulResult.h"
 
 namespace DataFormats_L1Trigger {
   struct dictionary {
@@ -40,6 +41,7 @@ namespace DataFormats_L1Trigger {
     l1t::MuonBxCollection   muonBxColl;
     l1t::TauBxCollection    tauBxColl;
     l1t::CaloSpareBxCollection caloSpareColl;
+    l1t::L1DataEmulResultBxCollection deResult;
 
     edm::Wrapper<l1t::L1CandidateBxCollection> w_l1CandidateBxColl;
     edm::Wrapper<l1t::EGammaBxCollection> w_eGammaBxColl;
@@ -48,6 +50,11 @@ namespace DataFormats_L1Trigger {
     edm::Wrapper<l1t::MuonBxCollection>   w_muonBxColl;
     edm::Wrapper<l1t::TauBxCollection>    w_tauBxColl;
     edm::Wrapper<l1t::CaloSpareBxCollection> w_caloSpareColl;
+    edm::Wrapper<l1t::L1DataEmulResultBxCollection>   w_deResult;
+
+    l1t::MuonRef   refMuon_;
+    l1t::MuonRefVector   refVecMuon_;
+    l1t::MuonVectorRef   vecRefMuon_;
 
     l1extra::L1EmParticleCollection emColl ;
     l1extra::L1JetParticleCollection jetColl ;

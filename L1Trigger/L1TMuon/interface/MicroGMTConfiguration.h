@@ -5,9 +5,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/L1Trigger/interface/Muon.h"
-#include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
-#include "DataFormats/L1TMuon/interface/GMTInternalMuon.h"
-#include "DataFormats/L1TMuon/interface/GMTInputCaloSum.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+#include "DataFormats/L1TMuon/interface/MuonCaloSumFwd.h"
+#include "L1Trigger/L1TMuon/interface/GMTInternalMuonFwd.h"
 
 #include <map>
 #include <utility>
@@ -27,8 +27,8 @@ namespace l1t {
       typedef GMTInternalMuon InterMuon;
       typedef GMTInternalMuonCollection InterMuonCollection;
       typedef GMTInternalMuonList InterMuonList;
-      typedef GMTInputCaloSum CaloInput;
-      typedef GMTInputCaloSumBxCollection CaloInputCollection;
+      typedef MuonCaloSum CaloInput;
+      typedef MuonCaloSumBxCollection CaloInputCollection;
       // Two's complement for a given bit-length
       static unsigned getTwosComp(const int signedInt, const int width);
 

@@ -32,11 +32,13 @@
 #include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
-#include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h" // deprecate
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h" // deprecate
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h" // deprecate
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h" // deprecate
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h" // deprecate
+
+#include "DataFormats/L1Trigger/interface/Muon.h"
 
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
@@ -58,11 +60,13 @@ namespace trigger
   typedef std::vector<reco::CaloMETRef>                     VRcalomet;
   typedef std::vector<reco::IsolatedPixelTrackCandidateRef> VRpixtrack;
 
-  typedef std::vector<l1extra::L1EmParticleRef>             VRl1em;
-  typedef std::vector<l1extra::L1MuonParticleRef>           VRl1muon;
-  typedef std::vector<l1extra::L1JetParticleRef>            VRl1jet;
-  typedef std::vector<l1extra::L1EtMissParticleRef>         VRl1etmiss;
-  typedef std::vector<l1extra::L1HFRingsRef>                VRl1hfrings;
+  typedef std::vector<l1extra::L1EmParticleRef>             VRl1em; //deprecate
+  typedef std::vector<l1extra::L1MuonParticleRef>           VRl1muon; //deprecate
+  typedef std::vector<l1extra::L1JetParticleRef>            VRl1jet; //deprecate
+  typedef std::vector<l1extra::L1EtMissParticleRef>         VRl1etmiss; //deprecate
+  typedef std::vector<l1extra::L1HFRingsRef>                VRl1hfrings; //deprecate
+
+  typedef l1t::MuonVectorRef                                VRl1tmuon;
 
   typedef std::vector<reco::PFJetRef>                       VRpfjet;
   typedef std::vector<reco::PFTauRef>                       VRpftau;
@@ -101,6 +105,9 @@ namespace trigger
     Vids        l1hfringsIds_;
     VRl1hfrings l1hfringsRefs_;
 
+    Vids        l1tmuonIds_;
+    VRl1tmuon   l1tmuonRefs_;
+
     Vids        pfjetIds_;
     VRpfjet     pfjetRefs_;
     Vids        pftauIds_;
@@ -126,6 +133,8 @@ namespace trigger
       l1jetIds_(), l1jetRefs_(),
       l1etmissIds_(), l1etmissRefs_(),
       l1hfringsIds_(), l1hfringsRefs_(),
+
+      l1tmuonIds_(), l1tmuonRefs_(),
 
       pfjetIds_(), pfjetRefs_(),
       pftauIds_(), pftauRefs_(),
@@ -161,6 +170,8 @@ namespace trigger
       std::swap(l1etmissRefs_,  other.l1etmissRefs_);
       std::swap(l1hfringsIds_,  other.l1hfringsIds_);
       std::swap(l1hfringsRefs_, other.l1hfringsRefs_);
+
+      std::swap(l1tmuonIds_,     other.l1tmuonIds_);
 
       std::swap(pfjetIds_,      other.pfjetIds_);
       std::swap(pfjetRefs_,     other.pfjetRefs_);
@@ -224,7 +235,10 @@ namespace trigger
       l1hfringsIds_.push_back(id);
       l1hfringsRefs_.push_back(ref);
     }
-
+    void addObject(int id, const l1t::MuonRef& ref) {
+      l1tmuonIds_.push_back(id);
+      l1tmuonRefs_.push_back(ref);
+    }
     void addObject(int id, const reco::PFJetRef& ref) {
       pfjetIds_.push_back(id);
       pfjetRefs_.push_back(ref);
@@ -311,6 +325,12 @@ namespace trigger
       l1etmissIds_.insert(l1etmissIds_.end(),ids.begin(),ids.end());
       l1etmissRefs_.insert(l1etmissRefs_.end(),refs.begin(),refs.end());
       return l1etmissIds_.size();
+    }
+    size_type addObjects (const Vids& ids, const VRl1tmuon& refs) {
+      assert(ids.size()==refs.size());
+      l1tmuonIds_.insert(l1tmuonIds_.end(),ids.begin(),ids.end());
+      l1tmuonRefs_.insert(l1tmuonRefs_.end(),refs.begin(),refs.end());
+      return l1tmuonIds_.size();
     }
     size_type addObjects (const Vids& ids, const VRl1hfrings& refs) {
       assert(ids.size()==refs.size());
@@ -754,7 +774,21 @@ namespace trigger
       }
       return;
     }
-
+    void getObjects(int id, VRl1tmuon& refs) const {
+      getObjects(id,refs,0,l1tmuonIds_.size());
+    } 
+    void getObjects(int id, VRl1tmuon& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1tmuonIds_.size());
+      size_type n(0);
+      for (size_type i=begin; i!=end; ++i) {if (id==l1tmuonIds_[i]) {++n;}}
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	if (id==l1tmuonIds_[i]) {refs[j]=l1tmuonRefs_[i]; ++j;}
+      }
+      return;
+    }
     void getObjects(Vids& ids, VRpfjet& refs) const {
       getObjects(ids,refs,0,pfjetIds_.size());
     }
