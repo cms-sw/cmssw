@@ -49,13 +49,14 @@ namespace edm {
   class SharedResourcesAcquirer;
 
   struct FilledProductPtr {
-    bool operator()(std::shared_ptr<ProductHolderBase> const& iObj) { return bool(iObj);}
+    bool operator()(propagate_const<std::shared_ptr<ProductHolderBase>> const& iObj) { return bool(iObj);}
   };
 
   class Principal : public EDProductGetter {
   public:
-    typedef std::vector<std::shared_ptr<ProductHolderBase> > ProductHolderCollection;
+    typedef std::vector<propagate_const<std::shared_ptr<ProductHolderBase>> > ProductHolderCollection;
     typedef boost::filter_iterator<FilledProductPtr, ProductHolderCollection::const_iterator> const_iterator;
+    typedef boost::filter_iterator<FilledProductPtr, ProductHolderCollection::iterator> iterator;
     typedef ProcessHistory::const_iterator ProcessNameConstIterator;
     typedef ProductHolderBase const* ConstProductHolderPtr;
     typedef std::vector<BasicHandle> BasicHandleVec;
@@ -167,6 +168,9 @@ namespace edm {
     const_iterator begin() const {return boost::make_filter_iterator<FilledProductPtr>(productHolders_.begin(), productHolders_.end());}
     const_iterator end() const {return  boost::make_filter_iterator<FilledProductPtr>(productHolders_.end(), productHolders_.end());}
 
+    iterator begin() {return boost::make_filter_iterator<FilledProductPtr>(productHolders_.begin(), productHolders_.end());}
+    iterator end() {return  boost::make_filter_iterator<FilledProductPtr>(productHolders_.end(), productHolders_.end());}
+
     Provenance getProvenance(BranchID const& bid,
                              ModuleCallingContext const* mcc) const;
 
@@ -212,8 +216,9 @@ namespace edm {
     // data.
     void addProduct_(std::unique_ptr<ProductHolderBase> phb);
     void addProductOrThrow(std::unique_ptr<ProductHolderBase> phb);
-    ProductHolderBase* getExistingProduct(BranchID const& branchID) const;
-    ProductHolderBase* getExistingProduct(ProductHolderBase const& phb) const;
+    ProductHolderBase* getExistingProduct(BranchID const& branchID);
+    ProductHolderBase const* getExistingProduct(BranchID const& branchID) const;
+    ProductHolderBase const* getExistingProduct(ProductHolderBase const& phb) const;
 
     // throws if the pointed to product is already in the Principal.
     void checkUniquenessAndType(WrapperBase const* prod, ProductHolderBase const* productHolder) const;

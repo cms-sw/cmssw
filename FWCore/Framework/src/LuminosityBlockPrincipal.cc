@@ -30,7 +30,7 @@ namespace edm {
 
     fillPrincipal(aux_->processHistoryID(), processHistoryRegistry, reader);
 
-    for(auto const& prod : *this) {
+    for(auto& prod : *this) {
       prod->setProcessHistory(processHistory());
     }
   }
