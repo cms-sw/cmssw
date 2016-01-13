@@ -32,6 +32,7 @@ namespace edm {
     
     WrapperBase const* wrapper() const { return wrapper_.get();}
     WrapperBase* wrapper() { return wrapper_.get(); }
+    WrapperBase* unsafe_wrapper() const { return wrapper_.get(); }
     std::shared_ptr<WrapperBase const> sharedConstWrapper() const {
       return wrapper_;
     }
@@ -51,7 +52,11 @@ namespace edm {
     void resetProductData() {
       wrapper_.reset();
     }
-    
+
+    void unsafe_resetProductData() const {
+      wrapper_.reset();
+    }
+
     void setProcessHistory(ProcessHistory const& ph) {
       prov_.setProcessHistory(ph);
     }
