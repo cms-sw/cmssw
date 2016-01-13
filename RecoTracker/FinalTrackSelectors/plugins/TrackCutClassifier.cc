@@ -78,13 +78,13 @@ namespace {
       float nomd0E = sqrt(d0err[i]*d0err[i]+(d0err_par[i]/pt)*(d0err_par[i]/pt));
       // parametrized z0 resolution for the track pt and eta
       //    float nomdzE = nomd0E*(std::cosh(eta));
-      float nomdzE = nomd0E*(abs(p)/pt); // cosh(eta):=abs(p)/pt
+      float nomdzE = nomd0E*(p/pt); // cosh(eta):=abs(p)/pt
       
       dzCut[i] = powN(par[i]*nLayers,4)*nomdzE;
     }
   }
   inline void drCut_par2(reco::Track const & trk, int & nLayers, const float* par, const float * d0err, const float * d0err_par, float drCut[]) {
-    float pt = float(trk.pt());
+    float pt = trk.pt();
 
     for (int i=2; i>=0; --i) {
       // parametrized d0 resolution for the track pt
