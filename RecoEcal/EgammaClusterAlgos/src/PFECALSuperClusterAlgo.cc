@@ -391,13 +391,13 @@ buildSuperCluster(CalibClusterPtr& seed,
       for( auto i_ps = clustops.first; i_ps != clustops.second; ++i_ps) {
 	edm::Ptr<reco::PFCluster> psclus(i_ps->second);
 
-	const std::vector<reco::PFRecHitFraction> recH_Frac = psclus->recHitFractions();
+	auto const& recH_Frac = psclus->recHitFractions();
 
 	switch( psclus->layer() ) {
 	case PFLayer::PS1:
 	  ps1_energies.push_back(psclus->energy());
-	  for(unsigned int iVec=0; iVec<recH_Frac.size(); ++iVec){
-	    ESDetId strip1 = recH_Frac.at(iVec).recHitRef()->detId();
+	  for (auto const& recH : recH_Frac){
+            ESDetId strip1 = recH.recHitRef()->detId();
 	    if(strip1 != ESDetId(0)){
 	      ESChannelStatusMap::const_iterator status_p1 = channelStatus_->getMap().find(strip1);
 	      // getStatusCode() == 1 => dead channel
@@ -408,8 +408,8 @@ buildSuperCluster(CalibClusterPtr& seed,
 	  break;
 	case PFLayer::PS2:
 	  ps2_energies.push_back(psclus->energy());
-	  for(unsigned int iVec=0; iVec<recH_Frac.size(); ++iVec){
-	    ESDetId strip2 = recH_Frac.at(iVec).recHitRef()->detId();
+	  for (auto const& recH : recH_Frac){
+            ESDetId strip2 = recH.recHitRef()->detId();
 	    if(strip2 != ESDetId(0)) {
 	      ESChannelStatusMap::const_iterator status_p2 = channelStatus_->getMap().find(strip2);
 	      if(status_p2->getStatusCode() == 0) condP2 = 0;
