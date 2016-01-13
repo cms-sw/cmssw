@@ -2277,12 +2277,12 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
       for( auto i_ps = psclusters.begin(); i_ps != psclusters.end(); ++i_ps) {
         const PFClusterRef&  psclus = i_ps->first->clusterRef();
 
-        const std::vector<reco::PFRecHitFraction> recH_Frac = psclus->recHitFractions();
-
+	auto const& recH_Frac = psclus->recHitFractions();	
+	
         switch( psclus->layer() ) {
         case PFLayer::PS1:
-	  for(unsigned int iVec=0; iVec<recH_Frac.size(); ++iVec){
-	    ESDetId strip1 = recH_Frac.at(iVec).recHitRef()->detId();
+	  for (auto const& recH : recH_Frac){
+            ESDetId strip1 = recH.recHitRef()->detId();
 	    if(strip1 != ESDetId(0)){
 	      ESChannelStatusMap::const_iterator status_p1 = channelStatus_->getMap().find(strip1);
 	      //getStatusCode() == 0 => active channel
@@ -2292,9 +2292,8 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
 	  }
 	  break;
 	case PFLayer::PS2:
-	  //    ps2_energies.push_back(psclus->energy());                                                       
-	  for(unsigned int iVec=0; iVec<recH_Frac.size(); ++iVec){
-	    ESDetId strip2 = recH_Frac.at(iVec).recHitRef()->detId();
+	  for (auto const& recH : recH_Frac){
+            ESDetId strip2 = recH.recHitRef()->detId();
 	    if(strip2 != ESDetId(0)) {
 	      ESChannelStatusMap::const_iterator status_p2 = channelStatus_->getMap().find(strip2);
 	      if(status_p2->getStatusCode() == 0) condP2 = 0;
