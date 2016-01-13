@@ -289,7 +289,7 @@ namespace edm {
       }));
     }
     ProductHolderBase::ResolveStatus status;
-    phb->resolveProduct(status,false,nullptr,nullptr);
+    phb->resolveProduct(status,*this,false,nullptr,nullptr);
 
     return BasicHandle(phb->productData());
   }
@@ -442,7 +442,7 @@ namespace edm {
         << "This should never happen. Contact a Framework developer";
     }
     ProductHolderBase::ResolveStatus status;
-    ProductData const* productData = phb->resolveProduct(status,false,nullptr,nullptr);
+    ProductData const* productData = phb->resolveProduct(status,*this,false,nullptr,nullptr);
     if (productData == nullptr) {
       return nullptr;
     }

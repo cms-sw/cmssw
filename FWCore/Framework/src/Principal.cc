@@ -217,7 +217,7 @@ namespace edm {
           ProductHolderIndexHelper::IndexAndNames const& product = indexAndNames.at(i);
           if (product.startInProcessNames() == 0) {
             if (productHolderIndex != ProductHolderIndexInvalid) {
-              std::shared_ptr<ProductHolderBase> newHolder = std::make_shared<NoProcessProductHolder>(matchingHolders, ambiguous, this);
+              std::shared_ptr<ProductHolderBase> newHolder = std::make_shared<NoProcessProductHolder>(matchingHolders, ambiguous);
               productHolders_.at(productHolderIndex) = newHolder;
               matchingHolders.assign(lookupProcessNames.size(), ProductHolderIndexInvalid);
               ambiguous.assign(lookupProcessNames.size(), false);
@@ -238,7 +238,7 @@ namespace edm {
           }
         }
       }
-      std::shared_ptr<ProductHolderBase> newHolder = std::make_shared<NoProcessProductHolder>(matchingHolders, ambiguous, this);
+      std::shared_ptr<ProductHolderBase> newHolder = std::make_shared<NoProcessProductHolder>(matchingHolders, ambiguous);
       productHolders_.at(productHolderIndex) = newHolder;
     }
   }
@@ -295,13 +295,13 @@ namespace edm {
 
   void
   Principal::addInputProduct(std::shared_ptr<BranchDescription const> bd) {
-    std::unique_ptr<ProductHolderBase> phb(new InputProductHolder(bd, this));
+    std::unique_ptr<ProductHolderBase> phb(new InputProductHolder(bd));
     addProductOrThrow(std::move(phb));
   }
 
   void
   Principal::addUnscheduledProduct(std::shared_ptr<BranchDescription const> bd) {
-    std::unique_ptr<ProductHolderBase> phb(new UnscheduledProductHolder(bd, this));
+    std::unique_ptr<ProductHolderBase> phb(new UnscheduledProductHolder(bd));
     addProductOrThrow(std::move(phb));
   }
 
@@ -514,7 +514,7 @@ namespace edm {
     std::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
     assert(0!=productHolder.get());
     ProductHolderBase::ResolveStatus resolveStatus;
-    ProductData const* productData = productHolder->resolveProduct(resolveStatus, skipCurrentProcess, sra, mcc);
+    ProductData const* productData = productHolder->resolveProduct(resolveStatus, *this, skipCurrentProcess, sra, mcc);
     if(resolveStatus == ProductHolderBase::Ambiguous) {
       ambiguous = true;
       return BasicHandle();
@@ -532,7 +532,7 @@ namespace edm {
     std::shared_ptr<ProductHolderBase> const& productHolder = productHolders_.at(index);
     assert(0!=productHolder.get());
     ProductHolderBase::ResolveStatus resolveStatus;
-    productHolder->resolveProduct(resolveStatus, skipCurrentProcess, nullptr, mcc);
+    productHolder->resolveProduct(resolveStatus, *this,skipCurrentProcess, nullptr, mcc);
   }
 
   void
@@ -628,7 +628,7 @@ namespace edm {
           }
 
           ProductHolderBase::ResolveStatus resolveStatus;
-          ProductData const* productData = productHolder->resolveProduct(resolveStatus, false, sra, mcc);
+          ProductData const* productData = productHolder->resolveProduct(resolveStatus, *this,false, sra, mcc);
           if(productData) {
             // Skip product if not available.
             results.emplace_back(*productData);
@@ -684,7 +684,7 @@ namespace edm {
     std::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
 
     ProductHolderBase::ResolveStatus resolveStatus;
-    ProductData const* productData = productHolder->resolveProduct(resolveStatus, skipCurrentProcess, sra, mcc);
+    ProductData const* productData = productHolder->resolveProduct(resolveStatus, *this, skipCurrentProcess, sra, mcc);
     if(resolveStatus == ProductHolderBase::Ambiguous) {
       throwAmbiguousException("findProductByLabel", typeID, inputTag.label(), inputTag.instance(), inputTag.process());
     }
@@ -726,7 +726,7 @@ namespace edm {
     std::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
 
     ProductHolderBase::ResolveStatus resolveStatus;
-    ProductData const* productData = productHolder->resolveProduct(resolveStatus, false, sra, mcc);
+    ProductData const* productData = productHolder->resolveProduct(resolveStatus, *this, false, sra, mcc);
     if(resolveStatus == ProductHolderBase::Ambiguous) {
       throwAmbiguousException("findProductByLabel", typeID, label, instance, process);
     }
@@ -760,7 +760,7 @@ namespace edm {
     }
     if(getProd) {
       ProductHolderBase::ResolveStatus status;
-      phb->resolveProduct(status,false,nullptr, mcc);
+      phb->resolveProduct(status,*this,false,nullptr, mcc);
     }
     if(!phb->provenance() || (!phb->product() && !phb->productProvenancePtr())) {
       return OutputHandle();
@@ -778,7 +778,7 @@ namespace edm {
 
     if(phb->onDemand()) {
       ProductHolderBase::ResolveStatus status;
-      if(not phb->resolveProduct(status,false, nullptr, mcc) ) {
+      if(not phb->resolveProduct(status,*this,false, nullptr, mcc) ) {
         throwProductNotFoundException("getProvenance(onDemand)", errors::ProductNotFound, bid);
       }
     }
@@ -810,7 +810,6 @@ namespace edm {
       ProductHolderIndex indexO = other.preg_->indexFrom(prod);
       assert(indexO!=ProductHolderIndexInvalid);
       productHolders_[index].swap(other.productHolders_[indexO]);
-      productHolders_[index]->setPrincipal(this);
     }
     reader_->mergeReaders(other.reader());
   }
