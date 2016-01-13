@@ -79,9 +79,6 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
   calibPFSCEle_Fbrem_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_endcap");
   calibPFSCEle_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_barrel");
   calibPFSCEle_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_endcap");
-  // std::shared_ptr<PFSCEnergyCalibration>  
-  //   thePFSCEnergyCalibration ( new PFSCEnergyCalibration(calibPFSCEle_Fbrem_barrel,calibPFSCEle_Fbrem_endcap,
-  //                                                        calibPFSCEle_barrel,calibPFSCEle_endcap )); 
   algo_config.thePFSCEnergyCalibration.reset( new PFSCEnergyCalibration( calibPFSCEle_Fbrem_barrel,calibPFSCEle_Fbrem_endcap,
 									 calibPFSCEle_barrel,calibPFSCEle_endcap ) ); 
                                
@@ -171,7 +168,6 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
   useCalibrationsFromDB_
     = iConfig.getParameter<bool>("useCalibrationsFromDB");    
 
-  //  std::shared_ptr<PFEnergyCalibration> calibration(new PFEnergyCalibration()); 
   algo_config.thePFEnergyCalibration.reset(new PFEnergyCalibration());
 
   int algoType 

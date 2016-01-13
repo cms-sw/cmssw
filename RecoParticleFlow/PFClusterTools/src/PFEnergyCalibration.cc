@@ -806,23 +806,23 @@ PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal
   double gammaprime=Gamma(etaEcal)/9e-5;
 
   if(outputPS1 == 0 && outputPS2 == 0 && esEEInterCalib_ != 0){
-    //    std::cout << " >>> both working " << std::endl;
-    //    scaling factor accounting for data-mc                                                                                 
+    // both ES planes working
+    // scaling factor accounting for data-mc                                                                                 
     outputPS1=gammaprime*ePS1 * esEEInterCalib_->getGammaLow0();
     outputPS2=gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3();
   }
   else if(outputPS1 == 0 && outputPS2 == -1 && esEEInterCalib_ != 0){
-    //    std::cout << " >>> P1 working " << std::endl;
+    // ESP1 only working
     outputPS1 = gammaprime*ePS1 * esEEInterCalib_->getGammaLow0() * esEEInterCalib_->getGammaLow1();
     outputPS2 = gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3() * esEEInterCalib_->getGammaLow1();
   }
   else if(outputPS1 == -1 && outputPS2 == 0 && esEEInterCalib_ != 0){
-    //    std::cout << " >>> P2 working " << std::endl;
+    // ESP2 only working
     outputPS1 = gammaprime*ePS1 * esEEInterCalib_->getGammaLow0() * esEEInterCalib_->getGammaLow2();
     outputPS2 = gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3() * esEEInterCalib_->getGammaLow2();
   }
   else{
-    //    std::cout << " >>> none working " << std::endl;
+    // none working
     outputPS1 = gammaprime*ePS1;
     outputPS2 = gammaprime*Alpha(etaEcal)*ePS2;
   }
