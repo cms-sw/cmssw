@@ -409,11 +409,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHFV1(
             if (IDX < details.short_fiber.size()) {
                 short_fiber_val = details.short_fiber[IDX];
             }
-            output[ibin] += (long_fiber_val + short_fiber_val) >> HF_LUMI_SHIFT;
-            static const int MAX_OUTPUT = 0x3FF;  // 0x3FF = 1023
-            if (output[ibin] > MAX_OUTPUT) {
-                output[ibin] = MAX_OUTPUT;
-            }
+            output[ibin] += (long_fiber_val + short_fiber_val);
 
             int ADCLong = details.LongDigi[ibin].adc();
             int ADCShort = details.ShortDigi[ibin].adc();
@@ -422,6 +418,11 @@ void HcalTriggerPrimitiveAlgo::analyzeHFV1(
                 finegrain[ibin] = (finegrain[ibin] || HCALFEM->fineGrainbit(ADCShort, details.ShortDigi.id(), details.ShortDigi[ibin].capid(), ADCLong, details.LongDigi.id(), details.LongDigi[ibin].capid()));
             }
         }
+    }
+
+    for (int bin = 0; bin < numberOfSamples_; ++bin) {
+       static const unsigned int MAX_OUTPUT = 0x3FF;  // 0x3FF = 1023
+       output[bin] = min({MAX_OUTPUT, output[bin] >> HF_LUMI_SHIFT});
     }
     outcoder_->compress(output, finegrain, result);
     
