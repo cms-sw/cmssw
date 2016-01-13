@@ -2,7 +2,7 @@
 #include <ostream>
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDDAQHeader.h"
 
-namespace sistrip {
+namespace Phase2Tracker {
 
   std::ostream& operator<<(std::ostream& os, const FEDDAQEventType& value)
   {
@@ -57,32 +57,28 @@ namespace sistrip {
     }
   }
 
-  FEDDAQHeader& FEDDAQHeader::setEventType(const FEDDAQEventType evtType)
+  void FEDDAQHeader::setEventType(const FEDDAQEventType evtType)
   {
     header_[7] = ((header_[7] & 0xF0) | evtType);
-    return *this;
   }
 
-  FEDDAQHeader& FEDDAQHeader::setL1ID(const uint32_t l1ID)
+  void FEDDAQHeader::setL1ID(const uint32_t l1ID)
   {
     header_[4] = (l1ID & 0x000000FF);
     header_[5] = ( (l1ID & 0x0000FF00) >> 8);
     header_[6] = ( (l1ID & 0x00FF0000) >> 16);
-    return *this;
   }
 
-  FEDDAQHeader& FEDDAQHeader::setBXID(const uint16_t bxID)
+  void FEDDAQHeader::setBXID(const uint16_t bxID)
   {
     header_[3] = ( (bxID & 0x0FF0) >> 4);
     header_[2] = ( (header_[2] & 0x0F) | ( (bxID & 0x000F) << 4) );
-    return *this;
   }
 
-  FEDDAQHeader& FEDDAQHeader::setSourceID(const uint16_t sourceID)
+  void FEDDAQHeader::setSourceID(const uint16_t sourceID)
   {
     header_[2] = ( (header_[2] & 0xF0) | ( (sourceID & 0x0F00) >> 8) );
     header_[1] = (sourceID & 0x00FF);
-    return *this;
   }
 
   FEDDAQHeader::FEDDAQHeader(const uint32_t l1ID, const uint16_t bxID, const uint16_t sourceID, const FEDDAQEventType evtType)
@@ -98,5 +94,5 @@ namespace sistrip {
     setSourceID(sourceID);
   }
 
-} // end of sistrip namespace
+} // end of Phase2Tracker namespace
 
