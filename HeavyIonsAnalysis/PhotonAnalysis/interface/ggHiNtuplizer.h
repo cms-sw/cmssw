@@ -13,6 +13,10 @@
 #include "DataFormats/EgammaCandidates/interface/HIPhotonIsolation.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 using namespace std;
@@ -49,13 +53,22 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    edm::EDGetTokenT<vector<PileupSummaryInfo> >    genPileupCollection_;
    edm::EDGetTokenT<vector<reco::GenParticle> >    genParticlesCollection_;
    edm::EDGetTokenT<edm::View<reco::GsfElectron> > gsfElectronsCollection_;
+   edm::EDGetTokenT<edm::ValueMap<bool> > eleVetoIdMapToken_;
+   edm::EDGetTokenT<edm::ValueMap<bool> > eleLooseIdMapToken_;
+   edm::EDGetTokenT<edm::ValueMap<bool> > eleMediumIdMapToken_;
+   edm::EDGetTokenT<edm::ValueMap<bool> > eleTightIdMapToken_;
    edm::EDGetTokenT<edm::View<reco::Photon> >      recoPhotonsCollection_;
    edm::EDGetTokenT<edm::ValueMap<reco::HIPhotonIsolation> > recoPhotonsHiIso_;
    edm::EDGetTokenT<edm::View<reco::Muon> >        recoMuonsCollection_;
    edm::EDGetTokenT<vector<reco::Vertex> >         vtxCollection_;
+   edm::EDGetTokenT<double> rhoToken_;
+   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+   edm::EDGetTokenT<reco::ConversionCollection> conversionsToken_;
    edm::EDGetTokenT<edm::View<reco::PFCandidate> >    pfCollection_;
    edm::EDGetTokenT<edm::ValueMap<reco::VoronoiBackground> > voronoiBkgCalo_;
    edm::EDGetTokenT<edm::ValueMap<reco::VoronoiBackground> > voronoiBkgPF_;
+
+   EffectiveAreas effectiveAreas_;
 
    TTree*         tree_;
 
@@ -151,6 +164,12 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    vector<float>  eleBC1Eta_;
    vector<float>  eleBC2E_;
    vector<float>  eleBC2Eta_;
+   vector<int>    eleIDVeto_; //50nsV1 is depreacated; updated in 76X
+   vector<int>    eleIDLoose_;
+   vector<int>    eleIDMedium_;
+   vector<int>    eleIDTight_;
+   vector<int>    elepassConversionVeto_;
+   vector<int>    eleEffAreaTimesRho_;
 
    // reco::Photon
    Int_t          nPho_;

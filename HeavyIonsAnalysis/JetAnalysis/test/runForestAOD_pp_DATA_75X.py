@@ -32,7 +32,7 @@ process.source = cms.Source("PoolSource",
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(200))
+    input = cms.untracked.int32(100))
 
 
 #####################################################################################
@@ -138,15 +138,42 @@ process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_cff')
 #####################
 process.load('HeavyIonsAnalysis.PhotonAnalysis.ggHiNtuplizer_cfi')
 process.ggHiNtuplizer.gsfElectronLabel   = cms.InputTag("gedGsfElectrons")
+process.ggHiNtuplizer.electronVetoID  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto")
+process.ggHiNtuplizer.electronLooseID  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose")
+process.ggHiNtuplizer.electronMediumID  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium")
+process.ggHiNtuplizer.electronTightID  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight")
 process.ggHiNtuplizer.recoPhotonHiIsolationMap = cms.InputTag('photonIsolationHIProducerpp')
-process.ggHiNtuplizer.VtxLabel           = cms.InputTag("offlinePrimaryVertices")
+process.ggHiNtuplizer.VtxLabel  = cms.InputTag("offlinePrimaryVertices")
+process.ggHiNtuplizer.rho = cms.InputTag("fixedGridRhoFastjetAll")
+process.ggHiNtuplizer.beamSpot = cms.InputTag('offlineBeamSpot')
+process.ggHiNtuplizer.conversions = cms.InputTag('allConversions')
+# Effective areas for computing PU correction for isolations
+process.ggHiNtuplizer.effAreasConfigFile = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt")
 process.ggHiNtuplizer.particleFlowCollection = cms.InputTag("particleFlow")
-process.ggHiNtuplizer.doVsIso            = cms.bool(False)
+process.ggHiNtuplizer.doVsIso   = cms.bool(False)
 process.ggHiNtuplizer.doGenParticles = False
 process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.InputTag('gedPhotons'),
                                                        recoPhotonHiIsolationMap = cms.InputTag('photonIsolationHIProducerppGED'))
 
 ####################################################################################
+
+#####################
+# Electron ID
+#####################
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+# turn on VID producer, indicate data format to be processed
+# DataFormat.AOD or DataFormat.MiniAOD
+dataFormat = DataFormat.AOD
+switchOnVIDElectronIdProducer(process, dataFormat)
+
+# define which IDs we want to produce. Check here https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2#Recipe_for_regular_users_for_7_4
+my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff']
+
+#add them to the VID producer
+for idmod in my_id_modules:
+    setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
+
+#####################################################################################
 
 #####################
 # tupel and necessary PAT sequences
@@ -165,6 +192,7 @@ process.ana_step = cms.Path(process.hltanalysis *
 			    process.hltobject *
                             process.hiEvtAnalyzer *
                             process.jetSequences +
+                            process.egmGsfElectronIDSequence +
                             process.ggHiNtuplizer +
                             process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
