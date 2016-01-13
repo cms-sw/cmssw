@@ -32,7 +32,7 @@ namespace edm {
   void
   RunPrincipal::put(
         BranchDescription const& bd,
-        std::unique_ptr<WrapperBase>  edp) {
+        std::unique_ptr<WrapperBase>  edp) const {
 
     // Assert commented out for LHESource.
     // assert(bd.produced());

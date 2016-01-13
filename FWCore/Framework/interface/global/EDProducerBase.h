@@ -66,7 +66,7 @@ namespace edm {
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
     private:
-      bool doEvent(EventPrincipal& ep, EventSetup const& c,
+      bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                    ActivityRegistry*,
                    ModuleCallingContext const*);
       void doPreallocate(PreallocationConfiguration const&);
@@ -76,30 +76,30 @@ namespace edm {
       void doBeginStream(StreamID id);
       void doEndStream(StreamID id);
       void doStreamBeginRun(StreamID id,
-                            RunPrincipal& ep,
+                            RunPrincipal const& ep,
                             EventSetup const& c,
                             ModuleCallingContext const*);
       void doStreamEndRun(StreamID id,
-                          RunPrincipal& ep,
+                          RunPrincipal const& ep,
                           EventSetup const& c,
                           ModuleCallingContext const*);
       void doStreamBeginLuminosityBlock(StreamID id,
-                                        LuminosityBlockPrincipal& ep,
+                                        LuminosityBlockPrincipal const& ep,
                                         EventSetup const& c,
                                         ModuleCallingContext const*);
       void doStreamEndLuminosityBlock(StreamID id,
-                                      LuminosityBlockPrincipal& ep,
+                                      LuminosityBlockPrincipal const& ep,
                                       EventSetup const& c,
                                       ModuleCallingContext const*);
 
       
-      void doBeginRun(RunPrincipal& rp, EventSetup const& c,
+      void doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                       ModuleCallingContext const*);
-      void doEndRun(RunPrincipal& rp, EventSetup const& c,
+      void doEndRun(RunPrincipal const& rp, EventSetup const& c,
                     ModuleCallingContext const*);
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                   ModuleCallingContext const*);
-      void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+      void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                 ModuleCallingContext const*);
       
       void doPreForkReleaseResources();

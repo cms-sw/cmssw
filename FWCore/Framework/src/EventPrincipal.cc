@@ -153,7 +153,7 @@ namespace edm {
   EventPrincipal::put(
         BranchDescription const& bd,
         std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const& productProvenance) {
+        ProductProvenance const& productProvenance) const {
 
     // assert commented out for DaqSource.  When DaqSource no longer uses put(), the assert can be restored.
     //assert(produced());
@@ -174,7 +174,7 @@ namespace edm {
   EventPrincipal::putOnRead(
         BranchDescription const& bd,
         std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const& productProvenance) {
+        ProductProvenance const& productProvenance) const {
 
     assert(!bd.produced());
     productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
@@ -471,7 +471,7 @@ namespace edm {
         postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
       });
       auto handlerCall = [this,&moduleLabel,&mcc]() {
-        unscheduledHandler_->tryToFill(moduleLabel, *const_cast<EventPrincipal*>(this), mcc);
+        unscheduledHandler_->tryToFill(moduleLabel, *this, mcc);
       };
       if (sra) {
         sra->temporaryUnlock(handlerCall);

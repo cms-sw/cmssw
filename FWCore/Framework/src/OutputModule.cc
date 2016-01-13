@@ -204,7 +204,7 @@ namespace edm {
 
   Trig OutputModule::getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventPrincipal const& ep, ModuleCallingContext const* mcc) const {
     //This cast is safe since we only call const functions of the EventPrincipal after this point
-    PrincipalGetAdapter adapter(const_cast<EventPrincipal&>(ep), moduleDescription_);
+    PrincipalGetAdapter adapter(ep, moduleDescription_);
     adapter.setConsumer(this);
     Trig result;
     auto bh = adapter.getByToken_(TypeID(typeid(TriggerResults)),PRODUCT_TYPE, token, mcc);

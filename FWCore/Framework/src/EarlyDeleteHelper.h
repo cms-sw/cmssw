@@ -45,8 +45,8 @@ namespace edm {
     
     // ---------- member functions ---------------------------
     void reset() {pathsLeftToComplete_ = nPathsOn_;}
-    void moduleRan(EventPrincipal&);
-    void pathFinished(EventPrincipal&);
+    void moduleRan(EventPrincipal const&);
+    void pathFinished(EventPrincipal const&);
     void addedToPath() { ++nPathsOn_;}
     void appendIndex(unsigned int index);
     void shiftIndexPointers(unsigned int iShift);

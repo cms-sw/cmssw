@@ -86,7 +86,7 @@ namespace edm {
       return *luminosityBlockPrincipal_;
     }
 
-    bool luminosityBlockPrincipalPtrValid() {
+    bool luminosityBlockPrincipalPtrValid() const {
       return (luminosityBlockPrincipal_) ? true : false;
     }
 
@@ -152,12 +152,12 @@ namespace edm {
     void put(
         BranchDescription const& bd,
         std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const& productProvenance);
+        ProductProvenance const& productProvenance) const;
 
     void putOnRead(
         BranchDescription const& bd,
         std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const& productProvenance);
+        ProductProvenance const& productProvenance) const;
 
     virtual WrapperBase const* getIt(ProductID const& pid) const override;
     virtual WrapperBase const* getThinnedProduct(ProductID const& pid, unsigned int& key) const override;

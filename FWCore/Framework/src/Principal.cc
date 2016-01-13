@@ -327,7 +327,7 @@ namespace edm {
   }
 
   void
-  Principal::deleteProduct(BranchID const& id) {
+  Principal::deleteProduct(BranchID const& id) const {
     ProductHolderBase* phb = getExistingProduct(id);
     assert(nullptr != phb);
     auto itFound = productPtrs_.find(phb->product());
@@ -395,7 +395,7 @@ namespace edm {
   }
 
   ProductHolderBase*
-  Principal::getExistingProduct(BranchID const& branchID) {
+  Principal::getExistingProduct(BranchID const& branchID) const {
     ProductHolderIndex index = preg_->indexFrom(branchID);
     assert(index != ProductHolderIndexInvalid);
     SharedProductPtr ptr = productHolders_.at(index);
@@ -403,7 +403,7 @@ namespace edm {
   }
 
   ProductHolderBase*
-  Principal::getExistingProduct(ProductHolderBase const& productHolder) {
+  Principal::getExistingProduct(ProductHolderBase const& productHolder) const {
     ProductHolderBase* phb = getExistingProduct(productHolder.branchDescription().branchID());
     if(nullptr != phb && BranchKey(productHolder.branchDescription()) != BranchKey(phb->branchDescription())) {
       BranchDescription const& newProduct = phb->branchDescription();
@@ -848,7 +848,7 @@ namespace edm {
   }
 
   void
-  Principal::putOrMerge(std::unique_ptr<WrapperBase> prod, ProductHolderBase* phb) {
+  Principal::putOrMerge(std::unique_ptr<WrapperBase> prod, ProductHolderBase* phb) const {
     bool willBePut = phb->putOrMergeProduct();
     if(willBePut) {
       checkUniquenessAndType(prod.get(), phb);
@@ -860,7 +860,7 @@ namespace edm {
   }
 
   void
-  Principal::putOrMerge(std::unique_ptr<WrapperBase> prod, ProductProvenance&& prov, ProductHolderBase* phb) {
+  Principal::putOrMerge(std::unique_ptr<WrapperBase> prod, ProductProvenance&& prov, ProductHolderBase* phb) const {
     bool willBePut = phb->putOrMergeProduct();
     if(willBePut) {
       checkUniquenessAndType(prod.get(), phb);
