@@ -324,9 +324,9 @@ TrackerGeometry::ModuleType TrackerGeometry::moduleType(std::string name) const 
     else if ( name.find("5") != std::string::npos) return ModuleType::W6;
     else if ( name.find("6") != std::string::npos) return ModuleType::W7;
   } else if ( name.find("BModule") != std::string::npos || name.find("EModule") != std::string::npos ) { 
-    if (name.find("PSMacroPixel")) return ModuleType::Ph2PSP;
-    else if (name.find("PSStrip")) return ModuleType::Ph2PSS;
-    else if (name.find("2S")) return ModuleType::Ph2SS;
+    if (name.find("PSMacroPixel") != std::string::npos) return ModuleType::Ph2PSP;
+    else if (name.find("PSStrip") != std::string::npos) return ModuleType::Ph2PSS;
+    else if (name.find("2S") != std::string::npos) return ModuleType::Ph2SS;
   }
   return ModuleType::UNKNOWN;  
 }
