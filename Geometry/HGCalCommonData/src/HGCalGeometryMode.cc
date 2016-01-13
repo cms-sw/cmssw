@@ -1,7 +1,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 
 template<>
-HGCalStringToEnumParser<HGCalGeometryMode::GeometryMode>::HGCalStringToEnumParser() {
+HGCalStringToEnumParser<HGCalGeometryMode>::HGCalStringToEnumParser() {
   enumMap["HGCalGeometryMode::Square"]  = HGCalGeometryMode::Square;
   enumMap["HGCalGeometryMode::Hexagon"] = HGCalGeometryMode::Hexagon;
 }

@@ -37,12 +37,10 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
   CaloSD(name, cpv, clg, p, manager,
          (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
          p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")), 
-  hgcalCons(0), numberingScheme(0) {
+  numberingScheme(0) {
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit          = m_HGC.getParameter<double>("EminHit")*CLHEP::MeV;
-  checkID          = m_HGC.getUntrackedParameter<bool>("CheckID", false);
-  verbosity        = m_HGC.getUntrackedParameter<int>("Verbosity",0);
 
   //this is defined in the hgcsens.xml
   G4String myName(this->nameOfSD());
@@ -123,7 +121,7 @@ uint32_t HGCSD::setDetUnitId(G4Step * aStep) {
   ForwardSubdetector subdet = myFwdSubdet_;
 
   int layer(0), module(0), cell(0);
-  if (hgcalCons->geomMode() == HGCalGeometryMode::Square) {
+  if (m_mode == HGCalGeometryMode::Square) {
     layer  = touch->GetReplicaNumber(0);
     module = touch->GetReplicaNumber(1);
   } else {
@@ -131,10 +129,7 @@ uint32_t HGCSD::setDetUnitId(G4Step * aStep) {
     module = touch->GetReplicaNumber(1);
     cell   = touch->GetReplicaNumber(0);
   }
-  if (verbosity > 0) 
-    edm::LogInfo("HGCSim") << "HGCSD::Global " << hitPoint << " local " 
-			   << localpos << "Layer|Module|Cell " << layer << "|" 
-			   << module << "|" << cell;
+
   return setDetUnitId (subdet, layer, module, cell, iz, localpos);
 }
 
@@ -144,14 +139,13 @@ void HGCSD::update(const BeginOfJob * job) {
   edm::ESHandle<HGCalDDDConstants>    hdc;
   es->get<IdealGeometryRecord>().get(nameX,hdc);
   if (hdc.isValid()) {
-    hgcalCons = (HGCalDDDConstants*)(&(*hdc));
+    m_mode = hdc->geomMode();
+    numberingScheme = new HGCNumberingScheme(*hdc,nameX);
   } else {
     edm::LogError("HGCSim") << "HCalSD : Cannot find HGCalDDDConstants for "
 			    << nameX;
     throw cms::Exception("Unknown", "HGCSD") << "Cannot find HGCalDDDConstants for " << nameX << "\n";
   }
-
-  numberingScheme = new HGCNumberingScheme(hgcalCons,nameX,checkID,verbosity);
 }
 
 void HGCSD::initRun() {

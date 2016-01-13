@@ -85,7 +85,7 @@ public:
   }
 
   ///Geometry mode
-  int geomMode() const {return hdcons_.geomMode();}
+  HGCalGeometryMode geomMode() const {return mode_;}
 
   ///Dense indexing
   virtual uint32_t detId2denseId(const DetId& id) const;
@@ -131,6 +131,8 @@ private:
   DetId changeZ(const DetId& id, int nrStepsZ) const ;
 
   const HGCalDDDConstants&    hdcons_;
+  HGCalGeometryMode           mode_;
+
   ForwardSubdetector          subdet_;
   bool                        half_;
   int                         sectors_, layers_, cells_, kHGhalf_, kHGeomHalf_;
