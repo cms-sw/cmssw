@@ -152,7 +152,8 @@ The phase 2 detector DetId schema is identical to the one of the phase 1 detecto
 |------|-----------|-----------|-----|----|-----|
 | _not used_ | 24 | 0x1 | 1 | | |
 | Layer | 20 | 0xF | 4 | tobLayer(id) or layer(id) | increasing r |
-| Ladder | 12 | 0xFF | 8 | tobRod(id) | increasing phi |
+| _subdetector part_ | 18 | 0x3 | 2 | tobSide(id) | 1=rings- 2=rings+ 3=barrel0|
+| Ladder | 12 | 0x3F | 8 | tobRod(id) | increasing phi |
 | Module | 2 | 0x3FF | 10 | tobModule(id) | increasing z |
 | Module type | 0 | 0x3 | 2 | tobLower(id) or tobUpper(id) | 1=lower in local s.o.r.(P sensor into PS), 2=upper in local s.o.r.(S sensor into PS), 0=pair |
 
