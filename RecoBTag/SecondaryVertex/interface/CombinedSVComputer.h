@@ -99,6 +99,9 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
         using namespace ROOT::Math;
         using namespace reco;
 
+        typedef typename IPTI::input_container Container;
+        typedef typename Container::value_type TrackRef;
+
         edm::RefToBase<Jet> jet = ipInfo.jet();
         math::XYZVector jetDir = jet->momentum().Unit();
         bool havePv = ipInfo.primaryVertex().isNonnull();
@@ -145,18 +148,17 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 	std::vector<std::size_t> indices = ipInfo.sortedIndexes(sortCriterium);
 	const std::vector<reco::btag::TrackIPData> &ipData = ipInfo.impactParameterData();
 
-	const typename IPTI::input_container &tracks = ipInfo.selectedTracks();
-	std::vector<const Track *> pseudoVertexTracks;
+	const Container &tracks = ipInfo.selectedTracks();
+	std::vector<TrackRef> pseudoVertexTracks;
 
-        const Track * trackPairV0Test[2];
+        std::vector<TrackRef> trackPairV0Test(2);
         range = flipIterate(indices.size(), false);
         range_for(i, range) {
                 std::size_t idx = indices[i];
                 const reco::btag::TrackIPData &data = ipData[idx];
-                const Track * trackPtr = reco::btag::toTrack(tracks[idx]);
-                const Track &track = *trackPtr;
+                const TrackRef &track = tracks[idx];
 
-                jet_track_ESum += std::sqrt(track.momentum().Mag2() + ROOT::Math::Square(ParticleMasses::piPlus));
+                jet_track_ESum += std::sqrt(track->momentum().Mag2() + ROOT::Math::Square(ParticleMasses::piPlus));
 
                 // add track to kinematics for all tracks in jet
                 //allKinematics.add(track); // would make more sense for some variables, e.g. vertexEnergyRatio nicely between 0 and 1, but not necessarily the best option for the discriminating power...
@@ -170,12 +172,12 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 
                 // if no vertex was reconstructed, attempt pseudo vertex
                 if (vtxType == btag::Vertices::NoVertex && trackPseudoSelector(track, data, *jet, pv)) {
-                        pseudoVertexTracks.push_back(trackPtr);
+                        pseudoVertexTracks.push_back(track);
                         vertexKinematics.add(track);
                 }
 
                 // check against all other tracks for V0 track pairs
-                trackPairV0Test[0] = reco::btag::toTrack(tracks[idx]);
+                trackPairV0Test[0] = track;
                 bool ok = true;
                 range_for(j, range) {
                         if (i == j)
@@ -183,14 +185,13 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 
                         std::size_t pairIdx = indices[j];
                         const reco::btag::TrackIPData &pairTrackData = ipData[pairIdx];
-                        const Track * pairTrackPtr = reco::btag::toTrack(tracks[pairIdx]);
-                        const Track &pairTrack = *pairTrackPtr;
+                        const TrackRef &pairTrack = tracks[pairIdx];
 
                         if (!trackSelector(pairTrack, pairTrackData, *jet, pv))
                                 continue;
 
-                        trackPairV0Test[1] = pairTrackPtr;
-                        if (!trackPairV0Filter(trackPairV0Test, 2)) {
+                        trackPairV0Test[1] = pairTrack;
+                        if (!trackPairV0Filter(trackPairV0Test)) {
                                 ok = false;
                                 break;
                         }
@@ -201,7 +202,7 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
                 trackJetKinematics.add(track);
 
                 // add track variables
-                math::XYZVector trackMom = track.momentum();
+                math::XYZVector trackMom = track->momentum();
                 double trackMag = std::sqrt(trackMom.Mag2());
 
                 vars.insert(btau::trackSip3dVal, flipValue(data.ip3d.value(), false), true);
@@ -228,11 +229,11 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
         if (vtxType == btag::Vertices::NoVertex && vertexKinematics.numberOfTracks() >= pseudoMultiplicityMin && pseudoVertexV0Filter(pseudoVertexTracks))
         {
                 vtxType = btag::Vertices::PseudoVertex;
-                for(std::vector<const Track *>::const_iterator track = pseudoVertexTracks.begin(); track != pseudoVertexTracks.end(); ++track)
+                for(typename std::vector<TrackRef>::const_iterator trkIt = pseudoVertexTracks.begin(); trkIt != pseudoVertexTracks.end(); ++trkIt)
                 {
-                        vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,(*track)->momentum()), true);
-                        vtx_track_ptSum += std::sqrt((*track)->momentum().Perp2());
-                        vtx_track_ESum  += std::sqrt((*track)->momentum().Mag2() + ROOT::Math::Square(ParticleMasses::piPlus));
+                        vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,(*trkIt)->momentum()), true);
+                        vtx_track_ptSum += std::sqrt((*trkIt)->momentum().Perp2());
+                        vtx_track_ESum  += std::sqrt((*trkIt)->momentum().Mag2() + ROOT::Math::Square(ParticleMasses::piPlus));
                 }
         }
 
