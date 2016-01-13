@@ -117,7 +117,7 @@ namespace edm {
     }
 
     // Fill in the product ID's in the product holders.
-    for(auto const& prod : *this) {
+    for(auto& prod : *this) {
       if (prod->singleProduct()) {
         // If an alias is in the same process as the original then isAlias will be true.
         //  Under that condition, we want the ProductID to be the same as the original.
@@ -163,7 +163,7 @@ namespace edm {
         << "\n";
     }
     productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
-    ProductHolderBase* phb = getExistingProduct(bd.branchID());
+    auto phb = getExistingProduct(bd.branchID());
     assert(phb);
     checkUniquenessAndType(edp.get(), phb);
     // ProductHolder assumes ownership
@@ -178,7 +178,7 @@ namespace edm {
 
     assert(!bd.produced());
     productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
-    ProductHolderBase* phb = getExistingProduct(bd.branchID());
+    auto phb = getExistingProduct(bd.branchID());
     assert(phb);
     checkUniquenessAndType(edp.get(), phb);
     // ProductHolder assumes ownership
