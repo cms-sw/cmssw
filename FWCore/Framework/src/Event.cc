@@ -14,7 +14,7 @@ namespace edm {
 
   std::string const Event::emptyString_;
 
-  Event::Event(EventPrincipal& ep, ModuleDescription const& md, ModuleCallingContext const* moduleCallingContext) :
+  Event::Event(EventPrincipal const& ep, ModuleDescription const& md, ModuleCallingContext const* moduleCallingContext) :
       provRecorder_(ep, md),
       aux_(ep.aux()),
       luminosityBlock_(ep.luminosityBlockPrincipalPtrValid() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md, moduleCallingContext) : nullptr),
@@ -45,11 +45,6 @@ namespace edm {
     const_cast<LuminosityBlock*>(luminosityBlock_.get())->setSharedResourcesAcquirer(iResourceAcquirer);
   }
 
-
-  EventPrincipal&
-  Event::eventPrincipal() {
-    return dynamic_cast<EventPrincipal&>(provRecorder_.principal());
-  }
 
   EventPrincipal const&
   Event::eventPrincipal() const {
@@ -123,7 +118,7 @@ namespace edm {
   Event::commit_aux(Event::ProductPtrVec& products, bool record_parents,
                     std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
     // fill in guts of provenance here
-    EventPrincipal& ep = eventPrincipal();
+    auto& ep = eventPrincipal();
 
     ProductPtrVec::iterator pit(products.begin());
     ProductPtrVec::iterator pie(products.end());

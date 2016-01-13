@@ -38,7 +38,7 @@ namespace edm {
   void
   LuminosityBlockPrincipal::put(
         BranchDescription const& bd,
-        std::unique_ptr<WrapperBase> edp) {
+        std::unique_ptr<WrapperBase> edp) const {
 
     assert(bd.produced());
     if(edp.get() == nullptr) {

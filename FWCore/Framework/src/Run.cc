@@ -7,7 +7,7 @@ namespace edm {
 
   std::string const Run::emptyString_;
 
-  Run::Run(RunPrincipal& rp, ModuleDescription const& md,
+  Run::Run(RunPrincipal const& rp, ModuleDescription const& md,
            ModuleCallingContext const* moduleCallingContext) :
         provRecorder_(rp, md),
         aux_(rp.aux()),
@@ -22,11 +22,6 @@ namespace edm {
 
   RunIndex Run::index() const { return runPrincipal().index();}
   
-  RunPrincipal&
-  Run::runPrincipal() {
-    return dynamic_cast<RunPrincipal&>(provRecorder_.principal());
-  }
-
   RunPrincipal const&
   Run::runPrincipal() const {
     return dynamic_cast<RunPrincipal const&>(provRecorder_.principal());
@@ -81,7 +76,7 @@ namespace edm {
 
   void
   Run::commit_() {
-    RunPrincipal& rp = runPrincipal();
+    RunPrincipal const& rp = runPrincipal();
     ProductPtrVec::iterator pit(putProducts().begin());
     ProductPtrVec::iterator pie(putProducts().end());
 

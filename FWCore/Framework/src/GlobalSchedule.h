@@ -141,7 +141,7 @@ namespace edm {
 
     
     template<typename T>
-    void runNow(typename T::MyPrincipal& p, EventSetup const& es,
+    void runNow(typename T::MyPrincipal const& p, EventSetup const& es,
                 GlobalContext const* context);
 
     /// returns the action table
@@ -194,7 +194,7 @@ namespace edm {
   }
   template <typename T>
   void
-  GlobalSchedule::runNow(typename T::MyPrincipal& p, EventSetup const& es,
+  GlobalSchedule::runNow(typename T::MyPrincipal const& p, EventSetup const& es,
               GlobalContext const* context) {
     //do nothing for event since we will run when requested
     for(auto & worker: allWorkers()) {

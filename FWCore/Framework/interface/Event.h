@@ -63,7 +63,7 @@ namespace edm {
 
   class Event : public EventBase {
   public:
-    Event(EventPrincipal& ep, ModuleDescription const& md,
+    Event(EventPrincipal const& ep, ModuleDescription const& md,
           ModuleCallingContext const*);
     virtual ~Event();
     
@@ -236,9 +236,6 @@ namespace edm {
 
     EventPrincipal const&
     eventPrincipal() const;
-
-    EventPrincipal&
-    eventPrincipal();
 
     ProductID
     makeProductID(BranchDescription const& desc) const;

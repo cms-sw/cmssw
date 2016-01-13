@@ -76,7 +76,7 @@ namespace edm {
     Worker& operator=(Worker const&) = delete; // Disallow copying and moving
 
     template <typename T>
-    bool doWork(typename T::MyPrincipal&, EventSetup const& c,
+    bool doWork(typename T::MyPrincipal const&, EventSetup const& c,
                 StreamID stream,
                 ParentContext const& parentContext,
                 typename T::Context const* context);
@@ -93,8 +93,8 @@ namespace edm {
 
     void reset() { state_ = Ready; }
 
-    void pathFinished(EventPrincipal&);
-    void postDoEvent(EventPrincipal&);
+    void pathFinished(EventPrincipal const&);
+    void postDoEvent(EventPrincipal const&);
 
     ModuleDescription const& description() const {return *(moduleCallingContext_.moduleDescription());}
     ModuleDescription const* descPtr() const {return moduleCallingContext_.moduleDescription(); }
@@ -134,26 +134,26 @@ namespace edm {
   protected:
     template<typename O> friend class workerhelper::CallImpl;
     virtual std::string workerType() const = 0;
-    virtual bool implDo(EventPrincipal&, EventSetup const& c,
+    virtual bool implDo(EventPrincipal const&, EventSetup const& c,
                         ModuleCallingContext const* mcc) = 0;
     virtual bool implDoPrePrefetchSelection(StreamID id,
-                                            EventPrincipal& ep,
+                                            EventPrincipal const& ep,
                                             ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoBegin(RunPrincipal& rp, EventSetup const& c,
+    virtual bool implDoBegin(RunPrincipal const& rp, EventSetup const& c,
                              ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoStreamBegin(StreamID id, RunPrincipal& rp, EventSetup const& c,
+    virtual bool implDoStreamBegin(StreamID id, RunPrincipal const& rp, EventSetup const& c,
                                    ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoStreamEnd(StreamID id, RunPrincipal& rp, EventSetup const& c,
+    virtual bool implDoStreamEnd(StreamID id, RunPrincipal const& rp, EventSetup const& c,
                                  ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoEnd(RunPrincipal& rp, EventSetup const& c,
+    virtual bool implDoEnd(RunPrincipal const& rp, EventSetup const& c,
                            ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    virtual bool implDoBegin(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                              ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoStreamBegin(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    virtual bool implDoStreamBegin(StreamID id, LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                    ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoStreamEnd(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    virtual bool implDoStreamEnd(StreamID id, LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                  ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    virtual bool implDoEnd(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                            ModuleCallingContext const* mcc) = 0;
     virtual void implBeginJob() = 0;
     virtual void implEndJob() = 0;
@@ -281,7 +281,7 @@ namespace edm {
     public:
       typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Arg;
       static bool call(Worker* iWorker, StreamID,
-                       EventPrincipal& ep, EventSetup const& es,
+                       EventPrincipal const& ep, EventSetup const& es,
                        ActivityRegistry* /* actReg */,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* /* context*/) {
@@ -289,7 +289,7 @@ namespace edm {
         return iWorker->implDo(ep,es, mcc);
       }
       static bool prePrefetchSelection(Worker* iWorker,StreamID id,
-                                       typename Arg::MyPrincipal & ep,
+                                       typename Arg::MyPrincipal const& ep,
                                        ModuleCallingContext const* mcc) {
         return iWorker->implDoPrePrefetchSelection(id,ep,mcc);
       }
@@ -300,7 +300,7 @@ namespace edm {
     public:
       typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> Arg;
       static bool call(Worker* iWorker,StreamID,
-                       RunPrincipal& ep, EventSetup const& es,
+                       RunPrincipal const& ep, EventSetup const& es,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -308,7 +308,7 @@ namespace edm {
         return iWorker->implDoBegin(ep,es, mcc);
       }
       static bool prePrefetchSelection(Worker* iWorker,StreamID id,
-                                       typename Arg::MyPrincipal & ep,
+                                       typename Arg::MyPrincipal const& ep,
                                        ModuleCallingContext const* mcc) {
         return true;
       }
@@ -318,7 +318,7 @@ namespace edm {
     public:
       typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Arg;
       static bool call(Worker* iWorker,StreamID id,
-                       RunPrincipal& ep, EventSetup const& es,
+                       RunPrincipal const & ep, EventSetup const& es,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -326,7 +326,7 @@ namespace edm {
         return iWorker->implDoStreamBegin(id,ep,es, mcc);
       }
       static bool prePrefetchSelection(Worker* iWorker,StreamID id,
-                                       typename Arg::MyPrincipal & ep,
+                                       typename Arg::MyPrincipal const& ep,
                                        ModuleCallingContext const* mcc) {
         return true;
       }
@@ -336,7 +336,7 @@ namespace edm {
     public:
       typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Arg;
       static bool call(Worker* iWorker,StreamID,
-                       RunPrincipal& ep, EventSetup const& es,
+                       RunPrincipal const& ep, EventSetup const& es,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -344,7 +344,7 @@ namespace edm {
         return iWorker->implDoEnd(ep,es, mcc);
       }
       static bool prePrefetchSelection(Worker* iWorker,StreamID id,
-                                       typename Arg::MyPrincipal & ep,
+                                       typename Arg::MyPrincipal const& ep,
                                        ModuleCallingContext const* mcc) {
         return true;
       }
@@ -354,7 +354,7 @@ namespace edm {
     public:
       typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Arg;
       static bool call(Worker* iWorker,StreamID id,
-                       RunPrincipal& ep, EventSetup const& es,
+                       RunPrincipal const& ep, EventSetup const& es,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -362,7 +362,7 @@ namespace edm {
         return iWorker->implDoStreamEnd(id,ep,es, mcc);
       }
       static bool prePrefetchSelection(Worker* iWorker,StreamID id,
-                                       typename Arg::MyPrincipal & ep,
+                                       typename Arg::MyPrincipal const& ep,
                                        ModuleCallingContext const* mcc) {
         return true;
       }
@@ -373,7 +373,7 @@ namespace edm {
     public:
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> Arg;
       static bool call(Worker* iWorker,StreamID,
-                       LuminosityBlockPrincipal& ep, EventSetup const& es,
+                       LuminosityBlockPrincipal const& ep, EventSetup const& es,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -382,7 +382,7 @@ namespace edm {
       }
 
       static bool prePrefetchSelection(Worker* iWorker,StreamID id,
-                                       typename Arg::MyPrincipal & ep,
+                                       typename Arg::MyPrincipal const& ep,
                                        ModuleCallingContext const* mcc) {
         return true;
       }
@@ -392,7 +392,7 @@ namespace edm {
     public:
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Arg;
       static bool call(Worker* iWorker,StreamID id,
-                       LuminosityBlockPrincipal& ep, EventSetup const& es,
+                       LuminosityBlockPrincipal const& ep, EventSetup const& es,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -401,7 +401,7 @@ namespace edm {
       }
 
       static bool prePrefetchSelection(Worker* iWorker,StreamID id,
-                                       typename Arg::MyPrincipal & ep,
+                                       typename Arg::MyPrincipal const& ep,
                                        ModuleCallingContext const* mcc) {
         return true;
       }
@@ -412,7 +412,7 @@ namespace edm {
     public:
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Arg;
       static bool call(Worker* iWorker,StreamID,
-                       LuminosityBlockPrincipal& ep, EventSetup const& es,
+                       LuminosityBlockPrincipal const& ep, EventSetup const& es,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -420,7 +420,7 @@ namespace edm {
         return iWorker->implDoEnd(ep,es, mcc);
       }
       static bool prePrefetchSelection(Worker* iWorker,StreamID id,
-                                       typename Arg::MyPrincipal & ep,
+                                       typename Arg::MyPrincipal const& ep,
                                        ModuleCallingContext const* mcc) {
         return true;
       }
@@ -431,7 +431,7 @@ namespace edm {
     public:
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Arg;
       static bool call(Worker* iWorker,StreamID id,
-                       LuminosityBlockPrincipal& ep, EventSetup const& es,
+                       LuminosityBlockPrincipal const& ep, EventSetup const& es,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -440,7 +440,7 @@ namespace edm {
       }
       
       static bool prePrefetchSelection(Worker* iWorker,StreamID id,
-                                       typename Arg::MyPrincipal & ep,
+                                       typename Arg::MyPrincipal const& ep,
                                        ModuleCallingContext const* mcc) {
         return true;
       }
@@ -448,7 +448,7 @@ namespace edm {
   }
 
   template <typename T>
-  bool Worker::doWork(typename T::MyPrincipal& ep,
+  bool Worker::doWork(typename T::MyPrincipal const& ep,
                       EventSetup const& es,
                       StreamID streamID,
                       ParentContext const& parentContext,

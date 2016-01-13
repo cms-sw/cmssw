@@ -289,10 +289,10 @@ namespace edm {
     void resetAll();
 
     template <typename T>
-    bool runTriggerPaths(typename T::MyPrincipal&, EventSetup const&, typename T::Context const*);
+    bool runTriggerPaths(typename T::MyPrincipal const&, EventSetup const&, typename T::Context const*);
 
     template <typename T>
-    void runEndPaths(typename T::MyPrincipal&, EventSetup const&, typename T::Context const*);
+    void runEndPaths(typename T::MyPrincipal const&, EventSetup const&, typename T::Context const*);
 
     void reportSkipped(EventPrincipal const& ep) const;
 
@@ -471,7 +471,7 @@ namespace edm {
 
   template <typename T>
   bool
-  StreamSchedule::runTriggerPaths(typename T::MyPrincipal& ep, EventSetup const& es, typename T::Context const* context) {
+  StreamSchedule::runTriggerPaths(typename T::MyPrincipal const& ep, EventSetup const& es, typename T::Context const* context) {
     for(auto& p : trig_paths_) {
       p.processOneOccurrence<T>(ep, es, streamID_, context);
     }
@@ -480,7 +480,7 @@ namespace edm {
 
   template <typename T>
   void
-  StreamSchedule::runEndPaths(typename T::MyPrincipal& ep, EventSetup const& es, typename T::Context const* context) {
+  StreamSchedule::runEndPaths(typename T::MyPrincipal const& ep, EventSetup const& es, typename T::Context const* context) {
     // Note there is no state-checking safety controlling the
     // activation/deactivation of endpaths.
     for(auto& p : end_paths_) {

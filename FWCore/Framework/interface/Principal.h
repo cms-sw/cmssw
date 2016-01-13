@@ -90,7 +90,7 @@ namespace edm {
 
     void clearPrincipal();
 
-    void deleteProduct(BranchID const& id);
+    void deleteProduct(BranchID const& id) const;
     
     EDProductGetter const* prodGetter() const {return this;}
 
@@ -210,15 +210,15 @@ namespace edm {
     // data.
     void addProduct_(std::unique_ptr<ProductHolderBase> phb);
     void addProductOrThrow(std::unique_ptr<ProductHolderBase> phb);
-    ProductHolderBase* getExistingProduct(BranchID const& branchID);
-    ProductHolderBase* getExistingProduct(ProductHolderBase const& phb);
+    ProductHolderBase* getExistingProduct(BranchID const& branchID) const;
+    ProductHolderBase* getExistingProduct(ProductHolderBase const& phb) const;
 
     // throws if the pointed to product is already in the Principal.
     void checkUniquenessAndType(WrapperBase const* prod, ProductHolderBase const* productHolder) const;
 
-    void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductHolderBase* productHolder);
+    void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductHolderBase* productHolder) const;
 
-    void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductProvenance&& prov, ProductHolderBase* productHolder);
+    void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductProvenance&& prov, ProductHolderBase* productHolder) const;
 
   private:
 
