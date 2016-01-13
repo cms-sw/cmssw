@@ -16,3 +16,4 @@ siPixelDigis.UsePilotBlade = cms.bool(False)
 siPixelDigis.UsePhase1 = cms.bool(False)
 ## Empty Regions PSet means complete unpacking
 siPixelDigis.Regions = cms.PSet( ) 
+siPixelDigis.CablingMapLabel = cms.string("")
