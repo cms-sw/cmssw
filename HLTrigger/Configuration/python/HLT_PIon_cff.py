@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_6_0/PIon/V7 (CMSSW_7_6_3)
+# /dev/CMSSW_7_6_0/PIon/V13 (CMSSW_7_6_3)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_6_0/PIon/V7')
+  tableName = cms.string('/dev/CMSSW_7_6_0/PIon/V13')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -731,34 +731,6 @@ fragment.HLTPSetMuonTrackingRegionBuilder8356 = cms.PSet(
   vertexCollection = cms.InputTag( "pixelVertices" ),
   input = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
 )
-fragment.HLTPSetMuonTrackingRegionBuilder8356ForHI = cms.PSet( 
-  Rescale_eta = cms.double( 3.0 ),
-  Rescale_phi = cms.double( 3.0 ),
-  Rescale_Dz = cms.double( 3.0 ),
-  EtaR_UpperLimit_Par1 = cms.double( 0.25 ),
-  EtaR_UpperLimit_Par2 = cms.double( 0.15 ),
-  PhiR_UpperLimit_Par1 = cms.double( 0.6 ),
-  PhiR_UpperLimit_Par2 = cms.double( 0.2 ),
-  UseVertex = cms.bool( False ),
-  Pt_fixed = cms.bool( False ),
-  Z_fixed = cms.bool( True ),
-  Phi_fixed = cms.bool( False ),
-  Eta_fixed = cms.bool( False ),
-  Pt_min = cms.double( 1.5 ),
-  Phi_min = cms.double( 0.1 ),
-  Eta_min = cms.double( 0.1 ),
-  DeltaZ = cms.double( 15.9 ),
-  DeltaR = cms.double( 0.2 ),
-  DeltaEta = cms.double( 0.2 ),
-  DeltaPhi = cms.double( 0.2 ),
-  maxRegions = cms.int32( 2 ),
-  precise = cms.bool( True ),
-  OnDemand = cms.int32( -1 ),
-  MeasurementTrackerName = cms.InputTag( "hltESPMeasurementTrackerForHI" ),
-  beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-  vertexCollection = cms.InputTag( "pixelVertices" ),
-  input = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
-)
 fragment.HLTPSetDetachedCkfTrajectoryBuilderForHI = cms.PSet( 
   MeasurementTrackerName = cms.string( "" ),
   trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetDetachedCkfTrajectoryFilterForHI" ) ),
@@ -909,7 +881,7 @@ fragment.HLTPSetInitialCkfTrajectoryBuilderForHI = cms.PSet(
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
   intermediateCleaning = cms.bool( False ),
   propagatorOpposite = cms.string( "PropagatorWithMaterialOppositeForHI" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTrackerForHI" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
   estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
   updator = cms.string( "hltESPKFUpdator" ),
@@ -1254,7 +1226,7 @@ fragment.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
     'HcalCellDead' )
 )
 fragment.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  recordLabel = cms.string( "" ),
+  recordLabel = cms.string( "HLT" ),
   categoryVariableName = cms.string( "vertexCategory" ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
@@ -1309,7 +1281,7 @@ fragment.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexES
   trackFlip = cms.bool( False )
 )
 fragment.hltCombinedSecondaryVertexV2 = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  recordLabel = cms.string( "" ),
+  recordLabel = cms.string( "HLT" ),
   categoryVariableName = cms.string( "vertexCategory" ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
@@ -1812,42 +1784,6 @@ fragment.hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProduce
   UseStripAPVFiberQualityDB = cms.bool( True ),
   badStripCuts = cms.PSet( 
     TOB = cms.PSet( 
-      maxConsecutiveBad = cms.uint32( 9999 ),
-      maxBad = cms.uint32( 9999 )
-    ),
-    TID = cms.PSet( 
-      maxConsecutiveBad = cms.uint32( 9999 ),
-      maxBad = cms.uint32( 9999 )
-    ),
-    TEC = cms.PSet( 
-      maxConsecutiveBad = cms.uint32( 9999 ),
-      maxBad = cms.uint32( 9999 )
-    ),
-    TIB = cms.PSet( 
-      maxConsecutiveBad = cms.uint32( 9999 ),
-      maxBad = cms.uint32( 9999 )
-    )
-  ),
-  DebugStripModuleQualityDB = cms.untracked.bool( False ),
-  ComponentName = cms.string( "hltESPMeasurementTracker" ),
-  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
-  UsePixelModuleQualityDB = cms.bool( True ),
-  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
-  HitMatcher = cms.string( "StandardMatcher" ),
-  DebugStripStripQualityDB = cms.untracked.bool( False ),
-  PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
-  SiStripQualityLabel = cms.string( "" ),
-  UseStripModuleQualityDB = cms.bool( True ),
-  MaskBadAPVFibers = cms.bool( True )
-)
-fragment.hltESPMeasurementTrackerForHI = cms.ESProducer( "MeasurementTrackerESProducer",
-  UseStripStripQualityDB = cms.bool( True ),
-  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
-  UsePixelROCQualityDB = cms.bool( True ),
-  DebugPixelROCQualityDB = cms.untracked.bool( False ),
-  UseStripAPVFiberQualityDB = cms.bool( True ),
-  badStripCuts = cms.PSet( 
-    TOB = cms.PSet( 
       maxConsecutiveBad = cms.uint32( 2 ),
       maxBad = cms.uint32( 4 )
     ),
@@ -1865,7 +1801,7 @@ fragment.hltESPMeasurementTrackerForHI = cms.ESProducer( "MeasurementTrackerESPr
     )
   ),
   DebugStripModuleQualityDB = cms.untracked.bool( False ),
-  ComponentName = cms.string( "hltESPMeasurementTrackerForHI" ),
+  ComponentName = cms.string( "hltESPMeasurementTracker" ),
   DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelModuleQualityDB = cms.bool( True ),
   DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
@@ -2309,7 +2245,7 @@ fragment.hltEcalUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
     algoPSet = cms.PSet( 
       outOfTimeThresholdGain61pEB = cms.double( 5.0 ),
       EBtimeFitParameters = cms.vdouble( -2.015452, 3.130702, -12.3473, 41.88921, -82.83944, 91.01147, -50.35761, 11.05621 ),
-      activeBXs = cms.vint32( -5, -4, -3, -2, -1, 0, 1, 2, 3, 4 ),
+      activeBXs = cms.vint32( -5, -4, -3, -2, -1, 0, 1, 2 ),
       amplitudeThresholdEE = cms.double( 10.0 ),
       EBtimeConstantTerm = cms.double( 0.6 ),
       EEtimeFitLimits_Lower = cms.double( 0.2 ),
@@ -2326,7 +2262,7 @@ fragment.hltEcalUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
       outOfTimeThresholdGain12mEE = cms.double( 1000.0 ),
       outOfTimeThresholdGain12mEB = cms.double( 5.0 ),
       EEtimeFitLimits_Upper = cms.double( 1.4 ),
-      prefitMaxChiSqEB = cms.double( 100.0 ),
+      prefitMaxChiSqEB = cms.double( 15.0 ),
       EEamplitudeFitParameters = cms.vdouble( 1.89, 1.4 ),
       prefitMaxChiSqEE = cms.double( 10.0 ),
       EBamplitudeFitParameters = cms.vdouble( 1.138, 1.652 ),
@@ -3208,11 +3144,11 @@ fragment.hltParticleFlowSuperClusterECALL1Seeded = cms.EDProducer( "PFECALSuperC
     PFBasicClusterCollectionBarrel = cms.string( "hltParticleFlowBasicClusterECALBarrel" ),
     useRegression = cms.bool( False ),
     satelliteMajorityFraction = cms.double( 0.5 ),
-    thresh_PFClusterEndcap = cms.double( 4.0 ),
+    thresh_PFClusterEndcap = cms.double( 0.5 ),
     ESAssociation = cms.InputTag( "hltParticleFlowClusterECALL1Seeded" ),
     PFBasicClusterCollectionPreshower = cms.string( "hltParticleFlowBasicClusterECALPreshower" ),
     use_preshower = cms.bool( True ),
-    thresh_PFClusterBarrel = cms.double( 4.0 ),
+    thresh_PFClusterBarrel = cms.double( 0.5 ),
     thresh_SCEt = cms.double( 4.0 ),
     etawidth_SuperClusterEndcap = cms.double( 0.04 ),
     phiwidth_SuperClusterEndcap = cms.double( 0.6 ),
@@ -3231,12 +3167,12 @@ fragment.hltParticleFlowSuperClusterECALL1Seeded = cms.EDProducer( "PFECALSuperC
     etawidth_SuperClusterBarrel = cms.double( 0.04 ),
     PFBasicClusterCollectionEndcap = cms.string( "hltParticleFlowBasicClusterECALEndcap" ),
     PFClusters = cms.InputTag( "hltParticleFlowClusterECALL1Seeded" ),
-    thresh_PFClusterSeedBarrel = cms.double( 4.0 ),
+    thresh_PFClusterSeedBarrel = cms.double( 1.0 ),
     ClusteringType = cms.string( "Mustache" ),
     EnergyWeight = cms.string( "Raw" ),
-    thresh_PFClusterSeedEndcap = cms.double( 4.0 ),
+    thresh_PFClusterSeedEndcap = cms.double( 1.0 ),
     phiwidth_SuperClusterBarrel = cms.double( 0.6 ),
-    thresh_PFClusterES = cms.double( 5.0 ),
+    thresh_PFClusterES = cms.double( 0.5 ),
     seedThresholdIsET = cms.bool( True ),
     PFSuperClusterCollectionEndcapWithPreshower = cms.string( "hltParticleFlowSuperClusterECALEndcapWithPreshower" )
 )
@@ -3842,7 +3778,7 @@ fragment.hltEle27noerWPLooseGsfDetaFilter = cms.EDFilter( "HLTEgammaGenericFilte
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 1 ),
-    isoTag = cms.InputTag( 'hltEgammaGsfTrackVars','Deta' ),
+    isoTag = cms.InputTag( 'hltEgammaGsfTrackVars','DetaSeed' ),
     candTag = cms.InputTag( "hltEle27noerWPLooseGsfMissingHitsFilter" ),
     nonIsoTag = cms.InputTag( "" )
 )
