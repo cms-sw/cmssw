@@ -1,6 +1,7 @@
 #ifndef DQMSERVICES_CORE_STANDALONE_H
 # define DQMSERVICES_CORE_STANDALONE_H
 # if !WITHOUT_CMS_FRAMEWORK
+#  include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #  include "FWCore/ParameterSet/interface/ParameterSet.h"
 #  include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #  include "FWCore/ServiceRegistry/interface/Service.h"
@@ -56,9 +57,11 @@ namespace edm
     T &operator*(void) { return * operator->(); }
   };
 
-  struct SystemBounds {
-    unsigned int maxNumberOfStreams() const { return 0; }
-  };
+  namespace service {
+    struct SystemBounds {
+      unsigned int maxNumberOfStreams() const { return 0; }
+    };
+  }
 
   struct PreallocationSignal {
     template <typename T>
