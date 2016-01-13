@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_6_0/HIon/V7 (CMSSW_7_6_3)
+# /dev/CMSSW_7_6_0/HIon/V13 (CMSSW_7_6_3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_6_0/HIon/V7')
+  tableName = cms.string('/dev/CMSSW_7_6_0/HIon/V13')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -731,34 +731,6 @@ process.HLTPSetMuonTrackingRegionBuilder8356 = cms.PSet(
   vertexCollection = cms.InputTag( "pixelVertices" ),
   input = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
 )
-process.HLTPSetMuonTrackingRegionBuilder8356ForHI = cms.PSet( 
-  Rescale_eta = cms.double( 3.0 ),
-  Rescale_phi = cms.double( 3.0 ),
-  Rescale_Dz = cms.double( 3.0 ),
-  EtaR_UpperLimit_Par1 = cms.double( 0.25 ),
-  EtaR_UpperLimit_Par2 = cms.double( 0.15 ),
-  PhiR_UpperLimit_Par1 = cms.double( 0.6 ),
-  PhiR_UpperLimit_Par2 = cms.double( 0.2 ),
-  UseVertex = cms.bool( False ),
-  Pt_fixed = cms.bool( False ),
-  Z_fixed = cms.bool( True ),
-  Phi_fixed = cms.bool( False ),
-  Eta_fixed = cms.bool( False ),
-  Pt_min = cms.double( 1.5 ),
-  Phi_min = cms.double( 0.1 ),
-  Eta_min = cms.double( 0.1 ),
-  DeltaZ = cms.double( 15.9 ),
-  DeltaR = cms.double( 0.2 ),
-  DeltaEta = cms.double( 0.2 ),
-  DeltaPhi = cms.double( 0.2 ),
-  maxRegions = cms.int32( 2 ),
-  precise = cms.bool( True ),
-  OnDemand = cms.int32( -1 ),
-  MeasurementTrackerName = cms.InputTag( "hltESPMeasurementTrackerForHI" ),
-  beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-  vertexCollection = cms.InputTag( "pixelVertices" ),
-  input = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
-)
 process.HLTPSetDetachedCkfTrajectoryBuilderForHI = cms.PSet( 
   MeasurementTrackerName = cms.string( "" ),
   trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetDetachedCkfTrajectoryFilterForHI" ) ),
@@ -909,7 +881,7 @@ process.HLTPSetInitialCkfTrajectoryBuilderForHI = cms.PSet(
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
   intermediateCleaning = cms.bool( False ),
   propagatorOpposite = cms.string( "PropagatorWithMaterialOppositeForHI" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTrackerForHI" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
   estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
   updator = cms.string( "hltESPKFUpdator" ),
@@ -1879,7 +1851,7 @@ process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
 )
 process.hcal_db_producer = cms.ESProducer( "HcalDbProducer" )
 process.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  recordLabel = cms.string( "" ),
+  recordLabel = cms.string( "HLT" ),
   categoryVariableName = cms.string( "vertexCategory" ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
@@ -1934,7 +1906,7 @@ process.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESP
   trackFlip = cms.bool( False )
 )
 process.hltCombinedSecondaryVertexV2 = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  recordLabel = cms.string( "" ),
+  recordLabel = cms.string( "HLT" ),
   categoryVariableName = cms.string( "vertexCategory" ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
@@ -2441,42 +2413,6 @@ process.hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer
   UseStripAPVFiberQualityDB = cms.bool( True ),
   badStripCuts = cms.PSet( 
     TOB = cms.PSet( 
-      maxConsecutiveBad = cms.uint32( 9999 ),
-      maxBad = cms.uint32( 9999 )
-    ),
-    TID = cms.PSet( 
-      maxConsecutiveBad = cms.uint32( 9999 ),
-      maxBad = cms.uint32( 9999 )
-    ),
-    TEC = cms.PSet( 
-      maxConsecutiveBad = cms.uint32( 9999 ),
-      maxBad = cms.uint32( 9999 )
-    ),
-    TIB = cms.PSet( 
-      maxConsecutiveBad = cms.uint32( 9999 ),
-      maxBad = cms.uint32( 9999 )
-    )
-  ),
-  DebugStripModuleQualityDB = cms.untracked.bool( False ),
-  ComponentName = cms.string( "hltESPMeasurementTracker" ),
-  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
-  UsePixelModuleQualityDB = cms.bool( True ),
-  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
-  HitMatcher = cms.string( "StandardMatcher" ),
-  DebugStripStripQualityDB = cms.untracked.bool( False ),
-  PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
-  SiStripQualityLabel = cms.string( "" ),
-  UseStripModuleQualityDB = cms.bool( True ),
-  MaskBadAPVFibers = cms.bool( True )
-)
-process.hltESPMeasurementTrackerForHI = cms.ESProducer( "MeasurementTrackerESProducer",
-  UseStripStripQualityDB = cms.bool( True ),
-  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
-  UsePixelROCQualityDB = cms.bool( True ),
-  DebugPixelROCQualityDB = cms.untracked.bool( False ),
-  UseStripAPVFiberQualityDB = cms.bool( True ),
-  badStripCuts = cms.PSet( 
-    TOB = cms.PSet( 
       maxConsecutiveBad = cms.uint32( 2 ),
       maxBad = cms.uint32( 4 )
     ),
@@ -2494,7 +2430,7 @@ process.hltESPMeasurementTrackerForHI = cms.ESProducer( "MeasurementTrackerESPro
     )
   ),
   DebugStripModuleQualityDB = cms.untracked.bool( False ),
-  ComponentName = cms.string( "hltESPMeasurementTrackerForHI" ),
+  ComponentName = cms.string( "hltESPMeasurementTracker" ),
   DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelModuleQualityDB = cms.bool( True ),
   DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
@@ -4485,7 +4421,7 @@ process.hltHISiStripClustersZeroSuppression = cms.EDProducer( "MeasurementTracke
     switchOffPixelsIfEmpty = cms.bool( True ),
     inactiveStripDetectorLabels = cms.VInputTag(  ),
     skipClusters = cms.InputTag( "" ),
-    measurementTracker = cms.string( "hltESPMeasurementTrackerForHI" )
+    measurementTracker = cms.string( "hltESPMeasurementTracker" )
 )
 process.hltHIPixel3PrimTracksForjets = cms.EDProducer( "PixelTrackProducer",
     useFilterWithES = cms.bool( True ),
@@ -9041,7 +8977,7 @@ process.hltHISiStripClusters = cms.EDProducer( "MeasurementTrackerEventProducer"
     switchOffPixelsIfEmpty = cms.bool( True ),
     inactiveStripDetectorLabels = cms.VInputTag( 'hltSiStripExcludedFEDListProducer' ),
     skipClusters = cms.InputTag( "" ),
-    measurementTracker = cms.string( "hltESPMeasurementTrackerForHI" )
+    measurementTracker = cms.string( "hltESPMeasurementTracker" )
 )
 process.hltHIL3TrajSeedOIState = cms.EDProducer( "TSGFromL2Muon",
     TkSeedGenerator = cms.PSet( 
@@ -9347,7 +9283,7 @@ process.hltHIL3TrajSeedOIHit = cms.EDProducer( "TSGFromL2Muon",
           )
         ),
         UpdateState = cms.bool( True ),
-        MeasurementTrackerName = cms.string( "hltESPMeasurementTrackerForHI" ),
+        MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
         SelectState = cms.bool( False ),
         SigmaZ = cms.double( 25.0 ),
         ResetMethod = cms.string( "matrix" ),
@@ -11715,7 +11651,7 @@ process.hltHcalCalibTypeFilter = cms.EDFilter( "HLTHcalCalibTypeFilter",
 )
 process.hltHcalCalibrationRaw = cms.EDProducer( "EvFFEDSelector",
     inputTag = cms.InputTag( "rawDataRepacker" ),
-    fedList = cms.vuint32( 700, 701, 702, 703, 704, 705, 706, 707, 708, 709, 710, 711, 712, 713, 714, 715, 716, 717, 718, 719, 720, 721, 722, 723, 724, 725, 726, 727, 728, 729, 730, 731, 1024 )
+    fedList = cms.vuint32( 700, 701, 702, 703, 704, 705, 706, 707, 708, 709, 710, 711, 712, 713, 714, 715, 716, 717, 718, 719, 720, 721, 722, 723, 724, 725, 726, 727, 728, 729, 730, 731, 1024, 1100, 1101, 1102, 1103, 1104, 1105, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 1113, 1114, 1115, 1116, 1117, 1118, 1119, 1120, 1121, 1122, 1123, 1124, 1125, 1126, 1127, 1128, 1129, 1130, 1131, 1132, 1133, 1134, 1135, 1136, 1137, 1138, 1139, 1140, 1141, 1142, 1143, 1144, 1145, 1146, 1147, 1148, 1149, 1150, 1151, 1152, 1153, 1154, 1155, 1156, 1157, 1158, 1159, 1160, 1161, 1162, 1163, 1164, 1165, 1166, 1167, 1168, 1169, 1170, 1171, 1172, 1173, 1174, 1175, 1176, 1177, 1178, 1179, 1180, 1181, 1182, 1183, 1184, 1185, 1186, 1187, 1188, 1189, 1190, 1191, 1192, 1193, 1194, 1195, 1196, 1197, 1198, 1199 )
 )
 process.hltPreAlCaEcalPhiSymForHI = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
