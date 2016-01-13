@@ -122,7 +122,7 @@ namespace edm {
   void
   ProducedProductHolder::putProduct_(
         std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const& productProvenance) {
+        ProductProvenance const& productProvenance) const {
     if(product()) {
       throw Exception(errors::InsertFailure)
           << "Attempt to insert more than one product on branch " << branchDescription().branchName() << "\n";
@@ -131,14 +131,14 @@ namespace edm {
     assert(edp.get() != nullptr);
     assert(status() != Present);
     assert(status() != Uninitialized);
-    productData().setWrapper(std::move(edp)); // ProductHolder takes ownership
+    productData().unsafe_setWrapper(std::move(edp)); // ProductHolder takes ownership
     status_() = Present;
   }
 
   void
   ProducedProductHolder::mergeProduct_(
         std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const& productProvenance) {
+        ProductProvenance const& productProvenance) const {
     assert(status() == Present);
     mergeTheProduct(std::move(edp));
   }
@@ -149,7 +149,7 @@ namespace edm {
   }
 
   void
-  ProducedProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) {
+  ProducedProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) const {
     assert(status() == Present);
     mergeTheProduct(std::move(edp));
   }
@@ -171,7 +171,7 @@ namespace edm {
   void
   InputProductHolder::putProduct_(
         std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const& productProvenance) {
+        ProductProvenance const& productProvenance) const {
     assert(!product());
     setProduct(std::move(edp));
   }
@@ -179,12 +179,12 @@ namespace edm {
   void
   InputProductHolder::mergeProduct_(
         std::unique_ptr<WrapperBase>,
-        ProductProvenance const&) {
+        ProductProvenance const&) const {
     assert(nullptr);
   }
 
   void
-  InputProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) {
+  InputProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) const {
     mergeTheProduct(std::move(edp));
   }
 
@@ -200,9 +200,9 @@ namespace edm {
   }
 
   void
-  ProductHolderBase::mergeTheProduct(std::unique_ptr<WrapperBase> edp) {
+  ProductHolderBase::mergeTheProduct(std::unique_ptr<WrapperBase> edp) const {
     if(product()->isMergeable()) {
-      product()->mergeProduct(edp.get());
+      unsafe_product()->mergeProduct(edp.get());
     } else if(product()->hasIsProductEqual()) {
       if(!product()->isProductEqual(edp.get())) {
         LogError("RunLumiMerging")
@@ -294,7 +294,7 @@ namespace edm {
   }
 
   void 
-  ProducedProductHolder::setProductDeleted_() {
+  ProducedProductHolder::setProductDeleted_() const {
     status() = ProductDeleted;
   }
 
@@ -470,7 +470,7 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::putProduct_(std::unique_ptr<WrapperBase> , ProductProvenance const& ) {
+  void NoProcessProductHolder::putProduct_(std::unique_ptr<WrapperBase> , ProductProvenance const& ) const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::putProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
@@ -482,13 +482,13 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> , ProductProvenance const& ) {
+  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> , ProductProvenance const& ) const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::mergeProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase>) {
+  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase>) const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::mergeProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
@@ -506,7 +506,7 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::setProductDeleted_() {
+  void NoProcessProductHolder::setProductDeleted_() const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::setProductDeleted_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
