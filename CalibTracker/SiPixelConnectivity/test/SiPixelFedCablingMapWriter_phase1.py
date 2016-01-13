@@ -3,12 +3,14 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("MapWriter")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
-#process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.GeometryDB_cff")
+#process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.Geometry.GeometryExtended2017Reco_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond_condDBv2 import autoCond
-process.GlobalTag.globaltag = autoCond['run2_data']
+process.GlobalTag.globaltag = autoCond['phase1_2017_design']
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'phase1_2017_design', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, '76X_upgrade2017_design_v8', '')
 
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
@@ -27,25 +29,25 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     #process.CondDBCommon,
     toPut = cms.VPSet(cms.PSet(
         record =  cms.string('SiPixelFedCablingMapRcd'),
-        tag = cms.string('SiPixelFedCablingMap_v21')
+        tag = cms.string('SiPixelFedCablingMap_phase1_v1')
     )),
     # loadBlobStreamer = cms.untracked.bool(False)
 )
-#process.CondDBCommon.connect = cms.string("sqlite_file:cabling.db")
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
-    destinations = cms.untracked.vstring('out'),
-    out = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG'))
+    destinations = cms.untracked.vstring('log'),
+    #log = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG'))
+    log = cms.untracked.PSet( threshold = cms.untracked.string('WARNING'))
 )
 
-process.load("CalibTracker.SiPixelConnectivity.PixelToLNKAssociateFromAsciiESProducer_cfi")
+#process.load("CalibTracker.SiPixelConnectivity.PixelToLNKAssociateFromAsciiESProducer_cfi")
 
 process.mapwriter = cms.EDAnalyzer("SiPixelFedCablingMapWriter",
   record = cms.string('SiPixelFedCablingMapRcd'),
-  #associator = cms.untracked.string('PixelToLNKAssociateFromAscii'),
-  #phase1 = cms.untracked.bool(False),
-  fileName = cms.untracked.string('pixelToLNK.ascii_V21')
+  fileName = cms.untracked.string('pixelToLNK.ascii_phase1_v1')
+  #phase1 = cms.untracked.bool(True),
+  #associator = cms.untracked.string('PixelToLNKAssociateFromAscii')
 )
 
 process.p1 = cms.Path(process.mapwriter)
