@@ -3,7 +3,7 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "RecoPixelVertexing/PixelTriplets/plugins/ThirdHitRZPrediction.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <FWCore/Utilities/interface/ESInputTag.h>
+#include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -27,6 +27,10 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+
+
+#include "DataFormats/Math/interface/normalizedPhi.h"
+
 
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "CommonTools/Utils/interface/DynArray.h"
@@ -172,9 +176,12 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   foundNodes.reserve(100);
   declareDynArray(KDTreeLinkerAlgo<RecHitsSortedInPhi::HitIter>,size, hitTree);
   float rzError[size]; //save maximum errors
-  double maxphi = Geom::twoPi(), minphi = -maxphi; //increase to cater for any range
 
-  map<std::string, LayerRZPredictions> mapPred;//need to use the name as map key since we may have more than one SeedingLayer per DetLayer (e.g. TID and MTID)
+  const float maxDelphi = region.ptMin() < 0.3f ? float(M_PI)/4.f : float(M_PI)/8.f; // FIXME move to config??
+  const float maxphi = M_PI+maxDelphi, minphi = -maxphi; // increase to cater for any range
+  const float safePhi = M_PI-maxDelphi; // sideband
+
+  std::map<std::string, LayerRZPredictions> mapPred;//need to use the name as map key since we may have more than one SeedingLayer per DetLayer (e.g. TID and MTID)
   const RecHitsSortedInPhi * thirdHitMap[size];//gc: this comes from theLayerCache
 
   //gc: loop over each layer
@@ -189,15 +196,15 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
     //gc: now we take all hits in the layer and fill the KDTree    
     RecHitsSortedInPhi::Range hitRange = thirdHitMap[il]->all(); // Get iterators
     layerTree.clear();
-    double minz=999999.0, maxz= -999999.0; // Initialise to extreme values in case no hits
+    float minz=999999.0f, maxz= -minz; // Initialise to extreme values in case no hits
     float maxErr=0.0f;
     bool barrelLayer = (thirdLayers[il].detLayer()->location() == GeomDetEnumerators::barrel);
     if (hitRange.first != hitRange.second)
       { minz = barrelLayer? hitRange.first->hit()->globalPosition().z() : hitRange.first->hit()->globalPosition().perp();
 	maxz = minz; //In case there's only one hit on the layer
 	for (RecHitsSortedInPhi::HitIter hi=hitRange.first; hi != hitRange.second; ++hi)
-	  { double angle = hi->phi();
-	    double myz = barrelLayer? hi->hit()->globalPosition().z() : hi->hit()->globalPosition().perp();
+	  { auto angle = hi->phi();
+	    auto myz = barrelLayer? hi->hit()->globalPosition().z() : hi->hit()->globalPosition().perp();
 
             IfLogTrace(hi->hit()->rawId()==debug_Id2, "MultiHitGeneratorFromChi2") << "filling KDTree with hit in id=" << debug_Id2
                                                                                    << " with pos: " << hi->hit()->globalPosition()
@@ -206,16 +213,15 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
                                                                                    << " r=" << hi->hit()->globalPosition().perp();
 	    //use (phi,r) for endcaps rather than (phi,z)
 	    if (myz < minz) { minz = myz;} else { if (myz > maxz) {maxz = myz;}}
-	    float myerr = barrelLayer? hi->hit()->errorGlobalZ(): hi->hit()->errorGlobalR();
+	    auto myerr = barrelLayer? hi->hit()->errorGlobalZ(): hi->hit()->errorGlobalR();
 	    if (myerr > maxErr) { maxErr = myerr;}
 	    layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle, myz)); // save it
-	    if (angle < 0)  // wrap all points in phi
-	      { layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle+Geom::twoPi(), myz));}
-	    else
-	      { layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle-Geom::twoPi(), myz));}
+            // populate side-bands
+            if (angle>safePhi) layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle-Geom::twoPi(), myz));
+            else if (angle<-safePhi) layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle+Geom::twoPi(), myz));
 	  }
       }
-    KDTreeBox phiZ(minphi, maxphi, minz-0.01, maxz+0.01);  // declare our bounds
+    KDTreeBox phiZ(minphi, maxphi, minz-0.01f, maxz+0.01f);  // declare our bounds
     //add fudge factors in case only one hit and also for floating-point inaccuracy
     hitTree[il].build(layerTree, phiZ); // make KDtree
     rzError[il] = maxErr; //save error
@@ -223,7 +229,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   //gc: now we have initialized the KDTrees and we are out of the layer loop
   
   //gc: this sets the minPt of the triplet
-  double curv = PixelRecoUtilities::curvature(1. / region.ptMin(), es);
+  auto curv = PixelRecoUtilities::curvature(1. / region.ptMin(), es);
 
   LogTrace("MultiHitGeneratorFromChi2") << "pair size=" << pairs.size() << std::endl;
 
@@ -376,35 +382,33 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
       } else {	
 	//gc: predictionRPhi uses the cosine rule to find the phi of the 3rd point at radius, assuming the pairCurvature range [-c,+c]
 	if (pairCurvature.first<0. && pairCurvature.second<0.) {
-	  float phi12 = predictionRPhi.phi(pairCurvature.first,radius.second);
-	  float phi21 = predictionRPhi.phi(pairCurvature.second,radius.first);
-	  while(unlikely(phi12 <  phi21)) phi12 += float(2. * M_PI); 
-	  phiRange = Range(phi21,phi12);
-	} else if (pairCurvature.first>=0. && pairCurvature.second>=0.) {
-	  float phi11 = predictionRPhi.phi(pairCurvature.first,radius.first);
-	  float phi22 = predictionRPhi.phi(pairCurvature.second,radius.second);
-	  while(unlikely(phi11 <  phi22)) phi11 += float(2. * M_PI); 
-	  phiRange = Range(phi22,phi11);
-	} else {
-	  float phi12 = predictionRPhi.phi(pairCurvature.first,radius.second);
-	  float phi22 = predictionRPhi.phi(pairCurvature.second,radius.second);
-	  while(unlikely(phi12 <  phi22)) phi12 += float(2. * M_PI); 
-	  phiRange = Range(phi22,phi12);
-	}
+          radius.swap();
+	} else if (pairCurvature.first>=0. && pairCurvature.second>=0.) {;}
+        else {
+	  radius.first=radius.second;
+        }
+        auto phi12 = predictionRPhi.phi(pairCurvature.first,radius.first);
+	auto phi22 = predictionRPhi.phi(pairCurvature.second,radius.second);
+        phi12 = normalizedPhi(phi12);
+        phi22 = proxim(phi22,phi12);
+	phiRange = Range(phi12,phi22); phiRange.sort();
       }
-      
+       
+      float prmin=phiRange.min(), prmax=phiRange.max();
+ 
+      if (prmax-prmin>maxDelphi) {
+        auto prm = phiRange.mean();
+        prmin = prm - 0.5f*maxDelphi;
+        prmax = prm + 0.5f*maxDelphi;
+      }
+
+
       //gc: this is the place where hits in the compatible region are put in the foundNodes
-      typedef RecHitsSortedInPhi::Hit Hit;
+      using Hit=RecHitsSortedInPhi::Hit;
       foundNodes.clear(); // Now recover hits in bounding box...
-      // This needs range -twoPi to +twoPi to work
-      float prmin=phiRange.min(), prmax=phiRange.max(); //get contiguous range
-      if ((prmax-prmin) > Geom::twoPi()) { 
-	prmax=Geom::pi(); prmin = -Geom::pi();
-      } else {
-	while (prmax>maxphi) { prmin -= Geom::twoPi(); prmax -= Geom::twoPi();}
-	while (prmin<minphi) { prmin += Geom::twoPi(); prmax += Geom::twoPi();}
-      }
-      
+
+
+
       IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "defining kd tree box";
 
       if (barrelLayer) {
@@ -630,23 +634,6 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   LogTrace("MultiHitGeneratorFromChi2") << "triplet size=" << result.size();
 }
 
-bool MultiHitGeneratorFromChi2::checkPhiInRange(float phi, float phi1, float phi2) const
-{ while (phi > phi2) phi -= 2. * M_PI;
-  while (phi < phi1) phi += 2. * M_PI;
-  return phi <= phi2;
-}  
-
-std::pair<float, float>
-MultiHitGeneratorFromChi2::mergePhiRanges(const std::pair<float, float> &r1,
-					      const std::pair<float, float> &r2) const
-{ float r2Min = r2.first;
-  float r2Max = r2.second;
-  while (r1.first - r2Min > +M_PI) r2Min += 2. * M_PI, r2Max += 2. * M_PI;
-  while (r1.first - r2Min < -M_PI) r2Min -= 2. * M_PI, r2Max -= 2. * M_PI;
-  //LogTrace("MultiHitGeneratorFromChi2")  << "mergePhiRanges " << fabs(r1.first-r2Min) << " " <<  fabs(r1.second-r2Max);
-  return std::make_pair(min(r1.first, r2Min), max(r1.second, r2Max));
-}
-
 void MultiHitGeneratorFromChi2::refit2Hits(HitOwnPtr & hit1,
 					   HitOwnPtr & hit2,
 					   TrajectoryStateOnSurface& state1,
@@ -662,9 +649,9 @@ void MultiHitGeneratorFromChi2::refit2Hits(HitOwnPtr & hit1,
 
   FastCircle theCircle(gp2,gp1,gp0);
   GlobalPoint cc(theCircle.x0(),theCircle.y0(),0);
-  float tesla0 = 0.1*nomField;
+  float tesla0 = 0.1f*nomField;
   float rho = theCircle.rho();
-  float cm2GeV = 0.01 * 0.3*tesla0;
+  float cm2GeV = 0.01f * 0.3f*tesla0;
   float pt = cm2GeV * rho;
 
   GlobalVector vec20 = gp2-gp0;
@@ -685,9 +672,10 @@ void MultiHitGeneratorFromChi2::refit2Hits(HitOwnPtr & hit1,
   }
 
   //now set z component
-  p0 = GlobalVector(p0.x(),p0.y(),p0.perp()/tan(vec20.theta()));
-  p1 = GlobalVector(p1.x(),p1.y(),p1.perp()/tan(vec20.theta()));
-  p2 = GlobalVector(p2.x(),p2.y(),p2.perp()/tan(vec20.theta()));
+  auto zv = vec20.z()/vec20.perp();
+  p0 = GlobalVector(p0.x(),p0.y(),p0.perp()*zv);
+  p1 = GlobalVector(p1.x(),p1.y(),p1.perp()*zv);
+  p2 = GlobalVector(p2.x(),p2.y(),p2.perp()*zv);
 
   //get charge from vectorial product
   TrackCharge q = 1;

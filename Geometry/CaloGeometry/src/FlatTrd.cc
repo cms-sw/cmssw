@@ -97,11 +97,21 @@ FlatTrd::~FlatTrd() {}
 
 GlobalPoint FlatTrd::getPosition(const Pt3D& local ) const {
   Pt3D glb = m_tr*local;
+#ifdef DebugLog
+  std::cout << "FlatTrd::Local " << local.x() << ":" << local.y() << ":" 
+	    << local.z() << " Global " << glb.x() << ":" << glb.y() << ":" 
+	    << glb.z() << std::endl;
+#endif
   return GlobalPoint(glb.x(),glb.y(),glb.z());
 }
 
 Pt3D FlatTrd::getLocal(const GlobalPoint& global) const {
   Pt3D local = m_tr.inverse()*Pt3D(global.x(),global.y(),global.z());
+#ifdef DebugLog
+  std::cout << "FlatTrd::Global " << global.x() << ":" << global.y() << ":" 
+	    << global.z() << " Local " << local.x() << ":" << local.y() << ":" 
+	    << local.z() << std::endl;
+#endif
   return local;
 }
 
