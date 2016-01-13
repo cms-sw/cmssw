@@ -101,8 +101,6 @@ namespace edm {
         std::unique_ptr<WrapperBase> edp) const;
 
 
-    void readImmediate();
-
     void setComplete() {
       complete_ = true;
     }
@@ -116,8 +114,6 @@ namespace edm {
                                  ModuleCallingContext const*) const override {return false;}
 
     virtual unsigned int transitionIndex_() const override;
-
-    void resolveProductImmediate(ProductHolderBase& phb);
 
     edm::propagate_const<std::shared_ptr<RunPrincipal>> runPrincipal_;
 

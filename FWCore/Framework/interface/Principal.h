@@ -193,6 +193,8 @@ namespace edm {
       readFromSource_(phb, mcc);
     }
 
+    void readAllFromSourceAndMergeImmediately();
+    
     virtual bool unscheduledFill(std::string const& moduleLabel,
                                  SharedResourcesAcquirer* sra,
                                  ModuleCallingContext const* mcc) const = 0;
@@ -216,10 +218,8 @@ namespace edm {
     // throws if the pointed to product is already in the Principal.
     void checkUniquenessAndType(WrapperBase const* prod, ProductHolderBase const* productHolder) const;
 
-    void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductHolderBase* productHolder) const;
-
-    void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductProvenance&& prov, ProductHolderBase* productHolder) const;
-
+    void putOrMerge(BranchDescription const& bd, std::unique_ptr<WrapperBase>  edp) const;
+    
   private:
 
     virtual WrapperBase const* getIt(ProductID const&) const override;
@@ -251,9 +251,13 @@ namespace edm {
                                           ModuleCallingContext const* mcc) const;
 
     virtual void readFromSource_(ProductHolderBase const& /* phb */, ModuleCallingContext const* /* mcc */) const {}
-
+    
+    void resolveProductImmediately(ProductHolderBase& phb);
+    
     virtual bool isComplete_() const {return true;}
-
+    
+    void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductHolderBase const* productHolder) const;
+    
     std::shared_ptr<ProcessHistory const> processHistoryPtr_;
 
     ProcessHistoryID processHistoryID_;
