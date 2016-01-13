@@ -40,9 +40,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CoralBase/Exception.h"
-
 class HGCalNumberingTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalNumberingTester( const edm::ParameterSet& );

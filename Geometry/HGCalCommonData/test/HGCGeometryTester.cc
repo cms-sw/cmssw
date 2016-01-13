@@ -40,8 +40,6 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "CoralBase/Exception.h"
-
 class HGCGeometryTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCGeometryTester( const edm::ParameterSet& );

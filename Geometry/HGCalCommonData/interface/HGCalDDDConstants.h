@@ -15,6 +15,7 @@
 #include <vector>
 #include <iostream>
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
 class HGCalDDDConstants {
@@ -34,7 +35,7 @@ public:
   std::pair<int,int>  findCell(int cell, int lay, int subSec, bool reco) const;
   std::pair<int,int>  findCellSquare(int cell, float h, float bl, float tl, 
 				     float alpha, float cellSize) const;
-  int                 geomMode() const {return hgpar_->mode_;}
+  HGCalGeometryMode   geomMode() const {return mode_;}
   bool                isValid(int lay, int mod, int cell, bool reco) const;
   unsigned int        layers(bool reco) const;
   std::pair<float,float> locateCell(int cell, int lay, int type, 
@@ -85,6 +86,7 @@ private:
   const HGCalParameters* hgpar_;
   const double           tan30deg_;
   double                 rmax_;
+  HGCalGeometryMode      mode_;
 };
 
 #endif

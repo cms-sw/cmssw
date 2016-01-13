@@ -42,8 +42,6 @@
 #include "Geometry/HGCalCommonData/interface/FastTimeDDDConstants.h"
 #include "DataFormats/ForwardDetId/interface/FastTimeDetId.h"
 
-#include "CoralBase/Exception.h"
-
 class FastTimeNumberingTester : public edm::one::EDAnalyzer<>
 {
 public:

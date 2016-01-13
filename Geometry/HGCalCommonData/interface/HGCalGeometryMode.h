@@ -22,8 +22,6 @@ public:
   }
 };
 
-namespace HGCalGeometryMode {
-  enum GeometryMode { Square=0, Hexagon=1 };
-}
+enum class HGCalGeometryMode : int { Square=0, Hexagon=1 };
 
 #endif
