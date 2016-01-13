@@ -30,6 +30,10 @@ class TrackKinematics {
 	void add(const reco::Track &track, double weight = 1.0);
 	void add(const reco::CandidatePtr &track);
 
+	inline
+	void add(const reco::TrackRef &track, double weight = 1.0)
+	{return add(*track, weight); }
+
 	TrackKinematics &operator += (const TrackKinematics &other);
 	inline TrackKinematics operator + (const TrackKinematics &other)
 	{ TrackKinematics copy = *this; copy += other; return copy; }
