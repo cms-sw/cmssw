@@ -734,20 +734,10 @@ void MuonResidualsFitter::fiducialCuts(double xMin, double xMax, double yMin, do
     if (!m_residuals_ok[iResidual]) continue;
     
     double positionX = (*r)[4];
-    if (positionX >= xMin && positionX <= xMax) {
-     std::cout << "Residual within fiducial cuts: xMin = " << xMin << " x = " << positionX << " xMax = " << xMax << std::endl;
-    } else {
-     std::cout << "Residual outside fiducial cuts: xMin = " << xMin << " x = " << positionX << " xMax = " << xMax << std::endl;
-      m_residuals_ok[iResidual] = false;
-    }
+    if (positionX < xMin || positionX > xMax) m_residuals_ok[iResidual] = false;
     
     double positionY = (*r)[5];
-    if (positionY >= yMin && positionY <= yMax) {
-     std::cout << "Residual within fiducial cuts: yMin = " << yMin << " y = " << positionY << " yMax = " << yMax << std::endl;
-    } else {
-     std::cout << "Residual outside fiducial cuts: yMin = " << yMin << " y = " << positionY << " yMax = " << yMax << std::endl;
-      m_residuals_ok[iResidual] = false;
-    }
+    if (positionY < yMin || positionY > yMax) m_residuals_ok[iResidual] = false;
   }
 }
 
