@@ -4,6 +4,7 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/ParticleFlowReco"/>
+<use   name="Geometry/HGCalGeometry"/>
 <use   name="RecoLocalCalo/HcalRecAlgos"/>
 <use   name="DataFormats/HcalDetId"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
