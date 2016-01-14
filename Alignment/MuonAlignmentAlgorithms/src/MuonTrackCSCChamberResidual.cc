@@ -7,7 +7,7 @@
 
 
 MuonTrackCSCChamberResidual::MuonTrackCSCChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, AlignableNavigator *navigator,
-                                                         DetId chamberId, const AlignableDetOrUnitPtr& chamberAlignable)
+                                                         DetId chamberId, AlignableDetOrUnitPtr chamberAlignable)
   : MuonChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable)
 {
   m_type = MuonChamberResidual::kCSC;
@@ -19,7 +19,8 @@ MuonTrackCSCChamberResidual::MuonTrackCSCChamberResidual(edm::ESHandle<GlobalTra
 void MuonTrackCSCChamberResidual::setSegmentResidual(const reco::MuonChamberMatch *trk, const reco::MuonSegmentMatch *seg)
 {
   CSCDetId id(trk->id.rawId());
-  
+  CSCDetId chamber(id.chamberId());
+
   CSCSegmentRef segmentCSC = seg->cscSegmentRef;
   if (segmentCSC.get() != 0)
   {

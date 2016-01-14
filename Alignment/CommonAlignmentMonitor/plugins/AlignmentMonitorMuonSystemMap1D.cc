@@ -24,6 +24,11 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+
 
 class AlignmentMonitorMuonSystemMap1D: public AlignmentMonitorBase
 {
@@ -260,6 +265,12 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent, const edm:
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByLabel(m_beamSpotTag, beamSpot);
 
+  edm::ESHandle<Propagator> prop;
+  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",prop);
+ 
+  edm::ESHandle<MagneticField> magneticField;
+  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+
   if (m_muonCollectionTag.label().empty()) // use trajectories
   {
     for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin();  trajtrack != trajtracks.end();  ++trajtrack)
@@ -275,7 +286,7 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent, const edm:
         {
           m_counter_trackdxy++;
 
-          MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, track, pNavigator(), 1000.);
+          MuonResidualsFromTrack muonResidualsFromTrack(iSetup, magneticField, globalGeometry, prop, traj, track, pNavigator(), 1000.);
           processMuonResidualsFromTrack(muonResidualsFromTrack, iEvent);
         }
       } // end if track has acceptable momentum

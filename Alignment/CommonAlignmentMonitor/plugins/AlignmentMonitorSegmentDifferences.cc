@@ -24,6 +24,11 @@
 
 #include <sstream>
 
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+
 
 class AlignmentMonitorSegmentDifferences: public AlignmentMonitorBase
 {
@@ -343,6 +348,12 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByLabel(m_beamSpotTag, beamSpot);
 
+  edm::ESHandle<Propagator> prop;
+  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",prop);
+  
+  edm::ESHandle<MagneticField> magneticField;
+  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+
   if (m_muonCollectionTag.label().empty()) // use trajectories
   {
     for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin();  trajtrack != trajtracks.end();  ++trajtrack)
@@ -352,7 +363,7 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
 
       if (track->pt() > m_minTrackPt && track->p() > m_minTrackP && fabs(track->dxy(beamSpot->position())) < m_maxDxy )
       {
-        MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, track, pNavigator(), 1000.);
+        MuonResidualsFromTrack muonResidualsFromTrack(iSetup, magneticField, globalGeometry, prop, traj, track, pNavigator(), 1000.);
         processMuonResidualsFromTrack(muonResidualsFromTrack);
       }
     } // end loop over tracks

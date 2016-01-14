@@ -21,6 +21,8 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+
 class MuonChamberResidual
 {
 public:
@@ -32,12 +34,12 @@ public:
   };
 
   MuonChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, AlignableNavigator *navigator, 
-                      DetId chamberId, const AlignableDetOrUnitPtr& chamberAlignable);
+                      DetId chamberId, AlignableDetOrUnitPtr chamberAlignable);
 
   virtual ~MuonChamberResidual() {}
 
   // has to be implemented for rechit based residuals 
-  virtual void addResidual(const TrajectoryStateOnSurface *, const TransientTrackingRecHit *) = 0;
+  virtual void addResidual(edm::ESHandle<Propagator> prop, const TrajectoryStateOnSurface *, const TrackingRecHit *) = 0;
   
   // has to be implemented for track muon segment residuals
   virtual void setSegmentResidual(const reco::MuonChamberMatch *, const reco::MuonSegmentMatch *) = 0;

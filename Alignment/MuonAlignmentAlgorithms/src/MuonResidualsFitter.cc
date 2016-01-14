@@ -162,6 +162,70 @@ double MuonResidualsFitter_integrate_pureGaussian(double low, double high, doubl
   return (erf((high + center) * isqr2 / sigma) - erf((low + center) * isqr2 / sigma)) * exp(0.5/sigma/sigma) * 0.5;
 }
 
+MuonResidualsFitter::MuonResidualsFitter(int residualsModel, int minHits, int useResiduals, bool weightAlignment) :
+  m_residualsModel(residualsModel)
+, m_minHits(minHits)
+, m_useResiduals(useResiduals)
+, m_weightAlignment(weightAlignment)
+, m_printLevel(0)
+, m_strategy(1)
+, m_cov(1)
+, m_loglikelihood(0.)
+{
+  if (m_residualsModel != kPureGaussian  &&  m_residualsModel != kPowerLawTails  &&
+      m_residualsModel != kROOTVoigt     &&  m_residualsModel != kGaussPowerTails && m_residualsModel != kPureGaussian2D)
+    throw cms::Exception("MuonResidualsFitter") << "unrecognized residualsModel";
+}
+
+
+MuonResidualsFitter::~MuonResidualsFitter()
+{
+  for (std::vector<double*>::const_iterator residual = residuals_begin();  residual != residuals_end();  ++residual) {
+    delete [] (*residual);
+  }
+}
+
+
+void MuonResidualsFitter::fix(int parNum, bool dofix)
+{
+  assert(0 <= parNum  &&  parNum < npar());
+  if (m_fixed.size() == 0) m_fixed.resize(npar(), false);
+  m_fixed[parNum] = dofix;
+}
+
+
+bool MuonResidualsFitter::fixed(int parNum)
+{
+  assert(0 <= parNum  &&  parNum < npar());
+  if (m_fixed.size() == 0) return false;
+  else return m_fixed[parNum];
+}
+
+
+void MuonResidualsFitter::fill(double *residual)
+{
+  m_residuals.push_back(residual);
+  m_residuals_ok.push_back(true);
+}
+
+
+double MuonResidualsFitter::covarianceElement(int parNum1, int parNum2)
+{
+  assert(0 <= parNum1  &&  parNum1 < npar());
+  assert(0 <= parNum2  &&  parNum2 < npar());
+  assert(m_cov.GetNcols() == npar()); // m_cov might have not yet been resized to account for proper #parameters
+  return m_cov(parNum2parIdx(parNum1),  parNum2parIdx(parNum2));
+}
+
+
+long MuonResidualsFitter::numsegments()
+{
+  long num = 0;
+  for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) num++;
+  return num;
+}
+
+
 
 void MuonResidualsFitter::initialize_table()
 {
@@ -240,7 +304,8 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
   MuonResidualsFitterFitInfo *fitinfo = new MuonResidualsFitterFitInfo(this);
 
   MuonResidualsFitter_TMinuit = new TMinuit(npar());
-  MuonResidualsFitter_TMinuit->SetPrintLevel(m_printLevel);
+  // MuonResidualsFitter_TMinuit->SetPrintLevel(m_printLevel);
+  MuonResidualsFitter_TMinuit->SetPrintLevel();
   MuonResidualsFitter_TMinuit->SetObjectFit(fitinfo);
   MuonResidualsFitter_TMinuit->SetFCN(fcn);
   inform(MuonResidualsFitter_TMinuit);
@@ -503,7 +568,8 @@ void MuonResidualsFitter::histogramChi2GaussianFit(int which, double &fit_mean, 
   f1->SetParameter(0, hist->GetEntries());
   f1->SetParameter(1, 0);
   f1->SetParameter(2, hist->GetRMS());
-  hist->Fit(f1,"RQ");
+  hist->Fit("f1","RQ");
+  // hist->Fit(f1,"RQ");
   
   fit_mean  = f1->GetParameter(1);
   fit_sigma = f1->GetParameter(2);
@@ -515,7 +581,9 @@ void MuonResidualsFitter::histogramChi2GaussianFit(int which, double &fit_mean, 
 
 
 // simple non-turned ellipsoid selection
-void MuonResidualsFitter::selectPeakResiduals_simple(double nsigma, int nvar, int *vars)
+// THIS WAS selectPeakResiduals_simple, but I changed it to use this simple function as default
+// void MuonResidualsFitter::selectPeakResiduals_simple(double nsigma, int nvar, int *vars)
+void MuonResidualsFitter::selectPeakResiduals(double nsigma, int nvar, int *vars)
 {
   // does not make sense for small statistics
   if (numResiduals()<25) return;
@@ -547,8 +615,10 @@ void MuonResidualsFitter::selectPeakResiduals_simple(double nsigma, int nvar, in
     if (ellipsoid_sum <= 1.)  ++r;
     else
     {
-      delete [] (*r);
-      r = m_residuals.erase(r);
+      m_residuals_ok[r - m_residuals.begin()] = false;
+      ++r;
+      // delete [] (*r);
+      // r = m_residuals.erase(r);
     }
   }
   std::cout<<" N residuals "<<nbefore<<" -> "<<numResiduals()<<std::endl;
@@ -556,14 +626,17 @@ void MuonResidualsFitter::selectPeakResiduals_simple(double nsigma, int nvar, in
 
 
 // pre-selection using robust covariance estimator
-void MuonResidualsFitter::selectPeakResiduals(double nsigma, int nvar, int *vars)
+// THIS WAS selectPeakResiduals but I changed it to use OTHER simple function as default
+void MuonResidualsFitter::selectPeakResiduals_simple(double nsigma, int nvar, int *vars)
 {
   //std::cout<<"doing selectpeakresiduals: nsig="<<nsigma<<" nvar="<<nvar<<" vars=";
   for (int i=0; i<nvar; ++i) std::cout<<vars[i]<<" ";
   std::cout<<std::endl;
 
-  // does not make sense for small statistics
-  if (numResiduals()<50) return;
+  // does not make sense for small statistics set to 50
+  // YP changed it to 10 for test
+  if (numResiduals()<10) return;
+  // if (numResiduals()<50) return;
   
   size_t nbefore = numResiduals();
   std::cout<<" N residuals "<<nbefore<<" ~ "<<(size_t) std::count(m_residuals_ok.begin(), m_residuals_ok.end(), true)<<std::endl;
@@ -575,6 +648,7 @@ void MuonResidualsFitter::selectPeakResiduals(double nsigma, int nvar, int *vars
   // it's awkward, but the 1D case has to be handled separately
   if (nvar==1)
   {
+    std::cout << "1D case" << std::endl;
     // get robust estimates for the peak and sigma
     double *data = new double[nbefore];
     for (size_t i = 0; i < nbefore; i++) data[i] = m_residuals[i][ vars[0] ];
@@ -600,17 +674,25 @@ void MuonResidualsFitter::selectPeakResiduals(double nsigma, int nvar, int *vars
   } // end 1D case
   
   // initialize and run the robust estimator for D>1
-  TRobustEstimator re(nbefore, nvar);
+  std::cout << "D>1 case" << std::endl;
+  TRobustEstimator re(nbefore+1, nvar);
+  std::cout << "nbefore " << nbefore << " nvar " << nvar << std::endl;
   r = m_residuals.begin();
+  std::cout << "+++++ JUST before loop while (r != m_residuals.end())" << std::endl;
+  int counter1 = 0;
   while (r != m_residuals.end())
   {
     double *row = new double[nvar];
     for (int v = 0; v<nvar; v++)  row[v] = (*r)[ vars[v] ];
     re.AddRow(row);
-    delete[] row;
+    // delete[] row;
     ++r;
+    counter1++;
   }
+  std::cout << "counter1 " << counter1 << std::endl;
+  std::cout << "+++++ JUST after loop while (r != m_residuals.end())" << std::endl;
   re.Evaluate();
+  std::cout << "+++++ JUST after re.Evaluate()" << std::endl;
   
   // get nvar-dimensional ellipsoid center & covariance
   TVectorD M(nvar);
@@ -640,6 +722,33 @@ void MuonResidualsFitter::selectPeakResiduals(double nsigma, int nvar, int *vars
     }
   }
   std::cout<<" N residuals "<<nbefore<<" -> "<<(size_t) std::count(m_residuals_ok.begin(), m_residuals_ok.end(), true)<<std::endl;
+}
+
+
+void MuonResidualsFitter::fiducialCuts(double xMin, double xMax, double yMin, double yMax) {
+
+  int iResidual = -1;
+  
+  for (std::vector<double*>::const_iterator r = residuals_begin();  r != residuals_end();  ++r) {
+    iResidual++;
+    if (!m_residuals_ok[iResidual]) continue;
+    
+    double positionX = (*r)[4];
+    if (positionX >= xMin && positionX <= xMax) {
+     std::cout << "Residual within fiducial cuts: xMin = " << xMin << " x = " << positionX << " xMax = " << xMax << std::endl;
+    } else {
+     std::cout << "Residual outside fiducial cuts: xMin = " << xMin << " x = " << positionX << " xMax = " << xMax << std::endl;
+      m_residuals_ok[iResidual] = false;
+    }
+    
+    double positionY = (*r)[5];
+    if (positionY >= yMin && positionY <= yMax) {
+     std::cout << "Residual within fiducial cuts: yMin = " << yMin << " y = " << positionY << " yMax = " << yMax << std::endl;
+    } else {
+     std::cout << "Residual outside fiducial cuts: yMin = " << yMin << " y = " << positionY << " yMax = " << yMax << std::endl;
+      m_residuals_ok[iResidual] = false;
+    }
+  }
 }
 
 
