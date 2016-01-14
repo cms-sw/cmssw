@@ -9,6 +9,7 @@
 /**********************/
 
 #include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
 
 namespace
 {
@@ -19,70 +20,8 @@ namespace
     Ref_PSimHit_    PSH_;
     Ref_PixelDigi_  PD_;
 
-    /// SimHit type
-    L1TkStub_PSimHit_                         S_PSH_;
-    L1TkStub_PSimHit_Collection               S_PSH_C;
-//    edm::Wrapper<L1TkStub_PSimHit_Collection> S_PSH_CW;
+    std::vector<Ref_PixelDigi_> VRP;
 
-    L1TkTrack_PSimHit_                         L1T_PSH_;
-    L1TkTrack_PSimHit_Collection               L1T_PSH_C;
-//    edm::Wrapper<L1TkTrack_PSimHit_Collection> L1T_PSH_CW;
-
-    L1TkCluster_PSimHit_                         CL_PSH_;
-//    L1TkCluster_PSimHit_Map                      CL_PSH_M;
-//    edm::Wrapper<L1TkCluster_PSimHit_Map>        CL_PSH_MW;
-    L1TkCluster_PSimHit_Collection               CL_PSH_C;
-    edm::Wrapper<L1TkCluster_PSimHit_Collection> CL_PSH_CW;
-    L1TkCluster_PSimHit_Pointer                  CL_PSH_P;
-//    edm::Wrapper<L1TkCluster_PSimHit_Pointer>    CL_PSH_PW;
-
-    L1TkCluster_PixelDigi_                         CL_PD_;
-//    L1TkCluster_PixelDigi_Map                      CL_PD_M;
-//    edm::Wrapper<L1TkCluster_PixelDigi_Map>        CL_PD_MW;
-    L1TkCluster_PixelDigi_Collection               CL_PD_C;
-    edm::Wrapper<L1TkCluster_PixelDigi_Collection> CL_PD_CW;
-    L1TkCluster_PixelDigi_Pointer                  CL_PD_P;
-//    edm::Wrapper<L1TkCluster_PixelDigi_Pointer>    CL_PD_PW;
-
-    /// PixelDigi type
-    L1TkStub_PixelDigi_                         S_PD_;
-    L1TkStub_PixelDigi_Collection               S_PD_C;
-    edm::Wrapper<L1TkStub_PixelDigi_Collection> S_PD_CW;
-
-    L1TkTrack_PixelDigi_                         L1T_PD_;
-    L1TkTrack_PixelDigi_Collection               L1T_PD_C;
-    edm::Wrapper<L1TkTrack_PixelDigi_Collection> L1T_PD_CW;
-
-    edm::Ptr<L1TkStub_PixelDigi_ > P_S_PD_C;
-    std::vector< std::vector< edm::Ptr<L1TkStub_PixelDigi_ > > > S_PD_C_C;
-    edm::Wrapper<std::vector< std::vector< edm::Ptr< L1TkStub_PixelDigi_ > > > > S_PD_C_CW;
-
-
-/*
-    // Anders tracks
-    L1TStub L1TS;
-    edm::Wrapper<L1TStub> L1TS_W;
-    edm::Wrapper<std::vector<L1TStub> > VEC_L1TS;
-
-    L1TTrack L1T;
-    edm::Wrapper<L1TTrack> L1T_W;
-    edm::Wrapper<std::vector<L1TTrack> > VEC_L1T; 
-
-    L1TTracks L1TTS;
-    edm::Wrapper<L1TTracks> L1TTS_W;
-    edm::Wrapper<std::vector<L1TTracks> > VEC_L1TTS; 
-*/
-
-//    std::vector< std::vector< Ref_PixelDigi_ > > STV_PD;
-//    std::pair<StackedTrackerDetId,int> STP_STDI_I; // why ???
-
-/*
-    std::pair<unsigned int, L1TkCluster_PSimHit_ >   P_INT_PSHC;
-    std::pair<unsigned int, L1TkCluster_PixelDigi_ > P_INT_PDC;
-
-    std::pair<unsigned int , edm::Ptr< L1TkStub_PSimHit_ > >   P_INT_PTRS_PSH; 
-    std::pair<unsigned int , edm::Ptr< L1TkStub_PixelDigi_ > > P_INT_PTRS_PD; 
-*/
   }
 }
 
