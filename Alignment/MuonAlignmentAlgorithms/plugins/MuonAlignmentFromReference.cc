@@ -560,6 +560,7 @@ void MuonAlignmentFromReference::processMuonResidualsFromTrack(MuonResidualsFrom
                                         {
                                             m_counter_station123aligning++;
                                             if (fabs(dt2->resslope()) < m_maxResSlopeY)
+                                            if (fabs(dt2->resslope()) < m_maxResSlopeY && (dt2->chi2() / double(dt2->ndof())) < 2.0)
                                             {
                                                 m_counter_resslopey++;
                                                 double *residdata = new double[MuonResiduals6DOFFitter::kNData];
