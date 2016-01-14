@@ -11,9 +11,9 @@ DTTimingExtractorBlock = cms.PSet(
             'PropagatorWithMaterialOpposite'),
         RPCLayers = cms.bool(True)
     ),
-    PruneCut = cms.double(10000.),
+    PruneCut = cms.double(5.),
     DTTimeOffset = cms.double(0.),
-    HitError  = cms.double(6.0),
+    HitError  = cms.double(2.8),
     HitsMin = cms.int32(3),
     UseSegmentT0 = cms.bool(False),
     DoWireCorr = cms.bool(True),
