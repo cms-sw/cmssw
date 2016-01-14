@@ -58,6 +58,7 @@ float MuonTagger::discriminator(const TagInfoHelper& tagInfo) const {
   // If there are multiple leptons, look for the highest tag result
   for (unsigned int i=0; i<info.leptons(); i++) {
     const reco::SoftLeptonProperties& properties = info.properties(i);
+    if(!m_selector(properties)) continue;
     bool flip(false);
     if(m_selector.isNegative()) {
       int seed=1+round(10000.*properties.deltaR);
