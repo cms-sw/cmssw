@@ -203,7 +203,8 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
     cond::persistency::IOVEditor editor = m_session.createIov( payloadType, myrecord.m_tag, myrecord.m_timetype, cond::SYNCH_ANY ); 
     editor.setDescription( "New Tag" );
     editor.insert( firstSinceTime, firstPayloadId );
-    editor.flush();
+    cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
+    editor.flush( a.usertext );
     myrecord.m_isNewTag=false;
   }catch(const std::exception& er){ 
     cond::throwException(std::string(er.what()) + " from PoolDBOutputService::createNewIOV ",
@@ -232,7 +233,8 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
     editor.setDescription( "New Tag" );
     payloadType = editor.payloadType();
     editor.insert( firstSinceTime, firstPayloadId );
-    editor.flush();
+    cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
+    editor.flush( a.usertext );
     myrecord.m_isNewTag=false;
   }catch(const std::exception& er){ 
     cond::throwException(std::string(er.what()) + " from PoolDBOutputService::createNewIOV ",
@@ -258,7 +260,8 @@ cond::service::PoolDBOutputService::appendSinceTime( const std::string& payloadI
     cond::persistency::IOVEditor editor = m_session.editIov( myrecord.m_tag ); 
     payloadType = editor.payloadType();
     editor.insert( time, payloadId );
-    editor.flush();
+    cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
+    editor.flush( a.usertext );
 
   }catch(const std::exception& er){
     cond::throwException(std::string(er.what()),
@@ -306,7 +309,7 @@ cond::service::PoolDBOutputService::closeIOV(Time_t lastTill, const std::string&
   }
   cond::persistency::IOVEditor editor = m_session.editIov( myrecord.m_tag ); 
   editor.setEndOfValidity( lastTill );
-  editor.flush();
+  editor.flush("Tag closed.");
   scope.close();
 }
 
