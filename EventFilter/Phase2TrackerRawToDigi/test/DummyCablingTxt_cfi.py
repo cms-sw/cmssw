@@ -9,22 +9,20 @@ def make_vpset_fromfile(filename):
         for line in f:
             line = line.split()
             detid = int(line[0])
-            layer = int(line[1])
-            if(layer > 4):
-                mtype = (layer > 3) and "2S" or "PS"
-                psets.append(cms.PSet(
-                    moduleType=cms.string(mtype),
-                    detid=cms.uint32(detid),
-                    gbtid=cms.uint32(0),
-                    fedid=cms.uint32(fedid),
-                    fedch=cms.uint32(channel),
-                    powerGroup=cms.uint32(0),
-                    coolingLoop=cms.uint32(0))
-                    )
-                channel += 1
-                if channel == 72:
-                    channel = 0
-                    fedid += 1
+            mtype = line[1]
+            psets.append(cms.PSet(
+                moduleType=cms.string(mtype),
+                detid=cms.uint32(detid),
+                gbtid=cms.uint32(0),
+                fedid=cms.uint32(fedid),
+                fedch=cms.uint32(channel),
+                powerGroup=cms.uint32(0),
+                coolingLoop=cms.uint32(0))
+                )
+            channel += 1
+            if channel == 72:
+                channel = 0
+                fedid += 1
         while channel != 72:
             detid = 0 
             psets.append(cms.PSet(

@@ -22,25 +22,6 @@ using namespace std;
 
 namespace Phase2Tracker {
 
-  /*
-  SiPixelCluster makeSiPixelCluster(int x, int sizex, int y = 0)
-  {
-    uint16_t adcs[sizex];
-    std::fill_n(adcs,sizex,255);
-    uint16_t xpos[sizex];
-    uint16_t ypos[sizex];
-    for (int i=0; i<sizex; i++)
-    {
-      xpos[i] = x + i;
-      ypos[i] = y;
-    }
-    SiPixelCluster cluster (sizex, adcs, xpos, ypos, x, y);
-    return cluster;
-  }
-  */
-
-  typedef Phase2TrackerDigi DummyClusterDigi;
-
   Phase2TrackerDigiProducer::Phase2TrackerDigiProducer( const edm::ParameterSet& pset ) :
     runNumber_(0),
     cabling_(0),
