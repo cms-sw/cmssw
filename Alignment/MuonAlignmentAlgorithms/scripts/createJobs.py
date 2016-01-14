@@ -496,7 +496,7 @@ if [ \"$ALIGNMENT_CLEANUP\" == \"True\" ] && [ \"zzz$ALIGNMENT_PLOTTINGTMP\" != 
 fi
 
 cd $ALIGNMENT_CAFDIR/
-export ALIGNMENT_ALIGNMENTTMP=`find alignment*.tmp -maxdepth 1 -size +12000k -print 2> /dev/null`
+export ALIGNMENT_ALIGNMENTTMP=`find alignment*.tmp -maxdepth 1 -size +1k -print 2> /dev/null`
 ls -l
 
 cmsRun align_cfg.py
@@ -507,7 +507,7 @@ cp -f MuonAlignmentFromReference_plotting.root $ALIGNMENT_AFSDIR/%(directory)s%(
 cd $ALIGNMENT_AFSDIR
 ./Alignment/MuonAlignmentAlgorithms/scripts/convertSQLiteXML.py %(directory)s%(director)s.db %(directory)s%(director)s.xml --noLayers --gprcdconnect $ALIGNMENT_GPRCDCONNECT --gprcd $ALIGNMENT_GPRCD
 
-export ALIGNMENT_ALIGNMENTTMP=`find %(directory)salignment*.tmp -maxdepth 1 -size +12000k -print 2> /dev/null`
+export ALIGNMENT_ALIGNMENTTMP=`find %(directory)salignment*.tmp -maxdepth 1 -size +1k -print 2> /dev/null`
 if [ \"$ALIGNMENT_CLEANUP\" == \"True\" ] && [ \"zzz$ALIGNMENT_ALIGNMENTTMP\" != \"zzz\" ]; then
   rm $ALIGNMENT_ALIGNMENTTMP
   echo " "
