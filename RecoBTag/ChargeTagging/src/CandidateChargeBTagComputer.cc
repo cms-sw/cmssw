@@ -25,7 +25,7 @@ void CandidateChargeBTagComputer::initialize(const JetTagComputerRecord & record
 {
   // Saving MVA variable names;
   // names and order need to be the same as in the training
-  std::vector< std::string > variables ({"tr_ch","pt1_ch/j_pt","pt2_ch/j_pt","pt3_ch/j_pt","sv_ch","mu_sip2d",/*"mu_sip3d",*/"mu_delR","mu_ptrel","mu_pfrac","mu_char",/*"el_sip2d","el_sip3d",*/"el_delR","el_ptrel","el_pfrac","el_mva","el_char"});
+  std::vector< std::string > variables ({"tr_ch","sv_ch","mu_sip2d",/*"mu_sip3d",*/"mu_delR","mu_ptrel","mu_pfrac","mu_char",/*"el_sip2d","el_sip3d",*/"el_delR","el_ptrel","el_pfrac","el_mva","el_char","pt1_ch/j_pt","pt2_ch/j_pt","pt3_ch/j_pt"});
   std::vector< std::string > spectators (0);
 
   if (useCondDB_)
