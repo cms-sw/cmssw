@@ -102,6 +102,18 @@ if json_file is not None and json_file != '':
 
 process = cms.Process("GATHER")
 
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+
+process.MuonNumberingInitialization = cms.ESProducer("MuonNumberingInitialization")
+process.MuonNumberingRecord = cms.ESSource( "EmptyESSource",
+    recordName = cms.string( "MuonNumberingRecord" ),
+    iovIsRunNotTime = cms.bool( True ),
+    firstValid = cms.vuint32( 1 )
+)
+
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+
 if len(good_lumis)>0:
   process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(*inputfiles),

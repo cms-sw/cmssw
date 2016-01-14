@@ -14,7 +14,7 @@ class MuonTrackDT2ChamberResidual: public MuonChamberResidual
 {
 public:
   MuonTrackDT2ChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, AlignableNavigator *navigator,
-                              DetId chamberId, const AlignableDetOrUnitPtr& chamberAlignable);
+                              DetId chamberId, AlignableDetOrUnitPtr chamberAlignable);
 
   // dummy method
   virtual void addResidual(const TrajectoryStateOnSurface *tsos, const TransientTrackingRecHit *hit) {}
