@@ -96,10 +96,11 @@
   <class name="edm::Wrapper<reco::IsolatedTauTagInfoCollection>"/>
 
 
-  <class name="reco::SoftLeptonProperties" ClassVersion="12">
+  <class name="reco::SoftLeptonProperties" ClassVersion="13">
    <version ClassVersion="10" checksum="3825121604"/>
    <version ClassVersion="11" checksum="3267387532"/>
    <version ClassVersion="12" checksum="2193794521"/>
+   <version ClassVersion="13" checksum="422722510"/>
   </class>
   <ioread sourceClass = "reco::SoftLeptonProperties" version="[-11]" targetClass="reco::SoftLeptonProperties" source="float sip2d" target="sip2dsig">
     <![CDATA[sip2dsig = onfile.sip2d;]]>
