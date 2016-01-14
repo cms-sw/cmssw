@@ -25,6 +25,9 @@
 // The 2 lines in the EventInfo (HV) plot which show beam status info will be
 // hidden.
 
+const int DQMProvInfo::MAX_VBINS;
+const int DQMProvInfo::MAX_LUMIS;
+
 // Constructor
 DQMProvInfo::DQMProvInfo(const edm::ParameterSet& ps) {
   // Initialization of DQM parameters
