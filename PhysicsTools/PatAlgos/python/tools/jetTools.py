@@ -252,8 +252,12 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 setattr(process, btagInfo+labelName+postfix, btag.secondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag('impactParameterTagInfos'+labelName+postfix)))
             if btagInfo == 'inclusiveSecondaryVertexFinderNegativeTagInfos':
                 setattr(process, btagInfo+labelName+postfix, btag.inclusiveSecondaryVertexFinderNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag('impactParameterTagInfos'+labelName+postfix)))
+                if svClustering:
+                    setupSVClustering(getattr(process, btagInfo+labelName+postfix), algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'inclusiveSecondaryVertexFinderFilteredNegativeTagInfos':
                 setattr(process, btagInfo+labelName+postfix, btag.inclusiveSecondaryVertexFinderFilteredNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag('impactParameterTagInfos'+labelName+postfix)))
+                if svClustering:
+                    setupSVClustering(getattr(process, btagInfo+labelName+postfix), algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'softMuonTagInfos':
                 setattr(process, btagInfo+labelName+postfix, btag.softMuonTagInfos.clone(jets = jetSource, primaryVertex=pvSource))
             if btagInfo == 'softPFMuonsTagInfos':
