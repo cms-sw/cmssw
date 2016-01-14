@@ -56,6 +56,7 @@ namespace edm {
     const std::uint32_t RandomNumberGeneratorService::maxSeedRanecu =   2147483647U;
     const std::uint32_t RandomNumberGeneratorService::maxSeedHepJames =  900000000U;
     const std::uint32_t RandomNumberGeneratorService::maxSeedTRandom3 = 4294967295U;
+    const std::uint32_t RandomNumberGeneratorService::maxSeedXorShift128Plus = std::numeric_limits<uint32_t>::max();
 
     RandomNumberGeneratorService::RandomNumberGeneratorService(ParameterSet const& pset,
                                                                ActivityRegistry& activityRegistry):
@@ -144,6 +145,25 @@ namespace edm {
               << "The RanecuEngine seeds should be in the range 0 to 2147483647.\n"
               << "The seeds passed to the RandomNumberGenerationService from the\n"
                  "configuration file were " << initialSeedSet[0] << " and " << initialSeedSet[1]
+              << "\nThis was for the module with label \"" << label << "\".\n";
+          }
+        } else if( engineName == std::string("XorShift128Plus") ) {
+          if( initialSeedSet.Size() != 4U ) {
+            throw Exception(errors::Configuration)
+              << "Random engines of type \"XorShift128Plus\" require 4 seeds\n"
+              << "be specified with the parameter named \"initialSeedSet\".\n"
+              << "Either \"initialSeedSet\" was not in the configuration\n"
+              << "or its size was not 4 for the module with label \"" << label << "\".\n" ;
+          }
+          if(initialSeedSet[0] > maxSeedXorShift128Plus ||
+             initialSeedSet[1] > maxSeedXorShift128Plus || 
+             initialSeedSet[2] > maxSeedXorShift128Plus ||
+             initialSeedSet[3] > maxSeedXorShift128Plus) {  // They need to fit in a 31 bit integer
+            throw Exception(errors::Configuration)
+              << "The XorShift128Plus seeds should be in the range 0 to " << maxSeedXorShift128Plus << ".\n"
+              << "The seeds passed to the RandomNumberGenerationService from the\n"
+                 "configuration file were " << initialSeedSet[0] << " , " << initialSeedSet[1]
+              << " , " << initialSeedSet[2] << " , and " << initialSeedSet[3]
               << "\nThis was for the module with label \"" << label << "\".\n";
           }
         }
