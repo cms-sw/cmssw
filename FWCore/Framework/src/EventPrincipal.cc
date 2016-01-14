@@ -13,7 +13,7 @@
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
-#include "FWCore/Framework/interface/ProductHolder.h"
+#include "FWCore/Framework/interface/ProductHolderBase.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
 #include "FWCore/Framework/interface/ProductDeletedException.h"

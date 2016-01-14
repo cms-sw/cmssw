@@ -1,10 +1,6 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/DelayedReader.h"
-#include "FWCore/Framework/interface/ProductHolder.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
 

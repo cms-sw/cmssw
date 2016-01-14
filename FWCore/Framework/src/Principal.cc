@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/ProductDeletedException.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "ProductHolders.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"

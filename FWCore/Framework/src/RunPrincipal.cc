@@ -2,9 +2,7 @@
 
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/DelayedReader.h"
-#include "FWCore/Framework/interface/ProductHolder.h"
-#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Framework/interface/ProductHolderBase.h"
 
 namespace edm {
   RunPrincipal::RunPrincipal(
