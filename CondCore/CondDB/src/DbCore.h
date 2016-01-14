@@ -46,7 +46,7 @@
 // macros for the schema definition
 
 // table definition
-#define table( NAME ) namespace NAME {\
+#define conddb_table( NAME ) namespace NAME {\
     static constexpr char const* tname = #NAME ;\
     }\
     namespace NAME
@@ -71,7 +71,7 @@
 #define SELECT_COLUMN_MACRO(...) GET_4TH_ARG(__VA_ARGS__,  FIXSIZE_COLUMN, VARSIZE_COLUMN, WRONG_PAR_NUMBER_ERROR ) 
 
 // the final column definition macro
-#define column( ... ) SELECT_COLUMN_MACRO(__VA_ARGS__)(__VA_ARGS__)
+#define conddb_column( ... ) SELECT_COLUMN_MACRO(__VA_ARGS__)(__VA_ARGS__)
 
 namespace cond {
 
