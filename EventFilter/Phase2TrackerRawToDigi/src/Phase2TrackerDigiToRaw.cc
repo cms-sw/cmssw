@@ -37,9 +37,9 @@ namespace Phase2Tracker
     return std::make_pair(2*max_ns - roomleft[2] - roomleft[3], 2*max_np - roomleft[0] - roomleft[1]); 
   }
 
-  Phase2TrackerDigiToRaw::Phase2TrackerDigiToRaw(const Phase2TrackerCabling * cabling, std::map<int,int> stackmap, edm::Handle< edmNew::DetSetVector<Phase2TrackerCluster1D> > digis_handle, int mode):
+  Phase2TrackerDigiToRaw::Phase2TrackerDigiToRaw(const Phase2TrackerCabling * cabling, const TrackerTopology* tTopo, edm::Handle< edmNew::DetSetVector<Phase2TrackerCluster1D> > digis_handle, int mode):
     cabling_(cabling),
-    stackMap_(stackmap),
+    tTopo_(tTopo),
     digishandle_(digis_handle),
     mode_(mode),
     FedDaqHeader_(0,0,0,DAQ_EVENT_TYPE_SIMULATED), // TODO : add L1ID
@@ -58,7 +58,6 @@ namespace Phase2Tracker
     std::vector<bool> festatus (72,false);
     // iterate on all possible channels 
     Phase2TrackerCabling::cabling conns = cabling_->orderedConnections(0);
-    // testing better way to gather stuff:
     Phase2TrackerCabling::cabling::const_iterator iconn = conns.begin(), end = conns.end(), icon2;
     while(iconn != end)
     {
@@ -66,7 +65,10 @@ namespace Phase2Tracker
       for (icon2 = iconn; icon2 != end && (*icon2)->getCh().first == fedid; icon2++)
       {
         // detid of first plane is detid of module + 1
-        int detid = (*icon2)->getDetid() + 1;
+        unsigned int detid = (*icon2)->getDetid() + 1;
+        // FIXME : because we use test cabling, we have some detids set to 0 : we should ignore them
+        if ( detid == 1 ) continue;
+        // end of fixme
         edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator  digis;
         digis = digishandle_->find(detid);
         if (digis != digishandle_->end())
@@ -74,7 +76,7 @@ namespace Phase2Tracker
           digis_t.push_back(*digis);
           festatus[(*icon2)->getCh().second] = true;
         }
-        digis = digishandle_->find(stackMap_[detid]);
+        digis = digishandle_->find(tTopo_->PartnerDetId(detid));
         if (digis != digishandle_->end())
         {
           digis_t.push_back(*digis);
@@ -113,18 +115,17 @@ namespace Phase2Tracker
     std::vector<edmNew::DetSet<Phase2TrackerCluster1D>>::const_iterator idigi;
     for (idigi = digis.begin(); idigi != digis.end(); idigi++ )
     {
-      // determine module type
-      int detid = idigi->detId() - 1;
-      if(stackMap_[detid] < 0) { detid = - stackMap_[detid] - 1; } 
-      moduletype = cabling_->findDetid(detid).getModuleType();
+      // get id of stack
+      unsigned int detid = idigi->detId();
+      moduletype = cabling_->findDetid(tTopo_->Stack(detid)).getModuleType();
       // container for digis, to be sorted afterwards
       std::vector<stackedDigi> digs_mod;
       edmNew::DetSet<Phase2TrackerCluster1D>::const_iterator it;
       // pair modules if there are digis for both
-      if(stackMap_[idigi->detId()] > 0)
-      {
+      if(tTopo_->isLower(idigi->detId()) == 1)
+      {  
         // digis for inner plane (P in case of PS)
-        if( (idigi+1) != digis.end() and (int)(idigi+1)->detId() == stackMap_[idigi->detId()])
+        if( (idigi+1) != digis.end() and (int)(idigi+1)->detId() == (int)tTopo_->PartnerDetId(detid))
         {
           // next digi is the corresponding outer plane : join them
           for (it = idigi->begin(); it != idigi->end(); it++)
@@ -224,7 +225,7 @@ namespace Phase2Tracker
     // debug
     #ifdef EDM_ML_DEBUG
     std::ostringstream ss;
-    ss << "S chip: " << digi.getChipId() << " digiX: " << digi.getDigiX() << " raw size: " << digi.getSizeX() << " digiY: " << digi.getDigiY() << " Layer: " << digi.getLayer() << std::endl; 
+    ss << "S chip: " << digi.getChipId() << " digiX: " << digi.getDigiX() << " raw size: " << digi.getSizeX() << " digiY: " << digi.getDigiY() << " Layer: " << digi.getLayer(); 
     LogTrace("Phase2TrackerDigiProducer") << ss.str(); ss.clear(); ss.str("");
     #endif
     uint16_t scluster = (digi.getChipId() & 0x0F) << 11;
@@ -239,7 +240,7 @@ namespace Phase2Tracker
     // debug 
     #ifdef EDM_ML_DEBUG
     std::ostringstream ss;
-    ss << "P chip: " << digi.getChipId() << " digiX: " << digi.getDigiX() << " raw size: " << digi.getSizeX() << " digiY: " << digi.getDigiY() << std::endl; 
+    ss << "P chip: " << digi.getChipId() << " digiX: " << digi.getDigiX() << " raw size: " << digi.getSizeX() << " digiY: " << digi.getDigiY(); 
     LogTrace("Phase2TrackerDigiProducer") << ss.str(); ss.clear(); ss.str("");
     #endif
     uint32_t pcluster = (digi.getChipId() & 0x0F) << 14;

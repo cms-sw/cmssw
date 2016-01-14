@@ -19,7 +19,7 @@ namespace Phase2Tracker
   {
     public:
       Phase2TrackerDigiToRaw() {}
-      Phase2TrackerDigiToRaw(const Phase2TrackerCabling *, std::map<int,int>, edm::Handle< edmNew::DetSetVector< Phase2TrackerCluster1D > >, int);
+      Phase2TrackerDigiToRaw(const Phase2TrackerCabling *, const TrackerTopology* tTopo, edm::Handle< edmNew::DetSetVector< Phase2TrackerCluster1D > >, int);
       ~Phase2TrackerDigiToRaw() {}
       // loop on FEDs to create buffers
       void buildFEDBuffers(std::auto_ptr<FEDRawDataCollection>&);
@@ -36,7 +36,7 @@ namespace Phase2Tracker
     private:
       // data you get from outside
       const Phase2TrackerCabling * cabling_; 
-      std::map<int,int> stackMap_;
+      const TrackerTopology* tTopo_;
       edm::Handle< edmNew::DetSetVector<Phase2TrackerCluster1D> > digishandle_;
       int mode_;
       // headers 
