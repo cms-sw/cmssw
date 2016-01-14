@@ -348,7 +348,7 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
 
       m_counter_dt++;
 
-      if (id.station() < 4 && dt13 != NULL  &&  dt13->numHits() >= m_minDT13Hits && dt2 != NULL  &&  dt2->numHits() >= m_minDT2Hits)
+      if (id.station() < 4 && dt13 != NULL  &&  dt13->numHits() >= m_minDT13Hits && dt2 != NULL  &&  dt2->numHits() >= m_minDT2Hits && (dt2->chi2() / double(dt2->ndof())) < 2.0)
       {
         m_counter_13numhits++;
 
