@@ -879,7 +879,10 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
   // Get rho value
   edm::Handle<double> rhoH;
   e.getByToken(rhoToken_,rhoH);
-  float rho = *rhoH;
+  float rho = -999 ;
+  if (rhoH.isValid())
+    rho = *rhoH;
+  
 
   // loop over electrons
   for (edm::View<reco::GsfElectron>::const_iterator ele = gsfElectronsHandle->begin(); ele != gsfElectronsHandle->end(); ++ele) {
@@ -977,10 +980,14 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
     // }
 
     const edm::Ptr<reco::GsfElectron> elePtr(gsfElectronsHandle,ele-gsfElectronsHandle->begin()); //value map is keyed of edm::Ptrs so we need to make one
-    bool passVetoID   = (*veto_id_decisions)[elePtr];
-    bool passLooseID  = (*loose_id_decisions)[elePtr];
-    bool passMediumID = (*medium_id_decisions)[elePtr];
-    bool passTightID  = (*tight_id_decisions)[elePtr];
+    bool passVetoID   = false;
+    bool passLooseID  = false;
+    bool passMediumID = false;
+    bool passTightID  = false;
+    if(veto_id_decisions.isValid()) passVetoID   = (*veto_id_decisions)[elePtr];
+    if(veto_id_decisions.isValid()) passLooseID  = (*loose_id_decisions)[elePtr];
+    if(veto_id_decisions.isValid()) passMediumID = (*medium_id_decisions)[elePtr];
+    if(veto_id_decisions.isValid()) passTightID  = (*tight_id_decisions)[elePtr];
     eleIDVeto_            .push_back((int)passVetoID);
     eleIDLoose_           .push_back((int)passLooseID);
     eleIDMedium_          .push_back((int)passMediumID);
