@@ -4,7 +4,6 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/src/fed_header.h"
 #include "DataFormats/FEDRawData/src/fed_trailer.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDHeader.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerDigiToRaw.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
@@ -23,6 +22,9 @@
 // to use geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 
 
 using namespace std;
@@ -54,30 +56,30 @@ namespace Phase2Tracker {
     // retrieve tracker topology 
     edm::ESHandle<TrackerTopology> tTopoHandle;
     es.get<IdealGeometryRecord>().get(tTopoHandle);
-    const TrackerTopology* const tTopo = tTopoHandle.product();
+    tTopo_ = tTopoHandle.product();
 
-    // retrieve tracker geometry 
+    /*
+    // retrieve tracker geometry to get list of detids for calbling 
     edm::ESHandle< TrackerGeometry > tGeomHandle;
     es.get< TrackerDigiGeometryRecord >().get( tGeomHandle );
     const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
 
-    // build map to associate stacked tracker detids 
-    for (TrackerGeometry::DetIdContainer::const_iterator gd = theTrackerGeom->detIds().begin(); gd != theTrackerGeom->detIds().end(); gd++) {
-        DetId id = gd->rawId();
-        // // get detids and layers to build cabling file (useful to rebuild detids.txt file)
-        // if (id.subdetId() == StripSubdetector::TOB and tTopo->PartnerDetId(id) == 0) {
-        //     std::cout << int(id) << " " << tTopo->layer(id) << std::endl;
-        // } else if (id.subdetId() == StripSubdetector::TID) {
-        //     std::cout << int(id) << " on disk  " << tTopo->side(id) << std::endl;
-        // }
-        if (tTopo->PartnerDetId(id) != 0) {
-            if(tTopo->isLower(id)) {
-                stackMap_[id] = tTopo->PartnerDetId(id);
-            } else {
-                stackMap_[id] = -tTopo->PartnerDetId(id);
-            }
-        }
-    }
+    for (auto iu = theTrackerGeom->detUnits().begin(); iu != theTrackerGeom->detUnits().end(); ++iu) {
+      unsigned int detId_raw = (*iu)->geographicalId().rawId();
+      DetId detId = DetId(detId_raw);
+      if (detId.det() == DetId::Detector::Tracker) {
+          // check only lowers
+          if ( tTopo_->isLower(detId) == 1 ) {
+              if ( theTrackerGeom->getDetectorType(detId_raw) == TrackerGeometry::ModuleType::Ph2PSP ) {
+                  std::cout << tTopo->Stack(detId) << " PS" << std::endl;
+              } else if ( theTrackerGeom->getDetectorType(detId_raw) == TrackerGeometry::ModuleType::Ph2SS ) {
+                  std::cout << tTopo->Stack(detId) << " 2S" << std::endl;
+              }
+          }
+      }
+    } // end loop on detunits
+    */
+
   }
   
   void Phase2TrackerDigiToRawProducer::endJob()
@@ -89,7 +91,7 @@ namespace Phase2Tracker {
     std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
     edm::Handle< edmNew::DetSetVector<Phase2TrackerCluster1D> > digis_handle;
     event.getByToken( token_, digis_handle );
-    Phase2TrackerDigiToRaw raw_producer(cabling_, stackMap_, digis_handle, 1);
+    Phase2TrackerDigiToRaw raw_producer(cabling_, tTopo_, digis_handle, 1);
     raw_producer.buildFEDBuffers(buffers);
     event.put(buffers);
   }

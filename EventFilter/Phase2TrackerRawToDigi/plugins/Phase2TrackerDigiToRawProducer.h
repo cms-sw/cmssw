@@ -14,6 +14,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include <stdint.h>
 #include <iostream>
@@ -37,6 +38,7 @@ namespace Phase2Tracker {
   private:
     edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D>> token_;
     const Phase2TrackerCabling * cabling_;
+    const TrackerTopology* tTopo_;
     std::map<int,int> stackMap_;
   };
 }
