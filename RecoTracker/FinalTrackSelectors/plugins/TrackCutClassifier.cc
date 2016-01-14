@@ -105,6 +105,7 @@ namespace {
       fillArrayI(maxLostLayers,cfg,"maxLostLayers");
       minNVtxTrk = cfg.getParameter<int>("minNVtxTrk");
       fillArrayF(maxDz,        cfg,"maxDz");
+      fillArrayF(maxDzWrtBS,   cfg,"maxDzWrtBS");
       fillArrayF(maxDr,        cfg,"maxDr");
       edm::ParameterSet dz_par = cfg.getParameter<edm::ParameterSet>("dz_par");
       fillArrayF(dz_par1,      dz_par,"dz_par1");
@@ -151,13 +152,16 @@ namespace {
 
 	// if not primaryVertices are reconstructed, check compatibility w.r.t. beam spot
         Point bestVertex = getBestVertex(trk,vertices,minNVtxTrk); // min number of tracks 3
+	float maxDzcut[3];
+	std::copy(std::begin(maxDz),std::end(maxDz),std::begin(maxDzcut));
 	if (bestVertex.z() < -99998.) {
 	  bestVertex = beamSpot.position();
+	  std::copy(std::begin(maxDzWrtBS),std::end(maxDzWrtBS),std::begin(maxDzcut));
 	}
 	ret = std::min(ret,cut(dr(trk,bestVertex), maxDr,std::less<float>()));
 	if (ret==-1.f) return ret;
 
-	ret = std::min(ret,cut(dz(trk,bestVertex), maxDz,std::less<float>()));
+	ret = std::min(ret,cut(dz(trk,bestVertex), maxDzcut,std::less<float>()));
 	if (ret==-1.f) return ret;
       }
 
@@ -219,6 +223,7 @@ namespace {
       desc.add<int>("minNVtxTrk", 2);
 
       desc.add<std::vector<double>>("maxDz",{std::numeric_limits<float>::max(),std::numeric_limits<float>::max(),std::numeric_limits<float>::max()});
+      desc.add<std::vector<double>>("maxDzWrtBS",{std::numeric_limits<float>::max(),24.,15.});
       desc.add<std::vector<double>>("maxDr",{std::numeric_limits<float>::max(),std::numeric_limits<float>::max(),std::numeric_limits<float>::max()});
 
       edm::ParameterSetDescription dz_par;
@@ -243,6 +248,7 @@ namespace {
     int maxLostLayers[3];
     int minNVtxTrk;
     float maxDz[3];
+    float maxDzWrtBS[3];
     float maxDr[3];
     float dz_par1[3];
     float dz_par2[3];
