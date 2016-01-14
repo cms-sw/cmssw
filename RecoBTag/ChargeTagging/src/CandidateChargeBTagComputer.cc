@@ -1,13 +1,13 @@
 #include "RecoBTag/ChargeTagging/interface/CandidateChargeBTagComputer.h"
 
 CandidateChargeBTagComputer::CandidateChargeBTagComputer(const edm::ParameterSet & parameters):
-  useCondDB_(parameters.existsAs<bool>("useCondDB") ? parameters.getParameter<bool>("useCondDB") : false),
-  gbrForestLabel_(parameters.existsAs<std::string>("gbrForestLabel") ? parameters.getParameter<std::string>("gbrForestLabel") : ""),
-  weightFile_(parameters.existsAs<edm::FileInPath>("weightFile") ? parameters.getParameter<edm::FileInPath>("weightFile") : edm::FileInPath()),
-  useGBRForest_(parameters.existsAs<bool>("useGBRForest") ? parameters.getParameter<bool>("useGBRForest") : false),
-  useAdaBoost_(parameters.existsAs<bool>("useAdaBoost") ? parameters.getParameter<bool>("useAdaBoost") : false),
-  jetChargeExp_(parameters.existsAs<double>("jetChargeExp") ? parameters.getParameter<double>("jetChargeExp") : 0.8),
-  svChargeExp_(parameters.existsAs<double>("svChargeExp") ? parameters.getParameter<double>("svChargeExp") : 0.5)
+  useCondDB_     (parameters.getParameter<bool>("useCondDB") ),
+  gbrForestLabel_(parameters.getParameter<std::string>("gbrForestLabel") ),
+  weightFile_    (parameters.getParameter<edm::FileInPath>("weightFile") ),
+  useGBRForest_  (parameters.getParameter<bool>("useGBRForest") ),
+  useAdaBoost_   (parameters.getParameter<bool>("useAdaBoost") ),
+  jetChargeExp_  (parameters.getParameter<double>("jetChargeExp") ),
+  svChargeExp_   (parameters.getParameter<double>("svChargeExp") )
 {
   uses(0, "pfImpactParameterTagInfos");
   uses(1, "pfInclusiveSecondaryVertexFinderCvsLTagInfos");
@@ -225,4 +225,19 @@ float CandidateChargeBTagComputer::discriminator(const TagInfoHelper & tagInfo) 
 
   // return the final discriminator value
   return value;
+}
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module ------------
+void
+CandidateChargeBTagComputer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("useCondDB",false);
+  desc.add<std::string>("gbrForestLabel","");
+  desc.add<edm::FileInPath>("weightFile",edm::FileInPath());
+  desc.add<bool>("useGBRForest",true);
+  desc.add<bool>("useAdaBoost",true);
+  desc.add<double>("jetChargeExp",0.8);
+  desc.add<double>("svChargeExp",0.5);
+  descriptions.addDefault(desc);
 }
