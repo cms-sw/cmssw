@@ -24,6 +24,9 @@ namespace cond {
       return count;
     }
 
+    //FIXME: sdg this function does not support frontier connections strings like
+    //frontier://cmsfrontier.cern.ch:8000/FrontierPrep/CMS_CONDITIONS
+    //as http://cmsfrontier.cern.ch:8000/FrontierPrep(freshkey=foo) is an invalid URI.
     std::pair<std::string,std::string> getConnectionParams( const std::string& connectionString, 
                                                             const std::string& transactionId,
                                                             const std::string& signature ) {

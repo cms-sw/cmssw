@@ -23,6 +23,7 @@
 //BOOST includes
 #include <boost/shared_ptr.hpp>
 //
+#include <array>
 #include <cstdlib>
 #include <iostream>
 #include <memory>
@@ -82,7 +83,7 @@ void testCreateSession( cond::persistency::ConnectionPool & connPool, std::strin
   pp.setUp( session );
   pp.loadTag( "RunInfo_v1_mc" );
   pp.setIntervalFor( 1, true );
-  pp().printAllValues();
+  std::cout << "run number: " << pp().m_run << std::endl;
 }
 
 void testCreateReadOnlySession( cond::persistency::ConnectionPool & connPool, std::string const & connectionString, std::string const & transactionId ) {
@@ -91,7 +92,7 @@ void testCreateReadOnlySession( cond::persistency::ConnectionPool & connPool, st
   cond::persistency::IOVProxy iov = session.readIov( "RunInfo_v1_mc", true );
   std::cout << "Loaded size="<<iov.loadedSize()<<std::endl;
   cond::Iov_t currentIov = *(iov.find( 1 ));
-  session.fetchPayload<RunInfo>( currentIov.payloadId )->printAllValues();
+  std::cout << "run number: " << session.fetchPayload<RunInfo>( currentIov.payloadId )->m_run << std::endl;
   session.transaction().commit();
 }
 
@@ -105,42 +106,47 @@ int main (int argc, char** argv) {
   psets.push_back( pSet );
   static const edm::ServiceToken services( edm::ServiceRegistry::createSet( psets ) );
   static const edm::ServiceRegistry::Operate operate( services );
-
-  std::string connectionString( "frontier://FrontierPrep/CMS_CONDITIONS" );
-  std::cout << "# Connecting with db in '" << connectionString << "'" << std::endl;
+  
+  std::array<std::string, 2> connectionStrings{ { "frontier://FrontierPrep/CMS_CONDITIONS",
+                                                  "frontier://(proxyconfigurl=http://cmst0frontier.cern.ch/t0.pac)(backupproxyurl=http://cmst0frontier.cern.ch:3128)(backupproxyurl=http://cmst0frontier1.cern.ch:3128)(backupproxyurl=http://cmst0frontier2.cern.ch:3128)(backupproxyurl=http://cmsbpfrontier.cern.ch:3128)(backupproxyurl=http://cmsbpfrontier1.cern.ch:3128)(backupproxyurl=http://cmsbpfrontier2.cern.ch:3128)(backupproxyurl=http://cmsbproxy.fnal.gov:3128)(serverurl=http://cmsfrontier.cern.ch:8000/FrontierPrep)(serverurl=http://cmsfrontier1.cern.ch:8000/FrontierPrep)(serverurl=http://cmsfrontier2.cern.ch:8000/FrontierPrep)(serverurl=http://cmsfrontier3.cern.ch:8000/FrontierPrep)(serverurl=http://cmsfrontier4.cern.ch:8000/FrontierPrep)/CMS_CONDITIONS"
+                                                  }
+                                              };
   try {
     //*************
-    cond::persistency::ConnectionPool connPool;
-    //connPool.setMessageVerbosity( coral::Debug );
-    //connPool.configure();
-    try {
-      connPool.createCoralSession( connectionString, true );
-    } catch( const std::exception& e ) {
-      std::cout << "EXPECTED EXCEPTION: " << e.what() << std::endl;
+    for( const auto& connectionString : connectionStrings ) {
+      std::cout << "# Connecting with db in '" << connectionString << "'" << std::endl;
+      cond::persistency::ConnectionPool connPool;
+      //connPool.setMessageVerbosity( coral::Debug );
+      //connPool.configure();
+      try {
+        connPool.createCoralSession( connectionString, true );
+      } catch( const std::exception& e ) {
+        std::cout << "EXPECTED EXCEPTION: " << e.what() << std::endl;
+      }
+      testCreateCoralSession( connPool, connectionString, false );
+      testCreateSession( connPool, connectionString, false );
+      testCreateReadOnlySession( connPool, connectionString, "" );
+      testCreateReadOnlySession( connPool, connectionString, "testConnectionPool" );
+      connPool.setFrontierSecurity( "foo" );
+      connPool.configure();
+      try {
+        connPool.createCoralSession( connectionString, false );
+      } catch( const cms::Exception& e ) {
+        std::cout << "EXPECTED EXCEPTION: " << e.what() << std::endl;
+      }
+      edm::ParameterSet dbParameters;
+      dbParameters.addUntrackedParameter( "authenticationPath", std::string( "" ) );
+      dbParameters.addUntrackedParameter( "authenticationSystem", 0 );
+      dbParameters.addUntrackedParameter( "messageLevel", 3 );
+      dbParameters.addUntrackedParameter( "security", std::string( "sig" ) );
+      dbParameters.addUntrackedParameter( "logging", false );
+      connPool.setParameters( dbParameters );
+      connPool.configure();
+      testCreateCoralSession( connPool, connectionString, false );
+      testCreateSession( connPool, connectionString, false );
+      testCreateReadOnlySession( connPool, connectionString, "" );
+      testCreateReadOnlySession( connPool, connectionString, "testConnectionPool" );
     }
-    testCreateCoralSession( connPool, connectionString, false );
-    testCreateSession( connPool, connectionString, false );
-    testCreateReadOnlySession( connPool, connectionString, "" );
-    testCreateReadOnlySession( connPool, connectionString, "testConnectionPool" );
-    connPool.setFrontierSecurity( "foo" );
-    connPool.configure();
-    try {
-      connPool.createCoralSession( connectionString, false );
-    } catch( const cms::Exception& e ) {
-      std::cout << "EXPECTED EXCEPTION: " << e.what() << std::endl;
-    }
-    edm::ParameterSet dbParameters;
-    dbParameters.addUntrackedParameter( "authenticationPath", std::string( "" ) );
-    dbParameters.addUntrackedParameter( "authenticationSystem", 0 );
-    dbParameters.addUntrackedParameter( "messageLevel", 3 );
-    dbParameters.addUntrackedParameter( "security", std::string( "sig" ) );
-    dbParameters.addUntrackedParameter( "logging", false );
-    connPool.setParameters( dbParameters );
-    connPool.configure();
-    testCreateCoralSession( connPool, connectionString, false );
-    testCreateSession( connPool, connectionString, false );
-    testCreateReadOnlySession( connPool, connectionString, "" );
-    testCreateReadOnlySession( connPool, connectionString, "testConnectionPool" );
   } catch (const std::exception& e){
     std::cout << "ERROR: " << e.what() << std::endl;
     return -1;
