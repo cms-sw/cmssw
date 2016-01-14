@@ -1454,6 +1454,8 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
          // -- check that the front is still mergeable!
          if( !mergeTest(*roToMerge) ) {
             // back up one step and repartition(since we will increment later)
+           LOGWARN("PFEGammaAlgo::mergeROsByAnyLink") 
+             << "Merge-i-ness of ROs changed while doing the merge!";
            nomerge = std::partition(roToMerge--,ROs.end(),mergeTest);
            continue;
          }
