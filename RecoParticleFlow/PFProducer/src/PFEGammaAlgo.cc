@@ -1445,6 +1445,14 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	 << "Found objects " << std::distance(mergestart,nomerge)
 	 << " to merge by links to the front!" << std::endl;
        for( auto roToMerge = mergestart; roToMerge != nomerge; ++roToMerge) {
+         //bugfix! L.Gray 14 Jan 2016 
+         // -- check that the front is still mergeable!
+         if( !mergeTest(*roToMerge) ) {
+            // back up one step and repartition(since we will increment later)
+           nomerge = std::partition(roToMerge--,ROs.end(),mergeTest);
+           continue;
+         }
+         //end bugfix
 	 thefront.ecalclusters.insert(thefront.ecalclusters.end(),
 				      roToMerge->ecalclusters.begin(),
 				      roToMerge->ecalclusters.end());
