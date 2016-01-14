@@ -129,7 +129,7 @@ bool PFEGammaFilters::isElectron(const reco::GsfElectron & electron) {
 bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron, 
 					      const reco::PFCandidate & pfcand,
 					      const reco::Vertex & primaryVertex,
-					      bool lockTracks) {
+					      bool& lockTracks) {
 
   bool debugSafeForJetMET = false;
   bool isSafeForJetMET = true;
