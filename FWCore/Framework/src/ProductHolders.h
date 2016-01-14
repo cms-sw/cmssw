@@ -124,36 +124,32 @@ namespace edm {
       virtual bool singleProduct_() const override;
   };
 
-  class ScheduledProductHolder : public ProducedProductHolder {
-    public:
-      explicit ScheduledProductHolder(std::shared_ptr<BranchDescription const> bd) : ProducedProductHolder(), productData_(bd), theStatus_(NotRun) {}
-      virtual ~ScheduledProductHolder();
-    private:
-      virtual void swap_(ProductHolderBase& rhs) override {
-        ScheduledProductHolder& other = dynamic_cast<ScheduledProductHolder&>(rhs);
-        edm::swap(productData_, other.productData_);
-        std::swap(theStatus_, other.theStatus_);
-      }
-      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
-                                                 Principal const& principal,
-                                                 bool skipCurrentProcess,
-                                                 SharedResourcesAcquirer* sra,
-                                                 ModuleCallingContext const* mcc) const override;
-      virtual void resetStatus_() override {theStatus_ = NotRun;}
-      virtual bool onDemand_() const override {return false;}
-      virtual ProductData const& getProductData() const override {return productData_;}
-      virtual ProductData& getProductData() override {return productData_;}
-      virtual ProductStatus& status_() const override {return theStatus_;}
+  class PuttableProductHolder : public ProducedProductHolder {
+  public:
+    explicit PuttableProductHolder(std::shared_ptr<BranchDescription const> bd, ProductStatus defaultStatus) : ProducedProductHolder(), productData_(bd), theStatus_(defaultStatus), defaultStatus_(defaultStatus) {}
 
-      ProductData productData_;
-      mutable ProductStatus theStatus_;
+  private:
+    virtual void swap_(ProductHolderBase& rhs) override {
+      auto& other = dynamic_cast<PuttableProductHolder&>(rhs);
+      edm::swap(productData_, other.productData_);
+      std::swap(theStatus_, other.theStatus_);
+    }
+    virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
+                                               Principal const& principal,
+                                               bool skipCurrentProcess,
+                                               SharedResourcesAcquirer* sra,
+                                               ModuleCallingContext const* mcc) const override;
+    virtual void resetStatus_() override {theStatus_ = defaultStatus_;}
+    virtual bool onDemand_() const override {return false;}
+    virtual ProductData const& getProductData() const override {return productData_;}
+    virtual ProductData& getProductData() override {return productData_;}
+    virtual ProductStatus& status_() const override {return theStatus_;}
+    
+    ProductData productData_;
+    mutable ProductStatus theStatus_;
+    const ProductStatus defaultStatus_;
   };
-
-  // Free swap function
-  inline void swap(ScheduledProductHolder& a, ScheduledProductHolder& b) {
-    a.swap(b);
-  }
-
+  
   class UnscheduledProductHolder : public ProducedProductHolder {
     public:
       explicit UnscheduledProductHolder(std::shared_ptr<BranchDescription const> bd) :
@@ -184,31 +180,6 @@ namespace edm {
   inline void swap(UnscheduledProductHolder& a, UnscheduledProductHolder& b) {
     a.swap(b);
   }
-
-  class SourceProductHolder : public ProducedProductHolder {
-    public:
-      explicit SourceProductHolder(std::shared_ptr<BranchDescription const> bd) : ProducedProductHolder(), productData_(bd), theStatus_(NotPut) {}
-      virtual ~SourceProductHolder();
-    private:
-      virtual void swap_(ProductHolderBase& rhs) override {
-        SourceProductHolder& other = dynamic_cast<SourceProductHolder&>(rhs);
-        edm::swap(productData_, other.productData_);
-        std::swap(theStatus_, other.theStatus_);
-      }
-      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
-                                                 Principal const& principal,
-                                                 bool skipCurrentProcess,
-                                                 SharedResourcesAcquirer* sra,
-                                                 ModuleCallingContext const* mcc) const override;
-      virtual void resetStatus_() override {theStatus_ = NotPut;}
-      virtual bool onDemand_() const override {return false;}
-      virtual ProductData const& getProductData() const override {return productData_;}
-      virtual ProductData& getProductData() override {return productData_;}
-      virtual ProductStatus& status_() const override {return theStatus_;}
-
-      ProductData productData_;
-      mutable ProductStatus theStatus_;
-  };
 
   class AliasProductHolder : public ProductHolderBase {
     public:
@@ -302,10 +273,6 @@ namespace edm {
       std::vector<bool> ambiguous_;
   };
 
-  // Free swap function
-  inline void swap(SourceProductHolder& a, SourceProductHolder& b) {
-    a.swap(b);
-  }
 }
 
 #endif

@@ -13,9 +13,7 @@ namespace edm {
 
   InputProductHolder::~InputProductHolder() {}
   ProducedProductHolder::~ProducedProductHolder() {}
-  ScheduledProductHolder::~ScheduledProductHolder() {}
   UnscheduledProductHolder::~UnscheduledProductHolder() {}
-  SourceProductHolder::~SourceProductHolder() {}
   AliasProductHolder::~AliasProductHolder() {}
   NoProcessProductHolder::~NoProcessProductHolder() {}
 
@@ -42,30 +40,11 @@ namespace edm {
   }
 
   ProductData const*
-  ScheduledProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
+  PuttableProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
                                           Principal const&,
                                           bool skipCurrentProcess,
                                           SharedResourcesAcquirer*,
                                           ModuleCallingContext const*) const {
-    if (!skipCurrentProcess) {
-      if(productWasDeleted()) {
-        throwProductDeletedException();
-      }
-      if(product() && product()->isPresent()) {
-        resolveStatus = ProductFound;
-        return &productData_;
-      }
-    }
-    resolveStatus = ProductNotFound;
-    return nullptr;
-  }
-
-  ProductData const*
-  SourceProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
-                                       Principal const& principal,
-                                       bool skipCurrentProcess,
-                                       SharedResourcesAcquirer*,
-                                       ModuleCallingContext const*) const {
     if (!skipCurrentProcess) {
       if(productWasDeleted()) {
         throwProductDeletedException();

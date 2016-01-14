@@ -274,25 +274,25 @@ namespace edm {
 
   void
   Principal::addScheduledProduct(std::shared_ptr<BranchDescription const> bd) {
-    std::unique_ptr<ProductHolderBase> phb(new ScheduledProductHolder(bd));
+    std::unique_ptr<ProductHolderBase> phb(new PuttableProductHolder(std::move(bd), PuttableProductHolder::NotRun));
     addProductOrThrow(std::move(phb));
   }
 
   void
   Principal::addSourceProduct(std::shared_ptr<BranchDescription const> bd) {
-    std::unique_ptr<ProductHolderBase> phb(new SourceProductHolder(bd));
+    std::unique_ptr<ProductHolderBase> phb(new PuttableProductHolder(std::move(bd), PuttableProductHolder::NotPut));
     addProductOrThrow(std::move(phb));
   }
 
   void
   Principal::addInputProduct(std::shared_ptr<BranchDescription const> bd) {
-    std::unique_ptr<ProductHolderBase> phb(new InputProductHolder(bd));
+    std::unique_ptr<ProductHolderBase> phb(new InputProductHolder(std::move(bd)));
     addProductOrThrow(std::move(phb));
   }
 
   void
   Principal::addUnscheduledProduct(std::shared_ptr<BranchDescription const> bd) {
-    std::unique_ptr<ProductHolderBase> phb(new UnscheduledProductHolder(bd));
+    std::unique_ptr<ProductHolderBase> phb(new UnscheduledProductHolder(std::move(bd)));
     addProductOrThrow(std::move(phb));
   }
 
@@ -301,7 +301,7 @@ namespace edm {
     ProductHolderIndex index = preg_->indexFrom(bd->originalBranchID());
     assert(index != ProductHolderIndexInvalid);
 
-    std::unique_ptr<ProductHolderBase> phb(new AliasProductHolder(bd, dynamic_cast<ProducedProductHolder&>(*productHolders_[index])));
+    std::unique_ptr<ProductHolderBase> phb(new AliasProductHolder(std::move(bd), dynamic_cast<ProducedProductHolder&>(*productHolders_[index])));
     addProductOrThrow(std::move(phb));
   }
 
