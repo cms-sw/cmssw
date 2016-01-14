@@ -7,6 +7,9 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 process.options.allowUnscheduled = cms.untracked.bool(True)
 #process.Tracer = cms.Service("Tracer")
 
+# Need to update the process name to avoid conflicts with the previous process name
+process.setName_('PAT2')
+
 ## uncomment the following line to update different jet collections
 ## and add them to the event content
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
