@@ -1,11 +1,13 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitFakeNavigator.h"
+
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitDualNavigator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCaloNavigator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCaloNavigatorWithTime.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFECALHashNavigator.h"
-
+#include "RecoParticleFlow/PFClusterProducer/interface/HGCRecHitNavigator.h"
 
 class PFRecHitEcalBarrelNavigatorWithTime : public PFRecHitCaloNavigatorWithTime<EBDetId,EcalBarrelTopology> {
  public:
@@ -135,6 +137,33 @@ typedef  PFRecHitDualNavigator<PFLayer::ECAL_BARREL,
 			       PFLayer::ECAL_ENDCAP,
 	   PFRecHitEcalEndcapNavigatorWithTime> PFRecHitECALNavigatorWithTime;
 
+#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
+
+class PFRecHitHGCEENavigator : public PFRecHitFakeNavigator<HGCEEDetId> {
+public:
+  PFRecHitHGCEENavigator(const edm::ParameterSet& iConfig) {
+  }
+
+  void beginEvent(const edm::EventSetup& iSetup) {      
+  }
+};
+
+class PFRecHitHGCHENavigator : public PFRecHitFakeNavigator<HGCHEDetId> {
+public:
+  PFRecHitHGCHENavigator(const edm::ParameterSet& iConfig) {
+  }
+
+  void beginEvent(const edm::EventSetup& iSetup) {      
+  }
+};
+
+typedef HGCRecHitNavigator<HGCEE,
+			   PFRecHitHGCEENavigator,
+			   HGCHEF,
+			   PFRecHitHGCHENavigator,
+			   HGCHEB,
+			   PFRecHitHGCHENavigator> PFRecHitHGCNavigator;
 
 EDM_REGISTER_PLUGINFACTORY(PFRecHitNavigationFactory, "PFRecHitNavigationFactory");
 
@@ -149,4 +178,7 @@ DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitCaloTowerNavigator, "PFRecH
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitPreshowerNavigator, "PFRecHitPreshowerNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHCALNavigator, "PFRecHitHCALNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHCALNavigatorWithTime, "PFRecHitHCALNavigatorWithTime");
+DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHGCEENavigator, "PFRecHitHGCEENavigator");
+DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHGCHENavigator, "PFRecHitHGCHENavigator");
+DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHGCNavigator, "PFRecHitHGCNavigator");
 
