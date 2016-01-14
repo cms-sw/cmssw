@@ -1452,13 +1452,15 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
        for( auto roToMerge = mergestart; roToMerge != nomerge; ++roToMerge) {
          //bugfix! L.Gray 14 Jan 2016 
          // -- check that the front is still mergeable!
-         if( !mergeTest(*roToMerge) ) {
-            // back up one step and repartition(since we will increment later)
-           LOGWARN("PFEGammaAlgo::mergeROsByAnyLink") 
-             << "Merge-i-ness of ROs changed while doing the merge!";
-           nomerge = std::partition(roToMerge--,ROs.end(),mergeTest);
-           continue;
-         }
+         if( thefront.ecalclusters.size() && roToMerge->ecalclusters.size() ) {
+           if( thefront.ecalclusters.front().first->clusterRef()->layer() !=   
+               roToMerge->ecalclusters.front().first->clusterRef()->layer() ) {
+             LOGWARN("PFEGammaAlgo::mergeROsByAnyLink") 
+               << "Tried to merge EB and EE clusters! Skipping!";
+             ROs.push_back(*roToMerge);
+             continue;
+           }
+         }         
          //end bugfix
 	 thefront.ecalclusters.insert(thefront.ecalclusters.end(),
 				      roToMerge->ecalclusters.begin(),
