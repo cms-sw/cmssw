@@ -60,9 +60,9 @@ float CandidateChargeBTagComputer::discriminator(const TagInfoHelper & tagInfo) 
 
     // default variable values
     float tr_ch = 0;
-    float ptrel1_ch = 0;
-    float ptrel2_ch = 0;
-    float ptrel3_ch = 0;
+    float pt_ratio1_ch = 0;
+    float pt_ratio2_ch = 0;
+    float pt_ratio3_ch = 0;
     
     float sv_ch = 0;
 
@@ -96,22 +96,22 @@ float CandidateChargeBTagComputer::discriminator(const TagInfoHelper & tagInfo) 
       tr_ch_den += tr_ch_weight;
 
       // find the three higher-pt tracks
-      if ( fabs(ptrel1_ch) < trackPtr->pt() ) {
-	ptrel3_ch = ptrel2_ch;
-	ptrel2_ch = ptrel1_ch;
-	ptrel1_ch = trackPtr->pt() * trackPtr->charge();
-      } else if ( fabs(ptrel2_ch) < trackPtr->pt() ) {
-	ptrel3_ch = ptrel2_ch;
-	ptrel2_ch = trackPtr->pt() * trackPtr->charge();
-      } else if ( fabs(ptrel3_ch) < trackPtr->pt() ) {
-	ptrel3_ch = trackPtr->pt() * trackPtr->charge();
+      if ( fabs(pt_ratio1_ch) < trackPtr->pt() ) {
+	pt_ratio3_ch = pt_ratio2_ch;
+	pt_ratio2_ch = pt_ratio1_ch;
+	pt_ratio1_ch = trackPtr->pt() * trackPtr->charge();
+      } else if ( fabs(pt_ratio2_ch) < trackPtr->pt() ) {
+	pt_ratio3_ch = pt_ratio2_ch;
+	pt_ratio2_ch = trackPtr->pt() * trackPtr->charge();
+      } else if ( fabs(pt_ratio3_ch) < trackPtr->pt() ) {
+	pt_ratio3_ch = trackPtr->pt() * trackPtr->charge();
       }
     }
     if ( n_ip_info>0 ) {
       float jet_pt = ip_info.jet()->pt();
-      ptrel1_ch = ptrel1_ch / jet_pt;
-      ptrel2_ch = ptrel1_ch / jet_pt;
-      ptrel3_ch = ptrel1_ch / jet_pt;
+      pt_ratio1_ch = pt_ratio1_ch / jet_pt;
+      pt_ratio2_ch = pt_ratio1_ch / jet_pt;
+      pt_ratio3_ch = pt_ratio1_ch / jet_pt;
     }
 
     if ( tr_ch_den > 0 ) tr_ch = tr_ch_num / tr_ch_den;
@@ -201,9 +201,9 @@ float CandidateChargeBTagComputer::discriminator(const TagInfoHelper & tagInfo) 
       
     std::map<std::string,float> inputs;
     inputs["tr_ch"]    = tr_ch;
-    inputs["pt1_ch/j_pt"] = ptrel1_ch;
-    inputs["pt2_ch/j_pt"] = ptrel2_ch;
-    inputs["pt3_ch/j_pt"] = ptrel3_ch;
+    inputs["pt1_ch/j_pt"] = pt_ratio1_ch;
+    inputs["pt2_ch/j_pt"] = pt_ratio2_ch;
+    inputs["pt3_ch/j_pt"] = pt_ratio3_ch;
     inputs["sv_ch"]    = sv_ch;
     inputs["mu_sip2d"] = mu_sip2d;
     //inputs["mu_sip3d"] = mu_sip3d;
