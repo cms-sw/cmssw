@@ -10,6 +10,8 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class CandidateChargeBTagComputer : public JetTagComputer {
  public:
@@ -17,6 +19,7 @@ class CandidateChargeBTagComputer : public JetTagComputer {
   virtual ~CandidateChargeBTagComputer();
   void initialize(const JetTagComputerRecord & record) override;
   float discriminator(const TagInfoHelper & tagInfo) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
  private:
   const bool useCondDB_;
   const std::string gbrForestLabel_;
