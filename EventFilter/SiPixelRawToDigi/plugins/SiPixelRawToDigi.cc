@@ -99,7 +99,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
     if(usePhase1) edm::LogInfo("SiPixelRawToDigi")  << " Use pilot blade data (FED 40)";
   }
   //CablingMap could have a label //Tav
-  CablingMapLabel = config_.getParameter<std::string> ("CablingMapLabel");
+  cablingMapLabel = config_.getParameter<std::string> ("CablingMapLabel");
 
 }
 
@@ -166,7 +166,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   if (recordWatcher.check( es )) {
     // cabling map, which maps online address (fed->link->ROC->local pixel) to offline (DetId->global pixel)
     edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
-    es.get<SiPixelFedCablingMapRcd>().get( CablingMapLabel, cablingMap ); //Tav
+    es.get<SiPixelFedCablingMapRcd>().get( cablingMapLabel, cablingMap ); //Tav
     fedIds   = cablingMap->fedIds();
     cabling_ = cablingMap->cablingTree();
     LogDebug("map version:")<< cabling_->version();
