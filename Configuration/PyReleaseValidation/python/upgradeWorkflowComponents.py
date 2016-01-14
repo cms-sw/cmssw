@@ -84,6 +84,7 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi','SingleElectronPt10_cfi',
 upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFull','RecoFullHGCAL','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','HARVESTFullPU','DigiFullTrigger']
 
 upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull'],#HARVESTING REMOVED
+		   '2017PU':['GenSimFull','DigiFullPU','RecoFullPU'],#full sequence
 		   '2023':['GenSimFull','DigiFull','RecoFull'],#full sequence
 		   '2023dev':['GenSimFull','DigiFull','RecoFull'],#dev scenario
 		   '2023sim':['GenSimFull'],#sim scenario
