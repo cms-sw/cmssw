@@ -1,0 +1,13 @@
+<use name="FWCore/Framework"/>
+<library file="*.cc" name="RecoBTagChargeTaggingPlugins">
+<use name="CommonTools/UtilAlgos"/>
+<use name="CommonTools/Utils"/>
+<use name="DataFormats/BTauReco"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="FWCore/ParameterSet"/>
+<use name="RecoBTau/JetTagComputer"/>
+<use name="RecoBTag/ChargeTagging"/>
+<flags EDM_PLUGIN="1"/>
+</library>
