@@ -67,7 +67,7 @@ public:
      float distIP;
      float timeCorr;
      int station;
-     float weightVertex;
+     float weightTimeVtx;
      float weightInvbeta;
   };
 
