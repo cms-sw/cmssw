@@ -76,6 +76,8 @@ namespace cond {
       // execute the update/intert queries and reset the buffer
       bool flush();
       bool flush( const boost::posix_time::ptime& operationTime );
+      bool flush( const std::string& logText );
+      bool flush( const std::string& logText, const boost::posix_time::ptime& operationTime );
       
     private:
       void checkTransaction( const std::string& ctx );
