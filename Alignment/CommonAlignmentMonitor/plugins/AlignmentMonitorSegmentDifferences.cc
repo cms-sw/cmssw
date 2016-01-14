@@ -489,7 +489,7 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
       } // end if DT13
 
       // z-direction
-      if (dt2 != NULL  &&  dt2->numHits() >= m_minDT2Hits)
+      if (dt2 != NULL  &&  dt2->numHits() >= m_minDT2Hits && (dt2->chi2() / double(dt2->ndof())) < 2.0)
       {
         DTChamberId thisid(chamberId->rawId());
         for (std::vector<DetId>::const_iterator otherId = chamberIds.begin();  otherId != chamberIds.end();  ++otherId)
