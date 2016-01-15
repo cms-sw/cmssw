@@ -24,7 +24,6 @@ class CandidateChargeBTagComputer : public JetTagComputer {
   const bool useCondDB_;
   const std::string gbrForestLabel_;
   const edm::FileInPath weightFile_;
-  const bool useGBRForest_;
   const bool useAdaBoost_;
   std::unique_ptr<TMVAEvaluator> mvaID;
   const double jetChargeExp_;
