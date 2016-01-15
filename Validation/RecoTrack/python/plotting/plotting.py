@@ -2227,6 +2227,7 @@ class Plotter:
         ROOT.gStyle.SetStatFontSize(statSize)
 
         ROOT.TH1.AddDirectory(False)
+        ROOT.TGaxis.SetMaxDigits(4)
 
     def append(self, *args, **kwargs):
         """Append a plot folder to the plotter.
