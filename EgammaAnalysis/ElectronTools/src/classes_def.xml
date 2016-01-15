@@ -1,0 +1,5 @@
+<lcgdict>
+  <class name="SimpleElectron" transient="true" />
+  <class name="ElectronEnergyCalibratorRun2" transient="true" />
+  <class name="EpCombinationTool" transient="true" />
+</lcgdict>

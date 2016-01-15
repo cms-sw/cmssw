@@ -50,6 +50,10 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+using namespace std;
+using namespace edm;
+using namespace reco;
+
 
 class PFIsolationEstimator{
  public:
@@ -71,16 +75,16 @@ class PFIsolationEstimator{
   
 
   float fGetIsolation(const reco::PFCandidate * pfCandidate,const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection >  vertices );
-  std::vector<float >  fGetIsolationInRings(const reco::PFCandidate * pfCandidate,const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices);
+  vector<float >  fGetIsolationInRings(const reco::PFCandidate * pfCandidate,const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices);
   
    float fGetIsolation(const reco::Photon* photon,const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection >  vertices );
-  std::vector<float >  fGetIsolationInRings(const reco::Photon* photon,const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices);
+  vector<float >  fGetIsolationInRings(const reco::Photon* photon,const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices);
 
    float fGetIsolation(const reco::GsfElectron* electron,const reco::PFCandidateCollection* pfParticlesColl,const reco::VertexRef vtx, edm::Handle< reco::VertexCollection >  vertices );
-  std::vector<float >  fGetIsolationInRings(const reco::GsfElectron* electron,const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices);
+  vector<float >  fGetIsolationInRings(const reco::GsfElectron* electron,const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices);
 
 
-  reco::VertexRef chargedHadronVertex(edm::Handle< reco::VertexCollection > verticies, const reco::PFCandidate& pfcand );
+  VertexRef chargedHadronVertex(edm::Handle< reco::VertexCollection > verticies, const reco::PFCandidate& pfcand );
 
   void setConeSize(float fValue = 0.4){ fConeSize = fValue;};
 
@@ -134,10 +138,10 @@ class PFIsolationEstimator{
   float getIsolationCharged(){  fIsolationCharged =   fIsolationInRingsCharged[0]; return fIsolationCharged; };
   float getIsolationChargedAll(){ return fIsolationChargedAll; };
 
-  std::vector<float >  getIsolationInRingsPhoton(){ return fIsolationInRingsPhoton; };
-  std::vector<float >  getIsolationInRingsNeutral(){ return fIsolationInRingsNeutral; };
-  std::vector<float >  getIsolationInRingsCharged(){ return fIsolationInRingsCharged; };
-  std::vector<float >  getIsolationInRingsChargedAll(){ return fIsolationInRingsChargedAll; };
+  vector<float >  getIsolationInRingsPhoton(){ return fIsolationInRingsPhoton; };
+  vector<float >  getIsolationInRingsNeutral(){ return fIsolationInRingsNeutral; };
+  vector<float >  getIsolationInRingsCharged(){ return fIsolationInRingsCharged; };
+  vector<float >  getIsolationInRingsChargedAll(){ return fIsolationInRingsChargedAll; };
 
 
   void setNumbersOfRings(int iValue = 1){iNumberOfRings = iValue;};
@@ -161,11 +165,11 @@ class PFIsolationEstimator{
   float                   fIsolationCharged;
   float                   fIsolationChargedAll;
   
-  std::vector<float >          fIsolationInRings;
-  std::vector<float >          fIsolationInRingsPhoton;
-  std::vector<float >          fIsolationInRingsNeutral;
-  std::vector<float >          fIsolationInRingsCharged;  
-  std::vector<float >          fIsolationInRingsChargedAll;
+  vector<float >          fIsolationInRings;
+  vector<float >          fIsolationInRingsPhoton;
+  vector<float >          fIsolationInRingsNeutral;
+  vector<float >          fIsolationInRingsCharged;  
+  vector<float >          fIsolationInRingsChargedAll;
 
   Bool_t                    checkClosestZVertex;
   float                     fConeSize;
@@ -226,7 +230,7 @@ class PFIsolationEstimator{
   float                   fVy;
   float                   fVz;
   
-  reco::SuperClusterRef   refSC;
+  SuperClusterRef         refSC;
   bool                    pivotInBarrel;
 
   math::XYZVector         vtxWRTCandidate;

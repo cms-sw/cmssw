@@ -20,6 +20,7 @@
 #ifndef STANDALONE
 #endif
 
+using namespace std;
 
 class ElectronEffectiveArea{
  public:
@@ -64,7 +65,6 @@ class ElectronEffectiveArea{
     static Double_t GetElectronEffectiveArea(ElectronEffectiveAreaType type, Double_t SCEta, 
                                              ElectronEffectiveAreaTarget EffectiveAreaTarget = kEleEAData2011) {
       
-      using namespace std;
       Double_t EffectiveArea = 0;
 
 
