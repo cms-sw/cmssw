@@ -245,7 +245,7 @@ def customiseFor12718(process):
         process.HLTIter3PSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
     return process
 
-def customiseFor12xxx(process):
+def customiseFor12966(process):
     if hasattr(process,'process.hltPixelTracksElectrons'):
         process.hltPixelTracksElectrons.useMultipleScattering = cms.bool(False)
     if hasattr(process,'process.hltPixelTracksL3Muon'):
