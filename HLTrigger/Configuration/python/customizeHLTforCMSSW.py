@@ -246,14 +246,23 @@ def customiseFor12718(process):
     return process
 
 def customiseFor12966(process):
+    if hasattr(process,'hltPixelTracks'):
+        process.hltPixelTracks.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
+    if hasattr(process,'hltPixelTracksForHighMult'):
+        process.hltPixelTracksForHighMult.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
+    if hasattr(process,'hltPixelTracksForHighPt'):
+        process.hltPixelTracksForHighPt.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
+    if hasattr(process,'hltHighPtPixelTracks'):
+        process.hltHighPtPixelTracks.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
+
     if hasattr(process,'hltPixelTracksElectrons'):
-        process.hltPixelTracksElectrons.useMultipleScattering = cms.bool(False)
+        process.hltPixelTracksElectrons.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
     if hasattr(process,'hltPixelTracksL3Muon'):
-        process.hltPixelTracksL3Muon.useMultipleScattering = cms.bool(False)
+        process.hltPixelTracksL3Muon.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
     if hasattr(process,'hltPixelTracksHighPtTkMuIso'):
-        process.hltPixelTracksHighPtTkMuIso.useMultipleScattering = cms.bool(False)
+        process.hltPixelTracksHighPtTkMuIso.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
     if hasattr(process,'hltPixelTracksGlbTrkMuon'):
-        process.hltPixelTracksGlbTrkMuon.useMultipleScattering = cms.bool(False)
+        process.hltPixelTracksGlbTrkMuon.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
 
     if hasattr(process, 'hltESPChi2ChargeMeasurementEstimator16'):
         process.hltESPChi2ChargeMeasurementEstimator16.MaxDisplacement  = cms.double(100.)
