@@ -58,28 +58,30 @@ float MuonTagger::discriminator(const TagInfoHelper& tagInfo) const {
   // If there are multiple leptons, look for the highest tag result
   for (unsigned int i=0; i<info.leptons(); i++) {
     const reco::SoftLeptonProperties& properties = info.properties(i);
-    bool flip(false);
-    if(m_selector.isNegative()) {
-      int seed=1+round(10000.*properties.deltaR);
-      random.seed(seed);
-      float rndm = dist(random);
-      if(rndm<0.5) flip=true;
+    if (m_selector(properties)) {
+      bool flip(false);
+      if(m_selector.isNegative()) {
+	int seed=1+round(10000.*properties.deltaR);
+	random.seed(seed);
+	float rndm = dist(random);
+	if(rndm<0.5) flip=true;
+      }
+      //for negative tagger, flip 50% of the negative signs to positive value
+      float sip3dsig = flip ? -properties.sip3dsig : properties.sip3dsig;
+      float sip2dsig = flip ? -properties.sip2dsig : properties.sip2dsig;
+      
+      std::map<std::string,float> inputs;
+      inputs["TagInfo1.sip3d"] = sip3dsig;
+      inputs["TagInfo1.sip2d"] = sip2dsig;
+      inputs["TagInfo1.ptRel"] = properties.ptRel;
+      inputs["TagInfo1.deltaR"] = properties.deltaR;
+      inputs["TagInfo1.ratio"] = properties.ratio;
+      
+      float tag = mvaID->evaluate(inputs);
+      // Transform output between 0 and 1
+      tag = (tag+1.0)/2.0;
+      if(tag>bestTag) bestTag = tag;
     }
-    //for negative tagger, flip 50% of the negative signs to positive value
-    float sip3dsig = flip ? -properties.sip3dsig : properties.sip3dsig;
-    float sip2dsig = flip ? -properties.sip2dsig : properties.sip2dsig;
-
-    std::map<std::string,float> inputs;
-    inputs["TagInfo1.sip3d"] = sip3dsig;
-    inputs["TagInfo1.sip2d"] = sip2dsig;
-    inputs["TagInfo1.ptRel"] = properties.ptRel;
-    inputs["TagInfo1.deltaR"] = properties.deltaR;
-    inputs["TagInfo1.ratio"] = properties.ratio;
-
-    float tag = mvaID->evaluate(inputs);
-    // Transform output between 0 and 1
-    tag = (tag+1.0)/2.0;
-    if(tag>bestTag) bestTag = tag;
   }
 
   return bestTag;
