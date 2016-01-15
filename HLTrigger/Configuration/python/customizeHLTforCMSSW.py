@@ -245,6 +245,89 @@ def customiseFor12718(process):
         process.HLTIter3PSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
     return process
 
+def customiseFor12xxx(process):
+    if hasattr(process, 'hltESPChi2ChargeMeasurementEstimator16'):
+        process.hltESPChi2ChargeMeasurementEstimator16.MaxDisplacement  = cms.double(100.)
+        process.hltESPChi2ChargeMeasurementEstimator16.MaxSagitta       = cms.double(-1.)
+        process.hltESPChi2ChargeMeasurementEstimator16.MinimalTolerance = cms.double(10.)
+    if hasattr(process, 'hltESPChi2ChargeMeasurementEstimator2000'):
+        process.hltESPChi2ChargeMeasurementEstimator2000.MaxDisplacement  = cms.double(100.)
+        process.hltESPChi2ChargeMeasurementEstimator2000.MaxSagitta       = cms.double(-1.)
+        process.hltESPChi2ChargeMeasurementEstimator2000.MinimalTolerance = cms.double(10.)
+    if hasattr(process, 'hltESPChi2ChargeMeasurementEstimator30'):
+        process.hltESPChi2ChargeMeasurementEstimator30.MaxDisplacement  = cms.double(100.)
+        process.hltESPChi2ChargeMeasurementEstimator30.MaxSagitta       = cms.double(-1.)
+        process.hltESPChi2ChargeMeasurementEstimator30.MinimalTolerance = cms.double(10.)
+    if hasattr(process, 'hltESPChi2ChargeMeasurementEstimator9'):
+        process.hltESPChi2ChargeMeasurementEstimator9.MaxDisplacement  = cms.double(100.)
+        process.hltESPChi2ChargeMeasurementEstimator9.MaxSagitta       = cms.double(-1.)
+        process.hltESPChi2ChargeMeasurementEstimator9.MinimalTolerance = cms.double(10.)
+    if hasattr(process, 'hltESPChi2MeasurementEstimator16'):
+        process.hltESPChi2MeasurementEstimator16.MaxDisplacement  = cms.double(100.)
+        process.hltESPChi2MeasurementEstimator16.MaxSagitta       = cms.double(-1.)
+        process.hltESPChi2MeasurementEstimator16.MinimalTolerance = cms.double(10.)
+    if hasattr(process, 'hltESPChi2MeasurementEstimator30'):
+        process.hltESPChi2MeasurementEstimator30.MaxDisplacement  = cms.double(100.)
+        process.hltESPChi2MeasurementEstimator30.MaxSagitta       = cms.double(-1.)
+        process.hltESPChi2MeasurementEstimator30.MinimalTolerance = cms.double(10.)
+    if hasattr(process, 'hltESPChi2MeasurementEstimator9'):
+        process.hltESPChi2MeasurementEstimator9.MaxDisplacement  = cms.double(100.)
+        process.hltESPChi2MeasurementEstimator9.MaxSagitta       = cms.double(-1.)
+        process.hltESPChi2MeasurementEstimator9.MinimalTolerance = cms.double(10.)
+
+    if hasattr(process, 'HLTPSetMuonCkfTrajectoryFilter'):
+        process.HLTPSetMuonCkfTrajectoryFilter.minGoodStripCharge  = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+        process.HLTPSetMuonCkfTrajectoryFilter.maxCCCLostHits      = cms.int32(9999)
+        process.HLTPSetMuonCkfTrajectoryFilter.seedExtension       = cms.int32(0)
+        process.HLTPSetMuonCkfTrajectoryFilter.strictSeedExtension = cms.bool(False)
+    if hasattr(process, 'HLTIter0PSetTrajectoryFilterIT'):
+        process.HLTIter0PSetTrajectoryFilterIT.minGoodStripCharge  = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+        process.HLTIter0PSetTrajectoryFilterIT.maxCCCLostHits      = cms.int32(9999)
+        process.HLTIter0PSetTrajectoryFilterIT.seedExtension       = cms.int32(0)
+        process.HLTIter0PSetTrajectoryFilterIT.strictSeedExtension = cms.bool(False)
+    if hasattr(process, 'HLTIter1PSetTrajectoryFilterIT'):
+        process.HLTIter1PSetTrajectoryFilterIT.minGoodStripCharge  = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+        process.HLTIter1PSetTrajectoryFilterIT.maxCCCLostHits      = cms.int32(9999)
+        process.HLTIter1PSetTrajectoryFilterIT.seedExtension       = cms.int32(0)
+        process.HLTIter1PSetTrajectoryFilterIT.strictSeedExtension = cms.bool(False)
+    if hasattr(process, 'HLTIter2PSetTrajectoryFilterIT'):
+        process.HLTIter2PSetTrajectoryFilterIT.minGoodStripCharge  = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+        process.HLTIter2PSetTrajectoryFilterIT.maxCCCLostHits      = cms.int32(9999)
+        process.HLTIter2PSetTrajectoryFilterIT.seedExtension       = cms.int32(0)
+        process.HLTIter2PSetTrajectoryFilterIT.strictSeedExtension = cms.bool(False)
+    if hasattr(process, 'HLTPSetTrajectoryFilterForElectrons'):
+        process.HLTPSetTrajectoryFilterForElectrons.minGoodStripCharge  = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+        process.HLTPSetTrajectoryFilterForElectrons.maxCCCLostHits      = cms.int32(9999)
+        process.HLTPSetTrajectoryFilterForElectrons.seedExtension       = cms.int32(0)
+        process.HLTPSetTrajectoryFilterForElectrons.strictSeedExtension = cms.bool(False)
+    if hasattr(process, 'HLTIter2HighPtTkMuPSetTrajectoryFilterIT'):
+        process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT.minGoodStripCharge  = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+        process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT.maxCCCLostHits      = cms.int32(9999)
+        process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT.seedExtension       = cms.int32(0)
+        process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT.strictSeedExtension = cms.bool(False)
+    if hasattr(process, 'HLTIter2HighPtTkMuPSetTrajectoryFilterIT'):
+        process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT.minGoodStripCharge  = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+        process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT.maxCCCLostHits      = cms.int32(9999)
+        process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT.seedExtension       = cms.int32(0)
+        process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT.strictSeedExtension = cms.bool(False)
+    if hasattr(process, 'HLTPSetMuTrackJpsiTrajectoryFilter'):
+        process.HLTPSetMuTrackJpsiTrajectoryFilter.minGoodStripCharge  = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+        process.HLTPSetMuTrackJpsiTrajectoryFilter.maxCCCLostHits      = cms.int32(9999)
+        process.HLTPSetMuTrackJpsiTrajectoryFilter.seedExtension       = cms.int32(0)
+        process.HLTPSetMuTrackJpsiTrajectoryFilter.strictSeedExtension = cms.bool(False)
+    if hasattr(process, 'HLTIter4PSetTrajectoryFilterIT'):
+        process.HLTIter4PSetTrajectoryFilterIT.minGoodStripCharge  = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+        process.HLTIter4PSetTrajectoryFilterIT.maxCCCLostHits      = cms.int32(9999)
+        process.HLTIter4PSetTrajectoryFilterIT.seedExtension       = cms.int32(0)
+        process.HLTIter4PSetTrajectoryFilterIT.strictSeedExtension = cms.bool(False)
+    if hasattr(process, 'HLTIter3PSetTrajectoryFilterIT'):
+        process.HLTIter3PSetTrajectoryFilterIT.minGoodStripCharge  = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+        process.HLTIter3PSetTrajectoryFilterIT.maxCCCLostHits      = cms.int32(9999)
+        process.HLTIter3PSetTrajectoryFilterIT.seedExtension       = cms.int32(0)
+        process.HLTIter3PSetTrajectoryFilterIT.strictSeedExtension = cms.bool(False)
+
+    return process
+
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     import os
