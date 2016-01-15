@@ -4,8 +4,8 @@ negativeCombinedMVAV2BJetTags = cms.EDProducer("JetTagProducer",
 	jetTagComputer = cms.string('negativeCombinedMVAV2Computer'),
 	tagInfos = cms.VInputTag(
 		cms.InputTag("impactParameterTagInfos"),
-		cms.InputTag("secondaryVertexTagInfos"),
-		cms.InputTag("inclusiveSecondaryVertexFinderTagInfos"),
+		cms.InputTag("secondaryVertexNegativeTagInfos"),
+		cms.InputTag("inclusiveSecondaryVertexFinderNegativeTagInfos"),
 		cms.InputTag("softPFMuonsTagInfos"),
 		cms.InputTag("softPFElectronsTagInfos")
 	)

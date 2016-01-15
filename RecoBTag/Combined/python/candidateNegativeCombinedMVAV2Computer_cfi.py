@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 candidateNegativeCombinedMVAV2Computer = cms.ESProducer("CombinedMVAV2JetTagESProducer",
 	jetTagComputers = cms.vstring(
-		'candidateJetProbabilityComputer',
-		'candidateJetBProbabilityComputer',
-		'candidateCombinedSecondaryVertexV2Computer',
-		'softPFMuonComputer',
-		'softPFElectronComputer'
+		'candidateNegativeOnlyJetProbabilityComputer',
+		'candidateNegativeOnlyJetBProbabilityComputer',
+		'candidateNegativeCombinedSecondaryVertexV2Computer',
+		'negativeSoftPFMuonComputer',
+		'negativeSoftPFElectronComputer'
 	),
 	mvaName = cms.string("bdt"),
 	variables = cms.vstring(
