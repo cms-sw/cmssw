@@ -53,9 +53,9 @@ if usePrivateSQlite:
     from CondCore.DBCommon.CondDBSetup_cfi import *
     import os
     if runOnData:
-      era="Summer15_50nsV5_DATA"
+      era="Summer15_25nsV5_DATA"
     else:
-      era="Summer15_50nsV5_MC"
+      era="Summer15_25nsV6_MC"
       
     process.jec = cms.ESSource("PoolDBESSource",CondDBSetup,
                                connect = cms.string( "frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS"),
@@ -74,6 +74,32 @@ if usePrivateSQlite:
                                )
     process.es_prefer_jec = cms.ESPrefer("PoolDBESSource",'jec')
 
+
+### Jet resolution
+from CondCore.DBCommon.CondDBSetup_cfi import *
+ERA = 'Summer15_25nsV6'
+process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+        CondDBSetup,
+        toGet = cms.VPSet(
+            # Resolution
+            cms.PSet(
+                record = cms.string('JetResolutionRcd'),
+                tag    = cms.string('JER_MC_PtResolution_%s_AK4PFchs' % ERA),
+                label  = cms.untracked.string('AK4PFchs')
+                ),
+ 
+            # Scale factors
+            cms.PSet(
+                record = cms.string('JetResolutionScaleFactorRcd'),
+                tag    = cms.string('JER_DATAMCSF_%s_AK4PFchs' % ERA),
+                label  = cms.untracked.string('AK4PFchs')
+                ),
+            ),
+        connect = cms.string('sqlite:JER_%s.db' % ERA)
+        )
+
+
+
 ### =====================================================================================================
 
 
@@ -85,7 +111,7 @@ if runOnData:
 else:
   #75X file : root://eoscms.cern.ch//store/relval/CMSSW_7_5_0/RelValTTbar_13/MINIAODSIM/75X_mcRun2_asymptotic_v1-v1/00000/92A928E7-842A-E511-87CC-0025905A60E0.root
   #74X file : root://eoscms.cern.ch//store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v2/60000/001C7571-0511-E511-9B8E-549F35AE4FAF.root
-  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_7_5_3/RelValZEE_13/MINIAODSIM/75X_mcRun2_asymptotic_v5-v1/00000/F8C5D3F4-A861-E511-BA41-002618943906.root'
+  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_0_0_pre4/RelValTTbar_13/MINIAODSIM/76X_mcRun2_asymptotic_v13-v1/00000/52384AF8-D2A5-E511-8F89-0CC47A4D7604.root'
   
 # Define the input source
 process.source = cms.Source("PoolSource", 
@@ -106,7 +132,7 @@ if not useHFCandidates:
 #jets are rebuilt from those candidates by the tools, no need to do anything else
 ### =================================================================================
 
-from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD, runMETCorrectionsAndUncertainties
 
 #default configuration for miniAOD reprocessing, change the isData flag to run on data
 #for a full met computation, remove the pfCandColl input
@@ -150,6 +176,16 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
     eventAutoFlushCompressedSize = cms.untracked.int32(15728640),
     outputCommands = cms.untracked.vstring( "keep *_slimmedMETs_*_*",
                                             "keep *_slimmedMETsNoHF_*_*",
+                                            "keep *_patPFMetT1_*_*",
+                                            "keep *_patPFMetT1JetResDown_*_*",
+                                            "keep *_patPFMetT1JetResUp_*_*",
+                                            "keep *_patPFMetT1SmearTEST_*_*",
+                                            "keep *_patPFMetT1SmearJetResDownTEST_*_*",
+                                            "keep *_patPFMetT1SmearJetResUpTEST_*_*",
+                                            "keep *_puppiForMET_*_*",
+                                            "keep *_puppi_*_*",
+                                            "keep *_patPFMetT1Puppi_*_*",
+                                            "keep *_slimmedMETsPuppi_*_*",
                                             ),
     fileName = cms.untracked.string('corMETMiniAOD.root'),
     dataset = cms.untracked.PSet(
@@ -163,3 +199,57 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
 
 
 process.MINIAODSIMoutput_step = cms.EndPath(process.MINIAODSIMoutput)
+
+
+## ========================================
+## test area
+## ========================================
+
+
+
+ #MET T1+Txy
+#runMETCorrectionsAndUncertainties(process, metType="PF",
+#                                  correctionLevel=["T1","Smear"],
+#                                  computeUncertainties=True,
+#                                  produceIntermediateCorrections=True,
+#                                  addToPatDefaultSequence=False,
+#                                  #jetCollection="selectedPatJets",
+#                                  jetCollectionUnskimmed="slimmedJets",
+#                                  electronCollection="slimmedElectrons",
+#                                  muonCollection="slimmedMuons",
+#                                  tauCollection="slimmedTaus",
+#                                  photonCollection="slimmedPhotons",
+#                                  pfCandCollection="packedPFCandidate",
+#                                  runOnData=runOnData,
+#                                  onMiniAOD=True,
+#                                  reclusterJets=False,
+#                                  recoMetFromPFCs=False,
+#                                  autoJetCleaning="LepClean",
+#                                  manualJetConfig=False,
+#                                  jetFlavor="AK4PFchs",
+#                                  jetCorLabelUpToL3=cms.InputTag('ak4PFCHSL1FastL2L3Corrector'),
+#                                  jetCorLabelL3Res=cms.InputTag('ak4PFCHSL1FastL2L3ResidualCorrector'),
+#                                  jecUncertaintyFile="",
+#                                  postfix="TEST",
+#                                  )
+
+
+#process.load("CommonTools.PileupAlgos.Puppi_cff")
+#process.puppi.candName       = cms.InputTag('packedPFCandidates')
+#process.puppi.vertexName     = cms.InputTag('offlineSlimmedPrimaryVertices')
+#process.puppi.useExistingWeights = cms.bool(True)
+#process.puppi.useWeightsNoLep    = cms.bool(True)
+#process.pfCandNoLep = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut =  cms.string("abs(pdgId) != 13 && abs(pdgId) != 11 && abs(pdgId) != 15"))
+#process.pfCandLep   = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("abs(pdgId) == 13 || abs(pdgId) == 11 || abs(pdgId) == 15"))
+#process.puppinolep = process.puppi.clone()
+#process.puppinolep.candName = 'pfCandNoLep'
+#process.puppiForMET = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppinolep','pfCandLep'))
+
+
+#runMetCorAndUncFromMiniAOD(process,
+#                           isData=runOnData,
+#                           pfCandColl=cms.InputTag("puppiForMET"),
+#                           reclusterJets=True, #needed for NoHF
+#                           recoMetFromPFCs=True, #needed for NoHF
+#                           postfix="Puppi"
+#                           )

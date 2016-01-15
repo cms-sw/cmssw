@@ -65,6 +65,7 @@ namespace PFJetMETcorrInputProducer_namespace
        return jet.p4();
      }
   };
+
 }
 
 template <typename T, typename Textractor>
