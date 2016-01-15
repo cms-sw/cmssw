@@ -1,8 +1,8 @@
-#include "CondCore/DBCommon/interface/Auth.h"
-#include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/CondDB/interface/Auth.h"
+#include "CondCore/CondDB/interface/Exception.h"
 #include "RelationalAccess/AuthenticationCredentials.h"
 #include "RelationalAccess/AuthenticationServiceException.h"
-#include "CondCore/DBCommon/interface/CoralServiceMacros.h"
+#include "CondCore/CondDB/interface/CoralServiceMacros.h"
 #include "RelationalAuthenticationService.h"
 //
 #include "RelationalAccess/AuthenticationServiceException.h"
@@ -30,7 +30,7 @@ cond::RelationalAuthenticationService::RelationalAuthenticationService::Relation
 {
   boost::function1<void, std::string> cb(boost::bind(&cond::RelationalAuthenticationService::RelationalAuthenticationService::setAuthenticationPath, this, _1));
        
-  coral::Property* pm = dynamic_cast<coral::Property*>(coral::Context::instance().PropertyManager().property(Auth::COND_AUTH_PATH_PROPERTY));
+  coral::Property* pm = dynamic_cast<coral::Property*>(coral::Context::instance().PropertyManager().property(auth::COND_AUTH_PATH_PROPERTY));
   if(pm){
     setAuthenticationPath( pm->get() );
     m_callbackID = pm->registerCallback(cb);

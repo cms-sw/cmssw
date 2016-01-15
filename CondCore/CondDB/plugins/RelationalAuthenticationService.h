@@ -1,7 +1,7 @@
 #ifndef COND_XMLAUTHENTITACTIONSERVICE_H
 #define COND_XMLAUTHENTITACTIONSERVICE_H
 
-#include "CondCore/DBCommon/interface/CredentialStore.h"
+#include "CondCore/CondDB/interface/CredentialStore.h"
 //
 #include "RelationalAccess/IAuthenticationService.h"
 #include "CoralKernel/Service.h"
