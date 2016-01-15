@@ -2,4 +2,11 @@
   <use   name="CondCore/CondDB"/>
   <use   name="boost_python"/>
 </library>
+<library   file="XMLAuthenticationService.cc" name="CondCoreCondDBXMLAuthenticationService">		
+  <use   name="xerces-c"/>		
+  <flags   EDM_PLUGIN="1"/>		
+</library>		
+<library   file="RelationalAuthenticationService.cc" name="CondCoreCondDBRelationalAuthenticationService">		
+  <flags   EDM_PLUGIN="1"/>		
+</library>
 
