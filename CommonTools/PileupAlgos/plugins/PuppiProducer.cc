@@ -35,6 +35,7 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fDZCut     = iConfig.getParameter<double>("DeltaZCut");
   fUseExistingWeights     = iConfig.getParameter<bool>("useExistingWeights");
   fUseWeightsNoLep        = iConfig.getParameter<bool>("useWeightsNoLep");
+  fClonePackedCands       = iConfig.getParameter<bool>("clonePackedCands");
   fVtxNdofCut = iConfig.getParameter<int>("vtxNdofCut");
   fVtxZCut = iConfig.getParameter<double>("vtxZCut");
   fPuppiContainer = std::unique_ptr<PuppiContainer> ( new PuppiContainer(iConfig) );
@@ -49,7 +50,10 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   produces<edm::ValueMap<LorentzVector> > ();
   produces< edm::ValueMap<reco::CandidatePtr> >(); 
   
-  produces<PFOutputCollection>();
+  if (fUseExistingWeights || fClonePackedCands)
+    produces<pat::PackedCandidateCollection>();
+  else
+    produces<reco::PFCandidateCollection>();
 
   if (fPuppiDiagnostics){
     produces<double> ("PuppiNAlgos");
@@ -194,7 +198,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       float curpupweight = -1.;
       if(lPack == 0 ) { 
         // throw error
-        throw edm::Exception(edm::errors::LogicError,"PuppiProducer: cannot get weights since inputs are not packedPFCandidates"); 
+        throw edm::Exception(edm::errors::LogicError,"PuppiProducer: cannot get weights since inputs are not PackedCandidates");
       }
       else{
         // if (fUseWeightsNoLep){ curpupweight = itPF->puppiWeightNoLep(); }
@@ -220,24 +224,31 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Will fix in the future. 
   static const reco::PFCandidate dummySinceTranslateIsNotStatic;
 
-  //Fill a new PF Candidate Collection and write out the ValueMap of the new p4s.
+  // Fill a new PF/Packed Candidate Collection and write out the ValueMap of the new p4s.
   // Since the size of the ValueMap must be equal to the input collection, we need
   // to search the "puppi" particles to find a match for each input. If none is found,
   // the input is set to have a four-vector of 0,0,0,0
   fPuppiCandidates.reset( new PFOutputCollection );
+  fPackedPuppiCandidates.reset( new PackedOutputCollection );
   std::auto_ptr<edm::ValueMap<LorentzVector> > p4PupOut(new edm::ValueMap<LorentzVector>());
   LorentzVectorCollection puppiP4s;
   std::vector<reco::CandidatePtr> values(hPFProduct->size());
-  //std::vector<int> values(hPFProduct->size());
-  
+
   for ( auto i0 = hPFProduct->begin(),
 	  i0begin = hPFProduct->begin(),
 	  i0end = hPFProduct->end(); i0 != i0end; ++i0 ) {
-    //for(unsigned int i0 = 0; i0 < lCandidates.size(); i0++) {
-    //reco::PFCandidate pCand;
-    auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(i0->pdgId());
-    const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate*>(&(*i0));
-    reco::PFCandidate pCand( pPF ? *pPF : reco::PFCandidate(i0->charge(), i0->p4(), id) );
+    std::unique_ptr<pat::PackedCandidate> pCand;
+    std::unique_ptr<reco::PFCandidate>    pfCand;
+    if (fUseExistingWeights || fClonePackedCands) {
+      const pat::PackedCandidate *cand = dynamic_cast<const pat::PackedCandidate*>(&(*i0));
+      if(!cand)
+        throw edm::Exception(edm::errors::LogicError,"PuppiProducer: inputs are not PackedCandidates");
+      pCand.reset( new pat::PackedCandidate(*cand) );
+    } else {
+      auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(i0->pdgId());
+      const reco::PFCandidate *cand = dynamic_cast<const reco::PFCandidate*>(&(*i0));
+      pfCand.reset( new reco::PFCandidate( cand ? *cand : reco::PFCandidate(i0->charge(), i0->p4(), id) ) );
+    }
     LorentzVector pVec = i0->p4();
     int val = i0 - i0begin;
 
@@ -245,15 +256,20 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     auto puppiMatched = find_if( lCandidates.begin(), lCandidates.end(), [&val]( fastjet::PseudoJet const & i ){ return i.user_index() == val; } );
     if ( puppiMatched != lCandidates.end() ) {
       pVec.SetPxPyPzE(puppiMatched->px(),puppiMatched->py(),puppiMatched->pz(),puppiMatched->E());
-      // fPuppiCandidates->push_back(pCand);
     } else {
       pVec.SetPxPyPzE( 0, 0, 0, 0);
     }
-    pCand.setP4(pVec);
     puppiP4s.push_back( pVec );
 
-    pCand.setSourceCandidatePtr( i0->sourceCandidatePtr(0) );
-    fPuppiCandidates->push_back(pCand);
+    if (fUseExistingWeights || fClonePackedCands) {
+      pCand->setP4(pVec);
+      pCand->setSourceCandidatePtr( i0->sourceCandidatePtr(0) );
+      fPackedPuppiCandidates->push_back(*pCand);
+    } else {
+      pfCand->setP4(pVec);
+      pfCand->setSourceCandidatePtr( i0->sourceCandidatePtr(0) );
+      fPuppiCandidates->push_back(*pfCand);
+    }
   }
 
   //Compute the modified p4s
@@ -263,12 +279,19 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   iEvent.put(lPupOut);
   iEvent.put(p4PupOut);
-  edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.put( fPuppiCandidates );
-  for(unsigned int ic=0, nc = oh->size(); ic < nc; ++ic) {
-      reco::CandidatePtr pkref( oh, ic );
-      values[ic] = pkref;
-    
-   }  
+  if (fUseExistingWeights || fClonePackedCands) {
+    edm::OrphanHandle<pat::PackedCandidateCollection> oh = iEvent.put( fPackedPuppiCandidates );
+    for(unsigned int ic=0, nc = oh->size(); ic < nc; ++ic) {
+        reco::CandidatePtr pkref( oh, ic );
+        values[ic] = pkref;
+    }
+  } else {
+    edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.put( fPuppiCandidates );
+    for(unsigned int ic=0, nc = oh->size(); ic < nc; ++ic) {
+        reco::CandidatePtr pkref( oh, ic );
+        values[ic] = pkref;
+    }
+  }
   std::auto_ptr<edm::ValueMap<reco::CandidatePtr> > pfMap_p(new edm::ValueMap<reco::CandidatePtr>());
   edm::ValueMap<reco::CandidatePtr>::Filler filler(*pfMap_p);
   filler.insert(hPFProduct, values.begin(), values.end());
