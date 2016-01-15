@@ -26,6 +26,7 @@
 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -348,6 +349,10 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByLabel(m_beamSpotTag, beamSpot);
 
+  edm::ESHandle<DetIdAssociator> muonDetIdAssociator_;
+  iSetup.get<DetIdAssociatorRecord>().get("MuonDetIdAssociator", muonDetIdAssociator_);
+ 
+
   edm::ESHandle<Propagator> prop;
   iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",prop);
   
@@ -363,7 +368,7 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
 
       if (track->pt() > m_minTrackPt && track->p() > m_minTrackP && fabs(track->dxy(beamSpot->position())) < m_maxDxy )
       {
-        MuonResidualsFromTrack muonResidualsFromTrack(iSetup, magneticField, globalGeometry, prop, traj, track, pNavigator(), 1000.);
+        MuonResidualsFromTrack muonResidualsFromTrack(iSetup, magneticField, globalGeometry,muonDetIdAssociator_, prop, traj, track, pNavigator(), 1000.);
         processMuonResidualsFromTrack(muonResidualsFromTrack);
       }
     } // end loop over tracks

@@ -9,8 +9,6 @@
  */
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonHitsChamberResidual.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 class MuonDT2ChamberResidual: public MuonHitsChamberResidual 
 {
@@ -20,7 +18,7 @@ public:
   
   // for DT2, the residual is chamber local y
   // for DT2, the resslope is dresy/dz, or tan(phi_x)
-  virtual void addResidual(edm::ESHandle<Propagator> prop, const TrajectoryStateOnSurface *tsos, const TrackingRecHit *hit);
+  virtual void addResidual(edm::ESHandle<Propagator> prop, const TrajectoryStateOnSurface *tsos, const TrackingRecHit *hit, double, double);
 
   // dummy method
   virtual void setSegmentResidual(const reco::MuonChamberMatch *, const reco::MuonSegmentMatch *) {}

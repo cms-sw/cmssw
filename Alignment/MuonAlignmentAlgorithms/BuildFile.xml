@@ -16,6 +16,8 @@
 <use   name="root"/>
 <use   name="rootcore"/>
 <use   name="rootminuit"/>
+<use   name="TrackingTools/TrackAssociator"/>
+<use   name="TrackingTools/Records"/>
 <export>
   <lib   name="1"/>
 </export>
