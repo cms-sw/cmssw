@@ -34,14 +34,14 @@ namespace edm {
         productHasBeenDeleted_(false) {}
       virtual ~InputProductHolder();
 
+    private:
       // The following is const because we can add an EDProduct to the
       // cache after creation of the ProductHolder, without changing the meaning
       // of the ProductHolder.
       void setProduct(std::unique_ptr<WrapperBase> prod) const;
       bool productIsUnavailable() const {return productIsUnavailable_;}
       void setProductUnavailable() const {productIsUnavailable_ = true;}
-
-    private:
+    
       virtual void swap_(ProductHolderBase& rhs) override {
         InputProductHolder& other = dynamic_cast<InputProductHolder&>(rhs);
         edm::swap(productData_, other.productData_);
