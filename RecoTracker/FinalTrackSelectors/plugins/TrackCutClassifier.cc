@@ -97,6 +97,7 @@ namespace {
   struct Cuts {
     
     Cuts(const edm::ParameterSet & cfg) {
+      fillArrayF(minNdof,      cfg,"minNdof");
       fillArrayF(maxChi2,      cfg,"maxChi2");
       fillArrayF(maxChi2n,     cfg,"maxChi2n");
       fillArrayI(minPixelHits, cfg,"minPixelHits");
@@ -125,8 +126,8 @@ namespace {
 		     GBRForest const *) const {
       
       float ret = 1.f;
-      float dummy[3] = {1E-5, 1E-5, 1E-5};
-      ret = std::min(ret,cut(float(trk.ndof()),dummy,std::greater_equal<float>()) );
+      ret = std::min(ret,cut(float(trk.ndof()),minNdof,std::greater_equal<float>()) );
+      if (ret==-1.f) return ret;
 
       auto  nLayers = trk.hitPattern().trackerLayersWithMeasurement();
       ret = std::min(ret,cut(nLayers,minLayers,std::greater_equal<int>()));
@@ -213,10 +214,11 @@ namespace {
     static const char * name() { return "TrackCutClassifier";}
 
     static void fillDescriptions(edm::ParameterSetDescription & desc) {
-      desc.add<std::vector<int>>("minPixelHits", { 0,0,1});
-      desc.add<std::vector<int>>("minLayers",    { 3,4,5});
-      desc.add<std::vector<int>>("min3DLayers",  { 1,2,3});
-      desc.add<std::vector<int>>("maxLostLayers",{99,3,3});
+      desc.add<std::vector<int>>("minPixelHits", { 0, 0, 1});
+      desc.add<std::vector<int>>("minLayers",    { 3, 4, 5});
+      desc.add<std::vector<int>>("min3DLayers",  { 1, 2, 3});
+      desc.add<std::vector<int>>("maxLostLayers",{99, 3, 3});
+      desc.add<std::vector<double>>("minNdof",      {-1.,  -1., -1.});
       desc.add<std::vector<double>>("maxChi2",      {9999.,25., 16. });
       desc.add<std::vector<double>>("maxChi2n",     {9999., 1.0, 0.4});
 
@@ -240,6 +242,7 @@ namespace {
 
     }
 
+    float minNdof[3];
     float maxChi2[3];
     float maxChi2n[3];
     int minLayers[3];
