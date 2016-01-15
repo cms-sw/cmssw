@@ -152,6 +152,8 @@ StandAloneTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",prop);
    edm::ESHandle<MagneticField> magneticField;
    iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+   edm::ESHandle<DetIdAssociator> muonDetIdAssociator_;
+   iSetup.get<DetIdAssociatorRecord>().get("MuonDetIdAssociator", muonDetIdAssociator_);
 
    // loop over tracks
    for (reco::TrackCollection::const_iterator track = tracks->begin();  track != tracks->end();  ++track) {
@@ -167,7 +169,7 @@ StandAloneTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (track->pt() > 20.  &&  traj != NULL  &&  traj->isValid()) {
 
 	 // calculate all residuals on this track
-     MuonResidualsFromTrack muonResidualsFromTrack(iSetup, magneticField, globalGeometry, prop, traj, &(*track), m_muonAlignment->getAlignableNavigator(), 1000.);
+	MuonResidualsFromTrack muonResidualsFromTrack(iSetup, magneticField, globalGeometry,  muonDetIdAssociator_, prop, traj, &(*track), m_muonAlignment->getAlignableNavigator(), 1000.);
 	 std::vector<DetId> chamberIds = muonResidualsFromTrack.chamberIds();
 
 	 // if the tracker part of refit is okay

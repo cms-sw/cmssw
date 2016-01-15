@@ -14,6 +14,7 @@
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonTrackCSCChamberResidual.h"
 
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
+#include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 
 #include "TDecompChol.h"
 #include <math.h>
@@ -22,6 +23,7 @@
 MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
         edm::ESHandle<MagneticField> magneticField,
         edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
+        edm::ESHandle<DetIdAssociator> muonDetIdAssociator_,					       
         edm::ESHandle<Propagator> prop,
         const Trajectory *traj,
         const reco::Track* recoTrack,
@@ -156,6 +158,9 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
                 //          double gChZ = globalGeometry->idToDet(chamberId)->position().z();
                 //          std::cout << "           The chamber position in global frame x: " << gChX << " y: " << gChY << " z: " << gChZ << std::endl;
 
+		const GeomDet* geomDet = muonDetIdAssociator_->getGeomDet(chamberId);
+		double chamber_width = geomDet->surface().bounds().width();
+		double chamber_length =  geomDet->surface().bounds().length();
 
 
                 double hitX = trajMeasurementHit->localPosition().x();
@@ -206,7 +211,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
                                     if (m_debug) std::cout << "              This is first appearance of the DT with hits in superlayer 2" << std::endl;
 
                                 }
-                                m_dt2[chamberId]->addResidual(prop, &tsos, hit);
+                                m_dt2[chamberId]->addResidual(prop, &tsos, hit,chamber_width,chamber_length);
                                 residualDT2IsAdded = true;
 
                             } else if ( (superLayerId.superlayer() == 1 || superLayerId.superlayer() == 3) && vDTHits1D.size() >= 6 ) {
@@ -215,7 +220,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
                                     m_dt13[chamberId] = new MuonDT13ChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable);
                                     if (m_debug) std::cout << "              This is first appearance of the DT with hits in superlayers 1 and 3" << std::endl;
                                 }
-                                m_dt13[chamberId]->addResidual(prop, &tsos, hit);
+                                m_dt13[chamberId]->addResidual(prop, &tsos, hit,chamber_width,chamber_length);
                                 residualDT13IsAdded = true;
 
 
@@ -270,7 +275,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
                                 if (m_debug) std::cout << "              This is first appearance of the CSC with hits QQQ" << std::endl;
                             }
 
-                            m_csc[chamberId2]->addResidual(prop, &tsos, hit);
+                            m_csc[chamberId2]->addResidual(prop, &tsos, hit,250.0,250.0);
 
                         }
                     }
@@ -307,6 +312,10 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
                 if ( hitId2.subdetId() == MuonSubdetId::DT ) {
                     const DTChamberId chamberId(hitId2.rawId());
                     if (m_debug) std::cout << "Muon Hit in DT wheel " << chamberId.wheel() << " station " << chamberId.station() << " sector " << chamberId.sector() << std::endl;
+
+		    const GeomDet* geomDet = muonDetIdAssociator_->getGeomDet(chamberId);
+                    double chamber_width = geomDet->surface().bounds().width();
+                    double chamber_length =  geomDet->surface().bounds().length();
 
 
 
@@ -367,7 +376,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
                                                 << " y: " << extrapolation.localPosition().y() 
                                                 << " z: " << extrapolation.localPosition().z() << std::endl;
                                         }
-                                        m_dt2[chamberId]->addResidual(prop, &extrapolation, hit);
+                                        m_dt2[chamberId]->addResidual(prop, &extrapolation, hit,chamber_width,chamber_length);
                                     }
                                     //            	    residualDT2IsAdded = true;
 
@@ -393,7 +402,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
                                                 << " y: " << extrapolation.localPosition().y() 
                                                 << " z: " << extrapolation.localPosition().z() << std::endl;
                                         }
-                                        m_dt13[chamberId]->addResidual(prop, &extrapolation, hit);
+                                        m_dt13[chamberId]->addResidual(prop, &extrapolation, hit,chamber_width,chamber_length);
                                     }
                                     //            	    residualDT13IsAdded = true;
 
@@ -508,7 +517,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
                                                 << " y: " << extrapolation.localPosition().y() 
                                                 << " z: " << extrapolation.localPosition().z() << std::endl;
                                         }
-                                        m_csc[chamberId]->addResidual(prop, &extrapolation, hit);
+                                        m_csc[chamberId]->addResidual(prop, &extrapolation, hit,250.0,250.0);
                                     }
                                 }
                             }

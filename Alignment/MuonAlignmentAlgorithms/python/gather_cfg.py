@@ -102,6 +102,18 @@ if json_file is not None and json_file != '':
 
 process = cms.Process("GATHER")
 
+process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+process.load("Geometry.DTGeometry.dtGeometry_cfi")
+process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
+process.load("Geometry.CSCGeometry.cscGeometry_cfi")
+process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
+
+#add TrackDetectorAssociator lookup maps to the EventSetup
+process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff") 
+from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *  
+from TrackingTools.TrackAssociator.default_cfi import *       
+
+
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 process.MuonNumberingInitialization = cms.ESProducer("MuonNumberingInitialization")
@@ -112,7 +124,7 @@ process.MuonNumberingRecord = cms.ESSource( "EmptyESSource",
 )
 
 process.load("Configuration.StandardSequences.GeometryDB_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 
 if len(good_lumis)>0:
   process.source = cms.Source("PoolSource",
@@ -218,7 +230,7 @@ if curvatureplots:
     process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.doDT = doDT
     process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.doCSC = doCSC
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.GlobalTag.globaltag = cms.string(globaltag)
 process.looper.applyDbAlignment = True
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
