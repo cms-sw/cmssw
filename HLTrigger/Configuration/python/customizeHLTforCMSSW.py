@@ -233,7 +233,7 @@ def customiseFor12718(process):
         process.HLTIter2PSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
     if hasattr(process, 'HLTPSetTrajectoryFilterForElectrons'):
         process.HLTPSetTrajectoryFilterForElectrons.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
-    if hasattr(process, 'process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT'):
+    if hasattr(process, 'HLTIter2HighPtTkMuPSetTrajectoryFilterIT'):
         process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
     if hasattr(process, 'HLTIter2HighPtTkMuPSetTrajectoryFilterIT'):
         process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
@@ -246,13 +246,13 @@ def customiseFor12718(process):
     return process
 
 def customiseFor12966(process):
-    if hasattr(process,'process.hltPixelTracksElectrons'):
+    if hasattr(process,'hltPixelTracksElectrons'):
         process.hltPixelTracksElectrons.useMultipleScattering = cms.bool(False)
-    if hasattr(process,'process.hltPixelTracksL3Muon'):
+    if hasattr(process,'hltPixelTracksL3Muon'):
         process.hltPixelTracksL3Muon.useMultipleScattering = cms.bool(False)
-    if hasattr(process,'process.hltPixelTracksHighPtTkMuIso'):
+    if hasattr(process,'hltPixelTracksHighPtTkMuIso'):
         process.hltPixelTracksHighPtTkMuIso.useMultipleScattering = cms.bool(False)
-    if hasattr(process,'process.hltPixelTracksGlbTrkMuon'):
+    if hasattr(process,'hltPixelTracksGlbTrkMuon'):
         process.hltPixelTracksGlbTrkMuon.useMultipleScattering = cms.bool(False)
 
     if hasattr(process, 'hltESPChi2ChargeMeasurementEstimator16'):
