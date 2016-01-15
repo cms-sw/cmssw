@@ -20,3 +20,7 @@ from RecoBTag.Combined.combinedMVAV2Computer_cfi import *
 from RecoBTag.Combined.combinedMVAV2BJetTags_cfi import *
 from RecoBTag.Combined.candidateCombinedMVAV2Computer_cfi import *
 from RecoBTag.Combined.pfCombinedMVAV2BJetTags_cfi import *
+
+#charge tagger
+from RecoBTag.Combined.candidateChargeBTagComputer_cfi import *
+from RecoBTag.Combined.pfChargeBJetTags_cfi import *

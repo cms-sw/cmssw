@@ -1,5 +1,5 @@
-#ifndef RecoBTag_ChargeTagging_CandidateChargeBTagComputer_h
-#define RecoBTag_ChargeTagging_CandidateChargeBTagComputer_h
+#ifndef RecoBTag_Combined_CandidateChargeBTagComputer_h
+#define RecoBTag_Combined_CandidateChargeBTagComputer_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -30,4 +30,4 @@ class CandidateChargeBTagComputer : public JetTagComputer {
   const double svChargeExp_;
 };
 
-#endif // RecoBTag_ChargeTagging_CandidateChargeBTagComputer_h
+#endif // RecoBTag_Combined_CandidateChargeBTagComputer_h
