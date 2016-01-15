@@ -2,12 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PrintMaterialBudget")
 
-print "***** Please, remember to disable big libraries as follows:"
-print "> scram b disable-biglib"
-print "> cmsenv"
-print "> scram b -j 10"
-print "> cmsRun SimG4Core/PrintGeomInfo/test/python/run_MaterialBudgeInfo_cfg.py"
-
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Geometry.CMSCommonData.cmsExtendedGeometry2015XML_cfi')
 process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
