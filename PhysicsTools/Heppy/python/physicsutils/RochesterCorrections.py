@@ -1,5 +1,4 @@
 import copy
-import PhysicsTools.Heppy.loadlibs
 from ROOT import heppy
 from PhysicsTools.Heppy.utils.cmsswRelease import isNewerThan
 

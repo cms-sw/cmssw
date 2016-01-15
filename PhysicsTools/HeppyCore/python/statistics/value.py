@@ -12,6 +12,9 @@ class Value(object):
     def relerr(self):
         return abs(self.err / self.val)
 
+    def __eq__(self, other):
+        return self.val == other.val and self.err == other.err
+
     def __iadd__(self, other):
         self.val += other.val
         self.err = math.sqrt( self.err*self.err + other.err*other.err)
@@ -47,15 +50,3 @@ class Value(object):
         return '{val:10.3f} +- {err:8.3f} ({relerr:5.2f}%)'.format(val=self.val,
                                                                   err=self.err,
                                                                   relerr=self.relerr()*100)
-
-if __name__=='__main__':
-
-    val1 = Value(1.,0.02)
-    val2 = Value(2.,0.02)
-    val3 = val1 / val2
-    print val1
-    print val2
-    print 
-    print val1+val2
-    print val1-val2
-    print val1/val2

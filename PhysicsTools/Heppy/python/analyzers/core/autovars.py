@@ -89,6 +89,29 @@ class NTupleObjectType:
                 if b2 not in ret:
                     ret.append(b2)
         return ret
+    def addVariables(self,newvars):
+        currentnames = [v.name for v in self.allVars(True)] # require no conflict with all variables, including mcOnly ones
+        uniquenewvars = []
+        for var in newvars:
+            if var.name in uniquenewvars: raise RuntimeError, "Duplicate definition of variable %s while adding variables to object type %s" % (var.name,self.name)
+            uniquenewvars.append(var.name)
+            if var.name not in currentnames:
+                self.variables.append(var)
+            else:
+              raise RuntimeError, "Variable %s is already present in object type %s" % (var.name,self.name)
+    def addSubObjects(self,sos):
+        currentnames = [v.name for v in self.subObjects]
+        uniquenewobjs = []
+        for ob in sos:
+            if ob.name in uniquenewobjs: raise RuntimeError, "Duplicate definition of sub-object %s while adding it to object type %s" % (ob.name,self.name)
+            uniquenewobjs.append(ob.name)
+            if ob.name not in currentnames:
+                self.subObjects.append(ob)
+            else:
+              raise RuntimeError, "Sub-object %s is already present in object type %s" % (ob.name,self.name)
+        self._subObjectVars.clear() # clear and update cache of subobj variables
+        mynewvars = self.allVars(True)
+        mynewvars = self.allVars(False)
     def removeVariable(self,name):
         self.variables = [ v for v in self.variables if v.name != name]
     def __repr__(self):

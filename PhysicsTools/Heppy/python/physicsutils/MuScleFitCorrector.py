@@ -1,5 +1,4 @@
 import os 
-import PhysicsTools.Heppy.loadlibs
 from ROOT import heppy, TLorentzVector
 
 class MuScleFitCorr:
