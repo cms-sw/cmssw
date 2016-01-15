@@ -14,11 +14,11 @@
 
 //#define DebugLog
 
-const double k_horizontalShift = 1.0;
-const double k_ScaleFromDDD = 0.1;
+constexpr double k_horizontalShift = 1.0;
+constexpr double k_ScaleFromDDD = 0.1;
 
 HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
-				     const std::string name) : hgpar_(hp), tan30deg_(std::tan(30.0*CLHEP::deg)) {
+				     const std::string name) : hgpar_(hp) {
   mode_ = HGCalGeometryMode( hgpar_->mode_ );
   if (mode_ == HGCalGeometryMode::Square) {
     rmax_ = 0;
@@ -523,8 +523,9 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay, int mod,
 }
 
 int HGCalDDDConstants::waferFromCopy(int copy) const {
-  int wafer = wafers();
-  for (int k=0; k<wafers(); ++k) {
+  const int tot_wafers = wafers();
+  int wafer = tot_wafers;
+  for (int k=0; k<tot_wafers; ++k) {
     if (copy == hgpar_->waferCopy_[k]) {
       wafer = k;
       break;
@@ -623,11 +624,12 @@ void HGCalDDDConstants::getParameterSquare(int lay, int subSec, bool reco,
 
 bool HGCalDDDConstants::waferInLayer(int wafer, int lay) const {
 
-  double rr   = 2*rmax_*tan30deg_;
-  double rpos = std::sqrt(hgpar_->waferPosX_[wafer]*hgpar_->waferPosX_[wafer]+
-			  hgpar_->waferPosY_[wafer]*hgpar_->waferPosY_[wafer]);
-  bool   in   = (rpos-rr >= hgpar_->rMinLayHex_[lay] && 
-		 rpos+rr <= hgpar_->rMaxLayHex_[lay]);
+  const double rr   = 2*rmax_*tan30deg_;
+  const double waferX = hgpar_->waferPosX_[wafer];
+  const double waferY = hgpar_->waferPosY_[wafer];
+  const double rpos = std::sqrt(waferX*waferX+waferY*waferY);
+  const bool   in   = (rpos-rr >= hgpar_->rMinLayHex_[lay] && 
+                       rpos+rr <= hgpar_->rMaxLayHex_[lay]);
   return in;
 }
 
