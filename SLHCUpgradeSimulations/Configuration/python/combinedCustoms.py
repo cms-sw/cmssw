@@ -54,6 +54,18 @@ def cust_2023HGCal_common(process):
         process.mix.digitizers.hgceeDigitizer=process.hgceeDigitizer
         process.mix.digitizers.hgchebackDigitizer=process.hgchebackDigitizer
         process.mix.digitizers.hgchefrontDigitizer=process.hgchefrontDigitizer
+        # update the HCAL Endcap for BH geom.
+        newFactors = cms.vdouble(
+            210.55, 197.93, 186.12, 189.64, 189.63,
+            189.96, 190.03, 190.11, 190.18, 190.25,
+            190.32, 190.40, 190.47, 190.54, 190.61,
+            190.69, 190.83, 190.94, 190.94, 190.94,
+            190.94, 190.94, 190.94, 190.94, 190.94,
+            190.94, 190.94, 190.94, 190.94, 190.94,
+            190.94, 190.94, 190.94, 190.94, 190.94,
+            190.94, 190.94, 190.94, 190.94, 190.94)
+        process.mix.digitizers.hcal.he.samplingFactors = newFactors
+        process.mix.digitizers.hcal.he.photoelectronsToAnalog = cms.vdouble([10.]*len(newFactors))
         # Also need to tell the MixingModule to make the correct collections available from
         # the pileup, even if not creating CrossingFrames.
         process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgceeDigitizer.hitCollection.value()) )
