@@ -1,8 +1,8 @@
-#include "CondCore/DBCommon/interface/Auth.h"
-#include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/CondDB/interface/Auth.h"
+#include "CondCore/CondDB/interface/Exception.h"
 #include "RelationalAccess/AuthenticationCredentials.h"
 #include "RelationalAccess/AuthenticationServiceException.h"
-#include "CondCore/DBCommon/interface/CoralServiceMacros.h"
+#include "CondCore/CondDB/interface/CoralServiceMacros.h"
 #include "RelationalAuthenticationService.h"
 //
 #include "RelationalAccess/AuthenticationServiceException.h"
