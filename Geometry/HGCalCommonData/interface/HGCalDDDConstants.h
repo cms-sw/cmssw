@@ -84,7 +84,7 @@ private:
   bool waferInLayer(int wafer, int lay) const;
 
   const HGCalParameters* hgpar_;
-  constexpr static double tan30deg_ = std::sqrt(3.0)/3.0;
+  constexpr static double tan30deg_ = 0.5773502693;
   double                 rmax_;
   HGCalGeometryMode      mode_;
 };
