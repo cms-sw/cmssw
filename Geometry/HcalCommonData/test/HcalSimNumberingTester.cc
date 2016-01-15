@@ -38,7 +38,6 @@
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 
-#include "CoralBase/Exception.h"
 
 class HcalSimNumberingTester : public edm::one::EDAnalyzer<> {
 public:

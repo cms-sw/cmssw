@@ -1,14 +1,13 @@
-//#include "CondCore/DBCommon/interface/DecodingKey.h"
-#include "CondCore/DBCommon/interface/FileUtils.h"
-#include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/Auth.h"
+#include "CondCore/CondDB/interface/FileUtils.h"
+#include "CondCore/CondDB/interface/Exception.h"
+#include "CondCore/CondDB/interface/Auth.h"
 #include "RelationalAccess/AuthenticationCredentials.h"
 #include "CoralCommon/Cipher.h"
 #include "RelationalAccess/AuthenticationServiceException.h"
 #include "CoralKernel/IPropertyManager.h"
 #include "CoralKernel/Property.h"
 #include "CoralKernel/Context.h"
-#include "CondCore/DBCommon/interface/CoralServiceMacros.h"
+#include "CondCore/CondDB/interface/CoralServiceMacros.h"
 #include "FWCore/Concurrency/interface/Xerces.h"
 #include "xercesc/parsers/XercesDOMParser.hpp"
 #include "xercesc/framework/MemBufInputSource.hpp"
@@ -96,7 +95,7 @@ cond::XMLAuthenticationService::XMLAuthenticationService::XMLAuthenticationServi
 {
   boost::function1<void, std::string> cb(boost::bind(&cond::XMLAuthenticationService::XMLAuthenticationService::setAuthenticationPath, this, _1));
        
-  coral::Property* pm = dynamic_cast<coral::Property*>(coral::Context::instance().PropertyManager().property(Auth::COND_AUTH_PATH_PROPERTY));
+  coral::Property* pm = dynamic_cast<coral::Property*>(coral::Context::instance().PropertyManager().property(auth::COND_AUTH_PATH_PROPERTY));
   if(pm){
     setAuthenticationPath( pm->get() );
     m_callbackID = pm->registerCallback(cb);
