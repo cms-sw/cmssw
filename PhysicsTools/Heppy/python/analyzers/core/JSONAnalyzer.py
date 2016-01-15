@@ -5,6 +5,7 @@ from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from FWCore.PythonUtilities.LumiList import LumiList
 from PhysicsTools.Heppy.utils.rltinfo import RLTInfo
 
+from DataFormats.FWLite import Lumis
 
 class JSONAnalyzer( Analyzer ):
     '''Apply a json filter, and creates an RLTInfo TTree.
@@ -36,6 +37,7 @@ class JSONAnalyzer( Analyzer ):
         else:
             self.lumiList = None
         
+        self.useLumiBlocks = self.cfg_ana.useLumiBlocks if (hasattr(self.cfg_ana,'useLumiBlocks')) else False
 
         self.rltInfo = RLTInfo()
 
@@ -45,6 +47,15 @@ class JSONAnalyzer( Analyzer ):
         self.count = self.counters.counter('JSON')
         self.count.register('All Lumis')
         self.count.register('Passed Lumis')
+
+        if self.useLumiBlocks and not self.cfg_comp.isMC and not self.lumiList is None:
+            lumis = Lumis(self.cfg_comp.files)
+            for lumi in lumis:
+                lumiid = lumi.luminosityBlockAuxiliary().id()
+                run, lumi = lumiid.run(), lumiid.luminosityBlock()
+                if self.lumiList.contains(run,lumi):
+                    self.rltInfo.add('dummy', run, lumi)
+            
 
     def process(self, event):
         self.readCollections( event.input )
@@ -66,7 +77,8 @@ class JSONAnalyzer( Analyzer ):
         self.count.inc('All Lumis')
         if self.lumiList.contains(run,lumi):
             self.count.inc('Passed Lumis')
-            self.rltInfo.add('dummy', run, lumi)
+            if not self.useLumiBlocks:
+                self.rltInfo.add('dummy', run, lumi)
             return True
         else:
             return False

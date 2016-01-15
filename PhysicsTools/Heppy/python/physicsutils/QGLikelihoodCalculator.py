@@ -39,6 +39,23 @@ class QGLikelihoodCalculator:
     except :
       return False
 
+
+
+    self.pdfs = {}
+    
+    for it in range(0,len(self.qgNames)):
+      self.pdfs[self.qgNames[it]] = {}
+      for iv in range(0,len(self.varNames)):
+        self.pdfs[self.qgNames[it]][self.varNames[iv]] = {}
+        for ie in range(0,len(self.etaBins)):
+          self.pdfs[self.qgNames[it]][self.varNames[iv]][ie] = {}
+          for ip in range(0,len(self.ptBins)):
+            self.pdfs[self.qgNames[it]][self.varNames[iv]][ie][ip] = {}
+            for ir in range(0,len(self.rhoBins)):
+              self.pdfs[self.qgNames[it]][self.varNames[iv]][ie][ip][ir] = 0
+
+
+
     print "[QGLikelihoodCalculator]: Initialized binning of pdfs..."
 
     keys = f.GetListOfKeys()
@@ -46,11 +63,21 @@ class QGLikelihoodCalculator:
       if key.IsFolder() == False: continue
       hists = key.ReadObj().GetListOfKeys()
       for hist in hists :
+        pieces = hist.GetName().split("_")
+        varName = pieces[0]
+        qgType  = pieces[1]
+        etaStr  = pieces[2]
+        ptStr   = pieces[3]
+        rhoStr  = pieces[4]
+        etaBin  = int(etaStr.split("eta")[1])
+        ptBin   = int( ptStr.split("pt") [1])
+        rhoBin  = int(rhoStr.split("rho")[1])
         histogram = hist.ReadObj()
         histogram.SetDirectory(0)
-        self.pdfs[hist.GetName()] = histogram
+        self.pdfs[qgType][varName][etaBin][ptBin][rhoBin] = histogram
 
     print "[QGLikelihoodCalculator]: pdfs initialized..."
+
 
     return True
 
@@ -70,7 +97,7 @@ class QGLikelihoodCalculator:
 
 
 
-  def findEntry( self, eta, pt, rho, qgIndex, varIndex ) :
+  def findEntry( self, eta, pt, rho, qgType, varName ) :
 
     etaBin = getBinNumber( self.etaBins, math.fabs(eta))
     if etaBin==-1: return None
@@ -80,9 +107,7 @@ class QGLikelihoodCalculator:
     rhoBin = getBinNumber( self.rhoBins, rho )
     if rhoBin==-1 : return None
 
-    histName = self.varNames[varIndex] + "_" + self.qgNames[qgIndex] + "_eta" + str(etaBin) + "_pt" + str(ptBin) + "_rho" + str(rhoBin)
-
-    return self.pdfs[histName]
+    return self.pdfs[qgType][varName][etaBin][ptBin][rhoBin]
 
 
 
@@ -92,6 +117,7 @@ class QGLikelihoodCalculator:
 
     if self.isValidRange(jet.pt(), rho, jet.eta())==False:  return -1
 
+    # careful!!! this needs to be in the same order of self.varNames
     vars = {0:jet.mult, 1:jet.ptd, 2:jet.axis2}
 
     Q=1.
@@ -108,16 +134,16 @@ class QGLikelihoodCalculator:
     for i in vars :
 
       #print self.varNames[i] + ": " + str(vars[i])
-      # quarks = 0
-      qgEntry = self.findEntry(jet.eta(), jet.pt(), rho, 0, i)
+      # quarks 
+      qgEntry = self.findEntry(jet.eta(), jet.pt(), rho, "quark", self.varNames[i])
 
       if qgEntry == None:  return -1
       Qi = qgEntry.GetBinContent(qgEntry.FindBin(vars[i]))
       mQ = qgEntry.GetMean()
       #print "Qi: " + str(Qi)
 
-      # gluons = 1
-      qgEntry = self.findEntry(jet.eta(), jet.pt(), rho, 1, i)
+      # gluons 
+      qgEntry = self.findEntry(jet.eta(), jet.pt(), rho, "gluon", self.varNames[i])
 
       if qgEntry == None: return -1
       Gi = qgEntry.GetBinContent(qgEntry.FindBin(vars[i]))

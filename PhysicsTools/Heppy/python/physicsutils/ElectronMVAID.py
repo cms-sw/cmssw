@@ -1,4 +1,3 @@
-import PhysicsTools.Heppy.loadlibs
 import ROOT 
 
 class ElectronMVAID:
