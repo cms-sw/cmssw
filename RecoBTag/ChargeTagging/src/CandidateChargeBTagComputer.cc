@@ -4,7 +4,6 @@ CandidateChargeBTagComputer::CandidateChargeBTagComputer(const edm::ParameterSet
   useCondDB_     (parameters.getParameter<bool>("useCondDB") ),
   gbrForestLabel_(parameters.getParameter<std::string>("gbrForestLabel") ),
   weightFile_    (parameters.getParameter<edm::FileInPath>("weightFile") ),
-  useGBRForest_  (parameters.getParameter<bool>("useGBRForest") ),
   useAdaBoost_   (parameters.getParameter<bool>("useAdaBoost") ),
   jetChargeExp_  (parameters.getParameter<double>("jetChargeExp") ),
   svChargeExp_   (parameters.getParameter<double>("svChargeExp") )
@@ -36,7 +35,7 @@ void CandidateChargeBTagComputer::initialize(const JetTagComputerRecord & record
       mvaID->initializeGBRForest(gbrForestHandle.product(), variables, spectators, useAdaBoost_);
     }
   else
-    mvaID->initialize("Color:Silent:Error", "BDT", weightFile_.fullPath(), variables, spectators, useGBRForest_, useAdaBoost_);
+    mvaID->initialize("Color:Silent:Error", "BDT", weightFile_.fullPath(), variables, spectators, true, useAdaBoost_);
 }
 
 float CandidateChargeBTagComputer::discriminator(const TagInfoHelper & tagInfo) const
@@ -235,7 +234,6 @@ CandidateChargeBTagComputer::fillDescriptions(edm::ConfigurationDescriptions & d
   desc.add<bool>("useCondDB",false);
   desc.add<std::string>("gbrForestLabel","");
   desc.add<edm::FileInPath>("weightFile",edm::FileInPath());
-  desc.add<bool>("useGBRForest",true);
   desc.add<bool>("useAdaBoost",true);
   desc.add<double>("jetChargeExp",0.8);
   desc.add<double>("svChargeExp",0.5);
