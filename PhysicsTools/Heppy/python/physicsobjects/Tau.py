@@ -17,6 +17,10 @@ class Tau(Lepton):
         '''Just making the tau behave as a lepton, with dummy parameters.'''
         return -1
 
+    def relIsoR(self, R=0.3, dBetaFactor=0, allCharged=0):
+        '''Just making the tau behave as a lepton, with dummy parameters.'''
+        return -1
+
     def mvaId(self):
         '''For a transparent treatment of electrons, muons and taus. Returns -99'''
         return -99

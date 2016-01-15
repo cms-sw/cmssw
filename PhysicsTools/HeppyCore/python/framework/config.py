@@ -48,7 +48,10 @@ class CFG(object):
     
 class Analyzer( CFG ):
     '''Base analyzer configuration, see constructor'''
-    def __init__(self, class_object, instance_label='1', 
+
+    num_instance = 0
+    
+    def __init__(self, class_object, instance_label=None, 
                  verbose=False, **kwargs):
         '''
         One could for example define the analyzer configuration for a
@@ -74,11 +77,19 @@ class Analyzer( CFG ):
         '''
 
         self.class_object = class_object
+        self.__class__.num_instance += 1 
+        if instance_label is None:
+            instance_label = str(self.__class__.num_instance)
         self.instance_label = instance_label
-        self.name = self.build_name()
         self.verbose = verbose
-        # self.cfg = CFG(**kwargs)
         super(Analyzer, self).__init__(**kwargs)
+
+    def __setattr__(self, name, value):
+        '''You may decide to copy an existing analyzer and change
+        its instance_label. In that case, one must stay consistent.'''
+        self.__dict__[name] = value
+        if name == 'instance_label':
+            self.name = self.build_name()   
 
     def build_name(self):
         class_name = '.'.join([self.class_object.__module__, 
@@ -89,10 +100,16 @@ class Analyzer( CFG ):
     
 class Service( CFG ):
     
-    def __init__(self, class_object, instance_label='1', 
+    num_instance = 0
+
+    def __init__(self, class_object, instance_label=None, 
                  verbose=False, **kwargs):
         self.class_object = class_object
+        self.__class__.num_instance += 1 
+        if instance_label is None:
+            instance_label = str(self.__class__.num_instance)
         self.instance_label = instance_label
+        self.__class__.num_instance += 1 
         self.name = self.build_name()
         self.verbose = verbose
         super(Service, self).__init__(**kwargs)
@@ -140,7 +157,7 @@ class Component( CFG ):
 class DataComponent( Component ):
 
     def __init__(self, name, files, intLumi=None, triggers=[], json=None):
-        super(DataComponent, self).__init__(name, files, triggers)
+        super(DataComponent, self).__init__(name, files, triggers=triggers)
         self.isData = True
         self.intLumi = intLumi
         self.json = json

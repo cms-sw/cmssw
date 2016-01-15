@@ -1,4 +1,5 @@
 from PhysicsTools.Heppy.physicsobjects.Lepton import Lepton
+from PhysicsTools.HeppyCore.utils.deltar import deltaR
 
 class Muon( Lepton ):
     def __init__(self, *args, **kwargs):
@@ -38,7 +39,7 @@ class Muon( Lepton ):
             if name == "POG_ID_Medium":
                 if not self.looseId(): return False
                 goodGlb = self.physObj.isGlobalMuon() and self.physObj.globalTrack().normalizedChi2() < 3 and self.physObj.combinedQuality().chi2LocalPosition < 12 and self.physObj.combinedQuality().trkKink < 20;
-                return self.physObj.innerTrack().validFraction() >= 0.8 and self.physObj.segmentCompatibility() >= (0.303 if goodGlb else 0.451)
+                return self.physObj.innerTrack().validFraction() > 0.8 and self.physObj.segmentCompatibility() >= (0.303 if goodGlb else 0.451)
             if name == "POG_Global_OR_TMArbitrated":
                 return self.physObj.isGlobalMuon() or (self.physObj.isTrackerMuon() and self.physObj.numberOfMatchedStations() > 0)
         return self.physObj.muonID(name)
@@ -47,12 +48,6 @@ class Muon( Lepton ):
         '''For a transparent treatment of electrons and muons. Returns -99'''
         return -99
     
-   
-
-    def absEffAreaIso(self,rho,effectiveAreas):
-        return self.absIsoFromEA(rho,self.eta(),effectiveAreas.muon)
-
-
 
     def dxy(self, vertex=None):
         '''either pass the vertex, or set associatedVertex before calling the function.
@@ -110,5 +105,22 @@ class Muon( Lepton ):
         raise RuntimeError, "Muon chargedHadronIso missing for R=%s" % R
 
 
-
-
+    def absIsoWithFSR(self, R=0.4, puCorr="deltaBeta", dBetaFactor=0.5):
+        '''
+        Calculate Isolation, subtract FSR, apply specific PU corrections" 
+        '''
+        photonIso = self.photonIsoR(R)
+        if hasattr(self,'fsrPhotons'):
+            for gamma in self.fsrPhotons:
+                dr = deltaR(gamma.eta(), gamma.phi(), self.physObj.eta(), self.physObj.phi())
+                if dr > 0.01 and dr < R:
+                    photonIso = max(photonIso-gamma.pt(),0.0)                
+        if puCorr == "deltaBeta":
+            offset = dBetaFactor * self.puChargedHadronIsoR(R)
+        elif puCorr == "rhoArea":
+            offset = self.rho*getattr(self,"EffectiveArea"+(str(R).replace(".","")))
+        elif puCorr in ["none","None",None]:
+            offset = 0
+        else:
+             raise RuntimeError, "Unsupported PU correction scheme %s" % puCorr
+        return self.chargedHadronIsoR(R)+max(0.,photonIso+self.neutralHadronIsoR(R)-offset)            
