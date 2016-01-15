@@ -246,6 +246,15 @@ def customiseFor12718(process):
     return process
 
 def customiseFor12xxx(process):
+    if hasattr(process,'process.hltPixelTracksElectrons'):
+        process.hltPixelTracksElectrons.useMultipleScattering = cms.bool(False)
+    if hasattr(process,'process.hltPixelTracksL3Muon'):
+        process.hltPixelTracksL3Muon.useMultipleScattering = cms.bool(False)
+    if hasattr(process,'process.hltPixelTracksHighPtTkMuIso'):
+        process.hltPixelTracksHighPtTkMuIso.useMultipleScattering = cms.bool(False)
+    if hasattr(process,'process.hltPixelTracksGlbTrkMuon'):
+        process.hltPixelTracksGlbTrkMuon.useMultipleScattering = cms.bool(False)
+
     if hasattr(process, 'hltESPChi2ChargeMeasurementEstimator16'):
         process.hltESPChi2ChargeMeasurementEstimator16.MaxDisplacement  = cms.double(100.)
         process.hltESPChi2ChargeMeasurementEstimator16.MaxSagitta       = cms.double(-1.)
