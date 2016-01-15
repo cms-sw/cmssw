@@ -148,10 +148,6 @@ namespace edm {
     }
 
     // merges the product with the pre-existing product
-    void mergeProduct(std::unique_ptr<WrapperBase> edp, ProductProvenance const & productProvenance) const {
-      mergeProduct_(std::move(edp), productProvenance);
-    }
-
     void mergeProduct(std::unique_ptr<WrapperBase> edp) const {
       mergeProduct_(std::move(edp));
     }
@@ -185,7 +181,6 @@ namespace edm {
     virtual bool productWasDeleted_() const = 0;
     virtual void putProduct_(std::unique_ptr<WrapperBase> edp, ProductProvenance const& productProvenance) const = 0;
     virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const = 0;
-    virtual void mergeProduct_(std::unique_ptr<WrapperBase>  edp, ProductProvenance const& productProvenance) const = 0;
     virtual void mergeProduct_(std::unique_ptr<WrapperBase> edp) const = 0;
     virtual bool putOrMergeProduct_() const = 0;
     virtual void checkType_(WrapperBase const& prod) const = 0;

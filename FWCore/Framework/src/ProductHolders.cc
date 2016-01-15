@@ -11,12 +11,6 @@
 
 namespace edm {
 
-  InputProductHolder::~InputProductHolder() {}
-  ProducedProductHolder::~ProducedProductHolder() {}
-  UnscheduledProductHolder::~UnscheduledProductHolder() {}
-  AliasProductHolder::~AliasProductHolder() {}
-  NoProcessProductHolder::~NoProcessProductHolder() {}
-
   ProductData const*
   InputProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
                                       Principal const& principal,
@@ -98,14 +92,6 @@ namespace edm {
     status_() = Present;
   }
 
-  void
-  ProducedProductHolder::mergeProduct_(
-        std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const& productProvenance) const {
-    assert(status() == Present);
-    mergeTheProduct(std::move(edp));
-  }
-
   bool
   ProducedProductHolder::putOrMergeProduct_() const {
     return productUnavailable();
@@ -137,13 +123,6 @@ namespace edm {
         ProductProvenance const& productProvenance) const {
     assert(!product());
     setProduct(std::move(edp));
-  }
-
-  void
-  InputProductHolder::mergeProduct_(
-        std::unique_ptr<WrapperBase>,
-        ProductProvenance const&) const {
-    assert(nullptr);
   }
 
   void
@@ -372,12 +351,6 @@ namespace edm {
   void NoProcessProductHolder::putProduct_(std::unique_ptr<WrapperBase> ) const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::putProduct_() not implemented and should never be called.\n"
-      << "Contact a Framework developer\n";
-  }
-
-  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> , ProductProvenance const& ) const {
-    throw Exception(errors::LogicError)
-      << "NoProcessProductHolder::mergeProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
