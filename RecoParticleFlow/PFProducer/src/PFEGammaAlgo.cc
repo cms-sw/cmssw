@@ -1445,6 +1445,18 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	 << "Found objects " << std::distance(mergestart,nomerge)
 	 << " to merge by links to the front!" << std::endl;
        for( auto roToMerge = mergestart; roToMerge != nomerge; ++roToMerge) {
+         //bugfix! L.Gray 14 Jan 2016 
+         // -- check that the front is still mergeable!
+         if( thefront.ecalclusters.size() && roToMerge->ecalclusters.size() ) {
+           if( thefront.ecalclusters.front().first->clusterRef()->layer() !=   
+               roToMerge->ecalclusters.front().first->clusterRef()->layer() ) {
+             LOGWARN("PFEGammaAlgo::mergeROsByAnyLink") 
+               << "Tried to merge EB and EE clusters! Skipping!";
+             ROs.push_back(*roToMerge);
+             continue;
+           }
+         }         
+         //end bugfix
 	 thefront.ecalclusters.insert(thefront.ecalclusters.end(),
 				      roToMerge->ecalclusters.begin(),
 				      roToMerge->ecalclusters.end());
