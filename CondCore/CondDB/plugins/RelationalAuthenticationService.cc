@@ -30,7 +30,7 @@ cond::RelationalAuthenticationService::RelationalAuthenticationService::Relation
 {
   boost::function1<void, std::string> cb(boost::bind(&cond::RelationalAuthenticationService::RelationalAuthenticationService::setAuthenticationPath, this, _1));
        
-  coral::Property* pm = dynamic_cast<coral::Property*>(coral::Context::instance().PropertyManager().property(Auth::COND_AUTH_PATH_PROPERTY));
+  coral::Property* pm = dynamic_cast<coral::Property*>(coral::Context::instance().PropertyManager().property(auth::COND_AUTH_PATH_PROPERTY));
   if(pm){
     setAuthenticationPath( pm->get() );
     m_callbackID = pm->registerCallback(cb);
