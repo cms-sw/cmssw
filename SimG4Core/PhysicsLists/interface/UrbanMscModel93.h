@@ -24,6 +24,19 @@
 // -------------------------------------------------------------------
 // In its present form the model can be  used for simulation 
 //   of the e-/e+, muon and charged hadron multiple scattering
+// 
+// This code was copied from Geant4 at the moment when it was removed 
+// from Geant4 completly (together with G4UrbanMscModel91, 95, 96).
+// Since that time Geant4 supports the unique class G4UrbanMscModel.
+// It was shown in Geant4 internal validations that this last class
+// provides more accurate simulation for various thin target tests.
+// This main Geant4 model does is not provide exactly the same results 
+// for CMS calorimeters run1 versus run2. To keep calorimeter response
+// unchanged, CMS private version of the Urban model was created. It is
+// basically the the same model used for run1 but it includes several 
+// technical fixed introduced after run1. There fixes do not change
+// results but allow to avoid numerical problems for very small steps
+// and to improve a bit of the CPU performance.
 //
 
 #ifndef UrbanMscModel93_h
