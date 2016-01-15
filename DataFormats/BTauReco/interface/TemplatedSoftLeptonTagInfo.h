@@ -26,7 +26,7 @@ public:
         ratio(    std::numeric_limits<float>::quiet_NaN() ),
         ratioRel( std::numeric_limits<float>::quiet_NaN() ),
         elec_mva( std::numeric_limits<float>::quiet_NaN() ),
-        charge(   std::numeric_limits<int>::quiet_NaN() )
+        charge(   -10 )
     { }
 
     float sip2dsig;                            // 2D signed impact parameter significance
