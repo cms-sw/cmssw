@@ -17,6 +17,14 @@ from RecoBTag.Combined.pfPositiveCombinedMVABJetTags_cfi import *
 
 #combined MVA V2
 from RecoBTag.Combined.combinedMVAV2Computer_cfi import *
+from RecoBTag.Combined.negativeCombinedMVAV2Computer_cfi import *
+from RecoBTag.Combined.positiveCombinedMVAV2Computer_cfi import *
 from RecoBTag.Combined.combinedMVAV2BJetTags_cfi import *
+from RecoBTag.Combined.negativeCombinedMVAV2BJetTags_cfi import *
+from RecoBTag.Combined.positiveCombinedMVAV2BJetTags_cfi import *
 from RecoBTag.Combined.candidateCombinedMVAV2Computer_cfi import *
+from RecoBTag.Combined.candidateNegativeCombinedMVAV2Computer_cfi import *
+from RecoBTag.Combined.candidatePositiveCombinedMVAV2Computer_cfi import *
 from RecoBTag.Combined.pfCombinedMVAV2BJetTags_cfi import *
+from RecoBTag.Combined.pfNegativeCombinedMVAV2BJetTags_cfi import *
+from RecoBTag.Combined.pfPositiveCombinedMVAV2BJetTags_cfi import *
