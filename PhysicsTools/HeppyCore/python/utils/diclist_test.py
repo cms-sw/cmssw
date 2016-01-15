@@ -15,7 +15,7 @@ class DiclistTestCase(unittest.TestCase):
     def test_bad_int_key(self):
         dl = diclist()
         self.assertRaises(ValueError, dl.add, 1, 'a')
-        self.assertRaises(ValueError, dl.add, 1L, 'a')
+        self.assertRaises(ValueError, dl.add, 1, 'a')
    
     def test_float_key(self):
         dl = diclist()

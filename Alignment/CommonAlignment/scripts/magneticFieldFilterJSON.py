@@ -3,7 +3,7 @@
 import os
 import sys
 
-if not os.environ.has_key("CMSSW_BASE"):
+if "CMSSW_BASE" not in os.environ:
     print "You need to source the CMSSW environment first."
     sys.exit(1)
 
@@ -66,7 +66,7 @@ def main(argv = None):
             msg = "Last run must be greater than zero: max = {0:d} <= 0."
             msg = msg.format(args.max)
             raise RuntimeError(msg)
-    except RuntimeError, e:
+    except RuntimeError as e:
         if args.debug: raise
         print ">>>", os.path.splitext(os.path.basename(__file__))[0]+":", str(e)
         sys.exit(1)
