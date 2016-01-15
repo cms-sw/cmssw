@@ -6,6 +6,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 template <ForwardSubdetector D1, typename hgcee,
           ForwardSubdetector D2, typename hgchef,
@@ -15,7 +17,29 @@ class HGCRecHitNavigator : public PFRecHitNavigatorBase {
   HGCRecHitNavigator() {
   }
 
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+    edm::ParameterSetDescription desc;
+    
+    desc.add<std::string>("name","PFRecHitHGCNavigator");
 
+    edm::ParameterSetDescription descee;
+    descee.add<std::string>("name","PFRecHitHGCEENavigator");
+    descee.add<std::string>("topologySource","HGCalEESensitive");
+    desc.add<edm::ParameterSetDescription>("hgcee", descee);
+    
+    edm::ParameterSetDescription deschef;
+    deschef.add<std::string>("name","PFRecHitHGCHENavigator");
+    deschef.add<std::string>("topologySource","HGCalHESiliconSensitive");
+    desc.add<edm::ParameterSetDescription>("hgchef", deschef);
+    
+    edm::ParameterSetDescription descheb;
+    deschef.add<std::string>("name","PFRecHitHGCHENavigator");
+    deschef.add<std::string>("topologySource","HGCalHEScintillatorSensitive");
+    desc.add<edm::ParameterSetDescription>("hgcheb", descheb);
+    
+    descriptions.add("navigator", desc);
+  }
+  
 
   HGCRecHitNavigator(const edm::ParameterSet& iConfig) {
     if( iConfig.exists("hgcee") ) {
