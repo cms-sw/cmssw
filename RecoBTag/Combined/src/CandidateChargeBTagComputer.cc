@@ -1,4 +1,4 @@
-#include "RecoBTag/ChargeTagging/interface/CandidateChargeBTagComputer.h"
+#include "RecoBTag/Combined/interface/CandidateChargeBTagComputer.h"
 
 CandidateChargeBTagComputer::CandidateChargeBTagComputer(const edm::ParameterSet & parameters):
   useCondDB_     (parameters.getParameter<bool>("useCondDB") ),
