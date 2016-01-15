@@ -21,13 +21,17 @@ float PrimaryVertexSorting::score(const reco::Vertex & pv,const  std::vector<con
   LorentzVector met;
   std::vector<fastjet::PseudoJet> fjInputs_;  
   fjInputs_.clear();
+  size_t countScale0 = 0;
   for (size_t i = 0 ; i < cands.size(); i++) {
     const reco::Candidate * c= cands[i];
     float scale=1.;
     if(c->bestTrack() != 0)
       {
         scale=(c->pt()-c->bestTrack()->ptError())/c->pt();
-        if(scale<0) scale=0;
+        if(scale<0){ 
+	  scale=0; 
+	  countScale0++;
+	}
       }
 
     int absId=abs(c->pdgId());
@@ -37,8 +41,10 @@ float PrimaryVertexSorting::score(const reco::Vertex & pv,const  std::vector<con
       met+=c->p4()*scale;
       sumEt+=c->pt()*scale;
     } else {
-      fjInputs_.push_back(fastjet::PseudoJet(c->px()*scale,c->py()*scale,c->pz()*scale,c->p4().E()*scale));
-//      fjInputs_.back().set_user_index(i);
+      if (scale != 0){ // otherwise, what is the point to cluster zeroes
+	fjInputs_.push_back(fastjet::PseudoJet(c->px()*scale,c->py()*scale,c->pz()*scale,c->p4().E()*scale));
+	//      fjInputs_.back().set_user_index(i);
+      }
     }
   }
   fastjet::ClusterSequence sequence( fjInputs_, JetDefinition(antikt_algorithm, 0.4));
@@ -53,6 +59,7 @@ float PrimaryVertexSorting::score(const reco::Vertex & pv,const  std::vector<con
   if(metAbove > 0 and useMet) {
     sumPt2+=metAbove*metAbove;
   }
+  if (countScale0 == cands.size()) sumPt2 = countScale0*0.01; //leave some epsilon value to sort vertices with unknown pt
   return sumPt2;
 }
 
