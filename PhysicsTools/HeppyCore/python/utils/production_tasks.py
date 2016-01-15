@@ -287,7 +287,7 @@ class GenerateMask(Task):
             options = copy.deepcopy(self.options)
             options.user = self.user
 
-            if input.has_key('BaseDataset'):
+            if 'BaseDataset' in input:
                 options.name = input['BaseDataset']['Name']
             else:
                 options.name = None
@@ -587,7 +587,7 @@ class MonitorJobs(Task):
                 if c and re.match('^Job <\\d*> is submitted to queue <.*>',c) is not None:
                     try:
                         result = c.split('<')[1].split('>')[0]
-                    except Exception, e:
+                    except Exception as e:
                         print >> sys.stderr, 'Job ID parsing error',str(e),c
         return result
     
@@ -633,15 +633,15 @@ class MonitorJobs(Task):
                     if line and re.match('^Job <\\d*> is not found',line) is not None:
                         try:
                             id = line.split('<')[1].split('>')[0]
-                            if not result.has_key(id) and not previous.has_key(id):
+                            if id not in result and id not in previous:
                                 result[id] = 'FORGOTTEN'
-                        except Exception, e:
+                        except Exception as e:
                             print >> sys.stderr, 'Job ID parsing error in STDERR',str(e),line
         
         #after one hour the status is no longer available     
         if result:
             for id in jobs.values():
-                if not result.has_key(id) and previous.has_key(id):
+                if id not in result and id in previous:
                     result[id] = previous[id]
         return result
     
@@ -667,7 +667,7 @@ class MonitorJobs(Task):
                 if id is None:
                     result[j] = 'UNKNOWN'
                 else:
-                    if stat.has_key(id):
+                    if id in stat:
                         result[j] = stat[id]
                         if result[j] in ['DONE','EXIT','FORGOTTEN']:
                             stdout = os.path.join(j,'LSFJOB_%s' % id,'STDOUT')
@@ -694,7 +694,7 @@ class MonitorJobs(Task):
             """Count jobs that are monitorable - i.e. not in a final state"""
             result = []
             for j, id in jobs.iteritems():
-                if id is not None and stat.has_key(id):
+                if id is not None and id in stat:
                     st = stat[id]
                     if st in ['PEND','PSUSP','RUN','USUSP','SSUSP','WAIT']:
                         result.append(id)
@@ -806,7 +806,7 @@ class WriteJobReport(Task):
         #collect a list of jobs by status
         states = {}
         for j, status in report['LSFJobStatusCheck'].iteritems():
-            if not states.has_key(status):
+            if status not in states:
                 states[status] = []
             states[status].append(j)
         jobdir = input['CreateJobDirectory']['PWD']
@@ -851,7 +851,7 @@ class CleanJobFiles(Task):
         actions = {'FilesToCompress':{'Files':[]},'FilesToClean':{'Files':[]}}
         
         actions['FilesToClean']['Files'].append(input['ExpandConfig']['ExpandedFullCFG'])
-        if input.has_key('RunTestEvents'):
+        if 'RunTestEvents' in input:
             actions['FilesToClean']['Files'].append(input['RunTestEvents']['TestCFG'])
 
         for rt in glob.iglob('%s/*.root' % jobdir):
