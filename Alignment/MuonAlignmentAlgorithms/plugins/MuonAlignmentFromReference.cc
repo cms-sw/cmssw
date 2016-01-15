@@ -776,7 +776,7 @@ void MuonAlignmentFromReference::terminate(const edm::EventSetup& iSetup)
         stop_watch.Stop();
     }
 
-    if (m_doAlignment)
+    if (m_doAlignment && !m_doCSC) // for now apply fiducial cuts to DT only
     {
         stop_watch.Start();
         fiducialCuts();
