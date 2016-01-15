@@ -68,8 +68,7 @@ MeasurementTrackerEventProducer::updatePixels( const edm::Event& event, PxMeasur
   // start by clearinng everything
   thePxDets.setEmpty();
 
-  bool switchOffPixelsIfEmpty = (!pset_.existsAs<bool>("switchOffPixelsIfEmpty")) ||
-                                (pset_.getParameter<bool>("switchOffPixelsIfEmpty"));
+  bool switchOffPixelsIfEmpty = pset_.getParameter<bool>("switchOffPixelsIfEmpty");
   std::vector<uint32_t> rawInactiveDetIds; 
   if (!theInactivePixelDetectorLabels.empty()) {
     edm::Handle<DetIdCollection> detIds;
