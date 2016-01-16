@@ -9,7 +9,7 @@
 // Use the HcalCaloFlagTool for full interpretation
 namespace HcalCaloFlagLabels
 {
-  //subdetector-specific bits defined here (bits 0-15, 27, 29-31)
+  //subdetector-specific bits defined here (bits 0-15, 27, 29-30)
   enum HBHEStatusFlag{HBHEHpdHitMultiplicity=0,
                       HBHEPulseShape=1,
 		      HSCP_R1R2=2,
