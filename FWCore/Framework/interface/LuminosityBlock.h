@@ -44,7 +44,7 @@ namespace edm {
 
   class LuminosityBlock : public LuminosityBlockBase {
   public:
-    LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md,
+    LuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
                     ModuleCallingContext const*);
     ~LuminosityBlock();
 
@@ -139,9 +139,6 @@ namespace edm {
   private:
     LuminosityBlockPrincipal const&
     luminosityBlockPrincipal() const;
-
-    LuminosityBlockPrincipal&
-    luminosityBlockPrincipal();
 
     // Override version from LuminosityBlockBase class
     virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;

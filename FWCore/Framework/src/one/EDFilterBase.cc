@@ -49,7 +49,7 @@ namespace edm {
     }
     
     bool
-    EDFilterBase::doEvent(EventPrincipal& ep, EventSetup const& c,
+    EDFilterBase::doEvent(EventPrincipal const& ep, EventSetup const& c,
                           ActivityRegistry* act,
                           ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
@@ -85,7 +85,7 @@ namespace edm {
     }
     
     void
-    EDFilterBase::doBeginRun(RunPrincipal& rp, EventSetup const& c,
+    EDFilterBase::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                              ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc);
       r.setConsumer(this);
@@ -96,7 +96,7 @@ namespace edm {
     }
     
     void
-    EDFilterBase::doEndRun(RunPrincipal& rp, EventSetup const& c,
+    EDFilterBase::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                            ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc);
       r.setConsumer(this);
@@ -107,7 +107,7 @@ namespace edm {
     }
     
     void
-    EDFilterBase::doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    EDFilterBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                          ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
       lb.setConsumer(this);
@@ -118,7 +118,7 @@ namespace edm {
     }
     
     void
-    EDFilterBase::doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    EDFilterBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                        ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
       lb.setConsumer(this);

@@ -52,19 +52,19 @@ namespace edm {
     ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
   private:    
-    bool doEvent(EventPrincipal& ep, EventSetup const& c,
+    bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                  ActivityRegistry* act,
                  ModuleCallingContext const* mcc);
     void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();
     void doEndJob();    
-    void doBeginRun(RunPrincipal& rp, EventSetup const& c,
+    void doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                     ModuleCallingContext const* mcc);
-    void doEndRun(RunPrincipal& rp, EventSetup const& c,
+    void doEndRun(RunPrincipal const& rp, EventSetup const& c,
                   ModuleCallingContext const* mcc);
-    void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                 ModuleCallingContext const* mcc);
-    void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                               ModuleCallingContext const* mcc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);

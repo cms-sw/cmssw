@@ -48,7 +48,7 @@ namespace edm {
     }
     
     bool
-    EDProducerBase::doEvent(EventPrincipal& ep, EventSetup const& c,
+    EDProducerBase::doEvent(EventPrincipal const& ep, EventSetup const& c,
                             ActivityRegistry* act,
                             ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
@@ -79,7 +79,7 @@ namespace edm {
     }
     
     void
-    EDProducerBase::doBeginRun(RunPrincipal& rp, EventSetup const& c,
+    EDProducerBase::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                                ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc);
       r.setConsumer(this);
@@ -91,7 +91,7 @@ namespace edm {
     }
     
     void
-    EDProducerBase::doEndRun(RunPrincipal& rp, EventSetup const& c,
+    EDProducerBase::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                              ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc);
       r.setConsumer(this);
@@ -103,7 +103,7 @@ namespace edm {
     }
     
     void
-    EDProducerBase::doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    EDProducerBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                            ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
       lb.setConsumer(this);
@@ -115,7 +115,7 @@ namespace edm {
     }
     
     void
-    EDProducerBase::doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    EDProducerBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                          ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
       lb.setConsumer(this);
@@ -136,7 +136,7 @@ namespace edm {
     }
     void
     EDProducerBase::doStreamBeginRun(StreamID id,
-                                     RunPrincipal& rp,
+                                     RunPrincipal const& rp,
                                      EventSetup const& c,
                                      ModuleCallingContext const* mcc)
     {
@@ -146,7 +146,7 @@ namespace edm {
     }
     void
     EDProducerBase::doStreamEndRun(StreamID id,
-                                   RunPrincipal& rp,
+                                   RunPrincipal const& rp,
                                    EventSetup const& c,
                                    ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc);
@@ -156,7 +156,7 @@ namespace edm {
     }
     void
     EDProducerBase::doStreamBeginLuminosityBlock(StreamID id,
-                                                 LuminosityBlockPrincipal& lbp,
+                                                 LuminosityBlockPrincipal const& lbp,
                                                  EventSetup const& c,
                                                  ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
@@ -166,7 +166,7 @@ namespace edm {
     
     void
     EDProducerBase::doStreamEndLuminosityBlock(StreamID id,
-                                               LuminosityBlockPrincipal& lbp,
+                                               LuminosityBlockPrincipal const& lbp,
                                                EventSetup const& c,
                                                ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);

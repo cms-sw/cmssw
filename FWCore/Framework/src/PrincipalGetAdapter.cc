@@ -17,7 +17,7 @@
 
 namespace edm {
 
-  PrincipalGetAdapter::PrincipalGetAdapter(Principal & pcpl,
+  PrincipalGetAdapter::PrincipalGetAdapter(Principal const& pcpl,
 	ModuleDescription const& md)  :
     //putProducts_(),
     principal_(pcpl),

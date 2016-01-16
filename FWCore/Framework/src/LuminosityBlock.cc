@@ -8,7 +8,7 @@ namespace edm {
 
   std::string const LuminosityBlock::emptyString_;
 
-  LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md,
+  LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
                                    ModuleCallingContext const* moduleCallingContext) :
         provRecorder_(lbp, md),
         aux_(lbp.aux()),
@@ -28,11 +28,6 @@ namespace edm {
   LuminosityBlock::cacheIdentifier() const {return luminosityBlockPrincipal().cacheIdentifier();}
 
   
-  LuminosityBlockPrincipal&
-  LuminosityBlock::luminosityBlockPrincipal() {
-    return dynamic_cast<LuminosityBlockPrincipal&>(provRecorder_.principal());
-  }
-
   void
   LuminosityBlock::setConsumer(EDConsumerBase const* iConsumer) {
     provRecorder_.setConsumer(iConsumer);
@@ -65,7 +60,7 @@ namespace edm {
 
   void
   LuminosityBlock::commit_() {
-    LuminosityBlockPrincipal& lbp = luminosityBlockPrincipal();
+    LuminosityBlockPrincipal const& lbp = luminosityBlockPrincipal();
     ProductPtrVec::iterator pit(putProducts().begin());
     ProductPtrVec::iterator pie(putProducts().end());
 

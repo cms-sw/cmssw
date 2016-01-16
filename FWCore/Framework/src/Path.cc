@@ -179,7 +179,7 @@ namespace edm {
   }
 
   void
-  Path::handleEarlyFinish(EventPrincipal& iEvent) {
+  Path::handleEarlyFinish(EventPrincipal const& iEvent) {
     for(auto helper: earlyDeleteHelpers_) {
       helper->pathFinished(iEvent);
     }

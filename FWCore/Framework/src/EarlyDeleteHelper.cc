@@ -66,7 +66,7 @@ nPathsOn_(0)
 // member functions
 //
 void 
-EarlyDeleteHelper::moduleRan(EventPrincipal& iEvent) {
+EarlyDeleteHelper::moduleRan(EventPrincipal const& iEvent) {
   pathsLeftToComplete_=0;
   for(auto it = pBeginIndex_; it != pEndIndex_;++it) {
     auto& count = (*pBranchCounts_)[*it];
@@ -79,7 +79,7 @@ EarlyDeleteHelper::moduleRan(EventPrincipal& iEvent) {
 }
 
 void 
-EarlyDeleteHelper::pathFinished(EventPrincipal& iEvent) {
+EarlyDeleteHelper::pathFinished(EventPrincipal const& iEvent) {
   if(pathsLeftToComplete_>0 && --pathsLeftToComplete_ == 0) {
     //we can never reach this module now so declare it as run
     moduleRan(iEvent);
