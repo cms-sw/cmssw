@@ -16,9 +16,9 @@ supportedJetAlgos = {
 def checkJetCorrectionsFormat(jetCorrections):
     ## check for the correct format
     if type(jetCorrections) != type(('PAYLOAD-LABEL',['CORRECTION-LEVEL-A','CORRECTION-LEVEL-B'], 'MET-LABEL')):
-        raise ValueError, "In addJetCollection: 'jetCorrections' must be 'None' (as a python value w/o quotation marks), or of type ('PAYLOAD-LABEL', ['CORRECTION-LEVEL-A', \
+        raise ValueError("In addJetCollection: 'jetCorrections' must be 'None' (as a python value w/o quotation marks), or of type ('PAYLOAD-LABEL', ['CORRECTION-LEVEL-A', \
         'CORRECTION-LEVEL-B', ...], 'MET-LABEL'). Note that 'MET-LABEL' can be set to 'None' (as a string in quotation marks) in case you do not want to apply MET(Type1) \
-        corrections."
+        corrections.")
 
 
 def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSource, patJets, labelName, postfix):
@@ -34,7 +34,7 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
     elif jetCorrections[0].count('JPT')>0:
         _type='JPT'
     else:
-        raise TypeError, "In addJetCollection: Jet energy corrections are only supported for PF, JPT and Calo jets."
+        raise TypeError("In addJetCollection: Jet energy corrections are only supported for PF, JPT and Calo jets.")
     from PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import patJetCorrFactors
     if 'patJetCorrFactors'+labelName+postfix in knownModules :
         _newPatJetCorrFactors=getattr(process, 'patJetCorrFactors'+labelName+postfix)
@@ -62,7 +62,7 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
         if x == 'L1FastJet' :
             if not error :
                 if _type == "JPT" :
-                    raise TypeError, "In addJetCollection: L1FastJet corrections are only supported for PF and Calo jets."
+                    raise TypeError("In addJetCollection: L1FastJet corrections are only supported for PF and Calo jets.")
                 ## configure module
                 _newPatJetCorrFactors.useRho=True
                 if "PF" in _type :
@@ -82,8 +82,8 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
             raise valueError, "In addJetCollection: Wrong choice of MET corrections for new jet collection. Possible choices are None (or empty string), Type-1, Type-2 (i.e.\
             Type-1 and Type-2 corrections applied). This choice is not case sensitive. Your choice was: ", jetCorrections[2]
         if _type == "JPT":
-            raise ValueError, "In addJecCollection: MET(type1) corrections are not supported for JPTJets. Please set the MET-LABEL to \"None\" (as string in quatiation \
-            marks) and use raw tcMET together with JPTJets."
+            raise ValueError("In addJecCollection: MET(type1) corrections are not supported for JPTJets. Please set the MET-LABEL to \"None\" (as string in quatiation \
+            marks) and use raw tcMET together with JPTJets.")
         ## set up jet correctors for MET corrections
         process.load( "JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff") # FIXME: This adds a lot of garbage
 
@@ -99,7 +99,7 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
         setattr(process, jetCorrections[0]+'CombinedCorrector', cms.EDProducer( 'ChainedJetCorrectorProducer', correctors = cms.VInputTag()))
         for x in jetCorrections[1]:
             if x != 'L1FastJet' and x != 'L1Offset' and x != 'L2Relative' and x != 'L3Absolute' and x != 'L2L3Residual':
-                raise ValueError, 'In addJetCollection: Unsupported JEC for MET(Type1). Currently supported jet correction levels are L1FastJet, L1Offset, L2Relative, L3Asolute, L2L3Residual. Requested was: %s'%(x)
+                raise ValueError('In addJetCollection: Unsupported JEC for MET(Type1). Currently supported jet correction levels are L1FastJet, L1Offset, L2Relative, L3Asolute, L2L3Residual. Requested was: %s'%(x))
             else:
                 _corrector = _payloadType
                 if x == 'L1FastJet':

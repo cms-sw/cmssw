@@ -60,7 +60,7 @@ class JetReCalibrator:
 
     def getCorrection(self,jet,rho,delta=0,corrector=None):
         if not corrector: corrector = self.JetCorrector
-        if corrector != self.JetCorrector and delta!=0: raise RuntimeError, 'Configuration not supported'
+        if corrector != self.JetCorrector and delta!=0: raise RuntimeError('Configuration not supported')
         corrector.setJetEta(jet.eta())
         corrector.setJetPt(jet.pt()*jet.rawFactor())
         corrector.setJetA(jet.jetArea())
@@ -141,8 +141,8 @@ class JetReCalibrator:
     def correctAll(self,jets,rho,delta=0, addCorr=False, addShifts=False, metShift=[0.,0.], type1METCorr=[0.,0.,0.]):
         """Applies 'correct' to all the jets, discard the ones that have bad corrections (corrected pt <= 0)"""
         badJets = []
-        if metShift     != [0.,0.   ]: raise RuntimeError, "input metShift tuple is not initialized to zeros"
-        if type1METCorr != [0.,0.,0.]: raise RuntimeError, "input type1METCorr tuple is not initialized to zeros"
+        if metShift     != [0.,0.   ]: raise RuntimeError("input metShift tuple is not initialized to zeros")
+        if type1METCorr != [0.,0.,0.]: raise RuntimeError("input type1METCorr tuple is not initialized to zeros")
         for j in jets:
             ok = self.correct(j,rho,delta,addCorr=addCorr,addShifts=addShifts,metShift=metShift,type1METCorr=type1METCorr)
             if not ok: badJets.append(j)

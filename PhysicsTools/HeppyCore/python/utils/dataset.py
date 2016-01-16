@@ -59,7 +59,7 @@ class BaseDataset( object ):
             self.buildListOfFiles(self.pattern)
         for file in self.files:
             status = 'OK'
-            if self.bad_files.has_key(file):
+            if file in self.bad_files:
                 status = self.bad_files[file]
             elif file not in self.good_files:
                 status = 'UNKNOWN'
@@ -86,7 +86,7 @@ class BaseDataset( object ):
         considered as good.'''
         self.good_files = []
         for file in self.files:            
-            if not self.bad_files.has_key(file):
+            if file not in self.bad_files:
                 self.good_files.append( file )
         return self.good_files
 
@@ -296,7 +296,7 @@ class Dataset( BaseDataset ):
                     # print name, status
                     if not status[0]:
                         self.bad_files[name] = 'MarkedBad'
-                    elif dup.has_key(name):
+                    elif name in dup:
                         self.bad_files[name] = 'ValidDup'
                     else:
                         self.good_files.append( name )

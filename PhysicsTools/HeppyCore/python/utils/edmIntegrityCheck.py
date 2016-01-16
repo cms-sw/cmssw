@@ -92,7 +92,7 @@ class IntegrityCheck(object):
 
         data = None
         output = base.run({})
-        if output.has_key('Das'):
+        if 'Das' in output:
             self.options.name = output['Name']
             data = output['Das']
             
@@ -134,7 +134,7 @@ class IntegrityCheck(object):
                     
                     mmin = min(mmin, jobid)
                     mmax = max(mmax, jobid)
-                    if files.has_key(jobid) and filemask[f][0]:
+                    if jobid in files and filemask[f][0]:
                         files[jobid].append((retry, f))
                     elif filemask[f][0]:
                         files[jobid] = [(retry, f)]
@@ -143,7 +143,7 @@ class IntegrityCheck(object):
         bad_jobs = set()
         sum_dup = 0
         for i in xrange(mmin, mmax+1):
-            if files.has_key(i):
+            if i in files:
                 duplicates = files[i]
                 duplicates.sort()
 
@@ -304,7 +304,7 @@ class IntegrityCheck(object):
         for f in files:
             dirname = os.path.dirname(f)
             filename = os.path.basename(f)
-            if not result.has_key(dirname): result[dirname] = []
+            if dirname not in result: result[dirname] = []
             result[dirname].append(filename)
         return result
 
@@ -330,7 +330,7 @@ class IntegrityCheck(object):
         def tf(lfn):
             try:
                 return self.testFile(lfn)
-            except TimedOutExc, e:
+            except TimedOutExc as e:
                 print >> sys.stderr, "ERROR:\tedmFileUtil timed out for lfn '%s' (%d)" % (lfn,timeout)
                 return (False,-1)
         if timeout > 0:
