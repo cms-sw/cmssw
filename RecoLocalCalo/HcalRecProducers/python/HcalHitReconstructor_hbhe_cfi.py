@@ -62,6 +62,12 @@ hbheprereco = cms.EDProducer(
 
     pulseShapeParameters = cms.PSet(MinimumChargeThreshold = cms.double(20),
                                     TS4TS5ChargeThreshold = cms.double(70),
+                                    TS3TS4ChargeThreshold = cms.double(70),
+                                    TS3TS4UpperChargeThreshold = cms.double(20),
+                                    TS5TS6ChargeThreshold = cms.double(70),
+                                    TS5TS6UpperChargeThreshold = cms.double(20),
+                                    R45PlusOneRange = cms.double(0.2),
+                                    R45MinusOneRange = cms.double(0.2),
                                     TrianglePeakTS = cms.uint32(4),
                                     LinearThreshold = cms.vdouble(20, 100, 100000),
                                     LinearCut = cms.vdouble(-3, -0.054, -0.054),
