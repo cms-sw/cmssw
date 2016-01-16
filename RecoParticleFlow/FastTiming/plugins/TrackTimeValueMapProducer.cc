@@ -187,7 +187,7 @@ void TrackTimeValueMapProducer::produce(edm::Event& evt, const edm::EventSetup& 
         resos.push_back( resolution );
       } else {
         times.push_back( generalTrackTimes[i] );
-        resos.push_back( 0.f );
+        resos.push_back( 0.175f );
       }
     }
 
@@ -199,7 +199,7 @@ void TrackTimeValueMapProducer::produce(edm::Event& evt, const edm::EventSetup& 
         gsf_resos.push_back( resolution ); 
       } else {
         gsf_times.push_back( gsfTrackTimes[i] );
-        gsf_resos.push_back( 0.f );
+        gsf_resos.push_back( 0.175f );
       }
     }
 

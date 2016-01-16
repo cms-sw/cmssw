@@ -638,13 +638,8 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
          ( ((previousPosition - newPosition).mag() > theMaxShift) ||
            (!(theAssProbComputer->isAnnealed()) ) ) ) ;
 
-  if ( theWeightThreshold > 0. &&  ns_trks < 1 && !withPrior ) 
+  if ( theWeightThreshold > 0. &&  ns_trks < 2 && !withPrior ) 
   {
-    for ( vector< RefCountedVertexTrack >::const_iterator 
-        i=globalVTracks.begin(); i!=globalVTracks.end() ; ++i )
-      {
-        //std::cout << "  wgt=" << (**i).weight() << std::endl;
-      }
     edm::LogInfo("AdaptiveVertexFitter") 
       << "fewer than two significant tracks (w>" << theWeightThreshold << ")."
       << " Fitted vertex is invalid.";

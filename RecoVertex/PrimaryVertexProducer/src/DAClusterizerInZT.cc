@@ -338,7 +338,7 @@ double DAClusterizerInZT::beta0( double betamax,
   }// vertex loop (normally there should be only one vertex at beta=0)
   
   if (T0>1./betamax){
-    return betamax/pow(coolingFactor_, int(log(T0*betamax)/log(coolingFactor_))-1 );
+    return betamax/pow(coolingFactor_, int(std::log(T0*betamax)/std::log(coolingFactor_))-1 );
   }else{
     // ensure at least one annealing step
     return betamax/coolingFactor_;
@@ -469,9 +469,9 @@ DAClusterizerInZT::DAClusterizerInZT(const edm::ParameterSet& conf)
 
   // configure
 
-  double Tmin = conf.getParameter<double>("Tmin");
+  double Tmin = conf.getParameter<double>("Tmin")*std::sqrt(2.0);// scale up by sqrt(D=2)
   vertexSize_ = conf.getParameter<double>("vertexSize");
-  coolingFactor_ = conf.getParameter<double>("coolingFactor");
+  coolingFactor_ = std::sqrt(conf.getParameter<double>("coolingFactor")); // scale cooling factor by 1/D
   d0CutOff_  =  conf.getParameter<double>("d0CutOff");
   dzCutOff_  =  conf.getParameter<double>("dzCutOff");
   maxIterations_=100;
@@ -589,6 +589,7 @@ const
   // initialize:single vertex at infinite temperature
   vertex_t vstart;
   vstart.z=0.;
+  vstart.t=0.;
   vstart.pk=1.;
   y.push_back(vstart);
   int niter=0;      // number of iterations
