@@ -218,9 +218,9 @@ void HBHEPulseShapeFlagSetter::SetPulseShapeFlags(HBHERecHit &hbhe,
    {
       double TS4TS5 = (mCharge[4] - mCharge[5]) / (mCharge[4] + mCharge[5]);
       if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5UpperCut, 1) == false)
-      	hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETS4TS5Noise);
+         hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETS4TS5Noise);
       if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5LowerCut, -1) == false)
-        hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETS4TS5Noise);
+         hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETS4TS5Noise);
 
       if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5UpperCut, 1) == false           && // TS4TS5 is above envelope
       	mCharge[3] + mCharge[4] > mTS3TS4ChargeThreshold       &&       mTS3TS4ChargeThreshold>0 && // enough charge in 34
