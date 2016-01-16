@@ -364,11 +364,23 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
   h_misiddz.push_back( ibook.book1D("num_chargemisid_versus_dz","N of associated (recoToSim) charge misIDed tracks vs dz",nintDz,minDz,maxDz) );
   h_pileupdz.push_back( ibook.book1D("num_pileup_dz","N of associated (recoToSim) pileup tracks vs dz",nintDz,minDz,maxDz) );
 
+  h_recovertpos.push_back( ibook.book1D("num_reco_vertpos","N of reconstructed tracks vs transverse ref point position",nintVertpos,minVertpos,maxVertpos) );
+  h_assoc2vertpos.push_back( ibook.book1D("num_assoc(recoToSim)_vertpos","N of associated (recoToSim) tracks vs transverse ref point position",nintVertpos,minVertpos,maxVertpos) );
+  h_loopervertpos.push_back( ibook.book1D("num_duplicate_vertpos","N of associated (recoToSim) looper tracks vs transverse ref point position",nintVertpos,minVertpos,maxVertpos) );
+  h_pileupvertpos.push_back( ibook.book1D("num_pileup_vertpos","N of associated (recoToSim) pileup tracks vs transverse ref point position",nintVertpos,minVertpos,maxVertpos) );
+
+  h_recozpos.push_back( ibook.book1D("num_reco_zpos","N of reconstructed tracks vs transverse ref point position",nintZpos,minZpos,maxZpos) );
+  h_assoc2zpos.push_back( ibook.book1D("num_assoc(recoToSim)_zpos","N of associated (recoToSim) tracks vs transverse ref point position",nintZpos,minZpos,maxZpos) );
+  h_looperzpos.push_back( ibook.book1D("num_duplicate_zpos","N of associated (recoToSim) looper tracks vs transverse ref point position",nintZpos,minZpos,maxZpos) );
+  h_pileupzpos.push_back( ibook.book1D("num_pileup_zpos","N of associated (recoToSim) pileup tracks vs transverse ref point position",nintZpos,minZpos,maxZpos) );
+
   h_recodr.push_back( ibook.book1D("num_reco_dr","N of reconstructed tracks vs dR",nintdr,log10(mindr),log10(maxdr)) );
   h_assoc2dr.push_back( ibook.book1D("num_assoc(recoToSim)_dr","N of associated tracks (recoToSim) vs dR",nintdr,log10(mindr),log10(maxdr)) );
+  h_looperdr.push_back( ibook.book1D("num_duplicate_dr","N of associated (recoToSim) looper tracks vs dR",nintdr,log10(mindr),log10(maxdr)) );
   h_pileupdr.push_back( ibook.book1D("num_pileup_dr","N of associated (recoToSim) pileup tracks vs dR",nintdr,log10(mindr),log10(maxdr)) );
   BinLogX(h_recodr.back()->getTH1F());
   BinLogX(h_assoc2dr.back()->getTH1F());
+  BinLogX(h_looperdr.back()->getTH1F());
   BinLogX(h_pileupdr.back()->getTH1F());
 
   h_recochi2.push_back( ibook.book1D("num_reco_chi2","N of reco track vs normalized #chi^{2}",nintChi2,minChi2,maxChi2) );
@@ -729,6 +741,8 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   const auto nlayers = track.hitPattern().trackerLayersWithMeasurement();
   const auto nPixelLayers = track.hitPattern().pixelLayersWithMeasurement();
   const auto n3DLayers = nPixelLayers + track.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
+  const auto vertxy = std::sqrt(track.referencePoint().perp2());
+  const auto vertz = track.referencePoint().z();
   const auto deltar = min(max(dR,h_recodr[count]->getTH1()->GetXaxis()->GetXmin()),h_recodr[count]->getTH1()->GetXaxis()->GetXmax());
   const auto chi2 = track.normalizedChi2();
 
@@ -743,6 +757,8 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   fillPlotNoFlow(h_reco3Dlayer[count], n3DLayers);
   fillPlotNoFlow(h_recopu[count],numVertices);
   fillPlotNoFlow(h_recochi2[count], chi2);
+  fillPlotNoFlow(h_recovertpos[count], vertxy);
+  fillPlotNoFlow(h_recozpos[count], vertz);
   h_recodr[count]->Fill(deltar);
   if(pvPosition) {
     fillPlotNoFlow(h_recodxypv[count], dxypv);
@@ -766,6 +782,8 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
     fillPlotNoFlow(h_assoc23Dlayer[count], n3DLayers);
     fillPlotNoFlow(h_assoc2pu[count],numVertices);
     fillPlotNoFlow(h_assoc2chi2[count], chi2);
+    fillPlotNoFlow(h_assoc2vertpos[count], vertxy);
+    fillPlotNoFlow(h_assoc2zpos[count], vertz);
     h_assoc2dr[count]->Fill(deltar);
     if(pvPosition) {
       fillPlotNoFlow(h_assoc2dxypv[count], dxypv);
@@ -811,6 +829,9 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       fillPlotNoFlow(h_looper3Dlayer[count], n3DLayers);
       fillPlotNoFlow(h_looperpu[count], numVertices);
       fillPlotNoFlow(h_looperchi2[count], chi2);
+      fillPlotNoFlow(h_loopervertpos[count], vertxy);
+      fillPlotNoFlow(h_looperzpos[count], vertz);
+      h_looperdr[count]->Fill(deltar);
       if(pvPosition) {
         fillPlotNoFlow(h_looperdxypv[count], dxypv);
         fillPlotNoFlow(h_looperdzpv[count], dzpv);
@@ -828,6 +849,8 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       fillPlotNoFlow(h_pileup3Dlayer[count], n3DLayers);
       fillPlotNoFlow(h_pileuppu[count], numVertices);
       fillPlotNoFlow(h_pileupchi2[count], chi2);
+      fillPlotNoFlow(h_pileupvertpos[count], vertxy);
+      fillPlotNoFlow(h_pileupzpos[count], vertz);
       h_pileupdr[count]->Fill(deltar);
       if(pvPosition) {
         fillPlotNoFlow(h_pileupdxypv[count], dxypv);

@@ -173,8 +173,9 @@ class MTVHistoProducerAlgoForTracker {
   std::vector<MonitorElement*> h_recodxypv, h_assocdxypv, h_assoc2dxypv, h_simuldxypv, h_looperdxypv, h_misiddxypv, h_pileupdxypv;
   std::vector<MonitorElement*> h_recodzpv, h_assocdzpv, h_assoc2dzpv, h_simuldzpv, h_looperdzpv, h_misiddzpv, h_pileupdzpv;
 
-  std::vector<MonitorElement*> h_assocvertpos, h_simulvertpos, h_assoczpos, h_simulzpos;
-  std::vector<MonitorElement*> h_assocdr, h_assoc2dr, h_simuldr, h_recodr, h_pileupdr;
+  std::vector<MonitorElement*> h_recovertpos, h_assocvertpos, h_assoc2vertpos, h_simulvertpos, h_loopervertpos, h_pileupvertpos;
+  std::vector<MonitorElement*> h_recozpos, h_assoczpos, h_assoc2zpos, h_simulzpos, h_looperzpos, h_pileupzpos;
+  std::vector<MonitorElement*> h_assocdr, h_assoc2dr, h_simuldr, h_recodr, h_looperdr, h_pileupdr;
   std::vector<MonitorElement*> h_recochi2, h_assoc2chi2, h_looperchi2, h_misidchi2, h_pileupchi2;
   std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDz,h_pullQoverp;
   std::vector<MonitorElement*> h_assoc2_itpu_eta, h_assoc2_itpu_sig_eta, h_assoc2eta_sig;
