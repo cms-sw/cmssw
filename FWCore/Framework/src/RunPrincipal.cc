@@ -24,7 +24,7 @@ namespace edm {
     m_reducedHistoryID = processHistoryRegistry.reducedProcessHistoryID(aux_->processHistoryID());
     fillPrincipal(aux_->processHistoryID(), processHistoryRegistry, reader);
 
-    for(auto const& prod : *this) {
+    for(auto& prod : *this) {
       prod->setProcessHistory(processHistory());
     }
   }
@@ -32,46 +32,8 @@ namespace edm {
   void
   RunPrincipal::put(
         BranchDescription const& bd,
-        std::unique_ptr<WrapperBase>  edp) {
-
-    // Assert commented out for LHESource.
-    // assert(bd.produced());
-    if(edp.get() == nullptr) {
-      throw edm::Exception(edm::errors::InsertFailure,"Null Pointer")
-        << "put: Cannot put because unique_ptr to product is null."
-        << "\n";
-    }
-    ProductHolderBase* phb = getExistingProduct(bd.branchID());
-    assert(phb);
-    // ProductHolder assumes ownership
-    putOrMerge(std::move(edp), phb);
-  }
-
-  void
-  RunPrincipal::readImmediate() {
-    for(auto& prod : *this) {
-      ProductHolderBase& phb = *prod;
-      if(phb.singleProduct() && !phb.branchDescription().produced()) {
-        if(!phb.productUnavailable()) {
-          resolveProductImmediate(phb);
-        }
-      }
-    }
-  }
-
-  void
-  RunPrincipal::resolveProductImmediate(ProductHolderBase& phb) {
-    if(phb.branchDescription().produced()) return; // nothing to do.
-    if(!reader()) return; // nothing to do.
-
-    // must attempt to load from persistent store
-    BranchKey const bk = BranchKey(phb.branchDescription());
-    std::unique_ptr<WrapperBase> edp(reader()->getProduct(bk, this));
-
-    // Now fix up the ProductHolder
-    if(edp.get() != nullptr) {
-      putOrMerge(std::move(edp), &phb);
-    }
+        std::unique_ptr<WrapperBase>  edp) const {
+    putOrMerge(bd,std::move(edp));
   }
 
   unsigned int

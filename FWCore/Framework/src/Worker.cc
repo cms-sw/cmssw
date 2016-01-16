@@ -181,12 +181,12 @@ private:
     }
   }
 
-  void Worker::pathFinished(EventPrincipal& iEvent) {
+  void Worker::pathFinished(EventPrincipal const& iEvent) {
     if(earlyDeleteHelper_) {
       earlyDeleteHelper_->pathFinished(iEvent);
     }
   }
-  void Worker::postDoEvent(EventPrincipal& iEvent) {
+  void Worker::postDoEvent(EventPrincipal const& iEvent) {
     if(earlyDeleteHelper_) {
       earlyDeleteHelper_->moduleRan(iEvent);
     }

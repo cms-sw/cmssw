@@ -42,7 +42,7 @@ namespace edm {
 
   class Run : public RunBase {
   public:
-    Run(RunPrincipal& rp, ModuleDescription const& md,
+    Run(RunPrincipal const& rp, ModuleDescription const& md,
         ModuleCallingContext const*);
     ~Run();
 
@@ -152,9 +152,6 @@ namespace edm {
   private:
     RunPrincipal const&
     runPrincipal() const;
-
-    RunPrincipal&
-    runPrincipal();
 
     // Override version from RunBase class
     virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;

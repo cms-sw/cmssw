@@ -103,7 +103,7 @@ namespace edm {
         MyGlobalLuminosityBlockSummary::streamEndLuminosityBlockSummary(iProd,iLumi,iES,s);
       }
 
-      void doBeginRun(RunPrincipal& rp,
+      void doBeginRun(RunPrincipal const& rp,
                       EventSetup const& c,
                       ModuleCallingContext const* mcc) override final {
         if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache or T::HasAbility::kBeginRunProducer) {
@@ -120,7 +120,7 @@ namespace edm {
           }
         }
       }
-      void doEndRun(RunPrincipal& rp,
+      void doEndRun(RunPrincipal const& rp,
                     EventSetup const& c,
                     ModuleCallingContext const* mcc) override final
       {
@@ -140,7 +140,7 @@ namespace edm {
         }
       }
 
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                   ModuleCallingContext const* mcc) override final
       {
         if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or T::HasAbility::kBeginLuminosityBlockProducer) {
@@ -160,7 +160,7 @@ namespace edm {
         }
         
       }
-      void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp,
+      void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                 EventSetup const& c,
                                 ModuleCallingContext const* mcc) override final {
         if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or T::HasAbility::kEndLuminosityBlockProducer) {

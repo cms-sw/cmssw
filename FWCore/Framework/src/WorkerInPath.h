@@ -27,7 +27,7 @@ namespace edm {
     WorkerInPath(Worker*, FilterAction theAction, unsigned int placeInPath);
 
     template <typename T>
-    bool runWorker(typename T::MyPrincipal&, EventSetup const&,
+    bool runWorker(typename T::MyPrincipal const&, EventSetup const&,
 		   StreamID streamID,
                    typename T::Context const* context);
 
@@ -58,7 +58,7 @@ namespace edm {
   };
 
   template <typename T>
-  bool WorkerInPath::runWorker(typename T::MyPrincipal & ep, EventSetup const & es,
+  bool WorkerInPath::runWorker(typename T::MyPrincipal const& ep, EventSetup const & es,
                                StreamID streamID,
                                typename T::Context const* context) {
 

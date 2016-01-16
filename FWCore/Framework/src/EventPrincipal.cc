@@ -117,7 +117,7 @@ namespace edm {
     }
 
     // Fill in the product ID's in the product holders.
-    for(auto const& prod : *this) {
+    for(auto& prod : *this) {
       if (prod->singleProduct()) {
         // If an alias is in the same process as the original then isAlias will be true.
         //  Under that condition, we want the ProductID to be the same as the original.
@@ -153,7 +153,7 @@ namespace edm {
   EventPrincipal::put(
         BranchDescription const& bd,
         std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const& productProvenance) {
+        ProductProvenance const& productProvenance) const {
 
     // assert commented out for DaqSource.  When DaqSource no longer uses put(), the assert can be restored.
     //assert(produced());
@@ -163,7 +163,7 @@ namespace edm {
         << "\n";
     }
     productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
-    ProductHolderBase* phb = getExistingProduct(bd.branchID());
+    auto phb = getExistingProduct(bd.branchID());
     assert(phb);
     checkUniquenessAndType(edp.get(), phb);
     // ProductHolder assumes ownership
@@ -174,11 +174,11 @@ namespace edm {
   EventPrincipal::putOnRead(
         BranchDescription const& bd,
         std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const& productProvenance) {
+        ProductProvenance const& productProvenance) const {
 
     assert(!bd.produced());
     productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
-    ProductHolderBase* phb = getExistingProduct(bd.branchID());
+    auto phb = getExistingProduct(bd.branchID());
     assert(phb);
     checkUniquenessAndType(edp.get(), phb);
     // ProductHolder assumes ownership
@@ -471,7 +471,7 @@ namespace edm {
         postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
       });
       auto handlerCall = [this,&moduleLabel,&mcc]() {
-        unscheduledHandler_->tryToFill(moduleLabel, *const_cast<EventPrincipal*>(this), mcc);
+        unscheduledHandler_->tryToFill(moduleLabel, *this, mcc);
       };
       if (sra) {
         sra->temporaryUnlock(handlerCall);

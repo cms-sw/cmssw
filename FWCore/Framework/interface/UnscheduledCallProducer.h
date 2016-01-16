@@ -107,7 +107,7 @@ namespace edm {
 
   private:
     virtual bool tryToFillImpl(std::string const& moduleLabel,
-                               EventPrincipal& event,
+                               EventPrincipal const& event,
                                EventSetup const& eventSetup,
                                ModuleCallingContext const* mcc) const override {
       auto worker =

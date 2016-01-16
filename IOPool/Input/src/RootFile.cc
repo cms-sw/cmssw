@@ -1523,7 +1523,7 @@ namespace edm {
     runTree_.insertEntryForIndex(runPrincipal.transitionIndex());
     runPrincipal.fillRunPrincipal(*processHistoryRegistry_, runTree_.rootDelayedReader());
     // Read in all the products now.
-    runPrincipal.readImmediate();
+    runPrincipal.readAllFromSourceAndMergeImmediately();
   }
 
 
@@ -1579,7 +1579,7 @@ namespace edm {
     lumiTree_.insertEntryForIndex(lumiPrincipal.transitionIndex());
     lumiPrincipal.fillLuminosityBlockPrincipal(*processHistoryRegistry_, lumiTree_.rootDelayedReader());
     // Read in all the products now.
-    lumiPrincipal.readImmediate();
+    lumiPrincipal.readAllFromSourceAndMergeImmediately();
     ++indexIntoFileIter_;
   }
 
