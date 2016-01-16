@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 candidateChargeBTagComputer = cms.ESProducer("CandidateChargeBTagESProducer",
     useCondDB = cms.bool(False),
-    weightFile = cms.FileInPath('RecoBTag/Combined/data/ChargeBTag_BDT.weights.xml.gz'),
+    weightFile = cms.FileInPath('RecoBTag/Combined/data/ChargeBTag_16_1_2016.weights.xml.gz'),
     useAdaBoost = cms.bool(True),
     jetChargeExp = cms.double(0.8),
     svChargeExp = cms.double(0.5)
