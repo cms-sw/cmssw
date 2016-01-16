@@ -25,8 +25,7 @@ namespace HcalCaloFlagLabels
 		      HBHETS4TS5Noise=15,
 		      HBHENegativeNoise=27,
 		      HBHEPulseFitBit=29,
-		      HBHETS3TS4OOTPU=30,
-		      HBHETS5TS6OOTPU=31,
+		      HBHEOOTPU=30
 
   };
 
@@ -56,8 +55,7 @@ namespace HcalCaloFlagLabels
 		   // This bit is not yet in use (as of March 2012), but can be used to mark sim hits to which noise has been intentionally added
 		   AddedSimHcalNoise=28
 		   // The following bits are all user-defined; reverse-order them so that UserDefinedBit0 will be the last removed
-		   //UserDefinedBit1 = 30,
-		   //UserDefinedBit0 = 31
+		   UserDefinedBit0 = 31
 }; 
   
 }
