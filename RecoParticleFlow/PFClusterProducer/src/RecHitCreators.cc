@@ -8,6 +8,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHBHERecHitCreatorMaxSample.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHFRecHitCreator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFPSRecHitCreator.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFHGCalRecHitCreator.h"
 
 
 EDM_REGISTER_PLUGINFACTORY(PFRecHitFactory, "PFRecHitFactory");
@@ -22,3 +23,7 @@ DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHBHERecHitCreatorMaxSample, "PFHBHERecHitCr
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHORecHitCreator, "PFHORecHitCreator");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHFRecHitCreator, "PFHFRecHitCreator");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFPSRecHitCreator, "PFPSRecHitCreator");
+DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHGCEERecHitCreator, "PFHGCEERecHitCreator");
+DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHGCHEFRecHitCreator, "PFHGCHEFRecHitCreator");
+DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHGCHEBRecHitCreator, "PFHGCHEBRecHitCreator");
+

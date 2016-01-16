@@ -21,9 +21,12 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
+#include <unordered_map>
 
 class PFRecHitNavigatorBase {
  public:
+  typedef std::unordered_map<unsigned,unsigned> DetIdToHitIdx;
+
   PFRecHitNavigatorBase() {}
   PFRecHitNavigatorBase(const edm::ParameterSet& iConfig) {}
 
