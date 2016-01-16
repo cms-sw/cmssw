@@ -1,15 +1,21 @@
 import sys
 import math
 import array
+import difflib
 
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
+import html
+
+verbose=False
+
 def _getObject(tdirectory, name):
     obj = tdirectory.Get(name)
     if not obj:
-        print "Did not find {obj} from {dir}".format(obj=name, dir=tdirectory.GetPath())
+        if verbose:
+            print "Did not find {obj} from {dir}".format(obj=name, dir=tdirectory.GetPath())
         return None
     return obj
 
@@ -18,18 +24,79 @@ def _getOrCreateObject(tdirectory, nameOrCreator):
         return nameOrCreator.create(tdirectory)
     return _getObject(tdirectory, nameOrCreator)
 
-def _getXmin(obj):
+class GetDirectoryCode:
+    class FileNotExist: pass
+    class PossibleDirsNotExist: pass
+    class SubDirNotExist: pass
+
+    @staticmethod
+    def codesToNone(code):
+        if code in [GetDirectoryCode.FileNotExist, GetDirectoryCode.PossibleDirsNotExist, GetDirectoryCode.SubDirNotExist]:
+            return None
+        return code
+
+def _getDirectoryDetailed(tfile, possibleDirs, subDir=None):
+    """Get TDirectory from TFile."""
+    if tfile is None:
+        return GetDirectoryCode.FileNotExist
+    for pdf in possibleDirs:
+        d = tfile.Get(pdf)
+        if d:
+            if subDir is not None:
+                # Pick associator if given
+                d = d.Get(subDir)
+                if d:
+                    return d
+                else:
+                    if verbose:
+                        print "Did not find subdirectory '%s' from directory '%s' in file %s" % (subDir, pdf, tfile.GetName())
+#                        if "Step" in subDir:
+#                            raise Exception("Foo")
+                    return GetDirectoryCode.SubDirNotExist
+            else:
+                return d
+    if verbose:
+        print "Did not find any of directories '%s' from file %s" % (",".join(possibleDirs), tfile.GetName())
+    return GetDirectoryCode.PossibleDirsNotExist
+
+def _getDirectory(*args, **kwargs):
+    return GetDirectoryCode.codesToNone(_getDirectoryDetailed(*args, **kwargs))
+
+def _createCanvas(name, width, height):
+    # silence warning of deleting canvas with the same name
+    if not verbose:
+        backup = ROOT.gErrorIgnoreLevel
+        ROOT.gErrorIgnoreLevel = ROOT.kError
+    canvas = ROOT.TCanvas(name, name, width, height)
+    if not verbose:
+        ROOT.gErrorIgnoreLevel = backup
+    return canvas
+
+
+def _getXmin(obj, limitToNonZeroContent=False):
     if isinstance(obj, ROOT.TH1):
         xaxis = obj.GetXaxis()
-        return xaxis.GetBinLowEdge(xaxis.GetFirst())
+        if limitToNonZeroContent:
+            for i in xrange(1, obj.GetNbinsX()+1):
+                if obj.GetBinContent(i) != 0:
+                    return xaxis.GetBinLowEdge(i)
+            return xaxis.GetBinLowEdge(xaxis.GetLast())
+        else:
+            return xaxis.GetBinLowEdge(xaxis.GetFirst())
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
         return min([obj.GetX()[i] for i in xrange(0, obj.GetN())])*0.9
     raise Exception("Unsupported type %s" % str(obj))
 
-def _getXmax(obj):
+def _getXmax(obj, limitToNonZeroContent=False):
     if isinstance(obj, ROOT.TH1):
         xaxis = obj.GetXaxis()
-        return xaxis.GetBinUpEdge(xaxis.GetLast())
+        if limitToNonZeroContent:
+            for i in xrange(obj.GetNbinsX(), 0, -1):
+                if obj.GetBinContent(i) != 0:
+                    return xaxis.GetBinUpEdge(i)
+            return xaxis.GetBinUpEdge(xaxis.GetFirst())
+        else:
+            return xaxis.GetBinUpEdge(xaxis.GetLast())
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
         return max([obj.GetX()[i] for i in xrange(0, obj.GetN())])*1.02
     raise Exception("Unsupported type %s" % str(obj))
@@ -91,14 +158,15 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
         # assuming log
         return 0.9*y
 
-    if xmin is None or xmax is None or ymin is None or ymax is None or isinstance(ymin, list) or isinstance(ymax, list):
+    if xmin is None or xmax is None or ymin is None or ymax is None or \
+       isinstance(xmin, list) or isinstance(max, list) or isinstance(ymin, list) or isinstance(ymax, list):
         xmins = []
         xmaxs = []
         ymins = []
         ymaxs = []
         for th1 in th1s:
-            xmins.append(_getXmin(th1))
-            xmaxs.append(_getXmax(th1))
+            xmins.append(_getXmin(th1, limitToNonZeroContent=isinstance(xmin, list)))
+            xmaxs.append(_getXmax(th1, limitToNonZeroContent=isinstance(xmax, list)))
             if ylog and isinstance(ymin, list):
                 ymins.append(_getYminIgnoreOutlier(th1))
             else:
@@ -108,8 +176,30 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
 
         if xmin is None:
             xmin = min(xmins)
+        elif isinstance(xmin, list):
+            xm = min(xmins)
+            xmins_below = filter(lambda x: x<=xm, xmin)
+            if len(xmins_below) == 0:
+                xmin = min(xmin)
+                if xm < xmin:
+                    if verbose:
+                        print "Histogram minimum x %f is below all given xmin values %s, using the smallest one" % (xm, str(xmin))
+            else:
+                xmin = max(xmins_below)
+
         if xmax is None:
             xmax = max(xmaxs)
+        elif isinstance(xmax, list):
+            xm = max(xmaxs)
+            xmaxs_above = filter(lambda x: x>xm, xmax)
+            if len(xmaxs_above) == 0:
+                xmax = max(xmax)
+                if xm > xmax:
+                    if verbose:
+                        print "Histogram maximum x %f is above all given xmax values %s, using the maximum one" % (xm, str(xmax))
+            else:
+                xmax = min(xmaxs_above)
+
         if ymin is None:
             ymin = min(ymins)
         elif isinstance(ymin, list):
@@ -119,7 +209,8 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
             if len(ymins_below) == 0:
                 ymin = min(ymin)
                 if ym_unscaled < ymin:
-                    print "Histogram minimum y %f is below all given ymin values %s, using the smallest one" % (ym, str(ymin))
+                    if verbose:
+                        print "Histogram minimum y %f is below all given ymin values %s, using the smallest one" % (ym, str(ymin))
             else:
                 ymin = max(ymins_below)
 
@@ -132,10 +223,10 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
             if len(ymaxs_above) == 0:
                 ymax = max(ymax)
                 if ym_unscaled > ymax:
-                    print "Histogram maximum y %f is above all given ymax values %s, using the maximum one" % (ym_unscaled, str(ymax))
+                    if verbose:
+                        print "Histogram maximum y %f is above all given ymax values %s, using the maximum one" % (ym_unscaled, str(ymax))
             else:
                 ymax = min(ymaxs_above)
-
 
     for th1 in th1s:
         th1.GetXaxis().SetRangeUser(xmin, xmax)
@@ -240,7 +331,7 @@ class FakeDuplicate:
 
 class AggregateBins:
     """Class to create a histogram by aggregating bins of another histogram to a bin of the resulting histogram."""
-    def __init__(self, name, histoName, mapping, normalizeTo=None, scale=None, renameBin=None):
+    def __init__(self, name, histoName, mapping, normalizeTo=None, scale=None, renameBin=None, ignoreMissingBins=False, minExistingBins=None):
         """Constructor.
 
         Arguments:
@@ -269,6 +360,8 @@ class AggregateBins:
         self._normalizeTo = normalizeTo
         self._scale = scale
         self._renameBin = renameBin
+        self._ignoreMissingBins = ignoreMissingBins
+        self._minExistingBins = minExistingBins
 
     def __str__(self):
         """String representation, returns the name"""
@@ -280,7 +373,8 @@ class AggregateBins:
         if th1 is None:
             return None
 
-        result = ROOT.TH1F(self._name, self._name, len(self._mapping), 0, len(self._mapping))
+        binLabels = [""]*len(self._mapping)
+        binValues = [None]*len(self._mapping)
 
         # TH1 can't really be used as a map/dict, so convert it here:
         values = {}
@@ -293,24 +387,45 @@ class AggregateBins:
         if isinstance(self._mapping, list):
             for i, label in enumerate(self._mapping):
                 try:
-                    result.SetBinContent(i+1, values[label][0])
-                    result.SetBinError(i+1, values[label][1])
+                    binValues[i] = values[label]
                 except KeyError:
                     pass
-                result.GetXaxis().SetBinLabel(i+1, label)
+                binLabels[i] = label
         else:
             for i, (key, labels) in enumerate(self._mapping.iteritems()):
-                sumTime = 0
-                sumErrorSq = 0
+                sumTime = 0.
+                sumErrorSq = 0.
+                nsum = 0
                 for l in labels:
                     try:
                         sumTime += values[l][0]
                         sumErrorSq += values[l][1]**2
+                        nsum += 1
                     except KeyError:
                         pass
-                result.SetBinContent(i+1, sumTime)
-                result.SetBinError(i+1, math.sqrt(sumErrorSq))
-                result.GetXaxis().SetBinLabel(i+1, key)
+
+                if nsum > 0:
+                    binValues[i] = (sumTime, math.sqrt(sumErrorSq))
+                binLabels[i] = key
+
+        if self._minExistingBins is not None and (len(binValues)-binValues.count(None)) < self._minExistingBins:
+            return None
+
+        if self._ignoreMissingBins:
+            for i, val in enumerate(binValues):
+                if val is None:
+                    binLabels[i] = None
+            binValues = filter(lambda v: v is not None, binValues)
+            binLabels = filter(lambda v: v is not None, binLabels)
+            if len(binValues) == 0:
+                return None
+
+        result = ROOT.TH1F(self._name, self._name, len(binValues), 0, len(binValues))
+        for i, (value, label) in enumerate(zip(binValues, binLabels)):
+            if value is not None:
+                result.SetBinContent(i+1, value[0])
+                result.SetBinError(i+1, value[1])
+            result.GetXaxis().SetBinLabel(i+1, label)
 
         if self._normalizeTo is not None:
             bin = th1.GetXaxis().FindBin(self._normalizeTo)
@@ -419,6 +534,10 @@ class ROC:
             yerrdown.append(yhisto.GetBinError(i))
 
             z.append(xhisto.GetXaxis().GetBinUpEdge(i))
+
+        # If either axis has only zeroes, no graph makes no point
+        if x.count(0.0) == len(x) or y.count(0.0) == len(y):
+            return None
 
         arr = lambda v: array.array("d", v)
         gr = None
@@ -788,6 +907,7 @@ class Plot:
         name -- String for name of the plot, or Efficiency object
 
         Keyword arguments:
+        fallback     -- Dictionary for specifying fallback (default None)
         title        -- String for a title of the plot (default None)
         xtitle       -- String for x axis title (default None)
         xtitlesize   -- Float for x axis title size (default None)
@@ -837,6 +957,8 @@ class Plot:
         def _set(attr, default):
             setattr(self, "_"+attr, kwargs.get(attr, default))
 
+        _set("fallback", None)
+
         _set("title", None)
         _set("xtitle", None)
         _set("xtitlesize", None)
@@ -875,7 +997,7 @@ class Plot:
         _set("xbinlabelsize", None)
         _set("xbinlabeloption", None)
 
-        _set("drawStyle", None)
+        _set("drawStyle", "EP")
         _set("drawCommand", None)
         _set("lineWidth", 2)
 
@@ -893,6 +1015,12 @@ class Plot:
         _set("histogramModifier", None)
 
         self._histograms = []
+
+    def setProperties(self, **kwargs):
+        for name, value in kwargs.iteritems():
+            if not hasattr(self, "_"+name):
+                raise Exception("No attribute '%s'" % name)
+            setattr(self, "_"+name, value)
 
     def getNumberOfHistograms(self):
         """Return number of existing histograms."""
@@ -918,22 +1046,27 @@ class Plot:
         """Return true if the ratio uncertainty should be drawn"""
         return self._ratioUncertainty
 
-    def _createOne(self, index, tdir):
+    def _createOne(self, name, index, tdir):
         """Create one histogram from a TDirectory."""
         if tdir == None:
             return None
 
         # If name is a list, pick the name by the index
-        if isinstance(self._name, list):
-            name = self._name[index]
-        else:
-            name = self._name
+        if isinstance(name, list):
+            name = name[index]
 
         return _getOrCreateObject(tdir, name)
 
     def create(self, tdirs, requireAllHistograms=False):
         """Create histograms from list of TDirectories"""
-        self._histograms = [self._createOne(i, tdir) for i, tdir in enumerate(tdirs)]
+        self._histograms = [self._createOne(self._name, i, tdir) for i, tdir in enumerate(tdirs)]
+
+        if self._fallback is not None:
+            profileX = [self._profileX]*len(self._histograms)
+            for i in xrange(0, len(self._histograms)):
+                if self._histograms[i] is None:
+                    self._histograms[i] = self._createOne(self._fallback["name"], i, tdirs[i])
+                    profileX[i] = self._fallback.get("profileX", self._profileX)
 
         if self._histogramModifier is not None:
             self._histograms = self._histogramModifier(self._histograms)
@@ -944,11 +1077,11 @@ class Plot:
         # Modify histograms here in case self._name returns numbers
         # and self._histogramModifier creates the histograms from
         # these numbers
-        def _modifyHisto(th1):
+        def _modifyHisto(th1, profileX):
             if th1 is None:
                 return None
 
-            if self._profileX:
+            if profileX:
                 th1 = th1.ProfileX()
 
             if self._fitSlicesY:
@@ -967,14 +1100,17 @@ class Plot:
 
             return th1
 
-        self._histograms = map(_modifyHisto, self._histograms)
+        if self._fallback is not None:
+            self._histograms = map(_modifyHisto, self._histograms, profileX)
+        else:
+            self._histograms = map(lambda h: _modifyHisto(h, self._profileX), self._histograms)
         if requireAllHistograms and None in self._histograms:
             self._histograms = [None]*len(self._histograms)
 
-    def _setStats(self, startingX, startingY):
+    def _setStats(self, histos, startingX, startingY):
         """Set stats box."""
         if not self._stat:
-            for h in self._histograms:
+            for h in histos:
                 if h is not None and hasattr(h, "SetStats"):
                     h.SetStats(0)
             return
@@ -984,7 +1120,7 @@ class Plot:
                 return
             h.SetStats(True)
 
-            if self._fit:
+            if self._fit and h.GetEntries() > 0.5:
                 h.Fit("gaus", "Q")
                 f = h.GetListOfFunctions().FindObject("gaus")
                 if f == None:
@@ -1005,7 +1141,7 @@ class Plot:
             st.SetTextColor(col)
 
         dy = 0.0
-        for i, h in enumerate(self._histograms):
+        for i, h in enumerate(histos):
             if self._statyadjust is not None and i < len(self._statyadjust):
                 dy += self._statyadjust[i]
 
@@ -1057,12 +1193,11 @@ class Plot:
 
         # Use marker or hist style
         style = _styleMarker
-        if self._drawStyle is not None:
-            if "hist" in self._drawStyle.lower():
+        if "hist" in self._drawStyle.lower():
+            style = _styleHist
+        if len(self._histograms) > 0 and isinstance(self._histograms[0], ROOT.TGraph):
+            if "l" in self._drawStyle.lower():
                 style = _styleHist
-            if len(self._histograms) > 0 and isinstance(self._histograms[0], ROOT.TGraph):
-                if "l" in self._drawStyle.lower():
-                    style = _styleHist
 
         # Apply style to histograms, filter out Nones
         histos = []
@@ -1072,8 +1207,39 @@ class Plot:
             style(h, _plotStylesMarker[i], _plotStylesColor[i])
             histos.append(h)
         if len(histos) == 0:
-            print "No histograms for plot {name}".format(name=self.getName())
+            if verbose:
+                print "No histograms for plot {name}".format(name=self.getName())
             return
+
+        # Extract x bin labels, make sure that only bins with same
+        # label are compared with each other
+        xbinlabels = self._xbinlabels
+        if xbinlabels is None:
+            if len(histos[0].GetXaxis().GetBinLabel(1)) > 0:
+                xbinlabels = [histos[0].GetXaxis().GetBinLabel(i) for i in xrange(1, histos[0].GetNbinsX()+1)]
+                # Merge bin labels with difflib
+                for h in histos[1:]:
+                    labels = [h.GetXaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsX()+1)]
+                    diff = difflib.ndiff(xbinlabels, labels)
+                    xbinlabels = []
+                    for item in diff:
+                        xbinlabels.append(item[2:])
+
+                histos_new = []
+                for h in histos:
+                    h_new = h.Clone(h.GetName()+"_xbinlabels")
+                    h_new.SetBins(len(xbinlabels), h.GetBinLowEdge(1), h.GetBinLowEdge(1)+len(xbinlabels))
+                    for i, label in enumerate(xbinlabels):
+                        bin = h.GetXaxis().FindFixBin(label)
+                        if bin >= 0:
+                            h_new.SetBinContent(i+1, h.GetBinContent(bin))
+                            h_new.SetBinError(i+1, h.GetBinError(bin))
+                        else:
+                            h_new.SetBinContent(i+1, 0)
+                            h_new.SetBinError(i+1, 0)
+                    histos_new.append(h_new)
+                self._tmp_histos = histos_new # need to keep these in memory too ...
+                histos = histos_new
 
         bounds = _findBounds(histos, self._ylog,
                              xmin=self._xmin, xmax=self._xmax,
@@ -1086,14 +1252,7 @@ class Plot:
         # mess in the plot (that frame creation cleans up)
         if ratio:
             pad.cd(1)
-        self._setStats(self._statx, self._staty)
-
-        xbinlabels = self._xbinlabels
-        if xbinlabels is None:
-            if len(histos[0].GetXaxis().GetBinLabel(1)) > 0:
-                xbinlabels = []
-                for i in xrange(1, histos[0].GetNbinsX()+1):
-                    xbinlabels.append(histos[0].GetXaxis().GetBinLabel(i))
+        self._setStats(histos, self._statx, self._staty)
 
         # Create frame
         if isTGraph2D:
@@ -1201,6 +1360,41 @@ class Plot:
                 return 0
             return numerator/denominator
 
+        def equal(a, b):
+            if a == 0. and b == 0.:
+                return True
+            return abs(a-b)/max(abs(a),abs(b)) < 1e-3
+
+        def findBins(wrap, bins_xvalues):
+            ret = []
+            currBin = wrap.begin()
+            i = 0
+            while i < len(bins_xvalues) and currBin < wrap.end():
+                (xcenter, xlow, xhigh) = bins_xvalues[i]
+                xlowEdge = xcenter-xlow
+                xupEdge = xcenter+xhigh
+
+                (curr_center, curr_low, curr_high) = wrap.xvalues(currBin)
+                curr_lowEdge = curr_center-curr_low
+                curr_upEdge = curr_center+curr_high
+
+                if equal(xlowEdge, curr_lowEdge) and equal(xupEdge,  curr_upEdge):
+                    ret.append(currBin)
+                    currBin += 1
+                    i += 1
+                elif curr_upEdge <= xlowEdge:
+                    currBin += 1
+                elif curr_lowEdge >= xupEdge:
+                    ret.append(None)
+                    i += 1
+                else:
+                    ret.append(None)
+                    currBin += 1
+                    i += 1
+            if len(ret) != len(bins_xvalues):
+                ret.extend([None]*( len(bins_xvalues) - len(ret) ))
+            return ret
+
         # Define wrappers for TH1/TGraph/TGraph2D to have uniform interface
         # TODO: having more global wrappers would make some things simpler also elsewhere in the code
         class WrapTH1:
@@ -1243,7 +1437,7 @@ class Plot:
                 return (yval, yerr, yerr)
             def y(self, bin):
                 return self._th1.GetBinContent(bin)
-            def divide(self, bin, scale, xcenter):
+            def divide(self, bin, scale):
                 self._ratio.SetBinContent(bin, _divideOrZero(self._th1.GetBinContent(bin), scale))
                 self._ratio.SetBinError(bin, _divideOrZero(self._th1.GetBinError(bin), scale))
             def makeRatio(self):
@@ -1259,7 +1453,6 @@ class Plot:
                 self._yvalues = []
                 self._yerrshigh = []
                 self._yerrslow = []
-                self._binOffset = 0
             def draw(self, style=None):
                 if self._ratio is None:
                     return
@@ -1280,7 +1473,7 @@ class Plot:
                 return (self._gr.GetY()[bin], self._gr.GetErrorYlow(bin), self._gr.GetErrorYhigh(bin))
             def y(self, bin):
                 return self._gr.GetY()[bin]
-            def divide(self, bin, scale, xcenter):
+            def divide(self, bin, scale):
                 # Ignore bin if denominator is zero
                 if scale == 0:
                     return
@@ -1288,22 +1481,13 @@ class Plot:
                 if bin >= self._gr.GetN():
                     return
                 # denominator is missing an item
-                trueBin = bin + self._binOffset
-                xvals = self.xvalues(trueBin)
+                xvals = self.xvalues(bin)
                 xval = xvals[0]
-                epsilon = 1e-3 * xval # to allow floating-point difference between TGraph and TH1
-                if xval+epsilon < xcenter:
-                    self._binOffset += 1
-                    return
-                # numerator is missing an item
-                elif xval-epsilon > xcenter:
-                    self._binOffset -= 1
-                    return
 
                 self._xvalues.append(xval)
                 self._xerrslow.append(xvals[1])
                 self._xerrshigh.append(xvals[2])
-                yvals = self.yvalues(trueBin)
+                yvals = self.yvalues(bin)
                 self._yvalues.append(yvals[0] / scale)
                 if self._uncertainty:
                     self._yerrslow.append(yvals[1] / scale)
@@ -1338,11 +1522,17 @@ class Plot:
         wrappers = [wrap(h) for h in histos]
         ref = wrappers[0]
 
-        for bin in xrange(ref.begin(), ref.end()):
+        wrappers_bins = []
+        ref_bins = [ref.xvalues(b) for b in xrange(ref.begin(), ref.end())]
+        for w in wrappers:
+            wrappers_bins.append(findBins(w, ref_bins))
+
+        for i, bin in enumerate(xrange(ref.begin(), ref.end())):
             (scale, ylow, yhigh) = ref.yvalues(bin)
-            (xval, xlow, xhigh) = ref.xvalues(bin)
-            for w in wrappers:
-                w.divide(bin, scale, xval)
+            for w, bins in zip(wrappers, wrappers_bins):
+                if bins[i] is None:
+                    continue
+                w.divide(bins[i], scale)
 
         for w in wrappers:
             w.makeRatio()
@@ -1364,6 +1554,7 @@ class PlotGroup:
         legendDy -- Float for moving TLegend in y direction (default None)
         legendDw -- Float for changing TLegend width (default None)
         legendDh -- Float for changing TLegend height (default None)
+        legend   -- Bool for disabling legend (default True for legend being enabled)
         overrideLegendLabels -- List of strings for legend labels, if given, these are used instead of the ones coming from Plotter (default None)
         onlyForPileup  -- Plots this group only for pileup samples
         """
@@ -1379,12 +1570,35 @@ class PlotGroup:
         _set("legendDy", None)
         _set("legendDw", None)
         _set("legendDh", None)
+        _set("legend", True)
 
         _set("overrideLegendLabels", None)
 
         _set("onlyForPileup", False)
 
         self._ratioFactor = 1.25
+
+    def getName(self):
+        return self._name
+
+    def getPlots(self):
+        return self._plots
+
+    def remove(self, name):
+        for i, plot in enumerate(self._plots):
+            if plot.getName() == name:
+                del self._plots[i]
+                return
+        raise Exception("Did not find Plot '%s' from PlotGroup '%s'" % (name, self._name))
+
+    def append(self, plot):
+        self._plots.append(plot)
+
+    def getPlot(self, name):
+        for plot in self._plots:
+            if plot.getName() == name:
+                return plot
+        raise Exception("No Plot named '%s'" % name)
 
     def onlyForPileup(self):
         """Return True if the PlotGroup is intended only for pileup samples"""
@@ -1427,13 +1641,13 @@ class PlotGroup:
             return self._drawSeparate(legendLabels, prefix, saveFormat, ratio)
 
         cwidth = 500*self._ncols
-        nrows = int((len(self._plots)+1)/self._ncols) # this should work also for odd n
+        nrows = int((len(self._plots)+self._ncols-1)/self._ncols) # this should work also for odd n
         cheight = 500 * nrows
 
         if ratio:
             cheight = int(cheight*self._ratioFactor)
 
-        canvas = ROOT.TCanvas(self._name, self._name, cwidth, cheight)
+        canvas = _createCanvas(self._name, cwidth, cheight)
 
         canvas.Divide(self._ncols, nrows)
         if ratio:
@@ -1483,7 +1697,7 @@ class PlotGroup:
         if ratio:
             height = int(height*self._ratioFactor)
 
-        canvas = ROOT.TCanvas(self._name+"Single", self._name, width, height)
+        canvas = _createCanvas(self._name+"Single", width, height)
         # from TDRStyle
         canvas.SetTopMargin(0.05)
         canvas.SetBottomMargin(0.13)
@@ -1565,6 +1779,9 @@ class PlotGroup:
         pad2.SetBottomMargin(bottomMargin/(self._ratioFactor*divisionPoint))
 
     def _createLegend(self, plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.016, denomUncertainty=True):
+        if not self._legend:
+            return None
+
         l = ROOT.TLegend(lx1, ly1, lx2, ly2)
         l.SetTextSize(textSize)
         l.SetLineColor(1)
@@ -1584,7 +1801,14 @@ class PlotGroup:
             name = prefix+name
         if postfix is not None:
             name = name+postfix
+
+        if not verbose: # silence saved file printout
+            backup = ROOT.gErrorIgnoreLevel
+            ROOT.gErrorIgnoreLevel = ROOT.kWarning
         canvas.SaveAs(name+saveFormat)
+        if not verbose:
+            ROOT.gErrorIgnoreLevel = backup
+
         if single:
             canvas.Clear()
             canvas.SetLogx(False)
@@ -1609,7 +1833,7 @@ class PlotFolder:
         page           -- Optional string for the page in HTML generatin
         section        -- Optional string for the section within a page in HTML generation
         """
-        self._plotGroups = plotGroups
+        self._plotGroups = list(plotGroups)
         self._loopSubFolders = kwargs.pop("loopSubFolders", True)
         self._onlyForPileup = kwargs.pop("onlyForPileup", False)
         self._purpose = kwargs.pop("purpose", None)
@@ -1641,31 +1865,28 @@ class PlotFolder:
     def set(self, plotGroups):
         self._plotGroups = plotGroups
 
-    def create(self, files, labels, possibleDqmFolders, dqmSubFolder=None, isPileupSample=True, requireAllHistograms=False):
+    def getPlotGroups(self):
+        return self._plotGroups
+
+    def getPlotGroup(self, name):
+        for pg in self._plotGroups:
+            if pg.getName() == name:
+                return pg
+        raise Exception("No PlotGroup named '%s'" % name)
+
+    def create(self, dirs, labels, isPileupSample=True, requireAllHistograms=False):
         """Create histograms from a list of TFiles.
 
         Arguments:
-        files  -- List of TFiles
+        dirs   -- List of TDirectories
         labels -- List of strings for legend labels corresponding the files
-        possibleDqmFolders -- List of strings for possible directories of histograms in TFiles
-        dqmSubFolder -- Optional string for subdirectory inside the dqmFolder; if list of strings, then each corresponds to a TFile
         isPileupSample -- Is sample pileup (some PlotGroups may limit themselves to pileup)
         requireAllHistograms -- If True, a plot is produced if histograms from all files are present (default: False)
         """
 
-        if len(files) != len(labels):
+        if len(dirs) != len(labels):
             raise Exception("len(files) should be len(labels), now they are %d and %d" % (len(files), len(labels)))
 
-        dirs = []
-        self._labels = []
-        if isinstance(dqmSubFolder, list):
-            if len(dqmSubFolder) != len(files):
-                raise Exception("When dqmSubFolder is a list, len(dqmSubFolder) should be len(files), now they are %d and %d" % (len(dqmSubFolder), len(files)))
-        else:
-            dqmSubFolder = [dqmSubFolder]*len(files)
-
-        for fil, sf in zip(files, dqmSubFolder):
-            dirs.append(self._getDir(fil, possibleDqmFolders, sf))
         self._labels = labels
 
         for pg in self._plotGroups:
@@ -1689,26 +1910,6 @@ class PlotFolder:
         return ret
 
 
-    def _getDir(self, tfile, possibleDqmFolders, dqmSubFolder):
-        """Get TDirectory from TFile."""
-        if tfile is None:
-            return None
-        for pdf in possibleDqmFolders:
-            d = tfile.Get(pdf)
-            if d:
-                if dqmSubFolder is not None:
-                    # Pick associator if given
-                    d = d.Get(dqmSubFolder)
-                    if d:
-                        return d
-                    else:
-                        print "Did not find subdirectory '%s' from directory '%s' in file %s" % (dqmSubFolder, pdf, tfile.GetName())
-                        return None
-                else:
-                    return d
-        print "Did not find any of directories '%s' from file %s" % (",".join(possibleDqmFolders), tfile.GetName())
-        return None
-
     # These are to be overridden by derived classes for customisation
     def translateSubFolder(self, dqmSubFolderName):
         """Method called to (possibly) translate a subfolder name to more 'readable' form
@@ -1720,14 +1921,14 @@ class PlotFolder:
         """
         return dqmSubFolderName
 
-    def getSelectionName(self, plotFolderName, translatedDqmSubFolder):
-        """Get selection name (used in output directory name and legend) from the name of PlotterFolder, and a return value of translateSubFolder"""
+    def iterSelectionName(self, plotFolderName, translatedDqmSubFolder):
+        """Iterate over possible selections name (used in output directory name and legend) from the name of PlotterFolder, and a return value of translateSubFolder"""
         ret = ""
         if plotFolderName != "":
             ret += "_"+plotFolderName
         if translatedDqmSubFolder is not None:
             ret += "_"+translatedDqmSubFolder
-        return ret
+        yield ret
 
     def limitSubFolder(self, limitOnlyTo, translatedDqmSubFolder):
         """Return True if this subfolder should be processed
@@ -1755,7 +1956,7 @@ class PlotterFolder:
     PlotterItem, to be more specific), and not used directly by the
     user.
     """
-    def __init__(self, name, possibleDqmFolders, dqmSubFolders, plotFolder, fallbackNames):
+    def __init__(self, name, possibleDqmFolders, dqmSubFolders, plotFolder, fallbackNames, fallbackDqmSubFolders, tableCreators):
         """
         Constructor
 
@@ -1765,6 +1966,8 @@ class PlotterFolder:
         dqmSubFolders      -- List of lists of strings for list of subfolders per input file, or None if no subfolders
         plotFolder         -- PlotFolder object
         fallbackNames      -- List of names for backward compatibility (can be empty). These are used only by validation.Validation (class responsible of the release validation workflow) in case the reference file pointed by 'name' does not exist.
+        fallbackDqmSubFolders -- List of dicts of (string->string) for mapping the subfolder names found in the first file to another names. Use case is comparing files that have different iteration naming convention.
+        tableCreators      -- List of PlotterTableItem objects for tables to be created from this folder
         """
         self._name = name
         self._possibleDqmFolders = possibleDqmFolders
@@ -1777,8 +1980,8 @@ class PlotterFolder:
             self._dqmSubFolders = filter(lambda sf: sf.translated is not None, self._dqmSubFolders)
 
         self._fallbackNames = fallbackNames
-
-        # TODO: matchmaking of dqmsubfolders in case of differences between files
+        self._fallbackDqmSubFolders = fallbackDqmSubFolders
+        self._tableCreators = tableCreators
 
     def getName(self):
         return self._name
@@ -1813,10 +2016,14 @@ class PlotterFolder:
 
         return filter(lambda s: self._plotFolder.limitSubFolder(limitOnlyTo, s.translated), self._dqmSubFolders)
 
+    def getTableCreators(self):
+        return self._tableCreators
+
     def getSelectionNameIterator(self, dqmSubFolder):
         """Get a generator for the 'selection name', looping over the name and fallbackNames"""
         for name in [self._name]+self._fallbackNames:
-            yield self._plotFolder.getSelectionName(name, dqmSubFolder.translated if dqmSubFolder is not None else None)
+            for selname in self._plotFolder.iterSelectionName(name, dqmSubFolder.translated if dqmSubFolder is not None else None):
+                yield selname
 
     def getSelectionName(self, dqmSubFolder):
         return next(self.getSelectionNameIterator(dqmSubFolder))
@@ -1831,12 +2038,27 @@ class PlotterFolder:
         requireAllHistograms -- If True, a plot is produced if histograms from all files are present (default: False)
         """
 
-        # TODO: for cases of differently named subfolders, need to think something here
-        self._plotFolder.create(files, labels, self._possibleDqmFolders, dqmSubFolder.subfolder if dqmSubFolder is not None else None, isPileupSample, requireAllHistograms)
+        subfolder = dqmSubFolder.subfolder if dqmSubFolder is not None else None
+        dirs = []
+
+        for tfile in files:
+            ret = _getDirectoryDetailed(tfile, self._possibleDqmFolders, subfolder)
+            # If file and any of possibleDqmFolders exist but subfolder does not, try the fallbacks
+            if ret is GetDirectoryCode.SubDirNotExist:
+                for fallbackFunc in self._fallbackDqmSubFolders:
+                    fallback = fallbackFunc(subfolder)
+                    if fallback is not None:
+                        ret = _getDirectoryDetailed(tfile, self._possibleDqmFolders, fallback)
+                        if ret is not GetDirectoryCode.SubDirNotExist:
+                            break
+            dirs.append(GetDirectoryCode.codesToNone(ret))
+
+        self._plotFolder.create(dirs, labels, isPileupSample, requireAllHistograms)
 
     def draw(self, *args, **kwargs):
         """Draw and save all plots using settings of a given algorithm."""
         return self._plotFolder.draw(*args, **kwargs)
+
 
 class PlotterInstance:
     """Instance of plotter that knows the directory content, holds many folders."""
@@ -1854,7 +2076,7 @@ class PlotterInstance:
 
 # Helper for Plotter
 class PlotterItem:
-    def __init__(self, name, possibleDirs, plotFolder, fallbackNames=[]):
+    def __init__(self, name, possibleDirs, plotFolder, fallbackNames=[], fallbackDqmSubFolders=[]):
         """ Constructor
 
         Arguments:
@@ -1864,11 +2086,23 @@ class PlotterItem:
 
         Keyword arguments
         fallbackNames -- Optional list of names for backward compatibility. These are used only by validation.Validation (class responsible of the release validation workflow) in case the reference file pointed by 'name' does not exist.
+        fallbackDqmSubFolders -- Optional list of functions for (string->string) mapping the subfolder names found in the first file to another names (function should return None for no mapping). Use case is comparing files that have different iteration naming convention.
         """
         self._name = name
         self._possibleDirs = possibleDirs
         self._plotFolder = plotFolder
         self._fallbackNames = fallbackNames
+        self._fallbackDqmSubFolders = fallbackDqmSubFolders
+        self._tableCreators = []
+
+    def getName(self):
+        return self._name
+
+    def getPlotFolder(self):
+        return self._plotFolder
+
+    def appendTableCreator(self, tc):
+        self._tableCreators.append(tc)
 
     def readDirs(self, files):
         """Read available subfolders from the files
@@ -1911,7 +2145,47 @@ class PlotterItem:
         if not possibleDirFound:
             return None
 
-        return PlotterFolder(self._name, self._possibleDirs, subFolders, self._plotFolder, self._fallbackNames)
+        return PlotterFolder(self._name, self._possibleDirs, subFolders, self._plotFolder, self._fallbackNames, self._fallbackDqmSubFolders, self._tableCreators)
+
+class PlotterTableItem:
+    def __init__(self, possibleDirs, tableCreator):
+        self._possibleDirs = possibleDirs
+        self._tableCreator = tableCreator
+
+    def create(self, openFiles, legendLabels, dqmSubFolder):
+        if isinstance(dqmSubFolder, list):
+            if len(dqmSubFolder) != len(openFiles):
+                raise Exception("When dqmSubFolder is a list, len(dqmSubFolder) should be len(openFiles), now they are %d and %d" % (len(dqmSubFolder), len(openFiles)))
+        else:
+            dqmSubFolder = [dqmSubFolder]*len(openFiles)
+        dqmSubFolder = [sf.subfolder if sf is not None else None for sf in dqmSubFolder]
+
+        tbl = []
+        for f, sf in zip(openFiles, dqmSubFolder):
+            data = None
+            tdir = _getDirectory(f, self._possibleDirs, sf)
+            if tdir is not None:
+                data = self._tableCreator.create(tdir)
+            tbl.append(data)
+
+        # Check if we have any content
+        allNones = True
+        colLen = 0
+        for col in tbl:
+            if col is not None:
+                allNones = False
+                colLen = len(col)
+                break
+        if allNones:
+            return None
+
+        # Replace all None columns with lists of column length
+        for i in xrange(len(tbl)):
+            if tbl[i] is None:
+                tbl[i] = [None]*colLen
+
+        return html.Table(columnHeaders=legendLabels, rowHeaders=self._tableCreator.headers(), table=tbl,
+                          purpose=self._tableCreator.getPurpose(), page=self._tableCreator.getPage(), section=self._tableCreator.getSection(dqmSubFolder[0]))
 
 class Plotter:
     """Contains PlotFolders, i.e. the information what plots to do, and creates a helper object to actually produce the plots."""
@@ -1951,6 +2225,25 @@ class Plotter:
         All arguments are forwarded to the constructor of PlotterItem.
         """
         self._plots.append(PlotterItem(*args, **kwargs))
+
+    def appendTable(self, attachToFolder, *args, **kwargs):
+        for plotterItem in self._plots:
+            if plotterItem.getName() == attachToFolder:
+                plotterItem.appendTableCreator(PlotterTableItem(*args, **kwargs))
+                return
+        raise Exception("Did not find plot folder '%s' when trying to attach a table creator to it" % attachToFolder)
+
+    def getPlotFolderNames(self):
+        return [item.getName() for item in self._plots]
+
+    def getPlotFolders(self):
+        return [item.getPlotFolder() for item in self._plots]
+
+    def getPlotFolder(self, name):
+        for item in self._plots:
+            if item.getName() == name:
+                return item.getPlotFolder()
+        raise Exception("No PlotFolder named '%s'" % name)
 
     def readDirs(self, *files):
         """Returns PlotterInstance object, which knows how exactly to produce the plots for these files"""
