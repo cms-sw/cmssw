@@ -56,8 +56,7 @@ hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
                                             'HBHETriangleNoise',
                                             'HBHETS4TS5Noise',
                                             'HBHENegativeNoise',
-                                            'HBHETS3TS4OOTPU',
-                                            'HBHETS5TS6OOTPU'
+                                            'HBHEOOTPU'
                                            ),
                   ChannelStatus = cms.vstring('')
                 ),
