@@ -40,7 +40,7 @@ if __name__ == '__main__':
             print 'cmsStage %s [%d/5]' % (' '.join(argv) , i+1)
             main(argv)
 
-        except SystemExit, e:
+        except SystemExit as e:
             print "cmsStage exited with code '%s'. Retrying... [%d/5]" % ( str(e), i+1 )
             return_code = e.code
         

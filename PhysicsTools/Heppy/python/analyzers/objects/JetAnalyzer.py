@@ -79,7 +79,7 @@ class JetAnalyzer( Analyzer ):
           doResidual = getattr(cfg_ana, 'applyL2L3Residual', 'Data')
           if   doResidual == "MC":   doResidual = self.cfg_comp.isMC
           elif doResidual == "Data": doResidual = not self.cfg_comp.isMC
-          elif doResidual not in [True,False]: raise RuntimeError, "If specified, applyL2L3Residual must be any of { True, False, 'MC', 'Data'(default)}"
+          elif doResidual not in [True,False]: raise RuntimeError("If specified, applyL2L3Residual must be any of { True, False, 'MC', 'Data'(default)}")
           GT = mcGT if self.cfg_comp.isMC else dataGT
           # Now take care of the optional arguments
           kwargs = { 'calculateSeparateCorrections':calculateSeparateCorrections,
@@ -317,7 +317,7 @@ class JetAnalyzer( Analyzer ):
             if self.cfg_ana.do_mc_match:
                 self.jetFlavour(event)
 
-        if hasattr(event,"jets"+self.cfg_ana.collectionPostFix): raise RuntimeError, "Event already contains a jet collection with the following postfix: "+self.cfg_ana.collectionPostFix
+        if hasattr(event,"jets"+self.cfg_ana.collectionPostFix): raise RuntimeError("Event already contains a jet collection with the following postfix: "+self.cfg_ana.collectionPostFix)
         setattr(event,"rho"                    +self.cfg_ana.collectionPostFix, self.rho                    ) 
         setattr(event,"deltaMetFromJEC"        +self.cfg_ana.collectionPostFix, self.deltaMetFromJEC        ) 
         setattr(event,"type1METCorr"           +self.cfg_ana.collectionPostFix, self.type1METCorr           ) 

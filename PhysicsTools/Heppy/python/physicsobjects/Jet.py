@@ -120,7 +120,7 @@ class Jet(PhysicsObject):
         if hasattr(self, 'CorrFactor_L1'):
             return self.CorrFactor_L1
         if self._recalibrated:
-            raise RuntimeError, "The jet was recalibrated, but without calculateSeparateCorrections. L1 is not available"
+            raise RuntimeError("The jet was recalibrated, but without calculateSeparateCorrections. L1 is not available")
         jecLevels = self.physObj.availableJECLevels()
         for level in jecLevels:
             if "L1" in level:

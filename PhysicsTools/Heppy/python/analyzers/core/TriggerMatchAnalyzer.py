@@ -18,7 +18,7 @@ class TriggerMatchAnalyzer( Analyzer ):
         self.collMatchSelectors = []
         self.collMatchSelectors.extend(getattr(self.cfg_ana,"collMatchSelectors",[]))
         self.collMatchDRCut = getattr(self.cfg_ana,"collMatchDRCut",0.3)
-        if self.collToMatch and not hasattr(self.cfg_ana,"univoqueMatching"): raise RuntimeError, "Please specify if the matching to trigger objects should be 1-to-1 or 1-to-many"
+        if self.collToMatch and not hasattr(self.cfg_ana,"univoqueMatching"): raise RuntimeError("Please specify if the matching to trigger objects should be 1-to-1 or 1-to-many")
         self.match1To1 = getattr(self.cfg_ana,"univoqueMatching",True)
 
     def declareHandles(self):
