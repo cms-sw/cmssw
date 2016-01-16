@@ -52,7 +52,7 @@ postValidation_fastsim = cms.Sequence(
 )
 
 postValidation_trackingOnly = cms.Sequence(
-      postProcessorTrackSequence
+      postProcessorTrackSequenceTrackingOnly
     + postProcessorVertex
 )
  
