@@ -221,8 +221,6 @@ void HBHEPulseShapeFlagSetter::SetPulseShapeFlags(HBHERecHit &hbhe,
          hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETS4TS5Noise);
       if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5LowerCut, -1) == false)
          hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETS4TS5Noise);
-
-      bool isOOTPU_=false;
       
       if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5UpperCut, 1) == false            && // TS4TS5 is above envelope
          mCharge[3] + mCharge[4] > mTS3TS4ChargeThreshold       &&       mTS3TS4ChargeThreshold>0 && // enough charge in 34
@@ -232,7 +230,7 @@ void HBHEPulseShapeFlagSetter::SetPulseShapeFlags(HBHERecHit &hbhe,
            double TS3TS4 = (mCharge[3] - mCharge[4]) / (mCharge[3] + mCharge[4]);
            if(CheckPassFilter(mCharge[3] + mCharge[4], TS3TS4, mTS4TS5UpperCut,  1) == true && // use the same envelope as TS4TS5
 	      CheckPassFilter(mCharge[3] + mCharge[4], TS3TS4, mTS4TS5LowerCut, -1) == true  ) // use the same envelope as TS4TS5
-	       isOOTPU_ = true; // set to true if there is a pulse-shape-wise good OOTPU in TS3TS4.
+	       hbhe.setFlagField(1, HcalCaloFlagLabels::HBHEOOTPU); // set to 1 if there is a pulse-shape-wise good OOTPU in TS3TS4.
    	}
 
       if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5LowerCut, -1) == false            && // TS4TS5 is below envelope
@@ -243,10 +241,9 @@ void HBHEPulseShapeFlagSetter::SetPulseShapeFlags(HBHERecHit &hbhe,
            double TS5TS6 = (mCharge[5] - mCharge[6]) / (mCharge[5] + mCharge[6]);
            if(CheckPassFilter(mCharge[5] + mCharge[6], TS5TS6, mTS4TS5UpperCut,  1) == true && // use the same envelope as TS4TS5
 	      CheckPassFilter(mCharge[5] + mCharge[6], TS5TS6, mTS4TS5LowerCut, -1) == true  ) // use the same envelope as TS4TS5
-	       isOOTPU_ = true; // set to true if there is a pulse-shape-wise good OOTPU in TS5TS6.
+	       hbhe.setFlagField(1, HcalCaloFlagLabels::HBHEOOTPU); // set to 1 if there is a pulse-shape-wise good OOTPU in TS5TS6.
         }
         
-      if( isOOTPU_ ) hbhe.setFlagField(1, HcalCaloFlagLabels::HBHEOOTPU); 
    }
 
 }
