@@ -44,11 +44,10 @@ bool HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef,
   else if (mybit == "HBHEFlatNoise")     setBit(HcalCaloFlagLabels::HBHEFlatNoise, mydef.HBHEFlagMask);
   else if (mybit == "HBHESpikeNoise")    setBit(HcalCaloFlagLabels::HBHESpikeNoise, mydef.HBHEFlagMask);
   else if (mybit == "HBHETriangleNoise") setBit(HcalCaloFlagLabels::HBHETriangleNoise, mydef.HBHEFlagMask);
-  else if (mybit == "HBHETS4TS5Noise") setBit(HcalCaloFlagLabels::HBHETS4TS5Noise, mydef.HBHEFlagMask);
+  else if (mybit == "HBHETS4TS5Noise")   setBit(HcalCaloFlagLabels::HBHETS4TS5Noise, mydef.HBHEFlagMask);
   else if (mybit == "HBHENegativeNoise") setBit(HcalCaloFlagLabels::HBHENegativeNoise, mydef.HBHEFlagMask);
-  else if (mybit == "HBHEPulseFitBit") setBit(HcalCaloFlagLabels::HBHEPulseFitBit, mydef.HBHEFlagMask);
-  else if (mybit == "HBHETS3TS4OOTPU") setBit(HcalCaloFlagLabels::HBHETS3TS4OOTPU, mydef.HBHEFlagMask);
-  else if (mybit == "HBHETS5TS6OOTPU") setBit(HcalCaloFlagLabels::HBHETS5TS6OOTPU, mydef.HBHEFlagMask);
+  else if (mybit == "HBHEPulseFitBit")   setBit(HcalCaloFlagLabels::HBHEPulseFitBit, mydef.HBHEFlagMask);
+  else if (mybit == "HBHEOOTPU")         setBit(HcalCaloFlagLabels::HBHEOOTPU, mydef.HBHEFlagMask);
 
 
   // These are multi-bit counters; we may have to revisit how to set them in the SLComputer in the future
@@ -80,8 +79,7 @@ bool HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef,
   else if (mybit == "ADCSaturationBit")     setAllRHMasks(HcalCaloFlagLabels::ADCSaturationBit,    mydef);
   else if (mybit== "AddedSimHcalNoise")     setAllRHMasks(HcalCaloFlagLabels::AddedSimHcalNoise,   mydef);
 
-  //else if (mybit == "UserDefinedBit0")      setAllRHMasks(HcalCaloFlagLabels::UserDefinedBit0,     mydef);
-  //else if (mybit == "UserDefinedBit1")      setAllRHMasks(HcalCaloFlagLabels::UserDefinedBit1,     mydef);
+  else if (mybit == "UserDefinedBit0")      setAllRHMasks(HcalCaloFlagLabels::UserDefinedBit0,     mydef);
     
 
   // additional defined diagnostic bits; not currently used for rejection
