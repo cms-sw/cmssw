@@ -62,7 +62,7 @@ hbheprereco = cms.EDProducer(
 
     pulseShapeParameters = cms.PSet(MinimumChargeThreshold = cms.double(20),
                                     TS4TS5ChargeThreshold = cms.double(70),
-                                    TS3TS4ChargeThreshold = cms.double(70),
+                                    TS3TS4ChargeThreshold = cms.double(100),
                                     TS3TS4UpperChargeThreshold = cms.double(20),
                                     TS5TS6ChargeThreshold = cms.double(70),
                                     TS5TS6UpperChargeThreshold = cms.double(20),
