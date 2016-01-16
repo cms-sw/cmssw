@@ -124,8 +124,7 @@ HcalRecHitReflagger::HcalRecHitReflagger(const edm::ParameterSet& ps)
 
    hfInputLabel_        = ps.getUntrackedParameter<InputTag>("hfInputLabel",edm::InputTag("hfreco"));
    tok_hf_ = consumes<HFRecHitCollection>(hfInputLabel_);
-   //hfFlagBit_           = ps.getUntrackedParameter<int>("hfFlagBit",HcalCaloFlagLabels::UserDefinedBit0); 
-   hfFlagBit_           = ps.getUntrackedParameter<int>("hfFlagBit",HcalCaloFlagLabels::HFLongShort); 
+   hfFlagBit_           = ps.getUntrackedParameter<int>("hfFlagBit",HcalCaloFlagLabels::UserDefinedBit0); 
    debug_               = ps.getUntrackedParameter<int>("debug",0);
    
    // sanity check bits -- turn bit on or off always
