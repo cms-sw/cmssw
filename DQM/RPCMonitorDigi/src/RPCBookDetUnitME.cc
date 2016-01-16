@@ -98,11 +98,11 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker & ibooker, const std::st
 	os<<"Occupancy_Wheel_"<<wheel<<"_Sector_"<<sector;
     
 	if (sector==9 || sector==11)
-	  meMap[os.str()] = ibooker.book2D(os.str(), os.str(),  90, 0.5,  90.5, 15, 0.5, 15.5);
+	  meMap[os.str()] = ibooker.book2D(os.str(), os.str(),  91, 0.5,  91.5, 15, 0.5, 15.5);
 	else  if (sector==4) 
-	  meMap[os.str()] = ibooker.book2D(os.str(), os.str(),  90, 0.5,  90.5, 21, 0.5, 21.5);
+	  meMap[os.str()] = ibooker.book2D(os.str(), os.str(),  91, 0.5,  91.5, 21, 0.5, 21.5);
 	else
-	  meMap[os.str()] = ibooker.book2D(os.str(), os.str(),  90, 0.5,  90.5, 17, 0.5, 17.5);
+	  meMap[os.str()] = ibooker.book2D(os.str(), os.str(),  91, 0.5,  91.5, 17, 0.5, 17.5);
 	
 	meMap[os.str()]->setAxisTitle("strip", 1);
 	rpcdqm::utils rpcUtils;
