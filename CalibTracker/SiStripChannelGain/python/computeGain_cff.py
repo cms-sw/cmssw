@@ -35,9 +35,9 @@ SiStripCalib = cms.EDAnalyzer(
     doStoreOnDB         = cms.bool(True),
 
     treePath            = cms.untracked.string('gainCalibrationTree/tree'),
-    gain                = cms.untracked.PSet(label = cms.string('shallowGainCalibration'), prefix = cms.string("GainCalibration"), suffix = cms.string('')),
-    evtinfo             = cms.untracked.PSet(label = cms.string('shallowEventRun'), prefix = cms.string(""), suffix = cms.string('')),
-    tracks              = cms.untracked.PSet(label = cms.string('shallowTracks'), prefix = cms.string("track"), suffix = cms.string('')),
+    gain                = cms.untracked.PSet(label = cms.untracked.string('shallowGainCalibration'), prefix = cms.untracked.string("GainCalibration"), suffix = cms.untracked.string('')),
+    evtinfo             = cms.untracked.PSet(label = cms.untracked.string('shallowEventRun'), prefix = cms.untracked.string(""), suffix = cms.untracked.string('')),
+    tracks              = cms.untracked.PSet(label = cms.untracked.string('shallowTracks'), prefix = cms.untracked.string("track"), suffix = cms.untracked.string('')),
 )
 
 SiStripCalibValidation = SiStripCalib.clone()
