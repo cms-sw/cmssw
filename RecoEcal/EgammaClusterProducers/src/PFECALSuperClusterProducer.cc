@@ -324,11 +324,13 @@ void PFECALSuperClusterProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<std::string>("PFSuperClusterCollectionBarrel","particleFlowSuperClusterECALBarrel");
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("regressionKeyEE","pfscecal_EECorrection_offline_v1");
+    psd0.add<bool>("isHLT", false);
     psd0.add<edm::InputTag>("ecalRecHitsEE",edm::InputTag("ecalRecHit","EcalRecHitsEE"));
     psd0.add<edm::InputTag>("ecalRecHitsEB",edm::InputTag("ecalRecHit","EcalRecHitsEB"));
-    psd0.add<std::string>("regressionKeyEB","pfscecal_EBCorrection_offline_v1");
-    psd0.add<edm::InputTag>("vertexCollection",edm::InputTag("offlinePrimaryVertices"));
+    psd0.add<std::string>("regressionKey","pfscecal_EBCorrection_offline_v1");
+    psd0.add<std::string>("uncertaintyKey","pfscecal_EBUncertainty_offline_v1");
+    psd0.add<edm::InputTag>("vertexCollection",edm::InputTag("offlinePrimaryVertices")); 
+    psd0.add<edm::InputTag>("rhoCollection",edm::InputTag("fixedGridRhoForAll"));
     desc.add<edm::ParameterSetDescription>("regressionConfig",psd0);
   }
   desc.add<bool>("applyCrackCorrections",false);

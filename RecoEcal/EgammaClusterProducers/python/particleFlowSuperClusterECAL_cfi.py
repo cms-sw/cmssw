@@ -37,8 +37,8 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
 
     # regression setup
     useRegression = cms.bool(False), #regressions are mustache only
-    regressionKeyEB = cms.string('pfecalsc_EBCorrection'),
-    regressionKeyEE = cms.string('pfecalsc_EECorrection'),
+    regressionKey = cms.string('pfecalsc_EBCorrection'),
+    uncertaintyKey = cms.string('pfecalsc_EBUncertainty'),
     
     #threshold for final SuperCluster Et
     thresh_SCEt = cms.double(4.0),    
