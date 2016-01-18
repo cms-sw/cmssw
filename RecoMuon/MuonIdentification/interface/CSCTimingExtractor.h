@@ -56,7 +56,7 @@ class CSCTimingExtractor {
 public:
   
   /// Constructor
-  CSCTimingExtractor(const edm::ParameterSet&,edm::ConsumesCollector& iC);
+  CSCTimingExtractor(const edm::ParameterSet&, MuonSegmentMatcher *segmentMatcher);
   
   /// Destructor
   ~CSCTimingExtractor();
@@ -86,7 +86,6 @@ private:
   bool debug;
   
   MuonServiceProxy* theService;
-  
   MuonSegmentMatcher *theMatcher;
 };
 

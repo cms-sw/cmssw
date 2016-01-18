@@ -685,9 +685,10 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      reco::MuonTime muonTime;
      reco::MuonTimeExtra dtTime;
      reco::MuonTimeExtra cscTime;
+     reco::MuonTime rpcTime;
      reco::MuonTimeExtra combinedTime;
 
-     theTimingFiller_->fillTiming(muon, dtTime, cscTime, combinedTime, iEvent, iSetup);
+     theTimingFiller_->fillTiming(muon, dtTime, cscTime, rpcTime, combinedTime, iEvent, iSetup);
 
      muonTime.nDof=combinedTime.nDof();
      muonTime.timeAtIpInOut=combinedTime.timeAtIpInOut();
@@ -695,7 +696,8 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      muonTime.timeAtIpOutIn=combinedTime.timeAtIpOutIn();
      muonTime.timeAtIpOutInErr=combinedTime.timeAtIpOutInErr();
 
-     muon.setTime(	muonTime);
+     muon.setTime(muonTime);
+     muon.setRPCTime(rpcTime);
      dtTimeColl[i] = dtTime;
      cscTimeColl[i] = cscTime;
      combinedTimeColl[i] = combinedTime;

@@ -66,7 +66,7 @@ class MuonServiceProxy;
 //
 // constructors and destructor
 //
-CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC)
+CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig, MuonSegmentMatcher *segmentMatcher)
   :
   thePruneCut_(iConfig.getParameter<double>("PruneCut")),
   theStripTimeOffset_(iConfig.getParameter<double>("CSCStripTimeOffset")),
@@ -82,14 +82,13 @@ CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig,edm::Con
   
   edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
 
-  theMatcher = new MuonSegmentMatcher(matchParameters, iC);
+  theMatcher = segmentMatcher;
 }
 
 
 CSCTimingExtractor::~CSCTimingExtractor()
 {
   if (theService) delete theService;
-  if (theMatcher) delete theMatcher;
 }
 
 

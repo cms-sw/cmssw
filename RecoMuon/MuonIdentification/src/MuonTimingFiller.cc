@@ -32,6 +32,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h" 
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 
 #include "RecoMuon/MuonIdentification/interface/MuonTimingFiller.h"
 #include "RecoMuon/MuonIdentification/interface/TimeMeasurementSequence.h"
@@ -42,13 +43,16 @@
 //
 MuonTimingFiller::MuonTimingFiller(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
 {
+   edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
+   theMatcher_ = new MuonSegmentMatcher(matchParameters, iC);
+
    // Load parameters for the DTTimingExtractor
    edm::ParameterSet dtTimingParameters = iConfig.getParameter<edm::ParameterSet>("DTTimingParameters");
-   theDTTimingExtractor_ = new DTTimingExtractor(dtTimingParameters,iC);
+   theDTTimingExtractor_ = new DTTimingExtractor(dtTimingParameters,theMatcher_);
 
    // Load parameters for the CSCTimingExtractor
    edm::ParameterSet cscTimingParameters = iConfig.getParameter<edm::ParameterSet>("CSCTimingParameters");
-   theCSCTimingExtractor_ = new CSCTimingExtractor(cscTimingParameters,iC);
+   theCSCTimingExtractor_ = new CSCTimingExtractor(cscTimingParameters,theMatcher_);
    
    errorEB_ = iConfig.getParameter<double>("ErrorEB");
    errorEE_ = iConfig.getParameter<double>("ErrorEE");
@@ -65,6 +69,7 @@ MuonTimingFiller::~MuonTimingFiller()
 {
   if (theDTTimingExtractor_) delete theDTTimingExtractor_;
   if (theCSCTimingExtractor_) delete theCSCTimingExtractor_;
+  if (theMatcher_) delete theMatcher_;
 }
 
 
@@ -73,7 +78,13 @@ MuonTimingFiller::~MuonTimingFiller()
 //
 
 void 
-MuonTimingFiller::fillTiming( const reco::Muon& muon, reco::MuonTimeExtra& dtTime, reco::MuonTimeExtra& cscTime, reco::MuonTimeExtra& combinedTime, edm::Event& iEvent, const edm::EventSetup& iSetup )
+MuonTimingFiller::fillTiming( const reco::Muon& muon, 
+                              reco::MuonTimeExtra& dtTime, 
+                              reco::MuonTimeExtra& cscTime, 
+                              reco::MuonTime& rpcTime, 
+                              reco::MuonTimeExtra& combinedTime, 
+                              edm::Event& iEvent, 
+                              const edm::EventSetup& iSetup )
 {
   TimeMeasurementSequence dtTmSeq,cscTmSeq;
      
@@ -91,8 +102,11 @@ MuonTimingFiller::fillTiming( const reco::Muon& muon, reco::MuonTimeExtra& dtTim
 
   // Fill CSC-specific timing information block     
   fillTimeFromMeasurements(cscTmSeq, cscTime);
+
+  // Fill RPC-specific timing information block     
+  fillRPCTime(muon, rpcTime, iEvent);
        
-  // Combine the TimeMeasurementSequences from all subdetectors
+  // Combine the TimeMeasurementSequences from DT/CSC subdetectors
   TimeMeasurementSequence combinedTmSeq;
   combineTMSequences(muon,dtTmSeq,cscTmSeq,combinedTmSeq);
   // add ECAL info
@@ -157,6 +171,39 @@ MuonTimingFiller::fillTimeFromMeasurements( const TimeMeasurementSequence& tmSeq
     
   muTime.setNDof(tmSeq.dstnc.size());
 }
+
+
+void 
+MuonTimingFiller::fillRPCTime( const reco::Muon& muon, reco::MuonTime &rpcTime, edm::Event& iEvent ) {
+
+  int nrpc=0;
+  double trpc=0,trpc2=0,trpcerr=0;
+
+  reco::TrackRef staTrack = muon.standAloneMuon();
+  if (staTrack.isNull()) return;
+
+  std::vector<const RPCRecHit*> rpcHits = theMatcher_->matchRPC(*staTrack,iEvent);
+  for (std::vector<const RPCRecHit*>::const_iterator hitRPC = rpcHits.begin(); hitRPC != rpcHits.end(); hitRPC++) {
+    nrpc++;
+    trpc+=(*hitRPC)->BunchX();
+    trpc2+=(*hitRPC)->BunchX()*(*hitRPC)->BunchX();
+  }
+
+  if (nrpc==0) return;
+  
+  trpc2=trpc2/(double)nrpc*25.*25.;
+  trpc=trpc/(double)nrpc*25.;
+  trpcerr=sqrt(trpc2-trpc*trpc);
+
+  rpcTime.timeAtIpInOut=trpc;
+  rpcTime.timeAtIpInOutErr=trpcerr;
+  rpcTime.nDof=nrpc;
+
+  // currently unused
+  rpcTime.timeAtIpOutIn=0.;  
+  rpcTime.timeAtIpOutInErr=0.;
+}
+
 
 void 
 MuonTimingFiller::combineTMSequences( const reco::Muon& muon, 
