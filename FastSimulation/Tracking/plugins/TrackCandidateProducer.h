@@ -27,6 +27,7 @@ class TrackCandidateProducer : public edm::stream::EDProducer <>
   
  private:
 
+    edm::InputTag seedLabel;
   unsigned int minNumberOfCrossedLayers;
   unsigned int maxNumberOfCrossedLayers;
 
@@ -43,7 +44,7 @@ class TrackCandidateProducer : public edm::stream::EDProducer <>
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
   edm::EDGetTokenT<std::vector<bool> > hitMasksToken;
   std::string propagatorLabel;
-  
+  double maxSeedMatchEstimator;
 };
 
 #endif

@@ -1,3 +1,7 @@
+<use   name="DataFormats/TrajectoryState"/>
+<use   name="TrackingTools/GeomPropagators"/>
+<use   name="TrackingTools/TrajectoryParametrization"/>
+<use   name="SimDataFormats/Track"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/SiPixelDetId"/>
 <use   name="DataFormats/SiStripDetId"/>
