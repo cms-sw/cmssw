@@ -127,10 +127,14 @@ namespace reco {
     ///
     /// timing information
     bool isTimeValid() const { return (time_.nDof>0); }
-    /// get timing information
+    /// get DT/CSC combined timing information
     MuonTime time() const { return time_; }
-    /// set timing information
+    /// set DT/CSC combined timing information
     void setTime( const MuonTime& time ) { time_ = time; }
+    /// get RPC timing information
+    MuonTime rpcTime() const { return rpcTime_; }
+    /// set RPC timing information
+    void setRPCTime( const MuonTime& time ) { rpcTime_ = time; }
      
     ///
     /// ====================== MUON MATCH BLOCK ===========================
@@ -246,6 +250,7 @@ namespace reco {
     std::vector<MuonChamberMatch> muMatches_;
     /// timing
     MuonTime time_;
+    MuonTime rpcTime_;
     bool energyValid_;
     bool matchesValid_;
     bool isolationValid_;

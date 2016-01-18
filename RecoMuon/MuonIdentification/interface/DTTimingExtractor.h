@@ -56,7 +56,7 @@ class DTTimingExtractor {
 public:
   
   /// Constructor
-  DTTimingExtractor(const edm::ParameterSet&,edm::ConsumesCollector& iC);
+  DTTimingExtractor(const edm::ParameterSet&, MuonSegmentMatcher *segmentMatcher);
   
   /// Destructor
   ~DTTimingExtractor();

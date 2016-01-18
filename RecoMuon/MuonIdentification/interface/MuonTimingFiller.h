@@ -44,17 +44,20 @@ class MuonTimingFiller {
   MuonTimingFiller(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
       ~MuonTimingFiller();
       void fillTiming( const reco::Muon& muon, reco::MuonTimeExtra& dtTime, 
-                    reco::MuonTimeExtra& cscTime, reco::MuonTimeExtra& combinedTime, 
+                    reco::MuonTimeExtra& cscTime, reco::MuonTime& rpcTime, 
+                    reco::MuonTimeExtra& combinedTime, 
                     edm::Event& iEvent, const edm::EventSetup& iSetup );
 
    private:
       void fillTimeFromMeasurements( const TimeMeasurementSequence& tmSeq, reco::MuonTimeExtra &muTime );
+      void fillRPCTime( const reco::Muon& muon, reco::MuonTime &muTime, edm::Event& iEvent );
       void rawFit(double &a, double &da, double &b, double &db, 
                   const std::vector<double>& hitsx, const std::vector<double>& hitsy);
       void addEcalTime( const reco::Muon& muon, TimeMeasurementSequence &cmbSeq );
       void combineTMSequences( const reco::Muon& muon, const TimeMeasurementSequence& dtSeq, 
                                const TimeMeasurementSequence& cscSeq, TimeMeasurementSequence &cmbSeq );
       
+      MuonSegmentMatcher *theMatcher_;
       DTTimingExtractor* theDTTimingExtractor_;
       CSCTimingExtractor* theCSCTimingExtractor_;
       double errorEB_,errorEE_,ecalEcut_;
