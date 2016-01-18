@@ -40,7 +40,8 @@ class TrackerGeometry final : public TrackingGeometry {
 
 public:
   typedef GeomDetEnumerators::SubDetector SubDetector;
-
+  enum ModuleType {UNKNOWN, PXB, PXF, IB1, IB2, OB1, OB2, W1A, W2A, W3A, W1B, W2B, W3B, W4, W5, W6, W7, Ph1PXB, Ph1PXF, Ph2PXB, Ph2PXF, Ph2PSP, Ph2PSS, Ph2SS};
+ 
   virtual ~TrackerGeometry() ;
 
 
@@ -61,6 +62,9 @@ public:
   // Magic : better be called at the right moment...
   void setOffsetDU(SubDetector sid) { theOffsetDU[sid]=detUnits().size();}
   void setEndsetDU(SubDetector sid) { theEndsetDU[sid]=detUnits().size();}
+  void fillTestMap(const GeometricDet* gd);
+
+  ModuleType moduleType(std::string name) const;
 
   GeometricDet const * trackerDet() const {return  theTrackerDet;}
 
@@ -70,6 +74,10 @@ public:
   const DetContainer& detsTID() const;
   const DetContainer& detsTOB() const;
   const DetContainer& detsTEC() const;
+
+  ModuleType getDetectorType(DetId) const;
+  float getDetectorThickness(DetId) const;
+
 
 private:
 
@@ -97,7 +105,7 @@ private:
 
   GeomDetEnumerators::SubDetector theSubDetTypeMap[6];
   unsigned int theNumberOfLayers[6];
-
+  std::vector< std::tuple< DetId, TrackerGeometry::ModuleType, float> > theDetTypetList; 
 };
 
 #endif
