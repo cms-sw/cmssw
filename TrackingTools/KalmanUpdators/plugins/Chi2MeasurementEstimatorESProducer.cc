@@ -22,6 +22,7 @@ class  Chi2MeasurementEstimatorESProducer: public edm::ESProducer{
   boost::shared_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord &);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  //  static edm::ParameterSetDescription getFilledConfigurationDescription();
 
  private:
   boost::shared_ptr<Chi2MeasurementEstimatorBase> m_estimator;
@@ -48,14 +49,32 @@ Chi2MeasurementEstimatorESProducer::produce(const TrackingComponentsRecord & iRe
   return m_estimator;
 }
 
-void Chi2MeasurementEstimatorESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  /*
+edm::ParameterSetDescription 
+Chi2MeasurementEstimatorESProducer::getFilledConfigurationDescription() {
+ 
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("ComponentName","Chi2");
   desc.add<double>("MaxChi2",30);
   desc.add<double>("nSigma",3);
   desc.add<double>("MaxDisplacement",0.5); 
   desc.add<double>("MaxSagitta",2.);
   desc.add<double>("MinimalTolerance",0.5);
+  return desc;
+}
+  */
+ 
+void 
+Chi2MeasurementEstimatorESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  //  edm::ParameterSetDescription desc = Chi2MeasurementEstimatorESProducer::getFilledConfigurationDescription();
+  edm::ParameterSetDescription desc;
+  desc.add<double>("MaxChi2",30);
+  desc.add<double>("nSigma",3);
+  desc.add<double>("MaxDisplacement",0.5); 
+  desc.add<double>("MaxSagitta",2.);
+  desc.add<double>("MinimalTolerance",0.5);
+  desc.add<std::string>("ComponentName","Chi2");
   descriptions.add("Chi2MeasurementEstimator", desc);
 }
 
