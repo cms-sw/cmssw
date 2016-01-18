@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("electronPostValidation")
 
 process.options = cms.untracked.PSet( 
-#    SkipEvent = cms.untracked.vstring('ProductNotFound') 
+#    SkipEvent = cms.untracked.vstring('ProductNotFound'),
 #    Rethrow = cms.untracked.vstring('ProductNotFound')
 )
 
