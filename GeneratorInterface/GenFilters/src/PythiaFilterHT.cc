@@ -24,26 +24,10 @@ PythiaFilterHT::PythiaFilterHT(const edm::ParameterSet& iConfig) :
 		theNumberOfTestedEvt = 0;
 		theNumberOfSelected = 0;
 
-		cout << " Cut Definition: " << endl;
-		/*cout << " MinP  = " << minpcut << endl;
-		cout << " MaxP = " << maxpcut << endl;
-		cout << " MinPt = " << minptcut << endl;
-		cout << " MaxPt = " << maxptcut << endl;
-		cout << " MinEta = " << minetacut << endl;
-		cout << " MaxEta = " << maxetacut << endl;
-		cout << " MinRapidity = " << minrapcut << endl;
-		cout << " MaxRapidity = " << maxrapcut << endl;
-		cout << " MinPhi = " << minphicut << endl;
-		cout << " MaxPhi = " << maxphicut << endl;*/
-		cout << " MinHT = " << minhtcut << endl;
-		cout << " MotherID = " << motherID << endl;
-
 }
 
 
 PythiaFilterHT::~PythiaFilterHT() {
-	std::cout << "Total number of tested events = " << theNumberOfTestedEvt << std::endl;
-	std::cout << "Total number of accepted events = " << theNumberOfSelected << std::endl;
 }
 
 
