@@ -66,7 +66,7 @@ DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
 
 DQMOffline_SecondStep_PrePOGMC = cms.Sequence( bTagCollectorSequenceDATA )
 
-DQMOffline_SecondStepPOGMC = cms.Sequence( dqmRefHistoRootFileGetter *
+sDQMOffline_SecondStepPOGMC = cms.Sequence( dqmRefHistoRootFileGetter *
                                            DQMOffline_SecondStep_PrePOGMC *
                                            DQMMessageLoggerClientSeq )
 
@@ -103,6 +103,8 @@ DQMHarvestMuon = cms.Sequence( dtClients *
                                cscOfflineCollisionsClients *
                                muonQualityTests
                                )
+DQMHarvestMuon_miniAOD = cms.Sequence( muonQualityTests_miniAOD )
+
 DQMHarvestEcal = cms.Sequence( ecal_dqm_client_offline *
                                 es_dqm_client_offline
                               )
@@ -116,4 +118,4 @@ DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )
 
 HLTMonitoringClient = cms.Sequence()
 
-DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence )
+DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD)
