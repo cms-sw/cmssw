@@ -2,6 +2,7 @@
 #include <DataFormats/MuonDetId/interface/MuonSubdetId.h>
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/MuonReco/interface/MuonChamberMatch.h"
 #include <cmath>
 using namespace reco;
@@ -18,6 +19,12 @@ int MuonChamberMatch::station()  const {
    if( detector() == MuonSubdetId::RPC ) {    //RPC
       RPCDetId segId(id.rawId());
       return segId.station();
+   }
+   //ME0s do not have multiple stations, so we force this to 1
+   if( detector() == MuonSubdetId::ME0 ) {    //ME0
+     // ME0DetId segId(id.rawId());
+     // return segId.station();
+     return 1;
    }
    return -1; // is this appropriate? fix this
 }
