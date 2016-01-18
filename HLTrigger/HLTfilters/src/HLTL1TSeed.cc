@@ -37,6 +37,15 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
   egammaCollectionsTag_(parSet.getParameter<edm::InputTag>("egammaCollectionsTag")), // FIX WHEN UNPACKERS ADDED
   egammaTag_(egammaCollectionsTag_),
   egammaToken_(consumes<l1t::EGammaBxCollection>(egammaTag_)),
+  jetCollectionsTag_(parSet.getParameter<edm::InputTag>("jetCollectionsTag")), // FIX WHEN UNPACKERS ADDED
+  jetTag_(jetCollectionsTag_),
+  jetToken_(consumes<l1t::JetBxCollection>(jetTag_)),
+  tauCollectionsTag_(parSet.getParameter<edm::InputTag>("tauCollectionsTag")), // FIX WHEN UNPACKERS ADDED
+  tauTag_(tauCollectionsTag_),
+  tauToken_(consumes<l1t::TauBxCollection>(tauTag_)),
+  etsumCollectionsTag_(parSet.getParameter<edm::InputTag>("etsumCollectionsTag")), // FIX WHEN UNPACKERS ADDED
+  etsumTag_(etsumCollectionsTag_),
+  etsumToken_(consumes<l1t::EtSumBxCollection>(etsumTag_)),
   m_isDebugEnabled(edm::isDebugEnabled())
 {
 
@@ -69,6 +78,12 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
   cout << "DEBUG:  muonTag:  " << muonTag_ << "\n";
   cout << "DEBUG:  egammaCollectionsTag:  " << egammaCollectionsTag_ << "\n";
   cout << "DEBUG:  egammaTag:  " << egammaTag_ << "\n";
+  cout << "DEBUG:  jetCollectionsTag:  " << jetCollectionsTag_ << "\n";
+  cout << "DEBUG:  jetTag:  " << jetTag_ << "\n";
+  cout << "DEBUG:  tauCollectionsTag:  " << tauCollectionsTag_ << "\n";
+  cout << "DEBUG:  tauTag:  " << tauTag_ << "\n";
+  cout << "DEBUG:  etsumCollectionsTag:  " << etsumCollectionsTag_ << "\n";
+  cout << "DEBUG:  etsumTag:  " << etsumTag_ << "\n";
 
   //LogDebug("HLTL1TSeed") 
   //<< "\n";
@@ -110,6 +125,9 @@ HLTL1TSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
   desc.add<edm::InputTag>("muonCollectionsTag",edm::InputTag("simGmtStage2Digis"));
   desc.add<edm::InputTag>("egammaCollectionsTag",edm::InputTag("simCaloStage2Digis"));
+  desc.add<edm::InputTag>("jetCollectionsTag",edm::InputTag("simCaloStage2Digis"));
+  desc.add<edm::InputTag>("tauCollectionsTag",edm::InputTag("simCaloStage2Digis"));
+  desc.add<edm::InputTag>("etsumCollectionsTag",edm::InputTag("simCaloStage2Digis"));
 
   descriptions.add("hltL1TSeed", desc);
   //descriptions.add("hltL1TSeed", desc);
@@ -127,12 +145,23 @@ bool HLTL1TSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, t
 
     // egamma 
     filterproduct.addCollectionTag(egammaTag_);
+
+    // jet 
+    filterproduct.addCollectionTag(jetTag_);
+
+    // tau 
+    filterproduct.addCollectionTag(tauTag_);
+
+    // etsum 
+    filterproduct.addCollectionTag(etsumTag_);
   }
   
   //seedsL1TriggerObjectMaps(iEvent, filterproduct, l1GtTmAlgo.product(), gtReadoutRecordPtr, physicsDaqPartition))
   seedsAll(iEvent, filterproduct);
 
   cout << "NEW SIZE of FILTERPRODUCT:  " << filterproduct.getCollectionTagsAsStrings().size() << "\n";
+  cout << "m_isDebugEnabled = " << m_isDebugEnabled << endl;
+
   if (m_isDebugEnabled) {
         dumpTriggerFilterObjectWithRefs(filterproduct);
   }
@@ -174,7 +203,7 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
 
     //l1t::MuonBxCollection::const_iterator iter;
 
-    // Egamma L1T
+    // EGamma L1T
     
     edm::Handle<l1t::EGammaBxCollection> egammas;
     iEvent.getByToken(egammaToken_, egammas);
@@ -197,6 +226,78 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
     }
 
     //l1t::EGammaBxCollection::const_iterator iter;
+    
+    // Jet L1T
+    
+    edm::Handle<l1t::JetBxCollection> jets;
+    iEvent.getByToken(jetToken_, jets);
+    if (!jets.isValid()){ 
+      edm::LogWarning("HLTL1TSeed")
+	<< "\nWarning: L1JetBxCollection with input tag "
+	<< jetTag_
+	<< "\nrequested in configuration, but not found in the event."
+	<< "\nNo jets added to filterproduct."
+	<< endl;	
+    } else {
+      cout << "DEBUG: L1T adding jets to filterproduct...\n";
+
+      l1t::JetBxCollection::const_iterator iter;
+      for (iter = jets->begin(0); iter != jets->end(0); ++iter){
+	//objectsInFilter = true;
+	l1t::JetRef myref(jets, jets->key(iter));
+	filterproduct.addObject(trigger::TriggerL1CenJet, myref); // Temp just use CenJet
+      }
+    }
+
+    //l1t::JetBxCollection::const_iterator iter;
+    
+    // Tau L1T
+    
+    edm::Handle<l1t::TauBxCollection> taus;
+    iEvent.getByToken(tauToken_, taus);
+    if (!taus.isValid()){ 
+      edm::LogWarning("HLTL1TSeed")
+	<< "\nWarning: L1TauBxCollection with input tag "
+	<< tauTag_
+	<< "\nrequested in configuration, but not found in the event."
+	<< "\nNo taus added to filterproduct."
+	<< endl;	
+    } else {
+      cout << "DEBUG: L1T adding taus to filterproduct...\n";
+
+      l1t::TauBxCollection::const_iterator iter;
+      for (iter = taus->begin(0); iter != taus->end(0); ++iter){
+	//objectsInFilter = true;
+	l1t::TauRef myref(taus, taus->key(iter));
+	filterproduct.addObject(trigger::TriggerL1TauJet, myref); // Temp just use TauJet
+      }
+    }
+
+    //l1t::TauBxCollection::const_iterator iter;
+    
+    // EtSum L1T
+    
+    edm::Handle<l1t::EtSumBxCollection> etsums;
+    iEvent.getByToken(etsumToken_, etsums);
+    if (!etsums.isValid()){ 
+      edm::LogWarning("HLTL1TSeed")
+	<< "\nWarning: L1EtSumBxCollection with input tag "
+	<< etsumTag_
+	<< "\nrequested in configuration, but not found in the event."
+	<< "\nNo etsums added to filterproduct."
+	<< endl;	
+    } else {
+      cout << "DEBUG: L1T adding etsums to filterproduct...\n";
+
+      l1t::EtSumBxCollection::const_iterator iter;
+      for (iter = etsums->begin(0); iter != etsums->end(0); ++iter){
+	//objectsInFilter = true;
+	l1t::EtSumRef myref(etsums, etsums->key(iter));
+	filterproduct.addObject(trigger::TriggerL1ETT, myref); // Temp just use ETT
+      }
+    }
+
+    //l1t::EtSumBxCollection::const_iterator iter;
     
     /*
       int iObj = -1;
@@ -252,6 +353,60 @@ void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWit
     l1t::EGammaRef obj = l1t::EGammaRef( seedsL1EG[i]);
     
         LogTrace("HLTL1TSeed") << "L1EG     " << "\t" << "q*PT = "
+                << obj->charge() * obj->pt() << "\t" << "eta =  " << obj->eta()
+                << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
+  }
+
+  vector<l1t::JetRef> seedsL1Jet;
+  // !!! FIXME: trigger::TriggerL1Jet does not exist.  Using trigger::TriggerCenJet
+  filterproduct.getObjects(trigger::TriggerL1CenJet, seedsL1Jet);
+  const size_t sizeSeedsL1Jet = seedsL1Jet.size();
+
+  LogTrace("HLTL1TSeed") << "  L1Jet seeds:      " << sizeSeedsL1Jet << "\n"
+			 << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1Jet; i++) {
+
+    
+    l1t::JetRef obj = l1t::JetRef( seedsL1Jet[i]);
+    
+        LogTrace("HLTL1TSeed") << "L1Jet     " << "\t" << "q*PT = "
+                << obj->charge() * obj->pt() << "\t" << "eta =  " << obj->eta()
+                << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
+  }
+
+  vector<l1t::TauRef> seedsL1Tau;
+  // !!! FIXME: trigger::TriggerL1Tau does not exist.  Using trigger::TriggerTauJet
+  filterproduct.getObjects(trigger::TriggerL1TauJet, seedsL1Tau);
+  const size_t sizeSeedsL1Tau = seedsL1Tau.size();
+
+  LogTrace("HLTL1TSeed") << "  L1Tau seeds:      " << sizeSeedsL1Tau << "\n"
+			 << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1Tau; i++) {
+
+    
+    l1t::TauRef obj = l1t::TauRef( seedsL1Tau[i]);
+    
+        LogTrace("HLTL1TSeed") << "L1Tau     " << "\t" << "q*PT = "
+                << obj->charge() * obj->pt() << "\t" << "eta =  " << obj->eta()
+                << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
+  }
+
+  vector<l1t::EtSumRef> seedsL1EtSum;
+  // !!! FIXME: trigger::TriggerL1EtSum does not exist.  Using trigger::TriggerETT
+  filterproduct.getObjects(trigger::TriggerL1ETT, seedsL1EtSum);
+  const size_t sizeSeedsL1EtSum = seedsL1EtSum.size();
+
+  LogTrace("HLTL1TSeed") << "  L1EtSum seeds:      " << sizeSeedsL1EtSum << "\n"
+			 << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1EtSum; i++) {
+
+    
+    l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSum[i]);
+    
+        LogTrace("HLTL1TSeed") << "L1EtSum     " << "\t" << "q*PT = "
                 << obj->charge() * obj->pt() << "\t" << "eta =  " << obj->eta()
                 << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
