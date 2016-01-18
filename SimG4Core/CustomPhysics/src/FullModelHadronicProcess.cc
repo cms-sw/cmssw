@@ -229,24 +229,6 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   G4LorentzRotation trans = org2->GetTrafoToLab();
   delete org2;
   
-  
-  /*
-  G4cout<<"Kinetic energies: "<<G4endl;
-  G4cout<<"True kinetic energy:     "<<originalIncident->GetKineticEnergy()/GeV<<" GeV"<<G4endl;
-  G4cout<<"Mass:                    "<<originalIncident->GetDefinition()->GetPDGMass()/GeV<<" GeV"<<G4endl;
-
-  G4double e_kin_rescaled = targetNucleus.EvaporationEffects(originalIncident->GetTotalEnergy()-originalIncident->GetDefinition()->GetPDGMass());
-
-  G4cout<<"Rescaled kinetic energy: "<<e_kin_rescaled<<G4endl;
-
-  const G4double cutOff = 0.1*MeV;
-
-  if ( e_kin_rescaled < cutOff )
-    {
-      aParticleChange.ProposeTrackStatus( fStopAndKill );//If the dice decides not to cascade I stop the particle
-      return &aParticleChange;
-    }
-  */
   // create the target particle
   
   G4DynamicParticle *originalTarget = new G4DynamicParticle;
@@ -339,7 +321,6 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
     }
   */
   // G4cout<<"Done!"<<G4endl;
-  // const G4LorentzRotation& trans(originalIncident->GetTrafoToLab());
 
   aParticleChange.SetNumberOfSecondaries(vecLen+NumberOfSecondaries);
   G4double e_kin=0;
@@ -420,9 +401,6 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
 	aParticleChange.ProposeMomentumDirection( p_new.x()/p, p_new.y()/p, p_new.z()/p );
       else
 	aParticleChange.ProposeMomentumDirection( 1.0, 0.0, 0.0 );
-      
-      G4double aE = sqrt(p*p+(outgoingRhadron->GetPDGMass()*outgoingRhadron->GetPDGMass()) );
-      e_kin = aE - outgoingRhadron->GetPDGMass();
     }
   
   //    return G4VDiscreteProcess::PostStepDoIt( aTrack, aStep);
@@ -575,7 +553,7 @@ void FullModelHadronicProcess::CalculateMomenta(
       ek = 2*tarmas + ek*(1.+ekcor/atomicWeight);
 
       G4double tkin = targetNucleus.Cinema( ek );
-      ek += tkin;
+      //ek += tkin;
       ekOrg += tkin;
       modifiedOriginal.SetKineticEnergy( ekOrg );
     }
