@@ -26,6 +26,11 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
+
+// ME0-Muon stuff
+#include "DataFormats/GEMRecHit/interface/ME0Segment.h"
+#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 
 #include "RecoMuon/MuonIdentification/interface/MuonMesh.h"
 
@@ -34,9 +39,6 @@
 MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig):
 muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 {
-  
-  LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: Constructor called";
-
    produces<reco::MuonCollection>();
    produces<reco::CaloMuonCollection>();
    produces<reco::MuonTimeExtraMap>("combined");
@@ -253,6 +255,7 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    iEvent.getByToken(rpcHitToken_, rpcHitHandle_);
+   iEvent.getByToken(me0HitToken_, me0HitHandle_);
    if (fillGlobalTrackQuality_) iEvent.getByToken(glbQualToken_, glbQualHandle_);
 
 }
@@ -264,22 +267,15 @@ reco::Muon MuonIdProducer::makeMuon(edm::Event& iEvent, const edm::EventSetup& i
      " Pt (GeV), eta: " << track.get()->eta();
    reco::Muon aMuon( makeMuon( *(track.get()) ) );
 
-   LogTrace("MuonIdentification") << "Muon created from a track ";
-
    aMuon.setMuonTrack(type,track);
    aMuon.setBestTrack(type);
    aMuon.setTunePBestTrack(type);
-
-   LogTrace("MuonIdentification") << "Muon created from a track and setMuonBestTrack, setBestTrack and setTunePBestTrack called";
 
    return aMuon;
 }
 
 reco::CaloMuon MuonIdProducer::makeCaloMuon( const reco::Muon& muon )
 {
-
-   LogTrace("MuonIdentification") << "Creating a CaloMuon from a Muon";
-
    reco::CaloMuon aMuon;
    aMuon.setInnerTrack( muon.innerTrack() );
 
@@ -452,6 +448,24 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    init(iEvent, iSetup);
 
+   std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMap(new reco::MuonTimeExtraMap());
+   reco::MuonTimeExtraMap::Filler filler(*muonTimeMap);
+   std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMapDT(new reco::MuonTimeExtraMap());
+   reco::MuonTimeExtraMap::Filler fillerDT(*muonTimeMapDT);
+   std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMapCSC(new reco::MuonTimeExtraMap());
+   reco::MuonTimeExtraMap::Filler fillerCSC(*muonTimeMapCSC);
+
+   std::auto_ptr<reco::IsoDepositMap> trackDepMap(new reco::IsoDepositMap());
+   reco::IsoDepositMap::Filler trackDepFiller(*trackDepMap);
+   std::auto_ptr<reco::IsoDepositMap> ecalDepMap(new reco::IsoDepositMap());
+   reco::IsoDepositMap::Filler ecalDepFiller(*ecalDepMap);
+   std::auto_ptr<reco::IsoDepositMap> hcalDepMap(new reco::IsoDepositMap());
+   reco::IsoDepositMap::Filler hcalDepFiller(*hcalDepMap);
+   std::auto_ptr<reco::IsoDepositMap> hoDepMap(new reco::IsoDepositMap());
+   reco::IsoDepositMap::Filler hoDepFiller(*hoDepMap);
+   std::auto_ptr<reco::IsoDepositMap> jetDepMap(new reco::IsoDepositMap());
+   reco::IsoDepositMap::Filler jetDepFiller(*jetDepMap);
+
    // loop over input collections
 
    // muons first - no cleaning, take as is.
@@ -554,8 +568,10 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          bool newMuon = true;
          const bool goodTrackerMuon = isGoodTrackerMuon( trackerMuon );
          const bool goodRPCMuon = isGoodRPCMuon( trackerMuon );
+         const bool goodME0Muon = isGoodME0Muon( trackerMuon );
          if ( goodTrackerMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::TrackerMuon );
          if ( goodRPCMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::RPCMuon );
+         if ( goodME0Muon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::ME0Muon );
          for ( auto& muon : *outputMuons ) 
          {
            if ( muon.innerTrack().get() == trackerMuon.innerTrack().get() &&
@@ -567,12 +583,13 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
              if (trackerMuon.isEnergyValid()) muon.setCalEnergy( trackerMuon.calEnergy() );
              if (goodTrackerMuon) muon.setType( muon.type() | reco::Muon::TrackerMuon );
              if (goodRPCMuon) muon.setType( muon.type() | reco::Muon::RPCMuon );
+             if (goodME0Muon) muon.setType( muon.type() | reco::Muon::ME0Muon );
              LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
              break;
            }
          }
          if ( newMuon ) {
-           if ( goodTrackerMuon || goodRPCMuon ){
+           if ( goodTrackerMuon || goodRPCMuon || goodME0Muon){
              outputMuons->push_back( trackerMuon );
            } else {
              LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
@@ -705,27 +722,33 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if ( fillMatching_ ) fillArbitrationInfo( outputMuons.get() );
    edm::OrphanHandle<reco::MuonCollection> muonHandle = iEvent.put(outputMuons);
 
-   auto fillMap = [](auto refH, auto& vec, edm::Event& ev, const std::string& cAl = ""){
-     typedef  edm::ValueMap<typename std::decay<decltype(vec)>::type::value_type> MapType;
-     std::unique_ptr<MapType > oMap(new MapType());
-     {
-       typename MapType::Filler filler(*oMap);
-       filler.insert(refH, vec.begin(), vec.end());
-       vec.clear();
-       filler.fill();
-     }
-     ev.put(std::move(oMap), cAl);
-   };
-   fillMap(muonHandle, combinedTimeColl, iEvent, "combined");
-   fillMap(muonHandle, dtTimeColl, iEvent, "dt");
-   fillMap(muonHandle, cscTimeColl, iEvent, "csc");
+   filler.insert(muonHandle, combinedTimeColl.begin(), combinedTimeColl.end());
+   filler.fill();
+   fillerDT.insert(muonHandle, dtTimeColl.begin(), dtTimeColl.end());
+   fillerDT.fill();
+   fillerCSC.insert(muonHandle, cscTimeColl.begin(), cscTimeColl.end());
+   fillerCSC.fill();
+
+   iEvent.put(muonTimeMap,"combined");
+   iEvent.put(muonTimeMapDT,"dt");
+   iEvent.put(muonTimeMapCSC,"csc");
 
    if (writeIsoDeposits_ && fillIsolation_){
-     fillMap(muonHandle, trackDepColl, iEvent, trackDepositName_);
-     fillMap(muonHandle, ecalDepColl, iEvent, ecalDepositName_);
-     fillMap(muonHandle, hcalDepColl, iEvent, hcalDepositName_);
-     fillMap(muonHandle, hoDepColl, iEvent, hoDepositName_);
-     fillMap(muonHandle, jetDepColl, iEvent, jetDepositName_);
+     trackDepFiller.insert(muonHandle, trackDepColl.begin(), trackDepColl.end());
+     trackDepFiller.fill();
+     iEvent.put(trackDepMap, trackDepositName_);
+     ecalDepFiller.insert(muonHandle, ecalDepColl.begin(), ecalDepColl.end());
+     ecalDepFiller.fill();
+     iEvent.put(ecalDepMap,  ecalDepositName_);
+     hcalDepFiller.insert(muonHandle, hcalDepColl.begin(), hcalDepColl.end());
+     hcalDepFiller.fill();
+     iEvent.put(hcalDepMap,  hcalDepositName_);
+     hoDepFiller.insert(muonHandle, hoDepColl.begin(), hoDepColl.end());
+     hoDepFiller.fill();
+     iEvent.put(hoDepMap,    hoDepositName_);
+     jetDepFiller.insert(muonHandle, jetDepColl.begin(), jetDepColl.end());
+     jetDepFiller.fill();
+     iEvent.put(jetDepMap,  jetDepositName_);
    }
 
    iEvent.put(caloMuons);
@@ -750,26 +773,30 @@ bool MuonIdProducer::isGoodRPCMuon( const reco::Muon& muon )
   return ( muon.numberOfMatchedRPCLayers( reco::Muon::RPCHitAndTrackArbitration ) > minNumberOfMatches_ );
 }
 
+
+bool MuonIdProducer::isGoodME0Muon( const reco::Muon& muon )
+{
+  if(muon.track()->pt() < minPt_ || muon.track()->p() < minP_) return false;
+  //These "ExtraSoftMuons" may not be relevant, since there's no eta coverage below eta 1.5 anyway - the eta requirement should always fail
+   if ( addExtraSoftMuons_ && 
+	muon.pt()<5 && fabs(muon.eta())<1.5 && 
+	muon.numberOfMatchedME0Layers( reco::Muon::ME0HitAndTrackArbitration ) > 0 ) return true;
+   return ( muon.numberOfMatchedME0Layers( reco::Muon::ME0HitAndTrackArbitration ) >= minNumberOfMatches_ );
+}
+
 void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetup,
 				reco::Muon& aMuon,
 				TrackDetectorAssociator::Direction direction)
 {
-
-   LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: fillMuonId";
-
    // perform track - detector association
    const reco::Track* track = 0;
    if      ( aMuon.track().isNonnull() ) track = aMuon.track().get();
    else if ( aMuon.standAloneMuon().isNonnull() ) track = aMuon.standAloneMuon().get();
    else throw cms::Exception("FatalError") << "Failed to fill muon id information for a muon with undefined references to tracks";
 
-
    TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *track, parameters_, direction);
 
-   LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: fillMuonId :: fillEnergy = "<<fillEnergy_;
-
    if ( fillEnergy_ ) {
-
       reco::MuonEnergy muonEnergy;
       muonEnergy.em      = info.crossedEnergy(TrackDetMatchInfo::EcalRecHits);
       muonEnergy.had     = info.crossedEnergy(TrackDetMatchInfo::HcalRecHits);
@@ -799,15 +826,15 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
       }
       aMuon.setCalEnergy( muonEnergy );
    }
-   if ( ! fillMatching_ && ! aMuon.isTrackerMuon() && ! aMuon.isRPCMuon() ) return;
+   if ( ! fillMatching_ && ! aMuon.isTrackerMuon() && ! aMuon.isRPCMuon() && ! aMuon.isME0Muon() ) return;
 
    // fill muon match info
-   LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: fillMuonId :: fill muon match info ";
    std::vector<reco::MuonChamberMatch> muonChamberMatches;
    unsigned int nubmerOfMatchesAccordingToTrackAssociator = 0;
    for ( const auto& chamber : info.chambers )
    {
      if (chamber.id.subdetId() == 3 && rpcHitHandle_.isValid()  ) continue; // Skip RPC chambers, they are taken care of below)
+     if  (chamber.id.subdetId() == MuonSubdetId::ME0 && me0HitHandle_.isValid()  ) continue; // Skip ME0 chambers, they are taken care of below
      reco::MuonChamberMatch matchedChamber;
 
      const auto& lErr = chamber.tState.localError();
@@ -877,7 +904,6 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    }
 
    // Fill RPC info
-   LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: fillMuonId :: fill RPC info";
    if ( rpcHitHandle_.isValid() )
    {
      for ( const auto& chamber : info.chambers )
@@ -924,6 +950,113 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
        muonChamberMatches.push_back(matchedChamber);
      }
    }
+
+
+  // Fill ME0 info
+  if ( me0HitHandle_.isValid() )
+    {
+      for(  const auto& chamber : info.chambers )
+	{
+	  if (chamber.id.subdetId() != MuonSubdetId::ME0 ) continue; // Consider ME0 chambers only
+	  
+	  reco::MuonChamberMatch matchedChamber;
+
+	  //LocalError localError = chamber.tState.localError().positionError();
+	  const auto& localError = chamber.tState.localError().positionError();
+	  matchedChamber.x = chamber.tState.localPosition().x();
+	  matchedChamber.y = chamber.tState.localPosition().y();
+	  matchedChamber.xErr = sqrt( localError.xx() );
+	  matchedChamber.yErr = sqrt( localError.yy() );
+
+	  matchedChamber.dXdZ = chamber.tState.localDirection().z()!=0?chamber.tState.localDirection().x()/chamber.tState.localDirection().z():9999;
+	  matchedChamber.dYdZ = chamber.tState.localDirection().z()!=0?chamber.tState.localDirection().y()/chamber.tState.localDirection().z():9999;
+	  // DANGEROUS - compiler cannot guaranty parameters ordering
+	  AlgebraicSymMatrix55 trajectoryCovMatrix = chamber.tState.localError().matrix();
+	  matchedChamber.dXdZErr = trajectoryCovMatrix(1,1)>0?sqrt(trajectoryCovMatrix(1,1)):0;
+	  matchedChamber.dYdZErr = trajectoryCovMatrix(2,2)>0?sqrt(trajectoryCovMatrix(2,2)):0;
+
+	  matchedChamber.edgeX = chamber.localDistanceX;
+	  matchedChamber.edgeY = chamber.localDistanceY;
+
+	  matchedChamber.id = chamber.id;
+	  // std::cout<<"About to loop over ME0Segments"<<std::endl;
+	  // for ( ME0SegmentCollection::const_iterator me0Segment = me0Segments->begin();
+	  // 	me0Segment != me0Segments->end(); ++me0Segment )
+	  for ( const auto& me0RecHit : *me0HitHandle_ )
+	    {
+	      reco::MuonSegmentMatch me0HitMatch;
+	      // std::cout<<"me0segm: "<<me0RecHit.rawId()<<" , matchedChamb: "<<chamber.id.rawId()<<std::endl;
+
+	      //ME0DetId SegIdPreCompare (me0RecHit.rawId());
+	      ME0DetId SegIdForCompare (me0RecHit.me0DetId().region(),
+					me0RecHit.me0DetId().layer(),
+					me0RecHit.me0DetId().chamber(),
+					0);
+	      //std::cout<<"Alternative me0segm ID:"<<std::endl;
+	      // //std::cout<<me0RecHit.geographicalId()<<std::endl;
+	      // std::cout<<me0RecHit.geographicalId().rawId()<<std::endl;
+	      // ME0DetId chamberId(me0RecHit.geographicalId().rawId());
+	      // std::cout<<chamberId<<std::endl;
+	      //std::cout<<"me0segm: "<<me0RecHit.rawId()<<" , matchedChamb: "<<chamber.id.rawId()<<std::endl;
+	      // int muonSubdetId = chamber.id.subdetId();
+	      // if(muonSubdetId==1) {//DT
+	      // 	DTChamberId segId(chamber.id.rawId());
+	      // 	std::cout << "DT chamber (wheel, station, sector): "
+	      // 	    << segId.wheel() << ", "
+	      // 	    << segId.station() << ", "
+	      // 	    << segId.sector();
+	      // }
+
+	      // if(muonSubdetId==2) {//CSC
+	      // 	CSCDetId segId(chamber.id.rawId());
+	      // 	std::cout << "CSC chamber (endcap, station, ring, chamber, layer): "
+	      // 	    << segId.endcap() << ", "
+	      // 	    << segId.station() << ", "
+	      // 	    << segId.ring() << ", "
+	      // 	    << segId.chamber() << ", "
+	      // 	    << segId.layer();
+	      // }
+	      // if(muonSubdetId==3) {//RPC
+	      // 	// RPCDetId segId(id.rawId());
+	      // 	std::cout << "RPC chamber";
+	      // }
+	      // if(muonSubdetId==MuonSubdetId::ME0) {//ME0
+	      // 	ME0DetId segId(chamber.id.rawId());
+	      // 	std::cout << "ME0 chamber (region, chamber, layer, roll): "
+	      // 		  << segId.region() << ", "
+	      // 		  << segId.chamber() << ", "
+	      // 		  << segId.layer() << ", "
+	      // 		  << segId.roll() <<std::endl;
+	      // }
+	      // ME0DetId segmentsId(me0RecHit.rawId());
+	      // std::cout << "ME0 Segment's chamber: "
+	      // 		<< segmentsId.region() << ", "
+	      // 		<< segmentsId.chamber() << ", "
+	      // 		<< segmentsId.layer() << ", "
+	      // 		<< segmentsId.roll() <<std::endl;
+	      
+
+	      //if ( me0RecHit.rawId() != chamber.id.rawId() ) continue;
+	      if ( SegIdForCompare != chamber.id.rawId() ) continue;
+	      // std::cout<<"Found the matching ME0Segment"<<std::endl;
+
+	      me0HitMatch.x = me0RecHit.localPosition().x();
+	      me0HitMatch.mask = 0;
+
+	      const double AbsDx = std::abs(me0RecHit.localPosition().x()-chamber.tState.localPosition().x());
+	      const double AbsDy = std::abs(me0RecHit.localPosition().y()-chamber.tState.localPosition().y());
+	      // std::cout<<"AbsDx = "<<AbsDx<<", PullX = "<<sqrt(localError.xx() + me0RecHit.localPositionError().xx())<<std::endl;
+	      // std::cout<<"AbsDy = "<<AbsDy<<", PullY = "<<sqrt(localError.yy() + me0RecHit.localPositionError().yy())<<std::endl;
+
+	      //These matches are hardcoded, is that okay?
+	      if( (AbsDx <= 3 or AbsDx/sqrt(localError.xx() + me0RecHit.localPositionError().xx()) <= 4) and 
+		  (AbsDy <= 9999. or AbsDy/sqrt(localError.yy() + me0RecHit.localPositionError().yy()) <= 9999.)
+		  ) matchedChamber.me0Matches.push_back(me0HitMatch);
+	    }
+
+	  muonChamberMatches.push_back(matchedChamber);
+	}
+    }
 
    aMuon.setMatches(muonChamberMatches);
 
@@ -1125,14 +1258,11 @@ void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup
    reco::IsoDeposit depHcal = caloDeps.at(1);
    reco::IsoDeposit depHo   = caloDeps.at(2);
 
-   //no need to copy outside if we don't write them
-   if (writeIsoDeposits_){
-     trackDep = depTrk;
-     ecalDep = depEcal;
-     hcalDep = depHcal;
-     hoDep = depHo;
-     jetDep = depJet;
-   }
+   trackDep = depTrk;
+   ecalDep = depEcal;
+   hcalDep = depHcal;
+   hoDep = depHo;
+   jetDep = depJet;
 
    isoR03.sumPt     = depTrk.depositWithin(0.3);
    isoR03.emEt      = depEcal.depositWithin(0.3);
