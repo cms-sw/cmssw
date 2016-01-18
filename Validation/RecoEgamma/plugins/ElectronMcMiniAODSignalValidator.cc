@@ -225,7 +225,7 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
     edm::Handle<edm::View<reco::GenParticle> > genParticles ;
     iEvent.getByToken(mcTruthCollection_, genParticles) ;  
 
-    edm::LogInfo("ElectronMcMiniAODSignalValidator::analyze")
+    edm::LogInfo("ElectronMcSignalValidatorMiniAOD::analyze")
       <<"Treating event "<<iEvent.id()
       <<" with "<<electrons.product()->size()<<" electrons" ;
     h1_recEleNum->Fill((*electrons).size()) ;
