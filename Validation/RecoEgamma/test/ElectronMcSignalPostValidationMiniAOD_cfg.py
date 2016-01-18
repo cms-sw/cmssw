@@ -36,8 +36,8 @@ localFileInput = os.environ['TEST_HISTOS_FILE'].replace(".root", "_a.root") #
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring("file:" + localFileInput),
 secondaryFileNames = cms.untracked.vstring(),)
 
-process.electronMcMiniAODSignalPostValidator.InputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorMiniAOD")
-process.electronMcMiniAODSignalPostValidator.OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorMiniAOD")
+process.electronMcSignalPostValidatorMiniAOD.InputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorMiniAOD")
+process.electronMcSignalPostValidatorMiniAOD.OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorMiniAOD")
 
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
