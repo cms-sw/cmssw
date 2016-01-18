@@ -143,6 +143,8 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    edm::InputTag rpcHitTag("rpcRecHits");
    rpcHitToken_ = consumes<RPCRecHitCollection>(rpcHitTag);
    
+   edm::InputTag me0HitTag("me0Segments");
+   me0HitToken_ = consumes<ME0SegmentCollection>(me0HitTag);   
 
    //Consumes... UGH
    inputCollectionTypes_.resize(inputCollectionLabels_.size());
@@ -279,7 +281,9 @@ reco::CaloMuon MuonIdProducer::makeCaloMuon( const reco::Muon& muon )
    reco::CaloMuon aMuon;
    aMuon.setInnerTrack( muon.innerTrack() );
 
-   if (muon.isEnergyValid()) aMuon.setCalEnergy( muon.calEnergy() );
+   //FIXME check this:
+   //if (muon.isEnergyValid()) aMuon.setCalEnergy( muon.calEnergy() );
+   if (fillEnergy_ && muon.isEnergyValid()) aMuon.setCalEnergy( muon.calEnergy() );
    // get calo compatibility
    if (fillCaloCompatibility_) aMuon.setCaloCompatibility( muonCaloCompatibility_.evaluate(muon) );
    return aMuon;
@@ -580,7 +584,9 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
              newMuon = false;
              muon.setMatches( trackerMuon.matches() );
              if (trackerMuon.isTimeValid()) muon.setTime( trackerMuon.time() );
-             if (trackerMuon.isEnergyValid()) muon.setCalEnergy( trackerMuon.calEnergy() );
+	     //FIXME check this
+             //if (trackerMuon.isEnergyValid()) muon.setCalEnergy( trackerMuon.calEnergy() );
+             if (fillEnergy_ && trackerMuon.isEnergyValid()) muon.setCalEnergy( trackerMuon.calEnergy() );
              if (goodTrackerMuon) muon.setType( muon.type() | reco::Muon::TrackerMuon );
              if (goodRPCMuon) muon.setType( muon.type() | reco::Muon::RPCMuon );
              if (goodME0Muon) muon.setType( muon.type() | reco::Muon::ME0Muon );
@@ -979,66 +985,18 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  matchedChamber.edgeY = chamber.localDistanceY;
 
 	  matchedChamber.id = chamber.id;
-	  // std::cout<<"About to loop over ME0Segments"<<std::endl;
 	  // for ( ME0SegmentCollection::const_iterator me0Segment = me0Segments->begin();
 	  // 	me0Segment != me0Segments->end(); ++me0Segment )
 	  for ( const auto& me0RecHit : *me0HitHandle_ )
 	    {
 	      reco::MuonSegmentMatch me0HitMatch;
-	      // std::cout<<"me0segm: "<<me0RecHit.rawId()<<" , matchedChamb: "<<chamber.id.rawId()<<std::endl;
 
 	      //ME0DetId SegIdPreCompare (me0RecHit.rawId());
 	      ME0DetId SegIdForCompare (me0RecHit.me0DetId().region(),
 					me0RecHit.me0DetId().layer(),
 					me0RecHit.me0DetId().chamber(),
 					0);
-	      //std::cout<<"Alternative me0segm ID:"<<std::endl;
-	      // //std::cout<<me0RecHit.geographicalId()<<std::endl;
-	      // std::cout<<me0RecHit.geographicalId().rawId()<<std::endl;
-	      // ME0DetId chamberId(me0RecHit.geographicalId().rawId());
-	      // std::cout<<chamberId<<std::endl;
-	      //std::cout<<"me0segm: "<<me0RecHit.rawId()<<" , matchedChamb: "<<chamber.id.rawId()<<std::endl;
-	      // int muonSubdetId = chamber.id.subdetId();
-	      // if(muonSubdetId==1) {//DT
-	      // 	DTChamberId segId(chamber.id.rawId());
-	      // 	std::cout << "DT chamber (wheel, station, sector): "
-	      // 	    << segId.wheel() << ", "
-	      // 	    << segId.station() << ", "
-	      // 	    << segId.sector();
-	      // }
-
-	      // if(muonSubdetId==2) {//CSC
-	      // 	CSCDetId segId(chamber.id.rawId());
-	      // 	std::cout << "CSC chamber (endcap, station, ring, chamber, layer): "
-	      // 	    << segId.endcap() << ", "
-	      // 	    << segId.station() << ", "
-	      // 	    << segId.ring() << ", "
-	      // 	    << segId.chamber() << ", "
-	      // 	    << segId.layer();
-	      // }
-	      // if(muonSubdetId==3) {//RPC
-	      // 	// RPCDetId segId(id.rawId());
-	      // 	std::cout << "RPC chamber";
-	      // }
-	      // if(muonSubdetId==MuonSubdetId::ME0) {//ME0
-	      // 	ME0DetId segId(chamber.id.rawId());
-	      // 	std::cout << "ME0 chamber (region, chamber, layer, roll): "
-	      // 		  << segId.region() << ", "
-	      // 		  << segId.chamber() << ", "
-	      // 		  << segId.layer() << ", "
-	      // 		  << segId.roll() <<std::endl;
-	      // }
-	      // ME0DetId segmentsId(me0RecHit.rawId());
-	      // std::cout << "ME0 Segment's chamber: "
-	      // 		<< segmentsId.region() << ", "
-	      // 		<< segmentsId.chamber() << ", "
-	      // 		<< segmentsId.layer() << ", "
-	      // 		<< segmentsId.roll() <<std::endl;
-	      
-
-	      //if ( me0RecHit.rawId() != chamber.id.rawId() ) continue;
 	      if ( SegIdForCompare != chamber.id.rawId() ) continue;
-	      // std::cout<<"Found the matching ME0Segment"<<std::endl;
 
 	      me0HitMatch.x = me0RecHit.localPosition().x();
 	      me0HitMatch.mask = 0;
