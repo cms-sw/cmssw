@@ -246,52 +246,17 @@ def customiseFor12718(process):
     return process
 
 def customiseFor12966(process):
-    if hasattr(process,'hltPixelTracks'):
-        process.hltPixelTracks.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
-    if hasattr(process,'hltPixelTracksForHighMult'):
-        process.hltPixelTracksForHighMult.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
-    if hasattr(process,'hltPixelTracksForHighPt'):
-        process.hltPixelTracksForHighPt.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
-    if hasattr(process,'hltHighPtPixelTracks'):
-        process.hltHighPtPixelTracks.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
+    for module in producers_by_type(process,'PixelTrackProducer'):
+        module.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
 
-    if hasattr(process,'hltPixelTracksElectrons'):
-        process.hltPixelTracksElectrons.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
-    if hasattr(process,'hltPixelTracksL3Muon'):
-        process.hltPixelTracksL3Muon.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
-    if hasattr(process,'hltPixelTracksHighPtTkMuIso'):
-        process.hltPixelTracksHighPtTkMuIso.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
-    if hasattr(process,'hltPixelTracksGlbTrkMuon'):
-        process.hltPixelTracksGlbTrkMuon.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
-
-    if hasattr(process, 'hltESPChi2ChargeMeasurementEstimator16'):
-        process.hltESPChi2ChargeMeasurementEstimator16.MaxDisplacement  = cms.double(100.)
-        process.hltESPChi2ChargeMeasurementEstimator16.MaxSagitta       = cms.double(-1.)
-        process.hltESPChi2ChargeMeasurementEstimator16.MinimalTolerance = cms.double(10.)
-    if hasattr(process, 'hltESPChi2ChargeMeasurementEstimator2000'):
-        process.hltESPChi2ChargeMeasurementEstimator2000.MaxDisplacement  = cms.double(100.)
-        process.hltESPChi2ChargeMeasurementEstimator2000.MaxSagitta       = cms.double(-1.)
-        process.hltESPChi2ChargeMeasurementEstimator2000.MinimalTolerance = cms.double(10.)
-    if hasattr(process, 'hltESPChi2ChargeMeasurementEstimator30'):
-        process.hltESPChi2ChargeMeasurementEstimator30.MaxDisplacement  = cms.double(100.)
-        process.hltESPChi2ChargeMeasurementEstimator30.MaxSagitta       = cms.double(-1.)
-        process.hltESPChi2ChargeMeasurementEstimator30.MinimalTolerance = cms.double(10.)
-    if hasattr(process, 'hltESPChi2ChargeMeasurementEstimator9'):
-        process.hltESPChi2ChargeMeasurementEstimator9.MaxDisplacement  = cms.double(100.)
-        process.hltESPChi2ChargeMeasurementEstimator9.MaxSagitta       = cms.double(-1.)
-        process.hltESPChi2ChargeMeasurementEstimator9.MinimalTolerance = cms.double(10.)
-    if hasattr(process, 'hltESPChi2MeasurementEstimator16'):
-        process.hltESPChi2MeasurementEstimator16.MaxDisplacement  = cms.double(100.)
-        process.hltESPChi2MeasurementEstimator16.MaxSagitta       = cms.double(-1.)
-        process.hltESPChi2MeasurementEstimator16.MinimalTolerance = cms.double(10.)
-    if hasattr(process, 'hltESPChi2MeasurementEstimator30'):
-        process.hltESPChi2MeasurementEstimator30.MaxDisplacement  = cms.double(100.)
-        process.hltESPChi2MeasurementEstimator30.MaxSagitta       = cms.double(-1.)
-        process.hltESPChi2MeasurementEstimator30.MinimalTolerance = cms.double(10.)
-    if hasattr(process, 'hltESPChi2MeasurementEstimator9'):
-        process.hltESPChi2MeasurementEstimator9.MaxDisplacement  = cms.double(100.)
-        process.hltESPChi2MeasurementEstimator9.MaxSagitta       = cms.double(-1.)
-        process.hltESPChi2MeasurementEstimator9.MinimalTolerance = cms.double(10.)
+    for module in esproducers_by_type(process,'Chi2ChargeMeasurementEstimatorESProducer'):    
+        module.MaxDisplacement  = cms.double(100.) # default 0.5
+        module.MaxSagitta       = cms.double(-1.)  # default 2
+        module.MinimalTolerance = cms.double(10.)  # default 0.5
+    for module in esproducers_by_type(process,'Chi2MeasurementEstimatorESProducer'):
+        module.MaxDisplacement  = cms.double(100.) # default 0.5
+        module.MaxSagitta       = cms.double(-1.)  # default 2
+        module.MinimalTolerance = cms.double(10.)  # default 0.5
 
     if hasattr(process, 'HLTPSetMuonCkfTrajectoryFilter'):
         process.HLTPSetMuonCkfTrajectoryFilter.minGoodStripCharge  = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
