@@ -88,7 +88,7 @@ VertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   double bxlumi = 0.;
   if ( doPlotsVsBXlumi_ )
     bxlumi = lumiDetails_->getValue(iEvent);
-  std::cout << "bxlumi : " << bxlumi << std::endl;
+  //  std::cout << "bxlumi : " << bxlumi << std::endl;
 
   size_t totalNumPV = 0;
   size_t totalNumBADndofPV = 0;
@@ -97,7 +97,7 @@ VertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if ( pvHandle.isValid() )
     {
       totalNumPV = pvHandle->size();
-      std::cout << "totalNumPV : " << totalNumPV << std::endl;
+      //      std::cout << "totalNumPV : " << totalNumPV << std::endl;
       for (reco::VertexCollection::const_iterator pv = pvHandle->begin();
 	   pv != pvHandle->end(); ++pv) {
 	//--- count pv w/ ndof < 4 
@@ -117,14 +117,14 @@ VertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if ( selpvHandle.isValid() )
     totalNumGoodPV = selpvHandle->size();
   else return;
-  std::cout << "totalNumGoodPV: " << totalNumGoodPV << std::endl;
+  //  std::cout << "totalNumGoodPV: " << totalNumGoodPV << std::endl;
   if ( doPlotsVsGoodPVtx_ ) {
     NumberOfPVtxVsGoodPVtx        -> Fill( totalNumGoodPV, totalNumPV        );
     NumberOfBADndofPVtxVsGoodPVtx -> Fill( totalNumGoodPV, totalNumBADndofPV );
   }
 
   double fracGoodPV = double(totalNumGoodPV)/double(totalNumPV);
-  std::cout << "fracGoodPV: " << fracGoodPV << std::endl;
+  //  std::cout << "fracGoodPV: " << fracGoodPV << std::endl;
 
   NumberOfGoodPVtx    -> Fill( totalNumGoodPV    );
   FractionOfGoodPVtx  -> Fill( fracGoodPV        );
