@@ -22,6 +22,7 @@
 #include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 #include "FastSimulation/Tracking/interface/HitMaskHelper.h"
 #include "FastSimulation/Tracking/interface/FastTrackingHelper.h"
+#include "FastSimulation/Tracking/interface/SeedMatcher.h"
 
 #include <vector>
 #include <map>
@@ -36,9 +37,6 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-
-#include "iostream"
-#include "FastSimulation/Tracking/interface/SeedMatcher.h"
 
 //Propagator withMaterial
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
@@ -64,8 +62,7 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf)
   simVertexToken = consumes<edm::SimVertexContainer>(simTrackLabel);
   simTrackToken = consumes<edm::SimTrackContainer>(simTrackLabel);
 
-  //edm::InputTag seedLabel = conf.getParameter<edm::InputTag>("src");
-  seedLabel = conf.getParameter<edm::InputTag>("src");
+  edm::InputTag seedLabel = conf.getParameter<edm::InputTag>("src");
   seedToken = consumes<edm::View<TrajectorySeed> >(seedLabel);
 
   edm::InputTag recHitCombinationsLabel = conf.getParameter<edm::InputTag>("recHitCombinations");
@@ -140,17 +137,11 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     int32_t icomb = fastTrackingHelper::getRecHitCombinationIndex(seed);
     recHitCombinationIndices.push_back(icomb);
     }
-
-
-
     for(auto icomb : recHitCombinationIndices)
     {
     if(icomb < 0 || unsigned(icomb) >= recHitCombinations->size()){
 	throw cms::Exception("TrackCandidateProducer") << " found seed with recHitCombination out or range: " << icomb << std::endl;
     }
-    
-
-
     const FastTrackerRecHitCombination & recHitCombination = (*recHitCombinations)[icomb];
 
     // select hits, temporarily store as TrajectorySeedHitCandidates
