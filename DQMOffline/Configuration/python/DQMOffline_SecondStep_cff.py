@@ -58,21 +58,15 @@ DQMOffline_SecondStepPOG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMOffline_SecondStep_PrePOG *
                                          DQMMessageLoggerClientSeq )
 
-HLTMonitoringClient = cms.Sequence()
-
 DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                       DQMOffline_SecondStep_PreDPG *
                                       DQMOffline_SecondStep_PrePOG *
-                                      HLTMonitoringClient *
                                       DQMMessageLoggerClientSeq *
                                       dqmFastTimerServiceClient)
 
-DQMOffline_SecondStep_Run1 = cms.Sequence( DQMOffline_SecondStep )
-DQMOffline_SecondStep_Run1.remove( HLTMonitoringClient )
-
 DQMOffline_SecondStep_PrePOGMC = cms.Sequence( bTagCollectorSequenceDATA )
 
-DQMOffline_SecondStepPOGMC = cms.Sequence( dqmRefHistoRootFileGetter *
+sDQMOffline_SecondStepPOGMC = cms.Sequence( dqmRefHistoRootFileGetter *
                                            DQMOffline_SecondStep_PrePOGMC *
                                            DQMMessageLoggerClientSeq )
 
@@ -104,13 +98,13 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
                                                dqmFastTimerServiceClient
                                                )
 
-DQMHarvestTracking = cms.Sequence( TrackingOfflineDQMClient )
-
 DQMHarvestMuon = cms.Sequence( dtClients *
                                rpcTier0Client *
                                cscOfflineCollisionsClients *
                                muonQualityTests
                                )
+DQMHarvestMuon_miniAOD = cms.Sequence( muonQualityTests_miniAOD )
+
 DQMHarvestEcal = cms.Sequence( ecal_dqm_client_offline *
                                 es_dqm_client_offline
                               )
@@ -122,4 +116,6 @@ DQMHarvestEGamma = cms.Sequence( egammaPostProcessing )
 
 DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )  
 
-DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence )
+HLTMonitoringClient = cms.Sequence()
+
+DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD)
