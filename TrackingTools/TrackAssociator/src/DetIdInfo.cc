@@ -4,6 +4,7 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
   
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -126,7 +127,17 @@ std::string DetIdInfo::info(const DetId& id, const TrackerTopology *tTopo) {
 		 break;
 	      }
 	   }
-	 break;
+      case MuonSubdetId::ME0:
+	{ 
+	  ME0DetId detId(id.rawId());
+	  oss << "ME0 chamber (region, chamber, layer, roll): "
+	      << detId.region() << ", "
+	      << detId.chamber() << ", "
+	      << detId.layer() << ", "
+	      << detId.roll();
+	  break;
+	}
+	break;
       }
       break;
     
