@@ -26,6 +26,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1Trigger/interface/EGamma.h"
 
 // forward declarations
 class L1GlobalTriggerObjectMapRecord;
@@ -89,6 +90,14 @@ private:
 
     /// Meta InputTag for L1 Muon collection
     edm::InputTag muonCollectionsTag_;
+    edm::InputTag muonTag_;
+    edm::EDGetTokenT<l1t::MuonBxCollection>   muonToken_;
+
+
+    /// Meta InputTag for L1 Egamma collection
+    edm::InputTag egammaCollectionsTag_;
+    edm::InputTag egammaTag_;
+    edm::EDGetTokenT<l1t::EGammaBxCollection>   egammaToken_;
 
     /// Meta InputTag for L1 Global collections
     //edm::InputTag globalCollectionsTag_;
@@ -99,10 +108,9 @@ private:
     /// InputTag for L1 Global Trigger object maps
     //edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> m_l1GtObjectMapToken;
 
-    edm::InputTag muonTag_;
-    edm::EDGetTokenT<l1t::MuonBxCollection>   muonToken_;
 
-    bool debugEnabled_;
+    /// cache edm::isDebugEnabled()
+    bool m_isDebugEnabled;
 };
 
 #endif // HLTfilters_HLTL1TSeed_h

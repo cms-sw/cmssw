@@ -42,12 +42,18 @@
    <version ClassVersion="10" checksum="2923979599"/>
   </class>
   <class name="trigger::TriggerObjectCollection"/>
-  <class name="trigger::TriggerRefsCollections" ClassVersion="14">
+  <class name="trigger::TriggerRefsCollections" ClassVersion="17">
+   <version ClassVersion="17" checksum="153119547"/>
+   <version ClassVersion="16" checksum="3831523881"/>
+   <version ClassVersion="15" checksum="153119547"/>
    <version ClassVersion="14" checksum="2264762705"/>
    <version ClassVersion="13" checksum="3831523881"/>
    <version ClassVersion="12" checksum="4231679693"/>
   </class>
-  <class name="trigger::TriggerFilterObjectWithRefs" ClassVersion="13">
+  <class name="trigger::TriggerFilterObjectWithRefs" ClassVersion="16">
+   <version ClassVersion="16" checksum="2389145864"/>
+   <version ClassVersion="15" checksum="2645314434"/>
+   <version ClassVersion="14" checksum="2389145864"/>
    <version ClassVersion="13" checksum="1310297402"/>
    <version ClassVersion="12" checksum="2645314434"/>
    <version ClassVersion="11" checksum="1437602318"/>
@@ -67,7 +73,10 @@
    <version ClassVersion="12" checksum="2301242282"/>
   </class>
   <class name="std::vector<trigger::TriggerEventWithRefs::TriggerFilterObject>"/>
-  <class name="trigger::TriggerEventWithRefs" ClassVersion="13">
+  <class name="trigger::TriggerEventWithRefs" ClassVersion="16">
+   <version ClassVersion="16" checksum="1580092994"/>
+   <version ClassVersion="15" checksum="3347721344"/>
+   <version ClassVersion="14" checksum="1580092994"/>
    <version ClassVersion="13" checksum="1828447080"/>
    <version ClassVersion="12" checksum="3347721344"/>
    <version ClassVersion="11" checksum="2025606788"/>

@@ -33,7 +33,11 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
   //logicalExpression_(parSet.getParameter<string>("L1SeedsLogicalExpression")),
   muonCollectionsTag_(parSet.getParameter<edm::InputTag>("muonCollectionsTag")), // FIX WHEN UNPACKERS ADDED
   muonTag_(muonCollectionsTag_),
-  muonToken_(consumes<l1t::MuonBxCollection>(muonTag_))
+  muonToken_(consumes<l1t::MuonBxCollection>(muonTag_)),
+  egammaCollectionsTag_(parSet.getParameter<edm::InputTag>("egammaCollectionsTag")), // FIX WHEN UNPACKERS ADDED
+  egammaTag_(egammaCollectionsTag_),
+  egammaToken_(consumes<l1t::EGammaBxCollection>(egammaTag_)),
+  m_isDebugEnabled(edm::isDebugEnabled())
 {
 
 
@@ -63,6 +67,8 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
 
   cout << "DEBUG:  muonCollectionsTag:  " << muonCollectionsTag_ << "\n";
   cout << "DEBUG:  muonTag:  " << muonTag_ << "\n";
+  cout << "DEBUG:  egammaCollectionsTag:  " << egammaCollectionsTag_ << "\n";
+  cout << "DEBUG:  egammaTag:  " << egammaTag_ << "\n";
 
   //LogDebug("HLTL1TSeed") 
   //<< "\n";
@@ -103,25 +109,33 @@ HLTL1TSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //desc.add<string>("L1SeedsLogicalExpression","");
 
   desc.add<edm::InputTag>("muonCollectionsTag",edm::InputTag("simGmtStage2Digis"));
+  desc.add<edm::InputTag>("egammaCollectionsTag",edm::InputTag("simCaloStage2Digis"));
+
   descriptions.add("hltL1TSeed", desc);
+  //descriptions.add("hltL1TSeed", desc);
 }
 
 bool HLTL1TSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
 
-  cout << "MY SIZE:  " << filterproduct.getCollectionTagsAsStrings().size() << "\n";
+  cout << "MY SIZE of FILTERPRODUCT:  " << filterproduct.getCollectionTagsAsStrings().size() << "\n";
 
   // the filter object
   if (saveTags()) {
     
-    cout << "INFO:  calling problem guy...\n";
-    //cout << muonTag_.encode() << "\n";
-    // I don't understand why this crashes:
-    //filterproduct.addCollectionTag(muonTag_);
-    cout << "INFO:  completed ok...\n"; 
+    // muons
+    filterproduct.addCollectionTag(muonTag_);
+
+    // egamma 
+    filterproduct.addCollectionTag(egammaTag_);
   }
   
   //seedsL1TriggerObjectMaps(iEvent, filterproduct, l1GtTmAlgo.product(), gtReadoutRecordPtr, physicsDaqPartition))
   seedsAll(iEvent, filterproduct);
+
+  cout << "NEW SIZE of FILTERPRODUCT:  " << filterproduct.getCollectionTagsAsStrings().size() << "\n";
+  if (m_isDebugEnabled) {
+        dumpTriggerFilterObjectWithRefs(filterproduct);
+  }
   return true;
 
 }
@@ -136,6 +150,8 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
     //
     bool objectsInFilter = false;
 
+    // Muon L1T
+    
     edm::Handle<l1t::MuonBxCollection> muons;
     iEvent.getByToken(muonToken_, muons);
     if (!muons.isValid()){ 
@@ -146,20 +162,42 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
 	<< "\nNo muons added to filterproduct."
 	<< endl;	
     } else {
-      cout << "DEBUG:  L1T adding muons to filterproduct...\n";
+      cout << "DEBUG: L1T adding muons to filterproduct...\n";
 
       l1t::MuonBxCollection::const_iterator iter;
       for (iter = muons->begin(0); iter != muons->end(0); ++iter){
 	//objectsInFilter = true;
 	l1t::MuonRef myref(muons, muons->key(iter));
-	//filterproduct.addObject(trigger::TriggerL1Mu, myref);
+	filterproduct.addObject(trigger::TriggerL1Mu, myref);
       }
     }
 
-    l1t::MuonBxCollection::const_iterator iter;
+    //l1t::MuonBxCollection::const_iterator iter;
 
+    // Egamma L1T
+    
+    edm::Handle<l1t::EGammaBxCollection> egammas;
+    iEvent.getByToken(egammaToken_, egammas);
+    if (!egammas.isValid()){ 
+      edm::LogWarning("HLTL1TSeed")
+	<< "\nWarning: L1EGammaBxCollection with input tag "
+	<< egammaTag_
+	<< "\nrequested in configuration, but not found in the event."
+	<< "\nNo egammas added to filterproduct."
+	<< endl;	
+    } else {
+      cout << "DEBUG: L1T adding egammas to filterproduct...\n";
 
+      l1t::EGammaBxCollection::const_iterator iter;
+      for (iter = egammas->begin(0); iter != egammas->end(0); ++iter){
+	//objectsInFilter = true;
+	l1t::EGammaRef myref(egammas, egammas->key(iter));
+	filterproduct.addObject(trigger::TriggerL1NoIsoEG, myref); // Temp just use NoIsoEG
+      }
+    }
 
+    //l1t::EGammaBxCollection::const_iterator iter;
+    
     /*
       int iObj = -1;
 
@@ -172,35 +210,51 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
       l1extra::L1MuonParticleRef(
       l1Muon, iObj));
     */
+
     return objectsInFilter;
 }
 
 // detailed print of filter content
 void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
+
   LogDebug("HLTL1TSeed") << "\nHLTL1TSeed::hltFilter "
 			 << "\n  Dump TriggerFilterObjectWithRefs\n" << endl;
   
-  //vector<l1extra::L1MuonParticleRef> seedsL1Mu;
-  //filterproduct.getObjects(trigger::TriggerL1Mu, seedsL1Mu);
-  //const size_t sizeSeedsL1Mu = seedsL1Mu.size();
+  vector<l1t::MuonRef> seedsL1Mu;
+  filterproduct.getObjects(trigger::TriggerL1Mu, seedsL1Mu);
+  const size_t sizeSeedsL1Mu = seedsL1Mu.size();
 
-  /*
   LogTrace("HLTL1TSeed") << "  L1Mu seeds:      " << sizeSeedsL1Mu << "\n"
 			 << endl;
 
   for (size_t i = 0; i != sizeSeedsL1Mu; i++) {
 
     
-    l1extra::L1MuonParticleRef obj = l1extra::L1MuonParticleRef(
-								seedsL1Mu[i]);
+    l1t::MuonRef obj = l1t::MuonRef( seedsL1Mu[i]);
     
         LogTrace("HLTL1TSeed") << "L1Mu     " << "\t" << "q*PT = "
                 << obj->charge() * obj->pt() << "\t" << "eta =  " << obj->eta()
-                << "\t" << "phi =  " << obj->phi() << "\t" << "BX = "
-                << obj->bx();
+                << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
-  */
+
+  vector<l1t::EGammaRef> seedsL1EG;
+  // !!! FIXME: trigger::TriggerL1EG does not exist.  Using trigger::TriggerNoIsoL1EG
+  filterproduct.getObjects(trigger::TriggerL1NoIsoEG, seedsL1EG);
+  const size_t sizeSeedsL1EG = seedsL1EG.size();
+
+  LogTrace("HLTL1TSeed") << "  L1EG seeds:      " << sizeSeedsL1EG << "\n"
+			 << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1EG; i++) {
+
+    
+    l1t::EGammaRef obj = l1t::EGammaRef( seedsL1EG[i]);
+    
+        LogTrace("HLTL1TSeed") << "L1EG     " << "\t" << "q*PT = "
+                << obj->charge() * obj->pt() << "\t" << "eta =  " << obj->eta()
+                << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
+  }
 
   LogTrace("HLTL1TSeed") << " \n\n" << endl;
 

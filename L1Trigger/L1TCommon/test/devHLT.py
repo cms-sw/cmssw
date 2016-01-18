@@ -14,6 +14,13 @@ process = cms.Process('HLT',eras.Run2_2016)
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
+#process.MessageLogger = cms.Service("MessageLogger",
+#            destinations = cms.untracked.vstring( 'detailedInfo', 'critical'),
+#            detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG')),
+#            debugModules = cms.untracked.vstring( 'hltL1T' )
+#)
+#process.MessageLogger.cerr.FwkReport.reportEvery = 10 # only report every 10th event start
+#process.MessageLogger.cerr_stats.threshold = 'INFO' # also info in statistics
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
@@ -114,10 +121,13 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_25ns14e33_v4', ''
 process.digitisation_step = cms.Path(process.pdigi_valid)
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
 process.digi2raw_step = cms.Path(process.DigiToRaw)
-process.debug_step = cms.Path(process.dumpED)
-#process.debug_step = cms.Path(process.HLTTesting)
+process.debug_step = cms.Path(process.HLTTesting)
+process.dump_step = cms.Path(process.dumpED)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 #process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
+
+
+
 
 
 
