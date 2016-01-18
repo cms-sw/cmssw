@@ -419,9 +419,9 @@ def customiseFor2016trackingTemplate(process):
         )
 
         iter1seq = process.HLTIterativeTrackingIteration1
+        iter1seq.replace( process.hltIter1PFlowTrackSelectionHighPurityLoose, process.hltIter1PFlowTrackCutClassifierPrompt )
+        iter1seq.replace( process.hltIter1PFlowTrackSelectionHighPurityTight, process.hltIter1PFlowTrackCutClassifierDetached )
         iter1HP = process.hltIter1PFlowTrackSelectionHighPurity
-        iter1HP.replace( process.hltIter1PFlowTrackSelectionHighPurityLoose, process.hltIter1PFlowTrackCutClassifierPrompt )
-        iter1HP.replace( process.hltIter1PFlowTrackSelectionHighPurityTight, process.hltIter1PFlowTrackCutClassifierDetached )
         iter1seq.insert( iter1seq.index( iter1HP ), process.hltIter1PFlowTrackCutClassifierMerged )
 
     #### iter2
