@@ -27,7 +27,6 @@ class TrackCandidateProducer : public edm::stream::EDProducer <>
   
  private:
 
-    edm::InputTag seedLabel;
   unsigned int minNumberOfCrossedLayers;
   unsigned int maxNumberOfCrossedLayers;
 

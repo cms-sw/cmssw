@@ -31,9 +31,15 @@ std::vector<int32_t> SeedMatcher::matchRecHitCombinations(const TrajectorySeed &
     TrajectoryStateOnSurface seedState(trajectoryStateTransform::transientState(ptod,seedState_surface,&magneticField));
     
     // find matches
+    int nSimTracks = simTrackCollection.size();
     for(unsigned recHitCombinationIndex = 0;recHitCombinationIndex < recHitCombinationCollection.size(); recHitCombinationIndex++)
     {
 	const auto & recHitCombination = recHitCombinationCollection[recHitCombinationIndex];
+	int simTrackIndex = recHitCombination.back()->simTrackId(0);
+	if(simTrackIndex < 0 || simTrackIndex >= nSimTracks)
+	{
+	    throw cms::Exception("SeedMatcher") << "SimTrack index out of range: " << simTrackIndex << std::endl;
+	}
 	const auto & simTrack = simTrackCollection[recHitCombination.back()->simTrackId(0)];
 	double matchEstimator = matchSimTrack(seedState,simTrack,propagator,magneticField);
 	if(matchEstimator < maxMatchEstimator)
