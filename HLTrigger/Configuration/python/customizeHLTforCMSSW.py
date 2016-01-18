@@ -355,6 +355,7 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
         process = customiseFor12346(process)
         process = customiseFor11920(process)
         process = customiseFor12718(process)
+        process = customiseFor12966(process)
     if cmsswVersion >= "CMSSW_7_6":
         process = customiseFor10418(process)
         process = customiseFor10353(process)
