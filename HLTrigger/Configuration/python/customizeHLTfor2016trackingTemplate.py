@@ -10,20 +10,19 @@ def esproducers_by_type(process, *types):
 
 def customiseFor2016trackingTemplate(process):
     for module in esproducers_by_type(process, 'MeasurementTrackerESProducer'):
-        badStripCuts = getattr(module,'badStripCuts')
-        badStripCuts.TOB = cms.PSet(
+        module.badStripCuts.TOB = cms.PSet(
           maxConsecutiveBad = cms.uint32( 2 ),
           maxBad = cms.uint32( 4 )
         )
-        badStripCuts.TIB = cms.PSet(
+        module.badStripCuts.TIB = cms.PSet(
           maxConsecutiveBad = cms.uint32( 2 ),
           maxBad = cms.uint32( 4 )
         )
-        badStripCuts.TID = cms.PSet(
+        module.badStripCuts.TID = cms.PSet(
           maxConsecutiveBad = cms.uint32( 2 ),
           maxBad = cms.uint32( 4 )
         )
-        badStripCuts.TEC = cms.PSet(
+        module.badStripCuts.TEC = cms.PSet(
           maxConsecutiveBad = cms.uint32( 2 ),
           maxBad = cms.uint32( 4 )
         )
@@ -188,9 +187,9 @@ def customiseFor2016trackingTemplate(process):
           )
         )
 
-        iter0seq = hasattr(process, 'HLTIterativeTrackingIteration0')
-        iter0HP = hasattr(process, 'hltIter0PFlowTrackSelectionHighPurity')
-        iter0seq.insert( iter0seq.index( iter0HP ), hasattr(process,'hltIter0PFlowTrackCutClassifier') )
+        iter0seq = process.HLTIterativeTrackingIteration0
+        iter0HP = process.hltIter0PFlowTrackSelectionHighPurity
+        iter0seq.insert( iter0seq.index( iter0HP ), process.hltIter0PFlowTrackCutClassifier )
 
     ### iter1
     if hasattr(process, 'HLTIterativeTrackingIteration1'):
@@ -419,11 +418,11 @@ def customiseFor2016trackingTemplate(process):
           )
         )
 
-        iter1seq = hasattr(process, 'HLTIterativeTrackingIteration1')
-        iter1HP = hasattr(process, 'hltIter1PFlowTrackSelectionHighPurity')
-        iter1HP.replace( hasattr(process,'hltIter1PFlowTrackSelectionHighPurityLoose'), hasattr(process,'hltIter1PFlowTrackCutClassifierPrompt') )
-        iter1HP.replace( hasattr(process,'hltIter1PFlowTrackSelectionHighPurityTight'), hasattr(process,'hltIter1PFlowTrackCutClassifierDetached') )
-        iter1seq.insert( iter1seq.index( iter1HP ), hasattr(process,'hltIter1PFlowTrackCutClassifierMerged') )
+        iter1seq = process.HLTIterativeTrackingIteration1
+        iter1HP = process.hltIter1PFlowTrackSelectionHighPurity
+        iter1HP.replace( process.hltIter1PFlowTrackSelectionHighPurityLoose, process.hltIter1PFlowTrackCutClassifierPrompt )
+        iter1HP.replace( process.hltIter1PFlowTrackSelectionHighPurityTight, process.hltIter1PFlowTrackCutClassifierDetached )
+        iter1seq.insert( iter1seq.index( iter1HP ), process.hltIter1PFlowTrackCutClassifierMerged )
 
     #### iter2
     if hasattr(process, 'HLTIterativeTrackingIteration2'):
@@ -538,9 +537,9 @@ def customiseFor2016trackingTemplate(process):
           )
         )
 
-        iter2seq = hasattr(process, 'HLTIterativeTrackingIteration2')
-        iter2HP = hasattr(process, 'hltIter2PFlowTrackSelectionHighPurity')
-        iter2seq.insert( iter2seq.index( iter2HP ), hasattr(process,'hltIter2PFlowTrackCutClassifier') )
+        iter2seq = process.HLTIterativeTrackingIteration2
+        iter2HP = process.hltIter2PFlowTrackSelectionHighPurity
+        iter2seq.insert( iter2seq.index( iter2HP ), process.hltIter2PFlowTrackCutClassifier )
 
             
 
