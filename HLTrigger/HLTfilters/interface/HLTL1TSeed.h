@@ -93,11 +93,25 @@ private:
     edm::InputTag muonTag_;
     edm::EDGetTokenT<l1t::MuonBxCollection>   muonToken_;
 
-
     /// Meta InputTag for L1 Egamma collection
     edm::InputTag egammaCollectionsTag_;
     edm::InputTag egammaTag_;
     edm::EDGetTokenT<l1t::EGammaBxCollection>   egammaToken_;
+
+    /// Meta InputTag for L1 Egamma collection
+    edm::InputTag jetCollectionsTag_;
+    edm::InputTag jetTag_;
+    edm::EDGetTokenT<l1t::JetBxCollection>   jetToken_;
+
+    /// Meta InputTag for L1 Egamma collection
+    edm::InputTag tauCollectionsTag_;
+    edm::InputTag tauTag_;
+    edm::EDGetTokenT<l1t::TauBxCollection>   tauToken_;
+
+    /// Meta InputTag for L1 Egamma collection
+    edm::InputTag etsumCollectionsTag_;
+    edm::InputTag etsumTag_;
+    edm::EDGetTokenT<l1t::EtSumBxCollection>   etsumToken_;
 
     /// Meta InputTag for L1 Global collections
     //edm::InputTag globalCollectionsTag_;

@@ -14,11 +14,11 @@ process = cms.Process('HLT',eras.Run2_2016)
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-#process.MessageLogger = cms.Service("MessageLogger",
-#            destinations = cms.untracked.vstring( 'detailedInfo', 'critical'),
-#            detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG')),
-#            debugModules = cms.untracked.vstring( 'hltL1T' )
-#)
+process.MessageLogger = cms.Service("MessageLogger",
+            destinations = cms.untracked.vstring( 'detailedInfo', 'critical'),
+            detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG')),
+            debugModules = cms.untracked.vstring( 'hltL1T' )
+)
 #process.MessageLogger.cerr.FwkReport.reportEvery = 10 # only report every 10th event start
 #process.MessageLogger.cerr_stats.threshold = 'INFO' # also info in statistics
 process.load('Configuration.EventContent.EventContent_cff')

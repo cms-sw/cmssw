@@ -14,9 +14,6 @@ namespace l1t {
   typedef std::vector< EtSumRef > EtSumVectorRef ;
 
   class EtSum : public L1Candidate {
-  typedef edm::Ref< EtSumBxCollection > EtSumRef ;
-  typedef edm::RefVector< EtSumBxCollection > EtSumRefVector ;
-  typedef std::vector< EtSumRef > EtSumVectorRef ;
 
   public:
 
