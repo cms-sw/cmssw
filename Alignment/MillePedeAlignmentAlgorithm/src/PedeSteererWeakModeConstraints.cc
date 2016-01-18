@@ -59,14 +59,16 @@ GeometryConstraintConfigData::GeometryConstraintConfigData(const std::vector<dou
                                                            const std::vector<std::pair<Alignable*,std::string> >& alisFile,
                                                            const int sd,
                                                            const std::vector<Alignable*>& ex,
-                                                           const int instance
+                                                           const int instance,
+							   const bool downToLowestLevel
                                                            ) :
   coefficients_(co),
   constraintName_(c),
   levelsFilenames_(alisFile),
   excludedAlignables_(ex),
   sysdeformation_(sd),
-  instance_(instance)
+  instance_(instance),
+  downToLowestLevel_(downToLowestLevel)
 {
 }
 
@@ -91,9 +93,12 @@ PedeSteererWeakModeConstraints::PedeSteererWeakModeConstraints(AlignableTracker 
       pset.getParameter<std::vector<unsigned int> >("deadmodules") : std::vector<unsigned int>();
     std::string name = pset.getParameter<std::string> ("constraint");
     std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-    const auto ignoredInstances_ = pset.exists("ignoredInstances") ?
+    const auto ignoredInstances = pset.exists("ignoredInstances") ?
       pset.getUntrackedParameter<std::vector<unsigned int> >("ignoredInstances"):
       std::vector<unsigned int>();
+
+    const auto downToLowestLevel = pset.exists("downToLowestLevel") ?
+      pset.getUntrackedParameter<bool>("downToLowestLevel"): false;
 
     AlignmentParameterSelector selector(aliTracker, nullptr, nullptr);
     selector.clear();
@@ -123,8 +128,8 @@ PedeSteererWeakModeConstraints::PedeSteererWeakModeConstraints(AlignableTracker 
          instance < myLabels_->maxNumberOfParameterInstances();
          ++instance) {
       // check if this IOV/momentum range is to be ignored:
-      if (std::find(ignoredInstances_.begin(), ignoredInstances_.end(), instance)
-          != ignoredInstances_.end()) {
+      if (std::find(ignoredInstances.begin(), ignoredInstances.end(), instance)
+          != ignoredInstances.end()) {
         continue;
       }
       std::stringstream defaultsteerfileprefix;
@@ -140,19 +145,22 @@ PedeSteererWeakModeConstraints::PedeSteererWeakModeConstraints(AlignableTracker 
                                                              steerFilePrefix);
 
       //Add the configuration data for this constraint to the container of config data
-      ConstraintsConfigContainer_.push_back(GeometryConstraintConfigData(coefficients,
-                                                                         name,
-                                                                         levelsFilenames,
-                                                                         sysdeformation,
-                                                                         excluded_alis,
-                                                                         instance));
+      ConstraintsConfigContainer_.emplace_back
+	(GeometryConstraintConfigData(coefficients,
+				      name,
+				      levelsFilenames,
+				      sysdeformation,
+				      excluded_alis,
+				      instance,
+				      downToLowestLevel));
     }
 
   }
 }
 
 //_________________________________________________________________________
-std::pair<align::GlobalPoint, align::GlobalPoint> PedeSteererWeakModeConstraints::getDoubleSensorPosition(const Alignable *ali) const
+std::pair<align::GlobalPoint, align::GlobalPoint>
+PedeSteererWeakModeConstraints::getDoubleSensorPosition(const Alignable *ali) const
 {
   const auto aliPar =
     dynamic_cast<TwoBowedSurfacesAlignmentParameters*>(ali->alignmentParameters());
@@ -173,7 +181,8 @@ std::pair<align::GlobalPoint, align::GlobalPoint> PedeSteererWeakModeConstraints
 }
 
 //_________________________________________________________________________
-unsigned int PedeSteererWeakModeConstraints::createAlignablesDataStructure()
+unsigned int
+PedeSteererWeakModeConstraints::createAlignablesDataStructure()
 {
   unsigned int nConstraints = 0;
   for(auto& iC: ConstraintsConfigContainer_) {
@@ -181,11 +190,22 @@ unsigned int PedeSteererWeakModeConstraints::createAlignablesDataStructure()
     for(const auto& iHLS: iC.levelsFilenames_) {
       //determine next active sub-alignables for iHLS
       std::vector<Alignable*> aliDaughts;
-      if (!iHLS.first->firstCompsWithParams(aliDaughts)) {
-        edm::LogWarning("Alignment") << "@SUB=PedeSteererWeakModeConstraints::createAlignablesDataStructure"
-                                     << "Some but not all daughters of "
-                                     << AlignableObjectId::idToString(iHLS.first->alignableObjectId())
-                                     << " with params!";
+      if (iC.downToLowestLevel_) {
+	if (!iHLS.first->lastCompsWithParams(aliDaughts)) {
+	  edm::LogWarning("Alignment")
+	    << "@SUB=PedeSteererWeakModeConstraints::createAlignablesDataStructure"
+	    << "Some but not all component branches "
+	    << AlignableObjectId::idToString(iHLS.first->alignableObjectId())
+	    << " with params!";
+	}
+      } else {
+	if (!iHLS.first->firstCompsWithParams(aliDaughts)) {
+	  edm::LogWarning("Alignment")
+	    << "@SUB=PedeSteererWeakModeConstraints::createAlignablesDataStructure"
+	    << "Some but not all daughters of "
+	    << AlignableObjectId::idToString(iHLS.first->alignableObjectId())
+	    << " with params!";
+	}
       }
       ++nConstraints;
 
@@ -245,7 +265,10 @@ unsigned int PedeSteererWeakModeConstraints::createAlignablesDataStructure()
 }
 
 //_________________________________________________________________________
-double PedeSteererWeakModeConstraints::getX(const int sysdeformation, const align::GlobalPoint &pos, const double phase) const
+double
+PedeSteererWeakModeConstraints::getX(const int sysdeformation,
+				     const align::GlobalPoint &pos,
+				     const double phase) const
 {
   double x = 0.0;
 
@@ -277,13 +300,14 @@ double PedeSteererWeakModeConstraints::getX(const int sysdeformation, const alig
 }
 
 //_________________________________________________________________________
-double PedeSteererWeakModeConstraints::getCoefficient(const int sysdeformation,
-                                                      const align::GlobalPoint &pos,
-                                                      const GlobalPoint gUDirection,
-                                                      const GlobalPoint gVDirection,
-                                                      const GlobalPoint gWDirection,
-                                                      const int iParameter, const double &x0,
-                                                      const std::vector<double> &constraintparameters) const
+double
+PedeSteererWeakModeConstraints::getCoefficient(const int sysdeformation,
+					       const align::GlobalPoint &pos,
+					       const GlobalPoint gUDirection,
+					       const GlobalPoint gVDirection,
+					       const GlobalPoint gWDirection,
+					       const int iParameter, const double &x0,
+					       const std::vector<double> &constraintparameters) const
 {
 
 
@@ -382,7 +406,9 @@ double PedeSteererWeakModeConstraints::getCoefficient(const int sysdeformation,
 }
 
 //_________________________________________________________________________
-bool PedeSteererWeakModeConstraints::checkSelectionShiftParameter(const Alignable *ali, unsigned int iParameter) const
+bool
+PedeSteererWeakModeConstraints::checkSelectionShiftParameter(const Alignable *ali,
+							     unsigned int iParameter) const
 {
   bool isselected = false;
   const std::vector<bool> &aliSel= ali->alignmentParameters()->selector();
@@ -415,8 +441,10 @@ bool PedeSteererWeakModeConstraints::checkSelectionShiftParameter(const Alignabl
   }
   return isselected;
 }
+
 //_________________________________________________________________________
-void PedeSteererWeakModeConstraints::closeOutputfiles()
+void
+PedeSteererWeakModeConstraints::closeOutputfiles()
 {
    //'delete' output files which means: close them
   for(auto& it: ConstraintsConfigContainer_) {
@@ -433,27 +461,17 @@ void PedeSteererWeakModeConstraints::closeOutputfiles()
 }
 
 //_________________________________________________________________________
-void PedeSteererWeakModeConstraints::writeOutput(const std::list<std::pair<unsigned int,double> > &output,
-                                                 const GeometryConstraintConfigData &it, Alignable* iHLS, double sum_xi_x0)
+void
+PedeSteererWeakModeConstraints::writeOutput(const std::list<std::pair<unsigned int,double> > &output,
+					    const GeometryConstraintConfigData &it,
+					    const Alignable* iHLS,
+					    double sum_xi_x0)
 {
-
-  //write output to file
-  std::ofstream* ofile = nullptr;
-
-  for(const auto& ilevelsFilename: it.levelsFilenames_) {
-    if(ilevelsFilename.first->id() == iHLS->id() &&
-       ilevelsFilename.first->alignableObjectId() == iHLS->alignableObjectId()) {
-
-      const auto iFile = it.mapFileName_.find(ilevelsFilename.second);
-      if(iFile != it.mapFileName_.end()) {
-        ofile = iFile->second;
-      }
-    }
-  }
+  std::ofstream* ofile = getFile(it, iHLS);
 
   if(ofile == nullptr) {
     throw cms::Exception("FileFindError")
-      << "[PedeSteererWeakModeConstraints]" << " Cannot find output file.";
+      << "[PedeSteererWeakModeConstraints] Cannot find output file.";
   } else {
     if(output.size() > 0) {
       const double constr = sum_xi_x0 * it.coefficients_.front();
@@ -466,8 +484,30 @@ void PedeSteererWeakModeConstraints::writeOutput(const std::list<std::pair<unsig
 }
 
 //_________________________________________________________________________
-double PedeSteererWeakModeConstraints::getX0(const std::pair<Alignable*, std::list<Alignable*> > &iHLS,
-                                             const GeometryConstraintConfigData &it) const
+std::ofstream*
+PedeSteererWeakModeConstraints::getFile(const GeometryConstraintConfigData &it,
+					const Alignable* iHLS) const
+{
+  std::ofstream* file = nullptr;
+
+  for(const auto& ilevelsFilename: it.levelsFilenames_) {
+    if(ilevelsFilename.first->id() == iHLS->id() &&
+       ilevelsFilename.first->alignableObjectId() == iHLS->alignableObjectId()) {
+
+      const auto iFile = it.mapFileName_.find(ilevelsFilename.second);
+      if(iFile != it.mapFileName_.end()) {
+        file = iFile->second;
+      }
+    }
+  }
+
+  return file;
+}
+
+//_________________________________________________________________________
+double
+PedeSteererWeakModeConstraints::getX0(const std::pair<Alignable*, std::list<Alignable*> > &iHLS,
+				      const GeometryConstraintConfigData &it) const
 {
   double nmodules = 0.0;
   double x0 = 0.0;
@@ -521,7 +561,8 @@ double PedeSteererWeakModeConstraints::getX0(const std::pair<Alignable*, std::li
 }
 
 //_________________________________________________________________________
-unsigned int PedeSteererWeakModeConstraints::constructConstraints(const std::vector<Alignable*> &alis)
+unsigned int
+PedeSteererWeakModeConstraints::constructConstraints(const std::vector<Alignable*> &alis)
 {
   //FIXME: split the code of the method into smaller pieces/submethods
 
@@ -529,6 +570,8 @@ unsigned int PedeSteererWeakModeConstraints::constructConstraints(const std::vec
   //for which the constraints need to be calculated and
   //their association to high-level structures
   const auto nConstraints = this->createAlignablesDataStructure();
+
+  std::vector<std::list<std::pair<unsigned int,double> > > createdConstraints;
 
   //calculate constraints
   //loop over all constraints
@@ -624,7 +667,22 @@ unsigned int PedeSteererWeakModeConstraints::constructConstraints(const std::vec
 
       }
 
+      if (std::find(createdConstraints.begin(), createdConstraints.end(), output)
+	  != createdConstraints.end()) {
+	// check if linearly dependent constraint exists already:
+	auto outFile = getFile(it, iHLS.first);
+	if (outFile == nullptr) {
+	  throw cms::Exception("FileFindError")
+	    << "[PedeSteererWeakModeConstraints] Cannot find output file.";
+	} else {
+	  *outFile << "! The constraint for this IOV/momentum range" << std::endl
+		   << "! has been removed because the used parameters" << std::endl
+		   << "! are not IOV or momentum-range dependent." << std::endl;
+	}
+	continue;
+      }
       this->writeOutput(output, it, iHLS.first, sum_xi_x0);
+      createdConstraints.push_back(output);
     }
   }
   this->closeOutputfiles();
@@ -633,7 +691,9 @@ unsigned int PedeSteererWeakModeConstraints::constructConstraints(const std::vec
 }
 
 //_________________________________________________________________________
-bool PedeSteererWeakModeConstraints::checkMother(const Alignable * const lowleveldet, const Alignable * const HLS) const
+bool
+PedeSteererWeakModeConstraints::checkMother(const Alignable * const lowleveldet,
+					    const Alignable * const HLS) const
 {
   if(lowleveldet->id() == HLS->id() && lowleveldet->alignableObjectId() == HLS->alignableObjectId()) {
     return true;
@@ -646,7 +706,9 @@ bool PedeSteererWeakModeConstraints::checkMother(const Alignable * const lowleve
 }
 
 //_________________________________________________________________________
-void PedeSteererWeakModeConstraints::verifyParameterNames(const edm::ParameterSet &pset, unsigned int psetnr) const
+void
+PedeSteererWeakModeConstraints::verifyParameterNames(const edm::ParameterSet &pset,
+						     unsigned int psetnr) const
 {
   const auto parameterNames = pset.getParameterNames();
   for (const auto& name: parameterNames) {
@@ -654,6 +716,7 @@ void PedeSteererWeakModeConstraints::verifyParameterNames(const edm::ParameterSe
        && name != "deadmodules" && name != "constraint"
        && name != "steerFilePrefix" && name != "levels"
        && name != "excludedAlignables" && name != "ignoredInstances"
+       && name != "downToLowestLevel"
        ) {
       throw cms::Exception("BadConfig")
         << "@SUB=PedeSteererWeakModeConstraints::verifyParameterNames:"
@@ -689,7 +752,9 @@ PedeSteererWeakModeConstraints::makeLevelsFilenames(std::set<std::string> &steer
 }
 
 //_________________________________________________________________________
-int PedeSteererWeakModeConstraints::verifyDeformationName(const std::string &name, const std::vector<double> &coefficients) const
+int
+PedeSteererWeakModeConstraints::verifyDeformationName(const std::string &name,
+						      const std::vector<double> &coefficients) const
 {
   int sysdeformation = SystematicDeformations::kUnknown;
 
@@ -745,7 +810,8 @@ int PedeSteererWeakModeConstraints::verifyDeformationName(const std::string &nam
 
 
 //_________________________________________________________________________
-double PedeSteererWeakModeConstraints::getPhase(const std::vector<double> &coefficients) const
+double
+PedeSteererWeakModeConstraints::getPhase(const std::vector<double> &coefficients) const
 {
   return coefficients.size() == 2 ? coefficients.at(1) : 0.0; //treat second parameter as phase otherwise return 0
 }

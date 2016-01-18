@@ -38,7 +38,8 @@ class GeometryConstraintConfigData {
                                const std::vector<std::pair<Alignable*,std::string> >& alisFile,
                                const int sd,
                                const std::vector<Alignable*>& ex,
-                               const int instance
+                               const int instance,
+			       const bool downToLowestLevel
                                );
   const std::vector<double> coefficients_;
   const std::string constraintName_;
@@ -48,6 +49,7 @@ class GeometryConstraintConfigData {
   std::list<std::pair<Alignable*, std::list<Alignable*> > > HLSsubdets_; //first pointer to HLS object, second list is the list of pointers to the lowest components
   const int sysdeformation_;
   const int instance_;
+  const bool downToLowestLevel_;
 };
 
 class PedeSteererWeakModeConstraints {
@@ -72,7 +74,10 @@ class PedeSteererWeakModeConstraints {
 
   // Write the calculated constraints to the output files
   void writeOutput(const std::list<std::pair<unsigned int,double> > &output,
-                   const GeometryConstraintConfigData &it, Alignable* iHLS, double sum_xi_x0);
+                   const GeometryConstraintConfigData &it, const Alignable* iHLS, double sum_xi_x0);
+
+  // find the out file stream for a given constraint and high-level structure
+  std::ofstream* getFile(const GeometryConstraintConfigData &it, const Alignable* iHLS) const;
 
   // Close the output files
   void closeOutputfiles();
