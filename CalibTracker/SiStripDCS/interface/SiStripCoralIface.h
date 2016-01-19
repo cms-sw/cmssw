@@ -1,9 +1,7 @@
 #ifndef SISTRIPCORALIFACE_H
 #define SISTRIPCORALIFACE_H
-#include "CondCore/DBCommon/interface/DbSession.h"
-#include "CondCore/DBCommon/interface/DbConnection.h"
-#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
-#include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/CondDB/interface/Session.h"
+#include "CondCore/CondDB/interface/Exception.h"
 #include "CoralBase/TimeStamp.h"
 
 #include <iterator>
@@ -36,13 +34,12 @@ class SiStripCoralIface
 
   /* member variables*/
   std::string m_connectionString;
+  std::string m_authPath;
   std::map<std::string,unsigned int> m_id_map;
-  // cond::DBSession* session;
-  cond::DbConnection m_connection;
-  cond::DbSession m_session;
+  cond::persistency::Session m_session;
+  std::auto_ptr<cond::persistency::TransactionScope> m_transaction;
   // cond::CoralTransaction* m_coraldb;
   // cond::Connection* con;
-  std::auto_ptr<cond::DbScopedTransaction> m_transaction;
 
   bool debug_;
 };
