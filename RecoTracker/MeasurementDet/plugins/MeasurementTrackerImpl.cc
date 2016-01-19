@@ -211,16 +211,13 @@ void MeasurementTrackerImpl::addDets( const TrackingGeometry::DetContainer& dets
     //Pixel or Strip GeomDetUnit
     if (gdu->isLeaf()) {
       if(subIsPixel) {
-        std::cout << " Pixel GeomDetUnit " << (**gd).geographicalId().rawId() << std::endl;
         addPixelDet(*gd);
       } else {
-        std::cout << " Strip GeomDetUnit " << (**gd).geographicalId().rawId() << std::endl;
         addStripDet(*gd);
       }
     } else {
 
       //Glued or Stack GeomDet
-      std::cout << " GluedGeomDet or StackGeomDet " << (**gd).geographicalId().rawId() << std::endl;
       const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*>(*gd);
       const StackGeomDet* stackDet = dynamic_cast<const StackGeomDet*>(*gd);
 

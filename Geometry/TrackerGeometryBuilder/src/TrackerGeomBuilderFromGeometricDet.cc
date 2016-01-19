@@ -239,15 +239,12 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
     tracker->addDet(gdu[i]);
     tracker->addDetId(gduId[i]);
     string gduTypeName = gdu[i]->type().name();
-    std::cout << theTopo->print(gduId[i]) << std::endl;
-    std::cout << "with step::" << gduTypeName << std::endl;
 
     //this step is time consuming >> TO FIX with a MAP?
     if( (gduTypeName.find("Ster")!=std::string::npos || 
          gduTypeName.find("Lower")!=std::string::npos) && 
         (theTopo->Glued(gduId[i])!=0 || theTopo->Stack(gduId[i])!=0 )) {
     
-      std::cout << "either a glued or a stack component!" << std::endl;
 
       int partner_pos=-1;
       for(u_int32_t jj=0;jj<gduId.size();jj++){
@@ -272,7 +269,6 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
         PlaneBuilderForGluedDet::ResultType plane = gluedplaneBuilder.plane(composed);
         composedDetId = theTopo->Glued(gduId[i]);
         GluedGeomDet* gluedDet = new GluedGeomDet(&(*plane),dum,dus,composedDetId);
-        std::cout << "add glued det!" << std::endl;
         tracker->addDet((GeomDet*) gluedDet);
         tracker->addDetId(composedDetId);
 
@@ -282,7 +278,6 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
         PlaneBuilderForGluedDet::ResultType plane = gluedplaneBuilder.plane(composed);
         composedDetId = theTopo->Stack(gduId[i]);
         StackGeomDet* stackDet = new StackGeomDet(&(*plane),dum,dus,composedDetId);
-        std::cout << "add stack det!" << std::endl;
         tracker->addDet((GeomDet*) stackDet);
         tracker->addDetId(composedDetId);
 
@@ -290,31 +285,6 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
 
     }
 
-    std::cout << std::endl;
-
-    //StripSubdetector sidet( gduId[i].rawId());
-    //if(sidet.glued()!=0&&sidet.stereo()==1){
-    //  int partner_pos=-1;
-    //  for(u_int32_t jj=0;jj<gduId.size();jj++){
-    //	if(sidet.partnerDetId()== gduId[jj]) {
-    //	  partner_pos=jj;
-    //	  break;
-    // 	}
-    //  }
-    //  const GeomDetUnit* dus = gdu[i];
-    //  if(partner_pos==-1){
-    // 	throw cms::Exception("Configuration") <<"No partner detector found \n"
-    //					<<"There is a problem on Tracker geometry configuration\n";
-    //  }
-    //  const GeomDetUnit* dum = gdu[partner_pos];
-    //  std::vector<const GeomDetUnit *> glued(2);
-    //  glued[0]=dum;
-    //  glued[1]=dus;
-    //  PlaneBuilderForGluedDet::ResultType plane = gluedplaneBuilder.plane(glued);
-    //  GluedGeomDet* gluedDet = new GluedGeomDet(&(*plane),dum,dus,DetId(sidet.glued()));
-    //  tracker->addDet((GeomDet*) gluedDet);
-    //  tracker->addDetId(DetId(sidet.glued()));
-    //}
   }
 }
 
