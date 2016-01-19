@@ -22,16 +22,25 @@ class LeptonAnalyzer( Analyzer ):
     
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(LeptonAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
-        if self.cfg_ana.doMuScleFitCorrections and self.cfg_ana.doMuScleFitCorrections != "none":
-            if self.cfg_ana.doMuScleFitCorrections not in [ "none", "prompt", "prompt-sync", "rereco", "rereco-sync" ]:
-                raise RuntimeError('doMuScleFitCorrections must be one of "none", "prompt", "prompt-sync", "rereco", "rereco-sync"')
-            rereco = ("prompt" not in self.cfg_ana.doMuScleFitCorrections)
-            sync   = ("sync"       in self.cfg_ana.doMuScleFitCorrections)
-            self.muscleCorr = MuScleFitCorr(cfg_comp.isMC, rereco, sync)
-            if hasattr(self.cfg_ana, "doRochesterCorrections") and self.cfg_ana.doRochesterCorrections:
-                raise RuntimeError("You can't run both Rochester and MuScleFit corrections!")
+        if hasattr(self.cfg_ana, 'doMuScleFitCorrections'):
+            raise RuntimeError, "doMuScleFitCorrections is not supported. Please set instead doMuonScaleCorrections = ( 'MuScleFit', <name> )"
+        if hasattr(self.cfg_ana, 'doRochesterCorrections'):
+            raise RuntimeError, "doRochesterCorrections is not supported. Please set instead doMuonScaleCorrections = ( 'Rochester', <name> )"
+        if self.cfg_ana.doMuonScaleCorrections:
+            algo, options = self.cfg_ana.doMuonScaleCorrections
+            if algo == "Rochester":
+                print "WARNING: the Rochester correction in heppy is still from Run 1"
+                self.muonScaleCorrector = RochesterCorrections()
+            elif algo == "MuScleFit":
+                print "WARNING: the MuScleFit correction in heppy is still from Run 1 (and probably no longer functional)"
+                if options not in [ "prompt", "prompt-sync", "rereco", "rereco-sync" ]:
+                    raise RuntimeError, 'MuScleFit correction name must be one of [ "prompt", "prompt-sync", "rereco", "rereco-sync" ] '
+                    rereco = ("prompt" not in self.cfg_ana.doMuScleFitCorrections)
+                    sync   = ("sync"       in self.cfg_ana.doMuScleFitCorrections)
+                    self.muonScaleCorrector = MuScleFitCorr(cfg_comp.isMC, rereco, sync)
+            else: raise RuntimeError, "Unknown muon scale correction algorithm"
         else:
-            self.cfg_ana.doMuScleFitCorrections = False
+            self.muonScaleCorrector = None
 	#FIXME: only Embedded works
         if self.cfg_ana.doElectronScaleCorrections:
             conf = cfg_ana.doElectronScaleCorrections
@@ -219,13 +228,8 @@ class LeptonAnalyzer( Analyzer ):
         allmuons = map( Muon, self.handles['muons'].product() )
 
         # Muon scale and resolution corrections (if enabled)
-        if self.cfg_ana.doMuScleFitCorrections:
-            for mu in allmuons:
-                self.muscleCorr.correct(mu, event.run)
-        elif self.cfg_ana.doRochesterCorrections:
-            for mu in allmuons:
-                corp4 = rochcor.corrected_p4(mu, event.run) 
-                mu.setP4( corp4 )
+        if self.muonScaleCorrector:
+            self.muonScaleCorrector.correct_all(allmuons, event.run)
 
         # Clean up dulicate muons (note: has no effect unless the muon id is removed)
         if self.cfg_ana.doSegmentBasedMuonCleaning:
@@ -577,9 +581,8 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     rhoElectron = 'fixedGridRhoFastjetAll',
 ##    photons='slimmedPhotons',
     # energy scale corrections and ghost muon suppression (off by default)
-    doMuScleFitCorrections=False, # "rereco"
-    doRochesterCorrections=False,
-    doElectronScaleCorrections=False, # "embedded" in 5.18 for regression
+    doMuonScaleCorrections=False, 
+    doElectronScaleCorrections=False, 
     doSegmentBasedMuonCleaning=False,
     # inclusive very loose muon selection
     inclusive_muon_id  = "POG_ID_Loose",
