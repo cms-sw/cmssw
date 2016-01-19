@@ -368,6 +368,10 @@ class Electron( Lepton ):
 	else :
 		return self.gsfTrack().hitPattern().numberOfHits(ROOT.reco.HitPattern.MISSING_INNER_HITS)
 
+    def validCandidateP4Kind(self):
+        raw = self.physObj.candidateP4Kind()
+        return raw in (0,1,2) 
+
     def ptErr(self):
-        return self.p4Error(self.candidateP4Kind())*self.pt()/self.p()
+        return self.p4Error(self.candidateP4Kind())*self.pt()/self.p() if self.validCandidateP4Kind() else None
  
