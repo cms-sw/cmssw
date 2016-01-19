@@ -10,7 +10,6 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/Alignment"/>
 <use   name="CondFormats/AlignmentRecord"/>
-<use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
 <export>
   <lib   name="1"/>

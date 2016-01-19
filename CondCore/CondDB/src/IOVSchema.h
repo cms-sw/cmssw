@@ -10,17 +10,17 @@ namespace cond {
 
   namespace persistency {
 
-    table( TAG ) {
+    conddb_table( TAG ) {
       
-      column( NAME, std::string );
-      column( TIME_TYPE, cond::TimeType );
-      column( OBJECT_TYPE, std::string );
-      column( SYNCHRONIZATION, cond::SynchronizationType );
-      column( END_OF_VALIDITY, cond::Time_t );
-      column( DESCRIPTION, std::string );
-      column( LAST_VALIDATED_TIME, cond::Time_t );
-      column( INSERTION_TIME, boost::posix_time::ptime );
-      column( MODIFICATION_TIME, boost::posix_time::ptime );
+      conddb_column( NAME, std::string );
+      conddb_column( TIME_TYPE, cond::TimeType );
+      conddb_column( OBJECT_TYPE, std::string );
+      conddb_column( SYNCHRONIZATION, cond::SynchronizationType );
+      conddb_column( END_OF_VALIDITY, cond::Time_t );
+      conddb_column( DESCRIPTION, std::string );
+      conddb_column( LAST_VALIDATED_TIME, cond::Time_t );
+      conddb_column( INSERTION_TIME, boost::posix_time::ptime );
+      conddb_column( MODIFICATION_TIME, boost::posix_time::ptime );
       
       class Table : public ITagTable {
       public:
@@ -45,16 +45,16 @@ namespace cond {
       };
     }
 
-    table ( PAYLOAD ) {
+    conddb_table ( PAYLOAD ) {
       
       static constexpr unsigned int PAYLOAD_HASH_SIZE = 40;
       
-      column( HASH, std::string, PAYLOAD_HASH_SIZE );
-      column( OBJECT_TYPE, std::string );
-      column( DATA, cond::Binary );
-      column( STREAMER_INFO, cond::Binary );
-      column( VERSION, std::string );
-      column( INSERTION_TIME, boost::posix_time::ptime );
+      conddb_column( HASH, std::string, PAYLOAD_HASH_SIZE );
+      conddb_column( OBJECT_TYPE, std::string );
+      conddb_column( DATA, cond::Binary );
+      conddb_column( STREAMER_INFO, cond::Binary );
+      conddb_column( VERSION, std::string );
+      conddb_column( INSERTION_TIME, boost::posix_time::ptime );
      
       class Table : public IPayloadTable {
       public:
@@ -76,12 +76,12 @@ namespace cond {
       };
     }
     
-    table( IOV ) {
+    conddb_table( IOV ) {
       
-      column( TAG_NAME, std::string );
-      column( SINCE, cond::Time_t );
-      column( PAYLOAD_HASH, std::string, PAYLOAD::PAYLOAD_HASH_SIZE );
-      column( INSERTION_TIME, boost::posix_time::ptime );
+      conddb_column( TAG_NAME, std::string );
+      conddb_column( SINCE, cond::Time_t );
+      conddb_column( PAYLOAD_HASH, std::string, PAYLOAD::PAYLOAD_HASH_SIZE );
+      conddb_column( INSERTION_TIME, boost::posix_time::ptime );
 
       struct SINCE_GROUP {					 
 	typedef cond::Time_t type;				   
@@ -135,53 +135,28 @@ namespace cond {
       };
     }
     
-    // temporary... to be removed after the changeover.
-    table( TAG_MIGRATION ) {
-      
-      column( SOURCE_ACCOUNT, std::string );
-      column( SOURCE_TAG, std::string );
-      column( TAG_NAME, std::string );
-      column( STATUS_CODE, int );
-      column( INSERTION_TIME, boost::posix_time::ptime );
-      
-      class Table : public ITagMigrationTable {
+    conddb_table( TAG_LOG ) {
+
+      conddb_column( TAG_NAME, std::string );
+      conddb_column( EVENT_TIME, boost::posix_time::ptime );
+      conddb_column( USER_NAME, std::string );
+      conddb_column( HOST_NAME, std::string );
+      conddb_column( COMMAND, std::string );
+      conddb_column( ACTION, std::string );
+      conddb_column( USER_TEXT, std::string );
+
+      class Table : public ITagLogTable {
       public:
 	explicit Table( coral::ISchema& schema );
 	virtual ~Table(){}
 	bool exists();
-	void create();
-	bool select( const std::string& sourceAccount, const std::string& sourceTag, std::string& tagName, int& statusCode);
-	void insert( const std::string& sourceAccount, const std::string& sourceTag, const std::string& tagName, 
-		     int statusCode, const boost::posix_time::ptime& insertionTime);
-	void updateValidationCode( const std::string& sourceAccount, const std::string& sourceTag, int statusCode );
+        void create();
+        void insert( const std::string& tag, const boost::posix_time::ptime& eventTime, const std::string& userName, const std::string& hostName, 
+		     const std::string& command, const std::string& action, const std::string& userText );
       private:
 	coral::ISchema& m_schema;
       };
     }
-
-    // temporary... to be removed after the changeover.
-    table( PAYLOAD_MIGRATION ) {
-      
-      column( SOURCE_ACCOUNT, std::string );
-      column( SOURCE_TOKEN, std::string );
-      column( PAYLOAD_HASH, std::string, PAYLOAD::PAYLOAD_HASH_SIZE );
-      column( INSERTION_TIME, boost::posix_time::ptime );
-      
-      class Table : public IPayloadMigrationTable {
-      public:
-	explicit Table( coral::ISchema& schema );
-	virtual ~Table(){}
-	bool exists();
-	void create();
-	bool select( const std::string& sourceAccount, const std::string& sourceToken, std::string& payloadId );
-	void insert( const std::string& sourceAccount, const std::string& sourceToken, const std::string& payloadId, 
-		     const boost::posix_time::ptime& insertionTime);
-	void update( const std::string& sourceAccount, const std::string& sourceToken, const std::string& payloadId, 
-		     const boost::posix_time::ptime& insertionTime);
-      private:
-	coral::ISchema& m_schema;
-      };
-    } 
     
     class IOVSchema : public IIOVSchema {
     public: 
@@ -191,16 +166,13 @@ namespace cond {
       bool create();
       ITagTable& tagTable();
       IIOVTable& iovTable();
+      ITagLogTable& tagLogTable();
       IPayloadTable& payloadTable();
-      ITagMigrationTable& tagMigrationTable();
-      IPayloadMigrationTable& payloadMigrationTable();
-      std::string parsePoolToken( const std::string& );
     private:
       TAG::Table m_tagTable;
       IOV::Table m_iovTable;
+      TAG_LOG::Table m_tagLogTable;
       PAYLOAD::Table m_payloadTable;
-      TAG_MIGRATION::Table m_tagMigrationTable;
-      PAYLOAD_MIGRATION::Table m_payloadMigrationTable;
     };
   }
 }
