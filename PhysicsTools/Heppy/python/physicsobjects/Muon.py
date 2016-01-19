@@ -126,4 +126,5 @@ class Muon( Lepton ):
         return self.chargedHadronIsoR(R)+max(0.,photonIso+self.neutralHadronIsoR(R)-offset)            
 
     def ptErr(self):
+        if "_ptErr" in self.__dict__: return self.__dict__['_ptErr']
         return self.bestTrack().ptError()
