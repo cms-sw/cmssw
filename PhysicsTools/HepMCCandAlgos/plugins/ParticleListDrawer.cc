@@ -14,6 +14,7 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Common/interface/Ref.h"
 
 /**
@@ -54,6 +55,7 @@ class ParticleListDrawer : public edm::EDAnalyzer {
     unsigned int nEventAnalyzed_;
     bool printOnlyHardInteraction_;
     bool printVertex_;
+    bool printFlags_;
     bool useMessageLogger_;
 };
 
@@ -64,6 +66,7 @@ ParticleListDrawer::ParticleListDrawer(const edm::ParameterSet & pset) :
   nEventAnalyzed_(0),
   printOnlyHardInteraction_(pset.getUntrackedParameter<bool>("printOnlyHardInteraction", false)),
   printVertex_(pset.getUntrackedParameter<bool>("printVertex", false)),
+  printFlags_(pset.getUntrackedParameter<bool>("printFlags", false)),
   useMessageLogger_(pset.getUntrackedParameter<bool>("useMessageLogger", false)) {
 }
 
@@ -166,6 +169,19 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
                  p->vertex().y(),
                  p->vertex().z());
         out << buf;
+      }
+
+      if (printFlags_) {
+          const reco::GenParticle *gp = dynamic_cast<const reco::GenParticle *>(&*p);
+          if (!gp) throw cms::Exception("Unsupported", "Status flags can be printed only for reco::GenParticle objects\n");
+          if (gp->isPromptFinalState()) out << "  PromptFinalState";
+          if (gp->isDirectPromptTauDecayProductFinalState()) out << "  DirectPromptTauDecayProductFinalState";
+          if (gp->isHardProcess()) out << "  HardProcess";
+          if (gp->fromHardProcessFinalState()) out << "  HardProcessFinalState";
+          if (gp->fromHardProcessBeforeFSR()) out << "  HardProcessBeforeFSR";
+          if (gp->statusFlags().isFirstCopy()) out << "  FirstCopy";
+          if (gp->isLastCopy()) out << "  LastCopy";
+          if (gp->isLastCopyBeforeFSR()) out << "  LastCopyBeforeFSR";
       }
 
       out << endl;
