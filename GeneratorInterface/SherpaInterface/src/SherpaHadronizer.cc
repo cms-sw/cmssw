@@ -250,15 +250,20 @@ void SherpaHadronizer::statistics()
 
   //set the internal cross section in pb in GenRunInfoProduct
   runInfo().setInternalXSec(GenRunInfoProduct::XSec(xsec_val,xsec_err));
+  
+  std::vector<std::string> newWeightList;
   if(rearrangeWeights){
       std::cout << "The event weights have the following ordering:" << std::endl;
-      for(auto &i: weightlist)
+      for(auto &i: weightlist){
+          newWeightList.push_back(i);
           std::cout << i << std::endl;
-      for(auto &i: variationweightlist)
+      }
+      for(auto &i: variationweightlist) {
+          newWeightList.push_back(i);
           std::cout << i << std::endl;
-   }
-//   runInfo().setWeightList(weightlist);
-
+      }
+    }
+  runInfo().setWeightList(newWeightList);
 }
 
 

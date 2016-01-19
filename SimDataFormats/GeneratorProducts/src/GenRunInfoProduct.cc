@@ -9,7 +9,8 @@ using namespace edm;
 using namespace std;
 
 GenRunInfoProduct::GenRunInfoProduct() :
-	externalFilterEfficiency_(-1.)
+	externalFilterEfficiency_(-1.),
+	nWeights_(0)
 {
 }
 
@@ -17,7 +18,9 @@ GenRunInfoProduct::GenRunInfoProduct(GenRunInfoProduct const &other) :
 	internalXSec_(other.internalXSec_),
 	externalXSecLO_(other.externalXSecLO_),
 	externalXSecNLO_(other.externalXSecNLO_),
-	externalFilterEfficiency_(other.externalFilterEfficiency_)
+	externalFilterEfficiency_(other.externalFilterEfficiency_),
+	WeightList_(other.WeightList_),
+	nWeights_(other.nWeights_)
 {
 }
 
