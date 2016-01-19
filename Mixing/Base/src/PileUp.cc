@@ -178,6 +178,7 @@ namespace edm {
     streamContext_.reset(new StreamContext(iID, processContext_.get()));
     input_->doBeginJob();
     if (provider_.get() != nullptr) {
+      provider_->beginJob(*productRegistry_);
       provider_->beginStream(iID, *streamContext_);
     }
   }
@@ -185,6 +186,7 @@ namespace edm {
   void PileUp::endStream () {
     if (provider_.get() != nullptr) {
       provider_->endStream(streamContext_->streamID(), *streamContext_);
+      provider_->endJob();
     }
     input_->doEndJob();
   }
