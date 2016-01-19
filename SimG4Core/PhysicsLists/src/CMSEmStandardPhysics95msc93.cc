@@ -125,16 +125,16 @@ void CMSEmStandardPhysics95msc93::ConstructProcess()
   // Add standard EM Processes
 
   // muon & hadron bremsstrahlung and pair production
-  G4MuBremsstrahlung* mub = new G4MuBremsstrahlung();
-  G4MuPairProduction* mup = new G4MuPairProduction();
-  G4hBremsstrahlung* pib = new G4hBremsstrahlung();
-  G4hPairProduction* pip = new G4hPairProduction();
-  G4hBremsstrahlung* kb = new G4hBremsstrahlung();
-  G4hPairProduction* kp = new G4hPairProduction();
-  G4hBremsstrahlung* pb = new G4hBremsstrahlung();
-  G4hPairProduction* pp = new G4hPairProduction();
+  G4MuBremsstrahlung* mub = nullptr;
+  G4MuPairProduction* mup = nullptr;
+  G4hBremsstrahlung* pib = nullptr;
+  G4hPairProduction* pip = nullptr;
+  G4hBremsstrahlung* kb = nullptr;
+  G4hPairProduction* kp = nullptr;
+  G4hBremsstrahlung* pb = nullptr;
+  G4hPairProduction* pp = nullptr;
 
-  G4hMultipleScattering* hmsc = new G4hMultipleScattering("ionmsc");
+  G4hMultipleScattering* hmsc = nullptr;
 
   // This EM builder takes default models of Geant4 10 EMV.
   // Multiple scattering by Urban for all particles
@@ -188,6 +188,10 @@ void CMSEmStandardPhysics95msc93::ConstructProcess()
     } else if (particleName == "mu+" ||
                particleName == "mu-"    ) {
 
+      if(nullptr == mub) {
+	mub = new G4MuBremsstrahlung();
+	mup = new G4MuPairProduction();
+      }
       pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
       pmanager->AddProcess(new G4MuIonisation,        -1, 2, 2);
       pmanager->AddProcess(mub,    -1,-3, 3);
@@ -197,12 +201,19 @@ void CMSEmStandardPhysics95msc93::ConstructProcess()
                particleName == "He3" ||
                particleName == "GenericIon") {
 
+      if(nullptr == hmsc) {
+	hmsc = new G4hMultipleScattering("ionmsc");
+      }
       pmanager->AddProcess(hmsc,                  -1, 1, 1);
       pmanager->AddProcess(new G4ionIonisation,   -1, 2, 2);
 
     } else if (particleName == "pi+" ||
 	       particleName == "pi-" ) {
 
+      if(nullptr == pib) {
+	pib = new G4hBremsstrahlung();
+	pip = new G4hPairProduction();
+      }
       pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
       pmanager->AddProcess(new G4hIonisation,         -1, 2, 2);
       pmanager->AddProcess(pib,   -1,-3, 3);
@@ -211,6 +222,10 @@ void CMSEmStandardPhysics95msc93::ConstructProcess()
     } else if (particleName == "kaon+" ||
 	       particleName == "kaon-"  ) {
 
+      if(nullptr == kb) {
+	kb = new G4hBremsstrahlung();
+	kp = new G4hPairProduction();
+      }
       pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
       pmanager->AddProcess(new G4hIonisation,         -1, 2, 2);
       pmanager->AddProcess(kb,   -1,-3, 3);
@@ -218,7 +233,10 @@ void CMSEmStandardPhysics95msc93::ConstructProcess()
 
     } else if (particleName == "proton" || 
 	       particleName == "anti_proton" ) {
-
+      if(nullptr == pb) {
+	pb = new G4hBremsstrahlung();
+	pp = new G4hPairProduction();
+      }
       pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
       pmanager->AddProcess(new G4hIonisation,         -1, 2, 2);
       pmanager->AddProcess(pb,   -1,-3, 3);
@@ -252,6 +270,9 @@ void CMSEmStandardPhysics95msc93::ConstructProcess()
                particleName == "xi_c+" ||
                particleName == "xi-" ) {
 
+      if(nullptr == hmsc) {
+	hmsc = new G4hMultipleScattering("ionmsc");
+      }
       pmanager->AddProcess(hmsc,                -1, 1, 1);
       pmanager->AddProcess(new G4hIonisation,   -1, 2, 2);
     }

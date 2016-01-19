@@ -63,8 +63,8 @@ std::vector<math::XYZTLorentzVector> TreatSecondary::tracks(const G4Step*aStep,
   charges.clear();
 
   if (aStep != NULL) {
-    G4TrackVector* tkV  = const_cast<G4TrackVector*>(aStep->GetSecondary());
-    G4Track*       thTk = aStep->GetTrack();
+    const G4TrackVector* tkV  = aStep->GetSecondary();
+    G4Track* thTk = aStep->GetTrack();
     const G4StepPoint* preStepPoint  = aStep->GetPreStepPoint();
     const G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
     double eTrackNew = thTk->GetKineticEnergy()/MeV;
