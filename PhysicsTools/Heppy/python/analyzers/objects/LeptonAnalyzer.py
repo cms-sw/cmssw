@@ -97,6 +97,8 @@ class LeptonAnalyzer( Analyzer ):
                 self.IsolationComputer = heppy.IsolationComputer()
             
 
+        self.doMatchToPhotons = getattr(cfg_ana, 'do_mc_match_photons', False)
+
     #----------------------------------------
     # DECLARATION OF HANDLES OF LEPTONS STUFF   
     #----------------------------------------
@@ -116,6 +118,13 @@ class LeptonAnalyzer( Analyzer ):
 
         if self.doMiniIsolation or self.doIsolationScan:
             self.handles['packedCandidates'] = AutoHandle( self.cfg_ana.packedCandidates, 'std::vector<pat::PackedCandidate>')
+
+        if self.doMatchToPhotons:
+            if self.doMatchToPhotons == "any":
+                self.mchandles['genPhotons'] = AutoHandle( 'packedGenParticles', 'std::vector<pat::PackedGenParticle>' )
+            else:
+                self.mchandles['genPhotons'] = AutoHandle( 'prunedGenParticles', 'std::vector<reco::GenParticle>' )
+
     def beginLoop(self, setup):
         super(LeptonAnalyzer,self).beginLoop(setup)
         self.counters.addCounter('events')
@@ -557,6 +566,27 @@ class LeptonAnalyzer( Analyzer ):
                 lep.mcMatchId = 0
             if not hasattr(lep,'mcMatchTau'): lep.mcMatchTau = 0
 
+    def matchToPhotons(self, event): 
+        event.anyPho = [ x for x in self.mchandles['genPhotons'].product() if x.status() == 1 and x.pdgId() == 22 and x.pt() > 1.0 ]
+        leps = event.inclusiveLeptons if hasattr(event, 'inclusiveLeptons') else event.selectedLeptons
+        leps = [ l for l in leps if abs(l.pdgId()) == 11 ]
+        plausible = lambda rec, gen : 0.3*gen.pt() < rec.pt() and rec.pt() < 1.5*gen.pt()
+        match = matchObjectCollection3(leps, event.anyPho, deltaRMax = 0.3, filter = plausible)
+        for lep in leps:
+            gen = match[lep]
+            lep.mcPho = gen
+            if lep.mcPho and lep.mcLep:
+                # I have both, I should keep the best one
+                def distance(rec,gen): 
+                    dr = deltaR(rec.eta(),rec.phi(),gen.eta(),gen.phi())
+                    dptRel = abs(rec.pt()-gen.pt())/gen.pt()
+                    return dr + 0.2*dptRel
+                dpho = distance(lep,lep.mcPho)
+                dlep = distance(lep,lep.mcLep)
+                if getattr(lep,'mcMatchAny_gp',None) and lep.mcMatchAny_gp != lep.mcLep:
+                    dlep = min(dlep, distance(lep,lep.mcMatchAny_gp))
+                if dlep <= dpho: lep.mcPho = None
+
     def process(self, event):
         self.readCollections( event.input )
         self.counters.counter('events').inc('all events')
@@ -567,6 +597,8 @@ class LeptonAnalyzer( Analyzer ):
         if self.cfg_comp.isMC and self.cfg_ana.do_mc_match:
             self.matchLeptons(event)
             self.matchAnyLeptons(event)
+            if self.cfg_ana.do_mc_match_photons:
+                self.matchToPhotons(event)
             
         return True
 
