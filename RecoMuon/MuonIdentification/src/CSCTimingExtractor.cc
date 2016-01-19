@@ -66,7 +66,7 @@ class MuonServiceProxy;
 //
 // constructors and destructor
 //
-CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig, MuonSegmentMatcher *segmentMatcher)
+CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig)
   :
   thePruneCut_(iConfig.getParameter<double>("PruneCut")),
   theStripTimeOffset_(iConfig.getParameter<double>("CSCStripTimeOffset")),
@@ -79,10 +79,6 @@ CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig, MuonSeg
 {
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
-  
-  edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
-
-  theMatcher = segmentMatcher;
 }
 
 
@@ -98,7 +94,8 @@ CSCTimingExtractor::~CSCTimingExtractor()
 
 // ------------ method called to produce the data  ------------
 void
-CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, const edm::Event& iEvent, const edm::EventSetup& iSetup)
+CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, MuonSegmentMatcher *theMatcher,
+                               const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   if (debug) 
@@ -172,7 +169,7 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
     }
 
   } // rechit
-      
+
   bool modified = false;
   std::vector <double> dstnc, local_t0, hitWeightInvbeta, hitWeightTimeVtx;
   double totalWeightInvbeta=0;

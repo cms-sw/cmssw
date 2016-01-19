@@ -48,11 +48,11 @@ MuonTimingFiller::MuonTimingFiller(const edm::ParameterSet& iConfig, edm::Consum
 
    // Load parameters for the DTTimingExtractor
    edm::ParameterSet dtTimingParameters = iConfig.getParameter<edm::ParameterSet>("DTTimingParameters");
-   theDTTimingExtractor_ = new DTTimingExtractor(dtTimingParameters,theMatcher_);
+   theDTTimingExtractor_ = new DTTimingExtractor(dtTimingParameters);
 
    // Load parameters for the CSCTimingExtractor
    edm::ParameterSet cscTimingParameters = iConfig.getParameter<edm::ParameterSet>("CSCTimingParameters");
-   theCSCTimingExtractor_ = new CSCTimingExtractor(cscTimingParameters,theMatcher_);
+   theCSCTimingExtractor_ = new CSCTimingExtractor(cscTimingParameters);
    
    errorEB_ = iConfig.getParameter<double>("ErrorEB");
    errorEE_ = iConfig.getParameter<double>("ErrorEE");
@@ -89,12 +89,12 @@ MuonTimingFiller::fillTiming( const reco::Muon& muon,
   TimeMeasurementSequence dtTmSeq,cscTmSeq;
      
   if ( !(muon.combinedMuon().isNull()) ) {
-    theDTTimingExtractor_->fillTiming(dtTmSeq, muon.combinedMuon(), iEvent, iSetup);
-    theCSCTimingExtractor_->fillTiming(cscTmSeq, muon.combinedMuon(), iEvent, iSetup);
+    theDTTimingExtractor_->fillTiming(dtTmSeq, muon.combinedMuon(),theMatcher_, iEvent, iSetup);
+    theCSCTimingExtractor_->fillTiming(cscTmSeq, muon.combinedMuon(),theMatcher_, iEvent, iSetup);
   } else
     if ( !(muon.standAloneMuon().isNull()) ) {
-      theDTTimingExtractor_->fillTiming(dtTmSeq, muon.standAloneMuon(), iEvent, iSetup);
-      theCSCTimingExtractor_->fillTiming(cscTmSeq, muon.standAloneMuon(), iEvent, iSetup);
+      theDTTimingExtractor_->fillTiming(dtTmSeq, muon.standAloneMuon(),theMatcher_, iEvent, iSetup);
+      theCSCTimingExtractor_->fillTiming(cscTmSeq, muon.standAloneMuon(),theMatcher_, iEvent, iSetup);
     }
   
   // Fill DT-specific timing information block     
