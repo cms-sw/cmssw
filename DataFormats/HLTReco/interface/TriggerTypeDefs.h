@@ -38,9 +38,9 @@ namespace trigger
     TriggerL1ETT          = -88,
     TriggerL1HTT          = -89,
     TriggerL1HTM          = -90,
-    TriggerL1JetCounts    = -91,
-    TriggerL1HfBitCounts  = -92,
-    TriggerL1HfRingEtSums = -93,
+    TriggerL1JetCounts    = -91, // legacy and stage1
+    TriggerL1HfBitCounts  = -92, // legacy and stage1
+    TriggerL1HfRingEtSums = -93, // legacy and stage1
     TriggerL1TechTrig     = -94,
     TriggerL1Castor       = -95,
     TriggerL1BPTX         = -96,
