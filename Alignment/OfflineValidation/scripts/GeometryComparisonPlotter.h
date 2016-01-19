@@ -6,6 +6,7 @@
 #include <TStyle.h>
 #include <TAxis.h>
 #include <TGraph.h>
+#include <TH2.h>
 #include <TMultiGraph.h>
 #include <TFile.h>
 #include <TCanvas.h>
@@ -31,7 +32,8 @@ class GeometryComparisonPlotter
             _print_option,
             _module_plot_option,
             _alignment_name,
-            _reference_name;
+            _reference_name,
+            _print_only_global;
     bool _print,
          _legend,
          _write,
@@ -73,12 +75,16 @@ public:
                               TString outputDirname = "output/",
                               TString modulesToPlot="all",
                               TString referenceName="Ideal",
-                              TString alignmentName="Alignment");
+                              TString alignmentName="Alignment",
+                              TString plotOnlyGlobal="false");
     ~GeometryComparisonPlotter ();
 
     // main methods
     void MakePlots (const vector<TString>,
-                    const vector<TString>);
+                    const vector<TString>,
+                    const vector<float>,
+                    const vector<float>
+                    );
 
     // option methods
     void SetPrint               (const bool);           // activates the printing of the individual and global pdf
