@@ -14,38 +14,23 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
-#include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "JetMETCorrections/Algorithms/interface/L1FastjetCorrector.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 #include "RecoMET/METAlgorithms/interface/METAlgo.h"
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
@@ -53,11 +38,6 @@
 #include "RecoMET/METPUSubtraction/interface/MvaMEtUtilities.h"
 
 #include "RecoJets/JetProducers/interface/PileupJetIdAlgo.h"
-
-#include <algorithm>
-#include <vector>
-
-#include "TLorentzVector.h"
 
 namespace reco
 {
@@ -103,7 +83,6 @@ namespace reco
     typedef std::vector<edm::InputTag> vInputTag;
     std::vector<edm::EDGetTokenT<reco::CandidateView > > srcLeptons_;
     int minNumLeptons_; // CV: option to skip MVA MET computation in case there are less than specified number of leptons in the event
-    edm::EDGetTokenT<edm::Handle<double> > srcRho_;
 
     std::string correctorLabel_;
     bool useType1_;
