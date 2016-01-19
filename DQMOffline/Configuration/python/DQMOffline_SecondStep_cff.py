@@ -58,7 +58,7 @@ DQMOffline_SecondStepPOG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMOffline_SecondStep_PrePOG *
                                          DQMMessageLoggerClientSeq )
 
-HLTMonitoringClient = cms.Sequence(trackingMonitorClientHLT)
+HLTMonitoringClient = cms.Sequence(trackingMonitorClientHLT)  
 
 DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                       DQMOffline_SecondStep_PreDPG *
@@ -112,16 +112,18 @@ DQMHarvestMuon = cms.Sequence( dtClients *
                                cscOfflineCollisionsClients *
                                muonQualityTests
                                )
+DQMHarvestMuon_miniAOD = cms.Sequence( muonQualityTests_miniAOD )
+
 DQMHarvestEcal = cms.Sequence( ecal_dqm_client_offline *
                                 es_dqm_client_offline
                               )
 
 DQMHarvestHcal = cms.Sequence(hcalOfflineHarvesting)
 
-DQMHarvestJetMET = cms.Sequence( SusyPostProcessorSequence )
-
 DQMHarvestEGamma = cms.Sequence( egammaPostProcessing )                     
+
+DQMHarvestJetMET = cms.Sequence( SusyPostProcessorSequence )
 
 DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )  
 
-DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence )
+DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD)

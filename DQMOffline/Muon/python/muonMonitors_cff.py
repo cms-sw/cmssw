@@ -1,10 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#
-# This object is used to make changes for different running scenarios
-#
-from Configuration.StandardSequences.Eras import eras
-
 #Analyzer taken from online dqm
 from DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi import *
 from DQM.TrackingMonitor.MonitorTrackGLBMuons_cfi import *
@@ -27,14 +22,14 @@ muonTrackAnalyzers = cms.Sequence(MonitorTrackSTAMuons*MonitorTrackGLBMuons)
 
 muonMonitors = cms.Sequence(muonTrackAnalyzers*
                             dtSegmentsMonitor*
-                            cscMonitor*
+#                            cscMonitor*
                             muonAnalyzer*
                             muonIdDQM*
                             dqmInfoMuons*
                             muIsoDQM_seq)
-# Modify for if the phase 1 pixel detector is active
-if eras.phase1Pixel.isChosen() :
-    muonMonitors.remove(muonAnalyzer)
+
+muonMonitors_miniAOD = cms.Sequence( muonAnalyzer_miniAOD*
+                                     muIsoDQM_seq_miniAOD)
 
 muonMonitorsAndQualityTests = cms.Sequence(muonMonitors*muonQualityTests)
 

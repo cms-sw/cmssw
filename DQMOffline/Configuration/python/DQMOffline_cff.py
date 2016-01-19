@@ -48,7 +48,7 @@ from Validation.RecoTau.DQMSequences_cfi import *
 from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_cff import *
 # miniAOD DQM validation
 from Validation.RecoParticleFlow.miniAODDQM_cff import *
-from DQM.TrackingMonitor.tracksDQMMiniAOD_cff import *
+from DQM.TrackingMonitor.tracksDQMMiniAOD_cff import * 
 
 DQMOfflinePrePOG = cms.Sequence( TrackingDQMSourceTier0 *
                                  muonMonitors *
@@ -118,15 +118,18 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  produceDenoms *
                                  pfTauRunDQMValidation 
                                  )
-DQMOfflineTracking = cms.Sequence( TrackingDQMSourceTier0Common *
+DQMOfflineTracking = cms.Sequence( TrackingDQMSourceTier0Common * 
                                    pvMonitor
-                                 )
+                                   )
 DQMOfflineMuon = cms.Sequence( dtSources *
                                rpcTier0Source *
                                cscSources *
                                muonMonitors
                               )
-DQMOfflineHcal = cms.Sequence( hcalOfflineSourceSequence )
+
+DQMOfflineMuon_miniAOD = cms.Sequence( muonMonitors_miniAOD )
+DQMOfflineHcal = cms.Sequence( hcalOfflineDQMSource )
+
 
 DQMOfflineEcal = cms.Sequence( ecal_dqm_source_offline *
                                es_dqm_source_offline
@@ -143,4 +146,12 @@ DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD)
 #miniAOD DQM sequences need to access the filter results.
 PostDQMOfflineMiniAOD = cms.Sequence(miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD*topPhysicsminiAOD)
 PostDQMOffline = cms.Sequence()
+
+from DQMOffline.Muon.miniAOD_cff import *                                                                 
+
+muonMiniAOD = cms.Sequence( MuonMiniAOD )
+DQMOfflineMiniAOD = cms.Sequence( miniAODDQMSequence*muonMonitors_miniAOD*muonMiniAOD )
+
+#DQMOfflineNoHWW = cms.Sequence(DQMOffline)
+#DQMOfflineNoHWW.remove(hwwAnalyzer)
 

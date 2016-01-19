@@ -47,7 +47,7 @@ class MuonRecoAnalyzer : public DQMEDAnalyzer {
     MuonServiceProxy *theService;
   edm::ParameterSet parameters;
   
-  edm::EDGetTokenT<reco::MuonCollection> theMuonCollectionLabel_;
+  edm::EDGetTokenT<edm::View<reco::Muon> >   theMuonCollectionLabel_;
   // Switch for verbosity
   std::string metname;
     
@@ -144,5 +144,7 @@ class MuonRecoAnalyzer : public DQMEDAnalyzer {
   std::vector<MonitorElement*> etaEfficiency;
   std::vector<MonitorElement*> phiEfficiency;
 
+  bool IsminiAOD;
+  std::string theFolder;
 };
 #endif

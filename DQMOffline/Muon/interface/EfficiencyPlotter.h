@@ -99,6 +99,7 @@ private:
   MonitorElement* h_eff_vtx_pfIsodBID;
   MonitorElement* h_eff_vtx_EB_pfIsodBID;
   MonitorElement* h_eff_vtx_EE_pfIsodBID;
+  std::string theFolder;
 };
 
 #endif
