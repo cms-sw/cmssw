@@ -12,7 +12,7 @@ from Validation.RecoMET.METPostProcessor_cff import *
 
 
 dqmHarvesting = cms.Path(DQMOffline_SecondStep*DQMOffline_Certification)
-dqmHarvestingRun1 = cms.Path(DQMOffline_SecondStep_Run1*DQMOffline_Certification)
+dqmHarvestingFakeHLT = cms.Path(DQMOffline_SecondStep_FakeHLT*DQMOffline_Certification)
 
 dqmHarvestingPOG = cms.Path(DQMOffline_SecondStep_PrePOG)
 
