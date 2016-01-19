@@ -56,7 +56,7 @@ class DTTimingExtractor {
 public:
   
   /// Constructor
-  DTTimingExtractor(const edm::ParameterSet&);
+  DTTimingExtractor(const edm::ParameterSet&, MuonSegmentMatcher *segMatcher);
   
   /// Destructor
   ~DTTimingExtractor();
@@ -73,7 +73,7 @@ public:
      DetId driftCell;
   };
 
-  void fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, MuonSegmentMatcher *theMatcher,
+  void fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack,
                   const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
 private:
@@ -91,6 +91,8 @@ private:
   bool debug;
   
   MuonServiceProxy* theService;
+  MuonSegmentMatcher *theMatcher;
+
 };
 
 #endif
