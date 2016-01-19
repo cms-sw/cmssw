@@ -4,11 +4,11 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
             'commonSiStripZeroBias' : ['DQMOfflineCommonSiStripZeroBias',
                                        'PostDQMOffline',
                                        'DQMHarvestCommonSiStripZeroBias+DQMCertCommon'],
-            'trackingOnlyDQM' : ["DQMOfflineTracking",
-                             "DQMHarvestTracking"],
             'muon': ['DQMOfflineMuon',
                      'PostDQMOffline',
                      'DQMHarvestMuon+DQMCertMuon'],
+            'muon_miniAOD': ['DQMOfflineMuon_miniAOD',
+                             'DQMHarvestMuon_miniAOD+DQMCertMuon'],
             'hcal':     ['DQMOfflineHcal',
                          'PostDQMOffline',
                          'DQMHarvestHcal+DQMCertHcal'],
@@ -46,5 +46,7 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
             'liteDQMHI': ['liteDQMOfflineHeavyIons',
                           'PostDQMOffline',
                           'dqmHarvesting']
+            'standardDQM': ['DQMOffline',
+                            'dqmHarvesting']
             }
 
