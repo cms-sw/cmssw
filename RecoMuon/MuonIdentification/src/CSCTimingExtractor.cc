@@ -66,7 +66,7 @@ class MuonServiceProxy;
 //
 // constructors and destructor
 //
-CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig)
+CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig, MuonSegmentMatcher *segMatcher)
   :
   thePruneCut_(iConfig.getParameter<double>("PruneCut")),
   theStripTimeOffset_(iConfig.getParameter<double>("CSCStripTimeOffset")),
@@ -79,6 +79,7 @@ CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig)
 {
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
+  theMatcher = segMatcher;
 }
 
 
@@ -94,7 +95,7 @@ CSCTimingExtractor::~CSCTimingExtractor()
 
 // ------------ method called to produce the data  ------------
 void
-CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, MuonSegmentMatcher *theMatcher,
+CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, 
                                const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 

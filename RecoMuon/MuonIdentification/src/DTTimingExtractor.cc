@@ -72,7 +72,7 @@ class MuonServiceProxy;
 //
 // constructors and destructor
 //
-DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig)
+DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig, MuonSegmentMatcher *segMatcher)
   :
   theHitsMin_(iConfig.getParameter<int>("HitsMin")),
   thePruneCut_(iConfig.getParameter<double>("PruneCut")),
@@ -86,6 +86,7 @@ DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig)
 {
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
+  theMatcher = segMatcher;
 }
 
 
@@ -101,7 +102,7 @@ DTTimingExtractor::~DTTimingExtractor()
 
 // ------------ method called to produce the data  ------------
 void
-DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, MuonSegmentMatcher *theMatcher,
+DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack,
                               const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   if (debug) 
