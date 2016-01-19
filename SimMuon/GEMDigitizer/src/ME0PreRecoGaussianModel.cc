@@ -3,6 +3,9 @@
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoissonQ.h"
@@ -10,6 +13,7 @@
 #include <cmath>
 #include <utility>
 #include <map>
+
 
 const int bxwidth   = 25;         // [ns]
 
@@ -47,6 +51,9 @@ for (const auto & hit: simHits)
 {
   // Digitize only Muons?
   if (std::abs(hit.particleType()) != 13 && digitizeOnlyMuons_) continue;
+  // Digitize only in [minBunch,maxBunch] window
+  // window is: [(2n-1)*bxw/2, (2n+1)*bxw/2], n = [minBunch, maxBunch]
+  if(hit.timeOfFlight() < (2*minBunch_-1)*bxwidth*1.0/2 || hit.timeOfFlight() > (2*maxBunch_+1)*bxwidth*1.0/2) continue;
   // is GEM efficient?
   if (CLHEP::RandFlat::shoot(engine) > averageEfficiency_) continue;
   // create digi
@@ -67,6 +74,14 @@ for (const auto & hit: simHits)
   int pdgid = hit.particleType();
   ME0DigiPreReco digi(x,y,ex,ey,corr,tof,pdgid);
   digi_.insert(digi);
+
+  edm::LogVerbatim("ME0PreRecoGaussianModel") << "[ME0PreRecoDigi :: simulateSignal] :: simhit in "<<roll->id()<<" at loc x = "<<std::setw(8)<<entry.x()<<" [cm]"
+					      << " loc y = "<<std::setw(8)<<entry.y()<<" [cm] time = "<<std::setw(8)<<hit.timeOfFlight()<<" [ns] pdgid = "<<std::showpos<<std::setw(4)<<pdgid;
+  edm::LogVerbatim("ME0PreRecoGaussianModel") << "[ME0PreRecoDigi :: simulateSignal] :: digi   in "<<roll->id()<<" at loc x = "<<std::setw(8)<<x<<" [cm] loc y = "<<std::setw(8)<<y<<" [cm]"
+					      <<" time = "<<std::setw(8)<<tof<<" [ns]";
+  edm::LogVerbatim("ME0PreRecoGaussianModel") << "[ME0PreRecoDigi :: simulateSignal] :: digi   in "<<roll->id()<<" with DX = "<<std::setw(8)<<(entry.x()-x)<<" [cm]"
+					      <<" DY = "<<std::setw(8)<<(entry.y()-y)<<" [cm] DT = "<<std::setw(8)<<(hit.timeOfFlight()-tof)<<" [ns]";
+
 }
 }
 
@@ -82,106 +97,148 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
   const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
 
   auto& parameters(roll->specs()->parameters());
-  double bottomLength(parameters[0]); bottomLength = 2*bottomLength;
-  double topLength(parameters[1]);    topLength    = 2*topLength;
+  double bottomLength(parameters[0]); bottomLength = 2*bottomLength;  // bottom is largest length, so furtest away from beamline
+  double topLength(parameters[1]);    topLength    = 2*topLength;     // top is shortest length, so closest to beamline
   double height(parameters[2]);       height       = 2*height;
   double myTanPhi    = (topLength - bottomLength) / (height * 2);
   double rollRadius  = top_->radius();
   trArea = height * (topLength + bottomLength) / 2.0;
 
-  // simulate intrinsic noise and background hits in all BX that are being read out
-  for(int bx=minBunch_; bx<maxBunch_+1; ++bx) {
+  // Divide the detector area in different strips
+  // take smearing in y-coord as height for each strip
+  double heightIt = sigma_v;
+  int heightbins  = height/heightIt; // round down
+
+  edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: sNoise]["<<roll->id().rawId()<<"] :: roll with id = "<<roll->id();
+  edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: sNoise]["<<roll->id().rawId()<<"] :: extracting parameters from the TrapezoidalStripTopology";
+  edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: sNoise]["<<roll->id().rawId()<<"] :: bottom = "<<bottomLength<<" [cm] top  = "<<topLength<<" [cm] height = "<<height<<" [cm]"
+						   <<" area  = "<<trArea<<" [cm^2] Rmid = "<<rollRadius<<" [cm] => Rmin = "<<rollRadius-height*1.0/2.0<<" [cm] Rmax = "<<rollRadius+height*1.0/2.0<<" [cm]";
+  edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: sNoise]["<<roll->id().rawId()<<"] :: heightbins = "<<heightbins;
+
+  for(int hx=0; hx<heightbins; ++hx) {
+    double bottomIt = bottomLength +  hx  *2*tan(10./180*3.14)*heightIt;
+    double topIt    = bottomLength + (hx+1)*2*tan(10./180*3.14)*heightIt; 
+    if(hx==heightbins-1) {
+      topIt = topLength; // last bin ... make strip a bit larger to cover entire roll
+      heightIt = height-hx*heightIt;
+    }
+    double areaIt   = heightIt*(bottomIt+topIt)*1.0/2;
+
+    edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: sNoise]["<<roll->id().rawId()<<"] :: height = "<<std::setw(12)<<heightIt<<" [cm] bottom = "<<std::setw(12)<<bottomIt<<" [cm]"
+						     << " top = "<<std::setw(12)<<topIt<<" [cm] area = "<<std::setw(12)<<areaIt<<" [cm^2] || sin(10) = "<<sin(10./180*3.14);
+
+    double myRandY = CLHEP::RandFlat::shoot(engine);
+    double y0_rand = (hx+myRandY)*heightIt;  // Y coord, measured from the bottom of the roll
+    double yy_rand = (y0_rand-height*1.0/2); // Y coord, measured from the middle of the roll, which is the Y coord in Local Coords
+    double yy_glob = rollRadius + yy_rand;   // R coord in Global Coords
+    // max length in x for given y coordinate (cfr trapezoidal eta partition)
+    double xMax = topLength/2.0 - (height/2.0 - yy_rand) * myTanPhi;
 
     // 1) Intrinsic Noise ... Not implemented right now
     // ------------------------------------------------
     // if (simulateIntrinsicNoise_)
-    // {                           
-    // }                           
-
-    // 2) Background Noise         
+    // {
+    // }
+    
+    // 2) Background Noise 
     // ----------------------------
-    // 2a) electron background     
-    // -----------------------     
+    
+    // 2a) electron background
+    // -----------------------
     if (simulateElectronBkg_) {
-
-      double myRandY = CLHEP::RandFlat::shoot(engine);
-      double yy_rand = height * (myRandY - 0.5); // random Y coord in Local Coords
-      double yy_glob = rollRadius + yy_rand;     // random Y coord in Global Coords
-
-      // Extract / Calculate the Average Electron Rate
+      // Extract / Calculate the Average Electron Rate 
       // for the given global Y coord from Parametrization
       double averageElectronRatePerRoll = 0.0;
       double yy_helper = 1.0;
       for(int j=0; j<7; ++j) { averageElectronRatePerRoll += eleBkg[j]*yy_helper; yy_helper *= yy_glob; }
+      
+      // Rate [Hz/cm^2] * Nbx * 25*10^-9 [s] * Area [cm] = # hits in this roll in this bx
+      const double averageElecRate(averageElectronRatePerRoll * (maxBunch_-minBunch_+1)*(bxwidth*1.0e-9) * areaIt); 
+      
+      edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: elebkg]["<<roll->id().rawId()<<"]" /* "] :: BX = "<<std::showpos<<bx*/
+						       << " evaluation of Background Hit Rate at this coord :: "<<std::setw(12)<<averageElectronRatePerRoll<<" [Hz/cm^2]"
+						       << " x 9 x 25*10^-9 [s] x Area (of strip = "<<std::setw(12)<<areaIt<<" [cm^2]) ==> "<<std::setw(12)<<averageElecRate<<" [hits]"; 
 
-      // Rate [Hz/cm^2] * 25*10^-9 [s] * Area [cm] = # hits in this roll
-      const double averageElecRate(averageElectronRatePerRoll * (bxwidth*1.0e-9) * trArea);
-      int n_elechits(CLHEP::RandPoissonQ::shoot(engine, averageElecRate));
+      bool ele_eff = (CLHEP::RandFlat::shoot(engine)<averageElecRate)?1:0;      
 
-      // max length in x for given y coordinate (cfr trapezoidal eta partition)
-      double xMax = topLength/2.0 - (height/2.0 - yy_rand) * myTanPhi;
-
-      // loop over amount of electron hits in this roll
-      for (int i = 0; i < n_elechits; ++i) {
-        //calculate xx_rand at a given yy_rand
-        double myRandX = CLHEP::RandFlat::shoot(engine);
-        double xx_rand = 2 * xMax * (myRandX - 0.5);
-        double ex = sigma_u;
-        double ey = sigma_v;
-        double corr = 0.;
-        // extract random time in this BX
-        double myrandT = CLHEP::RandFlat::shoot(engine);
+      edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: elebkg]["<<roll->id().rawId()<<"] :: myRandY = "<<std::setw(12)<<myRandY<<" => local y = "<<std::setw(12)<<yy_rand<<" [cm]"
+						       <<" => global y (global R) = "<<std::setw(12)<<yy_glob<<" [cm] || Probability = "<<std::setw(12)<<averageElecRate
+						       <<" => efficient? "<<ele_eff<<std::endl;
+      
+      if(ele_eff) {
+	//calculate xx_rand at a given yy_rand
+	double myRandX = CLHEP::RandFlat::shoot(engine);
+	double xx_rand = 2 * xMax * (myRandX - 0.5);
+	double ex = sigma_u;
+	double ey = sigma_v;
+	double corr = 0.;
+	// extract random BX
+	double myrandBX = CLHEP::RandFlat::shoot(engine);
+	int bx = int((maxBunch_-minBunch_+1)*myrandBX)+minBunch_;
+	// extract random time in this BX
+	double myrandT = CLHEP::RandFlat::shoot(engine);
 	double minBXtime = (bx-0.5)*bxwidth;      // double maxBXtime = (bx+0.5)*bxwidth;
-        double time = myrandT*bxwidth+minBXtime;
-        double myrandP = CLHEP::RandFlat::shoot(engine);
-        int pdgid = 0;
-        if (myrandP <= 0.5) pdgid = -11; // electron                                   
-        else                pdgid = 11;  // positron                                   
-        ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid);
-        digi_.insert(digi);
+	double time = myrandT*bxwidth+minBXtime;
+	double myrandP = CLHEP::RandFlat::shoot(engine);
+	int pdgid = 0;
+	if (myrandP <= 0.5) pdgid = -11; // electron
+	else             pdgid = 11;  // positron
+	ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid);
+	digi_.insert(digi);
+	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: elebkg]["<<roll->id().rawId()<<"] =====> electron hit in "<<roll->id()<<" pdgid = "<<pdgid<<" bx = "<<bx
+							 <<" ==> digitized"
+							 <<" at loc x = "<<xx_rand<<" loc y = "<<yy_rand<<" time = "<<time<<" [ns]"; 
       }
-    }
+    } // end if electron bkg
 
-    // 2b) neutral (n+g) background                                                    
-    // ----------------------------                                                    
+    // 2b) neutral (n+g) background
+    // ----------------------------
     if (simulateNeutralBkg_) {
-
-      double myRandY = CLHEP::RandFlat::shoot(engine);
-      double yy_rand = height * (myRandY - 0.5); // random Y coord in Local Coords
-      double yy_glob = rollRadius + yy_rand;    // random Y coord in Global Coords
-      // Extract / Calculate the Average Electron Rate                            
-      // for the given global Y coord from Parametrization                        
+      // Extract / Calculate the Average Neutral Rate 
+      // for the given global Y coord from Parametrization
       double averageNeutralRatePerRoll = 0.0;
       double yy_helper = 1.0;
       for(int j=0; j<7; ++j) { averageNeutralRatePerRoll += neuBkg[j]*yy_helper; yy_helper *= yy_glob; }
-      // Rate [Hz/cm^2] * 25*10^-9 [s] * Area [cm] = # hits in this roll          
-      const double averageNeutrRate(averageNeutralRatePerRoll * (bxwidth*1.0e-9) * trArea);
-      int n_hits(CLHEP::RandPoissonQ::shoot(engine, averageNeutrRate));
+      
+      // Rate [Hz/cm^2] * Nbx * 25*10^-9 [s] * Area [cm] = # hits in this roll
+      const double averageNeutrRate(averageNeutralRatePerRoll * (maxBunch_-minBunch_+1)*(bxwidth*1.0e-9) * areaIt);
 
-      // max length in x for given y coordinate (cfr trapezoidal eta partition)   
-      double xMax = topLength/2.0 - (height/2.0 - yy_rand) * myTanPhi;
+      edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: neubkg]["<<roll->id().rawId()<<"]" /* "] :: BX = "<<std::showpos<<bx*/
+						       << " evaluation of Background Hit Rate at this coord :: "<<std::setw(12)<<averageNeutralRatePerRoll<<" [Hz/cm^2]"
+						       << " x 9 x 25*10^-9 [s] x Area (of strip = "<<std::setw(12)<<areaIt<<" [cm^2]) ==> "<<std::setw(12)<<averageNeutrRate<<" [hits]"; 
 
-      // loop over amount of neutral hits in this roll                            
-      for (int i = 0; i < n_hits; ++i) {
-        //calculate xx_rand at a given yy_rand                                    
-        double myRandX = CLHEP::RandFlat::shoot(engine);
-        double xx_rand = 2 * xMax * (myRandX - 0.5);
-        double ex = sigma_u;
-        double ey = sigma_v;
-        double corr = 0.;
-        // extract random time in this BX                                         
-        double myrandT = CLHEP::RandFlat::shoot(engine);
-        double minBXtime = (bx-0.5)*bxwidth;
-        double time = myrandT*bxwidth+minBXtime;
-        int pdgid = 0;
-        double myrandP = CLHEP::RandFlat::shoot(engine);
-        if (myrandP <= 0.08) pdgid = 2112; // neutrons: GEM sensitivity for neutrons: 0.08%
-        else                 pdgid = 22;   // photons:  GEM sensitivity for photons:  1.04% ==> neutron fraction = (0.08 / 1.04) = 0.077 = 0.08
-        ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid);
-        digi_.insert(digi);
+      bool neu_eff = (CLHEP::RandFlat::shoot(engine)<averageNeutrRate)?1:0;
+
+      edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: neubkg]["<<roll->id().rawId()<<"] :: myRandY = "<<std::setw(12)<<myRandY<<" => local y = "<<std::setw(12)<<yy_rand<<" [cm]"
+						       <<" => global y (global R) = "<<std::setw(12)<<yy_glob<<" [cm] || Probability = "<<std::setw(12)<<averageNeutrRate
+						       <<" => efficient? "<<neu_eff<<std::endl;
+
+      if(neu_eff) {
+	//calculate xx_rand at a given yy_rand
+	double myRandX = CLHEP::RandFlat::shoot(engine);
+	double xx_rand = 2 * xMax * (myRandX - 0.5);
+	double ex = sigma_u;
+	double ey = sigma_v;
+	double corr = 0.;
+	// extract random BX
+        double myrandBX= CLHEP::RandFlat::shoot(engine);
+	int bx = int((maxBunch_-minBunch_+1)*myrandBX)+minBunch_;
+	// extract random time in this BX
+	double myrandT = CLHEP::RandFlat::shoot(engine);
+	double minBXtime = (bx-0.5)*bxwidth;
+	double time = myrandT*bxwidth+minBXtime;
+	int pdgid = 0;
+	double myrandP = CLHEP::RandFlat::shoot(engine);
+	if (myrandP <= 0.08) pdgid = 2112; // neutrons: GEM sensitivity for neutrons: 0.08%
+	else                 pdgid = 22;   // photons:  GEM sensitivity for photons:  1.04% ==> neutron fraction = (0.08 / 1.04) = 0.077 = 0.08
+	ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid);
+	digi_.insert(digi);
+	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: neubkg]["<<roll->id().rawId()<<"] ======> neutral hit in "<<roll->id()<<" pdgid = "<<pdgid<<" bx = "<<bx
+							 <<" ==> digitized"
+							 <<" at loc x = "<<xx_rand<<" loc y = "<<yy_rand<<" time = "<<time<<" [ns]"; 
       }
-    }
-
-  } // end loop over bx                                  
+      
+    } // end if neutral bkg
+  } // end loop over strips (= pseudo rolls)
 }
 
