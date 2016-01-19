@@ -36,8 +36,10 @@ class LeptonAnalyzer( Analyzer ):
         if self.cfg_ana.doElectronScaleCorrections:
             conf = cfg_ana.doElectronScaleCorrections
             self.electronEnergyCalibrator = Run2ElectronCalibrator(
-                cfg_comp.isMC,
+                conf['scales']    if 'scales'    in conf else [ 0.99544,0.99882,0.99662,1.0065,0.98633,0.99536,0.97859,0.98567,0.98633, 0.99536 ],
+                conf['smearings'] if 'smearings' in conf else [ 0.013654,0.014142,0.020859,0.017120,0.028083,0.027289,0.031793,0.030831,0.028083, 0.027289 ],
                 conf['GBRForest'],
+                cfg_comp.isMC,
                 conf['isSync'] if 'isSync' in conf else False,
             )
 #        if hasattr(cfg_comp,'efficiency'):
