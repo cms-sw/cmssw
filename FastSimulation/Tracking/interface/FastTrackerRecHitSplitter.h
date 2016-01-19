@@ -16,7 +16,7 @@ class FastTrackerRecHitSplitter {
     FastTrackerRecHitSplitter(){;}
     ~FastTrackerRecHitSplitter(){;}
     
-    inline void split(const FastTrackerRecHit & hitIn,edm::OwnVector<TrackingRecHit> & hitsOut) const {
+    inline void split(const FastTrackerRecHit & hitIn,edm::OwnVector<TrackingRecHit> & hitsOut,bool reverseHits) const {
 	
 	if(hitIn.dimension()==1 || hitIn.isPixel())
 	    hitsOut.push_back( hitIn.clone() );
@@ -25,8 +25,10 @@ class FastTrackerRecHitSplitter {
 	    hitsOut.push_back(buildSplitStripHit(static_cast<const FastProjectedTrackerRecHit &>(hitIn).originalHit()));
 	
 	else if(hitIn.isMatched()){
-	    hitsOut.push_back(buildSplitStripHit(static_cast<const FastMatchedTrackerRecHit &>(hitIn).firstHit()));
-	    hitsOut.push_back(buildSplitStripHit(static_cast<const FastMatchedTrackerRecHit &>(hitIn).secondHit()));
+	    const FastSingleTrackerRecHit & firstHit = (static_cast<const FastMatchedTrackerRecHit &>(hitIn)).firstHit();
+	    const FastSingleTrackerRecHit & secondHit = (static_cast<const FastMatchedTrackerRecHit &>(hitIn)).secondHit();
+	    hitsOut.push_back(buildSplitStripHit(reverseHits ? secondHit : firstHit));
+	    hitsOut.push_back(buildSplitStripHit(reverseHits ? firstHit : secondHit));
 	}
 	
 	else{

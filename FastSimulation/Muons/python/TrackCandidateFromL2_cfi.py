@@ -8,7 +8,7 @@ hltL3TrackCandidateFromL2 = FastSimulation.Tracking.TrackCandidateProducer_cfi.t
     SeedCleaning = cms.bool(True),
     SplitHits = cms.bool(False),
     SimTracks = cms.InputTag('famosSimHits'),
-    EstimatorCut = cms.double(200)
+    maxSeedMatchEstimator = cms.untracked.double(200)
 )
 
 

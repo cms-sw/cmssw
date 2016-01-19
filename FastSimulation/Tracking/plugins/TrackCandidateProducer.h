@@ -43,7 +43,7 @@ class TrackCandidateProducer : public edm::stream::EDProducer <>
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
   edm::EDGetTokenT<std::vector<bool> > hitMasksToken;
   std::string propagatorLabel;
-  
+  double maxSeedMatchEstimator;
 };
 
 #endif
