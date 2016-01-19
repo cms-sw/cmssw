@@ -79,6 +79,7 @@
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -113,9 +114,8 @@ namespace edm {
   class Schedule {
   public:
     typedef std::vector<std::string> vstring;
-    typedef std::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> AllWorkers;
-    typedef std::vector<std::shared_ptr<OutputModuleCommunicator> > AllOutputModuleCommunicators;
+    typedef std::vector<edm::propagate_const<std::shared_ptr<OutputModuleCommunicator>>> AllOutputModuleCommunicators;
 
     typedef std::vector<Worker*> Workers;
 
@@ -248,7 +248,7 @@ namespace edm {
     
     /// Return the trigger timing report information on paths,
     /// modules-in-path, modules-in-endpath, and modules.
-    void getTriggerTimingReport(TriggerTimingReport& rep) const;
+    void getTriggerTimingReport(TriggerTimingReport& rep);
 
     /// Return whether each output module has reached its maximum count.
     bool terminate() const;
@@ -270,16 +270,16 @@ namespace edm {
     
     void limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists);
 
-    std::shared_ptr<TriggerResultInserter> resultsInserter_;
-    std::shared_ptr<ModuleRegistry> moduleRegistry_;
-    std::vector<std::shared_ptr<StreamSchedule>> streamSchedules_;
+    edm::propagate_const<std::shared_ptr<TriggerResultInserter>> resultsInserter_;
+    edm::propagate_const<std::shared_ptr<ModuleRegistry>> moduleRegistry_;
+    std::vector<edm::propagate_const<std::shared_ptr<StreamSchedule>>> streamSchedules_;
     //In the future, we will have one GlobalSchedule per simultaneous transition
-    std::unique_ptr<GlobalSchedule> globalSchedule_;
+    edm::propagate_const<std::unique_ptr<GlobalSchedule>> globalSchedule_;
 
     AllOutputModuleCommunicators         all_output_communicators_;
     PreallocationConfiguration           preallocConfig_;
 
-    std::unique_ptr<SystemTimeKeeper> summaryTimeKeeper_;
+    edm::propagate_const<std::unique_ptr<SystemTimeKeeper>> summaryTimeKeeper_;
 
     bool                           wantSummary_;
     bool                           printDependencies_;

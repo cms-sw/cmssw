@@ -19,6 +19,7 @@
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
 
@@ -143,7 +144,7 @@ namespace edm {
         if(a_) T::postPathSignal(a_, status, pathContext_);
       }
     private:
-      ActivityRegistry* a_;
+      edm::propagate_const<ActivityRegistry*> a_;
       int const& nwrwue_;
       hlt::HLTState const& state_;
       PathContext const* pathContext_;

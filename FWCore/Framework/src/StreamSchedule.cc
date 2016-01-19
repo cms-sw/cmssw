@@ -165,16 +165,16 @@ namespace edm {
     trig_paths_.reserve(trig_name_list_.size());
     vstring labelsOnTriggerPaths;
       for (auto const& trig_name : trig_name_list_) {
-      fillTrigPath(proc_pset, preg, &prealloc, processConfiguration, trig_bitpos, trig_name, results_, &labelsOnTriggerPaths);
+      fillTrigPath(proc_pset, preg, &prealloc, processConfiguration, trig_bitpos, trig_name, get_underlying(results_), &labelsOnTriggerPaths);
       ++trig_bitpos;
       hasPath = true;
     }
 
     if (hasPath) {
       // the results inserter stands alone
-      inserter->setTrigResultForStream(streamID.value(),results_);
+      inserter->setTrigResultForStream(streamID.value(),get_underlying(results_));
 
-      results_inserter_ = makeInserter(actions, actReg_, inserter);
+      results_inserter_ = makeInserter(actions, get_underlying(actReg_), inserter);
       addToAllWorkers(results_inserter_.get());
     }
 
@@ -476,7 +476,7 @@ namespace edm {
 
     // an empty path will cause an extra bit that is not used
     if (!tmpworkers.empty()) {
-      trig_paths_.emplace_back(bitpos, name, tmpworkers, trptr, actionTable(), actReg_, &streamContext_, PathContext::PathType::kPath);
+      trig_paths_.emplace_back(bitpos, name, tmpworkers, trptr, actionTable(), get_underlying(actReg_), &streamContext_, PathContext::PathType::kPath);
     } else {
       empty_trig_paths_.push_back(bitpos);
       empty_trig_path_names_.push_back(name);
@@ -499,7 +499,7 @@ namespace edm {
     }
 
     if (!tmpworkers.empty()) {
-      end_paths_.emplace_back(bitpos, name, tmpworkers, TrigResPtr(), actionTable(), actReg_, &streamContext_, PathContext::PathType::kEndPath);
+      end_paths_.emplace_back(bitpos, name, tmpworkers, TrigResPtr(), actionTable(), get_underlying(actReg_), &streamContext_, PathContext::PathType::kEndPath);
     }
     for_all(holder, std::bind(&StreamSchedule::addToAllWorkers, this, _1));
   }

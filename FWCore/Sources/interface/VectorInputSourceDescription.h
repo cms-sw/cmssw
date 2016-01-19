@@ -8,6 +8,7 @@ a VectorinputSource that does not come in through the ParameterSet
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
 
@@ -24,7 +25,7 @@ namespace edm {
       productRegistry_(preg), allocations_(&allocations) {
     }
 
-    std::shared_ptr<ProductRegistry> productRegistry_;
+    edm::propagate_const<std::shared_ptr<ProductRegistry>> productRegistry_;
     PreallocationConfiguration const* allocations_;
   };
 }

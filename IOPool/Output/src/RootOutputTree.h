@@ -14,6 +14,7 @@ RootOutputTree.h // used by ROOT output modules
 
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Utilities/interface/BranchType.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "TTree.h"
 
@@ -78,12 +79,12 @@ namespace edm {
 
     void maybeFastCloneTree(bool canFastClone, bool canFastCloneAux, TTree* tree, std::string const& option);
 
-    void fillTree() const;
+    void fillTree();
 
     void writeTree() const;
 
     TTree* tree() const {
-      return tree_;
+      return get_underlying(tree_);
     }
 
     void setEntries() {
@@ -109,13 +110,15 @@ namespace edm {
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore, using smart pointers here will do no good.
-    std::shared_ptr<TFile> filePtr_;
-    TTree* tree_;
+    edm::propagate_const<std::shared_ptr<TFile>> filePtr_;
+    edm::propagate_const<TTree*> tree_;
+
     std::vector<TBranch*> producedBranches_; // does not include cloned branches
     std::vector<TBranch*> readBranches_;
     std::vector<TBranch*> auxBranches_;
     std::vector<TBranch*> unclonedAuxBranches_;
     std::vector<TBranch*> unclonedReadBranches_;
+
     std::set<std::string> clonedReadBranchNames_;
     bool currentlyFastCloning_;
     bool fastCloneAuxBranches_;

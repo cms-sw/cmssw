@@ -116,7 +116,7 @@ namespace edm {
   ScheduleItems::initMisc(ParameterSet& parameterSet) {
     act_table_.reset(new ExceptionToActionTable(parameterSet));
     std::string processName = parameterSet.getParameter<std::string>("@process_name");
-    processConfiguration_.reset(new ProcessConfiguration(processName, getReleaseVersion(), getPassID()));
+    get_underlying(processConfiguration_).reset(new ProcessConfiguration(processName, getReleaseVersion(), getPassID()));
     auto common = std::make_shared<CommonParams>(
                                 parameterSet.getUntrackedParameterSet(
                                    "maxEvents", ParameterSet()).getUntrackedParameter<int>("input", -1),
@@ -135,12 +135,12 @@ namespace edm {
     std::auto_ptr<Schedule> schedule(
         new Schedule(parameterSet,
                      ServiceRegistry::instance().get<service::TriggerNamesService>(),
-                     *preg_,
-                     *branchIDListHelper_,
-                     *thinnedAssociationsHelper_,
+                     *get_underlying(preg_),
+                     *get_underlying(branchIDListHelper_),
+                     *get_underlying(thinnedAssociationsHelper_),
                      *act_table_,
-                     actReg_,
-                     processConfiguration_,
+                     get_underlying(actReg_),
+                     get_underlying(processConfiguration_),
                      hasSubprocesses,
                      config,
                      processContext));
@@ -149,10 +149,10 @@ namespace edm {
 
   void
   ScheduleItems::clear() {
-    actReg_.reset();
-    preg_.reset();
-    branchIDListHelper_.reset();
-    thinnedAssociationsHelper_.reset();
-    processConfiguration_.reset();
+    get_underlying(actReg_).reset();
+    get_underlying(preg_).reset();
+    get_underlying(branchIDListHelper_).reset();
+    get_underlying(thinnedAssociationsHelper_).reset();
+    get_underlying(processConfiguration_).reset();
   }
 }

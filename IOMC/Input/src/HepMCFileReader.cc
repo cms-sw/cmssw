@@ -40,7 +40,7 @@ HepMCFileReader *HepMCFileReader::instance()
 
 //-------------------------------------------------------------------------
 HepMCFileReader::HepMCFileReader() :
-  evt_(0), input_(0)
+  evt_(nullptr), input_(nullptr)
 { 
   // Default constructor.
   if (instance_ == 0) {
@@ -57,7 +57,7 @@ HepMCFileReader::~HepMCFileReader()
   edm::LogInfo("HepMCFileReader") << "Destructing HepMCFileReader";
   
   instance_=0;    
-  delete input_;
+  delete get_underlying(input_);
 }
 
 
@@ -66,7 +66,7 @@ void HepMCFileReader::initialize(const string &filename)
 {
   if (isInitialized()) {
     edm::LogError("HepMCFileReader") << "Was already initialized... reinitializing";
-    delete input_;
+    delete get_underlying(input_);
   }
 
   edm::LogInfo("HepMCFileReader") << "Opening file" << filename << "using HepMC::IO_GenEvent";
@@ -84,7 +84,7 @@ int HepMCFileReader::rdstate() const
 {
   // work around a HepMC IO_ inheritence shortfall
 
-  HepMC::IO_GenEvent *p = dynamic_cast<HepMC::IO_GenEvent*>(input_);
+  HepMC::IO_GenEvent *p = dynamic_cast<HepMC::IO_GenEvent*>(get_underlying(input_));
   if (p) return p->rdstate();
 
   return std::ios::failbit;
@@ -196,7 +196,7 @@ void HepMCFileReader::ReadStats()
 {
   unsigned int particle_counter=0;
   index_to_particle.reserve(evt_->particles_size()+1); 
-  index_to_particle[0] = 0; 
+  index_to_particle[0] = nullptr;
   for (HepMC::GenEvent::vertex_const_iterator v = evt_->vertices_begin();
        v != evt_->vertices_end(); ++v ) {
     // making a list of incoming particles of the vertices

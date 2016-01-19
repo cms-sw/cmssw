@@ -403,8 +403,8 @@ namespace edm {
     sanityCheck();
 
     // Cleanup, do not need the temporary containers anymore
-    items_.reset();
-    processItems_.reset();
+    get_underlying(items_).reset();
+    get_underlying(processItems_).reset();
   }
 
   std::vector<std::string> const& ProductHolderIndexHelper::lookupProcessNames() const {

@@ -21,6 +21,7 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // system include files
 #include "boost/shared_ptr.hpp"
@@ -97,7 +98,7 @@ class EventSetupRecordProvider {
       ///This will clear the cache's of all the Proxies so that next time they are called they will run
       void resetProxies();
       
-      boost::shared_ptr<EventSetupRecordIntervalFinder> finder() const { return finder_; }
+      boost::shared_ptr<EventSetupRecordIntervalFinder> finder() const { return get_underlying(finder_); }
 
       void getReferencedESProducers(std::map<EventSetupRecordKey, std::vector<ComponentDescription const*> >& referencedESProducers);
 
@@ -106,6 +107,8 @@ class EventSetupRecordProvider {
       void resetRecordToProxyPointers(DataToPreferredProviderMap const& iMap);
 
    protected:
+      void addProxiesToRecordHelper(edm::propagate_const<boost::shared_ptr<DataProxyProvider>>& dpp,
+                              DataToPreferredProviderMap const& mp) {addProxiesToRecord(get_underlying(dpp), mp);}
       void addProxiesToRecord(boost::shared_ptr<DataProxyProvider>,
                               DataToPreferredProviderMap const&);
       void cacheReset();
@@ -113,7 +116,7 @@ class EventSetupRecordProvider {
       virtual EventSetupRecord& record() = 0;
       
       boost::shared_ptr<EventSetupRecordIntervalFinder> swapFinder(boost::shared_ptr<EventSetupRecordIntervalFinder> iNew) {
-        std::swap(iNew, finder_);
+        std::swap(iNew, get_underlying(finder_));
         return iNew;
       }
 
@@ -127,9 +130,9 @@ class EventSetupRecordProvider {
       // ---------- member data --------------------------------
       EventSetupRecordKey const key_;
       ValidityInterval validityInterval_;
-      boost::shared_ptr<EventSetupRecordIntervalFinder> finder_;
-      std::vector<boost::shared_ptr<DataProxyProvider> > providers_;
-      std::auto_ptr<std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> > > multipleFinders_;
+      edm::propagate_const<boost::shared_ptr<EventSetupRecordIntervalFinder>> finder_;
+      std::vector<edm::propagate_const<boost::shared_ptr<DataProxyProvider>>> providers_;
+      std::unique_ptr<std::vector<edm::propagate_const<boost::shared_ptr<EventSetupRecordIntervalFinder>>>> multipleFinders_;
       bool lastSyncWasBeginOfRun_;
 };
    }

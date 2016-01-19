@@ -263,7 +263,7 @@
 TFileAdaptorUI::TFileAdaptorUI() {
   edm::ActivityRegistry ar;
   const edm::ParameterSet param;
-  me.reset(new TFileAdaptor(param, ar));
+  edm::get_underlying(me).reset(new TFileAdaptor(param, ar));
 }
 
 TFileAdaptorUI::~TFileAdaptorUI() {}

@@ -2,6 +2,7 @@
 #define IOPool_Streamer_StreamerFileReader_h
 
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
 #include <string>
@@ -34,8 +35,8 @@ namespace edm {
     virtual void reset_();
 
     std::vector<std::string> streamerNames_; // names of Streamer files
-    std::unique_ptr<StreamerInputFile> streamReader_;
-    std::shared_ptr<EventSkipperByID> eventSkipperByID_;
+    edm::propagate_const<std::unique_ptr<StreamerInputFile>> streamReader_;
+    edm::propagate_const<std::shared_ptr<EventSkipperByID>> eventSkipperByID_;
     int initialNumberOfEventsToSkip_;
   };
 } //end-of-namespace-def

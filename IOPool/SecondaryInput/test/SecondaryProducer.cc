@@ -68,7 +68,7 @@ namespace edm {
   }
 
   void SecondaryProducer::beginJob() {
-    eventPrincipal_.reset(new EventPrincipal(secInput_->productRegistry(),
+    get_underlying(eventPrincipal_).reset(new EventPrincipal(secInput_->productRegistry(),
                                              std::make_shared<BranchIDListHelper>(),
                                              std::make_shared<ThinnedAssociationsHelper>(),
                                              *processConfiguration_,
@@ -161,7 +161,7 @@ namespace edm {
   std::shared_ptr<VectorInputSource> SecondaryProducer::makeSecInput(ParameterSet const& ps) {
     ParameterSet const& sec_input = ps.getParameterSet("input");
     PreallocationConfiguration dummy;
-    VectorInputSourceDescription desc(productRegistry_, dummy);
+    VectorInputSourceDescription desc(get_underlying(productRegistry_), dummy);
     std::shared_ptr<VectorInputSource> input_(static_cast<VectorInputSource *>
       (VectorInputSourceFactory::get()->makeVectorInputSource(sec_input, desc).release()));
     return input_;

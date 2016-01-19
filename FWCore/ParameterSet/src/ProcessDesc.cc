@@ -20,12 +20,12 @@ namespace edm {
 
   std::shared_ptr<ParameterSet>
   ProcessDesc::getProcessPSet() const {
-    return pset_;
+    return get_underlying(pset_);
   }
 
   std::shared_ptr<std::vector<ParameterSet> >
   ProcessDesc::getServicesPSets() const {
-    return services_;
+    return get_underlying(services_);
   }
 
   void ProcessDesc::addService(ParameterSet& pset) {

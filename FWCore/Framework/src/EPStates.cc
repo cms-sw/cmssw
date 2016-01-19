@@ -30,7 +30,7 @@ namespace statemachine {
     emptyRunLumiMode_(emptyRunLumiMode) {
   }
 
-  edm::IEventProcessor& Machine::ep() const { return *ep_; }
+  edm::IEventProcessor& Machine::ep() const { return *get_underlying(ep_); }
   FileMode Machine::fileMode() const { return fileMode_; }
   EmptyRunLumiMode Machine::emptyRunLumiMode() const { return emptyRunLumiMode_; }
 

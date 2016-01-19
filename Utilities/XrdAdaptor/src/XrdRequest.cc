@@ -24,13 +24,13 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
 {
     std::unique_ptr<XrdCl::AnyObject> response(resp);
     std::unique_ptr<XrdCl::XRootDStatus> status(stat);
-    std::shared_ptr<ClientRequest> self_ref = m_self_reference;
-    m_self_reference.reset();
+    std::shared_ptr<ClientRequest> self_ref = get_underlying(m_self_reference);
+    get_underlying(m_self_reference).reset();
     {
         QualityMetricWatch qmw;
         m_qmw.swap(qmw);
     }
-    m_stats.reset();
+    get_underlying(m_stats).reset();
 
     if ((!FAKE_ERROR_COUNTER || ((++g_fakeError % FAKE_ERROR_COUNTER) != 0)) && (status->IsOK() && resp))
     {

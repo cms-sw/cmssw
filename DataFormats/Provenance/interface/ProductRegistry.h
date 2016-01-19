@@ -14,6 +14,7 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductHolderIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "boost/array.hpp"
 #include <memory>
@@ -132,9 +133,9 @@ namespace edm {
       boost::array<bool, NumBranchTypes> productProduced_;
       bool anyProductProduced_;
 
-      std::shared_ptr<ProductHolderIndexHelper> eventProductLookup_;
-      std::shared_ptr<ProductHolderIndexHelper> lumiProductLookup_;
-      std::shared_ptr<ProductHolderIndexHelper> runProductLookup_;
+      edm::propagate_const<std::shared_ptr<ProductHolderIndexHelper>> eventProductLookup_;
+      edm::propagate_const<std::shared_ptr<ProductHolderIndexHelper>> lumiProductLookup_;
+      edm::propagate_const<std::shared_ptr<ProductHolderIndexHelper>> runProductLookup_;
 
       ProductHolderIndex eventNextIndexValue_;
       ProductHolderIndex lumiNextIndexValue_;

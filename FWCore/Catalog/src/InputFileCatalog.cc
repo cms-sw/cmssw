@@ -59,20 +59,20 @@ namespace edm {
         lt->clear();
       } else {
         if (!fileLocator_) {
-          fileLocator_.reset(new FileLocator("", false));
+          get_underlying(fileLocator_).reset(new FileLocator("", false));
         }
         if (!overrideFileLocator_ && !inputOverride.empty()) {
-          overrideFileLocator_.reset(new FileLocator(inputOverride, false));
+          get_underlying(overrideFileLocator_).reset(new FileLocator(inputOverride, false));
         }
         if (!fallbackFileLocator_) {
           try {
-            fallbackFileLocator_.reset(new FileLocator("", true));
+            get_underlying(fallbackFileLocator_).reset(new FileLocator("", true));
           } catch (cms::Exception const& e) {
             // No valid fallback locator is OK too.
           }
         }
         if (!overrideFallbackFileLocator_ && !inputOverrideFallback.empty()) {
-          overrideFallbackFileLocator_.reset(new FileLocator(inputOverrideFallback, true));
+          get_underlying(overrideFallbackFileLocator_).reset(new FileLocator(inputOverrideFallback, true));
         }
         boost::trim(*lt);
         findFile(*it, *ft, *lt, useLFNasPFNifLFNnotFound);

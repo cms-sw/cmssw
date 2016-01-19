@@ -18,7 +18,7 @@ StorageAccountProxy::StorageAccountProxy (const std::string &storageClass,
 StorageAccountProxy::~StorageAccountProxy (void)
 {
   StorageAccount::Stamp stats (StorageAccount::counter (m_token, StorageAccount::Operation::destruct));
-  m_baseStorage.release();
+  get_underlying(m_baseStorage).release();
   stats.tick ();
 }
 

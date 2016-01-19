@@ -2,10 +2,14 @@
 #define __XRD_STATISTICS_SERVICE_H_
 
 #include "Utilities/StorageFactory/interface/IOTypes.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
-#include <chrono>
-#include <mutex>
 #include <atomic>
+#include <chrono>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <vector>
 
 namespace edm
 {
@@ -55,7 +59,7 @@ private:
 
     static std::atomic<XrdSiteStatisticsInformation*> m_instance;
     std::mutex m_mutex;
-    std::vector<std::shared_ptr<XrdSiteStatistics>> m_sites;
+    std::vector<edm::propagate_const<std::shared_ptr<XrdSiteStatistics>>> m_sites;
 };
 
 class XrdSiteStatistics
@@ -107,7 +111,7 @@ private:
 
     size_t m_size;
     IOSize m_count;
-    std::shared_ptr<XrdSiteStatistics> m_parent;
+    edm::propagate_const<std::shared_ptr<XrdSiteStatistics>> m_parent;
     std::chrono::time_point<std::chrono::high_resolution_clock> m_start;
 };
 

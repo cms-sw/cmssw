@@ -7,6 +7,7 @@
 # include "TFile.h"
 
 # include "Utilities/StorageFactory/interface/IOPosBuffer.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 
 class Storage;
@@ -54,7 +55,7 @@ private:
 
   TStorageFactoryFile(void);
 
-  std::unique_ptr<Storage>	storage_;		//< Real underlying storage
+  edm::propagate_const<std::unique_ptr<Storage>> storage_; //< Real underlying storage
 };
 
 #endif // TFILE_ADAPTOR_TSTORAGE_FACTORY_FILE_H

@@ -81,6 +81,7 @@
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <map>
 #include <memory>
@@ -129,7 +130,7 @@ namespace edm {
 
     private:
       // We own none of these resources.
-      ActivityRegistry* a_;
+      edm::propagate_const<ActivityRegistry*> a_;
       typename T::Context const* context_;
       bool allowThrow_;
     };
@@ -143,7 +144,6 @@ namespace edm {
     typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
     typedef std::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> AllWorkers;
-    typedef std::vector<std::shared_ptr<OutputModuleCommunicator> > AllOutputModuleCommunicators;
 
     typedef std::vector<Worker*> Workers;
 
@@ -276,7 +276,7 @@ namespace edm {
         reg_ = nullptr;
       }
     private:
-      edm::ActivityRegistry* reg_;
+      edm::propagate_const<edm::ActivityRegistry*> reg_;
       StreamContext const* context_;
     };
 
@@ -323,14 +323,14 @@ namespace edm {
                                bool allowEarlyDelete);
 
     WorkerManager            workerManager_;
-    std::shared_ptr<ActivityRegistry>           actReg_;
+    edm::propagate_const<std::shared_ptr<ActivityRegistry>> actReg_;
 
     vstring                  trig_name_list_;
     vstring                  end_path_name_list_;
 
-    TrigResPtr               results_;
+    edm::propagate_const<TrigResPtr> results_;
 
-    WorkerPtr                results_inserter_;
+    edm::propagate_const<WorkerPtr> results_inserter_;
     TrigPaths                trig_paths_;
     TrigPaths                end_paths_;
     std::vector<int>         empty_trig_paths_;

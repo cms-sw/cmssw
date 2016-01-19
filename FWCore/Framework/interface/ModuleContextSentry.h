@@ -4,6 +4,7 @@
 #include "FWCore/ServiceRegistry/interface/CurrentModuleOnThread.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace edm {
 
@@ -21,7 +22,7 @@ namespace edm {
       moduleCallingContext_->setContext(ModuleCallingContext::State::kInvalid, ParentContext(), nullptr);
     }
   private:
-    ModuleCallingContext* moduleCallingContext_;
+    edm::propagate_const<ModuleCallingContext*> moduleCallingContext_;
   };
 }
 #endif

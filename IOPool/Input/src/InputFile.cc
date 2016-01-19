@@ -19,7 +19,7 @@ namespace edm {
     file_(), fileName_(fileName), reportToken_(0), inputType_(inputType) {
 
     logFileAction(msg, fileName);
-    file_.reset(TFile::Open(fileName));
+    get_underlying(file_).reset(TFile::Open(fileName));
     std::exception_ptr e = edm::threadLocalException::getException();
     if(e != std::exception_ptr()) {
       edm::threadLocalException::setException(std::exception_ptr());
@@ -29,7 +29,7 @@ namespace edm {
       return;
     }
     if(file_->IsZombie()) {
-      file_.reset();
+      get_underlying(file_).reset();
       return;
     }
     

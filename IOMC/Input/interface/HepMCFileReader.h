@@ -17,6 +17,7 @@
 #include <vector>
 #include <map>
 
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace HepMC {
   class IO_BaseClass;
@@ -54,8 +55,8 @@ class HepMCFileReader {
 
   private:
   // current  HepMC evt
-  HepMC::GenEvent *evt_;
-  HepMC::IO_BaseClass *input_;
+  edm::propagate_const<HepMC::GenEvent*> evt_;
+  edm::propagate_const<HepMC::IO_BaseClass*> input_;
 
   static HepMCFileReader *instance_;
 

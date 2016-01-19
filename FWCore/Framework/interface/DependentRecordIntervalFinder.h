@@ -26,6 +26,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {
@@ -61,10 +62,10 @@ class DependentRecordIntervalFinder : public EventSetupRecordIntervalFinder
       const DependentRecordIntervalFinder& operator=(const DependentRecordIntervalFinder&); // stop default
 
       // ---------- member data --------------------------------
-      typedef std::vector< boost::shared_ptr<EventSetupRecordProvider> > Providers;
+      typedef std::vector<edm::propagate_const<boost::shared_ptr<EventSetupRecordProvider>>> Providers;
       Providers providers_;
       
-      boost::shared_ptr<EventSetupRecordIntervalFinder> alternate_;
+      edm::propagate_const<boost::shared_ptr<EventSetupRecordIntervalFinder>> alternate_;
       std::vector<ValidityInterval> previousIOVs_;
 };
 

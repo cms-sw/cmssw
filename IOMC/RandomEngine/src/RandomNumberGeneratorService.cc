@@ -381,7 +381,7 @@ namespace edm {
         unsigned int seedOffset = iStream;
         createEnginesInVector(streamEngines_[iStream], seedOffset, eventSeedOffset_, streamModuleIDToEngine_[iStream]);
         if(!saveFileName_.empty())  {
-          outFiles_[iStream].reset(new std::ofstream);
+          get_underlying(outFiles_[iStream]).reset(new std::ofstream);
         }
       }
       for(unsigned int iLumi = 0; iLumi < nConcurrentLumis; ++iLumi) {

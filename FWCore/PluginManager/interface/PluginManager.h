@@ -30,6 +30,7 @@
 
 // user include files
 #include "FWCore/Utilities/interface/Signal.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
 #include "FWCore/PluginManager/interface/PluginInfo.h"
 
@@ -122,7 +123,7 @@ class PluginManager
                                                   bool& ioThrowIfFailElseSucceedStatus);
       // ---------- member data --------------------------------
       SearchPath searchPath_;
-      tbb::concurrent_unordered_map<boost::filesystem::path, std::shared_ptr<SharedLibrary>, PluginManagerPathHasher > loadables_;
+      tbb::concurrent_unordered_map<boost::filesystem::path, edm::propagate_const<std::shared_ptr<SharedLibrary>>, PluginManagerPathHasher > loadables_;
       
       CategoryToInfos categoryToInfos_;
       std::recursive_mutex pluginLoadMutex_;

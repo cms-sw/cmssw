@@ -51,7 +51,7 @@ namespace edm {
       bool
       ServicesManager::MakerHolder::add(ServicesManager& oManager) const {
          if(!wasAdded_) {
-            wasAdded_ = maker_->make(*pset_, *registry_, oManager);
+            wasAdded_ = maker_->make(*pset_, *get_underlying(registry_), oManager);
             if(wasAdded_ && maker_->saveConfiguration()) {
                pset_->addUntrackedParameter("@save_config", true);
             }
@@ -324,7 +324,7 @@ namespace edm {
            }
          }
          //No longer need the makers
-         type2Maker_.reset();
+         get_underlying(type2Maker_).reset();
       }
       //
       // const member functions

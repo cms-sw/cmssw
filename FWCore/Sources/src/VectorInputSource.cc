@@ -9,7 +9,7 @@ namespace edm {
   struct VectorInputSourceDescription;
 
   VectorInputSource::VectorInputSource(ParameterSet const& pset, VectorInputSourceDescription const& desc) : 
-      productRegistry_(desc.productRegistry_),
+      productRegistry_(get_underlying(desc.productRegistry_)),
       processHistoryRegistry_(new ProcessHistoryRegistry) {
   }
 

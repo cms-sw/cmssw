@@ -383,7 +383,15 @@ namespace edm {
     assert(0<prealloc.numberOfStreams());
     streamSchedules_.reserve(prealloc.numberOfStreams());
     for(unsigned int i=0; i<prealloc.numberOfStreams();++i) {
-      streamSchedules_.emplace_back(std::make_shared<StreamSchedule>(resultsInserter_,moduleRegistry_,proc_pset,tns,prealloc,preg,branchIDListHelper,actions,areg,processConfiguration,!hasSubprocesses,StreamID{i},processContext));
+      streamSchedules_.emplace_back(std::make_shared<StreamSchedule>(
+        get_underlying(resultsInserter_),
+        get_underlying(moduleRegistry_),
+        proc_pset,tns,prealloc,preg,
+        branchIDListHelper,actions,
+        areg,processConfiguration,
+        !hasSubprocesses,
+        StreamID{i},
+        processContext));
     }
     
     //TriggerResults are injected automatically by StreamSchedules and are
@@ -407,8 +415,8 @@ namespace edm {
       std::copy(modulesToUse.begin(),itBeginUnscheduled,std::back_inserter(temp));
       temp.swap(modulesToUse);
     }
-    globalSchedule_.reset(new GlobalSchedule{ resultsInserter_,
-      moduleRegistry_,
+    get_underlying(globalSchedule_).reset(new GlobalSchedule{get_underlying(resultsInserter_),
+      get_underlying(moduleRegistry_),
       modulesToUse,
       proc_pset, preg, prealloc,
       actions,areg,processConfiguration,processContext });
@@ -416,7 +424,7 @@ namespace edm {
     //TriggerResults is not in the top level ParameterSet so the call to
     // reduceParameterSet would fail to find it. Just remove it up front.
     std::set<std::string> usedModuleLabels;
-    for(auto const worker: allWorkers()) {
+    for(auto const& worker: allWorkers()) {
       if(worker->description().moduleLabel() != kTriggerResults) {
         usedModuleLabels.insert(worker->description().moduleLabel());
       }
@@ -458,7 +466,7 @@ namespace edm {
     }
     thinnedAssociationsHelper.sort();
 
-    for (auto c : all_output_communicators_) {
+    for (auto& c : all_output_communicators_) {
       c->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
       c->selectProducts(preg, thinnedAssociationsHelper);
     }
@@ -474,7 +482,7 @@ namespace edm {
                        return iWorker->descPtr();
                      });
       
-      summaryTimeKeeper_.reset(new SystemTimeKeeper(prealloc.numberOfStreams(),
+      get_underlying(summaryTimeKeeper_).reset(new SystemTimeKeeper(prealloc.numberOfStreams(),
                                                     modDesc,
                                                     tns));
       auto timeKeeperPtr = summaryTimeKeeper_.get();
@@ -525,7 +533,7 @@ namespace edm {
         "\nAt most, one form of 'output' may appear in the 'maxEvents' parameter set";
     }
 
-    for (auto c : all_output_communicators_) {
+    for (auto& c : all_output_communicators_) {
       OutputModuleDescription desc(branchIDLists, maxEventsOut);
       if (vMaxEventsOut != 0 && !vMaxEventsOut->empty()) {
         std::string const& moduleLabel = c->description().moduleLabel();
@@ -544,7 +552,7 @@ namespace edm {
     if (all_output_communicators_.empty()) {
       return false;
     }
-    for (auto c : all_output_communicators_) {
+    for (auto& c : all_output_communicators_) {
       if (!c->limitReached()) {
         // Found an output module that has not reached output event count.
         return false;
@@ -927,8 +935,8 @@ namespace edm {
     
     globalSchedule_->replaceModule(newMod,iLabel);
 
-    for(auto s: streamSchedules_) {
-      s->replaceModule(newMod,iLabel);
+    for(auto& s: streamSchedules_) {
+      get_underlying(s)->replaceModule(newMod,iLabel);
     }
     
     {
@@ -1031,7 +1039,7 @@ namespace edm {
   void
   Schedule::enableEndPaths(bool active) {
     endpathsAreActive_ = active;
-    for(auto const &  s : streamSchedules_) {
+    for(auto& s : streamSchedules_) {
       s->enableEndPaths(active);
     }
   }
@@ -1052,7 +1060,7 @@ namespace edm {
   }
                           
   void
-  Schedule::getTriggerTimingReport(TriggerTimingReport& rep) const {
+  Schedule::getTriggerTimingReport(TriggerTimingReport& rep) {
     rep.eventSummary.totalEvents = 0;
     rep.eventSummary.cpuTime = 0.;
     rep.eventSummary.realTime = 0.;
@@ -1089,7 +1097,7 @@ namespace edm {
   
   void
   Schedule::clearCounters() {
-    for(auto const& s: streamSchedules_) {
+    for(auto& s: streamSchedules_) {
       s->clearCounters();
     }
   }

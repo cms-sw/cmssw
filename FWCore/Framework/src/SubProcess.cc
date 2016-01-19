@@ -88,7 +88,7 @@ namespace edm {
     std::string const maxEvents("maxEvents");
     std::string const maxLumis("maxLuminosityBlocks");
 
-    processParameterSet_.reset(parameterSet.popParameterSet(std::string("process")).release()); 
+    get_underlying(processParameterSet_).reset(parameterSet.popParameterSet(std::string("process")).release()); 
 
     // if this process has a maxEvents or maxLuminosityBlocks parameter set, remove them.
     if(processParameterSet_->exists(maxEvents)) {
@@ -111,7 +111,7 @@ namespace edm {
     bool hasSubProcesses = subProcessVParameterSet.get() != nullptr;
   
     ScheduleItems items(*parentProductRegistry, *this);
-    actReg_ = items.actReg_;
+    actReg_ = get_underlying(items.actReg_);
 
     ParameterSet const& optionsPset(processParameterSet_->getUntrackedParameterSet("options", ParameterSet()));
     IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
@@ -136,10 +136,10 @@ namespace edm {
     // intialize the event setup provider
     esp_ = esController.makeProvider(*processParameterSet_);
 
-    branchIDListHelper_ = items.branchIDListHelper_;
+    branchIDListHelper_ = get_underlying(items.branchIDListHelper_);
     updateBranchIDListHelper(parentBranchIDListHelper->branchIDLists());
 
-    thinnedAssociationsHelper_ = items.thinnedAssociationsHelper_;
+    thinnedAssociationsHelper_ = get_underlying(items.thinnedAssociationsHelper_);
     thinnedAssociationsHelper_->updateFromParentProcess(parentThinnedAssociationsHelper, keepAssociation, droppedBranchIDToKeptBranchID_);
 
     // intialize the Schedule
@@ -147,20 +147,25 @@ namespace edm {
 
     // set the items
     act_table_ = std::move(items.act_table_);
-    preg_ = items.preg_;
+    preg_ = get_underlying(items.preg_);
     //CMS-THREADING this only works since Run/Lumis are synchronous so when principalCache asks for
     // the reducedProcessHistoryID from a full ProcessHistoryID that registry will not be in use by
     // another thread. We really need to change how this is done in the PrincipalCache.
     principalCache_.setProcessHistoryRegistry(processHistoryRegistries_[historyRunOffset_]);
 
 
-    processConfiguration_ = items.processConfiguration_;
+    processConfiguration_ = get_underlying(items.processConfiguration_);
     processContext_.setProcessConfiguration(processConfiguration_.get());
     processContext_.setParentProcessContext(parentProcessContext);
 
     principalCache_.setNumberOfConcurrentPrincipals(preallocConfig);
     for(unsigned int index = 0; index < preallocConfig.numberOfStreams(); ++index) {
-      auto ep = std::make_shared<EventPrincipal>(preg_, branchIDListHelper_, thinnedAssociationsHelper_, *processConfiguration_, &(historyAppenders_[index]), index);
+      auto ep = std::make_shared<EventPrincipal>(preg_,
+                                                 get_underlying(branchIDListHelper_),
+                                                 get_underlying(thinnedAssociationsHelper_),
+                                                 *processConfiguration_,
+                                                 &(historyAppenders_[index]),
+                                                 index);
       ep->preModuleDelayedGetSignal_.connect(std::cref(items.actReg_->preModuleEventDelayedGetSignal_));
       ep->postModuleDelayedGetSignal_.connect(std::cref(items.actReg_->postModuleEventDelayedGetSignal_));
       principalCache_.insert(ep);
@@ -174,7 +179,7 @@ namespace edm {
         subProcesses_->emplace_back(subProcessPSet,
                                     topLevelParameterSet,
                                     preg_,
-                                    branchIDListHelper_,
+                                    get_underlying(branchIDListHelper_),
                                     *thinnedAssociationsHelper_,
                                     esController,
                                     *items.actReg_,
