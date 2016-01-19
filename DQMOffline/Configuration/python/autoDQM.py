@@ -26,7 +26,7 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
                            'DQMHarvestMiniAOD'],
             'standardDQM': ['DQMOffline',
                             'dqmHarvesting'],
-            'standardDQMRun1': ['DQMOfflineRun1',
-                                'dqmHarvestingRun1']
+            'standardDQMFakeHLT': ['DQMOfflineFakeHLT',
+                                   'dqmHarvestingFakeHLT']
             }
 
