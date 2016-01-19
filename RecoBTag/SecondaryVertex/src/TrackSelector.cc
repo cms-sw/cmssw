@@ -1,5 +1,3 @@
-#include <Math/GenVector/VectorUtil.h>
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -9,7 +7,6 @@
 #include "RecoBTag/SecondaryVertex/interface/TrackSelector.h"
 
 using namespace reco; 
-using namespace ROOT::Math;
 
 TrackSelector::TrackSelector(const edm::ParameterSet &params) :
 	minPixelHits(params.getParameter<unsigned int>("pixelHitsMin")),
@@ -65,13 +62,13 @@ TrackSelector::operator () (const Track &track,
   if (useVariableJTA_) {
     jtaPassed = TrackIPTagInfo::passVariableJTA( varJTApars,
 					jet.pt(),track.pt(),
-					VectorUtil::DeltaR(jet.momentum(),track.momentum()));
+					reco::deltaR(jet.momentum(),track.momentum()));
   }
   else  jtaPassed = true;
 
   return track.pt() >= minPt &&
-    VectorUtil::DeltaR(jet.momentum(),
-		       track.momentum()) < maxJetDeltaR &&
+    reco::deltaR2(jet.momentum(),
+		       track.momentum()) < maxJetDeltaR*maxJetDeltaR &&
     jtaPassed &&
     trackSelection(track, ipData, jet, pv);
 }
@@ -88,13 +85,13 @@ TrackSelector::operator () (const CandidatePtr &track,
   if (useVariableJTA_) {
     jtaPassed = TrackIPTagInfo::passVariableJTA( varJTApars,
 					jet.pt(),track->pt(),
-					VectorUtil::DeltaR(jet.momentum(),track->momentum()));
+					reco::deltaR(jet.momentum(),track->momentum()));
   }
   else  jtaPassed = true;
 
   return track->pt() >= minPt &&
-    VectorUtil::DeltaR(jet.momentum(),
-		       track->momentum()) < maxJetDeltaR &&
+    reco::deltaR2(jet.momentum(),
+		       track->momentum()) < maxJetDeltaR*maxJetDeltaR &&
     jtaPassed &&
     trackSelection(*reco::btag::toTrack(track), ipData, jet, pv);
 }
