@@ -109,8 +109,6 @@ btagDiscriminators = [
     #CTagging
     ,'pfCombinedCvsLJetTags'
     ,'pfCombinedCvsBJetTags'
-    #ChargeTagging
-    ,'pfChargeBJetTags'
 ]
 
 # uncomment the following lines to add ak4PFJets with new b-tags to your PAT output
