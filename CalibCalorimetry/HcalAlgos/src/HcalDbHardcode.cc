@@ -551,10 +551,8 @@ HcalQIECoder HcalDbHardcode::makeQIECoder (HcalGenericDetId fId) {
 
   // qie8/qie10 attribution - 0/1
   if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {
-    result.setQIEIndex(0);
     slope = 1.0;
-  } else 
-    result.setQIEIndex(1);
+  }
     
   for (unsigned range = 0; range < 4; range++) {
     for (unsigned capid = 0; capid < 4; capid++) {
