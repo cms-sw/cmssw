@@ -28,7 +28,7 @@ postValidation = cms.Sequence(
     + hcalSimHitsPostProcessor
     + hcaldigisPostProcessor
     + hcalrechitsPostProcessor
-    + electronPostValidationSequence + electronPostValidationSequenceMiniAOD + photonPostProcessor
+    + electronPostValidationSequence + photonPostProcessor
     + pfJetClient + pfMETClient + pfJetResClient + pfElectronClient
     + rpcRecHitPostValidation_step
     + runTauEff + makeBetterPlots
