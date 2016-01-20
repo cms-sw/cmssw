@@ -1,9 +1,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondFormats/Common/interface/TimeConversions.h"
 #include "CondTools/RunInfo/interface/FillInfoPopConSourceHandler.h"
-#include "RelationalAccess/ISessionProxy.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/DBCommon/interface/DbConnectionConfiguration.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ICursor.h"
@@ -74,17 +75,20 @@ void FillInfoPopConSourceHandler::getNewObjects() {
   }
   
   //retrieve the data from the relational database source
-  cond::persistency::ConnectionPool connection;
+  cond::DbConnection dbConnection;
   //configure the connection
   if( m_debug ) {
-    connection.setMessageVerbosity( coral::Debug );
+    dbConnection.configuration().setMessageLevel( coral::Debug );
   } else {
-    connection.setMessageVerbosity( coral::Error );
+    dbConnection.configuration().setMessageLevel( coral::Error );
   }
-  connection.setAuthenticationPath( m_authpath );
-  connection.configure();
+  dbConnection.configuration().setPoolAutomaticCleanUp( false );
+  dbConnection.configuration().setConnectionTimeOut( 0 );
+  dbConnection.configuration().setAuthenticationPath( m_authpath );
+  dbConnection.configure();
   //create a sessiom
-  cond::persistency::Session session = connection.createSession( m_connectionString, true  );
+  cond::DbSession session = dbConnection.createSession();
+  session.open( m_connectionString, true );
   //run the first query against the schema logging fill information
   coral::ISchema& runTimeLoggerSchema = session.nominalSchema();
   //start the transaction against the fill logging schema
@@ -279,7 +283,7 @@ void FillInfoPopConSourceHandler::getNewObjects() {
       continue;
     }
     //run the second and third query against the schema hosting detailed DIP information
-    coral::ISchema& beamCondSchema = session.coralSession().schema( m_dipSchema );
+    coral::ISchema& beamCondSchema = session.schema( m_dipSchema );
     //start the transaction against the DIP "deep" database backend schema
     session.transaction().start( true );
     //prepare the WHERE clause for both queries
@@ -404,6 +408,8 @@ void FillInfoPopConSourceHandler::getNewObjects() {
   session.transaction().commit();
   //close the session
   session.close();
+  //close the connection
+  dbConnection.close();
   //store log information
   m_userTextLog = ss.str();
   edm::LogInfo( m_name ) << "Transferring " << m_to_transfer.size() << " payload(s); from " << m_name << "::getNewObjects";

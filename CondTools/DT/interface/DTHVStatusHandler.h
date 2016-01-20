@@ -20,7 +20,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondCore/CondDB/interface/Session.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondFormats/DTObjects/interface/DTHVStatus.h"
 #include <string>
 
@@ -131,9 +131,12 @@ class DTHVStatusHandler: public popcon::PopConSourceHandler<DTHVStatus> {
   long long int lastStamp;
   int maxPayload;
 
-  cond::persistency::Session omds_session;
-  cond::persistency::Session util_session;
-  cond::persistency::Session buff_session;
+  cond::DbConnection omds_conn;
+  cond::DbConnection util_conn;
+  cond::DbConnection buff_conn;
+  cond::DbSession omds_session;
+  cond::DbSession util_session;
+  cond::DbSession buff_session;
 
   std::string mapVersion;
   std::string splitVersion;
