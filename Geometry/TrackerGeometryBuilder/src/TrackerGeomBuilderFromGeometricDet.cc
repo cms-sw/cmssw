@@ -211,7 +211,7 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
       tracker->addType(theStripDetTypeMap[detName]);
     }
      
-    double scale  = (theTopo->PartnerDetId(gdv[i]->geographicalID())) ? 0.5 : 1.0 ;	
+    double scale  = (theTopo->partnerDetId(gdv[i]->geographicalID())) ? 0.5 : 1.0 ;	
 
     PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i],scale);  
     GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), theStripDetTypeMap[detName],gdv[i]->geographicalID());
@@ -243,12 +243,12 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
     //this step is time consuming >> TO FIX with a MAP?
     if( (gduTypeName.find("Ster")!=std::string::npos || 
          gduTypeName.find("Lower")!=std::string::npos) && 
-        (theTopo->Glued(gduId[i])!=0 || theTopo->Stack(gduId[i])!=0 )) {
+        (theTopo->glued(gduId[i])!=0 || theTopo->stack(gduId[i])!=0 )) {
     
 
       int partner_pos=-1;
       for(u_int32_t jj=0;jj<gduId.size();jj++){
-  	  if(theTopo->PartnerDetId(gduId[i]) == gduId[jj]) {
+  	  if(theTopo->partnerDetId(gduId[i]) == gduId[jj]) {
   	    partner_pos=jj;
   	    break;
   	  }
@@ -267,7 +267,7 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
       if(gduTypeName.find("Ster")!=std::string::npos){
 
         PlaneBuilderForGluedDet::ResultType plane = gluedplaneBuilder.plane(composed);
-        composedDetId = theTopo->Glued(gduId[i]);
+        composedDetId = theTopo->glued(gduId[i]);
         GluedGeomDet* gluedDet = new GluedGeomDet(&(*plane),dum,dus,composedDetId);
         tracker->addDet((GeomDet*) gluedDet);
         tracker->addDetId(composedDetId);
@@ -276,7 +276,7 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
 
         //FIXME::ERICA: the plane builder is built in the middle...
         PlaneBuilderForGluedDet::ResultType plane = gluedplaneBuilder.plane(composed);
-        composedDetId = theTopo->Stack(gduId[i]);
+        composedDetId = theTopo->stack(gduId[i]);
         StackGeomDet* stackDet = new StackGeomDet(&(*plane),dum,dus,composedDetId);
         tracker->addDet((GeomDet*) stackDet);
         tracker->addDetId(composedDetId);
