@@ -65,8 +65,10 @@ class SCEnergyCorrectorSemiParm {
   edm::InputTag vertexInputTag_;
   edm::InputTag rhoInputTag_;
 
-  std::string regressionKey_;
-  std::string uncertaintyKey_;
+  std::string regressionKeyEB_;
+  std::string uncertaintyKeyEB_;
+  std::string regressionKeyEE_;
+  std::string uncertaintyKeyEE_;
 
  private:
   bool isHLT_;
