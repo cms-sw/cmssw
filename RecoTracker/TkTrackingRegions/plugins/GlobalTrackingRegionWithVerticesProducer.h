@@ -26,13 +26,13 @@ public:
     theNSigmaZ          = regionPSet.getParameter<double>("nSigmaZ");
     token_beamSpot      = iC.consumes<reco::BeamSpot>(regionPSet.getParameter<edm::InputTag>("beamSpot"));
     thePrecise          = regionPSet.getParameter<bool>("precise"); 
-    theUseMS           = (regionPSet.existsAs<bool>("useMultipleScattering") ? regionPSet.getParameter<bool>("useMultipleScattering") : false);
+    theUseMS            = regionPSet.getParameter<bool>("useMultipleScattering");
 
     theSigmaZVertex     = regionPSet.getParameter<double>("sigmaZVertex");
     theFixedError       = regionPSet.getParameter<double>("fixedError");
 
     theUseFoundVertices = regionPSet.getParameter<bool>("useFoundVertices");
-    theUseFakeVertices  = regionPSet.existsAs<bool>("useFakeVertices") ? regionPSet.getParameter<bool>("useFakeVertices") : false;
+    theUseFakeVertices  = regionPSet.getParameter<bool>("useFakeVertices");
     theUseFixedError    = regionPSet.getParameter<bool>("useFixedError");
     token_vertex      = iC.consumes<reco::VertexCollection>(regionPSet.getParameter<edm::InputTag>("VertexCollection"));
   }   

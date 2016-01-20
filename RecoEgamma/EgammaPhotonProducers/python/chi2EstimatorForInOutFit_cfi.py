@@ -5,5 +5,5 @@ Chi2MeasurementEstimatorForInOut = TrackingTools.KalmanUpdators.Chi2MeasurementE
 Chi2MeasurementEstimatorForInOut.ComponentName = 'Chi2ForInOut'
 Chi2MeasurementEstimatorForInOut.MaxChi2 = 100.
 Chi2MeasurementEstimatorForInOut.nSigma = 3.
-Chi2MeasurementEstimatorForInOut.MaxDispacement = 100
+Chi2MeasurementEstimatorForInOut.MaxDisplacement = 100
 Chi2MeasurementEstimatorForInOut.MaxSagitta=-1
