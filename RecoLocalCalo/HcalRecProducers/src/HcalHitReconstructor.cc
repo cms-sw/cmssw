@@ -139,6 +139,12 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
         hbhePulseShapeFlagSetter_ = new HBHEPulseShapeFlagSetter(
 								 psPulseShape.getParameter<double>("MinimumChargeThreshold"),
 								 psPulseShape.getParameter<double>("TS4TS5ChargeThreshold"),
+								 psPulseShape.getParameter<double>("TS3TS4ChargeThreshold"),
+								 psPulseShape.getParameter<double>("TS3TS4UpperChargeThreshold"),
+								 psPulseShape.getParameter<double>("TS5TS6ChargeThreshold"),
+								 psPulseShape.getParameter<double>("TS5TS6UpperChargeThreshold"),
+								 psPulseShape.getParameter<double>("R45PlusOneRange"),
+								 psPulseShape.getParameter<double>("R45MinusOneRange"),
 								 psPulseShape.getParameter<unsigned int>("TrianglePeakTS"),
 								 psPulseShape.getParameter<std::vector<double> >("LinearThreshold"),
 								 psPulseShape.getParameter<std::vector<double> >("LinearCut"),

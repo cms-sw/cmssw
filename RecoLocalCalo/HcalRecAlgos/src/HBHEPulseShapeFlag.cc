@@ -29,13 +29,28 @@ HBHEPulseShapeFlagSetter::HBHEPulseShapeFlagSetter()
    // we'd trust the flagging algorithm.
    // Set the minimum charge threshold large enough so that nothing will be flagged.
    // 
+   // Along the same lines, set upper thresholds to -99999999.
+   //
 
-   mMinimumChargeThreshold = 99999999;
-   mTS4TS5ChargeThreshold = 99999999;
+   mMinimumChargeThreshold     = 99999999;
+   mTS4TS5ChargeThreshold      = 99999999;
+   mTS3TS4UpperChargeThreshold = -99999999;
+   mTS5TS6UpperChargeThreshold = -99999999;
+   mTS3TS4ChargeThreshold      = 99999999;
+   mTS5TS6ChargeThreshold      = 99999999;
+   mR45PlusOneRange            = 0;
+   mR45MinusOneRange           = 0;
+
 }
 //---------------------------------------------------------------------------
 HBHEPulseShapeFlagSetter::HBHEPulseShapeFlagSetter(double MinimumChargeThreshold,
    double TS4TS5ChargeThreshold,
+   double TS3TS4ChargeThreshold,
+   double TS3TS4UpperChargeThreshold,
+   double TS5TS6ChargeThreshold,						   
+   double TS5TS6UpperChargeThreshold,						   
+   double R45PlusOneRange,						   
+   double R45MinusOneRange,						   
    unsigned int TrianglePeakTS,
    const std::vector<double>& LinearThreshold, 
    const std::vector<double>& LinearCut,
@@ -61,10 +76,16 @@ HBHEPulseShapeFlagSetter::HBHEPulseShapeFlagSetter(double MinimumChargeThreshold
    // Also calls the Initialize() function
    //
 
-   mMinimumChargeThreshold = MinimumChargeThreshold;
-   mTS4TS5ChargeThreshold = TS4TS5ChargeThreshold;
-   mTrianglePeakTS = TrianglePeakTS;
-   mTriangleIgnoreSlow = TriangleIgnoreSlow;
+   mMinimumChargeThreshold     = MinimumChargeThreshold;
+   mTS4TS5ChargeThreshold      = TS4TS5ChargeThreshold;
+   mTS3TS4ChargeThreshold      = TS3TS4ChargeThreshold;
+   mTS3TS4UpperChargeThreshold = TS3TS4UpperChargeThreshold;
+   mTS5TS6ChargeThreshold      = TS5TS6ChargeThreshold;
+   mTS5TS6UpperChargeThreshold = TS5TS6UpperChargeThreshold;
+   mR45PlusOneRange            = R45PlusOneRange;
+   mR45MinusOneRange           = R45MinusOneRange;
+   mTrianglePeakTS             = TrianglePeakTS;
+   mTriangleIgnoreSlow         = TriangleIgnoreSlow;
 
    for(std::vector<double>::size_type i = 0; i < LinearThreshold.size() && i < LinearCut.size(); i++)
       mLambdaLinearCut.push_back(std::pair<double, double>(LinearThreshold[i], LinearCut[i]));
@@ -200,7 +221,33 @@ void HBHEPulseShapeFlagSetter::SetPulseShapeFlags(HBHERecHit &hbhe,
          hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETS4TS5Noise);
       if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5LowerCut, -1) == false)
          hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETS4TS5Noise);
+      
+      if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5UpperCut, 1) == false            && // TS4TS5 is above envelope
+         mCharge[3] + mCharge[4] > mTS3TS4ChargeThreshold       &&       mTS3TS4ChargeThreshold>0 && // enough charge in 34
+         mCharge[5] + mCharge[6] < mTS5TS6UpperChargeThreshold  &&  mTS5TS6UpperChargeThreshold>0 && // low charge in 56
+      	 fabs( (mCharge[4] - mCharge[5]) / (mCharge[4] + mCharge[5]) - 1.0 ) < mR45PlusOneRange    ) // R45 is around +1
+   	{
+           double TS3TS4 = (mCharge[3] - mCharge[4]) / (mCharge[3] + mCharge[4]);
+           if(CheckPassFilter(mCharge[3] + mCharge[4], TS3TS4, mTS4TS5UpperCut,  1) == true && // use the same envelope as TS4TS5
+	      CheckPassFilter(mCharge[3] + mCharge[4], TS3TS4, mTS4TS5LowerCut, -1) == true && // use the same envelope as TS4TS5
+	      TS3TS4>(mR45MinusOneRange-1)                                                   ) // horizontal cut on R34 (R34>-0.8)
+	       hbhe.setFlagField(1, HcalCaloFlagLabels::HBHEOOTPU); // set to 1 if there is a pulse-shape-wise good OOTPU in TS3TS4.
+   	}
+
+      if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5LowerCut, -1) == false            && // TS4TS5 is below envelope
+         mCharge[3] + mCharge[4] < mTS3TS4UpperChargeThreshold  &&  mTS3TS4UpperChargeThreshold>0  && // low charge in 34
+         mCharge[5] + mCharge[6] > mTS5TS6ChargeThreshold       &&       mTS5TS6ChargeThreshold>0  && // enough charge in 56
+         fabs( (mCharge[4] - mCharge[5]) / (mCharge[4] + mCharge[5]) + 1.0 ) < mR45MinusOneRange    ) // R45 is around -1
+        {
+           double TS5TS6 = (mCharge[5] - mCharge[6]) / (mCharge[5] + mCharge[6]);
+           if(CheckPassFilter(mCharge[5] + mCharge[6], TS5TS6, mTS4TS5UpperCut,  1) == true && // use the same envelope as TS4TS5
+	      CheckPassFilter(mCharge[5] + mCharge[6], TS5TS6, mTS4TS5LowerCut, -1) == true && // use the same envelope as TS4TS5
+	      TS5TS6<(1-mR45PlusOneRange)                                                    ) // horizontal cut on R56 (R56<+0.8)
+	       hbhe.setFlagField(1, HcalCaloFlagLabels::HBHEOOTPU); // set to 1 if there is a pulse-shape-wise good OOTPU in TS5TS6.
+        }
+        
    }
+
 }
 //---------------------------------------------------------------------------
 void HBHEPulseShapeFlagSetter::Initialize()
@@ -566,7 +613,7 @@ double HBHEPulseShapeFlagSetter::DualNominalFitSingleTry(const std::vector<doubl
    for(int j = 0; j < DigiSize; j++)
    {
       double Residual = Height * f1_[j] + Height2 * f2_[j] - Charge[j];  
-      Chi2 += Residual * Residual *errors_[j];                             
+      Chi2 += Residual * Residual *errors_[j];           
    } 
 
    // Safety protection in case of zero
