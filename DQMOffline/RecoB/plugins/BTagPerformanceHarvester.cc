@@ -138,6 +138,9 @@ void BTagPerformanceHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMStore::IG
     const string& dataFormatType = iModule->exists("type") ?
                                    iModule->getParameter<string>("type") :
                                    "JetTag";
+		const bool& doCTagPlots = iModule->exists("doCTagPlots") ?
+                                   iModule->getParameter<bool>("doCTagPlots") :
+                                   false;										 						 
     if (dataFormatType == "JetTag") {
       iTag++;
       const string& folderName    = iModule->getParameter<string>("folder");
@@ -173,7 +176,7 @@ void BTagPerformanceHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMStore::IG
 
 	  // Instantiate the genertic b tag plotter
 	  JetTagPlotter *jetTagPlotter = new JetTagPlotter(folderName, etaPtBin,
-							   iModule->getParameter<edm::ParameterSet>("parameters"),mcPlots_,true, ibook);
+							   iModule->getParameter<edm::ParameterSet>("parameters"),mcPlots_,true, ibook, doCTagPlots);
 	  binJetTagPlotters.at(iTag).push_back ( jetTagPlotter ) ;
 
 	  // Add to the corresponding differential plotters

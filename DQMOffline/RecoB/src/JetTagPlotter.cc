@@ -11,7 +11,7 @@ using namespace RecoBTag;
 
 JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
 			      const edm::ParameterSet& pSet, const unsigned int& mc, 
-			      const bool& wf, DQMStore::IBooker & ibook) :
+			      const bool& wf, DQMStore::IBooker & ibook, const bool & doCTagPlots) :
 		       BaseBTagPlotter(tagName, etaPtBin), discrBins(400),
                        discrStart_(pSet.getParameter<double>("discriminatorStart")), 
                        discrEnd_(pSet.getParameter<double>("discriminatorEnd")),
@@ -23,7 +23,9 @@ JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaP
   // to have a shorter name .....
   const std::string & es = theExtensionString;
   const std::string jetTagDir(es.substr(1));
-
+	
+	doCTagPlots_ = doCTagPlots;
+	
   if (willFinalize_) return;
 
   //added to count the number of jets by event : 0=DATA or NI, 1to5=quarks u,d,s,c,b , 6=gluon
@@ -71,7 +73,7 @@ JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaP
   // reconstructed jet phi
   dJetRecPhi = new FlavourHistograms<double>
     ("jetPhi" + es, "jet phi", 100, -3.15, 3.15,
-     false, false, true, "b", jetTagDir, mcPlots_, ibook);
+     false, false, true, "b", jetTagDir, mcPlots_, ibook); 
 }  
   
   
@@ -302,7 +304,7 @@ void JetTagPlotter::finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & ige
   
   effPurFromHistos = new EffPurFromHistos ( dDiscriminator,theExtensionString.substr(1), mcPlots_, ibook_, 
 					    nBinEffPur_, startEffPur_, endEffPur_);
+	effPurFromHistos->doCTagPlots(doCTagPlots_);
   effPurFromHistos->compute(ibook_);
 }
-
 
