@@ -18,6 +18,7 @@
 <use   name="CondFormats/RPCObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/RunInfo"/>
+<use   name="CondCore/DBCommon"/>
 <use   name="CondCore/PopCon"/>
 
 

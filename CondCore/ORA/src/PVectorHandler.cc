@@ -1,5 +1,6 @@
 #include "CondCore/ORA/interface/Exception.h"
 #include "CondCore/ORA/interface/PVector.h"
+#include "CondFormats/Common/interface/IOVElement.h"
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "PVectorHandler.h"
 #include "ClassUtils.h"

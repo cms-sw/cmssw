@@ -2,6 +2,7 @@
   <use   name="CondCore/PluginSystem"/>
   <use   name="CondFormats/DataRecord"/>
   <use   name="CondFormats/JetMETObjects"/>
+  <use   name="CondCore/DBCommon"/>
   <use   name="CondCore/DBOutputService"/>
   <use   name="DataFormats/JetReco"/>
   <use   name="DataFormats/METReco"/>

@@ -1,4 +1,3 @@
-#include "CondCore/CondDB/interface/Types.h"
 #include "DQM/RPCMonitorClient/interface/RPCDBHandler.h"
 
 RPCDBHandler::RPCDBHandler(const edm::ParameterSet& iConfig) : 

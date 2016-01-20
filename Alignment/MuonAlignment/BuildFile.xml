@@ -12,6 +12,7 @@
 <use   name="DataFormats/DetId"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Concurrency"/>
+<use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondFormats/Alignment"/>
 <use   name="DataFormats/MuonDetId"/>
