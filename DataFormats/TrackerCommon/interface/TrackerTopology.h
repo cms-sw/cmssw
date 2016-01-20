@@ -271,10 +271,10 @@ class TrackerTopology {
 
   //these should be used now!!
   //return the detId of the glued or the stack
-  uint32_t Glued(const DetId &id) const ;
-  uint32_t Stack(const DetId &id) const ;
-  uint32_t Lower(const DetId &id) const ;
-  uint32_t Upper(const DetId &id) const ;
+  uint32_t glued(const DetId &id) const ;
+  uint32_t stack(const DetId &id) const ;
+  uint32_t lower(const DetId &id) const ;
+  uint32_t upper(const DetId &id) const ;
   //look at the last bits of the DetId to understand if the det is stereo, rphi, lower or upper
   bool isStereo(const DetId &id) const;
   bool isRPhi(const DetId &id) const;
@@ -363,7 +363,7 @@ class TrackerTopology {
   uint32_t tecStack(const DetId &id) const { return tecGlued(id); }
 
   //these should be used now!!
-  uint32_t PartnerDetId(const DetId &id) const;
+  uint32_t partnerDetId(const DetId &id) const;
 
   uint32_t tibPartnerDetId(const DetId &id) const {
     if ( ((id.rawId()>>tibVals_.sterStartBit_) & tibVals_.sterMask_ ) == 1 ) {
