@@ -12,7 +12,7 @@ class Run2ElectronCalibrator:
         for s in scales: vscales.push_back(s)
         vsmearings = ROOT.std.vector('double')()
         for s in smearings: vsmearings.push_back(s)
-        self.electronEnergyCalibratorRun2 = ROOT.ElectronEnergyCalibratorRun2(self.epCombinationTool, isMC, isSync, vscales, vsmearings)
+        self.electronEnergyCalibratorRun2 = ROOT.ElectronEnergyCalibratorRun2(self.epCombinationTool, isMC, isSync, vsmearings, vscales)
         self.electronEnergyCalibratorRun2.initPrivateRng(self.random)
  
     def correct(self,electron,run):
