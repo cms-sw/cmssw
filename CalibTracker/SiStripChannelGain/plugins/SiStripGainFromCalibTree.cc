@@ -2,6 +2,7 @@
 //         Created:  Mon Nov  16 08:55:18 CET 2009
 
 #include <memory>
+#include <iostream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -140,7 +141,7 @@ private:
 	bool produceTagFilter();
 
 	template<typename T>
-	inline edm::Handle<T> connect(const T* ptr, edm::EDGetTokenT<T> token, const edm::Event &evt) {
+	inline edm::Handle<T> connect(const T* &ptr, edm::EDGetTokenT<T> token, const edm::Event &evt) {
 		edm::Handle<T> handle;
 		evt.getByToken(token, handle);
 		ptr = handle.product();
@@ -598,6 +599,7 @@ bool SiStripGainFromCalibTree::IsGoodLandauFit(double* FitResults){
 }
 
 void SiStripGainFromCalibTree::processEvent() {
+
 	if(runnumber<SRun)SRun=runnumber;
 	if(runnumber>ERun)ERun=runnumber;
 
