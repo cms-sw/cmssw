@@ -55,13 +55,13 @@ BTagPerformanceAnalyzerOnData::BTagPerformanceAnalyzerOnData(const edm::Paramete
         const std::vector<InputTag> listInfo = iModule->getParameter<vector<InputTag>>("listTagInfos"); 
         for(unsigned int ITi=0; ITi<listInfo.size(); ITi++){ 
           tokens.push_back(consumes< View<BaseTagInfo> >(listInfo[ITi]));
-	        vIP.push_back(listInfo[ITi]);
-	      }
+	  vIP.push_back(listInfo[ITi]);
+	}
       }
       else {
         const InputTag& moduleLabel = iModule->getParameter<InputTag>("label");
         tokens.push_back(consumes< View<BaseTagInfo> >(moduleLabel));
-	      vIP.push_back(moduleLabel);
+	vIP.push_back(moduleLabel);
       }
       tagInfoToken.push_back(tokens);
       tagInfoInputTags.push_back(vIP);
@@ -96,17 +96,17 @@ void BTagPerformanceAnalyzerOnData::bookHistograms(DQMStore::IBooker & ibook, ed
       
       // eta loop
       for ( int iEta = iEtaStart ; iEta < iEtaEnd ; ++iEta ) {
-	        // pt loop
-	        for ( int iPt = iPtStart ; iPt < iPtEnd ; ++iPt ) {
+	// pt loop
+	for ( int iPt = iPtStart ; iPt < iPtEnd ; ++iPt ) {
 	  
-	        const EtaPtBin& etaPtBin = getEtaPtBin(iEta, iPt);
+	  const EtaPtBin& etaPtBin = getEtaPtBin(iEta, iPt);
 	  
-	        // Instantiate the genertic b tag plotter
-	        JetTagPlotter *jetTagPlotter = new JetTagPlotter(folderName, etaPtBin,
+	  // Instantiate the genertic b tag plotter
+	  JetTagPlotter *jetTagPlotter = new JetTagPlotter(folderName, etaPtBin,
 							   iModule->getParameter<edm::ParameterSet>("parameters"), 0, false, ibook);
-	        binJetTagPlotters.at(iTag).push_back ( jetTagPlotter ) ;
+	  binJetTagPlotters.at(iTag).push_back ( jetTagPlotter ) ;
 	  
-	        }
+	}
       }
       
     } else if(dataFormatType == "TagCorrelation") { 
@@ -122,7 +122,7 @@ void BTagPerformanceAnalyzerOnData::bookHistograms(DQMStore::IBooker & ibook, ed
             // Instantiate the generic b tag correlation plotter
             TagCorrelationPlotter* tagCorrelationPlotter = new TagCorrelationPlotter(label1.label(), label2.label(), etaPtBin,
                                                                                      iModule->getParameter<edm::ParameterSet>("parameters"),
-                                                                                     0, ibook);
+                                                                                     0, false,ibook);
             binTagCorrelationPlotters.at(iTagCorr).push_back(tagCorrelationPlotter);
           }
         }
@@ -134,18 +134,18 @@ void BTagPerformanceAnalyzerOnData::bookHistograms(DQMStore::IBooker & ibook, ed
       
       // eta loop
       for ( int iEta = iEtaStart ; iEta < iEtaEnd ; ++iEta ) {
-	         // pt loop
-	         for ( int iPt = iPtStart ; iPt < iPtEnd ; ++iPt ) {
-	            const EtaPtBin& etaPtBin = getEtaPtBin(iEta, iPt);
+	// pt loop
+	for ( int iPt = iPtStart ; iPt < iPtEnd ; ++iPt ) {
+	  const EtaPtBin& etaPtBin = getEtaPtBin(iEta, iPt);
 	  
-	            // Instantiate the tagInfo plotter
+	  // Instantiate the tagInfo plotter
 	  
-	            BaseTagInfoPlotter *jetTagPlotter = theFactory.buildPlotter(dataFormatType, moduleLabel.label(),
+	  BaseTagInfoPlotter *jetTagPlotter = theFactory.buildPlotter(dataFormatType, moduleLabel.label(),
 								      etaPtBin, iModule->getParameter<edm::ParameterSet>("parameters"), folderName,
 								      0, false, ibook);
-	            binTagInfoPlotters.at(iInfoTag).push_back ( jetTagPlotter ) ;
-              binTagInfoPlottersToModuleConfig.insert(make_pair(jetTagPlotter, iModule - moduleConfig.begin()));
-	         }
+	  binTagInfoPlotters.at(iInfoTag).push_back ( jetTagPlotter ) ;
+          binTagInfoPlottersToModuleConfig.insert(make_pair(jetTagPlotter, iModule - moduleConfig.begin()));
+	}
       }
       
     }

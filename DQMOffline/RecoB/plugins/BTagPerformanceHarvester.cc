@@ -140,7 +140,9 @@ void BTagPerformanceHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMStore::IG
                                    "JetTag";
 		const bool& doCTagPlots = iModule->exists("doCTagPlots") ?
                                    iModule->getParameter<bool>("doCTagPlots") :
-                                   false;										 						 
+                                   false;
+//	std::cout<<"[BTagPerformanceHarvester::dqmEndJob] folder = "<<iModule->getParameter<string>("folder")<<std::endl;
+//  std::cout<<"[BTagPerformanceHarvester::dqmEndJob] doCTagPlots = "<<doCTagPlots<<std::endl;											 						 
     if (dataFormatType == "JetTag") {
       iTag++;
       const string& folderName    = iModule->getParameter<string>("folder");
@@ -212,7 +214,7 @@ void BTagPerformanceHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMStore::IG
             // Instantiate the generic b tag correlation plotter
             TagCorrelationPlotter* tagCorrelationPlotter = new TagCorrelationPlotter(label1.label(), label2.label(), etaPtBin,
                                                                                      iModule->getParameter<edm::ParameterSet>("parameters"),
-                                                                                     mcPlots_,  ibook);
+                                                                                     mcPlots_,  true,ibook);
             binTagCorrelationPlotters.at(iTagCorr).push_back(tagCorrelationPlotter);
           }
         }
@@ -269,6 +271,25 @@ void BTagPerformanceHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMStore::IG
       if (produceEps) (*iPlotter)->epsPlot(epsBaseName);
     }
   }
+  /*
+  for (vector<vector<TagCorrelationPlotter*> >::iterator iJetLabel = binTagCorrelationPlotters.begin();
+       iJetLabel != binTagCorrelationPlotters.end(); ++iJetLabel) {
+    for (vector<TagCorrelationPlotter*>::iterator iPlotter = iJetLabel->begin(); iPlotter != iJetLabel->end(); ++iPlotter) {
+      (*iPlotter)->finalize(ibook, iget);
+      if (producePs)  (*iPlotter)->psPlot(psBaseName);
+      if (produceEps) (*iPlotter)->epsPlot(epsBaseName);
+    }
+  }
+*/
+   for (unsigned int iJetLabel = 0; iJetLabel != binTagCorrelationPlotters.size(); ++iJetLabel) {
+    int plotterSize =  binTagCorrelationPlotters[iJetLabel].size();
+    for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
+      binTagCorrelationPlotters[iJetLabel][iPlotter]->finalize(ibook, iget);
+      if (producePs)  (*binTagCorrelationPlotters[iJetLabel][iPlotter]).psPlot(psBaseName);
+      if (produceEps) (*binTagCorrelationPlotters[iJetLabel][iPlotter]).epsPlot(epsBaseName);
+    }
+   } 
+
 }
 
 
