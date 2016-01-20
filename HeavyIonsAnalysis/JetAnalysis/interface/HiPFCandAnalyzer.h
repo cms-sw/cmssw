@@ -41,7 +41,6 @@ inline float rndDP(float value, int nPlaces)
 }
 
 //----------------------------------------------------------------
-const Int_t MAXPARTICLE = 10000;
 //
 // DiJet ana Event Data Tree definition
 //
@@ -60,15 +59,15 @@ public:
   Float_t         jdphi_;
   // -- particle info --
   Int_t           nPFpart_, nGENpart_, njets_;
-  Int_t           pfId_[MAXPARTICLE], genPDGId_[MAXPARTICLE];
-  Float_t         pfEnergy_[MAXPARTICLE], jetEnergy_[MAXPARTICLE];
-  Float_t         pfPt_[MAXPARTICLE], genPt_[MAXPARTICLE],  jetPt_[MAXPARTICLE];
-  Float_t         pfEta_[MAXPARTICLE], genEta_[MAXPARTICLE],  jetEta_[MAXPARTICLE];
-  Float_t         pfPhi_[MAXPARTICLE], genPhi_[MAXPARTICLE],  jetPhi_[MAXPARTICLE];
-  Float_t         pfVsPt_[MAXPARTICLE];
-  Float_t         pfVsPtInitial_[MAXPARTICLE];
-  Float_t         pfVsPtEqualized_[MAXPARTICLE];
-  Float_t         pfArea_[MAXPARTICLE];
+  std::vector<Int_t>           pfId_, genPDGId_;
+  std::vector<Float_t>         pfEnergy_, jetEnergy_;
+  std::vector<Float_t>         pfPt_, genPt_,  jetPt_;
+  std::vector<Float_t>         pfEta_, genEta_,  jetEta_;
+  std::vector<Float_t>         pfPhi_, genPhi_,  jetPhi_;
+  std::vector<Float_t>         pfVsPt_;
+  std::vector<Float_t>         pfVsPtInitial_;
+  std::vector<Float_t>         pfVsPtEqualized_;
+  std::vector<Float_t>         pfArea_;
   Float_t         sumpt[20];
   Float_t         vn[200];
   Float_t         psin[200];
