@@ -99,6 +99,13 @@ float CombinedMVAV2JetTagComputer::discriminator(const JetTagComputer::TagInfoHe
   inputs["Jet_CSVIVF"]   = (*(computers[2]))( TagInfoHelper(ivfTagInfos) );
   inputs["Jet_SoftMu"]   = (*(computers[3]))( TagInfoHelper(smTagInfos) );
   inputs["Jet_SoftEl"]   = (*(computers[4]))( TagInfoHelper(seTagInfos) );
+  //std::cout << "JP=" << inputs["Jet_JP"]
+  //  << " JBP=" << inputs["Jet_JBP"]
+  //  << " CSV=" << inputs["Jet_CSV"]
+  //  << " CSVIVF=" << inputs["Jet_CSVIVF"]
+  //  << " SoftMu=" << inputs["Jet_SoftMu"]
+  //  << " SoftEl=" << inputs["Jet_SoftEl"]
+  //  << std::endl;
 //  inputs["Jet_pt"]       = 0.0;
 //  inputs["Jet_eta"]      = 0.0;
 //  inputs["Jet_flavour"]  = 0.0;
