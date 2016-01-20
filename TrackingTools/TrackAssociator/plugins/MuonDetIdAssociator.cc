@@ -79,11 +79,15 @@ void MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vecto
       for(std::vector<const RPCRoll*>::iterator r = rolls.begin(); r != rolls.end(); ++r)
 	validIds.push_back((*r)->id().rawId());
     }
-  if (! geometry_->slaveGeometry(ME0DetId()) ) throw cms::Exception("FatalError") << "Cannnot ME0Geometry\n";
-  auto const & geomDetsME0 = geometry_->slaveGeometry(ME0DetId())->dets();
-  for(auto it = geomDetsME0.begin(); it != geomDetsME0.end(); ++it)
-    if (auto me0 = dynamic_cast<const ME0Chamber*>(*it)) validIds.push_back(me0->id());
-  
+
+  // ME0
+  //FIXME Disabled for now
+  if ( false ){
+    if (! geometry_->slaveGeometry(ME0DetId()) ) throw cms::Exception("FatalError") << "Cannnot ME0Geometry\n";
+    auto const & geomDetsME0 = geometry_->slaveGeometry(ME0DetId())->dets();
+    for(auto it = geomDetsME0.begin(); it != geomDetsME0.end(); ++it)
+      if (auto me0 = dynamic_cast<const ME0Chamber*>(*it)) validIds.push_back(me0->id());
+  }
 }
 
 bool MuonDetIdAssociator::insideElement(const GlobalPoint& point, const DetId& id) const {
