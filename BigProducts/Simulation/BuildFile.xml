@@ -13,6 +13,7 @@
 <use name="SimG4Core/Physics"/>
 <use name="SimG4Core/PhysicsLists"/>
 <use name="SimG4Core/SensitiveDetector"/>
+<use name="SimG4Core/PrintGeomInfo"/>
 <use name="SimRomanPot/SimFP420"/>
 <use name="Validation/HcalHits"/>
 <use name="Validation/EcalHits"/>
