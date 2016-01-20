@@ -49,6 +49,8 @@
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayersFactory.h"
 
 // geometry
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -80,6 +82,8 @@ private:
 
     bool skipSeedFinderSelector;
 
+    std::unique_ptr<HitTripletGeneratorFromPairAndLayers> pixelTripletGenerator;
+
 public:
 
     TrajectorySeedProducer(const edm::ParameterSet& conf);
@@ -88,11 +92,18 @@ public:
 
 };
 
+
 template class SeedingTree<TrackingLayer>;
 template class SeedingNode<TrackingLayer>;
 
 TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
 {
+    if(conf.exists("pixelTripletGeneratorFactory"))
+    {
+	const edm::ParameterSet & tripletConfig = conf.getParameter<edm::ParameterSet>("pixelTripletGeneratorFactory");
+	auto iC = consumesCollector();
+	pixelTripletGenerator.reset(HitTripletGeneratorFromPairAndLayersFactory::get()->create(tripletConfig.getParameter<std::string>("ComponentName"),tripletConfig,iC));
+    }
 
     // produces
     produces<TrajectorySeedCollection>();
