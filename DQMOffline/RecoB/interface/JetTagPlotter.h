@@ -18,7 +18,7 @@ class JetTagPlotter : public BaseBTagPlotter {
 
   JetTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
 		 const edm::ParameterSet& pSet, const unsigned int& mc , 
-		 const bool& willFinalize, DQMStore::IBooker & ibook);
+		 const bool& willFinalize, DQMStore::IBooker & ibook, const bool & doCTagPlots = false);
 
   virtual ~JetTagPlotter () ;
 
@@ -56,6 +56,8 @@ class JetTagPlotter : public BaseBTagPlotter {
 
   unsigned int mcPlots_;
   bool willFinalize_;
+
+  bool doCTagPlots_;
 
   int *nJets;
   // jet multiplicity
