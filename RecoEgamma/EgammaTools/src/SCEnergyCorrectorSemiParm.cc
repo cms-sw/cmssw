@@ -1,11 +1,12 @@
 #include "RecoEgamma/EgammaTools/interface/SCEnergyCorrectorSemiParm.h"
+
 #include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "TStreamerInfo.h"
+
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <vdt/vdtMath.h>
 
