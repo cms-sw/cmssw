@@ -1,23 +1,12 @@
-//#include <TFile.h>
-#include "../interface/SCEnergyCorrectorSemiParm.h"
-#include "CondFormats/EgammaObjects/interface/GBRForestD.h"
+#include "RecoEgamma/EgammaTools/interface/SCEnergyCorrectorSemiParm.h"
 #include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h" 
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "RooWorkspace.h"
-#include "RooArgList.h"
-#include "RooRealVar.h"
-#include "RooAbsReal.h"
-#include "RooAbsPdf.h"
-#include "RooConstVar.h"
 #include "TStreamerInfo.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+
 #include <vdt/vdtMath.h>
 
 using namespace reco;
@@ -46,8 +35,10 @@ void SCEnergyCorrectorSemiParm::setTokens(const edm::ParameterSet &iConfig, edm:
   tokenEBRecHits_   = cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRecHitsEB"));
   tokenEERecHits_   = cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRecHitsEE"));
 
-  regressionKey_  = iConfig.getParameter<std::string>("regressionKey");
-  uncertaintyKey_ = iConfig.getParameter<std::string>("uncertaintyKey");
+  regressionKeyEB_  = iConfig.getParameter<std::string>("regressionKeyEB");
+  uncertaintyKeyEB_ = iConfig.getParameter<std::string>("uncertaintyKeyEB");
+  regressionKeyEB_  = iConfig.getParameter<std::string>("regressionKeyEE");
+  uncertaintyKeyEB_ = iConfig.getParameter<std::string>("uncertaintyKeyEE");
  
   if (not isHLT_)
     tokenVertices_     = cc.consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"));
@@ -76,10 +67,10 @@ void SCEnergyCorrectorSemiParm::setEventSetup(const edm::EventSetup &es) {
   edm::ESHandle<GBRForestD> readeree;
   edm::ESHandle<GBRForestD> readereevar;
   
-  es.get<GBRDWrapperRcd>().get(std::string(TString::Format("%s_EBCorrection",  regressionKey_.c_str())), readereb);
-  es.get<GBRDWrapperRcd>().get(std::string(TString::Format("%s_EBUncertainty", uncertaintyKey_.c_str())), readerebvar);
-  es.get<GBRDWrapperRcd>().get(std::string(TString::Format("%s_EECorrection",  regressionKey_.c_str())), readeree);
-  es.get<GBRDWrapperRcd>().get(std::string(TString::Format("%s_EEUncertainty", uncertaintyKey_.c_str())), readereevar);
+  es.get<GBRDWrapperRcd>().get(regressionKeyEB_,  readereb);
+  es.get<GBRDWrapperRcd>().get(uncertaintyKeyEB_, readerebvar);
+  es.get<GBRDWrapperRcd>().get(regressionKeyEE_,  readeree);
+  es.get<GBRDWrapperRcd>().get(uncertaintyKeyEE_, readereevar);
   
   foresteb_      = readereb.product();
   forestsigmaeb_ = readerebvar.product();
@@ -178,41 +169,41 @@ void SCEnergyCorrectorSemiParm::modifyObject(reco::SuperCluster &sc) {
     }  
     
     // SET INPUTS
-    eval[0]  = vertices_->size(); //nVtx
-    eval[1]  = raw_energy; //scRawEnergy
-    eval[2]  = sc.etaWidth(); //scEtaWidth
-    eval[3]  = sc.phiWidth(); //scPhiWidth
-    eval[4]  = EcalClusterTools::e3x3(seedCluster,recHits,topo)/raw_energy; //scSeedR9
-    eval[5]  = seedCluster.energy()/raw_energy; //scSeedRawEnergy/scRawEnergy
-    eval[6]  = EcalClusterTools::eMax(seedCluster,recHits)/raw_energy;  //scSeedEmax/scRawEnergy
-    eval[7]  = EcalClusterTools::e2nd(seedCluster,recHits)/raw_energy; // scSeedE2nd/scRawEnergy
-    eval[8] = (eLeft + eRight != 0.f  ? (eLeft-eRight)/(eLeft+eRight) : 0.f); //scSeedLeftRightAsym
-    eval[9] = (eTop  + eBottom != 0.f ? (eTop-eBottom)/(eTop+eBottom) : 0.f); //scSeedTopBottomAsym
-    eval[10] = sigmaIetaIeta; //scSeedSigmaIetaIeta
-    eval[11] = sigmaIetaIphi; //scSeedSigmaIetaIphi
-    eval[12] = sigmaIphiIphi; //scSeedSigmaIphiIphi
-    eval[13] = std::max(0,numberOfClusters-1); //N_ECALClusters
-    eval[14] = clusterMaxDR; //clusterMaxDR
-    eval[15] = clusterMaxDRDPhi; //clusterMaxDRDPhi
-    eval[16] = clusterMaxDRDEta; //clusterMaxDRDEta
-    eval[17] = clusterMaxDRRawEnergy/raw_energy; //clusterMaxDRRawEnergy/scRawEnergy
-    eval[18] = clusterRawEnergy[0]/raw_energy; //clusterRawEnergy[0]/scRawEnergy
-    eval[19] = clusterRawEnergy[1]/raw_energy; //clusterRawEnergy[1]/scRawEnergy
-    eval[20] = clusterRawEnergy[2]/raw_energy; //clusterRawEnergy[2]/scRawEnergy
-    eval[21] = clusterDPhiToSeed[0]; //clusterDPhiToSeed[0]
-    eval[22] = clusterDPhiToSeed[1]; //clusterDPhiToSeed[1]
-    eval[23] = clusterDPhiToSeed[2]; //clusterDPhiToSeed[2]
-    eval[24] = clusterDEtaToSeed[0]; //clusterDEtaToSeed[0]
-    eval[25] = clusterDEtaToSeed[1]; //clusterDEtaToSeed[1]
-    eval[26] = clusterDEtaToSeed[2]; //clusterDEtaToSeed[2]
+    eval[0]  = vertices_->size();
+    eval[1]  = raw_energy;
+    eval[2]  = sc.etaWidth();
+    eval[3]  = sc.phiWidth();
+    eval[4]  = EcalClusterTools::e3x3(seedCluster,recHits,topo)/raw_energy; 
+    eval[5]  = seedCluster.energy()/raw_energy;
+    eval[6]  = EcalClusterTools::eMax(seedCluster,recHits)/raw_energy;
+    eval[7]  = EcalClusterTools::e2nd(seedCluster,recHits)/raw_energy;
+    eval[8] = (eLeft + eRight != 0.f  ? (eLeft-eRight)/(eLeft+eRight) : 0.f);
+    eval[9] = (eTop  + eBottom != 0.f ? (eTop-eBottom)/(eTop+eBottom) : 0.f);
+    eval[10] = sigmaIetaIeta;
+    eval[11] = sigmaIetaIphi;
+    eval[12] = sigmaIphiIphi;
+    eval[13] = std::max(0,numberOfClusters-1);
+    eval[14] = clusterMaxDR;
+    eval[15] = clusterMaxDRDPhi;
+    eval[16] = clusterMaxDRDEta;
+    eval[17] = clusterMaxDRRawEnergy/raw_energy;
+    eval[18] = clusterRawEnergy[0]/raw_energy;
+    eval[19] = clusterRawEnergy[1]/raw_energy;
+    eval[20] = clusterRawEnergy[2]/raw_energy;
+    eval[21] = clusterDPhiToSeed[0];
+    eval[22] = clusterDPhiToSeed[1];
+    eval[23] = clusterDPhiToSeed[2];
+    eval[24] = clusterDEtaToSeed[0];
+    eval[25] = clusterDEtaToSeed[1];
+    eval[26] = clusterDEtaToSeed[2];
     if (iseb) {
       EBDetId ebseedid(seedCluster.seed());
-      eval[27] = ebseedid.ieta(); //scSeedCryIetaV2
-      eval[28] = ebseedid.iphi(); //scSeedCryIphiV2
+      eval[27] = ebseedid.ieta();
+      eval[28] = ebseedid.iphi();
     } else {
       EEDetId eeseedid(seedCluster.seed());
-      eval[27] = eeseedid.ix(); //scSeedCryIxV2
-      eval[28] = eeseedid.iy(); //scSeedCryIyV2
+      eval[27] = eeseedid.ix();
+      eval[28] = eeseedid.iy();
     }  
     
     //magic numbers for MINUIT-like transformation of BDT output onto limited range

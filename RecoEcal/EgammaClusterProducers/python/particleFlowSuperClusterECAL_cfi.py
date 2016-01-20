@@ -17,11 +17,7 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
     PFClusters = cms.InputTag("particleFlowClusterECAL"),
     ESAssociation = cms.InputTag("particleFlowClusterECAL"),
     BeamSpot = cms.InputTag("offlineBeamSpot"),    
-    vertexCollection = cms.InputTag("offlinePrimaryVertices"),
-    #rechit collections for lazytools
-    ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
-    ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE'),
-                                              
+                                                  
     PFBasicClusterCollectionBarrel = cms.string("particleFlowBasicClusterECALBarrel"),                                       
     PFSuperClusterCollectionBarrel = cms.string("particleFlowSuperClusterECALBarrel"),
     PFBasicClusterCollectionEndcap = cms.string("particleFlowBasicClusterECALEndcap"),                                       
@@ -37,9 +33,16 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
 
     # regression setup
     useRegression = cms.bool(False), #regressions are mustache only
-    regressionKey = cms.string('pfecalsc'),
-    uncertaintyKey = cms.string('pfecalsc'),
-    
+    regressionConfig = cms.PSet(
+       regressionKeyEB = cms.string('mustacheSC_offline_EB'),
+       uncertaintyKeyEB = cms.string('mustacheSC_offline_EB'),
+       regressionKeyEE = cms.string('mustacheSC_offline_EE'),
+       uncertaintyKeyEE = cms.string('mustacheSC_offline_EE'),
+       vertexCollection = cms.InputTag("offlinePrimaryVertices"),
+       ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
+       ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE')
+       ),
+
     #threshold for final SuperCluster Et
     thresh_SCEt = cms.double(4.0),    
     
@@ -105,8 +108,10 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     # regression setup
     useRegression = cms.bool(False),
     regressionConfig = cms.PSet(
-       regressionKey = cms.string('mustacheSC_offline'),
-       uncertaintyKey = cms.string('mustacheSC_offline'),
+       regressionKeyEB = cms.string('mustacheSC_offline_EB'),
+       uncertaintyKeyEB = cms.string('mustacheSC_offline_EB'),
+       regressionKeyEE = cms.string('mustacheSC_offline_EE'),
+       uncertaintyKeyEE = cms.string('mustacheSC_offline_EE'),
        vertexCollection = cms.InputTag("offlinePrimaryVertices"),
        ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
        ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE')
