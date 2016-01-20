@@ -39,7 +39,7 @@ namespace Phase2Tracker {
     edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D>> token_;
     const Phase2TrackerCabling * cabling_;
     const TrackerTopology* tTopo_;
-    std::map<int,int> stackMap_;
+    std::map< int, std::pair<int,int> > stackMap_;
   };
 }
 #endif // EventFilter_Phase2TrackerRawToDigi_Phase2TrackerDigiToRawProducer_H

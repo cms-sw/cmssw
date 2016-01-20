@@ -58,7 +58,6 @@ namespace Phase2Tracker {
     es.get<IdealGeometryRecord>().get(tTopoHandle);
     tTopo_ = tTopoHandle.product();
 
-    /*
     // retrieve tracker geometry to get list of detids for calbling 
     edm::ESHandle< TrackerGeometry > tGeomHandle;
     es.get< TrackerDigiGeometryRecord >().get( tGeomHandle );
@@ -68,18 +67,23 @@ namespace Phase2Tracker {
       unsigned int detId_raw = (*iu)->geographicalId().rawId();
       DetId detId = DetId(detId_raw);
       if (detId.det() == DetId::Detector::Tracker) {
-          // check only lowers
-          if ( tTopo_->isLower(detId) == 1 ) {
-              if ( theTrackerGeom->getDetectorType(detId_raw) == TrackerGeometry::ModuleType::Ph2PSP ) {
-                  std::cout << tTopo->Stack(detId) << " PS" << std::endl;
-              } else if ( theTrackerGeom->getDetectorType(detId_raw) == TrackerGeometry::ModuleType::Ph2SS ) {
-                  std::cout << tTopo->Stack(detId) << " 2S" << std::endl;
-              }
+          // build map of upper and lower for each module
+          if ( tTopo_->isLower(detId) != 0 ) {
+              stackMap_[tTopo_->Stack(detId)].first = detId;
           }
+          if ( tTopo_->isUpper(detId) != 0 ) {
+              stackMap_[tTopo_->Stack(detId)].second = detId;
+          }
+          // // Build list of detids
+          // if ( tTopo_->isLower(detId) == 1 ) {
+          //     if ( theTrackerGeom->getDetectorType(detId_raw) == TrackerGeometry::ModuleType::Ph2PSP ) {
+          //         std::cout << tTopo_->Stack(detId) << " PS" << std::endl;
+          //     } else if ( theTrackerGeom->getDetectorType(detId_raw) == TrackerGeometry::ModuleType::Ph2SS ) {
+          //         std::cout << tTopo_->Stack(detId) << " 2S" << std::endl;
+          //     }
+          // }
       }
     } // end loop on detunits
-    */
-
   }
   
   void Phase2TrackerDigiToRawProducer::endJob()
