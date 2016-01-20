@@ -12,7 +12,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripTopologyBuilder.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "DataFormats/DetId/interface/DetId.h"
-//#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
