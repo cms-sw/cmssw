@@ -43,15 +43,22 @@
 //
 MuonTimingFiller::MuonTimingFiller(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
 {
-   edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
-   theMatcher_ = new MuonSegmentMatcher(matchParameters, iC);
-
    // Load parameters for the DTTimingExtractor
    edm::ParameterSet dtTimingParameters = iConfig.getParameter<edm::ParameterSet>("DTTimingParameters");
-   theDTTimingExtractor_ = new DTTimingExtractor(dtTimingParameters,theMatcher_);
 
    // Load parameters for the CSCTimingExtractor
    edm::ParameterSet cscTimingParameters = iConfig.getParameter<edm::ParameterSet>("CSCTimingParameters");
+
+   // Fallback mechanism for old configs (there the segment matcher was built inside the timing extractors)
+   edm::ParameterSet matchParameters;
+   if (iConfig.existsAs<edm::ParameterSet>("MatchParameters")) 
+       matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
+     else 
+       matchParameters = dtTimingParameters.getParameter<edm::ParameterSet>("MatchParameters");
+   
+   
+   theMatcher_ = new MuonSegmentMatcher(matchParameters, iC);
+   theDTTimingExtractor_ = new DTTimingExtractor(dtTimingParameters,theMatcher_);
    theCSCTimingExtractor_ = new CSCTimingExtractor(cscTimingParameters,theMatcher_);
    
    errorEB_ = iConfig.getParameter<double>("ErrorEB");
