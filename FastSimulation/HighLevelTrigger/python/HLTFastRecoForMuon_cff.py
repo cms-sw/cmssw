@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 import FastSimulation.HighLevelTrigger.DummyModule_cfi
-from FastSimulation.Tracking.GlobalPixelTracking_cff import *
 
 # RecoMuon flux ##########################################################
 # L2 seeds from L1 input
@@ -55,10 +54,6 @@ hltL3TrackCandidateFromL2NoVtx.src = "hltL3TrajectorySeedNoVtx"
 
 # (Not-so) Regional Tracking - needed because the TrackCandidateProducer needs the seeds
 
-
-# Paths that need a regional pixel seed (which accesses Pixel RecHits in its usual implementation)
-hltJpsiTkPixelSeedFromL3Candidate = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
-hltCkfTrackCandidatesJpsiTk = cms.Sequence(globalPixelTracking)
 
 # CKFTrackCandidateMaker
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
