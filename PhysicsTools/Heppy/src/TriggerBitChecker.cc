@@ -4,9 +4,9 @@
 
 namespace heppy {
 
-TriggerBitChecker::TriggerBitChecker(const std::string &path) : paths_(1,returnPathStruct(path)), lastRun_(0) { rmstar(); }
+TriggerBitChecker::TriggerBitChecker(const std::string &path) : paths_(1,returnPathStruct(path)) { rmstar(); }
 
-TriggerBitChecker::TriggerBitChecker(const std::vector<std::string> &paths) : paths_(paths.size()), lastRun_(0) { 
+TriggerBitChecker::TriggerBitChecker(const std::vector<std::string> &paths) : paths_(paths.size()) { 
     for(size_t i = 0; i < paths.size(); ++ i) paths_[i] = returnPathStruct(paths[i]);
     rmstar(); 
 }
@@ -22,11 +22,20 @@ TriggerBitChecker::pathStruct TriggerBitChecker::returnPathStruct(const std::str
 }
 
 bool TriggerBitChecker::check(const edm::EventBase &event, const edm::TriggerResults &result) const {
-    if (event.id().run() != lastRun_) { syncIndices(event, result); lastRun_ = event.id().run(); }
+    if (result.parameterSetID() != lastID_) { syncIndices(event, result); lastID_ = result.parameterSetID(); }
     for (std::vector<unsigned int>::const_iterator it = indices_.begin(), ed = indices_.end(); it != ed; ++it) {
         if (result.accept(*it)) return true;
     }
     return false;
+}
+
+bool TriggerBitChecker::check_unprescaled(const edm::EventBase &event, const edm::TriggerResults &result_tr, const pat::PackedTriggerPrescales &result) const {
+    if (result_tr.parameterSetID() != lastID_) { syncIndices(event, result_tr); lastID_ = result_tr.parameterSetID(); }
+    bool outcome = true;
+    for (std::vector<unsigned int>::const_iterator it = indices_.begin(), ed = indices_.end(); it != ed; ++it) {
+        if (result.getPrescaleForIndex(*it)!=1) {outcome = false; break;}
+    }
+    return outcome; // true only if all paths are unprescaled
 }
 
 void TriggerBitChecker::syncIndices(const edm::EventBase &event, const edm::TriggerResults &result) const {

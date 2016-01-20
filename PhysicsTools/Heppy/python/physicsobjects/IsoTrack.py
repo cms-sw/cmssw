@@ -8,10 +8,6 @@ class IsoTrack( PhysicsObject ):
         self.isoTrack = isoTrack
         super(IsoTrack, self).__init__(isoTrack)
 
-    def absIso(self, dummy1, dummy2):
-        '''Just making the tau behave as a lepton.'''
-        return -1
-
     def relIso(self, dummy1, dummy2):
         '''Just making the tau behave as a lepton.'''
         return -1
