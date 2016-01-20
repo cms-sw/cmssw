@@ -88,7 +88,7 @@ namespace edm {
     assert(edp.get() != nullptr);
     assert(status() != Present);
     assert(status() != Uninitialized);
-    productData().unsafe_setWrapper(std::move(edp)); // ProductHolder takes ownership
+    getProductData().unsafe_setWrapper(std::move(edp)); // ProductHolder takes ownership
     status_() = Present;
   }
 
@@ -113,7 +113,7 @@ namespace edm {
     assert(edp.get() != nullptr);
     assert(status() != Present);
     assert(status() != Uninitialized);
-    productData().unsafe_setWrapper(std::move(edp));  // ProductHolder takes ownership
+    getProductData().unsafe_setWrapper(std::move(edp));  // ProductHolder takes ownership
     status_() = Present;
   }
 
@@ -147,15 +147,15 @@ namespace edm {
     if(prod.get() == nullptr || !prod->isPresent()) {
       setProductUnavailable();
     }
-    productData().unsafe_setWrapper(std::move(prod));  // ProductHolder takes ownership
+    productData_.unsafe_setWrapper(std::move(prod));  // ProductHolder takes ownership
   }
 
   void InputProductHolder::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
-    productData().setProvenance(provRetriever,ph,pid);
+    productData_.setProvenance(provRetriever,ph,pid);
   }
 
   void InputProductHolder::setProcessHistory_(ProcessHistory const& ph) {
-    productData().setProcessHistory(ph);
+    productData_.setProcessHistory(ph);
   }
 
   ProductProvenance const* InputProductHolder::productProvenancePtr_() const {
@@ -163,7 +163,7 @@ namespace edm {
   }
 
   void InputProductHolder::resetProductData_() {
-    productData().resetProductData();
+    productData_.resetProductData();
     resetStatus();
   }
 
@@ -214,11 +214,11 @@ namespace edm {
   }
 
   void ProducedProductHolder::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
-    productData().setProvenance(provRetriever,ph,pid);
+    getProductData().setProvenance(provRetriever,ph,pid);
   }
 
   void ProducedProductHolder::setProcessHistory_(ProcessHistory const& ph) {
-    productData().setProcessHistory(ph);
+    getProductData().setProcessHistory(ph);
   }
   
   ProductProvenance const* ProducedProductHolder::productProvenancePtr_() const {
@@ -226,7 +226,7 @@ namespace edm {
   }
 
   void ProducedProductHolder::resetProductData_() {
-    productData().resetProductData();
+    getProductData().resetProductData();
     resetStatus();
   }
 
@@ -278,11 +278,11 @@ namespace edm {
   }
 
   void AliasProductHolder::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
-    productData().setProvenance(provRetriever,ph,pid);
+    realProduct_.setProvenance(provRetriever,ph,pid);
   }
 
   void AliasProductHolder::setProcessHistory_(ProcessHistory const& ph) {
-    productData().setProcessHistory(ph);
+    realProduct_.setProcessHistory(ph);
   }
 
   ProductProvenance const* AliasProductHolder::productProvenancePtr_() const {
@@ -290,7 +290,7 @@ namespace edm {
   }
 
   void AliasProductHolder::resetProductData_() {
-    productData().resetProductData();
+    realProduct_.resetProductData();
     resetStatus();
   }
 

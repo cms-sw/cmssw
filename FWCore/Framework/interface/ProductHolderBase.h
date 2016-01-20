@@ -26,10 +26,12 @@ namespace edm {
   class ModuleCallingContext;
   class SharedResourcesAcquirer;
   class Principal;
+  class AliasProductHolder;
 
   class ProductHolderBase {
   public:
 
+    friend class AliasProductHolder;
     enum ResolveStatus { ProductFound, ProductNotFound, Ambiguous };
 
     ProductHolderBase();
@@ -37,14 +39,6 @@ namespace edm {
 
     ProductHolderBase(ProductHolderBase const&) = delete; // Disallow copying and moving
     ProductHolderBase& operator=(ProductHolderBase const&) = delete; // Disallow copying and moving
-
-    ProductData const& productData() const {
-      return getProductData();
-    }
-
-    ProductData& productData() {
-      return getProductData();
-    }
 
     ProductData const* resolveProduct(ResolveStatus& resolveStatus,
                                       Principal const& principal,
@@ -65,7 +59,7 @@ namespace edm {
     void resetProductData() { resetProductData_(); }
 
     void unsafe_deleteProduct() const {
-      getProductData().unsafe_resetProductData();
+      const_cast<ProductHolderBase*>(this)->resetProductData_();
       setProductDeleted_();
     }
     
@@ -130,7 +124,7 @@ namespace edm {
     TypeID productType() const;
 
     // Retrieves the product ID of the product.
-    ProductID const& productID() const {return getProductData().provenance().productID();}
+    ProductID const& productID() const {return provenance()->productID();}
 
     // Puts the product and its per event(lumi)(run) provenance into the ProductHolder.
     void putProduct(std::unique_ptr<WrapperBase> edp, ProductProvenance const& productProvenance) const {
@@ -165,11 +159,15 @@ namespace edm {
 
     void throwProductDeletedException() const;
 
+    void connectTo(ProductHolderBase const&);
+
+  protected:
+    virtual ProductData const& getProductData() const = 0;
+    virtual ProductData& getProductData() = 0;
+
   private:
     WrapperBase * unsafe_product() const { return getProductData().unsafe_wrapper(); }
 
-    virtual ProductData const& getProductData() const = 0;
-    virtual ProductData& getProductData() = 0;
     virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
                                                Principal const& principal,
                                                bool skipCurrentProcess,

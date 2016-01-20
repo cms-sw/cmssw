@@ -475,7 +475,7 @@ namespace edm {
         return makeNotFoundException("getByLabel", kindOfType, typeID, inputTag.label(), inputTag.instance(), inputTag.process());
       }));
     }
-    return BasicHandle(*result);
+    return BasicHandle(result->wrapper(), &(result->provenance()));
   }
 
   BasicHandle
@@ -494,7 +494,7 @@ namespace edm {
         return makeNotFoundException("getByLabel", kindOfType, typeID, label, instance, process);
       }));
     }
-    return BasicHandle(*result);
+    return BasicHandle(result->wrapper(), &(result->provenance()));
   }
 
   BasicHandle
@@ -517,7 +517,7 @@ namespace edm {
     if(productData == 0) {
       return BasicHandle();
     }
-    return BasicHandle(*productData);    
+    return BasicHandle(productData->wrapper(), &(productData->provenance()));
   }
 
   void
@@ -626,7 +626,7 @@ namespace edm {
           ProductData const* productData = productHolder->resolveProduct(resolveStatus, *this,false, sra, mcc);
           if(productData) {
             // Skip product if not available.
-            results.emplace_back(*productData);
+            results.emplace_back(productData->wrapper(), &(productData->provenance()));
           }
         }
       }

@@ -55,6 +55,13 @@ namespace edm {
     }
   }
 
+  void
+  ProductHolderBase::connectTo(ProductHolderBase const& iOther) {
+    getProductData().connectTo(iOther.getProductData());
+    // Sets unavailable flag, if known that product is not available
+    (void)this->productUnavailable();
+  }
+  
   bool
   ProductHolderBase::provenanceAvailable() const {
     // If this product is from a the current process,
@@ -87,7 +94,7 @@ namespace edm {
 
   Provenance const*
   ProductHolderBase::provenance() const {
-    return &(productData().provenance());
+    return &(getProductData().provenance());
   }
 
   void

@@ -289,9 +289,12 @@ namespace edm {
       }));
     }
     ProductHolderBase::ResolveStatus status;
-    phb->resolveProduct(status,*this,false,nullptr,nullptr);
+    auto data = phb->resolveProduct(status,*this,false,nullptr,nullptr);
 
-    return BasicHandle(phb->productData());
+    if(data) {
+      return BasicHandle(data->wrapper(), &(data->provenance()));
+    }
+    return BasicHandle(nullptr,nullptr);
   }
 
   WrapperBase const*

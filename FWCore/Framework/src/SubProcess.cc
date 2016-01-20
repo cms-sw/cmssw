@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/SubProcess.h"
 
-#include "DataFormats/Common/interface/ProductData.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
@@ -617,15 +616,11 @@ namespace edm {
       BranchDescription const& desc = *item.first;
       ProductHolderBase const* parentProductHolder = parentPrincipal.getProductHolder(desc.branchID());
       if(parentProductHolder != nullptr) {
-        ProductData const& parentData = parentProductHolder->productData();
-        ProductHolderBase* productHolder = principal.getModifiableProductHolder(desc.branchID());
+        ProductHolderBase* productHolder = principal.getModifiableProductHolder(item->branchID());
         if(productHolder != nullptr) {
-          ProductData& thisData = productHolder->productData();
           //Propagate the per event(run)(lumi) data for this product to the subprocess.
           //First, the product itself.
-          thisData.connectTo(parentData);
-          // Sets unavailable flag, if known that product is not available
-          (void)productHolder->productUnavailable();
+          productHolder->connectTo(*parentProductHolder);
         }
       }
     }
