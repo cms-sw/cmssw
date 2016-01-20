@@ -30,7 +30,9 @@
 
 
 
-#include "CondCore/CondDB/interface/Session.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
+#include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/IQuery.h"
@@ -56,7 +58,8 @@ namespace popcon
 
 		private:
     RPCEMap * eMap;
-    cond::persistency::Session  session;
+    cond::DbSession * session;
+    cond::DbConnection * connection ;
     std::string m_name;
     int m_dummy;
     int m_validate;

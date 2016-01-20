@@ -6,6 +6,9 @@
 //
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 //
+#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
+#include "CondCore/DBCommon/interface/DbSession.h"
 #include "MyTestData.h"
 //
 #include <fstream>
