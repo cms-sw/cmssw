@@ -5,6 +5,8 @@ process = cms.Process("PrintMaterialBudget")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Geometry.CMSCommonData.cmsExtendedGeometry2015XML_cfi')
 process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
+process.load('Geometry.HcalCommonData.hcalParameters_cfi')
+process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cfi')
 
 process.MessageLogger.destinations = cms.untracked.vstring("MatBudget.txt")
 
