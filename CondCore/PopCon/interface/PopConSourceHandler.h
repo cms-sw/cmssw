@@ -1,8 +1,13 @@
 #ifndef  PopConSourceHandler_H
 #define  PopConSourceHandler_H
 
+//#include "CondCore/DBCommon/interface/DbSession.h"
+//#include "CondCore/DBCommon/interface/DbTransaction.h"
+
 #include "CondCore/CondDB/interface/Session.h"
 #include "CondCore/CondDB/interface/Time.h"
+//#include "CondCore/DBCommon/interface/TagInfo.h"
+#include "CondCore/DBCommon/interface/LogDBEntry.h"
 
 #include <boost/bind.hpp>
 #include <algorithm>
@@ -103,11 +108,11 @@ namespace popcon {
     }
     
     // return last successful log entry for the tag in question
-    cond::LogDBEntry_t const & logDBEntry() const { return *m_logDBEntry; }
+    cond::LogDBEntry const & logDBEntry() const { return *m_logDBEntry; }
     
     // FIX ME
     void initialize (const cond::persistency::Session& dbSession,
-      		     cond::TagInfo_t const & tagInfo, cond::LogDBEntry_t const & logDBEntry) { 
+      		     cond::TagInfo_t const & tagInfo, cond::LogDBEntry const & logDBEntry) { 
       m_session = dbSession;
       m_tagInfo = &tagInfo;
       m_logDBEntry = &logDBEntry;
@@ -116,7 +121,7 @@ namespace popcon {
     // this is the only mandatory interface
     std::pair<Container const *, std::string const>  operator()(const cond::persistency::Session& session,
       							cond::TagInfo_t const & tagInfo, 
-      							cond::LogDBEntry_t const & logDBEntry) const {
+      							cond::LogDBEntry const & logDBEntry) const {
       const_cast<self*>(this)->initialize(session, tagInfo, logDBEntry);
       return std::pair<Container const *, std::string const>(&(const_cast<self*>(this)->returnData()), userTextLog());
     }
@@ -176,7 +181,7 @@ namespace popcon {
     
     cond::TagInfo_t const * m_tagInfo;
     
-    cond::LogDBEntry_t const * m_logDBEntry;
+    cond::LogDBEntry const * m_logDBEntry;
     
 
   protected:

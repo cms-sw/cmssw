@@ -15,6 +15,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include "CondCore/CondDB/interface/Time.h"
+#include "CondCore/DBCommon/interface/LogDBEntry.h"
 
 #include <boost/bind.hpp>
 #include <algorithm>
@@ -78,7 +79,7 @@ namespace popcon {
     
     cond::TagInfo_t m_tagInfo;
     
-    cond::LogDBEntry_t m_logDBEntry;
+    cond::LogDBEntry m_logDBEntry;
 
     bool m_close;
     Time_t m_lastTill;

@@ -1,4 +1,7 @@
+<use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
+<use   name="CondCore/IOVService"/>
+<use   name="CondCore/MetaDataService"/>
 <use   name="CondCore/PopCon"/>
 <use   name="CondFormats/RunInfo"/>
 <use   name="CoralBase"/>

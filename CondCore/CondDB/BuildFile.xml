@@ -1,3 +1,4 @@
+<use   name="CondCore/DBCommon"/>
 <use   name="CondFormats/Serialization"/>
 <use   name="CondFormats/Common"/>
 <use   name="FWCore/Framework"/>
