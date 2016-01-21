@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023Muondev 
+# from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023Muondev 
 
 process = cms.Process("DigiToRaw")
 
@@ -21,7 +21,7 @@ process.source = cms.Source("PoolSource",
 )
 
 
-process.load('Configuration.Geometry.GeometryExtended2023MuondevReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
 process.load('DummyCablingTxt_cfi')
 process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerDigiToRawProducer_cfi')
 process.Phase2TrackerDigiToRawProducer.ProductLabel = cms.InputTag("siPhase2Clusters")
@@ -37,7 +37,11 @@ process.out = cms.OutputModule(
 
 
 process.p = cms.Path(process.Phase2TrackerDigiToRawProducer)
-process = cust_2023Muondev(process)
+
+# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023Muon 
+#call to customisation function cust_2023Muon imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
+process = cust_2023Muon(process)
 
 process.e = cms.EndPath(process.out)
 
