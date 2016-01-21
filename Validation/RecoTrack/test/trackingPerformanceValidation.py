@@ -9,10 +9,10 @@ import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 ########### User Defined Variables (BEGIN) ##############
 
 ### Reference release
-RefRelease='CMSSW_7_6_0_pre4'
+RefRelease='CMSSW_8_0_0_pre1'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_7_6_0_pre5'
+NewRelease='CMSSW_8_0_0_pre2'
 
 ### This is the list of IDEAL-conditions relvals 
 startupsamples= [
@@ -39,6 +39,12 @@ pileupstartupsamples = [
     Sample('RelValTTbar', putype=putype("50ns"), midfix="13"),
     Sample('RelValZMM', putype=putype("25ns"), midfix="13"),
     Sample('RelValZMM', putype=putype("50ns"), midfix="13")
+]
+
+phase1samples = [
+    Sample('RelValTenMuE_0_200'),
+    Sample("RelValTTbar", midfix="14TeV"),
+    Sample("RelValTTbar", midfix="14TeV", putype=putype("25ns")),
 ]
 
 upgradesamples = [
@@ -76,12 +82,33 @@ if "_pmx" in NewRelease:
     doFastVsFull = False
     if not NewRelease in validation._globalTags:
         validation._globalTags[NewRelease] = validation._globalTags[NewRelease.replace("_pmx", "")]
+if "_extended" in NewRelease:
+    startupsamples = [
+        Sample('RelValTTbar', midfix="13_HS"),
+        Sample('RelValZMM', midfix="13_HS"),
+    ]
+    pileupstartupsamples = [
+        Sample('RelValTTbar', putype=putype("25ns"), midfix="13_HS"),
+        Sample('RelValZMM', putype=putype("25ns"), midfix="13_HS"),
+    ]
+    fastsimstartupsamples = []
+    pileupfastsimstartupsamples = []
+    doFastVsFull = False
+    if not NewRelease in validation._globalTags:
+        validation._globalTags[NewRelease] = validation._globalTags[NewRelease.replace("_extended", "")]
+if "_phase1" in NewRelease:
+    startupsamples = phase1samples
+    pileupstartupsamples = []
+    fastsimstartupsamples = []
+    pileupfastsimstartupsamples = []
+    doFastVsFull = False
 
 ### Track algorithm name and quality. Can be a list.
 Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripletStep','mixedTripletStep','pixelLessStep','tobTecStep','jetCoreRegionalStep','muonSeededStepInOut','muonSeededStepOutIn',
         'ak4PFJets','btvLike'
 ]
 #Algos= ['ootb']
+#Algos= ['ootb','initialStep','lowPtTripletStep','pixelPairStep','mixedTripletStep','muonSeededStepInOut','muonSeededStepOutIn'] # phase1
 Qualities=['', 'highPurity']
 VertexCollections=["offlinePrimaryVertices", "selectedOfflinePrimaryVertices"]
 
@@ -102,12 +129,13 @@ val = Validation(
 htmlReport = val.createHtmlReport()
 val.download()
 val.doPlots(plotter=trackingPlots.plotter, plotterDrawArgs={"ratio": True},
-#            limitSubFoldersOnlyTo={"": limitProcessing},
+#            limitSubFoldersOnlyTo={"": limitProcessing, "allTPEffic": limitProcessing, "fromPV": limitProcessing, "fromPVAllTP": limitProcessing},
             htmlReport=htmlReport, doFastVsFull=doFastVsFull
 )
 
 valv = Validation(
-    fullsimSamples = pileupstartupsamples, fastsimSamples=[],
+    fullsimSamples = startupsamples + pileupstartupsamples + upgradesamples,
+    fastsimSamples=[],
     refRelease=RefRelease, refRepository=RefRepository,
     newRelease=NewRelease, newRepository=NewRepository)
 valv.download()
