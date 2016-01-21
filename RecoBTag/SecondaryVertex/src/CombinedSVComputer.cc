@@ -68,7 +68,7 @@ CombinedSVComputer::threshTrack(const CandIPTagInfo &trackIPTagInfo,
         range_for(i, range) {
                 std::size_t idx = indices[i];
                 const btag::TrackIPData &data = ipData[idx];
-                const Track &track = *tracks[idx]->bestTrack();
+                const CandidatePtr &track = tracks[idx];
 
                 if (!trackNoDeltaRSelector(track, data, jet, pv))
                         continue;
@@ -221,7 +221,7 @@ CombinedSVComputer::operator () (const CandIPTagInfo &ipInfo,
 		const reco::VertexCompositePtrCandidate &vertex = svInfo.secondaryVertex(i);
 		const std::vector<CandidatePtr> & tracks = vertex.daughterPtrVector();
 		for(std::vector<CandidatePtr>::const_iterator track = tracks.begin(); track != tracks.end(); ++track) {
-			vertexKinematics.add(*(*track)->bestTrack(), 1.0);
+			vertexKinematics.add(*track);
 			vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,(*track)->momentum()), true);
 			if(vtx < 0) // calculate this only for the first vertex
 			{
