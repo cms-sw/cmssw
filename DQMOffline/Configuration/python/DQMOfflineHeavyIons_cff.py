@@ -43,7 +43,7 @@ diMuonHistos.HighMassMax = cms.double(125.0)
 from DQMOffline.JetMET.jetMETDQMOfflineSourceHI_cff import *
 from DQMOffline.EGamma.egammaDQMOffline_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
-#from DQMOffline.RecoB.PrimaryVertexMonitor_cff import *
+from DQMOffline.RecoB.PrimaryVertexMonitor_cff import *
 from DQM.Physics.DQMPhysics_cff import *
 from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_HeavyIons_cff import *
 
@@ -85,13 +85,15 @@ trackerAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
 tightAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
 looseAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
 
+pvMonitor.vertexLabel = cms.InputTag("hiSelectedVertex")
+
 
 DQMOfflineHeavyIonsPrePOG = cms.Sequence( muonMonitors
                                           * TrackMonDQMTier0_hi
                                           * jetMETDQMOfflineSource
                                           * egammaDQMOffline
                                           * triggerOfflineDQMSource
-                                          #* pvMonitor
+                                          * pvMonitor
                                           * alcaBeamMonitor
                                           * dqmPhysicsHI
                                           )
@@ -105,5 +107,11 @@ DQMOfflineHeavyIonsPOG = cms.Sequence( DQMOfflineHeavyIonsPrePOG *
 DQMOfflineHeavyIons = cms.Sequence( DQMOfflineHeavyIonsPreDPG *
                                     DQMOfflineHeavyIonsPrePOG *
                                     DQMMessageLogger )
+
+#this is needed to have a light sequence for T0 processing
+liteDQMOfflineHeavyIons = cms.Sequence ( DQMOfflineHeavyIons )
+liteDQMOfflineHeavyIons.remove( SiStripMonitorCluster )
+liteDQMOfflineHeavyIons.remove( jetMETDQMOfflineSource )
+
 
 #DQMOfflineHeavyIonsPhysics = cms.Sequence( dqmPhysics )
