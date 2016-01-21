@@ -21,8 +21,6 @@
 // class declaration
 //
 
-using namespace std;
-using namespace reco;
 class ElectronIdMVAProducer : public edm::EDFilter {
 public:
   explicit ElectronIdMVAProducer(const edm::ParameterSet&);
@@ -40,8 +38,8 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> reducedEERecHitCollectionToken_;
   
   double _Rho;
-  string method_;
-  vector<string> mvaWeightFiles_;
+  std::string method_;
+  std::vector<std::string> mvaWeightFiles_;
   bool Trig_;
   bool NoIP_;
   
@@ -66,8 +64,8 @@ ElectronIdMVAProducer::ElectronIdMVAProducer(const edm::ParameterSet& iConfig) {
   eventrhoToken_ = consumes<double>(edm::InputTag("kt6PFJets", "rho"));
   reducedEBRecHitCollectionToken_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEBRecHitCollection"));
   reducedEERecHitCollectionToken_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEERecHitCollection"));
-  method_ = iConfig.getParameter<string>("method");
-  std::vector<string> fpMvaWeightFiles = iConfig.getParameter<std::vector<std::string> >("mvaWeightFile");
+  method_ = iConfig.getParameter<std::string>("method");
+  std::vector<std::string> fpMvaWeightFiles = iConfig.getParameter<std::vector<std::string> >("mvaWeightFile");
   Trig_ = iConfig.getParameter<bool>("Trig");
   NoIP_ = iConfig.getParameter<bool>("NoIP");
   
@@ -84,7 +82,7 @@ ElectronIdMVAProducer::ElectronIdMVAProducer(const edm::ParameterSet& iConfig) {
   
   bool manualCat_ = true;
   
-  string path_mvaWeightFileEleID;
+  std::string path_mvaWeightFileEleID;
   for(unsigned ifile=0 ; ifile < fpMvaWeightFiles.size() ; ++ifile) {
     path_mvaWeightFileEleID = edm::FileInPath ( fpMvaWeightFiles[ifile].c_str() ).fullPath();
     mvaWeightFiles_.push_back(path_mvaWeightFileEleID);
@@ -110,24 +108,23 @@ ElectronIdMVAProducer::~ElectronIdMVAProducer()
 
 // ------------ method called on each new Event  ------------
 bool ElectronIdMVAProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-  
+
   std::auto_ptr<edm::ValueMap<float> > out(new edm::ValueMap<float>() );
   
-  Handle<reco::VertexCollection>  vertexCollection;
+  edm::Handle<reco::VertexCollection>  vertexCollection;
   iEvent.getByToken(vertexToken_, vertexCollection);
   
-  Vertex dummy;
-  const Vertex *pv = &dummy;
+  reco::Vertex dummy;
+  const reco::Vertex *pv = &dummy;
   if ( vertexCollection->size() != 0) {
     pv = &*vertexCollection->begin();
   } else { // create a dummy PV
-    Vertex::Error e;
+    reco::Vertex::Error e;
     e(0, 0) = 0.0015 * 0.0015;
     e(1, 1) = 0.0015 * 0.0015;
     e(2, 2) = 15. * 15.;
-    Vertex::Point p(0, 0, 0);
-    dummy = Vertex(p, e, 0, 0, 0);
+    reco::Vertex::Point p(0, 0, 0);
+    dummy = reco::Vertex(p, e, 0, 0, 0);
   }
   
   EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollectionToken_, reducedEERecHitCollectionToken_);
@@ -136,7 +133,7 @@ bool ElectronIdMVAProducer::filter(edm::Event& iEvent, const edm::EventSetup& iS
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
   TransientTrackBuilder thebuilder = *(builder.product());
   
-  Handle<reco::GsfElectronCollection> egCollection;
+  edm::Handle<reco::GsfElectronCollection> egCollection;
   iEvent.getByToken(electronToken_,egCollection);
   const reco::GsfElectronCollection egCandidates = (*egCollection.product());
   

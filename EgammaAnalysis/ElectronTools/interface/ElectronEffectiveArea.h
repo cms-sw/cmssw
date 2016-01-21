@@ -20,8 +20,6 @@
 #ifndef STANDALONE
 #endif
 
-using namespace std;
-
 class ElectronEffectiveArea{
  public:
   ElectronEffectiveArea();

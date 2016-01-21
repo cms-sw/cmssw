@@ -4,10 +4,6 @@
 #include <TSystem.h>
 #include <math.h>
 #include <vector>
-#include <iostream>
-
-using namespace std;
-
 
 /*****************************************************************/
 EpCombinationTool::EpCombinationTool():
@@ -27,13 +23,13 @@ EpCombinationTool::~EpCombinationTool()
 
 
 /*****************************************************************/
-bool EpCombinationTool::init(const string& regressionFileName, const string& bdtName)
+bool EpCombinationTool::init(const std::string& regressionFileName, const std::string& bdtName)
 /*****************************************************************/
 {
     TFile* regressionFile = TFile::Open(regressionFileName.c_str());
     if(!regressionFile)
     {
-        cout<<"ERROR: Cannot open regression file "<<regressionFileName<<"\n";
+      std::cout<<"ERROR: Cannot open regression file "<<regressionFileName<<"\n";
         return false;
     }
     if(m_ownForest) delete m_forest;
@@ -42,7 +38,7 @@ bool EpCombinationTool::init(const string& regressionFileName, const string& bdt
     //regressionFile->GetObject(bdtName.c_str(), m_forest); 
     if(!m_forest)
     {
-        cout<<"ERROR: Cannot find forest "<<bdtName<<" in "<<regressionFileName<<"\n";
+      std::cout<<"ERROR: Cannot find forest "<<bdtName<<" in "<<regressionFileName<<"\n";
         regressionFile->Close();
         return false;
     }
@@ -65,7 +61,7 @@ void EpCombinationTool::combine(SimpleElectron & mySimpleElectron) const
 {
     if(!m_forest)
     {
-        cout<<"ERROR: The combination tool is not initialized\n";
+      std::cout<<"ERROR: The combination tool is not initialized\n";
         return;
     }
 
