@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/Fake/V20 (CMSSW_7_4_15)
+# /dev/CMSSW_7_6_0/Fake/V3 (CMSSW_7_6_3)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/Fake/V20')
+  tableName = cms.string('/dev/CMSSW_7_6_0/Fake/V3')
 )
 
 fragment.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -14,6 +14,12 @@ fragment.datasets = cms.PSet(  InitialPD = cms.vstring( 'HLT_Physics_v1',
   'HLT_ZeroBias_v1' ) )
 
 fragment.CastorDbProducer = cms.ESProducer( "CastorDbProducer",
+  appendToDataLabel = cms.string( "" )
+)
+fragment.hcalDDDRecConstants = cms.ESProducer( "HcalDDDRecConstantsESModule",
+  appendToDataLabel = cms.string( "" )
+)
+fragment.hcalDDDSimConstants = cms.ESProducer( "HcalDDDSimConstantsESModule",
   appendToDataLabel = cms.string( "" )
 )
 
