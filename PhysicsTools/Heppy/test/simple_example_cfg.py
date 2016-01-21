@@ -68,10 +68,29 @@ print config
 if __name__ == '__main__':
     # can either run this configuration through heppy, 
     # or directly in python or ipython for easier development. 
+    # try: 
+    # 
+    #   ipython -i simple_example_cfg.py
+    # 
+    from PhysicsTools.Heppy.physicsutils.LorentzVectors import LorentzVector
+
     from PhysicsTools.HeppyCore.framework.looper import Looper 
     looper = Looper( 'Loop', config, nPrint = 5, nEvents=100) 
     looper.loop()
     looper.write()
+
+    # and now, let's play with the contents of the event
+    print looper.event
+    pz = LorentzVector()
+    for imu, mu in enumerate(looper.event.muons): 
+        print 'muon1', mu, 'abs iso=', mu.relIso()*mu.pt()
+        pz += mu.p4()
+    print 'z candidate mass = ', pz.M()
+
+    # obviously you can stay in ipython on a given event 
+    # and paste more and more code as you need it until 
+    # your code is correct. 
+    # then put your code in an analyzer, and loop again. 
 
     def next():
         looper.process(looper.event.iEv+1)
