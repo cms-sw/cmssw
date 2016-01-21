@@ -375,7 +375,7 @@ namespace {
       }
       full_cerr_write("\n\nA fatal system signal has occurred: ");
       full_cerr_write(signalname);
-      full_cerr_write("\nThe following is the call stack containing the origin of the signal.\n");
+      full_cerr_write("\nThe following is the call stack containing the origin of the signal.\n\n");
 
       edm::service::InitRootHandlers::stacktraceFromThread();
 
