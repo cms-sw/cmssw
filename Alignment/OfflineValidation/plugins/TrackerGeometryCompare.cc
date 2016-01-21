@@ -428,7 +428,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	}
 		
 	//currernt tracker
-	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet, *ptp); 
+	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet, *ptp, tTopo); 
 	if (_inputFilename2 != "IDEAL"){
 		GeometryAligner aligner2;
 		aligner2.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments2), &(*alignmentErrors2),
