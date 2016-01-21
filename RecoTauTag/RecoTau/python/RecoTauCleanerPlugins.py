@@ -115,3 +115,10 @@ ecalIsolation = cms.PSet(
     selectionFailValue = cms.double(1e3)
 )
 
+# CV: Reject 2-prong candidates in which one of the tracks has low pT,
+#     in order to reduce rate of 1-prong taus migrating to 2-prong decay modecanddates
+killSoftTwoProngTaus = cms.PSet(
+    name = cms.string("killSoftTwoProngTaus"),
+    plugin = cms.string("RecoTauSoftTwoProngTausCleanerPlugin"),
+    minTrackPt = cms.double(5.)
+)
