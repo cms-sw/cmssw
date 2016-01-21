@@ -4,7 +4,7 @@ import os,sys,time
 import optparse
 from RecoLuminosity.LumiDB import pileupParser
 from RecoLuminosity.LumiDB import selectionParser
-from RecoLuminosity.LumiDB import csvLumibyLSParser_Run2
+from RecoLuminosity.LumiDB import csvLumibyLSParser
 from math import exp
 from math import sqrt
 
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     #inpf = open (options.inputfile, 'r')
     #inputfilecontent = inpf.read()
       
-    inputRange =  csvLumibyLSParser_Run2.csvLumibyLSParser (options.inputfile,options.runperiod).runsandls()
+    inputRange =  csvLumibyLSParser.csvLumibyLSParser (options.inputfile,options.runperiod).runsandls()
 
     #print 'number of runs processed %d' % csvLumibyLSParser.csvLumibyLSParser (options.inputfile).numruns()
 
