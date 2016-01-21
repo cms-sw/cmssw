@@ -37,9 +37,10 @@ namespace Phase2Tracker
     return std::make_pair(2*max_ns - roomleft[2] - roomleft[3], 2*max_np - roomleft[0] - roomleft[1]); 
   }
 
-  Phase2TrackerDigiToRaw::Phase2TrackerDigiToRaw(const Phase2TrackerCabling * cabling, const TrackerTopology* tTopo, edm::Handle< edmNew::DetSetVector<Phase2TrackerCluster1D> > digis_handle, int mode):
+  Phase2TrackerDigiToRaw::Phase2TrackerDigiToRaw(const Phase2TrackerCabling * cabling, const TrackerTopology* tTopo, std::map< int, std::pair<int,int> > stackMap, edm::Handle< edmNew::DetSetVector<Phase2TrackerCluster1D> > digis_handle, int mode):
     cabling_(cabling),
     tTopo_(tTopo),
+    stackMap_(stackMap),
     digishandle_(digis_handle),
     mode_(mode),
     FedDaqHeader_(0,0,0,DAQ_EVENT_TYPE_SIMULATED), // TODO : add L1ID
@@ -65,7 +66,8 @@ namespace Phase2Tracker
       for (icon2 = iconn; icon2 != end && (*icon2)->getCh().first == fedid; icon2++)
       {
         // detid of first plane is detid of module + 1
-        unsigned int detid = (*icon2)->getDetid() + 1;
+        // FIXME : we should get this from the topology / geometry
+        unsigned int detid = stackMap_[(*icon2)->getDetid()].first;
         // FIXME : because we use test cabling, we have some detids set to 0 : we should ignore them
         if ( detid == 1 ) continue;
         // end of fixme
@@ -155,12 +157,12 @@ namespace Phase2Tracker
           digs_mod.push_back(stackedDigi(it,LAYER_OUTER,moduletype));
         }
       }
-      // here we should:
+      // here we:
       // - sort all digis
-      std::sort(digs_mod.begin(),digs_mod.end());
       // - divide big clusters into 8-strips parts
       // - count digis on each side/layer (concentrator)
       // - remove extra digis
+      std::sort(digs_mod.begin(),digs_mod.end());
       std::pair<int,int> nums = SortExpandAndLimitClusters(digs_mod, MAX_NS, MAX_NP);
       // - write appropriate header
       writeFeHeaderSparsified(fedbuffer, bitindex, moduletype, nums.second, nums.first);

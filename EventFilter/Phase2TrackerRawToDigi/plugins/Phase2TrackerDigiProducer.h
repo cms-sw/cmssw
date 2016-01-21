@@ -38,6 +38,7 @@ namespace Phase2Tracker {
     unsigned int runNumber_;
     edm::EDGetTokenT<FEDRawDataCollection> token_;
     const Phase2TrackerCabling * cabling_;
+    std::map< int, std::pair<int,int> > stackMap_;
     uint32_t cacheId_;
     DetIdCollection detids_;
     class Registry {

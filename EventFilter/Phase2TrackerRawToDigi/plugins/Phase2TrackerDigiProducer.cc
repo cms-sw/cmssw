@@ -11,6 +11,10 @@
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDZSChannelUnpacker.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
 #include "CondFormats/DataRecord/interface/Phase2TrackerCablingRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -47,6 +51,29 @@ namespace Phase2Tracker {
     edm::ESHandle<Phase2TrackerCabling> c;
     es.get<Phase2TrackerCablingRcd>().get( c );
     cabling_ = c.product();
+
+    // FIXME: build map of stacks to compensate for missing trackertopology methods
+    edm::ESHandle<TrackerTopology> tTopoHandle;
+    es.get<IdealGeometryRecord>().get(tTopoHandle);
+    const TrackerTopology* tTopo = tTopoHandle.product();
+
+    edm::ESHandle< TrackerGeometry > tGeomHandle;
+    es.get< TrackerDigiGeometryRecord >().get( tGeomHandle );
+    const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+
+    for (auto iu = theTrackerGeom->detUnits().begin(); iu != theTrackerGeom->detUnits().end(); ++iu) {
+      unsigned int detId_raw = (*iu)->geographicalId().rawId();
+      DetId detId = DetId(detId_raw);
+      if (detId.det() == DetId::Detector::Tracker) {
+          // build map of upper and lower for each module
+          if ( tTopo->isLower(detId) != 0 ) {
+              stackMap_[tTopo->Stack(detId)].first = detId;
+          }
+          if ( tTopo->isUpper(detId) != 0 ) {
+              stackMap_[tTopo->Stack(detId)].second = detId;
+          }
+      }
+    } // end loop on detunits
   }
   
   void Phase2TrackerDigiProducer::endJob()
@@ -195,10 +222,11 @@ namespace Phase2Tracker {
 
               // store beginning and end of this digis for this detid and add this registry to the list
               // and store data
-              Registry regItemTop(detid+2, STRIPS_PER_CBC*icbc/2, proc_work_digis_.size(), stripsTop.size());
+              // FIXME : detid scheme should be taken from topology / geometry
+              Registry regItemTop(stackMap_[detid].second, STRIPS_PER_CBC*icbc/2, proc_work_digis_.size(), stripsTop.size());
               proc_work_registry_.push_back(regItemTop);
               proc_work_digis_.insert(proc_work_digis_.end(),stripsTop.begin(),stripsTop.end());
-              Registry regItemBottom(detid+1, STRIPS_PER_CBC*icbc/2, proc_work_digis_.size(), stripsBottom.size());
+              Registry regItemBottom(stackMap_[detid].first, STRIPS_PER_CBC*icbc/2, proc_work_digis_.size(), stripsBottom.size());
               proc_work_registry_.push_back(regItemBottom);
               proc_work_digis_.insert(proc_work_digis_.end(),stripsBottom.begin(),stripsBottom.end());
 	        }
@@ -285,14 +313,16 @@ namespace Phase2Tracker {
             std::vector<Phase2TrackerCluster1D>::iterator it;
             {
               // outer detid is defined as inner detid + 1 or module detid + 2
-              edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spct(*clusters, detid+2);
+              // FIXME : detid scheme should be taken from topology / geometry
+              edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spct(*clusters, stackMap_[detid].second);
               for(it=clustersTop.begin();it!=clustersTop.end();it++)
               {
                 spct.push_back(*it);
               }
             }
             {
-              edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spcb(*clusters, detid+1);
+              // FIXME : detid scheme should be taken from topology / geometry
+              edmNew::DetSetVector<Phase2TrackerCluster1D>::FastFiller spcb(*clusters, stackMap_[detid].first);
               for(it=clustersBottom.begin();it!=clustersBottom.end();it++)
               {
                 spcb.push_back(*it);
