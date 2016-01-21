@@ -2,14 +2,19 @@
 
 #include "CommonTools/Utils/interface/PtComparator.h"
 
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METFwd.h"
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
 #include "fastjet/ClusterSequence.hh"
+#include "DataFormats/Math/interface/deltaR.h"
 
 using namespace std;
 using namespace edm;
 using namespace reco;
 
 PseudoTopProducer::PseudoTopProducer(const edm::ParameterSet& pset):
+  finalStateToken_(consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("finalStates"))),
+  genParticleToken_(consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("genParticles"))),
   leptonMinPt_(pset.getParameter<double>("leptonMinPt")),
   leptonMaxEta_(pset.getParameter<double>("leptonMaxEta")),
   jetMinPt_(pset.getParameter<double>("jetMinPt")),
@@ -17,9 +22,6 @@ PseudoTopProducer::PseudoTopProducer(const edm::ParameterSet& pset):
   wMass_(pset.getParameter<double>("wMass")),
   tMass_(pset.getParameter<double>("tMass"))
 {
-  finalStateToken_ = consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("finalStates"));
-  genParticleToken_ = consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("genParticles"));
-
   const double leptonConeSize = pset.getParameter<double>("leptonConeSize");
   const double jetConeSize = pset.getParameter<double>("jetConeSize");
   fjLepDef_ = std::shared_ptr<JetDef>(new JetDef(fastjet::antikt_algorithm, leptonConeSize));
@@ -30,6 +32,7 @@ PseudoTopProducer::PseudoTopProducer(const edm::ParameterSet& pset):
   produces<reco::GenParticleCollection>("neutrinos");
   produces<reco::GenJetCollection>("leptons");
   produces<reco::GenJetCollection>("jets");
+  produces<reco::METCollection>("mets");
 
   produces<reco::GenParticleCollection>();
 
@@ -46,6 +49,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
   std::auto_ptr<reco::GenParticleCollection> neutrinos(new reco::GenParticleCollection);
   std::auto_ptr<reco::GenJetCollection> leptons(new reco::GenJetCollection);
   std::auto_ptr<reco::GenJetCollection> jets(new reco::GenJetCollection);
+  std::auto_ptr<reco::METCollection> mets(new reco::METCollection);
   auto neutrinosRefHandle = event.getRefBeforePut<reco::GenParticleCollection>("neutrinos");
   auto leptonsRefHandle = event.getRefBeforePut<reco::GenJetCollection>("leptons");
   auto jetsRefHandle = event.getRefBeforePut<reco::GenJetCollection>("jets");
@@ -68,7 +72,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
   // Collect stable leptons and neutrinos
   size_t nStables = 0;
   std::vector<size_t> leptonIdxs;
-  std::set<size_t> neutrinoIdxs;
+  double metX = 0, metY = 0;
   for ( size_t i=0, n=finalStateHandle->size(); i<n; ++i )
   {
     const reco::Candidate& p = finalStateHandle->at(i);
@@ -78,7 +82,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
     ++nStables;
     if ( p.numberOfMothers() == 0 ) continue; // Skip orphans (if exists)
     if ( p.mother()->status() == 4 ) continue; // Treat particle as hadronic if directly from the incident beam (protect orphans in MINIAOD)
-    if ( isFromHadron(&p) ) continue;
+    if ( isHadron(absPdgId) or isFromHadron(&p) ) continue;
     switch ( absPdgId )
     {
       case 11: case 13: // Leptons
@@ -86,7 +90,8 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
         leptonIdxs.push_back(i);
         break;
       case 12: case 14: case 16:
-        neutrinoIdxs.insert(i);
+        metX += p.px();
+        metY += p.py();
         neutrinos->push_back(reco::GenParticle(p.charge(), p.p4(), p.vertex(), p.pdgId(), p.status(), true));
         break;
     }
@@ -94,6 +99,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
 
   // Sort neutrinos by pT.
   std::sort(neutrinos->begin(), neutrinos->end(), GreaterByPt<reco::Candidate>());
+  mets->push_back(reco::MET(LorentzVector(metX, metY, 0, std::hypot(metX, metY)), genVertex_));
 
   // Make dressed leptons with anti-kt(0.1) algorithm
   //// Prepare input particle list
@@ -137,7 +143,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       constituents.push_back(cand);
     }
     if ( lepCand.isNull() ) continue;
-    if ( lepCand->pt() < fjJet.pt()/2 ) continue; // Central lepton must be the major component
+    //if ( lepCand->pt() < fjJet.pt()/2 ) continue; // Central lepton must be the major component
 
     const LorentzVector jetP4(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E());
     reco::GenJet lepJet;
@@ -168,13 +174,15 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
     const reco::Candidate& p = finalStateHandle->at(i);
     if ( p.status() != 1 ) continue;
     if ( std::isnan(p.pt()) or p.pt() <= 0 ) continue;
+    const int aid = abs(p.pdgId());
+    if ( aid == 12 or aid == 14 or aid == 16 ) continue;
 
-    if ( neutrinoIdxs.find(i) != neutrinoIdxs.end() ) continue;
     if ( lepDauIdxs.find(i) != lepDauIdxs.end() ) continue;
 
     fjJetInputs.push_back(fastjet::PseudoJet(p.px(), p.py(), p.pz(), p.energy()));
     fjJetInputs.back().set_user_index(i);
   }
+
   //// Also don't forget to put B hadrons
   for ( auto index : bHadronIdxs )
   {
@@ -203,13 +211,20 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
     std::vector<reco::CandidatePtr> constituents;
     bool hasBHadron = false;
     for ( size_t j=0, m=fjConstituents.size(); j<m; ++j )
-    { 
+    {
       const size_t index = fjConstituents[j].user_index();
       if ( bHadronIdxs.find(index) != bHadronIdxs.end() ) hasBHadron = true;
-      reco::CandidatePtr cand = finalStateHandle->ptrAt(index);
+      reco::CandidatePtr cand;
+      if ( bHadronIdxs.find(index) != bHadronIdxs.end() )
+      {
+        hasBHadron = true;
+        cand = genParticleHandle->ptrAt(index);
+      }
+      else cand = finalStateHandle->ptrAt(index);
+      if ( cand.isNull() ) continue;
       constituents.push_back(cand);
     }
-    
+
     const LorentzVector jetP4(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E());
     reco::GenJet genJet;
     reco::writeSpecific(genJet, jetP4, genVertex_, constituents, eventSetup);
@@ -233,270 +248,199 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
   // NOTE : A C++ trick, use do-while instead of long-nested if-statements.
   do
   {
-    // Note : we will do dilepton or semilepton channel only
-    const size_t nLepton = leptons->size();
+    if ( bjetIdxs.size() < 2 ) break; // Ignore single top for now.
 
-    // Collect leptonic-decaying W's
-    std::vector<std::pair<int, int> > wCandIdxs;
-    for ( auto lep = leptons->begin(); lep != leptons->end(); ++lep )
-    {
-      const size_t iLep = lep-leptons->begin();
-      for ( auto nu = neutrinos->begin(); nu != neutrinos->end(); ++nu )
-      {
-        //if ( abs(lep->pdgId()+nu->pdgId()) != 1 ) continue; // Enforce to conserve flavour, this reduces combinatorial bkg
-        const double m = (lep->p4()+nu->p4()).mass();
-        if ( m > 300 ) continue; // Raw mass cut, reduce combinatorial background
+    int w1Q = 1, w2Q = -1;
+    int w1dau1Id = 1, w2dau1Id = -1;
+    LorentzVector w1dau1LVec, w1dau2LVec;
+    LorentzVector w2dau1LVec, w2dau2LVec;
 
-        const size_t iNu = nu-neutrinos->begin();
-        wCandIdxs.push_back(make_pair(iLep, iNu));
-      }
-    }
+    // Determine channel by the number of leptons
+    const size_t nLep = leptons->size();
+    if ( nLep == 2 ) { // Dilepton channel first
+      const size_t nNu = neutrinos->size();
+      if ( nNu < 2 ) break; // Skip this bizarre event
 
-    if      ( nLepton == 0 or wCandIdxs.empty() ) break; // Skip full hadronic channel
-    else if ( nLepton == 1 and wCandIdxs.size() >= 1 ) // Semi-leptonic channel
-    {
-      double dm = 1e9; // Note: this will be re-used later.
-      int bestLepIdx = -1, bestNuIdx = -1;
-      for ( auto wCandIdx : wCandIdxs )
-      {
-        const int lepIdx = wCandIdx.first;
-        const int nuIdx  = wCandIdx.second;
-        const LorentzVector& lepLVec = leptons->at(lepIdx).p4();
-        const LorentzVector& nuLVec = neutrinos->at(nuIdx).p4();
-        const double mW = (lepLVec + nuLVec).mass();
-        if ( mW > 300 ) continue;
+      const auto& lepton1 = leptons->at(0);
+      const auto& lepton2 = leptons->at(1);
+      w1dau1LVec = lepton1.p4();
+      w2dau1LVec = lepton2.p4();
+      const double zM = (w1dau1LVec+w2dau1LVec).mass();
+      if ( zM < 20 ) break;
+      w1Q = lepton1.charge();
+      w2Q = lepton2.charge();
+      if ( w1Q+w2Q != 0 ) break;
+      w1dau1Id = lepton1.pdgId();
+      w2dau1Id = lepton2.pdgId();
 
-        const double dmNew = abs(mW-wMass_);
-        if ( dmNew < dm )
-        {
-          dm = dmNew;
-          bestLepIdx = lepIdx;
-          bestNuIdx = nuIdx;
-        }
-      }
-      if ( bestLepIdx < 0 ) break; // Actually this should never happen
-      const auto& lepton = leptons->at(bestLepIdx);
-      const auto& neutrino = neutrinos->at(bestNuIdx);
-      const LorentzVector w1LVec = lepton.p4()+neutrino.p4();
+      double minDm = 1e9;
+      int selNu1 = -1, selNu2 = -1;
+      for ( size_t iNu=0; iNu<nNu; ++iNu ) {
+        const double dm1 = std::abs((w1dau1LVec+neutrinos->at(iNu).p4()).mass()-wMass_);
+        for ( size_t jNu=0; jNu<nNu; ++jNu ) {
+          if ( iNu == jNu ) continue;
 
-      // Continue to hadronic W
-      // We also collect b jets to be used in the next step.
-      dm = 1e9; // Reset dM to very large value.
-      int bestJ1Idx = -1, bestJ2Idx = -1;
-      for ( auto j1Idx = ljetIdxs.begin(); j1Idx != ljetIdxs.end(); ++j1Idx )
-      {
-        const auto& j1 = jets->at(*j1Idx);
-        for ( auto j2Idx = j1Idx+1; j2Idx != ljetIdxs.end(); ++j2Idx )
-        {
-          const auto& j2 = jets->at(*j2Idx);
-          const double mW = (j1.p4()+j2.p4()).mass();
-          if ( mW > 300 ) continue;
+          const double dm2 = std::abs((w2dau1LVec+neutrinos->at(jNu).p4()).mass()-wMass_);
+          const double dmSum = dm1 + dm2;
 
-          const double dmNew = abs(mW-wMass_);
-          if ( dmNew < dm )
-          {
-            dm = dmNew;
-            bestJ1Idx = *j1Idx;
-            bestJ2Idx = *j2Idx;
+          if ( dmSum < minDm ) {
+            minDm = dmSum;
+            selNu1 = iNu;
+            selNu2 = jNu;
           }
         }
       }
-      if ( bestJ1Idx < 0 ) break;
-      const auto& wJet1 = jets->at(bestJ1Idx);
-      const auto& wJet2 = jets->at(bestJ2Idx);
-      const LorentzVector w2LVec = wJet1.p4() + wJet2.p4();
+      if ( selNu1 < 0 or selNu2 < 0 ) break; // Should never happen, but for safety...
 
-      // Now we have leptonic W and hadronic W.
-      // Contiue to top quarks
-      dm = 1e9; // Reset once again for top combination.
-      int bestB1Idx = -1, bestB2Idx = -1;
-      if ( bjetIdxs.size() < 2 ) break;
-      for ( auto b1Idx : bjetIdxs )
-      {
-        const double t1Mass = (w1LVec + jets->at(b1Idx).p4()).mass();
-        if ( t1Mass > 300 ) continue;
-        for ( auto b2Idx : bjetIdxs )
+      // Now we have best pair for the dilepton channel
+      w1dau2LVec = neutrinos->at(selNu1).p4();
+      w2dau2LVec = neutrinos->at(selNu2).p4();
+    }
+    else if ( nLep == 1 ) { // Continue to the semi leptonic channel
+      const size_t nNu = neutrinos->size();
+      const size_t nLjet = ljetIdxs.size();
+      if ( nNu < 1 or nLjet < 2 ) break; // Skip this bizarre event. We need at least one neutrino and two light flavour jets to build two W candidates
+
+      const auto& lepton = leptons->at(0);
+      const auto lepLVec = lepton.p4();
+
+      double minDm = 1e9;
+      int selNu = -1;
+      for ( size_t iNu=0; iNu<nNu; ++iNu ) {
+        const double dm = std::abs((lepLVec+neutrinos->at(iNu).p4()).mass()-wMass_);
+        if ( dm < minDm ) {
+          minDm = dm;
+          selNu = iNu;
+        }
+      }
+      if ( selNu < 0 ) break; // Never happens, but for safety
+
+      minDm = 1e9;
+      int selJet1 = -1, selJet2 = -1;
+      for ( size_t ii=0; ii<nLjet; ++ii ) {
+        const size_t i = ljetIdxs[ii];
+        const auto ljet1LVec = jets->at(i).p4();
+        if ( deltaR(ljet1LVec, lepLVec) < 0.4 ) continue;
+        for ( size_t jj=ii+1; jj<nLjet; ++jj )
         {
-          if ( b1Idx == b2Idx ) continue;
-          const double t2Mass = (w2LVec + jets->at(b2Idx).p4()).mass();
-          if ( t2Mass > 300 ) continue;
+          const size_t j = ljetIdxs[jj];
+          const auto ljet2LVec = jets->at(j).p4();
+          if ( deltaR(ljet2LVec, lepLVec) < 0.4 ) continue;
 
-          const double dmNew = abs(t1Mass-tMass_) + abs(t2Mass-tMass_);
-          if ( dmNew < dm )
-          {
-            dm = dmNew;
-            bestB1Idx = b1Idx;
-            bestB2Idx = b2Idx;
+          const double dm = std::abs((ljet1LVec+ljet2LVec).mass()-wMass_);
+          if ( dm < minDm ) {
+            minDm = dm;
+            selJet1 = i;
+            selJet2 = j;
           }
         }
       }
-      if ( bestB1Idx < 0 ) break;
-      const auto& bJet1 = jets->at(bestB1Idx);
-      const auto& bJet2 = jets->at(bestB2Idx);
-      const LorentzVector t1LVec = w1LVec + bJet1.p4();
-      const LorentzVector t2LVec = w2LVec + bJet2.p4();
+      if ( selJet1 < 0 or selJet2 < 0 ) break; // Skip this event if we cannot find hadronic W candidate (can happend due to dR removal)
 
-      // Put all of them into candidate collection
-      if ( true ) // Trick to restrict variables' scope to avoid collision
-      {
-        const int lepQ = lepton.charge();
-
-        reco::GenParticle t1(lepQ*2/3, t1LVec, genVertex_, lepQ*6, 3, false);
-        reco::GenParticle w1(lepQ, w1LVec, genVertex_, lepQ*24, 3, true);
-        reco::GenParticle b1(0, bJet1.p4(), genVertex_, lepQ*5, 1, true);
-        reco::GenParticle l1(lepQ, lepton.p4(), genVertex_, lepton.pdgId(), 1, true);
-        reco::GenParticle n1(0, neutrino.p4(), genVertex_, neutrino.pdgId(), 1, true);
-
-        reco::GenParticle t2(-lepQ*2/3, t2LVec, genVertex_, -lepQ*6, 3, false);
-        reco::GenParticle w2(-lepQ, w2LVec, genVertex_, -lepQ*24, 3, true);
-        reco::GenParticle b2(0, bJet2.p4(), genVertex_, -lepQ*5, 1, true);
-        reco::GenParticle qA(0, wJet1.p4(), genVertex_, 1, 1, true);
-        reco::GenParticle qB(0, wJet2.p4(), genVertex_, 2, 1, true);
-
-        pseudoTop->push_back(t1);
-        pseudoTop->push_back(w1);
-        pseudoTop->push_back(b1);
-        pseudoTop->push_back(l1);
-        pseudoTop->push_back(n1);
-
-        pseudoTop->push_back(t2);
-        pseudoTop->push_back(w2);
-        pseudoTop->push_back(b2);
-        pseudoTop->push_back(qA);
-        pseudoTop->push_back(qB);
-      }
+      // Now we have best pair for the semileptonic channel
+      w1dau1LVec = lepLVec;
+      w1dau2LVec = neutrinos->at(selNu).p4();
+      w2dau1LVec = jets->at(selJet1).p4();
+      w2dau2LVec = jets->at(selJet2).p4();
+      w1Q = lepton.charge();
+      w2Q = -w1Q;
+      w1dau1Id = lepton.pdgId();
     }
-    else if ( nLepton == 2 and wCandIdxs.size() >= 2 ) // Dilepton channel
+
+    const auto w1LVec = w1dau1LVec+w1dau2LVec;
+    const auto w2LVec = w2dau1LVec+w2dau2LVec;
+
+    // Combine b jets
+    size_t bjetIdx1 = 999, bjetIdx2 = 999;
+    double sumDm = 1e9;
+    for ( size_t i : bjetIdxs )
     {
-      double dm = 1e9;
-      int bestLep1Idx = -1, bestLep2Idx = -1, bestNu1Idx = -1, bestNu2Idx = -1;
-      for ( auto i : wCandIdxs )
+      const auto& bjet1 = jets->at(i);
+      if ( nLep > 0 and deltaR(bjet1.p4(), leptons->at(0).p4()) < 0.4 ) continue;
+      if ( nLep > 1 and deltaR(bjet1.p4(), leptons->at(1).p4()) < 0.4 ) continue;
+
+      const double mtop1 = (w1LVec+bjet1.p4()).mass();
+      const double dmtop1 = std::abs(mtop1-tMass_);
+      for ( size_t j : bjetIdxs )
       {
-        const auto& lepton1 = leptons->at(i.first);
-        if ( lepton1.charge() < 0 ) continue;
-        const auto& neutrino1 = neutrinos->at(i.second);
-        const double mW1 = (lepton1.p4()+neutrino1.p4()).mass();
-        if ( mW1 > 300 ) continue;
-        for ( auto j : wCandIdxs )
-        {
-          if ( i == j ) continue;
-          const auto& lepton2 = leptons->at(j.first);
-          if ( lepton2.charge() > 0 ) continue;
-          const auto& neutrino2 = neutrinos->at(j.second);
-          const double mW2 = (lepton2.p4()+neutrino2.p4()).mass();
-          if ( mW2 > 300 ) continue;
+        if ( i == j ) continue;
+        const auto& bjet2 = jets->at(j);
+        if ( nLep > 0 and deltaR(bjet2.p4(), leptons->at(0).p4()) < 0.4 ) continue;
+        if ( nLep > 1 and deltaR(bjet2.p4(), leptons->at(1).p4()) < 0.4 ) continue;
 
-          const double dmNew = abs(mW1-wMass_) + abs(mW2-wMass_);
-          if ( dmNew < dm )
-          {
-            dm = dmNew;
-            bestLep1Idx = i.first;
-            bestLep2Idx = j.first;
-            bestNu1Idx = i.second;
-            bestNu2Idx = j.second;
-          }
-        }
-      }
-      if ( bestLep1Idx < 0 ) break;
-      const auto& lepton1 = leptons->at(bestLep1Idx);
-      const auto& lepton2 = leptons->at(bestLep2Idx);
-      const auto& neutrino1 = neutrinos->at(bestNu1Idx);
-      const auto& neutrino2 = neutrinos->at(bestNu2Idx);
-      const LorentzVector w1LVec = lepton1.p4()+neutrino1.p4();
-      const LorentzVector w2LVec = lepton2.p4()+neutrino2.p4();
+        const double mtop2 = (w2LVec+bjet2.p4()).mass();
+        const double dmtop2 = std::abs(mtop2-tMass_);
 
-      // Contiue to top quarks
-      dm = 1e9; // Reset once again for top combination.
-      int bestB1Idx = -1, bestB2Idx = -1;
-      if ( bjetIdxs.size() < 2 ) break;
-      for ( auto b1Idx : bjetIdxs )
-      {
-        const double t1Mass = (w1LVec + jets->at(b1Idx).p4()).mass();
-        if ( t1Mass > 300 ) continue;
-        for ( auto b2Idx : bjetIdxs )
-        {
-          if ( b1Idx == b2Idx ) continue;
-          const double t2Mass = (w2LVec + jets->at(b2Idx).p4()).mass();
-          if ( t2Mass > 300 ) continue;
+        if ( sumDm <= dmtop1+dmtop2 ) continue;
 
-          const double dmNew = abs(t1Mass-tMass_) + abs(t2Mass-tMass_);
-          if ( dmNew < dm )
-          {
-            dm = dmNew;
-            bestB1Idx = b1Idx;
-            bestB2Idx = b2Idx;
-          }
-        }
-      }
-      if ( bestB1Idx < 0 ) break;
-      const auto& bJet1 = jets->at(bestB1Idx);
-      const auto& bJet2 = jets->at(bestB2Idx);
-      const LorentzVector t1LVec = w1LVec + bJet1.p4();
-      const LorentzVector t2LVec = w2LVec + bJet2.p4();
-
-      // Put all of them into candidate collection
-      if ( true ) // Trick to restrict variables' scope to avoid collision
-      {
-        const int lep1Q = lepton1.charge();
-        const int lep2Q = lepton2.charge();
-
-        reco::GenParticle t1(lep1Q*2/3, t1LVec, genVertex_, lep1Q*6, 3, true);
-        reco::GenParticle w1(lep1Q, w1LVec, genVertex_, lep1Q*24, 3, true);
-        reco::GenParticle b1(0, bJet1.p4(), genVertex_, lep1Q*5, 1, true);
-        reco::GenParticle l1(lep1Q, lepton1.p4(), genVertex_, lepton1.pdgId(), 1, true);
-        reco::GenParticle n1(0, neutrino1.p4(), genVertex_, neutrino1.pdgId(), 1, true);
-
-        reco::GenParticle t2(lep2Q*2/3, t2LVec, genVertex_, lep2Q*6, 3, true);
-        reco::GenParticle w2(lep2Q, w2LVec, genVertex_, lep2Q*24, 3, true);
-        reco::GenParticle b2(0, bJet2.p4(), genVertex_, lep2Q*5, 1, true);
-        reco::GenParticle l2(0, lepton2.p4(), genVertex_, lepton2.pdgId(), 1, true);
-        reco::GenParticle n2(0, neutrino2.p4(), genVertex_, neutrino2.pdgId(), 1, true);
-
-        pseudoTop->push_back(t1);
-        pseudoTop->push_back(w1);
-        pseudoTop->push_back(b1);
-        pseudoTop->push_back(l1);
-        pseudoTop->push_back(n1);
-
-        pseudoTop->push_back(t2);
-        pseudoTop->push_back(w2);
-        pseudoTop->push_back(b2);
-        pseudoTop->push_back(l2);
-        pseudoTop->push_back(n2);
+        sumDm = dmtop1+dmtop2;
+        bjetIdx1 = i;
+        bjetIdx2 = j;
       }
     }
+    if ( sumDm >= 1e9 ) break; // Failed to make top, but this should not happen.
 
-    if ( pseudoTop->size() == 10 ) // If pseudtop decay tree is completed
-    {
-      // t->W+b
-      pseudoTop->at(0).addDaughter(reco::GenParticleRef(pseudoTopRefHandle, 1)); // t->W
-      pseudoTop->at(0).addDaughter(reco::GenParticleRef(pseudoTopRefHandle, 2)); // t->b
-      pseudoTop->at(1).addMother(reco::GenParticleRef(pseudoTopRefHandle, 0)); // t->W
-      pseudoTop->at(2).addMother(reco::GenParticleRef(pseudoTopRefHandle, 0)); // t->b
+    const auto& b1LVec = jets->at(bjetIdx1).p4();
+    const auto& b2LVec = jets->at(bjetIdx2).p4();
+    const auto t1LVec = w1LVec + b1LVec;
+    const auto t2LVec = w2LVec + b2LVec;
 
-      // W->lv or W->jj
-      pseudoTop->at(1).addDaughter(reco::GenParticleRef(pseudoTopRefHandle, 3));
-      pseudoTop->at(1).addDaughter(reco::GenParticleRef(pseudoTopRefHandle, 4));
-      pseudoTop->at(3).addMother(reco::GenParticleRef(pseudoTopRefHandle, 1));
-      pseudoTop->at(4).addMother(reco::GenParticleRef(pseudoTopRefHandle, 1));
+    // Put all of them into candidate collection
+    // t->wb, w->pq
+    reco::GenParticle t1(w1Q*2/3, t1LVec, genVertex_, w1Q*6, 3, false);
+    reco::GenParticle w1(w1Q, w1LVec, genVertex_, w1Q*24, 3, true);
+    reco::GenParticle b1(0, b1LVec, genVertex_, w1Q*5, 1, true);
+    reco::GenParticle p1(w1Q, w1dau1LVec, genVertex_, w1dau1Id, 1, true);
+    reco::GenParticle q1(0, w1dau2LVec, genVertex_, -w1dau1Id+w1Q, 1, true);
 
-      // tbar->W-b
-      pseudoTop->at(5).addDaughter(reco::GenParticleRef(pseudoTopRefHandle, 6));
-      pseudoTop->at(5).addDaughter(reco::GenParticleRef(pseudoTopRefHandle, 7));
-      pseudoTop->at(6).addMother(reco::GenParticleRef(pseudoTopRefHandle, 5));
-      pseudoTop->at(7).addMother(reco::GenParticleRef(pseudoTopRefHandle, 5));
+    reco::GenParticle t2(w2Q*2/3, t2LVec, genVertex_, w2Q*6, 3, false);
+    reco::GenParticle w2(w2Q, w2LVec, genVertex_, w2Q*24, 3, true);
+    reco::GenParticle b2(0, b2LVec, genVertex_, w2Q*5, 1, true);
+    reco::GenParticle p2(w2Q, w2dau1LVec, genVertex_, w2dau1Id, 1, true);
+    reco::GenParticle q2(0, w2dau2LVec, genVertex_, -w2dau1Id+w2Q, 1, true);
 
-      // W->jj
-      pseudoTop->at(6).addDaughter(reco::GenParticleRef(pseudoTopRefHandle, 8));
-      pseudoTop->at(6).addDaughter(reco::GenParticleRef(pseudoTopRefHandle, 9));
-      pseudoTop->at(8).addMother(reco::GenParticleRef(pseudoTopRefHandle, 6));
-      pseudoTop->at(9).addMother(reco::GenParticleRef(pseudoTopRefHandle, 6));
-    }
+    pseudoTop->push_back(t1);
+    pseudoTop->push_back(t2);
+
+    pseudoTop->push_back(w1);
+    pseudoTop->push_back(b1);
+
+    pseudoTop->push_back(w2);
+    pseudoTop->push_back(b2);
+
+    pseudoTop->push_back(p1);
+    pseudoTop->push_back(q1);
+
+    pseudoTop->push_back(p2);
+    pseudoTop->push_back(q2);
+
+    // t->W+b, tbar->W-b
+    pseudoTop->at(0).addDaughter(reco::GenParticleRef(pseudoTopRefHandle, 2)); // t->W
+    pseudoTop->at(0).addDaughter(reco::GenParticleRef(pseudoTopRefHandle, 3)); // t->b
+    pseudoTop->at(2).addMother(reco::GenParticleRef(pseudoTopRefHandle, 0)); // t->W
+    pseudoTop->at(3).addMother(reco::GenParticleRef(pseudoTopRefHandle, 0)); // t->b
+
+    pseudoTop->at(1).addDaughter(reco::GenParticleRef(pseudoTopRefHandle, 4));
+    pseudoTop->at(1).addDaughter(reco::GenParticleRef(pseudoTopRefHandle, 5));
+    pseudoTop->at(4).addMother(reco::GenParticleRef(pseudoTopRefHandle, 1));
+    pseudoTop->at(5).addMother(reco::GenParticleRef(pseudoTopRefHandle, 1));
+
+    // W->lv or W->jj
+    pseudoTop->at(2).addDaughter(reco::GenParticleRef(pseudoTopRefHandle, 6));
+    pseudoTop->at(2).addDaughter(reco::GenParticleRef(pseudoTopRefHandle, 7));
+    pseudoTop->at(6).addMother(reco::GenParticleRef(pseudoTopRefHandle, 2));
+    pseudoTop->at(7).addMother(reco::GenParticleRef(pseudoTopRefHandle, 2));
+
+    pseudoTop->at(4).addDaughter(reco::GenParticleRef(pseudoTopRefHandle, 8));
+    pseudoTop->at(4).addDaughter(reco::GenParticleRef(pseudoTopRefHandle, 9));
+    pseudoTop->at(8).addMother(reco::GenParticleRef(pseudoTopRefHandle, 4));
+    pseudoTop->at(9).addMother(reco::GenParticleRef(pseudoTopRefHandle, 4));
   } while (false);
 
   event.put(neutrinos, "neutrinos");
   event.put(leptons, "leptons");
   event.put(jets, "jets");
+  event.put(mets, "mets");
 
   event.put(pseudoTop);
 }
@@ -511,17 +455,72 @@ const reco::Candidate* PseudoTopProducer::getLast(const reco::Candidate* p)
   return p;
 }
 
+void PseudoTopProducer::insertAllDaughters(const reco::Candidate* p, std::set<const reco::Candidate*>& list) const
+{
+  if ( !p ) return;
+  if ( list.find(p) != list.end() ) return; // Skip if already in the list
+
+  list.insert(p);
+  for ( size_t i=0, n=p->numberOfDaughters(); i<n; ++i )
+  {
+    const reco::Candidate* dau = p->daughter(i);
+    list.insert(dau);
+    insertAllDaughters(dau, list);
+  }
+}
+
+bool PseudoTopProducer::isHadron(const int pdgId) const
+{
+  const unsigned int aid = abs(pdgId);
+  if ( aid/10000000 > 0 ) return false; // particle with extra bit is not a hadron
+  if ( aid <= 100 ) return false; // Hadrons have pdgId > 100
+
+  const unsigned char nj  = aid % 10;
+  const unsigned char nq3 = (aid/10) % 10;
+  const unsigned char nq2 = (aid/100) % 10;
+  const unsigned char nq1 = (aid/1000) % 10;
+
+  // Check for penta quarks, 9 at the 8th digit
+  if ( (aid/1000000) % 10 == 9 )
+  {
+    const unsigned char nl  = (aid/10000) % 10;
+    const unsigned char nr  = (aid/100000) % 10;
+
+    if ( nr != 9 && nr != 0 && nj != 9 && nj != 0 &&
+         nq1+nq2+nq3 != 0 &&
+         nq2 <= nq1 && nq1 <= nl && nl <= nr ) return true;
+  }
+
+  // Continue to usual mesons and baryons
+  const int fundID = (nq1+nq2 == 0) ? aid%10000 : 0;
+  if( fundID <= 100 && fundID > 0 ) return false;
+
+  const std::set<unsigned int> hadronIds = {
+    130, 310, 210, // ordinary mesons
+    150, 350, 510, 530, // EvtGen specific numbers
+    110, 990, 9990, // pomerons, etc
+    2110, 2210, // Baryons
+  };
+  if ( hadronIds.find(aid) != hadronIds.end() ) return true;
+
+  if( nj > 0 && nq3 > 0 && nq2 > 0 )
+  {
+    if ( nq1 == 0 && (nq3 != nq2 || pdgId >= 0) ) return true;
+    if ( nq1 > 0 ) return true;
+  }
+
+  return false;
+}
+
 bool PseudoTopProducer::isFromHadron(const reco::Candidate* p) const
 {
-  for ( size_t i=0, n=p->numberOfMothers(); i<n; ++i )
+  for ( int i=0, n=p->numberOfMothers(); i<n; ++i )
   {
     const reco::Candidate* mother = p->mother(i);
-    if ( mother->numberOfMothers() == 0 ) continue; // Skip incident beam
-    const int pdgId = abs(mother->pdgId());
-
-    if ( pdgId > 100 ) return true;
-    else if ( isFromHadron(mother) ) return true;
+    if ( !mother or mother->numberOfMothers() == 0 ) continue; // reaches to incident beam or top level
+    if ( isHadron(mother->pdgId()) or isFromHadron(mother) ) return true;
   }
+
   return false;
 }
 
@@ -561,7 +560,7 @@ bool PseudoTopProducer::isBHadron(const unsigned int absPdgId) const
 }
 
 reco::GenParticleRef PseudoTopProducer::buildGenParticle(const reco::Candidate* p, reco::GenParticleRefProd& refHandle,
-                                                               std::auto_ptr<reco::GenParticleCollection>& outColl) const
+                                                         std::auto_ptr<reco::GenParticleCollection>& outColl) const
 {
   reco::GenParticle pOut(*dynamic_cast<const reco::GenParticle*>(p));
   pOut.clearMothers();
