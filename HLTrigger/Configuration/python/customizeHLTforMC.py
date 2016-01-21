@@ -280,9 +280,6 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLTDoLocalStripSequenceRegForBTag",
       "HLTDoLocalPixelSequenceRegForBTag",
       "HLTDoLocalPixelSequenceRegForNoPU",
-      #   "hltSiPixelDigis",
-      #   "hltSiPixelClusters",
-      #   "hltSiPixelRecHits",
       "HLTRecopixelvertexingSequence",
 #      "HLTEndSequence",
       "HLTBeginSequence",
@@ -374,13 +371,22 @@ def customizeHLTforMC(process,_fastSim=False):
           setattr(process,label,getattr(fastsim,label))
         else:
           object = getattr(process,label)
+          # remove from sequences
           list = tuple(process.sequences_().keys())
           for name in list:
             sequence = getattr(process,name)
             more=True
             while more:
               more = sequence.remove(object)
+          # remove from paths
           list = tuple(process.paths_().keys())
+          for name in list:
+            path = getattr(process,name)
+            more=True
+            while more:
+              more = path.remove(object)
+          # remove from end paths
+          list = tuple(process.endpaths_().keys())
           for name in list:
             path = getattr(process,name)
             more=True
@@ -447,7 +453,18 @@ def customizeHLTforMC(process,_fastSim=False):
       ('hltIter4HighPtMerged', 'generalTracks'),
       ('hltIterativeTrackingForPAMerged', 'generalTracks'),
 
-      ('hltRegionalTracksForL3MuonIsolation', 'hltPixelTracks'),
+      ('hltFastPVPixelTracks','hltPixelTracks'),
+      ('hltFastPVPixelTracksRecover','hltPixelTracks'),
+      ('hltPixelTracksL3Muon','hltPixelTracks'),
+      ('hltPixelTracksGlbTrkMuon','hltPixelTracks'),
+      ('hltPixelTracksHighPtTkMuIso','hltPixelTracks'),
+      ('hltPixelTracksHybrid','hltPixelTracks'),
+      ('hltPixelTracksForPhotons','hltPixelTracks'),
+      ('hltPixelTracksForEgamma','hltPixelTracks'),
+      ('hltPixelTracksElectrons','hltPixelTracks'),
+      ('hltPixelTracksForHighPt','hltPixelTracks'),
+      ('hltHighPtPixelTracks','hltPixelTracks'),
+      ('hltPixelTracksForNoPU','hltPixelTracks'),
 
       ('hltL1extraParticles','l1extraParticles'),
       ('hltL1extraParticles:Central','l1extraParticles:Central'),

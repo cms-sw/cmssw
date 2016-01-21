@@ -77,8 +77,8 @@ _reco.KFFitterForRefitOutsideIn.Propagator = 'SmartPropagatorAny'
 _reco.KFSmootherForRefitOutsideIn.Propagator = 'SmartPropagator'
 
 # replace the standard ecal-driven seeds with the FastSim emulated ones
-import FastSimulation.Tracking.globalCombinedSeeds_cfi
-_reco.newCombinedSeeds = FastSimulation.Tracking.globalCombinedSeeds_cfi.newCombinedSeeds
+import FastSimulation.Tracking.ElectronSeeds_cff
+_reco.newCombinedSeeds = FastSimulation.Tracking.ElectronSeeds_cff.newCombinedSeeds
 _reco.globalreco.insert(0,_reco.newCombinedSeeds)
 
 ##########################################
