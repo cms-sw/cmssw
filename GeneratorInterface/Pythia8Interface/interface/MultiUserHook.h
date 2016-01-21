@@ -43,17 +43,17 @@ public:
           "multiple UserHooks with canVetoPT() not allowed");
       test = false;
     }
-    if (nCanVetoPT>1) {
+    if (nCanVetoStep>1) {
       infoPtr->errorMsg("Error in MultiUserHook::initAfterBeams "
           "multiple UserHooks with canVetoStep() not allowed");
       test = false;
     }
-    if (nCanVetoPT>1) {
+    if (nCanVetoMPIStep>1) {
       infoPtr->errorMsg("Error in MultiUserHook::initAfterBeams "
           "multiple UserHooks with canVetoMPIStep() not allowed");
       test = false;
     }
-    if (nCanVetoPT>1) {
+    if (nCanSetResonanceScale>1) {
       infoPtr->errorMsg("Error in MultiUserHook::initAfterBeams "
           "multiple UserHooks with canSetResonanceScale() not allowed");
       test = false;
