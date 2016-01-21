@@ -30,6 +30,9 @@ DEFINE_FWK_MODULE(L1TGMT);
 #include <DQM/L1TMonitor/interface/L1TStage2mGMT.h>
 DEFINE_FWK_MODULE(L1TStage2mGMT);
 
+#include <DQM/L1TMonitor/interface/L1TStage2BMTF.h>
+DEFINE_FWK_MODULE(L1TStage2BMTF);
+
 
 #include <DQM/L1TMonitor/interface/L1TGCT.h>
 DEFINE_FWK_MODULE(L1TGCT);
