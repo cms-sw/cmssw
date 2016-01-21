@@ -34,11 +34,7 @@ from Validation.RecoEgamma.egammaValidationMiniAOD_cff import *
 prevalidation = cms.Sequence( globalPrevalidation * hltassociation * metPreValidSeq * jetPreValidSeq )
 prevalidationLiteTracking = cms.Sequence( prevalidation )
 prevalidationLiteTracking.replace(globalPrevalidation,globalPrevalidationLiteTracking)
-<<<<<<< HEAD
-prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence * photonMiniAODValidationSequence)
-=======
-prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence * photonMiniAODValidationSequence * JetValidationMiniAOD * type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD * METValidationMiniAOD * egammaValidationMiniAOD )
->>>>>>> miniAOD electron modification
+prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence * photonMiniAODValidationSequence * egammaValidationMiniAOD)
 
 
 validation = cms.Sequence(cms.SequencePlaceholder("mix")
