@@ -74,7 +74,7 @@ namespace Phase2Tracker {
           if ( tTopo_->isUpper(detId) != 0 ) {
               stackMap_[tTopo_->Stack(detId)].second = detId;
           }
-          // // Build list of detids
+          // // Build list of detids for dummy cabling
           // if ( tTopo_->isLower(detId) == 1 ) {
           //     if ( theTrackerGeom->getDetectorType(detId_raw) == TrackerGeometry::ModuleType::Ph2PSP ) {
           //         std::cout << tTopo_->Stack(detId) << " PS" << std::endl;
@@ -95,7 +95,7 @@ namespace Phase2Tracker {
     std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
     edm::Handle< edmNew::DetSetVector<Phase2TrackerCluster1D> > digis_handle;
     event.getByToken( token_, digis_handle );
-    Phase2TrackerDigiToRaw raw_producer(cabling_, tTopo_, digis_handle, 1);
+    Phase2TrackerDigiToRaw raw_producer(cabling_, tTopo_, stackMap_, digis_handle, 1);
     raw_producer.buildFEDBuffers(buffers);
     event.put(buffers);
   }
