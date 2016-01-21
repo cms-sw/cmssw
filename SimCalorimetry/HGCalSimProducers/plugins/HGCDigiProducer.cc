@@ -1,14 +1,14 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
 #include "SimCalorimetry/HGCalSimProducers/plugins/HGCDigiProducer.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
 //
-HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset, edm::one::EDProducerBase& mixMod, 
+HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset, edm::stream::EDProducerBase& mixMod, 
                                  edm::ConsumesCollector& iC) :
   DigiAccumulatorMixMod(),
   theDigitizer_(new HGCDigitizer(pset, iC) ) 

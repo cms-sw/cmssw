@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -40,7 +41,7 @@ namespace cms {
   class PileupVertexAccumulator : public DigiAccumulatorMixMod {
   public:
 
-    explicit PileupVertexAccumulator(const edm::ParameterSet& conf, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+    explicit PileupVertexAccumulator(const edm::ParameterSet& conf, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
 
     virtual ~PileupVertexAccumulator();
 

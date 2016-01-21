@@ -17,7 +17,7 @@
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
-HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
+HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
   theParameterMap(new HcalTBSimParameterMap(ps)), 
   theHcalShape(new HcalShape()),
   theHcalIntegratedShape(new CaloShapeIntegrator(theHcalShape)),

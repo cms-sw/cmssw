@@ -9,7 +9,7 @@
 
 namespace edm {
   class ConsumesCollector;
-  namespace one {
+  namespace stream {
     class EDProducerBase;
   }
   class ParameterSet;
@@ -22,7 +22,7 @@ namespace CLHEP {
 
 class HGCDigiProducer : public DigiAccumulatorMixMod {
 public:
-  HGCDigiProducer(edm::ParameterSet const& pset, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+  HGCDigiProducer(edm::ParameterSet const& pset, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
   HGCDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC);
 
   virtual void initializeEvent(edm::Event const&, edm::EventSetup const&) override;
