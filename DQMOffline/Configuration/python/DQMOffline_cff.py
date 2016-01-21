@@ -128,6 +128,7 @@ DQMOfflineMuon = cms.Sequence( dtSources *
                               )
 
 DQMOfflineMuon_miniAOD = cms.Sequence( muonMonitors_miniAOD )
+
 DQMOfflineHcal = cms.Sequence( hcalOfflineDQMSource )
 
 
@@ -147,10 +148,8 @@ DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD)
 PostDQMOfflineMiniAOD = cms.Sequence(miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD*topPhysicsminiAOD)
 PostDQMOffline = cms.Sequence()
 
-from DQMOffline.Muon.miniAOD_cff import *                                                                 
 
-muonMiniAOD = cms.Sequence( MuonMiniAOD )
-DQMOfflineMiniAOD = cms.Sequence( miniAODDQMSequence*muonMonitors_miniAOD*muonMiniAOD )
+DQMOfflineMiniAOD = cms.Sequence( miniAODDQMSequence*muonMonitors_miniAOD*MuonMiniAOD )
 
 #DQMOfflineNoHWW = cms.Sequence(DQMOffline)
 #DQMOfflineNoHWW.remove(hwwAnalyzer)
