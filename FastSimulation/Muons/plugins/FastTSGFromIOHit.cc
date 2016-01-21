@@ -16,15 +16,19 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "FastSimulation/Tracking/interface/FastTrackingHelper.h"
 
-FastTSGFromIOHit::FastTSGFromIOHit(const edm::ParameterSet & iConfig,edm::ConsumesCollector& iC) : theConfig (iConfig)
+FastTSGFromIOHit::FastTSGFromIOHit(const edm::ParameterSet & iConfig,edm::ConsumesCollector& iC) 
 {
+
   theCategory = "FastSimulation|Muons||FastTSGFromIOHit";
 
   thePtCut = iConfig.getParameter<double>("PtCut");
 
-  theSeedCollectionLabels = iConfig.getParameter<std::vector<edm::InputTag> >("SeedCollectionLabels");
-
-  theSimTrackCollectionLabel  = iConfig.getParameter<edm::InputTag>("SimTrackCollectionLabel");
+  simTracksTk = iC.consumes<edm::SimTrackContainer>(iConfig.getParameter<edm::InputTag>("SimTrackCollectionLabel"));
+  const auto & seedLabels = iConfig.getParameter<std::vector<edm::InputTag> >("SeedCollectionLabels");
+  for(const auto & seedLabel : seedLabels)
+  {
+      seedsTks.push_back(iC.consumes<TrajectorySeedCollection>(seedLabel));
+  }
 
 }
 
@@ -35,72 +39,63 @@ FastTSGFromIOHit::~FastTSGFromIOHit()
 
 }
 
-void FastTSGFromIOHit::trackerSeeds(const TrackCand& staMuon, const TrackingRegion& region, std::vector<TrajectorySeed> & result) {
+void FastTSGFromIOHit::trackerSeeds(const TrackCand& staMuon, const TrackingRegion& region, const TrackerTopology *tTopo, std::vector<TrajectorySeed> & result) 
+{
+    // Make a ref to l2 muon
+    reco::TrackRef muRef(staMuon.second);
 
-  // Retrieve the Monte Carlo truth (SimTracks)
-  edm::Handle<edm::SimTrackContainer> theSimTracks;
-  getEvent()->getByLabel(theSimTrackCollectionLabel,theSimTracks);
+    // Cut on muons with low momenta
+    if ( muRef->pt() < thePtCut 
+	 || muRef->innerMomentum().Rho() < thePtCut 
+	 || muRef->innerMomentum().R() < 2.5 )
+    {
+	return;
+    }
     
-  // Retrieve Seed collection
-  unsigned seedCollections = theSeedCollectionLabels.size();
-  std::vector<edm::Handle<edm::View<TrajectorySeed> > > theSeeds;
-  theSeeds.resize(seedCollections);
-  unsigned seed_size = 0;
-  for ( unsigned iseed=0; iseed<seedCollections; ++iseed ) { 
-    getEvent()->getByLabel(theSeedCollectionLabels[iseed], theSeeds[iseed]);
-    seed_size += theSeeds[iseed]->size();
-  }
+    // Retrieve the Monte Carlo truth (SimTracks)
+    edm::Handle<edm::SimTrackContainer> simTracks;
+    getEvent()->getByToken(simTracksTk,simTracks);
+    
+    // Retrieve Seed collection
+    std::vector<edm::Handle<TrajectorySeedCollection> > seedCollections;
+    seedCollections.resize(seedsTks.size());
+    for ( unsigned iSeed = 0 ; iSeed < seedsTks.size() ; iSeed++) 
+    {
+	getEvent()->getByToken(seedsTks[iSeed],seedCollections[iSeed]);
+    }
+    
+    // cast the tracking region
+    const RectangularEtaPhiTrackingRegion & regionRef = dynamic_cast<const RectangularEtaPhiTrackingRegion & > (region);
   
-  // Make a ref to l2 muon
-  reco::TrackRef muRef(staMuon.second);
-  
-  // Cut on muons with low momenta
-  if ( muRef->pt() < thePtCut 
-       || muRef->innerMomentum().Rho() < thePtCut 
-       || muRef->innerMomentum().R() < 2.5 ){
-  }return;
-  
-  // Copy the collection of seeds (ahem, this is time consuming!)
-  std::vector<TrajectorySeed> tkSeeds;
-  std::set<unsigned> tkIds;
-  tkSeeds.reserve(seed_size);
-  for ( unsigned iseed=0; iseed<seedCollections; ++iseed ) { 
-    edm::Handle<edm::View<TrajectorySeed> > aSeedCollection = theSeeds[iseed];
-    unsigned nSeeds = aSeedCollection->size();
-    for (unsigned seednr = 0; seednr < nSeeds; ++seednr) {
+    // select and store seeds
+    std::set<unsigned> simTrackIds;
+    for ( const auto & seeds : seedCollections) 
+    { 
+	for ( const auto & seed : *seeds)
+	{
+	    // Find the simtrack corresponding to the seed
+	    TrajectorySeed::range recHitRange = seed.recHits();
+	    const FastTrackerRecHit * firstRecHit = (const FastTrackerRecHit*) (&(*(recHitRange.first)));
+	    int simTrackId = firstRecHit->simTrackId(0);
+	    const SimTrack & simTrack = (*simTracks)[simTrackId];
       
-      // The seed
-      const TrajectorySeed* aSeed = &((*aSeedCollection)[seednr]);
+	    // skip if simTrack already associated to a seed
+	    if( simTrackIds.find(simTrackId) != simTrackIds.end() )
+	    {
+		continue;	
+	    }
+	    simTrackIds.insert(simTrackId);
       
-      // Find the first hit of the Seed
-      TrajectorySeed::range theSeedingRecHitRange = aSeed->recHits();
-      const FastTrackerRecHit * theFirstSeedingRecHit = 
-	(const FastTrackerRecHit*) (&(*(theSeedingRecHitRange.first)));
-      
-      // The SimTrack id associated to that recHit
-      int simTrackId = theFirstSeedingRecHit->simTrackId(0);
-      
-      // Track already associated to a seed
-      std::set<unsigned>::iterator tkId = tkIds.find(simTrackId);
-      if( tkId != tkIds.end() ) continue;	
-      
-      const SimTrack& theSimTrack = (*theSimTracks)[simTrackId]; 
-       
-      const RectangularEtaPhiTrackingRegion & regionRef = dynamic_cast<const RectangularEtaPhiTrackingRegion & > (region);
-  
-      if( clean(muRef,regionRef,aSeed,theSimTrack) ) tkSeeds.push_back(*aSeed);
-      tkIds.insert(simTrackId);
-      
-    } // End loop on seeds
- 
-  } // End loop on seed collections
-  
-  // Now create the Muon Trajectory Seed
-  unsigned int is=0;
-  unsigned int isMax=tkSeeds.size();
-  for (;is!=isMax;++is){
-    result.push_back( L3MuonTrajectorySeed(tkSeeds[is], muRef));
-  } // End of tk seed loop
+	    // filter seed
+	    if( !clean(muRef,regionRef,&seed,simTrack) )
+	    {
+		continue;
+	    }
+
+	    // store results
+	    result.push_back(L3MuonTrajectorySeed(seed,muRef));
+	} 
+    } 
 }
 
 bool
@@ -109,13 +104,9 @@ FastTSGFromIOHit::clean(reco::TrackRef muRef,
 			const TrajectorySeed* aSeed,
 			const SimTrack& theSimTrack) 
 {
-  //  return true; 
-  //}
 
   // Eta cleaner   
   const PixelRecoRange<float>& etaRange = region.etaRange() ;  
-  //  return true;
-  //}
 
   double etaSeed = theSimTrack.momentum().Eta();
   double etaLimit  = (fabs(fabs(etaRange.max())-fabs(etaRange.mean())) <0.05) ? 
@@ -123,7 +114,10 @@ FastTSGFromIOHit::clean(reco::TrackRef muRef,
   bool inEtaRange = 
     etaSeed >= (etaRange.mean() - etaLimit) && 
     etaSeed <= (etaRange.mean() + etaLimit) ;
-  if  ( !inEtaRange ) return false;
+  if  ( !inEtaRange )
+  {
+      return false;
+  }
   
   // Phi cleaner
   const TkTrackingRegionsMargin<float>& phiMargin = region.phiMargin();
@@ -131,12 +125,19 @@ FastTSGFromIOHit::clean(reco::TrackRef muRef,
   double phiLimit  = (phiMargin.right() < 0.05 ) ? 0.05 : phiMargin.right(); 
   bool inPhiRange = 
     (fabs(deltaPhi(phiSeed,double(region.direction().phi()))) < phiLimit );
-  if  ( !inPhiRange ) return false;
+  if  ( !inPhiRange )
+  {
+      return false;
+  }
   
   // pt cleaner
   double ptSeed  = std::sqrt(theSimTrack.momentum().Perp2());
   double ptMin   = (region.ptMin()>3.5) ? 3.5: region.ptMin();  
   bool inPtRange = ptSeed >= ptMin &&  ptSeed<= 2*(muRef->pt());
-  return inPtRange;
+  if  ( !inPtRange )
+  {
+      return false;
+  }
+  return true;
   
 }

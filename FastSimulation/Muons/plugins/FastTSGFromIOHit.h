@@ -14,7 +14,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include <vector>
 
 class RectangularEtaPhiTrackingRegion;
@@ -31,8 +32,8 @@ public:
   virtual ~FastTSGFromIOHit();
 
   /// generate seed(s) for a track
-  void  trackerSeeds(const TrackCand&, const TrackingRegion&, std::vector<TrajectorySeed>&);
-    
+    void  trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *tTopo, std::vector<TrajectorySeed>&) override;
+
  private:
   bool clean(reco::TrackRef muRef,
   	     const RectangularEtaPhiTrackingRegion& region,
@@ -41,10 +42,10 @@ public:
 
 private:
   std::string theCategory;
-  edm::ParameterSet theConfig;
-  edm::InputTag theSimTrackCollectionLabel;
-  std::vector<edm::InputTag> theSeedCollectionLabels;
-  double thePtCut;
+    
+    edm::EDGetTokenT<edm::SimTrackContainer> simTracksTk;
+    std::vector<edm::EDGetTokenT<TrajectorySeedCollection> > seedsTks;
+    double thePtCut;
 
 };
 
