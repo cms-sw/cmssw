@@ -112,7 +112,6 @@ DQMHarvestMuon = cms.Sequence( dtClients *
                                cscOfflineCollisionsClients *
                                muonQualityTests
                                )
-DQMHarvestMuon_miniAOD = cms.Sequence( muonQualityTests_miniAOD )
 
 DQMHarvestEcal = cms.Sequence( ecal_dqm_client_offline *
                                 es_dqm_client_offline

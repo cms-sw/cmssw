@@ -64,7 +64,7 @@ bool MuonMiniAOD::PassesCut_A(edm::View<pat::Muon>::const_iterator muon1, reco::
   else if (WorkingPoint == "softMuons")
     return muon::isSoftMuon(*muon1,thePrimaryVertex);
   else{
-    std::cout << "[E]: MuonMiniAOD. Unknown WP, returning false." << std::endl;
+    LogInfo("RecoMuonValidator") << "[MuonMiniAOD]: MuonMiniAOD. Unknown WP, returning false.\n";
     return false;
   }
   
@@ -83,7 +83,7 @@ bool MuonMiniAOD::PassesCut_B(edm::View<pat::Muon>::const_iterator muon1, reco::
   else if (WorkingPoint == "softMuons")
     return muon1 -> isSoftMuon(thePrimaryVertex);
   else{
-    std::cout << "[E]: MuonMiniAOD. Unknown WP, returning false." << std::endl;
+    LogInfo("RecoMuonValidator") << "[MuonMiniAOD]: MuonMiniAOD. Unknown WP, returning false.\n";
     return false;
   }
    
