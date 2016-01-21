@@ -25,33 +25,7 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
-/**
-   \class   MonitorEnsemble TopDQMHelpers.h
-   "DQM/Physics/interface/TopDQMHelpers.h"
 
-   \brief   Helper class to define histograms for monitoring of
-   muon/electron/jet/met quantities.
-
-   Helper class to contain histograms for the monitoring of
-   muon/electron/jet/met quantities.
-   This class can be instantiated several times after several event selection
-   steps. It can
-   be used to fill histograms in three different granularity levels according to
-   STANDARD
-   (<10 histograms), VERBOSE(<20 histograms), DEBUG(<30 histgorams). Note that
-   for the sake
-   of simplicity and to force the analyst to keep the number of histograms to be
-   monitored
-   small the MonitorEnsemble class contains the histograms for all objects at
-   once. It should
-   not contain much more than 10 histograms though in the STANDARD
-   configuration, as these
-   histograms will be monitored at each SelectionStep. Monitoring of histograms
-   after selec-
-   tion steps within the same object collection needs to be implemented within
-   the Monitor-
-   Ensemble. It will not be covered by the SelectionStep class.
-*/
 
 namespace TopSingleLepton_miniAOD {
 
@@ -136,19 +110,7 @@ class MonitorEnsemble {
 
   /// electronId label
   edm::EDGetTokenT<edm::ValueMap<float> > electronId_;
-  /// electronId pattern we expect the following pattern:
-  ///  0: fails
-  ///  1: passes electron ID only
-  ///  2: passes electron Isolation only
-  ///  3: passes electron ID and Isolation only
-  ///  4: passes conversion rejection
-  ///  5: passes conversion rejection and ID
-  ///  6: passes conversion rejection and Isolation
-  ///  7: passes the whole selection
-  /// As described on
-  /// https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
-  // int eidPattern_;
-  // the cut for the MVA Id
+ 
   double eidCutValue_;
   /// extra isolation criterion on electron
   std::unique_ptr<StringCutObjectSelector<pat::Electron> > elecIso_;
@@ -241,46 +203,6 @@ inline void MonitorEnsemble::fill(const edm::Event& event,
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-/**
-   \class   TopSingleLeptonDQM TopSingleLeptonDQM.h
-   "DQM/Physics/plugins/TopSingleLeptonDQM.h"
-
-   \brief   Module to apply a monitored selection of top like events in the
-   semi-leptonic channel
-
-   Plugin to apply a monitored selection of top like events with some minimal
-   flexibility
-   in the number and definition of the selection steps. To achieve this
-   flexibility it
-   employes the SelectionStep class. The MonitorEnsemble class is used to
-   provide a well
-   defined set of histograms to be monitored after each selection step. The
-   SelectionStep
-   class provides a flexible and intuitive selection via the StringCutParser.
-   SelectionStep
-   and MonitorEnsemble classes are interleaved. The monitoring starts after a
-   preselection
-   step (which is not monitored in the context of this module) with an instance
-   of the
-   MonitorEnsemble class. The following objects are supported for selection:
-
-    - jets  : of type pat::Jet (jets)
-
-    - elecs : of type pat::Electron
-    - muons : of type pat::Muon
-    - met   : of type pat::MET
-
-   These types have to be present as prefix of the selection step paramter
-   _label_ separated
-   from the rest of the label by a ':' (e.g. in the form "jets:step0"). The
-   class expects
-   selection labels of this type. They will be disentangled by the private
-   helper functions
-   _objectType_ and _seletionStep_ as declared below.
-*/
-
-/// define MonitorEnsembple to be used
-// using TopSingleLepton::MonitorEnsemble;
 
 class TopSingleLeptonDQM_miniAOD : public DQMEDAnalyzer {
  public:
@@ -339,8 +261,7 @@ class TopSingleLeptonDQM_miniAOD : public DQMEDAnalyzer {
   std::unique_ptr<SelectionStep<reco::Vertex> > PvStep;
   std::unique_ptr<SelectionStep<pat::MET> > METStep;
   std::vector<std::unique_ptr<SelectionStep<pat::Jet> > > JetSteps;
-//  std::vector<std::unique_ptr<SelectionStep<reco::CaloJet> > > CaloJetSteps;
-//  std::vector<std::unique_ptr<SelectionStep<reco::PFJet> > > PFJetSteps;
+
 
   std::vector<edm::ParameterSet> sel_;
   edm::ParameterSet setup_;
