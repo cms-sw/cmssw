@@ -70,29 +70,6 @@ hltEcalRegionalPi0Digis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyM
 hltEcalRegionalPi0WeightUncalibRecHit = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltEcalRegionalPi0RecHitTmp = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltFEDSelector = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
-#hltEcalRegionalPi0RecHit = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
-#
-# Tracker = Pixel and Strip
-#
-from FastSimulation.HighLevelTrigger.RecoLocalTracker_cff import *
-#
-# Calorimeter = Ecal and Hcal
-#
-from FastSimulation.HighLevelTrigger.RecoLocalCalo_cff import *
+
 # Specific reconstruction sequences for FastSimulation
 from FastSimulation.HighLevelTrigger.HLTFastReco_cff import *
-HLTDoLocalPixelSequence           = cms.Sequence(pixeltrackerlocalreco)
-hltSiPixelDigis = cms.Sequence(pixeltrackerlocalreco)
-hltSiPixelClusters = cms.Sequence(pixeltrackerlocalreco)
-hltSiPixelRecHits = cms.Sequence(pixeltrackerlocalreco)
-HLTDoLocalPixelSequenceReg        = cms.Sequence(pixeltrackerlocalreco)
-HLTDoLocalPixelSequenceRegL2Tau   = cms.Sequence(pixeltrackerlocalreco)
-HLTDoLocalPixelSequenceRegForBTag = cms.Sequence(pixeltrackerlocalreco)
-HLTDoLocalStripSequence           = cms.Sequence(striptrackerlocalreco)
-HLTDoLocalStripSequenceReg        = cms.Sequence(striptrackerlocalreco)
-HLTDoLocalStripSequenceRegForBTag = cms.Sequence(striptrackerlocalreco)
-
-hltMuonCSCDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
-hltMuonDTDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
-hltMuonRPCDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
-hltGtDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
