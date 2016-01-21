@@ -598,7 +598,7 @@ class LeptonAnalyzer( Analyzer ):
         if self.cfg_comp.isMC and self.cfg_ana.do_mc_match:
             self.matchLeptons(event)
             self.matchAnyLeptons(event)
-            if self.cfg_ana.do_mc_match_photons:
+            if self.doMatchToPhotons:
                 self.matchToPhotons(event)
             
         return True
@@ -668,6 +668,7 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     doIsoAnnulus = False, # off by default since it requires access to all PFCandidates 
     # do MC matching 
     do_mc_match = True, # note: it will in any case try it only on MC, not on data
+    do_mc_match_photons = False, # mc match electrons to photons 
     match_inclusiveLeptons = False, # match to all inclusive leptons
     )
 )
