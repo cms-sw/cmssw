@@ -17,13 +17,10 @@ useEvtGen(false), evtgenDecays(0)
   fMasterGen.reset(new Pythia);
   fDecayer.reset(new Pythia);
 
-  fMasterGen->readString("Next:numberShowEvent = 0");
-  fDecayer->readString("Next:numberShowEvent = 0");
-
   fMasterGen->setRndmEnginePtr( &p8RndmEngine_ );
   fDecayer->setRndmEnginePtr( &p8RndmEngine_ );
   
-  fParameters = ps.getParameter<edm::ParameterSet>("PythiaParameters");
+  fParameters = ps;
   
   pythiaPylistVerbosity = ps.getUntrackedParameter<int>("pythiaPylistVerbosity", 0);
   pythiaHepMCVerbosity  = ps.getUntrackedParameter<bool>("pythiaHepMCVerbosity", false);
@@ -57,8 +54,26 @@ useEvtGen(false), evtgenDecays(0)
 bool Py8InterfaceBase::readSettings( int ) 
 {
 
-   for ( ParameterCollector::const_iterator line = fParameters.begin();
-         line != fParameters.end(); ++line ) 
+   fMasterGen->settings.resetAll();
+   fDecayer->settings.resetAll();
+  
+   fMasterGen->readString("Next:numberShowEvent = 0");
+   fDecayer->readString("Next:numberShowEvent = 0");  
+  
+   edm::ParameterSet currentParameters;
+   if (fParameters.exists("RandomizedParameters")) {
+     std::vector<edm::ParameterSet> randomizedParameters = fParameters.getParameter<std::vector<edm::ParameterSet> >("RandomizedParameters");
+     unsigned int idx = (unsigned int)(randomizedParameters.size()*p8RndmEngine_.flat());
+     currentParameters = randomizedParameters[idx];
+   }
+   else {
+     currentParameters = fParameters;
+   }
+      
+   ParameterCollector pCollector = currentParameters.getParameter<edm::ParameterSet>("PythiaParameters");
+   
+   for ( ParameterCollector::const_iterator line = pCollector.begin();
+         line != pCollector.end(); ++line ) 
    {
       if (line->find("Random:") != std::string::npos)
          throw cms::Exception("PythiaError") << "Attempted to set random number "
@@ -78,6 +93,29 @@ bool Py8InterfaceBase::readSettings( int )
 
    }
 
+   slhafile_.clear();
+   
+   if( currentParameters.exists( "SLHAFileForPythia8" ) ) {
+     std::string slhafilenameshort = currentParameters.getParameter<std::string>("SLHAFileForPythia8");
+     edm::FileInPath f1( slhafilenameshort );
+    
+     fMasterGen->settings.mode("SLHA:readFrom", 2);
+     fMasterGen->settings.word("SLHA:file", f1.fullPath());    
+   }
+   else if( currentParameters.exists( "SLHATableForPythia8" ) ) {
+     std::string slhatable = currentParameters.getParameter<std::string>("SLHATableForPythia8");
+        
+     char tempslhaname[] = "pythia8SLHAtableXXXXXX";
+     int fd = mkstemp(tempslhaname);
+     write(fd,slhatable.c_str(),slhatable.size());
+     close(fd);
+    
+     slhafile_ = tempslhaname;
+    
+     fMasterGen->settings.mode("SLHA:readFrom", 2);
+     fMasterGen->settings.word("SLHA:file", slhafile_);
+   }   
+   
    return true;
 
 }

@@ -135,8 +135,6 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
 
     static const std::vector<std::string> p8SharedResources;
     
-    std::string slhafile_;
-
     vector<float> DJR;
     int nME;
     int nMEFiltered;
@@ -197,44 +195,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
       <<" UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron \n";
   }
-    
-  if( params.exists( "SLHAFileForPythia8" ) ) {
-    std::string slhafilenameshort = params.getParameter<std::string>("SLHAFileForPythia8");
-    edm::FileInPath f1( slhafilenameshort );
-    
-    fMasterGen->settings.mode("SLHA:readFrom", 2);
-    fMasterGen->settings.word("SLHA:file", f1.fullPath());    
-    
-    for ( ParameterCollector::const_iterator line = fParameters.begin();
-          line != fParameters.end(); ++line ) {
-      if (line->find("SLHA:file") != std::string::npos)
-        throw cms::Exception("PythiaError") << "Attempted to set SLHA file name twice, "
-        << "using Pythia8 card SLHA:file and Pythia8Interface card SLHAFileForPythia8"
-        << std::endl;
-     }  
-  }
-  else if( params.exists( "SLHATableForPythia8" ) ) {
-    std::string slhatable = params.getParameter<std::string>("SLHATableForPythia8");
-        
-    char tempslhaname[] = "pythia8SLHAtableXXXXXX";
-    int fd = mkstemp(tempslhaname);
-    write(fd,slhatable.c_str(),slhatable.size());
-    close(fd);
-    
-    slhafile_ = tempslhaname;
-    
-    fMasterGen->settings.mode("SLHA:readFrom", 2);
-    fMasterGen->settings.word("SLHA:file", slhafile_);    
-    
-    for ( ParameterCollector::const_iterator line = fParameters.begin();
-          line != fParameters.end(); ++line ) {
-      if (line->find("SLHA:file") != std::string::npos)
-        throw cms::Exception("PythiaError") << "Attempted to set SLHA file name twice, "
-        << "using Pythia8 card SLHA:file and Pythia8Interface card SLHATableForPythia8"
-        << std::endl;
-     }  
-  }
-  
+
   //add settings for resonance decay filter
   fMasterGen->settings.addFlag("ResonanceDecayFilter:filter",false);
   fMasterGen->settings.addFlag("ResonanceDecayFilter:exclusive",false);
@@ -347,14 +308,10 @@ Pythia8Hadronizer::~Pythia8Hadronizer()
 // do we need to delete UserHooks/JetMatchingHook here ???
   if(fEmissionVetoHook) {delete fEmissionVetoHook; fEmissionVetoHook=0;}
   if(fEmissionVetoHook1) {delete fEmissionVetoHook1; fEmissionVetoHook1=0;}
+
   if (fMultiUserHook) { 
     delete fMultiUserHook;
     fMultiUserHook = 0;
-  }
-  
-  //clean up temp file
-  if (!slhafile_.empty()) {
-    std::remove(slhafile_.c_str());
   }
   
 }
@@ -399,6 +356,11 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   fMasterGen->settings.parm("Beams:eCM", comEnergy);
   edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
   status = fMasterGen->init();
+  
+  //clean up temp file
+  if (!slhafile_.empty()) {
+    std::remove(slhafile_.c_str());
+  }  
 
   if ( pythiaPylistVerbosity > 10 )
   {
@@ -513,6 +475,11 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
     status = fMasterGen->init();
   }
+  
+  //clean up temp file
+  if (!slhafile_.empty()) {
+    std::remove(slhafile_.c_str());
+  }  
   
   if ( pythiaPylistVerbosity > 10 )
   {
