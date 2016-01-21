@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -19,7 +19,7 @@ using namespace std;
 using namespace edm;
 using namespace HepMC;
 
-class PDFWeightsTest : public EDAnalyzer {
+class PDFWeightsTest : public edm::one::EDAnalyzer<> {
 private:
   PDFWeightsHelper pdfweightshelper_;
   EDGetTokenT<LHEEventProduct> srcToken_;
