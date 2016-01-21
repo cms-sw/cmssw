@@ -4,6 +4,8 @@
 
 #include <string>
 #include <sstream>
+#include <atomic>
+#include <mutex>
 
 namespace edm {
 
@@ -49,8 +51,9 @@ namespace edm {
         FileStatistics m_filestats;
         std::string    m_guid;
         size_t         m_counter;
-        ssize_t        m_size;
+        std::atomic<ssize_t> m_size;
         std::string    m_userdn;
+        std::mutex     m_servermutex;
     };
 
     
