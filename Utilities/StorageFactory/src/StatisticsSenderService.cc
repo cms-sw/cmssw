@@ -140,15 +140,22 @@ StatisticsSenderService::getJobID() {
 void
 StatisticsSenderService::setCurrentServer(const std::string &servername) {
   size_t dot_pos = servername.find(".");
+  std::string serverhost;
+  std::string serverdomain;
   if (dot_pos == std::string::npos) {
-    m_serverhost = servername.substr(0, servername.find(":"));
-    m_serverdomain = "unknown";
+    serverhost = servername.substr(0, servername.find(":"));
+    serverdomain = "unknown";
   } else {
-    m_serverhost = servername.substr(0, dot_pos);
-    m_serverdomain = servername.substr(dot_pos+1, servername.find(":")-dot_pos-1);
-    if (m_serverdomain.empty()) {
-      m_serverdomain = "unknown";
+    serverhost = servername.substr(0, dot_pos);
+    serverdomain = servername.substr(dot_pos+1, servername.find(":")-dot_pos-1);
+    if (serverdomain.empty()) {
+      serverdomain = "unknown";
     }
+  }
+  {
+    std::lock_guard<std::mutex> sentry(m_servermutex);
+    m_serverhost = std::move(serverhost);
+    m_serverdomain = std::move(serverdomain);
   }
 }
 
@@ -226,11 +233,19 @@ StatisticsSenderService::fillUDP(const std::string& siteName, bool usedFallback,
   if (usedFallback) {
     os << "\"fallback\": true, ";
   }
+  std::string serverhost;
+  std::string serverdomain;
+  {
+    std::lock_guard<std::mutex> sentry(m_servermutex);
+    serverhost = m_serverhost;
+    serverdomain = m_serverdomain;
+  }
+  
   os << "\"user_dn\":\"" << m_userdn << "\", ";
   os << "\"client_host\":\"" << m_clienthost << "\", ";
   os << "\"client_domain\":\"" << m_clientdomain << "\", ";
-  os << "\"server_host\":\"" << m_serverhost << "\", ";
-  os << "\"server_domain\":\"" << m_serverdomain << "\", ";
+  os << "\"server_host\":\"" << serverhost << "\", ";
+  os << "\"server_domain\":\"" << serverdomain << "\", ";
   os << "\"unique_id\":\"" << m_guid << "-" << m_counter << "\", ";
   os << "\"file_lfn\":\"" << m_filelfn << "\", ";
   // Dashboard devs requested that we send out no app_info if a job ID
