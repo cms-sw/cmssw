@@ -106,7 +106,7 @@ class DigiTask : public DQTask
 		ContainerProf1D	_cOccupancyCutvsLS_SubDet;
 		Container2D		_cOccupancy_depth;
 		Container2D		_cOccupancyCut_depth;
-		ContainerProf2D	_cOccupancyCutiphivsLS_SubDet;
+//		ContainerProf2D	_cOccupancyCutiphivsLS_SubDet;
 		Container2D		_cOccupancyOnce_depth;
 		Container2D		_cMsn1LS_depth;
 		Container2D		_cMsn10LS_depth;

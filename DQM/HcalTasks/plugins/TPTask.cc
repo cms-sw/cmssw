@@ -65,11 +65,6 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		mapper::fTPSubDet_ieta,
 		new axis::ValueAxis(axis::fXaxis, axis::fEt_256),
 		new axis::ValueAxis(axis::fYaxis, axis::fEntries, true));
-	_cEtCorr_SubDetPM_iphi.initialize(_name+"/EtCorrelation/SubDetPM_iphi", 
-		"Et",
-		mapper::fTPSubDetPM_iphi,
-		new axis::ValueAxis(axis::fXaxis, axis::fEt_128),
-		new axis::ValueAxis(axis::fYaxis, axis::fEt_128));
 
 	//	FG
 	_cFGCorr_SubDet.initialize(_name+"/FGCorrelation/SubDet", "FG",
@@ -183,7 +178,6 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 	_cNumEtMsmvsiphi_TPSubDetPM.book(ib);
 	_cEtData_SubDetPM_iphi.book(ib);
 	_cEtData_SubDet_ieta.book(ib);
-	_cEtCorr_SubDetPM_iphi.book(ib);
 	_cFGCorr_SubDet.book(ib);
 	_cFGMsm.book(ib);
 	_cOccupancyData.book(ib);
@@ -267,7 +261,6 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			//	fill correlations
 			_cEtEmul_SubDet.fill(tid, soiEt_e);
 			_cEtCorr_TPSubDet.fill(tid, soiEt_e, soiEt_d);
-			_cEtCorr_SubDetPM_iphi.fill(tid, soiEt_e, soiEt_d);
 			_cFGCorr_SubDet.fill(tid, soiFG_e, soiFG_d);
 			_cOccupancyEmul.fill(tid);
 			_cEtCorrRatiovsLS_TPSubDet.fill(tid, _currentLS, rEt);

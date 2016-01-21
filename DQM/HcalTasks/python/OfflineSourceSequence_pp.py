@@ -17,6 +17,9 @@ tpTask.ptype = cms.untracked.int32(1)
 recHitTask.ptype = cms.untracked.int32(1)
 rawTask.ptype = cms.untracked.int32(1)
 
+#	set the label for Emulator TP Task
+tpTask.tagEmul = cms.untracked.InputTag("valHcalTriggerPrimitiveDigis")
+
 hcalOfflineSourceSequence = cms.Sequence(
 	digiTask
 	+tpTask

@@ -80,7 +80,6 @@
 
 			Container1D		_cEtData_SubDetPM_iphi;
 			Container1D		_cEtData_SubDet_ieta;
-			Container2D		_cEtCorr_SubDetPM_iphi;
 
 			//	FG
 			Container2D		_cFGCorr_SubDet;

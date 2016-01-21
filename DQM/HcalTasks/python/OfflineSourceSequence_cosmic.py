@@ -28,6 +28,9 @@ tpTask.runkeyName = cms.untracked.string("cosmic_run")
 recHitTask.runkeyName = cms.untracked.string("cosmic_run")
 rawTask.runkeyName = cms.untracked.string("cosmic_run")
 
+#	set the Emulator label for TP Task
+tpTask.tagEmul = cms.untracked.InputTag("valHcalTriggerPrimitiveDigis")
+
 hcalOfflineSourceSequence = cms.Sequence(
 	digiTask
 	+tpTask
