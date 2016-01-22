@@ -32,12 +32,12 @@ class Electron( Lepton ):
         elif id == "POG_MVA_ID_Phys14_NonTrig_VLoose":   return self.mvaIDRun2("NonTrigPhys14","VLoose")
         elif id == "POG_MVA_ID_Phys14_NonTrig_Loose":    return self.mvaIDRun2("NonTrigPhys14","Loose")
         elif id == "POG_MVA_ID_Phys14_NonTrig_Tight":    return self.mvaIDRun2("NonTrigPhys14","Tight")
-        elif id == "POG_MVA_ID_Spring15_NonTrig_VLoose":   return self.mvaIDRun2("NonTrigSpring15","VLoose")
-        elif id == "POG_MVA_ID_Spring15_NonTrig_VLooseIdEmu":   return self.mvaIDRun2("NonTrigSpring15","VLooseIdEmu")
-        elif id == "POG_MVA_ID_Spring15_NonTrig_VLooseIdIsoEmu":   return self.mvaIDRun2("NonTrigSpring15","VLooseIdIsoEmu")
+        elif id == "POG_MVA_ID_Spring15_NonTrig_VLoose":   return self.mvaIDRun2("NonTrigSpring15MiniAOD","VLoose")
+        elif id == "POG_MVA_ID_Spring15_NonTrig_VLooseIdEmu":   return self.mvaIDRun2("NonTrigSpring15MiniAOD","VLooseIdEmu")
+        elif id == "POG_MVA_ID_Spring15_NonTrig_VLooseIdIsoEmu":   return self.mvaIDRun2("NonTrigSpring15MiniAOD","VLooseIdIsoEmu")
         elif id == "POG_MVA_ID_Spring15_NonTrig_Tight":    return self.mvaIDRun2("NonTrigSpring15","Tight")
         elif id == "MVA_ID_NonTrig_Phys14Fix_HZZ":     return self.mvaIDRun2("NonTrigPhys14Fix","HZZ")
-        elif id == "MVA_ID_NonTrig_Spring15_HZZ":     return self.mvaIDRun2("NonTrigSpring15","HZZ")
+        elif id == "MVA_ID_NonTrig_Spring15_HZZ":     return self.mvaIDRun2("NonTrigSpring15MiniAOD","HZZ")
         elif id.startswith("POG_Cuts_ID_"):
                 return self.cutBasedId(id.replace("POG_Cuts_ID_","POG_"))
         for ID in self.electronIDs():
