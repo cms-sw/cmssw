@@ -4,11 +4,8 @@
 <use   name="CalibCalorimetry/HcalAlgos"/>
 <use   name="CondFormats/HcalObjects"/>
 <use   name="CalibFormats/HcalObjects"/>
-<use   name="CondCore/IOVService"/>
-<use   name="CondCore/DBCommon"/>
 <use   name="CondTools/Hcal"/>
 <use   name="RelationalAccess"/>
-<use   name="CondCore/MetaDataService"/>
 <use   name="CondCore/PopCon"/>
 <use   name="xerces-c"/>
 <library   file="*.cc" name="CondToolsHcalPlugin">

@@ -185,7 +185,7 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
     
  
     std::string schemaName("CMS_HCL_HCAL_COND");
-    coral::ISchema& schema = m_omdsReader.dbSession()->schema( schemaName ) ;
+    coral::ISchema& schema = m_omdsReader.dbSession().coralSession().schema( schemaName ) ;
     coral::IQuery* query = schema.newQuery(); ;
 
      

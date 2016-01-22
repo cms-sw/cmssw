@@ -90,6 +90,15 @@ namespace cond {
 			   const boost::posix_time::ptime& insertionTime ) = 0;
     };
 
+    class ITagLogTable {
+    public:
+      virtual ~ITagLogTable(){}
+      virtual bool exists() = 0;
+      virtual void create() = 0;
+      virtual void insert( const std::string& tag, const boost::posix_time::ptime& eventTime, const std::string& userName, const std::string& hostName, 
+			   const std::string& command, const std::string& action, const std::string& userText ) = 0;
+    };
+
     class IIOVSchema {
     public: 
       virtual ~IIOVSchema(){}
@@ -98,9 +107,7 @@ namespace cond {
       virtual ITagTable& tagTable() = 0;
       virtual IIOVTable& iovTable() = 0;
       virtual IPayloadTable& payloadTable() = 0;
-      virtual ITagMigrationTable& tagMigrationTable() = 0;
-      virtual IPayloadMigrationTable& payloadMigrationTable() = 0;
-      virtual std::string parsePoolToken( const std::string& poolToken ) = 0;
+      virtual ITagLogTable& tagLogTable() = 0;
     };
 
     class IGTTable {

@@ -4,18 +4,18 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //local includes
-#include "CondCore/DBCommon/interface/DbConnection.h"
-#include "CondCore/DBCommon/interface/SQLReport.h"
+//#include "CondCore/DBCommon/interface/DbConnection.h"
+//#include "CondCore/DBCommon/interface/SQLReport.h"
 #include "CondCore/Utilities/interface/Utilities.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
-#include "CondCore/ORA/interface/SharedLibraryName.h"
+//#include "CondCore/ORA/interface/SharedLibraryName.h"
 #include <boost/foreach.hpp>                   
 #include <fstream>
 #include <iostream>
 
-#include "CondCore/DBCommon/interface/Auth.h"
+#include "CondCore/CondDB/interface/Auth.h"
 
 
 cond::UtilitiesError::UtilitiesError(const std::string& message ):Exception(message){
@@ -28,9 +28,7 @@ cond::Utilities::Utilities( const std::string& commandName,
 								       std::string(" [options] ")+positionalParameter
 								       +std::string(" \n")),
 							     m_positionalOptions(),
-							     m_values(),
-							     m_dbConnection(0),
-							     m_dbSessions(){
+							     m_values(){
   m_options.add_options()
     ("debug","switch on debug mode")
     ("help,h", "help message")
@@ -43,7 +41,6 @@ cond::Utilities::Utilities( const std::string& commandName,
 
 
 cond::Utilities::~Utilities(){
-  if(m_dbConnection) delete m_dbConnection;
 }
 
 int cond::Utilities::execute(){
@@ -69,26 +66,7 @@ int cond::Utilities::run( int argc, char** argv ){
       std::cout << m_options <<std::endl;;
       return 0;
     }
-    if(m_options.find_nothrow("dictionary",false)&& m_values.count("dictionary")){
-      std::vector<std::string> dictionaries =
-	m_values["dictionary"].as<std::vector<std::string> >();
-      if(!dictionaries.empty()){
-	ora::SharedLibraryName libName;
-	BOOST_FOREACH(std::string const & dict, dictionaries)
-	  edmplugin::SharedLibrary( libName(dict) );
-      }
-    }
     ret = execute();
-    if(m_dbConnection){
-      if(m_options.find_nothrow("sql",false) && m_values.count("sql")){
-        cond::SQLReport report(*m_dbConnection);
-        for(std::set<std::string>::const_iterator iSess = m_dbSessions.begin();
-            iSess != m_dbSessions.end();
-            iSess++) report.reportForConnection(*iSess);
-        report.putOnFile();
-      }
-    }
-    
   }catch( cond::Exception& err ){
     std::cout << err.what() << std::endl;
     ret = 1;
@@ -100,6 +78,13 @@ int cond::Utilities::run( int argc, char** argv ){
   return ret;
 }
 
+void
+cond::Utilities::addConnectOption(const std::string& connectionOptionName,
+                                  const std::string& shortName,
+                                  const std::string& helpEntry ){
+  addOption<std::string>(connectionOptionName,shortName,helpEntry);
+}
+
 void 
 cond::Utilities::addAuthenticationOptions(){
   addOption<std::string>("authPath","P","path to authentication xml");
@@ -107,39 +92,9 @@ cond::Utilities::addAuthenticationOptions(){
   addOption<std::string>("pass","p","password");
 }
 
-void
-cond::Utilities::addConnectOption(){
-  addOption<std::string>("connect","c","connection string (required)");
-  m_dbSessions.insert("connect");
-}
-
-void
-cond::Utilities::addConnectOption(const std::string& connectionOptionName,
-                                  const std::string& shortName,
-                                  const std::string& helpEntry ){
-  addOption<std::string>(connectionOptionName,shortName,helpEntry);
-  m_dbSessions.insert(connectionOptionName);
-}
-
-
-void 
-cond::Utilities::addLogDBOption(){
-  addConnectOption("logDB","l","logDB(optional");
-}
-
-void 
-cond::Utilities::addDictionaryOption(){
-  addOption<std::vector<std::string> >("dictionary","D","data dictionaries (required if no plugin available)");
-}
-
 void 
 cond::Utilities::addConfigFileOption(){
   addOption<std::string>("configFile","f","configuration file(optional)");
-}
-
-void
-cond::Utilities::addSQLOutputOption(){
-  addOption<bool>("sql","S","dump the sql output (optional)");  
 }
 
 void cond::Utilities::parseCommand( int argc, char** argv ){
@@ -203,6 +158,7 @@ void cond::Utilities::initializePluginManager(){
   // dummy, to avoid to adapt non-CondCore clients
 }
 
+/**
 void cond::Utilities::initializeForDbConnection(){
   if(!m_dbConnection){
     m_dbConnection = new cond::DbConnection();
@@ -269,6 +225,7 @@ cond::DbSession cond::Utilities::openDbSession( const std::string& connectionPar
   std::string connectionString = getOptionValue<std::string>( connectionParameterName );
   return newDbSession( connectionString, readOnly );
 }
+**/
 
 std::string cond::Utilities::getValueIfExists(const std::string& fullName){
   std::string val("");
