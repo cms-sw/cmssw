@@ -2,7 +2,6 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ServiceRegistry"/>
-<use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/CSCDigi"/>

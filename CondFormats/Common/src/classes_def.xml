@@ -1,29 +1,9 @@
 <lcgdict>
- <class name="ora::OId"/>
- <class name="cond::IOVElement">
-   <field name="m_wrapper" persistency="loose_on_writing" />
-   <field name="m_oid" persistency="loose_on_reading" />
- </class>
- <class name="cond::UpdateStamp"/>
- <class name="ora::QueryableVector<cond::IOVElement>"/>
- <class name="ora::PVector<cond::IOVElement>"/>
- <class name="std::vector<cond::IOVElement>"/>
- <class name="cond::IOVSequence" id="3F16F0A9-79D5-4881-CE0B-C301DD84A7F1" class_version="0">
-  <field name="m_payloadClasses" persistency="loose_on_reading" />
-  <field name="m_sorted" transient="true" />
-  <field name="m_scope" persistency="loose_on_reading" />
- </class>
-
- <typedef name="ora::QueryableVector<cond::IOVElement>::store_base_type" />
- <typedef name="ora::PVector<cond::IOVElement>::value_type" />
- <enum name="cond::IOVSequence::ScopeType" />
-
  <class name="cond::IOVProvenance"/>
  <class name="cond::IOVDescription"/>
  <class name="cond::IOVUserMetaData"/>
 
  <class name="FileBlob" class_version="0">
-   <field name="blob" mapping="blob"/>
  </class>
  <class name="FileBlobCollection" class_version="0"/>
  <class name="edm::Wrapper<FileBlobCollection>" class_version="0"/>
