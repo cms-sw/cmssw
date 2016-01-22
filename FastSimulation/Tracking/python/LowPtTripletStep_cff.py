@@ -27,7 +27,7 @@ lowPtTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer
 
 # tracks
 lowPtTripletStepTracks = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepTracks.clone(
-    Fitter = 'KFFittingSmootherSecond',
+#    Fitter = 'FlexibleKFFittingSmoother',
     TTRHBuilder = 'WithoutRefit',
     Propagator = 'PropagatorWithMaterial'
 )

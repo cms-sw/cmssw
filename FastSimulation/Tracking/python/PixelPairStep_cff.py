@@ -26,7 +26,7 @@ pixelPairStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cf
 
 # tracks
 pixelPairStepTracks = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTracks.clone(
-    Fitter = 'KFFittingSmootherSecond',
+#    Fitter = 'KFFittingSmootherSecond',
     TTRHBuilder = 'WithoutRefit',
     Propagator = 'PropagatorWithMaterial'
 )
