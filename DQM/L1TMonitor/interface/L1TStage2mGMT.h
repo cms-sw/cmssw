@@ -65,6 +65,19 @@ private:
   bool verbose ;
   edm::EDGetToken stage2mgmtToken ; 
 
+
+
+  MonitorElement* eta_mgmt;
+  MonitorElement* phi_mgmt;
+  MonitorElement* pt_mgmt;
+  MonitorElement* bx_mgmt;
+  MonitorElement* etaVSphi_mgmt;
+  MonitorElement* phiVSpt_mgmt;
+  MonitorElement* etaVSpt_mgmt;
+  MonitorElement* etaVSbx_mgmt;
+  MonitorElement* phiVSbx_mgmt;
+  MonitorElement* ptVSbx_mgmt;
+
   // eta & phi 
   //  MonitorElement* subs_eta[4];
   //  MonitorElement* subs_phi[4];
@@ -72,13 +85,13 @@ private:
   //  MonitorElement* subs_etaqty[4];
 
   //  MonitorElement* eta_bmtf_omtf_emtf;
-  MonitorElement* eta_bmtf;
-  MonitorElement* eta_omtf;
-  MonitorElement* eta_emtf;
+  //  MonitorElement* eta_bmtf;
+  //  MonitorElement* eta_omtf;
+  //  MonitorElement* eta_emtf;
   //  MonitorElement* phi_bmtf_omtf_emtf;
-  MonitorElement* phi_bmtf;
-  MonitorElement* phi_omtf;
-  MonitorElement* phi_emtf;
+  //  MonitorElement* phi_bmtf;
+  //  MonitorElement* phi_omtf;
+  //  MonitorElement* phi_emtf;
   //  MonitorElement* etaphi_bmtf_omtf_emtf;
   /* MonitorElement* etaphi_bmtf; */
   /* MonitorElement* etaphi_omtf; */
@@ -90,9 +103,9 @@ private:
   /* MonitorElement* eta_bmtf_emtf; */
   /* MonitorElement* eta_omtf_emtf; */
 
-  MonitorElement* pt_bmtf;
-  MonitorElement* pt_omtf;
-  MonitorElement* pt_emtf;
+  //  MonitorElement* pt_bmtf;
+  //  MonitorElement* pt_omtf;
+  //  MonitorElement* pt_emtf;
   // bunch-crossing     
   //  MonitorElement* subs_nbx[4];
   //  MonitorElement* subs_dbx[3];   

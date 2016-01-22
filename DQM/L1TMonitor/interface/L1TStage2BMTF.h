@@ -66,7 +66,7 @@ private:
   bool verbose ;
   edm::EDGetToken stage2bmtfToken ; 
 
-  // eta & phi 
+
   MonitorElement* eta_bmtf;
   MonitorElement* phi_bmtf;
   MonitorElement* pt_bmtf;
