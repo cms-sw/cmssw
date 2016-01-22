@@ -9,6 +9,7 @@ from FastSimulation.Tracking.hltPixelTracks_cff import *
 HLTBeginSequence = cms.Sequence(
     cms.SequencePlaceholder("offlineBeamSpot")
     +hltSeedSequence
+    +hltPixelTracks
     )
 
 HLTBeginSequenceBPTX = cms.Sequence(HLTBeginSequence)
