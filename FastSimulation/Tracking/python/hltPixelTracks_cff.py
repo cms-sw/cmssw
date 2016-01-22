@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-import FastSimulation.HighLevelTrigger.DummyModule_cfi
-
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
 
 hltPixelTracks = cms.EDProducer("PixelTracksProducer",
@@ -45,4 +43,7 @@ hltPixelTracksReg.RegionFactoryPSet.RegionPSet = cms.PSet(
     zErrorVertex = cms.double( 0.2 ),
     nSigmaZBeamSpot = cms.double( 4.0 ),
     whereToUseMeasurementTracker = cms.string("Never"))
+
+hltPixelTracksForHighMult = hltPixelTracks.clone()
+hltPixelTracksForHighMult.FilterPSet.ptMin = 0.4
 

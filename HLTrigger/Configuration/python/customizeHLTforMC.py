@@ -122,7 +122,6 @@ def customizeHLTforMC(process,_fastSim=False):
 
     ModulesToRemove = (
       #   "hltL3MuonIsolations",
-      #   "hltPixelVertices",
       "hltCkfL1SeededTrackCandidates",
       "hltCtfL1SeededithMaterialTracks",
       "hltCkf3HitL1SeededTrackCandidates",
@@ -280,8 +279,6 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLTDoLocalStripSequenceRegForBTag",
       "HLTDoLocalPixelSequenceRegForBTag",
       "HLTDoLocalPixelSequenceRegForNoPU",
-      "HLTRecopixelvertexingSequence",
-#      "HLTEndSequence",
       "HLTBeginSequence",
       "HLTBeginSequenceNZS",
       "HLTBeginSequenceBPTX",
@@ -489,7 +486,7 @@ def customizeHLTforMC(process,_fastSim=False):
       ('recoverEBFE',cms.bool(True),cms.bool(False)),
       ('recoverEEFE',cms.bool(True),cms.bool(False)),
       ('src',cms.InputTag('hltHcalTowerNoiseCleaner'),cms.InputTag('hltTowerMakerForAll')),
-      ('initialSeeds',cms.InputTag('noSeedsHere'),cms.InputTag('globalPixelSeeds')),
+      ('initialSeeds',cms.InputTag('noSeedsHere'),cms.InputTag('hltPixelPairSeeds')),
       ('preFilteredSeeds',cms.bool(True),cms.bool(False)),
       )
     from HLTrigger.Configuration.CustomConfigs import MassReplaceParameter
@@ -499,12 +496,8 @@ def customizeHLTforMC(process,_fastSim=False):
 # Update nested named parameters
     for label in ('hltEgammaElectronPixelSeeds','hltEgammaElectronPixelSeedsUnseeded',):
       if hasattr(process,label):
-        getattr(process,label).SeedConfiguration.initialSeeds = cms.InputTag('globalPixelSeeds')
+        getattr(process,label).SeedConfiguration.initialSeeds = cms.InputTag('hltPixelPairSeeds')
         getattr(process,label).SeedConfiguration.preFilteredSeeds = cms.bool(False)
-        if hasattr(fastsim,'globalPixelSeeds'): 
-          if hasattr(fastsim.globalPixelSeeds,'outputSeedCollectionName'):
-            getattr(process,label).SeedConfiguration.initialSeeds = cms.InputTag('globalPixelSeeds',fastsim.globalPixelSeeds.outputSeedCollectionName.value())
-
 
 # Extending fastsim import
     fastsim.extend(process)
