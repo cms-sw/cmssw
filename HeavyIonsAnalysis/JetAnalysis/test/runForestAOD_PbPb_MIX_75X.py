@@ -130,6 +130,22 @@ process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.Input
 )
 
 ####################################################################################
+#####################
+# Electron ID
+#####################
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+process.load("RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cfi")
+
+from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
+process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
+
+process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('gedGsfElectronsTmp')
+
+process.load('RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff')
+setupVIDSelection(process.egmGsfElectronIDs,process.cutBasedElectronID_Spring15_25ns_V1_standalone_veto)
+
+#####################################################################################
+
 
 #####################
 # tupel and necessary PAT sequences
