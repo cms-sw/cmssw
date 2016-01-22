@@ -27,6 +27,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 
 #include "L1Trigger/L1TGlobal/interface/TriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalTriggerMenuRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtCondition.h"
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
@@ -44,6 +45,7 @@
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
+//#include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 #include "L1Trigger/L1TGlobal/interface/AlgorithmEvaluation.h"
 
@@ -52,6 +54,9 @@
 #include "L1Trigger/L1TGlobal/interface/CaloCondition.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumCondition.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalCondition.h"
+
+//   *** Comment out what do we do with this.
+#include "L1Trigger/GlobalTrigger/interface/L1GtEtaPhiConversions.h"
 
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -105,7 +110,7 @@ l1t::GtBoard::GtBoard() :
 // destructor
 l1t::GtBoard::~GtBoard() {
 
-    //reset();
+    reset();
     delete m_candL1Mu;
     delete m_candL1EG;
     delete m_candL1Tau;
@@ -420,10 +425,7 @@ void l1t::GtBoard::receiveExternalData(edm::Event& iEvent,
         } else {
            // bx in muon data
            for(int i = extData->getFirstBX(); i <= extData->getLastBX(); ++i) {
-    
-	     // Prevent from pushing back bx that is outside of allowed range
-	     if( i < m_bxFirst_ || i > m_bxLast_ ) continue;
-
+  
               //Loop over ext in this bx
               for(std::vector<GlobalExtBlk>::const_iterator ext = extData->begin(i); ext != extData->end(i); ++ext) {
 
@@ -440,7 +442,7 @@ void l1t::GtBoard::receiveExternalData(edm::Event& iEvent,
 
 // run GTL
 void l1t::GtBoard::runGTL(
-        edm::Event& iEvent, const edm::EventSetup& evSetup, const TriggerMenu* m_l1GtMenu,
+        edm::Event& iEvent, const edm::EventSetup& evSetup,
         const bool produceL1GtObjectMapRecord,
         const int iBxInEvent,
         std::auto_ptr<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord,
@@ -450,6 +452,21 @@ void l1t::GtBoard::runGTL(
 	const int nrL1Tau,
 	const int nrL1Jet,
         const int nrL1JetCounts) {
+
+
+	// get / update the trigger menu from the EventSetup
+    // local cache & check on cacheIdentifier
+    unsigned long long l1GtMenuCacheID = evSetup.get<L1TGlobalTriggerMenuRcd>().cacheIdentifier();
+
+    if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
+
+        edm::ESHandle< TriggerMenu> l1GtMenu;
+        evSetup.get< L1TGlobalTriggerMenuRcd>().get(l1GtMenu) ;
+        m_l1GtMenu =  l1GtMenu.product();
+       (const_cast<TriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
+
+        m_l1GtMenuCacheID = l1GtMenuCacheID;
+    }
 
     const std::vector<ConditionMap>& conditionMap = m_l1GtMenu->gtConditionMap();
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
@@ -817,51 +834,24 @@ void l1t::GtBoard::runGTL(
         // object maps only for BxInEvent = 0
         if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) {
 
-	  std::vector<ObjectTypeInCond> otypes;	  
-	  for (auto iop = gtAlg.operandTokenVector().begin(); iop != gtAlg.operandTokenVector().end(); ++iop){
-	    //cout << "INFO:  operand name:  " << iop->tokenName << "\n";
-	    int myChip = -1;
-	    int found =0;
-	    ObjectTypeInCond otype;	      
-	    for (auto imap = conditionMap.begin(); imap != conditionMap.end(); imap++) {
-	      myChip++;
-	      auto match = imap->find(iop->tokenName);
-	      
-	      if (match != imap->end()){
-		found = 1;
-		//cout << "DEBUG: found match for " << iop->tokenName << " at " << match->first << "\n";
-		otype = match->second->objectType();
-		for (auto itype = otype.begin(); itype != otype.end() ; itype++){
-		  //cout << "type:  " << *itype << "\n";
-		}
-	      }	      
-	    }
-	    if (!found){
-	      edm::LogWarning("l1t|Global") << "\n Failed to find match for operand token " << iop->tokenName << "\n";
-	    } else {
-	      otypes.push_back(otype);
-	    }
-	  }
+            // set object map
+            L1GlobalTriggerObjectMap objMap;
 
-	  // set object map
-	  L1GlobalTriggerObjectMap objMap;
-	  
-	  objMap.setAlgoName(itAlgo->first);
-	  objMap.setAlgoBitNumber(algBitNumber);
-	  objMap.setAlgoGtlResult(algResult);
-	  objMap.swapOperandTokenVector(gtAlg.operandTokenVector());
-	  objMap.swapCombinationVector(gtAlg.gtAlgoCombinationVector());
-	  // gtAlg is empty now...
-	  objMap.swapObjectTypeVector(otypes);
-	  
-	  if (m_verbosity && m_isDebugEnabled) {
-	    std::ostringstream myCout1;
-	    objMap.print(myCout1);
-	    
-	    LogTrace("l1t|Global") << myCout1.str() << std::endl;
-	  }
+            objMap.setAlgoName(itAlgo->first);
+            objMap.setAlgoBitNumber(algBitNumber);
+            objMap.setAlgoGtlResult(algResult);
+            objMap.swapOperandTokenVector(gtAlg.operandTokenVector());
+            objMap.swapCombinationVector(gtAlg.gtAlgoCombinationVector());
+	    // gtAlg is empty now...
 
-	  objMapVec.push_back(objMap);
+            if (m_verbosity && m_isDebugEnabled) {
+                std::ostringstream myCout1;
+                objMap.print(myCout1);
+
+                LogTrace("l1t|Global") << myCout1.str() << std::endl;
+            }
+
+            objMapVec.push_back(objMap);
 
         }
 
