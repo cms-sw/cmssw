@@ -44,6 +44,8 @@
 #include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
 #include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
 
+#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
@@ -80,6 +82,7 @@ using namespace l1t;
     // ----------member data ---------------------------
 
     int verbosity_;
+    bool rctConditions_;
 
     int bxFirst_, bxLast_; // bx range to process
     int ietaMin_, ietaMax_, iphiMin_, iphiMax_;
@@ -102,6 +105,7 @@ using namespace l1t;
 
 L1TStage2Layer1Producer::L1TStage2Layer1Producer(const edm::ParameterSet& ps) :
   verbosity_(ps.getParameter<int>("verbosity")),
+  rctConditions_(ps.getParameter<bool>("rctConditions")),
   bxFirst_(ps.getParameter<int>("bxFirst")),
   bxLast_(ps.getParameter<int>("bxLast")),
   ietaMin_(-32),
@@ -147,12 +151,18 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   // do event setup
   // get RCT input scale objects
   edm::ESHandle<L1CaloEcalScale> ecalScale;
-  iSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
-  //  const L1CaloEcalScale* e = ecalScale.product();
-
   edm::ESHandle<L1CaloHcalScale> hcalScale;
-  iSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
-  //  const L1CaloHcalScale* h = hcalScale.product();
+
+  edm::ESHandle<CaloTPGTranscoder> decoder;
+  
+  if (rctConditions_) {
+    iSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
+    iSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
+  }
+  else {
+    iSetup.get<CaloTPGRecord>().get(decoder);
+  }
+
 
   LogDebug("L1TDebug") << "First BX=" << bxFirst_ << ", last BX=" << bxLast_ << ", LSB(E)=" << params_->towerLsbE() << ", LSB(H)=" << params_->towerLsbH() << std::endl;
 
@@ -188,16 +198,19 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       bool ifg  = ecalItr->fineGrain();
 
       // decompress
-      double et = ecalScale->et( ietIn, abs(ieta), (ieta>0) );
-      int ietOut = floor( et / params_->towerLsbE() );
-      //      int ietOutMask = (int) pow(2,params_->towerNBitsE())-1;
+      double et = 0.;
+      if (rctConditions_) {
+	et = ecalScale->et( ietIn, abs(ieta), (ieta>0) );
+      }
+      else {
+	et = 0.5 * ietIn;
+      }
 
-      if (ietIn>0)
-	LogDebug("L1TDebug") << " ECAL TP : " << ieta << ", " << iphi << ", " << ietIn << ", " << et << ", " << ietOut << std::endl;
+      int ietOut = floor( et / params_->towerLsbE() );
+
 
       int itow = CaloTools::caloTowerHash(ieta, iphi);
-      localInTowers->at(itow).setHwEtEm(ietOut);// & ietOutMask);
-      //localInTowers->at(itow).setHwQual( localInTowers->at(itow).hwQual() | (ifg ? 0x4 : 0x0) );
+      localInTowers->at(itow).setHwEtEm(ietOut);
       localInTowers->at(itow).setHwQual( localInTowers->at(itow).hwQual() | (ifg ? 0x8 : 0x0) ); //ECAL FG bit is supposed to be on bit 3
 
     }
@@ -217,16 +230,27 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       int ifg = hcalItr->SOI_fineGrain();
 
       // decompress
-      double et = hcalScale->et( ietIn, abs(ieta), (ieta>0) );
+      double et = 0.;
+
+      if (rctConditions_) {
+	if (abs(ieta) >= CaloTools::kHFBegin) 
+	  et = hcalScale->et( ietIn, CaloTools::kHFBegin, (ieta>0) );
+	else
+	  et = hcalScale->et( ietIn, abs(ieta), (ieta>0) );
+      }
+      else {
+	et = decoder->hcaletValue(hcalItr->id(), hcalItr->t0());
+      }
+
       int ietOut = floor( et / params_->towerLsbH() );
-      //      int ietOutMask = (int) pow(2,params_->towerNBitsH() )-1;
 
-      if (ietIn>0)
-	LogDebug("L1TDebug") << " HCAL TP : " << ieta << ", " << iphi << ", " << ietIn << ", " << et << ", " << ietOut << std::endl;
+      // get tower index
+      unsigned itow = CaloTools::caloTowerHash(ieta, iphi);
 
-      int itow = CaloTools::caloTowerHash(ieta, iphi);
-      localInTowers->at(itow).setHwEtHad(ietOut);// & ietOutMask);
-      //      towers.at(itow).setHwFGHad(ifg);
+      if (ietOut>0)
+	LogDebug("L1TDebug") << " HCAL TP : " << ieta << ", " << iphi << ", " << ietIn << ", " << et << ", " << ietOut << ", " << itow << ", " << CaloTools::caloTowerHashMax() << ", " << localInTowers->size() << std::endl;
+
+      localInTowers->at(itow).setHwEtHad(ietOut);
       localInTowers->at(itow).setHwQual( localInTowers->at(itow).hwQual() | (ifg ? 0x4 : 0x0) ); //HCAL FG bit is supposed to be on bit 2
 
     }
@@ -244,10 +268,10 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	int ietEcal = localInTowers->at(itow).hwEtEm();
 	int ietHcal = localInTowers->at(itow).hwEtHad();
 
-	//	const LorentzVector& p4;
-	int iet = ietEcal + ietHcal;   // this is nonsense, temp solution!
+	int iet = ietEcal + ietHcal;
 
-	//LogDebug("L1TDebug") << " Tower : " << ieta << ", " << iphi << ", " << iet << ", " << ietEcal << ", " << ietHcal << std::endl;
+	if (ietHcal>0) 
+	  LogDebug("L1TDebug") << " L1Tow : " << ieta << ", " << iphi << ", " << itow << ", " << iet << ", " << ietEcal << ", " << ietHcal << std::endl;
 
 	localInTowers->at(itow).setHwPt(iet);
 	localInTowers->at(itow).setHwEta(ieta);
