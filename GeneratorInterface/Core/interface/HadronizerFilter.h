@@ -28,6 +28,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 // #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
@@ -84,6 +85,7 @@ namespace edm
     EDGetTokenT<LHEEventProduct> eventProductToken_;
     unsigned int counterRunInfoProducts_;
     unsigned int nAttempts_;
+    bool randomInit_;
   };
 
   //------------------------------------------------------------------------
@@ -100,7 +102,8 @@ namespace edm
     runInfoProductToken_(),
     eventProductToken_(),
     counterRunInfoProducts_(0),
-    nAttempts_(1)
+    nAttempts_(1),
+    randomInit_(false)
   {
     callWhenNewProductsRegistered([this]( BranchDescription const& iBD) {
       //this is called each time a module registers that it will produce a LHERunInfoProduct
@@ -147,6 +150,10 @@ namespace edm
     //initialize setting for multiple hadronization attempts
     if (ps.exists("nAttempts")) {
       nAttempts_ = ps.getParameter<unsigned int>("nAttempts");
+    }
+
+    if (ps.exists("RandomizedParameters")) {
+      randomInit_ = true;
     }
     
     // This handles the case where there are no shared resources, because you
@@ -348,6 +355,10 @@ namespace edm
     RandomEngineSentry<HAD> randomEngineSentry(&hadronizer_, lumi.index());
     RandomEngineSentry<DEC> randomEngineSentryDecay(decayer_, lumi.index());
 
+    if (randomInit_) {
+      randomEngineSentry.randomEngine()->setSeed(std::abs(randomEngineSentry.randomEngine()->getSeed()+lumi.id().value()),0);
+    }
+    
     if ( !hadronizer_.readSettings(1) )
        throw edm::Exception(errors::Configuration) 
 	 << "Failed to read settings for the hadronizer "

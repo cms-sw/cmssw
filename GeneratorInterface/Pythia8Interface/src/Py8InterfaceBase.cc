@@ -63,7 +63,8 @@ bool Py8InterfaceBase::readSettings( int )
    edm::ParameterSet currentParameters;
    if (fParameters.exists("RandomizedParameters")) {
      std::vector<edm::ParameterSet> randomizedParameters = fParameters.getParameter<std::vector<edm::ParameterSet> >("RandomizedParameters");
-     unsigned int idx = (unsigned int)(randomizedParameters.size()*p8RndmEngine_.flat());
+     double drandom = p8RndmEngine_.flat();
+     unsigned int idx = (unsigned int)(randomizedParameters.size()*drandom);
      currentParameters = randomizedParameters[idx];
    }
    else {
