@@ -193,6 +193,7 @@ private:
     float jty[MAXJETS];
     float jtpu[MAXJETS];
     float jtm[MAXJETS];
+    float jtarea[MAXJETS];
 
     float trackMax[MAXJETS];
     float trackSum[MAXJETS];
@@ -344,6 +345,8 @@ private:
     float refpt[MAXJETS];
     float refeta[MAXJETS];
     float refphi[MAXJETS];
+    float refm[MAXJETS];
+    float refarea[MAXJETS];
     float refy[MAXJETS];
     float refdphijt[MAXJETS];
     float refdrjt[MAXJETS];
