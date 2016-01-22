@@ -155,7 +155,6 @@
  <Polycone name="BEAM1" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[cms:MuonBeamZ0]"  rMin="[cms:Rmin]" rMax="[cms:MuonBeamR0]" />
   <ZSection z="[cms:MuonBeamZ1]"  rMin="[cms:Rmin]" rMax="[cms:MuonBeamR1]" />
-  <ZSection z="[cms:MuonBeamZ1]"  rMin="[cms:Rmin]" rMax="[cms:TotemBeamR1]"/>
   <ZSection z="[cms:TotemBeamZ1]" rMin="[cms:Rmin]" rMax="[cms:TotemBeamR2]"/>
   <ZSection z="[cms:TotemBeamZ1]" rMin="[cms:Rmin]" rMax="[cms:TotemBeamR3]"/>
   <ZSection z="[cms:ForwdBeamZ1]" rMin="[cms:Rmin]" rMax="[cms:ForwdBeamR0]"/>
