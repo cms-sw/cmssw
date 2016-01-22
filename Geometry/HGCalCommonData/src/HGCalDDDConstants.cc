@@ -35,6 +35,17 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
 #endif
   } else {
     rmax_ = k_ScaleFromDDD * (hgpar_->waferR_) * std::cos(30.0*CLHEP::deg);
+
+    // init maps and constants    
+    for( int simreco = 0; simreco < 2; ++simreco ) {
+      tot_layers_[simreco] = layersInit((bool)simreco);
+      max_modules_layer_[simreco].resize(tot_layers_[simreco]+1);
+      for( unsigned int layer = 1; layer <= tot_layers_[simreco]; ++layer ) {
+        max_modules_layer_[simreco][layer] = modulesInit(layer,(bool)simreco);
+      }
+    }
+    tot_wafers_ = wafers();
+
     edm::LogInfo("HGCalGeom") << "HGCalDDDConstants initialized for " << name
 			      << " with " << layers(false) << ":" <<layers(true)
 			      << " layers, " << wafers() << " wafers and "
@@ -46,7 +57,9 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
 	      << wafers() << " wafers and " << "maximum of " << maxCells(false)
 	      << ":" << maxCells(true) << " cells" << std::endl;
 #endif
-  }
+    
+  }  
+  
 }
 
 HGCalDDDConstants::~HGCalDDDConstants() {}
@@ -135,6 +148,10 @@ double HGCalDDDConstants::cellSizeHex(int type) const {
 }
 
 unsigned int HGCalDDDConstants::layers(bool reco) const {
+  return tot_layers_[(int)reco];
+}
+
+unsigned int HGCalDDDConstants::layersInit(bool reco) const {
   return (reco ? hgpar_->depthIndex_.size() : hgpar_->layerIndex_.size());
 }
 
@@ -230,7 +247,7 @@ bool HGCalDDDConstants::isValid(int lay, int mod, int cell, bool reco) const {
 	  (mod > 0 && mod <= modmax));
     if (ok) {
       cellmax = (hgpar_->waferTypeT_[mod]==1) ? 
-	(int)(hgpar_->cellFineX_.size()) : (int)(hgpar_->cellCoarseX_.size());
+ 	(int)(hgpar_->cellFineX_.size()) : (int)(hgpar_->cellCoarseX_.size());
       ok = (cell >=0 && cell <=  cellmax);
     }
   }
@@ -367,6 +384,11 @@ int HGCalDDDConstants::maxRows(int lay, bool reco) const {
 }
 
 int HGCalDDDConstants::modules(int lay, bool reco) const {
+  if( getIndex(lay,reco).first < 0 ) return 0;
+  return max_modules_layer_[(int)reco][lay];
+}
+
+int HGCalDDDConstants::modulesInit(int lay, bool reco) const {
   int nmod(0);
   std::pair<int,float> index = getIndex(lay, reco);
   if (index.first < 0) return nmod;
@@ -523,9 +545,8 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay, int mod,
 }
 
 int HGCalDDDConstants::waferFromCopy(int copy) const {
-  const int tot_wafers = wafers();
-  int wafer = tot_wafers;
-  for (int k=0; k<tot_wafers; ++k) {
+  int wafer = tot_wafers_;
+  for (int k=0; k<tot_wafers_; ++k) {
     if (copy == hgpar_->waferCopy_[k]) {
       wafer = k;
       break;
