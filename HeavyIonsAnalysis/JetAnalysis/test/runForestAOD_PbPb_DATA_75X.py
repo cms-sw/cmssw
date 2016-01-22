@@ -205,24 +205,13 @@ process.load("RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cfi")
 from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
 
-# turn on VID producer, indicate data format to be processed
-# DataFormat.AOD or DataFormat.MiniAOD
-#dataFormat = DataFormat.AOD
-#switchOnVIDElectronIdProducer(process, dataFormat)
-
 process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('gedGsfElectronsTmp')
-#process.electronMVAValueMapProducer.src = cms.InputTag('gedGsfElectronsTmp')
-#process.electronRegressionValueMapProducer.src = cms.InputTag('gedGsfElectronsTmp')
-# define which IDs we want to produce. Check here https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2#Recipe_for_regular_users_for_7_4
-#my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff']
 
-#add them to the VID producer
-#for idmod in my_id_modules:
-#    setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 process.load('RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff')
 setupVIDSelection(process.egmGsfElectronIDs,process.cutBasedElectronID_Spring15_25ns_V1_standalone_veto)
 
 #####################################################################################
+
 #####################
 # tupel and necessary PAT sequences
 #####################
