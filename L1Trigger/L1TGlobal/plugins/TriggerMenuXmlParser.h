@@ -38,16 +38,21 @@
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtCastorTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtHfBitCountsTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtBptxTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtExternalTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
+
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalScales.h"
 
 #include "L1Trigger/L1TGlobal/src/L1TMenuEditor/L1TriggerMenu.hxx"
 
+#include "tmEventSetup/tmEventSetup.hh"
+#include "tmEventSetup/esTriggerMenu.hh"
+#include "tmEventSetup/esAlgorithm.hh"
+#include "tmEventSetup/esCondition.hh"
+#include "tmEventSetup/esObject.hh"
+#include "tmEventSetup/esCut.hh"
+#include "tmEventSetup/esScale.hh"
+#include "tmGrammar/Algorithm.hh"
 
 // forward declarations
 class GtCondition;
@@ -99,19 +104,16 @@ public:
 
     void setGtNumberPhysTriggers(const unsigned int&);
 
+/*
     /// get / set the number of technical triggers
     inline const unsigned int gtNumberTechTriggers() const {
         return m_numberTechTriggers;
     }
 
     void setGtNumberTechTriggers(const unsigned int&);
+*/
 
-    ///  get / set the number of L1 jet counts received by GT
-    inline const unsigned int gtNumberL1JetCounts() const {
-        return m_numberL1JetCounts;
-    }
 
-    void setGtNumberL1JetCounts(const unsigned int&);
 
 public:
 
@@ -148,6 +150,11 @@ public:
         return m_scaleDbKey;
     }
 
+    /// menu associated scales
+    inline const L1TGlobalScales& gtScales() const {
+        return m_gtScales;
+    }
+
     void setGtScaleDbKey(const std::string&);
 
     /// get / set the vectors containing the conditions
@@ -173,62 +180,15 @@ public:
             const std::vector<std::vector<EnergySumTemplate> >&);
 
     //
-    inline const std::vector<std::vector<L1GtJetCountsTemplate> >& vecJetCountsTemplate() const {
 
-        return m_vecJetCountsTemplate;
-    }
-
-    void setVecJetCountsTemplate(
-            const std::vector<std::vector<L1GtJetCountsTemplate> >&);
-
-    //
-    inline const std::vector<std::vector<L1GtCastorTemplate> >& vecCastorTemplate() const {
-
-        return m_vecCastorTemplate;
-    }
-
-    void setVecCastorTemplate(
-            const std::vector<std::vector<L1GtCastorTemplate> >&);
-
-    //
-    inline const std::vector<std::vector<L1GtHfBitCountsTemplate> >&
-        vecHfBitCountsTemplate() const {
-
-        return m_vecHfBitCountsTemplate;
-    }
-
-    void setVecHfBitCountsTemplate(
-            const std::vector<std::vector<L1GtHfBitCountsTemplate> >&);
-
-    //
-    inline const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >&
-        vecHfRingEtSumsTemplate() const {
-
-        return m_vecHfRingEtSumsTemplate;
-    }
-
-    void setVecHfRingEtSumsTemplate(
-            const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >&);
-
-    //
-    inline const std::vector<std::vector<L1GtBptxTemplate> >&
-        vecBptxTemplate() const {
-
-        return m_vecBptxTemplate;
-    }
-
-    void setVecBptxTemplate(
-            const std::vector<std::vector<L1GtBptxTemplate> >&);
-
-    //
-    inline const std::vector<std::vector<L1GtExternalTemplate> >&
+    inline const std::vector<std::vector<ExternalTemplate> >&
         vecExternalTemplate() const {
 
         return m_vecExternalTemplate;
     }
 
     void setVecExternalTemplate(
-            const std::vector<std::vector<L1GtExternalTemplate> >&);
+            const std::vector<std::vector<ExternalTemplate> >&);
 
     //
     inline const std::vector<std::vector<CorrelationTemplate> >& vecCorrelationTemplate() const {
@@ -276,19 +236,23 @@ public:
     }
 
     void setGtAlgorithmAliasMap(const AlgorithmMap&);
-
+/*
     /// get / set the technical trigger map
     inline const AlgorithmMap& gtTechnicalTriggerMap() const {
         return m_technicalTriggerMap;
     }
 
-    void setGtTechnicalTriggerMap(const AlgorithmMap&);
+//    void setGtTechnicalTriggerMap(const AlgorithmMap&);
+*/
 
 public:
 
     /// parse def.xml and vme.xml files
     void parseXmlFile(const std::string& defXmlFile,
             const std::string& vmeXmlFile);
+	    
+	    
+    void parseXmlFileV2(const std::string& defXmlFile);	    
 
 public:
 
@@ -411,7 +375,7 @@ private:
     bool insertAlgorithmIntoMap(const L1GtAlgorithm& alg);
 
     /// insert a technical trigger into technical trigger map
-    bool insertTechTriggerIntoMap(const L1GtAlgorithm& alg);
+    //bool insertTechTriggerIntoMap(const L1GtAlgorithm& alg);
 
     /// get the type of the condition, as defined in enum, from the condition type
     /// as defined in the XML file
@@ -435,13 +399,30 @@ private:
     template <typename T> std::string l1t2string( T );
     std::string l1tDateTime2string( l1t::DateTime );
     int l1t2int( l1t::RelativeBx );
+    int l1tstr2int( const std::string data );
 
+
+    /// parse scales
+/*     bool parseScale(tmeventsetup::esScale scale); */
+//    bool parseScales( tmeventsetup::esScale scale);
+	bool parseScales(std::map<std::string, tmeventsetup::esScale> scaleMap);
+ 
     /// parse a muon condition
 /*     bool parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node, */
 /*             const std::string& name, unsigned int chipNr = 0, */
 /*             const bool corrFlag = false); */
     bool parseMuon( l1t::MuonCondition condMu,
             unsigned int chipNr = 0, const bool corrFlag = false);
+
+    /// parse a muon condition
+/*     bool parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node, */
+/*             const std::string& name, unsigned int chipNr = 0, */
+/*             const bool corrFlag = false); */
+    bool parseMuonV2( tmeventsetup::esCondition condMu,
+            unsigned int chipNr = 0, const bool corrFlag = false);
+
+    bool parseMuonCorr(const tmeventsetup::esObject* condMu,
+             unsigned int chipNr = 0);
 
 
     /// parse a calorimeter condition
@@ -451,6 +432,16 @@ private:
     bool parseCalo( l1t::CalorimeterCondition condCalo,
             unsigned int chipNr = 0, const bool corrFlag = false);
 
+    /// parse a calorimeter condition
+/*     bool parseCalo(XERCES_CPP_NAMESPACE::DOMNode* node, */
+/*             const std::string& name, unsigned int chipNr = 0, */
+/*             const bool corrFlag = false); */
+    bool parseCaloV2( tmeventsetup::esCondition condCalo,
+            unsigned int chipNr = 0, const bool corrFlag = false);
+
+    bool parseCaloCorr(const tmeventsetup::esObject* corrCalo,
+            unsigned int chipNr = 0);
+
     /// parse an "energy sum" condition
     /* bool parseEnergySum(XERCES_CPP_NAMESPACE::DOMNode* node, */
     /*         const std::string& name, unsigned int chipNr = 0, */
@@ -459,33 +450,34 @@ private:
     bool parseEnergySum( l1t::EnergySumsCondition condEnergySums,
             unsigned int chipNr = 0, const bool corrFlag = false);
 
-    /// parse a "jet counts" condition
-    bool parseJetCounts(XERCES_CPP_NAMESPACE::DOMNode* node,
-            const std::string& name, unsigned int chipNr = 0);
+    /// parse an "energy sum" condition
+    /* bool parseEnergySum(XERCES_CPP_NAMESPACE::DOMNode* node, */
+    /*         const std::string& name, unsigned int chipNr = 0, */
+    /*         const bool corrFlag = false); */
 
-    /// parse a CASTOR condition
-    bool parseCastor(XERCES_CPP_NAMESPACE::DOMNode* node,
-            const std::string& name, unsigned int chipNr = 0);
+    bool parseEnergySumV2( tmeventsetup::esCondition condEnergySums,
+            unsigned int chipNr = 0, const bool corrFlag = false);
 
-    /// parse a HfBitCounts condition
-    bool parseHfBitCounts(XERCES_CPP_NAMESPACE::DOMNode* node,
-            const std::string& name, unsigned int chipNr = 0);
 
-    /// parse a HfRingEtSums condition
-    bool parseHfRingEtSums(XERCES_CPP_NAMESPACE::DOMNode* node,
-            const std::string& name, unsigned int chipNr = 0);
+    bool parseEnergySumCorr(const tmeventsetup::esObject* corrESum,
+            unsigned int chipNr = 0);
 
-    /// parse a Bptx condition
-    bool parseBptx(XERCES_CPP_NAMESPACE::DOMNode* node,
-            const std::string& name, unsigned int chipNr = 0);
 
     /// parse an External condition
+/*
     bool parseExternal(XERCES_CPP_NAMESPACE::DOMNode* node,
             const std::string& name, unsigned int chipNr = 0);
+*/
+      bool parseExternalV2(tmeventsetup::esCondition condExt,
+        unsigned int chipNr = 0);
+
 
     /// parse a correlation condition
     bool parseCorrelation(XERCES_CPP_NAMESPACE::DOMNode* node,
             const std::string& name, unsigned int chipNr = 0);
+
+    /// parse a correlation condition
+    bool parseCorrelationV2(tmeventsetup::esCondition corrCond, unsigned int chipNr = 0);
 
     /// parse all parse all identification attributes (trigger menu names, scale DB key, etc)
     //bool parseId(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
@@ -511,12 +503,18 @@ private:
     //bool parseAlgorithms(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
     bool parseAlgorithms( l1t::AlgorithmList algorithms );
 
+    /// parse all algorithms
+    //bool parseAlgorithms(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
+    bool parseAlgorithmV2( tmeventsetup::esAlgorithm algorithm,
+            unsigned int chipNr = 0 );
+
+
     /// parse an algorithm and insert it into algorithm map.
-    bool workTechTrigger(XERCES_CPP_NAMESPACE::DOMNode* node,
-            const std::string& name);
+//    bool workTechTrigger(XERCES_CPP_NAMESPACE::DOMNode* node,
+//            const std::string& name);
 
     /// parse all algorithms
-    bool parseTechTriggers(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
+//   bool parseTechTriggers(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
 
     /// do all the steps for filling a trigger menu
     //bool workXML(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
@@ -543,10 +541,8 @@ private:
     unsigned int m_numberPhysTriggers;
 
     /// number of technical triggers
-    unsigned int m_numberTechTriggers;
+    //unsigned int m_numberTechTriggers;
 
-    /// jet counts
-    unsigned int m_numberL1JetCounts;
 
 private:
 
@@ -583,12 +579,7 @@ private:
     std::vector<std::vector<MuonTemplate> > m_vecMuonTemplate;
     std::vector<std::vector<CaloTemplate> > m_vecCaloTemplate;
     std::vector<std::vector<EnergySumTemplate> > m_vecEnergySumTemplate;
-    std::vector<std::vector<L1GtJetCountsTemplate> > m_vecJetCountsTemplate;
-    std::vector<std::vector<L1GtCastorTemplate> > m_vecCastorTemplate;
-    std::vector<std::vector<L1GtHfBitCountsTemplate> > m_vecHfBitCountsTemplate;
-    std::vector<std::vector<L1GtHfRingEtSumsTemplate> > m_vecHfRingEtSumsTemplate;
-    std::vector<std::vector<L1GtBptxTemplate> > m_vecBptxTemplate;
-    std::vector<std::vector<L1GtExternalTemplate> > m_vecExternalTemplate;
+    std::vector<std::vector<ExternalTemplate> > m_vecExternalTemplate;
 
     std::vector<std::vector<CorrelationTemplate> > m_vecCorrelationTemplate;
     std::vector<std::vector<MuonTemplate> > m_corMuonTemplate;
@@ -602,7 +593,10 @@ private:
     AlgorithmMap m_algorithmAliasMap;
 
     /// map containing the technical triggers
-    AlgorithmMap m_technicalTriggerMap;
+//    AlgorithmMap m_technicalTriggerMap;
+
+    // class containing the scales from the L1 Menu XML
+    L1TGlobalScales m_gtScales;
 
 };
 

@@ -86,6 +86,12 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
        //Load the full prescale set for use
        loadPrescalesAndMasks();
 
+       // Set Prescale factors to initial (This is somewhat stupid...should fix up)
+       m_prescaleFactorsAlgoTrig = &m_initialPrescaleFactorsAlgoTrig;
+       m_triggerMaskAlgoTrig = &m_initialTriggerMaskAlgoTrig;
+       m_triggerMaskVetoAlgoTrig = &m_initialTriggerMaskVetoAlgoTrig;
+       
+
        //Pick which set we are using
        if(m_PreScaleColumn > m_prescaleFactorsAlgoTrig->size() || m_PreScaleColumn < 1) {	  
 	  LogTrace("l1t|Global")
@@ -128,8 +134,8 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
        // get the GlabalAlgBlk (Stupid find better way) of BX=0
        std::vector<GlobalAlgBlk>::const_iterator algBlk = m_uGtAlgBlk->begin(0);     
 
-       // Grab the final OR from the AlgBlk, note in algBlk is an integer word with the lowest bit rep. the finOR       
-       m_finalOR = ( algBlk->getFinalOR() & 0x1 );
+       // Grab the final OR from the AlgBlk,       
+       m_finalOR = algBlk->getFinalOR();
        
        // Make a map of the trigger name and whether it passed various stages (initial,prescale,final)
        // Note: might be able to improve performance by not full remaking map with names each time
@@ -230,6 +236,8 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
 	temp_triggerVetoMask.push_back(inputDefaultVetoMask);
       }
 
+//     cout << " Mask Column " << maskColumn << " VetoColumn " << maskVetoColumn << endl;
+
       // Fill non-trivial mask and veto mask
       if( maskColumn>=0 || maskVetoColumn>=0 ){
 	for( int iBit=1; iBit<int(vec[0].size()); iBit++ ){
@@ -239,6 +247,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
 	    if( maskColumn>=0 ){
 	      unsigned int triggerMask = vec[maskColumn][iBit];
 	      temp_triggerMask[algoBit] = triggerMask;
+//	      cout << "Settting Mask for bit " << algoBit << " to " << triggerMask << endl;
 	    }
 	    if( maskVetoColumn>=0 ){
 	      unsigned int triggerVetoMask = vec[maskVetoColumn][iBit];
@@ -308,9 +317,9 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
 
     inputPrescaleFile.close();
 
-    m_prescaleFactorsAlgoTrig = &prescale_vec;
-    m_triggerMaskAlgoTrig     = &temp_triggerMask;
-    m_triggerMaskVetoAlgoTrig = &temp_triggerVetoMask;
+    m_initialPrescaleFactorsAlgoTrig =  prescale_vec;
+    m_initialTriggerMaskAlgoTrig     =  temp_triggerMask;
+    m_initialTriggerMaskVetoAlgoTrig =  temp_triggerVetoMask;
 
 }
 

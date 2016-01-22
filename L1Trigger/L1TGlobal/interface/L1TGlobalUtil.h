@@ -136,9 +136,13 @@ private:
     //file  and container for prescale factors
     std::string m_preScaleFileName;
     unsigned int m_PreScaleColumn;
+    
+    std::vector<std::vector<int> > m_initialPrescaleFactorsAlgoTrig;
     const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
-    const std::vector<unsigned int>* m_triggerMaskAlgoTrig;
-    const std::vector<unsigned int>* m_triggerMaskVetoAlgoTrig;
+    std::vector<unsigned int>  m_initialTriggerMaskAlgoTrig;
+    const std::vector<unsigned int>*  m_triggerMaskAlgoTrig;
+    std::vector<unsigned int>   m_initialTriggerMaskVetoAlgoTrig;
+    const std::vector<unsigned int>*  m_triggerMaskVetoAlgoTrig;
     
     // access to the results block from uGT 
     edm::Handle<BXVector<GlobalAlgBlk>>  m_uGtAlgBlk;

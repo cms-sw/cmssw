@@ -164,6 +164,10 @@ private:
     edm::EDGetTokenT<BXVector<l1t::Jet>> m_jetInputToken;
     edm::EDGetTokenT<BXVector<l1t::EtSum>> m_sumInputToken;
 
+    /// input tag for external conditions
+    edm::InputTag m_extInputTag;
+    edm::EDGetTokenT<BXVector<GlobalExtBlk>> m_extInputToken;
+
     /// logical flag to produce the L1 GT DAQ readout record
     bool m_produceL1GtDaqRecord;
 

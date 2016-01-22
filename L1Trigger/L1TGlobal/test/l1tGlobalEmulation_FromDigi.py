@@ -30,8 +30,8 @@ options.register('newXML',
                  
 options.parseArguments()
 
-if (options.maxEvents == -1):
-    options.maxEvents = 1
+#if (options.maxEvents == -1):
+#    options.maxEvents = 1
 
 
 process = cms.Process('uGTEmulation')
@@ -53,7 +53,8 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring("file:l1tCalo_2016_EDM_Save.root") 
+    skipEvents=cms.untracked.uint32(options.skipEvents),
+    fileNames = cms.untracked.vstring(options.inputFiles) 
 )
 
 
@@ -66,9 +67,11 @@ process.TFileService.fileName = cms.string('l1tCalo_2016_histos.root')
 
 
 # enable debug message logging for our modules
-process.MessageLogger.categories.append('L1TCaloEvents')
-process.MessageLogger.categories.append('L1TGlobalEvents')
-process.MessageLogger.categories.append('l1t|Global')
+#process.MessageLogger.categories.append('L1TCaloEvents')
+#process.MessageLogger.categories.append('L1TGlobalEvents')
+#process.MessageLogger.categories.append('l1t|Global')
+process.MessageLogger.debugModules = cms.untracked.vstring('simGlobalStage2Digis')
+process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
 
 process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
 
@@ -85,36 +88,43 @@ process.load('L1Trigger.L1TGlobal.TriggerMenuXml_cfi')
 process.TriggerMenuXml.TriggerMenuLuminosity = 'startup'
 #process.TriggerMenuXml.DefXmlFile = 'L1_Example_Menu_2013.xml'
 #process.TriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014.xml'
-#process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v2.xml'
-process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v3.xml'
+process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v2a.xml'
+#process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v3.xml'
+process.TriggerMenuXml.newGrammar = cms.bool(options.newXML)
+if(options.newXML):
+   print "Using new XML Grammar "
+   process.TriggerMenuXml.DefXmlFile = 'L1Menu_CollisionsHeavyIons2015_v4_uGT_v2.xml'
+   #process.TriggerMenuXml.DefXmlFile = 'MuonTest.xml'
+
 
 process.load('L1Trigger.L1TGlobal.TriggerMenuConfig_cff')
 process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','TriggerMenuXml')
 
 ## Run the Stage 2 uGT emulator
-process.load('L1Trigger.L1TGlobal.simGtStage2Digis_cff')
-process.simGtStage2Digis.caloInputTag = cms.InputTag('caloStage2Digis')
-process.simGtStage2Digis.GmtInputTag = cms.InputTag('None')
-process.simGtStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
-process.simGtStage2Digis.PrescaleSet = cms.uint32(1)
+process.load('L1Trigger.L1TGlobal.simGlobalStage2Digis_cff')
+process.simGlobalStage2Digis.caloInputTag = cms.InputTag("gtStage2Digis","GT")
+process.simGlobalStage2Digis.GmtInputTag = cms.InputTag("gtStage2Digis","GT")
+process.simGlobalStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
+process.simGlobalStage2Digis.PrescaleSet = cms.uint32(1)
+process.simGlobalStage2Digis.Verbosity = cms.untracked.int32(0)
 
 
 
 # gt analyzer
 process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
     doText = cms.untracked.bool(False),
-    dmxEGToken = cms.InputTag("caloStage2Digis"),
+    dmxEGToken = cms.InputTag("None"),
     dmxTauToken = cms.InputTag("None"),
-    dmxJetToken = cms.InputTag("caloStage2Digis"),
-    dmxEtSumToken = cms.InputTag("caloStage2Digis"),
+    dmxJetToken = cms.InputTag("None"),
+    dmxEtSumToken = cms.InputTag("None"),
     muToken = cms.InputTag("gtStage2Digis","GT"),
     egToken = cms.InputTag("gtStage2Digis","GT"),
-    tauToken = cms.InputTag("None"),
+    tauToken = cms.InputTag("gtStage2Digis","GT"),
     jetToken = cms.InputTag("gtStage2Digis","GT"),
     etSumToken = cms.InputTag("gtStage2Digis","GT"),
-    gtAlgToken = cms.InputTag("gtStage2Digis"),
+    gtAlgToken = cms.InputTag("gtStage2Digis","GT"),
     emulDxAlgToken = cms.InputTag("None"),
-    emulGtAlgToken = cms.InputTag("simGtStage2Digis")
+    emulGtAlgToken = cms.InputTag("simGlobalStage2Digis")
 )
 
 
@@ -122,21 +132,20 @@ process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
 process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
         egInputTag    = cms.InputTag("gtStage2Digis","GT"),
 		muInputTag    = cms.InputTag("gtStage2Digis","GT"),
-		tauInputTag   = cms.InputTag(""),
+		tauInputTag   = cms.InputTag("gtStage2Digis","GT"),
 		jetInputTag   = cms.InputTag("gtStage2Digis","GT"),
 		etsumInputTag = cms.InputTag("gtStage2Digis","GT"),
-		uGtRecInputTag = cms.InputTag(""),
-		uGtAlgInputTag = cms.InputTag("simGtStage2Digis"),
-		uGtExtInputTag = cms.InputTag(""),
+		uGtAlgInputTag = cms.InputTag("gtStage2Digis","GT"),
+		uGtExtInputTag = cms.InputTag("gtStage2Digis","GT"),
 		bxOffset       = cms.int32(0),
 		minBx          = cms.int32(0),
 		maxBx          = cms.int32(0),
 		minBxVec       = cms.int32(0),
 		maxBxVec       = cms.int32(0),		
-		dumpGTRecord   = cms.bool(True),
-        dumpTrigResults= cms.bool(True),
+		dumpGTRecord   = cms.bool(False),
+                dumpTrigResults= cms.bool(True),
 		dumpVectors    = cms.bool(False),
-		tvFileName     = cms.string( "TestVector.txt" ),
+		tvFileName     = cms.string( "TestVector_Data.txt" ),
                 psFileName     = cms.string( "prescale_L1TGlobal.csv" ),
                 psColumn       = cms.int32(1)
 		 )
@@ -147,7 +156,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 
 # Path and EndPath definitions
 process.path = cms.Path(
-    process.simGtStage2Digis
+    process.simGlobalStage2Digis
     +process.l1tGlobalAnalyzer
     +process.dumpGTRecord
 )

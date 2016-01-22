@@ -22,6 +22,56 @@ options.register('skipEvents',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Number of events to skip")
+options.register('streamer',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Read input from streamer file")
+options.register('debug',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Enable debug data")
+options.register('dumpRaw',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Print RAW data")
+options.register('dumpDigis',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Print digis")
+options.register('histos',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Produce standard histograms")
+options.register('edm',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Produce EDM file")
+options.register('valEvents',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Filter on validation events")
+options.register('process',
+                 '',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Rename process if used")
+options.register('mps',
+                 '',
+                 VarParsing.VarParsing.multiplicity.list,
+                 VarParsing.VarParsing.varType.int,
+                 "List of MPs to process")
+options.register('json',
+                 '',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "JSON file with list of good lumi sections")
 options.register('newXML',
                  False,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -30,11 +80,11 @@ options.register('newXML',
                  
 options.parseArguments()
 
-if (options.maxEvents == -1):
-    options.maxEvents = 1
+pname="Raw2Digi"
+if (options.process!=""):
+    pname=options.process
 
-
-process = cms.Process('Raw2Digi')
+process = cms.Process(pname)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -51,34 +101,39 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # Input source
-process.source = cms.Source("EmptySource")
+if (options.streamer) :
+    process.source = cms.Source(
+        "NewEventStreamFileReader",
+        fileNames = cms.untracked.vstring (options.inputFiles),
+        skipEvents=cms.untracked.uint32(options.skipEvents)
+    )
+else :
+    process.source = cms.Source (
+        "PoolSource",
+        fileNames = cms.untracked.vstring (options.inputFiles),
+        skipEvents=cms.untracked.uint32(options.skipEvents)
+    )
+
+if (options.json):
+    import FWCore.PythonUtilities.LumiList as LumiList
+    process.source.lumisToProcess = LumiList.LumiList(filename = options.json).getVLuminosityBlockRange()
 
 process.options = cms.untracked.PSet(
     SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
 
 
-# Output definition
-process.output = cms.OutputModule(
-    "PoolOutputModule",
-    outputCommands = cms.untracked.vstring("keep *"),
-    fileName = cms.untracked.string('l1tCalo_2016_EDM.root')
-)
-
 # Additional output definition
 # TTree output file
 process.load("CommonTools.UtilAlgos.TFileService_cfi")
-process.TFileService.fileName = cms.string('l1tCalo_2016_histos_'+`options.gtOffset`+'-'+`options.gtLatency`+'.root')
-
+process.TFileService.fileName = cms.string('l1tCalo_2016_histos.root')
 
 # enable debug message logging for our modules
 process.MessageLogger.categories.append('L1TCaloEvents')
-process.MessageLogger.categories.append('L1TGlobalEvents')
-process.MessageLogger.categories.append('l1t|Global')
 
 process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
 
-if (options.dump):
+if (options.dumpRaw):
     process.MessageLogger.infos.placeholder = cms.untracked.bool(False)
     process.MessageLogger.infos.INFO = cms.untracked.PSet(limit = cms.untracked.int32(0))
     process.MessageLogger.infos.L1TCaloEvents = cms.untracked.PSet(
@@ -92,219 +147,150 @@ if (options.debug):
     process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
 
 
-
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
+# validation event filter
+process.load('EventFilter.L1TRawToDigi.validationEventFilter_cfi')
 
-# buffer dump to RAW
-process.load('EventFilter.L1TRawToDigi.stage2MP7BufferRaw_cff')
-
-
-# skip events
-dmOffset = options.dmOffset + (options.skipEvents * options.dmFramesPerEvent)
-
-mpOffsets = cms.untracked.vint32()
-for i in range (0,options.nMP):
-    offset = options.mpOffset + (options.skipEvents / options.nMP)
-    if (i < options.skipEvents % options.nMP):
-        offset = offset + 1    
-    mpOffsets.append(offset)
-
-boardOffset = options.skipEvents % options.nMP
-
-gtOffset = options.gtOffset + (options.skipEvents * options.gtFramesPerEvent)
-
-
-# print some debug info
-print "Job config :"
-print "maxEvents     = ", options.maxEvents
-print "skipEvents    = ", options.skipEvents
-print " "
-
-# MP config
-if (options.doMP):
-    print "MP config :"
-    print "nBoards       = ", options.nMP
-    print "mpBoardOffset = ", boardOffset
-    print "mpOffset      = ", mpOffsets
-    print " "
-
-process.stage2MPRaw.nFramesPerEvent    = cms.untracked.int32(options.mpFramesPerEvent)
-process.stage2MPRaw.nFramesOffset    = cms.untracked.vuint32(mpOffsets)
-process.stage2MPRaw.boardOffset    = cms.untracked.int32(boardOffset)
-#process.stage2MPRaw.nFramesLatency   = cms.untracked.vuint32(mpLatencies)
-process.stage2MPRaw.rxFile = cms.untracked.string("merge/rx_summary.txt")
-process.stage2MPRaw.txFile = cms.untracked.string("merge/tx_summary.txt")
-
-# Demux config
-if (options.doDemux):
-    print "Demux config :"
-    print "dmOffset      = ", dmOffset
-    print "dmLatency     = ", options.dmLatency
-    print " "
-
-process.stage2DemuxRaw.nFramesPerEvent    = cms.untracked.int32(options.dmFramesPerEvent)
-process.stage2DemuxRaw.nFramesOffset    = cms.untracked.vuint32(dmOffset)
-process.stage2DemuxRaw.nFramesLatency   = cms.untracked.vuint32(options.dmLatency)
-process.stage2DemuxRaw.rxFile = cms.untracked.string("good/demux/rx_summary.txt")
-process.stage2DemuxRaw.txFile = cms.untracked.string("good/demux/tx_summary.txt")
-
-# GT config
-if (options.doGT):
-    print "GT config :"
-    print "gtOffset      = ", gtOffset
-    print "gtLatency     = ", options.gtLatency
-
-process.stage2GTRaw.nFramesPerEvent    = cms.untracked.int32(options.gtFramesPerEvent)
-process.stage2GTRaw.nFramesOffset    = cms.untracked.vuint32(gtOffset)
-process.stage2GTRaw.nFramesLatency   = cms.untracked.vuint32(options.gtLatency)
-process.stage2GTRaw.rxFile = cms.untracked.string("uGT/rx_summary.txt")
-process.stage2GTRaw.txFile = cms.untracked.string("uGT/tx_summary.txt")
-
-
-process.rawDataCollector.verbose = cms.untracked.int32(2)
-
+# MP selectah
+process.load('EventFilter.L1TRawToDigi.tmtFilter_cfi')
+process.tmtFilter.mpList = cms.untracked.vint32(options.mps)
 
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer( 
     "DumpFEDRawDataProduct",
-    label = cms.untracked.string("rawDataCollector"),
+    token = cms.untracked.InputTag("rawDataCollector"),
     feds = cms.untracked.vint32 ( 1360, 1366, 1404 ),
-    dumpPayload = cms.untracked.bool ( True )
+    dumpPayload = cms.untracked.bool ( options.dumpRaw )
 )
 
 # raw to digi
 process.load('EventFilter.L1TRawToDigi.caloStage2Digis_cfi')
 process.caloStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
+if (options.debug):
+    process.caloStage2Digis.debug = cms.untracked.bool(True)
 
 process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
 process.gtStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 
 
-# Setup for Emulation of uGT
+## Load our L1 menu
 process.load('L1Trigger.L1TGlobal.StableParametersConfig_cff')
+
 process.load('L1Trigger.L1TGlobal.TriggerMenuXml_cfi')
 process.TriggerMenuXml.TriggerMenuLuminosity = 'startup'
-#process.TriggerMenuXml.DefXmlFile = 'L1Menu_CaloSliceTest_2015_v4.xml'
-process.TriggerMenuXml.DefXmlFile = 'L1Menu_Point5IntegrationTest_2015_v2.xml'
+#process.TriggerMenuXml.DefXmlFile = 'L1_Example_Menu_2013.xml'
+#process.TriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014.xml'
+process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v2a.xml'
+#process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v3.xml'
 process.TriggerMenuXml.newGrammar = cms.bool(options.newXML)
 if(options.newXML):
    print "Using new XML Grammar "
-   #process.TriggerMenuXml.DefXmlFile = 'L1Menu_Point5IntegrationTest_2015_v1a.xml'
-   process.TriggerMenuXml.DefXmlFile = 'test-dist-mass.xml'
+   #process.TriggerMenuXml.DefXmlFile = 'L1Menu_CollisionsHeavyIons2015_v4_uGT_v2.xml'
+   #process.TriggerMenuXml.DefXmlFile = 'MuonTest.xml'
+   process.TriggerMenuXml.DefXmlFile = 'test_ext.xml'
+
 
 process.load('L1Trigger.L1TGlobal.TriggerMenuConfig_cff')
 process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','TriggerMenuXml')
 
-process.emL1uGtFromGtInput = cms.EDProducer("l1t::GtProducer",
-    ProduceL1GtObjectMapRecord = cms.bool(False),
-    AlgorithmTriggersUnmasked = cms.bool(False),
-    EmulateBxInEvent = cms.int32(1),
-    L1DataBxInEvent = cms.int32(1),
-    AlgorithmTriggersUnprescaled = cms.bool(False),
-    ProduceL1GtDaqRecord = cms.bool(True),
-    GmtInputTag = cms.InputTag("gtStage2Digis","GT"),
-    caloInputTag = cms.InputTag("gtStage2Digis","GT"),
-    AlternativeNrBxBoardDaq = cms.uint32(0),
-    BstLengthBytes = cms.int32(-1),
-    Verbosity = cms.untracked.int32(5)
-)
+## Run the Stage 2 uGT emulator
+process.load('L1Trigger.L1TGlobal.simGlobalStage2Digis_cff')
+process.simGlobalStage2Digis.caloInputTag = cms.InputTag("gtStage2Digis","GT")
+process.simGlobalStage2Digis.GmtInputTag = cms.InputTag("gtStage2Digis","GT")
+process.simGlobalStage2Digis.extInputTag = cms.InputTag("gtStage2Digis","GT")
+process.simGlobalStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
+process.simGlobalStage2Digis.PrescaleSet = cms.uint32(1)
+process.simGlobalStage2Digis.Verbosity = cms.untracked.int32(0)
 
-process.emL1uGtFromDemuxOutput = cms.EDProducer("l1t::GtProducer",
-    ProduceL1GtObjectMapRecord = cms.bool(False),
-    AlgorithmTriggersUnmasked = cms.bool(False),
-    EmulateBxInEvent = cms.int32(1),
-    L1DataBxInEvent = cms.int32(1),
-    AlgorithmTriggersUnprescaled = cms.bool(False),
-    ProduceL1GtDaqRecord = cms.bool(True),
-    GmtInputTag = cms.InputTag(""),
-    caloInputTag = cms.InputTag("caloStage2Digis"),
-    AlternativeNrBxBoardDaq = cms.uint32(0),
-    BstLengthBytes = cms.int32(-1),
-    Verbosity = cms.untracked.int32(5)
-)
-
-
-
-# object analyser
-process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
-process.l1tStage2CaloAnalyzer.doText = cms.untracked.bool(options.debug)
-process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
-process.l1tStage2CaloAnalyzer.mpEGToken = cms.InputTag("None")
-process.l1tStage2CaloAnalyzer.mpTauToken = cms.InputTag("None")
 
 
 # gt analyzer
 process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
-    doText = cms.untracked.bool(options.debug),
-    dmxEGToken = cms.InputTag("caloStage2Digis"),
+    doText = cms.untracked.bool(False),
+    dmxEGToken = cms.InputTag("None"),
     dmxTauToken = cms.InputTag("None"),
-    dmxJetToken = cms.InputTag("caloStage2Digis"),
-    dmxEtSumToken = cms.InputTag("caloStage2Digis"),
+    dmxJetToken = cms.InputTag("None"),
+    dmxEtSumToken = cms.InputTag("None"),
     muToken = cms.InputTag("gtStage2Digis","GT"),
     egToken = cms.InputTag("gtStage2Digis","GT"),
-    tauToken = cms.InputTag("None"),
+    tauToken = cms.InputTag("gtStage2Digis","GT"),
     jetToken = cms.InputTag("gtStage2Digis","GT"),
     etSumToken = cms.InputTag("gtStage2Digis","GT"),
-    gtAlgToken = cms.InputTag("gtStage2Digis"),
-    emulDxAlgToken = cms.InputTag("emL1uGtFromDemuxOutput"),
-    emulGtAlgToken = cms.InputTag("emL1uGtFromGtInput")
+    gtAlgToken = cms.InputTag("gtStage2Digis","GT"),
+    emulDxAlgToken = cms.InputTag("None"),
+    emulGtAlgToken = cms.InputTag("simGlobalStage2Digis")
 )
+
+# Take Digis to RAW
+#process.load("EventFilter.L1TRawToDigi.gtStage2Raw_cfi")
+#process.gtStage2Raw.InputLabel = cms.InputTag("gtStage2Digis","GT")
 
 
 # dump records
 process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
-                egInputTag    = cms.InputTag("gtStage2Digis","GT"),
+        egInputTag    = cms.InputTag("gtStage2Digis","GT"),
 		muInputTag    = cms.InputTag("gtStage2Digis","GT"),
-		tauInputTag   = cms.InputTag(""),
+		tauInputTag   = cms.InputTag("gtStage2Digis","GT"),
 		jetInputTag   = cms.InputTag("gtStage2Digis","GT"),
 		etsumInputTag = cms.InputTag("gtStage2Digis","GT"),
-		uGtRecInputTag = cms.InputTag(""),
-		uGtAlgInputTag = cms.InputTag("emL1uGtFromGtInput"),
-		uGtExtInputTag = cms.InputTag(""),
+		uGtAlgInputTag = cms.InputTag("simGlobalStage2Digis"),
+		uGtExtInputTag = cms.InputTag("gtStage2Digis","GT"),
 		bxOffset       = cms.int32(0),
-		minBx          = cms.int32(0),
-		maxBx          = cms.int32(0),
+		minBx          = cms.int32(-2),
+		maxBx          = cms.int32(2),
 		minBxVec       = cms.int32(0),
 		maxBxVec       = cms.int32(0),		
-		dumpGTRecord   = cms.bool(True),
-		dumpVectors    = cms.bool(True),
-		tvFileName     = cms.string( "TestVector.txt" )
+		dumpGTRecord   = cms.bool(False),
+                dumpTrigResults= cms.bool(True),
+		dumpVectors    = cms.bool(False),
+		tvFileName     = cms.string( "TestVector_Data.txt" ),
+                psFileName     = cms.string( "prescale_L1TGlobal.csv" ),
+                psColumn       = cms.int32(1)
 		 )
-		 
-
 
 
 
 # Path and EndPath definitions
 process.path = cms.Path(
-#    process.stage2MPRaw
-     process.stage2DemuxRaw
-    +process.stage2GTRaw
-    +process.rawDataCollector
+    process.validationEventFilter
     +process.dumpRaw
     +process.caloStage2Digis
     +process.gtStage2Digis
-    +process.emL1uGtFromGtInput
-    +process.emL1uGtFromDemuxOutput
-    +process.l1tStage2CaloAnalyzer
+    +process.simGlobalStage2Digis
     +process.l1tGlobalAnalyzer
-    +process.dumpGTRecord
+    +process.dumpGTRecord 
+#    +process.gtStage2Raw   
 )
 
-if (not options.doMP):
-    process.path.remove(process.stage2MPRaw)
+# enable validation event filtering
+if (not options.valEvents):
+    process.path.remove(process.validationEventFilter)
 
-if (not options.doDemux):
-    process.path.remove(process.stage2DemuxRaw)
+# enable validation event filtering
+if (len(options.mps)==0):
+    process.path.remove(process.tmtFilter)
 
-if (not options.doGT):
-    process.path.remove(process.stage2GTRaw)
+# enable RAW printout
+if (not options.dumpRaw):
+    process.path.remove(process.dumpRaw)
 
-process.out = cms.EndPath(
-    process.output
-)
+# optional EDM file
+if (options.edm):
+    process.output = cms.OutputModule(
+        "PoolOutputModule",
+        outputCommands = cms.untracked.vstring("keep *"),
+        SelectEvents = cms.untracked.PSet(
+            SelectEvents = cms.vstring('path')
+        ),
+        fileName = cms.untracked.string('l1tCalo_2016_EDM.root')
+    )
+
+    process.out = cms.EndPath(
+        process.output
+    )
+
+
 

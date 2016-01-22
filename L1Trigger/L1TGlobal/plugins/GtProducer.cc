@@ -66,6 +66,7 @@
 l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
             m_muInputTag(parSet.getParameter<edm::InputTag> ("GmtInputTag")),
             m_caloInputTag(parSet.getParameter<edm::InputTag> ("caloInputTag")),
+	    m_extInputTag(parSet.getParameter<edm::InputTag> ("extInputTag")),
 
             m_produceL1GtDaqRecord(parSet.getParameter<bool> ("ProduceL1GtDaqRecord")),
             m_produceL1GtObjectMapRecord(parSet.getParameter<bool> ("ProduceL1GtObjectMapRecord")),           
@@ -93,6 +94,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
 
   m_muInputToken = consumes <BXVector<l1t::Muon> > (m_muInputTag);
 
+  m_extInputToken = consumes <BXVector<GlobalExtBlk> > (m_extInputTag);
 
     if (m_verbosity) {
 
@@ -101,6 +103,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
         LogTrace("l1t|Global")
                 << "\nInput tag for muon collection from GMT:         " << m_muInputTag
                 << "\nInput tag for calorimeter collections from GCT: " << m_caloInputTag
+		<< "\nInput tag for external conditions     :         " << m_extInputTag
                 << std::endl;
 
 
@@ -606,6 +609,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     bool receiveTau = true;    
     bool receiveJet = true;
     bool receiveEtSums = true;
+    bool receiveExt = true;
 
 /*  *** Boards need redefining *****
     for (CItBoardMaps
@@ -797,6 +801,9 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
      m_uGtBrd->receiveMuonObjectData(iEvent, m_muInputToken,
                                      receiveMu, m_nrL1Mu  );
+
+     m_uGtBrd->receiveExternalData(iEvent, m_extInputToken,
+                                     receiveExt  );
 
 
     // loop over BxInEvent

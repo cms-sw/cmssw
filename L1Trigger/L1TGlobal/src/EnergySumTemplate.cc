@@ -27,7 +27,6 @@
 //   base class
 
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
 // forward declarations
 
@@ -108,7 +107,7 @@ void EnergySumTemplate::print(std::ostream& myCout) const
         myCout << std::endl;
         myCout << "  Template for object " << i << " [ hex ]" << std::endl;
         myCout << "    etThreshold       = "
-        << std::hex << m_objectParameter[i].etThreshold << std::endl;
+        << std::hex << m_objectParameter[i].etLowThreshold << " - " << m_objectParameter[i].etHighThreshold << std::endl;
         myCout << "    energyOverflow    = "
         <<  std::hex << m_objectParameter[0].energyOverflow << std::endl;
 

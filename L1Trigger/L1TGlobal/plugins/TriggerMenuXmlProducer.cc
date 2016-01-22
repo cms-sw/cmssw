@@ -75,6 +75,9 @@ l1t::TriggerMenuXmlProducer::TriggerMenuXmlProducer(
 
     }
 
+    m_newXMLGrammar = parSet.getParameter<bool>("newGrammar");
+
+
     edm::LogInfo("L1TGlobal")
     << "\n\nL1 Trigger Menu: "
     << "\n\n  def.xml file: \n    " << m_defXmlFile
@@ -109,8 +112,8 @@ boost::shared_ptr<TriggerMenu> l1t::TriggerMenuXmlProducer::produceGtTriggerMenu
     unsigned int pinsOnConditionChip = stableParameters->gtPinsOnConditionChip();
     std::vector<int> orderConditionChip = stableParameters->gtOrderConditionChip();
     unsigned int numberPhysTriggers = stableParameters->gtNumberPhysTriggers();
-    unsigned int numberTechTriggers = stableParameters->gtNumberTechnicalTriggers();
-    unsigned int numberL1JetCounts = stableParameters->gtNumberL1JetCounts();
+//    unsigned int numberTechTriggers = stableParameters->gtNumberTechnicalTriggers();
+
 
     LogDebug("l1t|Global")
       << "\n\t numberConditionChips = " << numberConditionChips 
@@ -122,8 +125,7 @@ boost::shared_ptr<TriggerMenu> l1t::TriggerMenuXmlProducer::produceGtTriggerMenu
     }
     LogDebug("l1t|Global")
       << "\n\t numberPhysTriggers = " << numberPhysTriggers 
-      << "\n\t numberTechTriggers = " << numberTechTriggers 
-      << "\n\t numberL1JetCounts = " << numberL1JetCounts 
+//      << "\n\t numberTechTriggers = " << numberTechTriggers 
       << std::endl;
 
 
@@ -134,8 +136,6 @@ boost::shared_ptr<TriggerMenu> l1t::TriggerMenuXmlProducer::produceGtTriggerMenu
     unsigned int gtNumberPhysTriggers = stableParameters->gtNumberPhysTriggers();
     /// get / set the additional number of physics trigger algorithms
     unsigned int gtNumberPhysTriggersExtended = stableParameters->gtNumberPhysTriggersExtended();
-    /// get / set the number of technical triggers
-    unsigned int gtNumberTechnicalTriggers = stableParameters->gtNumberTechnicalTriggers();
     ///  get / set the number of L1 muons received by GT
     unsigned int gtNumberL1Mu = stableParameters->gtNumberL1Mu();
     ///  get / set the number of L1 e/gamma objects received by GT
@@ -148,8 +148,6 @@ boost::shared_ptr<TriggerMenu> l1t::TriggerMenuXmlProducer::produceGtTriggerMenu
     unsigned int gtNumberL1ForJet = stableParameters->gtNumberL1ForJet();
     ///  get / set the number of L1 tau jets received by GT
     unsigned int gtNumberL1TauJet = stableParameters->gtNumberL1TauJet();
-    ///  get / set the number of L1 jet counts received by GT
-    unsigned int gtNumberL1JetCounts = stableParameters->gtNumberL1JetCounts();
 
     /// hardware stuff
 
@@ -174,14 +172,13 @@ boost::shared_ptr<TriggerMenu> l1t::TriggerMenuXmlProducer::produceGtTriggerMenu
     std::cout
       << "\n\t gtNumberPhysTriggers = " << gtNumberPhysTriggers
       << "\n\t gtNumberPhysTriggersExtended = " << gtNumberPhysTriggersExtended
-      << "\n\t gtNumberTechnicalTriggers = " << gtNumberTechnicalTriggers
+//      << "\n\t gtNumberTechnicalTriggers = " << gtNumberTechnicalTriggers
       << "\n\t gtNumberL1Mu = " << gtNumberL1Mu
       << "\n\t gtNumberL1NoIsoEG = " << gtNumberL1NoIsoEG
       << "\n\t gtNumberL1IsoEG = " << gtNumberL1IsoEG
       << "\n\t gtNumberL1CenJet = " << gtNumberL1CenJet
       << "\n\t gtNumberL1ForJet = " << gtNumberL1ForJet
       << "\n\t gtNumberL1TauJet = " << gtNumberL1TauJet
-      << "\n\t gtNumberL1JetCounts = " << gtNumberL1JetCounts
       << "\n\t gtNumberConditionChips = " << gtNumberConditionChips
       << "\n\t gtPinsOnConditionChip = " << gtPinsOnConditionChip
       << "\n\t gtNumberPsbBoards = " << gtNumberPsbBoards
@@ -203,11 +200,16 @@ boost::shared_ptr<TriggerMenu> l1t::TriggerMenuXmlProducer::produceGtTriggerMenu
     gtXmlParser.setGtPinsOnConditionChip(pinsOnConditionChip);
     gtXmlParser.setGtOrderConditionChip(orderConditionChip);
     gtXmlParser.setGtNumberPhysTriggers(numberPhysTriggers);
-    gtXmlParser.setGtNumberTechTriggers(numberTechTriggers);
-    gtXmlParser.setGtNumberL1JetCounts(numberL1JetCounts);
+//    gtXmlParser.setGtNumberTechTriggers(numberTechTriggers);
 
-    gtXmlParser.parseXmlFile(m_defXmlFile, m_vmeXmlFile);
-
+    if( !(m_newXMLGrammar) ) {
+      LogDebug("l1t|Global") << "Parsing old grammar file..." << std::endl;
+      gtXmlParser.parseXmlFile(m_defXmlFile, m_vmeXmlFile);
+    } else {
+      LogDebug("l1t|Global") << "Parsing new grammar file..." << std::endl;   
+      gtXmlParser.parseXmlFileV2(m_defXmlFile);
+    }
+    
     // transfer the condition map and algorithm map from parser to L1uGtTriggerMenu
 
     boost::shared_ptr<TriggerMenu> pL1uGtTriggerMenu = boost::shared_ptr<TriggerMenu>(
@@ -215,11 +217,6 @@ boost::shared_ptr<TriggerMenu> l1t::TriggerMenuXmlProducer::produceGtTriggerMenu
                         gtXmlParser.vecMuonTemplate(),
                         gtXmlParser.vecCaloTemplate(),
                         gtXmlParser.vecEnergySumTemplate(),
-                        gtXmlParser.vecJetCountsTemplate(),
-                        gtXmlParser.vecCastorTemplate(),
-                        gtXmlParser.vecHfBitCountsTemplate(),
-                        gtXmlParser.vecHfRingEtSumsTemplate(),
-                        gtXmlParser.vecBptxTemplate(),
                         gtXmlParser.vecExternalTemplate(),
                         gtXmlParser.vecCorrelationTemplate(),
                         gtXmlParser.corMuonTemplate(),
@@ -230,10 +227,15 @@ boost::shared_ptr<TriggerMenu> l1t::TriggerMenuXmlProducer::produceGtTriggerMenu
     pL1uGtTriggerMenu->setGtTriggerMenuInterface(gtXmlParser.gtTriggerMenuInterface());
     pL1uGtTriggerMenu->setGtTriggerMenuImplementation(gtXmlParser.gtTriggerMenuImplementation());
     pL1uGtTriggerMenu->setGtScaleDbKey(gtXmlParser.gtScaleDbKey());
+    pL1uGtTriggerMenu->setGtScales(gtXmlParser.gtScales());
 
     pL1uGtTriggerMenu->setGtAlgorithmMap(gtXmlParser.gtAlgorithmMap());
     pL1uGtTriggerMenu->setGtAlgorithmAliasMap(gtXmlParser.gtAlgorithmAliasMap());
-    pL1uGtTriggerMenu->setGtTechnicalTriggerMap(gtXmlParser.gtTechnicalTriggerMap());
+//    pL1uGtTriggerMenu->setGtTechnicalTriggerMap(gtXmlParser.gtTechnicalTriggerMap());
+    
+    //Dump what we have
+    // int verbose = 2
+    // pL1uGtTriggerMenu->print(std::cout,verbose);
 
     //LogDebug("L1TGlobalConfig")
     //<< "\n\nReturning L1 Trigger Menu!"
