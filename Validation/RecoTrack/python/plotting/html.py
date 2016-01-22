@@ -77,6 +77,7 @@ _trackAlgoName = {
     "iter4" : "Iterative Step 4",
     "iter5" : "Iterative Step 5",
     "iter6" : "Iterative Step 6",
+    "iter7" : "Iterative Step 7",
     "iter9" : "Iterative Step 9",
     "iter10": "Iterative Step 10",
 }
@@ -109,6 +110,7 @@ _trackAlgoOrder = [
     'iter4',
     'iter5',
     'iter6',
+    'iter7',
     'iter9',
     'iter10',
 ]
