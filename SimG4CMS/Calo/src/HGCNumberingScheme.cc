@@ -45,7 +45,7 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer,
       index = 0;
     }
   } else {    
-    wafer =  hgcons->waferFromCopy(module);
+    wafer =  hgcons_.waferFromCopy(module);
     celltyp = cell/1000;
     icell   = cell%1000;
     if (celltyp != 1) celltyp = 0;    
@@ -55,17 +55,16 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer,
     //check if it fits
     if (!hgcons_.isValid(layer,wafer,icell,false)) {
       index = 0;
-      if (check_) {
-        std::pair<int,int> temp = hgcons->assignCell(pos.x(),pos.y(),layer,0,false);
-        std::cout << "wafer from copy: " << wafer << ", from assign: " << temp.first << std::endl;
-        std::cout << "cell from copy:  " << icell << ", from assign: " << temp.second << std::endl;
 
-	edm::LogError("HGCSim") << "[HGCNumberingScheme] ID out of bounds :"
-				<< " Subdet= " << subdet << " Zside= " << iz
-				<< " Layer= " << layer << " Wafer= " << wafer
-				<< " CellType= " << celltyp << " Cell= "
-				<< icell;
-      }    
+      std::pair<int,int> temp = hgcons_.assignCell(pos.x(),pos.y(),layer,0,false);
+      edm::LogError("HGCSim") << "wafer from copy: " << wafer << ", from assign: " << temp.first << std::endl;
+      edm::LogError("HGCSim") << "cell from copy:  " << icell << ", from assign: " << temp.second << std::endl;
+      
+      edm::LogError("HGCSim") << "[HGCNumberingScheme] ID out of bounds :"
+                              << " Subdet= " << subdet << " Zside= " << iz
+                              << " Layer= " << layer << " Wafer= " << wafer
+                              << " CellType= " << celltyp << " Cell= "
+                              << icell;
     }
   }
 #ifdef DebugLog
