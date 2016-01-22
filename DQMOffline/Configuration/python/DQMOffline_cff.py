@@ -136,11 +136,10 @@ DQMOfflineMiniAOD = cms.Sequence()
 
 #Post sequences are automatically placed in the EndPath by ConfigBuilder if PAT is run.
 #miniAOD DQM sequences need to access the filter results.
-PostDQMOfflineMiniAOD = cms.Sequence(miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD)
+PostDQMOfflineMiniAOD = cms.Sequence(miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD*MuonMiniAOD)
 PostDQMOffline = cms.Sequence()
 
 
-DQMOfflineMiniAOD = cms.Sequence( miniAODDQMSequence*muonMonitors_miniAOD*MuonMiniAOD )
 
 #DQMOfflineNoHWW = cms.Sequence(DQMOffline)
 #DQMOfflineNoHWW.remove(hwwAnalyzer)
