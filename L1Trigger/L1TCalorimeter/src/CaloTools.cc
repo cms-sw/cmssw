@@ -176,6 +176,30 @@ float l1t::CaloTools::towerPhiSize(int ieta)
   else return 2.*M_PI/18.;
 }
 
+int l1t::CaloTools::regionEta(int ieta)
+{
+
+  // outside HF
+  if (abs(ieta) > kHFEnd)
+    return (ieta<0 ? 0 : 21);
+
+  // inside HBHE
+  if (abs(ieta) <= kHFBegin)
+    {
+      if (ieta<0)
+	return 11 - ceil( double (abs(ieta) /4.) );
+      else
+	return ceil( double (abs(ieta) /4.) ) + 10;
+    }
+
+  // in HF
+  if (ieta<0)
+    return 4 - ceil( double (abs(ieta)-29) /4. );
+  else
+    return ceil( double (abs(ieta)-29) /4. ) + 17;
+
+}
+
 
 
 

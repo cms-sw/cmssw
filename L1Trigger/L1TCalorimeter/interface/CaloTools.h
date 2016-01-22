@@ -81,6 +81,9 @@ namespace l1t {
     static float towerEtaSize(int ieta);
     static float towerPhiSize(int ieta);
 
+    // conversion to other index systems
+    static int regionEta(int ieta);  // RCT region
+
     // conversion methods
     static math::PtEtaPhiMLorentzVector p4Demux(l1t::L1Candidate*);
     static l1t::EGamma egP4Demux(l1t::EGamma&);
