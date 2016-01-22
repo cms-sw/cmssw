@@ -32,6 +32,15 @@ muons = cfg.Analyzer(
     'muons',
     )
 
+from PhysicsTools.Heppy.analyzers.examples.ResonanceBuilder import ResonanceBuilder
+dimuons = cfg.Analyzer(
+    ResonanceBuilder,
+    'dimuons',
+    leg_collection = 'muons',
+    filter_func = lambda x : True, 
+    pdgid = 23
+    )
+
 # a very simple jet analyzer
 # read miniaod jets and wrap them in python jets
 from PhysicsTools.Heppy.analyzers.examples.SimpleJetAnalyzer import SimpleJetAnalyzer
@@ -42,9 +51,9 @@ jets = cfg.Analyzer(
     )
 
 # a simple tree with a Z candidate and the two leading jets (if any)
-from PhysicsTools.Heppy.analyzers.examples.SimpleTreeAnalyzer import SimpleTreeAnalyzer
+from PhysicsTools.Heppy.analyzers.examples.ZJetsTreeAnalyzer import ZJetsTreeAnalyzer
 tree = cfg.Analyzer(
-    SimpleTreeAnalyzer
+    ZJetsTreeAnalyzer
     )
 
 
@@ -52,6 +61,7 @@ tree = cfg.Analyzer(
 # the analyzers will process each event in this order
 sequence = cfg.Sequence( [ 
         muons,
+        dimuons,
         jets,
         tree
         ] )
@@ -87,7 +97,7 @@ if __name__ == '__main__':
         pz += mu.p4()
     print 'z candidate mass = ', pz.M()
 
-    # obviously you can stay in ipython on a given event 
+    # you can stay in ipython on a given event 
     # and paste more and more code as you need it until 
     # your code is correct. 
     # then put your code in an analyzer, and loop again. 
