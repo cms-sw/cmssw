@@ -119,6 +119,7 @@ effectiveAreas_( (ps.getParameter<edm::FileInPath>("effAreasConfigFile")).fullPa
   tree_->Branch("eleSCEtaWidth",         &eleSCEtaWidth_);
   tree_->Branch("eleSCPhiWidth",         &eleSCPhiWidth_);
   tree_->Branch("eleHoverE",             &eleHoverE_);
+  tree_->Branch("eleHoverEBc",           &eleHoverEBc_);
   tree_->Branch("eleEoverP",             &eleEoverP_);
   tree_->Branch("eleEoverPInv",          &eleEoverPInv_);
   tree_->Branch("eleBrem",               &eleBrem_);
@@ -425,6 +426,7 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   eleSCEtaWidth_        .clear();
   eleSCPhiWidth_        .clear();
   eleHoverE_            .clear();
+  eleHoverEBc_          .clear();
   eleEoverP_            .clear();
   eleEoverPInv_         .clear();
   eleBrem_              .clear();
@@ -912,7 +914,8 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
     eleSCRawEn_          .push_back(ele->superCluster()->rawEnergy());
     eleSCEtaWidth_       .push_back(ele->superCluster()->etaWidth());
     eleSCPhiWidth_       .push_back(ele->superCluster()->phiWidth());
-    eleHoverE_           .push_back(ele->hcalOverEcalBc());
+    eleHoverE_           .push_back(ele->hcalOverEcal());
+    eleHoverEBc_         .push_back(ele->hcalOverEcalBc());
     eleEoverP_           .push_back(ele->eSuperClusterOverP());
     eleEoverPInv_        .push_back(fabs(1./ele->ecalEnergy()-1./ele->trackMomentumAtVtx().R()));
     eleBrem_             .push_back(ele->fbrem());

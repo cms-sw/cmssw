@@ -139,6 +139,7 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    vector<float>  eleSCEtaWidth_;
    vector<float>  eleSCPhiWidth_;
    vector<float>  eleHoverE_;
+   vector<float>  eleHoverEBc_;
    vector<float>  eleEoverP_;
    vector<float>  eleEoverPInv_;
    vector<float>  eleBrem_;
