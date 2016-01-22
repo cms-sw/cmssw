@@ -28,6 +28,7 @@ namespace cms
 	  lepTokens_.push_back( mayConsume<edm::View<reco::Candidate> >( *it ) );
 	}
   
+   rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho"));
       }
 
     std::string alias = iConfig.exists("alias") ? iConfig.getParameter<std::string>("alias") : "";
@@ -54,7 +55,7 @@ namespace cms
 
     if(calculateSignificance_)
       {
-	reco::METCovMatrix sigcov = getMETCovMatrix(event, *input);
+	reco::METCovMatrix sigcov = getMETCovMatrix(event, setup, *input);
 	pfmet.setSignificanceMatrix(sigcov);
       }
 
@@ -67,7 +68,7 @@ namespace cms
 
 
 
-  reco::METCovMatrix PFMETProducer::getMETCovMatrix(const edm::Event& event, const edm::View<reco::Candidate>& candInput) const {
+  reco::METCovMatrix PFMETProducer::getMETCovMatrix(const edm::Event& event, const edm::EventSetup& setup, const edm::View<reco::Candidate>& candInput) const {
 
 	// leptons
 	std::vector< edm::Handle<reco::CandidateView> > leptons;
@@ -88,8 +89,13 @@ namespace cms
 	edm::Handle<edm::View<reco::Jet> > inputJets;
 	event.getByToken( jetToken_, inputJets );
 
+   JME::JetResolution resObj = JME::JetResolution::get(setup, "AK4PFchs");
+
+   edm::Handle<double> rho;
+   event.getByToken(rhoToken_, rho);
+
 	//Compute the covariance matrix and fill it
-	reco::METCovMatrix cov = metSigAlgo_->getCovariance( *inputJets, leptons, candInput);
+	reco::METCovMatrix cov = metSigAlgo_->getCovariance( *inputJets, leptons, candInput, *rho, resObj);
 
 	return cov;
   }

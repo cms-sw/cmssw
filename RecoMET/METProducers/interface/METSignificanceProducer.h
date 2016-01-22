@@ -59,6 +59,7 @@ namespace cms
       edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
       edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandidatesToken_;
       std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > lepTokens_;
+      edm::EDGetTokenT<double> rhoToken_;
  
       metsig::METSignificance* metSigAlgo_;
 

@@ -51,7 +51,9 @@ metsig::METSignificance::~METSignificance() {
 reco::METCovMatrix
 metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 				       const std::vector< edm::Handle<reco::CandidateView> >& leptons,
-				       const edm::View<reco::Candidate>& pfCandidates) {
+				       const edm::View<reco::Candidate>& pfCandidates,
+                   double rho,
+                   JME::JetResolution& resObj) {
   
    // metsig covariance
    double cov_xx = 0;
@@ -119,9 +121,12 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
       double c = jet->px()/jet->pt();
       double s = jet->py()/jet->pt();
 
+      JME::JetParameters parameters;
+      parameters.setJetPt(jpt).setJetEta(jeta).setRho(rho);
+
       // jet energy resolutions
       double jeta_res = (std::abs(jeta) < 9.9) ? jeta : 9.89; // JetResolutions defined for |eta|<9.9
-      double sigmapt = ptRes_->parameterEtaEval("sigma",jeta_res,jpt);
+      double sigmapt = resObj.getResolution(parameters);
       double sigmaphi = phiRes_->parameterEtaEval("sigma",jeta_res,jpt);
 
       // split into high-pt and low-pt sector
