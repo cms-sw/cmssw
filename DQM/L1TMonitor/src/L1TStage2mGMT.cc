@@ -29,34 +29,19 @@ void L1TStage2mGMT::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, cons
 void L1TStage2mGMT::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& iRun, const edm::EventSetup& eveSetup)
 {
   ibooker.setCurrentFolder(monitorDir);
+  // eta ,phi, pt 
+  eta_mgmt = ibooker.book1D("eta_mgmt", "#eta of MGMT", 229, -114.5, 114.5);
+  phi_mgmt = ibooker.book1D("phi_mgmt", "#phi of MGMT", 144, -0.5, 143.5);
+  pt_mgmt = ibooker.book1D("pt_mgmt", "p_{T} of MGMT", 300, 0, 300);
+  bx_mgmt = ibooker.book1D("pt_mgmt", "BX", 2048, -0.5, 2047.5);
+  etaVSphi_mgmt = ibooker.book2D("etaVSphi_mgmt", "#eta VS #phi of MGMT", 229, -114.5, 114.5, 144, -0.5, 143.5);
+  phiVSpt_mgmt = ibooker.book2D("phiVSpt_mgmt", "#phi VS p_{T}of MGMT", 144, -0.5, 143.5, 300, 0, 300);
+  etaVSpt_mgmt = ibooker.book2D("etaVSpt_mgmt", "#eta VS p_{T} of MGMT", 229, -114.5, 114.5,300, 0, 300);
+  etaVSbx_mgmt = ibooker.book2D("etaVSbx_mgmt", "#eta of MGMT VS bx", 229, -114.5, 114.5, 2048, -0.5, 2047.5);
+  phiVSbx_mgmt = ibooker.book2D("phiVSbx_mgmt", "#phi of MGMT VS bx", 144, -0.5, 143.5, 2048, -0.5, 2047.5);
+  ptVSbx_mgmt  = ibooker.book2D("ptVSbx_mgmt", "#p_{T} of MGMT VS bx", 300, 0, 300 , 2048, -0.5, 2047.5);
+
   
-  // eta & phi 
-  //  eta_bmtf_omtf_emtf= ibooker.book1D("eta_bmtf_omtf_emtf", "Eta of BMTF & OMTF & EMTF", 229, -114.5, 114.5);
-  eta_bmtf = ibooker.book1D("eta_bmtf", "Eta of BMTF", 229, -114.5, 114.5);
-  eta_omtf = ibooker.book1D("eta_omtf", "Eta of OMTF", 229, -114.5, 114.5);
-  eta_emtf = ibooker.book1D("eta_emtf", "Eta of EMTF", 229, -114.5, 114.5);
-
-  //  phi_bmtf_omtf_emtf= ibooker.book1D("phi_bmtf_omtf_emtf", "Phi of BMTF & OMTF & EMTF", 144, -0.5, 143.5);
-  phi_bmtf = ibooker.book1D("phi_bmtf", "Phi of BMTF", 144, -0.5, 143.5);
-  phi_omtf = ibooker.book1D("phi_omtf", "Phi of OMTF", 144, -0.5, 143.5);
-  phi_emtf = ibooker.book1D("phi_emtf", "Phi of EMTF", 144, -0.5, 143.5);
-
-  // etaphi_bmtf_omtf_emtf= ibooker.book2D("etaphi_bmtf_omtf_emtf", "EtaPhi of BMTF & OMTF & EMTF", 229, -114.5, 114.5, 144, -0.5, 143.5);
-  // etaphi_bmtf = ibooker.book2D("etaphi_bmtf", "EtaPhi of BMTF", 229, -114.5, 114.5, 144, -0.5, 143.5);
-  // etaphi_omtf = ibooker.book2D("etaphi_omtf", "EtaPhi of OMTF", 229, -114.5, 114.5, 144, -0.5, 143.5);
-  // etaphi_emtf = ibooker.book2D("etaphi_emtf", "EtaPhi of EMTF", 229, -114.5, 114.5, 144, -0.5, 143.5);
-
-  // eta_bmtf_omtf= ibooker.book1D("eta_bmtf_omtf", "Eta of BMTF & OMTF", 229, -114.5, 114.5);
-  // eta_bmtf_emtf= ibooker.book1D("eta_bmtf_emtf", "Eta of BMTF & EMTF", 229, -114.5, 114.5);
-  // eta_omtf_emtf= ibooker.book1D("eta_omtf_emtf", "Eta of OMTF & EMTF", 229, -114.5, 114.5);
-
-  // phi_bmtf_omtf= ibooker.book1D("phi_bmtf_omtf", "Phi of BMTF & OMTF", 144, -0.5, 143.5);
-  // phi_bmtf_emtf= ibooker.book1D("phi_bmtf_emtf", "Phi of BMTF & EMTF", 144, -0.5, 143.5);
-  // phi_omtf_emtf= ibooker.book1D("phi_omtf_emtf", "Phi of OMTF & EMTF", 144, -0.5, 143.5);
-
-  pt_bmtf = ibooker.book1D("pt_bmtf", "Pt of BMTF", 1000, 0, 1000);
-  pt_omtf = ibooker.book1D("pt_omtf", "Pt of OMTF", 1000, 0, 1000);
-  pt_emtf = ibooker.book1D("pt_emtf", "Pt of EMTF", 1000, 0, 1000);
 
 
 }
@@ -77,30 +62,20 @@ void L1TStage2mGMT::analyze(const edm::Event & eve, const edm::EventSetup & eveS
       for(l1t::MuonBxCollection::const_iterator itMuon = Muon->begin(itBX); itMuon != Muon->end(itBX); ++itMuon)
 	//  for(l1t::MuonBxCollection::const_iterator itMuon = Muon->begin(); itMuon != Muon->end(); ++itMuon)
 	{  
-	  const bool endcap  = (itMuon->hwEta() >= 68 || itMuon->hwEta() <= (-68));
-	  const bool overlap = ((itMuon->hwEta() > 44 && itMuon->hwEta() < 68) ||(itMuon->hwEta() >= (-68) && itMuon->hwEta() <= (-44)));
-	  const bool barrel  = (itMuon->hwEta() >= (-44) && itMuon->hwEta() <= 44);
-    
-      if (endcap)
-	{
-	  eta_emtf->Fill(itMuon->hwEta());
-	  phi_emtf->Fill(itMuon->hwPhi());
-	  pt_emtf->Fill(itMuon->hwPt());
-	}
-      
-      if (overlap)
-	{
-	  eta_omtf->Fill(itMuon->hwEta());
-	  phi_omtf->Fill(itMuon->hwPhi());
-	  pt_omtf->Fill(itMuon->hwPt());
-	}
-      
-      if (barrel)
-	{
-	  eta_bmtf->Fill(itMuon->hwEta());
-	  phi_bmtf->Fill(itMuon->hwPhi());
-	  pt_bmtf->Fill(itMuon->hwPt());
-	}
+
+	  eta_mgmt->Fill(itMuon->hwEta());
+	  phi_mgmt->Fill(itMuon->hwPhi());
+	  pt_mgmt->Fill(itMuon->hwPt());
+	  bx_mgmt->Fill(itBX);
+
+	  etaVSphi_mgmt->Fill(itMuon->hwEta(),itMuon->hwPhi()); 
+	  phiVSpt_mgmt->Fill(itMuon->hwPhi(),itMuon->hwPt()); 
+	  etaVSpt_mgmt->Fill(itMuon->hwEta(),itMuon->hwPt());
+
+	  etaVSbx_mgmt->Fill(itMuon->hwEta(),itBX); 
+	  phiVSbx_mgmt->Fill(itMuon->hwPhi(),itBX); 
+	  ptVSbx_mgmt->Fill(itMuon->hwPt()  ,itBX);  
+
 	}
     }
 }
