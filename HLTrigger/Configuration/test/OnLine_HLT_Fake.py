@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_6_0/Fake/V4 (CMSSW_7_6_3_patch2)
+# /dev/CMSSW_8_0_0/Fake/V2 (CMSSW_8_0_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_6_0/Fake/V4')
+  tableName = cms.string('/dev/CMSSW_8_0_0/Fake/V2')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -43,12 +43,7 @@ process.CastorDbProducer = cms.ESProducer( "CastorDbProducer",
 )
 process.HcalTopologyIdealEP = cms.ESProducer( "HcalTopologyIdealEP",
   Exclude = cms.untracked.string( "" ),
-  appendToDataLabel = cms.string( "" ),
-  hcalTopologyConstants = cms.PSet( 
-    maxDepthHE = cms.int32( 3 ),
-    maxDepthHB = cms.int32( 2 ),
-    mode = cms.string( "HcalTopologyMode::LHC" )
-  )
+  appendToDataLabel = cms.string( "" )
 )
 process.hcalDDDRecConstants = cms.ESProducer( "HcalDDDRecConstantsESModule",
   appendToDataLabel = cms.string( "" )
