@@ -39,7 +39,6 @@ mixedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer
 # tracks
 mixedTripletStepTracks = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTracks.clone(
     TTRHBuilder = 'WithoutRefit',
-#    Fitter = 'FlexibleKFFittingSmoother',
     Propagator = 'PropagatorWithMaterial'
 )
 
