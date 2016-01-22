@@ -39,7 +39,7 @@ tobTecStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.t
 # tracks 
 tobTecStepTracks = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTracks.clone(
     TTRHBuilder = 'WithoutRefit',
-    Fitter = 'KFFittingSmootherFifth',
+#    Fitter = 'KFFittingSmootherFifth',
     Propagator = 'PropagatorWithMaterial'
 )
 
