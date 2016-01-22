@@ -24,6 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 // #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
@@ -61,6 +62,7 @@ namespace edm
     //gen::ExternalDecayDriver* decayer_;
     Decayer*              decayer_;
     unsigned int          nEventsInLumiBlock_;
+    bool randomInit_;
   };
 
   //------------------------------------------------------------------------
@@ -72,7 +74,8 @@ namespace edm
     EDFilter(),
     hadronizer_(ps),
     decayer_(0),
-    nEventsInLumiBlock_(0)
+    nEventsInLumiBlock_(0),
+    randomInit_(false)
   {
     // TODO:
     // Put the list of types produced by the filters here.
@@ -99,6 +102,11 @@ namespace edm
          usesResource(resource);
        }
     }
+    
+    if (ps.exists("RandomizedParameters")) {
+      randomInit_ = true;
+    }    
+    
     // This handles the case where there are no shared resources, because you
     // have to declare something when the SharedResources template parameter was used.
     if(sharedResources.empty() && (!decayer_ || decayer_->sharedResources().empty())) {
@@ -220,6 +228,10 @@ namespace edm
     RandomEngineSentry<HAD> randomEngineSentry(&hadronizer_, lumi.index());
     RandomEngineSentry<DEC> randomEngineSentryDecay(decayer_, lumi.index());
 
+    if (randomInit_) {
+      randomEngineSentry.randomEngine()->setSeed(std::abs(randomEngineSentry.randomEngine()->getSeed()+lumi.id().value()),0);
+    }
+    
     if ( !hadronizer_.readSettings(0) )
        throw edm::Exception(errors::Configuration) 
 	 << "Failed to read settings for the hadronizer "
