@@ -188,12 +188,12 @@ HiInclusiveJetAnalyzer::beginJob() {
   t->Branch("nref",&jets_.nref,"nref/I");
   t->Branch("rawpt",jets_.rawpt,"rawpt[nref]/F");
   if(!skipCorrections_) t->Branch("jtpt",jets_.jtpt,"jtpt[nref]/F");
-  t->Branch("jtenergy",jets_.jtenergy,"jtenergy[nref]/F");
   t->Branch("jteta",jets_.jteta,"jteta[nref]/F");
   t->Branch("jty",jets_.jty,"jty[nref]/F");
   t->Branch("jtphi",jets_.jtphi,"jtphi[nref]/F");
   t->Branch("jtpu",jets_.jtpu,"jtpu[nref]/F");
   t->Branch("jtm",jets_.jtm,"jtm[nref]/F");
+  t->Branch("jtarea",jets_.jtarea,"jtarea[nref]/F");
 
   // jet ID information, jet composition
   if(doHiJetID_){
@@ -349,6 +349,8 @@ HiInclusiveJetAnalyzer::beginJob() {
     t->Branch("refeta",jets_.refeta,"refeta[nref]/F");
     t->Branch("refy",jets_.refy,"refy[nref]/F");
     t->Branch("refphi",jets_.refphi,"refphi[nref]/F");
+    t->Branch("refm",jets_.refm,"refm[nref]/F");
+    t->Branch("refarea",jets_.refarea,"refarea[nref]/F");
     t->Branch("refdphijt",jets_.refdphijt,"refdphijt[nref]/F");
     t->Branch("refdrjt",jets_.refdrjt,"refdrjt[nref]/F");
     // matched parton
@@ -990,12 +992,12 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
       }
     }
     jets_.jtpt[jets_.nref] = jet.pt();
-    jets_.jtenergy[jets_.nref] = jet.energy();
     jets_.jteta[jets_.nref] = jet.eta();
     jets_.jtphi[jets_.nref] = jet.phi();
     jets_.jty[jets_.nref] = jet.eta();
     jets_.jtpu[jets_.nref] = jet.pileup();
     jets_.jtm[jets_.nref] = jet.mass();
+    jets_.jtarea[jets_.nref] = jet.jetArea();
 
     if(usePat_){
 
@@ -1062,7 +1064,9 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 	jets_.refpt[jets_.nref] = genjet->pt();
 	jets_.refeta[jets_.nref] = genjet->eta();
 	jets_.refphi[jets_.nref] = genjet->phi();
-	jets_.refy[jets_.nref] = genjet->eta();
+        jets_.refm[jets_.nref] = genjet->mass();
+        jets_.refarea[jets_.nref] = genjet->jetArea();
+        jets_.refy[jets_.nref] = genjet->eta();
 	jets_.refdphijt[jets_.nref] = reco::deltaPhi(jet.phi(), genjet->phi());
 	jets_.refdrjt[jets_.nref] = reco::deltaR(jet.eta(),jet.phi(),genjet->eta(),genjet->phi());
 
@@ -1075,6 +1079,8 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 	jets_.refpt[jets_.nref] = -999.;
 	jets_.refeta[jets_.nref] = -999.;
 	jets_.refphi[jets_.nref] = -999.;
+        jets_.refm[jets_.nref] = -999.;
+        jets_.refarea[jets_.nref] = -999.;
 	jets_.refy[jets_.nref] = -999.;
 	jets_.refdphijt[jets_.nref] = -999.;
 	jets_.refdrjt[jets_.nref] = -999.;
