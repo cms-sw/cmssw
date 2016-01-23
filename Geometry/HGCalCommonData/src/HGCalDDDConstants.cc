@@ -22,6 +22,11 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
   mode_ = HGCalGeometryMode( hgpar_->mode_ );
   if (mode_ == HGCalGeometryMode::Square) {
     rmax_ = 0;
+    
+    for( int simreco = 0; simreco < 2; ++simreco ) {
+      tot_layers_[simreco] = layersInit((bool)simreco);
+    }
+
     edm::LogInfo("HGCalGeom") << "HGCalDDDConstants initialized for " << name
 			      << " with " << layers(false) << ":" <<layers(true)
 			      << " layers, " << sectors() << " sectors and "
