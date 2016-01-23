@@ -347,6 +347,10 @@ Pythia8Hadronizer::~Pythia8Hadronizer()
 // do we need to delete UserHooks/JetMatchingHook here ???
   if(fEmissionVetoHook) {delete fEmissionVetoHook; fEmissionVetoHook=0;}
   if(fEmissionVetoHook1) {delete fEmissionVetoHook1; fEmissionVetoHook1=0;}
+  if (fMultiUserHook) { 
+    delete fMultiUserHook;
+    fMultiUserHook = 0;
+  }
   
   //clean up temp file
   if (!slhafile_.empty()) {
