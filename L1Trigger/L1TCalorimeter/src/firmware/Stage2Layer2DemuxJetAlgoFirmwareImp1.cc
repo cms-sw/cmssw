@@ -42,12 +42,15 @@ l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::~Stage2Layer2DemuxJetAlgoFirmwareImp1
 void l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::processEvent(const std::vector<l1t::Jet> & inputJets,
                                                              std::vector<l1t::Jet> & outputJets) {
 
-  // Set the output jets to the input jets
   outputJets = inputJets;
 
   // Sort the jets by pT
   std::vector<l1t::Jet>::iterator start(outputJets.begin());
   std::vector<l1t::Jet>::iterator end(outputJets.end());
+
+  //  for (auto& jet: outputJets){
+  //    std::cout << "MP : " << jet.hwPt() << ", " << jet.hwEta() << ", " << jet.hwPhi() << ", " << CaloTools::towerEta(jet.hwEta()) << ", " << CaloTools::towerPhi(jet.hwEta(),jet.hwPhi()) << std::endl;
+  //  }
 
   BitonicSort< l1t::Jet >(down,start,end);
 
@@ -55,15 +58,16 @@ void l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::processEvent(const std::vector<l
   for (std::vector<l1t::Jet>::iterator jet = outputJets.begin(); jet != outputJets.end(); ++jet )
     {
 
-      jet->setHwPhi(2*jet->hwPhi());
-      jet->setHwEta(2*jet->hwEta());
+  // convert eta to GT coordinates
+  for(auto& jet : outputJets){
 
-      if (jet->hwPt()>0x7FF){
-        jet->setHwPt(0x7FF);
-      } else {
-        jet->setHwPt(jet->hwPt() & 0x7FF);
-      }
+    int gtEta = CaloTools::gtEta(jet.hwEta());
+    int gtPhi = CaloTools::gtPhi(jet.hwPhi());
 
-    }
+    jet.setHwEta(gtEta);
+    jet.setHwPhi(gtPhi);
+
+  }
+
 
 }
