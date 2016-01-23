@@ -83,6 +83,8 @@ namespace l1t {
 
     // conversion to other index systems
     static int regionEta(int ieta);  // RCT region
+    static int gtEta(int ieta);      // GT eta scale
+    static int gtPhi(int iphi);      // GT phi scale
 
     // conversion methods
     static math::PtEtaPhiMLorentzVector p4Demux(l1t::L1Candidate*);
@@ -104,6 +106,11 @@ namespace l1t {
 
     static const l1t::CaloTower nullTower_; //to return when we need to return a tower which was not found/invalid rather than throwing an exception
     static const l1t::CaloCluster nullCluster_; //to return when we need to return a cluster which was not found/invalid rather than throwing an exception
+
+    static const float kGTEtaLSB;
+    static const float kGTPhiLSB;
+    static const float kGTEtLSB;
+
   };
 
 }

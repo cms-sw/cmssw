@@ -6,6 +6,11 @@
 const l1t::CaloTower l1t::CaloTools::nullTower_;
 const l1t::CaloCluster l1t::CaloTools::nullCluster_;
 
+const float l1t::CaloTools::kGTEtaLSB = 0.0435;
+const float l1t::CaloTools::kGTPhiLSB = 0.0435;
+const float l1t::CaloTools::kGTEtLSB = 0.5;
+
+
 
 bool l1t::CaloTools::insertTower(std::vector<l1t::CaloTower>& towers, const l1t::CaloTower& tower) {
   size_t towerIndex = CaloTools::caloTowerHash(tower.hwEta(), tower.hwPhi());
@@ -143,8 +148,8 @@ size_t l1t::CaloTools::calNrTowers(int iEtaMin,int iEtaMax,int iPhiMin,int iPhiM
 std::pair<float,float> l1t::CaloTools::towerEtaBounds(int ieta)
 {
   if(ieta==0) ieta = 1;
-  if(ieta>32) ieta = 32;
-  if(ieta<-32) ieta = -32;
+  if(ieta>kHFEnd) ieta = kHFEnd;
+  if(ieta<(-1*kHFEnd)) ieta = -1*kHFEnd;
   //const float towerEtas[33] = {0,0.087,0.174,0.261,0.348,0.435,0.522,0.609,0.696,0.783,0.870,0.957,1.044,1.131,1.218,1.305,1.392,1.479,1.566,1.653,1.740,1.830,1.930,2.043,2.172,2.322,2.5,2.650,3.000,3.5,4.0,4.5,5.0}; 
   const float towerEtas[41] = {0,0.087,0.174,0.261,0.348,0.435,0.522,0.609,0.696,0.783,0.870,0.957,1.044,1.131,1.218,1.305,1.392,1.479,1.566,1.653,1.740,1.830,1.930,2.043,2.172,2.322,2.5,2.650,2.853,3.139,3.314,3.489,3.664,3.839,4.013,4.191,4.363,4.538,4.716,4.889,5.191};
   return std::make_pair( towerEtas[abs(ieta)-1],towerEtas[abs(ieta)] );
@@ -201,14 +206,28 @@ int l1t::CaloTools::regionEta(int ieta)
 }
 
 
+int l1t::CaloTools::gtEta(int ieta) {
+
+  double eta = towerEta(ieta);
+  return round ( eta / kGTEtaLSB );
+
+}
+
+int l1t::CaloTools::gtPhi(int iphi) {
+
+  double phi = towerEta(iphi);
+  return round ( phi / kGTPhiLSB );
+
+}
+
 
 
 // this conversion is based on GT input definitions in CMS DN-2014/029 
 math::PtEtaPhiMLorentzVector l1t::CaloTools::p4Demux(l1t::L1Candidate* cand) {
 
-  return math::PtEtaPhiMLorentzVector( cand->hwPt() * 0.5 + 1.E-6,
-				       cand->hwEta() * 0.0435,
-				       cand->hwPhi() * 0.0435,
+  return math::PtEtaPhiMLorentzVector( cand->hwPt() * kGTEtLSB + 1.E-6,
+				       cand->hwEta() * kGTEtaLSB,
+				       cand->hwPhi() * kGTPhiLSB,
 				       0. ) ;
   
 }
