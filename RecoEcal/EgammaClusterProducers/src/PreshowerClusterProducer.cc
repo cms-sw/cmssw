@@ -281,19 +281,19 @@ void PreshowerClusterProducer::set(const edm::EventSetup& es) {
   const ESEEIntercalibConstants *esEEInterCalib = esEEInterCalib_.product();
 
   // both planes work
-  gamma0_ = (ESGain == 1) ? esEEInterCalib->getGammaLow0() : esEEInterCalib->getGammaHigh0();
+  gamma0_ = (ESGain == 1) ? 0.02 : esEEInterCalib->getGammaHigh0();
   alpha0_ = (ESGain == 1) ? esEEInterCalib->getAlphaLow0() : esEEInterCalib->getAlphaHigh0();
 
   // only first plane works 
-  gamma1_ = (ESGain == 1) ? esEEInterCalib->getGammaLow1() : esEEInterCalib->getGammaHigh1();
+  gamma1_ = (ESGain == 1) ? (0.02 * esEEInterCalib->getGammaLow1()) : esEEInterCalib->getGammaHigh1();
   alpha1_ = (ESGain == 1) ? esEEInterCalib->getAlphaLow1() : esEEInterCalib->getAlphaHigh1();
 
   // only second plane works
-  gamma2_ = (ESGain == 1) ? esEEInterCalib->getGammaLow2() : esEEInterCalib->getGammaHigh2();
+  gamma2_ = (ESGain == 1) ? (0.02 * esEEInterCalib->getGammaLow2()) : esEEInterCalib->getGammaHigh2();
   alpha2_ = (ESGain == 1) ? esEEInterCalib->getAlphaLow2() : esEEInterCalib->getAlphaHigh2();
 
   // both planes do not work
-  gamma3_ = (ESGain == 1) ? esEEInterCalib->getGammaLow3() : esEEInterCalib->getGammaHigh3();
+  gamma3_ = (ESGain == 1) ? 0.02 : esEEInterCalib->getGammaHigh3();
   alpha3_ = (ESGain == 1) ? esEEInterCalib->getAlphaLow3() : esEEInterCalib->getAlphaHigh3();
 
   es.get<ESMissingEnergyCalibrationRcd>().get(esMissingECalib_);
