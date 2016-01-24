@@ -54,7 +54,6 @@ namespace metsig {
          std::vector<double> jetParams_;
          std::vector<double> pjetParams_;
 
-         JetResolution* ptRes_;
          JetResolution* phiRes_;
 
          JME::JetResolution ptRes13TeV_;
