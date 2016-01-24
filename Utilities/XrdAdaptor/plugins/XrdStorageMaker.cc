@@ -1,6 +1,7 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
@@ -83,7 +84,12 @@ public:
     XrdCl::URL url(fullpath);
     XrdCl::FileSystem fs(url);
     std::vector<std::string> fileList; fileList.push_back(url.GetPath());
-    fs.Prepare(fileList, XrdCl::PrepareFlags::Stage, 0, &m_null_handler);
+    auto status = fs.Prepare(fileList, XrdCl::PrepareFlags::Stage, 0, &m_null_handler);
+    if (!status.IsOK())
+    {
+        edm::LogWarning("StageInError") << "XrdCl::FileSystem::Prepare failed with error '"
+                                        << status.ToStr() << "' (errNo = " << status.errNo << ")";
+    }
   }
 
   virtual bool check (const std::string &proto,
