@@ -37,10 +37,24 @@
 #include <cmath>
 
 
-HGCalRecHitValidation::HGCalRecHitValidation(const edm::ParameterSet& iConfig){
-  nameDetector_    = iConfig.getParameter<std::string>("DetectorName");
-  recHitSource_    = iConfig.getParameter<edm::InputTag>("RecHitSource");
-  verbosity_       = iConfig.getUntrackedParameter<int>("Verbosity",0);
+HGCalRecHitValidation::
+HGCalRecHitValidation(const edm::ParameterSet& iConfig) :
+  nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
+  verbosity_(iConfig.getUntrackedParameter<int>("Verbosity",0)) {
+  auto temp = iConfig.getParameter<edm::InputTag>("RecHitSource");
+  if( nameDetector_ == "HGCalEESensitive" || 
+      nameDetector_ == "HGCalHESiliconSensitive" ||
+      nameDetector_ == "HGCalHEScintillatorSensitive" ) {
+    recHitSource_    = consumes<HGCRecHitCollection>(temp);
+  } else if ( nameDetector_ == "HCal" ) {
+    recHitSource_    = 
+      consumes<HBHERecHitCollection>(temp);
+  } else {
+    throw cms::Exception("BadHGCRecHitSource")
+      << "HGCal DetectorName given as " << nameDetector_ << " must be: "
+      << "\"HGCalHESiliconSensitive\", \"HGCalHESiliconSensitive\", "
+      << "\"HGCalHEScintillatorSensitive\", or \"HCal\"!"; 
+  }
 }
 
 
@@ -60,7 +74,7 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent,
     const CaloGeometry* geom0 = geom.product();
 
     edm::Handle<HBHERecHitCollection> hbhecoll;
-    iEvent.getByLabel(recHitSource_, hbhecoll);
+    iEvent.getByToken(recHitSource_, hbhecoll);
     if (hbhecoll.isValid()) {
       if (verbosity_>0) 
 	edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 
@@ -86,7 +100,7 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent,
     const HGCalGeometry* geom0 = geom.product();
 
     edm::Handle<HGCRecHitCollection> theRecHitContainers;
-    iEvent.getByLabel(recHitSource_, theRecHitContainers);
+    iEvent.getByToken(recHitSource_, theRecHitContainers);
     if (theRecHitContainers.isValid()) {
       if (verbosity_>0) 
 	edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 

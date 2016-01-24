@@ -69,7 +69,7 @@ private:
   
   // ----------member data ---------------------------
   std::string       nameDetector_;
-  edm::InputTag     digiSource_;
+  edm::EDGetToken   digiSource_;
   int               verbosity_, SampleIndx_;
   int               layers_;
  
