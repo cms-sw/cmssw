@@ -25,7 +25,8 @@ public:
         deltaR(   std::numeric_limits<float>::quiet_NaN() ),
         ratio(    std::numeric_limits<float>::quiet_NaN() ),
         ratioRel( std::numeric_limits<float>::quiet_NaN() ),
-        elec_mva( std::numeric_limits<float>::quiet_NaN() )
+        elec_mva( std::numeric_limits<float>::quiet_NaN() ),
+        charge(   -10 )
     { }
 
     float sip2dsig;                            // 2D signed impact parameter significance
@@ -41,6 +42,8 @@ public:
     float ratioRel;                         // momentum parallel to jet axis over jet energy
 
     float elec_mva;
+
+    int charge;
 
     struct Quality {
         static const float undef;
@@ -177,6 +180,7 @@ TaggingVariableList TemplatedSoftLeptonTagInfo<REF>::taggingVariables(void) cons
     list.insert( TaggingVariable(btau::trackDeltaR,    data.deltaR),   true );
     list.insert( TaggingVariable(btau::trackPParRatio, data.ratioRel), true );
     list.insert( TaggingVariable(btau::electronMVA,    data.elec_mva), true );
+    list.insert( TaggingVariable(btau::trackCharge,    data.charge),   true );
   }
 
   list.finalize();

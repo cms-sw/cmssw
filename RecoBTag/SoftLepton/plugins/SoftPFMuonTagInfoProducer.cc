@@ -132,6 +132,7 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
       properties.ratio    = muon->pt() / jetRef->pt();
       properties.ratioRel = muon->p4().Dot(jetRef->p4()) / jetvect.Mag2();
       properties.p0Par    = boostedPPar(muon->momentum(), jetRef->momentum());
+      properties.charge   = muon->charge();
       
       if(std::abs(properties.sip3dsig)>SIPsigcut) continue;
       
