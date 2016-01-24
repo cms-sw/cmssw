@@ -168,7 +168,7 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    if( !partonSelectorSet_ )
    {
      if ( partonMode_=="Undefined" )
-       edm::LogInfo("UndefinedPartonMode") << "Could not automatically determine the hadronizer type and set the correct parton selection mode. Parton-based jet flavour will not be defined.";
+       edm::LogWarning("UndefinedPartonMode") << "Could not automatically determine the hadronizer type and set the correct parton selection mode. Parton-based jet flavour will not be defined.";
      else if ( partonMode_=="Pythia6" )
      {
        partonSelector_ = PartonSelectorPtr( new Pythia6PartonSelector() );
