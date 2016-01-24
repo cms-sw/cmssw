@@ -28,7 +28,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // OMDS stuff
-#include "RelationalAccess/ISessionProxy.h"
+#include "RelationalAccess/ISession.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/IRelationalDomain.h"
 #include "RelationalAccess/ISchema.h"
@@ -39,7 +39,9 @@
 #include "CoralBase/Attribute.h"
 #include "CoralKernel/Context.h"
 
-#include "CondCore/CondDB/interface/ConnectionPool.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/DBCommon/interface/DbConnectionConfiguration.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 // end OMDS stuff
 
 #include "CondFormats/RunInfo/interface/RunInfo.h"
@@ -130,18 +132,20 @@ L1RCTOmdsFedVectorProducer::produce(const RunInfoRcd& iRecord)
   // DO THE DATABASE STUFF
   
   //make connection object
-  cond::persistency::ConnectionPool        connection;
+  cond::DbConnection         connection;
   
   //set in configuration object authentication path
-  connection.setAuthenticationPath(authpath);
+  connection.configuration().setAuthenticationPath(authpath);
   connection.configure();
   
   //create session object from connection
-  cond::persistency::Session session = connection.createSession(connectionString,true  );
+  cond::DbSession session = connection.createSession();
   
+  session.open(connectionString,true);
+
   session.transaction().start(true); // (true=readOnly)
 
-  coral::ISchema& schema = session.coralSession().schema("CMS_RUNINFO");
+  coral::ISchema& schema = session.schema("CMS_RUNINFO");
 
   //condition
   coral::AttributeList conditionData;

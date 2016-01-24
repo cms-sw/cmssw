@@ -118,7 +118,7 @@ namespace l1t
 	                                           // must have only one row
 	const std::string& conditionRHSName = ""
 	                 // if empty, conditionRHS must have only one column
-	);
+	) const ;
 
       // Assume data type of condition RHS is std::string
       const QueryResults basicQuery(
@@ -130,7 +130,7 @@ namespace l1t
 	                                           // must have only one row
 	const std::string& conditionRHSName = ""
 	                 // if empty, conditionRHS must have only one column
-	);
+	) const ;
 
 
       // Assume data type of condition RHS is std::string
@@ -143,7 +143,7 @@ namespace l1t
                                                // must have only one row
     const std::string& conditionRHSName = ""
                      // if empty, conditionRHS must have only one column
-    );
+    ) const ;
 
       // Assume data type of condition RHS is std::string
       const QueryResults basicQueryView(
@@ -155,7 +155,7 @@ namespace l1t
                                                // must have only one row
     const std::string& conditionRHSName = ""
                      // if empty, conditionRHS must have only one column
-    );
+    ) const ;
 
       // For any data type of condition RHS.
       // Example usage, for an int key:
@@ -170,7 +170,7 @@ namespace l1t
 	                                            // must have only one row
 	  const std::string& conditionRHSName = ""
 	                    // if empty, conditionRHS must have only one column
-	  );
+	  ) const ;
 
       // For any data type of condition RHS.
       // Example usage, for an int key:
@@ -185,18 +185,18 @@ namespace l1t
 	                                           // must have only one row
 	  const std::string& conditionRHSName = ""
 	                 // if empty, conditionRHS must have only one column
-	  );
+	  ) const ;
 
       template< class T >
 	const QueryResults singleAttribute( const T& data ) const ;
 
       std::vector< std::string > columnNames(
 	const std::string& schemaName, // for nominal schema, use ""
-	const std::string& tableName );
+	const std::string& tableName ) const ;
 
       std::vector< std::string > columnNamesView(
     const std::string& schemaName, // for nominal schema, use ""
-    const std::string& viewName );
+    const std::string& viewName ) const ;
 
       // ---------- static member functions --------------------
 
@@ -220,12 +220,11 @@ namespace l1t
     const std::string& tableName,
     const std::string& conditionLHS,
     const QueryResults conditionRHS,
-    const std::string& conditionRHSName ) 
+    const std::string& conditionRHSName ) const
   {
-    coral::ISessionProxy& coralSession = session.coralSession();
     coral::ISchema& schema = schemaName.empty() ?
-      coralSession.nominalSchema() :
-      coralSession.schema( schemaName ) ;
+      session->nominalSchema() :
+      session->schema( schemaName ) ;
 
     coral::ITable& table = schema.tableHandle( tableName ) ;
 
@@ -284,7 +283,7 @@ namespace l1t
     const std::string& tableName,
     const std::string& conditionLHS,
     const QueryResults conditionRHS,
-    const std::string& conditionRHSName ) 
+    const std::string& conditionRHSName ) const
   {
     std::vector< std::string > columnNames ;
     columnNames.push_back( columnName ) ;

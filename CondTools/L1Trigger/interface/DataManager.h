@@ -2,7 +2,8 @@
 #define CondTools_L1Trigger_DataManager_h
 
 #include "FWCore/Framework/interface/DataKeyTags.h"
-#include "CondCore/CondDB/interface/Session.h"
+#include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
 
 #include <string>
 
@@ -29,18 +30,18 @@ class DataManager
 		     bool isOMDS = false );
 	void setDebug( bool debug ) ;
 
-  cond::persistency::Session dbSession()
+	cond::DbSession* dbSession()
 	  { return session ; }
 
+	cond::DbConnection* dbConnection()
+	  { return connection ; }
     protected:
         //Returns type object for provided type name
-        edm::eventsetup::TypeTag findType (const std::string & type);
+        edm::eventsetup::TypeTag findType (const std::string & type) const;
 
         // Database connection management
-  cond::persistency::Session  session;
-
-private:
-  bool debugFlag = false;
+	cond::DbSession * session;
+	cond::DbConnection * connection ;
 };
 
 }

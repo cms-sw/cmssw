@@ -15,6 +15,7 @@
 
 #include "CondTools/L1Trigger/interface/L1ObjectKeysOnlineProdBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 
 
 class L1MuTriggerScaleKeysOnlineProd : public L1ObjectKeysOnlineProdBase {

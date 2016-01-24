@@ -10,14 +10,14 @@ namespace cond {
 
   namespace persistency {
     
-    conddb_table( GLOBAL_TAG ) {
+    table( GLOBAL_TAG ) {
       
-      conddb_column( NAME, std::string );
-      conddb_column( VALIDITY, cond::Time_t );
-      conddb_column( DESCRIPTION, std::string );
-      conddb_column( RELEASE, std::string );
-      conddb_column( SNAPSHOT_TIME, boost::posix_time::ptime );
-      conddb_column( INSERTION_TIME, boost::posix_time::ptime );
+      column( NAME, std::string );
+      column( VALIDITY, cond::Time_t );
+      column( DESCRIPTION, std::string );
+      column( RELEASE, std::string );
+      column( SNAPSHOT_TIME, boost::posix_time::ptime );
+      column( INSERTION_TIME, boost::posix_time::ptime );
       
       class Table : public IGTTable {
       public:
@@ -38,16 +38,16 @@ namespace cond {
       };
     }
     
-    conddb_table ( GLOBAL_TAG_MAP ) {
+    table ( GLOBAL_TAG_MAP ) {
       
       static constexpr unsigned int PAYLOAD_HASH_SIZE = 40;
       
-      conddb_column( GLOBAL_TAG_NAME, std::string );
+      column( GLOBAL_TAG_NAME, std::string );
       // to be changed to RECORD_NAME!
-      conddb_column( RECORD, std::string );
+      column( RECORD, std::string );
       // to be changed to RECORD_LABEL!
-      conddb_column( LABEL, std::string );
-      conddb_column( TAG_NAME, std::string );
+      column( LABEL, std::string );
+      column( TAG_NAME, std::string );
       
       class Table : public IGTMapTable {
       public:

@@ -1,5 +1,4 @@
 #include "CondTools/L1Trigger/interface/DataManager.h"
-#include "CondCore/CondDB/interface/ConnectionPool.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -11,7 +10,8 @@ namespace l1t
 {
 
   DataManager::DataManager()
-    : session( 0 ){}
+    : session( 0 ),
+      connection( 0 ) {}
 
   DataManager::DataManager (const std::string & connectString,
 			    const std::string & authenticationPath,
@@ -25,24 +25,36 @@ namespace l1t
 		       const std::string & authenticationPath,
 		       bool isOMDS )
   {
+    connection = new cond::DbConnection() ;
     setDebug( false ) ;
-    cond::persistency::ConnectionPool connection;
-    connection.setAuthenticationPath( authenticationPath ) ;
-    if( debugFlag ) connection.setMessageVerbosity( coral::Debug );
-    else connection.setMessageVerbosity( coral::Error ) ;
-    connection.configure() ;
 
-    session = connection.createSession( connectString, isOMDS );
+    if( !isOMDS )
+      {
+	connection->configuration().setConnectionSharing( true ) ;
+	connection->configuration().setReadOnlySessionOnUpdateConnections(
+	  true ) ;
+      }
+
+    connection->configuration().setAuthenticationPath( authenticationPath ) ;
+    connection->configure() ;
+
+    session = new cond::DbSession( connection->createSession() ) ;
+    session->open( connectString, isOMDS ) ;
 }
 
 DataManager::~DataManager ()
 {
   // delete all in reverse direction
-    session.close() ;
+  if( connection )
+    connection->close() ;
+  if( session )
+    session->close() ;
 
+  delete connection ;
+  delete session ;
 }
 
-edm::eventsetup::TypeTag DataManager::findType (const std::string & type) 
+edm::eventsetup::TypeTag DataManager::findType (const std::string & type) const
 {
   static edm::eventsetup::TypeTag defaultType;
   edm::eventsetup::TypeTag typeTag = edm::eventsetup::TypeTag::findType (type);
@@ -57,6 +69,13 @@ edm::eventsetup::TypeTag DataManager::findType (const std::string & type)
   void
   DataManager::setDebug( bool debug )
   {
-    debugFlag = debug;
+    if( debug )
+      {
+	connection->configuration().setMessageLevel( coral::Debug ) ;
+      }
+    else
+      {
+	connection->configuration().setMessageLevel( coral::Error ) ;
+      }
   }
 }

@@ -2,6 +2,7 @@
 #define Utilities_CondDBTools_h
 
 #include "CondCore/CondDB/interface/Time.h"
+#include "CondCore/DBCommon/interface/DbSession.h"
 //
 #include <string>
 
