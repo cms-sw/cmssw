@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from CondCore.CondDB.CondDB_cfi import *
-CondDB_prod = CondDB.clone( connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') )
+from CondCore.DBCommon.CondDBSetup_cfi import *
 
 print '# Conditions read from  CMS_CONDITIONS  via FrontierProd '
 
 GlobalTag = cms.ESSource("PoolDBESSource",
-    CondDB_prod,
+    CondDBSetup,
+    connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
     globaltag = cms.string('UNSPECIFIED'),
     toGet = cms.VPSet( ),   # hook to override or add single payloads
 )

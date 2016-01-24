@@ -1,7 +1,6 @@
 #include "CondTools/RPC/interface/RPCEMapSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 popcon::RPCEMapSourceHandler::RPCEMapSourceHandler(const edm::ParameterSet& ps) :
@@ -65,23 +64,28 @@ void popcon::RPCEMapSourceHandler::getNewObjects()
 
 void popcon::RPCEMapSourceHandler::ConnectOnlineDB(std::string connect, std::string authPath)
 {
-  cond::persistency::ConnectionPool connection;
   std::cout << "RPCEMapConfigSourceHandler: connecting to " << connect << "..." << std::flush;
-  connection.setAuthenticationPath( authPath ) ;
-  connection.configure();
-  session = connection.createSession( connect,true );
+  connection = new cond::DbConnection() ;
+//  session->configuration().setAuthenticationMethod(cond::XML);
+  connection->configuration().setAuthenticationPath( authPath ) ;
+  connection->configure();
+  session = new cond::DbSession(connection->createSession());
+  session->open(connect,true) ;
   std::cout << "Done." << std::endl;
 }
 
 void popcon::RPCEMapSourceHandler::DisconnectOnlineDB()
 {
-  session.close();
+  connection->close() ;
+  delete connection ;
+  session->close();
+  delete session ;
 }
 
 void popcon::RPCEMapSourceHandler::readEMap1()
 {
-  session.transaction().start( true );
-  coral::ISchema& schema = session.nominalSchema();
+  session->transaction().start( true );
+  coral::ISchema& schema = session->nominalSchema();
   std::string condition="";
   coral::AttributeList conditionData;
 
