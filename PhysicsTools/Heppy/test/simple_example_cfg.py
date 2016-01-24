@@ -47,7 +47,7 @@ from PhysicsTools.Heppy.analyzers.examples.SimpleJetAnalyzer import SimpleJetAna
 jets = cfg.Analyzer(
     SimpleJetAnalyzer,
     'jets',
-    ptmin = 30. # minimum pt cut for considering the jet
+    filter_func = lambda x : x.pt()>30 
     )
 
 # a simple tree with a Z candidate and the two leading jets (if any)

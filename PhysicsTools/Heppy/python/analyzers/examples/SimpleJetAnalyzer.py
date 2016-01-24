@@ -4,7 +4,17 @@ from PhysicsTools.Heppy.physicsobjects.Jet import Jet, GenJet
 from PhysicsTools.HeppyCore.utils.deltar import matchObjectCollection
 
 class SimpleJetAnalyzer(Analyzer):
-    '''Just a simple jet analyzer, to be used in tutorials.'''
+    '''Just a simple jet analyzer, to be used in tutorials.
+
+    example configuration:
+    
+    jets = cfg.Analyzer(
+       SimpleJetAnalyzer,
+       'jets',
+       filter_func = lambda x : x.pt()>30
+    )
+
+    '''
 
     def declareHandles(self):
         super(SimpleJetAnalyzer, self).declareHandles()
@@ -18,7 +28,7 @@ class SimpleJetAnalyzer(Analyzer):
         # creating Jet python objects wrapping the EDM jets
         # keeping only the first 2 leading jets
         event.jets = map(Jet, self.handles['jets'].product())[:2]
-        event.jets = [ jet for jet in event.jets if jet.pt()>self.cfg_ana.ptmin]
+        event.jets = [ jet for jet in event.jets if self.cfg_ana.filter_func(jet)]
 
         if self.cfg_comp.isMC:
             event.genjets =  map(GenJet, self.mchandles['genjets'].product())
