@@ -69,7 +69,7 @@ class TrackInfoAnalyzerExample : public edm::EDAnalyzer {
 
       // loop on all the track hits
       reco::TrackInfo::TrajectoryInfo::const_iterator iter;
-      for(iter=trackinforef->trajStateMap().begin();iter!=trackinforef->trajStateMap().end();iter++){
+      for(iter=trackinforef->trajStateMap().begin();iter!=trackinforef->trajStateMap().end();++iter){
 
 	//trajectory local direction and position on detector
 	LocalVector statedirection=(trackinforef->stateOnDet(Combined,(*iter).first)->parameters()).momentum();

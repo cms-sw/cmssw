@@ -287,7 +287,7 @@ void DTVDriftCalibration::endJob() {
   // write the TMax histograms of each SL to the root file
   if(theGranularity == bySL) {
     for(map<DTWireId, cellInfo*>::const_iterator  wireCell = theWireIdAndCellMap.begin();
-        wireCell != theWireIdAndCellMap.end(); wireCell++) {
+        wireCell != theWireIdAndCellMap.end(); ++wireCell) {
       cellInfo* cell= theWireIdAndCellMap[(*wireCell).first];
       hTMaxCell* cellHists = cell->getHists();
       theFile->cd();

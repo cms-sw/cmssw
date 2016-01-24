@@ -471,7 +471,7 @@ MEEEGeom::getGraphBoundary(  int type, int num, int iz, int xside )
 
   int ii=0;
   std::list< std::pair< float, float > >::const_iterator l_it;      
-  for( l_it=l.begin(); l_it!=l.end(); l_it++ )
+  for( l_it=l.begin(); l_it!=l.end(); ++l_it )
     {
       //      std::cout << "[" << l_it->first << "," << l_it->second << "]" << std::endl;
       ix[ii] = l_it->first;
@@ -590,7 +590,7 @@ MEEEGeom::getBoundary(  std::list< std::pair< float, float > >& l, int type, int
   rightl.reverse();
 
   std::list< std::pair< float, float > >::const_iterator rightl_it;  
-  for( rightl_it=rightl.begin(); rightl_it!=rightl.end(); rightl_it++ )
+  for( rightl_it=rightl.begin(); rightl_it!=rightl.end(); ++rightl_it )
     {
       l.push_back( std::pair<float,float>( rightl_it->first, rightl_it->second ) );
     }

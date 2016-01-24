@@ -279,7 +279,7 @@ std::set <unsigned int> PixelDetectorConfig::getFEDs(PixelNameTranslation* trans
   for (;imodule!=modules_.end();++imodule) {
   
                 std::set<PixelChannel> channelsOnThisModule = translation->getChannelsOnModule(*imodule);
-                for ( std::set<PixelChannel>::const_iterator channelsOnThisModule_itr = channelsOnThisModule.begin(); channelsOnThisModule_itr != channelsOnThisModule.end(); channelsOnThisModule_itr++ )
+                for ( std::set<PixelChannel>::const_iterator channelsOnThisModule_itr = channelsOnThisModule.begin(); channelsOnThisModule_itr != channelsOnThisModule.end(); ++channelsOnThisModule_itr )
                 {
                         const PixelHdwAddress& channel_hdwaddress = translation->getHdwAddress(*channelsOnThisModule_itr);
                         unsigned int fednumber=channel_hdwaddress.fednumber();
@@ -304,7 +304,7 @@ std::map <unsigned int, std::set<unsigned int> > PixelDetectorConfig::getFEDsAnd
   for (;imodule!=modules_.end();++imodule) {
   
                 std::set<PixelChannel> channelsOnThisModule = translation->getChannelsOnModule(*imodule);
-                for ( std::set<PixelChannel>::const_iterator channelsOnThisModule_itr = channelsOnThisModule.begin(); channelsOnThisModule_itr != channelsOnThisModule.end(); channelsOnThisModule_itr++ )
+                for ( std::set<PixelChannel>::const_iterator channelsOnThisModule_itr = channelsOnThisModule.begin(); channelsOnThisModule_itr != channelsOnThisModule.end(); ++channelsOnThisModule_itr )
                 {
                         const PixelHdwAddress& channel_hdwaddress = translation->getHdwAddress(*channelsOnThisModule_itr);
                         unsigned int fednumber=channel_hdwaddress.fednumber();
@@ -319,7 +319,7 @@ std::map <unsigned int, std::set<unsigned int> > PixelDetectorConfig::getFEDsAnd
  
 bool PixelDetectorConfig::containsModule(const PixelModuleName& moduleToFind) const
 {
-  for ( std::vector<PixelModuleName>::const_iterator modules_itr = modules_.begin(); modules_itr != modules_.end(); modules_itr++ )
+  for ( std::vector<PixelModuleName>::const_iterator modules_itr = modules_.begin(); modules_itr != modules_.end(); ++modules_itr )
     {
       if ( *modules_itr == moduleToFind ) return true;
     }
@@ -355,7 +355,7 @@ void PixelDetectorConfig::writeASCII(std::string dir) const {
     {
       out << "Rocs:" << endl ;
       std::map<PixelROCName, PixelROCStatus>::const_iterator irocs = rocs_.begin();
-      for(; irocs != rocs_.end() ; irocs++)
+      for(; irocs != rocs_.end() ; ++irocs)
         {
           out << (irocs->first).rocname() << " " << (irocs->second).statusName() << endl ;
         }
@@ -441,7 +441,7 @@ void PixelDetectorConfig::writeXML( std::ofstream *outstream,
   else 
     {
       std::map<PixelROCName, PixelROCStatus>::const_iterator irocs = rocs_.begin();
-      for(; irocs != rocs_.end() ; irocs++)
+      for(; irocs != rocs_.end() ; ++irocs)
         {
           std::string sts = (irocs->second).statusName() ;
           if( sts == "" ) {sts = "on" ;}
@@ -517,7 +517,7 @@ void PixelDetectorConfig::writeXML(pos::PixelConfigKey key, int version, std::st
   else 
     {
       std::map<PixelROCName, PixelROCStatus>::const_iterator irocs = rocs_.begin();
-      for(; irocs != rocs_.end() ; irocs++)
+      for(; irocs != rocs_.end() ; ++irocs)
         {
           std::string sts = (irocs->second).statusName() ;
           if( sts == "" ) {sts = "on" ;}

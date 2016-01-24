@@ -40,7 +40,7 @@ CastorTextCalibrations::CastorTextCalibrations ( const edm::ParameterSet& iConfi
   //parsing parameters
   std::vector<edm::ParameterSet> data = iConfig.getParameter<std::vector<edm::ParameterSet> >("input");
   std::vector<edm::ParameterSet>::iterator request = data.begin ();
-  for (; request != data.end (); request++) {
+  for (; request != data.end (); ++request) {
     std::string objectName = request->getParameter<std::string> ("object");
     edm::FileInPath fp = request->getParameter<edm::FileInPath>("file");
     mInputs [objectName] = fp.fullPath();
