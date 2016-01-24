@@ -19,6 +19,7 @@
 #include "CondTools/L1Trigger/interface/OMDSReader.h"
 #include "RelationalAccess/ITableDescription.h"
 #include "RelationalAccess/IColumn.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 
 //
 // constants, enums and typedefs
@@ -42,7 +43,7 @@ namespace l1t
 			  const std::string& authenticationPath )
     : DataManager( connectString, authenticationPath, true )
   {
-    session.transaction().start( true ) ;
+    session->transaction().start( true ) ;
   }
 
   void
@@ -50,7 +51,7 @@ namespace l1t
 		       const std::string& authenticationPath )
   {
     DataManager::connect( connectString, authenticationPath, true ) ;
-    session.transaction().start( true ) ;
+    session->transaction().start( true ) ;
   }
 
 // OMDSReader::OMDSReader(const OMDSReader& rhs)
@@ -89,12 +90,11 @@ OMDSReader::~OMDSReader()
     const std::string& tableName,
     const std::string& conditionLHS,
     const QueryResults conditionRHS,
-    const std::string& conditionRHSName )
+    const std::string& conditionRHSName ) const
   {
-    coral::ISessionProxy& coralSession = session.coralSession();
     coral::ISchema& schema = schemaName.empty() ?
-      coralSession.nominalSchema() :
-      coralSession.schema( schemaName ) ;
+      session->nominalSchema() :
+      session->schema( schemaName ) ;
 
     coral::ITable& table = schema.tableHandle( tableName ) ;
 
@@ -153,7 +153,7 @@ OMDSReader::~OMDSReader()
     const std::string& tableName,
     const std::string& conditionLHS,
     const QueryResults conditionRHS,
-    const std::string& conditionRHSName ) 
+    const std::string& conditionRHSName ) const
   {
     std::vector< std::string > columnNames ;
     columnNames.push_back( columnName ) ;
@@ -164,12 +164,11 @@ OMDSReader::~OMDSReader()
   std::vector< std::string >
   OMDSReader::columnNames(
     const std::string& schemaName,
-    const std::string& tableName ) 
+    const std::string& tableName ) const
   {
-    coral::ISessionProxy& coralSession = session.coralSession();
     coral::ISchema& schema = schemaName.empty() ?
-      coralSession.nominalSchema() :
-      coralSession.schema( schemaName ) ;
+      session->nominalSchema() :
+      session->schema( schemaName ) ;
 
     coral::ITable& table = schema.tableHandle( tableName ) ;
     const coral::ITableDescription& tableDesc = table.description() ;
@@ -195,12 +194,11 @@ OMDSReader::~OMDSReader()
     const std::string& viewName,
     const std::string& conditionLHS,
     const QueryResults conditionRHS,
-    const std::string& conditionRHSName ) 
+    const std::string& conditionRHSName ) const
   {
-    coral::ISessionProxy& coralSession = session.coralSession();
     coral::ISchema& schema = schemaName.empty() ?
-      coralSession.nominalSchema() :
-      coralSession.schema( schemaName ) ;
+      session->nominalSchema() :
+      session->schema( schemaName ) ;
 
     //    coral::IView& view = schema.viewHandle( viewName ) ;
 
@@ -268,7 +266,7 @@ OMDSReader::~OMDSReader()
     const std::string& viewName,
     const std::string& conditionLHS,
     const QueryResults conditionRHS,
-    const std::string& conditionRHSName ) 
+    const std::string& conditionRHSName ) const
   {
     std::vector< std::string > columnNames ;
     columnNames.push_back( columnName ) ;
@@ -279,12 +277,11 @@ OMDSReader::~OMDSReader()
   std::vector< std::string >
   OMDSReader::columnNamesView(
     const std::string& schemaName,
-    const std::string& viewName ) 
+    const std::string& viewName ) const
   {
-    coral::ISessionProxy& coralSession = session.coralSession();
     coral::ISchema& schema = schemaName.empty() ?
-      coralSession.nominalSchema() :
-      coralSession.schema( schemaName ) ;
+      session->nominalSchema() :
+      session->schema( schemaName ) ;
 
     std::set< std::string > views = schema.listViews ();
     std::vector< std::string > names ;

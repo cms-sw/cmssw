@@ -38,6 +38,7 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 
+#include "CoralBase/Exception.h"
 
 class HcalRecNumberingTester : public edm::one::EDAnalyzer<> {
 public:

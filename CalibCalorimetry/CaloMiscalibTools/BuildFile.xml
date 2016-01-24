@@ -11,6 +11,7 @@
 <use   name="DataFormats/EcalRecHit"/>
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="Geometry/CaloTopology"/>
+<use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="xerces-c"/>
 <export>
