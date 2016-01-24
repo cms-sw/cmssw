@@ -99,7 +99,10 @@ SendMonitoringInfo(XrdCl::File &file)
     {
         XrdCl::URL url(lastUrl);
         XrdCl::FileSystem fs(url);
-        fs.SendInfo(jobId, &nullHandler, 30);
+        if (!(fs.SendInfo(jobId, &nullHandler, 30).IsOK()))
+        {
+            edm::LogWarning("XrdAdaptorInternal") << "Failed to send the monitoring information, monitoring ID is " << jobId << ".";
+        }
         edm::LogInfo("XrdAdaptorInternal") << "Set monitoring ID to " << jobId << ".";
     }
 }
