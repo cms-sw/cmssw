@@ -24,7 +24,7 @@
 
 namespace edm {
   class ConsumesCollector;
-  namespace one {
+  namespace stream {
     class EDProducerBase;
   }
   class Event;
@@ -49,7 +49,7 @@ namespace cms {
   class SiPixelDigitizer : public DigiAccumulatorMixMod {
   public:
 
-    explicit SiPixelDigitizer(const edm::ParameterSet& conf, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+    explicit SiPixelDigitizer(const edm::ParameterSet& conf, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
 
     virtual ~SiPixelDigitizer();
 

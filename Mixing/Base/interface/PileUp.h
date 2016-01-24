@@ -26,10 +26,20 @@ namespace CLHEP {
 namespace edm {
   class SecondaryEventProvider;
   class StreamID;
+  class ProcessContext;
+
+  struct PileUpConfig {
+    PileUpConfig(std::string sourcename, double averageNumber, std::unique_ptr<TH1F>& histo, const bool playback)
+                   : sourcename_(sourcename), averageNumber_(averageNumber), histo_(histo.release()), playback_(playback) {}
+    std::string sourcename_;
+    double averageNumber_;
+    std::shared_ptr<TH1F> histo_;
+    const bool playback_;
+  };
 
   class PileUp {
   public:
-    explicit PileUp(ParameterSet const& pset, std::string sourcename, double averageNumber, TH1F* const histo, const bool playback);
+    explicit PileUp(ParameterSet const& pset, const std::shared_ptr<PileUpConfig>& config);
     ~PileUp();
 
     template<typename T>
@@ -54,8 +64,8 @@ namespace edm {
     void dropUnwantedBranches(std::vector<std::string> const& wantedBranches) {
       input_->dropUnwantedBranches(wantedBranches);
     }
-    void beginJob();
-    void endJob();
+    void beginStream(edm::StreamID);
+    void endStream();
 
     void beginRun(const edm::Run& run, const edm::EventSetup& setup);
     void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup);
@@ -87,7 +97,7 @@ namespace edm {
     std::string Source_type_;
     double averageNumber_;
     int const intAverage_;
-    TH1F* histo_;
+    std::shared_ptr<TH1F> histo_;
     bool histoDistribution_;
     bool probFunctionDistribution_;
     bool poisson_;
@@ -111,17 +121,19 @@ namespace edm {
     std::shared_ptr<ProductRegistry> productRegistry_;
     std::unique_ptr<VectorInputSource> const input_;
     std::shared_ptr<ProcessConfiguration> processConfiguration_;
+    std::shared_ptr<ProcessContext> processContext_;
+    std::shared_ptr<StreamContext> streamContext_;
     std::unique_ptr<EventPrincipal> eventPrincipal_;
     std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
     std::shared_ptr<RunPrincipal> runPrincipal_;
     std::unique_ptr<SecondaryEventProvider> provider_;
-    std::vector<std::unique_ptr<CLHEP::RandPoissonQ> > vPoissonDistribution_;
-    std::vector<std::unique_ptr<CLHEP::RandPoisson> > vPoissonDistr_OOT_;
-    std::vector<CLHEP::HepRandomEngine*> randomEngines_;
+    std::unique_ptr<CLHEP::RandPoissonQ> PoissonDistribution_;
+    std::unique_ptr<CLHEP::RandPoisson> PoissonDistr_OOT_;
+    CLHEP::HepRandomEngine* randomEngine_;
 
-    TH1F *h1f;
-    TH1F *hprobFunction;
-    TFile *probFileHisto;
+    //TH1F *h1f;
+    //TH1F *hprobFunction;
+    //TFile *probFileHisto;
     
     //playback info
     bool playback_;
