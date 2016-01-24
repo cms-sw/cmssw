@@ -76,6 +76,9 @@ process.load("DQM.L1TMonitor.L1TStage2_cff-esmaeel")
 #process.RawToDigi.remove("siStripDigis")
 #process.RawToDigi.remove("scalersRawToDigi")
 #process.RawToDigi.remove("castorDigis")
+#process.L1TMuonEmulation.remove("emptyCaloCollsProducer")
+#process.emptyCaloCollsProducer.InputLabel = cms.InputTag("rawDataCollector")
+
 # for GCT, unpack all five samples
 #process.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
 
@@ -129,6 +132,8 @@ process.schedule = cms.Schedule(#process.rawToDigiPath,
 # remove module(s) or system sequence from l1tMonitorPath
 #        quality test disabled also
 #
+#process.l1tMonitorOnline.remove(process.bxTiming)
+
 #process.l1tMonitorOnline.remove(process.bxTiming)
 #process.l1tMonitorOnline.remove(process.l1tBPTX)
 
@@ -202,7 +207,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
     process.bxTiming.FedSource = cms.untracked.InputTag("rawDataRepacker")
     process.l1s.fedRawData = cms.InputTag("rawDataRepacker")
-
+#    process.gmtStage2Digis.inputLabel = cms.InputTag("rawDataRepacker")
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)

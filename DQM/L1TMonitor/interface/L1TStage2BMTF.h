@@ -46,7 +46,6 @@ public:
 
 // class constructor
 L1TStage2BMTF(const edm::ParameterSet & ps);
-
 // class destructor
 virtual ~L1TStage2BMTF();
 
