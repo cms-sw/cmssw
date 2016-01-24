@@ -1,4 +1,4 @@
-from heppy.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
 
 class Filter(Analyzer):
     

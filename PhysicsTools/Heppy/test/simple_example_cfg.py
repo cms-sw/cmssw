@@ -41,14 +41,27 @@ dimuons = cfg.Analyzer(
     pdgid = 23
     )
 
+
 # a very simple jet analyzer
 # read miniaod jets and wrap them in python jets
 from PhysicsTools.Heppy.analyzers.examples.SimpleJetAnalyzer import SimpleJetAnalyzer
-jets = cfg.Analyzer(
+all_jets = cfg.Analyzer(
     SimpleJetAnalyzer,
+    'all_jets',
+    njets = 4, 
+    filter_func = lambda x : True
+    )
+
+# filtering could be done in the SimpleJetAnalyzer above. 
+# here, we illustrate the use of the generic Filter module
+from PhysicsTools.HeppyCore.analyzers.Filter import Filter
+sel_jets = cfg.Analyzer(
+    Filter,
     'jets',
+    input_objects = 'all_jets',
     filter_func = lambda x : x.pt()>30 
     )
+
 
 # a simple tree with a Z candidate and the two leading jets (if any)
 from PhysicsTools.Heppy.analyzers.examples.ZJetsTreeAnalyzer import ZJetsTreeAnalyzer
@@ -62,7 +75,8 @@ tree = cfg.Analyzer(
 sequence = cfg.Sequence( [ 
         muons,
         dimuons,
-        jets,
+        all_jets,
+        sel_jets,
         tree
         ] )
 
