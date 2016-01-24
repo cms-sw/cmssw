@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("myprocess")
-process.load("CondCore.CondDB.CondDB_cfi")
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 process.CondDBCommon.connect = 'sqlite_file:DropBoxMetadata.db'
 
@@ -87,11 +87,11 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
 
 process.p = cms.Path(process.mywriter)
 
-from CondCore.CondDB.CondDB_cfi import CondDB
-CondDB.connect = "sqlite_file:DropBoxMetadata.db"
+from CondCore.DBCommon.CondDBCommon_cfi import CondDBCommon
+CondDBCommon.connect = "sqlite_file:DropBoxMetadata.db"
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                  CondDB,
+                                  CondDBCommon,
                                   toPut = cms.VPSet(cms.PSet(record = cms.string('DropBoxMetadataRcd'),
                                                              tag = cms.string('DropBoxMetadata'),
                                                              timetype   = cms.untracked.string('runnumber')

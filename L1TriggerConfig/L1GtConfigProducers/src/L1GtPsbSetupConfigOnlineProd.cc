@@ -113,7 +113,7 @@ bool L1GtPsbSetupConfigOnlineProd::notPsbColumnName(const std::string& columnNam
 }
 
 void L1GtPsbSetupConfigOnlineProd::addPsbFromDb(const std::string& psbKey, std::vector<
-        L1GtPsbConfig>& psbSetup) {
+        L1GtPsbConfig>& psbSetup) const {
 
     // SQL> describe gt_psb_setup;
     // (heavily pruned to just the stuff we need to set up a GtPsbConfig)

@@ -1,7 +1,6 @@
 #include "CondTools/RPC/interface/L1RPCHwConfigSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 popcon::L1RPCHwConfigSourceHandler::L1RPCHwConfigSourceHandler(const edm::ParameterSet& ps):
@@ -81,23 +80,27 @@ void popcon::L1RPCHwConfigSourceHandler::getNewObjects()
 void popcon::L1RPCHwConfigSourceHandler::ConnectOnlineDB(std::string connect, std::string authPath)
 {
   std::cout << "L1RPCHwConfigSourceHandler: connecting to " << connect << "..." << std::flush;
-  cond::persistency::ConnectionPool connection;
+  connection = new cond::DbConnection() ;
 //  session->configuration().setAuthenticationMethod(cond::XML);
-  connection.setAuthenticationPath( authPath ) ;
-  connection.configure();
-  session = connection.createSession( connect,true );
+  connection->configuration().setAuthenticationPath( authPath ) ;
+  connection->configure();
+  session = new cond::DbSession(connection->createSession());
+  session->open(connect,true) ;
   std::cout << "Done." << std::endl;
 }
 
 void popcon::L1RPCHwConfigSourceHandler::DisconnectOnlineDB()
 {
-  session.close();
+  connection->close() ;
+  delete connection ;
+  session->close();
+  delete session ;
 }
 
 void popcon::L1RPCHwConfigSourceHandler::readHwConfig1()
 {
-  session.transaction().start( true );
-  coral::ISchema& schema = session.nominalSchema();
+  session->transaction().start( true );
+  coral::ISchema& schema = session->nominalSchema();
   std::string condition="";
   coral::AttributeList conditionData;
   std::cout << std::endl <<"L1RPCHwConfigSourceHandler: start to build L1RPC Hw Config..." << std::flush << std::endl << std::endl;

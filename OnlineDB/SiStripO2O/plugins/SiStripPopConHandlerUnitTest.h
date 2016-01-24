@@ -8,7 +8,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
-#include "CondCore/CondDB/interface/Types.h"
+#include "CondCore/DBCommon/interface/TagInfo.h"
+#include "CondCore/DBCommon/interface/LogDBEntry.h"
 
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
