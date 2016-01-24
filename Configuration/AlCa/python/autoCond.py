@@ -17,6 +17,8 @@ autoCond = {
     'run2_mc'           :   '76X_mcRun2_asymptotic_v14',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
     'run2_mc_hi'        :   '76X_mcRun2_HeavyIon_v14',
+    # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
+    'run2_mc_cosmics'   :   '76X_mcRun2cosmics_startup_peak_v0',
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   '76X_dataRun1_v16',
     # GlobalTag for Run2 data reprocessing
