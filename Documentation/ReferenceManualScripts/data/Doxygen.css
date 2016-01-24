@@ -1462,3 +1462,38 @@ h2 {
 h3 {
 	font-size: 100%;
 }
+
+/** cmsdoxy was here **/
+.doxyTable{
+    border-collapse:collapse;
+    border:1px solid lightBlue;
+    width: 70%;
+    margin:0 auto;
+}
+
+.doxyTable tr:not(:first-child) {
+    background: #eeeeff;
+    border-spacing: 0px;
+    padding: 0px;
+    border-bottom: 1px solid #c1c1dc;
+}
+
+.doxyTable tr:hover {
+    background: #cde4ec;
+}
+
+.doxyTable td {
+    padding:8px;
+    cursor:pointer;
+}
+
+.accordion {
+    display: none;
+    width: 100%;
+}
+
+div.content {}
+
+div.content h1, h2 {
+    text-align: center;
+}
