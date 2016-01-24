@@ -48,12 +48,25 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <cmath>
 
-HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig){
-
-  nameDetector_  = iConfig.getParameter<std::string>("DetectorName");
-  digiSource_    = iConfig.getParameter<edm::InputTag>("DigiSource");
-  verbosity_     = iConfig.getUntrackedParameter<int>("Verbosity",0);
-  SampleIndx_    = iConfig.getUntrackedParameter<int>("SampleIndx",5);
+HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig) :
+  nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
+  verbosity_(iConfig.getUntrackedParameter<int>("Verbosity",0)),
+  SampleIndx_(iConfig.getUntrackedParameter<int>("SampleIndx",5)) {
+  auto temp = iConfig.getParameter<edm::InputTag>("DigiSource");
+  if( nameDetector_ == "HGCalEESensitive" ) {
+    digiSource_    = consumes<HGCEEDigiCollection>(temp);
+  } else if ( nameDetector_ == "HGCalHESiliconSensitive" ||
+              nameDetector_ == "HGCalHEScintillatorSensitive" ) {
+    digiSource_    = consumes<HGCHEDigiCollection>(temp);
+  } else if ( nameDetector_ == "HCal" ) {
+    digiSource_    = 
+      consumes<edm::SortedCollection<HcalUpgradeDataFrame> >(temp);
+  } else {
+    throw cms::Exception("BadHGCDigiSource")
+      << "HGCal DetectorName given as " << nameDetector_ << " must be: "
+      << "\"HGCalHESiliconSensitive\", \"HGCalHESiliconSensitive\", "
+      << "\"HGCalHEScintillatorSensitive\", or \"HCal\"!"; 
+  }  
 }
 
 
@@ -82,7 +95,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
   if (nameDetector_ == "HGCalEESensitive") {
     //HGCalEE
     edm::Handle<HGCEEDigiCollection> theHGCEEDigiContainers;
-    iEvent.getByLabel(digiSource_, theHGCEEDigiContainers);
+    iEvent.getByToken(digiSource_, theHGCEEDigiContainers);
     if (theHGCEEDigiContainers.isValid()) {
       if (verbosity_>0) 
 	edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 
@@ -108,7 +121,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 	     (nameDetector_ == "HGCalHEScintillatorSensitive")) {
     //HGCalHE
     edm::Handle<HGCHEDigiCollection> theHGCHEDigiContainers;
-    iEvent.getByLabel(digiSource_, theHGCHEDigiContainers);
+    iEvent.getByToken(digiSource_, theHGCHEDigiContainers);
     if (theHGCHEDigiContainers.isValid()) {
       if (verbosity_>0) 
 	edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 
@@ -133,7 +146,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
   } else if (nameDetector_ == "HCal") {
     //HE
     edm::Handle<edm::SortedCollection<HcalUpgradeDataFrame> >  theHEDigiContainers;
-    iEvent.getByLabel(digiSource_, theHEDigiContainers);
+    iEvent.getByToken(digiSource_, theHEDigiContainers);
     if (theHEDigiContainers.isValid()) {
       if (verbosity_>0) 
 	edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 

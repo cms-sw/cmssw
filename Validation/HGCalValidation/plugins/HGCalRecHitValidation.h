@@ -76,7 +76,7 @@ private:
   
   // ----------member data ---------------------------
   std::string           nameDetector_;
-  edm::InputTag         recHitSource_;
+  edm::EDGetToken       recHitSource_;
   int                   verbosity_;
   unsigned int          layers_;
   std::map<int, int>    OccupancyMap_plus;
