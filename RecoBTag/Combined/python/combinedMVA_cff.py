@@ -14,3 +14,6 @@ from RecoBTag.Combined.pfPositiveCombinedMVABJetTags_cfi import *
 # CombinedMVA V2
 from RecoBTag.Combined.combinedMVAV2BJetTags_cfi import *
 from RecoBTag.Combined.pfCombinedMVAV2BJetTags_cfi import *
+
+# Charge tagger
+from RecoBTag.Combined.pfChargeBJetTags_cfi import *

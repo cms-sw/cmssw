@@ -131,4 +131,6 @@ supportedBtagDiscr = {
     # C-Tagging
   , 'pfCombinedCvsLJetTags'                                 : ["pfImpactParameterTagInfos", "pfInclusiveSecondaryVertexFinderCvsLTagInfos", "softPFMuonsTagInfos", "softPFElectronsTagInfos"]
   , 'pfCombinedCvsBJetTags'                                 : ["pfImpactParameterTagInfos", "pfInclusiveSecondaryVertexFinderCvsLTagInfos", "softPFMuonsTagInfos", "softPFElectronsTagInfos"]
+    # ChargeTagging
+  , 'pfChargeBJetTags'                                    : ["pfImpactParameterTagInfos", "pfInclusiveSecondaryVertexFinderTagInfos", "softPFMuonsTagInfos", "softPFElectronsTagInfos"]
   }
