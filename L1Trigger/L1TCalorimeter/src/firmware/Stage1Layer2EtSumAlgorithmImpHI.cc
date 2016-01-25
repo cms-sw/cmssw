@@ -47,15 +47,23 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHI::processEvent(const std::vector<l1t::C
   //double jetLsb=params_->jetLsb();
   double jetLsb = 0.5; // HI O2O does not set this, and it will never change.
 
-  int etSumEtaMinEt = params_->etSumEtaMin(0);
-  int etSumEtaMaxEt = params_->etSumEtaMax(0);
+  //int etSumEtaMinEt = params_->etSumEtaMin(0);
+  //int etSumEtaMaxEt = params_->etSumEtaMax(0);
   //double etSumEtThresholdEt = params_->etSumEtThreshold(0);
   int etSumEtThresholdEt = (int) (params_->etSumEtThreshold(0) / jetLsb);
 
-  int etSumEtaMinHt = params_->etSumEtaMin(1);
-  int etSumEtaMaxHt = params_->etSumEtaMax(1);
+  //int etSumEtaMinHt = params_->etSumEtaMin(1);
+  //int etSumEtaMaxHt = params_->etSumEtaMax(1);
   //double etSumEtThresholdHt = params_->etSumEtThreshold(1);
   int etSumEtThresholdHt = (int) (params_->etSumEtThreshold(1) / jetLsb);
+
+  // These values are not changeable online. O2O code for HI does not set a default,
+  // so previous results were garbage.
+  // Boundaries of 4 and 17 correspond to all non-HF regions.
+  int etSumEtaMinEt = 4;
+  int etSumEtaMaxEt = 17;
+  int etSumEtaMinHt = 4;
+  int etSumEtaMaxHt = 17;
 
   //RegionCorrection(regions, subRegions, params_);
 
