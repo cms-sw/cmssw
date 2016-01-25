@@ -3,7 +3,7 @@ export LC_ALL=C
 if [ $# -eq 0 ] ;then J=$(getconf _NPROCESSORS_ONLN); else J=$1; fi
 
 eval `scram runtime -sh`
-for file in `cmsglimpse -l -F src/classes.*.h$ include`;do 
+for file in `cmsglimpse -l -F src/classes.*.h$ include | sed -e 's|^src/||'`;do
      dir=`dirname $file`;
      echo \#include \<$file\> >${LOCALRT}/src/$dir/`basename $file`.cc ; 
 done
@@ -15,7 +15,7 @@ scram b -j $J
 cd ${LOCALRT}/
 export USER_CXXFLAGS="-DEDM_ML_DEBUG -w"
 export USER_LLVM_CHECKERS="-disable-checker cplusplus -disable-checker unix -disable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker cms.FunctionDumper -enable-checker optional.ClassDumper -enable-checker optional.ClassDumperCT -enable-checker optional.ClassDumperFT -enable-checker optional.EDMPluginDumper -enable-checker optional.getParamDumper"
-scram b -k -j $J checker SCRAM_IGNORE_PACKAGES=Fireworks/% SCRAM_IGNORE_SUBDIRS=test > $CMSSW_BASE/tmp/class+function-dumper.log 2>&1
+scram b -k -j $J checker SCRAM_IGNORE_PACKAGES=Fireworks/% SCRAM_IGNORE_SUBDIRS=test > $LOCALRT/tmp/class+function-dumper.log 2>&1
 find ${LOCALRT}/src/ -name classes\*.h.cc | xargs rm -fv
 cd ${LOCALRT}/tmp
 touch dump-end
