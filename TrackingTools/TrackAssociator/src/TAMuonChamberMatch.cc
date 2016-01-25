@@ -2,6 +2,7 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include <sstream>
 
 int TAMuonChamberMatch::station() const {
@@ -18,6 +19,9 @@ int TAMuonChamberMatch::station() const {
 	if(muonSubdetId==3) {//RPC
 		RPCDetId segId(id.rawId());
 		return segId.station();
+	}
+	if(muonSubdetId==MuonSubdetId::ME0) {//ME0   Note: only one station here, so "station" is not a property of ME0, always return 1
+	  return 1;
 	}
 
 	return -1;
@@ -48,6 +52,14 @@ std::string TAMuonChamberMatch::info() const {
       // RPCDetId segId(id.rawId());
       oss << "RPC chamber";
    }
-
+   if(muonSubdetId==MuonSubdetId::ME0) {//ME0
+     ME0DetId segId(id.rawId());
+     oss << "ME0 chamber (region, chamber, layer, roll): "
+	 << segId.region() << ", "
+	 << segId.chamber() << ", "
+	 << segId.layer() << ", "
+	 << segId.roll();
+   }
+   
    return oss.str();
 }

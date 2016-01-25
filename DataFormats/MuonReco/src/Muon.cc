@@ -1,6 +1,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 using namespace reco;
 
@@ -57,6 +58,19 @@ int Muon::numberOfChambersNoRPC() const
   return total;
 }
 
+
+int Muon::numberOfChambersNoME0() const
+{
+  int total = 0;
+  int nAll = numberOfChambers();
+  for (int iC = 0; iC < nAll; ++iC){
+    if (matches()[iC].detector() == MuonSubdetId::ME0) continue;
+    total++;
+  }
+
+  return total;
+}
+
 int Muon::numberOfMatches( ArbitrationType type ) const
 {
    int matches(0);
@@ -68,6 +82,13 @@ int Muon::numberOfMatches( ArbitrationType type ) const
          matches += chamberMatch->rpcMatches.size();
          continue;
       }
+      
+      //FIXME: Need to add this back in
+      // if(type == ME0HitAndTrackArbitration) {
+      //    if(chamberMatch->me0Matches.empty()) continue;
+      //    matches += chamberMatch->me0Matches.size();
+      //    continue;
+      // }
 
       if(chamberMatch->segmentMatches.empty()) continue;
       if(type == NoArbitration) {
@@ -147,6 +168,25 @@ unsigned int Muon::stationMask( ArbitrationType type ) const
          continue;
       }
 
+      //FIXME: Need to add this back in
+      // if(type == ME0HitAndTrackArbitration) {
+      // 	 if(chamberMatch->me0Matches.empty()) continue;
+
+      // 	 //ME0DetId rollId = chamberMatch->id.rawId();
+
+      //    for( std::vector<MuonSegmentMatch>::const_iterator me0Match = chamberMatch->me0Matches.begin();
+      // 	      me0Match != chamberMatch->me0Matches.end(); me0Match++ )
+      // 	   {
+      // 	     //Not sure if mask is correct..
+      // 	     curMask = 1<<( (chamberMatch->station()-1)+4*(chamberMatch->detector()-1) );
+	     
+      // 	     // do not double count
+      // 	     if(!(totMask & curMask))
+      // 	       totMask += curMask;
+      // 	   }
+      //    continue;
+      // }
+
       if(chamberMatch->segmentMatches.empty()) continue;
       if(type == NoArbitration) {
          curMask = 1<<( (chamberMatch->station()-1)+4*(chamberMatch->detector()-1) );
@@ -213,6 +253,21 @@ int Muon::numberOfMatchedRPCLayers( ArbitrationType type ) const
    return layers;
 }
 
+
+int Muon::numberOfMatchedME0Layers( ArbitrationType type ) const
+{
+   int layers(0);
+
+   unsigned int theME0LayerMask = ME0layerMask(type);
+   // RPC had this:  maximum ten layers because of 6 layers in barrel and 3 (4) layers in each endcap before (after) upscope
+   //So ME0 has only 6 layers in each endcap, so max would be 6?
+   for(int it = 0; it < 6; ++it)
+     if (theME0LayerMask & 1<<it)
+       ++layers;
+
+   return layers;
+}
+
 unsigned int Muon::RPClayerMask( ArbitrationType type ) const
 {
    unsigned int totMask(0);
@@ -236,6 +291,45 @@ unsigned int Muon::RPClayerMask( ArbitrationType type ) const
 	    rpcMatch != chamberMatch->rpcMatches.end(); rpcMatch++ )
       {
 	 curMask = 1<<(rpcLayer-1);
+
+	 // do not double count
+	 if(!(totMask & curMask))
+	    totMask += curMask;
+      }
+   }
+   
+   return totMask;
+
+}
+
+
+unsigned int Muon::ME0layerMask( ArbitrationType type ) const
+{
+   unsigned int totMask(0);
+   unsigned int curMask(0);
+   for( std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
+	 chamberMatch != muMatches_.end(); chamberMatch++ )
+   {
+      if(chamberMatch->me0Matches.empty()) continue;
+	 
+      ME0DetId rollId = chamberMatch->id.rawId();
+      const int region = rollId.region();
+
+      const int layer  = rollId.layer();
+      int me0Layer = chamberMatch->station();
+
+      //Not sure if this correctly computes the layer...
+      //chamberMatch->station() on me0s now returns "1" no matter what, since there is only one station
+      //This means as it is written now there is a bit shift equal to which number layer the me0Match is
+      //ME0Segments have detId.layer() of 1 every time, with a roll of "-1"
+      if (region==1 && region==-1) {
+	 me0Layer = chamberMatch->station()-1 + chamberMatch->station()*layer;
+      }
+
+      for( std::vector<MuonSegmentMatch>::const_iterator me0Match = chamberMatch->me0Matches.begin();
+	    me0Match != chamberMatch->me0Matches.end(); me0Match++ )
+      {
+	 curMask = 1<<(me0Layer-1);
 
 	 // do not double count
 	 if(!(totMask & curMask))

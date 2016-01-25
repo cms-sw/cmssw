@@ -42,7 +42,8 @@
   <class name="reco::MuonEnergy" ClassVersion="10">
    <version ClassVersion="10" checksum="1493325087"/>
   </class>
-  <class name="reco::MuonChamberMatch" ClassVersion="11">
+  <class name="reco::MuonChamberMatch" ClassVersion="12">
+   <version ClassVersion="12" checksum="2444750523"/>
    <version ClassVersion="11" checksum="541727491"/>
    <version ClassVersion="10" checksum="4050071853"/>
   </class>
