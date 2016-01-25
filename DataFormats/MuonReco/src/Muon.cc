@@ -82,12 +82,13 @@ int Muon::numberOfMatches( ArbitrationType type ) const
          matches += chamberMatch->rpcMatches.size();
          continue;
       }
-
-      if(type == ME0HitAndTrackArbitration) {
-         if(chamberMatch->me0Matches.empty()) continue;
-         matches += chamberMatch->me0Matches.size();
-         continue;
-      }
+      
+      //FIXME: Need to add this back in
+      // if(type == ME0HitAndTrackArbitration) {
+      //    if(chamberMatch->me0Matches.empty()) continue;
+      //    matches += chamberMatch->me0Matches.size();
+      //    continue;
+      // }
 
       if(chamberMatch->segmentMatches.empty()) continue;
       if(type == NoArbitration) {
@@ -167,23 +168,24 @@ unsigned int Muon::stationMask( ArbitrationType type ) const
          continue;
       }
 
-      if(type == ME0HitAndTrackArbitration) {
-	 if(chamberMatch->me0Matches.empty()) continue;
+      //FIXME: Need to add this back in
+      // if(type == ME0HitAndTrackArbitration) {
+      // 	 if(chamberMatch->me0Matches.empty()) continue;
 
-	 //ME0DetId rollId = chamberMatch->id.rawId();
+      // 	 //ME0DetId rollId = chamberMatch->id.rawId();
 
-         for( std::vector<MuonSegmentMatch>::const_iterator me0Match = chamberMatch->me0Matches.begin();
-	      me0Match != chamberMatch->me0Matches.end(); me0Match++ )
-	   {
-	     //Not sure if mask is correct..
-	     curMask = 1<<( (chamberMatch->station()-1)+4*(chamberMatch->detector()-1) );
+      //    for( std::vector<MuonSegmentMatch>::const_iterator me0Match = chamberMatch->me0Matches.begin();
+      // 	      me0Match != chamberMatch->me0Matches.end(); me0Match++ )
+      // 	   {
+      // 	     //Not sure if mask is correct..
+      // 	     curMask = 1<<( (chamberMatch->station()-1)+4*(chamberMatch->detector()-1) );
 	     
-	     // do not double count
-	     if(!(totMask & curMask))
-	       totMask += curMask;
-	   }
-         continue;
- }
+      // 	     // do not double count
+      // 	     if(!(totMask & curMask))
+      // 	       totMask += curMask;
+      // 	   }
+      //    continue;
+      // }
 
       if(chamberMatch->segmentMatches.empty()) continue;
       if(type == NoArbitration) {
