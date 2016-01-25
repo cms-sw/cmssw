@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PRef/V1 (CMSSW_8_0_0_pre5)
+# /dev/CMSSW_8_0_0/PRef/V2 (CMSSW_8_0_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PRef/V1')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PRef/V2')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -10660,7 +10660,7 @@ fragment.hltPAGoodFullTracks = cms.EDProducer( "AnalyticalTrackSelector",
     chi2n_no1Dmod_par = cms.double( 9999.0 ),
     vertices = cms.InputTag( "hltPixelVertices" ),
     max_eta = cms.double( 9999.0 ),
-    d0_par2 = cms.vdouble( 5.0, 0.0 ),
+    d0_par2 = cms.vdouble( 9999.0, 0.0 ),
     d0_par1 = cms.vdouble( 9999.0, 0.0 ),
     res_par = cms.vdouble( 99999.0, 99999.0 ),
     minHitsToBypassChecks = cms.uint32( 999 )
