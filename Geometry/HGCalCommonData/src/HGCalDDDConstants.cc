@@ -46,16 +46,17 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
       tot_layers_[simreco] = layersInit((bool)simreco);
       max_modules_layer_[simreco].resize(tot_layers_[simreco]+1);
       for( unsigned int layer = 1; layer <= tot_layers_[simreco]; ++layer ) {
-        max_modules_layer_[simreco][layer] = modulesInit(layer,(bool)simreco);
+        max_modules_layer_[simreco][layer] = modulesInit(layer,(bool)simreco);        
       }
     }
     tot_wafers_ = wafers();
-
+    
     edm::LogInfo("HGCalGeom") << "HGCalDDDConstants initialized for " << name
 			      << " with " << layers(false) << ":" <<layers(true)
 			      << " layers, " << wafers() << " wafers and "
 			      << "maximum of " << maxCells(false) << ":" 
 			      << maxCells(true) << " cells";
+    
 #ifdef DebugLog
     std::cout << "HGCalDDDConstants initialized for " << name << " with " 
 	      << layers(false) << ":" << layers(true) << " layers, " 
@@ -249,7 +250,7 @@ bool HGCalDDDConstants::isValid(int lay, int mod, int cell, bool reco) const {
   } else {
     modmax = modules(lay,reco);
     ok = ((lay > 0 && lay <= (int)(layers(reco))) && 
-	  (mod > 0 && mod <= modmax));
+	  (mod >= 0 && mod <= modmax));
     if (ok) {
       cellmax = (hgpar_->waferTypeT_[mod]==1) ? 
  	(int)(hgpar_->cellFineX_.size()) : (int)(hgpar_->cellCoarseX_.size());
@@ -550,8 +551,9 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay, int mod,
 }
 
 int HGCalDDDConstants::waferFromCopy(int copy) const {
-  int wafer = tot_wafers_;
-  for (int k=0; k<tot_wafers_; ++k) {
+  const int ncopies = hgpar_->waferCopy_.size();
+  int wafer = ncopies;
+  for (int k=0; k<ncopies; ++k) {
     if (copy == hgpar_->waferCopy_[k]) {
       wafer = k;
       break;

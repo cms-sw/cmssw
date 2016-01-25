@@ -8,6 +8,7 @@
  *  
  *  $Date: 2015/06/25 00:06:50 $
  * \author Sunanda Banerjee, Fermilab <sunanda.banerjee@cern.ch>
+ * \author Lindsey Gray, Fermilab <lagray@fnal.gov> (for fixes)
  *
  */
 
@@ -41,8 +42,8 @@ public:
 private:
   std::vector<double> getDDDArray(const std::string&, const DDsvalues_type&,
 				  int&);
-  std::pair<double,double> cellPosition(const std::map<int,GlobalPoint>& wafers,
-					std::map<int,GlobalPoint>::const_iterator& itrf,
+  std::pair<double,double> cellPosition(const std::vector<GlobalPoint>& wafers,
+					std::vector<GlobalPoint>::const_iterator& itrf,
 					unsigned int num, double rmax,
 					double ymax, double xx, double yy, 
 					unsigned int ncells);
