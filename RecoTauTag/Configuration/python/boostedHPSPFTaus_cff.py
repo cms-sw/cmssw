@@ -23,14 +23,17 @@ import RecoJets.JetProducers.CMSBoostedTauSeedingParameters_cfi as boostedTaus3
 ##ca8PFJetsCHSprunedForBoostedTaus = boostedTaus2.ak4PFJetsPruned.clone(
 ca8PFJetsCHSprunedForBoostedTaus = boostedTaus2.ak4PFJets.clone(
     boostedTaus3.CMSBoostedTauSeedingParameters,
-    src = cms.InputTag('pfNoPileUpForBoostedTaus'),
-    jetPtMin = cms.double(10.0),
+    #src = cms.InputTag('pfNoPileUpForBoostedTaus'),
+    jetPtMin = cms.double(50.0),
     doAreaFastjet = cms.bool(True),
-    nFilt = cms.int32(4),
+    nFilt = cms.int32(100),
     rParam = cms.double(0.8),
     jetAlgorithm = cms.string("CambridgeAachen"),
     writeCompound = cms.bool(True),
-    jetCollInstanceName = cms.string('subJetsForSeedingBoostedTaus')
+    jetCollInstanceName = cms.string('subJetsForSeedingBoostedTaus')#,
+  #  maxDepth = cms.int32(100)#,
+  # subjetPtMin = cms.double(10.0)#,
+  # subjetEtaMax = cms.double(3.0)
 )
 
 boostedTauSeeds = cms.EDProducer("BoostedTauSeedsProducer",
@@ -38,7 +41,7 @@ boostedTauSeeds = cms.EDProducer("BoostedTauSeedsProducer",
     pfCandidateSrc = cms.InputTag('particleFlow'),
     verbosity = cms.int32(0)
 )
-
+'''
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 recoTauAK4PFJets08Region.src = cms.InputTag('boostedTauSeeds')
 recoTauAK4PFJets08Region.pfCandSrc = cms.InputTag('pfNoPileUpForBoostedTaus')
@@ -66,4 +69,4 @@ produceAndDiscriminateBoostedHPSPFTaus = cms.Sequence(
     boostedTauSeeds*
     PFTau
 )    
-
+'''

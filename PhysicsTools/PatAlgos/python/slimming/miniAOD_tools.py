@@ -203,6 +203,12 @@ def miniAOD_customizeCommon(process):
     for idmod in photon_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection,None,False)
 
+    #---------------------------------------------------------------------------
+    #Adding  Boosted Subjets taus
+    from RecoTauTag.Configuration.boostedHPSPFTaus_cfi import addBoostedTaus
+    addBoostedTaus(process)
+    #---------------------------------------------------------------------------
+
     # Adding puppi jets
     process.load('CommonTools.PileupAlgos.Puppi_cff')
     process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
@@ -298,6 +304,9 @@ def miniAOD_customizeMC(process):
     process.photonMatch.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.tauMatch.matched = "prunedGenParticles"
     process.tauGenJets.GenParticles = "prunedGenParticles"
+    #Boosted taus 
+    process.tauMatchBoosted.matched = "prunedGenParticles"
+    process.tauGenJetsBoosted.GenParticles = "prunedGenParticles"
     process.patJetPartons.particles = "prunedGenParticles"
     process.patJetPartonMatch.matched = "prunedGenParticles"
     process.patJetPartonMatch.mcStatus = [ 3, 23 ]
@@ -307,6 +316,7 @@ def miniAOD_customizeMC(process):
     process.patElectrons.embedGenMatch = False
     process.patPhotons.embedGenMatch = False
     process.patTaus.embedGenMatch = False
+    process.patTausBoosted.embedGenMatch = False
     process.patJets.embedGenPartonMatch = False
     #also jet flavour must be switched
     process.patJetFlavourAssociation.rParam = 0.4
