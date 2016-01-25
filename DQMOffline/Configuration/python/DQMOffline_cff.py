@@ -42,6 +42,7 @@ from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
 from DQMOffline.RecoB.PrimaryVertexMonitor_cff import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 from DQM.Physics.DQMPhysics_cff import *
+from DQM.Physics.DQMTopMiniAOD_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_cff import *
 # miniAOD DQM validation
@@ -63,8 +64,11 @@ DQMOfflinePrePOG = cms.Sequence( TrackingDQMSourceTier0 *
 DQMOfflinePOG = cms.Sequence( DQMOfflinePrePOG *
                               DQMMessageLogger )
 
+HLTMonitoring = cms.Sequence( OfflineHLTMonitoring )
+
 DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            DQMOfflinePrePOG *
+                           HLTMonitoring *
                            dqmFastTimerServiceLuminosity *
                            DQMMessageLogger )
 
@@ -109,6 +113,9 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  produceDenoms *
                                  pfTauRunDQMValidation 
                                  )
+DQMOfflineTracking = cms.Sequence( TrackingDQMSourceTier0Common *
+                                   pvMonitor
+                                 )
 DQMOfflineMuon = cms.Sequence( dtSources *
                                rpcTier0Source *
                                cscSources *
@@ -124,15 +131,11 @@ DQMOfflineJetMET = cms.Sequence( jetMETDQMOfflineSource )
 DQMOfflineEGamma = cms.Sequence( egammaDQMOffline )
 
 DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
-
-HLTMonitoring = cms.Sequence( OfflineHLTMonitoring )
-                                                              
-
+                                                                 
 DQMOfflineMiniAOD = cms.Sequence()
 
 #Post sequences are automatically placed in the EndPath by ConfigBuilder if PAT is run.
 #miniAOD DQM sequences need to access the filter results.
 PostDQMOfflineMiniAOD = cms.Sequence(miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD*topPhysicsminiAOD)
 PostDQMOffline = cms.Sequence()
-
 
