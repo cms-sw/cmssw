@@ -153,9 +153,9 @@ With this subdetector, the flat geometry is compatible using just the central ba
 | Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
 |------|-----------|-----------|-----|----|-----|
 | _not used_ | 24 | 0x1 | 1 | | |
-| Layer | 20 | 0xF | 4 | tobLayer(id) or layer(id) | increasing r |
-| _subdetector part_ | 18 | 0x3 | 2 | tobSide(id) | 1=rings- 2=rings+ 3=barrel0|
-| Ladder | 12 | 0x3F | 8 | tobRod(id) | increasing abs(z) (rings) or phi(barrel) |
+| Layer | 21 | 0x7 | 3 | tobLayer(id) or layer(id) | increasing r |
+| _subdetector part_ | 19| 0x3 | 2 | tobSide(id) | 1=rings- 2=rings+ 3=barrel0|
+| Ladder | 12 | 0x7F | 7 | tobRod(id) | increasing abs(z) (rings) or phi(barrel) |
 | Module | 2 | 0x3FF | 10 | tobModule(id) | increasing phi (rings) or z(barrel) |
 | Module type | 0 | 0x3 | 2 | tobLower(id) or tobUpper(id) | 1=lower in local s.o.r.(P sensor into PS), 2=upper in local s.o.r.(S sensor into PS), 0=pair |
 

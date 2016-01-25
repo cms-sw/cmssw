@@ -307,14 +307,14 @@ TrackerTopologyEP::fillDescriptions( edm::ConfigurationDescriptions & descriptio
   ttcphase2.add<unsigned int>("tid_moduleMask",0xFF);
   ttcphase2.add<unsigned int>("tid_sterMask",0x3);
   
-  ttcphase2.add<unsigned int>("tob_layerStartBit",20);
-  ttcphase2.add<unsigned int>("tob_rod_fw_bwStartBit",18);
+  ttcphase2.add<unsigned int>("tob_layerStartBit",21);
+  ttcphase2.add<unsigned int>("tob_rod_fw_bwStartBit",19);
   ttcphase2.add<unsigned int>("tob_rodStartBit",12);  
   ttcphase2.add<unsigned int>("tob_moduleStartBit",2);
   ttcphase2.add<unsigned int>("tob_sterStartBit",0);
-  ttcphase2.add<unsigned int>("tob_layerMask",0xF);
+  ttcphase2.add<unsigned int>("tob_layerMask",0x7);
   ttcphase2.add<unsigned int>("tob_rod_fw_bwMask",0x3);
-  ttcphase2.add<unsigned int>("tob_rodMask",0x3F);
+  ttcphase2.add<unsigned int>("tob_rodMask",0x7F);
   ttcphase2.add<unsigned int>("tob_moduleMask",0x3FF);
   ttcphase2.add<unsigned int>("tob_sterMask",0x3);
 
