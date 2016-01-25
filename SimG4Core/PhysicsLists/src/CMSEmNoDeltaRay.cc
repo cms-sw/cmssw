@@ -236,12 +236,4 @@ void CMSEmNoDeltaRay::ConstructProcess() {
   // ApplyCuts
   //
   opt.SetApplyCuts(true);
-
-  // Physics tables
-  //
-  opt.SetMinEnergy(100.*eV);
-  opt.SetMaxEnergy(10.*TeV);
-  opt.SetDEDXBinning(77);
-  opt.SetLambdaBinning(77);
-
 }

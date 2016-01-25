@@ -20,7 +20,7 @@
 #include "G4SystemOfUnits.hh"
 
 G4ThreadLocal HadronPhysicsQGSPCMS_FTFP_BERT::ThreadPrivate* 
-HadronPhysicsQGSPCMS_FTFP_BERT::tpdata = 0;
+HadronPhysicsQGSPCMS_FTFP_BERT::tpdata = nullptr;
 
 HadronPhysicsQGSPCMS_FTFP_BERT::HadronPhysicsQGSPCMS_FTFP_BERT(G4int)
   :  G4VPhysicsConstructor("hInelasticQGSPCMS_FTFP_BERT")
@@ -29,8 +29,8 @@ HadronPhysicsQGSPCMS_FTFP_BERT::HadronPhysicsQGSPCMS_FTFP_BERT(G4int)
 void HadronPhysicsQGSPCMS_FTFP_BERT::CreateModels()
 {
   // First transition, between BERT and FTF/P
-  G4double minFTFP= 6.0 * GeV;     // Was 9.5 for LEP   (in FTFP_BERT 6.0 * GeV);
-  G4double maxBERT= 8.0 * GeV;     // Was 9.9 for LEP   (in FTFP_BERT 8.0 * GeV);
+  G4double minFTFP= 6.0 * GeV;  
+  G4double maxBERT= 8.0 * GeV;  
   // Second transition, between FTF/P and QGS/P
   G4double minQGSP= 12.0 * GeV;
   G4double maxFTFP= 25.0 * GeV; 
@@ -94,6 +94,7 @@ void HadronPhysicsQGSPCMS_FTFP_BERT::CreateModels()
 
 HadronPhysicsQGSPCMS_FTFP_BERT::~HadronPhysicsQGSPCMS_FTFP_BERT()
 {
+  if(nullptr != tpdata) {
    delete tpdata->theQGSPNeutron;
    delete tpdata->theFTFPNeutron;
    delete tpdata->theBertiniNeutron;
@@ -112,11 +113,10 @@ HadronPhysicsQGSPCMS_FTFP_BERT::~HadronPhysicsQGSPCMS_FTFP_BERT()
    delete tpdata->theHyperon;
    delete tpdata->theAntiBaryon;
    delete tpdata->theFTFPAntiBaryon;
-
-   delete tpdata->xsNeutronInelasticXS;
-   delete tpdata->xsNeutronCaptureXS; 
    
    delete tpdata;
+   tpdata = nullptr;
+  }
 }
 
 void HadronPhysicsQGSPCMS_FTFP_BERT::ConstructParticle()
@@ -137,7 +137,7 @@ void HadronPhysicsQGSPCMS_FTFP_BERT::ConstructParticle()
 #include "G4ProcessManager.hh"
 void HadronPhysicsQGSPCMS_FTFP_BERT::ConstructProcess()
 {
-  if ( tpdata == 0 ) tpdata = new ThreadPrivate;
+  if ( tpdata == nullptr ) { tpdata = new ThreadPrivate; }
   CreateModels();
   tpdata->theNeutrons->Build();
   tpdata->thePro->Build();
@@ -146,11 +146,10 @@ void HadronPhysicsQGSPCMS_FTFP_BERT::ConstructProcess()
   tpdata->theAntiBaryon->Build(); 
 
   // --- Neutrons ---
-  tpdata->xsNeutronInelasticXS = new G4NeutronInelasticXS();  
   G4PhysListUtil::FindInelasticProcess(G4Neutron::Neutron())
-    ->AddDataSet(tpdata->xsNeutronInelasticXS);
+    ->AddDataSet(new G4NeutronInelasticXS());
 
-  G4HadronicProcess* capture = 0;
+  G4HadronicProcess* capture = nullptr;
   G4ProcessManager* pmanager = G4Neutron::Neutron()->GetProcessManager();
   G4ProcessVector*  pv = pmanager->GetProcessList();
   for ( size_t i=0; i < static_cast<size_t>(pv->size()); ++i ) {
@@ -162,8 +161,7 @@ void HadronPhysicsQGSPCMS_FTFP_BERT::ConstructProcess()
     capture = new G4HadronCaptureProcess("nCapture");
     pmanager->AddDiscreteProcess(capture);
   }
-  tpdata->xsNeutronCaptureXS = new G4NeutronCaptureXS();
-  capture->AddDataSet(tpdata->xsNeutronCaptureXS);
+  capture->AddDataSet(new G4NeutronCaptureXS());
   capture->RegisterMe(new G4NeutronRadCapture());
 }
 

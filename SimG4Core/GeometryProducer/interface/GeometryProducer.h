@@ -1,15 +1,14 @@
 #ifndef SimG4Core_GeometryProducer_H
 #define SimG4Core_GeometryProducer_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-// #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
- 
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
@@ -19,29 +18,30 @@
 #include <memory>
 
 namespace sim { class FieldBuilder; }
+
 class SimWatcher;
 class SimProducer;
 class DDDWorld;
 class G4RunManagerKernel;
 class SimTrackManager;
 
-class GeometryProducer : public edm::EDProducer
+class GeometryProducer : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns>
 {
 public:
     typedef std::vector<std::shared_ptr<SimProducer> > Producers;
+
     explicit GeometryProducer(edm::ParameterSet const & p);
-//    virtual ~GeometryProducer();
-//    virtual void beginJob();
-//    virtual void endJob();
-//    virtual void produce(edm::Event & e, const edm::EventSetup & c);
     virtual ~GeometryProducer() override;
-    void produce(edm::Event & e, const edm::EventSetup & c);
+    virtual void beginRun(const edm::Run & r,const edm::EventSetup& c) override;
+    virtual void endRun(const edm::Run & r,const edm::EventSetup& c) override;
+    virtual void produce(edm::Event & e, const edm::EventSetup & c) override;
     void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
    
     std::vector<std::shared_ptr<SimProducer> > producers() const
     { return m_producers; }
     std::vector<SensitiveTkDetector*>& sensTkDetectors() { return m_sensTkDets; }
     std::vector<SensitiveCaloDetector*>& sensCaloDetectors() { return m_sensCaloDets; }
+
 private:
 
     void updateMagneticField( edm::EventSetup const& es );

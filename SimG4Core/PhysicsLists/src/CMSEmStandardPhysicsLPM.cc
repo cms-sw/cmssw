@@ -125,16 +125,15 @@ void CMSEmStandardPhysicsLPM::ConstructParticle() {
 void CMSEmStandardPhysicsLPM::ConstructProcess() 
 {
   // Add standard EM Processes
-
   // muon & hadron bremsstrahlung and pair production
-  G4MuBremsstrahlung* mub = new G4MuBremsstrahlung();
-  G4MuPairProduction* mup = new G4MuPairProduction();
-  G4hBremsstrahlung* pib = new G4hBremsstrahlung();
-  G4hPairProduction* pip = new G4hPairProduction();
-  G4hBremsstrahlung* kb = new G4hBremsstrahlung();
-  G4hPairProduction* kp = new G4hPairProduction();
-  G4hBremsstrahlung* pb = new G4hBremsstrahlung();
-  G4hPairProduction* pp = new G4hPairProduction();
+  G4MuBremsstrahlung* mub = nullptr;
+  G4MuPairProduction* mup = nullptr;
+  G4hBremsstrahlung* pib = nullptr;
+  G4hPairProduction* pip = nullptr;
+  G4hBremsstrahlung* kb = nullptr;
+  G4hPairProduction* kp = nullptr;
+  G4hBremsstrahlung* pb = nullptr;
+  G4hPairProduction* pp = nullptr;
 
   G4hMultipleScattering* hmsc = new G4hMultipleScattering("ionmsc");
 
@@ -190,6 +189,10 @@ void CMSEmStandardPhysicsLPM::ConstructProcess()
     } else if (particleName == "mu+" ||
                particleName == "mu-"    ) {
 
+      if(nullptr == mub) {
+	mub = new G4MuBremsstrahlung();
+	mup = new G4MuPairProduction();
+      }
       G4MuMultipleScattering* mumsc = new G4MuMultipleScattering();
       mumsc->AddEmModel(0, new G4WentzelVIModel());
       pmanager->AddProcess(mumsc,                     -1, 1, 1);
@@ -208,6 +211,10 @@ void CMSEmStandardPhysicsLPM::ConstructProcess()
     } else if (particleName == "pi+" ||
 	       particleName == "pi-" ) {
 
+      if(nullptr == pib) {
+	pib = new G4hBremsstrahlung();
+	pip = new G4hPairProduction();
+      }
       pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
       pmanager->AddProcess(new G4hIonisation,         -1, 2, 2);
       pmanager->AddProcess(pib,   -1,-3, 3);
@@ -216,6 +223,10 @@ void CMSEmStandardPhysicsLPM::ConstructProcess()
     } else if (particleName == "kaon+" ||
 	       particleName == "kaon-"  ) {
 
+      if(nullptr == kb) {
+	kb = new G4hBremsstrahlung();
+	kp = new G4hPairProduction();
+      }
       pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
       pmanager->AddProcess(new G4hIonisation,         -1, 2, 2);
       pmanager->AddProcess(kb,   -1,-3, 3);
@@ -224,6 +235,10 @@ void CMSEmStandardPhysicsLPM::ConstructProcess()
     } else if (particleName == "proton" || 
 	       particleName == "anti_proton" ) {
 
+      if(nullptr == pb) {
+	pb = new G4hBremsstrahlung();
+	pp = new G4hPairProduction();
+      }
       pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
       pmanager->AddProcess(new G4hIonisation,         -1, 2, 2);
       pmanager->AddProcess(pb,   -1,-3, 3);
@@ -265,10 +280,8 @@ void CMSEmStandardPhysicsLPM::ConstructProcess()
   //
   G4EmProcessOptions opt;
   opt.SetVerbose(verbose);
-
   // muon scattering
   opt.SetPolarAngleLimit(CLHEP::pi);
-
   // ApplyCuts
   //
   opt.SetApplyCuts(true);
