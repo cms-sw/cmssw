@@ -233,6 +233,10 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
             rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat2, abs_add_2);
             rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat3, abs_add_3);
             rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat4, abs_add_4);
+            rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat1, 0);
+            rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat2, 0);
+            rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat3, 0);
+            rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat4, 0);
 
             rmc.setHwPhi(cand->hwPhi());
             rmc.setHwSign(cand->hwSign() == 1 ? 0 : 1 );
@@ -275,6 +279,10 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
         rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat2, abs_add_2);
         rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat3, abs_add_3);
         rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat4, abs_add_4);
+        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat1, 0);
+        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat2, 0);
+        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat3, 0);
+        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat4, 0);
 
 
         rmc.setHwPhi((*iter)->hwPhi());
@@ -320,6 +328,10 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
         rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat2, abs_add_2);
         rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat3, abs_add_3);
         rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat4, abs_add_4);
+        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat1, 0);
+        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat2, 0);
+        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat3, 0);
+        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat4, 0);
 
 
         rmc.setHwPhi((*iter)->hwPhi());
