@@ -48,19 +48,20 @@ pfBTagging = cms.Sequence(
       # impact parameters and IP-only algorithms
       pfImpactParameterTagInfos *
       ( pfTrackCountingHighEffBJetTags +
-        pfTrackCountingHighPurBJetTags +
+       # pfTrackCountingHighPurBJetTags +
         pfJetProbabilityBJetTags +
         pfJetBProbabilityBJetTags +
 
         # SV tag infos depending on IP tag infos, and SV (+IP) based algos
         pfSecondaryVertexTagInfos *
         ( pfSimpleSecondaryVertexHighEffBJetTags +
-          pfSimpleSecondaryVertexHighPurBJetTags +
-          pfCombinedSecondaryVertexBJetTags +
+         # pfSimpleSecondaryVertexHighPurBJetTags +
+         # pfCombinedSecondaryVertexBJetTags +
           pfCombinedSecondaryVertexV2BJetTags
         )
         + inclusiveCandidateVertexing *
         pfInclusiveSecondaryVertexFinderTagInfos *
+        pfSimpleInclusiveSecondaryVertexHighEffBJetTags *
         pfCombinedInclusiveSecondaryVertexV2BJetTags
 
       ) +
@@ -74,11 +75,11 @@ pfBTagging = cms.Sequence(
 
     # overall combined taggers
     ( #CSV + soft-lepton + jet probability discriminators combined
-      pfCombinedMVABJetTags
-      + pfCombinedMVAV2BJetTags
+     # pfCombinedMVABJetTags +
+      pfCombinedMVAV2BJetTags
 
       #CSV + soft-lepton variables combined (btagger)
-      + pfCombinedSecondaryVertexSoftLeptonBJetTags
+     # + pfCombinedSecondaryVertexSoftLeptonBJetTags
     )
 )
 
