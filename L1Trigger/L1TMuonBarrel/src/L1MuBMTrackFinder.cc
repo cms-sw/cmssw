@@ -227,7 +227,8 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
             int abs_add_3 = setAdd(3,cand->address(3));
             int abs_add_4 = setAdd(4,cand->address(4));
 
-            rmc.setTrackSubAddress(l1t::RegionalMuonCand::kWheel, cand->spid().wheel()); // this has to be set!
+            rmc.setTrackSubAddress(l1t::RegionalMuonCand::kWheelSide, cand->spid().wheel() < 0); // this has to be set!
+            rmc.setTrackSubAddress(l1t::RegionalMuonCand::kWheelNum, abs(cand->spid().wheel()) - 1); // this has to be set!
             rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat1, abs_add_1);
             rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat2, abs_add_2);
             rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat3, abs_add_3);
@@ -268,7 +269,8 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
         int abs_add_3 = setAdd(3,(*iter)->address(3));
         int abs_add_4 = setAdd(4,(*iter)->address(4));
 
-        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kWheel, (*iter)->spid().wheel()); // this has to be set!
+        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kWheelSide, (*iter)->spid().wheel() < 0); // this has to be set!
+        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kWheelNum, abs((*iter)->spid().wheel()) - 1); // this has to be set!
         rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat1, abs_add_1);
         rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat2, abs_add_2);
         rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat3, abs_add_3);
@@ -312,7 +314,8 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
         int abs_add_3 = setAdd(3,(*iter)->address(3));
         int abs_add_4 = setAdd(4,(*iter)->address(4));
 
-        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kWheel, (*iter)->spid().wheel()); // this has to be set!
+        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kWheelSide, (*iter)->spid().wheel() < 0); // this has to be set!
+        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kWheelNum, abs((*iter)->spid().wheel()) - 1); // this has to be set!
         rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat1, abs_add_1);
         rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat2, abs_add_2);
         rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat3, abs_add_3);

@@ -9,7 +9,7 @@ class RegionalMuonCand {
   public:
     /// Enum to identify the individual parts of the BMTF track address
     enum bmtfAddress {
-        kWheel=0, kStat1=1, kStat2=2, kStat3=3, kStat4=4
+        kWheelSide=0, kWheelNum=1, kStat1=2, kStat2=3, kStat3=4, kStat4=5
     };
     /// Enum to identify the individual parts of the EMTF track address
     enum emtfAddress {
