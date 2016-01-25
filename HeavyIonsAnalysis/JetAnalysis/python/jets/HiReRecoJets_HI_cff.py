@@ -2,19 +2,21 @@ import FWCore.ParameterSet.Config as cms
 from RecoHI.HiJetAlgos.HiRecoJets_cff import *
 from RecoHI.HiJetAlgos.HiRecoPFJets_cff import *
 
-akVs1CaloJets.doAreaFastjet = True
-akVs2CaloJets.doAreaFastjet = True
-akVs3CaloJets.doAreaFastjet = True
-akVs4CaloJets.doAreaFastjet = True
-akVs5CaloJets.doAreaFastjet = True
-akVs6CaloJets.doAreaFastjet = True
+ak5PFJets.doAreaFastjet = cms.bool(True)
 
-akVs1PFJets.doAreaFastjet = True
-akVs2PFJets.doAreaFastjet = True
-akVs3PFJets.doAreaFastjet = True
-akVs4PFJets.doAreaFastjet = True
-akVs5PFJets.doAreaFastjet = True
-akVs6PFJets.doAreaFastjet = True
+akVs1CaloJets.doAreaFastjet = cms.bool(True)
+akVs2CaloJets.doAreaFastjet = cms.bool(True)
+akVs3CaloJets.doAreaFastjet = cms.bool(True)
+akVs4CaloJets.doAreaFastjet = cms.bool(True)
+akVs5CaloJets.doAreaFastjet = cms.bool(True)
+akVs6CaloJets.doAreaFastjet = cms.bool(True)
+
+akVs1PFJets.doAreaFastjet = cms.bool(True)
+akVs2PFJets.doAreaFastjet = cms.bool(True)
+akVs3PFJets.doAreaFastjet = cms.bool(True)
+akVs4PFJets.doAreaFastjet = cms.bool(True)
+akVs5PFJets.doAreaFastjet = cms.bool(True)
+akVs6PFJets.doAreaFastjet = cms.bool(True)
 
 ak1PFJets = ak5PFJets.clone(rParam       = cms.double(0.1))
 ak2PFJets = ak5PFJets.clone(rParam       = cms.double(0.2))
