@@ -489,3 +489,14 @@ tracksValidationTrackingOnly = cms.Sequence(
 if eras.fastSim.isChosen():
     trackValidatorsStandalone.remove(trackValidatorConversionStandalone)
     trackValidatorsTrackingOnly.remove(trackValidatorConversionTrackingOnly)
+
+
+### Lite mode (only generalTracks and HP)
+trackValidatorLite = trackValidator.clone(
+    label = ["generalTracks", "cutsRecoTracksHp"]
+)
+tracksValidationLite = cms.Sequence(
+    cutsRecoTracksHp +
+    tracksValidationTruth +
+    trackValidatorLite
+)
