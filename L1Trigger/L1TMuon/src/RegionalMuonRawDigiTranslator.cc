@@ -48,6 +48,10 @@ l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonCand(RegionalMuonCand& mu, u
     mu.setTrackSubAddress(RegionalMuonCand::kStat2, statAddr2);
     mu.setTrackSubAddress(RegionalMuonCand::kStat3, statAddr3);
     mu.setTrackSubAddress(RegionalMuonCand::kStat4, statAddr4);
+    mu.setTrackSubAddress(RegionalMuonCand::kSegSelStat1, segSel & 0x1);
+    mu.setTrackSubAddress(RegionalMuonCand::kSegSelStat2, segSel & 0x2);
+    mu.setTrackSubAddress(RegionalMuonCand::kSegSelStat3, segSel & 0x4);
+    mu.setTrackSubAddress(RegionalMuonCand::kSegSelStat4, segSel & 0x8);
   } else if (tf == emtf_neg || tf == emtf_pos) {
     int me12 = (rawTrackAddress >> emtfTrAddrMe12Shift_) & emtfTrAddrMe12Mask_;
     int me22 = (rawTrackAddress >> emtfTrAddrMe22Shift_) & emtfTrAddrMe22Mask_;
@@ -98,10 +102,10 @@ l1t::RegionalMuonRawDigiTranslator::generatePackedDataWords(const RegionalMuonCa
     int stat3 = mu.trackSubAddress(RegionalMuonCand::kStat3);
     int stat4 = mu.trackSubAddress(RegionalMuonCand::kStat4);
 
-    int segSel = (stat1 & 0x4) >> 2
-               | (stat2 & 0x10) >> 3
-               | (stat3 & 0x10) >> 2
-               | (stat4 & 0x10) >> 1;
+    int segSel = mu.trackSubAddress(RegionalMuonCand::kSegSelStat1)
+               | (mu.trackSubAddress(RegionalMuonCand::kSegSelStat2)) >> 1
+               | (mu.trackSubAddress(RegionalMuonCand::kSegSelStat3)) >> 2
+               | (mu.trackSubAddress(RegionalMuonCand::kSegSelStat4)) >> 3;
 
     rawTrkAddr = (segSel & bmtfTrAddrSegSelMask_) << bmtfTrAddrSegSelShift_
                | (detSide & 0x1) << bmtfTrAddrDetSideShift_
