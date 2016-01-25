@@ -5,8 +5,6 @@ from RecoHI.HiJetAlgos.HiGenJets_cff import *
 from RecoJets.Configuration.GenJetParticles_cff import *
 from Configuration.StandardSequences.ReconstructionHeavyIons_cff import voronoiBackgroundPF, voronoiBackgroundCalo
 
-ak4HiGenJets.doAreaFastjet = cms.bool(True)
-
 akHiGenJets = cms.Sequence(
     genParticlesForJets +
     ak2HiGenJets +
