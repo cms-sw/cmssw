@@ -26,13 +26,13 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
-#include "DataFormats/L1TMuon/interface/MuonCaloSum.h"
+//#include "DataFormats/L1TMuon/interface/MuonCaloSum.h"
 
 // stage2 requirements
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
-#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+//#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 
 // dqm requirements
 #include "DQMServices/Core/interface/DQMStore.h"
