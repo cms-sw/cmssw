@@ -101,42 +101,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
 	seedCreator.reset(SeedCreatorFactory::get()->create( seedCreatorName, seedCreatorPSet));
     }
 }
-/*
-bool
-TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const
-{
 
-    const DetLayer * innerLayer = 
-	measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
-    const DetLayer * outerLayer = 
-	measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
-  
-    typedef PixelRecoRange<float> Range;
-
-    for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
-
-	auto const & gs = outerHit.hit()->globalState();
-	auto loc = gs.position-(*ir)->origin().basicVector();
-	const HitRZCompatibility * checkRZ = (*ir)->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer,
-							    loc.perp(),gs.position.z(),gs.errorR,gs.errorZ);
-
-	float u = innerLayer->isBarrel() ? loc.perp() : gs.position.z();
-	float v = innerLayer->isBarrel() ? gs.position.z() : loc.perp();
-	float dv = innerLayer->isBarrel() ? gs.errorZ : gs.errorR;
-	constexpr float nSigmaRZ = 3.46410161514f;
-	Range allowed = checkRZ->range(u);
-	float vErr = nSigmaRZ * dv;
-	Range hitRZ(v-vErr, v+vErr);
-	Range crossRange = allowed.intersection(hitRZ);
-
-	if( ! crossRange.empty()){
-	    seedCreator->init(**ir,*es_,0);
-	    return true;}
-
-    }
-    return false;
-}
-*/
 bool
 TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const
 {
@@ -155,7 +120,6 @@ TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHi
     const RecHitsSortedInPhi* ohm=new RecHitsSortedInPhi (outerHits, (**ir).origin(), outerLayer);
     
     HitDoublets result(*ihm,*ohm); 
-    //result.reserve(std::max(ihm->size(),ohm->size()));
     
     HitPairGeneratorFromLayerPair::doublets2(**ir,*innerLayer,*outerLayer,*ihm,*ohm,*es_,0,result);
     
