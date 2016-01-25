@@ -27,6 +27,7 @@ namespace cms
     metToken_ = consumes<edm::View<reco::MET> >(iConfig.getParameter<edm::InputTag>("srcMet"));
     pfCandidatesToken_ = consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("srcPFCandidates"));
 
+    jetResType_ = iConfig.getParameter<std::string>("srcJetRes");
     rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho"));
 
     metSigAlgo_ = new metsig::METSignificance(iConfig);
@@ -74,12 +75,13 @@ namespace cms
    edm::Handle<double> rho;
    event.getByToken(rhoToken_, rho);
 
-   JME::JetResolution resObj = JME::JetResolution::get(setup, "AK4PFchs");
+   JME::JetResolution resObj = JME::JetResolution::get(setup, jetResType_);
+   JME::JetResolutionScaleFactor resSFObj = JME::JetResolutionScaleFactor::get(setup, jetResType_);
    
    //
    // compute the significance
    //
-   const reco::METCovMatrix cov = metSigAlgo_->getCovariance( *jets, leptons, *pfCandidates, *rho, resObj);
+   const reco::METCovMatrix cov = metSigAlgo_->getCovariance( *jets, leptons, *pfCandidates, *rho, resObj, resSFObj);
    double sig  = metSigAlgo_->getSignificance(cov, met);
 
    std::auto_ptr<double> significance (new double);
