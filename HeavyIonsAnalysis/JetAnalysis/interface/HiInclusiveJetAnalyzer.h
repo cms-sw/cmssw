@@ -360,6 +360,7 @@ private:
     float genpt[MAXJETS];
     float geneta[MAXJETS];
     float genphi[MAXJETS];
+    float genm[MAXJETS];
     float geny[MAXJETS];
     float gendphijt[MAXJETS];
     float gendrjt[MAXJETS];
