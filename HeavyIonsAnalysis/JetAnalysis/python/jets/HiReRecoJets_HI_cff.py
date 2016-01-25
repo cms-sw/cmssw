@@ -2,6 +2,22 @@ import FWCore.ParameterSet.Config as cms
 from RecoHI.HiJetAlgos.HiRecoJets_cff import *
 from RecoHI.HiJetAlgos.HiRecoPFJets_cff import *
 
+ak5PFJets.doAreaFastjet = cms.bool(True)
+
+akVs1CaloJets.doAreaFastjet = cms.bool(True)
+akVs2CaloJets.doAreaFastjet = cms.bool(True)
+akVs3CaloJets.doAreaFastjet = cms.bool(True)
+akVs4CaloJets.doAreaFastjet = cms.bool(True)
+akVs5CaloJets.doAreaFastjet = cms.bool(True)
+akVs6CaloJets.doAreaFastjet = cms.bool(True)
+
+akVs1PFJets.doAreaFastjet = cms.bool(True)
+akVs2PFJets.doAreaFastjet = cms.bool(True)
+akVs3PFJets.doAreaFastjet = cms.bool(True)
+akVs4PFJets.doAreaFastjet = cms.bool(True)
+akVs5PFJets.doAreaFastjet = cms.bool(True)
+akVs6PFJets.doAreaFastjet = cms.bool(True)
+
 ak1PFJets = ak5PFJets.clone(rParam       = cms.double(0.1))
 ak2PFJets = ak5PFJets.clone(rParam       = cms.double(0.2))
 ak3PFJets = ak5PFJets.clone(rParam       = cms.double(0.3))

@@ -375,6 +375,7 @@ HiInclusiveJetAnalyzer::beginJob() {
       t->Branch("geneta",jets_.geneta,"geneta[ngen]/F");
       t->Branch("geny",jets_.geny,"geny[ngen]/F");
       t->Branch("genphi",jets_.genphi,"genphi[ngen]/F");
+      t->Branch("genm",jets_.genm,"genm[ngen]/F");
       t->Branch("gendphijt",jets_.gendphijt,"gendphijt[ngen]/F");
       t->Branch("gendrjt",jets_.gendrjt,"gendrjt[ngen]/F");
 
@@ -1165,6 +1166,7 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
 	jets_.genpt[jets_.ngen] = genjet_pt;
 	jets_.geneta[jets_.ngen] = genjet.eta();
 	jets_.genphi[jets_.ngen] = genjet.phi();
+        jets_.genm[jets_.ngen] = genjet.mass();
 	jets_.geny[jets_.ngen] = genjet.eta();
 
 	if(doSubEvent_){
