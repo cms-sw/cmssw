@@ -201,14 +201,14 @@ process.l1EventTree = cms.EDAnalyzer("L1EventTreeProducer",
 process.l1UpgradeTree = cms.EDAnalyzer("L1UpgradeTreeProducer")
 if (eras.stage1L1Trigger.isChosen()):
     process.l1UpgradeTree.egToken      = cms.untracked.InputTag("simCaloStage1FinalDigis")
-    process.l1UpgradeTree.tauToken     = cms.untracked.InputTag("simCaloStage1FinalDigis:rlxTaus")
+    process.l1UpgradeTree.tauTokens    = cms.untracked.VInputTag("simCaloStage1FinalDigis:rlxTaus","simCaloStage1FinalDigis:isoTaus")
     process.l1UpgradeTree.jetToken     = cms.untracked.InputTag("simCaloStage1FinalDigis")
     process.l1UpgradeTree.muonToken    = cms.untracked.InputTag("None")
     process.l1UpgradeTree.sumToken     = cms.untracked.InputTag("simCaloStage1FinalDigis","")
     process.l1UpgradeTree.maxL1Upgrade = cms.uint32(60)
 if (eras.stage2L1Trigger.isChosen()):
     process.l1UpgradeTree.egToken      = cms.untracked.InputTag("simCaloStage2Digis")
-    process.l1UpgradeTree.tauToken     = cms.untracked.InputTag("simCaloStage2Digis")
+    process.l1UpgradeTree.tauTokens    = cms.untracked.VInputTag("simCaloStage2Digis")
     process.l1UpgradeTree.jetToken     = cms.untracked.InputTag("simCaloStage2Digis")
     process.l1UpgradeTree.muonToken    = cms.untracked.InputTag("simGmtStage2Digis")
     process.l1UpgradeTree.sumToken     = cms.untracked.InputTag("simCaloStage2Digis","")

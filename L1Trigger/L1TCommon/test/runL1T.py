@@ -80,7 +80,7 @@ process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
 process.l1UpgradeTree = cms.EDAnalyzer(
     "L1UpgradeTreeProducer",
     egToken = cms.untracked.InputTag("simCaloStage2Digis"),
-    tauToken = cms.untracked.InputTag("simCaloStage2Digis"),
+    tauTokens = cms.untracked.VInputTag("simCaloStage2Digis"),
     jetToken = cms.untracked.InputTag("simCaloStage2Digis"),
     muonToken = cms.untracked.InputTag("simGmtStage2Digis"),
     sumToken = cms.untracked.InputTag("simCaloStage2Digis",""),

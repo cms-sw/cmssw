@@ -24,9 +24,9 @@ process.TFileService = cms.Service("TFileService",
 )
 
 # producer under test
-process.load("L1Trigger.L1TNtuples.l1UpgradeTreeProducer_cfi")
+process.load("L1Trigger.L1TNtuples.l1UpgradeTree_cfi")
 
 process.p = cms.Path(
-  process.l1UpgradeTreeProducer
+  process.l1UpgradeTree
 )
 
