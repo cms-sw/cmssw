@@ -2,14 +2,25 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <SpecParSection label="hgcalReco.xml" eval="true">
-  <SpecPar name="HGCalWafer">
-    <PartSelector path="//HGCalWafer.*"/>
-    <Parameter name="Volume" value="HGCalWafer" eval="false"/>
+  <SpecPar name="HGCalEEWafer">
+    <PartSelector path="//HGCalEEWafer.*"/>
+    <Parameter name="Volume" value="HGCalEEWafer" eval="false"/>
     <Parameter name="WaferSize"      value="[hgcal:WaferW]"/>
   </SpecPar>
-  <SpecPar name="HGCalCell">
-    <PartSelector path="//HGCalCell.*"/>
-    <Parameter name="Volume" value="HGCalCell" eval="false"/>
+  <SpecPar name="HGCalHEWafer">
+    <PartSelector path="//HGCalHEWafer.*"/>
+    <Parameter name="Volume" value="HGCalHEWafer" eval="false"/>
+    <Parameter name="WaferSize"      value="[hgcal:WaferW]"/>
+  </SpecPar>
+  <SpecPar name="HGCalEECell">
+    <PartSelector path="//HGCalEECell.*"/>
+    <Parameter name="Volume" value="HGCalEECell" eval="false"/>
+    <Parameter name="CellSize"      value="[hgcalwafer:CellWF]"/>
+    <Parameter name="CellSize"      value="[hgcalwafer:CellWC]"/>
+  </SpecPar>
+  <SpecPar name="HGCalHECell">
+    <PartSelector path="//HGCalHECell.*"/>
+    <Parameter name="Volume" value="HGCalHECell" eval="false"/>
     <Parameter name="CellSize"      value="[hgcalwafer:CellWF]"/>
     <Parameter name="CellSize"      value="[hgcalwafer:CellWC]"/>
   </SpecPar>

@@ -26,12 +26,12 @@ public:
   static const int kHGCalCellTypHOffset   = 8;
   static const int kHGCalCellTypHMask     = 0x1;
   static const int kHGCalWaferHOffset     = 9;
-  static const int kHGCalWaferHMask       = 0x1FF;
-  static const int kHGCalLayerHOffset     = 18;
+  static const int kHGCalWaferHMask       = 0x3FF;
+  static const int kHGCalLayerHOffset     = 19;
   static const int kHGCalLayerHMask       = 0x7F;
-  static const int kHGCalZsideHOffset     = 25;
+  static const int kHGCalZsideHOffset     = 26;
   static const int kHGCalZsideHMask       = 0x1;
-  static const int kHGCalSubdetHOffset    = 30;
+  static const int kHGCalSubdetHOffset    = 27;
   static const int kHGCalSubdetHMask      = 0x7;
   HGCalTestNumbering() {}
   virtual ~HGCalTestNumbering() {}
