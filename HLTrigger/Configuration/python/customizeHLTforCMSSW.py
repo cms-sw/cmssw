@@ -44,6 +44,40 @@ def customiseFor12387(process):
             setattr(producer,'LegacyUnpacker',cms.bool(False))
     return process
 
+
+def customiseFor12966(process):
+    for module in producers_by_type(process,'PixelTrackProducer'):
+        module.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
+
+    for module in esproducers_by_type(process,'Chi2ChargeMeasurementEstimatorESProducer'):    
+        if not hasattr(module,'MaxDisplacement'):
+            module.MaxDisplacement  = cms.double(100.)
+        if not hasattr(module,'MaxSagitta'):
+            module.MaxSagitta       = cms.double(-1.) 
+        if not hasattr(module,'MinimalTolerance'):
+            module.MinimalTolerance = cms.double(10.) 
+    for module in esproducers_by_type(process,'Chi2MeasurementEstimatorESProducer'):
+        if not hasattr(module,'MaxDisplacement'):
+            module.MaxDisplacement  = cms.double(100.)
+        if not hasattr(module,'MaxSagitta'):
+            module.MaxSagitta       = cms.double(-1.) 
+        if not hasattr(module,'MinimalTolerance'):
+            module.MinimalTolerance = cms.double(10.) 
+
+    for pset in process._Process__psets.values():
+        if hasattr(pset,'ComponentType'):
+            if (pset.ComponentType == 'CkfBaseTrajectoryFilter'):
+                if not hasattr(pset,'minGoodStripCharge'):
+                    pset.minGoodStripCharge  = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+                if not hasattr(pset,'maxCCCLostHits'):    
+                    pset.maxCCCLostHits      = cms.int32(9999)
+                if not hasattr(pset,'seedExtension'):
+                    pset.seedExtension       = cms.int32(0)
+                if not hasattr(pset,'strictSeedExtension'):
+                    pset.strictSeedExtension = cms.bool(False)
+
+    return process
+
 #
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
@@ -55,5 +89,6 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
         process = customiseFor11920(process)
         process = customiseFor12718(process)
         process = customiseFor12387(process)
+        process = customiseFor12966(process)
 
     return process
