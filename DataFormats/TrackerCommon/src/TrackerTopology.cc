@@ -222,6 +222,7 @@ std::string TrackerTopology::print(DetId id) const {
 	    << pxbLayer(id) << ',' 
 	    << pxbLadder(id) << ',' 
 	    << pxbModule(id) << ')'; 
+    strstr << " (" << id.rawId() << ")";
     return strstr.str();
   }
 
@@ -231,6 +232,7 @@ std::string TrackerTopology::print(DetId id) const {
 	   << pxfBlade(id)  << ',' 
 	   << pxfPanel(id)  << ',' 
 	   << pxfModule(id)   << ')'; 
+    strstr << " (" << id.rawId() << ")";
     return strstr.str();
   }
 
