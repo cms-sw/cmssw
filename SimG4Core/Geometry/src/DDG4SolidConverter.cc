@@ -8,13 +8,12 @@
 #include "G4SystemOfUnits.hh"
 
 using namespace std;
-const vector<double> * DDG4SolidConverter::par_ = 0; 
+const vector<double> * DDG4SolidConverter::par_ = nullptr; 
 
 DDG4SolidConverter::DDG4SolidConverter()
 {
    // could also be done 'dynamically' from outside 
    // would then need to have a 'register' method ...
-  par_=0;
   convDispatch_[ddbox]            = DDG4SolidConverter::box; 
   convDispatch_[ddtubs]           = DDG4SolidConverter::tubs;
   convDispatch_[ddtrap]           = DDG4SolidConverter::trap;
@@ -46,7 +45,7 @@ G4VSolid * DDG4SolidConverter::convert(const DDSolid & s)
     edm::LogError("SimG4CoreGeometry") <<" DDG4SolidConverter::convert(..) found an undefined DDSolid " << s.toString();
     throw cms::Exception("SimG4CoreGeometry", "DDG4SolidConverter::convert(..) found an undefined DDSolid " + s.toString());
   }
-   G4VSolid * result = 0;
+   G4VSolid * result = nullptr;
    par_ = &(s.parameters());
    map<DDSolidShape,FNPTR>::iterator it = convDispatch_.find(s.shape());
    if (it != convDispatch_.end()) {

@@ -1,7 +1,6 @@
 #ifndef SimG4Core_CheckSecondary_StoreSecondary_H
 #define SimG4Core_CheckSecondary_StoreSecondary_H
 
-#include "SimG4Core/CheckSecondary/interface/TreatSecondary.h"
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,6 +14,7 @@
 class G4Step;
 class BeginOfEvent;
 class BeginOfTrack;
+class TreatSecondary;
 
 class StoreSecondary : public SimProducer,
 		       public Observer<const BeginOfEvent *>, 
