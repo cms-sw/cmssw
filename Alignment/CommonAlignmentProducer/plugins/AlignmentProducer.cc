@@ -206,7 +206,7 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   // Create the geometries from the ideal geometries (first time only)
-  this->createGeometries_( iSetup, tTopo );
+  this->createGeometries_( iSetup );
   
   // Retrieve and apply alignments, if requested (requires DB setup)
   if ( applyDbAlignment_ ) {
@@ -641,7 +641,7 @@ void AlignmentProducer::simpleMisalignment_(const Alignables &alivec, const std:
 
 
 //__________________________________________________________________________________________________
-void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup, const TrackerTopology* tTopo )
+void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
 {
    edm::ESTransientHandle<DDCompactView> cpv;
    iSetup.get<IdealGeometryRecord>().get( cpv );
@@ -649,8 +649,14 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup, const 
    if (doTracker_) {
      edm::ESHandle<GeometricDet> geometricDet;
      iSetup.get<IdealGeometryRecord>().get( geometricDet );
+
      edm::ESHandle<PTrackerParameters> ptp;
      iSetup.get<PTrackerParametersRcd>().get( ptp );
+
+     edm::ESHandle<TrackerTopology> tTopoHandle;
+     iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+     const TrackerTopology* const tTopo = tTopoHandle.product();
+
      TrackerGeomBuilderFromGeometricDet trackerBuilder;
      theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet), *ptp, tTopo ));
    }
