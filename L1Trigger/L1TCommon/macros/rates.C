@@ -148,41 +148,43 @@ void rates(){
     for(int bin=0; bin<nJetBins; bin++)
       if( (jetEt*0.5) >= jetLo + (bin*jetBinWidth) ) jetRates->Fill(jetLo+(bin*jetBinWidth));  //GeV
 
-    // get EtSum rates
-    double etSum = upgrade_->sumEt[0];
-    hEtSum->Fill(0.5*upgrade_->sumEt[0]);
+    double etSum  = -1.0;
+    double htSum  = -1.0;
+    double metSum = -1.0;
+    double mhtSum = -1.0;
+    for(uint it=0; it<upgrade_->nSums; ++it){
+      double et = upgrade_->sumEt[it];
+      if (upgrade_->sumType[it] == L1Analysis::kTotalEt)   etSum  = et;
+      if (upgrade_->sumType[it] == L1Analysis::kTotalHt)   htSum  = et;
+      if (upgrade_->sumType[it] == L1Analysis::kMissingEt) metSum = et;
+      if (upgrade_->sumType[it] == L1Analysis::kMissingHt) mhtSum = et;
+    }
+    std::cout << "mht:  " << mhtSum << "\n";
+    std::cout << "ht sum:  " << htSum << "\n";
+
+    hEtSum->Fill(0.5*etSum);
     //std::cout << "et sum = " << etSum << std::endl;
     for(int bin=0; bin<nEtSumBins; bin++)
       if( (etSum*0.5) >= etSumLo+(bin*etSumBinWidth) ) etSumRates->Fill(etSumLo+(bin*etSumBinWidth)); //GeV
     
-
-    // get HtSum rates
-    double htSum = upgrade_->sumEt[1];
-    hHtSum->Fill(0.5*upgrade_->sumEt[1]);
+    hHtSum->Fill(0.5*htSum);
     //std::cout << "ht sum = " << htSum << std::endl;
     for(int bin=0; bin<nHtSumBins; bin++){
       //std::cout << "Ht? " << upgrade_->sumEt[1]->getType() << std::endl;
       if( (htSum*0.5) >= htSumLo+(bin*htSumBinWidth) ) htSumRates->Fill(htSumLo+(bin*htSumBinWidth)); //GeV
     }
 
-    // get MetSum rates
-    double metSum = upgrade_->sumEt[2];
-    //hMetSum->Fill(0.5*upgrade_->sumEt[2]);
+    //hMetSum->Fill(0.5*metSum);
     //std::cout << "met sum = " << metSum << std::endl;
     for(int bin=0; bin<nMetSumBins; bin++)
       if( (metSum*0.5) >= metSumLo+(bin*metSumBinWidth) ) metSumRates->Fill(metSumLo+(bin*metSumBinWidth)); //GeV
-    
-    // get MhtSum rates
-    double mhtSum = upgrade_->sumEt[3];
-    //hMhtSum->Fill(0.5*upgrade_->sumEt[2]);
+        
+    //hMhtSum->Fill(0.5*mhtSum]);
     //std::cout << "mht sum = " << mhtSum << std::endl;
     for(int bin=0; bin<nMhtSumBins; bin++){
       //std::cout << "Mht? " << upgrade_->sumEt[1]->getType() << std::endl;
       if( (mhtSum*0.5) >= mhtSumLo+(bin*mhtSumBinWidth) ) mhtSumRates->Fill(mhtSumLo+(bin*mhtSumBinWidth)); //GeV
     }
-
-
-
 
   }
 

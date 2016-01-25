@@ -21,6 +21,7 @@ namespace L1Analysis
   class L1AnalysisL1Upgrade 
   {
   public:
+    enum {TEST=0};
     L1AnalysisL1Upgrade();
     ~L1AnalysisL1Upgrade();
     void Reset() {l1upgrade_.Reset();}

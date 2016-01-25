@@ -13,8 +13,22 @@
 
 namespace L1Analysis
 {
+
+  // copied from DataFormats/L1Trigger/interface/EtSum.h, for use in standalone ROOT macros which use this class.
+  enum EtSumType {
+    kTotalEt,
+    kTotalHt,
+    kMissingEt,
+    kMissingHt,
+    kTotalEtx,
+    kTotalEty,
+    kTotalHtx,
+    kTotalHty,
+  };
+
   struct L1AnalysisL1UpgradeDataFormat
   {
+  
     L1AnalysisL1UpgradeDataFormat(){ Reset();};
     ~L1AnalysisL1UpgradeDataFormat(){};
     
