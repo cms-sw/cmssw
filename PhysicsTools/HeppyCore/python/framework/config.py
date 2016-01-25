@@ -2,6 +2,7 @@
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
 from weight import Weight
+import copy
 import glob
 
 def printComps(comps, details=False):
@@ -47,7 +48,27 @@ class CFG(object):
         return '\n'.join( all )
 
     def clone(self, **kwargs):
-        import copy
+        '''Make a copy of this object, redefining (or adding) some parameters, just
+           like in the CMSSW python configuration files. 
+
+           For example, you can do
+              module1 = cfg.Analyzer(SomeClass, 
+                          param1 = value1, 
+                          param2 = value2, 
+                          param3 = value3, 
+                          ...)
+              module2 = module1.clone(
+                         param2 = othervalue,
+                         newparam = newvalue)
+           and module2 will inherit the configuration of module2 except for
+           the value of param2, and for having an extra newparam of value newvalue
+           (the latter may be useful if e.g. newparam were optional, and needed
+           only when param2 == othervalue)
+
+           Note that, just like in CMSSW, this is a shallow copy and not a deep copy,
+           i.e. if in the example above value1 were to be an object, them module1 and
+           module2 will share the same instance of value1, and not have two copies.
+        '''
         other = copy.copy(self)
         for k,v in kwargs.iteritems():
             setattr(other, k, v)
