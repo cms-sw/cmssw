@@ -14,6 +14,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <unordered_set>
 
 //#define DebugLog
 
@@ -272,7 +273,12 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   }
 
   // Then wafers
-  std::map<int,GlobalPoint> wafers;
+  // This assumes layers are build starting from 1 (which on 25 Jan 2016, they were)
+  // to ensure that new copy numbers are always added
+  // to the end of the list.
+  std::unordered_set<int>  copies;
+  std::vector<int>         wafer2copy;
+  std::vector<GlobalPoint> wafers;  
   std::string attribute = "Volume";
   DDValue val1(attribute, sdTag2, 0.0);
   DDSpecificsFilter filter1;
@@ -288,7 +294,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 					<< " not found but needed.";
   } else {
     dodet = true;
-    std::vector<std::string> names;
+    std::unordered_set<std::string> names;
     while (dodet) {
       const DDSolid & sol  = fv1.logicalPart().solid();
       std::string name = fv1.logicalPart().name();
@@ -296,21 +302,22 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       if (isd) {
 	std::vector<int> copy = fv1.copyNumbers();
 	int nsiz = (int)(copy.size());
-	int wafer= (nsiz > 0) ? copy[nsiz-1] : -1;
-	if (wafer == 0) {
+	int wafer= (nsiz > 0) ? copy[nsiz-1] : 0;
+	if (wafer == 0 ) {
 	  edm::LogError("HGCalGeom") << "Funny wafer # " << wafer << " in "
 				     << nsiz << " components";
 	  throw cms::Exception("DDException") << "Funny wafer # " << wafer;
-	} else {
-	  std::map<int,GlobalPoint>::iterator itr = wafers.find(wafer);
-	  if (itr == wafers.end()) { 
+	} else {          
+	  std::unordered_set<int>::iterator itr = copies.find(wafer);
+	  if (itr == copies.end()) {            
+            copies.insert(wafer);            
 	    double xx = k_ScaleFromDDD*fv1.translation().X();
 	    if (std::abs(xx) < 0.001) xx = 0;
 	    double yy = k_ScaleFromDDD*fv1.translation().Y();
 	    if (std::abs(yy) < 0.001) yy = 0;
-	    wafers[wafer] = GlobalPoint(xx,yy,k_ScaleFromDDD*fv1.translation().Z());
-	    std::vector<std::string>::iterator its = std::find(names.begin(),names.end(),name);
-	    if (its == names.end()) {
+            wafer2copy.emplace_back(wafer);
+	    wafers.emplace_back(xx,yy,k_ScaleFromDDD*fv1.translation().Z());
+	    if ( names.count(name) == 0 ) {
 	      const DDPolyhedra & polyhedra = static_cast<DDPolyhedra>(sol);
 	      std::vector<double> zv = polyhedra.zVec();
 	      std::vector<double> rv = polyhedra.rMaxVec();
@@ -323,7 +330,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 	      mytr.dz = dz;           mytr.alpha = 0.0;
 	      mytr.cellSize = waferSize_;
 	      php.fillModule(mytr,false);
-	      names.push_back(name);
+	      names.insert(name);
 	    }
 	  }
 	}
@@ -331,7 +338,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       dodet = fv1.next();
     }
   }
-
+  
   // Finally the cells
   std::map<int,int>         wafertype;
   std::map<int,HGCalGeomParameters::cellParameters> cellsf, cellsc;
@@ -442,15 +449,14 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   }
 
   double rmin = k_ScaleFromDDD*php.waferR_;
-  for (std::map<int,GlobalPoint>::iterator itr = wafers.begin();
-       itr != wafers.end(); ++itr) {
-    php.waferCopy_.push_back(itr->first);
-    php.waferPosX_.push_back(itr->second.x());
-    php.waferPosY_.push_back(itr->second.y());
-    std::map<int,int>::iterator ktr = wafertype.find(itr->first);
+  for (unsigned i = 0; i < wafer2copy.size(); ++i ) {
+    php.waferCopy_.push_back(wafer2copy[i]);
+    php.waferPosX_.push_back(wafers[i].x());
+    php.waferPosY_.push_back(wafers[i].y());
+    std::map<int,int>::iterator ktr = wafertype.find(wafer2copy[i]);
     int typet = (ktr == wafertype.end()) ? 0 : (ktr->second);
     php.waferTypeT_.push_back(typet);
-    double r = (itr->second).perp();
+    double r = wafers[i].perp();
     int    type(3);
     for (int k=1; k<4; ++k) {
       if ((r+rmin)<=php.boundR_[k]) {
@@ -461,7 +467,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   }
   php.nSectors_ = (int)(php.waferCopy_.size());
 
-  std::map<int,GlobalPoint>::const_iterator itrf = wafers.end();
+  std::vector<GlobalPoint>::const_iterator itrf = wafers.end();
   for (unsigned int i=0; i<cellsf.size(); ++i) {
     std::map<int,HGCalGeomParameters::cellParameters>::iterator itr = cellsf.find(i);
     if (itr == cellsf.end()) {
@@ -738,19 +744,19 @@ std::vector<double> HGCalGeomParameters::getDDDArray(const std::string & str,
 }
 
 std::pair<double,double>
-HGCalGeomParameters::cellPosition(const std::map<int,GlobalPoint>& wafers, 
-				  std::map<int,GlobalPoint>::const_iterator& itrf,
+HGCalGeomParameters::cellPosition(const std::vector<GlobalPoint>& wafers, 
+				  std::vector<GlobalPoint>::const_iterator& itrf,
 				  unsigned int num, double rmax, double ymax, 
 				  double xx, double yy, unsigned int ncells) {
 
   if (itrf == wafers.end()) {
-    for (std::map<int,GlobalPoint>::const_iterator itr = wafers.begin();
+    for (std::vector<GlobalPoint>::const_iterator itr = wafers.begin();
 	 itr != wafers.end(); ++itr) {
-      double dx = std::abs(xx - itr->second.x());
-      double dy = std::abs(yy - itr->second.y());
+      double dx = std::abs(xx - itr->x());
+      double dy = std::abs(yy - itr->y());
       if (dx <= (rmax+0.0001) && dy <= ymax) {
 	double xmax = (dy <= 0.5*ymax) ? rmax : (rmax-(dy-0.5*ymax)/tan(30.0*CLHEP::deg));
-	if ((dx <= (xmax+0.0001)) && ((yy-itr->second.y()>0) || (num<=ncells/2+8))) {
+	if ((dx <= (xmax+0.0001)) && ((yy-itr->y()>0) || (num<=ncells/2+8))) {
 	  itrf = itr;
 	  break;
 	}
@@ -759,9 +765,9 @@ HGCalGeomParameters::cellPosition(const std::map<int,GlobalPoint>& wafers,
   }
   double dx(0), dy(0);
   if (itrf != wafers.end()) {
-    dx = (xx - itrf->second.x());
+    dx = (xx - itrf->x());
     if (std::abs(dx) < 0.001) dx = 0;
-    dy = (yy - itrf->second.y());
+    dy = (yy - itrf->y());
     if (std::abs(dy) < 0.001) dy = 0;
   }
   return std::pair<double,double>(dx,dy);

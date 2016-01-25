@@ -6,6 +6,7 @@
 #include <vector>
 #include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include <unordered_set>
 
 class DDHGCalModuleAlgo : public DDAlgorithm {
  
@@ -49,7 +50,7 @@ private:
   std::vector<double>      rMaxFront;     //Corresponding rMax's
   std::string              idName;        //Name of the "parent" volume.  
   std::string              idNameSpace;   //Namespace of this and ALL sub-parts
-  std::vector<int>         copies;        //List of copy #'s
+  std::unordered_set<int>  copies;        //List of copy #'s
 };
 
 #endif
