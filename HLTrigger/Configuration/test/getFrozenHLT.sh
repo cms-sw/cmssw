@@ -44,9 +44,12 @@ hash -r
 
 # cff python dumps, in CVS under HLTrigger/Configuration/pyhon
 log "Extracting cff python dumps"
+echo "Extracting cff python dumps"
 FILES=$(eval echo HLT_{$TABLES_}_cff.py)
 rm -f $FILES
 for TABLE in $TABLES; do
+  log "$TABLE"
+  echo "$TABLE"
   CONFIG=$(eval echo \$$(echo HLT_$TABLE))
   getConfigForCVS    $CONFIG $TABLE
 done
@@ -57,9 +60,12 @@ log
 
 # full config dumps, in CVS under HLTrigger/Configuration/test
 log "Extracting full configuration dumps"
+echo "Extracting full configuration dumps"
 FILES=$(eval echo OnLine_HLT_{$TABLES_}.py)
 rm -f $FILES
 for TABLE in $TABLES; do
+  log "$TABLE"
+  echo "$TABLE"
   CONFIG=$(eval echo \$$(echo HLT_$TABLE))
   getConfigForOnline $CONFIG $TABLE
 done
