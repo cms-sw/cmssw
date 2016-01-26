@@ -25,9 +25,6 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/L1Trigger/interface/Muon.h"
-#include "DataFormats/L1Trigger/interface/EGamma.h"
-
 // forward declarations
 class L1GlobalTriggerObjectMapRecord;
 namespace edm {
