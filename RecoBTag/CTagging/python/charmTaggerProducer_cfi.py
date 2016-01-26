@@ -9,7 +9,7 @@ charmTagsComputerCvsL = cms.ESProducer(
    slComputerCfg = cms.PSet(
       **sl_cfg.candidateCombinedSecondaryVertexSoftLeptonComputer.parameters_()
       ),
-   weightFile = cms.FileInPath('RecoBTag/CTagging/data/c_vs_udsg.weight.xml'),
+   weightFile = cms.FileInPath('RecoBTag/CTagging/data/c_vs_udsg_sklearn.weight.xml'),
    variables = c_vs_l_vars_vpset,
    computer = cms.ESInputTag('combinedSecondaryVertexSoftLeptonComputer'),
    tagInfos = cms.VInputTag(
@@ -26,7 +26,7 @@ charmTagsComputerCvsL = cms.ESProducer(
    )
 
 charmTagsComputerCvsB = charmTagsComputerCvsL.clone(
-   weightFile = cms.FileInPath('RecoBTag/CTagging/data/c_vs_b.weight.xml'),   
+   weightFile = cms.FileInPath('RecoBTag/CTagging/data/c_vs_b_sklearn.weight.xml'),   
    variables = c_vs_b_vars_vpset
    )
 
