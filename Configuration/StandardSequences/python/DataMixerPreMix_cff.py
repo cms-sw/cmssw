@@ -68,4 +68,4 @@ if eras.fastSim.isChosen():
     # use an alias to make the mixed track collection available under the usual label
     from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliases
     loadDigiAliases(premix = True)
-    from FastSimulation.Configuration.DigiAliases_cff import generalTracks,ecalPreshowerDigis,ecalDigis,hcalDigis,muonDTDigis,muonCSCDigis,muonRPCDigis
+    from FastSimulation.Configuration.DigiAliases_cff import generalTracks,ecalPreshowerDigis,ecalDigis,hcalDigis,muonDTDigis,muonCSCDigis,muonRPCDigis,caloStage1LegacyFormatDigis

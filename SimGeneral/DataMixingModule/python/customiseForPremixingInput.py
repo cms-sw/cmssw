@@ -4,14 +4,10 @@ def customiseForPreMixingInput(process):
     from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
 
     # Replace TrackingParticles and TrackingVertices globally
-    for s in process.paths_().keys():
-        massSearchReplaceAnyInputTag(getattr(process, s), cms.InputTag("mix", "MergedTrackTruth"), cms.InputTag("mixData", "MergedTrackTruth"), skipLabelTest=True) 
-
-    for s in process.endpaths_().keys():
-        massSearchReplaceAnyInputTag(getattr(process, s), cms.InputTag("mix", "MergedTrackTruth"), cms.InputTag("mixData", "MergedTrackTruth"), skipLabelTest=True)
-
-    
-
+    # only apply on validation and dqm: we don't want to apply this in the mixing and digitization sequences
+    for s in process.paths_().keys() + process.endpaths_().keys():
+        if s.lower().find("validation")>= 0 or s.lower().find("dqm") >= 0:
+            massSearchReplaceAnyInputTag(getattr(process, s), cms.InputTag("mix", "MergedTrackTruth"), cms.InputTag("mixData", "MergedTrackTruth"), skipLabelTest=True) 
 
     # Replace Pixel/StripDigiSimLinks only for the known modules
     def replaceInputTag(tag, old, new):
@@ -64,7 +60,6 @@ def customiseForPreMixingInput(process):
         if analyzer.type_() == "SiStripRecHitsValid":
             replacePixelDigiSimLink(analyzer.pixelSimLinkSrc)
             replaceStripDigiSimLink(analyzer.stripSimLinkSrc)
-
 
 
 
