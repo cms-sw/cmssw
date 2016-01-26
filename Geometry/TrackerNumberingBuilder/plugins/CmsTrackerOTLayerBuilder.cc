@@ -66,7 +66,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     LogTrace("DetConstruction") << " Neg rings ordered by z: ";
     for ( uint32_t ring = 0; ring < totalringsNeg; ring++) {
       uint32_t temp = ring+1;
-      temp|=(1<<6);
+      temp|=(1<<7);
       ringsNeg[ring]->setGeographicalID(temp);
       LogTrace("BuildingTrackerDetId") << "\t\t\t DetId >> " << temp << "(r: " << sqrt(ringsNeg[ring]->translation().Perp2()) << ", phi: " << ringsNeg[ring]->phi() << ", z: " << ringsNeg[ring]->translation().z() << ")";
     }
@@ -80,7 +80,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     LogTrace("DetConstruction") << " Rods ordered by phi: ";
     for ( uint32_t rod = 0; rod < totalrods; rod++) {
       uint32_t temp = rod+1;
-      temp|=(3<<6);
+      temp|=(3<<7);
       rods[rod]->setGeographicalID(DetId(temp));
       LogTrace("BuildingTrackerDetId") << "\t\t\t DetId >> " << temp << "(r: " << sqrt(rods[rod]->translation().Perp2()) << ", phi: " << rods[rod]->phi() << ", z: " << rods[rod]->translation().z() << ")";
     }
@@ -95,7 +95,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     LogTrace("DetConstruction") << " Pos rings ordered by z: ";
     for ( uint32_t ring = 0; ring < totalringsPos; ring++) {
       uint32_t temp = ring+1;
-      temp|=(2<<6);
+      temp|=(2<<7);
       ringsPos[ring]->setGeographicalID(temp);
       LogTrace("BuildingTrackerDetId") << "\t\t\t DetId >> " << temp << "(r: " << sqrt(ringsPos[ring]->translation().Perp2()) << ", phi: " << ringsPos[ring]->phi() << ", z: " << ringsPos[ring]->translation().z() << ")";
     }
