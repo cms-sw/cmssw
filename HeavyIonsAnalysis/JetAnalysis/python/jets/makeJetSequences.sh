@@ -52,8 +52,12 @@ do
                             genjets="GenJets"
                         fi
 
-                        corrname=`echo ${algo} | sed 's/\(.*\)/\U\1/'`${radius}${object}${corrlabel}
-
+			if [ $sub == "Pu" ]; then
+			    corrname=`echo ${algo} | sed 's/\(.*\)/\U\1/'`${sub}${radius}${object}${corrlabel}
+			else 
+			    corrname=`echo ${algo} | sed 's/\(.*\)/\U\1/'`${radius}${object}${corrlabel}
+			fi
+			
                         cat templateSequence_bTag_cff.py.txt \
                             | sed "s/ALGO_/$algo/g" \
                             | sed "s/SUB_/$subt/g" \
