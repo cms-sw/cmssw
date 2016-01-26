@@ -19,8 +19,8 @@ def customise(process):
             print 'Please provide one!'
             sys.exit(1)
     if hasattr(process,'reconstruction'):
-        process=customise_Reco(process,float(n))
-#        process=customise_Reco_new(process)
+#        process=customise_Reco(process,float(n))
+        process=customise_Reco_new(process)
 #        process=customise_Reco_Run2(process)
                 
     if hasattr(process,'digitisation_step'):
