@@ -135,7 +135,7 @@ namespace edm {
   WorkerManager::setupOnDemandSystem(EventPrincipal& ep, EventSetup const& es) {
     // NOTE: who owns the productdescrption?  Just copied by value
     unscheduled_->setEventSetup(es);
-    ep.setUnscheduledHandler(unscheduled_);
+    ep.setUnscheduledHandler(unscheduled());
   }
   
 }

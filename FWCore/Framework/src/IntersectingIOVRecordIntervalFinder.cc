@@ -58,7 +58,7 @@ IntersectingIOVRecordIntervalFinder::~IntersectingIOVRecordIntervalFinder()
 // member functions
 //
 void 
-IntersectingIOVRecordIntervalFinder::swapFinders(std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> >& iFinders)
+IntersectingIOVRecordIntervalFinder::swapFinders(std::vector<edm::propagate_const<boost::shared_ptr<EventSetupRecordIntervalFinder>>>& iFinders)
 {
    finders_.swap(iFinders);
 }
@@ -77,9 +77,8 @@ IntersectingIOVRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey& i
    bool haveUnknownEnding = false;
    ValidityInterval newInterval(IOVSyncValue::beginOfTime(), IOVSyncValue::endOfTime());
 
-   for(std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> >::iterator it = finders_.begin(),
-       itEnd = finders_.end(); it != itEnd; ++it) {
-      ValidityInterval test = (*it)->findIntervalFor(iKey, iTime);
+   for(auto& finder : finders_) {
+      ValidityInterval test = finder->findIntervalFor(iKey, iTime);
       if ( test != ValidityInterval::invalidInterval() ) {
          haveAValidRecord =true;
          if(newInterval.first() < test.first()) {

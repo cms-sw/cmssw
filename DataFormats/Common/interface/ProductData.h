@@ -9,7 +9,7 @@ is the storage unit of such information.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/propagate_const_safe.h"
 #include <memory>
 
 namespace edm {

@@ -202,7 +202,7 @@ XrdFile::close (void)
     return;
   }
 
-  m_requestmanager.reset();
+  m_requestmanager = nullptr; // propagate_const<T> has no reset() function
 
   m_close = false;
   m_offset = 0;
@@ -213,7 +213,7 @@ XrdFile::close (void)
 void
 XrdFile::abort (void)
 {
-  m_requestmanager.reset();
+  m_requestmanager = nullptr; // propagate_const<T> has no reset() function
   m_close = false;
   m_offset = 0;
   m_size = -1;

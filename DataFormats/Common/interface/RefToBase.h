@@ -129,13 +129,13 @@ namespace edm {
   template <class T>
   inline
   RefToBase<T>::RefToBase() :
-    holder_(0)
+    holder_(nullptr)
   { }
 
   template <class T>
   inline
   RefToBase<T>::RefToBase(RefToBase const& other) :
-    holder_(other.holder_  ? other.holder_->clone() : 0)
+    holder_(other.holder_  ? other.holder_->clone() : nullptr)
   { }
 
   template <class T>
@@ -234,7 +234,7 @@ namespace edm {
   size_t
   RefToBase<T>::key() const
   {
-    if ( holder_ == 0 )
+    if ( holder_ == nullptr )
 	Exception::throwThis(errors::InvalidReference,
 	  "attempting get key from  null RefToBase;\n"
 	  "You should check for nullity before calling key().");
@@ -370,7 +370,7 @@ namespace edm {
   T const*
   RefToBase<T>::getPtrImpl() const
   {
-    return holder_ ? holder_->getPtr() : 0;
+    return holder_ ? holder_->getPtr() : nullptr;
   }
 
   template <class T>

@@ -8,6 +8,7 @@ a VectorinputSource that does not come in through the ParameterSet
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Utilities/interface/propagate_const_safe.h"
 
 #include <memory>
 

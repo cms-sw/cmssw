@@ -17,7 +17,7 @@ is the DataBlock.
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Framework/interface/Principal.h"
-#include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/propagate_const_safe.h"
 
 #include <memory>
 

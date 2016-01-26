@@ -19,6 +19,7 @@
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/propagate_const_safe.h"
 
 #include <map>
 #include <memory>
@@ -52,7 +53,7 @@ namespace edm {
 
     private:
       // We own none of these resources.
-      ActivityRegistry* a_;
+      edm::propagate_const<ActivityRegistry*> a_;
       typename T::Context const* context_;
       bool allowThrow_;
     };
@@ -135,7 +136,7 @@ namespace edm {
         reg_ = nullptr;
       }
     private:
-      edm::ActivityRegistry* reg_;
+      edm::propagate_const<edm::ActivityRegistry*> reg_;
       GlobalContext const* context_;
     };
 
@@ -152,8 +153,8 @@ namespace edm {
     void addToAllWorkers(Worker* w);
     
     WorkerManager                         workerManager_;
-    std::shared_ptr<ActivityRegistry>   actReg_;
-    WorkerPtr                             results_inserter_;
+    mutable std::shared_ptr<ActivityRegistry> actReg_;
+    edm::propagate_const<WorkerPtr>       results_inserter_;
 
 
     ProcessContext const*                 processContext_;

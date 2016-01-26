@@ -86,7 +86,7 @@ testintersectingiovrecordintervalfinder::intersectionTest()
    const EventSetupRecordKey dummyRecordKey = DummyRecord::keyForClass();
 
    IntersectingIOVRecordIntervalFinder intFinder(dummyRecordKey);
-   std::vector<boost::shared_ptr<edm::EventSetupRecordIntervalFinder> > finders;
+   std::vector<edm::propagate_const<boost::shared_ptr<edm::EventSetupRecordIntervalFinder>>> finders;
    boost::shared_ptr<DummyFinder> dummyFinder(new DummyFinder);
    {
       const edm::EventID eID_1(1, 1, 1);

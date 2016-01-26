@@ -4,6 +4,7 @@
 #include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
+#include "FWCore/Utilities/interface/propagate_const_safe.h"
 
 #include <memory>
 

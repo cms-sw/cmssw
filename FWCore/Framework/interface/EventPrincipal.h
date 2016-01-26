@@ -167,8 +167,8 @@ namespace edm {
 
     ProductID branchIDToProductID(BranchID const& bid) const;
 
-    void mergeProvenanceRetrievers(EventPrincipal const& other) {
-      provRetrieverPtr_->mergeProvenanceRetrievers(get_underlying(other.provRetrieverPtr_));
+    void mergeProvenanceRetrievers(EventPrincipal& other) {
+      provRetrieverPtr_->mergeProvenanceRetrievers(other.provRetrieverPtr());
     }
 
     using Base::getProvenance;
@@ -191,6 +191,9 @@ namespace edm {
 
     virtual unsigned int transitionIndex_() const override;
     
+    std::shared_ptr<ProductProvenanceRetriever const> provRetrieverPtr() const {return get_underlying_safe(provRetrieverPtr_);}
+    std::shared_ptr<ProductProvenanceRetriever>& provRetrieverPtr() {return get_underlying_safe(provRetrieverPtr_);}
+
   private:
 
     EventAuxiliary aux_;

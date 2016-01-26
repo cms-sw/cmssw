@@ -112,19 +112,17 @@ namespace edm {
       std::set<BranchID> missingFromMapper;
       std::set<BranchID> missingProductProvenance;
 
-      std::map<BranchID, std::shared_ptr<ProductHolderBase> > idToProductHolder;
-      for(EventPrincipal::const_iterator it = e.begin(), itEnd = e.end();
-          it != itEnd;
-          ++it) {
-        if(*it && (*it)->singleProduct()) {
-            BranchID branchID = (*it)->branchDescription().branchID();
-            idToProductHolder[branchID] = get_underlying(*it);
-            if((*it)->productUnavailable()) {
+      std::map<BranchID, std::shared_ptr<ProductHolderBase const>> idToProductHolder;
+      for(auto const& product : e) {
+        if(product && product->singleProduct()) {
+            BranchID branchID = product->branchDescription().branchID();
+            idToProductHolder[branchID] = get_underlying_safe(product);
+            if(product->productUnavailable()) {
                //This call seems to have a side effect of filling the 'ProductProvenance' in the ProductHolder
               OutputHandle const oh = e.getForOutput(branchID, false, mcc);
 
                bool cannotFindProductProvenance=false;
-               if(!(*it)->productProvenancePtr()) {
+               if(!product->productProvenancePtr()) {
                   missingProductProvenance.insert(branchID);
                   cannotFindProductProvenance=true;
                }
@@ -136,7 +134,7 @@ namespace edm {
                if(cannotFindProductProvenance) {
                   continue;
                }
-               markAncestors(*((*it)->productProvenancePtr()), *mapperPtr, seenParentInPrincipal, missingFromMapper);
+               markAncestors(*(product->productProvenancePtr()), *mapperPtr, seenParentInPrincipal, missingFromMapper);
             }
             seenParentInPrincipal[branchID] = true;
          }

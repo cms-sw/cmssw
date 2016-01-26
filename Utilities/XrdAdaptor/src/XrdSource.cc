@@ -71,7 +71,7 @@ public:
 
 
 private:
-    std::shared_ptr<XrdCl::File> m_fh;
+    edm::propagate_const<std::shared_ptr<XrdCl::File>> m_fh;
     std::string m_id;
     std::string m_site;
 };
@@ -282,13 +282,13 @@ Source::setXrootdSite()
 
 Source::~Source()
 {
-  new DelayedClose(m_fh, m_id, m_site);
+  new DelayedClose(fh(), m_id, m_site);
 }
 
 std::shared_ptr<XrdCl::File>
 Source::getFileHandle()
 {
-    return m_fh;
+    return fh();
 }
 
 static void
@@ -315,7 +315,7 @@ Source::handle(std::shared_ptr<ClientRequest> c)
     m_qm->startWatch(c->m_qmw);
     if (m_stats)
     {
-        std::shared_ptr<XrdReadStatistics> readStats = XrdSiteStatistics::startRead(m_stats, c);
+        std::shared_ptr<XrdReadStatistics> readStats = XrdSiteStatistics::startRead(stats(), c);
         c->setStatistics(readStats);
     }
 #ifdef XRD_FAKE_SLOW

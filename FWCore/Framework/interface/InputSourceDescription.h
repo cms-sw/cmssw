@@ -51,7 +51,7 @@ namespace edm {
     std::shared_ptr<ProductRegistry> productRegistry_;
     std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
     std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
-    std::shared_ptr<ActivityRegistry> actReg_;
+    mutable std::shared_ptr<ActivityRegistry> actReg_;
     int maxEvents_;
     int maxLumis_;
     int maxSecondsUntilRampdown_;

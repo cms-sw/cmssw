@@ -62,9 +62,12 @@ namespace edm {
     frozen_ = false;
     for(bool& isProduced : productProduced_) isProduced = false;
     anyProductProduced_ = false;
-    eventProductLookup_.reset(new ProductHolderIndexHelper);
-    lumiProductLookup_.reset(new ProductHolderIndexHelper);
-    runProductLookup_.reset(new ProductHolderIndexHelper);
+
+    // propagate_const<T> has no reset() function
+    eventProductLookup_ = std::make_unique<ProductHolderIndexHelper>();
+    lumiProductLookup_ = std::make_unique<ProductHolderIndexHelper>();
+    runProductLookup_ = std::make_unique<ProductHolderIndexHelper>();
+
     eventNextIndexValue_ = 0;
     lumiNextIndexValue_ = 0;
     runNextIndexValue_ = 0;
@@ -137,11 +140,18 @@ namespace edm {
     return false;
   }
 
-  std::shared_ptr<ProductHolderIndexHelper> const&
+  std::shared_ptr<ProductHolderIndexHelper const>
   ProductRegistry::productLookup(BranchType branchType) const {
-    if (branchType == InEvent) return transient_.eventProductLookup_;
-    if (branchType == InLumi) return transient_.lumiProductLookup_;
-    return transient_.runProductLookup_;
+    if (branchType == InEvent) return transient_.eventProductLookup();
+    if (branchType == InLumi) return transient_.lumiProductLookup();
+    return transient_.runProductLookup();
+  }
+
+  std::shared_ptr<ProductHolderIndexHelper>
+  ProductRegistry::productLookup(BranchType branchType) {
+    if (branchType == InEvent) return transient_.eventProductLookup();
+    if (branchType == InLumi) return transient_.lumiProductLookup();
+    return transient_.runProductLookup();
   }
 
   void
