@@ -6,4 +6,9 @@ L1TUtmTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
-TriggerMenu = cms.ESProducer("L1TUtmTriggerMenuESProducer")
+TriggerMenu = cms.ESProducer("L1TUtmTriggerMenuESProducer",
+
+    # XML file for Global Trigger menu (menu.xml) 
+    L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsStage1_v7_uGT.xml'),
+    
+)

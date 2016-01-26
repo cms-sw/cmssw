@@ -54,6 +54,7 @@ public:
 
 private:
 
+  std::string m_L1TriggerMenuFile;
 
 };
 
@@ -75,6 +76,15 @@ L1TUtmTriggerMenuESProducer::L1TUtmTriggerMenuESProducer(const edm::ParameterSet
   setWhatProduced(this);
   //setWhatProduced(this, conf.getParameter<std::string>("label"));
 
+
+  // def.xml file
+  std::string L1TriggerMenuFile = conf.getParameter<std::string>("L1TriggerMenuFile");
+
+  edm::FileInPath f1("L1Trigger/L1TGlobal/data/Luminosity/startup/" + L1TriggerMenuFile);
+
+  m_L1TriggerMenuFile = f1.fullPath();
+
+  
 }
 
 
@@ -97,7 +107,8 @@ L1TUtmTriggerMenuESProducer::produce(const L1TUtmTriggerMenuRcd& iRecord)
 {
   
 
-  const L1TUtmTriggerMenu * cmenu = reinterpret_cast<const L1TUtmTriggerMenu *>(tmeventsetup::getTriggerMenu("/afs/cern.ch/user/t/tmatsush/public/tmGui/test-menu.xml"));  
+  //const L1TUtmTriggerMenu * cmenu = reinterpret_cast<const L1TUtmTriggerMenu *>(tmeventsetup::getTriggerMenu("/afs/cern.ch/user/t/tmatsush/public/tmGui/test-menu.xml"));  
+  const L1TUtmTriggerMenu * cmenu = reinterpret_cast<const L1TUtmTriggerMenu *>(tmeventsetup::getTriggerMenu(m_L1TriggerMenuFile));  
   L1TUtmTriggerMenu * menu = const_cast<L1TUtmTriggerMenu *>(cmenu);
 
   using namespace edm::es;
