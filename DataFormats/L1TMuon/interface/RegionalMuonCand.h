@@ -51,7 +51,7 @@ class RegionalMuonCand {
     /// Set the processor ID, track-finder type. From these two, the link is set
     void setTFIdentifiers(int processor, tftype trackFinder);
     // this is left to still be compatible with OMTF
-    void setLink(int link);
+    void setLink(int link) {m_link = link; };
     // Set the 64 bit word from two 32 words. bits 0-31->lsbs, bits 32-63->msbs
     void setDataword(uint32_t msbs, uint32_t lsbs) { m_dataword = (((uint64_t)msbs) << 32) + lsbs; };
     // Set the 64 bit word coming from HW directly
@@ -84,7 +84,7 @@ class RegionalMuonCand {
     const int hwQual() const { return m_hwQuality; };
     /// Get link on which the MicroGMT receives the candidate
     const int link() const { return m_link; };
-    /// Get processor ID on which the candidate was found (1..6 for OMTF/EMTF; 1..12 for BMTF)
+    /// Get processor ID on which the candidate was found (0..5 for OMTF/EMTF; 0..11 for BMTF)
     const int processor() const { return m_processor; };
     /// Get track-finder which found the muon (bmtf, emtf_pos/emtf_neg or omtf_pos/omtf_neg)
     const tftype trackFinderType() const { return m_trackFinder; };
