@@ -43,6 +43,10 @@ process.load('L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi')
 process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
 process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
 
+process.simGmtStage2Digis.barrelTFInput  = cms.InputTag("simBmtfDigis", "BMTF")
+process.simGmtStage2Digis.overlapTFInput = cms.InputTag("simOmtfDigis", "OMTF")
+process.simGmtStage2Digis.forwardTFInput = cms.InputTag("simEmtfDigis", "EMTF")
+
 
 process.L1TMuonSeq = cms.Sequence(   process.simCaloStage2Layer1Digis
                                    + process.simTwinMuxDigis
