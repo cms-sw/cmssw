@@ -86,7 +86,31 @@ void HitPairGeneratorFromLayerPair::hitPairs(
   }
 }
 
-void HitPairGeneratorFromLayerPair::doublets2(const TrackingRegion& region,
+HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& region,
+						    const edm::Event & iEvent, const edm::EventSetup& iSetup, Layers layers) {
+
+  typedef OrderedHitPair::InnerRecHit InnerHit;
+  typedef OrderedHitPair::OuterRecHit OuterHit;
+  typedef RecHitsSortedInPhi::Hit Hit;
+
+  Layer innerLayerObj = innerLayer(layers);
+  Layer outerLayerObj = outerLayer(layers);
+
+  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(innerLayerObj, region, iEvent, iSetup);
+  if (innerHitsMap.empty()) return HitDoublets(innerHitsMap,innerHitsMap);
+
+  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region, iEvent, iSetup);
+  if (outerHitsMap.empty()) return HitDoublets(innerHitsMap,outerHitsMap);
+  //HitDoublets result;
+  HitDoublets result(innerHitsMap,outerHitsMap); result.reserve(std::max(innerHitsMap.size(),outerHitsMap.size()));
+  doublets2(region,
+	   *innerLayerObj.detLayer(),*outerLayerObj.detLayer(),
+	   innerHitsMap,outerHitsMap,iSetup,theMaxElement,result);
+  return result;
+
+}
+
+void HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region,
 						    const DetLayer & innerHitDetLayer,
 						    const DetLayer & outerHitDetLayer,
 						    const RecHitsSortedInPhi & innerHitsMap,
@@ -163,26 +187,4 @@ void HitPairGeneratorFromLayerPair::doublets2(const TrackingRegion& region,
 
 }
 
-HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& region,
-						    const edm::Event & iEvent, const edm::EventSetup& iSetup, Layers layers) {
 
-  typedef OrderedHitPair::InnerRecHit InnerHit;
-  typedef OrderedHitPair::OuterRecHit OuterHit;
-  typedef RecHitsSortedInPhi::Hit Hit;
-
-  Layer innerLayerObj = innerLayer(layers);
-  Layer outerLayerObj = outerLayer(layers);
-
-  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(innerLayerObj, region, iEvent, iSetup);
-  if (innerHitsMap.empty()) return HitDoublets(innerHitsMap,innerHitsMap);
-
-  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region, iEvent, iSetup);
-  if (outerHitsMap.empty()) return HitDoublets(innerHitsMap,outerHitsMap);
-  //HitDoublets result;
-  HitDoublets result(innerHitsMap,outerHitsMap); result.reserve(std::max(innerHitsMap.size(),outerHitsMap.size()));
-  doublets2(region,
-	   *innerLayerObj.detLayer(),*outerLayerObj.detLayer(),
-	   innerHitsMap,outerHitsMap,iSetup,theMaxElement,result);
-  return result;
-
-}
