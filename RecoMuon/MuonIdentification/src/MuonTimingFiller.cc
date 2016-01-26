@@ -56,10 +56,9 @@ MuonTimingFiller::MuonTimingFiller(const edm::ParameterSet& iConfig, edm::Consum
      else 
        matchParameters = dtTimingParameters.getParameter<edm::ParameterSet>("MatchParameters");
    
-   
-   theMatcher_ = new MuonSegmentMatcher(matchParameters, iC);
-   theDTTimingExtractor_ = new DTTimingExtractor(dtTimingParameters,theMatcher_);
-   theCSCTimingExtractor_ = new CSCTimingExtractor(cscTimingParameters,theMatcher_);
+   theMatcher_ = std::make_unique<MuonSegmentMatcher>(matchParameters, iC);
+   theDTTimingExtractor_ = std::make_unique<DTTimingExtractor>(dtTimingParameters,theMatcher_.get());
+   theCSCTimingExtractor_ = std::make_unique<CSCTimingExtractor>(cscTimingParameters,theMatcher_.get());
    
    errorEB_ = iConfig.getParameter<double>("ErrorEB");
    errorEE_ = iConfig.getParameter<double>("ErrorEE");
@@ -74,9 +73,6 @@ MuonTimingFiller::MuonTimingFiller(const edm::ParameterSet& iConfig, edm::Consum
 
 MuonTimingFiller::~MuonTimingFiller()
 {
-  if (theDTTimingExtractor_) delete theDTTimingExtractor_;
-  if (theCSCTimingExtractor_) delete theCSCTimingExtractor_;
-  if (theMatcher_) delete theMatcher_;
 }
 
 

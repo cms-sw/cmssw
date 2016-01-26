@@ -86,7 +86,7 @@ private:
   bool UseStripTime;
   bool debug;
   
-  MuonServiceProxy* theService;
+  std::unique_ptr<MuonServiceProxy> theService;
   MuonSegmentMatcher *theMatcher;  
 };
 

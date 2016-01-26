@@ -85,14 +85,13 @@ DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig, MuonSegme
   debug(iConfig.getParameter<bool>("debug"))
 {
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters);
   theMatcher = segMatcher;
 }
 
 
 DTTimingExtractor::~DTTimingExtractor()
 {
-  if (theService) delete theService;
 }
 
 
@@ -123,10 +122,6 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 
   math::XYZPoint  pos=muonTrack->innerPosition();
   math::XYZVector mom=muonTrack->innerMomentum();
-  if (sqrt(muonTrack->innerPosition().mag2()) > sqrt(muonTrack->outerPosition().mag2())){
-     pos=muonTrack->outerPosition();
-     mom=-1*muonTrack->outerMomentum();
-  }
   GlobalPoint  posp(pos.x(), pos.y(), pos.z());
   GlobalVector momv(mom.x(), mom.y(), mom.z());
   FreeTrajectoryState muonFTS(posp, momv, (TrackCharge)muonTrack->charge(), theService->magneticField().product());
