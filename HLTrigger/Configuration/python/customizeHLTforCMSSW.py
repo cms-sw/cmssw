@@ -45,7 +45,7 @@ def customiseFor12387(process):
     return process
 
 
-def customiseFor12966(process):
+def customiseFor13062(process):
     for module in producers_by_type(process,'PixelTrackProducer'):
         module.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
 
@@ -89,6 +89,6 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
         process = customiseFor11920(process)
         process = customiseFor12718(process)
         process = customiseFor12387(process)
-        process = customiseFor12966(process)
+        process = customiseFor13062(process)
 
     return process
