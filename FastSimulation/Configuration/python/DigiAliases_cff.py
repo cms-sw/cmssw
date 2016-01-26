@@ -9,14 +9,15 @@ hcalDigis = None
 muonDTDigis = None
 muonCSCDigis = None
 muonRPCDigis = None
-gtDigisAliasInfo = None
-gmtDigisAliasInfo = None
+caloStage1LegacyFormatDigis = None
+gtDigis = None
+gmtDigis = None
 
 def loadDigiAliases(premix=False):
 
     nopremix = not premix
 
-    global generalTracks,ecalPreshowerDigis,ecalDigis,hcalDigis,muonDTDigis,muonCSCDigis,muonRPCDigis
+    global generalTracks,ecalPreshowerDigis,ecalDigis,hcalDigis,muonDTDigis,muonCSCDigis,muonRPCDigis,caloStage1LegacyFormatDigis
 
     generalTracks = cms.EDAlias(
         **{"mix" if nopremix else "mixData" :
@@ -95,6 +96,9 @@ def loadDigiAliases(premix=False):
                cms.VPSet(
                 cms.PSet(
                     type = cms.string("DTLayerIdDTDigiMuonDigiCollection")
+                    ),
+                cms.PSet(
+                    type = cms.string("DTLayerIdDTDigiSimLinkMuonDigiCollection")
                     )
                 )
            }
@@ -105,6 +109,9 @@ def loadDigiAliases(premix=False):
                cms.VPSet(
                 cms.PSet(
                     type = cms.string("RPCDetIdRPCDigiMuonDigiCollection")
+                    ),
+                cms.PSet(
+                    type = cms.string("RPCDigiSimLinkedmDetSetVector")
                     )
                 )
            }
@@ -115,14 +122,35 @@ def loadDigiAliases(premix=False):
                cms.VPSet(
                 cms.PSet(
                     type = cms.string("CSCDetIdCSCWireDigiMuonDigiCollection"),
-                    fromProductInstance = cms.string("MuonCSCWireDigi" if nopremix else "MuonCSCWireDigisDM")),
+                    fromProductInstance = cms.string("MuonCSCWireDigi" if nopremix else "MuonCSCWireDigisDM"),
+                    toProductInstance = cms.string("MuonCSCWireDigi")),
                 cms.PSet(
                     type = cms.string("CSCDetIdCSCStripDigiMuonDigiCollection"),
-                    fromProductInstance = cms.string("MuonCSCStripDigi" if nopremix else "MuonCSCStripDigisDM")
-                    )
+                    fromProductInstance = cms.string("MuonCSCStripDigi" if nopremix else "MuonCSCStripDigisDM"),
+                    toProductInstance = cms.string("MuonCSCStripDigi")),
+                cms.PSet(
+                    type = cms.string('StripDigiSimLinkedmDetSetVector')
+                    ),
                 )
            }
           )
+    
+    # also sim in case of premixing?
+    caloStage1LegacyFormatDigis = cms.EDAlias(
+        **{ "simCaloStage1LegacyFormatDigis" :
+                cms.VPSet(
+                cms.PSet(type = cms.string("L1GctEmCands")),
+                cms.PSet(type = cms.string("L1GctEtHads")),
+                cms.PSet(type = cms.string("L1GctEtMisss")),
+                cms.PSet(type = cms.string("L1GctEtTotals")),
+                cms.PSet(type = cms.string("L1GctHFBitCountss")),
+                cms.PSet(type = cms.string("L1GctHFRingEtSumss")),
+                cms.PSet(type = cms.string("L1GctHtMisss")),
+                cms.PSet(type = cms.string("L1GctInternEtSums")),
+                cms.PSet(type = cms.string("L1GctInternHtMisss")),
+                cms.PSet(type = cms.string("L1GctInternJetDatas")),
+                cms.PSet(type = cms.string("L1GctJetCands")))})
+
 
 def loadTriggerDigiAliases():
 
