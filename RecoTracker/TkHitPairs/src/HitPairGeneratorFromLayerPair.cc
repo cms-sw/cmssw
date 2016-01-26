@@ -101,7 +101,6 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
 
   const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region, iEvent, iSetup);
   if (outerHitsMap.empty()) return HitDoublets(innerHitsMap,outerHitsMap);
-  //HitDoublets result;
   HitDoublets result(innerHitsMap,outerHitsMap); result.reserve(std::max(innerHitsMap.size(),outerHitsMap.size()));
   doublets2(region,
 	   *innerLayerObj.detLayer(),*outerLayerObj.detLayer(),
