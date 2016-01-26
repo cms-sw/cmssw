@@ -31,7 +31,7 @@
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
-//#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+
 // dqm requirements
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"

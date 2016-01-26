@@ -6,66 +6,31 @@
  * \Author Esmaeel Eskandari Tadavani
 */
 
-
-
-#include <vector>
+// system requirements
+#include <iosfwd>
 #include <memory>
-// framework                                                                                                                                                  
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include <vector>
+#include <string>
+#include <algorithm>
+
+// general requirements
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
 
-#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
-#include <DataFormats/FEDRawData/interface/FEDHeader.h>
-#include <DataFormats/FEDRawData/interface/FEDNumbering.h>
-
-#include "L1AnalysisUGMT.h"
-#include "L1AnalysisUGMTDataFormat.h"
-
+// stage2 requirements
+#include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
-#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-// output                                                                                                                                                     
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "TTree.h"
-#include "TH2F.h"
-#include "TH1F.h"
-#include "L1Trigger/L1TMuon/interface/MuonRawDigiTranslator.h"
-#include "L1Trigger/L1TMuon/interface/RegionalMuonRawDigiTranslator.h"
-#include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
-
-/* // system requirements */
-/* #include <iosfwd> */
-/* #include <memory> */
-/* #include <vector> */
-/* #include <string> */
-/* #include <algorithm> */
-
-/* // general requirements */
-/* #include "FWCore/Framework/interface/EDAnalyzer.h" */
-/* #include "FWCore/Framework/interface/Frameworkfwd.h" */
-/* #include "FWCore/ServiceRegistry/interface/Service.h" */
-/* #include "FWCore/MessageLogger/interface/MessageLogger.h" */
-/* #include "FWCore/Framework/interface/Event.h" */
-/* #include "FWCore/Framework/interface/Run.h" */
-/* #include "FWCore/Framework/interface/EventSetup.h" */
-/* #include "FWCore/ParameterSet/interface/ParameterSet.h" */
-/* #include "FWCore/Utilities/interface/InputTag.h" */
-/* #include "DataFormats/Common/interface/Handle.h" */
-/* #include "FWCore/Framework/interface/ESHandle.h" */
-/* #include "DataFormats/Common/interface/OrphanHandle.h" */
-/* //#include "DataFormats/L1TMuon/interface/MuonCaloSum.h" */
-
-/* // stage2 requirements */
-/* #include "DataFormats/L1Trigger/interface/BXVector.h" */
-/* #include "DataFormats/L1Trigger/interface/Muon.h" */
-/* #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h" */
-/* //#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h" */
 
 // dqm requirements
 #include "DQMServices/Core/interface/DQMStore.h"
