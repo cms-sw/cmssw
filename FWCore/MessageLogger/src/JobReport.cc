@@ -405,9 +405,9 @@ namespace edm {
 
     if (inputType == "mixingFiles") {
       theInputType = InputType::SecondarySource;
-      impl_->inputFilesSecSource_.push_back(InputFile());
-      newFile = &impl_->inputFilesSecSource_.back();
-      newToken = impl_->inputFilesSecSource_.size() - 1;
+      auto itr = impl_->inputFilesSecSource_.push_back(InputFile());
+      newFile = &(*itr);
+      newToken = itr - impl_->inputFilesSecSource_.begin();
     } else {
       if (inputType == "secondaryFiles") {
         theInputType = InputType::SecondaryFile;
