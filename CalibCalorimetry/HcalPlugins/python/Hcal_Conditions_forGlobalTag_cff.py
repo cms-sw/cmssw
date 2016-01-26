@@ -16,9 +16,13 @@ toGet = cms.untracked.vstring('GainWidths'),
     HERecalibration = cms.bool(False),       # True for Upgrade   
     HEreCalibCutoff = cms.double(20.),       # if above is True  
     HFRecalibration = cms.bool(False),       # True for Upgrade
-    GainWidthsForTrigPrims = cms.bool(False) # True Upgrade    
+    GainWidthsForTrigPrims = cms.bool(False),# True Upgrade   
+    testHFQIE10 = cms.bool(False)            # True 2016
 )
 
+from Configuration.StandardSequences.Eras import eras
+if eras.run2_HF_2016.isChosen():
+    es_hardcode.testHFQIE10 = cms.bool(True)
 
 es_prefer_hcalHardcode = cms.ESPrefer("HcalHardcodeCalibrations", "es_hardcode")
 

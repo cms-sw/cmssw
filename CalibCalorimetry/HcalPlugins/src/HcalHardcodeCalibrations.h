@@ -97,5 +97,6 @@ private:
   bool setHEdsegm;
   bool setHBdsegm;
   double SipmLumi;
+  bool testHFQIE10;
 };
 

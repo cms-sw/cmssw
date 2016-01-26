@@ -106,7 +106,9 @@ namespace {
 
 }
 
-HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iConfig ): he_recalibration(0), hf_recalibration(0), setHEdsegm(false), setHBdsegm(false), SipmLumi(0.0) {
+HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iConfig ): 
+	he_recalibration(0), hf_recalibration(0), setHEdsegm(false), setHBdsegm(false), SipmLumi(0.0), testHFQIE10(iConfig.getParameter<bool>("testHFQIE10"))
+{
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->...";
 
   if ( iConfig.exists("GainWidthsForTrigPrims") ) 
@@ -351,7 +353,7 @@ std::auto_ptr<HcalQIETypes> HcalHardcodeCalibrations::produceQIETypes (const Hca
     std::auto_ptr<HcalQIETypes> result (new HcalQIETypes (topo));
   std::vector <HcalGenericDetId> cells = allCells(*topo);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalQIEType item(cell->rawId(),0);
+    HcalQIEType item = HcalDbHardcode::makeQIEType(*cell,testHFQIE10);
     result->addValues(item);
   }
   return result;

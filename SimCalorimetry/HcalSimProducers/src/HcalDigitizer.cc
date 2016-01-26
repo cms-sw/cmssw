@@ -727,8 +727,17 @@ void HcalDigitizer::buildHFQIECells(const std::vector<DetId>& allCells, const ed
       }
     }
 	
-	theHFDigitizer->setDetIds(theHFQIE8DetIds);
-	theHFQIE10Digitizer->setDetIds(theHFQIE10DetIds);
+	if(theHFQIE8DetIds.size()>0) theHFDigitizer->setDetIds(theHFQIE8DetIds);
+	else {
+		delete theHFDigitizer;
+		theHFDigitizer = NULL;
+	}
+	
+	if(theHFQIE10DetIds.size()>0) theHFQIE10Digitizer->setDetIds(theHFQIE10DetIds);
+	else {
+		delete theHFQIE10Digitizer;
+		theHFQIE10Digitizer = NULL;
+	}
 }
 
 void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells, const edm::EventSetup & eventSetup) {

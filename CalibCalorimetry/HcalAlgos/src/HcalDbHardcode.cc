@@ -564,6 +564,28 @@ HcalQIECoder HcalDbHardcode::makeQIECoder (HcalGenericDetId fId) {
   return result;
 }
 
+HcalQIEType HcalDbHardcode::makeQIEType (HcalGenericDetId fId, bool testHFQIE10) {
+  int qieType = HcalQIEType::QIE8; //default
+  if (testHFQIE10){ //2016 test
+    if(fId.genericSubdet() == HcalGenericDetId::HcalGenForward && fId.isHcalDetId()) {
+        HcalDetId hid(fId);
+        if(hid.iphi()==35) qieType = HcalQIEType::QIE10;
+    }
+  }
+  else { //generic upgrade case: QIE8 for HO, QIE10 for HF, QIE11 for HBHE
+    if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel || fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) {
+      qieType = HcalQIEType::QIE11;
+    } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {
+      qieType = HcalQIEType::QIE8;
+    } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) {
+      qieType = HcalQIEType::QIE10;
+    }
+  }
+  
+  HcalQIEType result(fId.rawId(),qieType);
+  return result;
+}
+
 HcalCalibrationQIECoder HcalDbHardcode::makeCalibrationQIECoder (HcalGenericDetId fId) {
   HcalCalibrationQIECoder result (fId.rawId ());
   float lowEdges [64];
