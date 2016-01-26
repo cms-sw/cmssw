@@ -228,10 +228,6 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
   PlaneBuilderForGluedDet gluedplaneBuilder;
   auto const & gdu = tracker->detUnits();
   auto const & gduId = tracker->detUnitIds();
-  auto const & gduType = tracker->detTypes();
-
-  if(gdu.size() != gduId.size() || gdu.size() != gduType.size())
-    edm::LogError("BuildingGeomDetUnits") << "detUnits, detUnitIds and detTypes vectors in TrackerGeometry should be the same size!";
 
   for(u_int32_t i=0;i<gdu.size();i++){
 
