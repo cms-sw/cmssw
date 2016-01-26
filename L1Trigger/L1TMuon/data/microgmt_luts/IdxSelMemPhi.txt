@@ -7,8 +7,8 @@
 ## Version:    1
 ## Generated:  2015-04-01
 # input width determined to be 10 from CONTENT_VECTOR length
-# output width determined to be 4 from maximal value in CONTENT_VECTOR
-#<header> V1 10 4 </header>
+# output width set to be 6
+#<header> V1 10 6 </header>
 0 0
 1 0
 2 0

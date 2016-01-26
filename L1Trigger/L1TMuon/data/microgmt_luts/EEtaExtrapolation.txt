@@ -2,7 +2,7 @@
 # anything after # is ignored with the exception of the header
 # ## denotes original file comments
 ## Auto-generated Memory-Initialization .lut file for MicroGMT emulator-tests
-## LUT:        BEtaExtrapolation
+## LUT:        FEtaExtrapolation
 ## Function:   0
 ## Version:    1
 ## Generated:  2015-04-08
