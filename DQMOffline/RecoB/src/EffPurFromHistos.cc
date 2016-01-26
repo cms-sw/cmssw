@@ -20,12 +20,12 @@ EffPurFromHistos::EffPurFromHistos ( const std::string & ext, TH1F * h_d, TH1F *
 				     const std::string& label, const unsigned int& mc, 
 				     int nBin, double startO, double endO) :
         fromDiscriminatorDistr(false),
+	mcPlots_(mc), doCTagPlots_(false), label_(label),
 	histoExtension(ext), effVersusDiscr_d(h_d), effVersusDiscr_u(h_u),
 	effVersusDiscr_s(h_s), effVersusDiscr_c(h_c), effVersusDiscr_b(h_b),
 	effVersusDiscr_g(h_g), effVersusDiscr_ni(h_ni), effVersusDiscr_dus(h_dus),
 	effVersusDiscr_dusg(h_dusg), effVersusDiscr_pu(h_pu), 
-	nBinOutput(nBin), startOutput(startO),
-	endOutput(endO),  mcPlots_(mc), doCTagPlots_(false), label_(label)
+	nBinOutput(nBin), startOutput(startO), endOutput(endO)
 {
   // consistency check
   check();
@@ -34,7 +34,10 @@ EffPurFromHistos::EffPurFromHistos ( const std::string & ext, TH1F * h_d, TH1F *
 EffPurFromHistos::EffPurFromHistos (const FlavourHistograms<double> * dDiscriminatorFC, const std::string& label, 
 				    const unsigned int& mc, DQMStore::IBooker & ibook, int nBin,
 				    double startO, double endO) :
-	  fromDiscriminatorDistr(true), nBinOutput(nBin), startOutput(startO), endOutput(endO),  mcPlots_(mc), doCTagPlots_(false), label_(label){
+	  fromDiscriminatorDistr(true), 
+	  mcPlots_(mc), doCTagPlots_(false), label_(label),
+	  nBinOutput(nBin), startOutput(startO), endOutput(endO)  
+{
   histoExtension = "_"+dDiscriminatorFC->baseNameTitle();
 
 
@@ -489,11 +492,11 @@ void EffPurFromHistos::compute (DQMStore::IBooker & ibook)
 	TString Title = "";
 	if(!doCTagPlots_){
 	   hX = "FlavEffVsBEff_";
-		 Title = "b";
+	   Title = "b";
 	}
   else{
      hX = "FlavEffVsCEff_";
-		 Title = "c";
+     Title = "c";
   }
 	
   // create histograms from base name and extension as given from user
@@ -579,22 +582,22 @@ void EffPurFromHistos::compute (DQMStore::IBooker & ibook)
   // any of the histos to be created can be taken here:
   MonitorElement * EffFlavVsXEff = EffFlavVsXEff_b;
 
-  const int& nBinB = EffFlavVsXEff->getTH1F()->GetNbinsX();
+  const int& nBinX = EffFlavVsXEff->getTH1F()->GetNbinsX();
 
-  for ( int iBinB = 1; iBinB <= nBinB; iBinB++ ) {  // loop over the bins on the x-axis of the histograms to be filled
+  for ( int iBinX = 1; iBinX <= nBinX; iBinX++ ) {  // loop over the bins on the x-axis of the histograms to be filled
 
-    const float& effBBinWidth = EffFlavVsXEff->getTH1F()->GetBinWidth  ( iBinB );
-    const float& effBMid      = EffFlavVsXEff->getTH1F()->GetBinCenter ( iBinB ); // middle of b-efficiency bin
-    const float& effBLeft     = effBMid - 0.5*effBBinWidth;              // left edge of bin
-    const float& effBRight    = effBMid + 0.5*effBBinWidth;              // right edge of bin
+    const float& effXBinWidth = EffFlavVsXEff->getTH1F()->GetBinWidth  ( iBinX );
+    const float& effXMid      = EffFlavVsXEff->getTH1F()->GetBinCenter ( iBinX ); // middle of b-efficiency bin
+    const float& effXLeft     = effXMid - 0.5*effXBinWidth;              // left edge of bin
+    const float& effXRight    = effXMid + 0.5*effXBinWidth;              // right edge of bin
     // find the corresponding bin in the efficiency versus discriminator cut histo: closest one in efficiency
 
-    int binClosest = findBinClosestYValue ( effVersusDiscr_b , effBMid , effBLeft , effBRight );
+    int binClosest = -1;
     if(!doCTagPlots_){
-    binClosest = findBinClosestYValue ( effVersusDiscr_b , effBMid , effBLeft , effBRight );
+      binClosest = findBinClosestYValue ( effVersusDiscr_b , effXMid , effXLeft , effXRight );
     }
     else{
-    binClosest = findBinClosestYValue ( effVersusDiscr_c , effBMid , effBLeft , effBRight );
+      binClosest = findBinClosestYValue ( effVersusDiscr_c , effXMid , effXLeft , effXRight );
     }
 
     const bool&  binFound   = ( binClosest > 0 ) ;
@@ -602,38 +605,32 @@ void EffPurFromHistos::compute (DQMStore::IBooker & ibook)
     if ( binFound ) {
       // fill the histos
       if(mcPlots_>2){
-	EffFlavVsXEff_d    -> Fill ( effBMid , effVersusDiscr_d   ->GetBinContent ( binClosest ) );
-	EffFlavVsXEff_u    -> Fill ( effBMid , effVersusDiscr_u   ->GetBinContent ( binClosest ) );
-	EffFlavVsXEff_s    -> Fill ( effBMid , effVersusDiscr_s   ->GetBinContent ( binClosest ) );
-	EffFlavVsXEff_g    -> Fill ( effBMid , effVersusDiscr_g   ->GetBinContent ( binClosest ) );
-	EffFlavVsXEff_dus  -> Fill ( effBMid , effVersusDiscr_dus ->GetBinContent ( binClosest ) );
+	EffFlavVsXEff_d    -> Fill ( effXMid , effVersusDiscr_d   ->GetBinContent ( binClosest ) );
+	EffFlavVsXEff_u    -> Fill ( effXMid , effVersusDiscr_u   ->GetBinContent ( binClosest ) );
+	EffFlavVsXEff_s    -> Fill ( effXMid , effVersusDiscr_s   ->GetBinContent ( binClosest ) );
+	EffFlavVsXEff_g    -> Fill ( effXMid , effVersusDiscr_g   ->GetBinContent ( binClosest ) );
+	EffFlavVsXEff_dus  -> Fill ( effXMid , effVersusDiscr_dus ->GetBinContent ( binClosest ) );
       }
-      EffFlavVsXEff_c    -> Fill ( effBMid , effVersusDiscr_c   ->GetBinContent ( binClosest ) );
-      EffFlavVsXEff_b    -> Fill ( effBMid , effVersusDiscr_b   ->GetBinContent ( binClosest ) );
-      EffFlavVsXEff_ni   -> Fill ( effBMid , effVersusDiscr_ni  ->GetBinContent ( binClosest ) );
-      EffFlavVsXEff_dusg -> Fill ( effBMid , effVersusDiscr_dusg->GetBinContent ( binClosest ) );
-      EffFlavVsXEff_pu   -> Fill ( effBMid , effVersusDiscr_pu  ->GetBinContent ( binClosest ) );
+      EffFlavVsXEff_c    -> Fill ( effXMid , effVersusDiscr_c   ->GetBinContent ( binClosest ) );
+      EffFlavVsXEff_b    -> Fill ( effXMid , effVersusDiscr_b   ->GetBinContent ( binClosest ) );
+      EffFlavVsXEff_ni   -> Fill ( effXMid , effVersusDiscr_ni  ->GetBinContent ( binClosest ) );
+      EffFlavVsXEff_dusg -> Fill ( effXMid , effVersusDiscr_dusg->GetBinContent ( binClosest ) );
+      EffFlavVsXEff_pu   -> Fill ( effXMid , effVersusDiscr_pu  ->GetBinContent ( binClosest ) );
 
       if(mcPlots_>2){
-	EffFlavVsXEff_d  ->getTH1F()  -> SetBinError ( iBinB , effVersusDiscr_d   ->GetBinError ( binClosest ) );
-	EffFlavVsXEff_u  ->getTH1F()  -> SetBinError ( iBinB , effVersusDiscr_u   ->GetBinError ( binClosest ) );
-	EffFlavVsXEff_s  ->getTH1F()  -> SetBinError ( iBinB , effVersusDiscr_s   ->GetBinError ( binClosest ) );
-	EffFlavVsXEff_g  ->getTH1F()  -> SetBinError ( iBinB , effVersusDiscr_g   ->GetBinError ( binClosest ) );
-	EffFlavVsXEff_dus->getTH1F()  -> SetBinError ( iBinB , effVersusDiscr_dus ->GetBinError ( binClosest ) );
+	EffFlavVsXEff_d  ->getTH1F()  -> SetBinError ( iBinX , effVersusDiscr_d   ->GetBinError ( binClosest ) );
+	EffFlavVsXEff_u  ->getTH1F()  -> SetBinError ( iBinX , effVersusDiscr_u   ->GetBinError ( binClosest ) );
+	EffFlavVsXEff_s  ->getTH1F()  -> SetBinError ( iBinX , effVersusDiscr_s   ->GetBinError ( binClosest ) );
+	EffFlavVsXEff_g  ->getTH1F()  -> SetBinError ( iBinX , effVersusDiscr_g   ->GetBinError ( binClosest ) );
+	EffFlavVsXEff_dus->getTH1F()  -> SetBinError ( iBinX , effVersusDiscr_dus ->GetBinError ( binClosest ) );
       }
-      EffFlavVsXEff_c  ->getTH1F()  -> SetBinError ( iBinB , effVersusDiscr_c   ->GetBinError ( binClosest ) );
-      EffFlavVsXEff_b  ->getTH1F()  -> SetBinError ( iBinB , effVersusDiscr_b   ->GetBinError ( binClosest ) );
-      EffFlavVsXEff_ni ->getTH1F()  -> SetBinError ( iBinB , effVersusDiscr_ni  ->GetBinError ( binClosest ) );
-      EffFlavVsXEff_dusg->getTH1F() -> SetBinError ( iBinB , effVersusDiscr_dusg->GetBinError ( binClosest ) );
-      EffFlavVsXEff_pu ->getTH1F()  -> SetBinError ( iBinB , effVersusDiscr_pu  ->GetBinError ( binClosest ) );
+      EffFlavVsXEff_c  ->getTH1F()  -> SetBinError ( iBinX , effVersusDiscr_c   ->GetBinError ( binClosest ) );
+      EffFlavVsXEff_b  ->getTH1F()  -> SetBinError ( iBinX , effVersusDiscr_b   ->GetBinError ( binClosest ) );
+      EffFlavVsXEff_ni ->getTH1F()  -> SetBinError ( iBinX , effVersusDiscr_ni  ->GetBinError ( binClosest ) );
+      EffFlavVsXEff_dusg->getTH1F() -> SetBinError ( iBinX , effVersusDiscr_dusg->GetBinError ( binClosest ) );
+      EffFlavVsXEff_pu ->getTH1F()  -> SetBinError ( iBinX , effVersusDiscr_pu  ->GetBinError ( binClosest ) );
     }
-    else {
-      //cout << "Did not find right bin for b-efficiency : " << effBMid << endl;
-    }
-    
   }
-
-
 }
 
 

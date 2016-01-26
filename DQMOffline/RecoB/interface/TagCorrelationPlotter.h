@@ -12,12 +12,12 @@
 class TagCorrelationPlotter : public BaseBTagPlotter {
   public:
     TagCorrelationPlotter(const std::string& tagName1, const std::string& tagName2, const EtaPtBin& etaPtBin,
-	                  const edm::ParameterSet& pSet, const unsigned int& mc, const bool finalize, DQMStore::IBooker & ibook);
+	                  const edm::ParameterSet& pSet, const unsigned int& mc, const bool doCTagPlots, const bool finalize, DQMStore::IBooker & ibook);
 
     virtual ~TagCorrelationPlotter();
 
     void finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_);
-    //void epsPlot(const std::string& name) {}
+
     void epsPlot(const std::string & name);
     void psPlot (const std::string& name) {}
 
@@ -30,13 +30,16 @@ class TagCorrelationPlotter : public BaseBTagPlotter {
   protected:
     double lowerBound1_, lowerBound2_;
     double upperBound1_, upperBound2_;
+    int   nBinEffPur_ ;
+    double startEffPur_ ;
+    double endEffPur_ ;
     bool createProfile_;
 
+    std::vector<double> fixedEff_;
+
     unsigned int mcPlots_;
-    bool finalize_;
-
-
     bool doCTagPlots_;
+    bool finalize_;
 
     FlavourHistograms2D<double, double> * correlationHisto_;
 

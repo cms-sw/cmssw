@@ -18,13 +18,11 @@ JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaP
                        nBinEffPur_(pSet.getParameter<int>("nBinEffPur")),
                        startEffPur_(pSet.getParameter<double>("startEffPur")), 
                        endEffPur_(pSet.getParameter<double>("endEffPur")), 
-                       mcPlots_(mc), willFinalize_(wf) {
+                       mcPlots_(mc), willFinalize_(wf), doCTagPlots_(doCTagPlots) {
 
   // to have a shorter name .....
   const std::string & es = theExtensionString;
   const std::string jetTagDir(es.substr(1));
-	
-	doCTagPlots_ = doCTagPlots;
 	
   if (willFinalize_) return;
 
@@ -304,7 +302,7 @@ void JetTagPlotter::finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & ige
   
   effPurFromHistos = new EffPurFromHistos ( dDiscriminator,theExtensionString.substr(1), mcPlots_, ibook_, 
 					    nBinEffPur_, startEffPur_, endEffPur_);
-	effPurFromHistos->doCTagPlots(doCTagPlots_);
+  effPurFromHistos->doCTagPlots(doCTagPlots_);
   effPurFromHistos->compute(ibook_);
 }
 

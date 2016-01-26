@@ -71,9 +71,7 @@ BTagPerformanceAnalyzerOnData::BTagPerformanceAnalyzerOnData(const edm::Paramete
 
 void BTagPerformanceAnalyzerOnData::bookHistograms(DQMStore::IBooker & ibook, edm::Run const & run, edm::EventSetup const & es)
 {
-  //
   // Book all histograms.
-  //
 
   // iterate over ranges:
   const int iEtaStart = -1                   ;  // this will be the inactive one
@@ -122,7 +120,7 @@ void BTagPerformanceAnalyzerOnData::bookHistograms(DQMStore::IBooker & ibook, ed
             // Instantiate the generic b tag correlation plotter
             TagCorrelationPlotter* tagCorrelationPlotter = new TagCorrelationPlotter(label1.label(), label2.label(), etaPtBin,
                                                                                      iModule->getParameter<edm::ParameterSet>("parameters"),
-                                                                                     0, false,ibook);
+                                                                                     0, false, false, ibook);
             binTagCorrelationPlotters.at(iTagCorr).push_back(tagCorrelationPlotter);
           }
         }
@@ -147,11 +145,8 @@ void BTagPerformanceAnalyzerOnData::bookHistograms(DQMStore::IBooker & ibook, ed
           binTagInfoPlottersToModuleConfig.insert(make_pair(jetTagPlotter, iModule - moduleConfig.begin()));
 	}
       }
-      
     }
   }
-  
-  
 }
 
 EtaPtBin BTagPerformanceAnalyzerOnData::getEtaPtBin(const int& iEta, const int& iPt)
@@ -223,7 +218,6 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
     else iEvent.getByToken( jecMCToken, corrHandle);
     corrector = corrHandle.product();
   }
-  //
 
 // Look first at the jetTags
 
@@ -252,7 +246,6 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
       if(doJEC && corrector) {
 	jec = corrector->correction(*(tagI->first));
       }
-      //
 
       if (!jetSelector(*(tagI->first), -1, infoHandle, jec)) 
 	continue;
@@ -288,7 +281,6 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
       if(doJEC && corrector) {
 	jec = corrector->correction(*(tagI->first));
       }
-      //
 
       if (!jetSelector(*(tagI->first), -1, infoHandle, jec))
         continue;
@@ -364,7 +356,6 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
       if(doJEC && corrector) {
 	jec = corrector->correction(*(jetRef));
       }
-      //
 
       if (!jetSelector(*jetRef, -1, infoHandle, jec))
         continue;
