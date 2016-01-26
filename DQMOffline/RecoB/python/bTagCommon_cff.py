@@ -80,6 +80,11 @@ bTagCommonBlock = cms.PSet(
             label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
             folder = cms.string("SSVHE")
         ),
+	cms.PSet(
+            bTagSimpleSVAnalysisBlock,
+            label = cms.InputTag("pfSimpleInclusiveSecondaryVertexHighEffBJetTags"),
+            folder = cms.string("SISVHE")
+        ),
         cms.PSet(
             bTagGenericAnalysisBlock,
             label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
