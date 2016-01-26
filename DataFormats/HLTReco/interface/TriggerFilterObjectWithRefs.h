@@ -64,8 +64,6 @@ namespace trigger
     /// collectionTags
     void addCollectionTag(const edm::InputTag& collectionTag){
       std::string tmp = collectionTag.encode();
-      //std::cout << collectionTags_ << "\n";
-      std::cout << "SIZE:  " << collectionTags_.size() << "\n";
       collectionTags_.push_back(tmp);
     }
     
