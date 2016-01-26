@@ -57,9 +57,9 @@ class MuonTimingFiller {
       void combineTMSequences( const reco::Muon& muon, const TimeMeasurementSequence& dtSeq, 
                                const TimeMeasurementSequence& cscSeq, TimeMeasurementSequence &cmbSeq );
       
-      MuonSegmentMatcher *theMatcher_;
-      DTTimingExtractor* theDTTimingExtractor_;
-      CSCTimingExtractor* theCSCTimingExtractor_;
+      std::unique_ptr<MuonSegmentMatcher> theMatcher_;
+      std::unique_ptr<DTTimingExtractor> theDTTimingExtractor_;
+      std::unique_ptr<CSCTimingExtractor> theCSCTimingExtractor_;
       double errorEB_,errorEE_,ecalEcut_;
       bool useDT_, useCSC_, useECAL_;
 

@@ -23,8 +23,8 @@ muons.inputCollectionLabels = ['ctfWithMaterialTracksP5LHCNavigation', 'globalCo
 muons.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks', 'tev firstHit', 'tev picky', 'tev dyt']
 muons.fillIsolation = True
 muons.fillGlobalTrackQuality = True
-muons.TimingFillerParameters.DTTimingParameters.PruneCut = 999
-muons.TimingFillerParameters.CSCTimingParameters.PruneCut = 999
+muons.TimingFillerParameters.DTTimingParameters.PruneCut = 9999
+muons.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
 # need to modify track selection as well (not clear to what)
 muons.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5LHCNavigation'
 muons.CaloExtractorPSet.CenterConeOnCalIntersection = True
@@ -89,8 +89,8 @@ muons1Leg.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
 muons1Leg.fillIsolation = False
 muons1Leg.fillGlobalTrackQuality = False
 muons1Leg.fillGlobalTrackRefits = False
-muons1Leg.TimingFillerParameters.DTTimingParameters.PruneCut = 999
-muons1Leg.TimingFillerParameters.CSCTimingParameters.PruneCut = 999
+muons1Leg.TimingFillerParameters.DTTimingParameters.PruneCut = 9999
+muons1Leg.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
 # Sequences
 
 # Stand Alone Tracking

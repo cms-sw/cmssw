@@ -78,14 +78,13 @@ CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig, MuonSeg
   debug(iConfig.getParameter<bool>("debug"))
 {
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters);
   theMatcher = segMatcher;
 }
 
 
 CSCTimingExtractor::~CSCTimingExtractor()
 {
-  if (theService) delete theService;
 }
 
 
