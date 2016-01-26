@@ -48,6 +48,8 @@ class L1GtBoardMaps;
 class L1GtPrescaleFactors;
 class L1GtTriggerMask;
 
+class TriggerMenu;
+
 // class declaration
 
 namespace l1t {
@@ -75,6 +77,10 @@ private:
     /// stable parameters
     const GlobalStableParameters* m_l1GtStablePar;
     unsigned long long m_l1GtStableParCacheID;
+
+    // trigger menu
+    const TriggerMenu* m_l1GtMenu;
+    unsigned long long m_l1GtMenuCacheID;
 
     /// number of physics triggers
     unsigned int m_numberPhysTriggers;

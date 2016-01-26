@@ -35,6 +35,10 @@
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "L1Trigger/L1TGlobal/interface/TriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalTriggerMenuRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -182,6 +186,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
 
     //
     m_l1GtStableParCacheID = 0ULL;
+    m_l1GtMenuCacheID = 0ULL;
 
     m_numberPhysTriggers = 0;
     m_numberDaqPartitions = 0;
@@ -484,6 +489,40 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         m_l1GtStableParCacheID = l1GtStableParCacheID;
 
     }
+
+
+    // get / update the trigger menu from the EventSetup
+    // local cache & check on cacheIdentifier
+    unsigned long long l1GtMenuCacheID = evSetup.get<L1TGlobalTriggerMenuRcd>().cacheIdentifier();
+
+    if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
+
+        edm::ESHandle< TriggerMenu> l1GtMenu;
+        evSetup.get< L1TGlobalTriggerMenuRcd>().get(l1GtMenu) ;
+        m_l1GtMenu =  l1GtMenu.product();
+       (const_cast<TriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
+
+        m_l1GtMenuCacheID = l1GtMenuCacheID;
+    }
+/*
+    // get / update the trigger menu from the EventSetup
+    // local cache & check on cacheIdentifier
+    unsigned long long l1GtMenuCacheID = evSetup.get<L1TUtmTriggerMenuRcd>().cacheIdentifier();
+
+    if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
+
+        edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
+        evSetup.get< L1TUtmTriggerMenuRcd>().get(l1GtMenu) ;
+        L1TUtmTriggerMenu utml1GtMenu =  l1GtMenu.product();
+        
+       m_l1GtMenu 
+       (const_cast<TriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
+
+        m_l1GtMenuCacheID = l1GtMenuCacheID;
+    }
+*/
+
+
 
 
     // get / update the board maps from the EventSetup
@@ -817,7 +856,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
 
 //  Run the GTL for this BX
-        m_uGtBrd->runGTL(iEvent, evSetup, 
+        m_uGtBrd->runGTL(iEvent, evSetup, m_l1GtMenu,
             m_produceL1GtObjectMapRecord, iBxInEvent, gtObjectMapRecord,
             m_numberPhysTriggers,
             m_nrL1Mu,

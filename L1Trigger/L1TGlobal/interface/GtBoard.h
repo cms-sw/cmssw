@@ -90,7 +90,7 @@ public:
 	      int bxFirst, int bxLast);
 
     /// run the uGT GTL (Conditions and Algorithms)
-    void runGTL(edm::Event& iEvent, const edm::EventSetup& evSetup,
+    void runGTL(edm::Event& iEvent, const edm::EventSetup& evSetup, const TriggerMenu* m_l1GtMenu,
         const bool produceL1GtObjectMapRecord,
         const int iBxInEvent, std::auto_ptr<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord,
         const unsigned int numberPhysTriggers,

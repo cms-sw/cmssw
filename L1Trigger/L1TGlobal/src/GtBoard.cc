@@ -442,7 +442,7 @@ void l1t::GtBoard::receiveExternalData(edm::Event& iEvent,
 
 // run GTL
 void l1t::GtBoard::runGTL(
-        edm::Event& iEvent, const edm::EventSetup& evSetup,
+        edm::Event& iEvent, const edm::EventSetup& evSetup, const TriggerMenu* m_l1GtMenu,
         const bool produceL1GtObjectMapRecord,
         const int iBxInEvent,
         std::auto_ptr<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord,
@@ -453,7 +453,7 @@ void l1t::GtBoard::runGTL(
 	const int nrL1Jet,
         const int nrL1JetCounts) {
 
-
+/*
 	// get / update the trigger menu from the EventSetup
     // local cache & check on cacheIdentifier
     unsigned long long l1GtMenuCacheID = evSetup.get<L1TGlobalTriggerMenuRcd>().cacheIdentifier();
@@ -467,7 +467,7 @@ void l1t::GtBoard::runGTL(
 
         m_l1GtMenuCacheID = l1GtMenuCacheID;
     }
-
+*/
     const std::vector<ConditionMap>& conditionMap = m_l1GtMenu->gtConditionMap();
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
     const L1TGlobalScales& gtScales = m_l1GtMenu->gtScales();
