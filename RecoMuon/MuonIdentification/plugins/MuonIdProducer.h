@@ -188,6 +188,7 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    bool writeIsoDeposits_;
    double ptThresholdToFillCandidateP4WithGlobalFit_;
    double sigmaThresholdToFillCandidateP4WithGlobalFit_;
+   bool doME0_;
    
    bool debugWithTruthMatching_;
 
