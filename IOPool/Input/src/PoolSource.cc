@@ -128,7 +128,7 @@ namespace edm {
         }
       }
       if(idsToReplace[InEvent].empty() && idsToReplace[InLumi].empty() && idsToReplace[InRun].empty()) {
-        secondaryFileSequence_.reset();
+        secondaryFileSequence_ = nullptr; // propagate_const<T> has no reset() function
       } else {
         for(int i = InEvent; i < NumBranchTypes; ++i) {
           branchIDsToReplace_[i].reserve(idsToReplace[i].size());
@@ -275,7 +275,7 @@ namespace edm {
   }
 
   SharedResourcesAcquirer*
-  PoolSource::resourceSharedWithDelayedReader_() const {
+  PoolSource::resourceSharedWithDelayedReader_() {
     return resourceSharedWithDelayedReaderPtr_.get();
   }
 

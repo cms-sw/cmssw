@@ -158,11 +158,11 @@ namespace edm {
     scheduleInfo_ = std::auto_ptr<ScheduleInfo>(new ScheduleInfo(iInfo));
   }
   void 
-  EDLooperBase::setModuleChanger(const ModuleChanger* iChanger) {
+  EDLooperBase::setModuleChanger(ModuleChanger* iChanger) {
     moduleChanger_ = iChanger;
   }
 
-  const ModuleChanger* EDLooperBase::moduleChanger() const {
+  ModuleChanger* EDLooperBase::moduleChanger() {
     return moduleChanger_;
   }
   const ScheduleInfo* EDLooperBase::scheduleInfo() const {

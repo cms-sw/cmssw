@@ -118,7 +118,7 @@ namespace edm {
    * Deserializes the specified init message into a SendJobHeader object
    * (which is related to the product registry).
    */
-  std::auto_ptr<SendJobHeader>
+  std::unique_ptr<SendJobHeader>
   StreamerInputSource::deserializeRegistry(InitMsgView const& initView) {
     if(initView.code() != Header::INIT)
       throw cms::Exception("StreamTranslation","Registry deserialization error")
@@ -152,7 +152,7 @@ namespace edm {
     TBufferFile xbuf(TBuffer::kRead, initView.descLength(),
                  const_cast<char*>((char const*)initView.descData()),kFALSE);
     RootDebug tracer(10,10);
-    std::auto_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc));
+    std::unique_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc));
 
     if(sd.get() == nullptr) {
         throw cms::Exception("StreamTranslation","Registry deserialization error")
@@ -169,7 +169,7 @@ namespace edm {
    */
   void
   StreamerInputSource::deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent) {
-     std::auto_ptr<SendJobHeader> sd = deserializeRegistry(initView);
+     std::unique_ptr<SendJobHeader> sd = deserializeRegistry(initView);
      mergeIntoRegistry(*sd, productRegistryUpdate(), *branchIDListHelper(), *thinnedAssociationsHelper(), subsequent);
      if (subsequent) {
        adjustEventToNewProductRegistry_ = true;
@@ -241,7 +241,7 @@ namespace edm {
     // make a new one instead of reusing the same one becuase when running
     // multi-threaded there will be multiple EventPrincipals being used
     // simultaneously.
-    eventPrincipalHolder_.reset( new EventPrincipalHolder() );
+    eventPrincipalHolder_ = std::make_unique<EventPrincipalHolder>(); // propagate_const<T> has no reset() function
     setRefCoreStreamer(eventPrincipalHolder_.get());
     sendEvent_ = std::unique_ptr<SendEvent>((SendEvent*)xbuf_.ReadObjectAny(tc_));
     setRefCoreStreamer();

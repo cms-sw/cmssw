@@ -81,7 +81,7 @@ namespace edm {
     ProductPtrVec::iterator pie(putProducts().end());
 
     while(pit != pie) {
-        rp.put(*pit->second, std::move(pit->first));
+        rp.put(*pit->second, std::move(get_underlying_safe(pit->first)));
         ++pit;
     }
 

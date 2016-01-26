@@ -41,6 +41,7 @@ the worker is reset().
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductHolderIndex.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/propagate_const_safe.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -189,11 +190,11 @@ namespace edm {
     ModuleCallingContext moduleCallingContext_;
 
     ExceptionToActionTable const* actions_; // memory assumed to be managed elsewhere
-    std::shared_ptr<cms::Exception> cached_exception_; // if state is 'exception'
+    edm::propagate_const<std::shared_ptr<cms::Exception>> cached_exception_; // if state is 'exception'
 
-    std::shared_ptr<ActivityRegistry> actReg_;
+    mutable std::shared_ptr<ActivityRegistry> actReg_;
 
-    EarlyDeleteHelper* earlyDeleteHelper_;
+    edm::propagate_const<EarlyDeleteHelper*> earlyDeleteHelper_;
   };
 
   namespace {
@@ -213,7 +214,7 @@ namespace edm {
       }
 
     private:
-      ActivityRegistry* a_;
+      edm::propagate_const<ActivityRegistry*> a_;
       typename T::Context const* context_;
       ModuleCallingContext const* moduleCallingContext_;
     };
@@ -537,7 +538,7 @@ namespace edm {
         default:
           if (T::isEvent_) ++timesExcept_;
 	  state_ = Exception;
-          cached_exception_.reset(ex.clone());
+          cached_exception_ = std::shared_ptr<cms::Exception>(ex.clone()); // propagate_const<T> has no reset() function
 	  cached_exception_->raise();
       }
     }

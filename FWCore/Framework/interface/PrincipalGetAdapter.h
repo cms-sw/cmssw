@@ -106,6 +106,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/ProductLabels.h"
+#include "FWCore/Utilities/interface/propagate_const_safe.h"
 
 
 namespace edm {
@@ -235,7 +236,7 @@ namespace edm {
     ModuleDescription const& md_;
     
     EDConsumerBase const* consumer_;
-    SharedResourcesAcquirer* resourcesAcquirer_;
+    mutable SharedResourcesAcquirer* resourcesAcquirer_;
   };
 
   template <typename PROD>
