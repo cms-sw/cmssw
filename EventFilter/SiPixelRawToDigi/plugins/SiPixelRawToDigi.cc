@@ -3,6 +3,7 @@
 // exclude ROC(raw) based on bad ROC list in SiPixelQuality
 // enabled by: process.siPixelDigis.UseQualityInfo = True (BY DEFAULT NOT USED)
 // 20-10-2010 Andrew York (Tennessee)
+// Jan 2016 Tamas Almos Vami (Tav) (Wigner RCP) -- Cabling Map label option
 
 #include "SiPixelRawToDigi.h"
 
@@ -97,6 +98,8 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
     usePhase1 = config_.getParameter<bool> ("UsePhase1");
     if(usePhase1) edm::LogInfo("SiPixelRawToDigi")  << " Use pilot blade data (FED 40)";
   }
+  //CablingMap could have a label //Tav
+  cablingMapLabel = config_.getParameter<std::string> ("CablingMapLabel");
 
 }
 
@@ -144,6 +147,7 @@ SiPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.addUntracked<bool>("Timing",false);
   desc.add<bool>("UsePilotBlade",false)->setComment("##  Use pilot blades");
   desc.add<bool>("UsePhase1",false)->setComment("##  Use phase1");
+  desc.add<std::string>("CablingMapLabel","")->setComment("CablingMap label"); //Tav
   desc.addOptional<bool>("CheckPixelOrder");  // never used, kept for back-compatibility
   descriptions.add("siPixelRawToDigi",desc);
 }
@@ -162,7 +166,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   if (recordWatcher.check( es )) {
     // cabling map, which maps online address (fed->link->ROC->local pixel) to offline (DetId->global pixel)
     edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
-    es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
+    es.get<SiPixelFedCablingMapRcd>().get( cablingMapLabel, cablingMap ); //Tav
     fedIds   = cablingMap->fedIds();
     cabling_ = cablingMap->cablingTree();
     LogDebug("map version:")<< cabling_->version();

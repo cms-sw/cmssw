@@ -56,19 +56,19 @@ namespace edm {
     template<typename D>
     void callWorkerEndStream(D, StreamID);
     template<typename D>
-    void callWorkerStreamBegin(D, StreamID id, RunPrincipal& rp,
+    void callWorkerStreamBegin(D, StreamID id, RunPrincipal const& rp,
                                EventSetup const& c,
                                ModuleCallingContext const* mcc);
     template<typename D>
-    void callWorkerStreamEnd(D, StreamID id, RunPrincipal& rp,
+    void callWorkerStreamEnd(D, StreamID id, RunPrincipal const& rp,
                              EventSetup const& c,
                              ModuleCallingContext const* mcc);
     template<typename D>
-    void callWorkerStreamBegin(D, StreamID id, LuminosityBlockPrincipal& rp,
+    void callWorkerStreamBegin(D, StreamID id, LuminosityBlockPrincipal const& rp,
                                EventSetup const& c,
                                ModuleCallingContext const* mcc);
     template<typename D>
-    void callWorkerStreamEnd(D, StreamID id, LuminosityBlockPrincipal& rp,
+    void callWorkerStreamEnd(D, StreamID id, LuminosityBlockPrincipal const& rp,
                              EventSetup const& c,
                              ModuleCallingContext const* mcc);
     
@@ -77,26 +77,26 @@ namespace edm {
     T const& module() const {return *module_;}
 
   private:
-    virtual bool implDo(EventPrincipal& ep, EventSetup const& c,
+    virtual bool implDo(EventPrincipal const& ep, EventSetup const& c,
                         ModuleCallingContext const* mcc) override;
     virtual bool implDoPrePrefetchSelection(StreamID id,
-                                            EventPrincipal& ep,
+                                            EventPrincipal const& ep,
                                             ModuleCallingContext const* mcc) override;
-    virtual bool implDoBegin(RunPrincipal& rp, EventSetup const& c,
+    virtual bool implDoBegin(RunPrincipal const& rp, EventSetup const& c,
                              ModuleCallingContext const* mcc) override;
-    virtual bool implDoStreamBegin(StreamID id, RunPrincipal& rp, EventSetup const& c,
+    virtual bool implDoStreamBegin(StreamID id, RunPrincipal const& rp, EventSetup const& c,
                                    ModuleCallingContext const* mcc) override;
-    virtual bool implDoStreamEnd(StreamID id, RunPrincipal& rp, EventSetup const& c,
+    virtual bool implDoStreamEnd(StreamID id, RunPrincipal const& rp, EventSetup const& c,
                                  ModuleCallingContext const* mcc) override;
-    virtual bool implDoEnd(RunPrincipal& rp, EventSetup const& c,
+    virtual bool implDoEnd(RunPrincipal const& rp, EventSetup const& c,
                            ModuleCallingContext const* mcc) override;
-    virtual bool implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    virtual bool implDoBegin(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                              ModuleCallingContext const* mcc) override;
-    virtual bool implDoStreamBegin(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    virtual bool implDoStreamBegin(StreamID id, LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                    ModuleCallingContext const* mcc) override;
-    virtual bool implDoStreamEnd(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    virtual bool implDoStreamEnd(StreamID id, LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                  ModuleCallingContext const* mcc) override;
-    virtual bool implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    virtual bool implDoEnd(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                            ModuleCallingContext const* mcc) override;
     virtual void implBeginJob() override;
     virtual void implEndJob() override;

@@ -35,6 +35,9 @@
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
 #include "Geometry/Records/interface/HcalParametersRcd.h"
 
+#include "CondFormats/GeometryObjects/interface/PHGCalParameters.h"
+#include "Geometry/Records/interface/PHGCalParametersRcd.h"
+
 REGISTER_PLUGIN(GeometryFileRcd,FileBlob);
 REGISTER_PLUGIN(IdealGeometryRecord,PGeometricDet);
 REGISTER_PLUGIN(PGeometricDetExtraRcd,PGeometricDetExtra);
@@ -44,6 +47,7 @@ REGISTER_PLUGIN(PEcalEndcapRcd,PCaloGeometry);
 REGISTER_PLUGIN(PEcalPreshowerRcd,PCaloGeometry);
 REGISTER_PLUGIN(PHcalRcd,PCaloGeometry);
 REGISTER_PLUGIN(PHGCalRcd,PCaloGeometry);
+REGISTER_PLUGIN(PHGCalParametersRcd,PHGCalParameters);
 REGISTER_PLUGIN(HcalParametersRcd,HcalParameters);
 REGISTER_PLUGIN(PCaloTowerRcd,PCaloGeometry);
 REGISTER_PLUGIN(PZdcRcd,PCaloGeometry);

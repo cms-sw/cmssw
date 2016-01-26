@@ -47,10 +47,10 @@ private:
   int                           setTrackID(G4Step * step);
 
   std::string                   nameX;
-  bool                          checkID;
-  HGCalDDDConstants*            hgcalCons;
+
+  HGCalGeometryMode m_mode;
   HGCNumberingScheme*           numberingScheme;
-  G4int                         verbosity, mumPDG, mupPDG; 
+  G4int                         mumPDG, mupPDG; 
   double                        eminHit;
   ForwardSubdetector            myFwdSubdet_;
 };

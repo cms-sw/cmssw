@@ -71,8 +71,8 @@ DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            dqmFastTimerServiceLuminosity *
                            DQMMessageLogger )
 
-DQMOfflineRun1 = cms.Sequence( DQMOffline )
-DQMOfflineRun1.remove( HLTMonitoring )
+DQMOfflineFakeHLT = cms.Sequence( DQMOffline )
+DQMOfflineFakeHLT.remove( HLTMonitoring )
 
 DQMOfflinePrePOGMC = cms.Sequence( pvMonitor *
                                    bTagPlotsDATA *
@@ -131,4 +131,9 @@ DQMOfflineEGamma = cms.Sequence( egammaDQMOffline )
 
 DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
                                                                  
-DQMOfflineMiniAOD = cms.Sequence( miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD )
+DQMOfflineMiniAOD = cms.Sequence()
+
+#Post sequences are automatically placed in the EndPath by ConfigBuilder if PAT is run.
+#miniAOD DQM sequences need to access the filter results.
+PostDQMOfflineMiniAOD = cms.Sequence(miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD)
+PostDQMOffline = cms.Sequence()

@@ -18,18 +18,29 @@
 #include <vector>
 #include <memory>
 
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "Mixing/Base/interface/PileUp.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "CondFormats/DataRecord/interface/MixingRcd.h"
 
-
 namespace edm {
-  class BMixingModule : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
+  namespace MixingCache {
+    struct Config {
+      Config(edm::ParameterSet const& pset, unsigned int maxNbSources);
+      int bunchSpace_;
+      int minBunch_;
+      int maxBunch_;
+      bool playback_;
+      std::vector<std::string> sourceNames_;
+      std::vector<std::shared_ptr<PileUpConfig>> inputConfigs_;
+    };
+  }
+
+  class BMixingModule : public stream::EDProducer<GlobalCache<MixingCache::Config>> {
     public:
       /** standard constructor*/
-      explicit BMixingModule(const edm::ParameterSet& ps);
+      explicit BMixingModule(const edm::ParameterSet& ps, MixingCache::Config const* globalConf);
 
       /**Default destructor*/
       virtual ~BMixingModule();
@@ -47,6 +58,9 @@ namespace edm {
 
       virtual void endRun(const edm::Run& r, const edm::EventSetup& setup) override;
       virtual void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& setup) override;
+
+      static std::unique_ptr<MixingCache::Config> initializeGlobalCache(edm::ParameterSet const&);
+      static void globalEndJob(MixingCache::Config*) {}
 
       // to be overloaded by dependent class
       virtual void reload(const edm::EventSetup & setup){};
@@ -70,8 +84,8 @@ namespace edm {
   protected:
       void setupPileUpEvent(const edm::EventSetup& setup);
       void dropUnwantedBranches(std::vector<std::string> const& wantedBranches);
-      virtual void beginJob() override;
-      virtual void endJob() override;
+      virtual void beginStream(edm::StreamID) override;
+      virtual void endStream() override;
       //      std::string type_;
       int bunchSpace_;
       int vertexOffset_;
@@ -84,14 +98,13 @@ namespace edm {
       bool readDB_;
       bool playback_;
       const static unsigned int maxNbSources_;
-      std::vector<std::string> sourceNames_;
       bool doit_[4];//FIXME
       std::vector< float > TrueNumInteractions_;
 
       unsigned int eventId_;
 
       // input, cosmics, beamhalo_plus, beamhalo_minus
-      std::vector<std::shared_ptr<PileUp> > inputSources_;
+      std::vector<std::shared_ptr<PileUp>> inputSources_;
 
       void update(edm::EventSetup const&);
       edm::ESWatcher<MixingRcd> parameterWatcher_;

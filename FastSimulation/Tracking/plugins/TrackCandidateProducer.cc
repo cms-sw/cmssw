@@ -22,6 +22,7 @@
 #include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 #include "FastSimulation/Tracking/interface/HitMaskHelper.h"
 #include "FastSimulation/Tracking/interface/FastTrackingHelper.h"
+#include "FastSimulation/Tracking/interface/SeedMatcher.h"
 
 #include <vector>
 #include <map>
@@ -68,6 +69,8 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf)
   recHitCombinationsToken = consumes<FastTrackerRecHitCombinationCollection>(recHitCombinationsLabel);
   
   propagatorLabel = conf.getParameter<std::string>("propagator");
+
+  maxSeedMatchEstimator = conf.getUntrackedParameter<double>("maxSeedMatchEstimator",0);
 }
   
 void 
@@ -116,13 +119,26 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
     
       const TrajectorySeed seed = (*seeds)[seednr];
+      std::vector<int32_t> recHitCombinationIndices;
     if(seed.nHits()==0){
-      edm::LogError("TrackCandidateProducer") << "empty trajectory seed in TrajectorySeedCollection: skip" << std::endl;
-      continue;
+	recHitCombinationIndices = SeedMatcher::matchRecHitCombinations(
+	    seed,
+	    *recHitCombinations,
+	    *simTracks,
+	    maxSeedMatchEstimator,
+	    *propagator,
+	    *magneticField,
+	    *trackerGeometry);
     }
+    else
+    {
 
     // Get the combination of hits that produced the seed
     int32_t icomb = fastTrackingHelper::getRecHitCombinationIndex(seed);
+    recHitCombinationIndices.push_back(icomb);
+    }
+    for(auto icomb : recHitCombinationIndices)
+    {
     if(icomb < 0 || unsigned(icomb) >= recHitCombinations->size()){
 	throw cms::Exception("TrackCandidateProducer") << " found seed with recHitCombination out or range: " << icomb << std::endl;
     }
@@ -174,22 +190,25 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       continue;
     }
 
+
+    // order hits along the seed direction
+    bool oiSeed = seed.direction()==oppositeToMomentum;
+    if (oiSeed)
+    {
+	std::reverse(recHitCandidates.begin(),recHitCandidates.end());
+    }
+
     // Convert TrajectorySeedHitCandidate to TrackingRecHit and split hits
     edm::OwnVector<TrackingRecHit> trackRecHits;
     for ( unsigned index = 0; index<recHitCandidates.size(); ++index ) {
 	if(splitHits){
-	    hitSplitter.split(*recHitCandidates[index].hit(),trackRecHits);
+	    hitSplitter.split(*recHitCandidates[index].hit(),trackRecHits,oiSeed);
 	}
 	else {
 	    trackRecHits.push_back(recHitCandidates[index].hit()->clone());
 	}
     }
 
-    // order hits along the seed direction
-    if (seed.direction()==oppositeToMomentum){
-      LogDebug("FastTracking")<<"reversing the order of the hits";
-      std::reverse(recHitCandidates.begin(),recHitCandidates.end());
-    }
 
     // set the recHitCombinationIndex
     fastTrackingHelper::setRecHitCombinationIndex(trackRecHits,icomb);
@@ -205,9 +224,10 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     //   - check validity and transform
     if (!initialTSOS.isValid()) continue; 
     PTrajectoryStateOnDet PTSOD = trajectoryStateTransform::persistentState(initialTSOS,trackRecHits.front().geographicalId().rawId()); 
-
     // add track candidate to output collection
     output->push_back(TrackCandidate(trackRecHits,seed,PTSOD,edm::RefToBase<TrajectorySeed>(seeds,seednr)));
+
+  }
   }
   
   // Save the track candidates

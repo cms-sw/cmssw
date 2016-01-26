@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 postProcessorTrack = cms.EDAnalyzer("DQMGenericClient",
-    subDirs = cms.untracked.vstring("Tracking/Track/*", "Tracking/TrackFromPV/*", "Tracking/TrackFromPVAllTP/*", "Tracking/TrackAllTPEffic/*", "Tracking/TrackSeeding/*", "Tracking/TrackBuilding/*"),
+    subDirs = cms.untracked.vstring("Tracking/Track/*", "Tracking/TrackFromPV/*", "Tracking/TrackFromPVAllTP/*", "Tracking/TrackAllTPEffic/*", "Tracking/TrackConversion/*"),
     efficiency = cms.vstring(
     "effic 'Efficiency vs #eta' num_assoc(simToReco)_eta num_simul_eta",
     "efficPt 'Efficiency vs p_{T}' num_assoc(simToReco)_pT num_simul_pT",
@@ -27,6 +27,9 @@ postProcessorTrack = cms.EDAnalyzer("DQMGenericClient",
     "duplicatesRate_dz 'Duplicates Rate vs Dz' num_duplicate_dz num_reco_dz",
     "duplicatesRate_dxypv 'Duplicates Rate vs Dxy(PV)' num_duplicate_dxypv num_reco_dxypv",
     "duplicatesRate_dzpv 'Duplicates Rate vs Dz(PV)' num_duplicate_dzpv num_reco_dzpv",
+    "duplicatesRate_vertpos 'Duplicates Rate vs vertpos' num_duplicate_vertpos num_reco_vertpos",
+    "duplicatesRate_zpos 'Duplicates Rate vs zpos' num_duplicate_zpos num_reco_zpos",
+    "duplicatesRate_dr 'Duplicates Rate vs dr' num_duplicate_dr num_reco_dr",
     "duplicatesRate_chi2 'Duplicates Rate vs normalized #chi^{2}' num_duplicate_chi2 num_reco_chi2",
     "chargeMisIdRate 'Charge MisID Rate vs #eta' num_chargemisid_eta num_reco_eta",
     "chargeMisIdRate_Pt 'Charge MisID Rate vs p_{T}' num_chargemisid_pT num_reco_pT",
@@ -62,6 +65,8 @@ postProcessorTrack = cms.EDAnalyzer("DQMGenericClient",
     "pileuprate_dz 'Pileup rate vs dz' num_pileup_dz num_reco_dz",
     "pileuprate_dxypv 'Pileup rate vs dxy(PV)' num_pileup_dxypv num_reco_dxypv",
     "pileuprate_dzpv 'Pileup rate vs dz(PV)' num_pileup_dzpv num_reco_dzpv",
+    "pileuprate_vertpos 'Pileup rate vs vertpos' num_pileup_vertpos num_reco_vertpos",
+    "pileuprate_zpos 'Pileup rate vs zpos' num_pileup_zpos num_reco_zpos",
     "pileuprate_dr 'Pileup rate vs dr' num_pileup_dr num_reco_dr",
     "pileuprate_chi2 'Pileup rate vs normalized #chi^{2}' num_pileup_chi2 num_reco_chi2",
     "fakerate 'Fake rate vs #eta' num_assoc(recoToSim)_eta num_reco_eta fake",
@@ -76,6 +81,8 @@ postProcessorTrack = cms.EDAnalyzer("DQMGenericClient",
     "fakerate_vs_dz 'Fake rate vs dz' num_assoc(recoToSim)_dz num_reco_dz fake",
     "fakerate_vs_dxypv 'Fake rate vs dxypv' num_assoc(recoToSim)_dxypv num_reco_dxypv fake",
     "fakerate_vs_dzpv 'Fake rate vs dzpv' num_assoc(recoToSim)_dzpv num_reco_dzpv fake",
+    "fakerate_vs_vertpos 'Fake rate vs vertpos' num_assoc(recoToSim)_vertpos num_reco_vertpos fake",
+    "fakerate_vs_zpos 'Fake rate vs vertpos' num_assoc(recoToSim)_zpos num_reco_zpos fake",
     "fakerate_vs_dr 'Fake rate vs dr' num_assoc(recoToSim)_dr num_reco_dr fake",
     "fakerate_vs_chi2 'Fake rate vs normalized #chi^{2}' num_assoc(recoToSim)_chi2 num_reco_chi2 fake",
     "fakerate_vertcount_barrel 'fake rate in barrel vs N of pileup vertices' num_assoc(recoToSim)_vertcount_barrel num_reco_vertcount_barrel fake",
@@ -159,7 +166,7 @@ postProcessorTrack = cms.EDAnalyzer("DQMGenericClient",
 )
 
 postProcessorTrackSummary = cms.EDAnalyzer("DQMGenericClient",
-    subDirs = cms.untracked.vstring("Tracking/Track", "Tracking/TrackFromPV", "Tracking/TrackFromPVAllTP", "Tracking/TrackAllTPEffic", "Tracking/TrackSeeding", "Tracking/TrackBuilding"),
+    subDirs = cms.untracked.vstring("Tracking/Track", "Tracking/TrackFromPV", "Tracking/TrackFromPVAllTP", "Tracking/TrackAllTPEffic", "Tracking/TrackConversion"),
     efficiency = cms.vstring(
     "effic_vs_coll 'Efficiency vs track collection' num_assoc(simToReco)_coll num_simul_coll",
     "effic_vs_coll_allPt 'Efficiency vs track collection' num_assoc(simToReco)_coll_allPt num_simul_coll_allPt",
@@ -171,3 +178,10 @@ postProcessorTrackSummary = cms.EDAnalyzer("DQMGenericClient",
 )
 
 postProcessorTrackSequence = cms.Sequence(postProcessorTrack+postProcessorTrackSummary)
+
+postProcessorTrackTrackingOnly = postProcessorTrack.clone()
+postProcessorTrackTrackingOnly.subDirs.extend(["Tracking/TrackSeeding/*", "Tracking/TrackBuilding/*"])
+postProcessorTrackSummaryTrackingOnly = postProcessorTrackSummary.clone()
+postProcessorTrackSummaryTrackingOnly.subDirs.extend(["Tracking/TrackSeeding", "Tracking/TrackBuilding"])
+
+postProcessorTrackSequenceTrackingOnly = cms.Sequence(postProcessorTrackTrackingOnly+postProcessorTrackSummaryTrackingOnly)

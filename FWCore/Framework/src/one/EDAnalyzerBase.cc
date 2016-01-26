@@ -52,7 +52,7 @@ namespace edm {
     }
 
     bool
-    EDAnalyzerBase::doEvent(EventPrincipal& ep, EventSetup const& c,
+    EDAnalyzerBase::doEvent(EventPrincipal const& ep, EventSetup const& c,
                             ActivityRegistry* act,
                             ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
@@ -84,7 +84,7 @@ namespace edm {
     }
     
     void
-    EDAnalyzerBase::doBeginRun(RunPrincipal& rp, EventSetup const& c,
+    EDAnalyzerBase::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                                ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc);
       r.setConsumer(this);
@@ -93,7 +93,7 @@ namespace edm {
     }
     
     void
-    EDAnalyzerBase::doEndRun(RunPrincipal& rp, EventSetup const& c,
+    EDAnalyzerBase::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                              ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc);
       r.setConsumer(this);
@@ -102,7 +102,7 @@ namespace edm {
     }
     
     void
-    EDAnalyzerBase::doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    EDAnalyzerBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                            ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
       lb.setConsumer(this);
@@ -111,7 +111,7 @@ namespace edm {
     }
     
     void
-    EDAnalyzerBase::doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    EDAnalyzerBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                          ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
       lb.setConsumer(this);

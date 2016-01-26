@@ -378,7 +378,7 @@ void CastorDbHardcode::makeHardcodeMap(CastorElectronicsMap& emap) {
 	      if (ieta==0) { // unmapped 
 		emap.mapEId2chId(elId,DetId(HcalDetId::Undefined));
 	      } else {
-		HcalDetId hId(HcalOuter,ieta*iside,iphi,idepth+3); // HO is officially "depth=4"
+		HcalDetId hId(HcalOuter,ieta*iside,iphi,4); // HO is officially "depth=4"
 		emap.mapEId2chId(elId,hId);
 	      }
 	      // printf(" %9d %9d %9d %9d %9s %9d %9d %9s %9d %9d %9d %9d %9d %9d\n",iside,ieta,iphi,idepth,&det,icrate,ihtr,&fpga,ihtr_fi,ifi_ch,ispigot,idcc,idcc_sl,ifed);

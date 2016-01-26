@@ -47,7 +47,10 @@ class IsoTrackAnalyzer( Analyzer ):
 
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(IsoTrackAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
-        self.IsoTrackIsolationComputer = heppy.IsolationComputer(self.cfg_ana.isoDR)
+        self.IsoTrackIsolationComputer = heppy.IsolationComputer()
+
+        self.doIsoAnnulus = getattr(cfg_ana, 'doIsoAnnulus', False)
+
 
     #----------------------------------------
     # DECLARATION OF HANDLES OF LEPTONS STUFF   
@@ -70,23 +73,23 @@ class IsoTrackAnalyzer( Analyzer ):
     #------------------
     def makeIsoTrack(self, event):
 
-
-
         event.selectedIsoTrack = []
         event.selectedIsoCleanTrack = []
         #event.preIsoTrack = []
 
         patcands = self.handles['packedCandidates'].product()
 
-        charged = [ p for p in patcands if ( p.charge() != 0 and abs(p.dz())<=self.cfg_ana.dzMax ) ]
+        charged = [ p for p in patcands if ( p.charge() != 0 and p.fromPV() > 1 ) ]
 
-        self.IsoTrackIsolationComputer.setPackedCandidates(patcands, -1, 0.1, True)
+        self.IsoTrackIsolationComputer.setPackedCandidates(patcands, 1, 9999, 9999.)
+
 
         alltrack = map( IsoTrack, charged )
 
 
         for track in alltrack:
 
+            if ( abs(track.dz()) > self.cfg_ana.dzMax ): continue
             if ( (abs(track.pdgId())!=11) and (abs(track.pdgId())!=13) and (track.pt() < self.cfg_ana.ptMin) ): continue
             if ( track.pt() < self.cfg_ana.ptMinEMU ): continue
 
@@ -104,18 +107,25 @@ class IsoTrackAnalyzer( Analyzer ):
 ## ===> compute the isolation and find the most isolated track
 
             isoSum = self.IsoTrackIsolationComputer.chargedAbsIso(track.physObj, self.cfg_ana.isoDR, 0., self.cfg_ana.ptPartMin)
+            if( abs(track.pdgId())==211 ): isoSum = isoSum - track.pt() #BM: this is an ugly hack and it is error prone. It needs to be fixed using the addVeto method properly
 
-            if(isoSum > (self.cfg_ana.maxAbsIso + track.pt())): continue
+            if self.cfg_ana.doRelIsolation:
+                relIso = (isoSum)/track.pt()
+                if ( (abs(track.pdgId())!=11) and (abs(track.pdgId())!=13) and (relIso > self.cfg_ana.MaxIsoSum) ): continue
+                elif((relIso > self.cfg_ana.MaxIsoSumEMU)): continue
+            else:
+                if(isoSum > (self.cfg_ana.maxAbsIso)): continue
 
+            if self.doIsoAnnulus:
+                self.attachIsoAnnulus04(track)
 
-            #if abs(track.pdgId())==211 :
-            track.absIso = isoSum - track.pt() 
+            track.absIso = isoSum
 
             #### store a preIso track
             #event.preIsoTrack.append(track)
             
 #            if (isoSum < minIsoSum ) :
-            if(track.absIso < min(0.2*track.pt(), self.cfg_ana.maxAbsIso)): 
+            if self.cfg_ana.doRelIsolation or (track.absIso < min(0.2*track.pt(), self.cfg_ana.maxAbsIso)): 
                 event.selectedIsoTrack.append(track)
 
                 if self.cfg_ana.doPrune:
@@ -129,7 +139,7 @@ class IsoTrackAnalyzer( Analyzer ):
                                 nearestSelectedLeptons = makeNearestLeptons(myLeptons,track, event)
                                 if len(nearestSelectedLeptons) > 0:
                                     for lep in nearestSelectedLeptons:
-                                        if deltaR(lep.eta(), lep.phi(), track.eta(), track.phi()) > 0.1:
+                                        if deltaR(lep.eta(), lep.phi(), track.eta(), track.phi()) > 0.01:
                                             event.selectedIsoCleanTrack.append(track)
                                 else: 
                                     event.selectedIsoCleanTrack.append(track)
@@ -219,11 +229,24 @@ class IsoTrackAnalyzer( Analyzer ):
         #if(len(event.preIsoTrack)): self.counters.counter('events').inc('has >=1 selected Track') 
         if(len(event.selectedIsoTrack)): self.counters.counter('events').inc('has >=1 selected Iso Track')
 
+    
+    def attachIsoAnnulus04(self, mu):
+        mu.absIsoAnCharged = self.IsoTrackIsolationComputer.chargedAbsIso      (mu.physObj, 0.4, self.cfg_ana.isoDR, 0.0,self.IsoTrackIsolationComputer.selfVetoNone)
+        mu.absIsoAnPho     = self.IsoTrackIsolationComputer.photonAbsIsoRaw    (mu.physObj, 0.4, self.cfg_ana.isoDR, 0.0,self.IsoTrackIsolationComputer.selfVetoNone)
+        mu.absIsoAnNHad    = self.IsoTrackIsolationComputer.neutralHadAbsIsoRaw(mu.physObj, 0.4, self.cfg_ana.isoDR, 0.0,self.IsoTrackIsolationComputer.selfVetoNone)
+        mu.absIsoAnPU      = self.IsoTrackIsolationComputer.puAbsIso           (mu.physObj, 0.4, self.cfg_ana.isoDR, 0.0,self.IsoTrackIsolationComputer.selfVetoNone)
+        mu.absIsoAnNeutral = max(0.0, mu.absIsoAnPho + mu.absIsoAnNHad - 0.5*mu.absIsoAnPU)
+
+        mu.absIsoAn04 = mu.absIsoAnCharged + mu.absIsoAnNeutral
+        mu.relIsoAn04 = mu.absIsoAn04/mu.pt()
+
+
     def matchIsoTrack(self, event):
         matchTau = matchObjectCollection3(event.selectedIsoTrack, event.gentaus + event.gentauleps + event.genleps, deltaRMax = 0.5)
         for lep in event.selectedIsoTrack:
             gen = matchTau[lep]
             lep.mcMatchId = 1 if gen else 0
+
 
     def printInfo(self, event):
         print 'event to Veto'
@@ -270,7 +293,7 @@ class IsoTrackAnalyzer( Analyzer ):
         if not self.cfg_comp.isMC:
             return True
 
-        if hasattr(event, 'gentaus') and hasattr(event, 'gentauleps') and hasattr(event, 'genleps') :
+        if hasattr(event, 'gentaus') and hasattr(event, 'gentauleps') and hasattr(event, 'genleps') and self.cfg_ana.do_mc_match :
             self.matchIsoTrack(event)        
 
 ###        self.printInfo(event)
@@ -304,10 +327,14 @@ setattr(IsoTrackAnalyzer,"defaultConfig",cfg.Analyzer(
     dzPartMax = 0.1,
     maxAbsIso = 8,
     #####
+    doRelIsolation = False,
     MaxIsoSum = 0.1, ### unused
     MaxIsoSumEMU = 0.2, ### unused
     doSecondVeto = False,
     #####
+    doIsoAnnulus= False,
+    ###
     doPrune = True,
+    do_mc_match = True, # note: it will in any case try it only on MC, not on data
   )
 )

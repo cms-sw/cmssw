@@ -67,7 +67,7 @@ namespace edm {
       
       const EDProducerAdaptorBase& operator=(const EDProducerAdaptorBase&) =delete; // stop default
       
-      bool doEvent(EventPrincipal& ep, EventSetup const& c,
+      bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                    ActivityRegistry*,
                    ModuleCallingContext const*) ;
     };

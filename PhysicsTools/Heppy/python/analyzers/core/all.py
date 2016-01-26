@@ -6,3 +6,4 @@ from PhysicsTools.Heppy.analyzers.core.SkimAnalyzerCount import SkimAnalyzerCoun
 from PhysicsTools.Heppy.analyzers.core.TreeAnalyzerNumpy import TreeAnalyzerNumpy
 from PhysicsTools.Heppy.analyzers.core.TriggerBitAnalyzer import TriggerBitAnalyzer
 from PhysicsTools.Heppy.analyzers.core.TriggerBitFilter import TriggerBitFilter
+from PhysicsTools.Heppy.analyzers.core.TriggerMatchAnalyzer import TriggerMatchAnalyzer

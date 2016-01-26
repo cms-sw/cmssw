@@ -58,7 +58,7 @@ DQMOffline_SecondStepPOG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMOffline_SecondStep_PrePOG *
                                          DQMMessageLoggerClientSeq )
 
-HLTMonitoringClient = cms.Sequence()
+HLTMonitoringClient = cms.Sequence(trackingMonitorClientHLT)
 
 DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                       DQMOffline_SecondStep_PreDPG *
@@ -67,8 +67,8 @@ DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                       DQMMessageLoggerClientSeq *
                                       dqmFastTimerServiceClient)
 
-DQMOffline_SecondStep_Run1 = cms.Sequence( DQMOffline_SecondStep )
-DQMOffline_SecondStep_Run1.remove( HLTMonitoringClient )
+DQMOffline_SecondStep_FakeHLT = cms.Sequence( DQMOffline_SecondStep )
+DQMOffline_SecondStep_FakeHLT.remove( HLTMonitoringClient )
 
 DQMOffline_SecondStep_PrePOGMC = cms.Sequence( bTagCollectorSequenceDATA )
 

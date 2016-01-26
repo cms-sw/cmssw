@@ -17,6 +17,7 @@ _globalTags = {
     "CMSSW_6_2_0_SLHC15": {"UPG2019withGEM": "DES19_62_V8", "UPG2023SHNoTaper": "DES23_62_V1"},
     "CMSSW_6_2_0_SLHC17": {"UPG2019withGEM": "DES19_62_V8", "UPG2023SHNoTaper": "DES23_62_V1"},
     "CMSSW_6_2_0_SLHC20": {"UPG2019withGEM": "DES19_62_V8", "UPG2023SHNoTaper": "DES23_62_V1"},
+    "CMSSW_6_2_0_SLHC27_phase1": {"default": "DES17_62_V8_UPG17"},
     "CMSSW_7_0_0": {"default": "POSTLS170_V3", "fullsim_50ns": "POSTLS170_V4"},
     "CMSSW_7_0_0_AlcaCSA14": {"default": "POSTLS170_V5_AlcaCSA14", "fullsim_50ns": "POSTLS170_V6_AlcaCSA14"},
     "CMSSW_7_0_7_pmx": {"default": "PLS170_V7AN1", "fullsim_50ns": "PLS170_V6AN1"},
@@ -101,10 +102,21 @@ _globalTags = {
     "CMSSW_7_6_0_pre3": {"default": "75X_mcRun2_asymptotic_v2", "fullsim_50ns": "75X_mcRun2_startup_v2"},
     "CMSSW_7_6_0_pre4": {"default": "76X_mcRun2_asymptotic_v1", "fullsim_50ns": "76X_mcRun2_startup_v1"},
     "CMSSW_7_6_0_pre5": {"default": "76X_mcRun2_asymptotic_v1", "fullsim_50ns": "76X_mcRun2_startup_v1"},
+    "CMSSW_7_6_0_pre6": {"default": "76X_mcRun2_asymptotic_v4", "fullsim_50ns": "76X_mcRun2_startup_v4"},
+    "CMSSW_7_6_0_pre7": {"default": "76X_mcRun2_asymptotic_v5", "fullsim_50ns": "76X_mcRun2_startup_v5", "fastsim": "76X_mcRun2_asymptotic_v5_resub"},
+    "CMSSW_7_6_0": {"default": "76X_mcRun2_asymptotic_v11", "fullsim_50ns": "76X_mcRun2_startup_v11"},
+    "CMSSW_7_6_0_71XGENSIM": {"default": "76X_mcRun2_asymptotic_v11_gs7120p2rlBS", "fullsim_50ns": "76X_mcRun2_startup_v11_gs7120p2rlBS"},
+    "CMSSW_7_6_2": {"default": "76X_mcRun2_asymptotic_v12", "fullsim_50ns": "76X_mcRun2_startup_v11"},
+    "CMSSW_8_0_0_pre1": {"default": "76X_mcRun2_asymptotic_v11", "fullsim_50ns": "76X_mcRun2_startup_v11"},
+    "CMSSW_8_0_0_pre2": {"default": "76X_mcRun2_asymptotic_v12", "fullsim_50ns": "76X_mcRun2_startup_v11"},
+    "CMSSW_8_0_0_pre2_phase1": {"default": "76X_upgrade2017_design_v7"},
+    "CMSSW_8_0_0_pre2_phase1_rereco": {"default": "76X_upgrade2017_design_v7_rereco"},
+    "CMSSW_8_0_0_pre3_phase1": {"default": "76X_upgrade2017_design_v8"},
+    "CMSSW_8_0_0_pre3_phase1_pythia8": {"default": "76X_upgrade2017_design_v8_pythia8"},
 }
 
-_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
-                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT"]
+_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_71XGENSIM_pmx", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
+                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT", "_phase1_rereco", "_phase1_pythia8", "_phase1"]
 def _stripRelease(release):
     for pf in _releasePostfixes:
         if pf in release:
@@ -154,6 +166,7 @@ _relvalUrls = {
     "7_4_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_4_x/",
     "7_5_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_5_x/",
     "7_6_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_6_x/",
+    "8_0_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_8_0_x/",
 }
 
 def _getRelValUrl(release):
@@ -350,7 +363,7 @@ class Validation:
         Arguments:
         fullsimSamples -- List of Sample objects for FullSim samples (may be empty)
         fastsimSamples -- List of Sample objects for FastSim samples (may be empty)
-        refRelease    -- String for reference CMSSW release
+        refRelease    -- String for reference CMSSW release (can be None for no reference release)
         newRepository -- String for directory whete to put new files
         newRelease     -- CMSSW release to be validated
         refRepository  -- String for directory where reference root files are
@@ -420,7 +433,7 @@ class Validation:
                 print "file command failed with exit code %d" % p.returncode
                 sys.exit(1)
             if not "ROOT" in stdout:
-                print "File {f} is not ROOT, please check the correct version, GobalTag etc. from {url}".format(f=f, url=relvalUrl)
+                print "File {f} is not ROOT, please check the correct version, GlobalTag etc. from {url}".format(f=f, url=relvalUrl)
                 allFine = False
                 if os.path.exists(f):
                     os.remove(f)
@@ -428,8 +441,7 @@ class Validation:
             sys.exit(1)
 
     def createHtmlReport(self):
-        baseUrl = "http://cmsdoc.cern.ch/cms/Physics/tracking/validation/MC/%s/" % self._newRelease
-        return html.HtmlReport(self._newRelease, self._newBaseDir, baseUrl)
+        return html.HtmlReport(self._newRelease, self._newBaseDir)
 
     def doPlots(self, plotter, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy(), doFastVsFull=True):
         """Create validation plots.
@@ -459,11 +471,12 @@ class Validation:
             for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
                 if plotterFolder.onlyForPileup() and not sample.hasPileup():
                     continue
-                plotFiles = self._doPlots(sample, harvestedFile, plotterFolder, dqmSubFolder)
+                plotFiles = self._doPlots(sample, harvestedFile, plotterFolder, dqmSubFolder, htmlReport)
                 htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
                 # TODO: the pileup case is still to be migrated
 #               if s.fullsim() and s.hasPileup():
 #                   self._doPlotsPileup(a, q, s)
+
 
         # Fast vs. Full
         if not doFastVsFull:
@@ -496,25 +509,14 @@ class Validation:
             for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
                 if plotterFolder.onlyForPileup() and not fast.hasPileup():
                     continue
-                plotFiles = self._doPlotsFastFull(fast, correspondingFull, plotterFolder, dqmSubFolder)
+                plotFiles = self._doPlotsFastFull(fast, correspondingFull, plotterFolder, dqmSubFolder, htmlReport)
                 htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
 
-    def _doPlots(self, sample, harvestedFile, plotterFolder, dqmSubFolder):
-        """Do the real plotting work for a given sample and DQM subfolder"""
-        # Get GlobalTags
-        refGlobalTag = _getGlobalTag(sample, self._refRelease)
-        newGlobalTag = _getGlobalTag(sample, self._newRelease)
+    def _getRefFileAndSelection(self, sample, plotterFolder, dqmSubFolder, selectionNameBase, valname):
+        if self._refRelease is None:
+            return (None, "")
 
-        # Construct selection string
-        selectionNameBase = ""
-        if sample.hasScenario():
-            selectionNameBase += "_"+sample.scenario()
-        selectionNameBase += "_"+sample.pileup()
-        newSelection = newGlobalTag+selectionNameBase+plotterFolder.getSelectionName(dqmSubFolder)
-        if sample.hasPileup():
-            newPu = sample.pileupType(self._newRelease)
-            if newPu != "":
-                newSelection += "_"+newPu
+        refGlobalTag = _getGlobalTag(sample, self._refRelease)
         def _createRefSelection(selectionName):
             sel = refGlobalTag+selectionNameBase+selectionName
             if sample.hasPileup():
@@ -523,8 +525,6 @@ class Validation:
                     sel += "_"+refPu
             return sel
         refSelection = _createRefSelection(plotterFolder.getSelectionName(dqmSubFolder))
-
-        valname = "val.{sample}.root".format(sample=sample.name())
 
         # Construct reference directory name, and open reference file it it exists
         refValFile = None
@@ -546,9 +546,34 @@ class Validation:
                 triedRefValFiles.append(refValFilePath)
         if refValFile is None:
             if len(triedRefValFiles) == 1:
-                print "Reference file %s not found" % triedRefValFiles[0]
+                if plotting.verbose:
+                    print "Reference file %s not found" % triedRefValFiles[0]
             else:
-                print "None of the possible reference files %s not found" % ",".join(triedRefValFiles)
+                if plotting.verbose:
+                    print "None of the possible reference files %s not found" % ",".join(triedRefValFiles)
+
+        return (refValFile, refSelection)
+
+    def _doPlots(self, sample, harvestedFile, plotterFolder, dqmSubFolder, htmlReport):
+        """Do the real plotting work for a given sample and DQM subfolder"""
+        # Get GlobalTags
+        newGlobalTag = _getGlobalTag(sample, self._newRelease)
+
+        # Construct selection string
+        selectionNameBase = ""
+        if sample.hasScenario():
+            selectionNameBase += "_"+sample.scenario()
+        selectionNameBase += "_"+sample.pileup()
+        newSelection = newGlobalTag+selectionNameBase+plotterFolder.getSelectionName(dqmSubFolder)
+        if sample.hasPileup():
+            newPu = sample.pileupType(self._newRelease)
+            if newPu != "":
+                newSelection += "_"+newPu
+
+        valname = "val.{sample}.root".format(sample=sample.name())
+
+        # Construct reference file and selection string
+        (refValFile, refSelection) = self._getRefFileAndSelection(sample, plotterFolder, dqmSubFolder, selectionNameBase, valname)
 
         # Construct new directory name
         tmp = []
@@ -564,22 +589,31 @@ class Validation:
         fileList = []
 
         # Do the plots
-        print "Comparing ref and new {sim} {sample} {translatedFolder}".format(
+        if plotting.verbose:
+            print "Comparing ref and new {sim} {sample} {translatedFolder}".format(
             sim="FullSim" if not sample.fastsim() else "FastSim",
             sample=sample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else "")
-        plotterFolder.create([refValFile, newValFile], [
-            "%s, %s %s" % (sample.name(), _stripRelease(self._refRelease), refSelection),
+        rootFiles = [refValFile, newValFile]
+        legendLabels = [
+            "%s, %s %s" % (sample.name(), _stripRelease(self._refRelease), refSelection) if self._refRelease is not None else "dummy",
             "%s, %s %s" % (sample.name(), _stripRelease(self._newRelease), newSelection)
-        ],
-                             dqmSubFolder,
-                             isPileupSample=sample.hasPileup()
-        )
+        ]
+        plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=sample.hasPileup())
         fileList.extend(plotterFolder.draw(**self._plotterDrawArgs))
-        fileList.append(valname)
+        # Copy val file only if there were plots
+        if len(fileList) > 0:
+            fileList.append(valname)
+
+        # For tables we just try them all, and see which ones succeed
+        for tableCreator in plotterFolder.getTableCreators():
+            htmlReport.addTable(tableCreator.create(rootFiles, legendLabels, dqmSubFolder))
 
         newValFile.Close()
         if refValFile is not None:
             refValFile.Close()
+
+        if len(fileList) == 0:
+            return []
 
         # Move plots to new directory
         print "Moving plots and %s to %s" % (valname, newdir)
@@ -589,7 +623,7 @@ class Validation:
             shutil.move(f, os.path.join(newdir, f))
         return map(lambda n: os.path.join(newsubdir, n), fileList)
 
-    def _doPlotsFastFull(self, fastSample, fullSample, plotterFolder, dqmSubFolder):
+    def _doPlotsFastFull(self, fastSample, fullSample, plotterFolder, dqmSubFolder, htmlReport):
         """Do the real plotting work for FastSim vs. FullSim for a given algorithm, quality flag, and sample."""
         # Get GlobalTags
         fastGlobalTag = _getGlobalTag(fastSample, self._newRelease)
@@ -612,27 +646,30 @@ class Validation:
         # Open input root files
         valname = "val.{sample}.root".format(sample=fastSample.name())
         fastValFilePath = os.path.join(fastdir, valname)
-        if not os.path.exists(fastValFilePath):
+        if not os.path.exists(fastValFilePath) and plotting.verbose:
             print "FastSim file %s not found" % fastValFilePath
         fullValFilePath = os.path.join(fulldir, valname)
-        if not os.path.exists(fullValFilePath):
+        if not os.path.exists(fullValFilePath) and plotting.verbose:
             print "FullSim file %s not found" % fullValFilePath
 
         fastValFile = ROOT.TFile.Open(fastValFilePath)
         fullValFile = ROOT.TFile.Open(fullValFilePath)
 
         # Do plots
-        print "Comparing FullSim and FastSim {sample} {translatedFolder}".format(
+        if plotting.verbose:
+            print "Comparing FullSim and FastSim {sample} {translatedFolder}".format(
             sample=fastSample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else "")
-        plotterFolder.create([fullValFile, fastValFile], [
+        rootFiles = [fullValFile, fastValFile]
+        legendLabels = [
             "FullSim %s, %s %s" % (fullSample.name(), _stripRelease(self._newRelease), fullSelection),
             "FastSim %s, %s %s" % (fastSample.name(), _stripRelease(self._newRelease), fastSelection),
-        ],
-                             dqmSubFolder,
-                             isPileupSample=fastSample.hasPileup(),
-                             requireAllHistograms=True
-        )
+        ]
+        plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=fastSample.hasPileup(), requireAllHistograms=True)
         fileList = plotterFolder.draw(**self._plotterDrawArgs)
+
+        # For tables we just try them all, and see which ones succeed
+        for tableCreator in plotterFolder.getTableCreators():
+            htmlReport.addTable(tableCreator.create(rootFiles, legendLabels, dqmSubFolder))
 
         fullValFile.Close()
         fastValFile.Close()
@@ -665,17 +702,18 @@ class Validation:
         # Open input root files
         valname = "val.{sample}.root".format(sample=sample.name())
         refValFilePath = os.path.join(refdir, valname)
-        if not os.path.exists(refValFilePath):
+        if not os.path.exists(refValFilePath) and plotting.verbose:
             print "Ref pileup file %s not found" % refValFilePath
         newValFilePath = os.path.join(newdir, valname)
-        if not os.path.exists(newValFilePath):
+        if not os.path.exists(newValFilePath) and plotting.verbose:
             print "New pileup file %s not found" % newValFilePath
 
         refValFile = ROOT.TFile.Open(refValFilePath)
         newValFile = ROOT.TFile.Open(newValFilePath)
 
         # Do plots
-        print "Comparing Old and New pileup {sample} {algo} {quality}".format(
+        if plotting.verbose:
+            print "Comparing Old and New pileup {sample} {algo} {quality}".format(
             sample=sample.name(), algo=algo, quality=quality)
         self._plotter.create([refValFile, newValFile], [
             "%d BX %s, %s %s" % ({"25ns": 10, "50ns": 20}[sample.pileupType(self._newRelease)], sample.name(), _stripRelease(self._newRelease), refSelection),
@@ -746,9 +784,10 @@ def _copyDir(src, dst):
             obj.Delete()
 
 class SimpleSample:
-    def __init__(self, label, name):
+    def __init__(self, label, name, pileup=True):
         self._label = label
         self._name = name
+        self._pileup = pileup
 
     def digest(self):
         # Label should be unique among the plotting run, so it serves also as the digest
@@ -764,6 +803,12 @@ class SimpleSample:
         # No need to emulate the release validation fastsim behaviour here
         return False
 
+    def hasPileup(self):
+        return self._pileup
+
+    def pileupType(self):
+        return ""
+
 class SimpleValidation:
     def __init__(self, files, labels, newdir):
         self._files = files
@@ -773,8 +818,13 @@ class SimpleValidation:
     def createHtmlReport(self, baseUrl=None, validationName=""):
         return html.HtmlReport(validationName, self._newdir, baseUrl)
 
-    def doPlots(self, plotter, subdirprefix, plotterDrawArgs={}, htmlReport=html.HtmlReportDummy()):
-        self._subdirprefix=subdirprefix
+    def doPlots(self, plotter, subdirprefix=None, sample=None, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy()):
+        if subdirprefix is None and sample is None:
+            raise Exception("Need either 'subdirprefix' or 'sample'")
+        if subdirprefix is not None and sample is not None:
+            raise Exception("May give only one of 'subdirprefix' or 'sample', got both")
+
+        self._subdirprefix = sample.label() if sample is not None else subdirprefix
         self._plotterDrawArgs = plotterDrawArgs
 
         self._openFiles = []
@@ -785,20 +835,29 @@ class SimpleValidation:
             self._openFiles.append(ROOT.TFile.Open(f))
 
         plotterInstance = plotter.readDirs(*self._openFiles)
-        for plotterFolder, dqmSubFolder in plotterInstance.iterFolders():
-            plotFiles = self._doPlots(plotterFolder, dqmSubFolder)
-            htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
+        for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
+            if sample is not None and plotterFolder.onlyForPileup() and not sample.hasPileup():
+                continue
+            plotFiles = self._doPlots(plotterFolder, dqmSubFolder, htmlReport)
+            if len(plotFiles) > 0:
+                htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
 
         for tf in self._openFiles:
             tf.Close()
         self._openFiles = []
 
-    def _doPlots(self, plotterFolder, dqmSubFolder):
+    def _doPlots(self, plotterFolder, dqmSubFolder, htmlReport):
         plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
         fileList = plotterFolder.draw(**self._plotterDrawArgs)
 
+        for tableCreator in plotterFolder.getTableCreators():
+            htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
+
         newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
         newdir = os.path.join(self._newdir, newsubdir)
+
+        if len(fileList) == 0:
+            return fileList
 
         print "Moving plots to %s" % newdir
         if not os.path.exists(newdir):

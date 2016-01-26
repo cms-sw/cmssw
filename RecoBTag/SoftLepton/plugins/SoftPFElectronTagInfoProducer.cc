@@ -113,6 +113,7 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
   			properties.ratioRel = recoelectron->p4().Dot(jetRef->p4()) / pjet.Mag2();
   			properties.p0Par    = boostedPPar(recoelectron->momentum(), jetRef->momentum());
 			properties.elec_mva    = recoelectron->mva_e_pi();
+			properties.charge      = recoelectron->charge();
 			if(std::abs(properties.sip3dsig)>MaxSip3Dsig) continue;
 			// Fill the TagInfos
 			tagInfo.insert(lepPtr, properties );

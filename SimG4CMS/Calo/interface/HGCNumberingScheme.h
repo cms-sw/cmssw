@@ -5,26 +5,20 @@
 // Description: Definition of sensitive unit numbering schema for HGC
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "Geometry/CaloGeometry/interface/CaloNumberingScheme.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
 #include "G4Step.hh"
-#include <boost/cstdint.hpp>
-#include <vector>
 
-class HGCNumberingScheme : public CaloNumberingScheme {
+class HGCNumberingScheme {
 
 public:
 
   enum HGCNumberingParameters { HGCCellSize };
 
-  HGCNumberingScheme(HGCalDDDConstants* hgc, std::string& name, 
-		     bool check, int verbose);
+  HGCNumberingScheme(const HGCalDDDConstants& hgc, std::string& name );
 
-  virtual ~HGCNumberingScheme();
+  ~HGCNumberingScheme();
 
   /**
      @short assigns the det id to a hit
@@ -42,18 +36,10 @@ public:
    */
   std::pair<float,float> getLocalCoords(int cell, int layer);
 
-  /**
-     @short getter
-   */
-  const HGCalDDDConstants *getDDDConstants() { return hgcons; }
-
 private:
   
   HGCNumberingScheme();
-
-  bool                   check_;
-  int                    verbosity;
-  HGCalDDDConstants     *hgcons;
+  const HGCalDDDConstants& hgcons_;
 };
 
 #endif

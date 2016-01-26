@@ -113,23 +113,21 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
   // loop over tracks associated to the jet
   for (size_t itt=0; itt < trackSize; ++itt)
   {
-    const reco::CandidatePtr ptrackRef = selectedTracks[itt];
-    const reco::Track * ptrackPtr = reco::btag::toTrack(ptrackRef);
-    const reco::Track & ptrack = *ptrackPtr;
+    const reco::CandidatePtr trackRef = selectedTracks[itt];
 
     float track_PVweight = 0.;
-    setTracksPV(ptrackRef, vertexRef, track_PVweight);
-    if (track_PVweight>0.5) allKinematics.add(ptrack, track_PVweight);
+    setTracksPV(trackRef, vertexRef, track_PVweight);
+    if (track_PVweight>0.5) allKinematics.add(trackRef);
 
     const reco::btag::TrackIPData &data = ipData[itt];
     bool isSelected = false;
-    if (trackSelector(ptrack, data, *jet, pv)) isSelected = true;
+    if (trackSelector(trackRef, data, *jet, pv)) isSelected = true;
 
     // check if the track is from V0
     bool isfromV0 = false, isfromV0Tight = false;
-    const reco::Track * trackPairV0Test[2];
+    std::vector<reco::CandidatePtr> trackPairV0Test(2);
 
-    trackPairV0Test[0] = ptrackPtr;
+    trackPairV0Test[0] = trackRef;
 
     for (size_t jtt=0; jtt < trackSize; ++jtt)
     {
@@ -137,16 +135,14 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
 
       const reco::btag::TrackIPData & pairTrackData = ipData[jtt];
       const reco::CandidatePtr pairTrackRef = selectedTracks[jtt];
-      const reco::Track * pairTrackPtr = reco::btag::toTrack(pairTrackRef);
-      const reco::Track & pairTrack = *pairTrackPtr;
 
-      trackPairV0Test[1] = pairTrackPtr;
+      trackPairV0Test[1] = pairTrackRef;
 
-      if (!trackPairV0Filter(trackPairV0Test, 2))
+      if (!trackPairV0Filter(trackPairV0Test))
       {
         isfromV0 = true;
 
-        if ( trackSelector(pairTrack, pairTrackData, *jet, pv) )
+        if ( trackSelector(pairTrackRef, pairTrackData, *jet, pv) )
           isfromV0Tight = true;
       }
 
@@ -156,11 +152,11 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
 
     if( isSelected && !isfromV0Tight ) jetNTracks += 1.;
 
-    reco::TransientTrack transientTrack = trackBuilder->build(ptrack);
+    reco::TransientTrack transientTrack = trackBuilder->build(trackRef);
     GlobalVector direction(jet->px(), jet->py(), jet->pz());
 
     int index = 0;
-    if (currentAxes.size() > 1 && reco::deltaR2(ptrack,currentAxes[1]) < reco::deltaR2(ptrack,currentAxes[0]))
+    if (currentAxes.size() > 1 && reco::deltaR2(trackRef->momentum(),currentAxes[1]) < reco::deltaR2(trackRef->momentum(),currentAxes[0]))
         index = 1;
     direction = GlobalVector(currentAxes[index].px(), currentAxes[index].py(), currentAxes[index].pz());
 
@@ -182,7 +178,7 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
       ++contTrk;
       if (currentAxes.size() > 1)
       {
-        if (reco::deltaR2(ptrack,currentAxes[0]) < reco::deltaR2(ptrack,currentAxes[1]))
+        if (reco::deltaR2(trackRef->momentum(),currentAxes[0]) < reco::deltaR2(trackRef->momentum(),currentAxes[1]))
           IP3Ds_1.push_back( IP3Dsig<-50. ? -50. : IP3Dsig );
         else
           IP3Ds_2.push_back( IP3Dsig<-50. ? -50. : IP3Dsig );
@@ -200,11 +196,9 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
   {
     size_t idx = indices[i];
     const reco::btag::TrackIPData & data = ipData[idx];
-    const reco::CandidatePtr ptrackRef = selectedTracks[idx];
-    const reco::Track * ptrackPtr = reco::btag::toTrack(ptrackRef);
-    const reco::Track & track = (*ptrackPtr);
+    const reco::CandidatePtr trackRef = selectedTracks[idx];
 
-    kin.add(track);
+    kin.add(trackRef);
 
     if ( kin.vectorSum().M() > charmThreshold // charm cut
          && !charmThreshSet )
@@ -328,11 +322,9 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
   std::map<double, size_t> VTXmap;
   for (size_t vtx = 0; vtx < svTagInfo.nVertices(); ++vtx)
   {
-    reco::TrackKinematics vertexKinematic;
-
-    // get the vertex kinematics
     const reco::VertexCompositePtrCandidate vertex = svTagInfo.secondaryVertex(vtx);
-    vertexKinematics(vertex, vertexKinematic);
+    // get the vertex kinematics
+    reco::TrackKinematics vertexKinematic(vertex);
 
     if (currentAxes.size() > 1)
     {
@@ -578,7 +570,25 @@ void CandidateBoostedDoubleSecondaryVertexComputer::calcNsubjettiness(const reco
   for(const reco::CandidatePtr & daughter : jet->daughterPtrVector())
   {
     if ( daughter.isNonnull() && daughter.isAvailable() )
-      fjParticles.push_back( fastjet::PseudoJet( daughter->px(), daughter->py(), daughter->pz(), daughter->energy() ) );
+    {
+      const reco::Jet * subjet = dynamic_cast<const reco::Jet *>(daughter.get());
+      // if the daughter is actually a subjet
+      if( subjet && daughter->numberOfDaughters() > 1 )
+      {
+        // loop over subjet constituents and push them in the vector of FastJet constituents
+        for(size_t i=0; i<daughter->numberOfDaughters(); ++i)
+        {
+          const reco::Candidate * constit = daughter->daughter(i);
+
+          if ( constit )
+            fjParticles.push_back( fastjet::PseudoJet( constit->px(), constit->py(), constit->pz(), constit->energy() ) );
+          else
+            edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-subjettiness computation is missing!";
+        }
+      }
+      else
+        fjParticles.push_back( fastjet::PseudoJet( daughter->px(), daughter->py(), daughter->pz(), daughter->energy() ) );
+    }
     else
       edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-subjettiness computation is missing!";
   }
@@ -634,17 +644,6 @@ void CandidateBoostedDoubleSecondaryVertexComputer::setTracksPV(const reco::Cand
     const reco::PFCandidate * pfcand = dynamic_cast<const reco::PFCandidate *>(trackRef.get());
 
     setTracksPVBase(pfcand->trackRef(), vertexRef, PVweight);
-  }
-}
-
-
-void CandidateBoostedDoubleSecondaryVertexComputer::vertexKinematics(const reco::VertexCompositePtrCandidate & vertex, reco::TrackKinematics & vtxKinematics) const
-{
-  const std::vector<reco::CandidatePtr> & tracks = vertex.daughterPtrVector();
-
-  for(std::vector<reco::CandidatePtr>::const_iterator track = tracks.begin(); track != tracks.end(); ++track) {
-    const reco::Track& mytrack = *(*track)->bestTrack();
-    vtxKinematics.add(mytrack, 1.0);
   }
 }
 

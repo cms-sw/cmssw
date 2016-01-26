@@ -25,8 +25,8 @@ def customizeHLTforMC(process,_fastSim=False):
     process.hltHbhereco.timeSlewParsType        = cms.int32( 3 )
     # new time slew parametrisation
     process.hltHbhereco.timeSlewPars            = cms.vdouble( 12.2999, -2.19142, 0, 12.2999, -2.19142, 0, 12.2999, -2.19142, 0 )
-    # new response correction, matching Method 2
-    process.hltHbhereco.respCorrM3              = cms.double( 0.95 )
+    # old response correction, matching the 2015D 25ns data
+    process.hltHbhereco.respCorrM3              = cms.double( 1.0 )
 
 
   if _fastSim:
@@ -50,9 +50,6 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLT_L1SingleMuOpen_AntiBPTX_v*",
       "HLT_JetE*_NoBPTX*_v*",
       "HLT_L2Mu*_NoBPTX*_v*",
-      "HLT_PixelTracks_Multiplicity70_v*",
-      "HLT_PixelTracks_Multiplicity80_v*",
-      "HLT_PixelTracks_Multiplicity90_v*",
       "HLT_Beam*_v*",
       #"HLT_L1Tech_*_v*",
       "HLT_HI*",
@@ -79,6 +76,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLT_HT250_DisplacedDijet40_DisplacedTrack_v*",
       "HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_v*",
       "HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v*",
+      "HLT_MET60_IsoTrk*",
       "HLT_MET75_IsoTrk50_v*",
       "HLT_MET90_IsoTrk50_v*",
       "HLT_VBF_DisplacedJet40_DisplacedTrack_v*",
@@ -98,7 +96,6 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLT_DoubleMu18NoFiltersNoVtx_v*",
       "HLT_DoubleMuNoFiltersNoVtx_SaveObjects_v*",
       "MC_DoubleMuNoFiltersNoVtx_v*",
-      "HLT_MET60_IsoTrk*",
       "HLT_L1MuOpenNotHF2Pixel_SingleTrack*",
       "HLT_L1TOTEM0_RomanPotsAND_PixelClusters*",
       )
@@ -125,7 +122,6 @@ def customizeHLTforMC(process,_fastSim=False):
 
     ModulesToRemove = (
       #   "hltL3MuonIsolations",
-      #   "hltPixelVertices",
       "hltCkfL1SeededTrackCandidates",
       "hltCtfL1SeededithMaterialTracks",
       "hltCkf3HitL1SeededTrackCandidates",
@@ -283,11 +279,6 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLTDoLocalStripSequenceRegForBTag",
       "HLTDoLocalPixelSequenceRegForBTag",
       "HLTDoLocalPixelSequenceRegForNoPU",
-      #   "hltSiPixelDigis",
-      #   "hltSiPixelClusters",
-      #   "hltSiPixelRecHits",
-      "HLTRecopixelvertexingSequence",
-#      "HLTEndSequence",
       "HLTBeginSequence",
       "HLTBeginSequenceNZS",
       "HLTBeginSequenceBPTX",
@@ -299,6 +290,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLTIterativeTrackingForHighPt",
       "HLTIterativeTrackingTau3Mu",
       "HLTIterativeTrackingReg",
+      "HLTIterativeTrackingForPA",
       "HLTIterativeTrackingForElectronIter02",
       "HLTIterativeTrackingForPhotonsIter02",
       "HLTIterativeTrackingL3MuonIter02",
@@ -376,13 +368,22 @@ def customizeHLTforMC(process,_fastSim=False):
           setattr(process,label,getattr(fastsim,label))
         else:
           object = getattr(process,label)
+          # remove from sequences
           list = tuple(process.sequences_().keys())
           for name in list:
             sequence = getattr(process,name)
             more=True
             while more:
               more = sequence.remove(object)
+          # remove from paths
           list = tuple(process.paths_().keys())
+          for name in list:
+            path = getattr(process,name)
+            more=True
+            while more:
+              more = path.remove(object)
+          # remove from end paths
+          list = tuple(process.endpaths_().keys())
           for name in list:
             path = getattr(process,name)
             more=True
@@ -447,8 +448,20 @@ def customizeHLTforMC(process,_fastSim=False):
       ('hltIter2DisplacedNRMuMuMerged', 'generalTracks'),
       ('hltIter0PFlowTrackSelectionHighPurityForBTag', 'generalTracks'),
       ('hltIter4HighPtMerged', 'generalTracks'),
+      ('hltIterativeTrackingForPAMerged', 'generalTracks'),
 
-      ('hltRegionalTracksForL3MuonIsolation', 'hltPixelTracks'),
+      ('hltFastPVPixelTracks','hltPixelTracks'),
+      ('hltFastPVPixelTracksRecover','hltPixelTracks'),
+      ('hltPixelTracksL3Muon','hltPixelTracks'),
+      ('hltPixelTracksGlbTrkMuon','hltPixelTracks'),
+      ('hltPixelTracksHighPtTkMuIso','hltPixelTracks'),
+      ('hltPixelTracksHybrid','hltPixelTracks'),
+      ('hltPixelTracksForPhotons','hltPixelTracks'),
+      ('hltPixelTracksForEgamma','hltPixelTracks'),
+      ('hltPixelTracksElectrons','hltPixelTracks'),
+      ('hltPixelTracksForHighPt','hltPixelTracks'),
+      ('hltHighPtPixelTracks','hltPixelTracks'),
+      ('hltPixelTracksForNoPU','hltPixelTracks'),
 
       ('hltL1extraParticles','l1extraParticles'),
       ('hltL1extraParticles:Central','l1extraParticles:Central'),
@@ -473,7 +486,7 @@ def customizeHLTforMC(process,_fastSim=False):
       ('recoverEBFE',cms.bool(True),cms.bool(False)),
       ('recoverEEFE',cms.bool(True),cms.bool(False)),
       ('src',cms.InputTag('hltHcalTowerNoiseCleaner'),cms.InputTag('hltTowerMakerForAll')),
-      ('initialSeeds',cms.InputTag('noSeedsHere'),cms.InputTag('globalPixelSeeds')),
+      ('initialSeeds',cms.InputTag('noSeedsHere'),cms.InputTag('hltPixelPairSeeds')),
       ('preFilteredSeeds',cms.bool(True),cms.bool(False)),
       )
     from HLTrigger.Configuration.CustomConfigs import MassReplaceParameter
@@ -483,12 +496,8 @@ def customizeHLTforMC(process,_fastSim=False):
 # Update nested named parameters
     for label in ('hltEgammaElectronPixelSeeds','hltEgammaElectronPixelSeedsUnseeded',):
       if hasattr(process,label):
-        getattr(process,label).SeedConfiguration.initialSeeds = cms.InputTag('globalPixelSeeds')
+        getattr(process,label).SeedConfiguration.initialSeeds = cms.InputTag('hltPixelPairSeeds')
         getattr(process,label).SeedConfiguration.preFilteredSeeds = cms.bool(False)
-        if hasattr(fastsim,'globalPixelSeeds'): 
-          if hasattr(fastsim.globalPixelSeeds,'outputSeedCollectionName'):
-            getattr(process,label).SeedConfiguration.initialSeeds = cms.InputTag('globalPixelSeeds',fastsim.globalPixelSeeds.outputSeedCollectionName.value())
-
 
 # Extending fastsim import
     fastsim.extend(process)

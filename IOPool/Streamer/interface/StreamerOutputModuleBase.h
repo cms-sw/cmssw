@@ -31,10 +31,10 @@ namespace edm {
     virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*) override;
     virtual void write(EventPrincipal const& e, ModuleCallingContext const*) override;
 
-    virtual void start() const = 0;
-    virtual void stop() const = 0;
-    virtual void doOutputHeader(InitMsgBuilder const& init_message) const = 0;
-    virtual void doOutputEvent(EventMsgBuilder const& msg) const = 0;
+    virtual void start() = 0;
+    virtual void stop() = 0;
+    virtual void doOutputHeader(InitMsgBuilder const& init_message) = 0;
+    virtual void doOutputEvent(EventMsgBuilder const& msg) = 0;
 
     std::auto_ptr<InitMsgBuilder> serializeRegistry();
     std::auto_ptr<EventMsgBuilder> serializeEvent(EventPrincipal const& e, ModuleCallingContext const* mcc); 

@@ -203,23 +203,18 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
          }
          // HF 1x1
          else if (trig_tower_id.version() == 1) {
-            // Check if the entry exists, if not add
-            HFDetailMap::iterator dit = theHFDetailMap.find(trig_tower_id);
-            if ( dit == theHFDetailMap.end() ) {
-               HFDetails hf_detail;
-               theHFDetailMap.insert(std::make_pair(trig_tower_id, hf_detail));
-               dit = theHFDetailMap.find(trig_tower_id);
-            }
-
+            uint32_t fgid = (frame.id().maskDepth());
+            HFDetails& details = theHFDetailMap[trig_tower_id][fgid];
             // Check the frame type to determine long vs short
             if (frame.id().depth() == 1) { // Long
-               dit->second.long_fiber = samples;
-               dit->second.LongDigi = frame;
+               details.long_fiber = samples;
+               details.LongDigi = frame;
             } else if (frame.id().depth() == 2) { // Short
-               dit->second.short_fiber = samples;
-               dit->second.ShortDigi = frame;
+               details.short_fiber = samples;
+               details.ShortDigi = frame;
             } else {
                 // Neither long nor short... So we have no idea what to do
+                edm::LogWarning("HcalTPAlgo") << "Unable to figure out what to do with data frame for " << frame.id();
                 return;
             }
          }
@@ -395,38 +390,39 @@ void HcalTriggerPrimitiveAlgo::analyzeHFV1(
     if (it == theHFDetailMap.end()) {
         return;
     }
-    const HFDetails* HF_DETAILS = &(it->second);
 
     std::vector<bool> finegrain(numberOfSamples_, false);
 
     // Set up out output of IntergerCaloSamples
     IntegerCaloSamples output(SAMPLES.id(), numberOfSamples_);
     output.setPresamples(numberOfPresamples_);
-    for (int ibin = 0; ibin < numberOfSamples_; ++ibin) {
-        const int IDX = ibin + SHIFT;
-        int long_fiber_val = 0;
-        if (IDX < HF_DETAILS->long_fiber.size()) {
-            long_fiber_val = HF_DETAILS->long_fiber[IDX];
-        }
-        int short_fiber_val = 0;
-        if (IDX < HF_DETAILS->short_fiber.size()) {
-            short_fiber_val = HF_DETAILS->long_fiber[IDX];
-        }
-        output[ibin] = (long_fiber_val + short_fiber_val) >> HF_LUMI_SHIFT;
-        static const int MAX_OUTPUT = 0x3FF;  // 0x3FF = 1023
-        if (output[ibin] > MAX_OUTPUT) {
-            output[ibin] = MAX_OUTPUT;
-        }
-        // TODO: Do EM fine grain bit algo
-        int ADCLong = HF_DETAILS->LongDigi[ibin].adc();
-        int ADCShort = HF_DETAILS->ShortDigi[ibin].adc();
 
+    for (const auto& item: it->second) {
+        auto& details = item.second;
+        for (int ibin = 0; ibin < numberOfSamples_; ++ibin) {
+            const int IDX = ibin + SHIFT;
+            int long_fiber_val = 0;
+            if (IDX < details.long_fiber.size()) {
+                long_fiber_val = details.long_fiber[IDX];
+            }
+            int short_fiber_val = 0;
+            if (IDX < details.short_fiber.size()) {
+                short_fiber_val = details.short_fiber[IDX];
+            }
+            output[ibin] += (long_fiber_val + short_fiber_val);
 
-
-        if(HCALFEM != 0)
-        {
-            finegrain[ibin] = HCALFEM->fineGrainbit(ADCShort, HF_DETAILS->ShortDigi.id(), HF_DETAILS->ShortDigi[ibin].capid(), ADCLong, HF_DETAILS->LongDigi.id(), HF_DETAILS->LongDigi[ibin].capid());
+            int ADCLong = details.LongDigi[ibin].adc();
+            int ADCShort = details.ShortDigi[ibin].adc();
+            if(HCALFEM != 0)
+            {
+                finegrain[ibin] = (finegrain[ibin] || HCALFEM->fineGrainbit(ADCShort, details.ShortDigi.id(), details.ShortDigi[ibin].capid(), ADCLong, details.LongDigi.id(), details.LongDigi[ibin].capid()));
+            }
         }
+    }
+
+    for (int bin = 0; bin < numberOfSamples_; ++bin) {
+       static const unsigned int MAX_OUTPUT = 0x3FF;  // 0x3FF = 1023
+       output[bin] = min({MAX_OUTPUT, output[bin] >> HF_LUMI_SHIFT});
     }
     outcoder_->compress(output, finegrain, result);
     

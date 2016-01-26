@@ -18,4 +18,5 @@ simMuonME0Digis = cms.EDProducer("ME0DigiPreRecoProducer",
     simulateNeutralBkg  = cms.bool(True),       # True - will simulate neutral (n+g)  background
     minBunch = cms.int32(-5),                   # [x 25 ns], forms the readout window together with maxBunch,
     maxBunch = cms.int32(3),                    # we should think of shrinking this window ...
+    mixLabel = cms.string('mix'),
 )

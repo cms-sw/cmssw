@@ -56,7 +56,7 @@ namespace edm {
     Path(Path const&);
 
     template <typename T>
-    void processOneOccurrence(typename T::MyPrincipal&, EventSetup const&,
+    void processOneOccurrence(typename T::MyPrincipal const&, EventSetup const&,
                               StreamID const&, typename T::Context const*);
 
     int bitPosition() const { return bitpos_; }
@@ -122,9 +122,9 @@ namespace edm {
     void recordStatus(int nwrwue, bool isEvent);
     void updateCounters(bool succeed, bool isEvent);
     
-    void handleEarlyFinish(EventPrincipal&);
-    void handleEarlyFinish(RunPrincipal&) {}
-    void handleEarlyFinish(LuminosityBlockPrincipal&) {}
+    void handleEarlyFinish(EventPrincipal const&);
+    void handleEarlyFinish(RunPrincipal const&) {}
+    void handleEarlyFinish(LuminosityBlockPrincipal const&) {}
   };
 
   namespace {
@@ -151,7 +151,7 @@ namespace edm {
   }
 
   template <typename T>
-  void Path::processOneOccurrence(typename T::MyPrincipal& ep, EventSetup const& es,
+  void Path::processOneOccurrence(typename T::MyPrincipal const& ep, EventSetup const& es,
                                   StreamID const& streamID, typename T::Context const* context) {
 
     int nwrwue = -1;

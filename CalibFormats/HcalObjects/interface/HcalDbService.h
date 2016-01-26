@@ -49,12 +49,14 @@ class HcalDbService {
   const HcalLUTCorr* getHcalLUTCorr (const HcalGenericDetId& fId) const;
   const HcalPFCorr* getHcalPFCorr (const HcalGenericDetId& fId) const;
   const HcalLutMetadata* getHcalLutMetadata () const;
+  const HcalQIEType* getHcalQIEType (const HcalGenericDetId& fId) const;
 
   void setData (const HcalPedestals* fItem) {mPedestals = fItem; mCalibSet = nullptr;}
   void setData (const HcalPedestalWidths* fItem) {mPedestalWidths = fItem; mCalibWidthSet = nullptr;}
   void setData (const HcalGains* fItem) {mGains = fItem; mCalibSet = nullptr; }
   void setData (const HcalGainWidths* fItem) {mGainWidths = fItem; mCalibWidthSet = nullptr; }
   void setData (const HcalQIEData* fItem) {mQIEData = fItem; mCalibSet=nullptr; mCalibWidthSet=nullptr;}
+  void setData (const HcalQIETypes* fItem) {mQIETypes = fItem; mCalibSet = nullptr; }
   void setData (const HcalChannelQuality* fItem) {mChannelQuality = fItem;}
   void setData (const HcalElectronicsMap* fItem) {mElectronicsMap = fItem;}
   void setData (const HcalRespCorrs* fItem) {mRespCorrs = fItem; mCalibSet = nullptr; }
@@ -77,6 +79,7 @@ class HcalDbService {
   const HcalGains* mGains;
   const HcalGainWidths* mGainWidths;
   const HcalQIEData* mQIEData;
+  const HcalQIETypes* mQIETypes;
   const HcalChannelQuality* mChannelQuality;
   const HcalElectronicsMap* mElectronicsMap;
   const HcalRespCorrs* mRespCorrs;

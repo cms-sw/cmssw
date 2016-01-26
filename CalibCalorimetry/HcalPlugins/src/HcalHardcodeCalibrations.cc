@@ -6,13 +6,12 @@
 #include <memory>
 #include <iostream>
 
-#include "HcalHardcodeCalibrations.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 
@@ -23,6 +22,7 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "HcalHardcodeCalibrations.h"
 
 // class decleration
 //
@@ -42,11 +42,11 @@ namespace {
   */
 
     if (result.size () <= 0) {
-      for (int eta = -HcalHardcodeCalibrations::kHcalEtaMask2; 
-	   eta <= HcalHardcodeCalibrations::kHcalEtaMask2; eta++) {
-	for (int phi = 0; phi <= HcalHardcodeCalibrations::kHcalPhiMask2; phi++) {
-	  for (int depth = 1; depth < maxDepthHB + maxDepthHE; depth++) {
-	    for (int det = 1; det <= HcalForward; det++) {
+      for (int eta = -HcalDetId::kHcalEtaMask2; 
+           eta <= HcalDetId::kHcalEtaMask2; eta++) {
+        for (int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
+          for (int depth = 1; depth < maxDepthHB + maxDepthHE; depth++) {
+            for (int det = 1; det <= HcalForward; det++) {
 	      HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
 	      if (hcaltopology.valid(cell)) result.push_back (cell);
 
@@ -89,13 +89,13 @@ namespace {
       // - As no valid(cell) check found for HcalTrigTowerDetId 
       // to create HT cells (ieta=1-28, iphi=1-72)&(ieta=29-32, iphi=1,5,... 69)
 
-      for (int vers=0; vers<=HcalHardcodeCalibrations::kHcalVersMask; ++vers) {
-	for (int depth=0; depth<=HcalHardcodeCalibrations::kHcalDepthMask; ++depth) {
-	  for (int eta = -HcalHardcodeCalibrations::kHcalEtaMask; 
-	       eta <= HcalHardcodeCalibrations::kHcalEtaMask; eta++) {
-	    for (int phi = 1; phi <= HcalHardcodeCalibrations::kHcalPhiMask; phi++) {
-	      HcalTrigTowerDetId cell(eta, phi,depth,vers); 
-	      if (hcaltopology.validHT(cell)) result.push_back (cell);
+      for (int vers=0; vers<=HcalTrigTowerDetId::kHcalVersMask; ++vers) {
+        for (int depth=0; depth<=HcalTrigTowerDetId::kHcalDepthMask; ++depth) {
+          for (int eta = -HcalTrigTowerDetId::kHcalEtaMask; 
+               eta <= HcalTrigTowerDetId::kHcalEtaMask; eta++) {
+            for (int phi = 1; phi <= HcalTrigTowerDetId::kHcalPhiMask; phi++) {
+              HcalTrigTowerDetId cell(eta, phi,depth,vers); 
+              if (hcaltopology.validHT(cell)) result.push_back (cell);
 	    }
 	  }
 	}

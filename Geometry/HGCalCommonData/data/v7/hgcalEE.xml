@@ -12,7 +12,7 @@
   <Algorithm name="hgcal:DDHGCalModuleAlgo">
     <rParent name="hgcal:HGCalEE"/>
     <Vector name="WaferName" type="string" nEntries="2">
-      hgcalwafer:HGCalWaferFine, hgcalwafer:HGCalWaferCoarse</Vector>
+      hgcalwafer:HGCalEEWaferFine, hgcalwafer:HGCalEEWaferCoarse</Vector>
     <Vector name="MaterialNames" type="string" nEntries="15">
       materials:Carbon_fibre_str_Upgrade2, materials:Tungsten,
       materials:Tungsten, materials:Tungsten, hgcal:WCu, hgcal:WCu,
@@ -86,7 +86,7 @@
 
 <SpecParSection label="hgcalEE.xml" eval="true">
   <SpecPar name="HGCalEE">
-    <PartSelector path="//HGCalEESensitive.*"/>
+    <PartSelector path="//HGCalEESensitive.*"/>    
     <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
     <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon" eval="false"/>
     <Parameter name="RadiusBound"  value="[rMinFine]"/>

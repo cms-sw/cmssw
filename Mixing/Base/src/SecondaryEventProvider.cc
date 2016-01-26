@@ -24,34 +24,49 @@ namespace edm {
                                                shouldBeUsedLabels);
     }
     if(!unscheduledLabels.empty()) {
-      workerManager_.setOnDemandProducts(preg, unscheduledLabels); 
+      workerManager_.setOnDemandProducts(preg, unscheduledLabels);
     }
   } // SecondaryEventProvider::SecondaryEventProvider
-  
+
   //NOTE: When the Stream interfaces are propagated to the modules, this code must be updated
   // to also send the stream based transitions
-  void SecondaryEventProvider::beginRun(RunPrincipal& run, const EventSetup& setup, ModuleCallingContext const* mcc) {
+  void SecondaryEventProvider::beginRun(RunPrincipal& run, const EventSetup& setup, ModuleCallingContext const* mcc, StreamContext& sContext) {
     workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> >(run, setup, StreamID::invalidStreamID(),
-                                                                                                  mcc->getGlobalContext(), mcc);
+                                                                                                  nullptr, mcc);
+    workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> >(run, setup, sContext.streamID(),
+                                                                                                  &sContext, mcc);
   }
 
-  void SecondaryEventProvider::beginLuminosityBlock(LuminosityBlockPrincipal& lumi, const EventSetup& setup, ModuleCallingContext const* mcc) {
+  void SecondaryEventProvider::beginLuminosityBlock(LuminosityBlockPrincipal& lumi, const EventSetup& setup, ModuleCallingContext const* mcc, StreamContext& sContext) {
     workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> >(lumi, setup, StreamID::invalidStreamID(),
-                                                                                                              mcc->getGlobalContext(), mcc);
+                                                                                                              nullptr, mcc);
+    workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> >(lumi, setup, sContext.streamID(),
+                                                                                                              &sContext, mcc);
   }
 
-  void SecondaryEventProvider::endRun(RunPrincipal& run, const EventSetup& setup, ModuleCallingContext const* mcc) {
+  void SecondaryEventProvider::endRun(RunPrincipal& run, const EventSetup& setup, ModuleCallingContext const* mcc, StreamContext& sContext) {
+    workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> >(run, setup, sContext.streamID(),
+                                                                                                &sContext, mcc);
     workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> >(run, setup, StreamID::invalidStreamID(),
-                                                                                                mcc->getGlobalContext(), mcc);
+                                                                                                nullptr, mcc);
   }
 
-  void SecondaryEventProvider::endLuminosityBlock(LuminosityBlockPrincipal& lumi, const EventSetup& setup, ModuleCallingContext const* mcc) {
+  void SecondaryEventProvider::endLuminosityBlock(LuminosityBlockPrincipal& lumi, const EventSetup& setup, ModuleCallingContext const* mcc, StreamContext& sContext) {
+    workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> >(lumi, setup, sContext.streamID(),
+                                                                                                            &sContext, mcc);
     workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> >(lumi, setup, StreamID::invalidStreamID(),
-                                                                                                            mcc->getGlobalContext(), mcc);
+                                                                                                            nullptr, mcc);
   }
 
-  void SecondaryEventProvider::setupPileUpEvent(EventPrincipal& ep, const EventSetup& setup) {
+  void SecondaryEventProvider::setupPileUpEvent(EventPrincipal& ep, const EventSetup& setup, StreamContext& sContext) {
     workerManager_.processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>, StreamContext >(ep, setup, ep.streamID(),
-                                                                                                                   nullptr, nullptr);
+                                                                                                                   &sContext, &sContext);
+  }
+  void SecondaryEventProvider::beginStream(edm::StreamID iID, StreamContext& sContext) {
+    workerManager_.beginStream(iID, sContext);
+  }
+
+  void SecondaryEventProvider::endStream(edm::StreamID iID, StreamContext& sContext) {
+    workerManager_.endStream(iID, sContext);
   }
 }

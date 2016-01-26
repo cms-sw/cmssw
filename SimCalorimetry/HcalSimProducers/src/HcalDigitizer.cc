@@ -37,6 +37,8 @@
 #include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
+//#define DebugLog
+
 namespace HcalDigitizerImpl {
 
   template<typename SIPMDIGITIZER>
@@ -451,13 +453,22 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
     }
     
     //eliminate bad hits
-    for ( unsigned int i=0; i< hcalHitsOrig.size(); i++) {
+    for (unsigned int i=0; i< hcalHitsOrig.size(); i++) {
       DetId id(hcalHitsOrig[i].id());
       HcalDetId hid(id);
-      if ( !htopoP->validHcal(hid) )
+      if (!htopoP->validHcal(hid)) {
 	edm::LogError("HcalDigitizer") << "bad hcal id found in digitizer. Skipping " << id.rawId() << std::endl;
-      else
-	hcalHits.push_back(hcalHitsOrig[i]);
+      } else {
+#ifdef DebugLog
+	std::cout << "HcalDigitizer format " << hid.oldFormat() << " for " << hid << std::endl;
+#endif
+        DetId newid = DetId(hid.newForm());
+#ifdef DebugLog
+	  std::cout << "Hit " << i << " out of " << hcalHits.size() << " " << std::hex << id.rawId() << " --> " << newid.rawId() << std::dec << " " << HcalDetId(newid.rawId()) << '\n';
+#endif
+        hcalHitsOrig[i].setID(newid.rawId());
+        hcalHits.push_back(hcalHitsOrig[i]);
+      }
     }
 
     if(theHitCorrection != 0) {
@@ -547,8 +558,9 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
     if(theHBHESiPMDigitizer)    theHBHESiPMDigitizer->run(*hbheResult, engine);
     if(theHBHEUpgradeDigitizer) {
       theHBHEUpgradeDigitizer->run(*hbheupgradeResult, engine);
-
-//      std::cout << "HcalDigitizer::finalizeEvent  theHBHEUpgradeDigitizer->run" << std::endl;     
+#ifdef DebugLog
+      std::cout << "HcalDigitizer::finalizeEvent  theHBHEUpgradeDigitizer->run" << std::endl; 
+#endif
     }
   }
   if(isHCAL&&hogeo) {
@@ -570,7 +582,7 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   edm::LogInfo("HcalDigitizer") << "HCAL HBHE upgrade digis : " << hbheupgradeResult->size();
   edm::LogInfo("HcalDigitizer") << "HCAL HF upgrade digis : " << hfupgradeResult->size();
 
-  /*
+#ifdef DebugLog
   std::cout << std::endl;
   std::cout << "HCAL HBHE digis : " << hbheResult->size() << std::endl;
   std::cout << "HCAL HO   digis : " << hoResult->size() << std::endl;
@@ -580,7 +592,7 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
 	    << std::endl;
   std::cout << "HCAL HF   upgrade digis : " << hfupgradeResult->size()
 	    << std::endl;
-  */
+#endif
 
   // Step D: Put outputs into event
   e.put(hbheResult);
@@ -589,9 +601,9 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   e.put(zdcResult);
   e.put(hbheupgradeResult,"HBHEUpgradeDigiCollection");
   e.put(hfupgradeResult, "HFUpgradeDigiCollection");
-
-//  std::cout << std::endl << "========>  HcalDigitizer e.put " << std::endl <<  std::endl;
-
+#ifdef DebugLog
+  std::cout << std::endl << "========>  HcalDigitizer e.put " << std::endl <<  std::endl;
+#endif
   if(theHitCorrection) {
     theHitCorrection->clear();
   }
@@ -659,8 +671,9 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   theZDCDigitizer->setDetIds(zdcCells); 
   if(theHBHEUpgradeDigitizer) {
     theHBHEUpgradeDigitizer->setDetIds(theHBHEDetIds);
-
-//    std::cout << " HcalDigitizer::updateGeometry  theHBHEUpgradeDigitizer->setDetIds(theHBHEDetIds)"<< std::endl;   
+#ifdef DebugLog
+    std::cout << " HcalDigitizer::updateGeometry  theHBHEUpgradeDigitizer->setDetIds(theHBHEDetIds)"<< std::endl;   
+#endif
   }
 
 }

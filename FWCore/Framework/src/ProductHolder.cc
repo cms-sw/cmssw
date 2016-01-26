@@ -36,14 +36,16 @@ namespace edm {
   NoProcessProductHolder::~NoProcessProductHolder() {}
 
   ProductData const*
-  InputProductHolder::resolveProduct_(ResolveStatus& resolveStatus, bool,
+  InputProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
+                                      Principal const& principal,
+                                      bool,
                                       SharedResourcesAcquirer* ,
                                       ModuleCallingContext const* mcc) const {
     if(productWasDeleted()) {
       throwProductDeletedException();
     }
     if(!productUnavailable()) {
-      principal_->readFromSource(*this, mcc);
+      principal.readFromSource(*this, mcc);
       // If the product is a dummy filler, product holder will now be marked unavailable.
       if(product() && !productUnavailable()) {
         // Found the match
@@ -57,6 +59,7 @@ namespace edm {
 
   ProductData const*
   ScheduledProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
+                                          Principal const&,
                                           bool skipCurrentProcess,
                                           SharedResourcesAcquirer*,
                                           ModuleCallingContext const*) const {
@@ -75,6 +78,7 @@ namespace edm {
 
   ProductData const*
   SourceProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
+                                       Principal const& principal,
                                        bool skipCurrentProcess,
                                        SharedResourcesAcquirer*,
                                        ModuleCallingContext const*) const {
@@ -93,6 +97,7 @@ namespace edm {
 
   ProductData const*
   UnscheduledProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
+                                            Principal const& principal,
                                             bool skipCurrentProcess,
                                             SharedResourcesAcquirer* sra,
                                             ModuleCallingContext const* mcc) const {
@@ -104,7 +109,7 @@ namespace edm {
         resolveStatus = ProductFound;
         return &productData_;
       }
-      principal_->unscheduledFill(moduleLabel(), sra, mcc);
+      principal.unscheduledFill(moduleLabel(), sra, mcc);
       if(product() && product()->isPresent()) {
         resolveStatus = ProductFound;
         return &productData_;
@@ -117,7 +122,7 @@ namespace edm {
   void
   ProducedProductHolder::putProduct_(
         std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const& productProvenance) {
+        ProductProvenance const& productProvenance) const {
     if(product()) {
       throw Exception(errors::InsertFailure)
           << "Attempt to insert more than one product on branch " << branchDescription().branchName() << "\n";
@@ -126,14 +131,14 @@ namespace edm {
     assert(edp.get() != nullptr);
     assert(status() != Present);
     assert(status() != Uninitialized);
-    productData().setWrapper(std::move(edp)); // ProductHolder takes ownership
+    productData().unsafe_setWrapper(std::move(edp)); // ProductHolder takes ownership
     status_() = Present;
   }
 
   void
   ProducedProductHolder::mergeProduct_(
         std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const& productProvenance) {
+        ProductProvenance const& productProvenance) const {
     assert(status() == Present);
     mergeTheProduct(std::move(edp));
   }
@@ -144,7 +149,7 @@ namespace edm {
   }
 
   void
-  ProducedProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) {
+  ProducedProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) const {
     assert(status() == Present);
     mergeTheProduct(std::move(edp));
   }
@@ -166,7 +171,7 @@ namespace edm {
   void
   InputProductHolder::putProduct_(
         std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const& productProvenance) {
+        ProductProvenance const& productProvenance) const {
     assert(!product());
     setProduct(std::move(edp));
   }
@@ -174,12 +179,12 @@ namespace edm {
   void
   InputProductHolder::mergeProduct_(
         std::unique_ptr<WrapperBase>,
-        ProductProvenance const&) {
+        ProductProvenance const&) const {
     assert(nullptr);
   }
 
   void
-  InputProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) {
+  InputProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) const {
     mergeTheProduct(std::move(edp));
   }
 
@@ -195,9 +200,9 @@ namespace edm {
   }
 
   void
-  ProductHolderBase::mergeTheProduct(std::unique_ptr<WrapperBase> edp) {
+  ProductHolderBase::mergeTheProduct(std::unique_ptr<WrapperBase> edp) const {
     if(product()->isMergeable()) {
-      product()->mergeProduct(edp.get());
+      unsafe_product()->mergeProduct(edp.get());
     } else if(product()->hasIsProductEqual()) {
       if(!product()->isProductEqual(edp.get())) {
         LogError("RunLumiMerging")
@@ -251,10 +256,6 @@ namespace edm {
     return true;
   }
 
-  void InputProductHolder::setPrincipal_(Principal* principal) {
-    principal_ = principal;
-  }
-
   // This routine returns true if it is known that currently there is no real product.
   // If there is a real product, it returns false.
   // If it is not known if there is a real product, it returns false.
@@ -293,7 +294,7 @@ namespace edm {
   }
 
   void 
-  ProducedProductHolder::setProductDeleted_() {
+  ProducedProductHolder::setProductDeleted_() const {
     status() = ProductDeleted;
   }
 
@@ -316,12 +317,6 @@ namespace edm {
 
   bool ProducedProductHolder::singleProduct_() const {
     return true;
-  }
-
-  void ProducedProductHolder::setPrincipal_(Principal*) {
-    throw Exception(errors::LogicError)
-      << "ProducedProductHolder::setPrincipal__() not implemented and should never be called.\n"
-      << "Contact a Framework developer\n";
   }
 
   bool
@@ -369,11 +364,9 @@ namespace edm {
 
   NoProcessProductHolder::
   NoProcessProductHolder(std::vector<ProductHolderIndex> const&  matchingHolders,
-                         std::vector<bool> const& ambiguous,
-                         Principal* principal) : 
+                         std::vector<bool> const& ambiguous) :
     matchingHolders_(matchingHolders),
-    ambiguous_(ambiguous),
-    principal_(principal) {
+    ambiguous_(ambiguous) {
     assert(ambiguous_.size() == matchingHolders_.size());
   }
 
@@ -390,10 +383,11 @@ namespace edm {
   }
 
   ProductData const* NoProcessProductHolder::resolveProduct_(ResolveStatus& resolveStatus,
+                                                             Principal const& principal,
                                                              bool skipCurrentProcess,
                                                              SharedResourcesAcquirer* sra,
                                                              ModuleCallingContext const* mcc) const {
-    std::vector<unsigned int> const& lookupProcessOrder = principal_->lookupProcessOrder();
+    std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     for(unsigned int k : lookupProcessOrder) {
       assert(k < ambiguous_.size());
       if(k == 0) break; // Done
@@ -402,8 +396,8 @@ namespace edm {
         return nullptr;
       }
       if (matchingHolders_[k] != ProductHolderIndexInvalid) {
-        ProductHolderBase const* productHolder = principal_->getProductHolderByIndex(matchingHolders_[k]);
-        ProductData const* pd =  productHolder->resolveProduct(resolveStatus, skipCurrentProcess, sra, mcc);
+        ProductHolderBase const* productHolder = principal.getProductHolderByIndex(matchingHolders_[k]);
+        ProductData const* pd =  productHolder->resolveProduct(resolveStatus, principal, skipCurrentProcess, sra, mcc);
         if(pd != nullptr) return pd;
       }
     }
@@ -432,14 +426,10 @@ namespace edm {
     return true;
   }
 
-  void AliasProductHolder::setPrincipal_(Principal*) {
-  }
-
   void NoProcessProductHolder::swap_(ProductHolderBase& rhs) {
     NoProcessProductHolder& other = dynamic_cast<NoProcessProductHolder&>(rhs);
     ambiguous_.swap(other.ambiguous_);
     matchingHolders_.swap(other.matchingHolders_);
-    std::swap(principal_, other.principal_);
   }
 
   void NoProcessProductHolder::resetStatus_() {
@@ -462,12 +452,6 @@ namespace edm {
     return false;
   }
 
-  void NoProcessProductHolder::setPrincipal_(Principal* ) {
-    throw Exception(errors::LogicError)
-      << "NoProcessProductHolder::setPrincipal__() not implemented and should never be called.\n"
-      << "Contact a Framework developer\n";
-  }
-
   bool NoProcessProductHolder::onDemand_() const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::onDemand_() not implemented and should never be called.\n"
@@ -486,7 +470,7 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::putProduct_(std::unique_ptr<WrapperBase> , ProductProvenance const& ) {
+  void NoProcessProductHolder::putProduct_(std::unique_ptr<WrapperBase> , ProductProvenance const& ) const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::putProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
@@ -498,13 +482,13 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> , ProductProvenance const& ) {
+  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> , ProductProvenance const& ) const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::mergeProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase>) {
+  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase>) const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::mergeProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
@@ -522,7 +506,7 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::setProductDeleted_() {
+  void NoProcessProductHolder::setProductDeleted_() const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::setProductDeleted_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";

@@ -31,6 +31,12 @@ public:
    HBHEPulseShapeFlagSetter();
    HBHEPulseShapeFlagSetter(double MinimumChargeThreshold,
              double TS4TS5ChargeThreshold,
+	     double TS3TS4ChargeThreshold,
+	     double TS3TS4UpperChargeThreshold,
+	     double TS5TS6ChargeThreshold,
+	     double TS5TS6UpperChargeThreshold,
+	     double R45PlusOneRange,
+	     double R45MinusOneRange,
 			    unsigned int TrianglePeakTS,
 			    const std::vector<double>& LinearThreshold, 
 			    const std::vector<double>& LinearCut,
@@ -56,6 +62,12 @@ public:
 private:
    double mMinimumChargeThreshold;
    double mTS4TS5ChargeThreshold;
+   double mTS3TS4UpperChargeThreshold;
+   double mTS5TS6UpperChargeThreshold;
+   double mTS3TS4ChargeThreshold;
+   double mTS5TS6ChargeThreshold;
+   double mR45PlusOneRange;
+   double mR45MinusOneRange;
    int mTrianglePeakTS;
    std::vector<double>  mCharge;  // stores charge for each TS in each digi
    // the pair is defined as (threshold, cut position)

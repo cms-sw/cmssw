@@ -43,7 +43,7 @@ namespace edm {
       // ---------- member functions ---------------------------
       ///returns true if found an EDProducer and ran it
       bool tryToFill(std::string const& label,
-                     EventPrincipal& iEvent,
+                     EventPrincipal const & iEvent,
                      ModuleCallingContext const* mcc) const;
 
       void setEventSetup(EventSetup const& iSetup) {
@@ -52,7 +52,7 @@ namespace edm {
    private:
 
       virtual bool tryToFillImpl(std::string const&,
-                                 EventPrincipal&,
+                                 EventPrincipal const&,
                                  EventSetup const&,
                                  ModuleCallingContext const* mcc) const = 0;
       // ---------- member data --------------------------------

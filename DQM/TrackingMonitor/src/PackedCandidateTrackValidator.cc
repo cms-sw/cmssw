@@ -183,8 +183,8 @@ namespace {
     static std::string maxName() { return "max"; }
     static std::string minName() { return "min"; }
 
-    UnderOverflow underOverflowHelper(std::function<double(double)> modifyUnpack) const {
-      return UnderOverflow(largestValue(), smallestValue(), modifyUnpack);
+    UnderOverflow underOverflowHelper(double value, std::function<double(double)> modifyUnpack) const {
+      return UnderOverflow(largestValue(), value >= 0 ? smallestPositiveValue() : std::abs(smallestNegativeValue()), modifyUnpack);
     }
 
     double largestValue() const {
@@ -195,8 +195,20 @@ namespace {
       return false;
     }
 
-    double smallestValue() const {
-      return logintpack::unpack8log(0, lmin_, lmax_);
+    // lessThan means closer to zero
+    bool lessThanSmallestValue(double value) const {
+      if(value >= 0)
+        return value < smallestPositiveValue();
+      else
+        return value > smallestNegativeValue();
+    }
+
+    double smallestPositiveValue() const {
+      return logintpack::unpack8log(logintpack::smallestPositive, lmin_, lmax_);
+    }
+
+    double smallestNegativeValue() const {
+      return logintpack::unpack8log(logintpack::smallestNegative, lmin_, lmax_);
     }
 
   private:
@@ -224,7 +236,7 @@ namespace {
     static std::string maxName() { return "inf"; }
     static std::string minName() { return "0"; }
 
-    static UnderOverflow underOverflowHelper(std::function<double(double)>) {
+    static UnderOverflow underOverflowHelper(double value, std::function<double(double)>) {
       return UnderOverflow();
     }
 
@@ -235,6 +247,10 @@ namespace {
     static bool wouldBeDenorm(double value) {
       const float valuef = static_cast<float>(value);
       return valuef >= MiniFloatConverter::denorm_min() && valuef < MiniFloatConverter::min();
+    }
+
+    static bool lessThanSmallestValue(double value) {
+      return std::abs(value) < smallestValue();
     }
 
     static double smallestValue() {
@@ -346,8 +362,9 @@ namespace {
                 std::function<double(double)> modifyUnpack=std::function<double(double)>()) {
       const auto diff = diffRelative(pcvalue, trackvalue);
 
-      const auto tmp = modifyPack ? std::abs(modifyPack(trackvalue)) : std::abs(trackvalue);
-      const auto underOverflow = helper_.underOverflowHelper(modifyUnpack);
+      const auto tmpSigned = modifyPack ? modifyPack(trackvalue) : trackvalue;
+      const auto tmp = std::abs(tmpSigned);
+      const auto underOverflow = helper_.underOverflowHelper(tmpSigned, modifyUnpack);
       RangeStatus status;
       if(tmp > helper_.largestValue()) {
         fillNoFlow(hUnderOverflowSign, diff);
@@ -358,7 +375,7 @@ namespace {
           status = RangeStatus::overflow_notOK;
         }
       }
-      else if(tmp < helper_.smallestValue()) {
+      else if(helper_.lessThanSmallestValue(tmpSigned)) {
         fillNoFlow(hUnderOverflowSign, diff);
         if(underOverflow.compatibleWithUnderflow(std::abs(pcvalue))) {
           status = RangeStatus::underflow_OK;

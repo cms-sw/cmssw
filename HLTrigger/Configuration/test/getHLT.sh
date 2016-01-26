@@ -1,9 +1,9 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_7_4_0/HLT"              # no explicit version, take te most recent
-TARGET="/dev/CMSSW_7_4_0/\$TABLE"          # no explicit version, take te most recent
-TABLES="GRun HIon PIon 50nsGRun LowPU 25nsLowPU"     # $TABLE in the above variable will be expanded to these TABLES
+MASTER="/dev/CMSSW_8_0_0/HLT"              # no explicit version, take te most recent
+TARGET="/dev/CMSSW_8_0_0/\$TABLE"          # no explicit version, take te most recent
+TABLES="GRun HIon PIon PRef"               # $TABLE in the above variable will be expanded to these TABLES
 
 # print extra messages ?
 VERBOSE=false
@@ -98,11 +98,14 @@ hash -r
 
 # cff python dumps, in CVS under HLTrigger/Configuration/pyhon
 log "Extracting cff python dumps"
+echo "Extracting cff python dumps"
 FILES=$(eval echo HLT_FULL_cff.py HLT_{$TABLES_}_cff.py HLTrigger_Datasets_{$TABLES_}_cff.py HLTrigger_EventContent_cff.py )
 rm -f $FILES
 getConfigForCVS  $MASTER FULL
 getContentForCVS $MASTER
 for TABLE in $TABLES; do
+  log "$TABLE"
+  echo "$TABLE"
   getConfigForCVS $(eval echo $TARGET) $TABLE
   getDatasetsForCVS $(eval echo $TARGET) HLTrigger_Datasets_${TABLE}_cff.py
 done
@@ -113,10 +116,13 @@ log
 
 # full config dumps, in CVS under HLTrigger/Configuration/test
 log "Extracting full configuration dumps"
+echo "Extracting full configuration dumps"
 FILES=$(eval echo OnLine_HLT_FULL.py OnLine_HLT_{$TABLES_}.py)
 rm -f $FILES
 getConfigForOnline $MASTER FULL
 for TABLE in $TABLES; do
+  log "$TABLE"
+  echo "$TABLE"
   getConfigForOnline $(eval echo $TARGET) $TABLE
 done
 log "Done"
