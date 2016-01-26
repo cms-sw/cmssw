@@ -48,6 +48,9 @@
   </class>
   <class name="l1t::MuonBxCollection"/>
   <class name="edm::Wrapper<l1t::MuonBxCollection>"/>
+  <class name="l1t::MuonRef"/>
+  <class name="l1t::MuonRefVector"/>
+  <class name="l1t::MuonVectorRef"/>
 
   <class name="l1t::CaloSpare" ClassVersion="13">
    <version ClassVersion="13" checksum="50826133"/>

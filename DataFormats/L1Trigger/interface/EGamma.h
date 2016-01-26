@@ -10,6 +10,9 @@ namespace l1t {
 
   class EGamma;
   typedef BXVector<EGamma> EGammaBxCollection;
+  typedef edm::Ref< EGammaBxCollection > EGammaRef ;
+  typedef edm::RefVector< EGammaBxCollection > EGammaRefVector ;
+  typedef std::vector< EGammaRef > EGammaVectorRef ;
 
   class EGamma : public L1Candidate {
 
