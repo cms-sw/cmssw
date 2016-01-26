@@ -108,8 +108,8 @@ TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHi
     measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
   const DetLayer * outerLayer =
     measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
-  std::vector<BaseTrackerRecHit const *> innerHits(1,(const BaseTrackerRecHit*)innerHit);
-  std::vector<BaseTrackerRecHit const *> outerHits(1,(const BaseTrackerRecHit*)outerHit);
+  std::vector<BaseTrackerRecHit const *> innerHits(1,(const BaseTrackerRecHit*&&)innerHit);
+  std::vector<BaseTrackerRecHit const *> outerHits(1,(const BaseTrackerRecHit*&&)outerHit);
   for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
     
     const RecHitsSortedInPhi* ihm=new RecHitsSortedInPhi (innerHits, (**ir).origin(), innerLayer);
