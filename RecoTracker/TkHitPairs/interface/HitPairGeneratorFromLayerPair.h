@@ -28,7 +28,7 @@ public:
 
   void hitPairs( const TrackingRegion& reg, OrderedHitPairs & prs,
                  const edm::Event & ev,  const edm::EventSetup& es, Layers layers);
-  static void doublets2(
+  static void doublets(
 						      const TrackingRegion& region,
 						      const DetLayer & innerHitDetLayer,
 						      const DetLayer & outerHitDetLayer,
