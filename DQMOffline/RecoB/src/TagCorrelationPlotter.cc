@@ -8,18 +8,22 @@ using namespace RecoBTag;
 
 TagCorrelationPlotter::TagCorrelationPlotter(const std::string& tagName1, const std::string& tagName2,
                                              const EtaPtBin& etaPtBin, const edm::ParameterSet& pSet,
-                                             const unsigned int& mc, const bool finalize, DQMStore::IBooker & ibook) :
+                                             const unsigned int& mc, const bool doCTagPlots, const bool finalize, DQMStore::IBooker & ibook) :
 					     BaseBTagPlotter(tagName2 + "_vs_" + tagName1, etaPtBin),
   					     lowerBound1_(pSet.getParameter<double>("Discr1Start")),
   					     lowerBound2_(pSet.getParameter<double>("Discr2Start")),
   					     upperBound1_(pSet.getParameter<double>("Discr1End")),
   					     upperBound2_(pSet.getParameter<double>("Discr2End")),
-                                             createProfile_(pSet.getParameter<bool>("CreateProfile")),
-                                             mcPlots_(mc),finalize_(finalize)
+                                             nBinEffPur_(pSet.getParameter<int>("nBinEffPur")),
+					     startEffPur_(pSet.getParameter<double>("startEffPur")),
+					     endEffPur_(pSet.getParameter<double>("endEffPur")),
+					     createProfile_(pSet.getParameter<bool>("CreateProfile")),
+                                             fixedEff_(pSet.getParameter<vector<double>>("fixedEff")),
+					     mcPlots_(mc), doCTagPlots_(doCTagPlots), finalize_(finalize)
   {
   if(finalize_) return;  
   correlationHisto_ = new FlavourHistograms2D<double, double>("correlation" + theExtensionString, tagName2 + " discr vs " + tagName1 + " discr",
-                                                              50, lowerBound1_, upperBound1_, 50, lowerBound2_, upperBound2_, false, 
+                                                              102, lowerBound1_, upperBound1_, 102, lowerBound2_, upperBound2_, false, 
                                                               "TagCorrelation" + theExtensionString, mc, createProfile_, ibook);
   correlationHisto_->settitle(tagName1.c_str(), tagName2.c_str());
 }
@@ -54,12 +58,11 @@ void TagCorrelationPlotter::finalize(DQMStore::IBooker & ibook_, DQMStore::IGett
 {
 
   correlationHisto_ = new FlavourHistograms2D<double, double>("correlation" + theExtensionString, " discr vs discr",
-                                                              50, lowerBound1_, upperBound1_, 50, lowerBound2_, upperBound2_,
+                                                              102, lowerBound1_, upperBound1_, 102, lowerBound2_, upperBound2_,
                                                               "TagCorrelation" + theExtensionString, mcPlots_, createProfile_, igetter_);
 
   effPurFromHistos2D = new EffPurFromHistos2D ( correlationHisto_, "TagCorrelation" + theExtensionString, mcPlots_, ibook_, 
-					   50 , lowerBound1_, upperBound1_, 50, lowerBound2_, upperBound2_);
-	effPurFromHistos2D->doCTagPlots(doCTagPlots_);
-  effPurFromHistos2D->compute(ibook_);  
-
+						nBinEffPur_, startEffPur_, endEffPur_);
+  effPurFromHistos2D->doCTagPlots(doCTagPlots_);
+  effPurFromHistos2D->compute(ibook_, fixedEff_);  
 }

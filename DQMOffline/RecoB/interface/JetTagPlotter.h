@@ -13,7 +13,6 @@
 
 class JetTagPlotter : public BaseBTagPlotter {
 
-
  public:
 
   JetTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
@@ -36,7 +35,6 @@ class JetTagPlotter : public BaseBTagPlotter {
   EffPurFromHistos * getEffPurFromHistos () { return effPurFromHistos ; }
 
   void epsPlot(const std::string & name);
-
   void psPlot(const std::string & name);
 
   int nBinEffPur() const {return nBinEffPur_;}
@@ -82,7 +80,6 @@ class JetTagPlotter : public BaseBTagPlotter {
 
   // reconstructed jet phi
   FlavourHistograms<double> * dJetRecPhi;
-
-} ;
+};
 
 #endif

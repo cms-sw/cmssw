@@ -10,10 +10,7 @@
 
 #include <string>
 
-//class DQMStore;
-
 class EffPurFromHistos {
-
 
  public:
 
@@ -22,12 +19,9 @@ class EffPurFromHistos {
 		     TH1F * h_dus, TH1F * h_dusg, TH1F * h_pu, 
 		     const std::string& label, const unsigned int& mc,
 		     int nBin = 100 , double startO = 0.005 , double endO = 1.005 ) ;
-	// defaults reasonable for lifetime based tags
 
   EffPurFromHistos (const FlavourHistograms<double> * dDiscriminatorFC, const std::string& label, const unsigned int& mc, 
-		    DQMStore::IBooker & ibook,
-		    int nBin = 100 , double startO = 0.005 , double endO = 1.005 ) ;
-	// defaults reasonable for lifetime based tags
+		    DQMStore::IBooker & ibook, int nBin = 100 , double startO = 0.005 , double endO = 1.005 ) ;
 
   ~EffPurFromHistos () ;
 
@@ -48,14 +42,10 @@ class EffPurFromHistos {
 
  
   void epsPlot(const std::string & name);
-
   void psPlot(const std::string & name);
 
   void plot(TPad * theCanvas = 0) ;
-
   void plot(const std::string & name, const std::string & ext);
-
-//   void print () const ;
 
   FlavourHistograms<double> * discriminatorNoCutEffic() const {return discrNoCutEffic;}
   FlavourHistograms<double> * discriminatorCutEfficScan() const {return discrCutEfficScan;}
@@ -64,12 +54,13 @@ class EffPurFromHistos {
  
  private:
 
-
   // consistency check (same binning)
   void check () ;
   bool fromDiscriminatorDistr;
 
-
+  unsigned int mcPlots_;
+  bool doCTagPlots_;
+  std::string label_;
   // the string for the histo name extension
   std::string histoExtension ;
 
@@ -90,16 +81,12 @@ class EffPurFromHistos {
   TH1F * effVersusDiscr_dusg ;
   TH1F * effVersusDiscr_pu   ;
 
-
   // the corresponding output histograms (flavour-eff vs. b-efficiency)
 
   // binning for output histograms
   int   nBinOutput ;
   double startOutput ;
   double endOutput ;
-
-  unsigned int mcPlots_;
-  bool doCTagPlots_;
 
   MonitorElement * EffFlavVsXEff_d    ;
   MonitorElement * EffFlavVsXEff_u    ;
@@ -111,10 +98,6 @@ class EffPurFromHistos {
   MonitorElement * EffFlavVsXEff_dus  ;
   MonitorElement * EffFlavVsXEff_dusg ;
   MonitorElement * EffFlavVsXEff_pu   ;
- 
-  //  DQMStore * dqmStore_; 
-  std::string label_;
-
-} ;
+};
 
 #endif

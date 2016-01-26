@@ -67,6 +67,7 @@ public:
   // needed for efficiency computations -> this / b
   // (void : alternative would be not to overwrite the histos but to return a cloned HistoDescription)
   void divide ( const FlavourHistograms2D<T, G> & bHD ) const ;
+  void setEfficiencyFlag();
 
   inline void SetMaximum(const double& max) { theMax = max;}
   inline void SetMinimum(const double& min) { theMin = min;}
@@ -703,6 +704,24 @@ void FlavourHistograms2D<T, G>::divide ( const FlavourHistograms2D<T, G> & bHD )
     }
 }
   
+template <class T, class G>
+void FlavourHistograms2D<T, G>::setEfficiencyFlag(){
+  if(theHisto_all) theHisto_all ->setEfficiencyFlag();
+  if (mcPlots_) {
+    if (mcPlots_>2 ) {
+      theHisto_d    ->setEfficiencyFlag();
+      theHisto_u    ->setEfficiencyFlag();
+      theHisto_s    ->setEfficiencyFlag();
+      theHisto_g    ->setEfficiencyFlag();
+      theHisto_dus  ->setEfficiencyFlag();
+    }
+    theHisto_c    ->setEfficiencyFlag();
+    theHisto_b    ->setEfficiencyFlag();
+    theHisto_ni   ->setEfficiencyFlag();
+    theHisto_dusg ->setEfficiencyFlag();
+    theHisto_pu   ->setEfficiencyFlag();
+  }
+}
 
 template <class T, class G>
   void FlavourHistograms2D<T, G>::fillVariable ( const int & flavour , const T & varX , const G & varY , const float & w) const {
