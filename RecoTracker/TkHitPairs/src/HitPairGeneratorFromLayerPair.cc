@@ -102,7 +102,7 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
   const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region, iEvent, iSetup);
   if (outerHitsMap.empty()) return HitDoublets(innerHitsMap,outerHitsMap);
   HitDoublets result(innerHitsMap,outerHitsMap); result.reserve(std::max(innerHitsMap.size(),outerHitsMap.size()));
-  doublets2(region,
+  doublets(region,
 	   *innerLayerObj.detLayer(),*outerLayerObj.detLayer(),
 	   innerHitsMap,outerHitsMap,iSetup,theMaxElement,result);
   return result;
@@ -182,7 +182,6 @@ void HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region,
   }
   LogDebug("HitPairGeneratorFromLayerPair")<<" total number of pairs provided back: "<<result.size();
   result.shrink_to_fit();
-  //return result;
 
 }
 
