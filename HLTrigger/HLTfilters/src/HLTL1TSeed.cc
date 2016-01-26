@@ -73,18 +73,6 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
   //    m_l1GlobalDecision = true;
   //}
 
-
-  cout << "DEBUG:  muonCollectionsTag:  " << muonCollectionsTag_ << "\n";
-  cout << "DEBUG:  muonTag:  " << muonTag_ << "\n";
-  cout << "DEBUG:  egammaCollectionsTag:  " << egammaCollectionsTag_ << "\n";
-  cout << "DEBUG:  egammaTag:  " << egammaTag_ << "\n";
-  cout << "DEBUG:  jetCollectionsTag:  " << jetCollectionsTag_ << "\n";
-  cout << "DEBUG:  jetTag:  " << jetTag_ << "\n";
-  cout << "DEBUG:  tauCollectionsTag:  " << tauCollectionsTag_ << "\n";
-  cout << "DEBUG:  tauTag:  " << tauTag_ << "\n";
-  cout << "DEBUG:  etsumCollectionsTag:  " << etsumCollectionsTag_ << "\n";
-  cout << "DEBUG:  etsumTag:  " << etsumTag_ << "\n";
-
   //LogDebug("HLTL1TSeed") 
   //<< "\n";
     //<< "L1 Seeding using L1 trigger object maps:       "
@@ -135,8 +123,6 @@ HLTL1TSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 bool HLTL1TSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
 
-  cout << "MY SIZE of FILTERPRODUCT:  " << filterproduct.getCollectionTagsAsStrings().size() << "\n";
-
   // the filter object
   if (saveTags()) {
     
@@ -158,9 +144,6 @@ bool HLTL1TSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, t
   
   //seedsL1TriggerObjectMaps(iEvent, filterproduct, l1GtTmAlgo.product(), gtReadoutRecordPtr, physicsDaqPartition))
   seedsAll(iEvent, filterproduct);
-
-  cout << "NEW SIZE of FILTERPRODUCT:  " << filterproduct.getCollectionTagsAsStrings().size() << "\n";
-  cout << "m_isDebugEnabled = " << m_isDebugEnabled << endl;
 
   if (m_isDebugEnabled) {
         dumpTriggerFilterObjectWithRefs(filterproduct);
@@ -191,7 +174,6 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
 	<< "\nNo muons added to filterproduct."
 	<< endl;	
     } else {
-      cout << "DEBUG: L1T adding muons to filterproduct...\n";
 
       l1t::MuonBxCollection::const_iterator iter;
       for (iter = muons->begin(0); iter != muons->end(0); ++iter){
@@ -215,13 +197,12 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
 	<< "\nNo egammas added to filterproduct."
 	<< endl;	
     } else {
-      cout << "DEBUG: L1T adding egammas to filterproduct...\n";
 
       l1t::EGammaBxCollection::const_iterator iter;
       for (iter = egammas->begin(0); iter != egammas->end(0); ++iter){
 	//objectsInFilter = true;
 	l1t::EGammaRef myref(egammas, egammas->key(iter));
-	filterproduct.addObject(trigger::TriggerL1NoIsoEG, myref); // Temp just use NoIsoEG
+	filterproduct.addObject(trigger::TriggerL1EG, myref);
       }
     }
 
@@ -239,13 +220,12 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
 	<< "\nNo jets added to filterproduct."
 	<< endl;	
     } else {
-      cout << "DEBUG: L1T adding jets to filterproduct...\n";
 
       l1t::JetBxCollection::const_iterator iter;
       for (iter = jets->begin(0); iter != jets->end(0); ++iter){
 	//objectsInFilter = true;
 	l1t::JetRef myref(jets, jets->key(iter));
-	filterproduct.addObject(trigger::TriggerL1CenJet, myref); // Temp just use CenJet
+	filterproduct.addObject(trigger::TriggerL1Jet, myref); 
       }
     }
 
@@ -263,13 +243,12 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
 	<< "\nNo taus added to filterproduct."
 	<< endl;	
     } else {
-      cout << "DEBUG: L1T adding taus to filterproduct...\n";
 
       l1t::TauBxCollection::const_iterator iter;
       for (iter = taus->begin(0); iter != taus->end(0); ++iter){
 	//objectsInFilter = true;
 	l1t::TauRef myref(taus, taus->key(iter));
-	filterproduct.addObject(trigger::TriggerL1TauJet, myref); // Temp just use TauJet
+	filterproduct.addObject(trigger::TriggerL1Tau, myref); 
       }
     }
 
@@ -287,13 +266,27 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
 	<< "\nNo etsums added to filterproduct."
 	<< endl;	
     } else {
-      cout << "DEBUG: L1T adding etsums to filterproduct...\n";
 
       l1t::EtSumBxCollection::const_iterator iter;
       for (iter = etsums->begin(0); iter != etsums->end(0); ++iter){
 	//objectsInFilter = true;
 	l1t::EtSumRef myref(etsums, etsums->key(iter));
-	filterproduct.addObject(trigger::TriggerL1ETT, myref); // Temp just use ETT
+        switch(iter->getType()) {
+          case l1t::EtSum::kTotalEt : 
+	    filterproduct.addObject(trigger::TriggerL1ETT, myref); 
+            break;
+          case l1t::EtSum::kTotalHt : 
+	    filterproduct.addObject(trigger::TriggerL1HTT, myref); 
+            break;
+          case l1t::EtSum::kMissingEt: 
+	    filterproduct.addObject(trigger::TriggerL1ETM, myref); 
+            break;
+          case l1t::EtSum::kMissingHt: 
+	    filterproduct.addObject(trigger::TriggerL1HTM, myref); 
+            break;
+          default:
+            LogTrace("HLTL1TSeed") << "  L1EtSum seed of currently unsuported HLT TriggerType. l1t::EtSum type:      " << iter->getType() << "\n";
+        }
       }
     }
 
@@ -326,7 +319,7 @@ void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWit
   filterproduct.getObjects(trigger::TriggerL1Mu, seedsL1Mu);
   const size_t sizeSeedsL1Mu = seedsL1Mu.size();
 
-  LogTrace("HLTL1TSeed") << "  L1Mu seeds:      " << sizeSeedsL1Mu << "\n"
+  LogTrace("HLTL1TSeed") << "\n  L1Mu seeds:      " << sizeSeedsL1Mu << "\n"
 			 << endl;
 
   for (size_t i = 0; i != sizeSeedsL1Mu; i++) {
@@ -334,17 +327,16 @@ void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWit
     
     l1t::MuonRef obj = l1t::MuonRef( seedsL1Mu[i]);
     
-        LogTrace("HLTL1TSeed") << "L1Mu     " << "\t" << "q*PT = "
-                << obj->charge() * obj->pt() << "\t" << "eta =  " << obj->eta()
+        LogTrace("HLTL1TSeed") << "L1Mu     " << "\t" << "q = " << obj->hwCharge()  // TEMP get hwCharge insead of charge which is not yet set NEED FIX.
+                << "\t" << "pt = " << obj->pt() << "\t" << "eta =  " << obj->eta()
                 << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
 
   vector<l1t::EGammaRef> seedsL1EG;
-  // !!! FIXME: trigger::TriggerL1EG does not exist.  Using trigger::TriggerNoIsoL1EG
-  filterproduct.getObjects(trigger::TriggerL1NoIsoEG, seedsL1EG);
+  filterproduct.getObjects(trigger::TriggerL1EG, seedsL1EG);
   const size_t sizeSeedsL1EG = seedsL1EG.size();
 
-  LogTrace("HLTL1TSeed") << "  L1EG seeds:      " << sizeSeedsL1EG << "\n"
+  LogTrace("HLTL1TSeed") << "\n  L1EG seeds:      " << sizeSeedsL1EG << "\n"
 			 << endl;
 
   for (size_t i = 0; i != sizeSeedsL1EG; i++) {
@@ -352,17 +344,16 @@ void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWit
     
     l1t::EGammaRef obj = l1t::EGammaRef( seedsL1EG[i]);
     
-        LogTrace("HLTL1TSeed") << "L1EG     " << "\t" << "q*PT = "
-                << obj->charge() * obj->pt() << "\t" << "eta =  " << obj->eta()
+        LogTrace("HLTL1TSeed") << "L1EG     " << "\t" << "pt = "
+                << obj->pt() << "\t" << "eta =  " << obj->eta()
                 << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
 
   vector<l1t::JetRef> seedsL1Jet;
-  // !!! FIXME: trigger::TriggerL1Jet does not exist.  Using trigger::TriggerCenJet
-  filterproduct.getObjects(trigger::TriggerL1CenJet, seedsL1Jet);
+  filterproduct.getObjects(trigger::TriggerL1Jet, seedsL1Jet);
   const size_t sizeSeedsL1Jet = seedsL1Jet.size();
 
-  LogTrace("HLTL1TSeed") << "  L1Jet seeds:      " << sizeSeedsL1Jet << "\n"
+  LogTrace("HLTL1TSeed") << "\n  L1Jet seeds:      " << sizeSeedsL1Jet << "\n"
 			 << endl;
 
   for (size_t i = 0; i != sizeSeedsL1Jet; i++) {
@@ -370,44 +361,76 @@ void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWit
     
     l1t::JetRef obj = l1t::JetRef( seedsL1Jet[i]);
     
-        LogTrace("HLTL1TSeed") << "L1Jet     " << "\t" << "q*PT = "
-                << obj->charge() * obj->pt() << "\t" << "eta =  " << obj->eta()
+        LogTrace("HLTL1TSeed") << "L1Jet     " << "\t" << "pt = "
+                << obj->pt() << "\t" << "eta =  " << obj->eta()
                 << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
 
   vector<l1t::TauRef> seedsL1Tau;
-  // !!! FIXME: trigger::TriggerL1Tau does not exist.  Using trigger::TriggerTauJet
-  filterproduct.getObjects(trigger::TriggerL1TauJet, seedsL1Tau);
+  filterproduct.getObjects(trigger::TriggerL1Tau, seedsL1Tau);
   const size_t sizeSeedsL1Tau = seedsL1Tau.size();
 
-  LogTrace("HLTL1TSeed") << "  L1Tau seeds:      " << sizeSeedsL1Tau << "\n"
-			 << endl;
+  LogTrace("HLTL1TSeed") << "\n  L1Tau seeds:      " << sizeSeedsL1Tau << "\n" << endl;
 
   for (size_t i = 0; i != sizeSeedsL1Tau; i++) {
 
     
     l1t::TauRef obj = l1t::TauRef( seedsL1Tau[i]);
     
-        LogTrace("HLTL1TSeed") << "L1Tau     " << "\t" << "q*PT = "
-                << obj->charge() * obj->pt() << "\t" << "eta =  " << obj->eta()
+        LogTrace("HLTL1TSeed") << "L1Tau     " << "\t" << "pt = "
+                << obj->pt() << "\t" << "eta =  " << obj->eta()
                 << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
 
-  vector<l1t::EtSumRef> seedsL1EtSum;
-  // !!! FIXME: trigger::TriggerL1EtSum does not exist.  Using trigger::TriggerETT
-  filterproduct.getObjects(trigger::TriggerL1ETT, seedsL1EtSum);
-  const size_t sizeSeedsL1EtSum = seedsL1EtSum.size();
+  vector<l1t::EtSumRef> seedsL1EtSumETT;
+  filterproduct.getObjects(trigger::TriggerL1ETT, seedsL1EtSumETT);
+  const size_t sizeSeedsL1EtSumETT = seedsL1EtSumETT.size();
+  LogTrace("HLTL1TSeed") << "\n  L1EtSum ETT seeds:      " << sizeSeedsL1EtSumETT << "\n" << endl;
 
-  LogTrace("HLTL1TSeed") << "  L1EtSum seeds:      " << sizeSeedsL1EtSum << "\n"
-			 << endl;
-
-  for (size_t i = 0; i != sizeSeedsL1EtSum; i++) {
-
+  for (size_t i = 0; i != sizeSeedsL1EtSumETT; i++) { 
+    l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumETT[i]);
     
-    l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSum[i]);
+    LogTrace("HLTL1TSeed") << "L1EtSum  ETT" << "\t" << "pt = "
+                << obj->pt() << "\t" << "eta =  " << obj->eta()
+                << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
+  }
+
+  vector<l1t::EtSumRef> seedsL1EtSumHTT;
+  filterproduct.getObjects(trigger::TriggerL1HTT, seedsL1EtSumHTT);
+  const size_t sizeSeedsL1EtSumHTT = seedsL1EtSumHTT.size();
+  LogTrace("HLTL1TSeed") << "\n  L1EtSum HTT seeds:      " << sizeSeedsL1EtSumHTT << "\n" << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1EtSumHTT; i++) { 
+    l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumHTT[i]);
     
-        LogTrace("HLTL1TSeed") << "L1EtSum     " << "\t" << "q*PT = "
-                << obj->charge() * obj->pt() << "\t" << "eta =  " << obj->eta()
+    LogTrace("HLTL1TSeed") << "L1EtSum  HTT" << "\t" << "pt = "
+                << obj->pt() << "\t" << "eta =  " << obj->eta()
+                << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
+  }
+
+  vector<l1t::EtSumRef> seedsL1EtSumETM;
+  filterproduct.getObjects(trigger::TriggerL1ETM, seedsL1EtSumETM);
+  const size_t sizeSeedsL1EtSumETM = seedsL1EtSumETM.size();
+  LogTrace("HLTL1TSeed") << "\n  L1EtSum ETM seeds:      " << sizeSeedsL1EtSumETM << "\n" << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1EtSumETM; i++) { 
+    l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumETM[i]);
+    
+    LogTrace("HLTL1TSeed") << "L1EtSum  ETM" << "\t" << "pt = "
+                << obj->pt() << "\t" << "eta =  " << obj->eta()
+                << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
+  }
+
+  vector<l1t::EtSumRef> seedsL1EtSumHTM;
+  filterproduct.getObjects(trigger::TriggerL1HTM, seedsL1EtSumHTM);
+  const size_t sizeSeedsL1EtSumHTM = seedsL1EtSumHTM.size();
+  LogTrace("HLTL1TSeed") << "\n  L1EtSum HTM seeds:      " << sizeSeedsL1EtSumHTM << "\n" << endl;
+
+  for (size_t i = 0; i != sizeSeedsL1EtSumHTM; i++) { 
+    l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumHTM[i]);
+    
+    LogTrace("HLTL1TSeed") << "L1EtSum  HTM" << "\t" << "pt = "
+                << obj->pt() << "\t" << "eta =  " << obj->eta()
                 << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
 
