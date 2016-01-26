@@ -19,6 +19,9 @@ namespace l1t {
       enum input_t {
         PT, PT_COARSE, PHI, ETA, ETA_COARSE, QUALITY, DELTA_ETA_RED, DELTA_PHI_RED, ENERGYSUM
       };
+      enum output_t {
+        ETA_OUT, PHI_OUT
+      };
 
       typedef std::pair<input_t, int> PortType;
       typedef RegionalMuonCandBxCollection InputCollection;

@@ -44,14 +44,14 @@ process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
 process.L1TMuonSeq = cms.Sequence( process.esProd          
                                    + process.simOmtfDigis 
-#                                   + process.dumpED
-#                                   + process.dumpES
+                                   + process.dumpED
+                                   + process.dumpES
 )
 
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 
 process.out = cms.OutputModule("PoolOutputModule", 
-   fileName = cms.untracked.string("l1tomtf.root")
+   fileName = cms.untracked.string("l1tomtf_superprimitives1.root")
 )
 
 process.output_step = cms.EndPath(process.out)

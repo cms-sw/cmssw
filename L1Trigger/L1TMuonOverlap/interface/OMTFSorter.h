@@ -28,11 +28,6 @@ class OMTFSorter{
 			    int charge=0);
 
   ///Sort all processor results.
-  ///First for each region cone find a best candidate using sortRegionResults()
-  ///Then select best candidate amongs found for each logic region
-  l1t::RegionalMuonCand sortProcessor(const std::vector<OMTFProcessor::resultsMap> & procResults,
-						int charge=0);
-  //
   void sortProcessor(const std::vector<OMTFProcessor::resultsMap> & procResults,
 		     l1t::RegionalMuonCandBxCollection & sortedCands,
 		     int bx, int charge=0);

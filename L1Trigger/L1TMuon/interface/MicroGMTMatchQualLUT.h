@@ -15,7 +15,7 @@ namespace l1t {
     class MicroGMTMatchQualLUT : public MicroGMTLUT {
       public:
         MicroGMTMatchQualLUT() {};
-        explicit MicroGMTMatchQualLUT(const std::string&, cancel_t cancelType);
+        explicit MicroGMTMatchQualLUT(const std::string&, const double, cancel_t cancelType);
         virtual ~MicroGMTMatchQualLUT() {};
 
         int lookup(int dEta, int dPhi) const;
@@ -33,6 +33,8 @@ namespace l1t {
 
         double m_etaScale;
         double m_phiScale;
+
+        double m_maxDR;
 
         cancel_t m_cancelType;
     };

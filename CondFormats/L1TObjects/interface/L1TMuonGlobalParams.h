@@ -40,26 +40,48 @@ public:
         relIsoCheckMem=1,
         idxSelMemPhi=2,
         idxSelMemEta=3,
-        brlSingleMatchQual=4,
-        fwdPosSingleMatchQual=5,
-        fwdNegSingleMatchQual=6,
-        ovlPosSingleMatchQual=7,
-        ovlNegSingleMatchQual=8,
-        bOPosMatchQual=9,
-        bONegMatchQual=10,
-        fOPosMatchQual=11,
-        fONegMatchQual=12,
-        bPhiExtrapolation=13,
-        oPhiExtrapolation=14,
-        fPhiExtrapolation=15,
-        bEtaExtrapolation=16,
-        oEtaExtrapolation=17,
-        fEtaExtrapolation=18,
-        sortRank=19,
-	NUM_CALOPARAMNODES=20
+        fwdPosSingleMatchQual=4,
+        fwdNegSingleMatchQual=5,
+        ovlPosSingleMatchQual=6,
+        ovlNegSingleMatchQual=7,
+        bOPosMatchQual=8,
+        bONegMatchQual=9,
+        fOPosMatchQual=10,
+        fONegMatchQual=11,
+        bPhiExtrapolation=12,
+        oPhiExtrapolation=13,
+        fPhiExtrapolation=14,
+        bEtaExtrapolation=15,
+        oEtaExtrapolation=16,
+        fEtaExtrapolation=17,
+        sortRank=18,
+        NUM_GMTPARAMNODES=19
+        //brlSingleMatchQual=4,
+        //fwdPosSingleMatchQual=5,
+        //fwdNegSingleMatchQual=6,
+        //ovlPosSingleMatchQual=7,
+        //ovlNegSingleMatchQual=8,
+        //bOPosMatchQual=9,
+        //bONegMatchQual=10,
+        //fOPosMatchQual=11,
+        //fONegMatchQual=12,
+        //bPhiExtrapolation=13,
+        //oPhiExtrapolation=14,
+        //fPhiExtrapolation=15,
+        //bEtaExtrapolation=16,
+        //oEtaExtrapolation=17,
+        //fEtaExtrapolation=18,
+        //sortRank=19,
+        //NUM_GMTPARAMNODES=20
   };
 
-  L1TMuonGlobalParams() { version_=Version; pnodes_.resize(NUM_CALOPARAMNODES); }
+  // string parameters indices
+  enum spIdx {fname=0};
+
+  // double parameters indices
+  enum dpIdx {maxdr=0};
+
+  L1TMuonGlobalParams() { version_=Version; pnodes_.resize(NUM_GMTPARAMNODES); }
   ~L1TMuonGlobalParams() {}
 
   // FW version
@@ -71,7 +93,7 @@ public:
   l1t::LUT* relIsoCheckMemLUT()        { return &pnodes_[relIsoCheckMem].LUT_; }
   l1t::LUT* idxSelMemPhiLUT()          { return &pnodes_[idxSelMemPhi].LUT_; }
   l1t::LUT* idxSelMemEtaLUT()          { return &pnodes_[idxSelMemEta].LUT_; }
-  l1t::LUT* brlSingleMatchQualLUT()    { return &pnodes_[brlSingleMatchQual].LUT_; }
+  //l1t::LUT* brlSingleMatchQualLUT()    { return &pnodes_[brlSingleMatchQual].LUT_; }
   l1t::LUT* fwdPosSingleMatchQualLUT() { return &pnodes_[fwdPosSingleMatchQual].LUT_; }
   l1t::LUT* fwdNegSingleMatchQualLUT() { return &pnodes_[fwdNegSingleMatchQual].LUT_; }
   l1t::LUT* ovlPosSingleMatchQualLUT() { return &pnodes_[ovlPosSingleMatchQual].LUT_; }
@@ -91,7 +113,7 @@ public:
   void setRelIsoCheckMemLUT        (const l1t::LUT & lut) { pnodes_[relIsoCheckMem].type_ = "LUT"; pnodes_[relIsoCheckMem].LUT_ = lut; }
   void setIdxSelMemPhiLUT          (const l1t::LUT & lut) { pnodes_[idxSelMemPhi].type_ = "LUT"; pnodes_[idxSelMemPhi].LUT_ = lut; }
   void setIdxSelMemEtaLUT          (const l1t::LUT & lut) { pnodes_[idxSelMemEta].type_ = "LUT"; pnodes_[idxSelMemEta].LUT_ = lut; }
-  void setBrlSingleMatchQualLUT    (const l1t::LUT & lut) { pnodes_[brlSingleMatchQual].type_ = "LUT"; pnodes_[brlSingleMatchQual].LUT_ = lut; }
+  //void setBrlSingleMatchQualLUT    (const l1t::LUT & lut) { pnodes_[brlSingleMatchQual].type_ = "LUT"; pnodes_[brlSingleMatchQual].LUT_ = lut; }
   void setFwdPosSingleMatchQualLUT (const l1t::LUT & lut) { pnodes_[fwdPosSingleMatchQual].type_ = "LUT"; pnodes_[fwdPosSingleMatchQual].LUT_ = lut; }
   void setFwdNegSingleMatchQualLUT (const l1t::LUT & lut) { pnodes_[fwdNegSingleMatchQual].type_ = "LUT"; pnodes_[fwdNegSingleMatchQual].LUT_ = lut; }
   void setOvlPosSingleMatchQualLUT (const l1t::LUT & lut) { pnodes_[ovlPosSingleMatchQual].type_ = "LUT"; pnodes_[ovlPosSingleMatchQual].LUT_ = lut; }
@@ -109,31 +131,31 @@ public:
   void setSortRankLUT              (const l1t::LUT & lut) { pnodes_[sortRank].type_ = "LUT"; pnodes_[sortRank].LUT_ = lut; }
 
   // LUT paths
-  std::string absIsoCheckMemLUTPath() const        { return pnodes_[absIsoCheckMem].sparams_.size() > 0 ? pnodes_[absIsoCheckMem].sparams_[0] : ""; }
-  std::string relIsoCheckMemLUTPath() const        { return pnodes_[relIsoCheckMem].sparams_.size() > 0 ? pnodes_[relIsoCheckMem].sparams_[0] : ""; }
-  std::string idxSelMemPhiLUTPath() const          { return pnodes_[idxSelMemPhi].sparams_.size() > 0 ? pnodes_[idxSelMemPhi].sparams_[0] : ""; }
-  std::string idxSelMemEtaLUTPath() const          { return pnodes_[idxSelMemEta].sparams_.size() > 0 ? pnodes_[idxSelMemEta].sparams_[0] : ""; }
-  std::string brlSingleMatchQualLUTPath() const    { return pnodes_[brlSingleMatchQual].sparams_.size() > 0 ? pnodes_[brlSingleMatchQual].sparams_[0] : ""; }
-  std::string fwdPosSingleMatchQualLUTPath() const { return pnodes_[fwdPosSingleMatchQual].sparams_.size() > 0 ? pnodes_[fwdPosSingleMatchQual].sparams_[0] : ""; }
-  std::string fwdNegSingleMatchQualLUTPath() const { return pnodes_[fwdNegSingleMatchQual].sparams_.size() > 0 ? pnodes_[fwdNegSingleMatchQual].sparams_[0] : ""; }
-  std::string ovlPosSingleMatchQualLUTPath() const { return pnodes_[ovlPosSingleMatchQual].sparams_.size() > 0 ? pnodes_[ovlPosSingleMatchQual].sparams_[0] : ""; }
-  std::string ovlNegSingleMatchQualLUTPath() const { return pnodes_[ovlNegSingleMatchQual].sparams_.size() > 0 ? pnodes_[ovlNegSingleMatchQual].sparams_[0] : ""; }
-  std::string bOPosMatchQualLUTPath() const        { return pnodes_[bOPosMatchQual].sparams_.size() > 0 ? pnodes_[bOPosMatchQual].sparams_[0] : ""; }
-  std::string bONegMatchQualLUTPath() const        { return pnodes_[bONegMatchQual].sparams_.size() > 0 ? pnodes_[bONegMatchQual].sparams_[0] : ""; }
-  std::string fOPosMatchQualLUTPath() const        { return pnodes_[fOPosMatchQual].sparams_.size() > 0 ? pnodes_[fOPosMatchQual].sparams_[0] : ""; }
-  std::string fONegMatchQualLUTPath() const        { return pnodes_[fONegMatchQual].sparams_.size() > 0 ? pnodes_[fONegMatchQual].sparams_[0] : ""; }
-  std::string bPhiExtrapolationLUTPath() const     { return pnodes_[bPhiExtrapolation].sparams_.size() > 0 ? pnodes_[bPhiExtrapolation].sparams_[0] : ""; }
-  std::string oPhiExtrapolationLUTPath() const     { return pnodes_[oPhiExtrapolation].sparams_.size() > 0 ? pnodes_[oPhiExtrapolation].sparams_[0] : ""; }
-  std::string fPhiExtrapolationLUTPath() const     { return pnodes_[fPhiExtrapolation].sparams_.size() > 0 ? pnodes_[fPhiExtrapolation].sparams_[0] : ""; }
-  std::string bEtaExtrapolationLUTPath() const     { return pnodes_[bEtaExtrapolation].sparams_.size() > 0 ? pnodes_[bEtaExtrapolation].sparams_[0] : ""; }
-  std::string oEtaExtrapolationLUTPath() const     { return pnodes_[oEtaExtrapolation].sparams_.size() > 0 ? pnodes_[oEtaExtrapolation].sparams_[0] : ""; }
-  std::string fEtaExtrapolationLUTPath() const     { return pnodes_[fEtaExtrapolation].sparams_.size() > 0 ? pnodes_[fEtaExtrapolation].sparams_[0] : ""; }
-  std::string sortRankLUTPath() const              { return pnodes_[sortRank].sparams_.size() > 0 ? pnodes_[sortRank].sparams_[0] : ""; }
+  std::string absIsoCheckMemLUTPath() const        { return pnodes_[absIsoCheckMem].sparams_.size() > spIdx::fname ? pnodes_[absIsoCheckMem].sparams_[spIdx::fname] : ""; }
+  std::string relIsoCheckMemLUTPath() const        { return pnodes_[relIsoCheckMem].sparams_.size() > spIdx::fname ? pnodes_[relIsoCheckMem].sparams_[spIdx::fname] : ""; }
+  std::string idxSelMemPhiLUTPath() const          { return pnodes_[idxSelMemPhi].sparams_.size() > spIdx::fname ? pnodes_[idxSelMemPhi].sparams_[spIdx::fname] : ""; }
+  std::string idxSelMemEtaLUTPath() const          { return pnodes_[idxSelMemEta].sparams_.size() > spIdx::fname ? pnodes_[idxSelMemEta].sparams_[spIdx::fname] : ""; }
+  //std::string brlSingleMatchQualLUTPath() const    { return pnodes_[brlSingleMatchQual].sparams_.size() > spIdx::fname ? pnodes_[brlSingleMatchQual].sparams_[spIdx::fname] : ""; }
+  std::string fwdPosSingleMatchQualLUTPath() const { return pnodes_[fwdPosSingleMatchQual].sparams_.size() > spIdx::fname ? pnodes_[fwdPosSingleMatchQual].sparams_[spIdx::fname] : ""; }
+  std::string fwdNegSingleMatchQualLUTPath() const { return pnodes_[fwdNegSingleMatchQual].sparams_.size() > spIdx::fname ? pnodes_[fwdNegSingleMatchQual].sparams_[spIdx::fname] : ""; }
+  std::string ovlPosSingleMatchQualLUTPath() const { return pnodes_[ovlPosSingleMatchQual].sparams_.size() > spIdx::fname ? pnodes_[ovlPosSingleMatchQual].sparams_[spIdx::fname] : ""; }
+  std::string ovlNegSingleMatchQualLUTPath() const { return pnodes_[ovlNegSingleMatchQual].sparams_.size() > spIdx::fname ? pnodes_[ovlNegSingleMatchQual].sparams_[spIdx::fname] : ""; }
+  std::string bOPosMatchQualLUTPath() const        { return pnodes_[bOPosMatchQual].sparams_.size() > spIdx::fname ? pnodes_[bOPosMatchQual].sparams_[spIdx::fname] : ""; }
+  std::string bONegMatchQualLUTPath() const        { return pnodes_[bONegMatchQual].sparams_.size() > spIdx::fname ? pnodes_[bONegMatchQual].sparams_[spIdx::fname] : ""; }
+  std::string fOPosMatchQualLUTPath() const        { return pnodes_[fOPosMatchQual].sparams_.size() > spIdx::fname ? pnodes_[fOPosMatchQual].sparams_[spIdx::fname] : ""; }
+  std::string fONegMatchQualLUTPath() const        { return pnodes_[fONegMatchQual].sparams_.size() > spIdx::fname ? pnodes_[fONegMatchQual].sparams_[spIdx::fname] : ""; }
+  std::string bPhiExtrapolationLUTPath() const     { return pnodes_[bPhiExtrapolation].sparams_.size() > spIdx::fname ? pnodes_[bPhiExtrapolation].sparams_[spIdx::fname] : ""; }
+  std::string oPhiExtrapolationLUTPath() const     { return pnodes_[oPhiExtrapolation].sparams_.size() > spIdx::fname ? pnodes_[oPhiExtrapolation].sparams_[spIdx::fname] : ""; }
+  std::string fPhiExtrapolationLUTPath() const     { return pnodes_[fPhiExtrapolation].sparams_.size() > spIdx::fname ? pnodes_[fPhiExtrapolation].sparams_[spIdx::fname] : ""; }
+  std::string bEtaExtrapolationLUTPath() const     { return pnodes_[bEtaExtrapolation].sparams_.size() > spIdx::fname ? pnodes_[bEtaExtrapolation].sparams_[spIdx::fname] : ""; }
+  std::string oEtaExtrapolationLUTPath() const     { return pnodes_[oEtaExtrapolation].sparams_.size() > spIdx::fname ? pnodes_[oEtaExtrapolation].sparams_[spIdx::fname] : ""; }
+  std::string fEtaExtrapolationLUTPath() const     { return pnodes_[fEtaExtrapolation].sparams_.size() > spIdx::fname ? pnodes_[fEtaExtrapolation].sparams_[spIdx::fname] : ""; }
+  std::string sortRankLUTPath() const              { return pnodes_[sortRank].sparams_.size() > spIdx::fname ? pnodes_[sortRank].sparams_[spIdx::fname] : ""; }
   void setAbsIsoCheckMemLUTPath        (std::string path) { pnodes_[absIsoCheckMem].sparams_.push_back(path); }
   void setRelIsoCheckMemLUTPath        (std::string path) { pnodes_[relIsoCheckMem].sparams_.push_back(path); }
   void setIdxSelMemPhiLUTPath          (std::string path) { pnodes_[idxSelMemPhi].sparams_.push_back(path); }
   void setIdxSelMemEtaLUTPath          (std::string path) { pnodes_[idxSelMemEta].sparams_.push_back(path); }
-  void setBrlSingleMatchQualLUTPath    (std::string path) { pnodes_[brlSingleMatchQual].sparams_.push_back(path); }
+  //void setBrlSingleMatchQualLUTPath    (std::string path) { pnodes_[brlSingleMatchQual].sparams_.push_back(path); }
   void setFwdPosSingleMatchQualLUTPath (std::string path) { pnodes_[fwdPosSingleMatchQual].sparams_.push_back(path); }
   void setFwdNegSingleMatchQualLUTPath (std::string path) { pnodes_[fwdNegSingleMatchQual].sparams_.push_back(path); }
   void setOvlPosSingleMatchQualLUTPath (std::string path) { pnodes_[ovlPosSingleMatchQual].sparams_.push_back(path); }
@@ -149,6 +171,26 @@ public:
   void setOEtaExtrapolationLUTPath     (std::string path) { pnodes_[oEtaExtrapolation].sparams_.push_back(path); }
   void setFEtaExtrapolationLUTPath     (std::string path) { pnodes_[fEtaExtrapolation].sparams_.push_back(path); }
   void setSortRankLUTPath              (std::string path) { pnodes_[sortRank].sparams_.push_back(path); }
+
+  // Cancel out LUT max dR
+  //double brlSingleMatchQualLUTMaxDR() const    { return pnodes_[brlSingleMatchQual].dparams_.size() > dpIdx::maxdr ? pnodes_[brlSingleMatchQual].dparams_[dpIdx::maxdr] : 0.; }
+  double fwdPosSingleMatchQualLUTMaxDR() const { return pnodes_[fwdPosSingleMatchQual].dparams_.size() > dpIdx::maxdr ? pnodes_[fwdPosSingleMatchQual].dparams_[dpIdx::maxdr] : 0.; }
+  double fwdNegSingleMatchQualLUTMaxDR() const { return pnodes_[fwdNegSingleMatchQual].dparams_.size() > dpIdx::maxdr ? pnodes_[fwdNegSingleMatchQual].dparams_[dpIdx::maxdr] : 0.; }
+  double ovlPosSingleMatchQualLUTMaxDR() const { return pnodes_[ovlPosSingleMatchQual].dparams_.size() > dpIdx::maxdr ? pnodes_[ovlPosSingleMatchQual].dparams_[dpIdx::maxdr] : 0.; }
+  double ovlNegSingleMatchQualLUTMaxDR() const { return pnodes_[ovlNegSingleMatchQual].dparams_.size() > dpIdx::maxdr ? pnodes_[ovlNegSingleMatchQual].dparams_[dpIdx::maxdr] : 0.; }
+  double bOPosMatchQualLUTMaxDR() const        { return pnodes_[bOPosMatchQual].dparams_.size() > dpIdx::maxdr ? pnodes_[bOPosMatchQual].dparams_[dpIdx::maxdr] : 0.; }
+  double bONegMatchQualLUTMaxDR() const        { return pnodes_[bONegMatchQual].dparams_.size() > dpIdx::maxdr ? pnodes_[bONegMatchQual].dparams_[dpIdx::maxdr] : 0.; }
+  double fOPosMatchQualLUTMaxDR() const        { return pnodes_[fOPosMatchQual].dparams_.size() > dpIdx::maxdr ? pnodes_[fOPosMatchQual].dparams_[dpIdx::maxdr] : 0.; }
+  double fONegMatchQualLUTMaxDR() const        { return pnodes_[fONegMatchQual].dparams_.size() > dpIdx::maxdr ? pnodes_[fONegMatchQual].dparams_[dpIdx::maxdr] : 0.; }
+  //void setBrlSingleMatchQualLUTMaxDR    (double maxDR) { pnodes_[brlSingleMatchQual].dparams_.push_back(maxDR); }
+  void setFwdPosSingleMatchQualLUTMaxDR (double maxDR) { pnodes_[fwdPosSingleMatchQual].dparams_.push_back(maxDR); }
+  void setFwdNegSingleMatchQualLUTMaxDR (double maxDR) { pnodes_[fwdNegSingleMatchQual].dparams_.push_back(maxDR); }
+  void setOvlPosSingleMatchQualLUTMaxDR (double maxDR) { pnodes_[ovlPosSingleMatchQual].dparams_.push_back(maxDR); }
+  void setOvlNegSingleMatchQualLUTMaxDR (double maxDR) { pnodes_[ovlNegSingleMatchQual].dparams_.push_back(maxDR); }
+  void setBOPosMatchQualLUTMaxDR        (double maxDR) { pnodes_[bOPosMatchQual].dparams_.push_back(maxDR); }
+  void setBONegMatchQualLUTMaxDR        (double maxDR) { pnodes_[bONegMatchQual].dparams_.push_back(maxDR); }
+  void setFOPosMatchQualLUTMaxDR        (double maxDR) { pnodes_[fOPosMatchQual].dparams_.push_back(maxDR); }
+  void setFONegMatchQualLUTMaxDR        (double maxDR) { pnodes_[fONegMatchQual].dparams_.push_back(maxDR); }
 
   // print parameters to stream:
   void print(std::ostream&) const;
