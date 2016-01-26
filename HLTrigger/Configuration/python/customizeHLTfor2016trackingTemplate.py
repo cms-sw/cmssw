@@ -1,5 +1,27 @@
 import FWCore.ParameterSet.Config as cms
 
+#####################################################################################
+### this customization is meant for providing the tracking template for 2016
+### it has 3 main parts
+### 0. bug fix in the MeasurementTrackerESProducer module
+### 1. new selectors 
+###    (AnalyticalTrackSelector --> TrackCutClassifier + TrackCollectionFilterCloner)
+###    by using this new track selector modules,
+###    we have to slightly modify the sequence
+### 2. new CCC
+###    in order to cope w/ the strip hit inefficiency we discovered in 2015,
+###    we have to slightly modify the strip CCC
+###    - decrease the CC threshold @ building step 
+###      (HLTSiStripClusterChargeCutLoose --> HLTSiStripClusterChargeCutTiny)
+###    - add a new CCC @ filter step for limiting the timing and the fakerate
+###      for CC between HLTSiStripClusterChargeCutTiny and HLTSiStripClusterChargeCutLoose
+###      allow missing hits (by using new maxCCCLostHits paraemter)
+### 3. speed up
+###    @building step limit MaxDisplacement, MaxSagitta and MinimalTolerance
+###    @filter step make use of seedExtension
+#####################################################################################
+
+
 # reusable functions
 def producers_by_type(process, *types):
     return (module for module in process._Process__producers.values() if module._TypedParameterizable__type in types)
@@ -7,8 +29,7 @@ def producers_by_type(process, *types):
 def esproducers_by_type(process, *types):
     return (module for module in process._Process__esproducers.values() if module._TypedParameterizable__type in types)
 
-
-def customiseFor2016trackingTemplate(process):
+def bug_fix(process):
     # fix 2015 bug
     for module in esproducers_by_type(process, 'MeasurementTrackerESProducer'):
         module.badStripCuts.TOB = cms.PSet(
@@ -27,8 +48,17 @@ def customiseFor2016trackingTemplate(process):
           maxConsecutiveBad = cms.uint32( 2 ),
           maxBad = cms.uint32( 4 )
         )
+    return process
+
+def CCC(process):
 
     # new CCC
+    process.HLTSiStripClusterChargeCutTiny = cms.PSet(  value = cms.double(  800.0 ) )    
+    if hasattr(process,'hltESPChi2ChargeMeasurementEstimator16'): # used by iter1,2,3,4
+	getattr(process,'hltESPChi2ChargeMeasurementEstimator16').clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTiny" ) ) # 2015 HLTSiStripClusterChargeCutLoose
+    if hasattr(process,'hltESPChi2ChargeMeasurementEstimator9'): # used by iter0
+	getattr(process,'hltESPChi2ChargeMeasurementEstimator9').clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTiny" ) ) # 2015 HLTSiStripClusterChargeCutLoose
+
     if hasattr(process, 'HLTIter0PSetTrajectoryFilterIT'):
         getattr(process,'HLTIter0PSetTrajectoryFilterIT').minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutLoose')) # default HLTSiStripClusterChargeCutNone
         getattr(process,'HLTIter0PSetTrajectoryFilterIT').maxCCCLostHits      = cms.int32(1)
@@ -45,19 +75,24 @@ def customiseFor2016trackingTemplate(process):
         getattr(process,'HLTIter4PSetTrajectoryFilterIT').minGoodStripCharge  = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutLoose')) # default HLTSiStripClusterChargeCutNone
         getattr(process,'HLTIter4PSetTrajectoryFilterIT').maxCCCLostHits      = cms.int32(1)
 
+    return process
+
+def speedup_building(process):
     # speed up
+    process.HLTSiStripClusterChargeCutTiny = cms.PSet(  value = cms.double(  800.0 ) )    
     if hasattr(process,'hltESPChi2ChargeMeasurementEstimator16'): # used by iter1,2,3,4
-	getattr(process,'hltESPChi2ChargeMeasurementEstimator16').clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTiny" ) ) # 2015 HLTSiStripClusterChargeCutLoose
 	getattr(process,'hltESPChi2ChargeMeasurementEstimator16').MaxDisplacement  = cms.double(0.5) # default 100
 	getattr(process,'hltESPChi2ChargeMeasurementEstimator16').MaxSagitta       = cms.double(2)   # default -1
 	getattr(process,'hltESPChi2ChargeMeasurementEstimator16').MinimalTolerance = cms.double(0.5) # default 10
  
     if hasattr(process,'hltESPChi2ChargeMeasurementEstimator9'): # used by iter0
-	getattr(process,'hltESPChi2ChargeMeasurementEstimator9').clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTiny" ) ) # 2015 HLTSiStripClusterChargeCutLoose
 	getattr(process,'hltESPChi2ChargeMeasurementEstimator9').MaxDisplacement  = cms.double(0.5) # default 100
 	getattr(process,'hltESPChi2ChargeMeasurementEstimator9').MaxSagitta       = cms.double(2)   # default -1
 	getattr(process,'hltESPChi2ChargeMeasurementEstimator9').MinimalTolerance = cms.double(0.5) # default 10
 
+    return process
+
+def speedup_filtering(process):
     # speed up
     if hasattr(process, 'HLTIter0PSetTrajectoryFilterIT'):
         getattr(process,'HLTIter0PSetTrajectoryFilterIT').seedExtension       = cms.int32(0)
@@ -75,6 +110,10 @@ def customiseFor2016trackingTemplate(process):
         getattr(process,'HLTIter4PSetTrajectoryFilterIT').seedExtension       = cms.int32(0)
         getattr(process,'HLTIter4PSetTrajectoryFilterIT').strictSeedExtension = cms.bool(False)
 
+    return process
+
+
+def new_selector(process):
 
     # new selectors
     # iter0
@@ -601,8 +640,15 @@ def customiseFor2016trackingTemplate(process):
         iter2seq = getattr(process,'HLTIterativeTrackingIteration2')
         iter2HP = getattr(process,'hltIter2PFlowTrackSelectionHighPurity')
         iter2seq.insert( iter2seq.index( iter2HP ), process.hltIter2PFlowTrackCutClassifier )
+                
+    return process
 
-            
+def customiseFor2016trackingTemplate(process):
+    bug_fix(process)
+    new_selector(process)
+    CCC(process)
+    speedup_building(process)
+    speedup_filtering(process)
 
     return process
 
