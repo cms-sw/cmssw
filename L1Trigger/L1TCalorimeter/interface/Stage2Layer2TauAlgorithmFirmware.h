@@ -48,7 +48,7 @@ namespace l1t {
     float offsetBarrelH_;
     float offsetEndcapsEH_;
     float offsetEndcapsH_;
-    unsigned int isoLutIndex(int Et, unsigned int nrTowers);
+    unsigned int isoLutIndex(int Et, int hweta, unsigned int nrTowers);
     unsigned int trimMainLutIndex (int neighPos, bool isWe);
     static bool compareTowers (l1t::CaloTower TT1, l1t::CaloTower TT2); // implements operator < for TT
     bool is3x3Maximum (const l1t::CaloTower& tower, const std::vector<CaloTower>& towers, l1t::CaloStage2Nav& caloNav); // is maximum in the 3x3 window? (recompute jet flag)
