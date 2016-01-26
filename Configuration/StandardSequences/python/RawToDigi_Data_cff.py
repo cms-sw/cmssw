@@ -2,12 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.RawToDigi_cff import *
 
-RawToDigi = cms.Sequence(csctfDigis
-                         +dttfDigis
-                         +gctDigis
-                         +gtDigis
-                         +gtEvmDigis
-                         +siPixelDigis
+RawToDigi = cms.Sequence(
+                         siPixelDigis
                          +siStripDigis
                          +ecalDigis
                          +ecalPreshowerDigis
@@ -19,23 +15,6 @@ RawToDigi = cms.Sequence(csctfDigis
                          +scalersRawToDigi
                          +tcdsDigis
                          +L1TRawToDigi)
-
-RawToDigi_woGCT = cms.Sequence(csctfDigis
-                               +dttfDigis
-                               +gtDigis
-                               +gtEvmDigis
-                               +siPixelDigis
-                               +siStripDigis
-                               +ecalDigis
-                               +ecalPreshowerDigis
-                               +hcalDigis
-                               +muonCSCDigis
-                               +muonDTDigis
-                               +muonRPCDigis
-                               +castorDigis
-                               +scalersRawToDigi
-                               +tcdsDigis
-                               +L1TRawToDigi)
 
 ecalDigis.DoRegional = False
 
