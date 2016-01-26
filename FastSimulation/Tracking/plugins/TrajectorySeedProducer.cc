@@ -43,7 +43,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-using namespace std;
 template class SeedingTree<TrackingLayer>;
 template class SeedingNode<TrackingLayer>;
 
@@ -109,10 +108,8 @@ TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHi
     measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
   const DetLayer * outerLayer =
     measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
-  vector<BaseTrackerRecHit const *> innerHits;
-  innerHits.push_back((BaseTrackerRecHit*&&)innerHit);
-  vector<BaseTrackerRecHit const *> outerHits;
-  outerHits.push_back((BaseTrackerRecHit*&&)outerHit);
+  std::vector<BaseTrackerRecHit const *> innerHits(1,(const BaseTrackerRecHit*)innerHit)
+  std::vector<BaseTrackerRecHit const *> outerHits(1,(const BaseTrackerRecHit*)outerHit)
   for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
     
     const RecHitsSortedInPhi* ihm=new RecHitsSortedInPhi (innerHits, (**ir).origin(), innerLayer);
@@ -121,7 +118,7 @@ TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHi
     
     HitDoublets result(*ihm,*ohm); 
     
-    HitPairGeneratorFromLayerPair::doublets2(**ir,*innerLayer,*outerLayer,*ihm,*ohm,*es_,0,result);
+    HitPairGeneratorFromLayerPair::doublets(**ir,*innerLayer,*outerLayer,*ihm,*ohm,*es_,0,result);
     
     if(result.size()!=0){
       seedCreator->init(**ir,*es_,0);
