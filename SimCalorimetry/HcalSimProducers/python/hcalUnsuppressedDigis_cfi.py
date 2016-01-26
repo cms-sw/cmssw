@@ -30,6 +30,7 @@ hcalSimBlock = cms.PSet(
     useOldHO = cms.bool(True),
     HBHEUpgradeQIE = cms.bool(True),
     HFUpgradeQIE   = cms.bool(False),
+    HFQIE8         = cms.bool(True),
     HFQIE10        = cms.bool(False),
     #HPDNoiseLibrary = cms.PSet(
     #   FileName = cms.FileInPath("SimCalorimetry/HcalSimAlgos/data/hpdNoiseLibrary.root"),
@@ -51,6 +52,9 @@ hcalSimBlock = cms.PSet(
 from Configuration.StandardSequences.Eras import eras
 if eras.fastSim.isChosen():
     hcalSimBlock.hitsProducer = cms.string('famosSimHits')
+if eras.run2_HF_2016.isChosen():
+    hcalSimBlock.HFQIE8 = cms.bool(True)
+    hcalSimBlock.HFQIE10 = cms.bool(True)
     
 #es_cholesky = cms.ESSource("PoolDBESSource",
 #    CondDBSetup,

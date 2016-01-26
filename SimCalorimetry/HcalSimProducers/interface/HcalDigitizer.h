@@ -75,6 +75,7 @@ private:
   void updateGeometry(const edm::EventSetup& eventSetup);
 
   void buildHOSiPMCells(const std::vector<DetId>& allCells, const edm::EventSetup& eventSetup);
+  void buildHFQIECells(const std::vector<DetId>& allCells, const edm::EventSetup& eventSetup);
 
   //function to evaluate aging at the digi level
   void darkening(std::vector<PCaloHit>& hcalHits);
@@ -143,6 +144,7 @@ private:
   std::vector<DetId> theHBHEDetIds;
   std::vector<DetId> theHOHPDDetIds;
   std::vector<DetId> theHOSiPMDetIds;
+  std::vector<DetId> theHFQIE8DetIds, theHFQIE10DetIds;
 
   bool isZDC,isHCAL,zdcgeo,hbhegeo,hogeo,hfgeo;
   bool relabel_;

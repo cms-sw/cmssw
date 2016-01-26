@@ -159,7 +159,8 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   bool agingFlagHE = ps.getParameter<bool>("HEDarkening");
   bool agingFlagHF = ps.getParameter<bool>("HFDarkening");
   double minFCToDelay= ps.getParameter<double>("minFCToDelay");
-  bool doHFQIE10 = ps.getParameter<bool>("HFQIE10"); //will eventually be replaced by database entry
+  bool doHFQIE10 = ps.getParameter<bool>("HFQIE10");
+  bool doHFQIE8 = ps.getParameter<bool>("HFQIE8");
 
   if(PreMix1 && PreMix2) {
      throw cms::Exception("Configuration")
@@ -269,8 +270,9 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
     theZDCAmplifier->setTimeSlewSim(theTimeSlewSim);
   }
 
-  if (doHFQIE10) {
-    theHFQIE10Digitizer = new QIE10Digitizer(theHFResponse, theHFQIE10ElectronicsSim, doEmpty);
+  if (doHFQIE10 || doHFQIE8) { //QIE8 and QIE10 can coexist in HF
+    if(doHFQIE10) theHFQIE10Digitizer = new QIE10Digitizer(theHFResponse, theHFQIE10ElectronicsSim, doEmpty);
+	if(doHFQIE8) theHFDigitizer = new HFDigitizer(theHFResponse, theHFElectronicsSim, doEmpty);
   }
   else if (doHFUpgrade) {
     theHFUpgradeDigitizer = new UpgradeDigitizer(theHFResponse, theUpgradeHFElectronicsSim, doEmpty);
@@ -684,9 +686,11 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   HcalDigitizerImpl::fillCells(theHBHEDetIds, theHBHEDigitizer, theHBHESiPMDigitizer);
   //HcalDigitizerImpl::fillCells(hoCells, theHODigitizer, theHOSiPMDigitizer);
   buildHOSiPMCells(hoCells, eventSetup);
-  if(theHFDigitizer) theHFDigitizer->setDetIds(hfCells);
+  //handle mixed QIE8/10 scenario in HF
+  if(theHFDigitizer && theHFQIE10Digitizer) buildHFQIECells(hfCells,eventSetup);
+  else if(theHFDigitizer) theHFDigitizer->setDetIds(hfCells);
+  else if(theHFQIE10Digitizer) theHFQIE10Digitizer->setDetIds(hfCells);
   if(theHFUpgradeDigitizer) theHFUpgradeDigitizer->setDetIds(hfCells);
-  if(theHFQIE10Digitizer) theHFQIE10Digitizer->setDetIds(hfCells);
   theZDCDigitizer->setDetIds(zdcCells); 
   if(theHBHEUpgradeDigitizer) {
     theHBHEUpgradeDigitizer->setDetIds(theHBHEDetIds);
@@ -697,6 +701,35 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
 
 }
 
+void HcalDigitizer::buildHFQIECells(const std::vector<DetId>& allCells, const edm::EventSetup & eventSetup) {
+	//if results are already cached, no need to look again
+	if(theHFQIE8DetIds.size()>0 || theHFQIE10DetIds.size()>0) return;
+	
+	//get the QIETypes
+	edm::ESHandle<HcalQIETypes> q;
+    eventSetup.get<HcalQIETypesRcd>().get(q);
+	edm::ESHandle<HcalTopology> htopo;
+    eventSetup.get<HcalRecNumberingRecord>().get(htopo);
+   
+    HcalQIETypes qieTypes(*q.product());
+    if (qieTypes.topo()==0) {
+      qieTypes.setTopo(htopo.product());
+    }
+	
+	for(std::vector<DetId>::const_iterator detItr = allCells.begin(); detItr != allCells.end(); ++detItr) {
+      int qieType = qieTypes.getValues(*detItr)->getValue();
+      if(qieType == HcalQIEType::QIE8) {
+        theHFQIE8DetIds.push_back(*detItr);
+      } else if(qieType == HcalQIEType::QIE10) {
+        theHFQIE10DetIds.push_back(*detItr);
+      } else { //default is QIE8
+        theHFQIE8DetIds.push_back(*detItr);
+      }
+    }
+	
+	theHFDigitizer->setDetIds(theHFQIE8DetIds);
+	theHFQIE10Digitizer->setDetIds(theHFQIE10DetIds);
+}
 
 void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells, const edm::EventSetup & eventSetup) {
   // all HPD
