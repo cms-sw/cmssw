@@ -2,7 +2,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 #include <DQM/L1TMonitor/interface/L1TFED.h>
 DEFINE_FWK_MODULE(L1TFED);
 
@@ -27,14 +26,14 @@ DEFINE_FWK_MODULE(L1TRPCTF);
 #include <DQM/L1TMonitor/interface/L1TGMT.h>
 DEFINE_FWK_MODULE(L1TGMT);
 
+#include <DQM/L1TMonitor/interface/L1TStage2CaloLayer2.h>
+DEFINE_FWK_MODULE(L1TStage2CaloLayer2);
+
 #include <DQM/L1TMonitor/interface/L1TStage2mGMT.h>
 DEFINE_FWK_MODULE(L1TStage2mGMT);
 
 #include <DQM/L1TMonitor/interface/L1TStage2BMTF.h>
 DEFINE_FWK_MODULE(L1TStage2BMTF);
-
-//#include <DQM/L1TMonitor/interface/L1TStage2OMTF.h>
-//DEFINE_FWK_MODULE(L1TStage2OMTF);
 
 #include <DQM/L1TMonitor/interface/L1TGCT.h>
 DEFINE_FWK_MODULE(L1TGCT);
@@ -42,8 +41,8 @@ DEFINE_FWK_MODULE(L1TGCT);
 #include <DQM/L1TMonitor/interface/L1TRCT.h>
 DEFINE_FWK_MODULE(L1TRCT);
 
-//#include "DQM/L1TMonitor/interface/L1TPUM.h"
-//DEFINE_FWK_MODULE(L1TPUM);
+#include "DQM/L1TMonitor/interface/L1TPUM.h"
+DEFINE_FWK_MODULE(L1TPUM);
 
 #include <DQM/L1TMonitor/interface/L1TGT.h>
 DEFINE_FWK_MODULE(L1TGT);

@@ -2,7 +2,7 @@
 #
 #   authors previous versions - see CVS
 #
-#   V.M. Ghete 2011-05-25 revised version of L1 Trigger DQM
+#   Esmaeel Eskandari Tadavani revised version of L1 Trigger DQM
 
 
 import FWCore.ParameterSet.Config as cms
@@ -24,7 +24,7 @@ process.load("DQM.Integration.config.fileinputsource_cfi")
  
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'L1T2016'
-#process.dqmSaver.tag = 'L1T2016'
+process.dqmSaver.tag = 'L1T2016'
 #
 #
 # references needed
@@ -34,14 +34,13 @@ process.dqmEnv.subSystemFolder = 'L1T2016'
 #process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #es_prefer_GlobalTag = cms.ESPrefer('GlobalTag')
 #process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
+
 # Condition for lxplus
 #process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
-
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag.globaltag = cms.string('74X_dataRun2_HLT_v1') 
 
-#process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #-------------------------------------
@@ -55,10 +54,7 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 # l1tMonitor and l1tMonitorEndPathSeq
 
-#/////////////
 process.load("DQM.L1TMonitor.L1TStage2_cff") 
-#process.load("DQM.L1TMonitor.L1T2016_cff")
-#/////////////
 
 #process.load("DQM.L1TMonitor.L1TMonitor_cff")
 # L1 trigger synchronization module - it uses also HltHighLevel filter
@@ -66,12 +62,10 @@ process.load("DQM.L1TMonitor.L1TStage2_cff")
 
 #-------------------------------------
 # paths & schedule for L1 Trigger DQM
-#
-
 # TODO define a L1 trigger L1TriggerRawToDigi in the standard sequence 
 # to avoid all these remove
+
 #process.rawToDigiPath = cms.Path(process.RawToDigi)
-#
 #process.RawToDigi.remove("siPixelDigis")
 #process.RawToDigi.remove("siStripDigis")
 #process.RawToDigi.remove("scalersRawToDigi")
@@ -87,29 +81,17 @@ process.load("DQM.L1TMonitor.L1TStage2_cff")
 #else:
 #process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
 
-#///////////////
 process.l1tMonitorPath = cms.Path(process.l1tStage2online)
-#process.l1tMonitorPath = cms.Path(process.l1t2016Online)
-#//////////////
+
 # separate L1TSync path due to the use of the HltHighLevel filter
 
-
-#
-
-
-#
 #process.l1tMonitorEndPath = cms.EndPath(process.l1tMonitorEndPathSeq)
 
-#
-
-
-#
 process.dqmEndPath = cms.EndPath(
                                  process.dqmEnv *
                                  process.dqmSaver
                                  )
 
-#
 process.schedule = cms.Schedule(#process.rawToDigiPath,
                                 process.l1tMonitorPath,
                                 #process.l1tMonitorEndPath,
@@ -119,51 +101,32 @@ process.schedule = cms.Schedule(#process.rawToDigiPath,
 #---------------------------------------------
 
 # examples for quick fixes in case of troubles 
-#    please do not modify the commented lines
-#
-
-
-#
+# please do not modify the commented lines
 # turn on verbosity in L1TEventInfoClient
-#
-# process.l1tEventInfoClient.verbose = cms.untracked.bool(True)
 
+# process.l1tEventInfoClient.verbose = cms.untracked.bool(True)
 
 # remove module(s) or system sequence from l1tMonitorPath
 #        quality test disabled also
-#
-#process.l1tMonitorOnline.remove(process.bxTiming)
 
+#process.l1tMonitorOnline.remove(process.bxTiming)
 #process.l1tMonitorOnline.remove(process.bxTiming)
 #process.l1tMonitorOnline.remove(process.l1tBPTX)
-
 #process.l1tMonitorOnline.remove(process.l1tLtc)
-
 #process.l1tMonitorOnline.remove(process.l1Dttf)
-
 #process.l1tMonitorOnline.remove(process.l1tCsctf) 
-
 #process.l1tMonitorOnline.remove(process.l1tRpctf)
-
 #process.l1tMonitorOnline.remove(process.l1tGmt)
-
 #process.l1tMonitorOnline.remove(process.l1tGt) 
-
 #process.l1tMonitorOnline.remove(process.l1ExtraDqmSeq)
-
 #process.l1tMonitorOnline.remove(process.l1tRate)
-
 #process.l1tMonitorOnline.remove(process.l1tRctRun1)
-
 #process.l1tMonitorOnline.remove(process.l1tGctSeq)
 
-
 # remove module(s) or system sequence from l1tMonitorEndPath
-#
+
 #process.l1tMonitorEndPathSeq.remove(process.l1s)
 #process.l1tMonitorEndPathSeq.remove(process.l1tscalers)
-
-#
 #process.schedule.remove(process.l1tSyncPath)
 
 #--------------------------------------------------
@@ -207,7 +170,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
     process.bxTiming.FedSource = cms.untracked.InputTag("rawDataRepacker")
     process.l1s.fedRawData = cms.InputTag("rawDataRepacker")
-#    process.gmtStage2Digis.inputLabel = cms.InputTag("rawDataRepacker")
+
 ### process customizations included here
+
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
