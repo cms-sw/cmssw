@@ -238,11 +238,17 @@ if useMCtoGT:
 else:
     process.gtInput = process.fakeL1GTinput.clone()
 
+
+process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
+
+process.menuDumper = cms.EDAnalyzer("L1TUtmTriggerMenuDumper")
+
 process.p1 = cms.Path(
     process.gtInput
 #    *process.dumpGT
     *process.simGlobalStage2Digis
     *process.dumpGTRecord
+    +process.menuDumper
 #    * process.debug
 #    *process.dumpED
 #    *process.dumpES
