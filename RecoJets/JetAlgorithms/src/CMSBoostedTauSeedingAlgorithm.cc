@@ -15,6 +15,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
+
+//CG: From CMSSW 8_0_X cut on eta subjets <3. Anyways taus are cut at 2.3 
+
 //----------------------------------------------------------------------
 
 #include "RecoJets/JetAlgorithms/interface/CMSBoostedTauSeedingAlgorithm.h"
@@ -84,7 +87,7 @@ namespace contrib{
   }
 
   std::pair<PseudoJet, PseudoJet> CMSBoostedTauSeedingAlgorithm::findSubjets(const PseudoJet& jet, int depth, bool& subjetsFound) const 
-  {
+  { float etaMax_=3; //CG: cut on eta subjets <3. Anyways taus are cut at 2.3 
     if ( verbosity_ >= 2 ) {
       std::cout << "<CMSBoostedTauSeedingAlgorithm::findSubjets>:" << std::endl;
       std::cout << " jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << ", mass = " << jet.m() << std::endl;
@@ -102,7 +105,7 @@ namespace contrib{
       double mu = ( jet.m() > 0. ) ? 
 	sqrt(std::max(subjet1.m2(), subjet2.m2())/jet.m2()) : -1.;
       // check if subjets pass selection required for seeding boosted tau reconstruction
-      if ( subjet1.pt() > ptMin_ && subjet2.pt() > ptMin_ && dR > dRMin_ && dR < dRMax_ && mu > muMin_ && mu < muMax_ && kT < (yMax_*jet.m2()) && kT > (yMin_*jet.m2()) ) {
+      if ( subjet1.pt() > ptMin_ && fabs(subjet1.eta()) < etaMax_  && subjet2.pt() > ptMin_ && fabs(subjet2.eta()) < etaMax_ && dR > dRMin_ && dR < dRMax_ && mu > muMin_ && mu < muMax_ && kT < (yMax_*jet.m2()) && kT > (yMin_*jet.m2()) ) {
 	subjetsFound = true;
 	return std::make_pair(subjet1, subjet2); 
       } else if ( subjet1.pt() > ptMin_ ) {
