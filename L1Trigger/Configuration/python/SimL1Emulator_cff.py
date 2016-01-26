@@ -164,12 +164,16 @@ SimL1Emulator = cms.Sequence(
 ##
 ## Make changes for Run 2
 ##
-if eras.stage1L1Trigger.isChosen() :
-    from L1Trigger.L1TCalorimeter.L1TCaloStage1_cff import L1TCaloStage1
-    SimL1Emulator.replace( simGctDigis, L1TCaloStage1 )
+def _modifyStage1L1Trigger(process):
+    import L1Trigger.L1TCalorimeter.L1TCaloStage1_cff
+    if not hasattr(process, "L1TCaloStage1"):
+        process.L1TCaloStage1 = L1Trigger.L1TCalorimeter.L1TCaloStage1_cff.L1TCaloStage1
+    process.SimL1Emulator.replace( process.simGctDigis, process.L1TCaloStage1 )
+modifyStage1L1Trigger = eras.stage1L1Trigger.makeProcessModifier(_modifyStage1L1Trigger)
 
 # fastsim doesn't have the technical triggers
-if eras.fastSim.isChosen():
-    for _entry in [SimL1TechnicalTriggers]:
-        SimL1Emulator.remove(_entry)
+def _modifyFastSim(process):
+    for _entry in [process.SimL1TechnicalTriggers]:
+        process.SimL1Emulator.remove(_entry)
+modifyFastSim_SimL1Emulator = eras.fastSim.makeProcessModifier(_modifyFastSim)
 

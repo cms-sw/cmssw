@@ -516,6 +516,7 @@ class Process(object):
         self.__dict__['_Process__InExtendCall'] = True
 
         seqs = dict()
+        mods = []
         for name in dir(other):
             #'from XX import *' ignores these, and so should we.
             if name.startswith('_'):
@@ -536,7 +537,7 @@ class Process(object):
             elif isinstance(item,_Unlabelable):
                 self.add_(item)
             elif isinstance(item,ProcessModifier):
-                item.apply(self)
+                mods.append(item)
             elif isinstance(item,ProcessFragment):
                 self.extend(item)
 
@@ -553,6 +554,11 @@ class Process(object):
                 self.__setObjectLabel(newSeq, name)
                 #now put in proper bucket
                 newSeq._place(name,self)
+
+        #apply modifiers now that all names have been added
+        for item in mods:
+            item.apply(self)
+
         self.__dict__['_Process__InExtendCall'] = False
 
     def _dumpConfigNamedList(self,items,typeName,options):
