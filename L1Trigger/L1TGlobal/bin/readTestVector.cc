@@ -303,6 +303,55 @@ int main( int argc, char** argv ){
     }
   }
 
+  /*
+  printf(" =========== Dump of results ==========\n");
+  for( int i=0; i<MAX_ALGO_BITS; i++ ){
+     printf("%d\n", l1taccepts[i]);
+  }
+  */
+
+
+  /*
+  int NSet=13;
+  printf("# <algo_id>");
+  for( int iSet=0; iSet<NSet; iSet++ ){
+    printf(", <set_%d>",iSet+1);
+  }
+  printf("\n");
+
+  printf("-1");
+  for( int iSet=0; iSet<NSet; iSet++ ){
+    int useSet = 0;
+    if( iSet==0 )      useSet = -3;
+    else if( iSet==1 ) useSet = -2;
+    else               useSet = iSet-1;
+    printf(", %d",useSet);
+  }
+  printf("\n");
+
+  for( int i=0; i<MAX_ALGO_BITS; i++ ){
+    printf("%d",i);
+    for( int iSet=0; iSet<NSet; iSet++ ){
+      int prescale = 1;
+      if( iSet==0 )       prescale = 0;
+      else if( iSet==1 )  prescale = 1;
+      else if( iSet==2 )  prescale = 1;
+      else if( iSet==3 )  prescale = 2;
+      else if( iSet==4 )  prescale = 10;
+      else if( iSet==5 && i<MAX_ALGO_BITS/2 ) prescale = 2;
+      else if( iSet==6 && i>MAX_ALGO_BITS/2 ) prescale = 5;
+      else if( iSet==7 && i%2==0 ) prescale = 3;
+      else if( iSet==8 && i%2==1 ) prescale = 6;
+      else if( iSet==9 && i%3==0 ) prescale = 4;
+      else if( iSet==10 ) prescale = 10;
+      else if( iSet==11 ) prescale = 2;
+      else if( iSet==12 ) prescale = 1;
+
+      printf(", %d",prescale);
+    }
+    printf("\n");
+  }
+  */
 
   if( output ){
     histofile->Write();

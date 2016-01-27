@@ -62,16 +62,17 @@ public:
       unsigned int phiRange;
 
       unsigned int isolationLUT;
+      unsigned int qualityLUT;     
 
-      unsigned int etaWindowLower;
-      unsigned int etaWindowUpper;
-      unsigned int etaWindowVetoLower;
-      unsigned int etaWindowVetoUpper;
+      unsigned int etaWindow1Lower;
+      unsigned int etaWindow1Upper;
+      unsigned int etaWindow2Lower;
+      unsigned int etaWindow2Upper;
 
-      unsigned int phiWindowLower;
-      unsigned int phiWindowUpper;
-      unsigned int phiWindowVetoLower;
-      unsigned int phiWindowVetoUpper;
+      unsigned int phiWindow1Lower;
+      unsigned int phiWindow1Upper;
+      unsigned int phiWindow2Lower;
+      unsigned int phiWindow2Upper;
 
     };
 
