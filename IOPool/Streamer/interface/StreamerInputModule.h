@@ -4,7 +4,7 @@
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
 #include <string>

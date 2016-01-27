@@ -17,7 +17,7 @@
 #include <vector>
 #include <map>
 
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 namespace HepMC {
   class IO_BaseClass;

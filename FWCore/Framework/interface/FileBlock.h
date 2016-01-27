@@ -76,7 +76,7 @@ namespace edm {
               std::string const& fileName,
               bool branchListIndexesUnchanged,
               bool modifiedIDs,
-              std::shared_ptr<BranchChildren> branchChildren) :
+              std::shared_ptr<BranchChildren const> branchChildren) :
       fileFormatVersion_(version),
       tree_(const_cast<TTree*>(ev)),
       metaTree_(const_cast<TTree*>(meta)),
@@ -127,7 +127,7 @@ namespace edm {
     std::string fileName_;
     bool branchListIndexesUnchanged_;
     bool modifiedIDs_;
-    std::shared_ptr<BranchChildren> branchChildren_;
+    std::shared_ptr<BranchChildren const> branchChildren_;
   };
 }
 #endif

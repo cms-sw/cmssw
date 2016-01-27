@@ -11,7 +11,7 @@ RootInputFileSequence: This is an InputSource
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Utilities/interface/InputType.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <memory>
 #include <string>

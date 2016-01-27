@@ -25,7 +25,7 @@
 #include <mutex>
 #include <memory>
 
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // user include files
 

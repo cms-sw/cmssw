@@ -5,7 +5,6 @@
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
 
 namespace edm {
   namespace {
@@ -18,7 +17,7 @@ public:
         if(a_) a_->postModuleBeginJobSignal_(*md_);
       }
 private:
-      edm::propagate_const<ActivityRegistry*> a_;
+      ActivityRegistry* a_; // We do not use propagate_const because the registry itself is mutable.
       ModuleDescription const* md_;
     };
 
@@ -31,7 +30,7 @@ public:
         if(a_) a_->postModuleEndJobSignal_(*md_);
       }
 private:
-      edm::propagate_const<ActivityRegistry*> a_;
+      ActivityRegistry* a_; // We do not use propagate_const because the registry itself is mutable.
       ModuleDescription const* md_;
     };
 
@@ -46,7 +45,7 @@ private:
         if(a_) a_->postModuleBeginStreamSignal_(sc_, mcc_);
       }
     private:
-      edm::propagate_const<ActivityRegistry*> a_;
+      ActivityRegistry* a_; // We do not use propagate_const because the registry itself is mutable.
       StreamContext const& sc_;
       ModuleCallingContext const& mcc_;
     };
@@ -62,7 +61,7 @@ private:
         if(a_) a_->postModuleEndStreamSignal_(sc_, mcc_);
       }
     private:
-      edm::propagate_const<ActivityRegistry*> a_;
+      ActivityRegistry* a_; // We do not use propagate_const because the registry itself is mutable.
       StreamContext const& sc_;
       ModuleCallingContext const& mcc_;
     };

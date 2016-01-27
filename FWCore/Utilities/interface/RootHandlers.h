@@ -1,7 +1,7 @@
 #ifndef FWCore_Utilities_RootHandlers_h
 #define FWCore_Utilities_RootHandlers_h
 
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 namespace edm {
   class EventProcessor;
   class RootHandlers {

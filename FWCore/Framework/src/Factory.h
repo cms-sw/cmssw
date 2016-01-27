@@ -10,7 +10,7 @@
 #include <string>
 #include <memory>
 #include "FWCore/Utilities/interface/Signal.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace edm {
   typedef edmplugin::PluginFactory<Maker* ()> MakerPluginFactory;

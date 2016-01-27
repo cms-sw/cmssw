@@ -41,7 +41,7 @@ the worker is reset().
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductHolderIndex.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -192,7 +192,7 @@ namespace edm {
     ExceptionToActionTable const* actions_; // memory assumed to be managed elsewhere
     edm::propagate_const<std::shared_ptr<cms::Exception>> cached_exception_; // if state is 'exception'
 
-    mutable std::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
 
     edm::propagate_const<EarlyDeleteHelper*> earlyDeleteHelper_;
   };
@@ -214,7 +214,7 @@ namespace edm {
       }
 
     private:
-      edm::propagate_const<ActivityRegistry*> a_;
+      ActivityRegistry* a_; // We do not use propagate_const because the registry itself is mutable.
       typename T::Context const* context_;
       ModuleCallingContext const* moduleCallingContext_;
     };

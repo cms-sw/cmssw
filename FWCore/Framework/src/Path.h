@@ -19,7 +19,6 @@
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
 
 #include <memory>
 
@@ -96,7 +95,7 @@ namespace edm {
 
     int bitpos_;
     TrigResPtr trptr_;
-    mutable std::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
     ExceptionToActionTable const* act_table_;
 
     WorkersInPath workers_;
@@ -144,7 +143,7 @@ namespace edm {
         if(a_) T::postPathSignal(a_, status, pathContext_);
       }
     private:
-      edm::propagate_const<ActivityRegistry*> a_;
+      ActivityRegistry* a_; // We do not use propagate_const because the registry itself is mutable.
       int const& nwrwue_;
       hlt::HLTState const& state_;
       PathContext const* pathContext_;

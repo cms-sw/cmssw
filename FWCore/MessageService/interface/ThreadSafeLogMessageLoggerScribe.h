@@ -2,7 +2,7 @@
 #define FWCore_MessageService_ThreadSafeLogMessageLoggerScribe_h
 
 #include "FWCore/Utilities/interface/value_ptr.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "FWCore/MessageService/interface/ELdestControl.h"
 #include "FWCore/MessageService/interface/MessageLoggerDefaults.h"

@@ -4,7 +4,7 @@
 # include "Utilities/StorageFactory/interface/Storage.h"
 # include "Utilities/StorageFactory/interface/IOFlags.h"
 # include "FWCore/Utilities/interface/Exception.h"
-# include "FWCore/Utilities/interface/propagate_const_safe.h"
+# include "FWCore/Utilities/interface/propagate_const.h"
 # include "XrdCl/XrdClFile.hh"
 # include <string>
 # include <memory>

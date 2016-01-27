@@ -7,7 +7,7 @@ Holder for an input TFile.
 ----------------------------------------------------------------------*/
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/InputType.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "TFile.h"
 

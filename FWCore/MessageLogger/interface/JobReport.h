@@ -83,7 +83,7 @@ Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
 
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/Utilities/interface/InputType.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <atomic>
 #include <cstddef>

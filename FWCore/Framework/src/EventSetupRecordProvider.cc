@@ -288,7 +288,6 @@ EventSetupRecordProvider::proxyProviderDescriptions() const
 boost::shared_ptr<DataProxyProvider> 
 EventSetupRecordProvider::proxyProvider(ComponentDescription const& iDesc) {
    using std::placeholders::_1;
-   //std::vector<boost::shared_ptr<DataProxyProvider> >::const_iterator itFound =
    auto itFound = std::find_if(providers_.begin(),providers_.end(),
                 std::bind(std::equal_to<ComponentDescription>(), 
                             iDesc, 

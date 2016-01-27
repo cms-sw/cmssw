@@ -14,7 +14,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/BranchType.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 
@@ -294,7 +294,7 @@ namespace edm {
     std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper() const {return get_underlying_safe(thinnedAssociationsHelper_);}
     std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper() {return get_underlying_safe(thinnedAssociationsHelper_);}
     
-    mutable std::shared_ptr<ActivityRegistry>     actReg_;
+    std::shared_ptr<ActivityRegistry>             actReg_; // We do not use propagate_const because the registry itself is mutable.
     ServiceToken                                  serviceToken_;
     std::shared_ptr<ProductRegistry const>        parentPreg_;
     std::shared_ptr<ProductRegistry const>        preg_;

@@ -28,7 +28,7 @@
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 
 #include "FWCore/Framework/interface/produce_helpers.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {

@@ -21,7 +21,6 @@
 // system include files
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
 
 // user include files
 
@@ -42,7 +41,7 @@ namespace edm {
     
   private:
     // ---------- member data --------------------------------
-    edm::propagate_const<ActivityRegistry*> m_reg;
+    ActivityRegistry* m_reg; // We do not use propagate_const because the registry itself is mutable.
     ModuleCallingContext const* m_context;
   };
 }

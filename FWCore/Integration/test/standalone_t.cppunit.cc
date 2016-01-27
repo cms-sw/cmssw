@@ -11,7 +11,7 @@ if the MessageLogger is not runnning.
 
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 // #include "FWCore/Utilities/interface/Presence.h"
 // #include "FWCore/PluginManager/interface/PresenceFactory.h"
 

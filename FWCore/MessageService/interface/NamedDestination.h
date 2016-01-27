@@ -2,7 +2,7 @@
 #define FWCore_MessageService_NamedDestination_h 1
 
 #include "FWCore/MessageService/interface/ELdestination.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <string>
 #include <memory>

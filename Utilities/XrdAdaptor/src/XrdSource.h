@@ -1,7 +1,7 @@
 #ifndef Utilities_XrdAdaptor_XrdSource_h
 #define Utilities_XrdAdaptor_XrdSource_h
 
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <memory>
 #include <vector>

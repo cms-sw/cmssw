@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_propagate_const_safe_h
-#define FWCore_Utilities_propagate_const_safe_h
+#ifndef FWCore_Utilities_get_underlying_safe_h
+#define FWCore_Utilities_get_underlying_safe_h
 
 /*
  Description:

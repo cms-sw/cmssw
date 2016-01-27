@@ -8,7 +8,7 @@
  ***************************************/
 
 #include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 class HepMCFileReader;
 

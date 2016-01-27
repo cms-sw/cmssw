@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 #include "FWCore/Catalog/interface/FileLocator.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace edm {
   class FileCatalogItem {

@@ -2,7 +2,7 @@
 #define __XRDADAPTOR_HOSTHANDLER_H_
 
 #include "XrdCl/XrdClXRootDResponses.hh"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #if defined(__linux__)
   #define HAVE_ATOMICS 1

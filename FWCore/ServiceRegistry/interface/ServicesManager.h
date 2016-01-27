@@ -25,7 +25,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeIDBase.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // system include files
 #include <memory>
@@ -50,7 +50,7 @@ public:
 
             edm::propagate_const<std::shared_ptr<ServiceMakerBase>> maker_;
             ParameterSet* pset_;
-            mutable ActivityRegistry* registry_;
+            ActivityRegistry* registry_; // We do not use propagate_const because the registry itself is mutable
             mutable bool wasAdded_;
          };
          typedef std::map<TypeIDBase, std::shared_ptr<ServiceWrapperBase> > Type2Service;
