@@ -502,7 +502,7 @@ def new_selector(process):
         )
 
         iter1seq = getattr(process,'HLTIterativeTrackingIteration1')
-        iter1prompt = getattr(process,hltIter1PFlowTrackCutClassifierPrompt)
+        iter1prompt = getattr(process,'hltIter1PFlowTrackCutClassifierPrompt')
         iter1seq.replace( process.hltIter1PFlowTrackSelectionHighPurityLoose, iter1prompt )
         iter1detached = getattr(process,'hltIter1PFlowTrackCutClassifierDetached')
         iter1seq.replace( process.hltIter1PFlowTrackSelectionHighPurityTight, iter1detached )
