@@ -9,6 +9,7 @@
 
 #include "XrdCl/XrdClFile.hh"
 
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "XrdSource.h"
@@ -321,10 +322,12 @@ Source::handle(std::shared_ptr<ClientRequest> c)
 #ifdef XRD_FAKE_SLOW
     if (m_slow) std::this_thread::sleep_for(std::chrono::milliseconds(XRD_DELAY));
 #endif
+
+    XrdCl::XRootDStatus status;
     if (c->m_into)
     {
         // See notes in ClientRequest definition to understand this voodoo.
-        m_fh->Read(c->m_off, c->m_size, c->m_into, c.get());
+        status = m_fh->Read(c->m_off, c->m_size, c->m_into, c.get());
     }
     else
     {
@@ -335,7 +338,16 @@ Source::handle(std::shared_ptr<ClientRequest> c)
             cl.emplace_back(it.offset(), it.size(), it.data());
         }
         validateList(cl);
-        m_fh->VectorRead(cl, nullptr, c.get());
+        status = m_fh->VectorRead(cl, nullptr, c.get());
+    }
+
+    if (!status.IsOK())
+    {
+        edm::Exception ex(edm::errors::FileReadError);
+        ex << "XrdFile::Read or XrdFile::VectorRead failed with error: '"
+           << status.ToStr() << "' (errNo = " << status.errNo << ")";
+        ex.addContext("Calling Source::handle");
+        throw ex;
     }
 }
 
