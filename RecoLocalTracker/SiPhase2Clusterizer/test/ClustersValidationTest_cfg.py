@@ -10,7 +10,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023MuondevReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023Dev_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -55,7 +55,3 @@ process.analysis = cms.EDAnalyzer('Phase2TrackerClusterizerValidation',
 
 # Processes to run
 process.p = cms.Path(process.analysis)
-
-from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10Ddev import customise_condOverRides
-process = customise_condOverRides(process)
-
