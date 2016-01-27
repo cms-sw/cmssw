@@ -7,7 +7,6 @@
 #include "HepPDT/ParticleDataTable.hh"
 #include "G4VModularPhysicsList.hh"
 
-class DDG4ProductionCuts;
 namespace sim {
   class ChordFinderSetter;
 }
@@ -24,8 +23,6 @@ public:
 
 private:
   const edm::ParameterSet m_pPhysics;
-  DDG4ProductionCuts * prodCuts;
-  int                  m_Verbosity;
 };
 
 #endif
