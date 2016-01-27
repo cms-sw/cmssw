@@ -88,7 +88,25 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
         seedingLayers.push_back(std::move(trackingLayerList));
     }
 
-    // region producer
+       // region producer                                                                                                                                                  
+    if(conf.exists("RegionFactoryPSet")){
+        edm::ParameterSet regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
+        std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
+        theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
+
+        // seed creator                                                                                                                                                 
+        const edm::ParameterSet & seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+        std::string seedCreatorName = seedCreatorPSet.getParameter<std::string>("ComponentName");
+        seedCreator.reset(SeedCreatorFactory::get()->create( seedCreatorName, seedCreatorPSet));
+    }
+}
+
+bool
+TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const
+{
+  const DetLayer * innerLayer =
+    measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
+  const DetLayer * outerLayer =
     measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
   std::vector<BaseTrackerRecHit const *> innerHits(1,(const BaseTrackerRecHit*) innerHit.hit());
   std::vector<BaseTrackerRecHit const *> outerHits(1,(const BaseTrackerRecHit*) outerHit.hit());
