@@ -24,6 +24,7 @@ Phase2OTBarrelLayer::Phase2OTBarrelLayer(vector<const Phase2OTBarrelRod*>& inner
   theInnerComps(innerRods.begin(),innerRods.end()), 
   theOuterComps(outerRods.begin(),outerRods.end())
 {
+  std::cout << "yes, we are in the place where we should be ... Phase2OTBarrelLayer::Phase2OTBarrelLayer" << std::endl;
   theComps.assign(theInnerComps.begin(),theInnerComps.end());
   theComps.insert(theComps.end(),theOuterComps.begin(),theOuterComps.end());
 

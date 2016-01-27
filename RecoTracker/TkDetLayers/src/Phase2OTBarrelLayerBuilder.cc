@@ -12,6 +12,7 @@ Phase2OTBarrelLayer* Phase2OTBarrelLayerBuilder::build(const GeometricDet* aPhas
   // This builder is very similar to TOBLayer one. Most of the code should be put in a 
   // common place.
 
+  std::cout << "yes, we are in the place where we should be ... Phase2OTBarrelLayerBuilder::build" << std::endl;
   vector<const GeometricDet*>  theGeometricDets = aPhase2OTBarrelLayer->components();
   LogDebug("TkDetLayers") << "Phase2OTBarrelLayerBuilder with #Components: " << theGeometricDets.size() << std::endl;
   vector<const GeometricDet*>  theGeometricDetRods;
@@ -37,7 +38,6 @@ Phase2OTBarrelLayer* Phase2OTBarrelLayerBuilder::build(const GeometricDet* aPhas
   vector<const Phase2OTBarrelRod*> theOuterRods;
 
   // properly calculate the meanR value to separate rod in inner/outer.
-
   double meanR = 0;
   for(vector<const GeometricDet*>::const_iterator it=theGeometricDetRods.begin();
       it!=theGeometricDetRods.end();it++){
@@ -55,21 +55,29 @@ Phase2OTBarrelLayer* Phase2OTBarrelLayerBuilder::build(const GeometricDet* aPhas
 								  theGeomDetGeometry)    );       
 
   }
+  LogDebug("TkDetLayers") << "Phase2OTBarrelLayerBuilder with #Rings: " << theGeometricDetRings.size() << std::endl;
 
   if(theGeometricDetRings.empty()) return new Phase2OTBarrelLayer(theInnerRods,theOuterRods);
   
-  LogDebug("TkDetLayers") << "Phase2OTBarrelLayerBuilder with #Rings: " << theGeometricDetRings.size() << std::endl;
+  //LogDebug("TkDetLayers") << "Phase2OTBarrelLayerBuilder with #Rings: " << theGeometricDetRings.size() << std::endl;
 
   Phase2OTEndcapRingBuilder myPhase2OTEndcapRingBuilder;
 
-  vector<const Phase2OTEndcapRing*> theRings;
+  vector<const Phase2OTEndcapRing*> theNegativeRings;
+  vector<const Phase2OTEndcapRing*> thePositiveRings;
+
+  // properly calculate the meanR value to separate rod in inner/outer.
+  double centralZ = 0.0;
 
   for(vector<const GeometricDet*>::const_iterator it=theGeometricDetRings.begin();
       it!=theGeometricDetRings.end();it++){
-    theRings.push_back(myPhase2OTEndcapRingBuilder.build( *it,theGeomDetGeometry));    
+    if((*it)->positionBounds().z() < centralZ)
+      theNegativeRings.push_back(myPhase2OTEndcapRingBuilder.build( *it,theGeomDetGeometry));    
+    if((*it)->positionBounds().z() > centralZ)
+      thePositiveRings.push_back(myPhase2OTEndcapRingBuilder.build( *it,theGeomDetGeometry));    
   }
 
-  return new Phase2OTtiltedBarrelLayer(theInnerRods,theOuterRods,theRings);
+  return new Phase2OTtiltedBarrelLayer(theInnerRods,theOuterRods,theNegativeRings,thePositiveRings);
 
 }
 

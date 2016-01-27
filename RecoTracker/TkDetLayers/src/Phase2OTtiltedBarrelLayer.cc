@@ -21,13 +21,31 @@ typedef GeometricSearchDet::DetWithState DetWithState;
 
 Phase2OTtiltedBarrelLayer::Phase2OTtiltedBarrelLayer(vector<const Phase2OTBarrelRod*>& innerRods,
 				                     vector<const Phase2OTBarrelRod*>& outerRods,
-                                                     vector<const Phase2OTEndcapRing*>& rings) : 
+                                                     vector<const Phase2OTEndcapRing*>& negRings, 
+                                                     vector<const Phase2OTEndcapRing*>& posRings) : 
   Phase2OTBarrelLayer(innerRods,outerRods),
   //theInnerRodsComps(innerRods.begin(),innerRods.end()), 
   //theOuterRodsComps(outerRods.begin(),outerRods.end()),
-  theRingsComps(rings.begin(),rings.end())
+  theNegativeRingsComps(negRings.begin(),negRings.end()),
+  thePositiveRingsComps(posRings.begin(),posRings.end())
+  //theRingsComps(rings.begin(),rings.end())
   //thePhase2OTBarrelLayer(innerRods, outerRods)
 {
+  std::cout << "yes, we are in the place where we should be ... Phase2OTtiltedBarrelLayer::Phase2OTtiltedBarrelLayer" << std::endl;
+  theComps.assign(innerRods.begin(),innerRods.end());
+  theComps.insert(theComps.end(),outerRods.begin(),outerRods.end());
+  theComps.insert(theComps.end(),negRings.begin(),negRings.end());
+  theComps.insert(theComps.end(),posRings.begin(),posRings.end());
+
+  for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin();
+      it!=theComps.end();it++){  
+    theBasicComps.insert(theBasicComps.end(),	
+			 (**it).basicComponents().begin(),
+			 (**it).basicComponents().end());
+  }
+
+  BarrelDetLayer::initialize();
+
 /*
   theComps.assign(theInnerComps.begin(),theInnerComps.end());
   theComps.insert(theComps.end(),theOuterComps.begin(),theOuterComps.end());

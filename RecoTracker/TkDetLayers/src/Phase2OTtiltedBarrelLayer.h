@@ -24,7 +24,8 @@ class Phase2OTtiltedBarrelLayer GCC11_FINAL : public Phase2OTBarrelLayer {
 
   Phase2OTtiltedBarrelLayer(std::vector<const Phase2OTBarrelRod*>& innerRods,
 		            std::vector<const Phase2OTBarrelRod*>& outerRods,
-                            std::vector<const Phase2OTEndcapRing*>& rings);
+                            std::vector<const Phase2OTEndcapRing*>& negRings, 
+                            std::vector<const Phase2OTEndcapRing*>& posRings);
   
   ~Phase2OTtiltedBarrelLayer();
   
@@ -87,7 +88,8 @@ class Phase2OTtiltedBarrelLayer GCC11_FINAL : public Phase2OTBarrelLayer {
   std::vector<const GeometricSearchDet*> theComps;
   std::vector<const GeometricSearchDet*> theInnerRodsComps;
   std::vector<const GeometricSearchDet*> theOuterRodsComps;
-  std::vector<const GeometricSearchDet*> theRingsComps;
+  std::vector<const GeometricSearchDet*> theNegativeRingsComps;
+  std::vector<const GeometricSearchDet*> thePositiveRingsComps;
   std::vector<const GeomDet*> theBasicComps;
 
   BinFinderType    theInnerBinFinder;
