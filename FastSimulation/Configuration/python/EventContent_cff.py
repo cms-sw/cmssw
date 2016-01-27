@@ -1,22 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-# this method replaces outputcommands that apply to normal digis to simdigis
-# whenever using this, make sure that this is what you actually want to accomplish
-def replaceDigisWithSimDigis(outputCommands):
-    for e in range(0,len(outputCommands)):
-        pieces = outputCommands[e].split("_")
-        if len(pieces) != 4:
-            continue
-        label = pieces[1]
-        pos = label.rfind("Digis")
-        if  pos <= 0 or pos != (len(label) - 5):
-            continue
-        if label.find("sim") == 0:
-            continue
-        label = "sim"+label[0].upper()+label[1:]
-        pieces[1] = label
-        outputCommands[e] = "_".join(pieces)
-    
+def dropSimDigis(outputCommands):
+    outputCommands.append("drop *_sim*Digis*_*_*")
+ 
 extraPremixContent = ['keep *_mix_generalTracks_*']
 
 RecoLocalTracker = cms.PSet(
@@ -49,5 +35,3 @@ FASTPUEventContent = cms.PSet(
         'drop *_generalTracksBeforeMixing_QualityMasks_*',
         'keep edmHepMCProduct_generatorSmeared_*_*'
         ))
-
-
