@@ -768,9 +768,9 @@ from PhysicsTools.PatAlgos.slimming.slimming_cff import MicroEventContent,MicroE
 MINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
 MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
 
+# in fastsim, normal digis are edaliases of simdigis
+# drop the simdigis to avoid complaints from the outputmodule related to duplicated branches
 if eras.fastSim.isChosen():
-    fastSimEC.replaceDigisWithSimDigis(FEVTDEBUGHLTEventContent.outputCommands)
-    fastSimEC.replaceDigisWithSimDigis(FEVTDEBUGEventContent.outputCommands)
-    fastSimEC.replaceDigisWithSimDigis(RECOSIMEventContent.outputCommands)
-    fastSimEC.replaceDigisWithSimDigis(AODSIMEventContent.outputCommands)
-    fastSimEC.replaceDigisWithSimDigis(MINIAODSIMEventContent.outputCommands)
+    for _entry in [FEVTDEBUGHLTEventContent,FEVTDEBUGEventContent,RECOSIMEventContent,AODSIMEventContent]:
+        fastSimEC.dropSimDigis(_entry.outputCommands)
+    
