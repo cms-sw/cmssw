@@ -425,7 +425,10 @@ void l1t::GtBoard::receiveExternalData(edm::Event& iEvent,
         } else {
            // bx in muon data
            for(int i = extData->getFirstBX(); i <= extData->getLastBX(); ++i) {
-  
+    
+	     // Prevent from pushing back bx that is outside of allowed range
+	     if( i < m_bxFirst_ || i > m_bxLast_ ) continue;
+
               //Loop over ext in this bx
               for(std::vector<GlobalExtBlk>::const_iterator ext = extData->begin(i); ext != extData->end(i); ++ext) {
 
