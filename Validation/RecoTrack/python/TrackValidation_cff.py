@@ -444,3 +444,7 @@ tracksValidationTrackingOnly = cms.Sequence(
     tracksValidationSeedSelectorsTrackingOnly +
     trackValidatorsTrackingOnly
 )
+
+if eras.fastSim.isChosen():
+    trackValidatorsStandalone.remove(trackValidatorConversionStandalone)
+    trackValidatorsTrackingOnly.remove(trackValidatorConversionTrackingOnly)
