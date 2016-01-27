@@ -161,13 +161,13 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
     // RBX mistag reduction
     bool isLooseIso=false;
     bool isTightIso=false;
-    if( ene>RBXEneThreshold_ ){// New absolute iso-cut for high energy RBX clusters
+    if( ene>RBXEneThreshold_ && ene>0 ){// New absolute iso-cut for high energy RBX clusters
       if( isolhcale<LooseHcalIsol_*RBXEneThreshold_ && isolecale<LooseEcalIsol_*RBXEneThreshold_ && isoltrke<LooseTrackIsol_*RBXEneThreshold_ )
 	isLooseIso=true; 
       if( isolhcale<TightHcalIsol_*RBXEneThreshold_ && isolecale<TightEcalIsol_*RBXEneThreshold_ && isoltrke<TightTrackIsol_*RBXEneThreshold_ )
 	isTightIso=true;
     }
-    if( ene<=RBXEneThreshold_ ){// Old relative iso-cut for low energy RBX clusters
+    if( ene<=RBXEneThreshold_ && ene>0 ){// Old relative iso-cut for low energy RBX clusters
       if( isolhcale/ene<LooseHcalIsol_ && isolecale/ene<LooseEcalIsol_ && isoltrke/ene<LooseTrackIsol_ )
 	isLooseIso=true;
       if( isolhcale/ene<TightHcalIsol_ && isolecale/ene<TightEcalIsol_ && isoltrke/ene<TightTrackIsol_ )
@@ -189,8 +189,8 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
     double isolhcale=hpds[i].hcalEnergySameTowers()+hpds[i].hcalEnergyNeighborTowers();
     double isolecale=hpds[i].ecalEnergySameTowers();
     double isoltrke=hpds[i].trackEnergySameTowers()+hpds[i].trackEnergyNeighborTowers();
-    if((isolhcale/ene<LooseHcalIsol_ && isolecale/ene<LooseEcalIsol_ && isoltrke/ene<LooseTrackIsol_ && ((trkfide>LooseHPDEne1_ && nhits>=LooseHPDHits1_) || (trkfide>LooseHPDEne2_ && nhits>=LooseHPDHits2_))) ||
-       (isolhcale/ene<TightHcalIsol_ && isolecale/ene<TightEcalIsol_ && isoltrke/ene<TightTrackIsol_ && ((trkfide>TightHPDEne1_ && nhits>=TightHPDHits1_) || (trkfide>TightHPDEne2_ && nhits>=TightHPDHits2_)))) {
+    if((ene>0 && isolhcale/ene<LooseHcalIsol_ && isolecale/ene<LooseEcalIsol_ && isoltrke/ene<LooseTrackIsol_ && ((trkfide>LooseHPDEne1_ && nhits>=LooseHPDHits1_) || (trkfide>LooseHPDEne2_ && nhits>=LooseHPDHits2_))) ||
+       (ene>0 && isolhcale/ene<TightHcalIsol_ && isolecale/ene<TightEcalIsol_ && isoltrke/ene<TightTrackIsol_ && ((trkfide>TightHPDEne1_ && nhits>=TightHPDHits1_) || (trkfide>TightHPDEne2_ && nhits>=TightHPDHits2_)))) {
       for(HBHEHitMap::hitmap_const_iterator it=hpds[i].beginHits(); it!=hpds[i].endHits(); ++it)
 	noisehits.insert(it->first);
       //      result=false;
@@ -203,8 +203,8 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
     double isolhcale=dihits[i].hcalEnergySameTowers()+dihits[i].hcalEnergyNeighborTowers();
     double isolecale=dihits[i].ecalEnergySameTowers();
     double isoltrke=dihits[i].trackEnergySameTowers()+dihits[i].trackEnergyNeighborTowers();
-    if((isolhcale/ene<LooseHcalIsol_ && isolecale/ene<LooseEcalIsol_ && isoltrke/ene<LooseTrackIsol_ && trkfide>0.99*ene && trkfide>LooseDiHitEne_) ||
-       (isolhcale/ene<TightHcalIsol_ && isolecale/ene<TightEcalIsol_ && isoltrke/ene<TightTrackIsol_ && ene>TightDiHitEne_)) {
+    if((ene>0 && isolhcale/ene<LooseHcalIsol_ && isolecale/ene<LooseEcalIsol_ && isoltrke/ene<LooseTrackIsol_ && trkfide>0.99*ene && trkfide>LooseDiHitEne_) ||
+       (ene>0 && isolhcale/ene<TightHcalIsol_ && isolecale/ene<TightEcalIsol_ && isoltrke/ene<TightTrackIsol_ && ene>TightDiHitEne_)) {
       for(HBHEHitMap::hitmap_const_iterator it=dihits[i].beginHits(); it!=dihits[i].endHits(); ++it)
 	noisehits.insert(it->first);
       //      result=false;
@@ -217,8 +217,8 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
     double isolhcale=monohits[i].hcalEnergySameTowers()+monohits[i].hcalEnergyNeighborTowers();
     double isolecale=monohits[i].ecalEnergySameTowers();
     double isoltrke=monohits[i].trackEnergySameTowers()+monohits[i].trackEnergyNeighborTowers();
-    if((isolhcale/ene<LooseHcalIsol_ && isolecale/ene<LooseEcalIsol_ && isoltrke/ene<LooseTrackIsol_ && trkfide>0.99*ene && trkfide>LooseMonoHitEne_) ||
-       (isolhcale/ene<TightHcalIsol_ && isolecale/ene<TightEcalIsol_ && isoltrke/ene<TightTrackIsol_ && ene>TightMonoHitEne_)) {
+    if((ene>0 && isolhcale/ene<LooseHcalIsol_ && isolecale/ene<LooseEcalIsol_ && isoltrke/ene<LooseTrackIsol_ && trkfide>0.99*ene && trkfide>LooseMonoHitEne_) ||
+       (ene>0 && isolhcale/ene<TightHcalIsol_ && isolecale/ene<TightEcalIsol_ && isoltrke/ene<TightTrackIsol_ && ene>TightMonoHitEne_)) {
       for(HBHEHitMap::hitmap_const_iterator it=monohits[i].beginHits(); it!=monohits[i].endHits(); ++it)
 	noisehits.insert(it->first);
       //      result=false;
