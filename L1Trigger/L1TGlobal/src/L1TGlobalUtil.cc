@@ -14,7 +14,9 @@
 #include <iostream>
 #include <fstream>
 
-#include "CondFormats/DataRecord/interface/L1TGlobalTriggerMenuRcd.h"
+//#include "CondFormats/DataRecord/interface/L1TGlobalTriggerMenuRcd.h"
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -55,20 +57,18 @@ l1t::L1TGlobalUtil::~L1TGlobalUtil() {
 void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSetup& evSetup,
                                     edm::EDGetToken gtAlgToken) {
 
-// get / update the trigger menu from the EventSetup
-// local cache & check on cacheIdentifier
-    unsigned long long l1GtMenuCacheID = evSetup.get<L1TGlobalTriggerMenuRcd>().cacheIdentifier();
+    // get / update the trigger menu from the EventSetup
+    // local cache & check on cacheIdentifier
+    unsigned long long l1GtMenuCacheID = evSetup.get<L1TUtmTriggerMenuRcd>().cacheIdentifier();
 
     if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
 
-        //std::cout << "Attempting to get the Menu " << std::endl;
-        edm::ESHandle< TriggerMenu> l1GtMenu;
-        evSetup.get< L1TGlobalTriggerMenuRcd>().get(l1GtMenu) ;
-        m_l1GtMenu =  l1GtMenu.product();
-       //(const_cast<TriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
+        edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
+        evSetup.get< L1TUtmTriggerMenuRcd>().get(l1GtMenu) ;
+        const L1TUtmTriggerMenu* utml1GtMenu =  l1GtMenu.product();
 
         //std::cout << "Attempting to fill the map " << std::endl;
-        m_algorithmMap = &(m_l1GtMenu->gtAlgorithmMap());
+        m_algorithmMap = &(utml1GtMenu->getAlgorithmMap());
 
 	//reset vectors since we have new menu
 	resetDecisionVectors();
@@ -104,11 +104,11 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
        LogDebug("l1t|Global") << "Grabing prescale column "<< m_PreScaleColumn << endl;
        const std::vector<int>& prescaleSet = (*m_prescaleFactorsAlgoTrig).at(m_PreScaleColumn-1);
            
-       for (CItAlgo itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
+       for (std::map<std::string, L1TUtmAlgorithm>::const_iterator itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
 
           // Get the algorithm name
           std::string algName = itAlgo->first;
-          int algBit = (itAlgo->second).algoBitNumber();
+          int algBit = (itAlgo->second).getIndex(); //algoBitNumber();
 
 	  (m_prescales[algBit]).first  = algName;
 	  (m_prescales[algBit]).second = prescaleSet.at(algBit);
@@ -140,11 +140,11 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
        
        // Make a map of the trigger name and whether it passed various stages (initial,prescale,final)
        // Note: might be able to improve performance by not full remaking map with names each time
-       for (CItAlgo itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
+       for (std::map<std::string, L1TUtmAlgorithm>::const_iterator itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
 
 	 // Get the algorithm name
 	 std::string algName = itAlgo->first;
-	 int algBit = (itAlgo->second).algoBitNumber();
+	 int algBit = (itAlgo->second).getIndex(); //algoBitNumber();
 
 	 bool decisionInitial   = algBlk->getAlgoDecisionInitial(algBit);
 	 (m_decisionsInitial[algBit]).first  = algName;
@@ -388,9 +388,9 @@ void l1t::L1TGlobalUtil::resetMaskVectors() {
 
 const bool l1t::L1TGlobalUtil::getAlgBitFromName(const std::string& algName, int& bit) const {
   
-    CItAlgo itAlgo = m_algorithmMap->find(algName);
+    std::map<std::string, L1TUtmAlgorithm>::const_iterator itAlgo = m_algorithmMap->find(algName);
     if(itAlgo != m_algorithmMap->end()) {
-        bit = (itAlgo->second).algoBitNumber();
+        bit = (itAlgo->second).getIndex(); //algoBitNumber();
 	return true;
     }
         
