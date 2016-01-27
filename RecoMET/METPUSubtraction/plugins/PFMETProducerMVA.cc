@@ -16,12 +16,13 @@ PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg)
   srcPFCandidatesView_ = consumes<reco::CandidateView>(cfg.getParameter<edm::InputTag>("srcPFCandidates"));
   srcVertices_     = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("srcVertices"));
   vInputTag srcLeptonsTags = cfg.getParameter<vInputTag>("srcLeptons");
+  edm::InputTag srcRho = ( cfg.exists("srcRho") ) ? cfg.getParameter<edm::InputTag>("srcRho") : (edm::InputTag("fixedGridRhoFastjetAll"));
+  consumes<double>(srcRho);
   for(vInputTag::const_iterator it=srcLeptonsTags.begin();it!=srcLeptonsTags.end();it++) {
     srcLeptons_.push_back( consumes<reco::CandidateView >( *it ) );
   }
 
   minNumLeptons_   = cfg.getParameter<int>("minNumLeptons");
-  srcRho_          = consumes<edm::Handle<double> >(cfg.getParameter<edm::InputTag>("srcRho"));
 
   globalThreshold_ = cfg.getParameter<double>("globalThreshold");
 
