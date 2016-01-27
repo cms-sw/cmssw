@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -83,8 +84,12 @@ class Phase2TrackerClusterizerValidation : public edm::EDAnalyzer {
         unsigned int getLayerNumber(const DetId&, const TrackerTopology*);
         unsigned int getSimTrackId(const edm::Handle< edm::DetSetVector< PixelDigiSimLink > >&, const DetId&, unsigned int);
 
-        edm::InputTag src_;
-        edm::InputTag links_;
+        edm::EDGetTokenT< Phase2TrackerCluster1DCollectionNew > tokenClusters_;
+        edm::EDGetTokenT< edm::DetSetVector< PixelDigiSimLink > > tokenLinks_;
+        edm::EDGetTokenT< edm::PSimHitContainer > tokenSimHits_;
+        edm::EDGetTokenT< edm::SimTrackContainer> tokenSimTracks_;
+        edm::EDGetTokenT< edm::SimVertexContainer > tokenSimVertices_;
+
         TH2F* trackerLayout_;
         TH2F* trackerLayoutXY_;
         TH2F* trackerLayoutXYBar_;
@@ -94,9 +99,13 @@ class Phase2TrackerClusterizerValidation : public edm::EDAnalyzer {
 
 };
 
-Phase2TrackerClusterizerValidation::Phase2TrackerClusterizerValidation(const edm::ParameterSet& conf) :
-    src_(conf.getParameter< edm::InputTag >("src")),
-    links_(conf.getParameter< edm::InputTag >("links")) { }
+    Phase2TrackerClusterizerValidation::Phase2TrackerClusterizerValidation(const edm::ParameterSet& conf) { 
+        tokenClusters_ = consumes< Phase2TrackerCluster1DCollectionNew >(conf.getParameter<edm::InputTag>("src"));
+        tokenLinks_ = consumes< edm::DetSetVector< PixelDigiSimLink> >(conf.getParameter<edm::InputTag>("links"));
+        tokenSimHits_ = consumes< edm::PSimHitContainer >(edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"));
+        tokenSimTracks_ = consumes< edm::SimTrackContainer >(edm::InputTag("g4SimHits"));
+        tokenSimVertices_ = consumes< edm::SimVertexContainer >(edm::InputTag("g4SimHits")); 
+    }
 
     Phase2TrackerClusterizerValidation::~Phase2TrackerClusterizerValidation() { }
 
@@ -121,25 +130,23 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
 
     // Get the clusters
     edm::Handle< Phase2TrackerCluster1DCollectionNew > clusters;
-    event.getByLabel(src_, clusters);
+    event.getByToken(tokenClusters_, clusters);
 
     // Get the PixelDigiSimLinks
     edm::Handle< edm::DetSetVector< PixelDigiSimLink > > pixelSimLinks;
-    event.getByLabel("simSiPixelDigis", "Tracker", pixelSimLinks);
-    
-//event.getByLabel(links_, pixelSimLinks);
+    event.getByToken(tokenLinks_, pixelSimLinks);
 
     // Get the SimHits
     edm::Handle< edm::PSimHitContainer > simHitsRaw;
-    event.getByLabel("g4SimHits", "TrackerHitsPixelBarrelLowTof", simHitsRaw);
+    event.getByToken(tokenSimHits_, simHitsRaw);
 
     // Get the SimTracks
     edm::Handle< edm::SimTrackContainer > simTracksRaw;
-    event.getByLabel("g4SimHits", simTracksRaw);
+    event.getByToken(tokenSimTracks_, simTracksRaw);
 
     // Get the SimVertex
     edm::Handle< edm::SimVertexContainer > simVertices;
-    event.getByLabel("g4SimHits", simVertices);
+    event.getByToken(tokenSimVertices_, simVertices);
 
     // Get the geometry
     edm::ESHandle< TrackerGeometry > geomHandle;

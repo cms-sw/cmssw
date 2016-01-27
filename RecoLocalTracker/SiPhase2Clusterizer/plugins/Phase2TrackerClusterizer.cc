@@ -24,7 +24,6 @@ namespace cms {
 
     Phase2TrackerClusterizer::Phase2TrackerClusterizer(edm::ParameterSet const& conf) :
         conf_(conf),
-        src_(conf.getParameter< edm::InputTag >("src")),
         maxClusterSize_(conf.getParameter< unsigned int >("maxClusterSize")),
         maxNumberClusters_(conf.getParameter< unsigned int >("maxNumberClusters")) {
             // Objects that will be used
@@ -48,8 +47,6 @@ namespace cms {
         // Get the Digis
         edm::Handle< edm::DetSetVector< Phase2TrackerDigi > > digis;
         event.getByToken(token_, digis);
-        //event.getByLabel(src_, digis);
-        //event.getByLabel("mix", "Tracker", digis); 
         
         // Get the geometry
         edm::ESHandle< TrackerGeometry > geomHandle;

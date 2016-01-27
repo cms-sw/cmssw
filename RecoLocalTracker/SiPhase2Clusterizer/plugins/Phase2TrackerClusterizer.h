@@ -25,7 +25,6 @@ namespace cms {
         private:
             edm::ParameterSet conf_;
             Phase2TrackerClusterizerAlgorithm* clusterizer_;
-            edm::InputTag src_;
             edm::EDGetTokenT< edm::DetSetVector< Phase2TrackerDigi > > token_;
             unsigned int maxClusterSize_;
             unsigned int maxNumberClusters_;
