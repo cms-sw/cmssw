@@ -19,6 +19,17 @@ class Eras (object):
         # converted to run2_common (i.e. a search and replace of "stage1L1Trigger" to
         # "run2_common" over the whole python tree). In practice, I don't think it's worth
         # it, and this also gives the flexibilty to take it out easily.
+
+        # Phase 2 sub-eras for stable features
+        self.phase2_common = cms.Modifier()
+        self.phase2_tracker = cms.Modifier()
+        self.phase2_hgc = cms.Modifier()
+        self.phase2_muon = cms.Modifier()
+        # Phase 2 sub-eras for in-development features
+        self.phase2dev_common = cms.Modifier()
+        self.phase2dev_tracker = cms.Modifier()
+        self.phase2dev_hgc = cms.Modifier()
+        self.phase2dev_muon = cms.Modifier()
         
         # This era should not be set by the user with the "--era" command, it's
         # activated automatically if the "--fast" command is used.
@@ -38,8 +49,10 @@ class Eras (object):
         self.Run2_2016 = cms.ModifierChain( self.run2_common, self.run2_25ns_specific, self.stage2L1Trigger )
         self.Run2_2017 = cms.ModifierChain( self.Run2_2016, self.phase1Pixel )
         # Scenarios further afield.
-        # Phase2Dev is everything for the 2023 (2026?) detector that works so far in this release.
-        self.Phase2Dev = cms.Modifier()
+        # Phase2 is everything for the 2023 (2026?) detector that works so far in this release.
+        self.Phase2 = cms.ModifierChain( self.phase2_common, self.phase2_tracker, self.phase2_hgc, self.phase2_muon )
+        # Phase2dev is everything for the 2023 (2026?) detector that is still in development.
+        self.Phase2dev = cms.ModifierChain( self.Phase2, self.phase2dev_common, self.phase2dev_tracker, self.phase2dev_hgc, self.phase2dev_muon )
         
         # The only thing this collection is used for is for cmsDriver to
         # warn the user if they specify an era that is discouraged from being
@@ -47,6 +60,11 @@ class Eras (object):
         # message of available values when an invalid era is specified.
         self.internalUseEras = [self.run2_common, self.run2_25ns_specific,
                                 self.run2_50ns_specific, self.run2_HI_specific,
-                                self.stage1L1Trigger, self.fastSim ]
+                                self.stage1L1Trigger, self.fastSim,
+                                self.phase2_common, self.phase2_tracker,
+                                self.phase2_hgc, self.phase2_muon,
+                                self.phase2dev_common, self.phase2dev_tracker,
+                                self.phase2dev_hgc, self.phase2dev_muon
+                               ]
 
 eras=Eras()
