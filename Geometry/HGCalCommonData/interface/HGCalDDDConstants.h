@@ -24,7 +24,7 @@ class HGCalDDDConstants {
 
 public:
 
-  typedef std::array<std::vector<int32_t>, 2> simrecovecs;
+  typedef std::array<std::vector<int32_t>, 2> simrecovecs;  
   
   HGCalDDDConstants(const HGCalParameters* hp, const std::string name);
   ~HGCalDDDConstants();

@@ -248,13 +248,20 @@ bool HGCalDDDConstants::isValid(int lay, int mod, int cell, bool reco) const {
 	       (mod > 0 && mod <= modmax) &&
 	       (cell >=0 && cell <= cellmax));
   } else {
-    modmax = modules(lay,reco);
-    ok = ((lay > 0 && lay <= (int)(layers(reco))) && 
-	  (mod >= 0 && mod <= modmax));
-    if (ok) {
-      cellmax = (hgpar_->waferTypeT_[mod]==1) ? 
- 	(int)(hgpar_->cellFineX_.size()) : (int)(hgpar_->cellCoarseX_.size());
-      ok = (cell >=0 && cell <=  cellmax);
+    int32_t copyNumber = hgpar_->waferCopy_[mod];
+    
+    
+    ok = ((lay > 0 && lay <= (int)(layers(reco))));
+    if( ok ) {
+      const int32_t lay_idx = reco ? (lay-1)*3 + 1 : lay;
+      const auto& the_modules = hgpar_->copiesInLayers_[lay_idx];
+      auto moditr = the_modules.find(copyNumber);
+      ok = (moditr != the_modules.end());
+      if (ok) {
+        cellmax = (hgpar_->waferTypeT_[mod]==1) ? 
+          (int)(hgpar_->cellFineX_.size()) : (int)(hgpar_->cellCoarseX_.size());
+        ok = (cell >=0 && cell <=  cellmax);
+      }
     }
   }
     
@@ -597,7 +604,8 @@ int HGCalDDDConstants::wafers() const {
   return wafer;
 }
 
-int HGCalDDDConstants::cellHex(double xx, double yy, const double& cellR, 
+int HGCalDDDConstants::cellHex(double xx, double yy, 
+                               const double& cellR, 
 			       const std::vector<double>& posX,
 			       const std::vector<double>& posY) const {
   int num(0);
