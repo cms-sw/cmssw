@@ -1,4 +1,6 @@
 #include "SimG4Core/CheckSecondary/interface/CheckSecondary.h"
+#include "SimG4Core/CheckSecondary/interface/TreatSecondary.h"
+#include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
