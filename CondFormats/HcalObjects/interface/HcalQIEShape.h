@@ -27,6 +27,7 @@ class HcalQIEShape {
     unsigned tmp = nbins_ == 32 ? (fAdc & 0x1f) : (fAdc & 0x3f) ;
     return   tmp;
   }
+  unsigned nbins() const { return nbins_; }
 
  protected:
  private:
