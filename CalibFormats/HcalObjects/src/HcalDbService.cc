@@ -232,19 +232,20 @@ const HcalQIECoder* HcalDbService::getHcalCoder (const HcalGenericDetId& fId) co
 }
 
 const HcalQIEShape* HcalDbService::getHcalShape (const HcalGenericDetId& fId) const {
-  if (mQIEData) {
-    return &mQIEData->getShape (fId);
+  if (mQIEData && mQIETypes) {
+    //currently 3 types of QIEs exist: QIE8, QIE10, QIE11
+    int qieType = mQIETypes->getValues(fId)->getValue();
+    //QIE10 and QIE11 have same shape (ADC ladder)
+    if(qieType>0) qieType = 1;
+    return &mQIEData->getShape(qieType);
   }
   return 0;
 }
 
 const HcalQIEShape* HcalDbService::getHcalShape (const HcalQIECoder *coder) const {
-  if (mQIEData) {
-    return &mQIEData->getShape(coder);
-  }
-  return 0;
+  HcalGenericDetId fId(coder->rawId());
+  return getHcalShape(fId);
 }
-
 
 const HcalElectronicsMap* HcalDbService::getHcalMapping () const {
   return mElectronicsMap;
