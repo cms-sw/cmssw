@@ -22,13 +22,13 @@ process.options = cms.untracked.PSet(
 
 # How many events to process
 process.maxEvents = cms.untracked.PSet( 
-   input = cms.untracked.int32(100)
+   input = cms.untracked.int32(10)
 )
 
 #configurable options =======================================================================
 runOnData=False #data/MC switch
 usePrivateSQlite=False #use external JECs (sqlite file)
-useHFCandidates=False #create an additionnal NoHF slimmed MET collection if the option is set to false
+useHFCandidates=True #create an additionnal NoHF slimmed MET collection if the option is set to false
 applyResiduals=True #application of residual corrections. Have to be set to True once the 13 TeV residual corrections are available. False to be kept meanwhile. Can be kept to False later for private tests or for analysis checks and developments (not the official recommendation!).
 #===================================================================
 
@@ -174,8 +174,9 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
     compressionLevel = cms.untracked.int32(4),
     compressionAlgorithm = cms.untracked.string('LZMA'),
     eventAutoFlushCompressedSize = cms.untracked.int32(15728640),
-    outputCommands = cms.untracked.vstring( "keep *_slimmedMETs_*_*",
+    outputCommands = cms.untracked.vstring( "keep *_slimmedMETs_*_RERUN",
                                             "keep *_slimmedMETsNoHF_*_*",
+                                            "keep *_patPFMet_*_*",
                                             "keep *_patPFMetT1_*_*",
                                             "keep *_patPFMetT1JetResDown_*_*",
                                             "keep *_patPFMetT1JetResUp_*_*",

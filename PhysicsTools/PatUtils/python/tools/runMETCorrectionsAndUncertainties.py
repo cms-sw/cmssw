@@ -311,6 +311,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if onMiniAOD:
             self.miniAODConfiguration(process, 
                                       pfCandCollection,
+                                      jetCollection,
                                       patMetModuleSequence,
                                       postfix
                                       )        
@@ -381,7 +382,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrections"), postfix)
             setattr(process, 'pat'+metType+'Met'+postfix, getattr(process,'patPFMet' ).clone() )
             getattr(process, "patPFMet"+postfix).metSource = cms.InputTag("pfMet"+postfix)
-            getattr(process, "patPFMet"+postfix).srcJets = cms.InputTag("selectedPatJets"+postfix)
             getattr(process, "patPFMet"+postfix).srcPFCands = self._parameters["pfCandCollection"].value
         
         if self._parameters["runOnData"].value:
@@ -490,9 +490,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process, "patPFMetTxyCorr"+postfix).srcPFlow = self._parameters["pfCandCollection"].value
      
         #Enable MET significance if the type1 MET is computed
-        #if "T1" in correctionLevel:
-        #    getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(True)
-
+        if "T1" in correctionLevel:
+            getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(True)
+           
         #T1 parameter tuning when CHS jets are not used
         if "T1" in correctionLevel and not self._parameters["CHS"].value:  
             setattr(process, "corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone() )
@@ -1333,8 +1333,15 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         return cms.InputTag("patJets"+postfix)
         
 
-    def miniAODConfiguration(self, process, pfCandCollection, patMetModuleSequence, postfix ):      
+    def miniAODConfiguration(self, process, pfCandCollection, jetCollection,
+                             patMetModuleSequence, postfix ):      
         if self._parameters["metType"].value == "PF": # not hasattr(process, "pfMet"+postfix)
+            if "T1" in self._parameters['correctionLevel'].value:
+                getattr(process, "patPFMet"+postfix).srcJets = cms.InputTag(jetCollection.value()+postfix)
+                getattr(process, "patPFMet"+postfix).srcLeptons = cms.VInputTag(self._parameters["electronCollection"].value, 
+                                                                                self._parameters["muonCollection"].value,
+                                                                                self._parameters["photonCollection"].value,
+                                                                                )
             getattr(process, "patPFMet"+postfix).addGenMET  = False
             if not self._parameters["runOnData"].value:
                 getattr(process, "patPFMet"+postfix).addGenMET  = True
@@ -1347,7 +1354,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if "Smear" in self._parameters['correctionLevel'].value:
             getattr(process, "patSmearedJets").genJets = cms.InputTag("slimmedGenJets")
 
-                         
         #MM: FIXME MVA
         #if hasattr(process, "pfMVAMet"):
         #    getattr(process, "pfMVAMet").srcVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
@@ -1357,11 +1363,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         if not hasattr(process, "slimmedMETs"+postfix) and self._parameters["metType"].value == "PF":
 
-            from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import selectedPatJets
-            setattr(process, "selectedPatJets"+postfix, selectedPatJets.clone() )
+            #from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import selectedPatJets
+            #setattr(process, "selectedPatJets"+postfix, selectedPatJets.clone() )
               
-            getattr(process,"selectedPatJets"+postfix).src = cms.InputTag("patJets"+postfix)
-            getattr(process,"selectedPatJets"+postfix).cut = cms.string("pt > 10")
+            #getattr(process,"selectedPatJets"+postfix).src = cms.InputTag("patJets"+postfix)
+            #getattr(process,"selectedPatJets"+postfix).cut = cms.string("pt > 10")
 
             from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi import slimmedMETs
             setattr(process, "slimmedMETs"+postfix, slimmedMETs.clone() )
