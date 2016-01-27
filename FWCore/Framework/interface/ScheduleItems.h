@@ -3,6 +3,7 @@
 
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
 #include <vector>
@@ -53,12 +54,12 @@ namespace edm {
     void
     clear();
 
-    std::shared_ptr<ActivityRegistry> actReg_;
-    std::shared_ptr<SignallingProductRegistry> preg_;
-    std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
-    std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
+    edm::propagate_const<std::shared_ptr<ActivityRegistry>> actReg_;
+    edm::propagate_const<std::shared_ptr<SignallingProductRegistry>> preg_;
+    edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     std::unique_ptr<ExceptionToActionTable const> act_table_;
-    std::shared_ptr<ProcessConfiguration> processConfiguration_;
+    edm::propagate_const<std::shared_ptr<ProcessConfiguration>> processConfiguration_;
   };
 }
 #endif

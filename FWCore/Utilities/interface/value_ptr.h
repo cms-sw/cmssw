@@ -35,6 +35,8 @@
 #include <algorithm> // for std::swap()
 #include <memory>
 
+#include "FWCore/Utilities/interface/propagate_const.h"
+
 namespace edm {
 
   // --------------------------------------------------------------------
@@ -69,14 +71,14 @@ namespace edm {
 
     value_ptr() : myP(nullptr) { }
     explicit value_ptr(T* p) : myP(p) { }
-    ~value_ptr() { delete myP; }
+    ~value_ptr() { delete get_underlying(myP); }
 
     // --------------------------------------------------
     // Copy constructor/copy assignment:
     // --------------------------------------------------
 
     value_ptr(value_ptr const& orig) :
-      myP(createFrom(orig.myP)) {
+      myP(createFrom(get_underlying(orig.myP))) {
     }
 
     value_ptr& operator=(value_ptr const& orig) {
@@ -94,7 +96,7 @@ namespace edm {
 
     value_ptr& operator=(value_ptr&& orig) {
       if (myP!=orig.myP) {
-        delete myP;
+        delete get_underlying(myP);
         myP=orig.myP;
         orig.myP=nullptr;
       } 
@@ -105,8 +107,8 @@ namespace edm {
     // Access mechanisms:
     // --------------------------------------------------
 
-    T& operator*() const { return *myP; }
-    T* operator->() const { return myP; }
+    T& operator*() const { return *get_underlying(myP); }
+    T* operator->() const { return get_underlying(myP); }
 
     // --------------------------------------------------
     // Manipulation:
@@ -191,7 +193,7 @@ namespace edm {
     // Member data:
     // --------------------------------------------------
 
-    T* myP;
+    edm::propagate_const<T*> myP;
 
   }; // value_ptr
 

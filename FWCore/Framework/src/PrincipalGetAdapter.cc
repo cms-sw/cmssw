@@ -148,7 +148,7 @@ namespace edm {
   PrincipalGetAdapter::getByLabel_(TypeID const& typeID,
                                    InputTag const& tag,
                                    ModuleCallingContext const* mcc) const {
-    return principal_.getByLabel(PRODUCT_TYPE, typeID, tag, consumer_, resourcesAcquirer_, mcc);
+    return principal_.getByLabel(PRODUCT_TYPE, typeID, tag, consumer_, get_underlying(resourcesAcquirer_), mcc);
   }
 
   BasicHandle
@@ -157,7 +157,7 @@ namespace edm {
   	                           std::string const& instance,
   	                           std::string const& process,
                                    ModuleCallingContext const* mcc) const {
-    return principal_.getByLabel(PRODUCT_TYPE, typeID, label, instance, process, consumer_, resourcesAcquirer_, mcc);
+    return principal_.getByLabel(PRODUCT_TYPE, typeID, label, instance, process, consumer_, get_underlying(resourcesAcquirer_), mcc);
   }
   
   BasicHandle
@@ -173,7 +173,7 @@ namespace edm {
       throwAmbiguousException(id, token);
     }
     bool ambiguous = false;
-    BasicHandle h = principal_.getByToken(kindOfType, id, index, skipCurrentProcess, ambiguous, resourcesAcquirer_, mcc);
+    BasicHandle h = principal_.getByToken(kindOfType, id, index, skipCurrentProcess, ambiguous, get_underlying(resourcesAcquirer_), mcc);
     if (ambiguous) {
       // This deals with ambiguities where the process is not specified
       throwAmbiguousException(id, token);
@@ -187,7 +187,7 @@ namespace edm {
   PrincipalGetAdapter::getMatchingSequenceByLabel_(TypeID const& typeID,
                                                    InputTag const& tag,
                                                    ModuleCallingContext const* mcc) const {
-    return principal_.getByLabel(ELEMENT_TYPE, typeID, tag, consumer_, resourcesAcquirer_, mcc);
+    return principal_.getByLabel(ELEMENT_TYPE, typeID, tag, consumer_, get_underlying(resourcesAcquirer_), mcc);
   }
 
   BasicHandle
@@ -202,7 +202,7 @@ namespace edm {
                                   instance,
                                   process,
                                   consumer_,
-                                  resourcesAcquirer_,
+                                  get_underlying(resourcesAcquirer_),
                                   mcc);
     return h;
   }
@@ -211,7 +211,7 @@ namespace edm {
   PrincipalGetAdapter::getManyByType_(TypeID const& tid,
                                       BasicHandleVec& results,
                                       ModuleCallingContext const* mcc) const {
-    principal_.getManyByType(tid, results, consumer_, resourcesAcquirer_, mcc);
+    principal_.getManyByType(tid, results, consumer_, get_underlying(resourcesAcquirer_), mcc);
   }
 
   ProcessHistory const&

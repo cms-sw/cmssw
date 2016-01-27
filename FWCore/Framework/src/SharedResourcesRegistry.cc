@@ -67,7 +67,7 @@ namespace edm {
   SharedResourcesAcquirer
   SharedResourcesRegistry::createAcquirerForSourceDelayedReader() {
     if(not resourceForDelayedReader_) {
-      resourceForDelayedReader_.reset(new std::recursive_mutex{});
+      get_underlying(resourceForDelayedReader_).reset(new std::recursive_mutex{});
     }
     std::vector<std::recursive_mutex*> mutexes = {resourceForDelayedReader_.get()};
 

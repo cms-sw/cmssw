@@ -2,6 +2,7 @@
 #define __XRDADAPTOR_HOSTHANDLER_H_
 
 #include "XrdCl/XrdClXRootDResponses.hh"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #if defined(__linux__)
   #define HAVE_ATOMICS 1
@@ -32,8 +33,8 @@ public:
   virtual void HandleResponse(XrdCl::XRootDStatus *status,
                               XrdCl::AnyObject    *response) override
   {
-    pStatus.reset(status);
-    pResponse.reset(response);
+    get_underlying(pStatus).reset(status);
+    get_underlying(pResponse).reset(response);
     sem.Post();
   }
 
@@ -41,25 +42,25 @@ public:
                                        XrdCl::AnyObject    *response,
                                        XrdCl::HostList     *hostList) override
   {
-    pStatus.reset(status);
-    pResponse.reset(response);
-    pHostList.reset(hostList);
+    get_underlying(pStatus).reset(status);
+    get_underlying(pResponse).reset(response);
+    get_underlying(pHostList).reset(hostList);
     sem.Post();
   }
 
   std::unique_ptr<XrdCl::XRootDStatus> GetStatus()
   {
-        return std::move(pStatus);
+        return std::move(edm::get_underlying(pStatus));
   }
 
   std::unique_ptr<XrdCl::AnyObject> GetResponse()
   {
-    return std::move(pResponse);
+    return std::move(edm::get_underlying(pResponse));
   }
 
   std::unique_ptr<XrdCl::HostList> GetHosts()
   {
-    return std::move(pHostList);
+    return std::move(edm::get_underlying(pHostList));
   }
 
   void WaitForResponse()
@@ -69,9 +70,9 @@ public:
 
 private:
 
-  std::unique_ptr<XrdCl::XRootDStatus> pStatus;
-  std::unique_ptr<XrdCl::AnyObject>    pResponse;
-  std::unique_ptr<XrdCl::HostList>     pHostList;
+  edm::propagate_const<std::unique_ptr<XrdCl::XRootDStatus>> pStatus;
+  edm::propagate_const<std::unique_ptr<XrdCl::AnyObject>>    pResponse;
+  edm::propagate_const<std::unique_ptr<XrdCl::HostList>>     pHostList;
   Semaphore                            sem;
 };
 

@@ -37,7 +37,7 @@ namespace edm {
 
   SharedResourcesAcquirer*
   RootDelayedReader::sharedResources_() const {
-    return resourceAcquirer_.get();
+    return get_underlying(resourceAcquirer_).get();
   }
 
   std::unique_ptr<WrapperBase>

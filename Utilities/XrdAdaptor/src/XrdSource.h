@@ -1,6 +1,8 @@
 #ifndef Utilities_XrdAdaptor_XrdSource_h
 #define Utilities_XrdAdaptor_XrdSource_h
 
+#include "FWCore/Utilities/interface/propagate_const.h"
+
 #include <memory>
 #include <vector>
 
@@ -68,10 +70,10 @@ private:
     std::string m_prettyid;
     std::string m_site;
     std::string m_exclude;
-    std::shared_ptr<XrdCl::File> m_fh;
+    edm::propagate_const<std::shared_ptr<XrdCl::File>> m_fh;
 
-    std::unique_ptr<QualityMetricSource> m_qm;
-    std::shared_ptr<XrdSiteStatistics> m_stats;
+    edm::propagate_const<std::unique_ptr<QualityMetricSource>> m_qm;
+    edm::propagate_const<std::shared_ptr<XrdSiteStatistics>> m_stats;
 
 #ifdef XRD_FAKE_SLOW
     bool m_slow;

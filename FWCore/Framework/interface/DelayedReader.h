@@ -19,7 +19,7 @@ namespace edm {
   class DelayedReader {
   public:
     virtual ~DelayedReader();
-    virtual std::unique_ptr<WrapperBase> getProduct(BranchKey const& k, EDProductGetter const* ep);
+    virtual std::unique_ptr<WrapperBase> getProduct(BranchKey const& k, EDProductGetter const* ep) const;
     
     void mergeReaders(DelayedReader* other) {mergeReaders_(other);}
     void reset() {reset_();}

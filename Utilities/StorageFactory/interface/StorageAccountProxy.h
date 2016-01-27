@@ -3,6 +3,7 @@
 
 # include "Utilities/StorageFactory/interface/StorageAccount.h"
 # include "Utilities/StorageFactory/interface/Storage.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 # include <string>
 #include <memory>
 
@@ -39,7 +40,7 @@ public:
   virtual void		close (void);
 
 protected:
-  std::unique_ptr<Storage> m_baseStorage;
+  edm::propagate_const<std::unique_ptr<Storage>> m_baseStorage;
 
   StorageAccount::StorageClassToken m_token;
   StorageAccount::Counter &m_statsRead;

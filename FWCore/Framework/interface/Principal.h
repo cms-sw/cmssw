@@ -182,7 +182,7 @@ namespace edm {
     typedef unsigned long CacheIdentifier_t;
     CacheIdentifier_t cacheIdentifier() const {return cacheIdentifier_;}
 
-    DelayedReader* reader() const {return reader_;}
+    DelayedReader* reader() const {return get_underlying(reader_);}
 
     ConstProductHolderPtr getProductHolder(BranchID const& oid) const;
 
@@ -282,7 +282,7 @@ namespace edm {
 
     // Pointer to the 'source' that will be used to obtain EDProducts
     // from the persistent store. This 'source' is owned by the input source.
-    DelayedReader* reader_;
+    edm::propagate_const<DelayedReader*> reader_;
 
     // Used to check for duplicates.  The same product instance must not be in more than one product holder
     mutable std::set<void const*> productPtrs_;

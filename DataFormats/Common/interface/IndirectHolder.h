@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/BaseHolder.h"
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 #include <memory>
 
@@ -27,7 +26,7 @@ namespace edm {
       // It may be better to use auto_ptr<RefHolderBase> in
       // this constructor, so that the cloning can be avoided. I'm not
       // sure if use of auto_ptr here causes any troubles elsewhere.
-      IndirectHolder() : BaseHolder<T>(), helper_( 0 ) { }
+      IndirectHolder() : BaseHolder<T>(), helper_( nullptr ) { }
       IndirectHolder(std::shared_ptr<RefHolderBase> p);
       template< typename U>
       IndirectHolder(std::unique_ptr<U> p): helper_(p.release()) {}

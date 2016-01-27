@@ -42,7 +42,7 @@ namespace edm {
     currentRun_ = invalidRun;
     currentLumi_ = invalidLumi;
     numberOfEvents_ = 0;
-    eventFinder_.reset();
+    get_underlying(eventFinder_).reset();
     runOrLumiIndexes_.clear();
     eventNumbers_.clear();
     eventEntries_.clear();

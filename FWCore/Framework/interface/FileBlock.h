@@ -111,7 +111,7 @@ namespace edm {
       whyNotFastClonable_ |= why;
     }
     BranchChildren const& branchChildren() const { return *branchChildren_; }
-    void close () {runMetaTree_ = lumiMetaTree_ = metaTree_ = runTree_ = lumiTree_ = tree_ = 0;}
+    void close () {runMetaTree_ = lumiMetaTree_ = metaTree_ = runTree_ = lumiTree_ = tree_ = nullptr;}
 
   private:
     FileFormatVersion fileFormatVersion_;

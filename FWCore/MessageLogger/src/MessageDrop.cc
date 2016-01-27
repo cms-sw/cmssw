@@ -183,9 +183,9 @@ MessageDrop::MessageDrop()
 
 MessageDrop::~MessageDrop()
 {
-  delete spSinglet;
-  delete spPath;
-  delete spWithPhase;
+  delete get_underlying(spSinglet);
+  delete get_underlying(spPath);
+  delete get_underlying(spWithPhase);
 }
 
 void MessageDrop::setModuleWithPhase(std::string const & name,

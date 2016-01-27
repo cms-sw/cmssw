@@ -2,6 +2,7 @@
 #define FWCore_MessageService_MessageServicePresence_h
 
 #include "FWCore/Utilities/interface/Presence.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "boost/thread/thread.hpp"
 
@@ -26,7 +27,7 @@ private:
   void  operator = (MessageServicePresence const &);
 
   // --- data:
-  std::shared_ptr<ThreadQueue> m_queue;
+  edm::propagate_const<std::shared_ptr<ThreadQueue>> m_queue;
   boost::thread  m_scribeThread;
 
 };  // MessageServicePresence

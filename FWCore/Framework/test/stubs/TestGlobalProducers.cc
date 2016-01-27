@@ -46,6 +46,10 @@ struct UnsafeCache {
    unsigned int strm;
    unsigned int work;
 };
+
+struct Dummy {
+};
+
 } //end anonymous namespace
 
   class StreamIntProducer : public edm::global::EDProducer<edm::StreamCache<UnsafeCache>> {
@@ -406,7 +410,7 @@ struct UnsafeCache {
     }
   };
 
-  class TestBeginRunProducer : public edm::global::EDProducer<edm::RunCache<void>,edm::BeginRunProducer> {
+  class TestBeginRunProducer : public edm::global::EDProducer<edm::RunCache<Dummy>,edm::BeginRunProducer> {
   public:
     explicit TestBeginRunProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {	
@@ -417,9 +421,9 @@ struct UnsafeCache {
     mutable std::atomic<unsigned int> m_count{0};
     mutable std::atomic<bool> brp{false}; 
  
-    std::shared_ptr<void> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&) const override {
+    std::shared_ptr<Dummy> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&) const override {
       brp = false;
-      return std::shared_ptr<void>();
+      return std::shared_ptr<Dummy>();
     }
 
     void produce(edm::StreamID iID, edm::Event&, edm::EventSetup const&) const override {
@@ -446,7 +450,7 @@ struct UnsafeCache {
 
   };
 
-  class TestEndRunProducer : public edm::global::EDProducer<edm::RunCache<void>,edm::EndRunProducer> {
+  class TestEndRunProducer : public edm::global::EDProducer<edm::RunCache<Dummy>,edm::EndRunProducer> {
   public:
     explicit TestEndRunProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {	
@@ -456,9 +460,9 @@ struct UnsafeCache {
     mutable std::atomic<unsigned int> m_count{0};
     mutable std::atomic<bool> p{false}; 
 
-    std::shared_ptr<void> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&) const override {
+    std::shared_ptr<Dummy> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&) const override {
       p = false;
-      return std::shared_ptr<void>();
+      return std::shared_ptr<Dummy>();
     }
 
     void produce(edm::StreamID iID, edm::Event&, edm::EventSetup const&) const override {

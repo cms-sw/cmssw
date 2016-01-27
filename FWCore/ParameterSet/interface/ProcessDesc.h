@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "FWCore/Utilities/interface/propagate_const.h"
+
 namespace edm {
 
   class ParameterSet;
@@ -38,8 +40,8 @@ namespace edm {
 
     std::string dump() const;
   private:
-    std::shared_ptr<ParameterSet> pset_;
-    std::shared_ptr<std::vector<ParameterSet> > services_;
+    edm::propagate_const<std::shared_ptr<ParameterSet>> pset_;
+    edm::propagate_const<std::shared_ptr<std::vector<ParameterSet>>> services_;
   };
 }
 

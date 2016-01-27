@@ -8,6 +8,7 @@
 #include <XrdCl/XrdClXRootDResponses.hh>
 
 #include "Utilities/StorageFactory/interface/Storage.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "QualityMetric.h"
 
@@ -77,24 +78,24 @@ public:
      * Returns a pointer to the current source; may be nullptr
      * if there is no outstanding IO
      */
-    std::shared_ptr<Source> getCurrentSource() const {return m_source;}
+    std::shared_ptr<Source> getCurrentSource() const {return get_underlying(m_source);}
 
 private:
     unsigned m_failure_count;
     void *m_into;
     IOSize m_size;
     IOOffset m_off;
-    std::shared_ptr<std::vector<IOPosBuffer> > m_iolist;
+    edm::propagate_const<std::shared_ptr<std::vector<IOPosBuffer>>> m_iolist;
     RequestManager &m_manager;
-    std::shared_ptr<Source> m_source;
-    std::shared_ptr<XrdReadStatistics> m_stats;
+    edm::propagate_const<std::shared_ptr<Source>> m_source;
+    edm::propagate_const<std::shared_ptr<XrdReadStatistics>> m_stats;
 
     // Some explanation is due here.  When an IO is outstanding,
     // Xrootd takes a raw pointer to this object.  Hence we cannot
     // allow it to go out of scope until some indeterminate time in the
     // future.  So, while the IO is outstanding, we take a reference to
     // ourself to prevent the object from being unexpectedly deleted.
-    std::shared_ptr<ClientRequest> m_self_reference;
+    edm::propagate_const<std::shared_ptr<ClientRequest>> m_self_reference;
 
     std::promise<IOSize> m_promise;
 

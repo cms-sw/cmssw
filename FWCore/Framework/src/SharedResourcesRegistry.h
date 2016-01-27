@@ -25,6 +25,8 @@
 #include <mutex>
 #include <memory>
 
+#include "FWCore/Utilities/interface/propagate_const.h"
+
 // user include files
 
 // forward declarations
@@ -70,7 +72,7 @@ namespace edm {
     // ---------- member data --------------------------------
     std::map<std::string, std::pair<std::shared_ptr<std::recursive_mutex>,unsigned int>> resourceMap_;
     
-    std::shared_ptr<std::recursive_mutex> resourceForDelayedReader_;
+    edm::propagate_const<std::shared_ptr<std::recursive_mutex>> resourceForDelayedReader_;
 
     unsigned int nLegacy_;
   };

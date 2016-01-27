@@ -3,6 +3,8 @@
 
 /** StreamerOutputFile: Class for doing Streamer Write operations */
 
+#include "FWCore/Utilities/interface/propagate_const.h"
+
 #include "IOPool/Streamer/interface/MsgTools.h"
 
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
@@ -59,7 +61,7 @@ class StreamerOutputFile
      void writeStart(const InitMsgView& inview);
 
   private:
-     std::shared_ptr<OutputFile> streamerfile_;
+     edm::propagate_const<std::shared_ptr<OutputFile>> streamerfile_;
 };
 
 #endif

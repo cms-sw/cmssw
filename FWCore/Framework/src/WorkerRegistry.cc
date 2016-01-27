@@ -49,10 +49,10 @@ namespace edm {
                                                actReg_->postModuleConstructionSignal_);
       auto workerPtr= modulePtr->makeWorker(p.actions_);
     
-      workerPtr->setActivityRegistry(actReg_);
+      workerPtr->setActivityRegistry(get_underlying(actReg_));
 
       // Transfer ownership of worker to the registry
-      m_workerMap[moduleLabel].reset(workerPtr.release());
+      get_underlying(m_workerMap[moduleLabel]).reset(workerPtr.release());
       return m_workerMap[moduleLabel].get(); 
     } 
     return (workerIt->second.get());

@@ -45,9 +45,9 @@ namespace edm {
 
     }
     if(inserter) {
-      results_inserter_.reset(new edm::WorkerT<TriggerResultInserter::ModuleType>(inserter, inserter->moduleDescription(), &actions));
+      get_underlying(results_inserter_).reset(new edm::WorkerT<TriggerResultInserter::ModuleType>(inserter, inserter->moduleDescription(), &actions));
       inserter->doPreallocate(prealloc);
-      results_inserter_->setActivityRegistry(actReg_);
+      results_inserter_->setActivityRegistry(get_underlying(actReg_));
       addToAllWorkers(results_inserter_.get());
     }
 

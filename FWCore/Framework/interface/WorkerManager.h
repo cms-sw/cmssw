@@ -12,6 +12,7 @@
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
 
@@ -83,7 +84,7 @@ namespace edm {
 
     AllWorkers          allWorkers_;
 
-    std::shared_ptr<UnscheduledCallProducer> unscheduled_;
+    edm::propagate_const<std::shared_ptr<UnscheduledCallProducer>> unscheduled_;
   };
 
   template <typename T, typename U>

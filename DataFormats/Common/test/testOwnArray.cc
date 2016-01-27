@@ -4,6 +4,7 @@
 #include <iterator>
 #include <iostream>
 #include "DataFormats/Common/interface/OwnArray.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 class testOwnArray : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testOwnArray);
@@ -26,7 +27,7 @@ namespace testOA {
       return value < o.value;
     }
   private:
-    bool * ref;
+    edm::propagate_const<bool*> ref;
   };
 
   struct DummyComp {

@@ -18,6 +18,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/FileID.h"
@@ -45,7 +46,7 @@ namespace edm {
   public:
     typedef PoolOutputModule::OutputItem OutputItem;
     typedef PoolOutputModule::OutputItemList OutputItemList;
-    typedef std::array<RootOutputTree*, NumBranchTypes> RootOutputTreePtrArray;
+    typedef std::array<edm::propagate_const<RootOutputTree*>, NumBranchTypes> RootOutputTreePtrArray;
     explicit RootOutputFile(PoolOutputModule* om, std::string const& fileName,
                             std::string const& logicalFileName);
     ~RootOutputFile() {}
@@ -101,25 +102,25 @@ namespace edm {
     std::string file_;
     std::string logicalFile_;
     JobReport::Token reportToken_;
-    PoolOutputModule* om_;
+    edm::propagate_const<PoolOutputModule*> om_;
     int whyNotFastClonable_;
     bool canFastCloneAux_;
-    std::shared_ptr<TFile> filePtr_;
+    edm::propagate_const<std::shared_ptr<TFile>> filePtr_;
     FileID fid_;
     IndexIntoFile::EntryNumber_t eventEntryNumber_;
     IndexIntoFile::EntryNumber_t lumiEntryNumber_;
     IndexIntoFile::EntryNumber_t runEntryNumber_;
     IndexIntoFile indexIntoFile_;
-    TTree* metaDataTree_;
-    TTree* parameterSetsTree_;
-    TTree* parentageTree_;
+    edm::propagate_const<TTree*> metaDataTree_;
+    edm::propagate_const<TTree*> parameterSetsTree_;
+    edm::propagate_const<TTree*> parentageTree_;
     LuminosityBlockAuxiliary  lumiAux_;
     RunAuxiliary              runAux_;
     EventAuxiliary const*           pEventAux_;
     LuminosityBlockAuxiliary const* pLumiAux_;
     RunAuxiliary const*             pRunAux_;
     StoredProductProvenanceVector eventEntryInfoVector_;
-    StoredProductProvenanceVector*        pEventEntryInfoVector_;
+    edm::propagate_const<StoredProductProvenanceVector*> pEventEntryInfoVector_;
     BranchListIndexes const*        pBranchListIndexes_;
     EventSelectionIDVector const*   pEventSelectionIDs_;
     RootOutputTree eventTree_;
@@ -130,7 +131,7 @@ namespace edm {
     ProcessHistoryRegistry processHistoryRegistry_;
     std::map<ParentageID,unsigned int> parentageIDs_;
     std::set<BranchID> branchesWithStoredHistory_;
-    TClass* wrapperBaseTClass_;
+    edm::propagate_const<TClass*> wrapperBaseTClass_;
   };
 
 }

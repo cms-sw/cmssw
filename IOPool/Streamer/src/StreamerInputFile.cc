@@ -162,7 +162,7 @@ namespace edm {
         << "Failed reading streamer file, init header size from data too small\n";
     }
 
-    startMsg_.reset(new InitMsgView(&headerBuf_[0]));
+    get_underlying(startMsg_).reset(new InitMsgView(&headerBuf_[0]));
   }
 
   bool StreamerInputFile::next() {
@@ -278,7 +278,7 @@ namespace edm {
         }
       }
     }
-    currentEvMsg_.reset(new EventMsgView((void*)&eventBuf_[0]));
+    get_underlying(currentEvMsg_).reset(new EventMsgView((void*)&eventBuf_[0]));
     return 1;
   }
 

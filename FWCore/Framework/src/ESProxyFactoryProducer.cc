@@ -72,7 +72,7 @@ ESProxyFactoryProducer::registerProxies(const EventSetupRecordKey& iRecord,
    for(Iterator it = range.first; it != range.second; ++it) {
       
       boost::shared_ptr<DataProxy> proxy(it->second.factory_->makeProxy().release());
-      if(0 != proxy.get()) {
+      if(nullptr != proxy.get()) {
          iProxies.push_back(KeyedProxies::value_type((*it).second.key_,
                                          proxy));
       }
@@ -84,7 +84,7 @@ ESProxyFactoryProducer::registerFactoryWithKey(const EventSetupRecordKey& iRecor
                                              std::auto_ptr<ProxyFactoryBase>& iFactory,
                                              const std::string& iLabel )
 {
-   if(0 == iFactory.get()) {
+   if(nullptr == iFactory.get()) {
       assert(false && "Factor pointer was null");
       ::exit(1);
    }
@@ -110,7 +110,7 @@ ESProxyFactoryProducer::registerFactoryWithKey(const EventSetupRecordKey& iRecor
    }
                                                
    record2Factories_.insert(Record2Factories::value_type(iRecord,
-                                                         info));
+                                                         std::move(info)));
 }
 
 void 

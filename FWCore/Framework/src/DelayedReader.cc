@@ -13,7 +13,7 @@ namespace edm {
   DelayedReader::~DelayedReader() {}
 
   std::unique_ptr<WrapperBase> 
-  DelayedReader::getProduct(BranchKey const& k, EDProductGetter const* ep) {
+  DelayedReader::getProduct(BranchKey const& k, EDProductGetter const* ep) const {
     auto sr = sharedResources_();
     std::unique_lock<SharedResourcesAcquirer> guard;
     if(sr) {

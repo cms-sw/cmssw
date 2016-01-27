@@ -24,13 +24,14 @@
 
 // user include files
 #include "DataFormats/Common/interface/ClonePolicy.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {
   template< class T, class P = ClonePolicy<T> >
   class CloningPtr {
 public:
-    CloningPtr(): ptr_(0) {}
+    CloningPtr(): ptr_(nullptr) {}
     CloningPtr(const T& iPtr) : ptr_(P::clone(iPtr)) {}
     CloningPtr(std::auto_ptr<T> iPtr) : ptr_(iPtr.release()) {}
     CloningPtr(const CloningPtr<T,P>& iPtr) : ptr_(P::clone(*(iPtr.ptr_))) {}
@@ -45,17 +46,17 @@ public:
       std::swap(ptr_, iPtr.ptr_);
     }
     
-    ~CloningPtr() { delete ptr_;}
+    ~CloningPtr() { delete get_underlying(ptr_);}
     
     // ---------- const member functions ---------------------
-    T& operator*() const { return *ptr_; }
+    T& operator*() { return *ptr_; }
     
-    T* operator->() const { return ptr_; }
+    T* operator->() { return ptr_; }
     
-    T* get() const { return ptr_; }
+    T* get() { return ptr_; }
     
 private:
-    T* ptr_;
+    edm::propagate_const<T*> ptr_;
   };
 
   // Free swap function

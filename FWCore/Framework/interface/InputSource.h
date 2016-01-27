@@ -51,6 +51,7 @@ Some examples of InputSource subclasses may be:
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 
 #include "FWCore/Utilities/interface/Signal.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
 #include <string>
@@ -166,16 +167,16 @@ namespace edm {
     void registerProducts();
 
     /// Accessor for product registry.
-    std::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
+    std::shared_ptr<ProductRegistry const> productRegistry() const {return get_underlying(productRegistry_);}
 
     /// Const accessor for process history registry.
     ProcessHistoryRegistry const& processHistoryRegistry() const {return *processHistoryRegistry_;}
 
     /// Accessor for branchIDListHelper
-    std::shared_ptr<BranchIDListHelper> branchIDListHelper() const {return branchIDListHelper_;}
+    std::shared_ptr<BranchIDListHelper> branchIDListHelper() const {return get_underlying(branchIDListHelper_);}
 
     /// Accessor for thinnedAssociationsHelper
-    std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper() const {return thinnedAssociationsHelper_;}
+    std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper() const {return get_underlying(thinnedAssociationsHelper_);}
 
     /// Reset the remaining number of events/lumis to the maximum number.
     void repeat() {
@@ -251,7 +252,7 @@ namespace edm {
     ProcessingMode processingMode() const {return processingMode_;}
 
     /// Accessor for Activity Registry
-    std::shared_ptr<ActivityRegistry> actReg() const {return actReg_;}
+    std::shared_ptr<ActivityRegistry> actReg() const {return get_underlying(actReg_);}
 
     /// Called by the framework to merge or insert run in principal cache.
     std::shared_ptr<RunAuxiliary> runAuxiliary() const {return runAuxiliary_;}
@@ -342,8 +343,8 @@ namespace edm {
     /// To set the current time, as seen by the input source
     void setTimestamp(Timestamp const& theTime) {time_ = theTime;}
 
-    ProductRegistry& productRegistryUpdate() const {return *productRegistry_;}
-    ProcessHistoryRegistry& processHistoryRegistryForUpdate() const {return *processHistoryRegistry_;}
+    ProductRegistry& productRegistryUpdate() {return *productRegistry_;}
+    ProcessHistoryRegistry& processHistoryRegistryForUpdate() const {return *get_underlying(processHistoryRegistry_);}
     ItemType state() const{return state_;}
     void setRunAuxiliary(RunAuxiliary* rp) {
       runAuxiliary_.reset(rp);
@@ -424,7 +425,7 @@ namespace edm {
 
   private:
 
-    std::shared_ptr<ActivityRegistry> actReg_;
+    edm::propagate_const<std::shared_ptr<ActivityRegistry>> actReg_;
     int maxEvents_;
     int remainingEvents_;
     int maxLumis_;
@@ -434,10 +435,10 @@ namespace edm {
     std::chrono::time_point<std::chrono::steady_clock> processingStart_;
     ProcessingMode processingMode_;
     ModuleDescription const moduleDescription_;
-    std::shared_ptr<ProductRegistry> productRegistry_;
-    std::unique_ptr<ProcessHistoryRegistry> processHistoryRegistry_;
-    std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
-    std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
+    edm::propagate_const<std::shared_ptr<ProductRegistry>> productRegistry_;
+    edm::propagate_const<std::unique_ptr<ProcessHistoryRegistry>> processHistoryRegistry_;
+    edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     std::string processGUID_;
     Timestamp time_;
     mutable bool newRun_;
@@ -449,7 +450,7 @@ namespace edm {
     std::string statusFileName_;
 
     //used when process has been forked
-    std::shared_ptr<edm::multicore::MessageReceiverForSource> receiver_;
+    edm::propagate_const<std::shared_ptr<edm::multicore::MessageReceiverForSource>> receiver_;
     unsigned int numberOfEventsBeforeBigSkip_;
   };
 }

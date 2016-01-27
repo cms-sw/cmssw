@@ -13,6 +13,7 @@ Description:
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -60,11 +61,11 @@ namespace edm {
 
     ~RandomEngineSentry() { if(t_) t_->setRandomEngine(nullptr); }
 
-    CLHEP::HepRandomEngine* randomEngine() const { return engine_; }
+    CLHEP::HepRandomEngine* randomEngine() const { return get_underlying(engine_); }
 
   private:
-    T* t_;
-    CLHEP::HepRandomEngine* engine_;
+    edm::propagate_const<T*> t_;
+    edm::propagate_const<CLHEP::HepRandomEngine*> engine_;
   };
 }
 #endif

@@ -5,6 +5,7 @@
 # include "Utilities/StorageFactory/interface/LocalFileSystem.h"
 # include "Utilities/StorageFactory/interface/IOTypes.h"
 # include "Utilities/StorageFactory/interface/IOFlags.h"
+# include "FWCore/Utilities/interface/propagate_const.h"
 # include <string>
 #include <memory>
 #include "tbb/concurrent_unordered_map.h"
@@ -68,7 +69,7 @@ public:
 				  int mode) const;
 
 private:
-  typedef tbb::concurrent_unordered_map<std::string, std::shared_ptr<StorageMaker>> MakerTable;
+  typedef tbb::concurrent_unordered_map<std::string, edm::propagate_const<std::shared_ptr<StorageMaker>>> MakerTable;
 
   StorageFactory (void);
   StorageMaker *getMaker (const std::string &proto) const;

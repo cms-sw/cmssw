@@ -62,9 +62,9 @@ namespace edm {
     frozen_ = false;
     for(bool& isProduced : productProduced_) isProduced = false;
     anyProductProduced_ = false;
-    eventProductLookup_.reset(new ProductHolderIndexHelper);
-    lumiProductLookup_.reset(new ProductHolderIndexHelper);
-    runProductLookup_.reset(new ProductHolderIndexHelper);
+    get_underlying(eventProductLookup_).reset(new ProductHolderIndexHelper);
+    get_underlying(lumiProductLookup_).reset(new ProductHolderIndexHelper);
+    get_underlying(runProductLookup_).reset(new ProductHolderIndexHelper);
     eventNextIndexValue_ = 0;
     lumiNextIndexValue_ = 0;
     runNextIndexValue_ = 0;
@@ -139,9 +139,9 @@ namespace edm {
 
   std::shared_ptr<ProductHolderIndexHelper> const&
   ProductRegistry::productLookup(BranchType branchType) const {
-    if (branchType == InEvent) return transient_.eventProductLookup_;
-    if (branchType == InLumi) return transient_.lumiProductLookup_;
-    return transient_.runProductLookup_;
+    if (branchType == InEvent) return get_underlying(transient_.eventProductLookup_);
+    if (branchType == InLumi) return get_underlying(transient_.lumiProductLookup_);
+    return get_underlying(transient_.runProductLookup_);
   }
 
   void
