@@ -26,7 +26,7 @@ process.HiForest.HiForestVersion = cms.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-                                "file:step3.root"
+                                "root://eoscms.cern.ch//eos/cms/store/cmst3/group/hintt/CMSSW_7_5_8_patch2/TTbar/RECO/Events_1.root"
                             )
 )
 
@@ -161,6 +161,7 @@ process.ana_step = cms.Path(process.hltanalysis *
                             process.hiEvtAnalyzer *
                             process.HiGenParticleAna*
                             process.jetSequences +
+                            process.egmGsfElectronIDSequence + #Should be added in the path for VID module
                             process.ggHiNtuplizer +
                             process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
@@ -212,3 +213,10 @@ process.pVertexFilterCutEandG = cms.Path(process.pileupVertexFilterCutEandG)
 process.pAna = cms.EndPath(process.skimanalysis)
 
 # Customization
+process.OUT = cms.OutputModule("PoolOutputModule",                                                                                                                                                         
+    fileName = cms.untracked.string('output.root'),                                                                                                                                                        
+    outputCommands = cms.untracked.vstring( "keep *"),                                                                                                                                                     
+    dropMetaData = cms.untracked.string('ALL'),                                                                                                                                                            
+)
+
+process.pAna+= process.OUT

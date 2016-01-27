@@ -13,7 +13,8 @@
 using namespace std;
 
 ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps):
-effectiveAreas_( (ps.getParameter<edm::FileInPath>("effAreasConfigFile")).fullPath() )
+  effectiveAreas_( (ps.getParameter<edm::FileInPath>("effAreasConfigFile")).fullPath() )
+
 {
 
   // class instance configuration
@@ -858,18 +859,6 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
   edm::Handle<edm::View<reco::GsfElectron> > gsfElectronsHandle;
   e.getByToken(gsfElectronsCollection_, gsfElectronsHandle);
 
-  // Get the electron ID data from the event stream.
-  // Note: this implies that the VID ID modules have been run upstream.
-  // If you need more info, check with the EGM group.
-  edm::Handle<edm::ValueMap<bool> > veto_id_decisions;
-  edm::Handle<edm::ValueMap<bool> > loose_id_decisions;
-  edm::Handle<edm::ValueMap<bool> > medium_id_decisions;
-  edm::Handle<edm::ValueMap<bool> > tight_id_decisions; 
-  e.getByToken(eleVetoIdMapToken_ ,veto_id_decisions);
-  e.getByToken(eleLooseIdMapToken_ ,loose_id_decisions);
-  e.getByToken(eleMediumIdMapToken_,medium_id_decisions);
-  e.getByToken(eleTightIdMapToken_,tight_id_decisions);
-  
   // Get the conversions collection
   edm::Handle<reco::ConversionCollection> conversions;
   e.getByToken(conversionsToken_, conversions);
@@ -884,6 +873,19 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
   float rho = -999 ;
   if (rhoH.isValid())
     rho = *rhoH;
+
+  // Get the electron ID data from the event stream.
+  // Note: this implies that the VID ID modules have been run upstream.
+  // If you need more info, check with the EGM group.
+  edm::Handle<edm::ValueMap<bool> > veto_id_decisions; 
+  edm::Handle<edm::ValueMap<bool> > loose_id_decisions;
+  edm::Handle<edm::ValueMap<bool> > medium_id_decisions;
+  edm::Handle<edm::ValueMap<bool> > tight_id_decisions; 
+  e.getByToken(eleVetoIdMapToken_ , veto_id_decisions);
+  e.getByToken(eleLooseIdMapToken_ ,loose_id_decisions);
+  e.getByToken(eleMediumIdMapToken_,medium_id_decisions);
+  e.getByToken(eleTightIdMapToken_,tight_id_decisions);
+  
   
 
   // loop over electrons
@@ -961,7 +963,7 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
 
     float eA = effectiveAreas_.getEffectiveArea(fabs(ele->superCluster()->eta()));
     eleEffAreaTimesRho_.push_back(eA*rho);
-
+      
     bool passConvVeto = !ConversionTools::hasMatchedConversion(*ele, 
 							       conversions,
 							       theBeamSpot->position());
@@ -980,7 +982,7 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
     // else {
     //    eleBC2E_  .push_back(-99);
     //    eleBC2Eta_.push_back(-99);
-    // }
+    // } 
 
     const edm::Ptr<reco::GsfElectron> elePtr(gsfElectronsHandle,ele-gsfElectronsHandle->begin()); //value map is keyed of edm::Ptrs so we need to make one
     bool passVetoID   = false;

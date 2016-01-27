@@ -170,7 +170,7 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    vector<int>    eleIDMedium_;
    vector<int>    eleIDTight_;
    vector<int>    elepassConversionVeto_;
-   vector<int>    eleEffAreaTimesRho_;
+   vector<float>    eleEffAreaTimesRho_;
 
    // reco::Photon
    Int_t          nPho_;
