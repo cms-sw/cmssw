@@ -22,10 +22,12 @@ class ParametrisedPhysics : public G4VPhysicsConstructor
 
  private:
   edm::ParameterSet theParSet;
-  GflashEMShowerModel *theEMShowerModel;
-  GflashEMShowerModel *theHadShowerModel;
-  GflashHadronShowerModel *theHadronShowerModel;
-
+  struct ThreadPrivate {
+    GflashEMShowerModel *theEMShowerModel;
+    GflashEMShowerModel *theHadShowerModel;
+    GflashHadronShowerModel *theHadronShowerModel;
+  };
+  static G4ThreadLocal ThreadPrivate* tpdata;    
 };
 
 #endif
