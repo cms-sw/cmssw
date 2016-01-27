@@ -27,7 +27,7 @@ configured in the user's main() function, and is set running.
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/condition.hpp"
@@ -267,7 +267,7 @@ namespace edm {
     // only during construction, and never again. If they aren't
     // really needed, we should remove them.
 
-    mutable std::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
     edm::propagate_const<std::shared_ptr<ProductRegistry>> preg_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;

@@ -14,7 +14,7 @@ Original Authors: W. David Dagenhart, Marc Paterno
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "boost/statechart/event.hpp"
 #include "boost/statechart/state_machine.hpp"

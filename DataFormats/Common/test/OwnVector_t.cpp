@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 
 struct Base

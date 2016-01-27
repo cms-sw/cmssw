@@ -60,7 +60,7 @@ BarProd::BarProd(const edm::ParameterSet& iPS) {
 
 // forward declarations
 #include "FWCore/Framework/interface/DataProxyProvider.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace edm {
    namespace eventsetup {

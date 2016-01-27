@@ -16,7 +16,7 @@
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
 

@@ -4,7 +4,7 @@
 #include "FWCore/ServiceRegistry/interface/CurrentModuleOnThread.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace edm {
 

@@ -7,7 +7,7 @@
 # include "TFile.h"
 
 # include "Utilities/StorageFactory/interface/IOPosBuffer.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 
 class Storage;

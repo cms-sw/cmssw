@@ -41,7 +41,7 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/MallocOpts.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <cstring>
 #include <iostream>

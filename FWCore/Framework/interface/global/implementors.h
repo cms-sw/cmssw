@@ -26,7 +26,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {

@@ -3,7 +3,7 @@
 
 /** StreamerOutputFile: Class for doing Streamer Write operations */
 
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 

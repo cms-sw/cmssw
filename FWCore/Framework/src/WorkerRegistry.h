@@ -14,7 +14,7 @@
 #include <map>
 #include <string>
 
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace edm {
 
@@ -62,7 +62,7 @@ namespace edm {
     
     /// internal map of registered workers (owned).
     WorkerMap m_workerMap;
-    mutable std::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
      
   }; // WorkerRegistry
 

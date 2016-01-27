@@ -941,7 +941,7 @@ namespace edm {
     globalSchedule_->replaceModule(newMod,iLabel);
 
     for(auto& s: streamSchedules_) {
-      get_underlying_safe(s)->replaceModule(newMod,iLabel);
+      s->replaceModule(newMod,iLabel);
     }
     
     {

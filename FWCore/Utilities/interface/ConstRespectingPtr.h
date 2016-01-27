@@ -19,7 +19,7 @@ the classes_def.xml file if it is a member of a persistent class!
 
 #include <memory>
 
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace edm {
 

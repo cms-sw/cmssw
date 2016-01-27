@@ -16,7 +16,7 @@
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 const int init_size = 1024*1024;
 

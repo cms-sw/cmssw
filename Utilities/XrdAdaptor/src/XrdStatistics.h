@@ -2,7 +2,7 @@
 #define __XRD_STATISTICS_SERVICE_H_
 
 #include "Utilities/StorageFactory/interface/IOTypes.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <atomic>
 #include <chrono>

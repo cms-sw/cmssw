@@ -12,7 +12,7 @@ WorkerT: Code common to all workers.
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <map>
 #include <memory>

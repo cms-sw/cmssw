@@ -178,7 +178,7 @@ namespace edm {
     typedef std::set<BranchID> BranchIDSet;
     mutable BranchIDSet gotBranchIDs_;
     ModuleCallingContext const* moduleCallingContext_;
-    edm::propagate_const<SharedResourcesAcquirer*> sharedResourcesAcquirer_;
+    SharedResourcesAcquirer* sharedResourcesAcquirer_; // We do not use propagate_const because the acquirer is itself mutable.
 
     static const std::string emptyString_;
   };

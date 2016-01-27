@@ -25,7 +25,7 @@ Usage:
 // user include files
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/connect_but_block_self.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {

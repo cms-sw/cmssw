@@ -7,7 +7,7 @@ Class representing Output (Streamer) file.
 */
 
 #include "IOPool/Streamer/interface/MsgTools.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include <memory>
 #include <iosfwd>
 #include <string>

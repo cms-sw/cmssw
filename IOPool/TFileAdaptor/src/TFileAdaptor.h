@@ -1,7 +1,7 @@
 #ifndef IOPool_TFileAdaptor_TFileAdaptor_h
 #define IOPool_TFileAdaptor_TFileAdaptor_h
 
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <map>
 #include <memory>

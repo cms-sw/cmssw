@@ -13,7 +13,7 @@ PoolSource: This is an InputSource
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/Framework/interface/InputSource.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "IOPool/Common/interface/RootServiceChecker.h"
 
 #include <array>
@@ -86,7 +86,7 @@ namespace edm {
     bool labelRawDataLikeMC_;
     
     edm::propagate_const<std::unique_ptr<RunHelperBase>> runHelper_;
-    edm::propagate_const<std::unique_ptr<SharedResourcesAcquirer>> resourceSharedWithDelayedReaderPtr_;
+    std::unique_ptr<SharedResourcesAcquirer> resourceSharedWithDelayedReaderPtr_; // We do not use propagate_const because the acquirer is itself mutable.
     edm::propagate_const<std::unique_ptr<RootPrimaryFileSequence>> primaryFileSequence_;
     edm::propagate_const<std::unique_ptr<RootSecondaryFileSequence>> secondaryFileSequence_;
   }; // class PoolSource

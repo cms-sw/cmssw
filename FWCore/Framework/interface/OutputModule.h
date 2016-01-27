@@ -24,7 +24,7 @@ output stream.
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <array>
 #include <memory>

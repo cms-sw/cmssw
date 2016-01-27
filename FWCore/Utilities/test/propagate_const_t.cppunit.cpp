@@ -6,7 +6,7 @@ Test program for edm::propagate_const class.
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <memory>
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 class test_propagate_const: public CppUnit::TestFixture
 {

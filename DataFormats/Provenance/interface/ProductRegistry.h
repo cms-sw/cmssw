@@ -14,7 +14,7 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductHolderIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include "boost/array.hpp"
 #include <memory>

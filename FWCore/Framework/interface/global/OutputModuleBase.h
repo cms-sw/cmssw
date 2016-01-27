@@ -38,7 +38,7 @@
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/getAllTriggerNames.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {

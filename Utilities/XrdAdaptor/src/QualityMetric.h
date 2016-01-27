@@ -9,7 +9,7 @@
 
 #include <boost/utility.hpp>
 
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace XrdAdaptor {
 

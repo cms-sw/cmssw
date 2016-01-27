@@ -22,7 +22,7 @@
 #include <vector>
 // user include files
 #include "FWCore/Framework/interface/produce_helpers.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {

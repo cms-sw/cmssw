@@ -106,7 +106,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/ProductLabels.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 
 namespace edm {
@@ -236,7 +236,7 @@ namespace edm {
     ModuleDescription const& md_;
     
     EDConsumerBase const* consumer_;
-    mutable SharedResourcesAcquirer* resourcesAcquirer_;
+    SharedResourcesAcquirer* resourcesAcquirer_; // We do not use propagate_const because the acquirer is itself mutable.
   };
 
   template <typename PROD>

@@ -3,7 +3,7 @@
 
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <memory>
 #include <vector>
@@ -63,7 +63,7 @@ namespace edm {
     std::shared_ptr<ProcessConfiguration const> processConfiguration() const {return get_underlying_safe(processConfiguration_);}
     std::shared_ptr<ProcessConfiguration>& processConfiguration() {return get_underlying_safe(processConfiguration_);}
 
-    mutable std::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
     edm::propagate_const<std::shared_ptr<SignallingProductRegistry>> preg_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;

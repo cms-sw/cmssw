@@ -30,7 +30,7 @@ a functor passed to the Framework with a call to callWhenNewProductsRegistered.
 
 // user include files
 #include "FWCore/Framework/interface/EDConsumerBase.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {

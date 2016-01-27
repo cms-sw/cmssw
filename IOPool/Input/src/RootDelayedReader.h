@@ -10,7 +10,7 @@ RootDelayedReader.h // used by ROOT input sources
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Utilities/interface/InputType.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "RootTree.h"
 
 #include <map>
@@ -59,7 +59,7 @@ namespace edm {
     RootTree const& tree_;
     edm::propagate_const<std::shared_ptr<InputFile>> filePtr_;
     edm::propagate_const<DelayedReader*> nextReader_;
-    mutable std::unique_ptr<SharedResourcesAcquirer> resourceAcquirer_;
+    std::unique_ptr<SharedResourcesAcquirer> resourceAcquirer_; // We do not use propagate_const because the acquirer is itself mutable.
     InputType inputType_;
     edm::propagate_const<TClass*> wrapperBaseTClass_;
     //If a fatal exception happens we need to make a copy so we can

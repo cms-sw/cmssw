@@ -642,7 +642,7 @@ namespace edm {
   }
 
   std::unique_ptr<FileBlock>
-  RootFile::createFileBlock() {
+  RootFile::createFileBlock() const {
     return std::unique_ptr<FileBlock>(new FileBlock(fileFormatVersion(),
                                                      eventTree_.tree(),
                                                      eventTree_.metaTree(),

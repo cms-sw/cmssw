@@ -3,7 +3,7 @@
 
 #include "FWCore/MessageLogger/interface/AbstractMLscribe.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // I believe the below are not needed:
 

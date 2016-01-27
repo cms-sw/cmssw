@@ -24,7 +24,7 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"	// change log 4
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // system include files
 

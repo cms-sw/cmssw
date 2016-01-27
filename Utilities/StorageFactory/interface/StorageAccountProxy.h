@@ -3,7 +3,7 @@
 
 # include "Utilities/StorageFactory/interface/StorageAccount.h"
 # include "Utilities/StorageFactory/interface/Storage.h"
-# include "FWCore/Utilities/interface/propagate_const_safe.h"
+# include "FWCore/Utilities/interface/get_underlying_safe.h"
 # include <string>
 #include <memory>
 

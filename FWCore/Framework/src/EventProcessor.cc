@@ -56,7 +56,7 @@
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RootHandlers.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "MessageForSource.h"
 #include "MessageForParent.h"
@@ -105,7 +105,8 @@ namespace {
       reg_ = nullptr;
     }
   private:
-    edm::propagate_const<edm::ActivityRegistry*> reg_;
+    edm::ActivityRegistry* reg_; // We do not use propagate_const because the registry itself is mutable.
+
     
   };
 }

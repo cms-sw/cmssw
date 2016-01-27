@@ -2,7 +2,7 @@
 #define IOPool_Streamer_StreamerFileReader_h
 
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
-#include "FWCore/Utilities/interface/propagate_const_safe.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <memory>
 #include <string>
