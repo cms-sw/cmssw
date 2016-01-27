@@ -157,16 +157,17 @@ QualityMetricFactory * QualityMetricFactory::m_instance = new QualityMetricFacto
 std::unique_ptr<QualityMetricSource>
 QualityMetricFactory::get(timespec now, const std::string &id)
 {
-    MetricMap::const_iterator it = m_instance->m_sources.find(id);
+    MetricMap::accessor access;
+    m_instance->m_sources.insert(access, std::make_pair(id, nullptr));
     QualityMetricUniqueSource *source;
-    if (it == m_instance->m_sources.end())
+    if (access->second == nullptr)
     {
         source = new QualityMetricUniqueSource(now);
-        m_instance->m_sources[id] = source;
+        access->second = source;
     }
     else
     {
-        source = it->second;
+        source = access->second;
     }
     return source->newSource(now);
 }
