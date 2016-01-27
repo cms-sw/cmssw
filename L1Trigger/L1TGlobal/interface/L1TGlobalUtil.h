@@ -20,6 +20,7 @@
 // Objects to produce for the output record.
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmAlgorithm.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -126,7 +127,8 @@ private:
     bool m_filledPrescales;
 
     // algorithm maps
-    const AlgorithmMap* m_algorithmMap;
+    //const AlgorithmMap* m_algorithmMap;
+    const std::map<std::string, L1TUtmAlgorithm>* m_algorithmMap;
     
 private:
 

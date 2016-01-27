@@ -39,6 +39,7 @@
 #include "CondFormats/DataRecord/interface/L1TGlobalTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
+#include "TriggerMenuParser.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -490,7 +491,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
     }
 
-
+/*
     // get / update the trigger menu from the EventSetup
     // local cache & check on cacheIdentifier
     unsigned long long l1GtMenuCacheID = evSetup.get<L1TGlobalTriggerMenuRcd>().cacheIdentifier();
@@ -504,7 +505,9 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
         m_l1GtMenuCacheID = l1GtMenuCacheID;
     }
-/*
+*/
+
+
     // get / update the trigger menu from the EventSetup
     // local cache & check on cacheIdentifier
     unsigned long long l1GtMenuCacheID = evSetup.get<L1TUtmTriggerMenuRcd>().cacheIdentifier();
@@ -513,14 +516,45 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
         edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
         evSetup.get< L1TUtmTriggerMenuRcd>().get(l1GtMenu) ;
-        L1TUtmTriggerMenu utml1GtMenu =  l1GtMenu.product();
+        const L1TUtmTriggerMenu* utml1GtMenu =  l1GtMenu.product();
         
-       m_l1GtMenu 
-       (const_cast<TriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
+	// Instantiate Parser
+        l1t::TriggerMenuParser gtParser = l1t::TriggerMenuParser();   
+
+
+	gtParser.setGtNumberConditionChips(m_l1GtStablePar->gtNumberConditionChips());
+	gtParser.setGtPinsOnConditionChip(m_l1GtStablePar->gtPinsOnConditionChip());
+	gtParser.setGtOrderConditionChip(m_l1GtStablePar->gtOrderConditionChip());
+	gtParser.setGtNumberPhysTriggers(m_l1GtStablePar->gtNumberPhysTriggers());
+        
+	//Parse menu into emulator classes
+	gtParser.parseCondFormats(utml1GtMenu); 
+        
+    // transfer the condition map and algorithm map from parser to L1uGtTriggerMenu
+        m_l1GtMenu  =  new TriggerMenu(gtParser.gtTriggerMenuName(), m_l1GtStablePar->gtNumberConditionChips(),
+                        gtParser.vecMuonTemplate(),
+                        gtParser.vecCaloTemplate(),
+                        gtParser.vecEnergySumTemplate(),
+                        gtParser.vecExternalTemplate(),
+                        gtParser.vecCorrelationTemplate(),
+                        gtParser.corMuonTemplate(),
+                        gtParser.corCaloTemplate(),
+                        gtParser.corEnergySumTemplate()) ;
+
+ 
+	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtTriggerMenuInterface(gtParser.gtTriggerMenuInterface());
+	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtTriggerMenuImplementation(gtParser.gtTriggerMenuImplementation());
+	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtScaleDbKey(gtParser.gtScaleDbKey());
+	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtScales(gtParser.gtScales());
+
+	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtAlgorithmMap(gtParser.gtAlgorithmMap());
+	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtAlgorithmAliasMap(gtParser.gtAlgorithmAliasMap());	        
+
+        (const_cast<TriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
 
         m_l1GtMenuCacheID = l1GtMenuCacheID;
     }
-*/
+
 
 
 
