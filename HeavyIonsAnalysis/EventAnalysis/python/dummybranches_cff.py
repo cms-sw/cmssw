@@ -474,5 +474,8 @@ def addHLTdummybranchesForPP( process):
       ,"HLT_AK4PFDJet80_Eta2p1_v1"
       ,"HLT_AK4PFBJetBSSV60_Eta2p1_v1"
       ,"HLT_AK4PFBJetBSSV80_Eta2p1_v1"
+      ,"L1_Centrality_ext70_100_HFplusANDminusTH0"
+      ,"L1_TOTEM_2"
+      ,"L1_Centrality_ext50_100_HFplusANDminusTH0"
       ])
 
