@@ -1,6 +1,6 @@
 <lcgdict>
-    <class name="Phase2TrackerCluster1D" ClassVersion="10">
-        <version ClassVersion="10" checksum="1003486686"/>
+    <class name="Phase2TrackerCluster1D" ClassVersion="2">
+        <version ClassVersion="2" checksum="1003486686"/>
     </class>
     <class name="std::vector< Phase2TrackerCluster1D >"/>
     <class name="std::vector< edmNew::DetSet< Phase2TrackerCluster1D > >"/>
