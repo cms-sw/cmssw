@@ -9,6 +9,7 @@
 // Author: M. Carver (UF)				    				//
 //////////////////////////////////////////////////////////////
 
+#define NUM_SECTORS 12
 
 #include "L1Trigger/L1TMuonEndCap/plugins/L1TMuonEndCapTrackProducer.h"
 #include "L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h"
@@ -55,7 +56,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
   //std::auto_ptr<L1TMuon::InternalTrackCollection> FoundTracks (new L1TMuon::InternalTrackCollection);
   std::auto_ptr<l1t::RegionalMuonCandBxCollection > OutputCands (new l1t::RegionalMuonCandBxCollection);
 
-  std::vector<BTrack> PTracks[12];
+  std::vector<BTrack> PTracks[NUM_SECTORS];
 
   std::vector<TriggerPrimitive> tester;
   //std::vector<InternalTrack> FoundTracks;
@@ -104,10 +105,10 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 
      }
    //}
-  std::vector<ConvertedHit> CHits[12];
-  MatchingOutput MO[12];
+  std::vector<ConvertedHit> CHits[NUM_SECTORS];
+  MatchingOutput MO[NUM_SECTORS];
 
-for(int SectIndex=0;SectIndex<12;SectIndex++){//perform TF on all 12 sectors
+for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 sectors
 
 
 
@@ -211,7 +212,9 @@ for(int SectIndex=0;SectIndex<12;SectIndex++){//perform TF on all 12 sectors
 
 
  BTrack FourBest[4];//ok
- std::vector<BTrack> PTemp[12] = PTracks;
+ std::vector<BTrack> PTemp[NUM_SECTORS];
+ for (int i=0; i<NUM_SECTORS; i++) PTemp[i] = PTracks[i];
+
  int windex[4] = {-1,-1,-1,-1};
 
 
