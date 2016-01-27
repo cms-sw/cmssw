@@ -114,7 +114,7 @@ bTagCommonBlock = cms.PSet(
            	cms.InputTag("softPFElectronsTagInfos")
            ),
            type = cms.string('GenericMVA'),
-           label = cms.InputTag("candidateCombinedSecondaryVertexSoftLeptonComputer"),
+           label = cms.InputTag("candidateCombinedSecondaryVertexSoftLeptonCvsLComputer"),
            folder = cms.string("CtaggerTag")
         ),
 	cms.PSet(
