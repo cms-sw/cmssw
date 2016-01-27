@@ -6,30 +6,28 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-namespace cms {
+#include <memory>
 
-    class Phase2TrackerClusterizer : public edm::EDProducer {
+
+    class Phase2TrackerClusterizer : public edm::global::EDProducer<> {
 
         public:
             explicit Phase2TrackerClusterizer(const edm::ParameterSet& conf);
             virtual ~Phase2TrackerClusterizer();
-            virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup);
+            void produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup& eventSetup) const override final;
 
         private:
-            edm::ParameterSet conf_;
-            Phase2TrackerClusterizerAlgorithm* clusterizer_;
+            std::unique_ptr< Phase2TrackerClusterizerAlgorithm > clusterizer_;
             edm::EDGetTokenT< edm::DetSetVector< Phase2TrackerDigi > > token_;
-            unsigned int maxClusterSize_;
-            unsigned int maxNumberClusters_;
 
     };
-}
+
 
 #endif

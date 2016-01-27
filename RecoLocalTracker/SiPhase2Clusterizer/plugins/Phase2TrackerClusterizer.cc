@@ -16,33 +16,24 @@
 #include <vector>
 #include <iostream>
 
-namespace cms {
 
     /*
      * Initialise the producer
      */ 
 
     Phase2TrackerClusterizer::Phase2TrackerClusterizer(edm::ParameterSet const& conf) :
-        conf_(conf),
-        maxClusterSize_(conf.getParameter< unsigned int >("maxClusterSize")),
-        maxNumberClusters_(conf.getParameter< unsigned int >("maxNumberClusters")) {
-            // Objects that will be used
-            token_ = consumes< edm::DetSetVector< Phase2TrackerDigi > >(conf.getParameter<edm::InputTag>("src"));
-            // Objects that will be produced
+        clusterizer_(new Phase2TrackerClusterizerAlgorithm(conf.getParameter< unsigned int >("maxClusterSize"), conf.getParameter< unsigned int >("maxNumberClusters"))),
+        token_(consumes< edm::DetSetVector< Phase2TrackerDigi > >(conf.getParameter<edm::InputTag>("src"))) {
             produces< Phase2TrackerCluster1DCollectionNew >(); 
-            // 
-            clusterizer_  = new Phase2TrackerClusterizerAlgorithm(maxClusterSize_, maxNumberClusters_);
-        }
-
-    Phase2TrackerClusterizer::~Phase2TrackerClusterizer() {
-        delete clusterizer_;
     }
+
+    Phase2TrackerClusterizer::~Phase2TrackerClusterizer() { }
 
     /*
      * Clusterize the events
      */
 
-    void Phase2TrackerClusterizer::produce(edm::Event& event, const edm::EventSetup& eventSetup) {
+    void Phase2TrackerClusterizer::produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup& eventSetup) const {
 
         // Get the Digis
         edm::Handle< edm::DetSetVector< Phase2TrackerDigi > > digis;
@@ -83,7 +74,5 @@ namespace cms {
         outputClusters->shrink_to_fit();
         event.put(outputClusters);
     }
-}
 
-using cms::Phase2TrackerClusterizer;
 DEFINE_FWK_MODULE(Phase2TrackerClusterizer);

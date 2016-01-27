@@ -25,7 +25,7 @@ void Phase2TrackerClusterizerAlgorithm::setup(const PixelGeomDetUnit* pixDet) {
 
 void Phase2TrackerClusterizerAlgorithm::clusterizeDetUnit(const edm::DetSet< Phase2TrackerDigi >& digis, edmNew::DetSetVector< Phase2TrackerCluster1D >::FastFiller& clusters) {
 
-    // Fill the 2D matrix with the ADC values
+    // Fill the 2D matrix with the hit information : (hit or not)
     fillMatrix(digis.begin(), digis.end());
 
     // Number of clusters
@@ -79,7 +79,7 @@ void Phase2TrackerClusterizerAlgorithm::clusterizeDetUnit(const edm::DetSet< Pha
 }
 
 /* 
- * Copy the value of the Digis' ADC to the 2D matrix. An ADC of 255 means the cell is hit (binary read-out)
+ * Copy the value of the Digis to the 2D matrix (hit or not). 
  */
 
 void Phase2TrackerClusterizerAlgorithm::fillMatrix(edm::DetSet< Phase2TrackerDigi >::const_iterator begin, edm::DetSet< Phase2TrackerDigi >::const_iterator end) {
