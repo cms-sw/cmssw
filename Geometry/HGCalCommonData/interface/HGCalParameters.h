@@ -9,9 +9,14 @@
 #include <iostream>
 #include <stdint.h>
 
+#include<vector>
+#include<unordered_map>
+
 class HGCalParameters {
 
 public:
+
+  typedef std::vector<std::unordered_map<int32_t,int32_t> > layer_map;
 
   struct hgtrap {
     int           lay;
@@ -97,6 +102,7 @@ public:
   std::vector<double>      boundR_;
   double                   waferR_;
   int                      mode_;
+  layer_map                copiesInLayers_;
 
   COND_SERIALIZABLE;
 };

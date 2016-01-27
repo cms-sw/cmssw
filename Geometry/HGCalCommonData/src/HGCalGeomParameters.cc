@@ -276,8 +276,9 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   // This assumes layers are build starting from 1 (which on 25 Jan 2016, they were)
   // to ensure that new copy numbers are always added
   // to the end of the list.
-  std::unordered_set<int>  copies;
-  std::vector<int>         wafer2copy;
+  std::unordered_map<int32_t,int32_t> copies;
+  HGCalParameters::layer_map   copiesInLayers(layers.size()+1);
+  std::vector<int32_t>         wafer2copy;
   std::vector<GlobalPoint> wafers;  
   std::string attribute = "Volume";
   DDValue val1(attribute, sdTag2, 0.0);
@@ -301,16 +302,24 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       bool isd = (name.find(sdTag2) != std::string::npos);
       if (isd) {
 	std::vector<int> copy = fv1.copyNumbers();
-	int nsiz = (int)(copy.size());
-	int wafer= (nsiz > 0) ? copy[nsiz-1] : 0;
+	int nsiz  = (int)(copy.size());
+	int wafer = (nsiz > 0) ? copy[nsiz-1] : 0;
+        int layer = (nsiz > 0) ? copy[nsiz-2] : 0;
 	if (wafer == 0 ) {
 	  edm::LogError("HGCalGeom") << "Funny wafer # " << wafer << " in "
 				     << nsiz << " components";
 	  throw cms::Exception("DDException") << "Funny wafer # " << wafer;
 	} else {          
-	  std::unordered_set<int>::iterator itr = copies.find(wafer);
+	  std::unordered_map<int32_t,int32_t>::iterator itr = 
+            copies.find(wafer);
+          std::unordered_map<int32_t,int32_t>::iterator cpy = 
+            copiesInLayers[layer].find(wafer);
+          if( itr != copies.end() && cpy == copiesInLayers[layer].end() ) {
+            copiesInLayers[layer][wafer] = itr->second;
+          }
 	  if (itr == copies.end()) {            
-            copies.insert(wafer);            
+            copies[wafer] = wafer2copy.size();
+            copiesInLayers[layer][wafer] = wafer2copy.size();
 	    double xx = k_ScaleFromDDD*fv1.translation().X();
 	    if (std::abs(xx) < 0.001) xx = 0;
 	    double yy = k_ScaleFromDDD*fv1.translation().Y();
@@ -465,6 +474,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
     }
     php.waferTypeL_.push_back(type);
   }
+  php.copiesInLayers_ = copiesInLayers;
   php.nSectors_ = (int)(php.waferCopy_.size());
 
   std::vector<GlobalPoint>::const_iterator itrf = wafers.end();
