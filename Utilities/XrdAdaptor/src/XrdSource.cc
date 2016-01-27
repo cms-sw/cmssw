@@ -58,7 +58,7 @@ public:
 
     virtual void HandleResponseWithHosts(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response, XrdCl::HostList *hostList) override
     {
-        if (!status->IsOK())
+        if (status && !status->IsOK())
         {
             
             edm::LogWarning("XrdFileWarning") << "Source delayed close failed with error '" << status->ToStr()
@@ -66,6 +66,7 @@ public:
         }
         delete status;
         delete hostList;
+        // NOTE: we do not delete response (copying behavior from XrdCl).
         delete this;
     }
 
