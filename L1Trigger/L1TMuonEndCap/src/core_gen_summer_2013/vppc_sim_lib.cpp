@@ -703,7 +703,8 @@ void Sfwrite(signal_& fd, string format, ... )
 	}
 
 	va_end(ap);
-	fprintf (ff, ostr.str().c_str());
+	//fprintf (ff, ostr.str().c_str());
+	fputs(ostr.str().c_str(), ff);
 }
 
 void Sreadmemh(string fname, signal_& dest, size_t adr)
