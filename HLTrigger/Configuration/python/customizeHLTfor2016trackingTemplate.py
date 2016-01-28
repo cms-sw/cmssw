@@ -53,7 +53,7 @@ def bug_fix(process):
 def CCC(process):
 
     # new CCC
-    process.HLTSiStripClusterChargeCutTiny = cms.PSet(  value = cms.double(  800.0 ) )    
+    setattr(process,'HLTSiStripClusterChargeCutTiny', cms.PSet(  value = cms.double(  800.0 ) ) )
     if hasattr(process,'hltESPChi2ChargeMeasurementEstimator16'): # used by iter1,2,3,4
 	getattr(process,'hltESPChi2ChargeMeasurementEstimator16').clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTiny" ) ) # 2015 HLTSiStripClusterChargeCutLoose
     if hasattr(process,'hltESPChi2ChargeMeasurementEstimator9'): # used by iter0
@@ -119,7 +119,7 @@ def new_selector(process):
     # iter0
     if hasattr(process, 'HLTIterativeTrackingIteration0'):
 
-        process.hltIter0PFlowTrackCutClassifier = cms.EDProducer('TrackCutClassifier',
+        setattr(process,'hltIter0PFlowTrackCutClassifier', cms.EDProducer('TrackCutClassifier',
            src = cms.InputTag('hltIter0PFlowCtfWithMaterialTracks'),
            beamspot = cms.InputTag('hltOnlineBeamSpot'),
            vertices = cms.InputTag('hltTrimmedPixelVertices'),
@@ -234,8 +234,8 @@ def new_selector(process):
              )
            )
          )
-
-        process.hltIter0PFlowTrackSelectionHighPurity = cms.EDProducer( "TrackCollectionFilterCloner",
+        )        
+        setattr(process,'hltIter0PFlowTrackSelectionHighPurity', cms.EDProducer( "TrackCollectionFilterCloner",
           originalSource   = cms.InputTag('hltIter0PFlowCtfWithMaterialTracks'),
           originalMVAVals  = cms.InputTag('hltIter0PFlowTrackCutClassifier','MVAValues'),
           originalQualVals = cms.InputTag('hltIter0PFlowTrackCutClassifier','QualityMasks'),
@@ -244,16 +244,23 @@ def new_selector(process):
             copyExtras       = cms.untracked.bool(False),
             copyTrajectories = cms.untracked.bool(False)
           )
+         )
         )
+        iter0HP  = getattr(process,'hltIter0PFlowTrackSelectionHighPurity')
 
         iter0seq = getattr(process,'HLTIterativeTrackingIteration0')
-        iter0HP = getattr(process,'hltIter0PFlowTrackSelectionHighPurity')
-        iter0seq.insert( iter0seq.index( iter0HP ), process.hltIter0PFlowTrackCutClassifier )
+        iter0seq.insert( iter0seq.index( iter0HP ), getattr(process,'hltIter0PFlowTrackCutClassifier') )
+        print 'iter0seq: ', iter0seq
+        print 'iterativeTracking: ', process.HLTIterativeTrackingIter02
+        print '**************************************************************************************************'
+#        iter02seq = getattr(process,'HLTIterativeTrackingIter02')
+#        iter02seq.insert( iter02seq.index( iter0HP ), process.hltIter0PFlowTrackCutClassifier )
+        
 
     ### iter1
     if hasattr(process, 'HLTIterativeTrackingIteration1'):
 
-        process.hltIter1PFlowTrackCutClassifierPrompt = cms.EDProducer('TrackCutClassifier',
+        setattr(process,'hltIter1PFlowTrackCutClassifierPrompt', cms.EDProducer('TrackCutClassifier',
            src = cms.InputTag('hltIter1PFlowCtfWithMaterialTracks'),
            beamspot = cms.InputTag('hltOnlineBeamSpot'),
            vertices = cms.InputTag('hltTrimmedPixelVertices'),
@@ -368,8 +375,9 @@ def new_selector(process):
              )
            )
         )
+        )
         
-        process.hltIter1PFlowTrackCutClassifierDetached = cms.EDProducer('TrackCutClassifier',
+        setattr(process,'hltIter1PFlowTrackCutClassifierDetached', cms.EDProducer('TrackCutClassifier',
           src = cms.InputTag('hltIter1PFlowCtfWithMaterialTracks'),
           beamspot = cms.InputTag('hltOnlineBeamSpot'),
           vertices = cms.InputTag('hltTrimmedPixelVertices'),
@@ -484,13 +492,14 @@ def new_selector(process):
         
             )
           )
+         )
         )
-
-        process.hltIter1PFlowTrackCutClassifierMerged = cms.EDProducer('ClassifierMerger',
+        setattr(process,'hltIter1PFlowTrackCutClassifierMerged', cms.EDProducer('ClassifierMerger',
           inputClassifiers = cms.vstring('hltIter1PFlowTrackCutClassifierPrompt','hltIter1PFlowTrackCutClassifierDetached')
+         )
         )
           
-        process.hltIter1PFlowTrackSelectionHighPurity = cms.EDProducer( "TrackCollectionFilterCloner",
+        setattr(process,'hltIter1PFlowTrackSelectionHighPurity', cms.EDProducer( "TrackCollectionFilterCloner",
           originalSource   = cms.InputTag('hltIter1PFlowCtfWithMaterialTracks'),
           originalMVAVals  = cms.InputTag('hltIter1PFlowTrackCutClassifierMerged','MVAValues'),
           originalQualVals = cms.InputTag('hltIter1PFlowTrackCutClassifierMerged','QualityMasks'),
@@ -499,22 +508,31 @@ def new_selector(process):
             copyExtras       = cms.untracked.bool(False),
             copyTrajectories = cms.untracked.bool(False)
           )
+         )
         )
 
-        iter1seq = getattr(process,'HLTIterativeTrackingIteration1')
-        iter1prompt = getattr(process,'hltIter1PFlowTrackCutClassifierPrompt')
-        iter1seq.replace( process.hltIter1PFlowTrackSelectionHighPurityLoose, iter1prompt )
+        iter1prompt   = getattr(process,'hltIter1PFlowTrackCutClassifierPrompt')
         iter1detached = getattr(process,'hltIter1PFlowTrackCutClassifierDetached')
-        iter1seq.replace( process.hltIter1PFlowTrackSelectionHighPurityTight, iter1detached )
-        iter1merge = getattr(process,'hltIter1PFlowTrackCutClassifierMerged')
-        iter1HP = getattr(process,'hltIter1PFlowTrackSelectionHighPurity')
+        iter1merge    = getattr(process,'hltIter1PFlowTrackCutClassifierMerged')
+        iter1HP       = getattr(process,'hltIter1PFlowTrackSelectionHighPurity')
+
+        iter1seq = getattr(process,'HLTIterativeTrackingIteration1')
+        iter1seq.replace( getattr(process,'hltIter1PFlowTrackSelectionHighPurityLoose'), iter1prompt )
+        iter1seq.replace( getattr(process,'hltIter1PFlowTrackSelectionHighPurityTight'), iter1detached )
         iter1seq.insert( iter1seq.index( iter1HP ), iter1merge )
-        
+
+        iter02seq = getattr(process,'HLTIterativeTrackingIter02')
+        iter02seq.replace( getattr(process,'hltIter1PFlowTrackSelectionHighPurityLoose'), iter1prompt )
+        iter02seq.replace( getattr(process,'hltIter1PFlowTrackSelectionHighPurityTight'), iter1detached )
+        iter02seq.insert( iter02seq.index( iter1HP ), iter1merge )
+        print 'iter1seq: ', iter1seq
+        print 'iterativeTracking: ', process.HLTIterativeTrackingIter02
+        print '**************************************************************************************************'
 
     #### iter2
     if hasattr(process, 'HLTIterativeTrackingIteration2'):
 
-        process.hltIter2PFlowTrackCutClassifier = cms.EDProducer('TrackCutClassifier',
+        setattr(process,'hltIter2PFlowTrackCutClassifier', cms.EDProducer('TrackCutClassifier',
           src = cms.InputTag('hltIter2PFlowCtfWithMaterialTracks'),
           beamspot = cms.InputTag('hltOnlineBeamSpot'),
           vertices = cms.InputTag('hltTrimmedPixelVertices'),
@@ -624,9 +642,9 @@ def new_selector(process):
               )
             )
           )
+         )
         )
-
-        process.hltIter2PFlowTrackSelectionHighPurity = cms.EDProducer( "TrackCollectionFilterCloner",
+        setattr(process,'hltIter2PFlowTrackSelectionHighPurity', cms.EDProducer( "TrackCollectionFilterCloner",
           originalSource   = cms.InputTag('hltIter2PFlowCtfWithMaterialTracks'),
           originalMVAVals  = cms.InputTag('hltIter2PFlowTrackCutClassifier','MVAValues'),
           originalQualVals = cms.InputTag('hltIter2PFlowTrackCutClassifier','QualityMasks'),
@@ -635,17 +653,31 @@ def new_selector(process):
             copyExtras       = cms.untracked.bool(False),
             copyTrajectories = cms.untracked.bool(False)
           )
+         )
         )
+        print '**************************************************************************************************'
+        iter2HP  = getattr(process,'hltIter2PFlowTrackSelectionHighPurity')
 
         iter2seq = getattr(process,'HLTIterativeTrackingIteration2')
-        iter2HP = getattr(process,'hltIter2PFlowTrackSelectionHighPurity')
-        iter2seq.insert( iter2seq.index( iter2HP ), process.hltIter2PFlowTrackCutClassifier )
+        print 'iter2seq: ', iter2seq
+        iter2seq.insert( iter2seq.index( iter2HP ), getattr(process,'hltIter2PFlowTrackCutClassifier') )
+        print 'iter2seq: ', iter2seq
+        print '**************************************************************************************************'
+        iter02seq = getattr(process,'HLTIterativeTrackingIter02')
+        if hasattr(iter02seq,'hltIter2PFlowTrackSelectionHighPurity'):
+            print 'iter02seq has hltIter2PFlowTrackSelectionHighPurity'
+            print getattr(process,'hltIter2PFlowTrackSelectionHighPurity')            
+            iter02seq.insert( iter02seq.index( iter2HP ), getattr(process,'hltIter2PFlowTrackCutClassifier') )
+
+        print 'iterativeTracking: ', process.HLTIterativeTrackingIter02
+        print '**************************************************************************************************'
                 
     return process
 
 def customiseFor2016trackingTemplate(process):
     bug_fix(process)
     new_selector(process)
+    
     CCC(process)
     speedup_building(process)
     speedup_filtering(process)
