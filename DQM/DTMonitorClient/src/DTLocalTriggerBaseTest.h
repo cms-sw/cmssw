@@ -94,7 +94,7 @@ protected:
   std::string getMEName(std::string histoTag, std::string subfolder, int wh);
   
   /// Get top folder name
-  inline std::string & topFolder(bool isDCC) { return isDCC ? baseFolderDCC : baseFolderDDU; } ;
+  inline std::string & topFolder(bool isTM) { return isTM ? baseFolderTM : baseFolderDDU; } ;
   
   /// Get message logger name
   inline std::string category() { return "DTDQM|DTMonitorClient|" + testName + "Test"; } ;
@@ -112,7 +112,7 @@ protected:
   std::string sourceFolder;
   edm::ParameterSet parameters;
   bool runOnline;
-  std::string baseFolderDCC;
+  std::string baseFolderTM;
   std::string baseFolderDDU;
   std::string trigSource;
   std::string hwSource;

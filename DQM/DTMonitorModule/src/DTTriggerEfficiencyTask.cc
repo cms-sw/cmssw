@@ -49,7 +49,7 @@ DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : 
   muons_Token_ = consumes<reco::MuonCollection>(
       parameters.getUntrackedParameter<edm::InputTag>("inputTagMuons"));
   dcc_Token_   = consumes<L1MuDTChambPhContainer>(
-      parameters.getUntrackedParameter<edm::InputTag>("inputTagDCC"));
+      parameters.getUntrackedParameter<edm::InputTag>("inputTagTM"));
   ddu_Token_   = consumes<DTLocalTriggerCollection>(
       parameters.getUntrackedParameter<edm::InputTag>("inputTagDDU"));
   inputTagSEG  = parameters.getUntrackedParameter<edm::InputTag>("inputTagSEG");
@@ -59,7 +59,7 @@ DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : 
   SegmArbitration = parameters.getUntrackedParameter<std::string>("SegmArbitration");
 
   detailedPlots = parameters.getUntrackedParameter<bool>("detailedAnalysis");
-  processDCC = parameters.getUntrackedParameter<bool>("processDCC");
+  processTM = parameters.getUntrackedParameter<bool>("processTM");
   processDDU = parameters.getUntrackedParameter<bool>("processDDU");
   minBXDDU = parameters.getUntrackedParameter<int>("minBXDDU");
   maxBXDDU = parameters.getUntrackedParameter<int>("maxBXDDU");
@@ -67,7 +67,7 @@ DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : 
   nMinHitsPhi = parameters.getUntrackedParameter<int>("nMinHitsPhi");
   phiAccRange = parameters.getUntrackedParameter<double>("phiAccRange");
 
-  if (processDCC) processTags.push_back("DCC");
+  if (processTM) processTags.push_back("TM");
   if (processDDU) processTags.push_back("DDU");
 
 }
@@ -124,10 +124,10 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
 
   if (!hasRPCTriggers(e)) { return; }
 
-  map<DTChamberId,const L1MuDTChambPhDigi*> phBestDCC;
+  map<DTChamberId,const L1MuDTChambPhDigi*> phBestTM;
   map<DTChamberId,const DTLocalTrigger*>    phBestDDU;
 
-  // Getting best DCC Stuff
+  // Getting best TM Stuff
   edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
   e.getByToken(dcc_Token_, l1DTTPGPh);
   vector<L1MuDTChambPhDigi> const*  phTrigs = l1DTTPGPh->getContainer();
@@ -143,8 +143,8 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
 
     DTChamberId chId(phwheel,phst,phsec);
 
-    if( phcode < 7 && (phBestDCC.find(chId) == phBestDCC.end() ||
-          phcode>phBestDCC[chId]->code()) ) phBestDCC[chId] = &(*iph);
+    if( phcode < 7 && (phBestTM.find(chId) == phBestTM.end() ||
+          phcode>phBestTM[chId]->code()) ) phBestTM[chId] = &(*iph);
   }
 
   //Getting Best DDU Stuff
@@ -241,8 +241,8 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
 
       for (; tagIt!=tagEnd; ++tagIt) {
 
-        int qual   = (*tagIt) == "DCC" ?
-          phBestDCC.find(dtChId) != phBestDCC.end() ? phBestDCC[dtChId]->code() : -1 :
+        int qual   = (*tagIt) == "TM" ?
+          phBestTM.find(dtChId) != phBestTM.end() ? phBestTM[dtChId]->code() : -1 :
           phBestDDU.find(dtChId) != phBestDDU.end() ? phBestDDU[dtChId]->quality() : -1;
 
         innerWhME.find((*tagIt) + "_TrigEffDenum")->second->Fill(scsector,station);
