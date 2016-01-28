@@ -41,6 +41,8 @@ process.pfMetWithSignificance = process.pfMet.clone(
     calculateSignificance = cms.bool(True),
     srcJets = cms.InputTag("ak4PFJets"),
     srcLeptons = cms.VInputTag("selectedElectrons", "selectedMuons", "selectedPhotons"),
+    srcJetRes = cms.string('AK4PFchs'),
+    srcRho = cms.InputTag('fixedGridRhoAll'),
     parameters = process.METSignificanceParams
     )
 

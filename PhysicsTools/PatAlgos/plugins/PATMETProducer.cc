@@ -47,6 +47,8 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig):
   if(calculateMETSignificance_)
     {
       metSigAlgo_ = new metsig::METSignificance(iConfig);
+      rhoToken_ = mayConsume<double>(iConfig.getParameter<edm::InputTag>("srcRho"));
+      jetResType_ = iConfig.getParameter<std::string>("srcJetRes");
       jetToken_ = mayConsume<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("srcJets"));
       pfCandToken_ = mayConsume<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("srcPFCands"));
       std::vector<edm::InputTag> srcLeptonsTags = iConfig.getParameter< std::vector<edm::InputTag> >("srcLeptons");
@@ -93,7 +95,7 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     //add the MET significance
     if(calculateMETSignificance_) {
-      const reco::METCovMatrix& sigcov = getMETCovMatrix(iEvent);
+      const reco::METCovMatrix& sigcov = getMETCovMatrix(iEvent, iSetup);
       amet.setSignificanceMatrix(sigcov);
       double metSig=metSigAlgo_->getSignificance(sigcov, amet);
       amet.setMETSignificance(metSig);
@@ -160,7 +162,7 @@ void PATMETProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
 }
 
 const reco::METCovMatrix 
-PATMETProducer::getMETCovMatrix(const edm::Event& event) const {
+PATMETProducer::getMETCovMatrix(const edm::Event& event, const edm::EventSetup& iSetup) const {
   std::vector< edm::Handle<reco::CandidateView> > leptons;
   for ( std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator srcLeptons_i = lepTokens_.begin();
 	srcLeptons_i != lepTokens_.end(); ++srcLeptons_i ) {
@@ -176,8 +178,15 @@ PATMETProducer::getMETCovMatrix(const edm::Event& event) const {
   edm::Handle<edm::View<reco::Candidate> > inputCands;
   event.getByToken( pfCandToken_, inputCands );
 
+  edm::Handle<double> rho;
+  event.getByToken(rhoToken_, rho);
+  
+  JME::JetResolution resObj = JME::JetResolution::get(iSetup, jetResType_);
+  JME::JetResolutionScaleFactor resSFObj = JME::JetResolutionScaleFactor::get(iSetup, jetResType_);
+
   //Compute the covariance matrix and fill it
-  reco::METCovMatrix cov = metSigAlgo_->getCovariance( *inputJets, leptons, *inputCands);
+  reco::METCovMatrix cov = metSigAlgo_->getCovariance( *inputJets, leptons, *inputCands,
+						       *rho, resObj, resSFObj);
   return cov;
 }
 

@@ -52,6 +52,8 @@ patMETs = cms.EDProducer("PATMETProducer",
     srcJets = cms.InputTag("selectedPatJets"),
     srcPFCands =  cms.InputTag("packedPFCandidates"),
     srcLeptons = cms.VInputTag("selectedPatElectrons", "selectedPatMuons", "selectedPatPhotons"),
+    srcJetRes = cms.string('AK4PFchs'),
+    srcRho = cms.InputTag('fixedGridRhoAll'),
     parameters = METSignificanceParams
 )
 

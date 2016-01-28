@@ -28,8 +28,8 @@ namespace cms
 	  lepTokens_.push_back( mayConsume<edm::View<reco::Candidate> >( *it ) );
 	}
   
-   jetResType_ = iConfig.getParameter<std::string>("srcJetRes");
-   rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho"));
+	jetResType_ = iConfig.getParameter<std::string>("srcJetRes");
+	rhoToken_ = mayConsume<double>(iConfig.getParameter<edm::InputTag>("rho"));
       }
 
     std::string alias = iConfig.exists("alias") ? iConfig.getParameter<std::string>("alias") : "";

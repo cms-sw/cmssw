@@ -72,8 +72,11 @@ namespace pat {
     edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
     edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandToken_;
     std::vector< edm::EDGetTokenT<edm::View<reco::Candidate> > > lepTokens_;
+    edm::EDGetTokenT<double> rhoToken_;
+    std::string jetResType_;
 
-    const reco::METCovMatrix getMETCovMatrix(const edm::Event& event) const;
+    const reco::METCovMatrix getMETCovMatrix(const edm::Event& event, 
+					     const edm::EventSetup& iSetup) const;
 
   };
 
