@@ -82,7 +82,6 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string 
       m_id("(unknown)"),
       m_exclude(exclude),
       m_fh(std::move(fh)),
-      m_qm(QualityMetricFactory::get(now, m_id)),
       m_stats(nullptr)
 #ifdef XRD_FAKE_SLOW
     , m_slow(++g_delayCount % XRD_SLOW_RATE == 0)
@@ -99,6 +98,7 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string 
       }
       if (!m_exclude.size()) {m_exclude = m_id;}
     }
+    m_qm = QualityMetricFactory::get(now, m_id);
     m_prettyid = m_id + " (unknown site)";
     std::string domain_id;
     if (getDomain(m_id, domain_id)) {m_site = domain_id;}
