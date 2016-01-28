@@ -17,7 +17,7 @@ def loadDigiAliases(premix=False):
 
     nopremix = not premix
 
-    global generalTracks,ecalPreshowerDigis,ecalDigis,hcalDigis,muonDTDigis,muonCSCDigis,muonRPCDigis,caloStage1LegacyFormatDigis
+    global generalTracks,ecalPreshowerDigis,ecalDigis,hcalDigis,muonDTDigis,muonCSCDigis,muonRPCDigis
 
     generalTracks = cms.EDAlias(
         **{"mix" if nopremix else "mixData" :
@@ -135,7 +135,10 @@ def loadDigiAliases(premix=False):
            }
           )
     
-    # also sim in case of premixing?
+def loadTriggerDigiAliases():
+
+    global gctDigis,gtDigis,gmtDigis,caloStage1LegacyFormatDigis
+
     caloStage1LegacyFormatDigis = cms.EDAlias(
         **{ "simCaloStage1LegacyFormatDigis" :
                 cms.VPSet(
@@ -151,25 +154,34 @@ def loadDigiAliases(premix=False):
                 cms.PSet(type = cms.string("L1GctInternJetDatas")),
                 cms.PSet(type = cms.string("L1GctJetCands")))})
 
-
-def loadTriggerDigiAliases():
-
-    global gtDigis,gmtDigis
+    gctDigis = cms.EDAlias(
+        **{ "simGctDigis" :
+                cms.VPSet(
+                cms.PSet(type = cms.string("L1GctEmCands")),
+                cms.PSet(type = cms.string("L1GctEtHads")),
+                cms.PSet(type = cms.string("L1GctEtMisss")),
+                cms.PSet(type = cms.string("L1GctEtTotals")),
+                cms.PSet(type = cms.string("L1GctHFBitCountss")),
+                cms.PSet(type = cms.string("L1GctHFRingEtSumss")),
+                cms.PSet(type = cms.string("L1GctHtMisss")),
+                cms.PSet(type = cms.string("L1GctInternEtSums")),
+                cms.PSet(type = cms.string("L1GctInternHtMisss")),
+                cms.PSet(type = cms.string("L1GctInternJetDatas")),
+                cms.PSet(type = cms.string("L1GctJetCands")))})
 
     gtDigis = cms.EDAlias(
-        simGtDigis=
-        cms.VPSet(
-            cms.PSet(type = cms.string("L1GlobalTriggerReadoutRecord")),
-            cms.PSet(type = cms.string("L1GlobalTriggerObjectMapRecord"))
-            )
-        )
+        **{ "simGtDigis" :
+                cms.VPSet(
+                cms.PSet(type = cms.string("L1GlobalTriggerEvmReadoutRecord")),
+                cms.PSet(type = cms.string("L1GlobalTriggerObjectMapRecord")),
+                cms.PSet(type = cms.string("L1GlobalTriggerReadoutRecord")))})
     
 
     gmtDigis = cms.EDAlias (
         simGmtDigis = 
         cms.VPSet(
-            cms.PSet(type = cms.string("L1MuGMTReadoutCollection"))
+            cms.PSet(type = cms.string("L1MuGMTReadoutCollection")),
+            cms.PSet(type = cms.string("L1MuGMTCands"))
             )
         )
     
-
