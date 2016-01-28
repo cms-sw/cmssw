@@ -245,7 +245,7 @@ fillPathSummary(unsigned int iStartIndex,
 }
 
 void
-SystemTimeKeeper::fillTriggerTimingReport( TriggerTimingReport& rep) {
+SystemTimeKeeper::fillTriggerTimingReport(TriggerTimingReport& rep) const {
   {
     rep.eventSummary.totalEvents = m_numberOfEvents;
     double sumEventTime = 0.;

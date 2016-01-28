@@ -1065,7 +1065,7 @@ namespace edm {
   }
                           
   void
-  Schedule::getTriggerTimingReport(TriggerTimingReport& rep) {
+  Schedule::getTriggerTimingReport(TriggerTimingReport& rep) const {
     rep.eventSummary.totalEvents = 0;
     rep.eventSummary.cpuTime = 0.;
     rep.eventSummary.realTime = 0.;
