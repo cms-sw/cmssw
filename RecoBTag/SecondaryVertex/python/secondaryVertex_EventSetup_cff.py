@@ -20,7 +20,7 @@ from RecoBTag.SecondaryVertex.positiveCombinedSecondaryVertexV2Computer_cfi impo
 # New candidate based fwk
 from RecoBTag.SecondaryVertex.candidateSimpleSecondaryVertex2TrkComputer_cfi import *
 from RecoBTag.SecondaryVertex.candidateCombinedSecondaryVertexV2Computer_cfi import *
-#from RecoBTag.SecondaryVertex.candidateCombinedSecondaryVertexSoftLeptonComputer_cfi import *
+from RecoBTag.SecondaryVertex.candidateCombinedSecondaryVertexSoftLeptonComputer_cfi import *
 from RecoBTag.SecondaryVertex.candidateBoostedDoubleSecondaryVertexAK8Computer_cfi import *
 from RecoBTag.SecondaryVertex.candidateBoostedDoubleSecondaryVertexCA15Computer_cfi import *
 
