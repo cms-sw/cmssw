@@ -68,6 +68,19 @@ if eras.stage2L1Trigger.isChosen():
     from EventFilter.L1TRawToDigi.caloStage2Raw_cfi import *
     from EventFilter.L1TRawToDigi.gmtStage2Raw_cfi import *
     from EventFilter.L1TRawToDigi.gtStage2Raw_cfi import *
-    L1TDigiToRaw = cms.Sequence(caloStage2Raw + gmtStage2Raw + gtStage2Raw)
+    #L1TDigiToRaw = cms.Sequence(caloStage2Raw + gmtStage2Raw + gtStage2Raw)
     # Missing: muon TFs, calo layer1, 
+    #HACK:  unpacking stage-1 as well to restore functionality:
+    from EventFilter.CSCTFRawToDigi.csctfpacker_cfi import *
+    from EventFilter.DTTFRawToDigi.dttfpacker_cfi import *    
+    from EventFilter.L1GlobalTriggerRawToDigi.l1GtPack_cfi import *
+    csctfpacker.lctProducer = "simCscTriggerPrimitiveDigis:MPCSORTED"
+    csctfpacker.trackProducer = 'simCsctfTrackDigis'
+    dttfpacker.DTDigi_Source = 'simDtTriggerPrimitiveDigis'
+    dttfpacker.DTTracks_Source = "simDttfDigis:DTTF"
+    l1GtPack.DaqGtInputTag = 'simGtDigis'
+    l1GtPack.MuGmtInputTag = 'simGmtDigis'
+
+    from EventFilter.L1TRawToDigi.caloStage1Raw_cfi import *
+    L1TDigiToRaw = cms.Sequence(caloStage2Raw + gmtStage2Raw + gtStage2Raw + csctfpacker+dttfpacker+l1GtPack+caloStage1Raw)
 

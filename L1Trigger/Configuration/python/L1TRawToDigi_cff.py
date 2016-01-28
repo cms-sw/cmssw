@@ -6,10 +6,6 @@
 # which contains all packers needed for the current era.
 #
 
-#
-# There are 3 Hacks below which need to be fixed before this can be used generally...
-#
-
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
