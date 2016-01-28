@@ -27,20 +27,13 @@
 
 #include <boost/cstdint.hpp>
 
-// user include files
-// base class
-//#include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtXmlParserTags.h"
-
 #include "L1Trigger/L1TGlobal/interface/GtCondition.h"
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-#include "L1Trigger/L1TGlobal/src/L1TMenuEditor/L1TriggerMenu.hxx"
 
-
-#include "tmEventSetup/tmEventSetup.hh"
 #include "tmEventSetup/esTriggerMenu.hh"
 #include "tmEventSetup/esAlgorithm.hh"
 #include "tmEventSetup/esCondition.hh"
@@ -248,7 +241,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
     const esAlgorithm& algo = cit->second;
 
     //parse the algorithm
-    parseAlgorithmV2(algo,chipNr); //blw
+    parseAlgorithm(algo,chipNr); //blw
 
     //get conditions for this algorithm
     const std::vector<std::string>& rpn_vec = algo.getRpnVector();
@@ -276,7 +269,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 	     condition.getType() == esConditionType::TripleJet    ||
 	     condition.getType() == esConditionType::QuadJet      ) 
 	  {
-             parseCaloV2(condition,chipNr,false); //blw 
+             parseCalo(condition,chipNr,false); //blw 
 
 	  // parse Energy Sums	 
 	  } else if(condition.getType() == esConditionType::TotalEt ||
@@ -284,7 +277,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 		    condition.getType() == esConditionType::MissingEt ||
 		    condition.getType() == esConditionType::MissingHt )
 	  {
-             parseEnergySumV2(condition,chipNr,false); 	
+             parseEnergySum(condition,chipNr,false); 	
 
 	  //parse Muons	 	
 	  } else if(condition.getType() == esConditionType::SingleMuon    ||
@@ -292,7 +285,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 	            condition.getType() == esConditionType::TripleMuon    ||
 	            condition.getType() == esConditionType::QuadMuon      )       
 	  {
-             parseMuonV2(condition,chipNr,false);
+             parseMuon(condition,chipNr,false);
              
 	     
 	  //parse Correlation Conditions	 	
@@ -303,12 +296,12 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 		    condition.getType() == esConditionType::CaloEsumCorrelation    ||
 		    condition.getType() == esConditionType::InvariantMass )       
 	  {
-             parseCorrelationV2(condition,chipNr);
+             parseCorrelation(condition,chipNr);
 
 	  //parse Muons	 	
 	  } else if(condition.getType() == esConditionType::Externals      )       
 	  {
-             parseExternalV2(condition,chipNr);
+             parseExternal(condition,chipNr);
 	     	    
 	  }      
       
@@ -669,7 +662,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
  *
  */
 
-bool l1t::TriggerMenuParser::parseMuonV2(tmeventsetup::esCondition condMu,
+bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu,
         unsigned int chipNr, const bool corrFlag) {
 
     using namespace tmeventsetup;
@@ -1155,7 +1148,7 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
  *
  */
 
-bool l1t::TriggerMenuParser::parseCaloV2(tmeventsetup::esCondition condCalo,
+bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo,
         unsigned int chipNr, const bool corrFlag) {
 
 
@@ -1171,7 +1164,7 @@ bool l1t::TriggerMenuParser::parseCaloV2(tmeventsetup::esCondition condCalo,
 
     LogDebug("TriggerMenuParser")
       << "\n ****************************************** " 
-      << "\n      (in parseCaloV2) " 
+      << "\n      (in parseCalo) " 
       << "\n condition = " << condition 
       << "\n particle  = " << particle 
       << "\n type      = " << type 
@@ -1500,7 +1493,7 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
 
     LogDebug("TriggerMenuParser")
       << "\n ****************************************** " 
-      << "\n      (in parseCaloV2) " 
+      << "\n      (in parseCalo) " 
       << "\n condition = " << condition 
       << "\n particle  = " << particle 
       << "\n type      = " << type 
@@ -1736,7 +1729,7 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
  *
  */
 
-bool l1t::TriggerMenuParser::parseEnergySumV2(tmeventsetup::esCondition condEnergySum,
+bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergySum,
         unsigned int chipNr, const bool corrFlag) {
 
 
@@ -1751,7 +1744,7 @@ bool l1t::TriggerMenuParser::parseEnergySumV2(tmeventsetup::esCondition condEner
 
     LogDebug("TriggerMenuParser")
       << "\n ****************************************** " 
-      << "\n      (in parseEnergySumV2) " 
+      << "\n      (in parseEnergySum) " 
       << "\n condition = " << condition 
       << "\n type      = " << type 
       << "\n name      = " << name 
@@ -1963,7 +1956,7 @@ bool l1t::TriggerMenuParser::parseEnergySumCorr(const tmeventsetup::esObject* co
 
     LogDebug("TriggerMenuParser")
       << "\n ****************************************** " 
-      << "\n      (in parseEnergySumV2) " 
+      << "\n      (in parseEnergySum) " 
       << "\n condition = " << condition 
       << "\n type      = " << type 
       << "\n name      = " << name 
@@ -2142,7 +2135,7 @@ bool l1t::TriggerMenuParser::parseEnergySumCorr(const tmeventsetup::esObject* co
  *
  */
 
-bool l1t::TriggerMenuParser::parseExternalV2(tmeventsetup::esCondition condExt,
+bool l1t::TriggerMenuParser::parseExternal(tmeventsetup::esCondition condExt,
         unsigned int chipNr) {
 
 
@@ -2158,7 +2151,7 @@ bool l1t::TriggerMenuParser::parseExternalV2(tmeventsetup::esCondition condExt,
 
     LogDebug("TriggerMenuParser")
       << "\n ****************************************** " 
-      << "\n      (in parseExternalV2) " 
+      << "\n      (in parseExternal) " 
       << "\n condition = " << condition 
       << "\n particle  = " << particle 
       << "\n type      = " << type 
@@ -2230,7 +2223,7 @@ bool l1t::TriggerMenuParser::parseExternalV2(tmeventsetup::esCondition condExt,
  *
  */
 
-bool l1t::TriggerMenuParser::parseCorrelationV2(
+bool l1t::TriggerMenuParser::parseCorrelation(
         tmeventsetup::esCondition corrCond,
         unsigned int chipNr) {
 
@@ -2489,12 +2482,12 @@ bool l1t::TriggerMenuParser::parseCorrelationV2(
  *
  */
 
-bool l1t::TriggerMenuParser::parseAlgorithmV2( tmeventsetup::esAlgorithm algorithm,
+bool l1t::TriggerMenuParser::parseAlgorithm( tmeventsetup::esAlgorithm algorithm,
     unsigned int chipNr) {
 
   
   using namespace tmeventsetup;
-  using namespace Algorithm;
+  //using namespace Algorithm;
   
 
     // get alias
