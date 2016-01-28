@@ -22,7 +22,7 @@ def esproducers_by_type(process, *types):
 
 #
 # CMSSW version specific customizations
-def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
+def customizeHLTforCMSSW(process, menuType="GRun"):
     import os
     cmsswVersion = os.environ['CMSSW_VERSION']
 
