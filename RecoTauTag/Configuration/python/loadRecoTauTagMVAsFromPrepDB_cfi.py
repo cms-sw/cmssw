@@ -1,14 +1,10 @@
 import socket
+import FWCore.ParameterSet.Config as cms
 '''Helper procedure that loads mva inputs from database'''
-from CondCore.CondDB.CondDB_cfi import *
-CondDB.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') # prod database
 
-loadRecoTauTagMVAsFromPrepDB = cms.ESSource("PoolDBESSource",
-    CondDB,
-    DumpStat = cms.untracked.bool(False),
-    toGet = cms.VPSet(),                                             
-)
+from CondCore.ESSources.CondDBESSource_cfi import GlobalTag
 
+loadRecoTauTagMVAsFromPrepDB = GlobalTag.clone()
 
 if socket.getfqdn().find('.cms') != -1:
     loadRecoTauTagMVAsFromPrepDB.connect = cms.string('frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_CONDITIONS')
