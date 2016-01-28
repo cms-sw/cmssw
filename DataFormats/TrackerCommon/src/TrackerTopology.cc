@@ -160,13 +160,13 @@ bool TrackerTopology::isStereo(const DetId &id) const {
     if ( subdet == PixelSubdetector::PixelEndcap )
       return false;
     if ( subdet == StripSubdetector::TIB )
-      return tibStereo(id)!=0;
+      return tibIsStereo(id);
     if ( subdet == StripSubdetector::TID )
-      return tidStereo(id)!=0;
+      return tidIsStereo(id);
     if ( subdet == StripSubdetector::TOB )
-      return tobStereo(id)!=0;
+      return tobIsStereo(id);
     if ( subdet == StripSubdetector::TEC )
-      return tecStereo(id)!=0;
+      return tecIsStereo(id);
 
     throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::isStereo";
     return 0;
@@ -180,13 +180,13 @@ bool TrackerTopology::isRPhi(const DetId &id) const {
     if ( subdet == PixelSubdetector::PixelEndcap )
       return false;
     if ( subdet == StripSubdetector::TIB )
-      return tibRPhi(id)!=0;
+      return tibIsRPhi(id);
     if ( subdet == StripSubdetector::TID )
-      return tidRPhi(id)!=0;
+      return tidIsRPhi(id);
     if ( subdet == StripSubdetector::TOB )
-      return tobRPhi(id)!=0;
+      return tobIsRPhi(id);
     if ( subdet == StripSubdetector::TEC )
-      return tecRPhi(id)!=0;
+      return tecIsRPhi(id);
 
     throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::isRPhi";
     return 0;
