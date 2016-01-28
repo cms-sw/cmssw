@@ -25,12 +25,6 @@ combinedSVRecoVertexAllSoftLeptonCtagLVariables = cms.PSet(
         max = cms.double(3.0),
         min = cms.double(-0.1)
     ),
-    vertexFitProb = cms.PSet(
-        logScale = cms.bool(False),
-        nBins = cms.uint32(50),
-        max = cms.double(5.0),
-        min = cms.double(0.0)
-    ),
     jetNSecondaryVertices = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(5),
@@ -86,84 +80,84 @@ combinedSVAllVertexAllSoftLeptonCtagLVariables = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(30.0),
-        indices = cms.vuint32(0, 1, 2),
+        indices = cms.vuint32(0, 1),
         min = cms.double(-10.0)
     ),
     trackSip3dSig = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(30.0),
-        indices = cms.vuint32(0, 1, 2),
+        indices = cms.vuint32(0, 1),
         min = cms.double(-10.0)
     ),
     trackSip2dVal = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(0.15),
-        indices = cms.vuint32(0, 1, 2),
+        indices = cms.vuint32(0, 1),
         min = cms.double(-0.05)
     ),
     trackSip3dVal = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(0.15),
-        indices = cms.vuint32(0,1,2),
+        indices = cms.vuint32(0, 1),
         min = cms.double(-0.05)
     ),
     trackPtRel = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(20.0),
-        indices = cms.vuint32(0, 1, 2),
+        indices = cms.vuint32(0, 1),
         min = cms.double(0.0)
     ),
     trackPPar = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(200.0),
-        indices = cms.vuint32(0, 1, 2),
+        indices = cms.vuint32(0, 1),
         min = cms.double(0.0)
     ),
     trackEtaRel = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(10.0),
-        indices = cms.vuint32(0, 1, 2),
+        indices = cms.vuint32(0, 1),
         min = cms.double(0.0)
     ),
     trackDeltaR = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(0.35),
-        indices = cms.vuint32(0, 1, 2),
+        indices = cms.vuint32(0, 1),
         min = cms.double(0.0)
     ),
     trackPtRatio = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(0.35),
-        indices = cms.vuint32(0, 1, 2),
+        indices = cms.vuint32(0, 1),
         min = cms.double(0.0)
     ),
     trackPParRatio = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(1.01),
-        indices = cms.vuint32(0, 1, 2),
+        indices = cms.vuint32(0, 1),
         min = cms.double(0.95)
     ),
     trackJetDist = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(100),
         max = cms.double(0.005),
-        indices = cms.vuint32(0, 1, 2),
+        indices = cms.vuint32(0, 1),
         min = cms.double(-0.08)
     ),
     trackDecayLenVal = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(5.0),
-        indices = cms.vuint32(0, 1, 2),
+        indices = cms.vuint32(0, 1),
         min = cms.double(0.0)
     ),
     trackSip2dSigAboveCharm = cms.PSet(
@@ -207,8 +201,13 @@ combinedSVAllVertexAllSoftLeptonCtagLVariables = cms.PSet(
         nBins = cms.uint32(50),
         max = cms.double(0.15),
         min = cms.double(-0.05)
+    ),
+    vertexLeptonCategory = cms.PSet(
+        logScale = cms.bool(True),
+        nBins = cms.uint32(9),
+        max = cms.double(8.5),
+        min = cms.double(-0.5)
     )
-
 )
 
 combinedSVAllVertexSoftLeptonCtagLVariables = cms.PSet(
@@ -216,42 +215,42 @@ combinedSVAllVertexSoftLeptonCtagLVariables = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(10.0),
-        indices = cms.vuint32(0, 1, 2),
+        indices = cms.vuint32(0, 1),
         min = cms.double(-1.0)
     ),
     leptonSip3d = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(30.0),
-        indices = cms.vuint32(0, 1, 2),
+        indices = cms.vuint32(0, 1),
         min = cms.double(-10.0)
     ),
     leptonDeltaR = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(0.4),
-        indices = cms.vuint32(0, 1, 2),
+        indices = cms.vuint32(0, 1),
         min = cms.double(-0.1)
     ),
     leptonRatioRel = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(0.05),
-        indices = cms.vuint32(0, 1, 2),
+        indices = cms.vuint32(0, 1),
         min = cms.double(-0.03)
     ),
     leptonEtaRel = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(0.1),
-        indices = cms.vuint32(0, 1, 2),
+        indices = cms.vuint32(0, 1),
         min = cms.double(-0.1)
     ),
     leptonRatio = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(1.0),
-        indices = cms.vuint32(0, 1, 2),
+        indices = cms.vuint32(0, 1),
         min = cms.double(-0.1)
     )
 )

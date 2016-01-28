@@ -404,8 +404,14 @@ void EffPurFromHistos2D::compute (DQMStore::IBooker & ibook, vector<double> fixe
       //
       if ( binFound ) {
 	// fill the histos
-	X_vs_Y_eff_at_fixedZeff[ieff]->Fill(effMidX, effVersusDiscr_b->GetBinContent ( binClosest[ieff] ));
-	X_vs_Y_eff_at_fixedZeff[ieff]->getTH1F()->SetBinError(iBinX, effVersusDiscr_b->GetBinError ( binClosest[ieff] ));
+	if(doCTagPlots_) {
+	  X_vs_Y_eff_at_fixedZeff[ieff]->Fill(effMidX, effVersusDiscr_b->GetBinContent ( binClosest[ieff] ));
+	  X_vs_Y_eff_at_fixedZeff[ieff]->getTH1F()->SetBinError(iBinX, effVersusDiscr_b->GetBinError ( binClosest[ieff] ));
+	}
+	else {
+	  X_vs_Y_eff_at_fixedZeff[ieff]->Fill(effMidX, effVersusDiscr_c->GetBinContent ( binClosest[ieff] ));
+	  X_vs_Y_eff_at_fixedZeff[ieff]->getTH1F()->SetBinError(iBinX, effVersusDiscr_c->GetBinError ( binClosest[ieff] ));
+	}
       }
     }
   } 
