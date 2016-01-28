@@ -153,7 +153,7 @@ QualityMetric::get()
 }
 
 
-std::unique_ptr<QualityMetricFactory> QualityMetricFactory::m_instance = std::make_unique<QualityMetricFactory>();
+[[cms::thread_safe]] std::unique_ptr<QualityMetricFactory> QualityMetricFactory::m_instance = std::make_unique<QualityMetricFactory>();
 
 
 std::unique_ptr<QualityMetricSource>

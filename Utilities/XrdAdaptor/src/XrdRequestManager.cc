@@ -84,7 +84,7 @@ class SendMonitoringInfoHandler : boost::noncopyable, public XrdCl::ResponseHand
     }
 };
 
-SendMonitoringInfoHandler nullHandler;
+[[cms::thread_safe]] SendMonitoringInfoHandler nullHandler;
 
 
 static void

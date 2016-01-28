@@ -3,6 +3,7 @@
 #define _GLIBCXX_USE_NANOSLEEP
 #include <thread>
 #include <chrono>
+#include <atomic>
 #include <iostream>
 #include <assert.h>
 #include <netdb.h>
@@ -23,9 +24,9 @@
 //#define XRD_DELAY 5140
 #define XRD_DELAY 1000
 #define XRD_SLOW_RATE 2
-int g_delayCount = 0;
+std::atomic<int> g_delayCount {0};
 #else
-int g_delayCount = 0;
+std::atomic<int> g_delayCount {0};
 #endif
 
 using namespace XrdAdaptor;
