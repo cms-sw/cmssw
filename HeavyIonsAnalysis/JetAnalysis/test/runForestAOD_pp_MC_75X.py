@@ -213,10 +213,3 @@ process.pVertexFilterCutEandG = cms.Path(process.pileupVertexFilterCutEandG)
 process.pAna = cms.EndPath(process.skimanalysis)
 
 # Customization
-process.OUT = cms.OutputModule("PoolOutputModule",                                                                                                                                                         
-    fileName = cms.untracked.string('output.root'),                                                                                                                                                        
-    outputCommands = cms.untracked.vstring( "keep *"),                                                                                                                                                     
-    dropMetaData = cms.untracked.string('ALL'),                                                                                                                                                            
-)
-
-process.pAna+= process.OUT
