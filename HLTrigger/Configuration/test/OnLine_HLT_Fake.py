@@ -447,5 +447,5 @@ from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
 process = customizeHLTforAll(process,"Fake",_customInfo)
 
 from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
-process = customizeHLTforAll(process,"Fake")
+process = customizeHLTforCMSSW(process,"Fake")
 
