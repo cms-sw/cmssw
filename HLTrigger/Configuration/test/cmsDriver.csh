@@ -73,6 +73,7 @@ foreach gtag ( MC DATA )
     set NNHI   = $NNHIRD
     set DATAMC = --data
     set PNAME  = HLT1
+    set RNAME  = RECO1
   else  if ( $gtag == MC ) then
     set BASE1  = $BASE1MC
     set BASE2  = $BASE2MC
@@ -80,6 +81,7 @@ foreach gtag ( MC DATA )
     set NNHI   = $NNHIMC
     set DATAMC = --mc
     set PNAME  = HLT
+    set RNAME  = RECO
   else
     # unsupported
     continue
@@ -331,7 +333,7 @@ foreach gtag ( MC DATA )
 
     echo
     echo "Creating RECO+DQM $name"
-    cmsDriver.py RelVal                 --step=RAW2DIGI,L1Reco,RECO,DQM             --conditions=$RTAG --filein=file:RelVal_HLT_$name.root          --custom_conditions=$XL1T  --fileout=RelVal_RECO_$name.root         --number=$NN $DATAMC --no_exec --datatier 'SIM-RAW-HLT-RECO'      --eventcontent=RAW          --customise=HLTrigger/Configuration/CustomConfigs.Base    $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_RECO_$name.py
+    cmsDriver.py RelVal                 --step=RAW2DIGI,L1Reco,RECO,DQM             --conditions=$RTAG --filein=file:RelVal_HLT_$name.root          --custom_conditions=$XL1T  --fileout=RelVal_RECO_$name.root         --number=$NN $DATAMC --no_exec --datatier 'SIM-RAW-HLT-RECO'      --eventcontent=RAW          --customise=HLTrigger/Configuration/CustomConfigs.Base    $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_RECO_$name.py          --processName=$RNAME
 
     else
 
@@ -343,7 +345,8 @@ foreach gtag ( MC DATA )
 
     echo
     echo "Creating RECO+VALIDATION+DQM $name"
-    cmsDriver.py RelVal                 --step=RAW2DIGI,L1Reco,RECO,VALIDATION,DQM  --conditions=$RTAG --filein=file:RelVal_DigiL1RawHLT_$name.root --custom_conditions=$XL1T  --fileout=RelVal_RECO_$name.root         --number=$NN $DATAMC --no_exec --datatier 'SIM-RAW-HLT-RECO'      --eventcontent=RAW          --customise=HLTrigger/Configuration/CustomConfigs.Base    $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_RECO_$name.py
+    cmsDriver.py RelVal                 --step=RAW2DIGI,L1Reco,RECO,VALIDATION,DQM  --conditions=$RTAG --filein=file:RelVal_DigiL1RawHLT_$name.root --custom_conditions=$XL1T  --fileout=RelVal_RECO_$name.root         --number=$NN $DATAMC --no_exec --datatier 'SIM-RAW-HLT-RECO'      --eventcontent=RAW          --customise=HLTrigger/Configuration/CustomConfigs.Base    $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_RECO_$name.py          --processName=$RNAME
+
 
     endif
 

@@ -486,6 +486,7 @@ def customizeHLTforMC(process,_fastSim=False):
       ('recoverEBFE',cms.bool(True),cms.bool(False)),
       ('recoverEEFE',cms.bool(True),cms.bool(False)),
       ('src',cms.InputTag('hltHcalTowerNoiseCleaner'),cms.InputTag('hltTowerMakerForAll')),
+      ('src',cms.InputTag('hltHcalTowerNoiseCleanerWithrechit'),cms.InputTag('hltTowerMakerForAll')),
       ('initialSeeds',cms.InputTag('noSeedsHere'),cms.InputTag('hltPixelPairSeeds')),
       ('preFilteredSeeds',cms.bool(True),cms.bool(False)),
       )
