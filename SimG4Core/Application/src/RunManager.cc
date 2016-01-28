@@ -268,6 +268,8 @@ void RunManager::initG4(const edm::EventSetup & es)
     << "RunManager: start initialisation of PhysicsList";
 
   int verb = m_pPhysics.getUntrackedParameter<int>("Verbosity",0);
+  m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue")*CLHEP::cm);
+  m_physicsList->SetCutsWithDefault();
   m_prodCuts.reset(new DDG4ProductionCuts(map_, verb, m_pPhysics));	
   m_prodCuts->update();
   

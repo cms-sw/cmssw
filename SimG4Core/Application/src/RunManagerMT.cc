@@ -150,6 +150,8 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
     << "RunManagerMT: start initialisation of PhysicsList for master";
 
   int verb = m_pPhysics.getUntrackedParameter<int>("Verbosity",0);
+  m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue")*CLHEP::cm);
+  m_physicsList->SetCutsWithDefault();
   m_prodCuts.reset(new DDG4ProductionCuts(map_, verb, m_pPhysics));	
   m_prodCuts->update();
   
