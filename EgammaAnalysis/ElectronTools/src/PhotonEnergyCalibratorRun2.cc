@@ -5,11 +5,15 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 PhotonEnergyCalibratorRun2::PhotonEnergyCalibratorRun2(bool isMC, bool synchronization, 
-						       std::vector<double> smearings, std::vector<double> scales) :
+													   std::vector<double> smearings, std::vector<double> scales,
+													   std::string scalesFile,
+													   std::string smearingsFile
+	) :
   isMC_(isMC), synchronization_(synchronization),
   rng_(0),
   smearings_(smearings),
-  scales_(scales)
+  scales_(scales),
+  _correctionRetriever(scalesFile, smearingsFile) // here is opening the files and reading thecorrections
 {}
 
 PhotonEnergyCalibratorRun2::~PhotonEnergyCalibratorRun2()
@@ -28,21 +32,12 @@ void PhotonEnergyCalibratorRun2::calibrate(reco::Photon &photon, unsigned int ru
 void PhotonEnergyCalibratorRun2::calibrate(SimplePhoton &photon, edm::StreamID const & id) const {
     assert(isMC_ == photon.isMC());
     float smear = 0.0, scale = 1.0;
-    float aeta = std::abs(photon.getEta()), r9 = photon.getR9();
-    bool bad = (r9 < 0.94), gold = !bad;
-    // FIXME replace hard-coded numbers below with something dependent on a real payload
-    if      (0.0    <= aeta && aeta < 1.0    && bad ) { smear = smearings_[0]; scale = scales_[0]; }
-    else if (0.0    <= aeta && aeta < 1.0    && gold) { smear = smearings_[1]; scale = scales_[1]; }
-    else if (1.0    <= aeta && aeta < 1.4442 && bad ) { smear = smearings_[2]; scale = scales_[2]; }
-    else if (1.0    <= aeta && aeta < 1.4442 && gold) { smear = smearings_[3]; scale = scales_[3]; }
-    else if (1.566  <= aeta && aeta < 2.0    && bad ) { smear = smearings_[4]; scale = scales_[4]; }
-    else if (1.566  <= aeta && aeta < 2.0    && gold) { smear = smearings_[5]; scale = scales_[5]; }
-    else if (2.0    <= aeta && aeta < 2.5    && bad ) { smear = smearings_[6]; scale = scales_[6]; }
-    else if (2.0    <= aeta && aeta < 2.5    && gold) { smear = smearings_[7]; scale = scales_[7]; }
-    /// use the 1.566-2.0 also for the 1.4442-1.566 area, in the lack of a new correction
-    else if (1.4442 <= aeta && aeta < 1.566  && bad ) { smear = smearings_[8]; scale = scales_[8]; } 
-    else if (1.4442 <= aeta && aeta < 1.566  && gold) { smear = smearings_[9]; scale = scales_[9]; } 
+    float aeta = std::abs(photon.getEta()); //, r9 = photon.getR9();
+//	float et = photon.getNewEnergy()/cosh(aeta);
 
+	//scale = _correctionRetriever.ScaleCorrection(photon.getRunNumber(), photon.isEB(), photon.getR9(), aeta, et);
+	smear = _correctionRetriever.getSmearingSigma(photon.getRunNumber(), photon.getNewEnergy(), photon.isEB(), photon.getR9(), aeta); 
+  
     double newEcalEnergy, newEcalEnergyError;
     if (isMC_) {
         double corr = 1.0 + smear * gauss(id);
@@ -52,9 +47,9 @@ void PhotonEnergyCalibratorRun2::calibrate(SimplePhoton &photon, edm::StreamID c
         newEcalEnergy      = photon.getNewEnergy() / scale;
         newEcalEnergyError = std::hypot(photon.getNewEnergyError() / scale, smear * newEcalEnergy);
     }
-
     photon.setNewEnergy(newEcalEnergy); 
     photon.setNewEnergyError(newEcalEnergyError); 
+
 }
 
 double PhotonEnergyCalibratorRun2::gauss(edm::StreamID const& id) const {

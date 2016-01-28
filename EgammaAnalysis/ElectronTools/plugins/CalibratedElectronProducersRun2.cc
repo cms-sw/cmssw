@@ -40,7 +40,7 @@ CalibratedElectronProducerRun2T<T>::CalibratedElectronProducerRun2T( const edm::
   theElectronToken(consumes<edm::View<T> >(conf.getParameter<edm::InputTag>("electrons"))),
   theGBRForestName(conf.getParameter<std::string>("gbrForestName")),
   theEpCombinationTool(),
-  theEnCorrectorRun2(theEpCombinationTool, conf.getParameter<bool>("isMC"), conf.getParameter<bool>("isSynchronization"), conf.getParameter<std::vector<double> >("smearings"), conf.getParameter<std::vector<double> >("scales"))
+  theEnCorrectorRun2(theEpCombinationTool, conf.getParameter<bool>("isMC"), conf.getParameter<bool>("isSynchronization"), conf.getParameter<std::vector<double> >("smearings"), conf.getParameter<std::vector<double> >("scales"), conf.getParameter<std::string>("scalesFile"), conf.getParameter<std::string >("smearingsFile"))
 {
   produces<std::vector<T> >();
 }

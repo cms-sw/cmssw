@@ -2,6 +2,7 @@
 #define PhotonEnergyCalibratorRun2_h
 
 #include <TRandom.h>
+#include "EgammaAnalysis/ElectronTools/interface/EnergyScaleCorrection_class.hh"
 #include "EgammaAnalysis/ElectronTools/interface/SimplePhoton.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
@@ -13,7 +14,8 @@ class PhotonEnergyCalibratorRun2 {
   PhotonEnergyCalibratorRun2() {}
   
   // further configuration will be added when we will learn how it will work
-  PhotonEnergyCalibratorRun2(bool isMC, bool synchronization, std::vector<double> smearings, std::vector<double> scales);
+  PhotonEnergyCalibratorRun2(bool isMC, bool synchronization, std::vector<double> smearings, std::vector<double> scales, std::string scalesFile, std::string smearingsFile) ;
+
   ~PhotonEnergyCalibratorRun2() ;
   
   /// Initialize with a random number generator (if not done, it will use the CMSSW service)
@@ -39,6 +41,8 @@ class PhotonEnergyCalibratorRun2 {
   /// or from the CMSSW RandomNumberGenerator service
   /// If synchronization is set to true, it returns a fixed number (1.0)
   double gauss(edm::StreamID const& id) const ;
+  EnergyScaleCorrection_class _correctionRetriever;
+
 };
 
 #endif

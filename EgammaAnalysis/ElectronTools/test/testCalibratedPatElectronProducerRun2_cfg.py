@@ -19,7 +19,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
         ),
                                                    )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
 )
 
 # Input source

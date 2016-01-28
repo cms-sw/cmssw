@@ -25,3 +25,5 @@
 <export>
   <lib   name="1"/>
 </export>
+# the following define is for electron/photon energy calibration
+<Flags CppDefines="PEDANTIC_OUTPUT"/> 

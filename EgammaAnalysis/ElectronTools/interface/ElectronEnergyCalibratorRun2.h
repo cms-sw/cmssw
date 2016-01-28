@@ -2,9 +2,11 @@
 #define ElectronEnergyCalibratorRun2_h
 
 #include <TRandom.h>
+#include "EgammaAnalysis/ElectronTools/interface/EnergyScaleCorrection_class.hh"
 #include "EgammaAnalysis/ElectronTools/interface/SimpleElectron.h"
 #include "EgammaAnalysis/ElectronTools/interface/EpCombinationTool.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+
 
 #include <vector>
 
@@ -14,7 +16,7 @@ class ElectronEnergyCalibratorRun2 {
         ElectronEnergyCalibratorRun2() {}
 
         // further configuration will be added when we will learn how it will work
-        ElectronEnergyCalibratorRun2(EpCombinationTool &combinator, bool isMC, bool synchronization, std::vector<double> smearings, std::vector<double> scales) ;
+        ElectronEnergyCalibratorRun2(EpCombinationTool &combinator, bool isMC, bool synchronization, std::vector<double> smearings, std::vector<double> scales, std::string scalesFile, std::string smearingsFile) ;
         ~ElectronEnergyCalibratorRun2() ;
     
         /// Initialize with a random number generator (if not done, it will use the CMSSW service)
@@ -41,6 +43,7 @@ class ElectronEnergyCalibratorRun2 {
         /// or from the CMSSW RandomNumberGenerator service
         /// If synchronization is set to true, it returns a fixed number (1.0)
         double gauss(edm::StreamID const& id) const ;
+		EnergyScaleCorrection_class _correctionRetriever;
 };
 
 #endif
