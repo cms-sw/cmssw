@@ -83,11 +83,13 @@ private:
  * invoked from an XrdCl callback (that is, we don't need an available callback
  * thread to timeout).
  */
-class QueryAttrHandler : boost::noncopyable, public XrdCl::ResponseHandler
+class QueryAttrHandler : public XrdCl::ResponseHandler
 {
 public:
 
-    virtual ~QueryAttrHandler() {}
+    virtual ~QueryAttrHandler = default;
+    QueryAttrHandler(const QueryAttrHandler&) = delete;
+    QueryAttrHandler& operator=(const QueryAttrHandler&) = delete;
 
 
     static XrdCl::XRootDStatus query(XrdCl::FileSystem &fs, const std::string &attr, std::chrono::milliseconds timeout, std::string &result)
