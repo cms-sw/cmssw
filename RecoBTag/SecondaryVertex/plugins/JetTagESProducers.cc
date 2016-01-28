@@ -22,27 +22,11 @@ namespace { // C++ template pointer want "external" linkage, so here we go
 	extern const char elecTagInfos[] = "elecTagInfos";
 }
 
-typedef GenericMVAJetTagComputerWrapper<CombinedSVComputer,
-	reco::TrackIPTagInfo,         ipTagInfos,
-	reco::SecondaryVertexTagInfo, svTagInfos> CombinedSVJetTagComputer;
 
 typedef GenericMVAJetTagComputerWrapper<CombinedSVComputer,
 	reco::CandIPTagInfo,         ipTagInfos,
 	reco::CandSecondaryVertexTagInfo, svTagInfos> CandidateCombinedSVJetTagComputer;
-
-//this one is actually not fully non-candidate based anymore (no backward compatibility with old SL taginfos for the moment)
-typedef GenericMVAJetTagComputerWrapper<CombinedSVSoftLeptonComputer,
-	reco::TrackIPTagInfo,         ipTagInfos,
-	reco::SecondaryVertexTagInfo, svTagInfos,
-	reco::CandSoftLeptonTagInfo, muonTagInfos,
-	reco::CandSoftLeptonTagInfo, elecTagInfos> CombinedSVSoftLeptonJetTagComputer;
 		
-typedef GenericMVAJetTagComputerWrapper<CombinedSVSoftLeptonComputer,
-	reco::CandIPTagInfo,         ipTagInfos,
-	reco::CandSecondaryVertexTagInfo, svTagInfos,
-	reco::CandSoftLeptonTagInfo, muonTagInfos,
-	reco::CandSoftLeptonTagInfo, elecTagInfos> CandidateCombinedSVSoftLeptonJetTagComputer;
-
 typedef GenericMVAJetTagComputerWrapper<GhostTrackComputer,
 	reco::TrackIPTagInfo,         ipTagInfos,
 	reco::SecondaryVertexTagInfo, svTagInfos> GhostTrackJetTagComputer;
@@ -51,19 +35,10 @@ typedef GenericMVAJetTagComputerWrapper<CombinedSVSoftLeptonComputer,
 	reco::CandIPTagInfo,         ipTagInfos,
 	reco::CandSecondaryVertexTagInfo, svTagInfos,
 	reco::CandSoftLeptonTagInfo, muonTagInfos,
-	reco::CandSoftLeptonTagInfo, elecTagInfos> CandidateCombinedSVSoftLeptonCvsLJetTagComputer;
+	reco::CandSoftLeptonTagInfo, elecTagInfos> CandidateCombinedSVSoftLeptonJetTagComputer;
 
 typedef JetTagComputerESProducer<CandidateCombinedSVJetTagComputer> CandidateCombinedSecondaryVertexESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(CandidateCombinedSecondaryVertexESProducer);
-
-typedef JetTagComputerESProducer<CombinedSVJetTagComputer> CombinedSecondaryVertexESProducer;
-DEFINE_FWK_EVENTSETUP_MODULE(CombinedSecondaryVertexESProducer);
-
-typedef JetTagComputerESProducer<CandidateCombinedSVSoftLeptonJetTagComputer> CandidateCombinedSecondaryVertexSoftLeptonESProducer;
-DEFINE_FWK_EVENTSETUP_MODULE(CandidateCombinedSecondaryVertexSoftLeptonESProducer);
-
-typedef JetTagComputerESProducer<CombinedSVSoftLeptonJetTagComputer> CombinedSecondaryVertexSoftLeptonESProducer;
-DEFINE_FWK_EVENTSETUP_MODULE(CombinedSecondaryVertexSoftLeptonESProducer);
 
 typedef JetTagComputerESProducer<GhostTrackJetTagComputer> GhostTrackESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(GhostTrackESProducer);
