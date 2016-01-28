@@ -356,7 +356,10 @@ namespace edm
     RandomEngineSentry<DEC> randomEngineSentryDecay(decayer_, lumi.index());
 
     if (randomInit_) {
-      randomEngineSentry.randomEngine()->setSeed(std::abs(randomEngineSentry.randomEngine()->getSeed()+lumi.id().value()),0);
+      double drandom = randomEngineSentry.randomEngine()->flat();
+      unsigned long ulrandom = (unsigned long)(std::numeric_limits<unsigned long>::max()*drandom);
+      long newseed = std::abs((long)(ulrandom + lumi.id().value()));
+      randomEngineSentry.randomEngine()->setSeed(newseed,0);
     }
     
     if ( !hadronizer_.readSettings(1) )
