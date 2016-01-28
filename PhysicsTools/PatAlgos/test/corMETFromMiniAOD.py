@@ -75,30 +75,6 @@ if usePrivateSQlite:
     process.es_prefer_jec = cms.ESPrefer("PoolDBESSource",'jec')
 
 
-### Jet resolution
-from CondCore.DBCommon.CondDBSetup_cfi import *
-ERA = 'Summer15_25nsV6'
-process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-        CondDBSetup,
-        toGet = cms.VPSet(
-            # Resolution
-            cms.PSet(
-                record = cms.string('JetResolutionRcd'),
-                tag    = cms.string('JER_MC_PtResolution_%s_AK4PFchs' % ERA),
-                label  = cms.untracked.string('AK4PFchs')
-                ),
- 
-            # Scale factors
-            cms.PSet(
-                record = cms.string('JetResolutionScaleFactorRcd'),
-                tag    = cms.string('JER_DATAMCSF_%s_AK4PFchs' % ERA),
-                label  = cms.untracked.string('AK4PFchs')
-                ),
-            ),
-        connect = cms.string('sqlite:JER_%s.db' % ERA)
-        )
-
-
 
 ### =====================================================================================================
 
