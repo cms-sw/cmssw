@@ -2,7 +2,7 @@
 <use   name="FWCore/Concurrency"/>
 <flags CXXFLAGS="-Wno-sign-compare -Wno-unused-variable -ftemplate-depth=600"/>
 
-<bin   file="cmscond_create_key.cpp" name="cmscond_create_key">
+<bin   file="cmscond_key_mgr.cpp" name="cmscond_key_mgr">
 </bin>
 <bin   file="cmscond_to_lumiid.cpp" name="cmscond_to_lumiid">
   <use   name="DataFormats/Provenance"/>

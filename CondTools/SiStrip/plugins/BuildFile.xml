@@ -8,7 +8,6 @@
 <use   name="CommonTools/TrackerMap"/>
 <use   name="CalibTracker/Records"/>
 <use   name="CondCore/DBOutputService"/>
-<use   name="CondCore/DBCommon"/>
 <use   name="CondFormats/SiStripObjects"/>
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="DataFormats/SiStripDetId"/>

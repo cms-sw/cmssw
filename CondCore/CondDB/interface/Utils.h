@@ -8,6 +8,9 @@
 #include <algorithm>
 #include <iostream>
 #include <tuple>
+#include <fstream>
+#include <unistd.h>
+#include <limits.h>
 //
 #include <boost/regex.hpp>
 
@@ -46,6 +49,35 @@ namespace cond {
       return arch;
     }
 
+    inline std::string getUserName(){
+      char username[LOGIN_NAME_MAX];
+      int retcode = getlogin_r(username,LOGIN_NAME_MAX);
+      if( retcode ) return "";
+      return std::string(username);
+    }
+
+    inline std::string getHostName(){
+      char hostname[HOST_NAME_MAX];
+      int retcode = gethostname(hostname,HOST_NAME_MAX);
+      if( retcode ) return "";
+      return std::string(hostname);
+    }
+
+    inline std::string getCommand(){
+      std::string commName("");
+      try{
+	std::ifstream comm("/proc/self/cmdline");
+	std::getline(comm,commName);
+        size_t ind = commName.find('\0');
+        while( ind != std::string::npos ){
+	  commName.replace(ind,1,1,' ');
+	  ind = commName.find('\0');
+	}
+      } catch ( std::ifstream::failure ){
+	commName = "unknown";
+      }
+      return commName;
+    }
   }
 
   namespace persistency {
