@@ -96,6 +96,7 @@ private:
   HLTConfigProvider             hltConfig_;
   std::vector<std::string>      trigNames_;
   spr::trackSelectionParameters selectionParameter_;
+  int                           dataType_;
   double                        maxRestrictionPt_, slopeRestrictionPt_;
   double                        a_mipR_, a_coneR_, a_charIsoR_;
   double                        pTrackMin_, eEcalMax_, eIsolation_, hcalScale_;
@@ -114,7 +115,7 @@ private:
   edm::EDGetTokenT<HBHERecHitCollection>   tok_hbhe_;
 
   TTree                     *tree, *tree2;
-  int                        t_Run, t_Event, t_ieta, t_goodPV; 
+  int                        t_Run, t_Event, t_ieta, t_goodPV, t_DataType; 
   double                     t_EventWeight, t_l1pt, t_l1eta, t_l1phi;
   double                     t_l3pt, t_l3eta, t_l3phi, t_p, t_mindR1;
   double                     t_mindR2, t_eMipDR, t_eHcal, t_hmaxNearP;
@@ -171,6 +172,7 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   ignoreTrigger_                      = iConfig.getUntrackedParameter<bool>("IgnoreTriggers", false);
   useRaw_                             = iConfig.getUntrackedParameter<bool>("UseRaw", false);
   hcalScale_                          = iConfig.getUntrackedParameter<double>("HcalScale", 1.0);
+  dataType_                           = iConfig.getUntrackedParameter<int>("DataType", 0);
 
   // define tokens for access
   tok_trigEvt_  = consumes<trigger::TriggerEvent>(triggerEvent_);
@@ -221,7 +223,8 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
 			       <<"\t a_mipR "          << a_mipR_
 			       <<"\t hcalScale_ "      << hcalScale_
 			       <<"\t useRaw_ "         << useRaw_
-			       <<"\t ignoreTrigger_ "  << ignoreTrigger_;
+			       <<"\t ignoreTrigger_ "  << ignoreTrigger_
+			       <<"\t dataType_      "  << dataType_;
   edm::LogInfo("HcalIsoTrack") << "Process " << processName_ << " L1Filter:" 
 			       << l1Filter_ << " L2Filter:" << l2Filter_
 			       << " L3Filter:" << l3Filter_;
@@ -234,12 +237,14 @@ HcalIsoTrkAnalyzer::~HcalIsoTrkAnalyzer() { }
 
 void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
 
-  t_Run   = iEvent.id().run();
-  t_Event = iEvent.id().event();
+  t_Run      = iEvent.id().run();
+  t_Event    = iEvent.id().event();
+  t_DataType = dataType_;
 #ifdef DebugLog
   edm::LogInfo("HcalIsoTrack") << "Run " << t_Run << " Event " << t_Event 
-			       << " Luminosity " << iEvent.luminosityBlock() 
-			       << " Bunch " << iEvent.bunchCrossing();
+			       << " type " << t_DataType << " Luminosity " 
+			       << iEvent.luminosityBlock() << " Bunch " 
+			       << iEvent.bunchCrossing();
 #endif
   //Get magnetic field and ECAL channel status
   edm::ESHandle<MagneticField> bFieldH;
@@ -463,6 +468,7 @@ void HcalIsoTrkAnalyzer::beginJob() {
      
   tree->Branch("t_Run",         &t_Run,         "t_Run/I");
   tree->Branch("t_Event",       &t_Event,       "t_Event/I");
+  tree->Branch("t_DataType",    &t_DataType,    "t_DataType/I");
   tree->Branch("t_ieta",        &t_ieta,        "t_ieta/I");
   tree->Branch("t_EventWeight", &t_EventWeight, "t_EventWeight/D");
   tree->Branch("t_goodPV",      &t_goodPV,      "t_goodPV/I");

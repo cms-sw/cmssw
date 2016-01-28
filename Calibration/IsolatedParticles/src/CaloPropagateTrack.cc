@@ -9,6 +9,7 @@
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 
+#include "Calibration/IsolatedParticles/interface/CaloConstants.h"
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
 
 #include <iostream>
@@ -64,7 +65,7 @@ namespace spr{
 	const GlobalPoint point(info.first.x(),info.first.y(),info.first.z());
 	vdet.etaECAL = point.eta();
 	vdet.phiECAL = point.phi();
-	if (std::abs(point.eta())<1.479) {
+	if (std::abs(point.eta())<spr::etaBEEcal) {
 	  vdet.detIdECAL = barrelGeom->getClosestCell(point);
 	} else {
 	  vdet.detIdECAL = endcapGeom->getClosestCell(point);
@@ -138,7 +139,7 @@ namespace spr{
 	const GlobalPoint point(info.first.x(),info.first.y(),info.first.z());
 	vdet.etaECAL = point.eta();
 	vdet.phiECAL = point.phi();
-	if (std::abs(point.eta())<1.479) {
+	if (std::abs(point.eta())<spr::etaBEEcal) {
 	  vdet.detIdECAL = barrelGeom->getClosestCell(point);
 	} else {
 	  vdet.detIdECAL = endcapGeom->getClosestCell(point);
@@ -204,7 +205,7 @@ namespace spr{
       trkD.pointECAL     = point;
       trkD.directionECAL = info.direction;
       if (trkD.okECAL) {
-	if (std::abs(info.point.eta())<1.479) {
+	if (std::abs(info.point.eta())<spr::etaBEEcal) {
 	  trkD.detIdECAL = barrelGeom->getClosestCell(point);
 	} else {
 	  trkD.detIdECAL = endcapGeom->getClosestCell(point);
@@ -265,7 +266,7 @@ namespace spr{
       const GlobalPoint point(info.first.x(),info.first.y(),info.first.z());
       vdet.etaECAL = point.eta();
       vdet.phiECAL = point.phi();
-      if (std::abs(point.eta())<1.479) {
+      if (std::abs(point.eta())<spr::etaBEEcal) {
 	vdet.detIdECAL = barrelGeom->getClosestCell(point);
       } else {
 	vdet.detIdECAL = endcapGeom->getClosestCell(point);
@@ -320,13 +321,13 @@ namespace spr{
 					 0.1*(*p)->production_vertex()->position().y(), 
 					 0.1*(*p)->production_vertex()->position().z());
 	trkD.ok = true;
-	spr::propagatedTrack info = spr::propagateCalo (vertex, momentum, trkD.charge, bField, 319.2, 129.4, 1.479, debug);
+	spr::propagatedTrack info = spr::propagateCalo (vertex, momentum, trkD.charge, bField, spr::zFrontEE, spr::rFrontEB, spr::etaBEEcal, debug);
 	GlobalPoint point(info.point.x(),info.point.y(),info.point.z());
 	trkD.okECAL        = info.ok;
 	trkD.pointECAL     = point;
 	trkD.directionECAL = info.direction;
 	if (trkD.okECAL) {
-	  if (std::abs(info.point.eta())<1.479) {
+	  if (std::abs(info.point.eta())<spr::etaBEEcal) {
 	    trkD.detIdECAL = barrelGeom->getClosestCell(point);
 	  } else {
 	    trkD.detIdECAL = endcapGeom->getClosestCell(point);
@@ -334,7 +335,7 @@ namespace spr{
 	  trkD.detIdEHCAL = gHB->getClosestCell(point);
 	}
 
-	info = spr::propagateCalo (vertex, momentum, trkD.charge, bField, 402.7, 180.7, 1.392, debug);
+	info = spr::propagateCalo (vertex, momentum, trkD.charge, bField, spr::zFrontHE, spr::rFrontHB, spr::etaBEHcal, debug);
 	point = GlobalPoint(info.point.x(),info.point.y(),info.point.z());
 	trkD.okHCAL        = info.ok;
 	trkD.pointHCAL     = point;
@@ -395,13 +396,13 @@ namespace spr{
       if ( p->status()==1 && std::abs(momentum.eta()) < etaMax ) { 
 	GlobalPoint vertex = GlobalPoint(p->vertex().x(), p->vertex().y(), p->vertex().z());
 	trkD.ok = true;
-	spr::propagatedTrack info = spr::propagateCalo (vertex, momentum, trkD.charge, bField, 319.2, 129.4, 1.479, debug);
+	spr::propagatedTrack info = spr::propagateCalo (vertex, momentum, trkD.charge, bField, spr::zFrontEE, spr::rFrontEB, spr::etaBEEcal, debug);
 	GlobalPoint point(info.point.x(),info.point.y(),info.point.z());
 	trkD.okECAL        = info.ok;
 	trkD.pointECAL     = point;
 	trkD.directionECAL = info.direction;
 	if (trkD.okECAL) {
-	  if (std::abs(info.point.eta())<1.479) {
+	  if (std::abs(info.point.eta())<spr::etaBEEcal) {
 	    trkD.detIdECAL = barrelGeom->getClosestCell(point);
 	  } else {
 	    trkD.detIdECAL = endcapGeom->getClosestCell(point);
@@ -409,7 +410,7 @@ namespace spr{
 	  trkD.detIdEHCAL = gHB->getClosestCell(point);
 	}
 
-	info = spr::propagateCalo (vertex, momentum, trkD.charge, bField, 402.7, 180.7, 1.392, debug);
+	info = spr::propagateCalo (vertex, momentum, trkD.charge, bField, spr::zFrontHE, spr::rFrontHB, spr::etaBEHcal, debug);
 	point = GlobalPoint(info.point.x(),info.point.y(),info.point.z());
 	trkD.okHCAL        = info.ok;
 	trkD.pointHCAL     = point;
@@ -461,13 +462,13 @@ namespace spr{
     if (debug) std::cout << "Propagate track " << thisTrk << " charge " << trk.charge << " position " << trk.position << " p " << trk.momentum << " Flag " << trkD.ok << std::endl;
 
     if (trkD.ok) {
-      spr::propagatedTrack info = spr::propagateCalo (trk.position, trk.momentum, trk.charge, bField, 319.2, 129.4, 1.479, debug);
+      spr::propagatedTrack info = spr::propagateCalo (trk.position, trk.momentum, trk.charge, bField, spr::zFrontEE, spr::rFrontEB, spr::etaBEEcal, debug);
       GlobalPoint point(info.point.x(),info.point.y(),info.point.z());
       trkD.okECAL        = info.ok;
       trkD.pointECAL     = point;
       trkD.directionECAL = info.direction;
       if (trkD.okECAL) {
-	if (std::abs(info.point.eta())<1.479) {
+	if (std::abs(info.point.eta())<spr::etaBEEcal) {
 	  trkD.detIdECAL = barrelGeom->getClosestCell(point);
 	} else {
 	  trkD.detIdECAL = endcapGeom->getClosestCell(point);
@@ -475,7 +476,7 @@ namespace spr{
 	trkD.detIdEHCAL = gHB->getClosestCell(point);
       }
 
-      info = spr::propagateCalo (trk.position, trk.momentum, trk.charge, bField, 402.7, 180.7, 1.392, debug);
+      info = spr::propagateCalo (trk.position, trk.momentum, trk.charge, bField, spr::zFrontHE, spr::rFrontHB, spr::etaBEHcal, debug);
       point = GlobalPoint(info.point.x(),info.point.y(),info.point.z());
       trkD.okHCAL        = info.ok;
       trkD.pointHCAL     = point;
@@ -512,7 +513,7 @@ namespace spr{
     GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
     GlobalVector momentum (track->px(), track->py(), track->pz());
     int charge (track->charge());
-    spr::propagatedTrack info = spr::propagateCalo(vertex, momentum, charge, bField, 549.3, 288.8, 1.392, debug);
+    spr::propagatedTrack info = spr::propagateCalo(vertex, momentum, charge, bField, spr::zBackHE, spr::rBackHB, spr::etaBEHcal, debug);
     if (info.ok) {
       const GlobalPoint point = GlobalPoint(info.point.x(),info.point.y(),info.point.z());
       return std::pair<bool,HcalDetId>(true,HcalDetId(gHB->getClosestCell(point)));
@@ -525,7 +526,7 @@ namespace spr{
     GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
     GlobalVector momentum (track->px(), track->py(), track->pz());
     int charge (track->charge());
-    return spr::propagateCalo (vertex, momentum, charge, bfield, 319.2, 129.4, 1.479, debug);
+    return spr::propagateCalo (vertex, momentum, charge, bfield, spr::zFrontEE, spr::rFrontEB, spr::etaBEEcal, debug);
   }
 
   propagatedTrack propagateTrackToECAL(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const MagneticField* bfield, bool debug) {
@@ -533,7 +534,7 @@ namespace spr{
     spr::trackAtOrigin   trk = spr::simTrackAtOrigin(thisTrk, SimTk, SimVtx, debug);
     spr::propagatedTrack ptrk;
     if (trk.ok) 
-      ptrk = spr::propagateCalo (trk.position, trk.momentum, trk.charge, bfield, 319.2, 129.4, 1.479, debug);
+      ptrk = spr::propagateCalo (trk.position, trk.momentum, trk.charge, bfield, spr::zFrontEE, spr::rFrontEB, spr::etaBEEcal, debug);
     return ptrk;
   }
 
@@ -545,7 +546,7 @@ namespace spr{
   }
 
   std::pair<math::XYZPoint,bool> propagateECAL(const GlobalPoint& vertex, const GlobalVector& momentum, int charge, const MagneticField* bfield, bool debug) {
-    spr::propagatedTrack track = spr::propagateCalo (vertex, momentum, charge, bfield, 319.2, 129.4, 1.479, debug);
+    spr::propagatedTrack track = spr::propagateCalo (vertex, momentum, charge, bfield, spr::zFrontEE, spr::rFrontEB, spr::etaBEEcal, debug);
     return std::pair<math::XYZPoint,bool>(track.point,track.ok);
   }
 
@@ -553,14 +554,14 @@ namespace spr{
     GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
     GlobalVector momentum (track->px(), track->py(), track->pz());
     int charge (track->charge());
-    return spr::propagateCalo (vertex, momentum, charge, bfield, 402.7, 180.7, 1.392, debug);
+    return spr::propagateCalo (vertex, momentum, charge, bfield, spr::zFrontHE, spr::rFrontHB, spr::etaBEHcal, debug);
   }
 
   spr::propagatedTrack propagateTrackToHCAL(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const MagneticField* bfield, bool debug) {
     spr::trackAtOrigin   trk = spr::simTrackAtOrigin(thisTrk, SimTk, SimVtx, debug);
     spr::propagatedTrack ptrk;
     if (trk.ok) 
-      ptrk = spr::propagateCalo (trk.position, trk.momentum, trk.charge, bfield, 402.7, 180.7, 1.392, debug);
+      ptrk = spr::propagateCalo (trk.position, trk.momentum, trk.charge, bfield, spr::zFrontHE, spr::rFrontHB, spr::etaBEHcal, debug);
     return ptrk;
   }
 
@@ -572,7 +573,7 @@ namespace spr{
   }
 
   std::pair<math::XYZPoint,bool> propagateHCAL(const GlobalPoint& vertex, const GlobalVector& momentum, int charge, const MagneticField* bfield, bool debug) {
-    spr::propagatedTrack track = spr::propagateCalo (vertex, momentum, charge, bfield, 402.7, 180.7, 1.392, debug);
+    spr::propagatedTrack track = spr::propagateCalo (vertex, momentum, charge, bfield, spr::zFrontHE, spr::rFrontHB, spr::etaBEHcal, debug);
     return std::pair<math::XYZPoint,bool>(track.point,track.ok);
   }
 
@@ -580,7 +581,7 @@ namespace spr{
     GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
     GlobalVector momentum (track->px(), track->py(), track->pz());
     int charge (track->charge());
-    spr::propagatedTrack track1 = spr::propagateCalo (vertex, momentum, charge, bfield, 290.0, 109.0, 1.705, debug);
+    spr::propagatedTrack track1 = spr::propagateCalo (vertex, momentum, charge, bfield, spr::zBackTE, spr::rBackTB, spr::etaBETrak, debug);
     return std::pair<math::XYZPoint,bool>(track1.point,track1.ok);
   }
 
@@ -605,7 +606,7 @@ namespace spr{
     math::XYZPoint point(-999.,-999.,-999.);
     bool ok=false;
     GlobalVector direction(0,0,1);
-    if (tsosb.isValid() && std::abs(zdist) < 110) {
+    if (tsosb.isValid() && std::abs(zdist) < spr::zFrontTE) {
       point.SetXYZ(tsosb.globalPosition().x(), tsosb.globalPosition().y(), tsosb.globalPosition().z());
       direction = tsosb.globalDirection();
       ok = true;
