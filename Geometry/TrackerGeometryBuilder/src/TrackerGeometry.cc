@@ -337,7 +337,7 @@ float TrackerGeometry::getDetectorThickness(DetId detid) const {
   return -1.0;
 }
 
-TrackerGeometry::ModuleType TrackerGeometry::moduleType(std::string name) const {
+TrackerGeometry::ModuleType TrackerGeometry::moduleType(const std::string& name) const {
   if ( name.find("PixelBarrel") != std::string::npos) return ModuleType::Ph1PXB;
   else if (name.find("PixelForward") != std::string::npos) return ModuleType::Ph1PXF;
   else if ( name.find("TIB") != std::string::npos) {

@@ -65,7 +65,7 @@ public:
   void setEndsetDU(SubDetector sid) { theEndsetDU[sid]=detUnits().size();}
   void fillTestMap(const GeometricDet* gd);
 
-  ModuleType moduleType(std::string name) const;
+  ModuleType moduleType(const std::string& name) const;
 
   GeometricDet const * trackerDet() const {return  theTrackerDet;}
 
