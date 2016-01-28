@@ -125,7 +125,7 @@ upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
                  'Extended2023HGCalMuon' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalMuon,SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_removeTTI',
                  'Extended2023SHCal' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023SHCal',
                  'Extended2023HGCalScopeDoc_ee28_fh12' : 'RecoParticleFlow/PandoraTranslator/customizeHGCalPandora_cff.cust_2023HGCalPandoraMuonScopeDoc_ee28_fh12',
-                 'Extended2023TTI' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023TTI',
+                 'Extended2023TTI' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023TTI,SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_removeTTI',
                  'Extended2023Muon' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023Muon,SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_removeTTI',
                  'BE5DPixel10DLHCC' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5DPixel10DLHCC',
                  'Extended2023HGCalV6Muon' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalV6Muon',
