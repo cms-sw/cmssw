@@ -6,7 +6,7 @@
 #include <mutex>
 #include <memory>
 
-#include "tbb/concurrent_hash_map.h"
+#include "tbb/concurrent_unordered_map.h"
 #include <boost/utility.hpp>
 
 namespace XrdAdaptor {
@@ -64,9 +64,9 @@ private:
     static
     std::unique_ptr<QualityMetricSource> get(timespec now, const std::string &id);
 
-    static QualityMetricFactory *m_instance;
+    static std::unique_ptr<QualityMetricFactory> m_instance;
 
-    typedef tbb::concurrent_hash_map<std::string, QualityMetricUniqueSource*> MetricMap;
+    typedef tbb::concurrent_unordered_map<std::string, QualityMetricUniqueSource*> MetricMap;
     MetricMap m_sources;
 };
 

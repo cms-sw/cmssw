@@ -152,25 +152,28 @@ QualityMetric::get()
     return m_value;
 }
 
-QualityMetricFactory * QualityMetricFactory::m_instance = new QualityMetricFactory();
+
+std::unique_ptr<QualityMetricFactory> QualityMetricFactory::m_instance = std::make_unique<QualityMetricFactory>();
+
 
 std::unique_ptr<QualityMetricSource>
 QualityMetricFactory::get(timespec now, const std::string &id)
 {
-    MetricMap::accessor access;
-    m_instance->m_sources.insert(access, std::make_pair(id, nullptr));
-    QualityMetricUniqueSource *source;
-    if (access->second == nullptr)
+    auto itFound = m_instance->m_sources.find(id);
+    if (itFound == m_instance->m_sources.end())
     {
-        source = new QualityMetricUniqueSource(now);
-        access->second = source;
+        // try to make a new one
+        std::unique_ptr<QualityMetricUniqueSource> source(new QualityMetricUniqueSource(now));
+        auto insertResult = m_instance->m_sources.insert(std::make_pair(id, source.get()));
+        itFound = insertResult.first;
+        if (insertResult.second)
+        {  // We raced with a different thread for insertion (and the other thread won).
+            source.release();
+        }
     }
-    else
-    {
-        source = access->second;
-    }
-    return source->newSource(now);
+    return itFound->second->newSource(now);
 }
+
 
 QualityMetricSource::QualityMetricSource(QualityMetricUniqueSource &parent, timespec now, int default_value)
     : QualityMetric(now, default_value),
