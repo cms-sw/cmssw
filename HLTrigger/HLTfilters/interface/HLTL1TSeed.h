@@ -23,9 +23,18 @@
 //   base class
 #include "HLTrigger/HLTcore/interface/HLTStreamFilter.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
+
 #include "FWCore/Utilities/interface/InputTag.h"
 
 // forward declarations
+class L1GtTriggerMenu;
+class L1GtTriggerMask;
+class L1GlobalTriggerReadoutRecord;
+
 class L1GlobalTriggerObjectMapRecord;
 namespace edm {
   class ConfigurationDescriptions;
@@ -51,9 +60,21 @@ public:
 
 private:
 
+    /// get the vector of object types for a condition cndName on the GTL chip chipNumber
+    //const std::vector<L1GtObject>* objectTypeVec(const int chipNumber, const std::string& cndName) const;
+
+    /// update the tokenNumber (holding the bit numbers) from m_l1AlgoLogicParser
+    /// for a new L1 Trigger menu
+    void inline updateAlgoLogicParser(const L1GtTriggerMenu*, const AlgorithmMap&) { };
+
+    /// update the tokenResult members from m_l1AlgoLogicParser
+    /// for a new event
+    void inline updateAlgoLogicParser(const std::vector<bool>& gtWord,
+            const std::vector<unsigned int>& triggerMask, const int physicsDaqPartition) { };
+
     /// debug print grouped in a single function
     /// can be called for a new menu (bool "true") or for a new event
-    void debugPrint(bool) const;
+    //void debugPrint(bool) const;
 
     /// seeding is done ignoring if a L1 object fired or not
     /// if the event is selected at L1, fill all the L1 objects of types corresponding to the
@@ -62,12 +83,42 @@ private:
     /// method and filter return true if at least an object is filled
     bool seedsAll(edm::Event &, trigger::TriggerFilterObjectWithRefs &) const;
 
+    /// seeding is done via L1 trigger object maps, considering the objects which fired in L1
+    bool seedsL1TriggerObjectMaps(
+            edm::Event &,
+            trigger::TriggerFilterObjectWithRefs &
+            //, const L1GtTriggerMask *,
+            //const L1GlobalTriggerReadoutRecord *,
+            //const int physicsDaqPartition
+            );
+
+
     /// detailed print of filter content
     void dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWithRefs &) const;
 
+private:
+
+    // cached stuff
+
+    /// trigger menu
+    const L1GtTriggerMenu * m_l1GtMenu;
+    unsigned long long m_l1GtMenuCacheID;
+
+    /// logic parser for m_l1SeedsLogicalExpression
+    L1GtLogicParser m_l1AlgoLogicParser;
+
+    /// list of required algorithms for seeding
+    std::vector<L1GtLogicParser::OperandToken> m_l1AlgoSeeds;
+
+    /// vector of Rpn vectors for the required algorithms for seeding
+    std::vector< const std::vector<L1GtLogicParser::TokenRPN>* > m_l1AlgoSeedsRpn;
+
+    /// vector of object-type vectors for each condition in the required algorithms for seeding
+    std::vector< std::vector< const std::vector<L1GtObject>* > > m_l1AlgoSeedsObjType;
+
 
 private:
-    // PRESENT IMPLEMENTATION IGNORES THIS, OPERATES AS IF SET TO FALSE
+
     /// if true:
     ///    seeding done via L1 trigger object maps, with objects that fired
     ///    only objects from the central BxInEvent (L1A) are used
@@ -76,49 +127,55 @@ private:
     ///    adding all L1EXtra objects corresponding to the object types
     ///    used in all conditions from the algorithms in logical expression
     ///    for a given number of BxInEvent
-    //bool useObjectMaps_;
+    bool m_l1UseL1TriggerObjectMaps;
+
+    /// option used forL1UseL1TriggerObjectMaps = False only
+    /// number of BxInEvent: 1: L1A=0; 3: -1, L1A=0, 1; 5: -2, -1, L1A=0, 1, 2
+    int m_l1NrBxInEvent;
+
+    /// seeding done via technical trigger bits, if value is "true"
+    bool m_l1TechTriggerSeeding;
+
+    /// seeding uses algorithm aliases instead of algorithm names, if value is "true"
+    bool m_l1UseAliasesForSeeding;
 
     /// logical expression for the required L1 algorithms
     /// the algorithms are specified by name
-    //std::string logicalExpression_;
+    std::string m_l1SeedsLogicalExpression;
 
-    /// Meta InputTag for L1 Calo collections
-    //edm::InputTag caloCollectionsTag_;
+    /// InputTag for L1 Global Trigger object maps. This is done per menu. Should be part of Run.
+    edm::InputTag                                    m_l1GtObjectMapTag;
+    edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> m_l1GtObjectMapToken;
 
+
+    //edm::InputTag dummyTag;
     /// Meta InputTag for L1 Muon collection
-    edm::InputTag muonCollectionsTag_;
-    edm::InputTag muonTag_;
-    edm::EDGetTokenT<l1t::MuonBxCollection>   muonToken_;
+    edm::InputTag m_l1MuonCollectionsTag;
+    edm::InputTag m_l1MuonTag;
+    edm::EDGetTokenT<l1t::MuonBxCollection>   m_l1MuonToken;
 
     /// Meta InputTag for L1 Egamma collection
-    edm::InputTag egammaCollectionsTag_;
-    edm::InputTag egammaTag_;
-    edm::EDGetTokenT<l1t::EGammaBxCollection>   egammaToken_;
+    edm::InputTag m_l1EGammaCollectionsTag;
+    edm::InputTag m_l1EGammaTag;
+    edm::EDGetTokenT<l1t::EGammaBxCollection>   m_l1EGammaToken;
 
     /// Meta InputTag for L1 Egamma collection
-    edm::InputTag jetCollectionsTag_;
-    edm::InputTag jetTag_;
-    edm::EDGetTokenT<l1t::JetBxCollection>   jetToken_;
+    edm::InputTag m_l1JetCollectionsTag;
+    edm::InputTag m_l1JetTag;
+    edm::EDGetTokenT<l1t::JetBxCollection>   m_l1JetToken;
 
     /// Meta InputTag for L1 Egamma collection
-    edm::InputTag tauCollectionsTag_;
-    edm::InputTag tauTag_;
-    edm::EDGetTokenT<l1t::TauBxCollection>   tauToken_;
+    edm::InputTag m_l1TauCollectionsTag;
+    edm::InputTag m_l1TauTag;
+    edm::EDGetTokenT<l1t::TauBxCollection>   m_l1TauToken;
 
     /// Meta InputTag for L1 Egamma collection
-    edm::InputTag etsumCollectionsTag_;
-    edm::InputTag etsumTag_;
-    edm::EDGetTokenT<l1t::EtSumBxCollection>   etsumToken_;
+    edm::InputTag m_l1EtSumCollectionsTag;
+    edm::InputTag m_l1EtSumTag;
+    edm::EDGetTokenT<l1t::EtSumBxCollection>   m_l1EtSumToken;
 
-    /// Meta InputTag for L1 Global collections
-    //edm::InputTag globalCollectionsTag_;
-
-    /// seeding uses algorithm aliases instead of algorithm names, if value is "true"
-    //bool m_l1UseAliasesForSeeding;
-
-    /// InputTag for L1 Global Trigger object maps
-    //edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> m_l1GtObjectMapToken;
-
+    /// replace string "L1GlobalDecision" with bool to speed up the "if"
+    bool m_l1GlobalDecision;
 
     /// cache edm::isDebugEnabled()
     bool m_isDebugEnabled;
