@@ -76,7 +76,8 @@
 
 #include <ext/hash_map>
 
-
+#include <limits>
+#include <iomanip>
 
 using namespace edm;
 using namespace reco;
@@ -217,17 +218,17 @@ private:
 
 	const std::vector<int>*            trackindex     = 0;  edm::EDGetTokenT<std::vector<int>         	 > trackindex_token_;
 	const std::vector<unsigned int>*   rawid          = 0;  edm::EDGetTokenT<std::vector<unsigned int>	 > rawid_token_;
-	const std::vector<float>*          localdirx      = 0;  edm::EDGetTokenT<std::vector<float>       	 > localdirx_token_;
-	const std::vector<float>*          localdiry      = 0;  edm::EDGetTokenT<std::vector<float>       	 > localdiry_token_;
-	const std::vector<float>*          localdirz      = 0;  edm::EDGetTokenT<std::vector<float>       	 > localdirz_token_;
+	const std::vector<double>*         localdirx      = 0;  edm::EDGetTokenT<std::vector<double>       	 > localdirx_token_;
+	const std::vector<double>*         localdiry      = 0;  edm::EDGetTokenT<std::vector<double>       	 > localdiry_token_;
+	const std::vector<double>*         localdirz      = 0;  edm::EDGetTokenT<std::vector<double>       	 > localdirz_token_;
 	const std::vector<unsigned short>* firststrip     = 0;  edm::EDGetTokenT<std::vector<unsigned short> > firststrip_token_;
 	const std::vector<unsigned short>* nstrips        = 0;  edm::EDGetTokenT<std::vector<unsigned short> > nstrips_token_;
 	const std::vector<bool>*           saturation     = 0;  edm::EDGetTokenT<std::vector<bool>        	 > saturation_token_;
 	const std::vector<bool>*           overlapping    = 0;  edm::EDGetTokenT<std::vector<bool>        	 > overlapping_token_;
 	const std::vector<bool>*           farfromedge    = 0;  edm::EDGetTokenT<std::vector<bool>        	 > farfromedge_token_;
 	const std::vector<unsigned int>*   charge         = 0;  edm::EDGetTokenT<std::vector<unsigned int>	 > charge_token_;
-	const std::vector<float>*          path           = 0;  edm::EDGetTokenT<std::vector<float>       	 > path_token_;
-	const std::vector<float>*          chargeoverpath = 0;  edm::EDGetTokenT<std::vector<float>       	 > chargeoverpath_token_;
+	const std::vector<double>*         path           = 0;  edm::EDGetTokenT<std::vector<double>       	 > path_token_;
+	const std::vector<double>*         chargeoverpath = 0;  edm::EDGetTokenT<std::vector<double>       	 > chargeoverpath_token_;
 	const std::vector<unsigned char>*  amplitude      = 0;  edm::EDGetTokenT<std::vector<unsigned char>  > amplitude_token_;
 	const std::vector<double>*         gainused       = 0;  edm::EDGetTokenT<std::vector<double>         > gainused_token_;
 
@@ -306,17 +307,17 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 
 	trackindex_token_		  = consumes<std::vector<int>         	 >(edm::InputTag(label, CalibPrefix_ + "trackindex"    + CalibSuffix_)); 
 	rawid_token_				  = consumes<std::vector<unsigned int>	 >(edm::InputTag(label, CalibPrefix_ + "rawid"         + CalibSuffix_)); 
-	localdirx_token_		  = consumes<std::vector<float>       	 >(edm::InputTag(label, CalibPrefix_ + "localdirx"     + CalibSuffix_)); 
-	localdiry_token_		  = consumes<std::vector<float>       	 >(edm::InputTag(label, CalibPrefix_ + "localdiry"     + CalibSuffix_)); 
-	localdirz_token_		  = consumes<std::vector<float>       	 >(edm::InputTag(label, CalibPrefix_ + "localdirz"     + CalibSuffix_)); 
+	localdirx_token_		  = consumes<std::vector<double>       	 >(edm::InputTag(label, CalibPrefix_ + "localdirx"     + CalibSuffix_)); 
+	localdiry_token_		  = consumes<std::vector<double>       	 >(edm::InputTag(label, CalibPrefix_ + "localdiry"     + CalibSuffix_)); 
+	localdirz_token_		  = consumes<std::vector<double>       	 >(edm::InputTag(label, CalibPrefix_ + "localdirz"     + CalibSuffix_)); 
 	firststrip_token_		  = consumes<std::vector<unsigned short> >(edm::InputTag(label, CalibPrefix_ + "firststrip"    + CalibSuffix_)); 
 	nstrips_token_			  = consumes<std::vector<unsigned short> >(edm::InputTag(label, CalibPrefix_ + "nstrips"       + CalibSuffix_)); 
 	saturation_token_		  = consumes<std::vector<bool>        	 >(edm::InputTag(label, CalibPrefix_ + "saturation"    + CalibSuffix_)); 
 	overlapping_token_	  = consumes<std::vector<bool>        	 >(edm::InputTag(label, CalibPrefix_ + "overlapping"   + CalibSuffix_)); 
 	farfromedge_token_	  = consumes<std::vector<bool>        	 >(edm::InputTag(label, CalibPrefix_ + "farfromedge"   + CalibSuffix_)); 
 	charge_token_				  = consumes<std::vector<unsigned int>	 >(edm::InputTag(label, CalibPrefix_ + "charge"        + CalibSuffix_)); 
-	path_token_					  = consumes<std::vector<float>       	 >(edm::InputTag(label, CalibPrefix_ + "path"          + CalibSuffix_)); 
-	chargeoverpath_token_ = consumes<std::vector<float>       	 >(edm::InputTag(label, CalibPrefix_ + "chargeoverpath"+ CalibSuffix_)); 
+	path_token_					  = consumes<std::vector<double>       	 >(edm::InputTag(label, CalibPrefix_ + "path"          + CalibSuffix_)); 
+	chargeoverpath_token_ = consumes<std::vector<double>       	 >(edm::InputTag(label, CalibPrefix_ + "chargeoverpath"+ CalibSuffix_)); 
 	amplitude_token_		  = consumes<std::vector<unsigned char>  >(edm::InputTag(label, CalibPrefix_ + "amplitude"     + CalibSuffix_)); 
 	gainused_token_       = consumes<std::vector<double>         >(edm::InputTag(label, CalibPrefix_ + "gainused"      + CalibSuffix_)); 
 
@@ -671,6 +672,14 @@ void SiStripGainFromCalibTree::processEvent() {
 			if(OldGainRemoving){ClusterChargeOverPath*=(*gainused)[i];}
 		}
 		Charge_Vs_Index_Absolute->Fill(APV->Index,Charge);   
+
+		// int xbin = Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV->Index);
+		// int ybin = Charge_Vs_Index->getTH2F()->GetYaxis()->FindBin(ClusterChargeOverPath);
+		// if(xbin == 3322 && (ybin == 215 || ybin == 216)) 
+		// 	cout << endl << endl << endl << 
+		// 		setprecision(numeric_limits< double >::max_digits10) << ClusterChargeOverPath << " --> (" << xbin <<", " << ybin << ")" << endl <<
+		// 		"Charge: " << Charge << " Path: " << setprecision(numeric_limits< double >::max_digits10) << (*path)[i] <<
+		// 		endl << endl << endl;
 		Charge_Vs_Index         ->Fill(APV->Index,ClusterChargeOverPath);
 
 		if(APV->SubDet==StripSubdetector::TIB){ Charge_Vs_PathlengthTIB  ->Fill((*path)[i],Charge); 
@@ -1036,6 +1045,11 @@ SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::Event
 	auto handle22 = connect(chargeoverpath, chargeoverpath_token_, iEvent);
 	auto handle23 = connect(amplitude     , amplitude_token_     , iEvent);
 	auto handle24 = connect(gainused      , gainused_token_      , iEvent);
+
+	// std::cout << "new event! " <<
+	// 	"   # tracks: " << trackp->size() << std::endl <<
+	// 	"   # clusters: " << firststrip->size() << std::endl;
+	
 
 	processEvent();
 }
