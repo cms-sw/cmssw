@@ -28,9 +28,6 @@ public:
   // If calling for all towers clearEvent() can be avoided
   bool setECALData(UCTTowerIndex t, bool ecalFG, uint32_t ecalET);
   bool setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET);
-  bool setEventData(UCTTowerIndex t,
-		    bool ecalFG, uint32_t ecalET, 
-		    uint32_t hcalFB, uint32_t hcalET);
   // To process event
   bool process();
 

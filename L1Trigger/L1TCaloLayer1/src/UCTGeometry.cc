@@ -216,26 +216,16 @@ uint32_t UCTGeometry::getiPhi(int caloEta, int caloPhi) {
 uint32_t UCTGeometry::getNEta(uint32_t region) {
   uint32_t nEta = 0xDEADBEEF;
   if(region < CaloHFRegionStart) {
-    nEta = 4;
+    nEta = NEtaInRegion;
   }
   else {
-    nEta = 2;
+    nEta = NHFEtaInRegion;
   }
   return nEta;
 }
 
 uint32_t UCTGeometry::getNPhi(uint32_t region) {
-  uint32_t nPhi = 0xDEADBEEF;
-  if(region < CaloHFRegionStart) {
-    nPhi = 4;
-  }
-  else if(region < CaloVHFRegionStart) {
-    nPhi = 2;
-  }
-  else {
-    nPhi = 1;
-  }
-  return nPhi;
+  return NPhiInRegion;
 }
 
 UCTRegionIndex UCTGeometry::getUCTRegionIndex(int caloEta, int caloPhi) {

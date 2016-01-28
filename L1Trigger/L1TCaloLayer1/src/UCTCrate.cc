@@ -60,14 +60,6 @@ bool UCTCrate::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
   return cards[i]->setHCALData(t, hcalET, hcalFB);
 }
 
-bool UCTCrate::setEventData(UCTTowerIndex t,
-			    bool ecalFG, uint32_t ecalET, 
-			    uint32_t hcalFB, uint32_t hcalET) {
-  if(setECALData(t, ecalFG, ecalET))
-    return setHCALData(t, hcalET, hcalFB);
-  return false;
-}
-
 const UCTCard* UCTCrate::getCard(UCTTowerIndex t) const {
   UCTGeometry g;
   uint32_t i = g.getCard(t.first, t.second);

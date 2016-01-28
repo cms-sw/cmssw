@@ -25,8 +25,12 @@
   Corresponding negative values are for negative eta
 
   The uHTR HF eta index is 30-41 for 12 divisions in eta between 3-5
-  In the HF region size is proposed as 2x2 HF TPGs in etaxphi == 0.33 x 0.35
-  It will be in 2x1 for 40 and 41 as phi is already doubled there at TPG level
+  Note that eta=30-39 are 10-degree phi towers.  However, Layer2 wants the same
+  5-degree phi towers as in 1-28.  Therefore, we make artificial splitting for
+  output.  For eta=40,42 we take 20-degree phi tower and split four ways !
+
+  In the HF region size is proposed as 2x4 HF towers in etaxphi == 0.33 x 0.35,
+  where the phi division of x4 assumes above /2 and /4 splits.
 
 */
 
@@ -42,7 +46,7 @@
 #define HFEtaOffset NRegionsInCard * NEtaInRegion + 1
 #define NHFRegionsInCard 6
 #define NHFEtaInRegion 2
-#define NHFPhiInRegion 2
+#define NHFPhiInRegion NPhiInRegion // For convenience of Layer-2 we always have the same number of phit divisions
 #define NHFPhiInCard NHFPhiInRegion
 #define NVHFPhiInCard 1
 
@@ -62,6 +66,7 @@
 #define MaxCaloPhi 72
 #define CaloHFRegionStart 7
 #define CaloVHFRegionStart 12
+
 #define MaxCaloPhiInHF MaxCaloPhi/2
 #define MaxCaloPhiInVHF MaxCaloPhi/4
 

@@ -158,19 +158,29 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for ( const auto& hcalTp : *hcalTPs ) {
     int caloEta = hcalTp.id().ieta();
-    int caloPhi = hcalTp.id().iphi();
-    int et = hcalTp.SOI_compressedEt();
-    bool fg = hcalTp.SOI_fineGrain();
-    if(et != 0) {
-      UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
-      uint32_t featureBits = 0;
-      if(fg) featureBits = 0x1F; // Set all five feature bits for the moment - they are not defined in HW / FW yet!
-      if(!layer1->setHCALData(t, et, featureBits)) {
-	std::cerr << "UCT: Failed loading an HCAL tower" << std::endl;
-	return;
-
+    // Tower 29 is not used by Layer-1
+    if(caloEta == 29) {
+      continue;
+    }
+    // Prevent usage of HF TPs with Layer-1 emulator if HCAL TPs are old style
+    else if(hcalTp.id().version() == 0 && caloEta > 29) {
+      continue;
+    }
+    else {
+      int caloPhi = hcalTp.id().iphi();
+      int et = hcalTp.SOI_compressedEt();
+      bool fg = hcalTp.SOI_fineGrain();
+      if(et != 0) {
+	UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
+	uint32_t featureBits = 0;
+	if(fg) featureBits = 0x1F; // Set all five feature bits for the moment - they are not defined in HW / FW yet!
+	if(!layer1->setHCALData(t, et, featureBits)) {
+	  std::cerr << "UCT: Failed loading an HCAL tower" << std::endl;
+	  return;
+	  
+	}
+	expectedTotalET += et;
       }
-      expectedTotalET += et;
     }
   }
   

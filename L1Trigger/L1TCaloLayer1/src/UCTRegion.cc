@@ -105,20 +105,30 @@ bool UCTRegion::setECALData(UCTTowerIndex t, bool ecalFG, uint32_t ecalET) {
 bool UCTRegion::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
   UCTGeometry g;
   uint32_t nEta = g.getNEta(region);
+  uint32_t nPhi = g.getNPhi(region);
   uint32_t absCaloEta = abs(t.first);
   uint32_t absCaloPhi = abs(t.second);
   uint32_t iEta = g.getiEta(absCaloEta, absCaloPhi);
-  uint32_t iPhi = g.getiPhi(absCaloEta, absCaloPhi);
-  UCTTower* tower = towers[iEta*nEta+iPhi];
-  return tower->setHCALData(hcalFB, hcalET);
-}
-
-bool UCTRegion::setEventData(UCTTowerIndex t,
-			     bool ecalFG, uint32_t ecalET, 
-			     uint32_t hcalFB, uint32_t hcalET) {
-  if(setECALData(t, ecalFG, ecalET))
-    return setHCALData(t, hcalET, hcalFB);
-  return false;
+  if(absCaloEta > 29 && absCaloEta < 40) {
+    for(uint32_t iPhi = 0; iPhi < nPhi; iPhi += 2) { // For artificial splitting in pairs
+      UCTTower* tower = towers[iEta*nEta + iPhi];
+      if(!tower->setHFData(hcalET / 2, hcalFB)) return false;
+      tower = towers[iEta*nEta + iPhi + 1];
+      if(!tower->setHFData(hcalET / 2, hcalFB)) return false;
+    }
+  }
+  else if(absCaloEta == 40 || absCaloEta == 41) {
+    for(uint32_t iPhi = 0; iPhi < nPhi; iPhi++) { // For artificial splitting in quads
+      UCTTower* tower = towers[iEta*nEta + iPhi];
+      if(!tower->setHFData(hcalET / 4, hcalFB)) return false;
+    }
+  }
+  else {
+    uint32_t iPhi = g.getiPhi(absCaloEta, absCaloPhi);
+    UCTTower* tower = towers[iEta*nEta+iPhi];
+    return tower->setHCALData(hcalFB, hcalET);
+  }
+  return true;
 }
 
 std::ostream& operator<<(std::ostream& os, const UCTRegion& r) {

@@ -72,14 +72,6 @@ bool UCTCard::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
   return regions[i]->setHCALData(t, hcalFB, hcalET);
 }
 
-bool UCTCard::setEventData(UCTTowerIndex t,
-			   bool ecalFG, uint32_t ecalET, 
-			   uint32_t hcalFB, uint32_t hcalET) {
-  if(setECALData(t, ecalFG, ecalET))
-    return setHCALData(t, hcalET, hcalFB);
-  return false;
-}
-
 const UCTRegion* UCTCard::getRegion(UCTRegionIndex r) const {
   UCTGeometry g;
   UCTTowerIndex t = g.getUCTTowerIndex(r);

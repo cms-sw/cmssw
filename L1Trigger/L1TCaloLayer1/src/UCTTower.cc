@@ -9,7 +9,9 @@
 #include "UCTTower.hh"
 
 bool UCTTower::process() {
-  if(region >= NRegionsInCard) return true;
+  if(region >= NRegionsInCard) {
+    return processHFTower();
+  }
   if(ecalET > 0xFF) ecalET = 0xFF;
   if(hcalET > 0xFF) hcalET = 0xFF;
   uint32_t calibratedECALET = ecalET;
@@ -80,6 +82,18 @@ bool UCTTower::process() {
   return true;
 }
 
+bool UCTTower::processHFTower() {
+  if(hcalET > 0xFF) hcalET = 0xFF;
+  if(hcalFB > 0x3) hcalFB = 0x3;
+  uint32_t calibratedET = hcalET;
+  if(hfLUT != 0) {
+    const std::vector< uint32_t > a = hfLUT->at(region * NEtaInRegion + iEta);
+    calibratedET = a[hcalET];
+  }
+  towerData = calibratedET + (hcalFB << 8) + (location() << 16);
+  return true;
+}
+
 bool UCTTower::setECALData(bool eFG, uint32_t eET) {
   ecalFG = eFG;
   ecalET = eET;
@@ -102,6 +116,14 @@ bool UCTTower::setHCALData(uint32_t hET, uint32_t hFB) {
 	      << "; Used only bottom 6 bits" << std::endl;
     hcalFB &= 0x3F;
   }
+  return true;
+}
+
+bool UCTTower::setHFData(uint32_t etIn, uint32_t fbIn) {
+  ecalFG = false; // HF has no separate ecal section
+  ecalET = 0;
+  hcalET = etIn; // We reuse HCAL place as HF
+  hcalFB = fbIn;
   return true;
 }
 

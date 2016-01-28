@@ -42,6 +42,7 @@ public:
     hcalFB(0),
     ecalLUT(0),
     hcalLUT(0),
+    hfLUT(0),
     towerData(0)
   {}
 
@@ -58,56 +59,27 @@ public:
     return true;
   }
 
-  bool setEventData(bool ecalFG, uint32_t ecalET, uint32_t hcalET, uint32_t hcalFB) {
-    if(setECALData(ecalFG, ecalET)) {
-      if(setHCALData(hcalET, hcalFB)) return true;
-    }
-    return false;
-  }
   bool setECALData(bool ecalFG, uint32_t ecalET);
   bool setHCALData(uint32_t hcalET, uint32_t hcalFB);
+  bool setHFData(uint32_t etIn, uint32_t fbIn);
 
   bool setECALLUT(const std::vector< std::vector< std::vector< uint32_t > > > *l) {
-    /*
-    if(l->size() != NEta) {
-    return false;
-    }
-    for(uint32_t i = 0; i < NEta; i++) {
-      if(l[i].size() != 2) {
-	return false;
-      }
-      for(uint32_t j = 0; j < 2; j++) {
-	if(l[i][j].size() != 256) {
-	  return false;
-	}	
-      }
-    }
-    */
     ecalLUT = l;
     return true;
   }
   
   bool setHCALLUT(const std::vector< std::vector< std::vector< uint32_t > > > *l) {
-    /*
-    if(l->size() != NEta) {
-      return false;
-    }
-    for(uint32_t i = 0; i < NEta; i++) {
-      if(l[i].size() != 2) {
-	return false;
-      }
-      for(uint32_t j = 0; j < 2; j++) {
-	if(l[i][j].size() != 256) {
-	  return false;
-	}	
-      }
-    }
-    */
     hcalLUT = l;
     return true;
   }
   
+  bool setHFLUT(const std::vector< std::vector< uint32_t > > *l) {
+    hfLUT = l;
+    return true;
+  }
+
   bool process();
+  bool processHFTower();
 
   // Packed data access
 
@@ -190,6 +162,7 @@ private:
 
   const std::vector< std::vector< std::vector< uint32_t > > > *ecalLUT;
   const std::vector< std::vector< std::vector< uint32_t > > > *hcalLUT;
+  const std::vector< std::vector< uint32_t > > *hfLUT;
   
   // Owned tower level data 
   // Packed bits -- only bottom 16 bits are used in "prelim" protocol

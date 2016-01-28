@@ -104,14 +104,6 @@ bool UCTLayer1::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
   return crate->setHCALData(t, hcalET, hcalFB);
 }
 
-bool UCTLayer1::setEventData(UCTTowerIndex t,
-			     bool ecalFG, uint32_t ecalET, 
-			     uint32_t hcalFB, uint32_t hcalET) {
-  if(setECALData(t, ecalFG, ecalET))
-    return setHCALData(t, hcalET, hcalFB);
-  return false;
-}
-
 bool UCTLayer1::process() {
   uctSummary = 0;
   for(uint32_t i = 0; i < crates.size(); i++) {
