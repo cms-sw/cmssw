@@ -232,7 +232,7 @@ bool TrackerTopology::isUpper(const DetId &id) const {
     return 0;
 }
 
-uint32_t TrackerTopology::partnerDetId(const DetId &id) const {
+DetId TrackerTopology::partnerDetId(const DetId &id) const {
 
     uint32_t subdet=id.subdetId();
     if ( subdet == PixelSubdetector::PixelBarrel )
@@ -411,6 +411,7 @@ SiStripDetId::ModuleGeometry TrackerTopology::moduleGeometry(const DetId &id) co
     case 2: return SiStripDetId::W2B;
     case 3: return SiStripDetId::W3B;
     case 4: return SiStripDetId::W4;
+  //generic function to return DetIds and boolean factors
     case 5: return SiStripDetId::W5;
     case 6: return SiStripDetId::W6;
     case 7: return SiStripDetId::W7;
