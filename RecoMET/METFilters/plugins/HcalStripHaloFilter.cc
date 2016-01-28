@@ -26,8 +26,8 @@ class HcalStripHaloFilter : public edm::global::EDFilter<> {
 HcalStripHaloFilter::HcalStripHaloFilter(const edm::ParameterSet & iConfig)
   : taggingMode_     (iConfig.getParameter<bool> ("taggingMode"))
   , maxWeightedStripLength_   (iConfig.getParameter<int>("maxWeightedStripLength"))
-  , maxEnergyRatio_   (iConfig.getParameter<int>("maxEnergyRatio"))
-  , minHadEt_   (iConfig.getParameter<int>("minHadEt"))
+  , maxEnergyRatio_   (iConfig.getParameter<double>("maxEnergyRatio"))
+  , minHadEt_   (iConfig.getParameter<double>("minHadEt"))
   , beamHaloSummaryToken_(consumes<reco::BeamHaloSummary>(edm::InputTag("BeamHaloSummary")))
 {
   produces<bool>();
