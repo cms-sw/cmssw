@@ -30,7 +30,7 @@
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "JetMETCorrections/Algorithms/interface/L1FastjetCorrector.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
 #include "RecoMET/METAlgorithms/interface/METAlgo.h"
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
@@ -38,6 +38,7 @@
 #include "RecoMET/METPUSubtraction/interface/MvaMEtUtilities.h"
 
 #include "RecoJets/JetProducers/interface/PileupJetIdAlgo.h"
+#include <TLorentzVector.h>
 
 namespace reco
 {
@@ -60,7 +61,7 @@ namespace reco
 
     std::vector<reco::PUSubMETCandInfo> computeJetInfo(const reco::PFJetCollection&, const edm::Handle<reco::PFJetCollection>&,
 							  const edm::ValueMap<float>&, const reco::VertexCollection&, 
-							  const reco::Vertex*, const JetCorrector &iCorr,
+							  const reco::Vertex*, const reco::JetCorrector &iCorr,
 							  edm::Event & iEvent,const edm::EventSetup &iSetup,
 							  std::vector<reco::PUSubMETCandInfo> &iLeptons,
 							  std::vector<reco::PUSubMETCandInfo> &iCands);
@@ -80,11 +81,11 @@ namespace reco
     //edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidates_;
     edm::EDGetTokenT<edm::View<reco::Candidate> > srcPFCandidatesView_;
     edm::EDGetTokenT<reco::VertexCollection> srcVertices_;
+    edm::EDGetTokenT<reco::JetCorrector> mJetCorrector_;
     typedef std::vector<edm::InputTag> vInputTag;
     std::vector<edm::EDGetTokenT<reco::CandidateView > > srcLeptons_;
     int minNumLeptons_; // CV: option to skip MVA MET computation in case there are less than specified number of leptons in the event
 
-    std::string correctorLabel_;
     bool useType1_;
     
     double globalThreshold_;
