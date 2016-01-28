@@ -250,9 +250,6 @@ def new_selector(process):
 
         iter0seq = getattr(process,'HLTIterativeTrackingIteration0')
         iter0seq.insert( iter0seq.index( iter0HP ), getattr(process,'hltIter0PFlowTrackCutClassifier') )
-        print 'iter0seq: ', iter0seq
-        print 'iterativeTracking: ', process.HLTIterativeTrackingIter02
-        print '**************************************************************************************************'
 #        iter02seq = getattr(process,'HLTIterativeTrackingIter02')
 #        iter02seq.insert( iter02seq.index( iter0HP ), process.hltIter0PFlowTrackCutClassifier )
         
@@ -525,9 +522,6 @@ def new_selector(process):
         iter02seq.replace( getattr(process,'hltIter1PFlowTrackSelectionHighPurityLoose'), iter1prompt )
         iter02seq.replace( getattr(process,'hltIter1PFlowTrackSelectionHighPurityTight'), iter1detached )
         iter02seq.insert( iter02seq.index( iter1HP ), iter1merge )
-        print 'iter1seq: ', iter1seq
-        print 'iterativeTracking: ', process.HLTIterativeTrackingIter02
-        print '**************************************************************************************************'
 
     #### iter2
     if hasattr(process, 'HLTIterativeTrackingIteration2'):
@@ -655,23 +649,14 @@ def new_selector(process):
           )
          )
         )
-        print '**************************************************************************************************'
         iter2HP  = getattr(process,'hltIter2PFlowTrackSelectionHighPurity')
 
         iter2seq = getattr(process,'HLTIterativeTrackingIteration2')
-        print 'iter2seq: ', iter2seq
         iter2seq.insert( iter2seq.index( iter2HP ), getattr(process,'hltIter2PFlowTrackCutClassifier') )
-        print 'iter2seq: ', iter2seq
-        print '**************************************************************************************************'
         iter02seq = getattr(process,'HLTIterativeTrackingIter02')
         if hasattr(iter02seq,'hltIter2PFlowTrackSelectionHighPurity'):
-            print 'iter02seq has hltIter2PFlowTrackSelectionHighPurity'
-            print getattr(process,'hltIter2PFlowTrackSelectionHighPurity')            
             iter02seq.insert( iter02seq.index( iter2HP ), getattr(process,'hltIter2PFlowTrackCutClassifier') )
 
-        print 'iterativeTracking: ', process.HLTIterativeTrackingIter02
-        print '**************************************************************************************************'
-                
     return process
 
 def customiseFor2016trackingTemplate(process):
