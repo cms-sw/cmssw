@@ -76,9 +76,6 @@
 
 #include <ext/hash_map>
 
-#include <limits>
-#include <iomanip>
-
 using namespace edm;
 using namespace reco;
 using namespace std;
@@ -672,14 +669,6 @@ void SiStripGainFromCalibTree::processEvent() {
 			if(OldGainRemoving){ClusterChargeOverPath*=(*gainused)[i];}
 		}
 		Charge_Vs_Index_Absolute->Fill(APV->Index,Charge);   
-
-		// int xbin = Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV->Index);
-		// int ybin = Charge_Vs_Index->getTH2F()->GetYaxis()->FindBin(ClusterChargeOverPath);
-		// if(xbin == 3322 && (ybin == 215 || ybin == 216)) 
-		// 	cout << endl << endl << endl << 
-		// 		setprecision(numeric_limits< double >::max_digits10) << ClusterChargeOverPath << " --> (" << xbin <<", " << ybin << ")" << endl <<
-		// 		"Charge: " << Charge << " Path: " << setprecision(numeric_limits< double >::max_digits10) << (*path)[i] <<
-		// 		endl << endl << endl;
 		Charge_Vs_Index         ->Fill(APV->Index,ClusterChargeOverPath);
 
 		if(APV->SubDet==StripSubdetector::TIB){ Charge_Vs_PathlengthTIB  ->Fill((*path)[i],Charge); 
@@ -1045,11 +1034,6 @@ SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::Event
 	auto handle22 = connect(chargeoverpath, chargeoverpath_token_, iEvent);
 	auto handle23 = connect(amplitude     , amplitude_token_     , iEvent);
 	auto handle24 = connect(gainused      , gainused_token_      , iEvent);
-
-	// std::cout << "new event! " <<
-	// 	"   # tracks: " << trackp->size() << std::endl <<
-	// 	"   # clusters: " << firststrip->size() << std::endl;
-	
 
 	processEvent();
 }

@@ -75,7 +75,6 @@ ALCARECOShallowSequence = cms.Sequence(ALCARECOShallowEventRun*ALCARECOShallowTr
 from CalibTracker.SiStripChannelGain.computeGain_cff import SiStripCalib
 ALCARECOSiStripCalib = SiStripCalib.clone()
 ALCARECOSiStripCalib.AlgoMode = cms.untracked.string('PCL')
-ALCARECOSiStripCalib.Tracks   = cms.untracked.InputTag('ALCARECOCalibrationTracksRefit')
 ALCARECOSiStripCalib.FirstSetOfConstants = cms.untracked.bool(False)
 ALCARECOSiStripCalib.harvestingMode    = cms.untracked.bool(False)
 ALCARECOSiStripCalib.doStoreOnDB         = cms.bool(False)
