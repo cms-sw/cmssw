@@ -162,11 +162,7 @@ GlobalPoint BasicSingleVertexState::position() const
 
 GlobalError BasicSingleVertexState::error() const
 {
-  if (!valid) {
-    float *temp = nullptr;
-    std::cout << *temp;
-    throw VertexException("BasicSingleVertexState::error::invalid");
-  }
+  if (!valid) throw VertexException("BasicSingleVertexState::error::invalid");
   if (!theErrAvailable) computeError();
   return GlobalError(theErr.matrix());
 }

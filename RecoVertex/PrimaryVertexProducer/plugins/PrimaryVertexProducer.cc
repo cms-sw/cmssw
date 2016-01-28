@@ -184,15 +184,9 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         time = 0.0;
         timeReso = 1.0;
       }
-      //std::cout << time << ' ' << timeReso << std::endl;
       reco::TransientTrack temptt(temp.castTo<reco::TrackRef>(),time,timeReso,
                                   theB->field(),theB->trackingGeometry());
       seltk.swap(temptt);
-      /*
-      std::cout << seltk.track().pt() << ' '
-                << seltk.timeExt() << ' ' 
-                << seltk.dtErrorExt() << std::endl;
-      */
     }
   }
 
@@ -234,11 +228,11 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	v = algorithm->fitter->vertex(*iclus, beamSpot);
         
         if( f4D ) {
-          //std::cout << "beamspot constrained thingy" << std::endl;
-          auto err = v.positionError().matrix4D();
-          //std::cout << "got the error" << std::endl;
-          err(3,3) = time_var/(double)iclus->size();        
-          v = TransientVertex(v.position(),meantime,err,v.originalTracks(),v.totalChiSquared());
+          if( v.isValid() ) {
+            auto err = v.positionError().matrix4D();
+            err(3,3) = time_var/(double)iclus->size();        
+            v = TransientVertex(v.position(),meantime,err,v.originalTracks(),v.totalChiSquared());
+          }
         }
 	
       }else if( !(algorithm->useBeamConstraint) && ((*iclus).size()>1) ) {
@@ -246,11 +240,11 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	v = algorithm->fitter->vertex(*iclus);
         
         if( f4D ) {
-          //std::cout << "beamspot constrained thingy" << std::endl;
-          auto err = v.positionError().matrix4D();
-          //std::cout << "got the error" << std::endl;
-          err(3,3) = time_var/(double)iclus->size();          
-          v = TransientVertex(v.position(),meantime,err,v.originalTracks(),v.totalChiSquared());
+          if( v.isValid() ) {
+            auto err = v.positionError().matrix4D();
+            err(3,3) = time_var/(double)iclus->size();          
+            v = TransientVertex(v.position(),meantime,err,v.originalTracks(),v.totalChiSquared());
+          }
         }
 	
       }// else: no fit ==> v.isValid()=False
