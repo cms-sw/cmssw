@@ -80,7 +80,8 @@ def _getXmin(obj, limitToNonZeroContent=False):
             for i in xrange(1, obj.GetNbinsX()+1):
                 if obj.GetBinContent(i) != 0:
                     return xaxis.GetBinLowEdge(i)
-            return xaxis.GetBinLowEdge(xaxis.GetLast())
+            # None for all bins being zero
+            return None
         else:
             return xaxis.GetBinLowEdge(xaxis.GetFirst())
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
@@ -94,7 +95,8 @@ def _getXmax(obj, limitToNonZeroContent=False):
             for i in xrange(obj.GetNbinsX(), 0, -1):
                 if obj.GetBinContent(i) != 0:
                     return xaxis.GetBinUpEdge(i)
-            return xaxis.GetBinUpEdge(xaxis.GetFirst())
+            # None for all bins being zero
+            return None
         else:
             return xaxis.GetBinUpEdge(xaxis.GetLast())
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
@@ -174,31 +176,45 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
             ymaxs.append(_getYmax(th1))
 #            ymaxs.append(_getYmaxWithError(th1))
 
+        # Filter out cases where histograms have zero content
+        xmins = filter(lambda h: h is not None, xmins)
+        xmaxs = filter(lambda h: h is not None, xmaxs)
+
         if xmin is None:
             xmin = min(xmins)
         elif isinstance(xmin, list):
-            xm = min(xmins)
-            xmins_below = filter(lambda x: x<=xm, xmin)
-            if len(xmins_below) == 0:
+            if len(xmins) == 0: # all histograms zero
                 xmin = min(xmin)
-                if xm < xmin:
-                    if verbose:
-                        print "Histogram minimum x %f is below all given xmin values %s, using the smallest one" % (xm, str(xmin))
+                if verbose:
+                    print "Histogram is zero, using the smallest given value for xmin from", str(xmin)
             else:
-                xmin = max(xmins_below)
+                xm = min(xmins)
+                xmins_below = filter(lambda x: x<=xm, xmin)
+                if len(xmins_below) == 0:
+                    xmin = min(xmin)
+                    if xm < xmin:
+                        if verbose:
+                            print "Histogram minimum x %f is below all given xmin values %s, using the smallest one" % (xm, str(xmin))
+                else:
+                    xmin = max(xmins_below)
 
         if xmax is None:
             xmax = max(xmaxs)
         elif isinstance(xmax, list):
-            xm = max(xmaxs)
-            xmaxs_above = filter(lambda x: x>xm, xmax)
-            if len(xmaxs_above) == 0:
+            if len(xmaxs) == 0: # all histograms zero
                 xmax = max(xmax)
-                if xm > xmax:
-                    if verbose:
-                        print "Histogram maximum x %f is above all given xmax values %s, using the maximum one" % (xm, str(xmax))
+                if verbose:
+                    print "Histogram is zero, using the smallest given value for xmax from", str(xmin)
             else:
-                xmax = min(xmaxs_above)
+                xm = max(xmaxs)
+                xmaxs_above = filter(lambda x: x>xm, xmax)
+                if len(xmaxs_above) == 0:
+                    xmax = max(xmax)
+                    if xm > xmax:
+                        if verbose:
+                            print "Histogram maximum x %f is above all given xmax values %s, using the maximum one" % (xm, str(xmax))
+                else:
+                    xmax = min(xmaxs_above)
 
         if ymin is None:
             ymin = min(ymins)
@@ -215,7 +231,9 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
                 ymin = max(ymins_below)
 
         if ymax is None:
-            ymax = y_scale_max(max(ymaxs))
+            # in case ymax is automatic, ymin is set by list, and the
+            # histograms are zero, ensure here that ymax > ymin
+            ymax = y_scale_max(max(ymaxs+[ymin]))
         elif isinstance(ymax, list):
             ym_unscaled = max(ymaxs)
             ym = y_scale_max(ym_unscaled)
