@@ -83,7 +83,7 @@ pfMVAMEt = cms.EDProducer("PFMETProducerMVA",
     ),
     loadMVAfromDB = cms.bool(False),                             
 
-    corrector = cms.string("ak4PFL1Fastjet"),
+    corrector = cms.InputTag("ak4PFL1FastjetCorrector"),
     useType1  = cms.bool(True), 
     dZcut     = cms.double(0.1),
        

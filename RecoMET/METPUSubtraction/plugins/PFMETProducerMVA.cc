@@ -16,19 +16,16 @@ PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg)
   srcPFCandidatesView_ = consumes<reco::CandidateView>(cfg.getParameter<edm::InputTag>("srcPFCandidates"));
   srcVertices_     = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("srcVertices"));
   vInputTag srcLeptonsTags = cfg.getParameter<vInputTag>("srcLeptons");
-  edm::InputTag srcRho = ( cfg.exists("srcRho") ) ? cfg.getParameter<edm::InputTag>("srcRho") : (edm::InputTag("fixedGridRhoFastjetAll"));
-  consumes<double>(srcRho);
   for(vInputTag::const_iterator it=srcLeptonsTags.begin();it!=srcLeptonsTags.end();it++) {
     srcLeptons_.push_back( consumes<reco::CandidateView >( *it ) );
   }
-
+  mJetCorrector_  = consumes<reco::JetCorrector>(cfg.getParameter<edm::InputTag>("corrector"));
   minNumLeptons_   = cfg.getParameter<int>("minNumLeptons");
 
   globalThreshold_ = cfg.getParameter<double>("globalThreshold");
 
   minCorrJetPt_    = cfg.getParameter<double>     ("minCorrJetPt");
   useType1_        = cfg.getParameter<bool>       ("useType1");
-  correctorLabel_  = cfg.getParameter<std::string>("corrector");
    
   verbosity_ = ( cfg.exists("verbosity") ) ?
     cfg.getParameter<int>("verbosity") : 0;
@@ -74,8 +71,11 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
   edm::Handle<reco::PFJetCollection> uncorrJets;
   evt.getByToken(srcUncorrJets_, uncorrJets);
 
-  const JetCorrector* corrector = nullptr;
-  if( useType1_ ) corrector = JetCorrector::getJetCorrector(correctorLabel_, es);
+  edm::Handle<reco::JetCorrector> corrector;
+  if( useType1_ )
+  {
+    evt.getByToken(mJetCorrector_, corrector); 
+  }
   
   edm::Handle<reco::CandidateView> pfCandidates_view;
   evt.getByToken(srcPFCandidatesView_, pfCandidates_view);
@@ -193,10 +193,9 @@ PFMETProducerMVA::computeJetInfo(const reco::PFJetCollection& uncorrJets,
 				 const edm::ValueMap<float>& jetIds,
 				 const reco::VertexCollection& vertices,
 				 const reco::Vertex* hardScatterVertex,
-				 const JetCorrector &iCorrector,edm::Event &iEvent,const edm::EventSetup &iSetup,
+				 const reco::JetCorrector &iCorrector,edm::Event &iEvent,const edm::EventSetup &iSetup,
 				 std::vector<reco::PUSubMETCandInfo> &iLeptons,std::vector<reco::PUSubMETCandInfo> &iCands)
 {
-  const L1FastjetCorrector* lCorrector = dynamic_cast<const L1FastjetCorrector*>(&iCorrector);
   std::vector<reco::PUSubMETCandInfo> retVal;
   for ( reco::PFJetCollection::const_iterator uncorrJet = uncorrJets.begin();
 	uncorrJet != uncorrJets.end(); ++uncorrJet ) {
@@ -222,7 +221,7 @@ PFMETProducerMVA::computeJetInfo(const reco::PFJetCollection& uncorrJets,
       jetInfo.setP4( corrJet->p4() );
       double lType1Corr = 0;
       if(useType1_) { //Compute the type 1 correction ===> This code is crap 
-	double pCorr = lCorrector->correction(*uncorrJet,iEvent,iSetup);
+	double pCorr = iCorrector.correction(*uncorrJet);
 	lType1Corr = std::abs(corrJet->pt()-pCorr*uncorrJet->pt());
 	TLorentzVector pVec; pVec.SetPtEtaPhiM(lType1Corr,0,corrJet->phi(),0); 
 	reco::Candidate::LorentzVector pType1Corr; pType1Corr.SetCoordinates(pVec.Px(),pVec.Py(),pVec.Pz(),pVec.E());
