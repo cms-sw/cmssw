@@ -190,7 +190,7 @@ process = customizeHLTforAll(process,"%s",_customInfo)
 
     self.data += """
 from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
-process = customizeHLTforAll(process,"%s")
+process = customizeHLTforCMSSW(process,"%s")
 """ % (self.config.type)
 
   # customize the configuration according to the options

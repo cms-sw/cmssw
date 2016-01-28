@@ -174,5 +174,5 @@ from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
 fragment = customizeHLTforAll(fragment,"Fake")
 
 from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
-fragment = customizeHLTforAll(fragment,"Fake")
+fragment = customizeHLTforCMSSW(fragment,"Fake")
 
