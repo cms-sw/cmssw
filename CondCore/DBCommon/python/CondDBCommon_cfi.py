@@ -1,3 +1,8 @@
+print " ################################################################### "  
+print " # WARNING: this module is deprecated.                             # "                                                                              
+print " # Please use CondCore.CondDB.CondDB_cfi.py                        # "                                                                             
+print " ################################################################### "
+
 import FWCore.ParameterSet.Config as cms
 
 CondDBCommon = cms.PSet(
