@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def customizeHLTforAll(process, _customInfo = None):
+def customizeHLTforAll(process, menuType = "GRun", _customInfo = None):
 
     if (_customInfo is not None):
 
@@ -60,9 +60,5 @@ def customizeHLTforAll(process, _customInfo = None):
                 process = MassReplaceInputTag(process,"rawDataRepacker","rawDataCollector")
     else:
         pass
-
-# CMSSW version customisation
-    from HLTrigger.Configuration.customizeHLTforCMSSW import customiseHLTforCMSSW
-    process = customiseHLTforCMSSW(process)
 
     return process
