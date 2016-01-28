@@ -277,6 +277,11 @@ def addHLTdummybranches( process):
       ,"HLT_EcalCalibration_v1"
       ,"HLT_HcalCalibration_v1"
       ,"HLT_HIPhysicsNoZS_v1"
+      ,"HLT_HIL1MinimumBiasHF2AND_v1"
+      ,"HLT_HIL1Centralityext30100MinimumumBiasHF2AND_v1"
+      ,"HLT_HIL1Centralityext30100HFplusANDminusTH0_v1"
+      ,"HLT_HIL1Centralityext50100HFplusANDminusTH0_v1"
+      ,"HLT_HIL1Centralityext70100HFplusANDminusTH0_v1"
       ])
 
 def addHLTdummybranchesForPP( process):
@@ -474,8 +479,5 @@ def addHLTdummybranchesForPP( process):
       ,"HLT_AK4PFDJet80_Eta2p1_v1"
       ,"HLT_AK4PFBJetBSSV60_Eta2p1_v1"
       ,"HLT_AK4PFBJetBSSV80_Eta2p1_v1"
-      ,"L1_Centrality_ext70_100_HFplusANDminusTH0"
-      ,"L1_TOTEM_2"
-      ,"L1_Centrality_ext50_100_HFplusANDminusTH0"
       ])
 
