@@ -11,7 +11,7 @@ cTagCorrelationAnalysisBlock = cms.PSet(
         startEffPur = cms.double(0.005),
         endEffPur = cms.double(1.005),
         CreateProfile = cms.bool(False),
-        fixedEff = cms.vdouble(0.2,0.3,0.4)
+        fixedEff = cms.vdouble(0.2,0.3,0.4,0.5)
     )
 )
 
