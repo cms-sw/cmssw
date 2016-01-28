@@ -83,7 +83,7 @@ namespace edm {
       unsigned int m_timesRun =0;
     };
 
-    void fillTriggerTimingReport( TriggerTimingReport& rep) ;
+    void fillTriggerTimingReport(TriggerTimingReport& rep) const;
   private:
     SystemTimeKeeper(const SystemTimeKeeper&) = delete; // stop default
     

@@ -248,7 +248,7 @@ namespace edm {
     
     /// Return the trigger timing report information on paths,
     /// modules-in-path, modules-in-endpath, and modules.
-    void getTriggerTimingReport(TriggerTimingReport& rep);
+    void getTriggerTimingReport(TriggerTimingReport& rep) const;
 
     /// Return whether each output module has reached its maximum count.
     bool terminate() const;
