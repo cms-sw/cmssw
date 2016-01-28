@@ -11,13 +11,14 @@ def esproducers_by_type(process, *types):
 #
 # one action function per PR - put the PR number into the name of the function
 
-def customiseFor12718(process):
-    for pset in process._Process__psets.values():
-        if hasattr(pset,'ComponentType'):
-            if (pset.ComponentType == 'CkfBaseTrajectoryFilter'):
-                if not hasattr(pset,'minGoodStripCharge'):
-                    pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
-    return process
+# example:
+# def customiseFor12718(process):
+#     for pset in process._Process__psets.values():
+#         if hasattr(pset,'ComponentType'):
+#             if (pset.ComponentType == 'CkfBaseTrajectoryFilter'):
+#                 if not hasattr(pset,'minGoodStripCharge'):
+#                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+#     return process
 
 #
 # CMSSW version specific customizations
@@ -26,6 +27,7 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     cmsswVersion = os.environ['CMSSW_VERSION']
 
     if cmsswVersion >= "CMSSW_8_0":
-        process = customiseFor12718(process)
+#       process = customiseFor12718(process)
+        pass
 
     return process
