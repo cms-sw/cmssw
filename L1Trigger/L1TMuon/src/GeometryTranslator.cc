@@ -1,5 +1,5 @@
-#include "L1Trigger/L1TMuon/interface/GeometryTranslator.h"
-#include "DataFormats/L1TMuon/interface/MuonTriggerPrimitive.h"
+#include "L1Trigger/L1TMuon/interface/deprecate/GeometryTranslator.h"
+#include "L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h"
 
 // event setup stuff / geometries
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -15,7 +15,7 @@
 
 #include <cmath> // for pi
 
-using namespace l1t;
+using namespace L1TMuon;
 
 GeometryTranslator::GeometryTranslator():  
   _geom_cache_id(0ULL) {
@@ -25,15 +25,15 @@ GeometryTranslator::~GeometryTranslator() {
 }
 
 double 
-GeometryTranslator::calculateGlobalEta(const MuonTriggerPrimitive& tp) const {
+GeometryTranslator::calculateGlobalEta(const TriggerPrimitive& tp) const {
   switch(tp.subsystem()) {
-  case MuonTriggerPrimitive::kDT:
+  case TriggerPrimitive::kDT:
     return calcDTSpecificEta(tp);
     break;
-  case MuonTriggerPrimitive::kCSC:
+  case TriggerPrimitive::kCSC:
     return calcCSCSpecificEta(tp);
     break;
-  case MuonTriggerPrimitive::kRPC:
+  case TriggerPrimitive::kRPC:
     return calcRPCSpecificEta(tp);
     break;
   default:
@@ -43,15 +43,15 @@ GeometryTranslator::calculateGlobalEta(const MuonTriggerPrimitive& tp) const {
 }
 
 double 
-GeometryTranslator::calculateGlobalPhi(const MuonTriggerPrimitive& tp) const {
+GeometryTranslator::calculateGlobalPhi(const TriggerPrimitive& tp) const {
   switch(tp.subsystem()) {
-  case MuonTriggerPrimitive::kDT:
+  case TriggerPrimitive::kDT:
     return calcDTSpecificPhi(tp);
     break;
-  case MuonTriggerPrimitive::kCSC:
+  case TriggerPrimitive::kCSC:
     return calcCSCSpecificPhi(tp);
     break;
-  case MuonTriggerPrimitive::kRPC:
+  case TriggerPrimitive::kRPC:
     return calcRPCSpecificPhi(tp);
     break;
   default:
@@ -61,15 +61,15 @@ GeometryTranslator::calculateGlobalPhi(const MuonTriggerPrimitive& tp) const {
 }
 
 double 
-GeometryTranslator::calculateBendAngle(const MuonTriggerPrimitive& tp) const {
+GeometryTranslator::calculateBendAngle(const TriggerPrimitive& tp) const {
   switch(tp.subsystem()) {
-  case MuonTriggerPrimitive::kDT:
+  case TriggerPrimitive::kDT:
     return calcDTSpecificBend(tp);
     break;
-  case MuonTriggerPrimitive::kCSC:
+  case TriggerPrimitive::kCSC:
     return calcCSCSpecificBend(tp);
     break;
-  case MuonTriggerPrimitive::kRPC:
+  case TriggerPrimitive::kRPC:
     return calcRPCSpecificBend(tp);
     break;
   default:
@@ -90,7 +90,7 @@ void GeometryTranslator::checkAndUpdateGeometry(const edm::EventSetup& es) {
 }
 
 GlobalPoint 
-GeometryTranslator::getRPCSpecificPoint(const MuonTriggerPrimitive& tp) const {
+GeometryTranslator::getRPCSpecificPoint(const TriggerPrimitive& tp) const {
   const RPCDetId id(tp.detId<RPCDetId>());
   std::unique_ptr<const RPCRoll>  roll(_georpc->roll(id));
   const uint16_t strip = tp.getRPCData().strip;
@@ -103,19 +103,19 @@ GeometryTranslator::getRPCSpecificPoint(const MuonTriggerPrimitive& tp) const {
 }
 
 double 
-GeometryTranslator::calcRPCSpecificEta(const MuonTriggerPrimitive& tp) const {  
+GeometryTranslator::calcRPCSpecificEta(const TriggerPrimitive& tp) const {  
   return getRPCSpecificPoint(tp).eta();
 }
 
 double 
-GeometryTranslator::calcRPCSpecificPhi(const MuonTriggerPrimitive& tp) const {  
+GeometryTranslator::calcRPCSpecificPhi(const TriggerPrimitive& tp) const {  
   return getRPCSpecificPoint(tp).phi();
 }
 
 // this function actually does nothing since RPC
 // hits are point-like objects
 double 
-GeometryTranslator::calcRPCSpecificBend(const MuonTriggerPrimitive& tp) const {
+GeometryTranslator::calcRPCSpecificBend(const TriggerPrimitive& tp) const {
   return 0.0;
 }
 
@@ -125,7 +125,7 @@ GeometryTranslator::calcRPCSpecificBend(const MuonTriggerPrimitive& tp) const {
 // this works directly with the geometry 
 // rather than using the old phi luts
 GlobalPoint 
-GeometryTranslator::getCSCSpecificPoint(const MuonTriggerPrimitive& tp) const {
+GeometryTranslator::getCSCSpecificPoint(const TriggerPrimitive& tp) const {
   const CSCDetId id(tp.detId<CSCDetId>()); 
   // we should change this to weak_ptrs at some point
   // requires introducing std::shared_ptrs to geometry
@@ -188,22 +188,22 @@ GeometryTranslator::getCSCSpecificPoint(const MuonTriggerPrimitive& tp) const {
 }
 
 double 
-GeometryTranslator::calcCSCSpecificEta(const MuonTriggerPrimitive& tp) const {  
+GeometryTranslator::calcCSCSpecificEta(const TriggerPrimitive& tp) const {  
   return getCSCSpecificPoint(tp).eta();
 }
 
 double 
-GeometryTranslator::calcCSCSpecificPhi(const MuonTriggerPrimitive& tp) const {  
+GeometryTranslator::calcCSCSpecificPhi(const TriggerPrimitive& tp) const {  
   return getCSCSpecificPoint(tp).phi();
 }
 
 double 
-GeometryTranslator::calcCSCSpecificBend(const MuonTriggerPrimitive& tp) const {  
+GeometryTranslator::calcCSCSpecificBend(const TriggerPrimitive& tp) const {  
   return 0.0;
 }
 
 GlobalPoint
-GeometryTranslator::calcDTSpecificPoint(const MuonTriggerPrimitive& tp) const {  
+GeometryTranslator::calcDTSpecificPoint(const TriggerPrimitive& tp) const {  
   const DTChamberId baseid(tp.detId<DTChamberId>());
   // do not use this pointer for anything other than creating a trig geom
   std::unique_ptr<DTChamber> chamb(
@@ -241,18 +241,18 @@ GeometryTranslator::calcDTSpecificPoint(const MuonTriggerPrimitive& tp) const {
 }
 
 double 
-GeometryTranslator::calcDTSpecificEta(const MuonTriggerPrimitive& tp) const {  
+GeometryTranslator::calcDTSpecificEta(const TriggerPrimitive& tp) const {  
   return calcDTSpecificPoint(tp).eta();
 }
 
 double 
-GeometryTranslator::calcDTSpecificPhi(const MuonTriggerPrimitive& tp) const {
+GeometryTranslator::calcDTSpecificPhi(const TriggerPrimitive& tp) const {
   return calcDTSpecificPoint(tp).phi();
 }
 
 // we have the bend except for station 3
 double 
-GeometryTranslator::calcDTSpecificBend(const MuonTriggerPrimitive& tp) const {
+GeometryTranslator::calcDTSpecificBend(const TriggerPrimitive& tp) const {
   int bend = tp.getDTData().bendingAngle;
   double bendf = bend/512.0;
   return bendf;

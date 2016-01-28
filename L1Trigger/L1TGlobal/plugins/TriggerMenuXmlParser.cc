@@ -1630,7 +1630,7 @@ bool l1t::TriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
 
 
       int cntEta=0;
-      unsigned int etaWindowLower=-1, etaWindowUpper=-1, etaWindowVetoLower=-1, etaWindowVetoUpper=-1;
+      unsigned int etaWindow1Lower=-1, etaWindow1Upper=-1, etaWindow2Lower=-1, etaWindow2Upper=-1;
       // Temporary before translation
       for( l1t::MuonObjectRequirement::etaWindow_const_iterator etaWindow =objPar->etaWindow().begin();
 	   etaWindow != objPar->etaWindow().end(); ++etaWindow ){
@@ -1639,13 +1639,13 @@ bool l1t::TriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
 	  << "\n etaWindow lower = " << etaWindow->lower()
 	  << "\n etaWindow upper = " << etaWindow->upper() 
 	  << std::endl;
-	if( cntEta==0 ){      etaWindowLower = etaWindow->lower(); etaWindowUpper = etaWindow->upper(); }
-	else if( cntEta==1 ){ etaWindowVetoLower = etaWindow->lower(); etaWindowVetoUpper = etaWindow->upper(); }
+	if( cntEta==0 ){      etaWindow1Lower = etaWindow->lower(); etaWindow1Upper = etaWindow->upper(); }
+	else if( cntEta==1 ){ etaWindow2Lower = etaWindow->lower(); etaWindow2Upper = etaWindow->upper(); }
 	cntEta++;
       }
 
       int cntPhi=0;
-      unsigned int phiWindowLower=-1, phiWindowUpper=-1, phiWindowVetoLower=-1, phiWindowVetoUpper=-1;
+      unsigned int phiWindow1Lower=-1, phiWindow1Upper=-1, phiWindow2Lower=-1, phiWindow2Upper=-1;
       for( l1t::MuonObjectRequirement::phiWindow_const_iterator phiWindow =objPar->phiWindow().begin();
 	   phiWindow != objPar->phiWindow().end(); ++phiWindow ){
  
@@ -1654,20 +1654,20 @@ bool l1t::TriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
 	  << "\n phiWindow end   = " << phiWindow->upper() 
 	  << std::endl;
 
-	if( cntPhi==0 ){      phiWindowLower = phiWindow->lower(); phiWindowUpper = phiWindow->upper(); }
-	else if( cntPhi==1 ){ phiWindowVetoLower = phiWindow->lower(); phiWindowVetoUpper = phiWindow->upper(); }
+	if( cntPhi==0 ){      phiWindow1Lower = phiWindow->lower(); phiWindow1Upper = phiWindow->upper(); }
+	else if( cntPhi==1 ){ phiWindow2Lower = phiWindow->lower(); phiWindow2Upper = phiWindow->upper(); }
 	cntPhi++;
       }
 
-      objParameter[cnt].etaWindowLower     = etaWindowLower;
-      objParameter[cnt].etaWindowUpper     = etaWindowUpper;
-      objParameter[cnt].etaWindowVetoLower = etaWindowVetoLower;
-      objParameter[cnt].etaWindowVetoUpper = etaWindowVetoUpper;
+      objParameter[cnt].etaWindow1Lower = etaWindow1Lower;
+      objParameter[cnt].etaWindow1Upper = etaWindow1Upper;
+      objParameter[cnt].etaWindow2Lower = etaWindow2Lower;
+      objParameter[cnt].etaWindow2Upper = etaWindow2Upper;
 
-      objParameter[cnt].phiWindowLower     = phiWindowLower;
-      objParameter[cnt].phiWindowUpper     = phiWindowUpper;
-      objParameter[cnt].phiWindowVetoLower = phiWindowVetoLower;
-      objParameter[cnt].phiWindowVetoUpper = phiWindowVetoUpper;
+      objParameter[cnt].phiWindow1Lower = phiWindow1Lower;
+      objParameter[cnt].phiWindow1Upper = phiWindow1Upper;
+      objParameter[cnt].phiWindow2Lower = phiWindow2Lower;
+      objParameter[cnt].phiWindow2Upper = phiWindow2Upper;
 
       
       // Output for debugging
@@ -1678,14 +1678,14 @@ bool l1t::TriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
 	<< std::hex << objParameter[cnt].etaRange << std::dec
 	// << "\n      phiRange (hex) for muon object " << cnt << " = "
 	// << std::hex << objParameter[cnt].phiRange << std::dec
-	<< "\n      etaWindow Lower / Upper for muon object " << cnt << " = "
-	<< objParameter[cnt].etaWindowLower << " / " << objParameter[cnt].etaWindowUpper
-	<< "\n      etaWindowVeto Lower / Upper for muon object " << cnt << " = "
-	<< objParameter[cnt].etaWindowVetoLower << " / " << objParameter[cnt].etaWindowVetoUpper
-	<< "\n      phiWindow Lower / Upper for muon object " << cnt << " = "
-	<< objParameter[cnt].phiWindowLower << " / " << objParameter[cnt].phiWindowUpper
-	<< "\n      phiWindowVeto Lower / Upper for muon object " << cnt << " = "
-	<< objParameter[cnt].phiWindowVetoLower << " / " << objParameter[cnt].phiWindowVetoUpper
+	<< "\n      etaWindow1 Lower / Upper for muon object " << cnt << " = "
+	<< objParameter[cnt].etaWindow1Lower << " / " << objParameter[cnt].etaWindow1Upper
+	<< "\n      etaWindow2 Lower / Upper for muon object " << cnt << " = "
+	<< objParameter[cnt].etaWindow2Lower << " / " << objParameter[cnt].etaWindow2Upper
+	<< "\n      phiWindow1 Lower / Upper for muon object " << cnt << " = "
+	<< objParameter[cnt].phiWindow1Lower << " / " << objParameter[cnt].phiWindow1Upper
+	<< "\n      phiWindow2 Lower / Upper for muon object " << cnt << " = "
+	<< objParameter[cnt].phiWindow2Lower << " / " << objParameter[cnt].phiWindow2Upper
 	<< std::endl;
 
       cnt++;
@@ -1974,7 +1974,7 @@ bool l1t::TriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCalo,
 
 
       int cntEta=0;
-      unsigned int etaWindowLower=-1, etaWindowUpper=-1, etaWindowVetoLower=-1, etaWindowVetoUpper=-1;
+      unsigned int etaWindow1Lower=-1, etaWindow1Upper=-1, etaWindow2Lower=-1, etaWindow2Upper=-1;
       // Temporary before translation
       for( l1t::CalorimeterObjectRequirement::etaWindow_const_iterator etaWindow =objPar->etaWindow().begin();
 	   etaWindow != objPar->etaWindow().end(); ++etaWindow ){
@@ -1983,13 +1983,13 @@ bool l1t::TriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCalo,
 	  << "\n etaWindow lower = " << etaWindow->lower()
 	  << "\n etaWindow upper = " << etaWindow->upper() 
 	  << std::endl;
-	if( cntEta==0 ){      etaWindowLower = etaWindow->lower(); etaWindowUpper = etaWindow->upper(); }
-	else if( cntEta==1 ){ etaWindowVetoLower = etaWindow->lower(); etaWindowVetoUpper = etaWindow->upper(); }
+	if( cntEta==0 ){      etaWindow1Lower = etaWindow->lower(); etaWindow1Upper = etaWindow->upper(); }
+	else if( cntEta==1 ){ etaWindow2Lower = etaWindow->lower(); etaWindow2Upper = etaWindow->upper(); }
 	cntEta++;
       }
 
       int cntPhi=0;
-      unsigned int phiWindowLower=-1, phiWindowUpper=-1, phiWindowVetoLower=-1, phiWindowVetoUpper=-1;
+      unsigned int phiWindow1Lower=-1, phiWindow1Upper=-1, phiWindow2Lower=-1, phiWindow2Upper=-1;
       for( l1t::CalorimeterObjectRequirement::phiWindow_const_iterator phiWindow =objPar->phiWindow().begin();
 	   phiWindow != objPar->phiWindow().end(); ++phiWindow ){
  
@@ -1998,20 +1998,20 @@ bool l1t::TriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCalo,
 	  << "\n phiWindow end   = " << phiWindow->upper() 
 	  << std::endl;
 
-	if( cntPhi==0 ){      phiWindowLower = phiWindow->lower(); phiWindowUpper = phiWindow->upper(); }
-	else if( cntPhi==1 ){ phiWindowVetoLower = phiWindow->lower(); phiWindowVetoUpper = phiWindow->upper(); }
+	if( cntPhi==0 ){      phiWindow1Lower = phiWindow->lower(); phiWindow1Upper = phiWindow->upper(); }
+	else if( cntPhi==1 ){ phiWindow2Lower = phiWindow->lower(); phiWindow2Upper = phiWindow->upper(); }
 	cntPhi++;
       }
 
-      objParameter[cnt].etaWindowLower     = etaWindowLower;
-      objParameter[cnt].etaWindowUpper     = etaWindowUpper;
-      objParameter[cnt].etaWindowVetoLower = etaWindowVetoLower;
-      objParameter[cnt].etaWindowVetoUpper = etaWindowVetoUpper;
+      objParameter[cnt].etaWindow1Lower = etaWindow1Lower;
+      objParameter[cnt].etaWindow1Upper = etaWindow1Upper;
+      objParameter[cnt].etaWindow2Lower = etaWindow2Lower;
+      objParameter[cnt].etaWindow2Upper = etaWindow2Upper;
 
-      objParameter[cnt].phiWindowLower     = phiWindowLower;
-      objParameter[cnt].phiWindowUpper     = phiWindowUpper;
-      objParameter[cnt].phiWindowVetoLower = phiWindowVetoLower;
-      objParameter[cnt].phiWindowVetoUpper = phiWindowVetoUpper;
+      objParameter[cnt].phiWindow1Lower = phiWindow1Lower;
+      objParameter[cnt].phiWindow1Upper = phiWindow1Upper;
+      objParameter[cnt].phiWindow2Lower = phiWindow2Lower;
+      objParameter[cnt].phiWindow2Upper = phiWindow2Upper;
 
       
       // Output for debugging
@@ -2022,14 +2022,14 @@ bool l1t::TriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCalo,
 	<< std::hex << objParameter[cnt].etaRange << std::dec
 	<< "\n      phiRange (hex) for calo object " << cnt << " = "
 	<< std::hex << objParameter[cnt].phiRange << std::dec
-	<< "\n      etaWindow Lower / Upper for calo object " << cnt << " = "
-	<< objParameter[cnt].etaWindowLower << " / " << objParameter[cnt].etaWindowUpper
-	<< "\n      etaWindowVeto Lower / Upper for calo object " << cnt << " = "
-	<< objParameter[cnt].etaWindowVetoLower << " / " << objParameter[cnt].etaWindowVetoUpper
-	<< "\n      phiWindow Lower / Upper for calo object " << cnt << " = "
-	<< objParameter[cnt].phiWindowLower << " / " << objParameter[cnt].phiWindowUpper
-	<< "\n      phiWindowVeto Lower / Upper for calo object " << cnt << " = "
-	<< objParameter[cnt].phiWindowVetoLower << " / " << objParameter[cnt].phiWindowVetoUpper
+	<< "\n      etaWindow1 Lower / Upper for calo object " << cnt << " = "
+	<< objParameter[cnt].etaWindow1Lower << " / " << objParameter[cnt].etaWindow1Upper
+	<< "\n      etaWindow2 Lower / Upper for calo object " << cnt << " = "
+	<< objParameter[cnt].etaWindow2Lower << " / " << objParameter[cnt].etaWindow2Upper
+	<< "\n      phiWindow1 Lower / Upper for calo object " << cnt << " = "
+	<< objParameter[cnt].phiWindow1Lower << " / " << objParameter[cnt].phiWindow1Upper
+	<< "\n      phiWindow2 Lower / Upper for calo object " << cnt << " = "
+	<< objParameter[cnt].phiWindow2Lower << " / " << objParameter[cnt].phiWindow2Upper
 	<< std::endl;
 
       cnt++;
@@ -2261,7 +2261,7 @@ bool l1t::TriggerMenuXmlParser::parseEnergySum(l1t::EnergySumsCondition condEner
     objParameter[cnt].etThreshold = objPar.etThreshold();
 
     int cntPhi=0;
-    unsigned int phiWindowLower=-1, phiWindowUpper=-1, phiWindowVetoLower=-1, phiWindowVetoUpper=-1;
+    unsigned int phiWindow1Lower=-1, phiWindow1Upper=-1, phiWindow2Lower=-1, phiWindow2Upper=-1;
     for( l1t::EnergySumsObjectRequirement::phiWindow_const_iterator phiWindow =objPar.phiWindow().begin();
 	 phiWindow != objPar.phiWindow().end(); ++phiWindow ){
       
@@ -2270,25 +2270,25 @@ bool l1t::TriggerMenuXmlParser::parseEnergySum(l1t::EnergySumsCondition condEner
 	<< "\n phiWindow end   = " << phiWindow->upper() 
 	<< std::endl;
 
-      if( cntPhi==0 ){      phiWindowLower = phiWindow->lower(); phiWindowUpper = phiWindow->upper(); }
-      else if( cntPhi==1 ){ phiWindowVetoLower = phiWindow->lower(); phiWindowVetoUpper = phiWindow->upper(); }
+      if( cntPhi==0 ){      phiWindow1Lower = phiWindow->lower(); phiWindow1Upper = phiWindow->upper(); }
+      else if( cntPhi==1 ){ phiWindow2Lower = phiWindow->lower(); phiWindow2Upper = phiWindow->upper(); }
       cntPhi++;
     }
 
-    objParameter[cnt].phiWindowLower     = phiWindowLower;
-    objParameter[cnt].phiWindowUpper     = phiWindowUpper;
-    objParameter[cnt].phiWindowVetoLower = phiWindowVetoLower;
-    objParameter[cnt].phiWindowVetoUpper = phiWindowVetoUpper;
+    objParameter[cnt].phiWindow1Lower = phiWindow1Lower;
+    objParameter[cnt].phiWindow1Upper = phiWindow1Upper;
+    objParameter[cnt].phiWindow2Lower = phiWindow2Lower;
+    objParameter[cnt].phiWindow2Upper = phiWindow2Upper;
 
       
     // Output for debugging
     LogDebug("l1t|Global") 
       << "\n      EnergySum ET high threshold (hex) for energy sum object " << cnt << " = "
       << std::hex << objParameter[cnt].etThreshold << std::dec
-      << "\n      phiWindow Lower / Upper for calo object " << cnt << " = "
-      << objParameter[cnt].phiWindowLower << " / " << objParameter[cnt].phiWindowUpper
-      << "\n      phiWindowVeto Lower / Upper for calo object " << cnt << " = "
-      << objParameter[cnt].phiWindowVetoLower << " / " << objParameter[cnt].phiWindowVetoUpper
+      << "\n      phiWindow1 Lower / Upper for calo object " << cnt << " = "
+      << objParameter[cnt].phiWindow1Lower << " / " << objParameter[cnt].phiWindow1Upper
+      << "\n      phiWindow2 Lower / Upper for calo object " << cnt << " = "
+      << objParameter[cnt].phiWindow2Lower << " / " << objParameter[cnt].phiWindow2Upper
       << std::endl;
 
 
