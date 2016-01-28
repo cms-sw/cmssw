@@ -261,6 +261,7 @@ class Electron( Lepton ):
                         if   eta < 0.8  : return self.mvaRun2(name) > -0.652;
                         elif eta < 1.479: return self.mvaRun2(name) > -0.701;
                         else            : return self.mvaRun2(name) > -0.350;
+                else: raise RuntimeError, "Ele MVA ID Working point not found"
             elif name in ("NonTrigSpring15","NonTrigSpring15MiniAOD"):
                 if wp=="VLoose":
                     if self.pt() <= 10:
@@ -292,6 +293,25 @@ class Electron( Lepton ):
                         if   eta < 0.8  : return self.mvaRun2(name) > -0.072;
                         elif eta < 1.479: return self.mvaRun2(name) > -0.286;
                         else            : return self.mvaRun2(name) > -0.267;
+                elif wp == "POG80":
+                    if self.pt() > 10.:
+                        if eta < 0.8: return self.mvaRun2(name) > 0.967083
+                        elif eta < 1.479: return self.mvaRun2(name) > 0.929117
+                        else: return self.mvaRun2(name) > 0.726311
+                    else: # pt <= 10
+                        if eta < 0.8: return self.mvaRun2(name) > 0.287435
+                        elif eta < 1.479: return self.mvaRun2(name) > 0.221846
+                        else: return self.mvaRun2(name) > -0.303263
+                elif wp == "POG90":
+                    if self.pt() > 10.:
+                        if eta < 0.8: return self.mvaRun2(name) > 0.913286
+                        elif eta < 1.479: return self.mvaRun2(name) > 0.805013
+                        else: return self.mvaRun2(name) > 0.358969
+                    else: # pt <= 10
+                        if eta < 0.8: return self.mvaRun2(name) > -0.083313
+                        elif eta < 1.479: return self.mvaRun2(name) > -0.235222
+                        else: return self.mvaRun2(name) > -0.67099
+                else: raise RuntimeError, "Ele MVA ID Working point not found"
             else: raise RuntimeError, "Ele MVA ID type not found"
 
 
