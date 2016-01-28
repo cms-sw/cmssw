@@ -12,7 +12,8 @@ namespace l1t {
   class Muon : public L1Candidate {
     
   public:
-    Muon() {};
+    Muon();
+
     Muon( const LorentzVector& p4,
       int pt=0,
       int eta=0,
@@ -55,6 +56,8 @@ namespace l1t {
     void setHwDEtaExtra(int dEta);
     void setHwRank(int rank);
 
+    void setDebug(bool debug);
+
     // methods to retrieve integer values
     int hwCharge() const;
     int hwChargeValid() const;
@@ -62,9 +65,10 @@ namespace l1t {
 
     int hwIsoSum() const;
     int hwDPhiExtra() const;
-    int hwDEtaExtra() const;  
-    int hwRank() const;  
-    
+    int hwDEtaExtra() const;
+    int hwRank() const;
+
+    bool debug() const;
     
   private:
     

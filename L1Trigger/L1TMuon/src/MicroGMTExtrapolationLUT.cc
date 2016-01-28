@@ -1,39 +1,20 @@
 #include "../interface/MicroGMTExtrapolationLUT.h"
 
-l1t::MicroGMTExtrapolationLUT::MicroGMTExtrapolationLUT (const edm::ParameterSet& iConfig, const std::string& setName, const int type) {
-  getParameters(iConfig, setName.c_str(), type);
-}
-
-l1t::MicroGMTExtrapolationLUT::MicroGMTExtrapolationLUT (const edm::ParameterSet& iConfig, const char* setName, const int type) {
-  getParameters(iConfig, setName, type);
-}
-
-void 
-l1t::MicroGMTExtrapolationLUT::getParameters (const edm::ParameterSet& iConfig, const char* setName, const int type) {
-  edm::ParameterSet config = iConfig.getParameter<edm::ParameterSet>(setName);
-  
-  m_etaRedInWidth = config.getParameter<int>("etaAbsRed_in_width");
-  m_ptRedInWidth = config.getParameter<int>("pTred_in_width");
-  
+l1t::MicroGMTExtrapolationLUT::MicroGMTExtrapolationLUT (const std::string& fname) : MicroGMTLUT(), m_etaRedInWidth(6), m_ptRedInWidth(6)
+{
   m_totalInWidth = m_ptRedInWidth + m_etaRedInWidth;
+  m_outWidth = 4;
 
   m_ptRedMask = (1 << m_ptRedInWidth) - 1;
   m_etaRedMask = ((1 << m_etaRedInWidth) - 1) << m_ptRedInWidth;
   
-  std::string m_fname = config.getParameter<std::string>("filename");
-  if (m_fname != std::string("")) {
-    load(m_fname);
-  } 
-  m_inputs.push_back(MicroGMTConfiguration::PT);
   m_inputs.push_back(MicroGMTConfiguration::ETA);
+  m_inputs.push_back(MicroGMTConfiguration::PT);
+
+  if (fname != std::string("")) {
+    load(fname);
+  } 
 }
-
-
-l1t::MicroGMTExtrapolationLUT::~MicroGMTExtrapolationLUT ()
-{
-
-}
-
 
 int 
 l1t::MicroGMTExtrapolationLUT::lookup(int eta, int pt) const 
@@ -60,6 +41,6 @@ l1t::MicroGMTExtrapolationLUT::hashInput(int eta, int pt) const
 void 
 l1t::MicroGMTExtrapolationLUT::unHashInput(int input, int& eta, int& pt) const 
 {
-  eta = input & m_etaRedMask;
-  pt = input >> m_etaRedInWidth;
+  pt = input & m_ptRedMask;
+  eta = (input & m_etaRedMask) >> m_ptRedInWidth;
 } 

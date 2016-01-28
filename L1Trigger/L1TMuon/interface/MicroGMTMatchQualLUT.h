@@ -14,9 +14,9 @@ namespace l1t {
     };
     class MicroGMTMatchQualLUT : public MicroGMTLUT {
       public:
-        MicroGMTMatchQualLUT ();
-        explicit MicroGMTMatchQualLUT (const edm::ParameterSet&, std::string, cancel_t cancelType);
-        virtual ~MicroGMTMatchQualLUT ();
+        MicroGMTMatchQualLUT() {};
+        explicit MicroGMTMatchQualLUT(const std::string&, cancel_t cancelType);
+        virtual ~MicroGMTMatchQualLUT() {};
 
         int lookup(int dEta, int dPhi) const;
         virtual int lookupPacked(int in) const;

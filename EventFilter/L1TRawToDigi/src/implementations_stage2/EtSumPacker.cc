@@ -4,6 +4,8 @@
 
 #include "CaloTokens.h"
 
+#include "L1TStage2Layer2Constants.h"
+
 namespace l1t {
    namespace stage2 {
       class EtSumPacker : public Packer {
@@ -34,7 +36,9 @@ namespace stage2 {
          }
       }
 
-      return {Block(3, load)};
+      while (load.size()<l1t::stage2::layer2::demux::nOutputFramePerBX) load.push_back(0);
+
+      return {Block(21, load)};
    }
 }
 }

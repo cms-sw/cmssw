@@ -159,5 +159,11 @@
   <class name="std::vector<L1TriggerError>"/>
   <class name="edm::Wrapper<std::vector<L1TriggerError> >"/>
 
+  <class name="l1t::L1DataEmulResult" ClassVersion="-1">
+    <version ClassVersion="-1" checksum="604440326"/>
+  </class>
+  <class name="l1t::L1DataEmulResultBxCollection"/>
+  <class name="edm::Wrapper<l1t::L1DataEmulResultBxCollection>"/>
+
 
 </lcgdict>
