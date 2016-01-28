@@ -147,7 +147,7 @@ DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD)
 #miniAOD DQM sequences need to access the filter results.
 from DQMOffline.Muon.miniAOD_cff import * 
 
-PostDQMOfflineMiniAOD = cms.Sequence(miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD*MuonMiniAOD)
+PostDQMOfflineMiniAOD = cms.Sequence(miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD*muonMonitors_miniAOD*MuonMiniAOD)
 PostDQMOffline = cms.Sequence()
 
 
