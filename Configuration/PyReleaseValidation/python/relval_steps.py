@@ -619,7 +619,7 @@ FS_PREMIXUP15_PU25_OVERLAY = merge([
         {"-s" : "GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,L1Reco,RECO,HLT:@relval25ns,VALIDATION",
          "--datamix" : "PreMix",
          "--pileup_input" : "dbs:/RelValFS_PREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW"%(baseDataSetRelease[8],),
-         "--customise":"SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1"
+         "--customise":"SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput"
          },
         Kby(100,500),step1FastUpg2015Defaults])
 
