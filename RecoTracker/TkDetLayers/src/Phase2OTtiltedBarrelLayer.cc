@@ -19,19 +19,20 @@ using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
-Phase2OTtiltedBarrelLayer::Phase2OTtiltedBarrelLayer(vector<const Phase2OTBarrelRod*>& innerRods,
-				                     vector<const Phase2OTBarrelRod*>& outerRods,
+Phase2OTtiltedBarrelLayer::Phase2OTtiltedBarrelLayer(std::vector<const Phase2OTBarrelRod*>& innerRods,
+			                             std::vector<const Phase2OTBarrelRod*>& outerRods,
                                                      vector<const Phase2OTEndcapRing*>& negRings, 
                                                      vector<const Phase2OTEndcapRing*>& posRings) : 
   Phase2OTBarrelLayer(innerRods,outerRods),
+  //thePhase2OTBarrelLayer(theBarrelRods),
   //theInnerRodsComps(innerRods.begin(),innerRods.end()), 
   //theOuterRodsComps(outerRods.begin(),outerRods.end()),
   theNegativeRingsComps(negRings.begin(),negRings.end()),
   thePositiveRingsComps(posRings.begin(),posRings.end())
-  //theRingsComps(rings.begin(),rings.end())
-  //thePhase2OTBarrelLayer(innerRods, outerRods)
 {
   std::cout << "yes, we are in the place where we should be ... Phase2OTtiltedBarrelLayer::Phase2OTtiltedBarrelLayer" << std::endl;
+  thePhase2OTBarrelLayer = new Phase2OTBarrelLayer(innerRods,outerRods);
+
   theComps.assign(innerRods.begin(),innerRods.end());
   theComps.insert(theComps.end(),outerRods.begin(),outerRods.end());
   theComps.insert(theComps.end(),negRings.begin(),negRings.end());
@@ -46,17 +47,11 @@ Phase2OTtiltedBarrelLayer::Phase2OTtiltedBarrelLayer(vector<const Phase2OTBarrel
 
   BarrelDetLayer::initialize();
 
+//  for(auto ring : negRings){
+//    const BoundDisk disk = ring->specificSurface();
+//    std::cout << disk.innerRadius() << "," << disk.outerRadius() << std::endl;
+//  }
 /*
-  theComps.assign(theInnerComps.begin(),theInnerComps.end());
-  theComps.insert(theComps.end(),theOuterComps.begin(),theOuterComps.end());
-
-  for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin();
-      it!=theComps.end();it++){  
-    theBasicComps.insert(theBasicComps.end(),	
-			 (**it).basicComponents().begin(),
-			 (**it).basicComponents().end());
-  }
-
   theInnerCylinder = cylinder( theInnerComps);
   theOuterCylinder = cylinder( theOuterComps);
 
@@ -64,13 +59,10 @@ Phase2OTtiltedBarrelLayer::Phase2OTtiltedBarrelLayer(vector<const Phase2OTBarrel
 				    theInnerComps.size());
   theOuterBinFinder = BinFinderType(theOuterComps.front()->position().phi(),
 				    theOuterComps.size());
-
-  
-  BarrelDetLayer::initialize();
-
-
+*/  
   //--------- DEBUG INFO --------------
   LogDebug("TkDetLayers") << "==== DEBUG Phase2OTtiltedBarrelLayer =====" ; 
+/*
   LogDebug("TkDetLayers") << "Phase2OTtiltedBarrelLayer innerCyl r,lenght: "
                           << theInnerCylinder->radius() << " , "
                           << theInnerCylinder->bounds().length();
@@ -79,27 +71,37 @@ Phase2OTtiltedBarrelLayer::Phase2OTtiltedBarrelLayer(vector<const Phase2OTBarrel
 			  << theOuterCylinder->radius() << " , "
 			  << theOuterCylinder->bounds().length();
 
+*/
 
-    for (vector<const GeometricSearchDet*>::const_iterator i=theInnerComps.begin();
-       i != theInnerComps.end(); i++){
-    LogDebug("TkDetLayers") << "inner Phase2OTBarrelRod pos z,perp,eta,phi: " 
+  for (vector<const GeometricSearchDet*>::const_iterator i=theNegativeRingsComps.begin();
+       i != theNegativeRingsComps.end(); i++){
+    LogTrace("TkDetLayers") << "negative rings in Phase2OT tilted barrel pos z,perp,eta,phi: " 
 			    << (**i).position().z()    << " , " 
 			    << (**i).position().perp() << " , " 
 			    << (**i).position().eta()  << " , " 
 			    << (**i).position().phi()  ;
   }
   
-  for (vector<const GeometricSearchDet*>::const_iterator i=theOuterComps.begin();
-       i != theOuterComps.end(); i++){
-    LogDebug("TkDetLayers") << "outer Phase2OTBarrelRod pos z,perp,eta,phi: " 
+  for (vector<const GeometricSearchDet*>::const_iterator i=thePhase2OTBarrelLayer->components().begin();
+       i != thePhase2OTBarrelLayer->components().end(); i++){
+    LogTrace("TkDetLayers") << "rods in Phase2OT tilted barrel pos z,perp,eta,phi: " 
 			    << (**i).position().z()    << " , " 
 			    << (**i).position().perp() << " , " 
 			    << (**i).position().eta()  << " , " 
 			    << (**i).position().phi()  ;
   }
-  LogDebug("TkDetLayers") << "==== end DEBUG Phase2OTtiltedBarrelLayer =====" ; 
+
+  for (vector<const GeometricSearchDet*>::const_iterator i=thePositiveRingsComps.begin();
+       i != thePositiveRingsComps.end(); i++){
+    LogTrace("TkDetLayers") << "positive rings in Phase2OT tilted barrel pos z,perp,eta,phi: " 
+			    << (**i).position().z()    << " , " 
+			    << (**i).position().perp() << " , " 
+			    << (**i).position().eta()  << " , " 
+			    << (**i).position().phi()  ;
+  }
+  LogTrace("TkDetLayers") << "==== end DEBUG Phase2OTtiltedBarrelLayer =====" ; 
   //----------------------------------- 
-*/
+
 }
 
 Phase2OTtiltedBarrelLayer::~Phase2OTtiltedBarrelLayer(){

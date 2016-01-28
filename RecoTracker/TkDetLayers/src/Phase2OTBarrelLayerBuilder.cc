@@ -55,11 +55,10 @@ Phase2OTBarrelLayer* Phase2OTBarrelLayerBuilder::build(const GeometricDet* aPhas
 								  theGeomDetGeometry)    );       
 
   }
-  LogDebug("TkDetLayers") << "Phase2OTBarrelLayerBuilder with #Rings: " << theGeometricDetRings.size() << std::endl;
 
   if(theGeometricDetRings.empty()) return new Phase2OTBarrelLayer(theInnerRods,theOuterRods);
   
-  //LogDebug("TkDetLayers") << "Phase2OTBarrelLayerBuilder with #Rings: " << theGeometricDetRings.size() << std::endl;
+  LogDebug("TkDetLayers") << "Phase2OTBarrelLayerBuilder with #Rings: " << theGeometricDetRings.size() << std::endl;
 
   Phase2OTEndcapRingBuilder myPhase2OTEndcapRingBuilder;
 
