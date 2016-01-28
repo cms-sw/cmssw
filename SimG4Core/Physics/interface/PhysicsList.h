@@ -21,8 +21,6 @@ public:
   virtual ~PhysicsList();
   virtual void SetCuts();
 
-private:
-  const edm::ParameterSet m_pPhysics;
 };
 
 #endif
