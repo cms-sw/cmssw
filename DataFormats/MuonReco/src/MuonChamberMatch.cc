@@ -21,12 +21,12 @@ int MuonChamberMatch::station()  const {
       return segId.station();
    }
    //FIXME Need to add this back in
-   // //ME0s do not have multiple stations, so we force this to 1
-   // if( detector() == MuonSubdetId::ME0 ) {    //ME0
-   //   // ME0DetId segId(id.rawId());
-   //   // return segId.station();
-   //   return 1;
-   // }
+   //ME0s do not have multiple stations, so we force this to 1
+   if( detector() == MuonSubdetId::ME0 ) {    //ME0
+     // ME0DetId segId(id.rawId());
+     // return segId.station();
+     return 1;
+   }
    return -1; // is this appropriate? fix this
 }
 

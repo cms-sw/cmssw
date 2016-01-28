@@ -81,8 +81,8 @@ void MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vecto
     }
 
   // ME0
-  //FIXME Disabled for now
-  if ( false ){
+  //FIXME Fix this bool
+  if ( true ){
     if (! geometry_->slaveGeometry(ME0DetId()) ) throw cms::Exception("FatalError") << "Cannnot ME0Geometry\n";
     auto const & geomDetsME0 = geometry_->slaveGeometry(ME0DetId())->dets();
     for(auto it = geomDetsME0.begin(); it != geomDetsME0.end(); ++it)
