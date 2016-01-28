@@ -22,16 +22,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/cstdint.hpp>
-
-#include <xercesc/sax/HandlerBase.hpp>
-#include <xercesc/dom/DOM.hpp>
-#include <xercesc/parsers/XercesDOMParser.hpp>
-
-// user include files
-// base class
-//#include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtXmlParserTags.h"
-
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "L1Trigger/L1TGlobal/interface/TriggerMenuFwd.h"
 
@@ -46,14 +36,13 @@
 #include "L1Trigger/L1TGlobal/src/L1TMenuEditor/L1TriggerMenu.hxx"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 
-#include "tmEventSetup/tmEventSetup.hh"
 #include "tmEventSetup/esTriggerMenu.hh"
 #include "tmEventSetup/esAlgorithm.hh"
 #include "tmEventSetup/esCondition.hh"
 #include "tmEventSetup/esObject.hh"
 #include "tmEventSetup/esCut.hh"
 #include "tmEventSetup/esScale.hh"
-#include "tmGrammar/Algorithm.hh"
+//#include "tmGrammar/Algorithm.hh"
 
 // forward declarations
 class GtCondition;
@@ -315,7 +304,7 @@ private:
 /*     bool parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node, */
 /*             const std::string& name, unsigned int chipNr = 0, */
 /*             const bool corrFlag = false); */
-    bool parseMuonV2( tmeventsetup::esCondition condMu,
+    bool parseMuon( tmeventsetup::esCondition condMu,
             unsigned int chipNr = 0, const bool corrFlag = false);
 
     bool parseMuonCorr(const tmeventsetup::esObject* condMu,
@@ -326,7 +315,7 @@ private:
 /*     bool parseCalo(XERCES_CPP_NAMESPACE::DOMNode* node, */
 /*             const std::string& name, unsigned int chipNr = 0, */
 /*             const bool corrFlag = false); */
-    bool parseCaloV2( tmeventsetup::esCondition condCalo,
+    bool parseCalo( tmeventsetup::esCondition condCalo,
             unsigned int chipNr = 0, const bool corrFlag = false);
 
     bool parseCaloCorr(const tmeventsetup::esObject* corrCalo,
@@ -337,7 +326,7 @@ private:
     /*         const std::string& name, unsigned int chipNr = 0, */
     /*         const bool corrFlag = false); */
 
-    bool parseEnergySumV2( tmeventsetup::esCondition condEnergySums,
+    bool parseEnergySum( tmeventsetup::esCondition condEnergySums,
             unsigned int chipNr = 0, const bool corrFlag = false);
 
 
@@ -345,17 +334,17 @@ private:
             unsigned int chipNr = 0);
 
 
-      bool parseExternalV2(tmeventsetup::esCondition condExt,
+      bool parseExternal(tmeventsetup::esCondition condExt,
         unsigned int chipNr = 0);
 
 
     /// parse a correlation condition
-    bool parseCorrelationV2(tmeventsetup::esCondition corrCond, unsigned int chipNr = 0);
+    bool parseCorrelation(tmeventsetup::esCondition corrCond, unsigned int chipNr = 0);
 
 
     /// parse all algorithms
     //bool parseAlgorithms(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
-    bool parseAlgorithmV2( tmeventsetup::esAlgorithm algorithm,
+    bool parseAlgorithm( tmeventsetup::esAlgorithm algorithm,
             unsigned int chipNr = 0 );
 
 
