@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/HIon/V4 (CMSSW_8_0_0_pre5)
+# /dev/CMSSW_8_0_0/HIon/V5 (CMSSW_8_0_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V4')
+  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V5')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -11878,5 +11878,8 @@ if 'hltGetConditions' in fragment.__dict__ and 'HLTriggerFirstPath' in fragment.
 
 # add specific customizations
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
-fragment = customizeHLTforAll(fragment)
+fragment = customizeHLTforAll(fragment,"HIon")
+
+from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
+fragment = customizeHLTforCMSSW(fragment,"HIon")
 

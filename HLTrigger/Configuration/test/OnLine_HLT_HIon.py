@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/HIon/V4 (CMSSW_8_0_0_pre5)
+# /dev/CMSSW_8_0_0/HIon/V5 (CMSSW_8_0_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V4')
+  tableName = cms.string('/dev/CMSSW_8_0_0/HIon/V5')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -13239,5 +13239,8 @@ _customInfo['globalTag' ]= "auto:run2_hlt_HIon"
 _customInfo['inputFile' ]=  ['file:RelVal_Raw_HIon_DATA.root']
 _customInfo['realData'  ]=  True
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
-process = customizeHLTforAll(process,_customInfo)
+process = customizeHLTforAll(process,"HIon",_customInfo)
+
+from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
+process = customizeHLTforCMSSW(process,"HIon")
 

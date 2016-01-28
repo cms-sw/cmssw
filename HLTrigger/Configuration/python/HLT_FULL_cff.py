@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/HLT/V8 (CMSSW_8_0_0_pre5)
+# /dev/CMSSW_8_0_0/HLT/V9 (CMSSW_8_0_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/HLT/V8')
+  tableName = cms.string('/dev/CMSSW_8_0_0/HLT/V9')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -7566,6 +7566,36 @@ fragment.hltParticleFlowRecHitECALUnseeded = cms.EDProducer( "PFRecHitProducer",
       name = cms.string( "PFRecHitECALNavigator" )
     )
 )
+fragment.hltParticleFlowRecHitHBHE = cms.EDProducer( "PFRecHitProducer",
+    producers = cms.VPSet( 
+      cms.PSet(  name = cms.string( "PFHBHERecHitCreator" ),
+        qualityTests = cms.VPSet( 
+          cms.PSet(  name = cms.string( "PFRecHitQTestThreshold" ),
+            threshold = cms.double( 0.8 )
+          ),
+          cms.PSet(  cleaningThresholds = cms.vdouble( 0.0 ),
+            flags = cms.vstring( 'Standard' ),
+            maxSeverities = cms.vint32( 11 ),
+            name = cms.string( "PFRecHitQTestHCALChannel" )
+          )
+        ),
+        src = cms.InputTag( "hltHbhereco" )
+      )
+    ),
+    navigator = cms.PSet( 
+      name = cms.string( "PFRecHitHCALNavigator" ),
+      sigmaCut = cms.double( 4.0 ),
+      timeResolutionCalc = cms.PSet( 
+        constantTerm = cms.double( 1.92 ),
+        constantTermLowE = cms.double( 6.0 ),
+        corrTermLowE = cms.double( 0.0 ),
+        noiseTerm = cms.double( 8.64 ),
+        noiseTermLowE = cms.double( 0.0 ),
+        threshHighE = cms.double( 8.0 ),
+        threshLowE = cms.double( 2.0 )
+      )
+    )
+)
 fragment.hltParticleFlowRecHitHCAL = cms.EDProducer( "PFCTRecHitProducer",
     ECAL_Compensate = cms.bool( False ),
     ECAL_Dead_Code = cms.uint32( 10 ),
@@ -7604,6 +7634,45 @@ fragment.hltParticleFlowRecHitHCAL = cms.EDProducer( "PFCTRecHitProducer",
     ShortFibre_Fraction = cms.double( 0.01 ),
     HCAL_Calib_29 = cms.double( 1.35 )
 )
+fragment.hltParticleFlowRecHitHF = cms.EDProducer( "PFRecHitProducer",
+    producers = cms.VPSet( 
+      cms.PSet(  EMDepthCorrection = cms.double( 22.0 ),
+        HADDepthCorrection = cms.double( 25.0 ),
+        HFCalib29 = cms.double( 1.07 ),
+        LongFibre_Cut = cms.double( 120.0 ),
+        LongFibre_Fraction = cms.double( 0.1 ),
+        ShortFibre_Cut = cms.double( 60.0 ),
+        ShortFibre_Fraction = cms.double( 0.01 ),
+        name = cms.string( "PFHFRecHitCreator" ),
+        qualityTests = cms.VPSet( 
+          cms.PSet(  cleaningThresholds = cms.vdouble( 0.0, 120.0, 60.0 ),
+            flags = cms.vstring( 'Standard',
+              'HFLong',
+              'HFShort' ),
+            maxSeverities = cms.vint32( 11, 9, 9 ),
+            name = cms.string( "PFRecHitQTestHCALChannel" )
+          ),
+          cms.PSet(  cuts = cms.VPSet( 
+  cms.PSet(  depth = cms.int32( 1 ),
+    threshold = cms.double( 1.2 )
+  ),
+  cms.PSet(  depth = cms.int32( 2 ),
+    threshold = cms.double( 1.8 )
+  )
+),
+            name = cms.string( "PFRecHitQTestHCALThresholdVsDepth" )
+          )
+        ),
+        src = cms.InputTag( "hltHfreco" ),
+        thresh_HF = cms.double( 0.4 )
+      )
+    ),
+    navigator = cms.PSet( 
+      name = cms.string( "PFRecHitHCALNavigator" ),
+      barrel = cms.PSet(  ),
+      endcap = cms.PSet(  )
+    )
+)
 fragment.hltParticleFlowRecHitPSUnseeded = cms.EDProducer( "PFRecHitProducer",
     producers = cms.VPSet( 
       cms.PSet(  src = cms.InputTag( 'hltEcalPreshowerRecHit','EcalRecHitsES' ),
@@ -7624,7 +7693,25 @@ fragment.hltParticleFlowClusterECALUncorrectedUnseeded = cms.EDProducer( "PFClus
         logWeightDenominator = cms.double( 0.08 ),
         minAllowedNormalization = cms.double( 1.0E-9 ),
         posCalcNCrystals = cms.int32( 9 ),
-        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
+        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" ),
+        timeResolutionCalcBarrel = cms.PSet( 
+          constantTerm = cms.double( 0.428192 ),
+          constantTermLowE = cms.double( 0.0 ),
+          corrTermLowE = cms.double( 0.0510871 ),
+          noiseTerm = cms.double( 1.10889 ),
+          noiseTermLowE = cms.double( 1.31883 ),
+          threshHighE = cms.double( 5.0 ),
+          threshLowE = cms.double( 0.5 )
+        ),
+        timeResolutionCalcEndcap = cms.PSet( 
+          constantTerm = cms.double( 0.0 ),
+          constantTermLowE = cms.double( 0.0 ),
+          corrTermLowE = cms.double( 0.0 ),
+          noiseTerm = cms.double( 5.72489999999 ),
+          noiseTermLowE = cms.double( 6.92683000001 ),
+          threshHighE = cms.double( 10.0 ),
+          threshLowE = cms.double( 1.0 )
+        )
       ),
       minFracTot = cms.double( 1.0E-20 ),
       positionCalcForConvergence = cms.PSet( 
@@ -7656,7 +7743,25 @@ fragment.hltParticleFlowClusterECALUncorrectedUnseeded = cms.EDProducer( "PFClus
         logWeightDenominator = cms.double( 0.08 ),
         minAllowedNormalization = cms.double( 1.0E-9 ),
         posCalcNCrystals = cms.int32( -1 ),
-        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
+        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" ),
+        timeResolutionCalcBarrel = cms.PSet( 
+          constantTerm = cms.double( 0.428192 ),
+          constantTermLowE = cms.double( 0.0 ),
+          corrTermLowE = cms.double( 0.0510871 ),
+          noiseTerm = cms.double( 1.10889 ),
+          noiseTermLowE = cms.double( 1.31883 ),
+          threshHighE = cms.double( 5.0 ),
+          threshLowE = cms.double( 0.5 )
+        ),
+        timeResolutionCalcEndcap = cms.PSet( 
+          constantTerm = cms.double( 0.0 ),
+          constantTermLowE = cms.double( 0.0 ),
+          corrTermLowE = cms.double( 0.0 ),
+          noiseTerm = cms.double( 5.72489999999 ),
+          noiseTermLowE = cms.double( 6.92683000001 ),
+          threshHighE = cms.double( 10.0 ),
+          threshLowE = cms.double( 1.0 )
+        )
       )
     ),
     positionReCalc = cms.PSet( 
@@ -7792,7 +7897,7 @@ fragment.hltParticleFlowClusterECALUnseeded = cms.EDProducer( "CorrectedECALPFCl
     ),
     inputECAL = cms.InputTag( "hltParticleFlowClusterECALUncorrectedUnseeded" )
 )
-fragment.hltParticleFlowClusterHCAL = cms.EDProducer( "PFClusterProducer",
+fragment.hltParticleFlowClusterHBHE = cms.EDProducer( "PFClusterProducer",
     pfClusterBuilder = cms.PSet( 
       positionCalc = cms.PSet( 
         minFractionInCalc = cms.double( 1.0E-9 ),
@@ -7822,7 +7927,30 @@ fragment.hltParticleFlowClusterHCAL = cms.EDProducer( "PFClusterProducer",
         minAllowedNormalization = cms.double( 1.0E-9 ),
         posCalcNCrystals = cms.int32( -1 ),
         algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
-      )
+      ),
+      clusterTimeResFromSeed = cms.bool( False ),
+      maxNSigmaTime = cms.double( 10.0 ),
+      minChi2Prob = cms.double( 0.0 ),
+      timeResolutionCalcBarrel = cms.PSet( 
+        constantTerm = cms.double( 2.82 ),
+        constantTermLowE = cms.double( 4.24 ),
+        corrTermLowE = cms.double( 0.0 ),
+        noiseTerm = cms.double( 21.86 ),
+        noiseTermLowE = cms.double( 8.0 ),
+        threshHighE = cms.double( 15.0 ),
+        threshLowE = cms.double( 6.0 )
+      ),
+      timeResolutionCalcEndcap = cms.PSet( 
+        constantTerm = cms.double( 2.82 ),
+        constantTermLowE = cms.double( 4.24 ),
+        corrTermLowE = cms.double( 0.0 ),
+        noiseTerm = cms.double( 21.86 ),
+        noiseTermLowE = cms.double( 8.0 ),
+        threshHighE = cms.double( 15.0 ),
+        threshLowE = cms.double( 6.0 )
+      ),
+      timeSigmaEB = cms.double( 10.0 ),
+      timeSigmaEE = cms.double( 10.0 )
     ),
     positionReCalc = cms.PSet(  ),
     initialClusteringStep = cms.PSet( 
@@ -7841,12 +7969,11 @@ fragment.hltParticleFlowClusterHCAL = cms.EDProducer( "PFClusterProducer",
     ),
     energyCorrector = cms.PSet(  ),
     recHitCleaners = cms.VPSet( 
-      cms.PSet(  algoName = cms.string( "RBXAndHPDCleaner" )      )
     ),
     seedFinder = cms.PSet( 
       nNeighbours = cms.int32( 4 ),
       thresholdsByDetector = cms.VPSet( 
-        cms.PSet(  seedingThreshold = cms.double( 0.8 ),
+        cms.PSet(  seedingThreshold = cms.double( 1.0 ),
           seedingThresholdPt = cms.double( 0.0 ),
           detector = cms.string( "HCAL_BARREL1" )
         ),
@@ -7857,9 +7984,27 @@ fragment.hltParticleFlowClusterHCAL = cms.EDProducer( "PFClusterProducer",
       ),
       algoName = cms.string( "LocalMaximumSeedFinder" )
     ),
-    recHitsSource = cms.InputTag( "hltParticleFlowRecHitHCAL" )
+    recHitsSource = cms.InputTag( "hltParticleFlowRecHitHBHE" )
 )
-fragment.hltParticleFlowClusterHFEM = cms.EDProducer( "PFClusterProducer",
+fragment.hltParticleFlowClusterHCAL = cms.EDProducer( "PFMultiDepthClusterProducer",
+    pfClusterBuilder = cms.PSet( 
+      nSigmaEta = cms.double( 2.0 ),
+      nSigmaPhi = cms.double( 2.0 ),
+      algoName = cms.string( "PFMultiDepthClusterizer" ),
+      allCellsPositionCalc = cms.PSet( 
+        minAllowedNormalization = cms.double( 1.0E-9 ),
+        minFractionInCalc = cms.double( 1.0E-9 ),
+        logWeightDenominator = cms.double( 0.8 ),
+        posCalcNCrystals = cms.int32( -1 ),
+        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
+      ),
+      minFractionToKeep = cms.double( 1.0E-7 )
+    ),
+    energyCorrector = cms.PSet(  ),
+    positionReCalc = cms.PSet(  ),
+    clustersSource = cms.InputTag( "hltParticleFlowClusterHBHE" )
+)
+fragment.hltParticleFlowClusterHF = cms.EDProducer( "PFClusterProducer",
     pfClusterBuilder = cms.PSet( 
       positionCalc = cms.PSet( 
         minFractionInCalc = cms.double( 1.0E-9 ),
@@ -7876,6 +8021,9 @@ fragment.hltParticleFlowClusterHFEM = cms.EDProducer( "PFClusterProducer",
       showerSigma = cms.double( 10.0 ),
       recHitEnergyNorms = cms.VPSet( 
         cms.PSet(  detector = cms.string( "HF_EM" ),
+          recHitEnergyNorm = cms.double( 0.8 )
+        ),
+        cms.PSet(  detector = cms.string( "HF_HAD" ),
           recHitEnergyNorm = cms.double( 0.8 )
         )
       ),
@@ -7894,6 +8042,10 @@ fragment.hltParticleFlowClusterHFEM = cms.EDProducer( "PFClusterProducer",
         cms.PSet(  gatheringThreshold = cms.double( 0.8 ),
           detector = cms.string( "HF_EM" ),
           gatheringThresholdPt = cms.double( 0.0 )
+        ),
+        cms.PSet(  detector = cms.string( "HF_HAD" ),
+          gatheringThreshold = cms.double( 0.8 ),
+          gatheringThresholdPt = cms.double( 0.0 )
         )
       ),
       useCornerCells = cms.bool( False ),
@@ -7910,6 +8062,15 @@ fragment.hltParticleFlowClusterHFEM = cms.EDProducer( "PFClusterProducer",
     detector = cms.string( "HF_EM" ),
     minS4S1_a = cms.double( 0.11 ),
     energyThresholdModifier = cms.double( 1.0 )
+  ),
+  cms.PSet(  detector = cms.string( "HF_HAD" ),
+    doubleSpikeS6S2 = cms.double( -1.0 ),
+    doubleSpikeThresh = cms.double( 1.0E9 ),
+    energyThresholdModifier = cms.double( 1.0 ),
+    fractionThresholdModifier = cms.double( 1.0 ),
+    minS4S1_a = cms.double( 0.045 ),
+    minS4S1_b = cms.double( -0.08 ),
+    singleSpikeThresh = cms.double( 120.0 )
   )
 ),
         algoName = cms.string( "SpikeAndDoubleSpikeCleaner" )
@@ -7921,79 +8082,15 @@ fragment.hltParticleFlowClusterHFEM = cms.EDProducer( "PFClusterProducer",
         cms.PSet(  seedingThreshold = cms.double( 1.4 ),
           seedingThresholdPt = cms.double( 0.0 ),
           detector = cms.string( "HF_EM" )
-        )
-      ),
-      algoName = cms.string( "LocalMaximumSeedFinder" )
-    ),
-    recHitsSource = cms.InputTag( 'hltParticleFlowRecHitHCAL','HFEM' )
-)
-fragment.hltParticleFlowClusterHFHAD = cms.EDProducer( "PFClusterProducer",
-    pfClusterBuilder = cms.PSet( 
-      positionCalc = cms.PSet( 
-        minFractionInCalc = cms.double( 1.0E-9 ),
-        logWeightDenominator = cms.double( 0.8 ),
-        minAllowedNormalization = cms.double( 1.0E-9 ),
-        posCalcNCrystals = cms.int32( 5 ),
-        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
-      ),
-      minFracTot = cms.double( 1.0E-20 ),
-      maxIterations = cms.uint32( 50 ),
-      stoppingTolerance = cms.double( 1.0E-8 ),
-      minFractionToKeep = cms.double( 1.0E-7 ),
-      excludeOtherSeeds = cms.bool( True ),
-      showerSigma = cms.double( 10.0 ),
-      recHitEnergyNorms = cms.VPSet( 
+        ),
         cms.PSet(  detector = cms.string( "HF_HAD" ),
-          recHitEnergyNorm = cms.double( 0.8 )
-        )
-      ),
-      algoName = cms.string( "Basic2DGenericPFlowClusterizer" ),
-      allCellsPositionCalc = cms.PSet( 
-        minFractionInCalc = cms.double( 1.0E-9 ),
-        logWeightDenominator = cms.double( 0.8 ),
-        minAllowedNormalization = cms.double( 1.0E-9 ),
-        posCalcNCrystals = cms.int32( -1 ),
-        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
-      )
-    ),
-    positionReCalc = cms.PSet(  ),
-    initialClusteringStep = cms.PSet( 
-      thresholdsByDetector = cms.VPSet( 
-        cms.PSet(  gatheringThreshold = cms.double( 0.8 ),
-          detector = cms.string( "HF_HAD" ),
-          gatheringThresholdPt = cms.double( 0.0 )
-        )
-      ),
-      useCornerCells = cms.bool( False ),
-      algoName = cms.string( "Basic2DGenericTopoClusterizer" )
-    ),
-    energyCorrector = cms.PSet(  ),
-    recHitCleaners = cms.VPSet( 
-      cms.PSet(  cleaningByDetector = cms.VPSet( 
-  cms.PSet(  doubleSpikeS6S2 = cms.double( -1.0 ),
-    fractionThresholdModifier = cms.double( 1.0 ),
-    doubleSpikeThresh = cms.double( 1.0E9 ),
-    minS4S1_b = cms.double( -0.08 ),
-    singleSpikeThresh = cms.double( 120.0 ),
-    detector = cms.string( "HF_HAD" ),
-    minS4S1_a = cms.double( 0.045 ),
-    energyThresholdModifier = cms.double( 1.0 )
-  )
-),
-        algoName = cms.string( "SpikeAndDoubleSpikeCleaner" )
-      )
-    ),
-    seedFinder = cms.PSet( 
-      nNeighbours = cms.int32( 0 ),
-      thresholdsByDetector = cms.VPSet( 
-        cms.PSet(  seedingThreshold = cms.double( 1.4 ),
-          seedingThresholdPt = cms.double( 0.0 ),
-          detector = cms.string( "HF_HAD" )
+          seedingThreshold = cms.double( 1.4 ),
+          seedingThresholdPt = cms.double( 0.0 )
         )
       ),
       algoName = cms.string( "LocalMaximumSeedFinder" )
     ),
-    recHitsSource = cms.InputTag( 'hltParticleFlowRecHitHCAL','HFHAD' )
+    recHitsSource = cms.InputTag( "hltParticleFlowRecHitHF" )
 )
 fragment.hltLightPFTracks = cms.EDProducer( "LightPFTrackProducer",
     TrackQuality = cms.string( "none" ),
@@ -8044,10 +8141,7 @@ fragment.hltParticleFlowBlock = cms.EDProducer( "PFBlockProducer",
         source = cms.InputTag( "hltParticleFlowClusterHCAL" )
       ),
       cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
-        source = cms.InputTag( "hltParticleFlowClusterHFEM" )
-      ),
-      cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
-        source = cms.InputTag( "hltParticleFlowClusterHFHAD" )
+        source = cms.InputTag( "hltParticleFlowClusterHF" )
       ),
       cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
         source = cms.InputTag( "hltParticleFlowClusterPSUnseeded" )
@@ -8076,7 +8170,7 @@ fragment.hltParticleFlow = cms.EDProducer( "PFProducer",
     nsigma_TRACK = cms.double( 1.0 ),
     useEGammaSupercluster = cms.bool( False ),
     sumPtTrackIsoForEgammaSC_barrel = cms.double( 4.0 ),
-    eventFractionForCleaning = cms.double( 0.8 ),
+    eventFractionForCleaning = cms.double( 0.5 ),
     usePFDecays = cms.bool( False ),
     rejectTracks_Step45 = cms.bool( False ),
     eventFractionForRejection = cms.double( 0.8 ),
@@ -8098,7 +8192,7 @@ fragment.hltParticleFlow = cms.EDProducer( "PFProducer",
     electron_iso_mva_barrel = cms.double( -0.1875 ),
     postHFCleaning = cms.bool( False ),
     factors_45 = cms.vdouble( 10.0, 100.0 ),
-    cleanedHF = cms.VInputTag( 'hltParticleFlowRecHitHCAL:Cleaned','hltParticleFlowClusterHFHAD:Cleaned','hltParticleFlowClusterHFEM:Cleaned' ),
+    cleanedHF = cms.VInputTag( 'hltParticleFlowRecHitHF:Cleaned','hltParticleFlowClusterHF:Cleaned' ),
     coneEcalIsoForEgammaSC = cms.double( 0.3 ),
     egammaElectrons = cms.InputTag( "" ),
     photon_SigmaiEtaiEta_barrel = cms.double( 0.0125 ),
@@ -8136,9 +8230,9 @@ fragment.hltParticleFlow = cms.EDProducer( "PFProducer",
     ),
     rejectTracks_Bad = cms.bool( False ),
     pf_electronID_crackCorrection = cms.bool( False ),
-    pf_locC_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFClusterCorr.root" ),
+    pf_locC_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFClusterLCorr_14Dec2011.root" ),
     calibHF_a_EMonly = cms.vdouble( 0.96945, 0.96701, 0.76309, 0.82268, 0.87583, 0.89718, 0.98674, 1.4681, 1.458, 1.458 ),
-    pf_Res_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFRes.root" ),
+    pf_Res_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFRes_14Dec2011.root" ),
     metFactorForHighEta = cms.double( 25.0 ),
     minHFCleaningPt = cms.double( 5.0 ),
     muon_HCAL = cms.vdouble( 3.0, 3.0 ),
@@ -8148,8 +8242,8 @@ fragment.hltParticleFlow = cms.EDProducer( "PFProducer",
     pf_electronID_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan_IntToFloat.txt" ),
     sumEtEcalIsoForEgammaSC_endcap = cms.double( 2.0 ),
     calibHF_b_EMHAD = cms.vdouble( 1.27541, 0.85361, 0.86333, 0.89091, 0.94348, 0.94348, 0.9437, 1.0034, 1.0444, 1.0444 ),
-    pf_GlobC_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFGlobalCorr.root" ),
-    photon_HoE = cms.double( 0.1 ),
+    pf_GlobC_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFGlobalCorr_14Dec2011.root" ),
+    photon_HoE = cms.double( 0.05 ),
     sumEtEcalIsoForEgammaSC_barrel = cms.double( 1.0 ),
     calibPFSCEle_Fbrem_endcap = cms.vdouble( 0.9, 6.5, -0.0692932, 0.101776, 0.995338, -0.00236548, 0.874998, 1.653, -0.0750184, 0.147, 0.923165, 4.74665E-4, 1.10782 ),
     punchThroughFactor = cms.double( 3.0 ),
@@ -10194,7 +10288,25 @@ fragment.hltParticleFlowClusterECALUncorrectedL1Seeded = cms.EDProducer( "PFClus
         logWeightDenominator = cms.double( 0.08 ),
         minAllowedNormalization = cms.double( 1.0E-9 ),
         posCalcNCrystals = cms.int32( 9 ),
-        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
+        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" ),
+        timeResolutionCalcBarrel = cms.PSet( 
+          constantTerm = cms.double( 0.428192 ),
+          constantTermLowE = cms.double( 0.0 ),
+          corrTermLowE = cms.double( 0.0510871 ),
+          noiseTerm = cms.double( 1.10889 ),
+          noiseTermLowE = cms.double( 1.31883 ),
+          threshHighE = cms.double( 5.0 ),
+          threshLowE = cms.double( 0.5 )
+        ),
+        timeResolutionCalcEndcap = cms.PSet( 
+          constantTerm = cms.double( 0.0 ),
+          constantTermLowE = cms.double( 0.0 ),
+          corrTermLowE = cms.double( 0.0 ),
+          noiseTerm = cms.double( 5.72489999999 ),
+          noiseTermLowE = cms.double( 6.92683000001 ),
+          threshHighE = cms.double( 10.0 ),
+          threshLowE = cms.double( 1.0 )
+        )
       ),
       minFracTot = cms.double( 1.0E-20 ),
       positionCalcForConvergence = cms.PSet( 
@@ -10226,7 +10338,25 @@ fragment.hltParticleFlowClusterECALUncorrectedL1Seeded = cms.EDProducer( "PFClus
         logWeightDenominator = cms.double( 0.08 ),
         minAllowedNormalization = cms.double( 1.0E-9 ),
         posCalcNCrystals = cms.int32( -1 ),
-        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
+        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" ),
+        timeResolutionCalcBarrel = cms.PSet( 
+          constantTerm = cms.double( 0.428192 ),
+          constantTermLowE = cms.double( 0.0 ),
+          corrTermLowE = cms.double( 0.0510871 ),
+          noiseTerm = cms.double( 1.10889 ),
+          noiseTermLowE = cms.double( 1.31883 ),
+          threshHighE = cms.double( 5.0 ),
+          threshLowE = cms.double( 0.5 )
+        ),
+        timeResolutionCalcEndcap = cms.PSet( 
+          constantTerm = cms.double( 0.0 ),
+          constantTermLowE = cms.double( 0.0 ),
+          corrTermLowE = cms.double( 0.0 ),
+          noiseTerm = cms.double( 5.72489999999 ),
+          noiseTermLowE = cms.double( 6.92683000001 ),
+          threshHighE = cms.double( 10.0 ),
+          threshLowE = cms.double( 1.0 )
+        )
       )
     ),
     positionReCalc = cms.PSet( 
@@ -10543,6 +10673,36 @@ fragment.hltRegionalTowerForEgamma = cms.EDProducer( "EgammaHLTCaloTowerProducer
     useTowersInCone = cms.double( 0.8 ),
     towerCollection = cms.InputTag( "hltTowerMakerForAll" )
 )
+fragment.hltParticleFlowRecHitHBHEForEgamma = cms.EDProducer( "PFRecHitProducer",
+    producers = cms.VPSet( 
+      cms.PSet(  name = cms.string( "PFHBHERecHitCreator" ),
+        qualityTests = cms.VPSet( 
+          cms.PSet(  name = cms.string( "PFRecHitQTestThreshold" ),
+            threshold = cms.double( 0.8 )
+          ),
+          cms.PSet(  cleaningThresholds = cms.vdouble( 0.0 ),
+            flags = cms.vstring( 'Standard' ),
+            maxSeverities = cms.vint32( 11 ),
+            name = cms.string( "PFRecHitQTestHCALChannel" )
+          )
+        ),
+        src = cms.InputTag( "hltHbhereco" )
+      )
+    ),
+    navigator = cms.PSet( 
+      name = cms.string( "PFRecHitHCALNavigator" ),
+      sigmaCut = cms.double( 4.0 ),
+      timeResolutionCalc = cms.PSet( 
+        constantTerm = cms.double( 1.92 ),
+        constantTermLowE = cms.double( 6.0 ),
+        corrTermLowE = cms.double( 0.0 ),
+        noiseTerm = cms.double( 8.64 ),
+        noiseTermLowE = cms.double( 0.0 ),
+        threshHighE = cms.double( 8.0 ),
+        threshLowE = cms.double( 2.0 )
+      )
+    )
+)
 fragment.hltParticleFlowRecHitHCALForEgamma = cms.EDProducer( "PFCTRecHitProducer",
     ECAL_Compensate = cms.bool( False ),
     ECAL_Dead_Code = cms.uint32( 10 ),
@@ -10581,7 +10741,7 @@ fragment.hltParticleFlowRecHitHCALForEgamma = cms.EDProducer( "PFCTRecHitProduce
     ShortFibre_Fraction = cms.double( 0.01 ),
     HCAL_Calib_29 = cms.double( 1.35 )
 )
-fragment.hltParticleFlowClusterHCALForEgamma = cms.EDProducer( "PFClusterProducer",
+fragment.hltParticleFlowClusterHBHEForEgamma = cms.EDProducer( "PFClusterProducer",
     pfClusterBuilder = cms.PSet( 
       positionCalc = cms.PSet( 
         minFractionInCalc = cms.double( 1.0E-9 ),
@@ -10611,7 +10771,30 @@ fragment.hltParticleFlowClusterHCALForEgamma = cms.EDProducer( "PFClusterProduce
         minAllowedNormalization = cms.double( 1.0E-9 ),
         posCalcNCrystals = cms.int32( -1 ),
         algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
-      )
+      ),
+      clusterTimeResFromSeed = cms.bool( False ),
+      maxNSigmaTime = cms.double( 10.0 ),
+      minChi2Prob = cms.double( 0.0 ),
+      timeResolutionCalcBarrel = cms.PSet( 
+        constantTerm = cms.double( 2.82 ),
+        constantTermLowE = cms.double( 4.24 ),
+        corrTermLowE = cms.double( 0.0 ),
+        noiseTerm = cms.double( 21.86 ),
+        noiseTermLowE = cms.double( 8.0 ),
+        threshHighE = cms.double( 15.0 ),
+        threshLowE = cms.double( 6.0 )
+      ),
+      timeResolutionCalcEndcap = cms.PSet( 
+        constantTerm = cms.double( 2.82 ),
+        constantTermLowE = cms.double( 4.24 ),
+        corrTermLowE = cms.double( 0.0 ),
+        noiseTerm = cms.double( 21.86 ),
+        noiseTermLowE = cms.double( 8.0 ),
+        threshHighE = cms.double( 15.0 ),
+        threshLowE = cms.double( 6.0 )
+      ),
+      timeSigmaEB = cms.double( 10.0 ),
+      timeSigmaEE = cms.double( 10.0 )
     ),
     positionReCalc = cms.PSet(  ),
     initialClusteringStep = cms.PSet( 
@@ -10630,12 +10813,11 @@ fragment.hltParticleFlowClusterHCALForEgamma = cms.EDProducer( "PFClusterProduce
     ),
     energyCorrector = cms.PSet(  ),
     recHitCleaners = cms.VPSet( 
-      cms.PSet(  algoName = cms.string( "RBXAndHPDCleaner" )      )
     ),
     seedFinder = cms.PSet( 
       nNeighbours = cms.int32( 4 ),
       thresholdsByDetector = cms.VPSet( 
-        cms.PSet(  seedingThreshold = cms.double( 0.8 ),
+        cms.PSet(  seedingThreshold = cms.double( 1.0 ),
           seedingThresholdPt = cms.double( 0.0 ),
           detector = cms.string( "HCAL_BARREL1" )
         ),
@@ -10646,7 +10828,25 @@ fragment.hltParticleFlowClusterHCALForEgamma = cms.EDProducer( "PFClusterProduce
       ),
       algoName = cms.string( "LocalMaximumSeedFinder" )
     ),
-    recHitsSource = cms.InputTag( "hltParticleFlowRecHitHCALForEgamma" )
+    recHitsSource = cms.InputTag( "hltParticleFlowRecHitHBHEForEgamma" )
+)
+fragment.hltParticleFlowClusterHCALForEgamma = cms.EDProducer( "PFMultiDepthClusterProducer",
+    pfClusterBuilder = cms.PSet( 
+      nSigmaEta = cms.double( 2.0 ),
+      nSigmaPhi = cms.double( 2.0 ),
+      algoName = cms.string( "PFMultiDepthClusterizer" ),
+      allCellsPositionCalc = cms.PSet( 
+        minAllowedNormalization = cms.double( 1.0E-9 ),
+        minFractionInCalc = cms.double( 1.0E-9 ),
+        logWeightDenominator = cms.double( 0.8 ),
+        posCalcNCrystals = cms.int32( -1 ),
+        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
+      ),
+      minFractionToKeep = cms.double( 1.0E-7 )
+    ),
+    energyCorrector = cms.PSet(  ),
+    positionReCalc = cms.PSet(  ),
+    clustersSource = cms.InputTag( "hltParticleFlowClusterHBHEForEgamma" )
 )
 fragment.hltEgammaHcalPFClusterIso = cms.EDProducer( "EgammaHLTHcalPFClusterIsolationProducer",
     energyEndcap = cms.double( 0.0 ),
@@ -14273,10 +14473,7 @@ fragment.hltParticleFlowBlockReg = cms.EDProducer( "PFBlockProducer",
         source = cms.InputTag( "hltParticleFlowClusterHCAL" )
       ),
       cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
-        source = cms.InputTag( "hltParticleFlowClusterHFEM" )
-      ),
-      cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
-        source = cms.InputTag( "hltParticleFlowClusterHFHAD" )
+        source = cms.InputTag( "hltParticleFlowClusterHF" )
       ),
       cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
         source = cms.InputTag( "hltParticleFlowClusterPSUnseeded" )
@@ -14305,7 +14502,7 @@ fragment.hltParticleFlowReg = cms.EDProducer( "PFProducer",
     nsigma_TRACK = cms.double( 1.0 ),
     useEGammaSupercluster = cms.bool( False ),
     sumPtTrackIsoForEgammaSC_barrel = cms.double( 4.0 ),
-    eventFractionForCleaning = cms.double( 0.8 ),
+    eventFractionForCleaning = cms.double( 0.5 ),
     usePFDecays = cms.bool( False ),
     rejectTracks_Step45 = cms.bool( False ),
     eventFractionForRejection = cms.double( 0.8 ),
@@ -14327,7 +14524,7 @@ fragment.hltParticleFlowReg = cms.EDProducer( "PFProducer",
     electron_iso_mva_barrel = cms.double( -0.1875 ),
     postHFCleaning = cms.bool( False ),
     factors_45 = cms.vdouble( 10.0, 100.0 ),
-    cleanedHF = cms.VInputTag( 'hltParticleFlowRecHitHCAL:Cleaned','hltParticleFlowClusterHFHAD:Cleaned','hltParticleFlowClusterHFEM:Cleaned' ),
+    cleanedHF = cms.VInputTag( 'hltParticleFlowRecHitHF:Cleaned','hltParticleFlowClusterHF:Cleaned' ),
     coneEcalIsoForEgammaSC = cms.double( 0.3 ),
     egammaElectrons = cms.InputTag( "" ),
     photon_SigmaiEtaiEta_barrel = cms.double( 0.0125 ),
@@ -14365,9 +14562,9 @@ fragment.hltParticleFlowReg = cms.EDProducer( "PFProducer",
     ),
     rejectTracks_Bad = cms.bool( False ),
     pf_electronID_crackCorrection = cms.bool( False ),
-    pf_locC_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFClusterCorr.root" ),
+    pf_locC_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFClusterLCorr_14Dec2011.root" ),
     calibHF_a_EMonly = cms.vdouble( 0.96945, 0.96701, 0.76309, 0.82268, 0.87583, 0.89718, 0.98674, 1.4681, 1.458, 1.458 ),
-    pf_Res_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFRes.root" ),
+    pf_Res_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFRes_14Dec2011.root" ),
     metFactorForHighEta = cms.double( 25.0 ),
     minHFCleaningPt = cms.double( 5.0 ),
     muon_HCAL = cms.vdouble( 3.0, 3.0 ),
@@ -14377,8 +14574,8 @@ fragment.hltParticleFlowReg = cms.EDProducer( "PFProducer",
     pf_electronID_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan_IntToFloat.txt" ),
     sumEtEcalIsoForEgammaSC_endcap = cms.double( 2.0 ),
     calibHF_b_EMHAD = cms.vdouble( 1.27541, 0.85361, 0.86333, 0.89091, 0.94348, 0.94348, 0.9437, 1.0034, 1.0444, 1.0444 ),
-    pf_GlobC_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFGlobalCorr.root" ),
-    photon_HoE = cms.double( 0.1 ),
+    pf_GlobC_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFGlobalCorr_14Dec2011.root" ),
+    photon_HoE = cms.double( 0.05 ),
     sumEtEcalIsoForEgammaSC_barrel = cms.double( 1.0 ),
     calibPFSCEle_Fbrem_endcap = cms.vdouble( 0.9, 6.5, -0.0692932, 0.101776, 0.995338, -0.00236548, 0.874998, 1.653, -0.0750184, 0.147, 0.923165, 4.74665E-4, 1.10782 ),
     punchThroughFactor = cms.double( 3.0 ),
@@ -15035,10 +15232,7 @@ fragment.hltParticleFlowBlockForTaus = cms.EDProducer( "PFBlockProducer",
         source = cms.InputTag( "hltParticleFlowClusterHCAL" )
       ),
       cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
-        source = cms.InputTag( "hltParticleFlowClusterHFEM" )
-      ),
-      cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
-        source = cms.InputTag( "hltParticleFlowClusterHFHAD" )
+        source = cms.InputTag( "hltParticleFlowClusterHF" )
       ),
       cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
         source = cms.InputTag( "hltParticleFlowClusterPSUnseeded" )
@@ -15067,7 +15261,7 @@ fragment.hltParticleFlowForTaus = cms.EDProducer( "PFProducer",
     nsigma_TRACK = cms.double( 1.0 ),
     useEGammaSupercluster = cms.bool( False ),
     sumPtTrackIsoForEgammaSC_barrel = cms.double( 4.0 ),
-    eventFractionForCleaning = cms.double( 0.8 ),
+    eventFractionForCleaning = cms.double( 0.5 ),
     usePFDecays = cms.bool( False ),
     rejectTracks_Step45 = cms.bool( False ),
     eventFractionForRejection = cms.double( 0.8 ),
@@ -15089,7 +15283,7 @@ fragment.hltParticleFlowForTaus = cms.EDProducer( "PFProducer",
     electron_iso_mva_barrel = cms.double( -0.1875 ),
     postHFCleaning = cms.bool( False ),
     factors_45 = cms.vdouble( 10.0, 100.0 ),
-    cleanedHF = cms.VInputTag( 'hltParticleFlowRecHitHCAL:Cleaned','hltParticleFlowClusterHFHAD:Cleaned','hltParticleFlowClusterHFEM:Cleaned' ),
+    cleanedHF = cms.VInputTag( 'hltParticleFlowRecHitHF:Cleaned','hltParticleFlowClusterHF:Cleaned' ),
     coneEcalIsoForEgammaSC = cms.double( 0.3 ),
     egammaElectrons = cms.InputTag( "" ),
     photon_SigmaiEtaiEta_barrel = cms.double( 0.0125 ),
@@ -15127,9 +15321,9 @@ fragment.hltParticleFlowForTaus = cms.EDProducer( "PFProducer",
     ),
     rejectTracks_Bad = cms.bool( False ),
     pf_electronID_crackCorrection = cms.bool( False ),
-    pf_locC_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFClusterCorr.root" ),
+    pf_locC_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFClusterLCorr_14Dec2011.root" ),
     calibHF_a_EMonly = cms.vdouble( 0.96945, 0.96701, 0.76309, 0.82268, 0.87583, 0.89718, 0.98674, 1.4681, 1.458, 1.458 ),
-    pf_Res_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFRes.root" ),
+    pf_Res_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFRes_14Dec2011.root" ),
     metFactorForHighEta = cms.double( 25.0 ),
     minHFCleaningPt = cms.double( 5.0 ),
     muon_HCAL = cms.vdouble( 3.0, 3.0 ),
@@ -15139,8 +15333,8 @@ fragment.hltParticleFlowForTaus = cms.EDProducer( "PFProducer",
     pf_electronID_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan_IntToFloat.txt" ),
     sumEtEcalIsoForEgammaSC_endcap = cms.double( 2.0 ),
     calibHF_b_EMHAD = cms.vdouble( 1.27541, 0.85361, 0.86333, 0.89091, 0.94348, 0.94348, 0.9437, 1.0034, 1.0444, 1.0444 ),
-    pf_GlobC_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFGlobalCorr.root" ),
-    photon_HoE = cms.double( 0.1 ),
+    pf_GlobC_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFGlobalCorr_14Dec2011.root" ),
+    photon_HoE = cms.double( 0.05 ),
     sumEtEcalIsoForEgammaSC_barrel = cms.double( 1.0 ),
     calibPFSCEle_Fbrem_endcap = cms.vdouble( 0.9, 6.5, -0.0692932, 0.101776, 0.995338, -0.00236548, 0.874998, 1.653, -0.0750184, 0.147, 0.923165, 4.74665E-4, 1.10782 ),
     punchThroughFactor = cms.double( 3.0 ),
@@ -25538,7 +25732,25 @@ fragment.hltParticleFlowClusterECALUncorrectedForMuons = cms.EDProducer( "PFClus
         logWeightDenominator = cms.double( 0.08 ),
         minAllowedNormalization = cms.double( 1.0E-9 ),
         posCalcNCrystals = cms.int32( 9 ),
-        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
+        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" ),
+        timeResolutionCalcBarrel = cms.PSet( 
+          constantTerm = cms.double( 0.428192 ),
+          constantTermLowE = cms.double( 0.0 ),
+          corrTermLowE = cms.double( 0.0510871 ),
+          noiseTerm = cms.double( 1.10889 ),
+          noiseTermLowE = cms.double( 1.31883 ),
+          threshHighE = cms.double( 5.0 ),
+          threshLowE = cms.double( 0.5 )
+        ),
+        timeResolutionCalcEndcap = cms.PSet( 
+          constantTerm = cms.double( 0.0 ),
+          constantTermLowE = cms.double( 0.0 ),
+          corrTermLowE = cms.double( 0.0 ),
+          noiseTerm = cms.double( 5.72489999999 ),
+          noiseTermLowE = cms.double( 6.92683000001 ),
+          threshHighE = cms.double( 10.0 ),
+          threshLowE = cms.double( 1.0 )
+        )
       ),
       minFracTot = cms.double( 1.0E-20 ),
       positionCalcForConvergence = cms.PSet( 
@@ -25570,7 +25782,25 @@ fragment.hltParticleFlowClusterECALUncorrectedForMuons = cms.EDProducer( "PFClus
         logWeightDenominator = cms.double( 0.08 ),
         minAllowedNormalization = cms.double( 1.0E-9 ),
         posCalcNCrystals = cms.int32( -1 ),
-        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
+        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" ),
+        timeResolutionCalcBarrel = cms.PSet( 
+          constantTerm = cms.double( 0.428192 ),
+          constantTermLowE = cms.double( 0.0 ),
+          corrTermLowE = cms.double( 0.0510871 ),
+          noiseTerm = cms.double( 1.10889 ),
+          noiseTermLowE = cms.double( 1.31883 ),
+          threshHighE = cms.double( 5.0 ),
+          threshLowE = cms.double( 0.5 )
+        ),
+        timeResolutionCalcEndcap = cms.PSet( 
+          constantTerm = cms.double( 0.0 ),
+          constantTermLowE = cms.double( 0.0 ),
+          corrTermLowE = cms.double( 0.0 ),
+          noiseTerm = cms.double( 5.72489999999 ),
+          noiseTermLowE = cms.double( 6.92683000001 ),
+          threshHighE = cms.double( 10.0 ),
+          threshLowE = cms.double( 1.0 )
+        )
       )
     ),
     positionReCalc = cms.PSet( 
@@ -25749,6 +25979,36 @@ fragment.hltRegionalTowerForMuons = cms.EDProducer( "EgammaHLTCaloTowerProducer"
     useTowersInCone = cms.double( 0.8 ),
     towerCollection = cms.InputTag( "hltTowerMakerForAll" )
 )
+fragment.hltParticleFlowRecHitHBHEForMuons = cms.EDProducer( "PFRecHitProducer",
+    producers = cms.VPSet( 
+      cms.PSet(  name = cms.string( "PFHBHERecHitCreator" ),
+        qualityTests = cms.VPSet( 
+          cms.PSet(  name = cms.string( "PFRecHitQTestThreshold" ),
+            threshold = cms.double( 0.8 )
+          ),
+          cms.PSet(  cleaningThresholds = cms.vdouble( 0.0 ),
+            flags = cms.vstring( 'Standard' ),
+            maxSeverities = cms.vint32( 11 ),
+            name = cms.string( "PFRecHitQTestHCALChannel" )
+          )
+        ),
+        src = cms.InputTag( "hltHbhereco" )
+      )
+    ),
+    navigator = cms.PSet( 
+      name = cms.string( "PFRecHitHCALNavigator" ),
+      sigmaCut = cms.double( 4.0 ),
+      timeResolutionCalc = cms.PSet( 
+        constantTerm = cms.double( 1.92 ),
+        constantTermLowE = cms.double( 6.0 ),
+        corrTermLowE = cms.double( 0.0 ),
+        noiseTerm = cms.double( 8.64 ),
+        noiseTermLowE = cms.double( 0.0 ),
+        threshHighE = cms.double( 8.0 ),
+        threshLowE = cms.double( 2.0 )
+      )
+    )
+)
 fragment.hltParticleFlowRecHitHCALForMuons = cms.EDProducer( "PFCTRecHitProducer",
     ECAL_Compensate = cms.bool( False ),
     ECAL_Dead_Code = cms.uint32( 10 ),
@@ -25787,7 +26047,7 @@ fragment.hltParticleFlowRecHitHCALForMuons = cms.EDProducer( "PFCTRecHitProducer
     ShortFibre_Fraction = cms.double( 0.01 ),
     HCAL_Calib_29 = cms.double( 1.35 )
 )
-fragment.hltParticleFlowClusterHCALForMuons = cms.EDProducer( "PFClusterProducer",
+fragment.hltParticleFlowClusterHBHEForMuons = cms.EDProducer( "PFClusterProducer",
     pfClusterBuilder = cms.PSet( 
       positionCalc = cms.PSet( 
         minFractionInCalc = cms.double( 1.0E-9 ),
@@ -25817,7 +26077,30 @@ fragment.hltParticleFlowClusterHCALForMuons = cms.EDProducer( "PFClusterProducer
         minAllowedNormalization = cms.double( 1.0E-9 ),
         posCalcNCrystals = cms.int32( -1 ),
         algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
-      )
+      ),
+      clusterTimeResFromSeed = cms.bool( False ),
+      maxNSigmaTime = cms.double( 10.0 ),
+      minChi2Prob = cms.double( 0.0 ),
+      timeResolutionCalcBarrel = cms.PSet( 
+        constantTerm = cms.double( 2.82 ),
+        constantTermLowE = cms.double( 4.24 ),
+        corrTermLowE = cms.double( 0.0 ),
+        noiseTerm = cms.double( 21.86 ),
+        noiseTermLowE = cms.double( 8.0 ),
+        threshHighE = cms.double( 15.0 ),
+        threshLowE = cms.double( 6.0 )
+      ),
+      timeResolutionCalcEndcap = cms.PSet( 
+        constantTerm = cms.double( 2.82 ),
+        constantTermLowE = cms.double( 4.24 ),
+        corrTermLowE = cms.double( 0.0 ),
+        noiseTerm = cms.double( 21.86 ),
+        noiseTermLowE = cms.double( 8.0 ),
+        threshHighE = cms.double( 15.0 ),
+        threshLowE = cms.double( 6.0 )
+      ),
+      timeSigmaEB = cms.double( 10.0 ),
+      timeSigmaEE = cms.double( 10.0 )
     ),
     positionReCalc = cms.PSet(  ),
     initialClusteringStep = cms.PSet( 
@@ -25836,12 +26119,11 @@ fragment.hltParticleFlowClusterHCALForMuons = cms.EDProducer( "PFClusterProducer
     ),
     energyCorrector = cms.PSet(  ),
     recHitCleaners = cms.VPSet( 
-      cms.PSet(  algoName = cms.string( "RBXAndHPDCleaner" )      )
     ),
     seedFinder = cms.PSet( 
       nNeighbours = cms.int32( 4 ),
       thresholdsByDetector = cms.VPSet( 
-        cms.PSet(  seedingThreshold = cms.double( 0.8 ),
+        cms.PSet(  seedingThreshold = cms.double( 1.0 ),
           seedingThresholdPt = cms.double( 0.0 ),
           detector = cms.string( "HCAL_BARREL1" )
         ),
@@ -25852,7 +26134,25 @@ fragment.hltParticleFlowClusterHCALForMuons = cms.EDProducer( "PFClusterProducer
       ),
       algoName = cms.string( "LocalMaximumSeedFinder" )
     ),
-    recHitsSource = cms.InputTag( "hltParticleFlowRecHitHCALForMuons" )
+    recHitsSource = cms.InputTag( "hltParticleFlowRecHitHBHEForMuons" )
+)
+fragment.hltParticleFlowClusterHCALForMuons = cms.EDProducer( "PFMultiDepthClusterProducer",
+    pfClusterBuilder = cms.PSet( 
+      nSigmaEta = cms.double( 2.0 ),
+      nSigmaPhi = cms.double( 2.0 ),
+      algoName = cms.string( "PFMultiDepthClusterizer" ),
+      allCellsPositionCalc = cms.PSet( 
+        minAllowedNormalization = cms.double( 1.0E-9 ),
+        minFractionInCalc = cms.double( 1.0E-9 ),
+        logWeightDenominator = cms.double( 0.8 ),
+        posCalcNCrystals = cms.int32( -1 ),
+        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
+      ),
+      minFractionToKeep = cms.double( 1.0E-7 )
+    ),
+    energyCorrector = cms.PSet(  ),
+    positionReCalc = cms.PSet(  ),
+    clustersSource = cms.InputTag( "hltParticleFlowClusterHBHEForMuons" )
 )
 fragment.hltMuonHcalPFClusterIsoForMuons = cms.EDProducer( "MuonHLTHcalPFClusterIsolationProducer",
     energyEndcap = cms.double( 0.0 ),
@@ -28478,7 +28778,25 @@ fragment.hltParticleFlowClusterECALUncorrectedForTkMuons = cms.EDProducer( "PFCl
         logWeightDenominator = cms.double( 0.08 ),
         minAllowedNormalization = cms.double( 1.0E-9 ),
         posCalcNCrystals = cms.int32( 9 ),
-        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
+        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" ),
+        timeResolutionCalcBarrel = cms.PSet( 
+          constantTerm = cms.double( 0.428192 ),
+          constantTermLowE = cms.double( 0.0 ),
+          corrTermLowE = cms.double( 0.0510871 ),
+          noiseTerm = cms.double( 1.10889 ),
+          noiseTermLowE = cms.double( 1.31883 ),
+          threshHighE = cms.double( 5.0 ),
+          threshLowE = cms.double( 0.5 )
+        ),
+        timeResolutionCalcEndcap = cms.PSet( 
+          constantTerm = cms.double( 0.0 ),
+          constantTermLowE = cms.double( 0.0 ),
+          corrTermLowE = cms.double( 0.0 ),
+          noiseTerm = cms.double( 5.72489999999 ),
+          noiseTermLowE = cms.double( 6.92683000001 ),
+          threshHighE = cms.double( 10.0 ),
+          threshLowE = cms.double( 1.0 )
+        )
       ),
       minFracTot = cms.double( 1.0E-20 ),
       positionCalcForConvergence = cms.PSet( 
@@ -28510,7 +28828,25 @@ fragment.hltParticleFlowClusterECALUncorrectedForTkMuons = cms.EDProducer( "PFCl
         logWeightDenominator = cms.double( 0.08 ),
         minAllowedNormalization = cms.double( 1.0E-9 ),
         posCalcNCrystals = cms.int32( -1 ),
-        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
+        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" ),
+        timeResolutionCalcBarrel = cms.PSet( 
+          constantTerm = cms.double( 0.428192 ),
+          constantTermLowE = cms.double( 0.0 ),
+          corrTermLowE = cms.double( 0.0510871 ),
+          noiseTerm = cms.double( 1.10889 ),
+          noiseTermLowE = cms.double( 1.31883 ),
+          threshHighE = cms.double( 5.0 ),
+          threshLowE = cms.double( 0.5 )
+        ),
+        timeResolutionCalcEndcap = cms.PSet( 
+          constantTerm = cms.double( 0.0 ),
+          constantTermLowE = cms.double( 0.0 ),
+          corrTermLowE = cms.double( 0.0 ),
+          noiseTerm = cms.double( 5.72489999999 ),
+          noiseTermLowE = cms.double( 6.92683000001 ),
+          threshHighE = cms.double( 10.0 ),
+          threshLowE = cms.double( 1.0 )
+        )
       )
     ),
     positionReCalc = cms.PSet( 
@@ -28689,6 +29025,36 @@ fragment.hltRegionalTowerForTkMuons = cms.EDProducer( "EgammaHLTCaloTowerProduce
     useTowersInCone = cms.double( 0.8 ),
     towerCollection = cms.InputTag( "hltTowerMakerForAll" )
 )
+fragment.hltParticleFlowRecHitHBHEForTkMuons = cms.EDProducer( "PFRecHitProducer",
+    producers = cms.VPSet( 
+      cms.PSet(  name = cms.string( "PFHBHERecHitCreator" ),
+        qualityTests = cms.VPSet( 
+          cms.PSet(  name = cms.string( "PFRecHitQTestThreshold" ),
+            threshold = cms.double( 0.8 )
+          ),
+          cms.PSet(  cleaningThresholds = cms.vdouble( 0.0 ),
+            flags = cms.vstring( 'Standard' ),
+            maxSeverities = cms.vint32( 11 ),
+            name = cms.string( "PFRecHitQTestHCALChannel" )
+          )
+        ),
+        src = cms.InputTag( "hltHbhereco" )
+      )
+    ),
+    navigator = cms.PSet( 
+      name = cms.string( "PFRecHitHCALNavigator" ),
+      sigmaCut = cms.double( 4.0 ),
+      timeResolutionCalc = cms.PSet( 
+        constantTerm = cms.double( 1.92 ),
+        constantTermLowE = cms.double( 6.0 ),
+        corrTermLowE = cms.double( 0.0 ),
+        noiseTerm = cms.double( 8.64 ),
+        noiseTermLowE = cms.double( 0.0 ),
+        threshHighE = cms.double( 8.0 ),
+        threshLowE = cms.double( 2.0 )
+      )
+    )
+)
 fragment.hltParticleFlowRecHitHCALForTkMuons = cms.EDProducer( "PFCTRecHitProducer",
     ECAL_Compensate = cms.bool( False ),
     ECAL_Dead_Code = cms.uint32( 10 ),
@@ -28727,7 +29093,7 @@ fragment.hltParticleFlowRecHitHCALForTkMuons = cms.EDProducer( "PFCTRecHitProduc
     ShortFibre_Fraction = cms.double( 0.01 ),
     HCAL_Calib_29 = cms.double( 1.35 )
 )
-fragment.hltParticleFlowClusterHCALForTkMuons = cms.EDProducer( "PFClusterProducer",
+fragment.hltParticleFlowClusterHBHEForTkMuons = cms.EDProducer( "PFClusterProducer",
     pfClusterBuilder = cms.PSet( 
       positionCalc = cms.PSet( 
         minFractionInCalc = cms.double( 1.0E-9 ),
@@ -28757,7 +29123,30 @@ fragment.hltParticleFlowClusterHCALForTkMuons = cms.EDProducer( "PFClusterProduc
         minAllowedNormalization = cms.double( 1.0E-9 ),
         posCalcNCrystals = cms.int32( -1 ),
         algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
-      )
+      ),
+      clusterTimeResFromSeed = cms.bool( False ),
+      maxNSigmaTime = cms.double( 10.0 ),
+      minChi2Prob = cms.double( 0.0 ),
+      timeResolutionCalcBarrel = cms.PSet( 
+        constantTerm = cms.double( 2.82 ),
+        constantTermLowE = cms.double( 4.24 ),
+        corrTermLowE = cms.double( 0.0 ),
+        noiseTerm = cms.double( 21.86 ),
+        noiseTermLowE = cms.double( 8.0 ),
+        threshHighE = cms.double( 15.0 ),
+        threshLowE = cms.double( 6.0 )
+      ),
+      timeResolutionCalcEndcap = cms.PSet( 
+        constantTerm = cms.double( 2.82 ),
+        constantTermLowE = cms.double( 4.24 ),
+        corrTermLowE = cms.double( 0.0 ),
+        noiseTerm = cms.double( 21.86 ),
+        noiseTermLowE = cms.double( 8.0 ),
+        threshHighE = cms.double( 15.0 ),
+        threshLowE = cms.double( 6.0 )
+      ),
+      timeSigmaEB = cms.double( 10.0 ),
+      timeSigmaEE = cms.double( 10.0 )
     ),
     positionReCalc = cms.PSet(  ),
     initialClusteringStep = cms.PSet( 
@@ -28776,12 +29165,11 @@ fragment.hltParticleFlowClusterHCALForTkMuons = cms.EDProducer( "PFClusterProduc
     ),
     energyCorrector = cms.PSet(  ),
     recHitCleaners = cms.VPSet( 
-      cms.PSet(  algoName = cms.string( "RBXAndHPDCleaner" )      )
     ),
     seedFinder = cms.PSet( 
       nNeighbours = cms.int32( 4 ),
       thresholdsByDetector = cms.VPSet( 
-        cms.PSet(  seedingThreshold = cms.double( 0.8 ),
+        cms.PSet(  seedingThreshold = cms.double( 1.0 ),
           seedingThresholdPt = cms.double( 0.0 ),
           detector = cms.string( "HCAL_BARREL1" )
         ),
@@ -28792,7 +29180,25 @@ fragment.hltParticleFlowClusterHCALForTkMuons = cms.EDProducer( "PFClusterProduc
       ),
       algoName = cms.string( "LocalMaximumSeedFinder" )
     ),
-    recHitsSource = cms.InputTag( "hltParticleFlowRecHitHCALForTkMuons" )
+    recHitsSource = cms.InputTag( "hltParticleFlowRecHitHBHEForTkMuons" )
+)
+fragment.hltParticleFlowClusterHCALForTkMuons = cms.EDProducer( "PFMultiDepthClusterProducer",
+    pfClusterBuilder = cms.PSet( 
+      nSigmaEta = cms.double( 2.0 ),
+      nSigmaPhi = cms.double( 2.0 ),
+      algoName = cms.string( "PFMultiDepthClusterizer" ),
+      allCellsPositionCalc = cms.PSet( 
+        minAllowedNormalization = cms.double( 1.0E-9 ),
+        minFractionInCalc = cms.double( 1.0E-9 ),
+        logWeightDenominator = cms.double( 0.8 ),
+        posCalcNCrystals = cms.int32( -1 ),
+        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
+      ),
+      minFractionToKeep = cms.double( 1.0E-7 )
+    ),
+    energyCorrector = cms.PSet(  ),
+    positionReCalc = cms.PSet(  ),
+    clustersSource = cms.InputTag( "hltParticleFlowClusterHBHEForTkMuons" )
 )
 fragment.hltHighPtTkMuonHcalPFClusterIsoForMuons = cms.EDProducer( "MuonHLTHcalPFClusterIsolationProducer",
     energyEndcap = cms.double( 0.0 ),
@@ -39306,6 +39712,36 @@ fragment.hltEG16Iso50T80LCaloId24b40eHE10R9Id65EcalIsoUnseededFilter = cms.EDFil
     candTag = cms.InputTag( "hltEG16CaloId24b40eHE10R9Id65ClusterShapeUnseededFilter" ),
     nonIsoTag = cms.InputTag( "" )
 )
+fragment.hltParticleFlowRecHitHBHEForEgammaUnseeded = cms.EDProducer( "PFRecHitProducer",
+    producers = cms.VPSet( 
+      cms.PSet(  name = cms.string( "PFHBHERecHitCreator" ),
+        qualityTests = cms.VPSet( 
+          cms.PSet(  name = cms.string( "PFRecHitQTestThreshold" ),
+            threshold = cms.double( 0.8 )
+          ),
+          cms.PSet(  cleaningThresholds = cms.vdouble( 0.0 ),
+            flags = cms.vstring( 'Standard' ),
+            maxSeverities = cms.vint32( 11 ),
+            name = cms.string( "PFRecHitQTestHCALChannel" )
+          )
+        ),
+        src = cms.InputTag( "hltHbhereco" )
+      )
+    ),
+    navigator = cms.PSet( 
+      name = cms.string( "PFRecHitHCALNavigator" ),
+      sigmaCut = cms.double( 4.0 ),
+      timeResolutionCalc = cms.PSet( 
+        constantTerm = cms.double( 1.92 ),
+        constantTermLowE = cms.double( 6.0 ),
+        corrTermLowE = cms.double( 0.0 ),
+        noiseTerm = cms.double( 8.64 ),
+        noiseTermLowE = cms.double( 0.0 ),
+        threshHighE = cms.double( 8.0 ),
+        threshLowE = cms.double( 2.0 )
+      )
+    )
+)
 fragment.hltParticleFlowRecHitHCALForEgammaUnseeded = cms.EDProducer( "PFCTRecHitProducer",
     ECAL_Compensate = cms.bool( False ),
     ECAL_Dead_Code = cms.uint32( 10 ),
@@ -39344,7 +39780,46 @@ fragment.hltParticleFlowRecHitHCALForEgammaUnseeded = cms.EDProducer( "PFCTRecHi
     ShortFibre_Fraction = cms.double( 0.01 ),
     HCAL_Calib_29 = cms.double( 1.35 )
 )
-fragment.hltParticleFlowClusterHCALForEgammaUnseeded = cms.EDProducer( "PFClusterProducer",
+fragment.hltParticleFlowRecHitHFForEgammaUnseeded = cms.EDProducer( "PFRecHitProducer",
+    producers = cms.VPSet( 
+      cms.PSet(  EMDepthCorrection = cms.double( 22.0 ),
+        HADDepthCorrection = cms.double( 25.0 ),
+        HFCalib29 = cms.double( 1.07 ),
+        LongFibre_Cut = cms.double( 120.0 ),
+        LongFibre_Fraction = cms.double( 0.1 ),
+        ShortFibre_Cut = cms.double( 60.0 ),
+        ShortFibre_Fraction = cms.double( 0.01 ),
+        name = cms.string( "PFHFRecHitCreator" ),
+        qualityTests = cms.VPSet( 
+          cms.PSet(  cleaningThresholds = cms.vdouble( 0.0, 120.0, 60.0 ),
+            flags = cms.vstring( 'Standard',
+              'HFLong',
+              'HFShort' ),
+            maxSeverities = cms.vint32( 11, 9, 9 ),
+            name = cms.string( "PFRecHitQTestHCALChannel" )
+          ),
+          cms.PSet(  cuts = cms.VPSet( 
+  cms.PSet(  depth = cms.int32( 1 ),
+    threshold = cms.double( 1.2 )
+  ),
+  cms.PSet(  depth = cms.int32( 2 ),
+    threshold = cms.double( 1.8 )
+  )
+),
+            name = cms.string( "PFRecHitQTestHCALThresholdVsDepth" )
+          )
+        ),
+        src = cms.InputTag( "hltHfreco" ),
+        thresh_HF = cms.double( 0.4 )
+      )
+    ),
+    navigator = cms.PSet( 
+      name = cms.string( "PFRecHitHCALNavigator" ),
+      barrel = cms.PSet(  ),
+      endcap = cms.PSet(  )
+    )
+)
+fragment.hltParticleFlowClusterHBHEForEgammaUnseeded = cms.EDProducer( "PFClusterProducer",
     pfClusterBuilder = cms.PSet( 
       positionCalc = cms.PSet( 
         minFractionInCalc = cms.double( 1.0E-9 ),
@@ -39374,7 +39849,30 @@ fragment.hltParticleFlowClusterHCALForEgammaUnseeded = cms.EDProducer( "PFCluste
         minAllowedNormalization = cms.double( 1.0E-9 ),
         posCalcNCrystals = cms.int32( -1 ),
         algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
-      )
+      ),
+      clusterTimeResFromSeed = cms.bool( False ),
+      maxNSigmaTime = cms.double( 10.0 ),
+      minChi2Prob = cms.double( 0.0 ),
+      timeResolutionCalcBarrel = cms.PSet( 
+        constantTerm = cms.double( 2.82 ),
+        constantTermLowE = cms.double( 4.24 ),
+        corrTermLowE = cms.double( 0.0 ),
+        noiseTerm = cms.double( 21.86 ),
+        noiseTermLowE = cms.double( 8.0 ),
+        threshHighE = cms.double( 15.0 ),
+        threshLowE = cms.double( 6.0 )
+      ),
+      timeResolutionCalcEndcap = cms.PSet( 
+        constantTerm = cms.double( 2.82 ),
+        constantTermLowE = cms.double( 4.24 ),
+        corrTermLowE = cms.double( 0.0 ),
+        noiseTerm = cms.double( 21.86 ),
+        noiseTermLowE = cms.double( 8.0 ),
+        threshHighE = cms.double( 15.0 ),
+        threshLowE = cms.double( 6.0 )
+      ),
+      timeSigmaEB = cms.double( 10.0 ),
+      timeSigmaEE = cms.double( 10.0 )
     ),
     positionReCalc = cms.PSet(  ),
     initialClusteringStep = cms.PSet( 
@@ -39393,12 +39891,11 @@ fragment.hltParticleFlowClusterHCALForEgammaUnseeded = cms.EDProducer( "PFCluste
     ),
     energyCorrector = cms.PSet(  ),
     recHitCleaners = cms.VPSet( 
-      cms.PSet(  algoName = cms.string( "RBXAndHPDCleaner" )      )
     ),
     seedFinder = cms.PSet( 
       nNeighbours = cms.int32( 4 ),
       thresholdsByDetector = cms.VPSet( 
-        cms.PSet(  seedingThreshold = cms.double( 0.8 ),
+        cms.PSet(  seedingThreshold = cms.double( 1.0 ),
           seedingThresholdPt = cms.double( 0.0 ),
           detector = cms.string( "HCAL_BARREL1" )
         ),
@@ -39409,7 +39906,113 @@ fragment.hltParticleFlowClusterHCALForEgammaUnseeded = cms.EDProducer( "PFCluste
       ),
       algoName = cms.string( "LocalMaximumSeedFinder" )
     ),
-    recHitsSource = cms.InputTag( "hltParticleFlowRecHitHCALForEgammaUnseeded" )
+    recHitsSource = cms.InputTag( "hltParticleFlowRecHitHBHEForEgammaUnseeded" )
+)
+fragment.hltParticleFlowClusterHCALForEgammaUnseeded = cms.EDProducer( "PFMultiDepthClusterProducer",
+    pfClusterBuilder = cms.PSet( 
+      nSigmaEta = cms.double( 2.0 ),
+      nSigmaPhi = cms.double( 2.0 ),
+      algoName = cms.string( "PFMultiDepthClusterizer" ),
+      allCellsPositionCalc = cms.PSet( 
+        minAllowedNormalization = cms.double( 1.0E-9 ),
+        minFractionInCalc = cms.double( 1.0E-9 ),
+        logWeightDenominator = cms.double( 0.8 ),
+        posCalcNCrystals = cms.int32( -1 ),
+        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
+      ),
+      minFractionToKeep = cms.double( 1.0E-7 )
+    ),
+    energyCorrector = cms.PSet(  ),
+    positionReCalc = cms.PSet(  ),
+    clustersSource = cms.InputTag( "hltParticleFlowClusterHBHEForEgammaUnseeded" )
+)
+fragment.hltParticleFlowClusterHFForEgammaUnseeded = cms.EDProducer( "PFClusterProducer",
+    pfClusterBuilder = cms.PSet( 
+      positionCalc = cms.PSet( 
+        minFractionInCalc = cms.double( 1.0E-9 ),
+        logWeightDenominator = cms.double( 0.8 ),
+        minAllowedNormalization = cms.double( 1.0E-9 ),
+        posCalcNCrystals = cms.int32( 5 ),
+        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
+      ),
+      minFracTot = cms.double( 1.0E-20 ),
+      maxIterations = cms.uint32( 50 ),
+      stoppingTolerance = cms.double( 1.0E-8 ),
+      minFractionToKeep = cms.double( 1.0E-7 ),
+      excludeOtherSeeds = cms.bool( True ),
+      showerSigma = cms.double( 10.0 ),
+      recHitEnergyNorms = cms.VPSet( 
+        cms.PSet(  detector = cms.string( "HF_EM" ),
+          recHitEnergyNorm = cms.double( 0.8 )
+        ),
+        cms.PSet(  detector = cms.string( "HF_HAD" ),
+          recHitEnergyNorm = cms.double( 0.8 )
+        )
+      ),
+      algoName = cms.string( "Basic2DGenericPFlowClusterizer" ),
+      allCellsPositionCalc = cms.PSet( 
+        minFractionInCalc = cms.double( 1.0E-9 ),
+        logWeightDenominator = cms.double( 0.8 ),
+        minAllowedNormalization = cms.double( 1.0E-9 ),
+        posCalcNCrystals = cms.int32( -1 ),
+        algoName = cms.string( "Basic2DGenericPFlowPositionCalc" )
+      )
+    ),
+    positionReCalc = cms.PSet(  ),
+    initialClusteringStep = cms.PSet( 
+      thresholdsByDetector = cms.VPSet( 
+        cms.PSet(  gatheringThreshold = cms.double( 0.8 ),
+          detector = cms.string( "HF_EM" ),
+          gatheringThresholdPt = cms.double( 0.0 )
+        ),
+        cms.PSet(  detector = cms.string( "HF_HAD" ),
+          gatheringThreshold = cms.double( 0.8 ),
+          gatheringThresholdPt = cms.double( 0.0 )
+        )
+      ),
+      useCornerCells = cms.bool( False ),
+      algoName = cms.string( "Basic2DGenericTopoClusterizer" )
+    ),
+    energyCorrector = cms.PSet(  ),
+    recHitCleaners = cms.VPSet( 
+      cms.PSet(  cleaningByDetector = cms.VPSet( 
+  cms.PSet(  doubleSpikeS6S2 = cms.double( -1.0 ),
+    fractionThresholdModifier = cms.double( 1.0 ),
+    doubleSpikeThresh = cms.double( 1.0E9 ),
+    minS4S1_b = cms.double( -0.19 ),
+    singleSpikeThresh = cms.double( 80.0 ),
+    detector = cms.string( "HF_EM" ),
+    minS4S1_a = cms.double( 0.11 ),
+    energyThresholdModifier = cms.double( 1.0 )
+  ),
+  cms.PSet(  detector = cms.string( "HF_HAD" ),
+    doubleSpikeS6S2 = cms.double( -1.0 ),
+    doubleSpikeThresh = cms.double( 1.0E9 ),
+    energyThresholdModifier = cms.double( 1.0 ),
+    fractionThresholdModifier = cms.double( 1.0 ),
+    minS4S1_a = cms.double( 0.045 ),
+    minS4S1_b = cms.double( -0.08 ),
+    singleSpikeThresh = cms.double( 120.0 )
+  )
+),
+        algoName = cms.string( "SpikeAndDoubleSpikeCleaner" )
+      )
+    ),
+    seedFinder = cms.PSet( 
+      nNeighbours = cms.int32( 0 ),
+      thresholdsByDetector = cms.VPSet( 
+        cms.PSet(  seedingThreshold = cms.double( 1.4 ),
+          seedingThresholdPt = cms.double( 0.0 ),
+          detector = cms.string( "HF_EM" )
+        ),
+        cms.PSet(  detector = cms.string( "HF_HAD" ),
+          seedingThreshold = cms.double( 1.4 ),
+          seedingThresholdPt = cms.double( 0.0 )
+        )
+      ),
+      algoName = cms.string( "LocalMaximumSeedFinder" )
+    ),
+    recHitsSource = cms.InputTag( "hltParticleFlowRecHitHFForEgammaUnseeded" )
 )
 fragment.hltEgammaHcalPFClusterIsoUnseeded = cms.EDProducer( "EgammaHLTHcalPFClusterIsolationProducer",
     energyEndcap = cms.double( 0.0 ),
@@ -72263,7 +72866,7 @@ fragment.HLTIterativeTrackingIteration2 = cms.Sequence( fragment.hltIter2Cluster
 fragment.HLTIterativeTrackingIter02 = cms.Sequence( fragment.HLTIterativeTrackingIteration0 + fragment.HLTIter0TrackAndTauJet4Iter1Sequence + fragment.HLTIterativeTrackingIteration1 + fragment.hltIter1Merged + fragment.HLTIter1TrackAndTauJets4Iter2Sequence + fragment.HLTIterativeTrackingIteration2 + fragment.hltIter2Merged )
 fragment.HLTTrackReconstructionForPF = cms.Sequence( fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingSequence + fragment.HLTDoLocalStripSequence + fragment.HLTIterativeTrackingIter02 + fragment.hltPFMuonMerging + fragment.hltMuonLinks + fragment.hltMuons )
 fragment.HLTPreshowerSequence = cms.Sequence( fragment.hltEcalPreshowerDigis + fragment.hltEcalPreshowerRecHit )
-fragment.HLTParticleFlowSequence = cms.Sequence( fragment.HLTPreshowerSequence + fragment.hltParticleFlowRecHitECALUnseeded + fragment.hltParticleFlowRecHitHCAL + fragment.hltParticleFlowRecHitPSUnseeded + fragment.hltParticleFlowClusterECALUncorrectedUnseeded + fragment.hltParticleFlowClusterPSUnseeded + fragment.hltParticleFlowClusterECALUnseeded + fragment.hltParticleFlowClusterHCAL + fragment.hltParticleFlowClusterHFEM + fragment.hltParticleFlowClusterHFHAD + fragment.hltLightPFTracks + fragment.hltParticleFlowBlock + fragment.hltParticleFlow )
+fragment.HLTParticleFlowSequence = cms.Sequence( fragment.HLTPreshowerSequence + fragment.hltParticleFlowRecHitECALUnseeded + fragment.hltParticleFlowRecHitHBHE + fragment.hltParticleFlowRecHitHCAL + fragment.hltParticleFlowRecHitHF + fragment.hltParticleFlowRecHitPSUnseeded + fragment.hltParticleFlowClusterECALUncorrectedUnseeded + fragment.hltParticleFlowClusterPSUnseeded + fragment.hltParticleFlowClusterECALUnseeded + fragment.hltParticleFlowClusterHBHE + fragment.hltParticleFlowClusterHCAL + fragment.hltParticleFlowClusterHF + fragment.hltLightPFTracks + fragment.hltParticleFlowBlock + fragment.hltParticleFlow )
 fragment.HLTAK8PFJetsReconstructionSequence = cms.Sequence( fragment.HLTL2muonrecoSequence + fragment.HLTL3muonrecoSequence + fragment.HLTTrackReconstructionForPF + fragment.HLTParticleFlowSequence + fragment.hltAK8PFJets + fragment.hltAK8PFJetsLooseID + fragment.hltAK8PFJetsTightID )
 fragment.HLTAK8PFCorrectorProducersSequence = cms.Sequence( fragment.hltAK8PFFastJetCorrector + fragment.hltAK8PFRelativeCorrector + fragment.hltAK8PFAbsoluteCorrector + fragment.hltAK8PFCorrector )
 fragment.HLTAK8PFJetsCorrectionSequence = cms.Sequence( fragment.hltFixedGridRhoFastjetAll + fragment.HLTAK8PFCorrectorProducersSequence + fragment.hltAK8PFJetsCorrected + fragment.hltAK8PFJetsLooseIDCorrected + fragment.hltAK8PFJetsTightIDCorrected )
@@ -72288,7 +72891,7 @@ fragment.HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence( fragment.hltEcalDi
 fragment.HLTPFClusteringForEgamma = cms.Sequence( fragment.hltRechitInRegionsECAL + fragment.hltRechitInRegionsES + fragment.hltParticleFlowRecHitECALL1Seeded + fragment.hltParticleFlowRecHitPSL1Seeded + fragment.hltParticleFlowClusterPSL1Seeded + fragment.hltParticleFlowClusterECALUncorrectedL1Seeded + fragment.hltParticleFlowClusterECALL1Seeded + fragment.hltParticleFlowSuperClusterECALL1Seeded )
 fragment.HLTDoLocalHcalWithTowerSequence = cms.Sequence( fragment.hltHcalDigis + fragment.hltHbhereco + fragment.hltHfreco + fragment.hltHoreco + fragment.hltTowerMakerForAll )
 fragment.HLTFastJetForEgamma = cms.Sequence( fragment.hltFixedGridRhoFastjetAllCaloForMuons )
-fragment.HLTPFHcalClusteringForEgamma = cms.Sequence( fragment.hltRegionalTowerForEgamma + fragment.hltParticleFlowRecHitHCALForEgamma + fragment.hltParticleFlowClusterHCALForEgamma )
+fragment.HLTPFHcalClusteringForEgamma = cms.Sequence( fragment.hltRegionalTowerForEgamma + fragment.hltParticleFlowRecHitHBHEForEgamma + fragment.hltParticleFlowRecHitHCALForEgamma + fragment.hltParticleFlowClusterHBHEForEgamma + fragment.hltParticleFlowClusterHCALForEgamma )
 fragment.HLTGsfElectronSequence = cms.Sequence( fragment.hltEgammaCkfTrackCandidatesForGSF + fragment.hltEgammaGsfTracks + fragment.hltEgammaGsfElectrons + fragment.hltEgammaGsfTrackVars )
 fragment.HLTRecoPixelVertexingForElectronSequence = cms.Sequence( fragment.hltPixelLayerTriplets + fragment.hltPixelTracksElectrons + fragment.hltPixelVerticesElectrons )
 fragment.HLTPixelTrackingForElectron = cms.Sequence( fragment.hltElectronsVertex + fragment.HLTDoLocalPixelSequence + fragment.HLTRecoPixelVertexingForElectronSequence )
@@ -72324,12 +72927,12 @@ fragment.HLTIter1TrackAndTauJet4Iter2ForTauSequence = cms.Sequence( fragment.hlt
 fragment.HLTIterativeTrackingForTauIteration2 = cms.Sequence( fragment.hltIter2ClustersRefRemovalForTau + fragment.hltIter2MaskedMeasurementTrackerEventForTau + fragment.hltIter2PixelLayerPairsForTau + fragment.hltIter2PFlowPixelSeedsForTau + fragment.hltIter2PFlowCkfTrackCandidatesForTau + fragment.hltIter2PFlowCtfWithMaterialTracksForTau + fragment.hltIter2PFlowTrackSelectionHighPurityForTau )
 fragment.HLTIterativeTrackingForTauIter02 = cms.Sequence( fragment.HLTIterativeTrackingForTauIteration0 + fragment.HLTIter0TrackAndTauJet4Iter1ForTauSequence + fragment.HLTIterativeTrackingForTauIteration1 + fragment.hltIter1MergedForTau + fragment.HLTIter1TrackAndTauJet4Iter2ForTauSequence + fragment.HLTIterativeTrackingForTauIteration2 + fragment.hltIter2MergedForTau )
 fragment.HLTTrackReconstructionForPFReg = cms.Sequence( fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingSequence + fragment.hltPixelLayerTriplets + fragment.hltPixelTracksHybrid + fragment.HLTDoLocalStripSequence + fragment.HLTIterativeTrackingForTauIter02 + fragment.hltPFMuonForTauMerging + fragment.hltMuonLinksReg + fragment.hltMuonsReg )
-fragment.HLTParticleFlowSequenceReg = cms.Sequence( fragment.HLTPreshowerSequence + fragment.hltParticleFlowRecHitECALUnseeded + fragment.hltParticleFlowRecHitHCAL + fragment.hltParticleFlowRecHitPSUnseeded + fragment.hltParticleFlowClusterECALUncorrectedUnseeded + fragment.hltParticleFlowClusterPSUnseeded + fragment.hltParticleFlowClusterECALUnseeded + fragment.hltParticleFlowClusterHCAL + fragment.hltParticleFlowClusterHFEM + fragment.hltParticleFlowClusterHFHAD + fragment.hltLightPFTracksReg + fragment.hltParticleFlowBlockReg + fragment.hltParticleFlowReg )
+fragment.HLTParticleFlowSequenceReg = cms.Sequence( fragment.HLTPreshowerSequence + fragment.hltParticleFlowRecHitECALUnseeded + fragment.hltParticleFlowRecHitHBHE + fragment.hltParticleFlowRecHitHCAL + fragment.hltParticleFlowRecHitHF + fragment.hltParticleFlowRecHitPSUnseeded + fragment.hltParticleFlowClusterECALUncorrectedUnseeded + fragment.hltParticleFlowClusterPSUnseeded + fragment.hltParticleFlowClusterECALUnseeded + fragment.hltParticleFlowClusterHBHE + fragment.hltParticleFlowClusterHCAL + fragment.hltParticleFlowClusterHF + fragment.hltLightPFTracksReg + fragment.hltParticleFlowBlockReg + fragment.hltParticleFlowReg )
 fragment.HLTPFJetsSequenceReg = cms.Sequence( fragment.hltAK4PFJetsReg )
 fragment.HLTPFJetTriggerSequenceRegNoMu = cms.Sequence( fragment.HLTTrackReconstructionForPFReg + fragment.HLTParticleFlowSequenceReg + fragment.HLTPFJetsSequenceReg )
 fragment.HLTPFJetTriggerSequenceReg = cms.Sequence( fragment.HLTL2muonrecoSequence + fragment.HLTL3muonrecoSequence + fragment.HLTPFJetTriggerSequenceRegNoMu )
 fragment.HLTMediumIsoPFTauSequenceReg = cms.Sequence( fragment.hltTauPFJets08RegionReg + fragment.hltTauPFJetsRecoTauChargedHadronsReg + fragment.hltPFTauPiZerosReg + fragment.hltPFTausSansRefReg + fragment.hltPFTausReg + fragment.hltPFTauTrackFindingDiscriminatorReg + fragment.hltPFTauMediumAbsoluteIsolationDiscriminatorReg + fragment.hltPFTauMediumRelativeIsolationDiscriminatorReg + fragment.hltPFTauMediumAbsOrRelIsolationDiscriminatorReg )
-fragment.HLTParticleFlowSequenceForTaus = cms.Sequence( fragment.HLTPreshowerSequence + fragment.hltParticleFlowRecHitECALUnseeded + fragment.hltParticleFlowRecHitHCAL + fragment.hltParticleFlowRecHitPSUnseeded + fragment.hltParticleFlowClusterECALUncorrectedUnseeded + fragment.hltParticleFlowClusterPSUnseeded + fragment.hltParticleFlowClusterECALUnseeded + fragment.hltParticleFlowClusterHCAL + fragment.hltParticleFlowClusterHFEM + fragment.hltParticleFlowClusterHFHAD + fragment.hltLightPFTracks + fragment.hltParticleFlowBlockForTaus + fragment.hltParticleFlowForTaus )
+fragment.HLTParticleFlowSequenceForTaus = cms.Sequence( fragment.HLTPreshowerSequence + fragment.hltParticleFlowRecHitECALUnseeded + fragment.hltParticleFlowRecHitHBHE + fragment.hltParticleFlowRecHitHCAL + fragment.hltParticleFlowRecHitHF + fragment.hltParticleFlowRecHitPSUnseeded + fragment.hltParticleFlowClusterECALUncorrectedUnseeded + fragment.hltParticleFlowClusterPSUnseeded + fragment.hltParticleFlowClusterECALUnseeded + fragment.hltParticleFlowClusterHBHE + fragment.hltParticleFlowClusterHCAL + fragment.hltParticleFlowClusterHF + fragment.hltLightPFTracks + fragment.hltParticleFlowBlockForTaus + fragment.hltParticleFlowForTaus )
 fragment.HLTPFTriggerSequenceForTaus = cms.Sequence( fragment.HLTL2muonrecoSequence + fragment.HLTL3muonrecoSequence + fragment.HLTTrackReconstructionForPF + fragment.HLTParticleFlowSequenceForTaus + fragment.hltAK4PFJetsForTaus )
 fragment.HLTPFReconstructionSequenceForTaus = cms.Sequence( fragment.HLTRecoJetSequenceAK4PrePF + fragment.HLTPFTriggerSequenceForTaus )
 fragment.HLTMediumIsoPFTauSequence = cms.Sequence( fragment.hltTauPFJets08Region + fragment.hltTauPFJetsRecoTauChargedHadrons + fragment.hltPFTauPiZeros + fragment.hltPFTausSansRef + fragment.hltPFTaus + fragment.hltPFTauTrackFindingDiscriminator + fragment.hltPFTauMediumAbsoluteIsolationDiscriminator + fragment.hltPFTauMediumRelativeIsolationDiscriminator + fragment.hltPFTauMediumAbsOrRelIsolationDiscriminator )
@@ -72392,7 +72995,7 @@ fragment.HLTEle45CaloIdVTGsfTrkIdTGsfSequence = cms.Sequence( fragment.HLTDoFull
 fragment.HLTEle105CaloIdVTGsfTrkIdTGsfSequence = cms.Sequence( fragment.HLTDoFullUnpackingEgammaEcalSequence + fragment.HLTPFClusteringForEgamma + fragment.hltEgammaCandidates + fragment.hltEGL1SingleEG40ORL1SingleEG35ORL1SingleJet200Filter + fragment.hltEG105EtFilter + fragment.hltEgammaClusterShape + fragment.hltEG105CaloIdVTClusterShapeFilter + fragment.HLTDoLocalHcalWithTowerSequence + fragment.HLTFastJetForEgamma + fragment.hltEgammaHoverE + fragment.hltEG105CaloIdVTHEFilter + fragment.HLTDoLocalPixelSequence + fragment.HLTDoLocalStripSequence + fragment.hltMixedLayerPairs + fragment.hltEgammaElectronPixelSeeds + fragment.hltEle105CaloIdVTPixelMatchFilter + fragment.HLTGsfElectronSequence + fragment.hltEle105CaloIdVTGsfTrkIdTGsfDetaFilter + fragment.hltEle105CaloIdVTGsfTrkIdTGsfDphiFilter )
 fragment.HLTPFClusteringForMuons = cms.Sequence( fragment.hltRecHitInRegionForMuons + fragment.hltRecHitInRegionForMuonsES + fragment.hltParticleFlowRecHitECALForMuons + fragment.hltParticleFlowRecHitPSForMuons + fragment.hltParticleFlowClusterECALUncorrectedForMuons + fragment.hltParticleFlowClusterPSForMuons + fragment.hltParticleFlowClusterECALForMuons )
 fragment.HLTL3muonEcalPFisorecoSequenceNoBoolsForMuons = cms.Sequence( fragment.HLTDoFullUnpackingEgammaEcalSequence + fragment.HLTDoLocalHcalSequence + fragment.hltTowerMakerForAll + fragment.hltFixedGridRhoFastjetAllCaloForMuons + fragment.HLTPFClusteringForMuons + fragment.hltMuonEcalPFClusterIsoForMuons )
-fragment.HLTPFHcalClusteringForMuons = cms.Sequence( fragment.hltRegionalTowerForMuons + fragment.hltParticleFlowRecHitHCALForMuons + fragment.hltParticleFlowClusterHCALForMuons )
+fragment.HLTPFHcalClusteringForMuons = cms.Sequence( fragment.hltRegionalTowerForMuons + fragment.hltParticleFlowRecHitHBHEForMuons + fragment.hltParticleFlowRecHitHCALForMuons + fragment.hltParticleFlowClusterHBHEForMuons + fragment.hltParticleFlowClusterHCALForMuons )
 fragment.HLTL3muonHcalPFisorecoSequenceNoBoolsForMuons = cms.Sequence( fragment.HLTPFHcalClusteringForMuons + fragment.hltMuonHcalPFClusterIsoForMuons )
 fragment.HLTTrackReconstructionForIsoL3MuonIter02 = cms.Sequence( fragment.HLTPixelTrackingL3Muon + fragment.HLTDoLocalStripSequence + fragment.HLTIterativeTrackingL3MuonIter02 )
 fragment.HLTMu16eta2p1IsolationSequence = cms.Sequence( fragment.HLTL3muonEcalPFisorecoSequenceNoBoolsForMuons + fragment.hltL3crIsoL1sMu10erETM30L1f0L2f14QL3pfecalIsoRhoFilteredEB0p11EE0p08 + fragment.HLTL3muonHcalPFisorecoSequenceNoBoolsForMuons + fragment.hltL3crIsoL1sMu10erETM30L1f0L2f14QL3pfhcalIsoRhoFilteredHB0p21HE0p22 + fragment.HLTTrackReconstructionForIsoL3MuonIter02 + fragment.hltMuonTkRelIsolationCut0p09Map )
@@ -72421,7 +73024,7 @@ fragment.HLTIterativeTrackingHighPtTkMu = cms.Sequence( fragment.HLTIterativeTra
 fragment.HLTHighPt18TrackerMuonSequence = cms.Sequence( fragment.HLTDoLocalPixelSequence + fragment.HLTDoLocalStripSequence + fragment.hltL1MuonsPt15 + fragment.HLTIterativeTrackingHighPtTkMu + fragment.hltHighPtTkMu18TkFilt + fragment.hltHighPtTkMuons + fragment.hltHighPtTkMuonCands )
 fragment.HLTPFClusteringForTkMuons = cms.Sequence( fragment.hltRecHitInRegionForTkMuons + fragment.hltRecHitInRegionForTkMuonsES + fragment.hltParticleFlowRecHitECALForTkMuons + fragment.hltParticleFlowRecHitPSForTkMuons + fragment.hltParticleFlowClusterECALUncorrectedForTkMuons + fragment.hltParticleFlowClusterPSForTkMuons + fragment.hltParticleFlowClusterECALForTkMuons )
 fragment.HLTHighPtTkMuEcalPFisorecoSequenceNoBoolsForMuons = cms.Sequence( fragment.HLTDoFullUnpackingEgammaEcalSequence + fragment.HLTDoLocalHcalSequence + fragment.hltTowerMakerForAll + fragment.hltFixedGridRhoFastjetAllCaloForMuons + fragment.HLTPFClusteringForTkMuons + fragment.hltHighPtTkMuonEcalPFClusterIsoForMuons )
-fragment.HLTPFHcalClusteringForTkMuons = cms.Sequence( fragment.hltRegionalTowerForTkMuons + fragment.hltParticleFlowRecHitHCALForTkMuons + fragment.hltParticleFlowClusterHCALForTkMuons )
+fragment.HLTPFHcalClusteringForTkMuons = cms.Sequence( fragment.hltRegionalTowerForTkMuons + fragment.hltParticleFlowRecHitHBHEForTkMuons + fragment.hltParticleFlowRecHitHCALForTkMuons + fragment.hltParticleFlowClusterHBHEForTkMuons + fragment.hltParticleFlowClusterHCALForTkMuons )
 fragment.HLTHighPtTkMuHcalPFisorecoSequenceNoBoolsForMuons = cms.Sequence( fragment.HLTPFHcalClusteringForTkMuons + fragment.hltHighPtTkMuonHcalPFClusterIsoForMuons )
 fragment.HLTPixelTrackingHighPtTkMuIso = cms.Sequence( fragment.hltHighPtTkMuVertex + fragment.HLTDoLocalPixelSequence + fragment.hltPixelLayerTriplets + fragment.hltPixelTracksHighPtTkMuIso + fragment.hltPixelVerticesHighPtTkMuIso )
 fragment.HLTIterativeTrackingHighPtTkMuIsoIteration0 = cms.Sequence( fragment.hltIter0HighPtTkMuIsoPixelTracksForSeeds + fragment.hltIter0HighPtTkMuIsoPixelSeedsFromPixelTracks + fragment.hltIter0HighPtTkMuIsoCkfTrackCandidates + fragment.hltIter0HighPtTkMuIsoCtfWithMaterialTracks + fragment.hltIter0HighPtTkMuIsoTrackSelectionHighPurity )
@@ -72492,7 +73095,7 @@ fragment.HLTPhoton20CaloIdVLIsoLSequence = cms.Sequence( fragment.HLTDoFullUnpac
 fragment.HLTPhoton22R9Id90HE10Iso40EBOnlySequence = cms.Sequence( fragment.HLTDoFullUnpackingEgammaEcalSequence + fragment.HLTPFClusteringForEgamma + fragment.hltEgammaCandidates + fragment.hltEGL1SingleEG20Filter + fragment.hltEG22R9Id90HE10Iso40EBOnlyEtFilter + fragment.hltEgammaClusterShape + fragment.HLTDoLocalHcalWithTowerSequence + fragment.HLTFastJetForEgamma + fragment.hltEgammaHoverE + fragment.hltEG22R9Id90HE10Iso40EBOnlyHEFilter + fragment.hltEgammaR9ID + fragment.hltEG22R9Id90HE10Iso40EBOnlyR9Filter + fragment.hltEgammaEcalPFClusterIso + fragment.hltPhoton22R9Id90HE10Iso40EBOnlyEcalIsoFilter + fragment.HLTPFHcalClusteringForEgamma + fragment.hltEgammaHcalPFClusterIso + fragment.hltEG22R9Id90HE10Iso40EBOnlyHcalIsoFilter + fragment.HLTDoLocalPixelSequence + fragment.HLTDoLocalStripSequence + fragment.HLTTrackReconstructionForIsoForPhotons + fragment.hltEgammaHollowTrackIso + fragment.hltEG22R9Id90HE10Iso40EBOnlyTrackIsoFilter )
 fragment.HLTSinglePhoton250erNoHESequence = cms.Sequence( fragment.HLTDoFullUnpackingEgammaEcalSequence + fragment.HLTPFClusteringForEgamma + fragment.hltEgammaCandidates + fragment.hltEGL1SingleEG40ORL1SingleJet200Filter + fragment.hltEG250erEtFilter )
 fragment.HLTSinglePhoton300erNoHESequence = cms.Sequence( fragment.HLTDoFullUnpackingEgammaEcalSequence + fragment.HLTPFClusteringForEgamma + fragment.hltEgammaCandidates + fragment.hltEGL1SingleEG40ORL1SingleJet200Filter + fragment.hltEG300erEtFilter )
-fragment.HLTPFHcalClusteringForEgammaUnseeded = cms.Sequence( fragment.hltParticleFlowRecHitHCALForEgammaUnseeded + fragment.hltParticleFlowClusterHCALForEgammaUnseeded )
+fragment.HLTPFHcalClusteringForEgammaUnseeded = cms.Sequence( fragment.hltParticleFlowRecHitHBHEForEgammaUnseeded + fragment.hltParticleFlowRecHitHCALForEgammaUnseeded + fragment.hltParticleFlowRecHitHFForEgammaUnseeded + fragment.hltParticleFlowClusterHBHEForEgammaUnseeded + fragment.hltParticleFlowClusterHCALForEgammaUnseeded + fragment.hltParticleFlowClusterHFForEgammaUnseeded )
 fragment.HLTPhoton26R9Id85ORCaloId24b40eIso50T80LPhoton16ANDHE10R9Id65Eta2Mass60Sequence = cms.Sequence( fragment.HLTDoFullUnpackingEgammaEcalSequence + fragment.HLTPFClusteringForEgamma + fragment.hltEgammaCandidates + fragment.hltDoubleEGL1SingleEG40ORL1SingleEG35ORL1DoubleEG2210ORL1DoubleEG1510Eta2Filter + fragment.hltEG26EtL1Seed2210EtEta2Filter + fragment.hltEgammaR9ID + fragment.hltEG26R9Id65R9IdEta2Filter + fragment.HLTDoLocalHcalWithTowerSequence + fragment.HLTFastJetForEgamma + fragment.hltEgammaHoverE + fragment.hltEG26HE10R9Id65HEEta2Filter + cms.ignore(fragment.hltEG26R9Id85HE10R9Id65R9IdEta2LastFilter) + fragment.hltEgammaClusterShape + cms.ignore(fragment.hltEG26CaloId24b40eHE10R9Id65Eta2ClusterShapeFilter) + fragment.hltEgammaEcalPFClusterIso + cms.ignore(fragment.hltEG26Iso50T80LCaloId24b40eHE10R9Id65Eta2EcalIsoFilter) + fragment.HLTPFHcalClusteringForEgamma + fragment.hltEgammaHcalPFClusterIso + cms.ignore(fragment.hltEG26Iso50T80LCaloId24b40eHE10R9Id65Eta2HcalIsoLastFilter) + fragment.hltEG26RId85ORCaloId24b40eIso50T80LANDHE10R9Id65Eta2LegCombLastFilter + fragment.HLTPFClusteringForEgammaUnseeded + fragment.hltEgammaCandidatesUnseeded + fragment.hltEgammaCandidatesWrapperUnseeded + fragment.hltDiEG16EtUnseededFilter + fragment.hltEgammaR9IDUnseeded + fragment.hltDiEG16R9Id65R9IdUnseededFilter + fragment.hltEgammaHoverEUnseeded + fragment.hltDiEG16HE10R9Id65HEUnseededFilter + cms.ignore(fragment.hltEG16R9Id85HE10R9Id65R9IdUnseededLastFilter) + fragment.hltEgammaClusterShapeUnseeded + cms.ignore(fragment.hltEG16CaloId24b40eHE10R9Id65ClusterShapeUnseededFilter) + fragment.hltEgammaEcalPFClusterIsoUnseeded + cms.ignore(fragment.hltEG16Iso50T80LCaloId24b40eHE10R9Id65EcalIsoUnseededFilter) + fragment.HLTPFHcalClusteringForEgammaUnseeded + fragment.hltEgammaHcalPFClusterIsoUnseeded + cms.ignore(fragment.hltEG16Iso50T80LCaloId24b40eHE10R9Id65HcalIsoUnseededFilter) + fragment.HLTDoLocalPixelSequence + fragment.HLTDoLocalStripSequence + fragment.HLTTrackReconstructionForIsoForPhotons + fragment.hltEgammaHollowTrackIsoUnseeded + cms.ignore(fragment.hltEG16Iso50T80LCaloId24b40eHE10R9Id65TrackIsoUnseededLastFilter) + fragment.hltDiEG16R9Id85ORCaloId24b40eIso50T80LANDHE10R9Id65Mass60CombMassLastFilter )
 fragment.HLTPhoton36R9Id85ORCaloId24b40eIso50T80LPhoton22ANDHE10R9Id65Eta2Mass15Sequence = cms.Sequence( fragment.HLTDoFullUnpackingEgammaEcalSequence + fragment.HLTPFClusteringForEgamma + fragment.hltEgammaCandidates + fragment.hltDoubleEGL1SingleEG40ORL1SingleEG35ORL1DoubleEG2210ORL1DoubleEG1510Eta2Filter + fragment.hltEG36EtL1Seed2210EtEta2Filter + fragment.hltEgammaR9ID + fragment.hltEG36R9Id65R9IdEta2Filter + fragment.HLTDoLocalHcalWithTowerSequence + fragment.HLTFastJetForEgamma + fragment.hltEgammaHoverE + fragment.hltEG36HE10R9Id65HEEta2Filter + cms.ignore(fragment.hltEG36R9Id85HE10R9Id65R9IdEta2LastFilter) + fragment.hltEgammaClusterShape + cms.ignore(fragment.hltEG36CaloId24b40eHE10R9Id65Eta2ClusterShapeFilter) + fragment.hltEgammaEcalPFClusterIso + cms.ignore(fragment.hltEG36Iso50T80LCaloId24b40eHE10R9Id65Eta2EcalIsoFilter) + fragment.HLTPFHcalClusteringForEgamma + fragment.hltEgammaHcalPFClusterIso + cms.ignore(fragment.hltEG36Iso50T80LCaloId24b40eHE10R9Id65Eta2HcalIsoLastFilter) + fragment.hltEG36RId85ORCaloId24b40eIso50T80LANDHE10R9Id65Eta2LegCombLastFilter + fragment.HLTPFClusteringForEgammaUnseeded + fragment.hltEgammaCandidatesUnseeded + fragment.hltEgammaCandidatesWrapperUnseeded + fragment.hltDiEG22EtUnseededFilter + fragment.hltEgammaR9IDUnseeded + fragment.hltDiEG22R9Id65R9IdUnseededFilter + fragment.hltEgammaHoverEUnseeded + fragment.hltDiEG22HE10R9Id65HEUnseededFilter + cms.ignore(fragment.hltEG22R9Id85HE10R9Id65R9IdUnseededLastFilter) + fragment.hltEgammaClusterShapeUnseeded + cms.ignore(fragment.hltEG22CaloId24b40eHE10R9Id65ClusterShapeUnseededFilter) + fragment.hltEgammaEcalPFClusterIsoUnseeded + cms.ignore(fragment.hltEG22Iso50T80LCaloId24b40eHE10R9Id65EcalIsoUnseededFilter) + fragment.HLTPFHcalClusteringForEgammaUnseeded + fragment.hltEgammaHcalPFClusterIsoUnseeded + cms.ignore(fragment.hltEG22Iso50T80LCaloId24b40eHE10R9Id65HcalIsoUnseededFilter) + fragment.HLTDoLocalPixelSequence + fragment.HLTDoLocalStripSequence + fragment.HLTTrackReconstructionForIsoForPhotons + fragment.hltEgammaHollowTrackIsoUnseeded + cms.ignore(fragment.hltEG22Iso50T80LCaloId24b40eHE10R9Id65TrackIsoUnseededLastFilter) + fragment.hltDiEG22R9Id85ORCaloId24b40eIso50T80LANDHE10R9Id65Mass15CombMassLastFilter )
 fragment.HLTPhoton36R9Id90HE10Iso40EBOnlySequence = cms.Sequence( fragment.HLTDoFullUnpackingEgammaEcalSequence + fragment.HLTPFClusteringForEgamma + fragment.hltEgammaCandidates + fragment.hltEGL1SingleEG30Filter + fragment.hltEG36R9Id90HE10Iso40EBOnlyEtFilter + fragment.hltEgammaClusterShape + fragment.HLTDoLocalHcalWithTowerSequence + fragment.HLTFastJetForEgamma + fragment.hltEgammaHoverE + fragment.hltEG36R9Id90HE10Iso40EBOnlyHEFilter + fragment.hltEgammaR9ID + fragment.hltEG36R9Id90HE10Iso40EBOnlyR9Filter + fragment.hltEgammaEcalPFClusterIso + fragment.hltEG36R9Id90HE10Iso40EBOnlyEcalIsoFilter + fragment.HLTPFHcalClusteringForEgamma + fragment.hltEgammaHcalPFClusterIso + fragment.hltEG36R9Id90HE10Iso40EBOnlyHcalIsoFilter + fragment.HLTDoLocalPixelSequence + fragment.HLTDoLocalStripSequence + fragment.HLTTrackReconstructionForIsoForPhotons + fragment.hltEgammaHollowTrackIso + fragment.hltEG36R9Id90HE10Iso40EBOnlyTrackIsoFilter )
@@ -73599,5 +74202,8 @@ if 'hltGetConditions' in fragment.__dict__ and 'HLTriggerFirstPath' in fragment.
 
 # add specific customizations
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
-fragment = customizeHLTforAll(fragment)
+fragment = customizeHLTforAll(fragment,"FULL")
+
+from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
+fragment = customizeHLTforCMSSW(fragment,"FULL")
 
