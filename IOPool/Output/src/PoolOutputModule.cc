@@ -119,7 +119,7 @@ namespace edm {
 
   PoolOutputModule::OutputItem::Sorter::Sorter(TTree* tree) : treeMap_(new std::map<std::string, int>) {
     // Fill a map mapping branch names to an index specifying the order in the tree.
-    if(tree != 0) {
+    if(tree != nullptr) {
       TObjArray* branches = tree->GetListOfBranches();
       for(int i = 0; i < branches->GetEntries(); ++i) {
         TBranchElement* br = (TBranchElement*)branches->At(i);
@@ -156,7 +156,7 @@ namespace edm {
     AuxItem&   auxItem = auxItems_[branchType];
 
     // Fill AuxItem
-    if (theInputTree != 0 && !overrideInputFileSplitLevels_) {
+    if (theInputTree != nullptr && !overrideInputFileSplitLevels_) {
       TBranch* auxBranch = theInputTree->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str());
       if (auxBranch) {
         auxItem.basketSize_ = auxBranch->GetBasketSize();
@@ -173,9 +173,9 @@ namespace edm {
       int basketSize = BranchDescription::invalidBasketSize;
 
       BranchDescription const& prod = **it;
-      TBranch* theBranch = ((!prod.produced() && theInputTree != 0 && !overrideInputFileSplitLevels_) ? theInputTree->GetBranch(prod.branchName().c_str()) : 0);
+      TBranch* theBranch = ((!prod.produced() && theInputTree != nullptr && !overrideInputFileSplitLevels_) ? theInputTree->GetBranch(prod.branchName().c_str()) : 0);
 
-      if(theBranch != 0) {
+      if(theBranch != nullptr) {
         splitLevel = theBranch->GetSplitLevel();
         basketSize = theBranch->GetBasketSize();
       } else {
@@ -288,9 +288,9 @@ namespace edm {
   void PoolOutputModule::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
   void PoolOutputModule::writeThinnedAssociationsHelper() { rootOutputFile_->writeThinnedAssociationsHelper(); }
   void PoolOutputModule::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
-  void PoolOutputModule::finishEndFile() { rootOutputFile_->finishEndFile(); rootOutputFile_.reset(); }
+  void PoolOutputModule::finishEndFile() { rootOutputFile_->finishEndFile(); rootOutputFile_ = nullptr; } // propagate_const<T> has no reset() function
   void PoolOutputModule::doExtrasAfterCloseFile() {}
-  bool PoolOutputModule::isFileOpen() const { return rootOutputFile_.get() != 0; }
+  bool PoolOutputModule::isFileOpen() const { return rootOutputFile_.get() != nullptr; }
   bool PoolOutputModule::shouldWeCloseFile() const { return rootOutputFile_->shouldWeCloseFile(); }
 
   std::pair<std::string, std::string>
@@ -329,13 +329,13 @@ namespace edm {
 
   void PoolOutputModule::reallyOpenFile() {
     auto names = physicalAndLogicalNameForNewFile();
-    rootOutputFile_.reset( new RootOutputFile(this, names.first, names.second));
+    rootOutputFile_ = std::make_unique<RootOutputFile>(this, names.first, names.second); // propagate_const<T> has no reset() function
   }
 
   void
   PoolOutputModule::updateBranchParents(EventPrincipal const& ep) {
     for(EventPrincipal::const_iterator i = ep.begin(), iEnd = ep.end(); i != iEnd; ++i) {
-      if((*i) && (*i)->productProvenancePtr() != 0) {
+      if((*i) && (*i)->productProvenancePtr() != nullptr) {
         BranchID const& bid = (*i)->branchDescription().branchID();
         BranchParents::iterator it = branchParents_.find(bid);
         if(it == branchParents_.end()) {

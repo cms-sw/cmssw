@@ -41,6 +41,7 @@
 #include "FWCore/Framework/interface/getAllTriggerNames.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {
@@ -170,10 +171,11 @@ namespace edm {
       // needed because of possible EDAliases.
       // filled in only if key and value are different.
       std::map<BranchID::value_type, BranchID::value_type> droppedBranchIDToKeptBranchID_;
-      std::unique_ptr<BranchIDLists> branchIDLists_;
+      edm::propagate_const<std::unique_ptr<BranchIDLists>> branchIDLists_;
       BranchIDLists const* origBranchIDLists_;
 
-      std::unique_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
+
+      edm::propagate_const<std::unique_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
       std::map<BranchID, bool> keepAssociation_;
 
       SharedResourcesAcquirer resourcesAcquirer_;

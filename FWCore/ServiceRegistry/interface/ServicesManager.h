@@ -25,6 +25,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeIDBase.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // system include files
 #include <memory>
@@ -47,9 +48,9 @@ public:
                         ActivityRegistry&) ;
             bool add(ServicesManager&) const;
 
-            std::shared_ptr<ServiceMakerBase> maker_;
+            edm::propagate_const<std::shared_ptr<ServiceMakerBase>> maker_;
             ParameterSet* pset_;
-            ActivityRegistry* registry_;
+            ActivityRegistry* registry_; // We do not use propagate_const because the registry itself is mutable
             mutable bool wasAdded_;
          };
          typedef std::map<TypeIDBase, std::shared_ptr<ServiceWrapperBase> > Type2Service;
@@ -155,11 +156,11 @@ private:
          // the ActivityRegistry of that Manager does not go out of scope
          // This must be first to get the Service destructors called in
          // the correct order.
-         std::shared_ptr<ServicesManager> associatedManager_;
+         edm::propagate_const<std::shared_ptr<ServicesManager>> associatedManager_;
 
          ActivityRegistry registry_;
          Type2Service type2Service_;
-         std::auto_ptr<Type2Maker> type2Maker_;
+         edm::propagate_const<std::unique_ptr<Type2Maker>> type2Maker_;
          std::vector<TypeIDBase> requestedCreationOrder_;
          std::vector<TypeIDBase> actualCreationOrder_;
       };

@@ -30,6 +30,7 @@ to use this plugin.
 #include "FWCore/Framework/interface/GenericHandle.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -67,7 +68,7 @@ class IOExerciser : public edm::OutputModule {
 
       // ----------member data ------------------------------------------------
       bool m_fetchedProducts;
-      TTree *m_eventsTree;
+      edm::propagate_const<TTree*> m_eventsTree;
       ProductInfos m_products;
       ProductInfos m_all_products;
       unsigned int m_percentBranches;
@@ -84,7 +85,7 @@ class IOExerciser : public edm::OutputModule {
 IOExerciser::IOExerciser(const edm::ParameterSet& pset) :
    OutputModule(pset),
    m_fetchedProducts(false),
-   m_eventsTree(NULL),
+   m_eventsTree(nullptr),
    m_percentBranches(pset.getUntrackedParameter<unsigned int>("percentBranches")),
    m_currentUsage(0),
    m_triggerFactor(pset.getUntrackedParameter<unsigned int>("triggerFactor")),

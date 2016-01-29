@@ -31,7 +31,7 @@ namespace edm {
     
     
   private:
-    virtual std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) const = 0;
+    virtual std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) = 0;
     virtual void mergeReaders_(DelayedReader*) = 0;
     virtual void reset_() = 0;
     virtual SharedResourcesAcquirer* sharedResources_() const;

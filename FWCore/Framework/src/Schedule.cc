@@ -383,7 +383,15 @@ namespace edm {
     assert(0<prealloc.numberOfStreams());
     streamSchedules_.reserve(prealloc.numberOfStreams());
     for(unsigned int i=0; i<prealloc.numberOfStreams();++i) {
-      streamSchedules_.emplace_back(std::make_shared<StreamSchedule>(resultsInserter_,moduleRegistry_,proc_pset,tns,prealloc,preg,branchIDListHelper,actions,areg,processConfiguration,!hasSubprocesses,StreamID{i},processContext));
+      streamSchedules_.emplace_back(std::make_shared<StreamSchedule>(
+        resultsInserter(),
+        moduleRegistry(),
+        proc_pset,tns,prealloc,preg,
+        branchIDListHelper,actions,
+        areg,processConfiguration,
+        !hasSubprocesses,
+        StreamID{i},
+        processContext));
     }
     
     //TriggerResults are injected automatically by StreamSchedules and are
@@ -407,16 +415,19 @@ namespace edm {
       std::copy(modulesToUse.begin(),itBeginUnscheduled,std::back_inserter(temp));
       temp.swap(modulesToUse);
     }
-    globalSchedule_.reset(new GlobalSchedule{ resultsInserter_,
-      moduleRegistry_,
+
+    // propagate_const<T> has no reset() function
+    globalSchedule_ = std::make_unique<GlobalSchedule>(
+      resultsInserter(),
+      moduleRegistry(),
       modulesToUse,
       proc_pset, preg, prealloc,
-      actions,areg,processConfiguration,processContext });
+      actions,areg,processConfiguration,processContext);
     
     //TriggerResults is not in the top level ParameterSet so the call to
     // reduceParameterSet would fail to find it. Just remove it up front.
     std::set<std::string> usedModuleLabels;
-    for(auto const worker: allWorkers()) {
+    for(auto const& worker: allWorkers()) {
       if(worker->description().moduleLabel() != kTriggerResults) {
         usedModuleLabels.insert(worker->description().moduleLabel());
       }
@@ -458,7 +469,7 @@ namespace edm {
     }
     thinnedAssociationsHelper.sort();
 
-    for (auto c : all_output_communicators_) {
+    for (auto& c : all_output_communicators_) {
       c->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
       c->selectProducts(preg, thinnedAssociationsHelper);
     }
@@ -474,9 +485,11 @@ namespace edm {
                        return iWorker->descPtr();
                      });
       
-      summaryTimeKeeper_.reset(new SystemTimeKeeper(prealloc.numberOfStreams(),
+      // propagate_const<T> has no reset() function
+      summaryTimeKeeper_ = std::make_unique<SystemTimeKeeper>(
+                                                    prealloc.numberOfStreams(),
                                                     modDesc,
-                                                    tns));
+                                                    tns);
       auto timeKeeperPtr = summaryTimeKeeper_.get();
       
       areg->watchPreModuleEvent(timeKeeperPtr, &SystemTimeKeeper::startModuleEvent);
@@ -525,7 +538,7 @@ namespace edm {
         "\nAt most, one form of 'output' may appear in the 'maxEvents' parameter set";
     }
 
-    for (auto c : all_output_communicators_) {
+    for (auto& c : all_output_communicators_) {
       OutputModuleDescription desc(branchIDLists, maxEventsOut);
       if (vMaxEventsOut != 0 && !vMaxEventsOut->empty()) {
         std::string const& moduleLabel = c->description().moduleLabel();
@@ -544,7 +557,7 @@ namespace edm {
     if (all_output_communicators_.empty()) {
       return false;
     }
-    for (auto c : all_output_communicators_) {
+    for (auto& c : all_output_communicators_) {
       if (!c->limitReached()) {
         // Found an output module that has not reached output event count.
         return false;
@@ -927,7 +940,7 @@ namespace edm {
     
     globalSchedule_->replaceModule(newMod,iLabel);
 
-    for(auto s: streamSchedules_) {
+    for(auto& s: streamSchedules_) {
       s->replaceModule(newMod,iLabel);
     }
     
@@ -1031,7 +1044,7 @@ namespace edm {
   void
   Schedule::enableEndPaths(bool active) {
     endpathsAreActive_ = active;
-    for(auto const &  s : streamSchedules_) {
+    for(auto& s : streamSchedules_) {
       s->enableEndPaths(active);
     }
   }
@@ -1089,7 +1102,7 @@ namespace edm {
   
   void
   Schedule::clearCounters() {
-    for(auto const& s: streamSchedules_) {
+    for(auto& s: streamSchedules_) {
       s->clearCounters();
     }
   }

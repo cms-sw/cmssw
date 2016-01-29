@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "DataFormats/Common/interface/OwnArray.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 
 struct Base
@@ -22,7 +23,7 @@ struct Derived : Base
   void swap(Derived& other);
   virtual Derived* clone() const;
 
-  int*  pointer;
+  edm::propagate_const<int*> pointer;
 };
 
 Derived::Derived(int n) : pointer(new int(n)) { }
@@ -48,7 +49,7 @@ void swap(Derived& a, Derived& b)
 
 Derived::~Derived()
 {
-  delete pointer;
+  delete pointer.get();
 }
 
 Derived*

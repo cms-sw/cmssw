@@ -263,7 +263,7 @@
 TFileAdaptorUI::TFileAdaptorUI() {
   edm::ActivityRegistry ar;
   const edm::ParameterSet param;
-  me.reset(new TFileAdaptor(param, ar));
+  me = std::make_shared<TFileAdaptor>(param, ar); // propagate_const<T> has no reset() function
 }
 
 TFileAdaptorUI::~TFileAdaptorUI() {}

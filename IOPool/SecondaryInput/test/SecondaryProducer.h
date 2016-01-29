@@ -10,6 +10,7 @@
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <memory>
 
@@ -33,33 +34,23 @@ namespace edm {
     void processOneEvent(EventPrincipal const& eventPrincipal, Event& e);
 
   private:
-
     virtual void put(Event &) {}
-
     virtual void beginJob();
-
     virtual void endJob();
-
     std::shared_ptr<VectorInputSource> makeSecInput(ParameterSet const& ps);
 
-    std::shared_ptr<ProductRegistry> productRegistry_;
+    std::shared_ptr<ProductRegistry const> productRegistry() const {return get_underlying_safe(productRegistry_);}
+    std::shared_ptr<ProductRegistry>& productRegistry() {return get_underlying_safe(productRegistry_);}
 
-    std::shared_ptr<VectorInputSource> const secInput_;
-
-    std::unique_ptr<ProcessConfiguration> processConfiguration_;
-
-    std::unique_ptr<EventPrincipal> eventPrincipal_;
-
+    edm::propagate_const<std::shared_ptr<ProductRegistry>> productRegistry_;
+    edm::propagate_const<std::shared_ptr<VectorInputSource> const> secInput_;
+    edm::propagate_const<std::unique_ptr<ProcessConfiguration>> processConfiguration_;
+    edm::propagate_const<std::unique_ptr<EventPrincipal>> eventPrincipal_;
     bool sequential_;
-
     bool specified_;
-
     bool sameLumiBlock_;
-
     bool firstEvent_;
-
     bool firstLoop_;
-
     EventNumber_t expectedEventNumber_;
   };
 }//edm

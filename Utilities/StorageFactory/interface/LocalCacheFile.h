@@ -3,6 +3,7 @@
 
 # include "Utilities/StorageFactory/interface/Storage.h"
 # include "Utilities/StorageFactory/interface/File.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 # include <vector>
 # include <string>
 # include <memory>
@@ -37,8 +38,8 @@ private:
 
   IOOffset		image_;
   std::vector<char>	present_;
-  std::unique_ptr<File>	file_;
-  std::unique_ptr<Storage>	storage_;
+  edm::propagate_const<std::unique_ptr<File>>    file_;
+  edm::propagate_const<std::unique_ptr<Storage>> storage_;
   bool                  closedFile_;
   unsigned int          cacheCount_;
   unsigned int          cacheTotal_;

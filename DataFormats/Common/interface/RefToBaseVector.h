@@ -49,8 +49,8 @@ namespace edm {
 
     value_type at(size_type idx) const;
     value_type operator[](size_type idx) const;
-    bool isValid() const { return holder_ != 0; }
-    bool isInvalid() const { return holder_ == 0; }
+    bool isValid() const { return holder_ != nullptr; }
+    bool isInvalid() const { return holder_ == nullptr; }
     bool empty() const;
     size_type size() const;
     //size_type capacity() const;
@@ -72,7 +72,7 @@ namespace edm {
     CMS_CLASS_VERSION(10)
 
   private:
-    holder_type * holder_;
+    holder_type* holder_;
   };
 }
 
@@ -109,7 +109,7 @@ namespace edm {
   template <class T>
   inline
   RefToBaseVector<T>::RefToBaseVector() : 
-    holder_(0) 
+    holder_(nullptr)
   { }
 
   template <class T>
@@ -122,7 +122,7 @@ namespace edm {
   template <class T>
   inline
   RefToBaseVector<T>::RefToBaseVector(const RefToBaseVector<T>& iOther) : 
-    holder_(iOther.holder_ ? iOther.holder_->clone() : 0)
+    holder_(iOther.holder_ ? iOther.holder_->clone() : nullptr)
   { }
 
   template <class T>
@@ -159,7 +159,7 @@ namespace edm {
   typename RefToBaseVector<T>::value_type
   RefToBaseVector<T>::at(size_type idx) const 
   {
-    if ( holder_ == 0 )
+    if ( holder_ == nullptr )
       Exception::throwThis( errors::InvalidReference,
 	"Trying to dereference null RefToBaseVector<T> in method: at(",
 	idx,
@@ -196,7 +196,7 @@ namespace edm {
   void 
   RefToBaseVector<T>::clear()
   {
-    if ( holder_ != 0 )
+    if ( holder_ != nullptr )
       holder_->clear();
   }
 
@@ -213,7 +213,7 @@ namespace edm {
   EDProductGetter const * 
   RefToBaseVector<T>::productGetter() const
   {
-    return holder_ ? holder_->productGetter() : 0;
+    return holder_ ? holder_->productGetter() : nullptr;
   }
 
   template <class T>
@@ -262,7 +262,7 @@ namespace edm {
 
   template <typename T>
   void RefToBaseVector<T>::push_back( const RefToBase<T> & r ) {
-    if ( holder_ == 0 ) {
+    if ( holder_ == nullptr ) {
       std::auto_ptr<reftobase::BaseVectorHolder<T> > p = r.holder_->makeVectorHolder();
       holder_ = p.release();
     }

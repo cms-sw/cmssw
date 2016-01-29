@@ -5,6 +5,7 @@
 #include <iostream>
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/Ptr.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 class testOwnVector : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testOwnVector);
@@ -27,7 +28,7 @@ namespace test {
       return value < o.value;
     }
   private:
-    bool * ref;
+    edm::propagate_const<bool*> ref;
   };
 
   struct DummyComp {

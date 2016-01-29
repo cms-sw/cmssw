@@ -17,6 +17,7 @@ Test of the EventProcessor class.
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Presence.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "cppunit/extensions/HelperMacros.h"
 
@@ -46,11 +47,11 @@ class testeventprocessor: public CppUnit::TestFixture {
   void setUp() {
     //std::cout << "setting up testeventprocessor" << std::endl;
     doInit();
-    m_handler = std::auto_ptr<edm::AssertHandler>(new edm::AssertHandler());
+    m_handler = std::make_unique<edm::AssertHandler>(); // propagate_const<T> has no reset() function
     sleep_secs_ = 0;
   }
 
-  void tearDown() { m_handler.reset();}
+  void tearDown() { m_handler = nullptr; }
   void parseTest();
   void beginEndTest();
   void cleanupJobTest();
@@ -60,7 +61,7 @@ class testeventprocessor: public CppUnit::TestFixture {
   void serviceConfigSaveTest();
 
  private:
-  std::auto_ptr<edm::AssertHandler> m_handler;
+  edm::propagate_const<std::unique_ptr<edm::AssertHandler>> m_handler;
   void work() {
     //std::cout << "work in testeventprocessor" << std::endl;
     std::string configuration(

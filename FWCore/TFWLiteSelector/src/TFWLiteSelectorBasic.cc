@@ -67,7 +67,7 @@ namespace edm {
       void set(std::shared_ptr<ProductRegistry const> iReg) { reg_ = iReg;}
      private:
       std::unique_ptr<WrapperBase> getTheProduct(BranchKey const& k) const;
-      virtual std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) const override;
+      virtual std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) override;
       virtual std::auto_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
         return std::auto_ptr<EventEntryDescription>();
       }
@@ -79,7 +79,7 @@ namespace edm {
     };
 
     std::unique_ptr<WrapperBase>
-    FWLiteDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* /*ep*/) const {
+    FWLiteDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* /*ep*/) {
       return getTheProduct(k);
     }
 

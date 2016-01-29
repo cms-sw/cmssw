@@ -101,7 +101,7 @@ namespace edm {
    data_buffer.curr_space_used_ = data_buffer.curr_event_size_;
    data_buffer.ptr_ = (unsigned char*)data_buffer.rootbuf_.Buffer();
    // calculate the adler32 checksum and fill it into the struct
-   data_buffer.adler32_chksum_ = cms::Adler32((char*)data_buffer.ptr_, data_buffer.curr_space_used_);
+   data_buffer.adler32_chksum_ = cms::Adler32((char*)data_buffer.bufferPointer(), data_buffer.curr_space_used_);
    //std::cout << "Adler32 checksum of init message = " << data_buffer.adler32_chksum_ << std::endl;
    return data_buffer.curr_space_used_;
   }
@@ -216,7 +216,7 @@ namespace edm {
       }
     }
     // calculate the adler32 checksum and fill it into the struct
-    data_buffer.adler32_chksum_ = cms::Adler32((char*)data_buffer.ptr_, data_buffer.curr_space_used_);
+    data_buffer.adler32_chksum_ = cms::Adler32((char*)data_buffer.bufferPointer(), data_buffer.curr_space_used_);
     //std::cout << "Adler32 checksum of event = " << data_buffer.adler32_chksum_ << std::endl;
 
     return data_buffer.curr_space_used_;

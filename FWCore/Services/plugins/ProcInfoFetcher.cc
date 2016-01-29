@@ -30,6 +30,7 @@
 
 #include "FWCore/Services/plugins/ProcInfoFetcher.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
@@ -92,7 +93,7 @@ namespace {
     
     explicit Fetcher(char* buffer) : 
     buffer_(buffer),
-    save_(0),
+    save_(nullptr),
     delims_(" \t\n\f\v\r") {
     }
   private:
@@ -128,13 +129,17 @@ namespace {
       return std::string(getItem());
     }
     char* getItem() {
-      char* item = strtok_r(buffer_, delims_, &save_); 
+      char* item = strtok_r(buffer_, delims_, &save());
       assert(item);
-      buffer_ = 0; // Null for subsequent strtok_r calls.
+      buffer_ = nullptr; // Null for subsequent strtok_r calls.
       return item;
     }
-    char* buffer_;
-    char* save_;
+
+    char const* save() const {return get_underlying_safe(save_);}
+    char*& save() {return get_underlying_safe(save_);}
+
+    edm::propagate_const<char*> buffer_;
+    edm::propagate_const<char*> save_;
     char const* const delims_; 
   };
   
