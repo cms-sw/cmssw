@@ -52,6 +52,8 @@ class HBHEIsolatedNoiseReflagger : public edm::stream::EDProducer<> {
   double TightDiHitEne_;
   double LooseMonoHitEne_;
   double TightMonoHitEne_;
+
+  double RBXEneThreshold_;
   
   bool debug_;
 
