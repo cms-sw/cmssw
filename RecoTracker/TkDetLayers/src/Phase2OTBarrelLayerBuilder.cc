@@ -11,8 +11,7 @@ Phase2OTBarrelLayer* Phase2OTBarrelLayerBuilder::build(const GeometricDet* aPhas
   // common place.
 
   vector<const GeometricDet*>  theGeometricDetRods = aPhase2OTBarrelLayer->components();
-  //edm::LogInfo(TkDetLayers) << "theGeometricDetRods has size: " << theGeometricDetRods.size() ;  
-  
+  LogDebug("TkDetLayers") << "Phase2OTBarrelLayerBuilder with #Rods: " << theGeometricDetRods.size() << std::endl;
 
   Phase2OTBarrelRodBuilder myPhase2OTBarrelRodBuilder;
 

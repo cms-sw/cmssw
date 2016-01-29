@@ -6,7 +6,7 @@ Test program for edm::propagate_const class.
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <memory>
-#include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 class test_propagate_const: public CppUnit::TestFixture
 {
@@ -45,12 +45,14 @@ void test_propagate_const::test()
       CPPUNIT_ASSERT(0 == pChecker.get()->value());
       CPPUNIT_ASSERT( pChecker.get()->value() == pChecker->value());
       CPPUNIT_ASSERT( pChecker.get()->value() == (*pChecker).value());
+      CPPUNIT_ASSERT(0 == get_underlying_safe(pChecker)->value());
 
       const edm::propagate_const<ConstChecker*> pConstChecker(&checker);
 
       CPPUNIT_ASSERT(1 == pConstChecker.get()->value());
       CPPUNIT_ASSERT( pConstChecker.get()->value() == pConstChecker->value());
       CPPUNIT_ASSERT( pConstChecker.get()->value() == (*pConstChecker).value());
+      CPPUNIT_ASSERT(1 == get_underlying_safe(pConstChecker)->value());
    }
    
    {
@@ -60,13 +62,14 @@ void test_propagate_const::test()
       CPPUNIT_ASSERT(0 == pChecker.get()->value());
       CPPUNIT_ASSERT( pChecker.get()->value() == pChecker->value());
       CPPUNIT_ASSERT( pChecker.get()->value() == (*pChecker).value());
-      
+      CPPUNIT_ASSERT(0 == get_underlying_safe(pChecker)->value());
+
       const edm::propagate_const<std::shared_ptr<ConstChecker>> pConstChecker(checker);
       
       CPPUNIT_ASSERT(1 == pConstChecker.get()->value());
       CPPUNIT_ASSERT( pConstChecker.get()->value() == pConstChecker->value());
       CPPUNIT_ASSERT( pConstChecker.get()->value() == (*pConstChecker).value());
-      
+      CPPUNIT_ASSERT(1 == get_underlying_safe(pConstChecker)->value());
    }
    
    {
@@ -76,13 +79,13 @@ void test_propagate_const::test()
       CPPUNIT_ASSERT(0 == pChecker.get()->value());
       CPPUNIT_ASSERT( pChecker.get()->value() == pChecker->value());
       CPPUNIT_ASSERT( pChecker.get()->value() == (*pChecker).value());
-      
+      CPPUNIT_ASSERT(0 == get_underlying_safe(pChecker)->value());
+
       const edm::propagate_const<std::unique_ptr<ConstChecker>> pConstChecker(std::make_unique<ConstChecker>());
       
       CPPUNIT_ASSERT(1 == pConstChecker.get()->value());
       CPPUNIT_ASSERT( pConstChecker.get()->value() == pConstChecker->value());
       CPPUNIT_ASSERT( pConstChecker.get()->value() == (*pConstChecker).value());
-      
    }
 
 }

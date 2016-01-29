@@ -64,6 +64,7 @@ the text file containing the states.
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "IOMC/RandomEngine/src/TRandomAdaptor.h"
 
 #include "CLHEP/Random/RandExponential.h"
@@ -89,19 +90,19 @@ public:
   TestRandomNumberServiceStreamCache() :
     serviceEngine_(nullptr),
     countEvents_(0) { }
-  CLHEP::HepRandomEngine* serviceEngine_;
+  edm::propagate_const<CLHEP::HepRandomEngine*> serviceEngine_;
   unsigned int countEvents_;
   std::ofstream outFile_;
   std::string lastEventRandomNumbers_;
 
-  std::shared_ptr<CLHEP::HepRandomEngine> referenceEngine_;
+  edm::propagate_const<std::shared_ptr<CLHEP::HepRandomEngine>> referenceEngine_;
   std::vector<double> referenceRandomNumbers_;
 };
 
 class TestRandomNumberServiceLumiCache {
 public:
   TestRandomNumberServiceLumiCache() { }
-  std::shared_ptr<CLHEP::HepRandomEngine> referenceEngine_;
+  edm::propagate_const<std::shared_ptr<CLHEP::HepRandomEngine>> referenceEngine_;
   std::vector<double> referenceRandomNumbers_;
 };
 
@@ -336,7 +337,7 @@ TestRandomNumberServiceGlobal::globalBeginLuminosityBlock(edm::LuminosityBlock c
   }
 
   if(engineName_ == "RanecuEngine") {
-    lumiCache->referenceEngine_.reset(new CLHEP::RanecuEngine());
+    lumiCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::RanecuEngine()); // propagate_const<T> has no reset() function
     long int seedL[2];
     seedL[0] = static_cast<long int>(seed0);
     seedL[1] = static_cast<long int>(seeds_.at(1));
@@ -345,9 +346,9 @@ TestRandomNumberServiceGlobal::globalBeginLuminosityBlock(edm::LuminosityBlock c
   else {
     long int seedL = static_cast<long int>(seed0);
     if(engineName_ == "HepJamesRandom") {
-      lumiCache->referenceEngine_.reset(new CLHEP::HepJamesRandom(seedL));
+      lumiCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::HepJamesRandom(seedL)); // propagate_const<T> has no reset() function
     } else {
-      lumiCache->referenceEngine_.reset(new edm::TRandomAdaptor(seedL));
+      lumiCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new edm::TRandomAdaptor(seedL)); // propagate_const<T> has no reset() function
     }
   }
 
@@ -388,7 +389,7 @@ TestRandomNumberServiceGlobal::beginStream(edm::StreamID streamID) const {
   streamCache->outFile_.open(outFileName.c_str(), std::ofstream::out);
 
   if(engineName_ == "RanecuEngine") {
-    streamCache->referenceEngine_.reset(new CLHEP::RanecuEngine());
+    streamCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::RanecuEngine()); // propagate_const<T> has no reset() function
     long int seedL[2];
     seedL[0] = static_cast<long int>(seeds_.at(0) + streamID.value() + offset_);
     seedL[1] = static_cast<long int>(seeds_.at(1));
@@ -397,9 +398,9 @@ TestRandomNumberServiceGlobal::beginStream(edm::StreamID streamID) const {
   else {
     long int seedL = static_cast<long int>(seeds_.at(0) + streamID.value() + offset_);
     if(engineName_ == "HepJamesRandom") {
-      streamCache->referenceEngine_.reset(new CLHEP::HepJamesRandom(seedL));
+      streamCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::HepJamesRandom(seedL)); // propagate_const<T> has no reset() function
     } else {
-      streamCache->referenceEngine_.reset(new edm::TRandomAdaptor(seedL));
+      streamCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new edm::TRandomAdaptor(seedL)); // propagate_const<T> has no reset() function
     }
   }
 

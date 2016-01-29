@@ -255,8 +255,8 @@ void DDHGCalModuleAlgo::positionSensitive(DDLogicalPart& glog, double rin,
 	  if (inc > incm) incm = inc;
 	  if (inr > inrm) inrm = inr;
 	  kount++;
-	  if (std::find(copies.begin(),copies.end(),copy) == copies.end())
-	    copies.push_back(copy);
+	  if ( copies.count(copy) == 0 )
+	    copies.insert(copy);
 #ifdef DebugLog
 	  edm::LogInfo("HGCalGeom") << "DDHGCalModuleAlgo: " 
 				    << name << " number " << copy

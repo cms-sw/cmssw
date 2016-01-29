@@ -13,19 +13,20 @@
 
 using namespace CLHEP;
 
+G4ThreadLocal ParametrisedPhysics::ThreadPrivate* ParametrisedPhysics::tpdata = nullptr;
 
 ParametrisedPhysics::ParametrisedPhysics(std::string name, const edm::ParameterSet & p) :
   G4VPhysicsConstructor(name), theParSet(p) 
-{
-  theEMShowerModel = 0;
-  theHadShowerModel = 0;
-  theHadronShowerModel = 0;
-}
+{}
 
 ParametrisedPhysics::~ParametrisedPhysics() {
-  delete theEMShowerModel;
-  delete theHadShowerModel;
-  delete theHadronShowerModel;
+  if(nullptr != tpdata) {
+    delete tpdata->theEMShowerModel;
+    delete tpdata->theHadShowerModel;
+    delete tpdata->theHadronShowerModel;
+    delete tpdata;
+    tpdata = nullptr;
+  }
 }
 
 void ParametrisedPhysics::ConstructParticle() 
@@ -48,9 +49,14 @@ void ParametrisedPhysics::ConstructParticle()
 
 void ParametrisedPhysics::ConstructProcess() {
 
+  tpdata = new ThreadPrivate;
+  tpdata->theEMShowerModel = nullptr;
+  tpdata->theHadShowerModel = nullptr;
+  tpdata->theHadronShowerModel = nullptr;
+
   bool gem  = theParSet.getParameter<bool>("GflashEcal");
   bool ghad = theParSet.getParameter<bool>("GflashHcal");
-  std::cout << "GFlash Construct: " << gem << "  " << ghad << std::endl;
+  G4cout << "GFlash Construct: " << gem << "  " << ghad << G4endl;
 
   if(gem || ghad) {
     G4FastSimulationManagerProcess * theFastSimulationManagerProcess = 
@@ -69,29 +75,29 @@ void ParametrisedPhysics::ConstructProcess() {
       G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("EcalRegion");
 
       if(!aRegion){
-	std::cout << "EcalRegion is not defined !!!" << std::endl;
-	std::cout << "This means that GFlash will not be turned on." << std::endl;
+	G4cout << "EcalRegion is not defined !!!" << G4endl;
+	G4cout << "This means that GFlash will not be turned on." << G4endl;
 	
       } else {
 
 	//Electromagnetic Shower Model for ECAL
-	theEMShowerModel = 
+	tpdata->theEMShowerModel = 
 	  new GflashEMShowerModel("GflashEMShowerModel",aRegion,theParSet);
-	std::cout << "GFlash is defined for EcalRegion" << std::endl;
+	G4cout << "GFlash is defined for EcalRegion" << G4endl;
       }    
     }
     if(ghad) {
       G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("HcalRegion");
       if(!aRegion) {
-	std::cout << "HcalRegion is not defined !!!" << std::endl;
-	std::cout << "This means that GFlash will not be turned on." << std::endl;
+	G4cout << "HcalRegion is not defined !!!" << G4endl;
+	G4cout << "This means that GFlash will not be turned on." << G4endl;
 	
       } else {
 
 	//Electromagnetic Shower Model for HCAL
-	theHadShowerModel = 
+	tpdata->theHadShowerModel = 
 	  new GflashEMShowerModel("GflashHadShowerModel",aRegion,theParSet);
-	std::cout << "GFlash is defined for HcalRegion" << std::endl;    
+	G4cout << "GFlash is defined for HcalRegion" << G4endl;    
       }
     }
   }

@@ -56,6 +56,7 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <set>
 #include <memory>
@@ -106,11 +107,11 @@ namespace edm {
       virtual std::set<eventsetup::EventSetupRecordKey> modifyingRecords() const;
 
       void copyInfo(ScheduleInfo const&);
-      void setModuleChanger(ModuleChanger const*);
+      void setModuleChanger(ModuleChanger*);
 
     protected:
       ///This only returns a non-zero value during the call to endOfLoop
-      ModuleChanger const* moduleChanger() const;
+      ModuleChanger* moduleChanger();
       ///This returns a non-zero value after the constructor has been called
       ScheduleInfo const* scheduleInfo() const;
     private:
@@ -147,8 +148,8 @@ namespace edm {
       unsigned int iCounter_;
       ExceptionToActionTable const* act_table_;
 
-      std::auto_ptr<ScheduleInfo> scheduleInfo_;
-      ModuleChanger const* moduleChanger_;
+      edm::propagate_const<std::unique_ptr<ScheduleInfo>> scheduleInfo_;
+      edm::propagate_const<ModuleChanger*> moduleChanger_;
 
       ModuleDescription moduleDescription_;
       ModuleCallingContext moduleCallingContext_;

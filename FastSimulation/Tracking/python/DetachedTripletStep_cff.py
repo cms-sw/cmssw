@@ -26,7 +26,6 @@ detachedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProdu
 
 # tracks 
 detachedTripletStepTracks = _detachedTripletStep.detachedTripletStepTracks.clone(
-    Fitter = 'KFFittingSmootherSecond',
     TTRHBuilder = 'WithoutRefit',
     Propagator = 'PropagatorWithMaterial'
 

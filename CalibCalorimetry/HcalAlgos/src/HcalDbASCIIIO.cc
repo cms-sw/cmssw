@@ -1194,8 +1194,6 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
 	    coder.setSlope (capid, range, atof (items [index++].c_str ()));
 	  }
 	}
-	if (items.size()>36)
-	  coder.setQIEIndex(atoi(items[index++].c_str()));
 
 	fObject->addCoder (coder);
 //      }
@@ -1234,8 +1232,6 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEData& fObjec
 	fOutput << buffer;
       }
     }
-    sprintf (buffer, " %2d", coder->qieIndex());
-    fOutput << buffer;
     fOutput << std::endl;
   }
   return true;

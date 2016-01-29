@@ -29,6 +29,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {
@@ -44,8 +45,7 @@ class DataProxyProvider
 
    public:   
       typedef std::vector< EventSetupRecordKey> Keys;
-      typedef std::vector<std::pair<DataKey, 
-                                    boost::shared_ptr<DataProxy> > > KeyedProxies ;
+      typedef std::vector<std::pair<DataKey, edm::propagate_const<boost::shared_ptr<DataProxy>>>> KeyedProxies;
       typedef std::map<EventSetupRecordKey, KeyedProxies> RecordProxies;
       
       DataProxyProvider();

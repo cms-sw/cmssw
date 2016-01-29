@@ -12,6 +12,7 @@
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <memory>
 
@@ -78,12 +79,15 @@ namespace edm {
 
     void setupOnDemandSystem(EventPrincipal& principal, EventSetup const& es);
 
+    std::shared_ptr<UnscheduledCallProducer const> unscheduled() const {return get_underlying_safe(unscheduled_);}
+    std::shared_ptr<UnscheduledCallProducer>& unscheduled() {return get_underlying_safe(unscheduled_);}
+
     WorkerRegistry      workerReg_;
     ExceptionToActionTable const*  actionTable_;
 
     AllWorkers          allWorkers_;
 
-    std::shared_ptr<UnscheduledCallProducer> unscheduled_;
+    edm::propagate_const<std::shared_ptr<UnscheduledCallProducer>> unscheduled_;
   };
 
   template <typename T, typename U>

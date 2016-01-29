@@ -8,6 +8,8 @@
 #include "DataFormats/Math/interface/FastMath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 
@@ -42,16 +44,22 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer,
     if (!hgcons_.isValid(layer,module,icell,false)) {
       index = 0;
     }
-  } else {
+  } else {    
+    wafer =  hgcons_.waferFromCopy(module);
     celltyp = cell/1000;
     icell   = cell%1000;
-    if (celltyp != 1) celltyp = 0;
-    wafer   = hgcons_.waferFromCopy(module);
+    if (celltyp != 1) celltyp = 0;    
+    
     index   = HGCalTestNumbering::packHexagonIndex((int)subdet,iz,layer,wafer, 
-						   celltyp,icell);
+						   celltyp,icell);    
     //check if it fits
     if (!hgcons_.isValid(layer,wafer,icell,false)) {
       index = 0;
+      edm::LogError("HGCSim") << "[HGCNumberingScheme] ID out of bounds :"
+                              << " Subdet= " << subdet << " Zside= " << iz
+                              << " Layer= " << layer << " Wafer= " << wafer
+                              << " CellType= " << celltyp << " Cell= "
+                              << icell;
     }
   }
 #ifdef DebugLog

@@ -4,6 +4,7 @@
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
 #include <string>
@@ -35,7 +36,7 @@ namespace edm
     virtual bool checkNextEvent();
 
     //ProductRegistry const* prod_reg_;
-    std::auto_ptr<Producer> pr_; 
+    edm::propagate_const<std::unique_ptr<Producer>> pr_;
   }; //end-of-class-def
 
   template <typename Producer>

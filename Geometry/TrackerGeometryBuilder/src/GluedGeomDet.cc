@@ -1,10 +1,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
-GluedGeomDet::GluedGeomDet( BoundPlane* sp,const GeomDetUnit* monoDet, const GeomDetUnit* stereoDet) : 
+GluedGeomDet::GluedGeomDet( BoundPlane* sp,const GeomDetUnit* monoDet, const GeomDetUnit* stereoDet, const DetId gluedDetId) : 
   TrackerGeomDet(sp),theMonoDet(monoDet),theStereoDet(stereoDet) {
-  StripSubdetector subdet(theMonoDet->geographicalId().rawId());
-  setDetId(subdet.glued());
+  setDetId(gluedDetId);
 }
 
 GluedGeomDet::~GluedGeomDet()

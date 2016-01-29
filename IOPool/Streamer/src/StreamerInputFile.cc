@@ -162,7 +162,7 @@ namespace edm {
         << "Failed reading streamer file, init header size from data too small\n";
     }
 
-    startMsg_.reset(new InitMsgView(&headerBuf_[0]));
+    startMsg_ = std::make_shared<InitMsgView>(&headerBuf_[0]); // propagate_const<T> has no reset() function
   }
 
   bool StreamerInputFile::next() {
@@ -278,7 +278,7 @@ namespace edm {
         }
       }
     }
-    currentEvMsg_.reset(new EventMsgView((void*)&eventBuf_[0]));
+    currentEvMsg_ = std::make_shared<EventMsgView>((void*)&eventBuf_[0]); // propagate_const<T> has no reset() function
     return 1;
   }
 

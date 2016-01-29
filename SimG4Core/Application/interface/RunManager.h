@@ -45,6 +45,7 @@ class TrackingAction;
 class SteppingAction;
 
 class DDDWorld;
+class DDG4ProductionCuts;
 
 class G4RunManagerKernel;
 class G4Run;
@@ -143,6 +144,7 @@ private:
   std::vector<SensitiveTkDetector*> m_sensTkDets;
   std::vector<SensitiveCaloDetector*> m_sensCaloDets;
 
+  std::unique_ptr<DDG4ProductionCuts> m_prodCuts;
   SimActivityRegistry m_registry;
   std::vector<std::shared_ptr<SimWatcher> > m_watchers;
   std::vector<std::shared_ptr<SimProducer> > m_producers;

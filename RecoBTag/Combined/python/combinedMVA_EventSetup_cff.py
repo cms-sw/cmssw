@@ -12,3 +12,6 @@ from RecoBTag.Combined.candidatePositiveCombinedMVAComputer_cfi import *
 # CombinedMVA V2
 from RecoBTag.Combined.combinedMVAV2Computer_cfi import *
 from RecoBTag.Combined.candidateCombinedMVAV2Computer_cfi import *
+
+# Charge tagger
+from RecoBTag.Combined.candidateChargeBTagComputer_cfi import *

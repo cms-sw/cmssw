@@ -14,6 +14,7 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductHolderIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include "boost/array.hpp"
 #include <memory>
@@ -98,7 +99,8 @@ namespace edm {
 
     bool anyProducts(BranchType const brType) const;
 
-    std::shared_ptr<ProductHolderIndexHelper> const& productLookup(BranchType branchType) const;
+    std::shared_ptr<ProductHolderIndexHelper const> productLookup(BranchType branchType) const;
+    std::shared_ptr<ProductHolderIndexHelper> productLookup(BranchType branchType);
 
     // returns the appropriate ProductHolderIndex else ProductHolderIndexInvalid if no BranchID is available
     ProductHolderIndex indexFrom(BranchID const& iID) const;
@@ -127,14 +129,22 @@ namespace edm {
     struct Transients {
       Transients();
       void reset();
+
+      std::shared_ptr<ProductHolderIndexHelper const> eventProductLookup() const {return get_underlying_safe(eventProductLookup_);}
+      std::shared_ptr<ProductHolderIndexHelper>& eventProductLookup() {return get_underlying_safe(eventProductLookup_);}
+      std::shared_ptr<ProductHolderIndexHelper const> lumiProductLookup() const {return get_underlying_safe(lumiProductLookup_);}
+      std::shared_ptr<ProductHolderIndexHelper>& lumiProductLookup() {return get_underlying_safe(lumiProductLookup_);}
+      std::shared_ptr<ProductHolderIndexHelper const> runProductLookup() const {return get_underlying_safe(runProductLookup_);}
+      std::shared_ptr<ProductHolderIndexHelper>& runProductLookup() {return get_underlying_safe(runProductLookup_);}
+
       bool frozen_;
       // Is at least one (run), (lumi), (event) product produced this process?
       boost::array<bool, NumBranchTypes> productProduced_;
       bool anyProductProduced_;
 
-      std::shared_ptr<ProductHolderIndexHelper> eventProductLookup_;
-      std::shared_ptr<ProductHolderIndexHelper> lumiProductLookup_;
-      std::shared_ptr<ProductHolderIndexHelper> runProductLookup_;
+      edm::propagate_const<std::shared_ptr<ProductHolderIndexHelper>> eventProductLookup_;
+      edm::propagate_const<std::shared_ptr<ProductHolderIndexHelper>> lumiProductLookup_;
+      edm::propagate_const<std::shared_ptr<ProductHolderIndexHelper>> runProductLookup_;
 
       ProductHolderIndex eventNextIndexValue_;
       ProductHolderIndex lumiNextIndexValue_;

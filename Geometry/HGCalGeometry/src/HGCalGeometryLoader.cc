@@ -7,7 +7,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
-//#define DebugLog
+//#define DebugLog 1
 
 typedef CaloCellGeometry::CCGFloat CCGFloat;
 typedef std::vector<float> ParmVec;

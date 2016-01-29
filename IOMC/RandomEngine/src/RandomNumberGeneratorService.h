@@ -13,6 +13,7 @@
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <atomic>
 #include <cstdint>
@@ -58,10 +59,10 @@ namespace edm {
       /// These are the only functions most modules should call.
 
       /// Use this engine in event methods
-      virtual CLHEP::HepRandomEngine& getEngine(StreamID const& streamID) const override;
+      virtual CLHEP::HepRandomEngine& getEngine(StreamID const& streamID) override;
 
       /// Use this engine in the global begin luminosity block method
-      virtual CLHEP::HepRandomEngine& getEngine(LuminosityBlockIndex const& luminosityBlockIndex) const override;
+      virtual CLHEP::HepRandomEngine& getEngine(LuminosityBlockIndex const& luminosityBlockIndex) override;
 
       // This returns the seed from the configuration. In the unusual case where an
       // an engine type takes multiple seeds to initialize a sequence, this function
@@ -122,12 +123,13 @@ namespace edm {
           label_(theLabel), seeds_(theSeeds), engine_(theEngine) { }
         std::string const& label() const { return label_; }
         VUint32 const& seeds() const { return seeds_; }
-        std::shared_ptr<CLHEP::HepRandomEngine> const& engine() const { return engine_; }
+        std::shared_ptr<CLHEP::HepRandomEngine const> engine() const { return get_underlying_safe(engine_); }
+        std::shared_ptr<CLHEP::HepRandomEngine>& engine() { return get_underlying_safe(engine_); }
         void setSeed(std::uint32_t v, unsigned int index) { seeds_.at(index) = v; }
       private:
         std::string label_;
         VUint32 seeds_;
-        std::shared_ptr<CLHEP::HepRandomEngine> engine_;
+        edm::propagate_const<std::shared_ptr<CLHEP::HepRandomEngine>> engine_;
       };
 
       // This class exists because it is faster to lookup a module using
@@ -139,14 +141,15 @@ namespace edm {
           engineState_(), labelAndEngine_(theLabelAndEngine), moduleID_(theModuleID) { }
 
         std::vector<unsigned long> const& engineState() const { return engineState_; }
-        LabelAndEngine* labelAndEngine() const { return labelAndEngine_; }
+        LabelAndEngine const* labelAndEngine() const { return get_underlying_safe(labelAndEngine_); }
+        LabelAndEngine*& labelAndEngine() { return get_underlying_safe(labelAndEngine_); }
         unsigned int moduleID() const { return moduleID_; }
         void setEngineState(std::vector<unsigned long> const& v) { engineState_ = v; }
         // Used to sort so binary lookup can be used on a container of these.
         bool operator<(ModuleIDToEngine const& r) const { return moduleID() < r.moduleID(); }
       private:
         std::vector<unsigned long> engineState_; // Used only for check in stream transitions
-        LabelAndEngine* labelAndEngine_;
+        edm::propagate_const<LabelAndEngine*> labelAndEngine_;
         unsigned int moduleID_;
       };
 
@@ -248,7 +251,7 @@ namespace edm {
       // the save file name has been recorded in the job report.
       std::string saveFileName_;
       std::atomic<bool> saveFileNameRecorded_;
-      std::vector<std::shared_ptr<std::ofstream> > outFiles_; // streamID
+      std::vector<edm::propagate_const<std::shared_ptr<std::ofstream>>> outFiles_; // streamID
 
       // Keep the name of the file from which we restore the state
       // of all declared engines at the beginning of a run. A

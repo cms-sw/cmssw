@@ -87,7 +87,7 @@ namespace  {
 MessageSender::MessageSender( ELseverityLevel const & sev, 
 			      ELstring const & id,
 			      bool verbatim, bool suppressed )
-: errorobj_p( suppressed ? 0 : new ErrorObj(sev,id,verbatim), ErrorObjDeleter())
+: errorobj_p( suppressed ? nullptr : new ErrorObj(sev,id,verbatim), ErrorObjDeleter())
 {
   //std::cout << "MessageSender ctor; new ErrorObj at: " << errorobj_p << '\n';
 }

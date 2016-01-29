@@ -10,6 +10,7 @@
 
 #include "XrdCl/XrdClFile.hh"
 
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "XrdSource.h"
@@ -73,7 +74,7 @@ public:
 
 
 private:
-    std::shared_ptr<XrdCl::File> m_fh;
+    edm::propagate_const<std::shared_ptr<XrdCl::File>> m_fh;
     std::string m_id;
     std::string m_site;
 };
@@ -391,13 +392,13 @@ Source::setXrootdSite()
 
 Source::~Source()
 {
-  new DelayedClose(m_fh, m_id, m_site);
+  new DelayedClose(fh(), m_id, m_site);
 }
 
 std::shared_ptr<XrdCl::File>
 Source::getFileHandle()
 {
-    return m_fh;
+    return fh();
 }
 
 static void
@@ -424,16 +425,18 @@ Source::handle(std::shared_ptr<ClientRequest> c)
     m_qm->startWatch(c->m_qmw);
     if (m_stats)
     {
-        std::shared_ptr<XrdReadStatistics> readStats = XrdSiteStatistics::startRead(m_stats, c);
+        std::shared_ptr<XrdReadStatistics> readStats = XrdSiteStatistics::startRead(stats(), c);
         c->setStatistics(readStats);
     }
 #ifdef XRD_FAKE_SLOW
     if (m_slow) std::this_thread::sleep_for(std::chrono::milliseconds(XRD_DELAY));
 #endif
+
+    XrdCl::XRootDStatus status;
     if (c->m_into)
     {
         // See notes in ClientRequest definition to understand this voodoo.
-        m_fh->Read(c->m_off, c->m_size, c->m_into, c.get());
+        status = m_fh->Read(c->m_off, c->m_size, c->m_into, c.get());
     }
     else
     {
@@ -444,7 +447,16 @@ Source::handle(std::shared_ptr<ClientRequest> c)
             cl.emplace_back(it.offset(), it.size(), it.data());
         }
         validateList(cl);
-        m_fh->VectorRead(cl, nullptr, c.get());
+        status = m_fh->VectorRead(cl, nullptr, c.get());
+    }
+
+    if (!status.IsOK())
+    {
+        edm::Exception ex(edm::errors::FileReadError);
+        ex << "XrdFile::Read or XrdFile::VectorRead failed with error: '"
+           << status.ToStr() << "' (errNo = " << status.errNo << ")";
+        ex.addContext("Calling Source::handle");
+        throw ex;
     }
 }
 

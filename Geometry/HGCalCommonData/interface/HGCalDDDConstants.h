@@ -18,10 +18,14 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
+#include <unordered_map>
+
 class HGCalDDDConstants {
 
 public:
 
+  typedef std::array<std::vector<int32_t>, 2> simrecovecs;  
+  
   HGCalDDDConstants(const HGCalParameters* hp, const std::string name);
   ~HGCalDDDConstants();
 
@@ -38,6 +42,7 @@ public:
   HGCalGeometryMode   geomMode() const {return mode_;}
   bool                isValid(int lay, int mod, int cell, bool reco) const;
   unsigned int        layers(bool reco) const;
+  unsigned int        layersInit(bool reco) const;
   std::pair<float,float> locateCell(int cell, int lay, int type, 
 				    bool reco) const;
   std::pair<float,float> locateCellHex(int cell, int wafer, bool reco) const;
@@ -47,6 +52,7 @@ public:
 				     float cellSize) const;
   int                 maxRows(int lay, bool reco) const;
   int                 modules(int lay, bool reco) const;
+  int                 modulesInit(int lay, bool reco) const;
   std::pair<int,int>  newCell(int cell, int layer, int sector, int subsector,
 			      int incrx, int incry, bool half) const;
   std::pair<int,int>  newCell(int cell, int layer, int subsector, int incrz,
@@ -74,11 +80,12 @@ public:
   HGCalParameters::hgtrform getTrForm(unsigned int k) const {return hgpar_->getTrForm(k);}
   std::vector<HGCalParameters::hgtrform> getTrForms() const ;
   
+  std::pair<int,float> getIndex(int lay, bool reco) const;
+
 private:
   int cellHex(double xx, double yy, const double& cellR, 
 	      const std::vector<double>& posX,
-	      const std::vector<double>& posY) const;
-  std::pair<int,float> getIndex(int lay, bool reco) const;
+	      const std::vector<double>& posY) const;  
   void getParameterSquare(int lay, int subSec, bool reco, float& h, float& bl,
 			  float& tl, float& alpha) const;
   bool waferInLayer(int wafer, int lay) const;
@@ -87,6 +94,9 @@ private:
   constexpr static double tan30deg_ = 0.5773502693;
   double                 rmax_;
   HGCalGeometryMode      mode_;
+  int32_t tot_wafers_;
+  std::array<uint32_t,2> tot_layers_;
+  simrecovecs max_modules_layer_; 
 };
 
 #endif

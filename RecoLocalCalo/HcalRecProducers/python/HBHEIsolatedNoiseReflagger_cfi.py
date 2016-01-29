@@ -41,6 +41,8 @@ hbhereco = cms.EDProducer(
     LooseMonoHitEne = cms.double(35.0),
     TightMonoHitEne = cms.double(15.0),
 
+    RBXEneThreshold = cms.double(500.0),
+
     # used by the object validator
     HBThreshold = cms.double(0.7),
     HESThreshold = cms.double(0.8),

@@ -1,4 +1,3 @@
-#Soureek updated HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCVS07_v to HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v
 import FWCore.ParameterSet.Config as cms
 
 SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
@@ -75,7 +74,8 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     ## will be empty
     triggerExtras = cms.PSet(
       src   = cms.InputTag("TriggerResults","","HLT"),
-      paths = cms.vstring(['HLT_IsoMu18_CentralPFJet30_BTagCSV07_v', 'HLT_IsoMu18_TriCentralPFJet50_40_30_v', 'HLT_IsoMu22_v', 'HLT_IsoMu18_v', 'HLT_IsoMu22_TriCentralPFJet50_40_30_v', 'HLT_IsoMu22_CentralPFJet30_BTagCSV07_v', 'HLT_IsoMu20_eta2p1_TriCentralPFJet30_v', 'HLT_IsoMu20_eta2p1_TriCentralPFJet50_40_30_v', 'HLT_IsoMu20_eta2p1_CentralPFJet30_BTagCSV07_v', 'HLT_IsoMu20_eta2p1_v', 'HLT_IsoMu24_eta2p1_TriCentralPFJet30_v', 'HLT_IsoMu24_eta2p1_TriCentralPFJet50_40_30_v', 'HLT_IsoMu24_eta2p1_CentralPFJet30_BTagCSV07_v'])
+#Soureek updating triggerPath name accrosding to JIRA ticket: https://its.cern.ch/jira/browse/CMSHLT-666      
+	  paths = cms.vstring(['HLT_IsoMu18_CentralPFJet30_BTagCSV_p063_v','HLT_IsoMu18_TriCentralPFJet50_40_30_v', 'HLT_IsoMu22_v', 'HLT_IsoMu18_v','HLT_IsoMu22_TriCentralPFJet50_40_30_v', 'HLT_IsoMu22_CentralPFJet30_BTagCSV_p063_v1', 'HLT_IsoMu20_eta2p1_TriCentralPFJet30_v', 'HLT_IsoMu20_eta2p1_TriCentralPFJet50_40_30_v', 'HLT_IsoMu20_eta2p1_CentralPFJet30_BTagCSV07_v', 'HLT_IsoMu20_eta2p1_v', 'HLT_IsoMu24_eta2p1_TriCentralPFJet30_v','HLT_IsoMu24_eta2p1_TriCentralPFJet50_40_30_v', 'HLT_IsoMu24_eta2p1_CentralPFJet30_BTagCSV_p063_v4'])
     )
   ),
   ## ------------------------------------------------------
@@ -88,8 +88,9 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
   preselection = cms.PSet(
     trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_IsoMu18_CentralPFJet30_BTagCSV07_v', 'HLT_IsoMu18_TriCentralPFJet50_40_30_v', 'HLT_IsoMu22_v', 'HLT_IsoMu18_v', 'HLT_IsoMu22_TriCentralPFJet50_40_30_v', 'HLT_IsoMu22_CentralPFJet30_BTagCSV07_v', 'HLT_IsoMu20_eta2p1_TriCentralPFJet30_v', 'HLT_IsoMu20_eta2p1_TriCentralPFJet50_40_30_v', 'HLT_IsoMu20_eta2p1_CentralPFJet30_BTagCSV07_v', 'HLT_IsoMu20_eta2p1_v', 'HLT_IsoMu24_eta2p1_TriCentralPFJet30_v', 'HLT_IsoMu24_eta2p1_TriCentralPFJet50_40_30_v', 'HLT_IsoMu24_eta2p1_CentralPFJet30_BTagCSV07_v'])
-    ),
+#Soureek updating triggerPath name accrosding to JIRA ticket: https://its.cern.ch/jira/browse/CMSHLT-666
+      select = cms.vstring((['HLT_IsoMu18_CentralPFJet30_BTagCSV_p063_v','HLT_IsoMu18_TriCentralPFJet50_40_30_v', 'HLT_IsoMu22_v', 'HLT_IsoMu18_v','HLT_IsoMu22_TriCentralPFJet50_40_30_v', 'HLT_IsoMu22_CentralPFJet30_BTagCSV_p063_v1', 'HLT_IsoMu20_eta2p1_TriCentralPFJet30_v', 'HLT_IsoMu20_eta2p1_TriCentralPFJet50_40_30_v', 'HLT_IsoMu20_eta2p1_CentralPFJet30_BTagCSV07_v', 'HLT_IsoMu20_eta2p1_v', 'HLT_IsoMu24_eta2p1_TriCentralPFJet30_v','HLT_IsoMu24_eta2p1_TriCentralPFJet50_40_30_v', 'HLT_IsoMu24_eta2p1_CentralPFJet30_BTagCSV_p063_v4']))
+    ),  
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
       src    = cms.InputTag("offlinePrimaryVertices"),
@@ -137,6 +138,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
 )
 
 SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
+
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -211,12 +213,11 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
     ## [optional] : when omitted the monitoring plots for triggering
     ## will be empty
     triggerExtras = cms.PSet(
-      src   = cms.InputTag("TriggerResults","","HLT"),
-
-## Soureek changing path name HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCVS07_v to HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v
-	  paths = cms.vstring(['HLT_Ele23_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v', 'HLT_Ele27_WPLoose_Gsf_WHbbBoost_v', 'HLT_Ele27_WPLoose_Gsf_v', 'HLT_Ele27_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v' 'HLT_Ele27_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v'])
-     )
-  ),
+			src   = cms.InputTag("TriggerResults","","HLT"),
+#Soureek updating triggerPath name accrosding to JIRA ticket: https://its.cern.ch/jira/browse/CMSHLT-666
+			paths = cms.vstring(['HLT_Ele23_WPLoose_Gsf_TriCentralPFJet50_40_30_v','HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCSV_p063_v','HLT_Ele27_WPLoose_Gsf_WHbbBoost_v', 'HLT_Ele27_WPLoose_Gsf_v', 'HLT_Ele27_WPLoose_Gsf_CentralPFJet30_BTagCSV_p063_v', 'HLT_Ele27_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV_p063_v'])
+		)
+	),	
   ## ------------------------------------------------------
   ## PRESELECTION
   ##
@@ -224,19 +225,18 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
   ## be monitored
   ## [mandatory] : but may be empty
   ##
-  preselection = cms.PSet(
-    trigger = cms.PSet(
-      src    = cms.InputTag("TriggerResults","","HLT"),
-
-## Soureek changing path name HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCVS07_v to HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v
-	  select = cms.vstring(['HLT_Ele23_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v', 'HLT_Ele27_WPLoose_Gsf_WHbbBoost_v', 'HLT_Ele27_WPLoose_Gsf_v', 'HLT_Ele27_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v' 'HLT_Ele27_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v'])
-     ),
+	preselection = cms.PSet(
+		trigger = cms.PSet(
+			src    = cms.InputTag("TriggerResults","","HLT"),
+#Soureek updating triggerPath name accrosding to JIRA ticket: https://its.cern.ch/jira/browse/CMSHLT-666
+			select = cms.vstring(['HLT_Ele23_WPLoose_Gsf_TriCentralPFJet50_40_30_v','HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCSV_p063_v','HLT_Ele27_WPLoose_Gsf_WHbbBoost_v', 'HLT_Ele27_WPLoose_Gsf_v', 'HLT_Ele27_WPLoose_Gsf_CentralPFJet30_BTagCSV_p063_v', 'HLT_Ele27_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV_p063_v'])
+		),
     ## [optional] : when omitted no preselection is applied
-    vertex = cms.PSet(
-      src    = cms.InputTag("offlinePrimaryVertices"),
-      select = cms.string('abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake')
-    )                                       
-  ), 
+		vertex = cms.PSet(
+			src    = cms.InputTag("offlinePrimaryVertices"),
+			select = cms.string('abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake')
+		)                                       
+	), 
   ## ------------------------------------------------------
   ## SELECTION
   ##
@@ -245,35 +245,35 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
   ## by this vector
   ## [mandatory] : may be empty or contain an arbitrary
   ## number of PSets
-  selection = cms.VPSet(
-    cms.PSet(
-      label  = cms.string("Hlt:step0"),
-      src    = cms.InputTag(""),
-      select = cms.string(""),
-      min    = cms.int32(0),
-      max    = cms.int32(0),
-    ),
-    cms.PSet(
-      label  = cms.string("elecs:step1"),
-      src    = cms.InputTag("gedGsfElectrons"),
-      #electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), pattern = cms.int32(1) ),
-      select = cms.string("pt>30 & abs(eta)<2.5 & (dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1"),
-      min    = cms.int32(1),
-      max    = cms.int32(1),
-    ),
-    #cms.PSet(
-    #  label  = cms.string("jets/pf:step2"),
-    #  src    = cms.InputTag("ak4PFJetsCHS"),
-    #  jetCorrector = cms.string("ak4PFCHSL2L3"),
-    #  select = cms.string("pt>40 & abs(eta)<5.0"),
-    #  min = cms.int32(1),
-    #), 
-    cms.PSet(
-      label  = cms.string("jets/pf:step2"),
-      src    = cms.InputTag("ak4PFJetsCHS"),
-      #jetCorrector = cms.string("ak4PFCHSL2L3"),
-      select = cms.string("pt>40 & abs(eta)<5.0"),
-      min = cms.int32(2),
-    ), 
-  )
+	selection = cms.VPSet(
+		cms.PSet(
+			label  = cms.string("Hlt:step0"),
+			src    = cms.InputTag(""),
+			select = cms.string(""),
+			min    = cms.int32(0),
+			max    = cms.int32(0),
+		),
+		cms.PSet(
+			label  = cms.string("elecs:step1"),
+			src    = cms.InputTag("gedGsfElectrons"),
+			#electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), pattern = cms.int32(1) ),
+			select = cms.string("pt>30 & abs(eta)<2.5 & (dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1"),
+			min    = cms.int32(1),
+			max    = cms.int32(1),
+		),
+		#cms.PSet(
+		#  label  = cms.string("jets/pf:step2"),
+		#  src    = cms.InputTag("ak4PFJetsCHS"),
+		#  jetCorrector = cms.string("ak4PFCHSL2L3"),
+		#  select = cms.string("pt>40 & abs(eta)<5.0"),
+		#  min = cms.int32(1),
+		#), 
+		cms.PSet(
+			label  = cms.string("jets/pf:step2"),
+			src    = cms.InputTag("ak4PFJetsCHS"),
+			#jetCorrector = cms.string("ak4PFCHSL2L3"),
+			select = cms.string("pt>40 & abs(eta)<5.0"),
+			min = cms.int32(2),
+		) 
+	),	
 )

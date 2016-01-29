@@ -16,6 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
@@ -38,7 +39,7 @@ namespace edm {
     virtual void registerThinnedAssociations(ProductRegistry const& productRegistry,
                                              ThinnedAssociationsHelper& thinnedAssociationsHelper) override;
   private:
-    std::unique_ptr<Selector> selector_;
+    edm::propagate_const<std::unique_ptr<Selector>> selector_;
     edm::EDGetTokenT<Collection> inputToken_;
     edm::InputTag inputTag_;
   };

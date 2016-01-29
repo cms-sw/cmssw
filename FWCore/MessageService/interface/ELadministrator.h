@@ -55,6 +55,7 @@
 #include "FWCore/MessageLogger/interface/ELlist.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
 
@@ -124,7 +125,6 @@ protected:
   //
   const ELseverityLevel       & abortThreshold() const;
   const ELseverityLevel       &  exitThreshold() const;
-  std::list<std::shared_ptr<ELdestination> >  & sinks();
   const ELseverityLevel       & highSeverity() const;
   int                           severityCounts( int lev ) const;
 
@@ -137,11 +137,11 @@ private:
 
   // ---  traditional member data:
   //
-  std::list<std::shared_ptr<ELdestination> > sinks_;		
+  std::list<edm::propagate_const<std::shared_ptr<ELdestination>>> sinks_;		
   ELseverityLevel            highSeverity_;
   int                        severityCounts_[ ELseverityLevel::nLevels ];
 
-  std::map < ELstring, std::shared_ptr<ELdestination> > attachedDestinations_;
+  std::map<ELstring, edm::propagate_const<std::shared_ptr<ELdestination>>> attachedDestinations_;
 
 };  // ELadministrator
 

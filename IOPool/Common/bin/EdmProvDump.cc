@@ -17,6 +17,7 @@
 
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "TError.h"
 #include "TFile.h"
@@ -502,7 +503,7 @@ private:
                       std::map<edm::BranchID, std::set<edm::BranchID> >& parentToChildren) const;
 
   std::string              filename_;
-  std::unique_ptr<TFile>   inputFile_;
+  edm::propagate_const<std::unique_ptr<TFile>>   inputFile_;
   int                      exitCode_;
   std::stringstream        errorLog_;
   int                      errorCount_;

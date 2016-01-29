@@ -13,6 +13,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Sources/interface/RawInputSource.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
@@ -35,7 +36,7 @@ namespace edm {
     virtual ~StreamerInputSource();
     static void fillDescription(ParameterSetDescription& description);
 
-    std::auto_ptr<SendJobHeader> deserializeRegistry(InitMsgView const& initView);
+    std::unique_ptr<SendJobHeader> deserializeRegistry(InitMsgView const& initView);
 
     void deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent = false);
 
@@ -94,12 +95,12 @@ namespace edm {
 
     virtual std::unique_ptr<FileBlock> readFile_();
 
-    TClass* tc_;
+    edm::propagate_const<TClass*> tc_;
     std::vector<unsigned char> dest_;
     TBufferFile xbuf_;
-    std::unique_ptr<SendEvent> sendEvent_;
-    std::unique_ptr<EventPrincipalHolder> eventPrincipalHolder_;
-    std::vector<std::unique_ptr<EventPrincipalHolder>> streamToEventPrincipalHolders_;
+    edm::propagate_const<std::unique_ptr<SendEvent>> sendEvent_;
+    edm::propagate_const<std::unique_ptr<EventPrincipalHolder>> eventPrincipalHolder_;
+    std::vector<edm::propagate_const<std::unique_ptr<EventPrincipalHolder>>> streamToEventPrincipalHolders_;
     bool adjustEventToNewProductRegistry_;
 
     std::string processName_;

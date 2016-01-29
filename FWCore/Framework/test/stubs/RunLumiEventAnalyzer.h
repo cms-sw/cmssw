@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <vector>
 
@@ -32,7 +33,7 @@ namespace edmtest {
 
     std::vector<unsigned long long> expectedRunLumisEvents0_;
     std::vector<unsigned long long> expectedRunLumisEvents1_;
-    std::vector<unsigned long long> *expectedRunLumisEvents_;
+    edm::propagate_const<std::vector<unsigned long long>*> expectedRunLumisEvents_;
     int index_;
     bool verbose_;
     bool dumpTriggerResults_;

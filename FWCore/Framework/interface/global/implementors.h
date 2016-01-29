@@ -26,6 +26,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {
@@ -98,13 +99,13 @@ namespace edm {
         }
         void doEndRun_(Run const& rp, EventSetup const& c) override final {
           globalEndRun(rp,c);
-          cache_.reset();
+          cache_ = nullptr; // propagate_const<T> has no reset() function
         }
         
         virtual std::shared_ptr<C> globalBeginRun(edm::Run const&, edm::EventSetup const&) const = 0;
         virtual void globalEndRun(edm::Run const&, edm::EventSetup const&) const = 0;
         //When threaded we will have a container for N items whre N is # of simultaneous runs
-        std::shared_ptr<C> cache_;
+        edm::propagate_const<std::shared_ptr<C>> cache_;
       };
       
       template <typename T, typename C>

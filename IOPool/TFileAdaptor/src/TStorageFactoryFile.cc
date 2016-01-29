@@ -578,7 +578,7 @@ TStorageFactoryFile::SysClose(Int_t /* fd */)
   if (storage_)
   {
     storage_->close();
-    storage_.release();
+    releaseStorage();
   }
 
   stats.tick();

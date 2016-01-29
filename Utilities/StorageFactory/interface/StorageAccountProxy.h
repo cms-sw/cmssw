@@ -3,6 +3,7 @@
 
 # include "Utilities/StorageFactory/interface/StorageAccount.h"
 # include "Utilities/StorageFactory/interface/Storage.h"
+# include "FWCore/Utilities/interface/get_underlying_safe.h"
 # include <string>
 #include <memory>
 
@@ -39,7 +40,9 @@ public:
   virtual void		close (void);
 
 protected:
-  std::unique_ptr<Storage> m_baseStorage;
+  void releaseStorage() {get_underlying_safe(m_baseStorage).release();}
+
+  edm::propagate_const<std::unique_ptr<Storage>> m_baseStorage;
 
   StorageAccount::StorageClassToken m_token;
   StorageAccount::Counter &m_statsRead;

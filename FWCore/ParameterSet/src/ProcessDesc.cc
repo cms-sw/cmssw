@@ -18,16 +18,6 @@ namespace edm {
   ProcessDesc::~ProcessDesc() {
   }
 
-  std::shared_ptr<ParameterSet>
-  ProcessDesc::getProcessPSet() const {
-    return pset_;
-  }
-
-  std::shared_ptr<std::vector<ParameterSet> >
-  ProcessDesc::getServicesPSets() const {
-    return services_;
-  }
-
   void ProcessDesc::addService(ParameterSet& pset) {
     // The standard services should be initialized first.
     services_->insert(services_->begin(), pset);

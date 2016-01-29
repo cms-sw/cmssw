@@ -9,6 +9,8 @@
 #include "tbb/concurrent_unordered_map.h"
 #include <boost/utility.hpp>
 
+#include "FWCore/Utilities/interface/propagate_const.h"
+
 namespace XrdAdaptor {
 
 class QualityMetric;
@@ -28,8 +30,8 @@ public:
 private:
     QualityMetricWatch(QualityMetric *parent1, QualityMetric *parent2);
     timespec m_start;
-    QualityMetric *m_parent1;
-    QualityMetric *m_parent2;
+    edm::propagate_const<QualityMetric*> m_parent1;
+    edm::propagate_const<QualityMetric*> m_parent2;
 };
 
 class QualityMetric : boost::noncopyable {

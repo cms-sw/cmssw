@@ -246,12 +246,12 @@ namespace edm {
   }
 
   SharedResourcesAcquirer*
-  InputSource::resourceSharedWithDelayedReader() const {
+  InputSource::resourceSharedWithDelayedReader() {
     return resourceSharedWithDelayedReader_();
   }
 
   SharedResourcesAcquirer*
-  InputSource::resourceSharedWithDelayedReader_() const {
+  InputSource::resourceSharedWithDelayedReader_() {
     return nullptr;
   }
 
