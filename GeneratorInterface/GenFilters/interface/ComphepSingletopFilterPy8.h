@@ -31,7 +31,7 @@ private:
     double ptsep;
     bool iWriteFile, isPythia8;
 
-    unsigned int read22, read23, pass22, pass23, hardLep;
+    int read22, read23, pass22, pass23, hardLep;
     TFile * moutFile;
     TTree * Matching;
     Double_t pt_add_b;
