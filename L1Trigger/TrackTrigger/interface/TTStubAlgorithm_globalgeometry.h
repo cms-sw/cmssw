@@ -40,10 +40,14 @@ class TTStubAlgorithm_globalgeometry : public TTStubAlgorithm< T >
 
   public:
     /// Constructor
-    TTStubAlgorithm_globalgeometry( const StackedTrackerGeometry *aStackedTracker,
-                                    double aCompatibilityScalingFactor,
+    //    TTStubAlgorithm_globalgeometry( const StackedTrackerGeometry *aStackedTracker,
+    //                                    double aCompatibilityScalingFactor,
+    //                                    double aIPWidth )
+    //      : TTStubAlgorithm< T >( aStackedTracker,__func__ )
+    TTStubAlgorithm_globalgeometry( double aCompatibilityScalingFactor,
                                     double aIPWidth )
-      : TTStubAlgorithm< T >( aStackedTracker,__func__ )
+      : TTStubAlgorithm< T >( __func__ )
+
     {
       mCompatibilityScalingFactor = aCompatibilityScalingFactor;
       mIPWidth = aIPWidth;
@@ -69,10 +73,10 @@ class TTStubAlgorithm_globalgeometry : public TTStubAlgorithm< T >
 
 /// Matching operations
 template< >
-void TTStubAlgorithm_globalgeometry< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfirmation,
+void TTStubAlgorithm_globalgeometry< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                               int &aDisplacement,
                                                                               int &anOffset,
-                                                                              const TTStub< Ref_PixelDigi_ > &aTTStub ) const;
+                                                                              const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const;
 
 
 
@@ -118,12 +122,15 @@ class  ES_TTStubAlgorithm_globalgeometry : public edm::ESProducer
       /// Calculate scaling factor based on B and Pt threshold
       double mCompatibilityScalingFactor = ( CLHEP::c_light * mMagneticFieldStrength ) / ( 100.0 * 2.0e+9 * mPtThreshold );
 
-      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
+      //      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
+      //      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
   
+      //      TTStubAlgorithm< T >* TTStubAlgo =
+      //        new TTStubAlgorithm_globalgeometry< T >( &(*StackedTrackerGeomHandle),
+      //                                                 mCompatibilityScalingFactor,
+      //                                                 mIPWidth );
       TTStubAlgorithm< T >* TTStubAlgo =
-        new TTStubAlgorithm_globalgeometry< T >( &(*StackedTrackerGeomHandle),
-                                                 mCompatibilityScalingFactor,
+        new TTStubAlgorithm_globalgeometry< T >( mCompatibilityScalingFactor,
                                                  mIPWidth );
 
       _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );

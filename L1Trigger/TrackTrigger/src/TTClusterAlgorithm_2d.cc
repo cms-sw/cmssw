@@ -11,19 +11,19 @@
 
 /// Clustering operations
 template< >
-void TTClusterAlgorithm_2d< Ref_PixelDigi_ >::Cluster( std::vector< std::vector< Ref_PixelDigi_ > > &output,
-                                                       const std::vector< Ref_PixelDigi_ > &input ) const
+void TTClusterAlgorithm_2d< Ref_Phase2TrackerDigi_ >::Cluster( std::vector< std::vector< Ref_Phase2TrackerDigi_ > > &output,
+                                                       const std::vector< Ref_Phase2TrackerDigi_ > &input ) const
 {
   /// Prepare the output
   output.clear();
 
   /// Prepare a proper hit container
-  std::map< std::pair< unsigned int, unsigned int>, pixelContainer< Ref_PixelDigi_ > >                     hitContainer;
-  typename std::map< std::pair< unsigned int, unsigned int >, pixelContainer< Ref_PixelDigi_ > >::iterator centralPixel;
+  std::map< std::pair< unsigned int, unsigned int>, pixelContainer< Ref_Phase2TrackerDigi_ > >                     hitContainer;
+  typename std::map< std::pair< unsigned int, unsigned int >, pixelContainer< Ref_Phase2TrackerDigi_ > >::iterator centralPixel;
 
   /// First fill all, put the hits into a grid
   /// Loop over all hits
-  typename std::vector< Ref_PixelDigi_ >::const_iterator inputIterator;
+  typename std::vector< Ref_Phase2TrackerDigi_ >::const_iterator inputIterator;
   for( inputIterator = input.begin();
        inputIterator != input.end();
        ++inputIterator )
@@ -108,7 +108,7 @@ void TTClusterAlgorithm_2d< Ref_PixelDigi_ >::Cluster( std::vector< std::vector<
     /// NOTE that kill2 prevents the pixel to report a cluster when looking at its size out of the 3x3
     /// pixel window under examination
     bool kill2 = false;
-    typename std::map< std::pair< unsigned int, unsigned int >, pixelContainer< Ref_PixelDigi_ > >::iterator rhs;
+    typename std::map< std::pair< unsigned int, unsigned int >, pixelContainer< Ref_Phase2TrackerDigi_ > >::iterator rhs;
 
     if ( ( rhs = hitContainer.find( std::make_pair( row+1, col-1 ) ) ) != hitContainer.end() ) kill2 |= rhs->second.kill0;
     if ( ( rhs = hitContainer.find( std::make_pair( row+1, col   ) ) ) != hitContainer.end() ) kill2 |= rhs->second.kill0;
@@ -119,7 +119,7 @@ void TTClusterAlgorithm_2d< Ref_PixelDigi_ >::Cluster( std::vector< std::vector<
     if ( !centralPixel->second.kill0 && !centralPixel->second.kill1 && !kill2 )
     {
       /// Store the central pixel
-      std::vector< Ref_PixelDigi_ > temp;
+      std::vector< Ref_Phase2TrackerDigi_ > temp;
       temp.push_back( *hitContainer[ std::make_pair( row , col ) ].centrePixel );
 
       /// Store all the neighbours
@@ -142,8 +142,8 @@ void TTClusterAlgorithm_2d< Ref_PixelDigi_ >::Cluster( std::vector< std::vector<
   {
     std::set< std::pair< unsigned int, unsigned int > > test;
     std::set< std::pair< unsigned int, unsigned int > > doubles;
-    typename std::vector< std::vector< Ref_PixelDigi_ > >::iterator outputIterator1;
-    typename std::vector< Ref_PixelDigi_ >::iterator                outputIterator2;
+    typename std::vector< std::vector< Ref_Phase2TrackerDigi_ > >::iterator outputIterator1;
+    typename std::vector< Ref_Phase2TrackerDigi_ >::iterator                outputIterator2;
 
     /// Loop over Clusters
     for ( outputIterator1 = output.begin();

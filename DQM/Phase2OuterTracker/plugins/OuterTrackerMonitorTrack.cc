@@ -68,23 +68,23 @@ OuterTrackerMonitorTrack::~OuterTrackerMonitorTrack()
 void OuterTrackerMonitorTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   /// Track Trigger Tracks
-  edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > > PixelDigiTTTrackHandle;
-  iEvent.getByLabel( tagTTTracks_, PixelDigiTTTrackHandle );
+  edm::Handle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > Phase2TrackerDigiTTTrackHandle;
+  iEvent.getByLabel( tagTTTracks_, Phase2TrackerDigiTTTrackHandle );
   
   unsigned int numHQTracks = 0;
   unsigned int numLQTracks = 0;
   unsigned int numTracks = 0; 
   
-  // Go on only if there are TTTracks from PixelDigis
-  if ( PixelDigiTTTrackHandle->size() > 0 )
+  // Go on only if there are TTTracks from Phase2TrackerDigis
+  if ( Phase2TrackerDigiTTTrackHandle->size() > 0 )
   {
     /// Loop over TTTracks
     unsigned int tkCnt = 0;
-    std::vector< TTTrack< Ref_PixelDigi_ > >::const_iterator iterTTTrack;
-    for ( iterTTTrack = PixelDigiTTTrackHandle->begin();iterTTTrack != PixelDigiTTTrackHandle->end();++iterTTTrack )
+    std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >::const_iterator iterTTTrack;
+    for ( iterTTTrack = Phase2TrackerDigiTTTrackHandle->begin();iterTTTrack != Phase2TrackerDigiTTTrackHandle->end();++iterTTTrack )
     {
       /// Make the pointer
-      edm::Ptr< TTTrack< Ref_PixelDigi_ > > tempTrackPtr( PixelDigiTTTrackHandle, tkCnt++ );
+      edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > tempTrackPtr( Phase2TrackerDigiTTTrackHandle, tkCnt++ );
       numTracks++;
       
       unsigned int nStubs = tempTrackPtr->getStubRefs().size();

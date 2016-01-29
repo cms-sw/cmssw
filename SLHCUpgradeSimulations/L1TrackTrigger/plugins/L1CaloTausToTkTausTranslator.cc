@@ -29,7 +29,7 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h" // new
 // for L1Tracks:
-#include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h" //for 'L1TkTrack_PixelDigi_Collection', etc..
+#include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h" //for 'L1TkTrack_Phase2TrackerDigi_Collection', etc..
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/L1TkTauEtComparator.h"
@@ -40,10 +40,10 @@ using namespace l1extra ;
 class L1CaloTausToTkTausTranslator : public edm::EDProducer {
 public:
   
-  typedef TTTrack< Ref_PixelDigi_ > L1TkTrackType;
+  typedef TTTrack< Ref_Phase2TrackerDigi_ > L1TkTrackType;
   typedef edm::Ptr< L1TkTrackType > L1TkTrackRefPtr;
   typedef std::vector< L1TkTrackType > L1TkTrackCollectionType;
-  typedef edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > L1TkStubRef; //new
+  typedef edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > L1TkStubRef; //new
   
   explicit L1CaloTausToTkTausTranslator(const edm::ParameterSet&);
   ~L1CaloTausToTkTausTranslator();

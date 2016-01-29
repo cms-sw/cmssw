@@ -59,7 +59,7 @@ using namespace l1extra;
 class L1TkEtMissProducer : public edm::EDProducer {
    public:
 
-   typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;
+   typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TkTrackType;
    typedef std::vector< L1TkTrackType >  L1TkTrackCollectionType;
 
       explicit L1TkEtMissProducer(const edm::ParameterSet&);
@@ -249,7 +249,7 @@ L1TkEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             int nstubs = 0;
 	    float nPS = 0.;     // number of stubs in PS modules
 
-	    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > >  theStubs = trackIter -> getStubRefs() ;
+	    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >  theStubs = trackIter -> getStubRefs() ;
 
             int tmp_trk_nstub = (int) theStubs.size();
             if ( tmp_trk_nstub < 0) continue;

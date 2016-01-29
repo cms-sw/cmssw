@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Geometry.TrackerGeometryBuilder.StackedTrackerGeometry_cfi import *
+#from Geometry.TrackerGeometryBuilder.StackedTrackerGeometry_cfi import *
 
 from L1Trigger.TrackTrigger.TTClusterAlgorithmRegister_cfi import *
 from L1Trigger.TrackTrigger.TTCluster_cfi import *

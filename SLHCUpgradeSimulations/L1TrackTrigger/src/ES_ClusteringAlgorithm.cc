@@ -16,8 +16,9 @@
 
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/ClusteringAlgorithm.h"
 
 TYPELOOKUP_DATA_REG(ClusteringAlgorithm<Ref_PSimHit_>);
-TYPELOOKUP_DATA_REG(ClusteringAlgorithm<Ref_PixelDigi_>);
+TYPELOOKUP_DATA_REG(ClusteringAlgorithm<Ref_Phase2TrackerDigi_>);
 

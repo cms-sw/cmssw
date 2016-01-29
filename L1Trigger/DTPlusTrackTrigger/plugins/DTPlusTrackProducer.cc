@@ -95,11 +95,11 @@ std::cerr<<theMagneticField<<std::endl;
 */
 
   /// Get the TTStub container
-  edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > TTStubHandle;
+  edm::Handle< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > TTStubHandle;
   event.getByLabel( TTStubsInputTag, TTStubHandle );
 
   /// Get the TTTrack container
-  edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > > TTTrackHandle;
+  edm::Handle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > TTTrackHandle;
   event.getByLabel( TTTracksInputTag, TTTrackHandle );
 
   /// Check if the DT Trigger is correcly created
@@ -213,12 +213,12 @@ std::cerr<<theMagneticField<<std::endl;
 #endif
 
   /// Prepare the TTStub map
-  std::map< unsigned int, std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_> >, TTStub< Ref_PixelDigi_ > > > > mapStubByLayer;
+  std::map< unsigned int, std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_> >, TTStub< Ref_Phase2TrackerDigi_ > > > > mapStubByLayer;
   mapStubByLayer.clear();
 
   /// Loop over the container of stubs (edmNew::DetSetVector)
-  edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::const_iterator iterDSV;
-  edmNew::DetSet< TTStub< Ref_PixelDigi_ > >::const_iterator iterTTStub;
+  edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator iterDSV;
+  edmNew::DetSet< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator iterTTStub;
   for ( iterDSV = TTStubHandle->begin();
         iterDSV != TTStubHandle->end();
         ++iterDSV )
@@ -239,13 +239,13 @@ std::cerr<<theMagneticField<<std::endl;
     /// Prepare the map
     if ( mapStubByLayer.find( iLayer ) == mapStubByLayer.end() )
     {
-      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_> >, TTStub< Ref_PixelDigi_ > > > tempVector;
+      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_> >, TTStub< Ref_Phase2TrackerDigi_ > > > tempVector;
       tempVector.clear();
       mapStubByLayer.insert( std::make_pair( iLayer, tempVector ) );
     }
 
     /// Get the stubs
-    edmNew::DetSet< TTStub< Ref_PixelDigi_ > > theStubs = (*TTStubHandle)[ thisStackedDetId ];
+    edmNew::DetSet< TTStub< Ref_Phase2TrackerDigi_ > > theStubs = (*TTStubHandle)[ thisStackedDetId ];
 
     /// Loop over the stubs of this Pt-module
     for ( iterTTStub = theStubs.begin();
@@ -260,7 +260,7 @@ std::cerr<<theMagneticField<<std::endl;
       }
 
       /// Make the reference to be put in the map
-      edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStubRef = edmNew::makeRefTo( TTStubHandle, iterTTStub );
+      edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > tempStubRef = edmNew::makeRefTo( TTStubHandle, iterTTStub );
 
       /// Put it in the map
       mapStubByLayer.find( iLayer )->second.push_back( tempStubRef );
@@ -298,16 +298,16 @@ std::cerr<<theMagneticField<<std::endl;
         /// Get all the stubs from this layer
         if ( mapStubByLayer.find( lay ) != mapStubByLayer.end() )
         {
-          std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > theStubsFromThisLayer = mapStubByLayer[lay];
+          std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > theStubsFromThisLayer = mapStubByLayer[lay];
 
           /// Prepare a Ref for the closest stub
           int minDistance = 9999999;
-          edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > theClosestStub = theStubsFromThisLayer.at(0);
+          edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > theClosestStub = theStubsFromThisLayer.at(0);
 
           /// Loop over the stubs
           for ( unsigned int jStub = 0; jStub < theStubsFromThisLayer.size(); jStub++ )
           {
-            edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStub = theStubsFromThisLayer.at(jStub);
+            edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > tempStub = theStubsFromThisLayer.at(jStub);
 
             /// Compare the positions
             GlobalPoint stubPos = theStackedTracker->findGlobalPosition( tempStub.get() ); 
@@ -371,16 +371,16 @@ std::cerr<<theMagneticField<<std::endl;
       /// This is the "classical" outside-inside matching
 
       /// Get all the TTTracks within matching window
-      std::vector< edm::Ptr< TTTrack< Ref_PixelDigi_ > > > allTracksInWindow;
+      std::vector< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > > allTracksInWindow;
 
       unsigned int jTrack = 0; /// Counter needed to build the edm::Ptr to the TTTrack
-      typename std::vector< TTTrack< Ref_PixelDigi_ > >::const_iterator inputIter;
+      typename std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >::const_iterator inputIter;
       for ( inputIter = TTTrackHandle->begin();
             inputIter != TTTrackHandle->end();
             ++inputIter )
       {
         /// Make the pointer to be put in the map
-        edm::Ptr< TTTrack< Ref_PixelDigi_ > > tempTrackPtr( TTTrackHandle, jTrack++ );
+        edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > tempTrackPtr( TTTrackHandle, jTrack++ );
 
         /// Redundant Pt threshold
         if ( inputIter->getMomentum().perp() < minL1TrackPt )
@@ -446,9 +446,9 @@ std::cerr<<theMagneticField<<std::endl;
         std::cerr << "   for DT at phi " << abc->getDTTSPhi() << " and theta " << abc->getDTTSTheta() << j << std::endl;
         std::cerr << "   matched stubs " << abc->getMatchedStubRefs().size() << std::endl;
 
-        std::map< unsigned int, edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > thisStubMap
+        std::map< unsigned int, edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > thisStubMap
           = abc->getMatchedStubRefs();
-        std::map< unsigned int, edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > >::iterator stubMapIter;
+        std::map< unsigned int, edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >::iterator stubMapIter;
 
         unsigned int kStub = 0;
         for ( stubMapIter = thisStubMap.begin();
@@ -456,7 +456,7 @@ std::cerr<<theMagneticField<<std::endl;
               ++stubMapIter )
         {
           std::cerr << "** stub number " << kStub++ << std::endl;
-          const TTStub< Ref_PixelDigi_ >* thisStub = stubMapIter->second.get();
+          const TTStub< Ref_Phase2TrackerDigi_ >* thisStub = stubMapIter->second.get();
           std::cerr << thisStub->print();
         }
 
@@ -495,12 +495,12 @@ std::cerr<<theMagneticField<<std::endl;
       {
         /// Prepare a Ptr for the closest track
         int minPtDifference = 999999;
-        edm::Ptr< TTTrack< Ref_PixelDigi_ > > theClosestTrack = thisDTMatch->getInWindowTrackPtrs().at(0);
+        edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > theClosestTrack = thisDTMatch->getInWindowTrackPtrs().at(0);
 
         /// Loop over the tracks
         for ( unsigned int jTrack = 0; jTrack < thisDTMatch->getInWindowTrackPtrs().size(); jTrack++ )
         {
-          edm::Ptr< TTTrack< Ref_PixelDigi_ > > tempTrackPtr = thisDTMatch->getInWindowTrackPtrs().at(jTrack);
+          edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > tempTrackPtr = thisDTMatch->getInWindowTrackPtrs().at(jTrack);
 
           int trackPt = static_cast< int >( tempTrackPtr->getMomentum().perp() );
 

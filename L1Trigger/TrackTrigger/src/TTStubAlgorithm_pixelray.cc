@@ -13,13 +13,13 @@
 
 /// Matching operations
 template< >
-void TTStubAlgorithm_pixelray< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfirmation, 
+void TTStubAlgorithm_pixelray< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation, 
                                                                         int &aDisplacement, 
                                                                         int &anOffset, 
-                                                                        const TTStub< Ref_PixelDigi_ > &aTTStub ) const
+                                                                        const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const
 {
   /// Convert DetId
-  StackedTrackerDetId stDetId( aTTStub.getDetId() );
+  /*  StackedTrackerDetId stDetId( aTTStub.getDetId() );
 
   /// Force this to be a BARREL-only algorithm
   if ( stDetId.isEndcap() )
@@ -33,7 +33,7 @@ void TTStubAlgorithm_pixelray< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aC
 
   /// Just call the helper function to do all the work
   rayEndpoints = this->GetPixelRayEndpoints( aTTStub,
-                                             TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker,
+                                             TTStubAlgorithm< Ref_Phase2TrackerDigi_ >::theStackedTracker,
                                              mCompatibilityScalingFactor );
 
   /// If positive define window
@@ -63,18 +63,18 @@ void TTStubAlgorithm_pixelray< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aC
   }
   else
     delete rayEndpoints;
-
+  */
 }
 
 /// Get pixel ray end points
 template< >
-std::pair< double, double >* TTStubAlgorithm_pixelray< Ref_PixelDigi_ >::GetPixelRayEndpoints( const TTStub< Ref_PixelDigi_ > & aTTStub,
-                                                                                               const StackedTrackerGeometry* stackedTracker,
+std::pair< double, double >* TTStubAlgorithm_pixelray< Ref_Phase2TrackerDigi_ >::GetPixelRayEndpoints( const TTStub< Ref_Phase2TrackerDigi_ > & aTTStub,
+    //                                                                                               const StackedTrackerGeometry* stackedTracker,
                                                                                                double scalingFactor )
 {
   /// Get the coordinates of the boundaries of the inner and outer pixels.
   /// Code adapted from Cluster::averagePosition
-  const GeomDetUnit* innerDet = stackedTracker->idToDetUnit( aTTStub.getDetId(), 0 );
+  /*  const GeomDetUnit* innerDet = stackedTracker->idToDetUnit( aTTStub.getDetId(), 0 );
   const GeomDetUnit* outerDet = stackedTracker->idToDetUnit( aTTStub.getDetId(), 1 );
 
   MeasurementPoint innerAvg = aTTStub.getClusterRef(0)->findAverageLocalCoordinates();
@@ -210,7 +210,7 @@ std::pair< double, double >* TTStubAlgorithm_pixelray< Ref_PixelDigi_ >::GetPixe
     std::pair< double, double >* rayPair = new std::pair< double, double >( leftPixelRayZ, rightPixelRayZ );
     return rayPair;
   }
-
+  */
   return 0;
 }
 

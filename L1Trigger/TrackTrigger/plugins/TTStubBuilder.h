@@ -36,6 +36,9 @@
 #include <map>
 #include <vector>
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
 template< typename T >
 class TTStubBuilder : public edm::EDProducer
 {
@@ -48,10 +51,10 @@ class TTStubBuilder : public edm::EDProducer
 
   private:
     /// Data members
-    const StackedTrackerGeometry *theStackedTracker;
+    //    const StackedTrackerGeometry *theStackedTracker;
     edm::ESHandle< TTStubAlgorithm< T > > theStubFindingAlgoHandle;
     edm::InputTag TTClustersInputTag;
-
+    
     /// Mandatory methods
     virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
     virtual void endRun( const edm::Run& run, const edm::EventSetup& iSetup );
@@ -89,19 +92,20 @@ template< typename T >
 void TTStubBuilder< T >::beginRun( const edm::Run& run, const edm::EventSetup& iSetup )
 {
   /// Get the geometry references
-  edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-  iSetup.get< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
-  theStackedTracker = StackedTrackerGeomHandle.product();
-
+  //edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
+  //iSetup.get< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
+  //theStackedTracker = StackedTrackerGeomHandle.product();
+  std::cout<<"debug0"<<std::endl;
   /// Get the stub finding algorithm
   iSetup.get< TTStubAlgorithmRecord >().get( theStubFindingAlgoHandle );
-
+  std::cout<<"debug1"<<std::endl;
   /// Print some information when loaded
   std::cout << std::endl;
   std::cout << "TTStubBuilder< " << templateNameFinder< T >() << " > loaded modules:"
             << "\n\tTTStubAlgorithm:\t" << theStubFindingAlgoHandle->AlgorithmName()
             << std::endl;
   std::cout << std::endl;
+  std::cout<<"debug2"<<std::endl;
 }
 
 /// End run
@@ -112,44 +116,81 @@ void TTStubBuilder< T >::endRun( const edm::Run& run, const edm::EventSetup& iSe
 template< typename T >
 void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
+  std::cout<<"debug3"<<std::endl;
+  ///////ADDED from here /////
+  //Retrieve tracker topology from geometry                                                                                                              
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+  std::cout<<"debug4"<<std::endl;
+  edm::ESHandle< TrackerGeometry > tGeomHandle;
+  iSetup.get< TrackerDigiGeometryRecord >().get( tGeomHandle );
+  const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+  std::cout<<"debug5"<<std::endl;
   /// Prepare output
   std::auto_ptr< edmNew::DetSetVector< TTCluster< T > > > TTClusterDSVForOutput( new edmNew::DetSetVector< TTCluster< T > > );
   std::auto_ptr< edmNew::DetSetVector< TTStub< T > > > TTStubDSVForOutputTemp( new edmNew::DetSetVector< TTStub< T > > );
   std::auto_ptr< edmNew::DetSetVector< TTStub< T > > > TTStubDSVForOutputAccepted( new edmNew::DetSetVector< TTStub< T > > );
   std::auto_ptr< edmNew::DetSetVector< TTStub< T > > > TTStubDSVForOutputRejected( new edmNew::DetSetVector< TTStub< T > > );
-
+  std::cout<<"debug6"<<std::endl;
   /// Get the Clusters already stored away
   edm::Handle< edmNew::DetSetVector< TTCluster< T > > > TTClusterHandle;
   iEvent.getByLabel( TTClustersInputTag, TTClusterHandle );
-
+  std::cout<<"debug7"<<std::endl;
   /// Get the maximum number of stubs per ROC
   /// (CBC3-style)
-  unsigned maxStubs = theStackedTracker->getCBC3MaxStubs();
+  //  unsigned maxStubs = theStackedTracker->getCBC3MaxStubs();
+  unsigned maxStubs = 3;
 
+  for (TrackerGeometry::DetContainer::const_iterator gd=theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++)
+    {        std::cout<<"debug 8"<<std::endl;
+      DetId detid = (*gd)->geographicalId();
+      std::cout << " TTClusterBuilder taking into account the DetId: " << detid.rawId();
+      std::cout << " is lower? " << tTopo->isLower(detid.rawId()) << std::endl;
+      std::cout<<"debug9"<<std::endl;
   /// Loop over the detector elements
-  StackedTrackerGeometry::StackContainerIterator StackedTrackerIterator;
-  for ( StackedTrackerIterator = theStackedTracker->stacks().begin();
-        StackedTrackerIterator != theStackedTracker->stacks().end();
-        ++StackedTrackerIterator )
-  {
-    StackedTrackerDetUnit* Unit = *StackedTrackerIterator;
-    StackedTrackerDetId Id = Unit->Id();
-    assert(Unit == theStackedTracker->idToStack(Id));
+  //    StackedTrackerGeometry::StackContainerIterator StackedTrackerIterator;
+  //for ( StackedTrackerIterator = theStackedTracker->stacks().begin();
+      //    StackedTrackerIterator != theStackedTracker->stacks().end();
+      // ++StackedTrackerIterator )
+      //  {
+      //StackedTrackerDetUnit* Unit = *StackedTrackerIterator;
+      //StackedTrackerDetId Id = Unit->Id();
+      //assert(Unit == theStackedTracker->idToStack(Id));
     
     /// Get the DetIds of each sensor
-    DetId id0 = Unit->stackMember(0);
-    DetId id1 = Unit->stackMember(1);
+      //    DetId id0 = Unit->stackMember(0);
+      //    DetId id1 = Unit->stackMember(1);
 
+      //      const GeomDetUnit* det0 = theTrackerGeom->idToDetUnit( tTopo->Lower(detid)  );
+      //      const GeomDetUnit* det1 = theTrackerGeom->idToDetUnit( tTopo->Upper(detid)  );
+
+      DetId id0 = tTopo->Lower(detid) ;
+      DetId id1 = tTopo->Upper(detid) ;
+      std::cout<<"debug10"<<std::endl;
     /// Check that everything is ok in the maps
-    if ( theStackedTracker->findPairedDetector( id0 ) != id1 ||
+      /*    if ( theStackedTracker->findPairedDetector( id0 ) != id1 ||
          theStackedTracker->findPairedDetector( id1 ) != id0 )
+    {
+      std::cerr << "A L E R T! error in detector association within Pt module (detector-to-detector)" << std::endl;
+      continue;
+      }*/
+
+      if ( ( id0 ) != tTopo->PartnerDetId(id1) ||
+	   ( id1 ) != tTopo->PartnerDetId(id0) )
     {
       std::cerr << "A L E R T! error in detector association within Pt module (detector-to-detector)" << std::endl;
       continue;
     }
 
-    if ( theStackedTracker->findStackFromDetector( id0 ) != Id ||
+      /*    if ( theStackedTracker->findStackFromDetector( id0 ) != Id ||
          theStackedTracker->findStackFromDetector( id1 ) != Id )
+    {
+      std::cerr << "A L E R T! error in detector association within Pt module (detector-to-module)" << std::endl;
+      continue;
+      }*/
+
+      if ( tTopo->Stack(id0) != tTopo->Stack(id1))
     {
       std::cerr << "A L E R T! error in detector association within Pt module (detector-to-module)" << std::endl;
       continue;
@@ -186,7 +227,8 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
     //tempRejected.clear();
 
     /// Get chip size information
-    const GeomDetUnit* det0 = theStackedTracker->idToDetUnit( Id, 0 );
+    //    const GeomDetUnit* det0 = theStackedTracker->idToDetUnit( Id, 0 );
+    const GeomDetUnit* det0 = theTrackerGeom->idToDetUnit( tTopo->Lower(detid) );
     const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
     const PixelTopology* top0 = dynamic_cast< const PixelTopology* >( &(pix0->specificTopology()) );
     const int chipSize = 2 * top0->rowsperroc(); /// Need to find ASIC size in half-strip units
@@ -202,7 +244,7 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
             ++outerClusterIter )
       {
         /// Build a temporary Stub
-        TTStub< T > tempTTStub( Id );
+        TTStub< T > tempTTStub( detid );
         tempTTStub.addClusterRef( edmNew::makeRefTo( TTClusterHandle, innerClusterIter ) );
         tempTTStub.addClusterRef( edmNew::makeRefTo( TTClusterHandle, outerClusterIter ) );
 
@@ -329,7 +371,7 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 
     if ( tempOutput.size() > 0 )
     {
-      typename edmNew::DetSetVector< TTStub< T > >::FastFiller tempOutputFiller( *TTStubDSVForOutputTemp, DetId(Id.rawId()) );
+      typename edmNew::DetSetVector< TTStub< T > >::FastFiller tempOutputFiller( *TTStubDSVForOutputTemp, detid);
       for ( unsigned int m = 0; m < tempOutput.size(); m++ )
       {
         tempOutputFiller.push_back( tempOutput.at(m) );
@@ -361,12 +403,12 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
   /// Now, correctly reset the output
   typename edmNew::DetSetVector< TTStub< T > >::const_iterator stubDetIter;
 
-  for ( stubDetIter = TTStubDSVForOutputTemp->begin();
+  /*  for ( stubDetIter = TTStubDSVForOutputTemp->begin();
         stubDetIter != TTStubDSVForOutputTemp->end();
         ++stubDetIter )
   {
     /// Get the DetId and prepare the FastFiller
-    DetId thisStackedDetId = stubDetIter->id();
+        DetId thisStackedDetId = stubDetIter->id();
     typename edmNew::DetSetVector< TTStub< T > >::FastFiller acceptedOutputFiller( *TTStubDSVForOutputAccepted, thisStackedDetId );
 
     /// Get its DetUnit
@@ -389,7 +431,7 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
       std::cerr << "A L E R T! error in detector association within Pt module (detector-to-module)" << std::endl;
       continue;
     }
-
+    
     /// Go on only if both detectors have clusters
     if ( TTClusterAcceptedHandle->find( id0 ) == TTClusterAcceptedHandle->end() ||
          TTClusterAcceptedHandle->find( id1 ) == TTClusterAcceptedHandle->end() )
@@ -457,9 +499,9 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 
     if ( acceptedOutputFiller.empty() )
       acceptedOutputFiller.abort();
-
+   
   } /// End of loop over stub DetSetVector
-
+*/    
   /// Put output in the event (2)
   iEvent.put( TTStubDSVForOutputAccepted, "StubAccepted" );
   iEvent.put( TTStubDSVForOutputRejected, "StubRejected" );

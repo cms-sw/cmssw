@@ -11,23 +11,23 @@
 
 /// Matching operations
 template< >
-void TTStubAlgorithm_window2013< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfirmation,
+void TTStubAlgorithm_window2013< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                           int &aDisplacement,
                                                                           int &anOffset,
-                                                                          const TTStub< Ref_PixelDigi_ > &aTTStub ) const
+                                                                          const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const
 {
   /// Calculate average coordinates col/row for inner/outer Cluster
   /// These are already corrected for being at the center of each pixel
-  MeasurementPoint mp0 = aTTStub.getClusterRef(0)->findAverageLocalCoordinates();
+  /*  MeasurementPoint mp0 = aTTStub.getClusterRef(0)->findAverageLocalCoordinates();
   MeasurementPoint mp1 = aTTStub.getClusterRef(1)->findAverageLocalCoordinates();
 
   /// Get the module position in global coordinates
   StackedTrackerDetId stDetId( aTTStub.getDetId() );
 
-  bool isPS = TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker->isPSModule( stDetId );
+  bool isPS = TTStubAlgorithm< Ref_Phase2TrackerDigi_ >::theStackedTracker->isPSModule( stDetId );
 
-  const GeomDetUnit* det0 = TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker->idToDetUnit( stDetId, 0 );
-  const GeomDetUnit* det1 = TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker->idToDetUnit( stDetId, 1 );
+  const GeomDetUnit* det0 = TTStubAlgorithm< Ref_Phase2TrackerDigi_ >::theStackedTracker->idToDetUnit( stDetId, 0 );
+  const GeomDetUnit* det1 = TTStubAlgorithm< Ref_Phase2TrackerDigi_ >::theStackedTracker->idToDetUnit( stDetId, 1 );
 
   /// Find pixel pitch and topology related information
   const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
@@ -128,5 +128,6 @@ void TTStubAlgorithm_window2013< Ref_PixelDigi_ >::PatternHitCorrelation( bool &
       anOffset = offsetI; /// In HALF-STRIP units!
     } /// End of stub is accepted
   }
+  */
 }
 

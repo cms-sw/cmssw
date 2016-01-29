@@ -41,10 +41,13 @@ class TTStubAlgorithm_cbc3 : public TTStubAlgorithm< T >
 
   public:
     /// Constructor
-    TTStubAlgorithm_cbc3( const StackedTrackerGeometry *aStackedTracker,
-                          //bool aPerformZMatchingPS,
+    //    TTStubAlgorithm_cbc3( const StackedTrackerGeometry *aStackedTracker,
+    //                          //bool aPerformZMatchingPS,
+    //                          bool aPerformZMatching2S )
+    //      : TTStubAlgorithm< T >( aStackedTracker, __func__ )
+    TTStubAlgorithm_cbc3( //bool aPerformZMatchingPS,
                           bool aPerformZMatching2S )
-      : TTStubAlgorithm< T >( aStackedTracker, __func__ )
+      : TTStubAlgorithm< T >( __func__ )
     {
       //mPerformZMatchingPS = aPerformZMatchingPS;
       mPerformZMatching2S = aPerformZMatching2S;
@@ -70,10 +73,10 @@ class TTStubAlgorithm_cbc3 : public TTStubAlgorithm< T >
 
 /// Matching operations
 template< >
-void TTStubAlgorithm_cbc3< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfirmation,
+void TTStubAlgorithm_cbc3< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                     int &aDisplacement,
                                                                     int &anOffset,
-                                                                    const TTStub< Ref_PixelDigi_ > &aTTStub ) const;
+                                                                    const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const;
 
 
 
@@ -114,11 +117,11 @@ class ES_TTStubAlgorithm_cbc3 : public edm::ESProducer
     /// Implement the producer
     boost::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
     { 
-      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
+      //      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
+      //      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
   
       TTStubAlgorithm< T >* TTStubAlgo =
-        new TTStubAlgorithm_cbc3< T >( &(*StackedTrackerGeomHandle),
+        new TTStubAlgorithm_cbc3< T >( //&(*StackedTrackerGeomHandle),
                                        //mPerformZMatchingPS,
                                        mPerformZMatching2S );
 

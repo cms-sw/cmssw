@@ -35,6 +35,7 @@
 <use   name="rootrflx"/>
 <use   name="DataFormats/SiPixelDetId"/>
 <use   name="DataFormats/L1TrackTrigger"/>
+<use   name="DataFormats/Phase2TrackerDigi"/>
 <export>
   <flags   SEALPLUGIN="1"/>
   <lib   name="1"/>

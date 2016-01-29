@@ -41,8 +41,11 @@ class TTClusterAlgorithm_neighbor : public TTClusterAlgorithm< T >
     
   public:
     /// Constructor
-    TTClusterAlgorithm_neighbor( const StackedTrackerGeometry *aStackedTracker )
-      : TTClusterAlgorithm< T >( aStackedTracker, __func__ ){}
+  //    TTClusterAlgorithm_neighbor( const StackedTrackerGeometry *aStackedTracker )
+  //      : TTClusterAlgorithm< T >( aStackedTracker, __func__ ){}
+
+    TTClusterAlgorithm_neighbor( )
+      : TTClusterAlgorithm< T >( __func__ ){}
 
     /// Destructor
     ~TTClusterAlgorithm_neighbor(){}
@@ -66,18 +69,18 @@ class TTClusterAlgorithm_neighbor : public TTClusterAlgorithm< T >
 
 /// Clustering operations
 template< >
-void TTClusterAlgorithm_neighbor< Ref_PixelDigi_ >::Cluster( std::vector<std::vector< Ref_PixelDigi_ > > &output,
-                                                             const std::vector< Ref_PixelDigi_ > &input ) const;
+void TTClusterAlgorithm_neighbor< Ref_Phase2TrackerDigi_ >::Cluster( std::vector<std::vector< Ref_Phase2TrackerDigi_ > > &output,
+                                                             const std::vector< Ref_Phase2TrackerDigi_ > &input ) const;
 
 /// Check if the hit is a neighbour
 template< >
-bool TTClusterAlgorithm_neighbor< Ref_PixelDigi_ >::isANeighbor( const Ref_PixelDigi_& center,
-                                                                 const Ref_PixelDigi_& mayNeigh ) const;
+bool TTClusterAlgorithm_neighbor< Ref_Phase2TrackerDigi_ >::isANeighbor( const Ref_Phase2TrackerDigi_& center,
+                                                                 const Ref_Phase2TrackerDigi_& mayNeigh ) const;
 
 /// Add neighbours to the cluster
 template< >
-void TTClusterAlgorithm_neighbor< Ref_PixelDigi_ >::addNeighbors( std::vector< Ref_PixelDigi_ >& cluster,
-                                                                  const std::vector< Ref_PixelDigi_ >& input,
+void TTClusterAlgorithm_neighbor< Ref_Phase2TrackerDigi_ >::addNeighbors( std::vector< Ref_Phase2TrackerDigi_ >& cluster,
+                                                                  const std::vector< Ref_Phase2TrackerDigi_ >& input,
 				                                  unsigned int startVal,
                                                                   std::vector< bool >& used) const;
 
@@ -114,11 +117,14 @@ class ES_TTClusterAlgorithm_neighbor : public edm::ESProducer
     /// Implement the producer
     boost::shared_ptr< TTClusterAlgorithm< T > > produce( const TTClusterAlgorithmRecord & record )
     { 
-      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
+      //      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
+      //      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
+
+      //      TTClusterAlgorithm< T >* TTClusterAlgo =
+      //        new TTClusterAlgorithm_neighbor< T >( &*StackedTrackerGeomHandle );
 
       TTClusterAlgorithm< T >* TTClusterAlgo =
-        new TTClusterAlgorithm_neighbor< T >( &*StackedTrackerGeomHandle );
+        new TTClusterAlgorithm_neighbor< T >( );
 
       _theAlgo = boost::shared_ptr< TTClusterAlgorithm< T > >( TTClusterAlgo );
       return _theAlgo;

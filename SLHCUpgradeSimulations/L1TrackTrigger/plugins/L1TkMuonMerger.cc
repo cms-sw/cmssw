@@ -44,7 +44,7 @@ using namespace std;
 class L1TkMuonMerger : public edm::EDProducer {
    public:
 
-   typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;
+   typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TkTrackType;
    typedef std::vector< L1TkTrackType >  L1TkTrackCollectionType;
 
       explicit L1TkMuonMerger(const edm::ParameterSet&);

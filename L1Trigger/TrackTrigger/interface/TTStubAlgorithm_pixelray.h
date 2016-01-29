@@ -40,15 +40,16 @@ class TTStubAlgorithm_pixelray : public TTStubAlgorithm< T >
 
     /// Function to get pixel ray end points
     static std::pair< double, double >* GetPixelRayEndpoints( const TTStub< T > & aTTStub,
-                                                              const StackedTrackerGeometry* stackedTracker,
+     //                                                              const StackedTrackerGeometry* stackedTracker,
                                                               double scalingFactor );
 
   public:
     /// Constructor
-    TTStubAlgorithm_pixelray( const StackedTrackerGeometry *aStackedTracker,
+ TTStubAlgorithm_pixelray( //const StackedTrackerGeometry *aStackedTracker,
                               double aCompatibilityScalingFactor,
                               double aIPWidth )
-      : TTStubAlgorithm< T >( aStackedTracker, __func__ )
+   //      : TTStubAlgorithm< T >( aStackedTracker, __func__ )
+      : TTStubAlgorithm< T >( __func__ )
     {
       mCompatibilityScalingFactor = aCompatibilityScalingFactor;
       mIPWidth = aIPWidth;
@@ -74,16 +75,16 @@ class TTStubAlgorithm_pixelray : public TTStubAlgorithm< T >
 
 /// Function to get pixel ray end points
 template< >
-std::pair< double, double >* TTStubAlgorithm_pixelray< Ref_PixelDigi_ >::GetPixelRayEndpoints( const TTStub< Ref_PixelDigi_ > & aTTStub,
-                                                                                               const StackedTrackerGeometry* stackedTracker,
+std::pair< double, double >* TTStubAlgorithm_pixelray< Ref_Phase2TrackerDigi_ >::GetPixelRayEndpoints( const TTStub< Ref_Phase2TrackerDigi_ > & aTTStub,
+       //                                                                               const StackedTrackerGeometry* stackedTracker,
                                                                                                double scalingFactor );
 
 /// Matching operations
 template< >
-void TTStubAlgorithm_pixelray< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfirmation,
+void TTStubAlgorithm_pixelray< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                         int &aDisplacement,
                                                                         int &anOffset,
-                                                                        const TTStub< Ref_PixelDigi_ > &aTTStub ) const;
+                                                                        const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const;
 
 
 
@@ -129,11 +130,11 @@ class  ES_TTStubAlgorithm_pixelray : public edm::ESProducer
       /// Calculate scaling factor based on B and Pt threshold
       double mCompatibilityScalingFactor = ( CLHEP::c_light * mMagneticFieldStrength ) / (100.0 * 2.0e+9 * mPtThreshold);
 
-      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-      record.getRecord<StackedTrackerGeometryRecord>().get( StackedTrackerGeomHandle );
+      //      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
+      //      record.getRecord<StackedTrackerGeometryRecord>().get( StackedTrackerGeomHandle );
 
       TTStubAlgorithm< T >* TTStubAlgo =
-        new TTStubAlgorithm_pixelray< T >( &(*StackedTrackerGeomHandle),
+        new TTStubAlgorithm_pixelray< T >(// &(*StackedTrackerGeomHandle),
                                            mCompatibilityScalingFactor,
                                            mIPWidth );
 

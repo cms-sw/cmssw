@@ -12,7 +12,7 @@
 
 /// Cluster width
 template< >
-unsigned int TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >::findWidth() const
+unsigned int TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi > >::findWidth() const
 {
   int rowMin = 99999999;
   int rowMax = 0;
@@ -40,7 +40,7 @@ unsigned int TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >:
 
 /// Get hit local coordinates
 template< >
-MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >::findHitLocalCoordinates( unsigned int hitIdx ) const
+MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi > >::findHitLocalCoordinates( unsigned int hitIdx ) const
 {
   /// NOTE in this case, DO NOT add 0.5
   /// to get the center of the pixel
@@ -60,7 +60,7 @@ MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi 
 
 /// Unweighted average local cluster coordinates
 template< >
-MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >::findAverageLocalCoordinates() const
+MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi > >::findAverageLocalCoordinates() const
 {
   double averageCol = 0.0;
   double averageRow = 0.0;
@@ -70,7 +70,7 @@ MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi 
   {
     if ( this->getRows().size() == 0 || this->getCols().size() == 0 )
     {
-      typename std::vector< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >::const_iterator hitIter;
+      typename std::vector< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi > >::const_iterator hitIter;
       for ( hitIter = theHits.begin();
             hitIter != theHits.end();
             hitIter++ )
@@ -97,7 +97,7 @@ MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi 
 
 /// Coordinates stored locally
 template< >
-std::vector< int > TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >::findRows() const
+std::vector< int > TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi > >::findRows() const
 {
   std::vector< int > temp;
   for ( unsigned int i = 0; i < theHits.size(); i++ )
@@ -108,7 +108,7 @@ std::vector< int > TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDig
 }
 
 template< >
-std::vector< int > TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >::findCols() const
+std::vector< int > TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi > >::findCols() const
 {
   std::vector< int > temp;
   for ( unsigned int i = 0; i < theHits.size(); i++ )

@@ -19,7 +19,7 @@
 #include <map>
 #include <string>
 #include "classNameFinder.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
+//#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
@@ -28,13 +28,15 @@ class TTClusterAlgorithm
 {
   protected:
     /// Data members
-    const StackedTrackerGeometry *theStackedTracker;
+  //    const StackedTrackerGeometry *theStackedTracker;
     std::string                  className_;
 
   public:
     /// Constructors
-    TTClusterAlgorithm( const StackedTrackerGeometry *aStackedTracker, std::string fName )
-      : theStackedTracker( aStackedTracker )
+    //    TTClusterAlgorithm( const StackedTrackerGeometry *aStackedTracker, std::string fName )
+    //      : theStackedTracker( aStackedTracker )
+
+    TTClusterAlgorithm( std::string fName )
     {
       className_=classNameFinder<T>(fName);
     }

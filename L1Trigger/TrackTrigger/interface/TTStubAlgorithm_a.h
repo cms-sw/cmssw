@@ -33,8 +33,10 @@ class TTStubAlgorithm_a : public TTStubAlgorithm< T >
 {
   public:
     /// Constructor
-    TTStubAlgorithm_a( const StackedTrackerGeometry *aStackedTracker )
-      : TTStubAlgorithm< T >( aStackedTracker, __func__ ){}
+  //    TTStubAlgorithm_a( const StackedTrackerGeometry *aStackedTracker )
+  //      : TTStubAlgorithm< T >( aStackedTracker, __func__ ){}
+    TTStubAlgorithm_a()
+      : TTStubAlgorithm< T >( __func__ ){}
 
     /// Destructor
     ~TTStubAlgorithm_a(){}
@@ -81,11 +83,14 @@ class ES_TTStubAlgorithm_a : public edm::ESProducer
 
     boost::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
     { 
-      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
+      //      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
+      //      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
+
+      //      TTStubAlgorithm< T >* TTStubAlgo =
+      //        new TTStubAlgorithm_a< T >( &(*StackedTrackerGeomHandle) );
 
       TTStubAlgorithm< T >* TTStubAlgo =
-        new TTStubAlgorithm_a< T >( &(*StackedTrackerGeomHandle) );
+        new TTStubAlgorithm_a< T > ();
 
       _theAlgo = boost::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;

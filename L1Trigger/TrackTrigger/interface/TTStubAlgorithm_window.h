@@ -45,13 +45,13 @@ class TTStubAlgorithm_window : public TTStubAlgorithm< T >
 
   public:
     /// Constructor
-    TTStubAlgorithm_window( const StackedTrackerGeometry *aStackedTracker,
+     TTStubAlgorithm_window( //const StackedTrackerGeometry *aStackedTracker,
                             double aPtScalingFactor,
                             double aIPwidth,
                             double aRowResolution,
                             double aColResolution )
-      : TTStubAlgorithm< T >( aStackedTracker, __func__ ),
-        mWindowFinder( new WindowFinder( aStackedTracker,
+      : TTStubAlgorithm< T >( __func__ ),
+      mWindowFinder( new WindowFinder( //aStackedTracker,
                                          aPtScalingFactor,
                                          aIPwidth,
                                          aRowResolution,
@@ -77,10 +77,10 @@ class TTStubAlgorithm_window : public TTStubAlgorithm< T >
 
 /// Matching operations
 template< >
-void TTStubAlgorithm_window< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aConfirmation,
+void TTStubAlgorithm_window< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                       int &aDisplacement,
                                                                       int &anOffset,
-                                                                      const TTStub< Ref_PixelDigi_ > &aTTStub ) const;
+                                                                      const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const;
 
 
 
@@ -130,11 +130,11 @@ class ES_TTStubAlgorithm_window : public edm::ESProducer
       /// Calculate scaling factor based on B and Pt threshold
       double mPtScalingFactor = 0.0015 * mMagneticFieldStrength / mPtThreshold;
 
-      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
+      //      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
+      //      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
   
       TTStubAlgorithm< T >* TTStubAlgo =
-        new TTStubAlgorithm_window< T >( &(*StackedTrackerGeomHandle),
+        new TTStubAlgorithm_window< T >(// &(*StackedTrackerGeomHandle),
                                          mPtScalingFactor,
                                          mIPWidth,
                                          mRowResolution,
