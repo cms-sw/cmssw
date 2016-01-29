@@ -57,7 +57,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
 
     # if no GlobalTag ESSource module is given, load a "default" configuration
     if essource is None:
-        from Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi import GlobalTag as essource
+        from CondCore.ESSources.CondDBESSource_cfi import GlobalTag as essource
 
     # if a Global Tag is given, check for an "auto" tag, and look it up in autoCond.py
     # if a match is found, load the actual Global Tag and optional conditions

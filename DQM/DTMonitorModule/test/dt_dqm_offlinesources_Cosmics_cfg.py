@@ -22,12 +22,9 @@ process.maxEvents = cms.untracked.PSet(
 
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-
-
 # Conditions (Global Tag is used here):
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "GR09_31X_V5P::All"
 #process.prefer("GlobalTag")
 

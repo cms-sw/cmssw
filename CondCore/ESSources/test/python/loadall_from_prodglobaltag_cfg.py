@@ -16,7 +16,7 @@ options.parseArguments()
 
 process = cms.Process("TEST")
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
+process.load("CondCore.ESSources.CondDBESSource_cfi")
 process.GlobalTag.globaltag = options.globalTag
 process.GlobalTag.RefreshEachRun=cms.untracked.bool(False)
 process.GlobalTag.DumpStat=cms.untracked.bool(True)
