@@ -1067,6 +1067,9 @@ void
 XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDStatus *status_ptr, XrdCl::AnyObject *, XrdCl::HostList *hostList_ptr)
 {
   // NOTE: as in XrdCl::File (synchronous), we ignore the response object.
+  // Make sure that we set m_outstanding_open to false on exit from this function.
+  std::unique_ptr<char, std::function<void(char*)>> outstanding_guard(nullptr, [&](char*){m_outstanding_open=false;});
+
   std::shared_ptr<Source> source;
   std::unique_ptr<XrdCl::XRootDStatus> status(status_ptr);
   std::unique_ptr<XrdCl::HostList> hostList(hostList_ptr);
@@ -1167,7 +1170,7 @@ XrdAdaptor::RequestManager::OpenHandler::open()
       // and make a call into xrootd (when it invokes m_file.reset()).  Hence, our callback
       // holds our mutex and attempts to grab an Xrootd mutex; RequestManager::requestFailure holds
       // an Xrootd mutex and tries to hold m_mutex.  This is a classic deadlock.
-    if (m_file.get())
+    if (m_outstanding_open)
     {
         return m_shared_future;
     }
@@ -1180,6 +1183,11 @@ XrdAdaptor::RequestManager::OpenHandler::open()
     std::string new_name = manager.m_name + ((manager.m_name.find("?") == manager.m_name.npos) ? "?" : "&") + opaque;
     edm::LogVerbatim("XrdAdaptorInternal") << "Trying to open URL: " << new_name;
     m_file.reset(new XrdCl::File());
+    m_outstanding_open = true;
+
+    // Always make sure we release m_file and set m_outstanding_open to false on error.
+    std::unique_ptr<char, std::function<void(char*)>> exit_guard(nullptr, [&](char*){m_outstanding_open = false; m_file.reset();});
+
     XrdCl::XRootDStatus status;
     if (!(status = m_file->Open(new_name, manager.m_flags, manager.m_perms, this)).IsOK())
     {
@@ -1193,6 +1201,7 @@ XrdAdaptor::RequestManager::OpenHandler::open()
       manager.addConnections(ex);
       throw ex;
     }
+    exit_guard.release();
       // Have a strong self-reference for as long as the callback is in-progress.
     m_self = self_ptr;
     return m_shared_future;
