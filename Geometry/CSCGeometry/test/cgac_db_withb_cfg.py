@@ -22,7 +22,7 @@ process.GlobalTag.globaltag = 'START42_V6::All'
 ##process.load('Geometry.CSCGeometryBuilder.cscGeometryDB_cfi')
 ##process.load('Geometry.CSCGeometryBuilder.idealForDigiCscGeometryDB_cff')
 # note following is cfi not cff (unnec for csc geom)
-##process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi')
+##process.load('CondCore.ESSources.CondDBESSource_cfi')
 # Any 'MC' tag is always ideal !BEWARE!
 ##process.GlobalTag.globaltag = 'MC_42_V6::All'
 ##process.GlobalTag.globaltag = 'START42_V6::All'

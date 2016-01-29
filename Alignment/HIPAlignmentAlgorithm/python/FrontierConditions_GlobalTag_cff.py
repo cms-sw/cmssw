@@ -35,5 +35,5 @@ from L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskVetoTechTrigConfig_cff i
 
 # end fake calibrations
 
-from Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi import *
+from CondCore.ESSources.CondDBESSource_cfi import GlobalTag
 

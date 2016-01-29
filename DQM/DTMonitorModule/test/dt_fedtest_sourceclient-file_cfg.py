@@ -36,7 +36,7 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     )
 
 # Global tag
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
+process.load("CondCore.ESSources.CondDBESSource_cfi")
 process.GlobalTag.globaltag ="GR10_P_V4::All"
 
 #-----------------------------

@@ -29,7 +29,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(250000) )
 # Input for AlCaRecoTriggerBitsRcd,
 # either via GloblalTag (use of _cfi instead of _cff sufficient and faster):
 from Configuration.AlCa.autoCond import autoCond
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
+process.load("CondCore.ESSources.CondDBESSource_cfi")
 process.GlobalTag.globaltag = autoCond['run2_data'] #choose your tag
 
 # ...or specify database and tag:  
