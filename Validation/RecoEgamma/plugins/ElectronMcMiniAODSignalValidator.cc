@@ -371,18 +371,23 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
             if (bestGsfElectron.isEE()) h1_ele_fbrem_mAOD_endcaps->Fill( bestGsfElectron.fbrem() );
 
         // -- pflow over pT
-            h1_ele_chargedHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt / bestGsfElectron.pt());
-            if (bestGsfElectron.isEB()) h1_ele_chargedHadronRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt / bestGsfElectron.pt());
-            if (bestGsfElectron.isEE()) h1_ele_chargedHadronRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt / bestGsfElectron.pt());
+            double one_over_pt = 1. / bestGsfElectron.pt());
 
-            h1_ele_neutralHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt / bestGsfElectron.pt());
-//          h1_ele_chargedHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIso_.sumNeutralHadronEt / bestGsfElectron.pt());
-            if (bestGsfElectron.isEB()) h1_ele_neutralHadronRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt / bestGsfElectron.pt());
-            if (bestGsfElectron.isEE()) h1_ele_neutralHadronRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt / bestGsfElectron.pt());
+            h1_ele_chargedHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt * one_over_pt );
+            h1_ele_neutralHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt * one_over_pt );
+            h1_ele_photonRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt * one_over_pt );
 
-            h1_ele_photonRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
-            if (bestGsfElectron.isEB()) h1_ele_photonRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
-            if (bestGsfElectron.isEE()) h1_ele_photonRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
+            if (bestGsfElectron.isEB()) {
+                h1_ele_chargedHadronRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt * one_over_pt );
+                h1_ele_neutralHadronRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt * one_over_pt );
+                h1_ele_photonRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt * one_over_pt );
+            }
+
+            if (bestGsfElectron.isEE()) {
+                h1_ele_chargedHadronRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt * one_over_pt );
+                h1_ele_neutralHadronRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt * one_over_pt );
+                h1_ele_photonRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt * one_over_pt );
+            }
         }
 
     } // fin boucle size_t i
