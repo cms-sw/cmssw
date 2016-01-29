@@ -128,13 +128,24 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 	}
     }
 
+
   // Don't use HF.
   int maxAbsIEta = 29;
+
+
+  std::map<int, float> iPhiHadEtMap;
   std::vector<const CaloTower*> sortedCaloTowers;
   for(CaloTowerCollection::const_iterator tower = TheCaloTowers->begin(); tower != TheCaloTowers->end(); tower++) {
-    if(abs(tower->ieta()) <= maxAbsIEta && tower->numProblematicHcalCells() > 0)
-      sortedCaloTowers.push_back(&(*tower));
+    if(abs(tower->ieta()) > maxAbsIEta) continue;
+
+    int iPhi = tower->iphi();
+    if(!iPhiHadEtMap.count(iPhi)) iPhiHadEtMap[iPhi] = 0.0;
+    iPhiHadEtMap[iPhi] += tower->hadEt();
+
+    if(tower->numProblematicHcalCells() > 0) sortedCaloTowers.push_back(&(*tower));
+
   }
+
 
   // Sort towers such that lowest iphi and ieta are first, highest last, and towers
   // with same iphi value are consecutive. Then we can do everything else in one loop.
@@ -142,10 +153,13 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 
   HaloTowerStrip strip;
 
+
   int prevIEta = -99, prevIPhi = -99;
   float prevHadEt = 0.;
+  float prevEmEt = 0.;
   std::pair<uint8_t, CaloTowerDetId> prevPair, towerPair;
   bool wasContiguous = true;
+
   // Loop through and store a vector of pairs (problematicCells, DetId) for each contiguous strip we find
   for(unsigned int i = 0; i < sortedCaloTowers.size(); i++) {
     const CaloTower* tower = sortedCaloTowers[i];
@@ -162,22 +176,40 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
       strip.cellTowerIds.push_back(prevPair);
       strip.cellTowerIds.push_back(towerPair);
       strip.hadEt += prevHadEt + tower->hadEt();
+      strip.emEt += prevEmEt + tower->emEt();
     }
 
     if(wasContiguous && isContiguous) {
       strip.cellTowerIds.push_back(towerPair);
       strip.hadEt += tower->hadEt();
+      strip.emEt += tower->emEt();
     }
 
     if((wasContiguous && !isContiguous) || i == sortedCaloTowers.size()-1) { //ended the strip, so flush it
-      if(strip.cellTowerIds.size() > 2) {
+
+      if(strip.cellTowerIds.size() > 3) {
+
+        int iPhi = strip.cellTowerIds.at(0).second.iphi();
+        int iPhiLower = (iPhi == 1) ? 72 : iPhi - 1;
+        int iPhiUpper = (iPhi == 72) ? 1 : iPhi + 1;
+
+        float energyRatio = 0.0;
+        if(iPhiHadEtMap.count(iPhiLower)) energyRatio += iPhiHadEtMap[iPhiLower];
+        if(iPhiHadEtMap.count(iPhiUpper)) energyRatio += iPhiHadEtMap[iPhiUpper];
+        iPhiHadEtMap[iPhi] = max(iPhiHadEtMap[iPhi], 0.001F);
+
+        energyRatio /= iPhiHadEtMap[iPhi];
+        strip.energyRatio = energyRatio;
+
         TheHcalHaloData.getProblematicStrips().push_back( strip );
+
       }
       strip = HaloTowerStrip();
     }
 
     wasContiguous = isContiguous;
     prevPair = towerPair;
+    prevEmEt = tower->emEt();
     prevIPhi = tower->iphi();
     prevIEta = tower->ieta();
     prevHadEt = tower->hadEt();
