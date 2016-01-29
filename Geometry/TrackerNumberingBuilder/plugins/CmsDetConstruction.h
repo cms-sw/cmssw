@@ -11,7 +11,8 @@ class CmsDetConstruction : public CmsTrackerLevelBuilder {
   void  buildComponent(DDFilteredView& , GeometricDet*, std::string);
  private:
   void buildDets(DDFilteredView& , GeometricDet* , std::string);
-  void buildSmallDets(DDFilteredView& , GeometricDet* , std::string);
+  void buildSmallDetsforGlued(DDFilteredView& , GeometricDet* , std::string);
+  void buildSmallDetsforStack(DDFilteredView& , GeometricDet* , std::string);
 };
 
 

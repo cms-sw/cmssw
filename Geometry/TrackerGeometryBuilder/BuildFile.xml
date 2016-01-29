@@ -1,5 +1,6 @@
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/SiPixelDetId"/>
+<use   name="DataFormats/TrackerCommon"/>
 <use   name="DetectorDescription/Core"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
