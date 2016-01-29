@@ -55,7 +55,8 @@ def customizeHLTforAll(process, menuType = "GRun", _customInfo = None):
 # Real-Data customisation
             if menuType == "HIon":
 #               fix "Unrunnable schedule" exception
-                process.hltGtDigis.DaqGtInputTag = cms.InputTag( "rawDataRepacker","","HLT" )
+                from HLTrigger.Configuration.CustomConfigs import MassReplaceInputTag
+                process = MassReplaceInputTag(process,"rawDataRepacker","rawDataRepacker::@skipCurrentProcess")
         else:
 # Monte-Carlo customisation
             from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
