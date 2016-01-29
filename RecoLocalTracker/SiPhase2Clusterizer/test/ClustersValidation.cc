@@ -74,9 +74,9 @@ class Phase2TrackerClusterizerValidation : public edm::EDAnalyzer {
 
         explicit Phase2TrackerClusterizerValidation(const edm::ParameterSet&);
         ~Phase2TrackerClusterizerValidation();
-        void beginJob();
-        void endJob();
-        void analyze(const edm::Event&, const edm::EventSetup&);
+        void beginJob() override;
+        void endJob() override;
+        void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     private:
 

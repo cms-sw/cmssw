@@ -58,9 +58,9 @@ class Phase2TrackerRecHitsValidation : public edm::EDAnalyzer {
 
         explicit Phase2TrackerRecHitsValidation(const edm::ParameterSet&);
         ~Phase2TrackerRecHitsValidation();
-        void beginJob();
-        void endJob();
-        void analyze(const edm::Event&, const edm::EventSetup&);
+        void beginJob() override;
+        void endJob() override;
+        void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     private:
 

@@ -24,5 +24,4 @@
 <use   name="DataFormats/ParticleFlowReco"/>
 <library   file="ClustersValidation.cc" name="Phase2TrackerClusterizerValidation">
   <flags   EDM_PLUGIN="1"/>
-  <flags CXXFLAGS="-g3"/>
 </library>

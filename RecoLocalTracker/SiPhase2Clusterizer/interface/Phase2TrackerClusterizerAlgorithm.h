@@ -16,7 +16,7 @@ class Phase2TrackerClusterizerAlgorithm {
 
         Phase2TrackerClusterizerAlgorithm(unsigned int, unsigned int);
         void setup(const PixelGeomDetUnit*);
-        void clusterizeDetUnit(const edm::DetSet< Phase2TrackerDigi >&, edmNew::DetSetVector< Phase2TrackerCluster1D >::FastFiller&);
+        void clusterizeDetUnit(const edm::DetSet< Phase2TrackerDigi >&, Phase2TrackerCluster1DCollectionNew::FastFiller&);
 
     private:
 

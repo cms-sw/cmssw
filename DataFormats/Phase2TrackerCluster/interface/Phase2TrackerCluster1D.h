@@ -1,7 +1,7 @@
 #ifndef DATAFORMATS_PHASE2TRACKERCLUSTER_PHASE2TRACKERCLUSTER1D_H 
 #define DATAFORMATS_PHASE2TRACKERCLUSTER_PHASE2TRACKERCLUSTER1D_H 
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 

@@ -1,4 +1,15 @@
-#include "RecoLocalTracker/SiPhase2Clusterizer/plugins/Phase2TrackerClusterizer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "RecoLocalTracker/SiPhase2Clusterizer/interface/Phase2TrackerClusterizerAlgorithm.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -7,14 +18,24 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
-
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 #include <vector>
-#include <iostream>
+#include <memory>
+
+class Phase2TrackerClusterizer : public edm::global::EDProducer<> {
+
+    public:
+        explicit Phase2TrackerClusterizer(const edm::ParameterSet& conf);
+        virtual ~Phase2TrackerClusterizer();
+        void produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup& eventSetup) const override final;
+
+    private:
+        std::unique_ptr< Phase2TrackerClusterizerAlgorithm > clusterizer_;
+        edm::EDGetTokenT< edm::DetSetVector< Phase2TrackerDigi > > token_;
+
+};
 
 
     /*
@@ -48,9 +69,8 @@
         std::auto_ptr< Phase2TrackerCluster1DCollectionNew > outputClusters(new Phase2TrackerCluster1DCollectionNew());
 
         // Go over all the modules
-        for (edm::DetSetVector< Phase2TrackerDigi >::const_iterator DSViter = digis->begin(); DSViter != digis->end(); ++DSViter) {
-
-            DetId detId(DSViter->detId());
+        for (auto DSViter : *digis) {
+            DetId detId(DSViter.detId());
 
             // Geometry
             const GeomDetUnit* geomDetUnit(tkGeom->idToDetUnit(detId));
@@ -58,14 +78,14 @@
             if (!pixDet) assert(0);
 
             // Container for the clusters that will be produced for this modules
-            edmNew::DetSetVector< Phase2TrackerCluster1D >::FastFiller clusters(*outputClusters, DSViter->detId());
+            Phase2TrackerCluster1DCollectionNew::FastFiller clusters(*outputClusters, DSViter.detId());
 
             // Setup the clusterizer algorithm for this detector (see ClusterizerAlgorithm for more details)
             clusterizer_->setup(pixDet);
 
             // Pass the list of Digis to the main algorithm
             // This function will store the clusters in the previously created container
-            clusterizer_->clusterizeDetUnit(*DSViter, clusters);
+            clusterizer_->clusterizeDetUnit(DSViter, clusters);
 
             if (clusters.empty()) clusters.abort();
         }
