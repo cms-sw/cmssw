@@ -1,8 +1,8 @@
 
-#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPEDummy.h"
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPETrivial.h"
 
 
-Phase2StripCPEDummy::LocalValues Phase2StripCPEDummy::localParameters(const Phase2TrackerCluster1D & cluster, const GeomDetUnit & det) const {
+Phase2StripCPETrivial::LocalValues Phase2StripCPETrivial::localParameters(const Phase2TrackerCluster1D & cluster, const GeomDetUnit & det) const {
   float strippitch  = 0.0090; // hardcoded dummy, a la 2S
   float striplength = 5.;     // hardcoded dummy, a la 2S
   std::pair<float, float> barycenter = cluster.barycenter();

@@ -23,7 +23,7 @@ void Phase2TrackerClusterizerAlgorithm::setup(const PixelGeomDetUnit* pixDet) {
  * Go over the Digis and create clusters
  */
 
-void Phase2TrackerClusterizerAlgorithm::clusterizeDetUnit(const edm::DetSet< Phase2TrackerDigi >& digis, edmNew::DetSetVector< Phase2TrackerCluster1D >::FastFiller& clusters) {
+void Phase2TrackerClusterizerAlgorithm::clusterizeDetUnit(const edm::DetSet< Phase2TrackerDigi >& digis, Phase2TrackerCluster1DCollectionNew::FastFiller& clusters) {
 
     // Fill the 2D matrix with the hit information : (hit or not)
     fillMatrix(digis.begin(), digis.end());

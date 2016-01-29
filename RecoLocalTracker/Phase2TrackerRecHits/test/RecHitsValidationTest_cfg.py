@@ -51,7 +51,6 @@ process.MessageLogger = cms.Service('MessageLogger',
 	)
 )
 
-
 # Analyzer
 process.analysis = cms.EDAnalyzer('Phase2TrackerRecHitsValidation',
     src = cms.InputTag("siPhase2RecHits")
@@ -62,7 +61,3 @@ process.rechits_step = cms.Path(process.siPhase2RecHits)
 process.validation_step = cms.Path(process.analysis)
 
 process.schedule = cms.Schedule(process.rechits_step, process.validation_step)
-
-from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10Ddev import customise_condOverRides
-process = customise_condOverRides(process)
-
