@@ -317,7 +317,7 @@ void rates(){
   n3.DrawLatex(0.5, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.5, 0.55, "Zero Bias");
 
-  c1->SaveAs("ratesMuon.pdf");
+  c2->SaveAs("ratesMuon.pdf");
 
   TCanvas* c3 = new TCanvas;
   c3->SetLogy();
