@@ -74,7 +74,7 @@ private:
 
   void makeHCalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<HcalTrigPrimDigiCollection>& hcalTPGs);
 
-  void makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<HcalTrigPrimDigiCollection>& hfTPGs);
+  void makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<HcalTrigPrimDigiCollection>& hcalTPGs);
 
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -141,7 +141,6 @@ L1TCaloLayer1RawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   std::auto_ptr<EcalTrigPrimDigiCollection> ecalTPGs(new EcalTrigPrimDigiCollection);
   std::auto_ptr<HcalTrigPrimDigiCollection> hcalTPGs(new HcalTrigPrimDigiCollection);
-  std::auto_ptr<HcalTrigPrimDigiCollection> hfTPGs(new HcalTrigPrimDigiCollection);
 
   // if raw data collection is present, check the headers and do the unpacking
   if (fedRawDataCollection.isValid()) {
@@ -172,8 +171,8 @@ L1TCaloLayer1RawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	if(verbose && event < 5) cout << endl;
 	makeECalTPGs(lPhi, ctp7Data, ecalTPGs);
 	makeHCalTPGs(lPhi, ctp7Data, hcalTPGs);
-	// Note: HF TPGs are separately put in event to avoid RCT gettting confused
-	makeHFTPGs(lPhi, ctp7Data, hfTPGs);
+	// Note: HF TPGs are separately appended
+	makeHFTPGs(lPhi, ctp7Data, hcalTPGs);
       }
 
     }
@@ -188,7 +187,6 @@ L1TCaloLayer1RawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   iEvent.put(ecalTPGs);
   iEvent.put(hcalTPGs);
-  iEvent.put(hfTPGs, "hfTPGDigis");
 
   event++;
   if(verbose && event == 5) cout << "L1TCaloLayer1RawToDigi: Goodbye! Tired of printing junk" << endl;
@@ -282,7 +280,7 @@ void L1TCaloLayer1RawToDigi::makeHCalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Dat
 
 }
 
-void L1TCaloLayer1RawToDigi::makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<HcalTrigPrimDigiCollection>& hfTPGs) {
+void L1TCaloLayer1RawToDigi::makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<HcalTrigPrimDigiCollection>& hcalTPGs) {
   UCTCTP7RawData::CaloType cType = UCTCTP7RawData::HF;
   for(uint32_t side = 0; side <= 1; side++) {
     bool negativeEta = false;
@@ -313,10 +311,11 @@ void L1TCaloLayer1RawToDigi::makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data,
 	   ctp7Data.isLinkDown(cType, negativeEta, iEta, iPhi)) towerDatum |= 0x8000;
 	HcalTriggerPrimitiveSample sample(towerDatum); 
 	HcalTrigTowerDetId id(cEta, cPhi);
+	id.setVersion(1); // To not process these 1x1 HF TPGs with RCT
 	HcalTriggerPrimitiveDigi tpg(id);
 	tpg.setSize(1);
 	tpg.setSample(0, sample);
-	hfTPGs->push_back(tpg);
+	hcalTPGs->push_back(tpg);
       }
     }
   }
