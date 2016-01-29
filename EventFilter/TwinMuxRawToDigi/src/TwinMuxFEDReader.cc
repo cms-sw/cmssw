@@ -258,7 +258,7 @@ void DTTM7FEDReader::processFed( int twinMuxFed,
 
   if ( nline != evtLgth ) {
     edm::LogWarning("TwinMux_unpacker") << "Number of words read " << std::dec << nline 
-                                        << " and event length " << std::dec << nline 
+                                        << " and event length " << std::dec << evtLgth 
                                         << " differ ";
     return;
   }
