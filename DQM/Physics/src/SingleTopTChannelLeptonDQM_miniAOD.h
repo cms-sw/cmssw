@@ -279,13 +279,13 @@ class SingleTopTChannelLeptonDQM_miniAOD : public DQMEDAnalyzer {
                 std::unique_ptr<SingleTopTChannelLepton_miniAOD::MonitorEnsemble> > >
       selection_;
 
-  std::unique_ptr<SelectionStep<pat::Muon> > MuonStep;
-  std::unique_ptr<SelectionStep<pat::Electron> > ElectronStep;
-  std::unique_ptr<SelectionStep<reco::Vertex> > PvStep;
+  std::unique_ptr<SelectionStep<pat::Muon> > muonStep_;
+  std::unique_ptr<SelectionStep<pat::Electron> > electronStep_;
+  std::unique_ptr<SelectionStep<reco::Vertex> > pvStep_;
 
-  std::vector<std::unique_ptr<SelectionStep<pat::Jet> > > JetSteps;
+  std::vector<std::unique_ptr<SelectionStep<pat::Jet> > > jetSteps_;
 
-  std::unique_ptr<SelectionStep<pat::MET> > METStep;
+  std::unique_ptr<SelectionStep<pat::MET> > metStep_;
   std::vector<edm::ParameterSet> sel;
 };
 

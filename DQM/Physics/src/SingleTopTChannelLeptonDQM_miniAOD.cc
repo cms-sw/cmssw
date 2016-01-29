@@ -763,11 +763,11 @@ SingleTopTChannelLeptonDQM_miniAOD::SingleTopTChannelLeptonDQM_miniAOD(
     : vertexSelect_(nullptr),
       beamspot_(""),
       beamspotSelect_(nullptr),
-      MuonStep(nullptr),
-      ElectronStep(nullptr),
-      PvStep(nullptr),
-      METStep(nullptr) {
-  JetSteps.clear();
+      muonStep_(nullptr),
+      electronStep_(nullptr),
+      pvStep_(nullptr),
+      metStep_(nullptr) {
+  jetSteps_.clear();
 
 
   // configure preselection
@@ -819,25 +819,25 @@ SingleTopTChannelLeptonDQM_miniAOD::SingleTopTChannelLeptonDQM_miniAOD(
       using std::unique_ptr;
 
       if (type == "muons") {
-        MuonStep.reset(new SelectionStep<pat::Muon>(selection_[key].first,
+        muonStep_.reset(new SelectionStep<pat::Muon>(selection_[key].first,
                                                      consumesCollector()));
       }
       if (type == "elecs") {
-        ElectronStep.reset(new SelectionStep<pat::Electron>(
+        electronStep_.reset(new SelectionStep<pat::Electron>(
             selection_[key].first, consumesCollector()));
       }
 
       if (type == "pvs") {
-        PvStep.reset(new SelectionStep<reco::Vertex>(selection_[key].first,
+        pvStep_.reset(new SelectionStep<reco::Vertex>(selection_[key].first,
                                                      consumesCollector()));
       }
       if (type == "jets") {
-        JetSteps.push_back(std::unique_ptr<SelectionStep<pat::Jet>>(
+        jetSteps_.push_back(std::unique_ptr<SelectionStep<pat::Jet>>(
             new SelectionStep<pat::Jet>(selection_[key].first,
                                          consumesCollector())));
       }
       if (type == "met") {
-        METStep.reset(new SelectionStep<pat::MET>(selection_[key].first,
+        metStep_.reset(new SelectionStep<pat::MET>(selection_[key].first,
                                                    consumesCollector()));
       }
     }
@@ -884,15 +884,15 @@ void SingleTopTChannelLeptonDQM_miniAOD::analyze(const edm::Event& event,
       if (type == "presel") {
         selection_[key].second->fill(event, setup);
       }
-      if (type == "elecs" && ElectronStep != 0) {
-        if (ElectronStep->select(event)) {
+      if (type == "elecs" && electronStep_ != 0) {
+        if (electronStep_->select(event)) {
           ++passed;
           selection_[key].second->fill(event, setup);
         } else
           break;
       }
-      if (type == "muons" && MuonStep != 0) {
-        if (MuonStep->select(event)) {
+      if (type == "muons" && muonStep_ != 0) {
+        if (muonStep_->select(event)) {
           ++passed;
           selection_[key].second->fill(event, setup);
         } else
@@ -900,16 +900,16 @@ void SingleTopTChannelLeptonDQM_miniAOD::analyze(const edm::Event& event,
       }
       if (type == "jets") {
         nJetSteps++;
-        if (JetSteps[nJetSteps]) {
-          if (JetSteps[nJetSteps]->select(event, setup)) {
+        if (jetSteps_[nJetSteps]) {
+          if (jetSteps_[nJetSteps]->select(event, setup)) {
             ++passed;
             selection_[key].second->fill(event, setup);
           } else
             break;
         }
       }
-      if (type == "met" && METStep != 0) {
-        if (METStep->select(event)) {
+      if (type == "met" && metStep_ != 0) {
+        if (metStep_->select(event)) {
           ++passed;
           selection_[key].second->fill(event, setup);
         } else
