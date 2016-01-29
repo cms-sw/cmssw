@@ -113,7 +113,6 @@ L1TCaloLayer1RawToDigi::L1TCaloLayer1RawToDigi(const edm::ParameterSet& iConfig)
 
   produces<EcalTrigPrimDigiCollection>();
   produces<HcalTrigPrimDigiCollection>();
-  produces<HcalTrigPrimDigiCollection>("hfTPGDigis");
 
   consumes<FEDRawDataCollection>(fedRawDataLabel);
 
