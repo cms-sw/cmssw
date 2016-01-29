@@ -153,23 +153,23 @@ QualityMetric::get()
 }
 
 
-[[cms::thread_safe]] std::unique_ptr<QualityMetricFactory> QualityMetricFactory::m_instance = std::make_unique<QualityMetricFactory>();
+[[cms::thread_safe]] QualityMetricFactory QualityMetricFactory::m_instance;
 
 
 std::unique_ptr<QualityMetricSource>
 QualityMetricFactory::get(timespec now, const std::string &id)
 {
-    auto itFound = m_instance->m_sources.find(id);
-    if (itFound == m_instance->m_sources.end())
+    auto itFound = m_instance.m_sources.find(id);
+    if (itFound == m_instance.m_sources.end())
     {
         // try to make a new one
         std::unique_ptr<QualityMetricUniqueSource> source(new QualityMetricUniqueSource(now));
-        auto insertResult = m_instance->m_sources.insert(std::make_pair(id, source.get()));
+        auto insertResult = m_instance.m_sources.insert(std::make_pair(id, source.get()));
         itFound = insertResult.first;
         if (insertResult.second)
-        {  // We raced with a different thread for insertion (and the other thread won).
+        {   // Insert was successful; release our reference.
             source.release();
-        }
+        }  // Otherwise, we raced with a different thread and they won; we will delete our new QM source.
     }
     return itFound->second->newSource(now);
 }
