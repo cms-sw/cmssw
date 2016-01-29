@@ -171,7 +171,7 @@ public:
 	bool hasFriends;
 	int theInnerHitId;
 	int theOuterHitId;
-	float dphidr; //angle between the prolongation of the radius and the line between the hits in the transverse plane
+	float theRadius; //angle between the prolongation of the radius and the line between the hits in the transverse plane
 	int theId;
 	short int theLayerId;
 	short int theCAState;
