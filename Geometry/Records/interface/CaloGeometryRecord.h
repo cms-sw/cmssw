@@ -23,6 +23,7 @@
 #include "Geometry/Records/interface/CaloTowerGeometryRecord.h"
 #include "Geometry/Records/interface/ZDCGeometryRecord.h"
 #include "Geometry/Records/interface/CastorGeometryRecord.h"
+#include "Geometry/Records/interface/HGCalGeometryRecord.h"
 #include "boost/mpl/vector.hpp"
 
 
@@ -38,6 +39,7 @@ class CaloGeometryRecord :
                 HcalSimNumberingRecord,
                 HcalRecNumberingRecord,
 		HcalGeometryRecord,
+                HGCalGeometryRecord,
 		CaloTowerGeometryRecord,
 		CastorGeometryRecord,
 		ZDCGeometryRecord> > {};
