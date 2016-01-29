@@ -88,11 +88,12 @@ MuonTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     reco::MuonTimeExtra dtTime;
     reco::MuonTimeExtra cscTime;
+    reco::MuonTime rpcTime;
     reco::MuonTimeExtra combinedTime;
 
     reco::MuonRef muonr(muons,i);
     
-    theTimingFiller_->fillTiming(*muonr, dtTime, cscTime, combinedTime, iEvent, iSetup);
+    theTimingFiller_->fillTiming(*muonr, dtTime, cscTime, rpcTime, combinedTime, iEvent, iSetup);
     
     dtTimeColl[i] = dtTime;
     cscTimeColl[i] = cscTime;
