@@ -8,6 +8,7 @@
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
+#include "SimG4Core/Physics/interface/DDG4ProductionCuts.h"
 
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 
@@ -72,12 +73,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
       m_fieldBuilder(nullptr)
 {    
   m_currentRun = nullptr;
-  G4RunManagerKernel *kernel = G4MTRunManagerKernel::GetRunManagerKernel();
-  if(!kernel) m_kernel = new G4MTRunManagerKernel();
-  else {
-    m_kernel = dynamic_cast<G4MTRunManagerKernel *>(kernel);
-    assert(m_kernel);
-  }
+  m_kernel = new G4MTRunManagerKernel();
 
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");
@@ -152,6 +148,12 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   }
   edm::LogInfo("SimG4CoreApplication") 
     << "RunManagerMT: start initialisation of PhysicsList for master";
+
+  int verb = m_pPhysics.getUntrackedParameter<int>("Verbosity",0);
+  m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue")*CLHEP::cm);
+  m_physicsList->SetCutsWithDefault();
+  m_prodCuts.reset(new DDG4ProductionCuts(map_, verb, m_pPhysics));	
+  m_prodCuts->update();
   
   m_kernel->SetPhysics(phys);
   m_kernel->InitializePhysics();
@@ -188,6 +190,8 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
       G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
     }
   }
+
+  if(verb > 1) { m_physicsList->DumpCutValuesTable(); }
 
   // geometry dump
   if("" != m_WriteFile) {
