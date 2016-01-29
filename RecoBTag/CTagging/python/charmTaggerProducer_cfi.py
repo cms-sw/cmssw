@@ -25,6 +25,8 @@ charmTagsComputerCvsL = cms.ESProducer(
    useAdaBoost = cms.bool(False)
    )
 
+charmTagsComputerCvsL.slComputerCfg.correctVertexMass = False
+
 charmTagsComputerCvsB = charmTagsComputerCvsL.clone(
    weightFile = cms.FileInPath('RecoBTag/CTagging/data/c_vs_b_sklearn.weight.xml'),   
    variables = c_vs_b_vars_vpset
