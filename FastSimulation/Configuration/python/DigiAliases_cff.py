@@ -97,9 +97,9 @@ def loadDigiAliases(premix=False):
                 cms.PSet(
                     type = cms.string("DTLayerIdDTDigiMuonDigiCollection")
                     ),
-                cms.PSet(
-                    type = cms.string("DTLayerIdDTDigiSimLinkMuonDigiCollection")
-                    )
+                #cms.PSet(
+                #    type = cms.string("DTLayerIdDTDigiSimLinkMuonDigiCollection")
+                #    )
                 )
            }
           )
@@ -110,9 +110,9 @@ def loadDigiAliases(premix=False):
                 cms.PSet(
                     type = cms.string("RPCDetIdRPCDigiMuonDigiCollection")
                     ),
-                cms.PSet(
-                    type = cms.string("RPCDigiSimLinkedmDetSetVector")
-                    )
+                #cms.PSet(
+                #    type = cms.string("RPCDigiSimLinkedmDetSetVector")
+                #    )
                 )
            }
           )
@@ -128,9 +128,9 @@ def loadDigiAliases(premix=False):
                     type = cms.string("CSCDetIdCSCStripDigiMuonDigiCollection"),
                     fromProductInstance = cms.string("MuonCSCStripDigi" if nopremix else "MuonCSCStripDigisDM"),
                     toProductInstance = cms.string("MuonCSCStripDigi")),
-                cms.PSet(
-                    type = cms.string('StripDigiSimLinkedmDetSetVector')
-                    ),
+                #cms.PSet(
+                #    type = cms.string('StripDigiSimLinkedmDetSetVector')
+                #    ),
                 )
            }
           )
