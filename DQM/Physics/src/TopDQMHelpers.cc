@@ -67,8 +67,8 @@ void Calculate::operator()(const std::vector<reco::Jet>& jets) {
   maxPtIndices.push_back(-1);
 
   for (int idx = 0; idx < maxNJets_; ++idx) {
-    for (int jdx = 0; jdx < maxNJets_; ++jdx) {
-      if (jdx <= idx) continue;
+    for (int jdx = idx+1; jdx < maxNJets_; ++jdx) {
+      //if (jdx <= idx) continue;
       for (int kdx = 0; kdx < maxNJets_; ++kdx) {
         if (kdx == idx || kdx == jdx) continue;
         reco::Particle::LorentzVector sum =
@@ -128,8 +128,8 @@ void Calculate::operator2(const std::vector<reco::Jet>& jets,
   maxBPtIndices.push_back(-1);
   maxBPtIndices.push_back(-1);
   for (int idx = 0; idx < maxNJets_; ++idx) {
-    for (int jdx = 0; jdx < maxNJets_; ++jdx) {
-      if (jdx <= idx) continue;
+    for (int jdx = idx+1; jdx < maxNJets_; ++jdx) {
+      //if (jdx <= idx) continue;
       for (int kdx = 0; kdx < maxNJets_; ++kdx) {
         if (kdx == idx || kdx == jdx) continue;
         // require only 1b-jet
@@ -263,8 +263,8 @@ void Calculate_miniAOD::operator()(const std::vector<pat::Jet>& jets) {
   maxPtIndices.push_back(-1);
 
   for (int idx = 0; idx < maxNJets_; ++idx) {
-    for (int jdx = 0; jdx < maxNJets_; ++jdx) {
-      if (jdx <= idx) continue;
+    for (int jdx = idx+1; jdx < maxNJets_; ++jdx) {
+      //if (jdx <= idx) continue;
       for (int kdx = 0; kdx < maxNJets_; ++kdx) {
         if (kdx == idx || kdx == jdx) continue;
         reco::Particle::LorentzVector sum =
@@ -326,8 +326,8 @@ void Calculate_miniAOD::operator2(const std::vector<pat::Jet>& jets,
   maxBPtIndices.push_back(-1);
   maxBPtIndices.push_back(-1);
   for (int idx = 0; idx < maxNJets_; ++idx) {
-    for (int jdx = 0; jdx < maxNJets_; ++jdx) {
-      if (jdx <= idx) continue;
+    for (int jdx = idx+1; jdx < maxNJets_; ++jdx) {
+      //if (jdx <= idx) continue;
       for (int kdx = 0; kdx < maxNJets_; ++kdx) {
         if (kdx == idx || kdx == jdx) continue;
         // require only 1b-jet
