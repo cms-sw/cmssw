@@ -44,7 +44,7 @@
 class TriggerMenu;
 class L1CaloGeometry;
 class L1MuTriggerScales;
-class L1GtEtaPhiConversions;
+//class L1GtEtaPhiConversions;
 
 // class declaration
 
@@ -234,7 +234,7 @@ private:
     unsigned long long m_l1MuTriggerScalesCacheID;
 
     // conversions for eta and phi
-    L1GtEtaPhiConversions* m_gtEtaPhiConversions;
+//    L1GtEtaPhiConversions* m_gtEtaPhiConversions;
 
 private:
 

@@ -14,7 +14,6 @@
 #include <iostream>
 #include <fstream>
 
-//#include "CondFormats/DataRecord/interface/L1TGlobalTriggerMenuRcd.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 

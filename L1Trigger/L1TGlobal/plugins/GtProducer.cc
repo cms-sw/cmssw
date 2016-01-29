@@ -36,7 +36,6 @@
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 #include "L1Trigger/L1TGlobal/interface/TriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "TriggerMenuParser.h"
@@ -51,12 +50,13 @@
 #include "CondFormats/L1TObjects/interface/L1GtParameters.h"
 #include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
 
+/* //These are old but we might be able to reuse when these go into for upgrade
 #include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
 #include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoAlgoTrigRcd.h"
-
+*/
 
 #include "DataFormats/Common/interface/RefProd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -490,22 +490,6 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         m_l1GtStableParCacheID = l1GtStableParCacheID;
 
     }
-
-/*
-    // get / update the trigger menu from the EventSetup
-    // local cache & check on cacheIdentifier
-    unsigned long long l1GtMenuCacheID = evSetup.get<L1TGlobalTriggerMenuRcd>().cacheIdentifier();
-
-    if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
-
-        edm::ESHandle< TriggerMenu> l1GtMenu;
-        evSetup.get< L1TGlobalTriggerMenuRcd>().get(l1GtMenu) ;
-        m_l1GtMenu =  l1GtMenu.product();
-       (const_cast<TriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
-
-        m_l1GtMenuCacheID = l1GtMenuCacheID;
-    }
-*/
 
 
     // get / update the trigger menu from the EventSetup

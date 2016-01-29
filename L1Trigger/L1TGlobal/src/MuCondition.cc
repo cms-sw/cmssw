@@ -30,7 +30,6 @@
 
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFunctions.h"
 #include "L1Trigger/L1TGlobal/interface/GtBoard.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
