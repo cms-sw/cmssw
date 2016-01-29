@@ -36,6 +36,9 @@ tobTecStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.t
     hitMasks = cms.InputTag("tobTecStepMasks"),
 )
 
+# track fitters
+from RecoTracker.IterativeTracking.TobTecStep_cff import tobTecFlexibleKFFittingSmoother,tobTecStepRKTrajectorySmootherForLoopers,tobTecStepRKTrajectorySmoother,tobTecStepRKTrajectoryFitterForLoopers,tobTecStepRKTrajectoryFitter,tobTecStepFitterSmootherForLoopers,tobTecStepFitterSmoother
+
 # tracks 
 tobTecStepTracks = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTracks.clone(
     TTRHBuilder = 'WithoutRefit',
