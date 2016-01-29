@@ -45,12 +45,12 @@ DTTM7FEDReader::DTTM7FEDReader(const edm::ParameterSet& pset) :
 
   if ( amcsecmap_.size() != wheels_.size() )
     throw cms::Exception("TwinMux_unpacker") << "Configuration file error. Size of \'wheels\' and \'amcsecmap\' differs.\n";  
-  
+    
   for (size_t wh_i = 0; wh_i < amcsecmap_.size(); ++wh_i){
-    std::map< short, short > whmap;      
+    std::array<short, 12> whmap;      
     for (size_t amc_i = 1; amc_i < 13; ++amc_i ){
       short shift = (12-amc_i)*4;
-      whmap[amc_i] = ( amcsecmap_.at(wh_i) >> shift ) & 0xF;
+      whmap.at(amc_i-1) = ( amcsecmap_.at(wh_i) >> shift ) & 0xF;
     }
     amcsec_.push_back(whmap);
   }
@@ -126,7 +126,7 @@ int DTTM7FEDReader::benAngConversion( int benAng_  ) {
 
 void DTTM7FEDReader::processFed( int twinMuxFed, 
                                  int twinMuxWheel,
-                                 std::map< short, short > twinMuxAmcSec,
+                                 std::array<short, 12> twinMuxAmcSec,
                                  edm::Handle<FEDRawDataCollection> data,
                                  L1MuDTChambPhContainer::Phi_Container& phiSegments,
                                  L1MuDTChambThContainer::The_Container& theSegments ) {
@@ -283,14 +283,15 @@ void DTTM7FEDReader::processFed( int twinMuxFed,
     int AMC_ID     = (dataWord >> 56 ) & 0xF;      // positions 56 -> 59
     int control    = (dataWord >> 60 ) & 0xF;      // positions 59 -> 63 
     int wheel      = twinMuxWheel;
-    int sector     = twinMuxAmcSec[AMC_ID];
-
+    
     if( ( AMC_ID < 1 ) or ( AMC_ID > 12 ) ) {
       edm::LogWarning("TwinMux_unpacker") << "%%%%%% AMC_ID OUT OF RANGE \n"
                                           << " TM7fedId "     << TM7fedId
                                           << " AMC_ID "       << AMC_ID;
       break;
     }
+    
+    int sector     = twinMuxAmcSec.at(AMC_ID-1);
     
     if( ( sector < 1 ) or ( sector > 12 ) ) {
       if( sector != 15 ) edm::LogWarning("TwinMux_unpacker") << "%%%%%% VALID AMC_ID POINTS TO SECTOR OUT OF RANGE \n"

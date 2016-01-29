@@ -45,7 +45,7 @@ public:
 		    L1MuDTChambPhContainer::Phi_Container& phi_data,
 		    L1MuDTChambThContainer::The_Container& the_data );
 
-  void processFed( int twinmuxfed, int wheel, std::map< short, short > mapamcsector,
+  void processFed( int twinmuxfed, int wheel, std::array<short, 12> twinMuxAmcSec,
            edm::Handle<FEDRawDataCollection> data,
            L1MuDTChambPhContainer::Phi_Container& phi_data,
            L1MuDTChambThContainer::The_Container& the_data );
@@ -59,7 +59,7 @@ private:
   std::vector<int> feds_;
   std::vector<int> wheels_;
   std::vector<long long int> amcsecmap_;
-  std::vector< std::map< short, short > > amcsec_;      
+  std::vector < std::array<short, 12> > amcsec_;
   
   unsigned char* LineFED_;
 
