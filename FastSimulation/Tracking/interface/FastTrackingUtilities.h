@@ -1,3 +1,4 @@
+
 #ifndef FASTSIMULATION_TRACKING_FASTTRACKINGHELPER_H
 #define FASTSIMULATION_TRACKING_FASTTRACKINGHELPER_H
 
@@ -40,6 +41,17 @@ namespace fastTrackingUtilities {
 	}
 	return true;
     }
+
+    inline double hitLocalError(const TrackingRecHit * hit)
+    { 
+	
+	double xx = hit->localPositionError().xx();
+	double yy = hit->localPositionError().yy();
+	double xy = hit->localPositionError().xy();
+	double delta = std::sqrt((xx-yy)*(xx-yy)+4.*xy*xy);
+	return 0.5 * (xx+yy-delta);
+    }
+    
     
 }
 
