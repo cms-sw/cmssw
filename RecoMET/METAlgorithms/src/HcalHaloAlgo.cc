@@ -196,6 +196,8 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
         float energyRatio = 0.0;
         if(iPhiHadEtMap.count(iPhiLower)) energyRatio += iPhiHadEtMap[iPhiLower];
         if(iPhiHadEtMap.count(iPhiUpper)) energyRatio += iPhiHadEtMap[iPhiUpper];
+        iPhiHadEtMap[iPhi] = max(iPhiHadEtMap[iPhi], 0.001F);
+
         energyRatio /= iPhiHadEtMap[iPhi];
         strip.energyRatio = energyRatio;
 
