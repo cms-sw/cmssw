@@ -105,6 +105,7 @@ TriggerObjectAnalyzer::TriggerObjectAnalyzer(const edm::ParameterSet& ps):
   nt_[isize] = fs->make<TTree>(triggerNames_.at(isize).c_str(),Form("trigger %d",isize));
   }
 
+
   verbose_ = 0;
 }
 
@@ -135,11 +136,10 @@ TriggerObjectAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     iEvent.getByLabel(triggerResultsTag_,triggerResultsHandle_);
 
     for(unsigned int itrig=0; itrig<triggerNames_.size(); itrig++){
-        std::map<std::string,bool>::iterator inMenu = triggerInMenu.find(triggerNames_[itrig]);
-        if (inMenu==triggerInMenu.end()) continue;
+	std::map<std::string,bool>::iterator inMenu = triggerInMenu.find(triggerNames_[itrig]);
+        if (inMenu==triggerInMenu.end()){ continue; }
       
-    triggerIndex_ = hltConfig_.triggerIndex(triggerNames_[itrig]);
-
+	triggerIndex_ = hltConfig_.triggerIndex(triggerNames_[itrig]);
       const unsigned int mIndex = triggerResultsHandle_->index(triggerIndex_);
 
       // Results from TriggerEvent product - Attention: must look only for
@@ -161,9 +161,11 @@ TriggerObjectAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    const trigger::TriggerObject& TO(TOC[KEYS[i]]);
 	    //This check prevents grabbing the L1 trigger object (VIDS < 0), and finds the max trigger pt within all trigger collections
 	    if(VIDS[i]>0){ // && pt<TO.pt()){
-	     // cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "
-	     //               << TO.id() << " " << TO.pt() << " " << TO.et() << " " << TO.eta() << " " << TO.phi() << " " << TO.mass()
-	     //                         << endl;
+	      if(verbose_){
+		cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "
+	                    << TO.id() << " " << TO.pt() << " " << TO.et() << " " << TO.eta() << " " << TO.phi() << " " << TO.mass()
+	                              << endl;
+	      }
 	      id[itrig].push_back(TO.id());
 	      pt[itrig].push_back(TO.pt());
 	      eta[itrig].push_back(TO.eta());
@@ -208,8 +210,10 @@ TriggerObjectAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   if (hltConfig_.init(iRun,iSetup,processName_,changed)) {
     if (changed) {
       std::vector<std::string> activeHLTPathsInThisEvent = hltConfig_.triggerNames();
+     
+      triggerInMenu.clear(); 
       for(unsigned int itrig=0; itrig<triggerNames_.size(); itrig++){
-          for (std::vector<std::string>::const_iterator iHLT = activeHLTPathsInThisEvent.begin(); iHLT != activeHLTPathsInThisEvent.end(); ++iHLT){
+	for (std::vector<std::string>::const_iterator iHLT = activeHLTPathsInThisEvent.begin(); iHLT != activeHLTPathsInThisEvent.end(); ++iHLT){
               //matching with regexp filter name. More than 1 matching filter is allowed so trig versioning is transparent to analyzer
               if (TString(*iHLT).Contains(TRegexp(TString(triggerNames_[itrig])))){
                   triggerInMenu[*iHLT] = true;
@@ -252,7 +256,6 @@ TriggerObjectAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
 void
 TriggerObjectAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
 {
-    triggerInMenu.clear();
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
