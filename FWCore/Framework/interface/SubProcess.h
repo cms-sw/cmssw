@@ -14,6 +14,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/BranchType.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 
@@ -287,13 +288,18 @@ namespace edm {
     bool hasSubProcesses() const {
       return subProcesses_.get() != nullptr && !subProcesses_->empty();
     }
+
+    std::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {return get_underlying_safe(branchIDListHelper_);}
+    std::shared_ptr<BranchIDListHelper>& branchIDListHelper() {return get_underlying_safe(branchIDListHelper_);}
+    std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper() const {return get_underlying_safe(thinnedAssociationsHelper_);}
+    std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper() {return get_underlying_safe(thinnedAssociationsHelper_);}
     
-    std::shared_ptr<ActivityRegistry>             actReg_;
+    std::shared_ptr<ActivityRegistry>             actReg_; // We do not use propagate_const because the registry itself is mutable.
     ServiceToken                                  serviceToken_;
     std::shared_ptr<ProductRegistry const>        parentPreg_;
     std::shared_ptr<ProductRegistry const>        preg_;
-    std::shared_ptr<BranchIDListHelper>           branchIDListHelper_;
-    std::shared_ptr<ThinnedAssociationsHelper>    thinnedAssociationsHelper_;
+    edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     std::unique_ptr<ExceptionToActionTable const> act_table_;
     std::shared_ptr<ProcessConfiguration const>   processConfiguration_;
     ProcessContext                                processContext_;
@@ -305,11 +311,11 @@ namespace edm {
     std::vector<ProcessHistoryRegistry>           processHistoryRegistries_;
     std::vector<HistoryAppender>                  historyAppenders_;
     PrincipalCache                                principalCache_;
-    boost::shared_ptr<eventsetup::EventSetupProvider> esp_;
-    std::unique_ptr<Schedule>                     schedule_;
+    edm::propagate_const<boost::shared_ptr<eventsetup::EventSetupProvider>> esp_;
+    edm::propagate_const<std::unique_ptr<Schedule>> schedule_;
     std::map<ProcessHistoryID, ProcessHistoryID>  parentToChildPhID_;
-    std::unique_ptr<std::vector<SubProcess> >     subProcesses_;
-    std::unique_ptr<ParameterSet>                 processParameterSet_;
+    edm::propagate_const<std::unique_ptr<std::vector<SubProcess>>> subProcesses_;
+    edm::propagate_const<std::unique_ptr<ParameterSet>> processParameterSet_;
 
     // keptProducts_ are pointers to the BranchDescription objects describing
     // the branches we are to write.

@@ -27,6 +27,8 @@ configured in the user's main() function, and is set running.
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
+
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/condition.hpp"
 
@@ -249,6 +251,15 @@ namespace edm {
 
     //returns true if an asynchronous stop was requested
     bool checkForAsyncStopRequest(StatusCode&);
+
+    std::shared_ptr<ProductRegistry const> preg() const {return get_underlying_safe(preg_);}
+    std::shared_ptr<ProductRegistry>& preg() {return get_underlying_safe(preg_);}
+    std::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {return get_underlying_safe(branchIDListHelper_);}
+    std::shared_ptr<BranchIDListHelper>& branchIDListHelper() {return get_underlying_safe(branchIDListHelper_);}
+    std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper() const {return get_underlying_safe(thinnedAssociationsHelper_);}
+    std::shared_ptr<ThinnedAssociationsHelper>& thinnedAssociationsHelper() {return get_underlying_safe(thinnedAssociationsHelper_);}
+    boost::shared_ptr<EDLooperBase const> looper() const {return get_underlying_safe(looper_);}
+    boost::shared_ptr<EDLooperBase>& looper() {return get_underlying_safe(looper_);}
     //------------------------------------------------------------------
     //
     // Data members below.
@@ -256,24 +267,24 @@ namespace edm {
     // only during construction, and never again. If they aren't
     // really needed, we should remove them.
 
-    std::shared_ptr<ActivityRegistry>           actReg_;
-    std::shared_ptr<ProductRegistry>            preg_;
-    std::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
-    std::shared_ptr<ThinnedAssociationsHelper>  thinnedAssociationsHelper_;
+    std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
+    edm::propagate_const<std::shared_ptr<ProductRegistry>> preg_;
+    edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     ServiceToken                                  serviceToken_;
-    std::unique_ptr<InputSource>                  input_;
-    std::unique_ptr<eventsetup::EventSetupsController> espController_;
-    boost::shared_ptr<eventsetup::EventSetupProvider> esp_;
+    edm::propagate_const<std::unique_ptr<InputSource>> input_;
+    edm::propagate_const<std::unique_ptr<eventsetup::EventSetupsController>> espController_;
+    edm::propagate_const<boost::shared_ptr<eventsetup::EventSetupProvider>> esp_;
     std::unique_ptr<ExceptionToActionTable const>          act_table_;
     std::shared_ptr<ProcessConfiguration const>       processConfiguration_;
     ProcessContext                                processContext_;
     PathsAndConsumesOfModules                     pathsAndConsumesOfModules_;
-    std::auto_ptr<Schedule>                       schedule_;
-    std::unique_ptr<std::vector<SubProcess> >     subProcesses_;
-    std::unique_ptr<HistoryAppender>            historyAppender_;
+    edm::propagate_const<std::unique_ptr<Schedule>> schedule_;
+    edm::propagate_const<std::unique_ptr<std::vector<SubProcess>>> subProcesses_;
+    edm::propagate_const<std::unique_ptr<HistoryAppender>> historyAppender_;
 
-    std::unique_ptr<FileBlock>                    fb_;
-    boost::shared_ptr<EDLooperBase>               looper_;
+    edm::propagate_const<std::unique_ptr<FileBlock>> fb_;
+    edm::propagate_const<boost::shared_ptr<EDLooperBase>> looper_;
 
     //The atomic protects concurrent access of deferredExceptionPtr_
     std::atomic<bool>                             deferredExceptionPtrIsSet_;

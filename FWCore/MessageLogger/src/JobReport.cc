@@ -368,7 +368,7 @@ namespace edm {
       }
       *(impl_->ost_) << "</ChildProcessFiles>\n";
       *(impl_->ost_) << "</FrameworkJobReport>\n";
-      std::ofstream* p = dynamic_cast<std::ofstream *>(impl_->ost_);
+      std::ofstream* p = dynamic_cast<std::ofstream *>(impl_->ost());
       if(p) {
         p->close();
       }
@@ -381,7 +381,7 @@ namespace edm {
 
   void
   JobReport::childAfterFork(std::string const& jobReportFile, unsigned int childIndex, unsigned int numberOfChildren) {
-    std::ofstream* p = dynamic_cast<std::ofstream*>(impl_->ost_);
+    std::ofstream* p = dynamic_cast<std::ofstream*>(impl_->ost());
     if(!p) return;
     std::ostringstream ofilename;
     toFileName(jobReportFile, childIndex, numberOfChildren, ofilename);

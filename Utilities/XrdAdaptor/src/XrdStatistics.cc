@@ -37,7 +37,7 @@ void XrdStatisticsService::postEndJob()
     if (!instance) {return;}
 
     std::map<std::string, std::string> props;
-    for (std::shared_ptr<XrdSiteStatistics> const &stats : instance->m_sites)
+    for (auto& stats : instance->m_sites)
     {
         stats->recomputeProperties(props);
         reportSvc->reportPerformanceForModule(stats->site(), "XrdSiteStatistics", props);
@@ -49,12 +49,12 @@ std::shared_ptr<XrdSiteStatistics>
 XrdSiteStatisticsInformation::getStatisticsForSite(std::string const &site)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
-    for (std::shared_ptr<XrdSiteStatistics> &stats : m_sites)
+    for (auto& stats : m_sites)
     {
-        if (stats->site() == site) {return stats;}
+        if (stats->site() == site) {return get_underlying_safe(stats);}
     }
     m_sites.emplace_back(new XrdSiteStatistics(site));
-    return m_sites.back();
+    return get_underlying_safe(m_sites.back());
 }
 
 

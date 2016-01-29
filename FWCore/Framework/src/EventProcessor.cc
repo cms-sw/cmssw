@@ -56,6 +56,7 @@
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RootHandlers.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "MessageForSource.h"
 #include "MessageForParent.h"
@@ -104,7 +105,8 @@ namespace {
       reg_ = nullptr;
     }
   private:
-    edm::ActivityRegistry* reg_;
+    edm::ActivityRegistry* reg_; // We do not use propagate_const because the registry itself is mutable.
+
     
   };
 }
@@ -513,7 +515,14 @@ namespace edm {
     preallocations_ = PreallocationConfiguration{nThreads,nStreams,nConcurrentLumis,nConcurrentRuns};
 
     // initialize the input source
-    input_ = makeInput(*parameterSet, *common, items.preg_, items.branchIDListHelper_, items.thinnedAssociationsHelper_, items.actReg_, items.processConfiguration_, preallocations_);
+    input_ = makeInput(*parameterSet,
+                       *common,
+                       items.preg(),
+                       items.branchIDListHelper(),
+                       items.thinnedAssociationsHelper(),
+                       items.actReg_,
+                       items.processConfiguration(),
+                       preallocations_);
 
     // intialize the Schedule
     schedule_ = items.initSchedule(*parameterSet,hasSubProcesses,preallocations_,&processContext_);
@@ -521,10 +530,10 @@ namespace edm {
     // set the data members
     act_table_ = std::move(items.act_table_);
     actReg_ = items.actReg_;
-    preg_ = items.preg_;
-    branchIDListHelper_ = items.branchIDListHelper_;
-    thinnedAssociationsHelper_ = items.thinnedAssociationsHelper_;
-    processConfiguration_ = items.processConfiguration_;
+    preg_ = items.preg();
+    branchIDListHelper_ = items.branchIDListHelper();
+    thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
+    processConfiguration_ = items.processConfiguration();
     processContext_.setProcessConfiguration(processConfiguration_.get());
     principalCache_.setProcessHistoryRegistry(input_->processHistoryRegistry());
 
@@ -533,7 +542,8 @@ namespace edm {
     principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
     for(unsigned int index = 0; index<preallocations_.numberOfStreams(); ++index ) {
       // Reusable event principal
-      auto ep = std::make_shared<EventPrincipal>(preg_, branchIDListHelper_, thinnedAssociationsHelper_, *processConfiguration_, historyAppender_.get(), index);
+      auto ep = std::make_shared<EventPrincipal>(preg(), branchIDListHelper(),
+           thinnedAssociationsHelper(), *processConfiguration_, historyAppender_.get(), index);
       ep->preModuleDelayedGetSignal_.connect(std::cref(actReg_->preModuleEventDelayedGetSignal_));
       ep->postModuleDelayedGetSignal_.connect(std::cref(actReg_->postModuleEventDelayedGetSignal_));
       principalCache_.insert(ep);
@@ -547,8 +557,8 @@ namespace edm {
       for(auto& subProcessPSet : *subProcessVParameterSet) { 
         subProcesses_->emplace_back(subProcessPSet,
                                     *parameterSet,
-                                    preg_,
-                                    branchIDListHelper_,
+                                    preg(),
+                                    branchIDListHelper(),
                                     *thinnedAssociationsHelper_,
                                     *espController_,
                                     *actReg_,
@@ -566,13 +576,14 @@ namespace edm {
     ServiceRegistry::Operate op(token);
 
     // manually destroy all these thing that may need the services around
-    espController_.reset();
-    subProcesses_.reset();
-    esp_.reset();
-    schedule_.reset();
-    input_.reset();
-    looper_.reset();
-    actReg_.reset();
+    // propagate_const<T> has no reset() function
+    espController_ = nullptr;
+    subProcesses_ = nullptr;
+    esp_ = nullptr;
+    schedule_ = nullptr;
+    input_ = nullptr;
+    looper_ = nullptr;
+    actReg_ = nullptr;
 
     pset::Registry::instance()->clear();
     ParentageRegistry::instance()->clear();
@@ -593,7 +604,7 @@ namespace edm {
                                  preallocations_.numberOfRuns(),
                                  preallocations_.numberOfThreads());
     actReg_->preallocateSignal_(bounds);
-    pathsAndConsumesOfModules_.initialize(schedule_.get(), preg_);
+    pathsAndConsumesOfModules_.initialize(schedule_.get(), preg());
     actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
 
     //NOTE:  This implementation assumes 'Job' means one call
@@ -665,7 +676,7 @@ namespace edm {
     }
     c.call(std::bind(&InputSource::doEndJob, input_.get()));
     if(looper_) {
-      c.call(std::bind(&EDLooperBase::endOfJob, looper_));
+      c.call(std::bind(&EDLooperBase::endOfJob, looper()));
     }
     c.call([actReg](){actReg->postEndJobSignal_();});
     if(c.hasThrown()) {
@@ -1325,7 +1336,7 @@ namespace edm {
                 if(size < preg_->size()) {
                   principalCache_.adjustIndexesAfterProductRegistryAddition();
                 }
-                principalCache_.adjustEventsToNewProductRegistry(preg_);
+                principalCache_.adjustEventsToNewProductRegistry(preg());
               }
             }
             {
@@ -1486,7 +1497,7 @@ namespace edm {
     if(size < preg_->size()) {
       principalCache_.adjustIndexesAfterProductRegistryAddition();
     }
-    principalCache_.adjustEventsToNewProductRegistry(preg_);
+    principalCache_.adjustEventsToNewProductRegistry(preg());
     if((numberOfForkedChildren_ > 0) or
        (preallocations_.numberOfStreams()>1 and
         preallocations_.numberOfThreads()>1)) {
@@ -1827,7 +1838,7 @@ namespace edm {
         << "Illegal attempt to insert run into cache\n"
         << "Contact a Framework Developer\n";
     }
-    auto rp = std::make_shared<RunPrincipal>(input_->runAuxiliary(), preg_, *processConfiguration_, historyAppender_.get(), 0);
+    auto rp = std::make_shared<RunPrincipal>(input_->runAuxiliary(), preg(), *processConfiguration_, historyAppender_.get(), 0);
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
       input_->readRun(*rp, *historyAppender_);
@@ -1839,7 +1850,7 @@ namespace edm {
   }
 
   statemachine::Run EventProcessor::readAndMergeRun() {
-    principalCache_.merge(input_->runAuxiliary(), preg_);
+    principalCache_.merge(input_->runAuxiliary(), preg());
     auto runPrincipal =principalCache_.runPrincipalPtr();
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
@@ -1864,7 +1875,7 @@ namespace edm {
         << "Run is invalid\n"
         << "Contact a Framework Developer\n";
     }
-    auto lbp = std::make_shared<LuminosityBlockPrincipal>(input_->luminosityBlockAuxiliary(), preg_, *processConfiguration_, historyAppender_.get(), 0);
+    auto lbp = std::make_shared<LuminosityBlockPrincipal>(input_->luminosityBlockAuxiliary(), preg(), *processConfiguration_, historyAppender_.get(), 0);
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
       input_->readLuminosityBlock(*lbp, *historyAppender_);
@@ -1876,7 +1887,7 @@ namespace edm {
   }
 
   int EventProcessor::readAndMergeLumi() {
-    principalCache_.merge(input_->luminosityBlockAuxiliary(), preg_);
+    principalCache_.merge(input_->luminosityBlockAuxiliary(), preg());
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
       input_->readAndMergeLumi(*principalCache_.lumiPrincipalPtr());
@@ -1942,10 +1953,10 @@ namespace edm {
       return nullptr;
     }
   private:
-    EventProcessor* m_proc;
+    edm::propagate_const<EventProcessor*> m_proc;
     unsigned int m_streamID;
-    std::atomic<bool>* m_finishedProcessingEvents;
-    tbb::task* m_waitTask;
+    edm::propagate_const<std::atomic<bool>*> m_finishedProcessingEvents;
+    edm::propagate_const<tbb::task*> m_waitTask;
   };
   
   void EventProcessor::processEventsForStreamAsync(unsigned int iStreamIndex,

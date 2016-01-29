@@ -13,6 +13,7 @@ RootPrimaryFileSequence: This is an InputSource
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 
@@ -65,11 +66,16 @@ namespace edm {
     BranchDescription::MatchMode branchesMustMatch_;
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;
 
-    std::shared_ptr<EventSkipperByID> eventSkipperByID_;
+    std::shared_ptr<EventSkipperByID const> eventSkipperByID() const {return get_underlying_safe(eventSkipperByID_);}
+    std::shared_ptr<EventSkipperByID>& eventSkipperByID() {return get_underlying_safe(eventSkipperByID_);}
+    std::shared_ptr<DuplicateChecker const> duplicateChecker() const {return get_underlying_safe(duplicateChecker_);}
+    std::shared_ptr<DuplicateChecker>& duplicateChecker() {return get_underlying_safe(duplicateChecker_);}
+
+    edm::propagate_const<std::shared_ptr<EventSkipperByID>> eventSkipperByID_;
     int initialNumberOfEventsToSkip_;
     bool noEventSort_;
     unsigned int treeCacheSize_;
-    std::shared_ptr<DuplicateChecker> duplicateChecker_;
+    edm::propagate_const<std::shared_ptr<DuplicateChecker>> duplicateChecker_;
     bool usingGoToEvent_;
     bool enablePrefetching_;
   }; // class RootPrimaryFileSequence

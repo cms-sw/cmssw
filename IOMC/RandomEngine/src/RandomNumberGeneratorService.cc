@@ -204,7 +204,7 @@ namespace edm {
     }
 
     CLHEP::HepRandomEngine&
-    RandomNumberGeneratorService::getEngine(StreamID const& streamID) const {
+    RandomNumberGeneratorService::getEngine(StreamID const& streamID) {
 
       ModuleCallingContext const* mcc = CurrentModuleOnThread::getCurrentModuleOnThread();
       if(mcc == nullptr) {
@@ -215,11 +215,11 @@ namespace edm {
       }
       unsigned int moduleID = mcc->moduleDescription()->id();
 
-      std::vector<ModuleIDToEngine> const& moduleIDVector = streamModuleIDToEngine_.at(streamID.value());
+      std::vector<ModuleIDToEngine>& moduleIDVector = streamModuleIDToEngine_.at(streamID.value());
       ModuleIDToEngine target(nullptr, moduleID);
-      std::vector<ModuleIDToEngine>::const_iterator iter = std::lower_bound(moduleIDVector.begin(),
-                                                                            moduleIDVector.end(),
-                                                                            target);
+      std::vector<ModuleIDToEngine>::iterator iter = std::lower_bound(moduleIDVector.begin(),
+                                                                      moduleIDVector.end(),
+                                                                      target);
       if(iter == moduleIDVector.end() || iter->moduleID() != moduleID) {
         throw Exception(errors::Configuration)
           << "The module with label \""
@@ -241,7 +241,7 @@ namespace edm {
     }
 
     CLHEP::HepRandomEngine&
-    RandomNumberGeneratorService::getEngine(LuminosityBlockIndex const& lumiIndex) const {
+    RandomNumberGeneratorService::getEngine(LuminosityBlockIndex const& lumiIndex) {
 
       ModuleCallingContext const* mcc = CurrentModuleOnThread::getCurrentModuleOnThread();
       if(mcc == nullptr) {
@@ -252,11 +252,11 @@ namespace edm {
       }
       unsigned int moduleID = mcc->moduleDescription()->id();
 
-      std::vector<ModuleIDToEngine> const& moduleIDVector = lumiModuleIDToEngine_.at(lumiIndex.value());
+      std::vector<ModuleIDToEngine>& moduleIDVector = lumiModuleIDToEngine_.at(lumiIndex.value());
       ModuleIDToEngine target(nullptr, moduleID);
-      std::vector<ModuleIDToEngine>::const_iterator iter = std::lower_bound(moduleIDVector.begin(),
-                                                                            moduleIDVector.end(),
-                                                                            target);
+      std::vector<ModuleIDToEngine>::iterator iter = std::lower_bound(moduleIDVector.begin(),
+                                                                      moduleIDVector.end(),
+                                                                      target);
       if(iter == moduleIDVector.end() || iter->moduleID() != moduleID) {
         throw Exception(errors::Configuration)
           << "The module with label \""
@@ -381,7 +381,7 @@ namespace edm {
         unsigned int seedOffset = iStream;
         createEnginesInVector(streamEngines_[iStream], seedOffset, eventSeedOffset_, streamModuleIDToEngine_[iStream]);
         if(!saveFileName_.empty())  {
-          outFiles_[iStream].reset(new std::ofstream);
+          outFiles_[iStream] = std::make_shared<std::ofstream>(); // propagate_const<T> has no reset() function
         }
       }
       for(unsigned int iLumi = 0; iLumi < nConcurrentLumis; ++iLumi) {
@@ -653,11 +653,11 @@ namespace edm {
     RandomNumberGeneratorService::postModuleStreamCheck(StreamContext const& sc, ModuleCallingContext const& mcc) {
       if(enableChecking_) {
         unsigned int moduleID = mcc.moduleDescription()->id();
-        std::vector<ModuleIDToEngine> const& moduleIDVector = streamModuleIDToEngine_.at(sc.streamID().value());
+        std::vector<ModuleIDToEngine>& moduleIDVector = streamModuleIDToEngine_.at(sc.streamID().value());
         ModuleIDToEngine target(nullptr, moduleID);
-        std::vector<ModuleIDToEngine>::const_iterator iter = std::lower_bound(moduleIDVector.begin(),
-                                                                              moduleIDVector.end(),
-                                                                              target);
+        std::vector<ModuleIDToEngine>::iterator iter = std::lower_bound(moduleIDVector.begin(),
+                                                                        moduleIDVector.end(),
+                                                                        target);
         if(iter != moduleIDVector.end() && iter->moduleID() == moduleID) {
           LabelAndEngine* labelAndEngine = iter->labelAndEngine();
           if(iter->engineState() != labelAndEngine->engine()->put()) {

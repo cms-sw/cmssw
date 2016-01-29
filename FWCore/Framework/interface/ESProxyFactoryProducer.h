@@ -60,6 +60,7 @@ BarProd::BarProd(const edm::ParameterSet& iPS) {
 
 // forward declarations
 #include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace edm {
    namespace eventsetup {
@@ -72,7 +73,7 @@ namespace edm {
          : key_(iKey), 
          factory_(iFactory) {} 
          DataKey key_;
-         boost::shared_ptr<ProxyFactoryBase> factory_;
+         edm::propagate_const<boost::shared_ptr<ProxyFactoryBase>> factory_;
       };
    }      
    

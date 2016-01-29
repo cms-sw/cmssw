@@ -14,6 +14,7 @@ Original Authors: W. David Dagenhart, Marc Paterno
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "boost/statechart/event.hpp"
 #include "boost/statechart/state_machine.hpp"
@@ -96,7 +97,8 @@ namespace statemachine {
             FileMode fileMode,
             EmptyRunLumiMode emptyRunLumiMode);
 
-    edm::IEventProcessor& ep() const;
+    edm::IEventProcessor const& ep() const;
+    edm::IEventProcessor& ep();
     FileMode fileMode() const;
     EmptyRunLumiMode emptyRunLumiMode() const;
 
@@ -106,7 +108,7 @@ namespace statemachine {
 
   private:
 
-    edm::IEventProcessor* ep_;
+    edm::propagate_const<edm::IEventProcessor*> ep_;
     FileMode fileMode_;
     EmptyRunLumiMode emptyRunLumiMode_;
   };

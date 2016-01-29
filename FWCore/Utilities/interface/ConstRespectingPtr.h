@@ -19,6 +19,8 @@ the classes_def.xml file if it is a member of a persistent class!
 
 #include <memory>
 
+#include "FWCore/Utilities/interface/propagate_const.h"
+
 namespace edm {
 
   template <typename T>
@@ -50,7 +52,7 @@ namespace edm {
     ConstRespectingPtr(ConstRespectingPtr<T> const&);
     ConstRespectingPtr& operator=(ConstRespectingPtr<T> const&);
 
-    T* m_data;
+    edm::propagate_const<T*> m_data;
   };
 
   template<typename T>
@@ -61,7 +63,7 @@ namespace edm {
 
   template<typename T>
   ConstRespectingPtr<T>::~ConstRespectingPtr() {
-    delete m_data;
+    delete m_data.get();
   }
 
   template<typename T>

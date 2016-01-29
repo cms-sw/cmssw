@@ -2,6 +2,7 @@
 #define IOPool_Streamer_StreamerFileReader_h
 
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <memory>
 #include <string>
@@ -33,9 +34,12 @@ namespace edm {
     virtual void genuineCloseFile() override;
     virtual void reset_();
 
+    std::shared_ptr<EventSkipperByID const> eventSkipperByID() const {return get_underlying_safe(eventSkipperByID_);}
+    std::shared_ptr<EventSkipperByID>& eventSkipperByID() {return get_underlying_safe(eventSkipperByID_);}
+
     std::vector<std::string> streamerNames_; // names of Streamer files
-    std::unique_ptr<StreamerInputFile> streamReader_;
-    std::shared_ptr<EventSkipperByID> eventSkipperByID_;
+    edm::propagate_const<std::unique_ptr<StreamerInputFile>> streamReader_;
+    edm::propagate_const<std::shared_ptr<EventSkipperByID>> eventSkipperByID_;
     int initialNumberOfEventsToSkip_;
   };
 } //end-of-namespace-def

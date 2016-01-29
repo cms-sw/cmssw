@@ -42,7 +42,7 @@ namespace edm {
     currentRun_ = invalidRun;
     currentLumi_ = invalidLumi;
     numberOfEvents_ = 0;
-    eventFinder_.reset();
+    eventFinder_ = nullptr; // propagate_const<T> has no reset() function
     runOrLumiIndexes_.clear();
     eventNumbers_.clear();
     eventEntries_.clear();

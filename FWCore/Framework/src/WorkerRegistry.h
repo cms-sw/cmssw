@@ -14,6 +14,7 @@
 #include <map>
 #include <string>
 
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace edm {
 
@@ -55,13 +56,13 @@ namespace edm {
     
   private:
     /// the container of workers
-    typedef std::map<std::string, std::shared_ptr<Worker> > WorkerMap;
+    typedef std::map<std::string, edm::propagate_const<std::shared_ptr<Worker>>> WorkerMap;
 
-    std::shared_ptr<ModuleRegistry> modRegistry_;
+    edm::propagate_const<std::shared_ptr<ModuleRegistry>> modRegistry_;
     
     /// internal map of registered workers (owned).
     WorkerMap m_workerMap;
-    std::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
      
   }; // WorkerRegistry
 

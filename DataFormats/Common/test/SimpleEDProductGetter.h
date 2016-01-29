@@ -3,6 +3,7 @@
 
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <map>
 #include <memory>
@@ -10,7 +11,7 @@
 class SimpleEDProductGetter : public edm::EDProductGetter {
 public:
 
-  typedef std::map<edm::ProductID, std::shared_ptr<edm::WrapperBase> > map_t;
+  typedef std::map<edm::ProductID, edm::propagate_const<std::shared_ptr<edm::WrapperBase>>> map_t;
 
   template<typename T>
   void

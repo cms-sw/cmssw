@@ -11,6 +11,7 @@ EmbeddedRootSource: This is an InputSource
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "IOPool/Common/interface/RootServiceChecker.h"
 
 #include <array>
@@ -65,7 +66,7 @@ namespace edm {
     std::unique_ptr<RunHelperBase> runHelper_;
 
     InputFileCatalog catalog_;
-    std::unique_ptr<RootEmbeddedFileSequence> fileSequence_;
+    edm::propagate_const<std::unique_ptr<RootEmbeddedFileSequence>> fileSequence_;
     
   }; // class EmbeddedRootSource
 }
