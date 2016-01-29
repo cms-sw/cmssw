@@ -54,8 +54,13 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
       //[2] is ladder - which is pxb specific
       //or side for all the others
       //[3] is tobRod and tec/tib/tid order
+      //
+      std::string DetIdPrint;
 
       if (subdet == PixelSubdetector::PixelBarrel) {
+        std::cout << "PixelSubdetector::PixelBarrel " << std::endl;
+	DetIdPrint = tTopo->print(*id);
+	std::cout << DetIdPrint << std::endl;
 	resultsOld[0] = tTopo->pxbLayer(*id);
 	resultsOld[1] = tTopo->pxbModule(*id);
 	resultsNew[2] = tTopo->pxbLadder(*id);
@@ -63,6 +68,9 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 	resultsOld[2] = tTopo->pxbLadder(*id);
       }
       else if (subdet == PixelSubdetector::PixelEndcap) {
+        std::cout << "PixelSubdetector::PixelEndcap " << std::endl;
+	DetIdPrint = tTopo->print(*id);
+	std::cout << DetIdPrint << std::endl;
 	resultsOld[0] = tTopo->pxfDisk(*id);
 	resultsOld[1] = tTopo->pxfModule(*id);
 	resultsNew[2] = tTopo->pxfSide(*id);
@@ -76,6 +84,9 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 	resultsOld[6] = tTopo->pxfPanel(*id);
       }
       else if (subdet == StripSubdetector::TIB) {
+        std::cout << "StripSubdetector::TIB " << std::endl;
+	DetIdPrint = tTopo->print(*id);
+	std::cout << DetIdPrint << std::endl;
 	resultsOld[0] = tTopo->tibLayer(*id);
 	resultsOld[1] = tTopo->tibModule(*id);
 	resultsNew[2] = tTopo->tibSide(*id);
@@ -103,6 +114,9 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 
       }
       else if (subdet == StripSubdetector::TID) {
+        std::cout << "StripSubdetector::TID " << std::endl;
+	DetIdPrint = tTopo->print(*id);
+	std::cout << DetIdPrint << std::endl;
 	resultsOld[0] = tTopo->tidWheel(*id);
 	resultsOld[1] = tTopo->tidModule(*id);
 	resultsNew[2] = tTopo->tidSide(*id);
@@ -128,6 +142,9 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 	resultsOld[12] = tTopo->tidIsFrontRing(*id);
       }
       else if (subdet == StripSubdetector::TOB) {
+        std::cout << "StripSubdetector::TOB " << std::endl;
+	DetIdPrint = tTopo->print(*id);
+	std::cout << DetIdPrint << std::endl;
 	resultsOld[0] = tTopo->tobLayer(*id);
 	resultsOld[1] = tTopo->tobModule(*id);
 	resultsNew[2] = tTopo->tobSide(*id);
@@ -148,6 +165,9 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 	resultsOld[10] = tTopo->tobIsZMinusSide(*id);
       }
       else if (subdet == StripSubdetector::TEC) {
+        std::cout << "StripSubdetector::TEC " << std::endl;
+	DetIdPrint = tTopo->print(*id);
+	std::cout << DetIdPrint << std::endl;
 	resultsOld[0] = tTopo->tecWheel(*id);
 	resultsOld[1] = tTopo->tecModule(*id);
 	resultsNew[2] = tTopo->tecSide(*id);

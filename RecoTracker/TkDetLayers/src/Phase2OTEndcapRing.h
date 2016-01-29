@@ -1,5 +1,5 @@
-#ifndef TkDetLayers_Phase2OTECRing_h
-#define TkDetLayers_Phase2OTECRing_h
+#ifndef TkDetLayers_Phase2OTEndcapRing_h
+#define TkDetLayers_Phase2OTEndcapRing_h
 
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
@@ -11,13 +11,13 @@
  */
 
 #pragma GCC visibility push(hidden)
-class Phase2OTECRing final : public GeometricSearchDet {
+class Phase2OTEndcapRing final : public GeometricSearchDet {
  public:
-  Phase2OTECRing(std::vector<const GeomDet*>& innerDets,
+  Phase2OTEndcapRing(std::vector<const GeomDet*>& innerDets,
 		 std::vector<const GeomDet*>& outerDets,
 		 std::vector<const GeomDet*>& innerDetBrothers,
 		 std::vector<const GeomDet*>& outerDetBrothers);
-  ~Phase2OTECRing();
+  ~Phase2OTEndcapRing();
   
   // GeometricSearchDet interface
   virtual const BoundSurface& surface() const {return *theDisk;}
