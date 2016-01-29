@@ -57,7 +57,7 @@ bool UCTCrate::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
     std::cerr << "UCTCrate: Incorrect (caloEta, caloPhi) -- bailing" << std::endl;
     exit(1);
   }
-  return cards[i]->setHCALData(t, hcalET, hcalFB);
+  return cards[i]->setHCALData(t, hcalFB, hcalET);
 }
 
 const UCTCard* UCTCrate::getCard(UCTTowerIndex t) const {

@@ -60,8 +60,8 @@ public:
   }
 
   bool setECALData(bool ecalFG, uint32_t ecalET);
-  bool setHCALData(uint32_t hcalET, uint32_t hcalFB);
-  bool setHFData(uint32_t etIn, uint32_t fbIn);
+  bool setHCALData(uint32_t hcalFB, uint32_t hcalET);
+  bool setHFData(uint32_t fbIn, uint32_t etIn);
 
   bool setECALLUT(const std::vector< std::vector< std::vector< uint32_t > > > *l) {
     ecalLUT = l;

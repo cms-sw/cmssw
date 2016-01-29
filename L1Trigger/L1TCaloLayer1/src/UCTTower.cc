@@ -90,7 +90,7 @@ bool UCTTower::processHFTower() {
     const std::vector< uint32_t > a = hfLUT->at(region * NEtaInRegion + iEta);
     calibratedET = a[hcalET];
   }
-  towerData = calibratedET + (hcalFB << 8) + (location() << 16);
+  towerData = calibratedET + (hcalFB << miscShift) + (location() << ecalShift);
   return true;
 }
 
@@ -104,7 +104,7 @@ bool UCTTower::setECALData(bool eFG, uint32_t eET) {
   return true;
 }
 
-bool UCTTower::setHCALData(uint32_t hET, uint32_t hFB) {
+bool UCTTower::setHCALData(uint32_t hFB, uint32_t hET) {
   hcalET = hET;
   hcalFB = hFB;
   if(hET > 0xFF) {
@@ -119,7 +119,7 @@ bool UCTTower::setHCALData(uint32_t hET, uint32_t hFB) {
   return true;
 }
 
-bool UCTTower::setHFData(uint32_t etIn, uint32_t fbIn) {
+bool UCTTower::setHFData(uint32_t fbIn, uint32_t etIn) {
   ecalFG = false; // HF has no separate ecal section
   ecalET = 0;
   hcalET = etIn; // We reuse HCAL place as HF
@@ -156,7 +156,7 @@ const uint64_t UCTTower::extendedData() const {
 }
 
 std::ostream& operator<<(std::ostream& os, const UCTTower& t) {
-  if((t.ecalET + t.hcalET) == 0) return os;
+  //  if((t.ecalET + t.hcalET) == 0) return os;
   
   os << "Side Crt  Crd  Rgn  iEta iPhi cEta cPhi eET  eFG  hET  hFB  Summary" << std::endl;
 

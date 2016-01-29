@@ -46,20 +46,14 @@ const UCTRegion* UCTLayer1::getRegion(int regionEtaIndex, uint32_t regionPhiInde
   uint32_t crt = g.getCrate(absCaloEta, absCaloPhi);
   if(crt >= crates.size()) {
     std::cerr << "UCTLayer1::getRegion - Crate number is wrong - " << std::hex << crt 
+	      << std::dec
+	      << " (rEta,rPhi)=(" << regionEtaIndex << ","<< regionPhiIndex << ")" 
 	      << " (eta,phi)=(" << absCaloEta << ","<< absCaloPhi << ")" << std::endl;
     exit(1);
   }
   const UCTCrate* crate = crates[crt];
   const UCTCard* card = crate->getCard(t);
   const UCTRegion* region = card->getRegion(r);
-  if(region->et() > 10) {
-    std::cout << "UCTLayer1::getRegion - (regionEta, regionPhi) = (" << regionEtaIndex << ", " << regionPhiIndex << ")"
-	      << "; (absCaloEta, absCaloPhi) = (" << absCaloEta << ", " << absCaloPhi << ")"
-	      << "; side = " << t.first / absCaloEta
-	      << "; crt = " << crt
-	      << "; et = " << region->et()
-	      << std::endl;
-  }
   return region;
 }
 
@@ -82,7 +76,7 @@ bool UCTLayer1::setECALData(UCTTowerIndex t, bool ecalFG, uint32_t ecalET) {
   UCTGeometry g;
   uint32_t crt = g.getCrate(absCaloEta, absCaloPhi);
   if(crt >= crates.size()) {
-    std::cerr << "UCTLayer1::getRegion - Crate number is wrong - " << std::hex << crt 
+    std::cerr << "UCTLayer1::setECALData - Crate number is wrong - " << std::hex << crt << std::dec
 	      << " (eta,phi)=(" << absCaloEta << ","<< absCaloPhi << ")" << std::endl;
     exit(1);
   }
@@ -96,12 +90,12 @@ bool UCTLayer1::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
   UCTGeometry g;
   uint32_t crt = g.getCrate(absCaloEta, absCaloPhi);
   if(crt >= crates.size()) {
-    std::cerr << "UCTLayer1::getRegion - Crate number is wrong - " << std::hex << crt 
+    std::cerr << "UCTLayer1::setHCALData - Crate number is wrong - " << std::hex << crt << std::dec
 	      << " (eta,phi)=(" << absCaloEta << ","<< absCaloPhi << ")" << std::endl;
     exit(1);
   }
   UCTCrate* crate = crates[crt];
-  return crate->setHCALData(t, hcalET, hcalFB);
+  return crate->setHCALData(t, hcalFB, hcalET);
 }
 
 bool UCTLayer1::process() {

@@ -35,23 +35,11 @@ public:
 
   const int hitCaloEta() const {
     uint32_t highestTowerLocation = location();
-    if(et() > 10) {
-      std::cout << "UCTLayer1::hitCaloEta() - highestTowerLocation = " << highestTowerLocation
-		<< "; caloEta() = " << towers[highestTowerLocation]->caloEta()
-		<< "; et = " << et()
-		<< std::endl;
-    }
     return towers[highestTowerLocation]->caloEta();
   }
 
   const int hitCaloPhi() const {
     uint32_t highestTowerLocation = (location() & 0xF);
-    if(et() > 10) {
-      std::cout << "UCTLayer1::hitCaloPhi() - highestTowerLocation = " << highestTowerLocation
-		<< "; caloPhi() = " << towers[highestTowerLocation]->caloPhi()
-		<< "; et = " << et()
-		<< std::endl;
-    }
     return towers[highestTowerLocation]->caloPhi();
   }
 

@@ -59,7 +59,15 @@ bool UCTRegion::process() {
     }
     regionET += towers[twr]->et();
   }
-  if(regionET > RegionETMask) regionET = RegionETMask;
+  if(regionET > RegionETMask) {
+    std::cerr << std::dec;
+    std::cerr << "towers.size() = " << towers.size() << std::endl;
+    for(uint32_t twr = 0; twr < towers.size(); twr++) {
+      std::cerr << "towers[twr]->et() = " << towers[twr]->et() << std::endl;
+    }
+    std::cerr << "Pegging RegionET" << std::endl;
+    regionET = RegionETMask;
+  }
   regionSummary = (RegionETMask & regionET);
 
   // For central regions determine extra bits
@@ -105,22 +113,20 @@ bool UCTRegion::setECALData(UCTTowerIndex t, bool ecalFG, uint32_t ecalET) {
 bool UCTRegion::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
   UCTGeometry g;
   uint32_t nEta = g.getNEta(region);
-  uint32_t nPhi = g.getNPhi(region);
   uint32_t absCaloEta = abs(t.first);
   uint32_t absCaloPhi = abs(t.second);
   uint32_t iEta = g.getiEta(absCaloEta, absCaloPhi);
   if(absCaloEta > 29 && absCaloEta < 40) {
-    for(uint32_t iPhi = 0; iPhi < nPhi; iPhi += 2) { // For artificial splitting in pairs
-      UCTTower* tower = towers[iEta*nEta + iPhi];
-      if(!tower->setHFData(hcalET / 2, hcalFB)) return false;
-      tower = towers[iEta*nEta + iPhi + 1];
-      if(!tower->setHFData(hcalET / 2, hcalFB)) return false;
-    }
+    uint32_t iPhi = (absCaloPhi % 2) * 2; // iPhi == 0 or 2
+    UCTTower* tower = towers[iEta*nEta + iPhi]; // iPhi == 0 or 2
+    if(!tower->setHFData(hcalFB, (hcalET - hcalET / 2))) return false;
+    tower = towers[iEta*nEta + iPhi + 1]; // iPhi + 1 == 1 or 3
+    if(!tower->setHFData(hcalFB, hcalET / 2)) return false;
   }
   else if(absCaloEta == 40 || absCaloEta == 41) {
-    for(uint32_t iPhi = 0; iPhi < nPhi; iPhi++) { // For artificial splitting in quads
+    for(uint32_t iPhi = 0; iPhi < 4; iPhi++) { // For artificial splitting in quads
       UCTTower* tower = towers[iEta*nEta + iPhi];
-      if(!tower->setHFData(hcalET / 4, hcalFB)) return false;
+      if(!tower->setHFData(hcalFB, hcalET / 4)) return false;
     }
   }
   else {
