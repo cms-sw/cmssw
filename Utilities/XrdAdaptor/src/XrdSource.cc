@@ -77,6 +77,114 @@ private:
     std::string m_site;
 };
 
+
+/**
+ * A handler for querying a XrdCl::FileSystem object which is safe to be
+ * invoked from an XrdCl callback (that is, we don't need an available callback
+ * thread to timeout).
+ */
+class QueryAttrHandler : public XrdCl::ResponseHandler
+{
+    friend std::unique_ptr<QueryAttrHandler> std::make_unique<QueryAttrHandler>();
+
+public:
+
+    virtual ~QueryAttrHandler() = default;
+    QueryAttrHandler(const QueryAttrHandler&) = delete;
+    QueryAttrHandler& operator=(const QueryAttrHandler&) = delete;
+
+
+    static XrdCl::XRootDStatus query(XrdCl::FileSystem &fs, const std::string &attr, std::chrono::milliseconds timeout, std::string &result)
+    {
+        auto handler = std::make_unique<QueryAttrHandler>();
+        auto l_state = std::make_shared<QueryAttrState>();
+        handler->m_state = l_state;
+        XrdCl::Buffer arg(attr.size());
+        arg.FromString(attr);
+
+        XrdCl::XRootDStatus st = fs.Query(XrdCl::QueryCode::Config, arg, handler.get());
+        if (!st.IsOK())
+        {
+            return st;
+        }
+
+        // Successfully registered the callback; it will always delete itself, so we shouldn't.
+        handler.release();
+
+        std::unique_lock<std::mutex> guard(l_state->m_mutex);
+        // Wait until some status is available or a timeout.
+        l_state->m_condvar.wait_for(guard, timeout, [&]{return l_state->m_status.get();});
+
+        if (l_state->m_status)
+        {
+            if (l_state->m_status->IsOK())
+            {
+                result = l_state->m_response->ToString();
+            }
+            return *(l_state->m_status);
+        }
+        else
+        {   // We had a timeout; construct a reasonable message.
+            return XrdCl::XRootDStatus(XrdCl::stError, XrdCl::errSocketTimeout, 1, "Timeout when waiting for query callback.");
+        }
+    }
+
+
+private:
+
+    QueryAttrHandler() {}
+
+
+    virtual void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response ) override
+    {
+        // NOTE: we own the status and response pointers.
+        std::unique_ptr<XrdCl::AnyObject> response_mgr;
+        response_mgr.reset(response);
+
+        // Lock our state information then dispose of our object.
+        auto l_state = m_state.lock();
+        delete this;
+        if (!l_state) {return;}
+
+        // On function exit, notify any waiting threads.
+        std::unique_ptr<char, std::function<void(char*)>> notify_guard(nullptr, [&](char *) {l_state->m_condvar.notify_all();});
+
+        {
+            // On exit from the block, make sure m_status is set; it needs to be set before we notify threads.
+            std::unique_ptr<char, std::function<void(char*)>> exit_guard(nullptr, [&](char *) {if (!l_state->m_status) l_state->m_status.reset(new XrdCl::XRootDStatus(XrdCl::stError, XrdCl::errInternal));});
+            if (!status) {return;}
+            if (status->IsOK())
+            {
+                if (!response) {return;}
+                XrdCl::Buffer *buf_ptr;
+                response->Get(buf_ptr);
+                // AnyObject::Set lacks specialization for nullptr
+                response->Set(static_cast<int *>(nullptr));
+                l_state->m_response.reset(buf_ptr);
+            }
+            l_state->m_status.reset(status);
+        }
+    }
+
+
+    // Represents the current state of the callback.  The parent class only manages a weak_ptr
+    // to the state.  If the asynchronous callback cannot lock the weak_ptr, then it assumes the
+    // main thread has given up and doesn't touch any of the state variables.
+    struct QueryAttrState {
+
+        // Synchronize between the callback thread and the main thread; condvar predicate
+        // is having m_status set.  m_mutex protects m_status.
+        std::mutex m_mutex;
+        std::condition_variable m_condvar;
+
+        // Results from the server
+        std::unique_ptr<XrdCl::XRootDStatus> m_status;
+        std::unique_ptr<XrdCl::Buffer> m_response;
+    };
+    std::weak_ptr<QueryAttrState> m_state;
+};
+
+
 Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string &exclude)
     : m_lastDowngrade({0, 0}),
       m_id("(unknown)"),
@@ -239,7 +347,8 @@ Source::getXrootdSiteFromURL(std::string url, std::string &site)
     arg.FromString( attr );
 
     XrdCl::FileSystem fs(url);
-    XrdCl::XRootDStatus st = fs.Query(XrdCl::QueryCode::Config, arg, response);
+    std::string rsite;
+    XrdCl::XRootDStatus st = QueryAttrHandler::query(fs, "sitename", std::chrono::seconds(1), rsite);
     if (!st.IsOK())
     {
         XrdCl::URL xurl(url);
@@ -247,9 +356,7 @@ Source::getXrootdSiteFromURL(std::string url, std::string &site)
         delete response;
         return false;
     }
-    std::string rsite = response->ToString();
-    delete response;
-    if (rsite.size() && (rsite[rsite.size()-1] == '\n'))
+    if (!rsite.empty() && (rsite[rsite.size()-1] == '\n'))
     {
         rsite = rsite.substr(0, rsite.size()-1);
     }
