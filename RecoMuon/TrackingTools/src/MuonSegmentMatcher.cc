@@ -50,7 +50,7 @@ MuonSegmentMatcher::MuonSegmentMatcher(const edm::ParameterSet& matchParameters,
 {
   if (matchParameters.existsAs<edm::InputTag>("RPChits")) {
      RPCHitTags_=matchParameters.getParameter<edm::InputTag>("RPChits");
-  } else RPCHitTags_=edm::InputTag("rpcRecHits");
+  } else RPCHitTags_=edm::InputTag("hltRpcRecHits");
 
   dtRecHitsToken = iC.consumes<DTRecSegment4DCollection>(DTSegmentTags_);
   allSegmentsCSCToken = iC.consumes<CSCSegmentCollection>(CSCSegmentTags_) ;
