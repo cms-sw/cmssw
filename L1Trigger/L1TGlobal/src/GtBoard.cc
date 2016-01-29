@@ -27,7 +27,6 @@
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 
 #include "L1Trigger/L1TGlobal/interface/TriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalTriggerMenuRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtCondition.h"
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
@@ -45,7 +44,6 @@
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
-//#include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 #include "L1Trigger/L1TGlobal/interface/AlgorithmEvaluation.h"
 
@@ -54,9 +52,6 @@
 #include "L1Trigger/L1TGlobal/interface/CaloCondition.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumCondition.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalCondition.h"
-
-//   *** Comment out what do we do with this.
-#include "L1Trigger/GlobalTrigger/interface/L1GtEtaPhiConversions.h"
 
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -456,21 +451,6 @@ void l1t::GtBoard::runGTL(
 	const int nrL1Jet,
         const int nrL1JetCounts) {
 
-/*
-	// get / update the trigger menu from the EventSetup
-    // local cache & check on cacheIdentifier
-    unsigned long long l1GtMenuCacheID = evSetup.get<L1TGlobalTriggerMenuRcd>().cacheIdentifier();
-
-    if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
-
-        edm::ESHandle< TriggerMenu> l1GtMenu;
-        evSetup.get< L1TGlobalTriggerMenuRcd>().get(l1GtMenu) ;
-        m_l1GtMenu =  l1GtMenu.product();
-       (const_cast<TriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
-
-        m_l1GtMenuCacheID = l1GtMenuCacheID;
-    }
-*/
     const std::vector<ConditionMap>& conditionMap = m_l1GtMenu->gtConditionMap();
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
     const L1TGlobalScales& gtScales = m_l1GtMenu->gtScales();
