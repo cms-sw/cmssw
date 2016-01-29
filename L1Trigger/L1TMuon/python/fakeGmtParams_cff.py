@@ -15,6 +15,9 @@ gmtParamsSource = cms.ESSource(
 gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     fwVersion = cms.uint32(1),
 
+    bxMin = cms.int32(-2),
+    bxMax = cms.int32(2),
+
     AbsIsoCheckMemLUTPath        = cms.string(os.path.join(lut_dir, 'AbsIsoCheckMem.txt')),
     RelIsoCheckMemLUTPath        = cms.string(os.path.join(lut_dir, 'RelIsoCheckMem.txt')),
     IdxSelMemPhiLUTPath          = cms.string(os.path.join(lut_dir, 'IdxSelMemPhi.txt')),
@@ -43,7 +46,12 @@ gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     OvlNegSingleMatchQualLUTMaxDR = cms.double(0.1),
     BOPosMatchQualLUTMaxDR        = cms.double(0.1),
     BONegMatchQualLUTMaxDR        = cms.double(0.1),
+    BOPosMatchQualLUTMaxDREtaFine = cms.double(0.1),
+    BONegMatchQualLUTMaxDREtaFine = cms.double(0.1),
     FOPosMatchQualLUTMaxDR        = cms.double(0.1),
     FONegMatchQualLUTMaxDR        = cms.double(0.1),
+
+    SortRankLUTPtFactor   = cms.uint32(1), # can be 0 or 1
+    SortRankLUTQualFactor = cms.uint32(4), # can be 0 to 34
 )
 
