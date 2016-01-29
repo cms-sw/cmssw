@@ -147,7 +147,7 @@ L1TMicroGMTLUTDumper::beginRun(edm::Run const& run, edm::EventSetup const& iSetu
   }
 
   int fwVersion = microGMTParams->fwVersion();
-  m_rankLUT = MicroGMTRankPtQualLUTFactory::create(microGMTParams->sortRankLUTPath(), fwVersion);
+  m_rankLUT = MicroGMTRankPtQualLUTFactory::create(microGMTParams->sortRankLUTPath(), fwVersion, microGMTParams->sortRankLUTPtFactor(), microGMTParams->sortRankLUTQualFactor());
   m_boPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->bOPosMatchQualLUTPath(), microGMTParams->bOPosMatchQualLUTMaxDR(), cancel_t::omtf_bmtf_pos, fwVersion);
   m_boNegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->bONegMatchQualLUTPath(), microGMTParams->bONegMatchQualLUTMaxDR(), cancel_t::omtf_bmtf_neg, fwVersion);
   m_foPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fOPosMatchQualLUTPath(), microGMTParams->fOPosMatchQualLUTMaxDR(), cancel_t::omtf_emtf_pos, fwVersion);
