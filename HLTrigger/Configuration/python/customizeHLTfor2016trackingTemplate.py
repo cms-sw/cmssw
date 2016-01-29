@@ -660,12 +660,12 @@ def new_selector(process):
     return process
 
 def customiseFor2016trackingTemplate(process):
-    bug_fix(process)
-    new_selector(process)
+    process = bug_fix(process)
+    process = new_selector(process)
     
-    CCC(process)
-    speedup_building(process)
-    speedup_filtering(process)
+    process = CCC(process)
+    process = speedup_building(process)
+    process = speedup_filtering(process)
 
     return process
 

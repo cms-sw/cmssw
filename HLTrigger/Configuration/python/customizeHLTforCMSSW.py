@@ -50,6 +50,8 @@ def customiseFor13062(process):
                 if not hasattr(pset,'strictSeedExtension'):
                     pset.strictSeedExtension = cms.bool(False)
 
+    from HLTrigger.Configuration.customizeHLTfor2016trackingTemplate import *
+    process = customiseFor2016trackingTemplate(process)
     return process
 
 #
