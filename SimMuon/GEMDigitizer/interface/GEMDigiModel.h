@@ -15,6 +15,7 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+#include "SimDataFormats/GEMDigiSimLink/interface/GEMDigiSimLink.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include <map>
@@ -33,6 +34,7 @@ class GEMDigiModel
 public:
 
   typedef edm::DetSet<StripDigiSimLink> StripDigiSimLinks;
+  typedef edm::DetSet<GEMDigiSimLink> GEMDigiSimLinks;
 
   virtual ~GEMDigiModel() {}
 
@@ -52,6 +54,7 @@ public:
   virtual void setup() = 0;
 
   const StripDigiSimLinks & stripDigiSimLinks() const {return stripDigiSimLinks_;}
+  const GEMDigiSimLinks & gemDigiSimLinks() const {return theGemDigiSimLinks_;}
 
 protected:
 
@@ -63,6 +66,7 @@ protected:
 
   /// creates links from Digi to SimTrack
   void addLinks(unsigned int strip,int bx);
+  void addLinksWithPartId(unsigned int strip,int bx);
 
   // keeps track of which hits contribute to which channels
   typedef std::multimap<
@@ -73,5 +77,7 @@ protected:
 
   DetectorHitMap detectorHitMap_;
   StripDigiSimLinks stripDigiSimLinks_;
+  GEMDigiSimLinks theGemDigiSimLinks_;
+
 };
 #endif

@@ -24,3 +24,6 @@
 <library   file="GEMFakeEvent.cc" name="GEMFakeEvent">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="GEMDigiSimLinkReader.cc" name="GEMDigiSimLinkReader">
+  <flags   EDM_PLUGIN="1"/>
+</library>
