@@ -69,15 +69,27 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
 
    m_params.setFwVersion(fwVersion);
 
+   int bxMin = iConfig.getParameter<int>("bxMin");
+   int bxMax = iConfig.getParameter<int>("bxMax");
+   if (bxMin > bxMax) {
+      m_params.setBxMin(bxMax);
+      m_params.setBxMax(bxMin);
+   } else {
+      m_params.setBxMin(bxMin);
+      m_params.setBxMax(bxMax);
+   }
+
    //m_params.setBrlSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("BrlSingleMatchQualLUTMaxDR"));
    m_params.setFwdPosSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("FwdPosSingleMatchQualLUTMaxDR"));
    m_params.setFwdNegSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("FwdNegSingleMatchQualLUTMaxDR"));
    m_params.setOvlPosSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("OvlPosSingleMatchQualLUTMaxDR"));
    m_params.setOvlNegSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("OvlNegSingleMatchQualLUTMaxDR"));
-   m_params.setBOPosMatchQualLUTMaxDR(iConfig.getParameter<double>("BOPosMatchQualLUTMaxDR"));
-   m_params.setBONegMatchQualLUTMaxDR(iConfig.getParameter<double>("BONegMatchQualLUTMaxDR"));
+   m_params.setBOPosMatchQualLUTMaxDR(iConfig.getParameter<double>("BOPosMatchQualLUTMaxDR"), iConfig.getParameter<double>("BOPosMatchQualLUTMaxDREtaFine"));
+   m_params.setBONegMatchQualLUTMaxDR(iConfig.getParameter<double>("BONegMatchQualLUTMaxDR"), iConfig.getParameter<double>("BONegMatchQualLUTMaxDREtaFine"));
    m_params.setFOPosMatchQualLUTMaxDR(iConfig.getParameter<double>("FOPosMatchQualLUTMaxDR"));
    m_params.setFONegMatchQualLUTMaxDR(iConfig.getParameter<double>("FONegMatchQualLUTMaxDR"));
+
+   m_params.setSortRankLUTFactors(iConfig.getParameter<unsigned>("SortRankLUTPtFactor"), iConfig.getParameter<unsigned>("SortRankLUTQualFactor"));
 
    auto absIsoCheckMemLUT = l1t::MicroGMTAbsoluteIsolationCheckLUTFactory::create (iConfig.getParameter<std::string>("AbsIsoCheckMemLUTPath"), fwVersion);
    auto relIsoCheckMemLUT = l1t::MicroGMTRelativeIsolationCheckLUTFactory::create (iConfig.getParameter<std::string>("RelIsoCheckMemLUTPath"), fwVersion);

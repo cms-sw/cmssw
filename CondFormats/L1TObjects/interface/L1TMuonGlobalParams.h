@@ -78,8 +78,11 @@ public:
   // string parameters indices
   enum spIdx {fname=0};
 
+  // unsigned parameters indices
+  enum upIdx {ptFactor=0, qualFactor=1};
+
   // double parameters indices
-  enum dpIdx {maxdr=0};
+  enum dpIdx {maxdr=0, maxdrEtaFine=1};
 
   L1TMuonGlobalParams() { version_=Version; pnodes_.resize(NUM_GMTPARAMNODES); }
   ~L1TMuonGlobalParams() {}
@@ -87,6 +90,12 @@ public:
   // FW version
   unsigned fwVersion() const { return fwVersion_; }
   void setFwVersion(unsigned fwVersion) { fwVersion_ = fwVersion; }
+
+  // BX range
+  int bxMin() const { return bxMin_; }
+  int bxMax() const { return bxMax_; }
+  void setBxMin(int bxMin) { bxMin_ = bxMin; }
+  void setBxMax(int bxMax) { bxMax_ = bxMax; }
 
   // LUTs
   l1t::LUT* absIsoCheckMemLUT()        { return &pnodes_[absIsoCheckMem].LUT_; }
@@ -180,6 +189,8 @@ public:
   double ovlNegSingleMatchQualLUTMaxDR() const { return pnodes_[ovlNegSingleMatchQual].dparams_.size() > dpIdx::maxdr ? pnodes_[ovlNegSingleMatchQual].dparams_[dpIdx::maxdr] : 0.; }
   double bOPosMatchQualLUTMaxDR() const        { return pnodes_[bOPosMatchQual].dparams_.size() > dpIdx::maxdr ? pnodes_[bOPosMatchQual].dparams_[dpIdx::maxdr] : 0.; }
   double bONegMatchQualLUTMaxDR() const        { return pnodes_[bONegMatchQual].dparams_.size() > dpIdx::maxdr ? pnodes_[bONegMatchQual].dparams_[dpIdx::maxdr] : 0.; }
+  double bOPosMatchQualLUTMaxDREtaFine() const { return pnodes_[bOPosMatchQual].dparams_.size() > dpIdx::maxdrEtaFine ? pnodes_[bOPosMatchQual].dparams_[dpIdx::maxdrEtaFine] : 0.; }
+  double bONegMatchQualLUTMaxDREtaFine() const { return pnodes_[bONegMatchQual].dparams_.size() > dpIdx::maxdrEtaFine ? pnodes_[bONegMatchQual].dparams_[dpIdx::maxdrEtaFine] : 0.; }
   double fOPosMatchQualLUTMaxDR() const        { return pnodes_[fOPosMatchQual].dparams_.size() > dpIdx::maxdr ? pnodes_[fOPosMatchQual].dparams_[dpIdx::maxdr] : 0.; }
   double fONegMatchQualLUTMaxDR() const        { return pnodes_[fONegMatchQual].dparams_.size() > dpIdx::maxdr ? pnodes_[fONegMatchQual].dparams_[dpIdx::maxdr] : 0.; }
   //void setBrlSingleMatchQualLUTMaxDR    (double maxDR) { pnodes_[brlSingleMatchQual].dparams_.push_back(maxDR); }
@@ -187,10 +198,15 @@ public:
   void setFwdNegSingleMatchQualLUTMaxDR (double maxDR) { pnodes_[fwdNegSingleMatchQual].dparams_.push_back(maxDR); }
   void setOvlPosSingleMatchQualLUTMaxDR (double maxDR) { pnodes_[ovlPosSingleMatchQual].dparams_.push_back(maxDR); }
   void setOvlNegSingleMatchQualLUTMaxDR (double maxDR) { pnodes_[ovlNegSingleMatchQual].dparams_.push_back(maxDR); }
-  void setBOPosMatchQualLUTMaxDR        (double maxDR) { pnodes_[bOPosMatchQual].dparams_.push_back(maxDR); }
-  void setBONegMatchQualLUTMaxDR        (double maxDR) { pnodes_[bONegMatchQual].dparams_.push_back(maxDR); }
+  void setBOPosMatchQualLUTMaxDR        (double maxDR, double maxDREtaFine) { pnodes_[bOPosMatchQual].dparams_.push_back(maxDR); pnodes_[bOPosMatchQual].dparams_.push_back(maxDREtaFine); }
+  void setBONegMatchQualLUTMaxDR        (double maxDR, double maxDREtaFine) { pnodes_[bONegMatchQual].dparams_.push_back(maxDR); pnodes_[bONegMatchQual].dparams_.push_back(maxDREtaFine); }
   void setFOPosMatchQualLUTMaxDR        (double maxDR) { pnodes_[fOPosMatchQual].dparams_.push_back(maxDR); }
   void setFONegMatchQualLUTMaxDR        (double maxDR) { pnodes_[fONegMatchQual].dparams_.push_back(maxDR); }
+
+  // Sort rank LUT factors for pT and quality
+  unsigned sortRankLUTPtFactor() const   { return pnodes_[sortRank].uparams_.size() > upIdx::ptFactor ? pnodes_[sortRank].uparams_[upIdx::ptFactor] : 0; }
+  unsigned sortRankLUTQualFactor() const { return pnodes_[sortRank].uparams_.size() > upIdx::qualFactor ? pnodes_[sortRank].uparams_[upIdx::qualFactor] : 0; }
+  void setSortRankLUTFactors(unsigned ptFactor, unsigned qualFactor) { pnodes_[sortRank].uparams_.push_back(ptFactor); pnodes_[sortRank].uparams_.push_back(qualFactor); }
 
   // print parameters to stream:
   void print(std::ostream&) const;
@@ -199,6 +215,9 @@ public:
 private:
   unsigned version_;
   unsigned fwVersion_;
+
+  int bxMin_;
+  int bxMax_;
 
   std::vector<Node> pnodes_;
 
