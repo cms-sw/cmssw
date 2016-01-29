@@ -1,13 +1,12 @@
 import socket
 '''Helper procedure that loads mva inputs from database'''
-from CondCore.DBCommon.CondDBSetup_cfi import *
+from CondCore.CondDB.CondDB_cfi import *
+CondDB.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') # prod database
 
 loadRecoTauTagMVAsFromPrepDB = cms.ESSource("PoolDBESSource",
-    CondDBSetup,
+    CondDB,
     DumpStat = cms.untracked.bool(False),
     toGet = cms.VPSet(),                                             
-    #  connect = cms.string("frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS") # prep database
-    connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') # prod database
 )
 
 
