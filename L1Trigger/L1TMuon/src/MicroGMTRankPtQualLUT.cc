@@ -1,6 +1,6 @@
 #include "../interface/MicroGMTRankPtQualLUT.h"
 
-l1t::MicroGMTRankPtQualLUT::MicroGMTRankPtQualLUT (const std::string& fname) : MicroGMTLUT(), m_ptMask(0), m_qualMask(0), m_ptInWidth(9), m_qualInWidth(4)
+l1t::MicroGMTRankPtQualLUT::MicroGMTRankPtQualLUT (const std::string& fname, const unsigned ptFactor, const unsigned qualFactor) : MicroGMTLUT(), m_ptMask(0), m_qualMask(0), m_ptInWidth(9), m_qualInWidth(4), m_ptFactor(ptFactor), m_qualFactor(qualFactor)
 {
   m_totalInWidth = m_ptInWidth + m_qualInWidth;
   m_outWidth = 10;
@@ -27,7 +27,7 @@ l1t::MicroGMTRankPtQualLUT::lookup(int pt, int qual) const
   }
 
   int result = 0;
-  result = pt + (qual << 2); 
+  result = pt * m_ptFactor + qual * m_qualFactor;
   // normalize to out width
   return result;  
 }

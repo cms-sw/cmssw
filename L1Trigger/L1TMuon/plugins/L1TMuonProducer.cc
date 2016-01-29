@@ -150,8 +150,6 @@ L1TMuonProducer::L1TMuonProducer(const edm::ParameterSet& iConfig) : m_debugOut(
   produces<MuonBxCollection>("imdMuonsEMTFNeg");
   produces<MuonBxCollection>("imdMuonsOMTFPos");
   produces<MuonBxCollection>("imdMuonsOMTFNeg");
-
-  microGMTParams = std::unique_ptr<L1TMuonGlobalParams>(new L1TMuonGlobalParams());
 }
 
 L1TMuonProducer::~L1TMuonProducer()
@@ -446,7 +444,7 @@ L1TMuonProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup)
   //microGMTParams->print(std::cout);
   m_bxMin = microGMTParams->bxMin();
   m_bxMax = microGMTParams->bxMax();
-  m_rankPtQualityLUT = l1t::MicroGMTRankPtQualLUTFactory::create(microGMTParams->sortRankLUTPath(), microGMTParams->fwVersion());
+  m_rankPtQualityLUT = l1t::MicroGMTRankPtQualLUTFactory::create(microGMTParams->sortRankLUTPath(), microGMTParams->fwVersion(), microGMTParams->sortRankLUTPtFactor(), microGMTParams->sortRankLUTQualFactor());
   m_isolationUnit.initialise(microGMTParams.get());
   m_cancelOutUnit.initialise(microGMTParams.get());
 }

@@ -12,7 +12,7 @@ namespace l1t {
   class MicroGMTRankPtQualLUT : public MicroGMTLUT {
     public:
       MicroGMTRankPtQualLUT() {};
-      explicit MicroGMTRankPtQualLUT(const std::string&);
+      explicit MicroGMTRankPtQualLUT(const std::string&, const unsigned, const unsigned);
       virtual ~MicroGMTRankPtQualLUT() {};
 
       int lookup(int pt, int qual) const;
@@ -26,6 +26,9 @@ namespace l1t {
       int m_ptInWidth;
       int m_qualInWidth;
 
+      // factor defining the weight of the two inputs when building the LUT
+      unsigned m_ptFactor;
+      unsigned m_qualFactor;
   };
 }
 
