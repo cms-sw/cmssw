@@ -8,6 +8,7 @@
 #ifndef CACELL_H_
 #define CACELL_H_
 
+#include "RecHitsKDTree.h"
 
 // tbb headers
 #include <tbb/concurrent_vector.h>
@@ -18,7 +19,11 @@ class Cell
 {
 public:
 	Cell() { }
-	Cell(int innerHitId, int outerHitId,  int idInCellArray, int layerId) : theCAState(0), theInnerHitId(innerHitId), theOuterHitId(outerHitId), theId(idInCellArray), theLayerId(layerId), hasFriends(false) {
+	Cell(const RecHitsKDTree* hitsKDTree, int innerHitId, int outerHitId,  int idInCellArray, int layerId) : theCAState(0), theInnerHitId(innerHitId), theOuterHitId(outerHitId), theId(idInCellArray), theLayerId(layerId), hasFriends(false) {
+
+
+
+
 
 	}
 
@@ -168,13 +173,15 @@ public:
 	tbb::concurrent_vector<int> theInnerNeighbors;
 	tbb::concurrent_vector<int> theOuterNeighbors;
 
-	bool hasFriends;
 	int theInnerHitId;
 	int theOuterHitId;
 	float theRadius; //angle between the prolongation of the radius and the line between the hits in the transverse plane
 	int theId;
 	short int theLayerId;
 	short int theCAState;
+	bool isHighPtCell;
+	bool hasFriends;
+
 };
 
 

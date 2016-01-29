@@ -7,10 +7,10 @@
 
 #ifndef RECHITSKDTREE_H
 #define RECHITSKDTREE_H
+#include <vector>
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-
 
 /** A RecHit container sorted in phi.
  *  Provides fast access for hits in a given phi window
@@ -20,7 +20,7 @@
 class RecHitsKDTree {
 public:
 
-  typedef BaseTrackerRecHit const * Hit;
+  using  Hit = BaseTrackerRecHit const * ;
 
   // A RecHit extension that caches the phi angle for fast access
   class HitWithEtaPhi {
@@ -46,7 +46,7 @@ public:
 
   using DoubleRange = std::array<int,4>;
 
-  RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint const & origin, DetLayer const * il);
+  RecHitsKDTree(const std::vector<Hit>& hits, GlobalPoint const & origin, DetLayer const * il);
 
   bool empty() const { return theHits.empty(); }
   std::size_t size() const { return theHits.size();}
@@ -90,22 +90,22 @@ public:
 
   mutable GlobalPoint theOrigin;
 
-  std::vector<HitWithPhi> theHits;
+  tbb::concurrent_vector<HitWithEtaPhi> theHits;
 
   DetLayer const * layer;
   bool isBarrel;
 
-  std::vector<float> x;
-  std::vector<float> y;
-  std::vector<float> z;
-  std::vector<float> drphi;
+  tbb::concurrent_vector<float> x;
+  tbb::concurrent_vector<float> y;
+  tbb::concurrent_vector<float> z;
+  tbb::concurrent_vector<float> drphi;
 
   // barrel: u=r, v=z, forward the opposite...
-  std::vector<float> u;
-  std::vector<float> v;
-  std::vector<float> du;
-  std::vector<float> dv;
-  std::vector<float> lphi;
+  tbb::concurrent_vector<float> u;
+  tbb::concurrent_vector<float> v;
+  tbb::concurrent_vector<float> du;
+  tbb::concurrent_vector<float> dv;
+  tbb::concurrent_vector<float> lphi;
 
   static void copyResult( const Range& range, std::vector<Hit>& result) {
     result.reserve(result.size()+(range.second-range.first));
@@ -122,16 +122,16 @@ public:
  *
  */
 
-// TODO: This has to become CACell
+
 class HitDoublets {
 public:
   enum layer { inner=0, outer=1};
 
-  using Hit=RecHitsSortedInPhi::Hit;
+  using Hit=RecHitsKDTree::Hit;
 
 
-  HitDoublets(  RecHitsSortedInPhi const & in,
-		RecHitsSortedInPhi const & out) :
+  HitDoublets(  RecHitsKDTree const & in,
+		  RecHitsKDTree const & out) :
     layers{{&in,&out}}{}
 
   HitDoublets(HitDoublets && rh) : layers(std::move(rh.layers)), indeces(std::move(rh.indeces)){}
