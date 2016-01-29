@@ -85,22 +85,22 @@ private:
  */
 class QueryAttrHandler : public XrdCl::ResponseHandler
 {
+    friend std::unique_ptr<QueryAttrHandler> std::make_unique<QueryAttrHandler>();
+
 public:
 
-    virtual ~QueryAttrHandler = default;
+    virtual ~QueryAttrHandler() = default;
     QueryAttrHandler(const QueryAttrHandler&) = delete;
     QueryAttrHandler& operator=(const QueryAttrHandler&) = delete;
 
 
     static XrdCl::XRootDStatus query(XrdCl::FileSystem &fs, const std::string &attr, std::chrono::milliseconds timeout, std::string &result)
     {
-        std::shared_ptr<QueryAttrHandler> handler(new QueryAttrHandler());
+        auto handler = std::make_unique<QueryAttrHandler>();
+        auto l_state = std::make_shared<QueryAttrState>();
+        handler->m_state = l_state;
         XrdCl::Buffer arg(attr.size());
         arg.FromString(attr);
-
-        // On error or exception thrown, drop the reference to ourself
-        std::unique_ptr<QueryAttrHandler, std::function<void(QueryAttrHandler*)>> self_ref_guard(nullptr, [&](QueryAttrHandler*) {handler->m_self.reset();});
-        handler->m_self = handler;
 
         XrdCl::XRootDStatus st = fs.Query(XrdCl::QueryCode::Config, arg, handler.get());
         if (!st.IsOK())
@@ -108,21 +108,20 @@ public:
             return st;
         }
 
-        // Successfully registered the callback; keep the self-reference until the
-        // callback release it.
-        self_ref_guard.release();
+        // Successfully registered the callback; it will always delete itself, so we shouldn't.
+        handler.release();
 
-        std::unique_lock<std::mutex> guard(handler->m_mutex);
+        std::unique_lock<std::mutex> guard(l_state->m_mutex);
         // Wait until some status is available or a timeout.
-        handler->m_condvar.wait_for(guard, timeout, [&]{return handler->m_status.get();});
+        l_state->m_condvar.wait_for(guard, timeout, [&]{return l_state->m_status.get();});
 
-        if (handler->m_status)
+        if (l_state->m_status)
         {
-            if (handler->m_status->IsOK())
+            if (l_state->m_status->IsOK())
             {
-                result = handler->m_response->ToString();
+                result = l_state->m_response->ToString();
             }
-            return *(handler->m_status);
+            return *(l_state->m_status);
         }
         else
         {   // We had a timeout; construct a reasonable message.
@@ -141,19 +140,19 @@ private:
         // NOTE: we own the status and response pointers.
         std::unique_ptr<XrdCl::AnyObject> response_mgr;
         response_mgr.reset(response);
-        // On exit from this function, release the self-reference.  Order matters!  m_self reset must be done after
-        // condvar is notified.
-        std::unique_ptr<char, std::function<void(char*)>> self_ref_guard(nullptr, [&](char *) {m_self.reset();});
+
+        // Lock our state information then dispose of our object.
+        auto l_state = m_state.lock();
+        delete this;
+        if (!l_state) {return;}
+
         // On function exit, notify any waiting threads.
-        std::unique_ptr<char, std::function<void(char*)>> notify_guard(nullptr, [&](char *) {m_condvar.notify_all();});
+        std::unique_ptr<char, std::function<void(char*)>> notify_guard(nullptr, [&](char *) {l_state->m_condvar.notify_all();});
 
         {
-            // m_mutex protects m_status
-            std::unique_lock<std::mutex> guard(m_mutex);
             // On exit from the block, make sure m_status is set; it needs to be set before we notify threads.
-            std::unique_ptr<char, std::function<void(char*)>> exit_guard(nullptr, [&](char *) {m_status.reset(new XrdCl::XRootDStatus(XrdCl::stError, XrdCl::errInternal));});
+            std::unique_ptr<char, std::function<void(char*)>> exit_guard(nullptr, [&](char *) {if (!l_state->m_status) l_state->m_status.reset(new XrdCl::XRootDStatus(XrdCl::stError, XrdCl::errInternal));});
             if (!status) {return;}
-            m_status.reset(status);
             if (status->IsOK())
             {
                 if (!response) {return;}
@@ -161,25 +160,28 @@ private:
                 response->Get(buf_ptr);
                 // AnyObject::Set lacks specialization for nullptr
                 response->Set(static_cast<int *>(nullptr));
-                m_response.reset(buf_ptr);
+                l_state->m_response.reset(buf_ptr);
             }
-            exit_guard.release();
+            l_state->m_status.reset(status);
         }
     }
 
 
-    // Self-reference; if we timed out waiting for the callback, we must keep the memory alive until
-    // the Xrootd framework invokes the callback.
-    std::shared_ptr<QueryAttrHandler> m_self;
+    // Represents the current state of the callback.  The parent class only manages a weak_ptr
+    // to the state.  If the asynchronous callback cannot lock the weak_ptr, then it assumes the
+    // main thread has given up and doesn't touch any of the state variables.
+    struct QueryAttrState {
 
-    // Synchronize between the callback thread and the main thread; condvar predicate
-    // is having m_status set.  m_mutex protects m_status.
-    std::mutex m_mutex;
-    std::condition_variable m_condvar;
+        // Synchronize between the callback thread and the main thread; condvar predicate
+        // is having m_status set.  m_mutex protects m_status.
+        std::mutex m_mutex;
+        std::condition_variable m_condvar;
 
-    // Results from the server
-    std::unique_ptr<XrdCl::XRootDStatus> m_status;
-    std::unique_ptr<XrdCl::Buffer> m_response;
+        // Results from the server
+        std::unique_ptr<XrdCl::XRootDStatus> m_status;
+        std::unique_ptr<XrdCl::Buffer> m_response;
+    };
+    std::weak_ptr<QueryAttrState> m_state;
 };
 
 
