@@ -61,7 +61,7 @@ class TemplatedVertexArbitrator : public edm::stream::EDProducer<> {
 	edm::EDGetTokenT<Product> token_secondaryVertex;
 	edm::EDGetTokenT<InputContainer>	 token_tracks; 
 	edm::EDGetTokenT<reco::BeamSpot> 	 token_beamSpot; 
-	TrackVertexArbitration<VTX> * theArbitrator;
+	std::unique_ptr<TrackVertexArbitration<VTX> > theArbitrator;
 };
 
 
@@ -73,7 +73,7 @@ TemplatedVertexArbitrator<InputContainer,VTX>::TemplatedVertexArbitrator(const e
 	token_beamSpot = consumes<reco::BeamSpot>(params.getParameter<edm::InputTag>("beamSpot"));
 	token_tracks = consumes<InputContainer>(params.getParameter<edm::InputTag>("tracks"));
 	produces<Product>();
-	theArbitrator = new TrackVertexArbitration<VTX>(params);
+	theArbitrator.reset( new TrackVertexArbitration<VTX>(params) );
 }
 
 template <class InputContainer, class VTX>
