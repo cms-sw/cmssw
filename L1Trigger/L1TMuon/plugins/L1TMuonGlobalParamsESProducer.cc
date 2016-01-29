@@ -89,7 +89,9 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
    m_params.setFOPosMatchQualLUTMaxDR(iConfig.getParameter<double>("FOPosMatchQualLUTMaxDR"));
    m_params.setFONegMatchQualLUTMaxDR(iConfig.getParameter<double>("FONegMatchQualLUTMaxDR"));
 
-   m_params.setSortRankLUTFactors(iConfig.getParameter<unsigned>("SortRankLUTPtFactor"), iConfig.getParameter<unsigned>("SortRankLUTQualFactor"));
+   unsigned sortRankLUTPtFactor = iConfig.getParameter<unsigned>("SortRankLUTPtFactor");
+   unsigned sortRankLUTQualFactor = iConfig.getParameter<unsigned>("SortRankLUTQualFactor");
+   m_params.setSortRankLUTFactors(sortRankLUTPtFactor, sortRankLUTQualFactor);
 
    auto absIsoCheckMemLUT = l1t::MicroGMTAbsoluteIsolationCheckLUTFactory::create (iConfig.getParameter<std::string>("AbsIsoCheckMemLUTPath"), fwVersion);
    auto relIsoCheckMemLUT = l1t::MicroGMTRelativeIsolationCheckLUTFactory::create (iConfig.getParameter<std::string>("RelIsoCheckMemLUTPath"), fwVersion);
@@ -110,7 +112,7 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
    auto bEtaExtrapolationLUT = l1t::MicroGMTExtrapolationLUTFactory::create (iConfig.getParameter<std::string>("BEtaExtrapolationLUTPath"), l1t::MicroGMTConfiguration::ETA_OUT, fwVersion);
    auto oEtaExtrapolationLUT = l1t::MicroGMTExtrapolationLUTFactory::create (iConfig.getParameter<std::string>("OEtaExtrapolationLUTPath"), l1t::MicroGMTConfiguration::ETA_OUT, fwVersion);
    auto fEtaExtrapolationLUT = l1t::MicroGMTExtrapolationLUTFactory::create (iConfig.getParameter<std::string>("FEtaExtrapolationLUTPath"), l1t::MicroGMTConfiguration::ETA_OUT, fwVersion);
-   auto rankPtQualityLUT = l1t::MicroGMTRankPtQualLUTFactory::create (iConfig.getParameter<std::string>("SortRankLUTPath"), fwVersion);
+   auto rankPtQualityLUT = l1t::MicroGMTRankPtQualLUTFactory::create (iConfig.getParameter<std::string>("SortRankLUTPath"), fwVersion, sortRankLUTPtFactor, sortRankLUTQualFactor);
    m_params.setAbsIsoCheckMemLUT(*absIsoCheckMemLUT);
    m_params.setRelIsoCheckMemLUT(*relIsoCheckMemLUT);
    m_params.setIdxSelMemPhiLUT(*idxSelMemPhiLUT);
