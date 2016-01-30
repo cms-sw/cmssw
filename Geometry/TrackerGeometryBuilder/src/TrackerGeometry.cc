@@ -106,7 +106,7 @@ TrackerGeometry::TrackerGeometry(GeometricDet const* gd) :  theTrackerDet(gd)
    
   sort(deepcomp.begin(), deepcomp.end(), DetIdComparator());
 
-  std::cout << " Total Number of Detectors " << deepcomp.size() << std::endl;  
+  LogDebug("ThicknessAndType") << " Total Number of Detectors " << deepcomp.size() ;
   LogDebug("ThicknessAndType") << "Dump of sensors names and bounds";
   for(auto det : deepcomp) {
     fillTestMap(det); 
