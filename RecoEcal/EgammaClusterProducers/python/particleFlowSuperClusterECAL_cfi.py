@@ -34,10 +34,10 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
     # regression setup
     useRegression = cms.bool(False), #regressions are mustache only
     regressionConfig = cms.PSet(
-       regressionKeyEB = cms.string('mustacheSC_offline_EB'),
-       uncertaintyKeyEB = cms.string('mustacheSC_offline_EB'),
-       regressionKeyEE = cms.string('mustacheSC_offline_EE'),
-       uncertaintyKeyEE = cms.string('mustacheSC_offline_EE'),
+       regressionKeyEB = cms.string('pfscecal_EBCorrection_offline_v2'),
+       uncertaintyKeyEB = cms.string('pfscecal_EBUncertainty_offline_v2'),
+       regressionKeyEE = cms.string('pfscecal_EECorrection_offline_v2'),
+       uncertaintyKeyEE = cms.string('pfscecal_EEUncertainty_offline_v2'),
        vertexCollection = cms.InputTag("offlinePrimaryVertices"),
        ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
        ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE')
@@ -106,12 +106,12 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     # are the seed thresholds Et or Energy?
     seedThresholdIsET = cms.bool(True),
     # regression setup
-    useRegression = cms.bool(False),
+    useRegression = cms.bool(True),
     regressionConfig = cms.PSet(
-       regressionKeyEB = cms.string('mustacheSC_offline_EB'),
-       uncertaintyKeyEB = cms.string('mustacheSC_offline_EB'),
-       regressionKeyEE = cms.string('mustacheSC_offline_EE'),
-       uncertaintyKeyEE = cms.string('mustacheSC_offline_EE'),
+       regressionKeyEB = cms.string('pfscecal_EBCorrection_offline_v2'),
+       uncertaintyKeyEB = cms.string('pfscecal_EBUncertainty_offline_v2'),
+       regressionKeyEE = cms.string('pfscecal_EECorrection_offline_v2'),
+       uncertaintyKeyEE = cms.string('pfscecal_EEUncertainty_offline_v2'),
        vertexCollection = cms.InputTag("offlinePrimaryVertices"),
        ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
        ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE')

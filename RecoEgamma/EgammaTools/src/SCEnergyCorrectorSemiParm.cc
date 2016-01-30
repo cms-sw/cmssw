@@ -38,13 +38,11 @@ void SCEnergyCorrectorSemiParm::setTokens(const edm::ParameterSet &iConfig, edm:
 
   regressionKeyEB_  = iConfig.getParameter<std::string>("regressionKeyEB");
   uncertaintyKeyEB_ = iConfig.getParameter<std::string>("uncertaintyKeyEB");
-  regressionKeyEB_  = iConfig.getParameter<std::string>("regressionKeyEE");
-  uncertaintyKeyEB_ = iConfig.getParameter<std::string>("uncertaintyKeyEE");
+  regressionKeyEE_  = iConfig.getParameter<std::string>("regressionKeyEE");
+  uncertaintyKeyEE_ = iConfig.getParameter<std::string>("uncertaintyKeyEE");
  
   if (not isHLT_)
     tokenVertices_     = cc.consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"));
-  else
-    tokenRho_          = cc.consumes<double>(iConfig.getParameter<edm::InputTag>("rhoCollection"));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,7 +65,7 @@ void SCEnergyCorrectorSemiParm::setEventSetup(const edm::EventSetup &es) {
   edm::ESHandle<GBRForestD> readerebvar;
   edm::ESHandle<GBRForestD> readeree;
   edm::ESHandle<GBRForestD> readereevar;
-  
+    
   es.get<GBRDWrapperRcd>().get(regressionKeyEB_,  readereb);
   es.get<GBRDWrapperRcd>().get(uncertaintyKeyEB_, readerebvar);
   es.get<GBRDWrapperRcd>().get(regressionKeyEE_,  readeree);
@@ -87,8 +85,25 @@ void SCEnergyCorrectorSemiParm::setEvent(const edm::Event &e) {
 
   if (not isHLT_)
     e.getByToken(tokenVertices_,vertices_);
-  else
-    e.getByToken(tokenRho_, rho_);
+  else {
+    nHitsAboveThreshold_ = 0;
+    const EcalRecHitCollection *recHitsEB = rechitsEB_.product();
+    const EcalRecHitCollection *recHitsEE = rechitsEE_.product();
+    
+    for (EcalRecHitCollection::const_iterator it=recHitsEB->begin(); it!=recHitsEB->end(); ++it) {
+      for (int i=0; i<10; i++) {
+	if (it->energy() > etThreshold_)
+	  nHitsAboveThreshold_++;
+      }
+    }
+    
+    for (EcalRecHitCollection::const_iterator it=recHitsEE->begin(); it!=recHitsEE->end(); ++it) {
+      for (int i=0; i<10; i++) {
+	if (it->energy() > etThreshold_)
+	  nHitsAboveThreshold_++;
+      }
+    }
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -264,7 +279,7 @@ void SCEnergyCorrectorSemiParm::modifyObject(reco::SuperCluster &sc) {
     }  
     
     // SET INPUTS
-    eval[0] = *(rho_.product());
+    eval[0] = nHitsAboveThreshold_;
     eval[1] = sc.eta(); 
     eval[2] = sc.phiWidth(); 
     eval[3] = EcalClusterTools::e3x3(seedCluster,recHits,topo)/raw_energy;
