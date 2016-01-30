@@ -354,8 +354,8 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       reco::GenParticle t2(-q*2/3., t2LVec, genVertex_, -q*6, 3, false);
       reco::GenParticle w2(-q, w2LVec, genVertex_, -q*24, 3, true);
       reco::GenParticle b2(0, bJet2.p4(), genVertex_, -q*5, 1, true);
-      reco::GenParticle u2(0, wJet1.p4(), genVertex_, 1, 1, true);
-      reco::GenParticle d2(0, wJet2.p4(), genVertex_, -2, 1, true);
+      reco::GenParticle u2(0, wJet1.p4(), genVertex_, -1, 1, true);
+      reco::GenParticle d2(0, wJet2.p4(), genVertex_, 2, 1, true);
 
       pseudoTop->push_back(t1);
       pseudoTop->push_back(t2);
