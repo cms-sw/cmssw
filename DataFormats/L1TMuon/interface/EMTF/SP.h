@@ -72,6 +72,7 @@ namespace l1t {
 
       
     private:
+      int pt_lut_address;
       int phi_full      ;
       int phi_gmt       ;
       int eta           ;

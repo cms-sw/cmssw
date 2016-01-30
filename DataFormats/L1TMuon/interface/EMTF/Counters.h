@@ -11,7 +11,8 @@ namespace l1t {
     public:
       
       explicit Counters(uint64_t dataword);
-    
+      
+    // rpc_counter not yet implemented in FW - AWB 31.01.16
     Counters() : 
       track_counter(-99), orbit_counter(-99), rpc_counter(-99), dataword(-99) 
 	{};
