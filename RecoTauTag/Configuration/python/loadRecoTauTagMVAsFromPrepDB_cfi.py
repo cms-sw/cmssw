@@ -1,13 +1,24 @@
 import socket
-import FWCore.ParameterSet.Config as cms
+from CondCore.CondDB.CondDB_cfi import *
 '''Helper procedure that loads mva inputs from database'''
 
-from CondCore.ESSources.CondDBESSource_cfi import GlobalTag
+CondDBTauConnection = CondDB.clone( connect = cms.string( 'frontier://FrontierProd/CMS_CONDITIONS' ) )
+if socket.getfqdn().find( '.cms' ) != -1:
+    CondDBTauConnection.connect = cms.string( 'frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_CONDITIONS' )
 
-loadRecoTauTagMVAsFromPrepDB = GlobalTag.clone()
-
-if socket.getfqdn().find('.cms') != -1:
-    loadRecoTauTagMVAsFromPrepDB.connect = cms.string('frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_CONDITIONS')
+loadRecoTauTagMVAsFromPrepDB = cms.ESSource( "PoolDBESSource",
+                                             CondDBTauConnection,
+                                             globaltag        = cms.string( '' ),
+                                             snapshotTime     = cms.string( '' ),
+                                             toGet            = cms.VPSet(),   # hook to override or add single payloads
+                                             DumpStat         = cms.untracked.bool( False ),
+                                             ReconnectEachRun = cms.untracked.bool( False ),
+                                             RefreshAlways    = cms.untracked.bool( False ),
+                                             RefreshEachRun   = cms.untracked.bool( False ),
+                                             RefreshOpenIOVs  = cms.untracked.bool( False ),
+                                             pfnPostfix       = cms.untracked.string( '' ),
+                                             pfnPrefix        = cms.untracked.string( '' ),
+                                             )
 
 # register tau ID (= isolation) discriminator MVA
 tauIdDiscrMVA_trainings = {
