@@ -237,6 +237,7 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
             rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat2, 0);
             rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat3, 0);
             rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat4, 0);
+	    rmc.setHwHF(cand->hwHF());
 
             rmc.setHwPhi(cand->hwPhi());
             rmc.setHwSign(cand->hwSign() == 1 ? 0 : 1 );
@@ -283,7 +284,7 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
         rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat2, 0);
         rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat3, 0);
         rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat4, 0);
-
+        rmc.setHwHF((*iter)->hwHF());
 
         rmc.setHwPhi((*iter)->hwPhi());
         if((*iter)->hwEta()>-33 || (*iter)->hwEta()<32 )
