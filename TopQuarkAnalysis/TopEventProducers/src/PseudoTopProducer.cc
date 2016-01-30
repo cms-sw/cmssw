@@ -303,10 +303,11 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       int selNu = -1, selJ1 = -1, selJ2 = -1;
       for ( int i=0, n=neutrinos->size(); i<n; ++i ) {
         const double dm1 = std::abs((lepton.p4()+neutrinos->at(i).p4()).mass()-wMass_);
-        for ( auto j1 : ljetIdxs ) {
+        for ( auto j1Itr=ljetIdxs.begin(); j1Itr!=ljetIdxs.end(); ++j1Itr ) {
+          const int j1 = *j1Itr;
           const auto& jet1 = jets->at(j1);
-          for ( auto j2 : ljetIdxs ) {
-            if ( j1 == j2 ) continue;
+          for ( auto j2Itr=std::next(j1Itr); j2Itr!=ljetIdxs.end(); ++j2Itr ) {
+            const int j2 = *j2Itr;
             const auto& jet2 = jets->at(j2);
             const double dm2 = std::abs((jet1.p4()+jet2.p4()).mass()-wMass_);
             const double newDm = dm1+dm2;
@@ -354,8 +355,8 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       reco::GenParticle t2(-q*2/3., t2LVec, genVertex_, -q*6, 3, false);
       reco::GenParticle w2(-q, w2LVec, genVertex_, -q*24, 3, true);
       reco::GenParticle b2(0, bJet2.p4(), genVertex_, -q*5, 1, true);
-      reco::GenParticle u2(0, wJet1.p4(), genVertex_, -1, 1, true);
-      reco::GenParticle d2(0, wJet2.p4(), genVertex_, 2, 1, true);
+      reco::GenParticle u2(0, wJet1.p4(), genVertex_, -2*q, 1, true);
+      reco::GenParticle d2(0, wJet2.p4(), genVertex_, q, 1, true);
 
       pseudoTop->push_back(t1);
       pseudoTop->push_back(t2);
