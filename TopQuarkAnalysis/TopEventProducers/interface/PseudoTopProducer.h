@@ -31,8 +31,8 @@ private:
   typedef reco::Particle::LorentzVector LorentzVector;
 
 private:
-  const edm::EDGetTokenT<edm::View<reco::Candidate> > finalStateToken_;
-  const edm::EDGetTokenT<edm::View<reco::Candidate> > genParticleToken_;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > finalStateToken_;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > genParticleToken_;
   const double leptonMinPt_, leptonMaxEta_, jetMinPt_, jetMaxEta_;
   const double wMass_, tMass_;
 
