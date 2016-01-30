@@ -90,6 +90,9 @@ public:
 
   int getCaloEtaIndex(bool negativeSide, uint32_t region, uint32_t iEta);
   int getCaloPhiIndex(uint32_t crate, uint32_t card, uint32_t region, uint32_t iPhi);
+  // Unlike caloPhi which is 1-72, 1-36 or 1-18 depending on caloEta, 
+  // uctPhi is always 1-72 to account for fictitious divisions used for convenience in UCT
+  int getUCTPhiIndex(uint32_t crate, uint32_t card, uint32_t iPhi);
 
   uint32_t getLinkNumber(bool negativeSide, uint32_t region, uint32_t iEta, uint32_t iPhi);
   uint32_t getChannelNumber(bool negativeSide, uint32_t iEta, uint32_t iPhi);

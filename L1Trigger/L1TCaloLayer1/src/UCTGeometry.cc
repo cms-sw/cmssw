@@ -112,6 +112,31 @@ int UCTGeometry::getCaloPhiIndex(uint32_t crate, uint32_t card,
   return caloPhiIndex;
 }
 
+int UCTGeometry::getUCTPhiIndex(uint32_t crate, uint32_t card, uint32_t iPhi) {
+  // UCT uses fictitious 72 divisions in phi even at the highest etas where towers
+  // are double or quadruple the size.  The energy is equally split in all towers
+  if(checkCrate(crate)) {
+    std::cerr << "Invalid crate number: crate = " << crate << std::endl;
+    exit(1);
+  }
+  if(checkCard(card)) {
+    std::cerr << "Invalid card number: card = " << card << std::endl;
+    exit(1);
+  }
+  int uctPhiIndex = 0xDEADBEEF;
+  if(crate == 0) {
+    uctPhiIndex = 11 + card * 4 + iPhi;
+  }
+  else if(crate == 1) {
+    uctPhiIndex = 59 + card * 4 + iPhi;
+  }
+  else if(crate == 2) {
+    uctPhiIndex = 35 + card * 4 + iPhi;
+  }
+  if(uctPhiIndex > 72) uctPhiIndex -= 72;
+  return uctPhiIndex;
+}
+
 uint32_t UCTGeometry::getUCTRegionPhiIndex(uint32_t crate, uint32_t card) {
   if(checkCrate(crate)) {
     std::cerr << "Invalid crate number: crate = " << crate << std::endl;

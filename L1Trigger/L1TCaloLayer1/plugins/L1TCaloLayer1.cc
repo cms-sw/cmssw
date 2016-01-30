@@ -216,8 +216,8 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  caloTower.setHwPt(towers[twr]->et());               // Bits 0-8 of the 16-bit word per the interface protocol document
 	  caloTower.setHwEtRatio(towers[twr]->er());          // Bits 9-11 of the 16-bit word per the interface protocol document
 	  caloTower.setHwQual(towers[twr]->miscBits());       // Bits 12-15 of the 16-bit word per the interface protocol document
-	  caloTower.setHwEta(towers[twr]->caloEta());
-	  caloTower.setHwPhi(towers[twr]->caloPhi());
+	  caloTower.setHwEta(towers[twr]->uctEta());          // Same as caloEta = 1-28 and 30-41
+	  caloTower.setHwPhi(towers[twr]->uctPhi());          // Same as caloPhi = 1-72 for caloEta = 1-28, but also 1-72 for caloEta = 30-41!
 	  caloTower.setHwEtEm(towers[twr]->getEcalET());      // This is provided as a courtesy - not available to hardware
 	  caloTower.setHwEtHad(towers[twr]->getHcalET());     // This is provided as a courtesy - not available to hardware
 	  towersColl->push_back(theBX, caloTower);
