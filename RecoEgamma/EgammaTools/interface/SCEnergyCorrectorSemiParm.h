@@ -53,9 +53,7 @@ class SCEnergyCorrectorSemiParm {
   edm::EDGetTokenT<EcalRecHitCollection> tokenEBRecHits_;
   edm::EDGetTokenT<EcalRecHitCollection> tokenEERecHits_;
   edm::EDGetTokenT<reco::VertexCollection> tokenVertices_;    
-  edm::EDGetTokenT<double> tokenRho_;    
-  
-  edm::Handle<double> rho_;
+
   edm::Handle<reco::VertexCollection> vertices_;
   edm::Handle<EcalRecHitCollection>  rechitsEB_;
   edm::Handle<EcalRecHitCollection>  rechitsEE_;
@@ -63,7 +61,6 @@ class SCEnergyCorrectorSemiParm {
   edm::InputTag ecalHitsEBInputTag_;
   edm::InputTag ecalHitsEEInputTag_;
   edm::InputTag vertexInputTag_;
-  edm::InputTag rhoInputTag_;
 
   std::string regressionKeyEB_;
   std::string uncertaintyKeyEB_;
@@ -72,6 +69,7 @@ class SCEnergyCorrectorSemiParm {
 
  private:
   bool isHLT_;
-  
+  int nHitsAboveThreshold_;
+  float etThreshold_;
 };
 #endif
