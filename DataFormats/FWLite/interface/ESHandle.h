@@ -38,20 +38,20 @@ class ESHandle
    friend class fwlite::Record;
    
    public:
-      ESHandle(): m_data(0), m_exception(eshandle_not_set_exception()) {}
+      ESHandle(): m_data(nullptr), m_exception(eshandle_not_set_exception()) {}
 
       // ---------- const member functions ---------------------
-      bool isValid() const { return 0!=m_data;}
+      bool isValid() const { return nullptr != m_data;}
 
       const T& operator*() const {
-         if(0!=m_exception.get()) {
+         if(nullptr != m_exception.get()) {
             throw *m_exception;
          }
          return *m_data;
       }
       
       const T* operator->() const {
-         if(0!=m_exception.get()) {
+         if(nullptr != m_exception.get()) {
             throw *m_exception;
          }
          return m_data;
@@ -70,7 +70,7 @@ class ESHandle
          m_data(static_cast<const T*>(iData)),
          m_exception() {}
       ESHandle(cms::Exception* iException) :
-         m_data(0), m_exception(iException) {}
+         m_data(nullptr), m_exception(iException) {}
       //ESHandle(const ESHandle&); // stop default
 
       //const ESHandle& operator=(const ESHandle&); // stop default

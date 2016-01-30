@@ -68,8 +68,8 @@ namespace edm {
      private:
       std::unique_ptr<WrapperBase> getTheProduct(BranchKey const& k) const;
       virtual std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) override;
-      virtual std::auto_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
-        return std::auto_ptr<EventEntryDescription>();
+      virtual std::unique_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
+        return std::unique_ptr<EventEntryDescription>();
       }
       virtual void mergeReaders_(DelayedReader*) override {}
       virtual void reset_() override {}
@@ -270,7 +270,7 @@ Bool_t
 TFWLiteSelectorBasic::Process(Long64_t iEntry) {
    //std::cout << "Process start" << std::endl;
    if(everythingOK_) {
-      std::auto_ptr<edm::EventAuxiliary> eaux(new edm::EventAuxiliary());
+      std::unique_ptr<edm::EventAuxiliary> eaux = std::make_unique<edm::EventAuxiliary>();
       edm::EventAuxiliary& aux = *eaux;
       edm::EventAuxiliary* pAux= eaux.get();
       TBranch* branch = m_->tree_->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InEvent).c_str());
@@ -429,7 +429,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   m_->pointerToBranchBuffer_.erase(m_->pointerToBranchBuffer_.begin(),
                                    m_->pointerToBranchBuffer_.end());
 
-  std::auto_ptr<edm::ProductRegistry> newReg(new edm::ProductRegistry());
+  std::unique_ptr<edm::ProductRegistry> newReg = std::make_unique<edm::ProductRegistry>();
 
   edm::ProductRegistry::ProductList& prodList = m_->reg_->productListUpdator();
   {
