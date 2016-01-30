@@ -22,12 +22,17 @@
 
 #include "HLTrigger/HLTfilters/interface/HLTL1TSeed.h"
 
+//#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
+//#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
+
 using namespace std;
 
 
 // constructors
 HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) : 
   HLTStreamFilter(parSet),
+  m_utml1GtMenu( nullptr ),
+  m_l1GtMenuCacheID( 0ULL ),
   //useObjectMaps_(parSet.getParameter<bool>("L1UseL1TriggerObjectMaps")),
   //m_l1SeedsLogicalExpression(parSet.getParameter<string>("L1SeedsLogicalExpression")),
   // InputTag for the L1 Global Trigger DAQ readout record
@@ -56,7 +61,7 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
 {
 
 
-  m_l1SeedsLogicalExpression = "ETT_40 OR L1_ETT_40";
+  m_l1SeedsLogicalExpression = "L1_ETT40 OR L1_SingleEG10";
   //m_l1SeedsLogicalExpression = parSet.getParameter<string>("L1SeedsLogicalExpression");
 
   m_l1GtObjectMapTag = edm::InputTag("simGtStage2Digis");
@@ -154,6 +159,27 @@ bool HLTL1TSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, t
     filterproduct.addCollectionTag(m_l1EtSumTag);
   }
   
+
+      /*
+      // get / update the trigger menu from the EventSetup
+      // local cache & check on cacheIdentifier
+      unsigned long long l1GtMenuCacheID = evSetup.get<L1TUtmTriggerMenuRcd>().cacheIdentifier();
+      
+      if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
+     
+        edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
+        evSetup.get< L1TUtmTriggerMenuRcd>().get(l1GtMenu) ;
+        m_utml1GtMenu =  l1GtMenu.product();
+        m_l1GtMenuCacheID = l1GtMenuCacheID;
+     
+        //std::cout << "Attempting to fill the map " << std::endl;
+        //m_algorithmMap = &(utml1GtMenu->getAlgorithmMap());
+      
+        //reset vectors since we have new menu
+        //resetDecisionVectors();
+
+      }
+      */
 
 
   //seedsL1TriggerObjectMaps(iEvent, filterproduct, l1GtTmAlgo.product(), gtReadoutRecordPtr, physicsDaqPartition);
@@ -550,70 +576,102 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     for (std::vector<L1GtLogicParser::OperandToken>::const_iterator
             itSeed = m_l1AlgoSeeds.begin(); itSeed != m_l1AlgoSeeds.end(); ++itSeed) {
 
+        bool matchedAlgo = false;
         //
         iAlgo++;
         //
         int algBit = (*itSeed).tokenNumber;
-        std::string algName = (*itSeed).tokenName;
+        std::string algoSeedName = (*itSeed).tokenName;
         bool algResult = (*itSeed).tokenResult;
 
-        cout << "algName = " << algName << "  algResult = " << algResult << "  algBit = " << algBit << "\n" << endl;
-
-        LogTrace("HLTLevel1GTSeed")
-        << "\nHLTLevel1GTSeed::hltFilter "
-        << "\n  Algorithm " << algName << " with bit number " << algBit
-        << " in the object map seed list"
-        << "\n  Algorithm result = " << algResult << "\n"
-        << std::endl;
+        cout << "----------------------- algSeedName = " << algoSeedName << "  algResult = " << algResult << "  algBit = " << algBit << "\n" << endl;
 
         const std::vector<L1GlobalTriggerObjectMap>& v_gtObjectMap = gtObjectMapRecord->gtObjectMap();
 
         /// loop over all gtObjectMaps
         //  Debug: Printout contents of L1GlobalTriggerObjectMapRecord
-        for (size_t i =0; i < v_gtObjectMap.size(); i++) {
+        for (size_t iMap =0; iMap < v_gtObjectMap.size(); iMap++) {
 
-          cout << "map=" << i << " " ;
+          const L1GlobalTriggerObjectMap& objMap = v_gtObjectMap[iMap];
 
-          const std::vector<L1GtLogicParser::OperandToken>& opTokenVecObjMap = v_gtObjectMap[i].operandTokenVector();
+          if (algoSeedName == objMap.algoName()) {
 
-          for (size_t j =0; j < opTokenVecObjMap.size(); j++) {
+            matchedAlgo = true;
 
-            cout << "\ttokenName = " << opTokenVecObjMap[j].tokenName
-                << "\ttokenNumber = " << opTokenVecObjMap[j].tokenNumber 
-                << "\ttokenResult = " << opTokenVecObjMap[j].tokenResult << endl;
+            if( objMap.algoGtlResult()) {
 
+               algResult = true;
+               algBit = objMap.algoBitNumber();
 
-          }
+            }
 
-        }
+          } // end if Name
+
+          const std::vector<L1GtLogicParser::OperandToken>& opTokenVecObjMap = objMap.operandTokenVector();
+
+          cout << "\tmap = " << iMap << "\talgoName=" << objMap.algoName() << "\talgoGtlResult = " << objMap.algoGtlResult();
+          if (matchedAlgo) cout << "\tmatched to seed algo = " << algoSeedName << "\talgo result = " << algResult;
+          cout << endl << endl;
+
+          for (size_t jOp =0; jOp < opTokenVecObjMap.size(); jOp++) {
+
+            cout << "\t tokenName = " << opTokenVecObjMap[jOp].tokenName
+                << "\ttokenNumber = " << opTokenVecObjMap[jOp].tokenNumber 
+                << "\ttokenResult = " << opTokenVecObjMap[jOp].tokenResult 
+                << endl;
+
+          } // end for
+
+          cout << endl;
+          cout << endl;
+
+          // reset flag for next map
+          matchedAlgo = false;
+
+        } //end for iMap
+
+        LogTrace("HLTLevel1GTSeed")
+        << "\nHLTLevel1GTSeed::hltFilter "
+        << "\n  Algorithm " << algoSeedName << " with bit number " << algBit
+        << " in the object map seed list"
+        << "\n  Algorithm result = " << algResult << "\n"
+        << std::endl;
+
+        cout << "I got to pos 1 " << endl;
 
         // algorithm result is false - no seeds
         if ( !algResult) {
             continue;
         }
+        cout << "I got to pos 2 " << endl;
 
         // algorithm result is true - get object map, loop over conditions in the algorithm
         const L1GlobalTriggerObjectMap* objMap = gtObjectMapRecord->getObjectMap(algBit);
 
         if (objMap == 0) {
             edm::LogWarning("HLTLevel1GTSeed")
-            << "\nWarning: L1GlobalTriggerObjectMap for algorithm  " << algName
+            << "\nWarning: L1GlobalTriggerObjectMap for algorithm  " << algoSeedName
             << " (bit number " << algBit << ") does not exist.\nReturn false.\n"
             << std::endl;
             return false;
         }
+        cout << "I got to pos 3 " << endl;
 
-        const std::vector<L1GtLogicParser::OperandToken>& opTokenVecObjMap =
-            objMap->operandTokenVector();
+        const std::vector<L1GtLogicParser::OperandToken>& opTokenVecObjMap = objMap->operandTokenVector();
 
-        const std::vector<L1GtLogicParser::TokenRPN>& algoSeedsRpn =
-            * ( m_l1AlgoSeedsRpn.at(iAlgo) );
+        cout << "I got to pos 3.1 " << endl;
 
-        const std::vector<const std::vector<L1GtObject>*>& algoSeedsObjTypeVec =
-            m_l1AlgoSeedsObjType[iAlgo];
+        const std::vector<L1GtLogicParser::TokenRPN>& algoSeedsRpn = * ( m_l1AlgoSeedsRpn.at(iAlgo) );
+        cout << "I got to pos 3.2 " << endl;
+
+        const std::vector<const std::vector<L1GtObject>*>& algoSeedsObjTypeVec = m_l1AlgoSeedsObjType[iAlgo];
+        cout << "I got to pos 3.3 " << endl;
 
         //
         L1GtLogicParser logicParserConditions(algoSeedsRpn, opTokenVecObjMap);
+
+        cout << "I got to pos 4 " << endl;
+        continue;
 
         // get list of required conditions for seeding - loop over
         std::vector<L1GtLogicParser::OperandToken> condSeeds =
@@ -639,6 +697,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
             LogTrace("HLTLevel1GTSeed")
             << std::endl;
         }
+
 
         for (std::vector<L1GtLogicParser::OperandToken>::const_iterator
                 itCond = condSeeds.begin(); itCond != condSeeds.end(); itCond++) {
