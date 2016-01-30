@@ -139,17 +139,17 @@ void
 Record::resetCaches()
 {
   for(auto&b : m_branches){
-    TClass* cls=0;
+    TClass* cls = nullptr;
     EDataType dt;
-    if(0==b.second.first or 0==b.second.second) continue;
+    if(nullptr == b.second.first or nullptr == b.second.second) continue;
     if(0==b.second.first->GetExpectedType(cls,dt)) {
       cls->Destructor(b.second.second);
-      b.second.second=0;
+      b.second.second = nullptr;
     }
   }
   for(auto&b : m_branches){
-    if(0==b.second.first) continue;
-    assert(b.second.second==0);
+    if(nullptr == b.second.first) continue;
+    assert(b.second.second == nullptr);
   }
 }
 
@@ -181,8 +181,8 @@ Record::get(const edm::TypeID& iType,
    cms::Exception* returnValue = nullptr;
    
    std::pair<TBranch*,void*>& branch = m_branches[std::make_pair(iType,iLabel)];
-   if(0==branch.first){
-      branch.second=0;
+   if(nullptr == branch.first){
+      branch.second = nullptr;
       if(!edm::hasDictionary(iType.typeInfo())){
          returnValue = new cms::Exception("UnknownType");
          (*returnValue)<<"The type "
@@ -194,7 +194,7 @@ Record::get(const edm::TypeID& iType,
       std::string branchName = fwlite::format_type_to_mangled(iType.className())+"__"+iLabel;
       branch.first = m_tree->FindBranch(branchName.c_str());
       
-      if(0==branch.first){
+      if(nullptr == branch.first){
          returnValue = new cms::Exception("NoDataAvailable");
          (*returnValue)<<"The data of type "
                        <<iType.className()
@@ -220,12 +220,12 @@ Record::get(const edm::TypeID& iType,
          <<name()<<" was asked to get data for a 'time' for which it has no data";
       return returnValue;
    }
-   if(0!=branch.second) {
+   if(nullptr != branch.second) {
      iData=branch.second;
      return nullptr;
    }
 
-   assert(0==branch.second);
+   assert(nullptr == branch.second);
    branch.first->SetAddress(&branch.second);
    iData = branch.second;
    branch.first->GetEntry(m_entry);

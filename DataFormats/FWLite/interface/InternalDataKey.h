@@ -39,9 +39,9 @@ namespace fwlite {
                     char const* iProduct,
                     char const* iProcess) :
                type_(iType),
-               module_(iModule!=0? iModule:kEmpty()),
-               product_(iProduct!=0?iProduct:kEmpty()),
-               process_(iProcess!=0?iProcess:kEmpty()) {}
+               module_(iModule != nullptr ? iModule : kEmpty()),
+               product_(iProduct != nullptr ? iProduct : kEmpty()),
+               process_(iProcess != nullptr ? iProcess : kEmpty()) {}
 
             ~DataKey() {
             }

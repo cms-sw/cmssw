@@ -45,17 +45,17 @@ namespace fwlite {
   LuminosityBlock::LuminosityBlock(TFile* iFile):
     branchMap_(new BranchMapReader(iFile)),
     pAux_(&aux_),
-    pOldAux_(0),
+    pOldAux_(nullptr),
     fileVersion_(-1),
     dataHelper_(branchMap_->getLuminosityBlockTree(),
                 std::shared_ptr<HistoryGetterBase>(new LumiHistoryGetter(this)),
                 branchMap_)
   {
-    if(0==iFile) {
+    if(nullptr == iFile) {
       throw cms::Exception("NoFile")<<"The TFile pointer passed to the constructor was null";
     }
 
-    if(0==branchMap_->getLuminosityBlockTree()) {
+    if(nullptr == branchMap_->getLuminosityBlockTree()) {
       throw cms::Exception("NoLumiTree")<<"The TFile contains no TTree named " <<edm::poolNames::luminosityBlockTreeName();
     }
     //need to know file version in order to determine how to read the basic product info
@@ -66,7 +66,7 @@ namespace fwlite {
     TTree* luminosityBlockTree = branchMap_->getLuminosityBlockTree();
     if(fileVersion_ >= 3) {
       auxBranch_ = luminosityBlockTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InLumi).c_str());
-      if(0==auxBranch_) {
+      if(nullptr == auxBranch_) {
         throw cms::Exception("NoLuminosityBlockAuxilliary")<<"The TTree "
         <<edm::poolNames::luminosityBlockTreeName()
         <<" does not contain a branch named 'LuminosityBlockAuxiliary'";
@@ -77,7 +77,7 @@ namespace fwlite {
 //       This code commented from fwlite::Event. May be portable if needed.
 //       pOldAux_ = new edm::EventAux();
 //       auxBranch_ = luminosityBlockTree->GetBranch(edm::BranchTypeToAuxBranchName(edm::InLuminosityBlock).c_str());
-//       if(0==auxBranch_) {
+//       if(nullptr == auxBranch_) {
 //         throw cms::Exception("NoLuminosityBlockAux")<<"The TTree "
 //           <<edm::poolNames::luminosityBlockTreeName()
 //           <<" does not contain a branch named 'LuminosityBlockAux'";
@@ -85,13 +85,13 @@ namespace fwlite {
 //       auxBranch_->SetAddress(&pOldAux_);
     }
     branchMap_->updateLuminosityBlock(0);
-    runFactory_ =  std::shared_ptr<RunFactory>(new RunFactory());
+    runFactory_ =  std::make_shared<RunFactory>();
 }
 
   LuminosityBlock::LuminosityBlock(std::shared_ptr<BranchMapReader> branchMap, std::shared_ptr<RunFactory> runFactory):
     branchMap_(branchMap),
     pAux_(&aux_),
-    pOldAux_(0),
+    pOldAux_(nullptr),
     fileVersion_(-1),
     dataHelper_(branchMap_->getLuminosityBlockTree(),
                 std::shared_ptr<HistoryGetterBase>(new LumiHistoryGetter(this)),
@@ -99,7 +99,7 @@ namespace fwlite {
     runFactory_(runFactory)
   {
 
-    if(0==branchMap_->getLuminosityBlockTree()) {
+    if(nullptr == branchMap_->getLuminosityBlockTree()) {
       throw cms::Exception("NoLumiTree")<<"The TFile contains no TTree named " <<edm::poolNames::luminosityBlockTreeName();
     }
     //need to know file version in order to determine how to read the basic event info
@@ -109,7 +109,7 @@ namespace fwlite {
     TTree* luminosityBlockTree = branchMap_->getLuminosityBlockTree();
     if(fileVersion_ >= 3) {
       auxBranch_ = luminosityBlockTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InLumi).c_str());
-      if(0==auxBranch_) {
+      if(nullptr == auxBranch_) {
         throw cms::Exception("NoLuminosityBlockAuxilliary")<<"The TTree "
         <<edm::poolNames::luminosityBlockTreeName()
         <<" does not contain a branch named 'LuminosityBlockAuxiliary'";
@@ -119,7 +119,7 @@ namespace fwlite {
       throw cms::Exception("OldFileVersion")<<"The FWLite Luminosity Block code des not support old file versions";
 /*      pOldAux_ = new edm::EventAux();
       auxBranch_ = luminosityBlockTree->GetBranch(edm::BranchTypeToAuxBranchName(edm::InLuminosityBlock).c_str());
-      if(0==auxBranch_) {
+      if(nullptr == auxBranch_) {
         throw cms::Exception("NoLuminosityBlockAux")<<"The TTree "
           <<edm::poolNames::luminosityBlockTreeName()
           <<" does not contain a branch named 'LuminosityBlockAux'";
@@ -136,10 +136,8 @@ namespace fwlite {
 
 LuminosityBlock::~LuminosityBlock()
 {
-  for(std::vector<char const*>::iterator it = labels_.begin(), itEnd=labels_.end();
-      it != itEnd;
-      ++it) {
-    delete [] *it;
+  for(auto const& label : labels_) {
+    delete [] label;
   }
   delete pOldAux_;
 }
@@ -246,7 +244,7 @@ LuminosityBlock::updateAux(Long_t luminosityBlockIndex) const
   if(auxBranch_->GetEntryNumber() != luminosityBlockIndex) {
     auxBranch_->GetEntry(luminosityBlockIndex);
     //handling dealing with old version
-    if(0 != pOldAux_) {
+    if(nullptr != pOldAux_) {
       conversion(*pOldAux_,aux_);
     }
   }
@@ -269,7 +267,7 @@ LuminosityBlock::history() const
   if(historyMap_.empty() || newFormat) {
     procHistoryNames_.clear();
     TTree *meta = dynamic_cast<TTree*>(branchMap_->getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
-    if(0==meta) {
+    if(nullptr == meta) {
       throw cms::Exception("NoMetaTree")<<"The TFile does not appear to contain a TTree named "
       <<edm::poolNames::metaDataTreeName();
     }
@@ -331,7 +329,7 @@ LuminosityBlock::throwProductNotFoundException(std::type_info const& iType, char
 {
     edm::TypeID type(iType);
   throw edm::Exception(edm::errors::ProductNotFound)<<"A branch was found for \n  type ='"<<type.className()<<"'\n  module='"<<iModule
-    <<"'\n  productInstance='"<<((0!=iProduct)?iProduct:"")<<"'\n  process='"<<((0!=iProcess)?iProcess:"")<<"'\n"
+    <<"'\n  productInstance='"<<((nullptr != iProduct)?iProduct:"")<<"'\n  process='"<<((nullptr != iProcess)?iProcess:"")<<"'\n"
     "but no data is available for this LuminosityBlock";
 }
 

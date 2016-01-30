@@ -46,8 +46,8 @@ namespace fwlite
       void* prodPtr = &prod;
       getByLabel(iWrapperInfo,
                  iTag.label().c_str(),
-                 iTag.instance().empty()?static_cast<char const*>(0):iTag.instance().c_str(),
-                 iTag.process().empty()?static_cast<char const*> (0):iTag.process().c_str(),
+                 iTag.instance().empty() ? static_cast<char const*>(nullptr) : iTag.instance().c_str(),
+                 iTag.process().empty() ? static_cast<char const*>(nullptr) : iTag.process().c_str(),
                  prodPtr);
       if(prod == nullptr || !prod->isPresent()) {
         edm::TypeID productType(iWrapperInfo);

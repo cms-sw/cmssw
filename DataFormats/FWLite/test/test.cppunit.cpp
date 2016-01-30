@@ -23,7 +23,7 @@ Test program for edm::Ref use in ROOT.
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 
-static char* gArgV = 0;
+static char* gArgV = nullptr;
 
 extern "C" char** environ;
 
@@ -94,8 +94,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testRefInROOT);
 static void checkMatch(const edmtest::OtherThingCollection* pOthers,
                        const edmtest::ThingCollection* pThings)
 {
-  CPPUNIT_ASSERT(pOthers != 0);
-  CPPUNIT_ASSERT(pThings != 0);
+  CPPUNIT_ASSERT(pOthers != nullptr);
+  CPPUNIT_ASSERT(pThings != nullptr);
   CPPUNIT_ASSERT(pOthers->size() == pThings->size());
 
   //This test requires at least one entry
@@ -248,11 +248,10 @@ void testRefInROOT::testRefFirst()
     pOthers.getByLabel(events,"OtherThing","testUserTag");
 
     //std::cout <<"got OtherThing"<<std::endl;
-    for(edmtest::OtherThingCollection::const_iterator itOther=pOthers->begin(), itEnd=pOthers->end() ;
-        itOther != itEnd; ++itOther) {
+    for(auto const& other : *pOthers) {
       //std::cout <<"getting ref"<<std::endl;
       int arbitraryBigNumber = 1000000; 
-      CPPUNIT_ASSERT(itOther->ref.get()->a < arbitraryBigNumber);
+      CPPUNIT_ASSERT(other.ref.get()->a < arbitraryBigNumber);
     }
     //std::cout <<"get all Refs"<<std::endl;
     
@@ -281,11 +280,10 @@ void testRefInROOT::testMissingRef()
       
       fwlite::Handle<edmtest::OtherThingCollection> pOthers;
       pOthers.getByLabel(events,"OtherThing","testUserTag");
-      for(edmtest::OtherThingCollection::const_iterator itOther=pOthers->begin(), itEnd=pOthers->end() ;
-          itOther != itEnd; ++itOther) {
+      for(auto const& other : *pOthers) {
          //std::cout <<"getting ref"<<std::endl;
-         CPPUNIT_ASSERT(not itOther->ref.isAvailable());
-         CPPUNIT_ASSERT_THROW(itOther->ref.get(), cms::Exception);
+         CPPUNIT_ASSERT(not other.ref.isAvailable());
+         CPPUNIT_ASSERT_THROW(other.ref.get(), cms::Exception);
       }
    }
 }
@@ -378,18 +376,18 @@ void testRefInROOT::testGoodChain()
   eventChain.Add((tmpdir + "goodDataFormatsFWLite.root").c_str());
   eventChain.Add((tmpdir + "good2DataFormatsFWLite.root").c_str());
 
-  edm::Wrapper<edmtest::OtherThingCollection> *pOthers =0;
+  edm::Wrapper<edmtest::OtherThingCollection> *pOthers = nullptr;
   eventChain.SetBranchAddress("edmtestOtherThings_OtherThing_testUserTag_TEST.",&pOthers);
   
-  edm::Wrapper<edmtest::ThingCollection>* pThings = 0;
+  edm::Wrapper<edmtest::ThingCollection>* pThings = nullptr;
   eventChain.SetBranchAddress("edmtestThings_Thing__TEST.",&pThings);
   
   int nev = eventChain.GetEntries();
   for( int ev=0; ev<nev; ++ev) {
     std::cout <<"event #" <<ev<<std::endl;
     eventChain.GetEntry(ev);
-    CPPUNIT_ASSERT(pOthers != 0);
-    CPPUNIT_ASSERT(pThings != 0);
+    CPPUNIT_ASSERT(pOthers != nullptr);
+    CPPUNIT_ASSERT(pThings != nullptr);
     checkMatch(pOthers->product(),pThings->product());
   }
   */
@@ -401,18 +399,18 @@ void testRefInROOT::failChainWithMissingFile()
   eventChain.Add((tmpdir + "goodDataFormatsFWLite.root").c_str());
   eventChain.Add("thisFileDoesNotExist.root");
   
-  edm::Wrapper<edmtest::OtherThingCollection> *pOthers =0;
+  edm::Wrapper<edmtest::OtherThingCollection> *pOthers = nullptr;
   eventChain.SetBranchAddress("edmtestOtherThings_OtherThing_testUserTag_TEST.",&pOthers);
   
-  edm::Wrapper<edmtest::ThingCollection>* pThings = 0;
+  edm::Wrapper<edmtest::ThingCollection>* pThings = nullptr;
   eventChain.SetBranchAddress("edmtestThings_Thing__TEST.",&pThings);
   
   int nev = eventChain.GetEntries();
   for( int ev=0; ev<nev; ++ev) {
     std::cout <<"event #" <<ev<<std::endl;    
     eventChain.GetEntry(ev);
-    CPPUNIT_ASSERT(pOthers != 0);
-    CPPUNIT_ASSERT(pThings != 0);
+    CPPUNIT_ASSERT(pOthers != nullptr);
+    CPPUNIT_ASSERT(pThings != nullptr);
     checkMatch(pOthers->product(),pThings->product());
   }
   
