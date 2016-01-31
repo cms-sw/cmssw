@@ -7,7 +7,6 @@
   [date]: October 15, 2009
 */
 #include <vector>
-#include <map>
 #include "DataFormats/METReco/interface/PhiWedge.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"

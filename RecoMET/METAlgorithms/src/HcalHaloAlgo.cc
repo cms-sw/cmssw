@@ -1,4 +1,5 @@
 #include "RecoMET/METAlgorithms/interface/HcalHaloAlgo.h"
+#include <map>
 
 /*
   [class]:  HcalHaloAlgo
