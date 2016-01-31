@@ -5,8 +5,8 @@
 
 #include <mutex>
 #include <memory>
-#include <unordered_map>
 
+#include "tbb/concurrent_unordered_map.h"
 #include <boost/utility.hpp>
 
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -66,9 +66,9 @@ private:
     static
     std::unique_ptr<QualityMetricSource> get(timespec now, const std::string &id);
 
-    static QualityMetricFactory *m_instance;
+    [[cms::thread_safe]] static QualityMetricFactory m_instance;
 
-    typedef std::unordered_map<std::string, QualityMetricUniqueSource*> MetricMap;
+    typedef tbb::concurrent_unordered_map<std::string, QualityMetricUniqueSource*> MetricMap;
     MetricMap m_sources;
 };
 
