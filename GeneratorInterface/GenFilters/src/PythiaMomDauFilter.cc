@@ -128,7 +128,11 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
             ++ndauac;
             break;
       	   }
-	   if((*dau)->pdg_id() == -daughterID) {
+       int daughterIDanti = -daughterID;
+       int pythiaCode = PYCOMP(daughterID);
+       int has_antipart = pydat2.kchg[3-1][pythiaCode-1];
+       if( has_antipart == 0 ) daughterIDanti = daughterID;
+       if((*dau)->pdg_id() == daughterIDanti) {
             for( HepMC::GenVertex::particle_iterator des  = (*dau)->end_vertex()->particles_begin(HepMC::children); des != (*des)->end_vertex()->particles_end(HepMC::children);  ++des ){
                  ++ndes;
 	    for( unsigned int i=0; i<desIDs.size(); ++i) {
