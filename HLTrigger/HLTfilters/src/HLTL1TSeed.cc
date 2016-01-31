@@ -608,10 +608,14 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
           } // end if Name
 
           const std::vector<L1GtLogicParser::OperandToken>& opTokenVecObjMap = objMap.operandTokenVector();
+          const std::vector<ObjectTypeInCond>&  condObjType = objMap.objectTypeVector();
+          const std::vector<CombinationsInCond>& condCombinations = objMap.combinationVector();
 
           cout << "\tmap = " << iMap << "\talgoName=" << objMap.algoName() << "\talgoGtlResult = " << objMap.algoGtlResult();
           if (matchedAlgo) cout << "\tmatched to seed algo = " << algoSeedName << "\talgo result = " << algResult;
           cout << endl << endl;
+
+          cout << "opTokenVecObjMap.size() = " << opTokenVecObjMap.size() << "\t condObjType.size() = " <<  condObjType.size() << "\t condCombinations.size() = " << condCombinations.size() << endl;
 
           for (size_t jOp =0; jOp < opTokenVecObjMap.size(); jOp++) {
 
@@ -619,6 +623,16 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                 << "\ttokenNumber = " << opTokenVecObjMap[jOp].tokenNumber 
                 << "\ttokenResult = " << opTokenVecObjMap[jOp].tokenResult 
                 << endl;
+            
+            std::vector<L1GtObject> objType = condObjType[jOp];
+
+            for (size_t jOb =0; jOb < objType.size(); jOb++) {
+
+              cout << "objType = " << objType[jOb] << endl;
+
+            }
+
+
 
           } // end for
 
