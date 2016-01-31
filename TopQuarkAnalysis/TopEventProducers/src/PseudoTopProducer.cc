@@ -66,7 +66,6 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
   // Collect stable leptons and neutrinos
   size_t nStables = 0;
   std::vector<size_t> leptonIdxs;
-  std::set<size_t> neutrinoIdxs;
   for ( size_t i=0, n=finalStateHandle->size(); i<n; ++i ) {
     const reco::Candidate& p = finalStateHandle->at(i);
     const int absPdgId = abs(p.pdgId());
@@ -82,7 +81,6 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
         leptonIdxs.push_back(i);
         break;
       case 12: case 14: case 16:
-        neutrinoIdxs.insert(i);
         neutrinos->push_back(reco::GenParticle(p.charge(), p.p4(), p.vertex(), p.pdgId(), p.status(), true));
         break;
     }
@@ -129,7 +127,6 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       constituents.push_back(cand);
     }
     if ( lepCand.isNull() ) continue;
-    if ( lepCand->pt() < fjJet.pt()/2 ) continue; // Central lepton must be the major component
 
     const LorentzVector jetP4(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E());
     reco::GenJet lepJet;
@@ -159,7 +156,8 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
     if ( p.status() != 1 ) continue;
     if ( std::isnan(p.pt()) or p.pt() <= 0 ) continue;
 
-    if ( neutrinoIdxs.find(i) != neutrinoIdxs.end() ) continue;
+    const int absId = std::abs(p.pdgId());
+    if ( absId == 12 or absId == 14 or absId == 16 ) continue;
     if ( lepDauIdxs.find(i) != lepDauIdxs.end() ) continue;
 
     fjJetInputs.push_back(fastjet::PseudoJet(p.px(), p.py(), p.pz(), p.energy()));
