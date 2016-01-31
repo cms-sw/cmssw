@@ -10,6 +10,8 @@ using namespace edm;
 using namespace reco;
 
 PseudoTopProducer::PseudoTopProducer(const edm::ParameterSet& pset):
+  finalStateToken_(consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("finalStates"))),
+  genParticleToken_(consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("genParticles"))),
   leptonMinPt_(pset.getParameter<double>("leptonMinPt")),
   leptonMaxEta_(pset.getParameter<double>("leptonMaxEta")),
   jetMinPt_(pset.getParameter<double>("jetMinPt")),
@@ -17,9 +19,6 @@ PseudoTopProducer::PseudoTopProducer(const edm::ParameterSet& pset):
   wMass_(pset.getParameter<double>("wMass")),
   tMass_(pset.getParameter<double>("tMass"))
 {
-  finalStateToken_ = consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("finalStates"));
-  genParticleToken_ = consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("genParticles"));
-
   const double leptonConeSize = pset.getParameter<double>("leptonConeSize");
   const double jetConeSize = pset.getParameter<double>("jetConeSize");
   fjLepDef_ = std::shared_ptr<JetDef>(new JetDef(fastjet::antikt_algorithm, leptonConeSize));
@@ -420,7 +419,8 @@ bool PseudoTopProducer::isFromHadron(const reco::Candidate* p) const
   for ( size_t i=0, n=p->numberOfMothers(); i<n; ++i )
   {
     const reco::Candidate* mother = p->mother(i);
-    if ( mother->numberOfMothers() == 0 ) continue; // Skip incident beam
+    if ( !mother ) continue;
+    if ( mother->status() == 4 or mother->numberOfMothers() == 0 ) continue; // Skip incident beam
     const int pdgId = abs(mother->pdgId());
 
     if ( pdgId > 100 ) return true;
@@ -465,7 +465,7 @@ bool PseudoTopProducer::isBHadron(const unsigned int absPdgId) const
 }
 
 reco::GenParticleRef PseudoTopProducer::buildGenParticle(const reco::Candidate* p, reco::GenParticleRefProd& refHandle,
-                                                               std::auto_ptr<reco::GenParticleCollection>& outColl) const
+                                                         std::auto_ptr<reco::GenParticleCollection>& outColl) const
 {
   reco::GenParticle pOut(*dynamic_cast<const reco::GenParticle*>(p));
   pOut.clearMothers();
