@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/DataProxy.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include <algorithm>
 #include <cassert>
 //
 // constants, enums and typedefs
@@ -71,7 +72,7 @@ ESProxyFactoryProducer::registerProxies(const EventSetupRecordKey& iRecord,
    std::pair< Iterator, Iterator > range = record2Factories_.equal_range(iRecord);
    for(Iterator it = range.first; it != range.second; ++it) {
       
-      boost::shared_ptr<DataProxy> proxy(it->second.factory_->makeProxy().release());
+      std::shared_ptr<DataProxy> proxy(it->second.factory_->makeProxy().release());
       if(nullptr != proxy.get()) {
          iProxies.push_back(KeyedProxies::value_type((*it).second.key_,
                                          proxy));
@@ -91,7 +92,7 @@ ESProxyFactoryProducer::registerFactoryWithKey(const EventSetupRecordKey& iRecor
    
    usingRecordWithKey(iRecord);
    
-   boost::shared_ptr<ProxyFactoryBase> temp(iFactory.release());
+   std::shared_ptr<ProxyFactoryBase> temp(iFactory.release());
    FactoryInfo info(temp->makeKey(iLabel),
                     temp);
    

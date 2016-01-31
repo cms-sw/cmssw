@@ -186,11 +186,11 @@ namespace edm {
   }
 
   // ---------------------------------------------------------------
-  boost::shared_ptr<EDLooperBase>
+  std::shared_ptr<EDLooperBase>
   fillLooper(eventsetup::EventSetupsController& esController,
              eventsetup::EventSetupProvider& cp,
                          ParameterSet& params) {
-    boost::shared_ptr<EDLooperBase> vLooper;
+    std::shared_ptr<EDLooperBase> vLooper;
 
     std::vector<std::string> loopers = params.getParameter<std::vector<std::string> >("@all_loopers");
 

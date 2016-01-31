@@ -50,11 +50,11 @@ namespace callbacktest {
 
    struct SharedPtrProd {
       SharedPtrProd() : ptr_(new Data()) {}
-      boost::shared_ptr<Data> method(const Record&) {
+      std::shared_ptr<Data> method(const Record&) {
          ++ptr_->value_;
          return ptr_;
       }      
-      boost::shared_ptr<Data> ptr_;
+      std::shared_ptr<Data> ptr_;
    };
    
    struct PtrProductsProd {
@@ -165,14 +165,14 @@ void testCallback::autoPtrTest()
    
 }
 
-typedef Callback<SharedPtrProd, boost::shared_ptr<Data>, Record> SharedPtrCallback;
+typedef Callback<SharedPtrProd, std::shared_ptr<Data>, Record> SharedPtrCallback;
 
 void testCallback::sharedPtrTest()
 {
    SharedPtrProd prod;
    
    SharedPtrCallback callback(&prod, &SharedPtrProd::method);
-   boost::shared_ptr<Data> handle;
+   std::shared_ptr<Data> handle;
    
    
    callback.holdOntoPointer(&handle);

@@ -13,7 +13,6 @@
 #include <atomic>
 #include <thread>
 #include "tbb/task.h"
-#include "boost/shared_ptr.hpp"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 
 #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)
@@ -69,7 +68,7 @@ void WaitingTaskList_test::addThenDone()
    
    edm::WaitingTaskList waitList;
    {
-      boost::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
+      std::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
                                             [](tbb::task* iTask){tbb::task::destroy(*iTask);} };
       waitTask->set_ref_count(2);
       //NOTE: allocate_child does NOT increment the ref_count of waitTask!
@@ -91,7 +90,7 @@ void WaitingTaskList_test::addThenDone()
    called = false;
    
    {
-      boost::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
+      std::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
                                             [](tbb::task* iTask){tbb::task::destroy(*iTask);} };
       waitTask->set_ref_count(2);
    
@@ -113,7 +112,7 @@ void WaitingTaskList_test::doneThenAdd()
    std::atomic<bool> called{false};
    edm::WaitingTaskList waitList;
    {
-      boost::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
+      std::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
                                             [](tbb::task* iTask){tbb::task::destroy(*iTask);} };
       waitTask->set_ref_count(2);
    
@@ -145,7 +144,7 @@ void WaitingTaskList_test::stressTest()
    const unsigned int nTasks = 10000;
    while(0 != --index) {
       called = false;
-      boost::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
+      std::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
                                             [](tbb::task* iTask){tbb::task::destroy(*iTask);} };
       waitTask->set_ref_count(3);
       tbb::task* pWaitTask=waitTask.get();
@@ -159,14 +158,14 @@ void WaitingTaskList_test::stressTest()
          
             pWaitTask->decrement_ref_count();
             });
-         boost::shared_ptr<std::thread>(&makeTasksThread,join_thread);
+         std::shared_ptr<std::thread>(&makeTasksThread,join_thread);
          
          std::thread doneWaitThread([&waitList,&called,pWaitTask]{
             called=true;
             waitList.doneWaiting();
             pWaitTask->decrement_ref_count();
             });
-         boost::shared_ptr<std::thread>(&doneWaitThread,join_thread);
+         std::shared_ptr<std::thread>(&doneWaitThread,join_thread);
       }
       waitTask->wait_for_all();
    }

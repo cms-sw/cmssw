@@ -20,10 +20,10 @@
 
 // system include files
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <vector>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
@@ -45,7 +45,7 @@ class DataProxyProvider
 
    public:   
       typedef std::vector< EventSetupRecordKey> Keys;
-      typedef std::vector<std::pair<DataKey, edm::propagate_const<boost::shared_ptr<DataProxy>>>> KeyedProxies;
+      typedef std::vector<std::pair<DataKey, edm::propagate_const<std::shared_ptr<DataProxy>>>> KeyedProxies;
       typedef std::map<EventSetupRecordKey, KeyedProxies> RecordProxies;
       
       DataProxyProvider();
@@ -111,7 +111,7 @@ class DataProxyProvider
 
 template<class ProxyT>
 inline void insertProxy(DataProxyProvider::KeyedProxies& iList,
-                        boost::shared_ptr<ProxyT> iProxy,
+                        std::shared_ptr<ProxyT> iProxy,
                         const char* iName="") {
    iList.push_back(DataProxyProvider::KeyedProxies::value_type(
                                              DataKey(DataKey::makeTypeTag<typename ProxyT::value_type>(),

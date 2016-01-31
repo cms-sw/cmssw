@@ -1,5 +1,4 @@
 <environment>
-  <use   name="boost"/>
   <use   name="cppunit"/>
 </environment>
 <bin   name="testDataFormatsFWLiteMakeInput" file="TestRunnerDataFormatsFWLite.cpp">

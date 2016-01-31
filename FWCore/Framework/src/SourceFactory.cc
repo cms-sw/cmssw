@@ -28,14 +28,14 @@ namespace edm {
       std::string SourceMakerTraits::name() { return "CMS EDM Framework ESSource"; }
 
       void 
-      SourceMakerTraits::replaceExisting(EventSetupProvider&, boost::shared_ptr<EventSetupRecordIntervalFinder> ) {
+      SourceMakerTraits::replaceExisting(EventSetupProvider&, std::shared_ptr<EventSetupRecordIntervalFinder> ) {
          throw edm::Exception(edm::errors::LogicError)
             << "SourceMakerTraits::replaceExisting\n"
             << "This function is not implemented and should never be called.\n"
             << "Please report this to a Framework Developer\n";
       }
 
-      boost::shared_ptr<SourceMakerTraits::base_type>
+      std::shared_ptr<SourceMakerTraits::base_type>
       SourceMakerTraits::getComponentAndRegisterProcess(EventSetupsController& esController,
                                                         ParameterSet const& iConfiguration) {
          return esController.getESSourceAndRegisterProcess(iConfiguration, esController.indexOfNextProcess());
@@ -43,7 +43,7 @@ namespace edm {
 
       void SourceMakerTraits::putComponent(EventSetupsController& esController,
                                            ParameterSet const& iConfiguration,
-                                           boost::shared_ptr<base_type> const& component) {
+                                           std::shared_ptr<base_type> const& component) {
          esController.putESSource(iConfiguration, component, esController.indexOfNextProcess());
       }
 

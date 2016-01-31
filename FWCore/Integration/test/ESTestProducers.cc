@@ -5,23 +5,23 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
-#include "boost/shared_ptr.hpp"
+#include<memory>
 
 namespace edmtest {
 
   class ESTestProducerA : public edm::ESProducer {
   public:
     ESTestProducerA(edm::ParameterSet const&);
-    boost::shared_ptr<ESTestDataA> produce(ESTestRecordA const&);
+    std::shared_ptr<ESTestDataA> produce(ESTestRecordA const&);
   private:
-    boost::shared_ptr<ESTestDataA> data_;
+    std::shared_ptr<ESTestDataA> data_;
   };
 
   ESTestProducerA::ESTestProducerA(edm::ParameterSet const&) : data_(new ESTestDataA(0)) {
     setWhatProduced(this);
   }
 
-  boost::shared_ptr<ESTestDataA> ESTestProducerA::produce(ESTestRecordA const& rec) {
+  std::shared_ptr<ESTestDataA> ESTestProducerA::produce(ESTestRecordA const& rec) {
     ++data_->value();
     return data_;
   }
@@ -31,16 +31,16 @@ namespace edmtest {
   class ESTestProducerB : public edm::ESProducer {
   public:
     ESTestProducerB(edm::ParameterSet const&);
-    boost::shared_ptr<ESTestDataB> produce(ESTestRecordB const&);
+    std::shared_ptr<ESTestDataB> produce(ESTestRecordB const&);
   private:
-    boost::shared_ptr<ESTestDataB> data_;
+    std::shared_ptr<ESTestDataB> data_;
   };
 
   ESTestProducerB::ESTestProducerB(edm::ParameterSet const&) : data_(new ESTestDataB(0)) {
     setWhatProduced(this);
   }
 
-  boost::shared_ptr<ESTestDataB> ESTestProducerB::produce(ESTestRecordB const& rec) {
+  std::shared_ptr<ESTestDataB> ESTestProducerB::produce(ESTestRecordB const& rec) {
     ++data_->value();
     return data_;
   }
@@ -50,16 +50,16 @@ namespace edmtest {
   class ESTestProducerC : public edm::ESProducer {
   public:
     ESTestProducerC(edm::ParameterSet const&);
-    boost::shared_ptr<ESTestDataC> produce(ESTestRecordC const&);
+    std::shared_ptr<ESTestDataC> produce(ESTestRecordC const&);
   private:
-    boost::shared_ptr<ESTestDataC> data_;
+    std::shared_ptr<ESTestDataC> data_;
   };
 
   ESTestProducerC::ESTestProducerC(edm::ParameterSet const&) : data_(new ESTestDataC(0)) {
     setWhatProduced(this);
   }
 
-  boost::shared_ptr<ESTestDataC> ESTestProducerC::produce(ESTestRecordC const& rec) {
+  std::shared_ptr<ESTestDataC> ESTestProducerC::produce(ESTestRecordC const& rec) {
     ++data_->value();
     return data_;
   }
@@ -69,16 +69,16 @@ namespace edmtest {
   class ESTestProducerD : public edm::ESProducer {
   public:
     ESTestProducerD(edm::ParameterSet const&);
-    boost::shared_ptr<ESTestDataD> produce(ESTestRecordD const&);
+    std::shared_ptr<ESTestDataD> produce(ESTestRecordD const&);
   private:
-    boost::shared_ptr<ESTestDataD> data_;
+    std::shared_ptr<ESTestDataD> data_;
   };
 
   ESTestProducerD::ESTestProducerD(edm::ParameterSet const&) : data_(new ESTestDataD(0)) {
     setWhatProduced(this);
   }
 
-  boost::shared_ptr<ESTestDataD> ESTestProducerD::produce(ESTestRecordD const& rec) {
+  std::shared_ptr<ESTestDataD> ESTestProducerD::produce(ESTestRecordD const& rec) {
     ++data_->value();
     return data_;
   }
@@ -88,16 +88,16 @@ namespace edmtest {
   class ESTestProducerE : public edm::ESProducer {
   public:
     ESTestProducerE(edm::ParameterSet const&);
-    boost::shared_ptr<ESTestDataE> produce(ESTestRecordE const&);
+    std::shared_ptr<ESTestDataE> produce(ESTestRecordE const&);
   private:
-    boost::shared_ptr<ESTestDataE> data_;
+    std::shared_ptr<ESTestDataE> data_;
   };
 
   ESTestProducerE::ESTestProducerE(edm::ParameterSet const&) : data_(new ESTestDataE(0)) {
     setWhatProduced(this);
   }
 
-  boost::shared_ptr<ESTestDataE> ESTestProducerE::produce(ESTestRecordE const& rec) {
+  std::shared_ptr<ESTestDataE> ESTestProducerE::produce(ESTestRecordE const& rec) {
     ++data_->value();
     return data_;
   }
@@ -107,16 +107,16 @@ namespace edmtest {
   class ESTestProducerF : public edm::ESProducer {
   public:
     ESTestProducerF(edm::ParameterSet const&);
-    boost::shared_ptr<ESTestDataF> produce(ESTestRecordF const&);
+    std::shared_ptr<ESTestDataF> produce(ESTestRecordF const&);
   private:
-    boost::shared_ptr<ESTestDataF> data_;
+    std::shared_ptr<ESTestDataF> data_;
   };
 
   ESTestProducerF::ESTestProducerF(edm::ParameterSet const&) : data_(new ESTestDataF(0)) {
     setWhatProduced(this);
   }
 
-  boost::shared_ptr<ESTestDataF> ESTestProducerF::produce(ESTestRecordF const& rec) {
+  std::shared_ptr<ESTestDataF> ESTestProducerF::produce(ESTestRecordF const& rec) {
     ++data_->value();
     return data_;
   }
@@ -126,16 +126,16 @@ namespace edmtest {
   class ESTestProducerG : public edm::ESProducer {
   public:
     ESTestProducerG(edm::ParameterSet const&);
-    boost::shared_ptr<ESTestDataG> produce(ESTestRecordG const&);
+    std::shared_ptr<ESTestDataG> produce(ESTestRecordG const&);
   private:
-    boost::shared_ptr<ESTestDataG> data_;
+    std::shared_ptr<ESTestDataG> data_;
   };
 
   ESTestProducerG::ESTestProducerG(edm::ParameterSet const&) : data_(new ESTestDataG(0)) {
     setWhatProduced(this);
   }
 
-  boost::shared_ptr<ESTestDataG> ESTestProducerG::produce(ESTestRecordG const& rec) {
+  std::shared_ptr<ESTestDataG> ESTestProducerG::produce(ESTestRecordG const& rec) {
     ++data_->value();
     return data_;
   }
@@ -145,16 +145,16 @@ namespace edmtest {
   class ESTestProducerH : public edm::ESProducer {
   public:
     ESTestProducerH(edm::ParameterSet const&);
-    boost::shared_ptr<ESTestDataH> produce(ESTestRecordH const&);
+    std::shared_ptr<ESTestDataH> produce(ESTestRecordH const&);
   private:
-    boost::shared_ptr<ESTestDataH> data_;
+    std::shared_ptr<ESTestDataH> data_;
   };
 
   ESTestProducerH::ESTestProducerH(edm::ParameterSet const&) : data_(new ESTestDataH(0)) {
     setWhatProduced(this);
   }
 
-  boost::shared_ptr<ESTestDataH> ESTestProducerH::produce(ESTestRecordH const& rec) {
+  std::shared_ptr<ESTestDataH> ESTestProducerH::produce(ESTestRecordH const& rec) {
     ++data_->value();
     return data_;
   }
@@ -164,16 +164,16 @@ namespace edmtest {
   class ESTestProducerI : public edm::ESProducer {
   public:
     ESTestProducerI(edm::ParameterSet const&);
-    boost::shared_ptr<ESTestDataI> produce(ESTestRecordI const&);
+    std::shared_ptr<ESTestDataI> produce(ESTestRecordI const&);
   private:
-    boost::shared_ptr<ESTestDataI> data_;
+    std::shared_ptr<ESTestDataI> data_;
   };
 
   ESTestProducerI::ESTestProducerI(edm::ParameterSet const&) : data_(new ESTestDataI(0)) {
     setWhatProduced(this);
   }
 
-  boost::shared_ptr<ESTestDataI> ESTestProducerI::produce(ESTestRecordI const& rec) {
+  std::shared_ptr<ESTestDataI> ESTestProducerI::produce(ESTestRecordI const& rec) {
     ++data_->value();
     return data_;
   }
@@ -183,16 +183,16 @@ namespace edmtest {
   class ESTestProducerJ : public edm::ESProducer {
   public:
     ESTestProducerJ(edm::ParameterSet const&);
-    boost::shared_ptr<ESTestDataJ> produce(ESTestRecordJ const&);
+    std::shared_ptr<ESTestDataJ> produce(ESTestRecordJ const&);
   private:
-    boost::shared_ptr<ESTestDataJ> data_;
+    std::shared_ptr<ESTestDataJ> data_;
   };
 
   ESTestProducerJ::ESTestProducerJ(edm::ParameterSet const&) : data_(new ESTestDataJ(0)) {
     setWhatProduced(this);
   }
 
-  boost::shared_ptr<ESTestDataJ> ESTestProducerJ::produce(ESTestRecordJ const& rec) {
+  std::shared_ptr<ESTestDataJ> ESTestProducerJ::produce(ESTestRecordJ const& rec) {
     ++data_->value();
     return data_;
   }
@@ -202,16 +202,16 @@ namespace edmtest {
   class ESTestProducerK : public edm::ESProducer {
   public:
     ESTestProducerK(edm::ParameterSet const&);
-    boost::shared_ptr<ESTestDataK> produce(ESTestRecordK const&);
+    std::shared_ptr<ESTestDataK> produce(ESTestRecordK const&);
   private:
-    boost::shared_ptr<ESTestDataK> data_;
+    std::shared_ptr<ESTestDataK> data_;
   };
 
   ESTestProducerK::ESTestProducerK(edm::ParameterSet const&) : data_(new ESTestDataK(0)) {
     setWhatProduced(this);
   }
 
-  boost::shared_ptr<ESTestDataK> ESTestProducerK::produce(ESTestRecordK const& rec) {
+  std::shared_ptr<ESTestDataK> ESTestProducerK::produce(ESTestRecordK const& rec) {
     ++data_->value();
     return data_;
   }
@@ -221,11 +221,11 @@ namespace edmtest {
   class ESTestProducerAZ : public edm::ESProducer {
   public:
     ESTestProducerAZ(edm::ParameterSet const&);
-    boost::shared_ptr<ESTestDataA> produceA(ESTestRecordA const&);
-    boost::shared_ptr<ESTestDataZ> produceZ(ESTestRecordZ const&);
+    std::shared_ptr<ESTestDataA> produceA(ESTestRecordA const&);
+    std::shared_ptr<ESTestDataZ> produceZ(ESTestRecordZ const&);
   private:
-    boost::shared_ptr<ESTestDataA> dataA_;
-    boost::shared_ptr<ESTestDataZ> dataZ_;
+    std::shared_ptr<ESTestDataA> dataA_;
+    std::shared_ptr<ESTestDataZ> dataZ_;
   };
 
   ESTestProducerAZ::ESTestProducerAZ(edm::ParameterSet const&) :
@@ -235,12 +235,12 @@ namespace edmtest {
     setWhatProduced(this, &edmtest::ESTestProducerAZ::produceZ, edm::es::Label("foo"));
   }
 
-  boost::shared_ptr<ESTestDataA> ESTestProducerAZ::produceA(ESTestRecordA const& rec) {
+  std::shared_ptr<ESTestDataA> ESTestProducerAZ::produceA(ESTestRecordA const& rec) {
     ++dataA_->value();
     return dataA_;
   }
 
-  boost::shared_ptr<ESTestDataZ> ESTestProducerAZ::produceZ(ESTestRecordZ const& rec) {
+  std::shared_ptr<ESTestDataZ> ESTestProducerAZ::produceZ(ESTestRecordZ const& rec) {
     ++dataZ_->value();
     return dataZ_;
   }
