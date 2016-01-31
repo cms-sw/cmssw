@@ -179,7 +179,7 @@ process.fakeL1GTinput = cms.EDProducer("l1t::FakeInputProducer",
                     )
 
 ## Load our L1 menu
-process.load('L1Trigger.L1TGlobal.StableParametersConfig_cff')
+process.load('L1Trigger.L1TGlobal.StableParameters_cff')
 
 process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
 process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsStage1_v7_uGT.xml')
@@ -187,10 +187,10 @@ process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsSt
 
 
 ## Run the Stage 2 uGT emulator
-process.load('L1Trigger.L1TGlobal.simGlobalStage2Digis_cff')
-process.simGlobalStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
-process.simGlobalStage2Digis.PrescaleSet = cms.uint32(1)
-#process.simGlobalStage2Digis.Verbosity = cms.untracked.int32(1)
+process.load('L1Trigger.L1TGlobal.simGtStage2Digis_cfi')
+process.simGtStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
+process.simGtStage2Digis.PrescaleSet = cms.uint32(1)
+#process.simGtStage2Digis.Verbosity = cms.untracked.int32(1)
 
 
 process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
@@ -199,7 +199,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		tauInputTag   = cms.InputTag("gtInput"),
 		jetInputTag   = cms.InputTag("gtInput"),
 		etsumInputTag = cms.InputTag("gtInput"),
-		uGtAlgInputTag = cms.InputTag("simGlobalStage2Digis"),
+		uGtAlgInputTag = cms.InputTag("simGtStage2Digis"),
 		uGtExtInputTag = cms.InputTag("gtInput"),
 		bxOffset       = cms.int32(skip),
 		minBx          = cms.int32(0),
@@ -217,7 +217,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 
 
 process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi")
-process.l1GtTrigReport.L1GtRecordInputTag = "simGlobalStage2Digis"
+process.l1GtTrigReport.L1GtRecordInputTag = "simGtStage2Digis"
 process.l1GtTrigReport.PrintVerbosity = 2
 process.report = cms.Path(process.l1GtTrigReport)
 
@@ -234,7 +234,7 @@ else:
 process.p1 = cms.Path(
     process.gtInput
 #    *process.dumpGT
-    *process.simGlobalStage2Digis
+    *process.simGtStage2Digis
     *process.dumpGTRecord
 #    +process.menuDumper
 #    * process.debug
