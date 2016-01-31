@@ -12,7 +12,6 @@
 //
 #include "CondDBESSource.h"
 
-#include "boost/shared_ptr.hpp"
 #include <boost/algorithm/string.hpp>
 #include "CondCore/CondDB/interface/Exception.h"
 #include "CondCore/CondDB/interface/Time.h"

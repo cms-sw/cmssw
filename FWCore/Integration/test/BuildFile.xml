@@ -1,5 +1,4 @@
 <environment>
-  <use   name="boost"/>
   <bin   name="TestFWCoreIntegrationStandalone" file="testRunner.cpp,standalone_t.cppunit.cc">
     <use   name="cppunit"/>
     <use   name="FWCore/Framework"/>

@@ -60,13 +60,13 @@ DependentRecordIntervalFinder::~DependentRecordIntervalFinder()
 // member functions
 //
 void 
-DependentRecordIntervalFinder::addProviderWeAreDependentOn(boost::shared_ptr<EventSetupRecordProvider> iProvider)
+DependentRecordIntervalFinder::addProviderWeAreDependentOn(std::shared_ptr<EventSetupRecordProvider> iProvider)
 {
    providers_.push_back(iProvider);
 }
 
 void 
-DependentRecordIntervalFinder::setAlternateFinder(boost::shared_ptr<EventSetupRecordIntervalFinder> iOther)
+DependentRecordIntervalFinder::setAlternateFinder(std::shared_ptr<EventSetupRecordIntervalFinder> iOther)
 {
   alternate_ = iOther;
 }

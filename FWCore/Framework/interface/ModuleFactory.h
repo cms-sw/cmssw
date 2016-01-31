@@ -19,8 +19,8 @@
 //
 
 // system include files
+#include <memory>
 #include <string>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ComponentFactory.h"
@@ -39,15 +39,15 @@ namespace edm {
         
          static std::string name();
          static void addTo(EventSetupProvider& iProvider,
-                           boost::shared_ptr<DataProxyProvider> iComponent,
+                           std::shared_ptr<DataProxyProvider> iComponent,
                            ParameterSet const&,
                            bool);
-         static void replaceExisting(EventSetupProvider& iProvider, boost::shared_ptr<DataProxyProvider> iComponent); 
-         static boost::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
+         static void replaceExisting(EventSetupProvider& iProvider, std::shared_ptr<DataProxyProvider> iComponent); 
+         static std::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
                                                                             ParameterSet const& iConfiguration);
          static void putComponent(EventSetupsController& esController,
                                   ParameterSet const& iConfiguration,
-                                  boost::shared_ptr<base_type> const& component);
+                                  std::shared_ptr<base_type> const& component);
       };
       template< class TType>
          struct ModuleMaker : public ComponentMaker<edm::eventsetup::ModuleMakerTraits,TType> {};

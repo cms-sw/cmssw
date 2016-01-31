@@ -158,7 +158,7 @@ struct MessageSender {
     m->Object = ep;
     s->commit();
   }
-  boost::shared_ptr<ErrorObj> ep;
+  std::shared_ptr<ErrorObj> ep;
 };
 
 MessageLogger::MessageLogger ( const edm::parameter_set & p, ... ) {

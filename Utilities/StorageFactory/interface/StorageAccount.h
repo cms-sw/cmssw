@@ -1,12 +1,12 @@
 #ifndef STORAGE_FACTORY_STORAGE_ACCOUNT_H
 # define STORAGE_FACTORY_STORAGE_ACCOUNT_H
 
-# include <boost/shared_ptr.hpp>
 # include <stdint.h>
 # include <string>
 # include <chrono>
 # include <atomic>
 # include <map>
+# include <memory>
 # include "tbb/concurrent_unordered_map.h"
 
 class StorageAccount {
