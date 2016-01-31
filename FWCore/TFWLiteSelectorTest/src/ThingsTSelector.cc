@@ -16,18 +16,18 @@ void ThingsTSelector::begin(TList*&)
 }
 
 void ThingsTSelector::preProcessing(const TList*, TList& out ) {
-  if(0!=h_a) {
+  if(nullptr != h_a) {
      out.Remove(h_a);
      delete h_a;
-     h_a=0;
+     h_a = nullptr;
   }
   h_a  = new TH1F( kA , "a"  , 100,  0, 20 );
   out.Add(h_a);
 
-  if(0!=h_refA) {
+  if(nullptr != h_refA) {
      out.Remove(h_refA);
      delete h_refA;
-     h_refA=0;
+     h_refA = nullptr;
   }
   h_refA  = new TH1F( kRefA , "refA"  , 100,  0, 20 );
   out.Add(h_refA);
@@ -82,7 +82,7 @@ void ThingsTSelector::terminate(TList& out) {
   TCanvas * canvas = new TCanvas( );
   {
      TObject* hist = out.FindObject(kA);
-     if(0 != hist) {
+     if(nullptr != hist) {
 	hist->Draw();
 	canvas->SaveAs( "a.jpg" );
      } else {
@@ -91,7 +91,7 @@ void ThingsTSelector::terminate(TList& out) {
   }
   {
      TObject* hist = out.FindObject(kRefA);
-     if(0 != hist) {
+     if(nullptr != hist) {
 	hist->Draw();
 	canvas->SaveAs( "refA.jpg" );
      } else {

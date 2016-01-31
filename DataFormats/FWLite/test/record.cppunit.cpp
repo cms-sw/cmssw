@@ -88,18 +88,15 @@ void testRecord::testGood()
       
       CPPUNIT_ASSERT(dataIds.size() == 2);
       unsigned int matches =0;
-      for(std::vector<std::pair<std::string,std::string> >::const_iterator it = dataIds.begin(),
-          itEnd = dataIds.end();
-          it != itEnd;
-          ++it) {
-         std::cout <<it->first<< " '"<<it->second<<"'"<<std::endl;
-         if( (it->first == "std::vector<int>") &&
-            (it->second =="") ) {
+      for(auto const& dataId : dataIds) {
+         std::cout << dataId.first << " '" << dataId.second << "'" << std::endl;
+         if((dataId.first == "std::vector<int>") &&
+            (dataId.second == "")) {
             ++matches;
             continue;
          }
-         if( (it->first == "edmtest::Simple") &&
-            (it->second =="") ) {
+         if((dataId.first == "edmtest::Simple") &&
+            (dataId.second == "")) {
             ++matches;
          }
       }
