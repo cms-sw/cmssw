@@ -19,7 +19,6 @@ public:
   void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
 private:
-  bool isHadron(const int pdgId) const;
   bool isFromHadron(const reco::Candidate* p) const;
   bool isBHadron(const reco::Candidate* p) const;
   bool isBHadron(const unsigned int pdgId) const;
@@ -31,8 +30,8 @@ private:
   typedef reco::Particle::LorentzVector LorentzVector;
 
 private:
-  edm::EDGetTokenT<edm::View<reco::Candidate> > finalStateToken_;
-  edm::EDGetTokenT<edm::View<reco::Candidate> > genParticleToken_;
+  const edm::EDGetTokenT<edm::View<reco::Candidate> > finalStateToken_;
+  const edm::EDGetTokenT<edm::View<reco::Candidate> > genParticleToken_;
   const double leptonMinPt_, leptonMaxEta_, jetMinPt_, jetMaxEta_;
   const double wMass_, tMass_;
 
