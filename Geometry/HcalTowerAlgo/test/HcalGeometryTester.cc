@@ -14,6 +14,8 @@
 #include <iostream>
 #include <string>
 
+#define DebugLog
+
 class HcalGeometryTester : public edm::one::EDAnalyzer<> {
 
 public:
@@ -141,6 +143,10 @@ void HcalGeometryTester::testClosestCell(const HcalDetId & detId,
   if(closest != detId) {
     edm::LogError("HcalGeometryTester") << "Mismatch.  Original HCAL cell is "
 	      << detId << " while nearest is " << closest;
+#ifdef DebugLog
+    std::cout << "HcalGeometryTester::Mismatch.  Original HCAL cell is "
+	      << detId << " while nearest is " << closest << std::endl;
+#endif
   }
 }
 
@@ -179,19 +185,19 @@ void HcalGeometryTester::testTriggerGeometry(const HcalTopology& topology) {
   if (topology.valid(forwardDet1)) {
     TowerDets forwardTowers1 = trigTowers.towerIds(forwardDet1);
     edm::LogInfo("HcalGeometryTester") << "Trigger Tower Size: Forward1 " << forwardTowers1.size();
-    assert(forwardTowers1.size() ==1);
+    assert(forwardTowers1.size() >=1);
     edm::LogInfo("HcalGeometryTester") << forwardTowers1[0];
   }
   if (topology.valid(forwardDet1)) {
     TowerDets forwardTowers2 = trigTowers.towerIds(forwardDet2);
     edm::LogInfo("HcalGeometryTester") << "Trigger Tower Size: Forward2 " << forwardTowers2.size();
-    assert(forwardTowers2.size() ==1);
+    assert(forwardTowers2.size() >=1);
     edm::LogInfo("HcalGeometryTester") << forwardTowers2[0];
   }
   if (topology.valid(forwardDet1)) {
     TowerDets forwardTowers3 = trigTowers.towerIds(forwardDet3);
     edm::LogInfo("HcalGeometryTester") << "Trigger Tower Size: Forward3 " << forwardTowers3.size();
-    assert(forwardTowers3.size() ==1);
+    assert(forwardTowers3.size() >=1);
     edm::LogInfo("HcalGeometryTester") << forwardTowers3[0];
   }
 }
