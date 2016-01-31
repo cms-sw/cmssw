@@ -51,25 +51,31 @@ public:
 public:
 
     /// set simple members
-    void setOrbitNr(int orbNr)     { m_orbitNr   = orbNr; }
-    void setbxNr(int bxNr)         { m_bxNr      = bxNr; }
-    void setbxInEventNr(int bxNr)  { m_bxInEvent = bxNr; }
-    void setFinalOR(int fOR)       { m_finalOR   = fOR; }
+    void setOrbitNr(int orbNr)      { m_orbitNr        = orbNr; }
+    void setbxNr(int bxNr)          { m_bxNr           = bxNr; }
+    void setbxInEventNr(int bxNr)   { m_bxInEvent      = bxNr; }
+    void setFinalORVeto(bool fOR)   { m_finalORVeto    = fOR; }
+    void setFinalORPreVeto(bool fOR){ m_finalORPreVeto = fOR; }
+    void setFinalOR(bool fOR)       { m_finalOR        = fOR; }
+    void setPreScColumn(int psC)    { m_preScColumn    = psC; }
 
     /// get simple members
-    inline const int getOrbitNr() const     { return m_orbitNr; }
-    inline const int getbxNr() const        { return m_bxNr; }
-    inline const int getbxInEventNr() const { return m_bxInEvent; }
-    inline const int getFinalOR() const     { return m_finalOR; }
+    inline const int getOrbitNr() const         { return m_orbitNr; }
+    inline const int getbxNr() const            { return m_bxNr; }
+    inline const int getbxInEventNr() const     { return m_bxInEvent; }
+    inline const bool getFinalOR() const        { return m_finalOR; }
+    inline const bool getFinalORPreVeto() const { return m_finalORPreVeto; };
+    inline const bool getFinalORVeto() const    { return m_finalORVeto; }
+    inline const int getPreScColumn() const     { return m_preScColumn; }
 
     /// Copy vectors words
     void copyInitialToPrescaled() { m_algoDecisionPreScaled   = m_algoDecisionInitial; }
     void copyPrescaledToFinal() { m_algoDecisionFinal   = m_algoDecisionPreScaled; }
 
     /// Set decision bits
-    void setAlgoDecisionInitial(int bit, bool val);
-    void setAlgoDecisionPreScaled(int bit, bool val);
-    void setAlgoDecisionFinal(int bit, bool val);
+    void setAlgoDecisionInitial(unsigned int bit, bool val);
+    void setAlgoDecisionPreScaled(unsigned int bit, bool val);
+    void setAlgoDecisionFinal(unsigned int bit, bool val);
 
     /// Get decision bits
     bool getAlgoDecisionInitial(unsigned int bit) const;
@@ -95,7 +101,12 @@ private:
     int m_bxInEvent;
 
     // finalOR 
-    int m_finalOR;
+    bool m_finalOR;
+    bool m_finalORPreVeto;
+    bool m_finalORVeto; 
+    
+    //Prescale Column
+    int m_preScColumn;
 
    
     std::vector<bool> m_algoDecisionInitial;
