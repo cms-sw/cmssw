@@ -14,7 +14,7 @@
 namespace tfwliteselectortest {
 class ThingsTSelector : public TFWLiteSelectorBasic {
 public :
-      ThingsTSelector() : h_a(0), h_refA(0) {}
+      ThingsTSelector() : h_a(nullptr), h_refA(nullptr) {}
       void begin(TList*&);
       void preProcessing(const TList*, TList&);
       void process(const edm::Event&);

@@ -69,7 +69,7 @@ namespace fwlite {
   class BranchMapReader {
   public:
     BranchMapReader(TFile* file);
-    BranchMapReader() : strategy_(0),fileVersion_(0) {}
+    BranchMapReader() : strategy_(nullptr),fileVersion_(0) {}
 
       // ---------- const member functions ---------------------
 
@@ -100,8 +100,8 @@ namespace fwlite {
 
       // ---------- member data --------------------------------
   private:
-    std::auto_ptr<internal::BMRStrategy> newStrategy(TFile* file, int fileVersion);
-    std::auto_ptr<internal::BMRStrategy> strategy_;
+    std::unique_ptr<internal::BMRStrategy> newStrategy(TFile* file, int fileVersion);
+    std::unique_ptr<internal::BMRStrategy> strategy_;
     int fileVersion_;
   };
 }

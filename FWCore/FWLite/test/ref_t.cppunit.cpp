@@ -64,7 +64,7 @@ using ROOT's "Draw" interface.
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/TestHelper.h"
 
-static char* gArgV = 0;
+static char* gArgV = nullptr;
 
 extern "C" char** environ;
 
@@ -131,8 +131,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testRefInROOT);
 static void checkMatch(const edmtest::OtherThingCollection* pOthers,
                        const edmtest::ThingCollection* pThings)
 {
-  CPPUNIT_ASSERT(pOthers != 0);
-  CPPUNIT_ASSERT(pThings != 0);
+  CPPUNIT_ASSERT(pOthers != nullptr);
+  CPPUNIT_ASSERT(pThings != nullptr);
   CPPUNIT_ASSERT(pOthers->size() == pThings->size());
   
   //This test requires at least one entry
@@ -178,20 +178,20 @@ static void testTree(TTree* events) {
   CPPUNIT_ASSERT(events !=0);
   
   /*
-   edmtest::OtherThingCollection* pOthers = 0;
+   edmtest::OtherThingCollection* pOthers = nullptr;
    TBranch* otherBranch = events->GetBranch("edmtestOtherThings_OtherThing_testUserTag_TEST.obj");
    this does NOT work, must get the wrapper
    */
-  edm::Wrapper<edmtest::OtherThingCollection> *pOthers = 0;
+  edm::Wrapper<edmtest::OtherThingCollection> *pOthers = nullptr;
   TBranch* otherBranch = events->GetBranch("edmtestOtherThings_OtherThing_testUserTag_TEST.");
   
-  CPPUNIT_ASSERT( otherBranch != 0);
+  CPPUNIT_ASSERT(otherBranch != nullptr);
   
   //edmtest::ThingCollection things;
-  edm::Wrapper<edmtest::ThingCollection>* pThings = 0;
+  edm::Wrapper<edmtest::ThingCollection>* pThings = nullptr;
   //NOTE: the period at the end is needed
   TBranch* thingBranch = events->GetBranch("edmtestThings_Thing__TEST.");
-  CPPUNIT_ASSERT( thingBranch != 0);
+  CPPUNIT_ASSERT( thingBranch != nullptr);
 
   int nev = events->GetEntries();
   for( int ev=0; ev<nev; ++ev) {
@@ -244,12 +244,12 @@ void testRefInROOT::testGoodChain()
   eventChain.Add("good.root");
   eventChain.Add("good_delta5.root");
 
-  edm::Wrapper<edmtest::OtherThingCollection> *pOthers =0;
-  TBranch* othersBranch = 0;
+  edm::Wrapper<edmtest::OtherThingCollection> *pOthers = nullptr;
+  TBranch* othersBranch = nullptr;
   eventChain.SetBranchAddress("edmtestOtherThings_OtherThing_testUserTag_TEST.",&pOthers,&othersBranch);
   
-  edm::Wrapper<edmtest::ThingCollection>* pThings = 0;
-  TBranch* thingsBranch = 0;
+  edm::Wrapper<edmtest::ThingCollection>* pThings = nullptr;
+  TBranch* thingsBranch = nullptr;
   eventChain.SetBranchAddress("edmtestThings_Thing__TEST.",&pThings,&thingsBranch);
   
   int nev = eventChain.GetEntries();
@@ -260,8 +260,8 @@ void testRefInROOT::testGoodChain()
     othersBranch->GetEntry(ev);
     thingsBranch->GetEntry(ev);
     eventChain.GetEntry(ev,0);
-    CPPUNIT_ASSERT(pOthers != 0);
-    CPPUNIT_ASSERT(pThings != 0);
+    CPPUNIT_ASSERT(pOthers != nullptr);
+    CPPUNIT_ASSERT(pThings != nullptr);
     checkMatch(pOthers->product(),pThings->product());
   }
   
@@ -271,13 +271,13 @@ void testRefInROOT::testMissingRef()
 {
    TFile file("other_only.root");
    TTree* events = dynamic_cast<TTree*>(file.Get(edm::poolNames::eventTreeName().c_str()));
-   CPPUNIT_ASSERT( events != 0);
-   if(events==0) return; // To silence Coverity
+   CPPUNIT_ASSERT(events != nullptr);
+   if(events == nullptr) return; // To silence Coverity
    
-   edm::Wrapper<edmtest::OtherThingCollection> *pOthers = 0;
+   edm::Wrapper<edmtest::OtherThingCollection> *pOthers = nullptr;
    TBranch* otherBranch = events->GetBranch("edmtestOtherThings_OtherThing_testUserTag_TEST.");
    
-   CPPUNIT_ASSERT( otherBranch != 0);
+   CPPUNIT_ASSERT(otherBranch != nullptr);
    
    int nev = events->GetEntries();
    for( int ev=0; ev<nev; ++ev) {
@@ -286,11 +286,9 @@ void testRefInROOT::testMissingRef()
       otherBranch->SetAddress(&pOthers);
       otherBranch->GetEntry(ev);
       
-      for(edmtest::OtherThingCollection::const_iterator itOther = pOthers->product()->begin(), 
-          itEnd=pOthers->product()->end();
-          itOther != itEnd; ++itOther) {
-         CPPUNIT_ASSERT(not itOther->ref.isAvailable());
-         CPPUNIT_ASSERT_THROW(itOther->ref.get(), cms::Exception);
+      for(auto const& prod : *pOthers->product()) {
+         CPPUNIT_ASSERT(not prod.ref.isAvailable());
+         CPPUNIT_ASSERT_THROW(prod.ref.get(), cms::Exception);
       }
       
    }   
@@ -303,18 +301,18 @@ void testRefInROOT::failChainWithMissingFile()
   eventChain.Add("good.root");
   eventChain.Add("thisFileDoesNotExist.root");
   
-  edm::Wrapper<edmtest::OtherThingCollection> *pOthers =0;
+  edm::Wrapper<edmtest::OtherThingCollection> *pOthers = nullptr;
   eventChain.SetBranchAddress("edmtestOtherThings_OtherThing_testUserTag_TEST.",&pOthers);
   
-  edm::Wrapper<edmtest::ThingCollection>* pThings = 0;
+  edm::Wrapper<edmtest::ThingCollection>* pThings = nullptr;
   eventChain.SetBranchAddress("edmtestThings_Thing__TEST.",&pThings);
   
   int nev = eventChain.GetEntries();
   for( int ev=0; ev<nev; ++ev) {
     std::cout <<"event #" <<ev<<std::endl;    
     eventChain.GetEntry(ev);
-    CPPUNIT_ASSERT(pOthers != 0);
-    CPPUNIT_ASSERT(pThings != 0);
+    CPPUNIT_ASSERT(pOthers != nullptr);
+    CPPUNIT_ASSERT(pThings != nullptr);
     checkMatch(pOthers->product(),pThings->product());
   }
   
@@ -324,23 +322,23 @@ void testRefInROOT::failDidNotCallGetEntryForEvents()
 {
   TFile file("good.root");
   TTree* events = dynamic_cast<TTree*>(file.Get(edm::poolNames::eventTreeName().c_str()));
-  CPPUNIT_ASSERT(events !=0);
-  if(events==0) return; // To silence Coverity
+  CPPUNIT_ASSERT(events != nullptr);
+  if(events == nullptr) return; // To silence Coverity
   
   /*
-   edmtest::OtherThingCollection* pOthers = 0;
+   edmtest::OtherThingCollection* pOthers = nullptr;
    TBranch* otherBranch = events->GetBranch("edmtestOtherThings_OtherThing_testUserTag_TEST.obj");
    this does NOT work, must get the wrapper
    */
-  edm::Wrapper<edmtest::OtherThingCollection> *pOthers =0;
+  edm::Wrapper<edmtest::OtherThingCollection> *pOthers = nullptr;
   TBranch* otherBranch = events->GetBranch("edmtestOtherThings_OtherThing_testUserTag_TEST.");
   
-  CPPUNIT_ASSERT( otherBranch != 0);
+  CPPUNIT_ASSERT( otherBranch != nullptr);
   otherBranch->SetAddress(&pOthers);
   
   otherBranch->GetEntry(0);
   
-  CPPUNIT_ASSERT(pOthers->product() != 0);
+  CPPUNIT_ASSERT(pOthers->product() != nullptr);
 
   pOthers->product()->at(0).ref.get();
 }
@@ -348,15 +346,15 @@ void testRefInROOT::failDidNotCallGetEntryForEvents()
 void testRefInROOT::testThinning() {
   TFile file("good.root");
   TTree* events = dynamic_cast<TTree*>(file.Get(edm::poolNames::eventTreeName().c_str()));
-  CPPUNIT_ASSERT(events !=0);
-  if(events==0) return; // To silence Coverity
-  edm::Wrapper<std::vector<edmtest::TrackOfThings> > *pTracks =0;
+  CPPUNIT_ASSERT(events != nullptr);
+  if(events == nullptr) return; // To silence Coverity
+  edm::Wrapper<std::vector<edmtest::TrackOfThings> > *pTracks = nullptr;
   TBranch* tracksBranchD = events->GetBranch("edmtestTrackOfThingss_trackOfThingsProducerDPlus__TEST.");
   TBranch* tracksBranchG = events->GetBranch("edmtestTrackOfThingss_trackOfThingsProducerG__TEST.");
   TBranch* tracksBranchM = events->GetBranch("edmtestTrackOfThingss_trackOfThingsProducerM__TEST.");
-  CPPUNIT_ASSERT( tracksBranchD!= 0 &&
-                  tracksBranchG!= 0 &&
-                  tracksBranchM!= 0);
+  CPPUNIT_ASSERT( tracksBranchD != nullptr &&
+                  tracksBranchG != nullptr &&
+                  tracksBranchM != nullptr);
 
   std::vector<edmtest::TrackOfThings> const* vTracks = nullptr;
 
@@ -377,7 +375,7 @@ void testRefInROOT::testThinning() {
     tracksBranchD->SetAddress(&pTracks);
     tracksBranchD->GetEntry(ev);
     vTracks = pTracks->product();
-    CPPUNIT_ASSERT(vTracks != 0);
+    CPPUNIT_ASSERT(vTracks != nullptr);
     edmtest::TrackOfThings const& trackD = vTracks->at(0);
     CPPUNIT_ASSERT(trackD.ref1.isAvailable());
     CPPUNIT_ASSERT(trackD.ref1->a == 10 + offset);
@@ -419,7 +417,7 @@ void testRefInROOT::testThinning() {
     tracksBranchG->SetAddress(&pTracks);
     tracksBranchG->GetEntry(ev);
     vTracks = pTracks->product();
-    CPPUNIT_ASSERT(vTracks != 0);
+    CPPUNIT_ASSERT(vTracks != nullptr);
     edmtest::TrackOfThings const& trackG = vTracks->at(0);
     CPPUNIT_ASSERT(trackG.ref1.isAvailable());
     CPPUNIT_ASSERT(trackG.ref1->a == 20 + offset);
@@ -458,7 +456,7 @@ void testRefInROOT::testThinning() {
     tracksBranchM->SetAddress(&pTracks);
     tracksBranchM->GetEntry(ev);
     vTracks = pTracks->product();
-    CPPUNIT_ASSERT(vTracks != 0);
+    CPPUNIT_ASSERT(vTracks != nullptr);
 
     edmtest::TrackOfThings const& trackM0 = vTracks->at(0);
     CPPUNIT_ASSERT(!trackM0.ref1.isAvailable());
