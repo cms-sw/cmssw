@@ -36,6 +36,7 @@ class L1TMuonBarrelParamsESProducer : public edm::ESProducer {
       ~L1TMuonBarrelParamsESProducer();
       int load_pt(std::vector<LUT>& , std::vector<int>&, unsigned short int, std::string);
       int load_phi(std::vector<LUT>& , unsigned short int, unsigned short int, std::string);
+      int load_ext(std::vector<L1TMuonBarrelParams::LUTParams::extLUT>&, unsigned short int, unsigned short int );
       //void print(std::vector<LUT>& , std::vector<int>& ) const;
       int getPtLutThreshold(int ,std::vector<int>& ) const;
       typedef boost::shared_ptr<L1TMuonBarrelParams> ReturnType;
@@ -112,9 +113,22 @@ L1TMuonBarrelParamsESProducer::L1TMuonBarrelParamsESProducer(const edm::Paramete
 ///Read Phi assignment Luts
     std::vector<LUT> phi_lut(0); phi_lut.reserve(2);
     if ( load_phi(phi_lut, PHI_Assignment_nbits_Phi, PHI_Assignment_nbits_PhiB, AssLUTpath) != 0 ) {
-      cout << "Can not open files to load pt-assignment look-up tables for L1TMuonBarrelTrackProducer!" << endl;
+      cout << "Can not open files to load phi-assignment look-up tables for L1TMuonBarrelTrackProducer!" << endl;
     }
     m_params.setphi_lut(phi_lut);
+
+
+///Read Extrapolation Luts
+    //std::vector<L1TMuonBarrelParams::LUTParams::extLUT> ext_lut(0); ext_lut.reserve(12);
+    //if ( load_ext(ext_lut, PHI_Assignment_nbits_Phi, PHI_Assignment_nbits_PhiB) != 0 ) {
+    //  cout << "Can not open files to load extrapolation look-up tables for L1TMuonBarrelTrackProducer!" << endl;
+    //}
+    //m_params.setext_lut(ext_lut);
+
+
+
+  //m_params.l1mudttfparams.set_soc_openlut_extr(1,1,false);
+
 }
 
 
@@ -294,6 +308,106 @@ int L1TMuonBarrelParamsESProducer::getPtLutThreshold(int pta_ind, std::vector<in
   }
 
 }
+
+
+
+
+
+
+//
+// load extrapolation look-up tables
+//
+int L1TMuonBarrelParamsESProducer::load_ext(std::vector<L1TMuonBarrelParams::LUTParams::extLUT>& ext_lut,
+                                            unsigned short int nbit_phi,
+                                            unsigned short int nbit_phib) {
+
+  //max. number of Extrapolations
+  const int MAX_EXT = 12;
+
+  // extrapolation types
+  enum Extrapolation { EX12, EX13, EX14, EX21, EX23, EX24, EX34,
+                     EX15, EX16, EX25, EX26, EX56 };
+
+  // get directory name
+  string defaultPath = "L1TriggerConfig/DTTrackFinder/parameters/";
+  string ext_dir = "L1TriggerData/DTTrackFinder/Ext/";
+  string ext_str = "";
+
+  // precision : in the look-up tables the following precision is used :
+  // phi ...12 bits (low, high), phib ...10 bits (address)
+  // now convert phi and phib to the required precision
+
+  int sh_phi  = 12 - nbit_phi;
+  int sh_phib = 10 - nbit_phib;
+
+  // loop over all extrapolations
+  for ( int ext = 0; ext < MAX_EXT; ext++ ) {
+    switch (ext) {
+      case EX12 : ext_str = "ext12"; break;
+      case EX13 : ext_str = "ext13"; break;
+      case EX14 : ext_str = "ext14"; break;
+      case EX21 : ext_str = "ext21"; break;
+      case EX23 : ext_str = "ext23"; break;
+      case EX24 : ext_str = "ext24"; break;
+      case EX34 : ext_str = "ext34"; break;
+      case EX15 : ext_str = "ext15"; break;
+      case EX16 : ext_str = "ext16"; break;
+      case EX25 : ext_str = "ext25"; break;
+      case EX26 : ext_str = "ext26"; break;
+      case EX56 : ext_str = "ext56"; break;
+    }
+
+    // assemble file name
+    edm::FileInPath lut_f = edm::FileInPath(string(defaultPath + ext_dir + ext_str + ".lut"));
+    string ext_file = lut_f.fullPath();
+
+    // open file
+    L1TriggerLutFile file(ext_file);
+    if ( file.open() != 0 ) return -1;
+    //    if ( L1MuDTTFConfig::Debug(1) ) cout << "Reading file : "
+    //                                         << file.getName() << endl;
+
+    L1TMuonBarrelParams::LUTParams::extLUT tmplut;
+
+    int number = -1;
+    int adr_old = -512 >> sh_phib;
+    int sum_low = 0;
+    int sum_high = 0;
+
+    // read values and shift to correct precision
+    while ( file.good() ) {
+
+      int adr  = ( file.readInteger() ) >> sh_phib;	// address (phib)
+      int low  = ( file.readInteger() );    		// low value (phi)
+      int high = ( file.readInteger() );	        // high value (phi)
+
+      number++;
+
+      if ( adr != adr_old ) {
+
+        tmplut.low[adr_old]  = sum_low  >> sh_phi;
+        tmplut.high[adr_old] = sum_high >> sh_phi;
+
+        adr_old = adr;
+        number = 0;
+        sum_low  = 0;
+        sum_high = 0;
+
+      }
+
+      if (number == 0) sum_low  = low;
+      if (number == 0) sum_high = high;
+
+      if ( !file.good() ) file.close();
+    }
+
+    file.close();
+    ext_lut.push_back(tmplut);
+  }
+  return 0;
+
+}
+
 
 //
 // member functions
