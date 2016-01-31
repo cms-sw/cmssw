@@ -9,7 +9,8 @@
 //   Author :
 //   N. Neumeister            CERN EP
 //   J. Troconiz              UAM Madrid
-//
+//   Modifications:   
+//   G. Flouris	              U.Ioannina
 //--------------------------------------------------
 
 //-----------------------
@@ -54,11 +55,8 @@ using namespace std;
 // Constructors --
 //----------------
 //:
-//_cache(36, -9, 8)
 L1MuBMTrackFinder::L1MuBMTrackFinder(const edm::ParameterSet & ps,edm::ConsumesCollector && iC):
-
 _cache0(144,-9,8),_cache(36, -9, 8) {
-
   // set configuration parameters
   if ( m_config == 0 ) m_config = new L1MuBMTFConfig(ps);
 
@@ -70,12 +68,6 @@ _cache0(144,-9,8),_cache(36, -9, 8) {
   m_epvec.reserve(12);
   m_wsvec.reserve(12);
   m_ms = 0;
-
-  // FIXME: here the cache should be reserved to an appropriate size:
-  // As I (Joschka) don't know how to decode the 4*17, I'm not sure which
-  // need to book the BXVector accordingly (_cache(n_per_bx, bx_min, bx_max))
-  // _cache.reserve(4*17);
-  //_cache0.reserve(144*17);
 
   m_DTDigiToken = iC.consumes<L1MuDTChambPhContainer>(L1MuBMTFConfig::getBMDigiInputTag());
 }
@@ -161,7 +153,6 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
 
  m_config->setDefaultsES(c);
   // run the barrel Muon Trigger Track Finder
-
   edm::Handle<L1MuDTChambPhContainer> dttrig;
   e.getByToken(m_DTDigiToken,dttrig);
   if ( dttrig->getContainer()->size() == 0 ) return;
@@ -170,13 +161,14 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
   if ( L1MuBMTFConfig::Debug(2) ) cout << "**** L1MuBMTrackFinder processing ------****" << endl;
   if ( L1MuBMTFConfig::Debug(2) ) cout << endl;
 
-
-
   int bx_min = L1MuBMTFConfig::getBxMin();
   int bx_max = L1MuBMTFConfig::getBxMax();
 
-  for ( int bx = bx_min; bx <= bx_max; bx++ ) {
+  ///Resize the bx range according to the config file  
+  _cache0.setBXRange(bx_min,bx_max);
+  _cache.setBXRange(bx_min,bx_max);
 
+  for ( int bx = bx_min; bx <= bx_max; bx++ ) {
   if ( dttrig->bxEmpty(bx) ) continue;
 
   if ( L1MuBMTFConfig::Debug(2) ) cout << "L1MuBMTrackFinder processing bunch-crossing : " << bx << endl;
