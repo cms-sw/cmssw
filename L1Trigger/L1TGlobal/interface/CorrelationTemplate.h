@@ -71,6 +71,14 @@ public:
 
         std::string deltaPhiRange;
         unsigned int deltaPhiMaxbits;
+
+	//BLW these might require further modification temp to start
+	//TO DO They need to be made integers when we have proper scales.
+	double minCutValue;
+	double maxCutValue; 
+	
+	int corrCutType;
+
     };
 
 
