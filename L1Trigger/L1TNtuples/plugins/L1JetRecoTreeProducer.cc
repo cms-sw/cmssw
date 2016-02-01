@@ -65,6 +65,7 @@ private:
   virtual void endJob();
 
   void doPFJets(edm::Handle<reco::PFJetCollection> pfJets);
+  void doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, edm::Handle<reco::JetCorrector> pfJetCorr); 
   void doCaloJets(edm::Handle<reco::CaloJetCollection> caloJets);
 
   void doPFMet(edm::Handle<reco::PFMETCollection> pfMet);
@@ -99,6 +100,7 @@ private:
   unsigned int maxTrk_;
 
   bool pfMetMissing_;
+  bool pfJetCorrMissing_;
 
 };
 
@@ -106,13 +108,14 @@ private:
 
 L1JetRecoTreeProducer::L1JetRecoTreeProducer(const edm::ParameterSet& iConfig):
   pfJetsMissing_(false),
-  pfMetMissing_(false)
+  pfMetMissing_(false),
+  pfJetCorrMissing_(false)
 {
   
   //  caloJetToken_ = consumes<reco::CaloJetCollection>(iConfig.getUntrackedParameter("caloJetToken",edm::InputTag("ak4CaloJets")));
   pfJetToken_ = consumes<reco::PFJetCollection>(iConfig.getUntrackedParameter("pfJetToken",edm::InputTag("ak4PFJetsCHS")));
   //  caloJetIdToken_ = consumes<edm::ValueMap<reco::JetID> >(iConfig.getUntrackedParameter("jetIdToken",edm::InputTag("ak4JetID")));
-  jecToken_ = consumes<reco::JetCorrector>(iConfig.getUntrackedParameter<edm::InputTag>("jecToken"));
+  jecToken_ = consumes<reco::JetCorrector>(iConfig.getUntrackedParameter<edm::InputTag>("jecToken",edm::InputTag("ak4PFCHSL1FastL2L3ResidualCorrector")));
 
   pfMetToken_ = consumes<reco::PFMETCollection>(iConfig.getUntrackedParameter("pfMetToken",edm::InputTag("pfMet")));
 
@@ -162,8 +165,8 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
   //  edm::Handle<edm::ValueMap<reco::JetID> > jetsID;
   //iEvent.getByLabel(jetIdTag_,jetsID);
 
-  //  edm::Handle<reco::JetCorrector> corrector;
-  //  iEvent.getByToken(jecToken_, corrector);
+  edm::Handle<reco::JetCorrector> pfJetCorr;
+  iEvent.getByToken(jecToken_, pfJetCorr);
 
 
   if (pfJets.isValid()) {
@@ -177,7 +180,16 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
     if (!pfJetsMissing_) {edm::LogWarning("MissingProduct") << "PFJets not found.  Branch will not be filled" << std::endl;}
     pfJetsMissing_ = true;
   }
-
+ 
+  if (pfJetCorr.isValid()) {
+ 
+    doPFJetCorr(pfJets,pfJetCorr);
+ 
+  }
+  else {
+    if (!pfJetCorrMissing_)  {edm::LogWarning("MissingProduct") << "Jet Corrector not found.  Branch will not be filled" << std::endl;}
+    pfJetCorrMissing_ = true;
+  }
  
   if (pfMet.isValid()) {
  
@@ -234,7 +246,7 @@ L1JetRecoTreeProducer::doPFJets(edm::Handle<reco::PFJetCollection> pfJets) {
   
   float mHx = 0;
   float mHy = 0;
-  
+
   met_data->Ht     = 0;
   met_data->mHt    = -999.;
   met_data->mHtPhi = -999.;
@@ -262,6 +274,12 @@ L1JetRecoTreeProducer::doPFJets(edm::Handle<reco::PFJetCollection> pfJets) {
     jet_data->muMult.push_back(it->muonMultiplicity());
     jet_data->hfhMult.push_back(it->HFHadronMultiplicity());
     jet_data->hfemMult.push_back(it->HFEMMultiplicity());
+
+    jet_data->cemef.push_back(it->chargedEmEnergyFraction());	  
+    jet_data->cmef.push_back(it->chargedMuEnergyFraction());	  
+    jet_data->nemef.push_back(it->neutralEmEnergyFraction());	  
+    jet_data->cMult.push_back(it->chargedMultiplicity());
+    jet_data->nMult.push_back(it->neutralMultiplicity()); 
     
     jet_data->nJets++;
 
@@ -271,12 +289,31 @@ L1JetRecoTreeProducer::doPFJets(edm::Handle<reco::PFJetCollection> pfJets) {
       mHy += -1.*it->py();
       met_data->Ht  += it->pt();
     }
-    
   }
 
   TVector2 *tv2 = new TVector2(mHx,mHy);
   met_data->mHt	   = tv2->Mod();
   met_data->mHtPhi = tv2->Phi();
+
+}
+
+
+void
+L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, edm::Handle<reco::JetCorrector> pfJetCorr) {
+
+  float corrFactor = 1.;
+  uint nJets = 0;
+  
+  for( auto it=pfJets->begin();
+       it!=pfJets->end() && nJets < maxJet_;
+       ++it) {
+    
+    corrFactor = pfJetCorr.product()->correction(*it);
+    
+    jet_data->etCorr.push_back(it->et()*corrFactor);
+    jet_data->corrFactor.push_back(corrFactor);
+    nJets++;
+  }
   
 }
 
