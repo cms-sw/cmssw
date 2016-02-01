@@ -120,14 +120,14 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
                     m_jets_algo_pt = cfg.getParameter<std::string>("algopt");
                 }
 
-                std::uint32_t seed = cfg.getUntrackedParameter<std::uint32_t>("seed", 37428479);
+                std::uint32_t seed = cfg.getParameter<std::uint32_t>("seed");
                 m_random_generator = std::mt19937(seed);
 
-                bool skipGenMatching = cfg.getUntrackedParameter<bool>("skipGenMatching", false);
+                bool skipGenMatching = cfg.getParameter<bool>("skipGenMatching");
                 if (! skipGenMatching)
                     m_genJetMatcher = std::make_shared<pat::GenJetMatcher>(cfg, consumesCollector());
 
-                std::int32_t variation = cfg.getUntrackedParameter<std::int32_t>("variation", 0);
+                std::int32_t variation = cfg.getParameter<std::int32_t>("variation");
                 if (variation == 0)
                     m_systematic_variation = Variation::NOMINAL;
                 else if (variation == 1)
@@ -147,9 +147,9 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
             desc.add<edm::InputTag>("src");
             desc.add<bool>("enabled");
             desc.add<edm::InputTag>("rho");
-            desc.addUntracked<std::int32_t>("variation", 0);
-            desc.addUntracked<std::uint32_t>("seed", 37428479);
-            desc.addUntracked<bool>("skipGenMatching", false);
+            desc.add<std::int32_t>("variation", 0);
+            desc.add<std::uint32_t>("seed", 37428479);
+            desc.add<bool>("skipGenMatching", false);
             desc.addUntracked<bool>("debug", false);
 
             auto source =
