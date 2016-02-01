@@ -341,6 +341,10 @@ const std::string& HLTConfigData::processName() const {
   return processName_;
 }
 
+const std::string& HLTConfigData::globalTag() const {
+  return globalTag_;
+}
+
 unsigned int HLTConfigData::size() const {
   return triggerNames_.size();
 }
