@@ -11,7 +11,7 @@ from JetMETCorrections.Configuration.JetCorrectors_cff import *
 
 calibratedAK4PFJetsForPFMVAMEt = cms.EDProducer('CorrectedPFJetProducer',
     src = cms.InputTag('ak4PFJets'),
-    correctors = cms.VInputTag("ak4PFL1FastL2L3Corrector") # NOTE: use "ak5PFL1FastL2L3" for MC / "ak5PFL1FastL2L3Residual" for Data
+    correctors = cms.VInputTag("ak4PFL1FastL2L3Corrector") # NOTE: use "ak4PFL1FastL2L3Corrector" for MC / "ak4PFL1FastL2L3ResidualCorrector" for Data
 )
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFL1Fastjet
 from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdEvaluator
