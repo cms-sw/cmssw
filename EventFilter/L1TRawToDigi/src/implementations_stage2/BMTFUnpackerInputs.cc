@@ -100,8 +100,7 @@ namespace l1t
 				
 				resPhi->setContainer(phi_data);
 				resThe->setContainer(the_data);
-				
-				std::cout << std::endl;
+
 			}//ibx
 			
 			
