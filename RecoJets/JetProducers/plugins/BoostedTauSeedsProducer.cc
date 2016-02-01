@@ -289,25 +289,10 @@ void BoostedTauSeedsProducer::produce(edm::Event& evt, const edm::EventSetup& es
       selectedSubjetPFCandidateAssociationForIsolation->insert(subjetRef2, pfCandidate);
     }
 
-    //// find all PFCandidates that are constituents of the **other** subjet
-    //std::vector<reco::PFCandidateRef> pfCandidatesInSubjet1 = getPFCandidates_exclJetConstituents(pfCandidates, subjetConstituents2, 1.e-4, true);
-    //std::vector<reco::PFCandidateRef> pfCandidatesInSubjet2 = getPFCandidates_exclJetConstituents(pfCandidates, subjetConstituents1, 1.e-4, true);
-    //if ( verbosity_ >= 1 ) {
-    //  std::cout << "#pfCandidatesInSubjet1 = " << pfCandidatesInSubjet1.size() << std::endl;
-    //  std::cout << "#pfCandidatesInSubjet2 = " << pfCandidatesInSubjet2.size() << std::endl;
-    //}
-    //
-    //BOOST_FOREACH( const reco::PFCandidateRef& pfCandidate, pfCandidatesInSubjet1 ) {
-    //  selectedSubjetPFCandidateAssociationForIsoDepositVetos->insert(subjetRef1, pfCandidate);
-    //}
-    //BOOST_FOREACH( const reco::PFCandidateRef& pfCandidate, pfCandidatesInSubjet2 ) {
-    //  selectedSubjetPFCandidateAssociationForIsoDepositVetos->insert(subjetRef2, pfCandidate);
-    //}
   }
 
   evt.put(selectedSubjets);
   evt.put(selectedSubjetPFCandidateAssociationForIsolation, "pfCandAssocMapForIsolation");
-  //evt.put(selectedSubjetPFCandidateAssociationForIsoDepositVetos, "pfCandAssocMapForIsoDepositVetos");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
