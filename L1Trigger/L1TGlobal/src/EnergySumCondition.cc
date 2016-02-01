@@ -147,19 +147,19 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
     l1t::EtSum::EtSumType type;
     bool MissingEnergy = false;
     switch( (m_gtEnergySumTemplate->objectType())[0] ){
-    case ETM:
+    case gtETM:
       type = l1t::EtSum::EtSumType::kMissingEt;
       MissingEnergy = true;
       break;
-    case ETT:
+    case gtETT:
       type = l1t::EtSum::EtSumType::kTotalEt;
       MissingEnergy = false;
       break;
-    case HTM:
+    case gtHTM:
       type = l1t::EtSum::EtSumType::kMissingHt;
       MissingEnergy = true;
       break;
-    case HTT:
+    case gtHTT:
       type = l1t::EtSum::EtSumType::kTotalHt;
       MissingEnergy = false;
       break;

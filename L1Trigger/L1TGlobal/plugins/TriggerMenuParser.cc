@@ -880,7 +880,7 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu,
 
 
     // object types - all muons
-    std::vector<L1GtObject> objType(nrObj, Mu);
+    std::vector<L1TGtObject> objType(nrObj, gtMu);
 
 
 
@@ -1102,7 +1102,7 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
 
 
     // object types - all muons
-    std::vector<L1GtObject> objType(nrObj, Mu);
+    std::vector<L1TGtObject> objType(nrObj, gtMu);
 
     // now create a new CondMuonition
     MuonTemplate muonCond(name);
@@ -1176,66 +1176,66 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo,
 
     // determine object type type
     // BLW TO DO:  Can this object type wait and be done later in the parsing. Or done differently completely..
-    L1GtObject caloObjType;
+    L1TGtObject caloObjType;
     int nrObj = -1;
 
     if (condCalo.getType() == esConditionType::SingleEgamma) {
-        caloObjType = NoIsoEG;
+        caloObjType = gtEG;
 	type = "1_s";
 	cType= l1t::Type1s;
 	nrObj = 1;
     } else if (condCalo.getType() == esConditionType::DoubleEgamma) {
-        caloObjType = NoIsoEG;
+        caloObjType = gtEG;
 	type = "2_s";
 	cType= l1t::Type2s;
 	nrObj = 2;	
     } else if (condCalo.getType() == esConditionType::TripleEgamma) {
-        caloObjType = NoIsoEG;
+        caloObjType = gtEG;
 	cType= l1t::Type3s;
 	type = "3";
 	nrObj = 3;
     } else if (condCalo.getType() == esConditionType::QuadEgamma) {
-        caloObjType = NoIsoEG;
+        caloObjType = gtEG;
 	cType= l1t::Type4s;
 	type = "4";
 	nrObj = 4;
     } else if (condCalo.getType() == esConditionType::SingleJet) {
-        caloObjType = CenJet;
+        caloObjType = gtJet;
 	cType= l1t::Type1s;
 	type = "1_s";
 	nrObj = 1;
     } else if (condCalo.getType() == esConditionType::DoubleJet) {
-        caloObjType = CenJet;
+        caloObjType = gtJet;
 	cType= l1t::Type2s;
 	type = "2_s";
 	nrObj = 2;	
     } else if (condCalo.getType() == esConditionType::TripleJet) {
-        caloObjType = CenJet;
+        caloObjType = gtJet;
 	cType= l1t::Type3s;
 	type = "3";
 	nrObj = 3;
     } else if (condCalo.getType() == esConditionType::QuadJet) {
-        caloObjType = CenJet;
+        caloObjType = gtJet;
 	cType= l1t::Type4s;
 	type = "4";
 	nrObj = 4;			
     } else if (condCalo.getType() == esConditionType::SingleTau) {
-        caloObjType = TauJet;
+        caloObjType = gtTau;
 	cType= l1t::Type1s;
 	type = "1_s";
 	nrObj = 1;
     } else if (condCalo.getType() == esConditionType::DoubleTau) {
-        caloObjType = TauJet;
+        caloObjType = gtTau;
 	cType= l1t::Type2s;
 	type = "2_s";
 	nrObj = 2;	
     } else if (condCalo.getType() == esConditionType::TripleTau) {
-        caloObjType = TauJet;
+        caloObjType = gtTau;
 	cType= l1t::Type3s;
 	type = "3";
 	nrObj = 3;
     } else if (condCalo.getType() == esConditionType::QuadTau) {
-        caloObjType = TauJet;
+        caloObjType = gtTau;
 	cType= l1t::Type4s;
 	type = "4";
 	nrObj = 4;		
@@ -1410,7 +1410,7 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo,
 
 
     // object types - all same caloObjType
-    std::vector<L1GtObject> objType(nrObj, caloObjType);
+    std::vector<L1TGtObject> objType(nrObj, caloObjType);
 
 
     
@@ -1503,18 +1503,18 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
 
     // determine object type type
     // BLW TO DO:  Can this object type wait and be done later in the parsing. Or done differently completely..
-    L1GtObject caloObjType;
+    L1TGtObject caloObjType;
     int nrObj = 1;
     type = "1_s";
     GtConditionType cType = l1t::Type1s;
 
 
     if (corrCalo->getType() == esObjectType::Egamma) {
-        caloObjType = NoIsoEG;
+        caloObjType = gtEG;
     } else if (corrCalo->getType() == esObjectType::Jet) {
-        caloObjType = CenJet;
+        caloObjType = gtJet;
     } else if (corrCalo->getType() == esObjectType::Tau) {
-        caloObjType = TauJet;
+        caloObjType = gtTau;
     } else {
         edm::LogError("TriggerMenuParser") << "Wrong particle for calo-condition ("
             << particle << ")" << std::endl;
@@ -1669,7 +1669,7 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
 
 
     // object types - all same caloObjType
-    std::vector<L1GtObject> objType(nrObj, caloObjType);
+    std::vector<L1TGtObject> objType(nrObj, caloObjType);
 
 
     
@@ -1753,23 +1753,23 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
 
 
     // determine object type type
-    L1GtObject energySumObjType;
+    L1TGtObject energySumObjType;
     GtConditionType cType;
 
     if( condEnergySum.getType() == esConditionType::MissingEt ){
-      energySumObjType = L1GtObject::ETM;
+      energySumObjType = L1TGtObject::gtETM;
       cType = TypeETM;
     }
     else if( condEnergySum.getType() == esConditionType::TotalEt ){
-      energySumObjType = L1GtObject::ETT;
+      energySumObjType = L1TGtObject::gtETT;
       cType = TypeETT;
     }
     else if( condEnergySum.getType() == esConditionType::TotalHt ){
-      energySumObjType = L1GtObject::HTT;
+      energySumObjType = L1TGtObject::gtHTT;
       cType = TypeHTT;
     }
     else if( condEnergySum.getType() == esConditionType::MissingHt ){
-      energySumObjType = L1GtObject::HTM;
+      energySumObjType = L1TGtObject::gtHTM;
       cType = TypeHTM;
     }
     else {
@@ -1880,7 +1880,7 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
     } //end loop over objects
     
     // object types - all same energySumObjType
-    std::vector<L1GtObject> objType(nrObj, energySumObjType);
+    std::vector<L1TGtObject> objType(nrObj, energySumObjType);
 
     // now create a new energySum condition
 
@@ -1965,15 +1965,15 @@ bool l1t::TriggerMenuParser::parseEnergySumCorr(const tmeventsetup::esObject* co
 
 
     // determine object type type
-    L1GtObject energySumObjType;
+    L1TGtObject energySumObjType;
     GtConditionType cType;
 
     if( corrESum->getType()== esObjectType::ETM ){
-      energySumObjType = L1GtObject::ETM;
+      energySumObjType = L1TGtObject::gtETM;
       cType = TypeETM;
     }
     else if( corrESum->getType()== esObjectType::HTM ){
-      energySumObjType = L1GtObject::HTM;
+      energySumObjType = L1TGtObject::gtHTM;
       cType = TypeHTM;
     }
     else {
@@ -2078,7 +2078,7 @@ bool l1t::TriggerMenuParser::parseEnergySumCorr(const tmeventsetup::esObject* co
 
     
     // object types - all same energySumObjType
-    std::vector<L1GtObject> objType(nrObj, energySumObjType);
+    std::vector<L1TGtObject> objType(nrObj, energySumObjType);
 
     // now create a new energySum condition
 
@@ -2268,7 +2268,7 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 
     // object types and greater equal flag - filled in the loop
     int intGEq[nrObj] = { -1, -1 };
-    std::vector<L1GtObject> objType(nrObj);   //BLW do we want to define these as a different type?
+    std::vector<L1TGtObject> objType(nrObj);   //BLW do we want to define these as a different type?
     std::vector<GtConditionCategory> condCateg(nrObj);   //BLW do we want to change these categories
 
     // correlation flag and index in the cor*vector
@@ -2334,7 +2334,7 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 	  
           //Now set some flags for this subCondition
 	  intGEq[jj] = (object.getComparisonOperator() == esComparisonOperator::GE);
-          objType[jj] = Mu;
+          objType[jj] = gtMu;
           condCateg[jj] = CondMuon;
           corrIndexVal[jj] = (m_corMuonTemplate[chipNr]).size() - 1;
 
@@ -2359,15 +2359,15 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 	  intGEq[jj] = (object.getComparisonOperator() == esComparisonOperator::GE);
           switch(object.getType()) {
 	     case esObjectType::Egamma: { 
-	      objType[jj] = NoIsoEG;
+	      objType[jj] = gtEG;
 	     }
 	        break;
 	     case esObjectType::Jet: { 
-	      objType[jj] = CenJet;
+	      objType[jj] = gtJet;
 	     }
 	        break;
 	     case esObjectType::Tau: { 
-	      objType[jj] = TauJet;
+	      objType[jj] = gtTau;
 	     }
 	        break;
 	      default: {
@@ -2396,11 +2396,11 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 	  intGEq[jj] = (object.getComparisonOperator() == esComparisonOperator::GE);
           switch(object.getType()) {
 	     case esObjectType::ETM: { 
-	      objType[jj] = L1GtObject::ETM;
+	      objType[jj] = L1TGtObject::gtETM;
 	     }
 	        break;
 	     case esObjectType::HTM: { 
-	      objType[jj] = L1GtObject::HTM;
+	      objType[jj] = L1TGtObject::gtHTM;
 	     }
 	        break;
 	      default: {

@@ -151,7 +151,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
     // number of objects in condition (it is 2, no need to retrieve from
     // condition template) and their type
     int nObjInCond = 2;
-    std::vector<L1GtObject> cndObjTypeVec(nObjInCond);
+    std::vector<L1TGtObject> cndObjTypeVec(nObjInCond);
 
     // evaluate first the two sub-conditions (Type1s)
 
@@ -406,15 +406,15 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 // Calorimeter Objects (EG, Jet, Tau)
             case CondCalo: {
                switch(cndObjTypeVec[0]) {
-	         case NoIsoEG: {
+	         case gtEG: {
 		    candCaloVec = m_uGtB->getCandL1EG();
 		 }
 		   break;
-		 case CenJet: {
+		 case gtJet: {
 		    candCaloVec = m_uGtB->getCandL1Jet();
 		 }
 		   break;
-		 case TauJet: {
+		 case gtTau: {
 		    candCaloVec = m_uGtB->getCandL1Tau();
 		 }
 	           break;
@@ -507,15 +507,15 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                     break;
                 case CondCalo: {
         	   switch(cndObjTypeVec[1]) {
-	             case NoIsoEG: {
+	             case gtEG: {
 			candCaloVec = m_uGtB->getCandL1EG();
 		     }
 		       break;
-		     case CenJet: {
+		     case gtJet: {
 			candCaloVec = m_uGtB->getCandL1Jet();
 		     }
 		       break;
-		     case TauJet: {
+		     case gtTau: {
 			candCaloVec = m_uGtB->getCandL1Tau();
 		     }
 	               break;
@@ -562,8 +562,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
             if (m_verbosity) {
                 LogDebug("L1TGlobal") << "    Correlation pair ["
-                        << l1GtObjectEnumToString(cndObjTypeVec[0]) << ", "
-                        << l1GtObjectEnumToString(cndObjTypeVec[1])
+                        << l1TGtObjectEnumToString(cndObjTypeVec[0]) << ", "
+                        << l1TGtObjectEnumToString(cndObjTypeVec[1])
                         << "] with collection indices [" << obj0Index << ", "
                         << obj1Index << "] " << " has: \n"
 			<< "     Et  value   = ["<< etIndex0  << ", " << etIndex1  << "]\n"
@@ -759,15 +759,15 @@ const l1t::L1Candidate* l1t::CorrCondition::getCandidate(const int bx, const int
     // but in a CondCalo all objects have the same type
     // take type from the type of the first object
     switch ((m_gtCorrelationTemplate->objectType())[0]) {
-        case NoIsoEG:
+        case gtEG:
             return (m_uGtB->getCandL1EG())->at(bx,indexCand);
             break;
 
-        case CenJet:
+        case gtJet:
             return (m_uGtB->getCandL1Jet())->at(bx,indexCand);
             break;
 
-       case TauJet:
+       case gtTau:
             return (m_uGtB->getCandL1Tau())->at(bx,indexCand);
             break;
         default:
