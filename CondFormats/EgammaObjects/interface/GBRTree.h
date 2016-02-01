@@ -79,42 +79,29 @@
 
 //_______________________________________________________________________
 inline double GBRTree::GetResponse(const float* vector) const {
-  
-  int index = 0;
-  
-  unsigned char cutindex = fCutIndices[0];
-  float cutval = fCutVals[0];
-  
-  while (true) {
-     
-    if (vector[cutindex] > cutval) {
-      index = fRightIndices[index];
-    }
-    else {
-      index = fLeftIndices[index];
-    }
-    
-    if (index>0) {
-      cutindex = fCutIndices[index];
-      cutval = fCutVals[index];
-    }
-    else {
-      return fResponses[-index];
-    }
-    
-  }
-  
-
+  return fResponses[TerminalIndex(vector)];
 }
 
+#include<cassert>
+#define VI_REGRESSION
 //_______________________________________________________________________
 inline int GBRTree::TerminalIndex(const float* vector) const {
   
-  int index = 0;
-  
+ int index = 0;
+  do {
+     auto r = fRightIndices[index];
+     auto l = fLeftIndices[index];  
+    index =  vector[fCutIndices[index]] > fCutVals[index] ? r : l;
+  } while (index>0);
+  // return -index;
+
+#ifdef VI_REGRESSION
+auto old = [&]()->int {
+ int index = 0;
+
   unsigned char cutindex = fCutIndices[0];
   float cutval = fCutVals[0];
-  
+
   while (true) {
     if (vector[cutindex] > cutval) {
       index = fRightIndices[index];
@@ -122,7 +109,7 @@ inline int GBRTree::TerminalIndex(const float* vector) const {
     else {
       index = fLeftIndices[index];
     }
-    
+
     if (index>0) {
       cutindex = fCutIndices[index];
       cutval = fCutVals[index];
@@ -130,10 +117,15 @@ inline int GBRTree::TerminalIndex(const float* vector) const {
     else {
       return (-index);
     }
-    
+
   }
+};
   
+assert (old()==-index);
+#endif
+
+  return -index;
 
 }
-  
+
 #endif
