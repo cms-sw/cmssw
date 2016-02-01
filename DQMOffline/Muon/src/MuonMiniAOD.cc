@@ -1,14 +1,8 @@
 #include "DQMOffline/Muon/interface/MuonMiniAOD.h"
 
-#include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <string>
-#include "TMath.h"
 using namespace std;
 using namespace edm;
 

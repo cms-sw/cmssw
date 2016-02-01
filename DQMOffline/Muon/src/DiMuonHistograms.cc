@@ -70,26 +70,24 @@ void DiMuonHistograms::bookHistograms(DQMStore::IBooker & ibooker,
   ibooker.cd();
   ibooker.setCurrentFolder(theFolder);  
 
-  int nBin = 0;
+  int nBin[3] = {etaBin,etaBBin,etaEBin};
+  EtaName[0]  = ""; EtaName[1] = "_Barrel"; EtaName[3] = "_EndCap";
   test = ibooker.book1D("test","InvMass_{Tight,Tight}",100, 0., 200.);
   for (unsigned int iEtaRegion=0; iEtaRegion<3; iEtaRegion++){
-    if (iEtaRegion==0) { EtaName = "";         nBin = etaBin;} 
-    if (iEtaRegion==1) { EtaName = "_Barrel";  nBin = etaBBin;}
-    if (iEtaRegion==2) { EtaName = "_EndCap";  nBin = etaEBin;}
     
-    GlbGlbMuon_LM.push_back(ibooker.book1D("GlbGlbMuon_LM"+EtaName,"InvMass_{GLB,GLB}"+EtaName,nBin, LowMassMin, LowMassMax));
-    TrkTrkMuon_LM.push_back(ibooker.book1D("TrkTrkMuon_LM"+EtaName,"InvMass_{TRK,TRK}"+EtaName,nBin, LowMassMin, LowMassMax));
-    StaTrkMuon_LM.push_back(ibooker.book1D("StaTrkMuon_LM"+EtaName,"InvMass_{STA,TRK}"+EtaName,nBin, LowMassMin, LowMassMax));
+    GlbGlbMuon_LM.push_back(ibooker.book1D("GlbGlbMuon_LM"+EtaName[iEtaRegion],"InvMass_{GLB,GLB}"+EtaName[iEtaRegion],nBin[iEtaRegion], LowMassMin, LowMassMax));
+    TrkTrkMuon_LM.push_back(ibooker.book1D("TrkTrkMuon_LM"+EtaName[iEtaRegion],"InvMass_{TRK,TRK}"+EtaName[iEtaRegion],nBin[iEtaRegion], LowMassMin, LowMassMax));
+    StaTrkMuon_LM.push_back(ibooker.book1D("StaTrkMuon_LM"+EtaName[iEtaRegion],"InvMass_{STA,TRK}"+EtaName[iEtaRegion],nBin[iEtaRegion], LowMassMin, LowMassMax));
     
-    GlbGlbMuon_HM.push_back(ibooker.book1D("GlbGlbMuon_HM"+EtaName,"InvMass_{GLB,GLB}"+EtaName,nBin, HighMassMin, HighMassMax));
-    TrkTrkMuon_HM.push_back(ibooker.book1D("TrkTrkMuon_HM"+EtaName,"InvMass_{TRK,TRK}"+EtaName,nBin, HighMassMin, HighMassMax));
-    StaTrkMuon_HM.push_back(ibooker.book1D("StaTrkMuon_HM"+EtaName,"InvMass_{STA,TRK}"+EtaName,nBin, HighMassMin, HighMassMax));
+    GlbGlbMuon_HM.push_back(ibooker.book1D("GlbGlbMuon_HM"+EtaName[iEtaRegion],"InvMass_{GLB,GLB}"+EtaName[iEtaRegion],nBin[iEtaRegion], HighMassMin, HighMassMax));
+    TrkTrkMuon_HM.push_back(ibooker.book1D("TrkTrkMuon_HM"+EtaName[iEtaRegion],"InvMass_{TRK,TRK}"+EtaName[iEtaRegion],nBin[iEtaRegion], HighMassMin, HighMassMax));
+    StaTrkMuon_HM.push_back(ibooker.book1D("StaTrkMuon_HM"+EtaName[iEtaRegion],"InvMass_{STA,TRK}"+EtaName[iEtaRegion],nBin[iEtaRegion], HighMassMin, HighMassMax));
     
     // arround the Z peak
-    TightTightMuon.push_back(ibooker.book1D("TightTightMuon"+EtaName,"InvMass_{Tight,Tight}"+EtaName,nBin, 55.0, 125.0));
+    TightTightMuon.push_back(ibooker.book1D("TightTightMuon"+EtaName[iEtaRegion],"InvMass_{Tight,Tight}"+EtaName[iEtaRegion],nBin[iEtaRegion], 55.0, 125.0));
 
     // low-mass resonances
-    SoftSoftMuon.push_back(ibooker.book1D("SoftSoftMuon"+EtaName,"InvMass_{Soft,Soft}"+EtaName,nBin, 0.0, 55.0));
+    SoftSoftMuon.push_back(ibooker.book1D("SoftSoftMuon"+EtaName[iEtaRegion],"InvMass_{Soft,Soft}"+EtaName[iEtaRegion],nBin[iEtaRegion], 0.0, 55.0));
   }
 }
 
