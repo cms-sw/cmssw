@@ -61,7 +61,7 @@ class VertexAnalyzer( Analyzer ):
         else:
           self.handles['vertices'] =  AutoHandle( self.allVertices, 'std::vector<reco::Vertex>' )
         self.hasScore=False 
-        if getattr(self.cfg_ana,'scores') :
+        if hasattr(self.cfg_ana,'scores') :
           self.handles['vtxScore'] =  AutoHandle( self.cfg_ana.scores,'edm::ValueMap<float>' )
           self.hasScore=True 
 
