@@ -331,52 +331,55 @@ bool HLTL1TSeed::seedsAll(edm::Event & iEvent, trigger::TriggerFilterObjectWithR
 void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
 
-  LogDebug("HLTL1TSeed") << "\nHLTL1TSeed::hltFilter "
-			 << "\n  Dump TriggerFilterObjectWithRefs\n" << endl;
+  LogDebug("HLTL1TSeed") 
+  << "\nHLTL1TSeed::hltFilter "
+  << "\n  Dump TriggerFilterObjectWithRefs\n" << endl;
   
   vector<l1t::MuonRef> seedsL1Mu;
   filterproduct.getObjects(trigger::TriggerL1Mu, seedsL1Mu);
   const size_t sizeSeedsL1Mu = seedsL1Mu.size();
 
   LogTrace("HLTL1TSeed")
-    <<  "\n  HLTL1TSeed: seed logical expression = " << m_l1SeedsLogicalExpression << endl;
+  <<  "\n  HLTL1TSeed: seed logical expression = " << m_l1SeedsLogicalExpression << endl;
 
-  LogTrace("HLTL1TSeed") << "\n  L1Mu seeds:      " << sizeSeedsL1Mu << "\n"
-			 << endl;
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1Mu seeds:      " << sizeSeedsL1Mu << endl << endl;
 
   for (size_t i = 0; i != sizeSeedsL1Mu; i++) {
 
     
     l1t::MuonRef obj = l1t::MuonRef( seedsL1Mu[i]);
     
-        LogTrace("HLTL1TSeed") << "\tL1Mu     " << "\t" << "q = " << obj->hwCharge()  // TEMP get hwCharge insead of charge which is not yet set NEED FIX.
-                << "\t" << "pt = " << obj->pt() << "\t" << "eta =  " << obj->eta()
-                << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
+        LogTrace("HLTL1TSeed") 
+        << "\tL1Mu     " << "\t" << "q = " << obj->hwCharge()  // TEMP get hwCharge insead of charge which is not yet set NEED FIX.
+        << "\t" << "pt = " << obj->pt() << "\t" << "eta =  " << obj->eta()
+        << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
 
   vector<l1t::EGammaRef> seedsL1EG;
   filterproduct.getObjects(trigger::TriggerL1EG, seedsL1EG);
   const size_t sizeSeedsL1EG = seedsL1EG.size();
 
-  LogTrace("HLTL1TSeed") << "\n  L1EG seeds:      " << sizeSeedsL1EG << "\n"
-			 << endl;
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1EG seeds:      " << sizeSeedsL1EG << endl << endl;
 
   for (size_t i = 0; i != sizeSeedsL1EG; i++) {
 
     
     l1t::EGammaRef obj = l1t::EGammaRef( seedsL1EG[i]);
     
-        LogTrace("HLTL1TSeed") << "\tL1EG     " << "\t" << "pt = "
-                << obj->pt() << "\t" << "eta =  " << obj->eta()
-                << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
+        LogTrace("HLTL1TSeed") 
+        << "\tL1EG     " << "\t" << "pt = "
+        << obj->pt() << "\t" << "eta =  " << obj->eta()
+        << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
 
   vector<l1t::JetRef> seedsL1Jet;
   filterproduct.getObjects(trigger::TriggerL1Jet, seedsL1Jet);
   const size_t sizeSeedsL1Jet = seedsL1Jet.size();
 
-  LogTrace("HLTL1TSeed") << "\n  L1Jet seeds:      " << sizeSeedsL1Jet << "\n"
-			 << endl;
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1Jet seeds:      " << sizeSeedsL1Jet << endl << endl;
 
   for (size_t i = 0; i != sizeSeedsL1Jet; i++) {
 
@@ -384,76 +387,86 @@ void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWit
     l1t::JetRef obj = l1t::JetRef( seedsL1Jet[i]);
     
         LogTrace("HLTL1TSeed") << "\tL1Jet     " << "\t" << "pt = "
-                << obj->pt() << "\t" << "eta =  " << obj->eta()
-                << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
+        << obj->pt() << "\t" << "eta =  " << obj->eta()
+        << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
 
   vector<l1t::TauRef> seedsL1Tau;
   filterproduct.getObjects(trigger::TriggerL1Tau, seedsL1Tau);
   const size_t sizeSeedsL1Tau = seedsL1Tau.size();
 
-  LogTrace("HLTL1TSeed") << "\n  L1Tau seeds:      " << sizeSeedsL1Tau << "\n" << endl;
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1Tau seeds:      " << sizeSeedsL1Tau << endl << endl;
 
   for (size_t i = 0; i != sizeSeedsL1Tau; i++) {
 
     
     l1t::TauRef obj = l1t::TauRef( seedsL1Tau[i]);
     
-        LogTrace("HLTL1TSeed") << "\tL1Tau     " << "\t" << "pt = "
-                << obj->pt() << "\t" << "eta =  " << obj->eta()
-                << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
+        LogTrace("HLTL1TSeed") 
+        << "\tL1Tau     " << "\t" << "pt = "
+        << obj->pt() << "\t" << "eta =  " << obj->eta()
+        << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
 
   vector<l1t::EtSumRef> seedsL1EtSumETT;
   filterproduct.getObjects(trigger::TriggerL1ETT, seedsL1EtSumETT);
   const size_t sizeSeedsL1EtSumETT = seedsL1EtSumETT.size();
-  LogTrace("HLTL1TSeed") << "\n  L1EtSum ETT seeds:      " << sizeSeedsL1EtSumETT << "\n" << endl;
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1EtSum ETT seeds:      " << sizeSeedsL1EtSumETT << endl << endl;
 
   for (size_t i = 0; i != sizeSeedsL1EtSumETT; i++) { 
     l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumETT[i]);
     
-    LogTrace("HLTL1TSeed") << "\tL1EtSum  ETT" << "\t" << "pt = "
-                << obj->pt() << "\t" << "eta =  " << obj->eta()
-                << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
+    LogTrace("HLTL1TSeed") 
+    << "\tL1EtSum  ETT" << "\t" << "pt = "
+    << obj->pt() << "\t" << "eta =  " << obj->eta()
+    << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
 
   vector<l1t::EtSumRef> seedsL1EtSumHTT;
   filterproduct.getObjects(trigger::TriggerL1HTT, seedsL1EtSumHTT);
   const size_t sizeSeedsL1EtSumHTT = seedsL1EtSumHTT.size();
-  LogTrace("HLTL1TSeed") << "\n  L1EtSum HTT seeds:      " << sizeSeedsL1EtSumHTT << "\n" << endl;
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1EtSum HTT seeds:      " << sizeSeedsL1EtSumHTT << endl << endl;
 
   for (size_t i = 0; i != sizeSeedsL1EtSumHTT; i++) { 
     l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumHTT[i]);
     
-    LogTrace("HLTL1TSeed") << "\tL1EtSum  HTT" << "\t" << "pt = "
-                << obj->pt() << "\t" << "eta =  " << obj->eta()
-                << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
+    LogTrace("HLTL1TSeed") 
+    << "\tL1EtSum  HTT" << "\t" << "pt = "
+    << obj->pt() << "\t" << "eta =  " << obj->eta()
+    << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
 
   vector<l1t::EtSumRef> seedsL1EtSumETM;
   filterproduct.getObjects(trigger::TriggerL1ETM, seedsL1EtSumETM);
   const size_t sizeSeedsL1EtSumETM = seedsL1EtSumETM.size();
-  LogTrace("HLTL1TSeed") << "\n  L1EtSum ETM seeds:      " << sizeSeedsL1EtSumETM << "\n" << endl;
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1EtSum ETM seeds:      " << sizeSeedsL1EtSumETM << endl << endl;
 
   for (size_t i = 0; i != sizeSeedsL1EtSumETM; i++) { 
     l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumETM[i]);
     
-    LogTrace("HLTL1TSeed") << "\tL1EtSum  ETM" << "\t" << "pt = "
-                << obj->pt() << "\t" << "eta =  " << obj->eta()
-                << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
+    LogTrace("HLTL1TSeed") 
+    << "\tL1EtSum  ETM" << "\t" << "pt = "
+    << obj->pt() << "\t" << "eta =  " << obj->eta()
+    << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
 
   vector<l1t::EtSumRef> seedsL1EtSumHTM;
   filterproduct.getObjects(trigger::TriggerL1HTM, seedsL1EtSumHTM);
   const size_t sizeSeedsL1EtSumHTM = seedsL1EtSumHTM.size();
-  LogTrace("HLTL1TSeed") << "\n  L1EtSum HTM seeds:      " << sizeSeedsL1EtSumHTM << "\n" << endl;
+  LogTrace("HLTL1TSeed") 
+  << "\n  L1EtSum HTM seeds:      " << sizeSeedsL1EtSumHTM << endl << endl;
 
   for (size_t i = 0; i != sizeSeedsL1EtSumHTM; i++) { 
     l1t::EtSumRef obj = l1t::EtSumRef( seedsL1EtSumHTM[i]);
     
-    LogTrace("HLTL1TSeed") << "\tL1EtSum  HTM" << "\t" << "pt = "
-                << obj->pt() << "\t" << "eta =  " << obj->eta()
-                << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
+    LogTrace("HLTL1TSeed") 
+    << "\tL1EtSum  HTM" << "\t" << "pt = "
+    << obj->pt() << "\t" << "eta =  " << obj->eta()
+    << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
 
   LogTrace("HLTL1TSeed") << " \n\n" << endl;
@@ -500,11 +513,14 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
       const std::vector<L1GlobalTriggerObjectMap>& objMaps = gtObjectMapRecord->gtObjectMap();
 
-      LogTrace("HLTL1TSeed") << "\n\tAlgorithms in L1TriggerObjectMapRecord: " << endl;
+      LogTrace("HLTL1TSeed") 
+      << "\nHLTL1Seed"  
+      << "\n----------------------------------------------------" 
+      << "\n\tAlgorithms in L1TriggerObjectMapRecord: " << endl;
       for (size_t imap =0; imap < objMaps.size(); imap++) {
 
         LogTrace("HLTL1TSeed")
-          << "\t map = " << imap << "\talgoName = " << objMaps[imap].algoName() << "\tGtlResult  = " <<  objMaps[imap].algoGtlResult();
+        << "\t map = " << imap << "\talgoName = " << objMaps[imap].algoName() << "\tGtlResult  = " <<  objMaps[imap].algoGtlResult();
 
       }
       LogTrace("HLTL1TSeed") << endl;
@@ -530,8 +546,8 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
         std::string algoName = (algOpTokenVector[i]).tokenName;
 
-        LogTrace("HLTL1TSeed") 
-        << "tokenName = " << algoName << "\n" << endl;
+        //LogTrace("HLTL1TSeed") 
+        //<< "tokenName = " << algoName << endl;
 
         const L1GlobalTriggerObjectMap* objMap = gtObjectMapRecord->getObjectMap(algoName);
 
@@ -539,7 +555,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
           LogTrace("HLTL1TSeed") 
           << "\nWarning: seed with name " << algoName << " cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap" << std::endl;
-          //return false;
+          return false;
 
         }
         else {
@@ -555,8 +571,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     if (m_isDebugEnabled ) {
 
         LogTrace("HLTL1TSeed")
-        << "\nHLTL1TSeed::hltFilter "
-        << "\nLogical expression (names) = '" << m_l1SeedsLogicalExpression << "'"
+        << "\nHLTL1TSeed: l1SeedsLogicalExpression (names) = '" << m_l1SeedsLogicalExpression << "'"
         << "\n  Result for logical expression after update of algOpTokens: " << seedsResult << "\n"
         << std::endl;
     }
@@ -597,12 +612,6 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
       algoSeedMapNumber = objMap->algoBitNumber();
 
-      LogTrace("HLTL1TSeed")
-      << "\n  Algorithm " << algoSeedName << " with bit number " << algoSeedMapNumber
-      << " in the object map seed list"
-      << "\n  Algorithm result = " << algoSeedResult << "\n"
-      << std::endl;
-
       // algorithm result is false - no seeds
       if ( !algoSeedResult) {
           continue;
@@ -613,10 +622,17 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       const std::vector<CombinationsInCond>& condCombinations = objMap->combinationVector();
 
       LogTrace("HLTL1TSeed")
-        << "\talgoMapNumber = " << algoSeedMapNumber << "\talgoName=" << objMap->algoName() << "\talgoGtlResult = " << objMap->algoGtlResult();
-      if (matchedAlgo) LogTrace("HLTL1TSeed") 
-        << "\tmatched to seed algo = " << algoSeedName << "\talgo result = " << algoSeedResult;
-      LogTrace("HLTL1TSeed") << endl << endl;
+      << "\talgoMapNumber = " << algoSeedMapNumber 
+      << "\talgoName=" << objMap->algoName() 
+      << "\talgoGtlResult = " << objMap->algoGtlResult();
+
+      if (matchedAlgo) 
+        LogTrace("HLTL1TSeed") 
+        << "\tmatched to seed algo = " << algoSeedName 
+        << "\talgo result = " << algoSeedResult; 
+
+      LogTrace("HLTL1TSeed")
+      << endl << endl;
 
       if (opTokenVecObjMap.size() != condObjTypeVec.size() ) {
           edm::LogWarning("HLTL1TSeed")
@@ -640,18 +656,18 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       //
       for (size_t condNumber = 0; condNumber < opTokenVecObjMap.size(); condNumber++) {
 
-        LogTrace("HLTL1TSeed")
-          << "\ttokenName = " << opTokenVecObjMap[condNumber].tokenName
-          << "\ttokenNumber = " << opTokenVecObjMap[condNumber].tokenNumber 
-          << "\ttokenResult = " << opTokenVecObjMap[condNumber].tokenResult 
-          << endl;
+        //LogTrace("HLTL1TSeed")
+        //<< "\ttokenName = " << opTokenVecObjMap[condNumber].tokenName
+        //<< "\ttokenNumber = " << opTokenVecObjMap[condNumber].tokenNumber 
+        //<< "\ttokenResult = " << opTokenVecObjMap[condNumber].tokenResult 
+        //<< endl;
         
         std::vector<L1GtObject> condObjType = condObjTypeVec[condNumber];
 
         for (size_t jOb =0; jOb < condObjType.size(); jOb++) {
 
           LogTrace("HLTL1TSeed")
-            << "\tcondObjType = " << condObjType[jOb] << endl;
+          << "\tcondObjType = " << condObjType[jOb] << endl;
 
         }
 
@@ -669,7 +685,8 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
         const CombinationsInCond* condComb = objMap->getCombinationsInCond(condNumber);
 
         LogTrace("HLTL1TSeed")
-          << "\tcondCombinations = " << condComb->size() << endl;
+        << "\tcondCombinations = " << condComb->size() << endl;
+
         for (std::vector<SingleCombInCond>::const_iterator itComb = (*condComb).begin(); itComb != (*condComb).end(); itComb++) {
 
             // loop over objects in a combination for a given condition
@@ -685,9 +702,9 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                 const L1GtObject objTypeVal = condObjType.at(iType);
 
                 LogTrace("HLTL1TSeed")
-                  << "\tAdd object of type " << objTypeVal
-                  << " and index " << (*itObject) << " to the seed list."
-                  << std::endl;
+                << "\tAdd object of type " << objTypeVal
+                << " and index " << (*itObject) << " to the seed list."
+                << std::endl;
 
                 switch (objTypeVal) {
                     case Mu: {
@@ -785,16 +802,16 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
           } // end for itObj
 
         } // end for itComb
-        LogTrace("HLTL1TSeed")
-          << "Finished with all combinations" << endl;
+        //LogTrace("HLTL1TSeed")
+        //<< "Finished with all combinations" << endl;
 
       } // end for condition
-      LogTrace("HLTL1TSeed")
-        << "Finished with all conditions" << endl;
+      //LogTrace("HLTL1TSeed")
+      //<< "Finished with all conditions" << endl;
 
     } // end for itSeed
-    LogTrace("HLTL1TSeed")
-      << "Finished with all seeds" << endl;
+    //LogTrace("HLTL1TSeed")
+    //<< "Finished with all seeds" << endl;
 
 
 
@@ -1039,7 +1056,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
 
     LogTrace("HLTL1TSeed")
-      << "\nHLTL1Seed:seedsL1TriggerObjectMaps returning " << seedsResult << endl << endl;
+    << "\nHLTL1Seed:seedsL1TriggerObjectMaps returning " << seedsResult << endl << endl;
 
     return seedsResult;
 
