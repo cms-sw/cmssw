@@ -66,21 +66,15 @@ l1t::CaloCondition::CaloCondition(const GtCondition* caloTemplate, const GtBoard
     // type for the first object
 
     switch ((m_gtCaloTemplate->objectType())[0]) {
-        case NoIsoEG:
+        case gtEG:
             m_condMaxNumberObjects = nrL1EG;
             break;
-/*        case IsoEG:
-            m_condMaxNumberObjects = nrL1IsoEG;
-            break;
-*/
-        case CenJet:
+
+        case gtJet:
             m_condMaxNumberObjects = nrL1Jet;
             break;
-/*        case ForJet:
-            m_condMaxNumberObjects = nrL1ForJet;
-            break;
-*/
-        case TauJet:
+
+        case gtTau:
             m_condMaxNumberObjects = nrL1Tau;
             break;
         default:
@@ -173,15 +167,15 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
     const BXVector<const l1t::L1Candidate*>* candVec;
 
     switch ((m_gtCaloTemplate->objectType())[0]) {
-        case NoIsoEG:
+        case gtEG:
             candVec = m_uGtB->getCandL1EG();
             break;
 
-        case CenJet:
+        case gtJet:
             candVec = m_uGtB->getCandL1Jet();
             break;
 
-        case TauJet:
+        case gtTau:
             candVec = m_uGtB->getCandL1Tau();
             break;
 
@@ -476,15 +470,15 @@ const l1t::L1Candidate* l1t::CaloCondition::getCandidate(const int bx, const int
     // but in a CondCalo all objects have the same type
     // take type from the type of the first object
     switch ((m_gtCaloTemplate->objectType())[0]) {
-        case NoIsoEG:
+        case gtEG:
             return (m_uGtB->getCandL1EG())->at(bx,indexCand);
             break;
 
-        case CenJet:
+        case gtJet:
             return (m_uGtB->getCandL1Jet())->at(bx,indexCand);
             break;
 
-       case TauJet:
+       case gtTau:
             return (m_uGtB->getCandL1Tau())->at(bx,indexCand);
             break;
         default:

@@ -23,6 +23,7 @@
 
 // forward declarations
 
+
 // constructor
 //    empty
 GtCondition::GtCondition()
@@ -77,9 +78,7 @@ const int GtCondition::nrObjects() const
     switch (m_condType) {
 
         case l1t::TypeNull:
-        case TypeExternal:
-        case TypeCastor:
-        case TypeBptx: {
+        case l1t::TypeExternal: {
                 return 0;
             }
 
@@ -106,13 +105,10 @@ const int GtCondition::nrObjects() const
             }
 
             break;
-        case TypeETT:
-        case TypeETM:
-        case TypeHTT:
-        case TypeHTM:
-        case TypeJetCounts:
-        case TypeHfBitCounts:
-        case TypeHfRingEtSums: {
+        case l1t::TypeETT:
+        case l1t::TypeETM:
+        case l1t::TypeHTT:
+        case l1t::TypeHTM: {
                 return 1;
             }
 
@@ -174,42 +170,12 @@ void GtCondition::print(std::ostream& myCout) const
             }
 
             break;
-        case CondEnergySum: {
+        case l1t::CondEnergySum: {
                 myCout << "  Condition category: " << "CondEnergySum"  << std::endl;
             }
 
             break;
-        case CondJetCounts: {
-                myCout << "  Condition category: " << "CondJetCounts"  << std::endl;
-            }
-
-            break;
-        case l1t::CondCorrelation: {
-                myCout << "  Condition category: " << "l1t::CondCorrelation"  << std::endl;
-            }
-
-            break;
-        case CondCastor: {
-                myCout << "  Condition category: " << "CondCastor"  << std::endl;
-            }
-
-            break;
-        case CondHfBitCounts: {
-                myCout << "  Condition category: " << "CondHfBitCounts"  << std::endl;
-            }
-
-            break;
-        case CondHfRingEtSums: {
-                myCout << "  Condition category: " << "CondHfRingEtSums"  << std::endl;
-            }
-
-            break;
-        case CondBptx: {
-                myCout << "  Condition category: " << "CondBptx"  << std::endl;
-            }
-
-            break;
-        case CondExternal: {
+        case l1t::CondExternal: {
                 myCout << "  Condition category: " << "CondExternal"  << std::endl;
             }
 
@@ -262,52 +228,27 @@ void GtCondition::print(std::ostream& myCout) const
             }
 
             break;
-        case TypeETM: {
+        case l1t::TypeETM: {
                 myCout << "  Condition type:     " << "TypeETM"  << std::endl;
             }
 
             break;
-        case TypeETT: {
+        case l1t::TypeETT: {
                 myCout << "  Condition type:     " << "TypeETT"  << std::endl;
             }
 
             break;
-        case TypeHTT: {
+        case l1t::TypeHTT: {
                 myCout << "  Condition type:     " << "TypeHTT"  << std::endl;
             }
 
             break;
-        case TypeHTM: {
+        case l1t::TypeHTM: {
                 myCout << "  Condition type:     " << "TypeHTM"  << std::endl;
             }
 
             break;
-        case TypeJetCounts: {
-                myCout << "  Condition type:     " << "TypeJetCounts"  << std::endl;
-            }
-
-            break;
-        case TypeCastor: {
-                myCout << "  Condition type:     " << "TypeCastor"  << std::endl;
-            }
-
-            break;
-        case TypeHfBitCounts: {
-                myCout << "  Condition type:     " << "TypeHfBitCounts"  << std::endl;
-            }
-
-            break;
-        case TypeHfRingEtSums: {
-                myCout << "  Condition type:     " << "TypeHfRingEtSums"  << std::endl;
-            }
-
-            break;
-        case TypeBptx: {
-                myCout << "  Condition type:     " << "TypeBptx"  << std::endl;
-            }
-
-            break;
-        case TypeExternal: {
+        case l1t::TypeExternal: {
                 myCout << "  Condition type:     " << "TypeExternal"  << std::endl;
             }
 
@@ -326,78 +267,51 @@ void GtCondition::print(std::ostream& myCout) const
     for (unsigned int i = 0; i < m_objectType.size(); ++i) {
 
         switch (m_objectType[i]) {
-            case Mu: {
+            case l1t::gtMu: {
                     myCout << " Mu ";
                 }
 
                 break;
-            case NoIsoEG: {
-                    myCout << " NoIsoEG ";
+            case l1t::gtEG: {
+                    myCout << " EG ";
                 }
 
                 break;
-            case IsoEG: {
-                    myCout << " IsoEG ";
+
+            case l1t::gtJet: {
+                    myCout << " Jet ";
                 }
 
                 break;
-            case CenJet: {
-                    myCout << " CenJet ";
+
+            case l1t::gtTau: {
+                    myCout << " Tau ";
                 }
 
                 break;
-            case ForJet: {
-                    myCout << " ForJet ";
-                }
-
-                break;
-            case TauJet: {
-                    myCout << " TauJet ";
-                }
-
-                break;
-            case ETM: {
+            case l1t::gtETM: {
                     myCout << " ETM ";
                 }
 
                 break;
-            case ETT: {
+            case l1t::gtETT: {
                     myCout << " ETT ";
                 }
 
                 break;
-            case HTT: {
+            case l1t::gtHTT: {
                     myCout << " HTT ";
                 }
 
                 break;
-            case HTM: {
+            case l1t::gtHTM: {
                     myCout << " HTM ";
                 }
 
                 break;
-            case JetCounts: {
-                    myCout << " JetCounts ";
-                }
 
-                break;
-            case HfBitCounts: {
-                    myCout << " HfBitCounts ";
-                }
-
-                break;
-            case HfRingEtSums: {
-                    myCout << " HfRingEtSums ";
-                }
-
-                break;
-            case BPTX: {
-                    myCout << " BPTX ";
-                }
-
-                break;
-            case GtExternal: {
-                    myCout << " GtExternal ";
+            case l1t::gtExternal: {
+                    myCout << " External ";
                 }
 
                 break;
