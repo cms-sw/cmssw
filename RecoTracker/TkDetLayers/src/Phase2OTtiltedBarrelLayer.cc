@@ -1,4 +1,4 @@
-#include "Phase2OTBarrelLayer.h"
+#include "Phase2OTtiltedBarrelLayer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -12,6 +12,7 @@
 #include "TrackingTools/DetLayers/interface/CylinderBuilderFromDet.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
+#include "Phase2OTEndcapLayerBuilder.h"
 
 //#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 
@@ -19,14 +20,24 @@ using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
-Phase2OTBarrelLayer::Phase2OTBarrelLayer(vector<const Phase2OTBarrelRod*>& innerRods,
-				   vector<const Phase2OTBarrelRod*>& outerRods) : 
-  theInnerComps(innerRods.begin(),innerRods.end()), 
-  theOuterComps(outerRods.begin(),outerRods.end())
+Phase2OTtiltedBarrelLayer::Phase2OTtiltedBarrelLayer(std::vector<const Phase2OTBarrelRod*>& innerRods,
+			                             std::vector<const Phase2OTBarrelRod*>& outerRods,
+                                                     vector<const Phase2OTEndcapRing*>& negRings, 
+                                                     vector<const Phase2OTEndcapRing*>& posRings) : 
+  Phase2OTBarrelLayer(innerRods,outerRods),
+  //thePhase2OTBarrelLayer(theBarrelRods),
+  //theInnerRodsComps(innerRods.begin(),innerRods.end()), 
+  //theOuterRodsComps(outerRods.begin(),outerRods.end()),
+  theNegativeRingsComps(negRings.begin(),negRings.end()),
+  thePositiveRingsComps(posRings.begin(),posRings.end())
 {
-  std::cout << "yes, we are in the place where we should be ... Phase2OTBarrelLayer::Phase2OTBarrelLayer" << std::endl;
-  theComps.assign(theInnerComps.begin(),theInnerComps.end());
-  theComps.insert(theComps.end(),theOuterComps.begin(),theOuterComps.end());
+  std::cout << "yes, we are in the place where we should be ... Phase2OTtiltedBarrelLayer::Phase2OTtiltedBarrelLayer" << std::endl;
+  thePhase2OTBarrelLayer = new Phase2OTBarrelLayer(innerRods,outerRods);
+
+  theComps.assign(innerRods.begin(),innerRods.end());
+  theComps.insert(theComps.end(),outerRods.begin(),outerRods.end());
+  theComps.insert(theComps.end(),negRings.begin(),negRings.end());
+  theComps.insert(theComps.end(),posRings.begin(),posRings.end());
 
   for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin();
       it!=theComps.end();it++){  
@@ -35,81 +46,97 @@ Phase2OTBarrelLayer::Phase2OTBarrelLayer(vector<const Phase2OTBarrelRod*>& inner
 			 (**it).basicComponents().end());
   }
 
-  theInnerCylinder = cylinder( theInnerComps);
-  theOuterCylinder = cylinder( theOuterComps);
+  BarrelDetLayer::initialize();
 
+  theCylinder = cylinder( theComps );
+/*
   theInnerBinFinder = BinFinderType(theInnerComps.front()->position().phi(),
 				    theInnerComps.size());
   theOuterBinFinder = BinFinderType(theOuterComps.front()->position().phi(),
 				    theOuterComps.size());
-
-  
-  BarrelDetLayer::initialize();
-
-
+*/  
   //--------- DEBUG INFO --------------
-  LogDebug("TkDetLayers") << "==== DEBUG Phase2OTBarrelLayer =====" ; 
-  LogDebug("TkDetLayers") << "Phase2OTBarrelLayer innerCyl r,lenght: "
-                          << theInnerCylinder->radius() << " , "
-                          << theInnerCylinder->bounds().length();
+  LogDebug("TkDetLayers") << "==== DEBUG Phase2OTtiltedBarrelLayer =====" ; 
+  LogTrace("TkDetLayers") << "Phase2OTtiltedBarrelLayer Cyl r,lenght: "
+                          << theCylinder->radius() << " , "
+                          << theCylinder->bounds().length();
 
-  LogDebug("TkDetLayers") << "Phase2OTBarrelLayer outerCyl r,lenght: " 
-			  << theOuterCylinder->radius() << " , "
-			  << theOuterCylinder->bounds().length();
-
-
-    for (vector<const GeometricSearchDet*>::const_iterator i=theInnerComps.begin();
-       i != theInnerComps.end(); i++){
-    LogDebug("TkDetLayers") << "inner Phase2OTBarrelRod pos z,perp,eta,phi: " 
+  for (vector<const GeometricSearchDet*>::const_iterator i=theNegativeRingsComps.begin();
+       i != theNegativeRingsComps.end(); i++){
+    LogTrace("TkDetLayers") << "negative rings in Phase2OT tilted barrel pos z,perp,eta,phi: " 
 			    << (**i).position().z()    << " , " 
 			    << (**i).position().perp() << " , " 
 			    << (**i).position().eta()  << " , " 
 			    << (**i).position().phi()  ;
   }
   
-  for (vector<const GeometricSearchDet*>::const_iterator i=theOuterComps.begin();
-       i != theOuterComps.end(); i++){
-    LogDebug("TkDetLayers") << "outer Phase2OTBarrelRod pos z,perp,eta,phi: " 
+  for (vector<const GeometricSearchDet*>::const_iterator i=thePhase2OTBarrelLayer->components().begin();
+       i != thePhase2OTBarrelLayer->components().end(); i++){
+    LogTrace("TkDetLayers") << "rods in Phase2OT tilted barrel pos z,perp,eta,phi: " 
 			    << (**i).position().z()    << " , " 
 			    << (**i).position().perp() << " , " 
 			    << (**i).position().eta()  << " , " 
 			    << (**i).position().phi()  ;
   }
-  LogDebug("TkDetLayers") << "==== end DEBUG Phase2OTBarrelLayer =====" ; 
+
+  for (vector<const GeometricSearchDet*>::const_iterator i=thePositiveRingsComps.begin();
+       i != thePositiveRingsComps.end(); i++){
+    LogTrace("TkDetLayers") << "positive rings in Phase2OT tilted barrel pos z,perp,eta,phi: " 
+			    << (**i).position().z()    << " , " 
+			    << (**i).position().perp() << " , " 
+			    << (**i).position().eta()  << " , " 
+			    << (**i).position().phi()  ;
+  }
+  LogTrace("TkDetLayers") << "==== end DEBUG Phase2OTtiltedBarrelLayer =====" ; 
   //----------------------------------- 
+
 }
 
-Phase2OTBarrelLayer::~Phase2OTBarrelLayer(){
+Phase2OTtiltedBarrelLayer::~Phase2OTtiltedBarrelLayer(){
   vector<const GeometricSearchDet*>::const_iterator i;
   for (i=theComps.begin(); i!=theComps.end(); i++) {
     delete *i;
   }
 } 
-  
+/*  
 namespace {
 
   bool groupSortByR(DetGroupElement i,DetGroupElement j) { return (i.det()->position().perp()<j.det()->position().perp()); }
 
 }
-
+*/
 void 
-Phase2OTBarrelLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
+Phase2OTtiltedBarrelLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 					  const Propagator& prop,
 					   const MeasurementEstimator& est,
 					   std::vector<DetGroup> & result) const {
-  vector<DetGroup> closestResult;
-  SubLayerCrossings  crossings;
-  crossings = computeCrossings( tsos, prop.propagationDirection());
-  if(! crossings.isValid()) return;  
+  std::cout << "yes, we are in the place where we should be ... Phase2OTtiltedBarrelLayer::groupedCompatibleDetsV" << std::endl;
+  vector<DetGroup> closestResultRods;
+  vector<DetGroup> closestResultNeg;
+  vector<DetGroup> closestResultPos;
+  thePhase2OTBarrelLayer->groupedCompatibleDetsV(tsos, prop, est, closestResultRods);
+  for(auto ring : theNegativeRingsComps){
+    ring->groupedCompatibleDetsV(tsos, prop, est, closestResultNeg);
+  }
+  for(auto ring : thePositiveRingsComps){
+    ring->groupedCompatibleDetsV(tsos, prop, est, closestResultPos);
+  }
 
+  result.assign(closestResultRods.begin(),closestResultRods.end());
+  result.insert(result.end(),closestResultPos.begin(),closestResultPos.end());
+  result.insert(result.end(),closestResultNeg.begin(),closestResultNeg.end());
+//  SubLayerCrossings  crossings;
+//  crossings = computeCrossings( tsos, prop.propagationDirection());
+//  if(! crossings.isValid()) return;  
+//  LogDebug("TkDetLayers") << "closest cross pos,r:" << crossings.closest().position()<<","<<crossings.closest().position().perp() 
+//  	                  << "  other cross pos,r:" << crossings.other().position()<<","<<crossings.other().position().perp()   << std::endl;
+
+/*
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
   if (closestResult.empty()) {
     addClosest( tsos, prop, est, crossings.other(), result);
     return;
   }
-
-  //std::cout << "closest cross pos,r:" << crossings.closest().position()<<","<<crossings.closest().position().perp() 
-  //	    << "  other cross pos,r:" << crossings.other().position()<<","<<crossings.other().position().perp()   << std::endl;
 
   DetGroupElement closestGel( closestResult.front().front());
   float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
@@ -130,34 +157,65 @@ Phase2OTBarrelLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tso
   DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result, 
 					  crossings.closestIndex(), crossingSide);
 
-  //std::cout << "Phase2OTBarrelLayer::groupedCompatibleDetsV - result size=" << result.size() << std::endl;
-
-  for (auto&  grp : result) {
-    if ( grp.empty() )  continue;
-    LogTrace("TkDetLayers") <<"New group in Phase2OTBarrelLayer made by : ";
-    for (auto const & det : grp) {
-      LogTrace("TkDetLayers") <<" geom det at r: " << det.det()->position().perp() <<" id:" << det.det()->geographicalId().rawId()
-                              <<" tsos at:" << det.trajectoryState().globalPosition();
+  //std::cout << "Phase2OTtiltedBarrelLayer::groupedCompatibleDetsV - result size=" << result.size() << std::endl;
+*/
+  LogDebug("TkDetLayers") << "==== output di Phase2OTtiltedBarrelLayer =====" ; 
+  if(closestResultRods.size() != 0){
+    for (auto gr : closestResultRods) {
+      LogTrace("TkDetLayers") << "New Rod group:";
+      for (auto dge : gr) {
+        //PixelBarrelNameUpgrade name(dge.det()->geographicalId());
+        LogTrace("TkDetLayers") << "new det with geom det at r:"<<dge.det()->position().perp()<<" id:"<<dge.det()->geographicalId().rawId()<<" tsos at:" <<dge.trajectoryState().globalPosition();
+      }
     }
+  } else {
+        LogTrace("TkDetLayers") << "result size is zero";
   }
-  /*
-  for (auto gr : result) {
-    std::cout << "new group" << std::endl;
-    for (auto dge : gr) {
-      PixelBarrelNameUpgrade name(dge.det()->geographicalId());
-      std::cout << "new det with geom det at r:"<<dge.det()->position().perp()<<" id:"<<dge.det()->geographicalId().rawId()<<" name:"<<name.name()<<" isHalf:"<<name.isHalfModule()<<" tsos at:" <<dge.trajectoryState().globalPosition()<< std::endl;
-    }
-  }
-  */
 
+  if(closestResultNeg.size() != 0){
+    for (auto gr : closestResultNeg) {
+      LogTrace("TkDetLayers") << "New negative group:";
+      for (auto dge : gr) {
+        //PixelBarrelNameUpgrade name(dge.det()->geographicalId());
+        LogTrace("TkDetLayers") << "new det with geom det at r:"<<dge.det()->position().perp()<<" id:"<<dge.det()->geographicalId().rawId()<<" tsos at:" <<dge.trajectoryState().globalPosition();
+      }
+    }
+  } else {
+      LogTrace("TkDetLayers") << "result size is zero"; 
+  }
+  if(closestResultPos.size() != 0){
+    for (auto gr : closestResultPos) {
+      LogTrace("TkDetLayers") << "New positive group:";
+      for (auto dge : gr) {
+        //PixelBarrelNameUpgrade name(dge.det()->geographicalId());
+        LogTrace("TkDetLayers") << "new det with geom det at r:"<<dge.det()->position().perp()<<" id:"<<dge.det()->geographicalId().rawId()<<" tsos at:" <<dge.trajectoryState().globalPosition();
+      }
+    }
+  } else {
+      LogTrace("TkDetLayers") << "result size is zero"; 
+  }
+  if(result.size() != 0){
+    for (auto gr : result) {
+      LogTrace("TkDetLayers") << "Total group:";
+      for (auto dge : gr) {
+        //PixelBarrelNameUpgrade name(dge.det()->geographicalId());
+        LogTrace("TkDetLayers") << "new det with geom det at r:"<<dge.det()->position().perp()<<" id:"<<dge.det()->geographicalId().rawId()<<" tsos at:" <<dge.trajectoryState().globalPosition();
+      }
+    }
+  } else {
+      LogTrace("TkDetLayers") << "result size is zero"; 
+  }
+
+  
 }
 
 
 // private methods for the implementation of groupedCompatibleDets()
 
-SubLayerCrossings Phase2OTBarrelLayer::computeCrossings( const TrajectoryStateOnSurface& startingState,
+SubLayerCrossings Phase2OTtiltedBarrelLayer::computeCrossings( const TrajectoryStateOnSurface& startingState,
 						      PropagationDirection propDir) const
 {
+/*
   GlobalPoint startPos( startingState.globalPosition());
   GlobalVector startDir( startingState.globalMomentum());
   double rho( startingState.transverseCurvature());
@@ -167,7 +225,7 @@ SubLayerCrossings Phase2OTBarrelLayer::computeCrossings( const TrajectoryStateOn
 
   if (!innerCrossing.hasSolution()) return SubLayerCrossings();
   //{
-  //edm::LogInfo(TkDetLayers) << "ERROR in Phase2OTBarrelLayer: inner cylinder not crossed by track" ;
+  //edm::LogInfo(TkDetLayers) << "ERROR in Phase2OTtiltedBarrelLayer: inner cylinder not crossed by track" ;
   //throw DetLayerException("TkRodBarrelLayer: inner subRod not crossed by track");
   //}
 
@@ -181,7 +239,7 @@ SubLayerCrossings Phase2OTBarrelLayer::computeCrossings( const TrajectoryStateOn
 
   if (!outerCrossing.hasSolution()) return SubLayerCrossings();
   //if (!outerCrossing.hasSolution()) {
-  //  throw DetLayerException("Phase2OTBarrelLayer: inner cylinder not crossed by track");
+  //  throw DetLayerException("Phase2OTtiltedBarrelLayer: inner cylinder not crossed by track");
   //}
 
   GlobalPoint gOuterPoint( outerCrossing.position());
@@ -201,9 +259,11 @@ SubLayerCrossings Phase2OTBarrelLayer::computeCrossings( const TrajectoryStateOn
   else {
     return SubLayerCrossings( outerSLC, innerSLC, 1);
   } 
+*/
+  return SubLayerCrossings();
 }
-
-bool Phase2OTBarrelLayer::addClosest( const TrajectoryStateOnSurface& tsos,
+/*
+bool Phase2OTtiltedBarrelLayer::addClosest( const TrajectoryStateOnSurface& tsos,
 				   const Propagator& prop,
 				   const MeasurementEstimator& est,
 				   const SubLayerCrossing& crossing,
@@ -213,8 +273,9 @@ bool Phase2OTBarrelLayer::addClosest( const TrajectoryStateOnSurface& tsos,
   const GeometricSearchDet* det(sub[crossing.closestDetIndex()]);
   return CompatibleDetToGroupAdder::add( *det, tsos, prop, est, result);
 }
-
-float Phase2OTBarrelLayer::computeWindowSize( const GeomDet* det, 
+*/
+/*
+float Phase2OTtiltedBarrelLayer::computeWindowSize( const GeomDet* det, 
 					   const TrajectoryStateOnSurface& tsos, 
 					   const MeasurementEstimator& est) const
 {
@@ -224,7 +285,7 @@ float Phase2OTBarrelLayer::computeWindowSize( const GeomDet* det,
 }
 
 
-double Phase2OTBarrelLayer::calculatePhiWindow( double Xmax, const GeomDet& det,
+double Phase2OTtiltedBarrelLayer::calculatePhiWindow( double Xmax, const GeomDet& det,
 					     const TrajectoryStateOnSurface& state) const
 {
 
@@ -244,7 +305,7 @@ double Phase2OTBarrelLayer::calculatePhiWindow( double Xmax, const GeomDet& det,
 }
 
 
-void Phase2OTBarrelLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
+void Phase2OTtiltedBarrelLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 					const Propagator& prop,
 					const MeasurementEstimator& est,
 					const SubLayerCrossing& crossing,
@@ -287,7 +348,7 @@ void Phase2OTBarrelLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   }
 }
 
-bool Phase2OTBarrelLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet, float phiWin) const
+bool Phase2OTtiltedBarrelLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet, float phiWin) const
 {
   GlobalPoint crossPoint(gpos);
 
@@ -305,12 +366,4 @@ bool Phase2OTBarrelLayer::overlap( const GlobalPoint& gpos, const GeometricSearc
 } 
 
 
-BoundCylinder* Phase2OTBarrelLayer::cylinder( const vector<const GeometricSearchDet*>& rods) const 
-{
-  vector<const GeomDet*> tmp;
-  for (vector<const GeometricSearchDet*>::const_iterator it=rods.begin(); it!=rods.end(); it++) {    
-    tmp.insert(tmp.end(),(*it)->basicComponents().begin(),(*it)->basicComponents().end());
-  }
-  return CylinderBuilderFromDet()( tmp.begin(), tmp.end());
-}
-
+*/

@@ -22,6 +22,11 @@ bool BarrelDetLayer::contains(const Local3DPoint& p) const {
 
 void BarrelDetLayer::initialize() 
 {
+  vector< const GeomDet*> comps = basicComponents();
+  if unlikely(comps.empty())  
+    edm::LogError("DetLayers") << "ERROR: Basic Components of this BarrelDetLayer is empty >> no boundaries can be computed!";
+  // throw an exception? which one?
+
   setSurface( computeSurface());
 }
 
@@ -29,6 +34,7 @@ void BarrelDetLayer::initialize()
 
 //--- protected methods
 BoundCylinder* BarrelDetLayer::computeSurface() {
+
   vector< const GeomDet*> comps = basicComponents();
 
   // Find extension in Z
@@ -63,6 +69,9 @@ BoundCylinder* BarrelDetLayer::computeSurface() {
   // those of the global grame (z along the cylinder axis)
   PositionType pos(0.,0.,0.);
   RotationType rot;
+
+  LogDebug("TkDetLayers") << "Boundaries: R(min, max)" << theRmin << "," << theRmax
+                          << "            Z(min, max)" << theZmin << "," << theZmax ;
 
   auto scp = new SimpleCylinderBounds( theRmin, theRmax,
                                        theZmin, theZmax);

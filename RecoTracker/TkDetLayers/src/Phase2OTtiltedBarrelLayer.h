@@ -1,9 +1,13 @@
-#ifndef TkDetLayers_Phase2OTBarrelLayer_h
-#define TkDetLayers_Phase2OTBarrelLayer_h
+#ifndef TkDetLayers_Phase2OTtiltedBarrelLayer_h
+#define TkDetLayers_Phase2OTtiltedBarrelLayer_h
 
 
+//#include "Phase2OTBarrelLayer.h"
 #include "TrackingTools/DetLayers/interface/RodBarrelLayer.h"
+#include "Phase2OTBarrelLayer.h"
+#include "Phase2OTEndcapLayer.h"
 #include "Phase2OTBarrelRod.h"
+#include "Phase2OTEndcapRing.h"
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 #include "SubLayerCrossings.h"
 
@@ -14,15 +18,17 @@
  */
 
 #pragma GCC visibility push(hidden)
-class Phase2OTBarrelLayer : public RodBarrelLayer, public GeometricSearchDetWithGroups {
+//class Phase2OTtiltedBarrelLayer : public RodBarrelLayer, public GeometricSearchDetWithGroups {
+class Phase2OTtiltedBarrelLayer GCC11_FINAL : public Phase2OTBarrelLayer {
  public:
   typedef PeriodicBinFinderInPhi<double>   BinFinderType;
 
-
-  Phase2OTBarrelLayer(std::vector<const Phase2OTBarrelRod*>& innerRods,
-		   std::vector<const Phase2OTBarrelRod*>& outerRods);
+  Phase2OTtiltedBarrelLayer(std::vector<const Phase2OTBarrelRod*>& innerRods,
+                            std::vector<const Phase2OTBarrelRod*>& outerRods,
+                            std::vector<const Phase2OTEndcapRing*>& negRings, 
+                            std::vector<const Phase2OTEndcapRing*>& posRings);
   
-  ~Phase2OTBarrelLayer();
+  ~Phase2OTtiltedBarrelLayer();
   
   // GeometricSearchDet interface
   
@@ -37,9 +43,7 @@ class Phase2OTBarrelLayer : public RodBarrelLayer, public GeometricSearchDetWith
     
 
   // DetLayer interface
-  virtual SubDetector subDetector() const { return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2OTB];}
-
-  BoundCylinder* cylinder( const std::vector<const GeometricSearchDet*>& rods) const ;
+  //virtual SubDetector subDetector() const { return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2OTB];}
 
  private:
   // private methods for the implementation of groupedCompatibleDets()
@@ -48,6 +52,7 @@ class Phase2OTBarrelLayer : public RodBarrelLayer, public GeometricSearchDetWith
 
   SubLayerCrossings computeCrossings( const TrajectoryStateOnSurface& tsos,
 				      PropagationDirection propDir) const;
+/*
   
   bool addClosest( const TrajectoryStateOnSurface& tsos,
 		   const Propagator& prop,
@@ -76,18 +81,23 @@ class Phase2OTBarrelLayer : public RodBarrelLayer, public GeometricSearchDetWith
   const std::vector<const GeometricSearchDet*>& subLayer( int ind) const {
     return (ind==0 ? theInnerComps : theOuterComps);}
   
+*/
 
  private:
+  Phase2OTBarrelLayer* thePhase2OTBarrelLayer;
+  //Phase2OTEndcapLayer thePhase2OTNegRingedLayer;
   std::vector<const GeometricSearchDet*> theComps;
-  std::vector<const GeometricSearchDet*> theInnerComps;
-  std::vector<const GeometricSearchDet*> theOuterComps;
+  //std::vector<const GeometricSearchDet*> theInnerRodsComps;
+  //std::vector<const GeometricSearchDet*> theOuterRodsComps;
+  std::vector<const GeometricSearchDet*> theNegativeRingsComps;
+  std::vector<const GeometricSearchDet*> thePositiveRingsComps;
   std::vector<const GeomDet*> theBasicComps;
 
   BinFinderType    theInnerBinFinder;
   BinFinderType    theOuterBinFinder;
 
-  ReferenceCountingPointer<BoundCylinder>  theInnerCylinder;
-  ReferenceCountingPointer<BoundCylinder>  theOuterCylinder;
+  ReferenceCountingPointer<BoundCylinder>  theCylinder;
+  //ReferenceCountingPointer<BoundCylinder>  theOuterCylinder;
 
   
 };
