@@ -22,7 +22,7 @@ SUSY_HLT_MET_MUON = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
 
 
 SUSY_HLT_MET_MUON_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET120_Mu5"),
+    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET120_Mu5_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(
