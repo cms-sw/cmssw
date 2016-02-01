@@ -111,7 +111,7 @@ class VertexAnalyzer( Analyzer ):
         if self.hasScore :
             event.scores = self.handles['scores'].product()
             for i,v in enumerate(event.vertices) :
-                v.score = event.scores.value(i)
+                v.score = event.scores.get(i)
         event.goodVertices = filter(self.testGoodVertex,event.vertices)
 
         self.count.inc('All Events')
