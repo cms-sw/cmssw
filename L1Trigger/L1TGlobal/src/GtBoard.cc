@@ -830,7 +830,10 @@ void l1t::GtBoard::runGTL(
 	      if (match != imap->end()){
 		found = 1;
 		//cout << "DEBUG: found match for " << iop->tokenName << " at " << match->first << "\n";
-		otype = match->second->objectType();
+		
+		//BLW FIX ME
+		//otype = match->second->objectType();
+		
 		for (auto itype = otype.begin(); itype != otype.end() ; itype++){
 		  //cout << "type:  " << *itype << "\n";
 		}
