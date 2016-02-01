@@ -97,15 +97,13 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 # HLT minimal testing:
 
 process.hltL1T = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet36 OR L1_SingleEG10" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet36 AND L1_SingleEG10" ),
     saveTags = cms.bool( True ),
-#    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
+    L1GtObjectMapTag = cms.InputTag( "simGtStage2Digis" ),
 #    L1UseL1TriggerObjectMaps = cms.bool( True ),
 #    L1UseAliasesForSeeding = cms.bool( True ),
 #    L1GtReadoutRecordTag = cms.InputTag( "simGtStage2Digis" ),
-#    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
 #    L1NrBxInEvent = cms.int32( 3 ),
-#    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
 #    L1TechTriggerSeeding = cms.bool( False )
 )
 
