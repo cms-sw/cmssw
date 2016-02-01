@@ -449,6 +449,22 @@ class LeptonAnalyzer( Analyzer ):
                  except RuntimeError:
                      raise RuntimeError("Unsupported ele_tightId name '" + str(self.cfg_ana.ele_tightId) +  "'! For now only 'MVA' and 'Cuts_2012' are supported, in addition to what provided in Electron.py.")
 
+        # JP/CV: add Spring15 EGamma POG electron ID MVA
+        # ( https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2#Recipes_for_7_4_12_Spring15_MVA )
+        if getattr(self.cfg_ana,'updateEleMVA',False) :
+            eleMVAIdSpring15TrigMedium = self.handles['eleMVAIdSpring15TrigMedium'].product()
+            eleMVAIdSpring15TrigTight  = self.handles['eleMVAIdSpring15TrigTight'].product()
+            eleMVArawSpring15Trig = self.handles['eleMVArawSpring15Trig'].product()
+            eleMVAIdSpring15NonTrigMedium = self.handles['eleMVAIdSpring15NonTrigMedium'].product()
+            eleMVAIdSpring15NonTrigTight  = self.handles['eleMVAIdSpring15NonTrigTight'].product()
+            eleMVArawSpring15NonTrig = self.handles['eleMVArawSpring15NonTrig'].product()
+            for ie, ele in enumerate(allelectrons):
+                ele.mvaIdSpring15TrigMedium = eleMVAIdSpring15TrigMedium.get(ie)
+                ele.mvaIdSpring15TrigTight = eleMVAIdSpring15TrigTight.get(ie)
+                ele.mvaRawSpring15Trig = eleMVArawSpring15Trig.get(ie)
+                ele.mvaIdSpring15NonTrigMedium = eleMVAIdSpring15NonTrigMedium.get(ie)
+                ele.mvaIdSpring15NonTrigTight = eleMVAIdSpring15NonTrigTight.get(ie)
+                ele.mvaRawSpring15NonTrig = eleMVArawSpring15NonTrig.get(ie)
         
         return allelectrons 
 
@@ -790,6 +806,18 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     loose_electron_relIso = 0.4,
     # loose_electron_isoCut = lambda electron : electron.miniRelIso < 0.1
     loose_electron_lostHits = 1.0,
+<<<<<<< HEAD
+=======
+    # FIXME: JP/CV: add Spring15 EGamma POG electron ID MVA
+    # ( https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2#Recipes_for_7_4_12_Spring15_MVA )
+    updateEleMVA = False,
+    eleMVAIdSpring15TrigMedium = "egmGsfElectronIDs:mvaEleID-Spring15-25ns-Trig-V1-wp90",
+    eleMVAIdSpring15TrigTight = "egmGsfElectronIDs:mvaEleID-Spring15-25ns-Trig-V1-wp80",
+    eleMVArawSpring15Trig = "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15Trig25nsV1Values",
+    eleMVAIdSpring15NonTrigMedium = "egmGsfElectronIDs:mvaEleID-Spring15-25ns-nonTrig-V1-wp90",
+    eleMVAIdSpring15NonTrigTight = "egmGsfElectronIDs:mvaEleID-Spring15-25ns-nonTrig-V1-wp80",
+    eleMVArawSpring15NonTrig = "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values",
+>>>>>>> 5bb1aee... Heppy: add protections for running on out of the box miniaod 76X
     # muon isolation correction method (can be "rhoArea" or "deltaBeta")
     mu_isoCorr = "rhoArea" ,
     mu_effectiveAreas = "Spring15_25ns_v1", #(can be 'Data2012' or 'Phys14_25ns_v1' or 'Spring15_25ns_v1')
