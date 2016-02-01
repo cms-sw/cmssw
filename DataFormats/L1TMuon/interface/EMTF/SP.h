@@ -13,31 +13,31 @@ namespace l1t {
       explicit SP(uint64_t dataword);
     
     SP() :
-      pt_lut_address(-99), phi_full(-99), phi_gmt(-99), eta(-99), pt(-99), quality(-99), bx(-99), me4_id(-99), me3_id(-99), me2_id(-99), me1_id(-99), me4_tbin(-99), me3_tbin(-99), me2_tbin(-99), me1_tbin(-99), tbin_num(-99), hl(-99), c(-99), vc(-99), vt(-99), se(-99), bc0(-99), dataword(-99) 
+      pt_lut_address(-99), phi_full(-99), phi_GMT(-99), eta_GMT(-99), pt(-99), quality(-99), bx(-99), me4_ID(-99), me3_ID(-99), me2_ID(-99), me1_ID(-99), me4_TBIN(-99), me3_TBIN(-99), me2_TBIN(-99), me1_TBIN(-99), tbin_num(-99), hl(-99), c(-99), vc(-99), vt(-99), se(-99), bc0(-99), dataword(-99) 
 	{};
       
-    SP(int int_pt_lut_address, int int_phi_full, int int_phi_gmt, int int_eta, int int_pt, int int_quality, int int_bx, int int_me4_id, int int_me3_id, int int_me2_id, int int_me1_id, int int_me4_tbin, int int_me3_tbin, int int_me2_tbin, int int_me1_tbin, int int_tbin_num, int int_hl, int int_c, int int_vc, int int_vt, int int_se, int int_bc0) :
-      pt_lut_address(int_pt_lut_address), phi_full(int_phi_full), phi_gmt(int_phi_gmt), eta(int_eta), pt(int_pt), quality(int_quality), bx(int_bx), me4_id(int_me4_id), me3_id(int_me3_id), me2_id(int_me2_id), me1_id(int_me1_id), me4_tbin(int_me4_tbin), me3_tbin(int_me3_tbin), me2_tbin(int_me2_tbin), me1_tbin(int_me1_tbin), tbin_num(int_tbin_num), hl(int_hl), c(int_c), vc(int_vc), vt(int_vt), se(int_se), bc0(int_bc0), dataword(-99)
+    SP(int int_pt_lut_address, int int_phi_full, int int_phi_GMT, int int_eta_GMT, int int_pt, int int_quality, int int_bx, int int_me4_ID, int int_me3_ID, int int_me2_ID, int int_me1_ID, int int_me4_TBIN, int int_me3_TBIN, int int_me2_TBIN, int int_me1_TBIN, int int_TBIN_num, int int_hl, int int_c, int int_vc, int int_vt, int int_se, int int_bc0) :
+      pt_lut_address(int_pt_lut_address), phi_full(int_phi_full), phi_GMT(int_phi_GMT), eta_GMT(int_eta_GMT), pt(int_pt), quality(int_quality), bx(int_bx), me4_ID(int_me4_ID), me3_ID(int_me3_ID), me2_ID(int_me2_ID), me1_ID(int_me1_ID), me4_TBIN(int_me4_TBIN), me3_TBIN(int_me3_TBIN), me2_TBIN(int_me2_TBIN), me1_TBIN(int_me1_TBIN), tbin_num(int_TBIN_num), hl(int_hl), c(int_c), vc(int_vc), vt(int_vt), se(int_se), bc0(int_bc0), dataword(-99)
     	{};
       
       virtual ~SP() {};
       
       void set_pt_lut_address(int bits)       { pt_lut_address= bits; };
       void set_phi_full      (int bits)       { phi_full      = bits; };
-      void set_phi_gmt       (int bits)       { phi_gmt       = bits; };
-      void set_eta           (int bits)       { eta           = bits; };
+      void set_phi_GMT       (int bits)       { phi_GMT       = bits; };
+      void set_eta_GMT       (int bits)       { eta_GMT       = bits; };
       void set_pt            (int bits)       { pt            = bits; };
       void set_quality       (int bits)       { quality       = bits; };
       void set_bx            (int bits)       { bx            = bits; };
-      void set_me4_id        (int bits)       { me4_id        = bits; };
-      void set_me3_id        (int bits)       { me3_id        = bits; };
-      void set_me2_id        (int bits)       { me2_id        = bits; };
-      void set_me1_id        (int bits)       { me1_id        = bits; };
-      void set_me4_tbin      (int bits)       { me4_tbin      = bits; };
-      void set_me3_tbin      (int bits)       { me3_tbin      = bits; };
-      void set_me2_tbin      (int bits)       { me2_tbin      = bits; };
-      void set_me1_tbin      (int bits)       { me1_tbin      = bits; };
-      void set_tbin_num      (int bits)       { tbin_num      = bits; };
+      void set_me4_ID        (int bits)       { me4_ID        = bits; };
+      void set_me3_ID        (int bits)       { me3_ID        = bits; };
+      void set_me2_ID        (int bits)       { me2_ID        = bits; };
+      void set_me1_ID        (int bits)       { me1_ID        = bits; };
+      void set_me4_TBIN      (int bits)       { me4_TBIN      = bits; };
+      void set_me3_TBIN      (int bits)       { me3_TBIN      = bits; };
+      void set_me2_TBIN      (int bits)       { me2_TBIN      = bits; };
+      void set_me1_TBIN      (int bits)       { me1_TBIN      = bits; };
+      void set_TBIN_num      (int bits)       { tbin_num      = bits; };
       void set_hl            (int bits)       { hl            = bits; };
       void set_c             (int bits)       { c             = bits; };
       void set_vc            (int bits)       { vc            = bits; };
@@ -48,20 +48,20 @@ namespace l1t {
 
       const int Pt_lut_address() const { return pt_lut_address; };
       const int Phi_full()       const { return phi_full      ; };
-      const int Phi_gmt()        const { return phi_gmt       ; };
-      const int Eta()            const { return eta           ; };
+      const int Phi_GMT()        const { return phi_GMT       ; };
+      const int Eta_GMT()        const { return eta_GMT       ; };
       const int Pt()             const { return pt            ; };
       const int Quality()        const { return quality       ; };
       const int BX()             const { return bx            ; };
-      const int ME4_id()         const { return me4_id        ; };
-      const int ME3_id()         const { return me3_id        ; };
-      const int ME2_id()         const { return me2_id        ; };
-      const int ME1_id()         const { return me1_id        ; };
-      const int ME4_tbin()       const { return me4_tbin      ; };
-      const int ME3_tbin()       const { return me3_tbin      ; };
-      const int ME2_tbin()       const { return me2_tbin      ; };
-      const int ME1_tbin()       const { return me1_tbin      ; };
-      const int Tbin_num()       const { return tbin_num      ; };
+      const int ME4_ID()         const { return me4_ID        ; };
+      const int ME3_ID()         const { return me3_ID        ; };
+      const int ME2_ID()         const { return me2_ID        ; };
+      const int ME1_ID()         const { return me1_ID        ; };
+      const int ME4_TBIN()       const { return me4_TBIN      ; };
+      const int ME3_TBIN()       const { return me3_TBIN      ; };
+      const int ME2_TBIN()       const { return me2_TBIN      ; };
+      const int ME1_TBIN()       const { return me1_TBIN      ; };
+      const int TBIN_num()       const { return tbin_num      ; };
       const int HL()             const { return hl            ; };
       const int C()              const { return c             ; };
       const int VC()             const { return vc            ; };
@@ -74,19 +74,19 @@ namespace l1t {
     private:
       int pt_lut_address;
       int phi_full      ;
-      int phi_gmt       ;
-      int eta           ;
+      int phi_GMT       ;
+      int eta_GMT       ;
       int pt            ;
       int quality       ;
       int bx            ;
-      int me4_id        ;
-      int me3_id        ;
-      int me2_id        ;
-      int me1_id        ;
-      int me4_tbin      ;
-      int me3_tbin      ;
-      int me2_tbin      ;
-      int me1_tbin      ;
+      int me4_ID        ;
+      int me3_ID        ;
+      int me2_ID        ;
+      int me1_ID        ;
+      int me4_TBIN      ;
+      int me3_TBIN      ;
+      int me2_TBIN      ;
+      int me1_TBIN      ;
       int tbin_num      ;
       int hl            ;
       int c             ;

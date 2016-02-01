@@ -29,14 +29,22 @@ namespace l1t {
   namespace stage2 {
     namespace emtf {
 
-      EMTFUnpackerTools tools5;
-
       bool TrailersBlockUnpacker::unpack(const Block& block, UnpackerCollections *coll) {
 	
 	// Get the payload for this block, made up of 16-bit words (0xffff)
 	// Format defined in MTF7Payload::getBlock() in src/Block.cc
 	// payload[0] = bits 0-15, payload[1] = 16-31, payload[3] = 32-47, etc.
 	auto payload = block.payload();
+
+	// Assign payload to 16-bit words
+        uint16_t TR1a = payload[0];
+        uint16_t TR1b = payload[1];
+        uint16_t TR1c = payload[2];
+        uint16_t TR1d = payload[3];
+        uint16_t TR2a = payload[4];
+        uint16_t TR2b = payload[5];
+        uint16_t TR2c = payload[6];
+        uint16_t TR2d = payload[7];
 
 	// std::cout << "This payload has " << payload.size() << " 16-bit words" << std::endl;
 	// for (uint iWord = 0; iWord < payload.size(); iWord++)
@@ -56,19 +64,29 @@ namespace l1t {
 	  std::cout << "Why is there already an EventTrailer?" << std::endl;
 	l1t::emtf::EventTrailer EventTrailer_;
 
-	// EventTrailer_.set_crc22     ( tools5.GetHexBits(payload[], , ) );
-	// EventTrailer_.set_ddcsr_bid ( tools5.GetHexBits(payload[], , ) );
-	// EventTrailer_.set_ddcsr_lf  ( tools5.GetHexBits(payload[], , ) );
-	EventTrailer_.set_spcsr_scc ( tools5.GetHexBits(payload[3], 0, 11) );
-	EventTrailer_.set_l1a       ( tools5.GetHexBits(payload[0], 0, 7) );
-	// EventTrailer_.set_yy        ( tools5.GetHexBits(payload[], , ) );
-	// EventTrailer_.set_mm        ( tools5.GetHexBits(payload[], , ) );
-	// EventTrailer_.set_dd        ( tools5.GetHexBits(payload[], , ) );
-	// EventTrailer_.set_sp_ladr   ( tools5.GetHexBits(payload[], , ) );
-	// EventTrailer_.set_sp_ersv   ( tools5.GetHexBits(payload[], , ) );
-	// EventTrailer_.set_sp_padr   ( tools5.GetHexBits(payload[], , ) );
-	EventTrailer_.set_lfff      ( tools5.GetHexBits(payload[1], 7, 7) );
-	// EventTrailer_.set_bb        ( tools5.GetHexBits(payload[], , ) );
+	EventTrailer_.set_l1a       ( GetHexBits(TR1a,  0,  7) );
+	EventTrailer_.set_ddcsr_lf  ( GetHexBits(TR1a,  8, 11, TR1b,  8, 11) );
+
+	EventTrailer_.set_lfff      ( GetHexBits(TR1b,  7,  7) );
+
+	// EventTrailer_.set_ddcsr_bid ( GetHexBits(TR2a,  0,  4, TR1c,  0, 8) ); // Probably incorrect
+	EventTrailer_.set_mm        ( GetHexBits(TR1c,  0,  3) );
+ 	EventTrailer_.set_yy        ( GetHexBits(TR1c,  4,  7) );
+	EventTrailer_.set_bb        ( GetHexBits(TR1c,  8,  8) );
+
+	EventTrailer_.set_spcsr_scc ( GetHexBits(TR1d,  0, 11) );
+
+	EventTrailer_.set_dd        ( GetHexBits(TR2a,  0,  4) );
+
+	EventTrailer_.set_sp_padr   ( GetHexBits(TR2b,  0,  4) );
+	EventTrailer_.set_sp_ersv   ( GetHexBits(TR2b,  5,  7) );
+	EventTrailer_.set_sp_ladr   ( GetHexBits(TR2b,  8, 11) );
+
+	EventTrailer_.set_crc22     ( GetHexBits(TR2c,  0, 10, TR2d,  0, 10) );
+	// TODO: Put in DataFormats/L1TMuon/interface/EMTF/EventTrailer.h
+	// EventTrailer_.set_lp        ( GetHexBits(TR2c, 11, 11) );
+	// EventTrailer_.set_hp        ( GetHexBits(TR2d, 11, 11) );
+
 	// EventTrailer_.set_dataword(uint64_t bits)  { dataword = bits;  };
 
 	(res->at(iOut)).set_EventTrailer(EventTrailer_);
@@ -82,9 +100,9 @@ namespace l1t {
 	l1t::emtf::MTF7Trailer MTF7Trailer_;
 
 	// // AMC trailer info defined in interface/AMCSpec.h ... but not implemented in interface/Block.h?
-	// MTF7Trailer_.set_crc_32( tools5.GetHexBits(payload[], , ) );
-	// MTF7Trailer_.set_lv1_id( tools5.GetHexBits(payload[], , ) );
-	// MTF7Trailer_.set_data_length( tools5.GetHexBits(payload[], , ) );
+	// MTF7Trailer_.set_crc_32( GetHexBits(payload[], , ) );
+	// MTF7Trailer_.set_lv1_id( GetHexBits(payload[], , ) );
+	// MTF7Trailer_.set_data_length( GetHexBits(payload[], , ) );
 	// MTF7Trailer_.set_dataword(uint64_t bits)  { dataword = bits;    };
 	
 	(res->at(iOut)).set_MTF7Trailer(MTF7Trailer_);
@@ -100,14 +118,14 @@ namespace l1t {
 	// TODO: Write functions in interface/AMC13Spec.h (as in AMCSpec.h) to extract all AMC13 header and trailer info
 	// TODO: Edit interface/Block.h to have a amc13() function similar to amc()
 
-	// AMC13Trailer_.set_evt_lgth( tools5.GetHexBits(payload[], , ) );
-	// AMC13Trailer_.set_crc16( tools5.GetHexBits(payload[], , ) );
-	// AMC13Trailer_.set_evt_stat( tools5.GetHexBits(payload[], , ) );
-	// AMC13Trailer_.set_tts( tools5.GetHexBits(payload[], , ) );
-	// AMC13Trailer_.set_c( tools5.GetHexBits(payload[], , ) );
-	// AMC13Trailer_.set_f( tools5.GetHexBits(payload[], , ) );
-	// AMC13Trailer_.set_t( tools5.GetHexBits(payload[], , ) );
-	// AMC13Trailer_.set_r( tools5.GetHexBits(payload[], , ) );
+	// AMC13Trailer_.set_evt_lgth( GetHexBits(payload[], , ) );
+	// AMC13Trailer_.set_crc16( GetHexBits(payload[], , ) );
+	// AMC13Trailer_.set_evt_stat( GetHexBits(payload[], , ) );
+	// AMC13Trailer_.set_tts( GetHexBits(payload[], , ) );
+	// AMC13Trailer_.set_c( GetHexBits(payload[], , ) );
+	// AMC13Trailer_.set_f( GetHexBits(payload[], , ) );
+	// AMC13Trailer_.set_t( GetHexBits(payload[], , ) );
+	// AMC13Trailer_.set_r( GetHexBits(payload[], , ) );
 	// AMC13Trailer_.set_dataword(uint64_t bits)  { dataword = bits; };
 	
 	(res->at(iOut)).set_AMC13Trailer(AMC13Trailer_);

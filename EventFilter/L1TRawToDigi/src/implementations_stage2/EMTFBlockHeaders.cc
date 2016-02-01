@@ -29,8 +29,6 @@ namespace l1t {
   namespace stage2 {
     namespace emtf {
 
-      EMTFUnpackerTools tools1;
-
       bool HeadersBlockUnpacker::unpack(const Block& block, UnpackerCollections *coll) {
 	
 	// Get the payload for this block, made up of 16-bit words (0xffff)
@@ -38,9 +36,39 @@ namespace l1t {
 	// payload[0] = bits 0-15, payload[1] = 16-31, payload[3] = 32-47, etc.
 	auto payload = block.payload();
 
+	// TODO: Proper error handling for payload size check (also in other Block functions)
 	// std::cout << "This payload has " << payload.size() << " 16-bit words" << std::endl;
-	// for (uint iWord = 0; iWord < payload.size(); iWord++)
-	//   std::cout << std::hex << std::setw(8) << std::setfill('0') << payload[iWord] << std::dec << std::endl;
+	if (payload.size() != 12) {
+	  std::cout << "Critical error in EMTFBlockHeaders.cc: payload.size() = " 
+		    << payload.size() << ", not 12!!!" << std::endl;
+	  // return 0;
+	}
+
+	// TODO: Proper error handling for > 16-bit words (also in other Block functions)
+	for (uint iWord = 0; iWord < payload.size(); iWord++) {
+	  // std::cout << std::hex << std::setw(4) << std::setfill('0') << payload[iWord] << std::dec << std::endl;
+	  if ( (payload[iWord] >> 16) > 0 ) {
+	    std::cout << "Critical error: payload[" << iWord << "] = " << std::hex << payload[iWord]
+		      << std::dec << ", more than 16 bits!!!" << std::dec << std::endl;
+	    // return 0; 
+	  }
+	}
+
+	// Assign payload to 16-bit words
+	uint16_t HD1a = payload[0];
+	uint16_t HD1b = payload[1];
+	// uint16_t HD1c = payload[2];
+	uint16_t HD1d = payload[3];
+	// uint16_t HD2a = payload[4];
+	uint16_t HD2b = payload[5];
+	uint16_t HD2c = payload[6];
+	uint16_t HD2d = payload[7];
+	uint16_t HD3a = payload[8];
+	uint16_t HD3b = payload[9];
+	uint16_t HD3c = payload[10];
+	uint16_t HD3d = payload[11];
+
+	// TODO: Proper checks for Event Record Header format (also in other Block functions)
 
 	// res is a pointer to a collection of EMTFOutput class objects
 	// There is one EMTFOutput for each MTF7 (60 deg. sector) in the event
@@ -51,7 +79,6 @@ namespace l1t {
 	// std::cout << "So far " << res->size() << " MTF7s have been unpacked" << std::endl;
 	res->push_back(EMTFOutput_);
 	int iOut = res->size() - 1;
-
 
 	//////////////////////////////////////
 	// Unpack the AMC13 header information
@@ -107,25 +134,25 @@ namespace l1t {
 	  std::cout << "Why is there already an EventHeader?" << std::endl;
 	l1t::emtf::EventHeader EventHeader_;
 	
-	// EventHeader_.set_l1a( tools1.GetHexBits(payload[], , ) )             {  l1a = bits; };
-	EventHeader_.set_l1a_bxn ( tools1.GetHexBits(payload[3],  0, 11) );
-	EventHeader_.set_sp_ts   ( tools1.GetHexBits(payload[5],  8, 11) );
-	EventHeader_.set_sp_ersv ( tools1.GetHexBits(payload[5],  5,  7) );
-	EventHeader_.set_sp_addr ( tools1.GetHexBits(payload[5],  0,  4) );
-	EventHeader_.set_tbin    ( tools1.GetHexBits(payload[6],  8, 10) );
-	EventHeader_.set_ddm     ( tools1.GetHexBits(payload[6],  7,  7) );
-	EventHeader_.set_spa     ( tools1.GetHexBits(payload[6],  6,  6) );
-	EventHeader_.set_rpca    ( tools1.GetHexBits(payload[6],  5,  5) );
-	EventHeader_.set_skip    ( tools1.GetHexBits(payload[6],  4,  4) );
-	EventHeader_.set_rdy     ( tools1.GetHexBits(payload[6],  3,  3) );
-	EventHeader_.set_bsy     ( tools1.GetHexBits(payload[6],  2,  2) );
-	EventHeader_.set_osy     ( tools1.GetHexBits(payload[6],  1,  1) );
-	EventHeader_.set_wof     ( tools1.GetHexBits(payload[6],  0,  0) );
-	EventHeader_.set_me1a    ( tools1.GetHexBits(payload[7],  0, 11) );
-	EventHeader_.set_me1b    ( tools1.GetHexBits(payload[8],  0,  8) );
-	EventHeader_.set_me2     ( tools1.GetHexBits(payload[9],  0, 10) );
-	EventHeader_.set_me3     ( tools1.GetHexBits(payload[10], 0, 10) );
-	EventHeader_.set_me4     ( tools1.GetHexBits(payload[11], 0, 10) );
+	EventHeader_.set_l1a     ( GetHexBits(HD1a,  0, 11, HD1b,  0, 11) );
+	EventHeader_.set_l1a_bxn ( GetHexBits(HD1d,  0, 11) );
+	EventHeader_.set_sp_ts   ( GetHexBits(HD2b,  8, 11) );
+	EventHeader_.set_sp_ersv ( GetHexBits(HD2b,  5,  7) );
+	EventHeader_.set_sp_addr ( GetHexBits(HD2b,  0,  4) );
+	EventHeader_.set_tbin    ( GetHexBits(HD2c,  8, 10) );
+	EventHeader_.set_ddm     ( GetHexBits(HD2c,  7,  7) );
+	EventHeader_.set_spa     ( GetHexBits(HD2c,  6,  6) );
+	EventHeader_.set_rpca    ( GetHexBits(HD2c,  5,  5) );
+	EventHeader_.set_skip    ( GetHexBits(HD2c,  4,  4) );
+	EventHeader_.set_rdy     ( GetHexBits(HD2c,  3,  3) );
+	EventHeader_.set_bsy     ( GetHexBits(HD2c,  2,  2) );
+	EventHeader_.set_osy     ( GetHexBits(HD2c,  1,  1) );
+	EventHeader_.set_wof     ( GetHexBits(HD2c,  0,  0) );
+	EventHeader_.set_me1a    ( GetHexBits(HD2d,  0, 11) );
+	EventHeader_.set_me1b    ( GetHexBits(HD3a,  0,  8) );
+	EventHeader_.set_me2     ( GetHexBits(HD3b,  0, 10) );
+	EventHeader_.set_me3     ( GetHexBits(HD3c,  0, 10) );
+	EventHeader_.set_me4     ( GetHexBits(HD3d,  0, 10) );
 	// EventHeader_.set_dataword(uint64_t bits)  { dataword = bits;  };
 
 	(res->at(iOut)).set_EventHeader(EventHeader_);

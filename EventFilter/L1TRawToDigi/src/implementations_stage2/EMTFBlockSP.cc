@@ -29,14 +29,22 @@ namespace l1t {
   namespace stage2 {
     namespace emtf {
 
-      EMTFUnpackerTools tools4;
-
       bool SPBlockUnpacker::unpack(const Block& block, UnpackerCollections *coll) {
 	
 	// Get the payload for this block, made up of 16-bit words (0xffff)
 	// Format defined in MTF7Payload::getBlock() in src/Block.cc
 	// payload[0] = bits 0-15, payload[1] = 16-31, payload[3] = 32-47, etc.
 	auto payload = block.payload();
+
+        // Assign payload to 16-bit words
+        uint16_t SP1a = payload[0];	
+        uint16_t SP1b = payload[1];	
+        uint16_t SP1c = payload[2];	
+        uint16_t SP1d = payload[3];	
+        uint16_t SP2a = payload[4];	
+        uint16_t SP2b = payload[5];	
+        uint16_t SP2c = payload[6];	
+        uint16_t SP2d = payload[7];	
 
 	// std::cout << "This payload has " << payload.size() << " 16-bit words" << std::endl;
 	// for (uint iWord = 0; iWord < payload.size(); iWord++)
@@ -54,28 +62,35 @@ namespace l1t {
 
 	l1t::emtf::SP SP_;
 
-	// SP_.set_pt_lut_address ( tools4.GetHexBits(payload[], , ) );
-	SP_.set_phi_full       ( tools4.GetHexBits(payload[0], 0, 11) );
-	SP_.set_phi_gmt        ( tools4.GetHexBits(payload[1], 0, 7) );
-	SP_.set_eta            ( tools4.GetHexBits(payload[2], 0, 8) );
-	SP_.set_pt             ( tools4.GetHexBits(payload[3], 0, 8) );
-	SP_.set_quality        ( tools4.GetHexBits(payload[2], 9, 12) );
-	SP_.set_bx             ( tools4.GetHexBits(payload[2], 13, 14) );
-	SP_.set_me4_id         ( tools4.GetHexBits(payload[4], 10, 14) );
-	SP_.set_me3_id         ( tools4.GetHexBits(payload[4], 5, 9) );
-	SP_.set_me2_id         ( tools4.GetHexBits(payload[4], 0, 4) );
-	SP_.set_me1_id         ( tools4.GetHexBits(payload[3], 9, 14) );
-	// SP_.set_me4_tbin       ( tools4.GetHexBits(payload[], , ) );
-	// SP_.set_me3_tbin       ( tools4.GetHexBits(payload[], , ) );
-	// SP_.set_me2_tbin       ( tools4.GetHexBits(payload[], , ) );
-	// SP_.set_me1_tbin       ( tools4.GetHexBits(payload[], , ) );
-	// SP_.set_tbin_num       ( tools4.GetHexBits(payload[], , ) );
-	// SP_.set_hl             ( tools4.GetHexBits(payload[], , ) );
-	// SP_.set_c              ( tools4.GetHexBits(payload[], , ) );
-	// SP_.set_vc             ( tools4.GetHexBits(payload[], , ) );
-	// SP_.set_vt             ( tools4.GetHexBits(payload[], , ) );
-	// SP_.set_se             ( tools4.GetHexBits(payload[], , ) );
-	SP_.set_bc0            ( tools4.GetHexBits(payload[1], 12, 12) );
+	SP_.set_phi_full       ( GetHexBits(SP1a,  0, 11) );
+	SP_.set_vc             ( GetHexBits(SP1a, 12, 12) );
+	SP_.set_c              ( GetHexBits(SP1a, 13, 13) );
+	SP_.set_hl             ( GetHexBits(SP1a, 14, 14) );
+
+	SP_.set_phi_GMT        ( GetHexBits(SP1b,  0,  7) );
+	SP_.set_bc0            ( GetHexBits(SP1b, 12, 12) );
+	SP_.set_se             ( GetHexBits(SP1b, 13, 13) );
+	SP_.set_vt             ( GetHexBits(SP1b, 14, 14) );
+
+	SP_.set_eta_GMT        ( GetHexBits(SP1c,  0,  8) );
+	SP_.set_quality        ( GetHexBits(SP1c,  9, 12) );
+	SP_.set_bx             ( GetHexBits(SP1c, 13, 14) );
+
+	SP_.set_pt             ( GetHexBits(SP1d,  0,  8) );
+	SP_.set_me1_ID         ( GetHexBits(SP1d,  9, 14) );
+
+	SP_.set_me2_ID         ( GetHexBits(SP2a,  0,  4) );
+	SP_.set_me3_ID         ( GetHexBits(SP2a,  5,  9) );
+	SP_.set_me4_ID         ( GetHexBits(SP2a, 10, 14) );
+
+	SP_.set_me1_TBIN       ( GetHexBits(SP2b,  0,  2) );
+	SP_.set_me2_TBIN       ( GetHexBits(SP2b,  3,  5) );
+	SP_.set_me3_TBIN       ( GetHexBits(SP2b,  6,  8) );
+	SP_.set_me4_TBIN       ( GetHexBits(SP2b,  9, 11) );
+	SP_.set_TBIN_num       ( GetHexBits(SP2b, 12, 14) );
+
+	SP_.set_pt_lut_address ( GetHexBits(SP2c,  0, 14, SP2d,  0, 14) );
+
 	// SP.set_dataword        ( uint64_t dataword );
 
 	(res->at(iOut)).push_SP(SP_);
