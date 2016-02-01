@@ -1,0 +1,4 @@
+<use name="RecoLocalTracker/SiPhase2Clusterizer"/>
+<library   file="Phase2TrackerClusterizer.cc Phase2TrackerClusterizerAlgorithm.cc Phase2TrackerClusterizerArray.cc" name="Phase2TrackerClusterizerPlugin">
+  <flags   EDM_PLUGIN="1"/>
+</library>

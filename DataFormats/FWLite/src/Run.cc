@@ -44,17 +44,17 @@ namespace fwlite {
   Run::Run(TFile* iFile):
     branchMap_(new BranchMapReader(iFile)),
     pAux_(&aux_),
-    pOldAux_(0),
+    pOldAux_(nullptr),
     fileVersion_(-1),
     dataHelper_(branchMap_->getRunTree(),
                 std::shared_ptr<HistoryGetterBase>(new RunHistoryGetter(this)),
                 branchMap_)
   {
-    if(0==iFile) {
+    if(nullptr == iFile) {
       throw cms::Exception("NoFile")<<"The TFile pointer passed to the constructor was null";
     }
 
-    if(0==branchMap_->getRunTree()) {
+    if(nullptr == branchMap_->getRunTree()) {
       throw cms::Exception("NoRunTree")<<"The TFile contains no TTree named " <<edm::poolNames::runTreeName();
     }
     //need to know file version in order to determine how to read the basic product info
@@ -65,7 +65,7 @@ namespace fwlite {
     TTree* runTree = branchMap_->getRunTree();
     if(fileVersion_ >= 3) {
       auxBranch_ = runTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InRun).c_str());
-      if(0==auxBranch_) {
+      if(nullptr == auxBranch_) {
         throw cms::Exception("NoRunAuxilliary")<<"The TTree "
         <<edm::poolNames::runTreeName()
         <<" does not contain a branch named 'RunAuxiliary'";
@@ -76,7 +76,7 @@ namespace fwlite {
 //       This code commented from fwlite::Event. May be portable if needed.
 //       pOldAux_ = new edm::EventAux();
 //       auxBranch_ = runTree->GetBranch(edm::BranchTypeToAuxBranchName(edm::InRun).c_str());
-//       if(0==auxBranch_) {
+//       if(nullptr == auxBranch_) {
 //         throw cms::Exception("NoRunAux")<<"The TTree "
 //           <<edm::poolNames::runTreeName()
 //           <<" does not contain a branch named 'RunAux'";
@@ -90,13 +90,13 @@ namespace fwlite {
   Run::Run(std::shared_ptr<BranchMapReader> branchMap):
     branchMap_(branchMap),
     pAux_(&aux_),
-    pOldAux_(0),
+    pOldAux_(nullptr),
     fileVersion_(-1),
     dataHelper_(branchMap_->getRunTree(),
                 std::shared_ptr<HistoryGetterBase>(new RunHistoryGetter(this)),
                 branchMap_)
   {
-    if(0==branchMap_->getRunTree()) {
+    if(nullptr == branchMap_->getRunTree()) {
       throw cms::Exception("NoRunTree")<<"The TFile contains no TTree named " <<edm::poolNames::runTreeName();
     }
     //need to know file version in order to determine how to read the basic event info
@@ -106,7 +106,7 @@ namespace fwlite {
     TTree* runTree = branchMap_->getRunTree();
     if(fileVersion_ >= 3) {
       auxBranch_ = runTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InRun).c_str());
-      if(0==auxBranch_) {
+      if(nullptr == auxBranch_) {
         throw cms::Exception("NoRunAuxilliary")<<"The TTree "
         <<edm::poolNames::runTreeName()
         <<" does not contain a branch named 'RunAuxiliary'";
@@ -116,7 +116,7 @@ namespace fwlite {
       throw cms::Exception("OldFileVersion")<<"The FWLite Run code des not support old file versions";
 /*      pOldAux_ = new edm::EventAux();
       auxBranch_ = runTree->GetBranch(edm::BranchTypeToAuxBranchName(edm::InRun).c_str());
-      if(0==auxBranch_) {
+      if(nullptr == auxBranch_) {
         throw cms::Exception("NoRunAux")<<"The TTree "
           <<edm::poolNames::runTreeName()
           <<" does not contain a branch named 'RunAux'";
@@ -134,10 +134,8 @@ namespace fwlite {
 
 Run::~Run()
 {
-  for(std::vector<char const*>::iterator it = labels_.begin(), itEnd=labels_.end();
-      it != itEnd;
-      ++it) {
-    delete [] *it;
+  for(auto const& label  : labels_) {
+    delete [] label;
   }
   delete pOldAux_;
 }
@@ -244,7 +242,7 @@ Run::updateAux(Long_t runIndex) const
   if(auxBranch_->GetEntryNumber() != runIndex) {
     auxBranch_->GetEntry(runIndex);
     //handling dealing with old version
-    if(0 != pOldAux_) {
+    if(nullptr != pOldAux_) {
       conversion(*pOldAux_,aux_);
     }
   }
@@ -266,7 +264,7 @@ Run::history() const
   if(historyMap_.empty() || newFormat) {
     procHistoryNames_.clear();
     TTree *meta = dynamic_cast<TTree*>(branchMap_->getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
-    if(0==meta) {
+    if(nullptr == meta) {
       throw cms::Exception("NoMetaTree")<<"The TFile does not appear to contain a TTree named "
       <<edm::poolNames::metaDataTreeName();
     }
@@ -329,7 +327,7 @@ Run::throwProductNotFoundException(std::type_info const& iType, char const* iMod
 {
     edm::TypeID type(iType);
   throw edm::Exception(edm::errors::ProductNotFound)<<"A branch was found for \n  type ='"<<type.className()<<"'\n  module='"<<iModule
-    <<"'\n  productInstance='"<<((0!=iProduct)?iProduct:"")<<"'\n  process='"<<((0!=iProcess)?iProcess:"")<<"'\n"
+    <<"'\n  productInstance='"<<((nullptr != iProduct)?iProduct:"")<<"'\n  process='"<<((nullptr != iProcess)?iProcess:"")<<"'\n"
     "but no data is available for this Run";
 }
 }

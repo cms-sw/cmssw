@@ -6,6 +6,7 @@
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "Utilities/StorageFactory/interface/IOTypes.h"
 #include "Utilities/StorageFactory/interface/Storage.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
 
@@ -56,8 +57,8 @@ namespace edm {
 
     void logFileAction(char const* msg);
 
-    std::shared_ptr<InitMsgView> startMsg_;
-    std::shared_ptr<EventMsgView> currentEvMsg_;
+    edm::propagate_const<std::shared_ptr<InitMsgView>> startMsg_;
+    edm::propagate_const<std::shared_ptr<EventMsgView>> currentEvMsg_;
 
     std::vector<char> headerBuf_; /** Buffer to store file Header */
     std::vector<char> eventBuf_;  /** Buffer to store Event Data */
@@ -68,14 +69,14 @@ namespace edm {
     std::string currentFileName_;
     bool currentFileOpen_;
 
-    std::shared_ptr<EventSkipperByID> eventSkipperByID_;
+    edm::propagate_const<std::shared_ptr<EventSkipperByID>> eventSkipperByID_;
 
     uint32 currRun_;
     uint32 currProto_;
 
     bool newHeader_;
 
-    std::unique_ptr<Storage> storage_;
+    edm::propagate_const<std::unique_ptr<Storage>> storage_;
 
     bool endOfFile_;
   };

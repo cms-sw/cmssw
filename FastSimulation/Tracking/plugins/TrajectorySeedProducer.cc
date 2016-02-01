@@ -21,9 +21,10 @@
 #include "FastSimulation/Tracking/interface/FastTrackingHelper.h"
 
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
+#include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-
+#include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -42,7 +43,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-
 template class SeedingTree<TrackingLayer>;
 template class SeedingNode<TrackingLayer>;
 
@@ -88,53 +88,47 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
         seedingLayers.push_back(std::move(trackingLayerList));
     }
 
-    // region producer
+       // region producer                                                                                                                                                  
     if(conf.exists("RegionFactoryPSet")){
-	edm::ParameterSet regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
-	std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-	theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
-	
-	// seed creator
-	const edm::ParameterSet & seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
-	std::string seedCreatorName = seedCreatorPSet.getParameter<std::string>("ComponentName");
-	seedCreator.reset(SeedCreatorFactory::get()->create( seedCreatorName, seedCreatorPSet));
+        edm::ParameterSet regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
+        std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
+        theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
+
+        // seed creator                                                                                                                                                 
+        const edm::ParameterSet & seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+        std::string seedCreatorName = seedCreatorPSet.getParameter<std::string>("ComponentName");
+        seedCreator.reset(SeedCreatorFactory::get()->create( seedCreatorName, seedCreatorPSet));
     }
 }
 
 bool
 TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const
 {
-
-    const DetLayer * innerLayer = 
-	measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
-    const DetLayer * outerLayer = 
-	measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
+  const DetLayer * innerLayer =
+    measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
+  const DetLayer * outerLayer =
+    measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
+  std::vector<BaseTrackerRecHit const *> innerHits(1,(const BaseTrackerRecHit*) innerHit.hit());
+  std::vector<BaseTrackerRecHit const *> outerHits(1,(const BaseTrackerRecHit*) outerHit.hit());
+  for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
+    
+    const RecHitsSortedInPhi* ihm=new RecHitsSortedInPhi (innerHits, (**ir).origin(), innerLayer);
+    
+    const RecHitsSortedInPhi* ohm=new RecHitsSortedInPhi (outerHits, (**ir).origin(), outerLayer);
+    
+    HitDoublets result(*ihm,*ohm); 
+    
+    HitPairGeneratorFromLayerPair::doublets(**ir,*innerLayer,*outerLayer,*ihm,*ohm,*es_,0,result);
+    
+    if(result.size()!=0){
+      seedCreator->init(**ir,*es_,0);
+      return true; }
+    
+  }
   
-    typedef PixelRecoRange<float> Range;
-
-    for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
-
-	auto const & gs = outerHit.hit()->globalState();
-	auto loc = gs.position-(*ir)->origin().basicVector();
-	const HitRZCompatibility * checkRZ = (*ir)->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer,
-							    loc.perp(),gs.position.z(),gs.errorR,gs.errorZ);
-
-	float u = innerLayer->isBarrel() ? loc.perp() : gs.position.z();
-	float v = innerLayer->isBarrel() ? gs.position.z() : loc.perp();
-	float dv = innerLayer->isBarrel() ? gs.errorZ : gs.errorR;
-	constexpr float nSigmaRZ = 3.46410161514f;
-	Range allowed = checkRZ->range(u);
-	float vErr = nSigmaRZ * dv;
-	Range hitRZ(v-vErr, v+vErr);
-	Range crossRange = allowed.intersection(hitRZ);
-
-	if( ! crossRange.empty()){
-	    seedCreator->init(**ir,*es_,0);
-	    return true;}
-
-    }
-    return false;
+  return false;
 }
+
 
 const SeedingNode<TrackingLayer>* TrajectorySeedProducer::insertHit(
 								    const std::vector<TrajectorySeedHitCandidate>& trackerRecHits,

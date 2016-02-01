@@ -17,6 +17,11 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 
+#include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
+#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+#include "CondFormats/ESObjects/interface/ESChannelStatus.h"
+
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include <sstream>
 
@@ -74,9 +79,8 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
   calibPFSCEle_Fbrem_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_endcap");
   calibPFSCEle_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_barrel");
   calibPFSCEle_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_endcap");
-  std::shared_ptr<PFSCEnergyCalibration>  
-    thePFSCEnergyCalibration ( new PFSCEnergyCalibration(calibPFSCEle_Fbrem_barrel,calibPFSCEle_Fbrem_endcap,
-                                                         calibPFSCEle_barrel,calibPFSCEle_endcap )); 
+  algo_config.thePFSCEnergyCalibration.reset( new PFSCEnergyCalibration( calibPFSCEle_Fbrem_barrel,calibPFSCEle_Fbrem_endcap,
+									 calibPFSCEle_barrel,calibPFSCEle_endcap ) ); 
                                
   algo_config.useEGammaSupercluster = 
     iConfig.getParameter<bool>("useEGammaSupercluster");
@@ -164,7 +168,7 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
   useCalibrationsFromDB_
     = iConfig.getParameter<bool>("useCalibrationsFromDB");    
 
-  std::shared_ptr<PFEnergyCalibration> calibration(new PFEnergyCalibration()); 
+  algo_config.thePFEnergyCalibration.reset(new PFEnergyCalibration());
 
   int algoType 
     = iConfig.getParameter<unsigned>("algoType");
@@ -252,6 +256,15 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   edm::Handle<reco::PFCluster::EEtoPSAssociation> eetops;
   iEvent.getByToken(eetopsSrc_,eetops);
   pfeg_->setEEtoPSAssociation(eetops);
+
+  // preshower conditions                                                                                                                    
+  edm::ESHandle<ESEEIntercalibConstants> esEEInterCalibHandle_;
+  iSetup.get<ESEEIntercalibConstantsRcd>().get(esEEInterCalibHandle_);
+  pfeg_->setAlphaGamma_ESplanes_fromDB(esEEInterCalibHandle_.product());
+
+  edm::ESHandle<ESChannelStatus> esChannelStatusHandle_;
+  iSetup.get<ESChannelStatusRcd>().get(esChannelStatusHandle_);
+  pfeg_->setESChannelStatus(esChannelStatusHandle_.product());
 
   // Get The vertices from the event
   // and assign dynamic vertex parameters

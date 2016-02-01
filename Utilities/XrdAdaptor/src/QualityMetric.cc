@@ -152,24 +152,28 @@ QualityMetric::get()
     return m_value;
 }
 
-QualityMetricFactory * QualityMetricFactory::m_instance = new QualityMetricFactory();
+
+[[cms::thread_safe]] QualityMetricFactory QualityMetricFactory::m_instance;
+
 
 std::unique_ptr<QualityMetricSource>
 QualityMetricFactory::get(timespec now, const std::string &id)
 {
-    MetricMap::const_iterator it = m_instance->m_sources.find(id);
-    QualityMetricUniqueSource *source;
-    if (it == m_instance->m_sources.end())
+    auto itFound = m_instance.m_sources.find(id);
+    if (itFound == m_instance.m_sources.end())
     {
-        source = new QualityMetricUniqueSource(now);
-        m_instance->m_sources[id] = source;
+        // try to make a new one
+        std::unique_ptr<QualityMetricUniqueSource> source(new QualityMetricUniqueSource(now));
+        auto insertResult = m_instance.m_sources.insert(std::make_pair(id, source.get()));
+        itFound = insertResult.first;
+        if (insertResult.second)
+        {   // Insert was successful; release our reference.
+            source.release();
+        }  // Otherwise, we raced with a different thread and they won; we will delete our new QM source.
     }
-    else
-    {
-        source = it->second;
-    }
-    return source->newSource(now);
+    return itFound->second->newSource(now);
 }
+
 
 QualityMetricSource::QualityMetricSource(QualityMetricUniqueSource &parent, timespec now, int default_value)
     : QualityMetric(now, default_value),

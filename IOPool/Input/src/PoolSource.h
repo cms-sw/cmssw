@@ -13,6 +13,7 @@ PoolSource: This is an InputSource
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "IOPool/Common/interface/RootServiceChecker.h"
 
 #include <array>
@@ -66,14 +67,14 @@ namespace edm {
     virtual ProcessingController::ForwardState forwardState_() const override;
     virtual ProcessingController::ReverseState reverseState_() const override;
 
-    SharedResourcesAcquirer* resourceSharedWithDelayedReader_() const override;
+    SharedResourcesAcquirer* resourceSharedWithDelayedReader_() override;
     
     RootServiceChecker rootServiceChecker_;
     InputFileCatalog catalog_;
     InputFileCatalog secondaryCatalog_;
-    std::shared_ptr<RunPrincipal> secondaryRunPrincipal_;
-    std::shared_ptr<LuminosityBlockPrincipal> secondaryLumiPrincipal_;
-    std::vector<std::unique_ptr<EventPrincipal>> secondaryEventPrincipals_;
+    edm::propagate_const<std::shared_ptr<RunPrincipal>> secondaryRunPrincipal_;
+    edm::propagate_const<std::shared_ptr<LuminosityBlockPrincipal>> secondaryLumiPrincipal_;
+    std::vector<edm::propagate_const<std::unique_ptr<EventPrincipal>>> secondaryEventPrincipals_;
     std::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;
 
     unsigned int nStreams_;
@@ -84,10 +85,10 @@ namespace edm {
     bool dropDescendants_;
     bool labelRawDataLikeMC_;
     
-    std::unique_ptr<RunHelperBase> runHelper_;
-    std::unique_ptr<SharedResourcesAcquirer> resourceSharedWithDelayedReaderPtr_;
-    std::unique_ptr<RootPrimaryFileSequence> primaryFileSequence_;
-    std::unique_ptr<RootSecondaryFileSequence> secondaryFileSequence_;
+    edm::propagate_const<std::unique_ptr<RunHelperBase>> runHelper_;
+    std::unique_ptr<SharedResourcesAcquirer> resourceSharedWithDelayedReaderPtr_; // We do not use propagate_const because the acquirer is itself mutable.
+    edm::propagate_const<std::unique_ptr<RootPrimaryFileSequence>> primaryFileSequence_;
+    edm::propagate_const<std::unique_ptr<RootSecondaryFileSequence>> secondaryFileSequence_;
   }; // class PoolSource
 }
 #endif

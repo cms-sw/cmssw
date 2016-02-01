@@ -72,10 +72,10 @@ private:
 				   std::vector<std::string> const& iFileNames2,
 				   bool useSecFileMapSorted)
 {
-  event1_ = std::shared_ptr<ChainEvent> (new ChainEvent(iFileNames1));
-  event2_ = std::shared_ptr<ChainEvent> (new ChainEvent(iFileNames2));
+  event1_ = std::make_shared<ChainEvent>(iFileNames1);
+  event2_ = std::make_shared<ChainEvent>(iFileNames2);
 
-  getter_ = std::shared_ptr<internal::MultiProductGetter>(new internal::MultiProductGetter(this));
+  getter_ = std::make_shared<internal::MultiProductGetter>(this);
 
   if (event1_->size() == 0) {
     std::cout << "------------------------------------------------------------------------" << std::endl;
@@ -116,7 +116,7 @@ private:
 
     // Loop over events, when a new file is encountered, store the first run number from this file,
     // and the last run number from the last file.
-    TFile * lastFile = 0;
+    TFile * lastFile = nullptr;
     std::pair<event_id_range,Long64_t> eventRange;
     bool firstFile = true;
 
@@ -440,18 +440,18 @@ edm::TriggerNames const&
 MultiChainEvent::triggerNames(edm::TriggerResults const& triggerResults) const
 {
   edm::TriggerNames const* names = triggerNames_(triggerResults);
-  if (names != 0) return *names;
+  if (names != nullptr) return *names;
 
   event1_->fillParameterSetRegistry();
   names = triggerNames_(triggerResults);
-  if (names != 0) return *names;
+  if (names != nullptr) return *names;
 
   // If we cannot find it in the primary file, this probably will
   // not help but try anyway
   event2_->to(event1_->id());
   event2_->fillParameterSetRegistry();
   names = triggerNames_(triggerResults);
-  if (names != 0) return *names;
+  if (names != nullptr) return *names;
 
   throw cms::Exception("TriggerNamesNotFound")
     << "TriggerNames not found in ParameterSet registry";
@@ -469,12 +469,12 @@ MultiChainEvent::triggerResultsByName(std::string const& process) const {
 
   edm::TriggerNames const* names = triggerNames_(*hTriggerResults);
 
-  if (names == 0) {
+  if (names == nullptr) {
     event1_->fillParameterSetRegistry();
     names = triggerNames_(*hTriggerResults);
   }
 
-  if (names == 0) {
+  if (names == nullptr) {
     event2_->to(event1_->id());
     event2_->fillParameterSetRegistry();
     names = triggerNames_(*hTriggerResults);

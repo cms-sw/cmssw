@@ -3,6 +3,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PlaneBuilderForGluedDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StackGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
@@ -11,7 +12,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripTopologyBuilder.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -38,7 +39,7 @@ namespace {
 }
 
 TrackerGeometry*
-TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTrackerParameters& ptp )
+TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTrackerParameters& ptp, const TrackerTopology* tTopo )
 {
   int BIG_PIX_PER_ROC_X = ptp.vpars[2];
   int BIG_PIX_PER_ROC_Y = ptp.vpars[3];
@@ -49,6 +50,8 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTracke
   TrackerGeometry* tracker = new TrackerGeometry(gd);
   std::vector<const GeometricDet*> comp;
   gd->deepComponents(comp);
+ 
+  if(tTopo)  theTopo = tTopo;
 
   //define a vector which associate to the detid subdetector index -1 (from 0 to 5) the GeometridDet enumerator to be able to know which type of subdetector it is
   
@@ -207,8 +210,7 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
       tracker->addType(theStripDetTypeMap[detName]);
     }
      
-    StripSubdetector sidet( gdv[i]->geographicalID());
-    double scale  = (sidet.partnerDetId()) ? 0.5 : 1.0 ;	
+    double scale  = (theTopo->partnerDetId(gdv[i]->geographicalID())) ? 0.5 : 1.0 ;	
 
     PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i],scale);  
     GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), theStripDetTypeMap[detName],gdv[i]->geographicalID());
@@ -222,36 +224,62 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
 
 
 void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
+
   PlaneBuilderForGluedDet gluedplaneBuilder;
-  auto  const & gdu= tracker->detUnits();
-  auto  const & gduId = tracker->detUnitIds();
+  auto const & gdu = tracker->detUnits();
+  auto const & gduId = tracker->detUnitIds();
 
   for(u_int32_t i=0;i<gdu.size();i++){
-    StripSubdetector sidet( gduId[i].rawId());
+
     tracker->addDet(gdu[i]);
-    tracker->addDetId(gduId[i]);      
-    if(sidet.glued()!=0&&sidet.stereo()==1){
+    tracker->addDetId(gduId[i]);
+    string gduTypeName = gdu[i]->type().name();
+
+    //this step is time consuming >> TO FIX with a MAP?
+    if( (gduTypeName.find("Ster")!=std::string::npos || 
+         gduTypeName.find("Lower")!=std::string::npos) && 
+        (theTopo->glued(gduId[i])!=0 || theTopo->stack(gduId[i])!=0 )) {
+    
+
       int partner_pos=-1;
       for(u_int32_t jj=0;jj<gduId.size();jj++){
-	if(sidet.partnerDetId()== gduId[jj]) {
-	  partner_pos=jj;
-	  break;
-	}
+  	  if(theTopo->partnerDetId(gduId[i]) == gduId[jj]) {
+  	    partner_pos=jj;
+  	    break;
+  	  }
       }
-      const GeomDetUnit* dus = gdu[i];
       if(partner_pos==-1){
-	throw cms::Exception("Configuration") <<"No partner detector found \n"
-					<<"There is a problem on Tracker geometry configuration\n";
+	  throw cms::Exception("Configuration") <<"Module Type is Stereo or Lower but no partner detector found \n"
+					        <<"There is a problem on Tracker geometry configuration\n";
       }
+
+      const GeomDetUnit* dus = gdu[i];
       const GeomDetUnit* dum = gdu[partner_pos];
-      std::vector<const GeomDetUnit *> glued(2);
-      glued[0]=dum;
-      glued[1]=dus;
-      PlaneBuilderForGluedDet::ResultType plane = gluedplaneBuilder.plane(glued);
-      GluedGeomDet* gluedDet = new GluedGeomDet(&(*plane),dum,dus);
-      tracker->addDet((GeomDet*) gluedDet);
-      tracker->addDetId(DetId(sidet.glued()));
+      std::vector<const GeomDetUnit *> composed(2);
+      composed[0]=dum;
+      composed[1]=dus;
+      DetId composedDetId;
+      if(gduTypeName.find("Ster")!=std::string::npos){
+
+        PlaneBuilderForGluedDet::ResultType plane = gluedplaneBuilder.plane(composed);
+        composedDetId = theTopo->glued(gduId[i]);
+        GluedGeomDet* gluedDet = new GluedGeomDet(&(*plane),dum,dus,composedDetId);
+        tracker->addDet((GeomDet*) gluedDet);
+        tracker->addDetId(composedDetId);
+
+      } else if (gduTypeName.find("Lower")!=std::string::npos){
+
+        //FIXME::ERICA: the plane builder is built in the middle...
+        PlaneBuilderForGluedDet::ResultType plane = gluedplaneBuilder.plane(composed);
+        composedDetId = theTopo->stack(gduId[i]);
+        StackGeomDet* stackDet = new StackGeomDet(&(*plane),dum,dus,composedDetId);
+        tracker->addDet((GeomDet*) stackDet);
+        tracker->addDetId(composedDetId);
+
+      } 
+
     }
+
   }
 }
 

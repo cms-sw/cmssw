@@ -99,9 +99,9 @@ namespace edm {
       pEventEntryInfoVector_(&eventEntryInfoVector_),
       pBranchListIndexes_(nullptr),
       pEventSelectionIDs_(nullptr),
-      eventTree_(filePtr_, InEvent, om_->splitLevel(), om_->treeMaxVirtualSize()),
-      lumiTree_(filePtr_, InLumi, om_->splitLevel(), om_->treeMaxVirtualSize()),
-      runTree_(filePtr_, InRun, om_->splitLevel(), om_->treeMaxVirtualSize()),
+      eventTree_(filePtr(), InEvent, om_->splitLevel(), om_->treeMaxVirtualSize()),
+      lumiTree_(filePtr(), InLumi, om_->splitLevel(), om_->treeMaxVirtualSize()),
+      runTree_(filePtr(), InRun, om_->splitLevel(), om_->treeMaxVirtualSize()),
       treePointers_(),
       dataTypeReported_(false),
       processHistoryRegistry_(),
@@ -122,7 +122,7 @@ namespace edm {
     eventTree_.addAuxiliary<EventAuxiliary>(BranchTypeToAuxiliaryBranchName(InEvent),
                                             pEventAux_, om_->auxItems()[InEvent].basketSize_);
     eventTree_.addAuxiliary<StoredProductProvenanceVector>(BranchTypeToProductProvenanceBranchName(InEvent),
-                                                     pEventEntryInfoVector_, om_->auxItems()[InEvent].basketSize_);
+                                                     pEventEntryInfoVector(), om_->auxItems()[InEvent].basketSize_);
     eventTree_.addAuxiliary<EventSelectionIDVector>(poolNames::eventSelectionsBranchName(),
                                                     pEventSelectionIDs_, om_->auxItems()[InEvent].basketSize_,false);
     eventTree_.addAuxiliary<BranchListIndexes>(poolNames::branchListIndexesBranchName(),
@@ -629,7 +629,7 @@ namespace edm {
       treePointer = nullptr;
     }
     filePtr_->Close();
-    filePtr_.reset();
+    filePtr_ = nullptr; // propagate_const<T> has no reset() function
 
     // report that file has been closed
     Service<JobReport> reportSvc;

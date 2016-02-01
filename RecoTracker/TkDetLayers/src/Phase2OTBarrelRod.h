@@ -67,7 +67,6 @@ class Phase2OTBarrelRod final : public DetRod {
 			std::vector<DetGroup>& brotherresult,
 			bool checkClosest) const __attribute__ ((hot));
 
-
   const std::vector<const GeomDet*>& subRod( int ind) const {
     return (ind==0 ? theInnerDets : theOuterDets);
   }

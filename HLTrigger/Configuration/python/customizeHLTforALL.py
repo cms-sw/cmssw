@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def customizeHLTforAll(process, _customInfo = None):
+def customizeHLTforAll(process, menuType = "GRun", _customInfo = None):
 
     if (_customInfo is not None):
 
@@ -51,18 +51,21 @@ def customizeHLTforAll(process, _customInfo = None):
             if hasattr(process,'source'):
                 process.source.fileNames = cms.untracked.vstring( _inputFile )
                     
-# MC customisation
-        if not _realData:
+        if _realData:
+# Real-Data customisation
+            if menuType == "HIon":
+#               fix "Unrunnable schedule" exception
+                from HLTrigger.Configuration.CustomConfigs import MassReplaceInputTag
+                process = MassReplaceInputTag(process,"rawDataRepacker","rawDataRepacker::@skipCurrentProcess")
+        else:
+# Monte-Carlo customisation
             from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
             process = customizeHLTforMC(process)
-            if _customInfo['menuType'] == "HIon":
+            if menuType == "HIon":
                 from HLTrigger.Configuration.CustomConfigs import MassReplaceInputTag
                 process = MassReplaceInputTag(process,"rawDataRepacker","rawDataCollector")
+
     else:
         pass
-
-# CMSSW version customisation
-    from HLTrigger.Configuration.customizeHLTforCMSSW import customiseHLTforCMSSW
-    process = customiseHLTforCMSSW(process)
 
     return process

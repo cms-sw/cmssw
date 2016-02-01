@@ -92,6 +92,17 @@ from HLTrigger.Configuration.HLTrigger_EventContent_cff import *
 from DQMOffline.Configuration.DQMOffline_EventContent_cff import *
 #
 #
+# FastSim
+#
+#
+from FastSimulation.Configuration.EventContent_cff import FASTPUEventContent
+import FastSimulation.Configuration.EventContent_cff as fastSimEC
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    RecoLocalTrackerRECO.outputCommands = fastSimEC.RecoLocalTracker.outputCommands
+    RecoLocalTrackerFEVT.outputCommands = fastSimEC.RecoLocalTracker.outputCommands
+    SimG4CoreRAW = fastSimEC.SimRAW
+    SimG4CoreRECO = fastSimEC.SimRECO
 
 #
 #
@@ -514,6 +525,8 @@ PREMIXEventContent.outputCommands.append('keep PixelDigiSimLinkedmDetSetVector_s
 PREMIXEventContent.outputCommands.append('keep StripDigiSimLinkedmDetSetVector_simMuonCSCDigis_*_*')
 PREMIXEventContent.outputCommands.append('keep RPCDigiSimLinkedmDetSetVector_*_*_*')
 PREMIXEventContent.outputCommands.append('keep DTLayerIdDTDigiSimLinkMuonDigiCollection_*_*_*')
+if eras.fastSim.isChosen():
+    PREMIXEventContent.outputCommands.extend(fastSimEC.extraPremixContent)
 
 PREMIXRAWEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
 PREMIXRAWEventContent.outputCommands.append('keep CrossingFramePlaybackInfoNew_*_*_*')
@@ -525,7 +538,8 @@ PREMIXRAWEventContent.outputCommands.append('keep *_*_MuonCSCStripDigiSimLinks_*
 PREMIXRAWEventContent.outputCommands.append('keep *_*_MuonCSCWireDigiSimLinks_*')
 PREMIXRAWEventContent.outputCommands.append('keep *_*_RPCDigiSimLink_*')
 PREMIXRAWEventContent.outputCommands.append('keep DTLayerIdDTDigiSimLinkMuonDigiCollection_*_*_*')
-
+if eras.fastSim.isChosen():
+    PREMIXEventContent.outputCommands.extend(fastSimEC.extraPremixContent)
 
 REPACKRAWSIMEventContent.outputCommands.extend(REPACKRAWEventContent.outputCommands)
 REPACKRAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
@@ -753,3 +767,10 @@ from PhysicsTools.PatAlgos.slimming.slimming_cff import MicroEventContent,MicroE
 
 MINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
 MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
+
+# in fastsim, normal digis are edaliases of simdigis
+# drop the simdigis to avoid complaints from the outputmodule related to duplicated branches
+if eras.fastSim.isChosen():
+    for _entry in [FEVTDEBUGHLTEventContent,FEVTDEBUGEventContent,RECOSIMEventContent,AODSIMEventContent]:
+        fastSimEC.dropSimDigis(_entry.outputCommands)
+    

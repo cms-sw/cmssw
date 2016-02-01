@@ -7,12 +7,12 @@
  */
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h" 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class RawDataCollectorByLabel: public edm::EDProducer {
+class RawDataCollectorByLabel: public edm::stream::EDProducer<> {
 public:
     
     ///Constructor

@@ -278,7 +278,10 @@ private:
         OpenHandler(std::weak_ptr<RequestManager> manager);
         std::shared_future<std::shared_ptr<Source> > m_shared_future;
         std::promise<std::shared_ptr<Source> > m_promise;
-        // When this is not null, there is a file-open in process
+        // Set to true only when there is an outstanding open request; not
+        // protected by m_mutex, so the caller is required to know it is in a
+        // thread-safe context.
+        std::atomic<bool> m_outstanding_open {false};
         // Can only be touched when m_mutex is held.
         std::unique_ptr<XrdCl::File> m_file;
         std::recursive_mutex m_mutex;

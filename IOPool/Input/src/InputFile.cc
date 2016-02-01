@@ -19,7 +19,7 @@ namespace edm {
     file_(), fileName_(fileName), reportToken_(0), inputType_(inputType) {
 
     logFileAction(msg, fileName);
-    file_.reset(TFile::Open(fileName));
+    file_ = std::unique_ptr<TFile>(TFile::Open(fileName)); // propagate_const<T> has no reset() function
     std::exception_ptr e = edm::threadLocalException::getException();
     if(e != std::exception_ptr()) {
       edm::threadLocalException::setException(std::exception_ptr());
@@ -29,7 +29,7 @@ namespace edm {
       return;
     }
     if(file_->IsZombie()) {
-      file_.reset();
+      file_ = nullptr; // propagate_const<T> has no reset() function
       return;
     }
     

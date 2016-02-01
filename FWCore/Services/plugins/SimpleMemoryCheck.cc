@@ -41,6 +41,7 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/MallocOpts.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <cstring>
 #include <iostream>
@@ -116,12 +117,15 @@ namespace edm {
       void updateAndPrint(const std::string& type,
                           const std::string& mdlabel, const std::string& mdname);
       void openFiles();
+
+      char const* smapsLineBuffer() const {return get_underlying_safe(smapsLineBuffer_);}
+      char*& smapsLineBuffer() {return get_underlying_safe(smapsLineBuffer_);}
       
       ProcInfo a_;
       ProcInfo b_;
       ProcInfo max_;
-      ProcInfo* current_;
-      ProcInfo* previous_;
+      edm::propagate_const<ProcInfo*> current_;
+      edm::propagate_const<ProcInfo*> previous_;
       
       smapsInfo currentSmaps_;
       
@@ -136,8 +140,8 @@ namespace edm {
       std::atomic<int> count_;
       
       //smaps
-      FILE* smapsFile_;
-      char* smapsLineBuffer_;
+      edm::propagate_const<FILE*> smapsFile_;
+      edm::propagate_const<char*> smapsLineBuffer_;
       size_t smapsLineBufferLen_;
       
       
@@ -318,7 +322,7 @@ namespace edm {
        Pss:                 72 kB
        */
       
-      while ((read = getline(&smapsLineBuffer_, &smapsLineBufferLen_, smapsFile_)) != -1) {
+      while ((read = getline(&smapsLineBuffer(), &smapsLineBufferLen_, smapsFile_)) != -1) {
         if(read > 14) {
           //Private
           if(0==strncmp("Private_",smapsLineBuffer_,8)) {
@@ -353,8 +357,8 @@ namespace edm {
     , jobReportOutputOnly_(iPS.getUntrackedParameter<bool>("jobReportOutputOnly"))
     , monitorPssAndPrivate_(iPS.getUntrackedParameter<bool>("monitorPssAndPrivate"))
     , count_()
-    , smapsFile_(0)
-    , smapsLineBuffer_(NULL)
+    , smapsFile_(nullptr)
+    , smapsLineBuffer_(nullptr)
     , smapsLineBufferLen_(0)
     , growthRateVsize_()
     , growthRateRss_()
@@ -661,10 +665,10 @@ namespace edm {
         size_t value;
 
         while(fgets(buf, sizeof(buf), fmeminfo)) {
-          char* token = NULL;
+          char* token = nullptr;
           token = strtok(buf, space);
-          if(token != NULL) {
-            value = atol(strtok(NULL, space));
+          if(token != nullptr) {
+            value = atol(strtok(nullptr, space));
             std::string category = token;
             reportMemoryProperties.insert(std::make_pair(category.substr(0, strlen(token)-1), i2str(value)));
           }

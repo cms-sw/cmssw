@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/BaseVectorHolder.h"
 #include "DataFormats/Common/interface/RefVectorHolderBase.h"
 #include "DataFormats/Common/interface/IndirectHolder.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include <memory>
 
 namespace edm {
@@ -55,7 +54,7 @@ namespace edm {
 
     private:
       typedef typename base_type::const_iterator_imp const_iterator_imp;
-      RefVectorHolderBase * helper_;
+      RefVectorHolderBase* helper_;
 
     public:
       struct const_iterator_imp_specific : public const_iterator_imp {
@@ -100,7 +99,7 @@ namespace edm {
     };
 
     template <typename T>
-    IndirectVectorHolder<T>::IndirectVectorHolder() : BaseVectorHolder<T>(), helper_( 0 ) { }
+    IndirectVectorHolder<T>::IndirectVectorHolder() : BaseVectorHolder<T>(), helper_( nullptr ) { }
 
     template <typename T>
     IndirectVectorHolder<T>::IndirectVectorHolder(std::shared_ptr<RefVectorHolderBase> p) :

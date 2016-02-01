@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 
 #include "FWCore/Framework/interface/produce_helpers.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {
@@ -73,7 +74,7 @@ namespace edm {
          
          // ---------- member data --------------------------------
          DataT data_;
-         boost::shared_ptr<CallbackT> callback_;
+         edm::propagate_const<boost::shared_ptr<CallbackT>> callback_;
       };
       
    }

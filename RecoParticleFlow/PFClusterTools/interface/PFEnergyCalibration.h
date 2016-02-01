@@ -4,6 +4,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 
+#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+
 class TF1;
 
 // -*- C++ -*-
@@ -73,6 +75,11 @@ class PFEnergyCalibration
     pfCalibrations = thePFCal;
   }
 
+  void initAlphaGamma_ESplanes_fromDB(const ESEEIntercalibConstants* esEEInterCalib){
+    esEEInterCalib_ = esEEInterCalib;
+  }
+
+
   friend std::ostream& operator<<(std::ostream& out, 
 				  const PFEnergyCalibration& calib);
 
@@ -80,6 +87,7 @@ class PFEnergyCalibration
 
   // Calibration functions from global tag
   const PerformancePayloadFromTFormula *pfCalibrations;
+  const ESEEIntercalibConstants* esEEInterCalib_;
   
   // Barrel calibration (eta 0.00 -> 1.48)
   TF1* faBarrel;

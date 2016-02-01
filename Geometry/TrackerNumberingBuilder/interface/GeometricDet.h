@@ -55,7 +55,7 @@ class GeometricDet {
 			   ladder=14, mergedDet=15, DetUnit=16, disk=17, panel=18, 
 			   PixelPhase1Barrel=101,
 			   PixelPhase1EndCap=102, PixelPhase1Disk=117,
-			   OTPhase2EndCap=204, OTPhase2Barrel=205, OTPhase2Layer=208,
+			   OTPhase2EndCap=204, OTPhase2Barrel=205, OTPhase2Layer=208, OTPhase2Stack=215,
 			   PixelPhase2EndCap=202, OTPhase2Wheel=209, PixelPhase2FullDisk=217,
 			   PixelPhase2ReducedDisk=227 } GeometricEnumType;
   /**

@@ -2,6 +2,7 @@
 #define FWCore_MessageService_MessageServicePresence_h
 
 #include "FWCore/Utilities/interface/Presence.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include "boost/thread/thread.hpp"
 
@@ -22,11 +23,14 @@ public:
 
 private:
   // --- no copying:
-  MessageServicePresence(MessageServicePresence const &);
-  void  operator = (MessageServicePresence const &);
+  MessageServicePresence(MessageServicePresence const&) = delete; // Disallow copying
+  void operator=(MessageServicePresence const &) = delete; // Disallow copying
+
+  std::shared_ptr<ThreadQueue const> queue() const {return get_underlying_safe(m_queue);}
+  std::shared_ptr<ThreadQueue>& queue() {return get_underlying_safe(m_queue);}
 
   // --- data:
-  std::shared_ptr<ThreadQueue> m_queue;
+  edm::propagate_const<std::shared_ptr<ThreadQueue>> m_queue;
   boost::thread  m_scribeThread;
 
 };  // MessageServicePresence

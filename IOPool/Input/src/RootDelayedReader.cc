@@ -41,7 +41,7 @@ namespace edm {
   }
 
   std::unique_ptr<WrapperBase>
-  RootDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* ep) const {
+  RootDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* ep) {
     if (lastException_) {
       throw *lastException_;
     }

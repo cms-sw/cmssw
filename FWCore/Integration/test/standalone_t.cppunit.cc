@@ -11,6 +11,7 @@ if the MessageLogger is not runnning.
 
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 // #include "FWCore/Utilities/interface/Presence.h"
 // #include "FWCore/PluginManager/interface/PresenceFactory.h"
 
@@ -30,18 +31,18 @@ class testStandalone: public CppUnit::TestFixture
 
   void setUp()
   {
-    m_handler = std::auto_ptr<edm::AssertHandler>(new edm::AssertHandler());
+    m_handler = std::unique_ptr<edm::AssertHandler>(new edm::AssertHandler());
   }
 
   void tearDown(){
-    m_handler.reset();
+    m_handler = nullptr; // propagate_const<T> has no reset() function
   }
 
   void writeAndReadFile();
 
  private:
 
-  std::auto_ptr<edm::AssertHandler> m_handler;
+  edm::propagate_const<std::unique_ptr<edm::AssertHandler>> m_handler;
 };
 
 ///registration of the test so that the runner can find it

@@ -398,10 +398,10 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
       << "\n\t etaRange        = " << objPar.etaRange
       << "\n\t phiLow          = " << objPar.phiLow
       << "\n\t phiHigh         = " << objPar.phiHigh
-      << "\n\t phiWindowLower  = " << objPar.phiWindowLower
-      << "\n\t phiWindowUpper  = " << objPar.phiWindowUpper
-      << "\n\t phiWindowVetoLower = " << objPar.phiWindowVetoLower
-      << "\n\t phiWindowVetoLower = " << objPar.phiWindowVetoLower
+      << "\n\t phiWindow1Lower = " << objPar.phiWindow1Lower
+      << "\n\t phiWindow1Upper = " << objPar.phiWindow1Upper
+      << "\n\t phiWindow2Lower = " << objPar.phiWindow2Lower
+      << "\n\t phiWindow2Lower = " << objPar.phiWindow2Lower
       << "\n\t charge          = " << objPar.charge
       << "\n\t qualityLUT      = " << objPar.qualityLUT
       << "\n\t isolationLUT    = " << objPar.isolationLUT
@@ -428,13 +428,13 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
 
 
     // check eta
-    if( !checkRangeEta(cand.hwEta(), objPar.etaWindowLower, objPar.etaWindowUpper, objPar.etaWindowVetoLower, objPar.etaWindowVetoLower, 8) ){
+    if( !checkRangeEta(cand.hwEta(), objPar.etaWindow1Lower, objPar.etaWindow1Upper, objPar.etaWindow2Lower, objPar.etaWindow2Upper, 8) ){
       LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRange(eta)" << std::endl;
       return false;
     }
 
     // check phi
-    if( !checkRangePhi(cand.hwPhi(), objPar.phiWindowLower, objPar.phiWindowUpper, objPar.phiWindowVetoLower, objPar.phiWindowVetoLower) ){
+    if( !checkRangePhi(cand.hwPhi(), objPar.phiWindow1Lower, objPar.phiWindow1Upper, objPar.phiWindow2Lower, objPar.phiWindow2Upper) ){
       LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRange(phi)" << std::endl;
       return false;
     }

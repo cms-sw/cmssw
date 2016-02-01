@@ -45,7 +45,7 @@ namespace edm {
 
     }
     if(inserter) {
-      results_inserter_.reset(new edm::WorkerT<TriggerResultInserter::ModuleType>(inserter, inserter->moduleDescription(), &actions));
+      results_inserter_ = WorkerPtr(new edm::WorkerT<TriggerResultInserter::ModuleType>(inserter, inserter->moduleDescription(), &actions)); // propagate_const<T> has no reset() function
       inserter->doPreallocate(prealloc);
       results_inserter_->setActivityRegistry(actReg_);
       addToAllWorkers(results_inserter_.get());

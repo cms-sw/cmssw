@@ -72,7 +72,7 @@ class MuonServiceProxy;
 //
 // constructors and destructor
 //
-DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC)
+DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig, MuonSegmentMatcher *segMatcher)
   :
   theHitsMin_(iConfig.getParameter<int>("HitsMin")),
   thePruneCut_(iConfig.getParameter<double>("PruneCut")),
@@ -85,18 +85,13 @@ DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig,edm::Consu
   debug(iConfig.getParameter<bool>("debug"))
 {
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);
-  
-  edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
-
-  theMatcher = new MuonSegmentMatcher(matchParameters, iC);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters);
+  theMatcher = segMatcher;
 }
 
 
 DTTimingExtractor::~DTTimingExtractor()
 {
-  if (theService) delete theService;
-  if (theMatcher) delete theMatcher;
 }
 
 
@@ -106,13 +101,11 @@ DTTimingExtractor::~DTTimingExtractor()
 
 // ------------ method called to produce the data  ------------
 void
-DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, const edm::Event& iEvent, const edm::EventSetup& iSetup)
+DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack,
+                              const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
-//  using reco::TrackCollection;
-
   if (debug) 
-    std::cout << " *** Muon Timimng Extractor ***" << std::endl;
+    std::cout << " *** DT Timimng Extractor ***" << std::endl;
 
   theService->update(iSetup);
 
@@ -121,16 +114,11 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
   // get the DT geometry
   edm::ESHandle<DTGeometry> theDTGeom;
   iSetup.get<MuonGeometryRecord>().get(theDTGeom);
-  
+
+  // get the propagator  
   edm::ESHandle<Propagator> propagator;
   iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator);
   const Propagator *propag = propagator.product();
-
-  double invbeta=0;
-  double invbetaerr=0;
-  double totalWeightInvbeta=0;
-  double totalWeightVertex=0;
-  std::vector<TimeMeasurement> tms;
 
   math::XYZPoint  pos=muonTrack->innerPosition();
   math::XYZVector mom=muonTrack->innerMomentum();
@@ -144,8 +132,8 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
   if (debug) 
     std::cout << " The muon track matches " << range.size() << " segments." << std::endl;
   
-
   // create a collection on TimeMeasurements for the track        
+  std::vector<TimeMeasurement> tms;
   for (std::vector<const DTRecSegment4D*>::iterator rechit = range.begin(); rechit!=range.end();++rechit) {
 
     // Create the ChamberId
@@ -156,7 +144,6 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 
     // use only segments with both phi and theta projections present (optional)
     bool bothProjections = ( ((*rechit)->hasPhi()) && ((*rechit)->hasZed()) );
-    
     if (requireBothProjections_ && !bothProjections) continue;
 
     // loop over (theta, phi) segments
@@ -165,7 +152,10 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
       if (dropTheta_ && !phi) continue;
 
       const DTRecSegment2D* segm;
-      if (phi) segm = dynamic_cast<const DTRecSegment2D*>((*rechit)->phiSegment()); 
+      if (phi) { 
+        segm = dynamic_cast<const DTRecSegment2D*>((*rechit)->phiSegment()); 
+        if (debug) std::cout << " *** Segment t0: " << segm->t0() << std::endl;
+      }    
         else segm = dynamic_cast<const DTRecSegment2D*>((*rechit)->zSegment());
 
       if(segm == 0) continue;
@@ -230,22 +220,23 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
   } // rechit
       
   bool modified = false;
-  std::vector <double> dstnc, dsegm, dtraj, hitWeightVertex, hitWeightInvbeta, left;
+  std::vector <double> dstnc, local_t0, hitWeightTimeVtx, hitWeightInvbeta, left;
+  double totalWeightInvbeta=0;
+  double totalWeightTimeVtx=0;
     
-  // Now loop over the measurements, calculate 1/beta and cut away outliers
+  // Now loop over the measurements, calculate 1/beta and time at vertex and cut away outliers
   do {    
 
     modified = false;
     dstnc.clear();
-    dsegm.clear();
-    dtraj.clear();
-    hitWeightVertex.clear();
+    local_t0.clear();
+    hitWeightTimeVtx.clear();
     hitWeightInvbeta.clear();
     left.clear();
       
     std::vector <int> hit_idx;
     totalWeightInvbeta=0;
-    totalWeightVertex=0;
+    totalWeightTimeVtx=0;
       
     // Rebuild segments
     for (int sta=1;sta<5;sta++)
@@ -311,65 +302,77 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	  if (debug) std::cout << "   Segm hit.  dstnc: " << tm->distIP << "   t0: " << t0_segm << std::endl;
             
 	  dstnc.push_back(tm->distIP);
-	  dsegm.push_back(t0_segm);
+	  local_t0.push_back(t0_segm);
 	  left.push_back(hitSide);
 	  hitWeightInvbeta.push_back(((double)seg.size()-2.)*tm->distIP*tm->distIP/((double)seg.size()*30.*30.*theError_*theError_));
-          hitWeightVertex.push_back(((double)seg.size()-2.)/((double)seg.size()*theError_*theError_));
+          hitWeightTimeVtx.push_back(((double)seg.size()-2.)/((double)seg.size()*theError_*theError_));
 	  hit_idx.push_back(seg_idx.at(segidx));
 	  segidx++;
 	  totalWeightInvbeta+=((double)seg.size()-2.)*tm->distIP*tm->distIP/((double)seg.size()*30.*30.*theError_*theError_);
-	  totalWeightVertex+=((double)seg.size()-2.)/((double)seg.size()*theError_*theError_);
+	  totalWeightTimeVtx+=((double)seg.size()-2.)/((double)seg.size()*theError_*theError_);
 	}
       }
 
     if (totalWeightInvbeta==0) break;        
 
-    // calculate the value and error of 1/beta from the complete set of 1D hits
+    // calculate the value and error of 1/beta and timeVtx from the complete set of 1D hits
     if (debug)
       std::cout << " Points for global fit: " << dstnc.size() << std::endl;
 
-    // inverse beta - weighted average of the contributions from individual hits
-    invbeta=0;
-    for (unsigned int i=0;i<dstnc.size();i++) 
-      invbeta+=(1.+dsegm.at(i)/dstnc.at(i)*30.)*hitWeightInvbeta.at(i)/totalWeightInvbeta;
+    double invbeta=0,invbetaErr=0;
+    double timeVtx=0,timeVtxErr=0;
 
+    for (unsigned int i=0;i<dstnc.size();i++) {
+      invbeta+=(1.+local_t0.at(i)/dstnc.at(i)*30.)*hitWeightInvbeta.at(i)/totalWeightInvbeta;
+      timeVtx+=local_t0.at(i)*hitWeightTimeVtx.at(i)/totalWeightTimeVtx;
+    }
+    
     double chimax=0.;
     std::vector<TimeMeasurement>::iterator tmmax;
     
-    // the dispersion of inverse beta
-    double diff;
+    // Calculate the inv beta and time at vertex dispersion
+    double diff_ibeta,diff_tvtx;
     for (unsigned int i=0;i<dstnc.size();i++) {
-      diff=(1.+dsegm.at(i)/dstnc.at(i)*30.)-invbeta;
-      diff=diff*diff*hitWeightInvbeta.at(i);
-      invbetaerr+=diff;
-      if (diff>chimax) { 
+      diff_ibeta=(1.+local_t0.at(i)/dstnc.at(i)*30.)-invbeta;
+      diff_ibeta=diff_ibeta*diff_ibeta*hitWeightInvbeta.at(i);
+      diff_tvtx=local_t0.at(i)-timeVtx;
+      diff_tvtx=diff_tvtx*diff_tvtx*hitWeightTimeVtx.at(i);
+      invbetaErr+=diff_ibeta;
+      timeVtxErr+=diff_tvtx;
+      
+      // decide if we cut away time at vertex outliers or inverse beta outliers
+      // currently not configurable.
+      if (diff_tvtx>chimax) { 
 	tmmax=tms.begin()+hit_idx.at(i);
-	chimax=diff;
+	chimax=diff_tvtx;
       }
     }
     
-    invbetaerr=sqrt(invbetaerr/totalWeightInvbeta); 
- 
     // cut away the outliers
     if (chimax>thePruneCut_) {
       tms.erase(tmmax);
       modified=true;
     }    
 
-    if (debug)
-      std::cout << " Measured 1/beta: " << invbeta << " +/- " << invbetaerr << std::endl;
+    if (debug) {
+      double cf = 1./(dstnc.size()-1);
+      invbetaErr=sqrt(invbetaErr/totalWeightInvbeta*cf); 
+      timeVtxErr=sqrt(timeVtxErr/totalWeightTimeVtx*cf); 
+      std::cout << " Measured 1/beta: " << invbeta << " +/- " << invbetaErr << std::endl;
+      std::cout << " Measured time: " << timeVtx << " +/- " << timeVtxErr << std::endl;
+    }  
 
   } while (modified);
 
   for (unsigned int i=0;i<dstnc.size();i++) {
     tmSequence.dstnc.push_back(dstnc.at(i));
-    tmSequence.local_t0.push_back(dsegm.at(i));
+    tmSequence.local_t0.push_back(local_t0.at(i));
     tmSequence.weightInvbeta.push_back(hitWeightInvbeta.at(i));
-    tmSequence.weightVertex.push_back(hitWeightVertex.at(i));
+    tmSequence.weightTimeVtx.push_back(hitWeightTimeVtx.at(i));
   }
 
   tmSequence.totalWeightInvbeta=totalWeightInvbeta;
-  tmSequence.totalWeightVertex=totalWeightVertex;
+  tmSequence.totalWeightTimeVtx=totalWeightTimeVtx;
 
 }
 

@@ -86,14 +86,14 @@ namespace fwlite
    bool
    Record::get(HANDLE& iHandle, const char* iLabel) const
    {
-      const void* value = 0;
+      const void* value = nullptr;
       cms::Exception* e = get(edm::TypeID(iHandle.typeInfo()),iLabel,value);
-      if(0==e){
+      if(nullptr == e){
          iHandle = HANDLE(value);
       } else {
          iHandle = HANDLE(e);
       }
-      return 0==e;
+      return nullptr == e;
    }
 
 } /* fwlite */

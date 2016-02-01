@@ -61,7 +61,6 @@ namespace edm {
 
     static std::unique_ptr<edm::OutputModuleCommunicator> createIfNeeded(T* iMod) {
       return std::move(impl::createCommunicatorIfNeeded(iMod));
-      return std::move(std::unique_ptr<edm::OutputModuleCommunicator>{});
     }
 
   private:

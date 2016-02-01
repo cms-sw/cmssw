@@ -1,10 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoMuon.TrackingTools.MuonSegmentMatcher_cff import *
-
 CSCTimingExtractorBlock = cms.PSet(
   CSCTimingParameters = cms.PSet(
-    MuonSegmentMatcher,
+
     ServiceParameters = cms.PSet(
         Propagators = cms.untracked.vstring('SteppingHelixPropagatorAny', 
             'PropagatorWithMaterial', 

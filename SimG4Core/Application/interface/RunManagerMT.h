@@ -35,6 +35,7 @@ class RunAction;
 
 class DDCompactView;
 class DDDWorld;
+class DDG4ProductionCuts;
 class MagneticField;
 
 class G4MTRunManagerKernel;
@@ -130,6 +131,7 @@ private:
   std::vector<std::string> m_G4Commands;
 
   std::unique_ptr<DDDWorld> m_world;
+  std::unique_ptr<DDG4ProductionCuts> m_prodCuts;
   SimActivityRegistry m_registry;
   SensitiveDetectorCatalog m_catalog;
     

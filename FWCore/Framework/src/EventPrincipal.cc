@@ -53,7 +53,7 @@ namespace edm {
   EventPrincipal::clearEventPrincipal() {
     clearPrincipal();
     aux_ = EventAuxiliary();
-    get_underlying(luminosityBlockPrincipal_).reset();
+    luminosityBlockPrincipal_ = nullptr; // propagate_const<T> has no reset() function
     provRetrieverPtr_->reset();
     unscheduledHandler_.reset();
     branchListIndexToProcessIndex_.clear();

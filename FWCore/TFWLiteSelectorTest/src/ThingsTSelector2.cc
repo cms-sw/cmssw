@@ -81,7 +81,7 @@ void ThingsTSelector2::terminate(TList& out) {
   TCanvas * canvas = new TCanvas( );
   {
      TObject* hist = out.FindObject(kA);
-     if(0!=hist) {
+     if(nullptr != hist) {
 	hist->Draw();
 	canvas->SaveAs( "a.jpg" );
      } else {
@@ -91,7 +91,7 @@ void ThingsTSelector2::terminate(TList& out) {
   std::cout <<"refA"<< std::endl;
   {
      TObject* hist = out.FindObject(kRefA);
-     if( 0 != hist ) {
+     if(nullptr != hist) {
 	hist->Draw();
 	canvas->SaveAs( "refA.jpg" );
      } else {

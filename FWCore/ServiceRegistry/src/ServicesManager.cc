@@ -324,7 +324,7 @@ namespace edm {
            }
          }
          //No longer need the makers
-         type2Maker_.reset();
+         type2Maker_ = nullptr; // propagate_const<T> has no reset() function
       }
       //
       // const member functions

@@ -6,10 +6,11 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <memory>
 #include <string>
 #include <vector>
-#include "boost/scoped_ptr.hpp"
 #include "FWCore/Catalog/interface/FileLocator.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace edm {
   class FileCatalogItem {
@@ -46,10 +47,10 @@ namespace edm {
     std::vector<std::string> fileNames_;
     std::vector<std::string> fallbackFileNames_;
     std::vector<FileCatalogItem> fileCatalogItems_;
-    boost::scoped_ptr<FileLocator> fileLocator_;
-    boost::scoped_ptr<FileLocator> overrideFileLocator_;
-    boost::scoped_ptr<FileLocator> fallbackFileLocator_;
-    boost::scoped_ptr<FileLocator> overrideFallbackFileLocator_;
+    edm::propagate_const<std::unique_ptr<FileLocator>> fileLocator_;
+    edm::propagate_const<std::unique_ptr<FileLocator>> overrideFileLocator_;
+    edm::propagate_const<std::unique_ptr<FileLocator>> fallbackFileLocator_;
+    edm::propagate_const<std::unique_ptr<FileLocator>> overrideFallbackFileLocator_;
   };
 }
 
