@@ -59,7 +59,9 @@ SusyExoPostVal = cms.Sequence(SUSY_HLT_HT_MET_POSTPROCESSING +
                               SUSY_HLT_Razor_PostVal_POSTPROCESSING + 
                               SUSY_HLT_CaloHT_POSTPROCESSING + 
                               SUSY_HLT_PhotonHT_POSTPROCESSING +                             
-                              SUSY_HLT_PhotonMET_POSTPROCESSING +
+                              SUSY_HLT_PhotonMET_pt36_POSTPROCESSING +
+                              SUSY_HLT_PhotonMET_pt50_POSTPROCESSING +
+                              SUSY_HLT_PhotonMET_pt75_POSTPROCESSING +
                               SUSY_HLT_HT_DoubleMuon_POSTPROCESSING +
                               SUSY_HLT_HT_DoubleEle_POSTPROCESSING +
                               SUSY_HLT_HT_MuEle_POSTPROCESSING +

@@ -82,7 +82,9 @@ HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
                                 SUSY_HLT_CaloHT350 +
                                 SUSY_HLT_CaloHT400 +
                                 SUSY_HLT_PhotonHT +
-                                SUSY_HLT_PhotonMET +
+                                SUSY_HLT_PhotonMET_pt36 +
+                                SUSY_HLT_PhotonMET_pt50 +
+                                SUSY_HLT_PhotonMET_pt75 +
                                 SUSY_HLT_HT_DoubleMuon +
                                 SUSY_HLT_HT_DoubleEle +
                                 SUSY_HLT_HT_MuEle +
