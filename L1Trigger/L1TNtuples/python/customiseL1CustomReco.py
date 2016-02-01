@@ -40,6 +40,10 @@ def L1NtupleCustomReco(process):
 
     process.ak4PFCHSJetsL1FastL2L3Residual = process.ak4PFCHSJetsL1.clone(correctors = ['ak4PFCHSL1FastL2L3ResidualCorrector'])
 
+####  Custom Met Filter reco
+
+    # load hbhe noise filter result producer
+    process.load('CommonTools/RecoAlgos/HBHENoiseFilterResultProducer_cfi')
 
 
 ####  Custom E/Gamma reco ####
@@ -55,9 +59,12 @@ def L1NtupleCustomReco(process):
     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 
 
+
+
     process.l1CustomReco = cms.Path(
         process.ak4PFCHSL1FastL2L3ResidualCorrectorChain
         +process.ak4PFCHSJetsL1FastL2L3Residual
+        +process.HBHENoiseFilterResultProducer
         +process.egmGsfElectronIDSequence
         )
     
