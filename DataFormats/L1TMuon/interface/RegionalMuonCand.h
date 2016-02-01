@@ -13,7 +13,7 @@ class RegionalMuonCand {
     };
     /// Enum to identify the individual parts of the EMTF track address
     enum emtfAddress {
-        kME12=0, kME22=1
+        kSectorId=0, kME1=1, kME1SubSecId=2, kME1Order=3, kME2=4, kME2SubSecId=5, kME2Order=6, kME3=7, kME3SubSecId=8, kME3Order=9, kME4=10, kME4SubSecId=11, kME4Order=12
     };
 
 
