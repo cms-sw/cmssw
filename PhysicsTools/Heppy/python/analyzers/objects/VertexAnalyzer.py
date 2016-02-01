@@ -107,13 +107,12 @@ class VertexAnalyzer( Analyzer ):
         event.rho = self.handles['rho'].product()[0]
         event.rhoCN = self.handles['rhoCN'].product()[0]
         event.sigma = self.handles['sigma'].product()[0] if self.handles['sigma'].isValid() else -999
-        event.vertices = self.handles['vertices'].product()
+        event.vertices = list(self.handles['vertices'].product())
         if self.hasScore :
             event.scores = self.handles['scores'].product()
             for i,v in enumerate(event.vertices) :
                 v.score = event.scores.get(i)
         event.goodVertices = filter(self.testGoodVertex,event.vertices)
-
         self.count.inc('All Events')
 
         
