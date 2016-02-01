@@ -4,6 +4,8 @@
 
 #include "L1TObjectCollections.h"
 
+#include "L1TStage2Layer2Constants.h"
+
 namespace l1t {
    namespace stage2 {
       class TauUnpacker : public Unpacker {
@@ -21,9 +23,11 @@ namespace stage2 {
    TauUnpacker::unpack(const Block& block, UnpackerCollections *coll)
    {
 
+     using namespace l1t::stage2::layer2;
+
      LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
-     int nBX = int(ceil(block.header().getSize() / 8.)); // Since there are 8 Tau objects reported per event (see CMS IN-2013/005)
+     int nBX = int(ceil(block.header().getSize() / demux::nOutputFramePerBX));
 
      // Find the first and last BXs
      int firstBX = -(ceil((double)nBX/2.)-1);
@@ -39,15 +43,14 @@ namespace stage2 {
 
      LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
-     // Initialise index
-     int unsigned i = 0;
-
      // Loop over multiple BX and then number of Tau cands filling collection
      for (int bx=firstBX; bx<=lastBX; bx++){
 
-       for (unsigned nTau=0; nTau < 8 && nTau < block.header().getSize(); nTau++){
+       for (unsigned iTau=0; iTau < demux::nTauPerLink && iTau < block.header().getSize(); iTau++){
 
-         uint32_t raw_data = block.payload()[i++];
+	 int iFrame = (bx-firstBX)*demux::nOutputFramePerBX + iTau;
+
+         uint32_t raw_data = block.payload().at(iFrame);
 
          if (raw_data == 0)
             continue;

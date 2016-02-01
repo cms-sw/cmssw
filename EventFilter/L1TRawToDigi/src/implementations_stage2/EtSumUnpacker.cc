@@ -4,6 +4,8 @@
 
 #include "L1TObjectCollections.h"
 
+#include "L1TStage2Layer2Constants.h"
+
 namespace l1t {
    namespace stage2 {
       class EtSumUnpacker : public Unpacker {
@@ -21,9 +23,11 @@ namespace stage2 {
    EtSumUnpacker::unpack(const Block& block, UnpackerCollections *coll)
    {
 
+     using namespace l1t::stage2::layer2;
+
      LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
-     int nBX = int(ceil(block.header().getSize() / 6.)); // Since there 6 frames per demux output event
+     int nBX = int(ceil(block.header().getSize() / demux::nOutputFramePerBX)); // Since there 6 frames per demux output event
      // expect the first four frames to be the first 4 EtSum objects reported per event (see CMS IN-2013/005)
 
      // Find the central, first and last BXs
@@ -40,15 +44,13 @@ namespace stage2 {
 
      LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
-     // Initialise index
-     int unsigned i = 0;
-
      // Loop over multiple BX and fill EtSums collection
      for (int bx=firstBX; bx<=lastBX; bx++){
 
        // ET
+       int iFrame = (bx-firstBX)*demux::nOutputFramePerBX;
 
-       uint32_t raw_data = block.payload()[i++];
+       uint32_t raw_data = block.payload().at(iFrame);
 
        l1t::EtSum et = l1t::EtSum();
     
@@ -62,7 +64,7 @@ namespace stage2 {
 
        // HT
 
-       raw_data = block.payload()[i++];
+       raw_data = block.payload()[iFrame+1];
 
        l1t::EtSum ht = l1t::EtSum();
     
@@ -76,7 +78,7 @@ namespace stage2 {
 
        //  MET
 
-       raw_data = block.payload()[i++];
+       raw_data = block.payload()[iFrame+2];
 
        l1t::EtSum met = l1t::EtSum();
     
@@ -91,7 +93,7 @@ namespace stage2 {
 
        // MHT
 
-       raw_data = block.payload()[i++];
+       raw_data = block.payload()[iFrame+3];
 
        l1t::EtSum mht = l1t::EtSum();
     
