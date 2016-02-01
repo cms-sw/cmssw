@@ -1,6 +1,16 @@
 #include <vector>
 #include <array>
 #include <memory>
+#include <cassert>
+
+template <class T, std::size_t N>
+std::array<T, N> make_array(std::vector<T> const & values) {
+  assert(N == values.size());
+  std::array<T, N> ret;
+  std::copy(values.begin(), values.end(), ret.begin());
+  return ret;
+}
+
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -19,20 +29,20 @@ public:
 
 private:
   const edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1ResultsToken;
-  const std::vector<double> m_algoPrescales;
-  const std::vector<double> m_techPrescales;
-  std::vector<unsigned int> m_algoCounters;
-  std::vector<unsigned int> m_techCounters;
+  const std::array<double, 128> m_algoPrescales;
+  const std::array<double,  64> m_techPrescales;
+  std::array<unsigned int, 128> m_algoCounters;
+  std::array<unsigned int,  64> m_techCounters;
 
 };
 
 L1GTPrescaler::L1GTPrescaler(edm::ParameterSet const& config) :
   m_l1ResultsToken( consumes<L1GlobalTriggerReadoutRecord>(config.getParameter<edm::InputTag>("l1Results")) ),
-  m_algoPrescales( config.getParameter<std::vector<double>>("l1AlgoPrescales") ),
-  m_techPrescales( config.getParameter<std::vector<double>>("l1TechPrescales") ),
-  m_algoCounters( 128, 0 ),
-  m_techCounters( 64, 0 )
+  m_algoPrescales( make_array<double, 128>(config.getParameter<std::vector<double>>("l1AlgoPrescales")) ),
+  m_techPrescales( make_array<double,  64>(config.getParameter<std::vector<double>>("l1TechPrescales")) )
 {
+  m_algoCounters.fill(0);
+  m_techCounters.fill(0);
   produces<L1GlobalTriggerReadoutRecord>();
 }
 
