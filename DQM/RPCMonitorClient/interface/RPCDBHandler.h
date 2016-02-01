@@ -8,7 +8,6 @@
 #include <iostream>
 #include <sstream>
 
-#include "CondCore/DBCommon/interface/TagInfo.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondFormats/RPCObjects/interface/RPCDQMObject.h"
 #include "CondFormats/DataRecord/interface/RPCDQMObjectRcd.h"

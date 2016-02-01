@@ -4,7 +4,6 @@
 #include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
 #include "FWCore/Framework/interface/ESHandle.h"

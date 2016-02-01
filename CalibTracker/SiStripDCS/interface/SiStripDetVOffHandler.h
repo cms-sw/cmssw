@@ -6,8 +6,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CondCore/DBCommon/interface/TagInfo.h"
-
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 
