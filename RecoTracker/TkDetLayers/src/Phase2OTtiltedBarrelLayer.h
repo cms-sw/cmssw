@@ -5,6 +5,7 @@
 //#include "Phase2OTBarrelLayer.h"
 #include "TrackingTools/DetLayers/interface/RodBarrelLayer.h"
 #include "Phase2OTBarrelLayer.h"
+#include "Phase2OTEndcapLayer.h"
 #include "Phase2OTBarrelRod.h"
 #include "Phase2OTEndcapRing.h"
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
@@ -34,17 +35,16 @@ class Phase2OTtiltedBarrelLayer GCC11_FINAL : public Phase2OTBarrelLayer {
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
   
   virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
-/*
+
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
 			       std::vector<DetGroup> & result) const;
     
-*/
+
   // DetLayer interface
   //virtual SubDetector subDetector() const { return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2OTB];}
 
-/*
  private:
   // private methods for the implementation of groupedCompatibleDets()
   // the implementation of the methods is the same of the TOBLayer one.
@@ -52,6 +52,7 @@ class Phase2OTtiltedBarrelLayer GCC11_FINAL : public Phase2OTBarrelLayer {
 
   SubLayerCrossings computeCrossings( const TrajectoryStateOnSurface& tsos,
 				      PropagationDirection propDir) const;
+/*
   
   bool addClosest( const TrajectoryStateOnSurface& tsos,
 		   const Propagator& prop,
@@ -80,11 +81,11 @@ class Phase2OTtiltedBarrelLayer GCC11_FINAL : public Phase2OTBarrelLayer {
   const std::vector<const GeometricSearchDet*>& subLayer( int ind) const {
     return (ind==0 ? theInnerComps : theOuterComps);}
   
-  BoundCylinder* cylinder( const std::vector<const GeometricSearchDet*>& rods) const ;
-
 */
+
  private:
   Phase2OTBarrelLayer* thePhase2OTBarrelLayer;
+  //Phase2OTEndcapLayer thePhase2OTNegRingedLayer;
   std::vector<const GeometricSearchDet*> theComps;
   //std::vector<const GeometricSearchDet*> theInnerRodsComps;
   //std::vector<const GeometricSearchDet*> theOuterRodsComps;
@@ -95,8 +96,8 @@ class Phase2OTtiltedBarrelLayer GCC11_FINAL : public Phase2OTBarrelLayer {
   BinFinderType    theInnerBinFinder;
   BinFinderType    theOuterBinFinder;
 
-  ReferenceCountingPointer<BoundCylinder>  theInnerCylinder;
-  ReferenceCountingPointer<BoundCylinder>  theOuterCylinder;
+  ReferenceCountingPointer<BoundCylinder>  theCylinder;
+  //ReferenceCountingPointer<BoundCylinder>  theOuterCylinder;
 
   
 };
