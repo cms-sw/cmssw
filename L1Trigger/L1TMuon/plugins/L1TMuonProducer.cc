@@ -292,7 +292,7 @@ L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 bool
 L1TMuonProducer::compareMuons(const std::shared_ptr<MicroGMTConfiguration::InterMuon>& mu1,
                                     const std::shared_ptr<MicroGMTConfiguration::InterMuon>& mu2) {
-  return (mu1->hwWins() > mu2->hwWins());
+  return (mu1->hwWins() >= mu2->hwWins());
 }
 
 void
@@ -303,11 +303,20 @@ L1TMuonProducer::sortMuons(MicroGMTConfiguration::InterMuonList& muons, unsigned
     (*mu1)->setHwWins(0);
   }
 
+  int nCancelled = 0;
   for (mu1 = muons.begin(); mu1 != muons.end(); ++mu1) {
+    int mu1CancelBit = (*mu1)->hwCancelBit();
+    nCancelled += mu1CancelBit;
     auto mu2 = mu1;
     mu2++;
     for ( ; mu2 != muons.end(); ++mu2) {
-      if ((*mu1)->hwRank() >= (*mu2)->hwRank() && (*mu1)->hwCancelBit() != 1) {
+      if (mu1CancelBit != 1 && (*mu2)->hwCancelBit() != 1) {
+        if ((*mu1)->hwRank() >= (*mu2)->hwRank()) {
+          (*mu1)->increaseWins();
+        } else {
+          (*mu2)->increaseWins();
+        }
+      } else if (mu1CancelBit != 1) {
         (*mu1)->increaseWins();
       } else if ((*mu2)->hwCancelBit() != 1) {
         (*mu2)->increaseWins();
@@ -316,11 +325,11 @@ L1TMuonProducer::sortMuons(MicroGMTConfiguration::InterMuonList& muons, unsigned
   }
 
   size_t nMuonsBefore = muons.size();
-  mu1 = muons.begin();
-  int minWins = nMuonsBefore-nSurvivors;
+  int minWins = nMuonsBefore - nCancelled - nSurvivors;
 
   // remove all muons that were cancelled or that do not have sufficient rank
   // (reduces the container size to nSurvivors)
+  mu1 = muons.begin();
   while (mu1 != muons.end()) {
     if ((*mu1)->hwWins() < minWins || (*mu1)->hwCancelBit() == 1) {
       muons.erase(mu1);
