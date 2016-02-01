@@ -62,6 +62,8 @@ class Eras (object):
         self.internalUseEras = [self.run2_common, self.run2_25ns_specific,
                                 self.run2_50ns_specific, self.run2_HI_specific,
                                 self.stage1L1Trigger, self.fastSim,
+                                self.run2_HF_2016, self.stage2L1Trigger,
+                                self.phase1Pixel,
                                 self.phase2_common, self.phase2_tracker,
                                 self.phase2_hgc, self.phase2_muon,
                                 self.phase2dev_common, self.phase2dev_tracker,
