@@ -5,9 +5,9 @@
 
 #include "JetMETCorrections/Type1MET/interface/JetCorrExtractorT.h"
 
-typedef JetCleanerForType1METT<reco::PFJet, JetCorrExtractorT<reco::PFJet> > JetCleanerForType1MET;
+typedef JetCleanerForType1METT<reco::PFJet, JetCorrExtractorT<reco::PFJet> > PFJetCleanerForType1MET;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE(JetCleanerForType1MET);
+DEFINE_FWK_MODULE(PFJetCleanerForType1MET);
 

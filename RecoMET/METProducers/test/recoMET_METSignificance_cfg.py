@@ -18,20 +18,27 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 process.jer = cms.ESSource("PoolDBESSource",
       CondDBSetup,
       toGet = cms.VPSet(
-         # Resolution
-         cms.PSet(
+        # Pt Resolution
+        cms.PSet(
             record = cms.string('JetResolutionRcd'),
-            tag    = cms.string('JER_MC_PtResolution_Summer15_25nsV6_AK4PFchs'),
-            label  = cms.untracked.string('AK4PFchs')
+            tag    = cms.string('JR_MC_PtResolution_Summer15_25nsV6_AK4PFchs'),
+            label  = cms.untracked.string('AK4PFchs_pt')
             ),
-
-         # Scale factors
-         cms.PSet(
+        
+        # Phi Resolution
+        cms.PSet(
+            record = cms.string('JetResolutionRcd'),
+            tag    = cms.string('JR_MC_PhiResolution_Summer15_25nsV6_AK4PFchs'),
+            label  = cms.untracked.string('AK4PFchs_phi')
+            ),
+        
+        # Scale factors
+        cms.PSet(
             record = cms.string('JetResolutionScaleFactorRcd'),
-            tag    = cms.string('JER_DATAMCSF_Summer15_25nsV6_AK4PFchs'),
+            tag    = cms.string('JR_DATAMCSF_Summer15_25nsV6_AK4PFchs'),
             label  = cms.untracked.string('AK4PFchs')
             ),
-         ),
+        ),
       connect = cms.string('sqlite:Summer15_25nsV6.db')
       )
 

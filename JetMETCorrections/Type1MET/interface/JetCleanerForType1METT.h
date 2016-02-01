@@ -20,6 +20,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -72,44 +74,53 @@ class JetCleanerForType1METT : public edm::stream::EDProducer<>
 {
  public:
 
-  explicit JetCleanerForType1METT(const edm::ParameterSet& cfg)
-    : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
+  explicit JetCleanerForType1METT(const edm::ParameterSet& cfg):
+    moduleLabel_(cfg.getParameter<std::string>("@module_label")),
     offsetCorrLabel_(""),
-    skipMuonSelection_(0)
+    skipMuonSelection_(nullptr)
       {
-	token_ = consumes<std::vector<T> >(cfg.getParameter<edm::InputTag>("src"));
+       token_ = consumes<std::vector<T> >(cfg.getParameter<edm::InputTag>("src"));
 
-	if ( cfg.exists("offsetCorrLabel") ) {
-	  offsetCorrLabel_ = cfg.getParameter<edm::InputTag>("offsetCorrLabel");
-	  offsetCorrToken_ = consumes<reco::JetCorrector>(offsetCorrLabel_);
-	}
-	jetCorrLabel_ = cfg.getParameter<edm::InputTag>("jetCorrLabel"); //for MC
-	jetCorrLabelRes_ = cfg.getParameter<edm::InputTag>("jetCorrLabelRes"); //for data
-	jetCorrToken_ = mayConsume<reco::JetCorrector>(jetCorrLabel_);
-	jetCorrResToken_ = mayConsume<reco::JetCorrector>(jetCorrLabelRes_);
+       offsetCorrLabel_ = cfg.getParameter<edm::InputTag>("offsetCorrLabel");
+       offsetCorrToken_ = consumes<reco::JetCorrector>(offsetCorrLabel_);
 
-	jetCorrEtaMax_ = ( cfg.exists("jetCorrEtaMax") ) ?
-	  cfg.getParameter<double>("jetCorrEtaMax") : 9.9;
+       jetCorrLabel_ = cfg.getParameter<edm::InputTag>("jetCorrLabel"); //for MC
+       jetCorrLabelRes_ = cfg.getParameter<edm::InputTag>("jetCorrLabelRes"); //for data
+       jetCorrToken_ = mayConsume<reco::JetCorrector>(jetCorrLabel_);
+       jetCorrResToken_ = mayConsume<reco::JetCorrector>(jetCorrLabelRes_);
+       
+       jetCorrEtaMax_ = cfg.getUntrackedParameter<double>("jetCorrEtaMax",9.9);
+       
+       type1JetPtThreshold_ = cfg.getParameter<double>("type1JetPtThreshold");
 
-	type1JetPtThreshold_ = cfg.getParameter<double>("type1JetPtThreshold");
+       skipEM_ = cfg.getParameter<bool>("skipEM");
+       if ( skipEM_ ) {
+           skipEMfractionThreshold_ = cfg.getParameter<double>("skipEMfractionThreshold");
+       }
+       
+       skipMuons_ = cfg.getParameter<bool>("skipMuons");
+       if ( skipMuons_ ) {
+           std::string skipMuonSelection_string = cfg.getParameter<std::string>("skipMuonSelection");
+           skipMuonSelection_.reset( new StringCutObjectSelector<reco::Candidate>(skipMuonSelection_string,true) ) ;
+       }
 
-	skipEM_ = cfg.getParameter<bool>("skipEM");
-	if ( skipEM_ ) {
-	  skipEMfractionThreshold_ = cfg.getParameter<double>("skipEMfractionThreshold");
-	}
-
-	skipMuons_ = cfg.getParameter<bool>("skipMuons");
-	if ( skipMuons_ ) {
-	  std::string skipMuonSelection_string = cfg.getParameter<std::string>("skipMuonSelection");
-	  skipMuonSelection_ = new StringCutObjectSelector<reco::Candidate>(skipMuonSelection_string,true);
-	}
-
-	produces<std::vector<T> >();
+       produces<std::vector<T> >();
       }
 
-  ~JetCleanerForType1METT()
-    {
-      delete skipMuonSelection_;
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+        edm::ParameterSetDescription desc;
+        desc.add<std::string>("@module_label");
+        desc.add<edm::InputTag>("src");
+        desc.add<edm::InputTag>("offsetCorrLabel");
+        desc.add<edm::InputTag>("jetCorrLabel");
+        desc.add<edm::InputTag>("jetCorrLabelRes");
+        desc.addUntracked<double>("jetCorrEtaMax",9.9);
+        desc.add<double>("type1JetPtThreshold");
+        desc.add<bool>("skipEM");
+        desc.add<double>("skipEMfractionThreshold");
+        desc.add<bool>("skipMuons");
+        desc.add<std::string>("skipMuonSelection");
+        descriptions.addDefault(desc);
     }
 
  private:
@@ -202,7 +213,7 @@ class JetCleanerForType1METT : public edm::stream::EDProducer<>
 
   bool skipMuons_; // flag to subtract momentum of muons (provided muons pass selection cuts) which are within jets
   // from jet energy before compute JECs/propagating JECs to Type 1 + 2 MET corrections
-  StringCutObjectSelector<reco::Candidate>* skipMuonSelection_;
+  std::unique_ptr<StringCutObjectSelector< reco::Candidate> > skipMuonSelection_;
 
     
 };

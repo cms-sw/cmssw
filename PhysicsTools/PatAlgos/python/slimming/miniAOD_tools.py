@@ -252,7 +252,7 @@ def miniAOD_customizeCommon(process):
     process.patJetsPuppi.userData.userFloats.src = cms.VInputTag(cms.InputTag(""))
     process.patJetsPuppi.jetChargeSource = cms.InputTag("patJetPuppiCharge")
 
-    process.selectedPatJetsPuppi.cut = cms.string("pt > 20")
+    process.selectedPatJetsPuppi.cut = cms.string("pt > 15")
 
     process.load('PhysicsTools.PatAlgos.slimming.slimmedJets_cfi')
     process.slimmedJetsPuppi = process.slimmedJets.clone()

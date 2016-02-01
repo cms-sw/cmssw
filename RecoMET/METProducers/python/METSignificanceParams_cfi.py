@@ -10,10 +10,10 @@ METSignificanceParams = cms.PSet(
       dRMatch = cms.double(0.4),
 
       # eta bins for jet resolution tuning
-      jeta = cms.vdouble(0.5, 1.1, 1.7, 2.3),
+      jeta = cms.vdouble(0.8, 1.3, 1.9, 2.5),
 
       # tuning parameters
-      jpar = cms.vdouble(1.24,1.12,1.01,1.11,1.03),
-      pjpar = cms.vdouble(-2.0,0.6394)
+      jpar = cms.vdouble(1.20,1.13,1.03,0.96,1.08),
+      pjpar = cms.vdouble(-1.9,0.6383)
 
       )

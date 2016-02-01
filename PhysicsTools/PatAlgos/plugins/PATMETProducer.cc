@@ -48,7 +48,9 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig):
     {
       metSigAlgo_ = new metsig::METSignificance(iConfig);
       rhoToken_ = mayConsume<double>(iConfig.getParameter<edm::InputTag>("srcRho"));
-      jetResType_ = iConfig.getParameter<std::string>("srcJetRes");
+      jetSFType_ = iConfig.getParameter<std::string>("srcJetSF");
+      jetResPtType_ = iConfig.getParameter<std::string>("srcJetResPt");
+      jetResPhiType_ = iConfig.getParameter<std::string>("srcJetResPhi");
       jetToken_ = mayConsume<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("srcJets"));
       pfCandToken_ = mayConsume<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("srcPFCands"));
       std::vector<edm::InputTag> srcLeptonsTags = iConfig.getParameter< std::vector<edm::InputTag> >("srcLeptons");
@@ -180,13 +182,15 @@ PATMETProducer::getMETCovMatrix(const edm::Event& event, const edm::EventSetup& 
 
   edm::Handle<double> rho;
   event.getByToken(rhoToken_, rho);
-  
-  JME::JetResolution resObj = JME::JetResolution::get(iSetup, jetResType_);
-  JME::JetResolutionScaleFactor resSFObj = JME::JetResolutionScaleFactor::get(iSetup, jetResType_);
+
+  JME::JetResolution resPtObj = JME::JetResolution::get(iSetup, jetResPtType_);
+  JME::JetResolution resPhiObj = JME::JetResolution::get(iSetup, jetResPhiType_);
+  JME::JetResolutionScaleFactor resSFObj = JME::JetResolutionScaleFactor::get(iSetup, jetSFType_);
 
   //Compute the covariance matrix and fill it
   reco::METCovMatrix cov = metSigAlgo_->getCovariance( *inputJets, leptons, *inputCands,
-						       *rho, resObj, resSFObj);
+						       *rho, resPtObj, resPhiObj, resSFObj, event.isRealData());
+
   return cov;
 }
 

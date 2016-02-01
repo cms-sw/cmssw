@@ -28,8 +28,10 @@ namespace cms
 	  lepTokens_.push_back( mayConsume<edm::View<reco::Candidate> >( *it ) );
 	}
   
-	jetResType_ = iConfig.getParameter<std::string>("srcJetRes");
-	rhoToken_ = mayConsume<double>(iConfig.getParameter<edm::InputTag>("rho"));
+	jetSFType_ = iConfig.getParameter<std::string>("srcJetSF");
+	jetResPtType_ = iConfig.getParameter<std::string>("srcJetResPt");
+	jetResPhiType_ = iConfig.getParameter<std::string>("srcJetResPhi");
+	rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho"));
       }
 
     std::string alias = iConfig.exists("alias") ? iConfig.getParameter<std::string>("alias") : "";
@@ -90,14 +92,15 @@ namespace cms
 	edm::Handle<edm::View<reco::Jet> > inputJets;
 	event.getByToken( jetToken_, inputJets );
 
-   JME::JetResolution resObj = JME::JetResolution::get(setup, jetResType_);
-   JME::JetResolutionScaleFactor resSFObj = JME::JetResolutionScaleFactor::get(setup, jetResType_);
+	JME::JetResolution resPtObj = JME::JetResolution::get(setup, jetResPtType_);
+	JME::JetResolution resPhiObj = JME::JetResolution::get(setup, jetResPhiType_);
+	JME::JetResolutionScaleFactor resSFObj = JME::JetResolutionScaleFactor::get(setup, jetSFType_);
 
-   edm::Handle<double> rho;
-   event.getByToken(rhoToken_, rho);
+	edm::Handle<double> rho;
+	event.getByToken(rhoToken_, rho);
 
 	//Compute the covariance matrix and fill it
-	reco::METCovMatrix cov = metSigAlgo_->getCovariance( *inputJets, leptons, candInput, *rho, resObj, resSFObj);
+	reco::METCovMatrix cov = metSigAlgo_->getCovariance( *inputJets, leptons, candInput, *rho, resPtObj, resPhiObj, resSFObj, event.isRealData() );
 
 	return cov;
   }

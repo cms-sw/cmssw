@@ -80,7 +80,9 @@ namespace cms
 
       edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
       std::vector< edm::EDGetTokenT<edm::View<reco::Candidate> > > lepTokens_;
-      std::string jetResType_;
+      std::string jetSFType_;
+      std::string jetResPtType_;
+      std::string jetResPhiType_;
       edm::EDGetTokenT<double> rhoToken_;
   };
 }

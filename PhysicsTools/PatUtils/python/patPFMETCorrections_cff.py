@@ -120,6 +120,7 @@ patSmearedJets = cms.EDProducer("SmearedPATJetProducer",
     # For text files: both 'resolutionFile' and 'scaleFactorFile' must point to valid files
 
     # Read from GT
+    algopt = cms.string('AK4PFchs_pt'),
     algo = cms.string('AK4PFchs'),
 
     # Or from text files

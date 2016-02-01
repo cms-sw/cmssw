@@ -117,6 +117,7 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
                     m_scale_factor_from_file.reset(new JME::JetResolutionScaleFactor(scaleFactorFile));
                 } else {
                     m_jets_algo = cfg.getParameter<std::string>("algo");
+                    m_jets_algo_pt = cfg.getParameter<std::string>("algopt");
                 }
 
                 std::uint32_t seed = cfg.getUntrackedParameter<std::uint32_t>("seed", 37428479);
@@ -151,8 +152,9 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
             desc.addUntracked<bool>("skipGenMatching", false);
             desc.addUntracked<bool>("debug", false);
 
-            auto source = edm::ParameterDescription<std::string>("algo", true) xor
-                (edm::ParameterDescription<edm::FileInPath>("resolutionFile", true) and edm::ParameterDescription<edm::FileInPath>("scaleFactorFile", true));
+            auto source =
+	      (edm::ParameterDescription<std::string>("algo", true) and edm::ParameterDescription<std::string>("algopt", true)) xor
+	      (edm::ParameterDescription<edm::FileInPath>("resolutionFile", true) and edm::ParameterDescription<edm::FileInPath>("scaleFactorFile", true));
             desc.addNode(source);
 
             pat::GenJetMatcher::fillDescriptions(desc);
@@ -177,7 +179,7 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
                     resolution = *m_resolution_from_file;
                     resolution_sf = *m_scale_factor_from_file;
                 } else {
-                    resolution = JME::JetResolution::get(setup, m_jets_algo);
+                    resolution = JME::JetResolution::get(setup, m_jets_algo_pt);
                     resolution_sf = JME::JetResolutionScaleFactor::get(setup, m_jets_algo);
                 }
             }
@@ -259,6 +261,7 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
         edm::EDGetTokenT<JetCollection> m_jets_token;
         edm::EDGetTokenT<double> m_rho_token;
         bool m_enabled;
+        std::string m_jets_algo_pt;
         std::string m_jets_algo;
         Variation m_systematic_variation;
         bool m_debug;

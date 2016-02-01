@@ -60,7 +60,9 @@ namespace cms
       edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandidatesToken_;
       std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > lepTokens_;
       edm::EDGetTokenT<double> rhoToken_;
-      std::string jetResType_;
+      std::string jetSFType_;
+      std::string jetResPtType_;
+      std::string jetResPhiType_;
  
       metsig::METSignificance* metSigAlgo_;
 
