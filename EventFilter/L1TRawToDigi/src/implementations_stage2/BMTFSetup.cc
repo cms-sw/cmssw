@@ -62,7 +62,6 @@ namespace l1t {
 									}
 								
 								res[123] = outputMuon;
-								//res[8] = inputMuons;
 								}
 
                return res;
