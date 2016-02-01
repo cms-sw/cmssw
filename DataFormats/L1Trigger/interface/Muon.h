@@ -26,6 +26,7 @@ namespace l1t {
       int charge=0,
       int chargeValid=0,
       int iso=0,
+      int tfMuonIndex=-1,
       int tag=0, 
       bool debug = false,
       int isoSum = 0,
@@ -41,6 +42,7 @@ namespace l1t {
       int charge=0,
       int chargeValid=0,
       int iso=0,
+      int tfMuonIndex=-1,
       int tag=0, 
       bool debug = false,
       int isoSum = 0,
@@ -53,6 +55,7 @@ namespace l1t {
     // set integer values
     void setHwCharge(int charge);
     void setHwChargeValid(int valid);
+    void setTfMuonIndex(int index);
     void setHwTag(int tag);
     
     void setHwIsoSum(int isoSum);
@@ -65,6 +68,7 @@ namespace l1t {
     // methods to retrieve integer values
     int hwCharge() const;
     int hwChargeValid() const;
+    int tfMuonIndex() const;
     int hwTag() const;
 
     int hwIsoSum() const;
@@ -79,6 +83,7 @@ namespace l1t {
     // additional hardware quantities common to L1 global jet
     int hwCharge_;
     int hwChargeValid_;
+    int tfMuonIndex_;
     int hwTag_;
 
     // additional hardware quantities only available if debug flag is set
