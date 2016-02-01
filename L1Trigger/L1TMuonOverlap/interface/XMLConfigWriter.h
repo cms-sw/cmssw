@@ -50,9 +50,6 @@ class XMLConfigWriter{
   void writeGPData(const GoldenPattern & aGP);
 
   void writeGPData(const GoldenPattern & aGP1,
-		   const GoldenPattern & aGP2);
-
-  void writeGPData(const GoldenPattern & aGP1,
 		   const GoldenPattern & aGP2,
 		   const GoldenPattern & aGP3,
 		   const GoldenPattern & aGP4);
@@ -62,9 +59,6 @@ class XMLConfigWriter{
   unsigned int findMaxInput(const OMTFConfiguration::vector1D & myCounts);
 
  private:
-
-  ///Utility function to set which layers should be ignored
-  bool removeLayers(unsigned int iLayer);
 
   xercesc::DOMImplementation* domImpl;
   xercesc::DOMElement* theTopElement;
