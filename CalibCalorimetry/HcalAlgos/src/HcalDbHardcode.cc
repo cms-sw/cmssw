@@ -569,7 +569,7 @@ HcalQIEType HcalDbHardcode::makeQIEType (HcalGenericDetId fId, bool testHFQIE10)
   if (testHFQIE10){ //2016 test
     if(fId.genericSubdet() == HcalGenericDetId::HcalGenForward && fId.isHcalDetId()) {
         HcalDetId hid(fId);
-        if(hid.iphi()==35) qieType = HcalQIEType::QIE10;
+        if(hid.depth()>=3) qieType = HcalQIEType::QIE10;
     }
   }
   else { //generic upgrade case: QIE8 for HO, QIE10 for HF, QIE11 for HBHE
