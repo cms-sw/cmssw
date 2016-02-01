@@ -22,6 +22,8 @@ namespace l1t {
       static const unsigned phiShift_ = 0;
       static const unsigned chargeShift_ = 2;
       static const unsigned chargeValidShift_ = 3;
+      static const unsigned tfMuonIndexMask_ = 0x7F;
+      static const unsigned tfMuonIndexShift_ = 4;
       static const unsigned isoMask_ = 0x3;
       static const unsigned isoShift_ = 0;
   };
