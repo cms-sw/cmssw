@@ -29,8 +29,6 @@ namespace l1t {
   namespace stage2 {
     namespace emtf {
 
-      EMTFUnpackerTools tools2;
-
       bool CountersBlockUnpacker::unpack(const Block& block, UnpackerCollections *coll) {
 	
 	// Get the payload for this block, made up of 16-bit words (0xffff)
@@ -41,6 +39,12 @@ namespace l1t {
 	// std::cout << "This payload has " << payload.size() << " 16-bit words" << std::endl;
 	// for (uint iWord = 0; iWord < payload.size(); iWord++)
 	//   std::cout << std::hex << std::setw(8) << std::setfill('0') << payload[iWord] << std::dec << std::endl;
+
+	// Assign payload to 16-bit words
+        uint16_t BCa = payload[0];
+        uint16_t BCb = payload[1];
+        uint16_t BCc = payload[2];
+        uint16_t BCd = payload[3];
 
 	// res is a pointer to a collection of EMTFOutput class objects
 	// There is one EMTFOutput for each MTF7 (60 deg. sector) in the event
@@ -56,9 +60,9 @@ namespace l1t {
 	  std::cout << "Why is there already an Counters?" << std::endl;
 	l1t::emtf::Counters Counters_;
 
-	// Counters_.set_track_counter( tools2.GetHexBits(payload[], , ) );
-	// Counters_.set_orbit_counter( tools2.GetHexBits(payload[], , ) );
-	// Counters_.set_rpc_counter( tools2.GetHexBits(payload[], , ) );
+	Counters_.set_track_counter( GetHexBits(BCa, 0, 14, BCb, 0, 14) );
+	Counters_.set_orbit_counter( GetHexBits(BCc, 0, 14, BCd, 0, 14) );
+	// Counters_.set_rpc_counter( GetHexBits(payload[], , ) );
 	// Counters_.set_dataword(uint64_t bits)  { dataword = bits;      };
 
 	(res->at(iOut)).set_Counters(Counters_);

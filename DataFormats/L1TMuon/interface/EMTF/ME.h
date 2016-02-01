@@ -13,11 +13,11 @@ namespace l1t {
       explicit ME(uint64_t dataword);
     
     ME() : 
-      me_bxn(-99), key_wire_group(-99), clct_key_half_strip(-99), quality(-99), clct_pattern(-99), id(-99), epc(-99), station(-99), tbin_num(-99), bc0(-99), bxe(-99), lr(-99), afff(-99), cik(-99), nit(-99), afef(-99), se(-99), sm(-99), af(-99), vp(-99), dataword(-99) 
+      me_bxn(-99), key_wire_group(-99), clct_key_half_strip(-99), quality(-99), clct_pattern(-99), csc_ID(-99), epc(-99), station(-99), tbin_num(-99), bc0(-99), bxe(-99), lr(-99), afff(-99), cik(-99), nit(-99), afef(-99), se(-99), sm(-99), af(-99), vp(-99), dataword(-99) 
 	{};
       
-    ME(int int_me_bxn, int int_key_wire_group, int int_clct_key_half_strip, int int_quality, int int_clct_pattern, int int_id, int int_epc, int int_station, int int_tbin_num, int int_bc0, int int_bxe, int int_lr, int int_afff, int int_cik, int int_nit, int int_afef, int int_se, int int_sm, int int_af, int int_vp) :
-      me_bxn(int_me_bxn), key_wire_group(int_key_wire_group), clct_key_half_strip(int_clct_key_half_strip), quality(int_quality), clct_pattern(int_clct_pattern), id(int_id), epc(int_epc), station(int_station), tbin_num(int_tbin_num), bc0(int_bc0), bxe(int_bxe), lr(int_lr), afff(int_afff), cik(int_cik), nit(int_nit), afef(int_afef), se(int_se), sm(int_sm), af(int_af), vp(int_vp), dataword(-99)
+    ME(int int_me_bxn, int int_key_wire_group, int int_clct_key_half_strip, int int_quality, int int_clct_pattern, int int_csc_ID, int int_epc, int int_station, int int_tbin_num, int int_bc0, int int_bxe, int int_lr, int int_afff, int int_cik, int int_nit, int int_afef, int int_se, int int_sm, int int_af, int int_vp) :
+      me_bxn(int_me_bxn), key_wire_group(int_key_wire_group), clct_key_half_strip(int_clct_key_half_strip), quality(int_quality), clct_pattern(int_clct_pattern), csc_ID(int_csc_ID), epc(int_epc), station(int_station), tbin_num(int_tbin_num), bc0(int_bc0), bxe(int_bxe), lr(int_lr), afff(int_afff), cik(int_cik), nit(int_nit), afef(int_afef), se(int_se), sm(int_sm), af(int_af), vp(int_vp), dataword(-99)
     	{};
       
       virtual ~ME() {};
@@ -27,7 +27,7 @@ namespace l1t {
       void set_clct_key_half_strip(int bits)  {  clct_key_half_strip = bits; };
       void set_quality(int bits)              {  quality = bits; };
       void set_clct_pattern(int bits)         {  clct_pattern = bits; };
-      void set_id(int bits)                   {  id = bits; };
+      void set_csc_ID(int bits)               {  csc_ID = bits; };
       void set_epc(int bits)                  {  epc = bits; };
       void set_station(int bits)              {  station = bits; };
       void set_tbin_num(int bits)             {  tbin_num = bits; };
@@ -49,7 +49,7 @@ namespace l1t {
       const int CLCT_key_half_strip()  const { return  clct_key_half_strip ; };
       const int Quality()              const { return  quality ; };
       const int CLCT_pattern()         const { return  clct_pattern ; };
-      const int ID()                   const { return  id ; };
+      const int CSC_ID()               const { return  csc_ID ; };
       const int EPC()                  const { return  epc ; };
       const int Station()              const { return  station ; };
       const int Tbin_num()             const { return  tbin_num ; };
@@ -72,7 +72,7 @@ namespace l1t {
       int  clct_key_half_strip;
       int  quality;
       int  clct_pattern;
-      int  id;
+      int  csc_ID;
       int  epc; 
       int  station;
       int  tbin_num;

@@ -29,14 +29,18 @@ namespace l1t {
   namespace stage2 {
     namespace emtf {
 
-      EMTFUnpackerTools tools3;
-
       bool MEBlockUnpacker::unpack(const Block& block, UnpackerCollections *coll) {
 	
 	// Get the payload for this block, made up of 16-bit words (0xffff)
 	// Format defined in MTF7Payload::getBlock() in src/Block.cc
 	// payload[0] = bits 0-15, payload[1] = 16-31, payload[3] = 32-47, etc.
 	auto payload = block.payload();
+
+	// Assign payload to 16-bit words
+        uint16_t MEa = payload[0];
+        uint16_t MEb = payload[1];
+        uint16_t MEc = payload[2];
+        uint16_t MEd = payload[3];
 
 	// std::cout << "This payload has " << payload.size() << " 16-bit words" << std::endl;
 	// for (uint iWord = 0; iWord < payload.size(); iWord++)
@@ -54,26 +58,30 @@ namespace l1t {
 
 	l1t::emtf::ME ME_;
 
-	ME_.set_me_bxn              ( tools3.GetHexBits(payload[2], 0, 11) );
-	ME_.set_key_wire_group      ( tools3.GetHexBits(payload[0], 8, 14) );
-	ME_.set_clct_key_half_strip ( tools3.GetHexBits(payload[1], 0, 7) );
-	// ME_.set_quality             ( tools3.GetHexBits(payload[], , ) );
-	ME_.set_clct_pattern        ( tools3.GetHexBits(payload[0], 0, 3) );
-	ME_.set_id                  ( tools3.GetHexBits(payload[1], 8, 10) );
-	// ME_.set_epc                 ( tools3.GetHexBits(payload[], , ) );
-	ME_.set_station             ( tools3.GetHexBits(payload[3], 4, 6) );
-	// ME_.set_tbin_num            ( tools3.GetHexBits(payload[], , ) );
-	ME_.set_bc0                 ( tools3.GetHexBits(payload[1], 14, 14) );
-	ME_.set_bxe                 ( tools3.GetHexBits(payload[1], 13, 13) );
-	ME_.set_lr                  ( tools3.GetHexBits(payload[1], 12, 12) );
-	// ME_.set_afff                ( tools3.GetHexBits(payload[], , ) );
-	// ME_.set_cik                 ( tools3.GetHexBits(payload[], , ) );
-	// ME_.set_nit                 ( tools3.GetHexBits(payload[], , ) );
-	// ME_.set_afef                ( tools3.GetHexBits(payload[], , ) );
-	// ME_.set_se                  ( tools3.GetHexBits(payload[], , ) );
-	// ME_.set_sm                  ( tools3.GetHexBits(payload[], , ) );
-	// ME_.set_af                  ( tools3.GetHexBits(payload[], , ) );
-	// ME_.set_vp                  ( tools3.GetHexBits(payload[], , ) );
+	ME_.set_clct_pattern        ( GetHexBits(MEa,  0,  3) );
+	ME_.set_quality             ( GetHexBits(MEa,  4,  7) );
+	ME_.set_key_wire_group      ( GetHexBits(MEa,  8, 14) );
+
+	ME_.set_clct_key_half_strip ( GetHexBits(MEb,  0,  7) );
+	ME_.set_csc_ID              ( GetHexBits(MEb,  8, 11) );
+	ME_.set_lr                  ( GetHexBits(MEb, 12, 12) );
+	ME_.set_bxe                 ( GetHexBits(MEb, 13, 13) );
+	ME_.set_bc0                 ( GetHexBits(MEb, 14, 14) );
+
+	ME_.set_me_bxn              ( GetHexBits(MEc,  0, 11) );
+	ME_.set_nit                 ( GetHexBits(MEc, 12, 12) );
+	ME_.set_cik                 ( GetHexBits(MEc, 13, 13) );
+	ME_.set_afff                ( GetHexBits(MEc, 14, 14) );
+
+	ME_.set_tbin_num            ( GetHexBits(MEd,  0,  2) );
+	ME_.set_vp                  ( GetHexBits(MEd,  3,  3) );
+	ME_.set_station             ( GetHexBits(MEd,  4,  6) );
+	ME_.set_af                  ( GetHexBits(MEd,  7,  7) );
+	ME_.set_epc                 ( GetHexBits(MEd,  8, 11) );
+	ME_.set_sm                  ( GetHexBits(MEd, 12, 12) );
+	ME_.set_se                  ( GetHexBits(MEd, 13, 13) );
+	ME_.set_afef                ( GetHexBits(MEd, 14, 14) );
+
 	// ME_.set_dataword            ( uint64_t dataword);
 
 	(res->at(iOut)).push_ME(ME_);
