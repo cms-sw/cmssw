@@ -87,7 +87,8 @@ namespace contrib{
   }
 
   std::pair<PseudoJet, PseudoJet> CMSBoostedTauSeedingAlgorithm::findSubjets(const PseudoJet& jet, int depth, bool& subjetsFound) const 
-  { float etaMax_=3; //CG: cut on eta subjets <3. Anyways taus are cut at 2.3 
+  {
+    const float etaMax_ = 3.0; // cut on eta subjets <3. Anyway taus are cut at 2.3 
     if ( verbosity_ >= 2 ) {
       std::cout << "<CMSBoostedTauSeedingAlgorithm::findSubjets>:" << std::endl;
       std::cout << " jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << ", mass = " << jet.m() << std::endl;

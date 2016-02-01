@@ -159,47 +159,25 @@ namespace
     }
   }
 
-  // std::vector<reco::PFCandidateRef> getPFCandidates_exclJetConstituents(const edm::Handle<reco::PFCandidateCollection>& pfCandidates, const reco::Jet::Constituents& jetConstituents, double dRmatch, bool invert)
-  // {
-  //   std::vector<reco::PFCandidateRef> pfCandidates_exclJetConstituents;
-  //   size_t numPFCandidates = pfCandidates->size();
-  //   for ( size_t pfCandidateIdx = 0; pfCandidateIdx < numPFCandidates; ++pfCandidateIdx ) {
-  //     reco::PFCandidateRef pfCandidate(pfCandidates, pfCandidateIdx);
-  //     bool isJetConstituent = false;
-  //     for ( reco::Jet::Constituents::const_iterator jetConstituent = jetConstituents.begin();
-  // 	    jetConstituent != jetConstituents.end(); ++jetConstituent ) {
-  // 	double dR = deltaR(pfCandidate->p4(), (*jetConstituent)->p4());
-  // 	if ( dR < dRmatch ) {
-  // 	  isJetConstituent = true;
-  // 	  break;
-  // 	}
-  //     }
-  //     if ( !(isJetConstituent^invert) ) {
-  // 	pfCandidates_exclJetConstituents.push_back(pfCandidate);
-  //     }
-  //   }
-  //   return pfCandidates_exclJetConstituents;
-  // }
-
- std::vector<reco::PFCandidateRef> getPFCandidates_exclJetConstituents(const reco::Jet& jet, const edm::Handle<reco::PFCandidateCollection>& pfCandidates, const reco::Jet::Constituents& jetConstituents, double dRmatch, bool invert)
- { auto const & collection_cand = (*pfCandidates);
-   // collectiion[index].p4()
+  std::vector<reco::PFCandidateRef> getPFCandidates_exclJetConstituents(const reco::Jet& jet, const edm::Handle<reco::PFCandidateCollection>& pfCandidates, const reco::Jet::Constituents& jetConstituents, double dRmatch, bool invert)
+  { 
+    auto const & collection_cand = (*pfCandidates);
     std::vector<reco::PFCandidateRef> pfCandidates_exclJetConstituents;
     size_t numPFCandidates = pfCandidates->size();
     for ( size_t pfCandidateIdx = 0; pfCandidateIdx < numPFCandidates; ++pfCandidateIdx ) {
       if(!(deltaR(collection_cand[pfCandidateIdx].p4(), jet.p4())<1.0)) continue;
       bool isJetConstituent = false;
       for ( reco::Jet::Constituents::const_iterator jetConstituent = jetConstituents.begin();
-      	    jetConstituent != jetConstituents.end(); ++jetConstituent ) {
-      	double dR = deltaR(collection_cand[pfCandidateIdx].p4(), (*jetConstituent)->p4());
-      	if ( dR < dRmatch ) {
-      	  isJetConstituent = true;
-      	  break;
-      	}
+	    jetConstituent != jetConstituents.end(); ++jetConstituent ) {
+	double dR = deltaR(collection_cand[pfCandidateIdx].p4(), (*jetConstituent)->p4());
+	if ( dR < dRmatch ) {
+	  isJetConstituent = true;
+	  break;
+	}
       }
       if ( !(isJetConstituent^invert) ) {
-    	reco::PFCandidateRef pfCandidate(pfCandidates, pfCandidateIdx);
-    	pfCandidates_exclJetConstituents.push_back(pfCandidate);
+	reco::PFCandidateRef pfCandidate(pfCandidates, pfCandidateIdx);
+	pfCandidates_exclJetConstituents.push_back(pfCandidate);
       }
     }
     return pfCandidates_exclJetConstituents;
@@ -288,7 +266,7 @@ void BoostedTauSeedsProducer::produce(edm::Event& evt, const edm::EventSetup& es
     BOOST_FOREACH( const reco::PFCandidateRef& pfCandidate, pfCandidatesNotInSubjet2 ) {
       selectedSubjetPFCandidateAssociationForIsolation->insert(subjetRef2, pfCandidate);
     }
-
+    /* code used for private cleaned taus recostruction */
     //// find all PFCandidates that are constituents of the **other** subjet
     //std::vector<reco::PFCandidateRef> pfCandidatesInSubjet1 = getPFCandidates_exclJetConstituents(pfCandidates, subjetConstituents2, 1.e-4, true);
     //std::vector<reco::PFCandidateRef> pfCandidatesInSubjet2 = getPFCandidates_exclJetConstituents(pfCandidates, subjetConstituents1, 1.e-4, true);
