@@ -62,7 +62,7 @@ class VertexAnalyzer( Analyzer ):
           self.handles['vertices'] =  AutoHandle( self.allVertices, 'std::vector<reco::Vertex>' )
         self.hasScore=False 
         if hasattr(self.cfg_ana,'scores') :
-          self.handles['vtxScore'] =  AutoHandle( self.cfg_ana.scores,'edm::ValueMap<float>' )
+          self.handles['scores'] =  AutoHandle( self.cfg_ana.scores,'edm::ValueMap<float>' )
           self.hasScore=True 
 
         self.fixedWeight = None
@@ -113,7 +113,6 @@ class VertexAnalyzer( Analyzer ):
             for i,v in enumerate(event.vertices) :
                 v.score = event.scores.value(i)
         event.goodVertices = filter(self.testGoodVertex,event.vertices)
-
 
         self.count.inc('All Events')
 
