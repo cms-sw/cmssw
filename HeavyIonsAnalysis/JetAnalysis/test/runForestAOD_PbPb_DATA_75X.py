@@ -196,26 +196,6 @@ process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.Input
 ####################################################################################
 
 #####################
-# Electron ID
-#####################
-
-from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
-process.load("RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cfi")
-
-from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
-process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
-
-process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('gedGsfElectronsTmp')
-
-process.load('RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff')
-setupVIDSelection(process.egmGsfElectronIDs,process.cutBasedElectronID_Spring15_25ns_V1_standalone_veto)
-setupVIDSelection(process.egmGsfElectronIDs,process.cutBasedElectronID_Spring15_25ns_V1_standalone_loose)
-setupVIDSelection(process.egmGsfElectronIDs,process.cutBasedElectronID_Spring15_25ns_V1_standalone_medium)
-setupVIDSelection(process.egmGsfElectronIDs,process.cutBasedElectronID_Spring15_25ns_V1_standalone_tight)
-
-#####################################################################################
-
-#####################
 # tupel and necessary PAT sequences
 #####################
 
@@ -232,7 +212,6 @@ process.ana_step = cms.Path(process.hltanalysis *
                             process.centralityBin *
                             process.hiEvtAnalyzer*
                             process.jetSequences +
-                            process.egmGsfElectronIDSequence + #Should be added in the path for VID module
                             process.ggHiNtuplizer +
                             process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +

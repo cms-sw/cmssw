@@ -123,6 +123,7 @@ process.ggHiNtuplizer.recoPhotonHiIsolationMap = cms.InputTag('photonIsolationHI
 process.ggHiNtuplizer.VtxLabel           = cms.InputTag("offlinePrimaryVertices")
 process.ggHiNtuplizer.particleFlowCollection = cms.InputTag("particleFlow")
 process.ggHiNtuplizer.doVsIso            = cms.bool(False)
+process.ggHiNtuplizer.doElectronVID      = cms.bool(True)
 process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.InputTag('gedPhotons'),
                                                        recoPhotonHiIsolationMap = cms.InputTag('photonIsolationHIProducerppGED'))
 

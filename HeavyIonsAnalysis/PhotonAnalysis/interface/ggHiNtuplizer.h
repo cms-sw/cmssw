@@ -48,6 +48,7 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    bool useValMapIso_;
    bool doPfIso_;
    bool doVsIso_; // also requires above boolean to make sense
+   bool doVID_;
 
    // handles to collections of objects
    edm::EDGetTokenT<vector<PileupSummaryInfo> >    genPileupCollection_;

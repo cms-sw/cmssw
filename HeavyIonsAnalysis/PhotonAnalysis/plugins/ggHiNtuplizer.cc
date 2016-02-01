@@ -26,17 +26,19 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps):
   genPileupCollection_    = consumes<vector<PileupSummaryInfo> >   (ps.getParameter<edm::InputTag>("pileupCollection"));
   genParticlesCollection_ = consumes<vector<reco::GenParticle> >   (ps.getParameter<edm::InputTag>("genParticleSrc"));
   gsfElectronsCollection_ = consumes<edm::View<reco::GsfElectron> >(ps.getParameter<edm::InputTag>("gsfElectronLabel"));
-  eleVetoIdMapToken_      = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronVetoID"));
-  eleLooseIdMapToken_     = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronLooseID"));
-  eleMediumIdMapToken_    = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronMediumID"));
-  eleTightIdMapToken_     = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronTightID"));
   recoPhotonsCollection_  = consumes<edm::View<reco::Photon> >     (ps.getParameter<edm::InputTag>("recoPhotonSrc"));
   recoMuonsCollection_    = consumes<edm::View<reco::Muon> >       (ps.getParameter<edm::InputTag>("recoMuonSrc"));
   vtxCollection_          = consumes<vector<reco::Vertex> >        (ps.getParameter<edm::InputTag>("VtxLabel"));
-  rhoToken_               = consumes<double> (ps.getParameter <edm::InputTag>("rho"));
-  beamSpotToken_          = consumes<reco::BeamSpot>(ps.getParameter <edm::InputTag>("beamSpot"));
-  conversionsToken_       = consumes< reco::ConversionCollection >(ps.getParameter<edm::InputTag>("conversions"));
-  
+  doVID_                  = ps.getParameter<bool>("doElectronVID");
+  if(doVID_){
+    rhoToken_               = consumes<double> (ps.getParameter <edm::InputTag>("rho"));
+    beamSpotToken_          = consumes<reco::BeamSpot>(ps.getParameter <edm::InputTag>("beamSpot"));
+    conversionsToken_       = consumes< reco::ConversionCollection >(ps.getParameter<edm::InputTag>("conversions"));
+    eleVetoIdMapToken_      = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronVetoID"));
+    eleLooseIdMapToken_     = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronLooseID"));
+    eleMediumIdMapToken_    = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronMediumID"));
+    eleTightIdMapToken_     = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronTightID"));
+  }
   if(useValMapIso_){
     recoPhotonsHiIso_ = consumes<edm::ValueMap<reco::HIPhotonIsolation> > (ps.getParameter<edm::InputTag>("recoPhotonHiIsolationMap"));
   }
@@ -859,33 +861,31 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
   edm::Handle<edm::View<reco::GsfElectron> > gsfElectronsHandle;
   e.getByToken(gsfElectronsCollection_, gsfElectronsHandle);
 
-  // Get the conversions collection
   edm::Handle<reco::ConversionCollection> conversions;
-  e.getByToken(conversionsToken_, conversions);
-
-  // Get the beam spot
   edm::Handle<reco::BeamSpot> theBeamSpot;
-  e.getByToken(beamSpotToken_,theBeamSpot);
-
-  // Get rho value
   edm::Handle<double> rhoH;
-  e.getByToken(rhoToken_,rhoH);
-  float rho = -999 ;
-  if (rhoH.isValid())
-    rho = *rhoH;
-
-  // Get the electron ID data from the event stream.
-  // Note: this implies that the VID ID modules have been run upstream.
-  // If you need more info, check with the EGM group.
   edm::Handle<edm::ValueMap<bool> > veto_id_decisions; 
   edm::Handle<edm::ValueMap<bool> > loose_id_decisions;
   edm::Handle<edm::ValueMap<bool> > medium_id_decisions;
   edm::Handle<edm::ValueMap<bool> > tight_id_decisions; 
-  e.getByToken(eleVetoIdMapToken_ , veto_id_decisions);
-  e.getByToken(eleLooseIdMapToken_ ,loose_id_decisions);
-  e.getByToken(eleMediumIdMapToken_,medium_id_decisions);
-  e.getByToken(eleTightIdMapToken_,tight_id_decisions);
-  
+  if(doVID_){
+    // Get the conversions collection
+    e.getByToken(conversionsToken_, conversions);
+
+    // Get the beam spot
+    e.getByToken(beamSpotToken_,theBeamSpot);
+
+    // Get rho value
+    e.getByToken(rhoToken_,rhoH);
+
+    // Get the electron ID data from the event stream.
+    // Note: this implies that the VID ID modules have been run upstream.
+    // If you need more info, check with the EGM group.
+    e.getByToken(eleVetoIdMapToken_ , veto_id_decisions);
+    e.getByToken(eleLooseIdMapToken_ ,loose_id_decisions);
+    e.getByToken(eleMediumIdMapToken_,medium_id_decisions);
+    e.getByToken(eleTightIdMapToken_,tight_id_decisions);
+  }
   
 
   // loop over electrons
@@ -961,42 +961,48 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
     elePFNeuIso04_         .push_back(pfIsoCal.getPfIso(*ele, 5, 0.4, 0., 0.));
 
 
-    float eA = effectiveAreas_.getEffectiveArea(fabs(ele->superCluster()->eta()));
-    eleEffAreaTimesRho_.push_back(eA*rho);
+    if(doVID_){
+      float rho = -999 ;
+      if (rhoH.isValid())
+      rho = *rhoH;
+
+      float eA = effectiveAreas_.getEffectiveArea(fabs(ele->superCluster()->eta()));
+      eleEffAreaTimesRho_.push_back(eA*rho);
       
-    bool passConvVeto = !ConversionTools::hasMatchedConversion(*ele, 
-							       conversions,
-							       theBeamSpot->position());
-    elepassConversionVeto_.push_back( (int) passConvVeto );
+      bool passConvVeto = !ConversionTools::hasMatchedConversion(*ele, 
+								 conversions,
+								 theBeamSpot->position());
+      elepassConversionVeto_.push_back( (int) passConvVeto );
 
-    // seed
-    // eleBC1E_             .push_back(ele->superCluster()->seed()->energy());
-    // eleBC1Eta_           .push_back(ele->superCluster()->seed()->eta());
+      // seed
+      // eleBC1E_             .push_back(ele->superCluster()->seed()->energy());
+      // eleBC1Eta_           .push_back(ele->superCluster()->seed()->eta());
 
-    //parameters of the very first PFCluster
-    // reco::CaloCluster_iterator bc = ele->superCluster()->clustersBegin();
-    // if (bc != ele->superCluster()->clustersEnd()) {
-    //    eleBC2E_  .push_back((*bc)->energy());
-    //    eleBC2Eta_.push_back((*bc)->eta());
-    // }
-    // else {
-    //    eleBC2E_  .push_back(-99);
-    //    eleBC2Eta_.push_back(-99);
-    // } 
+      //parameters of the very first PFCluster
+      // reco::CaloCluster_iterator bc = ele->superCluster()->clustersBegin();
+      // if (bc != ele->superCluster()->clustersEnd()) {
+      //    eleBC2E_  .push_back((*bc)->energy());
+      //    eleBC2Eta_.push_back((*bc)->eta());
+      // }
+      // else {
+      //    eleBC2E_  .push_back(-99);
+      //    eleBC2Eta_.push_back(-99);
+      // } 
 
-    const edm::Ptr<reco::GsfElectron> elePtr(gsfElectronsHandle,ele-gsfElectronsHandle->begin()); //value map is keyed of edm::Ptrs so we need to make one
-    bool passVetoID   = false;
-    bool passLooseID  = false;
-    bool passMediumID = false;
-    bool passTightID  = false;
-    if(veto_id_decisions.isValid()) passVetoID   = (*veto_id_decisions)[elePtr];
-    if(veto_id_decisions.isValid()) passLooseID  = (*loose_id_decisions)[elePtr];
-    if(veto_id_decisions.isValid()) passMediumID = (*medium_id_decisions)[elePtr];
-    if(veto_id_decisions.isValid()) passTightID  = (*tight_id_decisions)[elePtr];
-    eleIDVeto_            .push_back((int)passVetoID);
-    eleIDLoose_           .push_back((int)passLooseID);
-    eleIDMedium_          .push_back((int)passMediumID);
-    eleIDTight_           .push_back((int)passTightID);
+      const edm::Ptr<reco::GsfElectron> elePtr(gsfElectronsHandle,ele-gsfElectronsHandle->begin()); //value map is keyed of edm::Ptrs so we need to make one
+      bool passVetoID   = false;
+      bool passLooseID  = false;
+      bool passMediumID = false;
+      bool passTightID  = false;
+      if(veto_id_decisions.isValid()) passVetoID   = (*veto_id_decisions)[elePtr];
+      if(veto_id_decisions.isValid()) passLooseID  = (*loose_id_decisions)[elePtr];
+      if(veto_id_decisions.isValid()) passMediumID = (*medium_id_decisions)[elePtr];
+      if(veto_id_decisions.isValid()) passTightID  = (*tight_id_decisions)[elePtr];
+      eleIDVeto_            .push_back((int)passVetoID);
+      eleIDLoose_           .push_back((int)passLooseID);
+      eleIDMedium_          .push_back((int)passMediumID);
+      eleIDTight_           .push_back((int)passTightID);
+    }
 
     nEle_++;
 
