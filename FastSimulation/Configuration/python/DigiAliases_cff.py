@@ -9,8 +9,9 @@ hcalDigis = None
 muonDTDigis = None
 muonCSCDigis = None
 muonRPCDigis = None
-gtDigisAliasInfo = None
-gmtDigisAliasInfo = None
+caloStage1LegacyFormatDigis = None
+gtDigis = None
+gmtDigis = None
 
 def loadDigiAliases(premix=False):
 
@@ -95,7 +96,10 @@ def loadDigiAliases(premix=False):
                cms.VPSet(
                 cms.PSet(
                     type = cms.string("DTLayerIdDTDigiMuonDigiCollection")
-                    )
+                    ),
+                #cms.PSet(
+                #    type = cms.string("DTLayerIdDTDigiSimLinkMuonDigiCollection")
+                #    )
                 )
            }
           )
@@ -105,7 +109,10 @@ def loadDigiAliases(premix=False):
                cms.VPSet(
                 cms.PSet(
                     type = cms.string("RPCDetIdRPCDigiMuonDigiCollection")
-                    )
+                    ),
+                #cms.PSet(
+                #    type = cms.string("RPCDigiSimLinkedmDetSetVector")
+                #    )
                 )
            }
           )
@@ -115,33 +122,66 @@ def loadDigiAliases(premix=False):
                cms.VPSet(
                 cms.PSet(
                     type = cms.string("CSCDetIdCSCWireDigiMuonDigiCollection"),
-                    fromProductInstance = cms.string("MuonCSCWireDigi" if nopremix else "MuonCSCWireDigisDM")),
+                    fromProductInstance = cms.string("MuonCSCWireDigi" if nopremix else "MuonCSCWireDigisDM"),
+                    toProductInstance = cms.string("MuonCSCWireDigi")),
                 cms.PSet(
                     type = cms.string("CSCDetIdCSCStripDigiMuonDigiCollection"),
-                    fromProductInstance = cms.string("MuonCSCStripDigi" if nopremix else "MuonCSCStripDigisDM")
-                    )
+                    fromProductInstance = cms.string("MuonCSCStripDigi" if nopremix else "MuonCSCStripDigisDM"),
+                    toProductInstance = cms.string("MuonCSCStripDigi")),
+                #cms.PSet(
+                #    type = cms.string('StripDigiSimLinkedmDetSetVector')
+                #    ),
                 )
            }
           )
-
+    
 def loadTriggerDigiAliases():
 
-    global gtDigis,gmtDigis
+    global gctDigis,gtDigis,gmtDigis,caloStage1LegacyFormatDigis
+
+    caloStage1LegacyFormatDigis = cms.EDAlias(
+        **{ "simCaloStage1LegacyFormatDigis" :
+                cms.VPSet(
+                cms.PSet(type = cms.string("L1GctEmCands")),
+                cms.PSet(type = cms.string("L1GctEtHads")),
+                cms.PSet(type = cms.string("L1GctEtMisss")),
+                cms.PSet(type = cms.string("L1GctEtTotals")),
+                cms.PSet(type = cms.string("L1GctHFBitCountss")),
+                cms.PSet(type = cms.string("L1GctHFRingEtSumss")),
+                cms.PSet(type = cms.string("L1GctHtMisss")),
+                cms.PSet(type = cms.string("L1GctInternEtSums")),
+                cms.PSet(type = cms.string("L1GctInternHtMisss")),
+                cms.PSet(type = cms.string("L1GctInternJetDatas")),
+                cms.PSet(type = cms.string("L1GctJetCands")))})
+
+    gctDigis = cms.EDAlias(
+        **{ "simGctDigis" :
+                cms.VPSet(
+                cms.PSet(type = cms.string("L1GctEmCands")),
+                cms.PSet(type = cms.string("L1GctEtHads")),
+                cms.PSet(type = cms.string("L1GctEtMisss")),
+                cms.PSet(type = cms.string("L1GctEtTotals")),
+                cms.PSet(type = cms.string("L1GctHFBitCountss")),
+                cms.PSet(type = cms.string("L1GctHFRingEtSumss")),
+                cms.PSet(type = cms.string("L1GctHtMisss")),
+                cms.PSet(type = cms.string("L1GctInternEtSums")),
+                cms.PSet(type = cms.string("L1GctInternHtMisss")),
+                cms.PSet(type = cms.string("L1GctInternJetDatas")),
+                cms.PSet(type = cms.string("L1GctJetCands")))})
 
     gtDigis = cms.EDAlias(
-        simGtDigis=
-        cms.VPSet(
-            cms.PSet(type = cms.string("L1GlobalTriggerReadoutRecord")),
-            cms.PSet(type = cms.string("L1GlobalTriggerObjectMapRecord"))
-            )
-        )
+        **{ "simGtDigis" :
+                cms.VPSet(
+                cms.PSet(type = cms.string("L1GlobalTriggerEvmReadoutRecord")),
+                cms.PSet(type = cms.string("L1GlobalTriggerObjectMapRecord")),
+                cms.PSet(type = cms.string("L1GlobalTriggerReadoutRecord")))})
     
 
     gmtDigis = cms.EDAlias (
         simGmtDigis = 
         cms.VPSet(
-            cms.PSet(type = cms.string("L1MuGMTReadoutCollection"))
+            cms.PSet(type = cms.string("L1MuGMTReadoutCollection")),
+            cms.PSet(type = cms.string("L1MuGMTCands"))
             )
         )
     
-

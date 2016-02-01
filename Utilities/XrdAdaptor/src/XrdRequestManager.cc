@@ -75,12 +75,16 @@ class SendMonitoringInfoHandler : boost::noncopyable, public XrdCl::ResponseHand
         {
             XrdCl::Buffer *buffer = nullptr;
             response->Get(buffer);
+            response->Set(static_cast<int*>(nullptr));
             delete buffer;
         }
+        // Send Info has a response object; we must delete it.
+        delete response;
+        delete status;
     }
 };
 
-SendMonitoringInfoHandler nullHandler;
+[[cms::thread_safe]] SendMonitoringInfoHandler nullHandler;
 
 
 static void
@@ -1065,6 +1069,7 @@ XrdAdaptor::RequestManager::OpenHandler::~OpenHandler()
 void
 XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDStatus *status_ptr, XrdCl::AnyObject *, XrdCl::HostList *hostList_ptr)
 {
+  // NOTE: as in XrdCl::File (synchronous), we ignore the response object.
   // Make sure that we set m_outstanding_open to false on exit from this function.
   std::unique_ptr<char, std::function<void(char*)>> outstanding_guard(nullptr, [&](char*){m_outstanding_open=false;});
 

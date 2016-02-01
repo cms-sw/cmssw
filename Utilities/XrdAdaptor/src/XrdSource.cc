@@ -3,6 +3,7 @@
 #define _GLIBCXX_USE_NANOSLEEP
 #include <thread>
 #include <chrono>
+#include <atomic>
 #include <iostream>
 #include <assert.h>
 #include <netdb.h>
@@ -24,9 +25,9 @@
 //#define XRD_DELAY 5140
 #define XRD_DELAY 1000
 #define XRD_SLOW_RATE 2
-int g_delayCount = 0;
+std::atomic<int> g_delayCount {0};
 #else
-int g_delayCount = 0;
+std::atomic<int> g_delayCount {0};
 #endif
 
 using namespace XrdAdaptor;
@@ -59,7 +60,7 @@ public:
 
     virtual void HandleResponseWithHosts(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response, XrdCl::HostList *hostList) override
     {
-        if (!status->IsOK())
+        if (status && !status->IsOK())
         {
             
             edm::LogWarning("XrdFileWarning") << "Source delayed close failed with error '" << status->ToStr()
@@ -67,6 +68,7 @@ public:
         }
         delete status;
         delete hostList;
+        // NOTE: we do not delete response (copying behavior from XrdCl).
         delete this;
     }
 
@@ -190,7 +192,6 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string 
       m_id("(unknown)"),
       m_exclude(exclude),
       m_fh(std::move(fh)),
-      m_qm(QualityMetricFactory::get(now, m_id)),
       m_stats(nullptr)
 #ifdef XRD_FAKE_SLOW
     , m_slow(++g_delayCount % XRD_SLOW_RATE == 0)
@@ -207,6 +208,7 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string 
       }
       if (!m_exclude.size()) {m_exclude = m_id;}
     }
+    m_qm = QualityMetricFactory::get(now, m_id);
     m_prettyid = m_id + " (unknown site)";
     std::string domain_id;
     if (getDomain(m_id, domain_id)) {m_site = domain_id;}

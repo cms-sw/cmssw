@@ -21,7 +21,9 @@ public:
     virtual void HandleResponse( XrdCl::XRootDStatus *status,
                                  XrdCl::AnyObject    *response )
     {
-        if (response) delete response;
+        // Note: Prepare call has a response object.
+        delete response;
+        delete status;
     }
 
 };
