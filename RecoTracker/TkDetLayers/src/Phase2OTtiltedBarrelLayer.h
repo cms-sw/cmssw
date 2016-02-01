@@ -34,7 +34,7 @@ class Phase2OTtiltedBarrelLayer GCC11_FINAL : public Phase2OTBarrelLayer {
   
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
+  //virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
 
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
@@ -43,16 +43,16 @@ class Phase2OTtiltedBarrelLayer GCC11_FINAL : public Phase2OTBarrelLayer {
     
 
   // DetLayer interface
-  //virtual SubDetector subDetector() const { return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2OTB];}
+  virtual SubDetector subDetector() const { return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2OTB];}
 
  private:
   // private methods for the implementation of groupedCompatibleDets()
   // the implementation of the methods is the same of the TOBLayer one.
   // In the future, to move common code in a common place!
 
+/*
   SubLayerCrossings computeCrossings( const TrajectoryStateOnSurface& tsos,
 				      PropagationDirection propDir) const;
-/*
   
   bool addClosest( const TrajectoryStateOnSurface& tsos,
 		   const Propagator& prop,
@@ -85,10 +85,7 @@ class Phase2OTtiltedBarrelLayer GCC11_FINAL : public Phase2OTBarrelLayer {
 
  private:
   Phase2OTBarrelLayer* thePhase2OTBarrelLayer;
-  //Phase2OTEndcapLayer thePhase2OTNegRingedLayer;
-  std::vector<const GeometricSearchDet*> theComps;
-  //std::vector<const GeometricSearchDet*> theInnerRodsComps;
-  //std::vector<const GeometricSearchDet*> theOuterRodsComps;
+  //std::vector<const GeometricSearchDet*> theComps;
   std::vector<const GeometricSearchDet*> theNegativeRingsComps;
   std::vector<const GeometricSearchDet*> thePositiveRingsComps;
   std::vector<const GeomDet*> theBasicComps;
@@ -97,8 +94,6 @@ class Phase2OTtiltedBarrelLayer GCC11_FINAL : public Phase2OTBarrelLayer {
   BinFinderType    theOuterBinFinder;
 
   ReferenceCountingPointer<BoundCylinder>  theCylinder;
-  //ReferenceCountingPointer<BoundCylinder>  theOuterCylinder;
-
   
 };
 
