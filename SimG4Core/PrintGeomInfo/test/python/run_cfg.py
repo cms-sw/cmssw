@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PrintGeom")
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load("SimG4Core.PrintGeomInfo.testTotemGeometryXML_cfi")
+process.load('SimG4Core.PrintGeomInfo.testTotemGeometryXML_cfi')
 
 process.MessageLogger.destinations = cms.untracked.vstring("Totem.txt")
 
@@ -11,7 +11,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.load("SimGeneral.HepPDTESSource.pdt_cfi")
+process.load('SimGeneral.HepPDTESSource.pdt_cfi')
+process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')
+process.load('GeneratorInterface.Core.generatorSmeared_cfi')
 
 process.source = cms.Source("EmptySource")
 
@@ -37,15 +39,19 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
          initialSeed = cms.untracked.uint32(123456789),
          engineName = cms.untracked.string('HepJamesRandom')
     ),
+    VtxSmeared = cms.PSet(
+        engineName = cms.untracked.string('HepJamesRandom'),
+        initialSeed = cms.untracked.uint32(98765432)
+    ),
     g4SimHits = cms.PSet(
          initialSeed = cms.untracked.uint32(11),
          engineName = cms.untracked.string('HepJamesRandom')
     )
 )
 
-process.load("SimG4Core.Application.g4SimHits_cfi")
+process.load('SimG4Core.Application.g4SimHits_cfi')
 
-process.p1 = cms.Path(process.generator*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits)
 
 process.g4SimHits.Physics.type            = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.UseMagneticField        = False
