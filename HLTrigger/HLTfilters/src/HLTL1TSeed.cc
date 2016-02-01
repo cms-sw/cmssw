@@ -30,7 +30,7 @@ using namespace std;
 HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) : 
   HLTStreamFilter(parSet),
   //useObjectMaps_(parSet.getParameter<bool>("L1UseL1TriggerObjectMaps")),
-  //m_l1SeedsLogicalExpression(parSet.getParameter<string>("L1SeedsLogicalExpression")),
+  m_l1SeedsLogicalExpression(parSet.getParameter<string>("L1SeedsLogicalExpression")),
   // InputTag for the L1 Global Trigger DAQ readout record
   //m_l1GtReadoutRecordTag(parSet.getParameter<edm::InputTag> ( "L1GtReadoutRecordTag")),
   //m_l1GtReadoutRecordToken(consumes<L1GlobalTriggerReadoutRecord>(m_l1GtReadoutRecordTag)),
@@ -57,8 +57,8 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
 {
 
 
-  m_l1SeedsLogicalExpression = "L1_ETT40 OR L1_SingleEG10";
-  //m_l1SeedsLogicalExpression = parSet.getParameter<string>("L1SeedsLogicalExpression");
+  //m_l1SeedsLogicalExpression = "L1_ETT40 OR L1_SingleEG10";
+  m_l1SeedsLogicalExpression = parSet.getParameter<string>("L1SeedsLogicalExpression");
 
   m_l1GtObjectMapTag = edm::InputTag("simGtStage2Digis");
   //m_l1GtObjectMapTag = edm::InputTag("L1GtObjectMapTag");
@@ -122,7 +122,7 @@ HLTL1TSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // # allowed operators: "AND", "OR", "NOT", "(", ")"
   // #
   // # by convention, "L1GlobalDecision" logical expression means global decision
-  //desc.add<string>("L1SeedsLogicalExpression","");
+  desc.add<string>("L1SeedsLogicalExpression","");
 
   desc.add<edm::InputTag>("muonCollectionsTag",edm::InputTag("simGmtStage2Digis"));
   desc.add<edm::InputTag>("egammaCollectionsTag",edm::InputTag("simCaloStage2Digis"));
@@ -527,6 +527,22 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
         return false;
     }
+
+    if (m_isDebugEnabled) {
+
+      const std::vector<L1GlobalTriggerObjectMap>& objMaps = gtObjectMapRecord->gtObjectMap();
+
+      LogTrace("HLTL1TSeed") << "\n\tAlgorithms in L1TriggerObjectMapRecord: " << endl;
+      for (size_t imap =0; imap < objMaps.size(); imap++) {
+
+        LogTrace("HLTL1TSeed")
+          << "\tmap = " << imap << "\talgoName = " << objMaps[imap].algoName() << "\tGtlResult  = " <<  objMaps[imap].algoGtlResult();
+
+      }
+      LogTrace("HLTL1TSeed") << endl;
+
+    }
+
 
     // Debug
     std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
