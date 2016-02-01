@@ -31,6 +31,7 @@ def customise_HcalPhase1(process):
                 'RecoParams',
                 'RespCorrs',
                 'QIEData',
+                'QIETypes',
                 'Gains',
                 'Pedestals',
                 'PedestalWidths',
