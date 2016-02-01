@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include <cassert>
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -22,17 +23,12 @@
 
 #include "HLTrigger/HLTfilters/interface/HLTL1TSeed.h"
 
-//#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
-//#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
-
 using namespace std;
 
 
 // constructors
 HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) : 
   HLTStreamFilter(parSet),
-  m_utml1GtMenu( nullptr ),
-  m_l1GtMenuCacheID( 0ULL ),
   //useObjectMaps_(parSet.getParameter<bool>("L1UseL1TriggerObjectMaps")),
   //m_l1SeedsLogicalExpression(parSet.getParameter<string>("L1SeedsLogicalExpression")),
   // InputTag for the L1 Global Trigger DAQ readout record
@@ -159,28 +155,6 @@ bool HLTL1TSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, t
     filterproduct.addCollectionTag(m_l1EtSumTag);
   }
   
-
-      /*
-      // get / update the trigger menu from the EventSetup
-      // local cache & check on cacheIdentifier
-      unsigned long long l1GtMenuCacheID = evSetup.get<L1TUtmTriggerMenuRcd>().cacheIdentifier();
-      
-      if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
-     
-        edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
-        evSetup.get< L1TUtmTriggerMenuRcd>().get(l1GtMenu) ;
-        m_utml1GtMenu =  l1GtMenu.product();
-        m_l1GtMenuCacheID = l1GtMenuCacheID;
-     
-        //std::cout << "Attempting to fill the map " << std::endl;
-        //m_algorithmMap = &(utml1GtMenu->getAlgorithmMap());
-      
-        //reset vectors since we have new menu
-        //resetDecisionVectors();
-
-      }
-      */
-
 
   //seedsL1TriggerObjectMaps(iEvent, filterproduct, l1GtTmAlgo.product(), gtReadoutRecordPtr, physicsDaqPartition);
   
@@ -543,8 +517,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     iEvent.getByToken(m_l1GtObjectMapToken, gtObjectMapRecord);
 
     if (!gtObjectMapRecord.isValid()) {
-        //edm::LogWarning("HLTLevel1GTSeed")
-        cout 
+        edm::LogWarning("HLTLevel1GTSeed")
         << "\nWarning: L1GlobalTriggerObjectMapRecord with input tag "
         << m_l1GtObjectMapTag
         << "\nrequested in configuration, but not found in the event." << std::endl;
@@ -571,288 +544,231 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     //     can be false offline, when re-running HLT without re-running the object map producer
 
     // loop over the list of required algorithms for seeding
-    int iAlgo = -1;
 
     for (std::vector<L1GtLogicParser::OperandToken>::const_iterator
             itSeed = m_l1AlgoSeeds.begin(); itSeed != m_l1AlgoSeeds.end(); ++itSeed) {
 
-        bool matchedAlgo = false;
+      bool matchedAlgo = false;
+      
+      int algoSeedMapNumber = (*itSeed).tokenNumber;
+      std::string algoSeedName = (*itSeed).tokenName;
+      bool algoSeedResult = (*itSeed).tokenResult;
+
+      cout << " ----------------  seed name = " << algoSeedName << endl;
+
+      const L1GlobalTriggerObjectMap* objMap = gtObjectMapRecord->getObjectMap(algoSeedName);
+
+      if(objMap == 0) {
+
+          edm::LogWarning("HLTLevel1GTSeed")
+          << "\nWarning: seed with name " << algoSeedName << " cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap" << std::endl;
+          return false;
+
+      }
+
+      algoSeedResult = objMap->algoGtlResult();
+
+      algoSeedMapNumber = objMap->algoBitNumber();
+
+      //LogTrace("HLTLevel1GTSeed")
+      cout
+      << "\nHLTL1TSeed::hltFilter "
+      << "\n  Algorithm " << algoSeedName << " with bit number " << algoSeedMapNumber
+      << " in the object map seed list"
+      << "\n  Algorithm result = " << algoSeedResult << "\n"
+      << std::endl;
+
+      // algorithm result is false - no seeds
+      if ( !algoSeedResult) {
+          continue;
+      }
+
+      const std::vector<L1GtLogicParser::OperandToken>& opTokenVecObjMap = objMap->operandTokenVector();
+      const std::vector<ObjectTypeInCond>&  condObjTypeVec = objMap->objectTypeVector();
+      const std::vector<CombinationsInCond>& condCombinations = objMap->combinationVector();
+
+      cout << "\talgoSeedMapNumber = " << algoSeedMapNumber << "\talgoName=" << objMap->algoName() << "\talgoGtlResult = " << objMap->algoGtlResult();
+      if (matchedAlgo) cout << "\tmatched to seed algo = " << algoSeedName << "\talgo result = " << algoSeedResult;
+      cout << endl << endl;
+
+      if (opTokenVecObjMap.size() != condObjTypeVec.size() ) {
+          edm::LogWarning("HLTLevel1GTSeed")
+          << "\nWarning: L1GlobalTriggerObjectMapRecord with input tag "
+          << m_l1GtObjectMapTag
+          << "\nhas object map at position " << algoSeedMapNumber << " which contains different size vectors of operand tokens and of condition object types!"  << std::endl;
+    
+          assert(opTokenVecObjMap.size() == condObjTypeVec.size());
+      }
+
+      if (opTokenVecObjMap.size() != condCombinations.size()) {
+          edm::LogWarning("HLTLevel1GTSeed")
+          << "\nWarning: L1GlobalTriggerObjectMapRecord with input tag "
+          << m_l1GtObjectMapTag
+          << "\nhas object map at position " << algoSeedMapNumber << " which contains different size vectors of operand tokens and of condition combinations!"  << std::endl;
+    
+          assert(opTokenVecObjMap.size() == condCombinations.size());
+      }
+
+      // operands are conditions of L1 algo
+      //
+      for (size_t condNumber = 0; condNumber < opTokenVecObjMap.size(); condNumber++) {
+
+        //LogTrace("HLTLevel1GTSeed")
+        cout 
+          << "\ttokenName = " << opTokenVecObjMap[condNumber].tokenName
+          << "\ttokenNumber = " << opTokenVecObjMap[condNumber].tokenNumber 
+          << "\ttokenResult = " << opTokenVecObjMap[condNumber].tokenResult 
+          << endl;
+        
+        std::vector<L1GtObject> condObjType = condObjTypeVec[condNumber];
+
+        for (size_t jOb =0; jOb < condObjType.size(); jOb++) {
+
+          //LogTrace("HLTLevel1GTSeed")
+          cout 
+            << "\tcondObjType = " << condObjType[jOb] << endl;
+
+        }
+
+        const std::string condName = opTokenVecObjMap[condNumber].tokenName;
+        bool condResult = opTokenVecObjMap[condNumber].tokenResult;
+
+        // only procede for conditions that passed
         //
-        iAlgo++;
-        //
-        int algBit = (*itSeed).tokenNumber;
-        std::string algoSeedName = (*itSeed).tokenName;
-        bool algResult = (*itSeed).tokenResult;
-
-        cout << "----------------------- algSeedName = " << algoSeedName << "  algResult = " << algResult << "  algBit = " << algBit << "\n" << endl;
-
-        const std::vector<L1GlobalTriggerObjectMap>& v_gtObjectMap = gtObjectMapRecord->gtObjectMap();
-
-        /// loop over all gtObjectMaps
-        //  Debug: Printout contents of L1GlobalTriggerObjectMapRecord
-        for (size_t iMap =0; iMap < v_gtObjectMap.size(); iMap++) {
-
-          const L1GlobalTriggerObjectMap& objMap = v_gtObjectMap[iMap];
-
-          if (algoSeedName == objMap.algoName()) {
-
-            matchedAlgo = true;
-
-            if( objMap.algoGtlResult()) {
-
-               algResult = true;
-               algBit = objMap.algoBitNumber();
-
-            }
-
-          } // end if Name
-
-          const std::vector<L1GtLogicParser::OperandToken>& opTokenVecObjMap = objMap.operandTokenVector();
-          const std::vector<ObjectTypeInCond>&  condObjType = objMap.objectTypeVector();
-          const std::vector<CombinationsInCond>& condCombinations = objMap.combinationVector();
-
-          cout << "\tmap = " << iMap << "\talgoName=" << objMap.algoName() << "\talgoGtlResult = " << objMap.algoGtlResult();
-          if (matchedAlgo) cout << "\tmatched to seed algo = " << algoSeedName << "\talgo result = " << algResult;
-          cout << endl << endl;
-
-          cout << "opTokenVecObjMap.size() = " << opTokenVecObjMap.size() << "\t condObjType.size() = " <<  condObjType.size() << "\t condCombinations.size() = " << condCombinations.size() << endl;
-
-          for (size_t jOp =0; jOp < opTokenVecObjMap.size(); jOp++) {
-
-            cout << "\t tokenName = " << opTokenVecObjMap[jOp].tokenName
-                << "\ttokenNumber = " << opTokenVecObjMap[jOp].tokenNumber 
-                << "\ttokenResult = " << opTokenVecObjMap[jOp].tokenResult 
-                << endl;
-            
-            std::vector<L1GtObject> objType = condObjType[jOp];
-
-            for (size_t jOb =0; jOb < objType.size(); jOb++) {
-
-              cout << "objType = " << objType[jOb] << endl;
-
-            }
-
-
-
-          } // end for
-
-          cout << endl;
-          cout << endl;
-
-          // reset flag for next map
-          matchedAlgo = false;
-
-        } //end for iMap
-
-        LogTrace("HLTLevel1GTSeed")
-        << "\nHLTLevel1GTSeed::hltFilter "
-        << "\n  Algorithm " << algoSeedName << " with bit number " << algBit
-        << " in the object map seed list"
-        << "\n  Algorithm result = " << algResult << "\n"
-        << std::endl;
-
-        cout << "I got to pos 1 " << endl;
-
-        // algorithm result is false - no seeds
-        if ( !algResult) {
+        if ( !condResult) {
             continue;
         }
-        cout << "I got to pos 2 " << endl;
 
-        // algorithm result is true - get object map, loop over conditions in the algorithm
-        const L1GlobalTriggerObjectMap* objMap = gtObjectMapRecord->getObjectMap(algBit);
-
-        if (objMap == 0) {
-            edm::LogWarning("HLTLevel1GTSeed")
-            << "\nWarning: L1GlobalTriggerObjectMap for algorithm  " << algoSeedName
-            << " (bit number " << algBit << ") does not exist.\nReturn false.\n"
-            << std::endl;
-            return false;
-        }
-        cout << "I got to pos 3 " << endl;
-
-        const std::vector<L1GtLogicParser::OperandToken>& opTokenVecObjMap = objMap->operandTokenVector();
-
-        cout << "I got to pos 3.1 " << endl;
-
-        const std::vector<L1GtLogicParser::TokenRPN>& algoSeedsRpn = * ( m_l1AlgoSeedsRpn.at(iAlgo) );
-        cout << "I got to pos 3.2 " << endl;
-
-        const std::vector<const std::vector<L1GtObject>*>& algoSeedsObjTypeVec = m_l1AlgoSeedsObjType[iAlgo];
-        cout << "I got to pos 3.3 " << endl;
-
+        // loop over combinations for a given condition
         //
-        L1GtLogicParser logicParserConditions(algoSeedsRpn, opTokenVecObjMap);
+        const CombinationsInCond* condComb = objMap->getCombinationsInCond(condNumber);
 
-        cout << "I got to pos 4 " << endl;
-        continue;
+        //LogTrace("HLTLevel1GTSeed")
+        cout 
+          << "\tcondition object combinations = " << condComb->size() << endl;
+        for (std::vector<SingleCombInCond>::const_iterator itComb = (*condComb).begin(); itComb != (*condComb).end(); itComb++) {
 
-        // get list of required conditions for seeding - loop over
-        std::vector<L1GtLogicParser::OperandToken> condSeeds =
-        logicParserConditions.expressionSeedsOperandList();
+            // loop over objects in a combination for a given condition
+            //
+            int iObj = 0;
 
-        if (m_isDebugEnabled ) {
+            for (SingleCombInCond::const_iterator itObject = (*itComb).begin(); itObject != (*itComb).end(); itObject++) {
 
-            LogTrace("HLTLevel1GTSeed")
-            << "\n  HLTLevel1GTSeed::hltFilter "
-            << "\n    condSeeds.size() = "
-            << condSeeds.size()
-            << std::endl;
+                // get object type and push indices on the list
+                //
+                const L1GtObject objTypeVal = condObjType.at(iObj);
 
-            for (size_t i = 0; i < condSeeds.size(); ++i) {
+                //LogTrace("HLTLevel1GTSeed")
+                cout 
+                    << "\n\tAdd object of type " << objTypeVal
+                    << " and index " << (*itObject) << " to the seed list."
+                    << std::endl;
 
-                LogTrace("HLTLevel1GTSeed")
-                << "      " << std::setw(5) << (condSeeds[i]).tokenNumber << "\t"
-                << std::setw(25) << (condSeeds[i]).tokenName << "\t"
-                << (condSeeds[i]).tokenResult
-                << std::endl;
-            }
-
-            LogTrace("HLTLevel1GTSeed")
-            << std::endl;
-        }
-
-
-        for (std::vector<L1GtLogicParser::OperandToken>::const_iterator
-                itCond = condSeeds.begin(); itCond != condSeeds.end(); itCond++) {
-
-            std::string cndName = (*itCond).tokenName;
-            int cndNumber = (*itCond).tokenNumber;
-            bool cndResult = (*itCond).tokenResult;
-
-            const std::vector<L1GtObject>* cndObjTypeVec = algoSeedsObjTypeVec.at(cndNumber);
-
-            //LogTrace("HLTLevel1GTSeed")
-            //    << "\n  HLTLevel1GTSeed::hltFilter "
-            //    << "\n    Condition " << cndName << " with number " << cndNumber
-            //    << " in the seed list"
-            //    << "\n    Condition result = " << cndResult << "\n"
-            //    << std::endl;
-
-            if ( !cndResult) {
-                continue;
-            }
-
-            // loop over combinations for a given condition
-
-            const CombinationsInCond* cndComb = objMap->getCombinationsInCond(cndNumber);
-
-            for (std::vector<SingleCombInCond>::const_iterator
-                    itComb = (*cndComb).begin(); itComb != (*cndComb).end(); itComb++) {
-
-                // loop over objects in a combination for a given condition
-                int iObj = 0;
-                for (SingleCombInCond::const_iterator
-                        itObject = (*itComb).begin(); itObject != (*itComb).end(); itObject++) {
-
-                    // get object type and push indices on the list
-                    const L1GtObject objTypeVal = (*cndObjTypeVec).at(iObj);
-
-                    //LogTrace("HLTLevel1GTSeed")
-                    //    << "\n    HLTLevel1GTSeed::hltFilter "
-                    //    << "\n      Add object of type " << objTypeVal
-                    //    << " and index " << (*itObject) << " to the seed list."
-                    //    << std::endl;
-
-                    switch (objTypeVal) {
-                        case Mu: {
-                            listMuon.push_back(*itObject);
-                        }
-
-                        break;
-                        case NoIsoEG: {
-                            listEG.push_back(*itObject);
-                        }
-
-                        break;
-                        case IsoEG: {
-                            listEG.push_back(*itObject);
-                        }
-
-                        break;
-                        case CenJet: {
-                            listJet.push_back(*itObject);
-                        }
-
-                        break;
-                        case ForJet: {
-                            listJet.push_back(*itObject);
-                        }
-
-                        break;
-                        case TauJet: {
-                            listTau.push_back(*itObject);
-                        }
-
-                        break;
-                        case HfRingEtSums: {
-                            // Special treatment needed to match HFRingEtSums index (Ind) with corresponding l1extra item
-                            // Same ranking (Et) is assumed for both HFRingEtSums indexes and items in l1extra IsoTau collection
-                            // Each HFRingEtSums_IndN corresponds with one object (with (*itObject)=0); 
-                            // its index (hfInd) encodded by parsing algorithm name
-                            int hfInd = (*itObject);
-                            if(cndName.find("Ind0")!=std::string::npos)
-                              hfInd = 0;
-                            else if(cndName.find("Ind1")!=std::string::npos)
-                              hfInd = 1;
-                            else if(cndName.find("Ind2")!=std::string::npos)
-                              hfInd = 2;
-                            else if(cndName.find("Ind3")!=std::string::npos)
-                              hfInd = 3;
-                            listTau.push_back(hfInd);
-                        }
-
-                        break;
-                        case ETM: {
-                            listETM.push_back(*itObject);
-
-                        }
-
-                        break;
-                        case ETT: {
-                            listETT.push_back(*itObject);
-
-                        }
-
-                        break;
-                        case HTT: {
-                            listHTT.push_back(*itObject);
-
-                        }
-
-                        break;
-                        case HTM: {
-                            listHTM.push_back(*itObject);
-
-                        }
-
-                        break;
-                        case JetCounts: {
-                            listJetCounts.push_back(*itObject);
-                        }
-
-                        break;
-                        default: {
-                            // should not arrive here
-
-                            LogDebug("HLTLevel1GTSeed")
-                            << "\n    HLTLevel1GTSeed::hltFilter "
-                            << "\n      Unknown object of type " << objTypeVal
-                            << " and index " << (*itObject) << " in the seed list."
-                            << std::endl;
-                        }
-                        break;
+                switch (objTypeVal) {
+                    case Mu: {
+                        listMuon.push_back(*itObject);
                     }
 
-                    iObj++;
+                    break;
+                    case NoIsoEG: {
+                        cout << " pushing NoIsoEG to EG " << endl;
+                        listEG.push_back(*itObject);
+                    }
 
+                    break;
+                    case IsoEG: {
+                        cout << " pushing IsoEG to EG " << endl;
+                        listEG.push_back(*itObject);
+                    }
+
+                    break;
+                    case CenJet: {
+                        listJet.push_back(*itObject);
+                    }
+
+                    break;
+                    case ForJet: {
+                        listJet.push_back(*itObject);
+                    }
+
+                    break;
+                    case TauJet: {
+                        listTau.push_back(*itObject);
+                    }
+
+                    break;
+                    case HfRingEtSums: {
+                        // Special treatment needed to match HFRingEtSums index (Ind) with corresponding l1extra item
+                        // Same ranking (Et) is assumed for both HFRingEtSums indexes and items in l1extra IsoTau collection
+                        // Each HFRingEtSums_IndN corresponds with one object (with (*itObject)=0); 
+                        // its index (hfInd) encodded by parsing algorithm name
+                        int hfInd = (*itObject);
+                        if(condName.find("Ind0")!=std::string::npos)
+                          hfInd = 0;
+                        else if(condName.find("Ind1")!=std::string::npos)
+                          hfInd = 1;
+                        else if(condName.find("Ind2")!=std::string::npos)
+                          hfInd = 2;
+                        else if(condName.find("Ind3")!=std::string::npos)
+                          hfInd = 3;
+                        listTau.push_back(hfInd);
+                    }
+
+                    break;
+                    case ETM: {
+                        listETM.push_back(*itObject);
+
+                    }
+
+                    break;
+                    case ETT: {
+                        listETT.push_back(*itObject);
+
+                    }
+
+                    break;
+                    case HTT: {
+                        listHTT.push_back(*itObject);
+
+                    }
+
+                    break;
+                    case HTM: {
+                        listHTM.push_back(*itObject);
+
+                    }
+
+                    break;
+                    case JetCounts: {
+                        listJetCounts.push_back(*itObject);
+                    }
+
+                    break;
+                    default: {
+                        // should not arrive here
+
+                        LogDebug("HLTLevel1GTSeed")
+                        << "\n    HLTLevel1GTSeed::hltFilter "
+                        << "\n      Unknown object of type " << objTypeVal
+                        << " and index " << (*itObject) << " in the seed list."
+                        << std::endl;
+                    }
+                    break;
                 }
+
+                iObj++;
 
             }
 
         }
 
-    }
+      } // end for condition
+
+      cout << endl;
+      cout << endl;
+
+
+    } // end for itSeed
 
     // eliminate duplicates
 
@@ -882,6 +798,10 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     listJetCounts.sort();
     listJetCounts.unique();
+
+    cout 
+      << "size of filled Muons " << listMuon.size() << endl
+      << "size of filled EG " << listEG.size() << endl;
 
 
     //
@@ -926,6 +846,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     	<< endl;	
         } else {
     
+          cout << " Adding EG objects " << endl;
           l1t::EGammaBxCollection::const_iterator iter;
           for (std::list<int>::const_iterator itObj = listEG.begin(); itObj != listEG.end(); ++itObj) {
 
