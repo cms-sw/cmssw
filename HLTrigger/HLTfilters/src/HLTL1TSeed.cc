@@ -35,8 +35,8 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
   //m_l1GtReadoutRecordTag(parSet.getParameter<edm::InputTag> ( "L1GtReadoutRecordTag")),
   //m_l1GtReadoutRecordToken(consumes<L1GlobalTriggerReadoutRecord>(m_l1GtReadoutRecordTag)),
   // InputTag for L1 Global Trigger object maps
-  //m_l1GtObjectMapTag(parSet.getParameter<edm::InputTag> ("L1GtObjectMapTag")),
-  //m_l1GtObjectMapToken(consumes<L1GlobalTriggerObjectMapRecord>(m_l1GtObjectMapTag)),
+  m_l1GtObjectMapTag(parSet.getParameter<edm::InputTag> ("L1GtObjectMapTag")),
+  m_l1GtObjectMapToken(consumes<L1GlobalTriggerObjectMapRecord>(m_l1GtObjectMapTag)),
   //dummyTag(parSet.getParameter<edm::InputTag>("myDummyTag")), // FIX WHEN UNPACKERS ADDED
   m_l1MuonCollectionsTag(parSet.getParameter<edm::InputTag>("muonCollectionsTag")), // FIX WHEN UNPACKERS ADDED
   m_l1MuonTag(m_l1MuonCollectionsTag),
@@ -57,12 +57,11 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
 {
 
 
-  //m_l1SeedsLogicalExpression = "L1_ETT40 OR L1_SingleEG10";
-  m_l1SeedsLogicalExpression = parSet.getParameter<string>("L1SeedsLogicalExpression");
+  //m_l1SeedsLogicalExpression = parSet.getParameter<string>("L1SeedsLogicalExpression");
 
-  m_l1GtObjectMapTag = edm::InputTag("simGtStage2Digis");
+  //m_l1GtObjectMapTag = edm::InputTag("simGtStage2Digis");
   //m_l1GtObjectMapTag = edm::InputTag("L1GtObjectMapTag");
-  m_l1GtObjectMapToken = consumes<L1GlobalTriggerObjectMapRecord>(m_l1GtObjectMapTag);
+  //m_l1GtObjectMapToken = consumes<L1GlobalTriggerObjectMapRecord>(m_l1GtObjectMapTag);
   
 
   
@@ -82,6 +81,7 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) :
 
   } else {
 
+      
       m_l1GlobalDecision = true;
 
   }
@@ -123,6 +123,7 @@ HLTL1TSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // #
   // # by convention, "L1GlobalDecision" logical expression means global decision
   desc.add<string>("L1SeedsLogicalExpression","");
+  desc.add<edm::InputTag>("L1GtObjectMapTag",edm::InputTag("simGtStage2Digis"));
 
   desc.add<edm::InputTag>("muonCollectionsTag",edm::InputTag("simGmtStage2Digis"));
   desc.add<edm::InputTag>("egammaCollectionsTag",edm::InputTag("simCaloStage2Digis"));
@@ -135,6 +136,8 @@ HLTL1TSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 }
 
 bool HLTL1TSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+
+  bool rc = false;
 
   // the filter object
   if (saveTags()) {
@@ -154,19 +157,17 @@ bool HLTL1TSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, t
     // etsum 
     filterproduct.addCollectionTag(m_l1EtSumTag);
   }
-  
 
-  //seedsL1TriggerObjectMaps(iEvent, filterproduct, l1GtTmAlgo.product(), gtReadoutRecordPtr, physicsDaqPartition);
-  
-  //// FIXME: for now don't pass TrigMask nor gtReadout record.
-  seedsL1TriggerObjectMaps(iEvent, filterproduct);   
+  // Get all the seeding from iEvent (i.e. L1TriggerObjectMapRecord)
+  //
+  rc = seedsL1TriggerObjectMaps(iEvent, filterproduct);   
                                                      
   //seedsAll(iEvent, filterproduct);
 
   if (m_isDebugEnabled) {
         dumpTriggerFilterObjectWithRefs(filterproduct);
   }
-  return true;
+  return rc;
 
 }
 
@@ -462,41 +463,8 @@ void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWit
 // seeding is done via L1 trigger object maps, considering the objects which fired in L1
 bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
         trigger::TriggerFilterObjectWithRefs & filterproduct
-        //,
-        //const L1GtTriggerMask * l1GtTmAlgo,
-        //const L1GlobalTriggerReadoutRecord* gtReadoutRecordPtr,
-        //const int physicsDaqPartition
         ) {
 
-    /* Comment out for v2.0
-    // get Global Trigger decision word, update the tokenResult members
-    // from m_l1AlgoLogicParser and get the result for the logical expression
-    const std::vector<bool>& gtDecisionWord = gtReadoutRecordPtr->decisionWord();
-    updateAlgoLogicParser(gtDecisionWord, l1GtTmAlgo->gtTriggerMask(), physicsDaqPartition);
-
-    bool seedsResult = m_l1AlgoLogicParser.expressionResult();
-
-    if (m_isDebugEnabled ) {
-        // define an output stream to print into
-        // it can then be directed to whatever log level is desired
-        std::ostringstream myCoutStream;
-        gtReadoutRecordPtr->printGtDecision(myCoutStream);
-
-        LogTrace("HLTL1TSeed")
-        << myCoutStream.str()
-        << "\nHLTL1TSeed::hltFilter "
-        << "\nLogical expression (names) = '" << m_l1SeedsLogicalExpression << "'"
-        << "\n  Result for logical expression: " << seedsResult << "\n"
-        << std::endl;
-    }
-
-    // the evaluation of the logical expression is false - skip event
-    if ( !seedsResult) {
-
-        return false;
-
-    }
-    */
 
     // define index lists for all particle types
 
@@ -536,23 +504,61 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       for (size_t imap =0; imap < objMaps.size(); imap++) {
 
         LogTrace("HLTL1TSeed")
-          << "\tmap = " << imap << "\talgoName = " << objMaps[imap].algoName() << "\tGtlResult  = " <<  objMaps[imap].algoGtlResult();
+          << "\t map = " << imap << "\talgoName = " << objMaps[imap].algoName() << "\tGtlResult  = " <<  objMaps[imap].algoGtlResult();
 
       }
       LogTrace("HLTL1TSeed") << endl;
 
     }
 
-
-    // Debug
+    // Update/Reset m_l1AlgoLogicParser by reseting token result 
+    //
     std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
             m_l1AlgoLogicParser.operandTokenVector();
 
     for (size_t i = 0; i < algOpTokenVector.size(); ++i) {
-        int iBit = (algOpTokenVector[i]).tokenNumber;
-        std::string algName = (algOpTokenVector[i]).tokenName;
+
+        // rest token result 
+        //
+        (algOpTokenVector[i]).tokenResult = false;
+
+    }
+
+    // Update m_l1AlgoLogicParser and store results for algOpTokens 
+    //
+    for (size_t i = 0; i < algOpTokenVector.size(); ++i) {
+
+        std::string algoName = (algOpTokenVector[i]).tokenName;
+
         LogTrace("HLTL1TSeed") 
-          << "tokenName = " << algName << "  tokenNumber = " << iBit << "\n" << endl;
+        << "tokenName = " << algoName << "\n" << endl;
+
+        const L1GlobalTriggerObjectMap* objMap = gtObjectMapRecord->getObjectMap(algoName);
+
+        if(objMap == 0) {
+
+          LogTrace("HLTL1TSeed") 
+          << "\nWarning: seed with name " << algoName << " cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap" << std::endl;
+          //return false;
+
+        }
+        else {
+
+          (algOpTokenVector[i]).tokenResult = objMap->algoGtlResult();
+
+        }
+
+    }
+
+    bool seedsResult = m_l1AlgoLogicParser.expressionResult();
+
+    if (m_isDebugEnabled ) {
+
+        LogTrace("HLTL1TSeed")
+        << "\nHLTL1TSeed::hltFilter "
+        << "\nLogical expression (names) = '" << m_l1SeedsLogicalExpression << "'"
+        << "\n  Result for logical expression after update of algOpTokens: " << seedsResult << "\n"
+        << std::endl;
     }
 
 
@@ -573,12 +579,14 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       bool algoSeedResult = (*itSeed).tokenResult;
 
       LogTrace("HLTL1TSeed") 
-        << " ----------------  seed name = " << algoSeedName << endl;
+        << "\n ----------------  seed name = " << algoSeedName << endl;
 
       const L1GlobalTriggerObjectMap* objMap = gtObjectMapRecord->getObjectMap(algoSeedName);
 
       if(objMap == 0) {
 
+          // Should not get here
+          //
           edm::LogWarning("HLTL1TSeed")
           << "\nWarning: seed with name " << algoSeedName << " cannot be matched to a L1 algo name in any L1GlobalTriggerObjectMap" << std::endl;
           return false;
@@ -590,7 +598,6 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       algoSeedMapNumber = objMap->algoBitNumber();
 
       LogTrace("HLTL1TSeed")
-      << "\nHLTL1TSeed::hltFilter "
       << "\n  Algorithm " << algoSeedName << " with bit number " << algoSeedMapNumber
       << " in the object map seed list"
       << "\n  Algorithm result = " << algoSeedResult << "\n"
@@ -1031,11 +1038,8 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     //    }
 
 
-    //  FIXME:  Need to return seedsResult properly evaluated as value of logical expression
-    bool seedsResult = true;
-
     LogTrace("HLTL1TSeed")
-      << "\nreturning " << seedsResult << endl;
+      << "\nHLTL1Seed:seedsL1TriggerObjectMaps returning " << seedsResult << endl << endl;
 
     return seedsResult;
 
