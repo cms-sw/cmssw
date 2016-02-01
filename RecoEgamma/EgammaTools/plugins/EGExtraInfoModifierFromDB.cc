@@ -560,7 +560,7 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
 void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
   // regression calculation needs no additional valuemaps
   
-  std::array<float, 31> eval;
+  std::array<float, 35> eval;
   const reco::SuperClusterRef& the_sc = pho.superCluster();
   const edm::Ptr<reco::CaloCluster>& theseed = the_sc->seed();
   
@@ -604,8 +604,16 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
   if (iseb) {
     EBDetId ebseedid(theseed->seed());
     eval[26] = pho.e5x5()/theseed->energy();
-    eval[27] = ebseedid.ieta();
-    eval[28] = ebseedid.iphi();
+    int ieta = ebseedid.ieta();
+    int iphi = ebseedid.iphi();
+    eval[27] = ieta;
+    eval[28] = iphi;
+    eval[29] = (ieta-1*abs(ieta)/ieta)%5;
+    eval[30] = (iphi-1)%2;
+    eval[31] = (abs(ieta)<=25)*((ieta-1*abs(ieta)/ieta)%25) + (abs(ieta)>25)*((ieta-26*abs(ieta)/ieta)%20);
+    eval[32] = (iphi-1)%20;
+    eval[33] = ieta;  /// duplicated variables but this was trained like that
+    eval[34] = iphi;  /// duplicated variables but this was trained like that
   } else {
     EEDetId eeseedid(theseed->seed());
     eval[26] = the_sc->preshowerEnergy()/raw_energy;
