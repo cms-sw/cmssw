@@ -15,7 +15,7 @@ SUSY_HLT_Electron_BJet = cms.EDAnalyzer("SUSY_HLT_Electron_BJet",
 )
 
 SUSY_HLT_Electron_BJet_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_DoubleEle8_CaloId_TrkIdVL_Mass8_PFHTT300"),
+    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV0p54PF_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(
