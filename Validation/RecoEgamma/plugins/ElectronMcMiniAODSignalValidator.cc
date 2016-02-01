@@ -371,7 +371,7 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
             if (bestGsfElectron.isEE()) h1_ele_fbrem_mAOD_endcaps->Fill( bestGsfElectron.fbrem() );
 
         // -- pflow over pT
-            double one_over_pt = 1. / bestGsfElectron.pt());
+            double one_over_pt = 1. / bestGsfElectron.pt();
 
             h1_ele_chargedHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt * one_over_pt );
             h1_ele_neutralHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt * one_over_pt );
