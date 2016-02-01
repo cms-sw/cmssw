@@ -55,7 +55,7 @@ namespace l1t {
 									
 									for(int iL = 0; iL <= 26; iL += 2)
 									{
-										if ( iL == 0 || iL == 2 || iL == 8 || iL == 10 || iL == 12 || iL == 14 )
+										if ( iL == 12 || iL == 14 )
 											continue;
 										
 										res[iL] = inputMuons;
