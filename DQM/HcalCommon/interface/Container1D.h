@@ -36,7 +36,7 @@ namespace hcaldqm
 			Container1D(std::string const& folder, std::string const& nametitle,
 				mapper::MapperType mt, axis::Axis* xaxis, 
 				axis::Axis* yaxis = new ValueAxis(fYaxis, fEntries));
-			virtual ~Container1D() {}
+			virtual ~Container1D();
 
 			//	Initialize Container
 			//	@folder - folder name where to save. Should already include the

@@ -27,7 +27,7 @@ namespace hcaldqm
 					axis::fiphi),
 				axis::Axis *zaxis = new axis::ValueAxis(axis::fZaxis, 
 					axis::fEntries));
-			virtual ~Container2D() {}
+			virtual ~Container2D();
 
 			//	Initialize Container
 			//	@folder

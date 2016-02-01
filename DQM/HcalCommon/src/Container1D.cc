@@ -13,6 +13,12 @@ namespace hcaldqm
 		_yaxis = NULL;
 	}
 
+	/* virtual */ Container1D::~Container1D()
+	{
+		delete _xaxis; _xaxis=NULL;
+		delete _yaxis; _yaxis=NULL;
+	}
+
 	Container1D::Container1D(std::string const& folder, 
 		std::string const& nametitle, mapper::MapperType mt, axis::Axis *xaxis,
 		axis::Axis *yaxis):

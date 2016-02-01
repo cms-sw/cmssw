@@ -13,6 +13,13 @@ namespace hcaldqm
 		_zaxis = NULL;
 	}
 
+	/* virtual */ ContainerSingle2D::~ContainerSingle2D()
+	{
+		delete _xaxis; _xaxis=NULL;
+		delete _yaxis; _yaxis=NULL;
+		delete _zaxis; _zaxis=NULL;
+	}
+
 	ContainerSingle2D::ContainerSingle2D(std::string const& folder,
 		std::string const& nametitle,
 		Axis *xaxis, Axis *yaxis, Axis *zaxis):

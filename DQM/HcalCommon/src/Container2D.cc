@@ -15,6 +15,12 @@ namespace hcaldqm
 		_zaxis = NULL;
 	}
 
+	/* virtual */ Container2D::~Container2D()
+	{
+		//	Container1D::~Container1D will be called as well
+		delete _zaxis; _zaxis=NULL;
+	}
+
 	Container2D::Container2D(std::string const& folder, std::string nametitle,
 		mapper::MapperType mt, axis::Axis *xaxis, axis::Axis* yaxis,
 		axis::Axis *zaxis):

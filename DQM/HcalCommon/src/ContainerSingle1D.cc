@@ -11,6 +11,12 @@ namespace hcaldqm
 		_yaxis = NULL;
 	}
 
+	/* virtual */ContainerSingle1D::~ContainerSingle1D()
+	{
+		delete _xaxis; _xaxis=NULL;
+		delete _yaxis; _yaxis=NULL;
+	}
+
 	ContainerSingle1D::ContainerSingle1D(std::string const& folder,
 		std::string const& nametitle,
 		Axis *xaxis, Axis *yaxis):

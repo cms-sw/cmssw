@@ -27,7 +27,7 @@ namespace hcaldqm
 				axis::Axis *xaxis,
 				axis::Axis *yaxis = new CoordinateAxis(fYaxis, axis::fiphi), 
 				axis::Axis *zaxis = new ValueAxis(fZaxis, fEntries));
-			virtual ~ContainerSingle2D() {}
+			virtual ~ContainerSingle2D();
 
 			virtual void initialize(std::string const& folder, 
 				std::string const& nametitle, 
