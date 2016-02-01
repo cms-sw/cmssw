@@ -124,7 +124,7 @@ process.MuonNumberingRecord = cms.ESSource( "EmptyESSource",
 )
 
 process.load("Configuration.StandardSequences.GeometryDB_cff")
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 
 if len(good_lumis)>0:
   process.source = cms.Source("PoolSource",
