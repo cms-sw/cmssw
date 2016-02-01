@@ -14,13 +14,19 @@
 struct HaloTowerStrip {
     std::vector<std::pair<uint8_t, CaloTowerDetId> > cellTowerIds;
     float hadEt;
+    float energyRatio;
+    float emEt;
     HaloTowerStrip() {
         hadEt = 0.0;
+        energyRatio = -1.0;
+        emEt = 0.0;
         cellTowerIds.clear();
     }
     HaloTowerStrip(const HaloTowerStrip& strip) {
         cellTowerIds = strip.cellTowerIds;
         hadEt = strip.hadEt;
+        energyRatio = strip.energyRatio;
+        emEt = strip.emEt;
     }
 };
 
