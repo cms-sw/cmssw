@@ -224,8 +224,8 @@ void PFMETAlgorithmMVA::evaluateMVA()
   mvaOutputU_     = GetResponse(mvaReaderU_, varForU_);
   var_["RecoilCor_U"] = var_["particleFlow_U"] * mvaOutputU_;
   var_["RecoilCor_UPhi"] = var_["PhiCor_UPhi"];
-  mvaOutputCovU1_ = GetResponse(mvaReaderCovU1_, varForCovU1_)* mvaOutputU_ * var_["particleFlow_U"];
-  mvaOutputCovU2_ = GetResponse(mvaReaderCovU2_, varForCovU2_)* mvaOutputU_ * var_["particleFlow_U"];
+  mvaOutputCovU1_ = std::pow(GetResponse(mvaReaderCovU1_, varForCovU1_)* mvaOutputU_ * var_["particleFlow_U"], 2);
+  mvaOutputCovU2_ = std::pow(GetResponse(mvaReaderCovU2_, varForCovU2_)* mvaOutputU_ * var_["particleFlow_U"], 2);
 
 
   // compute MET(Photon check)

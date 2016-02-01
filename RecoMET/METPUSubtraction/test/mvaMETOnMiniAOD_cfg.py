@@ -23,7 +23,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring('root://eoscms//eos/cms/store/relval/CMSSW_7_5_0_pre4/RelValZMM_13/MINIAODSIM/PU50ns_MCRUN2_75_V0-v1/00000/66CB72C0-70F8-E411-81DC-002590596468.root'),
+    fileNames = cms.untracked.vstring('/store/mc/RunIIFall15MiniAODv2/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/DC327D28-D3B8-E511-9FB7-008CFA0A59C0.root '),
                             skipEvents = cms.untracked.uint32(0)         
 )
 
