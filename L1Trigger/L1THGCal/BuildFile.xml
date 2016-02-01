@@ -1,4 +1,4 @@
-<use   name="Geometry/FCalGeometry"/>
+<use   name="Geometry/HGCalGeometry"/>
 <use   name="Geometry/CaloTopology"/>
 
 <export>
