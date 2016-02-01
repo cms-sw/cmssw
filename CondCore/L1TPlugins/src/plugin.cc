@@ -210,4 +210,13 @@ REGISTER_PLUGIN(L1TCaloConfigRcd, CaloConfig);
 
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
+#include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
+#include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsRcd.h"
+
 REGISTER_PLUGIN(L1TMuonOverlapParamsRcd, L1TMuonOverlapParams);
+REGISTER_PLUGIN(L1TMuonBarrelParamsRcd, L1TMuonBarrelParams);
+REGISTER_PLUGIN(L1TMuonGlobalParamsRcd, L1TMuonGlobalParams);
