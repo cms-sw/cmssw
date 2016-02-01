@@ -53,10 +53,19 @@ l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonCand(RegionalMuonCand& mu, u
     mu.setTrackSubAddress(RegionalMuonCand::kSegSelStat3, segSel & 0x4);
     mu.setTrackSubAddress(RegionalMuonCand::kSegSelStat4, segSel & 0x8);
   } else if (tf == emtf_neg || tf == emtf_pos) {
-    int me12 = (rawTrackAddress >> emtfTrAddrMe12Shift_) & emtfTrAddrMe12Mask_;
-    int me22 = (rawTrackAddress >> emtfTrAddrMe22Shift_) & emtfTrAddrMe22Mask_;
-    mu.setTrackSubAddress(RegionalMuonCand::kME12, me12);
-    mu.setTrackSubAddress(RegionalMuonCand::kME22, me22);
+    mu.setTrackSubAddress(RegionalMuonCand::kSectorId, (rawTrackAddress >> emtfTrAddrSectIdShift_) & emtfTrAddrSectIdMask_);
+    mu.setTrackSubAddress(RegionalMuonCand::kME1, (rawTrackAddress >> emtfTrAddrMe1Shift_) & emtfTrAddrMe1Mask_);
+    mu.setTrackSubAddress(RegionalMuonCand::kME1SubSecId, (rawTrackAddress >> emtfTrAddrMe1SubSecIdShift_) & 0x1);
+    mu.setTrackSubAddress(RegionalMuonCand::kME1Order, (rawTrackAddress >> emtfTrAddrMe1OrderShift_) & 0x1);
+    mu.setTrackSubAddress(RegionalMuonCand::kME2, (rawTrackAddress >> emtfTrAddrMe2Shift_) & emtfTrAddrMe2Mask_);
+    mu.setTrackSubAddress(RegionalMuonCand::kME2SubSecId, (rawTrackAddress >> emtfTrAddrMe2SubSecIdShift_) & 0x1);
+    mu.setTrackSubAddress(RegionalMuonCand::kME2Order, (rawTrackAddress >> emtfTrAddrMe2OrderShift_) & 0x1);
+    mu.setTrackSubAddress(RegionalMuonCand::kME3, (rawTrackAddress >> emtfTrAddrMe3Shift_) & emtfTrAddrMe3Mask_);
+    mu.setTrackSubAddress(RegionalMuonCand::kME3SubSecId, (rawTrackAddress >> emtfTrAddrMe3SubSecIdShift_) & 0x1);
+    mu.setTrackSubAddress(RegionalMuonCand::kME3Order, (rawTrackAddress >> emtfTrAddrMe3OrderShift_) & 0x1);
+    mu.setTrackSubAddress(RegionalMuonCand::kME4, (rawTrackAddress >> emtfTrAddrMe4Shift_) & emtfTrAddrMe4Mask_);
+    mu.setTrackSubAddress(RegionalMuonCand::kME4SubSecId, (rawTrackAddress >> emtfTrAddrMe4SubSecIdShift_) & 0x1);
+    mu.setTrackSubAddress(RegionalMuonCand::kME4Order, (rawTrackAddress >> emtfTrAddrMe4OrderShift_) & 0x1);
   } else {
     std::map<int, int> trackAddr;
     trackAddr[0] = rawTrackAddress;
@@ -115,8 +124,19 @@ l1t::RegionalMuonRawDigiTranslator::generatePackedDataWords(const RegionalMuonCa
                | (stat3 & bmtfTrAddrStat3Mask_) << bmtfTrAddrStat3Shift_
                | (stat4 & bmtfTrAddrStat4Mask_) << bmtfTrAddrStat4Shift_;
   } else if (tf == emtf_neg || tf == emtf_pos) {
-    rawTrkAddr = (mu.trackSubAddress(RegionalMuonCand::kME12) & emtfTrAddrMe12Mask_) << emtfTrAddrMe12Shift_
-               | (mu.trackSubAddress(RegionalMuonCand::kME22) & emtfTrAddrMe22Mask_) << emtfTrAddrMe22Shift_;
+    rawTrkAddr = (mu.trackSubAddress(RegionalMuonCand::kSectorId) & emtfTrAddrSectIdMask_) << emtfTrAddrSectIdShift_
+               | (mu.trackSubAddress(RegionalMuonCand::kME1) & emtfTrAddrMe1Mask_) << emtfTrAddrMe1Shift_
+               | (mu.trackSubAddress(RegionalMuonCand::kME1SubSecId) & 0x1) << emtfTrAddrMe1SubSecIdShift_
+               | (mu.trackSubAddress(RegionalMuonCand::kME1Order) & 0x1) << emtfTrAddrMe1OrderShift_
+               | (mu.trackSubAddress(RegionalMuonCand::kME2) & emtfTrAddrMe2Mask_) << emtfTrAddrMe2Shift_
+               | (mu.trackSubAddress(RegionalMuonCand::kME2SubSecId) & 0x1) << emtfTrAddrMe2SubSecIdShift_
+               | (mu.trackSubAddress(RegionalMuonCand::kME2Order) & 0x1) << emtfTrAddrMe2OrderShift_
+               | (mu.trackSubAddress(RegionalMuonCand::kME3) & emtfTrAddrMe3Mask_) << emtfTrAddrMe3Shift_
+               | (mu.trackSubAddress(RegionalMuonCand::kME3SubSecId) & 0x1) << emtfTrAddrMe3SubSecIdShift_
+               | (mu.trackSubAddress(RegionalMuonCand::kME3Order) & 0x1) << emtfTrAddrMe3OrderShift_
+               | (mu.trackSubAddress(RegionalMuonCand::kME4) & emtfTrAddrMe4Mask_) << emtfTrAddrMe4Shift_
+               | (mu.trackSubAddress(RegionalMuonCand::kME4SubSecId) & 0x1) << emtfTrAddrMe4SubSecIdShift_
+               | (mu.trackSubAddress(RegionalMuonCand::kME4Order) & 0x1) << emtfTrAddrMe4OrderShift_;
   } else {
     rawTrkAddr = mu.trackAddress().at(0);
   }
