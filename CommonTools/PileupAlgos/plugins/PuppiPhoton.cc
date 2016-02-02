@@ -75,27 +75,23 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     if(!passObject && usePhotonId_) continue;
     if(!usePFRef_) phoCands.push_back(&(*itPho)); 
     if(!usePFRef_) continue;
-    try{
-      const pat::Photon *pPho = dynamic_cast<const pat::Photon*>(&(*itPho));
-      if(pPho != 0) {
-	for( const edm::Ref<pat::PackedCandidateCollection> & ref : pPho->associatedPackedPFCandidates() ) {
-	  if(matchPFCandidate(&(*(pfCol->ptrAt(ref.key()))),&(*itPho))) {
-	    phoIndx.push_back(ref.key());
-	    phoCands.push_back(&(*(pfCol->ptrAt(ref.key()))));
-	  }
+    const pat::Photon *pPho = dynamic_cast<const pat::Photon*>(&(*itPho));
+    if(pPho != 0) {
+      for( const edm::Ref<pat::PackedCandidateCollection> & ref : pPho->associatedPackedPFCandidates() ) {
+	if(matchPFCandidate(&(*(pfCol->ptrAt(ref.key()))),&(*itPho))) {
+	  phoIndx.push_back(ref.key());
+	  phoCands.push_back(&(*(pfCol->ptrAt(ref.key()))));
 	}
-	continue;
       }
-      const pat::Electron *pElectron = dynamic_cast<const pat::Electron*>(&(*itPho));
-      if(pElectron != 0) {
-	for( const edm::Ref<pat::PackedCandidateCollection> & ref : pElectron->associatedPackedPFCandidates() ) 
-	  if(matchPFCandidate(&(*(pfCol->ptrAt(ref.key()))),&(*itPho)))  {
-	    phoIndx.push_back(ref.key());
-	    phoCands.push_back(&(*(pfCol->ptrAt(ref.key()))));
-	  }
-      }
-    } catch(...) { 
-      throw edm::Exception(edm::errors::LogicError,"PuppiPhoton: photon references not found"); 
+      continue;
+    }
+    const pat::Electron *pElectron = dynamic_cast<const pat::Electron*>(&(*itPho));
+    if(pElectron != 0) {
+      for( const edm::Ref<pat::PackedCandidateCollection> & ref : pElectron->associatedPackedPFCandidates() ) 
+	if(matchPFCandidate(&(*(pfCol->ptrAt(ref.key()))),&(*itPho)))  {
+	  phoIndx.push_back(ref.key());
+	  phoCands.push_back(&(*(pfCol->ptrAt(ref.key()))));
+	}
     }
   }
   //Get Weights
