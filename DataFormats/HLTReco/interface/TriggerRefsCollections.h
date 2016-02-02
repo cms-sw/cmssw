@@ -1074,6 +1074,26 @@ namespace trigger
     const Vids&        pfmetIds()      const {return pfmetIds_;}
     const VRpfmet&     pfmetRefs()     const {return pfmetRefs_;}
 
+    size_type          l1tmuonSize()   const {return l1tmuonIds_.size();}
+    const Vids&        l1tmuonIds()    const {return l1tmuonIds_;}
+    const VRl1tmuon&   l1tmuonRefs()   const {return l1tmuonRefs_;}
+
+    size_type          l1tegammaSize() const {return l1tegammaIds_.size();}
+    const Vids&        l1tegammaIds()  const {return l1tegammaIds_;}
+    const VRl1tegamma& l1tegammaRefs() const {return l1tegammaRefs_;}
+
+    size_type          l1tjetSize()    const {return l1tjetIds_.size();}
+    const Vids&        l1tjetIds()     const {return l1tjetIds_;}
+    const VRl1tjet&    l1tjetRefs()    const {return l1tjetRefs_;}
+
+    size_type          l1ttauSize()     const {return l1ttauIds_.size();}
+    const Vids&        l1ttauIds()      const {return l1ttauIds_;}
+    const VRl1ttau&     l1ttauRefs()     const {return l1ttauRefs_;}
+
+    size_type          l1tetsumSize()  const {return l1tetsumIds_.size();}
+    const Vids&        l1tetsumIds()   const {return l1tetsumIds_;}
+    const VRl1tetsum&  l1tetsumRefs()  const {return l1tetsumRefs_;}
+
   };
 
   // picked up via argument dependent lookup, e-g- by boost::swap()
