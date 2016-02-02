@@ -301,20 +301,30 @@ L1JetRecoTreeProducer::doPFJets(edm::Handle<reco::PFJetCollection> pfJets) {
 void
 L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, edm::Handle<reco::JetCorrector> pfJetCorr) {
 
-  float corrFactor = 1.;
+
+  std::vector< std::pair<float,float> > corrJetEtsAndCorrs;
+  
+  //get jet correction and fill corrected jet ets and corrections
+  for( auto it=pfJets->begin(); it!=pfJets->end(); ++it) 
+    {
+      float corr = pfJetCorr.product()->correction(*it);
+      std::pair<float,float> corrJetEtAndCorr(corr*it->et(),corr);
+      corrJetEtsAndCorrs.push_back(corrJetEtAndCorr);
+    }
+
+  // sort corrected jet ets and correction factors 
+  // by corrected jet et
+  std::sort(corrJetEtsAndCorrs.rbegin(),corrJetEtsAndCorrs.rend());
+  
+  //fill jet data array with sorted jet ets and corr factors
+  std::vector<std::pair<float,float> >::iterator it;
   uint nJets = 0;
   
-  for( auto it=pfJets->begin();
-       it!=pfJets->end() && nJets < maxJet_;
-       ++it) {
-    
-    corrFactor = pfJetCorr.product()->correction(*it);
-    
-    jet_data->etCorr.push_back(it->et()*corrFactor);
-    jet_data->corrFactor.push_back(corrFactor);
+  for(it = corrJetEtsAndCorrs.begin(); it != corrJetEtsAndCorrs.end() && nJets < maxJet_; ++it){
+    jet_data->etCorr.push_back(it->first);
+    jet_data->corrFactor.push_back(it->second);
     nJets++;
   }
-  
 }
 
 void
