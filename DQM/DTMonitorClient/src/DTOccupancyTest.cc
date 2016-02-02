@@ -264,23 +264,6 @@ string DTOccupancyTest::getMEName(string histoTag, const DTChamberId& chId) {
 }
 
 
-int DTOccupancyTest::getIntegral(TH2F *histo,const DTChamberId& chId) {
-  int nBinsX = histo->GetNbinsX();
-  int nBinsY = histo->GetNbinsY();
-
-  int sum = 0;
-    for (Int_t i = 1; i < nBinsX+1; i++) {
-      for (Int_t j = 1; j < nBinsY+1; j++) {
-	if (histo->GetBinContent(i,j) == -1) continue;
-	sum += histo->GetBinContent(i,j);
-      }
-    }
-
-    return sum;
-
-}
-
-
 // Run a test on the occupancy of the chamber
 // Return values:
 // 0 -> all ok
@@ -300,7 +283,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
   bool failCells = false;
 
   // Check that the chamber has digis
-  if (getIntegral(histo,chId) == 0) {
+  if (histo->GetMaximum() == 0) {
     chamberPercentage = 0;
     return 4;
   }
