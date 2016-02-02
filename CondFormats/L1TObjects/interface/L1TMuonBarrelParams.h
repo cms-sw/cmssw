@@ -16,7 +16,6 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "CondFormats/L1TObjects/interface/LUT.h"
-#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrack.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFMasks.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTEtaPattern.h"
