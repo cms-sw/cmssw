@@ -37,7 +37,7 @@ mixedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer
 )
 
 # tracks
-mixedTripletStepTracks = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTracks.clone()
+mixedTripletStepTracks = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTracks.clone(TTRHBuilder = 'WithoutRefit')
 
 # final selection
 mixedTripletStepClassifier1 = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClassifier1.clone()
