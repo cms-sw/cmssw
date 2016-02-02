@@ -25,6 +25,8 @@ def customiseFor13062(process):
         module.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
 
     for module in esproducers_by_type(process,'Chi2ChargeMeasurementEstimatorESProducer'):    
+        if hasattr(module,'MaxDispacement'):
+            delattr(module,'MaxDispacement')
         if not hasattr(module,'MaxDisplacement'):
             module.MaxDisplacement  = cms.double(100.)
         if not hasattr(module,'MaxSagitta'):
@@ -32,6 +34,8 @@ def customiseFor13062(process):
         if not hasattr(module,'MinimalTolerance'):
             module.MinimalTolerance = cms.double(10.) 
     for module in esproducers_by_type(process,'Chi2MeasurementEstimatorESProducer'):
+        if hasattr(module,'MaxDispacement'):
+            delattr(module,'MaxDispacement')
         if not hasattr(module,'MaxDisplacement'):
             module.MaxDisplacement  = cms.double(100.)
         if not hasattr(module,'MaxSagitta'):
@@ -63,7 +67,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 #       process = customiseFor12718(process)
         process = customiseFor13062(process)
         from HLTrigger.Configuration.customizeHLTfor2016trackingTemplate import customiseFor2016trackingTemplate
-        process = customiseFor2016trackingTemplate(process)
+#       process = customiseFor2016trackingTemplate(process)
         pass
 
     return process
