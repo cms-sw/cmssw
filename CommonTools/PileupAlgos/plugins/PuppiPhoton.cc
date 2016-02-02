@@ -1,4 +1,3 @@
-
 // system include files
 #include <memory>
 
@@ -23,6 +22,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Math/interface/deltaR.h"
 //Main File
 #include "CommonTools/PileupAlgos/plugins/PuppiPhoton.h"
 
@@ -32,12 +32,12 @@ PuppiPhoton::PuppiPhoton(const edm::ParameterSet& iConfig) {
   tokenPuppiCandidates_  = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("puppiCandName"));
   tokenPhotonCandidates_ = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("photonName"));
   tokenPhotonId_         = consumes<edm::ValueMap<bool>  >(iConfig.getParameter<edm::InputTag>("photonId")); 
-  pt_                    = iConfig.getUntrackedParameter<double>("pt");
-  dRMatch_               = iConfig.getUntrackedParameter<std::vector<double> > ("dRMatch");
-  pdgIds_                = iConfig.getUntrackedParameter<std::vector<int32_t> >("pdgids");
-  usePFRef_              = iConfig.getUntrackedParameter<bool>("useRefs");
-  weight_                = iConfig.getUntrackedParameter<double>("weight");
-  useValueMap_           = iConfig.getUntrackedParameter<bool>("useValueMap");
+  pt_                    = iConfig.getParameter<double>("pt");
+  dRMatch_               = iConfig.getParameter<std::vector<double> > ("dRMatch");
+  pdgIds_                = iConfig.getParameter<std::vector<int32_t> >("pdgids");
+  usePFRef_              = iConfig.getParameter<bool>("useRefs");
+  weight_                = iConfig.getParameter<double>("weight");
+  useValueMap_           = iConfig.getParameter<bool>("useValueMap");
   tokenWeights_          = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("weightsName"));
 
   usePhotonId_  = (iConfig.getParameter<edm::InputTag>("photonId")).label().size() == 0;
@@ -175,32 +175,11 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 }
 // ------------------------------------------------------------------------------------------
 bool PuppiPhoton::matchPFCandidate(const reco::Candidate *iPF,const reco::Candidate *iPho) { 
-  double pDEta = iPF->eta()-iPho->eta();
-  double pDPhi = std::abs(iPF->phi()-iPho->phi());
-  if(pDPhi > 2.*M_PI-pDPhi) pDPhi =  2.*M_PI-pDPhi;
-  double pDR2 = pDEta*pDEta+pDPhi*pDPhi;
+  double lDR = deltaR(iPF->eta(),iPF->phi(),iPho->eta(),iPho->phi());
   for(unsigned int i0 = 0; i0 < pdgIds_.size(); i0++) {
-    if(std::abs(iPF->pdgId()) == pdgIds_[i0] && pDR2 < dRMatch_[i0])  return true;
+    if(std::abs(iPF->pdgId()) == pdgIds_[i0] && lDR < dRMatch_[i0])  return true;
   }
   return false;
-}
-// ------------------------------------------------------------------------------------------
-void PuppiPhoton::beginJob() {
-}
-// ------------------------------------------------------------------------------------------
-void PuppiPhoton::endJob() {
-}
-// ------------------------------------------------------------------------------------------
-void PuppiPhoton::beginRun(edm::Run&, edm::EventSetup const&) {
-}
-// ------------------------------------------------------------------------------------------
-void PuppiPhoton::endRun(edm::Run&, edm::EventSetup const&) {
-}
-// ------------------------------------------------------------------------------------------
-void PuppiPhoton::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&) {
-}
-// ------------------------------------------------------------------------------------------
-void PuppiPhoton::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&) {
 }
 // ------------------------------------------------------------------------------------------
 void PuppiPhoton::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
