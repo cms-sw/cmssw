@@ -3,11 +3,11 @@ import FWCore.ParameterSet.Config as cms
 ### General track re-fitting includes
 ### (don't load dtGeometry_cfi or cscGeometry_cfi because it's provided by AlignmentProducer)
 from Configuration.StandardSequences.Services_cff import *
-from Configuration.StandardSequences.GeometryExtended_cff import *
-from Configuration.StandardSequences.MagneticField_cff import *
+#from Configuration.StandardSequences.GeometryExtended_cff import *
+#from Configuration.StandardSequences.MagneticField_cff import *
 from RecoTracker.Configuration.RecoTracker_cff import *
-del DTGeometryESModule
-del CSCGeometryESModule
+#del DTGeometryESModule
+#del CSCGeometryESModule
 
 ### Track refitter for global collisions muons
 from TrackingTools.TrackRefitter.globalMuonTrajectories_cff import *
@@ -17,9 +17,9 @@ MuonAlignmentFromReferenceGlobalMuonRefit.TrackTransformer.RefitRPCHits = cms.bo
 
 ### Track refitter for global cosmic muons
 from TrackingTools.TrackRefitter.globalCosmicMuonTrajectories_cff import *
-MuonAlignmentFromReferenceGlobalCosmicRefit = globalCosmicMuons.clone()
-MuonAlignmentFromReferenceGlobalCosmicRefit.Tracks = cms.InputTag("ALCARECOMuAlGlobalCosmics:GlobalMuon")
-MuonAlignmentFromReferenceGlobalCosmicRefit.TrackTransformer.RefitRPCHits = cms.bool(False)
+#MuonAlignmentFromReferenceGlobalCosmicRefit = globalCosmicMuons.clone()
+#MuonAlignmentFromReferenceGlobalCosmicRefit.Tracks = cms.InputTag("ALCARECOMuAlGlobalCosmics:GlobalMuon")
+#MuonAlignmentFromReferenceGlobalCosmicRefit.TrackTransformer.RefitRPCHits = cms.bool(False)
 
 ### for Tracker muon re-reco
 from RecoMuon.Configuration.RecoMuon_cff import *
@@ -35,6 +35,8 @@ from Alignment.CommonAlignmentProducer.AlignmentProducer_cff import *
 looper.tjTkAssociationMapTag = cms.InputTag("MuonAlignmentFromReferenceGlobalMuonRefit:Refitted")
 looper.doTracker = cms.untracked.bool(False)
 looper.doMuon = cms.untracked.bool(True)
+looper.checkDbAlignmentValidity = cms.untracked.bool(False)
+looper.useExtras = cms.untracked.bool(False)
 looper.ParameterBuilder.Selector = cms.PSet(
     alignParams = cms.vstring("MuonDTChambers,111111,stations123", "MuonDTChambers,100011,station4", "MuonCSCChambers,100011"),
     stations123 = cms.PSet(rRanges = cms.vdouble(0., 660.),

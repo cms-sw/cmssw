@@ -56,6 +56,9 @@
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
+
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
 //
 // class decleration
 //

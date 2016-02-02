@@ -10,6 +10,7 @@ MuonHitsChamberResidual::MuonHitsChamberResidual(edm::ESHandle<GlobalTrackingGeo
                                                  DetId chamberId,
                                                  const AlignableDetOrUnitPtr& chamberAlignable)
   : MuonChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable)
+  , m_chamber_width(0.), m_chamber_length(0.)
   , m_residual_1(0.)
   , m_residual_x(0.)  , m_residual_y(0.)
   , m_residual_xx(0.) , m_residual_xy(0.)
@@ -77,5 +78,8 @@ void MuonHitsChamberResidual::segment_fit()
 
   delta = m_hity_1 * m_hity_xx - m_hity_x * m_hity_x;
   m_segy = (m_hity_xx * m_hity_y - m_hity_x * m_hity_xy) / delta;
+
+  m_ChambW = m_chamber_width;
+  m_Chambl = m_chamber_length;
 }
 
