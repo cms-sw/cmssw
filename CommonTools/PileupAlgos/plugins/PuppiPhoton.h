@@ -29,14 +29,7 @@ public:
 	typedef edm::View<reco::PFCandidate>                   PFView;
 
 private:
-	virtual void beginJob() ;
 	virtual void produce(edm::Event&, const edm::EventSetup&);
-	virtual void endJob() ;
-      
-	virtual void beginRun(edm::Run&, edm::EventSetup const&);
-	virtual void endRun(edm::Run&, edm::EventSetup const&);
-	virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-	virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 	bool matchPFCandidate(const reco::Candidate *iPF,const reco::Candidate *iPho);
 	edm::EDGetTokenT< CandidateView >        tokenPFCandidates_;
 	edm::EDGetTokenT< CandidateView >        tokenPuppiCandidates_;
