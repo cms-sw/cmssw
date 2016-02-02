@@ -162,16 +162,6 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     corrCandidates_->push_back(pCand);
   }
   //Fill it into the event
-  //std::auto_ptr<edm::ValueMap<float> > lPupOut(new edm::ValueMap<float>());
-  // edm::ValueMap<float>::Filler  lPupFiller(*lPupOut);
-  //lPupFiller.insert(hPFProduct,lWeights.begin(),lWeights.end());
-  //lPupFiller.fill();
-  //Compute the modified p4s
-  //edm::ValueMap<LorentzVector>::Filler  p4PupFiller(*p4PupOut);
-  //p4PupFiller.insert(hPFProduct,puppiP4s.begin(), puppiP4s.end() );
-  //p4PupFiller.fill();
-  //iEvent.put(lPupOut);
-  //iEvent.put(p4PupOut);
   edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.put( corrCandidates_ );
   for(unsigned int ic=0, nc = pupCol->size(); ic < nc; ++ic) {
       reco::CandidatePtr pkref( oh, ic );
