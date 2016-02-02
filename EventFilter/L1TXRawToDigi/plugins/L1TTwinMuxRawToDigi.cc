@@ -13,7 +13,7 @@
 //
 //--------------------------------------------------
 
-#include "EventFilter/TwinMuxRawToDigi/interface/TwinMuxFEDReader.h"
+#include "L1TTwinMuxRawToDigi.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -22,7 +22,7 @@
 #include <iostream>
 #include <fstream>
 
-DTTM7FEDReader::DTTM7FEDReader(const edm::ParameterSet& pset) :
+L1TTwinMuxRawToDigi::L1TTwinMuxRawToDigi(const edm::ParameterSet& pset) :
 
   debug_( pset.getUntrackedParameter<bool>("debug", false) ), 
   passbc0_( pset.getUntrackedParameter<bool>("passbc0", false) ), 
@@ -57,9 +57,9 @@ DTTM7FEDReader::DTTM7FEDReader(const edm::ParameterSet& pset) :
    
 }
 
-DTTM7FEDReader::~DTTM7FEDReader(){}
+L1TTwinMuxRawToDigi::~L1TTwinMuxRawToDigi(){}
 
-void DTTM7FEDReader::produce(edm::Event& e, 
+void L1TTwinMuxRawToDigi::produce(edm::Event& e, 
                              const edm::EventSetup& c) {
 
   std::auto_ptr<L1MuDTChambPhContainer> TM7phi_product(new L1MuDTChambPhContainer);
@@ -79,7 +79,7 @@ void DTTM7FEDReader::produce(edm::Event& e,
 }
 
 
-bool DTTM7FEDReader::fillRawData( edm::Event& e,
+bool L1TTwinMuxRawToDigi::fillRawData( edm::Event& e,
                                   L1MuDTChambPhContainer::Phi_Container& phi_data,
                                   L1MuDTChambThContainer::The_Container& the_data ) {
 
@@ -93,7 +93,7 @@ bool DTTM7FEDReader::fillRawData( edm::Event& e,
   return true;
 }
 
-int DTTM7FEDReader::normBx( int bx_, 
+int L1TTwinMuxRawToDigi::normBx( int bx_, 
                             int bxCnt_ ){
     
     int bxNorm_ = bx_ - bxCnt_;    
@@ -106,7 +106,7 @@ int DTTM7FEDReader::normBx( int bx_,
     
 }
 
-int DTTM7FEDReader::radAngConversion( int radAng_  ) {
+int L1TTwinMuxRawToDigi::radAngConversion( int radAng_  ) {
     
     if (radAng_>2047) 
         return radAng_-4096;
@@ -115,7 +115,7 @@ int DTTM7FEDReader::radAngConversion( int radAng_  ) {
     
 }
 
-int DTTM7FEDReader::benAngConversion( int benAng_  ) {
+int L1TTwinMuxRawToDigi::benAngConversion( int benAng_  ) {
     
     if (benAng_>511) 
         return benAng_-1024;
@@ -124,7 +124,7 @@ int DTTM7FEDReader::benAngConversion( int benAng_  ) {
     
 }
 
-void DTTM7FEDReader::processFed( int twinMuxFed, 
+void L1TTwinMuxRawToDigi::processFed( int twinMuxFed, 
                                  int twinMuxWheel,
                                  std::array<short, 12> twinMuxAmcSec,
                                  edm::Handle<FEDRawDataCollection> data,
@@ -588,7 +588,7 @@ void DTTM7FEDReader::processFed( int twinMuxFed,
 
 
 
-void DTTM7FEDReader::calcCRC( long word, int & myC ) {
+void L1TTwinMuxRawToDigi::calcCRC( long word, int & myC ) {
 
   int myCRC[16], D[64], C[16];
 
@@ -687,3 +687,7 @@ void DTTM7FEDReader::calcCRC( long word, int & myC ) {
   return;
 }
 
+
+//define this as a plug-in
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L1TTwinMuxRawToDigi);

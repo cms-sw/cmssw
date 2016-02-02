@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:    EventFilter/L1TCaloLayer1RawToDigi
+// Package:    EventFilter/L1TXRawToDigi
 // Class:      L1TCaloLayer1RawToDigi
 // 
 /**\class L1TCaloLayer1RawToDigi L1TCaloLayer1RawToDigi.cc EventFilter/L1TCaloLayer1RawToDigi/plugins/L1TCaloLayer1RawToDigi.cc
@@ -26,9 +26,11 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
@@ -50,9 +52,9 @@
 
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 
-#include "UCTDAQRawData.hh"
-#include "UCTAMCRawData.hh"
-#include "UCTCTP7RawData.hh"
+#include "UCTDAQRawData.h"
+#include "UCTAMCRawData.h"
+#include "UCTCTP7RawData.h"
 
 //
 // class declaration

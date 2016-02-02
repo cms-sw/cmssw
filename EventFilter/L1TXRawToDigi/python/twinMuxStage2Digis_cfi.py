@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dttm7unpacker = cms.EDProducer("DTTM7FEDReader",
+twinMuxStage2Digis = cms.EDProducer("L1TTwinMuxRawToDigi",
                                DTTM7_FED_Source = cms.InputTag("rawDataCollector"),
                                feds     = cms.untracked.vint32( 1395,           1391,           1390,           1394,           1393           ),
                                wheels   = cms.untracked.vint32( -2,             -1,             0,              +1,             +2             ),

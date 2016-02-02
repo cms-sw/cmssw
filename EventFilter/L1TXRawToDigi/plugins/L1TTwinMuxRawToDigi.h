@@ -12,8 +12,8 @@
  */
 //
 //--------------------------------------------------
-#ifndef DTTM7RawToDigi_DTTM7FEDReader_h
-#define DTTM7RawToDigi_DTTM7FEDReader_h
+#ifndef L1TXRAWTODIGI_L1TTWINMUXRAWTODIGI_HH
+#define L1TXRAWTODIGI_L1TTWINMUXRAWTODIGI_HH
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
@@ -27,15 +27,15 @@
 
 #include <string>
 
-class DTTM7FEDReader : public edm::EDProducer {
+class L1TTwinMuxRawToDigi : public edm::EDProducer {
 
 public:
 
   /// Constructor
-  DTTM7FEDReader( const edm::ParameterSet& pset );
+  L1TTwinMuxRawToDigi( const edm::ParameterSet& pset );
 
   /// Destructor
-  virtual ~DTTM7FEDReader();
+  virtual ~L1TTwinMuxRawToDigi();
 
   /// Produce digis out of raw data
   void produce( edm::Event & e, const edm::EventSetup& c );
