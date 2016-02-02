@@ -343,7 +343,7 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 	 if(m_yavedrphi && *m_yavedrphi) (*m_yavedrphi)->Fill(sel->first,dydrphi);
        
        } else {
-         LogTrace("OccupancyPlots") << sel->first << " is NOT selected with bits";
+         //LogTrace("OccupancyPlots") << sel->first << " is NOT selected with bits";
        }
      }
 
@@ -368,7 +368,7 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
          if(m2_yavedrphi && *m2_yavedrphi) (*m2_yavedrphi)->Fill(sel->first,dydrphi); 
  
        } else {
-         LogTrace("OccupancyPlots") << sel->first << " is NOT selected with labels";
+         //LogTrace("OccupancyPlots") << sel->first << " is NOT selected with labels";
        }
          
      }

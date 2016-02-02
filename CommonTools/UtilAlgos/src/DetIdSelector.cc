@@ -347,7 +347,6 @@ bool DetIdSelector::isSelectedByWordsTOB(std::string label, const DetId& detid, 
     return false;
   }
 
-
   pos = label.find("Layer");                            //LayerXX_
   if(pos>=0){
     //LogTrace("OccupancyPlots") << "the label contains layer!!";
@@ -359,6 +358,13 @@ bool DetIdSelector::isSelectedByWordsTOB(std::string label, const DetId& detid, 
   if(pos>=0){
     //LogTrace("OccupancyPlots") << "the label contains ladder!!";
     isSelected = isSame(label, "Rod", tTopo->tobRod(detid.rawId()), 2);
+    if (!isSelected) return false;
+  }
+
+  pos = label.find("Side");                            //SideX_
+  if(pos>=0){
+    //LogTrace("OccupancyPlots") << "the label contains TOB side!!";
+    isSelected = isSame(label, "Side", tTopo->tobSide(detid.rawId()), 1);
     if (!isSelected) return false;
   }
 
