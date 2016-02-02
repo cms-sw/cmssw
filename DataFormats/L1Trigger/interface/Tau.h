@@ -9,6 +9,9 @@ namespace l1t {
 
   class Tau;
   typedef BXVector<Tau> TauBxCollection;
+  typedef edm::Ref< TauBxCollection > TauRef ;
+  typedef edm::RefVector< TauBxCollection > TauRefVector ;
+  typedef std::vector< TauRef > TauVectorRef ;
 
   class Tau : public L1Candidate {
 

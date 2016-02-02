@@ -1,31 +1,43 @@
 #include "../interface/MicroGMTIsolationUnit.h"
 
-#include "DataFormats/L1TMuon/interface/GMTInputCaloSum.h"
-#include "DataFormats/L1TMuon/interface/GMTInternalMuon.h"
+#include "L1Trigger/L1TMuon/interface/GMTInternalMuon.h"
+#include "DataFormats/L1TMuon/interface/MuonCaloSum.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-l1t::MicroGMTIsolationUnit::MicroGMTIsolationUnit (const edm::ParameterSet& iConfig) :
-  m_BEtaExtrapolation(iConfig, "BEtaExtrapolationLUTSettings", 0), m_BPhiExtrapolation(iConfig, "BPhiExtrapolationLUTSettings", 1), m_OEtaExtrapolation(iConfig, "OEtaExtrapolationLUTSettings", 0),
-  m_OPhiExtrapolation(iConfig, "OPhiExtrapolationLUTSettings", 1), m_FEtaExtrapolation(iConfig, "FEtaExtrapolationLUTSettings", 0), m_FPhiExtrapolation(iConfig, "FPhiExtrapolationLUTSettings", 1),
-  m_IdxSelMemEta(iConfig, "IdxSelMemEtaLUTSettings", 0), m_IdxSelMemPhi(iConfig, "IdxSelMemPhiLUTSettings", 1), m_RelIsoCheckMem(iConfig, "RelIsoCheckMemLUTSettings"),
-  m_AbsIsoCheckMem(iConfig, "AbsIsoCheckMemLUTSettings"), m_initialSums(false)
+l1t::MicroGMTIsolationUnit::MicroGMTIsolationUnit () : m_initialSums(false)
 {
-  m_etaExtrapolationLUTs[tftype::bmtf] = &m_BEtaExtrapolation;
-  m_phiExtrapolationLUTs[tftype::bmtf] = &m_BPhiExtrapolation;
-  m_etaExtrapolationLUTs[tftype::omtf_pos] = &m_OEtaExtrapolation;
-  m_etaExtrapolationLUTs[tftype::omtf_neg] = &m_OEtaExtrapolation;
-  m_phiExtrapolationLUTs[tftype::omtf_pos] = &m_OPhiExtrapolation;
-  m_phiExtrapolationLUTs[tftype::omtf_neg] = &m_OPhiExtrapolation;
-  m_etaExtrapolationLUTs[tftype::emtf_pos] = &m_FEtaExtrapolation;
-  m_etaExtrapolationLUTs[tftype::emtf_neg] = &m_FEtaExtrapolation;
-  m_phiExtrapolationLUTs[tftype::emtf_pos] = &m_FPhiExtrapolation;
-  m_phiExtrapolationLUTs[tftype::emtf_neg] = &m_FPhiExtrapolation;
 }
 
 l1t::MicroGMTIsolationUnit::~MicroGMTIsolationUnit ()
 {
+}
+
+void
+l1t::MicroGMTIsolationUnit::initialise(L1TMuonGlobalParams* microGMTParams) {
+  int fwVersion = microGMTParams->fwVersion();
+  m_BEtaExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParams->bEtaExtrapolationLUTPath(), fwVersion);
+  m_BPhiExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParams->bPhiExtrapolationLUTPath(), fwVersion);
+  m_OEtaExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParams->oEtaExtrapolationLUTPath(), fwVersion);
+  m_OPhiExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParams->oPhiExtrapolationLUTPath(), fwVersion);
+  m_FEtaExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParams->fEtaExtrapolationLUTPath(), fwVersion);
+  m_FPhiExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParams->fPhiExtrapolationLUTPath(), fwVersion);
+  m_IdxSelMemEta = l1t::MicroGMTCaloIndexSelectionLUTFactory::create(microGMTParams->idxSelMemEtaLUTPath(), 0, fwVersion);
+  m_IdxSelMemPhi = l1t::MicroGMTCaloIndexSelectionLUTFactory::create(microGMTParams->idxSelMemPhiLUTPath(), 1, fwVersion);
+  m_RelIsoCheckMem = l1t::MicroGMTRelativeIsolationCheckLUTFactory::create(microGMTParams->relIsoCheckMemLUTPath(), fwVersion);
+  m_AbsIsoCheckMem = l1t::MicroGMTAbsoluteIsolationCheckLUTFactory::create(microGMTParams->absIsoCheckMemLUTPath(), fwVersion);
+
+  m_etaExtrapolationLUTs[tftype::bmtf] = m_BEtaExtrapolation;
+  m_phiExtrapolationLUTs[tftype::bmtf] = m_BPhiExtrapolation;
+  m_etaExtrapolationLUTs[tftype::omtf_pos] = m_OEtaExtrapolation;
+  m_etaExtrapolationLUTs[tftype::omtf_neg] = m_OEtaExtrapolation;
+  m_phiExtrapolationLUTs[tftype::omtf_pos] = m_OPhiExtrapolation;
+  m_phiExtrapolationLUTs[tftype::omtf_neg] = m_OPhiExtrapolation;
+  m_etaExtrapolationLUTs[tftype::emtf_pos] = m_FEtaExtrapolation;
+  m_etaExtrapolationLUTs[tftype::emtf_neg] = m_FEtaExtrapolation;
+  m_phiExtrapolationLUTs[tftype::emtf_pos] = m_FPhiExtrapolation;
+  m_phiExtrapolationLUTs[tftype::emtf_neg] = m_FPhiExtrapolation;
 }
 
 int
@@ -37,10 +49,10 @@ l1t::MicroGMTIsolationUnit::getCaloIndex(MicroGMTConfiguration::InterMuon& mu) c
     phi = 576+phi;
   }
 
-  int phiIndex = m_IdxSelMemPhi.lookup(phi);
+  int phiIndex = m_IdxSelMemPhi->lookup(phi);
   int eta = mu.hwEta()+mu.hwDEta();
   eta = MicroGMTConfiguration::getTwosComp(eta, 9);
-  int etaIndex = m_IdxSelMemEta.lookup(eta);
+  int etaIndex = m_IdxSelMemEta->lookup(eta);
   mu.setHwCaloEta(etaIndex);
   mu.setHwCaloPhi(phiIndex);
 
@@ -125,8 +137,8 @@ l1t::MicroGMTIsolationUnit::isolate(MicroGMTConfiguration::InterMuonList& muons)
     int energySum = calculate5by5Sum(caloIndex);
     mu->setHwIsoSum(energySum);
 
-    int absIso = m_AbsIsoCheckMem.lookup(energySum);
-    int relIso = m_RelIsoCheckMem.lookup(energySum, mu->hwPt());
+    int absIso = m_AbsIsoCheckMem->lookup(energySum);
+    int relIso = m_RelIsoCheckMem->lookup(energySum, mu->hwPt());
 
     mu->setHwRelIso(relIso);
     mu->setHwAbsIso(absIso);
@@ -157,8 +169,8 @@ void l1t::MicroGMTIsolationUnit::isolatePreSummed(MicroGMTConfiguration::InterMu
 
     mu->setHwIsoSum(energySum);
 
-    int absIso = m_AbsIsoCheckMem.lookup(energySum);
-    int relIso = m_RelIsoCheckMem.lookup(energySum, mu->hwPt());
+    int absIso = m_AbsIsoCheckMem->lookup(energySum);
+    int relIso = m_RelIsoCheckMem->lookup(energySum, mu->hwPt());
 
     mu->setHwRelIso(relIso);
     mu->setHwAbsIso(absIso);

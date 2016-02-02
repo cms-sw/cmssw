@@ -1,32 +1,38 @@
 #include "../interface/MicroGMTCancelOutUnit.h"
-#include "DataFormats/L1TMuon/interface/GMTInternalMuon.h"
+#include "L1Trigger/L1TMuon/interface/GMTInternalMuon.h"
 
 namespace l1t {
-MicroGMTCancelOutUnit::MicroGMTCancelOutUnit (const edm::ParameterSet& iConfig) :
-    m_boPosMatchQualLUT(iConfig, "BOPos", cancel_t::omtf_bmtf_pos),
-    m_boNegMatchQualLUT(iConfig, "BONeg", cancel_t::omtf_bmtf_neg),
-    m_foPosMatchQualLUT(iConfig, "FOPos", cancel_t::omtf_emtf_pos),
-    m_foNegMatchQualLUT(iConfig, "FONeg", cancel_t::omtf_emtf_neg),
-    m_brlSingleMatchQualLUT(iConfig, "BrlSingle", cancel_t::bmtf_bmtf),
-    m_ovlPosSingleMatchQualLUT(iConfig, "OvlPosSingle", cancel_t::omtf_omtf_pos),
-    m_ovlNegSingleMatchQualLUT(iConfig, "OvlNegSingle", cancel_t::omtf_omtf_neg),
-    m_fwdPosSingleMatchQualLUT(iConfig, "FwdPosSingle", cancel_t::emtf_emtf_pos),
-    m_fwdNegSingleMatchQualLUT(iConfig, "FwdNegSingle", cancel_t::emtf_emtf_neg)
-  {
-    m_lutDict[tftype::bmtf+tftype::bmtf*10] = &m_brlSingleMatchQualLUT;
-    m_lutDict[tftype::omtf_neg+tftype::bmtf*10] = &m_boNegMatchQualLUT;
-    m_lutDict[tftype::omtf_pos+tftype::bmtf*10] = &m_boPosMatchQualLUT;
-    m_lutDict[tftype::omtf_pos+tftype::omtf_pos*10] = &m_ovlPosSingleMatchQualLUT;
-    m_lutDict[tftype::omtf_neg+tftype::omtf_neg*10] = &m_ovlNegSingleMatchQualLUT;
-    m_lutDict[tftype::emtf_pos+tftype::emtf_pos*10] = &m_fwdPosSingleMatchQualLUT;
-    m_lutDict[tftype::emtf_neg+tftype::emtf_neg*10] = &m_fwdNegSingleMatchQualLUT;
-    m_lutDict[tftype::omtf_pos+tftype::emtf_pos*10] = &m_foPosMatchQualLUT;
-    m_lutDict[tftype::omtf_neg+tftype::emtf_neg*10] = &m_foNegMatchQualLUT;
+MicroGMTCancelOutUnit::MicroGMTCancelOutUnit ()
+{
 }
 
 MicroGMTCancelOutUnit::~MicroGMTCancelOutUnit ()
 {
 
+}
+
+void
+MicroGMTCancelOutUnit::initialise(L1TMuonGlobalParams* microGMTParams) {
+    int fwVersion = microGMTParams->fwVersion();
+    m_boPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->bOPosMatchQualLUTPath(), cancel_t::omtf_bmtf_pos, fwVersion);
+    m_boNegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->bONegMatchQualLUTPath(), cancel_t::omtf_bmtf_neg, fwVersion);
+    m_foPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fOPosMatchQualLUTPath(), cancel_t::omtf_emtf_pos, fwVersion);
+    m_foNegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fONegMatchQualLUTPath(), cancel_t::omtf_emtf_neg, fwVersion);
+    m_brlSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->brlSingleMatchQualLUTPath(), cancel_t::bmtf_bmtf, fwVersion);
+    m_ovlPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->ovlPosSingleMatchQualLUTPath(), cancel_t::omtf_omtf_pos, fwVersion);
+    m_ovlNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->ovlNegSingleMatchQualLUTPath(), cancel_t::omtf_omtf_neg, fwVersion);
+    m_fwdPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fwdPosSingleMatchQualLUTPath(), cancel_t::emtf_emtf_pos, fwVersion);
+    m_fwdNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fwdNegSingleMatchQualLUTPath(), cancel_t::emtf_emtf_neg, fwVersion);
+
+    m_lutDict[tftype::bmtf+tftype::bmtf*10] = m_brlSingleMatchQualLUT;
+    m_lutDict[tftype::omtf_neg+tftype::bmtf*10] = m_boNegMatchQualLUT;
+    m_lutDict[tftype::omtf_pos+tftype::bmtf*10] = m_boPosMatchQualLUT;
+    m_lutDict[tftype::omtf_pos+tftype::omtf_pos*10] = m_ovlPosSingleMatchQualLUT;
+    m_lutDict[tftype::omtf_neg+tftype::omtf_neg*10] = m_ovlNegSingleMatchQualLUT;
+    m_lutDict[tftype::emtf_pos+tftype::emtf_pos*10] = m_fwdPosSingleMatchQualLUT;
+    m_lutDict[tftype::emtf_neg+tftype::emtf_neg*10] = m_fwdNegSingleMatchQualLUT;
+    m_lutDict[tftype::omtf_pos+tftype::emtf_pos*10] = m_foPosMatchQualLUT;
+    m_lutDict[tftype::omtf_neg+tftype::emtf_neg*10] = m_foNegMatchQualLUT;
 }
 
 void
@@ -135,7 +141,7 @@ MicroGMTCancelOutUnit::getCoordinateCancelBits(std::vector<std::shared_ptr<GMTIn
   if (coll1.size() == 0 || coll2.size() == 0) {
     return;
   }
-  MicroGMTMatchQualLUT* matchLUT = m_lutDict.at((*coll1.begin())->trackFinderType()+(*coll2.begin())->trackFinderType()*10);
+  MicroGMTMatchQualLUT* matchLUT = m_lutDict.at((*coll1.begin())->trackFinderType()+(*coll2.begin())->trackFinderType()*10).get();
 
   for (auto mu_w1 = coll1.begin(); mu_w1 != coll1.end(); ++mu_w1) {
     for (auto mu_w2 = coll2.begin(); mu_w2 != coll2.end(); ++mu_w2) {

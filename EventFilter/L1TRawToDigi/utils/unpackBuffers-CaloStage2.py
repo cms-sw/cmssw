@@ -34,6 +34,16 @@ options.register('mpHeaderFrames',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "MP header frames in tx")
+options.register('mpKeyLinkRx',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "MP packet key link (Rx)")
+options.register('mpKeyLinkTx',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "MP packet key link (Tx)")
 options.register('dmFramesPerEvent',
                  6,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -45,7 +55,7 @@ options.register('dmLatency',
                  VarParsing.VarParsing.varType.int,
                  "Demux latency (frames)")
 options.register('dmOffset',
-                 28,
+                 29,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Demux offset (frames)")
@@ -90,7 +100,7 @@ options.register('doGT',
                  VarParsing.VarParsing.varType.bool,
                  "Read GT data")
 options.register('nMP',
-                 11,
+                 9,#11,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Number of MPs")
@@ -197,6 +207,8 @@ if (options.doMP):
 process.stage2MPRaw.nFramesPerEvent    = cms.untracked.int32(options.mpFramesPerEvent)
 process.stage2MPRaw.nFramesOffset    = cms.untracked.vuint32(mpOffsets)
 process.stage2MPRaw.boardOffset    = cms.untracked.int32(boardOffset)
+process.stage2MPRaw.rxKeyLink    = cms.untracked.int32(options.mpKeyLinkRx)
+process.stage2MPRaw.txKeyLink    = cms.untracked.int32(options.mpKeyLinkTx)
 #process.stage2MPRaw.nFramesLatency   = cms.untracked.vuint32(mpLatencies)
 process.stage2MPRaw.nHeaderFrames = cms.untracked.int32(options.mpHeaderFrames)
 process.stage2MPRaw.rxFile = cms.untracked.string("mp_rx_summary.txt")
@@ -234,14 +246,15 @@ process.rawDataCollector.verbose = cms.untracked.int32(2)
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer( 
     "DumpFEDRawDataProduct",
-    label = cms.untracked.string("rawDataCollector"),
+    token = cms.untracked.InputTag("rawDataCollector"),
     feds = cms.untracked.vint32 ( 1360, 1366, 1404 ),
-    dumpPayload = cms.untracked.bool ( False )
+    dumpPayload = cms.untracked.bool ( options.dump )
 )
 
 # raw to digi
 process.load('EventFilter.L1TRawToDigi.caloStage2Digis_cfi')
 process.caloStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
+process.caloStage2Digis.debug      = cms.untracked.bool(options.debug)
 
 process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
 process.gtStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
@@ -250,8 +263,7 @@ process.gtStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("caloStage2Digis")
 process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
-process.l1tStage2CaloAnalyzer.mpEGToken = cms.InputTag("None")
-process.l1tStage2CaloAnalyzer.mpTauToken = cms.InputTag("None")
+
 
 # Path and EndPath definitions
 process.path = cms.Path(
@@ -259,7 +271,7 @@ process.path = cms.Path(
     +process.stage2DemuxRaw
     +process.stage2GTRaw
     +process.rawDataCollector
-    +process.dumpRaw
+    #+process.dumpRaw
     +process.caloStage2Digis
     +process.gtStage2Digis
     +process.l1tStage2CaloAnalyzer
@@ -277,4 +289,5 @@ if (not options.doGT):
 process.out = cms.EndPath(
     process.output
 )
+
 

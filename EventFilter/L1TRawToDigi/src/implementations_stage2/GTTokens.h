@@ -5,6 +5,7 @@
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 
@@ -16,6 +17,7 @@ namespace l1t {
          public:
             GTTokens(const edm::ParameterSet&, edm::ConsumesCollector&);
 
+            inline const edm::EDGetTokenT<MuonBxCollection>& getMuonToken() const { return muonToken_; };
             inline const edm::EDGetTokenT<EGammaBxCollection>& getEGammaToken() const { return egammaToken_; };
             inline const edm::EDGetTokenT<EtSumBxCollection>& getEtSumToken() const { return etSumToken_; };
             inline const edm::EDGetTokenT<JetBxCollection>& getJetToken() const { return jetToken_; };
@@ -25,6 +27,7 @@ namespace l1t {
 
          private:
 
+            edm::EDGetTokenT<MuonBxCollection> muonToken_;
 	    edm::EDGetTokenT<EGammaBxCollection> egammaToken_;
 	    edm::EDGetTokenT<EtSumBxCollection> etSumToken_;
 	    edm::EDGetTokenT<JetBxCollection> jetToken_;
