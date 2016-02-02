@@ -4,6 +4,10 @@
 
 int main()
 {
+
+  testSerialization<L1TMuonOverlapParams>();  
+  testSerialization<L1TMuonBarrelParams>();  
+  testSerialization<L1TMuonGlobalParams>();  
   testSerialization<l1t::CaloParams>();
   testSerialization<l1t::CaloConfig>();
     testSerialization<L1CaloEcalScale>();
