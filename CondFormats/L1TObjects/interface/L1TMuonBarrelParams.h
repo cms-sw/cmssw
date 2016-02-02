@@ -16,7 +16,11 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "CondFormats/L1TObjects/interface/LUT.h"
-//#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrack.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrack.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTTFMasks.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTEtaPattern.h"
+
 
 class L1TMuonBarrelParams {
 
@@ -41,20 +45,39 @@ public:
 	  NUM_BMTFPARAMNODES=1
   };
 
+    L1MuDTTFParameters l1mudttfparams;
+    L1MuDTTFMasks      l1mudttfmasks;
 
     /// L1MuBMPtaLut
     typedef std::map<short, short, std::less<short> > LUT;
+    ///Qual Pattern LUT
+    typedef std::pair< short, short > LUTID;
+    typedef std::pair< short, std::vector<short> > LUTCONT;
+    typedef std::map< LUTID, LUTCONT > qpLUT;
+    ///Eta Pattern LUT
+    typedef std::map<short, L1MuDTEtaPattern, std::less<short> > etaLUT;
 
     class LUTParams{
     public:
       std::vector<LUT> pta_lut_;
       std::vector<LUT> phi_lut_;
       std::vector<int> pta_threshold_;
+      qpLUT qp_lut_;
+      etaLUT eta_lut_;
+
+        /// helper class for extrapolation look-up tables
+       class extLUT {
+       public:
+           LUT low;
+           LUT high;
+           COND_SERIALIZABLE;
+       };
+       std::vector<extLUT> ext_lut_;
 
 
-      LUTParams() : pta_lut_(0), phi_lut_(0), pta_threshold_(6)
-      { pta_lut_.reserve(12); pta_threshold_.reserve(6); phi_lut_.reserve(2); }
 
+
+      LUTParams() : pta_lut_(0), phi_lut_(0), pta_threshold_(6), ext_lut_(0){  }
       COND_SERIALIZABLE;
     };
   std::string AssLUTPath() const  { return pnodes_[pta].sparams_.size() > 0 ? pnodes_[pta].sparams_[0] : ""; }
@@ -68,6 +91,14 @@ public:
   void setphi_lut(std::vector<LUT> philut) { lutparams_.phi_lut_ = philut; };
   std::vector<LUT> phi_lut() const {return lutparams_.phi_lut_; };
 
+  void setext_lut(std::vector<LUTParams::extLUT> extlut) { lutparams_.ext_lut_ = extlut; };
+  std::vector<LUTParams::extLUT> ext_lut() const {return lutparams_.ext_lut_; };
+
+  void setqp_lut(qpLUT qplut) { lutparams_.qp_lut_ = qplut; };
+  qpLUT qp_lut() const {return lutparams_.qp_lut_; };
+
+  void seteta_lut(etaLUT eta_lut) { lutparams_.eta_lut_ = eta_lut; };
+  etaLUT eta_lut() const {return lutparams_.eta_lut_; };
 
     class ConfigParams{
     public:
@@ -123,6 +154,7 @@ public:
     bool get_Open_LUTs() const {return conparams_.Open_LUTs ;}
     bool get_EtaTrackFinder() const {return conparams_.EtaTrackFinder ;}
     bool get_Extrapolation_21() const {return conparams_.Extrapolation_21 ;}
+
 
 
   L1TMuonBarrelParams() { version_=Version; pnodes_.resize(NUM_BMTFPARAMNODES); }
