@@ -17,10 +17,11 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
+#include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFinputMaker.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFSorter.h"
-
-
 
 class L1TMuonOverlapParams;
 class OMTFProcessor;
@@ -60,12 +61,20 @@ class L1TMuonOverlapTrackProducer : public edm::EDProducer {
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> inputTokenCSC;
   edm::EDGetTokenT<RPCDigiCollection> inputTokenRPC;
 
-  void processCandidates(unsigned int iProcessor, int bx,
-			 std::auto_ptr<l1t::RegionalMuonCandBxCollection > & myCands,
-			 l1t::RegionalMuonCandBxCollection & myOTFCandidates,
-			 l1t::tftype mtfType);
+  void loadAndFilterDigis(edm::Event& iEvent);
+
+  void getProcessorCandidates(unsigned int iProcessor, l1t::tftype mtfType, int bx,
+			      l1t::RegionalMuonCandBxCollection & myCandidates);
+  
+  void writeResultToXML(unsigned int iProcessor, const OMTFinput &myInput, 
+			const std::vector<OMTFProcessor::resultsMap> & myResults);
 
   bool dumpResultToXML, dumpDetailedResultToXML;
+
+  edm::Handle<L1MuDTChambPhContainer> dtPhDigis;
+  edm::Handle<L1MuDTChambThContainer> dtThDigis;
+  edm::Handle<CSCCorrelatedLCTDigiCollection> cscDigis;
+  edm::Handle<RPCDigiCollection> rpcDigis;
 
   ///OMTF objects
   OMTFConfiguration *myOMTFConfig;

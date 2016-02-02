@@ -228,11 +228,11 @@ bool OMTFSorter::checkHitPatternValidity(unsigned int hits){
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
-void OMTFSorter::sortProcessor(const std::vector<OMTFProcessor::resultsMap> & procResults,
-			       l1t::RegionalMuonCandBxCollection & sortedCands,
-			       int bx, int charge){
-
-  sortedCands.clear();
+void OMTFSorter::sortProcessorAndFillCandidates(unsigned int iProcessor, l1t::tftype mtfType,
+					       const std::vector<OMTFProcessor::resultsMap> & procResults,
+					       l1t::RegionalMuonCandBxCollection & sortedCands,
+					       int bx, int charge){
+  
   std::vector<InternalObj> mySortedCands;
   sortProcessorResults(procResults, mySortedCands, charge);
 
@@ -241,7 +241,13 @@ void OMTFSorter::sortProcessor(const std::vector<OMTFProcessor::resultsMap> & pr
     std::bitset<17> bits(myCand.hits);
     candidate.setHwPt(myCand.pt);
     candidate.setHwEta(myCand.eta);
-    candidate.setHwPhi(myCand.phi);
+
+    float phiValue = myCand.phi;
+    if(phiValue>=(int)OMTFConfiguration::nPhiBins) phiValue-=OMTFConfiguration::nPhiBins;
+    ///conversion factor from OMTF to uGMT scale: 5400/576
+    phiValue/=9.375;
+    candidate.setHwPhi(phiValue);
+    
     candidate.setHwSign(myCand.charge<0 ? 1:0  );
     ///Quality is set to number of leayers hit.
     ///DT bending and position hit is counted as one.
@@ -254,11 +260,9 @@ void OMTFSorter::sortProcessor(const std::vector<OMTFProcessor::resultsMap> & pr
     trackAddr[1] = myCand.refLayer;
     trackAddr[2] = myCand.disc;
     candidate.setTrackAddress(trackAddr);
-
-    sortedCands.push_back(bx, candidate);
+    candidate.setTFIdentifiers(iProcessor,mtfType);
+    if(candidate.hwPt()) sortedCands.push_back(bx, candidate);
   }
-
-  return;
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
