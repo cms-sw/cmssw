@@ -51,14 +51,14 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons) :
     HBSize_     = kHBSizePreLS1; // qie-per-fiber * fiber/rm * rm/rbx * rbx/barrel * barrel/hcal
     HESize_     = kHESizePreLS1; // qie-per-fiber * fiber/rm * rm/rbx * rbx/endcap * endcap/hcal
     HOSize_     = kHOSizePreLS1; // ieta * iphi * 2
-    HFSize_     = hcons_->nCells(HcalForward);  // ieta * iphi * depth * 2
+    HFSize_     = kHFSizePreLS1;  // ieta * iphi * depth * 2
     numberOfShapes_ = 87;
   } else if (mode_==HcalTopologyMode::SLHC) { // need to know more eventually
     topoVersion_=10;
     HBSize_     = nEtaHB_*72*maxDepthHB_*2;
     HESize_     = nEtaHE_*72*maxDepthHE_*2;
     HOSize_     = (lastHORing_-firstHORing_+1)*72*2; // ieta * iphi * 2
-    HFSize_     = hcons_->nCells(HcalForward);  // ieta * iphi * depth * 2
+    HFSize_     = (lastHFRing_-firstHFRing_+1)*72*maxDepthHF_*2;  // ieta * iphi * depth * 2
     numberOfShapes_ = 500;
   }
   maxEta_ = (lastHERing_ > lastHFRing_) ? lastHERing_ : lastHFRing_;
@@ -1119,7 +1119,9 @@ unsigned int HcalTopology::detId2denseId(const DetId& id) const {
     }
   }
 #ifdef DebugLog
-  std::cout << "DetId2Dense " << topoVersion_ << " ID " << HcalDetId(id) << " : " << std::hex << retval << std::dec << std::endl;
+  std::cout << "DetId2Dense " << topoVersion_ << " ID " << std::hex 
+	    << id.rawId() << std::dec << " | " << HcalDetId(id) << " : " 
+	    << std::hex << retval << std::dec << std::endl;
 #endif
   return retval;
 }
@@ -1224,10 +1226,12 @@ DetId HcalTopology::denseId2detId(unsigned int denseid) const {
       }	
     }
   }
+  HcalDetId hid(sd, iz*int(ie), ip, dp);
 #ifdef DebugLog
-  std::cout << "Dens2Det " << topoVersion_ << " i/p " << std::hex << denseid << std::dec << " : " << HcalDetId(sd,iz*int(ie),ip,dp) << std::endl;
+  std::cout << "Dens2Det " << topoVersion_ << " i/p " << std::hex << denseid 
+	    << " : " << hid.rawId() << std::dec << " | " << hid << std::endl;
 #endif
-  return HcalDetId( sd, iz*int(ie), ip, dp );
+  return hid;
 }
 
 unsigned int HcalTopology::ncells() const {

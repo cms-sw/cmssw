@@ -14,7 +14,7 @@
 #include <iostream>
 #include <string>
 
-#define DebugLog
+//#define DebugLog
 
 class HcalGeometryTester : public edm::one::EDAnalyzer<> {
 
@@ -39,13 +39,11 @@ private:
   void testFlexiGeomHF(CaloSubdetectorGeometry* geom);
 
   edm::ParameterSet ps0;
-  std::string m_label;
-  bool        useOld_;
+  bool              useOld_;
 };
 
 HcalGeometryTester::HcalGeometryTester( const edm::ParameterSet& iConfig ) :
-  ps0(iConfig),  m_label("_master") {
-  m_label = iConfig.getParameter<std::string>( "HCALGeometryLabel" );
+  ps0(iConfig) {
   useOld_ = iConfig.getParameter<bool>( "UseOldLoader" );
 }
 

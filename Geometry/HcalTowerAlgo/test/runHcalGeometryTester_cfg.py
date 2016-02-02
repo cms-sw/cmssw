@@ -9,15 +9,15 @@ process.load("Geometry.HcalEventSetup.hcalTopologyIdeal_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('HCalGeom'),
+    categories = cms.untracked.vstring('HcalGeometryTester'),
     debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
       threshold = cms.untracked.string('DEBUG'),
       default = cms.untracked.PSet(
         limit = cms.untracked.int32(0)
       ),
-      HCalGeom = cms.untracked.PSet(
-        limit = cms.untracked.int32(0)
+      HcalGeometryTester = cms.untracked.PSet(
+        limit = cms.untracked.int32(-1)
       )
     )
 )
@@ -28,7 +28,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.hga = cms.EDAnalyzer("HcalGeometryTester",
-                             HCALGeometryLabel = cms.string("_master"),
                              UseOldLoader      = cms.bool(False))
 
 process.Timing = cms.Service("Timing")
