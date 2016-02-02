@@ -13,6 +13,8 @@
 
 namespace {
   struct Count {
+#ifdef SISTRIP_COUNT
+    // note: this code is not thread safe, counts will be inaccurate if run with multiple threads
     double ncall=0;
     double ndep=0, ndep2=0, maxdep=0;
     double nstr=0, nstr2=0;
@@ -23,13 +25,17 @@ namespace {
     void val(double d) { ncv++; nval+=d; nval2+=d*d; maxv=std::max(d,maxv);}
     void zero() { dzero++;}    
     ~Count() {
-#ifdef SISTRIP_COUNT
       std::cout << "deposits " << ncall << " " << maxdep << " " << ndep/ncall << " " << std::sqrt(ndep2*ncall -ndep*ndep)/ncall << std::endl;
       std::cout << "zeros " << dzero << std::endl;
       std::cout << "strips  " << nstr/ndep << " " << std::sqrt(nstr2*ndep -nstr*nstr)/ndep << std::endl;
       std::cout << "vaules  " << ncv << " " << maxv << " " << nval/ncv << " " << std::sqrt(nval2*ncv -nval*nval)/ncv << std::endl;
-#endif
     }
+#else
+    void dep(double) {}
+    void str(double) {}
+    void val(double) {}
+    void zero() {}    
+#endif
   };
   
  Count count;
