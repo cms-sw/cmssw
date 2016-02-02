@@ -12,13 +12,13 @@ def esproducers_by_type(process, *types):
 # one action function per PR - put the PR number into the name of the function
 
 # example:
-# def customiseFor12718(process):
-#     for pset in process._Process__psets.values():
-#         if hasattr(pset,'ComponentType'):
-#             if (pset.ComponentType == 'CkfBaseTrajectoryFilter'):
-#                 if not hasattr(pset,'minGoodStripCharge'):
-#                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
-#     return process
+#def customiseFor12718(process):
+#    for pset in process._Process__psets.values():
+#        if hasattr(pset,'ComponentType'):
+#            if (pset.ComponentType == 'CkfBaseTrajectoryFilter'):
+#                if not hasattr(pset,'minGoodStripCharge'):
+#                    pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+#    return process
 
 def customiseFor13062(process):
     for module in producers_by_type(process,'PixelTrackProducer'):
@@ -51,21 +51,19 @@ def customiseFor13062(process):
                 if not hasattr(pset,'strictSeedExtension'):
                     pset.strictSeedExtension = cms.bool(False)
 
-    from HLTrigger.Configuration.customizeHLTfor2016trackingTemplate import *
-    process = customiseFor2016trackingTemplate(process)
     return process
 
 #
 # CMSSW version specific customizations
-def customizeHLTforCMSSW(process, menuType="GRun"):
+def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     import os
     cmsswVersion = os.environ['CMSSW_VERSION']
 
     if cmsswVersion >= "CMSSW_8_0":
-#       process = customiseFor12718(process)
+#        process = customiseFor12718(process)
         process = customiseFor13062(process)
-        from HLTrigger.Configuration.customizeHLTfor2016trackingTemplate import *
+        from HLTrigger.Configuration.customizeHLTfor2016trackingTemplate import customiseFor2016trackingTemplate
         process = customiseFor2016trackingTemplate(process)
         pass
-    
+
     return process
