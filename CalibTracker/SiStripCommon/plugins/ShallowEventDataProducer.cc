@@ -1,6 +1,6 @@
 #include "CalibTracker/SiStripCommon/interface/ShallowEventDataProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 ShallowEventDataProducer::ShallowEventDataProducer(const edm::ParameterSet& iConfig) {
   produces <unsigned int> ( "run"      );
@@ -9,7 +9,9 @@ ShallowEventDataProducer::ShallowEventDataProducer(const edm::ParameterSet& iCon
   produces <unsigned int> ( "lumi"       );
   produces <std::vector<bool> > ( "TrigTech" );
   produces <std::vector<bool> > ( "TrigPh" );
-	consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag(trig_label_));
+	trig_token_ = consumes<L1GlobalTriggerReadoutRecord>(
+		iConfig.getParameter<edm::InputTag>("trigRecord")
+		);
 }
 
 void ShallowEventDataProducer::
@@ -23,7 +25,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 
   edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
-  iEvent.getByLabel( edm::InputTag(trig_label_), gtRecord);
+  iEvent.getByToken(trig_token_, gtRecord);
 
   std::vector<bool> TrigTech_(64,0);
   std::vector<bool> TrigPh_(128,0);
