@@ -61,8 +61,8 @@ namespace l1t {
                for (int oLink = 1; oLink < 9; oLink += 2)
                    res[oLink] = gmt_out_unp;
                // internal muons
-               for (int oLink = 9; oLink < 24; oLink += 2)
-                   res[oLink] = gmt_out_unp;
+               //for (int oLink = 9; oLink < 24; oLink += 2)
+               //    res[oLink] = gmt_out_unp;
 
                return res;
             };
