@@ -194,6 +194,8 @@ namespace trigger
       std::swap(l1tmuonIds_,     other.l1tmuonIds_);
       std::swap(l1tegammaIds_,   other.l1tegammaIds_);
       std::swap(l1tjetIds_,      other.l1tjetIds_);
+      std::swap(l1ttauIds_,      other.l1ttauIds_);
+      std::swap(l1tetsumIds_,      other.l1tetsumIds_);
 
       std::swap(pfjetIds_,      other.pfjetIds_);
       std::swap(pfjetRefs_,     other.pfjetRefs_);
