@@ -618,16 +618,21 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       fastjet::ClusterSequenceAreaBase const* clusterSequenceWithArea =
         dynamic_cast<fastjet::ClusterSequenceAreaBase const *> ( &*fjClusterSeq_ );
 
-      
-      for(int ie = 0; ie < nEta; ++ie){
-        double eta = puCenters_[ie];
-        double etamin=eta-puWidth_;
-        double etamax=eta+puWidth_;
-        fastjet::RangeDefinition range_rho(etamin,etamax);
-        fastjet::BackgroundEstimator bkgestim(*clusterSequenceWithArea,range_rho);
-        bkgestim.set_excluded_jets(fjexcluded_jets);
-        rhos->push_back(bkgestim.rho());
-        sigmas->push_back(bkgestim.sigma());
+      if (clusterSequenceWithArea ==nullptr ){
+	if (fjJets_.size() > 0) {
+	  throw cms::Exception("LogicError")<<"fjClusterSeq is not initialized while inputs are present\n ";
+	}
+      } else {
+	for(int ie = 0; ie < nEta; ++ie){
+	  double eta = puCenters_[ie];
+	  double etamin=eta-puWidth_;
+	  double etamax=eta+puWidth_;
+	  fastjet::RangeDefinition range_rho(etamin,etamax);
+	  fastjet::BackgroundEstimator bkgestim(*clusterSequenceWithArea,range_rho);
+	  bkgestim.set_excluded_jets(fjexcluded_jets);
+	  rhos->push_back(bkgestim.rho());
+	  sigmas->push_back(bkgestim.sigma());
+	}
       }
       iEvent.put(rhos,"rhos");
       iEvent.put(sigmas,"sigmas");
@@ -644,11 +649,17 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
 	edm::LogWarning("StrangeNEmtpyJets") << "n_empty_jets is : " << clusterSequenceWithArea->n_empty_jets(*fjRangeDef_) << " with range " << fjRangeDef_->description() << ".";
 	}
       */
-      clusterSequenceWithArea->get_median_rho_and_sigma(*fjRangeDef_,false,*rho,*sigma,mean_area);
-      if((*rho < 0)|| (edm::isNotFinite(*rho))) {
-	edm::LogError("BadRho") << "rho value is " << *rho << " area:" << mean_area << " and n_empty_jets: " << clusterSequenceWithArea->n_empty_jets(*fjRangeDef_) << " with range " << fjRangeDef_->description()
-				<<". Setting rho to rezo.";
-	*rho = 0;
+      if (clusterSequenceWithArea ==nullptr ){
+	if (fjJets_.size() > 0) {
+	  throw cms::Exception("LogicError")<<"fjClusterSeq is not initialized while inputs are present\n ";
+	}
+      } else {
+	clusterSequenceWithArea->get_median_rho_and_sigma(*fjRangeDef_,false,*rho,*sigma,mean_area);
+	if((*rho < 0)|| (edm::isNotFinite(*rho))) {
+	  edm::LogError("BadRho") << "rho value is " << *rho << " area:" << mean_area << " and n_empty_jets: " << clusterSequenceWithArea->n_empty_jets(*fjRangeDef_) << " with range " << fjRangeDef_->description()
+				  <<". Setting rho to rezo.";
+	  *rho = 0;
+	}
       }
       iEvent.put(rho,"rho");
       iEvent.put(sigma,"sigma");
