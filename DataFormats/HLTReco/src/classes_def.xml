@@ -21,7 +21,6 @@
   <class name="std::vector<HLTPerformanceInfo::Module>::const_iterator"/>
 
   <class name="HLTPerformanceInfo::Path" ClassVersion="11">
-   <version ClassVersion="10" checksum="3100415018"/>
    <version ClassVersion="11" checksum="131259281"/>
   </class>
   <class name="std::vector<HLTPerformanceInfo::Path>"/>
@@ -44,26 +43,9 @@
   <class name="trigger::TriggerObjectCollection"/>
   <class name="trigger::TriggerRefsCollections" ClassVersion="20">
    <version ClassVersion="20" checksum="874193725"/>
-   <version ClassVersion="19" checksum="761338085"/>
-   <version ClassVersion="18" checksum="2837909629"/>
-   <version ClassVersion="17" checksum="153119547"/>
-   <version ClassVersion="16" checksum="3831523881"/>
-   <version ClassVersion="15" checksum="153119547"/>
-   <version ClassVersion="14" checksum="2264762705"/>
-   <version ClassVersion="13" checksum="3831523881"/>
-   <version ClassVersion="12" checksum="4231679693"/>
   </class>
   <class name="trigger::TriggerFilterObjectWithRefs" ClassVersion="19">
    <version ClassVersion="19" checksum="2951644382"/>
-   <version ClassVersion="18" checksum="2778148374"/>
-   <version ClassVersion="17" checksum="3584200350"/>
-   <version ClassVersion="16" checksum="2389145864"/>
-   <version ClassVersion="15" checksum="2645314434"/>
-   <version ClassVersion="14" checksum="2389145864"/>
-   <version ClassVersion="13" checksum="1310297402"/>
-   <version ClassVersion="12" checksum="2645314434"/>
-   <version ClassVersion="11" checksum="1437602318"/>
-   <version ClassVersion="10" checksum="1741228815"/>
   </class>
 
   <class name="trigger::TriggerEvent::TriggerFilterObject" ClassVersion="10">
@@ -72,24 +54,13 @@
   <class name="std::vector<trigger::TriggerEvent::TriggerFilterObject>"/>
   <class name="trigger::TriggerEvent" ClassVersion="11">
    <version ClassVersion="11" checksum="3351458717"/>
-   <version ClassVersion="10" checksum="1112210423"/>
   </class>
   <class name="trigger::TriggerEventWithRefs::TriggerFilterObject" ClassVersion="13">
    <version ClassVersion="13" checksum="1672519577"/>
-   <version ClassVersion="12" checksum="2301242282"/>
   </class>
   <class name="std::vector<trigger::TriggerEventWithRefs::TriggerFilterObject>"/>
   <class name="trigger::TriggerEventWithRefs" ClassVersion="19">
    <version ClassVersion="19" checksum="1258968436"/>
-   <version ClassVersion="18" checksum="742506204"/>
-   <version ClassVersion="17" checksum="4163362996"/>
-   <version ClassVersion="16" checksum="1580092994"/>
-   <version ClassVersion="15" checksum="3347721344"/>
-   <version ClassVersion="14" checksum="1580092994"/>
-   <version ClassVersion="13" checksum="1828447080"/>
-   <version ClassVersion="12" checksum="3347721344"/>
-   <version ClassVersion="11" checksum="2025606788"/>
-   <version ClassVersion="10" checksum="4075310205"/>
   </class>
 
   <class name="edm::Wrapper<trigger::TriggerObjectCollection>" splitLevel="0"/>
