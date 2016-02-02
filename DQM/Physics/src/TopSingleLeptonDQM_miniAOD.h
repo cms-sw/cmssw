@@ -136,6 +136,7 @@ class MonitorEnsemble {
   /// extra selection on jets (here given as std::string as it depends
   /// on the the jet type, which selections are valid and which not)
   std::string jetSelect_;
+  std::unique_ptr<StringCutObjectSelector<pat::Jet> > jetSelect;
   /// include btag information or not
   /// to be determined from the cfg
   bool includeBTag_;
@@ -153,7 +154,6 @@ class MonitorEnsemble {
   /// histogram container
   std::map<std::string, MonitorElement*> hists_;
   edm::EDConsumerBase tmpConsumerBase;
-
   std::string directory_;
 };
 
