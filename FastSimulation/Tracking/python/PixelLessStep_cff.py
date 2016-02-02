@@ -25,10 +25,7 @@ pixelLessStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cf
 )
 
 # tracks
-pixelLessStepTracks = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTracks.clone(
-    TTRHBuilder = 'WithoutRefit',
-    Propagator = 'PropagatorWithMaterial'
-)
+pixelLessStepTracks = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTracks.clone()
 # final selection
 pixelLessStepClassifier1 = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClassifier1.clone()
 pixelLessStepClassifier1.vertices = "firstStepPrimaryVerticesBeforeMixing"

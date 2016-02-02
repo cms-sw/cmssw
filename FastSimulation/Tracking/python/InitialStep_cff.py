@@ -20,10 +20,7 @@ initialStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.
     )
 
 # tracks
-initialStepTracks = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTracks.clone(
-    TTRHBuilder = 'WithoutRefit',
-    Propagator = 'PropagatorWithMaterial'
-    )
+initialStepTracks = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTracks.clone()
 
 firstStepPrimaryVerticesBeforeMixing =  RecoTracker.IterativeTracking.InitialStep_cff.firstStepPrimaryVertices.clone()
 

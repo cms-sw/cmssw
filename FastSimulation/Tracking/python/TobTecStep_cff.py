@@ -37,10 +37,7 @@ tobTecStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.t
 )
 
 # tracks 
-tobTecStepTracks = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTracks.clone(
-    TTRHBuilder = 'WithoutRefit',
-    Propagator = 'PropagatorWithMaterial'
-)
+tobTecStepTracks = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTracks.clone()
 
 # final selection
 tobTecStepClassifier1 = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepClassifier1.clone()
