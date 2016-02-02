@@ -5,8 +5,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("electronPostValidation")
 
+process.options = cms.untracked.PSet( 
+#    SkipEvent = cms.untracked.vstring('ProductNotFound'),
+#    Rethrow = cms.untracked.vstring('ProductNotFound')
+)
+
 process.DQMStore = cms.Service("DQMStore")
-process.load("Validation.RecoEgamma.ElectronMcSignalPostValidator_cfi")
+process.load("Validation.RecoEgamma.ElectronMcSignalPostValidatorMiniAOD_cfi")
 process.load("DQMServices.Components.DQMStoreStats_cfi")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -31,18 +36,18 @@ localFileInput = os.environ['TEST_HISTOS_FILE'].replace(".root", "_a.root") #
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring("file:" + localFileInput),
 secondaryFileNames = cms.untracked.vstring(),)
 
-process.electronMcSignalPostValidator.InputFolderName = cms.string("EgammaV/ElectronMcSignalValidator")
-process.electronMcSignalPostValidator.OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidator")
+process.electronMcSignalPostValidatorMiniAOD.InputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorMiniAOD")
+process.electronMcSignalPostValidatorMiniAOD.OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorMiniAOD")
 
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
-#process.GlobalTag.globaltag = '76X_mcRun2_asymptotic_Queue'
+#process.GlobalTag.globaltag = '75X_mcRun2_asymptotic_Queue'
 #process.GlobalTag.globaltag = '75X_mcRun2_startup_Queue'
 
 process.dqmSaver.workflow = '/electronHistos/' + t1[1] + '/RECO3'
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
-process.p = cms.Path(process.EDMtoME * process.electronMcSignalPostValidator * process.dqmStoreStats)
+process.p = cms.Path(process.EDMtoME * process.electronMcSignalPostValidatorMiniAOD * process.dqmStoreStats)
 
 # Schedule
 process.schedule = cms.Schedule(

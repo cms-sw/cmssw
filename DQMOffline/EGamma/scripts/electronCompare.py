@@ -72,7 +72,6 @@ if __name__ == "__main__":
   parser.add_option("-b", "--blue-name", dest="blue", action="store", default="",
     help="short name of the blue histograms")  
   (options, args) = parser.parse_args()
-#  print "options : ",options
   
   if len(args)<2:
     print "[electronStore.py] I NEED AT LEAST TWO ARGUMENTS."
@@ -80,19 +79,23 @@ if __name__ == "__main__":
     
   red_file = args.pop(0)
   web_dir = args.pop()
-  web_url = web_dir.replace('/afs/cern.ch/cms/','http://cmsdoc.cern.ch/',1)
+#  print 'WEB DIR 1 =',web_dir
+  if not '/afs/cern.ch/cms/' in web_dir:
+    print "local : ", web_dir
+    web_url = web_dir
+  else:
+    web_url = web_dir.replace('/afs/cern.ch/cms/','http://cmsdoc.cern.ch/',1)
   if len(args)>0 :
     blue_file = args.pop(0)
   else :
     blue_file = ''
-      
-      
+
   #===================================================
   # prepare output directories and check input files
   #===================================================
 
   # destination dir
-  print 'WEB DIR =',web_dir
+#  print 'WEB DIR =',web_dir
   if os.path.exists(web_dir+'/gifs')==False:
     os.makedirs(web_dir+'/gifs')
     

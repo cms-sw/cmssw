@@ -12,9 +12,13 @@
 #include "Validation/RecoEgamma/plugins/ElectronMcFakeValidator.h"
 #include "Validation/RecoEgamma/plugins/ElectronMcFakePostValidator.h"
 #include "Validation/RecoEgamma/plugins/ElectronConversionRejectionValidator.h"
+#include "Validation/RecoEgamma/plugins/ElectronMcMiniAODSignalValidator.h"
+#include "Validation/RecoEgamma/plugins/ElectronMcMiniAODSignalPostValidator.h"
 
 
 DEFINE_FWK_MODULE(EgammaObjects);
+DEFINE_FWK_MODULE(ElectronMcSignalValidatorMiniAOD);
+DEFINE_FWK_MODULE(ElectronMcSignalPostValidatorMiniAOD);
 DEFINE_FWK_MODULE(PhotonValidator);
 DEFINE_FWK_MODULE(PhotonValidatorMiniAOD);
 DEFINE_FWK_MODULE(TkConvValidator);
