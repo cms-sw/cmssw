@@ -35,6 +35,8 @@ upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
  		 '2023Reco' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023Reco'
 		 
                  }
+upgradeEras={ '2017' : 'Run2_2017',
+              }
 
 upgradeFragments=['FourMuPt_1_200_pythia8_cfi','SingleElectronPt10_cfi',
                   'SingleElectronPt35_cfi','SingleElectronPt1000_cfi',
@@ -83,8 +85,8 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi','SingleElectronPt10_cfi',
 # step7 is fastsim harvesting
 upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFull','RecoFullHGCAL','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','HARVESTFullPU','DigiFullTrigger']
 
-upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull'],#HARVESTING REMOVED
-		   '2017PU':['GenSimFull','DigiFullPU','RecoFullPU'],#full sequence
+upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+		   '2017PU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],#full sequence
 		   '2023':['GenSimFull','DigiFull','RecoFull'],#full sequence
 		   '2023dev':['GenSimFull','DigiFull','RecoFull'],#dev scenario
 		   '2023sim':['GenSimFull'],#sim scenario

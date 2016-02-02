@@ -12,8 +12,12 @@ from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fix
 
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
+from Configuration.StandardSequences.Eras import eras
+
 def cust_2017(process):
-    process=customisePostLS1(process,displayDeprecationWarning=False)
+    # To allow simulatenous use of customisation and era while the era migration is in progress
+    if not eras.run2_common.isChosen():
+        process=customisePostLS1(process,displayDeprecationWarning=False)
     process=customisePhase1Tk(process)
     #process=customise_HcalPhase0(process)
     return process
