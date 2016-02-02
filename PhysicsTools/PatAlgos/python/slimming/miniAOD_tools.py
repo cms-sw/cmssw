@@ -89,13 +89,9 @@ def miniAOD_customizeCommon(process):
     # apply type I + other PFMEt corrections to pat::MET object
     # and estimate systematic uncertainties on MET
 
-    process.selectedPatJetsForMETUnc = process.selectedPatJets.clone()
-    process.selectedPatJetsForMETUnc.cut = cms.string("pt > 15")
-
     from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncForMiniAODProduction
     runMetCorAndUncForMiniAODProduction(process, metType="PF",
-                                        jetCollUnskimmed="patJets",
-                                        jetColl="selectedPatJetsForMETUnc")
+                                        jetCollUnskimmed="patJets")
     
     #caloMET computation
     from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
@@ -112,8 +108,10 @@ def miniAOD_customizeCommon(process):
     runMetCorAndUncForMiniAODProduction(process,
                                         pfCandColl=cms.InputTag("noHFCands"),
                                         recoMetFromPFCs=True, #needed for HF removal
+                                        jetSelection="pt>15 && abs(eta)<3.",
                                         postfix="NoHF"
                                         )
+
     process.load('PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi')
     process.slimmedMETsNoHF = process.slimmedMETs.clone()
     process.slimmedMETsNoHF.src = cms.InputTag("patMETsNoHF")
@@ -264,6 +262,7 @@ def miniAOD_customizeCommon(process):
     process.puppiForMET = cms.EDProducer("CandViewMerger",
         src = cms.VInputTag( "pfLeptonsPUPPET", "puppiNoLep")
     ) 
+
     process.pfMetPuppi = process.pfMet.clone()
     process.pfMetPuppi.src = cms.InputTag("puppiForMET")
     process.pfMetPuppi.alias = cms.string('pfMetPuppi')
@@ -281,7 +280,6 @@ def miniAOD_customizeCommon(process):
     from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
     addMETCollection(process, labelName='patMETPuppi',   metSource='pfMetT1Puppi') # T1
     addMETCollection(process, labelName='patPFMetPuppi', metSource='pfMetPuppi')   # RAW
-
     process.load('PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi')
     process.slimmedMETsPuppi = process.slimmedMETs.clone()
     process.slimmedMETsPuppi.src = cms.InputTag("patMETPuppi")

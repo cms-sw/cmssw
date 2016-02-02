@@ -52,7 +52,7 @@ class ShiftedParticleProducer : public edm::stream::EDProducer<>
   struct binningEntryType
   {
   binningEntryType(std::string uncertainty, std::string moduleLabel)
-      : binSelection_(0),
+      : binSelection_(nullptr),
       binUncertainty_(uncertainty),
       energyDep_(false)
     {
@@ -68,9 +68,8 @@ class ShiftedParticleProducer : public edm::stream::EDProducer<>
     }
     ~binningEntryType()
     {
-      delete binSelection_;
     }
-    StringCutObjectSelector<reco::Candidate>* binSelection_;
+    std::unique_ptr<StringCutObjectSelector<reco::Candidate> > binSelection_;
     //double binUncertainty_;
     std::string binUncertainty_;
     std::unique_ptr<TF2> binUncFormula_;
