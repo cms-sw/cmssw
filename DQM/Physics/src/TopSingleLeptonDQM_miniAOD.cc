@@ -33,6 +33,7 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
       muonIso_(nullptr),
       muonSelect_(nullptr),
       jetIDSelect_(nullptr),
+     jetSelect(nullptr),
       includeBTag_(false),
       lowerEdge_(-1.),
       upperEdge_(-1.),
@@ -139,6 +140,7 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
     // CaloJets at the moment)
     if (jetExtras.existsAs<std::string>("select")) {
       jetSelect_ = jetExtras.getParameter<std::string>("select");
+      jetSelect.reset(new StringCutObjectSelector<pat::Jet> (jetSelect_));
     }
   }
 
@@ -537,8 +539,8 @@ void MonitorEnsemble::fill(const edm::Event& event,
 
       pat::Jet sel = *jet;
 
-      StringCutObjectSelector<pat::Jet> jetSelect(jetSelect_);
-      if (!jetSelect(sel)) continue;
+      if(!(*jetSelect)(sel))continue;
+//      if (!jetSelect(sel)) continue;
 
     // prepare jet to fill monitor histograms
     pat::Jet monitorJet = *jet;
