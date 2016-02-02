@@ -45,15 +45,15 @@ if runOnData:
   process.GlobalTag.globaltag = autoCond['run2_data']
   #process.GlobalTag.globaltag = '75X_dataRun1_v2' #'74X_dataRun2_Prompt_v1'
 else:
-  process.GlobalTag.globaltag = 'MCRUN2_75_V5'
- # process.GlobalTag.globaltag = autoCond['run2_mc']
+ # process.GlobalTag.globaltag = 'MCRUN2_75_V5'
+  process.GlobalTag.globaltag = autoCond['run2_mc']
  # process.GlobalTag = GlobaTag(GlobalTag, 'auto:run2_mc', '')
 
 if usePrivateSQlite:
     from CondCore.DBCommon.CondDBSetup_cfi import *
     import os
     if runOnData:
-      era="Summer15_25nsV5_DATA"
+      era="Summer15_25nsV6_DATA"
     else:
       era="Summer15_25nsV6_MC"
       

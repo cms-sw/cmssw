@@ -1085,7 +1085,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             smearedJetModule = getattr(process, "patSmearedJets"+postfix).clone(
                 src = cms.InputTag(jetCollection.value()+postfix),
                 enabled = cms.bool(smear),
-                variation = cms.untracked.int32( int(varyByNsigmas) ),
+                variation = cms.int32( int(varyByNsigmas) ),
                 )    
            
         #MM: FIXME MVA

@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 METSignificanceParams = cms.PSet(
 
       # jet resolutions
-      phiResFile   = cms.string('Spring10_PhiResolution_AK5PF.txt'),
       jetThreshold = cms.double(15),
       
       #jet-lepton matching dR

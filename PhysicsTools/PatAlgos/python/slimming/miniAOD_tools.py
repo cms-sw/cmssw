@@ -272,7 +272,7 @@ def miniAOD_customizeCommon(process):
         src = 'ak4PFJetsPuppi',
         jetCorrLabel = 'ak4PFPuppiL2L3Corrector',
     )
-    del process.corrPfMetType1Puppi.offsetCorrLabel # no L1 for PUPPI jets
+    # del process.corrPfMetType1Puppi.offsetCorrLabel # no L1 for PUPPI jets
     process.pfMetT1Puppi = process.pfMetT1.clone(
         src = 'pfMetPuppi',
         srcCorrections = [ cms.InputTag("corrPfMetType1Puppi","type1") ]

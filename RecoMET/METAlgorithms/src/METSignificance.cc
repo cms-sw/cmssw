@@ -20,7 +20,6 @@ Implementation:
 metsig::METSignificance::METSignificance(const edm::ParameterSet& iConfig) {
 
   edm::ParameterSet cfgParams = iConfig.getParameter<edm::ParameterSet>("parameters");
-  std::string phiResFileName = cfgParams.getParameter<std::string>("phiResFile");
 
   double dRmatch = cfgParams.getParameter<double>("dRMatch");
   dR2match_ = dRmatch*dRmatch;
@@ -30,15 +29,9 @@ metsig::METSignificance::METSignificance(const edm::ParameterSet& iConfig) {
   jetParams_ = cfgParams.getParameter<std::vector<double> >("jpar");
   pjetParams_ = cfgParams.getParameter<std::vector<double> >("pjpar");
 
-
-  edm::FileInPath fphi("CondFormats/JetMETObjects/data/"+phiResFileName);
-
-  phiRes_ = new JetResolution(fphi.fullPath().c_str(),false);
-
 }
 
 metsig::METSignificance::~METSignificance() {
-  delete phiRes_;
 }
 
 

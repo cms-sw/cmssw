@@ -112,7 +112,7 @@ patSmearedJets = cms.EDProducer("SmearedPATJetProducer",
 
     rho = cms.InputTag("fixedGridRhoFastjetAll"),
 
-    skipGenMatching = cms.untracked.bool(False),  # If True, always skip gen jet matching and smear jet with a random gaussian
+    skipGenMatching = cms.bool(False),  # If True, always skip gen jet matching and smear jet with a random gaussian
 
     # Resolution and scale factors source.
     # Can be either from GT or text files
@@ -136,9 +136,9 @@ patSmearedJets = cms.EDProducer("SmearedPATJetProducer",
     # 0: Nominal
     # -1: -1 sigma (down variation)
     # 1: +1 sigma (up variation)
-    variation = cms.untracked.int32(0),  # If not specified, default to 0
+    variation = cms.int32(0),  # If not specified, default to 0
 
-    seed = cms.untracked.uint32(37428479),  # If not specified, default to 37428479
+    seed = cms.uint32(37428479),  # If not specified, default to 37428479
 
     debug = cms.untracked.bool(False)
 )
