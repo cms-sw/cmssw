@@ -21,6 +21,8 @@
 #include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 //
 // constants, enums and typedefs
 //

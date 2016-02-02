@@ -5,7 +5,7 @@
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonTrackDT2ChamberResidual.h"
 
 MuonTrackDT2ChamberResidual::MuonTrackDT2ChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, AlignableNavigator *navigator,
-                                                         DetId chamberId, const AlignableDetOrUnitPtr& chamberAlignable)
+                                                         DetId chamberId, AlignableDetOrUnitPtr chamberAlignable)
   : MuonChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable)
 {
   m_type = MuonChamberResidual::kDT2; 
