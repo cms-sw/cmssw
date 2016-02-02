@@ -19,8 +19,8 @@ class Cell
 {
 public:
 	Cell() { }
-	Cell(const RecHitsKDTree* hitsKDTree, int innerHitId, int outerHitId,  int idInCellArray, int layerId) : theCAState(0), theInnerHitId(innerHitId), theOuterHitId(outerHitId), theId(idInCellArray), theLayerId(layerId), hasFriends(false) {
-
+	Cell(const RecHitsKDTree* hitsKDTree, int innerHitId, int outerHitId, int layerId) : theHitsKDTree(hitsKDTree), theCAState(0),
+			theInnerHitId(innerHitId), theOuterHitId(outerHitId), theLayerId(layerId), hasFriends(false) {
 
 
 
@@ -40,7 +40,7 @@ public:
 		return fabs((rA - rB) * (zA - zC) - (rA - rC) * (zA - zB)) <= epsilon;
 
 	}
-
+//TODO: move outside the Cell
 	int neighborSearch(const tbb::concurrent_vector<int>& outerCells)
 	{
 		const float c_maxParAbsDifference[parNum]= {0.06, 0.07};
@@ -116,18 +116,18 @@ public:
 	}
 
 
-//
-//
-//	//check whether a Cell and the root have compatible parameters.
-//	inline
-//	bool areCompatible(const Cell& a, const int innerTripletChargeHypothesis)
-//	{
-//
-//		return (a.thechargeHypothesis == innerTripletChargeHypothesis) || (a.thechargeHypothesis == 0) || (innerTripletChargeHypothesis ==0) ;
-//
-//	}
-//
-//
+	//
+	//
+	//	//check whether a Cell and the root have compatible parameters.
+	//	inline
+	//	bool areCompatible(const Cell& a, const int innerTripletChargeHypothesis)
+	//	{
+	//
+	//		return (a.thechargeHypothesis == innerTripletChargeHypothesis) || (a.thechargeHypothesis == 0) || (innerTripletChargeHypothesis ==0) ;
+	//
+	//	}
+	//
+	//
 
 
 	// trying to free the track building process from hardcoded layers, leaving the visit of the graph
@@ -155,7 +155,7 @@ public:
 				if(tmpTrack.size() <= 2 || areCompatible(cells.at(theOuterNeighbors.at(i)), innermostTripletChargeHypothesis) )
 				{
 					hasOneCompatibleNeighbor = true;
-					tmpTrack.push_back(theOuterNeighbors.thedata[i]);
+					tmpTrack.push_back(theOuterNeighbors.at(i));
 					cells.at(theOuterNeighbors.at(i)).findTracks(foundTracks,cells, tmpTrack );
 					tmpTrack.pop_back();
 				}
@@ -175,12 +175,12 @@ public:
 
 	int theInnerHitId;
 	int theOuterHitId;
-	float theRadius; //angle between the prolongation of the radius and the line between the hits in the transverse plane
-	int theId;
+	float theRadius;
 	short int theLayerId;
 	short int theCAState;
 	bool isHighPtCell;
 	bool hasFriends;
+	RecHitsKDTree* theHitsKDTree;
 
 };
 
