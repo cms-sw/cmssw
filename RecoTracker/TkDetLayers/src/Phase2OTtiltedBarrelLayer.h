@@ -2,10 +2,8 @@
 #define TkDetLayers_Phase2OTtiltedBarrelLayer_h
 
 
-//#include "Phase2OTBarrelLayer.h"
 #include "TrackingTools/DetLayers/interface/RodBarrelLayer.h"
 #include "Phase2OTBarrelLayer.h"
-#include "Phase2OTEndcapLayer.h"
 #include "Phase2OTBarrelRod.h"
 #include "Phase2OTEndcapRing.h"
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
@@ -18,7 +16,6 @@
  */
 
 #pragma GCC visibility push(hidden)
-//class Phase2OTtiltedBarrelLayer : public RodBarrelLayer, public GeometricSearchDetWithGroups {
 class Phase2OTtiltedBarrelLayer GCC11_FINAL : public Phase2OTBarrelLayer {
  public:
   typedef PeriodicBinFinderInPhi<double>   BinFinderType;
