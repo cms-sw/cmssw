@@ -16,7 +16,7 @@ SUSY_HLT_Muon_BJet = cms.EDAnalyzer("SUSY_HLT_Muon_BJet",
 
 
 SUSY_HLT_Muon_BJet_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Mu10_CentralPFJet30_BTagCSV0p54PF_v"),
+    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Mu10_CentralPFJet30_BTagCSV_p13_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(
