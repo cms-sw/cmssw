@@ -1240,8 +1240,20 @@ class Plot:
                     labels = [h.GetXaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsX()+1)]
                     diff = difflib.ndiff(xbinlabels, labels)
                     xbinlabels = []
+                    operation = []
                     for item in diff:
-                        xbinlabels.append(item[2:])
+                        operation.append(item[0])
+                        lab = item[2:]
+                        if lab in xbinlabels:
+                            # pick the last addition of the bin
+                            ind = xbinlabels.index(lab)
+                            if operation[ind] == "-" and operation[-1] == "+":
+                                xbinlabels.remove(lab)
+                            elif operation[ind] == "+" and operation[-1] == "-":
+                                continue
+                            else:
+                                raise Exception("This should never happen")
+                        xbinlabels.append(lab)
 
                 histos_new = []
                 for h in histos:
