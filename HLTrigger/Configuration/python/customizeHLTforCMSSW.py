@@ -54,7 +54,6 @@ def customiseFor13062(process):
     from HLTrigger.Configuration.customizeHLTfor2016trackingTemplate import *
     process = customiseFor2016trackingTemplate(process)
     return process
->>>>>>> cms-sw/refs/pull/13062/head
 
 #
 # CMSSW version specific customizations
