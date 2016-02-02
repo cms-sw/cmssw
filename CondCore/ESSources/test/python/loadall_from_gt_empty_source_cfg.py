@@ -4,51 +4,67 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 options = VarParsing.VarParsing()
-options.register('runNumber',
-                 100000, #default value
+options.register('connectionString',
+                 'frontier://FrontierProd/CMS_CONDITIONS', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "Run number; default gives latest IOV")
-options.register('messageLevel',
-                 0, #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "Message level; default to 0")
+                 VarParsing.VarParsing.varType.string,
+                 "GlobalTag Connection string")
 options.register('globalTag',
-                 'GR_P_V50', #default value
+                 '80X_dataRun2_v4', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "GlobalTag")
-options.register('pfnPrefix',
+options.register('snapshotTime',
                  '', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "PFN prefix in GlobalTag connection strings")
-options.register('pfnPostfix',
-                 '', #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 "PFN postfix in GlobalTag connection strings")
+                 "GlobalTag snapshot time")
 options.register('refresh',
                  0, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Refresh type: default no refresh")
+options.register('pfnPostfix',
+                 '', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "PFN postfix in GlobalTag connection strings")
+options.register('pfnPrefix',
+                 '', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "PFN prefix in GlobalTag connection strings")
+options.register('runNumber',
+                 4294967292, #default value, int limit -3
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Run number; default gives latest IOV")
 options.register('eventsPerLumi',
-                 100, #default value
+                 3, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "number of events per lumi")
 options.register('numberOfLumis',
-                 100, #default value
+                 3, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "number of lumisections per run")
 options.register('numberOfRuns',
-                 100, #default value
+                 3, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "number of runs in the job")
+options.register('messageLevel',
+                 0, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Message level; default to 0")
+options.register('security',
+                 '', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "FroNTier connection security: activate it with 'sig'")
+
 options.parseArguments()
 
 process = cms.Process("TEST")
@@ -58,24 +74,11 @@ process.MessageLogger = cms.Service( "MessageLogger",
                                      detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string( 'INFO' ) ),
                                      )
 
-#process.add_( cms.Service( "PrintEventSetupDataRetrieval",
-#                           printProviders=cms.untracked.bool( True )
-#                           )
-#              )
-
-CondDBSetup = cms.PSet( DBParameters = cms.PSet( authenticationPath = cms.untracked.string( '.' ),
-                                                 connectionRetrialPeriod = cms.untracked.int32( 10 ),
-                                                 idleConnectionCleanupPeriod = cms.untracked.int32( 10 ),
-                                                 messageLevel = cms.untracked.int32( 0 ),
-                                                 enablePoolAutomaticCleanUp = cms.untracked.bool( False ),
-                                                 enableConnectionSharing = cms.untracked.bool( True ),
-                                                 connectionRetrialTimeOut = cms.untracked.int32( 60 ),
-                                                 connectionTimeOut = cms.untracked.int32( 0 ),
-                                                 enableReadOnlySessionOnUpdateConnection = cms.untracked.bool( False )
-                                                 )
-                        )
-
-CondDBSetup.DBParameters.messageLevel = options.messageLevel
+CondDBParameters = cms.PSet( authenticationPath = cms.untracked.string( '' ),
+                             authenticationSystem = cms.untracked.int32( 0 ),
+                             messageLevel = cms.untracked.int32( options.messageLevel ),
+                             security = cms.untracked.string( options.security ),
+                             )
 
 refreshAlways, refreshOpenIOVs, refreshEachRun, reconnectEachRun = False, False, False, False
 if options.refresh == 0:
@@ -96,20 +99,19 @@ elif options.refresh == 4:
     reconnectEachRun = True
 
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
-                                  CondDBSetup,
-                                  connect = cms.string( 'frontier://FrontierProd/CMS_CONDITIONS' ),
-                                  #connect = cms.string('sqlite_fip:CondCore/TagCollection/data/GlobalTag.db'), #For use during release integration
-                                  globaltag = cms.string( '' ),
+                                  DBParameters = CondDBParameters,
+                                  connect = cms.string( options.connectionString ),
+                                  globaltag = cms.string( options.globalTag ),
+                                  snapshotTime = cms.string( options.snapshotTime ),
+                                  toGet = cms.VPSet(),
                                   RefreshAlways = cms.untracked.bool( refreshAlways ),
                                   RefreshOpenIOVs = cms.untracked.bool( refreshOpenIOVs ),
-                                  RefreshEachRun=cms.untracked.bool( refreshEachRun ),
-                                  ReconnectEachRun=cms.untracked.bool( reconnectEachRun ),
-                                  DumpStat=cms.untracked.bool( True ),
-                                  pfnPrefix=cms.untracked.string( '' ),   
-                                  pfnPostfix=cms.untracked.string( '' )
+                                  RefreshEachRun = cms.untracked.bool( refreshEachRun ),
+                                  ReconnectEachRun = cms.untracked.bool( reconnectEachRun ),
+                                  DumpStat = cms.untracked.bool( True ),
+                                  pfnPrefix = cms.untracked.string( '' ),   
+                                  pfnPostfix = cms.untracked.string( '' )
                                   )
-
-process.GlobalTag.globaltag = options.globalTag
 
 if options.pfnPrefix:
     process.GlobalTag.pfnPrefix = options.pfnPrefix
@@ -117,13 +119,12 @@ if options.pfnPostfix:
     process.GlobalTag.pfnPostfix = options.pfnPostfix
 
 #TODO: add VarParsing support for adding custom conditions
-#process.GlobalTag.toGet = cms.VPSet()
-#process.GlobalTag.toGet.append(
-#   cms.PSet(record = cms.string("BeamSpotObjectsRcd"),
-#            tag = cms.string("firstcollisions"),
-#             connect = cms.untracked.string("frontier://PromptProd/CMS_COND_31X_BEAMSPOT")
-#           )
-#)
+#process.GlobalTag.toGet.append( cms.PSet( record = cms.string( "BeamSpotObjectsRcd" ),
+#                                          tag = cms.string( "firstcollisions" ),
+#                                          connect = cms.string( "frontier://FrontierProd/CMS_CONDITIONS" ),
+#                                          snapshotTime = cms.string('2014-01-01 00:00:00.000'),
+#                                          )
+#                                )
 
 process.source = cms.Source( "EmptySource",
                              firstRun = cms.untracked.uint32( options.runNumber ),
@@ -132,13 +133,28 @@ process.source = cms.Source( "EmptySource",
                              numberEventsInLuminosityBlock = cms.untracked.uint32( options.eventsPerLumi )
                              )
 
-
-
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( options.eventsPerLumi *  options.numberOfLumis * options.numberOfRuns ) ) #options.numberOfRuns runs per job
 
 process.get = cms.EDAnalyzer( "EventSetupRecordDataGetter",
                               toGet =  cms.VPSet(),
                               verbose = cms.untracked.bool( True )
-                             )
+                              )
+
+process.escontent = cms.EDAnalyzer( "PrintEventSetupContent",
+                                    compact = cms.untracked.bool( True ),
+                                    printProviders = cms.untracked.bool( True )
+                                    )
+
+process.esretrieval = cms.EDAnalyzer( "PrintEventSetupDataRetrieval",
+                                      printProviders = cms.untracked.bool( True )
+                                      )
 
 process.p = cms.Path( process.get )
+process.esout = cms.EndPath( process.escontent + process.esretrieval )
+if process.schedule_() is not None:
+    process.schedule_().append( process.esout )
+
+for name, module in process.es_sources_().iteritems():
+    print "ESModules> provider:%s '%s'" % ( name, module.type_() )
+for name, module in process.es_producers_().iteritems():
+    print "ESModules> provider:%s '%s'" % ( name, module.type_() )
