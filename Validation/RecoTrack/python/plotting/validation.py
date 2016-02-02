@@ -820,6 +820,8 @@ class SimpleValidation:
         self._files = files
         self._labels = labels
         self._newdir = newdir
+        if not os.path.exists(newdir):
+            os.makedirs(newdir)
 
     def createHtmlReport(self, validationName=""):
         return html.HtmlReport(validationName, self._newdir)
