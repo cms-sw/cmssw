@@ -225,7 +225,7 @@ convStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.
     ComponentName = cms.string('convStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(30.0),
-    MaxDispacement = cms.double(100),
+    MaxDisplacement = cms.double(100),
     MaxSagitta = cms.double(-1.),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 )
