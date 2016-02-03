@@ -8,7 +8,7 @@
 #include "boost/foreach.hpp"
 
 ShallowTracksProducer::ShallowTracksProducer(const edm::ParameterSet& iConfig)
-  :  theTracksLabel( iConfig.getParameter<edm::InputTag>("Tracks") ),
+  :  tracks_token_( consumes<edm::View<reco::Track> >( iConfig.getParameter<edm::InputTag>("Tracks") )),
      Prefix       ( iConfig.getParameter<std::string>("Prefix")    ),
      Suffix       ( iConfig.getParameter<std::string>("Suffix")    )
 {
@@ -69,7 +69,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<double> >       vz          ( new std::vector<double>()       );
   std::auto_ptr<std::vector<int> >          algo        ( new std::vector<int>() );
 
-  edm::Handle<edm::View<reco::Track> > tracks;  iEvent.getByLabel(theTracksLabel, tracks);
+  edm::Handle<edm::View<reco::Track> > tracks;  iEvent.getByToken(tracks_token_, tracks);
   
   *number = tracks->size();
   BOOST_FOREACH( const reco::Track track, *tracks) {
