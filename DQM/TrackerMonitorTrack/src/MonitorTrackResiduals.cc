@@ -3,8 +3,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
+#include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/TrackerMonitorTrack/interface/MonitorTrackResiduals.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
@@ -15,6 +15,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -71,6 +72,9 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
 
   // use SistripHistoId for producing histogram id (and title)
   SiStripHistoId hidmanager;
+  //auto folder_organizer = SiStripFolderOrganizer();
+  auto pixel_organizer = SiPixelFolderOrganizer(false);
+
   folder_organizer.setSiStripFolder(); // top SiStrip folder
 
   // take from eventSetup the SiStripDetCabling object
@@ -102,49 +106,77 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
     {
       //uint ModuleID = (*DetItr);
 
-      // is this a StripModule?
-      std::cout << "ID " << std::hex << ModuleID << " ";
-      if( SiStripDetId(ModuleID).subDetector() != 0 ) {
-        std::cout << " (OK) " ;
-
-	folder_organizer.setDetectorFolder(ModuleID, tTopo); //  detid sets appropriate detector folder
-	// Book module histogramms?
-	if (ModOn) {
-	  std::string hid = hidmanager.createHistoId("HitResiduals","det",ModuleID);
-	  std::string normhid = hidmanager.createHistoId("NormalizedHitResiduals","det",ModuleID);
-	  HitResidual[ModuleID] = ibooker.book1D(hid, hid,
-						 i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-	  HitResidual[ModuleID]->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
-	  NormedHitResiduals[ModuleID] = ibooker.book1D(normhid, normhid,
-							i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-	  NormedHitResiduals[ModuleID]->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
-	}
-	// book layer level histogramms
-	std::pair<std::string,int32_t> subdetandlayer = folder_organizer.GetSubDetAndLayer(ModuleID, tTopo);
-	folder_organizer.setLayerFolder(ModuleID,tTopo,subdetandlayer.second);
-	if(! m_SubdetLayerResiduals[subdetandlayer ] ) {
-	  // book histogramms on layer level, check for barrel for correct labeling
-	  std::string histoname = Form(subdetandlayer.first.find("B") != std::string::npos ?
-				       "HitResiduals_%s__Layer__%d" : "HitResiduals_%s__wheel__%d" ,
-				       subdetandlayer.first.c_str(),std::abs(subdetandlayer.second));
-	  std::string normhistoname =
-	    Form(subdetandlayer.first.find("B") != std::string::npos ?
-		 "NormalizedHitResidual_%s__Layer__%d" : "NormalizedHitResidual_%s__wheel__%d" ,
-		 subdetandlayer.first.c_str(),std::abs(subdetandlayer.second));
-	  m_SubdetLayerResiduals[subdetandlayer] =
-	    ibooker.book1D(histoname.c_str(),histoname.c_str(),
-			   i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-	  m_SubdetLayerResiduals[subdetandlayer]->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
-	  m_SubdetLayerNormedResiduals[subdetandlayer] =
-	    ibooker.book1D(normhistoname.c_str(),normhistoname.c_str(),
-			   i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-	  m_SubdetLayerNormedResiduals[subdetandlayer]->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
-	}
-      } // end 'is strip module'
-      else {
-          std::cout << " (PX) ";
+      // Book module histogramms?
+      if (ModOn) {
+	std::string hid = hidmanager.createHistoId("HitResiduals","det",ModuleID);
+	std::string normhid = hidmanager.createHistoId("NormalizedHitResiduals","det",ModuleID);
+	HitResidual[ModuleID] = ibooker.book1D(hid, hid,
+					       i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
+	HitResidual[ModuleID]->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
+	NormedHitResiduals[ModuleID] = ibooker.book1D(normhid, normhid,
+						      i_normres_Nbins,d_normres_xmin,d_normres_xmax);
+	NormedHitResiduals[ModuleID]->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
       }
-      std::cout << std::endl;
+
+      std::string subdet = "";
+      int32_t layer = 0;
+      auto id = DetId(ModuleID);
+      switch (id.subdetId()) {
+        // Pixel Barrel, Endcap
+	case 1:
+	  subdet = "BPIX";
+          layer = tTopo->pxbLayer(id);
+	  pixel_organizer.setModuleFolder(ibooker, ModuleID, 2);
+	  break;
+        case 2:
+	  subdet = "FPIX";
+          layer = tTopo->pxfDisk(id);
+	  pixel_organizer.setModuleFolder(ibooker, ModuleID, 6);
+	  break;
+	// Strip TIB, TID, TOB, TEC
+	case 3:
+	  subdet = "TIB";
+          layer = tTopo->tibLayer(id);
+	  break;
+	case 4:
+	  subdet = "TID";
+          layer = tTopo->tidWheel(id) * ( tTopo->tecSide(ModuleID)==1 ? -1 : +1);
+	  break;
+	case 5:
+	  subdet = "TOB";
+          layer = tTopo->tobLayer(id);
+	  break;
+	case 6:
+	  subdet = "TEC";
+          layer = tTopo->tecWheel(id) * ( tTopo->tecSide(ModuleID)==1 ? -1 : +1);
+	  break;
+      }
+
+
+	  //folder_organizer.setDetectorFolder(ModuleID, tTopo); //  detid sets appropriate detector folder
+	  // book layer level histogramms
+	  //std::pair<std::string,int32_t> subdetandlayer = folder_organizer.GetSubDetAndLayer(ModuleID, tTopo);
+      auto subdetandlayer = std::make_pair(subdet, layer);
+      folder_organizer.setLayerFolder(ModuleID,tTopo,subdetandlayer.second);
+
+      if(! m_SubdetLayerResiduals[subdetandlayer ] ) {
+	// book histogramms on layer level, check for barrel for correct labeling
+	std::string histoname = Form(subdetandlayer.first.find("B") != std::string::npos ?
+				     "HitResiduals_%s__Layer__%d" : "HitResiduals_%s__wheel__%d" ,
+				     subdetandlayer.first.c_str(),std::abs(subdetandlayer.second));
+	std::string normhistoname =
+	  Form(subdetandlayer.first.find("B") != std::string::npos ?
+	       "NormalizedHitResidual_%s__Layer__%d" : "NormalizedHitResidual_%s__wheel__%d" ,
+	       subdetandlayer.first.c_str(),std::abs(subdetandlayer.second));
+	m_SubdetLayerResiduals[subdetandlayer] =
+	  ibooker.book1D(histoname.c_str(),histoname.c_str(),
+			 i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
+	m_SubdetLayerResiduals[subdetandlayer]->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
+	m_SubdetLayerNormedResiduals[subdetandlayer] =
+	  ibooker.book1D(normhistoname.c_str(),normhistoname.c_str(),
+			 i_normres_Nbins,d_normres_xmin,d_normres_xmax);
+	m_SubdetLayerNormedResiduals[subdetandlayer]->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
+      }      
     } // end loop over activeDets
 }
 
