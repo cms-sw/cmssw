@@ -568,6 +568,7 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
           if ( passed )
             fjJets_.push_back( transformedJet );
         }
+        if(subtractor) { delete subtractor; subtractor = 0;} 
       }
     }
   }
