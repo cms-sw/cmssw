@@ -42,8 +42,6 @@ Test program for edm::Event.
 
 #include "cppunit/extensions/HelperMacros.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <algorithm>
 #include <fstream>
 #include <iterator>

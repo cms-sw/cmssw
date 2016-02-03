@@ -81,8 +81,6 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <map>
 #include <memory>
 #include <set>

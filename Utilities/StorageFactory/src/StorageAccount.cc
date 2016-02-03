@@ -1,4 +1,5 @@
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
+#include <cassert>
 #include <mutex>
 #include <sstream>
 #include <unistd.h>

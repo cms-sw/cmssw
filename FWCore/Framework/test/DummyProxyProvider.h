@@ -61,7 +61,7 @@ protected:
    void registerProxies(const eventsetup::EventSetupRecordKey&, KeyedProxies& iProxies) {
       //std::cout <<"registered proxy"<<std::endl;
       
-      boost::shared_ptr<WorkingDummyProxy> pProxy(new WorkingDummyProxy(&dummy_));
+      std::shared_ptr<WorkingDummyProxy> pProxy(new WorkingDummyProxy(&dummy_));
       insertProxy(iProxies, pProxy);
    }
    

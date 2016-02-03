@@ -86,8 +86,8 @@ testintersectingiovrecordintervalfinder::intersectionTest()
    const EventSetupRecordKey dummyRecordKey = DummyRecord::keyForClass();
 
    IntersectingIOVRecordIntervalFinder intFinder(dummyRecordKey);
-   std::vector<edm::propagate_const<boost::shared_ptr<edm::EventSetupRecordIntervalFinder>>> finders;
-   boost::shared_ptr<DummyFinder> dummyFinder(new DummyFinder);
+   std::vector<edm::propagate_const<std::shared_ptr<edm::EventSetupRecordIntervalFinder>>> finders;
+   std::shared_ptr<DummyFinder> dummyFinder(new DummyFinder);
    {
       const edm::EventID eID_1(1, 1, 1);
       const edm::IOVSyncValue sync_1(eID_1);
@@ -127,7 +127,7 @@ testintersectingiovrecordintervalfinder::intersectionTest()
       dummyFinder->setInterval(definedInterval);
       finders.push_back(dummyFinder);
 
-      boost::shared_ptr<DummyFinder> dummyFinder2(new DummyFinder);
+      std::shared_ptr<DummyFinder> dummyFinder2(new DummyFinder);
       dummyFinder2->setInterval(edm::ValidityInterval(sync_3, sync_5));
       finders.push_back(dummyFinder2);
       IntersectingIOVRecordIntervalFinder intFinder(dummyRecordKey);
@@ -152,7 +152,7 @@ testintersectingiovrecordintervalfinder::intersectionTest()
       dummyFinder->setInterval(definedInterval);
       finders.push_back(dummyFinder);
       
-      boost::shared_ptr<DummyFinder> dummyFinder2(new DummyFinder);
+      std::shared_ptr<DummyFinder> dummyFinder2(new DummyFinder);
       dummyFinder2->setInterval(edm::ValidityInterval::invalidInterval());
       finders.push_back(dummyFinder2);
       IntersectingIOVRecordIntervalFinder intFinder(dummyRecordKey);
@@ -178,7 +178,7 @@ testintersectingiovrecordintervalfinder::intersectionTest()
       dummyFinder->setInterval(definedInterval);
       finders.push_back(dummyFinder);
       
-      boost::shared_ptr<DummyFinder> dummyFinder2(new DummyFinder);
+      std::shared_ptr<DummyFinder> dummyFinder2(new DummyFinder);
       dummyFinder2->setInterval(edm::ValidityInterval(sync_3, edm::IOVSyncValue::invalidIOVSyncValue()));
       finders.push_back(dummyFinder2);
       IntersectingIOVRecordIntervalFinder intFinder(dummyRecordKey);
@@ -203,7 +203,7 @@ testintersectingiovrecordintervalfinder::intersectionTest()
       const edm::ValidityInterval definedInterval(sync_1, 
                                                   sync_4);
       
-      boost::shared_ptr<DummyFinder> dummyFinder2(new DummyFinder);
+      std::shared_ptr<DummyFinder> dummyFinder2(new DummyFinder);
       dummyFinder2->setInterval(edm::ValidityInterval(sync_3, edm::IOVSyncValue::invalidIOVSyncValue()));
       finders.push_back(dummyFinder2);
 
