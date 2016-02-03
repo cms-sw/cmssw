@@ -14,7 +14,7 @@ float StripCPEfromTrackAngle::stripErrorSquared(const unsigned N, const float uP
 }
 
 float StripCPEfromTrackAngle::legacyStripErrorSquared(const unsigned N, const float uProj) const {
-  if( (float(N)-uProj) > 3.5f )
+  if unlikely( (float(N)-uProj) > 3.5f )
     return float(N*N)/12.f;
   else {
     static constexpr float P1=-0.339;
@@ -40,13 +40,15 @@ localParameters( const SiStripCluster& cluster, const GeomDetUnit& det, const Lo
   const unsigned N = cluster.amplitudes().size();
   const float fullProjection = p.coveredStrips( track+p.drift, ltp.position());
   float uerr2;
-  if (useLegacyError) {
+  if unlikely(useLegacyError) {
     uerr2 = legacyStripErrorSquared(N,std::abs(fullProjection));
-  } else if (maxChgOneMIP < 0.0) {
-    uerr2 = cluster.isMerged() ? legacyStripErrorSquared(N,std::abs(fullProjection)) : stripErrorSquared( N, std::abs(fullProjection),ssdid.subDetector() );
   } else {
-    float dQdx = siStripClusterTools::chargePerCM(ssdid, cluster, ltp);
-    uerr2 = dQdx > maxChgOneMIP ? legacyStripErrorSquared(N,std::abs(fullProjection)) : stripErrorSquared( N, std::abs(fullProjection),ssdid.subDetector() );
+    if unlikely(maxChgOneMIP < 0.0) {
+      uerr2 = cluster.isMerged() ? legacyStripErrorSquared(N,std::abs(fullProjection)) : stripErrorSquared( N, std::abs(fullProjection),ssdid.subDetector() );
+     } else {
+       float dQdx = siStripClusterTools::chargePerCM(ssdid, cluster, ltp);
+       uerr2 = dQdx > maxChgOneMIP ? legacyStripErrorSquared(N,std::abs(fullProjection)) : stripErrorSquared( N, std::abs(fullProjection),ssdid.subDetector() );
+    }
   }
   const float strip = cluster.barycenter() -  0.5f*(1.f-p.backplanecorrection) * fullProjection
     + 0.5f*p.coveredStrips(track, ltp.position());
