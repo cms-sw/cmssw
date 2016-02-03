@@ -5,7 +5,14 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
+
 namespace l1t {
+  std::ostream & operator<<(std::ostream &os, const l1t::CaloParamsHelper& p){
+    return os << "CaloParamsHelper...";
+  }
+
+
+
   CaloParamsHelper::CaloParamsHelper(const CaloParams p) : CaloParams(p) {};
 
   int CaloParamsHelper::etSumEtaMin(unsigned isum) const {

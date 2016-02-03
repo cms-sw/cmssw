@@ -7,7 +7,7 @@
 #include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
 
 namespace l1t {
-   enum block_t { MP7 = 0, CTP7 };
+   enum block_t { MP7 = 0, CTP7, MTF7 };
 
    class BlockHeader {
       public:
@@ -78,7 +78,7 @@ namespace l1t {
          // header.  Called by getBlock(), which also checks that data_ !=
          // end_ before calling (assumes size of one 32 bit word).
          virtual BlockHeader getHeader() = 0;
-         std::auto_ptr<Block> getBlock();
+         virtual std::auto_ptr<Block> getBlock();
       protected:
          const uint32_t * data_;
          const uint32_t * end_;
@@ -92,6 +92,28 @@ namespace l1t {
          MP7Payload(const uint32_t * data, const uint32_t * end, bool legacy_mc=false);
          virtual unsigned getHeaderSize() const override { return 1; };
          virtual BlockHeader getHeader() override;
+   };
+
+   class MTF7Payload : public Payload {
+      public:
+         MTF7Payload(const uint32_t * data, const uint32_t * end);
+         // Unused methods - we override getBlock() instead
+         virtual unsigned getHeaderSize() const override { return 0; };
+         virtual BlockHeader getHeader() override { return BlockHeader(0); };
+         virtual std::auto_ptr<Block> getBlock() override;
+      private:
+         // sizes in 16 bit words
+         static const unsigned int header_size = 12;
+         static const unsigned int counter_size = 4;
+         static const unsigned int trailer_size = 8;
+
+         // maximum of the block length (64bits) and bit patterns of the
+         // first bits (of 16bit words)
+         static const unsigned int max_block_length_ = 3;
+         static const std::vector<unsigned int> block_patterns_;
+
+         int count(unsigned int pattern, unsigned int length) const;
+         bool valid(unsigned int pattern) const;
    };
 
    class CTP7Payload : public Payload {

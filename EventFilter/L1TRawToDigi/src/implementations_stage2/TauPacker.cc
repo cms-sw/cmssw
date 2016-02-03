@@ -4,6 +4,8 @@
 
 #include "CaloTokens.h"
 
+#include "L1TStage2Layer2Constants.h"
+
 namespace l1t {
    namespace stage2 {
       class TauPacker : public Packer {
@@ -23,11 +25,12 @@ namespace stage2 {
       edm::Handle<TauBxCollection> taus;
       event.getByToken(static_cast<const CaloTokens*>(toks)->getTauToken(), taus);
 
-      std::vector<uint32_t> load;
+      std::vector<uint32_t> load1, load2;
 
       for (int i = taus->getFirstBX(); i <= taus->getLastBX(); ++i) {
-         int n = 0;
-         for (auto j = taus->begin(i); j != taus->end(i) && n < 8; ++j, ++n) {
+
+	for (auto j = taus->begin(i); j != taus->end(i); ++j) {
+
             uint32_t word = \
                             std::min(j->hwPt(), 0x1FF) |
                             (abs(j->hwEta()) & 0x7F) << 9 |
@@ -35,15 +38,19 @@ namespace stage2 {
                             (j->hwPhi() & 0xFF) << 17 |
                             (j->hwIso() & 0x1) << 25 |
                             (j->hwQual() & 0x7) << 26;
-            load.push_back(word);
-         }
 
-         // pad for empty taus
-         for (; n < 8; ++n)
-            load.push_back(0);
+	    if (load1.size() < l1t::stage2::layer2::demux::nEGPerLink) load1.push_back(word);
+	    else load2.push_back(word);
+
+        }
       }
 
-      return {Block(7, load)};
+      // push zeroes if jets are missing                                       
+      while (load1.size()<l1t::stage2::layer2::demux::nOutputFramePerBX) load1.push_back(0);
+      while (load2.size()<l1t::stage2::layer2::demux::nOutputFramePerBX) load2.push_back(0);
+
+      return {Block(17, load1), Block(19, load2)};
+
    }
 }
 }

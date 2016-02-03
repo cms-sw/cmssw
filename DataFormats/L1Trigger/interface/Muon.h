@@ -1,6 +1,7 @@
 #ifndef DataFormats_L1Trigger_Muon_h
 #define DataFormats_L1Trigger_Muon_h
 
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 
@@ -8,11 +9,15 @@ namespace l1t {
 
   class Muon;
   typedef BXVector<Muon> MuonBxCollection;
+  typedef edm::Ref< MuonBxCollection > MuonRef ;
+  typedef edm::RefVector< MuonBxCollection > MuonRefVector ;
+  typedef std::vector< MuonRef > MuonVectorRef ;
 
   class Muon : public L1Candidate {
     
   public:
-    Muon() {};
+    Muon();
+
     Muon( const LorentzVector& p4,
       int pt=0,
       int eta=0,
@@ -55,6 +60,8 @@ namespace l1t {
     void setHwDEtaExtra(int dEta);
     void setHwRank(int rank);
 
+    void setDebug(bool debug);
+
     // methods to retrieve integer values
     int hwCharge() const;
     int hwChargeValid() const;
@@ -62,9 +69,10 @@ namespace l1t {
 
     int hwIsoSum() const;
     int hwDPhiExtra() const;
-    int hwDEtaExtra() const;  
-    int hwRank() const;  
-    
+    int hwDEtaExtra() const;
+    int hwRank() const;
+
+    bool debug() const;
     
   private:
     

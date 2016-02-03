@@ -202,11 +202,11 @@ namespace l1t {
     // DO NOT ADD ENTRIES ANYWHERE BUT DIRECTLY BEFORE "NUM_CALOPARAMNODES"
     enum { regionPUS=0,
 	   egTrimming=1, egMaxHOverE=2, egCompressShapes=3, egShapeId=4, egCalibration=5, egPUS=6, egIsolation=7,
-	   tauCalibration=8, tauPUS=9, tauIsolation=10,
-	   jetPUS=11, jetCalibration=12,
-	   hiCentrality=13, hiQ2=14,
-	   tauEtToHFRingEt=15,
-	   NUM_CALOPARAMNODES=16
+	   tauCalibration=8, tauPUS=9, tauIsolation=10, tauCompress=11,
+	   jetPUS=12, jetCalibration=13,
+	   hiCentrality=14, hiQ2=15, 
+	   tauEtToHFRingEt=16,
+	   NUM_CALOPARAMNODES=17
     };
 
     CaloParams() { version_=Version; pnode_.resize(NUM_CALOPARAMNODES); }

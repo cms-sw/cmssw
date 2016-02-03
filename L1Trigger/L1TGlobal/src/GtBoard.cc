@@ -88,6 +88,8 @@ l1t::GtBoard::GtBoard() :
     m_candL1Tau( new BXVector<const l1t::L1Candidate*>),
     m_candL1Jet( new BXVector<const l1t::L1Candidate*>),
     m_candL1EtSum( new BXVector<const l1t::EtSum*>),
+    m_firstEv(true),
+    m_firstEvLumiSegment(true),
     m_isDebugEnabled(edm::isDebugEnabled())
 {
 
@@ -178,7 +180,10 @@ void l1t::GtBoard::init(const int numberPhysTriggers, const int nrL1Mu, const in
 
 // receive data from Calorimeter
 void l1t::GtBoard::receiveCaloObjectData(edm::Event& iEvent,
-        const edm::InputTag& caloInputTag, 
+	const edm::EDGetTokenT<BXVector<l1t::EGamma>>& egInputToken,
+	const edm::EDGetTokenT<BXVector<l1t::Tau>>& tauInputToken,
+	const edm::EDGetTokenT<BXVector<l1t::Jet>>& jetInputToken,
+	const edm::EDGetTokenT<BXVector<l1t::EtSum>>& sumInputToken,
         const bool receiveEG, const int nrL1EG,
 	const bool receiveTau, const int nrL1Tau,	
 	const bool receiveJet, const int nrL1Jet,
@@ -187,7 +192,7 @@ void l1t::GtBoard::receiveCaloObjectData(edm::Event& iEvent,
     if (m_verbosity) {
         LogDebug("l1t|Global")
                 << "\n**** Board receiving Calo Data "
-                <<  "\n     from input tag " << caloInputTag << "\n"
+	  //<<  "\n     from input tag " << caloInputTag << "\n"
                 << std::endl;
 
     }
@@ -197,13 +202,13 @@ void l1t::GtBoard::receiveCaloObjectData(edm::Event& iEvent,
     // get data from Calorimeter
     if (receiveEG) {
         edm::Handle<BXVector<l1t::EGamma>> egData;
-        iEvent.getByLabel(caloInputTag, egData);
+        iEvent.getByToken(egInputToken, egData);
 
         if (!egData.isValid()) {
             if (m_verbosity) {
                 edm::LogWarning("l1t|Global")
                         << "\nWarning: BXVector<l1t::EGamma> with input tag "
-                        << caloInputTag
+		  //<< caloInputTag
                         << "\nrequested in configuration, but not found in the event.\n"
                         << std::endl;
             }
@@ -211,6 +216,9 @@ void l1t::GtBoard::receiveCaloObjectData(edm::Event& iEvent,
            // bx in EG data
            for(int i = egData->getFirstBX(); i <= egData->getLastBX(); ++i) {
   
+	     // Prevent from pushing back bx that is outside of allowed range
+	     if( i < m_bxFirst_ || i > m_bxLast_ ) continue;
+
               //Loop over EG in this bx
               for(std::vector<l1t::EGamma>::const_iterator eg = egData->begin(i); eg != egData->end(i); ++eg) {
 
@@ -226,20 +234,23 @@ void l1t::GtBoard::receiveCaloObjectData(edm::Event& iEvent,
 
     if (receiveTau) {
         edm::Handle<BXVector<l1t::Tau>> tauData;
-        iEvent.getByLabel(caloInputTag, tauData);
+        iEvent.getByToken(tauInputToken, tauData);
 
         if (!tauData.isValid()) {
             if (m_verbosity) {
                 edm::LogWarning("l1t|Global")
                         << "\nWarning: BXVector<l1t::Tau> with input tag "
-                        << caloInputTag
+		  //<< caloInputTag
                         << "\nrequested in configuration, but not found in the event.\n"
                         << std::endl;
             }
         } else {
            // bx in tau data
            for(int i = tauData->getFirstBX(); i <= tauData->getLastBX(); ++i) {
-  
+    
+	     // Prevent from pushing back bx that is outside of allowed range
+	     if( i < m_bxFirst_ || i > m_bxLast_ ) continue;
+
               //Loop over tau in this bx
               for(std::vector<l1t::Tau>::const_iterator tau = tauData->begin(i); tau != tauData->end(i); ++tau) {
 
@@ -255,20 +266,23 @@ void l1t::GtBoard::receiveCaloObjectData(edm::Event& iEvent,
 
     if (receiveJet) {
         edm::Handle<BXVector<l1t::Jet>> jetData;
-        iEvent.getByLabel(caloInputTag, jetData);
+        iEvent.getByToken(jetInputToken, jetData);
 
         if (!jetData.isValid()) {
             if (m_verbosity) {
                 edm::LogWarning("l1t|Global")
                         << "\nWarning: BXVector<l1t::Jet> with input tag "
-                        << caloInputTag
+		  //<< caloInputTag
                         << "\nrequested in configuration, but not found in the event.\n"
                         << std::endl;
             }
         } else {
            // bx in jet data
            for(int i = jetData->getFirstBX(); i <= jetData->getLastBX(); ++i) {
-  
+    
+	     // Prevent from pushing back bx that is outside of allowed range
+	     if( i < m_bxFirst_ || i > m_bxLast_ ) continue;
+
               //Loop over jet in this bx
               for(std::vector<l1t::Jet>::const_iterator jet = jetData->begin(i); jet != jetData->end(i); ++jet) {
 
@@ -284,19 +298,22 @@ void l1t::GtBoard::receiveCaloObjectData(edm::Event& iEvent,
 
     if(receiveEtSums) {
         edm::Handle<BXVector<l1t::EtSum>> etSumData;
-        iEvent.getByLabel(caloInputTag, etSumData);
+        iEvent.getByToken(sumInputToken, etSumData);
 
         if(!etSumData.isValid()) {
             if (m_verbosity) {
                 edm::LogWarning("l1t|Global")
                         << "\nWarning: BXVector<l1t::EtSum> with input tag "
-                        << caloInputTag
+		  //<< caloInputTag
                         << "\nrequested in configuration, but not found in the event.\n"
                         << std::endl;
             }
 	} else {
 
            for(int i = etSumData->getFirstBX(); i <= etSumData->getLastBX(); ++i) {
+  
+	     // Prevent from pushing back bx that is outside of allowed range
+	     if( i < m_bxFirst_ || i > m_bxLast_ ) continue;
 
               //Loop over jet in this bx
               for(std::vector<l1t::EtSum>::const_iterator etsum = etSumData->begin(i); etsum != etSumData->end(i); ++etsum) {
@@ -337,13 +354,13 @@ void l1t::GtBoard::receiveCaloObjectData(edm::Event& iEvent,
 
 // receive data from Global Muon Trigger
 void l1t::GtBoard::receiveMuonObjectData(edm::Event& iEvent,
-    const edm::InputTag& muInputTag, const bool receiveMu,
+    const edm::EDGetTokenT<BXVector<l1t::Muon> >& muInputToken, const bool receiveMu,
     const int nrL1Mu) {
 
     if (m_verbosity) {
         LogDebug("l1t|Global")
                 << "\n**** GtBoard receiving muon data = "
-                << "\n     from input tag " << muInputTag << "\n"
+	  //<< "\n     from input tag " << muInputTag << "\n"
                 << std::endl;
     }
 
@@ -352,20 +369,23 @@ void l1t::GtBoard::receiveMuonObjectData(edm::Event& iEvent,
     // get data from Global Muon Trigger
     if (receiveMu) {
         edm::Handle<BXVector<l1t::Muon>> muonData;
-        iEvent.getByLabel(muInputTag, muonData);
+        iEvent.getByToken(muInputToken, muonData);
 
         if (!muonData.isValid()) {
             if (m_verbosity) {
                 edm::LogWarning("l1t|Global")
                         << "\nWarning: BXVector<l1t::Muon> with input tag "
-                        << muInputTag
+		  //<< muInputTag
                         << "\nrequested in configuration, but not found in the event.\n"
                         << std::endl;
             }
         } else {
            // bx in muon data
            for(int i = muonData->getFirstBX(); i <= muonData->getLastBX(); ++i) {
-  
+    
+	     // Prevent from pushing back bx that is outside of allowed range
+	     if( i < m_bxFirst_ || i > m_bxLast_ ) continue;
+
               //Loop over Muons in this bx
               for(std::vector<l1t::Muon>::const_iterator mu = muonData->begin(i); mu != muonData->end(i); ++mu) {
 
@@ -384,6 +404,7 @@ void l1t::GtBoard::receiveMuonObjectData(edm::Event& iEvent,
     }
 
 }
+
 
 // run GTL
 void l1t::GtBoard::runGTL(
@@ -421,8 +442,11 @@ void l1t::GtBoard::runGTL(
      m_uGtExtBlk.reset();
      m_algInitialOr=false;
      m_algPrescaledOr=false;
+     m_algFinalOrPreVeto=false;
      m_algFinalOr=false;
+     m_algFinalOrVeto=false;
      
+
      
     /*
     const std::vector<std::vector<MuonTemplate> >& corrMuon =
@@ -896,6 +920,11 @@ void l1t::GtBoard::runGTL(
 // run GTL
 void l1t::GtBoard::runFDL(edm::Event& iEvent, 
         const int iBxInEvent,
+        const int totalBxInEvent,
+        const unsigned int numberPhysTriggers,
+	const std::vector<int>& prescaleFactorsAlgoTrig,
+	const std::vector<unsigned int>& triggerMaskAlgoTrig,
+	const std::vector<unsigned int>& triggerMaskVetoAlgoTrig,
         const bool algorithmTriggersUnprescaled,
         const bool algorithmTriggersUnmasked ){
 
@@ -907,20 +936,28 @@ void l1t::GtBoard::runFDL(edm::Event& iEvent,
 
     }
 
-/* Nothing with prescales right now.
-    // prescale counters are reset at the beginning of the luminosity segment
-    if (m_firstEv) {
 
-        m_firstEv = false;
+    // prescale counters are reset at the beginning of the luminosity segment
+    if( m_firstEv ){
+      // prescale counters: numberPhysTriggers counters per bunch cross
+      m_prescaleCounterAlgoTrig.reserve(numberPhysTriggers*totalBxInEvent);
+
+      for( int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent ){
+	m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
+      }
+      m_firstEv = false;
     }
 
     // TODO FIXME find the beginning of the luminosity segment
-    if (m_firstEvLumiSegment) {
+    if( m_firstEvLumiSegment ){
 
-        m_firstEvLumiSegment = false;
+      m_prescaleCounterAlgoTrig.clear();
+      for( int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent ){
+	m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
+      }
 
+      m_firstEvLumiSegment = false;
     }
-*/
 
     // Copy Algorithm bits to Prescaled word 
     // Prescaling and Masking done below if requested.
@@ -930,59 +967,84 @@ void l1t::GtBoard::runFDL(edm::Event& iEvent,
     // -------------------------------------------
     //      Apply Prescales or skip if turned off
     // -------------------------------------------
-    if (!algorithmTriggersUnprescaled){
-/*
-	for (unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit) {
+    if( !algorithmTriggersUnprescaled ){
 
-            if (prescaleFactorsAlgoTrig.at(iBit) != 1) {
+      // iBxInEvent is ... -2 -1 0 1 2 ... while counters are 0 1 2 3 4 ...
+      int inBxInEvent =  totalBxInEvent/2 + iBxInEvent;
 
-        	bool bitValue = algoDecisionWord.at( iBit );
-        	if (bitValue) {
+      bool temp_algPrescaledOr = false;
+      for( unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit ){
 
-                    (m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit))--;
-                    if (m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) == 0) {
+	bool bitValue = m_uGtAlgBlk.getAlgoDecisionInitial( iBit );
+	if( bitValue ){
+	  if( prescaleFactorsAlgoTrig.at(iBit) != 1 ){
 
-                	// bit already true in algoDecisionWord, just reset counter
-                	m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) =
-                            prescaleFactorsAlgoTrig.at(iBit);
-                    } else {
+	    (m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit))--;
+	    if( m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) == 0 ){
 
-                	// change bit to false in prescaled word and final decision word
-                	algoDecisionWord[iBit] = false;
+	      // bit already true in algoDecisionWord, just reset counter
+	      m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) = prescaleFactorsAlgoTrig.at(iBit);
+	      temp_algPrescaledOr = true;
+	    } 
+	    else {
 
-                    } //if Prescale counter reached zero
-        	} //if algo bit is set true
-            } //if prescale factor is not 1 (ie. no prescale)
-	} //loop over alg bits
-*/
-	m_algPrescaledOr = m_algInitialOr; //temp
-	 
-    } else {
-        
-	// Since not Prescaling just take OR of Initial Work
-	m_algPrescaledOr = m_algInitialOr;
+	      // change bit to false in prescaled word and final decision word
+	      m_uGtAlgBlk.setAlgoDecisionPreScaled(iBit,false);
+
+	    } //if Prescale counter reached zero
+	  } //if prescale factor is not 1 (ie. no prescale)
+	  else {
+	    
+	    temp_algPrescaledOr = true;
+	  }
+	} //if algo bit is set true
+      } //loop over alg bits
+
+      m_algPrescaledOr = temp_algPrescaledOr; //temp
+     
+    } 
+    else {
+      // Since not Prescaling just take OR of Initial Work
+      m_algPrescaledOr = m_algInitialOr;
 	
     }//if we are going to apply prescales.
-      
-      
+
       
     // Copy Algorithm bits fron Prescaled word to Final Word 
     // Masking done below if requested.
     m_uGtAlgBlk.copyPrescaledToFinal();
     
-    if(!algorithmTriggersUnmasked) {
-    
- 
-/*
-       masking the bits goes here.
-*/       
-        m_algFinalOr = m_algPrescaledOr;
-	
-    } else {
-      
-         m_algFinalOr = m_algPrescaledOr;
+    if( !algorithmTriggersUnmasked ){
+
+      bool temp_algFinalOr = false;
+      for( unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit ){
+
+	bool bitValue = m_uGtAlgBlk.getAlgoDecisionPreScaled( iBit );
+
+	if( bitValue ){
+	  bool isMasked = ( triggerMaskAlgoTrig.at(iBit) == 0 );
+
+	  bool passMask = ( bitValue && !isMasked );
+
+	  if( passMask ) temp_algFinalOr = true;
+	  else           m_uGtAlgBlk.setAlgoDecisionFinal(iBit,false);
+
+	  // Check if veto mask is true, if it is, set the event veto flag.
+	  if ( triggerMaskVetoAlgoTrig.at(iBit) == 1 ) m_algFinalOrVeto = true;
+
+	}
+      }
+
+      m_algFinalOrPreVeto = temp_algFinalOr;	
+    } 
+    else {
+
+      m_algFinalOrPreVeto = m_algPrescaledOr;
      
-    } ///if we are masking.	
+    } ///if we are masking.
+
+// Set FinalOR for this board
+   m_algFinalOr = (m_algFinalOrPreVeto & !m_algFinalOrVeto);
 
 
 
@@ -1007,16 +1069,12 @@ void l1t::GtBoard::fillAlgRecord(int iBxInEvent,
     m_uGtAlgBlk.setOrbitNr((unsigned int)(orbNr & 0xFFFFFFFF));
     m_uGtAlgBlk.setbxNr((bxNr & 0xFFFF));
     m_uGtAlgBlk.setbxInEventNr((iBxInEvent & 0xF));
+    m_uGtAlgBlk.setPreScColumn(0); //TO DO: get this and fill it in.
 
-// Set the header information and Final OR
-    int finalOR = 0x0;     
-    if(m_algFinalOr) finalOR  = (finalOR | 0x2);  
-    if(m_uGtFinalBoard) {
-       finalOR = (finalOR | 0x8);
-       if( (finalOR >>1) & 0x1 ) finalOR = (finalOR | 0x1);
-    }
-    m_uGtAlgBlk.setFinalOR(finalOR);
-    
+    m_uGtAlgBlk.setFinalORVeto(m_algFinalOrVeto);
+    m_uGtAlgBlk.setFinalORPreVeto(m_algFinalOrPreVeto); 
+    m_uGtAlgBlk.setFinalOR(m_algFinalOr);
+
 
     uGtAlgRecord->push_back(iBxInEvent, m_uGtAlgBlk);
 
@@ -1037,9 +1095,7 @@ void l1t::GtBoard::fillExtRecord(int iBxInEvent,
 
     }
 // Set header information
-    m_uGtExtBlk.setOrbitNr((unsigned int)(orbNr & 0xFFFFFFFF));
-    m_uGtExtBlk.setbxNr((bxNr & 0xFFFF));
-    m_uGtExtBlk.setbxInEventNr((iBxInEvent & 0xF));
+
 
     uGtExtRecord->push_back(iBxInEvent, m_uGtExtBlk);
 
