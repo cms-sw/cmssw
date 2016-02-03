@@ -22,7 +22,16 @@ def esproducers_by_type(process, *types):
 
 def customiseFor13062(process):
     for module in producers_by_type(process,'PixelTrackProducer'):
-        module.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
+        if not hasattr(module.RegionFactoryPSet.RegionPSet,'useMultipleScattering'):
+            module.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
+        if not hasattr(module.RegionFactoryPSet.RegionPSet,'useFakeVertices'):    
+            module.RegionFactoryPSet.RegionPSet.useFakeVertices = cms.bool(False)
+
+    for module in producers_by_type(process,'SeedGeneratorFromRegionHitsEDProducer'):
+        if not hasattr(module.RegionFactoryPSet.RegionPSet,'useMultipleScattering'):
+            module.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
+        if not hasattr(module.RegionFactoryPSet.RegionPSet,'useFakeVertices'):    
+            module.RegionFactoryPSet.RegionPSet.useFakeVertices = cms.bool(False)
 
     for module in esproducers_by_type(process,'Chi2ChargeMeasurementEstimatorESProducer'):    
         if hasattr(module,'MaxDispacement'):
