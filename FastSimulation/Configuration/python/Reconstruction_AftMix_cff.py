@@ -167,18 +167,6 @@ _reco.KFSmootherForRefitInsideOut.Propagator = "SmartPropagatorAny"
 _reco.KFFitterForRefitInsideOut.Propagator = "SmartPropagatorAny"
 _reco.tevMuons.RefitterParameters.Propagator = "SmartPropagatorAny"
 
-##########################################
-# FastSim changes to jet/met reconstruction
-##########################################
-# not commisoned and not relevant in FastSim (?):
-_reco.jetHighLevelReco.remove(_reco.recoJetAssociationsExplicit)
-
-# not commisoned and not relevant in FastSim (?):
-_reco.metreco.remove(_reco.BeamHaloId)
-
-# not commisoned and not relevant in FastSim (?):
-_reco.metrecoPlusHCALNoise.remove(_reco.hcalnoise)
-
 ############################################
 # deleting modules to avoid clashes with part of reconstruction run before mixing
 ############################################
