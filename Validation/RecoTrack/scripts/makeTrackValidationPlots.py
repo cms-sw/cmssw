@@ -8,6 +8,12 @@ import Validation.RecoTrack.plotting.trackingPlots as trackingPlots
 import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 import Validation.RecoTrack.plotting.plotting as plotting
 
+class LimitTrackAlgo:
+    def __init__(self, algos):
+        self._algos = algos
+    def __call__(self, algo, quality):
+        return algo in self._algos
+
 def main(opts):
     files = opts.files
     labels = [f.replace(".root", "") for f in files]
@@ -28,7 +34,21 @@ def main(opts):
         htmlReport = val.createHtmlReport(validationName=opts.html_validation_name)
         htmlReport.beginSample(SimpleSample(opts.html_prefix, opts.html_sample))
         kwargs["htmlReport"] = htmlReport
-    val.doPlots(trackingPlots.plotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs)
+
+    kwargs_tracking = {}
+    kwargs_tracking.update(kwargs)
+    if opts.limit_tracking_algo is not None:
+        limitProcessing = LimitTrackAlgo(opts.limit_tracking_algo)
+        kwargs_tracking["limitSubFoldersOnlyTo"] = {
+            "": limitProcessing,
+            "allTPEffic": limitProcessing,
+            "fromPV": limitProcessing,
+            "fromPVAllTP": limitProcessing,
+            "seeding": limitProcessing,
+            "building": limitProcessing,
+        }
+
+    val.doPlots(trackingPlots.plotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs_tracking)
     val.doPlots(trackingPlots.timePlotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs)
     val.doPlots(vertexPlots.plotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs)
     print
@@ -54,6 +74,8 @@ if __name__ == "__main__":
                         help="Save all plots separately instead of grouping them")
     parser.add_argument("--png", action="store_true",
                         help="Save plots in PNG instead of PDF")
+    parser.add_argument("--limit-tracking-algo", type=str, default=None,
+                        help="Comma separated list of tracking algos to limit to. (default: all algos)")
     parser.add_argument("--html", action="store_true",
                         help="Generate HTML pages")
     parser.add_argument("--html-prefix", default="plots",
@@ -72,5 +94,8 @@ if __name__ == "__main__":
 
     if opts.ignoreMissing:
         print "--ignoreMissing is now the only operation mode, so you can stop using this parameter"
+
+    if opts.limit_tracking_algo is not None:
+        opts.limit_tracking_algo = opts.limit_tracking_algo.split(",")
 
     main(opts)
