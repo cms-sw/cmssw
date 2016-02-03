@@ -102,9 +102,9 @@ void RPCChamberQuality::myBooker(DQMStore::IBooker & ibooker ){
   histoName.str("");
   histoName<<"RPC_System_Quality_Overview"; 
   me = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(),  7, 0.5, 7.5, 3, 0.5, 3.5);
-  me->setBinLabel(1, "E+", 2);
+  me->setBinLabel(1, "E-", 2);
   me->setBinLabel(2, "B", 2);
-  me->setBinLabel(3, "E-", 2);
+  me->setBinLabel(3, "E+", 2);
     
   for (int x = 1; x <8 ; x++) {me->setBinLabel(x, xLabels_[x-1]);}
   
