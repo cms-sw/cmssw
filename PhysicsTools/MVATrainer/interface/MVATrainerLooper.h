@@ -5,8 +5,6 @@
 #include <vector>
 #include <memory>
 
-#include <boost/shared_ptr.hpp>
-
 #include "FWCore/Framework/interface/ESProducerLooper.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -26,8 +24,8 @@ class MVATrainerLooper : public edm::ESProducerLooper {
 	virtual Status endOfLoop(const edm::EventSetup &es,
 	                         unsigned int iteration);
 
-	typedef boost::shared_ptr<Calibration::MVAComputer> TrainObject;
-	typedef boost::shared_ptr<Calibration::MVAComputerContainer>
+	typedef std::shared_ptr<Calibration::MVAComputer> TrainObject;
+	typedef std::shared_ptr<Calibration::MVAComputerContainer>
 							TrainContainer;
 
 	template<class T>

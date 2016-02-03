@@ -19,7 +19,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/LooperFactory.h"
@@ -39,8 +38,8 @@ class DummyLooper : public edm::ESProducerLooper {
       DummyLooper(const edm::ParameterSet&);
       ~DummyLooper();
 
-      typedef boost::shared_ptr<DummyData> ReturnType;
-      typedef boost::shared_ptr<DummyData const> ConstReturnType;
+      typedef std::shared_ptr<DummyData> ReturnType;
+      typedef std::shared_ptr<DummyData const> ConstReturnType;
 
       ReturnType produce(const DummyRecord&);
       

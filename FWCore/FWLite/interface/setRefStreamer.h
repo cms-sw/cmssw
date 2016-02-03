@@ -32,7 +32,7 @@ namespace fwlite {
   
   class GetterOperate {
 public:
-    GetterOperate( edm::EDProductGetter const* iEP): old_(0) {
+    GetterOperate(edm::EDProductGetter const* iEP): old_(nullptr) {
       old_ = setRefStreamer(iEP);
     }
     ~GetterOperate() {

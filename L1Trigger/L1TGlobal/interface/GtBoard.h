@@ -66,7 +66,10 @@ public:
     /// receive data from Global Muon Trigger
     void receiveCaloObjectData(
         edm::Event&,
-        const edm::InputTag&, 
+	const edm::EDGetTokenT<BXVector<l1t::EGamma>>&,
+	const edm::EDGetTokenT<BXVector<l1t::Tau>>&,
+	const edm::EDGetTokenT<BXVector<l1t::Jet>>&,
+	const edm::EDGetTokenT<BXVector<l1t::EtSum>>&,
         const bool receiveEG, const int nrL1EG,
 	const bool receiveTau, const int nrL1Tau,	
 	const bool receiveJet, const int nrL1Jet,
@@ -74,7 +77,7 @@ public:
 
     void receiveMuonObjectData(
         edm::Event&,
-        const edm::InputTag&, 
+        const edm::EDGetTokenT<BXVector<l1t::Muon> >&, 
         const bool receiveMu, const int nrL1Mu);
 
 
@@ -96,6 +99,11 @@ public:
     /// run the uGT FDL (Apply Prescales and Veto)
     void runFDL(edm::Event& iEvent, 
         const int iBxInEvent,
+        const int totalBxInEvent,
+        const unsigned int numberPhysTriggers,
+        const std::vector<int>& prescaleFactorsAlgoTrig,
+	const std::vector<unsigned int>& triggerMaskAlgoTrig,
+	const std::vector<unsigned int>& triggerMaskVetoAlgoTrig,
         const bool algorithmTriggersUnprescaled,
         const bool algorithmTriggersUnmasked );
 
@@ -241,9 +249,14 @@ private:
     GlobalAlgBlk m_uGtAlgBlk;
     GlobalExtBlk m_uGtExtBlk;
 
-  // cache  of maps
-  std::vector<AlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
-  
+    // cache  of maps
+    std::vector<AlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
+
+    /// prescale counters: NumberPhysTriggers counters per bunch cross in event
+    std::vector<std::vector<int> > m_prescaleCounterAlgoTrig;
+
+    bool m_firstEv;
+    bool m_firstEvLumiSegment;
 
 private:
 
@@ -255,6 +268,8 @@ private:
     bool m_algInitialOr;
     bool m_algPrescaledOr;
     bool m_algFinalOr;
+    bool m_algFinalOrVeto;
+    bool m_algFinalOrPreVeto;
     
     // Counter for number of events seen by this board
     unsigned int m_boardEventCount;

@@ -24,8 +24,6 @@
 //
 #include "DataMixingHcalDigiWorker.h"
 
-std::vector<size_t> ids;
-
 using namespace std;
 
 namespace {
@@ -191,7 +189,6 @@ namespace edm
 
   void DataMixingHcalDigiWorker::addHcalSignals(const edm::Event &e,const edm::EventSetup& ES) { 
     // Calibration stuff will look like this:                                                 
-    ids.clear();
     // get conditions                                                                         
     edm::ESHandle<HcalDbService> conditions;                                                
     ES.get<HcalDbRecord>().get(conditions);                                         

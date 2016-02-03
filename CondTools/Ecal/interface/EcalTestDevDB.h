@@ -2,7 +2,7 @@
 #define ECALTESTDEVDB_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/CondDB/interface/Exception.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 

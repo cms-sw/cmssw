@@ -60,7 +60,7 @@
    //Make it easy to load our headers
    TInterpreter* intrp= gROOT->GetInterpreter();
    char const* env = getenv("CMSSW_FWLITE_INCLUDE_PATH");
-   if(0 != env) {
+   if(nullptr != env) {
      //this is a comma separated list
      char const* start = env;
      char const* end;
@@ -75,7 +75,7 @@
 
    bool foundCMSIncludes = false;
    env = getenv("CMSSW_BASE");
-   if(0 != env) {
+   if(nullptr != env) {
      foundCMSIncludes = true;
      std::string dir(env);
      dir += "/src";
@@ -83,7 +83,7 @@
    }
 
    env = getenv("CMSSW_RELEASE_BASE");
-   if(0 != env) {
+   if(nullptr != env) {
      foundCMSIncludes = true;
      std::string dir(env);
      dir += "/src";
@@ -95,7 +95,7 @@
      <<"  CMSSW_RELEASE_BASE\n"
      <<" therefore attempting to '#include' any CMS headers will not work"<<std::endl;
    }
-   if (0 != gApplication) {
+   if (nullptr != gApplication) {
      gApplication->InitializeGraphics();
    }
   }

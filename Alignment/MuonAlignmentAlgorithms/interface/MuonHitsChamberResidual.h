@@ -30,6 +30,8 @@ public:
   
 protected:
 
+  double m_chamber_width;
+  double m_chamber_length;
   double m_residual_1;
   double m_residual_x;
   double m_residual_y;

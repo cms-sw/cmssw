@@ -18,8 +18,6 @@
 
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <map>
 #include <memory>
 #include <set>
@@ -311,7 +309,7 @@ namespace edm {
     std::vector<ProcessHistoryRegistry>           processHistoryRegistries_;
     std::vector<HistoryAppender>                  historyAppenders_;
     PrincipalCache                                principalCache_;
-    edm::propagate_const<boost::shared_ptr<eventsetup::EventSetupProvider>> esp_;
+    edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
     edm::propagate_const<std::unique_ptr<Schedule>> schedule_;
     std::map<ProcessHistoryID, ProcessHistoryID>  parentToChildPhID_;
     edm::propagate_const<std::unique_ptr<std::vector<SubProcess>>> subProcesses_;

@@ -14,10 +14,10 @@ class MuonTrackDT2ChamberResidual: public MuonChamberResidual
 {
 public:
   MuonTrackDT2ChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, AlignableNavigator *navigator,
-                              DetId chamberId, const AlignableDetOrUnitPtr& chamberAlignable);
+                              DetId chamberId, AlignableDetOrUnitPtr chamberAlignable);
 
   // dummy method
-  virtual void addResidual(const TrajectoryStateOnSurface *tsos, const TransientTrackingRecHit *hit) {}
+  virtual void addResidual(edm::ESHandle<Propagator> prop, const TrajectoryStateOnSurface *tsos, const TrackingRecHit *hit, double, double) = 0;
 
   // for DT2, the residual is chamber local y
   // for DT2, the resslope is dresy/dz, or tan(phi_x)

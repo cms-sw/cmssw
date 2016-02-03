@@ -29,30 +29,18 @@ bool L1TOMDSHelper::connect(string iOracleDB,string iPathCondDB,int &error){
   error        = NO_ERROR;
 
   // Initializing variables 
-  bool SessionExists    = false;
   bool SessionOpen      = false;
-  bool ConnectionExists = false;
-  bool ConnectionOpen   = false;
   bool out              = false;
 
   m_omdsReader = new l1t::OMDSReader();
   m_omdsReader->connect(m_oracleDB,m_pathCondDB);
 
   // Testing session
-  if(m_omdsReader->dbSession()){
-    SessionExists = true;
-    if(m_omdsReader->dbSession()->isOpen()){SessionOpen = true;}
-  }
+  if(!m_omdsReader->dbSession().connectionString().empty()){SessionOpen = true;}
   
-  // Testing connection
-  if(m_omdsReader->dbConnection()){
-    ConnectionExists = true;
-    if(m_omdsReader->dbSession()->isOpen()){ConnectionOpen = true;}
-  }
-
   // Defining output and error message if needed
-  if     (SessionExists && SessionOpen && ConnectionExists && ConnectionOpen){out = true;}
-  else if(!SessionExists || !ConnectionExists) {error = WARNING_DB_CONN_FAILED;}
+  if     (SessionOpen){out = true;}
+  else {error = WARNING_DB_CONN_FAILED;}
 
   return out;
 

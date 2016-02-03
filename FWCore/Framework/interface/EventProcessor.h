@@ -29,7 +29,6 @@ configured in the user's main() function, and is set running.
 
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
-#include "boost/shared_ptr.hpp"
 #include "boost/thread/condition.hpp"
 
 #include <map>
@@ -258,8 +257,8 @@ namespace edm {
     std::shared_ptr<BranchIDListHelper>& branchIDListHelper() {return get_underlying_safe(branchIDListHelper_);}
     std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper() const {return get_underlying_safe(thinnedAssociationsHelper_);}
     std::shared_ptr<ThinnedAssociationsHelper>& thinnedAssociationsHelper() {return get_underlying_safe(thinnedAssociationsHelper_);}
-    boost::shared_ptr<EDLooperBase const> looper() const {return get_underlying_safe(looper_);}
-    boost::shared_ptr<EDLooperBase>& looper() {return get_underlying_safe(looper_);}
+    std::shared_ptr<EDLooperBase const> looper() const {return get_underlying_safe(looper_);}
+    std::shared_ptr<EDLooperBase>& looper() {return get_underlying_safe(looper_);}
     //------------------------------------------------------------------
     //
     // Data members below.
@@ -274,7 +273,7 @@ namespace edm {
     ServiceToken                                  serviceToken_;
     edm::propagate_const<std::unique_ptr<InputSource>> input_;
     edm::propagate_const<std::unique_ptr<eventsetup::EventSetupsController>> espController_;
-    edm::propagate_const<boost::shared_ptr<eventsetup::EventSetupProvider>> esp_;
+    edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
     std::unique_ptr<ExceptionToActionTable const>          act_table_;
     std::shared_ptr<ProcessConfiguration const>       processConfiguration_;
     ProcessContext                                processContext_;
@@ -284,7 +283,7 @@ namespace edm {
     edm::propagate_const<std::unique_ptr<HistoryAppender>> historyAppender_;
 
     edm::propagate_const<std::unique_ptr<FileBlock>> fb_;
-    edm::propagate_const<boost::shared_ptr<EDLooperBase>> looper_;
+    edm::propagate_const<std::shared_ptr<EDLooperBase>> looper_;
 
     //The atomic protects concurrent access of deferredExceptionPtr_
     std::atomic<bool>                             deferredExceptionPtrIsSet_;

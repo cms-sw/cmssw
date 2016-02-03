@@ -20,8 +20,8 @@
 //
 
 // system include files
-#include "boost/shared_ptr.hpp"
 #include <cassert>
+#include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/DataProxy.h"
@@ -41,7 +41,7 @@ namespace edm {
          typedef  typename produce::smart_pointer_traits<DataT>::type value_type;
          typedef  RecordT record_type;
          
-         CallbackProxy(boost::shared_ptr<CallbackT>& iCallback) :
+         CallbackProxy(std::shared_ptr<CallbackT>& iCallback) :
          data_(),
          callback_(iCallback) { 
             //The callback fills the data directly.  This is done so that the callback does not have to
@@ -74,7 +74,7 @@ namespace edm {
          
          // ---------- member data --------------------------------
          DataT data_;
-         edm::propagate_const<boost::shared_ptr<CallbackT>> callback_;
+         edm::propagate_const<std::shared_ptr<CallbackT>> callback_;
       };
       
    }

@@ -58,7 +58,7 @@ IntersectingIOVRecordIntervalFinder::~IntersectingIOVRecordIntervalFinder()
 // member functions
 //
 void 
-IntersectingIOVRecordIntervalFinder::swapFinders(std::vector<edm::propagate_const<boost::shared_ptr<EventSetupRecordIntervalFinder>>>& iFinders)
+IntersectingIOVRecordIntervalFinder::swapFinders(std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>& iFinders)
 {
    finders_.swap(iFinders);
 }
