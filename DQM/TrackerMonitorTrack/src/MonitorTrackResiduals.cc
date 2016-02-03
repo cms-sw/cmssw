@@ -74,26 +74,38 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
   folder_organizer.setSiStripFolder(); // top SiStrip folder
 
   // take from eventSetup the SiStripDetCabling object
-  edm::ESHandle<SiStripDetCabling> tkmechstruct;
-  iSetup.get<SiStripDetCablingRcd>().get(tkmechstruct);
+  //edm::ESHandle<SiStripDetCabling> tkmechstruct;
+  //iSetup.get<SiStripDetCablingRcd>().get(tkmechstruct);
 
   // get list of active detectors from SiStripDetCabling
   std::vector<uint32_t> activeDets;
-  activeDets.clear(); // just in case
-  tkmechstruct->addActiveDetectorsRawIds(activeDets);
+  //activeDets.clear(); // just in case
+  //tkmechstruct->addActiveDetectorsRawIds(activeDets);
 
   // use SiStripSubStructure for selecting certain regions
-  SiStripSubStructure substructure;
-  std::vector<uint32_t> DetIds = activeDets;
+  //SiStripSubStructure substructure;
+  //std::vector<uint32_t> DetIds = activeDets;
+
+  // new handling using tracker geom
+
+  edm::ESHandle<TrackerGeometry> TG;
+  iSetup.get<TrackerDigiGeometryRecord>().get(TG);
+  auto ids = TG->detIds(); // or detUnitIds?
+  for (DetId id : ids) {
+    activeDets.push_back(id.rawId());
+  }
 
   // book histo per each detector module
-  for (std::vector<uint32_t>::const_iterator DetItr=activeDets.begin(),
-	 DetItrEnd = activeDets.end(); DetItr!=DetItrEnd; ++DetItr)
+  //for (std::vector<uint32_t>::const_iterator DetItr=activeDets.begin(),
+	 //DetItrEnd = activeDets.end(); DetItr!=DetItrEnd; ++DetItr)
+  for(auto ModuleID : activeDets)
     {
-      uint ModuleID = (*DetItr);
+      //uint ModuleID = (*DetItr);
 
       // is this a StripModule?
+      std::cout << "ID " << std::hex << ModuleID << " ";
       if( SiStripDetId(ModuleID).subDetector() != 0 ) {
+        std::cout << " (OK) " ;
 
 	folder_organizer.setDetectorFolder(ModuleID, tTopo); //  detid sets appropriate detector folder
 	// Book module histogramms?
@@ -129,6 +141,10 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
 	  m_SubdetLayerNormedResiduals[subdetandlayer]->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
 	}
       } // end 'is strip module'
+      else {
+          std::cout << " (PX) ";
+      }
+      std::cout << std::endl;
     } // end loop over activeDets
 }
 
