@@ -69,7 +69,7 @@ namespace l1t {
                // FIXME Hard-coded firmware version for first 74x MC campaigns.
                // Will account for differences in the AMC payload, MP7 payload,
                // and unpacker setup.
-               if (fw & 0xff000000) {
+               if ((fw >> 24) == 0xff) {
                   auto cjet_unp = UnpackerFactory::get()->make("stage1::legacy::CentralJetUnpacker");
                   auto fjet_unp = UnpackerFactory::get()->make("stage1::legacy::ForwardJetUnpacker");
 

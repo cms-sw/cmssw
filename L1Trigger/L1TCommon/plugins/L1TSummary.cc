@@ -36,6 +36,9 @@ private:
   virtual void endRun(Run const&, EventSetup const&);
   virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&);
   virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&);
+
+  // Tag string to mark summary with:
+  string tag_;
       
   // Checks to perform:
   bool egCheck_;   
@@ -60,6 +63,8 @@ L1TSummary::L1TSummary(const ParameterSet& iConfig) {
   // InputTag overlapTfInputTag = iConfig.getParameter<InputTag>("overlapTFInput");
   // InputTag forwardTfInputTag = iConfig.getParameter<InputTag>("forwardTFInput");
   //m_barrelTfInputToken = consumes<MicroGMTConfiguration::InputCollection>(iConfig.getParameter<InputTag>("bmtfDigis"));
+
+  tag_       = iConfig.getParameter<string>("tag");
 
   egCheck_   = iConfig.getParameter<bool>("egCheck");
   tauCheck_  = iConfig.getParameter<bool>("tauCheck");
@@ -87,6 +92,7 @@ L1TSummary::~L1TSummary(){}
 void 
 L1TSummary::analyze(Event const& iEvent, EventSetup const& iSetup)
 {
+  cout << "L1TSummary Module output for " << tag_ << "\n";
   if (egCheck_){
     Handle<EGammaBxCollection> XTMP;    
     iEvent.getByToken(egToken_, XTMP);
@@ -94,7 +100,8 @@ L1TSummary::analyze(Event const& iEvent, EventSetup const& iSetup)
       cout << "INFO:  L1T found e-gamma collection.\n";
       for (int ibx = XTMP->getFirstBX(); ibx <= XTMP->getLastBX(); ++ibx) {
 	for (auto it=XTMP->begin(ibx); it!=XTMP->end(ibx); it++){      
-	  cout << "bx:  " << ibx << "  et:  "  << it->et() << "  eta:  "  << it->eta() << "  phi:  "  << it->phi() << "\n";
+	  if (it->et() > 0) 
+	    cout << "bx:  " << ibx << "  et:  "  << it->et() << "  eta:  "  << it->eta() << "  phi:  "  << it->phi() << "\n";
 	}
       }
     } else {
@@ -109,7 +116,8 @@ L1TSummary::analyze(Event const& iEvent, EventSetup const& iSetup)
       cout << "INFO:  L1T found tau collection.\n";
       for (int ibx = XTMP->getFirstBX(); ibx <= XTMP->getLastBX(); ++ibx) {
 	for (auto it=XTMP->begin(ibx); it!=XTMP->end(ibx); it++){      
-	  cout << "bx:  " << ibx << "  et:  "  << it->et() << "  eta:  "  << it->eta() << "  phi:  "  << it->phi() << "\n";
+	  if (it->et() > 0) 
+	    cout << "bx:  " << ibx << "  et:  "  << it->et() << "  eta:  "  << it->eta() << "  phi:  "  << it->phi() << "\n";
 	}
       }
     } else {
@@ -124,7 +132,8 @@ L1TSummary::analyze(Event const& iEvent, EventSetup const& iSetup)
       cout << "INFO:  L1T found jet collection.\n";
       for (int ibx = XTMP->getFirstBX(); ibx <= XTMP->getLastBX(); ++ibx) {
 	for (auto it=XTMP->begin(ibx); it!=XTMP->end(ibx); it++){      
-	  cout << "bx:  " << ibx << "  et:  "  << it->et() << "  eta:  "  << it->eta() << "  phi:  "  << it->phi() << "\n";
+	  if (it->et() > 0) 
+	    cout << "bx:  " << ibx << "  et:  "  << it->et() << "  eta:  "  << it->eta() << "  phi:  "  << it->phi() << "\n";
 	}
       }
     } else {
@@ -139,7 +148,8 @@ L1TSummary::analyze(Event const& iEvent, EventSetup const& iSetup)
       cout << "INFO:  L1T found sum collection.\n";
       for (int ibx = XTMP->getFirstBX(); ibx <= XTMP->getLastBX(); ++ibx) {
 	for (auto it=XTMP->begin(ibx); it!=XTMP->end(ibx); it++){      
-	  cout << "bx:  " << ibx << "  et:  "  << it->et() << "  eta:  "  << it->eta() << "  phi:  "  << it->phi() << "\n";
+	  if (it->et() > 0) 
+	    cout << "bx:  " << ibx << "  et:  "  << it->et() << "  eta:  "  << it->eta() << "  phi:  "  << it->phi() << "\n";
 	}
       }
     } else {
@@ -155,7 +165,8 @@ L1TSummary::analyze(Event const& iEvent, EventSetup const& iSetup)
       cout << "INFO:  L1T found muon collection.\n";
       for (int ibx = XTMP->getFirstBX(); ibx <= XTMP->getLastBX(); ++ibx) {
 	for (auto it=XTMP->begin(ibx); it!=XTMP->end(ibx); it++){      
-	  cout << "bx:  " << ibx << "  et:  "  << it->et() << "  eta:  "  << it->eta() << "  phi:  "  << it->phi() << "\n";
+	  if (it->et() > 0) 
+	    cout << "bx:  " << ibx << "  et:  "  << it->et() << "  eta:  "  << it->eta() << "  phi:  "  << it->phi() << "\n";
 	}
       }
     } else {

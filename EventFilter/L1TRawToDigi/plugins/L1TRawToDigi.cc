@@ -88,8 +88,8 @@ namespace l1t {
       fedIds_(config.getParameter<std::vector<int>>("FedIds")),
       fwId_(config.getParameter<unsigned int>("FWId")),
       fwOverride_(config.getParameter<bool>("FWOverride")),
-      ctp7_mode_(config.getUntrackedParameter<bool>("CTP7", false)),
-      mtf7_mode_(config.getUntrackedParameter<bool>("MTF7", false))
+      ctp7_mode_(config.getParameter<bool>("CTP7")),
+      mtf7_mode_(config.getParameter<bool>("MTF7"))
    {
       fedData_ = consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputLabel"));
 
@@ -176,7 +176,7 @@ namespace l1t {
          // FIXME Hard-coded firmware version for first 74x MC campaigns.
          // Will account for differences in the AMC payload, MP7 payload,
          // and unpacker setup.
-         bool legacy_mc = fwOverride_ && (fwId_ & 0xff000000);
+	 bool legacy_mc = fwOverride_ && ((fwId_ >> 24) == 0xff);
 
          amc13::Packet packet;
          if (!packet.parse(
@@ -264,11 +264,10 @@ namespace l1t {
    void
    L1TRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
      edm::ParameterSetDescription desc;
-     //NOTE: having optional parameters, where behavior is different if set vs unset, makes customisation difficult.
-     desc.add<unsigned int>("FWId",0)->setComment("32 bits: if the first eight bits are 0xff, will read the 74x MC format.  No effect unless FWOverride is true.");
-     desc.add<bool>("FWOverride", false); // (see note above) 
-     desc.addUntracked<bool>("CTP7", false);
-     desc.addUntracked<bool>("MTF7", false);
+     desc.add<unsigned int>("FWId",0)->setComment("Ignored unless FWOverride is true.  32 bits: if the first eight bits are 0xff, will read the 74x MC format.\n");
+     desc.add<bool>("FWOverride", false)->setComment("Firmware version should be taken as FWId parameters");
+     desc.add<bool>("CTP7", false);
+     desc.add<bool>("MTF7", false);
      desc.add<edm::InputTag>("InputLabel");
      desc.add<std::vector<int>>("FedIds", {});
      desc.add<std::string>("Setup", "");
