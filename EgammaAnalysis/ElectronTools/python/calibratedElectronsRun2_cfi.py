@@ -33,7 +33,7 @@ calibratedElectrons = cms.EDProducer("CalibratedElectronProducerRun2",
                                      smearings = smearingList[correctionType],
                                      scales = scaleList[correctionType],
                                      
-                                     scalesFile = cms.string("scales.dat"),
+                                     scalesFile = cms.string("data/76X_16DecRereco_2015.dat"),
                                      smearingsFile = cms.string("smearings.dat"),
                                      )
 
@@ -54,7 +54,7 @@ calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducerRun2",
                                         smearings = smearingList[correctionType],
                                         scales = scaleList[correctionType],
 
-                                        scalesFile = cms.string("scales.dat"),
+                                     scalesFile = cms.string("data/76X_16DecRereco_2015.dat"),
                                         smearingsFile = cms.string("smearings.dat"),
 
                                         )
