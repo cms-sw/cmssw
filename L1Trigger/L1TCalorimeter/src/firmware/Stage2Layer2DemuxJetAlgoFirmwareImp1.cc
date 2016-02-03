@@ -9,7 +9,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2DemuxJetAlgoFirmware.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
-
+#include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include <vector>
 #include <algorithm>
@@ -54,16 +54,12 @@ void l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::processEvent(const std::vector<l
 
   BitonicSort< l1t::Jet >(down,start,end);
 
-  // Transform the eta and phi onto the ouput scales to GT
-  for (std::vector<l1t::Jet>::iterator jet = outputJets.begin(); jet != outputJets.end(); ++jet )
-    {
-
   // convert eta to GT coordinates
   for(auto& jet : outputJets){
 
     int gtEta = CaloTools::gtEta(jet.hwEta());
     int gtPhi = CaloTools::gtPhi(jet.hwPhi());
-
+    
     jet.setHwEta(gtEta);
     jet.setHwPhi(gtPhi);
 
