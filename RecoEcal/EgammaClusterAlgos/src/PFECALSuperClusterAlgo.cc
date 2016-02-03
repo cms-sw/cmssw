@@ -191,8 +191,8 @@ void PFECALSuperClusterAlgo::setTokens(const edm::ParameterSet &iConfig, edm::Co
   if (useRegression_) {
     const edm::ParameterSet &regconf = iConfig.getParameter<edm::ParameterSet>("regressionConfig");
     
-    regr_.reset(new PFSCRegressionCalc(regconf));
-    regr_->varCalc()->setTokens(regconf,std::move(cc));  
+    regr_.reset(new SCEnergyCorrectorSemiParm());
+    regr_->setTokens(regconf, cc);  
   }
   
 }
@@ -200,7 +200,7 @@ void PFECALSuperClusterAlgo::setTokens(const edm::ParameterSet &iConfig, edm::Co
 void PFECALSuperClusterAlgo::update(const edm::EventSetup& setup) {
  
   if (useRegression_) {
-    regr_->update(setup);
+    regr_->setEventSetup(setup);
   }
   
   edm::ESHandle<ESEEIntercalibConstants> esEEInterCalibHandle_;
@@ -236,7 +236,7 @@ loadAndSortPFClusters(const edm::Event &iEvent) {
   
   //initialize regression for this event
   if (useRegression_) {
-    regr_->varCalc()->setEvent(iEvent);
+    regr_->setEvent(iEvent);
   }  
   
   // reset the system for running
@@ -511,9 +511,8 @@ buildSuperCluster(CalibClusterPtr& seed,
   new_sc.rawEnergy();
 
   //apply regression energy corrections
-  if( useRegression_ ) {    
-    double cor = regr_->getCorrection(new_sc);
-    new_sc.setEnergy(cor*new_sc.correctedEnergy());
+  if( useRegression_ ) {  
+    regr_->modifyObject(new_sc);
   }
   
   // save the super cluster to the appropriate list (if it passes the final
