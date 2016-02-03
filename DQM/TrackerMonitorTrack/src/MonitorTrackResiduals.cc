@@ -53,6 +53,46 @@ void MonitorTrackResiduals::dqmBeginRun(edm::Run const& run, edm::EventSetup con
   if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( run, iSetup );
 }
 
+std::pair<std::string, int32_t> findSubdetAndLayer(uint32_t ModuleID, const TrackerTopology* tTopo) {
+      std::string subdet = "";
+      int32_t layer = 0;
+      auto id = DetId(ModuleID);
+      switch (id.subdetId()) {
+        // Pixel Barrel, Endcap
+	case 1:
+	  subdet = "BPIX";
+          layer = tTopo->pxbLayer(id);
+	  break;
+        case 2:
+	  subdet = "FPIX";
+          layer = tTopo->pxfDisk(id);
+	  break;
+	// Strip TIB, TID, TOB, TEC
+	case 3:
+	  subdet = "TIB";
+          layer = tTopo->tibLayer(id);
+	  break;
+	case 4:
+	  subdet = "TID";
+          layer = tTopo->tidWheel(id) * ( tTopo->tecSide(ModuleID)==1 ? -1 : +1);
+	  break;
+	case 5:
+	  subdet = "TOB";
+          layer = tTopo->tobLayer(id);
+	  break;
+	case 6:
+	  subdet = "TEC";
+          layer = tTopo->tecWheel(id) * ( tTopo->tecSide(ModuleID)==1 ? -1 : +1);
+	  break;
+	default:
+	  // TODO: Fail loudly.
+	  subdet = "UNKNOWN";
+	  layer = 0;
+      }
+      return std::make_pair(subdet, layer);
+}
+
+
 void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::EventSetup& iSetup){
 
   //Retrieve tracker topology from geometry
@@ -106,6 +146,7 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
     {
       //uint ModuleID = (*DetItr);
 
+      // TODO: Not yet implemented for Pixel.
       // Book module histogramms?
       if (ModOn) {
 	std::string hid = hidmanager.createHistoId("HitResiduals","det",ModuleID);
@@ -118,48 +159,29 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
 	NormedHitResiduals[ModuleID]->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
       }
 
-      std::string subdet = "";
-      int32_t layer = 0;
-      auto id = DetId(ModuleID);
-      switch (id.subdetId()) {
-        // Pixel Barrel, Endcap
-	case 1:
-	  subdet = "BPIX";
-          layer = tTopo->pxbLayer(id);
-	  pixel_organizer.setModuleFolder(ibooker, ModuleID, 2);
-	  break;
-        case 2:
-	  subdet = "FPIX";
-          layer = tTopo->pxfDisk(id);
-	  pixel_organizer.setModuleFolder(ibooker, ModuleID, 6);
-	  break;
-	// Strip TIB, TID, TOB, TEC
-	case 3:
-	  subdet = "TIB";
-          layer = tTopo->tibLayer(id);
-	  break;
-	case 4:
-	  subdet = "TID";
-          layer = tTopo->tidWheel(id) * ( tTopo->tecSide(ModuleID)==1 ? -1 : +1);
-	  break;
-	case 5:
-	  subdet = "TOB";
-          layer = tTopo->tobLayer(id);
-	  break;
-	case 6:
-	  subdet = "TEC";
-          layer = tTopo->tecWheel(id) * ( tTopo->tecSide(ModuleID)==1 ? -1 : +1);
-	  break;
-      }
-
+      auto subdetandlayer = findSubdetAndLayer(ModuleID, tTopo);
+      
 
 	  //folder_organizer.setDetectorFolder(ModuleID, tTopo); //  detid sets appropriate detector folder
 	  // book layer level histogramms
 	  //std::pair<std::string,int32_t> subdetandlayer = folder_organizer.GetSubDetAndLayer(ModuleID, tTopo);
-      auto subdetandlayer = std::make_pair(subdet, layer);
-      folder_organizer.setLayerFolder(ModuleID,tTopo,subdetandlayer.second);
 
       if(! m_SubdetLayerResiduals[subdetandlayer ] ) {
+	
+	auto id = DetId(ModuleID);
+	switch (id.subdetId()) {
+	  // Pixel Barrel, Endcap
+	  case 1:
+	    pixel_organizer.setModuleFolder(ibooker, ModuleID, 2);
+	    break;
+	  case 2:
+	    pixel_organizer.setModuleFolder(ibooker, ModuleID, 6);
+	    break;
+	  // All strip
+	  default:
+	    folder_organizer.setLayerFolder(ModuleID,tTopo,subdetandlayer.second);
+	}
+	
 	// book histogramms on layer level, check for barrel for correct labeling
 	std::string histoname = Form(subdetandlayer.first.find("B") != std::string::npos ?
 				     "HitResiduals_%s__Layer__%d" : "HitResiduals_%s__wheel__%d" ,
@@ -213,12 +235,13 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
     uint RawId = it->rawDetId;
 
     // fill if hit belongs to StripDetector and its error is not zero
-    if( it->resXprimeErr != 0 && SiStripDetId(RawId).subDetector()  != 0 )  {
+    if( it->resXprimeErr != 0 /*SiStripDetId(RawId).subDetector()  != 0 */)  {
       if (ModOn && HitResidual[RawId]) {
 	HitResidual[RawId]->Fill(it->resXprime);
 	NormedHitResiduals[RawId]->Fill(it->resXprime/it->resXprimeErr);
       }
-      std::pair<std::string, int32_t> subdetandlayer = folder_organizer.GetSubDetAndLayer(RawId, tTopo);
+      //std::pair<std::string, int32_t> subdetandlayer = folder_organizer.GetSubDetAndLayer(RawId, tTopo);
+      auto subdetandlayer = findSubdetAndLayer(RawId, tTopo);
       if(m_SubdetLayerResiduals[subdetandlayer]) {
 	m_SubdetLayerResiduals[subdetandlayer]->Fill(it->resXprime);
 	m_SubdetLayerNormedResiduals[subdetandlayer]->Fill(it->resXprime/it->resXprimeErr);
