@@ -27,7 +27,58 @@ namespace l1t {
 
 namespace l1t {
   namespace stage2 {
-    namespace emtf {
+	  namespace emtf {
+
+		  void checkFormat(auto payload){
+			  //Check the number of 16-bit words
+			  if(payload.size() != 12) edm::LogError("L1T|EMTF") << "Payload size in 'AMC Data Header' is different than expected";
+
+			  //Check that each word is 16 bits
+			  if(GetHexBits(payload[0], 16, 31) != 0) edm::LogError("L1T|EMTF")  << "Payload[0] has more than 16 bits in 'AMC Data Header'";
+			  if(GetHexBits(payload[1], 16, 31) != 0) edm::LogError("L1T|EMTF")  << "Payload[1] has more than 16 bits in 'AMC Data Header'";
+			  if(GetHexBits(payload[2], 16, 31) != 0) edm::LogError("L1T|EMTF")  << "Payload[2] has more than 16 bits in 'AMC Data Header'";
+			  if(GetHexBits(payload[3], 16, 31) != 0) edm::LogError("L1T|EMTF")  << "Payload[3] has more than 16 bits in 'AMC Data Header'";
+			  if(GetHexBits(payload[4], 16, 31) != 0) edm::LogError("L1T|EMTF")  << "Payload[4] has more than 16 bits in 'AMC Data Header'";
+			  if(GetHexBits(payload[5], 16, 31) != 0) edm::LogError("L1T|EMTF")  << "Payload[5] has more than 16 bits in 'AMC Data Header'";
+			  if(GetHexBits(payload[6], 16, 31) != 0) edm::LogError("L1T|EMTF")  << "Payload[6] has more than 16 bits in 'AMC Data Header'";
+			  if(GetHexBits(payload[7], 16, 31) != 0) edm::LogError("L1T|EMTF")  << "Payload[7] has more than 16 bits in 'AMC Data Header'";
+			  if(GetHexBits(payload[8], 16, 31) != 0) edm::LogError("L1T|EMTF")  << "Payload[8] has more than 16 bits in 'AMC Data Header'";
+			  if(GetHexBits(payload[9], 16, 31) != 0) edm::LogError("L1T|EMTF")  << "Payload[9] has more than 16 bits in 'AMC Data Header'";
+			  if(GetHexBits(payload[10], 16, 31) != 0) edm::LogError("L1T|EMTF") << "Payload[10] has more than 16 bits in 'AMC Data Header'";
+			  if(GetHexBits(payload[11], 16, 31) != 0) edm::LogError("L1T|EMTF") << "Payload[11] has more than 16 bits in 'AMC Data Header'";
+
+			  uint16_t hd1a = payload[0];
+			  uint16_t hd1b = payload[1];
+			  uint16_t hd1c = payload[2];
+			  uint16_t hd1d = payload[3];
+			  uint16_t hd2a = payload[4];
+			  uint16_t hd2b = payload[5];
+			  uint16_t hd2c = payload[6];
+			  uint16_t hd2d = payload[7];
+			  uint16_t hd3a = payload[8];
+			  uint16_t hd3b = payload[9];
+			  uint16_t hd3c = payload[10];
+			  uint16_t hd3d = payload[11];
+
+			  //Check Format
+			  if(GetHexBits(hd1a, 12, 15) != 9) edm::LogError("L1T|EMTF") << "Format identifier bits in HD1a are incorrect";
+			  if(GetHexBits(hd1b, 12, 15) != 9) edm::LogError("L1T|EMTF") << "Format identifier bits in HD1b are incorrect";
+			  if(GetHexBits(hd1c, 12, 15) != 9) edm::LogError("L1T|EMTF") << "Format identifier bits in HD1c are incorrect";
+			  if(GetHexBits(hd1c, 0, 11)  != 0) edm::LogError("L1T|EMTF") << "Format identifier bits in HD1c are incorrect";
+			  if(GetHexBits(hd1d, 12, 15) != 9) edm::LogError("L1T|EMTF") << "Format identifier bits in HD1d are incorrect";
+			  if(GetHexBits(hd2a, 12, 15) != 10) edm::LogError("L1T|EMTF") << "Format identifier bits in HD2a are incorrect";
+			  if(GetHexBits(hd2a, 0, 11)  != 0) edm::LogError("L1T|EMTF") << "Format identifier bits in HD2a are incorrect";
+			  if(GetHexBits(hd2b, 12, 15) != 10) edm::LogError("L1T|EMTF") << "Format identifier bits in HD2b are incorrect";
+			  if(GetHexBits(hd2c, 12, 15) != 10) edm::LogError("L1T|EMTF") << "Format identifier bits in HD2c are incorrect";
+			  if(GetHexBits(hd2c, 11, 11) != 0) edm::LogError("L1T|EMTF") << "Format identifier bits in HD2c are incorrect";
+			  if(GetHexBits(hd2d, 12, 15) != 10) edm::LogError("L1T|EMTF") << "Format identifier bits in HD2d are incorrect";
+			  if(GetHexBits(hd3a, 9, 14) != 0) edm::LogError("L1T|EMTF") << "Format identifier bits in HD3a are incorrect";
+			  if(GetHexBits(hd3a, 15, 15) != 1) edm::LogError("L1T|EMTF") << "Format identifier bits in HD3a are incorrect";
+			  if(GetHexBits(hd3b, 11, 15) != 0) edm::LogError("L1T|EMTF") << "Format identifier bits in HD3b are incorrect";
+			  if(GetHexBits(hd3c, 11, 15) != 0) edm::LogError("L1T|EMTF") << "Format identifier bits in HD3c are incorrect";
+			  if(GetHexBits(hd3d, 11, 15) != 0) edm::LogError("L1T|EMTF") << "Format identifier bits in HD3d are incorrect";
+                                        
+		  }       
 
       bool HeadersBlockUnpacker::unpack(const Block& block, UnpackerCollections *coll) {
 	
@@ -35,6 +86,12 @@ namespace l1t {
 	// Format defined in MTF7Payload::getBlock() in src/Block.cc
 	// payload[0] = bits 0-15, payload[1] = 16-31, payload[3] = 32-47, etc.
 	auto payload = block.payload();
+
+	///////////////////////////////
+	// Check Format of Payload
+	///////////////////////////////
+
+	checkFormat(payload);
 
 	// TODO: Proper error handling for payload size check (also in other Block functions)
 	// std::cout << "This payload has " << payload.size() << " 16-bit words" << std::endl;

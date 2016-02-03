@@ -6,6 +6,7 @@
 // Generally useful includes
 #include <iostream>
 #include <iomanip>  // For things like std::setw
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace l1t {
   namespace stage2 {
