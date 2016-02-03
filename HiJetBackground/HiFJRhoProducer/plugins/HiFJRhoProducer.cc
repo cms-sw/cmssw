@@ -127,7 +127,7 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<std::vector<double>> mapToRhoOut ( new std::vector<double>(7,1e-6));
   std::auto_ptr<std::vector<double>> mapToRhoMOut ( new std::vector<double>(7,1e-6));
   
-  Printf("nExcl: %d",nExcl_);
+  //Printf("nExcl: %d",nExcl_);
   static double rhoVec[999];
   static double rhomVec[999];
   static double etaVec[999];
@@ -152,7 +152,7 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //calculate rho and rhom in eta ranges
   double radius = 0.2;
-  Printf("neta: %d",neta);
+  //Printf("neta: %d",neta);
   for(int ieta = 0; ieta<(neta-1); ieta++) {
     static double rhoVecCur[999] = {0.};
     static double rhomVecCur[999]= {0.};
@@ -161,7 +161,7 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // double etaMax = mapEtaRanges_.at(ieta+1)-radius;
     double etaMin = mapEtaRangesOut->at(ieta)+radius;
     double etaMax = mapEtaRangesOut->at(ieta+1)-radius;
-    Printf("ieta: %d minEta: %f maxEta: %f",ieta,etaMin,etaMax);
+    //Printf("ieta: %d minEta: %f maxEta: %f",ieta,etaMin,etaMax);
      
      int    naccCur    = 0 ;
      double rhoCurSum  = 0.;
@@ -182,8 +182,8 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        // mapToRhoM_[ieta] = rhomCur;
        mapToRhoOut->at(ieta) = rhoCur;
        mapToRhoMOut->at(ieta) = rhomCur;
-       Printf("HiFJRhoProducer ieta: %d  rho: %f  rhom: %f",ieta,rhoCur,rhomCur);
-       Printf("HiFJRhoProducer ieta: %d  rho: %f  rhom: %f",ieta,mapToRhoOut->at(ieta),mapToRhoMOut->at(ieta));
+       //Printf("HiFJRhoProducer ieta: %d  rho: %f  rhom: %f",ieta,rhoCur,rhomCur);
+       //Printf("HiFJRhoProducer ieta: %d  rho: %f  rhom: %f",ieta,mapToRhoOut->at(ieta),mapToRhoMOut->at(ieta));
      }
   }//eta ranges
   
