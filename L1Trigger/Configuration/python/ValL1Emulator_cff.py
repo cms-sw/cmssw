@@ -57,17 +57,23 @@ valGctDigis.postSamples = cms.uint32(0)
 
 from L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi import *
 # Stage1Layer2 emulator
-from L1Trigger.L1TCalorimeter.simRctUpgradeFormatDigis_cfi import *
-simRctUpgradeFormatDigis.regionTag = cms.InputTag("gctDigis")
-simRctUpgradeFormatDigis.emTag = cms.InputTag("gctDigis")
-from L1Trigger.L1TCalorimeter.simCaloStage1Digis_cfi import *
-from L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi import *
+import L1Trigger.L1TCalorimeter.simRctUpgradeFormatDigis_cfi
+valRctUpgradeFormatDigis = L1Trigger.L1TCalorimeter.simRctUpgradeFormatDigis_cfi.simRctUpgradeFormatDigis.clone(
+    regionTag = cms.InputTag("gctDigis"),
+    emTag = cms.InputTag("gctDigis")
+    )
+import L1Trigger.L1TCalorimeter.simCaloStage1Digis_cfi
+valCaloStage1Digis = L1Trigger.L1TCalorimeter.simCaloStage1Digis_cfi.simCaloStage1Digis.clone(
+    CaloRegions = "valRctUpgradeFormatDigis",
+    CaloEmCands = "valRctUpgradeFormatDigis"
+)
+import L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi
 valCaloStage1LegacyFormatDigis = L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi.simCaloStage1LegacyFormatDigis.clone()
-valCaloStage1LegacyFormatDigis.InputCollection = cms.InputTag("simCaloStage1Digis")
-valCaloStage1LegacyFormatDigis.InputRlxTauCollection = cms.InputTag("simCaloStage1Digis:rlxTaus")
-valCaloStage1LegacyFormatDigis.InputIsoTauCollection = cms.InputTag("simCaloStage1Digis:isoTaus")
-valCaloStage1LegacyFormatDigis.InputHFSumsCollection = cms.InputTag("simCaloStage1Digis:HFRingSums")
-valCaloStage1LegacyFormatDigis.InputHFCountsCollection = cms.InputTag("simCaloStage1Digis:HFBitCounts")
+valCaloStage1LegacyFormatDigis.InputCollection = cms.InputTag("valCaloStage1Digis")
+valCaloStage1LegacyFormatDigis.InputRlxTauCollection = cms.InputTag("valCaloStage1Digis:rlxTaus")
+valCaloStage1LegacyFormatDigis.InputIsoTauCollection = cms.InputTag("valCaloStage1Digis:isoTaus")
+valCaloStage1LegacyFormatDigis.InputHFSumsCollection = cms.InputTag("valCaloStage1Digis:HFRingSums")
+valCaloStage1LegacyFormatDigis.InputHFCountsCollection = cms.InputTag("valCaloStage1Digis:HFBitCounts")
 valCaloStage1LegacyFormatDigis.bxMin = cms.int32(0)
 valCaloStage1LegacyFormatDigis.bxMax = cms.int32(0)
 
