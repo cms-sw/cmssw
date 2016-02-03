@@ -20,8 +20,8 @@ deHcal = cms.Sequence(valHcalTriggerPrimitiveDigis)
 deRct = cms.Sequence(valRctDigis)
 deGct = cms.Sequence(valGctDigis)
 deStage1Layer2 = cms.Sequence(
-    simRctUpgradeFormatDigis
-    *simCaloStage1Digis
+    valRctUpgradeFormatDigis
+    *valCaloStage1Digis
     #*simCaloStage1FinalDigis
     *valCaloStage1LegacyFormatDigis
     )
