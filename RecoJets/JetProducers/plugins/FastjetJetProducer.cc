@@ -66,6 +66,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     useCMSBoostedTauSeedingAlgorithm_(false),
     useKtPruning_(false),
     useConstituentSubtraction_(false),
+    useConstituentSubtractionHi_(false),
     useSoftDrop_(false),
     correctShape_(false),
     muCut_(-1.0),
@@ -78,6 +79,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     RcutFactor_(-1.0),
     csRho_EtaMax_(-1.0),
     csRParam_(-1.0),
+    csAlpha_(0.),
     beta_(-1.0),
     R0_(-1.0),
     gridMaxRapidity_(-1.0), // For fixed-grid rho
@@ -118,6 +120,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
        iConfig.exists("useMassDropTagger") ||
        iConfig.exists("useCMSBoostedTauSeedingAlgorithm") ||
        iConfig.exists("useConstituentSubtraction") ||
+       iConfig.exists("useConstituentSubtractionHi") ||
        iConfig.exists("useSoftDrop")
        ) {
     useMassDropTagger_=false;
@@ -128,6 +131,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     useCMSBoostedTauSeedingAlgorithm_=false;
     useKtPruning_=false;
     useConstituentSubtraction_=false;
+    useConstituentSubtractionHi_=false;
     useSoftDrop_ = false;
     rFilt_=-1.0;
     rFiltFactor_=-1.0;
@@ -147,6 +151,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     maxDepth_ = -1;
     csRho_EtaMax_ = -1.0;
     csRParam_ = -1.0;
+    csAlpha_ = 0.0;
     beta_ = -1.0;
     R0_ = -1.0;
     useExplicitGhosts_ = true;
@@ -207,6 +212,20 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
       csRParam_ = iConfig.getParameter<double>("csRParam");
     }
 
+    if ( iConfig.exists("useConstituentSubtractionHi") ) {
+
+      if ( fjAreaDefinition_.get() == 0 ) {
+	throw cms::Exception("AreaMustBeSet") << "Logic error. The area definition must be set if you use constituent subtraction." << std::endl;
+      }
+
+      useConstituentSubtractionHi_ = iConfig.getParameter<bool>("useConstituentSubtractionHi");
+      //get eta range, rho and rhom map
+      etaToken_ = consumes<std::vector<double>>(iConfig.getParameter<edm::InputTag>( "etaMap" ));
+      rhoToken_ = consumes<std::vector<double>>(iConfig.getParameter<edm::InputTag>( "rho" ));
+      rhomToken_ = consumes<std::vector<double>>(iConfig.getParameter<edm::InputTag>( "rhom" ));
+      csAlpha_ = iConfig.getParameter<double>("csAlpha");
+    }
+    
     if ( iConfig.exists("useSoftDrop") ) {
       if ( usePruning_ ) {   /// Can't use these together
 	throw cms::Exception("PruningAndSoftDrop") << "Logic error. Soft drop is a generalized pruning, do not run them together." << std::endl;
@@ -425,7 +444,7 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
     fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequenceVoronoiArea( fjInputs_, *fjJetDefinition_ , fastjet::VoronoiAreaSpec(voronoiRfact_) ) );
   }
 
-  if ( !(useMassDropTagger_ || useCMSBoostedTauSeedingAlgorithm_ || useTrimming_ || useFiltering_ || usePruning_ || useSoftDrop_ || useConstituentSubtraction_ ) ) {
+  if ( !(useMassDropTagger_ || useCMSBoostedTauSeedingAlgorithm_ || useTrimming_ || useFiltering_ || usePruning_ || useSoftDrop_ || useConstituentSubtraction_ || useConstituentSubtractionHi_ ) ) {
     fjJets_ = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
   } else {
     fjJets_.clear();
@@ -495,7 +514,6 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
       //subtractor->use_common_bge_for_rho_and_rhom(true);
     }
 
-
     for ( std::vector<fastjet::PseudoJet>::const_iterator ijet = tempJets.begin(),
 	    ijetEnd = tempJets.end(); ijet != ijetEnd; ++ijet ) {
 
@@ -516,6 +534,40 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
 
       if ( passed ) {
 	fjJets_.push_back( transformedJet );
+      }
+    }
+
+    if ( useConstituentSubtractionHi_ ) { 
+      edm::Handle<std::vector<double>> etaRanges;
+      edm::Handle<std::vector<double>> rhoRanges;
+      edm::Handle<std::vector<double>> rhomRanges;
+      
+      iEvent.getByToken(etaToken_, etaRanges);
+      iEvent.getByToken(rhoToken_, rhoRanges);
+      iEvent.getByToken(rhomToken_, rhomRanges);
+    
+      for(int ie = 0; ie<(int)(etaRanges->size()-1); ie++) {
+        //Get rho and rhoM for eta regio
+        double rho = rhoRanges->at(ie);
+        double rhom = rhomRanges->at(ie);
+        
+        //initialize constituent subtraction
+        fastjet::contrib::ConstituentSubtractor *subtractor;
+        subtractor     = new fastjet::contrib::ConstituentSubtractor(rho,rhom,csAlpha_,-1.);
+
+        for ( std::vector<fastjet::PseudoJet>::const_iterator ijet = tempJets.begin(),
+                ijetEnd = tempJets.end(); ijet != ijetEnd; ++ijet ) {
+          fastjet::PseudoJet transformedJet = *ijet;
+          bool passed = true;
+          if ( transformedJet != 0 )
+            transformedJet = (*subtractor)(transformedJet);
+          else
+            passed = false;
+          if(transformedJet.eta()<=etaRanges->at(ie) || transformedJet.eta()>etaRanges->at(ie+1))
+            passed = false;
+          if ( passed )
+            fjJets_.push_back( transformedJet );
+        }
       }
     }
   }
