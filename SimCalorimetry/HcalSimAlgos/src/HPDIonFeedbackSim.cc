@@ -27,7 +27,7 @@ using namespace edm;
 using namespace std;
 
 // constants for simulation/parameterization
-double pe2Charge = 0.333333;    // fC/p.e.
+const double pe2Charge = 0.333333;    // fC/p.e.
 
 HPDIonFeedbackSim::HPDIonFeedbackSim(const edm::ParameterSet & iConfig, const CaloShapes * shapes)
 : theDbService(0), theShapes(shapes)
