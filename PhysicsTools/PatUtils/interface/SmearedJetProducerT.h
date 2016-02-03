@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PAT_SMEAREDJETPRODUCERT_H
+#define PAT_SMEAREDJETPRODUCERT_H
 
 /** \class SmearedJetProducerT
  *
@@ -273,3 +274,4 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
 
         std::mt19937 m_random_generator;
 };
+#endif

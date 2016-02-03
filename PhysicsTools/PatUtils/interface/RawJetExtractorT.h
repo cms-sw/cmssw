@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PAT_RAWJETEXTRACTORT_H
+#define PAT_RAWJETEXTRACTORT_H
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
@@ -21,3 +22,4 @@ namespace pat {
             }
     };
 }
+#endif
