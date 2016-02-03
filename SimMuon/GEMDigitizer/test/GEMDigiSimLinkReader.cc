@@ -53,7 +53,12 @@ public:
 
 private:
 
-  string label;
+//  string label;
+
+  edm::EDGetTokenT<edm::PSimHitContainer> simhitToken_;
+  edm::EDGetTokenT<GEMDigiCollection> gemDigiToken_;
+  edm::EDGetTokenT<edm::DetSetVector<GEMDigiSimLink> > gemDigiSimLinkToken_;
+
 
   TH1F *hProces;
   TH1F *hParticleTypes;
@@ -61,6 +66,23 @@ private:
 
 };
 
+GEMDigiSimLinkReader::GEMDigiSimLinkReader(const edm::ParameterSet& pset) :
+  simhitToken_(consumes<edm::PSimHitContainer>(pset.getParameter<edm::InputTag>("simhitToken"))),
+  gemDigiToken_(consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("gemDigiToken"))),
+  gemDigiSimLinkToken_(consumes<edm::DetSetVector<GEMDigiSimLink> >(pset.getParameter<edm::InputTag>("gemDigiSimLinkToken")))
+{
+//  label = pset.getUntrackedParameter<string> ("label", "simMuonGEMDigis");
+
+  edm::Service<TFileService> fs;
+
+  hProces = fs->make<TH1F>("hProces", "Process type for all the simHits", 20, 0, 20);
+  hAllSimHitsType = fs->make<TH1F>("hAllSimHitsType", "pdgId for All simHits", 500, 0, 500);
+  hParticleTypes = fs->make<TH1F>("hParticleTypes", "pdgId for digitized simHits", 500, 0, 500);
+
+}
+
+
+/*
 GEMDigiSimLinkReader::GEMDigiSimLinkReader(const edm::ParameterSet& pset)
 {
   label = pset.getUntrackedParameter<string> ("label", "simMuonGEMDigis");
@@ -72,16 +94,18 @@ GEMDigiSimLinkReader::GEMDigiSimLinkReader(const edm::ParameterSet& pset)
   hParticleTypes = fs->make<TH1F>("hParticleTypes", "pdgId for digitized simHits", 500, 0, 500);
 
 }
-
+*/
 void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSetup& eventSetup)
 {
   //  cout << "--- Run: " << event.id().run() << " Event: " << event.id().event() << endl;
 
   edm::Handle<GEMDigiCollection> digis;
-  event.getByLabel(label, digis);
+ // event.getByLabel(label, digis);
+  event.getByToken(gemDigiToken_, digis);
 
   edm::Handle<edm::PSimHitContainer> simHits;
-  event.getByLabel("g4SimHits", "MuonGEMHits", simHits);
+//  event.getByLabel("g4SimHits", "MuonGEMHits", simHits);
+  event.getByToken(simhitToken_, simHits);    
 
   edm::ESHandle<GEMGeometry> pDD;
   eventSetup.get<MuonGeometryRecord> ().get(pDD);
@@ -89,8 +113,10 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
 //  edm::Handle<edm::DetSetVector<StripDigiSimLink> > thelinkDigis;
 //  event.getByLabel(label, "GEM", thelinkDigis);
 
-  edm::Handle<edm::DetSetVector<GEMDigiSimLink> > theSimlinkDigis;
-  event.getByLabel(label, "GEM", theSimlinkDigis);
+//  edm::Handle<edm::DetSetVector<GEMDigiSimLink> > theSimlinkDigis;
+//  event.getByLabel(label, "GEM", theSimlinkDigis);
+  edm::Handle< edm::DetSetVector<GEMDigiSimLink> > theSimlinkDigis;
+  event.getByToken(gemDigiSimLinkToken_, theSimlinkDigis);
 
 
   //loop over all simhits
