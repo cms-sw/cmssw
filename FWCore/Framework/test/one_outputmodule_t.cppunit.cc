@@ -405,7 +405,7 @@ void testOneOutputModule::fileTest()
   edm::ServiceRegistry::Operate operate(serviceToken_);
   
   edm::ParameterSet pset;
-  std::shared_ptr<FileOutputModule> testProd{ new FileOutputModule(pset) };
+  std::shared_ptr<FileOutputModule> testProd = std::make_shared<FileOutputModule>(pset);
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalOpenInputFile, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun, Trans::kGlobalCloseInputFile});

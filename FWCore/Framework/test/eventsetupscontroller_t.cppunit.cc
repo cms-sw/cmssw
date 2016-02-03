@@ -67,24 +67,24 @@ void TestEventSetupsController::esProducerGetAndPutTest() {
 
   edm::ParameterSet pset1;
   pset1.registerIt();
-  std::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider1(new edm::eventsetup::test::DummyProxyProvider());
+  std::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider1 = std::make_shared<edm::eventsetup::test::DummyProxyProvider>();
 
   edm::ParameterSet pset2;
   pset2.addUntrackedParameter<int>("p1", 1); 
   pset2.registerIt();
-  std::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider2(new edm::eventsetup::test::DummyProxyProvider());
+  std::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider2 = std::make_shared<edm::eventsetup::test::DummyProxyProvider>();
   CPPUNIT_ASSERT(pset2.id() == pset1.id());
 
   edm::ParameterSet pset3;
   pset3.addUntrackedParameter<int>("p1", 2); 
   pset3.registerIt();
-  std::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider3(new edm::eventsetup::test::DummyProxyProvider());
+  std::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider3 = std::make_shared<edm::eventsetup::test::DummyProxyProvider>();
   CPPUNIT_ASSERT(pset3.id() == pset1.id());
 
   edm::ParameterSet pset4;
   pset4.addParameter<int>("p1", 1); 
   pset4.registerIt();
-  std::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider4(new edm::eventsetup::test::DummyProxyProvider());
+  std::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider4 = std::make_shared<edm::eventsetup::test::DummyProxyProvider>();
   CPPUNIT_ASSERT(pset4.id() != pset1.id());
 
   edm::eventsetup::ParameterSetIDHolder psetIDHolder1(pset1.id());
@@ -255,24 +255,24 @@ void TestEventSetupsController::esSourceGetAndPutTest() {
 
   edm::ParameterSet pset1;
   pset1.registerIt();
-  std::shared_ptr<DummyFinder> finder1(new DummyFinder());
+  std::shared_ptr<DummyFinder> finder1 = std::make_shared<DummyFinder>();
 
   edm::ParameterSet pset2;
   pset2.addUntrackedParameter<int>("p1", 1); 
   pset2.registerIt();
-  std::shared_ptr<DummyFinder> finder2(new DummyFinder());
+  std::shared_ptr<DummyFinder> finder2 = std::make_shared<DummyFinder>();
   CPPUNIT_ASSERT(pset2.id() == pset1.id());
 
   edm::ParameterSet pset3;
   pset3.addUntrackedParameter<int>("p1", 2); 
   pset3.registerIt();
-  std::shared_ptr<DummyFinder> finder3(new DummyFinder());
+  std::shared_ptr<DummyFinder> finder3 = std::make_shared<DummyFinder>();
   CPPUNIT_ASSERT(pset3.id() == pset1.id());
 
   edm::ParameterSet pset4;
   pset4.addParameter<int>("p1", 1); 
   pset4.registerIt();
-  std::shared_ptr<DummyFinder> finder4(new DummyFinder());
+  std::shared_ptr<DummyFinder> finder4 = std::make_shared<DummyFinder>();
   CPPUNIT_ASSERT(pset4.id() != pset1.id());
 
 

@@ -122,7 +122,7 @@ ComponentMaker<T,TComponent>::addTo(EventSetupsController& esController,
       }
    }
 
-   std::shared_ptr<TComponent> component(new TComponent(iConfiguration));
+   std::shared_ptr<TComponent> component = std::make_shared<TComponent>(iConfiguration);
    ComponentDescription description =
       this->createComponentDescription(iConfiguration);
 
