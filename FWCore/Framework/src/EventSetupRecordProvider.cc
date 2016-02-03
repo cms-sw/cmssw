@@ -109,8 +109,7 @@ void
 EventSetupRecordProvider::setDependentProviders(const std::vector< std::shared_ptr<EventSetupRecordProvider> >& iProviders)
 {
    using std::placeholders::_1;
-   std::shared_ptr< DependentRecordIntervalFinder > newFinder(
-                                                                new DependentRecordIntervalFinder(key()));
+   std::shared_ptr<DependentRecordIntervalFinder> newFinder = std::make_shared<DependentRecordIntervalFinder>(key());
    
    std::shared_ptr<EventSetupRecordIntervalFinder> old = swapFinder(newFinder);
    for_all(iProviders, std::bind(std::mem_fun(&DependentRecordIntervalFinder::addProviderWeAreDependentOn), &(*newFinder), _1));
@@ -127,7 +126,7 @@ EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap)
   for_all(providers_, std::bind(&EventSetupRecordProvider::addProxiesToRecordHelper,this,_1,iMap));
   if (1 < multipleFinders_->size()) {
      
-     std::shared_ptr<IntersectingIOVRecordIntervalFinder> intFinder(new IntersectingIOVRecordIntervalFinder(key_));
+     std::shared_ptr<IntersectingIOVRecordIntervalFinder> intFinder = std::make_shared<IntersectingIOVRecordIntervalFinder>(key_);
      intFinder->swapFinders(*multipleFinders_);
      finder_ = intFinder;
   }
