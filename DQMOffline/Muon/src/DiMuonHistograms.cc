@@ -71,7 +71,7 @@ void DiMuonHistograms::bookHistograms(DQMStore::IBooker & ibooker,
   ibooker.setCurrentFolder(theFolder);  
 
   int nBin[3] = {etaBin,etaBBin,etaEBin};
-  EtaName[0]  = ""; EtaName[1] = "_Barrel"; EtaName[3] = "_EndCap";
+  EtaName[0]  = ""; EtaName[1] = "_Barrel"; EtaName[2] = "_EndCap";
   test = ibooker.book1D("test","InvMass_{Tight,Tight}",100, 0., 200.);
   for (unsigned int iEtaRegion=0; iEtaRegion<3; iEtaRegion++){
     
