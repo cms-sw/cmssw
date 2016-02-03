@@ -225,10 +225,10 @@ void DataMixingSiPixelMCDigiWorker::init_DynIneffDB(const edm::EventSetup& es, c
 void DataMixingSiPixelMCDigiWorker::PixelEfficiencies::init_from_db(const edm::ESHandle<TrackerGeometry>& geom, const edm::ESHandle<SiPixelDynamicInefficiency>& SiPixelDynamicInefficiency) {
 
   theInstLumiScaleFactor = SiPixelDynamicInefficiency->gettheInstLumiScaleFactor();
-  std::map<uint32_t, double> PixelGeomFactorsDB = SiPixelDynamicInefficiency->getPixelGeomFactors();
-  std::map<uint32_t, double> ColGeomFactorsDB = SiPixelDynamicInefficiency->getColGeomFactors();
-  std::map<uint32_t, double> ChipGeomFactorsDB = SiPixelDynamicInefficiency->getChipGeomFactors();
-  std::map<uint32_t, std::vector<double> > PUFactors = SiPixelDynamicInefficiency->getPUFactors();
+  const std::map<uint32_t, double>& PixelGeomFactorsDB = SiPixelDynamicInefficiency->getPixelGeomFactors();
+  const std::map<uint32_t, double>& ColGeomFactorsDB = SiPixelDynamicInefficiency->getColGeomFactors();
+  const std::map<uint32_t, double>& ChipGeomFactorsDB = SiPixelDynamicInefficiency->getChipGeomFactors();
+  const std::map<uint32_t, std::vector<double> >& PUFactors = SiPixelDynamicInefficiency->getPUFactors();
   std::vector<uint32_t > DetIdmasks = SiPixelDynamicInefficiency->getDetIdmasks();
   
   // Loop on all modules, calculate geometrical scale factors and store in map for easy access
