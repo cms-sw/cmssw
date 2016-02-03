@@ -73,7 +73,7 @@ MuonME0DetLayerGeometryBuilder::buildLayer(int endcap,
     vector<const GeomDet*> frontDets, backDets;
       
     for(std::vector<int>::iterator chamber=chambers.begin(); chamber<chambers.end(); chamber++) {
-      ME0DetId me0Id(endcap,1,(*chamber), 0);
+      ME0DetId me0Id(endcap,1,(*chamber), 1);  
       const GeomDet* geomDet = geo.idToDet(me0Id);
 	  
       if (geomDet !=0) {
