@@ -45,6 +45,9 @@
 
 //#define VTXDEBUG
 
+const unsigned int nTracks(const reco::Vertex & sv) {return sv.nTracks();}
+const unsigned int nTracks(const reco::VertexCompositePtrCandidate & sv) {return sv.numberOfSourceCandidatePtrs();}
+
 template <class InputContainer, class VTX>
 class TemplatedVertexArbitrator : public edm::stream::EDProducer<> {
     public:
@@ -61,7 +64,7 @@ class TemplatedVertexArbitrator : public edm::stream::EDProducer<> {
 	edm::EDGetTokenT<Product> token_secondaryVertex;
 	edm::EDGetTokenT<InputContainer>	 token_tracks; 
 	edm::EDGetTokenT<reco::BeamSpot> 	 token_beamSpot; 
-	TrackVertexArbitration<VTX> * theArbitrator;
+	std::unique_ptr<TrackVertexArbitration<VTX> > theArbitrator;
 };
 
 
@@ -73,7 +76,7 @@ TemplatedVertexArbitrator<InputContainer,VTX>::TemplatedVertexArbitrator(const e
 	token_beamSpot = consumes<reco::BeamSpot>(params.getParameter<edm::InputTag>("beamSpot"));
 	token_tracks = consumes<InputContainer>(params.getParameter<edm::InputTag>("tracks"));
 	produces<Product>();
-	theArbitrator = new TrackVertexArbitration<VTX>(params);
+	theArbitrator.reset( new TrackVertexArbitration<VTX>(params) );
 }
 
 template <class InputContainer, class VTX>
@@ -114,6 +117,7 @@ void TemplatedVertexArbitrator<InputContainer,VTX>::produce(edm::Event &event, c
 				theSecVertexColl);
 
 		for(unsigned int ivtx=0; ivtx < theRecoVertices.size(); ivtx++){
+			if ( !(nTracks(theRecoVertices[ivtx]) > 1) ) continue;
 			recoVertices->push_back(theRecoVertices[ivtx]);
 		}
 
