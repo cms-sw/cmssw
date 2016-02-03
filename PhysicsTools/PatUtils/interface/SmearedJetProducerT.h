@@ -196,8 +196,7 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
 
                 if (! m_enabled) {
                     // Module disabled. Simply copy the input jet.
-                    T smearedJet = jet;
-                    smearedJets->push_back(smearedJet);
+                    smearedJets->push_back(jet);
 
                     continue;
                 }
