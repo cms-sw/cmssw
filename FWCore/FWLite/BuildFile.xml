@@ -2,7 +2,6 @@
 <use   name="DataFormats/Provenance"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/Utilities"/>
-<use   name="boost"/>
 <use   name="rootcore"/>
 <export>
   <lib   name="1"/>

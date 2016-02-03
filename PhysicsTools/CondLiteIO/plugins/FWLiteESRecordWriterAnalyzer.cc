@@ -163,7 +163,7 @@ class FWLiteESRecordWriterAnalyzer : public edm::EDAnalyzer {
       void update(const edm::EventSetup&);
 
       // ----------member data ---------------------------
-   std::vector<boost::shared_ptr<RecordHandler> > m_handlers;
+   std::vector<std::shared_ptr<RecordHandler> > m_handlers;
    
    std::map<std::string, std::vector<std::pair<std::string,std::string> > > m_recordToDataNames;
    TFile* m_file;
@@ -267,11 +267,11 @@ FWLiteESRecordWriterAnalyzer::update(const edm::EventSetup& iSetup)
             }
             dataInfos.push_back(DataInfo(tt,itData->second));
          }
-         m_handlers.push_back( boost::shared_ptr<RecordHandler>( new RecordHandler(rKey,m_file,dataInfos) ) );
+         m_handlers.push_back( std::shared_ptr<RecordHandler>( new RecordHandler(rKey,m_file,dataInfos) ) );
       }
    }
    
-   for(std::vector<boost::shared_ptr<RecordHandler> >::iterator it = m_handlers.begin(),itEnd = m_handlers.end();
+   for(std::vector<std::shared_ptr<RecordHandler> >::iterator it = m_handlers.begin(),itEnd = m_handlers.end();
        it != itEnd;
        ++it) {
       (*it)->update(iSetup);

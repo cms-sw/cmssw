@@ -19,8 +19,8 @@
 //
 
 // system include files
+#include <memory>
 #include <string>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ComponentDescription.h"
@@ -47,10 +47,10 @@ namespace edm {
       class ComponentMakerBase : public ComponentMakerBaseHelper {
       public:
          typedef typename T::base_type base_type;
-         virtual boost::shared_ptr<base_type> addTo(EventSetupsController& esController,
-                                                    EventSetupProvider& iProvider,
-                                                    ParameterSet const& iConfiguration,
-                                                    bool replaceExisting) const = 0;
+         virtual std::shared_ptr<base_type> addTo(EventSetupsController& esController,
+                                                  EventSetupProvider& iProvider,
+                                                  ParameterSet const& iConfiguration,
+                                                  bool replaceExisting) const = 0;
       };
       
    template <class T, class TComponent>
@@ -63,7 +63,7 @@ namespace edm {
    typedef typename T::base_type base_type;
 
       // ---------- const member functions ---------------------
-   virtual boost::shared_ptr<base_type> addTo(EventSetupsController& esController,
+   virtual std::shared_ptr<base_type> addTo(EventSetupsController& esController,
                                               EventSetupProvider& iProvider,
                                               ParameterSet const& iConfiguration,
                                               bool replaceExisting) const;
@@ -98,7 +98,7 @@ namespace edm {
 };
 
 template< class T, class TComponent>
-boost::shared_ptr<typename ComponentMaker<T,TComponent>::base_type>
+std::shared_ptr<typename ComponentMaker<T,TComponent>::base_type>
 ComponentMaker<T,TComponent>::addTo(EventSetupsController& esController,
                                     EventSetupProvider& iProvider,
                                     ParameterSet const& iConfiguration,
@@ -109,20 +109,20 @@ ComponentMaker<T,TComponent>::addTo(EventSetupsController& esController,
    // SubProcess or the top level process and add that.
 
    if (!replaceExisting) {
-      boost::shared_ptr<typename T::base_type> alreadyMadeComponent = T::getComponentAndRegisterProcess(esController, iConfiguration);
+      std::shared_ptr<typename T::base_type> alreadyMadeComponent = T::getComponentAndRegisterProcess(esController, iConfiguration);
 
       if (alreadyMadeComponent) {
          // This is for the case when a component is shared between
          // a SubProcess and a previous SubProcess or the top level process
          // because the component has an identical configuration to a component
          // from the top level process or earlier SubProcess.
-         boost::shared_ptr<TComponent> component(boost::static_pointer_cast<TComponent, typename T::base_type>(alreadyMadeComponent));
+         std::shared_ptr<TComponent> component(std::static_pointer_cast<TComponent, typename T::base_type>(alreadyMadeComponent));
          T::addTo(iProvider, component, iConfiguration, true);
          return component;
       }
    }
 
-   boost::shared_ptr<TComponent> component(new TComponent(iConfiguration));
+   std::shared_ptr<TComponent> component(new TComponent(iConfiguration));
    ComponentDescription description =
       this->createComponentDescription(iConfiguration);
 

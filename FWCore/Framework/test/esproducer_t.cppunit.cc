@@ -85,13 +85,13 @@ public:
       ptr_->value_ = 0;
       setWhatProduced(this);
    }
-   boost::shared_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
+   std::shared_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
       ++ptr_->value_;
       std::cout <<"produce called "<<ptr_->value_<<std::endl;
       return ptr_;
    }
 private:
-   boost::shared_ptr<DummyData> ptr_;
+   std::shared_ptr<DummyData> ptr_;
 };
 
 class LabelledProducer : public ESProducer {
@@ -105,7 +105,7 @@ public:
       setWhatProduced(this, &LabelledProducer::produceMore, edm::es::label("fi",kFi)("fum",kFum));
    }
    
-   boost::shared_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
+   std::shared_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
       ++ptr_->value_;
       std::cout <<"\"foo\" produce called "<<ptr_->value_<<std::endl;
       return ptr_;
@@ -122,8 +122,8 @@ public:
       return edm::es::products(fum, es::l<kFi>(fi_) );
    }
 private:
-   boost::shared_ptr<DummyData> ptr_;
-   boost::shared_ptr<DummyData> fi_;
+   std::shared_ptr<DummyData> ptr_;
+   std::shared_ptr<DummyData> fi_;
 };
 
 };
@@ -148,11 +148,11 @@ void testEsproducer::getFromTest()
 {
    EventSetupProvider provider;
    
-   boost::shared_ptr<DataProxyProvider> pProxyProv(new Test1Producer);
+   std::shared_ptr<DataProxyProvider> pProxyProv(new Test1Producer);
    provider.add(pProxyProv);
    
-   boost::shared_ptr<DummyFinder> pFinder(new DummyFinder);
-   provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+   std::shared_ptr<DummyFinder> pFinder(new DummyFinder);
+   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
    
    for(int iTime=1; iTime != 6; ++iTime) {
       const edm::Timestamp time(iTime);
@@ -170,11 +170,11 @@ void testEsproducer::getfromShareTest()
 {
    EventSetupProvider provider;
    
-   boost::shared_ptr<DataProxyProvider> pProxyProv(new ShareProducer);
+   std::shared_ptr<DataProxyProvider> pProxyProv(new ShareProducer);
    provider.add(pProxyProv);
    
-   boost::shared_ptr<DummyFinder> pFinder(new DummyFinder);
-   provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+   std::shared_ptr<DummyFinder> pFinder(new DummyFinder);
+   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
    
    for(int iTime=1; iTime != 6; ++iTime) {
       const edm::Timestamp time(iTime);
@@ -193,11 +193,11 @@ void testEsproducer::labelTest()
    try {
    EventSetupProvider provider;
    
-   boost::shared_ptr<DataProxyProvider> pProxyProv(new LabelledProducer);
+   std::shared_ptr<DataProxyProvider> pProxyProv(new LabelledProducer);
    provider.add(pProxyProv);
    
-   boost::shared_ptr<DummyFinder> pFinder(new DummyFinder);
-   provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+   std::shared_ptr<DummyFinder> pFinder(new DummyFinder);
+   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
    
    for(int iTime=1; iTime != 6; ++iTime) {
       const edm::Timestamp time(iTime);
@@ -247,24 +247,24 @@ public:
       ptr_->value_ = 0;
       setWhatProduced(this, TestDecorator());
    }
-   boost::shared_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
+   std::shared_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
       ++ptr_->value_;
       std::cout <<"produce called "<<ptr_->value_<<std::endl;
       return ptr_;
    }
 private:
-   boost::shared_ptr<DummyData> ptr_;
+   std::shared_ptr<DummyData> ptr_;
 };
 
 void testEsproducer::decoratorTest()
 {
    EventSetupProvider provider;
    
-   boost::shared_ptr<DataProxyProvider> pProxyProv(new DecoratorProducer);
+   std::shared_ptr<DataProxyProvider> pProxyProv(new DecoratorProducer);
    provider.add(pProxyProv);
    
-   boost::shared_ptr<DummyFinder> pFinder(new DummyFinder);
-   provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+   std::shared_ptr<DummyFinder> pFinder(new DummyFinder);
+   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
    
    for(int iTime=1; iTime != 6; ++iTime) {
       const edm::Timestamp time(iTime);
@@ -291,7 +291,7 @@ public:
                                         &DepProducer::callWhenDummyChanges2,
                                         &DepProducer::callWhenDummyChanges3));
    }
-   boost::shared_ptr<DummyData> produce(const DepRecord& /*iRecord*/) {
+   std::shared_ptr<DummyData> produce(const DepRecord& /*iRecord*/) {
       return ptr_;
    }
    void callWhenDummyChanges(const DummyRecord&) {
@@ -308,18 +308,18 @@ public:
    }
    
 private:
-   boost::shared_ptr<DummyData> ptr_;
+   std::shared_ptr<DummyData> ptr_;
 };
 
 void testEsproducer::dependsOnTest()
 {
    EventSetupProvider provider;
    
-   boost::shared_ptr<DataProxyProvider> pProxyProv(new DepProducer);
+   std::shared_ptr<DataProxyProvider> pProxyProv(new DepProducer);
    provider.add(pProxyProv);
    
-   boost::shared_ptr<DummyFinder> pFinder(new DummyFinder);
-   provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+   std::shared_ptr<DummyFinder> pFinder(new DummyFinder);
+   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
    
    for(int iTime=1; iTime != 6; ++iTime) {
       const edm::Timestamp time(iTime);
@@ -342,11 +342,11 @@ void testEsproducer::forceCacheClearTest()
 {
    EventSetupProvider provider;
    
-   boost::shared_ptr<DataProxyProvider> pProxyProv(new Test1Producer);
+   std::shared_ptr<DataProxyProvider> pProxyProv(new Test1Producer);
    provider.add(pProxyProv);
    
-   boost::shared_ptr<DummyFinder> pFinder(new DummyFinder);
-   provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+   std::shared_ptr<DummyFinder> pFinder(new DummyFinder);
+   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
    
    const edm::Timestamp time(1);
    pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time) , edm::IOVSyncValue(time)));
