@@ -385,7 +385,7 @@ L1TwinMux::MBLTCollection::getUnassociatedRpcClusters( const std::vector< size_t
 	  double deltaPhiIn = fabs( reco::deltaPhi( phi1, phi2 ) );
 	  if ( deltaPhiIn < minRpcPhi ) {
 	    subCluster.push_back( uidx2 );
-	    pickUpMap[uidx2] = false;
+	    pickUpMap[idx2] = false;
 	  }
 	}
       }
