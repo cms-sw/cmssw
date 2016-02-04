@@ -96,6 +96,8 @@ using namespace l1t;
                                    int bx) const;
 
         // ----------member data ---------------------------
+        int m_bxMin;
+        int m_bxMax;
         std::unique_ptr<L1TMuonGlobalParams> microGMTParams;
         edm::InputTag m_barrelTfInputTag;
         edm::InputTag m_overlapTfInputTag;
@@ -148,8 +150,6 @@ L1TMuonProducer::L1TMuonProducer(const edm::ParameterSet& iConfig) : m_debugOut(
   produces<MuonBxCollection>("imdMuonsEMTFNeg");
   produces<MuonBxCollection>("imdMuonsOMTFPos");
   produces<MuonBxCollection>("imdMuonsOMTFNeg");
-
-  microGMTParams = std::unique_ptr<L1TMuonGlobalParams>(new L1TMuonGlobalParams());
 }
 
 L1TMuonProducer::~L1TMuonProducer()
@@ -182,92 +182,103 @@ L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<MicroGMTConfiguration::InputCollection> omtfMuons;
   Handle<MicroGMTConfiguration::CaloInputCollection> trigTowers;
 
-  // iEvent.getByToken(m_barrelTfInputToken, bmtfMuons);
   iEvent.getByToken(m_barrelTfInputToken, bmtfMuons);
   iEvent.getByToken(m_endcapTfInputToken, emtfMuons);
   iEvent.getByToken(m_overlapTfInputToken, omtfMuons);
   iEvent.getByToken(m_caloTowerInputToken, trigTowers);
 
-  int bx = 0;
+  // set BX range for outputs
+  outMuons->setBXRange(m_bxMin, m_bxMax);
+  imdMuonsBMTF->setBXRange(m_bxMin, m_bxMax);
+  imdMuonsEMTFPos->setBXRange(m_bxMin, m_bxMax);
+  imdMuonsEMTFNeg->setBXRange(m_bxMin, m_bxMax);
+  imdMuonsOMTFPos->setBXRange(m_bxMin, m_bxMax);
+  imdMuonsOMTFNeg->setBXRange(m_bxMin, m_bxMax);
 
-  m_isolationUnit.setTowerSums(*trigTowers, bx);
-  MicroGMTConfiguration::InterMuonList internMuonsBmtf;
-  MicroGMTConfiguration::InterMuonList internMuonsEmtfPos;
-  MicroGMTConfiguration::InterMuonList internMuonsEmtfNeg;
-  MicroGMTConfiguration::InterMuonList internMuonsOmtfPos;
-  MicroGMTConfiguration::InterMuonList internMuonsOmtfNeg;
+  for (int bx = m_bxMin; bx <= m_bxMax; ++bx) {
+    m_isolationUnit.setTowerSums(*trigTowers, bx);
+    MicroGMTConfiguration::InterMuonList internMuonsBmtf;
+    MicroGMTConfiguration::InterMuonList internMuonsEmtfPos;
+    MicroGMTConfiguration::InterMuonList internMuonsEmtfNeg;
+    MicroGMTConfiguration::InterMuonList internMuonsOmtfPos;
+    MicroGMTConfiguration::InterMuonList internMuonsOmtfNeg;
 
-  // These wedges contain shared pointers to the ones in the InterMuonList
-  GMTInternalWedges omtfNegWedges;
-  GMTInternalWedges bmtfWedges;
-  GMTInternalWedges emtfPosWedges;
-  GMTInternalWedges emtfNegWedges;
-  GMTInternalWedges omtfPosWedges;
+    // These wedges contain shared pointers to the ones in the InterMuonList
+    GMTInternalWedges omtfNegWedges;
+    GMTInternalWedges bmtfWedges;
+    GMTInternalWedges emtfPosWedges;
+    GMTInternalWedges emtfNegWedges;
+    GMTInternalWedges omtfPosWedges;
 
-  // this converts the InputMuon type to the InternalMuon type and splits them into
-  // positive / negative eta collections necessary as LUTs may differ for pos / neg.
-  convertMuons(bmtfMuons, internMuonsBmtf, bmtfWedges, bx);
-  splitAndConvertMuons(emtfMuons, internMuonsEmtfPos, internMuonsEmtfNeg, emtfPosWedges, emtfNegWedges, bx);
-  splitAndConvertMuons(omtfMuons, internMuonsOmtfPos, internMuonsOmtfNeg, omtfPosWedges, omtfNegWedges, bx);
+    // this converts the InputMuon type to the InternalMuon type and splits them into
+    // positive / negative eta collections necessary as LUTs may differ for pos / neg.
+    convertMuons(bmtfMuons, internMuonsBmtf, bmtfWedges, bx);
+    splitAndConvertMuons(emtfMuons, internMuonsEmtfPos, internMuonsEmtfNeg, emtfPosWedges, emtfNegWedges, bx);
+    splitAndConvertMuons(omtfMuons, internMuonsOmtfPos, internMuonsOmtfNeg, omtfPosWedges, omtfNegWedges, bx);
 
-  // cancel out within the track finders:
-  m_cancelOutUnit.setCancelOutBits(bmtfWedges, tftype::bmtf, cancelmode::coordinate);
-  m_cancelOutUnit.setCancelOutBits(omtfPosWedges, tftype::omtf_pos, cancelmode::coordinate);
-  m_cancelOutUnit.setCancelOutBits(omtfNegWedges, tftype::omtf_neg, cancelmode::coordinate);
-  // cancel-out for endcap will be done in the sorter
-  m_cancelOutUnit.setCancelOutBits(emtfPosWedges, tftype::emtf_pos, cancelmode::coordinate);
-  m_cancelOutUnit.setCancelOutBits(emtfNegWedges, tftype::emtf_neg, cancelmode::coordinate);
+    // cancel out within the track finders:
+    m_cancelOutUnit.setCancelOutBits(bmtfWedges, tftype::bmtf, cancelmode::tracks);
+    m_cancelOutUnit.setCancelOutBits(omtfPosWedges, tftype::omtf_pos, cancelmode::coordinate);
+    m_cancelOutUnit.setCancelOutBits(omtfNegWedges, tftype::omtf_neg, cancelmode::coordinate);
+    // cancel-out for endcap will be done in the sorter
+    m_cancelOutUnit.setCancelOutBits(emtfPosWedges, tftype::emtf_pos, cancelmode::coordinate);
+    m_cancelOutUnit.setCancelOutBits(emtfNegWedges, tftype::emtf_neg, cancelmode::coordinate);
 
-  // cancel out between track finder acceptance overlaps:
-  m_cancelOutUnit.setCancelOutBitsOverlapBarrel(omtfPosWedges, bmtfWedges, cancelmode::coordinate);
-  m_cancelOutUnit.setCancelOutBitsOverlapBarrel(omtfNegWedges, bmtfWedges, cancelmode::coordinate);
-  m_cancelOutUnit.setCancelOutBitsOverlapEndcap(omtfPosWedges, emtfPosWedges, cancelmode::coordinate);
-  m_cancelOutUnit.setCancelOutBitsOverlapEndcap(omtfNegWedges, emtfNegWedges, cancelmode::coordinate);
+    // cancel out between track finder acceptance overlaps:
+    m_cancelOutUnit.setCancelOutBitsOverlapBarrel(omtfPosWedges, bmtfWedges, cancelmode::coordinate);
+    m_cancelOutUnit.setCancelOutBitsOverlapBarrel(omtfNegWedges, bmtfWedges, cancelmode::coordinate);
+    m_cancelOutUnit.setCancelOutBitsOverlapEndcap(omtfPosWedges, emtfPosWedges, cancelmode::coordinate);
+    m_cancelOutUnit.setCancelOutBitsOverlapEndcap(omtfNegWedges, emtfNegWedges, cancelmode::coordinate);
 
-  m_isolationUnit.extrapolateMuons(internMuonsBmtf);
-  m_isolationUnit.extrapolateMuons(internMuonsEmtfNeg);
-  m_isolationUnit.extrapolateMuons(internMuonsEmtfPos);
-  m_isolationUnit.extrapolateMuons(internMuonsOmtfNeg);
-  m_isolationUnit.extrapolateMuons(internMuonsOmtfPos);
+    m_isolationUnit.extrapolateMuons(internMuonsBmtf);
+    m_isolationUnit.extrapolateMuons(internMuonsEmtfNeg);
+    m_isolationUnit.extrapolateMuons(internMuonsEmtfPos);
+    m_isolationUnit.extrapolateMuons(internMuonsOmtfNeg);
+    m_isolationUnit.extrapolateMuons(internMuonsOmtfPos);
 
-  // the rank calculated here is used in the sort below
-  calculateRank(internMuonsBmtf);
-  calculateRank(internMuonsEmtfNeg);
-  calculateRank(internMuonsEmtfPos);
-  calculateRank(internMuonsOmtfNeg);
-  calculateRank(internMuonsOmtfPos);
+    // the rank calculated here is used in the sort below
+    calculateRank(internMuonsBmtf);
+    calculateRank(internMuonsEmtfNeg);
+    calculateRank(internMuonsEmtfPos);
+    calculateRank(internMuonsOmtfNeg);
+    calculateRank(internMuonsOmtfPos);
 
-  // The sort function both sorts and removes all but best "nSurvivors"
-  sortMuons(internMuonsBmtf, 8);
-  sortMuons(internMuonsOmtfPos, 4);
-  sortMuons(internMuonsOmtfNeg, 4);
-  sortMuons(internMuonsEmtfPos, 4);
-  sortMuons(internMuonsEmtfNeg, 4);
+    // The sort function both sorts and removes all but best "nSurvivors"
+    sortMuons(internMuonsBmtf, 8);
+    sortMuons(internMuonsOmtfPos, 4);
+    sortMuons(internMuonsOmtfNeg, 4);
+    sortMuons(internMuonsEmtfPos, 4);
+    sortMuons(internMuonsEmtfNeg, 4);
 
-  // This combines the 5 streams into one InternalMuon collection for
-  // the final global sort.
-  MicroGMTConfiguration::InterMuonList internalMuons;
-  addMuonsToCollections(internMuonsEmtfPos, internalMuons, imdMuonsEMTFPos, bx);
-  addMuonsToCollections(internMuonsOmtfPos, internalMuons, imdMuonsOMTFPos, bx);
-  addMuonsToCollections(internMuonsBmtf, internalMuons, imdMuonsBMTF, bx);
-  addMuonsToCollections(internMuonsOmtfNeg, internalMuons, imdMuonsOMTFNeg, bx);
-  addMuonsToCollections(internMuonsEmtfNeg, internalMuons, imdMuonsEMTFNeg, bx);
+    // This combines the 5 streams into one InternalMuon collection for
+    // the final global sort.
+    MicroGMTConfiguration::InterMuonList internalMuons;
+    addMuonsToCollections(internMuonsEmtfPos, internalMuons, imdMuonsEMTFPos, bx);
+    addMuonsToCollections(internMuonsOmtfPos, internalMuons, imdMuonsOMTFPos, bx);
+    addMuonsToCollections(internMuonsBmtf, internalMuons, imdMuonsBMTF, bx);
+    addMuonsToCollections(internMuonsOmtfNeg, internalMuons, imdMuonsOMTFNeg, bx);
+    addMuonsToCollections(internMuonsEmtfNeg, internalMuons, imdMuonsEMTFNeg, bx);
 
-  // sort internal muons and delete all but best 8
-  sortMuons(internalMuons, 8);
+    // sort internal muons and delete all but best 8
+    sortMuons(internalMuons, 8);
 
-  m_isolationUnit.isolatePreSummed(internalMuons);
-  // copy muons to output collection...
-  for (const auto& mu : internalMuons) {
-    if (mu->hwPt() > 0) {
-      math::PtEtaPhiMLorentzVector vec{(mu->hwPt()-1)*0.5, mu->hwEta()*0.010875, mu->hwGlobalPhi()*0.010908, 0.0};
-      int iso = mu->hwAbsIso() + (mu->hwRelIso() << 1);
-      Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), mu->hwQual(), mu->hwSign(), mu->hwSignValid(), iso, 0, true, mu->hwIsoSum(), mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
-      m_debugOut << mu->hwCaloPhi() << " " << mu->hwCaloEta() << std::endl;
-      outMuons->push_back(bx, outMu);
+    m_isolationUnit.isolatePreSummed(internalMuons);
+    // copy muons to output collection...
+    for (const auto& mu : internalMuons) {
+      if (mu->hwPt() > 0) {
+        math::PtEtaPhiMLorentzVector vec{(mu->hwPt()-1)*0.5, mu->hwEta()*0.010875, mu->hwGlobalPhi()*0.010908, 0.0};
+        int iso = mu->hwAbsIso() + (mu->hwRelIso() << 1);
+        Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), mu->hwQual(), mu->hwSign(), mu->hwSignValid(), iso, -1, 0, true, mu->hwIsoSum(), mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
+        if (mu->hwSignValid()) {
+          outMu.setCharge(1 - 2 * mu->hwSign());
+        } else {
+          outMu.setCharge(0);
+        }
+        m_debugOut << mu->hwCaloPhi() << " " << mu->hwCaloEta() << std::endl;
+        outMuons->push_back(bx, outMu);
+      }
     }
   }
-
 
   iEvent.put(outMuons);
   iEvent.put(imdMuonsBMTF, "imdMuonsBMTF");
@@ -340,7 +351,13 @@ L1TMuonProducer::addMuonsToCollections(MicroGMTConfiguration::InterMuonList& col
     interout.push_back(mu);
     math::PtEtaPhiMLorentzVector vec{(mu->hwPt()-1)*0.5, mu->hwEta()*0.010875, mu->hwGlobalPhi()*0.010908, 0.0};
     // FIXME: once we debugged the change global -> local: Change hwLocalPhi -> hwGlobalPhi to test offsets
-    Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), mu->hwQual(), mu->hwSign(), mu->hwSignValid(), -1, 0, true, -1, mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
+    // FIXME: set tfMuonIndex to actual index
+    Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), mu->hwQual(), mu->hwSign(), mu->hwSignValid(), -1, -1, 0, true, -1, mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
+    if (mu->hwSignValid()) {
+      outMu.setCharge(1 - 2 * mu->hwSign());
+    } else {
+      outMu.setCharge(0);
+    }
 
     out->push_back(bx, outMu);
   }
@@ -361,6 +378,7 @@ L1TMuonProducer::splitAndConvertMuons(const edm::Handle<MicroGMTConfiguration::I
     wedges_neg[i] = std::vector<std::shared_ptr<GMTInternalMuon>>();
     wedges_neg[i].reserve(3);
   }
+  if (bx < in->getFirstBX() || bx > in->getLastBX()) return;
   for (size_t i = 0; i < in->size(bx); ++i) {
     int gPhi = MicroGMTConfiguration::calcGlobalPhi(in->at(bx, i).hwPhi(), in->at(bx, i).trackFinderType(), in->at(bx, i).processor());
     std::shared_ptr<GMTInternalMuon> out = std::make_shared<GMTInternalMuon>(in->at(bx, i), gPhi);
@@ -373,8 +391,8 @@ L1TMuonProducer::splitAndConvertMuons(const edm::Handle<MicroGMTConfiguration::I
     }
   }
   for (int i = 0; i < 6; ++i) {
-    if(wedges_pos[i].size() > 3) edm::LogWarning("Input Mismatch") << " too many inputs per processor for emtf+ / omtf+" << std::endl;
-    if(wedges_neg[i].size() > 3) edm::LogWarning("Input Mismatch") << " too many inputs per processor for emtf- / omtf-" << std::endl;
+    if(wedges_pos[i].size() > 3) edm::LogWarning("Input Mismatch") << " too many inputs per processor for emtf+ / omtf+. Wedge " << i << ": Size " << wedges_pos[i].size() << std::endl;
+    if(wedges_neg[i].size() > 3) edm::LogWarning("Input Mismatch") << " too many inputs per processor for emtf- / omtf-. Wedge " << i << ": Size " << wedges_neg[i].size() << std::endl;
   }
 }
 
@@ -388,6 +406,7 @@ L1TMuonProducer::convertMuons(const edm::Handle<MicroGMTConfiguration::InputColl
     wedges[i] = std::vector<std::shared_ptr<GMTInternalMuon>>();
     wedges[i].reserve(3);
   }
+  if (bx < in->getFirstBX() || bx > in->getLastBX()) return;
   for (size_t i = 0; i < in->size(bx); ++i) {
     int gPhi = MicroGMTConfiguration::calcGlobalPhi(in->at(bx, i).hwPhi(), in->at(bx, i).trackFinderType(), in->at(bx, i).processor());
     std::shared_ptr<GMTInternalMuon> outMu = std::make_shared<GMTInternalMuon>(in->at(bx, i), gPhi);
@@ -395,7 +414,7 @@ L1TMuonProducer::convertMuons(const edm::Handle<MicroGMTConfiguration::InputColl
     wedges[in->at(bx, i).processor()].push_back(outMu);
   }
   for (int i = 0; i < 12; ++i) {
-    if(wedges[i].size() > 3) edm::LogWarning("Input Mismatch") << " too many inputs per processor for barrel" << std::endl;
+    if(wedges[i].size() > 3) edm::LogWarning("Input Mismatch") << " too many inputs per processor for barrel. Wedge " << i << ": Size " << wedges[i].size() << std::endl;
   }
 }
 
@@ -424,7 +443,9 @@ L1TMuonProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup)
   }
 
   //microGMTParams->print(std::cout);
-  m_rankPtQualityLUT = l1t::MicroGMTRankPtQualLUTFactory::create(microGMTParams->sortRankLUTPath(), microGMTParams->fwVersion());
+  m_bxMin = microGMTParams->bxMin();
+  m_bxMax = microGMTParams->bxMax();
+  m_rankPtQualityLUT = l1t::MicroGMTRankPtQualLUTFactory::create(microGMTParams->sortRankLUTPath(), microGMTParams->fwVersion(), microGMTParams->sortRankLUTPtFactor(), microGMTParams->sortRankLUTQualFactor());
   m_isolationUnit.initialise(microGMTParams.get());
   m_cancelOutUnit.initialise(microGMTParams.get());
 }

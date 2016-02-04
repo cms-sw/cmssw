@@ -34,19 +34,15 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMPtaLut.h"
-#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMPhiLut.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMLUTHandler.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 
 #include <FWCore/Framework/interface/ESHandle.h>
-#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMAssParam.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMAddressArray.h"
-//class L1MuBMPhiLut;
-//class L1MuBMPtaLut;
 class L1MuBMTrackSegPhi;
 class L1MuBMSectorProcessor;
-//typedef L1MuBMPhiLut::L1MuBMPhiLut L1PhiLUT;
+class L1MuBMLUTHandler;
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -91,13 +87,13 @@ class L1MuBMAssignmentUnit : public L1AbstractProcessor {
     static int convertSector(int);
 
     /// determine charge
-    static int getCharge(PtAssMethod);
+    static int getCharge(L1MuBMLUTHandler::PtAssMethod);
 
     /// determine pt assignment method
-    PtAssMethod getPtMethod() const;
+    L1MuBMLUTHandler::PtAssMethod getPtMethod() const;
 
     /// calculate bend angle
-    int getPtAddress(PtAssMethod, int bendcharge=0) const;
+    int getPtAddress(L1MuBMLUTHandler::PtAssMethod, int bendcharge=0) const;
 
     /// build difference of two phi values
     int phiDiff(int stat1, int stat2) const;
@@ -109,11 +105,11 @@ class L1MuBMAssignmentUnit : public L1AbstractProcessor {
 
     L1MuBMAddressArray                    m_addArray;
     std::vector<const L1MuBMTrackSegPhi*> m_TSphi;
-    PtAssMethod                           m_ptAssMethod;
+    L1MuBMLUTHandler::PtAssMethod         m_ptAssMethod;
 
     edm::ESHandle< L1TMuonBarrelParams > bmtfParamsHandle;
-    L1MuBMPtaLut  *thePtaLUTs;  ///< pt-assignment look-up tables
-    L1MuBMPhiLut  *thePhiLUTs;  ///< phi-assignment look-up tables
+    L1MuBMLUTHandler  *thePtaLUTs;  ///< pt-assignment look-up tables
+    L1MuBMLUTHandler  *thePhiLUTs;  ///< phi-assignment look-up tables
     static unsigned short      nbit_phi;       ///< # of bits used for pt-assignment
     static unsigned short      nbit_phib;      ///< # of bits used for pt-assignment
 

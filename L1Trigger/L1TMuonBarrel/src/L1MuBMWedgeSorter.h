@@ -67,6 +67,9 @@ class L1MuBMWedgeSorter : public L1AbstractProcessor {
     /// return vector of muon candidates
     inline const std::vector<const L1MuBMTrack*>& tracks() const { return m_TrackCands; }
 
+    /// return number of muon candidates
+    inline bool anyMuonCands() const { return anyTrack(); }
+
   private:
 
     /// run the Cancel Out Logic of the wedge sorter

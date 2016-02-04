@@ -191,27 +191,16 @@ void OMTFSorter::sortProcessorResults(const std::vector<OMTFProcessor::resultsMa
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
-l1t::RegionalMuonCand OMTFSorter::sortProcessor(const std::vector<OMTFProcessor::resultsMap> & procResults,
-							int charge){ //method kept for backward compatibility
+bool OMTFSorter::checkHitPatternValidity(unsigned int hits){
 
-  InternalObj myCand = sortProcessorResults(procResults, charge);
+  std::vector<unsigned int> badPatterns = {99840, 34304, 3075, 36928, 12300, 98816, 98944, 33408, 66688, 66176, 7171, 20528, 33856, 35840, 4156, 34880};
 
-  l1t::RegionalMuonCand candidate;
-  std::bitset<17> bits(myCand.hits);
-  int ipt = myCand.pt+1;
-  if(ipt>31) ipt=31;
-  candidate.setHwPt(RPCConst::ptFromIpt(ipt)*2.0);//MicroGMT has 0.5 GeV pt bins
-  candidate.setHwEta(myCand.eta);//eta scale set during input making in OMTFInputmaker
-  candidate.setHwPhi(myCand.phi);
-  candidate.setHwSign(myCand.charge+1*(myCand.charge<0));
-  candidate.setHwQual(bits.count());
-  std::map<int, int> trackAddr;
-  trackAddr[0] = myCand.hits;
-  trackAddr[1] = myCand.refLayer;
-  trackAddr[2] = myCand.disc;
-  candidate.setTrackAddress(trackAddr);
-  
-  return candidate;
+  for(auto aHitPattern: badPatterns){
+    if(hits==aHitPattern) return false;
+  }
+
+  return true; 
+   
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
@@ -228,14 +217,17 @@ void OMTFSorter::sortProcessor(const std::vector<OMTFProcessor::resultsMap> & pr
     std::bitset<17> bits(myCand.hits);
     int ipt = myCand.pt+1;
     if(ipt>31) ipt=31;
-    candidate.setHwPt(RPCConst::ptFromIpt(ipt)*2.0);//MicroGMT has 0.5 GeV pt bins
+    candidate.setHwPt(RPCConst::ptFromIpt(ipt)*2.0 + 1);//MicroGMT has 0.5 GeV step size, with lower bin edge  (uGMT_pt_code - 1)*step_size
+    if(myCand.pt==0)  candidate.setHwPt(0); //Invalid candidate has to be treated separately
     candidate.setHwEta(myCand.eta);//eta scale set during input making in OMTFInputmaker
     candidate.setHwPhi(myCand.phi);
-    candidate.setHwSign(myCand.charge+1*(myCand.charge<0));
+    candidate.setHwSign(1-1*(myCand.charge>0)); //Charge convention for uGMT is charge = (-1)^iCharge
     ///Quality is set to number of leayers hit.
     ///DT bending and position hit is counted as one.
     ///thus we subtract 1 for each DT station hit.
     candidate.setHwQual(bits.count() - bits.test(0) - bits.test(2) - bits.test(4));
+    ///Candidates with bad hit patterns get quality 0.
+    if(!checkHitPatternValidity(myCand.hits)) candidate.setHwQual(0);
     std::map<int, int> trackAddr;
     trackAddr[0] = myCand.hits;
     trackAddr[1] = myCand.refLayer;

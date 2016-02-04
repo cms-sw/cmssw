@@ -31,6 +31,7 @@
 //----------------------
 
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcId.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrack.h"
 
 //------------------------------------
 // Collaborating Class Declarations --

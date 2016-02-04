@@ -20,8 +20,9 @@ namespace l1t {
       static const unsigned etaSignShift_ = 21;
       static const unsigned hfMask_ = 0x1;
       static const unsigned hfShift_ = 22;
-      static const unsigned phiMask_ = 0xFF;
-      static const unsigned phiShift_ = 23;
+      static const unsigned absPhiMask_ = 0x7F;
+      static const unsigned absPhiShift_ = 23;
+      static const unsigned phiSignShift_ = 30;
       static const unsigned signShift_ = 0;
       static const unsigned signValidShift_ = 1;
       static const unsigned trackAddressMask_ = 0x1FFFFFFF;
@@ -40,11 +41,25 @@ namespace l1t {
       static const unsigned bmtfTrAddrStat3Shift_ = 6;
       static const unsigned bmtfTrAddrStat4Mask_ = 0xF;
       static const unsigned bmtfTrAddrStat4Shift_ = 2;
-      // TODO: set real widths and shifts for EMTF
-      static const unsigned emtfTrAddrMe12Mask_ = 0x1FFFFFFF;
-      static const unsigned emtfTrAddrMe12Shift_ = 0;
-      static const unsigned emtfTrAddrMe22Mask_ = 0x1FFFFFFF;
-      static const unsigned emtfTrAddrMe22Shift_ = 0;
+
+      static const unsigned emtfTrAddrSectIdMask_ = 0xF;
+      static const unsigned emtfTrAddrSectIdShift_ = 0;
+      static const unsigned emtfTrAddrMe1Mask_ = 0x1F;
+      static const unsigned emtfTrAddrMe1Shift_ = 4;
+      static const unsigned emtfTrAddrMe1SubSecIdShift_ = 9;
+      static const unsigned emtfTrAddrMe1OrderShift_ = 10;
+      static const unsigned emtfTrAddrMe2Mask_ = 0xF;
+      static const unsigned emtfTrAddrMe2Shift_ = 11;
+      static const unsigned emtfTrAddrMe2SubSecIdShift_ = 15;
+      static const unsigned emtfTrAddrMe2OrderShift_ = 16;
+      static const unsigned emtfTrAddrMe3Mask_ = 0x3;
+      static const unsigned emtfTrAddrMe3Shift_ = 17;
+      static const unsigned emtfTrAddrMe3SubSecIdShift_ = 19;
+      static const unsigned emtfTrAddrMe3OrderShift_ = 20;
+      static const unsigned emtfTrAddrMe4Mask_ = 0x3;
+      static const unsigned emtfTrAddrMe4Shift_ = 21;
+      static const unsigned emtfTrAddrMe4SubSecIdShift_ = 23;
+      static const unsigned emtfTrAddrMe4OrderShift_ = 24;
   };
 }
 

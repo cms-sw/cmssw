@@ -17,14 +17,14 @@ l1t::MicroGMTIsolationUnit::~MicroGMTIsolationUnit ()
 void
 l1t::MicroGMTIsolationUnit::initialise(L1TMuonGlobalParams* microGMTParams) {
   int fwVersion = microGMTParams->fwVersion();
-  m_BEtaExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParams->bEtaExtrapolationLUTPath(), fwVersion);
-  m_BPhiExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParams->bPhiExtrapolationLUTPath(), fwVersion);
-  m_OEtaExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParams->oEtaExtrapolationLUTPath(), fwVersion);
-  m_OPhiExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParams->oPhiExtrapolationLUTPath(), fwVersion);
-  m_FEtaExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParams->fEtaExtrapolationLUTPath(), fwVersion);
-  m_FPhiExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParams->fPhiExtrapolationLUTPath(), fwVersion);
-  m_IdxSelMemEta = l1t::MicroGMTCaloIndexSelectionLUTFactory::create(microGMTParams->idxSelMemEtaLUTPath(), 0, fwVersion);
-  m_IdxSelMemPhi = l1t::MicroGMTCaloIndexSelectionLUTFactory::create(microGMTParams->idxSelMemPhiLUTPath(), 1, fwVersion);
+  m_BEtaExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParams->bEtaExtrapolationLUTPath(), MicroGMTConfiguration::ETA_OUT, fwVersion);
+  m_BPhiExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParams->bPhiExtrapolationLUTPath(), MicroGMTConfiguration::PHI_OUT, fwVersion);
+  m_OEtaExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParams->oEtaExtrapolationLUTPath(), MicroGMTConfiguration::ETA_OUT, fwVersion);
+  m_OPhiExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParams->oPhiExtrapolationLUTPath(), MicroGMTConfiguration::PHI_OUT, fwVersion);
+  m_FEtaExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParams->fEtaExtrapolationLUTPath(), MicroGMTConfiguration::ETA_OUT, fwVersion);
+  m_FPhiExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParams->fPhiExtrapolationLUTPath(), MicroGMTConfiguration::PHI_OUT, fwVersion);
+  m_IdxSelMemEta = l1t::MicroGMTCaloIndexSelectionLUTFactory::create(microGMTParams->idxSelMemEtaLUTPath(), MicroGMTConfiguration::ETA, fwVersion);
+  m_IdxSelMemPhi = l1t::MicroGMTCaloIndexSelectionLUTFactory::create(microGMTParams->idxSelMemPhiLUTPath(), MicroGMTConfiguration::PHI, fwVersion);
   m_RelIsoCheckMem = l1t::MicroGMTRelativeIsolationCheckLUTFactory::create(microGMTParams->relIsoCheckMemLUTPath(), fwVersion);
   m_AbsIsoCheckMem = l1t::MicroGMTAbsoluteIsolationCheckLUTFactory::create(microGMTParams->absIsoCheckMemLUTPath(), fwVersion);
 
@@ -72,7 +72,7 @@ l1t::MicroGMTIsolationUnit::extrapolateMuons(MicroGMTConfiguration::InterMuonLis
 
     if (mu->hwPt() < 64) { // extrapolation only for "low" pT muons
       int sign = 1;
-      if (mu->hwSign() == 0) {
+      if (mu->hwSign() == 1) {
         sign = -1;
       }
       deltaPhi = (m_phiExtrapolationLUTs.at(mu->trackFinderType())->lookup(etaAbsRed, ptRed) << 3) * sign;
@@ -147,6 +147,7 @@ l1t::MicroGMTIsolationUnit::isolate(MicroGMTConfiguration::InterMuonList& muons)
 
 void l1t::MicroGMTIsolationUnit::setTowerSums(const MicroGMTConfiguration::CaloInputCollection& inputs, int bx) {
   m_towerEnergies.clear();
+  if (bx < inputs.getFirstBX() || bx > inputs.getLastBX()) return;
   if (inputs.size(bx) == 0) return;
   for (auto input = inputs.begin(bx); input != inputs.end(bx); ++input) {
     if ( input->etBits() != 0 ) {

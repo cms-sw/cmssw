@@ -19,7 +19,7 @@ namespace l1t {
 
       typedef std::shared_ptr<MicroGMTRankPtQualLUT> ReturnType;
 
-      static ReturnType create(const std::string& filename, const int fwVersion);
+      static ReturnType create(const std::string& filename, const int fwVersion, const unsigned ptFactor, const unsigned qualFactor);
   };
 
   class MicroGMTMatchQualLUTFactory {
@@ -29,7 +29,7 @@ namespace l1t {
 
       typedef std::shared_ptr<MicroGMTMatchQualLUT> ReturnType;
 
-      static ReturnType create(const std::string& filename, cancel_t cancelType, const int fwVersion);
+      static ReturnType create(const std::string& filename, const double maxDR, cancel_t cancelType, const int fwVersion);
   };
 
   class MicroGMTExtrapolationLUTFactory {
@@ -39,7 +39,7 @@ namespace l1t {
 
       typedef std::shared_ptr<MicroGMTExtrapolationLUT> ReturnType;
 
-      static ReturnType create(const std::string& filename, const int fwVersion);
+      static ReturnType create(const std::string& filename, const int type, const int fwVersion);
   };
 
   class MicroGMTCaloIndexSelectionLUTFactory {

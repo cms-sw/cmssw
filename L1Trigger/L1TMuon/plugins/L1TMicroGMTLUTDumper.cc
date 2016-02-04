@@ -36,6 +36,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "L1Trigger/L1TMuon/interface/MicroGMTRankPtQualLUT.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTAbsoluteIsolationCheckLUT.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTRelativeIsolationCheckLUT.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTCaloIndexSelectionLUT.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTExtrapolationLUT.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTMatchQualLUT.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTLUTFactories.h"
 
@@ -62,13 +66,27 @@ class L1TMicroGMTLUTDumper : public edm::EDAnalyzer {
       // ----------member data ---------------------------
       std::unique_ptr<L1TMuonGlobalParams> microGMTParams;
       std::string m_foldername;
+
       std::shared_ptr<MicroGMTRankPtQualLUT> m_rankLUT;
+
+      std::shared_ptr<MicroGMTAbsoluteIsolationCheckLUT> m_absIsoCheckMemLUT;
+      std::shared_ptr<MicroGMTRelativeIsolationCheckLUT> m_relIsoCheckMemLUT;
+
+      std::shared_ptr<MicroGMTCaloIndexSelectionLUT> m_idxSelMemPhiLUT;
+      std::shared_ptr<MicroGMTCaloIndexSelectionLUT> m_idxSelMemEtaLUT;
+
+      std::shared_ptr<MicroGMTExtrapolationLUT> m_bPhiExtrapolationLUT;
+      std::shared_ptr<MicroGMTExtrapolationLUT> m_oPhiExtrapolationLUT;
+      std::shared_ptr<MicroGMTExtrapolationLUT> m_fPhiExtrapolationLUT;
+      std::shared_ptr<MicroGMTExtrapolationLUT> m_bEtaExtrapolationLUT;
+      std::shared_ptr<MicroGMTExtrapolationLUT> m_oEtaExtrapolationLUT;
+      std::shared_ptr<MicroGMTExtrapolationLUT> m_fEtaExtrapolationLUT;
 
       std::shared_ptr<MicroGMTMatchQualLUT> m_boPosMatchQualLUT;
       std::shared_ptr<MicroGMTMatchQualLUT> m_boNegMatchQualLUT;
       std::shared_ptr<MicroGMTMatchQualLUT> m_foPosMatchQualLUT;
       std::shared_ptr<MicroGMTMatchQualLUT> m_foNegMatchQualLUT;
-      std::shared_ptr<MicroGMTMatchQualLUT> m_brlSingleMatchQualLUT;
+      //std::shared_ptr<MicroGMTMatchQualLUT> m_brlSingleMatchQualLUT;
       std::shared_ptr<MicroGMTMatchQualLUT> m_ovlPosSingleMatchQualLUT;
       std::shared_ptr<MicroGMTMatchQualLUT> m_ovlNegSingleMatchQualLUT;
       std::shared_ptr<MicroGMTMatchQualLUT> m_fwdPosSingleMatchQualLUT;
@@ -120,16 +138,26 @@ void
 L1TMicroGMTLUTDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  dumpLut(m_rankLUT.get(), std::string("/rank_lut.json"));
-  dumpLut(m_boPosMatchQualLUT.get(), std::string("/boPosMatchQualLUT.json"));
-  dumpLut(m_boNegMatchQualLUT.get(), std::string("/boNegMatchQualLUT.json"));
-  dumpLut(m_foPosMatchQualLUT.get(), std::string("/foPosMatchQualLUT.json"));
-  dumpLut(m_foNegMatchQualLUT.get(), std::string("/foNegMatchQualLUT.json"));
-  dumpLut(m_brlSingleMatchQualLUT.get(), std::string("/brlSingleMatchQualLUT.json"));
-  dumpLut(m_ovlPosSingleMatchQualLUT.get(), std::string("/ovlPosSingleMatchQualLUT.json"));
-  dumpLut(m_ovlNegSingleMatchQualLUT.get(), std::string("/ovlNegSingleMatchQualLUT.json"));
-  dumpLut(m_fwdPosSingleMatchQualLUT.get(), std::string("/fwdPosSingleMatchQualLUT.json"));
-  dumpLut(m_fwdNegSingleMatchQualLUT.get(), std::string("/fwdNegSingleMatchQualLUT.json"));
+  dumpLut(m_rankLUT.get(), std::string("/SortRank.txt"));
+  dumpLut(m_absIsoCheckMemLUT.get(), std::string("/AbsIsoCheckMem.txt"));
+  dumpLut(m_relIsoCheckMemLUT.get(), std::string("/RelIsoCheckMem.txt"));
+  dumpLut(m_idxSelMemPhiLUT.get(), std::string("/IdxSelMemPhi.txt"));
+  dumpLut(m_idxSelMemEtaLUT.get(), std::string("/IdxSelMemEta.txt"));
+  dumpLut(m_bPhiExtrapolationLUT.get(), std::string("/BPhiExtrapolation.txt"));
+  dumpLut(m_oPhiExtrapolationLUT.get(), std::string("/OPhiExtrapolation.txt"));
+  dumpLut(m_fPhiExtrapolationLUT.get(), std::string("/EPhiExtrapolation.txt"));
+  dumpLut(m_bEtaExtrapolationLUT.get(), std::string("/BEtaExtrapolation.txt"));
+  dumpLut(m_oEtaExtrapolationLUT.get(), std::string("/OEtaExtrapolation.txt"));
+  dumpLut(m_fEtaExtrapolationLUT.get(), std::string("/EEtaExtrapolation.txt"));
+  dumpLut(m_boPosMatchQualLUT.get(), std::string("/BOPosMatchQual.txt"));
+  dumpLut(m_boNegMatchQualLUT.get(), std::string("/BONegMatchQual.txt"));
+  dumpLut(m_foPosMatchQualLUT.get(), std::string("/EOPosMatchQual.txt"));
+  dumpLut(m_foNegMatchQualLUT.get(), std::string("/EONegMatchQual.txt"));
+  //dumpLut(m_brlSingleMatchQualLUT.get(), std::string("/BmtfSingleMatchQual.txt"));
+  dumpLut(m_ovlPosSingleMatchQualLUT.get(), std::string("/OmtfPosSingleMatchQual.txt"));
+  dumpLut(m_ovlNegSingleMatchQualLUT.get(), std::string("/OmtfNegSingleMatchQual.txt"));
+  dumpLut(m_fwdPosSingleMatchQualLUT.get(), std::string("/EmtfPosSingleMatchQual.txt"));
+  dumpLut(m_fwdNegSingleMatchQualLUT.get(), std::string("/EmtfNegSingleMatchQual.txt"));
 
 }
 
@@ -147,16 +175,29 @@ L1TMicroGMTLUTDumper::beginRun(edm::Run const& run, edm::EventSetup const& iSetu
   }
 
   int fwVersion = microGMTParams->fwVersion();
-  m_rankLUT = MicroGMTRankPtQualLUTFactory::create(microGMTParams->sortRankLUTPath(), fwVersion);
-  m_boPosMatchQualLUT = MicroGMTMatchQualLUTFactory::create(microGMTParams->bOPosMatchQualLUTPath(), cancel_t::omtf_bmtf_pos, fwVersion);
-  m_boNegMatchQualLUT = MicroGMTMatchQualLUTFactory::create(microGMTParams->bONegMatchQualLUTPath(), cancel_t::omtf_bmtf_neg, fwVersion);
-  m_foPosMatchQualLUT = MicroGMTMatchQualLUTFactory::create(microGMTParams->fOPosMatchQualLUTPath(), cancel_t::omtf_emtf_pos, fwVersion);
-  m_foNegMatchQualLUT = MicroGMTMatchQualLUTFactory::create(microGMTParams->fONegMatchQualLUTPath(), cancel_t::omtf_emtf_neg, fwVersion);
-  m_brlSingleMatchQualLUT = MicroGMTMatchQualLUTFactory::create(microGMTParams->brlSingleMatchQualLUTPath(), cancel_t::bmtf_bmtf, fwVersion);
-  m_ovlPosSingleMatchQualLUT = MicroGMTMatchQualLUTFactory::create(microGMTParams->ovlPosSingleMatchQualLUTPath(), cancel_t::omtf_omtf_pos, fwVersion);
-  m_ovlNegSingleMatchQualLUT = MicroGMTMatchQualLUTFactory::create(microGMTParams->ovlNegSingleMatchQualLUTPath(), cancel_t::omtf_omtf_neg, fwVersion);
-  m_fwdPosSingleMatchQualLUT = MicroGMTMatchQualLUTFactory::create(microGMTParams->fwdPosSingleMatchQualLUTPath(), cancel_t::emtf_emtf_pos, fwVersion);
-  m_fwdNegSingleMatchQualLUT = MicroGMTMatchQualLUTFactory::create(microGMTParams->fwdNegSingleMatchQualLUTPath(), cancel_t::emtf_emtf_neg, fwVersion);
+  m_rankLUT = MicroGMTRankPtQualLUTFactory::create(microGMTParams->sortRankLUTPath(), fwVersion, microGMTParams->sortRankLUTPtFactor(), microGMTParams->sortRankLUTQualFactor());
+
+  m_absIsoCheckMemLUT = MicroGMTAbsoluteIsolationCheckLUTFactory::create(microGMTParams->absIsoCheckMemLUTPath(), fwVersion);
+  m_relIsoCheckMemLUT = MicroGMTRelativeIsolationCheckLUTFactory::create(microGMTParams->relIsoCheckMemLUTPath(), fwVersion);
+  m_idxSelMemPhiLUT = MicroGMTCaloIndexSelectionLUTFactory::create(microGMTParams->idxSelMemPhiLUTPath(), l1t::MicroGMTConfiguration::PHI, fwVersion);
+  m_idxSelMemEtaLUT = MicroGMTCaloIndexSelectionLUTFactory::create(microGMTParams->idxSelMemEtaLUTPath(), l1t::MicroGMTConfiguration::ETA, fwVersion);
+
+  m_bPhiExtrapolationLUT = MicroGMTExtrapolationLUTFactory::create(microGMTParams->bPhiExtrapolationLUTPath(), l1t::MicroGMTConfiguration::PHI_OUT, fwVersion);
+  m_oPhiExtrapolationLUT = MicroGMTExtrapolationLUTFactory::create(microGMTParams->oPhiExtrapolationLUTPath(), l1t::MicroGMTConfiguration::PHI_OUT, fwVersion);
+  m_fPhiExtrapolationLUT = MicroGMTExtrapolationLUTFactory::create(microGMTParams->fPhiExtrapolationLUTPath(), l1t::MicroGMTConfiguration::PHI_OUT, fwVersion);
+  m_bEtaExtrapolationLUT = MicroGMTExtrapolationLUTFactory::create(microGMTParams->bEtaExtrapolationLUTPath(), l1t::MicroGMTConfiguration::ETA_OUT, fwVersion);
+  m_oEtaExtrapolationLUT = MicroGMTExtrapolationLUTFactory::create(microGMTParams->oEtaExtrapolationLUTPath(), l1t::MicroGMTConfiguration::ETA_OUT, fwVersion);
+  m_fEtaExtrapolationLUT = MicroGMTExtrapolationLUTFactory::create(microGMTParams->fEtaExtrapolationLUTPath(), l1t::MicroGMTConfiguration::ETA_OUT, fwVersion);
+
+  m_boPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->bOPosMatchQualLUTPath(), microGMTParams->bOPosMatchQualLUTMaxDR(), cancel_t::omtf_bmtf_pos, fwVersion);
+  m_boNegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->bONegMatchQualLUTPath(), microGMTParams->bONegMatchQualLUTMaxDR(), cancel_t::omtf_bmtf_neg, fwVersion);
+  m_foPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fOPosMatchQualLUTPath(), microGMTParams->fOPosMatchQualLUTMaxDR(), cancel_t::omtf_emtf_pos, fwVersion);
+  m_foNegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fONegMatchQualLUTPath(), microGMTParams->fONegMatchQualLUTMaxDR(), cancel_t::omtf_emtf_neg, fwVersion);
+  //m_brlSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->brlSingleMatchQualLUTPath(), microGMTParams->brlSingleMatchQualLUTMaxDR(), cancel_t::bmtf_bmtf, fwVersion);
+  m_ovlPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->ovlPosSingleMatchQualLUTPath(), microGMTParams->ovlPosSingleMatchQualLUTMaxDR(), cancel_t::omtf_omtf_pos, fwVersion);
+  m_ovlNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->ovlNegSingleMatchQualLUTPath(), microGMTParams->ovlNegSingleMatchQualLUTMaxDR(), cancel_t::omtf_omtf_neg, fwVersion);
+  m_fwdPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fwdPosSingleMatchQualLUTPath(), microGMTParams->fwdPosSingleMatchQualLUTMaxDR(), cancel_t::emtf_emtf_pos, fwVersion);
+  m_fwdNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fwdNegSingleMatchQualLUTPath(), microGMTParams->fwdNegSingleMatchQualLUTMaxDR(), cancel_t::emtf_emtf_neg, fwVersion);
 }
 
 //define this as a plug-in
