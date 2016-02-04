@@ -1,0 +1,9 @@
+<use   name="DataFormats/MuonReco"/>
+<use   name="DQMServices/Core"/>
+<use   name="FWCore/Framework"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="RecoMuon/MuonIdentification"/>
+<flags   EDM_PLUGIN="1"/>
+<export>
+  <lib   name="1"/>
+</export>

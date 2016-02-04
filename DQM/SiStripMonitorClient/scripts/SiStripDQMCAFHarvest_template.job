@@ -1,0 +1,9 @@
+#!/bin/tcsh
+cd xCMSSW_BASEx/src
+cmsenv
+setenv STAGE_SVCCLASS cmscaf
+set run=xRUN_NAMEx
+set outdir=xMERGE_PATHx
+cd xCURRENT_DIRx/$run
+cmsRun SiStripCAFHarvest_cfg.py >&! SiStripCAFHarvest-${run}.log
+mv ${outdir}/DQM_V0001_SiStrip_${run}.root ${outdir}/DQM_V0001_SiStrip_${run}-xDATA_TIERx-CAF-xCMSSW_VERSIONx_Cluster.root

@@ -1,0 +1,4 @@
+#!/bin/sh
+g++ `root-config --cflags` -o HcalCheckout.exe `ls *.C` `root-config --libs` -lMinuit
+cp index_map.dat ../.
+cp HcalCheckout.exe ../.

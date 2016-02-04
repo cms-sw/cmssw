@@ -1,0 +1,10 @@
+/* 
+ * fixie.css
+ * A style sheet to fix IE bugs 
+ * $Id: fixie.css,v 1.2 2006/07/23 16:47:58 egeland Exp $
+ */
+
+body {
+ /* A hack to let IE use tooltips */
+ behavior:  url("csshover.htc");
+}

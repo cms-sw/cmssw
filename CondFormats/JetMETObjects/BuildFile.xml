@@ -1,0 +1,10 @@
+<use   name="DataFormats/CaloTowers"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="root"/>
+<use   name="rootmath"/>
+<use   name="rootrflx"/>
+<use   name="clhep"/>
+<export>
+  <lib   name="1"/>
+</export>

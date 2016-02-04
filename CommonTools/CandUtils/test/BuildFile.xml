@@ -1,0 +1,4 @@
+<bin   name="testCommonToolsCandUtils" file="testMakeCompositeCandidate.cc,testMakeCompositePtrCandidate.cc,testRunner.cpp ">
+  <use   name="CommonTools/CandUtils"/>
+  <use   name="cppunit"/>
+</bin>

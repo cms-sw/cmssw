@@ -1,0 +1,5 @@
+<use   name="boost"/>
+<use   name="cppunit"/>
+<use   name="SimG4Core/Notification"/>
+<bin   name="testSimG4CoreNotifications" file="simactivityregistry_t.cppunit.cpp">
+</bin>

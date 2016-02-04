@@ -1,0 +1,59 @@
+2011-09-27 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-02-00
+	* Added root tree writing functionality 
+	* Many more bug fixes and enhancements
+
+2011-09-27 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-01-01
+	* removed some printout and fixed parsing cpustat
+
+2011-06-09 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-01-00
+	* iChoke functionality
+	
+2011-03-21 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-00-10
+	* various fixes and improvements 
+	
+2011-02-04 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-00-09
+	* added rate stat
+
+2010-11-19 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-00-08
+	* fix compilation warning
+	
+2010-11-19 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-00-07
+	* (04) migration to xml BuildFile
+	* (05) include fixes
+	* (06) removed compile directive
+	* (07) added new features (iChoke)
+	
+2010-04-23 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-00-03
+	* small fix to get signal number right
+
+2010-03-23 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-00-02
+	* addded fake FSM for use with runcontrol
+	
+2010-03-23 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-00-01
+	* add BuildFile and fix typos/warnings etc
+
+2010-03-23 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-00-00
+	* Newly created package for helper application for filterfarm
+

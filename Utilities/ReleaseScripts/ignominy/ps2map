@@ -1,0 +1,41 @@
+#!/usr/bin/env perl
+use warnings;
+use strict;
+
+my $target = undef;
+while ($ARGV[0] =~ /--(.*)/) {
+  if ($1 =~ /target=(.*)/) {
+    $target = $1;
+  }
+  shift(@ARGV);
+}
+
+my $usage = "$0 [--target=TARGET] NAME SCALE CROP-Y-TOP CROP-X-LEFT CROP-Y-BOTTOM CROP-X-RIGHT FILE";
+die "$usage\n" if @ARGV != 7;
+my ($name, $scale, $ycroptop, $xcropleft, $ycropbottom, $xcropright, $file) = @ARGV;
+# $scale *= .75;
+
+open(IN, "< $file") || die "$file: cannot read\n";
+
+print "<MAP NAME='$name'>\n";
+my @page = (0, 0, 595, 841);
+my @bbox;
+
+while (<IN>) {
+  chomp;
+  if (/%%BoundingBox:\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$/) {
+    @page = ($1, $2, $3, $4);
+  } elsif (/\/Rect \[ (\d+) (\d+) (\d+) (\d+) \]/) {
+    @bbox = (int(($1 + $page[0]) * $scale - $xcropleft),
+	     int(($page[3] - ($page[1] + $4)) * $scale - $ycroptop),
+	     int(($3 + $page[0]) * $scale - $xcropleft),
+	     int(($page[3] - ($page[1] + $2)) * $scale - $ycroptop));
+  } elsif (/\/URI \((.*)\) >>/) {
+    print "<AREA";
+    print " TARGET='$target'" if $target;
+    print " HREF='$1' SHAPE='rect' COORDS='" . join(",", @bbox) . "'>\n";
+  }
+}
+print "</MAP>\n";
+
+close(IN);

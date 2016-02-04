@@ -1,0 +1,20 @@
+2009-11-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* instead of requiring (allowing) for an explicit string parameter
+	'label', use the label of the es module itself for both
+	JetCorrectionService and JetCorrectionServiceChain
+
+2009-11-10  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* adjust JetCorrectionProducer to interface change in
+	JetMETCorrections/Objects:
+	JetCorrector::correction(jet,event,setup) has become
+	JetCorrector::correction(jet,jetRef,event,setup)
+	* define new L1FastjetCorrectionService and L6SLBCorrectionService
+	in plugins/SealModule.cc
+	* define new GenJetCorrectionProducer in
+	plugins/SealModule.cc. This is useful to cross-check corrections
+	which are derived by studying the difference between two different
+	GenJet definitions, e.g. one clustered with and one without
+	neutrinos
+	

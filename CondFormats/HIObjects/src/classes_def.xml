@@ -1,0 +1,7 @@
+<lcgdict>
+   <class name="CentralityTable"/>
+   <class name="CentralityTable::BinValues"/>
+   <class name="CentralityTable::CBin"/>
+   <class name="std::vector<CentralityTable::CBin>"/>
+</lcgdict>
+

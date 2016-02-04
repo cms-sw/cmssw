@@ -1,0 +1,260 @@
+TIB TID COMMON COMPONENTS
+=========================
+
+$$  This includes all the volumes that make up the TIB modules
+$$  as well as the electronics on the module string !
+
+
+Input file for mixture.f
+Start new mixtures with a '#' in the first column
+Start the components with a '*' in the first column
+You can type any kind of comment in as long as you don't start it
+with '#' or '*' !
+.....................................................................
+For mixture declaration: Name of Mixture, Name of GMIX for title file, 
+                         Monte Carlo Volume, MC Area
+For items in a compound: Item number, Comment, Material (has to be 
+                 written exactly as in material.input file), 
+                 Volume, Multiplicity, type
+      Type is one of the following:  SUP for support
+                                     SEN for sensitive volumes
+                                     CAB for cables
+                                     COL for cooling
+                                     ELE for electronics
+..................................................................... 
+
+
+... EM 18Jun07
+
+... This file should include materials common to TIB and TID
+... By now only CCUM is actually commonly defined
+... as MCvolume of TIB hybrids are twice those of TID hybrids 
+
+
+o TIB/TID CCUM 
+  ------------
+
+20071014 GSguazzoni
+
+MCVolume: 3.2cm*2.3cm*0.8cm = 5.89cm^3 ~ 6.0cm^3
+
+Composition mostly inferred from TOB
+SMD passive components neglected 
+
+......................................................................
+# "CCUM"                   "TIBTID_CCUM"            6.00000   -1.
+* 1 "PCB Copper"           "Copper"                 1.17760 0.090 ELE
+* 2 "PCB FR4"              "T_FR4"                  1.17760 0.910 ELE
+* 3 "ASIC CCU Si"          "Silicon"                0.01512    1  ELE
+* 4 "ASIC CCU SnPbAg"      "SMD_metal"              0.01331    1  ELE
+* 5 "ASIC CCU EMC"         "Epoxy"                  0.31905    1  ELE
+* 6 "ASIC DCU Si"          "Silicon"                0.00140    1  ELE
+* 7 "ASIC DCU Cu"          "Copper"                 0.00255    1  ELE
+* 8 "ASIC DCU EMC"         "Epoxy"                  0.01206    1  ELE
+* 9 "ASIC LVDSMux Si"      "Silicon"                0.00140    1  ELE
+* 10 "ASIC LVDSMux Cu"     "Copper"                 0.00439    1  ELE
+* 11 "ASIC LVDSMux EMC"    "Epoxy"                  0.02084    1  ELE
+* 12 "Connectors case"     "Polyethylene"           0.84211    1  ELE
+* 13 "Connectors pins"     "T_Bronze"               0.06749    1  ELE
+......................................................................
+======================================================================
+
+o TIB/TID DOH
+  -----------
+
+20071014 GSguazzoni
+
+MCVolume: 0.5*2.2*3.5 cm^3
+
+......................................................................
+# "DOH"                    "TIBTID_DOH"             3.85000   -1.
+* 1 "PCB FR4"              "T_FR4"                  0.41059    1  ELE
+* 2 "PCB Copper traces"    "Copper"                 0.06384    1  ELE
+* 3 "NAIS Conn case"       "Polyethylene"           0.14105    1  ELE
+* 4 "NAIS Conn pins"       "T_Bronze"               0.00940    1  ELE
+* 5 "Resistors"            "Ceramic"                0.00111    1  ELE
+* 6 "Capacitors"           "Barium_Titanate"        0.00565    1  ELE
+* 7 "ASICs EMC"            "Epoxy"                  0.04154    1  ELE
+* 8 "ASICs Copper"         "Copper"                 0.00882    1  ELE
+* 9 "Laser"                "Silicon"                0.02106    2  ELE
+* 10 "Optodiodes"          "Ceramic"                0.03000    2  ELE
+* 11 "Optodiodes"          "Brass"                  0.01414    2  ELE
+* 12 "Fiber holder"        "T_FR4"                  0.38800    1  ELE
+* 13 "Plastic stuff"       "Polyethylene"           0.15789    1  ELE
+......................................................................
+======================================================================
+
+o TIB/TID Pitch Adapter and ceramic
+  ---------------------------------
+
+20071013 GSguazzoni
+
+MCVolume: 1cm*1cm*1.13mm = 0.1130 cm^3
+
+(1) Glass thickness: 550 micron
+(2) Ceramic thickness: 380 micron
+(3) Glue thickness: 170 micron
+
+Volumes per square centimeter (1130 micron thickness)
+
+......................................................................
+# "PA per cm2"              "TIBTID_PA"             0.11300   -1.
+* 1 "Glass"                 "Borosilicate_Glass"    0.05500    1  ELE
+* 2 "Ceramic"               "Ceramic"               0.03800    1  ELE
+* 3 "Glue"                  "Epoxy"                 0.01692    1  ELE  
+......................................................................
+======================================================================
+
+o TIB/TID AOH  
+  -----------
+
+20071013 GSguazzoni
+
+MCVolume: 0.5cm*2.3cm*3cm = 3.45 cm^3
+
+(9) Number of laser transmitters is the TIB/TID weighted average
+    between 2-fibers AOHs and 3-fiber AOHs
+
+......................................................................
+# "AOH"                    "TIBTID_AOH"             3.45000   -1.
+* 1 "PCB FR4"              "T_FR4"                  0.38224    1  ELE
+* 2 "PCB Copper traces"    "Copper"                 0.05500    1  ELE
+* 3 "NAIS Conn case"       "Polyethylene"           0.31474    1  ELE
+* 4 "NAIS Conn pins"       "T_Bronze"               0.02016    1  ELE
+* 5 "Resistors"            "Ceramic"                0.00320    1  ELE
+* 6 "Capacitors"           "Barium_Titanate"        0.01528    1  ELE
+* 7 "ASICs EMC"            "Epoxy"                  0.02080    1  ELE
+* 8 "ASICs Copper"         "Copper"                 0.00480    1  ELE
+* 9 "Laser"                "Silicon"                0.02106  2.6  ELE
+* 10 "Plastic stuff"       "Polyethylene"           0.15789    1  ELE
+......................................................................
+======================================================================
+
+o TIB/TID Amphenol flat cable (26cond) DOHM<=>MC (CCUM)
+  -----------------------------------------------------
+
+20071014 GSguazzoni
+
+MCVolume: 0.12 cm^3 ~ 0.1 cm^3
+
+Volumes per cm
+
+......................................................................
+# "Amphenol cable 26cond per cm" "TIBTID_AmphCable"  0.10000  -1.
+* 1 "Conductors"           "Copper"                  0.00050  26  CAB
+* 2 "Insulation"           "Polyethylene"            0.00191  26  CAB
+* 3 "Sheath"               "Polyethylene"            0.04368   1  CAB
+......................................................................
+======================================================================
+
+o  Hybrid Board
+   ------------
+
+Total weight from measurement.
+Assume that for the TIB/TID most of the hybrids are the the type w/o the 25 um Kapton 
+stiffner midplane
+For the thickness assume the nominal values described in 
+
+  http://www.fynu.ucl.ac.be/he/cms/activities/tracker/FHITfiles/CCTPHybrides.pdf  
+
+and tune the thickness of the top layer (Cu-traces) to match the measured weight 
+
+Thickness of the layers given from top to bottom
+ 
+(1) Cu       2+18+18+30 um
+             For the top layer: 2 um/30 um -> 7% occupancy
+(2) Kapton   25+25 um
+(3) Glue     75+50 um 
+(4) Ceramic  380 um
+
+Values for 1 cm2 area
+MCVolume: (1*.0623) = 0.0623 cm^3
+
+.................................................................
+# "TIB TID Hybrid Board"     "TIBTID_HybridBoard"  0.0623   -1.
+* 1 "Hybrid Copper traces"   "Copper"              0.0068    1  ELE           
+* 2 "Hybrid Kapton layers"   "T_Kapton"            0.0050    1  ELE
+* 3 "Glue"                   "Silicone_Gel"        0.0125    1  ELE
+* 4 "Ceramic"                "Ceramic"             0.0380    1  ELE
+.......................................................................
+=======================================================================
+
+o  Hybrid Tails
+   ------------
+
+Total weight from measurement.
+Thickness of the layers from top to bottom 
+
+For the thickness assume the nominal values described in 
+
+  http://www.fynu.ucl.ac.be/he/cms/activities/tracker/FHITfiles/CCTPHybrides.pdf  
+
+
+(1) Cu       2+9 um
+             Top layer: same thickness as in the hybrid board
+             2nd layer: assume 50% of surface occupancy             
+(2) Kapton   25+25+25 um 
+             Assume Kapton as Coverlay
+(3) Glue     25+75 um
+
+Values for 1 cm2 area
+MCVolume: (1*.0186) = 0.0186 cm^3
+
+.................................................................
+# "TIB TID Hybrid Tails"     "TIBTID_HybridTails"  0.0186   -1.
+* 1 "Hybrid Copper traces"   "Copper"              0.0011    1  CAB           
+* 2 "Hybrid Kapton layers"   "T_Kapton"            0.0075    1  CAB
+* 3 "Glue"                   "Silicone_Gel"        0.0100    1  CAB
+.......................................................................
+=======================================================================
+
+o  Hybrid 
+   ------
+
+MCVolume: 47 (width) * 25.3 (height) * 1.130 (thickness) = 1343.7 mm^3
+Same PV for TIB and TID
+
+We use avearge values for 4/6 APV modules in the TIB+TID
+4APVs modules:  1188 (TIB) + 240 (TID)
+6APVs modules:  1536 (TIB) + 576 (TID)
+Average number of APVs: n_APV = 5.2 per module
+
+(1) Hybrid board
+    Wedge shaped piece. Surface = 11.02 cm^2 (rounded to 11 cm^2 below)
+    The ceramic extension in rPhi modules is accounted in the PitchAdapter material
+
+
+(2-11) Hybrid components (from tec_module.in and tob_module.in)
+    APV25:     7.1 x 8.1 x 0.3 mm^3                                   n_APV per hybrid
+    PLL:       4.0 x 4.0 x 0.3 mm^3 = 4.8 mm^3 = 0.0048 cm^3          1 per hybrid REVIEWED November 2006 OK
+			(see http://cmstrackercontrol.web.cern.ch/CMSTrackerControl/documents/PauloMoreira/PLL25%20User%20Manua2.1.pdf)
+    MUX:       5.0 x 5.0 x 0.3 mm^3 = 7.5 mm^3 = 0.0075 cm^3          1 per hybrid REVIEWED November 2006 OK
+			(see http://cmstrackercontrol.web.cern.ch/CMSTrackerControl/documents/LVDSMUX3_datasheet.pdf)
+    DCU  :     2.0 x 2.0 x 0.3 mm^3 = 1.2 mm^3 = 0.0012 cm^3          1 per hybrid REVIEWED November 2006 OK
+			(see http://cmstrackercontrol.web.cern.ch/CMSTrackerControl/documents/Magazzu/DCUF_User_Manual_v3.0.pdf)
+    R: 0402 size  material: carbon  14 + n_APV                -> 19.2  per hybrid
+    C: 1206 size                    2                             2    per hybrid    
+       0402 size                    5 + 2*n_APV               -> 15.4  per hybrid
+
+                    0402: 1 x 0.5 x 0.5 mm^3
+                    1206: 3 x 1.5 x 1.5 mm^3
+
+
+.................................................................
+# "TIB TID Hybrid"        "TIBTID_Hybrid"       1.3437      -1.
+* 1  "Hybrid Board"       "TIBTID_HybridBoard"  0.0623      11   ELE           
+* 2  "APV25"              "Silicon"            17.253E-3     5.2 ELE
+* 3  "PLL"                "Silicon"             4.8E-3       1   ELE
+* 4  "MUX"                "Silicon"             7.5E-3       1   ELE
+* 5  "DCU"                "Silicon"             1.2E-3       1   ELE
+* 6  "Resistors"          "Carbon"              2.5E-4      19.2 ELE
+* 7  "R metal"            "SMD_metal"           1.E-4       19.2 ELE
+* 8  "Small caps"         "Alumina"             2.5E-4      15.4 ELE
+* 9  "C metal"            "SMD_metal"           1.E-4       15.4 ELE
+* 10 "Large caps"         "Alumina"             0.00675      2   ELE
+* 11 "C metal large"      "SMD_metal"           1.E-3        2   ELE
+.......................................................................
+=======================================================================
+
+# "END"  "END"  0.  0.   
+this has to be the last line !

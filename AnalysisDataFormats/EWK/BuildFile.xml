@@ -1,0 +1,15 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/METReco"/>
+<use   name="CommonTools/CandUtils"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="CommonTools/RecoAlgos"/>
+<use   name="rootrflx"/>
+<use   name="CLHEP"/>
+<export>
+  <lib   name="1"/>
+</export>
