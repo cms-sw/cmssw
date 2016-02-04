@@ -5,5 +5,5 @@ chi2CutForConversionTrajectoryBuilder = TrackingTools.KalmanUpdators.Chi2Measure
 chi2CutForConversionTrajectoryBuilder.ComponentName = 'eleLooseChi2'
 chi2CutForConversionTrajectoryBuilder.MaxChi2 = 100000.
 chi2CutForConversionTrajectoryBuilder.nSigma = 3.
-chi2CutForConversionTrajectoryBuilder.MaxDispacement = 100.
+chi2CutForConversionTrajectoryBuilder.MaxDisplacement = 100.
 chi2CutForConversionTrajectoryBuilder.MaxSagitta = -1

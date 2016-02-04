@@ -43,7 +43,7 @@ TrajectoryBuilderForPixelMatchGsfElectrons.updator = 'KFUpdator'
 gsfElectronChi2.ComponentName = 'gsfElectronChi2'
 gsfElectronChi2.MaxChi2 = 100000.
 gsfElectronChi2.nSigma = 3.
-gsfElectronChi2.MaxDispacement = 100
+gsfElectronChi2.MaxDisplacement = 100
 gsfElectronChi2.MaxSagitta = -1
 
 TrajectoryFilterForPixelMatchGsfElectrons = cms.PSet(
