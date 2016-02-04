@@ -8,7 +8,6 @@
 #include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
 #include "SimTracker/SiPhase2Digitizer/interface/Phase2TrackerDigitizerAlgorithm.h"
 
-#include <gsl/gsl_sf_erf.h>
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -184,7 +183,7 @@ Phase2TrackerDigitizerAlgorithm::SubdetEfficiencies::SubdetEfficiencies(const ed
 void Phase2TrackerDigitizerAlgorithm::primary_ionization(const PSimHit& hit, 
 							 std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points) const {
   // Straight line approximation for trajectory inside active media
-  const float SegmentLength = 0.0010; // 10microns in cm
+  const float SegmentLength = 0.0010; // in cm (10 microns)
   float energy;
 
   // Get the 3D segment direction vector

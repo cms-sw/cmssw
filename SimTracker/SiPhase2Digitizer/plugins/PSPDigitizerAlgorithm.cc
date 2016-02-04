@@ -16,7 +16,6 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-#include <gsl/gsl_sf_erf.h>
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -54,7 +53,6 @@
 
 using namespace edm;
 using namespace sipixelobjects;
-//#define TP_DEBUG // protect all LogDebug with ifdef. Takes too much CPU
 
 void PSPDigitizerAlgorithm::init(const edm::EventSetup& es) {
   if (use_ineff_from_db_)     // load gain calibration service from db
