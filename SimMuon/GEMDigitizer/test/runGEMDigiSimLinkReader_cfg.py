@@ -41,7 +41,8 @@ process.source = cms.Source("PoolSource",
 process.dumper = cms.EDAnalyzer("GEMDigiSimLinkReader",
     simhitToken = cms.InputTag("g4SimHits","MuonGEMHits"), 
     gemDigiToken = cms.InputTag("simMuonGEMDigis"), 
-    gemDigiSimLinkToken = cms.InputTag("simMuonGEMDigis","GEM") 
+    gemDigiSimLinkToken = cms.InputTag("simMuonGEMDigis","GEM") ,
+    debugFlag = cms.bool(False)
 
 )
 
