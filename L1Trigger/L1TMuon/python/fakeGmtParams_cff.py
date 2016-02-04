@@ -12,14 +12,14 @@ gmtParamsSource = cms.ESSource(
     firstValid = cms.vuint32(1)
 )
 
-fakeGmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
+gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     fwVersion = cms.uint32(1),
 
     AbsIsoCheckMemLUTPath        = cms.string(os.path.join(lut_dir, 'AbsIsoCheckMem.txt')),
     RelIsoCheckMemLUTPath        = cms.string(os.path.join(lut_dir, 'RelIsoCheckMem.txt')),
     IdxSelMemPhiLUTPath          = cms.string(os.path.join(lut_dir, 'IdxSelMemPhi.txt')),
     IdxSelMemEtaLUTPath          = cms.string(os.path.join(lut_dir, 'IdxSelMemEta.txt')),
-    BrlSingleMatchQualLUTPath    = cms.string(''),
+    #BrlSingleMatchQualLUTPath    = cms.string(''),
     FwdPosSingleMatchQualLUTPath = cms.string(''),
     FwdNegSingleMatchQualLUTPath = cms.string(''),
     OvlPosSingleMatchQualLUTPath = cms.string(''),
@@ -30,13 +30,13 @@ fakeGmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     FONegMatchQualLUTPath        = cms.string(''),
     BPhiExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'BPhiExtrapolation.txt')),
     OPhiExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'OPhiExtrapolation.txt')),
-    FPhiExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'FPhiExtrapolation.txt')),
+    FPhiExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'EPhiExtrapolation.txt')),
     BEtaExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'BEtaExtrapolation.txt')),
     OEtaExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'OEtaExtrapolation.txt')),
-    FEtaExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'FEtaExtrapolation.txt')),
+    FEtaExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'EEtaExtrapolation.txt')),
     SortRankLUTPath              = cms.string(os.path.join(lut_dir, 'SortRank.txt')),
 
-    BrlSingleMatchQualLUTMaxDR    = cms.double(0.1),
+    #BrlSingleMatchQualLUTMaxDR    = cms.double(0.1),
     FwdPosSingleMatchQualLUTMaxDR = cms.double(0.1),
     FwdNegSingleMatchQualLUTMaxDR = cms.double(0.1),
     OvlPosSingleMatchQualLUTMaxDR = cms.double(0.1),

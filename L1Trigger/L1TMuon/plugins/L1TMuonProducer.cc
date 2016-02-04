@@ -222,7 +222,7 @@ L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     splitAndConvertMuons(omtfMuons, internMuonsOmtfPos, internMuonsOmtfNeg, omtfPosWedges, omtfNegWedges, bx);
 
     // cancel out within the track finders:
-    m_cancelOutUnit.setCancelOutBits(bmtfWedges, tftype::bmtf, cancelmode::coordinate);
+    m_cancelOutUnit.setCancelOutBits(bmtfWedges, tftype::bmtf, cancelmode::tracks);
     m_cancelOutUnit.setCancelOutBits(omtfPosWedges, tftype::omtf_pos, cancelmode::coordinate);
     m_cancelOutUnit.setCancelOutBits(omtfNegWedges, tftype::omtf_neg, cancelmode::coordinate);
     // cancel-out for endcap will be done in the sorter
@@ -274,6 +274,11 @@ L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         math::PtEtaPhiMLorentzVector vec{(mu->hwPt()-1)*0.5, mu->hwEta()*0.010875, mu->hwGlobalPhi()*0.010908, 0.0};
         int iso = mu->hwAbsIso() + (mu->hwRelIso() << 1);
         Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), mu->hwQual(), mu->hwSign(), mu->hwSignValid(), iso, 0, true, mu->hwIsoSum(), mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
+        if (mu->hwSignValid()) {
+          outMu.setCharge(1 - 2 * mu->hwSign());
+        } else {
+          outMu.setCharge(0);
+        }
         m_debugOut << mu->hwCaloPhi() << " " << mu->hwCaloEta() << std::endl;
         outMuons->push_back(bx, outMu);
       }
@@ -352,6 +357,11 @@ L1TMuonProducer::addMuonsToCollections(MicroGMTConfiguration::InterMuonList& col
     math::PtEtaPhiMLorentzVector vec{(mu->hwPt()-1)*0.5, mu->hwEta()*0.010875, mu->hwGlobalPhi()*0.010908, 0.0};
     // FIXME: once we debugged the change global -> local: Change hwLocalPhi -> hwGlobalPhi to test offsets
     Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), mu->hwQual(), mu->hwSign(), mu->hwSignValid(), -1, 0, true, -1, mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
+    if (mu->hwSignValid()) {
+      outMu.setCharge(1 - 2 * mu->hwSign());
+    } else {
+      outMu.setCharge(0);
+    }
 
     out->push_back(bx, outMu);
   }

@@ -24,8 +24,7 @@ l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonCand(RegionalMuonCand& mu, u
   }
 
   // sign is coded as -1^signBit
-  int signBit = (raw_data_32_63 >> signShift_) & 0x1;
-  mu.setHwSign(1 - 2*signBit);
+  mu.setHwSign((raw_data_32_63 >> signShift_) & 0x1);
   mu.setHwSignValid((raw_data_32_63 >> signValidShift_) & 0x1);
   mu.setHwHF((raw_data_00_31 >> hfShift_) & hfMask_);
 
@@ -116,7 +115,7 @@ l1t::RegionalMuonRawDigiTranslator::generatePackedDataWords(const RegionalMuonCa
     rawTrkAddr = mu.trackAddress().at(0);
   }
 
-  raw_data_32_63 = (mu.hwSign() < 0) << signShift_
+  raw_data_32_63 = mu.hwSign() << signShift_
                  | mu.hwSignValid() << signValidShift_
                  | (rawTrkAddr & trackAddressMask_) << trackAddressShift_;
 }
