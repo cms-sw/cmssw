@@ -12,7 +12,6 @@
 #include "L1Trigger/L1TMuonEndCap/interface/Utilities.h"
 #include "TRandom3.h"
 #include "TStopwatch.h"
-#include "TROOT.h"
 #include "TTree.h"
 #include "TNtuple.h"
 #include "TFile.h"
