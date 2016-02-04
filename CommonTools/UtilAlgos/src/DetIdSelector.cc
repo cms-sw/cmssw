@@ -635,10 +635,13 @@ bool DetIdSelector::isSame(std::string label, std::string selection, unsigned in
     //LogTrace("OccupancyPlots") << "check if the range exists after the selection " << label.substr(pos+n, 2*spaces+1);
     return isInRange(rangeSelected, comparison, spaces);
   }
+  std::string labelSelection = label.substr(pos+n,spaces);
+  //LogTrace("OccupancyPlots") << " selection from label " << labelSelection;
+  //LogTrace("OccupancyPlots") << " comparison " << comparison;
+  if(labelSelection == "Eve") return isEven(comparison);
+  if(labelSelection == "Odd") return isOdd(comparison);
   unsigned int selected = std::stoi(label.substr(pos+n,spaces));
-  //LogTrace("OccupancyPlots") << " selection from label " << label.substr(pos+n,spaces);
   //LogTrace("OccupancyPlots") << " selection from label " << selected;
-  //LogTrace("OccupancyPlots") << " comparison from label " << comparison;
   if( selected == comparison) return true;
   return false;
 
@@ -662,6 +665,16 @@ bool DetIdSelector::operator()(const DetId& detid) const {
 
 }
 
+bool DetIdSelector::isEven(unsigned int n) const{
+  if ( n%2 == 0) 
+    return true;
+  return false;
+}
+bool DetIdSelector::isOdd(unsigned int n) const{
+  if(!isEven(n))
+    return true;
+  return false;
+}
 bool DetIdSelector::operator()(const unsigned int& rawid) const {
 
   return isSelected(rawid);

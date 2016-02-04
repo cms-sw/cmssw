@@ -36,7 +36,8 @@ void PlotOnTrackOccupancyGeneric(TFile* ff, const char* module, const char* ontr
 void PlotDebugFPIX_XYMap(TFile* ff, const char* module, const unsigned int offset, const char* name);
 void PlotTrackerXsect(TFile* ff, const char* module);
 TCanvas* drawMap(const char* cname, const TH1* hval, const TProfile* averadius, const TProfile* avez,const float mmin, const float mmax, 
-		 std::pair<float,float>(*size)(int), float(*scale)(float), const int color, const char* ptitle="");
+		 std::pair<float,float>(*size)(int), float(*scale)(float), const int color, const char* ptitle="", 
+                 const TProfile* corner1r=0, const TProfile* corner1z=0, const TProfile* corner2r=0, const TProfile* corner2z=0, const TProfile* corner3r=0, const TProfile* corner3z=0, const TProfile* corner4r=0, const TProfile* corner4z=0);
 
 
 #endif // DPGAnalysis_SiStripTools_OccupancyPlotMacros_h

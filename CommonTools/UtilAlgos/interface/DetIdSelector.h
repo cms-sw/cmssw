@@ -41,6 +41,8 @@ class DetIdSelector {
   bool isSelectedByWordsTID(std::string label, const DetId& detid, const TrackerTopology* tTopo) const ;
   bool isSelectedByWordsTEC(std::string label, const DetId& detid, const TrackerTopology* tTopo) const ;
   bool isSame(std::string label, std::string selection, unsigned int comparison, unsigned int spaces) const;
+  bool isEven(unsigned int n) const;
+  bool isOdd(unsigned int n) const;
   bool isInRange(std::string range, unsigned int comparison, unsigned int spaces) const;
 
   std::vector<unsigned int> m_selections;
