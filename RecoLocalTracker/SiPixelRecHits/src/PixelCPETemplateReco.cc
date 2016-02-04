@@ -137,10 +137,6 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
   
   SiPixelTemplate templ(thePixelTemp_);
 
-  // Make from cluster (a SiPixelCluster) a boost multi_array_2d called 
-  // clust_array_2d.
-  boost::multi_array<float, 2> clust_array_2d(boost::extents[cluster_matrix_size_x][cluster_matrix_size_y]);
-  
   // Preparing to retrieve ADC counts from the SiPixeltheClusterParam.theCluster->  In the cluster,
   // we have the following:
   //   int minPixelRow(); // Minimum pixel index in the x direction (low edge).
@@ -185,28 +181,29 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
       int icol = int(pix.y);
       mrow = std::max(mrow,irow);
       mcol = std::max(mcol,icol);
-     }
-     mrow -= row_offset; mrow+=1; mrow = std::min(mrow,cluster_matrix_size_x);
-     mcol -= col_offset; mcol+=1; mcol = std::min(mcol,cluster_matrix_size_y);
-     assert(mrow>0); assert(mcol>0);
+    }
+    mrow -= row_offset; mrow+=1; mrow = std::min(mrow,cluster_matrix_size_x);
+    mcol -= col_offset; mcol+=1; mcol = std::min(mcol,cluster_matrix_size_y);
+    assert(mrow>0); assert(mcol>0);
 
-     float clustMatrix[mrow][mcol];
+    float clustMatrix[mrow][mcol];
+    memset(clustMatrix,0,sizeof(float)*mrow*mcol);
 
   // Copy clust's pixels (calibrated in electrons) into clust_array_2d;
-  for (int i=0 ; i!=theClusterParam.theCluster->size(); ++i ) 
+   for (int i=0 ; i!=theClusterParam.theCluster->size(); ++i ) 
     {
       auto pix = theClusterParam.theCluster->pixel(i);
       int irow = int(pix.x) - row_offset;
       int icol = int(pix.y) - col_offset;
       
-      // Gavril : what do we do here if the row/column is larger than cluster_matrix_size_x/cluster_matrix_size_y = 7/21 ?
+      // Gavril : what do we do here if the row/column is larger than cluster_matrix_size_x/cluster_matrix_size_y  ?
       // Ignore them for the moment...
       if ( (irow<mrow) & (icol<mcol) )
 	// 02/13/2008 ggiurgiu@fnal.gov typecast adc to float
         clustMatrix[irow][icol] =  float(pix.adc);
+      }
     }
   
-
 
   // Make and fill the bool arrays flagging double pixels
   bool ydouble[mrow], xdouble[mcol];
