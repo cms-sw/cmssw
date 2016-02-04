@@ -1,30 +1,33 @@
 #ifndef __l1t_regional_muon_candidate_h__
 #define __l1t_regional_muon_candidate_h__
 
-#include <iostream>
-#include "DataFormats/L1Trigger/interface/BXVector.h"
+#include "RegionalMuonCandFwd.h"
+#include <map>
 
 namespace l1t {
-
-  enum tftype {
-    bmtf, omtf_neg, omtf_pos, emtf_neg, emtf_pos
-  };
-  class RegionalMuonCand;
-  typedef BXVector<RegionalMuonCand> RegionalMuonCandBxCollection;
-
-
 class RegionalMuonCand {
   public:
+    /// Enum to identify the individual parts of the BMTF track address
+    enum bmtfAddress {
+        kWheel=0, kStat1=1, kStat2=2, kStat3=3, kStat4=4
+    };
+    /// Enum to identify the individual parts of the EMTF track address
+    enum emtfAddress {
+        kME12=0, kME22=1
+    };
+
+
     explicit RegionalMuonCand(uint64_t dataword);
 
     RegionalMuonCand() :
-      m_hwPt(0), m_hwPhi(0), m_hwEta(0), m_hwHF(false), m_hwSign(0), m_hwSignValid(0), m_hwQuality(0),
-      m_hwTrackAddress(0), m_link(0), m_processor(0), m_trackFinder(bmtf), m_dataword(0)
-      {};
+      m_hwPt(0), m_hwPhi(0), m_hwEta(0), m_hwHF(false), m_hwSign(0), m_hwSignValid(0), m_hwQuality(0), m_dataword(0)
+      {
+        setTFIdentifiers(0, bmtf);
+      };
 
     RegionalMuonCand(int pt, int phi, int eta, int sign, int signvalid, int quality, int processor, tftype trackFinder) :
       m_hwPt(pt), m_hwPhi(phi), m_hwEta(eta), m_hwHF(false), m_hwSign(sign), m_hwSignValid(signvalid), m_hwQuality(quality),
-      m_hwTrackAddress(0), m_link(0), m_dataword(0)
+      m_dataword(0)
       {
         setTFIdentifiers(processor, trackFinder);
       };
@@ -45,16 +48,26 @@ class RegionalMuonCand {
     void setHwQual(int bits) { m_hwQuality = bits; };
     /// Set HF (halo / fine eta) bit (EMTF: halo -> 1; BMTF: fine eta -> 1)
     void setHwHF(bool bit) { m_hwHF = bit; };
-    /// Set compressed track address as transmitted by hardware. Identifies trigger primitives.
-    void setHwTrackAddress(int bits) { m_hwTrackAddress = bits; };
     /// Set the processor ID, track-finder type. From these two, the link is set
     void setTFIdentifiers(int processor, tftype trackFinder);
     // this is left to still be compatible with OMTF
     void setLink(int link);
     // Set the 64 bit word from two 32 words. bits 0-31->lsbs, bits 32-63->msbs
-    void setDataword(int msbs, int lsbs) { m_dataword = (((uint64_t)msbs) << 32) + lsbs; };
+    void setDataword(uint32_t msbs, uint32_t lsbs) { m_dataword = (((uint64_t)msbs) << 32) + lsbs; };
     // Set the 64 bit word coming from HW directly
     void setDataword(uint64_t bits) { m_dataword = bits; };
+    /// Set a part of the muon candidates track address; specialised for BMTF
+    void setTrackSubAddress(bmtfAddress subAddress, int value) {
+        m_trackAddress[subAddress] = value;
+    }
+    /// Set a part of the muon candidates track address; specialised for EMTF
+    void setTrackSubAddress(emtfAddress subAddress, int value) {
+        m_trackAddress[subAddress] = value;
+    }
+    /// Set the whole track address
+    void setTrackAddress(const std::map<int, int>& address) {
+        m_trackAddress = address;
+    }
 
 
     /// Get compressed pT (returned int * 0.5 = pT (GeV))
@@ -69,8 +82,6 @@ class RegionalMuonCand {
     const int hwSignValid() const { return m_hwSignValid; };
     /// Get quality code
     const int hwQual() const { return m_hwQuality; };
-    /// Get track address identifying trigger primitives
-    const int hwTrackAddress() const { return m_hwTrackAddress; };
     /// Get link on which the MicroGMT receives the candidate
     const int link() const { return m_link; };
     /// Get processor ID on which the candidate was found (1..6 for OMTF/EMTF; 1..12 for BMTF)
@@ -82,9 +93,22 @@ class RegionalMuonCand {
     /// Get 64 bit data word
     const uint64_t dataword() const { return m_dataword; };
     /// Get 32 MSBs of data word
-    const int dataword32Msb() const { return (int)((m_dataword >> 32) & 0xFFFFFFFF); };
+    const uint32_t dataword32Msb() const { return (uint32_t)((m_dataword >> 32) & 0xFFFFFFFF); };
     /// Get 32 LSBs of data word
-    const int dataword32Lsb() const { return (int)(m_dataword & 0xFFFFFFFF); };
+    const uint32_t dataword32Lsb() const { return (uint32_t)(m_dataword & 0xFFFFFFFF); };
+    /// Get the track address (identifies track primitives used for reconstruction)
+    const std::map<int, int>& trackAddress() const {
+        return m_trackAddress;
+    }
+    /// Get part of track address (identifies track primitives used for reconstruction)
+    int trackSubAddress(bmtfAddress subAddress) const {
+        return m_trackAddress.at(subAddress);
+    }
+    /// Get part of track address (identifies track primitives used for reconstruction)
+    int trackSubAddress(emtfAddress subAddress) const {
+        return m_trackAddress.at(subAddress);
+    }
+
 
   private:
     int m_hwPt;
@@ -94,10 +118,10 @@ class RegionalMuonCand {
     int m_hwSign;
     int m_hwSignValid;
     int m_hwQuality;
-    int m_hwTrackAddress;
     int m_link;
     int m_processor;
     tftype m_trackFinder;
+    std::map<int, int> m_trackAddress;
 
     /// This is the 64 bit word as transmitted in HW
     uint64_t m_dataword;
@@ -107,4 +131,3 @@ class RegionalMuonCand {
 }
 
 #endif /* define __l1t_regional_muon_candidate_h__ */
-

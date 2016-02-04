@@ -8,5 +8,5 @@
 <use name="DataFormats/MuonDetId"/>
 <use name="DataFormats/L1CSCTrackFinder"/>
 <use name="DataFormats/Common"/>
-<use name="DataFormats/L1Trigger"/>
+<use name="L1Trigger/DTTrackFinder"/>
 <use name="rootrflx"/>
