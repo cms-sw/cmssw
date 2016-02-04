@@ -1,0 +1,4 @@
+#! /bin/sh
+
+# wrapper around silly CMS CVS rules, that do not allow /usr/bin/make as script interpreter
+make -f `dirname $0`/hltCheckPaths.mk -j `grep ^processor /proc/cpuinfo | wc -l` "$@"

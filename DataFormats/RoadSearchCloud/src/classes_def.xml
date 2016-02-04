@@ -1,0 +1,4 @@
+<lcgdict>
+  <class name="RoadSearchCloud"/>
+  <class name="std::vector<RoadSearchCloud>" persistent="false"/>
+</lcgdict>

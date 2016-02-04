@@ -1,0 +1,46 @@
+
+[oval run] =================================================
+[oval run] USER : chamont
+[oval run] HOST : lxcmsf2.cern.ch
+[oval run] TEST_RAW_FILE = SingleElectronPt10Raw.root
+[oval run] TEST_RECO_FILE = SingleElectronPt10.root
+[oval run] run tool: scram
+[oval run] final instruction: cmsRun egammaRawDataToGsfElectrons_cfg.py
+[oval run] =================================================
+
+29-Apr-2009 16:21:47 CEST  Initiating request to open file file:SingleElectronPt10Raw.root
+29-Apr-2009 16:21:56 CEST  Successfully opened file file:SingleElectronPt10Raw.root
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at 29-Apr-2009 16:22:31 CEST
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at 29-Apr-2009 16:23:24 CEST
+Begin processing the 3rd record. Run 1, Event 3, LumiSection 1 at 29-Apr-2009 16:23:25 CEST
+Begin processing the 4th record. Run 1, Event 4, LumiSection 1 at 29-Apr-2009 16:23:26 CEST
+Begin processing the 5th record. Run 1, Event 5, LumiSection 1 at 29-Apr-2009 16:23:27 CEST
+Begin processing the 6th record. Run 1, Event 6, LumiSection 1 at 29-Apr-2009 16:23:28 CEST
+Begin processing the 7th record. Run 1, Event 7, LumiSection 1 at 29-Apr-2009 16:23:30 CEST
+Begin processing the 8th record. Run 1, Event 8, LumiSection 1 at 29-Apr-2009 16:23:31 CEST
+Begin processing the 9th record. Run 1, Event 9, LumiSection 1 at 29-Apr-2009 16:23:32 CEST
+Begin processing the 10th record. Run 1, Event 10, LumiSection 1 at 29-Apr-2009 16:23:33 CEST
+29-Apr-2009 16:23:34 CEST  Closed file file:SingleElectronPt10Raw.root
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 fileAction           -s PoolSource:sourc                       2        2
+    2 fileAction           -s PostModule                             1        1
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 fileAction           pre-events       pre-events       
+    2 fileAction           1/10                              
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+System                  3                   3
+
+[oval run] ==========================================
+[oval run] result: OK
+[oval run] ==========================================
+

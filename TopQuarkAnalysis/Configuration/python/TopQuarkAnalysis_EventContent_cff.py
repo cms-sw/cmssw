@@ -1,0 +1,16 @@
+import FWCore.ParameterSet.Config as cms
+
+from TopQuarkAnalysis.TopSkimming.topDiLepton2Electron_EventContent_cff import *
+from TopQuarkAnalysis.TopSkimming.topDiLeptonMuonX_EventContent_cff import *
+from TopQuarkAnalysis.TopSkimming.topSemiLepElectron_EventContent_cff import *
+from TopQuarkAnalysis.TopSkimming.topSemiLepMuon_EventContent_cff import *
+from TopQuarkAnalysis.TopSkimming.topFullyHadronic_EventContent_cff import *
+TopQuarkAnalysisEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring()
+)
+TopQuarkAnalysisEventContent.outputCommands.extend(topDiLepton2ElectronEventContent.outputCommands)
+TopQuarkAnalysisEventContent.outputCommands.extend(topDiLeptonMuonXEventContent.outputCommands)
+TopQuarkAnalysisEventContent.outputCommands.extend(topSemiLepElectronEventContent.outputCommands)
+TopQuarkAnalysisEventContent.outputCommands.extend(topSemiLepMuonEventContent.outputCommands)
+TopQuarkAnalysisEventContent.outputCommands.extend(topFullyHadronicEventContent.outputCommands)
+

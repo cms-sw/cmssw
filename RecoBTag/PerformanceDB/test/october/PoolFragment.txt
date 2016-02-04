@@ -1,0 +1,310 @@
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('MISTAGJPL_T'),
+    label = cms.untracked.string('MISTAGJPL_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('MISTAGJPL_WP'),
+    label = cms.untracked.string('MISTAGJPL_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('MISTAGJPM_T'),
+    label = cms.untracked.string('MISTAGJPM_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('MISTAGJPM_WP'),
+    label = cms.untracked.string('MISTAGJPM_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('MISTAGJPT_T'),
+    label = cms.untracked.string('MISTAGJPT_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('MISTAGJPT_WP'),
+    label = cms.untracked.string('MISTAGJPT_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('MISTAGSSVM_T'),
+    label = cms.untracked.string('MISTAGSSVM_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('MISTAGSSVM_WP'),
+    label = cms.untracked.string('MISTAGSSVM_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('MISTAGTCHEL_T'),
+    label = cms.untracked.string('MISTAGTCHEL_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('MISTAGTCHEL_WP'),
+    label = cms.untracked.string('MISTAGTCHEL_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('MISTAGTCHEM_T'),
+    label = cms.untracked.string('MISTAGTCHEM_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('MISTAGTCHEM_WP'),
+    label = cms.untracked.string('MISTAGTCHEM_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('MISTAGTCHPM_T'),
+    label = cms.untracked.string('MISTAGTCHPM_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('MISTAGTCHPM_WP'),
+    label = cms.untracked.string('MISTAGTCHPM_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('MISTAGTCHPT_T'),
+    label = cms.untracked.string('MISTAGTCHPT_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('MISTAGTCHPT_WP'),
+    label = cms.untracked.string('MISTAGTCHPT_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('PTRELJPL_T'),
+    label = cms.untracked.string('PTRELJPL_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('PTRELJPL_WP'),
+    label = cms.untracked.string('PTRELJPL_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('PTRELJPM_T'),
+    label = cms.untracked.string('PTRELJPM_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('PTRELJPM_WP'),
+    label = cms.untracked.string('PTRELJPM_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('PTRELJPT_T'),
+    label = cms.untracked.string('PTRELJPT_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('PTRELJPT_WP'),
+    label = cms.untracked.string('PTRELJPT_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('PTRELJBPL_T'),
+    label = cms.untracked.string('PTRELJBPL_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('PTRELJBPL_WP'),
+    label = cms.untracked.string('PTRELJBPL_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('PTRELJBPM_T'),
+    label = cms.untracked.string('PTRELJBPM_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('PTRELJBPM_WP'),
+    label = cms.untracked.string('PTRELJBPM_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('PTRELJBPT_T'),
+    label = cms.untracked.string('PTRELJBPT_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('PTRELJBPT_WP'),
+    label = cms.untracked.string('PTRELJBPT_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('PTRELTCHEL_T'),
+    label = cms.untracked.string('PTRELTCHEL_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('PTRELTCHEL_WP'),
+    label = cms.untracked.string('PTRELTCHEL_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('PTRELTCHEM_T'),
+    label = cms.untracked.string('PTRELTCHEM_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('PTRELTCHEM_WP'),
+    label = cms.untracked.string('PTRELTCHEM_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('PTRELTCHET_T'),
+    label = cms.untracked.string('PTRELTCHET_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('PTRELTCHET_WP'),
+    label = cms.untracked.string('PTRELTCHET_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('PTRELTCHPL_T'),
+    label = cms.untracked.string('PTRELTCHPL_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('PTRELTCHPL_WP'),
+    label = cms.untracked.string('PTRELTCHPL_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('PTRELTCHPM_T'),
+    label = cms.untracked.string('PTRELTCHPM_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('PTRELTCHPM_WP'),
+    label = cms.untracked.string('PTRELTCHPM_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('PTRELTCHPT_T'),
+    label = cms.untracked.string('PTRELTCHPT_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('PTRELTCHPT_WP'),
+    label = cms.untracked.string('PTRELTCHPT_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('PTRELSSVL_T'),
+    label = cms.untracked.string('PTRELSSVL_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('PTRELSSVL_WP'),
+    label = cms.untracked.string('PTRELSSVL_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('PTRELSSVM_T'),
+    label = cms.untracked.string('PTRELSSVM_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('PTRELSSVM_WP'),
+    label = cms.untracked.string('PTRELSSVM_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('PTRELSSVT_T'),
+    label = cms.untracked.string('PTRELSSVT_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('PTRELSSVT_WP'),
+    label = cms.untracked.string('PTRELSSVT_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('SYSTEM8SSVM_T'),
+    label = cms.untracked.string('SYSTEM8SSVM_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('SYSTEM8SSVM_WP'),
+    label = cms.untracked.string('SYSTEM8SSVM_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('SYSTEM8SSVT_T'),
+    label = cms.untracked.string('SYSTEM8SSVT_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('SYSTEM8SSVT_WP'),
+    label = cms.untracked.string('SYSTEM8SSVT_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('SYSTEM8TCHEL_T'),
+    label = cms.untracked.string('SYSTEM8TCHEL_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('SYSTEM8TCHEL_WP'),
+    label = cms.untracked.string('SYSTEM8TCHEL_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('SYSTEM8TCHEM_T'),
+    label = cms.untracked.string('SYSTEM8TCHEM_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('SYSTEM8TCHEM_WP'),
+    label = cms.untracked.string('SYSTEM8TCHEM_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('SYSTEM8TCHET_T'),
+    label = cms.untracked.string('SYSTEM8TCHET_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('SYSTEM8TCHET_WP'),
+    label = cms.untracked.string('SYSTEM8TCHET_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('SYSTEM8TCHPL_T'),
+    label = cms.untracked.string('SYSTEM8TCHPL_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('SYSTEM8TCHPL_WP'),
+    label = cms.untracked.string('SYSTEM8TCHPL_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('SYSTEM8TCHPM_T'),
+    label = cms.untracked.string('SYSTEM8TCHPM_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('SYSTEM8TCHPM_WP'),
+    label = cms.untracked.string('SYSTEM8TCHPM_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('SYSTEM8TCHPT_T'),
+    label = cms.untracked.string('SYSTEM8TCHPT_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('SYSTEM8TCHPT_WP'),
+    label = cms.untracked.string('SYSTEM8TCHPT_WP')
+    ),

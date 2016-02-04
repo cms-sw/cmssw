@@ -1,0 +1,18 @@
+<TESTSCONFIGURATION>
+
+<QTEST name="rpcPhiOcc">
+   <TYPE>ContentsYRange</TYPE>     
+   <PARAM name="ymin">0.003</PARAM>
+   <PARAM name="ymax">0.015</PARAM>
+   <PARAM name="error">0.95</PARAM>
+   <PARAM name="warning">0.99</PARAM>
+</QTEST>
+
+<!-- <LINK name="L1T/L1TRPCTF/RPCTF_bx"> -->
+<!-- <LINK name="L1T/L1TRPCTF/RPCTF_phi_valuepacked_norm"> -->
+<LINK name="*RPCTF_phi_valuepacked_norm*">
+   <TestName activate="true">rpcPhiOcc</TestName>
+</LINK>
+
+
+</TESTSCONFIGURATION>

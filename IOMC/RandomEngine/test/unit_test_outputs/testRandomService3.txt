@@ -1,0 +1,188 @@
+*** TestRandomNumberServiceAnalyzer beginLumi 1/1
+81
+HepJamesRandom
+0.422889
+0.0392907
+0.291227
+*** TestRandomNumberServiceAnalyzer beginLumi 1/1
+1
+RanecuEngine
+0.999981
+0.203459
+0.668007
+*** TestRandomNumberServiceAnalyzer beginLumi 1/1
+83
+TRandom3
+0.257042
+0.565658
+0.683788
+*** TestRandomNumberServiceAnalyzer beginLumi 1/1
+84
+HepJamesRandom
+0.133504
+0.85941
+0.256103
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/11
+82
+HepJamesRandom
+0.616179
+0.838397
+0.174838
+12.6847
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/11
+2
+RanecuEngine
+0.999999
+0.949039
+0.294968
+4.06209
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/11
+84
+TRandom3
+0.046041
+0.56008
+0.370242
+7.37113
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/11
+85
+HepJamesRandom
+0.425331
+0.542731
+0.653642
+8.09904
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/12
+82
+HepJamesRandom
+0.406814
+0.10606
+0.505852
+8.69266
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/12
+2
+RanecuEngine
+0.0738891
+0.323424
+0.32929
+17.7581
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/12
+84
+TRandom3
+0.242318
+0.315593
+0.62848
+9.92867
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/12
+85
+HepJamesRandom
+0.947247
+0.139267
+0.350384
+10.5409
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/13
+82
+HepJamesRandom
+0.218719
+0.813922
+0.117935
+7.83392
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/13
+2
+RanecuEngine
+0.408273
+0.334614
+0.309915
+13.5622
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/13
+84
+TRandom3
+0.99011
+0.726756
+0.130588
+12.8952
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/13
+85
+HepJamesRandom
+0.774211
+0.22853
+0.53215
+3.9383
+*** TestRandomNumberServiceAnalyzer beginLumi 1/2
+81
+HepJamesRandom
+0.422889
+0.0392907
+0.291227
+*** TestRandomNumberServiceAnalyzer beginLumi 1/2
+1
+RanecuEngine
+0.999981
+0.203459
+0.668007
+*** TestRandomNumberServiceAnalyzer beginLumi 1/2
+83
+TRandom3
+0.257042
+0.565658
+0.683788
+*** TestRandomNumberServiceAnalyzer beginLumi 1/2
+84
+HepJamesRandom
+0.133504
+0.85941
+0.256103
+*** TestRandomNumberServiceAnalyzer analyze() 1/2/14
+82
+HepJamesRandom
+0.430102
+0.21544
+0.743546
+15.0359
+*** TestRandomNumberServiceAnalyzer analyze() 1/2/14
+2
+RanecuEngine
+0.820163
+0.223432
+0.598042
+6.33191
+*** TestRandomNumberServiceAnalyzer analyze() 1/2/14
+84
+TRandom3
+0.173589
+0.109808
+0.258314
+0.73062
+*** TestRandomNumberServiceAnalyzer analyze() 1/2/14
+85
+HepJamesRandom
+0.981761
+0.40792
+0.397012
+22.2374
+*** TestRandomNumberServiceAnalyzer analyze() 1/2/15
+82
+HepJamesRandom
+0.139776
+0.507995
+0.750429
+2.91706
+*** TestRandomNumberServiceAnalyzer analyze() 1/2/15
+2
+RanecuEngine
+0.399648
+0.900565
+0.183621
+2.17307
+*** TestRandomNumberServiceAnalyzer analyze() 1/2/15
+84
+TRandom3
+0.418399
+0.705689
+0.131019
+17.139
+*** TestRandomNumberServiceAnalyzer analyze() 1/2/15
+85
+HepJamesRandom
+0.975012
+0.949122
+0.037864
+11.6525

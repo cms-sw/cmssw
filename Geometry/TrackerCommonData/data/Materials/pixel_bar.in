@@ -1,0 +1,675 @@
+PIXEL barrel detector
+============
+
+$$  This includes all the volumes that make up the TOB modules
+$$  as well as the electronics on the rods !
+
+
+Input file for mixture.f
+Start new mixtures with a '#' in the first column
+Start the components with a '*' in the first column
+You can type any kind of comment in as long as you don't start it
+with '#' or '*' !
+.....................................................................
+For mixture declaration: Name of Mixture, Name of GMIX for title file, 
+                         Monte Carlo Volume, MC Area
+For items in a compound: Item number, Comment, Material (has to be 
+                 written exactly as in material.input file), 
+                 Volume, Multiplicity, Type
+      Type is one of the following:  SUP for support
+                                     SEN for sensitive volumes
+                                     CAB for cables
+                                     COL for cooling
+                                     ELE for electronics
+..................................................................... 
+
+1) Barrel Modules
+   ==============
+
+o Baseplate          ---- OK ----
+  ----------
+MCVolume: 0.448 x 0.030 x 6.66 cm = 0.08951
+
+(1) Si3N4 base strips : 2.91cm2 x 0.025 cm => 0.07275
+(2) 2 Screws for connection to cooling pipes 25mg each
+(3) Thermal grease , 291mm2 => 2.91cm2  x 50um = 0.01455 cm3 CHANGE MATERIAL
+(3) Glue between CF and cooling pipes 0.4 x 6.7 x 0.0050 
+.....................................................................
+# "Pixel Barrel module baseplate"  "Pix_Bar_Baseplate_Full"    0.08951  2.98
+* 1 "Si3N4 base"           "Silicon_Nitride"    0.07275   1   SUP
+* 2 "Screws and nuts"      "Steel-008"          3.20E-3   2   SUP
+* 3 "Thermal grease"       "Silicone_Gel"       0.01455   1   SUP
+* 4 "Glue"                 "Epoxy"              0.0134    1   SUP
+.....................................................................
+=================================================================== 
+
+o Baseplate Half   ---- TODO:check thermal grease ----
+  ----------
+MCVolume: 1.29 x 0.030 x 6.66 cm = 0.2577
+
+    65.0mm(l) * 12.9mm(w) * 0.25mm(h)
+(1) Si3N4 base strips : 8.385cm2 x 0.025 cm => 0.2096
+(2) 2 Screws for connection to cooling pipes 25mg each
+(3) Thermal grease , 8.385cm2 x 50um = 0.041925
+(3) Glue between CF and cooling pipes 0.4 x 6.7 x 0.0050 
+.....................................................................
+# "Pixel Barrel module baseplate"  "Pix_Bar_Baseplate_Half"    0.2577  8.49
+* 1 "Si3N4 base"           "Silicon_Nitride"    0.2096     1   SUP
+* 2 "Screws and nuts"      "Steel-008"          3.20E-3    2   SUP
+* 3 "Thermal grease"       "Silicone_Gel"       0.041925  1   SUP
+* 4 "Glue"                 "Epoxy"              0.0134     1   SUP
+.....................................................................
+===================================================================
+
+
+o Pixel Barrel Hybrid Full   ---- OK ----
+
+Size: 18.8(w) * 65(l) * 0.044(h)mm
+(1-4) Material: PI-76.4mg, Cu-56.7mg, Ni-12mg, Au-5.7 (Full modules)
+PI - is polymide (kapton)
+(5) Wire bonds: About 700 Al wires, total weight per module is 0.9mg
+(6) Bump bonds: About 66560 In (indium) bonds, total weight per module 1.5mg
+(7-8) Solder: To connect the kapton and power cables.
+       About 60 mg per module, composition 0.37 Pb + 0.63 Sn.
+(9) Glue: Total glue per module 8g/768 = 10.4mg.
+(10) Capacitors: 8 capacitors 0.05 x 0.10 x 0.05 cm = 0.00025
+(11) Resistors: 2 resistors 0.05 x 0.10 x 0.05 cm = 0.00025
+......................................................................
+# "Pixel barrel hybrid"     "Pix_Bar_Hybrid_Full" 0.05378   12.2
+* 1 "Kapton hybrid"         "T_Kapton"          0.054571  1  ELE
+* 2 "Copper traces"         "Copper"            0.006328  1  ELE 
+* 3 "Nickel"                "Nickel"            0.001347  1  ELE
+* 4 "Gold"                  "Gold"              0.000303  1  ELE
+* 5 "Wire bonds"            "Aluminium"         0.000333  1  ELE
+* 6 "Bump bonds"            "Indium"            0.000205  1  ELE
+* 7 "Solder Pb"             "Lead"              0.001958  1  ELE
+* 8 "Solder Pb"             "Tin"               0.005185  1  ELE
+* 9 "Glue"                  "Epoxy"             0.008000  1  SUP
+* 10 "Capacitors"           "Barium_Titanate"   0.00025   8  ELE
+* 11 "Resistors"            "Alumina"           0.00025   2  ELE
+.....................................................................
+=====================================================================
+
+o Pixel Barrel Hybrid Half    ---- TODO  ----
+
+Size: 10.3(w) * 65(l) * 0.044(h) mm.
+(1-4) Material: PI-41.8mg, Cu-31.1mg, Ni-6.6mg,Au-3.1 (Half modules)
+(5) Wire bonds: About 700/2 Al wires, total weight per module is 0.9mg/2
+(6) Bump bonds: About 66560/2 In (indium) bonds, total weight per module 1.5mg/2
+(7-8) Solder: To connect the kapton and power cables.
+       About 60 mg per module, composition 0.37 Pb + 0.63 Sn.
+(9) Glue: Total glue per module 8g/768 = 10.4mg.
+(10) Capacitors: 8 capacitors 0.05 x 0.10 x 0.05 cm = 0.00025
+(11) Resistors: 2 resistors 0.05 x 0.10 x 0.05 cm = 0.00025
+......................................................................
+# "Pixel barrel hybrid"     "Pix_Bar_Hybrid_Half" 0.029458   6.5
+* 1 "Kapton hybrid"         "T_Kapton"          0.029857  1  ELE
+* 2 "Copper traces"         "Copper"            0.003471  1  ELE
+* 3 "Nickel"                "Nickel"            0.000741  1  ELE
+* 4 "Gold"                  "Gold"              0.000165  1  ELE
+* 5 "Wire bonds"            "Aluminium"         0.000166  1  ELE
+* 6 "Bump bonds"            "Indium"            0.000102  1  ELE
+* 7 "Solder Pb"             "Lead"              0.001958  1  ELE
+* 8 "Solder Pb"             "Tin"               0.005185  1  ELE
+* 9 "Glue"                  "Epoxy"             0.008000  1  SUP
+* 10 "Capacitors"           "Barium_Titanate"   0.00025   8  ELE
+* 11 "Resistors"            "Alumina"           0.00025   2  ELE
+.....................................................................
+=====================================================================
+
+
+
+o Pixel Barrel capacitors    ---- OK ----
+ -------------------
+MC Volume: 0.05 x 6.5 x 0.05 cm = 0.01625
+
+(1) 24 Capacitors : 0.05 x 0.10 x 0.05 cm = 0.00025
+......................................................................
+# "Pixel barrel HVcapacitor"  "Pix_Bar_Capacitor"    0.01625     0.32
+* 1 "SMD Capacitor"         "Barium_Titanate"        0.00025     24  ELE
+.....................................................................
+=====================================================================
+
+
+
+o Pixel Barrel cooling pipes
+  --------------------------
+(per unit length) 
+MC Volume: 0.35 x 0.35 cm 
+
+(1) Al xsection      0.0342 cm^2
+(2) Coolant xsection 0.0808 cm^2 
+.....................................................................
+# "Pixel Barrel cooling pipes"   "T_Pix_Bar_Cool"    0.1225   -1.
+* 1 "Cooling pipes"              "Aluminium"         0.0342    1  COL
+* 2 "Coolant"                    "C6F14_F2_-10C"             0.0808    1  COL
+.....................................................................
+=====================================================================
+
+
+
+o Pixel Barrel module cables (per unit length !! )  ---- OK ----
+  --------------------------
+MC Volume: xsection 0.670 x 0.030 cm   (0.03 = 0.0165 + some volume for 6 wires 0.027 diameter) 
+
+(1) Kapton cable : 2 kapton layer   0.67 cm x 0.0075 cm  
+(2) Kapton cable : 1 Copper layer   0.67 cm x 0.0003 cm  
+(3) Kapton cable : 22 Copper tracks 0.0013 cm x 0.019 cm  
+(4) Kapton cable : 22 Au tracks     0.0001 cm x 0.019 cm  
+(5) Power  cable : 6 wires Al , r  = 0.01125 cm 
+(6) Power  cable : 6 wires Cu , dr = 0.00125 cm
+(7) Power  cable : 6 wires PI , dr = 0.0010 cm
+.....................................................................
+# "Pixel Barrel module cables"   "Pix_Bar_Cable"   0.0201   -1.
+* 1 "Kapton cable layer"        "T_Kapton"         0.005025  2    CAB
+* 2 "Kapton cable layer"        "Copper"           2.01E-4   1    CAB
+* 3 "Kapton cable tracks"       "Copper"           2.47E-5  22   CAB
+* 4 "Kapton cable tracks"       "Gold"             1.9E-6   22   CAB
+* 5 "Power cable core"          "Aluminium"        3.97E-4  6    CAB
+* 6 "Power cable coating"       "Copper"           9.39E-5  6    CAB
+* 7 "Power cable ext coating"   "T_Kapton"         8.17E-5  6    CAB
+=====================================================================
+
+
+
+o Layer 1 Al manifold + cooling + flange
+  ------------------------------------------
+Absolute values (not per phi len!)
+
+MC Volume: cool1   4 x 4.88  x 0.5 = 12.2748 cm3
+
+(1) 5.3g x 2 aluminium,  i.e. 1.96 cm3 x 2  = 3.92 cm3
+(2) Coolant   (2.96+1.77) *2 = 9.46 cm3  //not updated
+
+(3) Stainless steel "L"  2.5 g x 4 = 10g / 7.8 = 0.32 cm3 
+(4) Stainless steel for hose clamps 1.16 g (0.15 cm^3)   =  0.15 cm3
+(5) Carbon fiber 3.97g x 2  / 1.69 = 4.69 cm3
+(6) Fiberglass 5.61g x 2   /  1.9 = 5.905 cm3
+(7) Airex 0.4g x 2 / 0.08 = 10 cm3, using nomex with density 0.032 25cm3  //FIXME
+(8) Support clamps + screws (x 4) 0.39 g = 0.14 cm3
+
+.....................................................................
+# "Pixel barrel cooling rings"     "Flange_with_Manifold_Layer1"     12.27   -1.
+* 1 "Al Manifold"             "Aluminium"         3.92    1    COL
+* 2 "Coolant"                 "C6F14_F2_-10C"             8.7     1    COL
+* 3 "Al tube connectors"      "Steel-008"         0.32    4    COL
+* 4 "SS hose clamps"          "Steel-008"         0.15    4    COL
+* 5 "Carbon fiber"            "Carbon fibre str." 4.69    1    SUP
+* 6 "Fiber glass reinforce"   "T_FR4"             5.905   1    SUP
+* 7 "Foam"                    "Nomex"             25      1    SUP
+* 8 "Support clamps"          "Aluminium"         0.14    4    SUP   
+.....................................................................
+
+
+
+o Layer 2 Al manifold + cooling + flange
+  ------------------------------------------
+Absolute values (not per phi len!)
+
+MC Volume: cool2	6.9x7.78x0.5 =	20.2922 cm3
+
+(1) 8.4g x 2 aluminium,  i.e. 3.11 cm3 x 2  = 6.22 cm3
+(2) Coolant   2.848 * 6 = 17.09 cm3  
+
+(3) Stainless steel "L"  2.5 g x 4 = 10g / 7.8 = 0.32 cm3
+(4) Stainless steel for hose clamps 1.16 g (0.15 cm^3)   =  0.15 cm3
+(5) Carbon fiber 8.49g x 2  / 1.69 = 10.05 cm3
+(6) Fiberglass 8.96g x 2   /  1.9 = 9.43 cm3
+(7) Airex 1.27g x 2 / 0.08 = 31.75 cm3, using Nomex 79.4cm3  //FIXME 
+(8) Support clamps + screws (x 8) 0.39 g = 0.14 cm3
+.....................................................................
+# "Pixel barrel cooling rings"     "Flange_with_Manifold_Layer2"     20.29   -1.
+* 1 "Al Manifold"             "Aluminium"        6.22   1    COL
+* 2 "Coolant"                 "C6F14_F2_-10C"            17.09   1    COL
+* 3 "Al tube connectors"      "Steel-008"        0.32    6    COL
+* 4 "SS hose clamps"          "Steel-008"        0.15    6    COL
+* 5 "Carbon fiber"            "Carbon fibre str." 10.05  1    SUP
+* 6 "Fiber glass reinforce"   "T_FR4"             9.43   1    SUP
+* 7 "Foam"                    "Nomex"             79.4   1    SUP
+* 8 "Support clamps"          "Aluminium"         0.14    8   SUP
+.....................................................................
+
+
+
+
+
+o Layer 3 Al manifold + cooling + flange
+  ------------------------------------------
+Absolute values (not per phi len!)
+
+MC Volume: cool3	9.7	10.58	0.5	28.0331
+
+(1) 12g x 2 aluminium   = 8.88 cm3
+(2) Coolant   8*1.72 + 2.81*2 = 19.37  
+(3) Stainless steel "L"  2.5 g x 4 = 10g / 7.8 = 0.32 cm3
+(4) Stainless steel for hose clamps 1.16 g (0.15 cm^3)   =  0.15 cm3
+(5) Fiberglass 17.3g x 2   /  1.9 (35% only) = 6.37 cm3 
+.....................................................................
+# "Pixel barrel cooling rings"     "FlangeInner_with_Manifold_Layer3"     20.29   -1.
+* 1 "Al Manifold"             "Aluminium"        6.22   1     COL
+* 2 "Coolant"                 "C6F14_F2_-10C"            19.37  1     COL
+* 3 "Al tube connectors"      "Steel-008"        0.32   10    COL
+* 4 "SS hose clamps"          "Steel-008"        0.15   10    COL
+* 6 "Fiber glass reinforce"   "T_FR4"                 6.37   1     SUP
+.....................................................................
+
+o Layer 3 flange (outer)
+
+MC Volume Flange	10.6x18x0.6=398.932cm3
+
+(1) Carbon fiber 74.92g x 2  / 1.69 = 88.66 cm3
+(2) Fiberglass 17.3g x 2  (65%) /  1.9 = 18.2 cm3 = 11.8cm3
+(3) Airex 21.27g x 2 / ?? = ?? cm3, using Nomex 1329 cm3 //FIXME
+(4) 2.7e-3 cm3  (x80) Al fixation points
+.....................................................................
+# "Pixel barrel cooling rings"     "FlangeOuter_Layer3"     398.9   -1.
+* 1 "Carbon fiber"            "Carbon fibre str." 88.66    1    SUP
+* 2 "Fiber glass reinforce"   "T_FR4"             11.8     1    SUP
+* 3 "Foam"                    "Air"               1329     1    SUP
+* 4 "Fixation points"         "Aluminium"         2.7e-3  80    SUP
+.....................................................................
+
+
+o Cables from Endring Prints to supply tube
+
+MC Volume: cable_endring_to_tube  Rin = 180, Rout = 188, Z=30 
+           V=277cm3
+
+(1) power cable copper  (32 x)     1.788g / 8.96 =0.2cm3
+(2) power cable aluminum (32 x)  1g / 2.7 = 0.37cm3
+(3) power cable insulation(silicone rubber Si(CH3)2O) (32 x) 2.68g/ 1.3 = 2.06cm3
+(4) power cable plastic connector (Polyphenylene Oxid) (32 x) 0.733g / 1.06=  0.69 cm3
+(5) Kapton cable: Kapton layers:    0.0125cm x  2.5cm x 33cm
+                                  0.0125cm x 1.5cm x 33cm
+                                  0.0125cm x 1.5cm x 23.5cm
+                                  0.0125cm x 1.5cm x 20.5cm
+    in total: 3.465g / 1.4 = 2.475cm3
+(6) Kapton cable: copper layers:    0.0022cm x  2.5cm x 33cm
+   (only 75% of the area)         0.0022cm x 1.5cm x 33cm
+                                  0.0022cm x 1.5cm x 23.5cm
+                                  0.0022cm x 1.5cm x 20.5cm
+    in total: 2.93g / 8.96 = 0.327cm3
+(7) Kapton cable: Adhesive:            0.005cm x  2.5cm x 33cm
+   using epoxy                       0.005cm x 1.5cm x 33cm
+                                     0.005cm x 1.5cm x 23.5cm
+                                     0.005cm x 1.5cm x 20.5cm
+   in total 1g / 1.3 = 0.769cm3
+(8) "L" cooling bends suppl. tube steel           1.8g / 7.8 = 0.231cm3
+(9) endprint clips connecting L12 and L3 boards Aluminum    0.6g / 2.7 = 0.22cm3
+(10) Alu flange on supply tube 176g/2.7 = 65cm3
+.....................................................................
+# "cable endring to tube"     "cable_endring_to_tube"   277   -1.
+* 1 "pow. cable copper"             "Copper"            0.2    32 CAB
+* 2 "pow. cable aluminium"       "Aluminium"            0.37   32 CAB
+* 3 "pow. cable insulation"         "FPix_Silicone"     2.06   32 CAB
+* 4 "pow. cable connector"         "FPix_Cylind_Noryl"  0.69   32 CAB
+* 5 "sign. cable Kapton"           "T_Kapton"           2.475  16 CAB
+* 6 "sign. cable copper"           "Copper"             0.327  16 CAB
+* 7 "sign. cable adhesive"         "Epoxy"              0.769  16 CAB
+* 8 "supply tube cooling bends"    "Steel-008"          0.231  20 COL
+* 9 "clips to connect endprints"   "Aluminium"          0.22   16 SUP
+* 10 "Alu flange"                   "Aluminium"       65.     1 SUP
+....................................................................
+
+
+
+
+o Layer1/2 Endring Prints
+-------------------------
+
+MC Volume: endringprints12   R1=11,R2=18.5,Dz/2=0.95   132.1 cm3
+
+(1) Copper in boards + connectors:  64g / 8.96 = 7.143cm3
+(2) FR4 (epoxy + glass fiber) in boards: 52.8g / 1.9 = 27.79cm3
+(3) plastic in connectors (LCP+glass):      36.8g /2    = 18.4cm3  
+(4) Sn in solder:   2.56g / 7.31 = 0.35cm3
+(5) Pb in solder:   2.72g / 11.34 = 0.24cm3
+(6) Screws (steel)    1g/ 7.8  = 0.13cm3
+.....................................................................
+# "Layer1 2 EndringPrints"     "Layer1_2_EndringPrints"     132.1   -1.
+* 1 "Copper"                   "Copper"     7.143   1    ELE
+* 2 "Epoxy"                    "T_FR4"      27.79   1    ELE
+* 3 "connector polymer"        "LCP_Glass_Enforced"        18.4    1    ELE
+* 4 "Tin in solder"            "Tin"        0.35    1    ELE
+* 5 "Lead in solder"           "Lead"       0.24    1    ELE
+* 6 "Steel Screws"             "Steel-008"  0.13    1    SUP
+.....................................................................
+
+
+o Layer3 Endring Prints
+-------------------------
+
+MC Volume: endringprints3 1 = 12, R2=18.5, Dz/2 = 0.95    118.336cm3
+
+(1) Copper in boards + connectors:  53.2g / 8.96 = 5.94cm3
+(2) FR4 (epoxy + glass fiber) in boards: 43.9g / 1.9 = 23.1cm3
+(3) plastic in connectors (LCP+glass):      30.6g /2    = 15.3cm3 
+(4) Sn in solder:   2.2g / 7.31 = 0.3cm3
+(5) Pb in solder:   2.3g / 11.34 = 0.2cm3
+(6) Screws (steel)    1g/ 7.8  = 0.13cm3
+.....................................................................
+# "Layer3 EndringPrints"     "Layer3_EndringPrints"     118.336   -1.
+* 1 "Copper"             "Copper"      5.94   1    ELE
+* 2 "Epoxy"              "T_FR4"       23.1   1    ELE
+* 3 "connector polymer"  "LCP_Glass_Enforced"         15.3   1   ELE
+* 4 "Tin in solder"      "Tin"          0.3   1  ELE
+* 5 "Lead in solder"     "Lead"        0.2    1  ELE
+* 6 "Steel Screws"       "Steel-008"  0.13    1   SUP
+.....................................................................
+
+
+o Silicone Pipes plus coolant
+
+MC Volume: silicone_pipes_plus_coolant   967cm3 * 280/360 =  752cm3
+
+(1) silicone pipes  20 pipes per flange, total amount of silicone =92g  
+    92g / 1.3g = 56.23cm3
+
+(2) inner volume of silicone pipes = 57cm3
+
+.....................................................................
+# "radial cooling"     "silicone_pipes_plus_coolant"   752     -1.
+* 1 "silicone pipe"      "BPix_Silicone"            70.76    1    COL
+* 2 "coolant"            "C6F14_F2_-10C"            57       1    COL
+.....................................................................
+
+
+o Sector A
+-------------------------
+
+MC Volume: 6635cm3 per half-shell
+numbers below are per half-shell 
+
+see referece document from supply tube construction attached to
+https://twiki.cern.ch/twiki/bin/view/CMS/PixelBarrelGeometryMaterials
+
+(1)  inner shielding  alu 17.67g / 2.7 = 6.54cm3
+(2)  inner shielding glass fiber 125.89g/ 1.7= 74.05 cm3
+(3)  airex 79.71g / 0.032 = 2491cm3
+(4)  glass fiber stiffener ring 63.10g / 1.7  =37.117 cm3
+(5)  glass fiber PCB covers 13.94g / 1.7= 8.2cm3
+(6)  copper in electronics: ReadOut Slot boards 2.24g
+                            Central Slot electronics 0.91g
+                            CCU boards 6.36g
+                            DOHs 1.13g
+                            Power Adaptor Boards 3.79g
+                            IN TOTAL 14.43g / 8.96 = 1.61cm3
+(7) GFK in electronics:     ReadOut Slot boards 140g
+                            Central Slot electronics 18.19 g
+                            CCU boards  26.15g
+                            DOHs  0.6g
+                            Power Adaptor Boards 167.34g 
+                            IN TOTAL  352.28g / 1.7 = 207.2 cm3
+(8) Polyester in electronics: ReadOut Slot boards 1.44g
+                              Central Slot electronics 0.76g
+                              CCU boards  0.81g
+                              DOHs  0.46g 
+                              Power Adaptor Boards 4.07g 
+                              IN TOTAL  7.54g / 1.4 = 5.38cm3
+(9) POM in electronics:     ReadOut Slot boards 6.15g
+                            Central Slot electronics 0.77g 
+                            CCU boards  0.21g0
+                            Power Adaptor Boards 1.86g
+                            IN TOTAL  8.99g / 1.4 = 6.42cm3
+(10) solder in electronics: ReadOut Slot boards 2.72g
+                            Central Slot electronics 1.52g
+                            CCU boards  0.86g
+                            DOHs  0.2g
+                            Power Adaptor Boards  3.64g
+                            IN TOTAL  8.94g / 8.8 / 1.02cm3
+(11) ribbon cable coppper 36.73g / 8.96 = 4.1cm3
+(12) ribbon cable PVC     28.53g / 1.38 = 20.68cm3
+(13) outer alu flange    280.4 g / 2.7 = 103.85cm3
+(14) cooling pipes total steel 406g distributed over all sectors
+     fraction in SectorA = 89.32g
+     manifolds at outer flange steel 261g
+     IN TOTAL 350.32g / 7.8 = 45cm4
+(15) brass for cooling pipes at outer flange 46g / 8.5 = 5.41cm3
+(16) alu power cables 255.59g / 2.7 = 94.66cm3
+(17) glue (Araldit) 340.21g / 1.3 = 261.70cm3
+(18) alu heat sink (19.6g + 10.37g) / 2.7 = 11.1 cm3
+(19) opto Adapter support structure glass fiber 33.45g / 1.7 = 19.67cm3
+(20) opto Adapter polyester 396g / 1.4 = 282.86cm3
+(21) outer shielding alu 19.21g / 2.7 = 7.11 cm3
+(22) outer shielding glass fiber 64.39/ 1.7 = 37.88cm3
+(23) coolant 1507.26g in total, distributed over all sectors
+     fraction in SectorA = 331.6g / 1.82 = 182cm3
+(24) opto fibers (Acrylate) distributed over all sectors, in total 1130.71g
+     fraction in SectorA = 248.75g
+     plus optical ribbon in SectorA 185.26g
+     IN TOTAL SectorA = 434g / 1.17 = 370cm3
+.....................................................................
+# "SectorA"       "SectorA"       6635     -1.          
+* 1 "inner shielding foil alu"     "Aluminium"                   6.54    1     SUP
+* 2 "inner shielding foil GFK"     "T_FR4"                      74.05    1     SUP
+* 3 "airex"                        "Nomex"                    2491       1     SUP
+* 4 "GFK Stiffner Ring"            "T_FR4"                      37.117   1     SUP
+* 5 "PCB Covers"  	           "T_FR4"                       8.2     1     SUP
+* 6 "Electronics Cu"               "Copper"                      1.61    1     ELE
+* 7 "Electronics GFK"              "T_FR4"                     207.28    1     ELE
+* 8 "Electronics Polyester"        "FPix_Cylind_Polyester"       5.38    1     ELE
+* 9 "Electronics POM"              "Polyoxymethylene"            6.42    1     ELE
+* 10 "Electronics Solder"          "FPix_TinLeadSolder"          1.02    1     ELE
+* 11 "Flat Cable Copper"           "Copper"                      4.10    1     CAB
+* 12 "Flat Cable PVC"              "Polyvinylchloride"          20.68    1     CAB
+* 13 "Alu Flange"                  "Aluminium"                 103.85    1     SUP
+* 14 "Cooling pipes steel"         "Steel-008"                  45       1     COL
+* 15 "Cooling pipes brass"         "Brass"                       5.41    1     COL
+* 16 "alu power cables"            "Aluminium"                  94.66    1     CAB
+* 17 "glue"                        "Epoxy"                     261.70    1     SUP
+* 18 "Heat Sink"                   "Aluminium"                  13.8     1     ELE
+* 19 "OptoAdapter Support"         "T_FR4"                      19.67    1     SUP
+* 20 "OptoAdapter"                 "FPix_Cylind_Polyester"     282.86    1     ELE
+* 21 "outer shielding foil alu"    "Aluminium"                   7.11    1     SUP
+* 22 "outer shielding foil gfk"    "T_FR4"                      37.88    1     SUP
+* 23 "coolant"                     "C6F14_F2_-10C"             182       1     COL
+* 24 "Optofibers"                  "Acrylate"                  222       1     ELE
+.....................................................................
+
+
+
+
+
+o Sector B
+-------------------------
+
+
+MC Volume: 5812cm3 per half-shell
+numbers below are per half-shell
+
+see referece document from supply tube construction attached to
+https://twiki.cern.ch/twiki/bin/view/CMS/PixelBarrelGeometryMaterials
+
+
+(1)  inner shielding  alu 35g / 2.7 = 13cm3
+(2)  inner shielding glass fiber 250g/ 1.7= 147 cm3
+(3)  alu power cables 671.62g / 2.7 = 248.75cm3
+(4)  airex foam 69g / 0.032 = 2156cm3
+(5)  glass fiber stiffner rings 149g / 1.7 = 87.6cm4
+(6)  cooling pipes total steel 406g distributed over all sectors
+     fraction in SectorB = 223.3g / 7.8 = 28.6cm3
+(7)  ribbon cable copper 282.56g / 8.96 = 31.54 cm3
+(8)  ribbon cable PVC 224.45g / 1.38 = 162.65 cm3
+(9)  fiber combs glass fiber 47.15g/ 1.7 = 27.74 cm3
+(10) opto fiber support glass fiber 3.2g / 1.7 = 1.88cm3
+(11) glue (Araldit) 824.06g / 1.3 = 633.89cm3
+(12) opto fibers (Acrylate) distributed over all sectors, in total 1130.71g
+     fraction in SectorB = 621.89g / 1.17 = 531cm3
+(13) fiber comb cover POM 21.53g / 1.4 = 15.38cm3
+(14) outer shielding  alu (39.07g + 0.81g) / 2.7 = 14.77cm3
+(15) outer shielding  glass fiber (60.93g + 6.99g ) / 1.7 = 39.95cm3
+(16) coolant 1507.26g in total, distributed over all sectors
+     fraction in SectorB = 829g / 1.82 = 455.5cm3
+
+
+.....................................................................
+# "SectorB"     "SectorB"     5812   -1.
+* 1 "Inner Shielding Foil Alu"           "Aluminium"               13.00     1   SUP
+* 2 "Inner Shielding Foil GFK"           "T_FR4"                  147.05     1   SUP
+* 3 "Alu Power Cables"                   "Aluminium"              248.75     1   CAB
+* 4 "Airex foam"                         "Nomex"                 2152.8      1   SUP
+* 5 "GFK Stiffner Ring"                  "T_FR4"                   87.59     1   SUP
+* 6 "Cooling Pipes"                      "Steel-008"               28.6      1   COL
+* 7 "Flat cable Cu"                      "Copper"                  31.54     1   CAB
+* 8 "Flat cable PVC"                     "Polyvinylchloride"      162.65     1   CAB
+* 9 "Fibercombs"                         "T_FR4"                   27.74     1   SUP
+* 10 "Optofiber support"                 "T_FR4"                    1.88     1   SUP
+* 11 "Glue"                              "Epoxy"                  633.89     1   SUP
+* 12 "Optofibers"                        "Acrylate"               530        1   ELE
+* 13 "Fibercomb cover"                   "Polyoxymethylene"        15.38     1   SUP
+* 14 "Outer shielding foil alu"          "Aluminium"               14.77     1   SUP
+* 15 "Outer shielding foil GFK"          "T_FR4"                   39.95     1   SUP
+* 16 "Coolant"                           "C6F14_F2_-10C"          455        1   COL
+....................................................................
+
+
+
+o Sector C
+-------------------------
+MC Volume: 2388cm3 per half-shell
+numbers below are per half-shell
+
+see referece document from supply tube construction attached to
+https://twiki.cern.ch/twiki/bin/view/CMS/PixelBarrelGeometryMaterials
+
+(1)  inner shielding  alu 15.31g / 2.7 = 5.67cm3
+(2)  inner shielding glass fiber 109.10g/ 1.7= 64.18 cm3
+(3)  alu power cables 250.88g / 2.7 = 92.92 cm3
+(4)  airex foam 29.66g / 0.032 = 926.8cm3
+(5)  glass fiber stiffner rings 48.7g /  1.7 = 28.64cm3
+(6)  cooling pipes total steel 406g distributed over all sectors
+     fraction in SectorC = 93.38g / 7.8 = 11.97cm3
+(7)  PCB covers glass fiber 14.99g / 1.7 = 8.82cm3
+(8)  copper in readout slot PCB boards  4.81g / 8.96 = 0.54cm3
+(9)  glass fiber in readout slot PCB boards 167.97g / 1.7 = 98.8cm3
+(10) polyester in PCB boards 2.88g / 1.4  = 2.06cm3
+(11) polyoxymethylene in PCB boards 24.37g / 1.4 = 17.41cm3
+(12) solder in PCB boards 5.52g / 8.8 = 0.63cm3
+(13) ribbon cable copper 9.43g / 8.96 = 1.052cm3
+(14) ribbon cable PVC 7.49g / 1.38 = 5.42cm3
+(15) central slot electronics copper 0.21g / 8.96 = 0.02cm3
+(16) central slot electronics glass fiber 2.95 / 1.7 = 1.73cm3
+(17) central slot electronics polyester 0.15g / 1.4 = 0.11cm3
+(18) central slot electronics psolder  0.13g / 8.8 = 0.01cm3
+(19) heat sink aluminium (73g + 113.86g) / 2.7 = 69.2cm3
+(20) glue (araldit) 350.5g / 1.3 = 269.6cm3
+(21) copper in electronics:   AOH mainboards 56.70g
+                              DOH mainboards 36.01g
+                              CAP dongle   0.95g
+                              AOHs 32.91g
+                              DOHs  9.03g
+                              IN TOTAL 135.6g / 8.96 = 15.13cm3
+(22) glass fiber in electronics: AOH mainboards 74.07g
+                                 DOH mainboards 41.07g
+                                 CAP dongle  1.47g
+                                 AOHs 26.42g
+                                 DOHs 4.82g
+                                 IN TOTAL 147.85 g / 1.7 = 86.97cm3
+(23) polyester in electronics:   AOH mainboards 18.75g
+                                 DOH mainboards 18.75g
+                                 CAP dongle   1.18g
+                                 AOHs 3.46g
+                                 DOHs 3.66g
+                                 IN TOTAL 45.8g / 1.4 = 32.71cm3
+(24) polyoxymethylene in electronics: AOH mainboards 5.77g
+                                      DOH mainboards 2.47g
+                                      IN TOTAL 8.24g / 1.4 = 5.88cm3
+(25) solder in electronics:  AOH mainboards 7.84g
+                             DOH mainboards 2.88g
+                             CAP dongle  0.8g
+                             AOHs  4.8g
+                             DOHs 1.6g
+                             IN TOTAL 17.92g / 8.8 = 2.04cm3
+(26) outer shielding alu 18.04g / 2.7 = 6.68cm3
+(27) outer shielding glass fiber 40.96g / 1.7 = 24.09 cm3
+(28) coolant 1507.26g in total, distributed over all sectors
+     fraction in SectorC = 346.66g / 1.82 = 190.5cm3
+(29) opto fibers (Acrylate) distributed over all sectors, in total 1130.71g
+     fraction in SectorC = 260g / 1.17 = 222cm3
+
+
+
+....................................................................
+# "SectorC"   "SectorC"        2388         -1.
+* 1 "Inner Shielding Foil Alu"           "Aluminium"                    5.67     1   SUP
+* 2 "Inner Shielding Foil GFK"           "T_FR4"                       64.18     1   SUP
+* 3 "Alu Power Cables"                   "Aluminium"                   92.92     1   CAB
+* 4 "Airex foam"                         "Nomex"                      926.88     1   SUP
+* 5 "GFK Stiffner Ring"                  "T_FR4"                       28.64     1   SUP
+* 6 "Cooling pipes"                      "Steel-008"                   12        1   COL
+* 7 "PCB covers"                         "T_FR4"                        8.82     1   SUP
+* 8 "PCB boards Cu"                      "Copper"                       0.54     1   ELE
+* 9 "PCB boards GFK"                     "T_FR4"                       98.8      1   ELE
+* 10 "PCB boards Polyester"              "FPix_Cylind_Polyester"        2.06     1   ELE
+* 11 "PCB boards POM"                    "Polyoxymethylene"            17.41     1   ELE
+* 12 "PCB boards solder"                 "FPix_TinLeadSolder"           0.63     1   ELE
+* 13 "Flat cable Cu"                     "Copper"                       1.05     1   CAB
+* 14 "Flat cable PVC"                    "Polyvinylchloride"            5.42     1   CAB
+* 15 "Central Slot Electr. Cu"           "Copper"                       0.02     1   ELE
+* 16 "Central Slot Electr. GFK"          "T_FR4"                        1.73     1   ELE
+* 17 "Central Slot Electr. Polyester"    "FPix_Cylind_Polyester"        0.11     1   ELE
+* 18 "Central Slot Electr. solder"       "FPix_TinLeadSolder"           0.01     1   ELE
+* 19 "heat sink"                         "Aluminium"                   69.21     1   ELE
+* 20 "Glue"                              "Epoxy"                      269.63     1   SUP
+* 21 "AOH/DOH total Cu"                  "Copper"                      15.14     1   ELE
+* 22 "AOH/DOH total GFK"                 "T_FR4"                       86.97     1   ELE
+* 23 "AOH/DOH total Polyester"           "FPix_Cylind_Polyester"       32.71     1   ELE
+* 24 "AOH/DOH total POM"                 "Polyoxymethylene"             5.89     1   ELE
+* 25 "AOH/DOH total solder"              "FPix_TinLeadSolder"           2.04     1   ELE
+* 26 "Outer shielding foil alu"          "Aluminium"                    6.68     1   SUP
+* 27 "Outer shielding foil GFK"          "T_FR4"                       24.09     1   SUP
+* 28 "Coolant"                           "C6F14_F2_-10C"              190.5      1   COL
+* 29 "Opto-fibers"                       "Acrylate"                   222        1   ELE
+................................................................
+
+
+
+
+
+o Supply Tube Cabling to PP0
+-------------------------
+see referece document from supply tube construction attached to
+https://twiki.cern.ch/twiki/bin/view/CMS/PixelBarrelGeometryMaterials
+
+the total amount of power cables is distributed equally (50%) in a cylinder between
+supply tube and PP0, and the disks in the bulkhead. 
+This material is also used in the bulkhead PixelCables disk, but with a different
+MC volume.
+
+(1) power cable copper 2328.5g / 8.96 = 260cm3
+(2) power cable PE   1283g / 0.95 = 1350cm3
+
+addition: this now also includes the forward pixel detector and cooling:
+(3) forward pixel cable copper 1671g / 8.96 = 186.5cm3
+(4) forward pixel cable PE 1114g/ 0.95 = 1172cm3
+
+(5) steel cooling pipes 20 pieces, length 30cm, inner diameter 10mm, 
+    outer diameter 12mm   
+    weight measured by Peter Robmann:=>  1262g /7.8 = 161cm3
+(6) coolant in pipes   770g / 1.82 = 424cm3 
+
+
+disk "Pixel Cables" in the bulkhead with MCvolume 3742cm3:
+....................................................................
+# "PixelBarrelSupTubCables"   "PixelBarrelSupTubCables"        3743         -1.
+* 1 "power cable copper"           "Copper"                     260     1   CAB
+* 2 "power cable PE"               "Polyethylene"              1350     1   CAB
+* 3 "forward pixel cable copper"   "Copper"                    186.5    1   CAB
+* 4 "forward pixel cable PE"       "Polyethylene"              1172     1   CAB
+* 5 "cooling pipes steel"          "Steel-008"                 161      1   COL
+* 6 "coolant"                      "C6F14_F2_-10C"             424      1   COL
+
+cylinder in the PXB volume: PixelBarrelSupTubCables with MCvolume 13757
+....................................................................
+# "PixelBarrelSupTubCables2"   "PixelBarrelSupTubCables2"        13757        -1.
+* 1 "power cable copper"           "Copper"                     260     1   CAB
+* 2 "power cable PE"               "Polyethylene"              1350     1   CAB
+* 3 "forward pixel cable copper"   "Copper"                    186.5    1   CAB
+* 4 "forward pixel cable PE"       "Polyethylene"              1172     1   CAB
+* 5 "cooling pipes steel"          "Steel-008"                 161      1   COL
+* 6 "coolant"                      "C6F14_F2_-10C"             424      1   COL
+
+
+# "end"  "END"  0.  0.   
+this has to be the last line !
+

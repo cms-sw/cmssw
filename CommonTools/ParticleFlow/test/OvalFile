@@ -1,0 +1,53 @@
+<file name=gen_PYTHIA_cfg_auto.py>
+# event generation
+# analysis of the gen event
+
+import FWCore.ParameterSet.Config as cms
+
+
+process = cms.Process("GEN")
+
+
+# event generation ------------------------------------------------------
+
+
+process.load("FastSimulation/Configuration/RandomServiceInitialization_cff")
+process.load("PhysicsTools.PFCandProducer.source_ZtoJets_cfi")
+</file>
+
+
+<diffnumber expr="f \+ fbar -> gamma\*/Z0.+?(\S+)\s+I$" tolerance="10000000%">
+<diffnumber expr="\!Z0\!.*?(\S+)$" tolerance="0.1">
+
+
+<environment name="k1">
+	<file name=gen_PYTHIA_cfg_auto.py>
+		process.RandomNumberGeneratorService.theSource.initialSeed = 12
+	</file>
+	<executable name="cmsRun" args="gen_PYTHIA_cfg_auto.py">
+</environment>
+
+
+<environment name="k2">
+	<file name=gen_PYTHIA_cfg_auto.py>
+		process.RandomNumberGeneratorService.theSource.initialSeed = 32
+	</file>
+	<executable name="cmsRun" args="gen_PYTHIA_cfg_auto.py">
+</environment>
+
+<file name=gen_PYTHIA_cfg_auto.py>
+# path  -----------------------------------------------------------------
+
+process.source.maxEventsToPrint = cms.untracked.int32(1)
+process.source.pythiaPylistVerbosity = cms.untracked.int32(1)
+process.source.pythiaHepMCVerbosity = cms.untracked.bool(False)
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(1)
+)
+
+
+#process.p1 = cms.Path(
+#    process.genParticles
+#    )
+</file>
