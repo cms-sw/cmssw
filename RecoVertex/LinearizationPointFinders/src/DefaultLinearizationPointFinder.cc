@@ -1,0 +1,1 @@
+#include "RecoVertex/LinearizationPointFinders/interface/DefaultLinearizationPointFinder.h"

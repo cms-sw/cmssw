@@ -1,0 +1,45 @@
+/*!
+\page DataFormats_Common_edm Package DataFormats/Common: EDM classes
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/Common/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/Common/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Commonly used EDM classes.
+
+\subsection interface Public interface
+- edm::BranchDescription:
+- edm::BranchEntryDescription
+- edm::BranchKey:
+- edm::ConditionsID:
+- edm::EDProduct:
+- edm::EDProductGetter:
+- edm::EventID:
+- edm::ModuleDescription:
+- edm::ModuleDescriptionID:
+- edm::ParameterSetID:
+- edm::PassID:
+- edm::Provenance:
+- edm::ProcessHistory:
+- edm::ProcessHistoryID:
+- edm::ProductRegistry:
+- edm::ReleaseVersion:
+- edm::Timestamp:
+- edm::TriggerResults:
+- edm::Wrapper:
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+None.
+
+\section status Status and planned development
+Completed, stable.
+
+<hr>
+Last updated: @DATE@ L. Lista
+*/

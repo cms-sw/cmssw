@@ -1,0 +1,14 @@
+<use   name="TopQuarkAnalysis/TopJetCombination"/>
+<use   name="AnalysisDataFormats/TopObjects"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="TopQuarkAnalysis/TopTools"/>
+<use   name="PhysicsTools/MVAComputer"/>
+<use   name="PhysicsTools/MVATrainer"/>
+<use   name="CondCore/PluginSystem"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Framework"/>
+<use   name="rootcore"/>
+<use   name="rootmath"/>
+<library   file="*.cc" name="TopQuarkAnalysisTopJetCombinationPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

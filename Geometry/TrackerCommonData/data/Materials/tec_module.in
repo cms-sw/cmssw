@@ -1,0 +1,307 @@
+TEC MODULES
+============
+
+$$  This includes all the volumes that make up the TEC modules
+
+Input file for mixture.f
+Start new mixtures with a '#' in the first column
+Start the components with a '*' in the first column
+You can type any kind of comment in as long as you don't start it
+with '#' or '*' !
+.....................................................................
+For mixture declaration: Name of Mixture, Name of GMIX for title file, 
+                         Monte Carlo Volume, MC Area
+For items in a compound: Item number, Comment, Material (has to be 
+                 written exactly as in material.input file), 
+                 Volume, Multiplicity, Type
+      Type is one of the following:  SUP for support
+                                     SEN for sensitive volumes
+                                     CAB for cables
+                                     COL for cooling
+                                     ELE for electronics
+..................................................................... 
+
+o  Hybrid for TEC rings 3,4,6,7 
+   --------------------------
+Hybrids have 4 APVs
+Dimensions 65.2 x 30 mm^2 = 19.56 cm^2
+
+MCVolume: 65.2 x 25.26 x 0.68 = 1119.93 mm^3
+
+ Composition of the Hybrids taken from TOB layers 1-2
+
+(1) Hybrid reviewed November 2006 - Central Hybrid (no kapton tail, which is in ICC* material definition, see below)
+	see http://www.fynu.ucl.ac.be/he/cms/activities/tracker/FHITfiles/CCTPHybrides.pdf
+	- Kapton: (25+25) um = 50 um = 0.0050 cm --> 0.075 cm^3
+	- Copper: (18+12+18+18+18+12) um = 96 um = 0.0096 cm --> 0.144 cm^3
+	- Solder Mask: 20 um = 0.0020 cm --> 0.030 cm^3
+	- Glue: (50+50) um = 100 um thickness = 0.0100 cm --> 0.150 cm^3 
+		[WAS (1) new FR4 hybrid
+		Estimate: 300 mu FR4,
+	          3 x 25 mu Cu
+	          ~300 mu Kapton 
+		-Pt-Au layer: tbd  ]
+(2) Hybrid components
+    R: (14 + n_APV)   0402 size  material: carbon   -> 18 
+    C: 2 x 1206 large ones
+       (5 + 2*n_APV)  0402 size    -> 13
+                 0402: (1 x 0.5 x 0.5) mm^3 = 0.25 mm^3 = 0.25 x 10^-3 cm^3
+                 1206: (3 x 1.5 x 1.5) mm^3 = 6.75 mm^3 = 6.75 x 10^-3 cm^3
+    APV25:     (7.1 x 8.1 x 0.3) mm^3 = 17.253 mm^3 = 0.017253 cm^3     4 per hybrid REVIEWED November 2006 OK
+    PLL:       (4.0 x 4.0 x 0.3) mm^3 = 4.8 mm^3 = 0.0048 cm^3          1 per hybrid REVIEWED November 2006 OK
+			(see http://cmstrackercontrol.web.cern.ch/CMSTrackerControl/documents/PauloMoreira/PLL25%20User%20Manua2.1.pdf)
+    MUX:       (5.0 x 5.0 x 0.3) mm^3 = 7.5 mm^3 = 0.0075 cm^3          1 per hybrid REVIEWED November 2006 OK
+			(see http://cmstrackercontrol.web.cern.ch/CMSTrackerControl/documents/LVDSMUX3_datasheet.pdf)
+    		[WAS PLL+MUX  : 2.0 x 7.1 x 0.3 mm^3     1 per hybrid ]
+http://cmstrackercontrol.web.cern.ch/CMSTrackerControl/manuals.htm
+    DCU  :     (2.0 x 2.0 x 0.3) mm^3 = 1.2 mm^3 = 0.0012 cm^3          1 per hybrid REVIEWED November 2006 OK
+			(see http://cmstrackercontrol.web.cern.ch/CMSTrackerControl/documents/Magazzu/DCUF_User_Manual_v3.0.pdf)
+(3) Wire bonds
+	http://cms.ct.infn.it/bonding/bondspec.htm
+		Al, 1% Si, 25 um diameter, medium hardness
+		tail length visible but short < 50 um
+	1 wire bond: average of 4 mm length diameter 25 um + 1 tail =
+			= { [ pi x (0.025/2)^2 ] mm^2 x 4 mm } + { [ pi x (0.025/2)^2 ] mm^2 x 0.050 mm } =
+			= [1.963x10^-3 mm^3] + [0.0245x10^-3 mm^3] = 2.0x10^-3 mm^3 = 2.0x10^-6 cm^3 [99% Aluminium + 1% Silicon]
+		PA bias line to sensor bias ring: 5 bonds
+		PA to hybrid: nAPV x 128 bonds
+		PA to sensor: nAPV x 128 bonds
+	TOTAL: 2x128xnAPV+5 bonds = 1029 bonds
+
+In the TEC we mix the ceramic support into the hybrid.
+(4) Ceramic support
+	Area from the technical drawings: 19.55 cm^2
+	Volume: 19.55 x 0.0387 = 0.7566 cm^3
+
+MC volume has been rescaled to give proper density: rho = 4.853 g/cm^3
+......................................................................
+# "TEC Hybrid Rings 3/4/5/7"        "TEC_Hybrid4APV"  0.9767     19.56
+Central Hybrid (no tail)
+* 1  "Central Hybrid Kapton"      "T_Kapton"        0.075       1 ELE
+* 2  "Central Hybrid Copper"      "Copper"          0.144       1 ELE
+* 3  "Central Hybrid Solder Mask" "T_Kapton"        0.030       1 ELE
+* 4  "Central Hybrid Glue"        "Epoxy"           0.150       1 ELE
+Components:  Resistors
+* 5  "Resistors"                  "Carbon"          0.25E-3    18 ELE
+* 6  "R metal"                    "SMD_metal"       1.E-4      18 ELE
+Capacitors
+* 7  "Small caps"                 "Alumina"         0.25E-3    13 ELE
+* 8  "C metal"                    "SMD_metal"       1.E-4      13 ELE
+* 9  "Large caps"                 "Alumina"         6.75E-3     2 ELE
+* 10 "C metal large"              "SMD_metal"       1.E-3       2 ELE
+* 11 "APV25"                      "Silicon"         0.017253    4 ELE
+* 12 "PLL"                        "Silicon"         4.8E-3      1 ELE
+* 13 "MUX"                        "Silicon"         7.5E-3      1 ELE
+* 14 "DCU"                        "Silicon"         1.2E-3      1 ELE
+Wire bonds
+* 15 "Wire bonds"                 "Aluminium"       1.98E-6  1029 ELE
+* 16 "Wire bonds"                 "Silicon"         0.02E-6  1029 ELE
+Support
+* 17 "Ceramic Support"			  "Ceramic"         0.7033 		1 SUP
+..................................................................
+==================================================================
+
+o  Hybrid for TEC rings 1,2,5
+   ----------------------------
+Taken from TOB Layers 5-6
+
+Hybrids have 6 APVs
+
+as above, except: 
+(2) Hybrid components
+    R: (14 + n_APV)   0402 size  material: carbon   -> 20 
+    C: 2 x 1206 large ones
+       (5 + 2xn_APV)  0402 size    -> 17
+(3) Wire bonds
+	see above for details
+	TOTAL: 2x128xnAPV+5 bonds = 1541 bonds
+
+MC volume has been rescaled to give proper density: rho = 4.853 g/cm^3
+......................................................................
+# "TEC Hybrid Rings 1/2/5"        "TEC_Hybrid6APV"  0.9961     19.56
+Central Hybrid (no tail)
+* 1  "Central Hybrid Kapton"      "T_Kapton"        0.075       1 ELE
+* 2  "Central Hybrid Copper"      "Copper"          0.144       1 ELE
+* 3  "Central Hybrid Solder Mask" "T_Kapton"        0.030       1 ELE
+* 4  "Central Hybrid Glue"        "Epoxy"           0.150       1 ELE
+Components:  Resistors
+* 5  "Resistors"                  "Carbon"          0.25E-3    20 ELE
+* 6  "R metal"                    "SMD_metal"       1.E-4      20 ELE
+Capacitors
+* 7  "Small caps"                 "Alumina"         0.25E-3    17 ELE
+* 8  "C metal"                    "SMD_metal"       1.E-4      17 ELE
+* 9  "Large caps"                 "Alumina"         6.75E-3     2 ELE
+* 10 "C metal large"              "SMD_metal"       1.E-3       2 ELE
+* 11 "APV25"                      "Silicon"         0.017253    6 ELE
+* 12 "PLL"                        "Silicon"         4.8E-3      1 ELE
+* 13 "MUX"                        "Silicon"         7.5E-3      1 ELE
+* 14 "DCU"                        "Silicon"         1.2E-3      1 ELE
+Wire bonds
+* 15 "Wire bonds"                 "Aluminium"       1.98E-6  1541 ELE
+* 16 "Wire bonds"                 "Silicon"         0.02E-6  1541 ELE
+Support
+* 17 "Ceramic Support"			  "Ceramic"         0.7033 		1 SUP
+
+......................................................................
+==================================================================
+
+ Pitch adapter
+  -------------
+  -> Using Volume/Area of the Ring5N PA!
+
+(1) PA:
+  Material Description from SCHOTT
+  MC Area 16.01 cm^2 (from technical drawings)
+  MC Volume 16.01 x 0.0665 = 1.0647 cm^3
+(2)Spacer:
+  Mixed into the PA
+  correct Volume: 3.63 cm^2 x 0.0209 cm = 0.07588 cm^3
+
+...................................................................
+# "TEC pitch adapter"    "TEC_PitchAdapter"       1.0647      16.01
+* 1 "Silicon"			 "Silicon"        2.802E-1    1  ELE
+* 2 "Sodium" 			 "Sodium"	  1.001E-1    1  ELE
+* 3 "Potassium" 		 "Potassium"	  1.391E-1    1  ELE
+* 4 "Zinc" 		 	 "Zinc"	          1.360E-2    1  ELE
+* 5 "Aluminium" 		 "Aluminium"	  1.770E-2    1  ELE
+* 6 "Titanium" 			 "Titanium"	  1.138E-2    1  ELE
+* 7 "Antimony" 			 "Antimony"	  1.476E-3    1  ELE
+* 8 "Chromium" 			 "Chromium"	  2.826E-6    1  ELE
+* 9 "Oxygen" 			 "Oxygen"         7.147E+2    1  ELE
+* 10 "Boron" 			 "Bor 11"         2.255E-2    1  ELE
+* 11 "Spacer" 			 "Ceramic"        0.0714      1  SUP
+
+....................................................................
+====================================================================
+
+o Module frame legs Rings 1 to 4
+  -------------------------------
+  Using Data from R3N
+
+  Note:
+  The Side Frames are constructed after the iso-side. Additional material on the bias side isa
+  added via the supportboxes and the tail (in petals)
+  
+  MC Area: 18.22*0.96 cm^2
+  MC Volume: 1.3056 cm^3
+  	
+  (1) Carbon frame (graphite)
+	  Volume 18.22 x 0.0764 = 1.392 cm^3
+   
+  ISO-Kapton
+  Volume 18.22 x 0.0258 = 0.470 cm^3
+  This devides into:
+  (2)  Copper traces 2.3925 x 0.0035 = 0.00837 cm^3
+  (3)  Gold  1.99414 x 0.00001 = 0.00002 cm^3
+  (4)  Nickel 1.9941 x 0.0004 = 0.0008 cm^3
+  (5) rest -> kapton : 0.4608 cm^3
+      
+  silver glue and components are neglected due to missing measurements
+
+...................................................................
+# "TEC frame legs 1 to 4" "TEC_frame_side_1_4"    1.3056    18.22
+* 1 "Carbon frame"	  "Carbon"     		  1.402    1    SUP
+* 2 "Copper traces"       "Copper"                0.0084   1    ELE
+* 3 "Gold"		  "Gold"		  0.00002  1    ELE
+* 4 "Nickel"		  "Nickel"		  0.0008   1    ELE
+* 5 "LV Kapton"           "T_Kapton"              0.4608   1    ELE
+
+...................................................................
+====================================================================  
+o Module frame legs Rings 5 to 7
+  -------------------------------
+  Using Data from R7N
+
+  Note:
+  The Side Frames are constructed after the iso-side. Additional material on the bias side is
+  added via the supportboxes and the tail (in petals)
+  
+  MC Area: 32.25*0.96 cm^2
+  MC Volume: 2.3688 cm^3
+  	
+  (1) Carbon fibre frame 
+	  Volume (32.25+5.33) x 0.0764 = 2.871 cm^3
+    -> but adjusted carbon fibre volume to reproduce measured mass of 3.095 g
+	  per leg
+   
+  ISO-Kapton
+  Volume 32.25 x 0.0258 = 0.832 cm^3
+  This devides into:
+  (2)  Copper 3.03469 x 0.0035  = 0.01062 cm^3
+  (3)  Gold   1.70505 x 0.00001 = 0.00002 cm^3
+  (4)  Nickel 1.7051  x 0.0004  = 0.00068 cm^3
+  (5) rest -> kapton : 0.82068  cm^3
+      
+  silver glue and components are neglected due to missing measurements
+
+...................................................................
+# "TEC frame legs 5 to 7" "TEC_frame_side_5_7"    2.3688     32.25
+* 1 "Carbon fiber frame"  "Carbon fibre str."     1.8314   1    SUP
+* 2 "Copper traces"       "Copper"                0.01062  1    ELE
+* 3 "Gold"		  "Gold"		  0.00002  1    ELE
+* 4 "Nickel"		  "Nickel"		  0.00068  1    ELE
+* 5 "LV Kapton"           "T_Kapton"              0.82068  1    ELE
+
+...................................................................
+ ===================================================================  
+
+
+o Supplies Boxes
+  -------------------------------
+  Usind data from R3N
+  MC Area:   4.78 cm^2
+  MC Volume: 4.78 x 0.0258 = 0.123 cm^3
+  
+  (1 to 3) from kaptonaufteilung.ods  by minimizing the standarad diviation which is still 18.8%
+  (4) rest 
+  (5) from silver glue 12.5 mg / 1049 mg/cm^3 = 0.01191
+
+MC volume has been rescaled to give proper density: rho = 1.42g/cm^3
+...................................................................
+# "TEC Sideframe Supplies Box"	"TEC_SideFrSupBox"	0.2467	4.78
+* 1 "Copper traces"       "Copper"                0.00639  1    ELE
+* 2 "Gold"		  "Gold"		  0.00002  1    ELE
+* 3 "Nickel"		  "Nickel"		  0.00061  1    ELE
+* 4 "LV Kapton"           "T_Kapton"              0.11598  1    ELE
+* 5 "Silver"		  "Silver"		  0.01192  1    ELE
+...................................................................
+===================================================================  
+
+o Si-Reinforcement
+ -------------------------------
+  using Data from R1N
+  MC Area: 3.35 cm^2
+  MC Volume: 3.35 x 0.387 = 1.296 cm^3
+
+  Is made out of ceramic
+
+MC volume has been rescaled to give proper density: rho = 3.731 g/cm^3
+...................................................................
+# "SiReenforcment"		"TEC_SiReenforcment"	1.3773	3.35
+* 1 "Ceramic"			"Ceramic"		1.296 	1 SUP
+
+...................................................................
+ ===================================================================  
+
+
+o TEC frame at the module top
+  ---------------------------
+
+  MC Volume: Width of the module x 3.72 x 0.1 cm
+  Actual volume is about that minus 10 %
+
+  (1)  Carbon
+   Top frame always consists of graphite.
+
+MC volume has been rescaled to give proper density: rho = 1.931 g/cm^3
+....................................................................
+# "TEC module frame top"        "TEC_frame_top"    0.3928      3.72
+* 1 "TEC frame top"             "Carbon"           0.3348   1  SUP
+....................................................................
+=====================================================================  
+
+# "END"  "END"  0.  0.   
+this has to be the last line !
+
+
+

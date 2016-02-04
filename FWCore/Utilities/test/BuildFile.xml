@@ -1,0 +1,39 @@
+<environment>
+  <use   name="boost"/>
+  <use   name="FWCore/Utilities"/>
+  <bin   file="Simple_t.cpp">
+  </bin>
+  <bin   file="Exception_t.cpp">
+  </bin>
+  <bin   file="ExceptionDerived_t.cpp">
+  </bin>
+  <bin   file="CodedException_t.cpp">
+  </bin>
+  <bin   file="EDMException_t.cpp">
+  </bin>
+  <bin   file="TestHelper_t.cpp">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Utilities/test one.sh two.sh testFriendlyNames.sh"/>
+  </bin>
+  <bin   file="value_ptr_t.cpp">
+  </bin>
+  <bin   file="Digest_t.cpp">
+  </bin>
+  <bin   file="CRC32Calculator_t.cpp">
+  </bin>
+  <bin   file="MallocOpts_t.cpp">
+  </bin>
+  <bin   file="Guid_t.cpp">
+  </bin>
+</environment>
+<bin   file="HRTime_t.cpp">
+  <use   name="cppunit"/>
+</bin>
+<bin   file="Math_t.cpp">
+  <use   name="cppunit"/>
+</bin>
+<bin   file="MallocOpts_t.cpp">
+  <use   name="cppunit"/>
+</bin>
+<bin   name="testFWCoreUtilities" file="typeidbase_t.cppunit.cpp,typeid_t.cppunit.cpp,cputimer_t.cppunit.cpp,extensioncord_t.cppunit.cpp,friendlyname_t.cppunit.cpp">
+  <use   name="cppunit"/>
+</bin>

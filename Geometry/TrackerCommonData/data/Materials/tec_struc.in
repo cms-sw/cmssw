@@ -1,0 +1,1075 @@
+TEC Structure (anything but modules)
+====================================
+Input file for mixture.f
+Start new mixtures with a '#' in the first column
+Start the components with a '*' in the first column
+You can type any kind of comment in as long as you don't start it
+with '#' or '*' !
+.....................................................................
+For mixture declaration: Name of Mixture, Name of GMIX for title file, 
+                         Monte Carlo Volume, MC Area
+For items in a compound: Item number, Comment, Material (has to be 
+                 written exactly as in material.input file), 
+                 Volume, Multiplicity, Type     
+      Type is one of the following:  SUP for support
+                                     SEN for sensitive volumes
+                                     CAB for cables
+                                     COL for cooling
+                                     ELE for electronics
+..................................................................... 
+=======================================================================
+
+                    ------------------------------
+                    --        TEC Petal:        --
+                    ------------------------------
+Derivation of the given data is done in petalCalculations.ods. (if not said otherwise)
+
+o TEC petal 
+  ---------
+  MC Volume: 2861.6996 cm3
+
+   (1) 10 mm NOMEX core   
+!   (2) 4*0.02(?5) cm CF skins
+       1st and 2nd Skin: 85.9467 cm3
+   (3) Titanium pipes:
+       see petalCalculations.ods
+       volume all= 3470,3046 cm3 
+       => volume singel:	24,0993	cm3
+       
+   (4) Coolant C6F14 
+
+  (5-7) Plastic fibre holder
+         small
+	 medium
+	 large
+  (8)	Protection caps. Even thoug they are localized they are smeerd throughout 
+        the petal because their radiation length is small.
+  	 mean volume: 13.6 cm3 
+  (9) Fibre Protector:
+      Volume: 0.5*(1,18+1,98)+1,54 cm3 = 3.1188 cm3
+  (10)  Glue for fiber protectors  
+!  (11) optical fibre pigtails from AOHs
+   	see PetalMeasurements in tec_parts.ods
+   (12) Cooling Bridges   -> Petal Composition
+   (13)	PEEK inserts holding the ICBs
+.......................................................................
+# "TEC petals"                  "TEC_petal"      2775.688     -1     
+* 1 "Nomex core"                "TEC_Nomex"            2078.2039 	1    SUP
+* 2 "Carbon fiber skins"        "Carbon fibre str."     343.7870 	1    SUP
+* 3 "Cooling pipes"             "Titanium"     	         17.6906	1    COL
+* 4 "Coolant"                   "C6F14_F2_-30C"          56.0283  	1    COL
+* 5 "fibre holder small"        "T_Kapton"    	          0.5444	1    SUP
+* 6 "fibre holder medium"       "T_Kapton"    	          1.6786 	1    SUP
+* 7 "fibre holder large"        "T_Kapton"                0.8036	1    SUP
+* 8 "Protection Caps"           "Carbon fibre str."      14.6402 	1    SUP
+* 9 "Fibre Protector"           "Carbon fibre str."       3.1188 	1    SUP
+* 10 "Fibre Protector Glue"	"Epoxy"	      	          3.0769	1    SUP
+* 11 "optical fibre pigtails"	"Optical_Fiber"	         28.0136	1    CAB
+* 12 "Cooling bridges"		"Carbon fibre str."       1.9045	1    COL
+* 13 "PEEK inserts"		"Peek"	      	       	  2.2384	1    SUP
+.......................................................................
+======================================================================= 
+
+o AOH
+  ---
+Taking data from TOB AOHs:
+
+MCVolume: 0.689 cm^3 (compressed so that there is no overlap with the rings)
+
+(1-2) PCBs
+        FR4:    m = 0.65 g
+                density (T_G10) = 1.90 g/cm^3
+                --> volume = 0.342 cm^3
+        copper: m = 0.497 g
+                density = 8.96 g/cm^3
+                --> volume = 0.055 cm^3
+
+(3-4) Connectors NaiS
+        socket + header
+        1 x ICC-AOH             30 pins (AXN330038S + AXN430330S)
+        copper: m = 1 x (0.0865 + 0.0965) g = 0.183 g
+                density = 8.96 g/cm^3
+                --> volume = 0.020 cm^3
+        resin:  m = 1 x (0.1445 + 0.1547) g = 0.2992 g
+                density (epoxy) = 1.3 g/cm^3
+                --> volume = 0.230 cm^3
+
+(5) AOH SMD Resistors, 6 x (0603) resistors, mostly Al2O3 (Aluminiumoxid, cerami
+c), the total mass is computed
+        m = 0.0127 g
+        density = 3.96525 g/cm^3
+        --> volume = 0.0032 cm^3
+
+(6) AOH SMD Capacitors, 3 x (0603) + 3 x (0805) mostly BaTiO3, the total mass is
+ computed
+        m = 0.0687 g
+        density = 6.02 g/cm^3
+        --> volume = 0.0114 cm^3
+
+(7-8) AOH ASICs: 1 x ("LLD" 32 pin)
+        epoxy:  m = ( 1 x 0.027098 ) g = 0.027098 g
+                density = 1.3 g/cm^3
+                --> volume = 0.0208 cm^3
+        copper: m = [ ( 1 x 0.070 ) - 0.027098 ) ] g = 0.042902 g
+                density = 8.96 g/cm^3
+                --> volume = 0.0048 cm^3
+
+(9-10) Laser Diodes (2 copies per each AOH)
+        MISSING:m = xxx g
+                density = xxx g/cm^3
+                --> volume = xxx cm^3
+        Covers (Al2O3 Aluminiumoxid, ceramic): m = 0.347 g
+                density = 3.96525 g/cm^3
+                --> volume = 0.0875 cm^3
+        
+(11) 3D Label
+        Plastic (kapton): m = 0.020 g
+                density = 1.40 g/cm^3
+                --> volume = 0.0143 cm^3
+        
+(12) different from TOB: Screws M1.6x5	Brass 0.0192x2.49cm3 (because either 2 or 3 scres are used)
+
+.......................................................................
+# "TEC AOH"                     "TEC_OptoH"          0.689    2.75
+* 1 "PCB board"                 "T_G10"            0.342   1     ELE
+* 2 "PCB copper traces"         "Copper"           0.055   1     ELE     
+* 3 "NAiS connectors"           "Copper"           0.020   1     ELE
+* 4 "NAiS connectors"           "Epoxy"            0.230   1     ELE
+* 5 "AOH Resistors"             "Ceramic"          0.0032  1     ELE
+* 6 "AOH Capacitors"            "Barium_Titanate"  0.0114  1     ELE
+* 7 "AOH ASICs EMC"             "Epoxy"            0.0208  1     ELE
+* 8 "AOH ASICs copper"          "Copper"           0.0048  1     ELE
+* 9 "Laser Diode"               "Air"              1.0000  2     ELE
+* 10 "Laser Cover"              "Ceramic"          0.0875  2     ELE
+* 11 "AOH 3D Label"             "T_Kapton"         0.0143  1     ELE
+* 12 "Screws"			"Brass"		   0.0477  1	 SUP
+.......................................................................
+=======================================================================
+		
+o TEC Digital Optohybrid Module
+  -----------------------------
+
+
+MCVolume: 11.6521 cm3 (which is smaller the reallity to keep it in the ICB volume!)
+
+
+	  NOTE: composition calculated in petalComposition.ods    
+(1) Ceramic 0.1297 cm3
+(2) Plastic 2.7971 cm3
+(3) metal 0,2377 cm3
+(4) SnPb paste = 0.1465 cm3
+(5) PCB poard = 6.3812 cm3 MISSING Cu traces on the board!
+(6) Screws for DOHM  M1.6x9mm
+        Brass: m = 0.13g
+                density = 8.5 g/cm^3
+                --> volume = 0.0149 cm^3
+
+(7) DOHs (2 copies) taken from TOB
+
+....................................................................................
+# "TEC DOHM"                               "TEC_DOHM"          11.652   13.442
+* 1 "electronic components"		  "Ceramic"	       0.1297	1   ELE
+* 2 "electronic components"		  "Polyethylene"       2.7969	1   ELE
+* 3 "electronic components"		  "Copper"	       0.5220	1   ELE
+* 4 "Soldering Paste"			  "BGA"		       0.1530	1   ELE
+* 5 "PCB Board"				  "T_FR4"	       6.3812	1   ELE
+* 6 "DOHM Screws"                         "Brass"              0.0149   5   SUP
+* 7 "DOHs"                                "TOB_DOH"            3.9851   2   ELE
+....................................................................................
+====================================================================================
+o TEC cooling Inserts (petalinserts)
+  ---------
+  MC Volume: 0.7567 cm3 calculated in inserts.ods
+  MC Volume: 6377.17 cm3 (for all TEC)
+
+(1) Distance Rings
+(2) PEEK Centerliners
+(3) Screws (not M1.6x5)
+(4) normal Washers
+(5) Spring washers (right now made of copper real: copper beryllium (1% effect))
+(6) Inserts - Fine processing
+(7) Scotch Glue
+
+
+.......................................................................
+# "TEC cooling Inserts"           "TEC_petalinsert"               6377.17         6377.17
+* 1 "Distance Rings"	 		"Aluminium"       445.27    1    COL 
+* 2 "PEEK Centerliners"			"Peek"		  68.32     1    SUP 
+* 3 "Screws" 				"Brass"		  136.9     1    SUP 
+* 4 "normal Washers"			"Copper"	  7.83      1    SUP 
+* 5 "Spring washers"			"Copper"	  19.06     1    SUP 
+* 6 "Inserts - Fine processing"		"Aluminium"       7849.15   1    COL 
+* 7 "Scotch Glue"			"Epoxy"		  4872.37   1    SUP 
+
+
+
+.......................................................................
+=======================================================================
+--------------
+-> all ICBs <-
+--------------
+
+ (1-2) ICB -> icb_volumes.ods
+      using copper density of 8.98 g/cm3
+      	    FR4    density of 1.7 g/cm3
+  (3) M1.6x5 
+  (4) Brass washer Vol = 0.163g / (8.5g/cm3)
+  (5) Spring washer
+  (6) Distance-Rings
+  (7-10)  Sideframe-Tails (4x)
+  	  the rest of the side frame cable (see tec_module.in)
+  (11-12) cable coming from the hybrid
+  (13-16) material from mounted electronics as in ICB_Buget.ods
+  (17-19) Plugs for Hybrid cables
+.......................................................................
+o TEC ICC01LF
+  -----------------------------
+  MC Volume: 27.6981 cm3
+ 
+.......................................................................
+# "icb2fp_w13" "TEC_ICC01LF"         27.6981    230.82
+* 1  "bare FR4"           "T_FR4"     	  4.7632   1   ELE
+* 2  "Copper traces" 	  "Copper"    	  0.3048   1   ELE
+* 3  "M1.6x5"		  "Brass"     	  0.0192   7   SUP
+* 4  "Brass washer"	  "Brass"     	  0.0026   7   SUP
+* 5  "Spring washer"	  "Copper"    	  0.0019   7   SUP
+* 6  "Distance-Rings"	  "Aluminium" 	  0.0585   7   SUP	
+* 7  "Copper traces"      "Copper"    	  0.02135  4   ELE
+* 8  "Gold"		  "Gold"      	  0.00005  4   ELE
+* 9  "Nickel"		  "Nickel"    	  0.00203  4   ELE
+* 10 "LV Kapton"          "T_Kapton"  	  0.18527  4   ELE
+* 11 "Copper traces"      "Copper"    	  0.0093   4   ELE
+* 12 "LV Kapton"          "T_Kapton"  	  0.0407   4   ELE
+* 13 "el. components"	  "Ceramic"	  0.5701   1   ELE
+* 14 "el. components"	  "Polyethylene"  8.1725   1   ELE
+* 15 "el. components"	  "Copper"	  0.4315   1   ELE
+* 16 "Soldering Paste"	  "BGA"		  0.1271   1   ELE
+* 17 "PEEK Casing"        "Peek"  	  0.1530   8   ELE
+* 18 "Copper Contacts"    "Copper"    	  0.0148   8   ELE
+* 19 "Kapton regidifier"  "T_Kapton"  	  0.0479   4   ELE
+
+.......................................................................
+=======================================================================
+o TEC ICC2F
+  -----------------------------
+  MC Volume: 7.2412 cm3
+
+.......................................................................
+# "icb3fp"		      "TEC_ICC2F"        7.2412   -1
+* 1  "bare FR4"           "T_FR4"     	  4.7563   1   ELE
+* 2  "Copper traces" 	  "Copper"    	  0.3905   1   ELE
+* 3  "M1.6x5"		  "Brass"     	  0.0192   4   SUP
+* 4  "Brass washer"	  "Brass"     	  0.0026   4   SUP
+* 5  "Spring washer"	  "Copper"    	  0.0019   4   SUP
+* 6  "Distance-Rings"	  "Aluminium" 	  0.0585   4   SUP	
+* 7  "Copper traces"      "Copper"    	  0.02135  3   ELE
+* 8  "Gold"		  "Gold"      	  0.00005  3   ELE
+* 9  "Nickel"		  "Nickel"    	  0.00203  3   ELE
+* 10 "LV Kapton"          "T_Kapton"  	  0.18527  3   ELE
+* 11 "Copper traces"      "Copper"    	  0.0093   3   ELE
+* 12 "LV Kapton"          "T_Kapton"  	  0.0407   3   ELE
+* 13 "el. components"	  "Ceramic"	  0.2820   1   ELE
+* 14 "el. components"	  "Polyethylene"  4.2378   1   ELE
+* 15 "el. components"	  "Copper"	  0.1731   1   ELE
+* 16 "Soldering Paste"	  "BGA"		  0.0609   1   ELE
+* 17 "PEEK Casing"        "Peek"  	  0.1530   6   ELE
+* 18 "Copper Contacts"    "Copper"    	  0.0148   6   ELE
+* 19 "Kapton regidifier"  "T_Kapton"  	  0.0479   3   ELE
+.......................................................................
+=======================================================================
+o TEC ICC35F
+  -----------------------------
+  MC Volume: 79.0929 cm3
+ 
+  (20-21) Petal grounding cable: Copper 0,464g =>0.0518 cm3
+          Petal grounding strip: Copper 0,282g =>0.0315 cm3
+  (22-24) Shielding
+.......................................................................
+# "Icb46fp" "TEC_ICC35F"        79.0929     -1
+* 1  "bare FR4"           "T_FR4"     	 80.5918   1   ELE
+* 2  "Copper traces" 	  "Copper"    	  4.3219   1   ELE
+* 3  "M1.6x5"		  "Brass"     	  0.0192  12   SUP
+* 4  "Brass washer"	  "Brass"     	  0.0026  12   SUP
+* 5  "Spring washer"	  "Copper"    	  0.0019  12   SUP
+* 6  "Distance-Rings"	  "Aluminium" 	  0.0585  12   SUP	
+* 7  "Copper traces"      "Copper"    	  0.02135  8   ELE
+* 8  "Gold"		  "Gold"      	  0.00005  8   ELE
+* 9  "Nickel"		  "Nickel"    	  0.00203  8   ELE
+* 10 "LV Kapton"          "T_Kapton"  	  0.18527  8   ELE
+* 11 "Copper traces"      "Copper"    	  0.0093   8   ELE
+* 12 "LV Kapton"          "T_Kapton"  	  0.0407   8   ELE
+* 13 "el. components"	  "Ceramic"	  1.1620   1   ELE
+* 14 "el. components"	  "Polyethylene" 28.4428   1   ELE
+* 15 "el. components"	  "Copper"	  1.8036   1   ELE
+* 16 "Soldering Paste"	  "BGA"		  0.2820   1   ELE
+* 17 "PEEK Casing"        "Peek"  	  0.1530   16  ELE
+* 18 "Copper Contacts"    "Copper"    	  0.0148   16  ELE
+* 19 "Kapton regidifier"  "T_Kapton"  	  0.0479   8   ELE
+* 20 "grounding cable"    "Copper"   	  0.0518   1   ELE
+* 21 "grounding strip"    "Copper"	  0.0315   1   ELE
+* 22 "Shield FR4"	  "T_FR4"	  2.0679   1   ELE
+* 23 "Shield Cu"	  "Copper"	  0.7444   1   ELE
+* 24 "Shield Insolation"  "Epoxy"	  0.8272   1   ELE
+
+.......................................................................
+=======================================================================
+o TEC ICC1SF
+  -----------------------------
+  MC Volume: 18.9028 cm3
+
+.......................................................................
+# "Icb2fp_w46" "TEC_ICC1SF"       18.9028	157.5234
+* 1  "bare FR4"           "T_FR4"     	 11.0264   1   ELE
+* 2  "Copper traces" 	  "Copper"    	  0.7025   1   ELE
+* 3  "M1.6x5"		  "Brass"     	  0.0192   6   SUP
+* 4  "Brass washer"	  "Brass"     	  0.0026   6   SUP
+* 5  "Spring washer"	  "Copper"    	  0.0019   6   SUP
+* 6  "Distance-Rings"	  "Aluminium" 	  0.0585   6   SUP	
+* 7  "Copper traces"      "Copper"    	  0.02135  4   ELE
+* 8  "Gold"		  "Gold"      	  0.00005  4   ELE
+* 9  "Nickel"		  "Nickel"    	  0.00203  4   ELE
+* 10 "LV Kapton"          "T_Kapton"  	  0.18527  4   ELE
+* 11 "Copper traces"      "Copper"    	  0.0093   4   ELE
+* 12 "LV Kapton"          "T_Kapton"  	  0.0407   4   ELE
+* 13 "el. components"	  "Ceramic"	  0.2820   1   ELE
+* 14 "el. components"	  "Polyethylene"  4.2378   1   ELE
+* 15 "el. components"	  "Copper"	  0.3119   1   ELE
+* 16 "Soldering Paste"	  "BGA"		  0.0836   1   ELE
+* 17 "PEEK Casing"        "Peek"  	  0.1530   8   ELE
+* 18 "Copper Contacts"    "Copper"    	  0.0148   8   ELE
+* 19 "Kapton regidifier"  "T_Kapton"  	  0.0479   4   ELE
+.......................................................................
+=======================================================================
+o TEC ICC0F
+  -----------------------------
+  MC Volume: 7.9246 cm3
+
+.......................................................................
+# "Icb1fp_w13" "TEC_ICC0F"        7.9246	66.03838
+* 1  "bare FR4"           "T_FR4"     	  4.7632   1   ELE
+* 2  "Copper traces" 	  "Copper"    	  0.3048   1   ELE
+* 3  "M1.6x5"		  "Brass"     	  0.0192   4   SUP
+* 4  "Brass washer"	  "Brass"     	  0.0026   4   SUP
+* 5  "Spring washer"	  "Copper"    	  0.0019   4   SUP
+* 6  "Distance-Rings"	  "Aluminium" 	  0.0585   4   SUP	
+* 7  "Copper traces"      "Copper"    	  0.02135  4   ELE
+* 8  "Gold"		  "Gold"      	  0.00005  4   ELE
+* 9  "Nickel"		  "Nickel"    	  0.00203  4   ELE
+* 10 "LV Kapton"          "T_Kapton"  	  0.18527  4   ELE
+* 11 "Copper traces"      "Copper"    	  0.0093   4   ELE
+* 12 "LV Kapton"          "T_Kapton"  	  0.0407   4   ELE
+* 13 "el. components"	  "Ceramic"	  0.2902   1   ELE
+* 14 "el. components"	  "Polyethylene"  5.5577   1   ELE
+* 15 "el. components"	  "Copper"	  0.2040   1   ELE
+* 16 "Soldering Paste"	  "BGA"		  0.0659   1   ELE
+* 17 "PEEK Casing"        "Peek"  	  0.1530   8   ELE
+* 18 "Copper Contacts"    "Copper"    	  0.0148   8   ELE
+* 19 "Kapton regidifier"  "T_Kapton"  	  0.0479   4   ELE
+.......................................................................
+=======================================================================
+o TEC ICC46F
+  -----------------------------
+  MC Volume: 25.2177 cm3
+
+
+.......................................................................
+# "Icb57fp" "TEC_ICC46F"        25.2177		210.1475
+* 1  "bare FR4"           "T_FR4"     	 18.0097   1   ELE
+* 2  "Copper traces" 	  "Copper"    	  1.1221   1   ELE
+* 3  "M1.6x5"		  "Brass"     	  0.0192   4   SUP
+* 4  "Brass washer"	  "Brass"     	  0.0026   4   SUP
+* 5  "Spring washer"	  "Copper"    	  0.0019   4   SUP
+* 6  "Distance-Rings"	  "Aluminium" 	  0.0585   4   SUP	
+* 7  "Copper traces"      "Copper"    	  0.02135  9   ELE
+* 8  "Gold"		  "Gold"      	  0.00005  9   ELE
+* 9  "Nickel"		  "Nickel"    	  0.00203  9   ELE
+* 10 "LV Kapton"          "T_Kapton"  	  0.18527  9   ELE
+* 11 "Copper traces"      "Copper"    	  0.0093   9   ELE
+* 12 "LV Kapton"          "T_Kapton"  	  0.0407   9   ELE
+* 13 "el. components"	  "Ceramic"	  0.6057   1   ELE
+* 14 "el. components"	  "Polyethylene" 10.6530   1   ELE
+* 15 "el. components"	  "Copper"	  0.4616   1   ELE
+* 16 "Soldering Paste"	  "BGA"		  0.1545   1   ELE
+* 17 "PEEK Casing"        "Peek"  	  0.1530   18  ELE
+* 18 "Copper Contacts"    "Copper"    	  0.0148   18  ELE
+* 19 "Kapton regidifier"  "T_Kapton"  	  0.0479   9   ELE
+.......................................................................
+=======================================================================
+o TEC ICC1B
+  -----------------------------
+  MC Volume: 11.8322 cm3
+
+.......................................................................
+# "Icb2bp_w16" "TEC_ICC1B"        11.8322	98.6019
+* 1  "bare FR4"           "T_FR4"     	  6.1873   1   ELE
+* 2  "Copper traces" 	  "Copper"    	  0.4738   1   ELE
+* 3  "M1.6x5"		  "Brass"     	  0.0192   4   SUP
+* 4  "Brass washer"	  "Brass"     	  0.0026   4   SUP
+* 5  "Spring washer"	  "Copper"    	  0.0019   4   SUP
+* 6  "Distance-Rings"	  "Aluminium" 	  0.0585   4   SUP	
+* 7  "Copper traces"      "Copper"    	  0.02135  2   ELE
+* 8  "Gold"		  "Gold"      	  0.00005  2   ELE
+* 9  "Nickel"		  "Nickel"    	  0.00203  2   ELE
+* 10 "LV Kapton"          "T_Kapton"  	  0.18527  2   ELE
+* 11 "Copper traces"      "Copper"    	  0.0093   2   ELE
+* 12 "LV Kapton"          "T_Kapton"  	  0.0407   2   ELE
+* 13 "el. components"	  "Ceramic"	  0.2380   1   ELE
+* 14 "el. components"	  "Polyethylene"  4.3301   1   ELE
+* 15 "el. components"	  "Copper"	  0.2260   1   ELE
+* 16 "Soldering Paste"	  "BGA"		  0.0590   1   ELE
+ 17 "PEEK Casing"        "Peek"  	  0.1530   4   ELE
+ 18 "Copper Contacts"    "Copper"    	  0.0148   4   ELE
+ 19 "Kapton regidifier"  "T_Kapton"  	  0.0479   2   ELE
+
+.......................................................................
+=======================================================================
+o TEC ICC35B
+  -----------------------------
+  MC Volume: 71.0783 cm3
+ (20-21) Petal grounding cable: Copper 0,464g =>0.0518 cm3
+          Petal grounding strip: Copper 0,282g =>0.0315 cm3
+ (22-24) Shielding
+.......................................................................
+# "Icb46bp" "TEC_ICC35B"        71.0783		-1
+* 1  "bare FR4"           "T_FR4"     	 71.8317   1   ELE
+* 2  "Copper traces" 	  "Copper"    	  3.7218   1   ELE
+* 3  "M1.6x5"		  "Brass"     	  0.0192  10   SUP
+* 4  "Brass washer"	  "Brass"     	  0.0026  10   SUP
+* 5  "Spring washer"	  "Copper"    	  0.0019  10   SUP
+* 6  "Distance-Rings"	  "Aluminium" 	  0.0585  10   SUP	
+* 7  "Copper traces"      "Copper"    	  0.02135  6   ELE
+* 8  "Gold"		  "Gold"      	  0.00005  6   ELE
+* 9  "Nickel"		  "Nickel"    	  0.00203  6   ELE
+* 10  "LV Kapton"          "T_Kapton"  	  0.18527  6   ELE
+* 11 "Copper traces"      "Copper"    	  0.0093   6   ELE
+* 12 "LV Kapton"          "T_Kapton"  	  0.0407   6   ELE
+* 13 "el. components"	  "Ceramic"	  1.0584   1   ELE
+* 14 "el. components"	  "Polyethylene"  26.2609  1   ELE
+* 15 "el. components"	  "Copper"	  1.6773   1   ELE
+* 16 "Soldering Paste"	  "BGA"		  0.2557   1   ELE
+* 17 "PEEK Casing"        "Peek"  	  0.1530   12  ELE
+* 18 "Copper Contacts"    "Copper"    	  0.0148   12  ELE
+* 19 "Kapton regidifier"  "T_Kapton"  	  0.0479   6   ELE
+* 20 "grounding cable"	  "Copper"	  0.0518   1   ELE
+* 21 "grounding strip"	  "Copper"	  0.0315   1   ELE
+* 22 "Shield FR4"	  "T_FR4"	  1.8457   1   ELE
+* 23 "Shield Cu"	  "Copper"	  0.6645   1   ELE
+* 24 "Shield Insolation"  "Epoxy"	  0.7383   1   ELE
+
+.......................................................................
+=======================================================================
+o TEC ICC0LB
+  -----------------------------
+  MC Volume: 6.5304 cm3
+
+.......................................................................
+# "Icb1bp_w13" "TEC_ICC0LB"        6.5304	54.42
+* 1  "bare FR4"           "T_FR4"     	  3.8693   1   ELE
+* 2  "Copper traces" 	  "Copper"    	  0.2680   1   ELE
+* 3  "M1.6x5"		  "Brass"     	  0.0192   4   SUP
+* 4  "Brass washer"	  "Brass"     	  0.0026   4   SUP
+* 5  "Spring washer"	  "Copper"    	  0.0019   4   SUP
+* 6  "Distance-Rings"	  "Aluminium" 	  0.0585   4   SUP	
+* 7  "Copper traces"      "Copper"    	  0.02135  2   ELE
+* 8  "Gold"		  "Gold"      	  0.00005  2   ELE
+* 9  "Nickel"		  "Nickel"    	  0.00203  2   ELE
+* 10 "LV Kapton"          "T_Kapton"  	  0.18527  2   ELE
+* 11 "Copper traces"      "Copper"    	  0.0093   2   ELE
+* 12 "LV Kapton"          "T_Kapton"  	  0.0407   2   ELE
+* 13 "el. components"	  "Ceramic"	  0.2309   1   ELE
+* 14 "el. components"	  "Polyethylene"  3.5514   1   ELE
+* 15 "el. components"	  "Copper"	  0.1361   1   ELE
+* 16 "Soldering Paste"	  "BGA"		  0.0479   1   ELE
+* 17 "PEEK Casing"        "Peek"  	  0.1530   4   ELE
+* 18 "Copper Contacts"    "Copper"    	  0.0148   4   ELE
+* 19 "Kapton regidifier"  "T_Kapton"  	  0.0479   2   ELE
+
+.......................................................................
+=======================================================================
+o TEC ICC2B
+  -----------------------------
+  MC Volume: 7.6969 cm3
+
+.......................................................................
+# "Icb3bp" "TEC_ICC2B"        7.6969	-1
+* 1  "bare FR4"           "T_FR4"     	  5.3542   1   ELE
+* 2  "Copper traces" 	  "Copper"    	  0.3245   1   ELE
+* 3  "M1.6x5"		  "Brass"     	  0.0192   4   SUP
+* 4  "Brass washer"	  "Brass"     	  0.0026   4   SUP
+* 5  "Spring washer"	  "Copper"    	  0.0019   4   SUP
+* 6  "Distance-Rings"	  "Aluminium" 	  0.0585   4   SUP	
+* 7  "Copper traces"      "Copper"    	  0.02135  2   ELE
+* 8  "Gold"		  "Gold"      	  0.00005  2   ELE
+* 9  "Nickel"		  "Nickel"    	  0.00203  2   ELE
+* 10 "LV Kapton"          "T_Kapton"  	  0.18527  2   ELE
+* 11 "Copper traces"      "Copper"    	  0.0093   2   ELE
+* 12 "LV Kapton"          "T_Kapton"  	  0.0407   2   ELE
+* 13 "el. components"	  "Ceramic"	  0.2309   1   ELE
+* 14 "el. components"	  "Polyethylene"  3.5514   1   ELE
+* 15 "el. components"	  "Copper"	  0.1361   1   ELE
+* 16 "Soldering Paste"	  "BGA"		  0.0480   1   ELE
+* 17 "PEEK Casing"        "Peek"  	  0.1530   4   ELE
+* 18 "Copper Contacts"    "Copper"    	  0.0148   4   ELE
+* 19 "Kapton regidifier"  "T_Kapton"  	  0.0479   2   ELE
+
+.......................................................................
+=======================================================================
+o TEC ICC46B
+  -----------------------------
+  MC Volume: 32.0848 cm3
+ 
+.......................................................................
+# "Icb57bp" "TEC_ICC46B"        32.0848		267.3732
+* 1  "bare FR4"           "T_FR4"     	 27.7868   1   ELE
+* 2  "Copper traces" 	  "Copper"    	  1.4044   1   ELE
+* 3  "M1.6x5"		  "Brass"     	  0.0192   8   SUP
+* 4  "Brass washer"	  "Brass"     	  0.0026   8   SUP
+* 5  "Spring washer"	  "Copper"    	  0.0019   8   SUP
+* 6  "Distance-Rings"	  "Aluminium" 	  0.0585   8   SUP	
+* 7  "Copper traces"      "Copper"    	  0.02135  11  ELE
+* 8  "Gold"		  "Gold"      	  0.00005  11  ELE
+* 9  "Nickel"		  "Nickel"    	  0.00203  11  ELE
+* 10 "LV Kapton"          "T_Kapton"  	  0.18527  11  ELE
+* 11 "Copper traces"      "Copper"    	  0.0093   11  ELE
+* 12 "LV Kapton"          "T_Kapton"  	  0.0407   11  ELE
+* 13 "el. components"	  "Ceramic"	  0.7695   1   ELE
+* 14 "el. components"	  "Polyethylene" 12.7787   1   ELE
+* 15 "el. components"	  "Copper"	  0.5563   1   ELE
+* 16 "Soldering Paste"	  "BGA"		  0.1874   1   ELE
+* 17 "PEEK Casing"        "Peek"  	  0.1530   22  ELE
+* 18 "Copper Contacts"    "Copper"    	  0.0148   22  ELE
+* 19 "Kapton regidifier"  "T_Kapton"  	  0.0479   11  ELE
+
+.......................................................................
+=======================================================================
+o TEC InnerManifold
+  -----------------------------
+MCVolume: 1354.73 cm3 (for all TEC)
+
+  (1) Cooling manifold 29.032 g /4.53 g/cm3 = 6.41 cm3
+  (2) Coolant 1363.83 -922.86 cm3
+
+.......................................................................
+#   "TEC_InnerManifold"         "TEC_InnerManifold"             1354.73         1354.73
+* 1 "Cooling manifold"        "Titanium"    	922.86   1   COL
+* 2 "Coolant"                 "C6F14_F2_-30C" 	440.97	 1   COL
+.......................................................................
+=======================================================================
+o TEC CCUM
+  -----------------------------
+MC Volume: 92.256 cm3 (volume has been reduced so that thy do not stick into the ring volumes)
+   for 288 CCUM in TEC
+
+(1-3) From TOB ( the Chips are the same)
+	 CCUM ASICs EDMS Code EDA-00036-V1 IC "CCU" 196 pin
+        BGA196 (Ball Grid Array), Sn/Pb/Ag 62/36/2:
+                m = 0.1131 g
+                density = 8.82 g/cm^3
+                --> volume = 0.013 cm^3
+        epoxy:  m = 0.4269 g
+                density = 1.3 g/cm^3
+                volume = 0.328 cm^3
+        copper: m = (0.678 - 0.1131 - 0.4269) g = 0.138 g
+                density = 8.96 g/cm^3
+                --> volume = 0.015 cm^3
+
+(4) lacking any information on CCUM information its weight is modeled by FR4.
+............................................................................
+# "TEC CCUM board"            "TEC_CCUM"                 92.256   9
+* 1 "CCUM ASICs BGA"          "BGA"                       0.013    288   ELE
+* 2 "CCUM ASICs EMC"          "Epoxy"                     0.328    288   ELE
+* 3 "CCUM ASICs copper"       "Copper"                    0.015    288   ELE
+* 4 "everything else"	      "T_FR4"			  144.01   1   ELE
+............................................................................
+============================================================================
+
+                    ------------------------------
+                    --       TEC Services       --
+                    ------------------------------
+o TEC Service-Channel
+  ------------------
+MC Volume: 18096 cm3 all TEC
+
+...................................................................
+# "TEC Service-Channel"     "TEC_ServChan"     18096    6152
+* 1 "Flange"	       "Aluminium"	      394.96	 1	 SUP
+* 2 "Fibre Ribbons"    "Fibre_Ribbon"         41886.56   1       CAB
+* 3 "CF skin"          "Carbon fibre str."    3200.0     1       SUP
+
+....................................................................
+=====================================================================
+o TEC Service Channel End-Insert
+  -----------------------------
+
+MCVolume: 360 cm3 (for all TEC)
+
+....................................................................................
+#   "TEC Service Channel End-Insert"             "TEC_ServChanIns"         360             360
+* 1 "Insert"              "Aluminium"           125.79      1 SUP
+....................................................................................
+====================================================================================
+
+
+o TEC Axial Grounding-Cable
+  ------------------
+MC Volume: 1230.4 cm3 all TEC
+
+...................................................................
+# "TEC Axial Grounding"     "TEC_AxGrounding"     1230.4    1230.4
+* 1 "Grounding"	       "Copper"	               59.95	 1	 ELE
+* 2 "CF skin"          "Carbon fibre str."    1230.4     1       SUP
+
+....................................................................
+=====================================================================
+
+o TEC Cooling Pipe
+  ------------------
+MC Volume: 1638.2 cm3 all TEC
+
+...................................................................
+# "TEC Cooling Pipe"     "TEC_CoolPipe"     1638.2    90.69
+* 1 "Cooling Pipes "    "Steel-008"          840.1 	 1	 COL
+* 2 "Couplings"         "Steel-008"	     1107.69     1       SUP
+
+....................................................................
+=====================================================================
+o TEC Axial Cables
+  ------------------
+MCVolume: 34933.5 cm3 (for all TEC)
+
+(1-3) MSC Cables
+(2) 28,95 m of CTRL Cables
+...................................................................
+# "TEC AxialCables"     "TEC_AxCable"     34933.5	234.6
+* 1 "MSC Al36 Cables"	"CAB_Al36"		 0.7854	13576	CAB
+* 2 "MSC Al48 Cables"	"CAB_Al48"		 0.7854	12048	CAB
+* 3 "MSC Al60 Cables"	"CAB_Al60"		 0.7854	 9123	CAB
+* 4 "CTRL Cables"	"MS_cntrl_cable"	 0.283	2895	CAB
+
+....................................................................
+=====================================================================
+o TEC Gas Pipes
+  ------------------
+MC Volume: 302.724 cm3 all TEC
+! (2) Fixationpieces
+...................................................................
+# "TEC Gas Pipes"     "TEC_GasPipe"	302.724		655.16
+* 1 "Gas Pipes"         "Aluminium"       315.93   	 1	 COL
+* 2 "Fixationpieces"    "Steel-008"	   4.62          1       SUP
+
+....................................................................
+=====================================================================
+o TEC Lower Phi-Cables
+  ------------------
+MC Volume: 17688.2 cm3 all TEC
+
+...................................................................
+# "TEC Lower Phi Cables"     "TEC_PhiCableL"	17688.2		73700
+* 1 "MSC Al36 Cables"	"CAB_Al36"		 0.7854	 1945	CAB
+* 2 "MSC Al48 Cables"	"CAB_Al48"		 0.7854	 1726	CAB
+* 3 "MSC Al60 Cables"	"CAB_Al60"		 0.7854	 1306	CAB
+* 4 "CTRL Cables"	"MS_cntrl_cable"	 0.283 	 1072	CAB
+* 5 "cable repair"	"Tin"			 72.73	1	CAB
+* 6 "cable repair"	"Copper"		 171.82	1	CAB
+* 7 "cable repair"	"Epoxy"			 651.57	1	CAB
+
+....................................................................
+=====================================================================
+o TEC Upper Phi-Cables 
+  ------------------
+MC Volume: 19578.2  cm3 all TEC
+
+...................................................................
+# "TEC Upper Phi Cables"     "TEC_PhiCableU"	19578.2		50520
+
+* 1 "MSC Al36 Cables"	"CAB_Al36"		 0.7854	 3262	CAB
+* 2 "MSC Al48 Cables"	"CAB_Al48"		 0.7854	 3111	CAB
+* 3 "MSC Al60 Cables"	"CAB_Al60"		 0.7854	 2822	CAB
+* 4 "CTRL Cables"	"MS_cntrl_cable"	 0.283	2143	CAB
+* 5 "cable repair"	"Tin"			 144.73	1	CAB
+* 6 "cable repair"	"Copper"		 343.65	1	CAB
+* 7 "cable repair"	"Epoxy"			 815.67	1	CAB
+
+....................................................................
+=====================================================================
+o TEC Disk Grounding Ring
+  ------------------
+MC Volume: 155.922 cm3 all TEC
+
+For the connectors 70% Kapton and 30% Copper is estimated
+...................................................................
+# "TEC Upper Phi Cables"     "TEC_GroundingRing"	155.922	94
+* 1 "actual Ring"         "Copper"           271.02   	 1	 ELE
+* 2 "grounding strips"    "Copper"   	     0.21	 1       ELE
+* 3 "DOHM Connector"	  "T_Kapton"	     588.86	 1	 CAB
+* 4 "DOHM Connector"	  "Copper"	     39.43	 1	 CAB   
+
+....................................................................
+=====================================================================
+
+o Skin
+  ------------------
+MC Volume: 5608.2595 cm3 all TEC
+
+...................................................................
+# "TEC Skin"		"TEC_Skin"	5608.2595		-1
+* 1 "CF Skin"         "Carbon fibre str."  3647.82     	 1	 SUP
+* 2 "HF Shield"       "Aluminium"   	   524.52    	 1	 ELE
+
+....................................................................
+=====================================================================
+
+o TEC Optoconnectors
+  Located inbetween petals
+  MCVolume: 57804.4 cm3 (for all TEC)
+
+  NOTE:  There is no room for the feedpipes and the fibre mechanics.
+  	 for now both are smeered into the same volume (which is too small). This
+       	 is because the petals are not really tubs or can fit into a tub without  overlaps.
+       	 same is true for traps.
+  
+  (4)	6 MUConnectors per fibre mechanic with 132 total fibre mechanics:
+  	6*132 = 792
+ 
+........................................................................
+# "TEC optoconnectors"     "TEC_OptoCon"      57804.4         57804.4
+* 1 "Feed Cool Pipes"      "Steel-008"        	1194.87    1   COL
+* 2 "Fibre Mechanics"      "Carbon fibre str."  103.88 	   1   CAB
+* 3 "Inserts"		   "Aluminium"	 	42.73 	   1   SUP
+* 4 "connectors"	   "T_Ribbon12xMUConn"	12.0	   864 CAB
+  5 "Alu Holder"	   "Aluminium"		XXXX	   1   SUP
+........................................................................
+========================================================================
+
+
+o TEC_Rails
+  -----------------------------
+
+MCVolume: 2267.7 cm3 (for all TEC)
+
+After separating the non-CF parts into TEC_RailsConnector and
+TEC_RailsSupport, there is only 5.015 kg of CF left for the full TEC
+....................................................................................
+#   "TEC_Rails"         "TEC_Rails"             2267.7         2267.7
+* 1 "Carbon fibre"      "Carbon fibre str."     2967.34    1 SUP
+....................................................................................
+====================================================================================
+
+o TEC_RailsConnector
+  -----------------------------
+
+MCVolume: 45.75 cm3 (for one piece)
+(1) is partially on the disks would create overlaps
+....................................................................................
+#   "TEC_RailsConnector"    "TEC_RailsConnector"    45.75         45.75
+* 1 "Brackets"              "Aluminium"         65.29	      1 SUP
+* 2 "Rail inserts"	    "Aluminium"		8.93	      1 SUP
+* 3 "screws and pins"	    "Steel-008"		3.97	      1 SUP
+* 4 "Skin holder, screws"   "Aluminium"	  	21.14	      1 SUP
+....................................................................................
+====================================================================================
+
+
+o TEC_RailsSupport
+  -----------------------------
+
+MCVolume: 40.65 cm3 (for one piece)
+....................................................................................
+#   "TEC_RailsSupport"         "TEC_RailsSupport"     40.65         40.65
+* 1 "Inserts, plates etc."  "Aluminium"         39.00	      1 SUP
+* 2 "Screw"	     	    "Steel-008"		1.19	      1 SUP
+* 3 "Bronze"	    	    "Brass"		0.03	      1 SUP
+* 4 "Polycarbonate" 	    "Polyethylene"	0.78	      1 SUP
+....................................................................................
+====================================================================================
+
+
+
+                    ------------------------------
+                    --       TEC Backplate      --
+                    ------------------------------
+o TEC_BackDiskCF
+  -----------------------------
+
+MCVolume: 2818.74 cm3 (for all TEC)
+
+....................................................................................
+#   "TEC_BackDiskCF"    "TEC_BackDiskCF"	2818.74         2818.74
+* 1 "CF Skin"              "Carbon fibre str."     3822.09  1 SUP
+* 2 "Bones"                "Carbon fibre str."     144.38   8 SUP
+....................................................................................
+====================================================================================
+o TEC_ThermalShield
+  -----------------------------
+
+MCVolume: 158218 cm3 (for all TEC)
+
+note that the MC volume is maller because there is not enough space in TEC mothervolume.
+
+....................................................................................
+#   "TEC Thermal Shield"      "TEC_ThermalShield"           156815    -1
+* 1 "Nomex Disk"              "TEC_Nomex"           	    203888.93  1 SUP
+* 2 "CF Skin"          	      "Carbon fibre str."           11466.27   1 SUP
+* 3 "Tiltmeter cable"         "Copper"                      10.71      1 ELE
+* 4 "Tiltmeter cable sup"     "Polyethylene"		    105.26     1 ELE
+* 5 "HF shield"               "Aluminium"                   172.94     1 ELE
+....................................................................................
+====================================================================================
+o TEC_Tiltmeter
+  -----------------------------
+
+MCVolume: 1402.7328 cm3 (for all TEC)
+
+....................................................................................
+#   "TEC_Tiltmeter"         "TEC_Tiltmeter"       1402.7	-1
+* 1 "Mechanics Alu"         "Aluminium"           82.9630 1	SUP
+* 2 "Mechanics Ti"          "Titanium"		   0.8830 1	SUP
+* 3 "Tiltmeter active"      "Epoxy"		 436.9231 1	ELE
+* 4 "Tiltmeter elec."	    "T_FR4"		  28.2353 1	ELE
+* 5 "Tiltmeter box"	    "Carbon fibre str."	  21.5290 1	SUP
+* 6 "Tiltmeter cable" 	    "Copper"	  	   0.4464 1     CAB
+* 7 "Tiltmeter cable sup"   "Polyethylene"         4.2105 1     CAB
+* 8 "Tiltmeter box cap"     "Carbon fibre str."   21.53   1     SUP
+....................................................................................
+====================================================================================
+o TEC_CircPipe
+  -----------------------------
+
+MCVolume: 16831.6 cm3 (for all TEC)
+
+This contains anythings that connects the bulkhead to the TEC
+(3) should eventually get its own volume
+....................................................................................
+#   "TEC_CircPipe"              "TEC_CircPipe"          16831.6 	16831.6
+* 1 "Gas Pipe"              "Steel-008"           192.31  1	COL
+* 2 "Grounding mechanics"   "Brass"		  60.99	  1	SUP
+* 3 "lancashire Fittings"   "Steel-008"		  492.31  1	SUP
+* 4 "MSC Al36 Cables"	    "CAB_Al36"		 0.7854	 2110	CAB
+* 5 "MSC Al48 Cables"	    "CAB_Al48"		 0.7854	 1872	CAB
+* 6 "MSC Al60 Cables"	    "CAB_Al60"		 0.7854	 1418	CAB
+* 7 "CTRL Cables"	    "MS_cntrl_cable"	  0.283	  4320	CAB
+....................................................................................
+====================================================================================
+o TEC_BHDisk
+  -----------------------------
+
+MCVolume: 15917.3 cm3 (for all TEC)
+CF Skin	Nomex	inserts steel	inserts epoxy	grounding cable 50mm	double T Ribs	TM Blue connection cable
+
+
+....................................................................................
+#   "TEC Bulkhead Disk"              "TEC_BHDisk"          15917.3	15917.3
+* 1 "CF Skins"              "Carbon fibre str."        6366.93  1 SUP
+* 2 "Nomex Core"	    "Nomex" 	  	       9550.39	1 SUP
+* 3 "Inserts (Steel)"	    "Steel-008"		       14.84	1 SUP
+* 4 "Inserts (Epoxy)"	    "Epoxy"		       126.00	1 SUP
+* 5 "Grounding Cable"	    "Copper"		       67.46	1 CAB
+* 6 "Ribs"     		    "Carbon fibre str."	       7470.03	1 SUP
+* 7 "TM Blue cable"	    "Copper"	    	       22.32	1 CAB
+
+....................................................................................
+====================================================================================
+o TEC_BHCovers
+  -----------------------------
+
+MCVolume: 3501.82 cm3 (for one bulkhead)
+
+(3) using Copper for inconel lacking specifications
+
+....................................................................................
+#   "TEC Bulkhead Covers"              "TEC_BHCovers"          3501.82	3501.82
+* 1 "glass Fibre"              "Carbon fibre str."	      3183.46    1 SUP
+* 2 "heating foil (kapton)"    "T_Kapton"	  	      238.76   	 1 SUP
+* 3 "heating foil (inconel)"    "Nickel"		      79.59	 1 SUP
+
+....................................................................................
+====================================================================================
+o TEC_PatchpanelBox
+  -----------------------------
+
+MCVolume: 26839.2 cm3 (for all TEC)
+(8) is unconfirmed due to lacking information it is taken from old cables.in
+
+....................................................................................
+#   "TEC_PatchpanelBox"         "TEC_PatchpanelBox"             26839.2	26839.2
+* 1 "bolts+nuts+washers"        "Steel-008"          34.17   1    SUP
+* 2 "spacers"			"Aluminium"	    141.19   1    SUP
+* 3 "cable retainers"		"Carbon fibre str." 275.5    1    SUP
+* 4 "MSC Al36 Cables"		"CAB_Al36"	    0.7854   1031 CAB
+* 5 "MSC Al48 Cables"		"CAB_Al48"	    0.7854   915  CAB
+* 6 "MSC Al60 Cables"		"CAB_Al60"	    0.7854   693  CAB
+* 7 "plugs"			"Aluminium"	    5114.54  1	  CAB
+* 8 "MS cable Cu 60 APVs"       "MS_Cu60"         59.4    384   CAB
+....................................................................................
+====================================================================================
+o TEC_PatchpanelCtrlBox
+  -----------------------------
+
+MCVolume: 2925.01 cm3 (for all TEC)
+
+....................................................................................
+# "TEC_PatchCtrlBox"             "TEC_PatchCtrlBox"         2925.01	2925.01
+* 1 "fibre couplings"            "Aluminium"           135.97  1  SUP
+* 2 "fibres"			 "Fibre_Ribbon"	       399.87  1  CAB
+* 3 "cables"			 "MS_cntrl_cable"      0.283   39 CAB
+* 4 "plugs"			 "Aluminium"	       1174.27 1  CAB
+....................................................................................
+====================================================================================
+o TEC_AlignRing
+  -----------------------------
+
+MCVolume: 11884.6 cm3 (for all TEC)
+
+   TM = Tiltmeter. Cables are missing, do neither have drawings nor know
+   routing or type. Also no info about collimators, missing six pieces.
+
+....................................................................................
+#   "TEC_AlignRing"            "TEC_AlignRing"      11884.6       -1
+* 1 "Ring itself"              "Carbon fibre str."  2798.29  1 SUP
+* 2 "Pillars Alu"	       "Aluminium"   	    43.10    1 SUP
+* 3 "Pillars CF"               "Carbon fibre str."  74.39    1 SUP
+* 3 "Pillar inserts"	       "Aluminium"	    37.11    1 SUP
+* 4 "Small inserts"	       "Aluminium"	    20.76    1 SUP
+* 5 "TM Mechanics"	       "Aluminium"	    42.22    1 SUP
+* 6 "TM active"		       "Epoxy"		    218.46   1 ELE
+* 7 "TM electronics"	       "T_FR4"		    14.1176  1 ELE
+* 8 "TM cover"		       "Aluminium"  	    23.70    1 SUP
+* 9 "Bolts"		       "Aluminium"          116.53   1 SUP
+* 10 "Collimator housing"      "Titanium"           26.49    1 SUP
+* 11 "Collimator cover"        "Aluminium"          62.22    1 SUP
+* 12 "Collimator optics"       "Silicon"            7.725    1 ELE
+* 13 "Potentiometers"          "Aluminium"          42.22    1 ELE
+....................................................................................
+====================================================================================
+
+                    ------------------------------
+                    --      TEC Outer Area      --
+                    ------------------------------
+
+                  
+o TEC Frontplate
+  --------------
+
+  r = 22.9 - 110.3 cm
+  thickness  0.54 cm
+  (1) Carbon fibre skins 2 * 0.02 cm 
+  (2) NOMEX core, 0.5 cm thick
+...................................................................
+# "TEC_Frontplate"     "Tk_SO_FC_C"          19656.     -1
+* 1 "CF skins 0.2 mm"  "Carbon fibre str."   1462.94     1       SUP
+* 2 "Nomex core 5 mm"  "TEC_Nomex"           18286.7     1       SUP
+* 3 "HF shield"        "Aluminium"           179.58	 1	 ELE
+* 4 "Grounding strips" "Copper"		     1.580       1       ELE
+....................................................................
+=====================================================================
+
+
+o TEC wheels 
+  ----------
+
+  The wheels consist of a 1.6 cm NOMEX core and 2*0.04 cm CF skins.
+  There are 4 380.13cm2 and 14 490.87cm2 holes in addition to the 
+  2999.62 cm2 hole in the middle.
+
+MCVolume: 451761 cm3 (for all TEC)
+......................................................................
+# "TEC Wheel NOMEX"       "TEC_wheel_Nomex"     451761         -1
+* 1 "Nomex"     "Nomex"      542183.87     1    SUP
+
+MCVolume: 22874.5 cm3 (for all TEC)
+......................................................................
+# "TEC Wheel CF skins"          "TEC_wheel_CF"       22874.5       -1
+* 1 "CF Skins"  "Carbon fibre str." 17170.28   1   SUP  
+
+......................................................................
+======================================================================
+
+  TEC Wheel 6 has differnt holes in the CF and NOMEX body because it carries 
+  Laser alignment  Parts (Beamsplitter etc.):
+    8x97.5 cm2
+    8x65.0 cm2
+
+MCVolume: 54793.7 cm3 (for all TEC)
+# "TEC Wheel6 NOMEX"       "TEC_wheel6_Nomex"    54793.7         -1
+* 1 "Nomex"     "Nomex"        41370.13   1    SUP
+MCVolume: 2818.75 cm3 (for all TEC)
+......................................................................
+# "TEC Wheel6 CF skins"          "TEC_wheel6_CF"       2818.75       -1
+* 1 "CF Skins"  "Carbon fibre str." 2713.7   1   SUP  
+......................................................................
+======================================================================
+
+o Inserts for petal fixation inserts
+  ----------------------------------
+MCVolume: 4106.27 cm3 (for all TEC)
+This contains the petal Pot in the disk _and_ the connection to the petal.
+
+.......................................................................
+# "Petal fixations"             "TEC_wheelinsert"   4106.27     -1
+* 1 "PetalBushes"                 "Aluminium"         650.42    1   SUP
+* 2 "PetalPots"			  "Aluminium"	      1407.2	1   SUP
+......................................................................
+======================================================================
+
+ 
+o Fixations to inner support tube
+  -------------------------------
+  MC Volume: 625.829 cm3 all TEC
+
+.......................................................................
+# "Fixations to inner support"  "TEC_Fixframe"        625.829	-1
+* 1 "Aluminium fixations"        "Aluminium"          317.94   1   SUP
+ 2 "Stainless Steel screw"      "Steel-008"          1.28     1   SUP
+.......................................................................
+=======================================================================
+
+
+o Fixations to service channels
+  -----------------------------
+  MC Volume: 22.94 cm^3
+
+  Per fixation: 60 g Aluminium + 10 g SS
+                22.22 cm^3  Al + 1.28 g SS 
+......................................................................
+# "Fixations to service channels"  "TEC_FixServ"      22.94    14.34
+* 1 "Aluminium fixations"        "Aluminium"          22.22    1   SUP
+* 2 "Stainless Steel screw"      "Steel-008"          1.28     1   SUP
+.......................................................................
+=======================================================================
+o TEC_AlignHolder
+  -----------------------------
+
+MCVolume: 371.923 cm3 (for all TEC)
+
+....................................................................................
+#   "TEC Sphere Holder Bracket"           "TEC_AlignHolder"               371.923         371.923
+* 1 "Bracket"              "Aluminium"           76.96  1 SUP
+....................................................................................
+====================================================================================
+o TEC_CraneBracket
+  -----------------------------
+MCVolume: 496.392 cm3 (for all TEC)
+
+....................................................................................
+#   "TEC_CraneBracket"          "TEC_CraneBracket"              496.392         496.392
+* 1 "Bracket"              "Aluminium"           371.48  1 SUP
+....................................................................................
+====================================================================================
+
+o TEC_Beamsplitter
+  -----------------------------
+
+MCVolume: 865.162 cm3 (for all TEC)
+
+  total MC weight: 0.000865162 kg
+....................................................................................
+#   "TEC_Beamsplitter"          "TEC_Beamsplitter"              865.162         865.162
+* 1 "Beamsplitter"              "Aluminium"             157.63	1 SUP
+* 2 "Splitter BSA"		"Silica"		22.33	1 ELE
+* 3 "Aligner"			"Aluminium"		181.69	1 SUP
+* 4 "screws"			"Steel-008"		10.15	1 SUP
+....................................................................................
+====================================================================================
+
+# "END"  "END"  0.  0.   
+this has to be the last line !
