@@ -1,0 +1,14 @@
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
+%MSG-i importantInfo:  UnitTestClient_O:sendSomeMessages Run: 1 Event: 1
+This LogInfo message should appear in both destinations
+%MSG
+%MSG-i routineInfo:  UnitTestClient_O:sendSomeMessages Run: 1 Event: 1
+This LogInfo message should appear in the info destination
+%MSG
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp} 
+%MSG-i importantInfo:  UnitTestClient_O:sendSomeMessages Run: 1 Event: 2
+This LogInfo message should appear in both destinations
+%MSG
+%MSG-i routineInfo:  UnitTestClient_O:sendSomeMessages Run: 1 Event: 2
+This LogInfo message should appear in the info destination
+%MSG

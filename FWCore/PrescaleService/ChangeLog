@@ -1,0 +1,73 @@
+2010-03-14  Martin Grunewald  <Martin.Grunewald@cern.ch>
+	* tag V00-06-00
+	* subclassing PrescaleService from SaveConfiguration class to save
+	its configuration in the provenance (reverts V00-05-08).
+
+2010-03-12  Martin Grunewald  <Martin.Grunewald@cern.ch>
+	* tag V00-05-08
+	* adding special service class parameter "saveToConfig_"
+	to cfi.py file ONLY(!)
+
+2010-02-17  Martin Grunewald  <Martin.Grunewald@cern.ch>
+	* tag V00-05-06
+	* adding const accessors to extract prescale table info
+
+2010-01-18  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-05-05
+	* remove boost as dependency from BuildFile, which I should have
+	done as part of the last change ...
+
+	* tag V00-05-04
+	* remove unnecessary lock per request by Martin (and after Emilio
+	confirming that it is indeed unnecessary)
+
+2009-07-02   Emilio Meschi  <emilio.meschia@cern.ch>
+
+        * tag V00-05-02 merge from branch tag for 22X
+	(tags V00-05-00 and V00-05-01 used by wmtan)
+
+2009-04-28  Emilio Meschi  <emilio.meschia@cern.ch>
+
+	* tag V00-04-03-01 (branch tag for 22X
+	* added setIndex function to pass L1 PS index
+	* remember to update main trunk for 31X !!!
+
+2009-02-09  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-05
+	* add python directory
+	* add python/PrescaleService_cfi.py
+	* adjust test/testPrescaleService_cfg.py to reference above *_cfi.py
+
+
+2008-10-17  Emilio Meschi  <emilio.meschia@cern.ch>
+
+	* tag V00-04-03 (V00-04-02 tags removal of .cfg files)
+	* moved most of constructor code to separate function "reconfigure"
+	* to allow reconfig of PrescaleService at run boundaries
+
+
+2008-05-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-01
+	* use getProcessParameterSet() kindly provided by Marc P. in
+	FWCore/ParameterSet/interface/Registry.h to validate that each
+	path referenced int the prescale table has exactly one
+	HLTPrescaler.
+
+2008-04-29  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-00
+	* reimplementation: the configuration of the service allows to
+	specify a *vector* of prescales for each path in the configuration
+	* This is necessary for dynamic prescale changes at run time
+	initiated by the level1 trigger
+	* Currently, a check is missing that (1) each provided path is
+	actually in the configuration and (2) that each path in the
+	configuration has at most one HLTPrescaler: HLTPrescaler modules
+	are going to update their individual prescaleFactor at the
+	beginning of each lumi block, by querying the PrescaleService,
+	providing the current *pathname* as key!
+	
+

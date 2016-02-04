@@ -1,0 +1,5 @@
+<use   name="CondFormats/JetMETObjects"/>
+<use   name="rootgraphics"/>
+<use   name="root"/>
+<bin   name="JetResolution_t" file="JetResolution_t.cc">
+</bin>

@@ -1,0 +1,93 @@
+	MessageLogger Default Configuration and Control of Modes
+	--------------------------------------------------------
+	
+The issue is that we want the defaults currently (as of 6/5/07) taken from
+MessageLogger.cfi to be hard-wired, such that jobs not mentioning the logger 
+at all in configuration get these.  There are three difficulties that the
+plan presented here will address:
+
+1) When the desired defaults change, it will be a maintenance headache.  And
+   the pace of change in requested defaults is non-negligible.
+   
+   The use of these defaults is scattered through the MessageLoggerScribe code.
+   This is one big file to wade through. If it were broken into coherent pieces,
+   then the problem would change to searching through multiple smaller files; 
+   still a headache.
+   
+2) We still need to provide the flexibility currently offered by the .cfg file.
+   In particular, if a user wants to have completely different destination 
+   outputs, we should not force upon her the default files as well.  This 
+   issue is highly relevant for unit testing, and may be important in other 
+   situations too.
+   
+3) The appropriate defaults are in some instances defendant on the mode of 
+   running.  For instance, batch reco or simulation jobs want reportEvery 
+   for FwkReport to be one; analysis jobs want it to be 100.  
+   
+			       The Plan
+			       --------
+			       
+To address (1), we should place the defaults into one structure 
+which I will call MessageLoggerDefaults.  Its ctor should take as an 
+argument an enum MessageLoggingMode.  To address (3), there should be
+an option to cmsRun of -mode which takes values grid, analysis, etc.
+One of these (likely grid) will be the default as well.  
+
+Then at cmsRun time, we check the mode specified, and send a message to
+the scribe indicating that it will need to construct its defaults accordingly.
+
+To address (2), we note that the only serious headaches from these defaults
+would be the issue of different sets of destinations, and potential inability
+to remove or modify one of the defaulted values.  The latter concern is not
+really problematic because any configuration settings that do appear will
+everride the defautls we are supplying.  The  destination list issue should
+be resolved as follows:  There is a default destination list.   But if the 
+destinations vstring is present, then that list will be REPLACED by the one
+actually supplied.
+	      
+	  			Steps
+				-----
+
+A) Use of the MessageLoggerDefaults structure:
+
+  A1)	By reading the .cfi file and the configure code, decide what is in 
+  	the structure.  We should make this nested classes, probably.
+  
+  A2)	Create the modes enum, which must live in MessageLogger rather than
+  	MessageService.
+	
+  A3)	Write a ctor based on the existing .cfi file, for the basic default
+  	mode.
+  
+  A4)	Modify configure() and the like, to use these defaults.  Pay attention
+  	to the issue of empty or non-empty destination list.
+  
+  A5)	Unit test - make certain the behavior with and without the .cfi file 
+  	is identical.  This unit test can be written in parallel to A1-A4,
+	and ought to send various sorts of messages so as to exercise the
+	various settings.
+	
+B) Supply of mode
+
+  B1)   Create a MODE opcode for the MessageLoggerQ, which causes the modes
+  	enum saved for use by configure() and the like to be transmitted.
+	
+  B2)	Make sure the value of mode is going to be sensible even if this
+  	MODE opcode is never used, so that other non-cmsRun jobs won't be 
+	screwed up.
+	
+  B3)	Create a --mode or -m command-line option in cmsRun which uses the
+  	MODE opcode.
+	
+  B4)	Re-run the A5 Unit test
+	
+C) Aternative modes
+
+  C1) 	Create at least one alternative mode, for (say) analysis-style 
+  	processing. Put this into the enum.
+       
+  C2) 	Modify the ctor of to MessageLoggerDefaults to react to this value.
+
+  C3)   Unit test the alternative mode.
+  
+   

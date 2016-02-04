@@ -1,0 +1,56 @@
+# L7 parton corrections for SC7 algorithm
+# [gJ] (gluons from diJet mixture)
+# [qJ] (uds quarks from diJet mixture)
+# [cJ] (c quark from diJet mixture)
+# [bJ] (b quark from diJet mixture)
+# [jJ] (diJet jet mixture)
+# [qT] (uds quarks from ttbar events)
+# [cT] (c quark from ttbar events)
+# [bT] (b quark from ttbar events)
+# [jT] (ttbar jet mixture)
+# etamin etamax #ofparameters ptmin ptmax   p[0] --> p[7]
+[gJ]
+{1  JetEta  2  JetPt  JetEta 
+1/([0]*x+[1])+[2]+([3]+[4]*log(x)+[5]*log(x)*log(x))*abs(y)+([6]+[7]*x)*y*y
+Response L7Parton}
+  -999  999   12   10   99999  -999  999    -0.707780242   -0.960154057    0.994002163    0.002429949   -0.000005937   -0.000070834   -0.000426518    0.000001569  
+[qJ]
+{1  JetEta  2  JetPt  JetEta 
+1/([0]*x+[1])+[2]+([3]+[4]*log(x)+[5]*log(x)*log(x))*abs(y)+([6]+[7]*x)*y*y
+Response L7Parton}
+  -999  999   12   10   99999  -999  999    -1.977243066    3.084315062    0.996262968   -0.001582294    0.001018339   -0.000124068   -0.000512703    0.000000859  
+[cJ]
+{1  JetEta  2  JetPt  JetEta 
+1/([0]*x+[1])+[2]+([3]+[4]*log(x)+[5]*log(x)*log(x))*abs(y)+([6]+[7]*x)*y*y
+Response L7Parton}
+  -999  999   12   10   99999  -999  999    -2.924048185   10.053295135    0.998901188   -0.002360478    0.001926551   -0.000262634   -0.000416836    0.000001213  
+[bJ]
+{1  JetEta  2  JetPt  JetEta 
+1/([0]*x+[1])+[2]+([3]+[4]*log(x)+[5]*log(x)*log(x))*abs(y)+([6]+[7]*x)*y*y
+Response L7Parton}
+  -999  999   12   10   99999  -999  999    -2.142025709    5.748228073    0.999869108    0.000262820    0.001892012   -0.000347794   -0.000616146    0.000002139  
+[jJ]
+{1  JetEta  2  JetPt  JetEta 
+1/([0]*x+[1])+[2]+([3]+[4]*log(x)+[5]*log(x)*log(x))*abs(y)+([6]+[7]*x)*y*y
+Response L7Parton}
+  -999  999   12   10   99999  -999  999    -0.846874535   -1.479070902    0.995242298    0.006844460   -0.002153470    0.000183451   -0.000102034    0.000000248  
+[qT]
+{1  JetEta  2  JetPt  JetEta 
+1/([0]*x+[1])+[2]+([3]+[4]*log(x)+[5]*log(x)*log(x))*abs(y)+([6]+[7]*x)*y*y
+Response L7Parton}
+  -999  999   12   10   99999  -999  999    -0.779622257   -3.337361574    1.006730795    0.021128928   -0.006878737    0.000691614   -0.001546905   -0.000001441  
+[cT]
+{1  JetEta  2  JetPt  JetEta 
+1/([0]*x+[1])+[2]+([3]+[4]*log(x)+[5]*log(x)*log(x))*abs(y)+([6]+[7]*x)*y*y
+Response L7Parton}
+  -999  999   12   10   99999  -999  999    -0.814809501   -2.717010975    1.007091165    0.009358255   -0.001006105   -0.000134907   -0.001582886    0.000005138  
+[bT]
+{1  JetEta  2  JetPt  JetEta 
+1/([0]*x+[1])+[2]+([3]+[4]*log(x)+[5]*log(x)*log(x))*abs(y)+([6]+[7]*x)*y*y
+Response L7Parton}
+  -999  999   12   10   99999  -999  999    -1.273735046    3.275366545    1.008553028    0.021583540   -0.005122659    0.000220961   -0.001742986    0.000005977  
+[tT]
+{1  JetEta  2  JetPt  JetEta 
+1/([0]*x+[1])+[2]+([3]+[4]*log(x)+[5]*log(x)*log(x))*abs(y)+([6]+[7]*x)*y*y
+Response L7Parton}
+  -999  999   12   10   99999  -999  999    -0.767724991   -2.501592875    1.013397217    0.012805648   -0.001238200   -0.000310708   -0.001415049    0.000009034  

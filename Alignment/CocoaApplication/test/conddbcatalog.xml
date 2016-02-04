@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- Edited By POOL -->
+<!DOCTYPE POOLFILECATALOG SYSTEM "InMemory">
+<POOLFILECATALOG>
+  <File ID="4CDAA0DC-7D06-DB11-9E38-001422488FAE">
+    <physical>
+      <pfn filetype="POOL_RDBMS" name="sqlite_file:Empty.db"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="BA85F406-5F33-DB11-9CA5-001422488FAE">
+    <physical>
+      <pfn filetype="POOL_RDBMS" name="sqlite_file:OpticalAlignmentsOut.db"/>
+    </physical>
+    <logical/>
+  </File>
+
+</POOLFILECATALOG>

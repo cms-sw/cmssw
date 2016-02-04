@@ -1,0 +1,39 @@
+/*!
+<!-- Substitute DataFormats and RPCDigi with the proper names! -->
+
+\page DataFormats_RPCDigi Package DataFormats/RPCDigi
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/RPCDigi/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/RPCDigi/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+This package contains the definition of digis and digi collections for the RPCs.
+
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+- RPCDigi
+- RPCDigiCollection
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+This package does not provide any module.
+
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+None.
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Complete, to be tested.
+
+<hr>
+Last updated: @DATE@ 
+Author: N. Amapane
+*/

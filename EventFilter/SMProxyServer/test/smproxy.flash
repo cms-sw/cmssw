@@ -1,0 +1,27 @@
+<?xml version='1.0'?>
+<mon:profile xmlns:mon="http://xdaq.web.cern.ch/xdaq/xsd/2005/Monitor-10">
+  <mon:flashlists>
+    <mon:flash name="urn:xdaq-flashlist:smproxy-performance-online">
+      <mon:item name="class"            infospace="urn:xdaq-monitorable:SMProxyServer:" type="string"/>
+      <mon:item name="instance"         infospace="urn:xdaq-monitorable:SMProxyServer:" type="unsigned int 32"/>
+      <mon:item name="runNumber"        infospace="urn:xdaq-monitorable:SMProxyServer:" type="unsigned int 32"/>
+      <mon:item name="url"              infospace="urn:xdaq-monitorable:SMProxyServer:" type="string"/>
+      <mon:item name="storedDQMEvents"  infospace="urn:xdaq-monitorable:SMProxyServer:" type="unsigned int 32"/>
+      <mon:item name="connectedSMs"     infospace="urn:xdaq-monitorable:SMProxyServer:" type="unsigned int 32"/>
+      <mon:item name="stateName"        infospace="urn:xdaq-monitorable:SMProxyServer:" type="string"/>
+      <mon:item name="instantBandwidth" infospace="urn:xdaq-monitorable:SMProxyServer:" type="double"/>
+      <mon:item name="instantRate"      infospace="urn:xdaq-monitorable:SMProxyServer:" type="double"/>
+      <mon:item name="progressMarker"   infospace="urn:xdaq-monitorable:SMProxyServer:" type="string"/>
+      <mon:item name="context"          infospace="urn:xdaq-monitorable:executive"       type="string" />
+      <mon:item name="cpuUsage"         infospace="urn:xdaq-monitorable:executive"       type="double" />
+      <mon:item name="pid"              infospace="urn:xdaq-monitorable:executive"       type="int" />
+      <mon:item name="residentSize"     infospace="urn:xdaq-monitorable:executive"       type="unsigned int" />
+      <mon:item name="virtualSize"      infospace="urn:xdaq-monitorable:executive"       type="unsigned int" />
+    </mon:flash>
+  </mon:flashlists>
+  <mon:collectorsettings>
+    <mon:collect flashlist="urn:xdaq-flashlist:smproxy-performance-online"
+     mode="all" every="00:00:00:00:05" history="false" range="00:00:00:01:00"
+     persistent="false" file="/tmp/smproxy_processInfo.txt" collect="true"/>
+  </mon:collectorsettings>
+</mon:profile>

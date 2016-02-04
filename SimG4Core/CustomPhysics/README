@@ -1,0 +1,9 @@
+To use:
+
+Modify your .cfg file to use CustomPhysics as type and add the
+RHadronDummyFlip card:
+
+	  PSet Physics =
+	  {
+	       string type = "SimG4Core/Physics/CustomPhysics"
+	       bool RHadronDummyFlip = false

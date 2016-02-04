@@ -1,0 +1,125 @@
+<TESTSCONFIGURATION>
+
+
+<QTEST name="deDiffInRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="error">1.0</PARAM>
+	<PARAM name="warning">0.0</PARAM>
+	<PARAM name="ymin">0.0</PARAM>
+	<PARAM name="ymax">1.0</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
+</QTEST>
+
+ 
+<QTEST name="deDiffInXRange">
+	 <TYPE>ContentsXRange</TYPE> 
+	 <PARAM name="error">1.00</PARAM>
+	 <PARAM name="warning">0.00</PARAM>
+	 <PARAM name="xmin">0.0</PARAM>
+	 <PARAM name="xmax">1.0</PARAM>
+</QTEST>
+
+
+<QTEST name="deDiffInRange2D">
+	 <TYPE>ContentsWithinExpectedTH2F</TYPE>
+	 <PARAM name="error">0.30</PARAM>
+	 <PARAM name="warning">0.70</PARAM>
+	 <PARAM name="minMean">5.0</PARAM>
+	 <PARAM name="maxMean">15.0</PARAM>
+	 <PARAM name="minRMS">0.0</PARAM>
+	 <PARAM name="maxRMS">0.0</PARAM>
+	 <PARAM name="toleranceMean">0.00</PARAM>
+	 <PARAM name="minEntries">0</PARAM>
+</QTEST>
+
+<QTEST name="testDiffInRange2D">
+	 <TYPE>ContentsWithinExpectedTH2F</TYPE>
+	 <PARAM name="error">0.30</PARAM>
+	 <PARAM name="warning">0.70</PARAM>
+	 <PARAM name="minMean">3.0</PARAM>
+	 <PARAM name="maxMean">4.0</PARAM>
+	 <PARAM name="minRMS">0.0</PARAM>
+	 <PARAM name="maxRMS">0.0</PARAM>
+	 <PARAM name="toleranceMean">0.00</PARAM>
+	 <PARAM name="minEntries">0</PARAM>
+</QTEST>
+
+
+
+<QTEST name="deDiffInRange2DProfile">
+	<TYPE>ContentsWithinExpectedProf2D</TYPE>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+	<PARAM name="minMean">5.0</PARAM>
+	<PARAM name="maxMean">15.0</PARAM>
+	<PARAM name="minRMS">0.0</PARAM>
+	<PARAM name="maxRMS">0.0</PARAM>
+	<PARAM name="toleranceMean">0.00</PARAM>
+	<PARAM name="minEntries">0</PARAM>
+</QTEST>
+
+
+<!--
+<QTEST name="DeadChannel_3">
+	 <TYPE>DeadChannelROOT</TYPE>	 
+	 <PARAM name="error">0.99</PARAM>
+	 <PARAM name="warning">0.80</PARAM>
+	 <PARAM name="threshold">3</PARAM>
+</QTEST>
+
+
+<QTEST name="NoisyChannel_20">
+	 <TYPE>NoisyChannelROOT</TYPE>   
+	 <PARAM name="error">0.80</PARAM>
+	 <PARAM name="warning">0.70</PARAM>
+	 <PARAM name="tolerance">20</PARAM>
+	 <PARAM name="neighbours">3</PARAM>
+</QTEST>
+
+
+<QTEST name="MeanWithinExpected">
+	 <TYPE>MeanWithinExpectedROOT</TYPE>
+	 <PARAM name="error">0.05</PARAM>
+	 <PARAM name="warning">0.5</PARAM>
+	 <PARAM name="mean">3.0</PARAM>
+	 <PARAM name="useRMS">1</PARAM>
+	 <PARAM name="useSigma">0</PARAM>
+	 <PARAM name="useRange">0</PARAM>
+	 <PARAM name="xmin">0</PARAM>
+	 <PARAM name="xmax">0</PARAM>
+</QTEST>
+-->
+
+
+<LINK name="*ecalEtMapDiff1D_proj*">
+	<TestName activate="true">deDiffInRange</TestName>
+	<TestName activate="true">deDiffInXRange</TestName>
+</LINK>
+
+
+<LINK name="*ecalEtMapDiff2D*">
+	<TestName activate="true">deDiffInRange2D</TestName>
+	<TestName activate="true">deDiffInRange2DProfile</TestName>
+</LINK>
+
+
+<LINK name="*EcalEtMapDiff*">
+	<TestName activate="true">deDiffInRange2D</TestName>
+</LINK>
+
+
+<LINK name="*test1D*">
+	<TestName activate="true">deDiffInRange</TestName>
+	<TestName activate="true">deDiffInXRange</TestName>
+</LINK>
+<LINK name="*test2D*">
+	<TestName activate="true">testDiffInRange2D</TestName>
+</LINK>
+
+<!--	
+	<TestName activate="true">DeadChannel_3</TestName>
+	<TestName activate="true">NoisyChannel_20</TestName>
+        <TestName activate="true">MeanWithinExpected</TestName> 
+-->
+
+</TESTSCONFIGURATION>
