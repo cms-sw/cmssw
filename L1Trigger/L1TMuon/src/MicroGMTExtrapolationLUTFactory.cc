@@ -16,12 +16,12 @@ using namespace edm;
 
 namespace l1t {
   MicroGMTExtrapolationLUTFactory::ReturnType
-  MicroGMTExtrapolationLUTFactory::create(const std::string& filename, const int fwVersion) {
+  MicroGMTExtrapolationLUTFactory::create(const std::string& filename, const int type, const int fwVersion) {
     ReturnType p;
 
     switch (fwVersion) {
       case 1:
-        p = ReturnType(new MicroGMTExtrapolationLUT(filename));
+        p = ReturnType(new MicroGMTExtrapolationLUT(filename, type));
         break;
       default:
         LogError("MicroGMTExtrapolationLUTFactory") << "Invalid firmware version requested: " << fwVersion;

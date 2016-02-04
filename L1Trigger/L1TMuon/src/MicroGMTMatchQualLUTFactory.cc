@@ -16,12 +16,12 @@ using namespace edm;
 
 namespace l1t {
   MicroGMTMatchQualLUTFactory::ReturnType
-  MicroGMTMatchQualLUTFactory::create(const std::string& filename, cancel_t cancelType, const int fwVersion) {
+  MicroGMTMatchQualLUTFactory::create(const std::string& filename, const double maxDR, cancel_t cancelType, const int fwVersion) {
     ReturnType p;
 
     switch (fwVersion) {
       case 1:
-        p = ReturnType(new MicroGMTMatchQualLUT(filename, cancelType));
+        p = ReturnType(new MicroGMTMatchQualLUT(filename, maxDR, cancelType));
         break;
       default:
         LogError("MicroGMTMatchQualLUTFactory") << "Invalid firmware version requested: " << fwVersion;

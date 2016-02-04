@@ -216,7 +216,6 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
 
             l1t::RegionalMuonCand rmc;
 
-            int eta_value = -1000;
             if(cand->hwEta()>-33 || cand->hwEta()<32 )
                 rmc.setHwEta(eta_map[cand->hwEta()]);
             else
@@ -235,8 +234,7 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
             rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat4, abs_add_4);
 
             rmc.setHwPhi(cand->hwPhi());
-            rmc.setHwEta(eta_value);
-            rmc.setHwSign(cand->hwSign());
+            rmc.setHwSign(cand->hwSign() == 1 ? 0 : 1 );
             rmc.setHwSignValid(cand->hwSignValid());
             rmc.setHwQual(cand->hwQual());
             rmc.setTFIdentifiers(cand->spid().sector(),l1t::tftype::bmtf);
@@ -255,10 +253,47 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
                                            << (*it_ws)->id() << endl;
       if ( *it_ws ) (*it_ws)->run();
       if ( L1MuBMTFConfig::Debug(2) && *it_ws ) (*it_ws)->print();
-      it_ws++;
+
+    // store found track candidates in container (cache)
+    if ( (*it_ws)->anyMuonCands()  ) {
+      const vector<const L1MuBMTrack*>&  mttf_cont = (*it_ws)->tracks();
+
+      vector<const L1MuBMTrack*>::const_iterator iter;
+      for ( iter = mttf_cont.begin(); iter != mttf_cont.end(); iter++ ) {
+        if(!*iter) continue;
+        l1t::RegionalMuonCand rmc;
+        rmc.setHwPt((*iter)->hwPt());
+        int abs_add_1 = setAdd(1,(*iter)->address(1));
+        int abs_add_2 = setAdd(2,(*iter)->address(2));
+        int abs_add_3 = setAdd(3,(*iter)->address(3));
+        int abs_add_4 = setAdd(4,(*iter)->address(4));
+
+        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kWheel, (*iter)->spid().wheel()); // this has to be set!
+        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat1, abs_add_1);
+        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat2, abs_add_2);
+        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat3, abs_add_3);
+        rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat4, abs_add_4);
+
+
+        rmc.setHwPhi((*iter)->hwPhi());
+        if((*iter)->hwEta()>-33 || (*iter)->hwEta()<32 )
+                rmc.setHwEta(eta_map[(*iter)->hwEta()]);
+        else
+            rmc.setHwEta(-1000);
+        rmc.setHwSign((*iter)->hwSign() == 1 ? 0 : 1);
+        rmc.setHwSignValid((*iter)->hwSignValid());
+        rmc.setHwQual((*iter)->hwQual());
+        rmc.setTFIdentifiers((*iter)->spid().sector(),l1t::tftype::bmtf);
+
+        if ( *iter ){ _cache.push_back((*iter)->bx(), rmc);}
+     }
     }
 
-    // run muon sorter
+          it_ws++;
+
+    }//end wedge sorting
+
+    /*    // run muon sorter
     if ( L1MuBMTFConfig::Debug(2) ) cout << "running BM Muon Sorter" << endl;
     if ( m_ms ) m_ms->run();
     if ( L1MuBMTFConfig::Debug(2) && m_ms ) m_ms->print();
@@ -289,7 +324,7 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
                 rmc.setHwEta(eta_map[(*iter)->hwEta()]);
         else
             rmc.setHwEta(-1000);
-        rmc.setHwSign((*iter)->hwSign());
+        rmc.setHwSign((*iter)->hwSign() == 1 ? 0 : 1);
         rmc.setHwSignValid((*iter)->hwSignValid());
         rmc.setHwQual((*iter)->hwQual());
         rmc.setTFIdentifiers((*iter)->spid().sector(),l1t::tftype::bmtf);
@@ -297,6 +332,8 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
         if ( *iter ){ _cache.push_back((*iter)->bx(), rmc);}
      }
     }
+    */
+
   }//end of bx loop
 }
 
@@ -393,14 +430,14 @@ int  L1MuBMTrackFinder::setAdd(int ust, int rel_add) {
     case  1:  { rel_add =   9; break; }
     case  2:  { rel_add =   0; break; }
     case  3:  { rel_add =   1; break; }
-    case  4:  { rel_add =  10; break; }
-    case  5:  { rel_add =  11; break; }
-    case  6:  { rel_add =   2; break; }
-    case  7:  { rel_add =   3; break; }
-    case  8:  { rel_add =  12; break; }
-    case  9:  { rel_add =  13; break; }
-    case 10:  { rel_add =   4; break; }
-    case 11:  { rel_add =   5; break; }
+    case  8:  { rel_add =  10; break; }
+    case  9:  { rel_add =  11; break; }
+    case  10: { rel_add =   2; break; }
+    case  11: { rel_add =   3; break; }
+    case  4:  { rel_add =  12; break; }
+    case  5:  { rel_add =  13; break; }
+    case  6:  { rel_add =   4; break; }
+    case  7:  { rel_add =   5; break; }
     case 15:  { rel_add =  15; break; }
     default:  { rel_add =  15; break; }
   }
