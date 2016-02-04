@@ -1,0 +1,16 @@
+<use   name="root"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="SimDataFormats/Track"/>
+<use   name="DataFormats/Provenance"/>
+<use   name="FastSimulation/Event"/>
+<use   name="FastSimulation/Particle"/>
+<use   name="FastSimulation/Utilities"/>
+<use   name="DQMServices/Core"/>
+<library   file="testMaterialEffects.cc" name="testMaterialEffects">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="testNuclearInteractions.cc" name="testNuclearInteractions">
+  <flags   EDM_PLUGIN="1"/>
+</library>

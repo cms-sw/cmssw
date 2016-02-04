@@ -1,0 +1,49 @@
+/*!
+
+\page HLTrigger_Configuration Package HLTrigger/Configuration
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/HLTrigger/Configuration/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/HLTrigger/Configuration/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+
+\section desc Configuration Package for HLTrigger Sequences and Event Content definitions
+
+\subsection files Configuration Fragments
+
+- \b HLTrigger.cff : configuration fragment which defines the sequence
+
+- \b HLTrigger_EventContent.cff : configuration fragment which contains blocks definitions for FullEvent, \ref RecoData "RECO" and \ref AodData "AOD"
+
+\subsection seq Sequence
+
+- \b hltrigger : sequence to perform the whole muon reconstruction. 
+
+<pre>
+\htmlinclude HLTrigger.cff
+</pre>
+.
+\b inputs are:
+- X \b Y
+
+\subsection eventc EventContent
+
+- \b the FEVT (Full Event), \ref RecoData "RECO" and \ref AodData "AOD" Tier save the following products:
+
+TriggerResults (the "bits")
+
+<pre>
+\htmlinclude HLTrigger_EventContent.cff
+</pre>
+
+<hr>
+
+Last updated: @DATE@ Martin Grunewald
+
+
+*/

@@ -1,0 +1,9 @@
+Contents of the testElectrons_x files, with iso and non-iso equal
+testElectrons_0 contains single electrons (iso or non-iso) with one entry per card and one for each region 
+testElectrons_1 contains 2 electrons
+testElectrons_2 contains 3 electrons
+testElectrons_3 contains electrons with rank but no position information
+testElectrons_4 contains electrons with equal rank
+testElectrons_5 contains electrons with equal rank and phi
+testElectrons_6 contains electrons with equal rank, phi and eta
+testElectrons_7 contains electrons with 0 rank but still position information

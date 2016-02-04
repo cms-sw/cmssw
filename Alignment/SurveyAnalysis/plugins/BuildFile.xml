@@ -1,0 +1,15 @@
+<use   name="Alignment/CommonAlignmentAlgorithm"/>
+<use   name="Alignment/MuonAlignment"/>
+<use   name="Alignment/SurveyAnalysis"/>
+<use   name="Alignment/TrackerAlignment"/>
+<use   name="CondCore/DBOutputService"/>
+<use   name="CondFormats/Alignment"/>
+<use   name="CondFormats/AlignmentRecord"/>
+<use   name="DataFormats/DetId"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<library   name="AlignmentSurveyAnalysisPlugins" file="*.cc">
+  <flags   EDM_PLUGIN="1"/>
+</library>

@@ -1,0 +1,19 @@
+#     ZSP corrections JETS for SisCone R=0.5
+#
+#     Simulation Release CMSSW_3_1_2, Reconstruction Release CMSSW_3_1_2,
+#     CaloTowers using Scheme B cell energy cuts, No Pileup.
+#
+#     ECAL and HCAL RecHIts without ZSP
+#     File provided by Olga Kodolova in November 2009
+#     New parametrization is used (type of parametrization = 2)
+# Eta | type | NPU | Params (4) 
+ 0.5 2 0. 0.312298 -0.0519905 0.195698  -0.00545132
+ 1.0 2 0. 0.289005 -0.0513345 0.197095  -0.00571125
+ 1.5 2 0. 0.299350 -0.0537202 0.217669  -0.00559297
+ 2.0 2 0. 0.339090 -0.0519200 0.249653  -0.00568019
+ 2.5 2 0. 0.367271 -0.0544907 0.148029  -0.00648852
+ 3.0 2 0. 0.314880 -0.0560723 0.0871331 -0.00840699
+ 3.5 2 0. 0. 0.  0.  0.
+ 4.0 2 0. 0. 0.  0.  0.
+ 4.5 2 0. 0. 0.  0.  0.
+ 5.0 2 0. 0. 0.  0.  0.

@@ -1,0 +1,18 @@
+<use   name="DataFormats/Provenance"/>
+<use   name="DataFormats/Common"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/RootAutoLibraryLoader"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Utilities"/>
+<use   name="FWCore/Framework"/>
+<use   name="boost"/>
+<use   name="rootcintex"/>
+<use   name="rootcore"/>
+<use   name="roothistmatrix"/>
+<use   name="sigcpp"/>
+<use   name="xerces-c"/>
+<export>
+  <lib   name="1"/>
+</export>

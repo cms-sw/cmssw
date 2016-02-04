@@ -1,0 +1,96 @@
+
+
+1 - Remove the mention of the fwkJobReports destination from the .cfi file:
+    the affected lines are
+
+
+untracked vstring fwkJobReports = {"FrameworkJobReport"}
+
+      untracked PSet FrameworkJobReport = {
+             untracked PSet default = { untracked int32 limit = 0 }
+             untracked PSet FwkJob  = { untracked int32 limit = 10000000 }
+                                           }
+
+2 - By default no fwkJobReports destinations are created.
+
+3 - Check for the command-line option --jobreport or --jobreport=<name>
+
+4 - Equivalent options are -j or -j=<name>
+
+5 - If --jobreport=<name> appears, behave as if the .cfg file contained
+    untracked vstring --jobreport = {"name"} (supplying the extension .xml 
+    if it is not already present), with the defaults currently set in the
+    .cfi file hardwired in to the code.  
+    
+6 - If --jobreport (without specifying a name) appears, behave as if the
+    precise lines which were excised from the .cfi file were present, thus
+    creating FrameworkJobReport.xml.
+    
+7 - If --jobreport appears (with or without a name) AND the .cfg file 
+    also has one or more fwkJobReports destinations, create all these 
+    destinations plus the one caused by  --jobreport.  (But if the name
+    of the --jobreport destination matches one of the explicitly specified
+    names in the .cfg file, do not create the extra destination instigated
+    by the comand-line option.
+    
+8 - An additional command-line option, --nojobreport, causes the suppression
+    of all --jobreport destinations, both those mentioned in a .cfg file and
+    those mentioned in a --jobreport option.
+
+As a development matter, we provide  a symbol
+#define DEFINE_THIS_TO_MAKE_REPORTS_THE_DEFAULT
+to let the default behavior remain as before, which is helpful for testing.
+
+The technique is to convey the contents of the --jobreport option to
+make it avalable in configure_fwkJobReports.  If there is no option 
+specified, the option will be the empty string; if there is one without 
+a name, the option will be transmitted as "*".  Then there is a two-step
+decision process.  In the first step there are 5 possibilities for the option 
+and two possibilities for DEFINE_THIS_TO_MAKE_REPORTS_THE_DEFAULT
+
+(a) option = "" 
+	Job reports are disabled or enabled according to 
+	whether DEFINE_THIS_TO_MAKE_REPORTS_THE_DEFAULT is defined.
+	option is left as "".
+
+(b) option = "~" 
+	Job reports are disabled no matter what.
+	
+(c) option = "*" indicating --jobreports without a specific name.
+	Job reports are enabled.  
+
+(d) option = name (without an extension): 
+	Job reports are enabled.  
+	The extension .xml is tacked on to option.
+		
+(e) option = name.extension: 
+	Job reports are enabled.  
+
+Then if job reports are now enabled, each job report destination mentioned in
+the .cfg file is configured.  We note whether after this jobReportExists.
+
+The second decision step then step happens (if job reports are enabled):
+
+(a) option = ""(which can only occur if DEFINE_THIS_TO_MAKE_REPORTS_THE_DEFAULT)
+	Since no job report was requested on the command line, no job report
+	is made, and we can return.
+	
+(b) option = "~" -- cannot be the case at this point, since reports are enabled
+
+(c) option = "*"
+	If jobReportExists we are in fact reporting, so nothing further needs
+	to be done.  Otherwise, change option to FrameworkJobReport.xml	
+
+(d,e) option = name.extension
+	If that name matches a framework job report actual file name, we need
+	do nothing more.  Otherwise, configure a framework job destination
+	by the name of FrameworkJobReport.xml
+	
+Finally, if we have not returned, we need to configure the destination, but
+this is a special version because we don't have a PSet yet we want to act
+as if we had
+
+      untracked PSet FrameworkJobReport = {
+             untracked PSet default = { untracked int32 limit = 0 }
+             untracked PSet FwkJob  = { untracked int32 limit = 10000000 }
+                                           }
