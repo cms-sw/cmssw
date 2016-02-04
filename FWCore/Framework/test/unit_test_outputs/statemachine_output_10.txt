@@ -1,0 +1,156 @@
+
+Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
+    *** nextItemType: Restart 0 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Event ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Lumi 1 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Run 1 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Stop 1 ***
+	startingNewLoop
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
+    *** nextItemType: Restart 0 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Event ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Lumi 1 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Run 1 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Stop 1 ***
+	startingNewLoop
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndLumis
+    *** nextItemType: Restart 0 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Event ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Lumi 1 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Run 1 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Stop 1 ***
+	startingNewLoop
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
+    *** nextItemType: Restart 0 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Event ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Lumi 1 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Run 1 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Stop 1 ***
+	startingNewLoop
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
+    *** nextItemType: Restart 0 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Event ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Lumi 1 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Run 1 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Stop 1 ***
+	startingNewLoop
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndLumis
+    *** nextItemType: Restart 0 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Event ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Lumi 1 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Run 1 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Stop 1 ***
+	startingNewLoop
+	endOfLoop
+The state machine reports it has been terminated

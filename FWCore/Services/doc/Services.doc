@@ -1,0 +1,43 @@
+
+/*!
+
+\page FWCore_Services Package FWCore/Services
+
+<center>
+<small>
+
+<!-- @PROJ_VERS@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/FWCore/Services/?cvsroot=CMSSW&only_with_tag=@PROJ_VERS@>CVS</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/FWCore/Services/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+This package contains the basic utility service plugins.
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+Files
+JobReport
+ServicesFwd
+SiteLocalConfig
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+Unknown
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Unknown
+
+<hr>
+Last updated:
+@DATE@  Author: computer-generated.
+*/
+

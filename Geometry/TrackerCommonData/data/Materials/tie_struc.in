@@ -1,0 +1,66 @@
+TIE Structure (anything but modules)
+====================================
+Input file for mixture.f
+Start new mixtures with a '#' in the first column
+Start the components with a '*' in the first column
+You can type any kind of comment in as long as you don't start it
+with '#' or '*' !
+.....................................................................
+For mixture declaration: Name of Mixture, Name of GMIX for title file, 
+                         Monte Carlo Volume, MC Area
+For items in a compound: Item number, Comment, Material (has to be 
+                 written exactly as in material.input file), 
+                 Volume, Multiplicity, Type
+      Type is one of the following:  SUP for support
+                                     SEN for sensitive volumes
+                                     CAB for cables
+                                     COL for cooling
+                                     ELE for electronics
+..................................................................... 
+
+o TIE_Connector
+  -------------
+These are the optical connector at the end of the TID. Total number: 390
+
+%%NEWS: Mail from Francois: weight of optoconnector (12 channels) is 
+%%      46.8 g Plastic + 8.4 g Cu 
+%%      33.43 cm^3     + 0.9375 cm^3 
+%%
+%%I don't believe this ! Too heavy !
+%%Now take the following: Per MU Connector 0.7 g Cu and 0.7 g Plastic (12)
+%%     Plastic: take Kapton => 12 * 0.5 cm^3 = 6 cm^3
+%%Big connector has about dimensions of 6 x 2 x 1 cm => 12 cm^3
+%%      total 18 cm^3 + 0.937 cm^3 copper
+
+New information from Francois:
+  Connector weighs 25 g total, about 4 g metallic mass  
+     21 g Kapton => 15 cm^3 plastic
+      4 g Copper => 0.446 cm^3
+     
+.....................................................................
+# "TIB/TID optical conn"    "TIE_Connector"      43228.   4322.8   
+* 1 "Optoconnector"         "T_Kapton"           15.0     390   CAB
+* 2 "Optoconnector"         "Copper"             0.446    390   CAB
+....................................................................
+=====================================================================
+
+# "END"  "END"  0.  0.   
+this has to be the last line !
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+export MYQUEUE=$1
+shift
+
+export JOB_SCRIPT=electronBsub.sh
+export JOB_DIR=electronBsub.$$
+mkdir -p ${JOB_DIR}
+
+cat << EOF  > ${JOB_DIR}/${JOB_SCRIPT}
+cd `pwd`
+eval `scram runtime -sh`
+$*
+EOF
+
+cd ${JOB_DIR}
+chmod a+x ${JOB_SCRIPT}
+bsub -q ${MYQUEUE} ${JOB_SCRIPT}
+

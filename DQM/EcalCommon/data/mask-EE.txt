@@ -1,0 +1,114 @@
+# towers masked in DAQ
+TT EE-07 31 disabled_channel
+TT EE-05 32 disabled_channel
+TT EE+06 12 disabled_channel
+TT EE+06 14 disabled_channel
+TT EE+06 19 disabled_channel
+TT EE+06 20 disabled_channel
+
+# towers not masked in DAQ, but frequently problematic
+TT EE-07 32 STATUS_FLAG_ERROR
+
+# tower laser problems
+TT EE+08 4 laser_problem
+
+# PN problems
+# hardcoded in DQM/EcalCommon/src/Masks.cc
+
+# dead crystals
+Crystal EE-99 3041 dead_channel
+Crystal EE-99 30031 dead_channel
+Crystal EE-99 40019 dead_channel
+Crystal EE-99 45001 dead_channel
+Crystal EE-99 46023 dead_channel
+Crystal EE-99 50085 dead_channel
+Crystal EE-99 52011 dead_channel
+Crystal EE-99 64062 dead_channel
+Crystal EE-99 78051 dead_channel
+Crystal EE-99 81055 dead_channel
+Crystal EE+99 1048 dead_channel
+Crystal EE+99 2048 dead_channel
+Crystal EE+99 3048 dead_channel
+Crystal EE+99 4048 dead_channel
+Crystal EE+99 5048 dead_channel
+Crystal EE+99 6038 dead_channel
+Crystal EE+99 7038 dead_channel
+Crystal EE+99 8038 dead_channel
+Crystal EE+99 9038 dead_channel
+Crystal EE+99 10038 dead_channel
+Crystal EE+99 20063 dead_channel
+Crystal EE+99 23062 dead_channel
+Crystal EE+99 25074 dead_channel
+Crystal EE+99 29048 dead_channel
+Crystal EE+99 40075 dead_channel
+Crystal EE+99 44099 dead_channel
+Crystal EE+99 45090 dead_channel
+Crystal EE+99 46099 dead_channel
+Crystal EE+99 49006 dead_channel
+Crystal EE+99 55091 dead_channel
+Crystal EE+99 56001 dead_channel
+Crystal EE+99 56016 dead_channel
+Crystal EE+99 56026 dead_channel
+Crystal EE+99 60077 dead_channel
+Crystal EE+99 76011 dead_channel
+Crystal EE+99 85048 dead_channel
+
+# single noisy crystals
+Crystal EE-99 1042 noise_problem
+Crystal EE-99 1050 noise_problem
+Crystal EE-99 7068 noise_problem
+Crystal EE-99 15050 noise_problem
+Crystal EE-99 20045 noise_problem
+Crystal EE-99 24022 noise_problem
+Crystal EE-99 25021 noise_problem
+Crystal EE-99 25089 noise_problem
+Crystal EE-99 25090 noise_problem
+Crystal EE-99 30080 noise_problem
+Crystal EE-99 34028 noise_problem
+Crystal EE-99 49024 noise_problem
+Crystal EE-99 61037 noise_problem
+Crystal EE-99 76021 noise_problem
+Crystal EE-99 76022 noise_problem
+Crystal EE-99 76090 noise_problem
+Crystal EE-99 77089 noise_problem
+Crystal EE-99 77090 noise_problem
+Crystal EE-99 87028 noise_problem
+Crystal EE-99 99056 noise_problem
+Crystal EE-99 100046 noise_problem
+Crystal EE+99 10071 noise_problem
+Crystal EE+99 10072 noise_problem
+Crystal EE+99 24011 noise_problem
+Crystal EE+99 24083 noise_problem
+Crystal EE+99 27075 noise_problem
+Crystal EE+99 25012 noise_problem
+Crystal EE+99 25083 noise_problem
+Crystal EE+99 41059 noise_problem
+Crystal EE+99 71080 noise_problem
+Crystal EE+99 76090 noise_problem
+Crystal EE+99 91031 noise_problem
+Crystal EE+99 95033 noise_problem
+
+# laser problems
+Crystal EE+99 43066 laser_problem
+Crystal EE+99 38096 laser_problem
+Crystal EE+99 33069 laser_problem
+Crystal EE+99 24065 laser_problem
+Crystal EE+99 16063 laser_problem
+Crystal EE+99 52027 laser_problem
+Crystal EE+99 80022 laser_problem
+Crystal EE+99 100059 laser_problem
+Crystal EE+99 96057 laser_problem
+Crystal EE+99 66052 laser_problem
+Crystal EE+99 6033 laser_problem
+Crystal EE+99 42075 laser_problem
+Crystal EE-99 16052 laser_problem
+Crystal EE-99 46067 laser_problem
+Crystal EE-99 41060 laser_problem
+Crystal EE-99 10030 laser_problem
+Crystal EE-99 55036 laser_problem
+Crystal EE-99 64041 laser_problem
+Crystal EE-99 82036 laser_problem
+Crystal EE-99 71067 laser_problem
+Crystal EE-99 76061 laser_problem
+Crystal EE-99 54094 laser_problem
+

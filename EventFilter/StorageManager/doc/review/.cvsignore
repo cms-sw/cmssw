@@ -1,0 +1,8 @@
+*.pdf
+smreviewdoc2.aux
+smreviewdoc2.dvi
+smreviewdoc2.log
+smreviewdoc2.ps
+Hardware/*.pdf
+Software/*.pdf
+
