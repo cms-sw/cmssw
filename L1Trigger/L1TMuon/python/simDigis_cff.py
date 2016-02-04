@@ -11,6 +11,7 @@ import L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi
 simDtTriggerPrimitiveDigis = L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi.dtTriggerPrimitiveDigis.clone()
 
 simDtTriggerPrimitiveDigis.digiTag = 'simMuonDTDigis'
+#simDtTriggerPrimitiveDigis.debug = cms.untracked.bool(True)
 
 # - CSC TP emulator
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
