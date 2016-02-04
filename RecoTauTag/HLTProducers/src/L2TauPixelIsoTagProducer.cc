@@ -98,7 +98,8 @@ void L2TauPixelIsoTagProducer::produce(edm::StreamID sid, edm::Event& ev, const 
 
         float dr2 = deltaR2 (jet_eta, jet_phi, (*tr)->eta(), (*tr)->phi());
 
-        if (dr2 >= m_isoCone2Min && dr2 <= m_isoCone2Max) iso += 1.;
+        // sum pT based isolation
+        if (dr2 >= m_isoCone2Min && dr2 <= m_isoCone2Max) iso += (*tr)->pt();
       }
 
       (*jetTagCollection)[jet] = iso;

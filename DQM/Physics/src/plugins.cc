@@ -11,7 +11,9 @@
 #include "DQM/Physics/src/QcdHighPtDQM.h"
 #include "DQM/Physics/src/TopDiLeptonOfflineDQM.h"
 #include "DQM/Physics/src/TopSingleLeptonDQM.h"
+#include "DQM/Physics/src/TopSingleLeptonDQM_miniAOD.h"
 #include "DQM/Physics/src/SingleTopTChannelLeptonDQM.h"
+#include "DQM/Physics/src/SingleTopTChannelLeptonDQM_miniAOD.h"
 #include "DQM/Physics/src/SusyDQM.h"
 #include "DQM/Physics/src/QcdUeDQM.h"
 #include "DQM/Physics/src/HiggsDQM.h"
@@ -29,7 +31,9 @@ DEFINE_FWK_MODULE(QcdPhotonsDQM);
 DEFINE_FWK_MODULE(QcdLowPtDQM);
 DEFINE_FWK_MODULE(QcdHighPtDQM);
 DEFINE_FWK_MODULE(TopSingleLeptonDQM);
+DEFINE_FWK_MODULE(TopSingleLeptonDQM_miniAOD);
 DEFINE_FWK_MODULE(SingleTopTChannelLeptonDQM);
+DEFINE_FWK_MODULE(SingleTopTChannelLeptonDQM_miniAOD);
 DEFINE_FWK_MODULE(TopDiLeptonOfflineDQM);
 DEFINE_FWK_MODULE(RecoSusyDQM);
 DEFINE_FWK_MODULE(QcdUeDQM);

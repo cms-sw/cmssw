@@ -50,7 +50,7 @@ ShallowClustersProducer::ShallowClustersProducer(const edm::ParameterSet& iConfi
   produces <std::vector<int> >         ( Prefix + "petal"         );
   produces <std::vector<int> >         ( Prefix + "stereo"        );
 
-  theClustersToken_ = consumes<edm::DetSetVector<SiStripCluster> >          (iConfig.getParameter<edm::InputTag>("Clusters"));
+  theClustersToken_ = consumes<edmNew::DetSetVector<SiStripCluster> >          (iConfig.getParameter<edm::InputTag>("Clusters"));
   theDigisToken_    = consumes<edm::DetSetVector<SiStripProcessedRawDigi> > (edm::InputTag("siStripProcessedRawDigis", ""));
 }
 

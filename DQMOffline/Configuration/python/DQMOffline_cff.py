@@ -42,6 +42,7 @@ from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
 from DQMOffline.RecoB.PrimaryVertexMonitor_cff import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 from DQM.Physics.DQMPhysics_cff import *
+from DQM.Physics.DQMTopMiniAOD_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_cff import *
 # miniAOD DQM validation
@@ -140,9 +141,3 @@ from DQMOffline.Muon.miniAOD_cff import *
 
 PostDQMOfflineMiniAOD = cms.Sequence(miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD*muonMonitors_miniAOD*MuonMiniAOD)
 PostDQMOffline = cms.Sequence()
-
-
-
-#DQMOfflineNoHWW = cms.Sequence(DQMOffline)
-#DQMOfflineNoHWW.remove(hwwAnalyzer)
-

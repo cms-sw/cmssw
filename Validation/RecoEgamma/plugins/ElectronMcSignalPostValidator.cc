@@ -59,7 +59,6 @@ void ElectronMcSignalPostValidator::finalize( DQMStore::IBooker & iBooker, DQMSt
     h1_ele_xOverX0VsEta->setBinContent(ibin,xOverX0) ;
   }/**/
 
-  
   // profiles from 2D histos
   profileX(iBooker, iGetter, "scl_EoEtrueVsrecOfflineVertices","E/Etrue vs number of primary vertices","N_{primary vertices}","E/E_{true}", 0.8);
   profileX(iBooker, iGetter, "scl_EoEtrueVsrecOfflineVertices_barrel","E/Etrue vs number of primary vertices , barrel","N_{primary vertices}","E/E_{true}", 0.8);
@@ -67,6 +66,7 @@ void ElectronMcSignalPostValidator::finalize( DQMStore::IBooker & iBooker, DQMSt
 
   profileX(iBooker, iGetter, "PoPtrueVsEta","mean ele momentum / gen momentum vs eta","#eta","<P/P_{gen}>");
   profileX(iBooker, iGetter, "PoPtrueVsPhi","mean ele momentum / gen momentum vs phi","#phi (rad)","<P/P_{gen}>");
+  profileX(iBooker, iGetter, "sigmaIetaIetaVsPt","SigmaIetaIeta vs pt","p_{T} (GeV/c)","SigmaIetaIeta");
   profileX(iBooker, iGetter, "EoEtruePfVsEg","mean pflow sc energy / true energy vs e/g sc energy","E/E_{gen} (e/g)","<E/E_{gen}> (pflow)") ;
   profileY(iBooker, iGetter, "EoEtruePfVsEg","mean e/g sc energy / true energy vs pflow sc energy","E/E_{gen} (pflow)","<E/E_{gen}> (eg)") ;
   profileX(iBooker, iGetter, "EtaMnEtaTrueVsEta","mean ele eta - gen eta vs eta","#eta","<#eta_{rec} - #eta_{gen}>");
@@ -87,6 +87,7 @@ void ElectronMcSignalPostValidator::finalize( DQMStore::IBooker & iBooker, DQMSt
   profileX(iBooker, iGetter, "chi2VsPhi","mean ele track chi2 vs phi","#phi (rad)","<#Chi^{2}>");
   profileX(iBooker, iGetter, "ambiguousTracksVsEta","mean ele # ambiguous tracks  vs eta","#eta","<N_{ambiguous}>");
   profileX(iBooker, iGetter, "foundHitsVsEta","mean ele track # found hits vs eta","#eta","<N_{hits}>");
+  profileX(iBooker, iGetter, "foundHitsVsEta_mAOD","mean ele track # found hits vs eta","#eta","<N_{hits}>");
   profileX(iBooker, iGetter, "foundHitsVsPhi","mean ele track # found hits vs phi","#phi (rad)","<N_{hits}>");
   profileX(iBooker, iGetter, "lostHitsVsEta","mean ele track # lost hits vs eta","#eta","<N_{hits}>");
   profileX(iBooker, iGetter, "lostHitsVsPhi","mean ele track # lost hits vs phi","#phi (rad)","<N_{hits}>");

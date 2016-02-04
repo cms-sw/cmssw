@@ -1976,8 +1976,17 @@ class PlotterFolder:
         if dqmSubFolders is None:
             self._dqmSubFolders = None
         else:
-            self._dqmSubFolders = map(lambda sf: DQMSubFolder(sf, self._plotFolder.translateSubFolder(sf)), dqmSubFolders[0])
-            self._dqmSubFolders = filter(lambda sf: sf.translated is not None, self._dqmSubFolders)
+            # Match the subfolders between files in case the lists differ
+            # equality is by the 'translated' name
+            subfolders = {}
+            for sf_list in dqmSubFolders:
+                for sf in sf_list:
+                    sf_translated = self._plotFolder.translateSubFolder(sf)
+                    if sf_translated is not None and not sf_translated in subfolders:
+                        subfolders[sf_translated] = DQMSubFolder(sf, sf_translated)
+
+            self._dqmSubFolders = subfolders.values()
+            self._dqmSubFolders.sort(key=lambda sf: sf.subfolder)
 
         self._fallbackNames = fallbackNames
         self._fallbackDqmSubFolders = fallbackDqmSubFolders
@@ -2218,6 +2227,7 @@ class Plotter:
         ROOT.gStyle.SetStatFontSize(statSize)
 
         ROOT.TH1.AddDirectory(False)
+        ROOT.TGaxis.SetMaxDigits(4)
 
     def append(self, *args, **kwargs):
         """Append a plot folder to the plotter.
@@ -2232,6 +2242,10 @@ class Plotter:
                 plotterItem.appendTableCreator(PlotterTableItem(*args, **kwargs))
                 return
         raise Exception("Did not find plot folder '%s' when trying to attach a table creator to it" % attachToFolder)
+
+    def clear(self):
+        """Remove all plot folders and tables"""
+        self._plots = []
 
     def getPlotFolderNames(self):
         return [item.getName() for item in self._plots]

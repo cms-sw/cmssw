@@ -13,6 +13,7 @@
 // system include files
 #include <string>
 #include <map>
+#include <memory>
 #include <set>
 // user include files
 #include "CondCore/CondDB/interface/ConnectionPool.h"
@@ -32,7 +33,7 @@ namespace cond{
 class CondDBESSource : public edm::eventsetup::DataProxyProvider,
 		       public edm::EventSetupRecordIntervalFinder{
  public:
-  typedef boost::shared_ptr<cond::DataProxyWrapperBase > ProxyP;
+  typedef std::shared_ptr<cond::DataProxyWrapperBase > ProxyP;
   typedef std::multimap< std::string,  ProxyP> ProxyMap;
 
   typedef enum { NOREFRESH, REFRESH_ALWAYS, REFRESH_OPEN_IOVS, REFRESH_EACH_RUN, RECONNECT_EACH_RUN } RefreshPolicy;

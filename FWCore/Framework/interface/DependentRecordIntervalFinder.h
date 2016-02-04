@@ -21,8 +21,8 @@
 //
 
 // system include files
+#include <memory>
 #include <vector>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
@@ -48,9 +48,9 @@ class DependentRecordIntervalFinder : public EventSetupRecordIntervalFinder
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      void addProviderWeAreDependentOn(boost::shared_ptr<EventSetupRecordProvider>);
+      void addProviderWeAreDependentOn(std::shared_ptr<EventSetupRecordProvider>);
       
-      void setAlternateFinder(boost::shared_ptr<EventSetupRecordIntervalFinder>);
+      void setAlternateFinder(std::shared_ptr<EventSetupRecordIntervalFinder>);
    protected:
       virtual void setIntervalFor(const EventSetupRecordKey&,
                                    const IOVSyncValue& , 
@@ -62,10 +62,10 @@ class DependentRecordIntervalFinder : public EventSetupRecordIntervalFinder
       const DependentRecordIntervalFinder& operator=(const DependentRecordIntervalFinder&); // stop default
 
       // ---------- member data --------------------------------
-      typedef std::vector<edm::propagate_const<boost::shared_ptr<EventSetupRecordProvider>>> Providers;
+      typedef std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordProvider>>> Providers;
       Providers providers_;
       
-      edm::propagate_const<boost::shared_ptr<EventSetupRecordIntervalFinder>> alternate_;
+      edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>> alternate_;
       std::vector<ValidityInterval> previousIOVs_;
 };
 

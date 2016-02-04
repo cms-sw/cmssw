@@ -4,6 +4,8 @@ from RecoTracker.IterativeTracking.iterativeTk_cff import *
 from RecoTracker.IterativeTracking.ElectronSeeds_cff import *
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_pixelMixing_PU
 
+from Configuration.StandardSequences.Eras import eras
+
 def customise(process):
     if hasattr(process,'DigiToRaw'):
         process=customise_DigiToRaw(process)
@@ -34,16 +36,28 @@ def customise(process):
     return process
 
 def customise_DigiToRaw(process):
+    # These were migrated in #12361
+    if eras.phase1Pixel.isChosen():
+        return process
+
     process.digi2raw_step.remove(process.siPixelRawData)
     process.digi2raw_step.remove(process.castorRawData)
     return process
 
 def customise_RawToDigi(process):
+    # These were migrated in #12361
+    if eras.phase1Pixel.isChosen():
+        return process
+
     process.raw2digi_step.remove(process.siPixelDigis)
     process.raw2digi_step.remove(process.castorDigis)
     return process
 
 def customise_Digi(process):
+    # these were migrated in #12275
+    if eras.phase1Pixel.isChosen():
+        return process
+
     process.mix.digitizers.pixel.MissCalibrate = False
     process.mix.digitizers.pixel.LorentzAngle_DB = False
     process.mix.digitizers.pixel.killModules = False
@@ -84,17 +98,46 @@ def customise_Digi(process):
 
 # DQM steps change
 def customise_DQM(process,pileup):
+    # FIXME
+    #
+    # These should be added back once somebody checks that they work,
+    # and those that do not, get fixed
+    #
+    # The customizations are done here instead of in the central files
+    # with era because they are temporary
+    process.DQMOfflinePrePOG.remove(process.TrackingDQMSourceTier0)
+    process.DQMOfflinePrePOG.remove(process.muonMonitors)
+    process.DQMOfflinePrePOG.remove(process.jetMETDQMOfflineSource)
+    process.DQMOfflinePrePOG.remove(process.egammaDQMOffline)
+    process.DQMOfflinePrePOG.remove(process.triggerOfflineDQMSource)
+    process.DQMOfflinePrePOG.remove(process.bTagPlotsDATA)
+    process.DQMOfflinePrePOG.remove(process.alcaBeamMonitor)
+    process.DQMOfflinePrePOG.remove(process.dqmPhysics)
+    process.DQMOfflinePrePOG.remove(process.produceDenoms)
+    process.DQMOfflinePrePOG.remove(process.pfTauRunDQMValidation)
+
+    process.DQMOffline.remove(process.DQMOfflinePreDPG)
+    process.DQMOffline.remove(process.HLTMonitoring)
+
+    process.DQMOfflineTracking.remove(process.TrackingDQMSourceTier0Common)
+
+    # Ok, this customization does not work currently at all
+    # Need to be fixed before the tracking DQM can be enabled
+    return process
+
     # We cut down the number of iterative tracking steps
-    process.dqmoffline_step.remove(process.muonAnalyzer)
-    #process.dqmoffline_step.remove(process.jetMETAnalyzer)
+    if not eras.phase1Pixel.isChosen(): # these were migrated in #12459
+        process.dqmoffline_step.remove(process.muonAnalyzer)
+        #process.dqmoffline_step.remove(process.jetMETAnalyzer)
 
     #put isUpgrade flag==true
-    process.SiPixelRawDataErrorSource.isUpgrade = cms.untracked.bool(True)
-    process.SiPixelDigiSource.isUpgrade = cms.untracked.bool(True)
-    process.SiPixelClusterSource.isUpgrade = cms.untracked.bool(True)
-    process.SiPixelRecHitSource.isUpgrade = cms.untracked.bool(True)
-    process.SiPixelTrackResidualSource.isUpgrade = cms.untracked.bool(True)
-    process.SiPixelHitEfficiencySource.isUpgrade = cms.untracked.bool(True)
+    if not eras.phase1Pixel.isChosen(): # these were migrated in #12459
+        process.SiPixelRawDataErrorSource.isUpgrade = cms.untracked.bool(True)
+        process.SiPixelDigiSource.isUpgrade = cms.untracked.bool(True)
+        process.SiPixelClusterSource.isUpgrade = cms.untracked.bool(True)
+        process.SiPixelRecHitSource.isUpgrade = cms.untracked.bool(True)
+        process.SiPixelTrackResidualSource.isUpgrade = cms.untracked.bool(True)
+        process.SiPixelHitEfficiencySource.isUpgrade = cms.untracked.bool(True)
 
     from DQM.TrackingMonitor.customizeTrackingMonitorSeedNumber import customise_trackMon_IterativeTracking_PHASE1PU140
     from DQM.TrackingMonitor.customizeTrackingMonitorSeedNumber import customise_trackMon_IterativeTracking_PHASE1PU70
@@ -106,6 +149,61 @@ def customise_DQM(process,pileup):
     return process
 
 def customise_Validation(process):
+    # FIXME
+    #
+    # For starters, include only tracking validation
+    # The rest should be added back once somebody checks that they
+    # work, and those that do not, get fixed
+    #
+    # The customizations are done here instead of in the central files
+    # with era because they are temporary
+    process.globalPrevalidation.remove(process.photonPrevalidationSequence)
+    process.globalPrevalidation.remove(process.produceDenoms)
+    process.globalPrevalidation.remove(process.prebTagSequenceMC)
+    # With era, would modify process.globalValidation
+    process.validation.remove(process.trackerHitsValidation)
+    process.validation.remove(process.trackerDigisValidation)
+    process.validation.remove(process.trackerRecHitsValidation)
+    process.validation.remove(process.trackingTruthValid)
+    process.validation.remove(process.trackingRecHitsValid)
+    process.validation.remove(process.ecalSimHitsValidationSequence)
+    process.validation.remove(process.ecalDigisValidationSequence)
+    process.validation.remove(process.ecalRecHitsValidationSequence)
+    process.validation.remove(process.ecalClustersValidationSequence)
+    process.validation.remove(process.hcalSimHitsValidationSequence)
+    process.validation.remove(process.hcaldigisValidationSequence)
+    process.validation.remove(process.hcalSimHitStudy)
+    process.validation.remove(process.hcalRecHitsValidationSequence)
+    process.validation.remove(process.calotowersValidationSequence)
+    process.validation.remove(process.validSimHit)
+    process.validation.remove(process.muondtdigianalyzer)
+    process.validation.remove(process.cscDigiValidation)
+    process.validation.remove(process.validationMuonRPCDigis)
+    process.validation.remove(process.recoMuonValidation)
+    process.validation.remove(process.muIsoVal_seq)
+    process.validation.remove(process.muonIdValDQMSeq)
+    process.validation.remove(process.mixCollectionValidation)
+    process.validation.remove(process.JetValidation)
+    process.validation.remove(process.METValidation)
+    process.validation.remove(process.egammaValidation)
+    process.validation.remove(process.pfJetValidationSequence)
+    process.validation.remove(process.pfMETValidationSequence)
+    process.validation.remove(process.pfElectronValidationSequence)
+    process.validation.remove(process.pfJetResValidationSequence)
+    process.validation.remove(process.pfMuonValidationSequence)
+    process.validation.remove(process.rpcRecHitValidation_step)
+    process.validation.remove(process.dtLocalRecoValidation_no2D)
+    process.validation.remove(process.pfTauRunDQMValidation)
+    process.validation.remove(process.bTagPlotsMCbcl)
+    process.validation.remove(process.L1Validator)
+
+    process.hltassociation = cms.Sequence()
+    process.hltvalidation = cms.Sequence()
+
+    # these were migrated in #12359
+    if eras.phase1Pixel.isChosen():
+        return process
+
     process.validation_step.remove(process.PixelTrackingRecHitsValid)
     # We don't run the HLT
     process.validation_step.remove(process.HLTSusyExoVal)
@@ -137,6 +235,45 @@ def customise_Validation_Trackingonly(process):
     return process
 
 def customise_harvesting(process):
+    # FIXME
+    #
+    # These should be added back once somebody checks that they work,
+    # and those that do not, get fixed
+    #
+    # The customizations are done here instead of in the central files
+    # with era because they are temporary
+    process.DQMOffline_SecondStep.remove(process.DQMOffline_SecondStep_PreDPG)
+    process.DQMOffline_SecondStep.remove(process.DQMOffline_SecondStep_PrePOG)
+    process.DQMOffline_SecondStep.remove(process.HLTMonitoringClient)
+
+    process.DQMHarvestTracking.remove(process.TrackingOfflineDQMClient)
+
+    process.postValidation.remove(process.recoMuonPostProcessors)
+    process.postValidation.remove(process.MuIsoValPostProcessor)
+    process.postValidation.remove(process.calotowersPostProcessor)
+    process.postValidation.remove(process.hcalSimHitsPostProcessor)
+    process.postValidation.remove(process.hcaldigisPostProcessor)
+    process.postValidation.remove(process.hcalrechitsPostProcessor)
+    process.postValidation.remove(process.electronPostValidationSequence)
+    process.postValidation.remove(process.photonPostProcessor)
+    process.postValidation.remove(process.pfJetClient)
+    process.postValidation.remove(process.pfMETClient)
+    process.postValidation.remove(process.pfJetResClient)
+    process.postValidation.remove(process.pfElectronClient)
+    process.postValidation.remove(process.rpcRecHitPostValidation_step)
+    process.postValidation.remove(process.runTauEff)
+    process.postValidation.remove(process.makeBetterPlots)
+    process.postValidation.remove(process.bTagCollectorSequenceMCbcl)
+    process.postValidation.remove(process.METPostProcessor)
+    process.postValidation_preprod.remove(process.recoMuonPostProcessors)
+    process.postValidation_preprod.remove(process.MuIsoValPostProcessor)
+
+    process.hltpostvalidation = cms.Sequence()
+
+    # these were migrated in #12440
+    if eras.phase1Pixel.isChosen():
+        return process
+
     process.dqmHarvesting.remove(process.dataCertificationJetMET)
     #######process.dqmHarvesting.remove(process.sipixelEDAClient)
     process.sipixelEDAClient.isUpgrade = cms.untracked.bool(True)
@@ -382,13 +519,13 @@ def customise_Reco(process,pileup):
         process.siPixelRecHits
     )
     process.clusterSummaryProducer.pixelClusters = "siPixelClusters"
-    process.reconstruction.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
-    process.reconstruction.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
+    process.globalreco_tracking.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
+    process.globalreco_tracking.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
 
     # Enable, for now, pixel tracks and vertices
     # To be removed later together with the cluster splitting
-    process.reconstruction.replace(process.standalonemuontracking,
-                                   process.standalonemuontracking+process.recopixelvertexing)
+    process.globalreco_tracking.replace(process.standalonemuontracking,
+                                        process.standalonemuontracking+process.recopixelvertexing)
     process.initialStepSelector.vertices = "pixelVertices"
     process.highPtTripletStepSelector.vertices = "pixelVertices"
     process.lowPtQuadStepSelector.vertices = "pixelVertices"

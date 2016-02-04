@@ -4,6 +4,6 @@ from Validation.RecoEgamma.electronIsoFromDeps_cff import *
 from Validation.RecoEgamma.ElectronMcSignalValidator_gedGsfElectrons_cfi import *
 from Validation.RecoEgamma.ElectronMcFakeValidator_gedGsfElectrons_cfi import *
 from Validation.RecoEgamma.ElectronMcSignalValidatorPt1000_gedGsfElectrons_cfi import *
-
+ 
 electronValidationSequence = cms.Sequence(electronIsoFromDeps+electronMcSignalValidator+electronMcFakeValidator+electronMcSignalValidatorPt1000)
 

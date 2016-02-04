@@ -52,6 +52,9 @@ namespace edm {
          template< typename T> struct product_traits<boost::shared_ptr<T> > {
             typedef EndList<boost::shared_ptr<T> > type;
          };
+         template< typename T> struct product_traits<std::shared_ptr<T> > {
+            typedef EndList<std::shared_ptr<T> > type;
+         };
          
          
          template<typename T> struct size {

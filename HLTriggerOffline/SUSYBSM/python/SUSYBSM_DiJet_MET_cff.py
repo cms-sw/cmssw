@@ -20,7 +20,7 @@ SUSY_HLT_DiJet_MET = cms.EDAnalyzer("SUSY_HLT_DiJet_MET",
 )
 
 SUSY_HLT_DiJet_MET_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_DiCentralPFJet55_PFMET110"),
+    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_DiCentralPFJet55_PFMET110_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(

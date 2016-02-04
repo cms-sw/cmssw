@@ -6,27 +6,25 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-
-
-
 ShallowGainCalibration::ShallowGainCalibration(const edm::ParameterSet& iConfig)
-  :  theTracksLabel( iConfig.getParameter<edm::InputTag>("Tracks") ),
+  :  tracks_token_( consumes< edm::View<reco::Track> >(iConfig.getParameter<edm::InputTag>("Tracks")) ),
+		 association_token_( consumes< TrajTrackAssociationCollection >(iConfig.getParameter<edm::InputTag>("Tracks")) ),
      Suffix       ( iConfig.getParameter<std::string>("Suffix")    ),
      Prefix       ( iConfig.getParameter<std::string>("Prefix") )
 {
   produces <std::vector<int> >            ( Prefix + "trackindex"     + Suffix );
   produces <std::vector<unsigned int> >   ( Prefix + "rawid"          + Suffix );
-  produces <std::vector<float> >          ( Prefix + "localdirx"      + Suffix );
-  produces <std::vector<float> >          ( Prefix + "localdiry"      + Suffix );
-  produces <std::vector<float> >          ( Prefix + "localdirz"      + Suffix );
+  produces <std::vector<double> >         ( Prefix + "localdirx"      + Suffix );
+  produces <std::vector<double> >         ( Prefix + "localdiry"      + Suffix );
+  produces <std::vector<double> >         ( Prefix + "localdirz"      + Suffix );
   produces <std::vector<unsigned short> > ( Prefix + "firststrip"     + Suffix );
   produces <std::vector<unsigned short> > ( Prefix + "nstrips"        + Suffix );
   produces <std::vector<bool> >           ( Prefix + "saturation"     + Suffix );
   produces <std::vector<bool> >           ( Prefix + "overlapping"    + Suffix );
   produces <std::vector<bool> >           ( Prefix + "farfromedge"    + Suffix );
   produces <std::vector<unsigned int> >   ( Prefix + "charge"         + Suffix );
-  produces <std::vector<float> >          ( Prefix + "path"           + Suffix );
-  produces <std::vector<float> >          ( Prefix + "chargeoverpath" + Suffix );
+  produces <std::vector<double> >         ( Prefix + "path"           + Suffix );
+  produces <std::vector<double> >         ( Prefix + "chargeoverpath" + Suffix );
   produces <std::vector<unsigned char> >  ( Prefix + "amplitude"      + Suffix );
   produces <std::vector<double> >         ( Prefix + "gainused"       + Suffix );
   produces <std::vector<double> >         ( Prefix + "gainusedTick"   + Suffix );
@@ -36,17 +34,17 @@ void ShallowGainCalibration::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<int> >            trackindex    ( new std::vector<int>            );
   std::auto_ptr<std::vector<unsigned int> >   rawid         ( new std::vector<unsigned int>   );
-  std::auto_ptr<std::vector<float>  >         localdirx     ( new std::vector<float>          );
-  std::auto_ptr<std::vector<float>  >         localdiry     ( new std::vector<float>          );
-  std::auto_ptr<std::vector<float>  >         localdirz     ( new std::vector<float>          );
+  std::auto_ptr<std::vector<double> >         localdirx     ( new std::vector<double>         );
+  std::auto_ptr<std::vector<double> >         localdiry     ( new std::vector<double>         );
+  std::auto_ptr<std::vector<double> >         localdirz     ( new std::vector<double>         );
   std::auto_ptr<std::vector<unsigned short> > firststrip    ( new std::vector<unsigned short> );
   std::auto_ptr<std::vector<unsigned short> > nstrips       ( new std::vector<unsigned short> );
   std::auto_ptr<std::vector<bool> >           saturation    ( new std::vector<bool>           );
   std::auto_ptr<std::vector<bool> >           overlapping   ( new std::vector<bool>           );
   std::auto_ptr<std::vector<bool> >           farfromedge   ( new std::vector<bool>           );
   std::auto_ptr<std::vector<unsigned int> >   charge        ( new std::vector<unsigned int>   );
-  std::auto_ptr<std::vector<float>  >         path          ( new std::vector<float>          );
-  std::auto_ptr<std::vector<float>  >         chargeoverpath( new std::vector<float>          );
+  std::auto_ptr<std::vector<double> >         path          ( new std::vector<double>         );
+  std::auto_ptr<std::vector<double> >         chargeoverpath( new std::vector<double>         );
   std::auto_ptr<std::vector<unsigned char> >  amplitude     ( new std::vector<unsigned char>  );
   std::auto_ptr<std::vector<double>  >        gainused      ( new std::vector<double>          );
   std::auto_ptr<std::vector<double>  >        gainusedTick  ( new std::vector<double>          );
@@ -54,8 +52,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;         iSetup.get<TrackerDigiGeometryRecord>().get( theTrackerGeometry );  
   m_tracker=&(* theTrackerGeometry );
   edm::ESHandle<SiStripGain> gainHandle;                     iSetup.get<SiStripGainRcd>().get(gainHandle);
-  edm::Handle<edm::View<reco::Track> > tracks;	             iEvent.getByLabel(theTracksLabel, tracks);	  
-  edm::Handle<TrajTrackAssociationCollection> associations;  iEvent.getByLabel(theTracksLabel, associations);
+  edm::Handle<edm::View<reco::Track> > tracks;	             iEvent.getByToken(tracks_token_, tracks);	  
+  edm::Handle<TrajTrackAssociationCollection> associations;  iEvent.getByToken(association_token_, associations);
 
   for( TrajTrackAssociationCollection::const_iterator association = associations->begin(); association != associations->end(); association++) {
        const Trajectory*  traj  = association->key.get();

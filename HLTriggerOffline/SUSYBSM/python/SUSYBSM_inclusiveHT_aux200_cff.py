@@ -14,7 +14,7 @@ SUSY_HLT_InclusiveHT_aux200 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
 )
 
 SUSY_HLT_InclusiveHT_aux200_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-  subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT200"),
+  subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT200_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
     "pfHTTurnOn_eff 'Efficiency vs PFHT' pfHTTurnOn_num pfHTTurnOn_den"

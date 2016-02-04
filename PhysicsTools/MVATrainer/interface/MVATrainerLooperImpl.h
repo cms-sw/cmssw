@@ -4,8 +4,6 @@
 #include <string>
 #include <memory>
 
-#include <boost/shared_ptr.hpp>
-
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESProducts.h"
@@ -27,7 +25,7 @@ class MVATrainerLooperImpl : public MVATrainerLooper {
 
 	virtual ~MVATrainerLooperImpl() {}
 
-	boost::shared_ptr<Calibration::MVAComputer>
+	std::shared_ptr<Calibration::MVAComputer>
 	produce(const Record_t &record)
 	{ return (*getTrainers().begin())->getCalibration(); }
 };
@@ -60,7 +58,7 @@ class MVATrainerContainerLooperImpl : public MVATrainerLooper {
 		edm::es::L<Calibration::MVAComputerContainer, kTrained> >
 	produce(const Record_t &record)
 	{
-		boost::shared_ptr<MVATrainerContainer> trainerCalib(
+		std::shared_ptr<MVATrainerContainer> trainerCalib(
 						new MVATrainerContainer());
 		TrainContainer trainedCalib;
 

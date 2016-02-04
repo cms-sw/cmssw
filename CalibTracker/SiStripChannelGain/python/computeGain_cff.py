@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripCalib = cms.EDAnalyzer("SiStripGainFromCalibTree",
+SiStripCalib = cms.EDAnalyzer(
+    "SiStripGainFromCalibTree",
     OutputGains         = cms.string('Gains_ASCII.txt'),
-    Tracks              = cms.untracked.InputTag('CalibrationTracksRefit'),
     AlgoMode            = cms.untracked.string('CalibTree'),
 
     minTrackMomentum    = cms.untracked.double(2),
@@ -32,7 +32,12 @@ SiStripCalib = cms.EDAnalyzer("SiStripGainFromCalibTree",
     TimeFromEndRun      = cms.untracked.bool(True),
     IOVMode             = cms.string('Job'),
     Record              = cms.string('SiStripApvGainRcd'),
-    doStoreOnDB         = cms.bool(True)
+    doStoreOnDB         = cms.bool(True),
+
+    treePath            = cms.untracked.string('gainCalibrationTree/tree'),
+    gain                = cms.untracked.PSet(label = cms.untracked.string('shallowGainCalibration'), prefix = cms.untracked.string("GainCalibration"), suffix = cms.untracked.string('')),
+    evtinfo             = cms.untracked.PSet(label = cms.untracked.string('shallowEventRun'), prefix = cms.untracked.string(""), suffix = cms.untracked.string('')),
+    tracks              = cms.untracked.PSet(label = cms.untracked.string('shallowTracks'), prefix = cms.untracked.string("track"), suffix = cms.untracked.string('')),
 )
 
 SiStripCalibValidation = SiStripCalib.clone()

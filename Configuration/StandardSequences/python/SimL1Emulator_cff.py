@@ -9,5 +9,5 @@ if eras.fastSim.isChosen():
     # consider moving these mods to the HLT configuration
     from FastSimulation.Configuration.DigiAliases_cff import loadTriggerDigiAliases
     loadTriggerDigiAliases()
-    from FastSimulation.Configuration.DigiAliases_cff import gtDigis,gmtDigis
+    from FastSimulation.Configuration.DigiAliases_cff import gtDigis,gmtDigis,gctDigis,caloStage1LegacyFormatDigis
     

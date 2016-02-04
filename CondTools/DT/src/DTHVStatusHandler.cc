@@ -18,8 +18,7 @@
 #include "CondTools/DT/interface/DTHVAbstractCheck.h"
 #include "CondFormats/DTObjects/interface/DTHVStatus.h"
 
-#include "CondCore/DBCommon/interface/DbSession.h"
-#include "CondCore/DBCommon/interface/DbTransaction.h"
+#include "CondCore/CondDB/interface/ConnectionPool.h"
 
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
@@ -74,9 +73,6 @@ DTHVStatusHandler::DTHVStatusHandler( const edm::ParameterSet& ps ) :
  bwdTime(               ps.getParameter<long long int> ( "bwdTime" ) ),
  fwdTime(               ps.getParameter<long long int> ( "fwdTime" ) ),
  minTime(               ps.getParameter<long long int> ( "minTime" ) ),
- omds_conn(),
- util_conn(),
- buff_conn(),
  omds_session(),
  util_session(),
  buff_session(),
@@ -104,38 +100,26 @@ void DTHVStatusHandler::getNewObjects() {
 
   // online DB connection - data
   std::cout << "configure omds DbConnection" << std::endl;
+  cond::persistency::ConnectionPool connection;
   //  conn->configure( cond::CmsDefaults );
-  omds_conn.configuration().setAuthenticationPath( onlineAuthentication );
-  omds_conn.configure();
+  connection.setAuthenticationPath( onlineAuthentication );
+  connection.configure();
   std::cout << "create omds DbSession" << std::endl;
-  omds_session = omds_conn.createSession();
-  std::cout << "open omds session" << std::endl;
-  omds_session.open( onlineConnect );
+  omds_session = connection.createSession( onlineConnect );
   std::cout << "start omds transaction" << std::endl;
   omds_session.transaction().start();
   std::cout << "" << std::endl;
 
   // online DB connection - util
-  std::cout << "configure util DbConnection" << std::endl;
-  //  conn->configure( cond::CmsDefaults );
-  util_conn.configuration().setAuthenticationPath( onlineAuthentication );
-  util_conn.configure();
   std::cout << "create util DbSession" << std::endl;
-  util_session = util_conn.createSession();
-  std::cout << "open util session" << std::endl;
-  util_session.open( onlineConnect );
+  util_session = connection.createSession(  onlineConnect );
   std::cout << "startutil  transaction" << std::endl;
   util_session.transaction().start();
   std::cout << "" << std::endl;
 
   // buffer DB connection
-  std::cout << "configure buffer DbConnection" << std::endl;
-  buff_conn.configuration().setAuthenticationPath( onlineAuthentication );
-  buff_conn.configure();
   std::cout << "create buffer DbSession" << std::endl;
-  buff_session = buff_conn.createSession();
-  std::cout << "open buffer session" << std::endl;
-  buff_session.open( bufferConnect );
+  buff_session = connection.createSession( bufferConnect );
   std::cout << "start buffer transaction" << std::endl;
   buff_session.transaction().start();
 
