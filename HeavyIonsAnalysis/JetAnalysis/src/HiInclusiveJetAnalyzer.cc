@@ -72,7 +72,7 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
 
   rParam = iConfig.getParameter<double>("rParam");
   hardPtMin_ = iConfig.getUntrackedParameter<double>("hardPtMin",4);
-  jetPtMin_ = iConfig.getUntrackedParameter<double>("jetPtMin",10);
+  jetPtMin_ = iConfig.getParameter<double>("jetPtMin");
 
   if(isMC_){
     genjetTag_ = consumes<vector<reco::GenJet> > (iConfig.getParameter<InputTag>("genjetTag"));
