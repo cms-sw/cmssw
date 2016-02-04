@@ -11,6 +11,8 @@ Monitoring source for track residuals on each detector module
 */
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
+// Author:  Marcel Schneider
+//         Extended to Pixel Residuals. 
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -46,11 +48,13 @@ class MonitorTrackResiduals : public DQMEDAnalyzer {
   DQMStore * dqmStore_;
   edm::ParameterSet conf_;
   edm::ParameterSet Parameters;
+
+  std::pair<std::string, int32_t> findSubdetAndLayer(uint32_t ModuleID, const TrackerTopology* tTopo);
   std::map< std::pair<std::string,int32_t>, MonitorElement* > m_SubdetLayerResiduals;
   std::map< std::pair<std::string,int32_t>, MonitorElement* > m_SubdetLayerNormedResiduals;
+  
   HistoClass HitResidual;
   HistoClass NormedHitResiduals;
-  SiStripFolderOrganizer folder_organizer;
   unsigned long long m_cacheID_;
   bool ModOn;
   GenericTriggerEventFlag* genTriggerEventFlag_;
