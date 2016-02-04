@@ -24,6 +24,16 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include <TMath.h>
+#include <TCanvas.h>
+#include <TLorentzVector.h>
+
+#include <TStyle.h>
+#include <TLegend.h>
+#include <TF1.h>
+#include <TH2.h>
+#include <TH1F.h>
+#include <TFile.h>
 #include "L1Trigger/L1TMuon/interface/deprecate/GeometryTranslator.h"
 #include "L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h"
 

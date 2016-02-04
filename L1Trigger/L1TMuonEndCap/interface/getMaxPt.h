@@ -16,6 +16,7 @@
 #include "TTree.h"
 #include "TString.h"
 #include "TSystem.h"
+#include "TROOT.h"
 #include "sstream"
 #include "TNtuple.h"
 #include "TGraphErrors.h"
@@ -270,3 +271,115 @@ float getMaxPT_CLCT(float ptHyp, Int_t eta, float CLCT1, float CLCT2, float CLCT
 }
 
 
+// dumpTables just makes a text dump of the corridors as a function of PT. This may be useful
+// when ported to CMSSW. 
+/*
+float dumpTables()
+{
+  int perDiff = 0;
+  for (int itr=0; itr<3; itr++)
+    {
+      if (itr==0) perDiff = 85;
+      if (itr==1) perDiff = 90;
+      if (itr==2) perDiff = 98;
+
+      TString pd; pd+=perDiff;
+
+      load(perDiff);
+      std::cout << std::endl;
+      std::cout << "Writing delta-Phi(MB1-MB2) tables for " << (100-perDiff) << " % tail clip" << std::endl;
+      ofstream file1("dPhi_Cut_12_" + pd + "percent.dat");
+      for (float pt_=0;pt_<=140; pt_+=0.5)
+	{
+	  Int_t theBIN = hPT__->FindBin(pt_);
+	  float cut = gdPhi_Cut__[0][1]->Eval(theBIN);
+	  std::cout << std::setw(10) << pt_ << std::setw(10) << cut << std::endl;
+	  file1 << std::setw(10) << pt_ << std::setw(10) << cut << std::endl;
+	}
+      std::cout << std::endl;
+      std::cout << "Writing delta-Phi(MB1-MB3) tables for " << (100-perDiff) << " % tail clip" << std::endl;
+      ofstream file2("dPhi_Cut_13_" + pd + "percent.dat");
+      for (float pt_=0;pt_<=140; pt_+=0.5)
+	{
+	  Int_t theBIN = hPT__->FindBin(pt_);
+	  float cut = gdPhi_Cut__[0][2]->Eval(theBIN);
+	  std::cout << std::setw(10) << pt_ << std::setw(10) << cut << std::endl;
+	  file2 << std::setw(10) << pt_ << std::setw(10) << cut << std::endl;
+	}
+      std::cout << std::endl;
+      std::cout << "Writing delta-Phi(MB1-MB4) tables for " << (100-perDiff) << " % tail clip" << std::endl;
+      ofstream file3("dPhi_Cut_14_" + pd + "percent.dat");
+      for (float pt_=0;pt_<=140; pt_+=0.5)
+	{
+	  Int_t theBIN = hPT__->FindBin(pt_);
+	  float cut = gdPhi_Cut__[0][3]->Eval(theBIN);
+	  std::cout << std::setw(10) << pt_ << std::setw(10) << cut << std::endl;
+	  file3 << std::setw(10) << pt_ << std::setw(10) << cut << std::endl;
+	}
+      std::cout << std::endl;
+      std::cout << "Writing delta-Phi(MB2-MB3) tables for " << (100-perDiff) << " % tail clip" << std::endl;
+      ofstream file4("dPhi_Cut_23_" + pd + "percent.dat");
+      for (float pt_=0;pt_<=140; pt_+=0.5)
+	{
+	  Int_t theBIN = hPT__->FindBin(pt_);
+	  float cut = gdPhi_Cut__[1][2]->Eval(theBIN);
+	  std::cout << std::setw(10) << pt_ << std::setw(10) << cut << std::endl;
+	  file4 << std::setw(10) << pt_ << std::setw(10) << cut << std::endl;
+	}
+      std::cout << std::endl;
+      std::cout << "Writing delta-Phi(MB2-MB4) tables for " << (100-perDiff) << " % tail clip" << std::endl;
+      ofstream file5("dPhi_Cut_24_" + pd + "percent.dat");
+      for (float pt_=0;pt_<=140; pt_+=0.5)
+	{
+	  Int_t theBIN = hPT__->FindBin(pt_);
+	  float cut = gdPhi_Cut__[1][3]->Eval(theBIN);
+	  std::cout << std::setw(10) << pt_ << std::setw(10) << cut << std::endl;
+	  file5 << std::setw(10) << pt_ << std::setw(10) << cut << std::endl;
+	}
+      std::cout << std::endl;
+      std::cout << "Writing delta-Phi(MB3-MB4) tables for " << (100-perDiff) << " % tail clip" << std::endl;
+      ofstream file6("dPhi_Cut_34_" + pd + "percent.dat");
+      for (float pt_=0;pt_<=140; pt_+=0.5)
+	{
+	  Int_t theBIN = hPT__->FindBin(pt_);
+	  float cut = gdPhi_Cut__[2][3]->Eval(theBIN);
+	  std::cout << std::setw(10) << pt_ << std::setw(10) << cut << std::endl;
+	  file6 << std::setw(10) << pt_ << std::setw(10) << cut << std::endl;
+	}
+
+      std::cout << std::endl;
+      std::cout << "Writing Phib(MB1) tables for " << (100-perDiff) << " % tail clip" << std::endl;
+      ofstream file7("dPhib_Cut_1_" + pd + "percent.dat");
+      for (float pt_=0;pt_<=140; pt_+=0.5)
+	{
+	  Int_t theBIN = hPT__->FindBin(pt_);
+	  float cut = gPhib_Cut__[0]->Eval(theBIN);
+	  std::cout << std::setw(10) << pt_ << std::setw(10) << cut << std::endl;
+	  file7 << std::setw(10) << pt_ << std::setw(10) << cut << std::endl;
+	}
+      std::cout << std::endl;
+      std::cout << "Writing Phib(MB2) tables for " << (100-perDiff) << " % tail clip" << std::endl;
+      ofstream file8("dPhib_Cut_2_" + pd + "percent.dat");
+      for (float pt_=0;pt_<=140; pt_+=0.5)
+	{
+	  Int_t theBIN = hPT__->FindBin(pt_);
+	  float cut = gPhib_Cut__[1]->Eval(theBIN);
+	  std::cout << std::setw(10) << pt_ << std::setw(10) << cut << std::endl;
+	  file8 << std::setw(10) << pt_ << std::setw(10) << cut << std::endl;
+	}
+      std::cout << std::endl;
+      std::cout << "Writing Phib(MB4) tables for " << (100-perDiff) << " % tail clip" << std::endl;
+      ofstream file9("dPhib_Cut_4_" + pd + "percent.dat");
+      for (float pt_=0;pt_<=140; pt_+=0.5)
+	{
+	  Int_t theBIN = hPT__->FindBin(pt_);
+	  float cut = gPhib_Cut__[3]->Eval(theBIN);
+	  std::cout << std::setw(10) << pt_ << std::setw(10) << cut << std::endl;
+	  file9 << std::setw(10) << pt_ << std::setw(10) << cut << std::endl;
+	}
+
+
+    }
+
+}
+*/
