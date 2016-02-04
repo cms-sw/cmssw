@@ -193,7 +193,8 @@ ak4CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak4Calopa
                                                              bTagJetName = cms.untracked.string("ak4Calo"),
                                                              genPtMin = cms.untracked.double(15),
                                                              hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL'),
-							     doTower = cms.untracked.bool(True)
+							     doTower = cms.untracked.bool(True),
+                                                             jetPtMin = cms.untracked.double(5),
                                                              )
 
 ak4CaloJetSequence_mc = cms.Sequence(

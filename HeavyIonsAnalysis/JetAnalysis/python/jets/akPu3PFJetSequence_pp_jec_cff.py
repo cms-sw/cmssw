@@ -193,7 +193,8 @@ akPu3PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu3PFpa
                                                              bTagJetName = cms.untracked.string("akPu3PF"),
                                                              genPtMin = cms.untracked.double(15),
                                                              hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL'),
-							     doTower = cms.untracked.bool(False)
+							     doTower = cms.untracked.bool(False),
+                                                             jetPtMin = cms.untracked.double(5),
                                                              )
 
 akPu3PFJetSequence_mc = cms.Sequence(

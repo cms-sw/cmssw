@@ -193,7 +193,8 @@ ak5PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ak5PFpatJet
                                                              bTagJetName = cms.untracked.string("ak5PF"),
                                                              genPtMin = cms.untracked.double(15),
                                                              hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL'),
-							     doTower = cms.untracked.bool(True)
+							     doTower = cms.untracked.bool(True),
+                                                             jetPtMin = cms.untracked.double(5),
                                                              )
 
 ak5PFJetSequence_mc = cms.Sequence(

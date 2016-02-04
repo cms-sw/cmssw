@@ -193,7 +193,8 @@ akPu2CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu2Ca
                                                              bTagJetName = cms.untracked.string("akPu2Calo"),
                                                              genPtMin = cms.untracked.double(15),
                                                              hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL'),
-							     doTower = cms.untracked.bool(False)
+							     doTower = cms.untracked.bool(False),
+                                                             jetPtMin = cms.untracked.double(5),
                                                              )
 
 akPu2CaloJetSequence_mc = cms.Sequence(
