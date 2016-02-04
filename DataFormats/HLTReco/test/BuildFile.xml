@@ -1,0 +1,4 @@
+<use   name="DataFormats/HLTReco"/>
+<bin   name="testDataFormatsHLTReco" file="testHLTResult.cc,testRunner.cpp">
+  <use   name="cppunit"/>
+</bin>

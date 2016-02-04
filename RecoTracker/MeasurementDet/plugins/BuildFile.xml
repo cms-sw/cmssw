@@ -1,0 +1,10 @@
+<use   name="RecoTracker/MeasurementDet"/>
+<use   name="CalibFormats/SiStripObjects"/>
+<use   name="CalibTracker/Records"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/SiPixelObjects"/>
+<use   name="RecoTracker/Record"/>
+<use   name="RecoTracker/TkDetLayers"/>
+<library   file="*.cc" name="RecoTrackerMeasurementDetPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

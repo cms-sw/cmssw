@@ -1,0 +1,128 @@
+#!/usr/bin/env python 
+
+# Check needed by Martin Gruenewald for HLT studies
+# This isn't intended to be an example for nice coding... ;-) 
+#
+# for questions: benedikt.hegner@cern.ch
+
+import os.path
+import sys
+from os import environ
+import copy
+
+class IncludeChecker(object):
+
+    def __init__(self):
+        self.includedFileNames = []
+        self.doneIncludes = []
+        self.problematicIncludes = []
+        self.missingIncludes = []
+        self.traceback = []
+        # read in the paths used by CMSSW
+        try:
+            paths = environ['CMSSW_SEARCH_PATH']
+            self.localpath = environ['CMSSW_BASE']+'/src'
+        except KeyError:
+             raise RuntimeError("The environment variable 'CMSSW_SEARCH_PATH' must be set for include to work")
+        self.lpaths = paths.split(':')
+
+            
+    def formatTraceback(self, traceback):
+        tb = ""
+        tr = copy.copy(traceback)
+        tr.reverse()
+        for item in tr:
+            tb += "    %s\n" %item
+        return tb    
+
+
+    # return includes defined in a single file
+    def getIncludesFromFile(self, filename, currentFile):
+        includes = []
+        f = None  
+        # look for the file in the CMSSW_SEARCH_PATH
+        for path in self.lpaths:
+            path +='/'+filename
+            if os.path.exists(path):
+                f=path
+                break
+        if f is None:
+            if os.path.exists(filename):
+                f = filename 
+            else:
+                self.missingIncludes.append(filename + "\n   Traceback:\n" +self.formatTraceback(self.traceback))
+                return includes, ""
+        # here now the part where we check if this include is problematic
+        # what means problematic here?
+        #  -> there is the right directory in the local area but the file is fetched from another place
+        parts = filename.split("/")
+        if len(parts) > 2:
+            directoryPart = ""
+            for part in parts[:-1]:
+                directoryPart += "/" +part
+            if os.path.exists(self.localpath+directoryPart) and f != self.localpath+"/"+filename:
+                self.problematicIncludes.append(filename + "\n   Traceback:\n" +self.formatTraceback(self.traceback))
+
+        # now continue and parse the other includes
+        theFile = open(f, "r")
+        self.includedFileNames.append(f)
+        cStyleCommentsCounter = 0
+        for line in theFile:
+            if "/*" in line: cStyleCommentsCounter += 1
+            if "*/" in line: cStyleCommentsCounter -= 1 
+            if ("include " in line or " from " in line) and not ("#" in line or "//" in line or  "/*" in line or  "*/" in line or (cStyleCommentsCounter!=0) ):
+                includeCandidate = line.split('"')[1] 
+                if includeCandidate not in self.doneIncludes:
+                  includes.append(includeCandidate)
+                theFile.close        
+        return includes, f             
+
+
+    # here the real recursive include process
+    def getIncludesFromList(self, filelist,currentFile): 
+        self.traceback.append(currentFile)
+        for filename in filelist:
+            includes, fullPathToFile = self.getIncludesFromFile(filename, currentFile)
+            self.doneIncludes.append(filename) 
+            self.getIncludesFromList(includes,fullPathToFile)
+        self.traceback.pop()                
+
+
+    def check(self, filename):
+        includes, fullPathToFile = self.getIncludesFromFile(filename, "toplevel")
+        self.getIncludesFromList(includes, fullPathToFile)
+
+    
+    def printResult(self):
+        print "Included files:"
+        print "---------------"
+        for item in self.includedFileNames:
+            print "  ", item
+
+        if len(self.problematicIncludes) != 0:
+            print "\nProblematic files:"
+            print "------------------"
+            for item in self.problematicIncludes:
+                print "  ", item
+        else:
+            print "\nHaven't found any problematic files"
+
+        if len(self.missingIncludes) != 0:
+            print "\nMissing files:"
+            print "--------------"
+            for item in self.missingIncludes:
+                print "  ", item
+
+
+                
+##########################
+if __name__ == "__main__":
+
+    args = sys.argv
+    if 2 == len(args):
+        filename = args[1]
+        checker = IncludeChecker()
+        checker.check(filename)
+        checker.printResult()        
+    else:
+        print "Please specify a file to check"

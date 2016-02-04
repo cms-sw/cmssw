@@ -1,0 +1,667 @@
+   Design, operation and maintenance manual for MessageLogger/MessageService
+   -------------------------------------------------------------------------
+
+------------------------------
+General Work Flow of a Message
+------------------------------
+
+The effect of a user issuing a  LogInfo (for example) is that 
+an error object is formed and sent to the ErrorLog, which has
+been configured to filter these in some way and to dispatch 
+the messages to one or more destinations.  This section will 
+outline the steps involved.  
+
+The user code may be running in opne or more threads, each of 
+which might issue messages.  We will call these the client side.
+In any event, a single entity, the MessageLoggerScribe, picks 
+up on these messages and forwards them to the looger one at a time;
+this prevents interlacing of message information from different threads.
+We call the thread running MessageLoggerScribe -- see How the Message
+Service Starts Up -- the server side.  All user programatic interaction
+is on the client side, but the configuration (driven by the .cfg file)
+is dealt with on the server side. 
+
+The path looks like this (each step is detailed below):
+
+------------------------------------------------
+Client side:						          MessageDrop
+  LogInfo						              |
+    --> MessageSender (owning ErrorObj)  <----------------- run/event +
+        operator << --> ErrorObj::operator<<
+        --> end of the LogInfo line
+            --> ~LogInfo --> ~MessageSender
+	                      --> MessageLoggerQ::LOG(ErrorObj)			      
+------------------------------------------------    |
+						MessageLoggerScribe::run()
+						consume(opcode, operand)  <--+ 
+				 log(ErrorObj)	<--  |                       |
+              errorlog(ErrorObj) <--                 |                       |
+     ELoutput <--	                             |                       |
+	      				        delete ErrorObj              |
+				 		     |                       |
+						     +-----------------------+
+Server side:
+------------------------------------------------
+						     
+LogInfo is a functor -- a class that has an operator() so that
+it can look like a function.   It has one  data member - an 
+auto_ptr to a MessageSender, which is named ap.  When you say
+
+LogInfo("myCategory") << x; 
+
+the constructor of LogInfo constructs a new MessageSender specifying that
+this is at severity level ELinfo, and that the category is myCategory.
+When the << x is encountered, that merely sends << x to the MessageSender.
+
+In the line        LogInfo("myCategory") << x; 
+one has created a **temporary** instance of LogInfo -- this gets 
+destructed upon completion of the statement.  The whole working of LogInfo 
+is in that destruction:  Since LogInfo has an auto_ptr to the Message
+Sender, when LogInfo goes away, the auto_ptr goes away, and this causes
+a delete of the MessageSender.  The destructor of MessageSender is where
+all the action -- at the client side -- happens.  
+
+The MessageSender instance owns an ErrorObj on the heap; this can be viewed
+as a receptacle for the severity and category information and a collection
+of items sent in by operator<<.   The ctor of MessageSender makes a new
+ErrorObj -- AND  MessageSender NEVER DELETES THAT ErrorObj!! --
+Instead, the destructor of MessageSender [which, we will remember, is
+invoked as soon as the LogInfo("myCategory") << x;  statement has been 
+executed] interacts with the servier side, placing in motion events that
+will lead to the pointer to this ErrorObj to be used and ultimately
+deleted by code on the server side.  The ErrorObj is on the heap, so this 
+pointer remains meaningful in the server side it will be used in. 
+
+The interaction of MessageSender with the server side consists of two steps.  
+
+First, it uses the MessageDrop instance to supply the module
+  and run/event context.   [There is a separate discussion below about the
+  MessageDrop.]  The module and context go into the ErrorObj.
+ 
+Second, it invokes the static LOG method of MessageLoggerQ, supplying the
+  pointer to the ErrorObj.
+
+Now we leave the client side and go to the server side, which picks up the 
+LOG_A_MESSAGE entry in the course of a consume(opcode,operand) call on the 
+MessageLoggerQ.  The run() method of MessageLoggerScribe has an eternal
+do, which continually tries to consume from this queue (consume() sleeps on 
+the queue being empty).
+
+The method log() is passed the pointer to the ErrorObj.  log() gets
+a reference to the ELcontextSupplier from the administrator, and sets
+the context to that context remembered in the ErrorObj.  (This is necessary
+since the run/event of the message issuer is known to the client thread, 
+having been provided by the before-module and before-event callbacks of the 
+message **service** running in the **client** thread, so this information had 
+needed to cross the client/server boundary.) 
+
+log() then parses the categories string and (if there are multiple categories)
+invokes the ErrorLog for this object for each category in the string.
+
+ErrorLog is in the ErrorLogger code; we are not documenting this code here.
+The effect is to shop the ErrorObj to every destination; in each case the
+code for that destination (normally ELoutput) will apply the limits and
+thresholds, format the message, add header information, and output the message.
+ 
+Finally, the completion of the do in MessageLoggerScribe::run() deletes the
+ErrorObj -- completing the promise made when it was passed responsibility for
+this heap-resident object.
+
+---------------
+The MessageDrop
+---------------
+
+The purpose of the message drop is to convey framework information to the
+point-of-invocation where a message is issued.  The functions issuing 
+messages may not naturally have access to the ModuleDescription or the
+EventID (which contains the run and event numbers) or the list (prepared
+by configuration in MessageLoggerScrivbe) of debug-enabled modules.  The
+process of preparing a message requires this information.
+
+In discussing how the MessageDrop works, we will pay attention to the facts
+that the MessageLoggerScript will be running in a distinct thread from the
+code issuing the message, and that there may be several threads processing
+events, each issuing messages independantly.  MessageDrop is a 
+thread-specific singleton.
+
+The following files interact with MessageDrop:
+    In the MessageLogger package:
+	MessageDrop.h		MessageDrop.cc
+	MessageLogger.h 	MessageSender.cc
+    In the MessageService package:
+    	MessageLogger.cc
+	
+MessageDrop.h defines a singleton pattern.  The (private) default ctor
+	      initializes the public data:
+		 ModuleName is ""
+		 runEvent is "pre-events"
+		 debugEnabled is true 
+	      There is a public instance() method
+	     
+MessageDrop.cc refines that to be a thread-specific singleton pattern.
+	       This is accomplished by replacing the static bare pointer
+	       to MessageDrop which would have been present in an ordinary
+	       singleton, with a boost::thread_specific_ptr<MessageDrop>.
+	       The latter is a object that may contain several pointers,
+	       but only one is accessible in this thread.
+	       The instance() method calls drops.get() to obtain that
+	       pointer.  Just as for a usual singleton, if the pointer
+	       is null, it sets the pointer to a new MessageDrop.  Thus
+	       instance() will always return a pointer to the unique 
+	       MessageDrop for this thread.
+	       
+	       Note that the server side has no way to influence or access
+	       the MessageDrop for a specific thread; thus any information
+	       present in the drop and needed by the server needs to be 
+	       added into the ErrorObject that will cross the client/server
+	       boundary.    
+
+MessageLogger.h uses the MessageDrop in the LogDebug macro to learn the 
+		value of debugEnabled.  If debugEnabled is set to false, 
+		then the effect of LogDebug is to immediately return.
+
+MessageSender.cc gets the instance of MessageDrop to find out the 
+		 moduleName and the runEvent.  It then places these into
+		 the ErrorObject it is forming to pass over to the 
+		 server.  This is how the correct event number, for example,
+		 finds its way accurately into that other thread even if
+		 yet other threads are also issuing messages.
+
+MessageLogger.cc is responsible for filling the data fields of the 
+		 MessageDrop with needed information.  MessageLogger.cc
+		 is in the MessageService, to avoid introducing
+		 a dependency on ModuleDescription into MessageLogger.
+		 But it is not part of the MessageLoggerScribe thread; 
+		 it is part of the same thread as the issuing message.
+		 Thus when it sets up information, that info is available
+		 for stuffing into the ErrorObj or use in deciding whether
+		 to react to a LogDebug.  The information provided is:
+      In PostBeginJob it says that we are BeforeEvents and in no module.
+      In PreEventProcessing it fills in the run and event.
+      In PostEventProcessing it notes that we are between events.		 
+      In PreModule it fills in the module name, and sets value of debugEnabled. 
+		 To determine the value to set for debugEnabled, 
+		 two bools and a vector of module names come into play;
+		 these are all universal (that is, not thread-specific)
+		 and are established when the MessageLogger object in
+		 MessageService is constructed, by getting the vString 
+		 debugModules:
+		 anyDebugEnabled_     is a global scope variable instantiated
+		 		      as false in MessageLogger.cc.  In the 
+				      ctor of MessageLogger, this is set to
+				      true if debugModules is non-empty.
+		 everyDebugEnabled_   is a global scope variable instantiated
+		 		      as false in MessageLogger.cc.  In the 
+				      ctor of MessageLogger, this is set to
+				      true if nay one of debugModules is "*".
+		 debugEnabledModules_ contains the specified debugModules.
+		 If debugEnabled is set to false, then the effect of LogDebug
+		 used during that module is to immediately return.
+		
+A subtlety arose concerning the MessageDrop in circumstances where 
+the framework's event processing structure were not in play.  In 
+particular, if preModule were never called, then debugEnabled would
+remain whatever value it had on construction of the MessageDrop --
+originally, the value was left uninitialized.   Now it is initialized to 
+true.  Also, in the ctor for MessageLogger (in MessageLogger.cc) if
+debugModules is empty, we change debugEnabled MessageDrop's debugEnabled
+to false.
+
+- - - - - - - - - - - - - - -
+Class Statics in MessageDrop
+- - - - - - - - - - - - - - -
+
+In February 2010, Chris Jones found that calls to MessageDrop::instance()
+were profiling as a major hot-spot in the particular context of LogDebug.
+In response, debugEnabled, infoEnabled, warningEnabled  were made into
+statics rather than instance variables, and used directly as in 
+MessageDrop::debugEnabled.
+
+This has the distinctly undesirable effect of randomizing the enabling
+in the case where multiple threads are running different modules concurrently.
+However, as pointed out (9/21/10), CMS is not running in that mode, because
+studies made showed there was nothing to be gained.  In fact, CMS is running
+almost exclusively in the single-thread mode of the message logger in the first
+place.
+
+Currently (9/21/10) the code still incurs the cost of the thread-specific 
+singleton get() (which was the part of instance() causing the hot-spot in 
+the context of LogDebug calls) in several places:
+
+ * LogInfo, LogVerbatim, LogWarning, and LogPrint are still using 
+   MessageDrop::instance() once per constructor, that is, once per message.
+ * establishModule and unEstablishModule are still using 
+   MessageDrop::instance() once per module entry and once per exit.
+
+This issue should be revisited to decide whether to remove those uses
+of instance() (and perhaps change the nature of MessageDrop) or leave them
+alone.
+
+------------------------
+Configuring Destinations
+------------------------
+
+The configure_dest() member of MessageLoggerScribe is invoked (when the
+CONFIGURE opcode is received) for each destination.  In the end, each
+destination has its own tables of what to do about each category and severity,
+but we get various overall defaults fromm the .cfg file as well.  The limit
+instructions at the MessageLogger level takes on 4 forms -- in order of 
+priority of application, these are:
+ 1 - A limit for a specific category.
+ 2 - A limit for a severity, to be used for messages who have no established
+     limit for their specific categries.
+ 3 - A default limit, to be used for messages not falling under (1) or (2).
+ 4 - If no information is available at all, then there is no limit and all
+     messages of that type will be reported.
+
+Thresholds are simpler, having just an overall default and possible destination
+specific thresholds.  A threshold says "if a message is below this severity
+level, don't even bother considering reporting it."  Overall thresholds could
+in principle even be used at the client level to obviate message preparation
+in cases where nobody will be reporting the message.  We will not discuss 
+establishing thresholds any further in theis section; it is straightforward
+in comparison to establishing limits.
+
+The setup for limits (and intervals and timespans) is influenced by the
+following .cfg information (all of which is optional; for brevity I omit
+the ubiquitous untracked directives):
+
+ a) A MessageService-level PSet named "default" containing:
+   a1) An overall default limit  -- int32 limit = 5
+   a2) One or more severity-level limits -- PSet INFO   { int32 limit = 10 }
+   a3) Limits for specific catecories    -- PSet fwkJob { int32 limit = 0  }
+ b) Items inside the PSet specific to that destination:
+   b1) A PSet named default, containint an overall default limit  -- 
+   	PSet mydest { PSet default { int32 limit = 8 } }
+   b2) One or more severity-level limits -- PSet INFO   { int32 limit = 10 }
+   b3) Limits for specific categories    -- PSet fwkJob { int32 limit = 0  }
+
+The algorithm needed to establish the priorities (see Establishment and 
+Checking of Limits below) would then be:
+
+A - If (a) is present, then from that default_pset, extract a default_limit,
+    with the default if limit does not appear being NO_VALUE_SET.  (If (a) is 
+    absent, then the empty_PSet will be used as default_pset, and default_limit
+    will inevitably be NO_VALUE_SET.)
+    
+B - If (b1) is present, then from that dest_default_pset, extract a value
+    dest_default_limit, with the default for that being default_limit.
+
+    At this point, if a value has been set, we can issue 
+		dest_ctrl.setLimit("*", dest_default_limit )
+
+Now we walk through the list of known categories:
+
+C - If (a3) is present, then from that default_category_pset, extract
+    a category_default_limit.  If either the PSet (a3) is not present, 
+    or (a3) is present but does not contain limit (it might contain only
+    interval, for example), then this will be NO_VALUE_SET.
+
+D - If (b3) is present, then from that category_pset, extract a limit, 
+    using as the default value the category_default_limit.  If the value 
+    remains NO_VALUE_SET, then replace it with default_limit (which may
+    itself be NO_VALUE_SET, in which case there really was no appllicable
+    limit specified - situation [4] above). 
+    
+    Note that it does not work to simply rely on category_pset, which
+    if (b3) is absent would have defaulted to the default_category_pset,
+    because of the following scenario:  
+    	PSet MessageService {
+	  PSet default {
+	    PSet category1 { int32 limit = 50 }
+	  }
+	  PSet mydest {
+	    PSet default { int32 interval = 10 }
+	    PSet category1 { int32 interval = 20 }
+	  }
+	}
+    The intent would be to have a limit of 50 on category1; the naive use of
+    default PSets would have this category assigned no limit.
+
+    And it does not work to just from that category_pset, extract a limit, 
+    using as the default value the category_default_limit.   The case that
+    exposes the flaw is if there is an overall default limit, and in this
+    destination, an interval (but not a limit) is esablished for this specific
+    category.  Here, in response to the verall default limit, a 
+		dest_ctrl.setLimit("*", dest_default_limit ) 
+    will have been issued, using the correct limit.  But sice the specific
+    category is on the list of known categories in the ErrorLogger (due to
+    the interval being set), th elookup will not get to the "*" limit.  
+    Thus we must explicitly work with the overall default limit.
+
+E - Unless the limt thus extracted is NO_VALUE_SET, we issue
+		dest_ctrl.setLimit(category, limit )
+
+And finally we walk though all the severities:
+
+F - If (a2) is present for that severity level, extract default_sev_pset,
+    with the default being NO_VALUE_SET.
+    
+G - If (b2) is present, then from that sev_pset (or from default_sev_pset
+    if (b2) is absent, or from empty_PSet if neither is present; the code
+    is simple for that), extract limit, with default of NO_VALUE_SET.
+    
+    At this point, if a value has been set, we can issue 
+		dest_ctrl.setLimit(severity, limit )  
+
+
+----------
+purge_mode
+----------
+
+What happends if the act of logging a message (on the server side) throws
+an exception?  This logic is implemented in MessageLoggerScribe.cc.
+
+If the exception is a cms::Exception, then for the first 5 times, output
+is sent to cerr containing the explanation e.what().  After five such
+exceptions, or for any exception not inherited from cms::Exception, the
+system is placed into purge_mode, after which no further message
+processing will occur.
+
+====================
+ErrorLogger Workings
+====================
+
+Although for the most part the ErrorLogger is not a product of CMS-related
+work (it is instead taken to be a given starting point for the underpinning
+of MessageLogger) some tailoring was done in response to CMS-requested
+features.  The workings directly impacted by this tailoring are appropriate
+to dilscuss in this document. 
+
+------------------------------------
+Establishment and Checking of Limits
+------------------------------------
+
+Limits (and here, we also include intervals in the sense of skipping every N
+occurences of some type of message) are established in code involving
+  ELadminstrator.cc (just forwarding to ELdestinations)
+  ELdest_control.cc
+  ELdestination.cc
+and at the MessageLogger level, the establishing calls are initiated by 
+commands from the configure_dest() method in MessageLoggerScribe.cc.
+
+There is a wide variety of logical ways the limit and interval can be 
+determined.  Although in the ErrorLogger the concept of limits and thresholds
+is tied to individual distributions, the MessageLogger wrapping allows a
+configuratoin file to specify overall defaults - in each case, values
+specific to a destination take precedence over overall defaults.
+In order of precedence, the rules are:
+
+1) If for a particular destination the category has had a specific limit
+   (interval) set, then that limit (interval) is used.
+   
+2) If an overall default limit (interval) has been established for this 
+   specific category, then [unless (1) holds] the limit (interval) 
+   for this category is taken to be that default value. 
+   
+3) If for a particular destination the severity of the message has had 
+   a specific limit (interval) set, then that limit (interval) is used.  Note 
+   that for categories explicitly mentioned in the default, this case
+   is not applied, since case (2) would take precedence.
+
+4) If an overall default limit (interval) has been established for this 
+   severity level, then [unless (1), (2), or (3) holds] that limit (interval) 
+   is used.
+   
+5) If for a particular destination a wildcard catgory ("*") has been assigned
+   a limit (interval) and neither the the category nor the severity of this 
+   message has had a limit (interval) set, then the limit (interval) used
+   will be that wildcard value.
+   
+6) If (1) thru (5) do not hold for a particular destination, but a wildcard 
+   catgory has been assigned a limit (interval) in the overall default, then 
+   this is used as the wildcard limit (interval) for that destination.
+   
+7) If none of the above conditions hold, then the super-default is no limit,
+   and an inteval that causes no skipping.  Internally, a value of -1 indicates
+   an infinte limit, and also can indicate an interval that was never given 
+   a value.  
+
+One tricky point in setting up these rules:  It is easily possible for a
+category Pset to appear inside a destination Pset, and for that category 
+Pset to have an interval entry but not a limit entry (or vice-versa).  In
+that case, with regards to limit, the behavior should be as if that category
+did not appear in this destination.  One trap to avoid would be to do
+  int limit = getAparameter<int>(&category_pset,"limit", dest_default_limit);
+Althouth this seems the obvious thing to do, if limit is not present in the
+category PSet in this destination, it will violate priority (2) above, by
+choosing the default limit established for the destination over the specific
+limit for that category established overall.  See above, in "Configuring
+Destinations, for the work needed in MessageLoggerScribe to decide how to
+establish these limits.
+
+The logic implementing these rules appears in ELmap.h and .cc (in the 
+MessageLogger module) and ELlimitTable.h and .cc (in MessageService).
+The rules for deciding -- given the limit, interval, timespan and then 
+number of messages in this category already issued -- whether to react to 
+a message are discussed below.
+
+ELlimitTable is responsible for holding three types of information:
+Established default-type (severity and wildcard) limits applicable 
+to a specific destination, limits applicable to specific categories 
+for this destination, and counts of how many times a category has been 
+sent to this destination (and how many have been skipped since the last 
+reaction).   Each destination owns its own ELlimitsTable,l named limits.  
+The third type of information is kept in a map of extended ID (that is, 
+severity and category combination) versus CountAndLimit -- the latter is 
+a class defined in ELmap.h holding the information that changes with each 
+new message.  (The ELstatistics destination also makes use of this class; 
+subtleties about methods such as wipe() and zero() apply to statistics and 
+we won't worry about them for now.)
+
+This third type of information is kept in a member of ELlimitsTable named
+counts, and this is the key information.  The static information of the first
+two types is established by calls to ELdestControl methods (for example, 
+setLimit()).   At first glance, it would appear that the information in
+ELlimitsTable's data members limits is a partial replicate of the limit
+(and timespan and interval) information in the counts data member.  This
+is not the case, however:  While counts is indexed by the full extended id,
+limits is accessed by just the id (the category, without regard to the
+severity level).  If different default limits for different severities have
+been set, then for categories not explicitly controlled, these values will be
+distinct.
+
+       {Unfortunately, the data member limits, which is an ELmap_limits, 
+       has the same name as the limits data member of ELdestination, which 
+       is an ELlimitsTable.  There is ample potential for confusion in that.
+       Here, we will try to enhance clarity by using the simple name limits
+       to always refer to the data member of ELlimitsTable -- when we need 
+       to talk about the data member of ELdestination we will always call it
+       ELdestination::limits.}
+
+The information in limits, and the static information in counts is established 
+gradually (one further complication is that both are limited in size to some
+large tableLimit; this is unimportant for CMS).  The wat this happens is that
+the destination derived classes (for example ELoutput) call, for each message,
+the add() method of their ELlimitsTable, in a line reading:
+
+  if ( ! limits.add( msg.xid() )       )  return false;
+
+This add method has three purposes:  It returns a bool telling whether or not
+to react to this particular message, it adds this message xid and id to the 
+appropriate tables, and it updates the dynamic information in counts.  
+The sequence is as follows:
+
+1) See if the xid is in counts -- if so, the apppropriate static limit, 
+   interval, and timespan will be in the mapped CountAndLimit struct,
+   and there will be no need to recompute them.
+   
+2) If this xid is not yet in counts, see if the category is in limits -- if so,
+   the appropriate counts struct can be formed by using the precedence rules
+   above to combine the limit and interval found in limits  along with the 
+   severityLimits and severityIntervals arrays found in the ELlimitsTable.  
+   Along the way, the limits map for this category is filled in; that won't
+   change even if a diffeerent severity i the same category is encountered.
+   And now the xid is in counts (unless counts has grown too large).
+   
+3) Now xid will normally be in counts:  invoke add for that xid to update
+   the dynamic information and find out whether to react to this message.
+   
+The rules for deciding whether to react to a message are implemented in 
+CountAndLimit::add(xid), and are as follows:
+
+0) If the timespan has been exceeded since the last message, reset both n 
+   (to 0) and the skipped value (to interval) because we want fresh outputs
+   reacting to this message.
+   
+1) See if the message is OK with regards to the interval:  If we have already
+   skipped interval messages, we want to react to this one.  (Note that this
+   implies skipped should be initialized to interval, so that the very first 
+   one will be reacted to.)  Assuming we are OK with regards to the interval...
+   
+2) See if the message is OK with regards to the limit:  If the limit is -1,
+   if n is below the limit, or if n is above the limit by 2**q times the limit,
+   we will possibly react to the message.
+   
+3) If we are OK on both accounts, we will react to this message.  In that case,
+   skipped should be reset to zero.
+
+===================
+Activity Callbacks 
+===================
+
+The MessageLogger responds to the following callbacks from the framework,
+in the indicated ways (implementation in MessageLogger.cc):
+
+postBeginJob		module = "" ;  runEvent = Beforevents
+preEventProcessing	run/event # set up; this is PreProcessEvent in framewk
+preSourceConstruction	module name set to name*ctor*; 
+			debug (only) enabled or not according to module label
+preSource		module name set to "main_input:source"
+			debug, info, warning enabled or not based on "source"
+preModuleConstruction	module name set to name*ctor*; 
+			debug (only) enabled or not according to module label
+postModuleConstruction	module name set to "AfterModuleConstruction" 
+preModule		module name set to "name:label"
+			debug, info, warning enabled or not based on label
+postModule		module name set to "PostModule" 
+postSource		module name set to "PostSource" 
+postEventProcessing	{nothing done here anymore}   
+postEndJob		Put summary info into Job Rep and trigger summary
+
+Notice that:
+
+1) Suppression of Warning and Info messages is only modified in 
+   PreModule (and PreSource); this is probably an overly restrictive
+   situation for some users.  Also, nothing in particular is done to
+   re-enable or re-suppress these in the wasteland between modules.
+
+One other area of potential improvement is:
+
+Users might wish to control suppression based on phases which we are not
+reacting to here (or not setting up the enabling variables).  For example,
+if you wish to enable PostModule debugs, you can't except for debug = "*".
+If user input clamors for this control, changes can be made.
+   
+   
+===================
+Message Suppression
+===================
+
+A logged message is said to be "suppressed" if the result of the issuing of
+that message does NOT include anything going onto the message queue.  To
+quote the html documentation in 
+www.uscms.org/LPC/lpc_offl/MessageLogger/parameters.html#suppress
+
+... such suppressed messages will not even be put on the queue of messages to 
+    be handled by the Message Service. In consequence:
+
+* Items streamed to these messages will not be needed in any way. 
+  In optimized builds, their computation may be eliminated by the compiler 
+  unless that computation has other side effects.
+* Suppressed messages will not appear in any message statistics accounting.
+* Suppressed messages are not counted toward any limits or "reportEvery" 
+  intervals, and do not affect any timespans. 
+   
+Originally, only DEBUG-level messages were intended to be candidates for
+suppression.  However, this was expanded to INFO or WARNING-level messages
+from configurably particular modules.  The intent is to provide a way to
+totally squelch noxiously verbose modules, while leaving the verbosity in place
+in the code, for use by experts in that module.
+
+DEBUG-level messages behave differently than INFO or WARNING messages in an
+important way: For DEBUG messages, the user must provide a list of modules NOT 
+to be suppressed; this is the meaning of the debugModules parameter.  For INFO
+or WARNING messages, this list is not present; all modules not explicitly and
+individually suppressed are enabled.  The debugModules parameter can be "*";
+the analagous wildcard for INFO or WARNING would be moot since they are all
+non-suppressed by default anyway.
+
+Suppression Implementation Details
+----------------------------------
+
+The suppression decision starts with configuration.  Unlike most configuration
+of the MessageLogger, which occurs in MessageLoggerScribe, this has to occur
+on the user side of the fence.  It happens in MessageLogger.cc, which checks
+for parameters debugModules, suppressDebug, suppressInfo, and suppressWarning.
+
+From the latter three are formed a map suppression_levels_, indexed by module
+name, containing the highest suppression level specified for each mentioned
+module.  From debugModules is formed the list debugEnabledModules_ and its
+boss-booleans anyDebugEnabled_ and everyDebugEnabled_.
+
+Now, as the code sequences from module to module, and phase to phase of the
+framework, the debugEnabled member of the MessageDrop is set to true or false 
+according to suppression_levels_ OR debugEnabledModules_ and its boss-booleans. 
+Similarly, infoEnabled and warningEnabled are set according to
+suppression_levels_.  The details are as follows:
+
+The relevant callbacks are:
+
+preSourceConstruction	module name set to name*ctor*; 
+			debug (only) enabled or not according to module label
+			debugEnabledModules_.count(desc.moduleLabel());
+preSource		module name set to "main_input:source"
+			debug, info, warning enabled or not based on "source"
+preModuleConstruction	module name set to name*ctor*; 
+			debug (only) enabled or not according to module label
+			debugEnabledModules_.count(desc.moduleLabel());
+preModule		module name set to "name:label"
+			debug, info, warning enabled or not based on label
+			debugEnabledModules_.count(desc.moduleLabel());
+			it = suppression_levels_.find(desc.moduleLabel());
+  			if ( it != suppression_levels_.end() ) {
+    			 messageDrop->debugEnabled  = messageDrop->debugEnabled 
+                           && (it->second < ELseverityLevel::ELsev_success );
+    			 messageDrop->infoEnabled    
+			   = (it->second < ELseverityLevel::ELsev_info );
+    			 messageDrop->warningEnabled 
+			   = (it->second < ELseverityLevel::ELsev_warning );
+  			} else {
+    			  messageDrop->infoEnabled    = true;
+    			  messageDrop->warningEnabled = true;
+  			}
+
+So  
+* During PostSource Construction, for each module, debug is enabled properly.
+* info and warning are not affected by module lable till later.
+* Afterwards, until the first preModule in the actual event loop, the last
+  module influences debug enabling.  This is not proper.
+* All are properly set in premodule.
+* Nothing is turned off, so infoEnabled may be left off for all the post-loop
+  phases.  This is wrong again.
+
+And currently, ap is established as:
+
+LogWarning:	warningEnabled ? new MessageSender(ELwarning,id) : 0 
+LogPrint:	warningEnabled ? new MessageSender(ELwarning,id) : 0  ###
+LogInfo:	infoEnabled ? new MessageSender(ELwarning,id) : 0 
+LogVerbatim:	infoEnabled ? new MessageSender(ELwarning,id) : 0     ###
+LogError	new MessageSender(ELerror,id)
+LogProblem	new MessageSender(ELerror,id)
+LogImportant	new MessageSender(ELerror,id)
+LogSystem	new MessageSender(ELsevere,id)
+LogAbsolute	new MessageSender(ELsevere,id)
+  
+When is ap established with a possible 0, ap.get() is always used except
+where marked ###.  For example
+
+operator<< (T const & t)  { if(ap.get()) (*ap) << t; return *this; } 
+
+This prevents any action when the message is to be supressed.  What happens
+in the MessageSender dtor when ap is null?  Trick question:  There IS no
+MessageSender to destruct when ap is null!  
+
+
+
+

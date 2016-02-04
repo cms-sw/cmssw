@@ -1,0 +1,266 @@
+   Making New "Hardwired" Defaults for the MessageLogger:  A Tutorial Guide
+   ------------------------------------------------------------------------
+   
+This document will show how to change MessageLogger default configuration
+parameters, and how to create a specialized set of defaults, selectable
+by doing cmsRun -mode whateverNameYouChoose.
+ 
+---
+
+The MessageLogger has a set of "hardwired" defaults, for use when no 
+MessageLogger configuration appears in the config file.  These match
+the contents of the MessageLogger.cfi file.
+
+Although these defaults are hardwired into code, it is recognized that 
+changing circumstances and experience withthe framework will make necessary
+changes in the defaults.  Therefore, the defaults are kept in a clean form
+in one place, for ease of modification.  
+
+Multiple sets of these defaults can be provided, corresponding to multiple
+"modes" of operation.  For example, the production running (which is in a 
+sense the "default" default mode) might be interested only in warnings 
+and errors, while occasional release validation jobs might want output
+concerning info messages as well.  In the example below, we will show how to
+
+a) Change the default summary threshold for the existing default mode.
+b) Create a new mode, with a different summary threshold.
+
+If you are changing the main default (that is, the one gotten wheen no mode
+is specified), it is probably a good idea to change the MessageLogger_cfi.py 
+file to keep the default in step with the contents of that file.
+
+---
+
+All the default information is kept in three files:
+
+FWCore/MessageService/src/HardwiredDefaults.cc
+FWCore/Utilities/interface/JobMode.h
+FWCore/MessageService/interface/MessageLoggerDefaults.h
+FWCore/MessageService/src/MessageLoggerDefaults.cc
+
+If you are just changing the defaults for some mode, only HardwiredDefaults.cc
+needs to change.  If you are creating a new mode, then the *.h and 
+MessageLoggerDefaults.cc  files will need modification.
+
+-------------------------------------------------------------------------
+
+EXAMPLE 1 -   
+ 	Change, in the existing default mode, 
+	the default summary threshold for the 
+	message statistics going to cerr from 
+	INFO to WARNING.
+	
+Observe that currently the PSet for the statistics destination 
+is not in the cfg file; it shares cerr with the ordinary cerr
+output destination.  So we will have to give the statistics destination
+its own name and direct its output to cerr.  In _cfg.py language,
+
+    statistics = cms.untracked.vstring('cerr'),
+ 
+becomes
+
+    statistics = cms.untracked.vstring('cerr_stats'),
+    cerr_stats = cms.untracked.PSet(
+        threshold = cms.untracked.string('WARNING'),
+        output = cms.untracked.string('cerr')
+    ),
+
+Also note that the "default mode" that you would get by just saying cmsRun
+with no --mode= is mode="grid", which gives GridJobMode.  You can see this 
+in HardwiredDefaults.cc:
+
+edm::JobMode 
+MessageLoggerDefaults::
+mode(std::string const & jm)
+{
+  if (jm == "")           return       GridJobMode;  // no -mode option = grid
+  if (jm == "grid")       return       GridJobMode;
+  // and so forth
+
+So the relevant code implementing the defaults for this mode is 
+
+MessageLoggerDefaults::hardwireGridJobMode() 
+
+Step 1:
+
+Every list (destinations, statistics, categories) in the cfg file corresponds
+to a vector in the MessageLoggerDefaults class.  We add items to the list by
+push_back.  Thus, to change 
+    statistics = cms.untracked.vstring('cerr'),
+to
+    statistics = cms.untracked.vstring('cerr_stats'),
+we change the code
+  	statistics.push_back   ( "cerr"              );
+to
+  	statistics.push_back   ( "cerr_stats"        );
+
+You can see this line in the hardwireGridJobMode() method, about 7 lines
+after the start.
+
+Step 2:
+
+Every destination, including every statistics destination, can have a
+PSet with the options for that destination.  The class that corresponds 
+to that PSet is called Destination.  The cerr statistics did not previously
+have such a PSet, so now we add one.  Note that to avoid name clashes, we
+always enclose the code for setting up a Destination in braces.  So far, we
+are adding (after the close brace for the section that started with
+Destination FrameworkJobReport):
+
+  { Destination cerr_stats;			  // PSet cerr
+    // In step 3 we will fill in some configuration for this destination!
+    destination["cerr_stats"] = cerr_stats;
+  }
+
+Note that event though this is a statistics destination, it goes into 
+the map named destination.
+
+Step 3: 
+ 
+Add (or change in an existing Destination) whatever options you need 
+added or changed. In this example, we want to add:
+    cerr_stats = cms.untracked.PSet(
+        threshold = cms.untracked.string('WARNING'),
+        output = cms.untracked.string('cerr')
+    ),
+so this becomes
+
+  { Destination cerr_stats;			 // PSet cerr
+    cerr_stats.threshold = "WARNING";		 // string threshold = "INFO"
+    cerr_stats.output = "cerr";		 	 // string output = "cerr"
+    destination["cerr_stats"] = cerr_stats;
+  }
+
+This is the code which is in the current (as of July 2008) 
+hardwireGridJobMode() method, right near the end.
+
+Step 4:
+
+Build -- almost nothing needs recompilation -- and try it out.
+
+-------------------------------------------------------------------------
+
+EXAMPLE 2 -   
+ 	Add a new default mode, named infos,
+	intended for release validators use.
+	This should be the same as grid, but
+	with statistics thresholds at INFO,
+	and with the default limit for INFO
+	at 5 instead of 0.
+
+Step 0:
+
+Create a new mode, identical to one of the existing modes:
+
+a) In FWCore/Utilities/interface/JobMode.h, add a value to the JobMode enum
+   with a name for this mode.  I changed
+  enum JobMode {
+         GridJobMode
+       , AnalysisJobMode
+       , NilJobMode
+  };
+  to
+  enum JobMode {
+         GridJobMode
+       , ReleaseValidationJobMode
+       , AnalysisJobMode
+       , NilJobMode
+  };
+ 
+b) In MessageService/src/MessageLoggerDefaults.h, add a method
+   to set up that mode.  In the section with comment 
+   // Modes with hardwired defaults  
+   I  added the line 
+   
+     void hardwireReleaseValidationJobMode();
+
+c) Still in MessageLoggerDefaults.h, ad a case to dispatch that method
+   to the  MessageLoggerDefaults ctor:
+    switch (mode) {
+      case GridJobMode: 
+        hardwireGridJobMode();
+	break;       
+      case ReleaseValidationJobMode:
+        hardwireReleaseValidationJobMode();
+	break; 
+	...
+
+d) In MessageService/src/HardwiredDefaults.cc, make a copy of one of
+   the hardwireXXXJobMode methods (I started from hardwireGridJobMode)
+   and change the name (and the comment at the end) to the new one:
+   
+    void MessageLoggerDefaults::
+    hardwireReleaseValidationJobMode() 
+    {
+    .
+    .
+    .
+    } // hardwireReleaseValidationJobMode
+   
+e) Place the name of the new mode (infos) into the decision logic in the
+   mode() method right at the beginning of HardwiredDefaults.cc:
+	edm::JobMode 
+	MessageLoggerDefaults::
+	mode(std::string const & jm)
+	{
+	  if (jm == "")           return       GridJobMode;  
+	  if (jm == "grid")       return       GridJobMode;
+	  if (jm == "infos")      return       ReleaseValidationJobMode;
+	  if (jm == "analysis")   return       AnalysisJobMode;
+ 	  ...
+   
+At this point, you have a new mode, IDENTICAL to the one you copied.
+It is a good idea to build (starting at FWCore or higher, because the
+JobModes.h file has changed) and try a cmsRun using the new mode.
+
+All the remaining steps will concern the new method in HardiredDefaults.cc
+(in this example, MessageLoggerDefaults::hardwireReleaseValidationJobMode()) 
+
+Step 1:
+
+If a new destination (or change in a destination PSet name) has been done, 
+add or change the item destinations or statistics list as in step 1 of 
+Example 1.
+
+Here there was nothing to do, since we still want everything going to cerr.
+
+Step 2:
+
+A new destination would require creating a new instance of the Destination
+class.  
+
+Here there was nothing to do, since we have no new destinations.
+
+
+Step 3: 
+ 
+Add (or change in an existing Destination) whatever options you need 
+added or changed. In this example, we want to change to:
+
+  untracked PSet INFO = {
+    untracked int32 limit = 5;
+  } 
+  
+where that 5 was zero earlier; that becomes
+    
+    Category INFO_limits;		  // PSet INFO = { ... } 
+      INFO_limits.limit = 5;		  // int32 limit = 5
+      cerr.sev["INFO"] = INFO_limits; 
+
+And we want the threshold for the statistics destination to go down to INFO
+rather than WARNING:
+
+  { Destination cerr_stats;			 // PSet cerr_stats
+    cerr_stats.threshold = "INFO";		 // string threshold = "INFO"
+    cerr_stats.output = "cerr";		 	 // string output = "cerr"
+    destination["cerr_stats"] = cerr_stats;
+  }
+
+This is the code which is in the current (as of July 2008) 
+hardwireReleaseValidationJobMode() method, right near the end.
+
+Step 4:
+
+Build -- almost nothing needs recompilation if you already tried out
+the new mode before changing it -- and try it out.
+

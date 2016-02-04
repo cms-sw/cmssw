@@ -1,0 +1,10 @@
+<use   name="DQMServices/Core"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Utilities"/>
+<use   name="FWCore/Catalog"/>
+<use   name="roothistmatrix"/>
+<library   file="*.cc" name="DQMServicesFwkIOPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

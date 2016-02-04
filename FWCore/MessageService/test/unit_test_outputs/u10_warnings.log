@@ -1,0 +1,12 @@
+%MSG-w cat_A:  UnitTestClient_C:sendSomeMessages Run: 1 Event: 1
+Test of std::hex:145in hex is91
+%MSG
+%MSG-w cat_A:  UnitTestClient_C:sendSomeMessages Run: 1 Event: 1
+Test of std::setw(n) and std::setfill('c'):The following should read ++abcdefg $$$12:++abcdefg$$$12
+%MSG
+%MSG-w cat_A:  UnitTestClient_C:sendSomeMessages Run: 1 Event: 1
+Test of std::setprecision(p):Pi with precision 12 is3.14159265358
+%MSG
+%MSG-w cat_A:  UnitTestClient_C:sendSomeMessages Run: 1 Event: 1
+Test of spacing:The following should read a b c dd:abcdd
+%MSG

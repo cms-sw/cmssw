@@ -1,0 +1,46 @@
+<use   name="SimDataFormats/Track"/>
+<use   name="heppdt"/>
+<use   name="L1Trigger/CSCTrackFinder"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/Utilities"/>
+<use   name="DataFormats/CSCDigi"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/CSCGeometry"/>
+<use   name="L1Trigger/CSCCommonTrigger"/>
+<use   name="L1Trigger/CSCTriggerPrimitives"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="SimDataFormats/EncodedEventId"/>
+<use   name="rootgraphics"/>
+
+# the following blocks are used by CSCTF experts 
+# to generate and test PT and SR LUTs, 
+# please don't remove them
+
+#<library file="analysis/CSCMakeSRLUT.cc" name="CSCMakeSRLUT">
+#     <flags EDM_PLUGIN="1"/>
+#</library>
+
+#<library file="analysis/CSCCompareSRLUTs.cc" name="CSCCompareSRLUTs">
+#     <flags EDM_PLUGIN="1"/>
+#</library>
+
+#<library file="analysis/CSCTFEfficiencies.cc" name="CSCTFEfficiencies">
+#  <flags EDM_PLUGIN="1"/>
+#</library>
+
+#<library file="analysis/CSCTrackStubAnalysis.cc" name="CSCTrackStubAnalysis">
+#     <flags EDM_PLUGIN="1"/>
+#</library>
+
+#<library file="analysis/CSCTFStubReader.cc" name="CSCTFStubReader">
+#     <flags EDM_PLUGIN="1"/>
+#</library>
+
+#<library file="analysis/CSCMakePTLUT.cc" name="CSCMakePTLUT">
+#     <flags EDM_PLUGIN="1"/>
+#</library>
+
+#<library file="analysis/CSCCompareLUTs.cc" name="CSCCompareLUTs">
+#     <flags EDM_PLUGIN="1"/>
+#</library>
+

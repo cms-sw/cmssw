@@ -1,0 +1,487 @@
+~g_rho+ # proton # ~g_rho+ # proton 
+~g_rho0 # proton # ~g_rho0 # proton 
+~g_rho- # proton # ~g_rho- # proton 
+~g_rho+ # proton # ~g_Delta++ # pi0 
+~g_rho0 # proton # ~g_rho+ # neutron 
+~g_rho- # proton # ~g_rho0 # neutron 
+~g_rho+ # proton # ~g_Delta+ # pi+ 
+~g_rho0 # proton # ~g_Delta++ # pi- 
+~g_rho- # proton # ~g_Delta+ # pi- 
+~g_rho0 # proton # ~g_Delta+ # pi0 
+~g_rho- # proton # ~g_Delta0 # pi0 
+~g_rho0 # proton # ~g_Delta0 # pi+ 
+~g_rho+ # neutron # ~g_rho+ # neutron 
+~g_rho0 # neutron # ~g_rho0 # neutron 
+~g_rho- # neutron # ~g_rho- # neutron 
+~g_rho+ # neutron # ~g_rho0 # proton 
+~g_rho0 # neutron # ~g_rho- # proton 
+~g_rho- # neutron # ~g_rho0 # pi- 
+~g_rho+ # neutron # ~g_Delta++ # pi- 
+~g_rho0 # neutron # ~g_Delta+ # pi- 
+~g_rho- # neutron # ~g_Delta0 # pi- 
+~g_rho+ # neutron # ~g_Delta+ # pi0 
+~g_rho0 # neutron # ~g_Delta0 # pi0 
+~g_rho0 # neutron # ~g_Delta- # pi0 
+~g_rho+ # neutron # ~g_Delta0 # pi+ 
+~g_rho0 # neutron # ~g_Delta- # pi+ 
+~g_rho+ # proton # ~g_rho+ # proton # pi0 
+~g_rho0 # proton # ~g_rho0 # proton # pi0 
+~g_rho- # proton # ~g_rho- # proton # pi0 
+~g_rho0 # proton # ~g_rho+ # neutron # pi+ 
+~g_rho0 # proton # ~g_rho0 # neutron # pi+ 
+~g_rho- # proton # ~g_rho- # neutron # pi+ 
+~g_rho+ # proton # ~g_rho0 # proton # pi+ 
+~g_rho0 # proton # ~g_rho+ # proton # pi- 
+~g_rho- # proton # ~g_rho+ # neutron # pi- 
+~g_rho+ # proton # ~g_Delta++ # pi0 # pi0 
+~g_rho0 # proton # ~g_rho+ # neutron # pi0 
+~g_rho- # proton # ~g_rho0 # proton # pi- 
+~g_rho+ # proton # ~g_Delta++ # pi+ # pi- 
+~g_rho0 # proton # ~g_rho- # proton # pi+ 
+~g_rho- # proton # ~g_rho0 # neutron # pi0 
+~g_rho+ # proton # ~g_Delta+ # pi+ # pi0 
+~g_rho0 # proton # ~g_Delta++ # pi0 # pi- 
+~g_rho- # proton # ~g_Delta++ # pi- # pi- 
+~g_rho+ # proton # ~g_Delta0 # pi+ # pi+ 
+~g_rho0 # proton # ~g_Delta+ # pi0 # pi0 
+~g_rho- # proton # ~g_Delta+ # pi0 # pi- 
+~g_rho0 # proton # ~g_Delta+ # pi+ # pi- 
+~g_rho- # proton # ~g_Delta0 # pi0 # pi0 
+~g_rho0 # proton # ~g_Delta0 # pi+ # pi0 
+~g_rho- # proton # ~g_Delta0 # pi+ # pi- 
+~g_rho0 # proton # ~g_Delta- # pi+ # pi+ 
+~g_rho- # proton # ~g_Delta- # pi+ # pi0 
+~g_rho+ # neutron # ~g_rho+ # neutron # pi0 
+~g_rho0 # neutron # ~g_rho0 # neutron # pi0 
+~g_rho- # neutron # ~g_rho- # neutron # pi0 
+~g_rho+ # neutron # ~g_rho+ # proton # pi- 
+~g_rho0 # neutron # ~g_rho0 # proton # pi- 
+~g_rho- # neutron # ~g_rho- # proton # pi- 
+~g_rho+ # neutron # ~g_rho0 # proton # pi0 
+~g_rho0 # neutron # ~g_rho+ # neutron # pi- 
+~g_rho- # neutron # ~g_rho0 # neutron # pi- 
+~g_rho+ # neutron # ~g_rho0 # neutron # pi+ 
+~g_rho0 # neutron # ~g_rho- # proton # pi0 
+~g_rho- # neutron # ~g_Delta+ # pi- # pi- 
+~g_rho+ # neutron # ~g_rho- # proton # pi+ 
+~g_rho0 # neutron # ~g_rho- # neutron # pi+ 
+~g_rho- # neutron # ~g_Delta0 # pi- # pi0 
+~g_rho+ # neutron # ~g_Delta++ # pi0 # pi- 
+~g_rho0 # neutron # ~g_Delta++ # pi- # pi- 
+~g_rho- # neutron # ~g_Delta- # pi0 # pi0 
+~g_rho+ # neutron # ~g_Delta+ # pi0 # pi0 
+~g_rho0 # neutron # ~g_Delta+ # pi- # pi0 
+~g_rho- # neutron # ~g_Delta- # pi+ # pi- 
+~g_rho+ # neutron # ~g_Delta+ # pi+ # pi- 
+~g_rho0 # neutron # ~g_Delta0 # pi0 # pi0 
+~g_rho+ # neutron # ~g_Delta0 # pi+ # pi0 
+~g_rho0 # neutron # ~g_Delta0 # pi+ # pi- 
+~g_rho+ # neutron # ~g_Delta- # pi+ # pi+ 
+~g_rho0 # neutron # ~g_Delta- # pi+ # pi0 
+~g_Delta++ # proton # ~g_Delta++ # proton 
+~g_Delta+ # proton # ~g_Delta+ # proton 
+~g_Delta0 # proton # ~g_Delta0 # proton 
+~g_Delta- # proton # ~g_Delta- # proton 
+~g_Delta+ # proton # ~g_Delta++ # neutron 
+~g_Delta0 # proton # ~g_Delta+ # neutron 
+~g_Delta- # proton # ~g_Delta0 # neutron 
+~g_Delta++ # neutron # ~g_Delta++ # neutron 
+~g_Delta+ # neutron # ~g_Delta+ # neutron 
+~g_Delta0 # neutron # ~g_Delta0 # neutron 
+~g_Delta- # neutron # ~g_Delta- # neutron 
+~g_Delta++ # neutron # ~g_Delta+ # proton 
+~g_Delta+ # neutron # ~g_Delta0 # proton 
+~g_Delta0 # neutron # ~g_Delta- # proton 
+~g_Delta++ # proton # ~g_Delta++ # proton # pi0 
+~g_Delta+ # proton # ~g_Delta+ # proton # pi0 
+~g_Delta0 # proton # ~g_Delta0 # proton # pi0 
+~g_Delta- # proton # ~g_Delta- # proton # pi0 
+~g_Delta++ # proton # ~g_Delta++ # neutron # pi+ 
+~g_Delta+ # proton # ~g_Delta+ # neutron # pi+ 
+~g_Delta0 # proton # ~g_Delta0 # neutron # pi+ 
+~g_Delta- # proton # ~g_Delta- # neutron # pi+ 
+~g_Delta++ # proton # ~g_Delta+ # proton # pi+ 
+~g_Delta+ # proton # ~g_Delta++ # neutron # pi0 
+~g_Delta0 # proton # ~g_Delta+ # neutron # pi0 
+~g_Delta- # proton # ~g_Delta+ # proton # pi+ 
+~g_Delta+ # proton # ~g_Delta++ # proton # pi- 
+~g_Delta0 # proton # ~g_Delta+ # proton # pi- 
+~g_Delta- # proton # ~g_Delta0 # proton # pi- 
+~g_Delta+ # proton # ~g_Delta0 # proton # pi+ 
+~g_Delta0 # proton # ~g_Delta- # proton # pi+ 
+~g_Delta- # proton # ~g_Delta0 # neutron # pi0 
+~g_Delta++ # neutron # ~g_Delta++ # neutron # pi0 
+~g_Delta+ # neutron # ~g_Delta+ # neutron # pi0 
+~g_Delta0 # neutron # ~g_Delta0 # neutron # pi0 
+~g_Delta- # neutron # ~g_Delta- # neutron # pi0 
+~g_Delta++ # neutron # ~g_Delta++ # proton # pi- 
+~g_Delta+ # neutron # ~g_Delta+ # proton # pi- 
+~g_Delta0 # neutron # ~g_Delta0 # proton # pi- 
+~g_Delta- # neutron # ~g_Delta- # proton # pi- 
+~g_Delta++ # neutron # ~g_Delta+ # proton # pi0 
+~g_Delta+ # neutron # ~g_Delta++ # neutron # pi- 
+~g_Delta0 # neutron # ~g_Delta+ # neutron # pi- 
+~g_Delta- # neutron # ~g_Delta0 # neutron # pi- 
+~g_Delta++ # neutron # ~g_Delta+ # neutron # pi+ 
+~g_Delta+ # neutron # ~g_Delta0 # proton # pi0 
+~g_Delta0 # neutron # ~g_Delta- # neutron # pi+ 
+~g_Delta++ # neutron # ~g_Delta0 # proton # pi+ 
+~g_Delta+ # neutron # ~g_Delta0 # neutron # pi+ 
+~g_Delta+ # neutron # ~g_Delta- # proton # pi+ 
+~g_K*+ # proton # ~g_rho+ # proton 
+~g_K*+ # proton # ~g_Delta++ # pi0 
+~g_K*+ # proton # ~g_Delta+ # pi+ 
+~g_K*+ # neutron # ~g_rho+ # neutron 
+~g_K*+ # neutron # ~g_rho0 # proton 
+~g_K*+ # neutron # ~g_Delta++ # pi- 
+~g_K*+ # neutron # ~g_Delta+ # pi0 
+~g_K*+ # neutron # ~g_Delta0 # pi+ 
+~g_K*+ # proton # ~g_rho+ # proton # pi0 
+~g_K*+ # proton # ~g_rho0 # proton # pi+ 
+~g_K*+ # proton # ~g_Delta++ # pi0 # pi0 
+~g_K*+ # proton # ~g_Delta++ # pi+ # pi- 
+~g_K*+ # proton # ~g_Delta+ # pi+ # pi0 
+~g_K*+ # proton # ~g_Delta0 # pi+ # pi+ 
+~g_K*+ # neutron # ~g_rho+ # neutron # pi0 
+~g_K*+ # neutron # ~g_rho+ # proton # pi- 
+~g_K*+ # neutron # ~g_rho0 # proton # pi0 
+~g_K*+ # neutron # ~g_rho0 # neutron # pi+ 
+~g_K*+ # neutron # ~g_rho- # proton # pi+ 
+~g_K*+ # neutron # ~g_Delta++ # pi0 # pi- 
+~g_K*+ # neutron # ~g_Delta+ # pi0 # pi0 
+~g_K*+ # neutron # ~g_Delta+ # pi+ # pi- 
+~g_K*+ # neutron # ~g_Delta0 # pi+ # pi0 
+~g_K*+ # neutron # ~g_Delta- # pi+ # pi+ 
+~g_K*0 # proton # ~g_rho0 # proton 
+~g_K*0 # proton # ~g_rho+ # neutron 
+~g_K*0 # proton # ~g_Delta++ # pi- 
+~g_K*0 # proton # ~g_Delta+ # pi0 
+~g_K*0 # proton # ~g_Delta0 # pi+ 
+~g_K*0 # neutron # ~g_rho0 # neutron 
+~g_K*0 # neutron # ~g_rho- # proton 
+~g_K*0 # neutron # ~g_Delta+ # pi- 
+~g_K*0 # neutron # ~g_Delta0 # pi0 
+~g_K*0 # neutron # ~g_Delta- # pi0 
+~g_K*0 # neutron # ~g_Delta- # pi+ 
+~g_K*0 # proton # ~g_rho0 # proton # pi0 
+~g_K*0 # proton # ~g_rho+ # neutron # pi+ 
+~g_K*0 # proton # ~g_rho0 # neutron # pi+ 
+~g_K*0 # proton # ~g_rho+ # proton # pi- 
+~g_K*0 # proton # ~g_rho+ # neutron # pi0 
+~g_K*0 # proton # ~g_rho- # proton # pi+ 
+~g_K*0 # proton # ~g_Delta++ # pi0 # pi- 
+~g_K*0 # proton # ~g_Delta+ # pi0 # pi0 
+~g_K*0 # proton # ~g_Delta+ # pi+ # pi- 
+~g_K*0 # proton # ~g_Delta0 # pi+ # pi0 
+~g_K*0 # proton # ~g_Delta- # pi+ # pi+ 
+~g_K*0 # neutron # ~g_rho0 # neutron # pi0 
+~g_K*0 # neutron # ~g_rho0 # proton # pi- 
+~g_K*0 # neutron # ~g_rho+ # neutron # pi- 
+~g_K*0 # neutron # ~g_rho- # proton # pi0 
+~g_K*0 # neutron # ~g_rho- # neutron # pi+ 
+~g_K*0 # neutron # ~g_Delta++ # pi- # pi- 
+~g_K*0 # neutron # ~g_Delta+ # pi- # pi0 
+~g_K*0 # neutron # ~g_Delta0 # pi0 # pi0 
+~g_K*0 # neutron # ~g_Delta0 # pi+ # pi- 
+~g_K*0 # neutron # ~g_Delta- # pi+ # pi0 
+~g_omega # proton # ~g_rho0 # proton 
+~g_omega # proton # ~g_rho+ # neutron 
+~g_omega # proton # ~g_Delta++ # pi- 
+~g_omega # proton # ~g_Delta+ # pi0 
+~g_omega # proton # ~g_Delta0 # pi+ 
+~g_omega # neutron # ~g_rho0 # neutron 
+~g_omega # neutron # ~g_rho- # proton 
+~g_omega # neutron # ~g_Delta+ # pi- 
+~g_omega # neutron # ~g_Delta0 # pi0 
+~g_omega # neutron # ~g_Delta- # pi0 
+~g_omega # neutron # ~g_Delta- # pi+ 
+~g_omega # proton # ~g_rho0 # proton # pi0 
+~g_omega # proton # ~g_rho+ # neutron # pi+ 
+~g_omega # proton # ~g_rho0 # neutron # pi+ 
+~g_omega # proton # ~g_rho+ # proton # pi- 
+~g_omega # proton # ~g_rho+ # neutron # pi0 
+~g_omega # proton # ~g_rho- # proton # pi+ 
+~g_omega # proton # ~g_Delta++ # pi0 # pi- 
+~g_omega # proton # ~g_Delta+ # pi0 # pi0 
+~g_omega # proton # ~g_Delta+ # pi+ # pi- 
+~g_omega # proton # ~g_Delta0 # pi+ # pi0 
+~g_omega # proton # ~g_Delta- # pi+ # pi+ 
+~g_omega # neutron # ~g_rho0 # neutron # pi0 
+~g_omega # neutron # ~g_rho0 # proton # pi- 
+~g_omega # neutron # ~g_rho+ # neutron # pi- 
+~g_omega # neutron # ~g_rho- # proton # pi0 
+~g_omega # neutron # ~g_rho- # neutron # pi+ 
+~g_omega # neutron # ~g_Delta++ # pi- # pi- 
+~g_omega # neutron # ~g_Delta+ # pi- # pi0 
+~g_omega # neutron # ~g_Delta0 # pi0 # pi0 
+~g_omega # neutron # ~g_Delta0 # pi+ # pi- 
+~g_omega # neutron # ~g_Delta- # pi+ # pi0 
+~g_phi # proton # ~g_rho0 # proton 
+~g_phi # proton # ~g_rho+ # neutron 
+~g_phi # proton # ~g_Delta++ # pi- 
+~g_phi # proton # ~g_Delta+ # pi0 
+~g_phi # proton # ~g_Delta0 # pi+ 
+~g_phi # neutron # ~g_rho0 # neutron 
+~g_phi # neutron # ~g_rho- # proton 
+~g_phi # neutron # ~g_Delta+ # pi- 
+~g_phi # neutron # ~g_Delta0 # pi0 
+~g_phi # neutron # ~g_Delta- # pi0 
+~g_phi # neutron # ~g_Delta- # pi+ 
+~g_phi # proton # ~g_rho0 # proton # pi0 
+~g_phi # proton # ~g_rho+ # neutron # pi+ 
+~g_phi # proton # ~g_rho0 # neutron # pi+ 
+~g_phi # proton # ~g_rho+ # proton # pi- 
+~g_phi # proton # ~g_rho+ # neutron # pi0 
+~g_phi # proton # ~g_rho- # proton # pi+ 
+~g_phi # proton # ~g_Delta++ # pi0 # pi- 
+~g_phi # proton # ~g_Delta+ # pi0 # pi0 
+~g_phi # proton # ~g_Delta+ # pi+ # pi- 
+~g_phi # proton # ~g_Delta0 # pi+ # pi0 
+~g_phi # proton # ~g_Delta- # pi+ # pi+ 
+~g_phi # neutron # ~g_rho0 # neutron # pi0 
+~g_phi # neutron # ~g_rho0 # proton # pi- 
+~g_phi # neutron # ~g_rho+ # neutron # pi- 
+~g_phi # neutron # ~g_rho- # proton # pi0 
+~g_phi # neutron # ~g_rho- # neutron # pi+ 
+~g_phi # neutron # ~g_Delta++ # pi- # pi- 
+~g_phi # neutron # ~g_Delta+ # pi- # pi0 
+~g_phi # neutron # ~g_Delta0 # pi0 # pi0 
+~g_phi # neutron # ~g_Delta0 # pi+ # pi- 
+~g_phi # neutron # ~g_Delta- # pi+ # pi0 
+~g_Sigma*- # proton # ~g_Delta- # proton 
+~g_Sigma*- # proton # ~g_Delta0 # neutron 
+~g_Sigma*- # neutron # ~g_Delta- # neutron 
+~g_Sigma*- # proton # ~g_Delta- # proton # pi0 
+~g_Sigma*- # proton # ~g_Delta- # neutron # pi+ 
+~g_Sigma*- # proton # ~g_Delta+ # proton # pi+ 
+~g_Sigma*- # proton # ~g_Delta0 # proton # pi- 
+~g_Sigma*- # proton # ~g_Delta0 # neutron # pi0 
+~g_Sigma*- # neutron # ~g_Delta- # neutron # pi0 
+~g_Sigma*- # neutron # ~g_Delta- # proton # pi- 
+~g_Sigma*- # neutron # ~g_Delta0 # neutron # pi- 
+~g_Sigma*0 # proton # ~g_Delta0 # proton 
+~g_Sigma*0 # proton # ~g_Delta+ # neutron 
+~g_Sigma*0 # neutron # ~g_Delta0 # neutron 
+~g_Sigma*0 # neutron # ~g_Delta- # proton 
+~g_Sigma*0 # proton # ~g_Delta0 # proton # pi0 
+~g_Sigma*0 # proton # ~g_Delta0 # neutron # pi+ 
+~g_Sigma*0 # proton # ~g_Delta+ # neutron # pi0 
+~g_Sigma*0 # proton # ~g_Delta+ # proton # pi- 
+~g_Sigma*0 # proton # ~g_Delta- # proton # pi+ 
+~g_Sigma*0 # neutron # ~g_Delta0 # neutron # pi0 
+~g_Sigma*0 # neutron # ~g_Delta0 # proton # pi- 
+~g_Sigma*0 # neutron # ~g_Delta+ # neutron # pi- 
+~g_Sigma*0 # neutron # ~g_Delta- # neutron # pi+ 
+~g_Sigma*+ # proton # ~g_Delta+ # proton 
+~g_Sigma*+ # proton # ~g_Delta++ # neutron 
+~g_Sigma*+ # neutron # ~g_Delta+ # neutron 
+~g_Sigma*+ # neutron # ~g_Delta0 # proton 
+~g_Sigma*+ # proton # ~g_Delta+ # proton # pi0 
+~g_Sigma*+ # proton # ~g_Delta+ # neutron # pi+ 
+~g_Sigma*+ # proton # ~g_Delta++ # neutron # pi0 
+~g_Sigma*+ # proton # ~g_Delta++ # proton # pi- 
+~g_Sigma*+ # proton # ~g_Delta0 # proton # pi+ 
+~g_Sigma*+ # neutron # ~g_Delta+ # neutron # pi0 
+~g_Sigma*+ # neutron # ~g_Delta+ # proton # pi- 
+~g_Sigma*+ # neutron # ~g_Delta++ # neutron # pi- 
+~g_Sigma*+ # neutron # ~g_Delta0 # proton # pi0 
+~g_Sigma*+ # neutron # ~g_Delta0 # neutron # pi+ 
+~g_Sigma*+ # neutron # ~g_Delta- # proton # pi+ 
+~g_Xi*- # proton # ~g_Delta- # proton 
+~g_Xi*- # proton # ~g_Delta0 # neutron 
+~g_Xi*- # neutron # ~g_Delta- # neutron 
+~g_Xi*- # proton # ~g_Delta- # proton # pi0 
+~g_Xi*- # proton # ~g_Delta- # neutron # pi+ 
+~g_Xi*- # proton # ~g_Delta+ # proton # pi+ 
+~g_Xi*- # proton # ~g_Delta0 # proton # pi- 
+~g_Xi*- # proton # ~g_Delta0 # neutron # pi0 
+~g_Xi*- # neutron # ~g_Delta- # neutron # pi0 
+~g_Xi*- # neutron # ~g_Delta- # proton # pi- 
+~g_Xi*- # neutron # ~g_Delta0 # neutron # pi- 
+~g_Xi*0 # proton # ~g_Delta0 # proton 
+~g_Xi*0 # proton # ~g_Delta+ # neutron 
+~g_Xi*0 # neutron # ~g_Delta0 # neutron 
+~g_Xi*0 # neutron # ~g_Delta- # proton 
+~g_Xi*0 # proton # ~g_Delta0 # proton # pi0 
+~g_Xi*0 # proton # ~g_Delta0 # neutron # pi+ 
+~g_Xi*0 # proton # ~g_Delta+ # neutron # pi0 
+~g_Xi*0 # proton # ~g_Delta+ # proton # pi- 
+~g_Xi*0 # proton # ~g_Delta- # proton # pi+ 
+~g_Xi*0 # neutron # ~g_Delta0 # neutron # pi0 
+~g_Xi*0 # neutron # ~g_Delta0 # proton # pi- 
+~g_Xi*0 # neutron # ~g_Delta+ # neutron # pi- 
+~g_Xi*0 # neutron # ~g_Delta- # neutron # pi+ 
+~g_Omega- # proton # ~g_Delta- # proton 
+~g_Omega- # proton # ~g_Delta0 # neutron 
+~g_Omega- # neutron # ~g_Delta- # neutron 
+~g_Omega- # proton # ~g_Delta- # proton # pi0 
+~g_Omega- # proton # ~g_Delta- # neutron # pi+ 
+~g_Omega- # proton # ~g_Delta+ # proton # pi+ 
+~g_Omega- # proton # ~g_Delta0 # proton # pi- 
+~g_Omega- # proton # ~g_Delta0 # neutron # pi0 
+~g_Omega- # neutron # ~g_Delta- # neutron # pi0 
+~g_Omega- # neutron # ~g_Delta- # proton # pi- 
+~g_Omega- # neutron # ~g_Delta0 # neutron # pi- 
+~g_K*- # proton # ~g_rho- # proton 
+~g_K*- # proton # ~g_rho0 # neutron 
+~g_K*- # proton # ~g_Delta+ # pi- 
+~g_K*- # proton # ~g_Delta0 # pi0 
+~g_K*- # neutron # ~g_rho- # neutron 
+~g_K*- # neutron # ~g_rho0 # pi- 
+~g_K*- # neutron # ~g_Delta0 # pi- 
+~g_K*- # proton # ~g_rho- # proton # pi0 
+~g_K*- # proton # ~g_rho- # neutron # pi+ 
+~g_K*- # proton # ~g_rho+ # neutron # pi- 
+~g_K*- # proton # ~g_rho0 # proton # pi- 
+~g_K*- # proton # ~g_rho0 # neutron # pi0 
+~g_K*- # proton # ~g_Delta++ # pi- # pi- 
+~g_K*- # proton # ~g_Delta+ # pi0 # pi- 
+~g_K*- # proton # ~g_Delta0 # pi0 # pi0 
+~g_K*- # proton # ~g_Delta0 # pi+ # pi- 
+~g_K*- # proton # ~g_Delta- # pi+ # pi0 
+~g_K*- # neutron # ~g_rho- # neutron # pi0 
+~g_K*- # neutron # ~g_rho- # proton # pi- 
+~g_K*- # neutron # ~g_rho0 # neutron # pi- 
+~g_K*- # neutron # ~g_Delta+ # pi- # pi- 
+~g_K*- # neutron # ~g_Delta0 # pi- # pi0 
+~g_K*- # neutron # ~g_Delta- # pi0 # pi0 
+~g_K*- # neutron # ~g_Delta- # pi+ # pi- 
+~g_glueball # proton # ~g_rho0 # proton 
+~g_glueball # proton # ~g_rho+ # neutron 
+~g_glueball # proton # ~g_Delta++ # pi- 
+~g_glueball # proton # ~g_Delta+ # pi0 
+~g_glueball # proton # ~g_Delta0 # pi+ 
+~g_glueball # neutron # ~g_rho0 # neutron 
+~g_glueball # neutron # ~g_rho- # proton 
+~g_glueball # neutron # ~g_Delta+ # pi- 
+~g_glueball # neutron # ~g_Delta0 # pi0 
+~g_glueball # neutron # ~g_Delta- # pi0 
+~g_glueball # neutron # ~g_Delta- # pi+ 
+~g_glueball # proton # ~g_rho0 # proton # pi0 
+~g_glueball # proton # ~g_rho+ # neutron # pi+ 
+~g_glueball # proton # ~g_rho0 # neutron # pi+ 
+~g_glueball # proton # ~g_rho+ # proton # pi- 
+~g_glueball # proton # ~g_rho+ # neutron # pi0 
+~g_glueball # proton # ~g_rho- # proton # pi+ 
+~g_glueball # proton # ~g_Delta++ # pi0 # pi- 
+~g_glueball # proton # ~g_Delta+ # pi0 # pi0 
+~g_glueball # proton # ~g_Delta+ # pi+ # pi- 
+~g_glueball # proton # ~g_Delta0 # pi+ # pi0 
+~g_glueball # proton # ~g_Delta- # pi+ # pi+ 
+~g_glueball # neutron # ~g_rho0 # neutron # pi0 
+~g_glueball # neutron # ~g_rho0 # proton # pi- 
+~g_glueball # neutron # ~g_rho+ # neutron # pi- 
+~g_glueball # neutron # ~g_rho- # proton # pi0 
+~g_glueball # neutron # ~g_rho- # neutron # pi+ 
+~g_glueball # neutron # ~g_Delta++ # pi- # pi- 
+~g_glueball # neutron # ~g_Delta+ # pi- # pi0 
+~g_glueball # neutron # ~g_Delta0 # pi0 # pi0 
+~g_glueball # neutron # ~g_Delta0 # pi+ # pi- 
+~g_glueball # neutron # ~g_Delta- # pi+ # pi0 
+~g_K*bar0 # proton # ~g_rho0 # proton 
+~g_K*bar0 # proton # ~g_rho+ # neutron 
+~g_K*bar0 # proton # ~g_Delta++ # pi- 
+~g_K*bar0 # proton # ~g_Delta+ # pi0 
+~g_K*bar0 # proton # ~g_Delta0 # pi+ 
+~g_K*bar0 # neutron # ~g_rho0 # neutron 
+~g_K*bar0 # neutron # ~g_rho- # proton 
+~g_K*bar0 # neutron # ~g_Delta+ # pi- 
+~g_K*bar0 # neutron # ~g_Delta0 # pi0 
+~g_K*bar0 # neutron # ~g_Delta- # pi0 
+~g_K*bar0 # neutron # ~g_Delta- # pi+ 
+~g_K*bar0 # proton # ~g_rho0 # proton # pi0 
+~g_K*bar0 # proton # ~g_rho+ # neutron # pi+ 
+~g_K*bar0 # proton # ~g_rho0 # neutron # pi+ 
+~g_K*bar0 # proton # ~g_rho+ # proton # pi- 
+~g_K*bar0 # proton # ~g_rho+ # neutron # pi0 
+~g_K*bar0 # proton # ~g_rho- # proton # pi+ 
+~g_K*bar0 # proton # ~g_Delta++ # pi0 # pi- 
+~g_K*bar0 # proton # ~g_Delta+ # pi0 # pi0 
+~g_K*bar0 # proton # ~g_Delta+ # pi+ # pi- 
+~g_K*bar0 # proton # ~g_Delta0 # pi+ # pi0 
+~g_K*bar0 # proton # ~g_Delta- # pi+ # pi+ 
+~g_K*bar0 # neutron # ~g_rho0 # neutron # pi0 
+~g_K*bar0 # neutron # ~g_rho0 # proton # pi- 
+~g_K*bar0 # neutron # ~g_rho+ # neutron # pi- 
+~g_K*bar0 # neutron # ~g_rho- # proton # pi0 
+~g_K*bar0 # neutron # ~g_rho- # neutron # pi+ 
+~g_K*bar0 # neutron # ~g_Delta++ # pi- # pi- 
+~g_K*bar0 # neutron # ~g_Delta+ # pi- # pi0 
+~g_K*bar0 # neutron # ~g_Delta0 # pi0 # pi0 
+~g_K*bar0 # neutron # ~g_Delta0 # pi+ # pi- 
+~g_K*bar0 # neutron # ~g_Delta- # pi+ # pi0 
+~g_Deltabar-- # proton # ~g_Deltabar-- # proton
+~g_Deltabar-- # proton # ~g_rho0 # pi0 # pi-
+~g_Deltabar-- # proton # ~g_rho- # pi0 # pi0
+~g_Deltabar- # proton # ~g_Deltabar- # proton
+~g_Deltabar- # proton # ~g_rho0 # pi0 # pi0
+~g_Deltabar- # proton # ~g_rho+ # pi0 # pi-
+~g_Deltabar- # proton # ~g_rho- # pi0 # pi+
+~g_Deltabar0 # proton # ~g_Deltabar0 # proton
+~g_Deltabar0 # proton # ~g_rho0 # pi0 # pi+
+~g_Deltabar0 # proton # ~g_rho+ # pi0 # pi0
+~g_Deltabar0 # proton # ~g_rho+ # pi- # pi+
+~g_Deltabar0 # proton # ~g_rho- # pi+ # pi+
+~g_Deltabar+ # proton # ~g_Deltabar+ # proton
+~g_Deltabar+ # proton # ~g_rho0 # pi+ # pi+
+~g_Deltabar+ # proton # ~g_rho+ # pi0 # pi+
+~g_Deltabar-- # neutron # ~g_Deltabar-- # neutron
+~g_Deltabar-- # neutron # ~g_rho0 # pi- # pi-
+~g_Deltabar-- # neutron # ~g_rho- # pi0 # pi-
+~g_Deltabar- # neutron # ~g_Deltabar- # neutron
+~g_Deltabar- # neutron # ~g_rho0 # pi0 # pi-
+~g_Deltabar- # neutron # ~g_rho- # pi0 # pi0
+~g_Deltabar- # neutron # ~g_rho- # pi+ # pi-
+~g_Deltabar- # neutron # ~g_rho+ # pi- # pi-
+~g_Deltabar0 # neutron # ~g_Deltabar0 # neutron
+~g_Deltabar0 # neutron # ~g_rho0 # pi0 # pi0
+~g_Deltabar0 # neutron # ~g_rho+ # pi- # pi0
+~g_Deltabar0 # neutron # ~g_rho- # pi+ # pi0
+~g_Deltabar+ # neutron # ~g_Deltabar+ # neutron
+~g_Deltabar+ # neutron # ~g_rho+ # pi0 # pi0
+~g_Deltabar+ # neutron # ~g_rho0 # pi+ # pi0
+~g_Sigma*bar- # proton # ~g_Sigma*bar- # proton
+~g_Sigma*bar- # proton # ~g_rho0 # pi0 # pi0
+~g_Sigma*bar- # proton # ~g_rho+ # pi0 # pi-
+~g_Sigma*bar- # proton # ~g_rho- # pi0 # pi+
+~g_Sigma*bar0 # proton # ~g_Sigma*bar0 # proton
+~g_Sigma*bar0 # proton # ~g_rho0 # pi0 # pi+
+~g_Sigma*bar0 # proton # ~g_rho+ # pi0 # pi0
+~g_Sigma*bar0 # proton # ~g_rho+ # pi- # pi+
+~g_Sigma*bar0 # proton # ~g_rho- # pi+ # pi+
+~g_Sigma*bar+ # proton # ~g_Sigma*bar+ # proton
+~g_Sigma*bar+ # proton # ~g_rho0 # pi+ # pi+
+~g_Sigma*bar+ # proton # ~g_rho+ # pi0 # pi+
+~g_Sigma*bar- # neutron # ~g_Sigma*bar- # neutron
+~g_Sigma*bar- # neutron # ~g_rho0 # pi0 # pi-
+~g_Sigma*bar- # neutron # ~g_rho- # pi0 # pi0
+~g_Sigma*bar- # neutron # ~g_rho- # pi+ # pi-
+~g_Sigma*bar- # neutron # ~g_rho+ # pi- # pi-
+~g_Sigma*bar0 # neutron # ~g_Sigma*bar0 # neutron
+~g_Sigma*bar0 # neutron # ~g_rho0 # pi0 # pi0
+~g_Sigma*bar0 # neutron # ~g_rho+ # pi- # pi0
+~g_Sigma*bar0 # neutron # ~g_rho- # pi+ # pi0
+~g_Sigma*bar+ # neutron # ~g_Sigma*bar+ # neutron
+~g_Sigma*bar+ # neutron # ~g_rho+ # pi0 # pi0
+~g_Sigma*bar+ # neutron # ~g_rho0 # pi+ # pi0
+~g_Omegabar+ # proton # ~g_Omegabar+ # proton
+~g_Omegabar+ # proton # ~g_rho0 # pi+ # pi+
+~g_Omegabar+ # proton # ~g_rho+ # pi0 # pi+
+~g_Omegabar+ # neutron # ~g_Omegabar+ # neutron
+~g_Omegabar+ # neutron # ~g_rho+ # pi0 # pi0
+~g_Omegabar+ # neutron # ~g_rho0 # pi+ # pi0
+~g_Xi*bar+ # proton # ~g_Xi*bar+ # proton
+~g_Xi*bar+ # proton # ~g_rho0 # pi+ # pi+
+~g_Xi*bar+ # proton # ~g_rho+ # pi0 # pi+
+~g_Xi*bar+ # neutron # ~g_Xi*bar+ # neutron
+~g_Xi*bar+ # neutron # ~g_rho+ # pi0 # pi0
+~g_Xi*bar+ # neutron # ~g_rho0 # pi+ # pi0
+~g_Xi*bar0 # proton # ~g_Xi*bar0 # proton
+~g_Xi*bar0 # proton # ~g_rho0 # pi0 # pi+
+~g_Xi*bar0 # proton # ~g_rho+ # pi0 # pi0
+~g_Xi*bar0 # proton # ~g_rho+ # pi- # pi+
+~g_Xi*bar0 # proton # ~g_rho- # pi+ # pi+
+~g_Xi*bar0 # neutron # ~g_Xi*bar0 # neutron
+~g_Xi*bar0 # neutron # ~g_rho0 # pi0 # pi0
+~g_Xi*bar0 # neutron # ~g_rho+ # pi- # pi0
+~g_Xi*bar0 # neutron # ~g_rho- # pi+ # pi0
