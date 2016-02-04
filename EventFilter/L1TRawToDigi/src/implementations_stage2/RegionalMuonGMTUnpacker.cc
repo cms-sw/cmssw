@@ -77,12 +77,17 @@ namespace l1t {
             for (unsigned nWord = 0; nWord < nWords && i < block.header().getSize(); nWord += 2) {
                uint32_t raw_data_00_31 = payload[i++];
                uint32_t raw_data_32_63 = payload[i++];        
-               LogDebug("L1T|Muon") << "raw_data_00_31 = 0x" << hex << raw_data_00_31 << " raw_data_32_63 = 0x" << raw_data_32_63;
+               LogDebug("L1T|Muon") << "raw_data_00_31 = 0x" << hex << setw(8) << setfill('0') << raw_data_00_31 << " raw_data_32_63 = 0x" << setw(8) << setfill('0') << raw_data_32_63;
                // skip empty muons (hwPt == 0)
                //// the msb are reserved for global information
                //if ((raw_data_00_31 & 0x7FFFFFFF) == 0 && (raw_data_32_63 & 0x7FFFFFFF) == 0) {
                if (((raw_data_00_31 >> l1t::RegionalMuonRawDigiTranslator::ptShift_) & l1t::RegionalMuonRawDigiTranslator::ptMask_) == 0) {
                   LogDebug("L1T|Muon") << "Muon hwPt zero. Skip.";
+                  continue;
+               }
+               // Detect and ignore comma events
+               if (raw_data_00_31 == 0x505050bc || raw_data_32_63 == 0x505050bc) {
+                  edm::LogWarning("L1T|Muon") << "Comma detected in raw data stream. Orbit number: " << block.amc().getOrbitNumber() << ", BX ID: " << block.amc().getBX() << ", BX: " << bx << ", linkId: " << linkId << ", Raw data: 0x" << hex << setw(8) << setfill('0') << raw_data_32_63 << setw(8) << setfill('0') << raw_data_00_31 << dec << ". Skip.";
                   continue;
                }
  
