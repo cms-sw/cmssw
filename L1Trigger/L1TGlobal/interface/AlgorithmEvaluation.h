@@ -34,23 +34,23 @@
 // if hash map is used
 
 #include <ext/hash_map>
-#include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
+#include "DataFormats/L1TGlobal/interface/L1TGtObjectMapFwd.h"
 
 //   how to hash std::string, using a "template specialization"
 // DMP Comment out for not to prevent conflicts
-/* namespace __gnu_cxx { */
+ namespace __gnu_cxx { 
 
-/*     /\** */
-/*      Explicit template specialization of hash of a string class, */
-/*      which just uses the internal char* representation as a wrapper. */
-/*      *\/ */
-/*     template<> struct hash<std::string> { */
-/*         size_t operator()(const std::string& x) const { */
-/*             return hash<const char*> ()(x.c_str()); */
-/*         } */
-/*     }; */
+     /** 
+      Explicit template specialization of hash of a string class, 
+      which just uses the internal char* representation as a wrapper. 
+      */ 
+     template<> struct hash<std::string> { 
+         size_t operator()(const std::string& x) const { 
+             return hash<const char*> ()(x.c_str()); 
+         } 
+     }; 
 
-/* } */
+ } 
 // end hash map
 
 
@@ -60,7 +60,6 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
 //
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 
 // forward declarations
 class L1GtAlgorithm;

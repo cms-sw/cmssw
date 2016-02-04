@@ -17,6 +17,16 @@
   <class name="GlobalExtBlkBxCollection"/>
   <class name="edm::Wrapper<GlobalExtBlkBxCollection>"/>
 
+  <class name="L1TGtObjectMap" ClassVersion="10">
+   <version ClassVersion="10" checksum="3766727240"/>
+  </class>
+  <class name="edm::Wrapper<L1TGtObjectMap>" splitlevel="0"/>
+
+  <class name="L1TGtObjectMapRecord" ClassVersion="10">
+   <version ClassVersion="10" checksum="2808522020"/>
+  </class>
+  <class name="edm::Wrapper<L1TGtObjectMapRecord>" splitlevel="0"/>
+
 </lcgdict>
 
 
