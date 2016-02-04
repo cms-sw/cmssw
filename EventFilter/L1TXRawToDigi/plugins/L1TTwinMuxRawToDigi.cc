@@ -50,7 +50,7 @@ L1TTwinMuxRawToDigi::L1TTwinMuxRawToDigi(const edm::ParameterSet& pset) :
     std::array<short, 12> whmap;      
     for (size_t amc_i = 1; amc_i < 13; ++amc_i ){
       short shift = (12-amc_i)*4;
-      whmap.at(amc_i-1) = ( amcsecmap_.at(wh_i) >> shift ) & 0xF;
+      whmap[amc_i-1] = ( amcsecmap_[wh_i] >> shift ) & 0xF;
     }
     amcsec_.push_back(whmap);
   }
@@ -87,7 +87,7 @@ bool L1TTwinMuxRawToDigi::fillRawData( edm::Event& e,
   e.getByToken( Raw_token, data );
 
   for ( size_t w_i = 0; w_i < nfeds_; ++w_i ) {
-    processFed( feds_.at(w_i), wheels_.at(w_i), amcsec_.at(w_i), data, phi_data, the_data );
+    processFed( feds_[w_i], wheels_[w_i], amcsec_[w_i], data, phi_data, the_data );
   }
   
   return true;
@@ -291,7 +291,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
       break;
     }
     
-    int sector     = twinMuxAmcSec.at(AMC_ID-1);
+    int sector     = twinMuxAmcSec[AMC_ID-1];
     
     if( ( sector < 1 ) or ( sector > 12 ) ) {
       if( sector != 15 ) edm::LogWarning("TwinMux_unpacker") << "%%%%%% VALID AMC_ID POINTS TO SECTOR OUT OF RANGE \n"
