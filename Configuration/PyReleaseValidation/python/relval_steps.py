@@ -1314,6 +1314,7 @@ steps['HARVESTUP15']={
     '--filetype':'DQM',
     }
 
+steps['HARVESTMINUP15']=merge([{'-s':'HARVESTING:validationHarvesting+dqmHarvesting'},steps['HARVESTUP15']])
 
 steps['HARVESTUP15_PU25']=steps['HARVESTUP15']
 
