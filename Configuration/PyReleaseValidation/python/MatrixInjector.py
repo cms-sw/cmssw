@@ -326,6 +326,15 @@ class MatrixInjector(object):
                             if ('DBLMINIAODMCUP15NODQM' in step): 
                                 chainDict['nowmTasklist'][-1]['ProcessingString']=chainDict['nowmTasklist'][-1]['ProcessingString']+'_miniAOD' 
 
+                            # modify memory settings for Multicore processing
+                            # implemented with reference to franzoni:multithread-CMSSW_7_4_3
+                            if(chainDict['Multicore']>1):
+                                # the scaling factor of 1.2GB / thread is empirical and measured on a SECOND round of tests with PU samples
+                                # the number of threads is assumed to be the same for all tasks
+                                # https://hypernews.cern.ch/HyperNews/CMS/get/edmFramework/3509/1/1/1.html
+                                chainDict['nowmTasklist'][-1]['Memory']= 3000 + int(  chainDict['Multicore']  -1)*1200
+                                # set also the overall memory to the same value; the agreement (in the phasing in) is that 
+                                chainDict['Memory'] = 3000 + int(  chainDict['Multicore']  -1)*1200
 
                         index+=1
                     #end of loop through steps
