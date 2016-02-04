@@ -64,10 +64,8 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons) :
   maxEta_ = (lastHERing_ > lastHFRing_) ? lastHERing_ : lastHFRing_;
   if (triggerMode_ == HcalTopologyMode::tm_LHC_RCT) {
     HTSize_ = kHTSizePreLS1;
-  } else if (triggerMode_ == HcalTopologyMode::tm_LHC_RCT_and_1x1) {
-    HTSize_ = kHTSizePhase1;
   } else {
-    HTSize_ = kHTSizePhase1-kHTSizePreLS1;
+    HTSize_ = kHTSizePhase1;
   }
 
 #ifdef DebugLog
@@ -202,23 +200,18 @@ bool HcalTopology::validDetId(HcalSubdetector subdet, int ieta, int iphi,
 
 bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
 
-  if (id.iphi()<1 || id.iphi()>72 || id.ieta()==0) return false;
-  if (id.depth() != 0)                             return false;
+  if (id.iphi()<1 || id.iphi()>72 || id.ieta()==0)  return false;
+  if (id.depth() != 0)                              return false;
   if (id.version()==0) {
-    if (triggerMode_==HcalTopologyMode::tm_LHC_1x1) return false;
-    if ((id.ietaAbs()>32) || 
-	(triggerMode_==HcalTopologyMode::tm_LHC_1x1 && id.ietaAbs()>27)) return false;
-    if (id.ietaAbs()>28) {
-      int iphi=id.iphi();
-      if ((iphi/4)*4 + 1 != iphi) return false;
-      iphi = iphi/4 + 1;	  
-      if (iphi > 18) return false;
-    }
+    if ((triggerMode_==HcalTopologyMode::tm_LHC_1x1 && id.ietaAbs()>29) ||
+	(id.ietaAbs()>32))                          return false;
+    int ietaMax = (triggerMode_==HcalTopologyMode::tm_LHC_1x1) ? 29 : 28;
+    if (id.ietaAbs()>ietaMax && ((id.iphi()%4)!=1)) return false;
   } else {
     if (triggerMode_==HcalTopologyMode::tm_LHC_RCT) return false;
-    if (id.ietaAbs()<28 || id.ietaAbs()>41) return false;
-    if (id.ietaAbs()>29 && ((id.iphi()%2)==0)) return false;
-    if (id.ietaAbs()>39 && ((id.iphi()%4)!=3)) return false;
+    if (id.ietaAbs()<30 || id.ietaAbs()>41)         return false;
+    if (id.ietaAbs()>29 && ((id.iphi()%2)==0))      return false;
+    if (id.ietaAbs()>39 && ((id.iphi()%4)!=3))      return false;
   }
   return true;
 }
