@@ -1,0 +1,881 @@
+#!/usr/bin/env perl
+use strict;
+no warnings qw(recursion);
+$|=1;
+my $me = $0;
+$me =~ s|.*/||;
+
+######################################################################
+my $SUM_INC_OUT_EDGES	= 0;
+my $SUM_INC_OUT_COUNT	= 1;
+my $SUM_INC_IN_EDGES	= 2;
+my $SUM_INC_IN_COUNT	= 3;
+my $SUM_LIB_OUT_EDGES	= 4;
+my $SUM_LIB_OUT_COUNT	= 5;
+my $SUM_LIB_IN_EDGES	= 6;
+my $SUM_LIB_IN_COUNT	= 7;
+my $SUM_LOG_OUT_EDGES	= 8;
+my $SUM_LOG_IN_EDGES	= 9;
+my $SUM_ALL_IN_EDGES	= 10;
+my $SUM_ALL_OUT_EDGES	= 11;
+my $SUM_N		= 12;
+
+my $CELL_INC_OUT_COUNT	= 0;
+my $CELL_INC_IN_COUNT	= 1;
+my $CELL_LIB_OUT_COUNT	= 2;
+my $CELL_LIB_IN_COUNT	= 3;
+my $CELL_LOG_OUT_EDGES	= 4;
+my $CELL_LOG_IN_EDGES	= 5;
+my $CELL_N		= 6;
+
+my @SUM_LABELS = ("Number of outgoing edges from includes",
+		  "Total count of outgoing includes",
+		  "Number of incoming edges from includes",
+		  "Total count of incoming includes",
+		  "Number of outgoing edges from symbols",
+		  "Total count of outgoing symbols",
+		  "Number of incoming edges from symbols",
+		  "Total count of incoming symbols",
+		  "Number of (possibly overlapping) outgoing logical edges",
+		  "Number of (possibly overlapping) incoming logical edges",
+		  "Total count of incoming edges",
+		  "Total count of outgoing edges");
+
+sub min {
+  my $min = shift;
+  foreach my $val (@_) {
+    $min = $min > $val ? $val : $min;
+  }
+  return $min;
+}
+
+sub max {
+  my $max = shift;
+  foreach my $val (@_) {
+    $max = $max > $val ? $max : $val;
+  }
+  return $max;
+}
+
+sub rgb2hsv {
+  my ($r, $g, $b) = @_;
+  my ($h, $s, $v);
+  my $max = &max($r, $g, $b);
+  my $min = &min($r, $g, $b);
+
+  $v = $max;
+  $s = ($max ? ($max - $min)/$max : 0.0);
+  if (! $s) {
+    $h = 0;
+  } else {
+    my $d = $max - $min;
+    if ($r == $max) {
+      $h = 0. + ($g - $b)/$d;
+    } elsif ($g == $max) {
+      $h = 2. + ($b - $r)/$d;
+    } elsif ($b == $max) {
+      $h = 4. + ($r - $g)/$d;
+    }
+    $h /= 6.;
+    $h += 1. if ($h < 0.);
+  }
+
+  $h = int($h * 1000 + .5)/1000;
+  $s = int($s * 1000 + .5)/1000;
+  $v = int($v * 1000 + .5)/1000;
+
+  return ($h, $s, $v);
+}
+
+sub rgb2yiq {
+  my ($r, $g, $b) = @_;
+  return (.299 * $r + .587 * $g + .115 * $b,
+	  .596 * $r - .275 * $g - .321 * $b,
+          .212 * $r - .523 * $g + .311 * $b);
+}
+
+sub hsv2rgb {
+  my ($h, $s, $v) = @_;
+  if ($s eq 0.) {
+    die "bad HSV H value: $h -- should be 0\n" if $h;
+    return ($v, $v, $v);
+  } else {
+    $h = 0. if $h eq 1.;
+    $h *= 6.;
+    my $i = int($h);
+    my $f = $h - $i;
+    my $p = $v * (1. - $s);
+    my $q = $v * (1. - $s * $f);
+    my $t = $v * (1. - $s * (1. - $f));
+
+    return ($v, $t, $p) if $i == 0;
+    return ($q, $v, $p) if $i == 1;
+    return ($p, $v, $t) if $i == 2;
+    return ($p, $q, $v) if $i == 3;
+    return ($t, $p, $v) if $i == 4;
+    return ($v, $p, $q) if $i == 5;
+    die;
+  }
+}
+
+sub validate_flag {
+  my ($value, $opt) = @_;
+
+  return 1 if (grep(lc($value) eq $_, qw(1 y yes)));
+  return 0 if (grep(lc($value) eq $_, qw(0 n no)));
+  die "$opt must be (1, y, yes) or (0, n, no)\n";
+}
+
+sub file_part {
+  my $name = shift;
+  $name =~ s|.*/||;
+  return $name;
+}
+
+sub dir_part {
+  my $name = shift;
+  return '' if $name !~ m|/|;
+  $name =~ s|/[^/]+$||;
+  return $name;
+}
+
+sub check_xedge {
+  my ($edges, $rinclusive, $rrx, $xinclusive, $xrx, $source, $target) = @_;
+  return 0 if (grep($target =~ /$_/, @$rrx) && 1) ne $rinclusive;
+
+  my $matches = 0;
+  foreach my $xrx (@$xrx) {
+    $matches += scalar grep ($_ ne ':hard'
+			     && ($xinclusive ? $_ =~ /$xrx/ : $_ !~ /$xrx/),
+			     @{$edges->{$source}->{$target}});
+  }
+  return $matches;
+}
+
+sub include_edge {
+  my ($edges, $nodes, $rinclusive, $rrx, $xinclusive, $xrx, $source, $target) = @_;
+  return 0 if !exists $nodes->{$target};
+  return 0 if (grep($target =~ /$_/, @$rrx) && 1) ne $rinclusive;
+  return 1 if grep($_ eq ':hard', @{$edges->{$source}->{$target}});
+  return 2 if &check_xedge($edges,$rinclusive,$rrx,$xinclusive,$xrx,$source,$target) ne 0;
+  return 0;
+}
+
+sub do_node {
+  my ($gedges,$gnodes, $edges,$nodes, $rinclusive,$rrx, $xinclusive,$xrx, $from,$to,$include)=@_;
+  return if ! $include;
+
+  if (defined $from) {
+    $gedges->{$from} ||= {};
+    $gedges->{$from}->{$to} = $include
+      if (! exists $gedges->{$from}->{$to}
+	  || $gedges->{$from}->{$to} > $include);
+  }
+
+  return if (exists $gnodes->{$to});
+
+  $gnodes->{$to} = 1;
+  foreach (keys %{$edges->{$to}}) {
+    &do_node($gedges, $gnodes, $edges, $nodes, $rinclusive, $rrx, $xinclusive, $xrx, $to, $_,
+	     &include_edge($edges, $nodes, $rinclusive, $rrx, $xinclusive, $xrx, $to, $_));
+  }
+}
+
+sub group_node {
+  my ($grouping, $groups, $node, $default) = @_;
+  foreach my $group (@$groups) {
+    my $i = 0;
+    foreach (@{$group->[2]}) {
+      if ($node =~ /$_/) {
+        $grouping->{$node} = [ $group, $i ];
+        return;
+      }
+      $i++;
+    }
+  }
+  $grouping->{$node} = [ $default, 0 ];
+}
+
+my %renames_results = ();
+sub rename_node {
+  my ($renames, $node) = @_;
+  if (exists $renames_results{$node}){return $renames_results{$node};}
+  for (@$renames){
+    if ($node =~ /$_->[0]/){
+      my $tmp=eval $_->[1];
+      $renames_results{$node}=$tmp;
+      $renames_results{$tmp}=$tmp;
+      return $tmp;
+    }
+  }
+  $renames_results{$node}=$node;
+  return $node;
+}
+
+sub dep_count {
+  my ($table, $i, $j, $row) = @_;
+  my $x = $table->[$i]->[$j];
+  my $y = $table->[$j]->[$i];
+
+  my ($libs, $incs);
+  if ($row->[3] eq 'libraries') {
+    $libs = $row->[2];
+    $incs = $row->[5];
+  } else {
+    $libs = $row->[5];
+    $incs = $row->[2];
+  }
+
+  $x->[$CELL_LIB_OUT_COUNT] += $libs;
+  $y->[$CELL_LIB_IN_COUNT] += $libs;
+
+  $x->[$CELL_INC_OUT_COUNT] += $incs;
+  $y->[$CELL_INC_IN_COUNT] += $incs;
+}
+
+sub dep_xcount {
+  my ($edges, $rinclusive, $rrx, $xinclusive, $xrx, $labels, $table, $i, $j) = @_;
+  my $source = $labels->[$i];
+  my $target = $labels->[$j];
+  my $matches = &check_xedge($edges, $rinclusive, $rrx, $xinclusive, $xrx, $source, $target);
+  if ($matches ne 0) {
+    $table->[$i]->[$j]->[$CELL_LOG_OUT_EDGES] += $matches;
+    $table->[$j]->[$i]->[$CELL_LOG_IN_EDGES]  += $matches;
+  }
+}
+
+sub dep_summarise {
+  my ($summary, $labels, $table, $i) = @_;
+
+  foreach my $cell (@{$table->[$i]}) {
+    $summary->[$i]->[$SUM_INC_OUT_EDGES]++ if ($cell->[$CELL_INC_OUT_COUNT]);
+    $summary->[$i]->[$SUM_INC_OUT_COUNT]   += $cell->[$CELL_INC_OUT_COUNT];
+    $summary->[$i]->[$SUM_INC_IN_EDGES]++  if ($cell->[$CELL_INC_IN_COUNT]);
+    $summary->[$i]->[$SUM_INC_IN_COUNT]    += $cell->[$CELL_INC_IN_COUNT];
+
+    $summary->[$i]->[$SUM_LIB_OUT_EDGES]++ if ($cell->[$CELL_LIB_OUT_COUNT]);
+    $summary->[$i]->[$SUM_LIB_OUT_COUNT]   += $cell->[$CELL_LIB_OUT_COUNT];
+    $summary->[$i]->[$SUM_LIB_IN_EDGES]++  if ($cell->[$CELL_LIB_IN_COUNT]);
+    $summary->[$i]->[$SUM_LIB_IN_COUNT]    += $cell->[$CELL_LIB_IN_COUNT];
+
+    $summary->[$i]->[$SUM_LOG_OUT_EDGES]   += $cell->[$CELL_LOG_OUT_EDGES];
+    $summary->[$i]->[$SUM_LOG_IN_EDGES]    += $cell->[$CELL_LOG_IN_EDGES];
+
+    $summary->[$i]->[$SUM_ALL_IN_EDGES]++
+      if ($cell->[$CELL_INC_IN_COUNT]
+	  || $cell->[$CELL_LIB_IN_COUNT]
+	  || $cell->[$CELL_LOG_IN_EDGES]);
+
+    $summary->[$i]->[$SUM_ALL_OUT_EDGES]++
+      if ($cell->[$CELL_INC_OUT_COUNT]
+	  || $cell->[$CELL_LIB_OUT_COUNT]
+	  || $cell->[$CELL_LOG_OUT_EDGES]);
+  }
+}
+
+sub dep_metrics_mark {
+  my ($edges, $tedges, $n,$m) = @_;
+  return if defined $m && exists $tedges->{$n}->{$m};
+  if (defined $m) {
+    $tedges->{$n}->{$m} = 1;
+    map { &dep_metrics_mark($edges, $tedges, $n, $_) } keys %{$edges->{$m}};
+  }
+  map { &dep_metrics_mark($edges, $tedges, $n, $_) } keys %{$edges->{$n}};
+}
+
+sub dep_metrics {
+  # see ftp://ftp.aw.com/cp/lakos/idep_ldep.c
+  my ($edges, $nodes, $metrics) = @_;
+
+  my @nodes	= keys %$nodes;
+  my $n		= scalar @nodes;
+  my @levels	= (0) x $n;
+  my $nlevels	= 1;
+  my @levelnums	= (0) x $n;
+  my @mapping	= (0) x $n;
+  my $nmapping	= 0;
+
+  my @lowerthan	= map { [ (0) x $n ] } @nodes, 'foo', 'bar';
+   
+  # calculate transitive closure
+  my %tedges = map { $_ => {} } keys %$edges;
+  map { &dep_metrics_mark($edges, \%tedges, $_, undef) } keys %$edges;
+
+  # determine and label all members of all cycles
+  my @cycles	= (-1) x $n;
+  my @weights	= (0) x $n;
+  my @cindices	= (-1) x $n;
+  my $ncycles	= 0;
+  my $nmembers	= 0;
+  for (my $i = 0; $i < $n; ++$i) {
+    next if $cycles[$i] >= 0;
+    my $found = 0;
+    $cycles[$i] = $i;
+    for (my $j = $i + 1; $j < $n; ++$j) {
+      next if $cycles[$j] >= 0;
+      if ($tedges{$nodes[$i]}->{$nodes[$j]} && $tedges{$nodes[$j]}->{$nodes[$i]}) {
+	$found = 1;
+	$cycles[$j] = $i;
+      }
+    }
+    if ($found) {
+      my $weight = 0;
+      for (my $j = $i; $j < $n; ++$j) {
+	++$weight if $cycles[$j] == $i;
+      }
+      for (my $j = $i; $j < $n; ++$j) {
+	$weights[$j] = $weight if $cycles[$j] == $i;
+      }
+      $nmembers += $weight;
+      $ncycles++;
+    } else {
+      $cycles[$i] = -1;
+    }
+  }
+
+  # sort packages into levelized order; strip principal cycle
+  # members from their dependencies on other cycle members
+  for (my $i = 0; $i < $n; ++$i) {
+    next if $cycles[$i] != $i;
+    for (my $j = $i + 1; $j < $n; ++$j) {
+      next if $cycles[$j] != $i;
+      delete $tedges{$nodes[$i]}->{$nodes[$j]};
+      $lowerthan[1]->[$j] = 1;
+    }
+  }
+
+  # construct levelized array of package indices
+  while ($nmapping < $n) {
+    my $count = 0;
+    my @current = (0) x $n;
+    for (my $i = 0; $i < $n; ++$i) {
+      next if $cycles[$i] >= 0 && $cycles[$i] != $i;
+      next if $lowerthan[$nlevels]->[$i];
+
+      my $weight = 1;
+      if ($cycles[$i] == $i) {
+	next if $weights[$i] > $nlevels + 1;
+	$weight = $weights[$i];
+      }
+
+      my $level = $nlevels + 1 - $weight;
+      my $j;
+      for ($j = 0; $j < $n; ++$j) {
+	next if $i == $j;
+	last if $tedges{$nodes[$i]}->{$nodes[$j]} && !$lowerthan[$level]->[$j];
+      }
+      next if $j < $n;
+
+      $current[$i] = 1;
+      $mapping[$nmapping++] = $i;
+      $count++;
+      if ($cycles[$i] == $i) {
+	for ($j = $i + 1; $j < $n; ++$j) {
+	  next if $cycles[$j] != $i;
+	  $mapping[$nmapping++] = $j;
+	  $count++;
+	  $tedges{$nodes[$i]}->{$nodes[$j]} = 1;
+	}
+      }
+    }
+    for (my $i = 0; $i < $n; ++$i) {
+      $current[$i] ||= $lowerthan[$nlevels][$i];
+    }
+    $levels[$nlevels++] = $count;
+    @{$lowerthan[$nlevels]} = @current;
+    @current = (0) x $n;
+  }
+  die "internal error" if $nmapping != $n;
+
+  # start loading level number array
+  my $start = 0;
+  for (my $i = 1; $i < $nlevels; ++$i) {
+    my $top = $start + $levels[$i];
+    for (my $j = $start; $j < $top; ++$j) {
+      $levelnums[$mapping[$j]] = $i;
+    }
+    $start = $top;
+  }
+
+  # sort packages on each level lexicographically
+  $start = 0;
+  for (my $k = 1; $k < $nlevels; ++$k) {
+    my $top = $start + $levels[$k];
+    for (my $i = $start + 1; $i < $top; ++$i) {
+      for (my $j = $start; $j < $i; ++$j) {
+	if (($nodes[$mapping[$i]] cmp $nodes[$mapping[$j]]) < 0) {
+	  my $tmp = $mapping[$i];
+	  $mapping[$i] = $mapping[$j];
+	  $mapping[$j] = $tmp;
+	}
+      }
+    }
+    $start = $top;
+  }
+
+  # create @cindices from cycles array and the level map
+  my $ncycle = 0;
+  for (my $i = 0; $i < $n; ++$i) {
+    my $label = $cycles[$mapping[$i]];
+    next if $label < 0;
+    my $index = $cindices[$mapping[$i]];
+    next if $index >= 0 && $index < $ncycle;
+    for (my $j = $i; $j < $n; ++$j) {
+      $cindices[$mapping[$j]] = $ncycle if $label == $cycles[$mapping[$j]];
+    }
+    $ncycle++;
+  }
+  die "internal error" if $ncycle != $ncycles;
+
+  # sort packages on each level again but now grouping
+  # cyclically dependent packages together
+  $start = 0;
+  for (my $k = 1; $k < $nlevels; ++$k) {
+    my $top = $start + $levels[$k];
+    for (my $i = $start + 1; $i < $top; ++$i) {
+      for (my $j = $start; $j < $i; ++$j) {
+	my $ci = $cindices[$mapping[$i]];
+	my $cj = $cindices[$mapping[$j]];
+	if ($ci < $cj || ($ci == $cj && ($nodes[$mapping[$i]] cmp $nodes[$mapping[$j]]) < 0)) {
+	  my $tmp = $mapping[$i];
+	  $mapping[$i] = $mapping[$j];
+	  $mapping[$j] = $tmp;
+	}
+      }
+    }
+    $start = $top;
+  }
+
+  # calculate ccd
+  my %tmp = map { $_ => {} } keys %tedges;
+  foreach my $n (keys %tedges) {
+    map { $tmp{$n}->{$_} = 1 } keys %{$tedges{$n}};
+  }
+
+  for (my $i = 0; $i < $n; ++$i) {
+    if ($levelnums[$i] == 0) {
+      for (my $j = 0; $j < $n; ++$j) {
+	delete $tmp{$nodes[$j]}->{$nodes[$i]};
+      }
+    } else {
+      $tmp{$nodes[$i]}->{$nodes[$i]} = 1;
+    }
+  }
+
+  my $ccd = 0;
+  map { $ccd += scalar keys %{$tmp{$_}} } keys %tmp;
+
+  if (0) {
+    # make canonical representation: remove all redundant (transitive0edges
+    my @tmp = map { [ (0) x $n ] } @nodes;
+    for (my $i = 0; $i < $n; ++$i) {
+      my $u = $mapping[$i];
+      for (my $j = 0; $j < $n; ++$j) {
+        my $v = $mapping[$j];
+        my $bit = $tedges{$nodes[$u]}->{$nodes[$v]};
+        $tmp[$i]->[$j] = $bit;
+      }
+    }
+    # FIXME;
+  }
+
+  $metrics->{NODES}	= \@nodes;
+  $metrics->{N}		= $n;
+  $metrics->{LEVELS}	= \@levels;
+  $metrics->{NLEVELS}	= $nlevels;
+  $metrics->{LEVELNUMS}	= \@levelnums;
+  $metrics->{MAPPING}	= \@mapping;
+  $metrics->{NMAPPINGS}	= $nmapping;
+   
+  $metrics->{TEDGES}	= \%tedges;
+
+  $metrics->{CYCLES}	= \@cycles;
+  $metrics->{WEIGHTS}	= \@weights;
+  $metrics->{CINDICES}	= \@cindices;
+  $metrics->{NCYCLES}	= $ncycles;
+  $metrics->{NMEMBERS}	= $nmembers;
+
+  $metrics->{CCD}	= $ccd;
+
+  return $nmembers;
+}
+
+my %url_results = ();
+sub node_url {
+  my ($urls, $name) = @_;
+  if (exists $url_results{$name}){return $url_results{$name};}
+  foreach my $mapping (@$urls) {
+    if ($name =~ /$mapping->[0]/) {
+      my $N = $name;
+      my $tmp = eval $mapping->[1];
+      $url_results{$name} = $tmp;
+      return $tmp;
+    }
+  }
+  $url_results{$name} = undef;
+  return undef;
+}
+
+sub read_report {
+  my ($edges, $nodes, $file, $part) = @_;
+  my $node = undef;
+
+  open(FILE, $file) || die "$file: error: cannot open: $!\n";
+  while (<FILE>) {
+    last if /^\# $part/;
+  }
+
+  while (<FILE>) {
+    chomp;
+    last if (/^\#\#\#\#\#/);
+    next if (/^\s*$/);
+
+    if (/^\S/) {
+      chop;
+      s% ([^/]+)$%%;
+      $node = $_;
+      $nodes->{$_} = 1;
+      $edges->{$_} ||= {};
+    } elsif (/^\s+\S/) {
+      print STDERR "$file: warning: no current node for a dependency\n"
+	if ! $node;
+
+      s/\s//g;
+      $nodes->{$_} = 1;
+      $edges->{$_} ||= {}; 
+      $edges->{$node}->{$_} ||= [];
+      push(@{$edges->{$node}->{$_}}, ':hard');
+    } else {
+      print STDERR "$file: warning: unrecognized line: `$_'\n";
+    }
+  }
+  close(FILE);
+}
+
+sub keep_subpartonly_nodes {
+  my ($kept_nodes, $edges, $node, $spart) = @_;
+  $kept_nodes->{$node} = 1;
+  foreach my $edge (keys %{$edges->{$node}}) {
+    if (!exists $kept_nodes->{$edge} && ($edge=~/$spart/)){
+      &keep_subpartonly_nodes ($kept_nodes, $edges, $edge, $spart);
+    }
+  }
+}
+
+sub keep_nodes {
+  my ($kept_nodes, $edges, $node) = @_;
+  $kept_nodes->{$node} = 1;
+  foreach my $edge (keys %{$edges->{$node}}) {
+    if (!exists $kept_nodes->{$edge}){
+      &keep_nodes ($kept_nodes, $edges, $edge);
+    }
+  }
+}
+
+sub remove_nodes {
+  my ($edges, $nodes, $spart, $spartonly) = @_;
+  my %kept_nodes = ();
+  my $node;
+  foreach $node (keys %$nodes) {
+    if (($node=~/$spart/) && (!exists $kept_nodes{$node})){
+      if ($spartonly){
+        &keep_subpartonly_nodes (\%kept_nodes, $edges, $node, $spart);
+      }
+      else{
+        &keep_nodes (\%kept_nodes, $edges, $node);
+      }
+    }
+  }
+  foreach $node (keys %$nodes) {
+    if (!exists $kept_nodes{$node}){
+      delete $nodes->{$node};
+      delete $edges->{$node};
+    }
+  }
+}
+
+sub read_counts {
+  my ($edges, $nodes, $vector, $note, $file) = @_;
+  open(FILE, $file) || die "$file: error: cannot open: $!\n";
+  while (<FILE>) {
+    chomp;
+    if (! /^\s*(\d+)\s+(\S+)\s+(\S+(,\s+\S+)?)(\s+via\s+(\S+))?$/) {
+      print STDERR "$file: error: bad line `$_'\n";
+      next;
+    }
+    next if $2 eq $3;
+    $nodes->{$2} = 1; $edges->{$2} ||= {};
+    $nodes->{$3} = 1; $edges->{$3} ||= {};
+    $edges->{$2}->{$3} ||= [];
+    push(@{$edges->{$2}->{$3}}, ':hard');
+    push(@$vector, [ $2, $3, $1, $note, $5 || '', -1]);
+  }
+  close(FILE);
+}
+
+sub read_loglinks {
+  my ($edges, $nodes, $file) = @_;
+  my @xtargets = ();
+  my @xreasons = ();
+
+  open(FILE, $file) || die "$file: error: cannot open: $!\n";
+  while (<FILE>) {
+    chomp; s/\#.*//; s/\s*$//;
+    next if (/^\s*$/);
+
+    if (/^(\S+(\s*,\s*\S+)*)(\s*:\s*->\s*(\S+(\s*,\s*\S+)*))?$/) {
+      @xreasons = split(/\s*,\s*/, $1);
+      @xtargets = split(/\s*,\s*/, $4 || '');
+    } elsif (/^\s+(\S+(\s*,\s*\S+)*)(\s*->\s*(\S+(\s*,\s*\S+)*))?$/) {
+      my @sources = split(/\s*,\s*/, $1);
+      my @targets = ($4 ? split(/\s*,\s*/, $4) : @xtargets);
+      foreach my $source (grep(exists $nodes->{$_}, @sources)) {
+        $edges->{$source} ||= {};
+        map { $edges->{$source}->{$_} ||= [];
+	      push(@{$edges->{$source}->{$_}}, @xreasons); } @targets;
+      }
+    } else {
+      print STDERR "$file: warning: unrecognized line: `$_'\n";
+    }
+  }
+  close(FILE);
+}
+
+sub read_groups {
+  my ($groups, $file) = @_;
+  my $i = 0;
+
+  open(FILE, $file) || die "$file: error: cannot open: $!\n";
+  while (<FILE>) {
+    chomp;
+    while (/\\$/ && !eof(FILE)) {
+      chop; $_ .= <FILE>; chomp;
+    }
+    if (/\\$/) {
+      print STDERR "$file: warning: incomplete last line\n";
+      chop;
+    }
+    s/\#.*//; s/^\s*//; s/\s*$//;
+    next if (/^$/);
+
+    if (/^group\s+(\S+)\s+(.*)\s+--\s+(.*)$/) {
+      push(@$groups, [ $i++, $1, [ split(/\s+/, $2) ], $3 ]);
+    } else {
+      print STDERR "$file: warning: unrecognized line: `$_'\n";
+    }
+  }
+  close(FILE);
+}
+
+sub read_renames {
+  my ($renames, $file) = @_;
+  my $i = 0;
+
+  open(FILE, $file) || die "$file: error: cannot open: $!\n";
+  while (<FILE>) {
+    chomp;
+    while (/\\$/ && !eof(FILE)) {
+      chop; $_ .= <FILE>; chomp;
+    }
+    if (/\\$/) {
+      print STDERR "$file: warning: incomplete last line\n";
+      chop;
+    }
+    s/\#.*//; s/^\s*//; s/\s*$//;
+    next if (/^$/);
+
+    if (/^rename\s+([^:]+):(.*)$/) {
+      push(@$renames, [ $1, $2 ]);
+    } else {
+      print STDERR "$file: warning: unrecognized line: `$_'\n";
+    }
+  }
+  close(FILE);
+}
+
+sub read_urls {
+  my ($urls, $file) = @_;
+  my $i = 0;
+
+  open(FILE, $file) || die "$file: error: cannot open: $!\n";
+  while (<FILE>) {
+    chomp;
+    while (/\\$/ && !eof(FILE)) {
+      chop; $_ .= <FILE>; chomp;
+    }
+    if (/\\$/) {
+      print STDERR "$file: warning: incomplete last line\n";
+      chop;
+    }
+    s/^\s*//; s/\s*$//;
+    next if (/^$/);
+    next if (/^#/);
+
+    if (/^([^:]+):(.*)$/) {
+      push(@$urls, [ $1, $2 ]);
+    } else {
+      print STDERR "$file: warning: unrecognized line: `$_'\n";
+    }
+  }
+  close(FILE);
+}
+
+######################################################################
+my $usage =
+    "usage: $me REPORT-FILE REPORT-PART REPORT-SUBPART SUBPARTONLY INCLUSIVE? [RE...]\n"
+  . "               [! RESTRICT-INCLUSIVE? RESTRICT-RE...]\n"
+  . "               [-- EXTRA EXTRA-INCLUSIVE? EXTRA-RE...]\n";
+
+die $usage if (scalar @ARGV < 3);
+my ($file, $part, $subpart, $subpartonly, $inclusive, @restargs) = @ARGV;
+my ($rinclusive, $xfile, $xinclusive, @rx, @rrx, @xrx) = (1, "/dev/null", 1);
+$inclusive = &validate_flag($inclusive, "INCLUSIVE?");
+
+while (scalar @restargs) {
+  my $arg = shift(@restargs);
+  if ($arg eq '!') {
+    die $usage if (scalar @restargs < 2);
+    $rinclusive = &validate_flag(shift(@restargs), "RESTRICT-INCLUSIVE?");
+    while (scalar @restargs && $restargs[0] ne '--') {
+      push(@rrx, shift(@restargs));
+    }
+  } elsif ($arg eq '--') {
+    die $usage if (scalar @restargs < 2);
+    $xfile = shift(@restargs);
+    $xinclusive = &validate_flag(shift(@restargs), "EXTRA-INCLUSIVE?");
+    @xrx = @restargs;
+    $xrx[0] ||= '.*';
+    last;
+  } else {
+    push(@rx, $arg);
+  }
+}
+$rx[0] ||= '.*';
+$rrx[0] ||= '.*';
+
+######################################################################
+my %nodes = ();
+my %gnodes = ();
+my %edges = ();
+my %gedges = ();
+my @roots = ();
+my %metrics = ();
+
+# Read in the report.
+&read_report(\%edges, \%nodes, $file, $part);
+
+# Read in the extra-deps file.
+&read_loglinks(\%edges, \%nodes, $xfile);
+
+# Remove the unwanted nodes
+&remove_nodes(\%edges, \%nodes, $subpart, $subpartonly) if ($subpart ne "");
+
+# Calculate which nodes can be reached.
+foreach my $node (keys %nodes) {
+  push(@roots, $node) if (grep($node =~ /$_/, @rx) && 1) eq $inclusive;
+}
+
+foreach (@roots) {
+  &do_node(\%gedges,\%gnodes, \%edges,\%nodes, $rinclusive,\@rrx, $xinclusive,\@xrx, undef,$_,1);
+}
+
+# Calculate metrics
+&dep_metrics(\%gedges,\%gnodes, \%metrics);
+
+######################################################################
+# Print results
+sub plural {
+  my $arg = shift;
+  return $arg == 1 ? "" : "s";
+}
+sub ccdbalanced {
+  my $n = shift;
+  return ($n + 1) * (log($n + 1)/log(2) - 1) + 1;
+}
+
+sub ccd {
+  return $metrics{CCD};
+}
+sub acd {
+  return $metrics{N} ? &ccd / $metrics{N} : 0.0;
+}
+sub nccd {
+  return $metrics{N} ? &ccd / &ccdbalanced($metrics{N}) : 0.0;
+}
+sub minnccd {
+  return $metrics{N} ? $metrics{N}/&ccdbalanced($metrics{N}) : 0.0;
+}
+sub maxnccd {
+  return $metrics{N} ? $metrics{N}*$metrics{N} / &ccdbalanced($metrics{N}) : 0.0;
+}
+
+print "# Summary\n";
+if ($metrics{NCYCLES} > 0) {
+  print sprintf "%-11s %d\n", "Cycles", $metrics{NCYCLES};
+  print sprintf "%-11s %d\n", "Members", $metrics{NMEMBERS};
+}
+
+print sprintf "%-11s %d\n", "Packages", $metrics{N};
+print sprintf "%-11s %d\n", "Levels", $metrics{NLEVELS}-1;
+
+print sprintf "%-11s %f\n", "CCD", &ccd;
+print sprintf "%-11s %f\n", "ACD", &acd;
+print sprintf "%-11s %f [%f, %f]\n", "NCCD", &nccd, &minnccd, &maxnccd;
+print "\n";
+print "* CCD:  Cumulative Component Dependency measures the cumulative testing cost\n";
+print "        across the system.\n";
+print "* ACD:  Average Component Dependency indicates the number of other packages\n";
+print "        an average package depends on.\n";
+print "* NCCD: Normalised Cumulative Component Dependency measures how the structure\n";
+print "        differs from a balanced binary tree of comparable size. If NCCD is one,\n";
+print "        the structure resembles a binary tree; if much less than one, the\n";
+print "        packages are mostly independent; if much greater than one, the system\n";
+print "        is fairly strongly coupled. The only universal NCCD target is to\n";
+print "        minimise for any given software system--a high value indicates a\n";
+print "        strongly coupled system and less coupling is better.\n";
+print "\n";
+
+for (my $i = 0; $i < $metrics{NCYCLES}; ++$i) {
+  print "# Cycles\n" if $i == 0;
+  print "Cycle ", $i + 1, "\n";
+  my $j = -1;
+  while ($j < $metrics{N}) {
+    do { ++$j } while ($j < $metrics{N}
+		       && $metrics{CINDICES}->[$metrics{MAPPING}->[$j]] != $i);
+    last if $j >= $metrics{N};
+    print "    " . $metrics{NODES}->[$metrics{MAPPING}->[$j]] . "\n";
+  }
+}
+
+print "\n" if $metrics{NCYCLES};
+print "# Levels\n";
+
+my $start = 0;
+my $skiped_levels = 0;
+for (my ($i, $start) = (1, 0); $i < $metrics{NLEVELS}; $start += $metrics{LEVELS}->[$i++]) {
+  my $first = 1;
+  for (my ($j, $top) = ($start, $start + $metrics{LEVELS}->[$i]); $j < $top; ++$j) {
+    my $name = $metrics{NODES}->[$metrics{MAPPING}->[$j]];
+    my $cycle = $metrics{CINDICES}->[$metrics{MAPPING}->[$j]] + 1;
+
+    if ($first) {
+      $first = 0;
+      print sprintf "%-4s ", $i-$skiped_levels.".";
+    } else {
+      print "     ";
+    }
+
+    print $name;
+    if ($metrics{NCYCLES} > 0 && $cycle) {
+      print "<$cycle>";
+    }
+    map { print "\n        " . $_ } keys %{$metrics{EDGES}->{$metrics{MAPPING}->[$i]}};
+    print "\n";
+  }
+  if ($first){
+    $skiped_levels++;
+  }
+  else{
+    print "\n";
+  }
+}

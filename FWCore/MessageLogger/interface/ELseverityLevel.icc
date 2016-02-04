@@ -1,0 +1,109 @@
+#ifndef ELSEVERITYLEVEL_ICC
+  #error ELseverityLevel.icc erroneously included by file other than ELseverityLevel.h
+#endif
+
+
+// ----------------------------------------------------------------------
+//
+// ELseverityLevel.icc
+//
+// ----------------------------------------------------------------------
+
+
+namespace edm {      
+
+
+// ----------------------------------------------------------------------
+// ELslProxy<> template class methods:
+// ----------------------------------------------------------------------
+
+template< ELslGen ELgen >
+inline
+ELslProxy<ELgen>::ELslProxy()
+{ ; }
+
+template< ELslGen ELgen >
+inline
+ELslProxy<ELgen>::~ELslProxy()
+{ ; }
+
+template< ELslGen ELgen >
+inline
+ELslProxy<ELgen>::ELslProxy( ELslProxy const & )
+{ ; }
+
+template< ELslGen ELgen >
+inline
+ELslProxy<ELgen> const &  ELslProxy<ELgen>::operator= ( ELslProxy const & )
+{ return  *this; }
+
+template< ELslGen ELgen >
+inline
+ELslProxy<ELgen>::operator ELseverityLevel const () const
+{ return ELgen(); }
+
+template< ELslGen ELgen >
+inline
+int  ELslProxy<ELgen>::getLevel() const
+{ return ELgen().getLevel(); }
+
+template< ELslGen ELgen >
+inline
+const ELstring  ELslProxy<ELgen>::getSymbol() const
+{ return ELgen().getSymbol(); }
+
+template< ELslGen ELgen >
+inline
+const ELstring  ELslProxy<ELgen>::getName() const
+{ return ELgen().getName(); }
+
+template< ELslGen ELgen >
+inline
+const ELstring  ELslProxy<ELgen>::getInputStr() const
+{ return ELgen().getInputStr(); }
+
+template< ELslGen ELgen >
+inline
+const ELstring  ELslProxy<ELgen>::getVarName() const
+{ return ELgen().getVarName(); }
+
+
+// ----------------------------------------------------------------------
+// Comparators:
+// ----------------------------------------------------------------------
+
+inline
+bool  operator== ( ELseverityLevel const & e1
+                 , ELseverityLevel const & e2 )
+{ return  e1.cmp(e2) == 0; }
+
+inline
+bool  operator!= ( ELseverityLevel const & e1
+                 , ELseverityLevel const & e2 )
+{ return  e1.cmp(e2) != 0; }
+
+inline
+bool  operator<  ( ELseverityLevel const & e1
+                 , ELseverityLevel const & e2 )
+{ return  e1.cmp(e2) < 0; }
+
+inline
+bool  operator<= ( ELseverityLevel const & e1
+                 , ELseverityLevel const & e2 )
+{ return  e1.cmp(e2) <= 0; }
+
+inline
+bool  operator>  ( ELseverityLevel const & e1
+                 , ELseverityLevel const & e2 )
+{ return  e1.cmp(e2) > 0; }
+
+inline
+bool  operator>= ( ELseverityLevel const & e1
+                 , ELseverityLevel const & e2 )
+{ return  e1.cmp(e2) >= 0; }
+
+
+// ----------------------------------------------------------------------
+
+}        // end of namespace edm
+

@@ -1,0 +1,5 @@
+<bin   name="aligncond_split_iov" file="aligncond_split_iov.cc">
+  <use   name="CondCore/Utilities"/>
+  <use   name="clhep"/>
+</bin>
+

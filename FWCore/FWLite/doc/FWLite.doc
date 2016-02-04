@@ -1,0 +1,37 @@
+/*!
+\page FWCore_FWLite Package FWCore/FWLite
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/FWCore/FWLite/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/FWCore/FWLite/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Automatic loading of shared libraries within Root prompt. This utility 
+can be enabled before opening any root file interactively. All libraries 
+containing the dictionaries of the data types stored on the opened file 
+will be automatically loaded using a plugin mechanism.
+
+\subsection interface Public interface
+- AutoLibraryLoader: automatic library loader.
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+- rootlogon.C: enable automatic library loading. 
+  The usage from Root prompt is the following:
+\htmlonly
+<pre>
+  gSystem->Load("libFWCoreFWLite")
+  AutoLibraryLoader::enable()
+</pre>
+\endhtmlonly
+
+\section status Status and planned development
+To be reviewed.
+
+<hr>
+Last updated: @DATE@ L. Lista
+*/

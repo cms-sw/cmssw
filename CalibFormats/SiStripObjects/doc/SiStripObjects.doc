@@ -1,0 +1,67 @@
+
+/*!
+
+\page CalibFormats_SiStripObjects Package CalibFormats/SiStripObjects
+
+<center>
+<small>
+
+<!-- @PROJ_VERS@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/CalibFormats/SiStripObjects/?cvsroot=CMSSW&only_with_tag=@PROJ_VERS@>CVS</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/CalibFormats/SiStripObjects/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+This package provides the classes that define the calibration objects
+that are (usually) built from condition objects that are available via
+the EventSetup interface. An example is the SiStripFecCabling object,
+which provides information of the logical structure of the strip
+tracker control system, as well and the FED cabling connections. This
+is built from the SiStripFedCabling condition object (defined in
+CondFormats/SiStripObjects).
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+SiStripControlConnectivity (Will be deprecated soon.)
+SiStripDetCabling This class contains the same information as provided
+by the SiStripFedCabling condition object, manipulated to represent
+the "DET" (or "geometrical") view of the detector. The class handles
+FedChannelConnection objects (just as the SiStripFedCabling class).
+
+SiStripFecCabling This class contains the same information as provided
+by the SiStripFedCabling condition object, manipulated to represent
+the "FEC" (or "control") view of the detector. The different levels
+within the logical structure of the control system (FEC, ring, CCU,
+front-end module) are each represented by a class (SiStripFec,
+SiStripRing, SiStripCcu, SiStripModule) and a user can "drill down"
+into the structure from the top-level SiStripFecCabling class. The
+SiStripModule class contains all information relating to a given
+front-end module and its connections.
+
+SiStripReverseReadoutCabling (Will be deprecated soon.)
+SiStripStructure (Will be deprecated soon.)
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+No plug-in modules.
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+
+None.
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+
+FED cabling classes are essentially complete and stable.
+
+<hr>
+Last updated:
+@DATE@  Author: computer-generated.
+*/
+

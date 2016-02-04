@@ -1,0 +1,4 @@
+<use name="FWCore/TFWLiteSelector"/>
+<export>
+   <lib name="1"/>
+</export>

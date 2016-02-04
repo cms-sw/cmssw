@@ -1,0 +1,7 @@
+execute command:
+
+cmsRun runEDDigi_cfg.py
+
+test1event.root will be produced 
+
+
