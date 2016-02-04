@@ -1,0 +1,113 @@
+Jet15_DiJet15_L1Jet6_FwdJet:
+  HLT_L1Jet6U
+  OpenHLT_Jet15U
+  HLT_Jet15U
+  HLT_DiJetAve15U_8E29
+  HLT_FwdJet20U
+
+Jet30_DiJet30_MultiJet:
+  HLT_Jet30U
+  HLT_Jet50U 
+  HLT_DiJetAve30U_8E29
+  HLT_QuadJet15U
+	HLT_HT100U
+
+Met_HT_BTag_HSCP:
+  HLT_L1MET20 
+  HLT_MET45
+  HLT_MET100
+  HLT_BTagIP_Jet50U
+  HLT_BTagMu_Jet10U
+  HLT_StoppedHSCP_8E29
+  
+Mu:
+  HLT_L1MuOpen 
+  HLT_L1Mu 
+	L1_SingleMu0
+	L1_SingleMu3
+  OpenHLT_L2Mu0
+  OpenHLT_L2Mu3
+  OpenHLT_L2Mu5
+  OpenHLT_Mu3
+  OpenHLT_L2DoubleMu0
+  HLT_Mu3
+  HLT_Mu5 
+  HLT_Mu9 
+  HLT_IsoMu3
+  HLT_L2Mu9
+  HLT_L2Mu11 
+  HLT_L1Mu20 
+  HLT_L1Mu14_L1SingleEG10 
+  HLT_L1Mu14_L1SingleJet6
+  HLT_L1Mu14_L1ETM30
+
+  HLT_DoubleMu0 
+  HLT_DoubleMu3 
+  HLT_L1DoubleMuOpen 
+
+EG_Monitor:
+  HLT_L1SingleEG5 
+  HLT_L1SingleEG8
+  HLT_L1DoubleEG5
+  HLT_Photon10_L1R 
+
+SingleEG:
+  HLT_Ele10_LW_L1R
+  HLT_Ele10_LW_EleId_L1R
+  HLT_Ele15_LW_L1R
+	HLT_Ele15_SiStrip_L1R
+  HLT_Ele15_SC10_LW_L1R
+  HLT_Ele20_LW_L1R
+
+  HLT_Photon15_L1R 
+  HLT_Photon15_TrackIso_L1R
+  HLT_Photon15_LooseEcalIso_L1R
+  HLT_Photon20_L1R
+  HLT_Photon30_L1R_8E29
+
+DoubleEG:
+  HLT_DoubleEle5_SW_L1R
+
+  HLT_DoublePhoton5_eeRes_L1R
+  HLT_DoublePhoton5_Jpsi_L1R
+  HLT_DoublePhoton5_Upsilon_L1R
+
+  OpenHLT_DoublePhoton5_L1R
+  OpenHLT_DoublePhoton10_L1R
+  HLT_DoublePhoton10_L1R 
+
+Tau:
+  HLT_SingleLooseIsoTau20
+  HLT_DoubleLooseIsoTau15
+
+MinB:
+  HLT_ZeroBias 
+  HLT_MinBiasHcal 
+  HLT_MinBiasEcal 
+  HLT_MinBiasPixel 
+  HLT_MinBiasPixel_Trk5
+	HLT_ZeroBiasPixel_SingleTrack
+	HLT_IsoTrack_8E29
+	HLT_IsoTrackHB_8E29
+	HLT_IsoTrackHE_8E29
+  OpenHLT_L1SingleEG2 
+
+BH_Forward:
+  HLT_CSCBeamHalo 
+  HLT_CSCBeamHaloOverlapRing1 
+  HLT_CSCBeamHaloOverlapRing2 
+  HLT_CSCBeamHaloRing2or3 
+  HLT_BackwardBSC 
+  HLT_ForwardBSC 
+  HLT_TrackerCosmics 
+
+ES:
+  HLT_L1MuOpen 
+  HLT_L1Mu 
+  HLT_L1DoubleMuOpen 
+	OpenHLT_L1SingleEG2 
+  HLT_L1SingleEG5 
+	OpenHLT_MinBiasBSC
+  HLT_Jet50U 
+	HLT_MET100
+	HLT_ZeroBias

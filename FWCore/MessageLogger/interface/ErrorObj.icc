@@ -1,0 +1,66 @@
+#ifndef ERROROBJ_ICC
+  #error ErrorObj.icc erroneously included by file other than ErrorObj.h
+#endif
+
+
+// ----------------------------------------------------------------------
+//
+// ErrorObj.icc
+//
+// 3/20/06  mf		Instrumented for universal suppression of spaces
+//			(that is, items no longer contain any space added
+//			by the MessageLogger stack)
+
+// ----------------------------------------------------------------------
+
+#include<sstream>
+
+namespace edm {      
+
+// ----------------------------------------------------------------------
+// Methods for physicists adding to an ErrorObj:
+// ----------------------------------------------------------------------
+
+template <class T>
+ErrorObj & 
+ErrorObj::opltlt ( const T & t )  {
+  myOs.str(emptyString);
+  myOs << t;
+#ifdef OLD_STYLE_AUTOMATIC_SPACES
+  if ( ! myOs.str().empty() ) emitToken( myOs.str() + ' ' );
+#else
+  if ( ! myOs.str().empty() ) emitToken( myOs.str() );
+#endif
+  return *this;
+}  // operator<< <T>()
+
+// ----------------------------------------------------------------------
+// Global method for physicists adding to an ErrorObj:
+// ----------------------------------------------------------------------
+
+
+template <class T>
+ErrorObj & operator<<( ErrorObj & e, const T & t )  {
+  return e.opltlt(t);
+}  // operator<< <T>()
+
+inline 
+ErrorObj &  
+ErrorObj::operator<< (  std::ostream&(*f)(std::ostream&) ) {
+  f(myOs);
+  myOs.str(emptyString);
+  return *this;
+} 
+
+inline
+ErrorObj &  
+ErrorObj::operator<< ( std::ios_base&(*f)(std::ios_base&) ) {
+  f(myOs);
+  return *this;
+} 
+
+
+// ----------------------------------------------------------------------
+
+
+}        // end of namespace edm

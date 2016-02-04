@@ -1,0 +1,4 @@
+#!/bin/csh
+cd ../..
+cvs co Configuration/StandardSequences/data/Reconstruction.cff
+cp -r /afs/cern.ch/user/c/cbern/public/CMSSW/CMSSW_1_3_0/Reconstruction.cff Configuration/StandardSequences/data/Reconstruction.cff

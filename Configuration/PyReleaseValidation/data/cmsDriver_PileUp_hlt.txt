@@ -1,0 +1,18 @@
+201 ++ ZmumuJets_Pt_20_300_GEN ++ RECO1 @@@ cmsDriver.py  ZmumuJets_Pt_20_300_GEN_7TeV_cfg.py -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,L1Reco -n 10  --geometry DB --conditions auto:mc --relval 25000,100 --datatier 'GEN-SIM-DIGI-RAW-HLTDEBUG' --pileup E7TeV_FlatDist10_2011EarlyData_inTimeOnly --eventcontent FEVTDEBUGHLT
+202 ++ TTbar_Tauola ++ RECO1 @@@ cmsDriver.py  TTbar_Tauola_7TeV.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,L1Reco -n 10  --geometry DB --conditions auto:startup --relval 9000,50 --datatier 'GEN-SIM-DIGI-RAW-HLTDEBUG' --pileup E7TeV_FlatDist10_2011EarlyData_inTimeOnly --eventcontent FEVTDEBUGHLT
+
+203 ++ Pyquen_GammaJet_pt20_2760GeV ++ GAMMAHI, RECOHI1 ++ REALDATA: /RelValHydjetQ_B0_2760GeV/*/GEN-SIM-DIGI-RAW-HLTDEBUG, RUN: 1, PRIMARY: Y @@@
+204 ++ Pyquen_DiJet_pt80to120_2760GeV ++ DIJETHI, RECOHI1 ++ REALDATA: /RelValHydjetQ_B0_2760GeV/*/GEN-SIM-DIGI-RAW-HLTDEBUG, RUN: 1, PRIMARY: Y @@@
+205 ++ Pyquen_ZeemumuJets_pt10_2760GeV ++ ZEEMUMUHI, RECOHI1 ++ REALDATA: /RelValHydjetQ_B0_2760GeV/*/GEN-SIM-DIGI-RAW-HLTDEBUG, RUN: 1, PRIMARY: Y @@@
+206 ++ TTbar ++ none @@@ cmsDriver.py TTbar_Tauola_7TeV_cfi.py -s GEN,FASTSIM,HLT:GRun,VALIDATION --geometry DB --conditions=auto:startup --pileup=156BxLumiPileUp --eventcontent=FEVTDEBUGHLT --datatier GEN-SIM-DIGI-RECO -n 10 --relval 100000,1000
+
+STEP2 ++ RECO1 @@@ cmsDriver.py step2 -s RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu,VALIDATION,DQM --relval 25000,100 --datatier GEN-SIM-RECO --eventcontent RECOSIM --geometry DB --conditions auto:mc --pileup E7TeV_FlatDist10_2011EarlyData_inTimeOnly
+
+
+STEP2 ++ GAMMAHI @@@ cmsDriver.py Pyquen_GammaJet_pt20_2760GeV_cfi.py -n 1 -s GEN:hiSignal,SIM,DIGI,L1,DIGI2RAW,HLT:HIon --scenario HeavyIons --himix --geometry DB --conditions auto:starthi --datatier 'GEN-SIM-DIGI-RAW-HLTDEBUG' --eventcontent=FEVTDEBUGHLT --filein=file.root --processName 'HISIGNAL' --no_exec
+STEP2 ++ DIJETHI @@@ cmsDriver.py Pyquen_DiJet_pt80to120_2760GeV_cfi.py -n 1 -s GEN:hiSignal,SIM,DIGI,L1,DIGI2RAW,HLT:HIon --scenario HeavyIons --himix --geometry DB --conditions auto:starthi --datatier 'GEN-SIM-DIGI-RAW-HLTDEBUG' --eventcontent=FEVTDEBUGHLT --filein=file.root --processName 'HISIGNAL' --no_exec
+STEP2 ++ ZEEMUMUHI @@@ cmsDriver.py Pyquen_ZeemumuJets_pt10_2760GeV_cfi.py -n 1 -s GEN:hiSignal,SIM,DIGI,L1,DIGI2RAW,HLT:HIon --scenario HeavyIons --himix --geometry DB --conditions auto:starthi --datatier 'GEN-SIM-DIGI-RAW-HLTDEBUG' --eventcontent=FEVTDEBUGHLT --filein=file.root --processName 'HISIGNAL' --no_exec
+
+STEP3 ++ RECOHI1 @@@ cmsDriver.py hiReco -n 1 -s RAW2DIGI,RECO,VALIDATION --scenario HeavyIons --himix --geometry DB --conditions auto:starthi --datatier 'GEN-SIM-RECO' --eventcontent=RECOSIM --filein=hola.root --no_exec
+
+STEP4 ++ HARVEORHI1 @@@ cmsDriver.py step3 -s HARVESTING:validationHarvestingHI --harvesting AtRunEnd --conditions auto:starthi --no_exec --mc

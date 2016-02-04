@@ -1,0 +1,33 @@
+
+Dec 23, 2008 MFP
+
+1. Made copy constructor and copy assignment operators of
+   StorageManager private, and provided no implementation. This makes
+   StorageManager instances non-copyable.
+
+   Modified boostStateMachine.cpp to avoid printing ERROR, which
+   causes the 'runtest' target to appear as if a test had failed.
+
+   All code still builds, and all tests succeed.
+
+2. Removed StorageManager::parseFileEntry() from StorageManager
+   interface, and made it a function in an anonymous namespace in
+   StorageManager.cc. This function is used nowhere else, and uses no
+   data of the StorageManager class; it has no reason to be a member
+   function.
+
+3. Remove smutil_ios() function in favor of boost::lexical_cast<>,
+   which had already been used elsewhere in StorageManager.cc.
+
+Dec 29, 2008 MFP
+
+4. Made StorageManager::checkDirectoryOK into a free function in an
+   anonymous namespace, and simplified it's call.
+
+5. Removed several unnecessary headers from StorageManager.h; some
+   were totally extraneous, some were moved to StorageManager.cc,
+   and some were replaced by forward declarations of classes.
+
+Jan 8, 2009
+
+6. Remove some extraneous headers from StorageManager.cc

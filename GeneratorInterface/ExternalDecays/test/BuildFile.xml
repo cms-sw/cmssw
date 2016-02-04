@@ -1,0 +1,9 @@
+<use   name="FWCore/Utilities"/>
+<use   name="boost"/>
+<use   name="hepmc"/>
+<flags   EDM_PLUGIN="1"/>
+<library   file="EvtGenTestAnalyzer.cc" name="EvtGenTestAnalyzer">
+  <use   name="root"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="SimDataFormats/GeneratorProducts"/>
+</library>

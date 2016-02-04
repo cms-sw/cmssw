@@ -1,0 +1,3 @@
+	COMMON / hardcol_set_par / ENERGYOFLHC, NUMOFEVENTS,
+     +  MSTP2, CKIN3, MSEL0, MSUB406, MSUB407, MSUB408, MSTP198,
+     +  irandom

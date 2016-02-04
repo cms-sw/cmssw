@@ -1,0 +1,35 @@
+/*!
+\page DataFormats_PatCandidates Package DataFormats/PatCandidates
+<center>
+<small>
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/PatCandidates>CVS head for this package</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/PatCandidates/.admin/developers?revision=HEAD&view=markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Implementation of \ref DataFormats_Candidate "Candidate" classes with analysis level additions, called PAT Candidates. A detailed description of PAT Candidates can be found on <a href=https://twiki.cern.ch/twiki/bin/viewauth/CMS/WorkBookPATDataFormats>Workbook PAT Data Formats</a>.  
+ 
+
+\subsection interface Public interface
+- pat::Photon: data type to describe reconstructed photons, which is derived from the reco::Photon
+- pat::Lepton: the pat::Electron, pat::Muon and pat::Tau inherit some common functionalities from pat::Lepton. Almost all of these features are related to isolation.  
+- pat::Electron: data type to describe reconstructed electrons, which is derived from the reco::GsfElectron
+- pat::Muon: data type to describe reconstructed muons, which is derived from the reco::Muon
+- pat::Tau: data type to describe reconstructed taus, which is derived from the reco::BaseTau 
+- pat::Jet: data type to describe reconstructed jets, which is derived from the reco::Jet
+- pat::MET: data type to describe reconstructed MET, which is derived from the reco::MET
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+None.
+
+\section status Status and planned development
+Complete.
+
+<hr>
+Last updated: @DATE@ B. Hegner
+
+*/

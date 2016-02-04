@@ -1,0 +1,8 @@
+import FWCore.ParameterSet.Config as cms
+
+from RecoJets.JetProducers.JetIDParams_cfi import *
+
+gk7JetID = cms.EDProducer('JetIDProducer', JetIDParams,
+        src = cms.InputTag('gk7CaloJets')
+        
+)

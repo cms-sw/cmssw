@@ -1,0 +1,7 @@
+!/bin/sh
+killall DQMCollector
+killall cmsRun
+killall xdaq.exe
+\rm -r SiStripClient.xml
+\rm -r profile.xml
+\rm -r startMonitorClient

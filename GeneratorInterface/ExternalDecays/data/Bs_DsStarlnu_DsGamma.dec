@@ -1,0 +1,27 @@
+#
+# R. Godang 8/6/10
+# This is the decay file for the decay BS0 -> Ds*+ ell- anti-nu_ell
+# Tested : Yes 
+#
+Alias      MyB_s0   B_s0
+Alias      Myanti-B_s0   anti-B_s0
+ChargeConj Myanti-B_s0   MyB_s0
+Alias      MyD_s*-     D_s*-
+Alias      MyD_s*+     D_s*+
+ChargeConj MyD_s*-     MyD_s*+
+#
+Decay MyB_s0
+  0.500      MyD_s*-    e+     nu_e         PHOTOS  ISGW2;
+  0.500      MyD_s*-    mu+    nu_mu        PHOTOS  ISGW2;
+Enddecay
+CDecay Myanti-B_s0
+#
+Decay MyD_s*-
+  1.000   D_s-  gamma      VSP_PWAVE;
+Enddecay
+#
+Decay MyD_s*+
+  1.000   D_s+  gamma      VSP_PWAVE;
+Enddecay
+End
+

@@ -1,0 +1,22 @@
+<library   file="RFIOStorageMaker.cc" name="UtilitiesRFIOAdaptorPlugin">
+  <use   name="Utilities/StorageFactory"/>
+  <use   name="Utilities/RFIOAdaptor"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/Catalog"/>
+  <use   name="FWCore/Utilities"/>
+  <flags   CPPFLAGS="-I$(CASTOR_BASE)/include/shift -I$(CASTOR_BASE)/include"/>
+  <flags   NO_LIB_CHECKING="yes"/>
+  <flags   EDM_PLUGIN="1"/>
+  <flags   cppflags="-D_FILE_OFFSET_BITS=64"/>
+</library>
+<library   file="RFIOCastorPlugin.cc" name="RFIOCastorPlugin">
+  <use   name="Utilities/RFIOAdaptor"/>
+  <use   name="castor"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="RFIODPMPlugin.cc" name="RFIODPMPlugin">
+  <use   name="Utilities/RFIOAdaptor"/>
+  <use   name="dpm"/>
+  <flags   EDM_PLUGIN="1"/>
+  <flags   cppflags="-D_FILE_OFFSET_BITS=64"/>
+</library>

@@ -1,0 +1,95 @@
+#!/bin/sh
+
+resolution=72 bbox= showpage= errors=false record=/dev/null recordtitle=
+maxsize=1600
+
+while true; do
+  [ $# = 0 ] && break
+  case "$1" in
+    --eps )
+      showpage="-c showpage" ;;
+    --ps  )
+      showpage= ;;
+
+    --resolution=* )
+      resolution="`echo \"$1\" | sed 's/^[^=]*=//'`" ;;
+
+    --bbox=* )
+      bbox="` echo \"$1\" | sed 's/^[^=]*=//; s/,/ /'`" ;;
+
+    --maxsize=* )
+      maxsize="`echo \"$1\" | sed 's/^[^=]*=//'`" ;;
+
+    --record=* )
+      record="`echo \"$1\" | sed 's/^[^=]*=//'`" ;;
+
+    --record-title=* )
+      recordtitle="`echo \"$1\" | sed 's/^[^=]*=//'`" ;;
+
+    --* )
+      errors=true ;;
+    * )
+      break ;;
+  esac
+  shift
+done
+
+if [ $# != 1 ] || $errors; then
+  echo "usage: $0 [--eps|--ps] [--resolution=OUT-RES] [--bbox=X,Y] [--record=FILE] [--record-title=TITLE] FILE" 1>&2
+  exit 1
+fi
+
+file="$1"
+[ -z "$recordtitle" ] && recordtitle="$file"
+
+if [ -z "$bbox" ]; then
+  bbox="`grep '%%BoundingBox:' $file | head -1 | sed 's/[ 	][ 	]*/ /g' | sed 's|^.*: *||;s| *$||'`"
+  if [ X"$bbox" = 'X(atend)' ] ; then
+    bbox="`grep '%%BoundingBox:' $file | tail -1 | sed 's/[ 	][ 	]*/ /g' |sed 's|^.*: *||;s| *$||'`"
+  fi
+  bbox="`echo $bbox | sed 's/^[0-9][0-9]* [0-9][0-9]* //; s/[ 	]*$//'`"
+fi
+
+xres="`echo \"$bbox\" | sed 's/ .*//'`"
+yres="`echo \"$bbox\" | sed 's/.* //'`"
+
+if [ -z "$xres" -o -z "$yres" ]; then
+  echo "$file: error: cannot determine bounding box" 1>&2
+  exit 1
+fi
+
+scale=1
+if [ $xres -ge $maxsize -o $yres -ge $maxsize ]; then
+  oldxres=$xres oldyres=$yres
+  max=$xres; [ $yres -gt $xres ] && max=$yres
+  scale=`expr $maxsize \* 100 / $max`
+  xres=`expr $xres \* $scale / 100 + 1`
+  yres=`expr $yres \* $scale / 100 + 1`
+  if [ $scale -lt 10 ]; then
+    scale=".0$scale"
+  else
+    scale=".$scale"
+  fi
+
+  echo "$file: warning: scaling bounding box ($oldxres, $oldyres) down to ($xres, $yres)" 1>&2
+fi
+
+tmp=${TMPDIR-/tmp}/crop$$
+rm -f $tmp
+gs -q -dSAFER -dBATCH -dNOPAUSE -sDEVICE=ppmraw -dTextAlphaBits=4 \
+   -dGraphicsAlphaBits=4 -r${resolution}x${resolution} -g${xres}x${yres} \
+   -sOutputFile=- -c "$scale $scale scale" -f "$file" $showpage -c quit | \
+ ppmquant 256 2>/dev/null | \
+ pnmcrop -white -verbose 2>$tmp | \
+ ppmtogif -interlace -sort 2>/dev/null
+
+top=`grep 'rows off the top' < $tmp | sed 's/.*cropping //; s/ rows.*//'`
+bottom=`grep 'rows off the bottom' < $tmp | sed 's/.*cropping //; s/ rows.*//'`
+left=`grep 'cols off the left' < $tmp | sed 's/.*cropping //; s/ cols.*//'`
+right=`grep 'cols off the right' < $tmp | sed 's/.*cropping //; s/ cols.*//'`
+[ -z "$top" ] && top=0
+[ -z "$left" ] && left=0
+[ -z "$bottom" ] && bottom=0
+[ -z "$right" ] && right=0
+echo $recordtitle $scale $top $left $bottom $right >> $record
+rm -f $tmp
