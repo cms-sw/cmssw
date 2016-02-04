@@ -19,9 +19,24 @@ namespace l1t {
   class CaloParamsHelper : public CaloParams {
 
   public:
-    CaloParamsHelper() {}
+    // DO NOT ADD ENTRIES ANYWHERE BUT DIRECTLY BEFORE "NUM_CALOPARAMNODES"
+    // DO NOT CHANGE NUMERICAL VALUES OF ANY ALREADY EXISTING FIELDS, YOU CAN ONLY EXTEND, AT THE END.
+    enum { regionPUS=0,
+	   egTrimming=1, egMaxHOverE=2, egCompressShapes=3, egShapeId=4, egCalibration=5, egPUS=6, egIsolation=7,
+	   tauCalibration=8, tauPUS=9, tauIsolation=10,
+	   jetPUS=11, jetCalibration=12,
+	   hiCentrality=13, hiQ2=14,
+	   tauEtToHFRingEt=15,
+           tauCompress=16,
+	   NUM_CALOPARAMNODES=17
+    };
+
+    CaloParamsHelper() { pnode_.resize(NUM_CALOPARAMNODES); }
     CaloParamsHelper(const CaloParams);
     ~CaloParamsHelper() {}
+
+    bool isValidForStage1() {return 1; } 
+    bool isValidForStage2() {return (version_ >= 2); }
 
     L1CaloEtScale emScale() { return emScale_; }
     void setEmScale(L1CaloEtScale emScale) { emScale_ = emScale; }
