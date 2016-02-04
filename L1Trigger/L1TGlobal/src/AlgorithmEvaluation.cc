@@ -32,7 +32,6 @@
 
 
 //
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
 
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"

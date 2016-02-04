@@ -22,7 +22,8 @@
 #include <ext/hash_map>
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
+//GTO #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
+#include "DataFormats/L1TGlobal/interface/L1TGtObjectMap.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 
@@ -443,7 +444,7 @@ void l1t::GtBoard::runGTL(
         edm::Event& iEvent, const edm::EventSetup& evSetup, const TriggerMenu* m_l1GtMenu,
         const bool produceL1GtObjectMapRecord,
         const int iBxInEvent,
-        std::auto_ptr<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord,
+        std::auto_ptr<L1TGtObjectMapRecord>& gtObjectMapRecord,  //GTO
         const unsigned int numberPhysTriggers,
         const int nrL1Mu,
         const int nrL1EG,
@@ -786,8 +787,8 @@ void l1t::GtBoard::runGTL(
 
     // loop over algorithm map
     /// DMP Start debugging here
-    // empty vector for object maps - filled during loop
-    std::vector<L1GlobalTriggerObjectMap> objMapVec;
+    // empty vector for object maps - filled during loop GTO
+    std::vector<L1TGtObjectMap> objMapVec;
     if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) objMapVec.reserve(numberPhysTriggers);
 
     for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
@@ -830,9 +831,8 @@ void l1t::GtBoard::runGTL(
 	      if (match != imap->end()){
 		found = 1;
 		//cout << "DEBUG: found match for " << iop->tokenName << " at " << match->first << "\n";
-		
-		//BLW FIX ME
-		//otype = match->second->objectType();
+				
+		otype = match->second->objectType();
 		
 		for (auto itype = otype.begin(); itype != otype.end() ; itype++){
 		  //cout << "type:  " << *itype << "\n";
@@ -846,8 +846,8 @@ void l1t::GtBoard::runGTL(
 	    }
 	  }
 
-	  // set object map
-	  L1GlobalTriggerObjectMap objMap;
+	  // set object map GTO
+	  L1TGtObjectMap objMap;
 	  
 	  objMap.setAlgoName(itAlgo->first);
 	  objMap.setAlgoBitNumber(algBitNumber);
