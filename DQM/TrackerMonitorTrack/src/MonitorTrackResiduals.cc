@@ -65,7 +65,7 @@ std::pair<std::string, int32_t> findSubdetAndLayer(uint32_t ModuleID, const Trac
 	  break;
         case 2:
 	  subdet = "FPIX";
-          layer = tTopo->pxfDisk(id);
+          layer = tTopo->pxfDisk(id) * ( tTopo->pxfSide(ModuleID)==1 ? -1 : +1);
 	  break;
 	// Strip TIB, TID, TOB, TEC
 	case 3:
@@ -190,6 +190,7 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
 	  Form(subdetandlayer.first.find("B") != std::string::npos ?
 	       "NormalizedHitResidual_%s__Layer__%d" : "NormalizedHitResidual_%s__wheel__%d" ,
 	       subdetandlayer.first.c_str(),std::abs(subdetandlayer.second));
+	std::cout << "##### Booking: " << ibooker.pwd() << " title " << histoname << std::endl;
 	m_SubdetLayerResiduals[subdetandlayer] =
 	  ibooker.book1D(histoname.c_str(),histoname.c_str(),
 			 i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
