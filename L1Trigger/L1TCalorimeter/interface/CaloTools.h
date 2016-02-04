@@ -17,6 +17,13 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloCluster.h"
 
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/L1Trigger/interface/Jet.h"
+#include "DataFormats/L1Trigger/interface/EtSum.h"
+
+#include "DataFormats/Math/interface/LorentzVector.h"
+
 namespace l1t {
 
   class CaloTools{
@@ -26,13 +33,13 @@ namespace l1t {
     CaloTools(){}
     ~CaloTools(){}
   
-  private:
+  public:
     //temporary location of these key parameters, probably should be read in from a database
     //they are private to stop people using them as they will change (naming is invalid for a start)
     static const int kHBHEEnd=28;
     static const int kHFBegin=29;
-    static const int kHFEnd=32;
-    static const int kHFPhiSeg=4;
+    static const int kHFEnd=40;
+    static const int kHFPhiSeg=1;
     static const int kHFNrPhi=72/kHFPhiSeg;
     static const int kHBHENrPhi=72;
     static const int kNrTowers = ((kHFEnd-kHFBegin+1)*kHFNrPhi + kHBHEEnd*kHBHENrPhi )*2;
@@ -40,6 +47,8 @@ namespace l1t {
 
   public:
     enum SubDet{ECAL=0x1,HCAL=0x2,CALO=0x3}; //CALO is a short cut for ECAL|HCAL
+
+    static bool insertTower( std::vector<l1t::CaloTower>& towers, const l1t::CaloTower& tower);
 
     static const l1t::CaloTower&   getTower(const std::vector<l1t::CaloTower>& towers,int iEta,int iPhi);
     static const l1t::CaloCluster& getCluster(const std::vector<l1t::CaloCluster>& clusters,int iEta,int iPhi);
@@ -71,6 +80,19 @@ namespace l1t {
     static float towerPhi(int ieta, int iphi);
     static float towerEtaSize(int ieta);
     static float towerPhiSize(int ieta);
+
+    // conversion methods
+    static math::PtEtaPhiMLorentzVector p4Demux(l1t::L1Candidate*);
+    static l1t::EGamma egP4Demux(l1t::EGamma&);
+    static l1t::Tau    tauP4Demux(l1t::Tau&);
+    static l1t::Jet    jetP4Demux(l1t::Jet&);
+    static l1t::EtSum  etSumP4Demux(l1t::EtSum&);
+
+    static math::PtEtaPhiMLorentzVector p4MP(l1t::L1Candidate*);
+    static l1t::EGamma egP4MP(l1t::EGamma&);
+    static l1t::Tau    tauP4MP(l1t::Tau&);
+    static l1t::Jet    jetP4MP(l1t::Jet&);
+    static l1t::EtSum  etSumP4MP(l1t::EtSum&);
 
 
   private:
