@@ -11,9 +11,9 @@
 namespace l1t {
   class MicroGMTRankPtQualLUT : public MicroGMTLUT {
     public:
-      MicroGMTRankPtQualLUT ();
-      explicit MicroGMTRankPtQualLUT (const std::string&);
-      virtual ~MicroGMTRankPtQualLUT ();
+      MicroGMTRankPtQualLUT() {};
+      explicit MicroGMTRankPtQualLUT(const std::string&);
+      virtual ~MicroGMTRankPtQualLUT() {};
 
       int lookup(int pt, int qual) const;
       virtual int lookupPacked(int in) const;

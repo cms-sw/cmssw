@@ -72,7 +72,7 @@ l1t::MicroGMTIsolationUnit::extrapolateMuons(MicroGMTConfiguration::InterMuonLis
 
     if (mu->hwPt() < 64) { // extrapolation only for "low" pT muons
       int sign = 1;
-      if (mu->hwSign() == 0) {
+      if (mu->hwSign() == 1) {
         sign = -1;
       }
       deltaPhi = (m_phiExtrapolationLUTs.at(mu->trackFinderType())->lookup(etaAbsRed, ptRed) << 3) * sign;
@@ -147,6 +147,7 @@ l1t::MicroGMTIsolationUnit::isolate(MicroGMTConfiguration::InterMuonList& muons)
 
 void l1t::MicroGMTIsolationUnit::setTowerSums(const MicroGMTConfiguration::CaloInputCollection& inputs, int bx) {
   m_towerEnergies.clear();
+  if (bx < inputs.getFirstBX() || bx > inputs.getLastBX()) return;
   if (inputs.size(bx) == 0) return;
   for (auto input = inputs.begin(bx); input != inputs.end(bx); ++input) {
     if ( input->etBits() != 0 ) {

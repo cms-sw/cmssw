@@ -15,7 +15,14 @@ l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonCand(RegionalMuonCand& mu, u
      mu.setHwEta(abs_eta);
   }
 
-  mu.setHwPhi((raw_data_00_31 >> phiShift_) & phiMask_);
+  // phi is coded as two's complement
+  int abs_phi = (raw_data_00_31 >> absPhiShift_) & absPhiMask_;
+  if ((raw_data_00_31 >> phiSignShift_) & 0x1) {
+     mu.setHwPhi(abs_phi - (1 << (phiSignShift_ - absPhiShift_)));
+  } else {
+     mu.setHwPhi(abs_phi);
+  }
+
   // sign is coded as -1^signBit
   int signBit = (raw_data_32_63 >> signShift_) & 0x1;
   mu.setHwSign(1 - 2*signBit);
@@ -69,12 +76,17 @@ l1t::RegionalMuonRawDigiTranslator::generatePackedDataWords(const RegionalMuonCa
   if (abs_eta < 0) {
     abs_eta += (1 << (etaSignShift_ - absEtaShift_));
   }
+  int abs_phi = mu.hwPhi();
+  if (abs_phi < 0) {
+    abs_phi += (1 << (phiSignShift_ - absPhiShift_));
+  }
   raw_data_00_31 = (mu.hwPt() & ptMask_) << ptShift_
                  | (mu.hwQual() & qualMask_) << qualShift_
                  | (abs_eta & absEtaMask_) << absEtaShift_
                  | (mu.hwEta() < 0) << etaSignShift_
                  | (mu.hwHF() & hfMask_) << hfShift_
-                 | (mu.hwPhi() & phiMask_) << phiShift_;
+                 | (abs_phi & absPhiMask_) << absPhiShift_
+                 | (mu.hwPhi() < 0) << phiSignShift_;
 
   int tf = mu.trackFinderType();
   int rawTrkAddr = 0;

@@ -1,16 +1,17 @@
 #include "../interface/MicroGMTRelativeIsolationCheckLUT.h"
 
-l1t::MicroGMTRelativeIsolationCheckLUT::MicroGMTRelativeIsolationCheckLUT(const std::string& fname) : m_energySumInWidth(5), m_ptInWidth(9)
+l1t::MicroGMTRelativeIsolationCheckLUT::MicroGMTRelativeIsolationCheckLUT(const std::string& fname) : MicroGMTLUT(), m_energySumInWidth(5), m_ptInWidth(9)
 {
   m_totalInWidth = m_ptInWidth + m_energySumInWidth;
+  m_outWidth = 1;
 
-  m_ptMask = (1 << m_ptInWidth) - 1;
-  m_energySumMask = (1 << (m_totalInWidth - 1)) - m_ptMask;
+  m_energySumMask = (1 << m_energySumInWidth) - 1;
+  m_ptMask = ((1 << m_ptInWidth) - 1) << m_energySumInWidth;
   if (fname != std::string("")) {
     load(fname);
   } 
   m_inputs.push_back(MicroGMTConfiguration::PT);
-  m_inputs.push_back(MicroGMTConfiguration::ETA);
+  m_inputs.push_back(MicroGMTConfiguration::ENERGYSUM);
 }
 
 int 

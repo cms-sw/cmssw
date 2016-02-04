@@ -20,8 +20,9 @@ namespace l1t {
       static const unsigned etaSignShift_ = 21;
       static const unsigned hfMask_ = 0x1;
       static const unsigned hfShift_ = 22;
-      static const unsigned phiMask_ = 0xFF;
-      static const unsigned phiShift_ = 23;
+      static const unsigned absPhiMask_ = 0x7F;
+      static const unsigned absPhiShift_ = 23;
+      static const unsigned phiSignShift_ = 30;
       static const unsigned signShift_ = 0;
       static const unsigned signValidShift_ = 1;
       static const unsigned trackAddressMask_ = 0x1FFFFFFF;
