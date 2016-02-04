@@ -1,0 +1,69 @@
+body { font-family: arial; 
+       background-color: #ECE5B6;
+       font-size: small }
+      
+table { color: yellow;
+        background-color: blue;
+        border-width: 5px;
+        border-style: groove;
+        border-color: black; 
+        padding: 10px; }
+
+H1   { background:#C9C299;
+       color: #805817;
+       margin: 0;
+       padding: 5;
+       font-family: Geneva, Helvetica, Arial, sans-serif;
+       font-size: 1.8em;
+       font-weight	       : 900 ;
+       text-align: center;
+       padding-bottom	       : 1ex ;
+       padding-top	    : 1ex ;
+     }
+
+form  { border: medium double #463E41 }
+
+
+
+/* Some formatting for the menu UL tags themselves; remove margins */
+ul.checktree, ul.checktree ul {
+ list-style-type: none;
+ padding: 0;
+ margin: 0;
+ font: 10px sans-serif;
+}
+
+/*
+LI tags have a different background depending if they're the last node, and padding
+The script will automatically assign these CSS classes to LI tags depending on their
+expanded state, so we style them appropriately here.
+*/
+ul.checktree li {
+ background: url(images/node.gif) no-repeat;
+ margin: 0;
+ padding: 0 0 0 16px;
+ cursor: default;
+}
+ul.checktree li.last {
+ background-image: url(images/node-last.gif);
+}
+ul.checktree li.plus {
+ background-image: url(images/plus.gif);
+}
+ul.checktree li.plus-last {
+ background-image: url(images/plus-last.gif);
+}
+ul.checktree li.minus {
+ background-image: url(images/minus.gif);
+}
+ul.checktree li.minus-last {
+ background-image: url(images/minus-last.gif);
+}
+
+
+/* The check-count SPANs. */
+ul.checktree span.count {
+ text-indent: 5pt;
+ color: #999;
+ font-style: italic;
+}

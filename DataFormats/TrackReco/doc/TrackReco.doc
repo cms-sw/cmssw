@@ -1,0 +1,136 @@
+/*!
+\page DataFormats_TrackReco Package DataFormats/TrackReco
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/TrackReco/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/TrackReco/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Persistent classes for Track Reco data format.
+
+\subsection interface Public interfaces
+- reco::Track: reconstructed Track. Objects of this type are ment to be stored in the AOD.
+   <br>Contains a reference to an object of type reco::TrackExtra.
+- reco::TrackExtra: Track extension. Objects of this type are ment to be stored in the RECO.
+
+\subsection interface_base Auxiliary base classes
+- reco::TrackBase: common base class to reco::Track and reco::Muon
+- reco::TrackExtraBase: common base class to reco::TrackExtra and reco::MuonExtra. 
+  Contains references to objects of type TrackingRecHit.
+
+\subsection typedefs 
+- reco::TrackCollection: collection of reco::Track objects
+- reco::TrackRef: persistent reference to a reco::Track object
+- reco::TrackRefProd: reference to a reco::Track collection
+- reco::TrackRefVector: vector of references to reco::Track objects in the same collection
+- reco::track_iterator: iterator over a vector of references to reco::Track objects in the same collection
+
+- reco::TrackExtraCollection: collection of reco::TrackExtra objects
+- reco::TrackExtraRef: persistent reference to a reco::TrackExtra object
+- reco::TrackExtraRefProd: reference to a reco::TrackExtra collection
+- reco::TrackExtraRefVector: vector of references to reco::TrackExtra objects in the same collection
+- reco::trackExtra_iterator: iterator over a vector of references to reco::TrackExtra objects in the same collection
+
+\section tiers Track object "Tiers"
+
+The complete track information is stored in two different object:
+reco::Track and reco::TrackExtra, that are stored in two different
+collection, physically written to fine into two
+different ROOT branches. This modularity allows the freedom to "drop"
+the reco::TrackExtra component, if not needed, and leave only
+reco::Track, in order to save disk space. This could be done,
+for instance while writing only the AOD component of a RECO collection.
+ 
+A reco::Track has a reference (edm::Ref) to a reco::TrackExtra object that
+allows to access the information in the "extra" tier. Users don't
+necessarily have to dereference this persistent reference, since
+reco::Track has two sets of methods:
+- inherited from the base class reco::TrackBase, that only
+  access data stored in the reco::Track object
+- specific to reco::Track, that return quantities 
+  derived from reco::TrackExtra information, dereferencing
+  the corresponding reference.
+
+For instance, the following methods 
+will only access reco::TrackBase data members: 
+\htmlonly
+<pre>
+  reco::Track trk;
+  double pt = trk.pt();
+  double eta = trk.eta();
+</pre>
+\endhtmlonly
+The following instead access data members contained in reco::TrackExtra:
+\htmlonly
+<pre>
+  reco::Track trk;
+  double outerPt = trk.outerPt();
+  math::XYZPoint p = trk.outerPosition();
+</pre>
+\endhtmlonly
+and are equivalent to:
+\htmlonly
+<pre>
+  reco::Track trk;
+  const reco::TrackExtraRef & trkExtra = trk.extra();
+  double outerPt = trkExtra.outerPt();
+  math::XYZPoint p = trkExtra.outerPosition();
+</pre>
+\endhtmlonly
+<br>
+<b>Warning:</b> collections of those two data types are potentially stored in different data tiers. 
+So, if a reco::TrackExtra is not stored on disk dereferencing the reference contained in
+reco::Track may result in an exception.
+
+\section parms Track Parametrization
+
+Track helix parametrization follows the perigee model described
+in the internal CMS note <a href="https://cmsdoc.cern.ch/documents/03/in/in03_008.pdf">CMS IN-2003/008</a>.
+The five parameters are:
+\htmlonly
+<ul>
+<li> <b><i>&kappa;</i>: signed transverse curvature: <i>&kappa = -<font face="Times New Roman, Times">q &bull; B<sub>z</sub>/p<sub>t</sub></font></i>.
+<li> <b><i>&theta;</i></b>: polar angle of the momentum vector.
+<li> <b><i>&phi;<sub>0</sub></i></b>: azimuthal angle of the momentum vector at the PCA to the beam line.
+<li> <b><i><font face="Times New Roman, Times">d<sub>0</sub></font></i></b>: signed transverse distance of the PCA. By convention, the
+sign is positive if the reference point is at the left of the PCA.
+<li> <b><i><font face="Times New Roman, Times">d<sub>z</sub></font></i></b>: longitudinal distance of the PCA.
+</ul>
+\endhtmlonly
+
+The five parameters are stored internally in a vector whose index 
+varies from 0 to 4, in the order listed above. The indices are
+also defined as the enumerator <tt>index</tt> defined in the 
+namespace reco::helix:
+\htmlonly
+<pre>
+  enum index { i_transverseCurvature = 0 , i_theta, i_phi0, i_d0, i_dz }; 
+</pre>
+\endhtmlonly
+
+So, for instance, in order to access specific track parameters a user
+can write the following code that requires no explicit numeric index:
+
+\htmlonly
+<pre>
+  using namespace reco::perigee;
+  reco::TrackRef track = ... ; 
+  double d0 = track->parameter( i_d0 ); 
+  double covThetaPhi = track->covariance( i_theta, i_phi0 );
+</pre>
+\endhtmlonly
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+None.
+
+\section status Status and planned development
+To be reviewed.
+
+<hr>
+Last updated: @DATE@ L. Lista, Th. Speer
+*/

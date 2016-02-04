@@ -1,0 +1,52 @@
+process TEST1 = {
+
+  // options
+  untracked PSet options =
+  {
+    untracked vstring Rethrow = {"ProductNotFound","TooManyProducts","TooFewProducts"}
+    untracked bool    makeTriggerResults = true
+  }
+
+  service = MessageLogger {
+    untracked vstring destinations = { "cout" }
+    untracked PSet    cout         = { untracked string threshold = "FATAL" }
+    untracked PSet    log4cplus    = { untracked string threshold = "WARNING" }
+  }
+
+
+  untracked PSet maxEvents = {untracked int32 input = -1}
+
+  // source
+  // source = DaqSource
+  //{
+  //  string          reader    = "FUShmReader"
+  //}
+
+
+  source = EmptySource {untracked int32 maxEvents = 5}
+  //source = EmptySource {untracked int32 maxEvents = 50}
+
+  # DQM back-end interface service
+  service = DaqMonitorROOTBackEnd{}
+
+  # DQM source program
+  #module tester = SMDQMSourceExample{}
+  module tester = DQMMessageAnalyzer{
+	bool useCompression = true
+	int32 compressionLevel = 1
+  }
+
+
+  path pDQM ={tester}
+
+  # DQM sender service - under development
+  #service = FUShmDQMOutputService {
+  #  untracked int32 initialMessageBufferSize = 1000000  // bytes
+  #  double lumiSectionsPerUpdate = 1.0
+  #  bool useCompression = true
+  #  int32 compressionLevel = 1
+  #  untracked int32 lumiSectionInterval = 30  // seconds
+  #}
+
+
+}

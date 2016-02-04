@@ -1,0 +1,148 @@
+Expects cmsSimGeom-14.root file in this directory. It is produced by
+running 'cmsRun dumpSimGeometry_cfg.py' in the python/ sub-directory.
+It can be symlinked here.
+
+To run:
+  root.exe geom_cms.C
+  root.exe geom_core_parts.C
+  root.exe geom_detail_local.C
+  root.exe geom_detail_global.C
+
+
+Instructions
+============
+
+Open "Scenes/Geometry Scene" in list-tree widget on left.
+
+Then double-click to browse further.
+
+For top-nodes one can set the depth of displayed geometry (change "VisLevel"
+value in object editor below, after selecting the top-node). Be careful,
+things can get slow, especially if there is no hardware accelerated GL.
+
+By doulbe clicking on the background of the 3D view one gets controls for the
+GL viewer. Clipping planes, guides and lights can be set there.
+
+Several options are available via key-presses -- see "Help on GL Viewer" that
+is available from the menu (below "Actions" in 3D window, the thin blue bar
+unrolls into menu). The contents is also pasted below.
+
+
+
+
+DIRECT SCENE INTERACTIONS
+
+   Press:
+   	w          --- wireframe mode
+   	e          --- switch between dark / light color-set
+   	r          --- filled polygons mode
+   	t          --- outline mode
+   	j          --- ZOOM in
+   	k          --- ZOOM out
+   	Arrow Keys --- PAN (TRUCK) across scene
+   	Home       --- reset current camera
+
+   LEFT mouse button -- ROTATE (ORBIT) the scene by holding the mouse button and moving
+   the mouse (perspective camera, needs to be enabled in menu for orthograpic cameras).
+   By default, the scene will be rotated about its center. To select arbitrary center
+   bring up the viewer-editor (e.g., shift-click into empty background) and use
+   'Camera center' controls in the 'Guides' tab.
+
+   MIDDLE mouse button or arrow keys --  PAN (TRUCK) the camera.
+
+   RIGHT mouse button action depends on camera type:
+     orthographic -- zoom,
+     perspective  -- move camera forwards / backwards
+
+   By pressing Ctrl and Shift keys the mouse precision can be changed:
+     Shift      -- 10 times less precise
+     Ctrl       -- 10 times more precise
+     Ctrl Shift -- 100 times more precise
+
+   Mouse wheel action depends on camera type:
+     orthographic -- zoom,
+     perspective  -- change field-of-view (focal length)
+
+   Double clik will show GUI editor of the viewer (if assigned).
+
+   RESET the camera via the button in viewer-editor or Home key.
+
+   SELECT a shape with Shift+Left mouse button click.
+
+   SELECT the viewer with Shift+Left mouse button click on a free space.
+
+   MOVE a selected shape using Shift+Mid mouse drag.
+
+   Invoke the CONTEXT menu with Shift+Right mouse click.
+
+Secondary selection and direct render object interaction is initiated
+   by Alt+Left mouse click (Mod1, actually). Only few classes support this option.
+   When 'Alt' is taken by window manager, try Alt-Ctrl-Left.
+
+CAMERA
+
+   The "Camera" menu is used to select the different projections from 
+   the 3D world onto the 2D viewport. There are three perspective cameras:
+
+   	Perspective (Floor XOZ)
+   	Perspective (Floor YOZ)
+   	Perspective (Floor XOY)
+
+   In each case the floor plane (defined by two axes) is kept level.
+
+   There are also three orthographic cameras:
+
+   	Orthographic (XOY)
+   	Orthographic (XOZ)
+   	Orthographic (ZOY)
+
+   In each case the first axis is placed horizontal, the second vertical e.g.
+   XOY means X horizontal, Y vertical.
+
+
+SHAPES COLOR AND MATERIAL
+
+   The selected shape's color can be modified in the Shapes-Color tabs.
+   Shape's color is specified by the percentage of red, green, blue light
+   it reflects. A surface can reflect DIFFUSE, AMBIENT and SPECULAR light.
+   A surface can also emit light. The EMISSIVE parameter allows to define it.
+   The surface SHININESS can also be modified.
+
+SHAPES GEOMETRY
+
+   The selected shape's location and geometry can be modified in the Shapes-Geom
+   tabs by entering desired values in respective number entry controls.
+
+SCENE CLIPPING
+
+   In the Scene-Clipping tabs select a 'Clip Type': None, Plane, Box
+
+   For 'Plane' and 'Box' the lower pane shows the relevant parameters:
+
+	Plane: Equation coefficients of form aX + bY + cZ + d = 0
+	Box: Center X/Y/Z and Length X/Y/Z
+
+For Box checking the 'Show / Edit' checkbox shows the clip box (in light blue)
+   in viewer. It also attaches the current manipulator to the box - enabling
+   direct editing in viewer.
+
+MANIPULATORS
+
+   A widget attached to the selected object - allowing direct manipulation
+   of the object with respect to its local axes.
+
+   There are three modes, toggled with keys while manipulator is active, that is,
+   mouse pointer is above it (switches color to yellow):
+   	Mode		Widget Component Style		Key
+   	----		----------------------		---
+   	Translation	Local axes with arrows		v
+   	Scale		Local axes with boxes		x
+   	Rotate		Local axes rings		c
+
+   Each widget has three axis components - red (X), green (Y) and blue (Z).
+   The component turns yellow, indicating an active state, when the mouse is moved
+   over it. Left click and drag on the active component to adjust the objects
+   translation, scale or rotation.
+   Some objects do not support all manipulations (e.g. clipping planes cannot be 
+   scaled). If a manipulation is not permitted the component it drawn in grey and 
+   cannot be selected/dragged.

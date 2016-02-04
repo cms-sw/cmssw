@@ -1,0 +1,19 @@
+<TESTSCONFIGURATION>
+
+
+<QTEST name="digiSizeTest">
+	<TYPE>ContentsXRange</TYPE>	
+	<PARAM name="xmin">9.5</PARAM>
+	<PARAM name="xmax">10.5</PARAM>
+	<PARAM name="error">0.90</PARAM>
+	<PARAM name="warning">0.95</PARAM>
+</QTEST>
+
+
+
+
+<LINK name="* Digi Size">                         <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">digiSizeTest</TestName>
+</LINK>
+
+</TESTSCONFIGURATION>

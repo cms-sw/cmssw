@@ -1,0 +1,27 @@
+%MSG-i expect_specific:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+The following outputs are expected: 
+int25bydefaults appearing in events 1,13,25,37,49 
+unlisted_category appearing in events 1,31 
+
+%MSG
+%MSG-i unlisted_category:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with overall default interval of 5: 1
+%MSG
+%MSG-i int25bydefaults:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with overall default and dest default interval of 25: 1
+%MSG
+%MSG-i int25bydefaults:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with overall default and dest default interval of 25: 13
+%MSG
+%MSG-i int25bydefaults:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with overall default and dest default interval of 25: 25
+%MSG
+%MSG-i unlisted_category:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with overall default interval of 5: 31
+%MSG
+%MSG-i int25bydefaults:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with overall default and dest default interval of 25: 37
+%MSG
+%MSG-i int25bydefaults:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with overall default and dest default interval of 25: 49
+%MSG

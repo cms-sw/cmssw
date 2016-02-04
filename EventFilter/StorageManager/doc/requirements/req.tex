@@ -1,0 +1,256 @@
+\documentclass[]{article}
+\usepackage{html}
+%\usepackage[T1]{fontenc}
+
+
+\renewcommand{\labelenumi}{\bf\arabic{section}.\arabic{enumi}}
+\renewcommand{\labelenumii}{\bf\arabic{section}.\arabic{enumi}.\arabic{enumii}}
+
+\begin{document}
+%\bodytext{BGCOLOR=white LINK=#083194 VLINK=#21004A}
+
+\begin{titlepage}
+
+\begin{center}
+{\Large\bf Storage Manager Software Requirements} \\
+\medskip
+{\it Kurt~Biery, Harry~Cheung, Samim~Erhan, Constantin~Loizides, Remi~Mommsen, Dennis~Shpakov} \\
+\bigskip
+Version 0.3 \\
+\today \\
+\bigskip
+\end{center}
+
+\begin{abstract}
+This document collects the requirements for the Storage Manager (SM) application.
+\end{abstract}
+
+\end{titlepage}
+\newpage
+
+\noindent {\bf Document revisions} \\
+
+\begin{tabular}{l l p{1.9in} p{1.2in}}
+{\bf Date}     &{\bf Version} &{\bf Changes} &{\bf Author}\\
+\hline         
+4-Dec-2008     &0.1           &birth                  &Remi Mommsen\\
+5-Dec-2008     &0.2           &First input from Kurt  &Remi Mommsen\\
+8-Jan-2009     &0.3           &Feedback from Gerry, Kurt, and Steven.  &Remi Mommsen\\
+\end{tabular}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Framework}
+
+\begin{enumerate}
+
+\item The SM shall be implemented within the XDAQ framework.
+
+\item The application shall be controlled by the CMS run control (function manager).
+\begin{enumerate}
+\item The commands are sent using the XOAP transport thread.
+\item The storage manager shall acknowledge the reception of XOAP messages immediately.
+\item Any state change shall be communicated to the run control using xdaq2rc interface, regardless of reason for the state change.
+\item If the requested transition is not legal, a XOAP fault reply shall be sent, but the state shall be unchanged.
+\end{enumerate}
+
+\item The application shall be fully configurable using the xdaq configuration schema~\cite{xdaq_conf_schema}.
+
+\item Each storage manager instance is independent from other instances running in the same or other readout slices.
+
+\end{enumerate}
+
+\section{Monitoring \& Error Reporting}
+
+\begin{enumerate}
+
+\item The storage manager shall send all error messages through the Sentinel error-processing infrastructure.
+
+\item The usage of log-messages shall only be used restrictively and only for debugging purposes.
+
+\item On-line viewing of the log-messages for determining the operational state of the software should not be required.
+
+\item Monitoring of the operational state of the storage manager shall be based on flashlists.
+
+\item Web-pages created by the SM application itself shall only be used for debugging purposes.
+
+\item The storage manager shall report the CPU and I/O load attributed to the individual tasks, e.g. event writing, histogram summing, serving of data-quality histograms, etc.
+
+\end{enumerate}
+
+
+
+\section{HLT Input}
+
+\begin{enumerate}
+
+\item The data received from the HLT resource brokers uses the I2O protocol.
+
+\item The SM shall be capable to receive events of 1-2.5 MB from the HLT at a rate of 100-300 Hz. (Is this still correct?)
+
+\item The SM shall write all received data to a local disk.
+
+\item The SM shall send discard messages to the resource broker only after the event has been stored on the local disk.
+
+\item The primary event data collection and output must not be compromised by the other functions of the SM.
+
+\item The SM shall only receive HLT data while in enabled state.
+\begin{enumerate}
+\item Event data received before the SM reached the 'enabled' state will be disregarded. (Shall there be a warning in this case?)
+\item After receiving the 'stop' command, the SM must not accept any new input data but shall finish processing the already received data.
+\end{enumerate}
+
+\item The data for each HLT output module shall be tagged with the output module identifier.
+
+\item The HLT process will produce data where events can have different data products.
+
+\begin{enumerate}
+\item HLT output modules are able to drop products independently (no assumption that one output module will contain the whole super-set of data products).
+
+\item An event can satisfy the selection for multiple output modules, and thus need to go to 
+multiple streams in the Storage Manager with the correct data products.
+
+\item  The Storage Manager must write streamer files that are readable and can be converted to 
+Root files irrespective of what data products are kept for the stream (file). 
+
+\end{enumerate}
+
+\end{enumerate}
+
+
+\section{SM Streams}
+
+\begin{enumerate}
+
+\item The SM shall use the output module id as well as the event trigger bits to direct events to the correct output stream file. The HLT and SM configuration are thus coupled and must be correctly setup to route events to the correct output streams. 
+
+\item The SM shall be easily configurable to create different streams with different contents (data branches). Examples could be
+\begin{itemize}
+\item The physics stream saves all main products (data branches).
+\item The calibration stream saves only a few data products, but at a higher rate.
+\item The debug physics stream saves all main products and in addition many intermediate data 
+products for debugging at a low rate.
+\item The auto-accept stream containing a small fraction of all events passing L1, at a low rate.
+\end{itemize}
+
+\item A specific 'error' stream shall be created for events that cause a HLT process to die or time out.
+
+\item A stream must only contain unique events belonging to the same lumi section.
+\begin{enumerate}
+\item The 'error' stream shall span a full run.
+\end{enumerate}
+
+\item The output stream format must conform to the format specified in figures 8 -- 10 in reference~\cite{smreviewdoc2}
+
+\item Due to a limitation of the offline software framework, all events in a particular output stream 
+file must have exactly the same set of data products. Events with different data products cannot 
+be mixed into the same file. 
+
+\item The data files shall not exceed a configurable size (currently 1 GB).
+
+\item The SM shall ensure whenever reasonable possible that all output files are properly closed before shutting down.
+\begin{enumerate}
+\item Files might be left open after a force kill (kill -9) of the SM application or after a power failure of the SM node.
+\item Files shall be closed even if the SM cannot be halted properly by the run control.
+\end{enumerate}
+
+\item Require a policy on when to close the file for a given lumi section (late coming-events).
+
+\end{enumerate}
+
+
+\section{Transfer to Tier 0}
+
+\begin{enumerate}
+
+\item The SM shall provide the necessary metadata for processing the output files at tier 0.
+
+\begin{enumerate}
+\item The metadata shall be exchanged using DB streaming. 
+This has still to be investigated if it is feasible.
+\item The latency of the exchange must be less than 1 minute.
+\end{enumerate}
+
+\item If the output disks of the SM are full, the run shall be blocked.
+\begin{enumerate}
+\item There must be a mechanism to notify the shifter that the disk is filling up at least 8 hours before the run stops.
+\item A prioritized deletion scheme could be implemented where the most safest files are delete first. (Needs further discussions.)
+\end{enumerate}
+
+\end{enumerate}
+
+
+\section{DQM}
+
+\begin{enumerate}
+
+\item The SM shall be able to receive DQM histograms from the HLT processors.
+
+\item The histograms received from the HLT processors shall be summer over one lumi section (93 seconds).
+\begin{enumerate}
+\item Only histograms from the same type and containing different events shall be summed.
+\item Only events belonging to the same lumi section shall be used.
+\item The histograms for lumi section $N$ shall be available to the consumers at the end of lumi section $N+1$ (Is this too ambitious?).
+\end{enumerate}
+
+\item The event data and DQM data consumers must be able to receive the data using a standard CMS EDM offline framework job, or a CMS XDAQ consumer application.
+
+\item There is currently no requirement for remote consumers, i.e. ones that operate from outside of the experimental private network.
+
+\item The summed histograms shall be served to online monitoring clients upon request.
+
+\item The summed histograms shall be saved to disk at a configurable frequency.
+
+\item Serve raw event data to online monitoring clients and event display.
+
+\item The consumers communicate with SM using the HTTP transport layer.
+
+\end{enumerate}
+
+
+\section{SM Proxy Server (SMPS)}
+
+\begin{enumerate}
+
+\item A separate XDAQ SM Proxy Server application collects events at a low rate from the 
+Storage Manager instances to serve to event consumers.
+
+\item The SM Proxy Server application also collects DQM data and sums the DQM histograms before outputting these summed DQM data to the DQM disks.
+
+\item The SM Proxy Server shall be robust against missing or renamed SM.
+
+\item All Storage Manager instances and the SM Proxy Server application sits inside the CMS DAQ private network.
+
+\item Each Storage Manager application also has event data and DQM data server functions, however in normal running the Storage Managers will be isolated from all consumers by the SM Proxy Server. 
+
+\item Only events from a given, but configurable, HLT output module shall be provided to the SM Proxy.
+\begin{enumerate}
+\item Consumers (such as the event display) that want events from output modules other than out4DQM connect directly to a Storage Manager instance.
+\end{enumerate}
+
+\end{enumerate}
+
+
+
+\section*{References}
+
+\begin{thebibliography}{99}
+
+\bibitem{xdaq_conf_schema}
+J.~Gutleber, {\it ``Configuration Schema''},\\
+\htmladdnormallink{https://twiki.cern.ch/twiki/bin/view/XdaqWiki/ConfigurationSchema}
+{https://twiki.cern.ch/twiki/bin/view/XdaqWiki/ConfigurationSchema}
+
+\bibitem{smreviewdoc2}
+W.~Badgett {\it et al.}, 
+{\it ``The CMS Storage Manager -- Review Documentation for May 2008''},\\
+\htmladdnormallink{https://twiki.cern.ch/twiki/pub/CMS/StorageManager/smreviewdoc2.pdf}
+{https://twiki.cern.ch/twiki/pub/CMS/StorageManager/smreviewdoc2.pdf}
+
+\end{thebibliography} 
+
+\end{document}

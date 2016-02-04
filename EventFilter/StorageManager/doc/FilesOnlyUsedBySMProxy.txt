@@ -1,0 +1,22 @@
+Files used only by the SMProxy:
+===============================
+interface/BaseCounter.h
+interface/ConsumerPipe.h
+interface/DQMConsumerPipe.h
+interface/DQMEventServer.h
+interface/DQMServiceManager.h
+interface/EventServer.h
+interface/ForeverCounter.h
+interface/RollingIntervalCounter.h
+interface/RollingSampleCounter.h
+interface/SMPerformanceMeter.h
+src/BaseCounter.cc
+src/ConsumerPipe.cc
+src/DQMConsumerPipe.cc
+src/DQMEventServer.cc
+src/DQMServiceManager.cc
+src/EventServer.cc
+src/ForeverCounter.cc
+src/RollingIntervalCounter.cc
+src/RollingSampleCounter.cc
+src/SMPerformanceMeter.cc

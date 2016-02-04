@@ -1,0 +1,9 @@
+import FWCore.ParameterSet.Config as cms
+
+from RecoEgamma.EgammaPhotonProducers.softConversionTrackCandidates_cfi import *
+from RecoEgamma.EgammaPhotonProducers.softConversionOITracks_cfi import *
+from RecoEgamma.EgammaPhotonProducers.softConversionIOTracks_cfi import *
+from RecoEgamma.EgammaPhotonProducers.softConversions_cfi import *
+softConversionSequence = cms.Sequence(softConversionTrackCandidates*softConversionOITracks*softConversionIOTracks*softConversions)
+
+

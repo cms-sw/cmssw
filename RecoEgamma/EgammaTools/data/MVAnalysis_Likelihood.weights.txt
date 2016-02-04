@@ -1,0 +1,39 @@
+#GEN -*-*-*-*-*-*-*-*-*-*-*- general info -*-*-*-*-*-*-*-*-*-*-*-
+
+Method : Likelihood
+Creator: tkolberg
+Date   : Fri May  2 15:50:28 2008
+Host   : Linux lxbuild056.cern.ch 2.6.9-42.0.8.EL.cernsmp #1 SMP Fri Feb 2 11:50:49 CET 2007 x86_64 x86_64 x86_64 GNU/Linux
+Dir    : /afs/cern.ch/user/t/tkolberg/tmva/test
+Training events: 7000
+
+
+#OPT -*-*-*-*-*-*-*-*-*-*-*-*- options -*-*-*-*-*-*-*-*-*-*-*-*-
+
+# Set by User:
+V: False [verbose flag]
+Spline: 2 [spline used to interpolate reference histograms]
+NSmooth: 5 [how often the input histos are smoothed]
+TransformOutput: False [transform (often strongly peaked) likelihood output through sigmoid inversion]
+# Default:
+D: False [use-decorrelated-variables flag (for backward compatibility)]
+Preprocess: "None" [Variable Decorrelation Method]
+PreprocessType: "Signal" [Use signal or background for Preprocess]
+H: False [help flag]
+NAvEvtPerBin: 25 [average num of events per PDF bin to trigger warning]
+##
+
+
+#VAR -*-*-*-*-*-*-*-*-*-*-*-* variables *-*-*-*-*-*-*-*-*-*-*-*-
+
+NVar 5
+                 log(e_over_p)                 log_e_over_p_    'F'    [-5.75376,6.35992]
+           log(abs(cot_theta))           log_abs_cot_theta__    'F'    [-12.8492,6.84149]
+           log(abs(delta_phi))           log_abs_delta_phi__    'F'    [-12.5888,1.14468]
+              log(chi2_max_pt)              log_chi2_max_pt_    'F'    [-4.35439,8.54628]
+              log(chi2_min_pt)              log_chi2_min_pt_    'F'    [-4.49384,9.01746]
+
+
+#WGT -*-*-*-*-*-*-*-*-*-*-*-*- weights -*-*-*-*-*-*-*-*-*-*-*-*-
+
+# weights stored in root i/o file: weights/MVAnalysis_Likelihood.weights.txt.root

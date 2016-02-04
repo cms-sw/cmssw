@@ -1,0 +1,527 @@
+#!/usr/bin/perl
+
+################################################################################
+#
+# initialize
+# ----------
+#
+# Setup XDAQ filter farm applications for testing, and generate scripts to
+# control execution.
+#
+#                          03/28/2007 Philipp Schieferdecker <schiefer@fnal.gov>
+################################################################################
+use File::Copy;
+
+# welcome
+print "\n============================================================";
+print "\ninitialize ...";
+print "\n============================================================\n";
+
+# hostname, default
+#my $hostname = $ENV{"HOST"};
+chop(my $hostname = `hostname -f`);
+
+# set variables
+my $port = 40000;
+
+my $appname="evf::FUEventProcessor";
+
+my $localid=27;
+
+my $libpath = getLibraryPath("EventFilter/Processor");
+
+my $libname = "libEventFilterProcessor.so";
+
+my $pwd = `pwd`; chomp $pwd;
+
+
+my $dqm_dir = $ENV{"CMSSW_BASE"}."/src/DQM/SiStripMonitorClient/test";
+## For CMSSW_1_7_X
+my $dqm_common = $ENV{"CMSSW_BASE"}."/src/DQM/TrackerCommon/test";
+## for  CMSSW_1_8_X 
+## my $dqm_common = $ENV{"CMSSW_RELEASE_BASE"}."/src/DQM/TrackerCommon/test";
+
+
+my $mode = $ARGV[0];
+my $cfg_file = "source_client_".$mode.".cfg";
+print "cfg file name : $cfg_file\n";
+
+
+#
+# interpret command line
+#
+#foreach $param (@ARGV) {
+#    if    ($hostname eq "fillme")    { $hostname=$param; }
+#    elsif ($param    eq "-host")     { $hostname="fillme"; }
+#
+#    else { die ("Unknown parameter $param!\n"); }
+#}
+
+print "hostname = $hostname\n";
+
+#
+# make directories
+#
+print "make directories ...\n";
+`mkdir -p log`;
+`mkdir -p soap`;
+`mkdir -p xml`;
+
+#
+# make cfg files
+#
+print "copy cfg files ...\n";
+
+copy("$dqm_dir/$cfg_file", "$ENV{PWD}/$cfg_file");
+
+
+
+# make source xml input
+
+copy("$dqm_dir/../data/sistrip_qualitytest_config.xml", "$ENV{PWD}/.");
+
+
+#
+# make XDAQ 'profile.xml'
+#
+print "make xdaq profile ...\n";
+
+my @EXproperties = ("logUrl",  "string","console",
+		    "logLevel","string","INFO");
+
+
+my @Pathproperties = ("documentRoot", "string",$ENV{"XDAQ_DOCUMENT_ROOT"},
+                     "aliasName",  "string","temporary",
+		    "aliasPath","string",$ENV{"PWD"});
+
+open (XML,">./xml/profile.xml") or die ("Can't open file: $!\n");
+print XML makeXmlHeader();
+print XML makeXmlProfileHeader();
+print XML makeXmlAppHeader(0,"executive::Application",0);
+print XML makeXmlAppProperties("Executive",@EXproperties);
+print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libexecutive.so");
+print XML makeXmlAppHeader(0,"pt::http::PeerTransportHTTP",1);
+print XML makeXmlAppProperties("pt::http::PeerTransportHTTP",@Pathproperties);
+print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libpthttp.so");
+print XML makeXmlAppHeader(0,"pt::fifo::PeerTransportFifo",8);
+print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libptfifo.so");
+print XML makeXmlAppHeader(0,"xrelay::Application",4);
+print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libxrelay.so");
+print XML makeXmlAppHeader(0,"hyperdaq::Application",3);
+print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libhyperdaq.so");
+print XML makeXmlProfileTrailer();
+
+
+
+#
+# make  xdaq configuration file 'evf.xml'
+#
+print "make xdaq  configuration ...\n";
+
+my @properties = ("parameterSet", "string","file:$pwd/$cfg_file",
+		    "collReconnSec","integer","-1",
+		    "hasPrescaleService","boolean","false",
+                    "isRunNumberSetter","boolean","false",
+		    "hasSharedMemory","boolean","false");
+
+open (XML,">./xml/evf.xml") or die ("Can't open file: $!\n");
+print XML makeXmlHeader();
+print XML makeXmlPartitionHeader();
+print XML makeXmlComm(@apps);
+
+
+  print XML makeXmlContextHeader("DQM",$hostname,$port);
+  print XML makeXmlAppHeader(1,$appname,$localid);
+  print XML makeXmlAppProperties($appname,@properties);
+  print XML makeXmlAppTrailer(1,$libpath,$libname);
+  print XML makeXmlContextTrailer();
+
+
+print XML makeXmlPartitionTrailer();
+close (XML);
+
+
+#
+# make soap command xml files
+#
+print "make soap command files ...\n";
+
+my @commands = ('Configure','Enable','Stop','Halt' );
+
+foreach  (@commands) {
+    open(CMD,">./soap/$_".".xml") or die ("Can't open file: $!\n");
+    print CMD makeSoapCommand($hostname,$port,$localid,$_);
+    close(CMD);
+}
+
+
+#
+# make control scripts
+#
+print "make control scripts ...\n";
+
+# configure
+open (CTL,">configure") or die ("Can't open file: $!\n");
+print CTL "#!/usr/bin/perl\n\n";
+print CTL makeCtlCommand("Configure",$appname,"DQM",$hostname,$port,0,"source");
+
+close (CTL);
+`chmod +x configure`;
+
+# enable
+open (CTL,">enable") or die ("Can't open file: $!\n");
+print CTL "#!/usr/bin/perl\n\n";
+print CTL makeCtlCommand("Enable",$appname,"DQM",$hostname,$port,0,"source");
+
+close (CTL);
+`chmod +x enable`;
+
+# stop
+open (CTL,">stop") or die ("Can't open file: $!\n");
+print CTL "#!/usr/bin/perl\n\n";
+print CTL makeCtlCommand("Stop",$appname,"DQM",$hostname,$port,5,"source");
+
+close (CTL);
+`chmod +x stop`;
+
+# halt
+open (CTL,">halt") or die ("Can't open file: $!\n");
+print CTL "#!/usr/bin/perl\n\n";
+print CTL makeCtlCommand("Halt",$appname,"DQM",$hostname,$port,1,"source");
+
+close (CTL);
+`chmod +x halt`;
+
+# destroy
+open (CTL,">destroy") or die ("Can't open file: $!\n");
+print CTL makeCtlDestroy();
+close (CTL);
+`chmod +x destroy`;
+
+#
+# copy scripts and other auxiliary files
+#
+copy("$dqm_dir/.WebLib.js",  "$ENV{PWD}/WebLib.js");
+copy("$dqm_dir/Online.html", "$ENV{PWD}/.");
+copy("$dqm_dir/loader.html", "$ENV{PWD}/.");
+copy("$dqm_dir/TrackerMapFrame.html", "$ENV{PWD}/.");
+copy("$dqm_dir/TrackerMapSelection.html", "$ENV{PWD}/.");
+copy("$dqm_dir/TrackerMapPlot.html", "$ENV{PWD}/.");
+
+$SERVED_DIR="http://$hostname:40000/temporary";
+system qq[perl], qq[-pi -e], qq[s#SERVED_DIRECTORY_URL#$SERVED_DIR#], qq[$ENV{PWD}/WebLib.js]; 
+
+system qq[cp], qq[-r], qq[$dqm_common/js_files], qq[$ENV{PWD}/js_files];
+system qq[cp], qq[-r], qq[$dqm_common/css_files], qq[$ENV{PWD}/css_files];
+system qq[cp], qq[-r], qq[$dqm_common/images], qq[$ENV{PWD}/images];
+copy("$dqm_dir/js_files/CommonActions.js", "$ENV{PWD}/js_files/CommonActions.js");
+copy("$dqm_dir/js_files/RequestHistos.js", "$ENV{PWD}/js_files/RequestHistos.js");
+copy("$dqm_dir/js_files/sistrip_svgmap.js", "$ENV{PWD}/js_files/sistrip_svgmap.js");
+copy("$dqm_dir/css_files/style.css", "$ENV{PWD}/css_files/style.css");
+
+#
+# start processes
+#
+
+#print "\nstart xdaq.exe on $hostname:$port\n";
+#`nice -n 15 xdaq.exe -h $hostname -p $port -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$port.log &`;
+open OUTPUT, ">start" or die($!);
+my $script=<<"EOS";
+#!/bin/sh
+
+xdaq.exe -h $hostname -p $port -e xml/profile.xml -c xml/evf.xml
+EOS
+print OUTPUT $script;
+close OUTPUT;
+`chmod +x start`;
+
+
+
+################################################################################
+################################################################################
+## sub routines
+################################################################################
+################################################################################
+
+
+################################################################################
+sub getLibraryPath
+{
+    my ($pkg) = (@_);
+    
+    my $cmssw_base         = $ENV{"CMSSW_BASE"};
+    my $cmssw_release_base = $ENV{"CMSSW_RELEASE_BASE"};
+
+    my $result = "/lib/" . $ENV{"SCRAM_ARCH"};
+    
+    if (-e "$cmssw_base/src/$pkg") {
+	$result = $cmssw_base . $result;
+    }
+    else {
+	$result = $cmssw_release_base . $result;
+    }
+    print "\n Result of Lib Path $result\n";
+    return $result;
+}
+
+################################################################################
+sub makeSoapCommand
+{
+    my ($hostname,$port,$localid,$command) = @_;
+    
+    my $result="";
+    
+    $result = $result . "<SOAP-ENV:Envelope\n";
+    $result = $result . "  SOAP-ENV:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\"\n";
+    $result = $result . "  xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"\n";
+    $result = $result . "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n";
+    $result = $result . "  xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"\n";
+    $result = $result . "  xmlns:SOAP-ENC=\"http://schemas.xmlsoap.org/soap/encoding/\">\n\n";
+    $result = $result . "<SOAP-ENV:Header>\n";
+    $result = $result . "  <xr:relay SOAP-ENV:actor=\"http://xdaq.web.cern.ch/xdaq/xsd/2004/XRelay-10\"\n";
+    $result = $result . "    xmlns:xr=\"http://xdaq.web.cern.ch/xdaq/xsd/2004/XRelay-10\">\n";
+    $result = $result . "  <xr:to url=\"http://$hostname:$port\" urn=\"urn:xdaq-application:lid=$localid\"/>\n";
+    $result = $result . "</xr:relay>\n";
+    $result = $result . "</SOAP-ENV:Header>\n\n";
+    $result = $result . "<SOAP-ENV:Body>\n";
+    $result = $result . "  <xdaq:$command xmlns:xdaq=\"urn:xdaq-soap:3.0\"></xdaq:$command>\n";
+    $result = $result . "</SOAP-ENV:Body>\n\n";
+    $result = $result . "</SOAP-ENV:Envelope>\n";
+    
+    return $result;
+}
+
+
+
+
+################################################################################
+################################################################################
+sub makeXmlHeader
+{
+    my $result = "";
+    
+    return "<?xml version='1.0'?>\n\n";
+    $result = $result . "<xc:Partition\n";
+    $result = $result . "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n";
+    $result = $result . "  xmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\"\n";
+    $result = $result . "  xmlns:xc=\"http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30\">\n\n";
+    
+    return $result;
+}
+
+
+################################################################################
+sub makeXmlPartitionHeader
+{
+    my $result = "";
+    
+    $result = $result . "<xc:Partition\n";
+    $result = $result . "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n";
+    $result = $result . "  xmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\"\n";
+    $result = $result . "  xmlns:xc=\"http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30\">\n\n";
+    
+    return $result;
+}
+
+
+################################################################################
+sub makeXmlProfileHeader
+{
+    return 
+	"<xp:Profile\n" .
+	"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" .
+	"  xmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\"\n" .
+	"  xmlns:xp=\"http://xdaq.web.cern.ch/xdaq/xsd/2005/XMLProfile-10\">\n\n";
+}
+
+
+################################################################################
+sub makeXmlComm
+{
+    my $result = "";
+    
+    $result = $result . "  <!-- communication protocoll -->\n";
+    $result = $result . "  <i2o:protocol xmlns:i2o=" .
+	"\"http://xdaq.web.cern.ch/xdaq/xsd/2004/I2OConfiguration-30\">\n";
+    
+    while (@_>0) {
+	my $appname  = shift (@_);
+	my $localid  = shift (@_);
+	$result = $result . "    <i2o:target class=\"" . $appname .
+	                    "\" instance=\"0\" tid=\"" . $localid . "\"/>\n";
+    }
+    $result = $result . "  </i2o:protocol>\n\n";
+    
+    return $result;
+}
+
+
+################################################################################
+sub makeXmlContextHeader
+{
+    my ($contextname,$hostname,$port) = @_;
+
+    my $result = "";
+    
+    $result = $result . "<!-- " . $contextname . " CONTEXT -->\n";
+    $result = $result . "  <xc:Context url=\"http://$hostname:$port\">\n\n";
+    
+    return $result;
+}
+
+
+
+################################################################################
+sub makeXmlEndpoint
+{
+    my ($hostname,$port) = @_;
+
+    my $result = "";
+    $result = $result . "    <xc:Endpoint hostname=\"" . $hostname .
+	"\" network=\"tcp0\" " .
+	"port=\"" .$port . "\" protocol=\"tcp\" " .
+	"service=\"i2o\"></xc:Endpoint>\n\n";
+    return $result;
+}
+
+
+################################################################################
+sub makeXmlAppHeader
+{
+    my ($inContext,$appname,$localid) = @_;
+
+    my $ns = "xc"; if (!$inContext) { $ns = "xp"; }
+    
+    my $result = "    <$ns:Application class=\"" . $appname . 
+	"\" id=\"" . $localid . "\" instance=\"0\" network=\"local\">\n";
+    return $result;
+}
+
+
+################################################################################
+sub makeXmlAppProperties
+{
+    my $result = "";
+
+    my $appname = shift (@_);
+
+    $result = $result . "      <properties xmlns=\"urn:xdaq-application:" . $appname .
+	                            "\" xsi:type=\"soapenc:Struct\">\n";
+    while (@_>0) {
+	my $name  = shift (@_);
+	my $type  = shift (@_);
+	my $value = shift (@_);
+	$result = $result . "        <" . $name . " xsi:type=\"xsd:" . $type . "\">" . $value . "</" . $name . ">\n";
+    }
+    $result = $result . "      </properties>\n";
+    
+    return $result;
+}
+
+
+################################################################################
+sub makeXmlUnicast
+{
+    my ($appname) = (@_);
+    return "      <xc:Unicast class=\"" . $appname . "\" network=\"tcp0\"></xc:Unicast>\n";
+}
+
+
+################################################################################
+sub makeXmlAppTrailer
+{
+    my ($inContext,$libpath,$libname) = @_;
+
+    my $ns = "xc"; if (!$inContext) { $ns = "xp"; }
+    
+    my $result = "";
+    
+    $result = $result . "    </$ns:Application>\n";
+    $result = $result . "    <$ns:Module>" . $libpath .
+	                "/" . $libname . "</$ns:Module>\n\n";
+    
+    return $result;
+}
+
+
+################################################################################
+sub makeXmlContextTrailer
+{
+    return "  </xc:Context>\n\n\n";
+}
+
+
+################################################################################
+sub makeXmlProfileTrailer
+{
+    return "</xp:Profile>\n";
+}
+
+
+################################################################################
+sub makeXmlPartitionTrailer
+{
+    return "</xc:Partition>\n";
+}
+
+
+################################################################################
+sub makeCtlDestroy
+{
+    my $result = "";
+
+    my $cmd = "killall xdaq.exe";
+
+    $result = $result . "#!/usr/bin/perl\n\n";
+    $result = $result . "print \"$cmd ...\\n\";\n\n";
+    $result = $result . "`$cmd`;\n\n";
+    $result = $result . "print \"remove files and dirs ...\n\";\n\n";
+    $result = $result . "`rm -rf  soap/ xml/ log/ /tmp/sm "
+          . "start configure enable halt stop gennums.txt"
+          . " summaryCatalog.txt test.root`;\n\n";
+    $result = $result . "`rm -rf  sistrip\*.cfg sistrip_qualitytest_config.xml`;\n\n"; 
+    $result = $result . "`rm -rf Online.html loader.html "
+          . " TrackerMapFrame.html TrackerMapPlot.html TrackerMapSelection.html "
+          . " fedtrackermap.html "
+          . " css_files js_files images WebLib.js `;\n\n";
+    $result = $result . "`rm -rf svgmap.xml svgmap_fed.xml Layer\*.xml \*.png`;\n\n";
+    $result = $result . "print \"FUShmCleanUp_t ...\\n\";\n\n";
+    $result = $result . "`FUShmCleanUp_t`;\n\n";
+    $result = $result . "print \"XDAQ session destroyed!\\n\";\n\n";
+    $result = $result . "`rm destroy`;\n";
+    
+    return $result;
+}
+
+
+################################################################################
+sub makeCtlCommand
+{
+    my ($cmd,$appname,$appabrev,$host,$port,$sleep,$param) = (@_);
+
+    my $result = "";
+    
+    $result = $result."print \"\\n===============================================\";\n";
+    $result = $result."print \"\\n$cmd the $appname ($appabrev)...\";\n";
+    $result = $result."print \"\\n\===============================================\";\n";
+    $result = $result."my \$result = `".makeCurlCommand($cmd,$appabrev,$host,$port)."`;\n";
+    $result = $result."print \"\\n\$result\\n\\n\";\n";
+    if ($sleep>0){
+	$result = $result . "\n\t`sleep $sleep`;\n";
+    }
+
+    return $result;
+}
+
+
+################################################################################
+sub makeCurlCommand
+{
+    my ($cmd,$appabrev,$host,$port) = @_;
+    my $pwd = `pwd`; chomp($pwd);
+    return 
+	"curl --stderr /dev/null -H " .
+	"\"SOAPAction: urn:xdaq-application:lid=4\" " .
+	"-d @" . $pwd . "/soap/" . $cmd . ".xml " .
+	"http://" . $host . ":" . $port;
+}

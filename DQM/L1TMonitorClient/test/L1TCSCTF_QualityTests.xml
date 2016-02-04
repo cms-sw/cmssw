@@ -1,0 +1,15 @@
+<TESTSCONFIGURATION>
+
+<QTEST name="emptyHist">
+	<TYPE>ContentsYRange</TYPE>
+	<PARAM name="error">1.0</PARAM>
+	<PARAM name="warning">0.0</PARAM>
+	<PARAM name="ymin">0.0</PARAM>
+	<PARAM name="ymax">1.0</PARAM>
+</QTEST>
+
+<LINK name="*csctferrors_*">
+	<TestName activate="true">emptyHist</TestName>
+</LINK>
+
+</TESTSCONFIGURATION>

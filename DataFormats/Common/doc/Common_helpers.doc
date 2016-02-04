@@ -1,0 +1,37 @@
+/*!
+\page DataFormats_Common_helpers Package DataFormats/Common: helper classes
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/Common/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/Common/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Commonly used helper classes.
+
+\subsection interface Public interface
+- edm::ClonePolicy <b>&lt;T&gt;</b>: Helper class that allocates a new
+  clone of an objects of type <tt><b>T</b></tt> invoking the method
+  <tt><b>clone()</b></tt> of the object.
+
+- edm::CopyPolicy <b>&lt;T&gt;</b>: Helper class that returns
+  a copy of an object of type <tt><b>T</b></tt> invoking the
+  copy constructor of the object.
+
+- edm::NewPolicy <b>&lt;T&gt;</b>: Helper class that allocates a new
+  clone of an object of type <tt><b>T</b></tt> invoking the
+  copy constructor of the object.
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+None.
+
+\section status Status and planned development
+Completed, stable.
+
+<hr>
+Last updated: @DATE@ L. Lista
+*/

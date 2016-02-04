@@ -1,0 +1,35 @@
+# Names of Developers with write access to this module
+#
+# There are two types of developers:
+# 1) Administrators - entitled to edit all files in the module ,
+#    in particular the .admin directory.  (Including this file) 
+# 2) Regular Developers - entitled to edit all files in the module
+#    except those in the .admin directory.
+#
+# You must use the full name of the developer as recorded on this system.
+# see :
+# http://cmsdoc.cern.ch/cmsoo/projects/swdevtools/developer_list.html 
+# for a full list of names. If the developer you require is not on this
+# list then email the cvs administrator (cvsadmin@cmscvs.cern.ch)
+#
+# Important
+# ---------
+# --- Put names of regular developers after the >Developers Tag
+# --- Put names of administrators after the >Administrators Tag
+#
+# Mailists
+# --------
+# The bug reporting system can automatically send mail to all the developers
+# and administrators. Add the email address after the name (seperated by a :)
+# of developers to include in the list.
+#
+>Developers
+
+>Administrators
+vanlaer : Pascal Vanlaer : pvanlaer@ulb.ac.be
+fambrogl : Filippo Ambroglini : Filippo.Ambroglini@cern.ch
+azzi : Patrizia Azzi : Patrizia.Azzi@cern.ch
+genta : Chiara Genta : Chiara.Genta@cern.ch
+riccardo: Riccardo Ranieri : Riccardo.Ranieri@cern.ch
+giamman : Andrea Giammanco : Andrea.Giammanco@cern.ch
+
