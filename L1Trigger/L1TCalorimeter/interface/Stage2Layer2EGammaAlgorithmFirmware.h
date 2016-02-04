@@ -38,7 +38,7 @@ namespace l1t
       unsigned int idShapeLutIndex(int iEta, int E, int shape);
       // isolation
       int isoCalEgHwFootPrint(const l1t::CaloCluster&,const std::vector<l1t::CaloTower>&);
-      unsigned isoLutIndex(int iEta,unsigned int nrTowers);
+      unsigned isoLutIndex(int iEta,unsigned int nrTowers,int E);
       // calibration
       int calibratedPt(const l1t::CaloCluster& clus, int hwPt);
       unsigned int calibrationLutIndex(int iEta, int E, int shape);
