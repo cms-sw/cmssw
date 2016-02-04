@@ -7,7 +7,7 @@
 namespace l1t {
   class MicroGMTCaloIndexSelectionLUT : public MicroGMTLUT {
     public: 
-      MicroGMTCaloIndexSelectionLUT ();
+      MicroGMTCaloIndexSelectionLUT() {};
       explicit MicroGMTCaloIndexSelectionLUT (const std::string& fname, int type);
       virtual ~MicroGMTCaloIndexSelectionLUT() {};
 

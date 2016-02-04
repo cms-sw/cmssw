@@ -1,5 +1,6 @@
 #include "../interface/MicroGMTCancelOutUnit.h"
 #include "L1Trigger/L1TMuon/interface/GMTInternalMuon.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace l1t {
 MicroGMTCancelOutUnit::MicroGMTCancelOutUnit ()
@@ -141,6 +142,12 @@ MicroGMTCancelOutUnit::getCoordinateCancelBits(std::vector<std::shared_ptr<GMTIn
   if (coll1.size() == 0 || coll2.size() == 0) {
     return;
   }
+  tftype coll2TfType = (*coll2.begin())->trackFinderType();
+  if (coll2TfType != tftype::bmtf && (*coll1.begin())->trackFinderType() % 2 != coll2TfType % 2) {
+    edm::LogError("Detector side mismatch") << "Overlap-Endcap cancel out between positive and negative detector side attempted. Check eta assignment. OMTF candidate: TF type: " << (*coll1.begin())->trackFinderType() << ", hwEta: " << (*coll1.begin())->hwEta() << ". EMTF candidate: TF type: " << coll2TfType << ", hwEta: " << (*coll2.begin())->hwEta() << ". TF type even: pos. side; odd: neg. side." << std::endl;
+    return;
+  }
+
   MicroGMTMatchQualLUT* matchLUT = m_lutDict.at((*coll1.begin())->trackFinderType()+(*coll2.begin())->trackFinderType()*10).get();
 
   for (auto mu_w1 = coll1.begin(); mu_w1 != coll1.end(); ++mu_w1) {
