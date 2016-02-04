@@ -20,7 +20,9 @@
 #include "FWCore/Utilities/interface/typedefs.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 //#include "DataFormats/L1TGlobal/interface/L1TGlobalReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+//GTO #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1TGlobal/interface/L1TGtObjectMapRecord.h"
+
 //#include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
 #include "L1Trigger/L1TGlobal/interface/AlgorithmEvaluation.h"
 
@@ -92,7 +94,7 @@ public:
     /// run the uGT GTL (Conditions and Algorithms)
     void runGTL(edm::Event& iEvent, const edm::EventSetup& evSetup, const TriggerMenu* m_l1GtMenu,
         const bool produceL1GtObjectMapRecord,
-        const int iBxInEvent, std::auto_ptr<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord,
+        const int iBxInEvent, std::auto_ptr<L1TGtObjectMapRecord>& gtObjectMapRecord, //GTO
         const unsigned int numberPhysTriggers,
         const int nrL1Mu,
         const int nrL1EG,
