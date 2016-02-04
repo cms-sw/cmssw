@@ -46,6 +46,15 @@ class OMTFSorter{
 
  private:
 
+  ///Check if the hit pattern of given OMTF candite is not on the list
+  ///of invalid hit patterns. Invalid hit patterns provode very little
+  ///to efficiency, but gives high contribution to rate.
+  ///Candidate with invalid hit patterns is assigned quality=0.
+  ///Currently the list of invalid patterns is hardcoded.
+  ///This has to be read from configuration.
+  bool checkHitPatternValidity(unsigned int hits);
+  
+
   ///Find a candidate with best parameters for given GoldenPattern
   ///Sorting is made amongs candidates with different reference layers
   ///The output tuple contains (nHitsMax, pdfValMax, refPhi, refLayer, hitsWord, refEta)

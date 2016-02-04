@@ -215,6 +215,19 @@ l1t::RegionalMuonCand OMTFSorter::sortProcessor(const std::vector<OMTFProcessor:
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
+bool OMTFSorter::checkHitPatternValidity(unsigned int hits){
+
+  std::vector<unsigned int> badPatterns = {99840, 34304, 3075, 36928, 12300, 98816, 98944, 33408, 66688, 66176, 7171, 20528, 33856, 35840, 4156, 34880};
+
+  for(auto aHitPattern: badPatterns){
+    if(hits==aHitPattern) return false;
+  }
+
+  return true; 
+   
+}
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
 void OMTFSorter::sortProcessor(const std::vector<OMTFProcessor::resultsMap> & procResults,
 			       l1t::RegionalMuonCandBxCollection & sortedCands,
 			       int bx, int charge){
@@ -236,6 +249,8 @@ void OMTFSorter::sortProcessor(const std::vector<OMTFProcessor::resultsMap> & pr
     ///DT bending and position hit is counted as one.
     ///thus we subtract 1 for each DT station hit.
     candidate.setHwQual(bits.count() - bits.test(0) - bits.test(2) - bits.test(4));
+    ///Candidates with bad hit patterns get quality 0.
+    if(!checkHitPatternValidity(myCand.hits)) candidate.setHwQual(0);
     std::map<int, int> trackAddr;
     trackAddr[0] = myCand.hits;
     trackAddr[1] = myCand.refLayer;
