@@ -11,7 +11,7 @@ namespace l1t {
 
 			class TrailersBlockUnpacker : public Unpacker { // "TrailersBlockUnpacker" inherits from "Unpacker"
 				public:
-					// virtual bool checkFormat() override; // Return "false" if block format does not match expected format
+					virtual void checkFormat(const Block& block);					
 					virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
 					// virtual bool packBlock(const Block& block, UnpackerCollections *coll) override;
 			};
@@ -29,7 +29,10 @@ namespace l1t {
 	namespace stage2 {
 		namespace emtf {
 
-			void checkFormat(auto payload){
+			void TrailersBlockUnpacker::checkFormat(const Block& block) {
+
+				auto payload = block.payload();
+
 				//Check the number of 16-bit words
 				if(payload.size() != 8) edm::LogError("L1T|EMTF") << "Payload size in 'AMC Data Trailer' is different than expected";
 
@@ -79,7 +82,7 @@ namespace l1t {
 				// Check Format of Payload
 				///////////////////////////////
 
-				checkFormat(payload);
+				checkFormat(block);
 
 				// Assign payload to 16-bit words
 				uint16_t TR1a = payload[0];

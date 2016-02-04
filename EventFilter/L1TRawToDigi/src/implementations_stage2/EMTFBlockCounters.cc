@@ -11,6 +11,7 @@ namespace l1t {
 
 			class CountersBlockUnpacker : public Unpacker { // "CountersBlockUnpacker" inherits from "Unpacker"
 				public:
+					virtual void checkFormat(const Block& block);
 					// virtual bool checkFormat() override; // Return "false" if block format does not match expected format
 					virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
 					// virtual bool packBlock(const Block& block, UnpackerCollections *coll) override;
@@ -29,7 +30,10 @@ namespace l1t {
 	namespace stage2 {
 		namespace emtf {
 
-			void checkFormat(auto payload){
+			void CountersBlockUnpacker::checkFormat(const Block& block) { 
+
+				auto payload = block.payload();
+
 				//Check the number of 16-bit words
 				if(payload.size() != 4) edm::LogError("L1T|EMTF") << "Payload size in 'Block of Counters' is different than expected";
 
@@ -64,7 +68,7 @@ namespace l1t {
 				// Check Format of Payload
 				///////////////////////////////
 
-				checkFormat(payload);
+				checkFormat(block);
 
 				// std::cout << "This payload has " << payload.size() << " 16-bit words" << std::endl;
 				// for (uint iWord = 0; iWord < payload.size(); iWord++)
