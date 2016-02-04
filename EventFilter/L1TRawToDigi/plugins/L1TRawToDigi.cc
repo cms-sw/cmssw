@@ -88,8 +88,8 @@ namespace l1t {
       fedIds_(config.getParameter<std::vector<int>>("FedIds")),
       fwId_(config.getParameter<unsigned int>("FWId")),
       fwOverride_(config.getParameter<bool>("FWOverride")),
-      ctp7_mode_(config.getParameter<bool>("CTP7")),
-      mtf7_mode_(config.getParameter<bool>("MTF7"))
+      ctp7_mode_(config.getUntrackedParameter<bool>("CTP7")),
+      mtf7_mode_(config.getUntrackedParameter<bool>("MTF7"))
    {
       fedData_ = consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputLabel"));
 
@@ -266,8 +266,8 @@ namespace l1t {
      edm::ParameterSetDescription desc;
      desc.add<unsigned int>("FWId",0)->setComment("Ignored unless FWOverride is true.  32 bits: if the first eight bits are 0xff, will read the 74x MC format.\n");
      desc.add<bool>("FWOverride", false)->setComment("Firmware version should be taken as FWId parameters");
-     desc.add<bool>("CTP7", false);
-     desc.add<bool>("MTF7", false);
+     desc.addUntracked<bool>("CTP7", false);
+     desc.addUntracked<bool>("MTF7", false);
      desc.add<edm::InputTag>("InputLabel");
      desc.add<std::vector<int>>("FedIds", {});
      desc.add<std::string>("Setup", "");
