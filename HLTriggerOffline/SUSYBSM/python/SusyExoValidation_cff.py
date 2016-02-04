@@ -26,6 +26,7 @@ from HLTriggerOffline.SUSYBSM.SUSYBSM_MET_HT_MUON_BTAG_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_Razor_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_caloHT_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_PhotonHT_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_PhotonMET_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_HT_DoubleMuon_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_HT_DoubleElectron_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_HT_MuEle_cff import *
@@ -81,6 +82,9 @@ HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
                                 SUSY_HLT_CaloHT350 +
                                 SUSY_HLT_CaloHT400 +
                                 SUSY_HLT_PhotonHT +
+                                SUSY_HLT_PhotonMET_pt36 +
+                                SUSY_HLT_PhotonMET_pt50 +
+                                SUSY_HLT_PhotonMET_pt75 +
                                 SUSY_HLT_HT_DoubleMuon +
                                 SUSY_HLT_HT_DoubleEle +
                                 SUSY_HLT_HT_MuEle +

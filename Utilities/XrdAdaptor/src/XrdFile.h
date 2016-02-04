@@ -4,6 +4,7 @@
 # include "Utilities/StorageFactory/interface/Storage.h"
 # include "Utilities/StorageFactory/interface/IOFlags.h"
 # include "FWCore/Utilities/interface/Exception.h"
+# include "FWCore/Utilities/interface/propagate_const.h"
 # include "XrdCl/XrdClFile.hh"
 # include <string>
 # include <memory>
@@ -64,7 +65,7 @@ private:
    */
   std::shared_ptr<XrdCl::File>   getActiveFile();
 
-  std::shared_ptr<XrdAdaptor::RequestManager> m_requestmanager;
+  edm::propagate_const<std::shared_ptr<XrdAdaptor::RequestManager>> m_requestmanager;
   IOOffset	 	         m_offset;
   IOOffset                       m_size;
   bool			         m_close;

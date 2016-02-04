@@ -42,6 +42,8 @@ namespace reco {
       trackEta,                                 // track pseudorapidity
       trackPhi,                                 // track polar angle
 
+      trackCharge,                              // track charge
+
       trackPtRel,                               // track transverse momentum, relative to the jet axis
       trackPPar,                                // track parallel momentum, along the jet axis
       trackEtaRel,                              // track pseudorapidity, relative to the jet axis

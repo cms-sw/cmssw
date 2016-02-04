@@ -27,7 +27,6 @@ pixelLessStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cf
 # tracks
 pixelLessStepTracks = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTracks.clone(
     TTRHBuilder = 'WithoutRefit',
-    Fitter = 'KFFittingSmootherFourth',
     Propagator = 'PropagatorWithMaterial'
 )
 # final selection

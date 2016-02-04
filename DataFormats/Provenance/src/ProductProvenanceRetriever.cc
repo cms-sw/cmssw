@@ -61,7 +61,7 @@ namespace edm {
     
     if(iFrom.nextRetriever_) {
       if(not nextRetriever_) {
-        get_underlying(nextRetriever_) = std::make_shared<ProductProvenanceRetriever>(transitionIndex_);
+        nextRetriever_ = std::make_shared<ProductProvenanceRetriever>(transitionIndex_);
       }
       nextRetriever_->deepCopy(*(iFrom.nextRetriever_));
     }

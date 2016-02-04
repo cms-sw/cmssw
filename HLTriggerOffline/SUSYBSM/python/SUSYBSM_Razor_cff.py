@@ -5,7 +5,7 @@ SUSY_HLT_RazorHbb_Rsq0p02_MR300_2CSV0p7 = cms.EDAnalyzer("SUSY_HLT_Razor",
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
-  TriggerPath = cms.string('HLT_Rsq0p02_MR300_TriPFJet80_60_40_DoublePFBTagCSV0p7_Mbb60_200_v'),
+  TriggerPath = cms.string('HLT_Rsq0p02_MR300_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_v'),
   TriggerFilter = cms.InputTag('hltRsq0p02MR300', '', 'HLT'), #the last filter in the path
   CaloFilter = cms.InputTag('hltMR200Calo', '', 'HLT'), #filter implementing cuts on calo MR and Rsq
   hemispheres = cms.InputTag('hemispheres')
@@ -16,7 +16,7 @@ SUSY_HLT_RazorHbb_Rsq0p02_MR300_2CSV0p7_0p4 = cms.EDAnalyzer("SUSY_HLT_Razor",
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
-  TriggerPath = cms.string('HLT_Rsq0p02_MR300_TriPFJet80_60_40_DoublePFBTagCSV0p7_0p4_Mbb60_200_v'),
+  TriggerPath = cms.string('HLT_Rsq0p02_MR300_TriPFJet80_60_40_BTagCSV_p063_p20_Mbb60_200_v'),
   TriggerFilter = cms.InputTag('hltRsq0p02MR300', '', 'HLT'), #the last filter in the path
   CaloFilter = cms.InputTag('hltMR200Calo', '', 'HLT'), #filter implementing cuts on calo MR and Rsq
   hemispheres = cms.InputTag('hemispheres')
@@ -177,7 +177,7 @@ SUSY_HLT_Razor_DM_Calo_Rsq0p25 = cms.EDAnalyzer("SUSY_HLT_Razor",
 )
 
 SUSY_HLT_Razor_PostVal_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_RsqMR300_Rsq0p09_MR200", "HLT/SUSYBSM/HLT_RsqMR300_Rsq0p09_MR200_4jet", "HLT/SUSYBSM/HLT_Rsq0p36", "HLT/SUSYBSM/HLT_RsqMR270_Rsq0p09_MR200", "HLT/SUSYBSM/HLT_RsqMR270_Rsq0p09_MR200_4jet", "HLT/SUSYBSM/HLT_Rsq0p30", "HLT/SUSYBSM/HLT_RsqMR260_Rsq0p09_MR200", "HLT/SUSYBSM/HLT_RsqMR260_Rsq0p09_MR200_4jet", "HLT/SUSYBSM/HLT_RsqMR240_Rsq0p09_MR200", "HLT/SUSYBSM/HLT_RsqMR240_Rsq0p09_MR200_4jet", "HLT/SUSYBSM/HLT_Rsq0p25", "HLT/SUSYBSM/HLT_RsqMR240_Rsq0p09_MR200_Calo", "HLT/SUSYBSM/HLT_RsqMR240_Rsq0p09_MR200_4jet_Calo", "HLT/SUSYBSM/HLT_Rsq0p25_Calo", "HLT/SUSYBSM/HLT_Rsq0p02_MR300_TriPFJet80_60_40_DoublePFBTagCSV0p7_0p4_Mbb60_200", "HLT/SUSYBSM/HLT_Rsq0p02_MR300_TriPFJet80_60_40_DoublePFBTagCSV0p7_Mbb60_200"),
+    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_RsqMR300_Rsq0p09_MR200_v", "HLT/SUSYBSM/HLT_RsqMR300_Rsq0p09_MR200_4jet_v", "HLT/SUSYBSM/HLT_Rsq0p36_v", "HLT/SUSYBSM/HLT_RsqMR270_Rsq0p09_MR200_v", "HLT/SUSYBSM/HLT_RsqMR270_Rsq0p09_MR200_4jet_v", "HLT/SUSYBSM/HLT_Rsq0p30_v", "HLT/SUSYBSM/HLT_RsqMR260_Rsq0p09_MR200_v", "HLT/SUSYBSM/HLT_RsqMR260_Rsq0p09_MR200_4jet_v", "HLT/SUSYBSM/HLT_RsqMR240_Rsq0p09_MR200_v", "HLT/SUSYBSM/HLT_RsqMR240_Rsq0p09_MR200_4jet_v", "HLT/SUSYBSM/HLT_Rsq0p25_v", "HLT/SUSYBSM/HLT_RsqMR240_Rsq0p09_MR200_Calo_v", "HLT/SUSYBSM/HLT_RsqMR240_Rsq0p09_MR200_4jet_Calo_v", "HLT/SUSYBSM/HLT_Rsq0p25_Calo_v", "HLT/SUSYBSM/HLT_Rsq0p02_MR300_TriPFJet80_60_40_BTagCSV_p063_p20_Mbb60_200_v", "HLT/SUSYBSM/HLT_Rsq0p02_MR300_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(

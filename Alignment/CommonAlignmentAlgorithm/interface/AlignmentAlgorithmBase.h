@@ -33,7 +33,7 @@ class Trajectory;
 // class TsosVectorCollection;
 // class TkFittedLasBeamCollection;
 // class AliClusterValueMap;
-#include "CondCore/DBCommon/interface/Time.h"
+#include "CondCore/CondDB/interface/Time.h"
 #include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
 #include "DataFormats/Alignment/interface/TkFittedLasBeamCollectionFwd.h"
 #include "DataFormats/Alignment/interface/AliClusterValueMapFwd.h"

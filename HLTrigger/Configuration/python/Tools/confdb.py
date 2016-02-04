@@ -161,8 +161,8 @@ class HLTProcess(object):
       self.data += """
 # add specific customizations
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
-fragment = customizeHLTforAll(fragment)
-"""
+fragment = customizeHLTforAll(fragment,"%s")
+""" % (self.config.type)
     else:
       if self.config.type=="Fake":
         prefix = "run1"
@@ -185,9 +185,13 @@ _customInfo['globalTag' ]= "%s"
 _customInfo['inputFile' ]=  %s
 _customInfo['realData'  ]=  %s
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
-process = customizeHLTforAll(process,_customInfo)
-""" % (self.config.type,_gtData,_gtMc,self.config.type,self.config.type,self.config.events,self.config.globaltag,self.source,self.config.data)
+process = customizeHLTforAll(process,"%s",_customInfo)
+""" % (self.config.type,_gtData,_gtMc,self.config.type,self.config.type,self.config.events,self.config.globaltag,self.source,self.config.data,self.config.type)
 
+    self.data += """
+from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
+process = customizeHLTforCMSSW(process,"%s")
+""" % (self.config.type)
 
   # customize the configuration according to the options
   def customize(self):

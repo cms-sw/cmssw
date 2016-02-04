@@ -56,7 +56,7 @@ SUSY_HLT_InclusiveMET_JetIdCleaned = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
 
 
 SUSY_HLT_InclusiveMET_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-  subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_NoiseCleaned"),
+  subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_NoiseCleaned_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
     "pfHTTurnOn_eff 'Efficiency vs PFHT' pfHTTurnOn_num pfHTTurnOn_den"
@@ -65,7 +65,7 @@ SUSY_HLT_InclusiveMET_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
 )
 
 SUSY_HLT_InclusiveMET_NoNoiseCleaning_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-  subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170"),
+  subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
     "pfHTTurnOn_eff 'Efficiency vs PFHT' pfHTTurnOn_num pfHTTurnOn_den"
@@ -74,7 +74,7 @@ SUSY_HLT_InclusiveMET_NoNoiseCleaning_POSTPROCESSING = cms.EDAnalyzer("DQMGeneri
 )
 
 SUSY_HLT_InclusiveMET_HBHECleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-  subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_HBHECleaned"),
+  subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_HBHECleaned_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
     "pfHTTurnOn_eff 'Efficiency vs PFHT' pfHTTurnOn_num pfHTTurnOn_den"
@@ -83,7 +83,7 @@ SUSY_HLT_InclusiveMET_HBHECleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGenericCli
 )
 
 SUSY_HLT_InclusiveMET_JetIdCleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-  subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_JetIdCleaned"),
+  subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_JetIdCleaned_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
     "pfHTTurnOn_eff 'Efficiency vs PFHT' pfHTTurnOn_num pfHTTurnOn_den"

@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/DataProxy.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include <algorithm>
 #include <cassert>
 //
 // constants, enums and typedefs
@@ -71,8 +72,8 @@ ESProxyFactoryProducer::registerProxies(const EventSetupRecordKey& iRecord,
    std::pair< Iterator, Iterator > range = record2Factories_.equal_range(iRecord);
    for(Iterator it = range.first; it != range.second; ++it) {
       
-      boost::shared_ptr<DataProxy> proxy(it->second.factory_->makeProxy().release());
-      if(0 != proxy.get()) {
+      std::shared_ptr<DataProxy> proxy(it->second.factory_->makeProxy().release());
+      if(nullptr != proxy.get()) {
          iProxies.push_back(KeyedProxies::value_type((*it).second.key_,
                                          proxy));
       }
@@ -84,14 +85,14 @@ ESProxyFactoryProducer::registerFactoryWithKey(const EventSetupRecordKey& iRecor
                                              std::auto_ptr<ProxyFactoryBase>& iFactory,
                                              const std::string& iLabel )
 {
-   if(0 == iFactory.get()) {
+   if(nullptr == iFactory.get()) {
       assert(false && "Factor pointer was null");
       ::exit(1);
    }
    
    usingRecordWithKey(iRecord);
    
-   boost::shared_ptr<ProxyFactoryBase> temp(iFactory.release());
+   std::shared_ptr<ProxyFactoryBase> temp(iFactory.release());
    FactoryInfo info(temp->makeKey(iLabel),
                     temp);
    
@@ -110,7 +111,7 @@ ESProxyFactoryProducer::registerFactoryWithKey(const EventSetupRecordKey& iRecor
    }
                                                
    record2Factories_.insert(Record2Factories::value_type(iRecord,
-                                                         info));
+                                                         std::move(info)));
 }
 
 void 

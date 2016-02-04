@@ -207,13 +207,6 @@ def miniAOD_customizeCommon(process):
     for idmod in photon_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection,None,False)
 
-    #----------------------------------------------------------------------------
-    # CV: add old and new tau ID discriminators for CMSSW 7_6_x reminiAOD v2
-    process.load("RecoTauTag.Configuration.RecoPFTauTag_reminiAOD_cff")
-    from PhysicsTools.PatAlgos.tools.tauTools import switchToPFTauHPS76xReMiniAOD
-    switchToPFTauHPS76xReMiniAOD(process)
-    #----------------------------------------------------------------------------
-    
     # Adding puppi jets
     process.load('CommonTools.PileupAlgos.Puppi_cff')
     process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
@@ -244,7 +237,7 @@ def miniAOD_customizeCommon(process):
     )
 
     addJetCollection(process, postfix   = "", labelName = 'Puppi', jetSource = cms.InputTag('ak4PFJetsPuppi'),
-                    jetCorrections = ('AK4PFchs', ['L2Relative', 'L3Absolute'], ''),
+                    jetCorrections = ('AK4PFPuppi', ['L2Relative', 'L3Absolute'], ''),
                     algo= 'AK', rParam = 0.4, btagDiscriminators = map(lambda x: x.value() ,process.patJets.discriminatorSources)
                     )
     
@@ -271,7 +264,7 @@ def miniAOD_customizeCommon(process):
     # type1 correction, from puppi jets
     process.corrPfMetType1Puppi = process.corrPfMetType1.clone(
         src = 'ak4PFJetsPuppi',
-        jetCorrLabel = 'ak4PFCHSL2L3Corrector',
+        jetCorrLabel = 'ak4PFPuppiL2L3Corrector',
     )
     del process.corrPfMetType1Puppi.offsetCorrLabel # no L1 for PUPPI jets
     process.pfMetT1Puppi = process.pfMetT1.clone(

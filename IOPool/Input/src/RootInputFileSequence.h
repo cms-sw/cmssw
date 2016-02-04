@@ -11,6 +11,7 @@ RootInputFileSequence: This is an InputSource
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Utilities/interface/InputType.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <memory>
 #include <string>
@@ -74,19 +75,19 @@ namespace edm {
     size_t lfnHash() const {return lfnHash_;}
     bool usedFallback() const {return usedFallback_;}
 
-    RootFileSharedPtr const& rootFile() const {return rootFile_;}
-    RootFileSharedPtr& rootFile() {return rootFile_;}
+    std::shared_ptr<RootFile const> rootFile() const {return get_underlying_safe(rootFile_);}
+    std::shared_ptr<RootFile>& rootFile() {return get_underlying_safe(rootFile_);}
   private:
     InputFileCatalog const& catalog_;
     std::string lfn_;
     size_t lfnHash_;
     bool usedFallback_;
-    std::unique_ptr<std::unordered_multimap<size_t, size_t> > findFileForSpecifiedID_;
+    edm::propagate_const<std::unique_ptr<std::unordered_multimap<size_t, size_t>>> findFileForSpecifiedID_;
     std::vector<FileCatalogItem>::const_iterator const fileIterBegin_;
     std::vector<FileCatalogItem>::const_iterator const fileIterEnd_;
     std::vector<FileCatalogItem>::const_iterator fileIter_;
     std::vector<FileCatalogItem>::const_iterator fileIterLastOpened_;
-    RootFileSharedPtr rootFile_;
+    edm::propagate_const<RootFileSharedPtr> rootFile_;
     std::vector<std::shared_ptr<IndexIntoFile> > indexesIntoFiles_;
 
   private:

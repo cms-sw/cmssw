@@ -166,6 +166,7 @@ The interface is too complex for general use.
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/value_ptr.h"
 
 #include <memory>
@@ -1020,7 +1021,7 @@ namespace edm {
         RunNumber_t currentRun_;
         LuminosityBlockNumber_t currentLumi_;
         EntryNumber_t numberOfEvents_;
-        std::shared_ptr<EventFinder> eventFinder_;
+        edm::propagate_const<std::shared_ptr<EventFinder>> eventFinder_;
         std::vector<RunOrLumiIndexes> runOrLumiIndexes_;
         std::vector<EventNumber_t> eventNumbers_;
         std::vector<EventEntry> eventEntries_;
@@ -1042,7 +1043,7 @@ namespace edm {
       void fillRunOrLumiIndexes() const;
 
       void fillUnsortedEventNumbers() const;
-      void resetEventFinder() const {transient_.eventFinder_.reset();}
+      void resetEventFinder() const {transient_.eventFinder_ = nullptr;} // propagate_const<T> has no reset() function
       std::vector<EventEntry>& eventEntries() const {return transient_.eventEntries_;}
       std::vector<EventNumber_t>& eventNumbers() const {return transient_.eventNumbers_;}
       void sortEvents() const;

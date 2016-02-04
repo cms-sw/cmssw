@@ -1,3 +1,4 @@
+#include "Calibration/IsolatedParticles/interface/CaloConstants.h"
 #include "Calibration/IsolatedParticles/interface/FindCaloHitCone.h"
 #include "Calibration/IsolatedParticles/interface/FindDistCone.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -40,8 +41,8 @@ namespace spr {
     // region: 1.479-2*0.087 < trkEta < 1.479+2*0.087
   
     bool doBarrel=false, doEndcap=false;
-    if ( std::abs(point1.eta()) < 1.653) doBarrel=true; // 1.479+2*0.087
-    if ( std::abs(point1.eta()) > 1.305) doEndcap=true; // 1.479-2*0.087    
+    if ( std::abs(point1.eta()) < (spr::etaBEEcal+2*spr::deltaEta)) doBarrel=true; // 1.479+2*0.087
+    if ( std::abs(point1.eta()) > (spr::etaBEEcal-2*spr::deltaEta)) doEndcap=true; // 1.479-2*0.087    
   
     if (doBarrel) {  
       for (EcalRecHitCollection::const_iterator j=barrelhits->begin(); 

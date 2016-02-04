@@ -6,10 +6,10 @@
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "boost/shared_ptr.hpp"
 #include <iostream>
+#include <memory>
 
-static boost::shared_ptr<edm::Presence> gobbleUpTheGoop;
+static std::shared_ptr<edm::Presence> gobbleUpTheGoop;
 static void initTest(void)
 {
   // Initialise the plug-in manager.
@@ -24,7 +24,7 @@ static void initTest(void)
   // logger.
   try
   {
-    gobbleUpTheGoop = boost::shared_ptr<edm::Presence>
+    gobbleUpTheGoop = std::shared_ptr<edm::Presence>
       (edm::PresenceFactory::get()->makePresence("SingleThreadMSPresence").release());
   }
   catch (cms::Exception &e)

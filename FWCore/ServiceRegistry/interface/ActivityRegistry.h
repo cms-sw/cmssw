@@ -29,7 +29,6 @@ unscheduled execution. The tests are in FWCore/Integration/test:
 //
 
 // system include files
-//#include "boost/signal.hpp"
 #include <functional>
 #include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Utilities/interface/StreamID.h"

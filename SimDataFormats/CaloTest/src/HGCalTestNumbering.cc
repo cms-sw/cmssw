@@ -27,7 +27,7 @@ uint32_t HGCalTestNumbering::packHexagonIndex(int subdet, int zp, int lay,
   if (!HGCalTestNumbering::isValidHexagon(subdet,zp,lay,wafer,celltyp,cell)) {
     subdet = zp = lay = wafer = celltyp = cell = 0;
   }
-
+  
   uint32_t rawid=0;
   rawid |= ((cell   & kHGCalCellHMask)        << kHGCalCellHOffset);
   rawid |= ((celltyp& kHGCalCellTypHMask)     << kHGCalCellTypHOffset);

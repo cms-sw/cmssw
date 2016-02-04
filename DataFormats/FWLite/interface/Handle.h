@@ -45,11 +45,11 @@ class Handle
       // of reco::JetTracksAssociation::Container
       typedef edm::Wrapper<T> TempWrapT;
 
-      Handle() : data_(0), errorThrower_(ErrorThrower::unsetErrorThrower()) {}
+      Handle() : data_(nullptr), errorThrower_(ErrorThrower::unsetErrorThrower()) {}
       ~Handle() { delete errorThrower_;}
 
       Handle(const Handle<T>& iOther) : data_(iOther.data_),
-      errorThrower_( iOther.errorThrower_? iOther.errorThrower_->clone(): 0) {}
+      errorThrower_( iOther.errorThrower_? iOther.errorThrower_->clone(): nullptr) {}
 
       const Handle<T>& operator=(const Handle<T>& iOther) {
          Handle<T> temp(iOther);
@@ -58,10 +58,10 @@ class Handle
       }
 
       // ---------- const member functions ---------------------
-      bool isValid() const { return data_ != 0; }
+      bool isValid() const { return data_ != nullptr; }
 
       ///Returns true only if Handle was used in a 'get' call and the data could not be found
-      bool failedToGet() const {return errorThrower_ != 0; }
+      bool failedToGet() const {return errorThrower_ != nullptr; }
 
       T const* product() const { check(); return data_;}
 
@@ -90,8 +90,8 @@ class Handle
 
       template <class P> void getByLabel(const P& iP,
                       const char* iModuleLabel,
-                      const char* iProductInstanceLabel = 0,
-                      const char* iProcessLabel = 0) {
+                      const char* iProductInstanceLabel = nullptr,
+                      const char* iProcessLabel = nullptr) {
         TempWrapT* temp;
         void* pTemp = &temp;
         iP.getByLabel(TempWrapT::typeInfo(),
@@ -100,8 +100,8 @@ class Handle
                           iProcessLabel,
                           pTemp);
         delete errorThrower_;
-        errorThrower_ = 0;
-        if(0==temp) {
+        errorThrower_ = nullptr;
+        if(nullptr == temp) {
            errorThrower_=ErrorThrower::errorThrowerBranchNotFoundException(TempWrapT::typeInfo(),
                                                                            iModuleLabel,
                                                                            iProductInstanceLabel,
@@ -109,7 +109,7 @@ class Handle
 	   return;
         }
         data_ = temp->product();
-        if(data_==0) {
+        if(data_== nullptr) {
            errorThrower_=ErrorThrower::errorThrowerProductNotFoundException(TempWrapT::typeInfo(),
                                                                             iModuleLabel,
                                                                             iProductInstanceLabel,
@@ -120,8 +120,8 @@ class Handle
 
       // void getByLabel(const fwlite::Event& iEvent,
       //                 const char* iModuleLabel,
-      //                 const char* iProductInstanceLabel = 0,
-      //                 const char* iProcessLabel = 0) {
+      //                 const char* iProductInstanceLabel = nullptr,
+      //                 const char* iProcessLabel = nullptr) {
       //   TempWrapT* temp;
       //   void* pTemp = &temp;
       //   iEvent.getByLabel(TempWrapT::typeInfo(),
@@ -130,8 +130,8 @@ class Handle
       //                     iProcessLabel,
       //                     pTemp);
       //   delete errorThrower_;
-      //   errorThrower_ = 0;
-      //   if(0==temp) {
+      //   errorThrower_ = nullptr;
+      //   if(nullptr == temp) {
       //      errorThrower_=ErrorThrower::errorThrowerBranchNotFoundException(TempWrapT::typeInfo(),
       //                                                                      iModuleLabel,
       //                                                                      iProductInstanceLabel,
@@ -139,7 +139,7 @@ class Handle
 	  //  return;
       //   }
       //   data_ = temp->product();
-      //   if(data_==0) {
+      //   if(data_ == nullptr) {
       //      errorThrower_=ErrorThrower::errorThrowerProductNotFoundException(TempWrapT::typeInfo(),
       //                                                                       iModuleLabel,
       //                                                                       iProductInstanceLabel,
@@ -149,8 +149,8 @@ class Handle
       //
       // void getByLabel(const fwlite::ChainEvent& iEvent,
       //                 const char* iModuleLabel,
-      //                 const char* iProductInstanceLabel = 0,
-      //                 const char* iProcessLabel = 0) {
+      //                 const char* iProductInstanceLabel = nullptr,
+      //                 const char* iProcessLabel = nullptr) {
       // TempWrapT* temp;
       // void* pTemp = &temp;
       // iEvent.getByLabel(TempWrapT::typeInfo(),
@@ -159,8 +159,8 @@ class Handle
       //                   iProcessLabel,
       //                   pTemp);
       //    delete errorThrower_;
-      //    errorThrower_ = 0;
-      //    if(0==temp) {
+      //    errorThrower_ = nullptr;
+      //    if(nullptr == temp) {
       //       errorThrower_=ErrorThrower::errorThrowerBranchNotFoundException(TempWrapT::typeInfo(),
       //                                                                       iModuleLabel,
       //                                                                       iProductInstanceLabel,
@@ -168,7 +168,7 @@ class Handle
 	  //   return;
       //    }
       //    data_ = temp->product();
-      //    if(data_==0) {
+      //    if(data_ == nullptr) {
       //       errorThrower_=ErrorThrower::errorThrowerProductNotFoundException(TempWrapT::typeInfo(),
       //                                                                        iModuleLabel,
       //                                                                        iProductInstanceLabel,
@@ -179,8 +179,8 @@ class Handle
       //
       // void getByLabel(const fwlite::MultiChainEvent& iEvent,
       //                 const char* iModuleLabel,
-      //                 const char* iProductInstanceLabel = 0,
-      //                 const char* iProcessLabel = 0) {
+      //                 const char* iProductInstanceLabel = nullptr,
+      //                 const char* iProcessLabel = nullptr) {
       // TempWrapT* temp;
       // void* pTemp = &temp;
       // iEvent.getByLabel(TempWrapT::typeInfo(),
@@ -188,9 +188,9 @@ class Handle
       //                   iProductInstanceLabel,
       //                   iProcessLabel,
       //                   pTemp);
-      //    if ( 0 != errorThrower_ ) delete errorThrower_;
-      //    errorThrower_ = 0;
-      //    if(0==temp) {
+      //    if ( nullptr != errorThrower_ ) delete errorThrower_;
+      //    errorThrower_ = nullptr;
+      //    if(nullptr == temp) {
       //       errorThrower_=ErrorThrower::errorThrowerBranchNotFoundException(TempWrapT::typeInfo(),
       //                                                                       iModuleLabel,
       //                                                                       iProductInstanceLabel,
@@ -198,7 +198,7 @@ class Handle
 	  //   return;
       //    }
       //    data_ = temp->product();
-      //    if(data_==0) {
+      //    if(data_ == nullptr) {
       //       errorThrower_=ErrorThrower::errorThrowerProductNotFoundException(TempWrapT::typeInfo(),
       //                                                                        iModuleLabel,
       //                                                                        iProductInstanceLabel,
@@ -208,8 +208,8 @@ class Handle
 
       const std::string getBranchNameFor(const fwlite::EventBase& iEvent,
                                          const char* iModuleLabel,
-                                         const char* iProductInstanceLabel = 0,
-                                         const char* iProcessLabel = 0)
+                                         const char* iProductInstanceLabel = nullptr,
+                                         const char* iProcessLabel = nullptr)
       {
          return iEvent.getBranchNameFor(TempWrapT::typeInfo(),
                                         iModuleLabel,
@@ -219,8 +219,8 @@ class Handle
 
       // const std::string getBranchNameFor(const fwlite::Event& iEvent,
       //                                    const char* iModuleLabel,
-      //                                    const char* iProductInstanceLabel = 0,
-      //                                    const char* iProcessLabel = 0) {
+      //                                    const char* iProductInstanceLabel = nullptr,
+      //                                    const char* iProcessLabel = nullptr) {
       //    return iEvent.getBranchNameFor(TempWrapT::typeInfo(),
       //                                   iModuleLabel,
       //                                   iProductInstanceLabel,
@@ -229,8 +229,8 @@ class Handle
       //
       // const std::string getBranchNameFor(const fwlite::ChainEvent& iEvent,
       //                                    const char* iModuleLabel,
-      //                                    const char* iProductInstanceLabel = 0,
-      //                                    const char* iProcessLabel = 0) {
+      //                                    const char* iProductInstanceLabel = nullptr,
+      //                                    const char* iProcessLabel = nullptr) {
       //    return iEvent.getBranchNameFor(TempWrapT::typeInfo(),
       //                                   iModuleLabel,
       //                                   iProductInstanceLabel,
@@ -241,8 +241,8 @@ class Handle
       //
       // const std::string getBranchNameFor(const fwlite::MultiChainEvent& iEvent,
       //                                    const char* iModuleLabel,
-      //                                    const char* iProductInstanceLabel = 0,
-      //                                    const char* iProcessLabel = 0) {
+      //                                    const char* iProductInstanceLabel = nullptr,
+      //                                    const char* iProcessLabel = nullptr) {
       //    return iEvent.getBranchNameFor(TempWrapT::typeInfo(),
       //                                   iModuleLabel,
       //                                   iProductInstanceLabel,

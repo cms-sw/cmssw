@@ -9,6 +9,7 @@ VectorInputSource: Abstract interface for vector input sources.
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <memory>
 #include <string>
@@ -42,8 +43,9 @@ namespace edm {
     /// Called at end of job
     void doEndJob();
 
-    std::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
-    ProductRegistry& productRegistryUpdate() const {return *productRegistry_;}
+    std::shared_ptr<ProductRegistry const> productRegistry() const {return get_underlying_safe(productRegistry_);}
+    std::shared_ptr<ProductRegistry>& productRegistry() {return get_underlying_safe(productRegistry_);}
+    ProductRegistry& productRegistryUpdate() {return *productRegistry_;}
     ProcessHistoryRegistry const& processHistoryRegistry() const {return *processHistoryRegistry_;}
     ProcessHistoryRegistry& processHistoryRegistryForUpdate() {return *processHistoryRegistry_;}
 
@@ -63,8 +65,8 @@ namespace edm {
     virtual void beginJob() = 0;
     virtual void endJob() = 0;
 
-    std::shared_ptr<ProductRegistry> productRegistry_;
-    std::unique_ptr<ProcessHistoryRegistry> processHistoryRegistry_;
+    edm::propagate_const<std::shared_ptr<ProductRegistry>> productRegistry_;
+    edm::propagate_const<std::unique_ptr<ProcessHistoryRegistry>> processHistoryRegistry_;
   };
 
   template<typename T>

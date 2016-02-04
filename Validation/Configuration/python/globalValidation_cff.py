@@ -115,6 +115,7 @@ globalValidationLiteTracking = cms.Sequence(globalValidation)
 globalValidationLiteTracking.replace(trackValidator,liteTrackValidator)
 
 #lite pre-validation
+# TODO: should we move this to TrackValidation_cff for better maintenance?
 globalPrevalidationLiteTracking = cms.Sequence(globalPrevalidation)
 globalPrevalidationLiteTracking.remove(cutsRecoTracksInitialStep)
 globalPrevalidationLiteTracking.remove(cutsRecoTracksInitialStepHp)
@@ -122,20 +123,28 @@ globalPrevalidationLiteTracking.remove(cutsRecoTracksLowPtTripletStep)
 globalPrevalidationLiteTracking.remove(cutsRecoTracksLowPtTripletStepHp)
 globalPrevalidationLiteTracking.remove(cutsRecoTracksPixelPairStep)
 globalPrevalidationLiteTracking.remove(cutsRecoTracksPixelPairStepHp)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksDetachedTripletStep)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksDetachedTripletStepHp)
 globalPrevalidationLiteTracking.remove(cutsRecoTracksMixedTripletStep)
 globalPrevalidationLiteTracking.remove(cutsRecoTracksMixedTripletStepHp)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksPixelLessStep)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksPixelLessStepHp)
 globalPrevalidationLiteTracking.remove(cutsRecoTracksTobTecStep)
 globalPrevalidationLiteTracking.remove(cutsRecoTracksTobTecStepHp)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksJetCoreRegionalStep)
-globalPrevalidationLiteTracking.remove(cutsRecoTracksJetCoreRegionalStepHp)
 globalPrevalidationLiteTracking.remove(cutsRecoTracksMuonSeededStepInOut)
 globalPrevalidationLiteTracking.remove(cutsRecoTracksMuonSeededStepInOutHp)
 globalPrevalidationLiteTracking.remove(cutsRecoTracksMuonSeededStepOutIn)
 globalPrevalidationLiteTracking.remove(cutsRecoTracksMuonSeededStepOutInHp)
+if eras.phase1Pixel.isChosen():
+    globalPrevalidationLiteTracking.remove(cutsRecoTracksHighPtTripletStep)
+    globalPrevalidationLiteTracking.remove(cutsRecoTracksHighPtTripletStepHp)
+    globalPrevalidationLiteTracking.remove(cutsRecoTracksLowPtQuadStep)
+    globalPrevalidationLiteTracking.remove(cutsRecoTracksLowPtQuadStepHp)
+    globalPrevalidationLiteTracking.remove(cutsRecoTracksDetachedQuadStep)
+    globalPrevalidationLiteTracking.remove(cutsRecoTracksDetachedQuadStepHp)
+else:
+    globalPrevalidationLiteTracking.remove(cutsRecoTracksDetachedTripletStep)
+    globalPrevalidationLiteTracking.remove(cutsRecoTracksDetachedTripletStepHp)
+    globalPrevalidationLiteTracking.remove(cutsRecoTracksPixelLessStep)
+    globalPrevalidationLiteTracking.remove(cutsRecoTracksPixelLessStepHp)
+    globalPrevalidationLiteTracking.remove(cutsRecoTracksJetCoreRegionalStep)
+    globalPrevalidationLiteTracking.remove(cutsRecoTracksJetCoreRegionalStepHp)
 
 # Tracking-only validation
 globalPrevalidationTrackingOnly = cms.Sequence(

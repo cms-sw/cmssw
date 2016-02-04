@@ -23,6 +23,7 @@ RootFile.h // used by ROOT input sources
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Utilities/interface/InputType.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <array>
 #include <map>
@@ -162,7 +163,6 @@ namespace edm {
     void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
     std::string const& file() const {return file_;}
     std::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
-    std::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {return branchIDListHelper_;}
     EventAuxiliary const& eventAux() const {return eventAux_;}
     // IndexIntoFile::EntryNumber_t const& entryNumber() const {return indexIntoFileIter().entry();}
     // LuminosityBlockNumber_t const& luminosityBlockNumber() const {return indexIntoFileIter().lumi();}
@@ -202,9 +202,10 @@ namespace edm {
     bool goToEvent(EventID const& eventID);
     bool nextEventEntry() {return eventTree_.next();}
     IndexIntoFile::EntryType getNextItemType(RunNumber_t& run, LuminosityBlockNumber_t& lumi, EventNumber_t& event);
-    std::shared_ptr<IndexIntoFile> indexIntoFileSharedPtr() const {
-      return indexIntoFileSharedPtr_;
-    }
+    std::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {return get_underlying_safe(branchIDListHelper_);}
+    std::shared_ptr<BranchIDListHelper>& branchIDListHelper() {return get_underlying_safe(branchIDListHelper_);}
+    std::shared_ptr<IndexIntoFile const> indexIntoFileSharedPtr() const {return get_underlying_safe(indexIntoFileSharedPtr_);}
+    std::shared_ptr<IndexIntoFile>& indexIntoFileSharedPtr() {return get_underlying_safe(indexIntoFileSharedPtr_);}
     bool wasLastEventJustRead() const;
     bool wasFirstEventJustRead() const;
     IndexIntoFile::IndexIntoFileItr indexIntoFileIter() const;
@@ -236,15 +237,24 @@ namespace edm {
     std::unique_ptr<MakeProvenanceReader> makeProvenanceReaderMaker(InputType inputType);
     std::shared_ptr<ProductProvenanceRetriever> makeProductProvenanceRetriever(unsigned int iStreamIndex);
 
+    std::shared_ptr<RunAuxiliary const> savedRunAuxiliary() const {return get_underlying_safe(savedRunAuxiliary_);}
+    std::shared_ptr<RunAuxiliary>& savedRunAuxiliary() {return get_underlying_safe(savedRunAuxiliary_);}
+
+    std::shared_ptr<BranchChildren const> branchChildren() const {return get_underlying_safe(branchChildren_);}
+    std::shared_ptr<BranchChildren>& branchChildren() {return get_underlying_safe(branchChildren_);}
+
+    std::shared_ptr<ProductProvenanceRetriever const> eventProductProvenanceRetriever(size_t index) const {return get_underlying_safe(eventProductProvenanceRetrievers_[index]);}
+    std::shared_ptr<ProductProvenanceRetriever>& eventProductProvenanceRetriever(size_t index) {return get_underlying_safe(eventProductProvenanceRetrievers_[index]);}
+
     std::string const file_;
     std::string const logicalFile_;
     ProcessConfiguration const& processConfiguration_;
-    ProcessHistoryRegistry* processHistoryRegistry_;  // We don't own this
-    std::shared_ptr<InputFile> filePtr_;
-    std::shared_ptr<EventSkipperByID> eventSkipperByID_;
+    edm::propagate_const<ProcessHistoryRegistry*> processHistoryRegistry_;  // We don't own this
+    edm::propagate_const<std::shared_ptr<InputFile>> filePtr_;
+    edm::propagate_const<std::shared_ptr<EventSkipperByID>> eventSkipperByID_;
     FileFormatVersion fileFormatVersion_;
     FileID fid_;
-    std::shared_ptr<IndexIntoFile> indexIntoFileSharedPtr_;
+    edm::propagate_const<std::shared_ptr<IndexIntoFile>> indexIntoFileSharedPtr_;
     IndexIntoFile& indexIntoFile_;
     std::vector<ProcessHistoryID>& orderedProcessHistoryIDs_;
     IndexIntoFile::IndexIntoFileItr indexIntoFileBegin_;
@@ -252,7 +262,7 @@ namespace edm {
     IndexIntoFile::IndexIntoFileItr indexIntoFileIter_;
     std::vector<EventProcessHistoryID> eventProcessHistoryIDs_;  // backward compatibility
     std::vector<EventProcessHistoryID>::const_iterator eventProcessHistoryIter_; // backward compatibility
-    std::shared_ptr<RunAuxiliary> savedRunAuxiliary_;
+    edm::propagate_const<std::shared_ptr<RunAuxiliary>> savedRunAuxiliary_;
     bool skipAnyEvents_;
     bool noEventSort_;
     int whyNotFastClonable_;
@@ -266,24 +276,24 @@ namespace edm {
     IndexIntoFile::EntryNumber_t lastEventEntryNumberRead_;
     std::shared_ptr<ProductRegistry const> productRegistry_;
     std::shared_ptr<BranchIDLists const> branchIDLists_;
-    std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
-    std::unique_ptr<ThinnedAssociationsHelper> fileThinnedAssociationsHelper_;
-    std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
+    edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    edm::propagate_const<std::unique_ptr<ThinnedAssociationsHelper>> fileThinnedAssociationsHelper_;
+    edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     InputSource::ProcessingMode processingMode_;
-    RunHelperBase* runHelper_;
+    edm::propagate_const<RunHelperBase*> runHelper_;
     std::map<std::string, std::string> newBranchToOldBranch_;
-    TTree* eventHistoryTree_;			// backward compatibility
+    edm::propagate_const<TTree*> eventHistoryTree_; // backward compatibility
     EventSelectionIDVector eventSelectionIDs_;
     BranchListIndexes branchListIndexes_;
-    std::unique_ptr<History> history_; // backward compatibility
-    std::shared_ptr<BranchChildren> branchChildren_;
-    std::shared_ptr<DuplicateChecker> duplicateChecker_;
-    std::unique_ptr<ProvenanceAdaptor> provenanceAdaptor_; // backward comatibility
-    std::unique_ptr<MakeProvenanceReader> provenanceReaderMaker_;
-    mutable std::vector<std::shared_ptr<ProductProvenanceRetriever>> eventProductProvenanceRetrievers_;
+    edm::propagate_const<std::unique_ptr<History>> history_; // backward compatibility
+    edm::propagate_const<std::shared_ptr<BranchChildren>> branchChildren_;
+    edm::propagate_const<std::shared_ptr<DuplicateChecker>> duplicateChecker_;
+    edm::propagate_const<std::unique_ptr<ProvenanceAdaptor>> provenanceAdaptor_; // backward comatibility
+    edm::propagate_const<std::unique_ptr<MakeProvenanceReader>> provenanceReaderMaker_;
+    std::vector<edm::propagate_const<std::shared_ptr<ProductProvenanceRetriever>>> eventProductProvenanceRetrievers_;
     std::vector<ParentageID> parentageIDLookup_;
-    std::unique_ptr<DaqProvenanceHelper> daqProvenanceHelper_;
-    TClass* edProductClass_;
+    edm::propagate_const<std::unique_ptr<DaqProvenanceHelper>> daqProvenanceHelper_;
+    edm::propagate_const<TClass*> edProductClass_;
   }; // class RootFile
 
 }

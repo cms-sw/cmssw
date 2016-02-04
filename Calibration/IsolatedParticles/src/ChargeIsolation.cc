@@ -1,3 +1,4 @@
+#include "Calibration/IsolatedParticles/interface/CaloConstants.h"
 #include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
 #include "Calibration/IsolatedParticles/interface/FindDistCone.h"
@@ -64,7 +65,7 @@ namespace spr{
 	const GlobalPoint point2(info.first.x(),info.first.y(),info.first.z());
 
 	if (info.second) {
-	  if (std::abs(point2.eta())<1.479) {
+	  if (std::abs(point2.eta())<spr::etaBEEcal) {
 	    const DetId anyCell = barrelGeom->getClosestCell(point2);
 	    if (!spr::chargeIsolation(anyCell,vdets)) {
 	      if (debug) std::cout << "chargeIsolationEcal Cell " << (EBDetId)(anyCell) << " pt " << pTrack2->p() << std::endl;

@@ -3,12 +3,14 @@
 #define _GLIBCXX_USE_NANOSLEEP
 #include <thread>
 #include <chrono>
+#include <atomic>
 #include <iostream>
 #include <assert.h>
 #include <netdb.h>
 
 #include "XrdCl/XrdClFile.hh"
 
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "XrdSource.h"
@@ -23,9 +25,9 @@
 //#define XRD_DELAY 5140
 #define XRD_DELAY 1000
 #define XRD_SLOW_RATE 2
-int g_delayCount = 0;
+std::atomic<int> g_delayCount {0};
 #else
-int g_delayCount = 0;
+std::atomic<int> g_delayCount {0};
 #endif
 
 using namespace XrdAdaptor;
@@ -58,7 +60,7 @@ public:
 
     virtual void HandleResponseWithHosts(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response, XrdCl::HostList *hostList) override
     {
-        if (!status->IsOK())
+        if (status && !status->IsOK())
         {
             
             edm::LogWarning("XrdFileWarning") << "Source delayed close failed with error '" << status->ToStr()
@@ -66,22 +68,130 @@ public:
         }
         delete status;
         delete hostList;
+        // NOTE: we do not delete response (copying behavior from XrdCl).
         delete this;
     }
 
 
 private:
-    std::shared_ptr<XrdCl::File> m_fh;
+    edm::propagate_const<std::shared_ptr<XrdCl::File>> m_fh;
     std::string m_id;
     std::string m_site;
 };
+
+
+/**
+ * A handler for querying a XrdCl::FileSystem object which is safe to be
+ * invoked from an XrdCl callback (that is, we don't need an available callback
+ * thread to timeout).
+ */
+class QueryAttrHandler : public XrdCl::ResponseHandler
+{
+    friend std::unique_ptr<QueryAttrHandler> std::make_unique<QueryAttrHandler>();
+
+public:
+
+    virtual ~QueryAttrHandler() = default;
+    QueryAttrHandler(const QueryAttrHandler&) = delete;
+    QueryAttrHandler& operator=(const QueryAttrHandler&) = delete;
+
+
+    static XrdCl::XRootDStatus query(XrdCl::FileSystem &fs, const std::string &attr, std::chrono::milliseconds timeout, std::string &result)
+    {
+        auto handler = std::make_unique<QueryAttrHandler>();
+        auto l_state = std::make_shared<QueryAttrState>();
+        handler->m_state = l_state;
+        XrdCl::Buffer arg(attr.size());
+        arg.FromString(attr);
+
+        XrdCl::XRootDStatus st = fs.Query(XrdCl::QueryCode::Config, arg, handler.get());
+        if (!st.IsOK())
+        {
+            return st;
+        }
+
+        // Successfully registered the callback; it will always delete itself, so we shouldn't.
+        handler.release();
+
+        std::unique_lock<std::mutex> guard(l_state->m_mutex);
+        // Wait until some status is available or a timeout.
+        l_state->m_condvar.wait_for(guard, timeout, [&]{return l_state->m_status.get();});
+
+        if (l_state->m_status)
+        {
+            if (l_state->m_status->IsOK())
+            {
+                result = l_state->m_response->ToString();
+            }
+            return *(l_state->m_status);
+        }
+        else
+        {   // We had a timeout; construct a reasonable message.
+            return XrdCl::XRootDStatus(XrdCl::stError, XrdCl::errSocketTimeout, 1, "Timeout when waiting for query callback.");
+        }
+    }
+
+
+private:
+
+    QueryAttrHandler() {}
+
+
+    virtual void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response ) override
+    {
+        // NOTE: we own the status and response pointers.
+        std::unique_ptr<XrdCl::AnyObject> response_mgr;
+        response_mgr.reset(response);
+
+        // Lock our state information then dispose of our object.
+        auto l_state = m_state.lock();
+        delete this;
+        if (!l_state) {return;}
+
+        // On function exit, notify any waiting threads.
+        std::unique_ptr<char, std::function<void(char*)>> notify_guard(nullptr, [&](char *) {l_state->m_condvar.notify_all();});
+
+        {
+            // On exit from the block, make sure m_status is set; it needs to be set before we notify threads.
+            std::unique_ptr<char, std::function<void(char*)>> exit_guard(nullptr, [&](char *) {if (!l_state->m_status) l_state->m_status.reset(new XrdCl::XRootDStatus(XrdCl::stError, XrdCl::errInternal));});
+            if (!status) {return;}
+            if (status->IsOK())
+            {
+                if (!response) {return;}
+                XrdCl::Buffer *buf_ptr;
+                response->Get(buf_ptr);
+                // AnyObject::Set lacks specialization for nullptr
+                response->Set(static_cast<int *>(nullptr));
+                l_state->m_response.reset(buf_ptr);
+            }
+            l_state->m_status.reset(status);
+        }
+    }
+
+
+    // Represents the current state of the callback.  The parent class only manages a weak_ptr
+    // to the state.  If the asynchronous callback cannot lock the weak_ptr, then it assumes the
+    // main thread has given up and doesn't touch any of the state variables.
+    struct QueryAttrState {
+
+        // Synchronize between the callback thread and the main thread; condvar predicate
+        // is having m_status set.  m_mutex protects m_status.
+        std::mutex m_mutex;
+        std::condition_variable m_condvar;
+
+        // Results from the server
+        std::unique_ptr<XrdCl::XRootDStatus> m_status;
+        std::unique_ptr<XrdCl::Buffer> m_response;
+    };
+    std::weak_ptr<QueryAttrState> m_state;
+};
+
 
 Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string &exclude)
     : m_lastDowngrade({0, 0}),
       m_id("(unknown)"),
       m_exclude(exclude),
       m_fh(std::move(fh)),
-      m_qm(QualityMetricFactory::get(now, m_id)),
       m_stats(nullptr)
 #ifdef XRD_FAKE_SLOW
     , m_slow(++g_delayCount % XRD_SLOW_RATE == 0)
@@ -98,6 +208,7 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string 
       }
       if (!m_exclude.size()) {m_exclude = m_id;}
     }
+    m_qm = QualityMetricFactory::get(now, m_id);
     m_prettyid = m_id + " (unknown site)";
     std::string domain_id;
     if (getDomain(m_id, domain_id)) {m_site = domain_id;}
@@ -238,7 +349,8 @@ Source::getXrootdSiteFromURL(std::string url, std::string &site)
     arg.FromString( attr );
 
     XrdCl::FileSystem fs(url);
-    XrdCl::XRootDStatus st = fs.Query(XrdCl::QueryCode::Config, arg, response);
+    std::string rsite;
+    XrdCl::XRootDStatus st = QueryAttrHandler::query(fs, "sitename", std::chrono::seconds(1), rsite);
     if (!st.IsOK())
     {
         XrdCl::URL xurl(url);
@@ -246,9 +358,7 @@ Source::getXrootdSiteFromURL(std::string url, std::string &site)
         delete response;
         return false;
     }
-    std::string rsite = response->ToString();
-    delete response;
-    if (rsite.size() && (rsite[rsite.size()-1] == '\n'))
+    if (!rsite.empty() && (rsite[rsite.size()-1] == '\n'))
     {
         rsite = rsite.substr(0, rsite.size()-1);
     }
@@ -282,13 +392,13 @@ Source::setXrootdSite()
 
 Source::~Source()
 {
-  new DelayedClose(m_fh, m_id, m_site);
+  new DelayedClose(fh(), m_id, m_site);
 }
 
 std::shared_ptr<XrdCl::File>
 Source::getFileHandle()
 {
-    return m_fh;
+    return fh();
 }
 
 static void
@@ -315,16 +425,18 @@ Source::handle(std::shared_ptr<ClientRequest> c)
     m_qm->startWatch(c->m_qmw);
     if (m_stats)
     {
-        std::shared_ptr<XrdReadStatistics> readStats = XrdSiteStatistics::startRead(m_stats, c);
+        std::shared_ptr<XrdReadStatistics> readStats = XrdSiteStatistics::startRead(stats(), c);
         c->setStatistics(readStats);
     }
 #ifdef XRD_FAKE_SLOW
     if (m_slow) std::this_thread::sleep_for(std::chrono::milliseconds(XRD_DELAY));
 #endif
+
+    XrdCl::XRootDStatus status;
     if (c->m_into)
     {
         // See notes in ClientRequest definition to understand this voodoo.
-        m_fh->Read(c->m_off, c->m_size, c->m_into, c.get());
+        status = m_fh->Read(c->m_off, c->m_size, c->m_into, c.get());
     }
     else
     {
@@ -335,7 +447,16 @@ Source::handle(std::shared_ptr<ClientRequest> c)
             cl.emplace_back(it.offset(), it.size(), it.data());
         }
         validateList(cl);
-        m_fh->VectorRead(cl, nullptr, c.get());
+        status = m_fh->VectorRead(cl, nullptr, c.get());
+    }
+
+    if (!status.IsOK())
+    {
+        edm::Exception ex(edm::errors::FileReadError);
+        ex << "XrdFile::Read or XrdFile::VectorRead failed with error: '"
+           << status.ToStr() << "' (errNo = " << status.errNo << ")";
+        ex.addContext("Calling Source::handle");
+        throw ex;
     }
 }
 

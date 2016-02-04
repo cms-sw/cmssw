@@ -73,7 +73,7 @@ edm::WrapperBase const*
 BareRootProductGetter::getIt(edm::ProductID const& pid) const  {
   // std::cout << "getIt called " << pid << std::endl;
   TFile* currentFile = dynamic_cast<TFile*>(gROOT->GetListOfFiles()->Last());
-  if(0 == currentFile) {
+  if(nullptr == currentFile) {
      throw cms::Exception("FileNotFound")
         << "unable to find the TFile '" << gROOT->GetListOfFiles()->Last() << "'\n"
         << "retrieved by calling 'gROOT->GetListOfFiles()->Last()'\n"
@@ -84,7 +84,7 @@ BareRootProductGetter::getIt(edm::ProductID const& pid) const  {
   }
   TTree* eventTree = branchMap_.getEventTree();
   // std::cout << "eventTree " << eventTree << std::endl;
-  if(0 == eventTree) {
+  if(nullptr == eventTree) {
      throw cms::Exception("NoEventsTree")
         << "unable to find the TTree '" << edm::poolNames::eventTreeName() << "' in the last open file, \n"
         << "file: '" << branchMap_.getFile()->GetName()

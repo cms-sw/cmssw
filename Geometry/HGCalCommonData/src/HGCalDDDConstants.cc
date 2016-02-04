@@ -22,6 +22,11 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
   mode_ = HGCalGeometryMode( hgpar_->mode_ );
   if (mode_ == HGCalGeometryMode::Square) {
     rmax_ = 0;
+    
+    for( int simreco = 0; simreco < 2; ++simreco ) {
+      tot_layers_[simreco] = layersInit((bool)simreco);
+    }
+
     edm::LogInfo("HGCalGeom") << "HGCalDDDConstants initialized for " << name
 			      << " with " << layers(false) << ":" <<layers(true)
 			      << " layers, " << sectors() << " sectors and "
@@ -35,18 +40,32 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
 #endif
   } else {
     rmax_ = k_ScaleFromDDD * (hgpar_->waferR_) * std::cos(30.0*CLHEP::deg);
+
+    // init maps and constants    
+    for( int simreco = 0; simreco < 2; ++simreco ) {
+      tot_layers_[simreco] = layersInit((bool)simreco);
+      max_modules_layer_[simreco].resize(tot_layers_[simreco]+1);
+      for( unsigned int layer = 1; layer <= tot_layers_[simreco]; ++layer ) {
+        max_modules_layer_[simreco][layer] = modulesInit(layer,(bool)simreco);        
+      }
+    }
+    tot_wafers_ = wafers();
+    
     edm::LogInfo("HGCalGeom") << "HGCalDDDConstants initialized for " << name
 			      << " with " << layers(false) << ":" <<layers(true)
 			      << " layers, " << wafers() << " wafers and "
 			      << "maximum of " << maxCells(false) << ":" 
 			      << maxCells(true) << " cells";
+    
 #ifdef DebugLog
     std::cout << "HGCalDDDConstants initialized for " << name << " with " 
 	      << layers(false) << ":" << layers(true) << " layers, " 
 	      << wafers() << " wafers and " << "maximum of " << maxCells(false)
 	      << ":" << maxCells(true) << " cells" << std::endl;
 #endif
-  }
+    
+  }  
+  
 }
 
 HGCalDDDConstants::~HGCalDDDConstants() {}
@@ -135,6 +154,10 @@ double HGCalDDDConstants::cellSizeHex(int type) const {
 }
 
 unsigned int HGCalDDDConstants::layers(bool reco) const {
+  return tot_layers_[(int)reco];
+}
+
+unsigned int HGCalDDDConstants::layersInit(bool reco) const {
   return (reco ? hgpar_->depthIndex_.size() : hgpar_->layerIndex_.size());
 }
 
@@ -225,13 +248,20 @@ bool HGCalDDDConstants::isValid(int lay, int mod, int cell, bool reco) const {
 	       (mod > 0 && mod <= modmax) &&
 	       (cell >=0 && cell <= cellmax));
   } else {
-    modmax = modules(lay,reco);
-    ok = ((lay > 0 && lay <= (int)(layers(reco))) && 
-	  (mod > 0 && mod <= modmax));
-    if (ok) {
-      cellmax = (hgpar_->waferTypeT_[mod]==1) ? 
-	(int)(hgpar_->cellFineX_.size()) : (int)(hgpar_->cellCoarseX_.size());
-      ok = (cell >=0 && cell <=  cellmax);
+    int32_t copyNumber = hgpar_->waferCopy_[mod];
+    
+    
+    ok = ((lay > 0 && lay <= (int)(layers(reco))));
+    if( ok ) {
+      const int32_t lay_idx = reco ? (lay-1)*3 + 1 : lay;
+      const auto& the_modules = hgpar_->copiesInLayers_[lay_idx];
+      auto moditr = the_modules.find(copyNumber);
+      ok = (moditr != the_modules.end());
+      if (ok) {
+        cellmax = (hgpar_->waferTypeT_[mod]==1) ? 
+          (int)(hgpar_->cellFineX_.size()) : (int)(hgpar_->cellCoarseX_.size());
+        ok = (cell >=0 && cell <=  cellmax);
+      }
     }
   }
     
@@ -367,6 +397,11 @@ int HGCalDDDConstants::maxRows(int lay, bool reco) const {
 }
 
 int HGCalDDDConstants::modules(int lay, bool reco) const {
+  if( getIndex(lay,reco).first < 0 ) return 0;
+  return max_modules_layer_[(int)reco][lay];
+}
+
+int HGCalDDDConstants::modulesInit(int lay, bool reco) const {
   int nmod(0);
   std::pair<int,float> index = getIndex(lay, reco);
   if (index.first < 0) return nmod;
@@ -523,9 +558,9 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay, int mod,
 }
 
 int HGCalDDDConstants::waferFromCopy(int copy) const {
-  const int tot_wafers = wafers();
-  int wafer = tot_wafers;
-  for (int k=0; k<tot_wafers; ++k) {
+  const int ncopies = hgpar_->waferCopy_.size();
+  int wafer = ncopies;
+  for (int k=0; k<ncopies; ++k) {
     if (copy == hgpar_->waferCopy_[k]) {
       wafer = k;
       break;
@@ -569,7 +604,8 @@ int HGCalDDDConstants::wafers() const {
   return wafer;
 }
 
-int HGCalDDDConstants::cellHex(double xx, double yy, const double& cellR, 
+int HGCalDDDConstants::cellHex(double xx, double yy, 
+                               const double& cellR, 
 			       const std::vector<double>& posX,
 			       const std::vector<double>& posY) const {
   int num(0);

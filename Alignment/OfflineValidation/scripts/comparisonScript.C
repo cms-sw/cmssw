@@ -27,6 +27,8 @@ void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTrac
                        TString alignmentName="Alignment",
                        TString referenceName="Ideal",
                        TString useDefaultRange= "false",
+                       TString plotOnlyGlobal= "false",
+                       TString plotPng= "true",
                        float dx_min = -99999,
                        float dx_max = -99999,
                        float dy_min = -99999,
@@ -115,63 +117,71 @@ void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTrac
     // now the object to produce the comparison plots is created
     
     // Plot Translations
-    GeometryComparisonPlotter * trans = new GeometryComparisonPlotter (inFile, outDir,modulesToPlot,alignmentName,referenceName);
+    GeometryComparisonPlotter * trans = new GeometryComparisonPlotter (inFile, outDir,modulesToPlot,alignmentName,referenceName,plotOnlyGlobal);
     // x and y contain the couples to plot
     // -> every combination possible will be performed
     // /!\ always give units (otherwise, unexpected bug from root...)
     vector<TString> x,y;
-    x.push_back("r");                                           	trans->SetBranchUnits("r",     "cm");  
+    vector<float> dyMin,dyMax;
+    x.push_back("r");                                           	trans->SetBranchUnits("r",     "cm");
     x.push_back("phi");                                         	trans->SetBranchUnits("phi",   "rad");
     x.push_back("z");                                           	trans->SetBranchUnits("z",     "cm");      //trans->SetBranchMax("z", 100); trans->SetBranchMin("z", -100);
     y.push_back("dr");		trans->SetBranchSF("dr", 	10000);     trans->SetBranchUnits("dr",    "#mum");
+    dyMin.push_back(dr_min);
+    dyMax.push_back(dr_max);
     y.push_back("dz");		trans->SetBranchSF("dz", 	10000);     trans->SetBranchUnits("dz",    "#mum");
+    dyMin.push_back(dz_min);
+    dyMax.push_back(dz_max);
     y.push_back("rdphi");	trans->SetBranchSF("rdphi",10000);      trans->SetBranchUnits("rdphi", "#mum rad");
+    dyMin.push_back(rdphi_min);
+    dyMax.push_back(rdphi_max);
     y.push_back("dx");		trans->SetBranchSF("dx", 	10000);     trans->SetBranchUnits("dx",    "#mum");    //trans->SetBranchMax("dx", 10); trans->SetBranchMin("dx", -10);
+    dyMin.push_back(dx_min);
+    dyMax.push_back(dx_max);
     y.push_back("dy");		trans->SetBranchSF("dy", 	10000);     trans->SetBranchUnits("dy",    "#mum");    //trans->SetBranchMax("dy", 10); trans->SetBranchMin("dy", -10);
-    if (dx_min != -99999){trans->SetBranchMin("dx", 	dx_min);}
-    if (dx_max != -99999){trans->SetBranchMax("dx", 	dx_max);}
-    if (dy_min != -99999){trans->SetBranchMin("dy", 	dy_min);}
-    if (dy_max != -99999){trans->SetBranchMax("dy", 	dy_max);}
-    if (dz_min != -99999){trans->SetBranchMin("dz", 	dz_min);}
-    if (dz_max != -99999){trans->SetBranchMax("dz", 	dz_max);}
-    if (dr_min != -99999){trans->SetBranchMin("dr", 	dr_min);}
-    if (dr_max != -99999){trans->SetBranchMax("dr", 	dr_max);}
-    if (rdphi_min != -99999){trans->SetBranchMin("rdphi", 	rdphi_min);}
-    if (rdphi_max != -99999){trans->SetBranchMax("rdphi", 	rdphi_max);}
+    dyMin.push_back(dy_min);
+    dyMax.push_back(dy_max);
+    
     trans->SetGrid(1,1);
-    trans->MakePlots(x, y); // default output is pdf, but png gives a nicer result, so we use it as well
+    trans->MakePlots(x, y, dyMin, dyMax); // default output is pdf, but png gives a nicer result, so we use it as well
     // remark: what takes the more time is the creation of the output files,
     //         not the looping on the tree (because the code is perfect, of course :p)
-    trans->SetPrintOption("png");
-    trans->MakePlots(x, y);
+    if (plotPng=="true"){
+	    trans->SetPrintOption("png");
+	    trans->MakePlots(x, y, dyMin, dyMax);
+	}
 
     
     // Plot Rotations
-    GeometryComparisonPlotter * rot = new GeometryComparisonPlotter (inFile, outDir,modulesToPlot,alignmentName,referenceName);
+    GeometryComparisonPlotter * rot = new GeometryComparisonPlotter (inFile, outDir,modulesToPlot,alignmentName,referenceName,plotOnlyGlobal);
     // x and y contain the couples to plot
     // -> every combination possible will be performed
     // /!\ always give units (otherwise, unexpected bug from root...)
     vector<TString> b;
+    vector<float> dbMin,dbMax;
     //a.push_back("alpha");       									rot->SetBranchUnits("alpha",    "rad");  
     //a.push_back("beta");        									rot->SetBranchUnits("beta",   "rad");
     //a.push_back("gamma");       									rot->SetBranchUnits("gamma",   "rad");
     rot->SetBranchUnits("r",     "cm");  
     rot->SetBranchUnits("phi",   "rad");
     rot->SetBranchUnits("z",     "cm"); 
-    b.push_back("dalpha");	rot->SetBranchSF("dalpha", 	1000);      rot->SetBranchUnits("dalpha",    "mrad");      
-    b.push_back("dbeta");   rot->SetBranchSF("dbeta", 	1000);    	rot->SetBranchUnits("dbeta",    "mrad");     
+    b.push_back("dalpha");	rot->SetBranchSF("dalpha", 	1000);      rot->SetBranchUnits("dalpha",    "mrad");
+    dbMin.push_back(dalpha_min);
+    dbMax.push_back(dalpha_max);      
+    b.push_back("dbeta");   rot->SetBranchSF("dbeta", 	1000);    	rot->SetBranchUnits("dbeta",    "mrad");
+    dbMin.push_back(dbeta_min);
+    dbMax.push_back(dbeta_max);     
     b.push_back("dgamma");  rot->SetBranchSF("dgamma", 	1000);    	rot->SetBranchUnits("dgamma",    "mrad");
-    if (dalpha_min != -99999){rot->SetBranchMin("dalpha", 	dalpha_min);}
-    if (dalpha_max != -99999){rot->SetBranchMax("dalpha", 	dalpha_max);}   
-    if (dbeta_min != -99999){rot->SetBranchMin("dbeta", 	dbeta_min);}
-    if (dbeta_max != -99999){rot->SetBranchMax("dbeta", 	dbeta_max);}   
-    if (dgamma_min != -99999){rot->SetBranchMin("dgamma", 	dgamma_min);}
-    if (dgamma_max != -99999){rot->SetBranchMax("dgamma", 	dgamma_max);}
+    dbMin.push_back(dgamma_min);
+    dbMax.push_back(dgamma_max);
+ 
     rot->SetGrid(1,1);
     rot->SetPrintOption("pdf");
-    rot->MakePlots(x, b);
-    rot->SetPrintOption("png");
-    rot->MakePlots(x, b);
+    rot->MakePlots(x, b,dbMin, dbMax);
+    if (plotPng=="true"){
+	    rot->SetPrintOption("png");
+	    rot->MakePlots(x, b,dbMin, dbMax);
+	}	
     
 
     // now the same object can be reused with other specifications/cuts

@@ -45,7 +45,7 @@ void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup&
 	setup.get<IdealGeometryRecord>().get(geom); 
 	edm::ESHandle<PTrackerParameters> ptp;
 	setup.get<PTrackerParametersRcd>().get( ptp );
-	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, *ptp );
+	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, *ptp, tTopo );
 	
 	addComponent( new AlignableTracker( tracker, tTopo ) );
 	addSurveyInfo( detector() );

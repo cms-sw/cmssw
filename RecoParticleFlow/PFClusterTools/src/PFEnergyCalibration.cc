@@ -1,5 +1,8 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
+
+#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+
 #include <TMath.h>
 #include <math.h>
 #include <vector>
@@ -9,7 +12,7 @@
 
 using namespace std;
 
-PFEnergyCalibration::PFEnergyCalibration() : pfCalibrations(0)
+PFEnergyCalibration::PFEnergyCalibration() : pfCalibrations(0), esEEInterCalib_(0)
 {
   initializeCalibrationFunctions();
 }
@@ -801,8 +804,29 @@ PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal
 
   // gives the good weights to each subdetector
   double gammaprime=Gamma(etaEcal)/9e-5;
-  outputPS1=gammaprime*ePS1;
-  outputPS2=gammaprime*Alpha(etaEcal)*ePS2;
+
+  if(outputPS1 == 0 && outputPS2 == 0 && esEEInterCalib_ != 0){
+    // both ES planes working
+    // scaling factor accounting for data-mc                                                                                 
+    outputPS1=gammaprime*ePS1 * esEEInterCalib_->getGammaLow0();
+    outputPS2=gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3();
+  }
+  else if(outputPS1 == 0 && outputPS2 == -1 && esEEInterCalib_ != 0){
+    // ESP1 only working
+    outputPS1 = gammaprime*ePS1 * esEEInterCalib_->getGammaLow0() * esEEInterCalib_->getGammaLow1();
+    outputPS2 = gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3() * esEEInterCalib_->getGammaLow1();
+  }
+  else if(outputPS1 == -1 && outputPS2 == 0 && esEEInterCalib_ != 0){
+    // ESP2 only working
+    outputPS1 = gammaprime*ePS1 * esEEInterCalib_->getGammaLow0() * esEEInterCalib_->getGammaLow2();
+    outputPS2 = gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3() * esEEInterCalib_->getGammaLow2();
+  }
+  else{
+    // none working
+    outputPS1 = gammaprime*ePS1;
+    outputPS2 = gammaprime*Alpha(etaEcal)*ePS2;
+  }
+
   double E = Beta(1.0155*eEcal+0.025*(ePS1+0.5976*ePS2)/9e-5,etaEcal)*eEcal+outputPS1+outputPS2;
 
   //Correction of the residual energy dependency

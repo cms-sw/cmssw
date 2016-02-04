@@ -58,13 +58,13 @@ namespace popcon {
 	m_tagInfo.lastPayloadToken = last.payloadId;
       }
 
-      if( m_IsDestDbCheckedInQueryLog ) {
-	m_dbService->queryLog().LookupLastEntryByTag( m_tag, connectionStr, m_logDBEntry );
-	std::cout <<" ------ log info searched in the same db: "<< connectionStr << "------" <<std::endl;
-      } else {
-	m_dbService->queryLog().LookupLastEntryByTag( m_tag, m_logDBEntry );
-	std::cout <<" ------ log info found in another db "<< "------" <<std::endl;
-      }
+      //if( m_IsDestDbCheckedInQueryLog ) {
+      //m_dbService->queryLog().LookupLastEntryByTag( m_tag, connectionStr, m_logDBEntry );
+      //std::cout <<" ------ log info searched in the same db: "<< connectionStr << "------" <<std::endl;
+      //} else {
+      //m_dbService->queryLog().LookupLastEntryByTag( m_tag, m_logDBEntry );
+      //std::cout <<" ------ log info found in another db "<< "------" <<std::endl;
+      //}
 
       edm::LogInfo ("PopCon") << "DB: " << connectionStr << "\n"
 			      << "TAG: " << m_tag 

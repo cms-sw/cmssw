@@ -32,7 +32,7 @@
       your workers, you can create a new TList and assign it to 'itemsForProcessing' and then add the objects you 
       want passed into that list. 
       NOTE: you are responsible for deleting the created TList and for deleting all items held by the TList. The easiest
-      way to do this is to add a 'std::auto_ptr<TList>' member data to your Selector and then call 'SetOwner()' on the TList.
+      way to do this is to add a 'std::unique_ptr<TList>' member data to your Selector and then call 'SetOwner()' on the TList.
     2) 'terminate(TList&)'
        this is called after all processing has finished.  The TList& contains all the accumulated information
        from all the workers.

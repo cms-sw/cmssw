@@ -16,6 +16,7 @@
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoEgamma/EgammaTools/interface/BaselinePFSCRegression.h"
+#include "RecoEgamma/EgammaTools/interface/SCEnergyCorrectorSemiParm.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -23,6 +24,8 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+
+#include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 
 #include "TVector2.h"
 
@@ -128,6 +131,7 @@ class PFECALSuperClusterAlgo {
   edm::EDGetTokenT<reco::BeamSpot>   inputTagBeamSpot_;
    
   const reco::BeamSpot *beamSpot_;
+  const ESChannelStatus* channelStatus_;
   
   CalibratedClusterPtrVector _clustersEB;
   CalibratedClusterPtrVector _clustersEE;
@@ -146,7 +150,7 @@ class PFECALSuperClusterAlgo {
   
   // regression
   bool useRegression_;
-  std::unique_ptr<PFSCRegressionCalc> regr_;  
+  std::unique_ptr<SCEnergyCorrectorSemiParm> regr_;  
   
   double threshSuperClusterEt_;  
 

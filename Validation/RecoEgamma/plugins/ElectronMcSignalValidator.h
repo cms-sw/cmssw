@@ -36,7 +36,7 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     edm::EDGetTokenT<reco::GsfElectronCoreCollection> electronCoreCollection_;
     edm::EDGetTokenT<reco::GsfTrackCollection> electronTrackCollection_;
     edm::EDGetTokenT<reco::ElectronSeedCollection> electronSeedCollection_;
-    edm::EDGetTokenT<reco::VertexCollection> offlineVerticesCollection_; 
+    edm::EDGetTokenT<reco::VertexCollection> offlineVerticesCollection_;
     edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_ ;
     bool readAOD_;
 
@@ -58,7 +58,7 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
 
     double maxPt_;
     double maxAbsEta_;
-    double deltaR_;
+    double deltaR_, deltaR2_;
     std::vector<int> matchingIDs_;
     std::vector<int> matchingMotherIDs_;
     std::string inputFile_ ;
@@ -96,7 +96,7 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_recCoreNum;
     MonitorElement *h1_recTrackNum;
     MonitorElement *h1_recSeedNum;
-    MonitorElement *h1_recOfflineVertices; 
+    MonitorElement *h1_recOfflineVertices;
     MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices; // new 2015.15.05
     MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices_barrel; // new 2015.15.05
     MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices_endcaps; // new 2015.15.05
@@ -175,6 +175,7 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h2_ele_chargeVsPt;
     MonitorElement *h1_ele_vertexP;
     MonitorElement *h1_ele_vertexPt;
+    MonitorElement *h1_ele_vertexPt_nocut;
     MonitorElement *h1_ele_Et;
     MonitorElement *h2_ele_vertexPtVsEta;
     MonitorElement *h2_ele_vertexPtVsPhi;
@@ -227,6 +228,9 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_scl_SigIEtaIEta;
     MonitorElement *h1_scl_SigIEtaIEta_barrel;
     MonitorElement *h1_scl_SigIEtaIEta_endcaps;
+    MonitorElement *h1_scl_SigIEtaIEta_mAOD;
+    MonitorElement *h1_scl_SigIEtaIEta_mAOD_barrel;
+    MonitorElement *h1_scl_SigIEtaIEta_mAOD_endcaps;
     MonitorElement *h1_scl_full5x5_sigmaIetaIeta; 
     MonitorElement *h1_scl_full5x5_sigmaIetaIeta_barrel; 
     MonitorElement *h1_scl_full5x5_sigmaIetaIeta_endcaps; 
@@ -251,6 +255,7 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_foundHits_barrel;
     MonitorElement *h1_ele_foundHits_endcaps;
     MonitorElement *h2_ele_foundHitsVsEta;
+    MonitorElement *h2_ele_foundHitsVsEta_mAOD;
     MonitorElement *h2_ele_foundHitsVsPhi;
     MonitorElement *h2_ele_foundHitsVsPt;
     MonitorElement *h1_ele_lostHits;
@@ -300,7 +305,7 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h2_ele_PinMnPoutVsPt_mode;
     MonitorElement *h2_ele_PinMnPoutVsE_mode;
     MonitorElement *h2_ele_PinMnPoutVsChi2_mode;
-
+    MonitorElement *h2_ele_sigmaIetaIetaVsPt;
     MonitorElement *h1_ele_outerP;
     MonitorElement *h1_ele_outerP_mode;
     MonitorElement *h2_ele_outerPVsEta_mode;
@@ -337,6 +342,9 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_dEtaSc_propVtx;
     MonitorElement *h1_ele_dEtaSc_propVtx_barrel;
     MonitorElement *h1_ele_dEtaSc_propVtx_endcaps;
+    MonitorElement *h1_ele_dEtaSc_propVtx_mAOD;
+    MonitorElement *h1_ele_dEtaSc_propVtx_mAOD_barrel;
+    MonitorElement *h1_ele_dEtaSc_propVtx_mAOD_endcaps;
     MonitorElement *h2_ele_dEtaScVsEta_propVtx;
     MonitorElement *h2_ele_dEtaScVsPhi_propVtx;
     MonitorElement *h2_ele_dEtaScVsPt_propVtx;
@@ -355,6 +363,9 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_dPhiCl_propOut;
     MonitorElement *h1_ele_dPhiCl_propOut_barrel;
     MonitorElement *h1_ele_dPhiCl_propOut_endcaps;
+    MonitorElement *h1_ele_dPhiCl_propOut_mAOD;
+    MonitorElement *h1_ele_dPhiCl_propOut_mAOD_barrel;
+    MonitorElement *h1_ele_dPhiCl_propOut_mAOD_endcaps;
     MonitorElement *h2_ele_dPhiClVsEta_propOut;
     MonitorElement *h2_ele_dPhiClVsPhi_propOut;
     MonitorElement *h2_ele_dPhiClVsPt_propOut;
@@ -405,14 +416,19 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h2_ele_HoEVsEta;
     MonitorElement *h2_ele_HoEVsPhi;
     MonitorElement *h2_ele_HoEVsE;
+    MonitorElement *h1_ele_HoE_mAOD;
+    MonitorElement *h1_ele_HoE_mAOD_barrel;
+    MonitorElement *h1_ele_HoE_mAOD_endcaps;
 
     MonitorElement *h1_ele_fbrem;
     MonitorElement *h1_ele_fbrem_barrel;
     MonitorElement *h1_ele_fbrem_endcaps;
+    MonitorElement *h1_ele_fbrem_mAOD;
+    MonitorElement *h1_ele_fbrem_mAOD_barrel;
+    MonitorElement *h1_ele_fbrem_mAOD_endcaps;
     MonitorElement *h1_ele_superclusterfbrem; 
     MonitorElement *h1_ele_superclusterfbrem_barrel; 
     MonitorElement *h1_ele_superclusterfbrem_endcaps; 
-
     MonitorElement *p1_ele_fbremVsEta_mode;
     MonitorElement *p1_ele_fbremVsEta_mean;
 
@@ -459,7 +475,15 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
 	MonitorElement *h1_ele_photonRelativeIso;
 	MonitorElement *h1_ele_photonRelativeIso_barrel;
     MonitorElement *h1_ele_photonRelativeIso_endcaps;
-
+	MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD;
+	MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_barrel;
+    MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_endcaps;
+	MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD;
+	MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_barrel;
+    MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_endcaps;
+	MonitorElement *h1_ele_photonRelativeIso_mAOD;
+	MonitorElement *h1_ele_photonRelativeIso_mAOD_barrel;
+    MonitorElement *h1_ele_photonRelativeIso_mAOD_endcaps;
     // isolation
     MonitorElement *h1_ele_tkSumPt_dr03;
     MonitorElement *h1_ele_tkSumPt_dr03_barrel;

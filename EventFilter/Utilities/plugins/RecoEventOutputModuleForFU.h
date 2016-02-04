@@ -38,10 +38,10 @@ namespace evf {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     
   private:
-    virtual void start() const;
-    virtual void stop() const;
-    virtual void doOutputHeader(InitMsgBuilder const& init_message) const;
-    virtual void doOutputEvent(EventMsgBuilder const& msg) const;
+    virtual void start() override;
+    virtual void stop() override;
+    virtual void doOutputHeader(InitMsgBuilder const& init_message) override;
+    virtual void doOutputEvent(EventMsgBuilder const& msg) override;
     //virtual void beginRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*);
     virtual void beginJob() override;
     virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
@@ -175,7 +175,7 @@ namespace evf {
 
   template<typename Consumer>
   void
-  RecoEventOutputModuleForFU<Consumer>::start() const
+  RecoEventOutputModuleForFU<Consumer>::start()
   {
     const std::string openInitFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(stream_label_);
     edm::LogInfo("RecoEventOutputModuleForFU") << "start() method, initializing streams. init stream -: "  
@@ -187,14 +187,14 @@ namespace evf {
   
   template<typename Consumer>
   void
-  RecoEventOutputModuleForFU<Consumer>::stop() const
+  RecoEventOutputModuleForFU<Consumer>::stop()
   {
     c_->stop();
   }
 
   template<typename Consumer>
   void
-  RecoEventOutputModuleForFU<Consumer>::doOutputHeader(InitMsgBuilder const& init_message) const
+  RecoEventOutputModuleForFU<Consumer>::doOutputHeader(InitMsgBuilder const& init_message)
   {
     c_->doOutputHeader(init_message);
 
@@ -226,7 +226,7 @@ namespace evf {
    
   template<typename Consumer>
   void
-  RecoEventOutputModuleForFU<Consumer>::doOutputEvent(EventMsgBuilder const& msg) const {
+  RecoEventOutputModuleForFU<Consumer>::doOutputEvent(EventMsgBuilder const& msg) {
 	accepted_.value()++;
     c_->doOutputEvent(msg); // You can't use msg in RecoEventOutputModuleForFU after this point
   }

@@ -68,11 +68,11 @@ SUSY_HLT_CaloHT400 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
 
 SUSY_HLT_CaloHT_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
   subDirs = cms.untracked.vstring(
-  "HLT/SUSYBSM/HLT_HT200",
-  "HLT/SUSYBSM/HLT_HT250",
-  "HLT/SUSYBSM/HLT_HT300",
-  "HLT/SUSYBSM/HLT_HT350",
-  "HLT/SUSYBSM/HLT_HT400",
+  "HLT/SUSYBSM/HLT_HT200_v",
+  "HLT/SUSYBSM/HLT_HT250_v",
+  "HLT/SUSYBSM/HLT_HT300_v",
+  "HLT/SUSYBSM/HLT_HT350_v",
+  "HLT/SUSYBSM/HLT_HT400_v",
   ),
   efficiency = cms.vstring(
   "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",

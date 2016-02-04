@@ -12,7 +12,7 @@
   <Algorithm name="hgcal:DDHGCalModuleAlgo">
     <rParent name="hgcal:HGCalHE"/>
     <Vector name="WaferName" type="string" nEntries="2">
-      hgcalwafer:HGCalWaferFine, hgcalwafer:HGCalWaferCoarse</Vector>
+      hgcalwafer:HGCalHEWaferFine, hgcalwafer:HGCalHEWaferCoarse</Vector>
     <Vector name="MaterialNames" type="string" nEntries="11">
       materials:H_Brass, materials:Carbon_fibre_str_Upgrade2, materials:Copper,
       materials:Copper, materials:Air, materials:M_NEMA FR4 plate, 

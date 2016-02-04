@@ -14,8 +14,6 @@
 		<Polycone name="VTUB" startPhi="0*deg" deltaPhi="360*deg">
 			<ZSection z="0*fm" rMin="0*fm" rMax="1.8*cm"/>
 			<ZSection z="40*mm" rMin="0*fm" rMax="1.8*cm"/>
-			<ZSection z="40*mm" rMin="0*fm" rMax="1.8*cm"/>
-			<ZSection z="65.4*mm" rMin="0*fm" rMax="1.8*cm"/>
 			<ZSection z="65.4*mm" rMin="0*fm" rMax="1.8*cm"/>
 			<ZSection z="80.*mm" rMin="0*fm" rMax="1.8*cm"/>
 		</Polycone>

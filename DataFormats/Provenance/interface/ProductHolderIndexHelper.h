@@ -54,6 +54,7 @@ ProductRegistry is frozen.
 #include "FWCore/Utilities/interface/ProductHolderIndex.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <iosfwd>
 #include <memory>
@@ -334,9 +335,9 @@ namespace edm {
       ProductHolderIndex index_;
     };
 
-    std::unique_ptr<std::set<Item> > items_;
+    edm::propagate_const<std::unique_ptr<std::set<Item>>> items_;
 
-    std::unique_ptr<std::set<std::string> > processItems_;
+    edm::propagate_const<std::unique_ptr<std::set<std::string>>> processItems_;
   };
 }
 #endif

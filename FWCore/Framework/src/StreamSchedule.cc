@@ -165,14 +165,14 @@ namespace edm {
     trig_paths_.reserve(trig_name_list_.size());
     vstring labelsOnTriggerPaths;
       for (auto const& trig_name : trig_name_list_) {
-      fillTrigPath(proc_pset, preg, &prealloc, processConfiguration, trig_bitpos, trig_name, results_, &labelsOnTriggerPaths);
+      fillTrigPath(proc_pset, preg, &prealloc, processConfiguration, trig_bitpos, trig_name, results(), &labelsOnTriggerPaths);
       ++trig_bitpos;
       hasPath = true;
     }
 
     if (hasPath) {
       // the results inserter stands alone
-      inserter->setTrigResultForStream(streamID.value(),results_);
+      inserter->setTrigResultForStream(streamID.value(), results());
 
       results_inserter_ = makeInserter(actions, actReg_, inserter);
       addToAllWorkers(results_inserter_.get());

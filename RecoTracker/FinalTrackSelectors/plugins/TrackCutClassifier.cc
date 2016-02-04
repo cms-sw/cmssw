@@ -56,20 +56,20 @@ namespace {
     return std::abs(trk.dxy(bestVertex));
   }
 
-  inline void dzCut_par1(reco::Track const & trk, int & nLayers, const float * par, float dzCut[]) {
+  inline void dzCut_par1(reco::Track const & trk, int & nLayers, const float * par, const int * exp, float dzCut[]) {
     float dzE =  trk.dzError();
     for (int i=2; i>=0; --i) {
-      dzCut[i] = powN(par[i]*nLayers,4)*dzE;
+      dzCut[i] = powN(par[i]*nLayers,exp[i])*dzE;
     }
   }
-  inline void drCut_par1(reco::Track const & trk, int & nLayers, const float* par, float drCut[]) {
+  inline void drCut_par1(reco::Track const & trk, int & nLayers, const float * par, const int * exp, float drCut[]) {
     float drE =  trk.d0Error();
     for (int i=2; i>=0; --i) {
-      drCut[i] = powN(par[i]*nLayers,4)*drE;
+      drCut[i] = powN(par[i]*nLayers,exp[i])*drE;
     }
   }
   
-  inline void dzCut_par2(reco::Track const & trk, int & nLayers, const float * par, const float * d0err, const float * d0err_par, float dzCut[]) {
+  inline void dzCut_par2(reco::Track const & trk, int & nLayers, const float * par, const int * exp, const float * d0err, const float * d0err_par, float dzCut[]) {
     float pt = float(trk.pt());
     float p  = float(trk.p());
 
@@ -77,20 +77,19 @@ namespace {
       // parametrized d0 resolution for the track pt
       float nomd0E = sqrt(d0err[i]*d0err[i]+(d0err_par[i]/pt)*(d0err_par[i]/pt));
       // parametrized z0 resolution for the track pt and eta
-      //    float nomdzE = nomd0E*(std::cosh(eta));
       float nomdzE = nomd0E*(p/pt); // cosh(eta):=abs(p)/pt
       
-      dzCut[i] = powN(par[i]*nLayers,4)*nomdzE;
+      dzCut[i] = powN(par[i]*nLayers,exp[i])*nomdzE;
     }
   }
-  inline void drCut_par2(reco::Track const & trk, int & nLayers, const float* par, const float * d0err, const float * d0err_par, float drCut[]) {
+  inline void drCut_par2(reco::Track const & trk, int & nLayers, const float* par, const int * exp, const float * d0err, const float * d0err_par, float drCut[]) {
     float pt = trk.pt();
 
     for (int i=2; i>=0; --i) {
       // parametrized d0 resolution for the track pt
       float nomd0E = sqrt(d0err[i]*d0err[i]+(d0err_par[i]/pt)*(d0err_par[i]/pt));
 
-      drCut[i] = powN(par[i]*nLayers,4)*nomd0E;
+      drCut[i] = powN(par[i]*nLayers,exp[i])*nomd0E;
     }
   }
   
@@ -109,9 +108,11 @@ namespace {
       fillArrayF(maxDzWrtBS,   cfg,"maxDzWrtBS");
       fillArrayF(maxDr,        cfg,"maxDr");
       edm::ParameterSet dz_par = cfg.getParameter<edm::ParameterSet>("dz_par");
+      fillArrayI(dz_exp,       dz_par,"dz_exp");
       fillArrayF(dz_par1,      dz_par,"dz_par1");
       fillArrayF(dz_par2,      dz_par,"dz_par2");
       edm::ParameterSet dr_par = cfg.getParameter<edm::ParameterSet>("dr_par");
+      fillArrayI(dr_exp,       dr_par,"dr_exp");
       fillArrayF(dr_par1,      dr_par,"dr_par1");
       fillArrayF(dr_par2,      dr_par,"dr_par2");
       fillArrayF(d0err,        dr_par,"d0err");
@@ -166,42 +167,45 @@ namespace {
 	if (ret==-1.f) return ret;
       }
 
+
       // parametrized dz and dr cut by using their error
       if (dz_par1[2]<std::numeric_limits<float>::max() || dr_par1[2]<std::numeric_limits<float>::max()) {
+
 	float maxDz_par1[3];
 	float maxDr_par1[3];
-	dzCut_par1(trk,nLayers,dz_par1, maxDz_par1);
-	drCut_par1(trk,nLayers,dr_par1, maxDr_par1);
+	dzCut_par1(trk,nLayers,dz_par1,dz_exp, maxDz_par1);
+	drCut_par1(trk,nLayers,dr_par1,dr_exp, maxDr_par1);
 
-        Point bestVertex = getBestVertex(trk,vertices,minNVtxTrk); // min number of tracks 3
+	float maxDz_par[3];
+	float maxDr_par[3];
+	std::copy(std::begin(maxDz_par1),std::end(maxDz_par1),std::begin(maxDz_par));
+	std::copy(std::begin(maxDr_par1),std::end(maxDr_par1),std::begin(maxDr_par));
+
+	// parametrized dz and dr cut by using d0 and z0 resolution
+	if (dz_par2[2]<std::numeric_limits<float>::max() || dr_par2[2]<std::numeric_limits<float>::max()) {      
+
+	  float maxDz_par2[3];
+	  float maxDr_par2[3];
+	  dzCut_par2(trk,nLayers,dz_par2,dz_exp,d0err,d0err_par, maxDz_par2);
+	  drCut_par2(trk,nLayers,dr_par2,dr_exp,d0err,d0err_par, maxDr_par2);
+
+	  
+	  for (int i=2; i>=0; --i) {
+	    if (maxDr_par2[i]<maxDr_par[i]) maxDr_par[i] = maxDr_par2[i];
+	    if (maxDz_par2[i]<maxDz_par[i]) maxDz_par[i] = maxDz_par2[i];
+	  }
+	}
+
+        Point bestVertex = getBestVertex(trk,vertices,minNVtxTrk); // min number of tracks 3 @HLT
 	if (bestVertex.z() < -99998.) {
 	  bestVertex = beamSpot.position();
 	}
 
-        ret = std::min(ret,cut(dz(trk,bestVertex), maxDz_par1,std::less<float>()));
+        ret = std::min(ret,cut(dz(trk,bestVertex), maxDz_par,std::less<float>()));
 	if (ret==-1.f) return ret;
-        ret = std::min(ret,cut(dr(trk,bestVertex), maxDr_par1,std::less<float>()));	
-	if (ret==-1.f) return ret;
-      }
-      if (ret==-1.f) return ret;
-
-      // parametrized dz and dr cut by using d0 and z0 resolution
-      if (dz_par2[2]<std::numeric_limits<float>::max() || dr_par2[2]<std::numeric_limits<float>::max()) {      
-	float maxDz_par2[3];
-	float maxDr_par2[3];
-	dzCut_par2(trk,nLayers,dz_par2,d0err,d0err_par, maxDz_par2);
-	drCut_par2(trk,nLayers,dr_par2,d0err,d0err_par, maxDr_par2);
-	
-	Point bestVertex = getBestVertex(trk,vertices,minNVtxTrk); // min number of tracks 3
-	if (bestVertex.z() < -99998.) {
-	  bestVertex = beamSpot.position();
-	}
-
-	ret = std::min(ret,cut(dr(trk,bestVertex), maxDr_par2,std::less<float>()));
+        ret = std::min(ret,cut(dr(trk,bestVertex), maxDr_par,std::less<float>()));	
 	if (ret==-1.f) return ret;
 
-	ret = std::min(ret,cut(dz(trk,bestVertex), maxDz_par2,std::less<float>()));
-	if (ret==-1.f) return ret;
       }
       if (ret==-1.f) return ret;
 
@@ -229,11 +233,13 @@ namespace {
       desc.add<std::vector<double>>("maxDr",{std::numeric_limits<float>::max(),std::numeric_limits<float>::max(),std::numeric_limits<float>::max()});
 
       edm::ParameterSetDescription dz_par;
+      dz_par.add<std::vector<int>>   ("dz_exp", {std::numeric_limits<int>::max(),  std::numeric_limits<int>::max(),  std::numeric_limits<int>::max()}  ); // par = 4
       dz_par.add<std::vector<double>>("dz_par1",{std::numeric_limits<float>::max(),std::numeric_limits<float>::max(),std::numeric_limits<float>::max()}); // par = 0.4
       dz_par.add<std::vector<double>>("dz_par2",{std::numeric_limits<float>::max(),std::numeric_limits<float>::max(),std::numeric_limits<float>::max()}); // par = 0.35
       desc.add<edm::ParameterSetDescription>("dz_par", dz_par);
 
       edm::ParameterSetDescription dr_par;
+      dr_par.add<std::vector<int>>   ("dr_exp", {std::numeric_limits<int>::max(),  std::numeric_limits<int>::max(),  std::numeric_limits<int>::max()}  ); // par = 4
       dr_par.add<std::vector<double>>("dr_par1",{std::numeric_limits<float>::max(),std::numeric_limits<float>::max(),std::numeric_limits<float>::max()}); // par = 0.4
       dr_par.add<std::vector<double>>("dr_par2",{std::numeric_limits<float>::max(),std::numeric_limits<float>::max(),std::numeric_limits<float>::max()}); // par = 0.3
       dr_par.add<std::vector<double>>("d0err",     {0.003, 0.003, 0.003});
@@ -253,8 +259,10 @@ namespace {
     float maxDz[3];
     float maxDzWrtBS[3];
     float maxDr[3];
+    int   dz_exp[3];
     float dz_par1[3];
     float dz_par2[3];
+    int   dr_exp[3];
     float dr_par1[3];
     float dr_par2[3];
     float d0err[3];

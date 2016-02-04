@@ -116,7 +116,7 @@ namespace edm {
   ScheduleItems::initMisc(ParameterSet& parameterSet) {
     act_table_.reset(new ExceptionToActionTable(parameterSet));
     std::string processName = parameterSet.getParameter<std::string>("@process_name");
-    processConfiguration_.reset(new ProcessConfiguration(processName, getReleaseVersion(), getPassID()));
+    processConfiguration_ = std::make_shared<ProcessConfiguration>(processName, getReleaseVersion(), getPassID()); // propagate_const<T> has no reset() function
     auto common = std::make_shared<CommonParams>(
                                 parameterSet.getUntrackedParameterSet(
                                    "maxEvents", ParameterSet()).getUntrackedParameter<int>("input", -1),
@@ -140,7 +140,7 @@ namespace edm {
                      *thinnedAssociationsHelper_,
                      *act_table_,
                      actReg_,
-                     processConfiguration_,
+                     processConfiguration(),
                      hasSubprocesses,
                      config,
                      processContext));
@@ -149,10 +149,11 @@ namespace edm {
 
   void
   ScheduleItems::clear() {
-    actReg_.reset();
-    preg_.reset();
-    branchIDListHelper_.reset();
-    thinnedAssociationsHelper_.reset();
-    processConfiguration_.reset();
+    // propagate_const<T> has no reset() function
+    actReg_ = nullptr;
+    preg_ = nullptr;
+    branchIDListHelper_ = nullptr;
+    thinnedAssociationsHelper_ = nullptr;
+    processConfiguration_ = nullptr;
   }
 }

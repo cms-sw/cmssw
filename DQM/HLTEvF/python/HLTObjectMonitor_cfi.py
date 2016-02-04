@@ -28,10 +28,10 @@ jetAk8_moduleName = "hltAK8SinglePFJet360TrimModMass30"
 rsq_mr_pathName = "HLT_RsqMR240_Rsq0p09_MR200"
 rsq_mr_moduleName = "hltRsqMR240Rsq0p09MR200"
 
-bJet_pathNameCalo = "HLT_PFMET120_JetIdCleaned_BTagCSV0p72"
-bJet_moduleNameCalo = "hltBLifetimeL3FilterCSVsusy"
-bJet_pathNamePF = "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500"
-bJet_moduleNamePF = "hltCSVPF0p78"
+bJet_pathNameCalo = "HLT_PFMET120_BTagCSV_p067"
+bJet_moduleNameCalo = "hltBTagCaloCSVp067Single"
+bJet_pathNamePF = "HLT_QuadPFJet_BTagCSV_p037_VBF_Mqq500"
+bJet_moduleNamePF = "hltBTagPFCSVp037SingleWithMatching"
 
 #To avoid booking histogram, set pathName = cms.string("")
 

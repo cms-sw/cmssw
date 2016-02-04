@@ -813,7 +813,7 @@ namespace edm {
       assert(index!=ProductHolderIndexInvalid);
       ProductHolderIndex indexO = other.preg_->indexFrom(prod);
       assert(indexO!=ProductHolderIndexInvalid);
-      get_underlying(productHolders_[index]).swap(get_underlying(other.productHolders_[indexO]));
+      get_underlying_safe(productHolders_[index]).swap(get_underlying_safe(other.productHolders_[indexO]));
     }
     reader_->mergeReaders(other.reader());
   }

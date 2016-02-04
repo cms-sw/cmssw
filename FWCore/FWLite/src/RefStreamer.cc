@@ -11,14 +11,14 @@ namespace fwlite {
     {
       TClass* cl = TClass::GetClass("edm::RefCore");
       TClassStreamer* st = cl->GetStreamer();
-      if (st == 0) {
+      if (st == nullptr) {
         cl->AdoptStreamer(new edm::RefCoreStreamer());
       }
     }
     {
       TClass* cl = TClass::GetClass("edm::RefCoreWithIndex");
       TClassStreamer* st = cl->GetStreamer();
-      if (st == 0) {
+      if (st == nullptr) {
         cl->AdoptStreamer(new edm::RefCoreWithIndexStreamer());
       }
     }

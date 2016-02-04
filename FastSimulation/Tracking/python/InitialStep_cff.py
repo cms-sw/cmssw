@@ -21,7 +21,6 @@ initialStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.
 
 # tracks
 initialStepTracks = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTracks.clone(
-    Fitter = 'KFFittingSmootherWithOutlierRejection',
     TTRHBuilder = 'WithoutRefit',
     Propagator = 'PropagatorWithMaterial'
     )

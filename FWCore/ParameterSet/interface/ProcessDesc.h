@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
+
 namespace edm {
 
   class ParameterSet;
@@ -20,10 +22,12 @@ namespace edm {
     ~ProcessDesc();
 
     /// get the parameter set
-    std::shared_ptr<ParameterSet> getProcessPSet() const;
+    std::shared_ptr<ParameterSet const> getProcessPSet() const {return get_underlying_safe(pset_);}
+    std::shared_ptr<ParameterSet>& getProcessPSet() {return get_underlying_safe(pset_);}
 
     /// get the descriptions of the services
-    std::shared_ptr<std::vector<ParameterSet> > getServicesPSets() const;
+    std::shared_ptr<std::vector<ParameterSet> const> getServicesPSets() const {return get_underlying_safe(services_);}
+    std::shared_ptr<std::vector<ParameterSet>>& getServicesPSets() {return get_underlying_safe(services_);}
 
     void addService(ParameterSet& pset);
     /// add a service as an empty pset
@@ -38,8 +42,8 @@ namespace edm {
 
     std::string dump() const;
   private:
-    std::shared_ptr<ParameterSet> pset_;
-    std::shared_ptr<std::vector<ParameterSet> > services_;
+    edm::propagate_const<std::shared_ptr<ParameterSet>> pset_;
+    edm::propagate_const<std::shared_ptr<std::vector<ParameterSet>>> services_;
   };
 }
 

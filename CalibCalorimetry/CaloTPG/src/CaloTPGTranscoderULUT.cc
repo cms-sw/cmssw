@@ -15,6 +15,8 @@
 
 using namespace std;
 
+constexpr float CaloTPGTranscoderULUT::LSB_HF;
+constexpr float CaloTPGTranscoderULUT::LSB_HBHE;
 
 CaloTPGTranscoderULUT::CaloTPGTranscoderULUT(const std::string& compressionFile,
                                              const std::string& decompressionFile)

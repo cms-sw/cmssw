@@ -436,7 +436,6 @@ int electronCompare()
    // after 740pre8  : DQMData/Run 1/EgammaV/Run summary/ ElectronMcSignalValidatorPt1000/ histo name
       histo_full_path_Pt1000 = file_ref_dir ; histo_full_path_Pt1000 += Pt1000_path_extension; histo_full_path_Pt1000 += histo_name ; // for Pt1000 
    // END WARNING
-//      std::cout << "histo_full_path ref : " << histo_full_path << std::endl ;
 
       histo_ref = (TH1 *)file_ref->Get(histo_full_path) ;
       if (histo_ref!=0)
@@ -444,7 +443,6 @@ int electronCompare()
         // renaming those histograms avoid very strange bugs because they
         // have the same names as the ones loaded from the new file
         histo_ref->SetName(TString(histo_ref->GetName())+"_ref") ;
-//        std::cout << "histo_ref Name : " << histo_ref->GetName() << " - histo_new Name : " << histo_name << std::endl ; // A.C. to be removed
       }
       else // no histo
       {
@@ -465,9 +463,6 @@ int electronCompare()
     // search histo_new
     histo_full_path = file_new_dir ; histo_full_path += histo_path.c_str() ;
     histo_new = (TH1 *)file_new->Get(histo_full_path) ;
-//    std::cout << "histo_new Name : " << histo_new->GetName() << std::endl ; // A.C. to be removed
-//    std::cout << "histo_full_path new : " << histo_full_path << std::endl ;
-//    std::cout << "histo_path.cstr new : " << histo_path.c_str() << std::endl ;
 
     // special treatments
     if ((scaled==1)&&(histo_new!=0)&&(histo_ref!=0)&&(histo_ref->GetEntries()!=0))
@@ -484,8 +479,6 @@ int electronCompare()
         histo_ref->Scale(rescale_factor) ;
        }
      }
-//    std::cout << "histo_ref get Min : " << histo_ref->GetMinimum() << " - histo_ref get Max : " << histo_ref->GetMaximum() << std::endl ; // 
-//    std::cout << "histo_new get Min : " << histo_new->GetMinimum() << " - histo_new get Max : " << histo_new->GetMaximum() << std::endl ; // 
     if ((histo_new!=0)&&(histo_ref!=0)&&(histo_ref->GetMaximum()>histo_new->GetMaximum()))
      { histo_new->SetMaximum(histo_ref->GetMaximum()*1.1) ; }
 
@@ -500,7 +493,6 @@ int electronCompare()
        { n_ele_charge = histo_new->GetEntries() ; }
 
       // draw histo_new
-//      std::cout << histo_name << " drawing histos new" << std::endl ; // 
       TString newDrawOptions(err==1?"E1 P":"hist") ;
       gErrorIgnoreLevel = kWarning ;
       if (divide!=0)
@@ -522,7 +514,6 @@ int electronCompare()
       st_new->SetTextColor(kRed) ;
 
       // draw histo_ref
-//      std::cout << histo_name << " drawing histos ref" << std::endl ; // 
       if (histo_ref!=0)
        {
         if (divide!=0)
@@ -578,10 +569,8 @@ int electronCompare()
         <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
 //        <<" of mean value "<<histo_new->GetMean()
         <<std::endl ; 
-//      std::cout << histo_name << " appel canvas->SaveAs" << std::endl ;
       canvas->SaveAs(gif_path.Data()) ;
       web_page<<"<a href=\""<<gif_name<<"\"><img border=\"0\" class=\"image\" width=\"440\" src=\""<<gif_name<<"\"></a><br>" ;
-//      std::cout << histo_name << " fin boucle else \n" << std::endl ;
      }
 
 //    else if ((file_ref!=0)&&(histo_ref!=0))
@@ -605,7 +594,7 @@ int electronCompare()
        } while (cat.empty()) ;
      }
    }
-  std::cout << "on ferme le fichier" << std::endl;
+  std::cout << "on ferme le fichier : " << histo_file2 << std::endl;
   histo_file2.close() ;
   web_page<<"</td></tr></table>\n" ;
 
@@ -614,4 +603,5 @@ int electronCompare()
   web_page.close() ;
   std::cout << "page fermee" << std::endl;
 return 0;
+
  }

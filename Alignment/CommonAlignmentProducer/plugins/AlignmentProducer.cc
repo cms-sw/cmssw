@@ -649,10 +649,16 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
    if (doTracker_) {
      edm::ESHandle<GeometricDet> geometricDet;
      iSetup.get<IdealGeometryRecord>().get( geometricDet );
+
      edm::ESHandle<PTrackerParameters> ptp;
      iSetup.get<PTrackerParametersRcd>().get( ptp );
+
+     edm::ESHandle<TrackerTopology> tTopoHandle;
+     iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+     const TrackerTopology* const tTopo = tTopoHandle.product();
+
      TrackerGeomBuilderFromGeometricDet trackerBuilder;
-     theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet), *ptp ));
+     theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet), *ptp, tTopo ));
    }
 
    if (doMuon_) {

@@ -19,11 +19,12 @@
 //
 
 // system include files
+#include <memory>
 #include <vector>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {
@@ -40,7 +41,7 @@ namespace edm {
          // ---------- static member functions --------------------
          
          // ---------- member functions ---------------------------
-         void swapFinders(std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> >&);
+         void swapFinders(std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>&);
       protected:
          virtual void setIntervalFor(const EventSetupRecordKey&,
                                      const IOVSyncValue& , 
@@ -52,7 +53,7 @@ namespace edm {
          const IntersectingIOVRecordIntervalFinder& operator=(const IntersectingIOVRecordIntervalFinder&); // stop default
          
          // ---------- member data --------------------------------
-         std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> > finders_;
+         std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>> finders_;
       };
    }
 }

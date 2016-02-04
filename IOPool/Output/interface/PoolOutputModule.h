@@ -17,6 +17,7 @@
 #include "IOPool/Common/interface/RootServiceChecker.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 
@@ -167,7 +168,7 @@ namespace edm {
     BranchParents branchParents_;
     BranchChildren branchChildren_;
     bool overrideInputFileSplitLevels_;
-    std::unique_ptr<RootOutputFile> rootOutputFile_;
+    edm::propagate_const<std::unique_ptr<RootOutputFile>> rootOutputFile_;
     std::string statusFileName_;
   };
 }

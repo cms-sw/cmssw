@@ -302,13 +302,13 @@ void
     }
     case MessageLoggerQ::CONFIGURE:  {			// changelog 17
       if (singleThread) {
-	job_pset_p.reset(static_cast<ParameterSet *>(operand));
+        job_pset_p = std::shared_ptr<PSet>(static_cast<PSet*>(operand)); // propagate_const<T> has no reset() function
 	configure_errorlog();
 	break;
       } else {
 	ConfigurationHandshake * h_p = 
 		static_cast<ConfigurationHandshake *>(operand);
-	job_pset_p.reset(static_cast<ParameterSet *>(h_p->p));
+        job_pset_p = std::shared_ptr<PSet>(static_cast<PSet*>(h_p->p)); // propagate_const<T> has no reset() function
   std::lock_guard<std::mutex> sl(h_p->m);   // get lock
 	try {
 	  configure_errorlog();
@@ -397,7 +397,7 @@ void
       if (singleThread) return;
       ConfigurationHandshake * h_p = 
 	      static_cast<ConfigurationHandshake *>(operand);
-      job_pset_p.reset(static_cast<ParameterSet *>(h_p->p));
+      job_pset_p = std::shared_ptr<PSet>(static_cast<PSet*>(h_p->p)); // propagate_const<T> has no reset() function
       std::lock_guard<std::mutex> sl(h_p->m);   // get lock
       h_p->c.notify_all();  // Signal to MessageLoggerQ that we are done
       // finally, release the scoped lock by letting it go out of scope 
@@ -1009,17 +1009,14 @@ void
     return;
   }
 
-  for( std::vector<NamedDestination*>::const_iterator it = extern_dests.begin()
-     ; it != extern_dests.end()
-     ;  ++it
-     )
+  for( auto& dest : extern_dests)
   {
-    ELdestination *  dest_p = (*it)->dest_p().get();
+    ELdestination *  dest_p = dest->dest_p().get();
     ELdestControl  dest_ctrl = admin_p->attach( *dest_p );
 
     // configure the newly-attached destination:
-    configure_dest( dest_ctrl, (*it)->name() );
-    delete *it;  // dispose of our (copy of the) NamedDestination
+    configure_dest( dest_ctrl, dest->name() );
+    delete dest;  // dispose of our (copy of the) NamedDestination
   }
   extern_dests.clear();
  
