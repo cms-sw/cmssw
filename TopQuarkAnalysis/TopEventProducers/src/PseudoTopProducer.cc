@@ -1,5 +1,6 @@
 #include "TopQuarkAnalysis/TopEventProducers/interface/PseudoTopProducer.h"
 
+#include "DataFormats/Math/interface/deltaR.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
 
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
@@ -12,12 +13,21 @@ using namespace reco;
 PseudoTopProducer::PseudoTopProducer(const edm::ParameterSet& pset):
   finalStateToken_(consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("finalStates"))),
   genParticleToken_(consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("genParticles"))),
-  leptonMinPt_(pset.getParameter<double>("leptonMinPt")),
-  leptonMaxEta_(pset.getParameter<double>("leptonMaxEta")),
-  jetMinPt_(pset.getParameter<double>("jetMinPt")),
-  jetMaxEta_(pset.getParameter<double>("jetMaxEta")),
+  minLeptonPt_(pset.getParameter<double>("minLeptonPt")),
+  maxLeptonEta_(pset.getParameter<double>("maxLeptonEta")),
+  minJetPt_(pset.getParameter<double>("minJetPt")),
+  maxJetEta_(pset.getParameter<double>("maxJetEta")),
   wMass_(pset.getParameter<double>("wMass")),
-  tMass_(pset.getParameter<double>("tMass"))
+  tMass_(pset.getParameter<double>("tMass")),
+  minLeptonPtDilepton_(pset.getParameter<double>("minLeptonPtDilepton")),
+  maxLeptonEtaDilepton_(pset.getParameter<double>("maxLeptonEtaDilepton")),
+  minDileptonMassDilepton_(pset.getParameter<double>("minDileptonMassDilepton")),
+  minLeptonPtSemilepton_(pset.getParameter<double>("minLeptonPtSemilepton")),
+  maxLeptonEtaSemilepton_(pset.getParameter<double>("maxLeptonEtaSemilepton")),
+  minVetoLeptonPtSemilepton_(pset.getParameter<double>("minVetoLeptonPtSemilepton")),
+  maxVetoLeptonEtaSemilepton_(pset.getParameter<double>("maxVetoLeptonEtaSemilepton")),
+  minMETSemiLepton_(pset.getParameter<double>("minMETSemiLepton")),
+  minMtWSemiLepton_(pset.getParameter<double>("minMtWSemiLepton"))
 {
   const double leptonConeSize = pset.getParameter<double>("leptonConeSize");
   const double jetConeSize = pset.getParameter<double>("jetConeSize");
@@ -103,13 +113,13 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
 
   //// Run the jet algorithm
   fastjet::ClusterSequence fjLepClusterSeq(fjLepInputs, *fjLepDef_);
-  std::vector<fastjet::PseudoJet> fjLepJets = fastjet::sorted_by_pt(fjLepClusterSeq.inclusive_jets(leptonMinPt_));
+  std::vector<fastjet::PseudoJet> fjLepJets = fastjet::sorted_by_pt(fjLepClusterSeq.inclusive_jets(minLeptonPt_));
 
   //// Build dressed lepton objects from the FJ output
   leptons->reserve(fjLepJets.size());
   std::set<size_t> lepDauIdxs; // keep lepton constituents to remove from GenJet construction
   for ( auto& fjJet : fjLepJets ) {
-    if ( abs(fjJet.eta()) > leptonMaxEta_ ) continue;
+    if ( abs(fjJet.eta()) > maxLeptonEta_ ) continue;
 
     // Get jet constituents from fastJet
     const std::vector<fastjet::PseudoJet> fjConstituents = fastjet::sorted_by_pt(fjJet.constituents());
@@ -175,13 +185,13 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
 
   //// Run the jet algorithm
   fastjet::ClusterSequence fjJetClusterSeq(fjJetInputs, *fjJetDef_);
-  std::vector<fastjet::PseudoJet> fjJets = fastjet::sorted_by_pt(fjJetClusterSeq.inclusive_jets(jetMinPt_));
+  std::vector<fastjet::PseudoJet> fjJets = fastjet::sorted_by_pt(fjJetClusterSeq.inclusive_jets(minJetPt_));
 
   /// Build jets
   jets->reserve(fjJets.size());
   std::vector<size_t> bjetIdxs, ljetIdxs;
   for ( auto& fjJet : fjJets ) {
-    if ( abs(fjJet.eta()) > jetMaxEta_ ) continue;
+    if ( abs(fjJet.eta()) > maxJetEta_ ) continue;
 
     // Get jet constituents from fastJet
     const std::vector<fastjet::PseudoJet> fjConstituents = fastjet::sorted_by_pt(fjJet.constituents());
@@ -227,11 +237,15 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       const auto& lepton1 = q1 > 0 ? leptons->at(0) : leptons->at(1);
       const auto& lepton2 = q1 > 0 ? leptons->at(1) : leptons->at(0);
 
+      if ( lepton1.pt() < minLeptonPtDilepton_ or std::abs(lepton1.eta()) > maxLeptonEtaDilepton_ ) break;
+      if ( lepton2.pt() < minLeptonPtDilepton_ or std::abs(lepton2.eta()) > maxLeptonEtaDilepton_ ) break;
+      if ( (lepton1.p4()+lepton2.p4()).mass() < minDileptonMassDilepton_ ) break;
+
       double dm = 1e9;
       int selNu1 = -1, selNu2 = -1;
-      for ( int i=0, n=neutrinos->size(); i<n; ++i ) {
+      for ( int i=0; i<2; ++i ) { // Consider leading 2 neutrinos. Neutrino vector is already sorted by pT
         const double dm1 = std::abs((lepton1.p4()+neutrinos->at(i).p4()).mass()-wMass_);
-        for ( int j=0; j<n; ++j ) {
+        for ( int j=0; j<2; ++j ) {
           if ( i == j ) continue;
           const double dm2 = std::abs((lepton2.p4()+neutrinos->at(j).p4()).mass()-wMass_);
           const double newDm = dm1+dm2;
@@ -292,53 +306,73 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       pseudoTop->push_back(l2);
       pseudoTop->push_back(n2);
     }
-    else if ( leptons->size() == 1 and neutrinos->size() >= 1 ) {
+    else if ( leptons->size() >= 1 and neutrinos->size() >= 1 and ljetIdxs.size() >= 2 ) {
       // Then continue to the semi-leptonic channel
       const auto& lepton = leptons->at(0);
+      if ( lepton.pt() < minLeptonPtSemilepton_ or std::abs(lepton.eta()) > maxLeptonEtaSemilepton_ ) break;
 
-      double dm = 1e9;
-      int selNu = -1, selJ1 = -1, selJ2 = -1;
-      for ( int i=0, n=neutrinos->size(); i<n; ++i ) {
-        const double dm1 = std::abs((lepton.p4()+neutrinos->at(i).p4()).mass()-wMass_);
-        for ( auto j1Itr=ljetIdxs.begin(); j1Itr!=ljetIdxs.end(); ++j1Itr ) {
-          const int j1 = *j1Itr;
-          const auto& jet1 = jets->at(j1);
-          for ( auto j2Itr=std::next(j1Itr); j2Itr!=ljetIdxs.end(); ++j2Itr ) {
-            const int j2 = *j2Itr;
-            const auto& jet2 = jets->at(j2);
-            const double dm2 = std::abs((jet1.p4()+jet2.p4()).mass()-wMass_);
-            const double newDm = dm1+dm2;
-
-            if ( newDm < dm ) { dm = newDm; selNu = i; selJ1 = j1; selJ2 = j2; }
-          }
+      // Skip event if there are veto leptons
+      bool hasVetoLepton = false;
+      for ( auto vetoLeptonItr = next(leptons->begin()); vetoLeptonItr != leptons->end(); ++vetoLeptonItr ) {
+        if ( vetoLeptonItr->pt() > minVetoLeptonPtSemilepton_ and
+             std::abs(vetoLeptonItr->eta()) < maxVetoLeptonEtaSemilepton_ ) {
+          hasVetoLepton = true;
         }
       }
-      if ( dm >= 1e9 ) break;
+      if ( hasVetoLepton ) break;
 
-      const auto& nu1 = neutrinos->at(selNu);
-      const auto& wJet1 = jets->at(selJ1);
-      const auto& wJet2 = jets->at(selJ2);
-      const auto w1LVec = lepton.p4()+nu1.p4();
+      // Calculate MET
+      double metX = 0, metY = 0;
+      for ( auto neutrino : *neutrinos ) {
+        metX += neutrino.px();
+        metY += neutrino.py();
+      }
+      const double metPt = std::hypot(metX, metY);
+      if ( metPt < minMETSemiLepton_ ) break;
+
+      const double mtW = std::sqrt( 2*lepton.pt()*metPt*cos(lepton.phi()-atan2(metX, metY)) );
+      if ( mtW < minMtWSemiLepton_ ) break;
+
+      // Solve pz to give wMass_^2 = (lepE+energy)^2 - (lepPx+metX)^2 - (lepPy+metY)^2 - (lepPz+pz)^2
+      // -> (wMass_^2)/2 = lepE*sqrt(metPt^2+pz^2) - lepPx*metX - lepPy*metY - lepPz*pz
+      // -> C := (wMass_^2)/2 + lepPx*metX + lepPy*metY
+      // -> lepE^2*(metPt^2+pz^2) = C^2 + 2*C*lepPz*pz + lepPz^2*pz^2
+      // -> (lepE^2-lepPz^2)*pz^2 - 2*C*lepPz*pz - C^2 + lepE^2*metPt^2 = 0
+      // -> lepPt^2*pz^2 - 2*C*lepPz*pz - C^2 + lepE^2*metPt^2 = 0
+      const double lpz = lepton.pz(), le = lepton.energy(), lpt = lepton.pt();
+      const double cf = (wMass_*wMass_)/2 + lepton.px()*metX + lepton.py()*metY;
+      const double det = cf*cf*lpz*lpz - lpt*lpt*(le*le*metPt*metPt - cf*cf);
+      const double pz = (cf*lpz + (cf < 0 ? -sqrt(det) : sqrt(det)))/lpt/lpt;
+      const reco::Candidate::LorentzVector nu1P4(metX, metY, pz, std::hypot(metPt, pz));
+      const auto w1LVec = lepton.p4()+nu1P4;
+
+      // Continue to build leptonic pseudo top
+      double minDR = 1e9;
+      int selB1 = -1;
+      for ( auto b1Itr = bjetIdxs.begin(); b1Itr != bjetIdxs.end(); ++b1Itr ) {
+        const double dR = deltaR(jets->at(*b1Itr).p4(), w1LVec);
+        if ( dR < minDR ) { selB1 = *b1Itr; minDR = dR; }
+      }
+      if ( selB1 == -1 ) break;
+      const auto& bJet1 = jets->at(selB1);
+      const auto t1LVec = w1LVec + bJet1.p4();
+
+      // Build hadronic pseudo W, take leading two jets (ljetIdxs are (implicitly) sorted by pT)
+      const auto& wJet1 = jets->at(ljetIdxs[0]);
+      const auto& wJet2 = jets->at(ljetIdxs[1]);
       const auto w2LVec = wJet1.p4() + wJet2.p4();
 
       // Contiue to top quarks
-      dm = 1e9; // Reset once again for top combination.
-      int selB1 = -1, selB2 = -1;
+      double dm = 1e9;
+      int selB2 = -1;
       for ( auto i : bjetIdxs ) {
-        const double dm1 = std::abs((w1LVec+jets->at(i).p4()).mass()-tMass_);
-        for ( auto j : bjetIdxs ) {
-          if ( i == j ) continue;
-          const double dm2 = std::abs((w2LVec+jets->at(j).p4()).mass()-tMass_);
-          const double newDm = dm1+dm2;
-
-          if ( newDm < dm ) { dm = newDm; selB1 = i; selB2 = j; }
-        }
+        if ( int(i) == selB1 ) continue;
+        const double newDm = std::abs((w2LVec+jets->at(i).p4()).mass()-tMass_);
+        if ( newDm < dm ) { dm = newDm; selB2 = i; }
       }
       if ( dm >= 1e9 ) break;
 
-      const auto& bJet1 = jets->at(selB1);
       const auto& bJet2 = jets->at(selB2);
-      const auto t1LVec = w1LVec + bJet1.p4();
       const auto t2LVec = w2LVec + bJet2.p4();
 
       const int q = lepton.charge();
@@ -347,7 +381,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       reco::GenParticle w1(q, w1LVec, genVertex_, q*24, 3, true);
       reco::GenParticle b1(-q/3., bJet1.p4(), genVertex_, q*5, 1, true);
       reco::GenParticle l1(q, lepton.p4(), genVertex_, lepton.pdgId(), 1, true);
-      reco::GenParticle n1(0, nu1.p4(), genVertex_, nu1.pdgId(), 1, true);
+      reco::GenParticle n1(0, nu1P4, genVertex_, q*(std::abs(lepton.pdgId())+1), 1, true);
 
       reco::GenParticle t2(-q*2/3., t2LVec, genVertex_, -q*6, 3, false);
       reco::GenParticle w2(-q, w2LVec, genVertex_, -q*24, 3, true);
