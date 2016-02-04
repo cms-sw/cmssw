@@ -468,9 +468,8 @@ bool HcalTopology::validRaw(const HcalDetId& id) const {
     } else if (subdet==HcalOuter) {
       if (aieta>lastHORing() || iphi>IPHI_MAX || depth!=4) ok=false;
     } else if (subdet==HcalForward) {
-      int zside = (id.ieta() > 0) ? 1 : 0;
       if (aieta<firstHFRing() || aieta>lastHFRing() || ((iphi%2)==0) || 
-	  (depth>hcons_->maxHFDepth(zside,iphi)) ||  
+	  (depth>hcons_->maxHFDepth(ieta,iphi)) ||  
 	  (aieta>=firstHFQuadPhiRing() && ((iphi+1)%4)!=0)) ok=false;
     } else if (subdet==HcalTriggerTower) {
       ok=validHT(HcalTrigTowerDetId(id.rawId()));

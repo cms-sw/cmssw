@@ -195,7 +195,7 @@ HcalDDDRecConstants::getHFCellParameters() const {
 	int ieta = hcons.getIdHF2QIE()[k].ieta();
 	int ind  = std::abs(ieta) - iEtaMin[2];
 	int dphi = (int)(0.001 + hcons.getPhiTableHF()[ind]/(5.0*CLHEP::deg));
-	int iphi = (dphi == 4) ? 3 : 1;
+	int iphi = hcons.getIdHF2QIE()[k].iphi();
 	double rMin = hcons.getRTableHF()[nEta-ind-1]/CLHEP::cm;
 	double rMax = hcons.getRTableHF()[nEta-ind]/CLHEP::cm;
 	HcalDDDRecConstants::HFCellParameters cell1( ieta,3,iphi,dphi,1,rMin,rMax);
