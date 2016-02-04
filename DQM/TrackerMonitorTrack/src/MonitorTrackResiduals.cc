@@ -160,11 +160,6 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
       }
 
       auto subdetandlayer = findSubdetAndLayer(ModuleID, tTopo);
-      
-
-	  //folder_organizer.setDetectorFolder(ModuleID, tTopo); //  detid sets appropriate detector folder
-	  // book layer level histogramms
-	  //std::pair<std::string,int32_t> subdetandlayer = folder_organizer.GetSubDetAndLayer(ModuleID, tTopo);
 
       if(! m_SubdetLayerResiduals[subdetandlayer ] ) {
 	
@@ -183,18 +178,23 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
 	}
 	
 	// book histogramms on layer level, check for barrel for correct labeling
-	std::string histoname = Form(subdetandlayer.first.find("B") != std::string::npos ?
-				     "HitResiduals_%s__Layer__%d" : "HitResiduals_%s__wheel__%d" ,
-				     subdetandlayer.first.c_str(),std::abs(subdetandlayer.second));
-	std::string normhistoname =
-	  Form(subdetandlayer.first.find("B") != std::string::npos ?
-	       "NormalizedHitResidual_%s__Layer__%d" : "NormalizedHitResidual_%s__wheel__%d" ,
-	       subdetandlayer.first.c_str(),std::abs(subdetandlayer.second));
+	
+	auto isBarrel = subdetandlayer.first.find("B") != std::string::npos;
+	std::string histoname = Form("HitResiduals_%s%s__%s__%d",
+		subdetandlayer.first.c_str(),
+		isBarrel ? "" : (subdetandlayer.second > 0 ? "+" : "-"),
+		isBarrel ? "Layer" : "wheel",
+		std::abs(subdetandlayer.second));
+	
+	std::string normhistoname = Form("Normalized%s", histoname.c_str());
+
 	std::cout << "##### Booking: " << ibooker.pwd() << " title " << histoname << std::endl;
+	
 	m_SubdetLayerResiduals[subdetandlayer] =
 	  ibooker.book1D(histoname.c_str(),histoname.c_str(),
 			 i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
 	m_SubdetLayerResiduals[subdetandlayer]->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
+
 	m_SubdetLayerNormedResiduals[subdetandlayer] =
 	  ibooker.book1D(normhistoname.c_str(),normhistoname.c_str(),
 			 i_normres_Nbins,d_normres_xmin,d_normres_xmax);
