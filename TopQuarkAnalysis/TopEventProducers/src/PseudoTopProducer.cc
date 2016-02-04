@@ -345,7 +345,6 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       const double pz = (cf*lpz + (cf < 0 ? -sqrt(det) : sqrt(det)))/lpt/lpt;
       const reco::Candidate::LorentzVector nu1P4(metX, metY, pz, std::hypot(metPt, pz));
       const auto w1LVec = lepton.p4()+nu1P4;
-      cout << w1LVec.mass() << endl;
 
       // Continue to build leptonic pseudo top
       double minDR = 1e9;
