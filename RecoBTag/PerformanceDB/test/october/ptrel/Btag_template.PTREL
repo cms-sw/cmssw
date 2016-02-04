@@ -1,0 +1,105 @@
+BtagPerformanceESProducer_PTRELJPL = cms.ESProducer("BtagPerformanceESProducer",
+# this is what it makes available
+    ComponentName = cms.string('PTRELJPL'),
+# this is where it gets the payload from                                                
+    PayloadName = cms.string('PTRELJPL_T'),
+    WorkingPointName = cms.string('PTRELJPL_WP')
+)
+BtagPerformanceESProducer_PTRELJPM = cms.ESProducer("BtagPerformanceESProducer",
+# this is what it makes available
+    ComponentName = cms.string('PTRELJPM'),
+# this is where it gets the payload from                                                
+    PayloadName = cms.string('PTRELJPM_T'),
+    WorkingPointName = cms.string('PTRELJPM_WP')
+)
+BtagPerformanceESProducer_PTRELJPT = cms.ESProducer("BtagPerformanceESProducer",
+# this is what it makes available
+    ComponentName = cms.string('PTRELJPT'),
+# this is where it gets the payload from                                                
+    PayloadName = cms.string('PTRELJPT_T'),
+    WorkingPointName = cms.string('PTRELJPT_WP')
+)
+BtagPerformanceESProducer_PTRELJBPL = cms.ESProducer("BtagPerformanceESProducer",
+# this is what it makes available
+    ComponentName = cms.string('PTRELJBPL'),
+# this is where it gets the payload from                                                
+    PayloadName = cms.string('PTRELJBPL_T'),
+    WorkingPointName = cms.string('PTRELJBPL_WP')
+)
+BtagPerformanceESProducer_PTRELJBPM = cms.ESProducer("BtagPerformanceESProducer",
+# this is what it makes available
+    ComponentName = cms.string('PTRELJBPM'),
+# this is where it gets the payload from                                                
+    PayloadName = cms.string('PTRELJBPM_T'),
+    WorkingPointName = cms.string('PTRELJBPM_WP')
+)
+BtagPerformanceESProducer_PTRELJBPT = cms.ESProducer("BtagPerformanceESProducer",
+# this is what it makes available
+    ComponentName = cms.string('PTRELJBPT'),
+# this is where it gets the payload from                                                
+    PayloadName = cms.string('PTRELJBPT_T'),
+    WorkingPointName = cms.string('PTRELJBPT_WP')
+)
+BtagPerformanceESProducer_PTRELTCHEL = cms.ESProducer("BtagPerformanceESProducer",
+# this is what it makes available
+    ComponentName = cms.string('PTRELTCHEL'),
+# this is where it gets the payload from                                                
+    PayloadName = cms.string('PTRELTCHEL_T'),
+    WorkingPointName = cms.string('PTRELTCHEL_WP')
+)
+BtagPerformanceESProducer_PTRELTCHEM = cms.ESProducer("BtagPerformanceESProducer",
+# this is what it makes available
+    ComponentName = cms.string('PTRELTCHEM'),
+# this is where it gets the payload from                                                
+    PayloadName = cms.string('PTRELTCHEM_T'),
+    WorkingPointName = cms.string('PTRELTCHEM_WP')
+)
+BtagPerformanceESProducer_PTRELTCHET = cms.ESProducer("BtagPerformanceESProducer",
+# this is what it makes available
+    ComponentName = cms.string('PTRELTCHET'),
+# this is where it gets the payload from                                                
+    PayloadName = cms.string('PTRELTCHET_T'),
+    WorkingPointName = cms.string('PTRELTCHET_WP')
+)
+BtagPerformanceESProducer_PTRELTCHPL = cms.ESProducer("BtagPerformanceESProducer",
+# this is what it makes available
+    ComponentName = cms.string('PTRELTCHPL'),
+# this is where it gets the payload from                                                
+    PayloadName = cms.string('PTRELTCHPL_T'),
+    WorkingPointName = cms.string('PTRELTCHPL_WP')
+)
+BtagPerformanceESProducer_PTRELTCHPM = cms.ESProducer("BtagPerformanceESProducer",
+# this is what it makes available
+    ComponentName = cms.string('PTRELTCHPM'),
+# this is where it gets the payload from                                                
+    PayloadName = cms.string('PTRELTCHPM_T'),
+    WorkingPointName = cms.string('PTRELTCHPM_WP')
+)
+BtagPerformanceESProducer_PTRELTCHPT = cms.ESProducer("BtagPerformanceESProducer",
+# this is what it makes available
+    ComponentName = cms.string('PTRELTCHPT'),
+# this is where it gets the payload from                                                
+    PayloadName = cms.string('PTRELTCHPT_T'),
+    WorkingPointName = cms.string('PTRELTCHPT_WP')
+)
+BtagPerformanceESProducer_PTRELSSVL = cms.ESProducer("BtagPerformanceESProducer",
+# this is what it makes available
+    ComponentName = cms.string('PTRELSSVL'),
+# this is where it gets the payload from                                                
+    PayloadName = cms.string('PTRELSSVL_T'),
+    WorkingPointName = cms.string('PTRELSSVL_WP')
+)
+BtagPerformanceESProducer_PTRELSSVM = cms.ESProducer("BtagPerformanceESProducer",
+# this is what it makes available
+    ComponentName = cms.string('PTRELSSVM'),
+# this is where it gets the payload from                                                
+    PayloadName = cms.string('PTRELSSVM_T'),
+    WorkingPointName = cms.string('PTRELSSVM_WP')
+)
+BtagPerformanceESProducer_PTRELSSVT = cms.ESProducer("BtagPerformanceESProducer",
+# this is what it makes available
+    ComponentName = cms.string('PTRELSSVT'),
+# this is where it gets the payload from                                                
+    PayloadName = cms.string('PTRELSSVT_T'),
+    WorkingPointName = cms.string('PTRELSSVT_WP')
+)

@@ -1,0 +1,3 @@
+%MSG-e preconfiguration:  (NoModuleName) pre-events
+This tests a message generated before configuration
+%MSG

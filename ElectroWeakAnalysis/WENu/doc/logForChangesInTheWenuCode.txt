@@ -1,0 +1,120 @@
+# file to keep track of the changes in the Wenu and Zee Code
+# Nikolaos Rompotis
+
+
+v_29Oct09_2    ElectroWeakAnalysis/WENu    ElectroWeakAnalysis/ZEE
+      version for 3_1_4, used with the OctX
+
+v_10Dec09_v1   ElectroWeakAnalysis/WENu    ElectroWeakAnalysis/ZEE
+      these work in 3_1 and later versions. There was a change in the PAT
+      so that we cannot use ecalIso() etc methods, but we have to use instead
+      userIsolation(pat::ecalIso) when we want to access the pat produced isolations
+Note: from 3_3_1 onwards the pat::Electron object contains the ecalIso() etc functions
+      that overload the pat::Lepton classes, giving the egamma stored values of the
+      isolations. That was not the case in the previous versions
+
+
+v_05Jan10_v1   ElectroWeakAnalysis/WENu    ElectroWeakAnalysis/ZEE
+      the same as before, but now the file 
+      DataFormats/METReco/interface/METCollection.h
+      is obsolete. We can just replace this file with METFwd.h
+      however it was decided to remove from the tag the file aod2patFilterWenu.cc
+      and aod2patFilterZee.cc, because their use is deprecated
+v_05Jan10_v3   ElectroWeakAnalysis/WENu    ElectroWeakAnalysis/ZEE
+or V00-01-02
+      a line in WENu/src/WenuPlots.cc was commented out so that there is no
+      warning in compilation. The name V00-01-02 was done for compatibility
+      CMS tag collector format and is is identical to v_05Jan10_v3
+
+
+
+/ZEE V00-01-02-01 branch B3_4_X this is for a clean up in the TFileService
+     all the following should be based on that
+
+/ZEE    V00-01-02 
+/WENu   V00-01-02     tags for 3_4_X release
+
+
+/ZEE    V00-01-07     
+/WENu   V00-01-06     tags for 3_6_X release
+
+/ZEE    V00-01-08
+/WENu   V00-01-07     tags for 3_6_X release     (again)
+
+
+v_19Feb10_Hbk:    this is a back up for the WENu head, compiled and tested in 3_5_1
+v_19Feb10_idmaps: this is the first implementation of the idmaps in WENu
+                  there is a caveat there, only pat_WenuPlots.py is updated from the
+                  cfgs
+
+v_23Feb10_convrej_idmaps: adding on top of v_19Feb10_idmaps e/p and tip as variables
+                  with default values 1000. in WenuCandidateFilter added the option
+                  to use egamma conversion rejection, valid first PXB hit and
+		  expected missing hits criteria. only pat_WenuPlots.py is updated.
+
+v_25Feb10_convrej_idmaps : adding the option to calculate and store in the electron
+                 conversion rejection and hit pattern info. only pat_WenuPlots.py is updated.
+                 This tag also applies to ZEE
+                 same in the zee candidate producer. But now the option to have separate cuts in each of the 2 electrons separately is added.
+                 Caveat: the electrons are distinguished from the highest ET electron. Hence the selection 1 
+                 is applied to the highest et electron and selection 2 to the other one. We may need something different 
+                 in data, but we can change it if we like. the basic framework is there.
+                 only pat_ZeePlots.py is updated.
+
+v_1March10_convrej_idmaps : adding the option the 2nd ele id veto to be applied to
+                 an electron that passes electron id. again only pat_WenuPlots.py
+                 is updated. applicable to WENu only
+
+/WENu  v_26May10_Spring10MC :  test version adding python directory with the spring10 tuned selections
+                bug fixes and everything should work for Spring10 MC samples
+		this tag works with RecoEgamma/ElectronIdentification V00-03-07-02
+		the tag is for the correct implementation of the electron ID cfgs in the python dir
+		has to be updated for the latest tag of electron ID
+
+/WENu V00-01-07-01 : version that works with CMSSW_3_6_1_patch2 and 
+                V00-03-07-03   RecoEgamma/ElectronIdentification
+		Contains configuration valid for both data and MC, Spring10 selections implemented.
+
+ZEE  V00-01-08-02 : version that works with CMSSW_3_6_1_patch2 and
+                V00-03-07-03   RecoEgamma/ElectronIdentification
+		Contains configuration valid for both data and MC, Spring10 selections implemented.
+		Similar to the WENu tag V00-01-07-01
+
+V00-01-07-02  update of python configuration with the new cuts (Paolo's limits)     
+
+/WENu         V00-01-07-03   same as V00-01-07-02 (i.e. Paolo's new limits) but all cfg.py are
+	      updated so that you have 80% selection plus no 2nd ele with 95% selection, 25GeV 
+	      and photon 10 trigger
+
+/ZEE          V00-01-08-03 made to be similar to the WENu V00-01-07-03
+              V00-01-08-04 to correct a bug in pushing back the 2nd leg variables, thanks to Jie Chen
+
+/WENu         V00-01-08-01 major upgrade: VBTF ntuple production for CMSSW_3_6_1_patch4 (bug fix to V00-01-08)
+              Needs the following tags: 
+              RecoEgamma/ElectronIdentification  V00-03-12
+              RecoEgamma/EgammaTools             V00-05-05
+              CondFormats/JetMETObjects          V01-09-01-09
+
+V00-01-08-02 update, bug corrected
+V00-01-08-03 update, 2nd ele included, same other tags as before
+V00-01-08-04 update, bugs corrected
+V00-01-08-05 same as before, but removing Delta eta cut for the Endcaps - EGAMMA ICHEP recommendation
+V00-01-08-06 bug corrected in the HLT geometrical matching
+             option added to store all the parameters of the second electron
+V00-01-08-07 the primary vtx information is moved from the filter to the analyzer
+             more variables stored: Rho of the SC, number of tracks per primary vtx (as a vector of ints)
+             norm chi2 per primary vtx, both for offlineVertexCollection and offlineVertexCollectionBS
+V00-01-08-08 slightly updated version of the previous tag, with a small "bug" corrected (set up to use
+             the ideal magnetic field even in data if the current is not stored in the event). Intended 
+             to be the last tag for the 3_6_X configuration. This tag can compile on 3_8_2 without further
+             tags - however, wait for the 38 recipee, regarding JEC and egamma misalignment corrections.
+V00-01-08-09 tag for 361: this is for the 3/pb VBTF ntuple production. 2 changes:
+	     a. HoE cut in the cfgs becomes 0.15 - only WP95 is affected
+	     b. trigger collection in WenuCandidateFilter is updated
+V00-01-08-10 bug fix on the previous tag on the extra triggers in OR. The extra triggers were not looked for
+             correctly and if they there first in the list of event triggers would not appear at all
+
+V00-02-01    first dedicated tag to 38: the configuration has changed such that now the Deta cut in the EE is
+             applied. Still needs extra tags:    V00-03-13      RecoEgamma/ElectronIdentification
+--
+latest update: 4 Nov 2010

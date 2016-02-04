@@ -1,0 +1,2112 @@
+TOB Structure (anything but modules)
+====================================
+Input file for mixture.f
+Start new mixtures with a '#' in the first column
+Start the components with a '*' in the first column
+You can type any kind of comment in as long as you don't start it
+with '#' or '*' !
+.....................................................................
+For mixture declaration: Name of Mixture, Name of GMIX for title file, 
+                         Monte Carlo Volume, MC Area
+For items in a compound: Item number, Comment, Material (has to be 
+                 written exactly as in material.input file), 
+                 Volume, Multiplicity, Type     
+      Type is one of the following:  SUP for support
+                                     SEN for sensitive volumes
+                                     CAB for cables
+                                     COL for cooling
+                                     ELE for electronics
+..................................................................... 
+
+
+	[WAS:
+		o TOB Cooling pipes DS (per 1 cm length)
+		  --------------------
+		(1) Cooling pipes: material CuNi 2.5 mm OD, 2.3 mm ID 
+		(2) Coolant: C6F14
+		.....................................................................
+		 "TOB cooling pipes DS"    "TOB_cool_DS"    0.0491   0.196
+		 1 "CuNi pipe"             "TOB_CuNi"       7.6E-3    1    COL
+		 2 "Coolant"               "C6F14"          0.0415    1    COL
+		.....................................................................
+		=====================================================================
+		
+		o TOB Cooling pipes SS (per 1 cm length)
+		  --------------------
+		(1) Cooling pipes: material CuNi 2.2 mm OD, 2.0 mm ID 
+		(2) Coolant: C6F14
+		.....................................................................
+		 "TOB cooling pipes SS"    "TOB_cool_SS"    0.038   0.173
+		 1 "CuNi pipe"             "TOB_CuNi"       0.007    1     COL
+		 2 "Coolant"               "C6F14"          0.031    1     COL
+		.....................................................................
+		=====================================================================
+	]		
+
+
+o Rod carbon fibre frame
+  -----------------------
+This material is also used for the end pieces ! 
+
+MCVolume: 1.2 x 0.12 cm^2 /unit length -> 0.144 cm^2
+Calculate from C-profile:
+CF thickness 0.9 mm, length (including bended piece): ~17 mm -> 0.153 cm^2
+......................................................................
+# "TOB rod CF structure"     "TOB_rod"            0.144     1.6
+* 1 "C profiles"             "Carbon fibre str."  0.153     1  SUP
+......................................................................
+======================================================================
+
+o TOB Mothercable (Inter Connect Bus)
+  -------------------------------------
+MCVolume: (5.0 x 76.5 x 0.1) cm^3 = 38.25 cm^3
+Data taken from http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/ICB_MB.htm
+ICB Circuit  EDMS Code EP-680-1174-150-A
+
+(1-4) ICB
+	FR4:	m = 86.90 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 45.737 cm^3 [it's ok, the real bus thickness is 1.2 mm and not 1.0 mm]
+	Copper:	m = 30.633 g
+		density = 8.96 g/cm^3
+		--> volume = 3.419 cm^3
+	ICB SMD Resistors, 28 x (0603) resistors, mostly Al2O3 (Aluminiumoxid, ceramic), the total mass is computed
+		m = 0.579 g
+		density = 3.96525 g/cm^3
+		--> volume = 0.146 cm^3
+
+	ICB SMD Capacitors, 21 x (0805) + 10 x (1812), mostly BaTiO3, the total mass is computed
+		m = 2.615 g
+		density = 6.02 g/cm^3
+		--> volume = 0.434 cm^3
+
+(5-6) ICB ASICs: 4 x ("LVDSBUF" 16 pin)
+	epoxy:	m = ( 4 x 0.038519 ) g = 0.154076 g
+		density = 1.3 g/cm^3
+		--> volume = 0.1185 cm^3
+	copper: m = [ ( 4 x 0.076 ) - 0.154076 ] g = 0.149924 g
+		density = 8.96 g/cm^3
+		--> volume = 0.0167 cm^3
+
+(7-8) NAiS connectors
+	They are in the CCUM material, apart from 1 connector 50 pins not used, only socket (AXN350038S, no AXN450330S)
+	copper: m = 1 x (0.1442) g = 0.1442 g
+		density = 8.96 g/cm^3
+		--> volume = 0.016 cm^3
+	resin:  m = 1 x (0.2329) g = 0.2329 g
+		density (epoxy) = 1.3 g/cm^3
+		--> volume = 0.179 cm^3
+
+(9)  Wires Connected to the Rod Connectors
+	Copper Tinned wires, 6 pieces 45 mm, 1 piece 25 mm
+	total mass; 1 only copy in the mixture
+	Copper:	m = ( 1.5663 + 0.1450) g = 1.7113 g
+		density = 8.96 g/cm^3
+		--> volume = 0.191 cm^3
+
+(10) Araldite glue (take epoxy): (1/2 CONN), 1/2 ICB
+	m = 0.47 g / 2 = 0.235 g
+	density = 1.3 g/cm^3
+	volume = 0.181 cm^3
+
+(11) Solder paste (BGA): 1/2 ICB, (1/2 CONN)
+	m = 0.09 g / 2 = 0.045 g
+	density = 8.82 g/cm^3
+	volume = 0.005 cm^3
+
+
+HVLAC and LVLAC will go outside with the CCUM ones.
+
+
+	[WAS: this is what Robert calls ICB
+		MCVolume: 5 x 0.1 = 0.5 cm^2
+		
+		(1) 1 mm G10
+		(2) Copper volume (this board is trimmed, but model at the moment
+		    still with homogeneous material). 
+		    4 Cu layers a 25 um, 2 * occ 50 %,
+		                         2 * occ 100 %.
+		    Halfway between mod 3 & 4 one could take away < 50% of the Cu.
+		    (-50% for 1/3 of the length)
+		
+		    5 * 0.0025 * 3 = 0.0375 cm^2 without trimming taken into account
+		    * 5/6 for trimming = 0.03125 
+		                        --> take 0.035 cm^2
+	]
+
+........................................................................
+# "TOB mothercable (ICB)"      "TOB_ICB"         38.25     382.5 
+* 1 "ICB substrate"            "T_G10"           45.737      1    ELE
+* 2 "ICB copper traces"        "Copper"           3.419      1    ELE
+* 3 "ICB Resistors"            "Ceramic"          0.146      1    ELE
+* 4 "ICB Capacitors"           "Barium_Titanate"  0.434      1    ELE
+* 5 "ICB ASICs EMC"            "Epoxy"            0.1185     1    ELE
+* 6 "ICB ASICs copper"         "Copper"           0.0167     1    ELE
+* 7 "NAiS connector"           "Copper"           0.016      1    ELE
+* 8 "NAiS connector"           "Epoxy"            0.179      1    ELE
+* 9 "BUS wires Cu"             "Copper"           0.191      1    CAB
+* 10 "ICB,LVLAC,HVLAC glue"    "Epoxy"            0.181      1    SUP
+* 11 "Solder Paste"            "BGA"              0.005      1    CAB
+........................................................................
+========================================================================
+
+o HV and Optical fibers Layers 1,2 (DS 4 APVs)
+  ---------------------------------------------
+MCVolume: (pi 0.075^2 x 107.9) cm^3 = 1.90675 cm^3
+
+(1-2) HV Wires from ICB, data taken from http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/ICB_MB.htm
+	SS: number of pieces: 2 + 2 + 2 + 2 + 4
+	Copper:	m = ( 2.1358 + 1.6520 + 1.4160 + 0.9015 + 0.2832 ) g = 6.3885 g
+		density = 8.96 g/cm^3
+		--> volume = 0.713 cm^3
+	TPE-06:	m = ( 1.7376 + 1.3440 + 1.1520 + 0.7334 + 0.2304 ) g = 5.1974 g
+		density (take polyethylene) = 0.95 g/cm^3
+		--> volume = 5.471 cm^3
+
+(3) HV Wire sleeve (l=15 mm, ext diameter=3.0 mm, 15 pieces) + (l=20 mm, ext diameter=3.0 mm, 1 piece)
+	 + LVLAC wires sleeve (l=10 mm, ext diameter=3.0 mm, 1 piece) Polyethylene and Polyolefin (take polyethylene):
+	total mass
+	m = ( 0.54 + 0.20 + 0.10 ) g = 0.84 g
+	density = 0.95 g/cm^3
+	volume = 0.884 cm^3
+
+(4) Optical fibers
+	masses are per AOH, multiplicity will be given by the number of AOHs
+	AOH x ( #fibers x type ) x length_fraction
+		length_fraction: 5 cm per each fiber will be put into TOB_CONN12
+	2 x ( TOB_2_088 ) x (88-5)/88 = 2 x 2 x 88 cm x 83/88 = 332 cm
+	2 x ( TOB_2_070 ) x (70-5)/70 = 2 x 2 x 70 cm x 65/70 = 260 cm
+	4 x ( TOB_2_056 ) x (56-5)/56 = 4 x 2 x 56 cm x 51/56 = 408 cm
+	4 x ( TOB_2_035 ) x (35-5)/35 = 4 x 2 x 35 cm x 30/35 = 480 cm
+	Total optical fibers length: 1480 cm
+
+	[WAS:
+		These run in 2 tubes next to the cooling pipes. 
+		MCVolume: diameter 1.5 mm      
+		(1) Per module 1 Al wire with 0.08 mm^2 xsect. 
+		    Since volume on both sides (not true in reality !),
+		    3 per side, and they don't run all over the full
+		    length. "Average" 2 per side.
+		    radius = 0.16 mm
+		(2) Insulation skin (assumption !) 0.1 mm 
+		    -> 0.132 mm^2 
+		(3) Optical fibers: 4 per /module, hence 24 total
+		    take 16 (difference in length), i.e.  8/side
+	]
+
+.............................................................................
+# "TOB HV and opt. fibers L12 (DS)" "TOB_optfib_L12" 14.85         0.198
+* 1 "HV Wires"                      "Copper"          0.713        1     CAB
+* 2 "HV Wires insulation"           "Polyethylene"    5.471        1     CAB
+* 3 "Wire Sleeve"                   "Polyethylene"    0.884        1     CAB
+* 4 "Optical fibers"                "Optical_Fiber"   6.362E-3  1480     CAB
+.............................................................................
+=============================================================================
+    
+o HV and Optical fibers Layers 3,4 (SS 4 APVs)
+  ---------------------------------------------
+MCVolume: ( 0.300 x 0.660 x 75.0 ) cm^3 = 1.90675 cm^3
+
+(1-2) HV Wires from ICB, data taken from http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/ICB_MB.htm
+	SS: number of pieces: 1 + 1 + 2 + 2 + 0
+	Copper:	m = ( 1.0679 + 0.8260 + 1.4160 + 0.9015 + 0 ) g = 4.2114 g
+		density = 8.96 g/cm^3
+		--> volume = 0.470 cm^3
+	TPE-06:	m = ( 0.8688 + 0.6720 + 1.1520 + 0.7334 + 0 ) g = 3.4262 g
+		density (take polyethylene) = 0.95 g/cm^3
+		--> volume = 3.6065 cm^3
+
+(3) HV Wire sleeve (l=15 mm, ext diameter=3.0 mm, 9 pieces) + (l=20 mm, ext diameter=3.0 mm, 1 piece)
+	 + LVLAC wires sleeve (l=10 mm, ext diameter=3.0 mm, 1 piece) Polyethylene and Polyolefin (take polyethylene):
+	total mass
+	m = ( 0.32 + 0.20 + 0.10 ) g = 0.62 g
+	density = 0.95 g/cm^3
+	volume = 0.653 cm^3
+
+(4) Optical fibers
+	masses are per AOH, multiplicity will be given by the number of AOHs
+	AOH x ( #fibers x type ) x length_fraction
+		length_fraction: 5 cm per each fiber will be put into TOB_CONN34
+	1 x ( TOB_2_088 ) x (88-5)/88 = 1 x 2 x 88 cm x 83/88 = 166 cm
+	1 x ( TOB_2_070 ) x (70-5)/70 = 1 x 2 x 70 cm x 65/70 = 130 cm
+	2 x ( TOB_2_056 ) x (56-5)/56 = 2 x 2 x 56 cm x 51/56 = 204 cm
+	2 x ( TOB_2_035 ) x (35-5)/35 = 2 x 2 x 35 cm x 30/35 = 120 cm
+	Total optical fibers length: 620 cm
+
+	[WAS:
+		These run in 2 tubes next to the cooling pipes. 
+		MCVolume: diameter 1.5 mm      
+		(1) Per module 1 Al wire with 0.08 mm^2 xsect. 
+		    Since volume on both sides (not true in reality !),
+		    3 per side, and they don't run all over the full
+		    length. "Average" 2 per side.
+		    radius = 0.16 mm
+		(2) Insulation skin (assumption !) 0.1 mm 
+		    -> 0.132 mm^2 
+		(3) Optical fibers: 
+		    layers 7/8: 2/module  12
+		           9/10: 3/module 18
+		    15 -> 10 -> 5/side
+	]
+
+.............................................................................
+# "TOB HV and opt. fibers L34 (SS)" "TOB_optfib_L34" 14.85         0.198
+* 1 "HV Wires"                      "Copper"          0.470        1     CAB
+* 2 "HV Wires insulation"           "Polyethylene"    3.6065       1     CAB
+* 3 "Wire Sleeve"                   "Polyethylene"    0.653        1     CAB
+* 4 "Optical fibers"                "Optical_Fiber"   6.362E-3   620     CAB
+.............................................................................
+=============================================================================
+
+o HV and Optical fibers Layers 5,6 (SS 6 APVs)
+  ---------------------------------------------
+MCVolume: ( 0.300 x 0.660 x 75.0 ) cm^3 = 1.90675 cm^3
+
+Same as Layers 3,4 except oprical fibers
+
+(4) Optical fibers
+	masses are per AOH, multiplicity will be given by the number of AOHs
+	AOH x ( #fibers x type ) x length_fraction
+		length_fraction: 5 cm per each fiber will be put into TOB_CONN34
+	1 x ( TOB_3_088 ) x (88-5)/88 = 1 x 3 x 88 cm x 83/88 = 249 cm
+	1 x ( TOB_3_070 ) x (70-5)/70 = 1 x 3 x 70 cm x 65/70 = 195 cm
+	2 x ( TOB_3_056 ) x (56-5)/56 = 2 x 3 x 56 cm x 51/56 = 306 cm
+	2 x ( TOB_3_035 ) x (35-5)/35 = 2 x 3 x 35 cm x 30/35 = 180 cm
+	Total optical fibers length: 930 cm
+
+
+.............................................................................
+# "TOB HV and opt. fibers L56 (SS)" "TOB_optfib_L56" 14.85         0.198
+* 1 "HV Wires"                      "Copper"          0.470        1     CAB
+* 2 "HV Wires insulation"           "Polyethylene"    3.6065       1     CAB
+* 3 "Wire Sleeve"                   "Polyethylene"    0.653        1     CAB
+* 4 "Optical fibers"                "Optical_Fiber"   6.362E-3   930     CAB
+.............................................................................
+=============================================================================
+
+		DOH
+		---
+	EDMS Code EP 680-117-450-D
+	2 copies per each DOHM
+data taken from http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/DOH_MB.htm
+The volume is the sum of the volume components, this material is part of the DOHM.
+
+
+(1-2) PCBs
+	FR4:    m = 0.698 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 0.367 cm^3
+	copper: m = 0.572 g
+		density = 8.96 g/cm^3
+		--> volume = 0.064 cm^3
+
+(3-4) Connector NaiS
+	header
+	1 x DOHM-DOH    (NAiS 26)
+	copper: m = 1 x 0.0836 g = 0.0836 g
+		density = 8.96 g/cm^3
+		--> volume = 0.0093 cm^3
+	resin:  m = 1 x 0.1340 g = 0.1340 g
+		density (epoxy) = 1.3 g/cm^3
+		--> volume = 0.103 cm^3
+
+(5) DOH SMD Resistors, 3 x (0402) resistors, mostly Al2O3 (Aluminiumoxid, ceramic), the total mass is computed
+	m = 4.4 mg = 0.0044 g
+	density = 3.96525 g/cm^3
+	--> volume = 0.0011 cm^3
+
+(6) DOH SMD Capacitors, 12 x (0402) + 1 x (0805) mostly BaTiO3, the total mass is computed
+	m = 33.6 mg = 0.0336 g
+	density = 6.02 g/cm^3
+	--> volume = 0.0056 cm^3
+
+(7-8) DOHM ASICs: 1 x ("LLD") + 1 x ("RX40")
+	epoxy:	m = 54.2 mg = 0.0542 g
+		density = 1.3 g/cm^3
+		--> volume = 0.0417 cm^3
+	copper: m = [ 140.0 - 54.2 ) ] mg = 0.0858 g
+		density = 8.96 g/cm^3
+		--> volume = 0.0096 cm^3
+
+other components:
+
+(9) Laser Diodes (2 copies)
+	MISSING:m = xxx g
+		density = xxx g/cm^3
+		--> volume = xxx cm^3
+	
+(10) Photodiodes (2 copies)
+	MISSING:m = xxx g
+		density = xxx g/cm^3
+		--> volume = xxx cm^3
+	
+(11) Covers
+	MISSING:m = xxx g
+		density = xxx g/cm^3
+		--> volume = xxx cm^3
+
+	
+(12) 3D Label
+	Plastic (kapton): m = 0.020 g
+		density = 1.40 g/cm^3
+		--> volume = 0.0143 cm^3
+	
+
+(13-15) Optical fibers
+	masses are per DOH, multiplicity will be given by the number of DOHs
+	( 4 x DOH_2t_2g ) [56 cm] = 4 x 56 cm = 224 cm
+
+	3D label tags (kapton): m = 4 x 0.110 g = 0.440 g
+		density = 1.40 g/cm^3
+		--> volume = 0.314 cm^3
+	MU connectors (kapton): m = 4 x 0.822 = 3.288
+		density = 1.40 g/cm^3
+		--> volume = 2.349 cm^3
+
+....................................................................................
+# "TOB DOH"                                "TOB_DOH"          3.9851     2.9998
+* 1 "DOH PCB board"                        "T_G10"            0.367      1      ELE
+* 2 "DOH PCB copper traces"                "Copper"           0.064      1      ELE
+* 3 "DOH NAiS connector"                   "Copper"           0.0093     1      ELE
+* 4 "DOH NAiS connector"                   "Epoxy"            0.103      1      ELE
+* 5 "DOH Resistors"                        "Ceramic"          0.0011     1      ELE
+* 6 "DOH Capacitors"                       "Barium_Titanate"  0.0056     1      ELE
+* 7 "DOH ASICs EMC"                        "Epoxy"            0.0417     1      ELE
+* 8 "DOH ASICs copper"                     "Copper"           0.0096     1      ELE
+* 9 "Laser Diode"                          "Air"              0.000      2      ELE
+* 10 "Photodiode"                          "Air"              0.000      2      ELE
+* 11 "Covers"                              "Air"              0.000      1      ELE
+* 12 "DOH 3D Label"                        "T_Kapton"         0.0143     1      ELE
+* 13 "Optical fibers"                      "Optical_Fiber"    6.362E-3 224      CAB
+* 14 "Optical fibers 3D label tag"         "T_Kapton"         0.314      1      CAB
+* 15 "Optical fibers MU connectors"        "T_Kapton"         2.349      1      CAB
+....................................................................................
+====================================================================================
+
+
+
+o DOHM
+  ----
+TOB Digital Opto-Hybrid Module with DOHs (Digital Opto-Hybrids)
+
+MCVolume: ( 94 x 143 x 6 ) mm^3 = 80.652 cm^3
+
+		DOHM
+		----
+	EDMS code EDA-00035-V2
+data taken from http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/DOHM_MB.htm
+
+(1-2) PCBs
+	FR4:    m = 37.65 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 19.816 cm^3
+	copper: m = 6.416 g
+		density = 8.96 g/cm^3
+		--> volume = 0.716 cm^3
+
+(3-4) Connectors
+	[ socket
+	2 x DOHM-DOH    (NAiS 26)
+	header
+	1 x DOHM-cable  (Binder 21-M) ]
+		+
+	[1 x DOHM-cable  (Binder 21-F)]
+        the total mass is computed
+	copper: m = ( 0.570 + 1.0773 ) g = 1.6473 g
+		density = 8.96 g/cm^3
+		--> volume = 0.184 cm^3
+	resin:  m = ( 1.797 + 0.693 ) g = 2.490 g
+		density (epoxy) = 1.3 g/cm^3
+		--> volume = 1.915 cm^3
+
+(5) DOHM SMD Resistors, 12 x (0603) resistors, mostly Al2O3 (Aluminiumoxid, ceramic), the total mass is computed
+	m = 25.7 mg = 0.0257 g
+	density = 3.96525 g/cm^3
+	--> volume = 0.0065 cm^3
+
+(6) DOHM SMD Capacitors, 18 x (0603) + 2 x (0805) + 1 x (1206) + 4 x (1210) mostly BaTiO3, the total mass is computed
+	m = 0.5330 g
+	density = 6.02 g/cm^3
+	--> volume = 0.0919 cm^3
+
+(7-8) DOHM ASICs: 1 x ("CCU") + 1 x ("LVDSMUX") + 2 x ("LVDSBUF")
+	epoxy:	m = 0.5268 g
+		density = 1.3 g/cm^3
+		--> volume = 0.405 cm^3
+	copper: m = [ 0.8640 - 0.5268 ) ] g = 0.3372 g
+		density = 8.96 g/cm^3
+		--> volume = 0.0376 cm^3
+
+(9) Fiber holder (fiber glass)
+	FR4:    m = 4.08 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 2.147 cm^3
+
+(10) Thermistor
+	MISSING:m = xxx g
+		density = xxx g/cm^3
+		--> volume = xxx cm^3
+
+(11) Araldite glue (take epoxy): 1/2 DOHM, (1/2 RIB) [connectors outside layer]
+	TO BE CONFIRMED
+	m = 1.05 g / 2 = 0.525 g
+	density = 1.3 g/cm^3
+	volume = 0.404 cm^3
+
+(12) Solder paste (BGA): 1/2 DOHM, (1/2 RIB) [connectors outside layer]
+	TO BE CONFIRMED
+	m = 0.67 g / 2 = 0.335 g
+	density = 8.82 g/cm^3
+	volume = 0.038 cm^3
+
+(13) Grounding strips (2 copies, total mass is computed)
+	copper: m = 0.19 g
+		density = 8.96 g/cm^3
+		--> volume = 0.021 cm^3
+
+(14) Aluminium Shield
+	1 - control cable side
+	 +
+	2 - opto-ribbon side
+	 +
+	3 - back side
+	(the total mass is computed)
+	Aluminium: m = ( 7.76 + 6.84 + 14.51 ) g = 29.11 g
+		   density = 2.7 g/cm^3
+		   --> volume = 10.781 cm^3
+
+(15) Aluminium Supports
+	1 - Al shield (1) 2 copies
+	 +
+	2 - Al shield (1) and (2) 2 copies
+	 +
+	3 - opto-ribbon connector
+	 +
+	4 - opto-ribbon connector connected to support (5)
+	 +
+	5 - opto-ribbon connector connected to support (4)
+	(the total mass is computed)
+	Aluminium: m = ( 1.30 + 4.80 + 2.14 + 2.33 + 0.81 ) g = 11.38 g
+		   density = 2.7 g/cm^3
+		   --> volume = 4.215 cm^3
+	
+(16) Screws (total mass is computed)
+	8 x Al shields (1) and (2)
+	4 x Al shield (3)
+	1 x opto-ribbon connector to Al support (3)
+	1 x Al support (4) to (5)
+	brass: m = ( 1.19 + 0.54 + 0.19 + 0.19 ) g = 2.11 g
+		density = 8.5 g/cm^3
+		--> volume = 0.248 cm^3
+
+(17) Washers (total mass is computed)
+	4 x Al shield (3)
+	brass: m = 0.18 g
+		density = 8.5 g/cm^3
+		--> volume = 0.0203 cm^3
+
+(18) Ribbon connectors (2 copies)
+
+(19) DOHs (2 copies)
+
+....................................................................................
+# "TOB DOHM"                               "TOB_DOHM"          80.652   13.442
+* 1 "DOHM PCB board"                       "T_G10"             19.816    1      ELE
+* 2 "DOHM PCB copper traces"               "Copper"             0.716    1      ELE
+* 3 "DOHM NAiS connectors"                 "Copper"             0.184    1      ELE
+* 4 "DOHM NAiS connectors"                 "Epoxy"              1.915    1      ELE
+* 5 "DOHM Resistors"                       "Ceramic"            0.0065   1      ELE
+* 6 "DOHM Capacitors"                      "Barium_Titanate"    0.0919   1      ELE
+* 7 "DOHM ASICs EMC"                       "Epoxy"              0.4050   1      ELE
+* 8 "DOHM ASICs copper"                    "Copper"             0.0376   1      ELE
+* 9 "DOHM fiber holder"                    "T_G10"              2.147    1      ELE
+* 10 "DOHM Thermistor"                     "Air"                0.000    1      ELE
+* 11 "SCCAC,SCLAC,DOHM glue"               "Epoxy"              0.404    1      SUP
+* 12 "SCCAC,SCLAC,DOHM Solder Paste"       "BGA"                0.038    1      SUP
+* 13 "DOHM grounding strips"               "Copper"             0.021    1      ELE
+* 14 "DOHM Aluminium shields"              "Aluminium"         10.781    1      SUP
+* 15 "DOHM Aluminium supports"             "Aluminium"          4.215    1      SUP
+* 16 "DOHM Screws"                         "Brass"              0.248    1      SUP
+* 17 "DOHM Washers"                        "Brass"              0.0203   1      SUP
+* 18 "Ribbon Connectors"                   "T_Ribbon12xMUConn" 12.0      2      CAB
+* 19 "DOHs"                                "TOB_DOH"            3.9851   2      ELE
+....................................................................................
+====================================================================================
+
+
+o Endflange Connectors
+  --------------------
+Rings at z = 111.95 cm of radial thickness 4 cm and z thickness 2.3 cm
+Include SCACC and SCLAC connectors, DOHM legs.
+
+Layer R_in [mm] R_out [mm] Rods  DOHMs     DOHM legs [mm]
+   1    588      628        42     7         (7/15)*12100.0 = 5647 mm
+   2    672      712        48   + 8 = 15    (8/15)*12100.0 = 6453 mm
+   3    760      800        54     7         (7/15)*14087.5 = 6574 mm
+   4    848      888        60   + 8 = 15    (8/15)*14087.5 = 7513 mm
+   5    945      985        66     8         (8/16)*16807.5 = 8404 mm
+   6   1060     1100        74   + 8 = 16    (8/16)*16807.5 = 8404 mm
+
+DOHM legs length
+DOHM Ring   TOB+ [mm]  TOB- [mm]  Average [mm]
+        1     11875      12325     12100.0
+        2     13925      14250     14087.5
+        3     16670      16945     16807.5
+
+
+		SCCAC
+		-----
+	EDMS code EP-680-1174-500
+data taken from http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/DOHM_MB.htm
+One per each DOHM.
+
+(1-2) PCBs
+	FR4:    m = 0.38 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 0.200 cm^3
+	copper: m = 0.048 g
+		density = 8.96 g/cm^3
+		--> volume = 0.0054 cm^3
+
+		SCLAC
+		-----
+	EDMS code EP-680-1174-510
+data taken from http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/DOHM_MB.htm
+One per each DOHM.
+
+(3-4) PCBs
+	FR4:    m = 0.40 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 0.211 cm^3
+	copper: m = 0.061 g
+		density = 8.96 g/cm^3
+		--> volume = 0.0068 cm^3
+
+(5-6) SCLAC and SCCAC Connectors
+
+- SCCAC Connectors NaiS
+	header
+	1 x SCCAC-SCLAC  (Binder 31-M)
+        the total mass is computed
+	copper: m = 1.137 g
+		density = 8.96 g/cm^3
+		--> volume = 0.127 cm^3
+	resin:  m = 1.205 g
+		density (epoxy) = 1.3 g/cm^3
+		--> volume = 0.927 cm^3
+
+- SCLAC Connectors NaiS
+	socket
+	1 x SCCAC-SCLAC  (Binder 31-F)
+        the total mass is computed
+	copper: m = 1.590 g
+		density = 8.96 g/cm^3
+		--> volume = 0.177 cm^3
+	resin:  m = 1.015 g
+		density (epoxy) = 1.3 g/cm^3
+		--> volume = 0.781 cm^3
+
+Total NaiS connectors SCCAC/SCLAC:
+	copper: volume = 0.304 cm^3
+	resin:  volume = 1.708 cm^3
+
+
+		Wires
+		-----
+(7-11) DOHM wires
+	Shielded Twisted pair, 9 pieces (mass per 1000 mm length)
+	+ 0.5 mm^2 Copper wire, 3 pieces (mass per 1000 mm length)
+	+ Polyamide Braid, 1 piece (mass per 1000 mm length)
+	mass per meter; (total length)/(1000 mm) copies in the mixture
+	Copper:	m = ( 3051.0 + 13200.0 + 0.0 ) mg = 16.251 g 
+		density = 8.96 g/cm^3
+		--> volume = 1.814 cm^3
+	Aluminium:
+	 	m = ( 2970.0 + 0 + 0 ) mg = 2.970 g
+		density = 2.7 g/cm^3
+		--> volume = 1.100 cm^3
+	PEI: 	m = ( 1746.0 + 0 + 0 ) mg = 1.746 g
+		density (silicone gel) = 0.965 g/cm^3
+		--> volume = 1.809 cm^3
+	SILTEM:	m = ( 0 + 7200.0 + 0 ) mg = 7.200 g
+		density (polyethylene) = 0.95 g/cm^3
+		--> volume = 7.579 cm^3
+	Polyamide:	m = ( 0 + 0 + 9745.0 ) mg = 9.745 g
+		density (polyethylene) = 0.95 g/cm^3
+		--> volume = 10.258 cm^3
+
+
+
+		Other components
+		----------------
+o From DOHM
+
+(12) SCCAC screw holder (2 per each SCACC => 2 per each DOHM), total mass per SCCAC is computed
+	FR4:    m = 0.72 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 0.379 cm^3
+
+(13) SCCAC screws (2 per each SCACC => 2 per each DOHM), total mass per SCCAC is computed
+	brass: m = 0.44 g
+		density = 8.5 g/cm^3
+		--> volume = 0.052 cm^3
+
+(14) Araldite glue (take epoxy), 1 per DOHM: (1/2 DOHM), 1/2 RIB
+	TO BE CONFIRMED
+	m = 1.05 g / 2 = 0.525 g
+	density = 1.3 g/cm^3
+	volume = 0.404 cm^3
+
+(15) Solder paste (BGA), 1 per DOHM: (1/2 DOHM), 1/2 RIB
+	TO BE CONFIRMED
+	m = 0.67 g / 2 = 0.335 g
+	density = 8.82 g/cm^3
+	volume = 0.038 cm^3
+
+o From Rod cables
+
+(16) Output cable sleeve (l=55 mm, ext diameter=9.5 mm, 4 pieces) Polyolefin (take polyethylene), 1 per rod:
+	total mass, (1/2 TOB_CONN12/34/56), 1/2 outside
+	m = ( 0.90 + 0.32 ) g / 2 = 0.61 g
+	density = 0.95 g/cm^3
+	volume = 0.642 cm^3
+
+
+Wires from TOB_CONN12/34/56
+The difference 'long tail'-1x'short tail' is included here (Short tail in TOB_CONN12/34/56)
+
+(17)  - Connected to CCUM
+	Tinned copper wire 100%, 1 piece 90 mm diameter 0.50 mm, totally outside the rod.
+	total mass; 2 copies in the mixture per each Rod
+	Copper:	m = 1.576 g
+		density = 8.96 g/cm^3
+		--> volume = 0.176 cm^3
+
+(18-19) - Connected to BUS
+	+ 1.0 mm^2 Copper wire, 1 piece 290 mm, 80 mm in TOB_CONN12/34/56, the rest 210 mm outside the rod
+	total mass; 1 only copy per Rod in the mixture
+	Copper:	m = ( 210/290 x 2.5230 ) g = 1.827 g
+		density = 8.96 g/cm^3
+		--> volume = 0.204 cm^3
+	SILTEM:	m = ( 210/290 x 0.6960 ) g = 0.504 g
+		density (polyethylene) = 0.95 g/cm^3
+		--> volume = 0.531 cm^3
+
+(20) Output cable shield Aluminium: (1/2 TOB_CONN12/34/56), 1/2 outside
+	1 copy per rod
+	m = 0.480 g / 2 = 0.240 g
+	density = 2.7 g/cm^3
+	volume = 0.089 cm^3
+
+(21) Output cable sleeve (l=55 mm, ext diameter=9.5 mm, 1 piece) + (l=10 mm, ext diameter=3.0 mm, 4 pieces) Polyolefin (take polyethylene):
+	total mass, (1/2 TOB_CONN12/34/56), 1/2 outside per each rod
+	m = ( 0.90 + 0.32 ) g / 2 = 0.61 g
+	density = 0.95 g/cm^3
+	volume = 0.642 cm^3
+
+(22) Input & Output cable tie Kapton: (2/3 TOB_CONN12/34/56), 1/3 outside per each rod
+	m = 0.41 g * (1/3) = 0.137 g
+	density = 1.40 g/cm^3
+	volume = 0.098 cm^3
+
+(23) Input & Output cable solder paste (BGA): (1/2 TOB_CONN12/34/56), 1/2 outside per each rod
+	m = 0.67 g / 2 = 0.335 g
+	density = 8.82 g/cm^3
+	volume = 0.038 cm^3
+
+(24) From Rod CCUM (one per rod): araldite glue (take epoxy): (1/2 CCUM), (1/4 SCLAC), 1/4 SCACC
+	m = 1.05 g / 4 = 0.2625 g
+	density = 1.3 g/cm^3
+	volume = 0.202 cm^3
+
+(25-26) Multi Service Cables
+- CAB48
+Layer  Tot [mm]
+  1     1260
+  2     1440
+  3        0
+  4        0
+  5        0
+  6        0
+
+- CAB36
+Layer  Tot [mm]
+  1        0
+  2        0
+  3     1620
+  4     1800
+  5     1980
+  6     2220
+
+(27) Ruggedized Ribbon
+Layer  Tot [mm]
+  1     2520
+  2     2880
+  3     1620
+  4     1800
+  5     3120
+  6     3540
+
+(28-29) HVCAC-LVCAC Connectors
+	[Binder 25-M+F + Binder 37-M+F]
+        the total mass is computed
+	copper: m = [ ( 0.9167 + 1.2825 ) + ( 1.356716 + 1.8981 ) ] g = 5.454016 g
+		density = 8.96 g/cm^3
+		--> volume = 0.609 cm^3
+	resin:  m = [ ( 1.000 + 0.825 ) + ( 1.480 + 1.221 ) ] g = 4.526 g
+		density (epoxy) = 1.3 g/cm^3
+		--> volume = 3.482 cm^3
+Layer  Tot [mm]
+  1     42+42
+  2     48+48
+  3     54+54
+  4     60+60
+  5     66+66
+  6     74+74
+
+....................................................................................
+# "TOB endflange connectors Layer 1"       "TOB_rib1"     3514.5625  1528.0707
+* 1 "SCCAC PCB board"                      "T_G10"           0.200      7      ELE
+* 2 "SCCAC PCB copper traces"              "Copper"          0.0054     7      ELE
+* 3 "SCLAC PCB board"                      "T_G10"           0.211      7      ELE
+* 4 "SCLAC PCB copper traces"              "Copper"          0.0068     7      ELE
+* 5 "SCCAC/SCLAC NAiS connectors"          "Copper"          0.304      7      ELE
+* 6 "SCCAC/SCLAC NAiS connectors"          "Epoxy"           1.708      7      ELE
+* 7 "DOHM wires Cu"                        "Copper"          1.814      5.647  CAB
+* 8 "DOHM wires Al"                        "Aluminium"       1.100      5.647  CAB
+* 9 "DOHM wires PEI"                       "Silicone_Gel"    1.809      5.647  CAB
+* 10 "DOHM wires SILTEM"                   "Polyethylene"    7.579      5.647  CAB
+* 11 "DOHM wires Polyamide"                "Polyethylene"   10.258      5.647  CAB
+* 12 "SCCAC screw holder"                  "T_G10"           0.379      7      SUP
+* 13 "SCCAC screws"                        "Brass"           0.202      7      SUP
+* 14 "SCCAC,SCLAC,DOHM glue"               "Epoxy"           0.404      7      SUP
+* 15 "SCCAC,SCLAC,DOHM Solder Paste"       "BGA"             0.038      7      SUP
+* 16 "Output cable Sleeve"                 "Polyethylene"    0.642     42      CAB
+* 17 "CCUM wires Cu"                       "Copper"          0.176     84      CAB
+* 18 "BUS wires Cu"                        "Copper"          0.204     42      CAB
+* 19 "BUS wires SILTEM"                    "Polyethylene"    0.531     42      CAB
+* 20 "Output cable Shield"                 "Aluminium"       0.089     42      CAB
+* 21 "Output cable Sleeve"                 "Polyethylene"    0.642     42      CAB
+* 22 "Input and Output cable Tie"          "T_Kapton"        0.098     42      CAB
+* 23 "Input and Output cable Solder Paste" "BGA"             0.038     42      CAB
+* 24 "SCCAC glue"                          "Epoxy"           0.202     42      SUP
+* 25 "Multi Service Cable CAB48"           "CAB_Al48"        0.7854   126      CAB
+* 26 "Multi Service Cable CAB36"           "CAB_Al36"        0.7854     0      CAB
+* 27 "Ruggedized ribbons"                  "T_RuggRibbon"    0.086    252      CAB
+* 28 "HV/LVCAC Binder connectors"          "Copper"          0.609     42      ELE
+* 29 "HV/LVCAC Binder connectors"          "Epoxy"           3.482     42      ELE
+....................................................................................
+====================================================================================
+
+....................................................................................
+# "TOB endflange connectors Layer 2"       "TOB_rib2"     4000.1271  1739.1857
+* 1 "SCCAC PCB board"                      "T_G10"           0.200      8      ELE
+* 2 "SCCAC PCB copper traces"              "Copper"          0.0054     8      ELE
+* 3 "SCLAC PCB board"                      "T_G10"           0.211      8      ELE
+* 4 "SCLAC PCB copper traces"              "Copper"          0.0068     8      ELE
+* 5 "SCCAC/SCLAC NAiS connectors"          "Copper"          0.304      8      ELE
+* 6 "SCCAC/SCLAC NAiS connectors"          "Epoxy"           1.708      8      ELE
+* 7 "DOHM wires Cu"                        "Copper"          1.814      6.453  CAB
+* 8 "DOHM wires Al"                        "Aluminium"       1.100      6.453  CAB
+* 9 "DOHM wires PEI"                       "Silicone_Gel"    1.809      6.453  CAB
+* 10 "DOHM wires SILTEM"                   "Polyethylene"    7.579      6.453  CAB
+* 11 "DOHM wires Polyamide"                "Polyethylene"   10.258      6.453  CAB
+* 12 "SCCAC screw holder"                  "T_G10"           0.379      8      SUP
+* 13 "SCCAC screws"                        "Brass"           0.202      8      SUP
+* 14 "SCCAC,SCLAC,DOHM glue"               "Epoxy"           0.404      8      SUP
+* 15 "SCCAC,SCLAC,DOHM Solder Paste"       "BGA"             0.038      8      SUP
+* 16 "Output cable Sleeve"                 "Polyethylene"    0.642     48      CAB
+* 17 "CCUM wires Cu"                       "Copper"          0.176     96      CAB
+* 18 "BUS wires Cu"                        "Copper"          0.204     48      CAB
+* 19 "BUS wires SILTEM"                    "Polyethylene"    0.531     48      CAB
+* 20 "Output cable Shield"                 "Aluminium"       0.089     48      CAB
+* 21 "Output cable Sleeve"                 "Polyethylene"    0.642     48      CAB
+* 22 "Input and Output cable Tie"          "T_Kapton"        0.098     48      CAB
+* 23 "Input and Output cable Solder Paste" "BGA"             0.038     48      CAB
+* 24 "SCCAC glue"                          "Epoxy"           0.202     48      SUP
+* 25 "Multi Service Cable CAB48"           "CAB_Al48"        0.7854   144      CAB
+* 26 "Multi Service Cable CAB36"           "CAB_Al36"        0.7854     0      CAB
+* 27 "Ruggedized ribbons"                  "T_RuggRibbon"    0.086    288      CAB
+* 28 "HV/LVCAC Binder connectors"          "Copper"          0.609     48      ELE
+* 29 "HV/LVCAC Binder connectors"          "Epoxy"           3.482     48      ELE
+....................................................................................
+====================================================================================
+
+....................................................................................
+# "TOB endflange connectors Layer 3"       "TOB_rib3"     4508.8138  1960.3538
+* 1 "SCCAC PCB board"                      "T_G10"           0.200      7      ELE
+* 2 "SCCAC PCB copper traces"              "Copper"          0.0054     7      ELE
+* 3 "SCLAC PCB board"                      "T_G10"           0.211      7      ELE
+* 4 "SCLAC PCB copper traces"              "Copper"          0.0068     7      ELE
+* 5 "SCCAC/SCLAC NAiS connectors"          "Copper"          0.304      7      ELE
+* 6 "SCCAC/SCLAC NAiS connectors"          "Epoxy"           1.708      7      ELE
+* 7 "DOHM wires Cu"                        "Copper"          1.814      6.574  CAB
+* 8 "DOHM wires Al"                        "Aluminium"       1.100      6.574  CAB
+* 9 "DOHM wires PEI"                       "Silicone_Gel"    1.809      6.574  CAB
+* 10 "DOHM wires SILTEM"                   "Polyethylene"    7.579      6.574  CAB
+* 11 "DOHM wires Polyamide"                "Polyethylene"   10.258      6.574  CAB
+* 12 "SCCAC screw holder"                  "T_G10"           0.379      7      SUP
+* 13 "SCCAC screws"                        "Brass"           0.202      7      SUP
+* 14 "SCCAC,SCLAC,DOHM glue"               "Epoxy"           0.404      7      SUP
+* 15 "SCCAC,SCLAC,DOHM Solder Paste"       "BGA"             0.038      7      SUP
+* 16 "Output cable Sleeve"                 "Polyethylene"    0.642     54      CAB
+* 17 "CCUM wires Cu"                       "Copper"          0.176    108      CAB
+* 18 "BUS wires Cu"                        "Copper"          0.204     54      CAB
+* 19 "BUS wires SILTEM"                    "Polyethylene"    0.531     54      CAB
+* 20 "Output cable Shield"                 "Aluminium"       0.089     54      CAB
+* 21 "Output cable Sleeve"                 "Polyethylene"    0.642     54      CAB
+* 22 "Input and Output cable Tie"          "T_Kapton"        0.098     54      CAB
+* 23 "Input and Output cable Solder Paste" "BGA"             0.038     54      CAB
+* 24 "SCCAC glue"                          "Epoxy"           0.202     54      SUP
+* 25 "Multi Service Cable CAB48"           "CAB_Al48"        0.7854     0      CAB
+* 26 "Multi Service Cable CAB36"           "CAB_Al36"        0.7854   162      CAB
+* 27 "Ruggedized ribbons"                  "T_RuggRibbon"    0.086    162      CAB
+* 28 "HV/LVCAC Binder connectors"          "Copper"          0.609     54      ELE
+* 29 "HV/LVCAC Binder connectors"          "Epoxy"           3.482     54      ELE
+....................................................................................
+====================================================================================
+
+....................................................................................
+# "TOB endflange connectors Layer 4"       "TOB_rib4"     5017.5005  2181.5219
+* 1 "SCCAC PCB board"                      "T_G10"           0.200      8      ELE
+* 2 "SCCAC PCB copper traces"              "Copper"          0.0054     8      ELE
+* 3 "SCLAC PCB board"                      "T_G10"           0.211      8      ELE
+* 4 "SCLAC PCB copper traces"              "Copper"          0.0068     8      ELE
+* 5 "SCCAC/SCLAC NAiS connectors"          "Copper"          0.304      8      ELE
+* 6 "SCCAC/SCLAC NAiS connectors"          "Epoxy"           1.708      8      ELE
+* 7 "DOHM wires Cu"                        "Copper"          1.814      7.513  CAB
+* 8 "DOHM wires Al"                        "Aluminium"       1.100      7.513  CAB
+* 9 "DOHM wires PEI"                       "Silicone_Gel"    1.809      7.513  CAB
+* 10 "DOHM wires SILTEM"                   "Polyethylene"    7.579      7.513  CAB
+* 11 "DOHM wires Polyamide"                "Polyethylene"   10.258      7.513  CAB
+* 12 "SCCAC screw holder"                  "T_G10"           0.379      8      SUP
+* 13 "SCCAC screws"                        "Brass"           0.202      8      SUP
+* 14 "SCCAC,SCLAC,DOHM glue"               "Epoxy"           0.404      8      SUP
+* 15 "SCCAC,SCLAC,DOHM Solder Paste"       "BGA"             0.038      8      SUP
+* 16 "Output cable Sleeve"                 "Polyethylene"    0.642     60      CAB
+* 17 "CCUM wires Cu"                       "Copper"          0.176    120      CAB
+* 18 "BUS wires Cu"                        "Copper"          0.204     60      CAB
+* 19 "BUS wires SILTEM"                    "Polyethylene"    0.531     60      CAB
+* 20 "Output cable Shield"                 "Aluminium"       0.089     60      CAB
+* 21 "Output cable Sleeve"                 "Polyethylene"    0.642     60      CAB
+* 22 "Input and Output cable Tie"          "T_Kapton"        0.098     60      CAB
+* 23 "Input and Output cable Solder Paste" "BGA"             0.038     60      CAB
+* 24 "SCCAC glue"                          "Epoxy"           0.202     60      SUP
+* 25 "Multi Service Cable CAB48"           "CAB_Al48"        0.7854     0      CAB
+* 26 "Multi Service Cable CAB36"           "CAB_Al36"        0.7854   180      CAB
+* 27 "Ruggedized ribbons"                  "T_RuggRibbon"    0.086    180      CAB
+* 28 "HV/LVCAC Binder connectors"          "Copper"          0.609     60      ELE
+* 29 "HV/LVCAC Binder connectors"          "Epoxy"           3.482     60      ELE
+....................................................................................
+====================================================================================
+
+....................................................................................
+# "TOB endflange connectors Layer 5"       "TOB_rib5"     5578.2119  2425.3095
+* 1 "SCCAC PCB board"                      "T_G10"           0.200      8      ELE
+* 2 "SCCAC PCB copper traces"              "Copper"          0.0054     8      ELE
+* 3 "SCLAC PCB board"                      "T_G10"           0.211      8      ELE
+* 4 "SCLAC PCB copper traces"              "Copper"          0.0068     8      ELE
+* 5 "SCCAC/SCLAC NAiS connectors"          "Copper"          0.304      8      ELE
+* 6 "SCCAC/SCLAC NAiS connectors"          "Epoxy"           1.708      8      ELE
+* 7 "DOHM wires Cu"                        "Copper"          1.814      8.404  CAB
+* 8 "DOHM wires Al"                        "Aluminium"       1.100      8.404  CAB
+* 9 "DOHM wires PEI"                       "Silicone_Gel"    1.809      8.404  CAB
+* 10 "DOHM wires SILTEM"                   "Polyethylene"    7.579      8.404  CAB
+* 11 "DOHM wires Polyamide"                "Polyethylene"   10.258      8.404  CAB
+* 12 "SCCAC screw holder"                  "T_G10"           0.379      8      SUP
+* 13 "SCCAC screws"                        "Brass"           0.202      8      SUP
+* 14 "SCCAC,SCLAC,DOHM glue"               "Epoxy"           0.404      8      SUP
+* 15 "SCCAC,SCLAC,DOHM Solder Paste"       "BGA"             0.038      8      SUP
+* 16 "Output cable Sleeve"                 "Polyethylene"    0.642     66      CAB
+* 17 "CCUM wires Cu"                       "Copper"          0.176    132      CAB
+* 18 "BUS wires Cu"                        "Copper"          0.204     66      CAB
+* 19 "BUS wires SILTEM"                    "Polyethylene"    0.531     66      CAB
+* 20 "Output cable Shield"                 "Aluminium"       0.089     66      CAB
+* 21 "Output cable Sleeve"                 "Polyethylene"    0.642     66      CAB
+* 22 "Input and Output cable Tie"          "T_Kapton"        0.098     66      CAB
+* 23 "Input and Output cable Solder Paste" "BGA"             0.038     66      CAB
+* 24 "SCCAC glue"                          "Epoxy"           0.202     66      SUP
+* 25 "Multi Service Cable CAB48"           "CAB_Al48"        0.7854     0      CAB
+* 26 "Multi Service Cable CAB36"           "CAB_Al36"        0.7854   198      CAB
+* 27 "Ruggedized ribbons"                  "T_RuggRibbon"    0.086    312      CAB
+* 28 "HV/LVCAC Binder connectors"          "Copper"          0.609     66      ELE
+* 29 "HV/LVCAC Binder connectors"          "Epoxy"           3.482     66      ELE
+....................................................................................
+====================================================================================
+
+....................................................................................
+# "TOB endflange connectors Layer 6"       "TOB_rib6"     6242.9729  2714.3361
+* 1 "SCCAC PCB board"                      "T_G10"           0.200      8      ELE
+* 2 "SCCAC PCB copper traces"              "Copper"          0.0054     8      ELE
+* 3 "SCLAC PCB board"                      "T_G10"           0.211      8      ELE
+* 4 "SCLAC PCB copper traces"              "Copper"          0.0068     8      ELE
+* 5 "SCCAC/SCLAC NAiS connectors"          "Copper"          0.304      8      ELE
+* 6 "SCCAC/SCLAC NAiS connectors"          "Epoxy"           1.708      8      ELE
+* 7 "DOHM wires Cu"                        "Copper"          1.814      8.404  CAB
+* 8 "DOHM wires Al"                        "Aluminium"       1.100      8.404  CAB
+* 9 "DOHM wires PEI"                       "Silicone_Gel"    1.809      8.404  CAB
+* 10 "DOHM wires SILTEM"                   "Polyethylene"    7.579      8.404  CAB
+* 11 "DOHM wires Polyamide"                "Polyethylene"   10.258      8.404  CAB
+* 12 "SCCAC screw holder"                  "T_G10"           0.379      8      SUP
+* 13 "SCCAC screws"                        "Brass"           0.202      8      SUP
+* 14 "SCCAC,SCLAC,DOHM glue"               "Epoxy"           0.404      8      SUP
+* 15 "SCCAC,SCLAC,DOHM Solder Paste"       "BGA"             0.038      8      SUP
+* 16 "Output cable Sleeve"                 "Polyethylene"    0.642     74      CAB
+* 17 "CCUM wires Cu"                       "Copper"          0.176    148      CAB
+* 18 "BUS wires Cu"                        "Copper"          0.204     74      CAB
+* 19 "BUS wires SILTEM"                    "Polyethylene"    0.531     74      CAB
+* 20 "Output cable Shield"                 "Aluminium"       0.089     74      CAB
+* 21 "Output cable Sleeve"                 "Polyethylene"    0.642     74      CAB
+* 22 "Input and Output cable Tie"          "T_Kapton"        0.098     74      CAB
+* 23 "Input and Output cable Solder Paste" "BGA"             0.038     74      CAB
+* 24 "SCCAC glue"                          "Epoxy"           0.202     74      SUP
+* 25 "Multi Service Cable CAB48"           "CAB_Al48"        0.7854     0      CAB
+* 26 "Multi Service Cable CAB36"           "CAB_Al36"        0.7854   222      CAB
+* 27 "Ruggedized ribbons"                  "T_RuggRibbon"    0.086    354      CAB
+* 28 "HV/LVCAC Binder connectors"          "Copper"          0.609     74      ELE
+* 29 "HV/LVCAC Binder connectors"          "Epoxy"           3.482     74      ELE
+....................................................................................
+====================================================================================
+
+	[WAS:
+		These are rings at z = 110.8 cm, of radial thickness 4 cm and  
+		thickness in z of 23 mm.
+		
+		Included are all the connectors at the rod end, and also the
+		digital optohybrid (that I don't know much about !)
+		
+		Per rod:
+		(1-2) Connectors:
+		      1 x LV connector pair (Micro-T 37 pin) 
+		        Plastic: 2.578 g -> 1.84 cm^3 Kapton
+		        Cu     : 3.46  g -> 0.385 cm^3
+		      1 x HV connector pair (Micro-T 25 pin)
+		        Plastic: 1.742 g -> 1.244 cm^3
+		        Cu     : 2.38 g  -> 0.266 cm^3
+		      2 x Control loop connector pair (Micro-T 31 pin)
+		        Plastic: 2.16 g -> 1.543 cm^3  each
+		        Cu     : 2.92 g -> 0.326 cm^3  each
+		     -->    total 6.17 cm^3 Kapton, 1.303 Cu 
+		(3) Support boards 
+		         G10, 0.5 mm, 3*1.75x2, 1* 1.75x2.5 = 0.744 cm^3 
+		(4-5) Digital OH
+		
+		    No idea !! Assume: 3.2 x 3.2 cm^2, 400 um G10, 20 % Cu
+		    No components, since I don't know them !
+		
+		(6-10) Only for layers 9/10:  
+		        (5/6 no longer since APV number has been reduced 15/03/02)
+		        1/2 optoconnector per rod
+		        46.8 g plastic, 8.4 g Cu  NO !!! see tie_struc.in
+		        take 15 cm^3 plastic !
+		
+		Layer 5: r = 61 cm, 42 rods, 8 DOHs
+		.........................................................................
+		# "TOB endflange connectors 5"   "TOB_rib1"      3526.1   1533.    
+		* 1 "Connectors"                 "T_Kapton"        6.17     42   CAB
+		* 2 "Connector pins"             "Copper"          1.303    42   CAB
+		* 3 "Cable support"              "G10"             0.744    42   CAB
+		* 4 "Digital OH"                 "G10"             0.41      8   ELE
+		* 5 "Digital OH"                 "Copper"          0.08      8   ELE
+		C-- * 6 "Optoconnector"              "T_Kapton"       15.0     21    CAB
+		C-- * 7 "Optoconnector"              "Copper"         0.446    21    CAB
+		.........................................................................
+		Layer 6: r = 69.6 cm, 48 rods, 8 DOHs
+		.........................................................................
+		# "TOB endflange connectors 6"   "TOB_rib2"        4023.2  1749.    
+		* 1 "Connectors"                 "T_Kapton"        6.17     48   CAB
+		* 2 "Connector pins"             "Copper"          1.303    48   CAB
+		* 3 "Cable support"              "G10"             0.744    48   CAB
+		* 4 "Digital OH"                 "G10"             0.41      8   ELE
+		* 5 "Digital OH"                 "Copper"          0.08      8   ELE
+		C-- * 6 "Optoconnector"              "T_Kapton"       15.00     24   CAB
+		C-- * 7 "Optoconnector"              "Copper"         0.446     24   CAB
+		.........................................................................
+		Layer 7: r = 78.2 cm, 54 rods, 9 DOHs
+		.........................................................................
+		# "TOB endflange connectors 7"   "TOB_rib3"        4520.4  1965.    
+		* 1 "Connectors"                 "T_Kapton"        6.17     54   CAB
+		* 2 "Connector pins"             "Copper"          1.303    54   CAB
+		* 3 "Cable support"              "G10"             0.744    54   CAB
+		* 4 "Digital OH"                 "G10"             0.41      9   ELE
+		* 5 "Digital OH"                 "Copper"          0.08      9   ELE
+		.........................................................................
+		Layer 8: r = 86.8 cm, 60 rods, 8 DOHs
+		.........................................................................
+		# "TOB endflange connectors 8"   "TOB_rib4"        5017.5  2182.    
+		* 1 "Connectors"                 "T_Kapton"        6.17     60   CAB
+		* 2 "Connector pins"             "Copper"          1.303    60   CAB
+		* 3 "Cable support"              "G10"             0.744    60   CAB
+		* 4 "Digital OH"                 "G10"             0.41      8   ELE
+		* 5 "Digital OH"                 "Copper"          0.08      8   ELE
+		.........................................................................
+		Layer 9: r = 96.5 cm, 66 rods, 12 DOHs
+		.........................................................................
+		# "TOB endflange connectors 9"   "TOB_rib5"        5578.2  2425.    
+		* 1 "Connectors"                 "T_Kapton"        6.17     66   CAB
+		* 2 "Connector pins"             "Copper"          1.303    66   CAB
+		* 3 "Cable support"              "G10"             0.744    66   CAB
+		* 4 "Digital OH"                 "G10"             0.41     12   ELE
+		* 5 "Digital OH"                 "Copper"          0.08     12   ELE
+		* 6 "Optoconnector"              "T_Kapton"       15.00     33   CAB
+		* 7 "Optoconnector"              "Copper"         0.446     33   CAB
+		.........................................................................
+		Layer 10: r = 108 cm, 74 rods, 10 DOHs
+		.........................................................................
+		# "TOB endflange connectors 10"  "TOB_rib6"        6243.0  2714.    
+		* 1 "Connectors"                 "T_Kapton"        6.17     74   CAB
+		* 2 "Connector pins"             "Copper"          1.303    74   CAB
+		* 3 "Cable support"              "G10"             0.744    74   CAB
+		* 4 "Digital OH"                 "G10"             0.41     10   ELE
+		* 5 "Digital OH"                 "Copper"          0.08     10   ELE
+		* 6 "Optoconnector"              "T_Kapton"       15.00     37   CAB
+		* 7 "Optoconnector"              "Copper"         0.446     37   CAB
+		.........................................................................
+		=========================================================================
+	]
+      
+
+
+
+o TOB radial services
+  -------------------
+
+One ring per layer containing cables, ribbons and cooling radial pipes
+
+Layer R_in [mm] R_out [mm] z [mm] MC Volume [cm^3]
+   1    608         692      7.0     2401.4
+   2    692         780      7.0     2848.6
+   3    780         868      7.0     3189.2
+   4    868         965      7.0     3910.0
+   5    965        1080      7.0     5171.7
+   6   1080        1160      7.0     3940.8
+
+(1-2) cables
+
+- CAB48
+Layer  TOB+ [mm]  TOB- [mm]  Average [mm]
+  1       3492       3525       3508.5
+  2       7935       7872       7903.5
+  3       7935       7872       7903.5
+  4       8746       8677       8711.5
+  5      10369      10288      10328.5
+  6       7213       7157       7185
+
+- CAB36
+Layer  TOB+ [mm]  TOB- [mm]  Average [mm]
+  1          0          0          0
+  2          0          0          0
+  3       4734       4742       4738
+  4      11202      10952      11077
+  5      21146      21028      21087
+  6      20508      20404      20456
+
+- Ruggedized Ribbon
+
+(3) ribbon
+Layer  TOB+ [mm]  TOB- [mm]  Average [mm]
+  1       8036       8092       8064       
+  2      18074      17773      17923.5
+  3      24119      23694      23906.5
+  4      35371      34271      34281
+  5      65478      64999      65238.5
+  6      90994      89482      90238
+
+(4) DOHM ribbons
+Layer  Tot [mm]
+  1       1187
+  2       2710
+  3       4204
+  4       6776
+  5      12289
+  6      15764
+
+(5) spare ribbons
+Layer  Tot [mm]
+  1       3074       
+  2       3220
+  3       3220
+  4       3550
+  5       4208
+  6       2928
+
+(6) spare ribbon connectors
+Layer  Tot
+  1     3       
+  2     3
+  3     3
+  4     3
+  5     3
+  6     3
+
+(7) DOHM Power Connectors 
+Layer  Tot [mm]
+  1        448       
+  2       1022
+  3       1472
+  4       2268
+  5       3469
+  6       3735
+
+(8-9) Radial Cooling Pipes (unit length = 1 cm)
+ Inner diameter = 10.0 mm
+ Outer diameter =  9.0 mm
+ Volume per unit length: pi x (0.50 - 0.45)^2 cm^2 x 1 cm = 7.854 x 10^-3 cm^3 
+ Material: pure copper
+ 
+ Cooling Fluid
+ Inner diameter =  0.0 mm
+ Outer diameter =  9.0 mm
+ Volume per unit length: pi x 0.45^2 cm^2 x 1 cm = 0.6362 cm^3 
+ Material: C6F14_F2_-30C
+
+Layer  Tot [mm]
+  1     1027       
+  2     2152
+  3     2959
+  4     4152
+  5     6329
+  6     5381
+
+
+...................................................................................
+# "TOB radial services Layer 1"   "TOB_rad_services1"      2401.4       3430.6
+* 1 "Multi Service Cable CAB48"   "CAB_Al48"                  0.7854     351   CAB
+* 2 "Multi Service Cable CAB36"   "CAB_Al36"                  0.7854       0   CAB
+* 3 "Ruggedized ribbons"          "T_RuggRibbon"              0.086      806   CAB
+* 4 "DOHM ribbons"                "T_RuggRibbon"              0.086      119   CAB
+* 5 "Spare ribbons"               "T_RuggRibbon"              0.086      307   CAB
+* 6 "Spare ribbons connectors"    "TOB_Ribbon12xMUConn"      12.0          3   CAB
+* 7 "DOHM Power Connectors"       "TOB_DOHM_PowerConn"   9.3648E-2  448   CAB
+* 8 "Cooling Pipes"               "Copper"                    7.854E-3  1027   COL
+* 9 "Cooling Fluid"               "C6F14_F2_-30C"             0.6362    1027   COL
+...................................................................................
+===================================================================================
+
+...................................................................................
+# "TOB radial services Layer 2"   "TOB_rad_services2"      2848.6       4069.4
+* 1 "Multi Service Cable CAB48"   "CAB_Al48"                  0.7854     790   CAB
+* 2 "Multi Service Cable CAB36"   "CAB_Al36"                  0.7854       0   CAB
+* 3 "Ruggedized ribbons"          "T_RuggRibbon"              0.086     1792   CAB
+* 4 "DOHM ribbons"                "T_RuggRibbon"              0.086      271   CAB
+* 5 "Spare ribbons"               "T_RuggRibbon"              0.086      322   CAB
+* 6 "Spare ribbons connectors"    "TOB_Ribbon12xMUConn"      12.0          3   CAB
+* 7 "DOHM Power Connectors"       "TOB_DOHM_PowerConn"   9.3648E-2 1022   CAB
+* 8 "Cooling Pipes"               "Copper"                    7.854E-3  2152   COL
+* 9 "Cooling Fluid"               "C6F14_F2_-30C"             0.6362    2152   COL
+...................................................................................
+===================================================================================
+
+...................................................................................
+# "TOB radial services Layer 3"   "TOB_rad_services3"      3189.2       4556.0
+* 1 "Multi Service Cable CAB48"   "CAB_Al48"                  0.7854     790   CAB
+* 2 "Multi Service Cable CAB36"   "CAB_Al36"                  0.7854     474   CAB
+* 3 "Ruggedized ribbons"          "T_RuggRibbon"              0.086     2391   CAB
+* 4 "DOHM ribbons"                "T_RuggRibbon"              0.086      420   CAB
+* 5 "Spare ribbons"               "T_RuggRibbon"              0.086      322   CAB
+* 6 "Spare ribbons connectors"    "TOB_Ribbon12xMUConn"      12.0          3   CAB
+* 7 "DOHM Power Connectors"       "TOB_DOHM_PowerConn"   9.3648E-2 1472   CAB
+* 8 "Cooling Pipes"               "Copper"                    7.854E-3  2959   COL
+* 9 "Cooling Fluid"               "C6F14_F2_-30C"             0.6362    2959   COL
+...................................................................................
+===================================================================================
+
+...................................................................................
+# "TOB radial services Layer 4"   "TOB_rad_services4"      3910.0       5585.7
+* 1 "Multi Service Cable CAB48"   "CAB_Al48"                  0.7854     871   CAB
+* 2 "Multi Service Cable CAB36"   "CAB_Al36"                  0.7854    1108   CAB
+* 3 "Ruggedized ribbons"          "T_RuggRibbon"              0.086     3428   CAB
+* 4 "DOHM ribbons"                "T_RuggRibbon"              0.086      678   CAB
+* 5 "Spare ribbons"               "T_RuggRibbon"              0.086      355   CAB
+* 6 "Spare ribbons connectors"    "TOB_Ribbon12xMUConn"      12.0          3   CAB
+* 7 "DOHM Power Connectors"       "TOB_DOHM_PowerConn"   9.3648E-2 2268   CAB
+* 8 "Cooling Pipes"               "Copper"                    7.854E-3  4152   COL
+* 9 "Cooling Fluid"               "C6F14_F2_-30C"             0.6362    4152   COL
+...................................................................................
+===================================================================================
+
+...................................................................................
+# "TOB radial services Layer 5"   "TOB_rad_services5"      5171.7       7388.1
+* 1 "Multi Service Cable CAB48"   "CAB_Al48"                  0.7854    1033   CAB
+* 2 "Multi Service Cable CAB36"   "CAB_Al36"                  0.7854    2109   CAB
+* 3 "Ruggedized ribbons"          "T_RuggRibbon"              0.086     6524   CAB
+* 4 "DOHM ribbons"                "T_RuggRibbon"              0.086     1229   CAB
+* 5 "Spare ribbons"               "T_RuggRibbon"              0.086      421   CAB
+* 6 "Spare ribbons connectors"    "TOB_Ribbon12xMUConn"      12.0          3   CAB
+* 7 "DOHM Power Connectors"       "TOB_DOHM_PowerConn"   9.3648E-2 3469   CAB
+* 8 "Cooling Pipes"               "Copper"                    7.854E-3  6329   COL
+* 9 "Cooling Fluid"               "C6F14_F2_-30C"             0.6362    6329   COL
+...................................................................................
+===================================================================================
+
+...................................................................................
+# "TOB radial services Layer 6"   "TOB_rad_services6"      3940.8       5629.7
+* 1 "Multi Service Cable CAB48"   "CAB_Al48"                  0.7854     719   CAB
+* 2 "Multi Service Cable CAB36"   "CAB_Al36"                  0.7854    2046   CAB
+* 3 "Ruggedized ribbons"          "T_RuggRibbon"              0.086     9024   CAB
+* 4 "DOHM ribbons"                "T_RuggRibbon"              0.086     1576   CAB
+* 5 "Spare ribbons"               "T_RuggRibbon"              0.086      293   CAB
+* 6 "Spare ribbons connectors"    "TOB_Ribbon12xMUConn"      12.0          3   CAB
+* 7 "DOHM Power Connectors"       "TOB_DOHM_PowerConn"   9.3648E-2 3735   CAB
+* 8 "Cooling Pipes"               "Copper"                    7.854E-3  5381   COL
+* 9 "Cooling Fluid"               "C6F14_F2_-30C"             0.6362    5381   COL
+...................................................................................
+===================================================================================
+
+
+
+
+	[WAS: One for each layer, disks of constant Xsection (2*pi*r*t)
+		Cross sections for the various service cables
+		
+		(1) Al MS Cables 
+		(2) Control cables:  MS_cntrl_cables, OD 6.0 mm
+		    (number of groups taken from Duccio's TOB page, final layout 21/11/01)
+		(3) Optical ribbons (include also for control signals)
+		(4) Cooling pipes:  11 mm OD, 10 mm ID
+		          CuNi:  0.16 cm^2
+		          C6F14: 0.785 cm^2
+		
+		Layer 5: 42 MS Al cables for 48 APVs, 7 control cables 
+		.......................................................................
+		 "TOB radial cables layer 5"   "TOB_rad_cable1"      268.292  -1.
+		 1 "MS cable 60 APVs"          "MS_Al48"             0.567    42   CAB
+		 2 "Control cables"            "MS_cntrl_cable"      0.283     7   CAB
+		 3 "Optical ribbon"            "Fibre_Ribbon"        9.61E-3   107 CAB
+		 4 "Cooling pipes"             "TOB_CuNi"              0.16    8   COL
+		 5 "Coolant"                   "C6F14"                0.785    8   COL
+		.......................................................................
+		Layer 6: 48 MS Al cables for 48 APVs, 8 control cables
+		.......................................................................
+		 "TOB radial cables layer 6"   "TOB_rad_cable2"      306.117  -1.
+		 1 "MS cable 60 APVs"          "MS_Al48"             0.567    48   CAB
+		 2 "Control cables"            "MS_cntrl_cable"      0.283     8   CAB
+		 3 "Optical ribbon"            "Fibre_Ribbon"        9.61E-3   122 CAB
+		 4 "Cooling pipes"             "TOB_CuNi"              0.16    8   COL
+		 5 "Coolant"                   "C6F14"                0.785    8   COL
+		.......................................................................
+		Layer 7: 54 MS Al cables for 24 APVs, 7 control cables
+		.......................................................................
+		 "TOB radial cables layer 7"   "TOB_rad_cable3"      343.942  -1.
+		 1 "MS cable 36 APVs"          "MS_Al36"             0.515    54   CAB
+		 2 "Control cables"            "MS_cntrl_cable"      0.283     7   CAB
+		 3 "Optical ribbon"            "Fibre_Ribbon"        9.61E-3   56  CAB
+		 4 "Cooling pipes"             "TOB_CuNi"              0.16    6   COL
+		 5 "Coolant"                   "C6F14"                0.785    6   COL
+		.......................................................................
+		Layer 8: 60 MS Al cables for 24 APVs, 8 control cables
+		.......................................................................
+		 "TOB radial cables layer 8"   "TOB_rad_cable4"      381.766  -1.
+		 1 "MS cable 36 APVs"          "MS_Al36"             0.515    60   CAB
+		 2 "Control cables"            "MS_cntrl_cable"      0.283     8   CAB
+		 3 "Optical ribbon"            "Fibre_Ribbon"        9.61E-3   62  CAB
+		 4 "Cooling pipes"             "TOB_CuNi"              0.16    8   COL
+		 5 "Coolant"                   "C6F14"                0.785    8   COL
+		.......................................................................
+		Layer 9: 66 MS Al cables for 36 APVs, 8 control cables
+		.......................................................................
+		 "TOB radial cables layer 9"   "TOB_rad_cable5"      424.429  -1.
+		 1 "MS cable 36 APVs"          "MS_Al36"             0.515    66   CAB
+		 2 "Control cables"            "MS_cntrl_cable"      0.283     8   CAB
+		 3 "Optical ribbon"            "Fibre_Ribbon"        9.61E-3   101 CAB
+		 4 "Cooling pipes"             "TOB_CuNi"              0.16    8   COL
+		 5 "Coolant"                   "C6F14"                0.785    8   COL
+		.......................................................................
+		Layer 10: 74 MS Al cables for 36 APVs, 8 control cables
+		.......................................................................
+		 "TOB radial cables layer 10"  "TOB_rad_cable6"      475.009  -1.
+		 1 "MS cable 36 APVs"          "MS_Al36"             0.515    74   CAB
+		 2 "Control cables"            "MS_cntrl_cable"      0.283     8   CAB
+		 3 "Optical ribbon"            "Fibre_Ribbon"        9.61E-3  113  CAB
+		 4 "Cooling pipes"             "TOB_CuNi"              0.16    8   COL
+		 5 "Coolant"                   "C6F14"                0.785    8   COL
+		.......................................................................
+		=======================================================================     ]
+
+
+o TOB axial services
+
+18 cylinder sectors divided in 3 parts
+- part A: cables and cooling pipes (phi = 9 deg)
+- part B: optical fibers with Aluminium rails (phi = 2 deg)
+- part C: cables and cooling pipes (phi = 9 deg)
+
+MC Volume for parts A/C: (9/360) [ pi x (1169^2-1160^2) ] mm^2 x 1660 mm = 1646.27309 mm^2 x 1660 mm =
+				=  2372813.329 mm^3 = 2732.8 cm^3
+MC Volume for parts B: (2/360) [ pi x (1169^2-1160^2) ] mm^2 x 1660 mm = 365.8384645 mm^2 x 1660 mm =
+				=  607291.8511 mm^3 = 607.3 cm^3
+The length 1660 mm is used to compute the length of the cables and ribbons.
+
+
+	 Part A
+	--------
+
+(1-2) cables
+
+- CAB36
+Sector  Cables  Length [mm]
+   1       EMPTY [Air]
+   2      10      16600
+   3       9      14940
+   4       8      13280
+   5      11      18260
+   6       PIXEL [temporarily Air]
+   7       8      13280
+   8       8      13280
+   9       9      14940
+  10       EMPTY [Air]
+  11      10      16600
+  12       8      13280
+  13       9      14940
+  14      11      18260
+  15       PIXEL [temporarily Air]
+  16       9      14940
+  17       8      13280
+  18       9      14940
+
+- CAB48
+Sector  Cables  Length [mm]
+   1       EMPTY [Air]
+   2       3       4980
+   3       4       6640
+   4       3       4980
+   5       2       3320
+   6       PIXEL [temporarily Air]
+   7       5       8300
+   8       4       6640
+   9       4       6640
+  10       EMPTY [Air]
+  11       3       4980
+  12       2       3320
+  13       4       6640
+  14       2       3320
+  15       PIXEL [temporarily Air]
+  16       4       6640
+  17       3       4980
+  18       4       6640
+
+
+(3) DOHM Power Connectors 
+
+Sector  Cables  Length [mm]
+   1       EMPTY [Air]
+   2       3       4980
+   3       0          0
+   4       0          0
+   5       3       4980
+   6       PIXEL [temporarily Air]
+   7       0          0
+   8       3       4980
+   9       0          0
+  10       EMPTY [Air]
+  11       3       4980
+  12       2       3320
+  13       0          0
+  14       3       4980
+  15       PIXEL [temporarily Air]
+  16       3       4980
+  17       0          0
+  18       0          0
+
+(4-5) Axial Cooling Pipes (unit length = 1 cm)
+ Inner diameter = 10.0 mm
+ Outer diameter =  9.0 mm
+ Volume per unit length: pi x (0.50 - 0.45)^2 cm^2 x 1 cm = 7.854 x 10^-3 cm^3 
+ Material: pure copper
+ 
+ Cooling Fluid
+ Inner diameter =  0.0 mm
+ Outer diameter =  9.0 mm
+ Volume per unit length: pi x 0.45^2 cm^2 x 1 cm = 0.6362 cm^3 
+ Material: C6F14_F2_-30C
+
+Sector  Pipes  Length [mm]
+   1       EMPTY [Air]
+   2       2       3320
+   3       2       3320
+   4       1       1660
+   5       2       3320
+   6       PIXEL [temporarily Air]
+   7       1       1660
+   8       2       3220
+   9       1       1660
+  10       EMPTY [Air]
+  11       2       3320
+  12       2       3320
+  13       1       1660
+  14       2       3220
+  15       PIXEL [temporarily Air]
+  16       1       1660
+  17       2       3320
+  18       1       1660
+
+
+	 Part B
+	--------
+
+(1) Ruggedized Ribbon
+
+Sector  Cables  Length [mm]
+   1       EMPTY [Air]
+   2      39      64740
+   3      32      53120
+   4      32      53120
+   5      38      63080
+   6      40      66400
+   7      28      46480
+   8      31      51460
+   9      40      66400
+  10       EMPTY [Air]
+  11      29      48140
+  12      40      66400
+  13      40      66400
+  14      40      66400
+  15      39      64740
+  16      36      59760
+  17      38      63080
+  18      38      63080
+
+(2) Aluminium rail
+1.5 mm thickness over the whole surface
+Area = [ (2/360) x ( 2pi x Rin x h ) ] + [ (2/360) x ( 2pi x Rout x h ) ]
+	 + 2 x [ (Rout-Rin) x z ] + 2 x [ (2/360) x pi x (Rout^2-Rin^2) ]
+Volume = Area x thickness
+
+Rin  = 1160 mm
+Rout = 1169 mm
+h    = 1660 mm
+t    = 1.5 mm
+
+Area = 108608.5749 mm^2 = 1086.1 cm^2
+Volume = Area x t = 162912.8624 mm^3 = 162.9 cm^3
+
+
+	 Part C
+	--------
+
+(1-2) cables
+
+- CAB36
+Sector  Cables  Length [mm]
+   1       EMPTY [Air]
+   2       9      14940
+   3       8      13280
+   4       8      13280
+   5       PIXEL [temporarily Air]
+   6      11      18260
+   7      10      16600
+   8       7      11620
+   9      11      18260
+  10       EMPTY [Air]
+  11       9      14940
+  12       7      11620
+  13       9      14940
+  14       PIXEL [temporarily Air]
+  15      11      18260
+  16       9      14940
+  17       7      11620
+  18      11      18260
+
+- CAB48
+Sector  Cables  Length [mm]
+   1       EMPTY [Air]
+   2       4       6640
+   3       2       3320
+   4       4       6640
+   5       PIXEL [temporarily Air]
+   6       2       3320
+   7       3       4980
+   8       3       4980
+   9       2       3320
+  10       EMPTY [Air]
+  11       4       6640
+  12       3       4980
+  13       4       6640
+  14       PIXEL [temporarily Air]
+  15       2       3320
+  16       4       6640
+  17       4       6640
+  18       2       3320
+
+
+(3) DOHM Power Connectors 
+
+Sector  Cables  Length [mm]
+   1       EMPTY [Air]
+   2       2       3320
+   3       3       4980
+   4       2       3320
+   5       PIXEL [temporarily Air]
+   6       2       3320
+   7       0          0
+   8       2       3320
+   9       3       4980
+  10       EMPTY [Air]
+  11       0          0
+  12       3       4980
+  13       0          0
+  14       PIXEL [temporarily Air]
+  15       3       4980
+  16       0          0
+  17       3       4980
+  18       3       4980
+
+(4-5) Axial Cooling Pipes (unit length = 1 cm)
+ Inner diameter = 10.0 mm
+ Outer diameter =  9.0 mm
+ Volume per unit length: pi x (0.50 - 0.45)^2 cm^2 x 1 cm = 7.854 x 10^-3 cm^3 
+ Material: pure copper
+ 
+ Cooling Fluid
+ Inner diameter =  0.0 mm
+ Outer diameter =  9.0 mm
+ Volume per unit length: pi x 0.45^2 cm^2 x 1 cm = 0.6362 cm^3 
+ Material: C6F14_F2_-30C
+
+Sector  Pipes  Length [mm]
+   1       EMPTY [Air]
+   2       2       3320
+   3       2       3320
+   4       1       1660
+   5       PIXEL [temporarily Air]
+   6       2       3320
+   7       1       1660
+   8       2       3220
+   9       1       1660
+  10       EMPTY [Air]
+  11       2       3320
+  12       2       3320
+  13       1       1660
+  14       PIXEL [temporarily Air]
+  15       2       3220
+  16       1       1660
+  17       2       3320
+  18       1       1660
+
+..........................................................................................
+# "TOB axial services Sector 2 Part A"  "TOB_ax_services_A2"   2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1660   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      498   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2   498   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    332   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      332   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 3 Part A"  "TOB_ax_services_A3"   2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1494   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      664   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2     0   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    332   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      332   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 4 Part A"  "TOB_ax_services_A4"   2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1328   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      498   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2     0   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    166   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      166   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 5 Part A"  "TOB_ax_services_A5"   2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1826   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      332   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2   498   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    332   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      332   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 7 Part A"  "TOB_ax_services_A7"   2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1328   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      830   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2     0   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    166   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      166   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 8 Part A"  "TOB_ax_services_A8"   2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1328   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      664   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2   498   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    332   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      332   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 9 Part A"  "TOB_ax_services_A9"   2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1494   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      664   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2     0   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    166   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      166   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 11 Part A" "TOB_ax_services_A11"  2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1660   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      498   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2   498   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    332   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      332   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 12 Part A" "TOB_ax_services_A12"  2738          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1328   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      332   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2   332   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    332   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      332   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 13 Part A" "TOB_ax_services_A13"  2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1494   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      664   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2     0   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    166   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      166   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 14 Part A" "TOB_ax_services_A14"  2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1826   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      332   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2   498   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    332   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      332   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 16 Part A" "TOB_ax_services_A16"  2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1494   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      664   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2   498   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    166   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      166   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 17 Part A" "TOB_ax_services_A17"  2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1328   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      498   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2     0   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    332   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      332   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 18 Part A" "TOB_ax_services_A18"  2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1494   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      664   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2     0   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    166   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      166   COL
+..........................................................................................
+==========================================================================================
+
+
+..........................................................................................
+# "TOB axial services Sector 2 Part B"  "TOB_ax_services_B2"    607.3           3.65
+* 1 "Ruggedized ribbons"                "T_RuggRibbon"            0.086      6474    CAB
+* 2 "Aluminium Rail"                    "Aluminium"             162.9           1    SUP
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 3 Part B"  "TOB_ax_services_B3"    607.3           3.65
+* 1 "Ruggedized ribbons"                "T_RuggRibbon"            0.086      5312    CAB
+* 2 "Aluminium Rail"                    "Aluminium"             162.9           1    SUP
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 4 Part B"  "TOB_ax_services_B4"    607.3           3.65
+* 1 "Ruggedized ribbons"                "T_RuggRibbon"            0.086      5312    CAB
+* 2 "Aluminium Rail"                    "Aluminium"             162.9           1    SUP
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 5 Part B"  "TOB_ax_services_B5"    607.3           3.65
+* 1 "Ruggedized ribbons"                "T_RuggRibbon"            0.086      6308    CAB
+* 2 "Aluminium Rail"                    "Aluminium"             162.9           1    SUP
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 6 Part B"  "TOB_ax_services_B6"    607.3           3.65
+* 1 "Ruggedized ribbons"                "T_RuggRibbon"            0.086      6640    CAB
+* 2 "Aluminium Rail"                    "Aluminium"             162.9           1    SUP
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 7 Part B"  "TOB_ax_services_B7"    607.3           3.65
+* 1 "Ruggedized ribbons"                "T_RuggRibbon"            0.086      4648    CAB
+* 2 "Aluminium Rail"                    "Aluminium"             162.9           1    SUP
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 8 Part B"  "TOB_ax_services_B8"    607.3           3.65
+* 1 "Ruggedized ribbons"                "T_RuggRibbon"            0.086      5146    CAB
+* 2 "Aluminium Rail"                    "Aluminium"             162.9           1    SUP
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 9 Part B"  "TOB_ax_services_B9"    607.3           3.65
+* 1 "Ruggedized ribbons"                "T_RuggRibbon"            0.086      6640    CAB
+* 2 "Aluminium Rail"                    "Aluminium"             162.9           1    SUP
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 11 Part B" "TOB_ax_services_B11"   607.3           3.65
+* 1 "Ruggedized ribbons"                "T_RuggRibbon"            0.086      4814    CAB
+* 2 "Aluminium Rail"                    "Aluminium"             162.9           1    SUP
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 12 Part B" "TOB_ax_services_B12"   607.3           3.65
+* 1 "Ruggedized ribbons"                "T_RuggRibbon"            0.086      6640    CAB
+* 2 "Aluminium Rail"                    "Aluminium"             162.9           1    SUP
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 13 Part B" "TOB_ax_services_B13"   607.3           3.65
+* 1 "Ruggedized ribbons"                "T_RuggRibbon"            0.086      6640    CAB
+* 2 "Aluminium Rail"                    "Aluminium"             162.9           1    SUP
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 14 Part B" "TOB_ax_services_B14"   607.3           3.65
+* 1 "Ruggedized ribbons"                "T_RuggRibbon"            0.086      6640    CAB
+* 2 "Aluminium Rail"                    "Aluminium"             162.9           1    SUP
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 15 Part B" "TOB_ax_services_B15"   607.3           3.65
+* 1 "Ruggedized ribbons"                "T_RuggRibbon"            0.086      6474    CAB
+* 2 "Aluminium Rail"                    "Aluminium"             162.9           1    SUP
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 16 Part B" "TOB_ax_services_B16"   607.3           3.65
+* 1 "Ruggedized ribbons"                "T_RuggRibbon"            0.086      5976    CAB
+* 2 "Aluminium Rail"                    "Aluminium"             162.9           1    SUP
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 17 Part B" "TOB_ax_services_B17"   607.3           3.65
+* 1 "Ruggedized ribbons"                "T_RuggRibbon"            0.086      6308    CAB
+* 2 "Aluminium Rail"                    "Aluminium"             162.9           1    SUP
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 18 Part B" "TOB_ax_services_B18"   607.3           3.65
+* 1 "Ruggedized ribbons"                "T_RuggRibbon"            0.086      6308    CAB
+* 2 "Aluminium Rail"                    "Aluminium"             162.9           1    SUP
+..........................................................................................
+==========================================================================================
+
+
+..........................................................................................
+# "TOB axial services Sector 2 Part C"  "TOB_ax_services_C2"   2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1494   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      664   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2   332   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    332   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      332   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 3 Part C"  "TOB_ax_services_C3"   2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1328   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      332   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2   498   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    332   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      332   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 4 Part C"  "TOB_ax_services_C4"   2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1328   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      664   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2   332   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    166   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      166   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 6 Part C"  "TOB_ax_services_C6"   2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1826   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      332   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2   332   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    332   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      332   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 7 Part C"  "TOB_ax_services_C7"   2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1660   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      498   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2     0   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    166   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      166   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 8 Part C"  "TOB_ax_services_C8"   2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1162   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      498   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2   332   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    332   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      332   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 9 Part C"  "TOB_ax_services_C9"   2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1826   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      332   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2   498   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    166   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      166   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 11 Part C" "TOB_ax_services_C11"  2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1494   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      664   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2     0   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    332   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      332   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 12 Part C" "TOB_ax_services_C12"  2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1162   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      498   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2   498   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    332   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      332   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 13 Part C" "TOB_ax_services_C13"  2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1494   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      664   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2     0   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    166   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      166   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 15 Part C" "TOB_ax_services_C15"  2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1826   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      332   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2   498   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    332   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      332   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 16 Part C" "TOB_ax_services_C16"  2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1494   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      664   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2     0   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    166   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      166   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 17 Part C" "TOB_ax_services_C17"  2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1162   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      664   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2   498   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    332   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      332   COL
+..........................................................................................
+==========================================================================================
+
+..........................................................................................
+# "TOB axial services Sector 18 Part C" "TOB_ax_services_C18"  2732.8          16.46
+* 1 "Multi Service Cable CAB36"         "CAB_Al36"                0.7854     1826   CAB
+* 2 "Multi Service Cable CAB48"         "CAB_Al48"                0.7854      332   CAB
+* 3 "DOHM Power Connectors"             "TOB_DOHM_PowerConn"      9.3648E-2   498   CAB
+* 4 "Cooling Pipes"                     "Copper"                  7.854E-3    166   COL
+* 5 "Cooling Fluid"                     "C6F14_F2_-30C"           0.6362      166   COL
+..........................................................................................
+==========================================================================================
+
+	[WAS: o TOB axial cables
+		  ----------------
+		MC Xsection is only 8 bundles with 9.64 cm^2 => 77.12 cm^2
+		
+		Cables are just the sum of all cables above !
+		.......................................................................
+		 "TOB axial cables"            "TOB_ax_cable"        77.12  -1.
+		 1 "MS cable 60 APVs"          "MS_Al48"             0.567    90   CAB
+		 2 "MS cable 36 APVs"          "MS_Al36"             0.515    254  CAB
+		 3 "Control cables"            "MS_cntrl_cable"      0.283    46   CAB
+		 4 "Optical ribbon"            "Fibre_Ribbon"        9.61E-3  561  CAB
+		 5 "Cooling pipes"             "TOB_CuNi"              0.16   46   COL
+		 6 "Coolant"                   "C6F14"                0.785   46   COL
+		.......................................................................
+		======================================================================= 
+	]
+
+
+o TOB rod fixation to disk
+  ------------------------
+These attach the rod to the disk. There are 8 /full-length-rod
+MCVolume: 0.7 x 1.7 x 1.56 cm = 1.8564 cm^3
+Volume from Antti's table: 400 + 63.5 mm^3 = 0.4635 cm^3
+.....................................................................
+# "TOB rod fixation to disk"   "TOB_plate_A"    1.8564  1.19
+* 1 "Al fixations"             "Aluminium"      0.4635    1    SUP
+.....................................................................
+=====================================================================
+
+o Endflange Cooling manifolds
+  ---------------------------- 
+MCVolumes: 12 mm radial thickness, 6 mm thick in z
+           rings at z = 110.8 cm
+
+(1-2) Two arcs per layer. Outer diameter 6 mm, ID 5.6 mm.
+      Xsection: CuNi : 0.0364 cm^2
+                C6F14: 0.2463 cm^2
+(3-4) Brass pipe connectors, 2 per rod
+             total volume 180 mm^3 (Antti)
+	     Solder (SnPbAg 62/36/2)  42 mm^3 (Antti)
+Layer 5: 
+ MC r = 64.8 - 66.0 cm
+ r_1 = 64.9 cm -> length of pipe 2*pi*r = 407.78 cm
+ r_2 = 65.9 cm -> 414.06 
+.....................................................................
+# "TOB Cooling manifold lay 5"   "TOB_coolmanifold1"  295.86   493.  
+* 1 "Arc pipes"               "TOB_CuNi"           0.0364   821.84  COL
+* 2 "Coolant"                 "C6F14"              0.2463   821.84  COL
+* 3 "Brass pipe connectors"   "Brass"          0.18     42      COL
+C* 4 "Cool pipe solder"        "TOB_cool_solder"    0.042    42      COL
+.....................................................................
+
+Layer 6: 
+ MC r = 74 cm
+ r_1 = 73.5 cm -> 461.81 cm
+ r_2 = 74.5 cm -> 468.1  cm 
+.....................................................................
+# "TOB Cooling manifold lay 6"   "TOB_coolmanifold2"  334.77   558.  
+* 1 "Arc pipes"               "TOB_CuNi"           0.0364   929.9   COL
+* 2 "Coolant"                 "C6F14"              0.2463   929.9   COL
+* 3 "Brass pipe connectors"   "Brass"          0.18     48      COL
+C* 4 "Cool pipe solder"        "TOB_cool_solder"    0.042    48      COL
+.....................................................................
+
+Layer 7: 
+ MC r = 82.5 cm
+ r_1 = 82.0 cm -> 515.22 cm
+ r_2 = 83.0 cm -> 521.5  cm
+.....................................................................
+# "TOB Cooling manifold lay 7"   "TOB_coolmanifold3"  373.22   622.  
+* 1 "Arc pipes"               "TOB_CuNi"           0.0364  1036.72  COL
+* 2 "Coolant"                 "C6F14"              0.2463  1036.72  COL
+* 3 "Brass pipe connectors"   "Brass"          0.18     54      COL
+C* 4 "Cool pipe solder"        "TOB_cool_solder"    0.042    54      COL
+.....................................................................
+
+Layer 8: 
+ MC r = 91.1 cm
+ r_1 = 90.6 cm -> 569.3  cm
+ r_2 = 91.6 cm -> 575.5  cm
+.....................................................................
+# "TOB Cooling manifold lay 8"   "TOB_coolmanifold4"  412.13   687.  
+* 1 "Arc pipes"               "TOB_CuNi"           0.0364  1144.76  COL
+* 2 "Coolant"                 "C6F14"              0.2463  1144.76  COL
+* 3 "Brass pipe connectors"   "Brass"          0.18     60      COL
+C* 4 "Cool pipe solder"        "TOB_cool_solder"    0.042    60      COL
+.....................................................................
+
+Layer 9: 
+ MC r = 100.7 cm
+ r_1 = 100.2 cm -> 629.6 cm
+ r_2 = 101.2 cm -> 635.9 cm
+.....................................................................
+# "TOB Cooling manifold lay 9"   "TOB_coolmanifold5"  455.56   759.  
+* 1 "Arc pipes"               "TOB_CuNi"           0.0364  1265.4   COL 
+* 2 "Coolant"                 "C6F14"              0.2463  1265.4   COL
+* 3 "Brass pipe connectors"   "Brass"          0.18     66      COL
+C* 4 "Cool pipe solder"        "TOB_cool_solder"    0.042    66      COL
+.....................................................................
+
+Layer 10:
+ MC r = 112.2 cm
+ r_1 = 111.7 cm -> 701.8 cm
+ r_2 = 112.7 cm -> 708.1 cm
+.....................................................................
+# "TOB Cooling manifold lay 10"  "TOB_coolmanifold6"  507.6    846.  
+* 1 "Arc pipes"               "TOB_CuNi"           0.0364  1410.    COL
+* 2 "Coolant"                 "C6F14"              0.2463  1410.    COL
+* 3 "Brass pipe connectors"   "Brass"          0.18     74      COL
+C* 4 "Cool pipe solder"        "TOB_cool_solder"    0.042    74      COL
+.....................................................................
+=====================================================================
+
+		
+		
+# "END"  "END"  0.  0.   
+this has to be the last line !
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

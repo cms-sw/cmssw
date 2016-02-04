@@ -1,0 +1,89 @@
+TimeReport> Report activated
+TimeReport> Report columns headings for events: eventnum runnum timetaken
+TimeReport> Report columns headings for modules: eventnum runnum modulelabel modulename timetaken
+%MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
+%MSG
+%MSG-e cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+LogError was used to send this other message
+%MSG
+TimeModule> 1 1 sendSomeMessages UnitTestClient_A 0.00101399
+TimeEvent> 1 1 0.00337982
+%MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
+%MSG
+%MSG-e cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+LogError was used to send this other message
+%MSG
+TimeModule> 2 1 sendSomeMessages UnitTestClient_A 0.000310898
+TimeEvent> 2 1 0.000895023
+%MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
+LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
+%MSG
+%MSG-e cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
+LogError was used to send this other message
+%MSG
+TimeModule> 3 1 sendSomeMessages UnitTestClient_A 0.000298977
+TimeEvent> 3 1 0.000669003
+%MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 4
+LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
+%MSG
+%MSG-e cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 4
+LogError was used to send this other message
+%MSG
+TimeModule> 4 1 sendSomeMessages UnitTestClient_A 0.000298977
+TimeEvent> 4 1 0.000662088
+%MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 5
+LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
+%MSG
+%MSG-e cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 5
+LogError was used to send this other message
+%MSG
+TimeModule> 5 1 sendSomeMessages UnitTestClient_A 0.000298977
+TimeEvent> 5 1 0.000651121
+%MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 6
+LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
+%MSG
+%MSG-e cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 6
+LogError was used to send this other message
+%MSG
+TimeModule> 6 1 sendSomeMessages UnitTestClient_A 0.00028801
+TimeEvent> 6 1 0.00065589
+%MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 7
+LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
+%MSG
+%MSG-e cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 7
+LogError was used to send this other message
+%MSG
+TimeModule> 7 1 sendSomeMessages UnitTestClient_A 0.000297785
+TimeEvent> 7 1 0.000653982
+%MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 8
+LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
+%MSG
+%MSG-e cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 8
+LogError was used to send this other message
+%MSG
+TimeModule> 8 1 sendSomeMessages UnitTestClient_A 0.000291109
+TimeEvent> 8 1 0.000650167
+%MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 9
+LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
+%MSG
+%MSG-e cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 9
+LogError was used to send this other message
+%MSG
+TimeModule> 9 1 sendSomeMessages UnitTestClient_A 0.00029397
+TimeEvent> 9 1 0.000648022
+%MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 10
+LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
+%MSG
+%MSG-e cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 10
+LogError was used to send this other message
+%MSG
+TimeModule> 10 1 sendSomeMessages UnitTestClient_A 0.00029707
+TimeEvent> 10 1 0.00065589
+TimeReport> Time report complete in 0.017045 seconds
+ Time Summary: 
+ Min: 0.000648022
+ Max: 0.00337982
+ Avg: 0.0017045
+

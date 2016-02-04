@@ -1,0 +1,10 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/Utilities"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="RecoMuon/TrackingTools"/>
+<use   name="TrackingTools/TransientTrack"/>
+<use   name="CLHEP"/>
+<use   name="root"/>
+<library   file="STAMuonAnalyzer.cc" name="STAMuonAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+</library>

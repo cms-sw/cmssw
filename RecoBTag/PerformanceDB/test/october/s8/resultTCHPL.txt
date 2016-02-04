@@ -1,0 +1,9 @@
+trackCountingHighPurBJetTags
+1.34
+PerformancePayloadFromTable
+2
+2
+1001 1002
+5 2
+0 2.4 50 80
+0.662 0.006

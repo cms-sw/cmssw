@@ -1,0 +1,49 @@
+# Names of Developers with write access to this module
+#
+# There are two types of developers:
+# 1) Administrators - entitled to edit all files in the module ,
+#    in particular the .admin directory.  (Including this file) 
+# 2) Regular Developers - entitled to edit all files in the module
+#    except those in the .admin directory.
+#
+# You must use the full name of the developer as recorded on this system.
+# see :
+# http://cmsdoc.cern.ch/cmsoo/projects/swdevtools/developer_list.html
+# for a full list of names. If the developer you require is not on this
+# list then email the cvs administrator (cvsadmin@cmscvs.cern.ch)
+#
+# Important
+# ---------
+# --- Put names of regular developers after the >Developers Tag
+# --- Put names of administrators after the >Administrators Tag
+#
+# Mailists
+# --------
+# The bug reporting system can automatically send mail to all the developers
+# and administrators. Add the email address after the name (seperated by a :)
+# of developers to include in the list.
+#
+>Developers
+lorenzo : Lorenzo Agostino : Lorenzo.Agostino@cern.ch
+rofierzy : Radek Ofierzynski : Radek.Ofierzynski@cern.ch
+malgeri : Luca Malgeri : Luca.Malgeri@cern.ch
+futyand : David Futyan : David.Futyan@cern.ch
+meridian : Paolo Meridiani: Paolo.Meridiani@cern.ch
+palmale : Alessandro Palma: Alessandro.Palma@cern.ch
+ric : Riccardo Paramatti: Riccardo.Paramatti@cern.ch 
+vlitvin : Vladimir Litvine : Vladimir.Litvin@cern.ch
+marat : Marat Gataoulline : Marat.Gataoulline@cern.ch
+dtgong : Datao Gong : dtgong@physics.umn.edu
+yma : Yousi Ma : Yousi.Ma@cern.ch
+delre: Daniele Del Re : Daniele.Del.Re@cern.ch
+beaucero : Stephanie Beauceron : Stephanie.Beauceron@cern.ch
+malberti : Martina Malberti : Martina.Malberti@cern.ch
+presotto : Luca Presotto : Luca.Presotto@cern.ch
+
+>Administrators
+lorenzo : Lorenzo Agostino : Lorenzo.Agostino@cern.ch
+rofierzy : Radek Ofierzynski : Radek.Ofierzynski@cern.ch
+malgeri : Luca Malgeri : Luca.Malgeri@cern.ch
+rahatlou : Shahram Rahatlou : Shahram.Rahatlou@cern.ch
+beaucero : Stephanie Beauceron : Stephanie.Beauceron@cern.ch
+govoni : Pietro Govoni : pietro.govoni@mib.infn.it

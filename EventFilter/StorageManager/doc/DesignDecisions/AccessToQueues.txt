@@ -1,0 +1,15 @@
+23-Mar-2009, KAB
+
+Shared pointers to queues are created in the StorageManager constructor, 
+stored in a SharedResources instance, and passed around using the 
+shared pointer to the SharedResources.  In this model, no particular class
+owns the queues.
+
+The queue sizes are initially hard-coded.  We should make them configurable
+at some point.  Presumably these configuration parameters will live in the
+SM infospace, be managed by the Configuration class, and be specified in
+the sm_autobu_8fu.xml file in the demoSystem.  Inside the SM, the queue
+sizes can be reset at Configuration time using the following steps:
+ - call the Configuration method that updates the cfg param values
+ - fetch the queue size values (probably a new struct in Configuration.h)
+ - call the set_capacity method on the queues whose sizes have changed.

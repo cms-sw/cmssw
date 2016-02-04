@@ -1,0 +1,48 @@
+# Names of Developers with write access to this module
+#
+# There are two types of developers:
+# 1) Administrators - entitled to edit all files in the module ,
+#    in particular the .admin directory.  (Including this file) 
+# 2) Regular Developers - entitled to edit all files in the module
+#    except those in the .admin directory.
+#
+# You must use the full name of the developer as recorded on this system.
+# see :
+# http://cmsdoc.cern.ch/cmsoo/projects/swdevtools/developer_list.html 
+# for a full list of names. If the developer you require is not on this
+# list then email the cvs administrator (cvsadmin@cmscvs.cern.ch)
+#
+# Important
+# ---------
+# --- Put names of regular developers after the >Developers Tag
+# --- Put names of administrators after the >Administrators Tag
+#
+# Mailists
+# --------
+# The bug reporting system can automatically send mail to all the developers
+# and administrators. Add the email address after the name (seperated by a :)
+# of developers to include in the list.
+#
+>Developers
+mansj : Jeremy Mans : jmmans@physics.umn.edu
+meridian : Paolo Meridiani : Paolo.Meridiani@cern.ch
+namapane : Nicola Amapane : Nicola.Amapane@cern.ch
+ptc : Tim Cox : Tim.Cox@cern.ch       
+bhatnag : Vipin Bhatnagar : Vipin.Bhatnagar@cern.ch
+tomalini : Ian Tomalin: i.r.tomalin@rl.ac.uk
+fedor : Fedor Ratnikov : ratnikov@fnal.gov
+chiochia : Vincenzo Chiochia : Vincenzo.Chiochia@cern.ch
+elvira : Victor Daniel Elvira : Daniel.Elvira@cern.ch
+rahatlou : Shahram Rahatlou : Shahram.Rahatlou@cern.ch
+fambrogl : Filippo Ambroglini : Filippo.Ambroglini@cern.ch
+cmssup : cmssup : Cms-User.Support@cern.ch
+arizzi : Andrea Rizzi : Andrea.Rizzi@cern.ch
+dmytro :Dmytro Kovalskyi : Dmytro.Kovalskyi@cern.ch
+aresh: Aresh Vedaee : aresh.vedaee@cern.ch
+
+>Administrators
+argiro : Stefano Argiro : Stefano.Argiro@cern.ch
+llista : Luca Lista : luca.lista@na.infn.it
+namapane : Nicola Amapane : Nicola.Amapane@cern.ch
+kati : Kati Lassila-Perini : Katri.Lassila-Perini@cern.ch
+fabiocos : Fabio Cossutti : cossutti@ts.infn.it
