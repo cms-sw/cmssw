@@ -6,7 +6,7 @@ ElectronChi2 = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2Mea
 ElectronChi2.ComponentName = 'ElectronChi2'
 ElectronChi2.MaxChi2 = 2000.
 ElectronChi2.nSigma = 3.
-ElectronChi2.MaxDispacement = 100
+ElectronChi2.MaxDisplacement = 100
 ElectronChi2.MaxSagitta = -1
 
 # Trajectory Filter

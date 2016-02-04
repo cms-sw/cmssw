@@ -20,6 +20,52 @@ def esproducers_by_type(process, *types):
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
+def customiseFor13062(process):
+    for module in producers_by_type(process,'PixelTrackProducer'):
+        if not hasattr(module.RegionFactoryPSet.RegionPSet,'useMultipleScattering'):
+            module.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
+        if not hasattr(module.RegionFactoryPSet.RegionPSet,'useFakeVertices'):    
+            module.RegionFactoryPSet.RegionPSet.useFakeVertices = cms.bool(False)
+
+    for module in producers_by_type(process,'SeedGeneratorFromRegionHitsEDProducer'):
+        if not hasattr(module.RegionFactoryPSet.RegionPSet,'useMultipleScattering'):
+            module.RegionFactoryPSet.RegionPSet.useMultipleScattering = cms.bool(False)
+        if not hasattr(module.RegionFactoryPSet.RegionPSet,'useFakeVertices'):    
+            module.RegionFactoryPSet.RegionPSet.useFakeVertices = cms.bool(False)
+
+    for module in esproducers_by_type(process,'Chi2ChargeMeasurementEstimatorESProducer'):    
+        if hasattr(module,'MaxDispacement'):
+            delattr(module,'MaxDispacement')
+        if not hasattr(module,'MaxDisplacement'):
+            module.MaxDisplacement  = cms.double(100.)
+        if not hasattr(module,'MaxSagitta'):
+            module.MaxSagitta       = cms.double(-1.) 
+        if not hasattr(module,'MinimalTolerance'):
+            module.MinimalTolerance = cms.double(10.) 
+    for module in esproducers_by_type(process,'Chi2MeasurementEstimatorESProducer'):
+        if hasattr(module,'MaxDispacement'):
+            delattr(module,'MaxDispacement')
+        if not hasattr(module,'MaxDisplacement'):
+            module.MaxDisplacement  = cms.double(100.)
+        if not hasattr(module,'MaxSagitta'):
+            module.MaxSagitta       = cms.double(-1.) 
+        if not hasattr(module,'MinimalTolerance'):
+            module.MinimalTolerance = cms.double(10.) 
+
+    for pset in process._Process__psets.values():
+        if hasattr(pset,'ComponentType'):
+            if (pset.ComponentType == 'CkfBaseTrajectoryFilter'):
+                if not hasattr(pset,'minGoodStripCharge'):
+                    pset.minGoodStripCharge  = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+                if not hasattr(pset,'maxCCCLostHits'):    
+                    pset.maxCCCLostHits      = cms.int32(9999)
+                if not hasattr(pset,'seedExtension'):
+                    pset.seedExtension       = cms.int32(0)
+                if not hasattr(pset,'strictSeedExtension'):
+                    pset.strictSeedExtension = cms.bool(False)
+
+    return process
+
 #
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -28,6 +74,9 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     if cmsswVersion >= "CMSSW_8_0":
 #       process = customiseFor12718(process)
+        process = customiseFor13062(process)
+        from HLTrigger.Configuration.customizeHLTfor2016trackingTemplate import customiseFor2016trackingTemplate
+#       process = customiseFor2016trackingTemplate(process)
         pass
 
     return process
