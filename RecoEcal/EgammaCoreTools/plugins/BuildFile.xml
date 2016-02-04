@@ -1,0 +1,6 @@
+<use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/EcalObjects"/>
+<library   file="*.cc" name="RecoEcalEcalClusterFunctions">
+  <flags   EDM_PLUGIN="1"/>
+</library>

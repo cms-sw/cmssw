@@ -1,0 +1,31 @@
+<tr class="colgroup">
+  <td class="colgroup" colspan=5>Jet collections: CaloTowers based</td>
+</tr>
+<tr>
+  <td><a href="classCaloJet.html">reco::CaloJet</a></rd>
+  <td><a href="DataFormats_JetReco.html">reco::CaloJetCollection</a></td>
+  <td><a href="#">iterativeCone5CaloJets</a></td>
+  <td class="description">IterativeCone R=0.5 jets </td>
+  <td> F.Ratnikov </td>
+</tr>
+<tr>
+  <td><a href="classCaloJet.html">reco::CaloJet</a></rd>
+  <td><a href="DataFormats_JetReco.html">reco::CaloJetCollection</a></td>
+  <td><a href="#">midPointCone5CaloJets</a></td>
+  <td class="description">MidpointCone R=0.5 jets </td>
+  <td> F.Ratnikov </td>
+</tr>
+<tr>
+  <td><a href="classCaloJet.html">reco::CaloJet</a></rd>
+  <td><a href="DataFormats_JetReco.html">reco::CaloJetCollection</a></td>
+  <td><a href="#">midPointCone7CaloJets</a></td>
+  <td class="description">MidpointCone R=0.7 jets </td>
+  <td> F.Ratnikov </td>
+</tr>
+<tr>
+  <td><a href="classCaloJet.html">reco::CaloJet</a></rd>
+  <td><a href="DataFormats_JetReco.html">reco::CaloJetCollection</a></td>
+  <td><a href="#">ktCaloJets</a></td>
+  <td class="description">Kt jets </td>
+  <td> F.Ratnikov </td>
+</tr>

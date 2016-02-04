@@ -1,0 +1,4 @@
+<use   name="FWCore/Services"/>
+<library   file="Module.cc" name="FWCoreServicesPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

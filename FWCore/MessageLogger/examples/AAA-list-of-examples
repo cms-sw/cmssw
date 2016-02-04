@@ -1,0 +1,17 @@
+  List of example _cfg.py files illustrating cnnfiguration of MessageLogger
+  -------------------------------------------------------------------------
+
+simplestMLexample:
+  Sets up logging to a file, delivering all messages created by anything
+  from LogIfo up to LogSystem, but not messages created by LogDebug or LogTrace.
+
+enablingLogDebugMessages:
+
+timingFilteredMLexample:
+  Illustrates how to limit the output of a category of message to one
+  destination but not to another.
+  Sets up logging to a file and to cout, and requests the timing service.
+  The file is interested in the timing output for each event, but cout is not.
+
+ 
+ 

@@ -1,0 +1,12 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/Utilities"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="RecoMuon/MuonIsolation"/>
+<use   name="DataFormats/MuonReco"/>
+<use   name="root"/>
+<library   file="IsolationExample.cc" name="IsolationExample">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="MuIsoDepositAnalyzer.cc" name="MuIsoDepositAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+</library>

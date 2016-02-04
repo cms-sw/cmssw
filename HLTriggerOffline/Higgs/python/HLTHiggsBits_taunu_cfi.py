@@ -1,0 +1,45 @@
+import FWCore.ParameterSet.Config as cms
+
+HLTHiggsBits_taunu = cms.EDAnalyzer("HLTHiggsBits",
+  ##  hcalDigisLabel = cms.string('hcalTriggerPrimitiveDigis'),
+    muon = cms.string('muons'),
+  ##  L1GTObjectMapTag = cms.InputTag("l1GtEmulDigis"),
+    histName = cms.string(''),
+    OutputMEsInRootFile = cms.bool(False),
+ ##  histName = cms.string("#outputfile#"),
+  ##  calotowers = cms.string('towerMaker'),
+   ## L1GTReadoutRecord = cms.InputTag("l1GtEmulDigis"),
+    Photon = cms.string('correctedPhotons'),
+  ##  genmet = cms.string('genMet'),
+    MCTruth = cms.InputTag("genParticles"),
+    hltBitNames = cms.vstring(''),
+    hltBitNamesEG = cms.vstring(''),
+    hltBitNamesMu = cms.vstring(''),
+    hltBitNamesPh = cms.vstring(''),
+    hltBitNamesTau = cms.vstring('HLT_SingleLooseIsoTau20'),
+  ##  hltLabels  =  cms.vstring(' '),
+   ## hltLabelsMu  =  cms.vstring(' '),
+   ## hltLabelsEg  =  cms.vstring(' '),
+   ## L1ExtraParticleMap = cms.InputTag("l1extraParticleMap"),
+   # Electron = cms.string('pixelMatchGsfElectrons'),
+    Electron = cms.string('gsfElectrons'),
+   ## genjets = cms.string('iterativeCone5GenJets'),
+   ## recmet = cms.string('met'),
+   # Nchannel = cms.int32(0),
+    Nchannel = cms.int32(5), 
+   ## recjets = cms.string('iterativeCone5CaloJets'),
+     OutputFileName = cms.string(''),
+    DQMFolder = cms.untracked.string("HLT/Higgs/Htaunu"),
+  ##  particleMapSource = cms.string('l1extraParticleMap'),
+   ## l1extramc = cms.string('l1extraParticles'),
+    HLTriggerResults = cms.InputTag("TriggerResults","","HLT"),
+    RunParameters = cms.PSet(
+        Debug = cms.bool(True),
+        Monte = cms.bool(True),
+        EtaMax = cms.double(2.5),
+        EtaMin = cms.double(-2.5)
+    )#,
+  ##  ecalDigisLabel = cms.string('ecalTriggerPrimitiveDigis')
+)
+
+

@@ -1,0 +1,9 @@
+jobname TryReco
+datasetpath DATA_RecoMinBias900GeV_cff
+globaltag GR09_R_34X_V2::All
+alignobj frontier://FrontierArc/CMS_COND_31X_ALIGNMENT_0912
+taggeom TrackerAlignment_2009_v5_offline
+apeobj sqlite_file:/afs/cern.ch/user/m/musich/public/moduleDepenentAPE/SafeAPEforFirstCollisions.db
+tagape AlignmentErrors
+tracktype generalTracks
+outfile TryPVValidation_Reco_Data900GeV.root

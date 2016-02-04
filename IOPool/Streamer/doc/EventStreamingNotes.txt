@@ -1,0 +1,187 @@
+21-11-05 mfp:
+
+IOPool/Streamer is now making use of the test driver from FWCore/Utilities.
+
+22-8-05 jbk:
+
+Things that need to be done for the event streaming output/input modules:
+
+The TBuffer needs to become a data member of the class and SetBuffer
+needs to be called for each event.
+
+The input module is hard coded to read the streamed events from a file.
+It needs to be converted to work like the output module - where the
+network protocol driver is a template parameter.
+
+The "AuxEvent" and the process history and not handled at all.
+
+Each product in an event gets a copy of all the provenance information.
+In the future, we may be able to send a table in the event header that
+contains all the common provenance information and then reference it in
+the per-product provenance information.
+
+The StreamCopy/JunkCopy test configurations still do not run.  This
+may be an environment issue, because JunkCopy test just uses the 
+POOL output modules and input modules to do its work.
+
+23-8-05 jbk:
+
+Converted input source to use a similar protocol object for doing the
+transfer or save of the streamed events as the streaming output module.
+
+Still have not checked for memory leaks in input or output modules.
+
+The StreamCopy operations ran for a while until a made a bunch of 
+changes.  A fresh rebuild seems to fix the problem.  The problem is
+that a warning appears that indicates that the dictionary for the
+StreamTestThing cannot be found.  There may be a problem with putting
+the test EDProducts into the plugin library.  I should probably move them
+elsewhere.
+
+25-8-05 jbk:
+
+The event stream test modules now can write many instances of the 
+StreamTestThing of a configured size in order to be load testing.
+
+The filtering of products based on type is not yet in place.
+
+The filtering of products based on provenance or trigger bits is not
+in place.
+
+The streaming output module needs to be converted immediately to use the
+BeginJob member function to do the product registry writing and 
+manupulations.  This is because the fixed IDs for products are not finalized
+until all constructors have run and are likely to be zero before that
+time.
+
+26-8-05 jbk:
+
+Now the streaming output module uses beginJob for initialization
+and writing the registry.  This means it requires a FWCore tag > pre8.
+
+A memory leak checker has not been run on this code.  It is important
+to do so because other packages are manipulating blocks of memory used
+by this package.
+
+15-9-05 jbk:
+
+Changes the streamer declaration code in ClassFiller to use a different
+algorithm.  First all products have "load capabilities" run on them.
+It then goes though each product in the registry and declares 
+the root streamers bottom-up.  All the types contained within each
+product have the root streamers declared starting at the inner-most
+leaf types.
+
+The code in ClassFiller is sort of messy and needs to be cleaned up.
+
+Setting environment variable PROC_DEBUG=9 will print a trace of what
+the event stream input and output objects are doing to declare the 
+product.  Setting this variable to 11 will cause the ROOT debug level
+to be set to 10 during I/O operations.
+
+18-10-05 jbk:
+
+Many important changes.  Here is the sequence.
+ 1) The "Producer" of the template EventStreamInput is not initialized 
+    first. It has a new role to provide the EventBuffer object to the
+    EventStreamInput object instead of the EventStreamInput object making
+    it.  The reason for this change is so the creation of this queue
+    can be placed into a different package - one that may need to use
+    services that depend on HLT related libraries.  In other words, the
+    EventBuffer may be created in HLT specific code.
+
+27-10-05 jbk: 
+
+A bunch of transition related checkins.  The streaming input template is
+going away.  The new code compiles and is checked in.  The streaming
+input template and TestProducer code is not removed yet until the 
+TestProducer is rewritten using the new streaming utility classes and
+functions in Utilities.h.  The FragmentInput input source is an exxample
+of using these functions - but not from a file.  The testing is
+not complete with this checkin.
+
+To build this, you must rename EventStreamInput.cc, TestProducer.cc
+to names that do not end in cc.
+
+01-11-05 jbk:
+
+Added a few more functions for reading a product registry from 
+file containing streamed events (for testing).
+
+Removed the EventStreamInput.cc and TestProducer.cc files. Also
+made it an error to include EventStreamInput.h.  All these files
+contain the code for the old way of making an streaming event input
+service.  The new way just gives the developer a set of functions
+and classes to aid in the creation of an InputSource that is 
+specific to a task.
+
+Added the replacement for TestProducer.cc, called EventStreamFileInput.
+This is an input source that reads from a file.
+
+Added a file reader that can be placed into a thread to read events
+message buffer from a file continuously and place them onto a queue.
+
+Added a utility class for managing an array lifetime to TestFileReader.cc.
+See the notes in readEvents().
+
+The way threading is used in all the classes is consistent and should
+really be pulled out into a template.
+
+22-11-05 jbk:
+
+added a bunch of code for declaring classes explicitly to root using the
+pool utilities and the reflex information in order to debug a problem.
+The problem appears to stem from a giving class definition in the
+xml file of StreamerData - I've added it now.  The missing class was
+vector<BranchDescription>.
+
+5-12-05 jbk:
+
+Lots of trouble.  Added a bunch of function to go through the reflex
+dictionaries of product registry clases and attempt to "load
+capabilities" and declare the ROOT dictionary.
+
+Most of this was added as a result of trying to find a bug in 
+streaming out SortedCollection.  Turned out to be a bug in ROOT -
+a hard-coded buffer size of 80 characters for a class name.
+
+This package is in need of a major cleanup:
+ * it is not clear where and in what order the functions in 
+   Utility and ClassFiller need to be called.
+ * an index of functions and descriptions is needed.
+ * the messages and handling function need a second revision to
+   remove redundancy.
+ * instructions are needed to explain the concepts.
+ * the names of many things are poorly chosen.
+ * The "EventBuffer" use needs to be converted over to use the
+   "SingleServerQueue" in the fwcore utilities area
+ * any shared functions between the various clients of the classfiller
+   and loadextraclasses need to be clearly identified and shared 
+   properly.
+
+13-12-05 jbk:
+
+added some debugging code.  changed some of the default parameters in the
+HLTInfo class.  changed the order of some of the processing in the 
+testfilereader.
+
+Fixed a bug in Utilities.h.
+
+10-01-06 jbk:
+
+The message class and derived classes need to be reviewed.  There is a
+problem with the size functions.  There are lots of them and it is unclear
+when to use which one.  The storage of the message code and the reported
+size of the message is also a problem - is the msgcode included in the
+payload size or is it part of the header?  It is currently not reported
+as part of the payload if only the MsgCode class is used.
+
+01-03-07 jbk:
+
+Let ROOT manage the lifetime of the buffers it uses for input and output.
+Changed the compression buffers to data members instead of stack-related
+variables.  Moved the TBuffers to member data.
+Tested using NewStreamIn/Out.cfg with sizes bigger than than the default
+buffer sizes. Also added comments to the code about percular things: 
+assumed max overheads and such.
+

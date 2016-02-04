@@ -1,0 +1,45 @@
+# Names of Developers with write access to this module
+#
+# There are two types of developers:
+# 1) Administrators - entitled to edit all files in the module ,
+#    in particular the .admin directory.  (Including this file) 
+# 2) Regular Developers - entitled to edit all files in the module
+#    except those in the .admin directory.
+#
+# You must use the full name of the developer as recorded on this system.
+# see :
+# http://cmsdoc.cern.ch/cmsoo/projects/swdevtools/developer_list.html
+# for a full list of names. If the developer you require is not on this
+# list then email the cvs administrator (cvsadmin@cmscvs.cern.ch)
+#
+# Important
+# ---------
+# --- Put names of regular developers after the >Developers Tag
+# --- Put names of administrators after the >Administrators Tag
+#
+# Mailists
+# --------
+# The bug reporting system can automatically send mail to all the developers
+# and administrators. Add the email address after the name (seperated by a :)
+# of developers to include in the list.
+#
+>Developers
+chinhan : Chi-Nhan Nguyen : chinhan@fnal.gov
+yilmaz : Yetkin Yilmaz : Yetkin.Yilmaz@cern.ch
+goys : Silvia Goy Lopez : goylopez@cern.ch
+bachtis: Michail Bachtis : Michail.Bachtis@cern.ch
+lungu: Gheorghe Lungu : putorel30@gmail.com
+abarker : Anthony Barker : Anthony.Barker@cern.ch
+lucieg: Lucie Gauthier : Lucie.Gauthier@cern.ch
+seema : Seema Sharma : Seema.Sharma@cern.ch
+agay : Arnaud Gay : Arnaud.Paul.Robert.Gay@cern.ch 
+berryhil : Jeffrey Berryhill : Jeffrey.Berryhill@cern.ch
+hartl : Christian Hartl : Christian.Hartl@cern.ch
+jyothsna : Jyothsna Komaragiri :  Jyothsna.Rani.Komaragiri@cern.ch
+lacroix : Florent Sylvain Lacroix : florent.sylvain.lacroix@cern.ch
+
+>Administrators
+apana : Leonard Apanasevich : Leonard.Apanasevich@cern.ch
+rossin : Roberto Rossin : roberto.rossin@cern.ch
+jjhollar : Jonathan Hollar : Jonathan.Jason.Hollar@cern.ch
+gruen : Martin Grunewald : Martin.Grunewald@cern.ch

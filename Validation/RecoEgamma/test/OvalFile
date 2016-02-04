@@ -1,0 +1,453 @@
+
+<var name="TEST_RELEASE" value="4_2_0_pre5">
+<var name="TEST_GLOBAL_TAG" value="MC_42_V3">
+<var name="TEST_GLOBAL_STARTUP_TAG" value="START42_V3">
+<var name="TEST_GLOBAL_VERSION" value="v1">
+
+The value of OVAL_ENVNAME is automatically set by Oval to the name
+of the current environment, before running any executable. Using it below,
+we have an output file name which is unique for each execution.
+
+<var name="TEST_OUTPUT_BASE" value="electronHistos.root">
+<var name="TEST_OUTPUT_FILE" value="electronHistos.${OVAL_ENVNAME}.root">
+<var name="TEST_OUTPUT_LOGS" value="*.${OVAL_ENVNAME}.olog">
+<!--difffile name="electronHistos.root"-->
+
+The DBS_* variables are configuration variables for the script electronDbsDiscovery.py,
+which prepares and send a query to the Data Discovery web server,
+and receive as a result the corresponding list of input data files.
+
+<var name="DBS_STRATEGY" value="search">
+<var name="DBS_RELEASE" value="CMSSW_${TEST_RELEASE}">
+<var name="DBS_TIER" value="-RECO">
+<var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
+
+The VAL_* variables are configuration variables for electronValidation.csh,
+which compares the histograms from two releases. electronValidation.csh relies
+on the ROOT script electronValidation.C.
+
+<var name="VAL_NEW_RELEASE" value="4_2_0_pre5_df_3">
+<var name="VAL_REF_RELEASE" value="4_2_0_pre5_df_2">
+<var name="VAL_COMMENT" value="Cleaning EgammaCandidates.">
+
+<var name="STORE_RELEASE" value="${VAL_NEW_RELEASE}">
+
+<!--var name="VAL_WEB" value="/afs/cern.ch/user/c/chamont/www/validation"-->
+<!--var name="VAL_WEB_URL" value="https://chamont.web.cern.ch/chamont/validation"-->
+<var name="VAL_WEB" value="/afs/cern.ch/cms/Physics/egamma/www/validation">
+<var name="VAL_WEB_URL" value="http://cmsdoc.cern.ch/Physics/egamma/www/validation">
+<var name="STORE_WEB" value="${VAL_WEB}">
+
+Oval is able to check the output channel of an execution and compare it with a reference output.
+The tags below are defining which are lines to be compared. The currently specification is a
+first draft, and we do not yet check the differences that Oval could raise.
+
+<diffnumber expr="^dataset has (\d+) files:$" tolerance="1">
+<error expr="^dataset has 0 files:$">
+
+<diffline expr="^(TH1.Print Name  = [a-zA-Z_]+, Entries= ).*$">
+<diffnumber expr="^TH1.Print Name  = [a-zA-Z_]+, Entries= (\d+),.*$" tolerance="20%">
+<diffnumber expr="^TH1.Print Name  = [a-zA-Z_]+, Entries= \d+, Total sum= (\S+)$" tolerance="10%">
+<diffline expr="^(h_\S+ has )\d+ entries of mean value \S+$">
+<diffnumber expr="^h_\S+ has (\d+) entries of mean value \S+$" tolerance="20%">
+<diffnumber expr="^h_\S+ has \d+ entries of mean value (\S+)$" tolerance="10%">
+<!diffvar name="HISTO" expr="^TH1.Print Name  = [a-zA-Z_]+, Entries= \d+, Total sum= (\S+)$" tolerance="10%">
+
+The file defined below is used by the script electronDbsDiscovery.py when we want to analyze
+some RelVal reco files which have been regenerated locally.
+
+<var name="TEST_AFS_DIR" value="/afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/EgammaCandidates">
+  
+Here comes the concrete executables to run. They are split among few different
+environments, each one defining the relevant variales for a given scenario and/or
+data sample. Running electronDbsDiscovery.py is only usefull to check the correctness
+of the list of input data files returned by the data discovery web server. We guess
+that from time to time we will have to upgrade the values DBS_* variable so to keep in
+touch with changes in data catalog structure.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+================================================================================
+FullSim
+================================================================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+<environment name="FullSimStdStats">
+
+This set of targets is currently used for the validation of electrons.
+
+  <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
+  <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
+  <var name="VAL_CONFIGURATION" value="ElectronMcSignalValidation_cfg.py">
+  
+  <file name="electronDbsDiscovery.txt">
+  ${TEST_AFS_DIR}/RelValSingleElectronPt10-MC-RECO.root
+  ${TEST_AFS_DIR}/RelValSingleElectronPt35-MC-RECO.root
+  ${TEST_AFS_DIR}/RelValTTbar-MC-RECO.root
+  ${TEST_AFS_DIR}/RelValZEE-MC-RECO.root
+  ${TEST_AFS_DIR}/RelValZEE-START-RECO.root
+  ${TEST_AFS_DIR}/RelValQCD_Pt_80_120-MC-RECO.root
+  </file>
+  <var name="DBS_STRATEGY" value="local">
+  <var name="DBS_COND" value="MC">
+
+  <environment name="FullPt35">
+    <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
+    <executable name="electronDbsDiscovery.py">
+    <executable name="cmsRun" args="${VAL_CONFIGURATION}">
+    <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronStoreForce.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
+  </environment>
+  
+  <environment name="FullQcdPt80Pt120">
+    <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
+    <var name="VAL_HISTOS" value="ElectronMcFakeHistos.txt">
+    <var name="VAL_ANALYZER" value="ElectronMcFakeValidator">
+    <var name="VAL_CONFIGURATION" value="ElectronMcFakeValidation_cfg.py">
+    <executable name="electronDbsDiscovery.py">
+    <executable name="cmsRun" args="${VAL_CONFIGURATION}">
+    <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronStoreForce.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
+  </environment>
+  
+  <environment name="FullPt10">
+    <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
+    <executable name="electronDbsDiscovery.py">
+    <executable name="cmsRun" args="${VAL_CONFIGURATION}">
+    <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
+  </environment>
+  
+  <environment name="FullTTbar">
+    <var name="DBS_SAMPLE" value="RelValTTbar">
+    <executable name="electronDbsDiscovery.py">
+    <executable name="cmsRun" args="${VAL_CONFIGURATION}">
+    <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
+  </environment>
+  
+  <environment name="FullZEEIdeal">
+    <var name="DBS_SAMPLE" value="RelValZEE">
+    <executable name="electronDbsDiscovery.py">
+    <executable name="cmsRun" args="${VAL_CONFIGURATION}">
+    <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
+  </environment>
+  
+  <environment name="FullZEEStartup">
+    <var name="DBS_SAMPLE" value="RelValZEE">
+    <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
+    <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
+    <var name="DBS_COND" value="START">
+    <executable name="electronDbsDiscovery.py">
+    <executable name="cmsRun" args="${VAL_CONFIGURATION}">
+    <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
+  </environment>
+  
+  <environment name="OldFullPt35">
+    <var name="DBS_RELEASE" value="CMSSW_3_9_7">
+    <var name="DBS_COND" value="MC_39Y_V7-v1">
+    <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
+    <executable name="electronDbsDiscovery.py">
+    <executable name="cmsRun" args="${VAL_CONFIGURATION}">
+    <var name="VAL_REF_RELEASE" value="397">
+    <var name="VAL_REF_FILE" value="${VAL_WEB}/397/Electrons/data/cmsRun.FullPt35.olog.electronHistos.root">
+    <var name="VAL_COMMENT" value="Check backward compatibility with 397.">
+    <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronStoreForce.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE} Old_RelValSingleElectronPt35_Mc">
+  </environment>
+  
+</environment>
+
+<environment name="FullSimHighStats">
+
+  <var name="DBS_COND" value="*">
+  <!--var name="DBS_STRATEGY" value="local"-->
+  <!--var name="DBS_COND" value=""-->
+
+  <environment name="HighFlatPt5To100">
+    <var name="DBS_SAMPLE" value="RelValSingleElectronFlatPt5To100">
+    <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
+    <!--executable name="electronDbsDiscovery.py"-->
+    <!--executable name="cmsRun" args="ElectronMcSignalValidation_cfg.py"-->
+    <!--executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}"-->
+    <!--executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}"-->
+  </environment>
+
+</environment>
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+================================================================================
+FastSim
+================================================================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+<environment name="FastSim">
+
+  <var name="DBS_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
+  <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
+  <var name="VAL_CONFIGURATION" value="ElectronMcSignalValidation_cfg.py">
+  <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
+
+  <environment name="FastAnalysis">
+
+    <environment name="FastTTbar">
+    
+      <var name="DBS_SAMPLE" value="RelValTTbar">
+      <executable name="electronDbsDiscovery.py">
+      <executable name="cmsRun" args="${VAL_CONFIGURATION}">
+      <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+      
+    </environment>
+  
+    <environment name="FastZEEIdeal">
+    
+      <var name="DBS_SAMPLE" value="RelValZEE">
+      <executable name="electronDbsDiscovery.py">
+      <executable name="cmsRun" args="${VAL_CONFIGURATION}">
+      <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+      
+    </environment>
+  
+    <eNvironment name="FastZEEStartup">
+    
+      <var name="DBS_SAMPLE" value="RelValZEE">
+      <var name="DBS_COND" value="${TEST_GLOBAL_STARTUP_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
+      <executable name="electronDbsDiscovery.py">
+      <executable name="cmsRun" args="${VAL_CONFIGURATION}">
+      <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+      
+    </environment>
+  
+  </environment>
+  
+  <environment name="FastVsFast">
+  
+    <environment name="FastVsFastTTbar">
+      <var name="DBS_SAMPLE" value="RelValTTbar">
+      <executable name="electronValidation.csh" args="electronHistos.FastTTbar.root">
+    </environment>
+    
+    <environment name="FastVsFastZEEIdeal">
+      <var name="DBS_SAMPLE" value="RelValZEE">
+      <executable name="electronValidation.csh" args="electronHistos.FastZEEIdeal.root">
+    </environment>
+    
+    <environment name="FastVsFastZEEStartup">
+      <var name="DBS_SAMPLE" value="RelValZEE">
+      <var name="DBS_COND" value="${TEST_GLOBAL_STARTUP_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
+      <executable name="electronValidation.csh" args="electronHistos.FastZEEStartup.root">
+    </environment>
+        
+  </environment>
+  
+  <environment name="FastVsFull">
+  
+    <environment name="FastVsFullTTbar">
+      <var name="DBS_SAMPLE" value="RelValTTbar">
+      <var name="VAL_REF_RELEASE" value="FastSim">
+      <var name="VAL_NEW_FILE" value="electronHistos.FullTTbar.root">
+      <var name="VAL_REF_FILE" value="electronHistos.FastTTbar.root">
+      <executable name="electronValidation.csh">
+    </environment>
+    
+    <environment name="FastVsFullZEEIdeal">
+      <var name="DBS_SAMPLE" value="RelValZEE">
+      <var name="VAL_REF_RELEASE" value="FastSim">
+      <var name="VAL_NEW_FILE" value="electronHistos.FullZEEIdeal.root">
+      <var name="VAL_REF_FILE" value="electronHistos.FastZEEIdeal.root">
+      <executable name="electronValidation.csh">
+    </environment>
+    
+    <environment name="FastVsFullZEEStartup">
+      <var name="DBS_SAMPLE" value="RelValZEE">
+      <var name="DBS_COND" value="${TEST_GLOBAL_STARTUP_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
+      <var name="VAL_REF_RELEASE" value="FastSim">
+      <var name="VAL_NEW_FILE" value="electronHistos.FullZEEStartup.root">
+      <var name="VAL_REF_FILE" value="electronHistos.FastZEEStartup.root">
+      <executable name="electronValidation.csh">
+    </environment>
+    
+  </environment>
+  
+</environment>
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+================================================================================
+This set of targets is made to redo the electrons
+with the local modified code.
+================================================================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+<environment name="Redo">
+
+  <environment name="RedoFromCore">
+
+    <environment name="RedoFromCorePt35">
+      <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
+      <var name="TEST_OUTPUT_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-MC-RECO.root">
+      <executable name="electronDbsDiscovery.py">
+      <executable name="cmsRun" args="ElectronRedoFromCore_cfg.py">
+    </environment>
+  
+    <environment name="RedoFromCoreQcdPt80Pt120">
+      <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
+      <var name="TEST_OUTPUT_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-MC-RECO.root">
+      <executable name="electronDbsDiscovery.py">
+      <executable name="cmsRun" args="ElectronRedoFromCore_cfg.py">
+    </environment>
+  
+    <environment name="RedoFromCorePt10">
+      <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
+      <var name="TEST_OUTPUT_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-MC-RECO.root">
+      <executable name="electronDbsDiscovery.py">
+      <executable name="cmsRun" args="ElectronRedoFromCore_cfg.py">
+    </environment>
+  
+    <environment name="RedoFromCoreTTbar">
+      <var name="DBS_SAMPLE" value="RelValTTbar">
+      <var name="TEST_OUTPUT_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-MC-RECO.root">
+      <executable name="electronDbsDiscovery.py">
+      <executable name="cmsRun" args="ElectronRedoFromCore_cfg.py">
+    </environment>
+  
+    <environment name="RedoFromCoreZEEIdeal">
+      <var name="DBS_SAMPLE" value="RelValZEE">
+      <var name="TEST_OUTPUT_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-MC-RECO.root">
+      <executable name="electronDbsDiscovery.py">
+      <executable name="cmsRun" args="ElectronRedoFromCore_cfg.py">
+    </environment>
+  
+    <environment name="RedoFromCoreZEEStartup">
+      <var name="DBS_SAMPLE" value="RelValZEE">
+      <var name="TEST_OUTPUT_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-START-RECO.root">
+      <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
+      <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
+      <executable name="electronDbsDiscovery.py">
+      <executable name="cmsRun" args="ElectronRedoFromCore_cfg.py">
+    </environment>
+  
+  </environment>
+
+  <environment name="RedoFromRaw">
+
+    <var name="DBS_TIER" value="-RAW">
+
+    <file name="electronDbsDiscovery.txt">
+    ${TEST_AFS_DIR}/RelValSingleElectronPt10-MC-RAW.root
+    ${TEST_AFS_DIR}/RelValSingleElectronPt35-MC-RAW.root
+    ${TEST_AFS_DIR}/RelValTTbar-MC-RAW.root
+    ${TEST_AFS_DIR}/RelValZEE-MC-RAW.root
+    ${TEST_AFS_DIR}/RelValZEE-START-RAW.root
+    ${TEST_AFS_DIR}/RelValQCD_Pt_80_120-MC-RAW.root
+    </file>
+    <var name="DBS_STRATEGY" value="local">
+    <var name="DBS_COND" value="MC">
+
+    <environment name="RedoFromRawCfg">
+      <executable name="cmsDriver.py" args="reco -s RAW2DIGI,RECO -n -1 --geometry DB --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-RAW.root --fileout=Dummy-MC-RECO.root --python_filename=ElectronRedoFromRaw_driver_cfg.py --no_exec">
+    </environment>
+  
+    <environment name="RedoFromRawPt35">
+      <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
+      <var name="TEST_OUTPUT_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-MC-RECO.root">
+      <executable name="electronDbsDiscovery.py">
+      <executable name="cmsRun" args="ElectronRedoFromRaw_cfg.py">
+    </environment>
+  
+    <environment name="RedoFromRawQcdPt80Pt120">
+      <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
+      <var name="TEST_OUTPUT_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-MC-RECO.root">
+      <executable name="electronDbsDiscovery.py">
+      <executable name="cmsRun" args="ElectronRedoFromRaw_cfg.py">
+    </environment>
+  
+    <environment name="RedoFromRawPt10">
+      <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
+      <var name="TEST_OUTPUT_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-MC-RECO.root">
+      <executable name="electronDbsDiscovery.py">
+      <executable name="cmsRun" args="ElectronRedoFromRaw_cfg.py">
+    </environment>
+  
+    <environment name="RedoFromRawTTbar">
+      <var name="DBS_SAMPLE" value="RelValTTbar">
+      <var name="TEST_OUTPUT_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-MC-RECO.root">
+      <executable name="electronDbsDiscovery.py">
+      <executable name="cmsRun" args="ElectronRedoFromRaw_cfg.py">
+    </environment>
+  
+    <environment name="RedoFromRawZEEIdeal">
+      <var name="DBS_SAMPLE" value="RelValZEE">
+      <var name="TEST_OUTPUT_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-MC-RECO.root">
+      <executable name="electronDbsDiscovery.py">
+      <executable name="cmsRun" args="ElectronRedoFromRaw_cfg.py">
+    </environment>
+  
+    <environment name="RedoFromRawZEEStartup">
+      <var name="DBS_SAMPLE" value="RelValZEE">
+      <var name="TEST_OUTPUT_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-START-RECO.root">
+      <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
+      <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
+      <!--var name="DBS_COND" value="START"-->
+      <executable name="electronDbsDiscovery.py">
+      <executable name="cmsRun" args="ElectronRedoFromRaw_cfg.py">
+    </environment>
+  
+  </environment>
+  
+  <environment name="RedoStep1">
+
+    <environment name="RedoPt35">
+      When one need to redo a raw file from scratch.
+      <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
+      <var name="TEST_OUTPUT_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-MC-RAW.root">
+      <executable name="cmsDriver.py" args="SingleElectronPt35.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun --geometry DB --conditions=auto:mc --eventcontent=FEVTDEBUGHLT --datatier 'GEN-SIM-DIGI-RAW-HLTDEBUG' -n 100 --relval 9000,250 --fileout ${TEST_OUTPUT_FILE}">
+    </environment>
+
+    <environment name="RedoTTbar">
+      For the test of FastSim and Hlt.
+      <var name="DBS_SAMPLE" value="RelValTTbar">
+      <var name="TEST_OUTPUT_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-MC-RAW.root">
+      <executable name="cmsDriver.py" args="TTbar_Tauola_7TeV_cfi.py -s GEN,FASTSIM,HLT:GRun,VALIDATION --pileup=NoPileUp --geometry DB --conditions=auto:mc --eventcontent=FEVTDEBUGHLT --datatier GEN-SIM-DIGI-RECO -n 10 --relval 100000,1000 --fileout ${TEST_OUTPUT_FILE}">
+    </environment>
+
+  </environment>
+
+</environment>
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+================================================================================
+Photons
+================================================================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+<environment name="Photons">
+
+Those few photons datasets are checked so to compare
+size and performance with electrons.
+
+  <var name="DBS_TIER_SECONDARY" value="-RAW">
+  <!--var name="DBS_RELEASE" value="LOCAL"-->
+  <!--var name="DBS_COND" value=""-->
+
+  <environment name="PhotonPt35">
+    <var name="DBS_SAMPLE" value="RelValSingleGammaPt35">
+    <executable name="electronDbsDiscovery.py">
+    <executable name="cmsRun" args="PhotonValidation_cfg.py">
+  </environment>
+  
+  <environment name="PhotonQcdPt80-120">
+    <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
+    <executable name="electronDbsDiscovery.py">
+    <executable name="cmsRun" args="PhotonValidation_cfg.py">
+  </environment>
+  
+</environment>
+
