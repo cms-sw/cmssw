@@ -1,4 +1,3 @@
-#include "TMath.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
 l1t::Muon::Muon()

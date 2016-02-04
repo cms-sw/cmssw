@@ -1,4 +1,3 @@
-#include "TMath.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
