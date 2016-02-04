@@ -167,6 +167,15 @@ _reco.KFSmootherForRefitInsideOut.Propagator = "SmartPropagatorAny"
 _reco.KFFitterForRefitInsideOut.Propagator = "SmartPropagatorAny"
 _reco.tevMuons.RefitterParameters.Propagator = "SmartPropagatorAny"
 
+##########################################
+# FastSim changes to jet/met reconstruction
+##########################################
+# CSCHaloData depends on cosmic muons, not available in fastsim
+_reco.BeamHaloId.remove(_reco.CSCHaloData)
+# GlobalHaloData and BeamHaloSummary depend on CSCHaloData
+_reco.BeamHaloId.remove(_reco.GlobalHaloData)
+_reco.BeamHaloId.remove(_reco.BeamHaloSummary)
+
 ############################################
 # deleting modules to avoid clashes with part of reconstruction run before mixing
 ############################################
