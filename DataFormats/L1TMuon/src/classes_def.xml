@@ -1,37 +1,30 @@
 <lcgdict>
  <selection>
-  <class name="l1t::MuonTriggerPrimitive::RPCData" ClassVersion="10">
-   <version ClassVersion="10" checksum="3285908274"/>
-  </class>
-  <class name="l1t::MuonTriggerPrimitive::CSCData" ClassVersion="10">
-   <version ClassVersion="10" checksum="1724295156"/>
-  </class>
-  <class name="l1t::MuonTriggerPrimitive::DTData" ClassVersion="10">
-   <version ClassVersion="10" checksum="167262604"/>
-  </class>
-  <class name="l1t::MuonTriggerPrimitive" ClassVersion="10">
-   <version ClassVersion="10" checksum="3167767157"/>
-  </class>
-
-  <class name="edm::Wrapper<l1t::MuonTriggerPrimitive>"/>
-  <class name="l1t::MuonTriggerPrimitiveCollection"/>
-  <class name="edm::Wrapper<l1t::MuonTriggerPrimitiveCollection>"/>
-  <class name="l1t::MuonTriggerPrimitiveRef"/> 
-  <class name="l1t::MuonTriggerPrimitivePtr"/>
-  <class name="l1t::MuonTriggerPrimitiveList"/>
-  <class name="l1t::MuonTriggerPrimitiveStationMap"/>
-
-
 
   <class name="l1t::RegionalMuonCand"/>
   <class name="l1t::RegionalMuonCandBxCollection"/>
   <class name="edm::Wrapper<l1t::RegionalMuonCandBxCollection>"/>
 
-  <class name="l1t::GMTInputCaloSum"/>
-  <class name="l1t::GMTInputCaloSumBxCollection"/>
-  <class name="edm::Wrapper<l1t::GMTInputCaloSumBxCollection>"/>
+  <class name="l1t::MuonCaloSum"/>
+  <class name="l1t::MuonCaloSumBxCollection"/>
+  <class name="edm::Wrapper<l1t::MuonCaloSumBxCollection>"/>
 
+  <class name="l1t::EMTFOutput"/>
+  <class name="l1t::EMTFOutputCollection"/>
+  <class name="edm::Wrapper<l1t::EMTFOutputCollection>"/>
+  <class name="l1t::emtf::AMC13Header"/>
+  <class name="l1t::emtf::MTF7Header"/>
+  <class name="l1t::emtf::EventHeader"/>
+  <class name="l1t::emtf::Counters"/>
+  <class name="l1t::emtf::ME"/>
+  <class name="l1t::emtf::MECollection"/>
+  <class name="l1t::emtf::RPC"/>
+  <class name="l1t::emtf::RPCCollection"/>
+  <class name="l1t::emtf::SP"/>
+  <class name="l1t::emtf::SPCollection"/>
+  <class name="l1t::emtf::EventTrailer"/>
+  <class name="l1t::emtf::MTF7Trailer"/>
+  <class name="l1t::emtf::AMC13Trailer"/>
 
-  
  </selection>
 </lcgdict>
