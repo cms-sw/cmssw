@@ -1,0 +1,49 @@
+Name: CMS_2011_S8884919
+Year: 2011
+Summary: Measurement of the NSD charged particle multiplicity at sqrt(s) = 0.9, 2.36, and 7 TeV with the CMS detector.
+Experiment: CMS
+Collider: LHC
+SpiresID: 8884919
+Status: UNVALIDATED
+Authors:
+ - Romain Rougny <romain.rougny@cern.ch>
+References:
+ - J. High Energy Phys. 01 (2011) 079
+ - doi:10.1007/JHEP01(2011)079
+ - arXiv:1011.5531 [hep-ex]
+RunInfo:
+  Non-single-diffractive (NSD) events only.  Should include double-diffractive (DD) events
+  and non-diffractive (ND) events but NOT single-diffractive (SD) events.  In Pythia6 the
+  SD processes to be turned off are 92 and 93.  In Pythia8 the SD processes are 103 and
+  104 (also called SoftQCD:singleDiffractive).
+NumEvents: 100000
+Beams: [p+, p+]
+Energies: [900, 2360, 7000]
+PtCuts: 
+Description:
+  Measurements of primary charged hadron multiplicity distributions are presented
+  for non-single-diffractive events in proton-proton collisions at centre-of-mass energies
+  of sqrt(s) = 0.9, 2.36, and 7 TeV, in five pseudorapidity ranges from |eta|<0.5 to |eta|<2.4.
+  The data were collected with the minimum-bias trigger of the CMS experiment during the LHC commissioning runs
+  in 2009 and the 7 TeV run in 2010. The average transverse momentum as a function of the multiplicity is also presented.
+  The measurement of higher-order moments of the multiplicity distribution confirms the violation of Koba-Nielsen-Olesen scaling
+  that has been observed at lower energies.
+
+BibKey: Khachatryan:2010nk
+BibTeX: '@Article{Khachatryan:2010nk,
+     author    = "Khachatryan, Vardan and others",
+     collaboration = "CMS",
+     title     = "{Charged particle multiplicities in pp interactions at
+                  sqrt(s) = 0.9, 2.36, and 7 TeV}",
+     journal   = "JHEP",
+     volume    = "01",
+     year      = "2011",
+     pages     = "079",
+     eprint    = "1011.5531",
+     archivePrefix = "arXiv",
+     primaryClass  =  "hep-ex",
+     doi       = "10.1007/JHEP01(2011)079",
+     SLACcitation  = "%%CITATION = 1011.5531;%%"
+  }'
+ToDo:
+

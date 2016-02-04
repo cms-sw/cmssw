@@ -1,0 +1,26 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/EcalRecHit"/>
+<use   name="DataFormats/EcalDetId"/>
+<use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/EgammaCandidates"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="RecoLocalCalo/EcalRecAlgos"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="RecoEcal/EgammaClusterAlgos"/>
+<use   name="Geometry/EcalAlgo"/>
+<use   name="DataFormats/Math"/>
+<use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="root"/>
+<use   name="xerces-c"/>
+<use   name="Calibration/Tools"/>
+<use   name="CalibCalorimetry/CaloMiscalibTools"/>
+<use   name="CondTools/Ecal"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<export>
+  <lib   name="1"/>
+</export>

@@ -1,0 +1,5 @@
+<library   file="LStoreStorageMaker.cc" name="UtilitiesLStoreAdaptorPlugin">
+  <use   name="Utilities/StorageFactory"/>
+  <use   name="Utilities/LStoreAdaptor"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

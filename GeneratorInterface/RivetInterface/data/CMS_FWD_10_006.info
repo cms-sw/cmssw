@@ -1,0 +1,15 @@
+Name: CMS_FWD_10_006
+Year: 2011
+Summary: Forward+central jet cross-sections at sqrt(s)=7 TeV
+Experiment: CMS
+Collider: CERN LHC
+SpiresID:
+Status: CMS internal
+Authors:
+ - P.B. Gomez 
+ - A. Knutsson
+ - B. Zhu
+ 
+References:
+ CMS-PAS-FWD-10-006
+ 

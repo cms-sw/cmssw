@@ -1,0 +1,8 @@
+<use   name="DataFormats/GeometryVector"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="MagneticField/Engine"/>
+<use   name="MagneticField/Records"/>
+<library   file="*.cc" name="MagneticFieldParametrizedEnginePlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

@@ -1,0 +1,4 @@
+<lcgdict>
+ <class name="edm::GenHIEvent"/>
+ <class name="edm::Wrapper<edm::GenHIEvent>"/>
+</lcgdict>

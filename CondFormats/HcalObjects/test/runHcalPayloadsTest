@@ -1,0 +1,43 @@
+# tests all classes in a packages
+setenv SCRAM_ARCH slc5_amd64_gcc434
+
+set testsourcedir=CondFormats/HcalObjects/test
+set templatecc=testHcalPayloadIO.cc
+
+cmsenv
+cd $CMSSW_BASE/src
+rm -rf $CMSSW_BASE/src/PayloadTest
+mkdir -p  $CMSSW_BASE/src/PayloadTest/PayloadTest/test
+cd   $CMSSW_BASE/src/PayloadTest/PayloadTest/test
+cp  $CMSSW_BASE/src/${testsourcedir}/${templatecc} .
+
+
+set pack=$CMSSW_BASE/src/CondFormats/HcalObjects
+echo "testing package $pack"
+
+foreach class (`grep "class_version" $pack/src/classes_def.xml | sed 's/[^"]*"//' | sed 's/".*//'`)
+set cname=`echo "$class" | sed 's/[<,:, ,>]/_/g'`
+echo ${cname}
+set currentdir=`pwd`
+echo ${currentdir}
+#/bin/rm -f ${currentdir}/${cname}_test.cc
+echo "#define  ALLCLASSES" >  ${cname}_test.cc
+cat testHcalPayloadIO.cc >> ${cname}_test.cc
+sed -i "s/THECLASS/$class/g" ${cname}_test.cc
+sed -i "s/THEPACKAGE/HcalObjects/g" ${cname}_test.cc
+#/bin/rm -f  ${currentdir}/bfile
+echo "<bin file="'"'"${cname}_test.cc"'"'" name="'"'"CondPayload_${cname}_testIO"'">' > bfile
+echo "<use name="'"'"CondFormats/HcalObjects"'"/>' >> bfile
+echo "<use name="'"'"CondCore/DBCommon"'"/>' >> bfile
+echo "</bin>" >> bfile
+mv bfile BuildFile.xml
+scramv1 b
+echo "run CondPayload_${cname}_testIO"
+$CMSSW_BASE/test/$SCRAM_ARCH/CondPayload_${cname}_testIO
+
+ora_database_manager -c sqlite_file:test.db -list
+ora_database_manager -c sqlite_file:test.db -lm -cv -cn ${cname}
+ora_database_manager -c sqlite_file:test.db -dm -mv ${cname}_M000 -f ${cname}_mapping.xml
+cat ${cname}_mapping.xml
+end
+

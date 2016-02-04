@@ -1,0 +1,49 @@
+# Names of Developers with write access to this module
+#
+# There are two types of developers:
+# 1) Administrators - entitled to edit all files in the module ,
+#    in particular the .admin directory.  (Including this file) 
+# 2) Regular Developers - entitled to edit all files in the module
+#    except those in the .admin directory.
+#
+# You must use the full name of the developer as recorded on this system.
+# see :
+# http://cmsdoc.cern.ch/cmsoo/projects/swdevtools/developer_list.html
+# for a full list of names. If the developer you require is not on this
+# list then email the cvs administrator (cvsadmin@cmscvs.cern.ch)
+#
+# Important
+# ---------
+# --- Put names of regular developers after the >Developers Tag
+# --- Put names of administrators after the >Administrators Tag
+#
+# Mailists
+# --------
+# The bug reporting system can automatically send mail to all the developers
+# and administrators. Add the email address after the name (seperated by a :)
+# of developers to include in the list.
+#
+>Developers
+dfehling : Dave Fehling : Dave.Fehling@cern.ch
+petar : Petar Maksimovic : Petar.Maksimovic@cern.ch
+dkotlins : Danek Kotlinski : Danek.Kotlinski@cern.ch
+konec : Marcin Konecki : Marcin.Konecki@cern.ch
+chiochia : Vincenzo Chiochia : Vincenzo.Chiochia@cern.ch
+schuang : Shan-Huei Chuang : Shan-Huei.Chuang@cern.ch
+meads : Michael Eads : eads@fnal.gov
+heyburn : Bernadette Heyburn : Bernadette.Heyburn@cern.ch
+cklae : Chung Khim Lae : cklae@cern.ch
+rougny : Romain Rougny : Romain.Rougny@cern.ch
+hcheung : Harry Cheung : Harry.Cheung@cern.ch
+ggiurgiu : Gavril Giurgiu : Gavril.Giurgiu@cern.ch
+
+>Administrators
+fblekman : Freya Blekman : Freya.Blekman@cern.ch
+petar : Petar Maksimovic : Petar.Maksimovic@cern.ch
+dkotlins : Danek Kotlinski : Danek.Kotlinski@cern.ch
+konec : Marcin Konecki : Marcin.Konecki@cern.ch
+chiochia : Vincenzo Chiochia : Vincenzo.Chiochia@cern.ch
+heyburn : Bernadette Heyburn : Bernadette.Heyburn@cern.ch
+ggiurgiu : Gavril Giurgiu : Gavril.Giurgiu@cern.ch
+tinti : Gemma Tinti : Gemma.Tinti@psi.ch
+ursl : Urs Langenegger : urs.langenegger@psi.ch

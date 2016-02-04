@@ -1,0 +1,14 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Common"/>
+<use   name="DataFormats/EgammaCandidates"/>
+<use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/Common"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/Records"/>
+<use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="RecoJets/JetAlgorithms"/>
+<use   name="HLTrigger/HLTcore"/>
+<flags   EDM_PLUGIN="1"/>

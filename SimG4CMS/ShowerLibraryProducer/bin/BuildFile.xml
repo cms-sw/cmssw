@@ -1,0 +1,3 @@
+<bin   file="CastorShowerLibraryMerger.cpp" name="CastorShowerLibraryMerger">
+  <use   name="SimG4CMS/ShowerLibraryProducer"/>
+</bin>

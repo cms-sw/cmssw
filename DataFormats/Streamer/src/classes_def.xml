@@ -1,0 +1,13 @@
+
+<lcgdict>
+ <class name="edm::StreamedProduct">
+   <field name="prod_" transient="true"/>
+   <field name="classRef_" transient="true"/>
+ </class>
+ <class name="std::vector<edm::StreamedProduct>"/>
+ <class name="edm::SendEvent"/>
+ <class name="edm::SendJobHeader"/>
+ <class name="std::vector<edm::BranchDescription>"/>
+</lcgdict>
+
+

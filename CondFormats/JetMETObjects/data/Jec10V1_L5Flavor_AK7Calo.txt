@@ -1,0 +1,36 @@
+# L5 flavor corrections for IC5 algorithm
+# [gJ] (gluons from diJet mixture)
+# [qJ] (uds quarks from diJet mixture)
+# [cJ] (c quark from diJet mixture)
+# [bJ] (b quark from diJet mixture)
+# [gT] (gluons from ttbar events)
+# [qT] (uds quarks from ttbar events)
+# [cT] (c quark from ttbar events)
+# [bT] (b quark from ttbar events)
+# energy mapping: ptGen = (pt - p5)/p6
+# parametrization: p2+p3*logPt+p4*logPt^2, constant if Pt<p0 or Pt>p1
+#etamin  etamax  #ofparameters  ptmin  ptmax    p2         p3        p4     mapping: p5        p6
+[bJ]
+{1  JetEta  1   JetPt  [0]+log10((x-[3])/[4])*([1]+[2]*log10((x-[3])/[4])) Correction L5Flavor}
+  -999    999          7          25   3650     1.057241   -0.031178 0.009538        6.802578  0.851021
+[cJ]
+{1  JetEta  1   JetPt  [0]+log10((x-[3])/[4])*([1]+[2]*log10((x-[3])/[4])) Correction L5Flavor}
+  -999    999          7          25   3650     0.854123   0.086427  -0.010176       5.725986  0.933060
+[qJ]
+{1  JetEta  1   JetPt  [0]+log10((x-[3])/[4])*([1]+[2]*log10((x-[3])/[4])) Correction L5Flavor}
+  -999    999          7          25   3650     0.691709   0.176237  -0.026105       4.947737  1.005257
+[gJ]
+{1  JetEta  1   JetPt  [0]+log10((x-[3])/[4])*([1]+[2]*log10((x-[3])/[4])) Correction L5Flavor}
+  -999    999          7          25   3650     1.083813   -0.044501 0.006947        3.003464  0.974058
+[bT]
+{1  JetEta  1   JetPt  [0]+log10((x-[3])/[4])*([1]+[2]*log10((x-[3])/[4])) Correction L5Flavor}
+  -999    999          7          25   3650     1.051068   -0.132679 0.052387        6.802578  0.851021
+[cT]
+{1  JetEta  1   JetPt  [0]+log10((x-[3])/[4])*([1]+[2]*log10((x-[3])/[4])) Correction L5Flavor}
+  -999    999          7          25   3650     0.695485   0.158744  -0.013901       5.725986  0.933060
+[qT]
+{1  JetEta  1   JetPt  [0]+log10((x-[3])/[4])*([1]+[2]*log10((x-[3])/[4])) Correction L5Flavor}
+  -999    999          7          25   3650     0.599404   0.175602  -0.005614       4.947737  1.005257
+[gT]
+{1  JetEta  1   JetPt  [0]+log10((x-[3])/[4])*([1]+[2]*log10((x-[3])/[4])) Correction L5Flavor}
+  -999    999          7          25   3650     1.083813   -0.044501 0.006947        3.003464  0.974058

@@ -1,0 +1,601 @@
+#ifndef CondFormats_PhysicsToolsObjects_Histogram3D_icc
+#define CondFormats_PhysicsToolsObjects_Histogram3D_icc
+
+#include <cmath>
+#include <cstddef>
+#include <algorithm>
+#include <numeric>
+#include <utility>
+#include <vector>
+
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.h"
+
+namespace PhysicsTools {
+namespace Calibration {
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D() :
+	strideX(0), strideY(0), limitsX(AxisX_t(), AxisX_t()),
+	limitsY(AxisY_t(), AxisY_t()), limitsZ(AxisZ_t(), AxisZ_t()), total(Value_t()), totalValid(false)
+{
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(const Histogram3D &orig) :
+	strideX(orig.strideX), strideY(orig.strideY), binULimitsX(orig.binULimitsX),
+	binULimitsY(orig.binULimitsY), binULimitsZ(orig.binULimitsZ), binValues(orig.binValues),
+	limitsX(orig.limitsX), limitsY(orig.limitsY), limitsZ(orig.limitsZ),
+	total(orig.total), totalValid(orig.totalValid),
+	rowTotal(orig.rowTotal), columnTotal(orig.columnTotal)
+{
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+template<typename OValue_t, typename OAxisX_t, typename OAxisY_t, typename OAxisZ_t>
+Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(
+		const Histogram3D<OValue_t, OAxisX_t, OAxisY_t, OAxisZ_t> &orig) :
+	strideX(orig.strideX), strideY(orig.strideY),
+	binULimitsX(orig.binULimitsX.begin(), orig.binULimitsX.end()),
+	binULimitsY(orig.binULimitsY.begin(), orig.binULimitsY.end()),
+        binULimitsZ(orig.binULimitsZ.begin(), orig.binULimitsZ.end()),
+	binValues(orig.binValues.begin(), orig.binValues.end()),
+	limitsX(orig.limitsX), limitsY(orig.limitsY), limitsZ(orig.limitsZ),
+	total(orig.total), totalValid(orig.totalValid),
+	rowTotal(orig.rowTotal.begin(), orig.rowTotal.end()),
+	columnTotal(orig.columnTotal.begin(), orig.columnTotal.end())
+{
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(
+				const std::vector<AxisX_t> &binULimitsX,
+				const std::vector<AxisY_t> &binULimitsY,
+				const std::vector<AxisZ_t> &binULimitsZ) :
+	strideX(binULimitsX.size() + 1),
+        strideY(binULimitsY.size() + 1),
+	binULimitsX(binULimitsX), binULimitsY(binULimitsY), binULimitsZ(binULimitsZ),
+	binValues((binULimitsY.size() + 1) * strideX * strideY),
+	limitsX(AxisX_t(), AxisX_t()), limitsY(AxisY_t(), AxisY_t()), limitsZ(AxisZ_t(), AxisZ_t()),
+	total(Value_t()), totalValid(true),
+	sliceTotal(binULimitsZ.size() + 1), rowTotal(binULimitsY.size() + 1), columnTotal(binULimitsX.size() + 1)
+{
+	if (binULimitsX.size() < 2)
+		throw cms::Exception("TooFewBinsError")
+			<< "Trying to generate degenerate 3D histogram: "
+			   "Fewer than one bin in X requested." << std::endl;
+
+	limitsX.min = binULimitsX.front();
+	limitsX.max = binULimitsX.back();
+
+	if (binULimitsY.size() < 2)
+		throw cms::Exception("TooFewBinsError")
+			<< "Trying to generate degenerate 3D histogram: "
+			   "Fewer than one bin in Y requested." << std::endl;
+
+	limitsY.min = binULimitsY.front();
+	limitsY.max = binULimitsY.back();
+
+        if (binULimitsZ.size() < 2)
+                throw cms::Exception("TooFewBinsError")
+                        << "Trying to generate degenerate 3D histogram: "
+                           "Fewer than one bin in 3 requested." << std::endl;
+
+        limitsZ.min = binULimitsZ.front();
+        limitsZ.max = binULimitsZ.back();
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+template<typename OAxisX_t, typename OAxisY_t, typename OAxisZ_t>
+Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(
+				const std::vector<OAxisX_t> &binULimitsX,
+				const std::vector<OAxisY_t> &binULimitsY,
+                                const std::vector<OAxisZ_t> &binULimitsZ) :
+	strideX(binULimitsX.size() + 1), strideY(binULimitsY.size() + 1),
+	binULimitsX(binULimitsX.begin(), binULimitsX.end()),
+	binULimitsY(binULimitsY.begin(), binULimitsY.end()),
+        binULimitsZ(binULimitsZ.begin(), binULimitsZ.end()),
+	binValues((binULimitsZ.size() + 1) * strideX * strideY),
+	limitsX(AxisX_t(), AxisX_t()), limitsY(AxisY_t(), AxisY_t()), limitsZ(AxisZ_t(), AxisZ_t()),
+	total(Value_t()), totalValid(true),
+	sliceTotal(binULimitsY.size() + 1), rowTotal(binULimitsY.size() + 1), columnTotal(binULimitsX.size() + 1)
+{
+	if (binULimitsX.size() < 2)
+		throw cms::Exception("TooFewBinsError")
+			<< "Trying to generate degenerate 3D histogram: "
+			   "Fewer than one bin in X requested." << std::endl;
+
+	limitsX.min = binULimitsX.front();
+	limitsX.max = binULimitsX.back();
+
+	if (binULimitsY.size() < 2)
+		throw cms::Exception("TooFewBinsError")
+			<< "Trying to generate degenerate 3D histogram: "
+			   "Fewer than one bin in Y requested." << std::endl;
+
+	limitsY.min = binULimitsY.front();
+	limitsY.max = binULimitsY.back();
+
+        if (binULimitsZ.size() < 2)
+                throw cms::Exception("TooFewBinsError")
+                        << "Trying to generate degenerate 3D histogram: "
+                           "Fewer than one bin in Z requested." << std::endl;
+
+        limitsZ.min = binULimitsZ.front();
+        limitsZ.max = binULimitsZ.back();
+
+}
+
+//TO BE CONVERTED FROM HISTO2D TO HISTO3D
+/*
+template<typename Value_t, typename AxisX_t, typename AxisY_t>
+template<typename OAxisX_t, typename OAxisY_t>
+Histogram3D<Value_t, AxisX_t, AxisY_t>::Histogram3D(
+		const std::vector<OAxisX_t> &binULimitsX,
+		unsigned int nBinsY,
+		const PhysicsTools::Calibration::Range<OAxisY_t> &rangeY) :
+	stride(binULimitsX.size() + 1),
+	binULimitsX(binULimitsX.begin(), binULimitsX.end()),
+	binValues((nBinsY + 2) * stride),
+	limitsX(AxisX_t(), AxisX_t()), limitsY(rangeY),
+	total(Value_t()), totalValid(true),
+	rowTotal(nBinsY + 2), columnTotal(binULimitsX.size() + 1)
+{
+	if (binULimitsX.size() < 2)
+		throw cms::Exception("TooFewBinsError")
+			<< "Trying to generate degenerate 2D histogram: "
+			   "Fewer than one bin in X requested." << std::endl;
+
+	limitsX.min = binULimitsX.front();
+	limitsX.max = binULimitsX.back();
+
+	if (!nBinsY)
+		throw cms::Exception("TooFewBinsError")
+			<< "Trying to generate degenerate 2D histogram: "
+			   "Fewer than one bin in Y requested." << std::endl;
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t>
+template<typename OAxisX_t, typename OAxisY_t>
+Histogram3D<Value_t, AxisX_t, AxisY_t>::Histogram3D(
+		unsigned int nBinsX,
+		const PhysicsTools::Calibration::Range<OAxisX_t> &rangeX,
+		const std::vector<OAxisY_t> &binULimitsY) :
+	stride(nBinsX + 2),
+	binULimitsY(binULimitsY.begin(), binULimitsY.end()),
+	binValues((binULimitsY.size() + 1) * stride),
+	limitsX(rangeX), limitsY(AxisY_t(), AxisY_t()),
+	total(Value_t()), totalValid(true),
+	rowTotal(binULimitsY.size() + 1), columnTotal(nBinsX + 2)
+{
+	if (!nBinsX)
+		throw cms::Exception("TooFewBinsError")
+			<< "Trying to generate degenerate 2D histogram: "
+			   "Fewer than one bin in X requested." << std::endl;
+
+	if (binULimitsY.size() < 2)
+		throw cms::Exception("TooFewBinsError")
+			<< "Trying to generate degenerate 2D histogram: "
+			   "Fewer than one bin in Y requested." << std::endl;
+
+	limitsY.min = binULimitsY.front();
+	limitsY.max = binULimitsY.back();
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t>
+template<typename OAxisX_t, typename OAxisY_t>
+Histogram3D<Value_t, AxisX_t, AxisY_t>::Histogram3D(
+		unsigned int nBinsX,
+		const PhysicsTools::Calibration::Range<OAxisX_t> &rangeX,
+		unsigned int nBinsY,
+		const PhysicsTools::Calibration::Range<OAxisY_t> &rangeY) :
+	stride(nBinsX + 2), binValues((nBinsY + 2) * stride),
+	limitsX(rangeX), limitsY(rangeY), total(Value_t()), totalValid(true),
+	rowTotal(nBinsY + 2), columnTotal(nBinsX + 2)
+{
+	if (!nBinsX)
+		throw cms::Exception("TooFewBinsError")
+			<< "Trying to generate degenerate 2D histogram: "
+			   "Fewer than one bin in X requested." << std::endl;
+
+	if (!nBinsY)
+		throw cms::Exception("TooFewBinsError")
+			<< "Trying to generate degenerate 2D histogram: "
+			   "Fewer than one bin in Y requested." << std::endl;
+}
+*/
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(
+			unsigned int nBinsX, AxisX_t minX, AxisX_t maxX,
+			unsigned int nBinsY, AxisY_t minY, AxisY_t maxY,
+                        unsigned int nBinsZ, AxisZ_t minZ, AxisZ_t maxZ) :
+	strideX(nBinsX + 2), strideY(nBinsY + 2), binValues((nBinsZ + 2) * strideX * strideY),
+	limitsX(minX, maxX), limitsY(minY, maxY), limitsZ(minZ, maxZ),
+	total(Value_t()), totalValid(true),
+	sliceTotal(nBinsZ + 2), rowTotal(nBinsY + 2), columnTotal(nBinsX + 2)
+{
+	if (!nBinsX)
+		throw cms::Exception("TooFewBinsError")
+			<< "Trying to generate degenerate 3D histogram: "
+			   "Fewer than one bin in X requested." << std::endl;
+
+	if (!nBinsY)
+		throw cms::Exception("TooFewBinsError")
+			<< "Trying to generate degenerate 3D histogram: "
+			   "Fewer than one bin in Y requested." << std::endl;
+
+        if (!nBinsZ)
+                throw cms::Exception("TooFewBinsError")
+                        << "Trying to generate degenerate 3D histogram: "
+                           "Fewer than one bin in Z requested." << std::endl;
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+Histogram3D<Value_t, AxisX_t, AxisY_t,  AxisZ_t>::~Histogram3D()
+{
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t> &
+Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::operator = (const Histogram3D &orig)
+{
+	strideX = orig.strideX;
+        strideY = orig.strideY;
+	binULimitsX = orig.binULimitsX;
+	binULimitsY = orig.binULimitsY;
+        binULimitsZ = orig.binULimitsZ;
+	binValues = orig.binValues;
+	limitsX = orig.limitsX;
+	limitsY = orig.limitsY;
+        limitsZ = orig.limitsZ;
+	total = orig.total;
+	totalValid = orig.totalValid;
+	rowTotal = orig.rowTotal;
+	columnTotal = orig.columnTotal;
+        sliceTotal = orig.sliceTotal;
+	return *this;
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+template<typename OValue_t, typename OAxisX_t, typename OAxisY_t, typename OAxisZ_t>
+Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t> &Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::operator = (
+		const Histogram3D<OValue_t, OAxisX_t, OAxisY_t, OAxisZ_t> &orig)
+{
+	strideX = orig.strideX;
+        strideY = orig.strideY;
+	binULimitsX = std::vector<AxisX_t>(orig.binULimitsX.begin(),
+	                                   orig.binULimitsX.end());
+	binULimitsY = std::vector<AxisY_t>(orig.binULimitsY.begin(),
+	                                   orig.binULimitsY.end());
+        binULimitsZ = std::vector<AxisZ_t>(orig.binULimitsZ.begin(),
+                                           orig.binULimitsZ.end());
+	binValues = std::vector<Value_t>(orig.binValues.begin(),
+	                                 orig.binValues.end());
+	limitsX = orig.limitsX;
+	limitsY = orig.limitsY;
+        limitsZ = orig.limitsZ;
+	total = orig.total;
+	totalValid = orig.totalValid;
+	rowTotal = std::vector<Value_t>(orig.rowTotal.begin(),
+	                                orig.rowTotal.end());
+	columnTotal = std::vector<Value_t>(orig.columnTotal.begin(),
+	                                   orig.columnTotal.end());
+        sliceTotal = std::vector<Value_t>(orig.sliceTotal.begin(),
+                                           orig.sliceTotal.end());
+
+	return *this;
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+void Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::reset()
+{
+	std::fill(binValues.begin(), binValues.end(), Value_t());
+	total = Value_t();
+	totalValid = true;
+        sliceTotal.clear();
+	rowTotal.clear();
+	columnTotal.clear();
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+void Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::setBinContent(
+						int bin, Value_t value)
+{
+	if (bin < 0 || (unsigned int)bin >= binValues.size())
+		throw cms::Exception("RangeError")
+			<< "Histogram3D bin " << bin << " out of range "
+			   "[0, " << (binValues.size() - 1) << "]." << std::endl;
+
+	binValues[bin] = value;
+	totalValid = false;
+	rowTotal.clear();
+	columnTotal.clear();
+        sliceTotal.clear();
+}
+
+
+/*
+        //TO BE CONVERTED FROM HISTO2D TO HISTO3D
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+Value_t Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::normalizedXValue(
+						AxisX_t x, AxisY_t y) const
+{
+	int binX = findBinX(x);
+	int binY = findBinY(y);
+	return binContent(bin2D(binX, binY)) / normalizationX(binY);
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t>
+Value_t Histogram3D<Value_t, AxisX_t, AxisY_t>::normalizedYValue(
+						AxisX_t x, AxisY_t y) const
+{
+	int binX = findBinX(x);
+	int binY = findBinY(y);
+	return binContent(bin2D(binX, binY)) / normalizationY(binX);
+}
+
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t>
+Value_t Histogram3D<Value_t, AxisX_t, AxisY_t>::normalizedXError(
+						AxisX_t x, AxisY_t y) const
+{
+	int binX = findBinX(x);
+	int binY = findBinY(y);
+	return std::sqrt(binContent(bin2D(binX, binY))) / normalizationX(binY);
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t>
+Value_t Histogram3D<Value_t, AxisX_t, AxisY_t>::normalizedYError(
+						AxisX_t x, AxisY_t y) const
+{
+	int binX = findBinX(x);
+	int binY = findBinY(y);
+	return std::sqrt(binContent(bin2D(binX, binY))) / normalizationY(binX);
+}
+*/
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+void Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::fill(
+					AxisX_t x, AxisY_t y, AxisZ_t z, Value_t weight)
+{
+	int bin = findBin(x, y, z);
+	binValues[bin] += weight;
+	totalValid = false;
+	rowTotal.clear();
+	columnTotal.clear();
+        sliceTotal.clear();
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+void Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::setValues(
+					const std::vector<Value_t> &values)
+{
+	if (values.size() != binValues.size())
+		throw cms::Exception("InvalidVectorSizeError")
+			<< "Invalid vector size while setting "
+			   "3D histogram values" << std::endl;
+
+	binValues = values;
+	totalValid = false;
+	rowTotal.clear();
+	columnTotal.clear();
+        sliceTotal.clear();
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t,  typename AxisZ_t>
+template<typename OValue_t>
+void Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::setValues(
+					const std::vector<OValue_t> &values)
+{
+	if (values.size() != binValues.size())
+		throw cms::Exception("InvalidVectorSizeError")
+			<< "Invalid vector size while setting "
+			   "3D histogram values" << std::endl;
+
+	std::copy(values.begin(), values.end(), binValues.begin());
+	totalValid = false;
+	rowTotal.clear();
+	columnTotal.clear();
+        sliceTotal.clear();
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t,  typename AxisZ_t>
+typename Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::RangeX
+Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::binRangeX(int binX) const
+{
+	if (binX < 1 || (unsigned int)binX > strideX - 2)
+		throw cms::Exception("RangeError")
+			<< "Histogram3D X bin " << binX << " out of range "
+			<< "[1, " << (strideX - 2) << "]." << std::endl;
+
+	if (hasEquidistantBinsX()) {
+		AxisX_t min = (AxisX_t)(binX - 1) / (strideX - 2);
+		AxisX_t max = (AxisX_t)binX / (strideX - 2);
+		min *= limitsX.width();
+		min += limitsX.min;
+		max *= limitsX.width();
+		max += limitsX.min;
+		return RangeX(min, max);
+	} else
+		return RangeX(binULimitsX[binX - 1], binULimitsX[binX]);
+}
+
+
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t,  typename AxisZ_t>
+typename Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::RangeY
+Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::binRangeY(int binY) const
+{
+        if (binY < 1 || (unsigned int)binY > strideY - 2)
+                throw cms::Exception("RangeError")
+                        << "Histogram3D Y bin " << binY << " out of range "
+                        << "[1, " << (strideY - 2) << "]." << std::endl;
+
+        if (hasEquidistantBinsY()) {
+                AxisY_t min = (AxisY_t)(binY - 1) / (strideY - 2);
+                AxisY_t max = (AxisY_t)binY / (strideY - 2);
+                min *= limitsY.width();
+                min += limitsY.min;
+                max *= limitsY.width();
+                max += limitsY.min;
+                return RangeY(min, max);
+        } else
+                return RangeY(binULimitsY[binY - 1], binULimitsY[binY]);
+}
+
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+typename Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::RangeZ
+Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::binRangeZ(int binZ) const
+{
+	unsigned int size = binValues.size() / (strideX * strideY);
+	if (binZ < 1 || (unsigned int)binZ > size - 2)
+		throw cms::Exception("RangeError")
+			<< "Histogram3D Z bin " << binZ << " out of range "
+			<< "[1, " << (size - 2) << "]." << std::endl;
+
+	if (hasEquidistantBinsZ()) {
+		AxisZ_t min = (AxisY_t)(binZ - 1) / (size - 2);
+		AxisZ_t max = (AxisY_t)binZ / (size - 2);
+		min *= limitsZ.width();
+		min += limitsZ.min;
+		max *= limitsZ.width();
+		max += limitsZ.min;
+		return RangeZ(min, max);
+	} else
+		return RangeZ(binULimitsZ[binZ - 1], binULimitsZ[binZ]);
+}
+
+        //TO BE CONVERTED FROM HISTO2D TO HISTO3D
+/*
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+std::pair<typename Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::RangeX,
+          typename Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::RangeY,
+          typename Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::RangeZ>
+Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::binRange(int bin) const
+{
+	std::size_t size = binValues.size();
+	if (bin < 1 || (unsigned int)bin > size - 2)
+		throw cms::Exception("RangeError")
+			<< "Histogram3D bin " << bin << " out of range "
+			<< "[1, " << (size - 2) << "]." << std::endl;
+
+	return std::make_pair(binRangeX(bin % stride),
+	                      binRangeY(bin / stride));
+}
+*/
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+int Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::findBinX(AxisX_t x) const
+{
+	if (hasEquidistantBinsX()) {
+		x -= limitsX.min;
+		x *= strideX - 2;
+		x /= limitsX.width();
+		return clamp(0, (int)(std::floor(x)) + 1, (int)strideX - 1);
+	} else
+		return std::upper_bound(binULimitsX.begin(),
+		                        binULimitsX.end(), x) -
+		       binULimitsX.begin();
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+int Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::findBinY(AxisY_t y) const
+{
+        if (hasEquidistantBinsY()) {
+                y -= limitsY.min;
+                y *= strideY - 2;
+                y /= limitsY.width();
+                return clamp(0, (int)(std::floor(y)) + 1, (int)strideY - 1);
+        } else
+                return std::upper_bound(binULimitsY.begin(),
+                                        binULimitsY.end(), y) -
+                       binULimitsY.begin();
+}
+
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+int Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::findBinZ(AxisZ_t z) const
+{
+	unsigned int size = binValues.size() / (strideX * strideY);
+	if (hasEquidistantBinsZ()) {
+		z -= limitsZ.min;
+		z *= size - 2;
+		z /= limitsZ.width();
+		return clamp(0, (int)(std::floor(z)) + 1, (int)size - 1);
+	} else
+		return std::upper_bound(binULimitsZ.begin(),
+		                        binULimitsZ.end(), z) -
+		       binULimitsZ.begin();
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
+Value_t Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::normalization() const
+{
+	if (!totalValid) {
+		total = std::accumulate(binValues.begin() + 1,
+		                        binValues.end() - 1, Value_t()); 
+		totalValid = true;
+	}
+
+	return total;
+}
+
+
+/*
+        //TO BE CONVERTED FROM HISTO2D TO HISTO3D
+template<typename Value_t, typename AxisX_t, typename AxisY_t>
+Value_t Histogram3D<Value_t, AxisX_t, AxisY_t>::normalizationX(int binY) const
+{
+	if (rowTotal.empty()) {
+		rowTotal.resize(binValues.size() / stride);
+		typename std::vector<Value_t>::iterator sum = rowTotal.begin();
+		for(typename std::vector<Value_t>::const_iterator iter =
+							binValues.begin();
+		    iter != binValues.end(); iter += stride)
+			*sum++ = std::accumulate(iter + 1, iter + (stride - 1),
+			                         Value_t());
+	}
+
+	if (binY < 0 || (unsigned int)binY >= binValues.size() / stride)
+		throw cms::Exception("RangeError")
+			<< "Histogram3D bin " << binY << " in Y out of range "
+			   "[0, " << (binValues.size() / stride - 1) << "]." << std::endl;
+
+	return rowTotal[binY];
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t>
+Value_t Histogram3D<Value_t, AxisX_t, AxisY_t>::normalizationY(int binX) const
+{
+	if (columnTotal.empty()) {
+		columnTotal.resize(stride);
+		typename std::vector<Value_t>::iterator sum =
+							columnTotal.begin();
+		for(typename std::vector<Value_t>::const_iterator col =
+							binValues.begin();
+		    col != binValues.begin() + stride; ++col) {
+			Value_t value = Value_t();
+			for(typename std::vector<Value_t>::const_iterator pos =
+								col + stride;
+			    pos < (binValues.end() - stride); pos += stride)
+				value += *pos;
+			*sum++ = value;
+		}
+	}
+
+	if (binX < 0 || (unsigned int)binX >= stride)
+		throw cms::Exception("RangeError")
+			<< "Histogram3D bin " << binX << " in X out of range "
+			   "[0, " << (stride - 1) << "]." << std::endl;
+
+	return columnTotal[binX];
+}
+*/
+
+} // namespace Calibration
+} // namespace PhysicsTools
+
+#endif // CondFormats_PhysicsToolsObjects_Histogram3D_icc

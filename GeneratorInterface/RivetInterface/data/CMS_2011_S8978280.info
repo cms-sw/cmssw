@@ -1,0 +1,56 @@
+Name: CMS_2011_S8978280
+Year: 2011
+Summary: Kshort, Lambda, and Cascade- transverse momentum and rapidity spectra from
+  proton-proton collisions at 900 and 7000 GeV.
+Experiment: CMS
+Collider: LHC
+SpiresID: 8978280
+Status: VALIDATED
+Authors:
+ - Kevin Stenson <kevin.stenson@colorado.edu>
+References:
+ - JHEP 05 (2011) 064
+ - doi:10.1007/JHEP05(2011)064
+ - arXiv:1102.4282 [hep-ex]
+RunInfo:
+   Non-single-diffractive (NSD) events only.  Should include double-diffractive (DD) events
+   and non-diffractive (ND) events but NOT single-diffractive (SD) events. For example, in Pythia6 the
+   SD processes to be turned off are 92 and 93, and in Pythia8 the SD processes are 103 and
+   104 (also called SoftQCD:singleDiffractive).
+NumEvents: 1000000
+Beams: [p+, p+]
+Energies: [900, 7000]
+PtCuts: 
+Description:
+   The spectra of Kshort, Lambda, and Cascade- particles were measured versus
+   transverse-momentum (pT) and rapidity(y) in proton-proton collisions at center-of-mass
+   energies 900 and 7000 GeV.  The production is normalized to all non-single-diffractive
+   (NSD) events using corrections for trigger and selection efficiency, acceptance, and
+   branching ratios.  The results cover a rapidity range of |y|<2 and a pT range from 0 to
+   10 GeV (Kshort and Lambda) and 0 to 6 GeV (Cascade-).  Antiparticles are included in all
+   measurements so only the sum of Lambda and Lambdabar and Cascade- and anti-Cascade- are
+   given.  The rapidity distributions are shown versus |y| but normalized to a unit of y.
+   Ratios of Lambda/Kshort and Cascade-/Lambda production versus pT and |y| are also given,
+   with somewhat smaller systematic uncertainties than obtained from taking the ratio of
+   the individual distributions.'
+   
+   The data were corrected according to the SD/DD/ND content of the CMS
+   trigger, as predicted by pythia6. The uncertainties connected with
+   correct or uncorrect modelling of diffraction were included in the
+   systematic errors. 
+BibKey: Khachatryan:2011tm
+BibTeX: 	'@Article{Khachatryan:2011tm,
+     author    = "Khachatryan, Vardan and others",
+ collaboration = "CMS",
+     title     = "{Strange Particle Production in pp Collisions at sqrt(s) =
+                  0.9 and 7 TeV}",
+     journal   = "JHEP",
+     volume    = "05",
+     year      = "2011",
+     pages     = "064",
+     eprint    = "1102.4282",
+     archivePrefix = "arXiv",
+     primaryClass  =  "hep-ex",
+     doi       = "10.1007/JHEP05(2011)064",
+     SLACcitation  = "%%CITATION = 1102.4282;%%"}'
+ToDo:

@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<BODY bgcolor="FFFFFF">
+<title>
+          CMS MessageLogger: Specifying Parameters for Individual Destinations
+</title>
+
+<center>
+<h1> <img src="header-public.gif" align="center"> </h1>
+
+<font color=red>
+<h1> 
+Specifying Parameters for Individual Destinations</h1>
+</font>
+</center>
+
+<pre>
+process TEST = {
+
+  service = MessageLogger {
+    vstring destinations = { "detailedInfo.txt"
+			   , "critical.txt"
+			   , "jobdebug.txt"
+			   , "anotherfile.txt"
+			   , "cout"
+			   , "cerr"
+			   }
+    vstring categories = { "unimportant"
+			 , "trkwarning"
+ 			 , "serious_matter"
+                         }
+    <font color=red>PSet critical.txt = {</font> string threshold = "ERROR"
+                               PSet default = { int32 limit    = 10
+			                       int32 timespan = 180
+					      }
+			      PSet serious_matter = { int32 limit = 100000 }
+                        <font color=red>}</font>
+    <font color=red>PSet detailedInfo.txt = {</font> string threshold = "INFO"
+			      PSet default        = { int32 limit    =  10
+					              int32 timespan =  60
+					            }
+			      PSet WARNING        = { int32 limit    = 100
+			                              int32 timespan =  60 
+					            }
+			      PSet ERROR          = { int32 limit    = 100
+			                              int32 timespan =  60 
+					            }
+			      PSet trkwarning     = { int32 limit    = 20
+			                              int32 timespan = 1200
+						    }
+			      PSet unimportant    = { int32 limit    = 5 }
+			      PSet serious_matter = { int32 limit    = 1000000 }
+                            <font color=red>}</font>
+    <font color=red>PSet cerr     = {</font> string threshold = "WARNING" <font color=red>}</font>
+
+    <font color=red>PSet jobdebug.txt =     {</font> PSet default        = { int32 limit    = 1000000 }
+                        <font color=red>}</font>
+    <font color=red>PSet anotherfile.txt =  {</font> PSet serious_matter = { int32 limit    = 1000 } 
+                            <font color=red>}</font>
+    PSet default = { int32 limit    = 10
+                     int32 timespan = 60
+		   }
+  }
+  untracked PSet maxEvents = {untracked int32 input = 10}
+  path p = { myAnalysisModule }
+  module myAnalysisModule = ModuleThatIssuesMessages { }
+  source = EmptySource { }
+}
+</pre>
+
+The configuration file can specify options for a given destination, via a 
+PSet with that destination as its name.  These options include setting 
+thresholds for reacting to messages, setting limits of how many times this
+destination will react to a messages of a given type (either ID or severity).
+<p>
+It is completely optional to have a PSet configuring a given destination.
+For example, in this file, the cout destination is not further configured.
+In that case, no filtering will be done for that destination -- all messages
+will appear.
+
+<p><center>
+<img src="bar.gif"></center>
+
+<p><center>
+<a href="http://www.uscms.org/SoftwareComputing/index.html">
+USCMS Software and Computing Home Page </a> - 
+<a href="MessageLogger.html"> CMS MessageLogger Service Page </a> -
+<a href="parameters.html#complete"> Configuration File </a>
+</center>
+
+<p>
+      <hr>
+      <address><a href="mailto:mf@fnal.gov">Mark Fischler</a></address>
+<!-- hhmts start -->
+Last modified: Dec 1, 2005
+<!-- hhmts end -->
+</body>
+
+
+
+
+
+
+
+

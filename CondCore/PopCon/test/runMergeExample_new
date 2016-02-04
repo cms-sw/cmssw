@@ -1,0 +1,109 @@
+#run popcon example1
+#  put your firstsince value after xxx 
+mkdir testPopCon
+pushd testPopCon
+
+cp $LOCALRT/src/CondCore/PopCon/test/PopConExample1_template.py PopCon.py
+
+echo "populate pop_test.db with xxx, xxx+10, xxx+20" | sed 's/xxx/3/g' 
+cmsRun PopCon.py sinceTime=3 numberObj=3
+
+
+echo "populate pop_test1.db with 24: shall work"  
+cmsRun PopCon.py sinceTime=24 numberObj=1  connect='sqlite_file:pop_test1.db'  
+
+echo "populate pop_test1.db with 26: shall work"  
+cmsRun PopCon.py sinceTime=26 numberObj=1  connect='sqlite_file:pop_test1.db'  
+
+echo "error in populate pop_test1.db with 25"  
+cmsRun PopCon.py sinceTime=25 numberObj=1  connect='sqlite_file:pop_test1.db'  
+
+echo "success in populate pop_test1.db with 25"  
+cmsRun PopCon.py outOfOrder=1 sinceTime=25 numberObj=1  connect='sqlite_file:pop_test1.db'  
+
+echo "populate pop_test.db with 1,20,21,22,25,26 in closeIOV mode"  
+cmsRun PopCon.py closeIOV=1 sinceTime=1 numberObj=1 connect='sqlite_file:pop_test.db'  tag='CloseIOV'
+cmsRun PopCon.py closeIOV=1 sinceTime=20 numberObj=1 connect='sqlite_file:pop_test.db'  tag='CloseIOV'
+cmsRun PopCon.py closeIOV=1 sinceTime=21 numberObj=1 connect='sqlite_file:pop_test.db'  tag='CloseIOV'
+cmsRun PopCon.py closeIOV=1 sinceTime=22 numberObj=1 connect='sqlite_file:pop_test.db'  tag='CloseIOV'
+cmsRun PopCon.py closeIOV=1 sinceTime=25 numberObj=1 connect='sqlite_file:pop_test.db'  tag='CloseIOV'
+cmsRun PopCon.py closeIOV=1 sinceTime=26 numberObj=1 connect='sqlite_file:pop_test.db'  tag='CloseIOV'
+
+
+
+echo "populate pop_test2.db with 42"
+cmsRun PopCon.py sinceTime=42 numberObj=1 connect='sqlite_file:pop_test2.db'
+
+echo "populate pop_test3.db with 7 + other 10"
+cmsRun PopCon.py sinceTime=7 numberObj=10 connect='sqlite_file:pop_test3.db'  tag='Example_tag2'
+
+
+echo "inspect db"
+cmscond_list_iov -c sqlite_file:pop_test.db -a
+cmscond_list_iov -c sqlite_file:pop_test1.db -a
+cmscond_list_iov -c sqlite_file:pop_test2.db -a
+cmscond_list_iov -c sqlite_file:pop_test3.db -a
+
+echo "get iov details"
+cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag -s -v
+cmscond_list_iov -c sqlite_file:pop_test.db -t  CloseIOV -s -v
+cmscond_list_iov -c sqlite_file:pop_test1.db -t Example_tag -s -v
+cmscond_list_iov -c sqlite_file:pop_test2.db -t Example_tag -s -v
+cmscond_list_iov -c sqlite_file:pop_test3.db -t Example_tag2 -s -v
+
+#FIXME! Change export...
+echo "import"
+
+echo "shall fail"
+cmscond_export_iov -s sqlite_file:pop_test1.db -t Example_tag -d sqlite_file:pop_test.db  -l sqlite_file:log.db
+
+echo "shall work"
+cmscond_export_iov -s sqlite_file:pop_test1.db -t Example_tag -d sqlite_file:pop_test.db  -l sqlite_file:log.db -o
+
+echo "shall fail"
+cmscond_export_iov -s sqlite_file:pop_test1.db -t Example_tag -d sqlite_file:pop_test.db  -l sqlite_file:log.db -o
+
+echo "shall work"
+cmscond_export_iov -s sqlite_file:pop_test2.db -t Example_tag -d sqlite_file:pop_test.db  -l sqlite_file:log.db
+
+cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag -s -v
+
+echo "import starting from 64"
+cmscond_export_iov -s sqlite_file:pop_test3.db -i Example_tag2 -b 64 -e 89 -t Example_tag -d sqlite_file:pop_test.db -l sqlite_file:log.db
+
+cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag -s -v
+
+echo "duplicate"
+cmscond_duplicate_iov -c sqlite_file:pop_test.db -t Example_tag -f 65 -s 92  -l sqlite_file:log.db
+cmscond_duplicate_iov -c sqlite_file:pop_test.db -t Example_tag -f 45 -s 95  -l sqlite_file:log.db
+echo "duplicate errors"
+cmscond_duplicate_iov -c sqlite_file:pop_test.db -t Example_tag -f 45 -s 98  -l sqlite_file:log.db
+cmscond_duplicate_iov -c sqlite_file:pop_test.db -t Example_tag -f 45 -s 11  -l sqlite_file:log.db
+cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag -s -v
+echo "shallow copy of one"
+cmscond_duplicate_iov -c sqlite_file:pop_test.db -t Example_tag  -d  copyOfExample_tag -f 4 -s 2  -l sqlite_file:log.db
+cmscond_list_iov -c sqlite_file:pop_test.db -t copyOfExample_tag -s -v
+
+
+echo "rename"
+cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag -o
+sed -i 's/Example_tag/Example_tag_renamed/' Example_tag.dump
+cmscond_load_iov -c sqlite_file:pop_test.db Example_tag.dump 
+cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag_renamed -s -v
+
+
+#note: tag-name, log-name and db-name must be the same as in the cfg file  
+
+echo "dump log"
+cmscond_logdb_dump -c sqlite_file:log.db  > test_log1.log
+
+
+# removing the EXECTIME information from the log
+cat test_log1.log | sed 's/EXECTIME (string) : 2008-[0-9]-[0-9][0-9]-[0-9][0-9]:[0-9][0-9]:[0-9][0-9]//g' | sed 's/EXECTIME (string) : 2008-[0-9]-[0-9][0-9]-[0-9][0-9]:[0-9][0-9]:[0-9]//g'| sed 's/EXECTIME (string) : 2008-[0-9]-[0-9][0-9]-[0-9][0-9]:[0-9]:[0-9][0-9]//g' > test_log2.log
+
+mv test_log2.log test_log1.log
+cat test_log1.log
+
+
+popd
+

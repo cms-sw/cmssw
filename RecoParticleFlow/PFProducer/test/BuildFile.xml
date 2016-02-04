@@ -1,0 +1,22 @@
+<library   name="RecoParticleFlowPFSuperClusterReader" file="PFSuperClusterReader.cc">
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/EgammaReco"/>
+  <use   name="DataFormats/GsfTrackReco"/>
+  <use   name="DataFormats/ParticleFlowCandidate"/>
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   name="RecoParticleFlowPFIsoReader" file="PFIsoReader.cc">
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/EgammaReco"/>
+  <use   name="DataFormats/GsfTrackReco"/>
+  <use   name="DataFormats/ParticleFlowCandidate"/>
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

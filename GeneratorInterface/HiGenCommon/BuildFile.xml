@@ -1,0 +1,7 @@
+<use   name="GeneratorInterface/Core"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="SimGeneral/HepPDTRecord"/>
+<use   name="FWCore/ParameterSet"/>
+<export>
+  <lib   name="1"/>
+</export>

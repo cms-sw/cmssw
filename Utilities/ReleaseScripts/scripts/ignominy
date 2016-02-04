@@ -1,0 +1,38 @@
+#!/bin/sh
+
+finddirectory() {
+  dir=$1; shift
+  subdir=$1; shift
+  while [ ! -d "$dir/$subdir" ] && [ "X$dir" != "X" ] && [ "X$dir" != "X/" ]; do
+    dir=`dirname $dir`
+  done
+  if [ ! -d "$dir/$subdir" ]; then
+    dir=""
+  fi
+  echo $dir
+}
+
+scramreleasetop() {
+  echo `finddirectory $1 .SCRAM`
+}
+
+me=`ls -l $0 | sed 's|.* ||'`
+case $me in /* ) ;; * ) me=$PWD/$me ;; esac
+medir=`dirname $me`
+igdir=`scramreleasetop $medir`
+if [ "X$igdir" = "X" ]; then
+  igdir=`finddirectory $medir ignominy/config`
+  if [ "X$igdir" != "X" ]; then
+     igdir=$igdir/ignominy
+  fi
+else
+  igdir=$igdir/src/Utilities/ReleaseScripts/ignominy
+fi
+if [ -d $igdir ]; then
+  export PATH=${igdir}:${PATH}
+  $igdir/runignominy  $@
+  exit $?
+else
+  echo "ERROR: Could not find the ignominy directory"
+  exit 1
+fi

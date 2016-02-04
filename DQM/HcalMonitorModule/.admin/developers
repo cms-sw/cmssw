@@ -1,0 +1,44 @@
+# Names of Developers with write access to this module
+#
+# There are two types of developers:
+# 1) Administrators - entitled to edit all files in the module ,
+#    in particular the .admin directory.  (Including this file) 
+# 2) Regular Developers - entitled to edit all files in the module
+#    except those in the .admin directory.
+#
+# You must use the full name of the developer as recorded on this system.
+# see :
+# http://cmsdoc.cern.ch/cmsoo/projects/swdevtools/developer_list.html 
+# for a full list of names. If the developer you require is not on this
+# list then email the cvs administrator (cvsadmin@cmscvs.cern.ch)
+#
+# Important
+# ---------
+# --- Put names of regular developers after the >Developers Tag
+# --- Put names of administrators after the >Administrators Tag
+#
+# Mailists
+# --------
+# The bug reporting system can automatically send mail to all the developers
+# and administrators. Add the email address after the name (seperated by a :)
+# of developers to include in the list.
+#
+>Developers
+canko : Kerem Cankocak : kerem.cankocak@cern.ch
+cath : Catherine Holmes : cath@fnal.gov
+dma : Dmitry Vishnevskiy : Dmitry.Vishnevskiy@cern.ch
+ferencek: Dinko Ferencek : ferencek@umd.edu
+kvtsang : Patrick Tsang : Ka.Vang.Tsang@cern.ch
+safronov: Grigory Safronov: Grigory.Safronov@cern.ch
+ssen: Sercan Sen : Sercan.Sen@cern.ch
+
+>Administrators
+lebolo : Luis Lebolo : luis.lebolo@fiu.edu
+temple : Jeffrey Temple : jtemple@fnal.gov
+stjohn : Jason St John : stjohn@buphy.bu.edu
+mansj : Jeremy Mans : jmmans@physics.umn.edu
+apresyan : Artur Apresyan : apresyan@cern.ch
+sturdy:  Jared Sturdy : jared.sturdy@email.ucr.edu
+lhx:  Hongxuan Liu: Hongxuan_Liu@baylor.edu
+
+
