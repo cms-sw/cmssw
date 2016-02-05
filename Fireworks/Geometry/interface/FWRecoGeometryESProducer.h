@@ -13,6 +13,7 @@ namespace edm
 }
 
 class CaloGeometry;
+class HGCalGeometry;
 class GlobalTrackingGeometry;
 class TrackerGeometry;
 class FWRecoGeometry;
@@ -48,10 +49,11 @@ private:
   void fillPoints( unsigned int id, std::vector<GlobalPoint>::const_iterator begin, std::vector<GlobalPoint>::const_iterator end );
   void fillShapeAndPlacement( unsigned int id, const GeomDet *det );
   
-  edm::ESHandle<GlobalTrackingGeometry> m_geomRecord;
-  edm::ESHandle<CaloGeometry>           m_caloGeom;
-  const TrackerGeometry*                m_trackerGeom;
-  boost::shared_ptr<FWRecoGeometry>     m_fwGeometry;
+  edm::ESHandle<GlobalTrackingGeometry>      m_geomRecord;
+  edm::ESHandle<CaloGeometry>                m_caloGeom;
+  std::vector<edm::ESHandle<HGCalGeometry> > m_hgcalGeoms;
+  const TrackerGeometry*                     m_trackerGeom;
+  boost::shared_ptr<FWRecoGeometry>          m_fwGeometry;
   
   unsigned int m_current;
 };

@@ -62,6 +62,15 @@ def recoGeoLoad(score):
       #from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2019
       #process = cust_2019(process)
       
+    elif  score == "2023Dev":
+      from Configuration.AlCa.autoCond import autoCond
+      process.GlobalTag.globaltag = autoCond['mc']
+      #from Configuration.AlCa.GlobalTag import GlobalTag                                                            
+      #process.GlobalTag = GlobalTag(process.GlobalTag, 'PH2_1K_FB_V6::All', '')                                     
+      process.load('Configuration.Geometry.GeometryExtended2023DevReco_cff')
+      #from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2019                                    
+      #process = cust_2019(process)
+
     elif  score == "2023Muon":
       from Configuration.AlCa.autoCond import autoCond
       process.GlobalTag.globaltag = autoCond['mc']
