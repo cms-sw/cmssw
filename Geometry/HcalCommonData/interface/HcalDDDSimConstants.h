@@ -51,7 +51,7 @@ public:
   std::vector<HcalCellType> HcalCellTypes()    const;
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector, int ieta=-1,
 					  int depth=-1) const;
-  int                       maxHFDepth(int zside, int iphi) const;
+  int                       maxHFDepth(int ieta, int iphi) const;
   unsigned int              numberOfCells(HcalSubdetector) const;
   int                       phiNumber(int phi, int unit) const;
   void                      printTiles() const;
