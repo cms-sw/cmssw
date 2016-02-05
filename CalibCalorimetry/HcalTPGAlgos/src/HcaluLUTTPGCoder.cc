@@ -27,16 +27,22 @@
 const float HcaluLUTTPGCoder::lsb_=1./16;
 
 HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top) : topo_(top), LUTGenerationMode_(true), bitToMask_(0) {
-  firstHBEta_ = topo_->firstHBRing();      lastHBEta_ = topo_->lastHBRing();
-  sizeHB_     = (int)(topo_->getHBSize()); nHBEta_    = (lastHBEta_-firstHBEta_+1);
+  firstHBEta_ = topo_->firstHBRing();      
+  lastHBEta_  = topo_->lastHBRing();
+  nHBEta_     = (lastHBEta_-firstHBEta_+1);
   maxDepthHB_ = topo_->maxDepth(HcalBarrel);
-  firstHEEta_ = topo_->firstHERing();      lastHEEta_ = topo_->lastHERing();
-  sizeHE_     = (int)(topo_->getHESize()); nHEEta_    = (lastHEEta_-firstHEEta_+1);
+  sizeHB_     = 2*nHBEta_*nFi_*maxDepthHB_;
+  firstHEEta_ = topo_->firstHERing();
+  lastHEEta_  = topo_->lastHERing();
+  nHEEta_     = (lastHEEta_-firstHEEta_+1);
   maxDepthHE_ = topo_->maxDepth(HcalEndcap);
-  firstHFEta_ = topo_->firstHFRing();      lastHFEta_ = topo_->lastHFRing();
-  sizeHF_     = (int)(topo_->getHFSize()); nHFEta_    = (lastHFEta_-firstHFEta_+1);
+  sizeHE_     = 2*nHEEta_*nFi_*maxDepthHE_;
+  firstHFEta_ = topo_->firstHFRing();
+  lastHFEta_  = topo_->lastHFRing();
+  nHFEta_     = (lastHFEta_-firstHFEta_+1);
   maxDepthHF_ = topo_->maxDepth(HcalForward);
-  size_t nluts= (size_t)(sizeHB_+sizeHE_+sizeHF_);
+  sizeHF_     = 2*nHFEta_*nFi_*maxDepthHF_;
+  size_t nluts= (size_t)(sizeHB_+sizeHE_+sizeHF_+1);
   inputLUT_   = std::vector<HcaluLUTTPGCoder::Lut>(nluts,HcaluLUTTPGCoder::Lut(INPUT_LUT_SIZE, 0));
   gain_       = std::vector<float>(nluts, 0.);
   ped_        = std::vector<float>(nluts, 0.);
@@ -53,18 +59,18 @@ int HcaluLUTTPGCoder::getLUTId(HcalSubdetector id, int ieta, int iphi, int depth
   int retval(0);
   if (id == HcalBarrel) {
     retval = (depth-1)+maxDepthHB_*(iphi-1);
-    if (ieta>0) retval+=maxDepthHB_*72*(ieta-firstHBEta_);
-    else        retval+=maxDepthHB_*72*(ieta+lastHBEta_+nHBEta_);
+    if (ieta>0) retval+=maxDepthHB_*nFi_*(ieta-firstHBEta_);
+    else        retval+=maxDepthHB_*nFi_*(ieta+lastHBEta_+nHBEta_);
   } else if (id == HcalEndcap) {
     retval = sizeHB_;
     retval+= (depth-1)+maxDepthHE_*(iphi-1);
-    if (ieta>0) retval+=maxDepthHE_*72*(ieta-firstHEEta_);
-    else        retval+=maxDepthHE_*72*(ieta+lastHEEta_+nHEEta_);
+    if (ieta>0) retval+=maxDepthHE_*nFi_*(ieta-firstHEEta_);
+    else        retval+=maxDepthHE_*nFi_*(ieta+lastHEEta_+nHEEta_);
   } else if (id == HcalForward) {
     retval = sizeHB_+sizeHE_;
     retval+= (depth-1)+maxDepthHF_*(iphi-1);
-    if (ieta>0) retval+=maxDepthHF_*72*(ieta-firstHFEta_);
-    else        retval+=maxDepthHF_*72*(ieta+lastHFEta_+nHFEta_);
+    if (ieta>0) retval+=maxDepthHF_*nFi_*(ieta-firstHFEta_);
+    else        retval+=maxDepthHF_*nFi_*(ieta+lastHFEta_+nHFEta_);
   }
   return retval;
 }
@@ -238,7 +244,6 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	  HcalCoderDb coder (*channelCoder, *shape);
 	  const HcalLutMetadatum *meta = metadata->getValues(cell);
 
-
 	  int lutId = getLUTId(subdet, ieta, iphi, depth);
 	  float ped = 0;
 	  float gain = 0;
@@ -299,6 +304,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	      else inputLUT_[lutId][adc] = std::min(std::max(0,int((adc2fC - ped) * gain * rcalib / lsb_ / cosh_ieta[abs(ieta)] )), 0x3FF);
 	    }
 	  } // endif HF
+
 	} // for depth
       } // for iphi
     } // for iphi

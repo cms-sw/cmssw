@@ -57,6 +57,7 @@ private:
 
   // constants
   static const size_t INPUT_LUT_SIZE = 128;
+  static const int    nFi_ = 72;
   static const float  lsb_;
   
   // member variables
