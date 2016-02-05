@@ -63,10 +63,7 @@ using namespace l1extra;
 
 class L1TrackTauAnalyzer : public edm::EDAnalyzer {
 public:
-  
-  typedef L1TkTrack_PixelDigi_                          L1TkTrackType;
-  typedef std::vector< L1TkTrackType >                               L1TkTrackCollectionType;
-  
+    
   explicit L1TrackTauAnalyzer(const edm::ParameterSet&);
   ~L1TrackTauAnalyzer();
   

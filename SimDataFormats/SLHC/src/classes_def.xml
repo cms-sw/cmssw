@@ -15,64 +15,6 @@
 
   <class name="std::vector<Ref_PixelDigi_>" />
 
-
-
-  <!-- Cluster Types -->
-<!--
-  <class pattern="std::vector<std::vector<Ref_PixelDigi_>>" />
--->
-  <!-- L1TkCluster -->
-  <class pattern="L1TkCluster*" />
-<!--
-  <class pattern="edm::Wrapper<L1TkCluster*>" />
--->
-  <!-- Pointers to Cluster -->
-  <class pattern="edm::Ptr<L1TkCluster*>" />
-  <class pattern="edm::Wrapper<edm::Ptr<L1TkCluster*>>" />
-  <!-- Vector of Clusters -->
-  <class pattern="std::vector<L1TkCluster*>" />
-  <class pattern="edm::Wrapper<std::vector<L1TkCluster*>>" />
-
-  <!--
-<class pattern="edm::Wrapper<std::vector<L1TkCluster<Ref_PixelDigi_>>>" />
--->
-
-  <!-- Vector of pointers to Clusters -->
-<!--
-  <class pattern="std::vector<edm::Ptr<L1TkCluster*>>" />
-  <class pattern="edm::Wrapper<std::vector<edm::Ptr<L1TkCluster*>>>" />
--->
-  <!-- Key for the Map of Vectors of Clusters -->
-<!--
-  <class pattern="std::pair<StackedTrackerDetId,int>" />
-  <class pattern="edm::Wrapper<std::pair<StackedTrackerDetId,int>>" />
--->
-  <!-- Map of Vectors of Clusters -->
-<!--
-  <class pattern="std::map<std::pair<StackedTrackerDetId,int>,*>" />
-  <class pattern="edm::Wrapper<std::map<std::pair<StackedTrackerDetId,int>,*>>" />
--->
-
-  <!-- L1TkStub -->
-  <class pattern="L1TkStub*" />
-  <class pattern="std::vector<L1TkStub*>" />
-  <class pattern="edm::Wrapper<std::vector<L1TkStub*>>" />
-
-<!--
-  <class pattern="edm::Wrapper<std::vector<L1TkStub<Ref_PixelDigi_>>>" />
--->
-
-
-  <class pattern="edm::Ptr<L1TkStub*>"/>
-  <class pattern="std::vector<edm::Ptr<L1TkStub*>>"/>
-  <class pattern="std::vector<std::vector<edm::Ptr<L1TkStub*>>>"/>
-  <class pattern="edm::Wrapper<std::vector<std::vector<edm::Ptr<L1TkStub*>>>>"/>
-
-  <!-- L1TkTrack -->
-  <class pattern="L1TkTrack*" />
-  <class pattern="std::vector<L1TkTrack*>" />
-  <class pattern="edm::Wrapper<std::vector<L1TkTrack*>>" />
-
   <!-- L1TStub -->
   <class pattern="L1TStub*"/>
   <class pattern="std::vector<L1TStub*>"/>
@@ -88,9 +30,6 @@
 -->
 
   <class name="std::vector<edm::Ptr<SimTrack>>" />
-<!--
-  <class pattern="std::vector<edm::Ptr<L1TkStub*>>" />
--->
 
 
   <!-- ************************ -->

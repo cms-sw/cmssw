@@ -146,17 +146,6 @@ class L1FPGATrackProducer : public edm::EDProducer
 {
 public:
 
-  typedef L1TkStub_PixelDigi_                           L1TkStubType;
-  typedef std::vector< L1TkStubType >                                L1TkStubCollectionType;
-  typedef edm::Ptr< L1TkStubType >                                   L1TkStubPtrType;
-  typedef std::vector< L1TkStubPtrType >                             L1TkStubPtrCollection;
-  typedef std::vector< L1TkStubPtrCollection >                       L1TkStubPtrCollVectorType;
-
-
-  typedef L1TkTrack_PixelDigi_                          L1TkTrackType;
-  typedef std::vector< L1TkTrackType >                               L1TkTrackCollectionType;
-  typedef std::vector< L1TTrack >                                    L1TrackCollectionType;
-
   /// Constructor/destructor
   explicit L1FPGATrackProducer(const edm::ParameterSet& iConfig);
   virtual ~L1FPGATrackProducer();
@@ -337,7 +326,6 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   typedef std::map< L1TStub, edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ >  >, L1TStubCompare > stubMapType;
 
   /// Prepare output
-  //std::auto_ptr< L1TkStubPtrCollVectorType > L1TkStubsForOutput( new L1TkStubPtrCollVectorType );
   std::auto_ptr< std::vector< TTTrack< Ref_PixelDigi_ > > > L1TkTracksForOutput( new std::vector< TTTrack< Ref_PixelDigi_ > > );
 
   stubMapType stubMap;
@@ -396,11 +384,6 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   ////////////////////////
   // GET THE PRIMITIVES //
-  edm::Handle<L1TkCluster_PixelDigi_Collection>  pixelDigiL1TkClusterHandle;
-  //edm::Handle<L1TkStub_PixelDigi_Collection>     pixelDigiL1TkStubHandle;
-  iEvent.getByLabel("L1TkClustersFromPixelDigis", pixelDigiL1TkClusterHandle);
-  //iEvent.getByLabel("L1TkStubsFromPixelDigis", "StubsPass", pixelDigiL1TkStubHandle);
-
   edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > TTStubHandle;
   iEvent.getByLabel( "TTStubsFromPixelDigis", "StubAccepted", TTStubHandle );
 
@@ -441,7 +424,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   //cout << "Will loop over stubs" << endl;
 
-  /// Loop over L1TkStubs
+  /// Loop over TTStubs
   edmNew::DetSetVector<TTStub<Ref_PixelDigi_> >::const_iterator iterStubDet;
   for ( iterStubDet = TTStubHandle->begin();
 	iterStubDet != TTStubHandle->end();
@@ -482,7 +465,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       }
 
 
-      /// Get the Inner and Outer L1TkCluster
+      /// Get the Inner and Outer TTCluster
       std::vector< edm::Ref< edmNew::DetSetVector< TTCluster<Ref_PixelDigi_> >, TTCluster<Ref_PixelDigi_> > >  clusters = stub->getClusterRefs();
 
       assert(clusters.size()==2);
