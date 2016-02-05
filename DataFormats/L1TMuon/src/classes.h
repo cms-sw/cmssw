@@ -5,6 +5,7 @@
 #include "DataFormats/L1TMuon/interface/MuonCaloSum.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
+#include "DataFormats/L1TMuon/interface/EMTFOutput.h"
 
 namespace {
   struct dictionary {
@@ -13,6 +14,9 @@ namespace {
 
     l1t::RegionalMuonCandBxCollection regCand;
     edm::Wrapper<l1t::RegionalMuonCandBxCollection> regCandWrap;
+   
+    l1t::EMTFOutputCollection emtfOutput;
+    edm::Wrapper<l1t::EMTFOutputCollection> emtfOutputWrap;
    
   };
 }
