@@ -58,6 +58,7 @@ Phase2TrackerValidateDigi::Phase2TrackerValidateDigi(const edm::ParameterSet& iC
   simVertexSrc_(config_.getParameter<edm::InputTag>("SimVertexSource")),
   pixDigiToken_(consumes< edm::DetSetVector<PixelDigi> >(pixDigiSrc_)),
   otDigiToken_(consumes< edm::DetSetVector<Phase2TrackerDigi> >(otDigiSrc_)),
+  digiSimLinkToken_(consumes< edm::DetSetVector<PixelDigiSimLink> >(digiSimLinkSrc_)),
   psimHitToken_(consumes< edm::PSimHitContainer >(pSimHitSrc_)),
   simTrackToken_(consumes< edm::SimTrackContainer >(simTrackSrc_)),
   simVertexToken_(consumes< edm::SimVertexContainer >(simVertexSrc_))
@@ -96,33 +97,27 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
   // Get digis
   edm::Handle< edm::DetSetVector<PixelDigi> > pixDigiHandle;
   iEvent.getByToken(pixDigiToken_ , pixDigiHandle); 
-  //iEvent.getByLabel(pixDigiSrc_, pixDigiHandle);
+
   edm::Handle< edm::DetSetVector<Phase2TrackerDigi> > otDigiHandle;
   iEvent.getByToken(otDigiToken_ , otDigiHandle); 
-  //iEvent.getByLabel(otDigiSrc_, otDigiHandle);
   const DetSetVector<Phase2TrackerDigi>* digis = otDigiHandle.product();
 
 
   // DigiSimLink
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> > simLinks;
   iEvent.getByToken(digiSimLinkToken_ , simLinks); 
-  //iEvent.getByLabel(pixDigiSrc_,   simLinks);
-  
 
   // PSimHits
   edm::Handle<edm::PSimHitContainer> simHits;
   iEvent.getByToken(psimHitToken_,simHits);
-  //iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelLowTof" ,simHits);
 
   // SimTrack
   edm::Handle<edm::SimTrackContainer> simTracks;
   iEvent.getByToken(simTrackToken_,simTracks);
-  //iEvent.getByLabel("g4SimHits",simTracks);
 
   // SimVertex
   edm::Handle<edm::SimVertexContainer> simVertices;
   iEvent.getByToken(simVertexToken_,simVertices);
-  //iEvent.getByLabel("g4SimHits", simVertices);
 
   // Tracker Topology 
   edm::ESHandle<TrackerTopology> tTopoHandle;

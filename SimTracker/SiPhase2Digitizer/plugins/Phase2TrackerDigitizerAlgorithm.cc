@@ -439,17 +439,17 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(const PSimHit& hit,
   float ESum = 0.0;
 
   // Iterate over collection points on the collection plane
-  for (auto i = collection_points.begin(); i != collection_points.end(); ++i) {
+  for (auto const & v : collection_points) {
     iseg++;
-    float CloudCenterX = i->position().x(); // Charge position in x
-    float CloudCenterY = i->position().y(); //                 in y
-    float SigmaX = i->sigma_x();            // Charge spread in x
-    float SigmaY = i->sigma_y();            //               in y
-    float Charge = i->amplitude();          // Charge amplitude
+    float CloudCenterX = v.position().x(); // Charge position in x
+    float CloudCenterY = v.position().y(); //                 in y
+    float SigmaX = v.sigma_x();            // Charge spread in x
+    float SigmaY = v.sigma_y();            //               in y
+    float Charge = v.amplitude();          // Charge amplitude
     
     LogDebug("Phase2TrackerDigitizerAlgorithm")
-      << " cloud " << i->position().x() << " " << i->position().y() << " "
-      << i->sigma_x() << " " << i->sigma_y() << " " << i->amplitude();
+      << " cloud " << v.position().x() << " " << v.position().y() << " "
+      << v.sigma_x() << " " << v.sigma_y() << " " << v.amplitude();
 
     // Find the maximum cloud spread in 2D plane , assume 3*sigma
     float CloudRight = CloudCenterX + ClusterWidth * SigmaX;
@@ -577,9 +577,9 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(const PSimHit& hit,
     }
   }
   // Fill the global map with all hit pixels from this event
-  for (auto im = hit_signal.begin();im != hit_signal.end(); ++im) {
-    int chan =  (*im).first;
-    theSignal[chan] += (makeDigiSimLinks_ ? DigitizerUtility::Amplitude( (*im).second, &hit, hitIndex, tofBin, (*im).second) : DigitizerUtility::Amplitude( (*im).second, (*im).second) ) ;
+  for (auto const & hit_s : hit_signal) {
+    int chan =  hit_s.first;
+    theSignal[chan] += (makeDigiSimLinks_ ? DigitizerUtility::Amplitude( hit_s.second, &hit, hitIndex, tofBin, hit_s.second) : DigitizerUtility::Amplitude( hit_s.second, hit_s.second) ) ;
   }
 }
 // ======================================================================
@@ -597,21 +597,21 @@ void Phase2TrackerDigitizerAlgorithm::add_noise(const Phase2TrackerGeomDetUnit* 
   int numRows = topol->nrows();
 
   // First add Readout noise to hit cells
-  for (auto i = theSignal.begin(); i != theSignal.end(); i++) {
+  for (auto & s : theSignal) {
     float noise  = gaussDistribution_->fire();
-    if (((*i).second.ampl() + noise) < 0.)
-      (*i).second.set(0);
+    if ((s.second.ampl() + noise) < 0.)
+      s.second.set(0);
     else
-      (*i).second += noise;
+      s.second += noise;
   }
   
   if (addXtalk) {
     signal_map_type signalNew;
-    for (auto i = theSignal.begin(); i != theSignal.end(); i++) {
-      float signalInElectrons = (*i).second.ampl();   // signal in electrons
+    for (auto const & s : theSignal) {
+      float signalInElectrons = s.second.ampl();   // signal in electrons
       std::pair<int,int> hitChan;
-      if (pixelFlag) hitChan = PixelDigi::channelToPixel((*i).first);
-      else hitChan = Phase2TrackerDigi::channelToPixel((*i).first);
+      if (pixelFlag) hitChan = PixelDigi::channelToPixel(s.first);
+      else hitChan = Phase2TrackerDigi::channelToPixel(s.first);
       
       float signalInElectrons_Xtalk = signalInElectrons * interstripCoupling;     
       
@@ -628,13 +628,13 @@ void Phase2TrackerDigitizerAlgorithm::add_noise(const Phase2TrackerGeomDetUnit* 
 	signalNew.insert(std::pair<int,DigitizerUtility::Amplitude>(chanXtalkNext, DigitizerUtility::Amplitude(signalInElectrons_Xtalk, -1.0)));
       }
     }
-    for (auto l = signalNew.begin(); l != signalNew.end(); l++) {
-      int chan = l->first;
+    for (auto const & l : signalNew) {
+      int chan = l.first;
       auto iter = theSignal.find(chan);
       if (iter != theSignal.end())
-	theSignal[chan] += l->second.ampl();
+	theSignal[chan] += l.second.ampl();
       else 
-        theSignal.insert(std::pair<int,DigitizerUtility::Amplitude>(chan, DigitizerUtility::Amplitude(l->second.ampl(),-1.0)));
+        theSignal.insert(std::pair<int,DigitizerUtility::Amplitude>(chan, DigitizerUtility::Amplitude(l.second.ampl(),-1.0)));
     } 
   } 
   if (!addNoisyPixels)  // Option to skip noise in non-hit pixels
@@ -711,11 +711,11 @@ void Phase2TrackerDigitizerAlgorithm::pixel_inefficiency(const SubdetEfficiencie
 
   // Now loop again over pixels to kill some of them.
   // Loop over hits, amplitude in electrons, channel = coded row,col
-  for (auto i = theSignal.begin(); i != theSignal.end(); ++i) {
+  for (auto & s : theSignal) {
     float rand = flatDistribution_->fire();
     if( rand>subdetEfficiency ) {
       // make amplitude =0
-      i->second.set(0.); // reset amplitude,
+      s.second.set(0.); // reset amplitude,
     }
   } 
 } 
@@ -792,15 +792,15 @@ void Phase2TrackerDigitizerAlgorithm::pixel_inefficiency_db(uint32_t detID) {
   signal_map_type& theSignal = _signal[detID]; // check validity
 
   // Loop over hit pixels, amplitude in electrons, channel = coded row,col
-  for (auto i = theSignal.begin();i != theSignal.end(); ++i) {
+  for (auto  & s : theSignal) {
     std::pair<int,int> ip;
-    if (pixelFlag) ip = PixelDigi::channelToPixel(i->first);//get pixel pos
-    else ip = Phase2TrackerDigi::channelToPixel(i->first);//get pixel pos
+    if (pixelFlag) ip = PixelDigi::channelToPixel(s.first);//get pixel pos
+    else ip = Phase2TrackerDigi::channelToPixel(s.first);//get pixel pos
     int row = ip.first;  // X in row
     int col = ip.second; // Y is in col
     //transform to ROC index coordinates
     if (theSiPixelGainCalibrationService_->isDead(detID, col, row)) {
-      i->second.set(0.); // reset amplitude,
+      s.second.set(0.); // reset amplitude,
     }
   }
 }
@@ -810,38 +810,29 @@ void Phase2TrackerDigitizerAlgorithm::pixel_inefficiency_db(uint32_t detID) {
 void Phase2TrackerDigitizerAlgorithm::module_killing_conf(uint32_t detID) {
   bool isbad = false;
   int detid = detID;
-  auto itDeadModules = DeadModules.begin();
-  for (; itDeadModules != DeadModules.end(); ++itDeadModules) {
-    int Dead_detID = itDeadModules->getParameter<int>("Dead_detID");
+  std::string Module;
+  for ( auto  const & det_m : DeadModules) {
+    int Dead_detID = det_m.getParameter<int>("Dead_detID");
+    Module = det_m.getParameter<std::string>("Module");
     if (detid == Dead_detID){
       isbad = true;
       break;
     }
   }
   
-  if (!isbad)
-    return;
+  if (!isbad) return;
 
   signal_map_type& theSignal = _signal[detID]; // check validity
   
-  std::string Module = itDeadModules->getParameter<std::string>("Module");
-  
-  if (Module == "whole"){
-    for (auto i = theSignal.begin(); i != theSignal.end(); ++i) {
-      i->second.set(0.); // reset amplitude
-    }
-  }
-  
-  for (auto i = theSignal.begin(); i != theSignal.end(); ++i) {
+    
+  for (auto & s : theSignal) {
     std::pair<int,int> ip;
-    if (pixelFlag) ip  = PixelDigi::channelToPixel(i->first);
-    else ip  = Phase2TrackerDigi::channelToPixel(i->first);//get pixel pos
+    if (pixelFlag) ip  = PixelDigi::channelToPixel(s.first);
+    else ip  = Phase2TrackerDigi::channelToPixel(s.first);//get pixel pos
 
-    if (Module == "tbmA" && ip.first >= 80 && ip.first <= 159)
-      i->second.set(0.);
-
-    if (Module == "tbmB" && ip.first <= 79)
-      i->second.set(0.);
+    if (Module == "whole") s.second.set(0.); // reset amplitude
+    else if (Module == "tbmA" && ip.first >= 80 && ip.first <= 159) s.second.set(0.);
+    else if (Module == "tbmB" && ip.first <= 79) s.second.set(0.);
   }
 }
 // ==========================================================================
@@ -865,8 +856,8 @@ void Phase2TrackerDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
   signal_map_type& theSignal = _signal[detID]; // check validity
   
   if (badmodule.errorType == 0) { // this is a whole dead module.
-    for (auto i = theSignal.begin(); i != theSignal.end(); ++i) {
-      i->second.set(0.); // reset amplitude
+    for (auto & s : theSignal) {
+      s.second.set(0.); // reset amplitude
     }
   }
   else { // all other module types: half-modules and single ROCs.
@@ -876,8 +867,8 @@ void Phase2TrackerDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
     for (unsigned int j = 0; j < 16; j++) {
       if (SiPixelBadModule_->IsRocBad(detID, j) == true) {
 	std::vector<CablingPathToDetUnit> path = map_.product()->pathToDetUnit(detID);
-	for (auto it = path.begin(); it != path.end(); ++it) {
-          const PixelROC* myroc = map_.product()->findItem(*it);
+	for (auto const & p : path) {
+          const PixelROC* myroc = map_.product()->findItem(p);
           if (myroc->idInDetUnit() == j) {
 	    LocalPixel::RocRowCol  local = {39, 25};   //corresponding to center of ROC row, col
 	    GlobalPixel global = myroc->toGlobal(LocalPixel(local));
@@ -888,22 +879,22 @@ void Phase2TrackerDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
       }
     }
     
-    for (auto i = theSignal.begin();i != theSignal.end(); ++i) {
+    for (auto & s : theSignal) {
       std::pair<int,int> ip;
-      if (pixelFlag) ip  = PixelDigi::channelToPixel(i->first);
-      else ip = Phase2TrackerDigi::channelToPixel(i->first);
+      if (pixelFlag) ip  = PixelDigi::channelToPixel(s.first);
+      else ip = Phase2TrackerDigi::channelToPixel(s.first);
       
-      for (auto it = badrocpositions.begin(); it != badrocpositions.end(); ++it) {
-	if (it->row >= 80 && ip.first >= 80) {
-	  if ((fabs(ip.second - it->col) < 26) ) {i->second.set(0.);}
-          else if (it->row == 120 && ip.second-it->col == 26) {i->second.set(0.);}
-          else if (it->row == 119 && it->col-ip.second == 26) {i->second.set(0.);}
+      for (auto const & p : badrocpositions) {
+	if (p.row >= 80 && ip.first >= 80) {
+	  if ((fabs(ip.second - p.col) < 26) ) {s.second.set(0.);}
+          else if (p.row == 120 && ip.second-p.col == 26) {s.second.set(0.);}
+          else if (p.row == 119 && p.col-ip.second == 26) {s.second.set(0.);}
 	}
-	else if (it->row < 80 && ip.first < 80 ) {
-	  if ((fabs(ip.second - it->col) < 26) ) {i->second.set(0.);}
-          else if(it->row == 40 && ip.second-it->col == 26) {i->second.set(0.);}
-          else if(it->row == 39 && it->col-ip.second == 26) {i->second.set(0.);}
-       }
+	else if (p.row < 80 && ip.first < 80 ) {
+	  if ((fabs(ip.second - p.col) < 26) ) {s.second.set(0.);}
+          else if(p.row == 40 && ip.second-p.col == 26) {s.second.set(0.);}
+          else if(p.row == 39 && p.col-ip.second == 26) {s.second.set(0.);}
+	}
       }
     }
   }
@@ -950,8 +941,8 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
   }
 
   // DDigitize if the signal is greater than threshold
-  for (auto  i = theSignal.begin(); i != theSignal.end(); ++i) {
-    DigitizerUtility::Amplitude sig_data = (*i).second;  
+  for (auto const & s : theSignal) {
+    DigitizerUtility::Amplitude sig_data = s.second;  
     float signalInElectrons  = sig_data.ampl();
     int adc;
     if (signalInElectrons >= theThresholdInE) { // check threshold
@@ -970,7 +961,7 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
 	  info.track_map.insert({tkid, charge_frac});
 	}
       }
-      digi_map.insert({(*i).first, info});
+      digi_map.insert({s.first, info});
     }
   }
 }

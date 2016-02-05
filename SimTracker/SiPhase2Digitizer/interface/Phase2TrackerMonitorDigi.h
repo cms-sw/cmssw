@@ -2,7 +2,7 @@
 #define Phase2TrackerMonitorDigi_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -15,7 +15,7 @@ class MonitorElement;
 class PixelDigi;
 class Phase2TrackerDigi;
 
-class Phase2TrackerMonitorDigi : public edm::EDAnalyzer {
+class Phase2TrackerMonitorDigi : public edm::one::EDAnalyzer<> {
 
 public:
 

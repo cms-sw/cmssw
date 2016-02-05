@@ -2,7 +2,7 @@
 #define Phase2TrackerValidateDigi_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 
@@ -24,7 +24,7 @@ class PixelDigi;
 class Phase2TrackerDigi;
 
  
-class Phase2TrackerValidateDigi : public edm::EDAnalyzer {
+class Phase2TrackerValidateDigi : public edm::one::EDAnalyzer<> {
 
 public:
 

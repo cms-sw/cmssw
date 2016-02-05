@@ -5,6 +5,7 @@ tbeamTest = cms.EDAnalyzer("TBeamTest",
     TopFolderName = cms.string("TBeamSimulation"),
     OuterTrackerDigiSource    = cms.InputTag("mix", "Tracker"),
     OuterTrackerDigiSimSource = cms.InputTag("simSiPixelDigis","Tracker"), 
+    SimTrackSource = cms.InputTag("g4SimHits"),
     PhiMin  = cms.double(-13.5),                         
     PhiMax  = cms.double(13.5),
     NumbeOfDigisH = cms.PSet(
