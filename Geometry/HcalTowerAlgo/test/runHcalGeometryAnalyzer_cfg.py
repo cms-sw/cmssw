@@ -13,7 +13,8 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.hga = cms.EDAnalyzer("HcalGeometryAnalyzer",
-                             UseOldLoader = cms.bool(False) )
+                             UseOldLoader   = cms.bool(False),
+                             GeometryFromDB = cms.bool(False))
 
 process.Timing = cms.Service("Timing")
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")

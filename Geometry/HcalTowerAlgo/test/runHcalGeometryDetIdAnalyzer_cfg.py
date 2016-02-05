@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Geometry.HcalEventSetup.HcalRelabel_cfi import HcalReLabel
 
 process = cms.Process("HcalGeometryTest")
 
@@ -12,7 +11,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.hga = cms.EDAnalyzer("HcalGeometryDetIdAnalyzer")
+process.hga = cms.EDAnalyzer("HcalGeometryDetIdAnalyzer",
+                             UseOldLoader      = cms.bool(False))
 
 process.Timing = cms.Service("Timing")
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")

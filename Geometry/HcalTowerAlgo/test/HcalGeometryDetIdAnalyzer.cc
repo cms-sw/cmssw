@@ -7,7 +7,7 @@
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalFlexiHardcodeGeometryLoader.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
 #include <iostream>
 
 class HcalGeometryDetIdAnalyzer : public edm::one::EDAnalyzer<> {
@@ -20,10 +20,13 @@ public:
   void endJob() override {}
 
 private:
-  HcalFlexiHardcodeGeometryLoader m_loader;
+  edm::ParameterSet ps0_;
+  bool              useOld_;
 };
 
-HcalGeometryDetIdAnalyzer::HcalGeometryDetIdAnalyzer(const edm::ParameterSet& iConfig ) : m_loader( iConfig ) { }
+HcalGeometryDetIdAnalyzer::HcalGeometryDetIdAnalyzer(const edm::ParameterSet& iConfig ) : ps0_(iConfig) {
+  useOld_ = iConfig.getParameter<bool>("UseOldLoader");
+}
 
 HcalGeometryDetIdAnalyzer::~HcalGeometryDetIdAnalyzer( void ) {}
 
@@ -36,11 +39,19 @@ HcalGeometryDetIdAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::Eve
   iSetup.get<HcalRecNumberingRecord>().get( topologyHandle );
   const HcalTopology topology = (*topologyHandle);
 
-  const CaloSubdetectorGeometry* caloGeom = m_loader.load(topology, hcons);
+  CaloSubdetectorGeometry* caloGeom(0);
+  if (useOld_) {
+    HcalHardcodeGeometryLoader m_loader(ps0_);
+    caloGeom = m_loader.load(topology);
+  } else {
+    HcalFlexiHardcodeGeometryLoader m_loader(ps0_);
+    caloGeom = m_loader.load(topology, hcons);
+  }
   const std::vector<DetId>& ids = caloGeom->getValidDetIds();
 
   int counter = 0;
-  for( std::vector<DetId>::const_iterator i = ids.begin(), iEnd = ids.end(); i != iEnd; ++i, ++counter )  {
+  for (std::vector<DetId>::const_iterator i = ids.begin(), iEnd = ids.end();
+       i != iEnd; ++i, ++counter )  {
     HcalDetId hid = (*i);
     unsigned int did = topology.detId2denseId(*i);
     HcalDetId rhid = topology.denseId2detId(did);

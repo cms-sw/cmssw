@@ -22,12 +22,14 @@ public:
   void endJob() override {}
 
 private:
-  edm::ParameterSet ps0;
+  edm::ParameterSet ps0_;
   bool              useOld_;
+  bool              geomDB_;
 };
 
-HcalGeometryAnalyzer::HcalGeometryAnalyzer( const edm::ParameterSet& iConfig ) : ps0(iConfig) {
-  useOld_ = iConfig.getParameter<bool>( "UseOldLoader" );
+HcalGeometryAnalyzer::HcalGeometryAnalyzer( const edm::ParameterSet& iConfig ) : ps0_(iConfig) {
+  useOld_ = iConfig.getParameter<bool>("UseOldLoader");
+  geomDB_ = iConfig.getParameter<bool>("GeometryFromDB");
 }
 
 HcalGeometryAnalyzer::~HcalGeometryAnalyzer( void ) {}
@@ -43,11 +45,16 @@ HcalGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSet
   const HcalTopology topology = (*topologyHandle);
 
   CaloSubdetectorGeometry* caloGeom(0);
-  if (useOld_) {
-    HcalHardcodeGeometryLoader m_loader(ps0);
+  if (geomDB_) {
+    edm::ESHandle<CaloGeometry> pG;
+    iSetup.get<CaloGeometryRecord>().get(pG);
+    const CaloGeometry* geo = pG.product();
+    caloGeom = (CaloSubdetectorGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
+  } else if (useOld_) {
+    HcalHardcodeGeometryLoader m_loader(ps0_);
     caloGeom = m_loader.load(topology);
   } else {
-    HcalFlexiHardcodeGeometryLoader m_loader(ps0);
+    HcalFlexiHardcodeGeometryLoader m_loader(ps0_);
     caloGeom = m_loader.load(topology, hcons);
   }
   const std::vector<DetId>& ids = caloGeom->getValidDetIds();
