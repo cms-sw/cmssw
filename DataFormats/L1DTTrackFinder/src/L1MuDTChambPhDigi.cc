@@ -48,22 +48,6 @@ L1MuDTChambPhDigi::L1MuDTChambPhDigi() {
 }
 
 L1MuDTChambPhDigi::L1MuDTChambPhDigi( int ubx, int uwh, int usc, int ust,
-                         int uphr, int uphb, int uqua, int utag, int ucnt ) {
-
-  bx              = ubx;
-  wheel           = uwh;
-  sector          = usc;
-  station         = ust;
-  radialAngle     = uphr;
-  bendingAngle    = uphb;
-  qualityCode     = uqua;
-  Ts2TagCode      = utag;
-  BxCntCode       = ucnt;
-  rpcBit          = -10;
-}
-
-
-L1MuDTChambPhDigi::L1MuDTChambPhDigi( int ubx, int uwh, int usc, int ust,
                          int uphr, int uphb, int uqua, int utag, int ucnt, int urpc ) {
 
   bx              = ubx;

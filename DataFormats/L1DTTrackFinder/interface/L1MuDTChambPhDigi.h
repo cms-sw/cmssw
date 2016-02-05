@@ -39,10 +39,7 @@ class L1MuDTChambPhDigi {
   L1MuDTChambPhDigi();
 
   L1MuDTChambPhDigi( int ubx, int uwh, int usc, int ust,
-	int uphr, int uphb, int uqua, int utag, int ucnt );
-
-  L1MuDTChambPhDigi( int ubx, int uwh, int usc, int ust,
-        int uphr, int uphb, int uqua, int utag, int ucnt, int urpc);
+        int uphr, int uphb, int uqua, int utag, int ucnt, int urpc=-10);
 
   //  Destructor
   ~L1MuDTChambPhDigi();
