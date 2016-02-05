@@ -456,7 +456,7 @@ testGlobalModule::testTransitions(std::shared_ptr<T> iMod, Expectations const& i
 
 void testGlobalModule::basicTest()
 {
-  std::shared_ptr<BasicProd> testProd{ new BasicProd };
+  std::shared_ptr<BasicProd> testProd = std::make_shared<BasicProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kEvent});
@@ -464,7 +464,7 @@ void testGlobalModule::basicTest()
 
 void testGlobalModule::streamTest()
 {
-  std::shared_ptr<StreamProd> testProd{ new StreamProd };
+  std::shared_ptr<StreamProd> testProd = std::make_shared<StreamProd>();
   edm::maker::ModuleHolderT<edm::global::EDProducerBase> h(testProd,nullptr);
   h.preallocate(edm::PreallocationConfiguration{});
   
@@ -475,7 +475,7 @@ void testGlobalModule::streamTest()
 
 void testGlobalModule::runTest()
 {
-  std::shared_ptr<RunProd> testProd{ new RunProd };
+  std::shared_ptr<RunProd> testProd = std::make_shared<RunProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kGlobalEndRun});
@@ -483,7 +483,7 @@ void testGlobalModule::runTest()
 
 void testGlobalModule::runSummaryTest()
 {
-  std::shared_ptr<RunSummaryProd> testProd{ new RunSummaryProd };
+  std::shared_ptr<RunSummaryProd> testProd = std::make_shared<RunSummaryProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kStreamEndRun, Trans::kGlobalEndRun});
@@ -491,7 +491,7 @@ void testGlobalModule::runSummaryTest()
 
 void testGlobalModule::lumiTest()
 {
-  std::shared_ptr<LumiProd> testProd{ new LumiProd };
+  std::shared_ptr<LumiProd> testProd = std::make_shared<LumiProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock});
