@@ -72,7 +72,7 @@ BoostedTauSeedsProducer::BoostedTauSeedsProducer(const edm::ParameterSet& cfg)
 
   produces<reco::PFJetCollection>();
   produces<JetToPFCandidateAssociation>("pfCandAssocMapForIsolation");
-  produces<JetToPFCandidateAssociation>("pfCandAssocMapForIsoDepositVetos");
+  //produces<JetToPFCandidateAssociation>("pfCandAssocMapForIsoDepositVetos");
 }
 
 namespace
@@ -159,22 +159,24 @@ namespace
     }
   }
 
-  std::vector<reco::PFCandidateRef> getPFCandidates_exclJetConstituents(const edm::Handle<reco::PFCandidateCollection>& pfCandidates, const reco::Jet::Constituents& jetConstituents, double dRmatch, bool invert)
-  {
+  std::vector<reco::PFCandidateRef> getPFCandidates_exclJetConstituents(const reco::Jet& jet, const edm::Handle<reco::PFCandidateCollection>& pfCandidates, const reco::Jet::Constituents& jetConstituents, double dRmatch, bool invert)
+  { 
+    auto const & collection_cand = (*pfCandidates);
     std::vector<reco::PFCandidateRef> pfCandidates_exclJetConstituents;
     size_t numPFCandidates = pfCandidates->size();
     for ( size_t pfCandidateIdx = 0; pfCandidateIdx < numPFCandidates; ++pfCandidateIdx ) {
-      reco::PFCandidateRef pfCandidate(pfCandidates, pfCandidateIdx);
+      if(!(deltaR(collection_cand[pfCandidateIdx].p4(), jet.p4())<1.0)) continue;
       bool isJetConstituent = false;
       for ( reco::Jet::Constituents::const_iterator jetConstituent = jetConstituents.begin();
 	    jetConstituent != jetConstituents.end(); ++jetConstituent ) {
-	double dR = deltaR(pfCandidate->p4(), (*jetConstituent)->p4());
+	double dR = deltaR(collection_cand[pfCandidateIdx].p4(), (*jetConstituent)->p4());
 	if ( dR < dRmatch ) {
 	  isJetConstituent = true;
 	  break;
 	}
       }
       if ( !(isJetConstituent^invert) ) {
+	reco::PFCandidateRef pfCandidate(pfCandidates, pfCandidateIdx);
 	pfCandidates_exclJetConstituents.push_back(pfCandidate);
       }
     }
@@ -215,8 +217,8 @@ void BoostedTauSeedsProducer::produce(edm::Event& evt, const edm::EventSetup& es
   std::auto_ptr<reco::PFJetCollection> selectedSubjets(new reco::PFJetCollection());
   edm::RefProd<reco::PFJetCollection> selectedSubjetRefProd = evt.getRefBeforePut<reco::PFJetCollection>();
 
-  std::auto_ptr<JetToPFCandidateAssociation> selectedSubjetPFCandidateAssociationForIsolation(new JetToPFCandidateAssociation());
-  std::auto_ptr<JetToPFCandidateAssociation> selectedSubjetPFCandidateAssociationForIsoDepositVetos(new JetToPFCandidateAssociation());
+  std::auto_ptr<JetToPFCandidateAssociation> selectedSubjetPFCandidateAssociationForIsolation(new JetToPFCandidateAssociation(&evt.productGetter()));
+  //std::auto_ptr<JetToPFCandidateAssociation> selectedSubjetPFCandidateAssociationForIsoDepositVetos(new JetToPFCandidateAssociation(&evt.productGetter()));
 
   for ( size_t idx = 0; idx < (subjets->size() / 2); ++idx ) {
     const reco::Jet* subjet1 = &subjets->at(2*idx);
@@ -249,8 +251,8 @@ void BoostedTauSeedsProducer::produce(edm::Event& evt, const edm::EventSetup& es
     edm::Ref<reco::PFJetCollection> subjetRef2(selectedSubjetRefProd, selectedSubjets->size() - 1);
         
     // find all PFCandidates that are not constituents of the **other** subjet
-    std::vector<reco::PFCandidateRef> pfCandidatesNotInSubjet1 = getPFCandidates_exclJetConstituents(pfCandidates, subjetConstituents2, 1.e-4, false);
-    std::vector<reco::PFCandidateRef> pfCandidatesNotInSubjet2 = getPFCandidates_exclJetConstituents(pfCandidates, subjetConstituents1, 1.e-4, false);
+    std::vector<reco::PFCandidateRef> pfCandidatesNotInSubjet1 = getPFCandidates_exclJetConstituents(*subjet1, pfCandidates, subjetConstituents2, 1.e-4, false);
+    std::vector<reco::PFCandidateRef> pfCandidatesNotInSubjet2 = getPFCandidates_exclJetConstituents(*subjet2, pfCandidates, subjetConstituents1, 1.e-4, false);
     if ( verbosity_ >= 1 ) {
       std::cout << "#pfCandidatesNotInSubjet1 = " << pfCandidatesNotInSubjet1.size() << std::endl;
       std::cout << "#pfCandidatesNotInSubjet2 = " << pfCandidatesNotInSubjet2.size() << std::endl;
@@ -264,26 +266,10 @@ void BoostedTauSeedsProducer::produce(edm::Event& evt, const edm::EventSetup& es
     BOOST_FOREACH( const reco::PFCandidateRef& pfCandidate, pfCandidatesNotInSubjet2 ) {
       selectedSubjetPFCandidateAssociationForIsolation->insert(subjetRef2, pfCandidate);
     }
-
-    // find all PFCandidates that are constituents of the **other** subjet
-    std::vector<reco::PFCandidateRef> pfCandidatesInSubjet1 = getPFCandidates_exclJetConstituents(pfCandidates, subjetConstituents2, 1.e-4, true);
-    std::vector<reco::PFCandidateRef> pfCandidatesInSubjet2 = getPFCandidates_exclJetConstituents(pfCandidates, subjetConstituents1, 1.e-4, true);
-    if ( verbosity_ >= 1 ) {
-      std::cout << "#pfCandidatesInSubjet1 = " << pfCandidatesInSubjet1.size() << std::endl;
-      std::cout << "#pfCandidatesInSubjet2 = " << pfCandidatesInSubjet2.size() << std::endl;
-    }
-
-    BOOST_FOREACH( const reco::PFCandidateRef& pfCandidate, pfCandidatesInSubjet1 ) {
-      selectedSubjetPFCandidateAssociationForIsoDepositVetos->insert(subjetRef1, pfCandidate);
-    }
-    BOOST_FOREACH( const reco::PFCandidateRef& pfCandidate, pfCandidatesInSubjet2 ) {
-      selectedSubjetPFCandidateAssociationForIsoDepositVetos->insert(subjetRef2, pfCandidate);
-    }
   }
 
   evt.put(selectedSubjets);
   evt.put(selectedSubjetPFCandidateAssociationForIsolation, "pfCandAssocMapForIsolation");
-  evt.put(selectedSubjetPFCandidateAssociationForIsoDepositVetos, "pfCandAssocMapForIsoDepositVetos");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
