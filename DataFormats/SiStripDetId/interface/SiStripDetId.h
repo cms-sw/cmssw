@@ -112,7 +112,7 @@ private:
 // ---------- inline methods ----------
 
 SiStripDetId::SubDetector SiStripDetId::subDetector() const {
-  return det() == DetId::Tracker ? static_cast<SiStripDetId::SubDetector>(subdetId()) : SiStripDetId::UNKNOWN;
+  return static_cast<SiStripDetId::SubDetector>(subdetId());
 }
 
 SiStripDetId::ModuleGeometry SiStripDetId::moduleGeometry() const {
