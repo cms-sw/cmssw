@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 
 l1tSummaryStage1Digis = cms.EDAnalyzer(
     "L1TSummary",
-    tag        = cms.string("Stage 1 Digis"),
+    tag        = cms.string("Stage 1 Unpacked Digis"),
     egCheck    = cms.bool(True),
     tauCheck   = cms.bool(True),
     jetCheck   = cms.bool(True),
