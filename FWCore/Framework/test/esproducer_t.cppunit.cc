@@ -148,10 +148,10 @@ void testEsproducer::getFromTest()
 {
    EventSetupProvider provider;
    
-   std::shared_ptr<DataProxyProvider> pProxyProv(new Test1Producer);
+   std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<Test1Producer>();
    provider.add(pProxyProv);
    
-   std::shared_ptr<DummyFinder> pFinder(new DummyFinder);
+   std::shared_ptr<DummyFinder> pFinder = std::make_shared<DummyFinder>();
    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
    
    for(int iTime=1; iTime != 6; ++iTime) {
@@ -170,10 +170,10 @@ void testEsproducer::getfromShareTest()
 {
    EventSetupProvider provider;
    
-   std::shared_ptr<DataProxyProvider> pProxyProv(new ShareProducer);
+   std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<ShareProducer>();
    provider.add(pProxyProv);
    
-   std::shared_ptr<DummyFinder> pFinder(new DummyFinder);
+   std::shared_ptr<DummyFinder> pFinder = std::make_shared<DummyFinder>();
    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
    
    for(int iTime=1; iTime != 6; ++iTime) {
@@ -193,10 +193,10 @@ void testEsproducer::labelTest()
    try {
    EventSetupProvider provider;
    
-   std::shared_ptr<DataProxyProvider> pProxyProv(new LabelledProducer);
+   std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<LabelledProducer>();
    provider.add(pProxyProv);
    
-   std::shared_ptr<DummyFinder> pFinder(new DummyFinder);
+   std::shared_ptr<DummyFinder> pFinder = std::make_shared<DummyFinder>();
    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
    
    for(int iTime=1; iTime != 6; ++iTime) {
@@ -260,10 +260,10 @@ void testEsproducer::decoratorTest()
 {
    EventSetupProvider provider;
    
-   std::shared_ptr<DataProxyProvider> pProxyProv(new DecoratorProducer);
+   std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<DecoratorProducer>();
    provider.add(pProxyProv);
    
-   std::shared_ptr<DummyFinder> pFinder(new DummyFinder);
+   std::shared_ptr<DummyFinder> pFinder = std::make_shared<DummyFinder>();
    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
    
    for(int iTime=1; iTime != 6; ++iTime) {
@@ -315,10 +315,10 @@ void testEsproducer::dependsOnTest()
 {
    EventSetupProvider provider;
    
-   std::shared_ptr<DataProxyProvider> pProxyProv(new DepProducer);
+   std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<DepProducer>();
    provider.add(pProxyProv);
    
-   std::shared_ptr<DummyFinder> pFinder(new DummyFinder);
+   std::shared_ptr<DummyFinder> pFinder = std::make_shared<DummyFinder>();
    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
    
    for(int iTime=1; iTime != 6; ++iTime) {
@@ -342,10 +342,10 @@ void testEsproducer::forceCacheClearTest()
 {
    EventSetupProvider provider;
    
-   std::shared_ptr<DataProxyProvider> pProxyProv(new Test1Producer);
+   std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<Test1Producer>();
    provider.add(pProxyProv);
    
-   std::shared_ptr<DummyFinder> pFinder(new DummyFinder);
+   std::shared_ptr<DummyFinder> pFinder = std::make_shared<DummyFinder>();
    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
    
    const edm::Timestamp time(1);
