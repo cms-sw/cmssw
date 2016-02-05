@@ -49,7 +49,7 @@ validationLiteTracking = cms.Sequence( validation )
 validationLiteTracking.replace(globalValidation,globalValidationLiteTracking)
 validationLiteTracking.remove(condDataValidation)
 
-validationMiniAOD = cms.Sequence(JetValidationMiniAOD * METValidationMiniAOD * type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD)
+validationMiniAOD = cms.Sequence(type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD * JetValidationMiniAOD * METValidationMiniAOD)
 
 prevalidation_preprod = cms.Sequence( preprodPrevalidation )
 
