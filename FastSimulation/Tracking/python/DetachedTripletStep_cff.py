@@ -25,11 +25,7 @@ detachedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProdu
     )
 
 # tracks 
-detachedTripletStepTracks = _detachedTripletStep.detachedTripletStepTracks.clone(
-    TTRHBuilder = 'WithoutRefit',
-    Propagator = 'PropagatorWithMaterial'
-
-)
+detachedTripletStepTracks = _detachedTripletStep.detachedTripletStepTracks.clone(TTRHBuilder = 'WithoutRefit')
 
 #final selection
 #detachedTripletStepSelector = _detachedTripletStep.detachedTripletStepSelector.clone()

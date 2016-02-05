@@ -26,10 +26,7 @@ lowPtTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer
 )
 
 # tracks
-lowPtTripletStepTracks = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepTracks.clone(
-    TTRHBuilder = 'WithoutRefit',
-    Propagator = 'PropagatorWithMaterial'
-)
+lowPtTripletStepTracks = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepTracks.clone(TTRHBuilder = 'WithoutRefit')
 
 # final selection
 lowPtTripletStep = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStep.clone()
