@@ -284,4 +284,12 @@
   </class>
   <enum name="L1GtBoard" />
   <enum name="L1GtPsbQuad" />
+  <class name="L1TUtmAlgorithm"/>
+  <class name="L1TUtmBin"/>
+  <class name="L1TUtmCondition"/>
+  <class name="L1TUtmCut"/>
+  <class name="L1TUtmCutValue"/>
+  <class name="L1TUtmObject"/>
+  <class name="L1TUtmScale"/>
+  <class name="L1TUtmTriggerMenu"/>
 </lcgdict>
