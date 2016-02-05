@@ -5,6 +5,7 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
+
 namespace l1t {
   CaloParamsHelper::CaloParamsHelper(const CaloParams p) : CaloParams(p) {
     if (pnode_.size() < NUM_CALOPARAMNODES){
@@ -12,6 +13,10 @@ namespace l1t {
       // at version 2, tauCompress was added, we can add a default version here if necessary...
     }
   };
+
+  std::ostream & operator<<(std::ostream &os, const l1t::CaloParamsHelper& p){
+    return os << "CaloParamsHelper...";
+  }
 
   int CaloParamsHelper::etSumEtaMin(unsigned isum) const {
     if (etSumEtaMin_.size()>isum) return etSumEtaMin_.at(isum);

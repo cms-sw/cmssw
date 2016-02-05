@@ -8,6 +8,9 @@ namespace l1t {
 
   class L1Candidate;
   typedef BXVector<L1Candidate> L1CandidateBxCollection;
+  typedef edm::Ref< L1CandidateBxCollection > L1CandidateRef ;
+  typedef edm::RefVector< L1CandidateBxCollection > L1CandidateRefVector ;
+  typedef std::vector< L1CandidateRef > L1CandidateVectorRef ;
 
 	// All L1 data formats which encode physically meaningful quantities inherit from Candidate
   class L1Candidate : public reco::LeafCandidate {

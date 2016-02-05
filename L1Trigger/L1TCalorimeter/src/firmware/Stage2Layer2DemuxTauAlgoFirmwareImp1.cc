@@ -61,6 +61,7 @@ void l1t::Stage2Layer2DemuxTauAlgoFirmwareImp1::processEvent(const std::vector<l
     }
 
     int hwEta_GT = (eta>0) ? closestPoint.first : - closestPoint.first;
+    double eta_GT = (eta>0) ? closestPoint.second : - closestPoint.second;
 
     minDistance = 99999.;
     closestPoint = make_pair(0,0.);
@@ -74,6 +75,7 @@ void l1t::Stage2Layer2DemuxTauAlgoFirmwareImp1::processEvent(const std::vector<l
     }
 
     int hwPhi_GT = closestPoint.first;
+    double phi_GT = closestPoint.second;
 
     tau.setHwEta(hwEta_GT);
     tau.setHwPhi(hwPhi_GT);
@@ -81,6 +83,9 @@ void l1t::Stage2Layer2DemuxTauAlgoFirmwareImp1::processEvent(const std::vector<l
     //9 bits threshold
     if(tau.hwPt()>511)
       tau.setHwPt(511);
+
+    math::PtEtaPhiMLorentzVector tauP4(tau.hwPt()*params_->egLsb(), eta_GT, phi_GT, 0.);
+    tau.setP4(tauP4);
 
   }
 

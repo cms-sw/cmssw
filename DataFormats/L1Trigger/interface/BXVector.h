@@ -14,6 +14,8 @@ class BXVector  {
 
   typedef typename std::vector< T >::iterator       iterator;
   typedef typename std::vector< T >::const_iterator const_iterator;
+  typedef T value_type;
+  typedef typename std::vector< T >::size_type      size_type;
 
  public:
 
@@ -87,6 +89,13 @@ class BXVector  {
 
   // check if data has empty location
   bool isEmpty(int bx) const;
+
+  // support looping over entire collection (note also that begin() is needed by edm::Ref)  
+  const_iterator begin() const {return data_.begin(); }
+  const_iterator end() const {return data_.end(); }
+  //int bx(const_iterator & iter) const; (potentially useful)
+  unsigned int key(const_iterator & iter) const { return iter - begin(); }
+
 
  private:
 
