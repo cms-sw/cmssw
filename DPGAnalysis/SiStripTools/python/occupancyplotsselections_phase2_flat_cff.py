@@ -3995,7 +3995,8 @@ OccupancyPlotsTIDWantedSubDetsp.extend(OccupancyPlotsTIDWantedSubDetsW3p)
 OccupancyPlotsTIDWantedSubDetsp.extend(OccupancyPlotsTIDWantedSubDetsW4p)
 OccupancyPlotsTIDWantedSubDetsp.extend(OccupancyPlotsTIDWantedSubDetsW5p)
 
-OccupancyPlotsTIDWantedSubDets = OccupancyPlotsTIDWantedSubDetsm
+OccupancyPlotsTIDWantedSubDets = cms.VPSet()
+OccupancyPlotsTIDWantedSubDets.extend(OccupancyPlotsTIDWantedSubDetsm)
 OccupancyPlotsTIDWantedSubDets.extend(OccupancyPlotsTIDWantedSubDetsp)
 
 #total
