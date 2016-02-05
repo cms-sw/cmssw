@@ -464,12 +464,12 @@ void testEventsetupRecord::proxyResetTest()
 
   unsigned long long cacheID = dummyRecord.cacheIdentifier();
   Dummy myDummy;
-  std::shared_ptr<WorkingDummyProxy> workingProxy( new WorkingDummyProxy(&myDummy) );
+  std::shared_ptr<WorkingDummyProxy> workingProxy = std::make_shared<WorkingDummyProxy>(&myDummy);
   
   const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(),
                                "");
 
-  std::shared_ptr<WorkingDummyProvider> wdProv( new WorkingDummyProvider(workingDataKey, workingProxy) );
+  std::shared_ptr<WorkingDummyProvider> wdProv = std::make_shared<WorkingDummyProvider>(workingDataKey, workingProxy);
   CPPUNIT_ASSERT(0 != wdProv.get());
   if(wdProv.get() == 0) return; // To silence Coverity
   prov->add( wdProv );
@@ -516,12 +516,12 @@ void testEventsetupRecord::transientTest()
    
    unsigned long long cacheID = dummyRecord.cacheIdentifier();
    Dummy myDummy;
-   std::shared_ptr<WorkingDummyProxy> workingProxy( new WorkingDummyProxy(&myDummy) );
+   std::shared_ptr<WorkingDummyProxy> workingProxy = std::make_shared<WorkingDummyProxy>(&myDummy);
    
    const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(),
                                 "");
    
-   std::shared_ptr<WorkingDummyProvider> wdProv( new WorkingDummyProvider(workingDataKey, workingProxy) );
+   std::shared_ptr<WorkingDummyProvider> wdProv = std::make_shared<WorkingDummyProvider>(workingDataKey, workingProxy);
    prov->add( wdProv );
    
    //this causes the proxies to actually be placed in the Record

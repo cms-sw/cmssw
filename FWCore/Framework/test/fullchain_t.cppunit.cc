@@ -43,10 +43,10 @@ void testfullChain::getfromDataproxyproviderTest()
 {
    eventsetup::EventSetupProvider provider;
 
-   std::shared_ptr<DataProxyProvider> pProxyProv(new DummyProxyProvider);
+   std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<DummyProxyProvider>();
    provider.add(pProxyProv);
    
-   std::shared_ptr<DummyFinder> pFinder(new DummyFinder);
+   std::shared_ptr<DummyFinder> pFinder = std::make_shared<DummyFinder>();
    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
    const Timestamp time_1(1);

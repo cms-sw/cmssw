@@ -1165,6 +1165,25 @@ class Modifier(object):
     else:
       temp =_ParameterModifier(kw)
       temp(obj)
+  def toReplaceWith(self,toObj,fromObj):
+    """If the Modifier is chosen the internals of toObj will be associated with the internals of fromObj
+    """
+    if type(fromObj) != type(toObj):
+        raise TypeError("toReplaceWith requires both arguments to be the same class type")
+    if isinstance(fromObj,_ModuleSequenceType):
+        toObj._seq = fromObj._seq
+    elif isinstance(fromObj,_Parameterizable):
+        #clear old items just incase fromObj is not a complete superset of toObj
+        for p in toObj.parameterNames_():
+            delattr(toObj,p)
+        for p in fromObj.parameterNames_():
+            setattr(toObj,p,getattr(fromObj,p))
+        if isinstance(fromObj,_TypedParameterizable):
+            toObj._TypedParameterizable__type = fromObj._TypedParameterizable__type
+            
+    else:
+        raise TypeError("toReplaceWith does not work with type "+str(type(toObj)))
+
   def _setChosen(self):
     """Should only be called by cms.Process instances"""
     self.__chosen = True
@@ -2007,5 +2026,17 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             (m1 & m2 & m3).toModify(p.a, fred = int32(2))
             self.assertEqual(p.a.fred, 2)
+            #check toReplaceWith
+            m1 = Modifier()
+            p = Process("test",m1)
+            p.a =EDAnalyzer("MyAnalyzer", fred = int32(1))
+            m1.toReplaceWith(p.a, EDAnalyzer("YourAnalyzer", wilma = int32(3)))
+            p.b =EDAnalyzer("BAn")
+            p.s = Sequence(p.a)
+            m1.toReplaceWith(p.s, Sequence(p.a+p.b))
+            self.assertEqual(p.a.wilma.value(),3)
+            self.assertEqual(p.a.type_(),"YourAnalyzer")
+            self.assertEqual(hasattr(p,"fred"),False)
+            self.assertEqual(p.s.dumpPython(""),"cms.Sequence(process.a+process.b)\n")
 
     unittest.main()

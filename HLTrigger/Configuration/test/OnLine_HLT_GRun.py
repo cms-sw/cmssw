@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/GRun/V5 (CMSSW_8_0_0_pre5)
+# /dev/CMSSW_8_0_0/GRun/V6 (CMSSW_8_0_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V5')
+  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V6')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -12560,10 +12560,10 @@ process.hltL2TauPixelIsoTagProducer = cms.EDProducer( "L2TauPixelIsoTagProducer"
     BeamSpotSrc = cms.InputTag( "hltOnlineBeamSpot" ),
     TrackMaxNChi2 = cms.double( 100.0 ),
     TrackMinNHits = cms.int32( 3 ),
-    TrackMinPt = cms.double( 1.2 ),
+    TrackMinPt = cms.double( 1.0 ),
     IsoConeMax = cms.double( 0.4 ),
     TrackPVMaxDZ = cms.double( 0.1 ),
-    IsoConeMin = cms.double( 0.2 ),
+    IsoConeMin = cms.double( 0.15 ),
     VertexSrc = cms.InputTag( "hltPixelVerticesReg" ),
     JetSrc = cms.InputTag( "hltL2TausForPixelIsolation" ),
     TrackMaxDxy = cms.double( 0.2 ),
@@ -12576,7 +12576,7 @@ process.hltL2TauIsoFilter = cms.EDFilter( "HLTCaloJetTag",
     TriggerType = cms.int32( 84 ),
     Jets = cms.InputTag( "hltL2TausForPixelIsolation" ),
     MinTag = cms.double( 0.0 ),
-    MaxTag = cms.double( 0.0 )
+    MaxTag = cms.double( 1.85 )
 )
 process.hltL2TauJetsIso = cms.EDProducer( "HLTCaloJetCollectionProducer",
     TriggerTypes = cms.vint32( 84 ),

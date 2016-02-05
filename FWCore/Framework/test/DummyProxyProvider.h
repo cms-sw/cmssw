@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include<memory>
 
 // user include files
 #include "FWCore/Framework/test/DummyRecord.h"
@@ -61,7 +62,7 @@ protected:
    void registerProxies(const eventsetup::EventSetupRecordKey&, KeyedProxies& iProxies) {
       //std::cout <<"registered proxy"<<std::endl;
       
-      std::shared_ptr<WorkingDummyProxy> pProxy(new WorkingDummyProxy(&dummy_));
+      std::shared_ptr<WorkingDummyProxy> pProxy = std::make_shared<WorkingDummyProxy>(&dummy_);
       insertProxy(iProxies, pProxy);
    }
    
