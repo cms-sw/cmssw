@@ -65,6 +65,12 @@ namespace L1Analysis
     hfhMult.clear();
     hfemMult.clear();
 
+    cemef.clear();	  
+    cmef.clear();	  
+    nemef.clear();	  
+    cMult.clear();
+    nMult.clear(); 
+
     }
 
     unsigned short nJets;
@@ -109,6 +115,12 @@ namespace L1Analysis
     std::vector<short> muMult;
     std::vector<short> hfhMult;
     std::vector<short> hfemMult;
+
+    std::vector<float> cemef;
+    std::vector<float> cmef;
+    std::vector<float> nemef;
+    std::vector<int>   cMult;
+    std::vector<int>   nMult; 
 
   };
 }

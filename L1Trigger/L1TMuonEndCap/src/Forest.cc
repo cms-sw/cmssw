@@ -21,7 +21,6 @@
 
 #include "TRandom3.h"
 #include "TStopwatch.h"
-#include "TROOT.h"
 #include "TTree.h"
 #include "TNtuple.h"
 #include "TFile.h"

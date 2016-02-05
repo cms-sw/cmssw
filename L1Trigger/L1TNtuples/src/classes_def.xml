@@ -13,6 +13,7 @@
 <class name="L1Analysis::L1AnalysisRecoMuonDataFormat"/>
 <class name="L1Analysis::L1AnalysisRecoRpcHitDataFormat"/>
 <class name="L1Analysis::L1AnalysisRecoJetDataFormat"/>
+<class name="L1Analysis::L1AnalysisRecoMetFilterDataFormat"/>
 <class name="L1Analysis::L1AnalysisRecoMetDataFormat"/>
 <class name="L1Analysis::L1AnalysisRecoClusterDataFormat"/>
 <class name="L1Analysis::L1AnalysisRecoVertexDataFormat"/>
