@@ -32,94 +32,94 @@ using namespace std;
 class correctionValue_class
 {
 public:
-	// values
-	float scale, scale_err, scale_err_syst;
-	float constTerm, constTerm_err;
-	float alpha, alpha_err;
-	float Emean, Emean_err;
-
-	correctionValue_class(void)
-	{
-		scale = 1;
-		scale_err = 0;
-		scale_err_syst=0;
-		constTerm = 0;
-		constTerm_err = 0;
-		alpha = 0;
-		alpha_err = 0;
-		Emean = 0;
-		Emean_err = 0;
-	};
-
-	friend std::ostream& operator << (std::ostream& os, const correctionValue_class a)
-	{
-		os <<  "( "
-		   << a.scale << " +/- " << a.scale_err << " +/- " << a.scale_err_syst << ")" 
-		   <<  "\t"
-		   << a.constTerm << " +/- " << a.constTerm_err 
-		   <<  "\t"
-		   << a.alpha << " +/- " << a.alpha_err
-		   <<  "\t"
-		   << a.Emean << " +/- " << a.Emean_err;
-		return os;
-	};
+  // values
+  float scale, scale_err, scale_err_syst;
+  float constTerm, constTerm_err;
+  float alpha, alpha_err;
+  float Emean, Emean_err;
+  
+  correctionValue_class(void)
+  {
+    scale = 1;
+    scale_err = 0;
+    scale_err_syst=0;
+    constTerm = 0;
+    constTerm_err = 0;
+    alpha = 0;
+    alpha_err = 0;
+    Emean = 0;
+    Emean_err = 0;
+  };
+  
+  friend std::ostream& operator << (std::ostream& os, const correctionValue_class a)
+  {
+    os <<  "( "
+       << a.scale << " +/- " << a.scale_err << " +/- " << a.scale_err_syst << ")" 
+       <<  "\t"
+       << a.constTerm << " +/- " << a.constTerm_err 
+       <<  "\t"
+       << a.alpha << " +/- " << a.alpha_err
+       <<  "\t"
+       << a.Emean << " +/- " << a.Emean_err;
+    return os;
+  };
 };
 
 //============================== Second auxiliary class
 class correctionCategory_class
 {
-	// for class definition and ordering
+  // for class definition and ordering
 public:
-	unsigned int runmin;
-	unsigned int runmax;
-
+  unsigned int runmin;
+  unsigned int runmax;
+  
 private:
-	// definition of the variables used for binning and the min-max ranges
-	float r9min;  ///< min R9 vaule for the bin
-	float r9max;  ///< max R9 value for the bin
-	float etmin;  ///< min Et value for the bin
-	float etmax;  ///< max Et value for the bin
-	float etamin; ///< min eta value for the bin
-	float etamax; ///< max eta value for the bin
-
-
+  // definition of the variables used for binning and the min-max ranges
+  float r9min;  ///< min R9 vaule for the bin
+  float r9max;  ///< max R9 value for the bin
+  float etmin;  ///< min Et value for the bin
+  float etmax;  ///< max Et value for the bin
+  float etamin; ///< min eta value for the bin
+  float etamax; ///< max eta value for the bin
+  
+  
 public:
-	/** there are two constructors:
-		- the first using the values taken from the e/gamma object
-		- the second used to define the categories and the correction values
-	 */
-
-	/** This constructor uses a string to define the category
-		The string is used in the .dat file where the corrections are defined
-		The syntax of the strings follows the definitions in the ECALELF ElectronCategory_class: http://ecalelfs.github.io/ECALELF/d5/d11/classElectronCategory__class.html
-	 */
-	correctionCategory_class(TString category_); ///< constructor with name of the category according to ElectronCategory_class
-
-	/// this constructor is used to assign a category to the electron/photon given values in input
-	inline  correctionCategory_class(const unsigned int runNumber, const float etaEle, const float R9Ele, const float EtEle)
-	{
-		runmin = runNumber;
-		runmax = runNumber;
-		etamin = fabs(etaEle);
-		etamax = fabs(etaEle);
-		r9min = R9Ele;
-		r9max = R9Ele;
-		etmin = EtEle;
-		etmax = EtEle;
-	}
-
-	/// for ordering of the categories
-	bool operator<(const correctionCategory_class& b) const;
-
-	/// for DEBUG
-	friend std::ostream& operator << (std::ostream& os, const correctionCategory_class a)
-	{
-		os <<  a.runmin << " " << a.runmax
-		   << "\t" << a.etamin << " " << a.etamax
-		   << "\t" << a.r9min << " " << a.r9max
-		   << "\t" << a.etmin << " " << a.etmax;
-		return os;
-	};
+  /** there are two constructors:
+      - the first using the values taken from the e/gamma object
+      - the second used to define the categories and the correction values
+  */
+  
+  /** This constructor uses a string to define the category
+      The string is used in the .dat file where the corrections are defined
+      The syntax of the strings follows the definitions in the ECALELF ElectronCategory_class: http://ecalelfs.github.io/ECALELF/d5/d11/classElectronCategory__class.html
+  */
+  correctionCategory_class(TString category_); ///< constructor with name of the category according to ElectronCategory_class
+  
+  /// this constructor is used to assign a category to the electron/photon given values in input
+  inline  correctionCategory_class(const unsigned int runNumber, const float etaEle, const float R9Ele, const float EtEle)
+  {
+    runmin = runNumber;
+    runmax = runNumber;
+    etamin = fabs(etaEle);
+    etamax = fabs(etaEle);
+    r9min = R9Ele;
+    r9max = R9Ele;
+    etmin = EtEle;
+    etmax = EtEle;
+  }
+  
+  /// for ordering of the categories
+  bool operator<(const correctionCategory_class& b) const;
+  
+  /// for DEBUG
+  friend std::ostream& operator << (std::ostream& os, const correctionCategory_class a)
+  {
+    os <<  a.runmin << " " << a.runmax
+       << "\t" << a.etamin << " " << a.etamax
+       << "\t" << a.r9min << " " << a.r9max
+       << "\t" << a.etmin << " " << a.etmax;
+    return os;
+  };
 };
 
 
@@ -132,23 +132,22 @@ typedef std::map < correctionCategory_class, correctionValue_class > correction_
 //============================== Main class
 class EnergyScaleCorrection_class
 {
-
-enum fileFormat_t {
-	UNKNOWN=0,
-	GLOBE,
-	ECALELF_TOY,
-	ECALELF
-};
-
+  
+  enum fileFormat_t {
+    UNKNOWN=0,
+    GLOBE,
+    ECALELF_TOY,
+    ECALELF
+  };
+  
 public:
-	bool doScale, doSmearings;
-
+  bool doScale, doSmearings;
+  
 public:
-	EnergyScaleCorrection_class(TString correctionFileName,
-	                            TString smearingFileName = "", unsigned int genSeed=0); ///< constructor with correction file names
-	EnergyScaleCorrection_class(){}; ///< dummy constructor needed in ElectronEnergyCalibratorRun2
-	~EnergyScaleCorrection_class(void);
-
+  EnergyScaleCorrection_class(std::string correctionFileName, unsigned int genSeed=0);
+  EnergyScaleCorrection_class(){}; ///< dummy constructor needed in ElectronEnergyCalibratorRun2
+  ~EnergyScaleCorrection_class(void);
+  
 
 //------------------------------ scales
 	float ScaleCorrection(unsigned int runNumber, bool isEBEle, double R9Ele, double etaSCEle,

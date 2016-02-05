@@ -14,7 +14,7 @@ class PhotonEnergyCalibratorRun2 {
   PhotonEnergyCalibratorRun2() {}
   
   // further configuration will be added when we will learn how it will work
-  PhotonEnergyCalibratorRun2(bool isMC, bool synchronization, std::vector<double> smearings, std::vector<double> scales, std::string scalesFile, std::string smearingsFile) ;
+  PhotonEnergyCalibratorRun2(bool isMC, bool synchronization, std::string correctionFile);
 
   ~PhotonEnergyCalibratorRun2() ;
   

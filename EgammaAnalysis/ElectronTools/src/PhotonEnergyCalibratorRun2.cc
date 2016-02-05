@@ -5,15 +5,11 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 PhotonEnergyCalibratorRun2::PhotonEnergyCalibratorRun2(bool isMC, bool synchronization, 
-													   std::vector<double> smearings, std::vector<double> scales,
-													   std::string scalesFile,
-													   std::string smearingsFile
-	) :
+						       std::string correctionFile
+						       ) :
   isMC_(isMC), synchronization_(synchronization),
   rng_(0),
-  smearings_(smearings),
-  scales_(scales),
-  _correctionRetriever(scalesFile, smearingsFile) // here is opening the files and reading thecorrections
+  _correctionRetriever(correctionFile) // here is opening the files and reading thecorrections
 {}
 
 PhotonEnergyCalibratorRun2::~PhotonEnergyCalibratorRun2()
