@@ -189,7 +189,7 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
     float clustMatrix[mrow][mcol];
     memset(clustMatrix,0,sizeof(float)*mrow*mcol);
 
-  // Copy clust's pixels (calibrated in electrons) into clust_array_2d;
+  // Copy clust's pixels (calibrated in electrons) into clusMatrix;
    for (int i=0 ; i!=theClusterParam.theCluster->size(); ++i ) 
     {
       auto pix = theClusterParam.theCluster->pixel(i);
@@ -198,15 +198,13 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
       
       // Gavril : what do we do here if the row/column is larger than cluster_matrix_size_x/cluster_matrix_size_y  ?
       // Ignore them for the moment...
-      if ( (irow<mrow) & (icol<mcol) )
-	// 02/13/2008 ggiurgiu@fnal.gov typecast adc to float
-        clustMatrix[irow][icol] =  float(pix.adc);
-      }
+      if ( (irow<mrow) & (icol<mcol) ) clustMatrix[irow][icol] =  float(pix.adc);
+     
     }
   
 
   // Make and fill the bool arrays flagging double pixels
-  bool ydouble[mrow], xdouble[mcol];
+  bool xdouble[mrow], ydouble[mcol];
   // x directions (shorter), rows
   for (int irow = 0; irow < mrow; ++irow)
       xdouble[irow] = theDetParam.theRecTopol->isItBigPixelInX( irow+row_offset );
