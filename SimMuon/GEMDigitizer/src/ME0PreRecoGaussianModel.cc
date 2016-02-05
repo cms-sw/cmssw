@@ -14,7 +14,6 @@
 #include <map>
 
 
-const double cspeed = 29.9792458; // [cm/ns]
 const int bxwidth   = 25;         // [ns]
 
 ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config) :
@@ -83,13 +82,12 @@ void ME0PreRecoGaussianModel::simulateSignal(const ME0EtaPartition* roll, const 
     int pdgid = hit.particleType();
     ME0DigiPreReco digi(x, y, ex, ey, corr, tof, pdgid, 1);
     digi_.insert(digi);
-
     edm::LogVerbatim("ME0PreRecoGaussianModel") << "[ME0PreRecoDigi :: simulateSignal] :: simhit in "<<roll->id()<<" at loc x = "<<std::setw(8)<<entry.x()<<" [cm]"
-                                                << " loc y = "<<std::setw(8)<<entry.y()<<" [cm] time = "<<std::setw(8)<<hit.timeOfFlight()<<" [ns] pdgid = "<<std::showpos<<std::setw(4)<<pdgid;
+						<< " loc y = "<<std::setw(8)<<entry.y()<<" [cm] time = "<<std::setw(8)<<hit.timeOfFlight()<<" [ns] pdgid = "<<std::showpos<<std::setw(4)<<pdgid;
     edm::LogVerbatim("ME0PreRecoGaussianModel") << "[ME0PreRecoDigi :: simulateSignal] :: digi   in "<<roll->id()<<" at loc x = "<<std::setw(8)<<x<<" [cm] loc y = "<<std::setw(8)<<y<<" [cm]"
-                                                <<" time = "<<std::setw(8)<<tof<<" [ns]";
+						<<" time = "<<std::setw(8)<<tof<<" [ns]";
     edm::LogVerbatim("ME0PreRecoGaussianModel") << "[ME0PreRecoDigi :: simulateSignal] :: digi   in "<<roll->id()<<" with DX = "<<std::setw(8)<<(entry.x()-x)<<" [cm]"
-                                                <<" DY = "<<std::setw(8)<<(entry.y()-y)<<" [cm] DT = "<<std::setw(8)<<(hit.timeOfFlight()-tof)<<" [ns]";
+						<<" DY = "<<std::setw(8)<<(entry.y()-y)<<" [cm] DT = "<<std::setw(8)<<(hit.timeOfFlight()-tof)<<" [ns]";
 
   }
 }
@@ -110,55 +108,88 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
   double rollRadius = top_->radius();
   trArea = height * (topLength + bottomLength) / 2.0;
 
-  edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: simulateNoise] :: extracting parameters from the TrapezoidalStripTopology";
-  edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: simulateNoise] :: bottom = "<<bottomLength<<" [cm] top  = "<<topLength<<" [cm] height = "<<height
-						   <<" [cm] radius = "<<rollRadius<<" [cm]" ;
+  // Divide the detector area in different strips
+  // take smearing in y-coord as height for each strip
+  double heightIt = sigma_v;
+  int heightbins  = height/heightIt; // round down
 
-  // simulate intrinsic noise and background hits in all BX that are being read out
-  for(int bx=minBunch_; bx<maxBunch_+1; ++bx) {
+  edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: sNoise]["<<roll->id().rawId()<<"] :: roll with id = "<<roll->id();
+  edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: sNoise]["<<roll->id().rawId()<<"] :: extracting parameters from the TrapezoidalStripTopology";
+  edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: sNoise]["<<roll->id().rawId()<<"] :: bottom = "<<bottomLength<<" [cm] top  = "<<topLength<<" [cm] height = "<<height<<" [cm]"
+						   <<" area  = "<<trArea<<" [cm^2] Rmid = "<<rollRadius<<" [cm] => Rmin = "<<rollRadius-height*1.0/2.0<<" [cm] Rmax = "<<rollRadius+height*1.0/2.0<<" [cm]";
+  edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: sNoise]["<<roll->id().rawId()<<"] :: heightbins = "<<heightbins;
+
+
+  for(int hx=0; hx<heightbins; ++hx) {
+    double bottomIt = bottomLength +  hx  *2*tan(10./180*3.14)*heightIt;
+    double topIt    = bottomLength + (hx+1)*2*tan(10./180*3.14)*heightIt; 
+    if(hx==heightbins-1) {
+      topIt = topLength; // last bin ... make strip a bit larger to cover entire roll
+      heightIt = height-hx*heightIt;
+    }
+    double areaIt   = heightIt*(bottomIt+topIt)*1.0/2;
+
+    edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: sNoise]["<<roll->id().rawId()<<"] :: height = "<<std::setw(12)<<heightIt<<" [cm] bottom = "<<std::setw(12)<<bottomIt<<" [cm]"
+						     << " top = "<<std::setw(12)<<topIt<<" [cm] area = "<<std::setw(12)<<areaIt<<" [cm^2] || sin(10) = "<<sin(10./180*3.14);
+
+    double myRandY = flat1_->fire(0., 1.);
+    double y0_rand = (hx+myRandY)*heightIt;  // Y coord, measured from the bottom of the roll
+    double yy_rand = (y0_rand-height*1.0/2); // Y coord, measured from the middle of the roll, which is the Y coord in Local Coords
+    double yy_glob = rollRadius + yy_rand;   // R coord in Global Coords
+    // max length in x for given y coordinate (cfr trapezoidal eta partition)
+    double xMax = topLength/2.0 - (height/2.0 - yy_rand) * myTanPhi;
+
+    // simulate intrinsic noise and background hits in all BX that are being read out
+    // for(int bx=minBunch_; bx<maxBunch_+1; ++bx) {
 
     // 1) Intrinsic Noise ... Not implemented right now
     // ------------------------------------------------
     // if (simulateIntrinsicNoise_)
     // {
     // }
-
+    
     // 2) Background Noise 
     // ----------------------------
- 
+    
     // 2a) electron background
     // -----------------------
-    if (simulateElectronBkg_) {
-
-      double myRandY = flat2_->fire(0., 1.);
-      double yy_rand = height * (myRandY - 0.5); // random Y coord in Local Coords
-      double yy_glob = rollRadius + yy_rand;     // random Y coord in Global Coords
-
+    if (simulateElectronBkg_) {	
       // Extract / Calculate the Average Electron Rate 
       // for the given global Y coord from Parametrization
       double averageElectronRatePerRoll = 0.0;
       double yy_helper = 1.0;
       for(int j=0; j<7; ++j) { averageElectronRatePerRoll += eleBkg[j]*yy_helper; yy_helper *= yy_glob; }
-
-      // Rate [Hz/cm^2] * 25*10^-9 [s] * Area [cm] = # hits in this roll 
-      const double averageElecRate(averageElectronRatePerRoll * (bxwidth*1.0e-9) * trArea); 
-      int n_elechits(poisson_->fire(averageElecRate));
-
-      edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: simulateNoise :: ele bkg] :: myRandY = "<<std::setw(12)<<myRandY<<" => local y = "<<std::setw(12)<<yy_rand<<" [cm]"
-                                                       <<" => global y (global R) = "<<std::setw(12)<<yy_glob<<" [cm] || Probability = "<<std::setw(12)<<averageElecRate
-                                                       <<" => efficient? "<<n_elechits<<std::endl;
-
-      // max length in x for given y coordinate (cfr trapezoidal eta partition)
-      double xMax = topLength/2.0 - (height/2.0 - yy_rand) * myTanPhi;
-
-      // loop over amount of electron hits in this roll
-      for (int i = 0; i < n_elechits; ++i) {
+      
+      // Rate [Hz/cm^2] * Nbx * 25*10^-9 [s] * Area [cm] = # hits in this roll in this bx
+      const double averageElecRate(averageElectronRatePerRoll * (maxBunch_-minBunch_+1)*(bxwidth*1.0e-9) * areaIt); 
+      
+      edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: elebkg]["<<roll->id().rawId()<<"]" /* "] :: BX = "<<std::showpos<<bx*/
+						       << " evaluation of Background Hit Rate at this coord :: "<<std::setw(12)<<averageElectronRatePerRoll<<" [Hz/cm^2]"
+						       << " x 9 x 25*10^-9 [s] x Area (of strip = "<<std::setw(12)<<areaIt<<" [cm^2]) ==> "<<std::setw(12)<<averageElecRate<<" [hits]"; 
+      
+      // int n_elechits(poisson_->fire(averageElecRate));
+      // to be fixed ... averageElecRate should be normalized ...
+      // what if averageElecRate > 1?
+      // what if max averageElecRate < 1 
+      // ...
+      bool ele_eff = (flat1_->fire(0., 1.)<averageElecRate)?1:0;      
+      
+      edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: elebkg]["<<roll->id().rawId()<<"] :: myRandY = "<<std::setw(12)<<myRandY<<" => local y = "<<std::setw(12)<<yy_rand<<" [cm]"
+						       <<" => global y (global R) = "<<std::setw(12)<<yy_glob<<" [cm] || Probability = "<<std::setw(12)<<averageElecRate
+						       <<" => efficient? "<<ele_eff<<std::endl;
+      
+      // loop over amount of electron hits in this strip (pseudo-roll) 
+      // for (int i = 0; i < n_elechits; ++i) {
+      if(ele_eff) {
 	//calculate xx_rand at a given yy_rand
 	double myRandX = flat1_->fire(0., 1.);
 	double xx_rand = 2 * xMax * (myRandX - 0.5);
 	double ex = sigma_u;
 	double ey = sigma_v;
 	double corr = 0.;
+	// extract random BX
+	double myrandBX = flat1_->fire(0., 1.);
+	int bx = int((maxBunch_-minBunch_+1)*myrandBX)+minBunch_;
 	// extract random time in this BX
 	double myrandT = flat1_->fire(0., 1.);
 	double minBXtime = (bx-0.5)*bxwidth;      // double maxBXtime = (bx+0.5)*bxwidth;
@@ -169,63 +200,65 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
 	else 	            pdgid = 11;  // positron
 	ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid, 0);
 	digi_.insert(digi);
-
-	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: simulateNoise :: ele bkg] :: electron hit in "<<roll->id()<<" pdgid = "<<pdgid<<" bx = "<<bx
-                                                         <<" ==> digitized at loc x = "<<xx_rand<<" loc y = "<<yy_rand<<" time = "<<time<<" [ns]";
-
+	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: elebkg]["<<roll->id().rawId()<<"] =====> electron hit in "<<roll->id()<<" pdgid = "<<pdgid<<" bx = "<<bx
+							 <<" ==> digitized"
+							 <<" at loc x = "<<xx_rand<<" loc y = "<<yy_rand<<" time = "<<time<<" [ns]"; 
       }
-    }
-
+    } // end if electron bkg
+		      
     // 2b) neutral (n+g) background
     // ----------------------------
     if (simulateNeutralBkg_) {
-
-      double myRandY = flat2_->fire(0., 1.);
-      double yy_rand = height * (myRandY - 0.5); // random Y coord in Local Coords
-      double yy_glob = rollRadius + yy_rand;    // random Y coord in Global Coords
-
       // Extract / Calculate the Average Electron Rate 
       // for the given global Y coord from Parametrization
       double averageNeutralRatePerRoll = 0.0;
       double yy_helper = 1.0;
       for(int j=0; j<7; ++j) { averageNeutralRatePerRoll += neuBkg[j]*yy_helper; yy_helper *= yy_glob; }
+      
+      // Rate [Hz/cm^2] * Nbx * 25*10^-9 [s] * Area [cm] = # hits in this roll
+      const double averageNeutrRate(averageNeutralRatePerRoll * (maxBunch_-minBunch_+1)*(bxwidth*1.0e-9) * areaIt);
 
-      // Rate [Hz/cm^2] * 25*10^-9 [s] * Area [cm] = # hits in this roll
-      const double averageNeutrRate(averageNeutralRatePerRoll * (bxwidth*1.0e-9) * trArea);
-      int n_hits(poisson_->fire(averageNeutrRate));
+      edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: neubkg]["<<roll->id().rawId()<<"]" /* "] :: BX = "<<std::showpos<<bx*/
+						       << " evaluation of Background Hit Rate at this coord :: "<<std::setw(12)<<averageNeutralRatePerRoll<<" [Hz/cm^2]"
+						       << " x 9 x 25*10^-9 [s] x Area (of strip = "<<std::setw(12)<<areaIt<<" [cm^2]) ==> "<<std::setw(12)<<averageNeutrRate<<" [hits]"; 
 
-      edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: simulateNoise :: neu bkg] :: myRandY = "<<std::setw(12)<<myRandY<<" => local y = "<<std::setw(12)<<yy_rand<<" [cm]"
-                                                       <<" => global y (global R) = "<<std::setw(12)<<yy_glob<<" [cm] || Probability "<<std::setw(12)<<averageNeutrRate
-                                                       <<" => efficient? "<<n_hits<<std::endl;
+      // int n_hits(poisson_->fire(averageNeutrRate));
+      bool neu_eff = (flat1_->fire(0., 1.)<averageNeutrRate)?1:0;
 
-      // max length in x for given y coordinate (cfr trapezoidal eta partition)
-      double xMax = topLength/2.0 - (height/2.0 - yy_rand) * myTanPhi;
-
+      edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: neubkg]["<<roll->id().rawId()<<"] :: myRandY = "<<std::setw(12)<<myRandY<<" => local y = "<<std::setw(12)<<yy_rand<<" [cm]"
+						       <<" => global y (global R) = "<<std::setw(12)<<yy_glob<<" [cm] || Probability = "<<std::setw(12)<<averageNeutrRate
+      <<" => efficient? "<</*n_hits*/neu_eff<<std::endl;
+      
       // loop over amount of neutral hits in this roll
-      for (int i = 0; i < n_hits; ++i) {
+      // for (int i = 0; i < n_hits; ++i) {
+      if(neu_eff) {
 	//calculate xx_rand at a given yy_rand
 	double myRandX = flat1_->fire(0., 1.);
 	double xx_rand = 2 * xMax * (myRandX - 0.5);
 	double ex = sigma_u;
 	double ey = sigma_v;
 	double corr = 0.;
+	// extract random BX
+        double myrandBX= flat1_->fire(0., 1.);
+	int bx = int((maxBunch_-minBunch_+1)*myrandBX)+minBunch_;
 	// extract random time in this BX
-        double myrandT = flat1_->fire(0., 1.);
-        double minBXtime = (bx-0.5)*bxwidth;
+	double myrandT = flat1_->fire(0., 1.);
+	double minBXtime = (bx-0.5)*bxwidth;
 	double time = myrandT*bxwidth+minBXtime;
 	int pdgid = 0;
-        double myrandP = flat1_->fire(0., 1.);
-        if (myrandP <= 0.08) pdgid = 2112; // neutrons: GEM sensitivity for neutrons: 0.08%
-        else                 pdgid = 22;   // photons:  GEM sensitivity for photons:  1.04% ==> neutron fraction = (0.08 / 1.04) = 0.077 = 0.08
-        ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid, 0);
-        digi_.insert(digi);
-
-	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: simulateNoise :: neu bkg] :: neutral hit in "<<roll->id()<<" pdgid = "<<pdgid<<" bx = "<<bx
-                                                         <<" ==> digitized at loc x = "<<xx_rand<<" loc y = "<<yy_rand<<" time = "<<time<<" [ns]";
-
+	double myrandP = flat1_->fire(0., 1.);
+	if (myrandP <= 0.08) pdgid = 2112; // neutrons: GEM sensitivity for neutrons: 0.08%
+	else                 pdgid = 22;   // photons:  GEM sensitivity for photons:  1.04% ==> neutron fraction = (0.08 / 1.04) = 0.077 = 0.08
+	ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid, 0);
+	digi_.insert(digi);
+	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: neubkg]["<<roll->id().rawId()<<"] ======> neutral hit in "<<roll->id()<<" pdgid = "<<pdgid<<" bx = "<<bx
+							 <<" ==> digitized"
+							 <<" at loc x = "<<xx_rand<<" loc y = "<<yy_rand<<" time = "<<time<<" [ns]"; 
       }
-    }
-
-  } // end loop over bx
+      
+    } // end if neutral bkg
+    
+  // } // end loop over bx
+  } // end loop over strips (= pseudo rolls)
 }
 
