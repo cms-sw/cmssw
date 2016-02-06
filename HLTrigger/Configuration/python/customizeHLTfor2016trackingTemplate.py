@@ -683,8 +683,7 @@ def new_selector(process):
 def customiseFor2016trackingTemplate(process):
     process = bug_fix(process)
     process = new_selector(process)
-    new_selector(process)
-    
+
     process = CCC(process)
     process = speedup_building(process)
     process = speedup_filtering(process)
