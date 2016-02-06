@@ -1,9 +1,11 @@
 <use name="FWCore/Framework"/>
 <use name="DataFormats/FEDRawData"/>
 <use name="DataFormats/L1Trigger"/>
+<use name="DataFormats/L1TMuon"/>
 <use name="DataFormats/L1TCalorimeter"/>
 <use name="L1Trigger/L1TCalorimeter"/>
 <use name="L1Trigger/L1TGlobal"/>
+<use name="L1Trigger/L1TMuon"/>
 <export>
   <lib name="1"/>
 </export>

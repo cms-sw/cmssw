@@ -1,6 +1,7 @@
 #ifndef DataFormats_L1Trigger_Muon_h
 #define DataFormats_L1Trigger_Muon_h
 
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 
@@ -8,6 +9,9 @@ namespace l1t {
 
   class Muon;
   typedef BXVector<Muon> MuonBxCollection;
+  typedef edm::Ref< MuonBxCollection > MuonRef ;
+  typedef edm::RefVector< MuonBxCollection > MuonRefVector ;
+  typedef std::vector< MuonRef > MuonVectorRef ;
 
   class Muon : public L1Candidate {
     

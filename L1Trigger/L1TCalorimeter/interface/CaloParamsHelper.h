@@ -3,6 +3,8 @@
 //
 // Wrapper class for CaloParams and Et scales
 
+#include <iostream>
+
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
@@ -34,6 +36,8 @@ namespace l1t {
     CaloParamsHelper() { pnode_.resize(NUM_CALOPARAMNODES); }
     CaloParamsHelper(const CaloParams);
     ~CaloParamsHelper() {}
+    
+
 
     bool isValidForStage1() {return 1; } 
     bool isValidForStage2() {return (version_ >= 2); }
@@ -307,8 +311,13 @@ namespace l1t {
     L1CaloEtScale jetScale_;
     L1CaloEtScale HtMissScale_;
     L1CaloEtScale HfRingScale_;
-
+    friend std::ostream & operator<<(std::ostream &os, const CaloParamsHelper& h);
   };
+
+  std::ostream & operator<<(std::ostream &os, const l1t::CaloParamsHelper& p);
+  
 }
+
+
 
 #endif
