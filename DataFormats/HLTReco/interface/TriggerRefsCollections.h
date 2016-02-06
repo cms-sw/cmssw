@@ -47,10 +47,14 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageDrop.h"
+
 #include <cassert>
 #include <vector>
 
 #include<typeinfo>
+#include<iostream>
 
 namespace trigger
 {
@@ -367,19 +371,31 @@ namespace trigger
       return l1etmissIds_.size();
     }
     size_type addObjects (const Vids& ids, const VRl1tmuon& refs) {
+      LogTrace("TriggerRefsCollections") << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tmuon& refs):" << std::endl;
+      LogTrace("TriggerRefsCollections") << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
+      std::cout << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tmuon& refs):" << std::endl;
+      std::cout << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
       assert(ids.size()==refs.size());
       l1tmuonIds_.insert(l1tmuonIds_.end(),ids.begin(),ids.end());
       l1tmuonRefs_.insert(l1tmuonRefs_.end(),refs.begin(),refs.end());
       return l1tmuonIds_.size();
     }
     size_type addObjects (const Vids& ids, const VRl1tegamma& refs) {
-      assert(ids.size()==refs.size());
+      LogTrace("TriggerRefsCollections") << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tegamma& refs):" << std::endl;
+      LogTrace("TriggerRefsCollections") << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
+      std::cout << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tegamma& refs):" << std::endl;
+      std::cout << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
+      //assert(ids.size()==refs.size());
       l1tegammaIds_.insert(l1tegammaIds_.end(),ids.begin(),ids.end());
       l1tegammaRefs_.insert(l1tegammaRefs_.end(),refs.begin(),refs.end());
       return l1tegammaIds_.size();
     }
     size_type addObjects (const Vids& ids, const VRl1tjet& refs) {
-      assert(ids.size()==refs.size());
+      LogTrace("TriggerRefsCollections") << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tjet& refs):" << std::endl;
+      LogTrace("TriggerRefsCollections") << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
+      std::cout << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tjet& refs):" << std::endl;
+      std::cout << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
+      //assert(ids.size()==refs.size());
       l1tjetIds_.insert(l1tjetIds_.end(),ids.begin(),ids.end());
       l1tjetRefs_.insert(l1tjetRefs_.end(),refs.begin(),refs.end());
       return l1tjetIds_.size();
@@ -838,6 +854,23 @@ namespace trigger
       }
       return;
     }
+
+    void getObjects(Vids& ids, VRl1tmuon& refs) const {
+      getObjects(ids,refs,0,l1tmuonIds_.size());
+    }
+    void getObjects(Vids& ids, VRl1tmuon& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1tmuonIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=l1tmuonIds_[i];
+	refs[j]=l1tmuonRefs_[i];
+	++j;
+      }
+    }
     void getObjects(int id, VRl1tmuon& refs) const {
       getObjects(id,refs,0,l1tmuonIds_.size());
     } 
@@ -852,6 +885,23 @@ namespace trigger
 	if (id==l1tmuonIds_[i]) {refs[j]=l1tmuonRefs_[i]; ++j;}
       }
       return;
+    }
+
+    void getObjects(Vids& ids, VRl1tegamma& refs) const {
+      getObjects(ids,refs,0,l1tegammaIds_.size());
+    }
+    void getObjects(Vids& ids, VRl1tegamma& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1tegammaIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=l1tegammaIds_[i];
+	refs[j]=l1tegammaRefs_[i];
+	++j;
+      }
     }
     void getObjects(int id, VRl1tegamma& refs) const {
       getObjects(id,refs,0,l1tegammaIds_.size());
@@ -868,6 +918,23 @@ namespace trigger
       }
       return;
     }
+
+    void getObjects(Vids& ids, VRl1tjet& refs) const {
+      getObjects(ids,refs,0,l1tjetIds_.size());
+    }
+    void getObjects(Vids& ids, VRl1tjet& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1tjetIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=l1tjetIds_[i];
+	refs[j]=l1tjetRefs_[i];
+	++j;
+      }
+    }
     void getObjects(int id, VRl1tjet& refs) const {
       getObjects(id,refs,0,l1tjetIds_.size());
     } 
@@ -882,6 +949,23 @@ namespace trigger
 	if (id==l1tjetIds_[i]) {refs[j]=l1tjetRefs_[i]; ++j;}
       }
       return;
+    }
+
+    void getObjects(Vids& ids, VRl1ttau& refs) const {
+      getObjects(ids,refs,0,l1ttauIds_.size());
+    }
+    void getObjects(Vids& ids, VRl1ttau& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1ttauIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=l1ttauIds_[i];
+	refs[j]=l1ttauRefs_[i];
+	++j;
+      }
     }
     void getObjects(int id, VRl1ttau& refs) const {
       getObjects(id,refs,0,l1ttauIds_.size());
@@ -898,6 +982,23 @@ namespace trigger
       }
       return;
     }
+
+    void getObjects(Vids& ids, VRl1tetsum& refs) const {
+      getObjects(ids,refs,0,l1tetsumIds_.size());
+    }
+    void getObjects(Vids& ids, VRl1tetsum& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1tetsumIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=l1tetsumIds_[i];
+	refs[j]=l1tetsumRefs_[i];
+	++j;
+      }
+    }
     void getObjects(int id, VRl1tetsum& refs) const {
       getObjects(id,refs,0,l1tetsumIds_.size());
     } 
@@ -913,6 +1014,7 @@ namespace trigger
       }
       return;
     }
+
     void getObjects(Vids& ids, VRpfjet& refs) const {
       getObjects(ids,refs,0,pfjetIds_.size());
     }
@@ -1088,7 +1190,7 @@ namespace trigger
 
     size_type          l1ttauSize()     const {return l1ttauIds_.size();}
     const Vids&        l1ttauIds()      const {return l1ttauIds_;}
-    const VRl1ttau&     l1ttauRefs()     const {return l1ttauRefs_;}
+    const VRl1ttau&    l1ttauRefs()     const {return l1ttauRefs_;}
 
     size_type          l1tetsumSize()  const {return l1tetsumIds_.size();}
     const Vids&        l1tetsumIds()   const {return l1tetsumIds_;}
