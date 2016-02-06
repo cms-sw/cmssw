@@ -48,6 +48,8 @@ class L1GtBoardMaps;
 class L1GtPrescaleFactors;
 class L1GtTriggerMask;
 
+class TriggerMenu;
+
 // class declaration
 
 namespace l1t {
@@ -75,6 +77,10 @@ private:
     /// stable parameters
     const GlobalStableParameters* m_l1GtStablePar;
     unsigned long long m_l1GtStableParCacheID;
+
+    // trigger menu
+    const TriggerMenu* m_l1GtMenu;
+    unsigned long long m_l1GtMenuCacheID;
 
     /// number of physics triggers
     unsigned int m_numberPhysTriggers;
@@ -163,6 +169,10 @@ private:
     edm::EDGetTokenT<BXVector<l1t::Tau>> m_tauInputToken;
     edm::EDGetTokenT<BXVector<l1t::Jet>> m_jetInputToken;
     edm::EDGetTokenT<BXVector<l1t::EtSum>> m_sumInputToken;
+
+    /// input tag for external conditions
+    edm::InputTag m_extInputTag;
+    edm::EDGetTokenT<BXVector<GlobalExtBlk>> m_extInputToken;
 
     /// logical flag to produce the L1 GT DAQ readout record
     bool m_produceL1GtDaqRecord;

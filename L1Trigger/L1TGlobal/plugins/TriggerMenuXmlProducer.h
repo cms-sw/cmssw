@@ -61,6 +61,8 @@ private:
 
     /// XML file for Global Trigger menu (def.xml)
     std::string m_defXmlFile;
+    //std::string m_tstXmlFile;
+    bool m_newXMLGrammar;
 
     /// XML file for Global Trigger VME configuration (vme.xml)
     std::string m_vmeXmlFile;

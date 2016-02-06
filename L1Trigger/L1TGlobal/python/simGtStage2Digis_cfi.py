@@ -1,3 +1,8 @@
+#
+# WARNING: This file is in the L1T configuration critical path.
+#
+# All changes must be explicitly discussed with the L1T offline coordinator.
+#
 import FWCore.ParameterSet.Config as cms
 
 # cfi uGT emulator
@@ -11,6 +16,7 @@ simGtStage2Digis = cms.EDProducer("l1t::GtProducer",
     AlgorithmTriggersUnprescaled = cms.bool(False),
     ProduceL1GtDaqRecord = cms.bool(True),
     GmtInputTag = cms.InputTag("gtInput"),
+    extInputTag = cms.InputTag("gtInput"),
     caloInputTag = cms.InputTag("gtInput"),
     AlternativeNrBxBoardDaq = cms.uint32(0),
     #WritePsbL1GtDaqRecord = cms.bool(True),

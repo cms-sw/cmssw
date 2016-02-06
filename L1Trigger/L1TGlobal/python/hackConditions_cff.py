@@ -1,4 +1,8 @@
 #
+# WARNING: This file is in the L1T configuration critical path.
+#
+# All changes must be explicitly discussed with the L1T offline coordinator.
+#
 # hackConditions.py  Load ES Producers for any conditions not yet in GT...
 #
 # The intention is that this file should shrink with time as conditions are added to GT.
@@ -25,12 +29,6 @@ from Configuration.StandardSequences.Eras import eras
 #
 if eras.stage2L1Trigger.isChosen():
     print "L1TGlobal Conditions configured for Stage-2 (2016) trigger. "
-    from L1Trigger.L1TGlobal.StableParametersConfig_cff import *
-    from L1Trigger.L1TGlobal.TriggerMenuXml_cfi import *
-    TriggerMenuXml.TriggerMenuLuminosity = 'startup'
-#    TriggerMenuXml.DefXmlFile = 'L1_Example_Menu_2013.xml'
-#    TriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014.xml'
-#    TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v2.xml'
-    TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v3.xml'
-    from L1Trigger.L1TGlobal.TriggerMenuConfig_cff import *
-    es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','TriggerMenuXml')
+    from L1Trigger.L1TGlobal.StableParameters_cff import *
+    from L1Trigger.L1TGlobal.TriggerMenu_cff import *
+    TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsStage1_v7_uGT.xml')

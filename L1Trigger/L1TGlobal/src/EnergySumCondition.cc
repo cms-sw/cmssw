@@ -25,20 +25,9 @@
 //   base classes
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-
-//#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
-
-// #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFunctions.h"
-// #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
-
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
-
 #include "CondFormats/L1TObjects/interface/GlobalStableParameters.h"
 #include "CondFormats/DataRecord/interface/L1TGlobalStableParametersRcd.h"
-
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFunctions.h"
 #include "L1Trigger/L1TGlobal/interface/GtBoard.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -213,7 +202,7 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
     bool condGEqVal = m_gtEnergySumTemplate->condGEq();
 
     // check energy threshold
-    if ( !checkThreshold(objPar.etThreshold, candEt, condGEqVal) ) {
+    if ( !checkThreshold(objPar.etLowThreshold, objPar.etHighThreshold, candEt, condGEqVal) ) {
       LogDebug("l1t|Global") << "\t\t l1t::EtSum failed checkThreshold" << std::endl;
         return false;
     }

@@ -20,6 +20,7 @@
 // Objects to produce for the output record.
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmAlgorithm.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -126,7 +127,8 @@ private:
     bool m_filledPrescales;
 
     // algorithm maps
-    const AlgorithmMap* m_algorithmMap;
+    //const AlgorithmMap* m_algorithmMap;
+    const std::map<std::string, L1TUtmAlgorithm>* m_algorithmMap;
     
 private:
 
@@ -136,9 +138,13 @@ private:
     //file  and container for prescale factors
     std::string m_preScaleFileName;
     unsigned int m_PreScaleColumn;
+    
+    std::vector<std::vector<int> > m_initialPrescaleFactorsAlgoTrig;
     const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
-    const std::vector<unsigned int>* m_triggerMaskAlgoTrig;
-    const std::vector<unsigned int>* m_triggerMaskVetoAlgoTrig;
+    std::vector<unsigned int>  m_initialTriggerMaskAlgoTrig;
+    const std::vector<unsigned int>*  m_triggerMaskAlgoTrig;
+    std::vector<unsigned int>   m_initialTriggerMaskVetoAlgoTrig;
+    const std::vector<unsigned int>*  m_triggerMaskVetoAlgoTrig;
     
     // access to the results block from uGT 
     edm::Handle<BXVector<GlobalAlgBlk>>  m_uGtAlgBlk;

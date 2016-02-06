@@ -1,6 +1,16 @@
+#
+# WARNING: This file is in the L1T configuration critical path.
+#
+# All changes must be explicitly discussed with the L1T offline coordinator.
+#
 import FWCore.ParameterSet.Config as cms
 
-#
+StableParametersRcdSource = cms.ESSource("EmptyESSource",
+    recordName = cms.string('L1TGlobalStableParametersRcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
+)
+
 StableParameters = cms.ESProducer("StableParametersTrivialProducer",
 
     # trigger decision

@@ -76,7 +76,10 @@ public:
 	//TO DO They need to be made integers when we have proper scales.
 	double minCutValue;
 	double maxCutValue; 
-	
+
+        //Requirement on charge of legs (currently only Mu-Mu).	
+	unsigned int chargeCorrelation;
+
 	int corrCutType;
 
     };
