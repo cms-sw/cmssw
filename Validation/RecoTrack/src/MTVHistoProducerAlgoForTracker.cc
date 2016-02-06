@@ -619,6 +619,11 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     //effic vs eta
     fillPlotNoFlow(h_simuleta[count], eta);
     if (isMatched) fillPlotNoFlow(h_assoceta[count], eta);
+  }
+
+  if((*TpSelectorForEfficiencyVsPhi)(tp)){
+    fillPlotNoFlow(h_simulphi[count], phi);
+    if (isMatched) fillPlotNoFlow(h_assocphi[count], phi);
     //effic vs hits
     fillPlotNoFlow(h_simulhit[count], nSimHits);
     fillPlotNoFlow(h_simullayer[count], nSimLayers);
@@ -637,11 +642,6 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     //efficiency vs dR
     fillPlotNoFlow(h_simuldr[count],dR);
     if (isMatched) fillPlotNoFlow(h_assocdr[count],dR);
-  }
-
-  if((*TpSelectorForEfficiencyVsPhi)(tp)){
-    fillPlotNoFlow(h_simulphi[count], phi);
-    if (isMatched) fillPlotNoFlow(h_assocphi[count], phi);
   }
 
   if((*TpSelectorForEfficiencyVsPt)(tp)){
@@ -1127,6 +1127,11 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     //effic vs eta
     fillPlotNoFlow(h_simuleta[count],getEta(momentumTP.eta()));
     if (isMatched) fillPlotNoFlow(h_assoceta[count],getEta(momentumTP.eta()));
+  }
+
+  if((*GpSelectorForEfficiencyVsPhi)(tp)){
+    fillPlotNoFlow(h_simulphi[count],momentumTP.phi());
+    if (isMatched) fillPlotNoFlow(h_assocphi[count],momentumTP.phi());
     //effic vs hits
     fillPlotNoFlow(h_simulhit[count],(int)nSimHits);
     if(isMatched) {
@@ -1138,11 +1143,6 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     if (isMatched) fillPlotNoFlow(h_assocpu[count],numVertices);
     //efficiency vs dR
     //not implemented for now
-  }
-
-  if((*GpSelectorForEfficiencyVsPhi)(tp)){
-    fillPlotNoFlow(h_simulphi[count],momentumTP.phi());
-    if (isMatched) fillPlotNoFlow(h_assocphi[count],momentumTP.phi());
   }
 
   if((*GpSelectorForEfficiencyVsPt)(tp)){

@@ -93,30 +93,30 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
 						    pset.getParameter<std::vector<int> >("pdgIdTP"));
 
 
-  ParameterSet psetVsEta = psetForHistoProducerAlgo.getParameter<ParameterSet>("TpSelectorForEfficiencyVsEta");
-  dRtpSelector = TrackingParticleSelector(psetVsEta.getParameter<double>("ptMin"),
-					  psetVsEta.getParameter<double>("minRapidity"),
-					  psetVsEta.getParameter<double>("maxRapidity"),
-					  psetVsEta.getParameter<double>("tip"),
-					  psetVsEta.getParameter<double>("lip"),
-					  psetVsEta.getParameter<int>("minHit"),
-					  psetVsEta.getParameter<bool>("signalOnly"),
-					  psetVsEta.getParameter<bool>("intimeOnly"),
-					  psetVsEta.getParameter<bool>("chargedOnly"),
-					  psetVsEta.getParameter<bool>("stableOnly"),
-					  psetVsEta.getParameter<std::vector<int> >("pdgId"));
+  ParameterSet psetVsPhi = psetForHistoProducerAlgo.getParameter<ParameterSet>("TpSelectorForEfficiencyVsPhi");
+  dRtpSelector = TrackingParticleSelector(psetVsPhi.getParameter<double>("ptMin"),
+					  psetVsPhi.getParameter<double>("minRapidity"),
+					  psetVsPhi.getParameter<double>("maxRapidity"),
+					  psetVsPhi.getParameter<double>("tip"),
+					  psetVsPhi.getParameter<double>("lip"),
+					  psetVsPhi.getParameter<int>("minHit"),
+					  psetVsPhi.getParameter<bool>("signalOnly"),
+					  psetVsPhi.getParameter<bool>("intimeOnly"),
+					  psetVsPhi.getParameter<bool>("chargedOnly"),
+					  psetVsPhi.getParameter<bool>("stableOnly"),
+					  psetVsPhi.getParameter<std::vector<int> >("pdgId"));
 
   dRtpSelectorNoPtCut = TrackingParticleSelector(0.0,
-                                                 psetVsEta.getParameter<double>("minRapidity"),
-                                                 psetVsEta.getParameter<double>("maxRapidity"),
-                                                 psetVsEta.getParameter<double>("tip"),
-                                                 psetVsEta.getParameter<double>("lip"),
-                                                 psetVsEta.getParameter<int>("minHit"),
-                                                 psetVsEta.getParameter<bool>("signalOnly"),
-                                                 psetVsEta.getParameter<bool>("intimeOnly"),
-                                                 psetVsEta.getParameter<bool>("chargedOnly"),
-                                                 psetVsEta.getParameter<bool>("stableOnly"),
-                                                 psetVsEta.getParameter<std::vector<int> >("pdgId"));
+                                                 psetVsPhi.getParameter<double>("minRapidity"),
+                                                 psetVsPhi.getParameter<double>("maxRapidity"),
+                                                 psetVsPhi.getParameter<double>("tip"),
+                                                 psetVsPhi.getParameter<double>("lip"),
+                                                 psetVsPhi.getParameter<int>("minHit"),
+                                                 psetVsPhi.getParameter<bool>("signalOnly"),
+                                                 psetVsPhi.getParameter<bool>("intimeOnly"),
+                                                 psetVsPhi.getParameter<bool>("chargedOnly"),
+                                                 psetVsPhi.getParameter<bool>("stableOnly"),
+                                                 psetVsPhi.getParameter<std::vector<int> >("pdgId"));
 
   useGsf = pset.getParameter<bool>("useGsf");
 
