@@ -119,3 +119,10 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     maxDzpvsigCumulative = cms.double(10),
     nintDzpvsigCumulative = cms.int32(200),
 )
+
+from Configuration.StandardSequences.Eras import eras
+def _modifyForPhase1(pset):
+    pset.minEta = -3
+    pset.maxEta = 3
+    pset.nintEta = 60
+eras.phase1Pixel.toModify(MTVHistoProducerAlgoForTrackerBlock, _modifyForPhase1)

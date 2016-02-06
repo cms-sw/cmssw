@@ -35,6 +35,20 @@ _algos = [
     "muonSeededStepOutIn",
     "duplicateMerge",
 ]
+_algosForPhase1Pixel = [
+    "generalTracks",
+    "initialStep",
+    "highPtTripletStep",
+    "lowPtQuadStep",
+    "lowPtTripletStep",
+    "detachedQuadStep",
+    "mixedTripletStep",
+    "pixelPairStep",
+    "tobTecStep",
+    "muonSeededStepInOut",
+    "muonSeededStepOutIn",
+    ]
+
 _seedProducers = [
     "initialStepSeedsPreSplitting",
     "initialStepSeeds",
@@ -50,6 +64,29 @@ _seedProducers = [
     "muonSeededSeedsInOut",
     "muonSeededSeedsOutIn",
 ]
+
+_removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
+                                 "jetCoreRegionalStepSeeds",
+                                 "muonSeededSeedsInOut",
+                                 "muonSeededSeedsOutIn"]
+_seedProducersForFastSim = [ x for x in _seedProducers if x not in _removeForFastSimSeedProducers]
+
+
+_seedProducersForPhase1Pixel = [
+        "initialStepSeeds",
+        "highPtTripletStepSeeds",
+        "lowPtQuadStepSeeds",
+        "lowPtTripletStepSeeds",
+        "detachedQuadStepSeeds",
+        "mixedTripletStepSeedsA",
+        "mixedTripletStepSeedsB",
+        "pixelPairStepSeeds",
+        "tobTecStepSeeds",
+        "muonSeededSeedsInOut",
+        "muonSeededSeedsOutIn",
+    ]
+
+
 _trackProducers = [
     "initialStepTracksPreSplitting",
     "initialStepTracks",
@@ -63,54 +100,24 @@ _trackProducers = [
     "muonSeededTracksInOut",
     "muonSeededTracksOutIn",
 ]
-if eras.fastSim.isChosen():
-    _seedProducers.remove("initialStepSeedsPreSplitting")
-    _seedProducers.remove("jetCoreRegionalStepSeeds")
-    _seedProducers.remove("muonSeededSeedsInOut")
-    _seedProducers.remove("muonSeededSeedsOutIn")
-    _trackProducers.remove("initialStepTracksPreSplitting")
-    _trackProducers.remove("jetCoreRegionalStepTracks")
-    _trackProducers.remove("muonSeededTracksInOut")
-    _trackProducers.remove("muonSeededTracksOutIn")
-if eras.phase1Pixel.isChosen():
-    _algos = [
-        "generalTracks",
-        "initialStep",
-        "highPtTripletStep",
-        "lowPtQuadStep",
-        "lowPtTripletStep",
-        "detachedQuadStep",
-        "mixedTripletStep",
-        "pixelPairStep",
-        "tobTecStep",
-        "muonSeededStepInOut",
-        "muonSeededStepOutIn",
-    ]
-    _seedProducers = [
-        "initialStepSeeds",
-        "highPtTripletStepSeeds",
-        "lowPtQuadStepSeeds",
-        "lowPtTripletStepSeeds",
-        "detachedQuadStepSeeds",
-        "mixedTripletStepSeedsA",
-        "mixedTripletStepSeedsB",
-        "pixelPairStepSeeds",
-        "tobTecStepSeeds",
-        "muonSeededSeedsInOut",
-        "muonSeededSeedsOutIn",
-    ]
-    _trackProducers = [
-        "initialStepTracks",
-        "highPtTripletStepTracks",
-        "lowPtQuadStepTracks",
-        "lowPtTripletStepTracks",
-        "detachedQuadStepTracks",
-        "mixedTripletStepTracks",
-        "pixelPairStepTracks",
-        "tobTecStepTracks",
-        "muonSeededTracksInOut",
-        "muonSeededTracksOutIn",
-    ]
+_removeForFastTrackProducers = ["initialStepTracksPreSplitting",
+                                "jetCoreRegionalStepTracks",
+                                "muonSeededTracksInOut",
+                                "muonSeededTracksOutIn"]
+_trackProducersForFastSim = [ x for x in _trackProducers if x not in _removeForFastTrackProducers]
+
+_trackProducersForPhase1Pixel = [
+    "initialStepTracks",
+    "highPtTripletStepTracks",
+    "lowPtQuadStepTracks",
+    "lowPtTripletStepTracks",
+    "detachedQuadStepTracks",
+    "mixedTripletStepTracks",
+    "pixelPairStepTracks",
+    "tobTecStepTracks",
+    "muonSeededTracksInOut",
+    "muonSeededTracksOutIn",
+]
 
 def _algoToSelector(algo):
     sel = ""
@@ -118,43 +125,52 @@ def _algoToSelector(algo):
         sel = algo[0].upper()+algo[1:]
     return "cutsRecoTracks"+sel
 
-def _addSelectorsByAlgo():
+def _addSelectorsByAlgo(algos, modDict):
     names = []
     seq = cms.Sequence()
-    for algo in _algos:
+    for algo in algos:
         if algo == "generalTracks":
             continue
         modName = _algoToSelector(algo)
-        mod = cutsRecoTracks_cfi.cutsRecoTracks.clone(algorithm=[algo])
-        globals()[modName] = mod
+        if modName not in modDict:
+            mod = cutsRecoTracks_cfi.cutsRecoTracks.clone(algorithm=[algo])
+            modDict[modName] = mod
+        else:
+            mod = modDict[modName]
         names.append(modName)
         seq += mod
     return (names, seq)
-def _addSelectorsByHp():
+def _addSelectorsByHp(algos, modDict):
     seq = cms.Sequence()
     names = []
-    for algo in _algos:
+    for algo in algos:
         modName = _algoToSelector(algo)
         modNameHp = modName+"Hp"
-        if algo == "generalTracks":
-            mod = cutsRecoTracks_cfi.cutsRecoTracks.clone(quality=["highPurity"])
+        if modNameHp not in modDict:
+            if algo == "generalTracks":
+                mod = cutsRecoTracks_cfi.cutsRecoTracks.clone(quality=["highPurity"])
+            else:
+                mod = modDict[modName].clone(quality=["highPurity"])
+            modDict[modNameHp] = mod
         else:
-            mod = globals()[modName].clone(quality=["highPurity"])
-        globals()[modNameHp] = mod
+            mod = modDict[modNameHp]
         names.append(modNameHp)
         seq += mod
     return (names, seq)
-def _addSelectorsBySrc(modules, midfix, src):
+def _addSelectorsBySrc(modules, midfix, src, modDict):
     seq = cms.Sequence()
     names = []
     for modName in modules:
         modNameNew = modName.replace("cutsRecoTracks", "cutsRecoTracks"+midfix)
-        mod = globals()[modName].clone(src=src)
-        globals()[modNameNew] = mod
+        if modNameNew not in modDict:
+            mod = modDict[modName].clone(src=src)
+            modDict[modNameNew] = mod
+        else:
+            mod = modDict[modNameNew]
         names.append(modNameNew)
         seq += mod
     return (names, seq)
-def _addSelectorsByOriginalAlgoMask(modules, midfix, algoParam):
+def _addSelectorsByOriginalAlgoMask(modules, midfix, algoParam,modDict):
     seq = cms.Sequence()
     names = []
     for modName in modules:
@@ -162,31 +178,44 @@ def _addSelectorsByOriginalAlgoMask(modules, midfix, algoParam):
             modNameNew = modName[:-2] + midfix + "Hp"
         else:
             modNameNew = modName + midfix
-        mod = globals()[modName].clone()
-        setattr(mod, algoParam, mod.algorithm.value())
-        mod.algorithm = []
-        globals()[modNameNew] = mod
+        if modNameNew not in modDict:
+            mod = modDict[modName].clone()
+            setattr(mod, algoParam, mod.algorithm.value())
+            mod.algorithm = []
+            modDict[modNameNew] = mod
+        else:
+            mod = modDict[modNameNew]
         names.append(modNameNew)
         seq += mod
     return (names, seq)
-def _addSeedToTrackProducers():
+def _addSeedToTrackProducers(seedProducers,modDict):
     names = []
     seq = cms.Sequence()
-    for seed in _seedProducers:
+    for seed in seedProducers:
         modName = "seedTracks"+seed
-        mod = _trajectorySeedTracks.clone(src=seed)
-        globals()[modName] = mod
+        if modName not in modDict:
+            mod = _trajectorySeedTracks.clone(src=seed)
+            globals()[modName] = mod
+        else:
+            mod = modDict[modName]
         names.append(modName)
         seq += mod
     return (names, seq)
 
 # Validation iterative steps
-(_selectorsByAlgo, tracksValidationSelectorsByAlgo) = _addSelectorsByAlgo()
+(_selectorsByAlgo, tracksValidationSelectorsByAlgo) = _addSelectorsByAlgo(_algos, globals())
+(_selectorsByAlgo_phase1Pixel, _tracksValidationSelectorsByAlgo_phase1Pixel) = _addSelectorsByAlgo(_algosForPhase1Pixel, globals())
+eras.phase1Pixel.toModify(tracksValidationSelectorsByAlgo, _seq = _tracksValidationSelectorsByAlgo_phase1Pixel._seq)
 
 # high purity
-(_selectorsByAlgoHp, tracksValidationSelectorsByAlgoHp) = _addSelectorsByHp()
+(_selectorsByAlgoHp, tracksValidationSelectorsByAlgoHp) = _addSelectorsByHp(_algos,globals())
+(_selectorsByAlgoHp_phase1Pixel, _tracksValidationSelectorsByAlgoHp_phase1Pixel) = _addSelectorsByHp(_algosForPhase1Pixel,globals())
+eras.phase1Pixel.toModify(tracksValidationSelectorsByAlgoHp, _seq = _tracksValidationSelectorsByAlgoHp_phase1Pixel._seq)
+
 _generalTracksHp = _selectorsByAlgoHp[0]
+_generalTracksHp_phase1Pixel = _selectorsByAlgoHp_phase1Pixel[0]
 _selectorsByAlgoHp = _selectorsByAlgoHp[1:]
+_selectorsByAlgoHp_phase1Pixel = _selectorsByAlgoHp_phase1Pixel[1:]
 
 # BTV-like selection
 import PhysicsTools.RecoAlgos.btvTracks_cfi as btvTracks_cfi
@@ -242,9 +271,11 @@ generalTracksFromPV = _trackWithVertexRefSelector.clone(
     rhoVtx = 1e10, # intentionally no dxy cut
 )
 # and then the selectors
-(_selectorsFromPV, tracksValidationSelectorsFromPV) = _addSelectorsBySrc([_generalTracksHp], "FromPV", "generalTracksFromPV")
+(_selectorsFromPV, tracksValidationSelectorsFromPV) = _addSelectorsBySrc([_generalTracksHp], "FromPV", "generalTracksFromPV", globals())
 tracksValidationSelectorsFromPV.insert(0, generalTracksFromPV)
-
+(_selectorsFromPV_phase1Pixel, _tracksValidationSelectorsFromPV_phase1Pixel) = _addSelectorsBySrc([_generalTracksHp_phase1Pixel], "FromPV", "generalTracksFromPV", globals())
+_tracksValidationSelectorsFromPV_phase1Pixel.insert(0, generalTracksFromPV)
+eras.phase1Pixel.toModify(tracksValidationSelectorsFromPV, _seq = _tracksValidationSelectorsFromPV_phase1Pixel._seq)
 
 ## Select conversion TrackingParticles, and define the corresponding associator
 # (do not use associations because the collections of interest are not subsets of each other)
@@ -258,22 +289,23 @@ quickTrackAssociatorByHitsConversion = quickTrackAssociatorByHits.clone(
 
 
 ## MTV instances
-trackValidator = Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone()
-trackValidator.label = ["generalTracks", _generalTracksHp] + _selectorsByAlgo + _selectorsByAlgoHp +  [
+trackValidator = Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone(
+    label =  ["generalTracks", _generalTracksHp] + _selectorsByAlgo + _selectorsByAlgoHp +  [
     "cutsRecoTracksBtvLike",
-    "cutsRecoTracksAK4PFJets",
-]
-trackValidator.useLogPt = cms.untracked.bool(True)
-trackValidator.dodEdxPlots = True
-trackValidator.doPVAssociationPlots = True
-#trackValidator.minpT = cms.double(-1)
-#trackValidator.maxpT = cms.double(3)
-#trackValidator.nintpT = cms.int32(40)
-
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
-    trackValidator.dodEdxPlots = False
-
+    "cutsRecoTracksAK4PFJets"],
+    useLogPt = cms.untracked.bool(True),
+    dodEdxPlots = True,
+    doPVAssociationPlots = True
+    #,minpT = cms.double(-1)
+    #,maxpT = cms.double(3)
+    #,nintpT = cms.int32(40)
+)
+eras.fastSim.toModify(trackValidator, 
+                      dodEdxPlots = False)
+eras.phase1Pixel.toModify(trackValidator,
+                      label = ["generalTracks", _generalTracksHp_phase1Pixel] + _selectorsByAlgo_phase1Pixel + _selectorsByAlgoHp_phase1Pixel +  [
+        "cutsRecoTracksBtvLike",
+        "cutsRecoTracksAK4PFJets"])
 
 # For efficiency of signal TPs vs. signal tracks, and fake rate of
 # signal tracks vs. signal TPs
@@ -287,6 +319,7 @@ trackValidatorFromPV = trackValidator.clone(
     doPlotsOnlyForTruePV = True,
     doPVAssociationPlots = False,
 )
+eras.phase1Pixel.toModify(trackValidatorFromPV, label = ["generalTracksFromPV"]+_selectorsFromPV_phase1Pixel)
 
 # For fake rate of signal tracks vs. all TPs, and pileup rate of
 # signal tracks vs. non-signal TPs
@@ -316,6 +349,7 @@ trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsPhi.sig
 trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsPt.signalOnly = False
 trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsVTXR.signalOnly = False
 trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsVTXZ.signalOnly = False
+eras.phase1Pixel.toModify(trackValidatorAllTPEffic, label = ["generalTracks", _generalTracksHp_phase1Pixel])
 
 # For conversions
 trackValidatorConversion = trackValidator.clone(
@@ -356,6 +390,7 @@ tracksValidationTruth = cms.Sequence(
     trackingParticleRecoTrackAsssociation +
     VertexAssociatorByPositionAndTracks
 )
+eras.fastSim.toModify(tracksValidationTruth, lambda x: x.remove(tpClusterProducer))
 
 tracksValidationTruthSignal = cms.Sequence(
     cms.ignore(trackingParticlesSignal) +
@@ -363,6 +398,8 @@ tracksValidationTruthSignal = cms.Sequence(
     quickTrackAssociatorByHitsSignal +
     trackingParticleRecoTrackAsssociationSignal
 )
+eras.fastSim.toModify(tracksValidationTruthSignal, lambda x: x.remove(tpClusterProducerSignal))
+
 
 tracksValidationTruthConversion = cms.Sequence(
     trackingParticlesConversion +
@@ -377,6 +414,7 @@ tracksPreValidation = cms.Sequence(
     tracksValidationTruthSignal +
     tracksValidationTruthConversion
 )
+eras.fastSim.toModify(tracksPreValidation, lambda x: x.remove(tracksValidationTruthConversion))
 
 tracksValidation = cms.Sequence(
     tracksPreValidation +
@@ -386,37 +424,42 @@ tracksValidation = cms.Sequence(
     trackValidatorAllTPEffic +
     trackValidatorConversion
 )
+eras.fastSim.toModify(tracksValidation, lambda x: x.remove(trackValidatorConversion))
 
-if eras.fastSim.isChosen():
-    tracksValidationTruth.remove(tpClusterProducer)
-    tracksValidationTruthSignal.remove(tpClusterProducerSignal)
-    tracksPreValidation.remove(tracksValidationTruthConversion)
-    tracksValidation.remove(trackValidatorConversion)
 
 ### Then define stuff for standalone mode (i.e. MTV with RECO+DIGI input)
 
 # Select by originalAlgo and algoMask
-(_selectorsByOriginalAlgo, tracksValidationSelectorsByOriginalAlgoStandalone) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgo+_selectorsByAlgoHp, "ByOriginalAlgo", "originalAlgorithm")
-(_selectorsByAlgoMask, tracksValidationSelectorsByAlgoMaskStandalone) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgo+_selectorsByAlgoHp, "ByAlgoMask", "algorithmMaskContains")
+_selectorsByAlgoAndHp = _selectorsByAlgo+_selectorsByAlgoHp
+_selectorsByAlgoAndHp_phase1Pixel = _selectorsByAlgo_phase1Pixel+_selectorsByAlgoHp_phase1Pixel
+(_selectorsByOriginalAlgo, tracksValidationSelectorsByOriginalAlgoStandalone) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgoAndHp, "ByOriginalAlgo", "originalAlgorithm",globals())
+(_selectorsByOriginalAlgo_phase1Pixel, _tracksValidationSelectorsByOriginalAlgoStandalone_phase1Pixel) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgoAndHp_phase1Pixel, "ByOriginalAlgo", "originalAlgorithm",globals())
+eras.phase1Pixel.toModify(tracksValidationSelectorsByOriginalAlgoStandalone, _seq = _tracksValidationSelectorsByOriginalAlgoStandalone_phase1Pixel._seq)
+
+(_selectorsByAlgoMask, tracksValidationSelectorsByAlgoMaskStandalone) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgoAndHp, "ByAlgoMask", "algorithmMaskContains",globals())
+(_selectorsByAlgoMask_phase1Pixel, _tracksValidationSelectorsByAlgoMaskStandalone_phase1Pixel) = _addSelectorsByOriginalAlgoMask(_selectorsByAlgoAndHp_phase1Pixel, "ByAlgoMask", "algorithmMaskContains",globals())
+eras.phase1Pixel.toModify(tracksValidationSelectorsByAlgoMaskStandalone, _seq = _tracksValidationSelectorsByAlgoMaskStandalone_phase1Pixel._seq)
 
 # Select fromPV by iteration
-(_selectorsFromPVStandalone, tracksValidationSelectorsFromPVStandalone) = _addSelectorsBySrc(_selectorsByAlgo+_selectorsByAlgoHp, "FromPV", "generalTracksFromPV")
+(_selectorsFromPVStandalone, tracksValidationSelectorsFromPVStandalone) = _addSelectorsBySrc(_selectorsByAlgoAndHp, "FromPV", "generalTracksFromPV",globals())
+(_selectorsFromPVStandalone_phase1Pixel, _tracksValidationSelectorsFromPVStandalone_phase1Pixel) = _addSelectorsBySrc(_selectorsByAlgoAndHp_phase1Pixel, "FromPV", "generalTracksFromPV",globals())
+eras.phase1Pixel.toModify(tracksValidationSelectorsFromPVStandalone, _seq = _tracksValidationSelectorsFromPVStandalone_phase1Pixel._seq)
 
 # MTV instances
-trackValidatorStandalone = trackValidator.clone()
-trackValidatorStandalone.label.extend(_selectorsByOriginalAlgo + _selectorsByAlgoMask)
-trackValidatorFromPVStandalone = trackValidatorFromPV.clone()
-trackValidatorFromPVStandalone.label.extend(_selectorsFromPVStandalone)
+trackValidatorStandalone = trackValidator.clone( label = trackValidator.label+ _selectorsByOriginalAlgo + _selectorsByAlgoMask)
+eras.phase1Pixel.toModify(trackValidatorStandalone, label = trackValidator.label+ _selectorsByOriginalAlgo_phase1Pixel + _selectorsByAlgoMask_phase1Pixel)
+
+trackValidatorFromPVStandalone = trackValidatorFromPV.clone( label = trackValidatorFromPV.label+_selectorsFromPVStandalone)
+eras.phase1Pixel.toModify(trackValidatorFromPVStandalone, label = trackValidatorFromPV.label+_selectorsFromPVStandalone_phase1Pixel)
+
 trackValidatorFromPVAllTPStandalone = trackValidatorFromPVAllTP.clone(
     label = trackValidatorFromPVStandalone.label.value()
 )
 trackValidatorAllTPEfficStandalone = trackValidatorAllTPEffic.clone(
-    label = trackValidator.label.value()
+    label = [ x for x in trackValidator.label.value() if x not in ["cutsRecoTracksBtvLike", "cutsRecoTracksAK4PFJets"]]
 )
-for _label in ["cutsRecoTracksBtvLike", "cutsRecoTracksAK4PFJets"]:
-    trackValidatorAllTPEfficStandalone.label.remove(_label)
-trackValidatorConversionStandalone = trackValidatorConversion.clone()
-trackValidatorConversionStandalone.label.remove("convStepTracks")
+
+trackValidatorConversionStandalone = trackValidatorConversion.clone( label = [x for x in trackValidatorConversion.label if x != "convStepTracks"])
 
 # sequences
 tracksValidationSelectorsStandalone = cms.Sequence(
@@ -424,13 +467,19 @@ tracksValidationSelectorsStandalone = cms.Sequence(
     tracksValidationSelectorsByAlgoMaskStandalone +
     tracksValidationSelectorsFromPVStandalone
 )
-trackValidatorsStandalone = cms.Sequence(
+
+# we copy this for both Standalone and TrackingOnly
+#  and later make modifications from it which change based on era
+_trackValidatorsBase = cms.Sequence(
     trackValidatorStandalone +
     trackValidatorFromPVStandalone +
     trackValidatorFromPVAllTPStandalone +
     trackValidatorAllTPEfficStandalone +
     trackValidatorConversionStandalone
 )
+trackValidatorsStandalone = _trackValidatorsBase.copy()
+eras.fastSim.toModify(trackValidatorsStandalone, lambda x: x.remove(trackValidatorConversionStandalone) )
+
 tracksValidationStandalone = cms.Sequence(
     ak4PFL1FastL2L3CorrectorChain +
     tracksPreValidation +
@@ -442,11 +491,14 @@ tracksValidationStandalone = cms.Sequence(
 
 # selectors
 tracksValidationSelectorsTrackingOnly = tracksValidationSelectors.copyAndExclude([ak4JetTracksAssociatorExplicitAll,cutsRecoTracksAK4PFJets]) # selectors using track information only (i.e. no PF)
-(_seedSelectors, tracksValidationSeedSelectorsTrackingOnly) = _addSeedToTrackProducers()
+(_seedSelectors, tracksValidationSeedSelectorsTrackingOnly) = _addSeedToTrackProducers(_seedProducers, globals())
+(_fastSimSeedSelectors, _fastSimTracksValidationSeedSelectorsTrackingOnly) = _addSeedToTrackProducers(_seedProducersForFastSim, globals())
+(_phase1PixelSeedSelectors, _phase1PixelTracksValidationSeedSelectorsTrackingOnly) = _addSeedToTrackProducers(_seedProducersForPhase1Pixel, globals())
+eras.fastSim.toModify(tracksValidationSeedSelectorsTrackingOnly, _seq = _fastSimTracksValidationSeedSelectorsTrackingOnly._seq)
+eras.phase1Pixel.toModify(tracksValidationSeedSelectorsTrackingOnly, _seq=_phase1PixelTracksValidationSeedSelectorsTrackingOnly._seq)
 
 # MTV instances
-trackValidatorTrackingOnly = trackValidatorStandalone.clone()
-trackValidatorTrackingOnly.label.remove("cutsRecoTracksAK4PFJets")
+trackValidatorTrackingOnly = trackValidatorStandalone.clone(label = [ x for x in trackValidatorStandalone.label if x != "cutsRecoTracksAK4PFJets"] )
 
 trackValidatorBuildingTrackingOnly = trackValidatorTrackingOnly.clone(
     dirName = "Tracking/TrackBuilding/",
@@ -457,27 +509,34 @@ trackValidatorBuildingTrackingOnly = trackValidatorTrackingOnly.clone(
     doPVAssociationPlots = False,
     doSimPlots = False,
 )
+
+eras.fastSim.toModify(trackValidatorTrackingOnly, label =  _trackProducersForFastSim )
+eras.phase1Pixel.toModify(trackValidatorTrackingOnly, label = _trackProducersForPhase1Pixel)
+
 trackValidatorSeedingTrackingOnly = trackValidatorBuildingTrackingOnly.clone(
     dirName = "Tracking/TrackSeeding/",
     label = _seedSelectors,
     doSeedPlots = True,
 )
+eras.fastSim.toModify(trackValidatorSeedingTrackingOnly, label= _fastSimSeedSelectors)
+eras.phase1Pixel.toModify(trackValidatorSeedingTrackingOnly, label= _phase1PixelSeedSelectors)
 
-trackValidatorConversionTrackingOnly = trackValidatorConversion.clone()
-trackValidatorConversionTrackingOnly.label.remove("ckfInOutTracksFromConversions")
-trackValidatorConversionTrackingOnly.label.remove("ckfOutInTracksFromConversions")
+
+trackValidatorConversionTrackingOnly = trackValidatorConversion.clone(label = [x for x in trackValidatorConversion.label if x not in ["ckfInOutTracksFromConversions", "ckfOutInTracksFromConversions"]])
 
 # sequences
 tracksPreValidationTrackingOnly = tracksPreValidation.copy()
 tracksPreValidationTrackingOnly.replace(tracksValidationSelectors, tracksValidationSelectorsTrackingOnly)
 
-trackValidatorsTrackingOnly = trackValidatorsStandalone.copy()
+trackValidatorsTrackingOnly = _trackValidatorsBase.copy()
 trackValidatorsTrackingOnly.replace(trackValidatorStandalone, trackValidatorTrackingOnly)
 trackValidatorsTrackingOnly += (
     trackValidatorSeedingTrackingOnly +
     trackValidatorBuildingTrackingOnly
 )
 trackValidatorsTrackingOnly.replace(trackValidatorConversionStandalone, trackValidatorConversionTrackingOnly)
+eras.fastSim.toModify(trackValidatorsTrackingOnly, lambda x: x.remove(trackValidatorConversionTrackingOnly))
+
 
 tracksValidationTrackingOnly = cms.Sequence(
     tracksPreValidationTrackingOnly +
@@ -486,6 +545,14 @@ tracksValidationTrackingOnly = cms.Sequence(
     trackValidatorsTrackingOnly
 )
 
-if eras.fastSim.isChosen():
-    trackValidatorsStandalone.remove(trackValidatorConversionStandalone)
-    trackValidatorsTrackingOnly.remove(trackValidatorConversionTrackingOnly)
+
+
+### Lite mode (only generalTracks and HP)
+trackValidatorLite = trackValidator.clone(
+    label = ["generalTracks", "cutsRecoTracksHp"]
+)
+tracksValidationLite = cms.Sequence(
+    cutsRecoTracksHp +
+    tracksValidationTruth +
+    trackValidatorLite
+)
