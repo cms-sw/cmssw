@@ -12,6 +12,7 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMuonDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoRpcHitDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMetDataFormat.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMetFilterDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoJetDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoClusterDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoVertexDataFormat.h"
@@ -41,7 +42,8 @@ namespace{
     L1Analysis::L1AnalysisRecoMuonDataFormat       pL1muon;
     L1Analysis::L1AnalysisRecoRpcHitDataFormat     pL1rpc;
     L1Analysis::L1AnalysisRecoJetDataFormat        pL1jet; 
-    L1Analysis::L1AnalysisRecoMetDataFormat        pL1met;    
+    L1Analysis::L1AnalysisRecoMetDataFormat        pL1met; 
+    L1Analysis::L1AnalysisRecoMetFilterDataFormat  pL1metfilter;
     L1Analysis::L1AnalysisRecoClusterDataFormat    pL1cluster;
     L1Analysis::L1AnalysisRecoVertexDataFormat     pL1vertex;   
     L1Analysis::L1AnalysisRecoTrackDataFormat      pL1track; 

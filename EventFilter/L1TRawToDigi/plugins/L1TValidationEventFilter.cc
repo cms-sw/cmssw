@@ -27,13 +27,17 @@ Implementation:
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
+#include <vector>
 #include <iostream>
 
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
 
 //
@@ -51,10 +55,9 @@ private:
   virtual void endJob() override ;
   
   // ----------member data ---------------------------
+  edm::EDGetTokenT<FEDRawDataCollection> fedData_;
 
-  int period_;
- 
-  //  edm::EDGetTokenT<FEDRawDataCollection> token_; 
+  int period_;       // validation event period
 
 };
 
@@ -66,6 +69,8 @@ L1TValidationEventFilter::L1TValidationEventFilter(const edm::ParameterSet& iCon
   period_( iConfig.getUntrackedParameter<int>("period", 107) )
 {
   //now do what ever initialization is needed
+
+  fedData_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("inputTag"));
 
 }
 
@@ -89,7 +94,22 @@ L1TValidationEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 {
   using namespace edm;
   
-  return ((iEvent.id().event() % period_)==0);
+  edm::Handle<FEDRawDataCollection> feds;
+  iEvent.getByToken(fedData_, feds);
+
+  if (!feds.isValid()) {
+    LogError("L1T") << "Cannot unpack: no FEDRawDataCollection found";
+    return false;
+  }
+
+  const FEDRawData& l1tRcd = feds->FEDData(1024);
+
+  const unsigned char *data = l1tRcd.data();
+  FEDHeader header(data);
+
+  bool fatEvent = (header.lvl1ID() % period_ == 0 );
+
+  return fatEvent;
 
 }
 

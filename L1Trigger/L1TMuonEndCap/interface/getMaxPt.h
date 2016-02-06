@@ -16,7 +16,6 @@
 #include "TTree.h"
 #include "TString.h"
 #include "TSystem.h"
-#include "TROOT.h"
 #include "sstream"
 #include "TNtuple.h"
 #include "TGraphErrors.h"

@@ -53,6 +53,9 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
     // navigator
     l1t::CaloStage2Nav caloNav; 
   
+    // this is common to all taus in this event
+    const int nrTowers = CaloTools::calNrTowers(-1*params_->tauPUSParam(1),params_->tauPUSParam(1),1,72,towers,1,999,CaloTools::CALO);
+
     for (const auto& mainCluster : clusters)
     {
         // loop only on valid clusters
@@ -105,6 +108,8 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 sites.push_back(1);
             if (is3x3Maximum(towerS2E, towers, caloNav) && towerS2E.hwPt() >= seedThreshold)
                 sites.push_back(3);
+
+
           
             if (sites.size() == 0) // no merging candidate
             {
@@ -119,6 +124,22 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 //if (calibPt > 1023) calibPt = 1023; // only 10 bits available
                 
                 tau.setHwPt(calibPt);
+
+                // isolation
+                int isolBit = 0;
+                int tauHwFootprint = mainCluster.hwPt();
+                unsigned int LUTaddress = isoLutIndex(tauHwFootprint, mainCluster.hwEta(), nrTowers);
+                int hwEtSum = CaloTools::calHwEtSum(iEta,iPhi,towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
+                                            -1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO); 
+                int hwIsoEnergy = hwEtSum - tauHwFootprint;
+                if (hwIsoEnergy < 0) hwIsoEnergy = 0; // just in case the cluster is outside the window? should be very rare
+                
+                isolBit = (hwIsoEnergy <= (params_->tauIsolationLUT()->data(LUTaddress)) ? 1 : 0);
+                tau.setHwIso(isolBit);
+
+                //cout << "** DEBUG: eta: " << mainCluster.hwEta() << " et: " << tauHwFootprint << " nTT: " << nrTowers << endl;
+                //cout << "    ---> isoThr: " << params_->tauIsolationLUT()->data(LUTaddress) << " | isoEnergy: " << hwIsoEnergy << endl;
+                //cout << "    ---> isolBit: " << isolBit << endl;
 
                 // Physical eta/phi. Computed from ieta/iphi of the seed tower and the fine-grain position within the seed
                 // use fg positon of main cluster only
@@ -143,6 +164,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 
             else
             {
+
                 // find neighbor with highest energy, with some preference that is defined as in the firmware
                 // Remember: the maxima requirement is already applied
                 // For the four towers in a T
@@ -275,7 +297,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
         
                 const l1t::CaloTower& towerSec = l1t::CaloTools::getTower(towers, iSecEta, iSecPhi);
 
-
+                secondaryCluster->setHwPt(towerSec.hwPt());
                 secondaryCluster->setHwPtEm(towerSec.hwEtEm());
                 secondaryCluster->setHwPtHad(towerSec.hwEtHad());
                 secondaryCluster->setHwSeedPt(towerSec.hwPt());
@@ -378,6 +400,19 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 //if (calibPt > 1023) calibPt = 1023; // only 10 bits available
                 tau.setHwPt(calibPt);
                 
+                // isolation
+                int isolBit = 0;
+                int tauHwFootprint = mainCluster.hwPt() + secondaryCluster->hwPt();
+                unsigned int LUTaddress = isoLutIndex(tauHwFootprint, mainCluster.hwEta(), nrTowers);
+                int hwEtSum = CaloTools::calHwEtSum(iEta,iPhi,towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
+                                            -1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO); 
+                int hwIsoEnergy = hwEtSum - tauHwFootprint;
+                if (hwIsoEnergy < 0) hwIsoEnergy = 0; // just in case the cluster is outside the window? should be very rare
+
+                isolBit = (hwIsoEnergy <= (params_->tauIsolationLUT()->data(LUTaddress)) ? 1 : 0);
+                tau.setHwIso(isolBit);
+
+
                 // Physical eta/phi. Computed from ieta/iphi of the seed tower and the fine-grain position within the seed
                 // use fg positon of main cluster only
                 double eta = 0.;
@@ -438,36 +473,6 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::dosorting (std::vector<l1t::Tau>
     taus = tauEtaPos;
     taus.insert(taus.end(),tauEtaNeg.begin(),tauEtaNeg.end());
 
-/*
-    std::vector<pair<int,l1t::Tau>> tauEtaP;
-    std::vector<pair<int,l1t::Tau>> tauEtaM;
-
-    for (unsigned int iTau = 0; iTau < taus.size(); iTau++)
-    {
-        if (taus.at(iTau).hwEta() > 0) tauEtaP.push_back (make_pair (taus.at(iTau).hwPt(), taus.at(iTau)));
-        else tauEtaM.push_back (make_pair (taus.at(iTau).hwPt(), taus.at(iTau)));
-    }
-
-    
-
-
-
-    // select only 6 highest pT cands in eta+ and 6 highest pT cands in eta-
-    taus.clear();
-    
-    sort(tauEtaP.begin(), tauEtaP.end());
-    sort(tauEtaM.begin(), tauEtaM.end());
-    reverse(tauEtaP.begin(), tauEtaP.end());
-    reverse(tauEtaM.begin(), tauEtaM.end());
-
-    for (unsigned int i = 0; i < tauEtaP.size() && i < 6; i++)
-        taus.push_back(tauEtaP.at(i).second)
-
-    for (unsigned int i = 0; i < tauEtaM.size() && i < 6; i++)
-        taus.push_back(tauEtaM.at(i).second)
-
-    return;
-    */
 }
 
 
@@ -594,6 +599,7 @@ std::vector<l1t::CaloCluster*> l1t::Stage2Layer2TauAlgorithmFirmwareImp1::makeSe
         secondaryCluster->setHwPtEm(towerSec.hwEtEm());
         secondaryCluster->setHwPtHad(towerSec.hwEtHad());
         secondaryCluster->setHwSeedPt(towerSec.hwPt());
+        secondaryCluster->setHwPt(towerSec.hwPt());
 
         int iSecEtaP  = caloNav.offsetIEta(iSecEta,  1);
         int iSecEtaM  = caloNav.offsetIEta(iSecEta, -1);
@@ -783,5 +789,45 @@ int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloClust
 
     return calibPt;
 }
+
+unsigned int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::isoLutIndex(int Et, int hweta, unsigned int nrTowers)
+{
+    //cout << " **** ISO LUT INDEX: eta, et, ntt: " << hweta << " " <<  Et << " " << nrTowers << endl;
+    // normalize to limits
+    int aeta = abs(hweta);
+
+    // input bits (NB: must be THE SAME in the input LUT for the compression)
+    // int etaBits = 6  --> 64
+    // int etBits  = 13 --> 8192
+    // int nTTBits = 10 --> 1024
+    if (Et >= 8192) Et = 8191;
+    if (aeta >= 64) aeta = 63;
+    if (nrTowers >= 1024) nrTowers = 1023;
+
+    //cout << " ****  -- normlized: eta, et, ntt: " << aeta << " " <<  Et << " " << nrTowers << endl;
+
+    // get compressed value
+    // NB: these also must MATCH the values in the LUT --> fix when new compression scheme is used
+    // ultimately, the same compresison LUT as calibration will be used
+    // etaCmprBits = 2;
+    // EtCmprBits  = 3;
+    // nTTCmprBits = 3;
+    int etaCmpr = params_->tauIsolationLUT()->data(aeta);
+    int etCmpr  = params_->tauIsolationLUT()->data(Et+64);
+    int nTTCmpr = params_->tauIsolationLUT()->data(nrTowers+64+8192);
+
+    //cout << " ****  -- compressed: eta, et, ntt: " << etaCmpr << " " <<  etCmpr << " " << nTTCmpr << endl;
+
+    // get the address -- NOTE: this also depends on the compression scheme!
+    unsigned int address = ( (etCmpr << 5) | (etaCmpr << 3) | nTTCmpr ) ;
+
+    //cout << " ****  -- address without compression block: " << address << endl;
+    address += (64+8192+1024); // add offsets of compression block
+
+    //cout << " ****  ----> address is: " << address << endl;
+
+    return address;
+}
+
 
 
